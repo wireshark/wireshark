@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.11 2002/06/05 23:54:10 guy Exp $
+ * $Id: packet-mmse.c,v 1.12 2002/06/07 22:50:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,8 +24,7 @@
  * ----------
  *
  * Dissector of an encoded Multimedia message PDU, as defined by the WAPForum
- * (http://www.wapforum.org) in "WAP-209.102-MMSEncapsulation" according
- * the draft version of 8-February-2001.
+ * (http://www.wapforum.org) in "WAP-209-MMSEncapsulation-20020105-a".
  */
 
 #ifdef HAVE_CONFIG_H
@@ -517,8 +516,8 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						  strval);
 		    }
 		    proto_tree_add_string(mmse_tree, hf_mmse_from, tvb,
-			    		  offset-1, length + 2, strval);
-		    offset += length + 1;
+			    		  offset-1, length + count + 1, strval);
+		    offset += length + count;
 		    break;
 		case MM_MCLASS_HDR:
 		    /*
