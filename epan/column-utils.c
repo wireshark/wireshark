@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.35 2003/08/26 01:00:29 guy Exp $
+ * $Id: column-utils.c,v 1.36 2003/08/26 01:30:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -483,20 +483,41 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
 {
   guint32 ipv4_addr;
   struct e_in6_addr ipv6_addr;
-  struct atalk_ddp_addr ddp_addr;
-  guint8 fcid[3];
 
   pinfo->cinfo->col_expr[col][0] = '\0';
   pinfo->cinfo->col_expr_val[col][0] = '\0';
+  if (is_res) {
+    switch (addr->type) {
+
+    case AT_ETHER:
+      strncpy(pinfo->cinfo->col_buf[col], get_ether_name(addr->data), COL_MAX_LEN);
+      pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
+      pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
+      break;
+
+    case AT_IPv4:
+      memcpy(&ipv4_addr, addr->data, sizeof ipv4_addr);
+      strncpy(pinfo->cinfo->col_buf[col], get_hostname(ipv4_addr), COL_MAX_LEN);
+      pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
+      break;
+
+    case AT_IPv6:
+      memcpy(&ipv6_addr.s6_addr, addr->data, sizeof ipv6_addr.s6_addr);
+      strncpy(pinfo->cinfo->col_buf[col], get_hostname6(&ipv6_addr), COL_MAX_LEN);
+      pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
+      break;
+
+    default:
+      address_to_str_buf(addr, pinfo->cinfo->col_buf[col]);
+      break;
+    }
+  } else
+    address_to_str_buf(addr, pinfo->cinfo->col_buf[col]);
+  pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
+
   switch (addr->type) {
 
   case AT_ETHER:
-    if (is_res)
-      strncpy(pinfo->cinfo->col_buf[col], get_ether_name(addr->data), COL_MAX_LEN);
-    else
-      strncpy(pinfo->cinfo->col_buf[col], ether_to_str(addr->data), COL_MAX_LEN);
-    pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
-    pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
     if (is_src)
       strcpy(pinfo->cinfo->col_expr[col], "eth.src");
     else
@@ -506,13 +527,6 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
     break;
 
   case AT_IPv4:
-    memcpy(&ipv4_addr, addr->data, sizeof ipv4_addr);
-    if (is_res)
-      strncpy(pinfo->cinfo->col_buf[col], get_hostname(ipv4_addr), COL_MAX_LEN);
-    else
-      strncpy(pinfo->cinfo->col_buf[col], ip_to_str(addr->data), COL_MAX_LEN);
-    pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
-    pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
     if (is_src)
       strcpy(pinfo->cinfo->col_expr[col], "ip.src");
     else
@@ -522,13 +536,6 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
     break;
 
   case AT_IPv6:
-    memcpy(&ipv6_addr.s6_addr, addr->data, sizeof ipv6_addr.s6_addr);
-    if (is_res)
-      strncpy(pinfo->cinfo->col_buf[col], get_hostname6(&ipv6_addr), COL_MAX_LEN);
-    else
-      strncpy(pinfo->cinfo->col_buf[col], ip6_to_str(&ipv6_addr), COL_MAX_LEN);
-    pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
-    pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
     if (is_src)
       strcpy(pinfo->cinfo->col_expr[col], "ipv6.src");
     else
@@ -537,65 +544,22 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
     pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
 
-  case AT_IPX:
-    strncpy(pinfo->cinfo->col_buf[col],
-      ipx_addr_to_str(pntohl(&addr->data[0]), &addr->data[4]), COL_MAX_LEN);
-    pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
-    pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
-    break;
-
-  case AT_SNA:
-    strncpy(pinfo->cinfo->col_buf[col], sna_fid_to_str(addr), COL_MAX_LEN);
-    pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
-    pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
-    break;
-
   case AT_ATALK:
-    memcpy(&ddp_addr, addr->data, sizeof ddp_addr);
-    strncpy(pinfo->cinfo->col_buf[col], atalk_addr_to_str(&ddp_addr),
-      COL_MAX_LEN);
-    pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
     if (is_src)
       strcpy(pinfo->cinfo->col_expr[col], "ddp.src");
     else
       strcpy(pinfo->cinfo->col_expr[col], "ddp.dst");
-    pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
-    strcpy(pinfo->cinfo->col_expr_val[col],pinfo->cinfo->col_buf[col]);
-    break;
-
-  case AT_VINES:
-    strncpy(pinfo->cinfo->col_buf[col], vines_addr_to_str(&addr->data[0]),
-      COL_MAX_LEN);
-    pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
-    pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
-    break;
-
-  case AT_OSI:
-    strncpy(pinfo->cinfo->col_buf[col], print_nsap_net(addr->data, addr->len),
-      COL_MAX_LEN);
-    pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
-    pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
+    strcpy(pinfo->cinfo->col_expr_val[col], pinfo->cinfo->col_buf[col]);
     break;
 
   case AT_ARCNET:
-    snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "0x%02X",
-      addr->data[0]);
-    pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
     if (is_src)
       strcpy(pinfo->cinfo->col_expr[col], "arcnet.src");
     else
       strcpy(pinfo->cinfo->col_expr[col], "arcnet.dst");
-    pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
-    strcpy(pinfo->cinfo->col_expr_val[col],pinfo->cinfo->col_buf[col]);
+    strcpy(pinfo->cinfo->col_expr_val[col], pinfo->cinfo->col_buf[col]);
     break;
 
-  case AT_FC:
-    memcpy(fcid, addr->data, sizeof fcid);
-    strncpy(pinfo->cinfo->col_buf[col], fc_to_str(fcid), COL_MAX_LEN);
-    pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
-    pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
-    break;
-      
   default:
     break;
   }
