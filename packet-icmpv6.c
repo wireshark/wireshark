@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly 
  *
- * $Id: packet-icmpv6.c,v 1.1 1999/03/29 02:21:34 gram Exp $
+ * $Id: packet-icmpv6.c,v 1.2 1999/03/29 02:24:29 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,6 +38,15 @@
 
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
+#endif
+
+#ifdef NEED_SNPRINTF_H
+# ifdef HAVE_STDARG_H
+#  include <stdarg.h>
+# else
+#  include <varargs.h>
+# endif
+# include "snprintf.h"
 #endif
 
 #include <glib.h>
