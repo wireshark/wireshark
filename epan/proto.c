@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.114 2003/11/25 14:16:30 sahlberg Exp $
+ * $Id: proto.c,v 1.115 2003/11/25 20:02:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -156,17 +156,24 @@ static GMemChunk *gmc_hfinfo = NULL;
  * proto_tree_add_item.  */
 static field_info *field_info_free_list=NULL;
 static field_info *field_info_tmp=NULL;
+/* Chunk of field_info values */
+typedef struct _field_info_chunk {
+	struct _field_info_chunk *next;
+	field_info field_infos[INITIAL_NUM_FIELD_INFO];
+} field_info_chunk;
+static field_info_chunk *field_info_chunk_list;
 #define FIELD_INFO_FREE(fi) \
 	fi->ptr_u.next=field_info_free_list;	\
 	field_info_free_list=fi;	
 #define FIELD_INFO_NEW(fi)					\
 	if(!field_info_free_list){				\
 		int i;						\
-		field_info *pfi;				\
-		pfi=g_malloc(INITIAL_NUM_FIELD_INFO*sizeof(field_info));\
+		field_info_chunk *chunk;			\
+		chunk=g_malloc(sizeof(field_info_chunk));	\
+		chunk->next=field_info_chunk_list;		\
 		for(i=0;i<INITIAL_NUM_FIELD_INFO;i++){		\
 			field_info *tmpfi;			\
-			tmpfi=&pfi[i];				\
+			tmpfi=&chunk->field_infos[i];		\
 			tmpfi->ptr_u.next=field_info_free_list;	\
 			field_info_free_list=tmpfi;		\
 		}						\
@@ -181,6 +188,12 @@ static GMemChunk *gmc_proto_node = NULL;
 
 /* String space for protocol and field items for the GUI */
 static item_label_t *item_label_free_list = NULL;
+/* Chunk of item_label values */
+typedef struct _item_label_chunk {
+	struct _item_label_chunk *next;
+	item_label_t item_labels[INITIAL_NUM_ITEM_LABEL];
+} item_label_chunk;
+static item_label_chunk *item_label_chunk_list;
 #define ITEM_LABEL_FREE(il)				\
 	if (il) {					\
 		il->next=item_label_free_list;		\
@@ -189,11 +202,12 @@ static item_label_t *item_label_free_list = NULL;
 #define ITEM_LABEL_NEW(il)				\
 	if(!item_label_free_list){			\
 		int i;					\
-		item_label_t *pil;			\
-		pil=g_malloc(INITIAL_NUM_ITEM_LABEL*sizeof(item_label_t));\
+		item_label_chunk *chunk;		\
+		chunk=g_malloc(sizeof(item_label_chunk));\
+		chunk->next=item_label_chunk_list;	\
 		for(i=0;i<INITIAL_NUM_ITEM_LABEL;i++){	\
 			item_label_t *tmpil;		\
-			tmpil=&pil[i];			\
+			tmpil=&chunk->item_labels[i];	\
 			tmpil->representation=g_malloc(ITEM_LABEL_LENGTH);\
 			tmpil->next=item_label_free_list;\
 			item_label_free_list=tmpil;	\
@@ -311,12 +325,13 @@ proto_cleanup(void)
 	if (gmc_hfinfo)
 		g_mem_chunk_destroy(gmc_hfinfo);
 
-	while (field_info_free_list) {
-		field_info *tmpfi;
-		tmpfi=field_info_free_list->ptr_u.next;
-		g_free(field_info_free_list);
-		field_info_free_list=tmpfi;
+	while (field_info_chunk_list) {
+		field_info_chunk *tmpchunk;
+		tmpchunk=field_info_chunk_list->next;
+		g_free(field_info_chunk_list);
+		field_info_chunk_list=tmpchunk;
 	}
+	field_info_free_list=NULL;
 	if (field_info_tmp) {
 		g_free(field_info_tmp);
 		field_info_tmp=NULL;
@@ -329,8 +344,13 @@ proto_cleanup(void)
 		item_label_t *tmpil;
 		tmpil=item_label_free_list->next;
 		g_free(item_label_free_list->representation);
-		g_free(item_label_free_list);
 		item_label_free_list=tmpil;
+	}
+	while (item_label_chunk_list) {
+		item_label_chunk *tmpchunk;
+		tmpchunk=item_label_chunk_list->next;
+		g_free(item_label_chunk_list);
+		item_label_chunk_list=tmpchunk;
 	}
 
 	if(gpa_hfinfo.allocated_len){
