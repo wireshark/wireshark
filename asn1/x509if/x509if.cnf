@@ -5,6 +5,8 @@
 
 #.MODULE_IMPORT
 
+#.INCLUDE ./x509if_dummy.cnf
+
 #.EXPORTS
 
 AttributeType
@@ -13,11 +15,17 @@ RelativeDistinguishedName
 
 #.NO_EMIT
 
-AttributeTypeAndDistinguishedValue
-
 #.TYPE_RENAME
 
 #.FIELD_RENAME
+
+#.FN_BODY AttributeTypeAndDistinguishedValue/type
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_x509if_object_identifier_id, object_identifier_id);
+
+#.FN_BODY AttributeTypeAndDistinguishedValue/value
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
 
 #.END
 

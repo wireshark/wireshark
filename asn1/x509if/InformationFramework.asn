@@ -21,7 +21,9 @@ IMPORTS
     HierarchySelections, FamilyGrouping, FamilyReturn
     FROM DirectoryAbstractService directoryAbstractService
   ub-search
-    FROM UpperBounds upperBounds;
+    FROM UpperBounds upperBounds
+  Any
+    FROM X509ifDummy;
 
 AttributeId ::= OBJECT IDENTIFIER
 
@@ -94,11 +96,11 @@ DistinguishedName ::= RDNSequence
 RelativeDistinguishedName ::=
   SET SIZE (1..MAX) OF AttributeTypeAndDistinguishedValue
 
--- XXX This function is implemented by hand inside the template
 AttributeTypeAndDistinguishedValue ::= SEQUENCE {
---  type                  AttributeId
---   value                 ATTRIBUTE.&Type({SupportedAttributes}{@type}),
---  primaryDistinguished  BOOLEAN DEFAULT TRUE,
+  type                  AttributeId,
+--  value                 ATTRIBUTE.&Type({SupportedAttributes}{@type}),
+  value                 Any,
+  primaryDistinguished  BOOLEAN OPTIONAL
 --   valuesWithContext
 --     SET SIZE (1..MAX) OF
 --       SEQUENCE {distingAttrValue
