@@ -132,11 +132,21 @@ interfaces, B<Tethereal> reports an error and doesn't start the capture.
 
 =item -l
 
-Make the standard output line buffered.  This may be useful when piping
-the output of B<Tethereal> to another program, as it means that the
-program to which the output is piped will see lines of output as soon as
-B<Tethereal> generates those lines, rather than seeing them only when
-the standard output buffer containing those lines fills up.
+Flush the standard output after the information for each packet is
+printed.  (This is not, strictly speaking, line-buffered if B<-V>
+was specified; however, it is the same as line-buffered if B<-V> wasn't
+specified, as only one line is printed for each packet, and, as B<-l> is
+normally used when piping a live capture to a program or script, so that
+output for a packet shows up as soon as the packet is seen and
+dissected, it should work just as well as true line-buffering.  We do
+this as a workaround for a deficiency in the Microsoft Visual C++ C
+library.)
+
+This may be useful when piping the output of B<Tethereal> to another
+program, as it means that the program to which the output is piped will
+see the dissected data for a packet as soon as B<Tethereal> sees the
+packet and generates that output, rather than seeing it only when the
+standard output buffer containing that data fills up.
 
 =item -n
 

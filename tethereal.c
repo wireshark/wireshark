@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.67 2001/02/11 21:29:03 guy Exp $
+ * $Id: tethereal.c,v 1.68 2001/02/18 03:38:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -99,6 +99,7 @@ static guint32 prevsec, prevusec;
 static gchar   comp_info_str[256];
 static gboolean verbose;
 static gboolean print_hex;
+static gboolean line_buffered;
 
 #ifdef HAVE_LIBPCAP
 typedef struct _loop_data {
@@ -332,8 +333,19 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
         break;
-      case 'l':        /* Line-buffer standard output */
-	setvbuf(stdout, NULL, _IOLBF, 0);
+      case 'l':        /* "Line-buffer" standard output */
+	/* This isn't line-buffering, strictly speaking, it's just
+	   flushing the standard output after the information for
+	   each packet is printed; however, that should be good
+	   enough for all the purposes to which "-l" is put.
+
+	   See the comment in "wtap_dispatch_cb_print()" for an
+	   explanation of why we do that, and why we don't just
+	   use "setvbuf()" to make the standard output line-buffered
+	   (short version: in Windows, "line-buffered" is the same
+	   as "fully-buffered", and the output buffer is only flushed
+	   when it fills up). */
+	line_buffered = TRUE;
 	break;
       case 'n':        /* No name resolution */
 	g_resolving_actif = 0;
@@ -1250,6 +1262,29 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr, int offset,
     }
     fdata.cinfo = NULL;
   }
+
+  /* The ANSI C standard does not appear to *require* that a line-buffered
+     stream be flushed to the host environment whenever a newline is
+     written, it just says that, on such a stream, characters "are
+     intended to be transmitted to or from the host environment as a
+     block when a new-line character is encountered".
+
+     The Visual C++ 6.0 C implementation doesn't do what is intended;
+     even if you set a stream to be line-buffered, it still doesn't
+     flush the buffer at the end of every line.
+
+     So, if the "-l" flag was specified, we flush the standard output
+     at the end of a packet.  This will do the right thing if we're
+     printing packet summary lines, and, as we print the entire protocol
+     tree for a single packet without waiting for anything to happen,
+     it should be as good as line-buffered mode if we're printing
+     protocol trees.  (The whole reason for the "-l" flag in either
+     tcpdump or Tethereal is to allow the output of a live capture to
+     be piped to a program or script and to have that script see the
+     information for the packet as soon as it's printed, rather than
+     having to wait until a standard I/O buffer fills up. */
+  if (line_buffered)
+    fflush(stdout);
   if (protocol_tree != NULL)
     proto_tree_free(protocol_tree);
 
