@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.48 2003/08/24 23:25:40 gerald Exp $
+$Id: README.win32,v 1.49 2003/10/10 21:35:17 guy Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -255,6 +255,8 @@ make-reg-dotc.py, packet*.c	register.c		Python
 
 make-tapreg-dotc, tap-*.c	tethereal-tap-register.c
 							Bash + grep + sed
+make-tapreg-dotc, tap files	gtk/ethereal-tap-register.c
+    in the gtk subdirectory				Bash + grep + sed
 
 The Makefile.nmake supplied with the Ethereal distribution will, if
 PYTHON is defined in config.nmake, attempt to make register.c with
