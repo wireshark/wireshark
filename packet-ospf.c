@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.38 2001/04/23 17:51:33 guy Exp $
+ * $Id: packet-ospf.c,v 1.39 2001/05/02 18:12:44 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -85,6 +85,7 @@ static const value_string auth_vals[] = {
 #define OSPF_OPTIONS_NP		0x08
 #define OSPF_OPTIONS_EA		0x10
 #define OSPF_OPTIONS_DC		0x20
+#define OSPF_OPTIONS_O		0x40
 
 #define OSPF_DBD_FLAG_MS	1
 #define OSPF_DBD_FLAG_M		2
@@ -97,7 +98,9 @@ static const value_string auth_vals[] = {
 #define OSPF_LSTYPE_SUMMERY	3
 #define OSPF_LSTYPE_ASBR	4
 #define OSPF_LSTYPE_ASEXT	5
+#define OSPF_LSTYPE_GRPMEMBER	6
 #define OSPF_LSTYPE_ASEXT7	7
+#define OSPF_LSTYPE_EXTATTR	8
 
 /* Opaque LSA types */
 #define OSPF_LSTYPE_OP_LINKLOCAL 9
@@ -115,12 +118,18 @@ static const value_string auth_vals[] = {
 #define OSPF_LSA_MPLS_TE        1
 
 static const value_string ls_type_vals[] = {
-	{OSPF_LSTYPE_ROUTER,  "Router-LSA"               },
-	{OSPF_LSTYPE_NETWORK, "Network-LSA"              },
-	{OSPF_LSTYPE_SUMMERY, "Summary-LSA (IP network)" },
-	{OSPF_LSTYPE_ASBR,    "Summary-LSA (ASBR)"       },
-	{OSPF_LSTYPE_ASEXT,   "AS-External-LSA (ASBR)"   },
-	{0,                    NULL                      }
+	{OSPF_LSTYPE_ROUTER,       "Router-LSA"                   },
+	{OSPF_LSTYPE_NETWORK,      "Network-LSA"                  },
+	{OSPF_LSTYPE_SUMMERY,      "Summary-LSA (IP network)"     },
+	{OSPF_LSTYPE_ASBR,         "Summary-LSA (ASBR)"           },
+	{OSPF_LSTYPE_ASEXT,        "AS-External-LSA (ASBR)"       },
+	{OSPF_LSTYPE_GRPMEMBER,    "Group Membership LSA"         },
+	{OSPF_LSTYPE_ASEXT7,       "NSSA AS-External-LSA"         },
+	{OSPF_LSTYPE_EXTATTR,      "External Attributes LSA"      },
+	{OSPF_LSTYPE_OP_LINKLOCAL, "Opaque LSA, Link-local scope" },
+	{OSPF_LSTYPE_OP_AREALOCAL, "Opaque LSA, Area-local scope" },
+	{OSPF_LSTYPE_OP_ASWIDE,    "Opaque LSA, AS-wide scope"    },
+	{0,                        NULL                           }
 };
 
 static int proto_ospf = -1;
@@ -1016,6 +1025,11 @@ dissect_ospf_options(tvbuff_t *tvb, int offset, proto_tree *tree)
 	if (options_string[0] != '\0')
 	    strcat(options_string, "/");
 	strcat(options_string, "DC");
+    }
+    if (options & OSPF_OPTIONS_O) {
+	if (options_string[0] != '\0')
+	    strcat(options_string, "/");
+	strcat(options_string, "O");
     }
 
     proto_tree_add_text(tree, tvb, offset, 1, "Options: 0x%x (%s)",

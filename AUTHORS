@@ -599,6 +599,10 @@ Christian Lacunza <celacunza@gmx.net> {
 	    list of packets in real time" captures
 }
 
+Michael Rozhavsky <mike@tochna.technion.ac.il> {
+	Additional OSPF LSA types and opaque-options flag
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
