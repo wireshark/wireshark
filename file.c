@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.194 2000/07/03 09:34:05 guy Exp $
+ * $Id: file.c,v 1.195 2000/07/07 07:01:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -287,16 +287,16 @@ set_display_filename(capture_file *cf)
 read_status_t
 read_cap_file(capture_file *cf, int *err)
 {
-  gchar   *name_ptr, *load_msg, *load_fmt = " Loading: %s...";
-  size_t   msg_len;
-  char    *errmsg;
-  char     errmsg_errno[1024+1];
-  gchar    err_str[2048+1];
-  int      data_offset;
-  void    *progbar;
-  gboolean stop_flag;
-  int      file_pos;
-  float    prog_val;
+  gchar    *name_ptr, *load_msg, *load_fmt = " Loading: %s...";
+  size_t    msg_len;
+  char     *errmsg;
+  char      errmsg_errno[1024+1];
+  gchar     err_str[2048+1];
+  int       data_offset;
+  progdlg_t *progbar;
+  gboolean  stop_flag;
+  int       file_pos;
+  float     prog_val;
 
   name_ptr = get_basename(cf->filename);
 
@@ -318,7 +318,7 @@ read_cap_file(capture_file *cf, int *err)
   freeze_clist(cf);
 
   stop_flag = FALSE;
-  progbar = create_progress_dlg(load_msg, &stop_flag);
+  progbar = create_progress_dlg(load_msg, "Stop", &stop_flag);
   g_free(load_msg);
 
   while ((data_offset = wtap_read(cf->wth, err)) > 0) {
@@ -339,6 +339,7 @@ read_cap_file(capture_file *cf, int *err)
          file, and return READ_ABORTED so our caller can do whatever is
 	 appropriate when that happens. */
       cf->state = FILE_READ_ABORTED;	/* so that we're allowed to close it */
+      gtk_clist_thaw(GTK_CLIST(packet_list));	/* undo our freeze */
       close_cap_file(cf, info_bar);
       return (READ_ABORTED);
     }
@@ -825,7 +826,7 @@ void
 colorize_packets(capture_file *cf)
 {
   frame_data *fdata;
-  void *progbar;
+  progdlg_t *progbar;
   gboolean stop_flag;
   guint32 progbar_quantum;
   guint32 progbar_nextstep;
@@ -881,7 +882,7 @@ colorize_packets(capture_file *cf)
   count = 0;
 
   stop_flag = FALSE;
-  progbar = create_progress_dlg("Filtering", &stop_flag);
+  progbar = create_progress_dlg("Filtering", "Stop", &stop_flag);
 
   for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
@@ -950,7 +951,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
 {
   int         i;
   frame_data *fdata;
-  void       *progbar;
+  progdlg_t  *progbar;
   gboolean    stop_flag;
   guint32     progbar_quantum;
   guint32     progbar_nextstep;
@@ -1036,7 +1037,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
   count = 0;
 
   stop_flag = FALSE;
-  progbar = create_progress_dlg("Printing", &stop_flag);
+  progbar = create_progress_dlg("Printing", "Stop", &stop_flag);
 
   /* Iterate through the list of packets, printing the packets that
      were selected by the current display filter.  */
@@ -1238,7 +1239,7 @@ find_packet(capture_file *cf, dfilter *sfcode)
   frame_data *start_fd;
   frame_data *fdata;
   frame_data *new_fd = NULL;
-  void *progbar;
+  progdlg_t *progbar;
   gboolean stop_flag;
   guint32 progbar_quantum;
   guint32 progbar_nextstep;
@@ -1262,7 +1263,7 @@ find_packet(capture_file *cf, dfilter *sfcode)
     progbar_quantum = cf->count/N_PROGBAR_UPDATES;
 
     stop_flag = FALSE;
-    progbar = create_progress_dlg("Searching", &stop_flag);
+    progbar = create_progress_dlg("Searching", "Cancel", &stop_flag);
 
     fdata = start_fd;
     for (;;) {

@@ -1,7 +1,7 @@
 /* progress_dlg.c
  * Routines for progress-bar (modal) dialog
  *
- * $Id: progress_dlg.c,v 1.5 2000/07/05 05:50:00 guy Exp $
+ * $Id: progress_dlg.c,v 1.6 2000/07/07 07:01:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,19 +33,27 @@
 
 #define	PROG_BAR_KEY	"progress_bar"
 
-static void delete_cb(GtkWidget *w, GdkEvent *event, gpointer data);
-static void cancel_cb(GtkWidget *w, gpointer data);
+static gint delete_event_cb(GtkWidget *w, GdkEvent *event, gpointer data);
+static void stop_cb(GtkWidget *w, gpointer data);
+static void destroy_cb(GtkWidget *w, gpointer data);
 
 /*
- * Create and pop up the progress dialog; return a pointer to it, as
- * a "void *", so that our caller doesn't have to know the GUI
- * implementation.
+ * Define the structure describing a progress dialog.
+ */
+struct progdlg {
+	GtkWidget *dlg_w;	/* top-level window widget */
+};
+
+/*
+ * Create and pop up the progress dialog; allocate a "progdlg_t"
+ * and initialize it to contain all information the implementation
+ * needs in order to manipulate the dialog, and return a pointer to
+ * it.
  *
  * The first argument is the title to give the dialog box; the second
- * argument is a pointer to a Boolean variable that will be set to
- * TRUE if the user hits the "Cancel" button.
- *
- * XXX - should the button say "Cancel", or "Stop"?
+ * argument is the string to put in the "stop this operation" button;
+ * the third argument is a pointer to a Boolean variable that will be
+ * set to TRUE if the user hits that button.
  *
  * XXX - provide a way to specify the progress in units, with the total
  * number of units specified as an argument when the progress dialog
@@ -57,14 +65,25 @@ static void cancel_cb(GtkWidget *w, gpointer data);
  * wouldn't always use it, as we have no idea how many packets are to
  * be read.
  */
-void *
-create_progress_dlg(gchar *title, gboolean *stop_flag)
+progdlg_t *
+create_progress_dlg(const gchar *title, const gchar *stop_title,
+    gboolean *stop_flag)
 {
+	progdlg_t *dlg;
 	GtkWidget *dlg_w, *main_vb, *title_lb, *prog_bar, *bbox, *cancel_bt;
+
+	dlg = g_malloc(sizeof (progdlg_t));
 
 	dlg_w = dlg_window_new();
 	gtk_window_set_title(GTK_WINDOW(dlg_w), title);
 	gtk_window_set_modal(GTK_WINDOW(dlg_w), TRUE);
+
+	/*
+	 * Call a handler when the progress dialog box is destroyed, so
+	 * we can free the "progdlg_t" to which it refers.
+	 */
+	gtk_signal_connect(GTK_OBJECT(dlg_w), "destroy",
+	    GTK_SIGNAL_FUNC(destroy_cb), dlg);
 
 	/*
 	 * Container for dialog widgets.
@@ -106,15 +125,16 @@ create_progress_dlg(gchar *title, gboolean *stop_flag)
 	gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   
 	/*
-	 * Allow user to either click a "Cancel" button, or the close button
-	 * on the window, to stop an operation in progress.
+	 * Allow user to either click a "stop this operation" button, or
+	 * the close button on the window, to stop an operation in
+	 * progress.
 	 */
-	cancel_bt = gtk_button_new_with_label("Cancel");
+	cancel_bt = gtk_button_new_with_label(stop_title);
 	gtk_box_pack_start(GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
-	    GTK_SIGNAL_FUNC(cancel_cb), (gpointer) stop_flag);
+	    GTK_SIGNAL_FUNC(stop_cb), (gpointer) stop_flag);
 	gtk_signal_connect(GTK_OBJECT(dlg_w), "delete_event",
-	    GTK_SIGNAL_FUNC(delete_cb), (gpointer) stop_flag);
+	    GTK_SIGNAL_FUNC(delete_event_cb), (gpointer) stop_flag);
 	GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
 	gtk_widget_grab_default(cancel_bt);
 	GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
@@ -122,28 +142,30 @@ create_progress_dlg(gchar *title, gboolean *stop_flag)
 
 	gtk_widget_show_all(dlg_w);
 
-	return dlg_w;	/* return as opaque pointer */
+	dlg->dlg_w = dlg_w;
+
+	return dlg;
 }
 
 /*
  * Called when the dialog box is to be deleted.
  * We just treat this the same way we treat clicking the "Cancel" button.
  */
-static void
-delete_cb(GtkWidget *w, GdkEvent *event, gpointer data)
+static gint
+delete_event_cb(GtkWidget *w, GdkEvent *event, gpointer data)
 {
-	cancel_cb(NULL, data);
+	stop_cb(NULL, data);
+	return FALSE;	/* go ahead and delete it */
 }
 
 /*
- * Called when the "Cancel" button is clicked.
+ * Called when the "stop this operation" button is clicked.
  * Set the Boolean to TRUE.
  */
 static void
-cancel_cb(GtkWidget *w, gpointer data)
+stop_cb(GtkWidget *w, gpointer data)
 {
 	gboolean *stop_flag = (gboolean *) data;
-	GtkWidget *toplevel;
   
 	*stop_flag = TRUE;
 	if (w != NULL) {
@@ -151,8 +173,7 @@ cancel_cb(GtkWidget *w, gpointer data)
 		 * The cancel button was clicked, so we have to destroy
 		 * the dialog box ourselves.
 		 */
-		toplevel = gtk_widget_get_toplevel(w);
-		destroy_progress_dlg(toplevel);
+		gtk_widget_destroy(GTK_WIDGET(gtk_widget_get_toplevel(w)));
 	}
 }
 
@@ -160,9 +181,9 @@ cancel_cb(GtkWidget *w, gpointer data)
  * Set the percentage value of the progress bar.
  */
 void
-update_progress_dlg(void *dlg, gfloat percentage)
+update_progress_dlg(progdlg_t *dlg, gfloat percentage)
 {
-	GtkWidget *dlg_w = dlg;
+	GtkWidget *dlg_w = dlg->dlg_w;
 	GtkWidget *prog_bar;
 
 	prog_bar = gtk_object_get_data(GTK_OBJECT(dlg_w), PROG_BAR_KEY);
@@ -176,13 +197,23 @@ update_progress_dlg(void *dlg, gfloat percentage)
 }
 
 /*
- * Destroy the progress bar.
+ * Destroy the progress dialog.
  */
 void
-destroy_progress_dlg(void *dlg)
+destroy_progress_dlg(progdlg_t *dlg)
 {
-	GtkWidget *dlg_w = dlg;
+	GtkWidget *dlg_w = dlg->dlg_w;
 
-	gtk_grab_remove(GTK_WIDGET(dlg_w));
 	gtk_widget_destroy(GTK_WIDGET(dlg_w));
+}
+
+/*
+ * Called when the top-level window is destroyed.
+ */
+static void
+destroy_cb(GtkWidget *w, gpointer data)
+{
+	progdlg_t *dlg = data;
+
+	g_free(dlg);
 }
