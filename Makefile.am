@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.454 2002/08/19 21:33:29 jmayer Exp $
+# $Id: Makefile.am,v 1.455 2002/08/20 01:06:27 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -1076,7 +1076,7 @@ rpm_topdir=`cd $(top_srcdir) && pwd`/packaging/rpm
 rpm-package: dist
 	if test x$(HAVE_RPM) = xyes ; then \
 		cd $(rpm_topdir) ; \
-		mkdir BUILD RPMS SOURCES ; \
+		mkdir -p BUILD RPMS SOURCES ; \
 		cd SOURCES ; \
 		ln -s ../../../$(distdir).tar.gz ; \
 		cd .. ; \
@@ -1088,7 +1088,7 @@ rpm-package: dist
 srpm-package: dist
 	if test x$(HAVE_RPM) = xyes ; then \
 		cd $(rpm_topdir) ; \
-		mkdir BUILD SRPMS SOURCES ; \
+		mkdir -p BUILD SRPMS SOURCES ; \
 		cd SOURCES ; \
 		ln -s ../../../$(distdir).tar.gz ; \
 		cd .. ; \
