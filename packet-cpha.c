@@ -2,7 +2,7 @@
  * Routines for the Check Point High-Availability Protocol (CPHAP)
  * Copyright 2002, Yaniv Kaul <ykaul-at-netvision.net.il>
  *
- * $Id: packet-cpha.c,v 1.6 2003/04/15 22:07:21 guy Exp $
+ * $Id: packet-cpha.c,v 1.7 2003/06/03 02:21:08 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -238,7 +238,7 @@ dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "CPHAv%d: %s",
-        g_ntohs(hdr.ha_protocol_ver), opcode2str_short(opcode));
+        hdr.ha_protocol_ver, opcode2str_short(opcode));
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cphap, tvb, offset, -1, FALSE);
@@ -445,9 +445,17 @@ static const char *
 version2str(guint16 version) {
   switch(version) {
 	case 1: return "4.1";
+		break;
 	case 6: return "NG Feature Pack 2";
 		break;
 	case 530: return "NG Feature Pack 3";
+		break;
+	case 540: return "NG with Application Intelligence (Early Availability)";
+		break;
+	case 541: return "NG with Application Intelligence";
+		break;
+	default: return "Unknown Version";
+	break;	
   }
   return NULL;
 }
