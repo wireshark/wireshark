@@ -710,7 +710,7 @@ static int dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_ssl3_change_cipher_spec(tvbuff_t *tvb,
                                             proto_tree *tree,
                                             guint32 offset,
-                                            guint *conv_version);
+                                            guint *conv_version, guint8 content_type);
 
 /* alert message dissector */
 static void dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
@@ -721,7 +721,7 @@ static void dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree, guint32 offset,
                                    guint32 record_length,
-                                   guint *conv_version);
+                                   guint *conv_version, guint8 content_type);
 
 
 static void dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb,
@@ -1033,6 +1033,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *ti              = NULL;
     proto_tree *ssl_record_tree = NULL;
     guint32 available_bytes     = 0;
+	gchar *proto_name_str	= NULL;
 
     available_bytes = tvb_length_remaining(tvb, offset);
 
@@ -1186,7 +1187,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         if (check_col(pinfo->cinfo, COL_INFO))
             col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
         dissect_ssl3_change_cipher_spec(tvb, ssl_record_tree,
-                                        offset, conv_version);
+                                        offset, conv_version, content_type);
         break;
     case SSL_ID_ALERT:
         dissect_ssl3_alert(tvb, pinfo, ssl_record_tree, offset,
@@ -1194,16 +1195,18 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         break;
     case SSL_ID_HANDSHAKE:
         dissect_ssl3_handshake(tvb, pinfo, ssl_record_tree, offset,
-                               record_length, conv_version);
+                               record_length, conv_version, content_type);
         break;
     case SSL_ID_APP_DATA:
         if (check_col(pinfo->cinfo, COL_INFO))
             col_append_str(pinfo->cinfo, COL_INFO, "Application Data");
         if (ssl_record_tree)
         {
+			proto_name_str = match_strval(content_type, ssl_31_content_type);
             proto_item_set_text(ssl_record_tree,
-                                "%s Record Layer: Application Data",
-                                ssl_version_short_names[*conv_version]);
+                                "%s Record Layer: %s Protocol: Application Data",
+                                ssl_version_short_names[*conv_version],
+								(proto_name_str!=NULL) ? proto_name_str : "unknown");
             proto_tree_add_item(ssl_record_tree, hf_ssl_record_appdata, tvb,
                                 offset, record_length, 0);
         }
@@ -1224,7 +1227,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_ssl3_change_cipher_spec(tvbuff_t *tvb,
                                 proto_tree *tree, guint32 offset,
-                                guint *conv_version)
+                                guint *conv_version, guint8 content_type)
 {
     /*
      * struct {
@@ -1232,11 +1235,15 @@ dissect_ssl3_change_cipher_spec(tvbuff_t *tvb,
      * } ChangeCipherSpec;
      *
      */
+	gchar *proto_name_str	= NULL;
+
     if (tree)
     {
+		proto_name_str = match_strval(content_type, ssl_31_content_type);
         proto_item_set_text(tree,
-                            "%s Record Layer: Change Cipher Spec",
-                            ssl_version_short_names[*conv_version]);
+                            "%s Record Layer: %s Protocol: Change Cipher Spec",
+                            ssl_version_short_names[*conv_version],
+							(proto_name_str!=NULL) ? proto_name_str : "unknown");
         proto_tree_add_item(tree, hf_ssl_change_cipher_spec, tvb,
                             offset++, 1, FALSE);
     }
@@ -1320,7 +1327,7 @@ dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                        proto_tree *tree, guint32 offset,
-                       guint32 record_length, guint *conv_version)
+                       guint32 record_length, guint *conv_version, guint8 content_type)
 {
     /*     struct {
      *         HandshakeType msg_type;
@@ -1342,6 +1349,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *ti            = NULL;
     proto_tree *ssl_hand_tree = NULL;
     gchar *msg_type_str       = NULL;
+	gchar *proto_name_str	= NULL;
     guint8 msg_type;
     guint32 length;
     gboolean first_iteration  = TRUE;
@@ -1360,6 +1368,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
     {
         msg_type = tvb_get_guint8(tvb, offset);
         msg_type_str = match_strval(msg_type, ssl_31_handshake_type);
+		proto_name_str = match_strval(content_type, ssl_31_content_type);
         length   = tvb_get_ntoh24(tvb, offset + 1);
 
         if (!msg_type_str && !first_iteration)
@@ -1390,15 +1399,17 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
             /* set the label text on the record layer expanding node */
             if (first_iteration)
             {
-                proto_item_set_text(tree, "%s Record Layer: %s",
-                                    ssl_version_short_names[*conv_version],
-                                    (msg_type_str!=NULL) ? msg_type_str :
+                proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s",
+                                    ssl_version_short_names[*conv_version], 
+									(proto_name_str!=NULL) ? proto_name_str : "unknown",
+									(msg_type_str!=NULL) ? msg_type_str :
                                     "Encrypted Handshake Message");
             }
             else
             {
-                proto_item_set_text(tree, "%s Record Layer: %s",
+                proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s",
                                     ssl_version_short_names[*conv_version],
+									(proto_name_str!=NULL) ? proto_name_str : "unknown",
                                     "Multiple Handshake Messages");
             }
 
