@@ -1,7 +1,7 @@
 /* column.h
  * Definitions for column structures and routines
  *
- * $Id: column_info.h,v 1.11 2003/12/09 06:48:39 guy Exp $
+ * $Id: column_info.h,v 1.12 2004/01/31 04:10:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,7 +85,7 @@ enum {
   COL_PROTOCOL,       /* Protocol */
   COL_INFO,           /* Description */
   COL_PACKET_LENGTH,  /* Packet length in bytes */
-  COL_CULMULATIVE_BYTES, /* Culmulative number of bytes */
+  COL_CUMULATIVE_BYTES, /* Cumulative number of bytes */
   COL_OXID,           /* Fibre Channel OXID */
   COL_RXID,           /* Fibre Channel RXID */
   COL_IF_DIR,         /* FW-1 monitor interface/direction */

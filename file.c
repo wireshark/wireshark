@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.353 2004/01/31 03:22:37 guy Exp $
+ * $Id: file.c,v 1.354 2004/01/31 04:10:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,7 +89,7 @@ gboolean auto_scroll_live;
 
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
-static guint32 cul_bytes = 0;
+static guint32 cum_bytes = 0;
 
 static void read_packet(capture_file *cf, long offset);
 
@@ -353,7 +353,7 @@ cf_read(capture_file *cf)
   int         progbar_nextstep;
   int         progbar_quantum;
 
-  cul_bytes=0;
+  cum_bytes=0;
   reset_tap_listeners();
   tap_dfilter_dlg_update();
   name_ptr = get_basename(cf->filename);
@@ -707,7 +707,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   epan_dissect_t *edt;
 
   /* just add some value here until we know if it is being displayed or not */
-  fdata->cul_bytes  = cul_bytes + fdata->pkt_len;
+  fdata->cum_bytes  = cum_bytes + fdata->pkt_len;
 
   /* We don't yet have a color filter to apply. */
   args.colorf = NULL;
@@ -812,12 +812,12 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
        even if they dont pass the display filter */
     /* if this was a TIME REF frame we should reset the cul bytes field */
     if(edt->pi.fd->flags.ref_time){
-      cul_bytes = fdata->pkt_len;
-      fdata->cul_bytes  = cul_bytes;
+      cum_bytes = fdata->pkt_len;
+      fdata->cum_bytes  = cum_bytes;
     }
 
-    /* increase cul_bytes with this packets length */
-    cul_bytes += fdata->pkt_len;
+    /* increase cum_bytes with this packets length */
+    cum_bytes += fdata->pkt_len;
 
     epan_dissect_fill_in_columns(edt);
 
@@ -1043,7 +1043,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   int         progbar_nextstep;
   int         progbar_quantum;
 
-  cul_bytes=0;
+  cum_bytes=0;
   reset_tap_listeners();
   /* Which frame, if any, is the currently selected frame?
      XXX - should the selected frame or the focus frame be the "current"

@@ -1,7 +1,7 @@
 /* packet_list.c
  * packet list related functions   2002 Olivier Abad
  *
- * $Id: packet_list.c,v 1.14 2004/01/28 10:37:14 guy Exp $
+ * $Id: packet_list.c,v 1.15 2004/01/31 04:10:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -182,12 +182,11 @@ packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
 		      fdata2->flags.ref_time, fdata2->del_secs,
 			fdata2->del_usecs);
 
-
   case COL_PACKET_LENGTH:
     return COMPARE_NUM(fdata1->pkt_len, fdata2->pkt_len);
 
-  case COL_CULMULATIVE_BYTES:
-    return COMPARE_NUM(fdata1->cul_bytes, fdata2->cul_bytes);
+  case COL_CUMULATIVE_BYTES:
+    return COMPARE_NUM(fdata1->cum_bytes, fdata2->cum_bytes);
 
   default:
     num1 = atof(text1);

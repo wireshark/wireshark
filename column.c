@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.45 2004/01/19 03:46:41 ulfl Exp $
+ * $Id: column.c,v 1.46 2004/01/31 04:10:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -97,7 +97,7 @@ static gchar *dlist[NUM_COL_FMTS] = {
 	"Protocol",
 	"Information",
 	"Packet length (bytes)" ,
-	"Culmulative Bytes" ,
+	"Cumulative Bytes" ,
 	"OXID",
 	"RXID",
 	"FW-1 monitor if/direction",
@@ -263,7 +263,7 @@ get_column_longest_string(gint format)
     case COL_PACKET_LENGTH:
       return "000000";
       break;
-    case COL_CULMULATIVE_BYTES:
+    case COL_CUMULATIVE_BYTES:
       return "00000000";
       break;
     case COL_RXID:
@@ -397,7 +397,7 @@ get_column_format_from_str(gchar *str) {
         return COL_PACKET_LENGTH;
         break;
       case 'B':
-        return COL_CULMULATIVE_BYTES;
+        return COL_CUMULATIVE_BYTES;
         break;
       case 'X':
         prev_code = COL_OXID;
