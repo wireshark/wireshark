@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.27 1999/08/19 05:31:38 guy Exp $
+ * $Id: wtap.h,v 1.28 1999/08/20 04:49:18 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -75,14 +75,6 @@
 #define WTAP_FILE_NETXRAY_2_001			12
 #define WTAP_FILE_RADCOM			13
 
-/* Filter types that wiretap can create. An 'offline' filter is really
- * a BPF filter, but it is treated specially because wiretap might not know
- * in advance the datalink type(s) needed.
- */
-#define WTAP_FILTER_NONE			0
-#define WTAP_FILTER_OFFLINE			1
-#define WTAP_FILTER_BPF				2
-
 #include <sys/types.h>
 
 #ifdef HAVE_SYS_TIME_H
@@ -111,8 +103,6 @@ typedef struct {
 } radcom_t;
 
 typedef struct {
-	guint16	pkt_len;
-	guint32	totpktt;
 	time_t	start;
 } lanalyzer_t;
 

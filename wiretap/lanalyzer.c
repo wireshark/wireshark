@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.11 1999/08/19 05:31:34 guy Exp $
+ * $Id: lanalyzer.c,v 1.12 1999/08/20 04:49:18 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -52,18 +52,18 @@ static int lanalyzer_read(wtap *wth, int *err);
 int lanalyzer_open(wtap *wth, int *err)
 {
 	int bytes_read;
-	char record_type[2];
-	char record_length[2];
+	char LE_record_type[2];
+	char LE_record_length[2];
 	char summary[210];
 	guint16 board_type, mxslc;
-	guint16 type, length;
+	guint16 record_type, record_length;
 	guint8 cr_day, cr_month, cr_year;
 	struct tm tm;
 
 	fseek(wth->fh, 0, SEEK_SET);
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(record_type, 1, 2, wth->fh);
-	bytes_read += fread(record_length, 1, 2, wth->fh);
+	bytes_read = fread(LE_record_type, 1, 2, wth->fh);
+	bytes_read += fread(LE_record_length, 1, 2, wth->fh);
 	if (bytes_read != 4) {
 		if (ferror(wth->fh)) {
 			*err = errno;
@@ -71,42 +71,42 @@ int lanalyzer_open(wtap *wth, int *err)
 		}
 		return 0;
 	}
-	type = pletohs(record_type);
-	length = pletohs(record_length); /* make sure to do this for while() loop */
+	record_type = pletohs(LE_record_type);
+	record_length = pletohs(LE_record_length); /* make sure to do this for while() loop */
 
-	if (type != REC_TRACE_HEADER && type != REC_CYCLIC_TRACE_HEADER) {  
+	if (record_type != REC_TRACE_HEADER && record_type != REC_CYCLIC_TRACE_HEADER) {  
 		return 0;
 	}
 
 	/* If we made it this far, then the file is a LANAlyzer file.
-	 * Let's get some info from it */
+	 * Let's get some info from it. Note that we get wth->snapshot_length
+	 * from a record later in the file. */
 	wth->file_type = WTAP_FILE_LANALYZER;
 	wth->capture.lanalyzer = g_malloc(sizeof(lanalyzer_t));
 	wth->subtype_read = lanalyzer_read;
-/*	wth->snapshot_length = 16384; */ /* available in header as 'mxslc' */
+	wth->snapshot_length = 0;
 
 	/* Read records until we find the start of packets */
-
 	while (1) {
-		fseek(wth->fh, length, SEEK_CUR);
+		fseek(wth->fh, record_length, SEEK_CUR);
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = fread(record_type, 1, 2, wth->fh);
-		bytes_read += fread(record_length, 1, 2, wth->fh);
+		bytes_read = fread(LE_record_type, 1, 2, wth->fh);
+		bytes_read += fread(LE_record_length, 1, 2, wth->fh);
 		if (bytes_read != 4) {
 			if (ferror(wth->fh)) {
 				*err = errno;
 				free(wth->capture.lanalyzer);
 				return -1;
 			}
-			free(wth->capture.lanalyzer);
+			g_free(wth->capture.lanalyzer);
 			return 0;
 		}
 
-		type = pletohs(record_type);
-		length = pletohs(record_length);
+		record_type = pletohs(LE_record_type);
+		record_length = pletohs(LE_record_length);
 
-/*		g_message("Record 0x%04X Length %d", type, length);*/
-		switch (type) {
+		/*g_message("Record 0x%04X Length %d", record_type, record_length);*/
+		switch (record_type) {
 			/* Trace Summary Record */
 			case REC_TRACE_SUMMARY:
 				errno = WTAP_ERR_CANT_READ;
@@ -115,10 +115,10 @@ int lanalyzer_open(wtap *wth, int *err)
 				if (bytes_read != sizeof summary) {
 					if (ferror(wth->fh)) {
 						*err = errno;
-						free(wth->capture.lanalyzer);
+						g_free(wth->capture.lanalyzer);
 						return -1;
 					}
-					free(wth->capture.lanalyzer);
+					g_free(wth->capture.lanalyzer);
 					return 0;
 				}
 
@@ -153,7 +153,7 @@ int lanalyzer_open(wtap *wth, int *err)
 				mxslc = pletohs(&summary[30]);
 				wth->snapshot_length = mxslc;
 
-				length = 0; /* to fake the next iteration of while() */
+				record_length = 0; /* to fake the next iteration of while() */
 				board_type = pletohs(&summary[188]);
 				switch (board_type) {
 					case BOARD_325:
@@ -169,15 +169,18 @@ int lanalyzer_open(wtap *wth, int *err)
 
 			/* Trace Packet Data Record */
 			case REC_TRACE_PACKET_DATA:
-				wth->capture.lanalyzer->pkt_len = length - 32;
+				/* Go back header number ob ytes so that lanalyzer_read
+				 * can read this header */
+				fseek(wth->fh, -bytes_read, SEEK_CUR);
 				return 1;
 
-		/*	default: no default action */
-		/*		printf("Record 0x%04X Length %d\n", type, length);*/
+			default:
+				; /* no action */
 		}
 	} 
 
 	/* never gets here */
+	g_assert_not_reached();
 	return 0;
 }
 
@@ -186,60 +189,52 @@ int lanalyzer_open(wtap *wth, int *err)
 /* Read the next packet */
 static int lanalyzer_read(wtap *wth, int *err)
 {
-	int packet_size = wth->capture.lanalyzer->pkt_len; /* slice, really */
-	int bytes_read;
-	char record_type[2];
-	char record_length[2];
-	guint16 type, length;
-	gchar descriptor[DESCRIPTOR_LEN];
-	int	data_offset;
-	guint16 time_low, time_med, time_high, true_size;
-	double t;
+	int		packet_size = 0;
+	int		bytes_read;
+	char		LE_record_type[2];
+	char		LE_record_length[2];
+	guint16		record_type, record_length;
+	gchar		descriptor[DESCRIPTOR_LEN];
+	int		data_offset;
+	guint16		time_low, time_med, time_high, true_size;
+	double		t;
 
-	/* If this is the very first packet, then the fh cursor will already
-	 * be at the start of the packet data instead of at the start of the
-	 * Trace Packet Data Record. Check for this */
-	if (!packet_size) {
-		/* This isn't the first packet (the record type and length
-		 * of which we've already read in the loop in the open
-		 * routine); read the record type and length. */
-		errno = WTAP_ERR_CANT_READ;
-		bytes_read = fread(record_type, 1, 2, wth->fh);
-		if (bytes_read != 2) {
-			if (ferror(wth->fh)) {
-				*err = errno;
-				return -1;
-			}
-			if (bytes_read != 0) {
-				*err = WTAP_ERR_SHORT_READ;
-				return -1;
-			}
-			return 0;
-		}
-		bytes_read = fread(record_length, 1, 2, wth->fh);
-		if (bytes_read != 2) {
-			if (ferror(wth->fh))
-				*err = errno;
-			else
-				*err = WTAP_ERR_SHORT_READ;
+	/* read the record type and length. */
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = fread(LE_record_type, 1, 2, wth->fh);
+	if (bytes_read != 2) {
+		if (ferror(wth->fh)) {
+			*err = errno;
 			return -1;
 		}
-
-		type = pletohs(record_type);
-		length = pletohs(record_length);
-
-		if (type != REC_TRACE_PACKET_DATA) {
-			/* XXX - return -1 and set "*err" to
-			 * WTAP_ERR_BAD_RECORD? */
-			return 0;
+		if (bytes_read != 0) {
+			*err = WTAP_ERR_SHORT_READ;
+			return -1;
 		}
-		else {
-			packet_size = length - DESCRIPTOR_LEN;
-		}
+		return 0;
+	}
+	bytes_read = fread(LE_record_length, 1, 2, wth->fh);
+	if (bytes_read != 2) {
+		if (ferror(wth->fh))
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
+	}
+
+	record_type = pletohs(LE_record_type);
+	record_length = pletohs(LE_record_length);
+
+	/* Only Trace Packet Data Records should occur now that we're in
+	 * the middle of reading packets.  If any other record type exists
+	 * after a Trace Packet Data Record, mark it as an error. */
+	if (record_type != REC_TRACE_PACKET_DATA) {
+		*err = WTAP_ERR_BAD_RECORD;
+		return -1;
 	}
 	else {
-		wth->capture.lanalyzer->pkt_len = 0;
-	}	
+		packet_size = record_length - DESCRIPTOR_LEN;
+	}
 
 	/* Read the descriptor data */
 	errno = WTAP_ERR_CANT_READ;
