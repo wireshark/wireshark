@@ -80,7 +80,7 @@ proto_register_statnotify(void)
 			"State", "statnotify.state", FT_UINT32, BASE_DEC,
 			NULL, 0, "New state of client that changed" }},
 		{ &hf_statnotify_priv, {
-			"Priv", "stat.priv", FT_BYTES, BASE_HEX,
+			"Priv", "statnotify.priv", FT_BYTES, BASE_HEX,
 			NULL, 0, "Client supplied opaque data" }},
 	};
 	
