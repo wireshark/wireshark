@@ -1,6 +1,6 @@
 /* packet-ipsec.h
  *
- * $Id: packet-ipsec.h,v 1.4 2000/08/11 13:34:03 deniel Exp $
+ * $Id: packet-ipsec.h,v 1.5 2001/02/28 06:37:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,6 +26,5 @@
 #define __PACKET_IPSEC_H__
 
 int dissect_ah_old(const u_char *, int, frame_data *, proto_tree *);
-void dissect_ah(const u_char *, int, frame_data *, proto_tree *);
 
 #endif

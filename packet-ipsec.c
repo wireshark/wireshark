@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.26 2001/02/03 20:08:04 gerald Exp $
+ * $Id: packet-ipsec.c,v 1.27 2001/02/28 06:37:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -105,126 +105,128 @@ static const value_string cpi2val[] = {
 #define	offsetof(type, member)	((size_t)(&((type *)0)->member))
 #endif
 
+static int dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree, guint8 *nxt_p, proto_tree **next_tree_p);
+
 int
 dissect_ah_old(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+    tvbuff_t *tvb;
+    int advance;
+
+    tvb = tvb_create_from_top(offset);
+    advance = dissect_ah_header(tvb, &pi, tree, NULL, NULL);
+
+    /* start of the new header (could be a extension header) */
+    return advance;
+}
+
+static void
+dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    proto_tree *next_tree;
+    guint8 nxt;
+    tvbuff_t *next_tvb;
+    int advance;
+
+    advance = dissect_ah_header(tvb, pinfo, tree, &nxt, &next_tree);
+    next_tvb = tvb_new_subset(tvb, advance, -1, -1);
+
+    if (g_ah_payload_in_subtree) {
+	col_set_writable(pinfo->fd, FALSE);
+    }
+
+    /* do lookup with the subdissector table */
+    if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, next_tree)) {
+      dissect_data(next_tvb, 0, pinfo, next_tree);
+    }
+}
+
+static int
+dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		  guint8 *nxt_p, proto_tree **next_tree_p)
 {
     proto_tree *ah_tree;
     proto_item *ti;
     struct newah ah;
     int advance;
 
-    memcpy(&ah, (void *) &pd[offset], sizeof(ah)); 
+    if (check_col(pinfo->fd, COL_PROTOCOL))
+	col_set_str(pinfo->fd, COL_PROTOCOL, "AH");
+    if (check_col(pinfo->fd, COL_INFO))
+	col_clear(pinfo->fd, COL_INFO);
+
+    tvb_memcpy(tvb, (guint8 *)&ah, 0, sizeof(ah)); 
     advance = sizeof(ah) + ((ah.ah_len - 1) << 2);
 
-    if (check_col(fd, COL_PROTOCOL))
-	col_set_str(fd, COL_PROTOCOL, "AH");
-    if (check_col(fd, COL_INFO)) {
-	col_add_fstr(fd, COL_INFO, "AH (SPI=0x%08x)",
+    if (check_col(pinfo->fd, COL_INFO)) {
+	col_add_fstr(pinfo->fd, COL_INFO, "AH (SPI=0x%08x)",
 	    (guint32)ntohl(ah.ah_spi));
     }
 
     if (tree) {
 	/* !!! specify length */
-	ti = proto_tree_add_item(tree, proto_ah, NullTVB, offset, advance, FALSE);
+	ti = proto_tree_add_item(tree, proto_ah, tvb, 0, advance, FALSE);
 	ah_tree = proto_item_add_subtree(ti, ett_ah);
 
-	proto_tree_add_text(ah_tree, NullTVB, offset + offsetof(struct newah, ah_nxt), 1,
-	    "Next Header: %s (0x%02x)", ipprotostr(ah.ah_nxt), ah.ah_nxt);
-	proto_tree_add_text(ah_tree, NullTVB, offset + offsetof(struct newah, ah_len), 1,
-	    "Length: %d", ah.ah_len << 2);
-	proto_tree_add_uint(ah_tree, hf_ah_spi, NullTVB,
-			    offset + offsetof(struct newah, ah_spi), 4,
+	proto_tree_add_text(ah_tree, tvb,
+			    offsetof(struct newah, ah_nxt), 1,
+			    "Next Header: %s (0x%02x)",
+			    ipprotostr(ah.ah_nxt), ah.ah_nxt);
+	proto_tree_add_text(ah_tree, tvb,
+			    offsetof(struct newah, ah_len), 1,
+			    "Length: %u", ah.ah_len << 2);
+	proto_tree_add_uint(ah_tree, hf_ah_spi, tvb,
+			    offsetof(struct newah, ah_spi), 4,
 			    (guint32)ntohl(ah.ah_spi));
-	proto_tree_add_uint(ah_tree, hf_ah_sequence, NullTVB,
-			    offset + offsetof(struct newah, ah_seq), 4,
+	proto_tree_add_uint(ah_tree, hf_ah_sequence, tvb,
+			    offsetof(struct newah, ah_seq), 4,
 			    (guint32)ntohl(ah.ah_seq));
-	proto_tree_add_text(ah_tree, NullTVB, offset + sizeof(ah), (ah.ah_len - 1) << 2,
+	proto_tree_add_text(ah_tree, tvb,
+			    sizeof(ah), (ah.ah_len - 1) << 2,
 			    "ICV");
+
+	if (next_tree_p != NULL) {
+	    /* Decide where to place next protocol decode */
+	    if (g_ah_payload_in_subtree) {
+		*next_tree_p = ah_tree;
+	    }
+	    else {
+		*next_tree_p = tree;
+	    }
+	}
+    } else {
+	if (next_tree_p != NULL)
+	    *next_tree_p = NULL;
     }
+
+    if (nxt_p != NULL)
+	*nxt_p = ah.ah_nxt;
 
     /* start of the new header (could be a extension header) */
     return advance;
 }
 
-void
-dissect_ah(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
-{
-    proto_tree *ah_tree, *next_tree = NULL;
-    proto_item *ti;
-    struct newah ah;
-    int advance;
-
-    OLD_CHECK_DISPLAY_AS_DATA(proto_ah, pd, offset, fd, tree);
-
-    memcpy(&ah, (void *) &pd[offset], sizeof(ah)); 
-    advance = sizeof(ah) + ((ah.ah_len - 1) << 2);
-
-    if (check_col(fd, COL_PROTOCOL))
-	col_set_str(fd, COL_PROTOCOL, "AH");
-    if (check_col(fd, COL_INFO)) {
-	col_add_fstr(fd, COL_INFO, "AH (SPI=0x%08x)",
-	    (guint32)ntohl(ah.ah_spi));
-    }
-
-    if (tree) {
-	/* !!! specify length */
-	ti = proto_tree_add_item(tree, proto_ah, NullTVB, offset, advance, FALSE);
-	ah_tree = proto_item_add_subtree(ti, ett_ah);
-
-	proto_tree_add_text(ah_tree, NullTVB, offset + offsetof(struct newah, ah_nxt), 1,
-	    "Next Header: %s (0x%02x)", ipprotostr(ah.ah_nxt), ah.ah_nxt);
-	proto_tree_add_text(ah_tree, NullTVB, offset + offsetof(struct newah, ah_len), 1,
-	    "Length: %d", ah.ah_len << 2);
-	proto_tree_add_uint(ah_tree, hf_ah_spi, NullTVB,
-			    offset + offsetof(struct newah, ah_spi), 4,
-			    (guint32)ntohl(ah.ah_spi));
-	proto_tree_add_uint(ah_tree, hf_ah_sequence, NullTVB,
-			    offset + offsetof(struct newah, ah_seq), 4,
-			    (guint32)ntohl(ah.ah_seq));
-	proto_tree_add_text(ah_tree, NullTVB, offset + sizeof(ah), (ah.ah_len - 1) << 2,
-			    "ICV");
-
-	/* Decide where to place next protocol decode */
-	if (g_ah_payload_in_subtree) {
-		next_tree = ah_tree;
-	}
-	else {
-		next_tree = tree;
-	}
-    }
-
-    /* start of the new header (could be a extension header) */
-    offset += advance;
-
-    if (g_ah_payload_in_subtree) {
-	col_set_writable(fd, FALSE);
-    }
-
-    /* do lookup with the subdissector table */
-    if (!old_dissector_try_port(ip_dissector_table, ah.ah_nxt, pd, offset, fd, next_tree)) {
-      old_dissect_data(pd, offset, fd, next_tree);
-    }
-}
-
 static void
-dissect_esp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *esp_tree;
     proto_item *ti;
     struct newesp esp;
 
-    OLD_CHECK_DISPLAY_AS_DATA(proto_esp, pd, offset, fd, tree);
-
-    memcpy(&esp, (void *) &pd[offset], sizeof(esp)); 
-
     /*
      * load the top pane info. This should be overwritten by
      * the next protocol in the stack
      */
-    if (check_col(fd, COL_PROTOCOL))
-	col_set_str(fd, COL_PROTOCOL, "ESP");
-    if (check_col(fd, COL_INFO)) {
-	col_add_fstr(fd, COL_INFO, "ESP (SPI=0x%08x)",
+    if (check_col(pinfo->fd, COL_PROTOCOL))
+	col_set_str(pinfo->fd, COL_PROTOCOL, "ESP");
+    if (check_col(pinfo->fd, COL_INFO))
+	col_clear(pinfo->fd, COL_INFO);
+
+    tvb_memcpy(tvb, (guint8 *)&esp, 0, sizeof(esp)); 
+
+    if (check_col(pinfo->fd, COL_INFO)) {
+	col_add_fstr(pinfo->fd, COL_INFO, "ESP (SPI=0x%08x)",
 	    (guint32)ntohl(esp.esp_spi));
     }
 
@@ -233,43 +235,45 @@ dissect_esp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
      * (ie none)
      */
     if(tree) {
-	ti = proto_tree_add_item(tree, proto_esp, NullTVB, offset, END_OF_FRAME, FALSE);
+	ti = proto_tree_add_item(tree, proto_esp, tvb, 0,
+				 tvb_length(tvb), FALSE);
 	esp_tree = proto_item_add_subtree(ti, ett_esp);
-	proto_tree_add_uint(esp_tree, hf_esp_spi, NullTVB, 
-			    offset + offsetof(struct newesp, esp_spi), 4,
+	proto_tree_add_uint(esp_tree, hf_esp_spi, tvb, 
+			    offsetof(struct newesp, esp_spi), 4,
 			    (guint32)ntohl(esp.esp_spi));
-	proto_tree_add_uint(esp_tree, hf_esp_sequence, NullTVB,
-			    offset + offsetof(struct newesp, esp_seq), 4,
+	proto_tree_add_uint(esp_tree, hf_esp_sequence, tvb,
+			    offsetof(struct newesp, esp_seq), 4,
 			    (guint32)ntohl(esp.esp_seq));
-	old_dissect_data(pd, offset + sizeof(struct newesp), fd, esp_tree);
+	dissect_data(tvb, sizeof(struct newesp), pinfo, esp_tree);
     }
 }
 
 static void
-dissect_ipcomp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *ipcomp_tree;
     proto_item *ti;
     struct ipcomp ipcomp;
     char *p;
 
-    OLD_CHECK_DISPLAY_AS_DATA(proto_ipcomp, pd, offset, fd, tree);
-
-    memcpy(&ipcomp, (void *) &pd[offset], sizeof(ipcomp)); 
-
     /*
      * load the top pane info. This should be overwritten by
      * the next protocol in the stack
      */
-    if (check_col(fd, COL_PROTOCOL))
-	col_set_str(fd, COL_PROTOCOL, "IPComp");
-    if (check_col(fd, COL_INFO)) {
-	p = val_to_str(ntohs(ipcomp.comp_cpi), cpi2val, "");
-	if (p[0] == '\0') {
-	    col_add_fstr(fd, COL_INFO, "IPComp (CPI=0x%04x)",
+    if (check_col(pinfo->fd, COL_PROTOCOL))
+	col_set_str(pinfo->fd, COL_PROTOCOL, "IPComp");
+    if (check_col(pinfo->fd, COL_INFO))
+	col_clear(pinfo->fd, COL_INFO);
+
+    tvb_memcpy(tvb, (guint8 *)&ipcomp, 0, sizeof(ipcomp)); 
+
+    if (check_col(pinfo->fd, COL_INFO)) {
+	p = match_strval(ntohs(ipcomp.comp_cpi), cpi2val);
+	if (p == NULL) {
+	    col_add_fstr(pinfo->fd, COL_INFO, "IPComp (CPI=0x%04x)",
 		ntohs(ipcomp.comp_cpi));
 	} else
-	    col_add_fstr(fd, COL_INFO, "IPComp (CPI=%s)", p);
+	    col_add_fstr(pinfo->fd, COL_INFO, "IPComp (CPI=%s)", p);
     }
 
     /*
@@ -277,30 +281,21 @@ dissect_ipcomp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
      * (ie none)
      */
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_ipcomp, NullTVB, offset, END_OF_FRAME,
-	    FALSE);
+	ti = proto_tree_add_item(tree, proto_ipcomp, tvb, 0,
+	    tvb_length(tvb), FALSE);
 	ipcomp_tree = proto_item_add_subtree(ti, ett_ipcomp);
 
-	proto_tree_add_text(ipcomp_tree, NullTVB,
-	    offset + offsetof(struct ipcomp, comp_nxt), 1,
+	proto_tree_add_text(ipcomp_tree, tvb,
+	    offsetof(struct ipcomp, comp_nxt), 1,
 	    "Next Header: %s (0x%02x)",
 	    ipprotostr(ipcomp.comp_nxt), ipcomp.comp_nxt);
-	proto_tree_add_uint(ipcomp_tree, hf_ipcomp_flags, NullTVB,
-	    offset + offsetof(struct ipcomp, comp_flags), 1,
+	proto_tree_add_uint(ipcomp_tree, hf_ipcomp_flags, tvb,
+	    offsetof(struct ipcomp, comp_flags), 1,
 	    ipcomp.comp_flags);
-	p = val_to_str(ntohs(ipcomp.comp_cpi), cpi2val, "");
-	if (p[0] == '\0') {
-	    proto_tree_add_uint(ipcomp_tree, hf_ipcomp_cpi, NullTVB, 
-		offset + offsetof(struct ipcomp, comp_cpi), 2,
-		ntohs(ipcomp.comp_cpi));
-	} else {
-	    proto_tree_add_uint_format(ipcomp_tree, hf_ipcomp_cpi, NullTVB, 
-		offset + offsetof(struct ipcomp, comp_cpi), 2,
-		ntohs(ipcomp.comp_cpi),
-		"CPI: %s (0x%04x)",
-		p, ntohs(ipcomp.comp_cpi));
-	}
-	old_dissect_data(pd, offset + sizeof(struct ipcomp), fd, ipcomp_tree);
+	proto_tree_add_uint(ipcomp_tree, hf_ipcomp_cpi, tvb, 
+	    offsetof(struct ipcomp, comp_cpi), 2,
+	    ntohs(ipcomp.comp_cpi));
+	dissect_data(tvb, sizeof(struct ipcomp), pinfo, ipcomp_tree);
     }
 }
 
@@ -331,8 +326,8 @@ proto_register_ipsec(void)
       { "Flags",	"ipcomp.flags",	FT_UINT8,	BASE_HEX, NULL, 0x0,
       	"" }},
     { &hf_ipcomp_cpi,
-      { "CPI",		"ipcomp.cpi",	FT_UINT16,	BASE_HEX, NULL, 0x0,
-      	"" }},
+      { "CPI",		"ipcomp.cpi",	FT_UINT16,	BASE_HEX, 
+        VALS(cpi2val),	0x0,      	"" }},
   };
   static gint *ett[] = {
     &ett_ah,
@@ -366,8 +361,7 @@ proto_register_ipsec(void)
 void
 proto_reg_handoff_ipsec(void)
 {
-  old_dissector_add("ip.proto", IP_PROTO_AH, dissect_ah, proto_ah);
-  old_dissector_add("ip.proto", IP_PROTO_ESP, dissect_esp, proto_esp);
-  old_dissector_add("ip.proto", IP_PROTO_IPCOMP, dissect_ipcomp,
-		    proto_ipcomp);
+  dissector_add("ip.proto", IP_PROTO_AH, dissect_ah, proto_ah);
+  dissector_add("ip.proto", IP_PROTO_ESP, dissect_esp, proto_esp);
+  dissector_add("ip.proto", IP_PROTO_IPCOMP, dissect_ipcomp, proto_ipcomp);
 }
