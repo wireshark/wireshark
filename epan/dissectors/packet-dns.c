@@ -1,6 +1,9 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
+ * RFC 1034, RFC 1035
+ * RFC 2136 for dynamic DNS
+ *
  * $Id$
  *
  * Ethereal - Network traffic analyzer
@@ -58,7 +61,10 @@ static int hf_dns_flags_checkdisable = -1;
 static int hf_dns_flags_rcode = -1;
 static int hf_dns_transaction_id = -1;
 static int hf_dns_count_questions = -1;
+static int hf_dns_count_zones = -1;
 static int hf_dns_count_answers = -1;
+static int hf_dns_count_prerequisites = -1;
+static int hf_dns_count_updates = -1;
 static int hf_dns_count_auth_rr = -1;
 static int hf_dns_count_add_rr = -1;
 
@@ -989,6 +995,9 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 		     long_type_name, class, ttl, data_len);
     }
   }
+
+  if (data_len == 0)
+    return data_offset - data_start;
 
   switch (type) {
 
@@ -2267,7 +2276,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   guint16    id, flags, opcode, rcode, quest, ans, auth, add;
   char buf[128+1];
   int cur_off;
-  int isupdate;
+  gboolean isupdate;
 
   dns_data_offset = offset;
 
@@ -2300,9 +2309,9 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     cinfo = NULL;
   }
   if (opcode == OPCODE_UPDATE)
-    isupdate = 1;
+    isupdate = TRUE;
   else
-    isupdate = 0;
+    isupdate = FALSE;
 
   if (tree) {
     ti = proto_tree_add_protocol_format(tree, proto_dns, tvb, 0, -1,
@@ -2361,18 +2370,33 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
   quest = tvb_get_ntohs(tvb, offset + DNS_QUEST);
   if (tree) {
-    proto_tree_add_uint(dns_tree, hf_dns_count_questions, tvb,
-			offset + DNS_QUEST, 2, quest);
+    if (isupdate) {
+      proto_tree_add_uint(dns_tree, hf_dns_count_zones, tvb,
+			  offset + DNS_QUEST, 2, quest);
+    } else {
+      proto_tree_add_uint(dns_tree, hf_dns_count_questions, tvb,
+			  offset + DNS_QUEST, 2, quest);
+    }
   }
   ans = tvb_get_ntohs(tvb, offset + DNS_ANS);
   if (tree) {
-    proto_tree_add_uint(dns_tree, hf_dns_count_answers, tvb,
-			offset + DNS_ANS, 2, ans);
+    if (isupdate) {
+      proto_tree_add_uint(dns_tree, hf_dns_count_prerequisites, tvb,
+			  offset + DNS_ANS, 2, ans);
+    } else {
+      proto_tree_add_uint(dns_tree, hf_dns_count_answers, tvb,
+			  offset + DNS_ANS, 2, ans);
+    }
   }
   auth = tvb_get_ntohs(tvb, offset + DNS_AUTH);
   if (tree) {
-    proto_tree_add_uint(dns_tree, hf_dns_count_auth_rr, tvb,
-			offset + DNS_AUTH, 2, auth);
+    if (isupdate) {
+      proto_tree_add_uint(dns_tree, hf_dns_count_updates, tvb,
+			  offset + DNS_AUTH, 2, auth);
+    } else {
+      proto_tree_add_uint(dns_tree, hf_dns_count_auth_rr, tvb,
+			  offset + DNS_AUTH, 2, auth);
+    }
   }
   add = tvb_get_ntohs(tvb, offset + DNS_ADD);
   if (tree) {
@@ -2528,14 +2552,26 @@ proto_register_dns(void)
       { "Questions",		"dns.count.queries",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"Number of queries in packet", HFILL }},
+    { &hf_dns_count_zones,
+      { "Zones",		"dns.count.zones",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Number of zones in packet", HFILL }},
     { &hf_dns_count_answers,
       { "Answer RRs",		"dns.count.answers",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"Number of answers in packet", HFILL }},
+    { &hf_dns_count_prerequisites,
+      { "Prerequisites",		"dns.count.prerequisites",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Number of prerequisites in packet", HFILL }},
     { &hf_dns_count_auth_rr,
       { "Authority RRs",       	"dns.count.auth_rr",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"Number of authoritative records in packet", HFILL }},
+    { &hf_dns_count_updates,
+      { "Updates",       	"dns.count.updates",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Number of updates records in packet", HFILL }},
     { &hf_dns_count_add_rr,
       { "Additional RRs",      	"dns.count.add_rr",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
