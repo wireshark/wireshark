@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.37 2003/09/02 19:18:51 guy Exp $
+ * $Id: packet-fr.c,v 1.38 2003/09/02 21:06:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -313,8 +313,6 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   fr_ctrl = tvb_get_guint8(tvb, offset);
   if (fr_ctrl == XDLC_U) {
-      if (tree)
-		proto_tree_add_text(fr_tree, tvb, offset, 0, "------- Q.922 Encapsulation -------");
       dissect_xdlc_control(tvb, offset, pinfo, fr_tree, hf_fr_control,
  			   ett_fr_control, is_response, FALSE, TRUE);
       offset++;
@@ -344,7 +342,6 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        * If the data does not start with unnumbered information (03) and
        * the DLCI# is not 0, then there may be Cisco Frame Relay encapsulation.
        */
-      proto_tree_add_text(fr_tree, tvb, offset, 0, "------- Cisco Encapsulation -------");
       fr_type  = tvb_get_ntohs(tvb, offset);
       if (ti != NULL) {
 		/* Include the Cisco HDLC type in the top-level protocol
