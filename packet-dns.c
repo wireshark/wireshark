@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.20 1999/07/29 05:46:53 gram Exp $
+ * $Id: packet-dns.c,v 1.21 1999/09/21 07:15:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -389,6 +389,48 @@ get_dns_name_type_class (const u_char *dns_data_ptr,
   return len;
 }
 
+static double
+rfc1867_size(const u_char *dptr)
+{
+  double size;
+  guint32 exponent;
+
+  size = (*dptr & 0xF0) >> 4;
+  exponent = (*dptr & 0x0F);
+  while (exponent != 0) {
+    size *= 10;
+    exponent--;
+  }
+  return size / 100;	/* return size in meters, not cm */
+}
+
+static char *
+rfc1867_angle(const u_char *dptr, const char *nsew)
+{
+  guint32 angle;
+  char direction;
+  guint32 degrees, minutes, secs, tsecs;
+  static char buf[10+1+3+1 + 2+1+3+1 + 2+1+3+1+3+1 + 1 + 1];
+
+  angle = pntohl(dptr);
+
+  if (angle < 0x80000000U) {
+    angle = 0x80000000U - angle;
+    direction = nsew[1];
+  } else {
+    angle = angle - 0x80000000U;
+    direction = nsew[0];
+  }
+  tsecs = angle % 1000;
+  angle = angle / 1000;
+  secs = angle % 60;
+  angle = angle / 60;
+  minutes = angle % 60;
+  degrees = angle / 60;
+  sprintf(buf, "%u deg %u min %u.%03u sec %c", degrees, minutes, secs,
+		tsecs, direction);
+  return buf;
+}
 
 static int
 dissect_dns_query(const u_char *dns_data_ptr, const u_char *pd, int offset,
@@ -604,6 +646,70 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
                        long_type_name, class_name, ttl, data_len);
       offset += (dptr - data_start);
       proto_tree_add_text(rr_tree, offset, pname_len, "Domain name: %s", pname);
+      break;
+    }
+    break;
+
+  case T_MX:
+    {
+      guint16 preference;
+      char mx_name[MAXDNAME];
+      int mx_name_len;
+      
+      rrptr = dptr;
+      preference = pntohs(rrptr);
+      rrptr += 2;
+      mx_name_len = get_dns_name(dns_data_ptr, rrptr, mx_name, sizeof(mx_name));
+      trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
+		       "%s: type %s, class %s, preference %u, mx %s",
+		       name, type_name, class_name, preference, mx_name);
+      rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
+                       long_type_name, class_name, ttl, data_len);
+      offset += (dptr - data_start);
+      proto_tree_add_text(rr_tree, offset, 2, "Preference: %u", preference);
+      offset += 2;
+      proto_tree_add_text(rr_tree, offset, mx_name_len, "Mail exchange: %s", mx_name);
+    }
+    break;
+      
+  case T_LOC:
+    {
+      rrptr = dptr;
+      trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
+		     "%s: type %s, class %s",
+		     name, type_name, class_name);
+      rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
+                       long_type_name, class_name, ttl, data_len);
+      offset += (dptr - data_start);
+      proto_tree_add_text(rr_tree, offset, 1, "Version: %u", *dptr);
+      if (*rrptr == 0) {
+	/* Version 0, the only version RFC 1876 discusses. */
+	rrptr++;
+	offset++;
+	proto_tree_add_text(rr_tree, offset, 1, "Size: %g m",
+				rfc1867_size(rrptr));
+	rrptr++;
+	offset++;
+	proto_tree_add_text(rr_tree, offset, 1, "Horizontal precision: %g m",
+				rfc1867_size(rrptr));
+	rrptr++;
+	offset++;
+	proto_tree_add_text(rr_tree, offset, 1, "Vertical precision: %g m",
+				rfc1867_size(rrptr));
+	rrptr++;
+	offset++;
+	proto_tree_add_text(rr_tree, offset, 4, "Latitude: %s",
+				rfc1867_angle(rrptr, "NS"));
+	rrptr += 4;
+	offset += 4;
+	proto_tree_add_text(rr_tree, offset, 4, "Longitude: %s",
+				rfc1867_angle(rrptr, "EW"));
+	rrptr += 4;
+	offset += 4;
+	proto_tree_add_text(rr_tree, offset, 4, "Altitude: %g m",
+				(pntohl(rrptr) - 10000000)/100.0);
+      } else
+        proto_tree_add_text(rr_tree, offset, data_len, "Data");
       break;
     }
     break;
