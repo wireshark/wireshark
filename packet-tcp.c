@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.42 1999/11/11 23:13:43 nneul Exp $
+ * $Id: packet-tcp.c,v 1.43 1999/11/15 14:17:20 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -470,6 +470,13 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   /* Check the packet length to see if there's more data
      (it could be an ACK-only packet) */
   if (packet_max > offset) {
+
+    /* ONC RPC.  We can't base this on anything in the UDP header; we have
+       to look at the payload.  If "dissect_rpc()" returns TRUE, it was
+       an RPC packet, otherwise it's some other type of packet. */
+    if (dissect_rpc(pd, offset, fd, tree))
+      goto reas;
+
     /* XXX - this should be handled the way UDP handles this, with a table
        of port numbers to which stuff can be added */
 #define PORT_IS(port)	(th.th_sport == port || th.th_dport == port)
@@ -529,6 +536,8 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
         }
     }
   }
+
+reas:
  
   if( data_out_file ) {
     reassemble_tcp( th.th_seq,		/* sequence number */

@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.11 1999/11/14 21:16:58 guy Exp $
+ * $Id: packet-rpc.c,v 1.12 1999/11/15 14:17:19 nneul Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -221,22 +221,6 @@ char *rpc_prog_name(guint32 prog)
 /*--------------------------------------*/
 
 
-/* Placeholder for future dissectors.
-It should vanish, if they are finally present. Up to this point, this
-minimal variant serves as a detector for RPC services and can even find
-request/reply pairs. */
-
-#define	NLM_PROGRAM	100021
-
-static int proto_nlm = -1;
-
-void init_incomplete_dissect(void)
-{
-	proto_nlm = proto_register_protocol("Network Lock Manager", "NLM");
-	rpc_init_prog(proto_nlm, NLM_PROGRAM, ETT_NLM);
-}
-
-
 /*
  * Init the hash tables. It will be called from ethereal_proto_init().
  * ethereal_proto_init() calls later proto_init(), which calls 
@@ -305,7 +289,7 @@ rpc_call_lookup(rpc_call_info *call)
 
 
 unsigned int
-roundup(unsigned int a)
+rpc_roundup(unsigned int a)
 {
 	unsigned int mod = a % 4;
 	return a + ((mod)? 4-mod : 0);
@@ -323,7 +307,7 @@ char* name, char* type)
 
 	if (tree) {
 		proto_tree_add_text(tree, offset, 4,
-		"%s (%s): %u", name, type, value);
+		"%s: %u", name, value);
 	}
 
 	offset += 4;
@@ -345,10 +329,10 @@ char* name, char* type)
 	if (tree) {
 		if (value_high)
 			proto_tree_add_text(tree, offset, 8,
-				"%s (%s): %x%08x", name, type, value_high, value_low);
+				"%s: %x%08x", name, value_high, value_low);
 		else
 			proto_tree_add_text(tree, offset, 8,
-				"%s (%s): %u", name, type, value_low);
+				"%s: %u", name, value_low);
 	}
 
 	offset += 8;
@@ -373,7 +357,7 @@ dissect_rpc_string(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 
 	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 	string_length = EXTRACT_UINT(pd,offset+0);
-	string_length_full = roundup(string_length);
+	string_length_full = rpc_roundup(string_length);
 	string_fill = string_length_full - string_length;
 	if (!BYTES_ARE_IN_FRAME(offset+4,string_length_full)) return offset;
 	if (string_length>=sizeof(string_buffer)) return offset;
@@ -414,7 +398,7 @@ dissect_rpc_string_item(const u_char *pd, int offset, frame_data *fd, proto_tree
 
 	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 	string_length = EXTRACT_UINT(pd,offset+0);
-	string_length_full = roundup(string_length);
+	string_length_full = rpc_roundup(string_length);
 	string_fill = string_length_full - string_length;
 	if (!BYTES_ARE_IN_FRAME(offset+4,string_length_full)) return offset;
 	if (string_length>=sizeof(string_buffer)) return offset;
@@ -456,7 +440,7 @@ dissect_rpc_auth( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	/* if (!BYTES_ARE_IN_FRAME(offset,8)) return; */
 	flavor = EXTRACT_UINT(pd,offset+0);
 	length = EXTRACT_UINT(pd,offset+4);
-	length_full = roundup(length);
+	length_full = rpc_roundup(length);
 	/* if (!BYTES_ARE_IN_FRAME(offset+8,full_length)) return; */
 
 	if (tree) {
@@ -553,7 +537,7 @@ dissect_rpc_cred( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
 	if (!BYTES_ARE_IN_FRAME(offset,8)) return offset;
 	length = EXTRACT_UINT(pd,offset+4);
-	length_full = roundup(length);
+	length_full = rpc_roundup(length);
 	if (!BYTES_ARE_IN_FRAME(offset+8,length_full)) return offset;
 
 	if (tree) {
@@ -578,7 +562,7 @@ dissect_rpc_verf( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
 	if (!BYTES_ARE_IN_FRAME(offset,8)) return offset;
 	length = EXTRACT_UINT(pd,offset+4);
-	length_full = roundup(length);
+	length_full = rpc_roundup(length);
 	if (!BYTES_ARE_IN_FRAME(offset+8,length_full)) return offset;
 
 	if (tree) {
@@ -1047,7 +1031,4 @@ void
 proto_register_rpc(void)
 {
 	proto_rpc = proto_register_protocol("Remote Procedure Call", "rpc");
-
-	/* please remove this, if all specific dissectors are ready */
-	init_incomplete_dissect();
 }

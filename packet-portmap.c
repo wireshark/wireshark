@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.5 1999/11/11 21:21:59 nneul Exp $
+ * $Id: packet-portmap.c,v 1.6 1999/11/15 14:17:19 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -186,6 +186,63 @@ const vsff portmap2_proc[] = {
 /* end of Portmap version 2 */
 
 
+/* Portmapper version 3, RFC 1833, Page 7 */
+const vsff portmap3_proc[] = {
+	{ RPCBPROC_NULL,	"NULL",
+		NULL, NULL },
+	{ RPCBPROC_SET,		"SET",
+		NULL, NULL },
+	{ RPCBPROC_UNSET,	"UNSET",
+		NULL, NULL },
+	{ RPCBPROC_GETADDR,	"GETADDR",
+		NULL, NULL},
+	{ RPCBPROC_DUMP,	"DUMP",
+		NULL, NULL },
+	{ RPCBPROC_CALLIT,	"CALLIT",
+		NULL, NULL },
+	{ RPCBPROC_GETTIME,	"GETTIME",
+		NULL, NULL },
+	{ RPCBPROC_UADDR2TADDR,	"UADDR2TADDR",
+		NULL, NULL },
+	{ RPCBPROC_TADDR2UADDR,	"TADDR2UADDR",
+		NULL, NULL },
+	{ 0, NULL, NULL, NULL }
+};
+/* end of Portmap version 3 */
+
+
+/* Portmapper version 4, RFC 1833, Page 8 */
+const vsff portmap4_proc[] = {
+	{ RPCBPROC_NULL,	"NULL",
+		NULL, NULL },
+	{ RPCBPROC_SET,		"SET",
+		NULL, NULL },
+	{ RPCBPROC_UNSET,	"UNSET",
+		NULL, NULL },
+	{ RPCBPROC_GETADDR,	"GETADDR",
+		NULL, NULL},
+	{ RPCBPROC_DUMP,	"DUMP",
+		NULL, NULL },
+	{ RPCBPROC_BCAST,	"BCAST",
+		NULL, NULL },
+	{ RPCBPROC_GETTIME,	"GETTIME",
+		NULL, NULL },
+	{ RPCBPROC_UADDR2TADDR,	"UADDR2TADDR",
+		NULL, NULL },
+	{ RPCBPROC_TADDR2UADDR,	"TADDR2UADDR",
+		NULL, NULL },
+	{ RPCBPROC_GETVERSADDR,	"GETVERSADDR",
+		NULL, NULL },
+	{ RPCBPROC_INDIRECT,	"INDIRECT",
+		NULL, NULL },
+	{ RPCBPROC_GETADDRLIST,	"GETADDRLIST",
+		NULL, NULL },
+	{ RPCBPROC_GETSTAT,	"GETSTAT",
+		NULL, NULL },
+	{ 0, NULL, NULL, NULL }
+};
+/* end of Portmap version 4 */
+
 void
 proto_register_portmap(void)
 {
@@ -218,5 +275,7 @@ proto_register_portmap(void)
 	/* Register the procedure tables */
 	rpc_init_proc_table(PORTMAP_PROGRAM, 1, portmap1_proc);
 	rpc_init_proc_table(PORTMAP_PROGRAM, 2, portmap2_proc);
+	rpc_init_proc_table(PORTMAP_PROGRAM, 3, portmap3_proc);
+	rpc_init_proc_table(PORTMAP_PROGRAM, 4, portmap4_proc);
 }
 

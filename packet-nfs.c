@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.2 1999/11/05 07:16:23 guy Exp $
+ * $Id: packet-nfs.c,v 1.3 1999/11/15 14:17:18 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -94,7 +94,7 @@ char* name, guint32* status)
 	
 	if (tree) {
 		proto_tree_add_text(tree, offset, 4,
-			"%s (stat): %s (%u)", name, stat_name, stat);
+			"%s: %s (%u)", name, stat_name, stat);
 	}
 
 	offset += 4;
@@ -128,7 +128,7 @@ char* name)
 	
 	if (tree) {
 		proto_tree_add_text(tree, offset, 4,
-			"%s (ftype): %s (%u)", name, ftype_name, ftype);
+			"%s: %s (%u)", name, ftype_name, ftype);
 	}
 
 	offset += 4;
@@ -145,7 +145,7 @@ dissect_fhandle(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, 
 
 	if (tree) {
 		fitem = proto_tree_add_text(tree, offset, FHSIZE,
-			"%s (fhandle)", name);
+			"%s", name);
 		if (fitem)
 			ftree = proto_item_add_subtree(fitem, ETT_NFS_FHANDLE);
 	}
@@ -175,7 +175,7 @@ dissect_timeval(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, 
 	
 	if (tree) {
 		time_item = proto_tree_add_text(tree, offset, 8,
-			"%s (timeval): %u.%06u", name, seconds, mseconds);
+			"%s: %u.%06u", name, seconds, mseconds);
 		if (time_item)
 			time_tree = proto_item_add_subtree(time_item, ETT_NFS_TIMEVAL);
 	}
@@ -214,7 +214,7 @@ char* name)
 	
 	if (tree) {
 		mode_item = proto_tree_add_text(tree, offset, 4,
-			"%s (mode): 0%o", name, mode);
+			"%s: 0%o", name, mode);
 		if (mode_item)
 			mode_tree = proto_item_add_subtree(mode_item, ETT_NFS_MODE);
 	}
@@ -264,7 +264,7 @@ dissect_fattr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, ch
 
 	if (tree) {
 		fattr_item = proto_tree_add_text(tree, offset,
-			END_OF_FRAME, "%s (fattr)", name);
+			END_OF_FRAME, "%s", name);
 		if (fattr_item)
 			fattr_tree = proto_item_add_subtree(fattr_item, ETT_NFS_FATTR);
 	}
@@ -287,6 +287,38 @@ dissect_fattr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, ch
 	/* now we know, that fattr is shorter */
 	if (fattr_item) {
 		proto_item_set_len(fattr_item, offset - old_offset);
+	}
+
+	return offset;
+}
+
+
+/* RFC 1094, Page 17 */
+int
+dissect_sattr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+{
+	proto_item* sattr_item = NULL;
+	proto_tree* sattr_tree = NULL;
+	int old_offset = offset;
+
+	if (tree) {
+		sattr_item = proto_tree_add_text(tree, offset,
+			END_OF_FRAME, "%s", name);
+		if (sattr_item)
+			sattr_tree = proto_item_add_subtree(sattr_item, ETT_NFS_SATTR);
+	}
+
+	/* some how we should indicate here, that -1 means "do not set" */
+	offset = dissect_mode         (pd,offset,fd,sattr_tree,"mode");
+	offset = dissect_unsigned_int (pd,offset,fd,sattr_tree,"uid");
+	offset = dissect_unsigned_int (pd,offset,fd,sattr_tree,"gid");
+	offset = dissect_unsigned_int (pd,offset,fd,sattr_tree,"size");
+	offset = dissect_timeval      (pd,offset,fd,sattr_tree,"atime");
+	offset = dissect_timeval      (pd,offset,fd,sattr_tree,"mtime");
+
+	/* now we know, that sattr is shorter */
+	if (sattr_item) {
+		proto_item_set_len(sattr_item, offset - old_offset);
 	}
 
 	return offset;
@@ -345,6 +377,39 @@ dissect_nfs2_getattr_reply(const u_char* pd, int offset, frame_data* fd, proto_t
 	return offset;
 }
 
+
+/* RFC 1094, Page 6 */
+int
+dissect_nfs2_setattr_call(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	offset = dissect_fhandle(pd, offset, fd, tree, "file"      );
+	offset = dissect_sattr  (pd, offset, fd, tree, "attributes");
+
+	return offset;
+}
+
+
+/* RFC 1094, Page 6 */
+int
+dissect_nfs2_setattr_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	guint32 status;
+
+	/* attrstat: RFC 1094, Page 17 */
+	offset = dissect_stat(pd, offset, fd, tree, "status", &status);
+	switch (status) {
+		case 0:
+			offset = dissect_fattr(pd, offset, fd, tree, "attributes");
+		break;
+		default:
+			/* do nothing */
+		break;
+	}
+
+	return offset;
+}
+
+
 /* more to come here */
 
 
@@ -353,7 +418,7 @@ dissect_nfs2_getattr_reply(const u_char* pd, int offset, frame_data* fd, proto_t
 const vsff nfs2_proc[] = {
 	{ 0,	"NULL",		NULL,				NULL },
 	{ 1,	"GETATTR",	dissect_nfs2_getattr_call,	dissect_nfs2_getattr_reply },
-	{ 2,	"SETATTR",	dissect_nfs2_any_call,		dissect_nfs2_any_reply },
+	{ 2,	"SETATTR",	dissect_nfs2_any_call,		dissect_nfs2_setattr_reply },
 	{ 3,	"ROOT",		NULL,				NULL },
 	{ 4,	"LOOKUP",	dissect_nfs2_any_call,		dissect_nfs2_any_reply },
 	{ 5,	"READLINK",	dissect_nfs2_any_call,		dissect_nfs2_any_reply },
@@ -453,7 +518,7 @@ char* name)
 	
 	if (tree) {
 		mode3_item = proto_tree_add_text(tree, offset, 4,
-			"%s (mode3): 0%o", name, mode3);
+			"%s: 0%o", name, mode3);
 		if (mode3_item)
 			mode3_tree = proto_item_add_subtree(mode3_item, ETT_NFS_MODE3);
 	}
@@ -550,7 +615,7 @@ char* name, guint32* status)
 	
 	if (tree) {
 		proto_tree_add_text(tree, offset, 4,
-			"%s (nfsstat3): %s (%u)", name, nfsstat3_name, nfsstat3);
+			"%s: %s (%u)", name, nfsstat3_name, nfsstat3);
 	}
 
 	offset += 4;
@@ -588,7 +653,7 @@ char* name)
 	
 	if (tree) {
 		proto_tree_add_text(tree, offset, 4,
-			"%s (ftype3): %s (%u)", name, ftype3_name, ftype3);
+			"%s: %s (%u)", name, ftype3_name, ftype3);
 	}
 
 	offset += 4;
@@ -612,7 +677,7 @@ dissect_specdata3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	
 	if (tree) {
 		specdata3_item = proto_tree_add_text(tree, offset, 8,
-			"%s (specdata3) : %u,%u", name, specdata1, specdata2);
+			"%s: %u,%u", name, specdata1, specdata2);
 		if (specdata3_item)
 			specdata3_tree = proto_item_add_subtree(specdata3_item,
 					ETT_NFS_SPECDATA3);
@@ -641,12 +706,12 @@ dissect_nfs_fh3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, 
 	proto_tree* ftree = NULL;
 
 	fh_len = EXTRACT_UINT(pd, offset+0);
-	fh_len_full = roundup(fh_len);
+	fh_len_full = rpc_roundup(fh_len);
 	fh_fill = fh_len_full - fh_len;
 	
 	if (tree) {
 		fitem = proto_tree_add_text(tree, offset, 4+fh_len_full,
-			"%s (nfs_fh3)", name);
+			"%s", name);
 		if (fitem)
 			ftree = proto_item_add_subtree(fitem, ETT_NFS_FH3);
 	}
@@ -667,7 +732,7 @@ dissect_nfs_fh3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, 
 
 /* RFC 1813, Page 21 */
 int
-dissect_nfs3time(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,char* name)
+dissect_nfstime3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,char* name)
 {
 	guint32	seconds;
 	guint32 nseconds;
@@ -681,7 +746,7 @@ dissect_nfs3time(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	
 	if (tree) {
 		time_item = proto_tree_add_text(tree, offset, 8,
-			"%s (nfs3time): %u.%09u", name, seconds, nseconds);
+			"%s: %u.%09u", name, seconds, nseconds);
 		if (time_item)
 			time_tree = proto_item_add_subtree(time_item, ETT_NFS_NFSTIME3);
 	}
@@ -707,7 +772,7 @@ dissect_fattr3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, c
 
 	if (tree) {
 		fattr3_item = proto_tree_add_text(tree, offset,
-			END_OF_FRAME, "%s (fattr3)", name);
+			END_OF_FRAME, "%s", name);
 		if (fattr3_item)
 			fattr3_tree = proto_item_add_subtree(fattr3_item, ETT_NFS_FATTR3);
 	}
@@ -722,13 +787,483 @@ dissect_fattr3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, c
 	offset = dissect_specdata3(pd,offset,fd,fattr3_tree,"rdev");
 	offset = dissect_uint64   (pd,offset,fd,fattr3_tree,"fsid");
 	offset = dissect_fileid3  (pd,offset,fd,fattr3_tree,"fileid");
-	offset = dissect_nfs3time (pd,offset,fd,fattr3_tree,"atime");
-	offset = dissect_nfs3time (pd,offset,fd,fattr3_tree,"mtime");
-	offset = dissect_nfs3time (pd,offset,fd,fattr3_tree,"ctime");
+	offset = dissect_nfstime3 (pd,offset,fd,fattr3_tree,"atime");
+	offset = dissect_nfstime3 (pd,offset,fd,fattr3_tree,"mtime");
+	offset = dissect_nfstime3 (pd,offset,fd,fattr3_tree,"ctime");
 
 	/* now we know, that fattr3 is shorter */
 	if (fattr3_item) {
 		proto_item_set_len(fattr3_item, offset - old_offset);
+	}
+
+	return offset;
+}
+
+
+const value_string value_follows[3] =
+	{
+		{ 0, "no value" },
+		{ 1, "value follows"},
+		{ 0, NULL }
+	};
+
+
+/* RFC 1813, Page 23 */
+int
+dissect_post_op_attr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+{
+	proto_item* post_op_attr_item = NULL;
+	proto_tree* post_op_attr_tree = NULL;
+	int old_offset = offset;
+	guint32 attributes_follow;
+
+	if (tree) {
+		post_op_attr_item = proto_tree_add_text(tree, offset,
+			END_OF_FRAME, "%s", name);
+		if (post_op_attr_item)
+			post_op_attr_tree = proto_item_add_subtree(post_op_attr_item, ETT_NFS_POST_OP_ATTR);
+	}
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	attributes_follow = EXTRACT_UINT(pd, offset+0);
+	proto_tree_add_text(post_op_attr_tree, offset, 4,
+		"attributes_follow: %s (%u)", 
+		val_to_str(attributes_follow,value_follows,"Unknown"), attributes_follow);
+	offset += 4;
+	switch (attributes_follow) {
+		case TRUE:
+			offset = dissect_fattr3(pd, offset, fd, post_op_attr_tree,
+					"attributes");
+		break;
+		case FALSE:
+			/* void */
+		break;
+	}
+	
+	/* now we know, that post_op_attr_tree is shorter */
+	if (post_op_attr_item) {
+		proto_item_set_len(post_op_attr_item, offset - old_offset);
+	}
+
+	return offset;
+}
+
+
+/* RFC 1813, Page 24 */
+int
+dissect_wcc_attr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+{
+	proto_item* wcc_attr_item = NULL;
+	proto_tree* wcc_attr_tree = NULL;
+	int old_offset = offset;
+
+	if (tree) {
+		wcc_attr_item = proto_tree_add_text(tree, offset,
+			END_OF_FRAME, "%s", name);
+		if (wcc_attr_item)
+			wcc_attr_tree = proto_item_add_subtree(wcc_attr_item, ETT_NFS_WCC_ATTR);
+	}
+
+	offset = dissect_size3   (pd, offset, fd, wcc_attr_tree, "size" );
+	offset = dissect_nfstime3(pd, offset, fd, wcc_attr_tree, "mtime");
+	offset = dissect_nfstime3(pd, offset, fd, wcc_attr_tree, "ctime");
+	
+	/* now we know, that wcc_attr_tree is shorter */
+	if (wcc_attr_item) {
+		proto_item_set_len(wcc_attr_item, offset - old_offset);
+	}
+
+	return offset;
+}
+
+
+/* RFC 1813, Page 24 */
+int
+dissect_pre_op_attr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+{
+	proto_item* pre_op_attr_item = NULL;
+	proto_tree* pre_op_attr_tree = NULL;
+	int old_offset = offset;
+	guint32 attributes_follow;
+
+	if (tree) {
+		pre_op_attr_item = proto_tree_add_text(tree, offset,
+			END_OF_FRAME, "%s", name);
+		if (pre_op_attr_item)
+			pre_op_attr_tree = proto_item_add_subtree(pre_op_attr_item, ETT_NFS_PRE_OP_ATTR);
+	}
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	attributes_follow = EXTRACT_UINT(pd, offset+0);
+	proto_tree_add_text(pre_op_attr_tree, offset, 4,
+		"attributes_follow: %s (%u)", 
+		val_to_str(attributes_follow,value_follows,"Unknown"), attributes_follow);
+	offset += 4;
+	switch (attributes_follow) {
+		case TRUE:
+			offset = dissect_wcc_attr(pd, offset, fd, pre_op_attr_tree,
+					"attributes");
+		break;
+		case FALSE:
+			/* void */
+		break;
+	}
+	
+	/* now we know, that pre_op_attr_tree is shorter */
+	if (pre_op_attr_item) {
+		proto_item_set_len(pre_op_attr_item, offset - old_offset);
+	}
+
+	return offset;
+}
+
+
+/* RFC 1813, Page 24 */
+int
+dissect_wcc_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+{
+	proto_item* wcc_data_item = NULL;
+	proto_tree* wcc_data_tree = NULL;
+	int old_offset = offset;
+
+	if (tree) {
+		wcc_data_item = proto_tree_add_text(tree, offset,
+			END_OF_FRAME, "%s", name);
+		if (wcc_data_item)
+			wcc_data_tree = proto_item_add_subtree(wcc_data_item, ETT_NFS_WCC_DATA);
+	}
+
+	offset = dissect_pre_op_attr (pd, offset, fd, wcc_data_tree, "before");
+	offset = dissect_post_op_attr(pd, offset, fd, wcc_data_tree, "after" );
+
+	/* now we know, that wcc_data is shorter */
+	if (wcc_data_item) {
+		proto_item_set_len(wcc_data_item, offset - old_offset);
+	}
+
+	return offset;
+}
+
+
+/* RFC 1813, Page 25 */
+int
+dissect_set_mode3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+{
+	proto_item* set_mode3_item = NULL;
+	proto_tree* set_mode3_tree = NULL;
+	int old_offset = offset;
+	guint32 set_it;
+	char* set_it_name;
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	set_it = EXTRACT_UINT(pd, offset+0);
+	set_it_name = val_to_str(set_it,value_follows,"Unknown");
+
+	if (tree) {
+		set_mode3_item = proto_tree_add_text(tree, offset,
+			END_OF_FRAME, "%s: %s", name, set_it_name);
+		if (set_mode3_item)
+			set_mode3_tree = proto_item_add_subtree(set_mode3_item, ETT_NFS_SET_MODE3);
+	}
+
+	if (set_mode3_tree)
+		proto_tree_add_text(set_mode3_tree, offset, 4,
+			"set_it: %s (%u)", set_it_name, set_it);
+
+	offset += 4;
+
+	switch (set_it) {
+		case 1:
+			offset = dissect_mode3(pd, offset, fd, set_mode3_tree,
+					"mode");
+		break;
+		default:
+			/* void */
+		break;
+	}
+	
+	/* now we know, that set_mode3 is shorter */
+	if (set_mode3_item) {
+		proto_item_set_len(set_mode3_item, offset - old_offset);
+	}
+
+	return offset;
+}
+
+
+/* RFC 1813, Page 26 */
+int
+dissect_set_uid3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+{
+	proto_item* set_uid3_item = NULL;
+	proto_tree* set_uid3_tree = NULL;
+	int old_offset = offset;
+	guint32 set_it;
+	char* set_it_name;
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	set_it = EXTRACT_UINT(pd, offset+0);
+	set_it_name = val_to_str(set_it,value_follows,"Unknown");
+
+	if (tree) {
+		set_uid3_item = proto_tree_add_text(tree, offset,
+			END_OF_FRAME, "%s: %s", name, set_it_name);
+		if (set_uid3_item)
+			set_uid3_tree = proto_item_add_subtree(set_uid3_item, ETT_NFS_SET_UID3);
+	}
+
+	if (set_uid3_tree)
+		proto_tree_add_text(set_uid3_tree, offset, 4,
+			"set_it: %s (%u)", set_it_name, set_it);
+
+	offset += 4;
+
+	switch (set_it) {
+		case 1:
+			offset = dissect_uid3(pd, offset, fd, set_uid3_tree,
+					"uid");
+		break;
+		default:
+			/* void */
+		break;
+	}
+
+	/* now we know, that set_uid3 is shorter */
+	if (set_uid3_item) {
+		proto_item_set_len(set_uid3_item, offset - old_offset);
+	}
+
+	return offset;
+}
+
+
+/* RFC 1813, Page 26 */
+int
+dissect_set_gid3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+{
+	proto_item* set_gid3_item = NULL;
+	proto_tree* set_gid3_tree = NULL;
+	int old_offset = offset;
+	guint32 set_it;
+	char* set_it_name;
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	set_it = EXTRACT_UINT(pd, offset+0);
+	set_it_name = val_to_str(set_it,value_follows,"Unknown");
+
+	if (tree) {
+		set_gid3_item = proto_tree_add_text(tree, offset,
+			END_OF_FRAME, "%s: %s", name, set_it_name);
+		if (set_gid3_item)
+			set_gid3_tree = proto_item_add_subtree(set_gid3_item, ETT_NFS_SET_GID3);
+	}
+
+	if (set_gid3_tree)
+		proto_tree_add_text(set_gid3_tree, offset, 4,
+			"set_it: %s (%u)", set_it_name, set_it);
+
+	offset += 4;
+
+	switch (set_it) {
+		case 1:
+			offset = dissect_gid3(pd, offset, fd, set_gid3_tree,
+					"gid");
+		break;
+		default:
+			/* void */
+		break;
+	}
+
+	/* now we know, that set_gid3 is shorter */
+	if (set_gid3_item) {
+		proto_item_set_len(set_gid3_item, offset - old_offset);
+	}
+
+	return offset;
+}
+
+
+/* RFC 1813, Page 26 */
+int
+dissect_set_size3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+{
+	proto_item* set_size3_item = NULL;
+	proto_tree* set_size3_tree = NULL;
+	int old_offset = offset;
+	guint32 set_it;
+	char* set_it_name;
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	set_it = EXTRACT_UINT(pd, offset+0);
+	set_it_name = val_to_str(set_it,value_follows,"Unknown");
+
+	if (tree) {
+		set_size3_item = proto_tree_add_text(tree, offset,
+			END_OF_FRAME, "%s: %s", name, set_it_name);
+		if (set_size3_item)
+			set_size3_tree = proto_item_add_subtree(set_size3_item, ETT_NFS_SET_SIZE3);
+	}
+
+	if (set_size3_tree)
+		proto_tree_add_text(set_size3_tree, offset, 4,
+			"set_it: %s (%u)", set_it_name, set_it);
+
+	offset += 4;
+
+	switch (set_it) {
+		case 1:
+			offset = dissect_size3(pd, offset, fd, set_size3_tree,
+					"size");
+		break;
+		default:
+			/* void */
+		break;
+	}
+
+	/* now we know, that set_size3 is shorter */
+	if (set_size3_item) {
+		proto_item_set_len(set_size3_item, offset - old_offset);
+	}
+
+	return offset;
+}
+
+
+/* RFC 1813, Page 25 */
+#define DONT_CHANGE 0
+#define SET_TO_SERVER_TIME 1
+#define SET_TO_CLIENT_TIME 2
+
+const value_string time_how[] =
+	{
+		{ DONT_CHANGE,	"don't change" },
+		{ SET_TO_SERVER_TIME, "set to server time" },
+		{ SET_TO_CLIENT_TIME, "set to client time" },
+		{ 0, NULL }
+	};
+
+
+/* RFC 1813, Page 26 */
+int
+dissect_set_atime(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+{
+	proto_item* set_atime_item = NULL;
+	proto_tree* set_atime_tree = NULL;
+	int old_offset = offset;
+	guint32 set_it;
+	char* set_it_name;
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	set_it = EXTRACT_UINT(pd, offset+0);
+	set_it_name = val_to_str(set_it,time_how,"Unknown");
+
+	if (tree) {
+		set_atime_item = proto_tree_add_text(tree, offset,
+			END_OF_FRAME, "%s: %s",
+			name, set_it_name, set_it);
+		if (set_atime_item)
+			set_atime_tree = proto_item_add_subtree(set_atime_item, ETT_NFS_SET_ATIME);
+	}
+
+	if (set_atime_tree)
+		proto_tree_add_text(set_atime_tree, offset, 4,
+			"set_it: %s (%u)", set_it_name, set_it);
+
+	offset += 4;
+
+	switch (set_it) {
+		case SET_TO_CLIENT_TIME:
+			if (set_atime_item)
+			offset = dissect_nfstime3(pd, offset, fd, set_atime_tree,
+					"atime");
+		break;
+		default:
+			/* void */
+		break;
+	}
+
+	/* now we know, that set_atime is shorter */
+	if (set_atime_item) {
+		proto_item_set_len(set_atime_item, offset - old_offset);
+	}
+
+	return offset;
+}
+
+
+/* RFC 1813, Page 26 */
+int
+dissect_set_mtime(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+{
+	proto_item* set_mtime_item = NULL;
+	proto_tree* set_mtime_tree = NULL;
+	int old_offset = offset;
+	guint32 set_it;
+	char* set_it_name;
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	set_it = EXTRACT_UINT(pd, offset+0);
+	set_it_name = val_to_str(set_it,time_how,"Unknown");
+
+	if (tree) {
+		set_mtime_item = proto_tree_add_text(tree, offset,
+			END_OF_FRAME, "%s: %s",
+			name, set_it_name, set_it);
+		if (set_mtime_item)
+			set_mtime_tree = proto_item_add_subtree(set_mtime_item, ETT_NFS_SET_MTIME);
+	}
+
+	if (set_mtime_tree)
+		proto_tree_add_text(set_mtime_tree, offset, 4,
+				"set_it: %s (%u)", set_it_name, set_it);
+
+	offset += 4;
+
+	switch (set_it) {
+		case SET_TO_CLIENT_TIME:
+			if (set_mtime_item)
+			offset = dissect_nfstime3(pd, offset, fd, set_mtime_tree,
+					"atime");
+		break;
+		default:
+			/* void */
+		break;
+	}
+
+	/* now we know, that set_mtime is shorter */
+	if (set_mtime_item) {
+		proto_item_set_len(set_mtime_item, offset - old_offset);
+	}
+
+	return offset;
+}
+
+
+/* RFC 1813, Page 26 */
+int
+dissect_sattr3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+{
+	proto_item* sattr3_item = NULL;
+	proto_tree* sattr3_tree = NULL;
+	int old_offset = offset;
+
+	if (tree) {
+		sattr3_item = proto_tree_add_text(tree, offset,
+			END_OF_FRAME, "%s", name);
+		if (sattr3_item)
+			sattr3_tree = proto_item_add_subtree(sattr3_item, ETT_NFS_SATTR3);
+	}
+
+	offset = dissect_set_mode3(pd, offset, fd, sattr3_tree, "mode");
+	offset = dissect_set_uid3 (pd, offset, fd, sattr3_tree, "uid");
+	offset = dissect_set_gid3 (pd, offset, fd, sattr3_tree, "gid");
+	offset = dissect_set_size3(pd, offset, fd, sattr3_tree, "size");
+	offset = dissect_set_atime(pd, offset, fd, sattr3_tree, "atime");
+	offset = dissect_set_mtime(pd, offset, fd, sattr3_tree, "mtime");
+
+	/* now we know, that sattr3 is shorter */
+	if (sattr3_item) {
+		proto_item_set_len(sattr3_item, offset - old_offset);
 	}
 
 	return offset;
@@ -786,12 +1321,89 @@ dissect_nfs3_getattr_reply(const u_char* pd, int offset, frame_data* fd, proto_t
 }
 
 
+/* RFC 1813, Page 33 */
+int
+dissect_sattrguard3(const u_char* pd, int offset, frame_data* fd, proto_tree* tree, char *name)
+{
+	proto_item* sattrguard3_item = NULL;
+	proto_tree* sattrguard3_tree = NULL;
+	int old_offset = offset;
+	guint32 check;
+	char* check_name;
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	check = EXTRACT_UINT(pd, offset+0);
+	check_name = val_to_str(check,value_follows,"Unknown");
+
+	if (tree) {
+		sattrguard3_item = proto_tree_add_text(tree, offset,
+			END_OF_FRAME, "%s: %s", name, check_name);
+		if (sattrguard3_item)
+			sattrguard3_tree = proto_item_add_subtree(sattrguard3_item, ETT_NFS_SATTRGUARD3);
+	}
+
+	if (sattrguard3_tree)
+		proto_tree_add_text(sattrguard3_tree, offset, 4,
+			"check: %s (%u)", check_name, check);
+
+	offset += 4;
+
+	switch (check) {
+		case TRUE:
+			offset = dissect_nfstime3(pd, offset, fd, sattrguard3_tree,
+					"obj_ctime");
+		break;
+		case FALSE:
+			/* void */
+		break;
+	}
+
+	/* now we know, that sattrguard3 is shorter */
+	if (sattrguard3_item) {
+		proto_item_set_len(sattrguard3_item, offset - old_offset);
+	}
+
+	return offset;
+}
+
+
+/* RFC 1813, Page 33 */
+int
+dissect_nfs3_setattr_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	offset = dissect_nfs_fh3    (pd, offset, fd, tree, "object");
+	offset = dissect_sattr3     (pd, offset, fd, tree, "new_attributes");
+	offset = dissect_sattrguard3(pd, offset, fd, tree, "guard");
+	return offset;
+}
+
+
+/* RFC 1813, Page 33 */
+int
+dissect_nfs3_setattr_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	guint32 status;
+
+	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	switch (status) {
+		case 0:
+			offset = dissect_wcc_data(pd, offset, fd, tree, "obj_wcc");
+		break;
+		default:
+			offset = dissect_wcc_data(pd, offset, fd, tree, "obj_wcc");
+		break;
+	}
+		
+	return offset;
+}
+
+
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: take the generic one. */
 const vsff nfs3_proc[] = {
 	{ 0,	"NULL",		NULL,				NULL },
 	{ 1,	"GETATTR",	dissect_nfs3_getattr_call,	dissect_nfs3_getattr_reply },
-	{ 2,	"SETATTR",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
+	{ 2,	"SETATTR",	dissect_nfs3_setattr_call,	dissect_nfs3_setattr_reply },
 	{ 3,	"LOOKUP",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
 	{ 4,	"ACCESS",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
 	{ 5,	"READLINK",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },

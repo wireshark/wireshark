@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.1 1999/11/11 21:21:59 nneul Exp $
+ * $Id: packet-mount.c,v 1.2 1999/11/15 14:17:18 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -37,11 +37,12 @@
 #include "packet-rpc.h"
 #include "packet-mount.h"
 
+
 static int proto_mount = -1;
 static int hf_mount_path = -1;
 
-/* Dissect a unmount call */
-int dissect_unmount_call(const u_char *pd, int offset, frame_data *fd,
+
+int dissect_mount_dirpath_call(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
 	if ( tree )
@@ -52,18 +53,43 @@ int dissect_unmount_call(const u_char *pd, int offset, frame_data *fd,
 	return offset;
 }
 
+
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: take the generic one. */
-
-const vsff mount_proc[] = {
+/* Mount protocol version 1, RFC 1094 */
+const vsff mount1_proc[] = {
     { 0, "NULL", NULL, NULL },
-    { MOUNTPROC_MOUNT,   "MOUNT",      
+    { MOUNTPROC_MNT,   "MNT",      
+		dissect_mount_dirpath_call, NULL },
+    { MOUNTPROC_DUMP,    "DUMP",
 		NULL, NULL },
-    { MOUNTPROC_UNMOUNT, "UNMOUNT",        
-		dissect_unmount_call, NULL },
+    { MOUNTPROC_UMNT, "UMNT",        
+		dissect_mount_dirpath_call, NULL },
+    { MOUNTPROC_UMNTALL, "UMNTALL",
+		NULL, NULL },
+    { MOUNTPROC_EXPORT, "EXPORT",
+		NULL, NULL },
     { 0, NULL, NULL, NULL }
 };
 /* end of mount version 1 */
+
+
+/* Mount protocol version 3, RFC 1813 */
+const vsff mount3_proc[] = {
+	{ 0, "NULL", NULL, NULL },
+	{ MOUNTPROC_MNT, "MNT",
+		dissect_mount_dirpath_call, NULL },
+	{ MOUNTPROC_DUMP, "DUMP",
+		NULL, NULL },
+	{ MOUNTPROC_UMNT, "UMNT",
+		dissect_mount_dirpath_call, NULL },
+	{ MOUNTPROC_UMNTALL, "UMNTALL",
+		NULL, NULL },
+	{ MOUNTPROC_EXPORT, "EXPORT",
+		NULL, NULL },
+	{ 0, NULL, NULL, NULL }
+};
+/* end of Mount protocol version 3 */
 
 
 void
@@ -81,6 +107,7 @@ proto_register_mount(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_mount, MOUNT_PROGRAM, ETT_MOUNT);
 	/* Register the procedure tables */
-	rpc_init_proc_table(MOUNT_PROGRAM, 1, mount_proc);
+	rpc_init_proc_table(MOUNT_PROGRAM, 1, mount1_proc);
+	rpc_init_proc_table(MOUNT_PROGRAM, 3, mount3_proc);
 }
 

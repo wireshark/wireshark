@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.140 1999/11/14 20:44:52 guy Exp $
+ * $Id: packet.h,v 1.141 1999/11/15 14:17:20 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -455,11 +455,25 @@ enum {
 	ETT_NFS_TIMEVAL,
 	ETT_NFS_MODE,
 	ETT_NFS_FATTR,
+	ETT_NFS_SATTR,
 	ETT_NFS_MODE3,
 	ETT_NFS_SPECDATA3,
 	ETT_NFS_FH3,
 	ETT_NFS_NFSTIME3,
 	ETT_NFS_FATTR3,
+	ETT_NFS_POST_OP_ATTR,
+	ETT_NFS_WCC_ATTR,
+	ETT_NFS_PRE_OP_ATTR,
+	ETT_NFS_WCC_DATA,
+	ETT_NFS_SET_MODE3,
+	ETT_NFS_SET_UID3,
+	ETT_NFS_SET_GID3,
+	ETT_NFS_SET_SIZE3,
+	ETT_NFS_SET_ATIME,
+	ETT_NFS_SET_MTIME,
+	ETT_NFS_SATTR3,
+	ETT_NFS_SATTRGUARD3,
+	ETT_BOOT,
 	ETT_NLM,
 	ETT_PORTMAP,
 	ETT_STAT,
