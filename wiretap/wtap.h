@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.116 2002/07/12 22:52:43 guy Exp $
+ * $Id: wtap.h,v 1.117 2002/07/16 07:15:09 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -393,30 +393,32 @@ void wtap_set_bytes_dumped(wtap_dumper *wdh, long bytes_dumped);
 #define	WTAP_ERR_UNSUPPORTED			-4
 	/* Supported file type, but there's something in the file we
 	   can't support */
-#define	WTAP_ERR_CANT_OPEN			-5
+#define	WTAP_ERR_CANT_WRITE_TO_PIPE		-5
+	/* Wiretap can't save to a pipe in the specified format */
+#define	WTAP_ERR_CANT_OPEN			-6
 	/* The file couldn't be opened, reason unknown */
-#define	WTAP_ERR_UNSUPPORTED_FILE_TYPE		-6
+#define	WTAP_ERR_UNSUPPORTED_FILE_TYPE		-7
 	/* Wiretap can't save files in the specified format */
-#define	WTAP_ERR_UNSUPPORTED_ENCAP		-7
+#define	WTAP_ERR_UNSUPPORTED_ENCAP		-8
 	/* Wiretap can't read or save files in the specified format with the
 	   specified encapsulation */
-#define	WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED	-8
+#define	WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED	-9
 	/* The specified format doesn't support per-packet encapsulations */
-#define	WTAP_ERR_CANT_CLOSE			-9
+#define	WTAP_ERR_CANT_CLOSE			-10
 	/* The file couldn't be closed, reason unknown */
-#define	WTAP_ERR_CANT_READ			-10
+#define	WTAP_ERR_CANT_READ			-11
 	/* An attempt to read failed, reason unknown */
-#define	WTAP_ERR_SHORT_READ			-11
+#define	WTAP_ERR_SHORT_READ			-12
 	/* An attempt to read read less data than it should have */
-#define	WTAP_ERR_BAD_RECORD			-12
+#define	WTAP_ERR_BAD_RECORD			-13
 	/* We read an invalid record */
-#define	WTAP_ERR_SHORT_WRITE			-13
+#define	WTAP_ERR_SHORT_WRITE			-14
 	/* An attempt to write wrote less data than it should have */
-#define	WTAP_ERR_UNC_TRUNCATED			-14
+#define	WTAP_ERR_UNC_TRUNCATED			-15
 	/* Sniffer compressed data was oddly truncated */
-#define	WTAP_ERR_UNC_OVERFLOW			-15
+#define	WTAP_ERR_UNC_OVERFLOW			-16
 	/* Uncompressing Sniffer data would overflow buffer */
-#define	WTAP_ERR_UNC_BAD_OFFSET			-16
+#define	WTAP_ERR_UNC_BAD_OFFSET			-17
 	/* LZ77 compressed data has bad offset to string */
 
 /* Errors from zlib; zlib error Z_xxx turns into Wiretap error

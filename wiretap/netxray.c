@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.56 2002/06/07 07:27:35 guy Exp $
+ * $Id: netxray.c,v 1.57 2002/07/16 07:15:09 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -549,9 +549,16 @@ int netxray_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean netxray_dump_open_1_1(wtap_dumper *wdh, int *err)
+gboolean netxray_dump_open_1_1(wtap_dumper *wdh, gboolean cant_seek, int *err)
 {
-    /* This is a netxray file */
+    /* This is a NetXRay file.  We can't fill in some fields in the header
+       until all the packets have been written, so we can't write to a
+       pipe. */
+    if (cant_seek) {
+	*err = WTAP_ERR_CANT_WRITE_TO_PIPE;
+	return FALSE;
+    }
+
     wdh->subtype_write = netxray_dump_1_1;
     wdh->subtype_close = netxray_dump_close_1_1;
 
@@ -689,9 +696,16 @@ static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean netxray_dump_open_2_0(wtap_dumper *wdh, int *err)
+gboolean netxray_dump_open_2_0(wtap_dumper *wdh, gboolean cant_seek, int *err)
 {
-    /* This is a netxray file */
+    /* This is a NetXRay file.  We can't fill in some fields in the header
+       until all the packets have been written, so we can't write to a
+       pipe. */
+    if (cant_seek) {
+	*err = WTAP_ERR_CANT_WRITE_TO_PIPE;
+	return FALSE;
+    }
+
     wdh->subtype_write = netxray_dump_2_0;
     wdh->subtype_close = netxray_dump_close_2_0;
 

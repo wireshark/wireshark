@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.281 2002/07/15 05:14:26 sharpe Exp $
+ * $Id: file.c,v 1.282 2002/07/16 07:15:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -197,7 +197,7 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
 
 fail:
   simple_dialog(ESD_TYPE_CRIT, NULL,
-			file_open_error_message(err, FALSE), fname);
+			file_open_error_message(err, FALSE, 0), fname);
   return (err);
 }
 
@@ -1799,7 +1799,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
     pdh = wtap_dump_open(fname, save_format, cf->lnk_t, cf->snap, &err);
     if (pdh == NULL) {
       simple_dialog(ESD_TYPE_CRIT, NULL,
-			file_open_error_message(err, TRUE), fname);
+			file_open_error_message(err, TRUE, save_format), fname);
       goto fail;
     }
 
@@ -1897,7 +1897,7 @@ fail:
 }
 
 char *
-file_open_error_message(int err, gboolean for_writing)
+file_open_error_message(int err, gboolean for_writing, int file_type)
 {
   char *errmsg;
   static char errmsg_errno[1024+1];
@@ -1917,6 +1917,14 @@ file_open_error_message(int err, gboolean for_writing)
   case WTAP_ERR_UNSUPPORTED:
     /* Seen only when opening a capture file for reading. */
     errmsg = "The file \"%s\" is not a capture file in a format Ethereal understands.";
+    break;
+
+  case WTAP_ERR_CANT_WRITE_TO_PIPE:
+    /* Seen only when opening a capture file for writing. */
+    snprintf(errmsg_errno, sizeof(errmsg_errno),
+	     "The file \"%%s\" is a pipe, and %s capture files cannot be "
+	     "written to a pipe.", wtap_file_type_string(file_type));
+    errmsg = errmsg_errno;
     break;
 
   case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
@@ -1972,7 +1980,8 @@ file_open_error_message(int err, gboolean for_writing)
 
   default:
     snprintf(errmsg_errno, sizeof(errmsg_errno),
-		    "The file \"%%s\" could not be opened: %s.",
+		    "The file \"%%s\" could not be %s: %s.",
+				for_writing ? "created" : "opened",
 				wtap_strerror(err));
     errmsg = errmsg_errno;
     break;
@@ -2103,7 +2112,7 @@ copy_binary_file(char *from_filename, char *to_filename)
       if (from_fd < 0) {
       	err = errno;
 	simple_dialog(ESD_TYPE_CRIT, NULL,
-			file_open_error_message(err, TRUE), from_filename);
+			file_open_error_message(err, TRUE, 0), from_filename);
 	goto done;
       }
 
@@ -2116,7 +2125,7 @@ copy_binary_file(char *from_filename, char *to_filename)
       if (to_fd < 0) {
       	err = errno;
 	simple_dialog(ESD_TYPE_CRIT, NULL,
-			file_open_error_message(err, TRUE), to_filename);
+			file_open_error_message(err, TRUE, 0), to_filename);
 	close(from_fd);
 	goto done;
       }

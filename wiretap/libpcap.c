@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.78 2002/06/13 11:03:23 guy Exp $
+ * $Id: libpcap.c,v 1.79 2002/07/16 07:15:08 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1249,7 +1249,7 @@ int libpcap_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
+gboolean libpcap_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 {
 	guint32 magic;
 	struct pcap_hdr file_hdr;

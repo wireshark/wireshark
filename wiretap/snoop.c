@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.52 2002/06/07 07:27:35 guy Exp $
+ * $Id: snoop.c,v 1.53 2002/07/16 07:15:09 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -597,7 +597,7 @@ int snoop_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean snoop_dump_open(wtap_dumper *wdh, int *err)
+gboolean snoop_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 {
 	struct snoop_hdr file_hdr;
 	size_t nwritten;

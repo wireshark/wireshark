@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.147 2002/07/07 21:52:48 guy Exp $
+ * $Id: tethereal.c,v 1.148 2002/07/16 07:15:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -675,23 +675,30 @@ main(int argc, char *argv[])
   /* See if we're writing a capture file and the file is a pipe */
   ld.output_to_pipe = FALSE;
   if (cfile.save_file != NULL) {
-    err = test_for_fifo(cfile.save_file);
-    switch (err) {
-
-    case ENOENT:	/* it doesn't exist, so we'll be creating it,
-    			   and it won't be a FIFO */
-    case 0:		/* found it, but it's not a FIFO */
-      break;
-
-    case ESPIPE:	/* it is a FIFO */
+    if (!strcmp(cfile.save_file, "-")) {
+      /* stdout */
+      g_free(cfile.save_file);
+      cfile.save_file = g_strdup("");
       ld.output_to_pipe = TRUE;
-      break;
-
-    default:		/* couldn't stat it */
-      fprintf(stderr,
-              "tethereal: Error testing whether capture file is a pipe: %s\n",
-              strerror(errno));
-      exit(2);
+    } else {
+      err = test_for_fifo(cfile.save_file);
+      switch (err) {
+  
+      case ENOENT:	/* it doesn't exist, so we'll be creating it,
+      			   and it won't be a FIFO */
+      case 0:		/* found it, but it's not a FIFO */
+        break;
+  
+      case ESPIPE:	/* it is a FIFO */
+        ld.output_to_pipe = TRUE;
+        break;
+  
+      default:		/* couldn't stat it */
+        fprintf(stderr,
+                "tethereal: Error testing whether capture file is a pipe: %s\n",
+                strerror(errno));
+        exit(2);
+      }
     }
   }
 
@@ -699,7 +706,8 @@ main(int argc, char *argv[])
   /* If they didn't specify a "-w" flag, but specified a maximum capture
      file size, tell them that this doesn't work, and exit. */
   if (capture_opts.has_autostop_filesize && cfile.save_file == NULL) {
-    fprintf(stderr, "tethereal: Maximum capture file size specified, but capture isn't being saved to a file.\n");
+    fprintf(stderr, "tethereal: Maximum capture file size specified, but "
+      "capture isn't being saved to a file.\n");
     exit(2);
   }
 
@@ -882,7 +890,8 @@ capture(int out_file_type)
   struct bpf_program fcode;
   void        (*oldhandler)(int);
   int         err = 0;
-  volatile int inpkts = 0;
+  int         volatile volatile_err = 0;
+  int         volatile inpkts = 0;
   int         pcap_cnt;
   char        errmsg[1024+1];
   condition  *volatile cnd_stop_capturesize = NULL;
@@ -892,7 +901,7 @@ capture(int out_file_type)
   char       *libpcap_warn;
 #endif
   struct pcap_stat stats;
-  gboolean    volatile write_err = FALSE;
+  gboolean    write_err;
   gboolean    dump_ok;
 
   /* Initialize all data structures used for dissection. */
@@ -992,6 +1001,7 @@ capture(int out_file_type)
         ld.pdh = ringbuf_init_wtap_dump_fdopen(out_file_type, ld.linktype,
           pcap_snapshot(ld.pch), &err);
       } else {
+      	err = errno;	/* "ringbuf_init()" failed */
         ld.pdh = NULL;
       }
     } else {
@@ -1000,8 +1010,9 @@ capture(int out_file_type)
     }
 
     if (ld.pdh == NULL) {
-      snprintf(errmsg, sizeof errmsg, file_open_error_message(errno, TRUE),
-		cfile.save_file);
+      snprintf(errmsg, sizeof errmsg,
+	       file_open_error_message(err, TRUE, out_file_type),
+	       *cfile.save_file == '\0' ? "stdout" : cfile.save_file);
       goto error;
     }
   }
@@ -1044,6 +1055,33 @@ capture(int out_file_type)
     ld.go = FALSE;
   ld.packet_count = 0;
   while (ld.go) {
+    /* We need to be careful with automatic variables defined in the
+       outer scope which are changed inside the loop.  Most compilers
+       don't try to roll them back to their original values after the
+       longjmp which causes the loop to finish, but all that the
+       standards say is that their values are indeterminate.  If we
+       don't want them to be rolled back, we should define them with the
+       volatile attribute (paraphrasing W. Richard Stevens, Advanced
+       Programming in the UNIX Environment, p. 178).
+
+       The "err" variable causes a particular problem.  If we give it
+       the volatile attribute, then when we pass a reference to it (as
+       in "&err") to a function, GCC warns: "passing arg <n> of
+       <function> discards qualifiers from pointer target type".
+       Therefore within the loop and just beyond we don't use "err".
+       Within the loop we define "loop_err", and assign its value to
+       "volatile_err", which is in the outer scope and is checked when
+       the loop finishes.
+
+       We also define "packet_count_prev" here to keep things tidy,
+       since it's used only inside the loop.  If it were defined in the
+       outer scope, GCC would give a warning (unnecessary in this case)
+       that it might be clobbered, and we'd need to give it the volatile
+       attribute to suppress the warning. */
+
+    int loop_err = 0;
+    int packet_count_prev = 0;
+
     if (cnd_stop_capturesize == NULL && cnd_stop_timeout == NULL) {
       /* We're not stopping at a particular capture file size, and we're
          not stopping after some particular amount of time has expired,
@@ -1064,6 +1102,7 @@ capture(int out_file_type)
         pcap_cnt = -1;
       else {
         if (ld.packet_count >= capture_opts.autostop_count) {
+          /* XXX do we need this test here? */
           /* It appears there's nothing more to capture. */
           break;
         }
@@ -1078,43 +1117,47 @@ capture(int out_file_type)
     if (inpkts < 0) {
       /* Error from "pcap_dispatch()". */
       ld.go = FALSE;
-    } else if (capture_opts.autostop_count != 0 &&
-               ld.packet_count >= capture_opts.autostop_count) {
-      /* The specified number of packets have been captured and have
-         passed both any capture filter in effect and any read filter
-         in effect. */
-      ld.go = FALSE;
     } else if (cnd_stop_timeout != NULL && cnd_eval(cnd_stop_timeout)) {
       /* The specified capture time has elapsed; stop the capture. */
       ld.go = FALSE;
-    } else if (cnd_stop_capturesize != NULL &&
-                  cnd_eval(cnd_stop_capturesize, 
-                            (guint32)wtap_get_bytes_dumped(ld.pdh))) {
-      /* We're saving the capture to a file, and the capture file reached
-         its maximum size. */
-      if (capture_opts.ringbuffer_on) {
-        /* Switch to the next ringbuffer file */
-        if (ringbuf_switch_file(&cfile, &ld.pdh, &err)) {
-          /* File switch succeeded: reset the condition */
-          cnd_reset(cnd_stop_capturesize);
+    } else if (inpkts > 0) {
+      if (capture_opts.autostop_count != 0 &&
+                 ld.packet_count >= capture_opts.autostop_count) {
+        /* The specified number of packets have been captured and have
+           passed both any capture filter in effect and any read filter
+           in effect. */
+        ld.go = FALSE;
+      } else if (cnd_stop_capturesize != NULL &&
+                    cnd_eval(cnd_stop_capturesize, 
+                              (guint32)wtap_get_bytes_dumped(ld.pdh))) {
+        /* We're saving the capture to a file, and the capture file reached
+           its maximum size. */
+        if (capture_opts.ringbuffer_on) {
+          /* Switch to the next ringbuffer file */
+          if (ringbuf_switch_file(&cfile, &ld.pdh, &loop_err)) {
+            /* File switch succeeded: reset the condition */
+            cnd_reset(cnd_stop_capturesize);
+          } else {
+            /* File switch failed: stop here */
+            volatile_err = loop_err;
+            ld.go = FALSE;
+          }
         } else {
-          /* File switch failed: stop here */
+          /* No ringbuffer - just stop. */
           ld.go = FALSE;
-          continue;
         }
-      } else {
-        /* No ringbuffer - just stop. */
-        ld.go = FALSE;
       }
-    }
-    if (ld.output_to_pipe) {
-      /* XXX - flush only if ld.packet_count changed? */
-      if (fflush(wtap_dump_file(ld.pdh))) {
-        err = errno;
-        ld.go = FALSE;
+      if (ld.output_to_pipe) {
+        if (ld.packet_count > packet_count_prev) {
+          if (fflush(wtap_dump_file(ld.pdh))) {
+            volatile_err = errno;
+            ld.go = FALSE;
+          }
+          packet_count_prev = ld.packet_count;
+        }
       }
-    }
-  }
+    } /* inpkts > 0 */
+  } /* while (ld.go) */
   
   /* delete stop conditions */
   if (cnd_stop_capturesize != NULL)
@@ -1124,7 +1167,7 @@ capture(int out_file_type)
 
   if ((cfile.save_file != NULL) && !quiet) {
     /* We're saving to a file, which means we're printing packet counts
-       to the standard output if we are not running silent and deep.
+       to stderr if we are not running silent and deep.
        Send a newline so that we move to the line after the packet count. */
     fprintf(stderr, "\n");
   }
@@ -1135,8 +1178,10 @@ capture(int out_file_type)
 	pcap_geterr(ld.pch));
   }
 
-  if (err != 0) {
-    show_capture_file_io_error(cfile.save_file, err, FALSE);
+  if (volatile_err == 0)
+    write_err = FALSE;
+  else {
+    show_capture_file_io_error(cfile.save_file, volatile_err, FALSE);
     write_err = TRUE;
   }
 
@@ -1147,7 +1192,9 @@ capture(int out_file_type)
     } else {
       dump_ok = wtap_dump_close(ld.pdh, &err);
     }
-    if (!dump_ok && ! write_err)
+    /* If we've displayed a message about a write error, there's no point
+       in displaying another message about an error on close. */
+    if (!dump_ok && !write_err)
       show_capture_file_io_error(cfile.save_file, err, TRUE);
   }
 
@@ -1195,8 +1242,8 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   int err;
 
   /* Convert from libpcap to Wiretap format.
-     If that fails, ignore the packet.
-     XXX - print a message. */
+     If that fails, ignore the packet (wtap_process_pcap_packet has
+     written an error message). */
   pd = wtap_process_pcap_packet(ld->linktype, phdr, pd, &pseudo_header,
 				&whdr, &err);
   if (pd == NULL) {
@@ -1295,31 +1342,28 @@ load_cap_file(capture_file *cf, int out_file_type)
       case WTAP_ERR_UNSUPPORTED_ENCAP:
       case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
         fprintf(stderr,
-"tethereal: The capture file being read cannot be written in that format.\n");
+          "tethereal: The capture file being read cannot be written in "
+          "that format.\n");
         break;
 
       case WTAP_ERR_CANT_OPEN:
         fprintf(stderr,
-"tethereal: The file \"%s\" couldn't be created for some unknown reason.\n",
-                 cf->save_file);
+          "tethereal: The file \"%s\" couldn't be created for some "
+          "unknown reason.\n",
+            *cf->save_file == '\0' ? "stdout" : cf->save_file);
         break;
 
       case WTAP_ERR_SHORT_WRITE:
         fprintf(stderr,
-"tethereal: A full header couldn't be written to the file \"%s\".\n",
-		cf->save_file);
+          "tethereal: A full header couldn't be written to the file \"%s\".\n",
+		*cf->save_file == '\0' ? "stdout" : cf->save_file);
         break;
 
       default:
-        if (err < 0) {
-          fprintf(stderr,
-		"tethereal: The file \"%s\" could not be opened: Error %d.\n",
-   		cf->save_file, err);
-        } else {
-          fprintf(stderr,
-		"tethereal: The file \"%s\" could not be opened: %s\n.",
- 		cf->save_file, strerror(err));
-        }
+        fprintf(stderr,
+          "tethereal: The file \"%s\" could not be created: %s\n.",
+ 		*cf->save_file == '\0' ? "stdout" : cf->save_file,
+		wtap_strerror(err));
         break;
       }
       goto out;
@@ -1499,6 +1543,9 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr,
 static void
 show_capture_file_io_error(const char *fname, int err, gboolean is_close)
 {
+  if (*fname == '\0')
+    fname = "stdout";
+
   switch (err) {
 
   case ENOSPC:
@@ -1814,7 +1861,7 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
 }
 
 char *
-file_open_error_message(int err, gboolean for_writing)
+file_open_error_message(int err, gboolean for_writing, int file_type)
 {
   char *errmsg;
   static char errmsg_errno[1024+1];
@@ -1829,6 +1876,14 @@ file_open_error_message(int err, gboolean for_writing)
   case WTAP_ERR_UNSUPPORTED:
     /* Seen only when opening a capture file for reading. */
     errmsg = "The file \"%s\" is not a capture file in a format Tethereal understands.";
+    break;
+
+  case WTAP_ERR_CANT_WRITE_TO_PIPE:
+    /* Seen only when opening a capture file for writing. */
+    snprintf(errmsg_errno, sizeof(errmsg_errno),
+	     "The file \"%%s\" is a pipe, and %s capture files cannot be "
+	     "written to a pipe.", wtap_file_type_string(file_type));
+    errmsg = errmsg_errno;
     break;
 
   case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
@@ -1884,7 +1939,8 @@ file_open_error_message(int err, gboolean for_writing)
 
   default:
     snprintf(errmsg_errno, sizeof(errmsg_errno),
-	     "The file \"%%s\" could not be opened: %s.",
+	     "The file \"%%s\" could not be %s: %s.",
+	     for_writing ? "created" : "opened",
 	     wtap_strerror(err));
     errmsg = errmsg_errno;
     break;
@@ -1944,7 +2000,8 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   return (0);
 
 fail:
-  snprintf(err_msg, sizeof err_msg, file_open_error_message(err, FALSE), fname);
+  snprintf(err_msg, sizeof err_msg, file_open_error_message(err, FALSE, 0),
+	   fname);
   fprintf(stderr, "tethereal: %s\n", err_msg);
   return (err);
 }

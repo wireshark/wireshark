@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.93 2002/06/27 22:46:47 guy Exp $
+ * $Id: file.c,v 1.94 2002/07/16 07:15:08 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -308,7 +308,7 @@ static const struct file_type_info {
 	const char *name;
 	const char *short_name;
 	int	(*can_write_encap)(int);
-	int	(*dump_open)(wtap_dumper *, int *);
+	int	(*dump_open)(wtap_dumper *, gboolean, int *);
 } dump_open_table[WTAP_NUM_FILE_TYPES] = {
 	/* WTAP_FILE_UNKNOWN */
 	{ NULL, NULL,
@@ -513,20 +513,26 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 	if (wdh == NULL)
 		return NULL;	/* couldn't allocate it */
 
-	/* In case "fopen()" fails but doesn't set "errno", set "errno"
-	   to a generic "the open failed" error. */
-	errno = WTAP_ERR_CANT_OPEN;
-	fh = fopen(filename, "wb");
-	if (fh == NULL) {
-		*err = errno;
-		return NULL;	/* can't create file */
+	/* Empty filename means stdout */
+	if (*filename == '\0')
+		wdh->fh = stdout;
+	else {
+		/* In case "fopen()" fails but doesn't set "errno", set "errno"
+		   to a generic "the open failed" error. */
+		errno = WTAP_ERR_CANT_OPEN;
+		fh = fopen(filename, "wb");
+		if (fh == NULL) {
+			*err = errno;
+			return NULL;	/* can't create file */
+		}
+		wdh->fh = fh;
 	}
-	wdh->fh = fh;
 
 	if (!wtap_dump_open_finish(wdh, filetype, err)) {
 		/* Get rid of the file we created; we couldn't finish
 		   opening it. */
-		unlink(filename);
+		if (wdh->fh != stdout)
+			unlink(filename);
 		return NULL;
 	}
 	return wdh;
@@ -604,12 +610,27 @@ static wtap_dumper* wtap_dump_alloc_wdh(int filetype, int encap, int snaplen,
 
 static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int filetype, int *err)
 {
+	int fd;
+	gboolean cant_seek;
+
+	/* Can we do a seek on the file descriptor?
+	   If not, note that fact. */
+	fd = fileno(wdh->fh);
+	if (lseek(fd, 1, SEEK_CUR) == -1)
+	  cant_seek = TRUE;
+	else {
+	  /* Undo the seek. */
+	  lseek(fd, 0, SEEK_SET);
+	  cant_seek = FALSE;
+	}
+
 	/* Now try to open the file for writing. */
-	if (!(*dump_open_table[filetype].dump_open)(wdh, err)) {
+	if (!(*dump_open_table[filetype].dump_open)(wdh, cant_seek, err)) {
 		/* The attempt failed.  Close the stream for the file.
 		   NOTE: this means the FD handed to "wtap_dump_fdopen()"
 		   will be closed if the open fails. */
-		fclose(wdh->fh);
+		if (wdh->fh != stdout)
+			fclose(wdh->fh);
 
 		/* Now free up the dumper handle. */
 		g_free(wdh);
@@ -640,15 +661,18 @@ gboolean wtap_dump_close(wtap_dumper *wdh, int *err)
 			ret = FALSE;
 	}
 	errno = WTAP_ERR_CANT_CLOSE;
-	if (fclose(wdh->fh) == EOF) {
-		if (ret) {
-			/* The per-format close function succeeded,
-			   but the fclose didn't.  Save the reason
-			   why, if our caller asked for it. */
-			if (err != NULL)
-				*err = errno;
+	/* Don't close stdout */
+	if (wdh->fh != stdout) {
+		if (fclose(wdh->fh) == EOF) {
+			if (ret) {
+				/* The per-format close function succeeded,
+				   but the fclose didn't.  Save the reason
+				   why, if our caller asked for it. */
+				if (err != NULL)
+					*err = errno;
+			}
+			ret = FALSE;
 		}
-		ret = FALSE;
 	}
 	if (wdh->dump.opaque != NULL)
 		g_free(wdh->dump.opaque);

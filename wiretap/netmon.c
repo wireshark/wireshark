@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.56 2002/06/07 07:27:35 guy Exp $
+ * $Id: netmon.c,v 1.57 2002/07/16 07:15:08 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -581,9 +581,16 @@ int netmon_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean netmon_dump_open(wtap_dumper *wdh, int *err)
+gboolean netmon_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
 {
-	/* This is a netmon file */
+	/* This is a NetMon file.  We can't fill in some fields in the
+	   header until all the packets have been written, so we can't
+	   write to a pipe. */
+	if (cant_seek) {
+		*err = WTAP_ERR_CANT_WRITE_TO_PIPE;
+		return FALSE;
+	}
+
 	wdh->subtype_write = netmon_dump;
 	wdh->subtype_close = netmon_dump_close;
 

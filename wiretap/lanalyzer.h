@@ -1,6 +1,6 @@
 /* lanalyzer.h
  *
- * $Id: lanalyzer.h,v 1.6 2002/06/27 22:46:48 guy Exp $
+ * $Id: lanalyzer.h,v 1.7 2002/07/16 07:15:08 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -170,7 +170,7 @@ typedef struct {
       } LA_TmpInfo;
 
 int         lanalyzer_open(wtap *wth, int *err);
-gboolean    lanalyzer_dump_open(wtap_dumper *wdh, int *err);
+gboolean    lanalyzer_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err);
 int         lanalyzer_dump_can_write_encap(int encap);
 
 #endif

@@ -1,6 +1,6 @@
 /* netxray.h
  *
- * $Id: netxray.h,v 1.8 2002/04/18 21:35:57 guy Exp $
+ * $Id: netxray.h,v 1.9 2002/07/16 07:15:09 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -24,8 +24,8 @@
 #define __NETXRAY_H__
 
 int netxray_open(wtap *wth, int *err);
-gboolean netxray_dump_open_2_0(wtap_dumper *wdh, int *err);
-gboolean netxray_dump_open_1_1(wtap_dumper *wdh, int *err);
+gboolean netxray_dump_open_2_0(wtap_dumper *wdh, gboolean cant_seek, int *err);
+gboolean netxray_dump_open_1_1(wtap_dumper *wdh, gboolean cant_seek, int *err);
 int netxray_dump_can_write_encap(int encap);
 
 #endif

@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.66 2002/06/07 07:47:57 guy Exp $
+ * $Id: wtap.c,v 1.67 2002/07/16 07:15:09 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -179,14 +179,15 @@ wtap_short_string_to_encap(const char *short_name)
 }
 
 static const char *wtap_errlist[] = {
-	"The file isn't a plain file",
+	"The file isn't a plain file or pipe",
 	"The file is being opened for random access but is a pipe",
 	"The file isn't a capture file in a known format",
 	"File contains record data we don't support",
+	"That file format cannot be written to a pipe",
 	NULL,
 	"Files can't be saved in that format",
 	"Files from that network type can't be saved in that format",
-	"That format doesn't support per-packet encapsulations",
+	"That file format doesn't support per-packet encapsulations",
 	NULL,
 	NULL,
 	"Less data was read than was expected",

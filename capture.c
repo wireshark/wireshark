@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.185 2002/07/16 05:43:39 guy Exp $
+ * $Id: capture.c,v 1.186 2002/07/16 07:15:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -333,7 +333,7 @@ do_capture(char *capfile_name)
         ringbuf_error_cleanup();
       }
       simple_dialog(ESD_TYPE_CRIT, NULL,
-	file_open_error_message(errno, TRUE), capfile_name);
+	file_open_error_message(errno, TRUE, WTAP_FILE_PCAP), capfile_name);
     }
     return;
   }

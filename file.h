@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.94 2002/05/27 22:00:35 guy Exp $
+ * $Id: file.h,v 1.95 2002/07/16 07:15:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -140,7 +140,7 @@ int file_mv(char *from, char *to);
 /* Copies a file. Returns 0 on failure, 1 on success */
 int file_cp(char *from, char *to);
 
-char *file_open_error_message(int, gboolean);
+char *file_open_error_message(int, gboolean, int);
 char *file_read_error_message(int);
 char *file_write_error_message(int);
 

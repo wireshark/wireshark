@@ -288,7 +288,8 @@ a one-line summary of the packet.
 
 =item -w
 
-Write packet data to I<savefile>.
+Write packet data to I<savefile> or to the standard output if
+I<savefile> is "-".
 
 =item -x
 
