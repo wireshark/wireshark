@@ -1,7 +1,7 @@
-/* rpc-defrag.h
+/* rpc_defrag.h
  * Declarations for RPC defragmentation
  *
- * $Id: rpc_defrag.h,v 1.4 2002/08/28 21:00:41 jmayer Exp $
+ * $Id: rpc_defrag.h,v 1.5 2003/04/21 08:13:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,12 +32,12 @@
 #define RPC_RM_FRAGLEN	0x7fffffffL
 
 typedef gboolean (*rec_dissector_t)(tvbuff_t *, packet_info *, proto_tree *,
-	tvbuff_t *, fragment_data *, gboolean, guint32);
+	tvbuff_t *, fragment_data *, gboolean, guint32, gboolean);
 
 extern void show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb,
 	proto_tree *tree, guint32 rpc_rm, fragment_data *ipfd_head, packet_info *pinfo);
 extern int dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, rec_dissector_t dissector, gboolean is_heur,
-	int proto, int ett, gboolean defragment);
+	int proto, int ett, gboolean defragment, gboolean first_pdu);
 
 #endif /* __RPC_DEFRAG_H__ */

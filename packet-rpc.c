@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.119 2003/04/20 11:36:14 guy Exp $
+ * $Id: packet-rpc.c,v 1.120 2003/04/21 08:13:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,9 +60,6 @@
  *
  *	although we don't currently dissect AUTH_DES or AUTH_KERB.
  */
-
-/* to keep track of which is the first RPC PDU in a packet */
-static gboolean first_pdu;
 
 /* desegmentation of RPC over TCP */
 static gboolean rpc_desegment = TRUE;
@@ -1477,7 +1474,7 @@ dissect_rpc_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvbuff_t *frag_tvb, fragment_data *ipfd_head, gboolean is_tcp,
-    guint32 rpc_rm)
+    guint32 rpc_rm, gboolean first_pdu)
 {
 	guint32	msg_type;
 	rpc_call_info_key rpc_call_key;
@@ -1732,13 +1729,10 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			if(!first_pdu){
+			if (first_pdu)
+				col_clear(pinfo->cinfo, COL_INFO);
+			else
 				col_append_fstr(pinfo->cinfo, COL_INFO, "  ; ");
-			} else {
-				if (check_col(pinfo->cinfo, COL_INFO))
-					col_clear(pinfo->cinfo, COL_INFO);
-			}
-			first_pdu=FALSE;
 			col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s XID 0x%x",
 				vers,
 				procname,
@@ -1950,13 +1944,10 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			if(!first_pdu){
+			if (first_pdu)
+				col_clear(pinfo->cinfo, COL_INFO);
+			else
 				col_append_fstr(pinfo->cinfo, COL_INFO, "  ; ");
-			} else {
-				if (check_col(pinfo->cinfo, COL_INFO))
-					col_clear(pinfo->cinfo, COL_INFO);
-			}
-			first_pdu=FALSE;
 			col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s XID 0x%x",
 				vers,
 				procname,
@@ -2300,18 +2291,18 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gboolean
 dissect_rpc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	first_pdu=TRUE;
-
-	return dissect_rpc_message(tvb, pinfo, tree, NULL, NULL, FALSE, 0);
+	return dissect_rpc_message(tvb, pinfo, tree, NULL, NULL, FALSE, 0,
+	    TRUE);
 }
 
 static void
 dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	first_pdu=TRUE;
-
-	if (!dissect_rpc_message(tvb, pinfo, tree, NULL, NULL, FALSE, 0))
-		dissect_rpc_continuation(tvb, pinfo, tree);
+	if (!dissect_rpc_message(tvb, pinfo, tree, NULL, NULL, FALSE, 0,
+	    TRUE)) {
+		if (tvb_length(tvb) != 0)
+			dissect_rpc_continuation(tvb, pinfo, tree);
+	}
 }
 
 
@@ -2432,7 +2423,7 @@ show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb, proto_tree *tree,
 static gboolean
 call_message_dissector(tvbuff_t *tvb, tvbuff_t *rec_tvb, packet_info *pinfo,
     proto_tree *tree, tvbuff_t *frag_tvb, rec_dissector_t dissector,
-    fragment_data *ipfd_head, guint32 rpc_rm)
+    fragment_data *ipfd_head, guint32 rpc_rm, gboolean first_pdu)
 {
 	const char *saved_proto;
 	volatile gboolean rpc_succeeded;
@@ -2452,7 +2443,7 @@ call_message_dissector(tvbuff_t *tvb, tvbuff_t *rec_tvb, packet_info *pinfo,
 	rpc_succeeded = FALSE;
 	TRY {
 		rpc_succeeded = (*dissector)(rec_tvb, pinfo, tree,
-		    frag_tvb, ipfd_head, TRUE, rpc_rm);
+		    frag_tvb, ipfd_head, TRUE, rpc_rm, first_pdu);
 	}
 	CATCH(BoundsError) {
 		RETHROW;
@@ -2476,7 +2467,7 @@ call_message_dissector(tvbuff_t *tvb, tvbuff_t *rec_tvb, packet_info *pinfo,
 int
 dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, rec_dissector_t dissector, gboolean is_heur,
-    int proto, int ett, gboolean defragment)
+    int proto, int ett, gboolean defragment, gboolean first_pdu)
 {
 	struct tcpinfo *tcpinfo = pinfo->private_data;
 	guint32 seq = tcpinfo->seq + offset;
@@ -2577,7 +2568,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		save_fragmented = pinfo->fragmented;
 		pinfo->fragmented = TRUE;
 		rpc_succeeded = call_message_dissector(tvb, rec_tvb, pinfo,
-		    tree, frag_tvb, dissector, ipfd_head, rpc_rm);
+		    tree, frag_tvb, dissector, ipfd_head, rpc_rm, first_pdu);
 		pinfo->fragmented = save_fragmented;
 		if (!rpc_succeeded)
 			return 0;	/* not RPC */
@@ -2631,7 +2622,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * an exception.
 			 */
 			if (!(*dissector)(frag_tvb, pinfo, tree, frag_tvb,
-			    NULL, TRUE, rpc_rm))
+			    NULL, TRUE, rpc_rm, first_pdu))
 				return 0;	/* not valid */
 
 			/*
@@ -2806,7 +2797,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * dissector.
 	 */
 	if (!call_message_dissector(tvb, rec_tvb, pinfo, tree,
-	    frag_tvb, dissector, ipfd_head, rpc_rm))
+	    frag_tvb, dissector, ipfd_head, rpc_rm, first_pdu))
 		return 0;	/* not RPC */
 	return len;
 }
@@ -2833,6 +2824,7 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	int offset = 0;
 	gboolean saw_rpc = FALSE;
+	gboolean first_pdu = TRUE;
 	int len;
 
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
@@ -2841,7 +2833,8 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 */
 		len = dissect_rpc_fragment(tvb, offset, pinfo, tree,
 		    dissect_rpc_message, is_heur, proto_rpc, ett_rpc,
-		    rpc_defragment);
+		    rpc_defragment, first_pdu);
+		first_pdu = FALSE;
 		if (len < 0) {
 			/*
 			 * We need more data from the TCP stream for
@@ -2865,8 +2858,6 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gboolean
 dissect_rpc_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	first_pdu=TRUE;
-
 	switch (dissect_rpc_tcp_common(tvb, pinfo, tree, TRUE)) {
 
 	case IS_RPC:
@@ -2885,8 +2876,6 @@ dissect_rpc_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_rpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	first_pdu=TRUE;
-
 	if (dissect_rpc_tcp_common(tvb, pinfo, tree, FALSE) == IS_NOT_RPC)
 		dissect_rpc_continuation(tvb, pinfo, tree);
 }
@@ -3185,7 +3174,11 @@ proto_reg_handoff_rpc(void)
 
 	/* tcp/udp port 111 is used by portmapper which is an onc-rpc service.
 	   we register onc-rpc on this port so that we can choose RPC in
-	   the list offered by DecodeAs.
+	   the list offered by DecodeAs, and so that traffic to or from
+	   port 111 from or to a higher-numbered port is dissected as RPC
+	   even if there's a dissector registered on the other port (it's
+	   probably RPC traffic from some randomly-chosen port that happens
+	   to match some port for which we have a dissector)
 	*/
 	rpc_tcp_handle = create_dissector_handle(dissect_rpc_tcp, proto_rpc);
 	dissector_add("tcp.port", 111, rpc_tcp_handle);

@@ -2,7 +2,7 @@
  * Routines for NDMP dissection
  * 2001 Ronnie Sahlberg (see AUTHORS for email)
  *
- * $Id: packet-ndmp.c,v 1.23 2002/08/28 21:00:23 jmayer Exp $
+ * $Id: packet-ndmp.c,v 1.24 2003/04/21 08:13:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1961,7 +1961,7 @@ dissect_file_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *par
 		offset = dissect_rpc_string(tvb, tree,
 				hf_ndmp_file_name, offset, &name);
 		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s ", name);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name);
 		}
 		break;
 	case NDMP_FS_NT:
@@ -1969,7 +1969,7 @@ dissect_file_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *par
 		offset = dissect_rpc_string(tvb, tree,
 				hf_ndmp_nt_file_name, offset, &name);
 		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s ", name);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name);
 		}
 
 		/* dos file */
@@ -1981,12 +1981,12 @@ dissect_file_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *par
 		offset = dissect_rpc_string(tvb, tree,
 				hf_ndmp_file_name, offset, &name);
 		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s ", name);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name);
 		}
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "(%s)",
+		col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
 			val_to_str(type, file_fs_type_vals, "Unknown type") );
 	}
 
@@ -2595,7 +2595,7 @@ dissect_ndmp_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 	offset += 4;
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s  ",
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 			val_to_str(nh->msg, msg_vals, "Unknown Message (0x%02x)"),
 			val_to_str(nh->type, msg_type_vals, "Unknown Type (0x%02x)")
 			);
@@ -2652,7 +2652,7 @@ dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 static gboolean
 dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvbuff_t *frag_tvb, fragment_data *ipfd_head, gboolean is_tcp,
-    guint32 rpc_rm)
+    guint32 rpc_rm, gboolean first_pdu)
 {
 	int offset = (is_tcp && tvb == frag_tvb) ? 4 : 0;
 	guint32 size;
@@ -2701,8 +2701,12 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		if (first_pdu)
+			col_clear(pinfo->cinfo, COL_INFO);
+		else
+			col_append_fstr(pinfo->cinfo, COL_INFO, "; ");
+	}
 
 	if (tree) {
 		ndmp_item = proto_tree_add_item(tree, proto_ndmp,
@@ -2729,6 +2733,7 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
 	int len;
+	gboolean first_pdu = TRUE;
 
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		/*
@@ -2736,7 +2741,8 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		len = dissect_rpc_fragment(tvb, offset, pinfo, tree,
 		    dissect_ndmp_message, FALSE, proto_ndmp, ett_ndmp,
-		    ndmp_defragment);
+		    ndmp_defragment, first_pdu);
+		first_pdu = FALSE;
 		if (len < 0) {
 			/*
 			 * We need more data from the TCP stream for
