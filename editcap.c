@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, or simply convert from one 
  * format to another format.
  *
- * $Id: editcap.c,v 1.2 1999/12/04 21:42:56 guy Exp $
+ * $Id: editcap.c,v 1.3 1999/12/05 01:27:14 guy Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -81,18 +81,27 @@ edit_callback(u_char *user, const struct wtap_pkthdr *phdr, int offset,
 void usage()
 {
   int i;
+  char *string;
 
-  fprintf(stderr, "Usage: editcap [-r] [-T <encap type>] [-F <capture type>]  <infile> <outfile>\\\n");
+  fprintf(stderr, "Usage: editcap [-r] [-T <encap type>] [-F <capture type>] <infile> <outfile>\\\n");
   fprintf(stderr, "                [ <record#> ... ]\n");
   fprintf(stderr, "  where\t-r specifies that the records specified should be kept, not deleted, \n");
   fprintf(stderr, "                           default is to delete\n");
-  fprintf(stderr, "       \t-T <encap type> specified the encapsulation type\n");
-  fprintf(stderr, "       \t-F <capture type> specifies the capture file type:\n");
+  fprintf(stderr, "       \t-T <encap type> specifies the encapsulation type to use:\n");
+  for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
+      string = wtap_encap_short_string(i);
+      if (string != NULL)
+        fprintf(stderr, "       \t    %s - %s\n",
+          string, wtap_encap_string(i));
+  }
+  fprintf(stderr, "       \t   default is the same as the input file\n");
+  fprintf(stderr, "       \t-F <capture type> specifies the capture file type to write:\n");
   for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
     if (wtap_dump_can_open(i))
       fprintf(stderr, "       \t    %s - %s\n",
         wtap_file_type_short_string(i), wtap_file_type_string(i));
   }
+  fprintf(stderr, "       \t   default is libpcap\n");
 }
 
 int main(int argc, char *argv[])
@@ -112,7 +121,12 @@ int main(int argc, char *argv[])
     switch (opt) {
 
     case 'T':
-      out_frame_type = atoi(optarg);
+      out_frame_type = wtap_short_string_to_encap(optarg);
+      if (out_frame_type < 0) {
+      	fprintf(stderr, "editcap: \"%s\" is not a valid encapsulation type\n",
+      	    optarg);
+      	exit(1);
+      }
       break;
       
     case 'F':
