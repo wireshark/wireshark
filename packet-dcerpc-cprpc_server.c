@@ -1,10 +1,10 @@
 /* packet-dcerpc-cprpc_server.c
  * Routines for DNS Control Program Server dissection
- * Copyright 2002, Jaime Fournier <jafour1@yahoo.com>
+ * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/directory.tar.gz directory/cds/stubs/cprpc_server.idl
  *      
- * $Id: packet-dcerpc-cprpc_server.c,v 1.4 2003/08/04 02:49:03 tpot Exp $
+ * $Id: packet-dcerpc-cprpc_server.c,v 1.5 2004/01/27 04:15:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,11 +1,11 @@
 /* packet-dcerpc-rs_acct.c
  *
  * Routines for DFS/RS_ACCT
- * Copyright 2002, Jaime Fournier <jafour1@yahoo.com>
+ * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_acct.idl
  *      
- * $Id: packet-dcerpc-rs_acct.c,v 1.7 2004/01/19 20:10:35 jmayer Exp $
+ * $Id: packet-dcerpc-rs_acct.c,v 1.8 2004/01/27 04:15:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

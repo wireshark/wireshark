@@ -2,11 +2,11 @@
  *
  * Routines for cds_clerkserver  dissection
  * Routines for dcerpc Afs4Int dissection
- * Copyright 2002, Jaime Fournier <jafour1@yahoo.com>
+ * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/directory.tar.gz directory/cds/stubs/cds_clerkserver.idl
  *      
- * $Id: packet-dcerpc-cds_clerkserver.c,v 1.4 2003/08/04 02:49:03 tpot Exp $
+ * $Id: packet-dcerpc-cds_clerkserver.c,v 1.5 2004/01/27 04:15:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

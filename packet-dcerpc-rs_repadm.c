@@ -1,11 +1,11 @@
 /* packet-dcerpc-rs_repadm.c
  *
  * Routines for dcerpc Registry server administration operations.
- * Copyright 2002, Jaime Fournier <jafour1@yahoo.com>
+ * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz  security/idl/rs_repadm.idl
  *
- * $Id: packet-dcerpc-rs_repadm.c,v 1.6 2003/12/28 23:50:31 guy Exp $
+ * $Id: packet-dcerpc-rs_repadm.c,v 1.7 2004/01/27 04:15:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

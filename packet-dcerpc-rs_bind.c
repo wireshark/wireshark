@@ -1,11 +1,11 @@
 /* packet-dcerpc-rs_bind.c
  *
  * Routines for DFS/RS_BIND
- * Copyright 2003, Jaime Fournier <jafour1@yahoo.com>
+ * Copyright 2003, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_bind.idl
  *     
- * $Id: packet-dcerpc-rs_bind.c,v 1.2 2003/10/22 02:22:21 guy Exp $
+ * $Id: packet-dcerpc-rs_bind.c,v 1.3 2004/01/27 04:15:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

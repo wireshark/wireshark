@@ -1,11 +1,11 @@
 /* packet-dcerpc-rs_plcy.c
  *
  * Routines for dcerpc RS_PLCY dissection
- * Copyright 2003, Jaime Fournier <jafour1@yahoo.com>
+ * Copyright 2003, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz rs_plcy.idl
  *
- * $Id: packet-dcerpc-rs_plcy.c,v 1.1 2003/11/21 02:57:01 guy Exp $
+ * $Id: packet-dcerpc-rs_plcy.c,v 1.2 2004/01/27 04:15:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

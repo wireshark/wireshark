@@ -1,11 +1,11 @@
 /* packet-dcerpc-fldb.c
  *
  * Routines for dcerpc FLDB Calls
- * Copyright 2002, Jaime Fournier <jafour1@yahoo.com>
+ * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/flserver/afsvl_proc.idl
  *
- * $Id: packet-dcerpc-fldb.c,v 1.4 2003/08/04 02:49:03 tpot Exp $
+ * $Id: packet-dcerpc-fldb.c,v 1.5 2004/01/27 04:15:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

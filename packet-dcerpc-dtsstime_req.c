@@ -1,10 +1,10 @@
 /* packet-dcerpc-dtsstime_req.c
  * Routines for Time services stuff.     
- * Copyright 2002, Jaime Fournier <jafour1@yahoo.com>
+ * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/time.tar.gz time/service/dtsstime_req.idl
  *           
- * $Id: packet-dcerpc-dtsstime_req.c,v 1.5 2003/08/04 02:49:03 tpot Exp $
+ * $Id: packet-dcerpc-dtsstime_req.c,v 1.6 2004/01/27 04:15:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

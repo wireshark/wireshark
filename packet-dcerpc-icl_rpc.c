@@ -1,10 +1,10 @@
 /* packet-dcerpc-icl_rpc.c
  * Routines for icl_rpc dissection
- * Copyright 2002, Jaime Fournier <jafour1@yahoo.com>
+ * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz icl_rpc.idl
  *
- * $Id: packet-dcerpc-icl_rpc.c,v 1.1 2003/11/25 08:10:57 guy Exp $
+ * $Id: packet-dcerpc-icl_rpc.c,v 1.2 2004/01/27 04:15:48 guy Exp $
  *      
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

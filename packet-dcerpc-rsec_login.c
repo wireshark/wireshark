@@ -1,11 +1,11 @@
 /* packet-dcerpc-rsec_login.c
  *
  * Routines for dcerpc Remote sec_login preauth interface.
- * Copyright 2002, Jaime Fournier <jafour1@yahoo.com>
+ * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz  security/idl/rsec_login.idl
  *      
- * $Id: packet-dcerpc-rsec_login.c,v 1.4 2003/08/04 02:49:01 tpot Exp $
+ * $Id: packet-dcerpc-rsec_login.c,v 1.5 2004/01/27 04:15:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,9 +1,9 @@
 /* packet-dcerpc-dce122.c
  * Common defines for dce122
- * Copyright 2002, Jaime Fournier <jafour1@yahoo.com>
+ * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  *
- * $Id: packet-dcerpc-dce122.c,v 1.3 2003/12/19 16:42:27 gram Exp $
+ * $Id: packet-dcerpc-dce122.c,v 1.4 2004/01/27 04:15:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

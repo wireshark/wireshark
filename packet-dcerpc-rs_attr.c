@@ -1,11 +1,11 @@
 /* packet-dcerpc-rs_attr.c
  *
  * Routines for dcerpc Registry Server Attributes Manipulation Interface
- * Copyright 2002, Jaime Fournier <jafour1@yahoo.com>
+ * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_attr.idl
  *      
- * $Id: packet-dcerpc-rs_attr.c,v 1.4 2003/08/04 02:49:01 tpot Exp $
+ * $Id: packet-dcerpc-rs_attr.c,v 1.5 2004/01/27 04:15:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,11 +1,11 @@
 /* packet-dcerpc-tkn4int.c
  *
  * Routines for dcerpc Token Server Calls
- * Copyright 2002, Jaime Fournier <jafour1@yahoo.com>
+ * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/fsint/tkn4int.idl
  *     
- * $Id: packet-dcerpc-tkn4int.c,v 1.4 2003/08/04 02:48:59 tpot Exp $
+ * $Id: packet-dcerpc-tkn4int.c,v 1.5 2004/01/27 04:15:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
