@@ -1,7 +1,7 @@
 /* about_dlg.h
  * Declarations of routines for the "About" dialog
  *
- * $Id: about_dlg.h,v 1.3 2004/06/04 20:05:30 ulfl Exp $
+ * $Id: about_dlg.h,v 1.4 2004/06/21 17:25:19 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,34 @@
  * @param widget parent widget (unused)
  * @param data unused
  */
-void about_ethereal_cb( GtkWidget *widget, gpointer data);
+extern void about_ethereal_cb( GtkWidget *widget, gpointer data);
+
+/** User requested the "Homepage" by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void url_ethereal_cb( GtkWidget *widget, gpointer data);
+
+/** User requested the "Downloads" page by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void url_downloads_cb( GtkWidget *widget, gpointer data);
+
+/** User requested the "User's Guide" page by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void url_user_guide_cb( GtkWidget *widget, gpointer data);
+
+/** User requested the "FAQ's" page by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void url_faqs_cb( GtkWidget *widget, gpointer data);
 
 #endif /* __ABOUT_DLG_H__ */

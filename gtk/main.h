@@ -1,7 +1,7 @@
 /* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.53 2004/06/21 10:53:35 jmayer Exp $
+ * $Id: main.h,v 1.54 2004/06/21 17:25:19 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -249,5 +249,7 @@ extern void packets_bar_update(void);
 /** Win32 only: Create a console. Beware: cannot be closed again. */
 extern void create_console(void);
 #endif
+
+extern gboolean browser_open_url (const gchar *url);
 
 #endif /* __MAIN_H__ */

@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.13 2004/06/01 17:33:35 ulfl Exp $
+ * $Id: about_dlg.c,v 1.14 2004/06/21 17:25:19 ulfl Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -39,6 +39,7 @@
 #if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
 #include "text_page.h"
 #endif
+#include "main.h"
 
 #include "cvsversion.h"
 
@@ -283,5 +284,30 @@ about_ethereal_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
   /* Note that we no longer have an "About Ethereal" dialog box. */
   about_ethereal_w = NULL;
+}
+
+
+void
+url_ethereal_cb( GtkWidget *w _U_, gpointer data _U_)
+{
+    browser_open_url ("http://www.ethereal.com");
+}
+
+void
+url_downloads_cb( GtkWidget *w _U_, gpointer data _U_)
+{
+    browser_open_url ("http://www.ethereal.com/download.html");
+}
+
+void
+url_user_guide_cb( GtkWidget *w _U_, gpointer data _U_)
+{
+    browser_open_url ("http://www.ethereal.com/docs/user-guide");
+}
+
+void
+url_faqs_cb( GtkWidget *w _U_, gpointer data _U_)
+{
+    browser_open_url ("http://www.ethereal.com/faq.html");
 }
 

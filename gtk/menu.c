@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.203 2004/06/20 15:57:11 ulfl Exp $
+ * $Id: menu.c,v 1.204 2004/06/21 17:25:19 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -322,6 +322,11 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/_Contents", "F1", help_cb, 0, GTK_STOCK_HELP),
     ITEM_FACTORY_ENTRY("/Help/_Supported Protocols", NULL, supported_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Ethereal Online", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Help/Ethereal Online/Homepage", NULL, url_ethereal_cb, 0, GTK_STOCK_HOME),
+    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/User's Guide", NULL, url_user_guide_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/FAQ's", NULL, url_faqs_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/Downloads", NULL, url_downloads_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Help/_About Ethereal", NULL, about_ethereal_cb,
                        0, NULL, NULL)
