@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Routines for Gryphon protocol packet disassembly
  *
- * $Id: packet-gryphon.c,v 1.12 2000/11/01 00:16:17 guy Exp $
+ * $Id: packet-gryphon.c,v 1.13 2000/11/05 09:05:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -51,8 +51,6 @@
 
 DLLEXPORT const gchar version[] = VERSION;
 DLLEXPORT const gchar desc[] = "DG Gryphon Protocol";
-DLLEXPORT const gchar protocol[] = "tcp";
-DLLEXPORT const gchar filter_string[] = "tcp.port == 7000";
 
 #ifndef G_HAVE_GINT64
 #error "Sorry, this won't compile without 64-bit integer support"
@@ -87,8 +85,8 @@ static gint ett_gryphon_pgm_options = -1;
 
 
 
-DLLEXPORT void
-dissector(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+static void
+dissect_gryphon(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 
     proto_tree	    *gryphon_tree, *header_tree, *body_tree, *localTree;
@@ -115,6 +113,8 @@ dissector(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    {SD_RESP,     	"Message Responder"},
 	    {-1,		"- unknown -"},
 	    };		               
+
+    OLD_CHECK_DISPLAY_AS_DATA(proto_gryphon, pd, offset, fd, tree);
 
     data = &pd[offset];
     if (fd) {
@@ -1228,7 +1228,7 @@ cmd_addresp (int src, const u_char **data, const u_char *dataend, int *offset, i
 	length += 3 - (length + 3) % 4;
 	item = proto_tree_add_text(pt, NullTVB, *offset, length, "Response block %d", i);
 	tree = proto_item_add_subtree (item, ett_gryphon_cmd_response_block);
-    	dissector((*data)-*offset, *offset, NULL, tree);
+    	dissect_gryphon((*data)-*offset, *offset, NULL, tree);
     	BUMP (*offset, *data, length);
     }
 }
@@ -1702,7 +1702,6 @@ plugin_init(plugin_address_table_t *pat)
 	&ett_gryphon_pgm_options,
     };
     plugin_address_table_init(pat);
-    dfilter_cleanup();
     if (proto_gryphon == -1) {
 	/* first activation */
 	proto_gryphon = proto_register_protocol("DG Gryphon Protocol", 
@@ -1713,5 +1712,10 @@ plugin_init(plugin_address_table_t *pat)
 	/* do nothing, this is in fact a re-activation with possibly 
 	   a new filter */
     }
-    dfilter_init();
+}
+
+void
+plugin_reg_handoff(void)
+{
+    old_dissector_add("tcp.port", 7000, &dissect_gryphon);
 }

@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.4 2000/10/27 02:22:07 gram Exp $
+ * $Id: plugins.c,v 1.5 2000/11/05 09:05:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -72,6 +72,23 @@ plugin_address_table_t	patable;
 /* linked list of all plugins */
 plugin *plugin_list;
 guint32 enabled_plugins_number;
+
+/*
+ * New-style plugins, which don't have an enabled flag (you use the
+ * standard mechanism for enabling and disabling protocols), and which
+ * don't have a protocol or filter string (you use the register handoff
+ * mechanism).
+ */
+typedef struct _new_plugin {
+    GModule	*handle;          /* handle returned by dlopen */
+    gchar       *name;            /* plugin name */
+    gchar       *version;         /* plugin version */
+    void (*reg_handoff)(void);    /* routine to call to register dissector handoff */
+    struct _new_plugin *next;     /* forward link */
+} new_plugin;
+
+/* linked list of all new-style plugins */
+static new_plugin *new_plugin_list;
 
 #ifdef WIN32
 static gchar std_plug_dir[] = "c:/program files/ethereal/plugins/0.8.13";
@@ -357,6 +374,55 @@ check_plugin_status(gchar *name, gchar *version, GModule *handle,
     g_free(ref_string);
 }
 
+/*
+ * add a new new-style plugin to the list
+ * returns :
+ * - 0 : OK
+ * - ENOMEM : memory allocation problem
+ * - EEXIST : the same plugin (i.e. name/version) was already registered.
+ */
+static int
+new_add_plugin(void *handle, gchar *name, gchar *version,
+	   void (*reg_handoff)(void))
+{
+    new_plugin *new_plug, *pt_plug;
+
+    pt_plug = new_plugin_list;
+    if (!pt_plug) /* the list is empty */
+    {
+	new_plug = (new_plugin *)g_malloc(sizeof(new_plugin));
+	if (new_plug == NULL) return ENOMEM;
+        new_plugin_list = new_plug;
+    }
+    else
+    {
+	while (1)
+	{
+	    /* check if the same name/version is already registered */
+	    if (!strcmp(pt_plug->name, name) &&
+		!strcmp(pt_plug->version, version))
+	    {
+		return EEXIST;
+	    }
+
+	    /* we found the last plugin in the list */
+	    if (pt_plug->next == NULL) break;
+
+	    pt_plug = pt_plug->next;
+	}
+	new_plug = (new_plugin *)g_malloc(sizeof(new_plugin));
+	if (new_plug == NULL) return ENOMEM;
+	pt_plug->next = new_plug;
+    }
+
+    new_plug->handle = handle;
+    new_plug->name = name;
+    new_plug->version = version;
+    new_plug->reg_handoff = reg_handoff;
+    new_plug->next = NULL;
+    return 0;
+}
+
 static void
 plugins_scan_dir(const char *dirname)
 {
@@ -367,6 +433,8 @@ plugins_scan_dir(const char *dirname)
     GModule       *handle;          /* handle returned by dlopen */
     gchar         *name;
     gchar         *version;
+    void         (*init)(void *);
+    void         (*reg_handoff)(void);
     gchar         *protocol;
     gchar         *filter_string;
     gchar         *dot;
@@ -412,50 +480,103 @@ plugins_scan_dir(const char *dirname)
 		g_module_close(handle);
 		continue;
 	    }
-	    if (g_module_symbol(handle, "protocol", (gpointer*)&protocol) == FALSE)
-	    {
-	        g_warning("The plugin %s has no protocol symbol", name);
-		g_module_close(handle);
-		continue;
-	    }
-	    if (g_module_symbol(handle, "filter_string", (gpointer*)&filter_string) == FALSE)
-	    {
-	        g_warning("The plugin %s has no filter_string symbol", name);
-		g_module_close(handle);
-		continue;
-	    }
-	    if (dfilter_compile(filter_string, &filter) != 0) {
-	        g_warning("The plugin %s has a non compilable filter", name);
-		g_module_close(handle);
-		continue;
-	    }
-	    if (g_module_symbol(handle, "dissector", (gpointer*)&dissector) == FALSE) {
-		if (filter != NULL)
-		    dfilter_destroy(filter);
-	        g_warning("The plugin %s has no dissector symbol", name);
-		g_module_close(handle);
-		continue;
-	    }
 
-	    if ((cr = add_plugin(handle, g_strdup(file->d_name), version,
-				 protocol, filter_string, filter, dissector)))
+	    /*
+	     * If we have a "plugin_reg_handoff()" routine, we don't require
+	     * the plugin to have "protocol", "filter_string", or "dissector"
+	     * variables - we'll call the "plugin_reg_handoff()" routine and
+	     * assume it'll register the dissector with the appropriate
+	     * handoff tables.
+	     */
+	    if (g_module_symbol(handle, "plugin_reg_handoff",
+					 (gpointer*)&reg_handoff))
 	    {
-		if (cr == EEXIST)
-		    fprintf(stderr, "The plugin : %s, version %s\n"
+		/*
+		 * We require it to have a "plugin_init()" routine.
+		 */
+		if (!g_module_symbol(handle, "plugin_init", (gpointer*)&init))
+		{
+		    g_warning("The plugin %s has a plugin_reg_handoff symbol but no plugin_init routine", name);
+		    g_module_close(handle);
+		    continue;
+		}
+
+		/*
+		 * We have a "plugin_reg_handoff()" routine, so we don't
+		 * need the protocol, filter string, or dissector pointer.
+		 */
+		if ((cr = new_add_plugin(handle, g_strdup(file->d_name), version,
+				     reg_handoff)))
+		{
+		    if (cr == EEXIST)
+			fprintf(stderr, "The plugin : %s, version %s\n"
 			    "was found in multiple directories\n", name, version);
-		else
-		    fprintf(stderr, "Memory allocation problem\n"
+		    else
+			fprintf(stderr, "Memory allocation problem\n"
 			    "when processing plugin %s, version %sn",
 			    name, version);
-		if (filter != NULL)
-		    dfilter_destroy(filter);
-		g_module_close(handle);
-		continue;
+		    g_module_close(handle);
+		    continue;
+		}
+
+		/*
+		 * Call its init routine.
+		 */
+#ifdef PLUGINS_NEED_ADDRESS_TABLE
+		init(&patable);
+#else
+		init(NULL);
+#endif
 	    }
-	    if (statusfile) {
-		check_plugin_status(file->d_name, version, handle,
+	    else
+	    {
+		if (g_module_symbol(handle, "protocol", (gpointer*)&protocol) == FALSE)
+		{
+		    g_warning("The plugin %s has no protocol symbol and no plugin_reg_handoff symbol", name);
+		    g_module_close(handle);
+		    continue;
+		}
+		if (g_module_symbol(handle, "filter_string", (gpointer*)&filter_string) == FALSE)
+		{
+		    g_warning("The plugin %s has no filter_string symbol and no plugin_reg_handoff symbol", name);
+		    g_module_close(handle);
+		    continue;
+		}
+		if (dfilter_compile(filter_string, &filter) != 0)
+		{
+		    g_warning("The plugin %s has a non-compilable filter", name);
+		    g_module_close(handle);
+		    continue;
+		}
+		if (g_module_symbol(handle, "dissector", (gpointer*)&dissector) == FALSE)
+		{
+		    if (filter != NULL)
+			dfilter_destroy(filter);
+		    g_warning("The plugin %s has no dissector symbol and no plugin_reg_handoff symbol", name);
+		    g_module_close(handle);
+		    continue;
+		}
+
+		if ((cr = add_plugin(handle, g_strdup(file->d_name), version,
+				     protocol, filter_string, filter, dissector)))
+		{
+		    if (cr == EEXIST)
+			fprintf(stderr, "The plugin : %s, version %s\n"
+			    "was found in multiple directories\n", name, version);
+		    else
+			fprintf(stderr, "Memory allocation problem\n"
+			    "when processing plugin %s, version %sn",
+			    name, version);
+		    if (filter != NULL)
+			dfilter_destroy(filter);
+		    g_module_close(handle);
+		    continue;
+		}
+		if (statusfile) {
+		    check_plugin_status(file->d_name, version, handle,
 			            filter_string, statusfile);
-		rewind(statusfile);
+		    rewind(statusfile);
+		}
 	    }
 	}
 	closedir(dir);
@@ -470,6 +591,7 @@ void
 init_plugins(const char *plugin_dir)
 {
     struct stat std_dir_stat, local_dir_stat, plugin_dir_stat;
+    new_plugin *pt_plug;
 
     if (plugin_list == NULL)      /* ensure init_plugins is only run once */
     {
@@ -582,6 +704,20 @@ init_plugins(const char *plugin_dir)
 	}
 	plugins_scan_dir(user_plug_dir);
     }
+
+    /*
+     * For all new-style plugins, call the register-handoff routine.
+     * (We defer this until after registering all new-style plugins,
+     * in case one plugin registers itself with another plugin; we
+     * need to register all plugins, so their dissector tables are
+     * initialized.)
+     *
+     * We treat those protocols as always being enabled; they should
+     * use the standard mechanism for enabling/disabling protocols, not
+     * the plugin-specific mechanism.
+     */
+    for (pt_plug = new_plugin_list; pt_plug != NULL; pt_plug = pt_plug->next)
+	(pt_plug->reg_handoff)();
 }
 
 #endif
