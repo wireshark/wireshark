@@ -116,7 +116,7 @@ EXECUTABLES=ethereal.exe ethereal-gtk2.exe tethereal.exe editcap.exe mergecap.ex
 
 RESOURCES=image\ethereal.res image\libethereal.res image\tethereal.res image\editcap.res image\mergecap.res image\text2pcap.res
 
-all: config.h tools wiretap epan image $(EXECUTABLES) $(RESOURCES) doc
+all: config.h tools image wiretap epan $(EXECUTABLES) $(RESOURCES) doc
 
 packaging: all
 	cd packaging
@@ -360,7 +360,7 @@ gtk2:: help config.h svnversion.h AUTHORS-SHORT
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake GTK_CFLAGS="$(GTK2_CFLAGS)" GTK_LIBS="$(GTK2_LIBS)" libui.lib
 	cd ..
 
-epan:: packet-ncp2222.c x11-declarations.h x11-register-info.h dissectors.lib doxygen
+epan:: $(RESOURCES) packet-ncp2222.c x11-declarations.h x11-register-info.h dissectors.lib doxygen
 	cd epan
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
