@@ -35,7 +35,7 @@ Overview of changes in Ethereal 0.8.20:
 * Many Quakeworld and Quake2 dissector enhancements.  (Uwe)
 * Add routines used by GIOP plugins to the plugin address table. (Guy)
 * Properly check for GCC version >= 2 when using "__attribute__" (Guy)
-* Quake3 Arena dissector (Uwe)
+* Quake3 Arena dissector, plus enhancements (Uwe)
 * iSCSI updates. (Mark Burton)
 * Update preferences error checking and comments, fix a memory leak, 
     parser fixes and updates. (Guy)
@@ -54,8 +54,7 @@ Overview of changes in Ethereal 0.8.20:
 * Kazlib exception code updates. (Gilbert)
 * GIOP dissector fixes. (Frank)
 * Many ethereal_be.py and ethereal_gen.py enhancements. (Frank)
-* String length checking fixes in packet-smb-browse.c and packet-wsp.c.
-    (Guy)
+* String length checking fixes in packet-smb-browse.c and packet-wsp.c. (Guy)
 * Data display fixes in packet-smb.c. (Guy)
 * Update DIAMETER dissector to draft-ietf-aaa-diameter-07. (David Frascone)
 * packet-wsp.c fixes. (Alexandre P. Ferreira)
@@ -63,8 +62,93 @@ Overview of changes in Ethereal 0.8.20:
 * Fix port numbers passed by "-u" to text2pcap. (Guy)
 * Properly handle packets sent to "\MAILSLOT\LANMAN". (Guy)
 * Make dissect_pipe_lanman() local to packet-smb-pipe.c. (Guy)
+* Handle missing authentication info in RPC packets. (Guy)
+* Conversation matching improvements (Guy)
+* Parse PASV mode FTP addresses, many other improvements. (Guy)
+* Fix compiler warnings in packet-rtcp.c, packet-snmp.c, and
+    packet-socks.c. (Guy)
+* Alow multiple protocol ID/datum pairs to be attatched to a
+    conversation. (Guy)
+* Get rid of an unsed #define in packet-tcp.c. (Guy)
+* Better packet length checking in packet-wsp.c. (Guy)
+* Register HTTP dissector by name, so other dissectors can call it.
+    (Thomas Wittwer)
+* Add the function prefs_register_string_preference().  (Thomas)
+* Add HMIPv6 support. (Martti Kuparinen).
+* First look in $PYTHONPATH/site-packages for ethereal_be.py and
+    ethereal_gen.py. Update idl2eth man page accordingly. (Frank)
+* Properly close the capture file within tethereal before exiting. (Guy)
+* Fix a typo in packet-icmpv6.c. (Martti)
+* Add OSPFv3 support. (Palle Lyckegaard)
+* RTSP and RTP improvements. (Jason Lango)
+* Fix the "Save only marked packets" checkbox in the file save dialog. (Guy)
+* Fix WAP WTP naming problems and add Transaction Class decoding.
+    (Olivier Biot)
+* Install idl2eth in "/usr/local/bin". (Frank)
+* Use correct byte counts in SMB write request packets. (Guy)
+* Fix bugs and white space in packet-ospf.c. (Guy)
+* GTPv1 support and GTPv0 improvements. (Michal Melerowicz and Nicolas Balkota)
+* Scan TPI's to get proper WTP packet length and correct start of
+    WSP-data. (Tom Uijldert)
+* Split RPC dissector into heuristic/non-heuristic forms, improve
+    conversation handling. (Guy)
+* TCP desegmentation support plus ONC RPC and NBSS integration. (Ronnie
+    Sahlberg and Guy)
+* NLM fix, fix for status monitor callback protocol. (Ronnie)
+* XoT and RIP protocol field display filters. (Ronnie)
+* Straighten out filter and protocol names in packet-stat-notify.c (Guy)
+* OSPFv3 fixes (Palle Lyckegaard)
+* Fix a signed vs unsigned warning in packet-ranap.c. (Guy)
+* Support for dissecting multiple BGP capabilities. (Endoh Akira)
+* Fix a signed/unsigned comparison problem, display command in decimal
+    in packet-rip.c. (Guy)
+* Fix stat vs state confusion in packet-nlm.c. (Guy)
+* Change the time resolution to nanoseconds and fix signed/unsigned
+    problems in many dissectors. (Guy)
+* Get rid of sys/time.h includes in some epan files. (Guy)
+* Show NFS times using absolute and relative fields. (Ronnie)
+* Improve directory checking in plugins.c. (Guy)
+* Generate idl2eth from idl2eth.sh, add docs to tarball. (Guy)
+* Fix the handling of DNS-over-TCP. (Guy)
+* Add DNS desegmentation, improve desegmentation default behavior. (Guy)
+* Remove extra line in acinclude.m4 (Andy Hood)
+* Add make-manuf and manuf.tmpl to the source distribution. (Guy)
+* GTP updates and fixes. (Michal Melerowicz)
+* CUPS fixes. (Guy)
+* Add builtins for gzgetc and gzgets. (Ashok)
+* Update ATM on Linux URL in wtap.h, explain ATMoL LLC header behavior
+    in packet-clip.c. (Guy)
+* Fix tagged field length and snprintf() problems in 802.11 dissector. (Guy)
+* Fix snprintf() and buffer problems in ICMPv6, ISAKMP, and WSP
+    dissectors. (Guy)
+* Add MMSE support. (Tom Uijldert)
+* Make capture errors more verbose under Win32, and add wiretapped.net
+    libpcap link. (Guy)
+* Update Win32 README. (Guy)
+* Fix Boolean flag display in GTP dissector. (Guy)
+* Fix #define usage in TCP dissector. (Guy)
+* Don't checksum short UDP packets. (Guy)
+* Hand IP data from the ICMP dissector to the IP dissector.  IPv6
+    dissector fixes. (Guy)
+* Fix SMB interim Transact2 response handling and display.  (Guy)
+* Add NT error code support to SMB dissector. (Guy)
+* Other SMB dissector fixes. (Guy)
+* Fix gzgets(), gzgetc() and gzseek() checking. (Guy)
+* Additional Ascend and IETF codes to RADIUS. (Gaeme Hewson)
+* WSP/WTLS push-traffic handling. (Tom Uijldert)
+* DCE RPC authentication and related SMB dissector improvements. (Todd
+    Sabin, Guy)
+* NBSS continuation fixes in packet-nbns.c (Guy)
+* NetBIOS payload handling enhancements. (Guy)
+* Initial SMB tvbuffification. (Guy)
+* Small RADIUS fix. (Motonori Shindo)
+* Add CHAP support to PPP dissector. (Motonori Shindo)
+* DCE RPC fixes. (Pasi Eronen)
+* Many DCE RPC fixes and updates. (Guy)
+* Don't include packet-tcp.h or packet-udp.h in packet-ipv6.c. (Guy)
+* NBSS continuation enhancements. (Guy)
+* Add more filterable SMB header fields. (Guy)
 * 
-
 
 
 Overview of changes in Ethereal 0.8.19:
