@@ -2,7 +2,7 @@
  * Definitions of OUIs
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: oui.h,v 1.9 2001/06/01 23:04:37 guy Exp $
+ * $Id: oui.h,v 1.10 2001/06/02 03:04:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,7 +29,6 @@
 
 #define	OUI_ENCAP_ETHER	0x000000	/* encapsulated Ethernet */
 #define	OUI_CISCO	0x00000C	/* Cisco (future use) */
-#define	OUI_CISCO_WLANB	0x000078	/* Cisco WLAN bridged packets? */
 #define	OUI_CISCO_90	0x0000F8	/* Cisco (IOS 9.0 and above?) */
 #define OUI_BRIDGED	0x0080C2	/* Bridged Frame-Relay, RFC 2427 */
 					/* and Bridged ATM, RFC 2684 */
