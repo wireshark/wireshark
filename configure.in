@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.206 2003/05/04 18:50:51 gerald Exp $
+# $Id: configure.in,v 1.207 2003/06/08 09:12:22 oabad Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -225,6 +225,10 @@ AC_ARG_ENABLE(ethereal,
 AC_ARG_ENABLE(gtk2,
 [  --enable-gtk2           build Glib2/Gtk2+-based (t)ethereal.  [default=no]],enable_gtk2=$enableval,enable_gtk2=no)
 AM_CONDITIONAL(USE_GTK2, test x$enable_gtk2 = xyes)
+
+AC_ARG_ENABLE(threads,
+[  --enable-threads        use threads in ethereal.  [default=yes]],enable_threads=$enableval,enable_threads=yes)
+AM_CONDITIONAL(USE_THREADS, test x$enable_threads = xyes)
 
 # GTK checks
 # We don't add $GLIB_LIBS to LIBS, because we don't want to force all
@@ -830,6 +834,9 @@ echo ""
 echo "                    Install setuid : $setuid_message"
 echo "                       Use plugins : $have_plugins"
 echo "               Use GTK+ v2 library : $enable_gtk2"
+if test "x$enable_gtk2" = "xyes" ; then
+echo "                       Use threads : $enable_threads"
+fi
 echo "                  Use pcap library : $want_pcap"
 echo "                  Use zlib library : $zlib_message"
 echo "              Use GNU ADNS library : $adns_message"

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.295 2003/05/16 00:48:26 guy Exp $
+ * $Id: main.c,v 1.296 2003/06/08 09:12:23 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1337,7 +1337,7 @@ get_ring_arguments(const char *arg)
 }
 #endif
 
-#if defined WIN32 || GTK_MAJOR_VERSION < 2
+#if defined WIN32 || GTK_MAJOR_VERSION < 2 || ! defined USE_THREADS
 /* 
    Once every 3 seconds we get a callback here which we use to update
    the tap extensions. Since Gtk1 is single threaded we dont have to
@@ -1384,14 +1384,14 @@ update_thread(gpointer data _U_)
 void
 protect_thread_critical_region(void)
 {
-#if ! defined WIN32 && GTK_MAJOR_VERSION >= 2
+#if ! defined WIN32 && GTK_MAJOR_VERSION >= 2 && defined USE_THREADS
     g_static_mutex_lock(&update_thread_mutex);
 #endif
 }
 void
 unprotect_thread_critical_region(void)
 {
-#if ! defined WIN32 && GTK_MAJOR_VERSION >= 2
+#if ! defined WIN32 && GTK_MAJOR_VERSION >= 2 && defined USE_THREADS
     g_static_mutex_unlock(&update_thread_mutex);
 #endif
 }
@@ -1563,7 +1563,7 @@ main(int argc, char *argv[])
   }
 
   /* multithread support currently doesn't seem to work in win32 gtk2.0.6 */
-#if ! defined WIN32 && GTK_MAJOR_VERSION >= 2 && defined G_THREADS_ENABLED
+#if ! defined WIN32 && GTK_MAJOR_VERSION >= 2 && defined G_THREADS_ENABLED && defined USE_THREADS
   {
       GThread *ut;
       g_thread_init(NULL);
@@ -1571,7 +1571,7 @@ main(int argc, char *argv[])
       ut=g_thread_create(update_thread, NULL, FALSE, NULL);
       g_thread_set_priority(ut, G_THREAD_PRIORITY_LOW);
   }
-#else  /* WIN32 || GTK1.2 || !G_THREADS_ENABLED */
+#else  /* WIN32 || GTK1.2 || !G_THREADS_ENABLED || !USE_THREADS */
   /* this is to keep tap extensions updating once every 3 seconds */
   gtk_timeout_add(3000, (GtkFunction)update_cb,(gpointer)NULL);
 #endif /* !WIN32 && GTK2 && G_THREADS_ENABLED */
