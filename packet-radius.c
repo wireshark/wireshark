@@ -2,7 +2,7 @@
  * Routines for RADIUS packet disassembly
  * Copyright 1999 Johan Feyaerts
  *
- * $Id: packet-radius.c,v 1.34 2001/09/28 18:50:18 guy Exp $
+ * $Id: packet-radius.c,v 1.35 2001/09/30 13:23:20 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -239,6 +239,7 @@ static value_string radius_vendor_specific_vendors[]=
 {529,"Ascend"},
 {1584,"Bay Networks"},
 {2636,"Juniper Networks"},
+{3085,"CoSine Communications"},
 {4874,"Unisphere Networks"},
 {0,NULL}};
 
