@@ -1,7 +1,7 @@
 /*
  * tap_rtp.c
  *
- * $Id: tap_rtp.c,v 1.10 2003/04/23 08:20:06 guy Exp $
+ * $Id: tap_rtp.c,v 1.11 2003/05/20 21:22:59 guy Exp $
  *
  * RTP analysing addition for ethereal
  *
@@ -45,8 +45,7 @@
  * data again.
  * The Save voice button opens the dialog where we can choose the file name, format (not yet)
  * and direction we want to save. Currently it works only with g711 alaw and ulaw, and if the
- * length of captured packets is equal the length of packets on wire and if there are no padding
- * bits.    
+ * length of captured packets is equal the length of packets on wire 
  *
  * To do:
  * - Support for saving voice in more different formats and with more different codecs:
@@ -137,21 +136,49 @@ static GtkWidget *clist_r;
 static GtkWidget *max;
 static GtkWidget *max_r;
 
-static gboolean copy_file(gchar *, /*gint,*/ gint, void *);
-
 static char f_tempname[100], r_tempname[100];
 
 /* type of error when saving voice in a file didn't succeed */
 typedef enum {
 	TAP_RTP_WRONG_CODEC,
 	TAP_RTP_WRONG_LENGTH,
-	TAP_RTP_PADDING_SET,
+	TAP_RTP_PADDING_ERROR,
 	TAP_RTP_FILE_OPEN_ERROR,
 	TAP_RTP_NO_DATA
 } error_type_t; 
 
-/* structure that holds the information about the forwarding and reversed connection */
-/* f_* always aplies to the forward direction and r_* to the reversed */
+typedef enum {
+	FIRST_PACKET,
+	MARK_SET,
+	NORMAL_PACKET
+} packet_type;
+
+/* structure that holds the information about the forward and reversed connection */
+struct _info_direction {
+	gboolean first_packet;
+	guint16 seq_num;
+	guint32 timestamp;
+	guint32 delta_timestamp;
+	double delay;
+	double jitter;
+	double time;
+	double start_time;
+	double max_delay;
+	guint32 max_nr;
+	guint16 start_seq_nr;
+	guint16 stop_seq_nr;
+	guint32 total_nr;
+	guint32 sequence;
+	gboolean under;
+	gint cycles;
+	FILE *fp;
+	guint32 count;
+	error_type_t error_type;
+	gboolean saved;
+};
+
+/* structure that holds general information about the connection 
+ * and structures for both directions */
 typedef struct _info_stat {
 	gchar source[16];
 	gchar destination[16];
@@ -163,48 +190,12 @@ typedef struct _info_stat {
 	gboolean search_ssrc;
 	guint reversed_ip;
 	guint reversed_ip_and_port;
-	gboolean f_first_packet;
-	gboolean r_first_packet;
-	guint16 f_seq_num;
-	guint16 r_seq_num;
-	guint32 f_timestamp;
-	guint32 r_timestamp;
-	guint32 f_delta_timestamp;
-	guint32 r_delta_timestamp;
-	double f_delay;
-	double r_delay;
-	double f_jitter;
-	double r_jitter;
-	double f_time;
-	double r_time;
-	double f_start_time;
-	double r_start_time;
-	double f_max_delay;
-	double r_max_delay;
-	guint32 f_max_nr;
-	guint32 r_max_nr;
-	guint16 f_start_seq_nr;
-	guint16 r_start_seq_nr;
-	guint16 f_stop_seq_nr;
-	guint16 r_stop_seq_nr;
-	guint32 f_total_nr;
-	guint32 r_total_nr;
-	guint32 f_sequence;
-	guint32 r_sequence;
-	gint f_cycles;
-	gint r_cycles;
-	gboolean f_under;
-	gboolean r_under;
-	FILE *f_fp;
-	FILE *r_fp;
-	gboolean f_saved;
-	gboolean r_saved;
-	error_type_t f_error_type;
-	error_type_t r_error_type;
-	guint32 f_count;
-	guint32 r_count;
+	struct _info_direction forward;
+	struct _info_direction reversed;
 } info_stat;
 
+int do_calculation(gboolean direc, packet_type pkt_type, void *ptrs, void *vpri, void *vpinfo); 
+static gboolean copy_file(gchar *, /*gint,*/ gint, void *);
 
 /* when there is a [re]reading of packet's */
 static void
@@ -212,41 +203,49 @@ rtp_reset(void *prs)
 {
   info_stat *rs=prs;
 
-  rs->f_first_packet = TRUE;
-  rs->r_first_packet = TRUE;
-  rs->f_max_delay = 0;
-  rs->r_max_delay = 0;
-  rs->f_max_nr = 0;
-  rs->r_max_nr = 0;
-  rs->f_total_nr = 0;
-  rs->r_total_nr = 0;
-  rs->f_sequence = 0;
-  rs->r_sequence = 0;
-  rs->f_start_seq_nr = 0;
-  rs->r_start_seq_nr = 1; /* 1 is ok (for statistics in reversed direction) */
-  rs->f_stop_seq_nr = 0;
-  rs->r_stop_seq_nr = 0;
-  rs->f_cycles = 0;
-  rs->r_cycles = 0;
-  rs->f_under = FALSE;
-  rs->r_under = FALSE;
-  rs->f_saved = FALSE;
-  rs->r_saved = FALSE;
-  rs->f_start_time = 0;
-  rs->r_start_time = 0;
-  rs->f_count = 0;
-  rs->r_count = 0;
+  rs->forward.first_packet = TRUE;
+  rs->reversed.first_packet = TRUE;
+  rs->forward.max_delay = 0;
+  rs->reversed.max_delay = 0;
+  rs->forward.delay = 0;
+  rs->reversed.delay = 0;
+  rs->forward.jitter = 0;
+  rs->reversed.jitter = 0;
+  rs->forward.timestamp = 0;
+  rs->reversed.timestamp = 0;
+  rs->forward.max_nr = 0;
+  rs->reversed.max_nr = 0;
+  rs->forward.total_nr = 0;
+  rs->reversed.total_nr = 0;
+  rs->forward.sequence = 0;
+  rs->reversed.sequence = 0;
+  rs->forward.start_seq_nr = 0;
+  rs->reversed.start_seq_nr = 1; /* 1 is ok (for statistics in reversed direction) */
+  rs->forward.stop_seq_nr = 0;
+  rs->reversed.stop_seq_nr = 0;
+  rs->forward.cycles = 0;
+  rs->reversed.cycles = 0;
+  rs->forward.under = FALSE;
+  rs->reversed.under = FALSE;
+  rs->forward.saved = FALSE;
+  rs->reversed.saved = FALSE;
+  rs->forward.start_time = 0;
+  rs->reversed.start_time = 0;
+  rs->forward.time = 0;
+  rs->reversed.time = 0;
+  rs->forward.count = 0;
+  rs->reversed.count = 0;
   /* XXX check for error at fclose? */
-  if (rs->f_fp != NULL)
-	fclose(rs->f_fp); 
-  if (rs->r_fp != NULL)
-	fclose(rs->r_fp); 
-  rs->f_fp = fopen(f_tempname, "wb"); 
-  if (rs->f_fp == NULL)
-	rs->f_error_type = TAP_RTP_FILE_OPEN_ERROR;
-  rs->r_fp = fopen(r_tempname, "wb");
-  if (rs->r_fp == NULL)
-	rs->r_error_type = TAP_RTP_FILE_OPEN_ERROR;
+  if (rs->forward.fp != NULL)
+	fclose(rs->forward.fp); 
+  if (rs->reversed.fp != NULL)
+	fclose(rs->reversed.fp); 
+  rs->forward.fp = fopen(f_tempname, "wb"); 
+  if (rs->forward.fp == NULL)
+	rs->forward.error_type = TAP_RTP_FILE_OPEN_ERROR;
+  rs->reversed.fp = fopen(r_tempname, "wb");
+  if (rs->reversed.fp == NULL)
+	rs->reversed.error_type = TAP_RTP_FILE_OPEN_ERROR;
   return;
 }
 
@@ -262,24 +261,26 @@ static void draw_stat(void *prs)
 {
 	info_stat *rs=prs;
 	gchar label_max[200];
-	guint32 f_expected = (rs->f_stop_seq_nr + rs->f_cycles*65536) - rs->f_start_seq_nr + 1;
-	guint32 r_expected = (rs->r_stop_seq_nr + rs->r_cycles*65536) - rs->r_start_seq_nr + 1;
-	gint32 f_lost = f_expected - rs->f_total_nr;
-	gint32 r_lost = r_expected - rs->r_total_nr;
+	guint32 f_expected = (rs->forward.stop_seq_nr + rs->forward.cycles*65536) 
+							- rs->forward.start_seq_nr + 1;
+	guint32 r_expected = (rs->reversed.stop_seq_nr + rs->reversed.cycles*65536) 
+							- rs->reversed.start_seq_nr + 1;
+	gint32 f_lost = f_expected - rs->forward.total_nr;
+	gint32 r_lost = r_expected - rs->reversed.total_nr;
 
 	g_snprintf(label_max, 199, "Max delay = %f sec at packet nr. %u \n\n"
 		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d"  
 		"   Sequence error = %u",
-			rs->f_max_delay, rs->f_max_nr, rs->f_total_nr, f_expected, 
-							f_lost, rs->f_sequence);
+			rs->forward.max_delay, rs->forward.max_nr, rs->forward.total_nr, 
+						f_expected, f_lost, rs->forward.sequence);
 
 	gtk_label_set_text(GTK_LABEL(max), label_max);
 
 	g_snprintf(label_max, 199, "Max delay = %f sec at packet nr. %u \n\n"
 		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d"
 		"   Sequence error = %u",
-			 rs->r_max_delay, rs->r_max_nr, rs->r_total_nr, r_expected,
-							r_lost, rs->r_sequence);
+			 rs->reversed.max_delay, rs->reversed.max_nr, rs->reversed.total_nr, 
+						r_expected, r_lost, rs->reversed.sequence);
 
 	gtk_label_set_text(GTK_LABEL(max_r), label_max);
 
@@ -287,7 +288,7 @@ static void draw_stat(void *prs)
 	/* if this is true, then we don't have any reversed connection, so the error type
 	 * will be no data. This applies only the reversed connection */
 	if (rs->reversed_ip_and_port == 0)
-		rs->r_error_type = TAP_RTP_NO_DATA;
+		rs->reversed.error_type = TAP_RTP_NO_DATA;
 
 	return ;
 }
@@ -327,25 +328,15 @@ static void add_to_clist(gboolean forward, guint32 number, guint16 seq_num,
  *		if yes, do we already have this SSRC stored
  *			if not store it
  * 3) if not, is current packet matching the forward direction
- *	is it the first time we see a packet in this direction
- *		if yes, store some values, add a line to list and save the voice info
- *		in a temporary file if the codec is supported and the RTP data is ok
- *	if not, is it a packet with mark bit set (there was silence surpression)
- *		same as above, only we have to add some silence in front of the voice data
- *	if not, then this must be a normal packet
- *		store the values and voice data
+ *	if yes, call the function that does the calculation and saves the voice info
  * 4) if not, is current packet matching the reversed connection
- *	(same as for number 3)
+ *	if yes, call the function that does the calculation and saves the voice info
  */
 static int rtp_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, void *vpri)
 {
 	info_stat *rs=prs;
 	struct _rtp_info *pri=vpri;
 	guint i;
-	double n_time;
-	double n_jitter;
-	guint8 *data;
-	gint16 tmp;
 
 	/* we ignore packets that are not displayed */
 	if (pinfo->fd->flags.passed_dfilter == 0)
@@ -391,602 +382,212 @@ static int rtp_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, vo
 	}
 	
 	/* ok, we are not looking for SSRC of the reversed connection */
-	/* is it the forward direction? 
-	 * if yes, there 3 possibilities:
-	 * a) is this the first packet we got in this direction?
-	 * b) or is it a packet with the mark bit set?
-	 * c) if neither then it is a "normal" packet */
-	else if (rs->ssrc_forward == pri->info_sync_src) {
-		/* first packet? */
-		if (rs->f_first_packet != FALSE) {
-			/* we store all the values */
-			rs->f_seq_num = pri->info_seq_num;
-			rs->f_delay = 0;
-			rs->f_jitter = 0;
-			rs->f_first_packet = FALSE;
-			rs->f_timestamp = pri->info_timestamp;
-			rs->f_start_seq_nr = pri->info_seq_num;
-			rs->f_stop_seq_nr = pri->info_seq_num;
-			rs->f_total_nr++;
-			rs->f_time = (double)pinfo->fd->rel_secs + 
-						(double) pinfo->fd->rel_usecs/1000000;
-			rs->f_start_time = rs->f_time;
-			/* and add a row to clist; delay and jitter are 0 for the first packet */
-			add_to_clist(TRUE, pinfo->fd->num, pri->info_seq_num, 0, 0, TRUE, FALSE);
-
-			/* and now save the voice info */
-
-			/* if we couldn't open the tmp file for writing, then we set the flag */
-			if (rs->f_fp == NULL) {
-				rs->f_saved = FALSE;
-				rs->f_error_type = TAP_RTP_FILE_OPEN_ERROR;
-				return 0;
-			}
-			/* if the captured length and packet length aren't equal, we quit 
-			 * because there is some information missing */
-			if (pinfo->fd->pkt_len != pinfo->fd->cap_len) {
-				rs->f_saved = FALSE;
-				rs->f_error_type = TAP_RTP_WRONG_LENGTH;
-				return 0;
-			}
-			/* if padding bit is set, we don't do it yet */
-			if (pri->info_padding_set != FALSE) {
-				rs->f_saved = FALSE;
-				rs->f_error_type = TAP_RTP_PADDING_SET;
-				return 0;
-			}
-			/* is it the ulaw? */
-			if (pri->info_payload_type == 0) {
-				/* we put the pointer at the beggining of the RTP data, that is
-				 * at the end of the current frame minus the length of the 
-				 * RTP field plus 12 for the RTP header */
-				data = cfile.pd + (pinfo->fd->pkt_len - pri->info_data_len + 12);
-				for(i=0; i < (pri->info_data_len-12 ); i++, data++) {
-					tmp = (gint16 )ulaw2linear((unsigned char)*data);
-					fwrite(&tmp, 2, 1, rs->f_fp);
-					rs->f_count++;
-				}
-				rs->f_saved = TRUE;
-				return 0;
-			}
-			/* alaw? */
-			else if (pri->info_payload_type == 8) {
-				data = cfile.pd + (pinfo->fd->pkt_len - pri->info_data_len + 12);
-				for(i=0; i < (pri->info_data_len -12 ); i++, data++) {
-					tmp = (gint16 )alaw2linear((unsigned char)*data);
-					fwrite(&tmp, 2, 1, rs->f_fp);
-					rs->f_count++;
-				}
-				rs->f_saved = TRUE;
-				return 0;
-			}
-			/* unsupported codec or other error */
-			else {
-				rs->f_saved = FALSE;
-				rs->f_error_type = TAP_RTP_WRONG_CODEC;
-				return 0;
-			}
-		}
-		
-		/* packet with mark bit set? */
-		if (pri->info_marker_set != FALSE) {
-			n_time = (double)pinfo->fd->rel_secs +
-					(double) pinfo->fd->rel_usecs/1000000;
-			/* jitter is calculated as for RCTP - RFC 1889 
-			 * J = J + ( | D(i-1, i) | - J) / 16
-			 * XXX the output there should be in timestamp (probably miliseconds)
-			 * units expressed as an unsigned integer, so should we do it the same? 
-			 * (currently we use seconds) 
-			 *
-			 * XXX Packet loss in RTCP is calculated as the difference between the
-			 * number of packets expected and actually received, where for actually 
-			 * received the number is simply the count of packets as they arrive, 
-			 * including any late or duplicate packets (this means that the number
-			 * can be negative). For example, if the seq numbers of the arrived
-			 * packets are: 1,2,3,4,5,5,7,7,9,10 the expected number is 10 and the
-			 * the number of actually captured frames is also 10. So in upper 
-			 * calculation there would be no losses. But there are 2 losses and 
-			 * 2 duplicate packets. Because this kind of statistic is rather 
-			 * useless (or confusing) we add the information, that there was 
-			 * an error with sequence number each time the sequence number was 
-			 * not one bigger than the previous one
-			*/
-                       
-			/* jitter calculation */
-			n_jitter = rs->f_jitter + ( fabs(n_time-(rs->f_time) - 
-					((double)(pri->info_timestamp)-
-					(double)(rs->f_timestamp))/8000) - rs->f_jitter)/16;
-
-			/* we add the information into the clist */
-			add_to_clist(TRUE, pinfo->fd->num, pri->info_seq_num, n_time-(rs->f_time),
-				 n_jitter, rs->f_seq_num+1 == pri->info_seq_num?TRUE:FALSE, TRUE);
-
-			/* when calculating expected rtp packets the seq number can wrap around
-			 * so we have to count the number of cycles 
-			 * f_cycles counts the wraps around in forwarding connection and
-			 * f_under is flag that indicates where we are 
-			 *
-			 * XXX how to determine number of cycles with all possible lost, late
-			 * and duplicated packets without any doubt? It seems to me, that 
-			 * because of all possible combination of late, duplicated or lost
-			 * packets, this can only be more or less good approximation
-			 *
-			 * There are some combinations (rare but theoretically possible), 
-			 * where below code won't work correctly - statistic may be wrong then.
-			 */
-
-			/* so if the current sequence number is less than the start one
-			 * we assume, that there is another cycle running */
-			if ((pri->info_seq_num < rs->f_start_seq_nr) && (rs->f_under == FALSE)){
-				rs->f_cycles++;
-				rs->f_under = TRUE;
-			}
-			/* what if the start seq nr was 0. Then the above condition will never 
-			 * be true, so we add another condition. XXX The problem would arise if
-			 * if one of the packets with seq nr 0 or 65535 would be lost or late */
-			else if ((pri->info_seq_num == 0) && (rs->f_stop_seq_nr == 65535) && 
-									(rs->f_under == FALSE)){
-				rs->f_cycles++;
-				rs->f_under = TRUE;
-			}
-			/* the whole round is over, so reset the flag */
-			else if ((pri->info_seq_num>rs->f_start_seq_nr)&&(rs->f_under!=FALSE)){
-				rs->f_under = FALSE;
-			}
-
-			/* number of times where sequence number was not ok */
-			if ( rs->f_seq_num+1 == pri->info_seq_num)
-				rs->f_seq_num = pri->info_seq_num;
-			/* XXX same problem as above */
-			else if ( (rs->f_seq_num == 65535) && (pri->info_seq_num == 0) )
-				rs->f_seq_num = pri->info_seq_num;
-			/* lost packets */
-			else if (rs->f_seq_num+1 < pri->info_seq_num) {
-				rs->f_seq_num = pri->info_seq_num;
-				rs->f_sequence++;
-			}
-			/* late or duplicated */
-			else if (rs->f_seq_num+1 > pri->info_seq_num)
-				rs->f_sequence++;
-
-			rs->f_stop_seq_nr = pri->info_seq_num;
-			rs->f_time = n_time;
-			rs->f_jitter = n_jitter;
-			rs->f_delta_timestamp = pri->info_timestamp - rs->f_timestamp;
-			rs->f_timestamp = pri->info_timestamp;
-			rs->f_total_nr++;
-
-			/* save the voice information */
-			/* if there was already an error, we quit */
-			if (rs->f_saved == FALSE)
-				return 0;
-			/* if the captured length and packet length aren't equal, we quit */
-			if (pinfo->fd->pkt_len != pinfo->fd->cap_len) {
-				rs->f_saved = FALSE;
-				rs->f_error_type = TAP_RTP_WRONG_LENGTH;
-				return 0;
-			}
-			/* if padding bit is set, we don't do it yet */
-			if (pri->info_padding_set != FALSE) {
-				rs->f_saved = FALSE;
-				rs->f_error_type = TAP_RTP_PADDING_SET;
-				return 0;
-			}
-			/* because the mark bit is set, we have to add some silence in front */
-			/* is it the ulaw? */
-			if (pri->info_payload_type == 0) {
-				/* we insert some silence */
-				/* XXX the amount of silence should be the difference between
-				 * the last timestamp and the current one minus x in the
-				 * I am not sure if x is equal the amount of information 
-				 * current packet? */
-				for(i=0; i<(rs->f_delta_timestamp-pri->info_data_len+12); i++) {
-					tmp = (gint16 )ulaw2linear((unsigned char)(0x55));
-					fwrite(&tmp, 2, 1, rs->f_fp);
-					rs->f_count++;
-				}
-				data = cfile.pd + (pinfo->fd->pkt_len - pri->info_data_len + 12);
-				for(i=0; i < (pri->info_data_len-12 ); i++, data++) {
-					tmp = (gint16 )ulaw2linear((unsigned char)*data);
-					fwrite(&tmp, 2, 1, rs->f_fp);
-					rs->f_count++;
-				}
-				return 0;
-			}
-			/* alaw? */
-			else if (pri->info_payload_type == 8) {
-				for(i=0; i < (rs->f_delta_timestamp-pri->info_data_len+12); i++) {
-					tmp = (gint16 )ulaw2linear((unsigned char)(0x55));
-					fwrite(&tmp, 2, 1, rs->f_fp);
-					rs->f_count++;
-				}
-				data = cfile.pd + (pinfo->fd->pkt_len - pri->info_data_len + 12);
-				for(i=0; i < (pri->info_data_len -12 ); i++, data++) {
-					tmp = (gint16 )alaw2linear((unsigned char)*data);
-					fwrite(&tmp, 2, 1, rs->f_fp);
-					rs->f_count++;
-				}
-				return 0;
-			}
-			/* unsupported codec or other error */
-			else {
-				rs->f_saved = FALSE;
-				rs->f_error_type = TAP_RTP_WRONG_CODEC;
-				return 0;
-			}
-			return 0;
-		}
-		
-		/* normal packet in forward connection */
-		n_time = (double)pinfo->fd->rel_secs +
-					(double) pinfo->fd->rel_usecs/1000000;
-		n_jitter = rs->f_jitter + ( fabs (n_time-(rs->f_time) - 
-				((double)(pri->info_timestamp)-
-				(double)(rs->f_timestamp))/8000) - rs->f_jitter)/16;
-		rs->f_delay =  n_time-(rs->f_time);
-		/* the delay is bigger than previous max delay, so store the delay and nr */
-		if (rs->f_delay > rs->f_max_delay) {
-			rs->f_max_delay = rs->f_delay;
-			rs->f_max_nr = pinfo->fd->num;
-		}
-		add_to_clist(TRUE, pinfo->fd->num, pri->info_seq_num, n_time-(rs->f_time),
-				 n_jitter, rs->f_seq_num+1 == pri->info_seq_num?TRUE:FALSE, FALSE);
-
-		/* count the cycles */
-		if ((pri->info_seq_num < rs->f_start_seq_nr) && (rs->f_under == FALSE)){
-			rs->f_cycles++;
-			rs->f_under = TRUE;
-		}
-		else if ((pri->info_seq_num == 0) && (rs->f_stop_seq_nr == 65535) && 
-								(rs->f_under == FALSE)){
-			rs->f_cycles++;
-			rs->f_under = TRUE;
-		}
-		/* the whole round is over, so reset the flag */
-		else if ((pri->info_seq_num>rs->f_start_seq_nr+1)&&(rs->f_under!=FALSE)){
-			rs->f_under = FALSE;
-		}
-
-		/* number of times where sequence number was not ok */
-		if ( rs->f_seq_num+1 == pri->info_seq_num)
-			rs->f_seq_num = pri->info_seq_num;
-		else if ( (rs->f_seq_num == 65535) && (pri->info_seq_num == 0) )
-			rs->f_seq_num = pri->info_seq_num;
-		/* lost packets */
-		else if (rs->f_seq_num+1 < pri->info_seq_num) {
-			rs->f_seq_num = pri->info_seq_num;
-			rs->f_sequence++;
-		}
-		/* late or duplicated */
-		else if (rs->f_seq_num+1 > pri->info_seq_num)
-			rs->f_sequence++;
-
-		rs->f_stop_seq_nr = pri->info_seq_num;
-		rs->f_time = n_time;
-		rs->f_jitter = n_jitter;
-		rs->f_timestamp = pri->info_timestamp;
-		rs->f_total_nr++;
-
-		/* save the voice information */
-		/* we do it only in following cases:
-		 * - the codecs we support are g.711 alaw in ulaw
-		 * - the captured length must equal the packet length
-		 * - XXX we don't support it if there are padding bits 
-		 */
-		/* if there was already an error, we quit */
-		if (rs->f_saved == FALSE)
-			return 0;
-		/* if the captured length and packet length aren't equal, we quit */
-		if (pinfo->fd->pkt_len != pinfo->fd->cap_len) {
-			rs->f_saved = FALSE;
-			rs->f_error_type = TAP_RTP_WRONG_LENGTH;
-			return 0;
-		}
-		/* if padding bit is set, we don't do it yet */
-		if (pri->info_padding_set != FALSE) {
-			rs->f_saved = FALSE;
-			rs->f_error_type = TAP_RTP_PADDING_SET;
-			return 0;
-		}
-		/* is it the ulaw? */
-		if (pri->info_payload_type == 0) {
-			/* cfile.pd points at the beggining of the actual packet. We have
-			 * to move this pointer at the RTP data. This is the packet length,
-			 * minus whole RTP data length (including the RTP header, that is
-			 * why we add 12) */
-			data = cfile.pd + (pinfo->fd->pkt_len - pri->info_data_len + 12);
-			for(i=0; i < (pri->info_data_len - 12); i++, data++) {
-				tmp = (gint16 )ulaw2linear((unsigned char)*data);
-				fwrite(&tmp, 2, 1, rs->f_fp);
-				rs->f_count++;
-			}
-			return 0;				
-		}
-		/* alaw? */
-		else if (pri->info_payload_type == 8) {
-			data = cfile.pd + (pinfo->fd->pkt_len - pri->info_data_len + 12);
-			for(i=0; i < (pri->info_data_len-12 ); i++, data++) {
-				tmp = (gint16 )alaw2linear((unsigned char)*data);
-				fwrite(&tmp, 2, 1, rs->f_fp);
-				rs->f_count++;
-			}
-			return 0;
-		}
-		/* unsupported codec or other error */
-		else {
-			rs->f_saved = FALSE;
-			rs->f_error_type = TAP_RTP_WRONG_CODEC;
-			return 0;
-		}
-	}				
-
+	/* is it the forward direction?  */
+	else if (rs->ssrc_forward == pri->info_sync_src)  {
+		if (rs->forward.first_packet != FALSE) 
+			/* first argument is the direction TRUE == forward */
+			return do_calculation(TRUE, FIRST_PACKET, &rs->forward, pri, pinfo);
+		else if (pri->info_marker_set != FALSE)
+			return do_calculation(TRUE, MARK_SET, &rs->forward, pri, pinfo);
+		else
+			return do_calculation(TRUE, NORMAL_PACKET, &rs->forward, pri, pinfo);
+	}
 	/* is it the reversed direction? */
 	else if (rs->ssrc_reversed == pri->info_sync_src) {
-		/* first packet? */
-		if (rs->r_first_packet !=FALSE) {
-			rs->r_seq_num = pri->info_seq_num;
-			rs->r_delay = 0;
-			rs->r_jitter = 0;
-			rs->r_first_packet = FALSE;
-			rs->r_timestamp = pri->info_timestamp;
-			rs->r_start_seq_nr = pri->info_seq_num;
-			rs->r_stop_seq_nr = pri->info_seq_num;
-			rs->r_total_nr++;
-			rs->r_time = (double)pinfo->fd->rel_secs + 
-						(double) pinfo->fd->rel_usecs/1000000;
-			rs->r_start_time = rs->r_time;
-			add_to_clist(FALSE, pinfo->fd->num, pri->info_seq_num, 0, 0, TRUE, FALSE);
-
-			/* save it */
-			/* if we couldn't open the tmp file for writing, then we set the flag */
-			if (rs->r_fp == NULL) {
-				rs->r_saved = FALSE;
-				return 0;
-			}
-			/* if the captured length and packet length aren't equal, we quit */
-			if (pinfo->fd->pkt_len != pinfo->fd->cap_len) {
-				rs->r_saved = FALSE;
-				rs->r_error_type = TAP_RTP_WRONG_LENGTH;
-				return 0;
-			}
-			/* if padding bit is set, we don't do it yet */
-			if (pri->info_padding_set != FALSE) {
-				rs->r_saved = FALSE;
-				rs->r_error_type = TAP_RTP_PADDING_SET;
-				return 0;
-			}
-			/* is it the ulaw? */
-			if (pri->info_payload_type == 0) {
-				data = cfile.pd + (pinfo->fd->pkt_len - pri->info_data_len + 12);
-				for(i=0; i < (pri->info_data_len-12 ); i++, data++) {
-					tmp = (gint16 )ulaw2linear((unsigned char)*data);
-					fwrite(&tmp, 2, 1, rs->r_fp);
-					rs->r_count++;
-				}
-				rs->r_saved = TRUE;
-				return 0;
-			}
-			/* alaw? */
-			else if (pri->info_payload_type == 8) {
-				data = cfile.pd + (pinfo->fd->pkt_len - pri->info_data_len + 12);
-				for(i=0; i < (pri->info_data_len -12 ); i++, data++) {
-					tmp = (gint16 )alaw2linear((unsigned char)*data);
-					fwrite(&tmp, 2, 1, rs->r_fp);
-					rs->r_count++;
-				}
-				rs->r_saved = TRUE;
-				return 0;
-			}
-			/* unsupported codec or other error */
-			else {
-				rs->r_saved = FALSE;
-				rs->r_error_type = TAP_RTP_WRONG_CODEC;
-				return 0;
-			}
-		}
-		
-		/* packet with mark bit set? */
-		if (pri->info_marker_set != FALSE) {
-			n_time = (double)pinfo->fd->rel_secs +
-					(double) pinfo->fd->rel_usecs/1000000;
-			n_jitter = rs->r_jitter + ( fabs (n_time-(rs->r_time) - 
-					((double)(pri->info_timestamp)-
-					(double)(rs->r_timestamp))/8000) - rs->r_jitter)/16;
-			add_to_clist(FALSE, pinfo->fd->num, pri->info_seq_num, n_time-(rs->r_time),
-				 n_jitter, rs->r_seq_num+1 == pri->info_seq_num?TRUE:FALSE, TRUE);
-
-			/* count the cycles */
-			if ((pri->info_seq_num < rs->r_start_seq_nr) && (rs->r_under == FALSE)){
-				rs->r_cycles++;
-				rs->r_under = TRUE;
-			}
-			else if ((pri->info_seq_num == 0) && (rs->r_stop_seq_nr == 65535) && 
-									(rs->r_under == FALSE)){
-				rs->r_cycles++;
-				rs->r_under = TRUE;
-			}
-			/* the whole round is over, so reset the flag */
-			else if ((pri->info_seq_num>rs->r_start_seq_nr+1)&&(rs->r_under!=FALSE)){
-				rs->r_under = FALSE;
-			}
-
-			/* number of times where sequence number was not ok */
-			if ( rs->r_seq_num+1 == pri->info_seq_num)
-				rs->r_seq_num = pri->info_seq_num;
-			else if ( (rs->r_seq_num == 65535) && (pri->info_seq_num == 0) )
-				rs->r_seq_num = pri->info_seq_num;
-			/* lost packets */
-			else if (rs->r_seq_num+1 < pri->info_seq_num) {
-				rs->r_seq_num = pri->info_seq_num;
-				rs->r_sequence++;
-			}
-			/* late or duplicated */
-			else if (rs->r_seq_num+1 > pri->info_seq_num)
-				rs->r_sequence++;
-
-			rs->r_stop_seq_nr = pri->info_seq_num;
-			rs->r_time = n_time;
-			rs->r_jitter = n_jitter;
-			rs->r_delta_timestamp = pri->info_timestamp - rs->r_timestamp;
-			rs->r_timestamp = pri->info_timestamp;
-			rs->r_total_nr++;
-
-			/* save the voice information */
-			/* if there was already an error, we quit */
-			if (rs->r_saved == FALSE)
-				return 0;
-			/* if the captured length and packet length aren't equal, we quit */
-			if (pinfo->fd->pkt_len != pinfo->fd->cap_len) {
-				rs->r_saved = FALSE;
-				rs->r_error_type = TAP_RTP_WRONG_LENGTH;
-				return 0;
-			}
-			/* if padding bit is set, we don't do it yet */
-			if (pri->info_padding_set != FALSE) {
-				rs->r_saved = FALSE;
-				rs->r_error_type = TAP_RTP_PADDING_SET;
-				return 0;
-			}
-			/* because the mark bit is set, we have to add some silence in front */
-			/* is it the ulaw? */
-			if (pri->info_payload_type == 0) {
-				/* we insert some silence */
-				for(i=0; i<(rs->r_delta_timestamp-pri->info_data_len+12); i++) {
-					tmp = (gint16 )ulaw2linear((unsigned char)(0x55));
-					fwrite(&tmp, 2, 1, rs->r_fp);
-					rs->r_count++;
-				}
-				data = cfile.pd + (pinfo->fd->pkt_len - pri->info_data_len + 12);
-				for(i=0; i < (pri->info_data_len-12 ); i++, data++) {
-					tmp = (gint16 )ulaw2linear((unsigned char)*data);
-					fwrite(&tmp, 2, 1, rs->r_fp);
-					rs->r_count++;
-				}
-				return 0;
-			}
-			/* alaw? */
-			else if (pri->info_payload_type == 8) {
-				for(i=0; i < (rs->r_delta_timestamp-pri->info_data_len+12); i++) {
-					tmp = (gint16 )ulaw2linear((unsigned char)(0x55));
-					fwrite(&tmp, 2, 1, rs->r_fp);
-					rs->r_count++;
-				}
-				data = cfile.pd + (pinfo->fd->pkt_len - pri->info_data_len + 12);
-				for(i=0; i < (pri->info_data_len -12 ); i++, data++) {
-					tmp = (gint16 )alaw2linear((unsigned char)*data);
-					fwrite(&tmp, 2, 1, rs->r_fp);
-					rs->r_count++;
-				}
-				return 0;
-			}
-			/* unsupported codec or other error */
-			else {
-				rs->r_saved = FALSE;
-				rs->r_error_type = TAP_RTP_WRONG_CODEC;
-				return 0;
-			}
-			return 0;
-		}
-		
-		/* normal packet in reversed connection */
-		n_time = (double)pinfo->fd->rel_secs +
-				(double) pinfo->fd->rel_usecs/1000000;
-		n_jitter = rs->r_jitter + ( fabs (n_time-(rs->r_time) - 
-				((double)(pri->info_timestamp)-
-				(double)(rs->r_timestamp))/8000) - rs->r_jitter)/16;
-		rs->r_delay =  n_time-(rs->r_time);
-		if (rs->r_delay > rs->r_max_delay) {
-			rs->r_max_delay = rs->r_delay;
-			rs->r_max_nr = pinfo->fd->num;
-		}
-		add_to_clist(FALSE, pinfo->fd->num, pri->info_seq_num, n_time-(rs->r_time),
-				 n_jitter, rs->r_seq_num+1 == pri->info_seq_num?TRUE:FALSE, FALSE);
-		/* count the cycles */
-		if ((pri->info_seq_num < rs->r_start_seq_nr) && (rs->r_under == FALSE)){
-			rs->r_cycles++;
-			rs->r_under = TRUE;
-		}
-		else if ((pri->info_seq_num == 0) && (rs->r_stop_seq_nr == 65535) && 
-								(rs->r_under == FALSE)){
-			rs->r_cycles++;
-			rs->r_under = TRUE;
-		}
-		/* the whole round is over, so reset the flag */
-		else if ((pri->info_seq_num>rs->r_start_seq_nr+1)&&(rs->r_under!=FALSE)){
-			rs->r_under = FALSE;
-		}
-
-		/* number of times where sequence number was not ok */
-		if ( rs->r_seq_num+1 == pri->info_seq_num)
-			rs->r_seq_num = pri->info_seq_num;
-		else if ( (rs->r_seq_num == 65535) && (pri->info_seq_num == 0) )
-			rs->r_seq_num = pri->info_seq_num;
-		/* lost packets */
-		else if (rs->r_seq_num+1 < pri->info_seq_num) {
-			rs->r_seq_num = pri->info_seq_num;
-			rs->r_sequence++;
-		}
-		/* late or duplicated */
-		else if (rs->r_seq_num+1 > pri->info_seq_num)
-			rs->r_sequence++;
-
-		rs->r_stop_seq_nr = pri->info_seq_num;
-		rs->r_time = n_time;
-		rs->r_jitter = n_jitter;
-		rs->r_timestamp = pri->info_timestamp;
-		rs->r_total_nr++;
-
-		/* save the voice information */
-		/* if there was already an error, we quit */
-		if (rs->r_saved == FALSE)
-			return 0;
-		/* if the captured length and packet length aren't equal, we quit */
-		if (pinfo->fd->pkt_len != pinfo->fd->cap_len) {
-			rs->r_saved = FALSE;
-			rs->r_error_type = TAP_RTP_WRONG_LENGTH;
-			return 0;
-		}
-		/* if padding bit is set, we don't do it yet */
-		if (pri->info_padding_set != FALSE) {
-			rs->r_saved = FALSE;
-			rs->r_error_type = TAP_RTP_PADDING_SET;
-			return 0;
-		}
-		/* is it the ulaw? */
-		if (pri->info_payload_type == 0) {
-			data = cfile.pd + (pinfo->fd->pkt_len - pri->info_data_len + 12);
-			for(i=0; i < (pri->info_data_len-12 ); i++, data++) {
-				tmp = (gint16 )ulaw2linear((unsigned char)*data);
-				fwrite(&tmp, 2, 1, rs->r_fp);
-				rs->r_count++;
-			}
-			return 0;
-		}
-		/* alaw? */
-		else if (pri->info_payload_type == 8) {
-			data = cfile.pd + (pinfo->fd->pkt_len - pri->info_data_len + 12);
-			for(i=0; i < (pri->info_data_len -12 ); i++, data++) {
-				tmp = (gint16 )alaw2linear((unsigned char)*data);
-				fwrite(&tmp, 2, 1, rs->r_fp);
-				rs->r_count++;
-			}
-			return 0;
-		}
-		/* unsupported codec or other error */
-		else {
-			rs->r_saved = FALSE;
-			rs->r_error_type = TAP_RTP_WRONG_CODEC;
-			return 0;
-		}
-	}				
+		if (rs->reversed.first_packet != FALSE) 
+			return do_calculation(FALSE, FIRST_PACKET, &rs->reversed, pri, pinfo);
+		else if (pri->info_marker_set != FALSE)
+			return do_calculation(FALSE, MARK_SET, &rs->reversed, pri, pinfo);
+		else
+			return do_calculation(FALSE, NORMAL_PACKET, &rs->reversed, pri, pinfo);
+	}
 
 	return 0;
+}
+
+
+int do_calculation(gboolean direc, packet_type pkt_type, void *ptrs, void *vpri, void *vpinfo) {
+
+	struct _info_direction *ptr=ptrs;
+	struct _rtp_info *pri=vpri;
+	packet_info *pinfo = vpinfo;
+	guint i;
+	double current_time;
+	double current_jitter;
+	guint8 *data;
+	gint16 tmp;
+
+	/* store the current time and calculate the current jitter */
+	current_time = (double)pinfo->fd->rel_secs + (double) pinfo->fd->rel_usecs/1000000;
+	current_jitter = ptr->jitter + ( fabs (current_time - (ptr->time) - 
+		((double)(pri->info_timestamp)-(double)(ptr->timestamp))/8000)- ptr->jitter)/16;
+	ptr->delay =  current_time-(ptr->time);
+
+	/* We have 3 possibilities:
+	 *  is this the first packet we got in this direction? */
+	if (pkt_type == FIRST_PACKET) {
+		ptr->first_packet = FALSE;
+		ptr->start_seq_nr = pri->info_seq_num;
+		ptr->start_time = current_time;
+		add_to_clist(direc, pinfo->fd->num, pri->info_seq_num, 0,
+				 pri->info_marker_set? TRUE: FALSE, TRUE, FALSE);
+		if (ptr->fp == NULL) {
+                	ptr->saved = FALSE;
+                        ptr->error_type = TAP_RTP_FILE_OPEN_ERROR;
+                }
+		else
+			ptr->saved = TRUE;
+ 	}
+	/* or is it a packet with the mark bit set? */
+	else if (pkt_type == MARK_SET) {
+		ptr->delta_timestamp = pri->info_timestamp - ptr->timestamp;
+		add_to_clist(direc, pinfo->fd->num, pri->info_seq_num, current_time - (ptr->time),
+			 current_jitter, ptr->seq_num+1 == pri->info_seq_num? TRUE: FALSE, TRUE);
+	}
+	/* if neither then it is a "normal" packet pkt_type == NORMAL_PACKET */
+	else {
+		if (ptr->delay > ptr->max_delay) {
+			ptr->max_delay = ptr->delay;
+			ptr->max_nr = pinfo->fd->num;
+		}
+		add_to_clist(direc, pinfo->fd->num, pri->info_seq_num, current_time -(ptr->time),
+			 current_jitter , ptr->seq_num+1 == pri->info_seq_num?TRUE:FALSE, FALSE);
+	}
+
+	/* When calculating expected rtp packets the seq number can wrap around
+	 * so we have to count the number of cycles
+	 * Variable cycles counts the wraps around in forwarding connection and
+	 * under is flag that indicates where we are
+	 *
+	 * XXX how to determine number of cycles with all possible lost, late
+	 * and duplicated packets without any doubt? It seems to me, that
+	 * because of all possible combination of late, duplicated or lost
+	 * packets, this can only be more or less good approximation
+	 *
+	 * There are some combinations (rare but theoretically possible),
+	 * where below code won't work correctly - statistic may be wrong then.
+	 */
+
+	/* so if the current sequence number is less than the start one
+	 * we assume, that there is another cycle running */
+	if ((pri->info_seq_num < ptr->start_seq_nr) && (ptr->under == FALSE)){
+		ptr->cycles++;
+		ptr->under = TRUE;
+	}
+	/* what if the start seq nr was 0? Then the above condition will never
+	 * be true, so we add another condition. XXX The problem would arise 
+	 * if one of the packets with seq nr 0 or 65535 would be lost or late */
+	else if ((pri->info_seq_num == 0) && (ptr->stop_seq_nr == 65535) &&
+							(ptr->under == FALSE)){
+		ptr->cycles++;
+		ptr->under = TRUE;
+	}
+	/* the whole round is over, so reset the flag */
+	else if ((pri->info_seq_num > ptr->start_seq_nr) && (ptr->under != FALSE)) {
+       		ptr->under = FALSE;
+        }
+
+	/* Since it is difficult to count lost, duplicate or late packets separately, 
+	 * we would like to know at least how many times the sequence number was not ok */
+
+	/* if the current seq number equals the last one or if we are here for 
+	 * the first time, then it is ok, we just store the current one as the last one */
+	if ( ( ptr->seq_num+1 == pri->info_seq_num) || (pkt_type == FIRST_PACKET) )
+		ptr->seq_num = pri->info_seq_num;
+	/* if the first one is 65535. XXX same problem as above: if seq 65535 or 0 is lost... */
+	else if ( (ptr->seq_num == 65535) && (pri->info_seq_num == 0) )
+		ptr->seq_num = pri->info_seq_num;
+	/* lost packets */
+	else if (ptr->seq_num+1 < pri->info_seq_num) {
+		ptr->seq_num = pri->info_seq_num;
+		ptr->sequence++;
+	}
+	/* late or duplicated */
+	else if (ptr->seq_num+1 > pri->info_seq_num)
+		ptr->sequence++;
+
+	ptr->time = current_time;
+	ptr->timestamp = pri->info_timestamp;
+	ptr->stop_seq_nr = pri->info_seq_num;
+	ptr->total_nr++;
+
+	/* save the voice information */
+	/* if there was already an error, we quit */
+        if (ptr->saved == FALSE)
+        	return 0;
+
+	/* if the captured length and packet length aren't equal, we quit
+         * because there is some information missing */
+        if (pinfo->fd->pkt_len != pinfo->fd->cap_len) {
+		ptr->saved = FALSE;
+		ptr->error_type = TAP_RTP_WRONG_LENGTH;
+		return 0;
+	}
+
+	/* if padding bit is set, but the padding count is bigger
+	 * then the whole RTP data - error with padding count */
+        if ( (pri->info_padding_set != FALSE) &&
+                      		(pri->info_padding_count > pri->info_payload_len) ) {
+		ptr->saved = FALSE;
+                ptr->error_type = TAP_RTP_PADDING_ERROR;
+                return 0;
+        }
+
+	/* do we need to insert some silence? */
+	if (pkt_type == MARK_SET) {
+		/* the amount of silence should be the difference between
+                 * the last timestamp and the current one minus x
+                 * x should equal the amount of information in the last frame
+                 * XXX not done yet */
+		for(i=0; i < (ptr->delta_timestamp - pri->info_payload_len -
+						pri->info_padding_count); i++) {
+			tmp = (gint16 )ulaw2linear((unsigned char)(0x55));
+			fwrite(&tmp, 2, 1, ptr->fp);
+			ptr->count++;
+		}
+		fflush(ptr->fp);
+	}
+
+	/* is it the ulaw? */
+	if (pri->info_payload_type == 0) {
+		/* we put the pointer at the beggining of the RTP data, that is
+		 * at the end of the current frame minus the length of the
+		 * padding count minus length of the RTP data */
+		data = cfile.pd + (pinfo->fd->pkt_len - pri->info_payload_len);
+		for(i=0; i < (pri->info_payload_len - pri->info_padding_count); i++, data++) {
+			tmp = (gint16 )ulaw2linear((unsigned char)*data);
+			fwrite(&tmp, 2, 1, ptr->fp);
+			ptr->count++;
+		}
+		fflush(ptr->fp);
+		ptr->saved = TRUE;
+		return 0;
+	}
+
+	/* alaw? */
+	else if (pri->info_payload_type == 8) {
+		data = cfile.pd + (pinfo->fd->pkt_len - pri->info_payload_len);
+		for(i=0; i < (pri->info_payload_len - pri->info_padding_count); i++, data++) {
+			tmp = (gint16 )alaw2linear((unsigned char)*data);
+			fwrite(&tmp, 2, 1, ptr->fp);
+			ptr->count++;
+		}
+		fflush(ptr->fp);
+		ptr->saved = TRUE;
+		return 0;
+	}
+
+	/* unsupported codec or XXX other error */
+	else {
+		ptr->saved = FALSE;
+		ptr->error_type = TAP_RTP_WRONG_CODEC;
+		return 0;
+	}
 }
 
 /* XXX just copied from gtk/rpc_stat.c */
 void protect_thread_critical_region(void);
 void unprotect_thread_critical_region(void);
-
 
 /* here we close the rtp analysis dialog window and remove the tap listener */
 static void rtp_destroy_cb(GtkWidget *win _U_, gpointer data _U_)
@@ -1001,10 +602,10 @@ static void rtp_destroy_cb(GtkWidget *win _U_, gpointer data _U_)
   g_free(rs->ssrc_tmp);
   g_free(rs);
  
-  if (rs->f_fp != NULL)
-	fclose(rs->f_fp);
-  if (rs->r_fp != NULL)
-	fclose(rs->r_fp);
+  if (rs->forward.fp != NULL)
+	fclose(rs->forward.fp);
+  if (rs->reversed.fp != NULL)
+	fclose(rs->reversed.fp);
   remove(f_tempname);
   remove(r_tempname);
 
@@ -1132,32 +733,35 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt, gpointer fs)
    */
 
   /* we can not save in both dirctions */
-  if ((rs->f_saved == FALSE) && (rs->r_saved == FALSE) && (GTK_TOGGLE_BUTTON (both)->active)) {
+  if ((rs->forward.saved == FALSE) && (rs->reversed.saved == FALSE) && (GTK_TOGGLE_BUTTON (both)->active)) {
 	/* there are many combinations here, we just exit when first matches */
-	if ((rs->f_error_type == TAP_RTP_WRONG_CODEC) || (rs->r_error_type == TAP_RTP_WRONG_CODEC))
+	if ((rs->forward.error_type == TAP_RTP_WRONG_CODEC) || 
+					(rs->reversed.error_type == TAP_RTP_WRONG_CODEC))
 		simple_dialog(ESD_TYPE_CRIT, NULL, 
-		"Can't save in a file: Unsupported codec!");
-	else if ((rs->f_error_type == TAP_RTP_WRONG_LENGTH) || (rs->r_error_type == TAP_RTP_WRONG_LENGTH))
+			"Can't save in a file: Unsupported codec!");
+	else if ((rs->forward.error_type == TAP_RTP_WRONG_LENGTH) || 
+					(rs->reversed.error_type == TAP_RTP_WRONG_LENGTH))
 		simple_dialog(ESD_TYPE_CRIT, NULL, 
-		"Can't save in a file: Wrong length of captured packets!");
-	else if ((rs->f_error_type == TAP_RTP_PADDING_SET) || (rs->r_error_type == TAP_RTP_PADDING_SET))
+			"Can't save in a file: Wrong length of captured packets!");
+	else if ((rs->forward.error_type == TAP_RTP_PADDING_ERROR) || 
+					(rs->reversed.error_type == TAP_RTP_PADDING_ERROR))
 		simple_dialog(ESD_TYPE_CRIT, NULL, 
-		"Can't save in a file: RTP data with padding!");
+			"Can't save in a file: RTP data with padding!");
 	else  
 		simple_dialog(ESD_TYPE_CRIT, NULL, 
-		"Can't save in a file: File I/O problem!");
+			"Can't save in a file: File I/O problem!");
 	return;
   }
   /* we can not save forward direction */
-  else if ((rs->f_saved == FALSE) && ((GTK_TOGGLE_BUTTON (forw)->active) ||
+  else if ((rs->forward.saved == FALSE) && ((GTK_TOGGLE_BUTTON (forw)->active) ||
 						(GTK_TOGGLE_BUTTON (both)->active))) {  
-	if (rs->f_error_type == TAP_RTP_WRONG_CODEC)
+	if (rs->forward.error_type == TAP_RTP_WRONG_CODEC)
                 simple_dialog(ESD_TYPE_CRIT, NULL, 
 		"Can't save forward direction in a file: Unsupported codec!");
-        else if (rs->f_error_type == TAP_RTP_WRONG_LENGTH)
+        else if (rs->forward.error_type == TAP_RTP_WRONG_LENGTH)
                 simple_dialog(ESD_TYPE_CRIT, NULL,
                 "Can't save forward direction in a file: Wrong length of captured packets!");
-        else if (rs->f_error_type == TAP_RTP_PADDING_SET)
+        else if (rs->forward.error_type == TAP_RTP_PADDING_ERROR)
                 simple_dialog(ESD_TYPE_CRIT, NULL, 
 		"Can't save forward direction in a file: RTP data with padding!");
         else
@@ -1166,18 +770,18 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt, gpointer fs)
 	return;
   }
   /* we can not save reversed direction */
-  else if ((rs->r_saved == FALSE) && ((GTK_TOGGLE_BUTTON (rev)->active) ||
+  else if ((rs->reversed.saved == FALSE) && ((GTK_TOGGLE_BUTTON (rev)->active) ||
 						(GTK_TOGGLE_BUTTON (both)->active))) {  
-	if (rs->r_error_type == TAP_RTP_WRONG_CODEC)
+	if (rs->reversed.error_type == TAP_RTP_WRONG_CODEC)
                 simple_dialog(ESD_TYPE_CRIT, NULL,
                 "Can't save reversed direction in a file: Unsupported codec!");
-        else if (rs->r_error_type == TAP_RTP_WRONG_LENGTH)
+        else if (rs->reversed.error_type == TAP_RTP_WRONG_LENGTH)
                 simple_dialog(ESD_TYPE_CRIT, NULL,
                 "Can't save reversed direction in a file: Wrong length of captured packets!");
-        else if (rs->r_error_type == TAP_RTP_PADDING_SET)
+        else if (rs->reversed.error_type == TAP_RTP_PADDING_ERROR)
                 simple_dialog(ESD_TYPE_CRIT, NULL,
                 "Can't save reversed direction in a file: RTP data with padding!");
-        else if (rs->r_error_type == TAP_RTP_NO_DATA)
+        else if (rs->reversed.error_type == TAP_RTP_NO_DATA)
                 simple_dialog(ESD_TYPE_CRIT, NULL,
                 "Can't save reversed direction in a file: No RTP data!");
 	else
@@ -1316,12 +920,12 @@ static void save_voice_as_cb(GtkWidget *w _U_, gpointer data)
   XXX this is not ok since the user can click the refresh button and cause changes
   but we can not update this window. So we move all the decision on the time the ok
   button is clicked
-  if (rs->f_saved == FALSE) {
+  if (rs->forward.saved == FALSE) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(reversed_rb), TRUE);
 	gtk_widget_set_sensitive(forward_rb, FALSE);
 	gtk_widget_set_sensitive(both_rb, FALSE);
   }
-  else if (rs->r_saved == FALSE) {
+  else if (rs->reversed.saved == FALSE) {
 	gtk_widget_set_sensitive(reversed_rb, FALSE);
 	gtk_widget_set_sensitive(both_rb, FALSE);
   }
@@ -1697,7 +1301,7 @@ static void rtp_analyse_cb(GtkWidget *w _U_, gpointer data _U_)
 /* XXX compiler warning:passing arg 5 of `register_tap_listener' from incompatible pointer type */
   error_string = register_tap_listener("rtp", rs, filter_text, rtp_reset, rtp_packet, rtp_draw);
   if (error_string != NULL) {
-	simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
+        simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
 	/* XXX is this enough or do I have to free anything else? */
 	g_string_free(error_string, TRUE);
 	g_free(rs);
@@ -1719,8 +1323,8 @@ static void rtp_analyse_cb(GtkWidget *w _U_, gpointer data _U_)
   /* file names for storing sound data */
   tmpnam(f_tempname);
   tmpnam(r_tempname);
-  rs->f_fp = NULL;
-  rs->r_fp = NULL;
+  rs->forward.fp = NULL;
+  rs->reversed.fp = NULL;
 
   redissect_packets(cf);
 
@@ -1819,8 +1423,8 @@ static gboolean copy_file(gchar *dest, gint channels, /*gint format,*/ void *dat
 	switch (channels) {
 		/* only forward direction */
 		case 1: {
-			progbar_count = rs->f_count;
-			progbar_quantum = rs->f_count/100;
+			progbar_count = rs->forward.count;
+			progbar_quantum = rs->forward.count/100;
 			while ((fread = read(forw_fd, &f_pd, 2)) > 0) {
 				if(stop_flag) 
 					break;
@@ -1844,8 +1448,8 @@ static gboolean copy_file(gchar *dest, gint channels, /*gint format,*/ void *dat
 		}
 		/* only reversed direction */
 		case 2: {
-			progbar_count = rs->r_count;
-			progbar_quantum = rs->r_count/100;
+			progbar_count = rs->reversed.count;
+			progbar_quantum = rs->reversed.count/100;
 			while ((rread = read(rev_fd, &r_pd, 2)) > 0) {
 				if(stop_flag) 
 					break;
@@ -1869,16 +1473,19 @@ static gboolean copy_file(gchar *dest, gint channels, /*gint format,*/ void *dat
 		}
 		/* both directions */
 		default: {
-			(rs->f_count > rs->r_count) ? (progbar_count = rs->f_count) : 
-								(progbar_count = rs->r_count);
+			(rs->forward.count > rs->reversed.count) ? 
+					(progbar_count = rs->forward.count) : 
+						(progbar_count = rs->reversed.count);
 			progbar_quantum = progbar_count/100;
 			/* since conversation in one way can start later than in the other one, 
 			 * we have to write some silence information for one channel */
-			if (rs->f_start_time > rs->r_start_time) {
-				f_write_silence = (rs->f_start_time-rs->r_start_time)*8000;
+			if (rs->forward.start_time > rs->reversed.start_time) {
+				f_write_silence = 
+					(rs->forward.start_time-rs->reversed.start_time)*8000;
 			}
-			else if (rs->f_start_time < rs->r_start_time) {
-				r_write_silence = (rs->r_start_time-rs->f_start_time)*8000;
+			else if (rs->forward.start_time < rs->reversed.start_time) {
+				r_write_silence = 
+					(rs->reversed.start_time-rs->forward.start_time)*8000;
 			}
 			for(;;) {
 				if(stop_flag) 

@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.38 2003/03/06 20:35:09 sahlberg Exp $
+ * $Id: packet-rtp.c,v 1.39 2003/05/20 21:22:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -450,124 +450,135 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		/* Synchronization source identifier 32 bits (4 octets) */
 		proto_tree_add_uint( rtp_tree, hf_rtp_ssrc, tvb, offset, 4, sync_src );
 		offset += 4;
-
-		/* CSRC list*/
-		if ( csrc_count > 0 ) {
+	} else {
+		offset += 12;
+	} 
+	/* CSRC list*/
+	if ( csrc_count > 0 ) {
+        	if ( tree ) {
 			ti = proto_tree_add_text(rtp_tree, tvb, offset, csrc_count * 4, "Contributing Source identifiers");
 			rtp_csrc_tree = proto_item_add_subtree( ti, ett_csrc_list );
-			for (i = 0; i < csrc_count; i++ ) {
-				csrc_item = tvb_get_ntohl( tvb, offset );
-				proto_tree_add_uint_format( rtp_csrc_tree,
-				    hf_rtp_csrc_item, tvb, offset, 4,
-				    csrc_item,
-				    "CSRC item %d: %u",
-				    i, csrc_item );
+		}
+		for (i = 0; i < csrc_count; i++ ) {
+			csrc_item = tvb_get_ntohl( tvb, offset );
+			if ( tree ) proto_tree_add_uint_format( rtp_csrc_tree,
+			    hf_rtp_csrc_item, tvb, offset, 4,
+			    csrc_item,
+			    "CSRC item %d: %u",
+			    i, csrc_item );
+			offset += 4;
+		}
+	}
+
+	/* Optional RTP header extension */
+	if ( extension_set ) {
+		/* Defined by profile field is 16 bits (2 octets) */
+		if ( tree ) proto_tree_add_uint( rtp_tree, hf_rtp_prof_define, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+		offset += 2;
+
+		hdr_extension = tvb_get_ntohs( tvb, offset );
+		if ( tree ) proto_tree_add_uint( rtp_tree, hf_rtp_length, tvb,
+		    offset, 2, hdr_extension);
+		offset += 2;
+		if ( hdr_extension > 0 ) {
+			if ( tree ) { ti = proto_tree_add_text(rtp_tree, tvb, offset, csrc_count * 4, "Header extensions");
+			/* I'm re-using the old tree variable here
+			   from the CSRC list!*/
+			rtp_csrc_tree = proto_item_add_subtree( ti,
+			    ett_hdr_ext );
+            }
+			for (i = 0; i < hdr_extension; i++ ) {
+				if ( tree ) proto_tree_add_uint( rtp_csrc_tree, hf_rtp_hdr_ext, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
 				offset += 4;
 			}
 		}
+	}
 
-		/* Optional RTP header extension */
-		if ( extension_set ) {
-			/* Defined by profile field is 16 bits (2 octets) */
-			proto_tree_add_uint( rtp_tree, hf_rtp_prof_define, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
-			offset += 2;
-
-			hdr_extension = tvb_get_ntohs( tvb, offset );
-			proto_tree_add_uint( rtp_tree, hf_rtp_length, tvb,
-			    offset, 2, hdr_extension);
-			offset += 2;
-			if ( hdr_extension > 0 ) {
-				ti = proto_tree_add_text(rtp_tree, tvb, offset, csrc_count * 4, "Header extensions");
-				/* I'm re-using the old tree variable here
-				   from the CSRC list!*/
-				rtp_csrc_tree = proto_item_add_subtree( ti,
-				    ett_hdr_ext );
-				for (i = 0; i < hdr_extension; i++ ) {
-					proto_tree_add_uint( rtp_csrc_tree, hf_rtp_hdr_ext, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
-					offset += 4;
-				}
-			}
-		}
-
-		if ( padding_set ) {
+	if ( padding_set ) {
+		/*
+		 * This RTP frame has padding - find it.
+		 *
+		 * The padding count is found in the LAST octet of
+		 * the packet; it contains the number of octets
+		 * that can be ignored at the end of the packet.
+		 */
+		if (tvb_length(tvb) < tvb_reported_length(tvb)) {
 			/*
-			 * This RTP frame has padding - find it.
-			 *
-			 * The padding count is found in the LAST octet of
-			 * the packet; it contains the number of octets
-			 * that can be ignored at the end of the packet.
-			 */
-			if (tvb_length(tvb) < tvb_reported_length(tvb)) {
-				/*
-				 * We don't *have* the last octet of the
-				 * packet, so we can't get the padding
-				 * count.
-				 *
-				 * Put an indication of that into the
-				 * tree, and just put in a raw data
-				 * item.
-				 */
-				proto_tree_add_text(rtp_tree, tvb, 0, 0,
-				    "Frame has padding, but not all the frame data was captured");
-				call_dissector(data_handle,
-				    tvb_new_subset(tvb, offset, -1, -1),
-				    pinfo, rtp_tree);
-				return;
-			}
-
-			padding_count = tvb_get_guint8( tvb,
-			    tvb_reported_length( tvb ) - 1 );
-			data_len =
-			    tvb_reported_length_remaining( tvb, offset ) - padding_count;
-			if (data_len > 0) {
-				/*
-				 * There's data left over when you take out
-				 * the padding; dissect it.
-				 */
-				dissect_rtp_data( tvb, pinfo, tree, rtp_tree,
-				    offset,
-				    data_len,
-				    data_len,
-				    payload_type );
-				offset += data_len;
-			} else if (data_len < 0) {
-				/*
-				 * The padding count is bigger than the
-				 * amount of RTP payload in the packet!
-				 * Clip the padding count.
-				 *
-				 * XXX - put an item in the tree to indicate
-				 * that the padding count is bogus?
-				 */
-				padding_count =
-				    tvb_reported_length_remaining(tvb, offset);
-			}
-			if (padding_count > 1) {
-				/*
-				 * There's more than one byte of padding;
-				 * show all but the last byte as padding
-				 * data.
-				 */
-				proto_tree_add_item( rtp_tree, hf_rtp_padding_data,
-				    tvb, offset, padding_count - 1, FALSE );
-				offset += padding_count - 1;
-			}
-			/*
-			 * Show the last byte in the PDU as the padding
+			 * We don't *have* the last octet of the
+			 * packet, so we can't get the padding
 			 * count.
+			 *
+			 * Put an indication of that into the
+			 * tree, and just put in a raw data
+			 * item.
 			 */
-			proto_tree_add_item( rtp_tree, hf_rtp_padding_count,
-			    tvb, offset, 1, FALSE );
+			if ( tree ) proto_tree_add_text(rtp_tree, tvb, 0, 0,
+			    "Frame has padding, but not all the frame data was captured");
+			call_dissector(data_handle,
+			    tvb_new_subset(tvb, offset, -1, -1),
+			    pinfo, rtp_tree);
+			return;
 		}
-		else {
+
+		padding_count = tvb_get_guint8( tvb,
+		    tvb_reported_length( tvb ) - 1 );
+		data_len =
+		    tvb_reported_length_remaining( tvb, offset ) - padding_count;
+
+		rtp_info.info_payload_offset = offset;
+		rtp_info.info_payload_len = tvb_length_remaining(tvb, offset);
+		rtp_info.info_padding_count = padding_count;
+
+		if (data_len > 0) {
 			/*
-			 * No padding.
+			 * There's data left over when you take out
+			 * the padding; dissect it.
 			 */
-			dissect_rtp_data( tvb, pinfo, tree, rtp_tree, offset,
-			    tvb_length_remaining( tvb, offset ),
-			    tvb_reported_length_remaining( tvb, offset ),
+			dissect_rtp_data( tvb, pinfo, tree, rtp_tree,
+			    offset,
+			    data_len,
+			    data_len,
 			    payload_type );
+			offset += data_len;
+		} else if (data_len < 0) {
+			/*
+			 * The padding count is bigger than the
+			 * amount of RTP payload in the packet!
+			 * Clip the padding count.
+			 *
+			 * XXX - put an item in the tree to indicate
+			 * that the padding count is bogus?
+			 */
+			padding_count =
+			    tvb_reported_length_remaining(tvb, offset);
 		}
+		if (padding_count > 1) {
+			/*
+			 * There's more than one byte of padding;
+			 * show all but the last byte as padding
+			 * data.
+			 */
+			if ( tree ) proto_tree_add_item( rtp_tree, hf_rtp_padding_data,
+			    tvb, offset, padding_count - 1, FALSE );
+			offset += padding_count - 1;
+		}
+		/*
+		 * Show the last byte in the PDU as the padding
+		 * count.
+		 */
+		if ( tree ) proto_tree_add_item( rtp_tree, hf_rtp_padding_count,
+		    tvb, offset, 1, FALSE );
+	}
+	else {
+		/*
+		 * No padding.
+		 */
+		dissect_rtp_data( tvb, pinfo, tree, rtp_tree, offset,
+		    tvb_length_remaining( tvb, offset ),
+		    tvb_reported_length_remaining( tvb, offset ),
+		    payload_type );
+		rtp_info.info_payload_offset = offset;
+		rtp_info.info_payload_len = tvb_length_remaining(tvb, offset);
 	}
 	tap_queue_packet(rtp_tap, pinfo, &rtp_info);
 }
