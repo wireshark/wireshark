@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.16 2002/01/21 07:36:36 guy Exp $
+ * $Id: packet-isis-clv.c,v 1.17 2002/04/02 01:25:08 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -21,8 +21,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -303,8 +301,6 @@ void
 isis_dissect_ip_int_clv(tvbuff_t *tvb, packet_info *pinfo, 
 	proto_tree *tree, int offset, int length, int tree_id)
 {
-	guint32 addr;
-
 	if ( length <= 0 ) {
 		return;
 	}
@@ -316,9 +312,8 @@ isis_dissect_ip_int_clv(tvbuff_t *tvb, packet_info *pinfo,
 			return;
 		}
 
-		tvb_memcpy(tvb, (guint8 *)&addr, offset, sizeof(addr));
 		if ( tree ) {
-			proto_tree_add_ipv4(tree, tree_id, tvb, offset, 4, addr);
+			proto_tree_add_item(tree, tree_id, tvb, offset, 4, FALSE);
 		}
 		offset += 4;
 		length -= 4;
@@ -394,8 +389,6 @@ void
 isis_dissect_te_router_id_clv(tvbuff_t *tvb, packet_info *pinfo, 
 	proto_tree *tree, int offset, int length, int tree_id)
 {
-        guint32 addr;
-
         if ( length <= 0 ) {
                 return;
         }
@@ -405,9 +398,8 @@ isis_dissect_te_router_id_clv(tvbuff_t *tvb, packet_info *pinfo,
                         "malformed Traffic Engineering Router ID (%d vs 4)",length );
                 return;
         }
-        tvb_memcpy(tvb, (guint8 *)&addr, offset, sizeof(addr));
         if ( tree ) {
-                proto_tree_add_ipv4(tree, tree_id, tvb, offset, 4, addr);
+                proto_tree_add_item(tree, tree_id, tvb, offset, 4, FALSE);
         }
 }
 
