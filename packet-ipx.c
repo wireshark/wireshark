@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.40 1999/12/03 21:23:50 nneul Exp $
+ * $Id: packet-ipx.c,v 1.41 1999/12/03 22:04:24 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -38,6 +38,10 @@
 #include "packet-ipx.h"
 #include "packet-ncp.h"
 #include "resolv.h"
+
+#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+#include "packet-snmp.h"
+#endif
 
 /* The information in this module (IPX, SPX, NCP) comes from:
 	NetWare LAN Analysis, Second Edition
@@ -166,8 +170,14 @@ static struct port_info	ports[] = {
 				"Attachmate Gateway" },
 	{ IPX_SOCKET_IPX_MESSAGE,		NULL,
 				"IPX Message" },
+#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+	{ IPX_SOCKET_SNMP_AGENT, dissect_snmp, "SNMP Agent" },
+	{ IPX_SOCKET_SNMP_SINK,	dissect_snmp, "SNMP Sink" },
+#else
 	{ IPX_SOCKET_SNMP_AGENT, NULL, "SNMP Agent" },
 	{ IPX_SOCKET_SNMP_SINK,	NULL, "SNMP Sink" },
+#endif
+
 	{ IPX_SOCKET_UDP_TUNNEL, NULL, "UDP Tunnel" },
 	{ IPX_SOCKET_TCP_TUNNEL, NULL, "TCP Tunnel" },
 	{ IPX_SOCKET_TCP_TUNNEL, NULL, "TCP Tunnel" },
