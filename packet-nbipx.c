@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-nbipx.c,v 1.15 1999/11/16 11:42:38 guy Exp $
+ * $Id: packet-nbipx.c,v 1.16 1999/11/30 07:45:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -221,8 +221,8 @@ dissect_nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 			val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"),
 			packet_type);
 
-		netbios_add_name("Name", &pd[offset], offset,
-				34, nbipx_tree);
+		netbios_add_name("Name", pd, offset + 34,
+				nbipx_tree);
 	}
 }
 
@@ -238,21 +238,37 @@ dissect_nbipx_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_nbipx, offset,
-		    2+16+16, NULL);
+		    2+NETBIOS_NAME_LEN+NETBIOS_NAME_LEN, NULL);
 		nbipx_tree = proto_item_add_subtree(ti, ett_nbipx);
 
 		proto_tree_add_text(nbipx_tree, offset, 1,
 		    "Connection control: 0x%02x", pd[offset]);
-		proto_tree_add_text(nbipx_tree, offset+1, 1,
-				"Packet Type: %s (%02X)",
-				val_to_str(pd[offset+1], nbipx_data_stream_type_vals, "Unknown"),
-				pd[offset+1]);
-		netbios_add_name("Receiver's Name", &pd[offset],
-		    offset, 2, nbipx_tree);
-		netbios_add_name("Sender's Name", &pd[offset],
-		    offset, 2+16, nbipx_tree);
+		offset += 1;
+		max_data -= 1;
 
-		dissect_smb(pd, offset+2+16+16, fd, tree, max_data - 2+16+16);
+		if (!BYTES_ARE_IN_FRAME(offset, 1))
+			return;
+		proto_tree_add_text(nbipx_tree, offset, 1,
+				"Packet Type: %s (%02X)",
+				val_to_str(pd[offset], nbipx_data_stream_type_vals, "Unknown"),
+				pd[offset]);
+		offset += 1;
+		max_data -= 1;
+
+		if (!netbios_add_name("Receiver's Name", pd, offset,
+		    nbipx_tree))
+			return;
+		offset += NETBIOS_NAME_LEN;
+		max_data -= NETBIOS_NAME_LEN;
+
+		if (!netbios_add_name("Sender's Name", pd, offset,
+		    nbipx_tree))
+			return;
+		offset += NETBIOS_NAME_LEN;
+		max_data -= NETBIOS_NAME_LEN;
+
+		if (max_data != 0)
+			dissect_smb(pd, offset, fd, tree, max_data);
 	}
 }
 
@@ -361,10 +377,12 @@ dissect_nwlink_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			    decode_boolean_bitfield(name_type_flag, 0x01, 8,
 			      "Name deregistered", "Name not deregistered"));
 
-			netbios_add_name("Group name", &pd[offset], offset,
-					36, nbipx_tree);
-			netbios_add_name("Node name", &pd[offset], offset,
-					52, nbipx_tree);
+			if (!netbios_add_name("Group name", pd, offset+36,
+			    nbipx_tree))
+				return;
+			if (!netbios_add_name("Node name", pd, offset+52,
+			    nbipx_tree))
+				return;
 			proto_tree_add_text(nbipx_tree, offset+33, 1,
 			    "Packet Type: %s (%02X)",
 			    val_to_str(packet_type, nwlink_data_stream_type_vals, "Unknown"),
@@ -378,22 +396,29 @@ dissect_nwlink_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			    packet_type);
 			proto_tree_add_text(nbipx_tree, offset+34, 2,
 			    "Message ID: 0x%04x", pletohs(&pd[offset+34]));
-			netbios_add_name("Requested name", &pd[offset], offset,
-					36, nbipx_tree);
-			netbios_add_name("Source name", &pd[offset], offset,
-					52, nbipx_tree);
+			if (!netbios_add_name("Requested name", pd, offset+36,
+			    nbipx_tree))
+				return;
+			if (!netbios_add_name("Source name", pd, offset+52,
+			    nbipx_tree))
+				return;
 		}
 	}
 
-	switch (packet_type) {
-	case NWLINK_SMB:
-	case NWLINK_NETBIOS_DATAGRAM:
-		dissect_smb(pd, offset + 68, fd, tree, max_data - 68);
-		break;
+	offset += 68;
+	max_data -= 68;
+
+	if (max_data != 0) {
+		switch (packet_type) {
+		case NWLINK_SMB:
+		case NWLINK_NETBIOS_DATAGRAM:
+			dissect_smb(pd, offset, fd, tree, max_data);
+			break;
 				
-	default:
-		dissect_data(pd, offset + 68, fd, tree);
-		break;
+		default:
+			dissect_data(pd, offset, fd, tree);
+			break;
+		}
 	}
 }
 
