@@ -181,11 +181,6 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      gboolean is_open, gboolean is_close);
 
 int
-dissect_nt_GUID(tvbuff_t *tvb, int offset,
-			packet_info *pinfo, proto_tree *parent_tree,
-			guint8 *drep);
-
-int
 dissect_nt_LUID(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			guint8 *drep);

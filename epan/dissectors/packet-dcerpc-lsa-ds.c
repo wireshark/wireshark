@@ -55,6 +55,7 @@
 static int proto_dcerpc_lsa_ds = -1;
 
 static int hf_lsa_ds_opnum = -1;
+static int hf_lsa_ds_guid = -1;
 static int hf_lsa_ds_dominfo_level = -1;
 static int hf_lsa_ds_machine_role = -1;
 static int hf_lsa_ds_dominfo_flags = -1;
@@ -107,7 +108,7 @@ lsa_ds_dissect_DSROLE_BASIC_INFO(tvbuff_t *tvb, int offset,
 		hf_lsa_ds_dominfo_forest_name, 0);
 
 	/* GUID */
-	offset = dissect_nt_GUID(tvb, offset, pinfo, tree, drep);
+	offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, drep, hf_lsa_ds_guid, NULL);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -292,6 +293,10 @@ proto_register_dcerpc_lsa_ds(void)
 	{ &hf_lsa_ds_dominfo_dns_name,
 	  { "DNS name", "lsa_ds.dominfo.dnsname", FT_STRING, BASE_NONE,
 	    NULL, 0x0, "DNS Domain Name", HFILL}},
+
+	{ &hf_lsa_ds_guid,
+	  { "GUID", "lsa_ds.guid", FT_STRING, BASE_NONE,
+	    NULL, 0x0, "", HFILL}},
 
 	{ &hf_lsa_ds_dominfo_forest_name,
 	  { "Forest name", "lsa_ds.dominfo.forest", FT_STRING, BASE_NONE,
