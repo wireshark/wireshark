@@ -2,7 +2,7 @@
  * Routines for DHCPv6 packet disassembly
  * Jun-ichiro itojun Hagino <itojun@iijlab.net>
  *
- * $Id: packet-dhcpv6.c,v 1.1 2002/01/09 02:51:46 itojun Exp $
+ * $Id: packet-dhcpv6.c,v 1.2 2002/01/11 11:07:21 guy Exp $
  *
  * The information used comes from:
  * draft-ietf-dhc-dhcpv6-22.txt
@@ -175,7 +175,8 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 }
 
 static void
-dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int downstream)
+dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    gboolean downstream)
 {
 	proto_tree *bp_tree = NULL;
 	proto_item *ti;
@@ -225,13 +226,13 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int downstre
 static void
 dissect_dhcpv6_downstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	return dissect_dhcpv6(tvb, pinfo, tree, 1);
+	dissect_dhcpv6(tvb, pinfo, tree, TRUE);
 }
 
 static void
 dissect_dhcpv6_upstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	return dissect_dhcpv6(tvb, pinfo, tree, 0);
+	dissect_dhcpv6(tvb, pinfo, tree, FALSE);
 }
 
 
