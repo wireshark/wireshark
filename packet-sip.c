@@ -18,7 +18,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.50 2003/12/08 20:25:31 guy Exp $
+ * $Id: packet-sip.c,v 1.51 2003/12/17 20:39:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -394,6 +394,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         tvbuff_t *next_tvb;
         gboolean is_known_request;
 	gboolean found_match = FALSE;
+	gboolean content_type_exist = FALSE;
         char *descr;
         guint token_1_len;
 	guint current_method_idx = 0;
@@ -402,7 +403,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guchar contacts = 0, contact_is_star = 0, expires_is_0 = 0;	
 	char csec_method[16] = "";
 	char *media_type_str = NULL;
-	char *boundary_str = NULL;
+	char *content_type_parameter_str = NULL;
 
         /*
          * Note that "tvb_find_line_end()" will return a value that
@@ -502,10 +503,10 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 gint line_end_offset;
                 gint colon_offset;
                 gint semicolon_offset;
-		gint content_type_len;
+		gint content_type_len, content_type_parameter_str_len;
                 gint header_len;
                 gint hf_index;
-                gint value_offset,tag_offset,left_quote_offset,right_quote_offset,boundary_str_len;
+                gint value_offset,tag_offset;
                 guchar c;
 		size_t value_len;
                 char *value;
@@ -559,6 +560,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				 * but display the line as is.
 				 */
 				switch ( hf_index ) {
+
 				case POS_TO :
 					sip_element_item = proto_tree_add_string_format(hdr_tree,
 					    hf_header_array[hf_index], tvb,
@@ -593,6 +595,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						}/* if c= t */
 					} /* if tag offset */
 					break;	
+
 				case POS_FROM :
 					sip_element_item = proto_tree_add_string_format(hdr_tree,
 					    hf_header_array[hf_index], tvb,
@@ -635,6 +638,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						}/* if c= t */
 					} /* if tag offset */
 					break;
+
 				case POS_CSEQ :
 					/* Extract method name from value */
 					for (value_offset = 0; value_offset < (gint)strlen(value); value_offset++)
@@ -652,6 +656,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					    value, "%s",
 					    tvb_format_text(tvb, offset, linelen));
 					break;
+
 				case POS_EXPIRES :
 					if (strcmp(value, "0") == 0)
 					{
@@ -681,18 +686,13 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					semicolon_offset = tvb_find_guint8(tvb, value_offset,linelen, ';');
 					if ( semicolon_offset != -1) {
 						content_type_len = semicolon_offset - value_offset;
+						content_type_parameter_str_len = linelen - semicolon_offset; 
+						content_type_parameter_str = tvb_get_string(tvb, semicolon_offset + 1, content_type_parameter_str_len);
 					}
 					media_type_str = tvb_get_string(tvb, value_offset, content_type_len);
-					if (strcmp(media_type_str, "multipart/mixed") == 0)
-					{
-						left_quote_offset = tvb_find_guint8(tvb, value_offset,linelen, '"');
-						if ( left_quote_offset !=-1 ){
-							right_quote_offset = tvb_find_guint8(tvb, left_quote_offset + 1,linelen, '"');
-							boundary_str_len = right_quote_offset - left_quote_offset - 1;
-							boundary_str = tvb_get_string(tvb, left_quote_offset + 1, boundary_str_len);
-						}
-					}
+					content_type_exist = TRUE;
 					break;
+
 				case POS_CONTACT :
 					contacts++;
 					if (strcmp(value, "*") == 0)
@@ -700,6 +700,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						contact_is_star = 1;
 					}
 					/* Fall through to default case to add string to tree */
+
 				default :	
 					proto_tree_add_string_format(hdr_tree,
 					    hf_header_array[hf_index], tvb,
@@ -727,11 +728,19 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                	ti = proto_tree_add_text(sip_tree, next_tvb, 0, -1,
                                          "Message body");
                	message_body_tree = proto_item_add_subtree(ti, ett_sip_message_body);
-		found_match = dissector_try_string(media_type_dissector_table,
-							media_type_str , next_tvb, pinfo, message_body_tree);
-		g_free(media_type_str);
-		g_free(boundary_str);
-		/* If no match dump as text */
+
+		/* give the content type parameters to sub dissectors */
+		
+		if ( content_type_exist ) {
+			pinfo->private_data = content_type_parameter_str;
+			found_match = dissector_try_string(media_type_dissector_table,
+							   media_type_str,
+							   next_tvb, pinfo,
+							   message_body_tree);
+			g_free(media_type_str);
+			g_free(content_type_parameter_str);
+			/* If no match dump as text */
+		}
 		if ( found_match != TRUE )
 		{
 			offset = 0;
