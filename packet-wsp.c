@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.53 2002/02/01 07:12:09 guy Exp $
+ * $Id: packet-wsp.c,v 1.54 2002/02/22 07:23:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -11,6 +11,7 @@
  * WAP dissector based on original work by Ben Fowler
  * Updated by Neil Hunter <neil.hunter@energis-squared.com>
  * WTLS support by Alexandre P. Ferreira (Splice IP)
+ * Openwave header support by Dermot Bradley <dermot.bradley@openwave.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -146,6 +147,41 @@ static int hf_wsp_header_transfer_encoding_str		= HF_EMPTY;
 static int hf_wsp_header_via				= HF_EMPTY;
 static int hf_wsp_header_wap_application_id		= HF_EMPTY;
 static int hf_wsp_header_wap_application_id_str		= HF_EMPTY;
+
+
+/* Openwave-specific WSP headers */
+static int hf_wsp_header_openwave_proxy_push_addr	= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_push_accept	= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_push_seq	= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_notify		= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_operator_domain	= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_home_page	= HF_EMPTY;
+static int hf_wsp_header_openwave_devcap_has_color	= HF_EMPTY;
+static int hf_wsp_header_openwave_devcap_num_softkeys	= HF_EMPTY;
+static int hf_wsp_header_openwave_devcap_softkey_size	= HF_EMPTY;
+static int hf_wsp_header_openwave_devcap_screen_chars	= HF_EMPTY;
+static int hf_wsp_header_openwave_devcap_screen_pixels	= HF_EMPTY;
+static int hf_wsp_header_openwave_devcap_em_size	= HF_EMPTY;
+static int hf_wsp_header_openwave_devcap_screen_depth	= HF_EMPTY;
+static int hf_wsp_header_openwave_devcap_immed_alert	= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_net_ask		= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_uplink_version	= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_tod		= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_ba_enable	= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_ba_realm	= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_redirect_enable	= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_request_uri	= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_redirect_status	= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_trans_charset	= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_trans_charset_str	= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_linger		= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_client_id	= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_enable_trust	= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_trust_old	= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_trust		= HF_EMPTY;
+static int hf_wsp_header_openwave_proxy_bookmark	= HF_EMPTY;
+static int hf_wsp_header_openwave_devcap_gui		= HF_EMPTY;
+
 
 static int hf_wsp_redirect_flags			= HF_EMPTY;
 static int hf_wsp_redirect_permanent			= HF_EMPTY;
@@ -343,6 +379,76 @@ static const value_string vals_status[] = {
 #define FN_CONTENT_DISPOSITION14	0x45	/* encoding version 1.4 */
 #define FN_X_WAP_SECURITY	0x46
 #define FN_CACHE_CONTROL14	0x47	/* encoding version 1.4 */
+
+
+/*
+ * Openwave field names.
+ */
+#define FN_OPENWAVE_PROXY_PUSH_ADDR		0x00
+#define FN_OPENWAVE_PROXY_PUSH_ACCEPT		0x01
+#define FN_OPENWAVE_PROXY_PUSH_SEQ		0x02
+#define FN_OPENWAVE_PROXY_NOTIFY		0x03
+#define FN_OPENWAVE_PROXY_OPERATOR_DOMAIN	0x04
+#define FN_OPENWAVE_PROXY_HOME_PAGE		0x05
+#define FN_OPENWAVE_DEVCAP_HAS_COLOR		0x06
+#define FN_OPENWAVE_DEVCAP_NUM_SOFTKEYS		0x07
+#define FN_OPENWAVE_DEVCAP_SOFTKEY_SIZE		0x08
+#define FN_OPENWAVE_DEVCAP_SCREEN_CHARS		0x09
+#define FN_OPENWAVE_DEVCAP_SCREEN_PIXELS	0x0A
+#define FN_OPENWAVE_DEVCAP_EM_SIZE		0x0B
+#define FN_OPENWAVE_DEVCAP_SCREEN_DEPTH		0x0C
+#define FN_OPENWAVE_DEVCAP_IMMED_ALERT		0x0D
+#define FN_OPENWAVE_PROXY_NET_ASK		0x0E
+#define FN_OPENWAVE_PROXY_UPLINK_VERSION	0x0F
+#define FN_OPENWAVE_PROXY_TOD			0x10
+#define FN_OPENWAVE_PROXY_BA_ENABLE		0x11
+#define FN_OPENWAVE_PROXY_BA_REALM		0x12
+#define FN_OPENWAVE_PROXY_REDIRECT_ENABLE	0x13
+#define FN_OPENWAVE_PROXY_REQUEST_URI		0x14
+#define FN_OPENWAVE_PROXY_REDIRECT_STATUS	0x15
+#define FN_OPENWAVE_PROXY_TRANS_CHARSET		0x16
+#define FN_OPENWAVE_PROXY_LINGER		0x17
+#define FN_OPENWAVE_PROXY_CLIENT_ID		0x18
+#define FN_OPENWAVE_PROXY_ENABLE_TRUST		0x19
+#define FN_OPENWAVE_PROXY_TRUST_OLD		0x1A
+#define FN_OPENWAVE_PROXY_TRUST			0x20
+#define FN_OPENWAVE_PROXY_BOOKMARK		0x21
+#define FN_OPENWAVE_DEVCAP_GUI			0x22
+
+static const value_string vals_openwave_field_names[] = {
+	{ FN_OPENWAVE_PROXY_PUSH_ADDR,         "x-up-proxy-push-addr" },
+	{ FN_OPENWAVE_PROXY_PUSH_ACCEPT,       "x-up-proxy-push-accept" },
+	{ FN_OPENWAVE_PROXY_PUSH_SEQ,          "x-up-proxy-seq" },
+	{ FN_OPENWAVE_PROXY_NOTIFY,            "x-up-proxy-notify" },
+	{ FN_OPENWAVE_PROXY_OPERATOR_DOMAIN,   "x-up-proxy-operator-domain" },
+	{ FN_OPENWAVE_PROXY_HOME_PAGE,         "x-up-proxy-home-page" },
+	{ FN_OPENWAVE_DEVCAP_HAS_COLOR,        "x-up-devcap-has-color" },
+	{ FN_OPENWAVE_DEVCAP_NUM_SOFTKEYS,     "x-up-devcap-num-softkeys" },
+	{ FN_OPENWAVE_DEVCAP_SOFTKEY_SIZE,     "x-up-devcap-softkey-size" },
+	{ FN_OPENWAVE_DEVCAP_SCREEN_CHARS,     "x-up-devcap-screen-chars" },
+	{ FN_OPENWAVE_DEVCAP_SCREEN_PIXELS,    "x-up-devcap-screen-pixels" },
+	{ FN_OPENWAVE_DEVCAP_EM_SIZE,          "x-up-devcap-em-size" },
+	{ FN_OPENWAVE_DEVCAP_SCREEN_DEPTH,     "x-up-devcap-screen-depth" },
+	{ FN_OPENWAVE_DEVCAP_IMMED_ALERT,      "x-up-devcap-immed-alert" },
+	{ FN_OPENWAVE_PROXY_NET_ASK,           "x-up-proxy-net-ask" },
+	{ FN_OPENWAVE_PROXY_UPLINK_VERSION,    "x-up-proxy-uplink-version" },
+	{ FN_OPENWAVE_PROXY_TOD,               "x-up-proxy-tod" },
+	{ FN_OPENWAVE_PROXY_BA_ENABLE,         "x-up-proxy-ba-enable" },
+	{ FN_OPENWAVE_PROXY_BA_REALM,          "x-up-proxy-ba-realm" },
+	{ FN_OPENWAVE_PROXY_REDIRECT_ENABLE,   "x-up-proxy-redirect-enable" },
+	{ FN_OPENWAVE_PROXY_REQUEST_URI,       "x-up-proxy-request-uri" },
+	{ FN_OPENWAVE_PROXY_REDIRECT_STATUS,   "x-up-proxy-redirect-status" },
+	{ FN_OPENWAVE_PROXY_TRANS_CHARSET,     "x-up-proxy-trans-charset" },
+	{ FN_OPENWAVE_PROXY_LINGER,            "x-up-proxy-linger" },
+	{ FN_OPENWAVE_PROXY_CLIENT_ID,         "x-up-proxy-client-id" },
+	{ FN_OPENWAVE_PROXY_ENABLE_TRUST,      "x-up-proxy-enable-trust" },
+	{ FN_OPENWAVE_PROXY_TRUST_OLD,         "x-up-proxy-trust-old" },
+	{ FN_OPENWAVE_PROXY_TRUST,             "x-up-proxy-trust" },
+	{ FN_OPENWAVE_PROXY_BOOKMARK,          "x-up-proxy-bookmark" },
+	{ FN_OPENWAVE_DEVCAP_GUI,              "x-up-devcap-gui" },
+	{ 0,                                   NULL }
+};	
+
 
 static const value_string vals_field_names[] = {
 	{ FN_ACCEPT,               "Accept" },
@@ -553,6 +659,17 @@ static const value_string vals_content_types[] = {
 	{ 0x3D, "text/css" },
 	{ 0x3E, "application/vnd.wap.mms-message" },
 	{ 0x3F, "application/vnd.wap.rollover-certificate" },
+	{ 0x201, "application/vnd.uplanet.cachop-wbxml" },
+	{ 0x202, "application/vnd.uplanet.signal" },
+	{ 0x203, "application/vnd.uplanet.alert-wbxml" },
+	{ 0x204, "application/vnd.uplanet.list-wbxml" },
+	{ 0x205, "application/vnd.uplanet.listcmd-wbxml" },
+	{ 0x206, "application/vnd.uplanet.channel-wbxml" },
+	{ 0x207, "application/vnd.uplanet.provisioning-status-uri" },
+	{ 0x208, "x-wap.multipart/vnd.uplanet.header-set" },
+	{ 0x209, "application/vnd.uplanet.bearer-choice-wbxml" },
+	{ 0x20A, "application/vnd.phonecom.mmc-wbxml" },
+	{ 0x20B, "application/vnd.nokia.syncset+wbxml" },
 	{ 0x00, NULL }
 };
 
@@ -589,7 +706,9 @@ static const value_string vals_languages[] = {
 	{ 0x1E, "Persian (fa)" },
 	{ 0x1F, "Finnish (fi)" },
 	{ 0x20, "Fiji (fj)" },
+	{ 0x21, "Urdu (ur)" },
 	{ 0x22, "French (fr)" },
+	{ 0x23, "Uzbek (uz)" },
 	{ 0x24, "Irish (ga)" },
 	{ 0x25, "Scots Gaelic (gd)" },
 	{ 0x26, "Galician (gl)" },
@@ -601,7 +720,30 @@ static const value_string vals_languages[] = {
 	{ 0x2C, "Croatian (hr)" },
 	{ 0x2D, "Hungarian (hu)" },
 	{ 0x2E, "Armenian (hy)" },
+	{ 0x2F, "Vietnamese (vi)" },
 	{ 0x30, "Indonesian (formerly in) (id)" },
+	{ 0x31, "Wolof (wo)" },
+	{ 0x32, "Xhosa (xh)" },
+	{ 0x33, "Icelandic (is)" },
+	{ 0x34, "Italian (it)" },
+	{ 0x35, "Yoruba (yo)" },
+	{ 0x36, "Japanese (ja)" },
+	{ 0x37, "Javanese (jw)" },
+	{ 0x38, "Georgian (ka)" },
+	{ 0x39, "Kazakh (kk)" },
+	{ 0x3A, "Zhuang (za)" },
+	{ 0x3B, "Cambodian (km)" },
+	{ 0x3C, "Kannada (kn)" },
+	{ 0x3D, "Korean (ko)" },
+	{ 0x3E, "Kashmiri (ks)" },
+	{ 0x3F, "Kurdish (ku)" },
+	{ 0x40, "Kirghiz (ky)" },
+	{ 0x41, "Chinese (zh)" },
+	{ 0x42, "Lingala (ln)" },
+	{ 0x43, "Laothian (lo)" },
+	{ 0x44, "Lithuanian (lt)" },
+	{ 0x45, "Latvian, Lettish (lv)" },
+	{ 0x46, "Malagasy (mg)" },
 	{ 0x47, "Maori (mi)" },
 	{ 0x48, "Macedonian (mk)" },
 	{ 0x49, "Malayalam (ml)" },
@@ -611,6 +753,7 @@ static const value_string vals_languages[] = {
 	{ 0x4D, "Malay (ms)" },
 	{ 0x4E, "Maltese (mt)" },
 	{ 0x4F, "Burmese (my)" },
+	{ 0x50, "Ukrainian (uk)" },
 	{ 0x51, "Nepali (ne)" },
 	{ 0x52, "Dutch (nl)" },
 	{ 0x53, "Norwegian (no)" },
@@ -622,6 +765,7 @@ static const value_string vals_languages[] = {
 	{ 0x59, "Pashto, Pushto (ps)" },
 	{ 0x5A, "Portuguese (pt)" },
 	{ 0x5B, "Quechua (qu)" },
+	{ 0x5C, "Zulu (zu)" },
 	{ 0x5D, "Kirundi (rn)" },
 	{ 0x5E, "Romanian (ro)" },
 	{ 0x5F, "Russian (ru)" },
@@ -648,10 +792,26 @@ static const value_string vals_languages[] = {
 	{ 0x74, "Tajik (tg)" },
 	{ 0x75, "Thai (th)" },
 	{ 0x76, "Tigrinya (ti)" },
+	{ 0x77, "Turkmen (tk)" },
+	{ 0x78, "Tagalog (tl)" },
+	{ 0x79, "Setswana (tn)" },
+	{ 0x7A, "Tonga (to)" },
+	{ 0x7B, "Turkish (tr)" },
+	{ 0x7C, "Tsonga (ts)" },
+	{ 0x7D, "Tatar (tt)" },
+	{ 0x7E, "Twi (tw)" },
+	{ 0x7F, "Uighur (ug)" },
 	{ 0x81, "Nauru (na)" },
 	{ 0x82, "Faeroese (fo)" },
 	{ 0x83, "Frisian (fy)" },
 	{ 0x84, "Interlingua (ia)" },
+	{ 0x85, "Volapuk (vo)" },
+	{ 0x86, "Interlingue (ie)" },
+	{ 0x87, "Inupiak (ik)" },
+	{ 0x88, "Yiddish (formerly ji) (yi)" },
+	{ 0x89, "Inuktitut (iu)" },
+	{ 0x8A, "Greenlandic (kl)" },
+	{ 0x8B, "Latin (la)" },
 	{ 0x8C, "Rhaeto-Romance (rm)" },
 	{ 0x00, NULL }
 };
@@ -778,8 +938,12 @@ static void add_content_type_value (proto_tree *, tvbuff_t *, int, int,
     tvbuff_t *, value_type_t, int, int, int, guint *, const char **);
 static void add_wap_application_id_header (proto_tree *, tvbuff_t *, int,
     tvbuff_t *, value_type_t, int);
+static void add_integer_value_header_common (proto_tree *, tvbuff_t *, int,
+    tvbuff_t *, value_type_t, int, int, guint8, const value_string *);
 static void add_integer_value_header (proto_tree *, tvbuff_t *, int,
     tvbuff_t *, value_type_t, int, int, guint8);
+static void add_string_value_header_common (proto_tree *, tvbuff_t *, int,
+    tvbuff_t *, value_type_t, int, int, guint8, const value_string *);
 static void add_string_value_header (proto_tree *, tvbuff_t *, int,
     tvbuff_t *, value_type_t, int, int, guint8);
 static void add_quoted_string_value_header (proto_tree *, tvbuff_t *, int,
@@ -807,6 +971,13 @@ static void add_capability_vals(tvbuff_t *, gboolean, int, guint, guint, char *,
 static value_type_t get_value_type_len (tvbuff_t *, int, guint *, int *, int *);
 static guint get_uintvar (tvbuff_t *, guint, guint);
 static gint get_integer (tvbuff_t *, guint, guint, value_type_t, guint *);
+
+static int add_well_known_openwave_header (proto_tree *, tvbuff_t *, int, guint8);
+static void add_openwave_integer_value_header (proto_tree *, tvbuff_t *, int,
+    tvbuff_t *, value_type_t, int, int, guint8);
+static void add_openwave_string_value_header (proto_tree *, tvbuff_t *, int,
+    tvbuff_t *, value_type_t, int, int, guint8);
+
 
 /* Code to actually dissect the packets */
 static void
@@ -1427,15 +1598,22 @@ add_headers (proto_tree *tree, tvbuff_t *tvb)
 			 * Well-known-header; the lower 7 bits of "peek"
 			 * are the header code.
 			 */
-			if (pageCode == 1)
-			{
+			switch (pageCode) {
+			case 1:
 				offset = add_well_known_header (wsp_headers,
 				    tvb, headerStart, peek & 0x7F);
-			}
-			else 
-			{
+				break;
+
+			case 2:
+			case 16:
+				offset = add_well_known_openwave_header (wsp_headers,
+				    tvb, headerStart, peek & 0x7F);
+				break;
+
+			default:
 				offset = add_unknown_header (wsp_headers,
 				    tvb, headerStart, peek & 0x7F);
+				break;
 			}
 		}
 	}
@@ -1669,6 +1847,271 @@ add_well_known_header (proto_tree *tree, tvbuff_t *tvb, int offset,
 	}
 	return offset;
 }
+
+
+static int
+add_well_known_openwave_header (proto_tree *tree, tvbuff_t *tvb, int offset,
+    guint8 headerType)
+{
+	int headerStart;
+	value_type_t valueType;
+	int headerLen;
+	guint valueLen;
+	int valueStart;
+	tvbuff_t *header_buff;
+	tvbuff_t *value_buff;
+
+#ifdef DEBUG
+	fprintf (stderr, "dissect_wsp: Got Openwave header 0x%02x\n", headerType);
+#endif
+	headerStart = offset;
+
+	/*
+	 * Skip the Short-Integer header type.
+	 */
+	offset++;
+
+	/*
+	 * Get the value type and length (or, if the type is VALUE_IN_LEN,
+	 * meaning the value is a Short-integer, get the value type
+	 * and the value itself).
+	 */ 
+	valueType = get_value_type_len (tvb, offset, &valueLen,
+	    &valueStart, &offset);
+	headerLen = offset - headerStart;
+
+	/*
+	 * Get a tvbuff for the entire header.
+	 * XXX - cut the actual length short so that it doesn't run
+	 * past the actual length of tvb.
+	 */
+	header_buff = tvb_new_subset (tvb, headerStart, headerLen,
+	    headerLen);
+
+	/*
+	 * If the value wasn't in the length, get a tvbuff for the value.
+	 * XXX - can valueLen be 0?
+	 * XXX - cut the actual length short so that it doesn't run
+	 * past the actual length of tvb.
+	 */
+	if (valueType != VALUE_IN_LEN) {
+		value_buff = tvb_new_subset (tvb, valueStart, valueLen,
+		    valueLen);
+	} else {
+		/*
+		 * XXX - when the last dissector is tvbuffified,
+		 * so that NULL is no longer a valid tvb pointer
+		 * value in "proto_tree_add" calls, just
+		 * set "value_buff" to NULL.
+		 *
+		 * XXX - can we already do that?  I.e., will that
+		 * cause us always to crash if we mistakenly try
+		 * to fetch the value of a VALUE_IN_LEN item?
+		 */
+		value_buff = tvb_new_subset (tvb, headerStart, 0, 0);
+	}
+
+	switch (headerType) {
+
+/*	case FN_OPENWAVE_PROXY_PUSH_ADDR:	/ x-up-proxy-push-addr */
+/*		add_openwave_push_address_header (tree, header_buff, headerLen, */
+/*		    value_buff, valueType, valueLen); */
+/*		break; */
+
+	case FN_OPENWAVE_PROXY_PUSH_ACCEPT:	/* x-up-proxy-push-accept */
+		add_accept_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen);
+		break;
+
+	case FN_OPENWAVE_PROXY_PUSH_SEQ:	/* x-up-proxy-push-seq */
+		add_openwave_integer_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen, hf_wsp_header_openwave_proxy_push_seq,
+		    headerType);
+		break;
+
+	case FN_OPENWAVE_PROXY_NOTIFY:		/* x-up-proxy-notify */
+		add_openwave_integer_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen, hf_wsp_header_openwave_proxy_notify,
+		    headerType);
+		break;
+
+	case FN_OPENWAVE_PROXY_OPERATOR_DOMAIN:	/* x-up-proxy-operator-domain */
+		add_openwave_string_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_openwave_proxy_operator_domain, headerType);
+		break;
+
+	case FN_OPENWAVE_PROXY_HOME_PAGE:	/* x-up-proxy-home-page */
+		add_openwave_string_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_openwave_proxy_home_page, headerType);
+		break;
+
+	case FN_OPENWAVE_DEVCAP_HAS_COLOR:	/* x-up-devcap-has-color */
+		add_openwave_integer_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen, hf_wsp_header_openwave_devcap_has_color,
+		    headerType);
+		break;
+
+	case FN_OPENWAVE_DEVCAP_NUM_SOFTKEYS:	/* x-up-devcap-num-softkeys */
+		add_openwave_integer_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen, hf_wsp_header_openwave_devcap_num_softkeys,
+		    headerType);
+		break;
+
+	case FN_OPENWAVE_DEVCAP_SOFTKEY_SIZE:	/* x-up-devcap-softkey-size */
+		add_openwave_integer_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen, hf_wsp_header_openwave_devcap_softkey_size,
+		    headerType);
+		break;
+
+/*	case FN_OPENWAVE_DEVCAP_SCREEN_CHARS:	/ x-up-devcap-screen-chars */
+/*		add_openwave_integer_value_header (tree, header_buff, headerLen, */
+/*		    value_buff, valueType, valueLen, hf_wsp_header_openwave_devcap_screen_chars, */
+/*		    headerType); */
+/*		break; */
+
+/*	case FN_OPENWAVE_DEVCAP_SCREEN_PIXELS:	/ x-up-devcap-screen-pixels */
+/*		add_openwave_integer_value_header (tree, header_buff, headerLen, */
+/*		    value_buff, valueType, valueLen, hf_wsp_header_openwave_devcap_screen_pixels, */
+/*		    headerType); */
+/*		break; */
+
+/*	case FN_OPENWAVE_DEVCAP_EM_SIZE:	/ x-up-devcap-em-size */
+/*		add_openwave_integer_value_header (tree, header_buff, headerLen, */
+/*		    value_buff, valueType, valueLen, hf_wsp_header_openwave_devcap_em_size, */
+/*		    headerType); */
+/*		break; */
+
+	case FN_OPENWAVE_DEVCAP_SCREEN_DEPTH:	/* x-up-devcap-screen-depth */
+		add_openwave_integer_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen, hf_wsp_header_openwave_devcap_screen_depth,
+		    headerType);
+		break;
+
+	case FN_OPENWAVE_DEVCAP_IMMED_ALERT:	/* x-up-devcap-immed-alert */
+		add_openwave_integer_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen, hf_wsp_header_openwave_devcap_immed_alert,
+		    headerType);
+		break;
+
+	case FN_OPENWAVE_PROXY_NET_ASK:		/* x-up-proxy-net-ask */
+		add_openwave_integer_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen, hf_wsp_header_openwave_proxy_net_ask,
+		    headerType);
+		break;
+
+	case FN_OPENWAVE_PROXY_UPLINK_VERSION:		/* x-up-proxy-uplink-version */
+		add_openwave_string_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_openwave_proxy_uplink_version, headerType);
+		break;
+
+	case FN_OPENWAVE_PROXY_TOD:		/* x-up-proxy-tod */
+		add_openwave_integer_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_openwave_proxy_tod, headerType);
+		break;
+
+	case FN_OPENWAVE_PROXY_BA_ENABLE:		/* x-up-proxy-ba-enable */
+		add_openwave_integer_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_openwave_proxy_ba_enable, headerType);
+		break;
+
+	case FN_OPENWAVE_PROXY_BA_REALM:		/* x-up-proxy-ba-realm */
+		add_openwave_string_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_openwave_proxy_ba_realm, headerType);
+		break;
+
+	case FN_OPENWAVE_PROXY_REDIRECT_ENABLE:		/* x-up-proxy-redirect-enable */
+		add_openwave_integer_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_openwave_proxy_redirect_enable, headerType);
+		break;
+
+	case FN_OPENWAVE_PROXY_REQUEST_URI:		/* x-up-proxy-request-uri */
+		add_openwave_string_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_openwave_proxy_request_uri, headerType);
+		break;
+
+/*	case FN_OPENWAVE_PROXY_REDIRECT_STATUS:		/ x-up-proxy-redirect-status */
+/*		add_openwave_integer_value_header (tree, header_buff, headerLen, */
+/*		    value_buff, valueType, valueLen, hf_wsp_header_openwave_proxy_redirect_status, */
+/*		    headerType); */
+/*		break; */
+
+	case FN_OPENWAVE_PROXY_TRANS_CHARSET:		/* x-up-proxy-trans-charset */
+		add_accept_xxx_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_openwave_proxy_trans_charset,
+		    hf_wsp_header_openwave_proxy_trans_charset_str,
+		    vals_character_sets, "Unknown charset (%u)");
+		break;
+
+	case FN_OPENWAVE_PROXY_LINGER:			/* x-up-proxy-linger */
+		add_openwave_integer_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen, hf_wsp_header_openwave_proxy_linger,
+		    headerType);
+		break;
+
+/*	case FN_OPENWAVE_PROXY_CLIENT_ID:		/ x-up-proxy-client-id */
+/*		add_openwave_string_value_header (tree, header_buff, headerLen, */
+/*		    value_buff, valueType, valueLen, */
+/*		    hf_wsp_header_openwave_proxy_client_id, headerType); */
+/*		break; */
+
+	case FN_OPENWAVE_PROXY_ENABLE_TRUST:		/* x-up-proxy-enable-trust */
+		add_openwave_integer_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen, hf_wsp_header_openwave_proxy_enable_trust,
+		    headerType);
+		break;
+
+	case FN_OPENWAVE_PROXY_TRUST_OLD:		/* x-up-proxy-trust old value */
+		add_openwave_integer_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen, hf_wsp_header_openwave_proxy_trust_old,
+		    headerType);
+		break;
+
+	case FN_OPENWAVE_PROXY_TRUST:			/* x-up-proxy-trust */
+		add_openwave_integer_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen, hf_wsp_header_openwave_proxy_trust,
+		    headerType);
+		break;
+
+	case FN_OPENWAVE_PROXY_BOOKMARK:		/* x-up-proxy-bookmark */
+		add_openwave_string_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_openwave_proxy_bookmark, headerType);
+		break;
+
+	case FN_OPENWAVE_DEVCAP_GUI:			/* x-up-devcap-gui */
+		add_openwave_integer_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen, hf_wsp_header_openwave_devcap_gui,
+		    headerType);
+		break;
+
+	default:
+	        proto_tree_add_text (tree, header_buff, 0, headerLen,
+		    "Unsupported Openwave Header: %s",
+		    val_to_str (headerType, vals_openwave_field_names, "Unknown (0x%02X)"));
+		break;
+	}
+	return offset;
+}
+
+static void
+add_openwave_push_address_header (proto_tree *tree, tvbuff_t *header_buff,
+    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+    int valueLen)
+{
+
+/*	??? */
+	
+}
+
 
 static int
 add_unknown_header (proto_tree *tree, tvbuff_t *tvb, int offset,
@@ -2940,13 +3383,34 @@ add_integer_value_header (proto_tree *tree, tvbuff_t *header_buff,
     int headerLen, tvbuff_t *value_buff, value_type_t valueType,
     int valueLen, int hf_numeric, guint8 headerType)
 {
+	add_integer_value_header_common (tree, header_buff, headerLen,
+	    value_buff, valueType, valueLen, hf_numeric, headerType,
+	    vals_field_names);
+}
+
+static void
+add_openwave_integer_value_header (proto_tree *tree, tvbuff_t *header_buff,
+    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+    int valueLen, int hf_numeric, guint8 headerType)
+{
+	add_integer_value_header_common (tree, header_buff, headerLen,
+	    value_buff, valueType, valueLen, hf_numeric, headerType,
+	    vals_openwave_field_names);
+}
+
+static void
+add_integer_value_header_common (proto_tree *tree, tvbuff_t *header_buff,
+    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+    int valueLen, int hf_numeric, guint8 headerType,
+    const value_string *vals)
+{
 	guint value;
 
 	if (get_integer (value_buff, 0, valueLen, valueType, &value) < 0)
 	{
 		proto_tree_add_text (tree, header_buff, 0, headerLen,
 		    "Invalid %s integer value",
-		    match_strval (headerType, vals_field_names));
+		    match_strval (headerType, vals));
 	}
 	else
 	{
@@ -2960,11 +3424,32 @@ add_string_value_header (proto_tree *tree, tvbuff_t *header_buff,
     int headerLen, tvbuff_t *value_buff, value_type_t valueType,
     int valueLen, int hf_string, guint8 headerType)
 {
+	add_string_value_header_common (tree, header_buff, headerLen,
+	    value_buff, valueType, valueLen, hf_string, headerType,
+	    vals_field_names);
+}
+
+static void
+add_openwave_string_value_header (proto_tree *tree, tvbuff_t *header_buff,
+    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+    int valueLen, int hf_string, guint8 headerType)
+{
+	add_string_value_header_common (tree, header_buff, headerLen,
+	    value_buff, valueType, valueLen, hf_string, headerType,
+	    vals_openwave_field_names);
+}
+
+static void
+add_string_value_header_common (proto_tree *tree, tvbuff_t *header_buff,
+    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+    int valueLen, int hf_string, guint8 headerType,
+    const value_string *vals)
+{
 	if (valueType != VALUE_IS_TEXT_STRING)
 	{
 		proto_tree_add_text (tree, header_buff, 0, headerLen,
 		    "Invalid %s string value",
-		    match_strval (headerType, vals_field_names));
+		    match_strval (headerType, vals));
 	}
 	else
 	{
@@ -3788,6 +4273,223 @@ proto_register_wsp(void)
 				"wsp.header.age",
 				 FT_UINT32, BASE_DEC, NULL, 0x00,
 				"Age", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_push_addr,
+			{ 	"x-up-proxy-push-addr",
+				"wsp.header.x-up-proxy-push-addr",
+				 FT_BYTES, BASE_HEX, NULL, 0x00,
+				"The network address and port number that the handset can receive UPNOTIFY pushes on.", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_push_accept,
+			{ 	"x-up-proxy-push-accept",
+				"wsp.header.x-up-proxy-push-accept",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"The content types that the handset can handle when sent via UPNOTIFY pushes.", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_push_seq,
+			{ 	"x-up-proxy-push-seq",
+				"wsp.header.x-up-proxy-push-seq",
+				 FT_UINT16, BASE_DEC, NULL, 0x00,
+				"Specifies the sequence number of the last UPNOTIFY push sent.", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_notify,
+			{ 	"x-up-proxy-notify",           
+				"wsp.header.x-up-proxy-notify",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Indicates to the handset that there are pending UPNOTIFY pushes waiting.", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_operator_domain,
+			{ 	"x-up-proxy-operator-domain",           
+				"wsp.header.x-up-proxy-operator-domain",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Indicates the Trusted Provisioning Domain.", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_home_page,
+			{ 	"x-up-proxy-home-page",           
+				"wsp.header.x-up-proxy-home-page",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Specifies the server-assigned home page URL.", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_devcap_has_color,
+			{ 	"x-up-devcap-has-color",           
+				"wsp.header.x-up-devcap-has-color",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Indicates if the handset supports colour.", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_devcap_num_softkeys,
+			{ 	"x-up-devcap-num-softkeys",
+				"wsp.header.x-up-devcap-num-softkeys",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"The number of softkeys that can be displayed on the handset.", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_devcap_softkey_size,
+			{ 	"x-up-devcap-softkey-size",
+				"wsp.header.x-up-devcap-softkey-size",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"The number of chars that can be displayed on a softkey label.", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_devcap_screen_chars,
+			{ 	"x-up-devcap-screen-chars",
+				"wsp.header.x-up-devcap-screen-chars",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"The height and width of the handset's display in characters.", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_devcap_screen_pixels,
+			{ 	"x-up-devcap-screen-pixels",
+				"wsp.header.x-up-devcap-screen-pixels",
+				 FT_UINT32, BASE_DEC, NULL, 0x00,
+				"The height and width of the handset's display in pixels.", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_devcap_em_size,
+			{ 	"x-up-devcap-em-size",
+				"wsp.header.x-up-devcap-em-size",
+				 FT_UINT32, BASE_DEC, NULL, 0x00,
+				"The height and width of an uppercase M in pixels in a handset.", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_devcap_screen_depth,
+			{ 	"x-up-devcap-screen-depth",
+				"wsp.header.x-up-devcap-screen-depth",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"The colour/gray depth of the display in bits.", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_devcap_immed_alert,
+			{ 	"x-up-devcap-immed-alert",
+				"wsp.header.x-up-devcap-immed-alert",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Indicates if the handset has support for immediate UPNOTIFY alerts.", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_net_ask,
+			{ 	"x-up-proxy-net-ask",
+				"wsp.header.x-up-proxy-net-ask",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Indicates to browser if circuit switched call is allowed without user interaction", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_uplink_version,
+			{ 	"x-up-proxy-uplink-version",
+				"wsp.header.x-up-proxy-uplink-version",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Version of the MAG WAP gateway", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_tod,
+			{ 	"x-up-proxy-tod",
+				"wsp.header.x-up-proxy-tod",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Time of day", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_ba_enable,
+			{ 	"x-up-proxy-ba-enable",
+				"wsp.header.x-up-proxy-ba-enable",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Indicates if the WAP gateway should cache basic authentication details on behalf of the handset", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_ba_realm,
+			{ 	"x-up-proxy-ba-realm",
+				"wsp.header.x-up-proxy-ba-realm",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Indicates the realm within which basic authentication credentials apply", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_redirect_enable,
+			{ 	"x-up-proxy-redirect-enable",
+				"wsp.header.x-up-proxy-redirect-enable",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Indicates if the handset wants the WAP gateway to handle HTTP redirects on its behalf", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_request_uri,
+			{ 	"x-up-proxy-request-uri",
+				"wsp.header.x-up-proxy-request-uri",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Indicates to the handset that the previous request was redirected to the specified URI", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_redirect_status,
+			{ 	"x-up-proxy-redirect-status",
+				"wsp.header.x-up-proxy-redirect-status",
+				 FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Indicates the status of a redirect performed on behalf of a handset", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_trans_charset,
+			{ 	"x-up-proxy-trans-charset",
+				"wsp.header.x-up-proxy-trans-charset",
+				 FT_UINT16, BASE_HEX, VALS ( vals_character_sets ), 0x00,
+				"For POSTs indicates the charset encoding of a document", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_trans_charset_str,
+			{ 	"x-up-proxy-trans-charset",
+				"wsp.header.x-up-proxy-trans-charset.string",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"For POSTs indicates the charset encoding of a document", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_linger,
+			{ 	"x-up-proxy-linger",
+				"wsp.header.x-up-proxy-linger",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Indicates the circuit linger time in seconds", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_client_id,
+			{ 	"x-up-proxy-client-id",
+				"wsp.header.x-up-proxy-client-id",
+				 FT_BYTES, BASE_DEC, NULL, 0x00,
+				"The ClientId of the handset", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_enable_trust,
+			{ 	"x-up-proxy-enable-trust",
+				"wsp.header.x-up-proxy-enable-trust",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Indicates whether to enable Trusted Provisioning Domain", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_trust_old,
+			{ 	"x-up-proxy-trust-old",
+				"wsp.header.x-up-proxy-trust-old",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Indicates if the content being returned was received from within the Trusted Provisioning Domain", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_trust,
+			{ 	"x-up-proxy-trust",
+				"wsp.header.x-up-proxy-trust",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Indicates if the content being returned was received from within the Trusted Provisioning Domain", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_proxy_bookmark,
+			{ 	"x-up-proxy-bookmark",
+				"wsp.header.x-up-proxy-bookmark",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Specifies the URL to use for server-side bookmarks", HFILL
+			}
+		},
+		{ &hf_wsp_header_openwave_devcap_gui,
+			{ 	"x-up-devcap-gui",
+				"wsp.header.x-up-devcap-gui",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Indicates if the handset has a GUI", HFILL
 			}
 		},
 		{ &hf_wsp_header_bearer_indication,
