@@ -1,7 +1,7 @@
 /* print_prefs.c
  * Dialog boxes for preferences for printing
  *
- * $Id: print_prefs.c,v 1.12 2002/03/05 11:55:59 guy Exp $
+ * $Id: print_prefs.c,v 1.13 2002/08/13 07:54:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,7 +56,12 @@ static const enum_val_t print_format_vals[] = {
 };
 
 static const enum_val_t print_dest_vals[] = {
+#ifdef _WIN32
+	/* "PR_DEST_CMD" means "to printer" on Windows */
+	{ "Printer", PR_DEST_CMD },
+#else
 	{ "Command", PR_DEST_CMD },
+#endif
 	{ "File",    PR_DEST_FILE },
 	{ NULL,      0 }
 };
@@ -64,7 +69,9 @@ static const enum_val_t print_dest_vals[] = {
 GtkWidget * printer_prefs_show(void)
 {
 	GtkWidget	*main_vb, *main_tb, *button;
+#ifndef _WIN32
 	GtkWidget	*cmd_te;
+#endif
 	GtkWidget	*file_bt_hb, *file_bt, *file_te;
 
 	/* Enclosing containers for each row of widgets */
@@ -88,10 +95,12 @@ GtkWidget * printer_prefs_show(void)
 	gtk_object_set_data(GTK_OBJECT(main_vb), E_PRINT_DESTINATION_KEY,
 	   button);
 
+#ifndef _WIN32
 	/* Command text entry */
 	cmd_te = create_preference_entry(main_tb, 2, "Command:", NULL,
 	  prefs.pr_cmd);
 	gtk_object_set_data(GTK_OBJECT(main_vb), PRINT_CMD_TE_KEY, cmd_te);
+#endif
 
 	/* File button and text entry */
 	file_bt_hb = gtk_hbox_new(FALSE, 0);
@@ -204,11 +213,13 @@ printer_prefs_fetch(GtkWidget *w)
 	gtk_object_get_data(GTK_OBJECT(w), E_PRINT_DESTINATION_KEY),
 	print_dest_vals);
 
+#ifndef _WIN32
   if (prefs.pr_cmd)
     g_free(prefs.pr_cmd);
   prefs.pr_cmd = g_strdup(gtk_entry_get_text(
 			  GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(w),
 			  PRINT_CMD_TE_KEY))));
+#endif
 
   if (prefs.pr_file)
     g_free(prefs.pr_file);
