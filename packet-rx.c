@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.24 2001/08/04 04:04:34 guy Exp $
+ * $Id: packet-rx.c,v 1.25 2001/08/20 02:11:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -166,16 +166,14 @@ dissect_rx_response_encrypted(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 	}
 
 	/* cid : 4 bytes */
-	proto_tree_add_uint(tree, hf_rx_cid, tvb,
-		offset, 4, tvb_get_ntohl(tvb, offset));
+	proto_tree_add_item(tree, hf_rx_cid, tvb, offset, 4, FALSE);
 	offset += 4;
 
 	/*FIXME dont know how to handle this checksum, skipping it */
 	offset += 4;
 
 	/* sequrityindex : 1 byte */
-	proto_tree_add_uint(tree, hf_rx_securityindex, tvb,
-		offset, 1, tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(tree, hf_rx_securityindex, tvb, offset, 1, FALSE);
 	offset += 4;
 
 	for (i=0; i<RX_MAXCALLS; i++) {
@@ -187,13 +185,11 @@ dissect_rx_response_encrypted(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 	}
 
 	/* inc nonce : 4 bytes */
-	proto_tree_add_uint(tree, hf_rx_inc_nonce, tvb,
-		offset, 4, tvb_get_ntohl(tvb, offset));
+	proto_tree_add_item(tree, hf_rx_inc_nonce, tvb, offset, 4, FALSE);
 	offset += 4;
 
 	/* level : 4 bytes */
-	proto_tree_add_uint(tree, hf_rx_level, tvb,
-		offset, 4, tvb_get_ntohl(tvb, offset));
+	proto_tree_add_item(tree, hf_rx_level, tvb, offset, 4, FALSE);
 	offset += 4;
 	
 	proto_item_set_len(item, offset-old_offset);	
@@ -239,8 +235,7 @@ dissect_rx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		offset = dissect_rx_response_encrypted(tvb, pinfo, tree, offset);
 
 		/* kvno */
-		proto_tree_add_uint(tree, hf_rx_kvno, tvb,
-			offset, 4, tvb_get_ntohl(tvb, offset));
+		proto_tree_add_item(tree, hf_rx_kvno, tvb, offset, 4, FALSE);
 		offset += 4;
 		
 		/* ticket_len */
@@ -288,12 +283,10 @@ dissect_rx_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	offset += 4;
 
 	if (version==2) {
-		proto_tree_add_uint(tree, hf_rx_nonce, tvb,
-			offset, 4, tvb_get_ntohl(tvb, offset));
+		proto_tree_add_item(tree, hf_rx_nonce, tvb, offset, 4, FALSE);
 		offset += 4;
 
-		proto_tree_add_uint(tree, hf_rx_min_level, tvb,
-			offset, 4, tvb_get_ntohl(tvb, offset));
+		proto_tree_add_item(tree, hf_rx_min_level, tvb, offset, 4, FALSE);
 		offset += 4;
 	}
 
@@ -328,44 +321,37 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 
 
 	/* bufferspace: 2 bytes*/
-	proto_tree_add_uint(tree, hf_rx_bufferspace, tvb,
-		offset, 2, tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(tree, hf_rx_bufferspace, tvb, offset, 2, FALSE);
 	offset += 2;
 	
 	/* maxskew: 2 bytes*/
-	proto_tree_add_uint(tree, hf_rx_maxskew, tvb,
-		offset, 2, tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(tree, hf_rx_maxskew, tvb, offset, 2, FALSE);
 	offset += 2;
 	
 	/* first packet: 4 bytes*/
-	proto_tree_add_uint(tree, hf_rx_first_packet, tvb,
-		offset, 4, tvb_get_ntohl(tvb, offset));
+	proto_tree_add_item(tree, hf_rx_first_packet, tvb, offset, 4, FALSE);
 	offset += 4;
 	
 	/* prev packet: 4 bytes*/
-	proto_tree_add_uint(tree, hf_rx_prev_packet, tvb,
-		offset, 4, tvb_get_ntohl(tvb, offset));
+	proto_tree_add_item(tree, hf_rx_prev_packet, tvb, offset, 4, FALSE);
 	offset += 4;
 
 	/* serial : 4 bytes */	
-	proto_tree_add_uint(tree, hf_rx_serial, tvb,
-		offset, 4, tvb_get_ntohl(tvb, offset) );
+	proto_tree_add_item(tree, hf_rx_serial, tvb, offset, 4, FALSE);
 	offset += 4;
 
 	/* reason : 1 byte */
-	proto_tree_add_uint(tree, hf_rx_reason, tvb,
-		offset, 1, tvb_get_guint8(tvb, offset) );
+	proto_tree_add_item(tree, hf_rx_reason, tvb, offset, 1, FALSE);
 	offset += 1;
 
 	/* nACKs */
 	num = tvb_get_guint8(tvb, offset);
-	proto_tree_add_uint(tree, hf_rx_numacks, tvb,
-		offset, 1, tvb_get_guint8(tvb, offset) );
+	proto_tree_add_uint(tree, hf_rx_numacks, tvb, offset, 1, num);
 	offset += 1;
 
 	while(num--){
-		proto_tree_add_uint(tree, hf_rx_ack_type, tvb,
-			offset, 1, tvb_get_guint8(tvb, offset) );
+		proto_tree_add_item(tree, hf_rx_ack_type, tvb, offset, 1,
+			FALSE);
 		offset += 1;
 	}
 
@@ -380,24 +366,24 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 	if (tvb_length_remaining(tvb, offset)>3) {
 		offset += 3;	/* guess. some implementations adds 3 bytes */
 
-		if (tvb_length_remaining(tvb, offset) >= 4){
-			proto_tree_add_uint(tree, hf_rx_ifmtu, tvb, offset, 4,
-				tvb_get_ntohl(tvb, offset));
+		if (tvb_reported_length_remaining(tvb, offset) >= 4){
+			proto_tree_add_item(tree, hf_rx_ifmtu, tvb, offset, 4,
+				FALSE);
 			offset += 4;
 		}
-		if (tvb_length_remaining(tvb, offset) >= 4){
-			proto_tree_add_uint(tree, hf_rx_maxmtu, tvb, offset, 4,
-				tvb_get_ntohl(tvb, offset));
+		if (tvb_reported_length_remaining(tvb, offset) >= 4){
+			proto_tree_add_item(tree, hf_rx_maxmtu, tvb, offset, 4,
+				FALSE);
 			offset += 4;
 		}
-		if (tvb_length_remaining(tvb, offset) >= 4){
-			proto_tree_add_uint(tree, hf_rx_rwind, tvb, offset, 4,
-				tvb_get_ntohl(tvb, offset));
+		if (tvb_reported_length_remaining(tvb, offset) >= 4){
+			proto_tree_add_item(tree, hf_rx_rwind, tvb, offset, 4,
+				FALSE);
 			offset += 4;
 		}
-		if (tvb_length_remaining(tvb, offset) >= 4){
-			proto_tree_add_uint(tree, hf_rx_maxpackets, tvb, offset, 4,
-				tvb_get_ntohl(tvb, offset));
+		if (tvb_reported_length_remaining(tvb, offset) >= 4){
+			proto_tree_add_item(tree, hf_rx_maxpackets, tvb, offset, 4,
+				FALSE);
 			offset += 4;
 		}
 	}
@@ -468,8 +454,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	/* cid : 4 bytes */
-	proto_tree_add_uint(tree, hf_rx_cid, tvb,
-		offset, 4, tvb_get_ntohl(tvb, offset));
+	proto_tree_add_item(tree, hf_rx_cid, tvb, offset, 4, FALSE);
 	offset += 4;
 
 	/* callnumber : 4 bytes */
@@ -487,8 +472,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	rxinfo.seq = seq;
 
 	/* serial : 4 bytes */
-	proto_tree_add_uint(tree, hf_rx_serial, tvb,
-		offset, 4, tvb_get_ntohl(tvb, offset));
+	proto_tree_add_item(tree, hf_rx_serial, tvb, offset, 4, FALSE);
 	offset += 4;
 
 	/* type : 1 byte */
@@ -502,18 +486,21 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset = dissect_rx_flags(tvb, &rxinfo, tree, offset);
 
 	/* userstatus : 1 byte */
-	proto_tree_add_uint(tree, hf_rx_userstatus, tvb,
-		offset, 1, tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(tree, hf_rx_userstatus, tvb, offset, 1, FALSE);
 	offset += 1;
 
 	/* sequrityindex : 1 byte */
-	proto_tree_add_uint(tree, hf_rx_securityindex, tvb,
-		offset, 1, tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(tree, hf_rx_securityindex, tvb, offset, 1, FALSE);
 	offset += 1;
 
+	/*
+	 * How clever: even though the AFS header files indicate that the
+	 * serviceId is first, it's really encoded _after_ the spare field.
+	 * I wasted a day figuring that out!
+	 */
+
 	/* spare */
-	proto_tree_add_uint(tree, hf_rx_spare, tvb,
-		offset, 2, tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(tree, hf_rx_spare, tvb, offset, 2, FALSE);
 	offset += 2;
 
 	/* service id : 2 bytes */
