@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.109 2001/12/21 19:58:30 guy Exp $
+ * $Id: tethereal.c,v 1.110 2001/12/21 20:06:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -629,6 +629,23 @@ main(int argc, char *argv[])
     exit(2);
   }
 
+  /* Don't let them do ringbuffer stuff without saving to a file or without
+     specifying a maximum capture file size. */
+  if (cfile.ringbuffer_on) {
+    /* Ringbuffer works just under certain conditions:*/ 
+    if (cfile.save_file == NULL) {
+       /* Ringbuffer does not work with temporary files */
+      fprintf(stderr, "tethereal: Ring buffer requested, but capture isn't being saved to a file.\n");
+      exit(2);
+    }
+    if (cfile.autostop_filesize == 0) {
+       /* It makes no sense to enable the ring buffer if the maximum
+          file size is set to infinite */
+      fprintf(stderr, "tethereal: Ring buffer requested, but no maximum capture file size was specified.\n");
+      exit(2);
+    }
+  }
+
 #ifdef WIN32
   /* Start windows sockets */
   WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
@@ -665,21 +682,6 @@ main(int argc, char *argv[])
   else if (cfile.snap < MIN_PACKET_SIZE)
     cfile.snap = MIN_PACKET_SIZE;
   
-  if (cfile.ringbuffer_on) {
-    /* Ringbuffer works just under certain conditions:*/ 
-    if (cfile.save_file == NULL) {
-       /* Ringbuffer does not work with temporary files */
-      fprintf(stderr, "tethereal: Turning ring buffer off (no save file specified).\n");
-      cfile.ringbuffer_on = FALSE;
-    }
-    if (cfile.autostop_filesize == 0) {
-       /* It makes no sense to enable the ring buffer if the maximum
-          file size is set to infinite */
-      fprintf(stderr, "tethereal: Turning ring buffer off (file size = 0).\n");
-      cfile.ringbuffer_on = FALSE;
-    }
-  }
-
   /* Check the value range of the ringbuffer_num_files parameter */
   if (cfile.ringbuffer_num_files < RINGBUFFER_MIN_NUM_FILES)
     cfile.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
