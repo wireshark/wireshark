@@ -390,6 +390,7 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version, i
 {
 	proto_item* lock_item = NULL;
 	proto_tree* lock_tree = NULL;
+	guint32 fh_hash, svid, start_offset=0, end_offset=0;
 
 	if (tree) {
 		lock_item = proto_tree_add_item(tree, hf_nlm_lock, tvb,
@@ -400,19 +401,34 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version, i
 
 	offset = dissect_rpc_string(tvb,lock_tree,
 			hf_nlm_lock_caller_name, offset, NULL);
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, lock_tree, "fh", NULL);
+	offset = dissect_nfs_fh3(tvb, offset, pinfo, lock_tree, "fh", &fh_hash);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " FH:0x%08x", fh_hash);
+	}
 
 	offset = dissect_rpc_data(tvb, lock_tree, hf_nlm_lock_owner, offset);
 
+	svid = tvb_get_ntohl(tvb, offset);
 	offset = dissect_rpc_uint32(tvb, lock_tree, hf_nlm_lock_svid, offset);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " svid:%d", svid);
+	}
 
 	if (version == 4) {
+		start_offset = tvb_get_ntohl(tvb, offset);
 		offset = dissect_rpc_uint64(tvb, lock_tree, hf_nlm_lock_l_offset64, offset);
+		end_offset = tvb_get_ntohl(tvb, offset);
 		offset = dissect_rpc_uint64(tvb, lock_tree, hf_nlm_lock_l_len64, offset);
 	}
 	else {
+		start_offset = tvb_get_ntohl(tvb, offset);
 		offset = dissect_rpc_uint32(tvb, lock_tree, hf_nlm_lock_l_offset, offset);
+		end_offset = tvb_get_ntohl(tvb, offset);
 		offset = dissect_rpc_uint32(tvb, lock_tree, hf_nlm_lock_l_len, offset);
+	}
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " pos:%d-%d", start_offset, end_offset);
 	}
 
 	return offset;
@@ -633,6 +649,7 @@ dissect_nlm_share(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	proto_item* lock_item = NULL;
 	proto_tree* lock_tree = NULL;
+	guint32 fh_hash;
 
 	offset = dissect_rpc_data(tvb, tree, hf_nlm_cookie, offset);
 
@@ -647,7 +664,10 @@ dissect_nlm_share(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_rpc_string(tvb,lock_tree,
 			hf_nlm_lock_caller_name, offset, NULL);
 
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, lock_tree, "fh", NULL);
+	offset = dissect_nfs_fh3(tvb, offset, pinfo, lock_tree, "fh", &fh_hash);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " FH:0x%08x", fh_hash);
+	}
 
 	offset = dissect_rpc_data(tvb, lock_tree, hf_nlm_lock_owner, offset);
 
@@ -663,7 +683,14 @@ static int
 dissect_nlm_shareres(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *tree, int version _U_)
 {
+	guint32 nlm_stat;
+
 	offset = dissect_rpc_data(tvb, tree, hf_nlm_cookie, offset);
+	nlm_stat = tvb_get_ntohl(tvb, offset);
+	if (nlm_stat && check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+		    val_to_str(nlm_stat, names_nlm_stats, "Unknown Status (%u)"));
+	}
 	offset = dissect_rpc_uint32(tvb, tree, hf_nlm_stat, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nlm_sequence, offset);
 	return offset;
@@ -673,9 +700,16 @@ static int
 dissect_nlm_freeall(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *tree,int version _U_)
 {
+	guint32 nlm_stat;
+
 	offset = dissect_rpc_string(tvb,tree,
 			hf_nlm_share_name, offset, NULL);
 
+	nlm_stat = tvb_get_ntohl(tvb, offset);
+	if (nlm_stat && check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+		    val_to_str(nlm_stat, names_nlm_stats, "Unknown Status (%u)"));
+	}
 	offset = dissect_rpc_uint32(tvb, tree, hf_nlm_stat, offset);
 
 	return offset;
@@ -690,6 +724,8 @@ static int
 dissect_nlm_gen_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *tree)
 {
+	guint32 nlm_stat;
+
 	if(nlm_match_msgres){
 		rpc_call_info_value *rpc_call=pinfo->private_data;
 		if((rpc_call->proc==12)  /* NLM_LOCK_RES */
@@ -710,6 +746,12 @@ dissect_nlm_gen_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	}
 
 	offset = dissect_rpc_data(tvb, tree, hf_nlm_cookie, offset);
+
+	nlm_stat = tvb_get_ntohl(tvb, offset);
+	if (nlm_stat && check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+		    val_to_str(nlm_stat, names_nlm_stats, "Unknown Status (%u)"));
+	}
 	offset = dissect_rpc_uint32(tvb, tree, hf_nlm_stat, offset);
 	return offset;
 }
