@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.376 2003/11/12 08:58:05 guy Exp $
+ * $Id: packet-smb.c,v 1.377 2003/12/03 08:43:59 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5381,8 +5381,8 @@ static int
 dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8	wc, cmd=0xff;
-	guint16 andxoffset=0, bc, datalen_low, datalen_high, dataoffset=0;
-	guint32 datalen=0;
+	guint16 andxoffset=0, bc, datalen_low, dataoffset=0;
+	guint32 datalen=0, datalen_high;
 	smb_info_t *si = (smb_info_t *)pinfo->private_data;
 	int fid=0;
 
@@ -5437,9 +5437,13 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* XXX we should really only do this in case we have seen LARGE FILE being negotiated */
 	/* data length high */
-	datalen_high = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_smb_data_len_high, tvb, offset, 2, datalen_high);
-	offset += 2;
+	datalen_high = tvb_get_letohl(tvb, offset);
+	if(datalen_high==0xffffffff){
+		datalen_high=0;
+	} else {
+		proto_tree_add_uint(tree, hf_smb_data_len_high, tvb, offset, 4, datalen_high);
+	}
+	offset += 4;
 
 	datalen=datalen_high;
 	datalen=(datalen<<16)|datalen_low;
@@ -5451,9 +5455,9 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 				(datalen == 1) ? "" : "s");
 
 
-	/* 8 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 8, TRUE);
-	offset += 8;
+	/* 6 reserved bytes */
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 6, TRUE);
+	offset += 6;
 
 	BYTE_COUNT;
 
