@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.63 2004/03/19 05:33:34 guy Exp $
+ * $Id: packet-rtsp.c,v 1.64 2004/05/11 10:55:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -302,7 +302,8 @@ is_rtsp_request_or_reply(const guchar *line, size_t linelen, rtsp_type_t *type)
 	for (ii = 0; ii < RTSP_NMETHODS; ii++) {
 		size_t len = strlen(rtsp_methods[ii]);
 		if (linelen >= len &&
-		    strncasecmp(rtsp_methods[ii], line, len) == 0) {
+		    strncasecmp(rtsp_methods[ii], line, len) == 0 &&
+		    (len == linelen || isspace(line[len]))) {
 			*type = RTSP_REQUEST;
 			return TRUE;
 		}
@@ -1017,7 +1018,9 @@ process_rtsp_request(tvbuff_t *tvb, int offset, const guchar *data,
 	/* Request Methods */
 	for (ii = 0; ii < RTSP_NMETHODS; ii++) {
 		size_t len = strlen(rtsp_methods[ii]);
-		if (linelen >= len && !strncasecmp(rtsp_methods[ii], data, len))
+		if (linelen >= len &&
+		    strncasecmp(rtsp_methods[ii], data, len) == 0 &&
+		    (len == linelen || isspace(data[len])))
 			break;
 	}
 	if (ii == RTSP_NMETHODS) {
