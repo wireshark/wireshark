@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.10 2000/05/11 08:15:21 gram Exp $
+ * $Id: packet-ldap.c,v 1.11 2000/05/12 08:04:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,7 +25,7 @@
 /*
  * This is not a complete implementation. It doesn't handle the full version 3, more specifically,
  * it handles only the commands of version 2, but any additional characteristics of the ver3 command are supported.
- * It's also missing the substring and extensible search filters.
+ * It's also missing extensible search filters.
  * 
  * There should probably be alot more error checking, I simply assume that if we have a full packet, it will be a complete
  * and correct packet.
@@ -298,6 +298,89 @@ static int parse_filter_strings(ASN1_SCK *a, char **filter, guint *filter_length
   return ASN1_ERR_NOERROR;
 }
 
+/* Richard Dawe: To parse substring filters, I added this function. */
+static int parse_filter_substrings(ASN1_SCK *a, char **filter, guint *filter_length)
+{
+  guchar *end;
+  guchar *string = NULL;
+  gint string_length;
+  guint string_bytes;
+  guint seq_len;
+  guint header_bytes;  
+  int ret, any_valued;
+
+  /* For ASN.1 parsing of octet strings */
+  guint        cls;
+  guint        con;
+  guint        tag;
+  gboolean     def;
+
+  ret = asn1_octet_string_decode(a, &string, &string_length, &string_bytes);
+  if (ret != ASN1_ERR_NOERROR)
+    return ret;
+
+  ret = asn1_sequence_decode(a, &seq_len, &header_bytes);
+  if (ret != ASN1_ERR_NOERROR)
+    return ret;
+
+  *filter_length += 2 + 1 + strlen(string);
+  *filter = g_realloc(*filter, *filter_length);
+  sprintf(*filter + strlen(*filter), "(%.*s=", string_length, string);
+  g_free(string);
+
+  /* Now decode seq_len's worth of octet strings. */
+  any_valued = 0;
+  end = (guchar *) (a->pointer + seq_len);
+
+  while (a->pointer < end) {
+    /* Octet strings here are context-specific, which
+     * asn1_octet_string_decode() barfs on. Emulate it, but don't barf. */
+    ret = asn1_header_decode (a, &cls, &con, &tag, &def, &string_length);
+    if (ret != ASN1_ERR_NOERROR)
+      return ret;
+
+    if (cls != ASN1_CTX || con != ASN1_PRI) {
+    	/* XXX - handle the constructed encoding? */
+	return ASN1_ERR_WRONG_TYPE;
+    }
+    if (!def)
+    	return ASN1_ERR_LENGTH_NOT_DEFINITE;
+
+    ret = asn1_octet_string_value_decode(a, (int) string_length, &string);
+    if (ret != ASN1_ERR_NOERROR)
+      return ret;
+
+    /* If we have an 'any' component with a string value, we need to append
+     * an extra asterisk before final component. */
+    if ((tag == 1) && (string_length > 0))
+      any_valued = 1;
+
+    if ( (tag == 1) || ((tag == 2) && any_valued) )
+      (*filter_length)++;
+    *filter_length += strlen(string);
+    *filter = g_realloc(*filter, *filter_length);
+
+    if ( (tag == 1) || ((tag == 2) && any_valued) )
+      strcat(*filter, "*");
+    if (tag == 2)
+      any_valued = 0;
+    sprintf(*filter + strlen(*filter), "%.*s", string_length, string);
+    g_free(string);
+  }
+
+  if (any_valued)
+  {
+    (*filter_length)++;
+    *filter = g_realloc(*filter, *filter_length);
+    strcat(*filter, "*");
+  }
+  
+  /* NB: Allocated byte for this earlier */
+  strcat(*filter, ")");
+
+  return ASN1_ERR_NOERROR;
+}
+
 /* Returns -1 if we're at the end, returns an ASN1_ERR value otherwise. */
 static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length, const guchar **end)
 {
@@ -419,7 +502,10 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length, const 
      case LDAP_FILTER_SUBSTRINGS:
       if (con != ASN1_CON)
         return ASN1_ERR_WRONG_TYPE;
-      asn1_null_decode(a, length);	/* XXX - actually decode this... */
+      /* Richard Dawe: Handle substrings */
+      ret = parse_filter_substrings(a, filter, filter_length);
+      if (ret != -1 && ret != ASN1_ERR_NOERROR)
+        return ret;
       break;
      default:
       return ASN1_ERR_WRONG_TYPE;
