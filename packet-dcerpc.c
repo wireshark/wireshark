@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.15 2001/11/18 22:44:07 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.16 2001/11/27 09:27:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,7 @@
 #include "packet.h"
 #include "packet-dcerpc.h"
 #include "conversation.h"
+#include "prefs.h"
 
 static const value_string pckt_vals[] = {
     { 0, "Request"},
@@ -169,6 +170,9 @@ static gint ett_dcerpc_drep = -1;
 static gint ett_dcerpc_dg_flags1 = -1;
 static gint ett_dcerpc_dg_flags2 = -1;
 
+/* try to desegment big DCE/RPC packets over TCP? */
+static gboolean dcerpc_cn_desegment = TRUE;
+
 /*
  * Subdissectors
  */
@@ -253,7 +257,7 @@ dcerpc_conv_equal (gconstpointer k1, gconstpointer k2)
     dcerpc_conv_key *key2 = (dcerpc_conv_key *)k2;
     return (key1->conv == key2->conv
             && key1->ctx_id == key2->ctx_id
-	    && key1->smb_fid == key2->smb_fid);
+            && key1->smb_fid == key2->smb_fid);
 }
 
 static guint
@@ -427,15 +431,16 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
                     proto_tree *dcerpc_tree,
                     tvbuff_t *tvb, gint offset,
                     e_uuid_t *uuid, guint16 ver, 
-                    guint16 opnum, gboolean is_rqst)
+                    guint16 opnum, gboolean is_rqst,
+                    char *drep)
 {
     dcerpc_uuid_key key;
     dcerpc_uuid_value *sub_proto;
     int length;
-    proto_item *sub_item;
     proto_tree *sub_tree = NULL;
     dcerpc_sub_dissector *proc;
     gchar *name = NULL;
+    dcerpc_dissect_fnct_t *sub_dissect;
 
     key.uuid = *uuid;
     key.ver = ver;
@@ -452,7 +457,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     }
 
     if (tree) {
-
+        proto_item *sub_item;
         sub_item = proto_tree_add_item (tree, sub_proto->proto, tvb, offset, 
                                         tvb_length (tvb) - offset, FALSE);
 
@@ -480,14 +485,17 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
         col_set_str (pinfo->fd, COL_PROTOCOL, sub_proto->name);
     }
 
-    if (is_rqst) {
-            if (proc->dissect_rqst)
-                    return proc->dissect_rqst(tvb, offset, pinfo, sub_tree);
+    sub_dissect = is_rqst ? proc->dissect_rqst : proc->dissect_resp;
+    if (sub_dissect) {
+        sub_dissect (tvb, offset, pinfo, sub_tree, drep);
     } else {
-            if (proc->dissect_resp)
-                    return proc->dissect_resp(tvb, offset, pinfo, sub_tree);
+        length = tvb_length_remaining (tvb, offset);
+        if (length > 0) {
+            proto_tree_add_text (sub_tree, tvb, offset, length,
+                                 "Stub data (%d byte%s)", length,
+                                 plurality(length, "", "s"));
+        }
     }
-
     return 0;
 }
 
@@ -544,21 +552,21 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
    key as DCERPC over SMB allows several pipes over the same TCP/IP
    socket. */
 
-static guint16 get_smb_fid(void *private_data)
+static guint16 get_smb_fid (void *private_data)
 {
-	dcerpc_private_info *priv = (dcerpc_private_info *)private_data;
+    dcerpc_private_info *priv = (dcerpc_private_info *)private_data;
 	
-	if (!priv)
-		return 0;	/* Nothing to see here */
+    if (!priv)
+        return 0;	/* Nothing to see here */
 
-	/* DCERPC over smb */
+    /* DCERPC over smb */
 
-	if (priv->transport_type == DCERPC_TRANSPORT_SMB)
-		return priv->data.smb.fid;
+    if (priv->transport_type == DCERPC_TRANSPORT_SMB)
+        return priv->data.smb.fid;
 
-	/* Some other transport... */
+    /* Some other transport... */
 
-	return 0;
+    return 0;
 }
 
 /*
@@ -642,7 +650,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
         key = g_mem_chunk_alloc (dcerpc_conv_key_chunk);
         key->conv = conv;
         key->ctx_id = ctx_id;
-	key->smb_fid = get_smb_fid(pinfo->private_data);
+        key->smb_fid = get_smb_fid(pinfo->private_data);
 
         value = g_mem_chunk_alloc (dcerpc_conv_value_chunk);
         value->uuid = if_id;
@@ -823,7 +831,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 
         key.conv = conv;
         key.ctx_id = ctx_id;
-	key.smb_fid = get_smb_fid(pinfo->private_data);
+        key.smb_fid = get_smb_fid(pinfo->private_data);
 
         value = g_hash_table_lookup (dcerpc_convs, &key);
         if (value) {
@@ -843,7 +851,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
                                 tvb_new_subset (tvb, offset, length,
                                                 reported_length),
                                 0, &value->uuid, value->ver,
-                                opnum, TRUE);
+                                opnum, TRUE, hdr->drep);
         }
     }
 }
@@ -896,7 +904,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
                                 tvb_new_subset (tvb, offset, length,
                                                 reported_length),
                                 0, &value->uuid, value->ver,
-                                value->opnum, FALSE);
+                                value->opnum, FALSE, hdr->drep);
         }
     }
 }
@@ -904,17 +912,18 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 /*
  * DCERPC dissector for connection oriented calls
  */
-static gboolean
-dissect_dcerpc_cn (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
+                   proto_tree *tree, gboolean can_desegment)
 {
     static char nulls[4] = { 0 };
+    int start_offset;
     proto_item *ti = NULL;
     proto_item *tf = NULL;
     proto_tree *dcerpc_tree = NULL;
     proto_tree *cn_flags_tree = NULL;
     proto_tree *drep_tree = NULL;
     e_dce_cn_common_hdr_t hdr;
-    int offset = 0;
 
     /*
      * Check if this looks like a C/O DCERPC call
@@ -923,21 +932,27 @@ dissect_dcerpc_cn (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * when done over nbt, dcerpc requests are padded with 4 bytes of null
      * data for some reason.
      */
-    if (tvb_bytes_exist (tvb, 0, 4) && tvb_memeql (tvb, 0, nulls, 4) == 0) {
-        tvb = tvb_new_subset (tvb, 4, -1, -1);
+    if (tvb_bytes_exist (tvb, offset, 4) &&
+ 	tvb_memeql (tvb, offset, nulls, 4) == 0) {
+
+        /*
+         * Skip the padding.
+         */
+        offset += 4;
     }
-    if (!tvb_bytes_exist (tvb, 0, sizeof (hdr))) {
-        return FALSE;
+    if (!tvb_bytes_exist (tvb, offset, sizeof (hdr))) {
+        return -1;
     }
+    start_offset = offset;
     hdr.rpc_ver = tvb_get_guint8 (tvb, offset++);
     if (hdr.rpc_ver != 5)
-        return FALSE;
+        return -1;
     hdr.rpc_ver_minor = tvb_get_guint8 (tvb, offset++);
     if (hdr.rpc_ver_minor != 0 && hdr.rpc_ver_minor != 1)
-        return FALSE;
+        return -1;
     hdr.ptype = tvb_get_guint8 (tvb, offset++);
     if (hdr.ptype > 19)
-        return FALSE;
+        return -1;
 
     if (check_col (pinfo->fd, COL_PROTOCOL))
         col_set_str (pinfo->fd, COL_PROTOCOL, "DCERPC");
@@ -955,12 +970,19 @@ dissect_dcerpc_cn (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     hdr.call_id = dcerpc_tvb_get_ntohl (tvb, offset, hdr.drep);
     offset += 4;
 
+    offset = start_offset;
+    if (can_desegment && pinfo->can_desegment
+        && hdr.frag_len > tvb_length_remaining (tvb, offset)) {
+        pinfo->desegment_offset = offset;
+        pinfo->desegment_len = hdr.frag_len - tvb_length_remaining (tvb, offset);
+        return 0;	/* desegmentation required */
+    }
+
     if (tree) {
-        ti = proto_tree_add_item (tree, proto_dcerpc, tvb, 0, tvb_length(tvb), FALSE);
+        ti = proto_tree_add_item (tree, proto_dcerpc, tvb, offset, hdr.frag_len, FALSE);
         if (ti) {
             dcerpc_tree = proto_item_add_subtree (ti, ett_dcerpc);
         }
-        offset = 0;
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_ver, tvb, offset++, 1, hdr.rpc_ver);
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_ver_minor, tvb, offset++, 1, hdr.rpc_ver_minor);
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_packet_type, tvb, offset++, 1, hdr.ptype);
@@ -1023,7 +1045,76 @@ dissect_dcerpc_cn (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, &hdr);
         break;
     }
-    return TRUE;
+    return hdr.frag_len;
+}
+
+/*
+ * DCERPC dissector for connection oriented calls over packet-oriented
+ * transports
+ */
+static gboolean
+dissect_dcerpc_cn_pk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    /*
+     * Only one PDU per transport packet, and only one transport
+     * packet per PDU.
+     */
+    if (dissect_dcerpc_cn (tvb, 0, pinfo, tree, FALSE) == -1) {
+        /*
+         * It wasn't a DCERPC PDU.
+         */
+        return FALSE;
+    } else {
+        /*
+         * It was.
+         */
+        return TRUE;
+    }
+}
+
+/*
+ * DCERPC dissector for connection oriented calls over byte-stream
+ * transports
+ */
+static gboolean
+dissect_dcerpc_cn_bs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    int offset = 0;
+    int pdu_len;
+    gboolean ret = FALSE;
+
+    /*
+     * There may be multiple PDUs per transport packet; keep
+     * processing them.
+     */
+    while (tvb_reported_length_remaining(tvb, offset) != 0) {
+        pdu_len = dissect_dcerpc_cn (tvb, offset, pinfo, tree,
+                                     dcerpc_cn_desegment);
+        if (pdu_len == -1) {
+            /*
+             * Not a DCERPC PDU.
+             */
+            break;
+        }
+
+        /*
+         * Well, we've seen at least one DCERPC PDU.
+         */
+        ret = TRUE;
+
+        if (pdu_len == 0) {
+            /*
+             * Desegmentation required - bail now.
+             */
+            break;
+	}
+
+        /*
+         * Step to the next PDU.
+         */
+        offset += pdu_len;
+    }
+    return ret;
 }
 
 /*
@@ -1239,17 +1330,17 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dcerpc_call_add_map (hdr.seqnum, conv, hdr.opnum,
                              hdr.if_ver, &hdr.if_id);
         dcerpc_try_handoff (pinfo, tree, dcerpc_tree, tvb, offset,
-                            &hdr.if_id, hdr.if_ver, hdr.opnum, TRUE);
+                            &hdr.if_id, hdr.if_ver, hdr.opnum, TRUE, hdr.drep);
         break;
     case PDU_RESP:
         {
             dcerpc_call_value *v = dcerpc_call_lookup (hdr.seqnum, conv);
             if (v) {
                 dcerpc_try_handoff (pinfo, tree, dcerpc_tree, tvb, offset,
-                                    &v->uuid, v->ver, v->opnum, FALSE);
+                                    &v->uuid, v->ver, v->opnum, FALSE, hdr.drep);
             } else {
                 dcerpc_try_handoff (pinfo, tree, dcerpc_tree, tvb, offset,
-                                    &hdr.if_id, hdr.if_ver, hdr.opnum, FALSE);
+                                    &hdr.if_id, hdr.if_ver, hdr.opnum, FALSE, hdr.drep);
             }
         }
         break;
@@ -1464,14 +1555,20 @@ proto_register_dcerpc (void)
     proto_register_subtree_array (ett, array_length (ett));
     register_init_routine (dcerpc_init_protocol);
 
+    prefs_register_bool_preference (prefs_register_protocol (proto_dcerpc, 
+                                                             NULL),
+                                    "desegment_dcerpc",
+                                    "Desegment all DCE/RPC over TCP",
+                                    "Whether the DCE/RPC dissector should desegment all DCE/RPC over TCP",
+                                    &dcerpc_cn_desegment);
     dcerpc_uuids = g_hash_table_new (dcerpc_uuid_hash, dcerpc_uuid_equal);
 }
 
 void
 proto_reg_handoff_dcerpc (void)
 {
-    heur_dissector_add ("tcp", dissect_dcerpc_cn, proto_dcerpc);
-    heur_dissector_add ("netbios", dissect_dcerpc_cn, proto_dcerpc);
+    heur_dissector_add ("tcp", dissect_dcerpc_cn_bs, proto_dcerpc);
+    heur_dissector_add ("netbios", dissect_dcerpc_cn_pk, proto_dcerpc);
     heur_dissector_add ("udp", dissect_dcerpc_dg, proto_dcerpc);
-    heur_dissector_add ("msrpc", dissect_dcerpc_cn, proto_dcerpc);
+    heur_dissector_add ("msrpc", dissect_dcerpc_cn_pk, proto_dcerpc);
 }

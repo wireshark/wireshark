@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.3 2001/11/18 22:44:07 guy Exp $
+ * $Id: packet-dcerpc.h,v 1.4 2001/11/27 09:27:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -83,12 +83,43 @@ typedef struct _e_dce_dg_common_hdr_t {
 #define PDU_ALTER_ACK 15
 #define PDU_AUTH3     16
 
-
+/*
+ * helpers for packet-dcerpc.c and packet-dcerpc-ndr.c
+ * If you're writing a subdissector, you almost certainly want the
+ * NDR functions below.
+ */
 guint16 dcerpc_tvb_get_ntohs (tvbuff_t *tvb, gint offset, char *drep);
 guint32 dcerpc_tvb_get_ntohl (tvbuff_t *tvb, gint offset, char *drep);
 void dcerpc_tvb_get_uuid (tvbuff_t *tvb, gint offset, char *drep, e_uuid_t *uuid);
+int dissect_dcerpc_uint8 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                          proto_tree *tree, char *drep, 
+                          int hfindex, guint8 *pdata);
+int dissect_dcerpc_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                           proto_tree *tree, char *drep, 
+                           int hfindex, guint16 *pdata);
+int dissect_dcerpc_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                           proto_tree *tree, char *drep, 
+                           int hfindex, guint32 *pdata);
 
-typedef int (dcerpc_dissect_fnct_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+
+/*
+ * NDR routines for subdissectors.
+ */
+int dissect_ndr_uint8 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                       proto_tree *tree, char *drep, 
+                       int hfindex, guint8 *pdata);
+int dissect_ndr_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                        proto_tree *tree, char *drep, 
+                        int hfindex, guint16 *pdata);
+int dissect_ndr_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                        proto_tree *tree, char *drep, 
+                        int hfindex, guint32 *pdata);
+int dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                        proto_tree *tree, char *drep, 
+                        int hfindex, e_uuid_t *pdata);
+
+
+typedef int (dcerpc_dissect_fnct_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *drep);
 
 typedef struct _dcerpc_sub_dissector {
     guint16 num;
