@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.22 2002/07/15 09:50:02 guy Exp $
+ * $Id: pppdump.c,v 1.23 2002/07/16 09:41:32 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
@@ -294,7 +294,13 @@ pppdump_open(wtap *wth, int *err)
 
 	state->seek_state = g_malloc(sizeof(pppdump_t));
 
-	state->pids = g_ptr_array_new();
+	/* If we have a random stream open, we're going to be reading
+	   the file randomly; set up a GPtrArray of pointers to
+	   information about how to retrieve the data for each packet. */
+	if (wth->random_fh != NULL)
+		state->pids = g_ptr_array_new();
+	else
+		state->pids = NULL;
 	state->pkt_cnt = 0;
 
 	return 1;
@@ -314,22 +320,31 @@ pppdump_read(wtap *wth, int *err, long *data_offset)
 	buf = buffer_start_ptr(wth->frame_buffer);
 
 	state = wth->capture.generic;
-	pid = g_new(pkt_id, 1);
-	if (!pid) {
-		*err = errno;	/* assume a malloc failed and set "errno" */
-		return FALSE;
-	}
-	pid->offset = 0;
+
+	/* If we have a random stream open, allocate a structure to hold
+	   the information needed to read this packet's data again. */
+	if (wth->random_fh != NULL) {
+		pid = g_new(pkt_id, 1);
+		if (!pid) {
+			*err = errno;	/* assume a malloc failed and set "errno" */
+			return FALSE;
+		}
+		pid->offset = 0;
+	} else
+		pid = NULL;	/* sequential only */
 
 	if (!collate(state, wth->fh, err, buf, &num_bytes, &direction,
 	    pid, 0)) {
-		g_free(pid);
+	    	if (pid != NULL)
+			g_free(pid);
 		return FALSE;
 	}
 
-	pid->dir = direction;
+	if (pid != NULL)
+		pid->dir = direction;
 
-	g_ptr_array_add(state->pids, pid);
+	if (pid != NULL)
+		g_ptr_array_add(state->pids, pid);
 	/* The user's data_offset is not really an offset, but a packet number. */
 	*data_offset = state->pkt_cnt;
 	state->pkt_cnt++;
@@ -727,7 +742,7 @@ pppdump_close(wtap *wth)
 		g_free(state->seek_state);
 	}
 
-	if (state->pids) { /* should always be TRUE */
+	if (state->pids) {
 		unsigned int i;
 		for (i = 0; i < g_ptr_array_len(state->pids); i++) {
 			g_free(g_ptr_array_index(state->pids, i));
