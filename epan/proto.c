@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.26 2001/05/07 21:06:59 guy Exp $
+ * $Id: proto.c,v 1.27 2001/05/09 01:22:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -550,11 +550,11 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			new_fi->length = n + 1;
 			break;
 		default:
-                        g_error("new_fi->hfinfo->type %d (%s) not handled\n",
+			g_error("new_fi->hfinfo->type %d (%s) not handled\n",
 					new_fi->hfinfo->type,
 					ftype_name(new_fi->hfinfo->type));
-                        g_assert_not_reached();
-                        break;
+			g_assert_not_reached();
+			break;
 
 	}
 	CLEANUP_POP;
@@ -2000,11 +2000,11 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		default:
-                        g_error("hfinfo->type %d (%s) not handled\n",
+			g_error("hfinfo->type %d (%s) not handled\n",
 					hfinfo->type,
 					ftype_name(hfinfo->type));
-                        g_assert_not_reached();
-                        break;
+			g_assert_not_reached();
+			break;
 	}
 }
 
@@ -2222,7 +2222,7 @@ hfinfo_uint_vals_format(header_field_info *hfinfo)
 	char *format = NULL;
 
 	switch(hfinfo->display) {
-	        case BASE_DEC:
+		case BASE_DEC:
 		case BASE_BIN: /* I'm lazy */
 			format = "%s: %s (%u)";
 			break;
@@ -2385,11 +2385,13 @@ proto_registrar_n(void)
 char*
 proto_registrar_get_name(int n)
 {
-    header_field_info *hfinfo;
-    hfinfo = proto_registrar_get_nth(n);
-    if (hfinfo)
-        return hfinfo->name;
-    else        return NULL;
+	header_field_info *hfinfo;
+
+	hfinfo = proto_registrar_get_nth(n);
+	if (hfinfo)
+		return hfinfo->name;
+	else
+		return NULL;
 }
 
 char*
@@ -2846,8 +2848,8 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 	switch(hfinfo->type) {
 
 		case FT_BOOLEAN:
-		        dfilter_len = abbrev_len + 6;
-		        buf = g_malloc0(dfilter_len);
+			dfilter_len = abbrev_len + 6;
+			buf = g_malloc0(dfilter_len);
 			snprintf(buf, dfilter_len, "%s == %s",
 					hfinfo->abbrev,
 					fvalue_get_integer(finfo->value) ? "1" : "0");
@@ -2862,15 +2864,15 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 		case FT_INT24:
 		case FT_INT32:
 			dfilter_len = abbrev_len + 20;
-		        buf = g_malloc0(dfilter_len);
+			buf = g_malloc0(dfilter_len);
 			format = hfinfo_numeric_format(hfinfo);
-		        snprintf(buf, dfilter_len, format, hfinfo->abbrev, fvalue_get_integer(finfo->value));
+			snprintf(buf, dfilter_len, format, hfinfo->abbrev, fvalue_get_integer(finfo->value));
 			break;
 
 		case FT_IPv4:
 			dfilter_len = abbrev_len + 4 + 15 + 1;
-		        buf = g_malloc0(dfilter_len);
-		        snprintf(buf, dfilter_len, "%s == %s", hfinfo->abbrev,
+			buf = g_malloc0(dfilter_len);
+			snprintf(buf, dfilter_len, "%s == %s", hfinfo->abbrev,
 					ipv4_addr_str(fvalue_get(finfo->value)));
 			break;
 
@@ -2917,34 +2919,30 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 #endif
 
 		case FT_STRING:
-		        dfilter_len = abbrev_len + 
+			dfilter_len = abbrev_len + 
 			  strlen(fvalue_get(finfo->value)) + 7;
 			buf = g_malloc0(dfilter_len);
 			snprintf(buf, dfilter_len, "%s == \"%s\"",
 				 hfinfo->abbrev, (char*)fvalue_get(finfo->value));
 			break;
 
-	        case FT_BYTES:
-		        dfilter_len = finfo->length*3 - 1;
-		        dfilter_len += abbrev_len + 7;
+		case FT_BYTES:
+			dfilter_len = finfo->length*3 - 1;
+			dfilter_len += abbrev_len + 7;
 			buf = g_malloc0(dfilter_len);
 			snprintf(buf, dfilter_len, "%s == %s",
 				 hfinfo->abbrev,
 				 bytes_to_str_punct(fvalue_get(finfo->value), finfo->length,':'));
-			break;                       
+			break;       
 		default:
-		    c = pd + finfo->start;
-		    buf = g_malloc0(32 + finfo->length * 3);
-		    ptr = buf;
+			c = pd + finfo->start;
+			buf = g_malloc0(32 + finfo->length * 3);
+			ptr = buf;
 
-		    sprintf(ptr, "frame[%d] == ", finfo->start);
-		    ptr = buf+strlen(buf);
+			sprintf(ptr, "frame[%d] == ", finfo->start);
+			ptr = buf+strlen(buf);
 
-		    if (finfo->length == 1) {
-			sprintf(ptr, "0x%02x", *c++);
-		    }
-		    else {
-			    for (i=0;i<finfo->length; i++) {
+			for (i=0;i<finfo->length; i++) {
 				if (i == 0 ) {
 					sprintf(ptr, "%02x", *c++);
 				}
@@ -2952,9 +2950,8 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 					sprintf(ptr, ":%02x", *c++);
 				}
 				ptr = buf+strlen(buf);
-			    }
-		    }
-		    break;
+			}
+			break;
 	}
 
 	return buf;
