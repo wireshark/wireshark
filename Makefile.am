@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.366 2001/09/15 23:01:12 guy Exp $
+# $Id: Makefile.am,v 1.367 2001/09/18 21:29:56 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -784,9 +784,11 @@ EXTRA_DIST = \
 	image/text2pcap.rc.in	\
 	INSTALL.configure       \
 	Makefile.nmake		\
+	make-manuf		\
 	make-reg-dotc		\
 	make-reg-dotc.py	\
 	manuf                   \
+	manuf.tmpl		\
 	ncp2222.py              \
 	packet-ncp2222.inc	\
 	print.ps                \
