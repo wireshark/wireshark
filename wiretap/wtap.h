@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.135 2003/03/07 16:52:46 gerald Exp $
+ * $Id: wtap.h,v 1.136 2003/03/08 09:11:53 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -126,7 +126,7 @@
 #define WTAP_ENCAP_WFLEET_HDLC			34
 #define WTAP_ENCAP_SDLC				35
 #define WTAP_ENCAP_TZSP				36
-#define WTAP_ENCAP_ENC0				37
+#define WTAP_ENCAP_ENC				37
 
 /* last WTAP_ENCAP_ value + 1 */
 #define WTAP_NUM_ENCAP_TYPES			38

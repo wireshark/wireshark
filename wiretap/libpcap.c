@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.93 2003/03/07 16:52:46 gerald Exp $
+ * $Id: libpcap.c,v 1.94 2003/03/08 09:11:53 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -213,8 +213,8 @@ static const struct {
 	{ 106,		WTAP_ENCAP_LINUX_ATM_CLIP },
 	{ 107,		WTAP_ENCAP_FRELAY },	/* Frame Relay */
 	{ 108,		WTAP_ENCAP_NULL },	/* OpenBSD loopback */
-#if 0
 	{ 109,		WTAP_ENCAP_ENC },	/* OpenBSD IPSEC enc */
+#if 0
 	{ 110,		WTAP_ENCAP_LANE_802_3 },/* ATM LANE 802.3 */
 	{ 111,		WTAP_ENCAP_HIPPI },	/* NetBSD HIPPI */
 #endif
@@ -324,7 +324,7 @@ static const struct {
 #if defined(DLT_ATM_RFC1483) && (DLT_ATM_RFC1483 == 13)
 	{ 13,		WTAP_ENCAP_ATM_RFC1483 },
 #elif defined(DLT_ENC) && (DLT_ENC == 13)
-	{ 13,		WTAP_ENCAP_ENC0 },
+	{ 13,		WTAP_ENCAP_ENC },
 #endif
 
 	/*

@@ -1,6 +1,8 @@
 /*
  * Copyright (c) 2003 Markus Friedl.  All rights reserved.
  *
+ * $Id: packet-enc.c,v 1.2 2003/03/08 09:11:51 guy Exp $
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -54,7 +56,6 @@ struct enchdr {
 # define BSD_ENC_M_AUTH          0x0800  /* payload authenticated */
 # define BSD_ENC_M_COMP          0x1000  /* payload compressed */
 # define BSD_ENC_M_AUTH_AH       0x2000  /* header authenticated */
-
 
 static dissector_handle_t  data_handle, ip_handle, ipv6_handle;
 
@@ -201,5 +202,5 @@ proto_reg_handoff_enc(void)
   data_handle = find_dissector("data");
 
   enc_handle = create_dissector_handle(dissect_enc, proto_enc);
-  dissector_add("wtap_encap", WTAP_ENCAP_ENC0, enc_handle);
+  dissector_add("wtap_encap", WTAP_ENCAP_ENC, enc_handle);
 }
