@@ -106,7 +106,7 @@ AC_DEFUN([AC_ETHEREAL_CHECK_64BIT_FORMAT],
 #	  ifdef HAVE_INTTYPES_H
 	  #include <inttypes.h>
 #	  endif
-	  #include <glib.h>
+	  #include <glibconfig.h>
 	  #include <stdio.h>
 	  #include <sys/types.h>
 
