@@ -872,15 +872,20 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	if (dcerpc_smb_fetch_pol(&hnd, &name, &open_frame, &close_frame,
 	    pinfo->fd->num)) {
 
-		if (open_frame)
-			proto_tree_add_uint(
+		if (open_frame) {
+			proto_item *item;
+			item=proto_tree_add_uint(
 				subtree, hf_nt_policy_open_frame, tvb,
 				old_offset, sizeof(e_ctx_hnd), open_frame);
-
-		if (close_frame)
-			proto_tree_add_uint(
+			PROTO_ITEM_SET_GENERATED(item);
+		}
+		if (close_frame) {
+			proto_item *item;
+			item=proto_tree_add_uint(
 				subtree, hf_nt_policy_close_frame, tvb,
 				old_offset, sizeof(e_ctx_hnd), close_frame);
+			PROTO_ITEM_SET_GENERATED(item);
+		}
 
 		/*
 		 * Don't append the handle name if pitem is null; that's
