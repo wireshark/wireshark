@@ -87,22 +87,3 @@ gboolean
    }
    return TRUE;
 }
-
-gboolean check_capture_filter_syntax(gchar *interface_name, gchar *filter_str){
-  struct bpf_program fcode;
-  gchar       open_err_str[PCAP_ERRBUF_SIZE];
-  pcap_t     *pch;
-  int        status=0;
-
-  open_err_str[0] = '\0';
-  pch = pcap_open_live(interface_name, WTAP_MAX_PACKET_SIZE, 0, 250, open_err_str);
-  status = pcap_compile(pch, &fcode, filter_str, 1, 0);
-  pcap_close(pch);
-
-  if (status < 0){
-    return FALSE;
-  }
-  else{
-    return TRUE;
-  }
-}

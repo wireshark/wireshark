@@ -25,13 +25,6 @@
 extern void cfilter_combo_recent_write_all(FILE *rf);
 extern gboolean cfilter_combo_add_recent(gchar *s);
 
-/** Check the syntax of a capture filter string. This is done by calling pcap_open_live().
- *
- * @param interface_name The interface name to be opened by pcap_open_live().
- * @param filter_str The filter string to be verified.
- */
-extern gboolean check_capture_filter_syntax(gchar *interface_name, gchar *filter_str);
-
 #define E_CFILTER_CM_KEY          "capture_filter_combo"
 #define E_CFILTER_FL_KEY          "capture_filter_list"
 #define RECENT_KEY_CAPTURE_FILTER "recent.capture_filter"

@@ -1296,10 +1296,6 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   cfile.iface = g_strdup(if_name);
   g_free(entry_text);
 
-  /* Add this capture filter to the recent capture filter list if it passes a syntax check */
-  if(check_capture_filter_syntax(cfile.iface, (gchar *) gtk_entry_get_text(GTK_ENTRY(filter_te))))
-    cfilter_combo_add_recent((gchar *) gtk_entry_get_text(GTK_ENTRY(filter_te)));
-
   capture_opts.linktype =
       GPOINTER_TO_INT(OBJECT_GET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY));
 
@@ -1464,7 +1460,11 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
 
   window_destroy(GTK_WIDGET(parent_w));
 
-  do_capture(save_file);
+  if (do_capture(save_file)) {
+    /* The capture succeeded, which means the capture filter syntax is
+       valid; add this capture filter to the recent capture filter list. */
+    cfilter_combo_add_recent(cfile.cfilter);
+  }
   if (save_file != NULL)
     g_free(save_file);
 }
