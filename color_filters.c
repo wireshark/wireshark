@@ -445,7 +445,7 @@ gboolean
 revert_filters(void)
 {
 	gchar *pf_dir_path;
-	const gchar *path;
+	gchar *path;
 
 	/* Create the directory that holds personal configuration files,
 	   if necessary.  */
@@ -459,11 +459,11 @@ revert_filters(void)
 
 	path = get_persconffile_path("colorfilters", TRUE);
 	if (!deletefile(path)) {
-		g_free((gchar *)path);
+		g_free(path);
 		return FALSE;
 	}
 
-	g_free((gchar *)path);
+	g_free(path);
 
 	/* Reload the (global) filters - Note: this does not update the dialog. */
 	colfilter_init();
