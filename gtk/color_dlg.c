@@ -157,7 +157,7 @@ int color_marked_count(void)
 {
   int count = 0;
 
-  g_slist_foreach(filter_list, count_this_mark, &count);
+  g_slist_foreach(color_filter_list, count_this_mark, &count);
 
   return count;
 }
@@ -342,7 +342,7 @@ colorize_dialog_new (char *filter)
 #endif
 
   num_of_filters = 0;
-  g_slist_foreach(filter_list, add_filter_to_list, color_filters);
+  g_slist_foreach(color_filter_list, add_filter_to_list, color_filters);
 
 #if GTK_MAJOR_VERSION < 2
   gtk_clist_set_selection_mode    (GTK_CLIST (color_filters),GTK_SELECTION_EXTENDED);
@@ -564,8 +564,8 @@ void move_this_row (GtkWidget   *color_filters,
   
 #endif
 
-  filter_list = g_slist_remove(filter_list, colorf);
-  filter_list = g_slist_insert(filter_list, colorf, filter_number + amount);
+  color_filter_list = g_slist_remove(color_filter_list, colorf);
+  color_filter_list = g_slist_insert(color_filter_list, colorf, filter_number + amount);
 }
 
 /* Move the selected filters up in the list */
@@ -733,7 +733,7 @@ remember_selected_row(GtkTreeSelection *sel, gpointer color_filters)
     data.count = 0; 
     data.color_filters = color_filters;
 
-    g_slist_foreach(filter_list, clear_mark, NULL);
+    g_slist_foreach(color_filter_list, clear_mark, NULL);
     gtk_tree_selection_selected_foreach(sel,remember_this_row, &data);
                                       
     if (data.count > 0)
@@ -822,7 +822,7 @@ color_destroy_cb                       (GtkButton       *button _U_,
                                         gpointer         user_data _U_)
 {
   /* Destroy any edit dialogs we have open. */
-  g_slist_foreach(filter_list, destroy_edit_dialog_cb, NULL);
+  g_slist_foreach(color_filter_list, destroy_edit_dialog_cb, NULL);
 
   colorize_win = NULL;
 }

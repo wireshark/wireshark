@@ -778,7 +778,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      allocate a protocol tree root node, so that we'll construct
      a protocol tree against which a filter expression can be
      evaluated. */
-  if ((cf->dfcode != NULL && refilter) || filter_list != NULL
+  if ((cf->dfcode != NULL && refilter) || color_filter_list != NULL
         || num_tap_filters != 0)
 	  create_proto_tree = TRUE;
 
@@ -788,7 +788,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   if (cf->dfcode != NULL && refilter) {
       epan_dissect_prime_dfilter(edt, cf->dfcode);
   }
-  if (filter_list) {
+  if (color_filter_list) {
       filter_list_prime_edt(edt);
   }
   tap_queue_init(edt);
@@ -809,9 +809,9 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   /* If we have color filters, and the frame is to be displayed, apply
      the color filters. */
   if (fdata->flags.passed_dfilter) {
-    if (filter_list != NULL) {
+    if (color_filter_list != NULL) {
       args.edt = edt;
-      g_slist_foreach(filter_list, apply_color_filter, &args);
+      g_slist_foreach(color_filter_list, apply_color_filter, &args);
     }
   }
 
@@ -855,13 +855,13 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
     /* If the packet matches a color filter,
      * store matching color_filter_t object in frame data. */
-    if (filter_list != NULL && (args.colorf != NULL)) {
+    if (color_filter_list != NULL && (args.colorf != NULL)) {
       /* add the matching colorfilter to the frame data */
       fdata->color_filter = args.colorf;
       /* If packet is marked, use colors from preferences */
       if (fdata->flags.marked) {
           packet_list_set_colors(row, &prefs.gui_marked_fg, &prefs.gui_marked_bg);
-      } else /* if (filter_list != NULL && (args.colorf != NULL)) */ {
+      } else /* if (color_filter_list != NULL && (args.colorf != NULL)) */ {
           packet_list_set_colors(row, &(args.colorf->fg_color),
 	      &(args.colorf->bg_color));
       }

@@ -65,12 +65,12 @@ cfilter_combo_add(gchar *s) {
  * of the combo box GList to the user's recent file */
 void
  cfilter_combo_recent_write_all(FILE *rf) {
-   GList     *filter_list = OBJECT_GET_DATA(top_level, E_CFILTER_FL_KEY);
+   GList     *cfilter_list = OBJECT_GET_DATA(top_level, E_CFILTER_FL_KEY);
    GList     *li;
    guint      max_count = 0;
 
-   /* write all non empty display filter strings to the recent file (until max count) */
-   li = g_list_first(filter_list);
+   /* write all non empty capture filter strings to the recent file (until max count) */
+   li = g_list_first(cfilter_list);
    while ( li && (max_count++ <= cfilter_combo_max_recent) ) {
      if (strlen(li->data)) {
        fprintf (rf, RECENT_KEY_CAPTURE_FILTER ": %s\n", (char *)li->data);

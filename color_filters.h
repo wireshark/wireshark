@@ -41,7 +41,7 @@ typedef struct _color_filter {
 } color_filter_t;
 
 /* List of all color filters. */
-extern GSList *filter_list;
+extern GSList *color_filter_list;
 extern GSList *removed_filter_list;
 
 /** Init the color filters. */

@@ -431,27 +431,27 @@ static guint dfilter_combo_max_recent = 10;
 static gboolean
 dfilter_combo_add(GtkWidget *filter_cm, char *s) {
   GList     *li;
-  GList     *filter_list = OBJECT_GET_DATA(filter_cm, E_DFILTER_FL_KEY);
+  GList     *dfilter_list = OBJECT_GET_DATA(filter_cm, E_DFILTER_FL_KEY);
 
 
   /* GtkCombos don't let us get at their list contents easily, so we maintain
      our own filter list, and feed it to gtk_combo_set_popdown_strings when
      a new filter is added. */
-    li = g_list_first(filter_list);
+    li = g_list_first(dfilter_list);
     while (li) {
         /* If the filter is already in the list, remove the old one and 
 		 * append the new one at the latest position (at g_list_append() below) */
 		if (li->data && strcmp(s, li->data) == 0) {
-          filter_list = g_list_remove(filter_list, li->data);
+          dfilter_list = g_list_remove(dfilter_list, li->data);
 		  break;
 		}
       li = li->next;
     }
 
-    filter_list = g_list_append(filter_list, s);
-    OBJECT_SET_DATA(filter_cm, E_DFILTER_FL_KEY, filter_list);
-    gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), filter_list);
-    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(filter_cm)->entry), g_list_last(filter_list)->data);
+    dfilter_list = g_list_append(dfilter_list, s);
+    OBJECT_SET_DATA(filter_cm, E_DFILTER_FL_KEY, dfilter_list);
+    gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), dfilter_list);
+    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(filter_cm)->entry), g_list_last(dfilter_list)->data);
 
     return TRUE;
 }
@@ -462,13 +462,13 @@ dfilter_combo_add(GtkWidget *filter_cm, char *s) {
 void
 dfilter_recent_combo_write_all(FILE *rf) {
   GtkWidget *filter_cm = OBJECT_GET_DATA(top_level, E_DFILTER_CM_KEY);
-  GList     *filter_list = OBJECT_GET_DATA(filter_cm, E_DFILTER_FL_KEY);
+  GList     *dfilter_list = OBJECT_GET_DATA(filter_cm, E_DFILTER_FL_KEY);
   GList     *li;
   guint      max_count = 0;
 
 
   /* write all non empty display filter strings to the recent file (until max count) */
-  li = g_list_first(filter_list);
+  li = g_list_first(dfilter_list);
   while ( li && (max_count++ <= dfilter_combo_max_recent) ) {
     if (strlen(li->data)) {
       fprintf (rf, RECENT_KEY_DISPLAY_FILTER ": %s\n", (char *)li->data);
@@ -507,7 +507,7 @@ gboolean
 main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
 {
   GtkCombo  *filter_cm = OBJECT_GET_DATA(top_level, E_DFILTER_CM_KEY);
-  GList     *filter_list = OBJECT_GET_DATA(filter_cm, E_DFILTER_FL_KEY);
+  GList     *dfilter_list = OBJECT_GET_DATA(filter_cm, E_DFILTER_FL_KEY);
   GList     *li;
   gboolean   add_filter = TRUE;
   gboolean   free_filter = TRUE;
@@ -524,7 +524,7 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
      a new filter is added. */
   cf_status = cf_filter_packets(cf, s, force);
   if (cf_status == CF_OK) {
-    li = g_list_first(filter_list);
+    li = g_list_first(dfilter_list);
     while (li) {
       if (li->data && strcmp(s, li->data) == 0)
         add_filter = FALSE;
@@ -533,15 +533,15 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
 
     if (add_filter) {
       /* trim list size first */
-      while (g_list_length(filter_list) >= dfilter_combo_max_recent) {
-        filter_list = g_list_remove(filter_list, g_list_first(filter_list)->data);
+      while (g_list_length(dfilter_list) >= dfilter_combo_max_recent) {
+        dfilter_list = g_list_remove(dfilter_list, g_list_first(dfilter_list)->data);
       }
 
       free_filter = FALSE;
-      filter_list = g_list_append(filter_list, s);
-      OBJECT_SET_DATA(filter_cm, E_DFILTER_FL_KEY, filter_list);
-      gtk_combo_set_popdown_strings(filter_cm, filter_list);
-      gtk_entry_set_text(GTK_ENTRY(filter_cm->entry), g_list_last(filter_list)->data);
+      dfilter_list = g_list_append(dfilter_list, s);
+      OBJECT_SET_DATA(filter_cm, E_DFILTER_FL_KEY, dfilter_list);
+      gtk_combo_set_popdown_strings(filter_cm, dfilter_list);
+      gtk_entry_set_text(GTK_ENTRY(filter_cm->entry), g_list_last(dfilter_list)->data);
     }
   }
   if (free_filter)
@@ -2950,7 +2950,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
                   *filter_add_expr_bt,
                   *filter_apply,
                   *filter_reset;
-    GList         *filter_list = NULL;
+    GList         *dfilter_list = NULL;
     GtkTooltips   *tooltips;
     GtkAccelGroup *accel;
 	gchar         *title;
@@ -3067,10 +3067,10 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Create the filter combobox */
     filter_cm = gtk_combo_new();
-    filter_list = NULL;
+    dfilter_list = NULL;
     gtk_combo_disable_activate(GTK_COMBO(filter_cm));
     gtk_combo_set_case_sensitive(GTK_COMBO(filter_cm), TRUE);
-    OBJECT_SET_DATA(filter_cm, E_DFILTER_FL_KEY, filter_list);
+    OBJECT_SET_DATA(filter_cm, E_DFILTER_FL_KEY, dfilter_list);
     filter_te = GTK_COMBO(filter_cm)->entry;
     main_display_filter_widget=filter_te;
     OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);

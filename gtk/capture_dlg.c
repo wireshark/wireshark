@@ -518,7 +518,7 @@ capture_prep(void)
   GtkTooltips   *tooltips;
   GtkAdjustment *snap_adj, *ringbuffer_nbf_adj,
 		*stop_packets_adj, *stop_filesize_adj, *stop_duration_adj, *stop_files_adj, *ring_filesize_adj, *file_duration_adj;
-  GList         *if_list, *combo_list, *filter_list;
+  GList         *if_list, *combo_list, *cfilter_list;
   int           err;
   int           row;
   char          err_str[PCAP_ERRBUF_SIZE];
@@ -735,15 +735,15 @@ capture_prep(void)
   /* Create the capture filter combo */
   filter_cm = gtk_combo_new();
 
-  filter_list = OBJECT_GET_DATA(top_level, E_CFILTER_FL_KEY);
+  cfilter_list = OBJECT_GET_DATA(top_level, E_CFILTER_FL_KEY);
   gtk_combo_disable_activate(GTK_COMBO(filter_cm));
   gtk_combo_set_case_sensitive(GTK_COMBO(filter_cm), TRUE);
-  OBJECT_SET_DATA(top_level, E_CFILTER_FL_KEY, filter_list);
+  OBJECT_SET_DATA(top_level, E_CFILTER_FL_KEY, cfilter_list);
   OBJECT_SET_DATA(top_level, E_CFILTER_CM_KEY, filter_cm);
   filter_te = GTK_COMBO(filter_cm)->entry;
 
-  if (filter_list != NULL)
-    gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), filter_list);
+  if (cfilter_list != NULL)
+    gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), cfilter_list);
   if (capture_opts->cfilter)
     gtk_entry_set_text(GTK_ENTRY(filter_te), capture_opts->cfilter);
   gtk_tooltips_set_tip(tooltips, filter_te,
