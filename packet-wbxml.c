@@ -3,7 +3,7 @@
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.c,v 1.23 2003/12/21 05:51:34 jmayer Exp $
+ * $Id: packet-wbxml.c,v 1.24 2004/02/05 18:57:14 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3679,6 +3679,8 @@ proto_reg_handoff_wbxml(void)
 			"application/vnd.wap.connectivity-wbxml", wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.wap.locc+wbxml", wbxml_handle);
+	dissector_add_string("media_type",
+			"application/vnd.syncml+wbxml", wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.syncml.dm+wbxml", wbxml_handle);
 	dissector_add_string("media_type",
