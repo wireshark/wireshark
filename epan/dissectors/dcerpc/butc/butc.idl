@@ -173,6 +173,14 @@ const long TCOP_RESTOREDB	= 7;
 const long TCOP_STATUS		= 8;
 const long TCOP_SPARE		= 9;
 
+
+/* restore flags */
+typedef [bitmap32bit] bitmap {
+	TC_RESTORE_CREATE = 0x00000001,	/* create new volume; fail if there */
+	TC_RESTORE_INCR   = 0x00000002	/* incremental, must already exist */
+} butc_Restore_flags;
+ 
+
 /*typedef [string] byte butcNameString_t[TC_MAXGENNAMELEN];*/
 
 typedef struct {
@@ -201,7 +209,7 @@ typedef struct {
 	udlong origVid;		/* original volume id */
 	udlong vid;			/* 0 means allocate new volid */
 	int32 partition;		/* where to restore the volume */
-	int32 flags;			/* flags */
+	butc_Restore_flags flags;	/* flags */
 	afsNetAddr hostAddr;		/* file server to restore volume to */
 	uint32 realDumpId;		/* dump id associated with this tape */
 	uint32 spare2;
@@ -237,9 +245,6 @@ typedef struct {
 	butcNameString_t name;
 } tc_tapeLabel;
 
-/* restore flags */
-const long TC_RESTORE_CREATE = 1;	/* create new volume; fail if there */
-const long TC_RESTORE_INCR = 2;		/* incremental, must already exist */
 
 typedef struct { 		/* describes a tape sequence */
     int32  id;			/* unique id of tapeSet, 

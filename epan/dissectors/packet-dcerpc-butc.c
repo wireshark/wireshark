@@ -45,6 +45,8 @@ static int proto_butc = -1;
 /* INCLUDED FILE : ETH_HF */
 static int hf_butc_opnum = -1;
 static int hf_butc_rc = -1;
+static int hf_butc_Restore_flags_TC_RESTORE_CREATE = -1;
+static int hf_butc_Restore_flags_TC_RESTORE_INCR = -1;
 static int hf_butc_afsNetAddr_type = -1;
 static int hf_butc_afsNetAddr_data = -1;
 static int hf_butc_tc_dumpDesc_vid = -1;
@@ -173,6 +175,7 @@ static int hf_butc_BUTC_ScanStatus_flags = -1;
 
 /* INCLUDED FILE : ETH_ETT */
 static gint ett_butc = -1;
+static gint ett_butc_Restore_flags = -1;
 static gint ett_butc_afsNetAddr = -1;
 static gint ett_butc_tc_dumpDesc = -1;
 static gint ett_butc_tc_restoreDesc = -1;
@@ -208,6 +211,52 @@ static e_uuid_t uuid_dcerpc_butc = {
 
 static guint16 ver_butc = 4;
 
+static const true_false_string TC_RESTORE_CREATE_tfs = {
+    "TC_RESTORE_CREATE is SET",
+    "TC_RESTORE_CREATE is NOT set"
+};
+
+static const true_false_string TC_RESTORE_INCR_tfs = {
+    "TC_RESTORE_INCR is SET",
+    "TC_RESTORE_INCR is NOT set"
+};
+
+
+int
+butc_dissect_Restore_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    guint32 flags;
+
+    ALIGN_TO_4_BYTES;
+
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, TRUE);
+        tree=proto_item_add_subtree(item, ett_butc_Restore_flags);
+    }
+
+    offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &flags);
+
+
+    proto_tree_add_boolean(tree, hf_butc_Restore_flags_TC_RESTORE_CREATE, tvb, offset-4, 4, flags);
+    if(flags&0x00000001){
+        proto_item_append_text(item, " TC_RESTORE_CREATE");
+    }
+    flags&=(~0x00000001);
+
+    proto_tree_add_boolean(tree, hf_butc_Restore_flags_TC_RESTORE_INCR, tvb, offset-4, 4, flags);
+    if(flags&0x00000002){
+        proto_item_append_text(item, " TC_RESTORE_INCR");
+    }
+    flags&=(~0x00000002);
+
+    if(flags){
+        proto_item_append_text(item, "UNKNOWN-FLAGS");
+    }
+
+    return offset;
+}
 
 static int
 butc_dissect_uint16(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
@@ -483,7 +532,7 @@ static int
 butc_dissect_tc_restoreDesc_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_flags, param);
+    offset=butc_dissect_Restore_flags(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_flags, param);
     return offset;
 }
 
@@ -2185,6 +2234,16 @@ proto_register_butc(void)
           VALS(NT_errors), 0,
          "", HFILL }},
 
+        { &hf_butc_Restore_flags_TC_RESTORE_CREATE,
+          { "TC_RESTORE_CREATE", "butc.Restore_flags.TC_RESTORE_CREATE", FT_BOOLEAN, 32,
+          TFS(&TC_RESTORE_CREATE_tfs), 0x00000001,
+         "", HFILL }},
+
+        { &hf_butc_Restore_flags_TC_RESTORE_INCR,
+          { "TC_RESTORE_INCR", "butc.Restore_flags.TC_RESTORE_INCR", FT_BOOLEAN, 32,
+          TFS(&TC_RESTORE_INCR_tfs), 0x00000002,
+         "", HFILL }},
+
         { &hf_butc_afsNetAddr_type,
           { "type", "butc.afsNetAddr.type", FT_UINT16, BASE_DEC,
           NULL, 0,
@@ -2276,7 +2335,7 @@ proto_register_butc(void)
          "", HFILL }},
 
         { &hf_butc_tc_restoreDesc_flags,
-          { "flags", "butc.tc_restoreDesc.flags", FT_INT32, BASE_DEC,
+          { "flags", "butc.tc_restoreDesc.flags", FT_UINT32, BASE_HEX,
           NULL, 0,
          "", HFILL }},
 
@@ -2795,6 +2854,7 @@ proto_register_butc(void)
 
 /* INCLUDED FILE : ETH_ETTARR */
         &ett_butc,
+        &ett_butc_Restore_flags,
         &ett_butc_afsNetAddr,
         &ett_butc_tc_dumpDesc,
         &ett_butc_tc_restoreDesc,
