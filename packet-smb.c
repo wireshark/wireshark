@@ -1,9 +1,8 @@
 /* packet-smb.c
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
- * Still a long way to go ...
  *
- * $Id: packet-smb.c,v 1.2 1999/05/09 12:56:12 sharpe Exp $
+ * $Id: packet-smb.c,v 1.3 1999/05/10 00:27:31 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -49,6 +48,8 @@
 #include "alignment.h"
 
 extern packet_info pi;
+
+char *decode_smb_name(unsigned char);
 
 char *SMB_names[256] = {
   "unknown-0x00",
@@ -326,13 +327,160 @@ dissect_unknown_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
  * Each dissect routine is passed an offset to wct and works from there 
  */
 
+void
+dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int dirn)
+
+{
+  guint8      wct, andxcmd, res;
+  guint16     andxoffs, flags, passwdlen, bcc;
+  char        *str;
+  proto_tree  *tcon_tree, *flags_tree;
+  proto_item  *ti;
+
+  wct = pd[offset];
+
+  /* Now figure out what format we are talking about, 2, 3, or 4 response
+   * words ...
+   */
+
+  if (!((dirn == 1) && (wct == 4)) && !((dirn == 0) && (wct == 2)) &&
+      !((dirn == 0) && (wct == 3))) {
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, 1, "Invalid TCON_ANDX format. WCT should be 2, 3, or 4 ..., not %d", wct);
+
+      proto_tree_add_item(tree, offset, END_OF_FRAME, "Data");
+
+      return;
+
+    }
+    
+  }
+
+  if (tree) {
+
+    proto_tree_add_item(tree, offset, 1, "Word Count (WCT): %d", wct);
+
+  }
+
+  offset += 1;
+
+  andxcmd = pd[offset];
+
+  if (tree) {
+
+    proto_tree_add_item(tree, offset, 1, "Next Command: %s",
+			(andxcmd == 0xFF) ? "No further commands":
+			decode_smb_name(andxcmd));
+		
+    proto_tree_add_item(tree, offset + 1, 1, "Reserved (MBZ): %d", pd[offset+1]);
+
+  }
+
+  offset += 2;
+
+  andxoffs = GSHORT(pd, offset);
+
+  if (tree) {
+
+    proto_tree_add_item(tree, offset, 2, "Offset to next command: %d", andxoffs);
+
+  }
+
+  offset += 2;
+
+  switch (wct) {
+
+  case 4:
+
+    flags = GSHORT(pd, offset);
+
+    if (tree) {
+
+      ti = proto_tree_add_item(tree, offset, 2, "Additional Flags: 0x%02x", flags);
+      flags_tree = proto_tree_new();
+      proto_item_add_subtree(ti, flags_tree, ETT_SMB_AFLAGS);
+      proto_tree_add_item(flags_tree, offset, 2, "%s", 
+			  decode_boolean_bitfield(flags, 0x01, 16,
+						  "Disconnect TID",
+						  "Don't disconnect TID"));
+
+    }
+
+    offset += 2;
+
+    passwdlen = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, 2, "Password Length: %d", passwdlen);
+
+    }
+
+    offset += 2;
+
+    bcc = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, 2, "Byte Count (BCC): %d", bcc);
+
+    }
+
+    offset += 2;
+
+    str = pd + offset;
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, strlen(str) + 1, "Password: %s", str);
+
+    }
+
+    offset += strlen(str) + 1;
+
+    str = pd + offset;
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, strlen(str) + 1, "Path: %s", str);
+
+    }
+
+    offset += strlen(str) + 1;
+
+    str = pd + offset;
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, strlen(str) + 1, "Service: %s", str);
+
+    }
+
+    break;
+
+  case 2:
+
+    break;
+
+  case 3:
+
+    break;
+
+  default:
+
+  }
+
+}
+
 void 
 dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int dirn)
 {
   guint8        wct, enckeylen;
-  guint16       bcc, mode;
+  guint16       bcc, mode, rawmode;
   guint32       caps;
-  proto_tree    *dialects, *mode_tree, *caps_tree;
+  proto_tree    *dialects, *mode_tree, *caps_tree, *rawmode_tree;
   proto_item    *ti;
   char          *str;
 
@@ -343,6 +491,8 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
     if (tree) {
 
       proto_tree_add_item(tree, offset, 1, "Invalid Negotiate Protocol format. WCT should be zero or 1 or 13 or 17 ..., not %d", wct);
+
+      proto_tree_add_item(tree, offset, END_OF_FRAME, "Data");
 
       return;
     }
@@ -432,7 +582,87 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     }
 
+    /* Much of this is similar to response 17 below */
 
+    offset += 2;
+
+    mode = GBYTE(pd, offset);
+
+    if (tree) {
+
+      ti = proto_tree_add_item(tree, offset, 1, "Security Mode: 0x%02x", mode);
+      mode_tree = proto_tree_new();
+      proto_item_add_subtree(ti, mode_tree, ETT_SMB_MODE);
+      proto_tree_add_item(mode_tree, offset, 1, "%s",
+			  decode_boolean_bitfield(mode, 0x01, 8,
+						  "Security  = User",
+						  "Security  = Share"));
+      proto_tree_add_item(mode_tree, offset, 1, "%s",
+			  decode_boolean_bitfield(mode, 0x02, 8,
+						  "Passwords = Encrypted",
+						  "Passwords = Plaintext"));
+
+    }
+
+    offset += 1;
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, 2, "Max multiplex count: %d", GSHORT(pd, offset));
+
+    }
+    
+    offset += 2;
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, 2, "Max vcs:             %d", GSHORT(pd, offset));
+
+    }
+
+    offset += 2;
+
+    rawmode = GSHORT(pd, offset);
+
+    if (tree) {
+
+      ti = proto_tree_add_item(tree, offset, 2, "Raw Mode: 0x%04x", rawmode);
+      rawmode_tree = proto_tree_new();
+      proto_item_add_subtree(ti, rawmode_tree, ETT_SMB_RAWMODE);
+      proto_tree_add_item(rawmode_tree, offset, 2, "%s",
+			  decode_boolean_bitfield(rawmode, 0x01, 16,
+						  "Read Raw supported",
+						  "Read Raw not supported"));
+      proto_tree_add_item(rawmode_tree, offset, 2, "%s",
+			  decode_boolean_bitfield(rawmode, 0x02, 16,
+						  "Write Raw supported",
+						  "Write Raw not supported"));
+
+    }
+
+    offset += 2;
+
+    /* Now the server time ... skip 8 bytes ... pick up later */
+
+    offset += 8;
+
+    /* Encryption Key Length, should be zero */
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, 2, "Encryption Key Length: %d (should be zero)", GSHORT(pd, offset));
+
+    }
+
+    offset += 2;
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, 2, "Reserved: %d (MBZ)", GSHORT(pd, offset));
+
+    }
+
+    offset += 2;
 
     bcc = GSHORT(pd, offset);
 
@@ -443,6 +673,28 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
     }
 
     offset += 2;
+
+    /* Encryption key, might be a null string ??? Not sure */
+
+    str = pd + offset;
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, strlen(str)+1, "Encryption Key: %s", str);
+
+    }
+
+    offset += strlen(str) + 1;
+
+    /* Primary Domain ... */
+
+    str = pd + offset;
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, strlen(str)+1, "Primary Domain: %s", str);
+
+    }
 
     break;
 
@@ -769,7 +1021,7 @@ void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, int, int) 
   dissect_negprot_smb,      /* SMBnegprot negotiate a protocol */
   dissect_unknown_smb,      /* SMBsesssetupX Session Set Up & X (including User Logon) */
   dissect_unknown_smb,      /* unknown SMB 0x74 */
-  dissect_unknown_smb,      /* SMBtconX tree connect and X */
+  dissect_tcon_andx_smb,    /* SMBtconX tree connect and X */
   dissect_unknown_smb,      /* unknown SMB 0x76 */
   dissect_unknown_smb,      /* unknown SMB 0x77 */
   dissect_unknown_smb,      /* unknown SMB 0x78 */
@@ -1242,7 +1494,8 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	/* Now vector through the table to dissect them */
 
-	(dissect[cmd])(pd, offset, fd, smb_tree, max_data, (flags == 0));
+	(dissect[cmd])(pd, offset, fd, smb_tree, max_data, 
+		       ((flags & 0x80) == 0));
 
 
 }

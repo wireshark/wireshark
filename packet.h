@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.48 1999/05/09 04:16:36 sharpe Exp $
+ * $Id: packet.h,v 1.49 1999/05/10 00:27:32 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -230,6 +230,8 @@ enum {
 	ETT_SMB_DIALECTS,
 	ETT_SMB_MODE,
 	ETT_SMB_CAPS,
+	ETT_SMB_RAWMODE,
+	ETT_SMB_AFLAGS,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -369,7 +371,7 @@ void dissect_ospf(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ospf_hello(const u_char *, int, frame_data *, proto_tree *);
 void dissect_rip(const u_char *, int, frame_data *, proto_tree *);
 void dissect_tcp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_tftp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_tftp(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_trmac(const u_char *, int, frame_data *, proto_tree *);
 void dissect_udp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_vines(const u_char *, int, frame_data *, proto_tree *);
