@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.104 2003/01/03 19:40:25 guy Exp $
+ * $Id: packet-ppp.c,v 1.105 2003/01/06 22:33:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2872,12 +2872,32 @@ dissect_ppp_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
 
-  if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
-    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "N/A" );
-  if(check_col(pinfo->cinfo, COL_RES_DL_DST))
-    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A" );
   if(check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP" );
+
+  switch (pinfo->p2p_dir) {
+
+  case P2P_DIR_SENT:
+    if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
+      col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
+    if(check_col(pinfo->cinfo, COL_RES_DL_DST))
+      col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
+    break;
+
+  case P2P_DIR_RECV:
+    if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
+      col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
+    if(check_col(pinfo->cinfo, COL_RES_DL_DST))
+      col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
+    break;
+
+  default:
+    if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
+      col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "N/A");
+    if(check_col(pinfo->cinfo, COL_RES_DL_DST))
+      col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A");
+    break;
+  }
 
   if(tree) {
     ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, proto_offset, FALSE);
