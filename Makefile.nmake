@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.107 2001/05/21 03:17:14 guy Exp $
+# $Id: Makefile.nmake,v 1.108 2001/05/21 05:04:48 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -273,7 +273,7 @@ dftest_LIBS= epan\ethereal.lib \
 
 EXECUTABLES=ethereal.exe tethereal.exe editcap.exe text2pcap.exe
 
-RESOURCES=image\ethereal.res image\tethereal.res image\editcap.res
+RESOURCES=image\ethereal.res image\tethereal.res image\editcap.res image\text2pcap.res
 
 all: tools wiretap gtk epan image $(EXECUTABLES) $(RESOURCES)
 
@@ -295,10 +295,10 @@ editcap.exe	: config.h editcap.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).li
 		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj $(editcap_LIBS) image\editcap.res
 <<
 
-text2pcap.exe	: config.h text2pcap.obj text2pcap-scanner.obj getopt.obj
+text2pcap.exe	: config.h text2pcap.obj text2pcap-scanner.obj getopt.obj image\text2pcap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console text2pcap.obj text2pcap-scanner.obj getopt.obj
+		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console text2pcap.obj text2pcap-scanner.obj getopt.obj image\text2pcap.res
 <<
 
 dftest.exe	: $(dftest_OBJECTS) $(EXTRA_OBJECTS)

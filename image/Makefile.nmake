@@ -1,10 +1,10 @@
 #
-# $Id: Makefile.nmake,v 1.1 2001/04/05 04:39:26 gram Exp $
+# $Id: Makefile.nmake,v 1.2 2001/05/21 05:04:49 guy Exp $
 #
 
 include ..\config.nmake
 
-ALL_RC=ethereal.rc tethereal.rc editcap.rc
+ALL_RC=ethereal.rc tethereal.rc editcap.rc text2pcap.rc
 all : $(ALL_RC)
 
 ethereal.rc	: ethereal.rc.in
@@ -21,6 +21,11 @@ editcap.rc	: editcap.rc.in
 	sed -e s/@VERSION@/$(VERSION)/ \
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< editcap.rc.in > $@
+
+text2pcap.rc	: text2pcap.rc.in
+	sed -e s/@VERSION@/$(VERSION)/ \
+		-e s/@RC_VERSION@/$(RC_VERSION)/ \
+		< text2pcap.rc.in > $@
 
 clean :
 	rm -f $(ALL_RC)
