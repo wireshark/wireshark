@@ -27,12 +27,28 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* Info to save in RTCP conversation / packet-info */
+/* Info to save in RTCP conversation / packet-info.
+   Note that this structure applies to the destination end of
+   an RTP session */
 #define MAX_RTCP_SETUP_METHOD_SIZE 8
 struct _rtcp_conversation_info
 {
-	gchar   method[MAX_RTCP_SETUP_METHOD_SIZE];
-	guint32 frame_number;
+    /* Setup info is relevant to traffic whose dest is the conversation address */
+    guchar  setup_method_set;
+    gchar   setup_method[MAX_RTCP_SETUP_METHOD_SIZE];
+    guint32 setup_frame_number;
+
+    /* Info used for roundtrip calculations */
+    guchar  last_received_set;
+    guint32 last_received_frame_number;
+    guint32 last_received_time_secs;
+    guint32 last_received_time_usecs;
+    guint32 last_received_ts;
+
+    /* Stored result of calculation (ms) */
+    guchar  calculated_delay_set;
+    guint32 calculated_delay_used_frame;
+    guint32 calculated_delay;
 };
 
 

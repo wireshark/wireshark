@@ -213,6 +213,12 @@ static int hf_rtcp_setup        = -1;
 static int hf_rtcp_setup_frame  = -1;
 static int hf_rtcp_setup_method = -1;
 
+/* RTCP roundtrip delay fields */
+static int hf_rtcp_roundtrip_delay        = -1;
+static int hf_rtcp_roundtrip_delay_frame  = -1;
+static int hf_rtcp_roundtrip_delay_delay  = -1;
+
+
 
 /* RTCP fields defining a sub tree */
 static gint ett_rtcp			= -1;
@@ -223,23 +229,36 @@ static gint ett_sdes			= -1;
 static gint ett_sdes_item		= -1;
 static gint ett_PoC1			= -1;
 static gint ett_rtcp_setup		= -1;
+static gint ett_rtcp_roundtrip_delay	= -1;
 
-static gboolean dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree );
+/* Main dissection function */
 static void dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo,
      proto_tree *tree );
+
+/* Heuristic dissection */
+static gboolean global_rtcp_heur = FALSE;
+static gboolean dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree );
+
+/* Displaying set info */
+static gboolean global_rtcp_show_setup_info = TRUE;
 static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-/* Preferences bool to control whether or not setup info should be shown */
-static gboolean global_rtcp_show_setup_info = TRUE;
+/* Related to roundtrip calculation (using LSR and DLSR) */
+static gboolean global_rtcp_show_roundtrip_calculation = FALSE;
+#define MIN_ROUNDTRIP_TO_REPORT_DEFAULT 10
+static guint global_rtcp_show_roundtrip_calculation_minimum = MIN_ROUNDTRIP_TO_REPORT_DEFAULT;
+static void remember_outgoing_sr(packet_info *pinfo, long lsr);
+static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
+                                      proto_tree *tree, guint32 lsr, guint32 dlsr);
+static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo,
+                                     proto_tree *tree, guint frame, guint delay);
 
-/* Try heuristic RTCP decode */
-static gboolean global_rtcp_heur = FALSE;
 
 /* Memory chunk for storing conversation and per-packet info */
 static GMemChunk *rtcp_conversations = NULL;
 
-
+/* Set up an RTCP conversation using the info given */
 void rtcp_add_address( packet_info *pinfo,
                        address *addr, int port,
                        int other_port,
@@ -291,16 +310,21 @@ void rtcp_add_address( packet_info *pinfo,
 	if ( ! p_conv_data ) {
 		/* Create conversation data */
 		p_conv_data = g_mem_chunk_alloc(rtcp_conversations);
-
+		if (!p_conv_data)
+		{
+			return;
+		}
+		memset(p_conv_data, 0, sizeof(struct _rtcp_conversation_info));
 		conversation_add_proto_data(p_conv, proto_rtcp, p_conv_data);
 	}
 
 	/*
 	 * Update the conversation data.
 	 */
-	strncpy(p_conv_data->method, setup_method, MAX_RTCP_SETUP_METHOD_SIZE);
-	p_conv_data->method[MAX_RTCP_SETUP_METHOD_SIZE] = '\0';
-	p_conv_data->frame_number = setup_frame_number;
+	p_conv_data->setup_method_set = TRUE;
+	strncpy(p_conv_data->setup_method, setup_method, MAX_RTCP_SETUP_METHOD_SIZE);
+	p_conv_data->setup_method[MAX_RTCP_SETUP_METHOD_SIZE] = '\0';
+	p_conv_data->setup_frame_number = setup_frame_number;
 }
 
 static void rtcp_init( void )
@@ -352,8 +376,9 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	packet_type = tvb_get_guint8(tvb, offset + 1);
 
 	/* First packet within compound packet is supposed to be a sender
-	   or receiver report */
-	if (!((packet_type == RTCP_SR)  || (packet_type == RTCP_RR)))
+	   or receiver report.  Also see BYE so allow this...  */
+	if (!((packet_type == RTCP_SR)  || (packet_type == RTCP_RR) ||
+           packet_type == RTCP_BYE))
 	{
 		return FALSE;
 	}
@@ -700,7 +725,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 }
 
 static int
-dissect_rtcp_rr( tvbuff_t *tvb, int offset, proto_tree *tree,
+dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree,
     unsigned int count )
 {
 	unsigned int counter = 1;
@@ -712,6 +737,8 @@ dissect_rtcp_rr( tvbuff_t *tvb, int offset, proto_tree *tree,
 	unsigned int cum_nr = 0;
 
 	while ( counter <= count ) {
+		guint32 lsr, dlsr;
+
 		/* Create a new subtree for a length of 24 bytes */
 		ti = proto_tree_add_text(tree, tvb, offset, 24,
 		    "Source %u", counter );
@@ -758,14 +785,24 @@ dissect_rtcp_rr( tvbuff_t *tvb, int offset, proto_tree *tree,
 		offset += 4;
 
 		/* Last SR timestamp */
+		lsr = tvb_get_ntohl( tvb, offset );
 		proto_tree_add_uint( ssrc_tree, hf_rtcp_ssrc_lsr, tvb,
-		    offset, 4, tvb_get_ntohl( tvb, offset ) );
+		                     offset, 4, lsr );
 		offset += 4;
 
 		/* Delay since last SR timestamp */
+		dlsr = tvb_get_ntohl( tvb, offset );
 		proto_tree_add_uint( ssrc_tree, hf_rtcp_ssrc_dlsr, tvb,
-		    offset, 4, tvb_get_ntohl( tvb, offset ) );
+		                     offset, 4, dlsr );
 		offset += 4;
+
+		/* Do roundtrip calculation */
+		if (global_rtcp_show_roundtrip_calculation)
+		{
+			/* Based on delay since SR was send in other direction */
+			calculate_roundtrip_delay(tvb, pinfo, ssrc_tree, lsr, dlsr);
+		}
+
 		counter++;
 	}
 
@@ -773,7 +810,7 @@ dissect_rtcp_rr( tvbuff_t *tvb, int offset, proto_tree *tree,
 }
 
 static int
-dissect_rtcp_sr( tvbuff_t *tvb, int offset, proto_tree *tree,
+dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree,
     unsigned int count )
 {
 #if 0
@@ -790,11 +827,13 @@ dissect_rtcp_sr( tvbuff_t *tvb, int offset, proto_tree *tree,
 	 * XXX - RFC 1889 says this is an NTP timestamp, but that appears
 	 * not to be the case.
 	 */
-	proto_tree_add_text(tree, tvb, offset, 4, "Timestamp, MSW: %u",
-		tvb_get_ntohl(tvb, offset));
+	guint32 ts_msw, ts_lsw;
+
+	ts_msw = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 4, "Timestamp, MSW: %u", ts_msw);
 	offset += 4;
-	proto_tree_add_text(tree, tvb, offset, 4, "Timestamp, LSW: %u",
-		tvb_get_ntohl(tvb, offset));
+	ts_lsw = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 4, "Timestamp, LSW: %u", ts_lsw);
 	offset += 4;
 #endif
 	/* RTP timestamp, 32 bits */
@@ -807,9 +846,19 @@ dissect_rtcp_sr( tvbuff_t *tvb, int offset, proto_tree *tree,
 	proto_tree_add_uint( tree, hf_rtcp_sender_oct_cnt, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
 	offset += 4;
 
+	/* Record the time of this packet in the sender's conversation */
+	if (global_rtcp_show_roundtrip_calculation)
+	{
+		/* Use middle 32 bits of 64-bit time value */
+		guint32 lsr = ((ts_msw & 0x0000ffff) << 16 | (ts_lsw & 0xffff0000) >> 16);
+
+		/* Record the time that we sent this in appropriate conversation */
+		remember_outgoing_sr(pinfo, lsr);
+	}
+
 	/* The rest of the packet is equal to the RR packet */
 	if ( count != 0 )
-		offset = dissect_rtcp_rr( tvb, offset, tree, count );
+		offset = dissect_rtcp_rr( pinfo, tvb, offset, tree, count );
 
 	return offset;
 }
@@ -828,12 +877,12 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		/* First time, get info from conversation */
 		p_conv = find_conversation(&pinfo->net_dst, &pinfo->net_src,
-                                   pinfo->ptype,
-                                   pinfo->destport, pinfo->srcport, NO_ADDR_B);
+		                           pinfo->ptype,
+		                           pinfo->destport, pinfo->srcport, NO_ADDR_B);
 
 		if (p_conv)
 		{
-			/* Create space for packet info */
+			/* Look for data in conversation */
 			struct _rtcp_conversation_info *p_conv_packet_data;
 			p_conv_data = conversation_get_proto_data(p_conv, proto_rtcp);
 
@@ -841,36 +890,289 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			{
 				/* Save this conversation info into packet info */
 				p_conv_packet_data = g_mem_chunk_alloc(rtcp_conversations);
-				strcpy(p_conv_packet_data->method, p_conv_data->method);
-				p_conv_packet_data->frame_number = p_conv_data->frame_number;
+				if (!p_conv_packet_data)
+				{
+					return;
+				}
+				memcpy(p_conv_packet_data, p_conv_data,
+				       sizeof(struct _rtcp_conversation_info));
+
 				p_add_proto_data(pinfo->fd, proto_rtcp, p_conv_packet_data);
 			}
 		}
 	}
 
 	/* Create setup info subtree with summary info. */
-	if (p_conv_data)
+	if (p_conv_data && p_conv_data->setup_method_set)
 	{
 		proto_tree *rtcp_setup_tree;
 		proto_item *ti =  proto_tree_add_string_format(tree, hf_rtcp_setup, tvb, 0, 0,
 		                                               "",
 		                                               "Stream setup by %s (frame %d)",
-		                                               p_conv_data->method,
-		                                               p_conv_data->frame_number);
+		                                               p_conv_data->setup_method,
+		                                               p_conv_data->setup_frame_number);
 		PROTO_ITEM_SET_GENERATED(ti);
 		rtcp_setup_tree = proto_item_add_subtree(ti, ett_rtcp_setup);
 		if (rtcp_setup_tree)
 		{
 			/* Add details into subtree */
 			proto_item* item = proto_tree_add_uint(rtcp_setup_tree, hf_rtcp_setup_frame,
-			                                       tvb, 0, 0, p_conv_data->frame_number);
+			                                       tvb, 0, 0, p_conv_data->setup_frame_number);
 			PROTO_ITEM_SET_GENERATED(item);
 			item = proto_tree_add_string(rtcp_setup_tree, hf_rtcp_setup_method,
-			                             tvb, 0, 0, p_conv_data->method);
+			                             tvb, 0, 0, p_conv_data->setup_method);
 			PROTO_ITEM_SET_GENERATED(item);
 		}
 	}
 }
+
+
+/* Update conversation data to record time that outgoing rr/sr was sent */
+static void remember_outgoing_sr(packet_info *pinfo, long lsr)
+{
+	conversation_t *p_conv = NULL;
+	struct _rtcp_conversation_info *p_conv_data = NULL;
+	struct _rtcp_conversation_info *p_packet_data = NULL;
+
+	/* This information will be accessed when an incoming packet comes back to
+	   the side that sent this packet, so no use storing in the packet
+	   info.  However, do store the fact that we've already set this info
+	   before  */
+
+
+	/**************************************************************************/
+	/* First of all, see if we've already stored this information for this sr */
+
+	/* Look first in packet info */
+	p_packet_data = p_get_proto_data(pinfo->fd, proto_rtcp);
+	if (p_packet_data && p_packet_data->last_received_set &&
+	    p_packet_data->last_received_frame_number >= pinfo->fd->num)
+	{
+		/* We already did this, OK */
+		return;
+	}
+
+
+	/**************************************************************************/
+	/* Otherwise, we want to find/create the conversation and update it       */
+
+	/* First time, get info from conversation.
+	   Even though we think of this as an outgoing packet being sent,
+	   we store the time as being received by the destination. */
+	p_conv = find_conversation(&pinfo->net_dst, &pinfo->net_src,
+	                           pinfo->ptype,
+	                           pinfo->destport, pinfo->srcport, NO_ADDR_B);
+
+	/* If the conversation doesn't exist, create it now. */
+	if (!p_conv)
+	{
+		p_conv = conversation_new(&pinfo->net_dst, &pinfo->net_src, PT_UDP,
+		                          pinfo->destport, pinfo->srcport,
+		                          NO_ADDR2);
+		if (!p_conv)
+		{
+			/* Give up if can't create it */
+			return;
+		}
+	}
+
+
+	/****************************************************/
+	/* Now find/create conversation data                */
+	p_conv_data = conversation_get_proto_data(p_conv, proto_rtcp);
+	if (!p_conv_data)
+	{
+		/* Allocate memory for data */
+		p_conv_data = g_mem_chunk_alloc(rtcp_conversations);
+		if (!p_conv_data)
+		{
+			/* Give up if couldn't allocate space for memory */
+			return;
+		}
+		memset(p_conv_data, 0, sizeof(struct _rtcp_conversation_info));
+
+		/* Add it to conversation. */
+		conversation_add_proto_data(p_conv, proto_rtcp, p_conv_data);
+	}
+
+	/*******************************************************/
+	/* Update conversation data                            */
+	p_conv_data->last_received_set = TRUE;
+	p_conv_data->last_received_frame_number = pinfo->fd->num;
+	p_conv_data->last_received_time_secs = pinfo->fd->abs_secs;
+	p_conv_data->last_received_time_usecs = pinfo->fd->abs_usecs;
+	p_conv_data->last_received_ts = lsr;
+
+
+	/****************************************************************/
+	/* Update packet info to record conversation state              */
+
+	/* Will use/create packet info */
+	if (!p_packet_data)
+	{
+		p_packet_data = g_mem_chunk_alloc(rtcp_conversations);
+		if (!p_packet_data)
+		{
+			/* Give up if allocation fails */
+			return;
+		}
+		memset(p_packet_data, 0, sizeof(struct _rtcp_conversation_info));
+
+		p_add_proto_data(pinfo->fd, proto_rtcp, p_packet_data);
+	}
+
+	/* Copy current conversation data into packet info */
+	p_packet_data->last_received_set = TRUE;
+	p_packet_data->last_received_frame_number = p_conv_data->last_received_frame_number;
+	p_packet_data->last_received_time_secs = p_conv_data->last_received_time_secs;
+	p_packet_data->last_received_time_usecs = p_conv_data->last_received_time_usecs;
+}
+
+
+/* Use received sr to work out what the roundtrip delay is
+   (at least between capture point and the other endpoint involved in
+    the conversation) */
+static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
+                                      proto_tree *tree, guint32 lsr, guint32 dlsr)
+{
+	/*****************************************************/
+	/* This is called dissecting an SR.  We need to:
+	   - look in the packet info for stored calculation.  If found, use.
+	   - look up the conversation of the sending side to see when the
+	     'last SR' was detected (received)
+	   - calculate the network delay using the that packet time,
+	     this packet time, and dlsr
+	*****************************************************/
+
+	conversation_t *p_conv = NULL;
+	struct _rtcp_conversation_info *p_conv_data = NULL;
+	struct _rtcp_conversation_info *p_packet_data = NULL;
+
+
+	/*************************************************/
+	/* Look for previously stored calculation result */
+	p_packet_data = p_get_proto_data(pinfo->fd, proto_rtcp);
+	if (p_packet_data && p_packet_data->calculated_delay_set)
+	{
+		/* Show info. */
+		add_roundtrip_delay_info(tvb, pinfo, tree,
+		                         p_packet_data->calculated_delay_used_frame,
+		                         p_packet_data->calculated_delay);
+		return;
+	}
+
+
+	/********************************************************************/
+	/* Look for captured timestamp of last SR in conversation of sender */
+	/* of this packet                                                   */
+	p_conv = find_conversation(&pinfo->net_src, &pinfo->net_dst,
+	                           pinfo->ptype,
+	                           pinfo->destport, pinfo->srcport, NO_ADDR_B);
+	if (!p_conv)
+	{
+		return;
+	}
+
+	/* Look for conversation data  */
+	p_conv_data = conversation_get_proto_data(p_conv, proto_rtcp);
+	if (!p_conv_data)
+	{
+		return;
+	}
+
+	if (p_conv_data->last_received_set)
+	{
+		/* Store result of calculation in packet info */
+		if (!p_packet_data)
+		{
+			/* Create packet info if it doesn't exist */
+			p_packet_data = g_mem_chunk_alloc(rtcp_conversations);
+			if (!p_packet_data)
+			{
+				/* Give up if allocation fails */
+				return;
+			}
+
+			memset(p_packet_data, 0, sizeof(struct _rtcp_conversation_info));
+
+			/* Set as packet info */
+			p_add_proto_data(pinfo->fd, proto_rtcp, p_packet_data);
+		}
+
+		/* Any previous report must match the lsr given here */
+		if (p_conv_data->last_received_ts == lsr)
+		{
+			/* Look at time of since original packet was sent */
+			gint seconds_between_packets =
+			      pinfo->fd->abs_secs - p_conv_data->last_received_time_secs;
+			gint useconds_between_packets =
+			      pinfo->fd->abs_usecs - p_conv_data->last_received_time_usecs;
+
+
+			gint total_gap = ((seconds_between_packets*1000000) +
+			                 useconds_between_packets) / 1000;
+			gint delay = total_gap - ((double)dlsr/(double)65536) * 1000;
+
+			/* No useful calculation can be done if dlsr not set... */
+			if (!dlsr)
+			{
+				return;
+			}
+
+			p_packet_data->calculated_delay_set = TRUE;
+			p_packet_data->calculated_delay = delay;
+			p_packet_data->calculated_delay_used_frame = p_conv_data->last_received_frame_number;
+
+			/* Show info. */
+			add_roundtrip_delay_info(tvb, pinfo, tree, p_conv_data->last_received_frame_number, delay);
+		}
+	}
+}
+
+/* Show the calcaulted roundtrip delay info by adding protocol tree items
+   and appending text to the info column */
+static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo,
+                                     proto_tree *tree, guint frame, guint delay)
+{
+	proto_tree *rtcp_roundtrip_delay_tree;
+	proto_item *ti;
+
+	/* Don't report on calculated delays below the threshold */
+	if (delay < global_rtcp_show_roundtrip_calculation_minimum)
+	{
+		return;
+	}
+
+	/* Add labelled subtree for roundtrip delay info */
+	ti =  proto_tree_add_string_format(tree, hf_rtcp_roundtrip_delay, tvb, 0, 0,
+	                                   "",
+	                                   "Calculated Roundtrip delay <-> %s = %dms, using frame %d",
+	                                   address_to_str(&pinfo->net_src), delay,
+	                                   frame);
+
+	PROTO_ITEM_SET_GENERATED(ti);
+	rtcp_roundtrip_delay_tree = proto_item_add_subtree(ti, ett_rtcp_roundtrip_delay);
+	if (rtcp_roundtrip_delay_tree)
+	{
+		/* Add details into subtree */
+		proto_item* item = proto_tree_add_uint(rtcp_roundtrip_delay_tree,
+		                                       hf_rtcp_roundtrip_delay_frame,
+		                                       tvb, 0, 0, frame);
+		PROTO_ITEM_SET_GENERATED(item);
+		item = proto_tree_add_uint(rtcp_roundtrip_delay_tree, hf_rtcp_roundtrip_delay_delay,
+		                           tvb, 0, 0, delay);
+		PROTO_ITEM_SET_GENERATED(item);
+	}
+
+	/* Report delay in INFO column */
+	if (check_col(pinfo->cinfo, COL_INFO))
+	{
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+		                " (roundtrip delay <-> %s = %dms, using frame %d)",
+						address_to_str(&pinfo->net_src), delay, frame);
+	}
+}
+
 
 
 static void
@@ -924,137 +1226,135 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		}
 	}
 
-	if ( tree ) {
-		/*
-		 * Check if there are at least 4 bytes left in the frame,
-		 * the last 16 bits of those is the length of the current
-		 * RTCP message. The last compound message contains padding,
-		 * that enables us to break from the while loop.
-		 */
-		while ( tvb_bytes_exist( tvb, offset, 4) ) {
-			/*
-			 * First retreive the packet_type
-			 */
-			packet_type = tvb_get_guint8( tvb, offset + 1 );
+    /*
+     * Check if there are at least 4 bytes left in the frame,
+     * the last 16 bits of those is the length of the current
+     * RTCP message. The last compound message contains padding,
+     * that enables us to break from the while loop.
+     */
+    while ( tvb_bytes_exist( tvb, offset, 4) ) {
+        /*
+         * First retreive the packet_type
+         */
+        packet_type = tvb_get_guint8( tvb, offset + 1 );
 
-			/*
-			 * Check if it's a valid type
-			 */
-			if ( ( packet_type < 192 ) || ( packet_type >  204 ) )
-				break;
+        /*
+         * Check if it's a valid type
+         */
+        if ( ( packet_type < 192 ) || ( packet_type >  204 ) )
+            break;
 
-			/*
-			 * get the packet-length for the complete RTCP packet
-			 */
-			packet_length = ( tvb_get_ntohs( tvb, offset + 2 ) + 1 ) * 4;
+        /*
+         * get the packet-length for the complete RTCP packet
+         */
+        packet_length = ( tvb_get_ntohs( tvb, offset + 2 ) + 1 ) * 4;
 
-			ti = proto_tree_add_item(tree, proto_rtcp, tvb, offset, packet_length, FALSE );
-			rtcp_tree = proto_item_add_subtree( ti, ett_rtcp );
+		ti = proto_tree_add_item(tree, proto_rtcp, tvb, offset, packet_length, FALSE );
+		rtcp_tree = proto_item_add_subtree( ti, ett_rtcp );
 
-
-			/* Conversation setup info */
-			if (global_rtcp_show_setup_info)
-			{
-				show_setup_info(tvb, pinfo, rtcp_tree);
-			}
-
-
-			temp_byte = tvb_get_guint8( tvb, offset );
-
-			proto_tree_add_uint( rtcp_tree, hf_rtcp_version, tvb,
-			    offset, 1, temp_byte);
-			padding_set = RTCP_PADDING( temp_byte );
-			proto_tree_add_boolean( rtcp_tree, hf_rtcp_padding, tvb,
-			    offset, 1, temp_byte );
-			elem_count = RTCP_COUNT( temp_byte );
-
-			switch ( packet_type ) {
-				case RTCP_SR:
-				case RTCP_RR:
-					/* Receiver report count, 5 bits */
-					proto_tree_add_uint( rtcp_tree, hf_rtcp_rc, tvb, offset, 1, temp_byte );
-					offset++;
-					/* Packet type, 8 bits */
-					proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
-					offset++;
-					/* Packet length in 32 bit words MINUS one, 16 bits */
-					proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
-					offset += 2;
-					/* Sender Synchronization source, 32 bits */
-					proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
-					offset += 4;
-
-					if ( packet_type == RTCP_SR ) offset = dissect_rtcp_sr( tvb, offset, rtcp_tree, elem_count );
-					else offset = dissect_rtcp_rr( tvb, offset, rtcp_tree, elem_count );
-					break;
-				case RTCP_SDES:
-					/* Source count, 5 bits */
-					proto_tree_add_uint( rtcp_tree, hf_rtcp_sc, tvb, offset, 1, temp_byte );
-					offset++;
-					/* Packet type, 8 bits */
-					proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
-					offset++;
-					/* Packet length in 32 bit words MINUS one, 16 bits */
-					proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
-					offset += 2;
-					dissect_rtcp_sdes( tvb, offset, rtcp_tree, elem_count );
-					offset += packet_length - 4;
-					break;
-				case RTCP_BYE:
-					/* Source count, 5 bits */
-					proto_tree_add_uint( rtcp_tree, hf_rtcp_sc, tvb, offset, 1, temp_byte );
-					offset++;
-					/* Packet type, 8 bits */
-					proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
-					offset++;
-					/* Packet length in 32 bit words MINUS one, 16 bits */
-					proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
-					offset += 2;
-					offset = dissect_rtcp_bye( tvb, offset, rtcp_tree, elem_count );
-					break;
-				case RTCP_APP:
-					/* Subtype, 5 bits */
-					rtcp_subtype = elem_count;
-					proto_tree_add_uint( rtcp_tree, hf_rtcp_subtype, tvb, offset, 1, elem_count );
-					offset++;
-					/* Packet type, 8 bits */
-					proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
-					offset++;
-					/* Packet length in 32 bit words MINUS one, 16 bits */
-					proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
-					offset += 2;
-					offset = dissect_rtcp_app( tvb, pinfo, offset,
-					    rtcp_tree, padding_set,
-					    packet_length - 4, rtcp_subtype );
-					break;
-				case RTCP_FIR:
-					offset = dissect_rtcp_fir( tvb, offset, rtcp_tree );
-					break;
-				case RTCP_NACK:
-					offset = dissect_rtcp_nack( tvb, offset, rtcp_tree );
-					break;
-				default:
-					/*
-					 * To prevent endless loops in case of an unknown message type
-					 * increase offset. Some time the while will end :-)
-					 */
-					offset++;
-					break;
-			}
+		/* Conversation setup info */
+		if (global_rtcp_show_setup_info)
+		{
+			show_setup_info(tvb, pinfo, rtcp_tree);
 		}
-		/* If the padding bit is set, the last octet of the
-		 * packet contains the length of the padding
-		 * We only have to check for this at the end of the LAST RTCP message
-		 */
-		if ( padding_set ) {
-			/* If everything went according to plan offset should now point to the
-			 * first octet of the padding
-			 */
-			proto_tree_add_item( rtcp_tree, hf_rtcp_padding_data, tvb, offset, tvb_length_remaining( tvb, offset) - 1, FALSE );
-			offset += tvb_length_remaining( tvb, offset) - 1;
-			proto_tree_add_item( rtcp_tree, hf_rtcp_padding_count, tvb, offset, 1, FALSE );
-		}
-	}
+
+
+        temp_byte = tvb_get_guint8( tvb, offset );
+
+		proto_tree_add_uint( rtcp_tree, hf_rtcp_version, tvb,
+							 offset, 1, temp_byte);
+        padding_set = RTCP_PADDING( temp_byte );
+
+		proto_tree_add_boolean( rtcp_tree, hf_rtcp_padding, tvb,
+								offset, 1, temp_byte );
+        elem_count = RTCP_COUNT( temp_byte );
+
+        switch ( packet_type ) {
+            case RTCP_SR:
+            case RTCP_RR:
+                /* Receiver report count, 5 bits */
+                proto_tree_add_uint( rtcp_tree, hf_rtcp_rc, tvb, offset, 1, temp_byte );
+                offset++;
+                /* Packet type, 8 bits */
+                proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
+                offset++;
+                /* Packet length in 32 bit words MINUS one, 16 bits */
+                proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+                offset += 2;
+                /* Sender Synchronization source, 32 bits */
+                proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+                offset += 4;
+
+                if ( packet_type == RTCP_SR ) offset = dissect_rtcp_sr( pinfo, tvb, offset, rtcp_tree, elem_count );
+                else offset = dissect_rtcp_rr( pinfo, tvb, offset, rtcp_tree, elem_count );
+                break;
+            case RTCP_SDES:
+                /* Source count, 5 bits */
+                proto_tree_add_uint( rtcp_tree, hf_rtcp_sc, tvb, offset, 1, temp_byte );
+                offset++;
+                /* Packet type, 8 bits */
+                proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
+                offset++;
+                /* Packet length in 32 bit words MINUS one, 16 bits */
+                proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+                offset += 2;
+                dissect_rtcp_sdes( tvb, offset, rtcp_tree, elem_count );
+                offset += packet_length - 4;
+                break;
+            case RTCP_BYE:
+                /* Source count, 5 bits */
+                proto_tree_add_uint( rtcp_tree, hf_rtcp_sc, tvb, offset, 1, temp_byte );
+                offset++;
+                /* Packet type, 8 bits */
+                proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
+                offset++;
+                /* Packet length in 32 bit words MINUS one, 16 bits */
+                proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+                offset += 2;
+                offset = dissect_rtcp_bye( tvb, offset, rtcp_tree, elem_count );
+                break;
+            case RTCP_APP:
+                /* Subtype, 5 bits */
+                rtcp_subtype = elem_count;
+                proto_tree_add_uint( rtcp_tree, hf_rtcp_subtype, tvb, offset, 1, elem_count );
+                offset++;
+                /* Packet type, 8 bits */
+                proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
+                offset++;
+                /* Packet length in 32 bit words MINUS one, 16 bits */
+                proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+                offset += 2;
+                offset = dissect_rtcp_app( tvb, pinfo, offset,
+                    rtcp_tree, padding_set,
+                    packet_length - 4, rtcp_subtype );
+                break;
+            case RTCP_FIR:
+                offset = dissect_rtcp_fir( tvb, offset, rtcp_tree );
+                break;
+            case RTCP_NACK:
+                offset = dissect_rtcp_nack( tvb, offset, rtcp_tree );
+                break;
+            default:
+                /*
+                 * To prevent endless loops in case of an unknown message type
+                 * increase offset. Some time the while will end :-)
+                 */
+                offset++;
+                break;
+        }
+    }
+    /* If the padding bit is set, the last octet of the
+     * packet contains the length of the padding
+     * We only have to check for this at the end of the LAST RTCP message
+     */
+    if ( padding_set ) {
+        /* If everything went according to plan offset should now point to the
+         * first octet of the padding
+         */
+        proto_tree_add_item( rtcp_tree, hf_rtcp_padding_data, tvb, offset, tvb_length_remaining( tvb, offset) - 1, FALSE );
+        offset += tvb_length_remaining( tvb, offset) - 1;
+        proto_tree_add_item( rtcp_tree, hf_rtcp_padding_count, tvb, offset, 1, FALSE );
+    }
 }
 
 void
@@ -1601,6 +1901,42 @@ proto_register_rtcp(void)
 				0x0,
 				"Method used to set up this stream", HFILL
 			}
+		},
+		{
+			&hf_rtcp_roundtrip_delay,
+			{
+				"Roundtrip Delay",
+				"rtcp.roundtrip-delay",
+				FT_STRING,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"Calculated roundtrip delay, frame and ms value", HFILL
+			}
+		},
+		{
+			&hf_rtcp_roundtrip_delay_frame,
+			{
+				"Previous SR frame used in calculation",
+				"rtcp.roundtrip-previous-sr-frame",
+				FT_FRAMENUM,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"Frame used to calculate roundtrip delay", HFILL
+			}
+		},
+		{
+			&hf_rtcp_roundtrip_delay_delay,
+			{
+				"Roundtrip Delay(ms)",
+				"rtcp.roundtrip-delay-delay",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"Calculated roundtrip delay in ms", HFILL
+			}
 		}
 
 	};
@@ -1614,7 +1950,8 @@ proto_register_rtcp(void)
 		&ett_sdes,
 		&ett_sdes_item,
 		&ett_PoC1,
-		&ett_rtcp_setup
+		&ett_rtcp_setup,
+		&ett_rtcp_roundtrip_delay
 	};
 
 	module_t *rtcp_module;
@@ -1636,9 +1973,22 @@ proto_register_rtcp(void)
 
 	prefs_register_bool_preference(rtcp_module, "heuristic_rtcp",
 		"Try to decode RTCP outside of conversations ",
-                "If call control SIP/H.323/RTSP/.. messages are missing in the trace, "
-                "RTCP isn't decoded without this",
+		"If call control SIP/H.323/RTSP/.. messages are missing in the trace, "
+		"RTCP isn't decoded without this",
 		&global_rtcp_heur);
+
+	prefs_register_bool_preference(rtcp_module, "show_roundtrip_calculation",
+		"Show SR roundtrip calculations",
+		"Try to work out network delay by comparing time between packets "
+		"as captured and delays as seen by endpoint",
+		&global_rtcp_show_roundtrip_calculation);
+
+	prefs_register_uint_preference(rtcp_module, "roundtrip_min_threshhold",
+		"Minimum roundtrip calculations to report (ms)",
+		"Minimum calculated roundtrip delay time in milliseconds that "
+		"should be reported",
+		MIN_ROUNDTRIP_TO_REPORT_DEFAULT, &global_rtcp_show_roundtrip_calculation_minimum);
+
 
 	register_init_routine( &rtcp_init );
 }
