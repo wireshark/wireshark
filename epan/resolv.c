@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.42 2004/01/25 15:35:45 jmayer Exp $
+ * $Id: resolv.c,v 1.43 2004/05/20 13:43:14 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -915,9 +915,7 @@ static void initialize_ethers(void)
 
   /* Compute the pathname of the ethers file. */
   if (g_ethers_path == NULL) {
-    g_ethers_path = g_malloc(strlen(get_systemfile_dir()) +
-			     strlen(ENAME_ETHERS) + 2);
-    sprintf(g_ethers_path, "%s" G_DIR_SEPARATOR_S "%s",
+    g_ethers_path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
 	    get_systemfile_dir(), ENAME_ETHERS);
   }
 
