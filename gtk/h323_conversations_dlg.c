@@ -371,7 +371,7 @@ static void h323conversations_dlg_create (void)
 	GtkWidget *bt_close;
     GtkTooltips *tooltips = gtk_tooltips_new();
 
-	gchar *titles[8] =  {"Side A IP addr", "Side B port",  "Side B IP addr", "Side B port", "Faststart", "H225 pkts", "H245 pkts", "Status"};
+	gchar *titles[8] =  {"IP address A", "Port A",  "IP address B", "Port B", "Faststart", "H225 pkts", "H245 pkts", "Status"};
 	column_arrows *col_arrows;
 	GtkWidget *column_lb;
 	int i;
