@@ -36,7 +36,7 @@
 #include <epan/prefs.h>
 #include "packet-fddi.h"
 #include "packet-llc.h"
-#include "tap.h"
+#include <epan/tap.h>
 
 #include <epan/addr_resolv.h>
 

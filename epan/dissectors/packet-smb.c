@@ -42,7 +42,7 @@
 #include <epan/strutil.h>
 #include <epan/prefs.h>
 #include "reassemble.h"
-#include "tap.h"
+#include <epan/tap.h>
 #include "packet-ipx.h"
 
 #include "packet-windows-common.h"

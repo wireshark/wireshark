@@ -43,7 +43,7 @@
 #include <string.h>
 
 #include "epan/packet.h"
-#include "tap.h"
+#include <epan/tap.h>
 #include "asn1.h"
 
 #include "packet-tcap.h"

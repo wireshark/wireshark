@@ -85,7 +85,7 @@
 #include <epan/conversation.h>
 #include "globals.h"
 #include <epan/epan_dissect.h>
-#include "tap.h"
+#include <epan/tap.h>
 #include "tap_dfilter_dlg.h"
 #include <epan/dissectors/packet-data.h>
 

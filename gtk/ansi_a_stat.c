@@ -45,7 +45,7 @@
 #include "image/clist_descend.xpm"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
-#include "tap.h"
+#include <epan/tap.h>
 #include "../register.h"
 #include <epan/dissectors/packet-bssap.h>
 #include <epan/dissectors/packet-ansi_a.h>

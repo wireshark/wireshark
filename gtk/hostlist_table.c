@@ -41,7 +41,7 @@
 #include "image/clist_descend.xpm"
 #include "simple_dialog.h"
 #include "globals.h"
-#include "tap.h"
+#include <epan/tap.h>
 #include "gtk/find_dlg.h"
 #include "color.h"
 #include "gtk/color_dlg.h"

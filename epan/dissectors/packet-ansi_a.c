@@ -41,7 +41,7 @@
 
 #include "epan/packet.h"
 #include <epan/prefs.h>
-#include "tap.h"
+#include <epan/tap.h>
 
 #include "packet-bssap.h"
 #include "packet-ansi_a.h"

@@ -44,7 +44,7 @@
 
 #include "packet-ip.h"
 #include <epan/conversation.h>
-#include "tap.h"
+#include <epan/tap.h>
 
 static int udp_tap = -1;
 

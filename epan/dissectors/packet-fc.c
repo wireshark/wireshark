@@ -56,7 +56,7 @@
 #include "packet-fc.h"
 #include "packet-fclctl.h"
 #include "packet-fcbls.h"
-#include "tap.h"
+#include <epan/tap.h>
 
 #define FC_HEADER_SIZE         24
 #define FC_RCTL_EISL           0x50

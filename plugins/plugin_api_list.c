@@ -41,7 +41,7 @@
 #include <epan/dissectors/packet-rpc.h>
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/dissectors/packet-rtcp.h>
-#include "tap.h"
+#include <epan/tap.h>
 #include "asn1.h"
 #include <epan/xdlc.h>
 #include <epan/crc16.h>

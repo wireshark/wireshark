@@ -111,7 +111,7 @@
 
 #include "epan/packet.h"
 #include "asn1.h"
-#include "tap.h"
+#include <epan/tap.h>
 
 #include "packet-ansi_a.h"
 #include "packet-ansi_map.h"

@@ -37,7 +37,7 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include "reassemble.h"
-#include "tap.h"
+#include <epan/tap.h>
 #include <epan/dissectors/packet-frame.h>
 #include <epan/dissectors/packet-dcerpc-nt.h>
 

@@ -64,7 +64,7 @@
 #include "packet-rtp.h"
 #include "rtp_pt.h"
 #include <epan/conversation.h>
-#include "tap.h"
+#include <epan/tap.h>
 
 #include <epan/prefs.h>
 

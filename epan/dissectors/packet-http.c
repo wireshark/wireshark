@@ -53,7 +53,7 @@ typedef enum _http_type {
 	HTTP_OTHERS
 } http_type_t;
 
-#include "tap.h"
+#include <epan/tap.h>
 
 static int http_tap = -1;
 

@@ -36,6 +36,9 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
+#include <epan/tap.h>
+#include <epan/timestamp.h>
+
 #include "about_dlg.h"
 #include "capture_dlg.h"
 #include "color_dlg.h"
@@ -61,7 +64,6 @@
 #include "toolbar.h"
 #include "gtkglobals.h"
 #include "register.h"
-#include "../tap.h"
 #include "../menu.h"
 #include "../ipproto.h"
 #include "packet_list.h"
@@ -72,7 +74,6 @@
 #include "conversations_table.h"
 #include "hostlist_table.h"
 #include "simple_dialog.h"
-#include <epan/timestamp.h>
 
 GtkWidget *popup_menu_object;
 

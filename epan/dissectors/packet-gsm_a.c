@@ -70,7 +70,7 @@
 
 #include "epan/packet.h"
 #include <epan/prefs.h>
-#include "tap.h"
+#include <epan/tap.h>
 #include "asn1.h"
 
 #include "packet-tcap.h"

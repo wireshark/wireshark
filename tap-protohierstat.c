@@ -38,7 +38,7 @@
 #include "epan/packet_info.h"
 #include "epan/epan_dissect.h"
 #include "epan/proto.h"
-#include "tap.h"
+#include <epan/tap.h>
 #include "register.h"
 
 typedef struct _phs_t {

@@ -37,7 +37,7 @@
 #include "packet-isl.h"
 #include "packet-llc.h"
 #include <epan/crc32.h>
-#include "tap.h"
+#include <epan/tap.h>
 
 /* Interpret capture file as FW1 monitor file */
 static gboolean eth_interpret_as_fw1_monitor = FALSE;

@@ -39,7 +39,7 @@
 #include <string.h>
 #include "epan/packet_info.h"
 #include "epan/dfilter/dfilter.h"
-#include "tap.h"
+#include <epan/tap.h>
 
 static gboolean tapping_is_active=FALSE;
 int num_tap_filters=0;

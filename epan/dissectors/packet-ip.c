@@ -50,7 +50,7 @@
 #include "packet-ipsec.h"
 #include <epan/in_cksum.h>
 #include "nlpid.h"
-#include "tap.h"
+#include <epan/tap.h>
 
 static int ip_tap = -1;
 

@@ -31,7 +31,7 @@
 #include "simple_dialog.h"      /* Both is used for error handling */
 #include "globals.h"
 #include "epan/packet_info.h"   /* Needed for packet_info */
-#include "tap.h"                /* Needed for register_tap_listener */
+#include <epan/tap.h>                /* Needed for register_tap_listener */
 #include "tap_menu.h"
 #include "dlg_utils.h"
 #include "compat_macros.h"

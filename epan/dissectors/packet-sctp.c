@@ -48,7 +48,7 @@
 #include <string.h>
 #include <epan/prefs.h>
 #include <epan/packet.h>
-#include "tap.h"
+#include <epan/tap.h>
 #include "ipproto.h"
 #include "packet-sctp.h"
 #include "sctpppids.h"

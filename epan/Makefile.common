@@ -55,6 +55,7 @@ LIBETHEREAL_SRC = 		\
 	sha1.c			\
 	sna-utils.c		\
 	strutil.c		\
+	tap.c			\
 	timestamp.c		\
 	to_str.c		\
 	tvbuff.c		\
@@ -104,6 +105,7 @@ LIBETHEREAL_INCLUDES = 		\
 	slab.h			\
 	sna-utils.h		\
 	strutil.h		\
+	tap.h			\
 	timestamp.h    		\
 	to_str.h		\
 	tvbuff.h		\
@@ -122,6 +124,5 @@ DISSECTOR_SUPPORT_SRC =	\
 	../reassemble.c	\
 	../req_resp_hdrs.c	\
 	../t35.c	\
-	../tap.c	\
 	../xmlstub.c
 

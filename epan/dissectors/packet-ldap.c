@@ -76,7 +76,7 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include "packet-frame.h"
-#include "tap.h"
+#include <epan/tap.h>
 #include "packet-ber.h"
 #include "packet-ldap.h"
 

@@ -43,7 +43,7 @@
 #include <epan/conversation.h>
 #include <epan/strutil.h>
 #include "reassemble.h"
-#include "tap.h"
+#include <epan/tap.h>
 
 static int tcp_tap = -1;
 

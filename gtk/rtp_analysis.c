@@ -48,7 +48,7 @@
 #include <epan/filesystem.h>
 
 #include "util.h"
-#include "tap.h"
+#include <epan/tap.h>
 #include "register.h"
 #include <epan/dissectors/packet-rtp.h>
 #include "g711.h"

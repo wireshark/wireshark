@@ -56,7 +56,6 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 	sctpppids.h	\
 	smb.h	\
 	t35.h	\
-	tap.h	\
 	x264_prt_id.h	\
 	xmlstub.h
 

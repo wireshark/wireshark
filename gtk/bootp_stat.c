@@ -37,7 +37,7 @@
 #include "simple_dialog.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
-#include "tap.h"
+#include <epan/tap.h>
 #include "../register.h"
 #include "../globals.h"
 #include "compat_macros.h"

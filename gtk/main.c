@@ -96,7 +96,7 @@
 #include "prefs-int.h"
 #include "ringbuffer.h"
 #include "../ui_util.h"     /* beware: ui_util.h exists twice! */
-#include "tap.h"
+#include <epan/tap.h>
 #include "util.h"
 #include "clopts_common.h"
 #include "version_info.h"

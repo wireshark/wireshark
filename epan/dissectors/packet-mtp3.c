@@ -44,7 +44,7 @@
 #endif
 
 #include <epan/packet.h>
-#include "tap.h"
+#include <epan/tap.h>
 #include <epan/prefs.h>
 
 /* Initialize the protocol and registered fields */

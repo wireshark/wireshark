@@ -51,7 +51,7 @@
 #include "packet-dns.h"				/* for get_dns_name() */
 
 #include <epan/prefs.h>
-#include "tap.h"
+#include <epan/tap.h>
  
 static int bootp_dhcp_tap = -1;
 static int proto_bootp = -1;

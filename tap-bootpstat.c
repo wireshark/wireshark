@@ -29,7 +29,7 @@
 #include <stdio.h>
 
 #include "epan/packet_info.h"
-#include "tap.h"
+#include <epan/tap.h>
 #include "register.h"
 #include <string.h>
 

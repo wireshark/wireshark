@@ -56,7 +56,7 @@
 #include <epan/packet.h>
 
 #include "packet-sip.h"
-#include "tap.h"
+#include <epan/tap.h>
 
 #define TCP_PORT_SIP 5060
 #define UDP_PORT_SIP 5060

@@ -37,7 +37,7 @@
 #include <string.h>
 
 #include <epan/prefs.h>
-#include "tap.h"
+#include <epan/tap.h>
 #include "packet-tpkt.h"
 #include "packet-per.h"
 #include "packet-h225.h"

@@ -42,7 +42,7 @@
 #include <epan/prefs.h>
 
 #include "packet-ip.h"
-#include "tap.h"
+#include <epan/tap.h>
 
 #define UDP_PORT_TEREDO 3544
 

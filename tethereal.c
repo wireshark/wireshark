@@ -100,7 +100,7 @@
 #include "capture_stop_conditions.h"
 #include "ringbuffer.h"
 #include <epan/epan_dissect.h>
-#include "tap.h"
+#include <epan/tap.h>
 #include <epan/timestamp.h>
 
 #ifdef HAVE_LIBPCAP

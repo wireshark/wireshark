@@ -53,8 +53,8 @@
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/conversation.h>
+#include <epan/tap.h>
 #include "packet-mgcp.h"
-#include "../../tap.h"
 
 #ifndef HAVE_WIN32_LIBETHEREAL_LIB
 #include "plugins/plugin_api_defs.h"
