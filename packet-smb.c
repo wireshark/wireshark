@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.207 2002/02/18 01:08:36 guy Exp $
+ * $Id: packet-smb.c,v 1.208 2002/02/20 21:46:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -13877,22 +13877,50 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			*/
 			sip=g_hash_table_lookup(si.ct->unmatched, (void *)pid_mid);
 			if(sip!=NULL){
-				if(si.request){
-					/* ok, we are processing an SMB
-					   request but there was already
-					   another "identical" smb resuest
-					   we had not matched yet.
-					   This must mean that either we have
-					   a retransmission or that the
-					   response to the previous one was
-					   lost and the client has reused
-					   the MID for this conversation.
-					   In either case it's not much more
-					   we can do than forget the old
-					   request and concentrate on the 
+				gboolean cmd_match=FALSE;
+
+				/*
+				 * Make sure the SMB we found was the
+				 * same command, or a different command
+				 * that's another valid type of reply
+				 * to that command.
+				 */
+				if(si.cmd==sip->cmd){
+					cmd_match=TRUE;
+				}
+				else if(si.cmd==SMB_COM_NT_CANCEL){
+					cmd_match=TRUE;
+				}
+				else if((si.cmd==SMB_COM_TRANSACTION_SECONDARY) 
+				     && (sip->cmd==SMB_COM_TRANSACTION)){
+					cmd_match=TRUE;
+				}
+				else if((si.cmd==SMB_COM_TRANSACTION2_SECONDARY) 
+				     && (sip->cmd==SMB_COM_TRANSACTION2)){
+					cmd_match=TRUE;
+				}
+				else if((si.cmd==SMB_COM_NT_TRANSACT_SECONDARY) 
+				     && (sip->cmd==SMB_COM_NT_TRANSACT)){
+					cmd_match=TRUE;
+				}
+
+				if( (si.request) || (!cmd_match) ) {
+					/* If we are processing an SMB request but there was already
+					   another "identical" smb resuest we had not matched yet.
+					   This must mean that either we have a retransmission or that the
+					   response to the previous one was lost and the client has reused
+					   the MID for this conversation. In either case it's not much more
+					   we can do than forget the old request and concentrate on the 
 					   present one instead.
+
+					   We also do this cleanup if we see that the cmd in the original
+					   request in sip->cmd is not compatible with the current cmd.
+					   This is to prevent matching errors such as if there were two
+					   SMBs of different cmds but with identical MID and PID values and
+					   if ethereal lost the first reply and the second request.
 					*/
 					g_hash_table_remove(si.ct->unmatched, (void *)pid_mid);
+					sip=NULL; /* XXX should free it as well */
 				} else {
 					/* we have found a response to some request we have seen earlier.
 					   What we do now depends on whether this is the first response
@@ -13924,6 +13952,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				sip = g_mem_chunk_alloc(smb_saved_info_chunk);
 				sip->frame_req = pinfo->fd->num;
 				sip->frame_res = 0;
+				sip->cmd = si.cmd;
 				sip->extra_info = NULL;
 				g_hash_table_insert(si.ct->unmatched, (void *)pid_mid, sip);
 			}
