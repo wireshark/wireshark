@@ -139,9 +139,15 @@ window_new(GtkWindowType type, const gchar *title)
 
   /* XXX - which one is the correct default policy? or use a preference for this? */
   /* GTK_WIN_POS_NONE, GTK_WIN_POS_CENTER or GTK_WIN_POS_MOUSE */
+  /* a lot of people dislike GTK_WIN_POS_MOUSE */
 
   /* set the initial position (must be done, before show is called!) */
-  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_MOUSE);
+#if GTK_MAJOR_VERSION >= 2 	 
+/*  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);*/
+#else	 
+/*  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER);*/
+#endif
+  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_NONE);
 
 #if GTK_MAJOR_VERSION < 2
   /* allow window to be shrinked by user, as gtk_widget_set_usize() will set minimum size and */
