@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.96 2002/12/02 20:03:10 guy Exp $
+ * $Id: packet-dns.c,v 1.97 2003/01/26 01:00:05 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,9 +67,13 @@ static gint ett_dns_qry = -1;
 static gint ett_dns_ans = -1;
 static gint ett_dns_flags = -1;
 static gint ett_t_key_flags = -1;
+static gint ett_t_key = -1;
 
 /* desegmentation of DNS over TCP */
 static gboolean dns_desegment = TRUE;
+
+/* Dissector handle for GSSAPI */
+static dissector_handle_t gssapi_handle;
 
 /* DNS structs and definitions */
 
@@ -860,7 +864,7 @@ static const value_string cert_vals[] = {
 
 static int
 dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
-  column_info *cinfo, proto_tree *dns_tree)
+  column_info *cinfo, proto_tree *dns_tree, packet_info *pinfo)
 {
   int len;
   char name[MAXDNAME];
@@ -1555,6 +1559,9 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 		  { 0,                         NULL                } };
 
       if (dns_tree != NULL) {
+	proto_tree *key_tree;
+	proto_item *key_item;
+
 	tkey_algname_len = get_dns_name(tvb, cur_offset, dns_data_offset, tkey_algname, sizeof(tkey_algname));
 	proto_tree_add_text(rr_tree, tvb, cur_offset, tkey_algname_len,
 		"Algorithm name: %s", tkey_algname);
@@ -1594,7 +1601,29 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += 2;
 	rr_len -= 2;
 
-	proto_tree_add_text(rr_tree, tvb, cur_offset, tkey_keylen, "Key");
+	key_item = proto_tree_add_text(
+		rr_tree, tvb, cur_offset, tkey_keylen, "Key");
+
+	key_tree = proto_item_add_subtree(key_item, ett_t_key);
+
+	switch(tkey_mode) {
+	case TKEYMODE_GSSAPI: {
+		tvbuff_t *gssapi_tvb;
+
+		gssapi_tvb = tvb_new_subset(
+			tvb, cur_offset, tkey_keylen, tkey_keylen);
+
+		call_dissector(gssapi_handle, gssapi_tvb, pinfo, key_tree);
+
+		break;
+	}
+	default:
+
+		/* No dissector for this key mode */
+
+		break;
+	}
+
 	cur_offset += tkey_keylen;
 	rr_len -= tkey_keylen;
 
@@ -1838,7 +1867,8 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
 
 static int
 dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
-    int count, column_info *cinfo, proto_tree *dns_tree, char *name)
+    int count, column_info *cinfo, proto_tree *dns_tree, char *name,
+    packet_info *pinfo)
 {
   int start_off, add_off;
   proto_tree *qatree = NULL;
@@ -1850,7 +1880,8 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
     qatree = proto_item_add_subtree(ti, ett_dns_ans);
   }
   while (count-- > 0) {
-    add_off = dissect_dns_answer(tvb, cur_off, dns_data_offset, cinfo, qatree);
+    add_off = dissect_dns_answer(
+	    tvb, cur_off, dns_data_offset, cinfo, qatree, pinfo);
     cur_off += add_off;
   }
   if (ti)
@@ -1995,8 +2026,9 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        to the summary, just add information about the queries. */
     cur_off += dissect_answer_records(tvb, cur_off, dns_data_offset, ans,
 				      ((flags & F_RESPONSE) ? cinfo : NULL),
-				      dns_tree,
-				      (isupdate ?  "Prerequisites" : "Answers"));
+				      dns_tree, (isupdate ?
+						 "Prerequisites" : "Answers"),
+				      pinfo); 
   }
 
   /* Don't add information about the authoritative name servers, or the
@@ -2004,13 +2036,15 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (auth > 0) {
     cur_off += dissect_answer_records(tvb, cur_off, dns_data_offset, auth,
 				      NULL, dns_tree,
-				      (isupdate ?  "Updates" :
-						   "Authoritative nameservers"));
+				      (isupdate ? "Updates" : 
+				       "Authoritative nameservers"),
+				      pinfo);
   }
 
   if (add > 0) {
     cur_off += dissect_answer_records(tvb, cur_off, dns_data_offset, add,
-				      NULL, dns_tree, "Additional records");
+				      NULL, dns_tree, "Additional records",
+				      pinfo);
   }
 }
 
@@ -2142,6 +2176,7 @@ proto_register_dns(void)
     &ett_dns_ans,
     &ett_dns_flags,
     &ett_t_key_flags,
+    &ett_t_key,
   };
   module_t *dns_module;
 
@@ -2171,4 +2206,6 @@ proto_reg_handoff_dns(void)
   dissector_add("tcp.port", TCP_PORT_DNS, dns_tcp_handle);
   dissector_add("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
   dissector_add("tcp.port", TCP_PORT_MDNS, dns_tcp_handle);
+
+  gssapi_handle = find_dissector("gssapi");
 }
