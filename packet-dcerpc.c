@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.60 2002/06/19 08:34:38 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.61 2002/06/19 10:06:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2111,8 +2111,8 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 }
 
 static void
-dissect_dcerpc_cn_fault (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tree,
-                        proto_tree *tree, e_dce_cn_common_hdr_t *hdr)
+dissect_dcerpc_cn_fault (tvbuff_t *tvb, packet_info *pinfo,
+                         proto_tree *dcerpc_tree, e_dce_cn_common_hdr_t *hdr)
 {
     dcerpc_call_value *value = NULL;
     conversation_t *conv;
@@ -2301,11 +2301,23 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_t
 			    show_fragment_tree(fd_head, &dcerpc_frag_items,
 				dcerpc_tree, pinfo, next_tvb);
 
-			    pinfo->fragmented = FALSE;
-			    dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
-                                next_tvb,
-                                0, value->opnum, FALSE, hdr->drep, &di,
-                                auth_level);
+			    /*
+			     * XXX - should there be a third routine for each
+			     * function in an RPC subdissector, to handle
+			     * fault responses?  The DCE RPC 1.1 spec says
+			     * three's "stub data" here, which I infer means
+			     * that it's protocol-specific and call-specific.
+			     *
+			     * It should probably get passed the status code
+			     * as well, as that might be protocol-specific.
+			     */
+			    if (dcerpc_tree) {
+				if (length > 0) {
+				    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+						"Fault stub data (%d byte%s)", length,
+						plurality(length, "", "s"));
+				}
+			    }
 			} else {
 			    /* Reassembly not complete - some fragments
 			       are missing */
@@ -2481,7 +2493,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
         break;
 
     case PDU_FAULT:
-        dissect_dcerpc_cn_fault (tvb, pinfo, dcerpc_tree, tree, &hdr);
+        dissect_dcerpc_cn_fault (tvb, pinfo, dcerpc_tree, &hdr);
         break;
 
     case PDU_BIND_NAK:
