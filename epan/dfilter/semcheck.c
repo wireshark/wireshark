@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.15 2002/12/19 02:58:49 guy Exp $
+ * $Id: semcheck.c,v 1.16 2003/06/13 07:27:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -393,6 +393,69 @@ check_relation_LHS_STRING(FtypeCanFunc can_func _U_, stnode_t *st_node,
 	}
 }
 
+struct check_drange_sanity_args {
+	drange_node*	err_node;
+};
+
+static void
+check_drange_node_sanity(gpointer data, gpointer user_data)
+{
+	drange_node* drnode = data;
+	struct check_drange_sanity_args *args = user_data;
+	gint start_offset, end_offset;
+
+	switch (drange_node_get_ending(drnode)) {
+
+	case UNINITIALIZED:
+		g_assert_not_reached();
+		break;
+
+	case LENGTH:
+		/*
+		 * Any sanity checks required here?
+		 */
+		break;
+
+	case OFFSET:
+		/*
+		 * Make sure the start offset isn't beyond the end
+		 * offset.
+		 */
+		start_offset = drange_node_get_start_offset(drnode);
+		end_offset = drange_node_get_end_offset(drnode);
+		if (start_offset >= end_offset) {
+			if (args->err_node == NULL)
+				args->err_node = drnode;
+		}
+		break;
+
+	case TO_THE_END:
+		break;
+	}
+}
+
+static void
+check_drange_sanity(stnode_t *st)
+{
+	struct check_drange_sanity_args	args;
+	header_field_info		*hfinfo;
+	gint				start_offset, end_offset;
+
+	args.err_node = NULL;
+	drange_foreach_drange_node(sttype_range_drange(st),
+	    check_drange_node_sanity, &args);
+	if (args.err_node != NULL) {
+		hfinfo = sttype_range_hfinfo(st);
+		start_offset = drange_node_get_start_offset(args.err_node);
+		end_offset = drange_node_get_end_offset(args.err_node);
+		dfilter_fail("Range %d-%d specified for \"%s\" isn't valid, as %d isn't greater than %d",
+		    start_offset, end_offset,
+		    hfinfo->abbrev,
+		    end_offset, start_offset);
+		THROW(TypeError);
+	}
+}
+
 static void
 check_relation_LHS_RANGE(FtypeCanFunc can_func _U_, stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
@@ -416,6 +479,7 @@ check_relation_LHS_RANGE(FtypeCanFunc can_func _U_, stnode_t *st_node,
 		THROW(TypeError);
 	}
 
+	check_drange_sanity(st_arg1);
 
 	if (type2 == STTYPE_FIELD) {
 		hfinfo2 = sttype_range_hfinfo(st_arg2);
@@ -452,6 +516,7 @@ check_relation_LHS_RANGE(FtypeCanFunc can_func _U_, stnode_t *st_node,
 		stnode_free(st_arg2);
 	}
 	else if (type2 == STTYPE_RANGE) {
+		check_drange_sanity(st_arg2);
 		/* XXX - check lengths of both ranges */
 	}
 	else {
