@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.241 2004/02/21 14:04:17 ulfl Exp $
+ * $Id: capture.c,v 1.242 2004/02/28 16:21:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -263,10 +263,10 @@ do_capture(const char *save_file)
      * case the caller destroys it after we return.
      */
     capfile_name = g_strdup(save_file);
-    if (capture_opts.ringbuffer_on) {
+    if (capture_opts.num_files > 1) {
       /* ringbuffer is enabled */
       cfile.save_file_fd = ringbuf_init(capfile_name,
-					capture_opts.ringbuffer_num_files);
+					capture_opts.num_files);
     } else {
       /* Try to open/create the specified file for use as a capture buffer. */
       cfile.save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
@@ -285,7 +285,7 @@ do_capture(const char *save_file)
 	"The temporary file to which the capture would be saved (\"%s\")"
 	"could not be opened: %s.", capfile_name, strerror(errno));
     } else {
-      if (capture_opts.ringbuffer_on) {
+      if (capture_opts.num_files > 1) {
         ringbuf_error_cleanup();
       }
       open_failure_alert_box(capfile_name, errno, TRUE);
@@ -974,7 +974,7 @@ normal_do_capture(gboolean is_tempfile)
     if (!capture_succeeded) {
       /* We didn't succeed in doing the capture, so we don't have a save
 	 file. */
-      if (capture_opts.ringbuffer_on) {
+      if (capture_opts.num_files > 1) {
 	ringbuf_free();
       } else {
 	g_free(cfile.save_file);
@@ -986,7 +986,7 @@ normal_do_capture(gboolean is_tempfile)
     if ((err = cf_open(cfile.save_file, is_tempfile, &cfile)) != 0) {
       /* We're not doing a capture any more, so we don't have a save
 	 file. */
-      if (capture_opts.ringbuffer_on) {
+      if (capture_opts.num_files > 1) {
 	ringbuf_free();
       } else {
 	g_free(cfile.save_file);
@@ -1047,7 +1047,7 @@ normal_do_capture(gboolean is_tempfile)
 
     /* We're not doing a capture any more, so we don't have a save
        file. */
-    if (capture_opts.ringbuffer_on) {
+    if (capture_opts.num_files > 1) {
       ringbuf_free();
     } else {
       g_free(cfile.save_file);
@@ -1428,6 +1428,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 #ifdef MUST_DO_SELECT
   int         pcap_fd = 0;
 #endif
+  guint32     num_files = capture_opts.num_files;
 
   /* Initialize Windows Socket if we are in a WIN32 OS
      This needs to be done before querying the interface for network/netmask */
@@ -1673,7 +1674,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 	" that Ethereal doesn't support (data link type %d).", pcap_encap);
     goto error;
   }
-  if (capture_opts.ringbuffer_on) {
+  if (capture_opts.num_files > 1) {
     ld.pdh = ringbuf_init_wtap_dump_fdopen(WTAP_FILE_PCAP, ld.linktype,
       file_snaplen, &err);
   } else {
@@ -1765,7 +1766,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     cnd_stop_timeout =
         cnd_new(CND_CLASS_TIMEOUT,(gint32)capture_opts.autostop_duration);
 
-  if (capture_opts.ringbuffer_on && capture_opts.has_ring_duration)
+  if (capture_opts.num_files > 1 && capture_opts.has_ring_duration)
     cnd_ring_timeout =
 	cnd_new(CND_CLASS_TIMEOUT, capture_opts.ringbuffer_duration);
 
@@ -1871,22 +1872,26 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
       if (cnd_stop_capturesize != NULL && cnd_eval(cnd_stop_capturesize,
                     (guint32)wtap_get_bytes_dumped(ld.pdh))){
         /* Capture file reached its maximum size. */
-        if (capture_opts.ringbuffer_on) {
+        if (num_files > 1 || capture_opts.ringbuffer_on) {
           /* Switch to the next ringbuffer file */
           if (ringbuf_switch_file(&cfile, &ld.pdh, &ld.err)) {
+            num_files--;
             /* File switch succeeded: reset the condition */
             cnd_reset(cnd_stop_capturesize);
-	    if (cnd_ring_timeout) {
-	      cnd_reset(cnd_ring_timeout);
-	    }
+            if (cnd_ring_timeout) {
+              cnd_reset(cnd_ring_timeout);
+            }
           } else {
             /* File switch failed: stop here */
             ld.go = FALSE;
             continue;
           }
         } else {
-          /* no ringbuffer - just stop */
-          ld.go = FALSE;
+          /* no files left */
+          if (!capture_opts.ringbuffer_on) {
+            /* ... and no ringbuffer, stop now */
+            ld.go = FALSE;
+          }
         }
       }
     }
@@ -1918,22 +1923,30 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
         sync_pipe_packet_count_to_parent(ld.sync_packets);
         }
 
-	ld.sync_packets = 0;
-
+        ld.sync_packets = 0;
       }
 
       if (cnd_stop_timeout != NULL && cnd_eval(cnd_stop_timeout)) {
         /* The specified capture time has elapsed; stop the capture. */
         ld.go = FALSE;
       } else if (cnd_ring_timeout != NULL && cnd_eval(cnd_ring_timeout)) {
-	/* time elasped for this ring file, swith to the next */
-	if (ringbuf_switch_file(&cfile, &ld.pdh, &ld.err)) {
-	  /* File switch succeeded: reset the condition */
-	  cnd_reset(cnd_ring_timeout);
-	} else {
-	  /* File switch failed: stop here */
-	  ld.go = FALSE;
-	}
+        if(num_files > 1 || capture_opts.ringbuffer_on) {
+          /* time elasped for this ring file, switch to the next */
+          if (ringbuf_switch_file(&cfile, &ld.pdh, &ld.err)) {
+            /* File switch succeeded: reset the condition */
+            cnd_reset(cnd_ring_timeout);
+            num_files--;
+          } else {
+            /* File switch failed: stop here */
+	        ld.go = FALSE;
+          }
+        } else {
+          /* no files left */
+          if (!capture_opts.ringbuffer_on) {
+            /* ... and no ringbuffer, stop now */
+            ld.go = FALSE;
+          }
+        }
       }
     }
 
@@ -1967,7 +1980,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     write_ok = FALSE;
   }
 
-  if (capture_opts.ringbuffer_on) {
+  if (capture_opts.num_files > 1) {
     close_ok = ringbuf_wtap_dump_close(&cfile, &err);
   } else {
     close_ok = wtap_dump_close(ld.pdh, &err);
@@ -2023,7 +2036,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   return write_ok;
 
 error:
-  if (capture_opts.ringbuffer_on) {
+  if (capture_opts.num_files > 1) {
     /* cleanup ringbuffer */
     ringbuf_error_cleanup();
   } else {

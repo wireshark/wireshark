@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.408 2004/02/23 22:48:52 guy Exp $
+ * $Id: main.c,v 1.409 2004/02/28 16:21:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1525,7 +1525,7 @@ get_ring_arguments(const char *arg)
     *p++ = '\0';
   }
 
-  capture_opts.ringbuffer_num_files = 
+  capture_opts.num_files = 
     get_natural_int(arg, "number of ring buffer files");
 
   if (colonp == NULL)
@@ -2021,8 +2021,8 @@ main(int argc, char *argv[])
   capture_opts.autostop_duration = 1;
   capture_opts.has_autostop_filesize = FALSE;
   capture_opts.autostop_filesize = 1;
-  capture_opts.ringbuffer_on = FALSE;
-  capture_opts.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
+  capture_opts.ringbuffer_on = TRUE;
+  capture_opts.num_files = 1;
   capture_opts.has_ring_duration = FALSE;
   capture_opts.ringbuffer_duration = 1;
   capture_opts.linktype = -1;
@@ -2567,11 +2567,11 @@ main(int argc, char *argv[])
   }
 
   /* Check the value range of the ringbuffer_num_files parameter */
-  if (capture_opts.ringbuffer_num_files > RINGBUFFER_MAX_NUM_FILES)
-    capture_opts.ringbuffer_num_files = RINGBUFFER_MAX_NUM_FILES;
+  if (capture_opts.num_files > RINGBUFFER_MAX_NUM_FILES)
+    capture_opts.num_files = RINGBUFFER_MAX_NUM_FILES;
 #if RINGBUFFER_MIN_NUM_FILES > 0
-  else if (capture_opts.ringbuffer_num_files < RINGBUFFER_MIN_NUM_FILES)
-    capture_opts.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
+  else if (capture_opts.num_files < RINGBUFFER_MIN_NUM_FILES)
+    capture_opts.num_files = RINGBUFFER_MIN_NUM_FILES;
 #endif
 #endif
 
