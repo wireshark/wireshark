@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.62 2001/06/18 02:17:51 guy Exp $
+ * $Id: packet-rpc.c,v 1.63 2001/07/02 10:45:25 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -721,7 +721,6 @@ dissect_rpc_authunix_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, i
 	proto_item *gitem;
 	proto_tree *gtree = NULL;
 
-	if (!tvb_bytes_exist(tvb,offset,4)) return offset;
 	stamp = tvb_get_ntohl(tvb,offset+0);
 	if (tree)
 		proto_tree_add_uint(tree, hf_rpc_auth_stamp, tvb,
@@ -731,21 +730,18 @@ dissect_rpc_authunix_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, i
 	offset = dissect_rpc_string(tvb, pinfo, tree,
 			hf_rpc_auth_machinename, offset, NULL);
 
-	if (!tvb_bytes_exist(tvb,offset,4)) return offset;
 	uid = tvb_get_ntohl(tvb,offset+0);
 	if (tree)
 		proto_tree_add_uint(tree, hf_rpc_auth_uid, tvb,
 			offset+0, 4, uid);
 	offset += 4;
 
-	if (!tvb_bytes_exist(tvb,offset,4)) return offset;
 	gid = tvb_get_ntohl(tvb,offset+0);
 	if (tree)
 		proto_tree_add_uint(tree, hf_rpc_auth_gid, tvb,
 			offset+0, 4, gid);
 	offset += 4;
 
-	if (!tvb_bytes_exist(tvb,offset,4)) return offset;
 	gids_count = tvb_get_ntohl(tvb,offset+0);
 	if (tree) {
 		gitem = proto_tree_add_text(tree, tvb,
@@ -754,7 +750,6 @@ dissect_rpc_authunix_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, i
 	}
 	offset += 4;
 	
-	if (!tvb_bytes_exist(tvb,offset,4*gids_count)) return offset;
 	for (gids_i = 0 ; gids_i < gids_count ; gids_i++) {
 		gids_entry = tvb_get_ntohl(tvb,offset+0);
 		if (gtree)
@@ -776,28 +771,24 @@ dissect_rpc_authgss_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, in
 	guint agc_seq;
 	guint agc_svc;
 
-	if (!tvb_bytes_exist(tvb,offset,4)) return offset;
 	agc_v = tvb_get_ntohl(tvb, offset+0);
 	if (tree)
 		proto_tree_add_uint(tree, hf_rpc_authgss_v,
 				    tvb, offset+0, 4, agc_v);
 	offset += 4;
 	
-	if (!tvb_bytes_exist(tvb,offset,4)) return offset;
 	agc_proc = tvb_get_ntohl(tvb, offset+0);
 	if (tree)
 		proto_tree_add_uint(tree, hf_rpc_authgss_proc,
 				    tvb, offset+0, 4, agc_proc);
 	offset += 4;
 	
-	if (!tvb_bytes_exist(tvb,offset,4)) return offset;
 	agc_seq = tvb_get_ntohl(tvb, offset+0);
 	if (tree)
 		proto_tree_add_uint(tree, hf_rpc_authgss_seq,
 				    tvb, offset+0, 4, agc_seq);
 	offset += 4;
 	
-	if (!tvb_bytes_exist(tvb,offset,4)) return offset;
 	agc_svc = tvb_get_ntohl(tvb, offset+0);
 	if (tree)
 		proto_tree_add_uint(tree, hf_rpc_authgss_svc,
@@ -835,8 +826,6 @@ dissect_rpc_authdes_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, in
 	guint adc_namekind;
 	guint window = 0;
 	guint nickname = 0;
-
-	if (!tvb_bytes_exist(tvb,offset,4)) return offset;
 
 	adc_namekind = tvb_get_ntohl(tvb, offset+0);
 	if (tree)
@@ -877,11 +866,9 @@ dissect_rpc_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset
 	proto_item *citem;
 	proto_tree *ctree;
 
-	if (!tvb_bytes_exist(tvb, offset,8)) return offset;
 	flavor = tvb_get_ntohl(tvb,offset+0);
 	length = tvb_get_ntohl(tvb,offset+4);
 	length = rpc_roundup(length);
-	if (!tvb_bytes_exist(tvb,offset+8,length)) return offset;
 
 	if (tree) {
 		citem = proto_tree_add_text(tree, tvb, offset,
@@ -932,11 +919,9 @@ dissect_rpc_verf(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset
 	proto_item *vitem;
 	proto_tree *vtree;
 
-	if (!tvb_bytes_exist(tvb,offset,8)) return offset;
 	flavor = tvb_get_ntohl(tvb,offset+0);
 	length = tvb_get_ntohl(tvb,offset+4);
 	length = rpc_roundup(length);
-	if (!tvb_bytes_exist(tvb,offset+8,length)) return offset;
 
 	if (tree) {
 		vitem = proto_tree_add_text(tree, tvb, offset,
@@ -1011,21 +996,18 @@ dissect_rpc_authgss_initres(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
 	offset = dissect_rpc_data(tvb, pinfo, tree, hf_rpc_authgss_ctx,
 			offset);
 	
-	if (!tvb_bytes_exist(tvb,offset,4)) return offset;
 	major = tvb_get_ntohl(tvb,offset+0);
 	if (tree)
 		proto_tree_add_uint(tree, hf_rpc_authgss_major, tvb,
 				    offset+0, 4, major);
 	offset += 4;
 
-	if (!tvb_bytes_exist(tvb,offset,4)) return offset;
 	minor = tvb_get_ntohl(tvb,offset+0);
 	if (tree)
 		proto_tree_add_uint(tree, hf_rpc_authgss_minor, tvb,
 				    offset+0, 4, minor);
 	offset += 4;
 
-	if (!tvb_bytes_exist(tvb,offset,4)) return offset;
 	window = tvb_get_ntohl(tvb,offset+0);
 	if (tree)
 		proto_tree_add_uint(tree, hf_rpc_authgss_window, tvb,
@@ -1645,7 +1627,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* Indicate the frame to which this is a reply. */
 		proto_tree_add_text(rpc_tree, tvb, 0, 0,
-		    "This is a reply to a request starting in frame %u",
+		    "This is a reply to a request in frame %u",
 		    rpc_call->req_num);
 
 		if (rpc_call->proc_info != NULL) {
