@@ -2,7 +2,7 @@
  * Routines for Telnet packet dissection; see RFC 854 and RFC 855
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.41 2003/06/12 08:33:30 guy Exp $
+ * $Id: packet-telnet.c,v 1.42 2004/02/02 11:07:29 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,9 +37,17 @@
 #include <epan/strutil.h>
 
 static int proto_telnet = -1;
+static int hf_telnet_auth_cmd = -1;
+static int hf_telnet_auth_name = -1;
+static int hf_telnet_auth_type = -1;
+static int hf_telnet_auth_mod_who = -1;
+static int hf_telnet_auth_mod_how = -1;
+static int hf_telnet_auth_mod_cred_fwd = -1;
+static int hf_telnet_auth_mod_enc = -1;
 
 static gint ett_telnet = -1;
 static gint ett_telnet_subopt = -1;
+static gint ett_telnet_auth_subopt = -1;
 static gint ett_status_subopt = -1;
 static gint ett_rcte_subopt = -1;
 static gint ett_olw_subopt = -1;
@@ -582,6 +590,126 @@ dissect_rfc_subopt(const char *optname _U_, tvbuff_t *tvb, int offset,
                       val_to_str(cmd, rfc_opt_vals, "Unknown (%u)"));
 }
 
+
+#define TN_AC_IS	0
+#define TN_AC_SEND	1
+#define TN_AC_REPLY	2
+#define TN_AC_NAME	3
+static const value_string auth_cmd_vals[] = {
+	{ TN_AC_IS,	"IS" },
+	{ TN_AC_SEND,	"SEND" },
+	{ TN_AC_REPLY,	"REPLY" },
+	{ TN_AC_NAME,	"NAME" },
+	{ 0, NULL }
+};
+
+#define TN_AT_NULL	0
+#define TN_AT_KRB4	1
+#define TN_AT_KRB5	2
+#define TN_AT_SPX	3
+#define TN_AT_MINK	4
+#define TN_AT_SRP	5
+#define TN_AT_RSA	6
+#define TN_AT_SSL	7
+#define TN_AT_LOKI	10
+#define TN_AT_SSA	11
+#define TN_AT_KEA_SJ	12
+#define TN_AT_KEA_SJ_INTEG	13
+#define TN_AT_DSS	14
+#define TN_AT_NTLM	15
+static const value_string auth_type_vals[] = {
+	{ TN_AT_NULL,	"NULL" },
+	{ TN_AT_KRB4,	"Kerberos v4" },
+	{ TN_AT_KRB5,	"Kerberos v5" },
+	{ TN_AT_SPX,	"SPX" },
+	{ TN_AT_MINK,	"MINK" },
+	{ TN_AT_SRP,	"SRP" },
+	{ TN_AT_RSA,	"RSA" },
+	{ TN_AT_SSL,	"SSL" },
+	{ TN_AT_LOKI,	"LOKI" },
+	{ TN_AT_SSA,	"SSA" },
+	{ TN_AT_KEA_SJ,	"KEA_SJ" },
+	{ TN_AT_KEA_SJ_INTEG, "KEA_SJ_INTEG" },
+	{ TN_AT_DSS,	"DSS" },
+	{ TN_AT_NTLM,	"NTLM" },
+	{ 0, NULL }
+};
+static const true_false_string auth_mod_cred_fwd = {
+	"Client WILL forward auth creds",
+	"Client will NOT forward auth creds"
+};
+static const true_false_string auth_mod_who = {
+	"Mask server to client",
+	"Mask client to server"
+};
+static const true_false_string auth_mod_how = {
+	"MUTUAL authentication",
+	"One Way authentication"
+};
+#define TN_AM_OFF		0x00
+#define TN_AM_USING_TELOPT	0x01
+#define TN_AM_AFTER_EXCHANGE	0x02
+#define TN_AM_RESERVED		0x04
+static const value_string auth_mod_enc[] = {
+	{ TN_AM_OFF,		"Off" },
+	{ TN_AM_USING_TELOPT,	"Telnet Options" },
+	{ TN_AM_AFTER_EXCHANGE, "After Exchange" },
+	{ TN_AM_RESERVED,	"Reserved" },
+	{ 0, NULL }
+};
+static void
+dissect_authentication_subopt(const char *optname _U_, tvbuff_t *tvb, int offset, int len, proto_tree *tree)
+{
+	guint8 acmd, type, mod;
+	proto_item *item;
+	proto_tree *send_tree;
+	char name[256];
+
+	acmd=tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_telnet_auth_cmd, tvb, offset, 1, acmd);
+	offset++;
+	len--;
+
+	switch(acmd){
+	case TN_AC_IS:
+		break;
+	case TN_AC_SEND:
+		while(len>0){
+			item=NULL;
+			send_tree=NULL;
+			type=tvb_get_guint8(tvb, offset);
+				item=proto_tree_add_uint(tree, hf_telnet_auth_type, tvb, offset, 1, type);
+			if(tree){			
+				send_tree = proto_item_add_subtree(item, ett_telnet_auth_subopt);
+			}
+			offset++;
+			len--;
+
+
+			mod=tvb_get_guint8(tvb, offset);
+			proto_tree_add_uint(send_tree, hf_telnet_auth_mod_enc, tvb, offset, 1, mod);
+			proto_tree_add_boolean(send_tree, hf_telnet_auth_mod_cred_fwd, tvb, offset, 1, mod);
+			proto_tree_add_boolean(send_tree, hf_telnet_auth_mod_how, tvb, offset, 1, mod);
+			proto_tree_add_boolean(send_tree, hf_telnet_auth_mod_who, tvb, offset, 1, mod);
+			/*xxx*/
+			offset++;
+			len--;
+		}
+		break;
+	case TN_AC_REPLY:
+		break;
+	case TN_AC_NAME:
+		if(len<255){
+			tvb_memcpy(tvb, name, offset, len);
+			name[len]=0;
+		} else {
+			strcpy(name, "<...name too long...>");
+		}
+		proto_tree_add_string(tree, hf_telnet_auth_name, tvb, offset, len, name);
+		break;
+	}
+}
+
 static tn_opt options[] = {
   {
     "Binary Transmission",			/* RFC 856 */
@@ -847,7 +975,7 @@ static tn_opt options[] = {
     &ett_auth_subopt,
     VARIABLE_LENGTH,
     1,
-    NULL					/* XXX - fill me in */
+    dissect_authentication_subopt		
   },
   {
     "Encryption Option",			/* RFC 2946 */
@@ -1215,6 +1343,7 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         proto_tree      *telnet_tree, *ti;
 
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TELNET");
 
@@ -1266,13 +1395,34 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_telnet(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "telnet.abbreviation", TYPE, VALS_POINTER }},
-        };*/
+	static hf_register_info hf[] = {  
+	{ &hf_telnet_auth_name,
+		{ "Name", "telnet.auth.name", FT_STRING, BASE_NONE,
+		  NULL, 0, "Name of user being authenticated", HFILL }},
+	{ &hf_telnet_auth_cmd,
+		{ "Auth Cmd", "telnet.auth.cmd", FT_UINT8, BASE_DEC,
+		  VALS(auth_cmd_vals), 0, "Authentication Command", HFILL }},
+     	{ &hf_telnet_auth_type,
+		{ "Auth Type", "telnet.auth.type", FT_UINT8, BASE_DEC,
+		  VALS(auth_type_vals), 0, "Authentication Type", HFILL }},
+       	{ &hf_telnet_auth_mod_cred_fwd,
+		{ "Cred Fwd", "telnet.auth.mod.cred_fwd", FT_BOOLEAN, 8,
+		  TFS(&auth_mod_cred_fwd), 0x08, "Modifier: Whether client will forward creds or not", HFILL }},
+       	{ &hf_telnet_auth_mod_who,
+		{ "Who", "telnet.auth.mod.who", FT_BOOLEAN, 8,
+		  TFS(&auth_mod_who), 0x01, "Modifier: Who to mask", HFILL }},
+       	{ &hf_telnet_auth_mod_how,
+		{ "How", "telnet.auth.mod.how", FT_BOOLEAN, 8,
+		  TFS(&auth_mod_how), 0x02, "Modifier: How to mask", HFILL }},
+       	{ &hf_telnet_auth_mod_enc,
+		{ "Encrypt", "telnet.auth.mod.enc", FT_UINT8, BASE_DEC,
+		  VALS(auth_mod_enc), 0x14, "Modifier: How to enable Encryption", HFILL }},
+		
+        };
 	static gint *ett[] = {
 		&ett_telnet,
 		&ett_telnet_subopt,
+		&ett_telnet_auth_subopt,
 		&ett_status_subopt,
 		&ett_rcte_subopt,
 		&ett_olw_subopt,
@@ -1312,7 +1462,7 @@ proto_register_telnet(void)
 	};
 
         proto_telnet = proto_register_protocol("Telnet", "TELNET", "telnet");
- /*       proto_register_field_array(proto_telnet, hf, array_length(hf));*/
+        proto_register_field_array(proto_telnet, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
