@@ -392,12 +392,13 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	tvbuff_t *newtvb;
 	struct _rtp_conversation_info *p_conv_data = NULL;
+	gboolean found_match = FALSE;
 
 	newtvb = tvb_new_subset( tvb, offset, data_len, data_reported_len );
 
 	/* if the payload type is dynamic (96 to 127), we check if the conv is set and we look for the pt definition */
 	if ( (payload_type >=96) && (payload_type <=127) ) {
-	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
+		p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
 		if (p_conv_data && p_conv_data->rtp_dyn_payload) {
 			gchar *payload_type_str = NULL;
 			payload_type_str = g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &payload_type);
@@ -407,10 +408,10 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	}
 	/* if we don't found, it is static OR could be set static from the preferences */
-	if (found_match == FALSE) 
-	if (!dissector_try_port(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
-		proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
-	}
+	if (found_match == FALSE)
+		if (!dissector_try_port(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
+			proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
+
 }
 
 static struct _rtp_info rtp_info;
