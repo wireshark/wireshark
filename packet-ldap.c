@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.62 2003/07/31 18:09:07 guy Exp $
+ * $Id: packet-ldap.c,v 1.63 2003/08/12 20:14:05 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,6 +70,7 @@
 #include "packet-frame.h"
 
 static int proto_ldap = -1;
+static int proto_cldap = -1;
 static int hf_ldap_sasl_buffer_length = -1;
 static int hf_ldap_length = -1;
 static int hf_ldap_message_id = -1;
@@ -1857,7 +1858,7 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (first_time)
       {
         if (check_col(pinfo->cinfo, COL_PROTOCOL))
-          col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDAP");
+          col_set_str(pinfo->cinfo, COL_PROTOCOL, pinfo->current_proto);
         if (check_col(pinfo->cinfo, COL_INFO))
           col_clear(pinfo->cinfo, COL_INFO);
       }
@@ -1993,7 +1994,7 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        */
       if (first_time) {
         if (check_col(pinfo->cinfo, COL_PROTOCOL))
-          col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDAP");
+          col_set_str(pinfo->cinfo, COL_PROTOCOL, pinfo->current_proto);
         if (check_col(pinfo->cinfo, COL_INFO))
           col_clear(pinfo->cinfo, COL_INFO);
       }
@@ -2266,18 +2267,24 @@ proto_register_ldap(void)
     "Whether the LDAP dissector should desegment all messages spanning multiple TCP segments",
     &ldap_desegment);
 
+  proto_cldap = proto_register_protocol(
+	  "Connectionless Lightweight Directory Access Protocol",
+	  "CLDAP", "cldap");
+
   register_init_routine(ldap_reinit);
 }
 
 void
 proto_reg_handoff_ldap(void)
 {
-  dissector_handle_t ldap_handle;
+  dissector_handle_t ldap_handle, cldap_handle;
 
   ldap_handle = create_dissector_handle(dissect_ldap, proto_ldap);
   dissector_add("tcp.port", TCP_PORT_LDAP, ldap_handle);
   dissector_add("tcp.port", TCP_PORT_GLOBALCAT_LDAP, ldap_handle);
-  dissector_add("udp.port", UDP_PORT_CLDAP, ldap_handle);
+
+  cldap_handle = create_dissector_handle(dissect_ldap, proto_cldap);
+  dissector_add("udp.port", UDP_PORT_CLDAP, cldap_handle);
 
   gssapi_handle = find_dissector("gssapi");
   gssapi_wrap_handle = find_dissector("gssapi_verf");
