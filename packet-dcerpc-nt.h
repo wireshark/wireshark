@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.14 2002/03/19 22:09:23 guy Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.15 2002/03/25 05:42:01 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,6 +126,46 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
 			char *drep);
 
+/*
+ * Request/response matching functions.  We also hang private data here.
+ */
 
+void 
+dcerpc_smb_init(void);
+
+guint32 
+dcerpc_smb_fetch_q(dcerpc_info *di, guint16 opnum);
+
+void 
+dcerpc_smb_store_q(dcerpc_info *di, guint16 opnum, int frame_num);
+
+guint32 
+dcerpc_smb_fetch_r(dcerpc_info *di, guint16 opnum);
+
+void 
+dcerpc_smb_store_r(dcerpc_info *di, guint16 opnum, int frame_num);
+
+void 
+dcerpc_smb_store_priv(dcerpc_info *di, guint16 opnum, void *data, int len);
+
+void *
+dcerpc_smb_fetch_priv(dcerpc_info *di, guint16 opnum, int *len);
+
+/*
+ * Policy handle hashing
+ */
+
+gboolean 
+dcerpc_smb_fetch_pol(const guint8 *policy_hnd, char **name, 
+		     int *open_frame, int *close_frame);
+void 
+dcerpc_smb_store_pol(const guint8 *policy_hnd, char *name, int open_frame,
+		     int close_frame);
+
+/* Check for unparsed data at the end of a frame */
+
+void 
+dcerpc_smb_check_long_frame(tvbuff_t *tvb, int offset, 
+			    packet_info *pinfo, proto_tree *tree);
 
 #endif /* packet-dcerpc-nt.h */

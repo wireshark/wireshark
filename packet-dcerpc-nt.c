@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.21 2002/03/24 12:25:40 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.22 2002/03/25 05:42:02 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -647,3 +647,511 @@ dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+/* Define this symbol to display warnings about request/response and
+   policy handle hash table collisions.  This happens when a packet with
+   the same conversation, smb fid and dcerpc call id occurs.  I think this
+   is due to a bug in the dcerpc/smb fragment reassembly code. */
+
+#undef DEBUG_HASH_COLL
+
+/*
+ * DCERPC/SMB request/response matching routines.  As usual, we keep a hash
+ * table to match up requests and responses and also store data that needs
+ * to be passed between the request dissector and the response dissector.
+ * This table is keyed by the tuple (conversation index, smb_fid, opnum).
+ */
+
+typedef struct {
+	int conv;		/* Which conversation we are in */
+	guint16 smb_fid;	/* File descriptor */
+	guint16 opnum;		/* Operation number */
+	guint32 call_id;	/* Call id */
+} rr_hash_key;
+
+typedef struct {
+	int request_frame, response_frame; /* Frame numbers */
+	void *data;		           /* Private data */
+	int len;		           /* Length of private data */
+} rr_hash_value;
+
+#define RR_HASH_INIT_COUNT 100
+
+static GHashTable *rr_hash;
+static GMemChunk *rr_hash_key_chunk;
+static GMemChunk *rr_hash_value_chunk;
+
+/* Hash function */
+
+static guint rr_hash_fn(gconstpointer k)
+{
+	rr_hash_key *key = (rr_hash_key *)k;
+
+	/* Hash sum of key contents */
+
+	return key->conv + key->smb_fid + key->opnum + key->call_id;
+}
+
+/* Hash compare function */
+
+static gint rr_hash_compare(gconstpointer k1, gconstpointer k2)
+{
+	rr_hash_key *key1 = (rr_hash_key *)k1;
+	rr_hash_key *key2 = (rr_hash_key *)k2;
+
+	return (key1->conv == key2->conv) && 
+		(key1->smb_fid == key2->smb_fid) &&
+		(key1->opnum == key2->opnum) &&
+		(key1->call_id == key2->call_id);
+}
+
+/* Iterator to free a request/response key/value pair */
+
+static void free_rr_keyvalue(gpointer key, gpointer value, gpointer user_data)
+{
+	rr_hash_value *rr_value = (rr_hash_value *)value;
+
+	/* Free user data */
+
+	if (rr_value->data) {
+		free(rr_value->data);
+		rr_value->data = NULL;
+	}
+}
+
+/* Initialise request/response hash table */
+
+static void init_rr_hash(void)
+{
+	/* Initialise memory chunks */
+
+	if (rr_hash_key_chunk)
+		g_mem_chunk_destroy(rr_hash_key_chunk);
+
+	rr_hash_key_chunk = g_mem_chunk_new(
+		"DCERPC/SMB request/response keys", sizeof(rr_hash_key),
+		RR_HASH_INIT_COUNT * sizeof(rr_hash_key), G_ALLOC_ONLY);
+					    
+	if (rr_hash_value_chunk)
+		g_mem_chunk_destroy(rr_hash_value_chunk);
+
+	rr_hash_value_chunk = g_mem_chunk_new(
+		"DCERPC/SMB request/response values", sizeof(rr_hash_value),
+		RR_HASH_INIT_COUNT * sizeof(rr_hash_value), G_ALLOC_ONLY);
+
+	/* Initialise hash table */
+
+	if (rr_hash) {
+		g_hash_table_foreach(rr_hash, free_rr_keyvalue, NULL);
+		g_hash_table_destroy(rr_hash);
+	}
+
+	rr_hash = g_hash_table_new(rr_hash_fn, rr_hash_compare);
+}
+
+static void rr_hash_makekey(dcerpc_info *di, guint16 opnum, rr_hash_key *key)
+{
+	key->conv = di->conv->index;
+	key->smb_fid = di->smb_fid;
+	key->opnum = opnum;
+	key->call_id = di->call_id;
+}
+
+/* Add a dcerpc/smb request to the request/response hash table */ 
+
+void dcerpc_smb_store_q(dcerpc_info *di, guint16 opnum, int frame_num)
+{
+	rr_hash_key *key;
+	rr_hash_value *value;
+
+	/* Create key */
+
+	key = g_mem_chunk_alloc(rr_hash_key_chunk);
+
+	rr_hash_makekey(di, opnum, key);
+
+	/* Have we already seen this packet? */
+
+	if ((value = g_hash_table_lookup(rr_hash, key))) {
+
+		if (!value->request_frame)
+			value->request_frame = frame_num;
+		else {
+#ifdef DEBUG_HASH_COLL
+			if (value->request_frame != frame_num)
+				g_warning( "dcerpc_smb: rr_hash request collision with frames %d/%d\n", value->request_frame, frame_num);
+#endif
+		}
+
+		g_mem_chunk_free(rr_hash_key_chunk, key);
+
+		return;
+	}
+
+	/* Create new value */
+
+	value = g_mem_chunk_alloc(rr_hash_value_chunk);
+
+	value->request_frame = frame_num;
+	value->response_frame = 0;
+	value->data = NULL;
+
+	g_hash_table_insert(rr_hash, key, value);
+}
+
+/* Add a dcerpc/smb response to the request/response hash table */
+
+void dcerpc_smb_store_r(dcerpc_info *di, guint16 opnum, int frame_num)
+{
+	rr_hash_key *key;
+	rr_hash_value *value;
+
+	/* Create key */
+
+	key = g_mem_chunk_alloc(rr_hash_key_chunk);
+
+	rr_hash_makekey(di, opnum, key);
+
+	/* Have we already seen this packet? */
+
+	if ((value = g_hash_table_lookup(rr_hash, key))) {
+
+		if (!value->response_frame)
+			value->response_frame = frame_num;
+		else {
+#ifdef DEBUG_HASH_COLL
+			if (value->response_frame != frame_num)
+				g_warning("dcerpc_smb: rr_hash response collision with frames %d/%d\n", value->response_frame, frame_num);
+#endif
+		}
+
+		g_mem_chunk_free(rr_hash_key_chunk, key);
+
+		return;
+	}
+
+	/* Create new value */
+
+	value = g_mem_chunk_alloc(rr_hash_value_chunk);
+
+	value->request_frame = 0;
+	value->response_frame = frame_num;
+	value->data = NULL;
+
+	g_hash_table_insert(rr_hash, key, value);
+}
+
+/* Store private data to a request/response entry */
+
+void dcerpc_smb_store_priv(dcerpc_info *di, guint16 opnum, void *data,
+			   int len)
+{
+	rr_hash_key key;
+	rr_hash_value *value;
+
+	rr_hash_makekey(di, opnum, &key);
+
+	if (!(value = g_hash_table_lookup(rr_hash, &key))) {
+		g_warning("dcerpc_smb: no such request/response 0x%x, op %d\n",
+			  key.smb_fid, key.opnum);
+		return;
+	}
+
+	if (value->data)
+		free(value->data);
+
+	value->data = malloc(len);
+	value->len = len;
+
+	memcpy(value->data, data, len);
+}
+
+/* Fetch private data from a request/response entry */
+
+void *dcerpc_smb_fetch_priv(dcerpc_info *di, guint16 opnum, int *len)
+{
+	rr_hash_key key;
+	rr_hash_value *value;
+
+	rr_hash_makekey(di, opnum, &key);
+
+	value = g_hash_table_lookup(rr_hash, &key);
+
+	if (value && value->data) {
+		if (len)
+			*len = value->len;
+		return value->data;
+	}
+
+	return NULL;
+}
+
+/* Return the request number for a DCERPC/SMB request/response pair */
+
+guint32 dcerpc_smb_fetch_q(dcerpc_info *di, guint16 opnum)
+{
+	rr_hash_key key;
+	rr_hash_value *value;
+
+	rr_hash_makekey(di, opnum, &key);
+
+	value = g_hash_table_lookup(rr_hash, &key);
+
+	if (value)
+		return value->request_frame;
+
+	return 0;
+}	
+
+/* Return the request number for a DCERPC/SMB request/response pair */
+
+guint32 dcerpc_smb_fetch_r(dcerpc_info *di, guint16 opnum)
+{
+	rr_hash_key key;
+	rr_hash_value *value;
+
+	rr_hash_makekey(di, opnum, &key);
+
+	value = g_hash_table_lookup(rr_hash, &key);
+
+	if (value)
+		return value->response_frame;
+
+	return 0;
+}
+
+/*
+ * Policy handle hashing
+ */
+
+typedef struct {
+	guint8 policy_hnd[20];
+} pol_hash_key;
+
+typedef struct {
+	int open_frame, close_frame; /* Frame numbers for open/close */
+	char *name;		     /* Name of policy handle */
+} pol_hash_value;
+
+#define POL_HASH_INIT_COUNT 100
+
+static GHashTable *pol_hash;
+static GMemChunk *pol_hash_key_chunk;
+static GMemChunk *pol_hash_value_chunk;
+
+/* Hash function */
+
+static guint pol_hash_fn(gconstpointer k)
+{
+	pol_hash_key *key = (pol_hash_key *)k;
+
+	/* Bytes 4-7 of the policy handle are a timestamp so should make a
+	   reasonable hash value */
+	
+	return key->policy_hnd[4] + (key->policy_hnd[5] << 8) +
+		(key->policy_hnd[6] << 16) + (key->policy_hnd[7] << 24);
+}
+
+/* Return true if a policy handle is all zeros */
+
+static gboolean is_null_pol(const guint8 *policy_hnd)
+{
+	static guint8 null_policy_hnd[20];
+
+	return memcmp(policy_hnd, null_policy_hnd, 20) == 0;
+}
+
+/* Hash compare function */
+
+static gint pol_hash_compare(gconstpointer k1, gconstpointer k2)
+{
+	pol_hash_key *key1 = (pol_hash_key *)k1;
+	pol_hash_key *key2 = (pol_hash_key *)k2;
+
+	return memcmp(key1->policy_hnd, key2->policy_hnd, 
+		      sizeof(key1->policy_hnd)) == 0;
+}
+
+/* Store a policy handle */
+
+void dcerpc_smb_store_pol(const guint8 *policy_hnd, char *name, int open_frame,
+			  int close_frame)
+{
+	pol_hash_key *key;
+	pol_hash_value *value;
+
+	/* Look up existing value */
+
+	key = g_mem_chunk_alloc(pol_hash_key_chunk);
+
+	memcpy(&key->policy_hnd, policy_hnd, sizeof(key->policy_hnd));
+
+	if ((value = g_hash_table_lookup(pol_hash, key))) {
+
+		/* Update existing value */
+
+		if (value->name && name) {
+#ifdef DEBUG_HASH_COLL
+			if (strcmp(value->name, name) != 0)
+				g_warning("dcerpc_smb: pol_hash name collision %s/%s\n", value->name, name);
+#endif
+			free(value->name);
+			value->name = strdup(name);
+		}
+
+		if (open_frame) {
+#ifdef DEBUG_HASH_COLL
+			if (value->open_frame != open_frame)
+				g_warning("dcerpc_smb: pol_hash open frame collision %d/%d\n", value->open_frame, open_frame);
+#endif
+			value->open_frame = open_frame;
+		}
+
+		if (close_frame) {
+#ifdef DEBUG_HASH_COLL
+			if (value->close_frame != close_frame)
+				g_warning("dcerpc_smb: pol_hash close frame collision %d/%d\n", value->close_frame, close_frame);
+#endif
+			value->close_frame = close_frame;
+		}
+
+		return;
+	}
+
+	/* Create a new value */
+
+	value = g_mem_chunk_alloc(pol_hash_value_chunk);
+
+	value->open_frame = open_frame;
+	value->close_frame = close_frame;
+
+	if (name)
+		value->name = strdup(name);
+	else
+		value->name = strdup("UNKNOWN");
+
+	g_hash_table_insert(pol_hash, key, value);
+}
+
+/* Retrieve a policy handle */
+
+gboolean dcerpc_smb_fetch_pol(const guint8 *policy_hnd, char **name, 
+			      int *open_frame, int *close_frame)
+{
+	pol_hash_key key;
+	pol_hash_value *value;
+
+	/* Prevent uninitialised return vars */
+
+	if (name)
+		*name = NULL;
+
+	if (open_frame)
+		*open_frame = 0;
+
+	if (close_frame)
+		*close_frame = 0;
+
+	/* Look up existing value */
+
+	memcpy(&key.policy_hnd, policy_hnd, sizeof(key.policy_hnd));
+
+	value = g_hash_table_lookup(pol_hash, &key);
+
+	if (!value)
+		return FALSE;
+
+	/* Return name and frame numbers */
+
+	if (name)
+		*name = value->name;
+
+	if (open_frame)
+		*open_frame = value->open_frame;
+
+	if (close_frame)
+		*close_frame = value->close_frame;
+
+	return TRUE;
+}
+
+/* Iterator to free a policy handle key/value pair */
+
+static void free_pol_keyvalue(gpointer key, gpointer value, gpointer user_data)
+{
+	pol_hash_value *pol_value = (pol_hash_value *)value;
+
+	/* Free user data */
+
+	if (pol_value->name) {
+		free(pol_value->name);
+		pol_value->name = NULL;
+	}
+}
+
+/* Initialise policy handle hash */
+
+static void init_pol_hash(void)
+{
+	/* Initialise memory chunks */
+
+	if (pol_hash_key_chunk)
+		g_mem_chunk_destroy(pol_hash_key_chunk);
+
+	pol_hash_key_chunk = g_mem_chunk_new(
+		"Policy handle hash keys", sizeof(pol_hash_key),
+		POL_HASH_INIT_COUNT * sizeof(pol_hash_key), G_ALLOC_ONLY);
+					    
+	if (pol_hash_value_chunk)
+		g_mem_chunk_destroy(pol_hash_value_chunk);
+
+	pol_hash_value_chunk = g_mem_chunk_new(
+		"Policy handle hash values", sizeof(pol_hash_value),
+		POL_HASH_INIT_COUNT * sizeof(pol_hash_value), G_ALLOC_ONLY);
+
+	/* Initialise hash table */
+
+	if (pol_hash) {
+		g_hash_table_foreach(pol_hash, free_pol_keyvalue, NULL);
+		g_hash_table_destroy(pol_hash);
+	}
+
+	pol_hash = g_hash_table_new(pol_hash_fn, pol_hash_compare);
+}
+
+/*
+ * Initialise global DCERPC/SMB data structures
+ */
+
+void dcerpc_smb_init(void)
+{
+	static gboolean done_init;
+
+	if (done_init)
+		return;
+
+	init_rr_hash();
+	init_pol_hash();
+
+	done_init = TRUE;
+}
+
+/* Check if there is unparsed data remaining in a frame and display an
+   error.  I guess this could be made into an exception like the malformed
+   frame exception.  For the DCERPC over SMB dissectors a long frame
+   indicates a bug in a dissector. */
+
+void dcerpc_smb_check_long_frame(tvbuff_t *tvb, int offset, 
+				 packet_info *pinfo, proto_tree *tree)
+{
+	if (tvb_length_remaining(tvb, offset) != 0) {
+
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "[Long frame (%d bytes): SPOOLSS]",
+				    tvb_length_remaining(tvb, offset));
+
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+					"[Long frame (%d bytes): SPOOLSS]",
+					tvb_length_remaining(tvb, offset));
+	}
+}
