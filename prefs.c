@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.83 2002/05/25 01:47:46 guy Exp $
+ * $Id: prefs.c,v 1.84 2002/05/29 07:35:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1419,12 +1419,18 @@ set_pref(gchar *pref_name, gchar *value)
          * In addition, the BEEP protocol used to be the BXXP protocol,
          * so if we didn't find the module, and its name was "bxxp",
          * look for "beep" instead.
+         *
+         * Also, the preferences for GTP v0 and v1 were combined under
+         * a single "gtp" heading.
          */
         if (module == NULL) {
           if (strcmp(pref_name, "Diameter") == 0)
             module = find_module("diameter");
           else if (strcmp(pref_name, "bxxp") == 0)
             module = find_module("beep");
+          else if (strcmp(pref_name, "gtpv0") == 0 ||
+                   strcmp(pref_name, "gtpv1") == 0)
+            module = find_module("gtp");
         }
         *dotp = '.';		/* put the preference string back */
         dotp++;			/* skip past separator to preference name */
