@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.53 2002/04/18 21:35:57 guy Exp $
+ * $Id: netxray.c,v 1.54 2002/05/04 10:00:18 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -124,15 +124,14 @@ static void netxray_set_pseudo_header(wtap *wth,
 static gboolean netxray_read_rec_data(FILE_T fh, guint8 *data_ptr,
     guint32 packet_size, int *err);
 static void netxray_close(wtap *wth);
-static gboolean netxray_dump_2_0(wtap_dumper *wdh, const struct
-                                 wtap_pkthdr *phdr, const union
-                                 wtap_pseudo_header *pseudo_header,
-                                 const u_char *pd, int *err); static
-gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err); static
-gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr
-                          *phdr, const union wtap_pseudo_header
-                          *pseudo_header, const u_char *pd, int *err);
+static gboolean netxray_dump_1_1(wtap_dumper *wdh,
+    const struct wtap_pkthdr *phdr,
+    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
 static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err);
+static gboolean netxray_dump_2_0(wtap_dumper *wdh,
+    const struct wtap_pkthdr *phdr,
+    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
+static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err);
 
 int netxray_open(wtap *wth, int *err)
 {
@@ -506,6 +505,146 @@ int netxray_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
+gboolean netxray_dump_open_1_1(wtap_dumper *wdh, int *err)
+{
+    /* This is a netxray file */
+    wdh->subtype_write = netxray_dump_1_1;
+    wdh->subtype_close = netxray_dump_close_1_1;
+
+    /* We can't fill in all the fields in the file header, as we
+       haven't yet written any packets.  As we'll have to rewrite
+       the header when we've written out all the packets, we just
+       skip over the header for now. */
+    if (fseek(wdh->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET) == -1) {
+	*err = errno;
+	return FALSE;
+    }
+
+    wdh->dump.netxray = g_malloc(sizeof(netxray_dump_t));
+    wdh->dump.netxray->first_frame = TRUE;
+    wdh->dump.netxray->start.tv_sec = 0;
+    wdh->dump.netxray->start.tv_usec = 0;
+    wdh->dump.netxray->nframes = 0;
+
+    return TRUE;
+}
+
+/* Write a record for a packet to a dump file.
+   Returns TRUE on success, FALSE on failure. */
+static gboolean netxray_dump_1_1(wtap_dumper *wdh,
+	const struct wtap_pkthdr *phdr,
+	const union wtap_pseudo_header *pseudo_header _U_,
+	const u_char *pd, int *err)
+{
+    netxray_dump_t *netxray = wdh->dump.netxray;
+    guint32 timestamp;
+    struct netxrayrec_1_x_hdr rec_hdr;
+    size_t nwritten;
+
+    /* NetXRay/Windows Sniffer files have a capture start date/time
+       in the header, in a UNIX-style format, with one-second resolution,
+       and a start time stamp with microsecond resolution that's just
+       an arbitrary time stamp relative to some unknown time (boot
+       time?), and have times relative to the start time stamp in
+       the packet headers; pick the seconds value of the time stamp
+       of the first packet as the UNIX-style start date/time, and make
+       the high-resolution start time stamp 0, with the time stamp of
+       packets being the delta between the stamp of the packet and
+       the stamp of the first packet with the microseconds part 0. */
+    if (netxray->first_frame) {
+	netxray->first_frame = FALSE;
+	netxray->start = phdr->ts;
+    }
+
+    /* build the header for each packet */
+    memset(&rec_hdr, '\0', sizeof(rec_hdr));
+    timestamp = (phdr->ts.tv_sec - netxray->start.tv_sec)*1000000 +
+        phdr->ts.tv_usec;
+    rec_hdr.timelo = htolel(timestamp);
+    rec_hdr.timehi = htolel(0);
+    rec_hdr.orig_len = htoles(phdr->len);
+    rec_hdr.incl_len = htoles(phdr->caplen);
+	
+    nwritten = fwrite(&rec_hdr, 1, sizeof(rec_hdr), wdh->fh);
+    if (nwritten != sizeof(rec_hdr)) {
+	if (nwritten == 0 && ferror(wdh->fh))
+	    *err = errno;
+	else
+	    *err = WTAP_ERR_SHORT_WRITE;
+	return FALSE;
+    }
+
+    /* write the packet data */	
+    nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
+    if (nwritten != phdr->caplen) {
+	if (nwritten == 0 && ferror(wdh->fh))
+	    *err = errno;
+	else
+	    *err = WTAP_ERR_SHORT_WRITE;
+	return FALSE;
+    }
+	
+    netxray->nframes++;
+
+    return TRUE;
+}
+
+/* Finish writing to a dump file.
+   Returns TRUE on success, FALSE on failure. */
+static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
+{
+    char hdr_buf[CAPTUREFILE_HEADER_SIZE - sizeof(netxray_magic)];
+    netxray_dump_t *netxray = wdh->dump.netxray;
+    guint32 filelen;
+    struct netxray_hdr file_hdr;
+    size_t nwritten;
+
+    filelen = ftell(wdh->fh);
+
+    /* Go back to beginning */
+    fseek(wdh->fh, 0, SEEK_SET);
+
+    /* Rewrite the file header. */
+    nwritten = fwrite(netxray_magic, 1, sizeof netxray_magic, wdh->fh);
+    if (nwritten != sizeof netxray_magic) {
+	if (err != NULL) {
+	    if (nwritten == 0 && ferror(wdh->fh))
+		*err = errno;
+	    else
+		*err = WTAP_ERR_SHORT_WRITE;
+	}
+	return FALSE;
+    }
+
+    /* "sniffer" version ? */
+    memset(&file_hdr, '\0', sizeof file_hdr);
+    memcpy(file_hdr.version, vers_1_1, sizeof vers_1_1);
+    file_hdr.start_time = htolel(netxray->start.tv_sec);
+    file_hdr.nframes = htolel(netxray->nframes);
+    file_hdr.start_offset = htolel(CAPTUREFILE_HEADER_SIZE);
+    file_hdr.end_offset = htolel(filelen);
+    file_hdr.network = htoles(wtap_encap[wdh->encap]);
+    file_hdr.timelo = htolel(0);
+    file_hdr.timehi = htolel(0);
+
+    memset(hdr_buf, '\0', sizeof hdr_buf);
+    memcpy(hdr_buf, &file_hdr, sizeof(file_hdr));
+    nwritten = fwrite(hdr_buf, 1, sizeof hdr_buf, wdh->fh);
+    if (nwritten != sizeof hdr_buf) {
+	if (err != NULL) {
+	    if (nwritten == 0 && ferror(wdh->fh))
+		*err = errno;
+	    else
+		*err = WTAP_ERR_SHORT_WRITE;
+	}
+	return FALSE;
+    }
+	
+    return TRUE;
+}
+
+/* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
+   failure */
 gboolean netxray_dump_open_2_0(wtap_dumper *wdh, int *err)
 {
     /* This is a netxray file */
@@ -615,10 +754,12 @@ static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
     /* Rewrite the file header. */
     nwritten = fwrite(netxray_magic, 1, sizeof netxray_magic, wdh->fh);
     if (nwritten != sizeof netxray_magic) {
-	if (nwritten == 0 && ferror(wdh->fh))
-	    *err = errno;
-	else
-	    *err = WTAP_ERR_SHORT_WRITE;
+	if (err != NULL) {
+	    if (nwritten == 0 && ferror(wdh->fh))
+		*err = errno;
+	    else
+		*err = WTAP_ERR_SHORT_WRITE;
+	}
 	return FALSE;
     }
 
@@ -637,149 +778,14 @@ static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
     memcpy(hdr_buf, &file_hdr, sizeof(file_hdr));
     nwritten = fwrite(hdr_buf, 1, sizeof hdr_buf, wdh->fh);
     if (nwritten != sizeof hdr_buf) {
-	if (nwritten == 0 && ferror(wdh->fh))
-	    *err = errno;
-	else
-	    *err = WTAP_ERR_SHORT_WRITE;
+	if (err != NULL) {
+	    if (nwritten == 0 && ferror(wdh->fh))
+		*err = errno;
+	    else
+		*err = WTAP_ERR_SHORT_WRITE;
+	}
 	return FALSE;
     }
 	
     return TRUE;
 }
-
-/* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
-   failure */
-gboolean netxray_dump_open_1_1(wtap_dumper *wdh, int *err)
-{
-    /* This is a netxray file */
-    wdh->subtype_write = netxray_dump_1_1;
-    wdh->subtype_close = netxray_dump_close_1_1;
-
-    /* We can't fill in all the fields in the file header, as we
-       haven't yet written any packets.  As we'll have to rewrite
-       the header when we've written out all the packets, we just
-       skip over the header for now. */
-    if (fseek(wdh->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET) == -1) {
-	*err = errno;
-	return FALSE;
-    }
-
-    wdh->dump.netxray = g_malloc(sizeof(netxray_dump_t));
-    wdh->dump.netxray->first_frame = TRUE;
-    wdh->dump.netxray->start.tv_sec = 0;
-    wdh->dump.netxray->start.tv_usec = 0;
-    wdh->dump.netxray->nframes = 0;
-
-    return TRUE;
-}
-
-/* Write a record for a packet to a dump file.
-   Returns TRUE on success, FALSE on failure. */
-static gboolean netxray_dump_1_1(wtap_dumper *wdh,
-	const struct wtap_pkthdr *phdr,
-	const union wtap_pseudo_header *pseudo_header _U_,
-	const u_char *pd, int *err)
-{
-    netxray_dump_t *netxray = wdh->dump.netxray;
-    guint32 timestamp;
-    struct netxrayrec_1_x_hdr rec_hdr;
-    size_t nwritten;
-
-    /* NetXRay/Windows Sniffer files have a capture start date/time
-       in the header, in a UNIX-style format, with one-second resolution,
-       and a start time stamp with microsecond resolution that's just
-       an arbitrary time stamp relative to some unknown time (boot
-       time?), and have times relative to the start time stamp in
-       the packet headers; pick the seconds value of the time stamp
-       of the first packet as the UNIX-style start date/time, and make
-       the high-resolution start time stamp 0, with the time stamp of
-       packets being the delta between the stamp of the packet and
-       the stamp of the first packet with the microseconds part 0. */
-    if (netxray->first_frame) {
-	netxray->first_frame = FALSE;
-	netxray->start = phdr->ts;
-    }
-
-    /* build the header for each packet */
-    memset(&rec_hdr, '\0', sizeof(rec_hdr));
-    timestamp = (phdr->ts.tv_sec - netxray->start.tv_sec)*1000000 +
-        phdr->ts.tv_usec;
-    rec_hdr.timelo = htolel(timestamp);
-    rec_hdr.timehi = htolel(0);
-    rec_hdr.orig_len = htoles(phdr->len);
-    rec_hdr.incl_len = htoles(phdr->caplen);
-	
-    nwritten = fwrite(&rec_hdr, 1, sizeof(rec_hdr), wdh->fh);
-    if (nwritten != sizeof(rec_hdr)) {
-	if (nwritten == 0 && ferror(wdh->fh))
-	    *err = errno;
-	else
-	    *err = WTAP_ERR_SHORT_WRITE;
-	return FALSE;
-    }
-
-    /* write the packet data */	
-    nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
-    if (nwritten != phdr->caplen) {
-	if (nwritten == 0 && ferror(wdh->fh))
-	    *err = errno;
-	else
-	    *err = WTAP_ERR_SHORT_WRITE;
-	return FALSE;
-    }
-	
-    netxray->nframes++;
-
-    return TRUE;
-}
-
-/* Finish writing to a dump file.
-   Returns TRUE on success, FALSE on failure. */
-static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
-{
-    char hdr_buf[CAPTUREFILE_HEADER_SIZE - sizeof(netxray_magic)];
-    netxray_dump_t *netxray = wdh->dump.netxray;
-    guint32 filelen;
-    struct netxray_hdr file_hdr;
-    size_t nwritten;
-
-    filelen = ftell(wdh->fh);
-
-    /* Go back to beginning */
-    fseek(wdh->fh, 0, SEEK_SET);
-
-    /* Rewrite the file header. */
-    nwritten = fwrite(netxray_magic, 1, sizeof netxray_magic, wdh->fh);
-    if (nwritten != sizeof netxray_magic) {
-	if (nwritten == 0 && ferror(wdh->fh))
-	    *err = errno;
-	else
-	    *err = WTAP_ERR_SHORT_WRITE;
-	return FALSE;
-    }
-
-    /* "sniffer" version ? */
-    memset(&file_hdr, '\0', sizeof file_hdr);
-    memcpy(file_hdr.version, vers_1_1, sizeof vers_1_1);
-    file_hdr.start_time = htolel(netxray->start.tv_sec);
-    file_hdr.nframes = htolel(netxray->nframes);
-    file_hdr.start_offset = htolel(CAPTUREFILE_HEADER_SIZE);
-    file_hdr.end_offset = htolel(filelen);
-    file_hdr.network = htoles(wtap_encap[wdh->encap]);
-    file_hdr.timelo = htolel(0);
-    file_hdr.timehi = htolel(0);
-
-    memset(hdr_buf, '\0', sizeof hdr_buf);
-    memcpy(hdr_buf, &file_hdr, sizeof(file_hdr));
-    nwritten = fwrite(hdr_buf, 1, sizeof hdr_buf, wdh->fh);
-    if (nwritten != sizeof hdr_buf) {
-	if (nwritten == 0 && ferror(wdh->fh))
-	    *err = errno;
-	else
-	    *err = WTAP_ERR_SHORT_WRITE;
-	return FALSE;
-    }
-	
-    return TRUE;
-}
-

@@ -2,7 +2,7 @@
  * File read and write routines for Visual Networks cap files.
  * Copyright (c) 2001, Tom Nisbet  tnisbet@visualnetworks.com
  *
- * $Id: visual.c,v 1.6 2002/04/09 08:15:04 guy Exp $
+ * $Id: visual.c,v 1.7 2002/05/04 10:00:18 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -120,7 +120,7 @@ static gboolean visual_seek_read(wtap *wth, long seek_off,
 static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
 static gboolean visual_dump_close(wtap_dumper *wdh, int *err);
-static void visual_dump_free();
+static void visual_dump_free(wtap_dumper *wdh);
 
 
 /* Open a file for reading */
@@ -594,10 +594,13 @@ static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
         nwritten = fwrite(visual->index_table, 1, n_to_write, wdh->fh);
         if (nwritten != n_to_write) 
         {
-            if (nwritten == 0 && ferror(wdh->fh))
-                *err = errno;
-            else
-                *err = WTAP_ERR_SHORT_WRITE;
+            if (err != NULL)
+            {
+                if (nwritten == 0 && ferror(wdh->fh))
+                    *err = errno;
+                else
+                    *err = WTAP_ERR_SHORT_WRITE;
+            }
             visual_dump_free(wdh);
             return FALSE;
         }
@@ -610,10 +613,13 @@ static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
     nwritten = fwrite(magicp, 1, magic_size, wdh->fh);
     if (nwritten != magic_size)
     {
-        if (nwritten == 0 && ferror(wdh->fh))
-            *err = errno;
-        else
-            *err = WTAP_ERR_SHORT_WRITE;
+        if (err != NULL)
+        {
+            if (nwritten == 0 && ferror(wdh->fh))
+                *err = errno;
+            else
+                *err = WTAP_ERR_SHORT_WRITE;
+        }
         visual_dump_free(wdh);
         return FALSE;
     }
@@ -643,10 +649,13 @@ static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
     nwritten = fwrite(&vfile_hdr, 1, sizeof vfile_hdr, wdh->fh);
     if (nwritten != sizeof vfile_hdr) 
     {
-        if (nwritten == 0 && ferror(wdh->fh))
-            *err = errno;
-        else
-            *err = WTAP_ERR_SHORT_WRITE;
+        if (err != NULL)
+        {
+            if (nwritten == 0 && ferror(wdh->fh))
+                *err = errno;
+            else
+                *err = WTAP_ERR_SHORT_WRITE;
+        }
         visual_dump_free(wdh);
         return FALSE;
     }

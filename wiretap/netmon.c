@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.53 2002/04/30 09:21:41 guy Exp $
+ * $Id: netmon.c,v 1.54 2002/05/04 10:00:18 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -748,10 +748,12 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 	n_to_write = netmon->frame_table_index * sizeof *netmon->frame_table;
 	nwritten = fwrite(netmon->frame_table, 1, n_to_write, wdh->fh);
 	if (nwritten != n_to_write) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+		if (err != NULL) {
+			if (nwritten == 0 && ferror(wdh->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+		}
 		return FALSE;
 	}
 
@@ -779,48 +781,53 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 	default:
 		/* We should never get here - our open routine
 		   should only get called for the types above. */
-		*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+		if (err != NULL)
+			*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
 		return FALSE;
 	}
 	nwritten = fwrite(magicp, 1, magic_size, wdh->fh);
 	if (nwritten != magic_size) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+		if (err != NULL) {
+			if (nwritten == 0 && ferror(wdh->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+		}
 		return FALSE;
 	}
 
 	file_hdr.network = htoles(wtap_encap[wdh->encap]);
 	tm = localtime(&netmon->first_record_time.tv_sec);
-    if (tm != NULL) {
-      file_hdr.ts_year  = htoles(1900 + tm->tm_year);
-      file_hdr.ts_month = htoles(tm->tm_mon + 1);
-      file_hdr.ts_dow   = htoles(tm->tm_wday);
-      file_hdr.ts_day   = htoles(tm->tm_mday);
-      file_hdr.ts_hour  = htoles(tm->tm_hour);
-      file_hdr.ts_min   = htoles(tm->tm_min);
-      file_hdr.ts_sec   = htoles(tm->tm_sec);
-    } else {
-      file_hdr.ts_year  = htoles(1900 + 0);
-      file_hdr.ts_month = htoles(0 + 1);
-      file_hdr.ts_dow   = htoles(0);
-      file_hdr.ts_day   = htoles(0);
-      file_hdr.ts_hour  = htoles(0);
-      file_hdr.ts_min   = htoles(0);
-      file_hdr.ts_sec   = htoles(0);
-    }      
-    file_hdr.ts_msec  = htoles(netmon->first_record_time.tv_usec/1000);
+	if (tm != NULL) {
+		file_hdr.ts_year  = htoles(1900 + tm->tm_year);
+		file_hdr.ts_month = htoles(tm->tm_mon + 1);
+		file_hdr.ts_dow   = htoles(tm->tm_wday);
+		file_hdr.ts_day   = htoles(tm->tm_mday);
+		file_hdr.ts_hour  = htoles(tm->tm_hour);
+		file_hdr.ts_min   = htoles(tm->tm_min);
+		file_hdr.ts_sec   = htoles(tm->tm_sec);
+	} else {
+		file_hdr.ts_year  = htoles(1900 + 0);
+		file_hdr.ts_month = htoles(0 + 1);
+		file_hdr.ts_dow   = htoles(0);
+		file_hdr.ts_day   = htoles(0);
+		file_hdr.ts_hour  = htoles(0);
+		file_hdr.ts_min   = htoles(0);
+		file_hdr.ts_sec   = htoles(0);
+	}
+	file_hdr.ts_msec  = htoles(netmon->first_record_time.tv_usec/1000);
 		/* XXX - what about rounding? */
 	file_hdr.frametableoffset = htolel(netmon->frame_table_offset);
 	file_hdr.frametablelength =
 	    htolel(netmon->frame_table_index * sizeof *netmon->frame_table);
 	nwritten = fwrite(&file_hdr, 1, sizeof file_hdr, wdh->fh);
 	if (nwritten != sizeof file_hdr) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+		if (err != NULL) {
+			if (nwritten == 0 && ferror(wdh->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+		}
 		return FALSE;
 	}
 

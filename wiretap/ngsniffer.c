@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.79 2002/04/30 08:48:27 guy Exp $
+ * $Id: ngsniffer.c,v 1.80 2002/05/04 10:00:18 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1559,10 +1559,12 @@ static gboolean ngsniffer_dump_close(wtap_dumper *wdh, int *err)
 
     nwritten = fwrite(buf, 1, 6, wdh->fh);
     if (nwritten != 6) {
-	if (nwritten == 0 && ferror(wdh->fh))
-	    *err = errno;
-	else
-	    *err = WTAP_ERR_SHORT_WRITE;
+	if (err != NULL) {
+	    if (nwritten == 0 && ferror(wdh->fh))
+		*err = errno;
+	    else
+		*err = WTAP_ERR_SHORT_WRITE;
+	}
 	return FALSE;
     }
     return TRUE;
