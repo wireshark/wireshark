@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.6 1999/08/19 05:31:37 guy Exp $
+ * $Id: iptrace.c,v 1.7 1999/08/20 04:07:09 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -75,12 +75,10 @@ static int iptrace_read(wtap *wth, int *err)
 			*err = errno;
 			return -1;
 		}
-		/* because of the way we have to kill the iptrace command,
-		 * the existence of a partial header or packet is probable,
-		 * and we should not complain about it. Simply return
-		 * quietly and pretend that the trace file ended on
-		 * a packet boundary
-		 */
+		if (bytes_read != 0) {
+			*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		}
 		return 0;
 	}
 
@@ -94,15 +92,6 @@ static int iptrace_read(wtap *wth, int *err)
 		packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
-		/* don't complain about a partial packet. Just
-		 * pretend that we reached the end of the file
-		 * normally. If, however, there was a read error
-		 * because of some other reason, complain
-		 *
-		 * XXX - this was returning -1 even on a partial
-		 * packet; should we return 0 on a partial packet,
-		 * so that "wtap_loop()" quits and reports success?
-		 */
 		if (ferror(wth->fh))
 			*err = errno;
 		else
