@@ -51,7 +51,7 @@ G_MODULE_EXPORT const gchar version[] = VERSION;
 /*
  * See
  *
- *	http://www.dgtech.com/gryphon/docs/html/
+ *	http://www.dgtech.com/gryphon/sys/www/docs/html/
  */
 
 static int proto_gryphon = -1;
