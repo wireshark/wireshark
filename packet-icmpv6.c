@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.42 2001/04/27 01:27:37 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.43 2001/05/27 04:14:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,6 +96,53 @@ static const value_string names_rrenum_matchcode[] = {
     { RPM_PCO_SETGLOBAL,	"Set Global" },
     { 0,			NULL }
 };
+
+static void
+dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+    tvbuff_t *next_tvb;
+    address save_dl_src;
+    address save_dl_dst;
+    address save_net_src;
+    address save_net_dst;
+    address save_src;
+    address save_dst;
+
+    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+
+    /* tiny sanity check */
+    if ((tvb_get_guint8(tvb, offset) & 0xf0) == 0x60) {
+	/* The contained packet is an IPv6 datagram; dissect it.
+
+	   Set the columns non-writable, so that the packet list
+	   shows this as an ICMPv6 packet, not as the type of packet
+	   for which the ICMPv6 packet was generated. */
+	col_set_writable(pinfo->fd, FALSE);
+
+	/* Also, save the current values of the addresses, and restore
+	   them when we're finished dissecting the contained packet, so
+	   that the address columns in the summary don't reflect the
+	   contained packet, but reflect this packet instead. */
+	save_dl_src = pinfo->dl_src;
+	save_dl_dst = pinfo->dl_dst;
+	save_net_src = pinfo->net_src;
+	save_net_dst = pinfo->net_dst;
+	save_src = pinfo->src;
+	save_dst = pinfo->dst;
+
+	/* Dissect the contained packet. */
+	call_dissector(ipv6_handle, next_tvb, pinfo, tree);
+
+	/* Restore the addresses. */
+	pinfo->dl_src = save_dl_src;
+	pinfo->dl_dst = save_dl_dst;
+	pinfo->net_src = save_net_src;
+	pinfo->net_dst = save_net_dst;
+	pinfo->src = save_src;
+	pinfo->dst = save_dst;
+    } else
+	dissect_data(next_tvb, 0, pinfo, tree);
+}
 
 static void
 dissect_icmpv6opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
@@ -218,19 +265,7 @@ again:
     case ND_OPT_REDIRECTED_HEADER:
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + 8, (opt->nd_opt_len << 3) - 8, "Redirected packet");
-	/* tiny sanity check */
-	if ((tvb_get_guint8(tvb, offset + 8) & 0xf0) == 0x60) {
-	    /* The redirected packet is an IPv6 datagram; dissect it.
-
-	       Set the columns non-writable, so that the packet list
-	       shows this as an ICMPv6 packet, not as the type of packet
-	       for which the ICMPv6 packet was generated. */
-	    col_set_writable(pinfo->fd, FALSE);
-
-	    call_dissector(ipv6_handle, tvb_new_subset(tvb, offset + 8, -1, -1),
-		pinfo, icmp6opt_tree);
-	} else
-	    dissect_data(tvb_new_subset(tvb, offset + 8, -1, -1), 0, pinfo, icmp6opt_tree);
+	dissect_contained_icmpv6(tvb, offset + 8, pinfo, icmp6opt_tree);
 	break;
     case ND_OPT_MTU:
 	proto_tree_add_text(icmp6opt_tree, tvb,
@@ -803,6 +838,11 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int offset;
     tvbuff_t *next_tvb;
 
+    if (check_col(pinfo->fd, COL_PROTOCOL))
+	col_set_str(pinfo->fd, COL_PROTOCOL, "ICMPv6");
+    if (check_col(pinfo->fd, COL_INFO))
+	col_clear(pinfo->fd, COL_INFO);
+
     offset = 0;
     tvb_memcpy(tvb, (guint8 *)&icmp6_hdr, offset, sizeof icmp6_hdr);
     dp = &icmp6_hdr;
@@ -957,8 +997,6 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
     }
 
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-	col_set_str(pinfo->fd, COL_PROTOCOL, "ICMPv6");
     if (check_col(pinfo->fd, COL_INFO)) {
 	char typebuf[256], codebuf[256];
 
@@ -1043,59 +1081,25 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* decode... */
-	next_tvb = tvb_new_subset(tvb, offset + sizeof(*dp), -1, -1);
 	switch (dp->icmp6_type) {
 	case ICMP6_DST_UNREACH:
 	case ICMP6_TIME_EXCEEDED:
-	    /* tiny sanity check */
-	    if ((tvb_get_guint8(tvb, offset + sizeof(*dp)) & 0xf0) == 0x60) {
-		/* The invoking packet is an IPv6 datagram; dissect it.
-
-		   Set the columns non-writable, so that the packet list
-		   shows this as an ICMPv6 packet, not as the type of packet
-		   for which the ICMPv6 packet was generated. */
-		col_set_writable(pinfo->fd, FALSE);
-
-		call_dissector(ipv6_handle, next_tvb, pinfo, icmp6_tree);
-	    } else {
-		dissect_data(next_tvb, 0, pinfo, icmp6_tree);
-	    }
+	    dissect_contained_icmpv6(tvb, offset + sizeof(*dp), pinfo,
+		icmp6_tree);
 	    break;
 	case ICMP6_PACKET_TOO_BIG:
 	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct icmp6_hdr, icmp6_mtu), 4,
 		"MTU: %u", pntohl(&dp->icmp6_mtu));
-	    /* tiny sanity check */
-	    if ((tvb_get_guint8(tvb, offset + sizeof(*dp)) & 0xf0) == 0x60) {
-		/* The invoking packet is an IPv6 datagram; dissect it.
-
-		   Set the columns non-writable, so that the packet list
-		   shows this as an ICMPv6 packet, not as the type of packet
-		   for which the ICMPv6 packet was generated. */
-		col_set_writable(pinfo->fd, FALSE);
-
-		call_dissector(ipv6_handle, next_tvb, pinfo, icmp6_tree);
-	    } else {
-		dissect_data(next_tvb, 0, pinfo, icmp6_tree);
-	    }
+	    dissect_contained_icmpv6(tvb, offset + sizeof(*dp), pinfo,
+		icmp6_tree);
 	    break;
 	case ICMP6_PARAM_PROB:
 	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct icmp6_hdr, icmp6_pptr), 4,
 		"Problem pointer: 0x%04x", pntohl(&dp->icmp6_pptr));
-	    /* tiny sanity check */
-	    if ((tvb_get_guint8(tvb, offset + sizeof(*dp)) & 0xf0) == 0x60) {
-		/* The invoking packet is an IPv6 datagram; dissect it.
-
-		   Set the columns non-writable, so that the packet list
-		   shows this as an ICMPv6 packet, not as the type of packet
-		   for which the ICMPv6 packet was generated. */
-		col_set_writable(pinfo->fd, FALSE);
-
-		call_dissector(ipv6_handle, next_tvb, pinfo, icmp6_tree);
-	    } else {
-		dissect_data(next_tvb, 0, pinfo, icmp6_tree);
-	    }
+	    dissect_contained_icmpv6(tvb, offset + sizeof(*dp), pinfo,
+		icmp6_tree);
 	    break;
 	case ICMP6_ECHO_REQUEST:
 	case ICMP6_ECHO_REPLY:
@@ -1105,6 +1109,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct icmp6_hdr, icmp6_seq), 2,
 		"Sequence: 0x%04x", (guint16)ntohs(dp->icmp6_seq));
+	    next_tvb = tvb_new_subset(tvb, offset + sizeof(*dp), -1, -1);
 	    dissect_data(next_tvb, 0, pinfo, icmp6_tree);
 	    break;
 	case ICMP6_MEMBERSHIP_QUERY:
@@ -1259,6 +1264,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    dissect_nodeinfo(tvb, offset, pinfo, icmp6_tree);
 	    break;
 	default:
+	    next_tvb = tvb_new_subset(tvb, offset + sizeof(*dp), -1, -1);
 	    dissect_data(next_tvb, 0, pinfo, tree);
 	    break;
 	}

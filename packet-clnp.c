@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.27 2001/03/30 10:51:49 guy Exp $
+ * $Id: packet-clnp.c,v 1.28 2001/05/27 04:14:52 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1569,6 +1569,12 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint       len;
   guint       next_length;
   proto_tree *discpdu_tree;
+  address     save_dl_src;
+  address     save_dl_dst;
+  address     save_net_src;
+  address     save_net_dst;
+  address     save_src;
+  address     save_dst;
   tvbuff_t   *next_tvb;
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
@@ -1802,11 +1808,33 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              in the summary based on what the discarded PDU's contents
              are. */
           col_set_writable(pinfo->fd, FALSE);
+
+          /* Also, save the current values of the addresses, and restore
+             them when we're finished dissecting the contained packet, so
+             that the address columns in the summary don't reflect the
+             contained packet, but reflect this packet instead. */
+          save_dl_src = pinfo->dl_src;
+          save_dl_dst = pinfo->dl_dst;
+          save_net_src = pinfo->net_src;
+          save_net_dst = pinfo->net_dst;
+          save_src = pinfo->src;
+          save_dst = pinfo->dst;
+
+          /* Dissect the contained packet. */
           ti = proto_tree_add_text(clnp_tree, tvb, offset, next_length,
             "Discarded PDU");
           discpdu_tree = proto_item_add_subtree(ti, ett_clnp_disc_pdu);
           next_tvb = tvb_new_subset(tvb, offset, -1, -1);
           dissect_clnp(next_tvb, pinfo, discpdu_tree);
+
+          /* Restore the addresses. */
+          pinfo->dl_src = save_dl_src;
+          pinfo->dl_dst = save_dl_dst;
+          pinfo->net_src = save_net_src;
+          pinfo->net_dst = save_net_dst;
+          pinfo->src = save_src;
+          pinfo->dst = save_dst;
+
           offset += next_length;
         }
       }
