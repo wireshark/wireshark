@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.70 2004/03/20 10:32:02 jmayer Exp $
+dnl $Id: acinclude.m4,v 1.71 2004/03/27 12:07:56 jmayer Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ dnl Roland McGrath, Noah Friedman, david d zuhn, and many others.
 # XXX - IRIX, and other OSes, may require some flag equivalent to
 # "-R" here.
 #
-AC_DEFUN(AC_ETHEREAL_ADD_DASH_L,
+AC_DEFUN([AC_ETHEREAL_ADD_DASH_L],
 [$1="$$1 -L$2"
 case "$host_os" in
   solaris*)
@@ -82,7 +82,7 @@ dnl Done by Guy Harris <guy@alum.mit.edu> on 1998-11-14.
 
 dnl ### Checks for structure members
 
-AC_DEFUN(AC_ETHEREAL_STRUCT_SA_LEN,
+AC_DEFUN([AC_ETHEREAL_STRUCT_SA_LEN],
 [AC_CACHE_CHECK([for sa_len in struct sockaddr], ac_cv_ethereal_struct_sa_len,
 [AC_TRY_COMPILE([#include <sys/types.h>
 #include <sys/socket.h>], [struct sockaddr s; s.sa_len;],
@@ -97,7 +97,7 @@ fi
 #
 # By Jun-ichiro "itojun" Hagino, <itojun@iijlab.net>
 #
-AC_DEFUN(AC_ETHEREAL_IPV6_STACK,
+AC_DEFUN([AC_ETHEREAL_IPV6_STACK],
 [
 	v6type=unknown
 	v6lib=none
@@ -208,7 +208,7 @@ yes
 # GNU Autoconf 2.13; the comment came from there.
 # Done by Guy Harris <guy@alum.mit.edu> on 2000-01-14. 
 #
-AC_DEFUN(AC_ETHEREAL_GETHOSTBY_LIB_CHECK,
+AC_DEFUN([AC_ETHEREAL_GETHOSTBY_LIB_CHECK],
 [
     # msh@cis.ufl.edu says -lnsl (and -lsocket) are needed for his 386/AT,
     # to get the SysV transport functions.
@@ -235,7 +235,7 @@ AC_DEFUN(AC_ETHEREAL_GETHOSTBY_LIB_CHECK,
 #
 # We use "connect" because that's what AC_PATH_XTRA did.
 #
-AC_DEFUN(AC_ETHEREAL_SOCKET_LIB_CHECK,
+AC_DEFUN([AC_ETHEREAL_SOCKET_LIB_CHECK],
 [
     # lieder@skyler.mavd.honeywell.com says without -lsocket,
     # socket/setsockopt and other routines are undefined under SCO ODT
@@ -253,7 +253,7 @@ AC_DEFUN(AC_ETHEREAL_SOCKET_LIB_CHECK,
 #
 # AC_ETHEREAL_PCAP_CHECK
 #
-AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
+AC_DEFUN([AC_ETHEREAL_PCAP_CHECK],
 [
 	if test -z "$pcap_dir"
 	then
@@ -381,7 +381,7 @@ and did you also install that package?]]))
 #
 # AC_ETHEREAL_ZLIB_CHECK
 #
-AC_DEFUN(AC_ETHEREAL_ZLIB_CHECK,
+AC_DEFUN([AC_ETHEREAL_ZLIB_CHECK],
 [
 	if test "x$zlib_dir" != "x"
 	then
@@ -535,7 +535,7 @@ AC_DEFUN(AC_ETHEREAL_ZLIB_CHECK,
 #
 # AC_ETHEREAL_LIBPCRE_CHECK
 #
-AC_DEFUN(AC_ETHEREAL_LIBPCRE_CHECK,
+AC_DEFUN([AC_ETHEREAL_LIBPCRE_CHECK],
 [
 	if test "x$pcre_dir" != "x"
 	then
@@ -641,7 +641,7 @@ AC_DEFUN(AC_ETHEREAL_LIBPCRE_CHECK,
 #
 # AC_ETHEREAL_UCDSNMP_CHECK
 #
-AC_DEFUN(AC_ETHEREAL_UCDSNMP_CHECK,
+AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 [
 	if test "x$ucdsnmp_dir" != "x"
 	then
@@ -733,7 +733,7 @@ AC_DEFUN(AC_ETHEREAL_UCDSNMP_CHECK,
 #
 # AC_ETHEREAL_SSL_CHECK
 #
-AC_DEFUN(AC_ETHEREAL_SSL_CHECK,
+AC_DEFUN([AC_ETHEREAL_SSL_CHECK],
 [
 	want_ssl=defaultyes
 
@@ -775,7 +775,7 @@ changequote([, ])dnl
 # AC_ETHEREAL_RPM_CHECK
 # Looks for the rpm program, and checks to see if we can redefine "_topdir".
 #
-AC_DEFUN(AC_ETHEREAL_RPM_CHECK,
+AC_DEFUN([AC_ETHEREAL_RPM_CHECK],
 [
 	AC_CHECK_PROG(ac_cv_ethereal_have_rpm, rpm, "yes", "no")
 	if test "x$ac_cv_ethereal_have_rpm" = "xyes"; then
@@ -810,7 +810,7 @@ AC_DEFUN([AC_ETHEREAL_GNU_SED_CHECK],
 #
 # AC_ETHEREAL_ADNS_CHECK
 #
-AC_DEFUN(AC_ETHEREAL_ADNS_CHECK,
+AC_DEFUN([AC_ETHEREAL_ADNS_CHECK],
 [
 	want_adns=defaultyes
 
@@ -854,7 +854,7 @@ changequote([, ])dnl
 #
 # AC_ETHEREAL_KRB5_CHECK
 #
-AC_DEFUN(AC_ETHEREAL_KRB5_CHECK,
+AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 [
 	if test "x$krb5_dir" != "x"
 	then

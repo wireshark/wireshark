@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.18 2003/12/17 02:41:04 guy Exp $
+dnl $Id: acinclude.m4,v 1.19 2004/03/27 12:07:57 jmayer Exp $
 dnl
 
 #
@@ -15,7 +15,7 @@ dnl
 # XXX - IRIX, and other OSes, may require some flag equivalent to
 # "-R" here.
 #
-AC_DEFUN(AC_WIRETAP_ADD_DASH_L,
+AC_DEFUN([AC_WIRETAP_ADD_DASH_L],
 [$1="$$1 -L$2"
 case "$host_os" in
   solaris*)
@@ -27,7 +27,7 @@ esac
 #
 # AC_WIRETAP_PCAP_CHECK
 #
-AC_DEFUN(AC_WIRETAP_PCAP_CHECK,
+AC_DEFUN([AC_WIRETAP_PCAP_CHECK],
 [
 	if test -z "$pcap_dir"
 	then
@@ -84,7 +84,7 @@ AC_DEFUN(AC_WIRETAP_PCAP_CHECK,
 #
 # AC_WIRETAP_ZLIB_CHECK
 #
-AC_DEFUN(AC_WIRETAP_ZLIB_CHECK,
+AC_DEFUN([AC_WIRETAP_ZLIB_CHECK],
 [
 	if test "x$zlib_dir" != "x"
 	then
