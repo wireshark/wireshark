@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.27 2001/03/25 01:52:16 guy Exp $
+ * $Id: packet-icq.c,v 1.28 2001/03/27 02:01:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -1795,13 +1795,18 @@ dissect_icqv5Client(tvbuff_t *tvb,
     decr_tvb = tvb_new_real_data(decr_pd, pktsize, tvb_reported_length(tvb),
 	"Decrypted");
 
+    /* Add the tvbuff to the list of tvbuffs to which the tvbuff we
+       were handed refers, so it'll get cleaned up when that tvbuff
+       is cleaned up. */
+    tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
+
     /* Add the decrypted data to the data source list. */
     pinfo->fd->data_src = g_slist_append(pinfo->fd->data_src, decr_tvb);
 
     cmd = tvb_get_letohs(decr_tvb, ICQ5_CL_CMD);
 
     if (check_col(pinfo->fd, COL_INFO))
-      col_add_fstr(pinfo->fd, COL_INFO, "ICQv5 %s", findClientCmd(cmd));
+        col_add_fstr(pinfo->fd, COL_INFO, "ICQv5 %s", findClientCmd(cmd));
     
     if (tree) {
         ti = proto_tree_add_protocol_format(tree,
