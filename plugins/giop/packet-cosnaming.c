@@ -1806,11 +1806,13 @@ void proto_register_giop_cosnaming(void) {
 
    /* setup list of header fields */
 
+#if 0
    static hf_register_info hf[] = {
 
       /* no fields yet */
       
    };
+#endif
 
    /* setup protocol subtree array */
 
@@ -1822,7 +1824,9 @@ void proto_register_giop_cosnaming(void) {
    
    proto_cosnaming = proto_register_protocol("Cosnaming Dissector Using GIOP API" , "COSNAMING", "giop-cosnaming" );
 
+#if 0
    proto_register_field_array(proto_cosnaming, hf, array_length(hf));
+#endif
    proto_register_subtree_array(ett,array_length(ett));
    
 }
