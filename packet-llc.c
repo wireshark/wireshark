@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.97 2002/04/24 06:03:34 guy Exp $
+ * $Id: packet-llc.c,v 1.98 2002/05/29 03:08:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,12 +38,19 @@
 #include "etypes.h"
 #include "llcsaps.h"
 #include "bridged_pids.h"
+#include "ppptypes.h"
 #include "packet-ip.h"
 #include "packet-ipx.h"
 #include "packet-netbios.h"
 #include <epan/sna-utils.h>
 
 #include "packet-llc.h"
+
+#define UDP_PORT_LLC1   12000
+#define UDP_PORT_LLC2   12001
+#define UDP_PORT_LLC3   12002
+#define UDP_PORT_LLC4   12003
+#define UDP_PORT_LLC5   12004
 
 static int proto_llc = -1;
 static int hf_llc_dsap = -1;
@@ -548,4 +555,12 @@ proto_reg_handoff_llc(void)
 
 	llc_handle = find_dissector("llc");
 	dissector_add("wtap_encap", WTAP_ENCAP_ATM_RFC1483, llc_handle);
+	/* RFC 2043 */
+	dissector_add("ppp.protocol", PPP_LLC, llc_handle);
+	/* RFC 2353 */
+	dissector_add("udp.port", UDP_PORT_LLC1, llc_handle);
+	dissector_add("udp.port", UDP_PORT_LLC2, llc_handle);
+	dissector_add("udp.port", UDP_PORT_LLC3, llc_handle);
+	dissector_add("udp.port", UDP_PORT_LLC4, llc_handle);
+	dissector_add("udp.port", UDP_PORT_LLC5, llc_handle);
 }

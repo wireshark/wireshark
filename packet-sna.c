@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-sna.c,v 1.38 2002/01/21 07:36:43 guy Exp $
+ * $Id: packet-sna.c,v 1.39 2002/05/29 03:08:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,10 +34,12 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "llcsaps.h"
+#include "ppptypes.h"
 #include <epan/sna-utils.h>
 
 /*
  * http://www.wanresources.com/snacell.html
+ * ftp://ftp.software.ibm.com/networking/pub/standards/aiw/formats/
  *
  */
 
@@ -85,6 +87,35 @@ static int hf_sna_th_cmd_fmt = -1;
 static int hf_sna_th_cmd_type = -1;
 static int hf_sna_th_cmd_sn = -1;
 
+static int hf_sna_nlp_nhdr = -1;
+static int hf_sna_nlp_nhdr_0 = -1;
+static int hf_sna_nlp_sm = -1;
+static int hf_sna_nlp_tpf = -1;
+static int hf_sna_nlp_nhdr_1 = -1;
+static int hf_sna_nlp_ft = -1;
+static int hf_sna_nlp_tspi = -1;
+static int hf_sna_nlp_slowdn1 = -1;
+static int hf_sna_nlp_slowdn2 = -1;
+static int hf_sna_nlp_fra = -1;
+static int hf_sna_nlp_anr = -1;
+static int hf_sna_nlp_frh = -1;
+static int hf_sna_nlp_thdr = -1;
+static int hf_sna_nlp_tcid = -1;
+static int hf_sna_nlp_thdr_8 = -1;
+static int hf_sna_nlp_setupi = -1;
+static int hf_sna_nlp_somi = -1;
+static int hf_sna_nlp_eomi = -1;
+static int hf_sna_nlp_sri = -1;
+static int hf_sna_nlp_rasapi = -1;
+static int hf_sna_nlp_retryi = -1;
+static int hf_sna_nlp_thdr_9 = -1;
+static int hf_sna_nlp_lmi = -1;
+static int hf_sna_nlp_cqfi = -1;
+static int hf_sna_nlp_osi = -1;
+static int hf_sna_nlp_offset = -1;
+static int hf_sna_nlp_dlf = -1;
+static int hf_sna_nlp_bsn = -1;
+
 static int hf_sna_rh = -1;
 static int hf_sna_rh_0 = -1;
 static int hf_sna_rh_1 = -1;
@@ -115,6 +146,12 @@ static int hf_sna_rh_cebi = -1;
 static gint ett_sna = -1;
 static gint ett_sna_th = -1;
 static gint ett_sna_th_fid = -1;
+static gint ett_sna_nlp_nhdr = -1;
+static gint ett_sna_nlp_nhdr_0 = -1;
+static gint ett_sna_nlp_nhdr_1 = -1;
+static gint ett_sna_nlp_thdr = -1;
+static gint ett_sna_nlp_thdr_8 = -1;
+static gint ett_sna_nlp_thdr_9 = -1;
 static gint ett_sna_rh = -1;
 static gint ett_sna_rh_0 = -1;
 static gint ett_sna_rh_1 = -1;
@@ -130,6 +167,10 @@ static const value_string sna_th_fid_vals[] = {
 	{ 0x3,	"Subarea Node or SNA host <--> Subarea Node" },
 	{ 0x4,	"Subarea Nodes, supporting ER and VR" },
 	{ 0x5,	"HPR RTP endpoint nodes" },
+	{ 0xa,	"HPR NLP Frame Routing" },
+	{ 0xb,	"HPR NLP Frame Routing" },
+	{ 0xc,	"HPR NLP Automatic Network Routing" },
+	{ 0xd,	"HPR NLP Automatic Network Routing" },
 	{ 0xf,	"Adjaced Subarea Nodes, supporting ER and VR" },
 	{ 0x0,	NULL }
 };
@@ -263,6 +304,7 @@ static const value_string sna_th_tpf_vals[] = {
 	{ 0, "Low Priority" },
 	{ 1, "Medium Priority" },
 	{ 2, "High Priority" },
+	{ 3, "Network Priority" },
 	{ 0x0,	NULL }
 };
 
@@ -310,23 +352,78 @@ static const true_false_string sna_th_vr_rwi_truth = {
 	"Do not reset window size",
 };
 
+/* Switching Mode */
+static const value_string sna_nlp_sm_vals[] = {
+	{ 5, "Function routing" },
+	{ 6, "Automatic network routing" },
+	{ 0x0,	NULL }
+};
+
+static const true_false_string sna_nlp_tspi_truth =
+	{ "Time sensitive", "Not time sensitive" };
+
+static const true_false_string sna_nlp_slowdn1_truth =
+	{ "Minor congestion", "No minor congestion" };
+
+static const true_false_string sna_nlp_slowdn2_truth =
+	{ "Major congestion", "No major congestion" };
+
+/* Function Type */
+static const value_string sna_nlp_ft_vals[] = {
+	{ 0x10, "LDLC" },
+	{ 0x0,	NULL }
+};
+
+static const value_string sna_nlp_frh_vals[] = {
+	{ 0x03, "XID complete request" },
+	{ 0x04, "XID complete response" },
+	{ 0x0,	NULL }
+};
+
+static const true_false_string sna_nlp_setupi_truth =
+	{ "Connection setup segment present", "Connection setup segment not present" };
+
+static const true_false_string sna_nlp_somi_truth =
+	{ "Start of message", "Not start of message" };
+
+static const true_false_string sna_nlp_eomi_truth =
+	{ "End of message", "Not end of message" };
+
+static const true_false_string sna_nlp_sri_truth =
+	{ "Status requested", "No status requested" };
+
+static const true_false_string sna_nlp_rasapi_truth =
+	{ "Reply as soon as possible", "No need to reply as soon as possible" };
+
+static const true_false_string sna_nlp_retryi_truth =
+	{ "Undefined", "Sender will retransmit" };
+
+static const true_false_string sna_nlp_lmi_truth =
+	{ "Last message", "Not last message" };
+
+static const true_false_string sna_nlp_cqfi_truth =
+	{ "CQFI included", "CQFI not included" };
+
+static const true_false_string sna_nlp_osi_truth =
+	{ "Optional segments present", "No optional segments present" };
+
+
 static int  dissect_fid0_1 (tvbuff_t*, packet_info*, proto_tree*);
 static int  dissect_fid2 (tvbuff_t*, packet_info*, proto_tree*);
 static int  dissect_fid3 (tvbuff_t*, proto_tree*);
 static int  dissect_fid4 (tvbuff_t*, packet_info*, proto_tree*);
 static int  dissect_fid5 (tvbuff_t*, proto_tree*);
 static int  dissect_fidf (tvbuff_t*, proto_tree*);
+static void dissect_fid (tvbuff_t*, packet_info*, proto_tree*);
+static void dissect_nlp (tvbuff_t*, packet_info*, proto_tree*);
 static void dissect_rh (tvbuff_t*, int, proto_tree*);
 
 static void
 dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-
-	proto_tree	*sna_tree = NULL, *th_tree = NULL, *rh_tree = NULL;
-	proto_item	*sna_ti = NULL, *th_ti = NULL, *rh_ti = NULL;
-	guint8		th_fid;
-	int		sna_header_len = 0, th_header_len = 0;
-	int		offset;
+	guint8		fid;
+	proto_tree	*sna_tree = NULL;
+	proto_item	*sna_ti = NULL;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SNA");
@@ -335,6 +432,38 @@ dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* SNA data should be printed in EBCDIC, not ASCII */
 	pinfo->fd->flags.encoding = CHAR_EBCDIC;
+
+	if (tree) {
+
+		/* Don't bother setting length. We'll set it later after we find
+		 * the lengths of TH/RH/RU */
+		sna_ti = proto_tree_add_item(tree, proto_sna, tvb, 0, -1, FALSE);
+		sna_tree = proto_item_add_subtree(sna_ti, ett_sna);
+	}
+
+	/* Transmission Header Format Identifier */
+	fid = hi_nibble(tvb_get_guint8(tvb, 0));
+	switch(fid) {
+		case 0xa:	/* HPR Network Layer Packet */
+		case 0xb:
+		case 0xc:
+		case 0xd:
+			dissect_nlp(tvb, pinfo, sna_tree);
+			break;
+		default:
+			dissect_fid(tvb, pinfo, sna_tree);
+	}
+}
+
+static void
+dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+
+	proto_tree	*th_tree = NULL, *rh_tree = NULL;
+	proto_item	*th_ti = NULL, *rh_ti = NULL;
+	guint8		th_fid;
+	int		sna_header_len = 0, th_header_len = 0;
+	int		offset;
 
 	/* Transmission Header Format Identifier */
 	th_fid = hi_nibble(tvb_get_guint8(tvb, 0));
@@ -346,15 +475,10 @@ dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 
-		/* Don't bother setting length. We'll set it later after we find
-		 * the lengths of TH/RH/RU */
-		sna_ti = proto_tree_add_item(tree, proto_sna, tvb, 0, -1, FALSE);
-		sna_tree = proto_item_add_subtree(sna_ti, ett_sna);
-
 		/* --- TH --- */
 		/* Don't bother setting length. We'll set it later after we find
 		 * the length of TH */
-		th_ti = proto_tree_add_item(sna_tree, hf_sna_th, tvb,  0, -1, FALSE);
+		th_ti = proto_tree_add_item(tree, hf_sna_th, tvb,  0, -1, FALSE);
 		th_tree = proto_item_add_subtree(th_ti, ett_sna_th);
 	}
 
@@ -390,13 +514,12 @@ dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item_set_len(th_ti, th_header_len);
 
 		/* --- RH --- */
-		rh_ti = proto_tree_add_item(sna_tree, hf_sna_rh, tvb, offset, 3, FALSE);
+		rh_ti = proto_tree_add_item(tree, hf_sna_rh, tvb, offset, 3, FALSE);
 		rh_tree = proto_item_add_subtree(rh_ti, ett_sna_rh);
 		dissect_rh(tvb, offset, rh_tree);
 
 		sna_header_len += 3;
 		offset += 3;
-		proto_item_set_len(sna_ti, sna_header_len);
 	}
 	else {
 		sna_header_len += 3;
@@ -796,6 +919,148 @@ dissect_fidf(tvbuff_t *tvb, proto_tree *tree)
 	return bytes_in_header;
 }
 
+/* HPR Network Layer Packet */
+static void
+dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_tree	*nlp_tree, *bf_tree;
+	proto_item	*nlp_item, *bf_item, *h_item;
+	guint8		nhdr_0, nhdr_1, nhdr_x, thdr_8, thdr_9;
+	guint32		thdr_len, thdr_dlf, thdr_bsn;
+
+	int index = 0, counter = 0;
+
+	nlp_tree = NULL;
+	nlp_item = NULL;
+
+	nhdr_0 = tvb_get_guint8(tvb, index);
+	nhdr_1 = tvb_get_guint8(tvb, index+1);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_str(pinfo->cinfo, COL_INFO, "HPR NLP Packet");
+
+	if (tree) {
+		/* Don't bother setting length. We'll set it later after we find
+		 * the lengths of NHDR */
+		nlp_item = proto_tree_add_item(tree, hf_sna_nlp_nhdr, tvb, index, -1, FALSE);
+		nlp_tree = proto_item_add_subtree(nlp_item, ett_sna_nlp_nhdr);
+
+		bf_item = proto_tree_add_uint(nlp_tree, hf_sna_nlp_nhdr_0, tvb, index, 1, nhdr_0);
+		bf_tree = proto_item_add_subtree(bf_item, ett_sna_nlp_nhdr_0);
+
+		proto_tree_add_uint(bf_tree, hf_sna_nlp_sm, tvb, index, 1, nhdr_0);
+		proto_tree_add_uint(bf_tree, hf_sna_nlp_tpf, tvb, index, 1, nhdr_0);
+
+		bf_item = proto_tree_add_uint(nlp_tree, hf_sna_nlp_nhdr_1, tvb, index+1, 1, nhdr_1);
+		bf_tree = proto_item_add_subtree(bf_item, ett_sna_nlp_nhdr_1);
+
+		proto_tree_add_uint(bf_tree, hf_sna_nlp_ft, tvb, index+1, 1, nhdr_1);
+		proto_tree_add_boolean(bf_tree, hf_sna_nlp_tspi, tvb, index+1, 1, nhdr_1);
+		proto_tree_add_boolean(bf_tree, hf_sna_nlp_slowdn1, tvb, index+1, 1, nhdr_1);
+		proto_tree_add_boolean(bf_tree, hf_sna_nlp_slowdn2, tvb, index+1, 1, nhdr_1);
+	}
+	/* ANR or FR lists */
+
+	index += 2;
+	counter = 0;
+
+	if ((nhdr_0 & 0xe0) == 0xa0) {
+		do {
+			nhdr_x = tvb_get_guint8(tvb, index + counter);
+			counter ++;
+		} while (nhdr_x != 0xff);
+		if (tree)
+			h_item = proto_tree_add_item(nlp_tree, hf_sna_nlp_fra, tvb, index, counter, FALSE);
+		index += counter;
+
+		index++; /* 1 Byte Reserved */
+
+		if (tree) {
+			proto_item_set_len(nlp_item, index);
+		}
+		if ((nhdr_1 & 0x80) == 0x10) {
+			nhdr_x = tvb_get_guint8(tvb, index);
+			if (tree) {
+				proto_tree_add_uint(tree, hf_sna_nlp_frh, tvb, index, 1, nhdr_x);
+			}
+			index ++;
+
+			if (tvb_offset_exists(tvb, index+1)) {
+				call_dissector(data_handle,tvb_new_subset(tvb, 
+					index, -1, tvb_reported_length_remaining(tvb,index)),pinfo, tree);
+			}
+			return;
+		}
+	}
+	if ((nhdr_0 & 0xe0) == 0xc0) {
+		do {
+			nhdr_x = tvb_get_guint8(tvb, index + counter);
+			counter ++;
+		} while (nhdr_x != 0xff);
+		if (tree)
+			h_item = proto_tree_add_item(nlp_tree, hf_sna_nlp_anr, tvb, index, counter, FALSE);
+		index += counter;
+
+		index++; /* 1 Byte Reserved */
+
+		if (tree) {
+			proto_item_set_len(nlp_item, index);
+		}
+
+	}
+
+	thdr_8 = tvb_get_guint8(tvb, index+8);
+	thdr_9 = tvb_get_guint8(tvb, index+9);
+	thdr_len = tvb_get_ntohs(tvb, index+10);
+	thdr_dlf = tvb_get_ntohl(tvb, index+12);
+	thdr_bsn = tvb_get_ntohl(tvb, index+16);
+
+	if (tree) {
+		/* Don't bother setting length. We'll set it later after we find
+		 * the lengths of NHDR */
+		nlp_item = proto_tree_add_item(tree, hf_sna_nlp_thdr, tvb, index, -1, FALSE);
+		nlp_tree = proto_item_add_subtree(nlp_item, ett_sna_nlp_thdr);
+
+		bf_item = proto_tree_add_item(nlp_tree, hf_sna_nlp_tcid, tvb, index, 8, FALSE);
+
+		bf_item = proto_tree_add_uint(nlp_tree, hf_sna_nlp_thdr_8, tvb, index+8, 1, thdr_8);
+		bf_tree = proto_item_add_subtree(bf_item, ett_sna_nlp_thdr_8);
+
+		proto_tree_add_boolean(bf_tree, hf_sna_nlp_setupi, tvb, index+8, 1, thdr_8);
+		proto_tree_add_boolean(bf_tree, hf_sna_nlp_somi, tvb, index+8, 1, thdr_8);
+		proto_tree_add_boolean(bf_tree, hf_sna_nlp_eomi, tvb, index+8, 1, thdr_8);
+		proto_tree_add_boolean(bf_tree, hf_sna_nlp_sri, tvb, index+8, 1, thdr_8);
+		proto_tree_add_boolean(bf_tree, hf_sna_nlp_rasapi, tvb, index+8, 1, thdr_8);
+		proto_tree_add_boolean(bf_tree, hf_sna_nlp_retryi, tvb, index+8, 1, thdr_8);
+
+		bf_item = proto_tree_add_uint(nlp_tree, hf_sna_nlp_thdr_9, tvb, index+9, 1, thdr_9);
+		bf_tree = proto_item_add_subtree(bf_item, ett_sna_nlp_thdr_9);
+
+		proto_tree_add_boolean(bf_tree, hf_sna_nlp_lmi, tvb, index+9, 1, thdr_9);
+		proto_tree_add_boolean(bf_tree, hf_sna_nlp_cqfi, tvb, index+9, 1, thdr_9);
+		proto_tree_add_boolean(bf_tree, hf_sna_nlp_osi, tvb, index+9, 1, thdr_9);
+
+		proto_tree_add_uint(nlp_tree, hf_sna_nlp_offset, tvb, index+10, 2, thdr_len);
+		proto_tree_add_uint(nlp_tree, hf_sna_nlp_dlf, tvb, index+12, 4, thdr_dlf);
+		proto_tree_add_uint(nlp_tree, hf_sna_nlp_bsn, tvb, index+16, 4, thdr_bsn);
+
+		proto_item_set_len(nlp_item, thdr_len);
+	}
+	index += (thdr_len << 2);
+	if (((thdr_8 & 0x20) == 0) && thdr_dlf) {
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_str(pinfo->cinfo, COL_INFO, "HPR Fragment");
+		if (tvb_offset_exists(tvb, index+1)) {
+			call_dissector(data_handle,tvb_new_subset(tvb, 
+				index, -1, tvb_reported_length_remaining(tvb,index)),pinfo, tree);
+		}
+		return;
+	}
+	if (tvb_offset_exists(tvb, index+1)) {
+		dissect_fid(tvb_new_subset(tvb, index, -1, 
+			tvb_reported_length_remaining(tvb,index)), pinfo, tree);
+	}
+}
 
 /* RH */
 static void
@@ -1068,6 +1333,134 @@ proto_register_sna(void)
                 { "Command Sequence Number",	"sna.th.cmd_sn", FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 
+                { &hf_sna_nlp_nhdr,
+                { "Network Layer Packet Header",	"sna.nlp.nhdr", FT_NONE, BASE_NONE, NULL, 0x0,
+			"Network Layer Packet Header (NHDR)", HFILL }},
+
+                { &hf_sna_nlp_nhdr_0,
+                { "Network Layer Packet Header Byte 0",	"sna.nlp.nhdr.0", FT_UINT8, BASE_HEX, NULL, 0x0,
+			"Byte 0 of Network Layer Packet contains SM and TPF", HFILL }},
+
+                { &hf_sna_nlp_nhdr_1,
+                { "Network Layer Packet Header Bype 1",	"sna.nlp.nhdr.1", FT_UINT8, BASE_HEX, NULL, 0x0,
+			"Byte 1 of Network Layer Packet contains FT,"
+			" Time Sensitive Packet Indicator and Congestion Indicator", HFILL }},
+
+                { &hf_sna_nlp_sm,
+                { "Switching Mode Field",	"sna.nlp.nhdr.sm", FT_UINT8, BASE_HEX,
+			VALS(sna_nlp_sm_vals), 0xe0,
+			"", HFILL }},
+
+                { &hf_sna_nlp_tpf,
+                { "Transmission Priority Field",	"sna.nlp.nhdr.tpf", FT_UINT8, BASE_HEX,
+			VALS(sna_th_tpf_vals), 0x06,
+			"", HFILL }},
+
+                { &hf_sna_nlp_ft,
+                { "Function Type",	"sna.nlp.nhdr.ft", FT_UINT8, BASE_HEX,
+			VALS(sna_nlp_ft_vals), 0xF0,
+			"", HFILL }},
+
+                { &hf_sna_nlp_tspi,
+                { "Time Sensitive Packet Indicator",	"sna.nlp.nhdr.tspi", FT_BOOLEAN, 8,
+			TFS(&sna_nlp_tspi_truth), 0x08,
+			"", HFILL }},
+
+                { &hf_sna_nlp_slowdn1,
+                { "Slowdown 1",	"sna.nlp.nhdr.slowdn1", FT_BOOLEAN, 8,
+			TFS(&sna_nlp_slowdn1_truth), 0x04,
+			"", HFILL }},
+
+                { &hf_sna_nlp_slowdn2,
+                { "Slowdown 2",	"sna.nlp.nhdr.slowdn2", FT_BOOLEAN, 8,
+			TFS(&sna_nlp_slowdn2_truth), 0x02,
+			"", HFILL }},
+
+                { &hf_sna_nlp_fra,
+                { "Function Routing Address Entry",	"sna.nlp.nhdr.fra", FT_BYTES, BASE_NONE, NULL, 0,
+			"", HFILL }},
+
+                { &hf_sna_nlp_anr,
+                { "Automatic Network Routing Entry",	"sna.nlp.nhdr.anr", FT_BYTES, BASE_HEX, NULL, 0,
+			"", HFILL }},
+
+                { &hf_sna_nlp_frh,
+                { "Transmission Priority Field",	"sna.nlp.frh", FT_UINT8, BASE_HEX,
+			VALS(sna_nlp_frh_vals), 0, "", HFILL }},
+
+                { &hf_sna_nlp_thdr,
+                { "RTP Transport Header",	"sna.nlp.thdr", FT_NONE, BASE_NONE, NULL, 0x0,
+			"RTP Transport Header (THDR)", HFILL }},
+
+                { &hf_sna_nlp_tcid,
+                { "Transport Connection Identifier",	"sna.nlp.thdr.tcid", FT_BYTES, BASE_HEX, NULL, 0x0,
+			"Transport Connection Identifier (TCID)", HFILL }},
+
+                { &hf_sna_nlp_thdr_8,
+                { "RTP Transport Packet Header Bype 8",	"sna.nlp.thdr.8", FT_UINT8, BASE_HEX, NULL, 0x0,
+			"Byte 8 of RTP Transport Packet Header", HFILL }},
+
+                { &hf_sna_nlp_setupi,
+                { "Setup Indicator",	"sna.nlp.thdr.setupi", FT_BOOLEAN, 8,
+			TFS(&sna_nlp_setupi_truth), 0x40,
+			"", HFILL }},
+
+                { &hf_sna_nlp_somi,
+                { "Start Of Message Indicator",	"sna.nlp.thdr.somi", FT_BOOLEAN, 8,
+			TFS(&sna_nlp_somi_truth), 0x20,
+			"", HFILL }},
+
+                { &hf_sna_nlp_eomi,
+                { "End Of Message Indicator",	"sna.nlp.thdr.eomi", FT_BOOLEAN, 8,
+			TFS(&sna_nlp_eomi_truth), 0x10,
+			"", HFILL }},
+
+                { &hf_sna_nlp_sri,
+                { "Session Request Indicator",	"sna.nlp.thdr.sri", FT_BOOLEAN, 8,
+			TFS(&sna_nlp_sri_truth), 0x08,
+			"", HFILL }},
+
+                { &hf_sna_nlp_rasapi,
+                { "Reply ASAP Indicator",	"sna.nlp.thdr.rasapi", FT_BOOLEAN, 8,
+			TFS(&sna_nlp_rasapi_truth), 0x04,
+			"", HFILL }},
+
+                { &hf_sna_nlp_retryi,
+                { "Retry Indicator",	"sna.nlp.thdr.retryi", FT_BOOLEAN, 8,
+			TFS(&sna_nlp_retryi_truth), 0x02,
+			"", HFILL }},
+
+                { &hf_sna_nlp_thdr_9,
+                { "RTP Transport Packet Header Bype 9",	"sna.nlp.thdr.9", FT_UINT8, BASE_HEX, NULL, 0x0,
+			"Byte 9 of RTP Transport Packet Header", HFILL }},
+
+                { &hf_sna_nlp_lmi,
+                { "Last Message Indicator",	"sna.nlp.thdr.lmi", FT_BOOLEAN, 8,
+			TFS(&sna_nlp_lmi_truth), 0x80,
+			"", HFILL }},
+
+                { &hf_sna_nlp_cqfi,
+                { "Connection Qualifyer Field Indicator",	"sna.nlp.thdr.cqfi", FT_BOOLEAN, 8,
+			TFS(&sna_nlp_cqfi_truth), 0x08,
+			"", HFILL }},
+
+                { &hf_sna_nlp_osi,
+                { "Optional Segments Present Indicator",	"sna.nlp.thdr.osi", FT_BOOLEAN, 8,
+			TFS(&sna_nlp_osi_truth), 0x04,
+			"", HFILL }},
+
+                { &hf_sna_nlp_offset,
+                { "Data Offset/4",	"sna.nlp.thdr.offset", FT_UINT16, BASE_HEX, NULL, 0x0,
+			"Data Offset in words", HFILL }},
+
+                { &hf_sna_nlp_dlf,
+                { "Data Length Field",	"sna.nlp.thdr.dlf", FT_UINT32, BASE_HEX, NULL, 0x0,
+			"Data Length Field", HFILL }},
+
+                { &hf_sna_nlp_bsn,
+                { "Byte Sequence Number",	"sna.nlp.thdr.bsn", FT_UINT32, BASE_HEX, NULL, 0x0,
+			"Byte Sequence Number", HFILL }},
+
 
                 { &hf_sna_rh,
                 { "Request/Response Header",	"sna.rh", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -1183,6 +1576,12 @@ proto_register_sna(void)
 		&ett_sna,
 		&ett_sna_th,
 		&ett_sna_th_fid,
+		&ett_sna_nlp_nhdr,
+		&ett_sna_nlp_nhdr_0,
+		&ett_sna_nlp_nhdr_1,
+		&ett_sna_nlp_thdr,
+		&ett_sna_nlp_thdr_8,
+		&ett_sna_nlp_thdr_9,
 		&ett_sna_rh,
 		&ett_sna_rh_0,
 		&ett_sna_rh_1,
@@ -1203,5 +1602,7 @@ proto_reg_handoff_sna(void)
 
 	sna_handle = find_dissector("sna");
 	dissector_add("llc.dsap", SAP_SNA_PATHCTRL, sna_handle);
+	/* RFC 2043 */
+	dissector_add("ppp.protocol", PPP_SNA, sna_handle);
 	data_handle = find_dissector("data");
 }

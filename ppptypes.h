@@ -1,7 +1,7 @@
 /* ppptypes.h
  * Defines PPP packet types.
  *
- * $Id: ppptypes.h,v 1.11 2002/01/03 20:30:32 guy Exp $
+ * $Id: ppptypes.h,v 1.12 2002/05/29 03:08:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,8 @@
 #define PPP_BPDU	0x31	/* Bridging PDU (spanning tree BPDU?) */
 #define	PPP_VINES	0x35	/* Banyan Vines */
 #define PPP_MP		0x3d	/* Multilink PPP */
+#define PPP_LLC		0x4b	/* SNA over LLC */
+#define PPP_SNA		0x4d	/* SNA */
 #define PPP_IPV6	0x57	/* Internet Protocol Version 6 */
 #define PPP_MUX         0x59    /* PPP Multiplexing */
 #define PPP_COMP	0xfd	/* compressed packet */

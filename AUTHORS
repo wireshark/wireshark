@@ -340,6 +340,8 @@ Jochen Friedrich <jochen+ethereal[AT]scram.de> {
 	Fix to IPv6 fragment handling
 	SMUX and SNMPv3 support
 	Zebra
+	SNA HPR-over-PPP and SNA-over-LLC-over-PPP (RFC 2043)
+	HPR/UDP (RFC 2353, Enterprise Extender)
 }
 
 Paul Welchinski <paul.welchinski[AT]telusplanet.net> {
