@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.27 2000/11/18 10:38:24 guy Exp $
+ * $Id: packet-gre.c,v 1.28 2000/11/19 02:00:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,7 +38,6 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-ip.h"
-#include "packet-ppp.h"
 #include "packet-ipx.h"
 
 static int proto_gre = -1;
@@ -75,6 +74,7 @@ static const value_string typevals[] = {
 };
 
 static dissector_handle_t ip_handle;
+static dissector_handle_t ppp_handle;
 
 static void
 dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
@@ -210,8 +210,7 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     switch (type) {
       case GRE_PPP:
-	next_tvb = tvb_create_from_top(offset);
-        dissect_ppp(next_tvb, &pi, tree);
+        old_call_dissector(ppp_handle, pd, offset, fd, tree);
  	break;
       case GRE_IP:
         old_call_dissector(ip_handle, pd, offset, fd, tree);
@@ -308,7 +307,8 @@ proto_reg_handoff_gre(void)
 	old_dissector_add("ip.proto", IP_PROTO_GRE, dissect_gre);
 
 	/*
-	 * Get a handle for the IP dissector.
+	 * Get handles for the IP and PPP dissectors.
 	 */
 	ip_handle = find_dissector("ip");
+	ppp_handle = find_dissector("ppp");
 }

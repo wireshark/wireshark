@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.41 2000/11/18 10:38:25 guy Exp $
+ * $Id: packet-ppp.c,v 1.42 2000/11/19 02:00:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -973,8 +973,6 @@ dissect_ppp_stuff( tvbuff_t *tvb, packet_info *pinfo,
   guint16 ppp_prot;
   int     proto_len;
   tvbuff_t	*next_tvb;
-  const guint8	*next_pd;
-  int		next_offset;
 
   if (tvb_get_guint8(tvb, 0) & PFC_BIT) {
     ppp_prot = tvb_get_guint8(tvb, 0);
@@ -990,10 +988,9 @@ dissect_ppp_stuff( tvbuff_t *tvb, packet_info *pinfo,
   }
 
   next_tvb = tvb_new_subset(tvb, proto_len, -1, -1);
-  tvb_compat(next_tvb, &next_pd, &next_offset);
 
   /* do lookup with the subdissector table */
-  if (old_dissector_try_port(subdissector_table, ppp_prot, next_pd, next_offset, pinfo->fd, tree))
+  if (dissector_try_port(subdissector_table, ppp_prot, next_tvb, pinfo, tree))
       return TRUE;
 
   /* XXX - make "dissect_lcp()" and "dissect_ipcp()", have them just
@@ -1096,21 +1093,20 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
-void
-dissect_payload_ppp( const u_char *pd, int offset, frame_data *fd, proto_tree *tree ) {
+static void
+dissect_payload_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   proto_item *ti;
   proto_tree *fh_tree = NULL;
   tvbuff_t   *next_tvb;
 
-  /* populate a tree in the second pane with the status of the link
-     layer (ie none) */
+  /* XXX - the length shouldn't be 2, it should be based on the length
+     of the protocol field. */
   if(tree) {
-    ti = proto_tree_add_item(tree, proto_ppp, NullTVB, 0+offset, 2, FALSE);
+    ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, 2, FALSE);
     fh_tree = proto_item_add_subtree(ti, ett_ppp);
   }
 
-  next_tvb = tvb_create_from_top(offset);
-  dissect_ppp_stuff(next_tvb, &pi, tree, fh_tree);
+  dissect_ppp_stuff(tvb, pinfo, tree, fh_tree);
 }
 
 void
@@ -1149,8 +1145,6 @@ dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   if(check_col(pinfo->fd, COL_PROTOCOL))
     col_add_str(pinfo->fd, COL_PROTOCOL, "PPP" );
 
-  /* populate a tree in the second pane with the status of the link
-     layer (ie none) */
   if(tree) {
     ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, 4, FALSE);
     fh_tree = proto_item_add_subtree(ti, ett_ppp);
@@ -1201,6 +1195,9 @@ proto_register_ppp(void)
 
 /* subdissector code */
 	subdissector_table = register_dissector_table("ppp.protocol");
+
+	register_dissector("ppp", dissect_ppp);
+	register_dissector("payload_ppp", dissect_payload_ppp);
 }
 
 void

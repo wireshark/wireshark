@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.15 2000/08/13 14:08:24 deniel Exp $
+ * $Id: packet-l2tp.c,v 1.16 2000/11/19 02:00:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -63,7 +63,6 @@ static int hf_l2tp_offset = -1;
 #include <ctype.h>
 #include <glib.h>
 #include "packet.h"
-#include "packet-ppp.h"
 #include "resolv.h"
 
 #define UDP_PORT_L2TP   1701
@@ -261,8 +260,10 @@ static const char *avptypestr[NUM_AVP_TYPES] = {
 
 static gchar textbuffer[200];
 
+static dissector_handle_t ppp_handle;
+
 static void
-dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *l2tp_tree=NULL, *l2tp_avp_tree, *ctrl_tree;
   proto_item *ti, *tf;
@@ -291,22 +292,19 @@ dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   char  message_string[200];
 
   guint16	control;
-  tvbuff_t	*tvb;
   tvbuff_t	*next_tvb;
 
-  OLD_CHECK_DISPLAY_AS_DATA(proto_l2tp, pd, offset, fd, tree);
+  CHECK_DISPLAY_AS_DATA(proto_l2tp, tvb, pinfo, tree);
 
-  pi.current_proto = "L2TP";
-  if (check_col(fd, COL_PROTOCOL))	/* build output for closed L2tp frame displayed  */
-        col_add_str(fd, COL_PROTOCOL, "L2TP"); 
-
-  tvb = tvb_create_from_top(offset);
+  pinfo->current_proto = "L2TP";
+  if (check_col(pinfo->fd, COL_PROTOCOL))	/* build output for closed L2tp frame displayed  */
+        col_add_str(pinfo->fd, COL_PROTOCOL, "L2TP"); 
 
   control = tvb_get_ntohs(tvb, 0);
 
   if (L2TP_VERSION(control) != 2) {
-	  if (check_col(fd, COL_INFO)) {
-		col_add_fstr(fd, COL_INFO, "L2TP Version %u", L2TP_VERSION(control) );
+	  if (check_col(pinfo->fd, COL_INFO)) {
+		col_add_fstr(pinfo->fd, COL_INFO, "L2TP Version %u", L2TP_VERSION(control) );
 	  }
 	  return;
   }
@@ -324,7 +322,7 @@ dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   index += 2;
   cid = tvb_get_ntohs(tvb, index);
 
-  if (check_col(fd, COL_INFO)) {
+  if (check_col(pinfo->fd, COL_INFO)) {
         if (CONTROL_BIT(control)) {
             /* CONTROL MESSAGE */
             tmp_index = index;
@@ -369,7 +367,7 @@ dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                sprintf(textbuffer,"%s            (tunnel id=%d, session id=%d)",
                        data_msg, tid ,cid);
         }
-        col_add_fstr(fd,COL_INFO,textbuffer);
+        col_add_fstr(pinfo->fd,COL_INFO,textbuffer);
   }
 
   if (LENGTH_BIT(control)) {
@@ -441,7 +439,7 @@ dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	/* If we have data, signified by having a length bit, dissect it */
 	if (tvb_offset_exists(tvb, index)) {
 		next_tvb = tvb_new_subset(tvb, index, -1, proto_length - index);
-		dissect_ppp(next_tvb, &pi, tree);
+		call_dissector(ppp_handle, next_tvb, pinfo, tree);
 	}
 	return;
   }
@@ -832,5 +830,10 @@ proto_register_l2tp(void)
 void
 proto_reg_handoff_l2tp(void)
 {
-	old_dissector_add("udp.port", UDP_PORT_L2TP, dissect_l2tp);
+	dissector_add("udp.port", UDP_PORT_L2TP, dissect_l2tp);
+
+	/*
+	 * Get a handle for the PPP dissector.
+	 */
+	ppp_handle = find_dissector("ppp");
 }

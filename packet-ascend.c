@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.18 2000/08/20 19:16:39 deniel Exp $
+ * $Id: packet-ascend.c,v 1.19 2000/11/19 02:00:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,8 +33,6 @@
 #include <string.h>
 #include "packet.h"
 #include "packet-ascend.h"
-#include "packet-eth.h"
-#include "packet-ppp.h"
 
 static int proto_ascend  = -1;
 static int hf_link_type  = -1;
@@ -51,6 +49,9 @@ static const value_string encaps_vals[] = {
   {ASCEND_PFX_WDS_R, "PPP Receive" },
   {ASCEND_PFX_WDD,   "Ethernet"    },
   {0,                NULL          } };
+
+static dissector_handle_t eth_handle;
+static dissector_handle_t ppp_handle;
 
 void
 dissect_ascend(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -101,10 +102,10 @@ dissect_ascend(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   switch (pseudo_header->ascend.type) {
     case ASCEND_PFX_WDS_X:
     case ASCEND_PFX_WDS_R:
-      dissect_ppp(tvb, pinfo, tree);
+      call_dissector(ppp_handle, tvb, pinfo, tree);
       break;
     case ASCEND_PFX_WDD:
-      dissect_eth(tvb, pinfo, tree);
+      call_dissector(eth_handle, tvb, pinfo, tree);
       break;
     default:
       break;
@@ -146,4 +147,14 @@ proto_register_ascend(void)
   proto_ascend = proto_register_protocol("Lucent/Ascend debug output", "ascend");
   proto_register_field_array(proto_ascend, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_ascend(void)
+{
+  /*
+   * Get handles for the Ethernet and PPP dissectors.
+   */
+  eth_handle = find_dissector("eth");
+  ppp_handle = find_dissector("ppp");
 }

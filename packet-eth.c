@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.47 2000/11/18 10:38:24 guy Exp $
+ * $Id: packet-eth.c,v 1.48 2000/11/19 02:00:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -373,4 +373,6 @@ proto_register_eth(void)
 	proto_eth = proto_register_protocol ("Ethernet", "eth" );
 	proto_register_field_array(proto_eth, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	register_dissector("eth", dissect_eth);
 }
