@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.184 2000/05/06 05:19:42 guy Exp $
+ * $Id: file.c,v 1.185 2000/05/12 22:03:59 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -764,7 +764,7 @@ filter_packets(capture_file *cf, gchar *dftext)
 void
 colorize_packets(capture_file *cf)
 {
-  frame_data *fd;
+  frame_data *fdata;
   guint32 progbar_quantum;
   guint32 progbar_nextstep;
   int count;
@@ -815,7 +815,7 @@ colorize_packets(capture_file *cf)
 
   gtk_progress_bar_set_orientation(GTK_PROGRESS_BAR(prog_bar), GTK_PROGRESS_LEFT_TO_RIGHT);
 
-  for (fd = cf->plist; fd != NULL; fd = fd->next) {
+  for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
        when we update it, we have to run the GTK+ main loop to get it
        to repaint what's pending, and doing so may involve an "ioctl()"
@@ -837,9 +837,9 @@ colorize_packets(capture_file *cf)
 
     count++;
 
-    wtap_seek_read (cf->cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
+    wtap_seek_read (cf->cd_t, cf->fh, fdata->file_off, cf->pd, fdata->cap_len);
 
-    add_packet_to_packet_list(fd, cf, cf->pd);
+    add_packet_to_packet_list(fdata, cf, cf->pd);
   }
  
   gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), 0);
@@ -868,7 +868,7 @@ int
 print_packets(capture_file *cf, print_args_t *print_args)
 {
   int         i;
-  frame_data *fd;
+  frame_data *fdata;
   guint32     progbar_quantum;
   guint32     progbar_nextstep;
   guint32     count;
@@ -953,7 +953,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
 
   /* Iterate through the list of packets, printing the packets that
      were selected by the current display filter.  */
-  for (fd = cf->plist; fd != NULL; fd = fd->next) {
+  for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
        when we update it, we have to run the GTK+ main loop to get it
        to repaint what's pending, and doing so may involve an "ioctl()"
@@ -973,17 +973,17 @@ print_packets(capture_file *cf, print_args_t *print_args)
     }
     count++;
 
-    if (fd->flags.passed_dfilter) {
-      wtap_seek_read (cf->cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
+    if (fdata->flags.passed_dfilter) {
+      wtap_seek_read (cf->cd_t, cf->fh, fdata->file_off, cf->pd, fdata->cap_len);
       if (print_args->print_summary) {
         /* Fill in the column information, but don't bother creating
            the logical protocol tree. */
-        fd->cinfo = &cf->cinfo;
-        for (i = 0; i < fd->cinfo->num_cols; i++) {
-          fd->cinfo->col_data[i][0] = '\0';
+        fdata->cinfo = &cf->cinfo;
+        for (i = 0; i < fdata->cinfo->num_cols; i++) {
+          fdata->cinfo->col_data[i][0] = '\0';
         }
-        dissect_packet(cf->pd, fd, NULL);
-        fill_in_columns(fd);
+        dissect_packet(cf->pd, fdata, NULL);
+        fill_in_columns(fdata);
         cp = &line_buf[0];
         line_len = 0;
         for (i = 0; i < cf->cinfo.num_cols; i++) {
@@ -1019,18 +1019,18 @@ print_packets(capture_file *cf, print_args_t *print_args)
 
         /* Create the logical protocol tree. */
         protocol_tree = proto_tree_create_root();
-        dissect_packet(cf->pd, fd, protocol_tree);
+        dissect_packet(cf->pd, fdata, protocol_tree);
 
         /* Print the information in that tree. */
         proto_tree_print(FALSE, print_args, (GNode *)protocol_tree,
-			cf->pd, fd, cf->print_fh);
+			cf->pd, fdata, cf->print_fh);
 
         proto_tree_free(protocol_tree);
 
 	if (print_args->print_hex) {
 	  /* Print the full packet data as hex. */
 	  print_hex_data(cf->print_fh, print_args->format, cf->pd,
-			fd->cap_len, fd->flags.encoding);
+			fdata->cap_len, fdata->flags.encoding);
 	}
 
         /* Print a blank line if we print anything after this. */
@@ -1060,7 +1060,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
 void
 change_time_formats(capture_file *cf)
 {
-  frame_data *fd;
+  frame_data *fdata;
   int row;
   int i;
   GtkStyle  *pl_style;
@@ -1073,9 +1073,9 @@ change_time_formats(capture_file *cf)
      is in a row of the summary list and, if so, whether there are
      any columns that show the time in the "command-line-specified"
      format and, if so, update that row. */
-  for (fd = cf->plist; fd != NULL; fd = fd->next) {
+  for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
     /* Find what row this packet is in. */
-    row = gtk_clist_find_row_from_data(GTK_CLIST(packet_list), fd);
+    row = gtk_clist_find_row_from_data(GTK_CLIST(packet_list), fdata);
 
     if (row != -1) {
       /* This packet is in the summary list, on row "row". */
@@ -1084,8 +1084,8 @@ change_time_formats(capture_file *cf)
          the answer isn't going to change from packet to packet, so we should
          simply skip all the "change_time_formats()" work if we're not
          changing anything. */
-      fd->cinfo = &cf->cinfo;
-      if (check_col(fd, COL_CLS_TIME)) {
+      fdata->cinfo = &cf->cinfo;
+      if (check_col(fdata, COL_CLS_TIME)) {
         /* There are columns that show the time in the "command-line-specified"
            format; update them. */
         for (i = 0; i < cf->cinfo.num_cols; i++) {
@@ -1093,7 +1093,7 @@ change_time_formats(capture_file *cf)
             /* This is one of the columns that shows the time in
                "command-line-specified" format; update it. */
             cf->cinfo.col_data[i][0] = '\0';
-            col_set_cls_time(fd, i);
+            col_set_cls_time(fdata, i);
             gtk_clist_set_text(GTK_CLIST(packet_list), row, i,
 			  cf->cinfo.col_data[i]);
 	  }
@@ -1135,7 +1135,7 @@ gboolean
 find_packet(capture_file *cf, dfilter *sfcode)
 {
   frame_data *start_fd;
-  frame_data *fd;
+  frame_data *fdata;
   frame_data *new_fd = NULL;
   guint32 progbar_quantum;
   guint32 progbar_nextstep;
@@ -1152,7 +1152,7 @@ find_packet(capture_file *cf, dfilter *sfcode)
        picked, calling a routine to run the filter on the packet, see if
        it matches, and stop if so.  */
     count = 0;
-    fd = start_fd;
+    fdata = start_fd;
 
     proto_tree_is_visible = FALSE;
 
@@ -1163,7 +1163,7 @@ find_packet(capture_file *cf, dfilter *sfcode)
     progbar_quantum = cf->count/N_PROGBAR_UPDATES;
     gtk_progress_bar_set_orientation(GTK_PROGRESS_BAR(prog_bar), GTK_PROGRESS_LEFT_TO_RIGHT);
 
-    fd = start_fd;
+    fdata = start_fd;
     for (;;) {
       /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
          when we update it, we have to run the GTK+ main loop to get it
@@ -1187,33 +1187,33 @@ find_packet(capture_file *cf, dfilter *sfcode)
       /* Go past the current frame. */
       if (cf->sbackward) {
         /* Go on to the previous frame. */
-        fd = fd->prev;
-        if (fd == NULL)
-          fd = cf->plist_end;	/* wrap around */
+        fdata = fdata->prev;
+        if (fdata == NULL)
+          fdata = cf->plist_end;	/* wrap around */
       } else {
         /* Go on to the next frame. */
-        fd = fd->next;
-        if (fd == NULL)
-          fd = cf->plist;	/* wrap around */
+        fdata = fdata->next;
+        if (fdata == NULL)
+          fdata = cf->plist;	/* wrap around */
       }
 
       count++;
 
       /* Is this packet in the display? */
-      if (fd->flags.passed_dfilter) {
+      if (fdata->flags.passed_dfilter) {
         /* Yes.  Does it match the search filter? */
         protocol_tree = proto_tree_create_root();
-        wtap_seek_read(cf->cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
-        dissect_packet(cf->pd, fd, protocol_tree);
-        frame_matched = dfilter_apply(sfcode, protocol_tree, cf->pd, fd->cap_len);
+        wtap_seek_read(cf->cd_t, cf->fh, fdata->file_off, cf->pd, fdata->cap_len);
+        dissect_packet(cf->pd, fdata, protocol_tree);
+        frame_matched = dfilter_apply(sfcode, protocol_tree, cf->pd, fdata->cap_len);
         proto_tree_free(protocol_tree);
         if (frame_matched) {
-          new_fd = fd;
+          new_fd = fdata;
           break;	/* found it! */
         }
       }
 
-      if (fd == start_fd) {
+      if (fdata == start_fd) {
         /* We're back to the frame we were on originally, and that frame
 	   doesn't match the search filter.  The search failed. */
         break;
@@ -1250,20 +1250,20 @@ find_packet(capture_file *cf, dfilter *sfcode)
 goto_result_t
 goto_frame(capture_file *cf, guint fnumber)
 {
-  frame_data *fd;
+  frame_data *fdata;
   int row;
 
-  for (fd = cf->plist; fd != NULL && fd->num < fnumber; fd = fd->next)
+  for (fdata = cf->plist; fdata != NULL && fdata->num < fnumber; fdata = fdata->next)
     ;
 
-  if (fd == NULL)
+  if (fdata == NULL)
     return NO_SUCH_FRAME;	/* we didn't find that frame */
-  if (!fd->flags.passed_dfilter)
+  if (!fdata->flags.passed_dfilter)
     return FRAME_NOT_DISPLAYED;	/* the frame with that number isn't displayed */
 
   /* We found that frame, and it's currently being displayed.
      Find what row it's in. */
-  row = gtk_clist_find_row_from_data(GTK_CLIST(packet_list), fd);
+  row = gtk_clist_find_row_from_data(GTK_CLIST(packet_list), fdata);
   g_assert(row != -1);
 
   /* Make it visible, and select it. */
@@ -1280,12 +1280,12 @@ goto_frame(capture_file *cf, guint fnumber)
 void
 select_packet(capture_file *cf, int row)
 {
-  frame_data *fd;
+  frame_data *fdata;
 
   /* Get the frame data struct pointer for this frame */
-  fd = (frame_data *) gtk_clist_get_row_data(GTK_CLIST(packet_list), row);
+  fdata = (frame_data *) gtk_clist_get_row_data(GTK_CLIST(packet_list), row);
 
-  if (fd == NULL) {
+  if (fdata == NULL) {
     /* XXX - if a GtkCList's selection mode is GTK_SELECTION_BROWSE, when
        the first entry is added to it by "real_insert_row()", that row
        is selected (see "real_insert_row()", in "gtk/gtkclist.c", in both
@@ -1313,15 +1313,15 @@ select_packet(capture_file *cf, int row)
        GtkCList; see the comment in "add_packet_to_packet_list()". */
 
        if (row == 0 && cf->first_displayed == cf->last_displayed)
-         fd = cf->first_displayed;
+         fdata = cf->first_displayed;
   }
 
   /* Record that this frame is the current frame, and that it's selected. */
-  cf->current_frame = fd;
+  cf->current_frame = fdata;
   cf->current_frame_is_selected = TRUE;
 
   /* Get the data in that frame. */
-  wtap_seek_read (cf->cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
+  wtap_seek_read (cf->cd_t, cf->fh, fdata->file_off, cf->pd, fdata->cap_len);
 
   /* Create the logical protocol tree. */
   if (cf->protocol_tree)
@@ -1410,7 +1410,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
   gboolean      do_copy;
   int           from_fd, to_fd, nread, nwritten;
   wtap_dumper  *pdh;
-  frame_data   *fd;
+  frame_data   *fdata;
   struct wtap_pkthdr hdr;
   guint8        pd[65536];
 
@@ -1539,18 +1539,18 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
        If we do that, should we make that file the current file?  If so,
        it means we can no longer get at the other packets.  What does
        NetMon do? */
-    for (fd = cf->plist; fd != NULL; fd = fd->next) {
+    for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
       /* XXX - do a progress bar */
-      if (!save_filtered || fd->flags.passed_dfilter) {
+      if (!save_filtered || fdata->flags.passed_dfilter) {
       	/* Either we're saving all frames, or we're saving filtered frames
 	   and this one passed the display filter - save it. */
-        hdr.ts.tv_sec = fd->abs_secs;
-        hdr.ts.tv_usec = fd->abs_usecs;
-        hdr.caplen = fd->cap_len;
-        hdr.len = fd->pkt_len;
-        hdr.pkt_encap = fd->lnk_t;
-        hdr.pseudo_header = fd->pseudo_header;
-	wtap_seek_read(cf->cd_t, cf->fh, fd->file_off, pd, fd->cap_len);
+        hdr.ts.tv_sec = fdata->abs_secs;
+        hdr.ts.tv_usec = fdata->abs_usecs;
+        hdr.caplen = fdata->cap_len;
+        hdr.len = fdata->pkt_len;
+        hdr.pkt_encap = fdata->lnk_t;
+        hdr.pseudo_header = fdata->pseudo_header;
+	wtap_seek_read(cf->cd_t, cf->fh, fdata->file_off, pd, fdata->cap_len);
 
         if (!wtap_dump(pdh, &hdr, pd, &err)) {
 	    simple_dialog(ESD_TYPE_WARN, NULL,
