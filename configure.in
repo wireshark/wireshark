@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.196 2003/02/26 20:08:30 guy Exp $
+# $Id: configure.in,v 1.197 2003/02/28 06:44:57 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -546,7 +546,6 @@ AC_SUBST(SSL_LIBS)
 
 dnl UCD SNMP Check
 SNMP_LIBS=''
-AC_MSG_CHECKING(whether to use UCD SNMP/NET-SNMP library if available)
 
 AC_ARG_WITH(net-snmp,
 [  --with-net-snmp=PATH    use PATH as the location of the net-snmp-config shell script that comes with the net-snmp package.],
@@ -589,6 +588,7 @@ if test "x$netsnmpconfig" != "xno" ; then
 	fi
 fi
 
+AC_MSG_CHECKING(whether to use UCD SNMP/NET-SNMP library if available)
 if test "x$NETSNMPCONFIG" != "xno" -a "x$NETSNMPCONFIG" != "x" -a -x "$NETSNMPCONFIG" ; then
 	dnl other choices for flags to use here: could also use
 	dnl --prefix or --exec-prefix if you don't want the full list.
