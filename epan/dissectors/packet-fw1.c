@@ -133,16 +133,16 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Set up structures needed to add the protocol subtree and manage it */
   proto_item    *ti;
   proto_tree    *volatile fh_tree = NULL;
-  char		direction[3];
-  char		chain[3];
+  char		direction;
+  char	chain;
   char		interface_name[10+1];
-  guint32	uuid;
+  guint32	iface_len = 10;
   guint16	etype;
-  char		header[1000];
+  char		header[1000] = "FW1 Monitor";
   char		*p_header;
   int		i;
   gboolean	found;
-  static char	header1[] = "FW1 Monitor";
+  static const char	fw1_header[] = "FW1 Monitor";
 
   /* Make entries in Protocol column and Info column on summary display */
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -150,88 +150,76 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 
-  etype = tvb_get_ntohs(tvb, 12);
 
-  sprintf(header, header1);
+  /* sprintf(header, fw1_header); */
 
   /* fetch info to local variable */
-  direction[0] = tvb_get_guint8(tvb, 0);
-  direction[1] = 0;
-  chain[0] = tvb_get_guint8(tvb, 1);
-  chain[1] = 0;
+  direction = tvb_get_guint8(tvb, 0);
 
-  if (!fw1_with_uuid) {
-    tvb_get_nstringz0(tvb, 2, 10, interface_name);
-    uuid = 0;
-  } else {
-    tvb_get_nstringz0(tvb, 2, 6, interface_name);
-    uuid = tvb_get_ntohl(tvb, 8);
-  }
+  if (!fw1_iflist_with_chain)
+  	chain = ' ';
+  else
+  	chain = tvb_get_guint8(tvb, 1);
+
+  if (fw1_with_uuid)
+  	iface_len = 6;
+  tvb_get_nstringz0(tvb, 2, iface_len, interface_name);
 
   /* Known interface name - if not, remember it */
   found=FALSE;
   for (i=0; i<interface_anzahl; i++) {
     if ( strcmp(p_interfaces[i], interface_name) == 0 ) {
       found=TRUE;
+      break;
     }
   }
   if (!found && interface_anzahl < MAX_INTERFACES) {
     p_interfaces[interface_anzahl] = strdup(interface_name);
     interface_anzahl++;
   }
+
   /* display all interfaces always in the same order */
   for (i=0; i<interface_anzahl; i++) {
-    found=FALSE;
-    if ( strcmp(p_interfaces[i], interface_name) == 0 ) {
-      found=TRUE;
-    }
     p_header = header + strlen(header);
-    if (!fw1_iflist_with_chain) {
-      sprintf(p_header, "  %c %s %c",
-	found ? (direction[0]=='i' ? 'i' : (direction[0]=='O' ? 'O' : ' ')) : ' ',
-	p_interfaces[i],
-	found ? (direction[0]=='I' ? 'I' : (direction[0]=='o' ? 'o' : ' ')) : ' '
-	);
+    if ( strcmp(p_interfaces[i], interface_name) == 0 ) {
+       	sprintf(p_header, "  %c%c %s %c%c",
+ 			direction == 'i' ? 'i' : (direction == 'O' ? 'O' : ' '),
+			(direction == 'i' || direction == 'O') ? chain : ' ',
+			p_interfaces[i],
+			direction == 'I' ? 'I' : (direction == 'o' ? 'o' : ' '),
+			(direction == 'I' || direction == 'o') ? chain : ' '
+		);
     } else {
-      sprintf(p_header, "  %c%c %s %c%c",
-	found ? (direction[0]=='i' ? 'i' : (direction[0]=='O' ? 'O' : ' ')) : ' ',
-	found ? (direction[0]=='i' ? chain[0] : (direction[0]=='O' ? chain[0] : ' ')) : ' ',
-	p_interfaces[i],
-	found ? (direction[0]=='I' ? 'I' : (direction[0]=='o' ? 'o' : ' ')) : ' ',
-	found ? (direction[0]=='I' ? chain[0] : (direction[0]=='o' ? chain[0] : ' ')) : ' '
-	);
+    	sprintf(p_header, "    %s  ", p_interfaces[i]);
     }
   }
 
-  if (check_col(pinfo->cinfo, COL_IF_DIR))
-    col_add_str(pinfo->cinfo, COL_IF_DIR, header + strlen(header1) + 1);
+	if (check_col(pinfo->cinfo, COL_IF_DIR))
+		col_add_str(pinfo->cinfo, COL_IF_DIR, header + sizeof(fw1_header) + 1);
 
-  if (tree) {
-    if (!fw1_summary_in_tree) {
-      /* Do not show the summary in Protocol Tree */
-      sprintf(header, header1);
-    }
-    ti = proto_tree_add_protocol_format(tree, proto_fw1, tvb, 0, ETH_HEADER_SIZE, header);
+	if (tree) {
+		if (!fw1_summary_in_tree)
+			/* Do not show the summary in Protocol Tree */
+			ti = proto_tree_add_protocol_format(tree, proto_fw1, tvb, 0, ETH_HEADER_SIZE, fw1_header);
+		else
+			ti = proto_tree_add_protocol_format(tree, proto_fw1, tvb, 0, ETH_HEADER_SIZE, header);
 
-    /* create display subtree for the protocol */
-    fh_tree = proto_item_add_subtree(ti, ett_fw1);
+		/* create display subtree for the protocol */
+		fh_tree = proto_item_add_subtree(ti, ett_fw1);
 
-    proto_tree_add_item(fh_tree, hf_fw1_direction, tvb, 0, 1, FALSE);
-    proto_tree_add_item(fh_tree, hf_fw1_chain, tvb, 1, 1, FALSE);
+		proto_tree_add_item(fh_tree, hf_fw1_direction, tvb, 0, 1, FALSE);
 
-    if (!fw1_with_uuid) {
-      proto_tree_add_string_format(fh_tree, hf_fw1_interface,
-	tvb, 2, 10,
-	interface_name, "Interface: %s", interface_name);
-    } else {
-      proto_tree_add_string_format(fh_tree, hf_fw1_interface,
-	tvb, 2, 6,
-	interface_name, "Interface: %s", interface_name);
-      proto_tree_add_item(fh_tree, hf_fw1_uuid, tvb, 8, 4, FALSE);
-    }
-  }
-  ethertype(etype, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree, hf_fw1_type,
-          hf_fw1_trailer, 0);
+		if (fw1_iflist_with_chain)
+			proto_tree_add_item(fh_tree, hf_fw1_chain, tvb, 1,1, FALSE);
+
+		proto_tree_add_string_format(fh_tree, hf_fw1_interface, tvb, 2, iface_len, "Interface: %s", interface_name);
+	
+		if (fw1_with_uuid) 
+			proto_tree_add_item(fh_tree, hf_fw1_uuid, tvb, 8, 4, FALSE);
+	}
+
+	etype = tvb_get_ntohs(tvb, 12);
+	ethertype(etype, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree, hf_fw1_type, hf_fw1_trailer, 0);
 }
 
 void
@@ -239,10 +227,10 @@ proto_register_fw1(void)
 {
   static hf_register_info hf[] = {
 	{ &hf_fw1_direction,
-	{ "Direction",	"fw1.direction", FT_STRING, BASE_NONE, NULL, 0x0,
+	{ "Direction",	"fw1.direction", FT_STRING, BASE_DEC, NULL, 0x0,
 		"Direction", HFILL }},
 	{ &hf_fw1_chain,
-	{ "Chain Position",	"fw1.chain", FT_STRING, BASE_NONE, NULL, 0x0,
+	{ "Chain Position",	"fw1.chain", FT_STRING, BASE_HEX, NULL, 0x0,
 		"Chain Position", HFILL }},
 	{ &hf_fw1_interface,
 	{ "Interface",	"fw1.interface", FT_STRING, BASE_NONE, NULL, 0x0,
