@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.56 2002/08/22 01:13:12 tpot Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.57 2002/08/27 19:02:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4293,7 +4293,7 @@ proto_register_dcerpc_lsa(void)
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_lsa_key,
-		{ "Key", "lsa.key", FT_BYTES, BASE_NONE, 
+		{ "Key", "lsa.key", FT_STRING, BASE_NONE, 
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_lsa_flat_name,
