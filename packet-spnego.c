@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.24 2002/09/04 05:46:02 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.25 2002/09/04 06:54:45 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,6 +64,7 @@ static int hf_spnego_mechtoken = -1;
 static int hf_spnego_negtokentarg_negresult = -1;
 static int hf_spnego_mechlistmic = -1;
 static int hf_spnego_responsetoken = -1;
+static int hf_spnego_reqflags = -1;
 
 static gint ett_spnego = -1;
 static gint ett_spnego_negtokeninit = -1;
@@ -72,10 +73,6 @@ static gint ett_spnego_mechtype = -1;
 static gint ett_spnego_mechtoken = -1;
 static gint ett_spnego_mechlistmic = -1;
 static gint ett_spnego_responsetoken = -1;
-
-/*
- * XXX: Fixme. This thould be made global ...
- */
 
 static const value_string spnego_negResult_vals[] = {
   { SPNEGO_negResult_accept_completed,   "Accept Completed" },
@@ -185,9 +182,37 @@ static int
 dissect_spnego_reqFlags(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			proto_tree *tree, ASN1_SCK *hnd)
 {
+	gboolean def;
+	guint len1, cls, con, tag;
+	int ret;
 
+ 	ret = asn1_header_decode(hnd, &cls, &con, &tag, &def, &len1);
 
-  return offset;
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_parse_error(tvb, offset, pinfo, tree,
+				    "SPNEGO reqFlags header", ret);
+		goto done;
+	}
+
+	if (!(cls == ASN1_UNI && con == ASN1_PRI && tag == ASN1_BTS)) {
+		proto_tree_add_text(
+			tree, tvb, offset, 0,
+			"Unknown header (cls=%d, con=%d, tag=%d)",
+			cls, con, tag);
+		goto done;
+	}
+
+	/* We must have a Bit String ... insert it */ 
+
+	offset = hnd->offset;
+
+	proto_tree_add_item(tree, hf_spnego_reqflags, tvb, offset, len1,
+			    FALSE);
+
+	hnd->offset += len1;
+
+ done:
+	return offset + len1;
 
 }
 
@@ -398,6 +423,8 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	    break;
 
 	  case SPNEGO_reqFlags:
+
+	    offset = dissect_spnego_reqFlags(tvb, offset, pinfo, subtree, hnd);
 
 	    break;
 
@@ -855,6 +882,9 @@ proto_register_spnego(void)
 		{ &hf_spnego_negtokentarg_negresult,
 		  { "negResult", "spnego.negtokeninit.negresult", FT_UINT16,
 		    BASE_HEX, VALS(spnego_negResult_vals), 0, "negResult", HFILL}},
+		{ &hf_spnego_reqflags, 
+		  { "reqFlags", "spnego.negtokeninit.reqflags", FT_BYTES,
+		    BASE_HEX, NULL, 0, "reqFlags", HFILL}},
 	};
 
 	static gint *ett[] = {
