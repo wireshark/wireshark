@@ -2256,7 +2256,7 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
   int direction;
   guint32 base_ack=0;
 
-  if(tcp_relative_seq){
+  if(tcp_analyze_seq && tcp_relative_seq){
     /* find(or create if needed) the conversation for this tcp session */
     tcpd=get_tcp_conversation_data(pinfo);
 
