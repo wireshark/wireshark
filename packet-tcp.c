@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.103 2001/06/08 08:41:03 guy Exp $
+ * $Id: packet-tcp.c,v 1.104 2001/06/14 08:09:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -115,6 +115,9 @@ typedef struct _e_tcphdr {
   guint16 th_sum;
   guint16 th_urp;
 } e_tcphdr;
+
+/* Minimum TCP header length. */
+#define	TCPH_MIN_LEN	20
 
 /*
  *	TCP option
@@ -476,6 +479,20 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Compute the sequence number of next octet after this segment. */
   nxtseq = th.th_seq + seglen;
 
+  if (hlen < TCPH_MIN_LEN) {
+    if (check_col(pinfo->fd, COL_INFO))
+      col_add_fstr(pinfo->fd, COL_INFO, "Bogus TCP header length (%u, must be at least %u)",
+       hlen, TCPH_MIN_LEN);
+    ti = proto_tree_add_item(tree, proto_tcp, tvb, offset, hlen, FALSE);
+    tcp_tree = proto_item_add_subtree(ti, ett_tcp);
+    if (tree) {
+      proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, tvb, offset, 1, hlen,
+       "Header length: %u bytes (bogus, must be at least %u)", hlen,
+       TCPH_MIN_LEN);
+    }
+    return;
+  }
+
   if (check_col(pinfo->fd, COL_INFO)) {
     if (th.th_flags & TH_URG)
       col_append_fstr(pinfo->fd, COL_INFO, "%s > %s [%s] Seq=%u Ack=%u Win=%u Urg=%u Len=%d",
@@ -488,8 +505,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   
   if (tree) {
-    if (tcp_summary_in_tree) {
-	    ti = proto_tree_add_protocol_format(tree, proto_tcp, tvb, offset, hlen, "Transmission Control Protocol, Src Port: %s (%u), Dst Port: %s (%u), Seq: %u, Ack: %u", get_tcp_port(th.th_sport), th.th_sport, get_tcp_port(th.th_dport), th.th_dport, th.th_seq, th.th_ack);
+    if (tcp_summary_in_tree && hlen >= TCPH_MIN_LEN) {
+	    ti = proto_tree_add_protocol_format(tree, proto_tcp, tvb, offset,
+	        hlen,
+		"Transmission Control Protocol, Src Port: %s (%u), Dst Port: %s (%u), Seq: %u, Ack: %u",
+		get_tcp_port(th.th_sport), th.th_sport,
+		get_tcp_port(th.th_dport), th.th_dport, th.th_seq, th.th_ack);
     }
     else {
 	    ti = proto_tree_add_item(tree, proto_tcp, tvb, offset, hlen, FALSE);
