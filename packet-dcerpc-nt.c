@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.42 2002/08/07 00:54:32 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.43 2002/08/21 21:29:22 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -870,6 +870,214 @@ static void init_pol_hash(void)
 	pol_hash = g_hash_table_new(pol_hash_fn, pol_hash_compare);
 }
 
+/* Dissect an access mask.  All this stuff is kind of explained at MSDN:
+
+http://msdn.microsoft.com/library/default.asp?url=/library/en-us/security/security/windows_2000_windows_nt_access_mask_format.asp 
+
+*/
+
+static gint ett_nt_access_mask = -1;
+static gint ett_nt_access_mask_generic = -1;
+static gint ett_nt_access_mask_standard = -1;
+static gint ett_nt_access_mask_specific = -1;
+
+static int hf_access_sacl = -1;
+static int hf_access_maximum_allowed = -1;
+static int hf_access_generic_read = -1;
+static int hf_access_generic_write = -1;
+static int hf_access_generic_execute = -1;
+static int hf_access_generic_all = -1;
+static int hf_access_standard_delete = -1;
+static int hf_access_standard_read_control = -1;
+static int hf_access_standard_synchronise = -1;
+static int hf_access_standard_write_dac = -1;
+static int hf_access_standard_write_owner = -1;
+static int hf_access_specific_15 = -1;
+static int hf_access_specific_14 = -1;
+static int hf_access_specific_13 = -1;
+static int hf_access_specific_12 = -1;
+static int hf_access_specific_11 = -1;
+static int hf_access_specific_10 = -1;
+static int hf_access_specific_9 = -1;
+static int hf_access_specific_8 = -1;
+static int hf_access_specific_7 = -1;
+static int hf_access_specific_6 = -1;
+static int hf_access_specific_5 = -1;
+static int hf_access_specific_4 = -1;
+static int hf_access_specific_3 = -1;
+static int hf_access_specific_2 = -1;
+static int hf_access_specific_1 = -1;
+static int hf_access_specific_0 = -1;
+
+int
+dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+		       proto_tree *tree, char *drep, int hfindex,
+		       nt_access_mask_fn_t *specific_rights_fn)
+{
+	proto_item *item;
+	proto_tree *subtree, *generic, *standard, *specific;
+	guint32 access;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
+				    hfindex, &access);
+
+	item = proto_tree_add_text(tree, tvb, offset - 4, 4, 
+				   "Access Mask: 0x%08x", access);
+
+	subtree = proto_item_add_subtree(item, ett_nt_access_mask);
+
+	/* Generic access rights */
+
+	item = proto_tree_add_text(subtree, tvb, offset - 4, 4,
+				   "Generic rights");
+
+	proto_item_append_text(item, ": 0x%08x", access & GENERIC_RIGHTS_MASK);
+
+	generic = proto_item_add_subtree(item, ett_nt_access_mask_generic);
+
+	proto_tree_add_boolean(
+		generic, hf_access_generic_read, tvb, offset - 4, 4,
+		access);
+
+	proto_tree_add_boolean(
+		generic, hf_access_generic_write, tvb, offset - 4, 4,
+		access);
+
+	proto_tree_add_boolean(
+		generic, hf_access_generic_execute, tvb, offset - 4, 4,
+		access);
+
+	proto_tree_add_boolean(
+		generic, hf_access_generic_all, tvb, offset - 4, 4,
+		access);
+
+	/* Reserved (??) */
+
+	proto_tree_add_boolean(
+		subtree, hf_access_maximum_allowed, tvb, offset - 4, 4,
+		access);
+
+	/* Access system security */
+
+	proto_tree_add_boolean(
+		subtree, hf_access_sacl, tvb, offset - 4, 4,
+		access);
+
+	/* Standard access rights */
+
+	item = proto_tree_add_text(subtree, tvb, offset - 4, 4,
+				   "Standard rights");
+
+	proto_item_append_text(item, ": 0x%08x", access & STANDARD_RIGHTS_MASK);
+
+	standard = proto_item_add_subtree(item, ett_nt_access_mask_standard);
+
+	proto_tree_add_boolean(
+		standard, hf_access_standard_synchronise, tvb, offset - 4, 4,
+		access);
+
+	proto_tree_add_boolean(
+		standard, hf_access_standard_write_owner, tvb, offset - 4, 4,
+		access);
+	
+	proto_tree_add_boolean(
+		standard, hf_access_standard_write_dac, tvb, offset - 4, 4,
+		access);
+	
+	proto_tree_add_boolean(
+		standard, hf_access_standard_read_control, tvb, offset - 4, 4,
+		access);
+
+	proto_tree_add_boolean(
+		standard, hf_access_standard_delete, tvb, offset - 4, 4,
+		access);
+
+	/* Specific access rights.  Call the specific_rights_fn
+	   pointer if we have one, otherwise just display bits 0-15 in
+	   boring fashion. */
+
+	item = proto_tree_add_text(subtree, tvb, offset - 4, 4,
+				   "Specific rights");
+
+	proto_item_append_text(item, ": 0x%08x", access & SPECIFIC_RIGHTS_MASK);
+
+	specific = proto_item_add_subtree(item, ett_nt_access_mask_specific);
+
+	if (specific_rights_fn) {
+
+		offset = specific_rights_fn(
+			tvb, offset - 4, specific, access);
+
+		return offset;
+	}
+
+	proto_tree_add_boolean(
+		specific, hf_access_specific_15, tvb, offset - 4, 4,
+		access);
+ 
+	proto_tree_add_boolean(
+		specific, hf_access_specific_14, tvb, offset - 4, 4,
+		access);
+ 
+	proto_tree_add_boolean(
+		specific, hf_access_specific_13, tvb, offset - 4, 4,
+		access);
+ 
+	proto_tree_add_boolean(
+		specific, hf_access_specific_12, tvb, offset - 4, 4,
+		access);
+ 
+	proto_tree_add_boolean(
+		specific, hf_access_specific_11, tvb, offset - 4, 4,
+		access);
+ 
+	proto_tree_add_boolean(
+		specific, hf_access_specific_10, tvb, offset - 4, 4,
+		access);
+ 
+	proto_tree_add_boolean(
+		specific, hf_access_specific_9, tvb, offset - 4, 4,
+		access);
+ 
+	proto_tree_add_boolean(
+		specific, hf_access_specific_8, tvb, offset - 4, 4,
+		access);
+ 
+	proto_tree_add_boolean(
+		specific, hf_access_specific_7, tvb, offset - 4, 4,
+		access);
+ 
+	proto_tree_add_boolean(
+		specific, hf_access_specific_6, tvb, offset - 4, 4,
+		access);
+ 
+	proto_tree_add_boolean(
+		specific, hf_access_specific_5, tvb, offset - 4, 4,
+		access);
+ 
+	proto_tree_add_boolean(
+		specific, hf_access_specific_4, tvb, offset - 4, 4,
+		access);
+ 
+	proto_tree_add_boolean(
+		specific, hf_access_specific_3, tvb, offset - 4, 4,
+		access);
+ 
+	proto_tree_add_boolean(
+		specific, hf_access_specific_2, tvb, offset - 4, 4,
+		access);
+ 
+	proto_tree_add_boolean(
+		specific, hf_access_specific_1, tvb, offset - 4, 4,
+		access);
+ 
+	proto_tree_add_boolean(
+		specific, hf_access_specific_0, tvb, offset - 4, 4,
+		access);
+ 
+	return offset;
+}
+
 /*
  * Initialise global DCERPC/SMB data structures
  */
@@ -887,15 +1095,167 @@ static void dcerpc_smb_init(void)
  */
 void proto_register_dcerpc_smb(void)
 {
+	static hf_register_info hf[] = {
+
+		/* Access mask */
+
+		{ &hf_access_generic_read,
+		  { "Generic read", "nt.access_mask.generic_read",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    GENERIC_READ_ACCESS, "Generic read", HFILL }},
+
+		{ &hf_access_generic_write,
+		  { "Generic write", "nt.access_mask.generic_write",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    GENERIC_WRITE_ACCESS, "Generic write", HFILL }},
+
+		{ &hf_access_generic_execute,
+		  { "Generic execute", "nt.access_mask.generic_execute",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    GENERIC_EXECUTE_ACCESS, "Generic execute", HFILL }},
+
+		{ &hf_access_generic_all,
+		  { "Generic all", "nt.access_mask.generic_all",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    GENERIC_ALL_ACCESS, "Generic all", HFILL }},
+
+		{ &hf_access_maximum_allowed,
+		  { "Maximum allowed", "nt.access_mask.maximum_allowed",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    MAXIMUM_ALLOWED_ACCESS, "Maximum allowed", HFILL }},
+
+		{ &hf_access_sacl,
+		  { "Access SACL", "nt.access_mask.access_sacl",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    ACCESS_SACL_ACCESS, "Access SACL", HFILL }},
+
+		{ &hf_access_standard_read_control,
+		  { "Read control", "nt.access_mask.read_control",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    READ_CONTROL_ACCESS, "Read control", HFILL }},
+
+		{ &hf_access_standard_delete,
+		  { "Delete", "nt.access_mask.delete",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DELETE_ACCESS, "Delete", HFILL }},
+
+		{ &hf_access_standard_synchronise,
+		  { "Synchronise", "nt.access_mask.synchronise",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    SYNCHRONIZE_ACCESS, "Synchronise", HFILL }},
+
+		{ &hf_access_standard_write_dac,
+		  { "Write DAC", "nt.access_mask.write_dac",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    WRITE_DAC_ACCESS, "Write DAC", HFILL }},
+
+		{ &hf_access_standard_write_owner,
+		  { "Write owner", "nt.access_mask.write_owner",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    WRITE_OWNER_ACCESS, "Write owner", HFILL }},
+
+		{ &hf_access_specific_15,
+		  { "Specific access, bit 15", "nt.access_mask.specific_15",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    0x8000, "Specific access, bit 15", HFILL }},
+
+		{ &hf_access_specific_14,
+		  { "Specific access, bit 14", "nt.access_mask.specific_14",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    0x4000, "Specific access, bit 14", HFILL }},
+
+		{ &hf_access_specific_13,
+		  { "Specific access, bit 13", "nt.access_mask.specific_13",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    0x2000, "Specific access, bit 13", HFILL }},
+
+		{ &hf_access_specific_12,
+		  { "Specific access, bit 12", "nt.access_mask.specific_12",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    0x1000, "Specific access, bit 12", HFILL }},
+
+		{ &hf_access_specific_11,
+		  { "Specific access, bit 11", "nt.access_mask.specific_11",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    0x0800, "Specific access, bit 11", HFILL }},
+
+		{ &hf_access_specific_10,
+		  { "Specific access, bit 10", "nt.access_mask.specific_10",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    0x0400, "Specific access, bit 10", HFILL }},
+
+		{ &hf_access_specific_9,
+		  { "Specific access, bit 9", "nt.access_mask.specific_9",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    0x0200, "Specific access, bit 9", HFILL }},
+
+		{ &hf_access_specific_8,
+		  { "Specific access, bit 8", "nt.access_mask.specific_8",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    0x0100, "Specific access, bit 8", HFILL }},
+
+		{ &hf_access_specific_7,
+		  { "Specific access, bit 7", "nt.access_mask.specific_7",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    0x0080, "Specific access, bit 7", HFILL }},
+
+		{ &hf_access_specific_6,
+		  { "Specific access, bit 6", "nt.access_mask.specific_6",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    0x0040, "Specific access, bit 6", HFILL }},
+
+		{ &hf_access_specific_5,
+		  { "Specific access, bit 5", "nt.access_mask.specific_5",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    0x0020, "Specific access, bit 5", HFILL }},
+
+		{ &hf_access_specific_4,
+		  { "Specific access, bit 4", "nt.access_mask.specific_4",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    0x0010, "Specific access, bit 4", HFILL }},
+
+		{ &hf_access_specific_3,
+		  { "Specific access, bit 3", "nt.access_mask.specific_3",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    0x0008, "Specific access, bit 3", HFILL }},
+
+		{ &hf_access_specific_2,
+		  { "Specific access, bit 2", "nt.access_mask.specific_2",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    0x0004, "Specific access, bit 2", HFILL }},
+
+		{ &hf_access_specific_1,
+		  { "Specific access, bit 1", "nt.access_mask.specific_1",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    0x0002, "Specific access, bit 1", HFILL }},
+
+		{ &hf_access_specific_0,
+		  { "Specific access, bit 0", "nt.access_mask.specific_0",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    0x0001, "Specific access, bit 0", HFILL }},
+	};
+
 	static gint *ett[] = {
 		&ett_nt_unicode_string,
 		&ett_nt_policy_hnd,
+		&ett_nt_access_mask,
+		&ett_nt_access_mask_generic,
+		&ett_nt_access_mask_standard,
+		&ett_nt_access_mask_specific,
 	};
 
+	static int proto_dcerpc_nt = -1;
 
 	/* Register ett's */
 
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/* Register hf's */
+
+	proto_dcerpc_nt = proto_register_protocol(
+		"Dummy Protocol", "DCERPC_NT", "DCERPC_NT");
+
+	proto_register_field_array(proto_dcerpc_nt, hf, array_length(hf));
 
         /* Register a routine to be called whenever initialisation
            is done. */
