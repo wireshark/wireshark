@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.713 2004/02/24 18:54:35 guy Exp $
+# $Id: Makefile.am,v 1.714 2004/03/02 01:21:56 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -147,46 +147,6 @@ plugin_ldadd = \
 	plugins/rtnet/packet-rtnet.o \
 	plugins/v5ua/packet-v5ua.o
 
-plugin_src = \
-	plugins/acn/packet-acn.c \
-	plugins/artnet/packet-artnet.c \
-	plugins/asn1/packet-asn1.c \
-	plugins/docsis/packet-bpkmattr.c \
-	plugins/docsis/packet-bpkmreq.c \
-	plugins/docsis/packet-bpkmrsp.c \
-	plugins/docsis/packet-docsis.c \
-	plugins/docsis/packet-dsaack.c \
-	plugins/docsis/packet-dsareq.c \
-	plugins/docsis/packet-dsarsp.c \
-	plugins/docsis/packet-dscack.c \
-	plugins/docsis/packet-dscreq.c \
-	plugins/docsis/packet-dscrsp.c \
-	plugins/docsis/packet-dsdreq.c \
-	plugins/docsis/packet-dsdrsp.c \
-	plugins/docsis/packet-macmgmt.c \
-	plugins/docsis/packet-map.c \
-	plugins/docsis/packet-regack.c \
-	plugins/docsis/packet-regreq.c \
-	plugins/docsis/packet-regrsp.c \
-	plugins/docsis/packet-rngreq.c \
-	plugins/docsis/packet-rngrsp.c \
-	plugins/docsis/packet-tlv.c \
-	plugins/docsis/packet-uccreq.c \
-	plugins/docsis/packet-uccrsp.c \
-	plugins/docsis/packet-ucd.c \
-	plugins/enttec/packet-enttec.c \
-	plugins/giop/packet-cosnaming.c \
-	plugins/giop/packet-coseventcomm.c \
-	plugins/gryphon/packet-gryphon.c \
-	plugins/irda/packet-irda.c \
-	plugins/lwres/packet-lwres.c \
-	plugins/megaco/packet-megaco.c \
-	plugins/mgcp/packet-mgcp.c \
-	plugins/pcli/packet-pcli.c \
-	plugins/rdm/packet-rdm.c \
-	plugins/rtnet/packet-rtnet.c \
-	plugins/v5ua/packet-v5ua.c
-
 else		# ENABLE_STATIC
 plugin_ldadd = \
 	"-dlopen" self	\
@@ -207,13 +167,9 @@ plugin_ldadd = \
 	"-dlopen" plugins/rtnet/rtnet.la \
 	"-dlopen" plugins/v5ua/v5ua.la
 
-plugin_src =
-
 endif		# ENABLE_STATIC
 
 else		# HAVE_PLUGINS
-plugin_src =
-
 plugin_libs =
 
 plugin_ldadd =
@@ -444,7 +400,6 @@ DISTCLEANFILES = \
 	*~
 
 MAINTAINERCLEANFILES =		\
-	register.c		\
 	ps.c
 
 EXTRA_DIST = \
@@ -693,7 +648,7 @@ rpm-package: dist
 		cd SOURCES ; \
 		ln -s ../../../$(distdir).tar.gz ; \
 		cd .. ; \
-		rpm --define "_topdir `cd . && pwd`" -bb SPECS/ethereal.spec && \
+		rpmbuild --define "_topdir `cd . && pwd`" -bb SPECS/ethereal.spec && \
 			echo "Package successfully built in `pwd`/RPMS." ; \
 	else \
 		echo "Error: RPM executable and/or source directory not found." ; \
@@ -705,7 +660,7 @@ srpm-package: dist
 		cd SOURCES ; \
 		ln -s ../../../$(distdir).tar.gz ; \
 		cd .. ; \
-		rpm --define "_topdir `cd . && pwd`" -bs SPECS/ethereal.spec && \
+		rpmbuild --define "_topdir `cd . && pwd`" -bs SPECS/ethereal.spec && \
 			echo "Package successfully built in `pwd`/SRPMS." ; \
 	else \
 		echo "Error: RPM executable and/or source directory not found." ; \
