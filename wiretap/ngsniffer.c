@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.77 2002/04/09 08:15:04 guy Exp $
+ * $Id: ngsniffer.c,v 1.78 2002/04/25 22:05:39 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1803,7 +1803,7 @@ ng_file_seek_rand(wtap *wth, long offset, int whence, int *err)
     if (delta > 0) {
 	/* We're going forwards.
 	   Is the place to which we're seeking within the current buffer? */
-	if ((unsigned)ngsniffer->rand.nextout + delta >= ngsniffer->rand.nbytes) {
+	if ((size_t)(ngsniffer->rand.nextout + delta) >= ngsniffer->rand.nbytes) {
 	    /* No.  Search for a blob that contains the target offset in
 	       the uncompressed byte stream, starting with the blob
 	       following the current blob. */
