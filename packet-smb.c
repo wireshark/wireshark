@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.162 2001/11/20 07:47:41 guy Exp $
+ * $Id: packet-smb.c,v 1.163 2001/11/20 08:18:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7342,7 +7342,7 @@ dissect_nt_cancel_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	if(conversation){
 		ct=conversation_get_proto_data(conversation, proto_smb);
 		if(ct){
-			old_si=g_hash_table_lookup(ct->unmatched, (void *)si->mid);
+			old_si=g_hash_table_lookup(ct->matched, (void *)pinfo->fd->num);
 			if(old_si){
 				proto_tree_add_uint(tree, hf_smb_cancel_to, tvb, 0, 0, old_si->frame_req);
 			} else {
@@ -12701,7 +12701,71 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		   We dont need to do anything 
 		*/
 		si.unidir = TRUE;
-	} else {
+	} else if( (si.cmd==0xa4)     /* NT Cancel */
+		   ||(si.cmd==0x26)   /* Transaction Secondary */
+		   ||(si.cmd==0x33)   /* Transaction2 Secondary */
+		   ||(si.cmd==0xa1)){ /* NT Transaction Secondary */
+		/* Ok, we got a special request type. This request is either
+		   an NT Cancel or a continuation relative to a real request
+		   in an earlier packet.  In either case, we don't expect any
+		   responses to this packet.  For continuations, any later
+		   responses we see really just belong to the original request.
+		   Anyway, we want to remember this packet somehow and
+		   remember which original request it is associated with so
+		   we can say nice things such as "This is a Cancellation to
+		   the request in frame x", but we don't want the
+		   request/response matching to get messed up.
+
+		   The only thing we do in this case is trying to find which original
+		   request we match with and insert an entry for this "special" 
+		   request for later reference. We continue to reference the original
+		   requests smb_saved_info_t but we dont touch it or change anything
+		   in it.
+		*/
+		conversation_t *conversation;
+		conv_tables_t *ct;
+
+		si.unidir = TRUE;  /*we dont expect an answer to this one*/
+		
+		/* find which conversation we are part of and get the tables for that 
+		   conversation*/
+		conversation = find_conversation(&pinfo->src, &pinfo->dst,
+			 pinfo->ptype,  pinfo->srcport, pinfo->destport, 0);
+		if(conversation){
+			ct=conversation_get_proto_data(conversation, proto_smb);
+
+			if(!pinfo->fd->flags.visited){
+				/* try to find which original call we match and if we 
+				   find it add us to the matched table. Dont touch
+				   anything else since we dont want this one to mess
+				   up the request/response matching. We still consider
+				   the initial call the real request and this is only
+				   some sort of continuation.
+				*/
+				/* we only check the unmatched table and assume that the
+				   last seen MID matching ours is the right one.
+				   This can fail but is better than nothing
+				*/
+				sip=g_hash_table_lookup(ct->unmatched, (void *)si.mid);
+				if(sip!=NULL){
+					g_hash_table_insert(ct->matched, (void *)pinfo->fd->num, sip);
+				}
+			} else {
+				/* we have seen this packet before; check the
+				   matching table
+				*/
+				sip=g_hash_table_lookup(ct->matched, (void *)pinfo->fd->num);
+				if(sip==NULL){
+				/*
+				  We didn't find it.
+				  Too bad, unfortunately there is not really much we can
+				  do now since this means that we never saw the initial
+				  request.
+				 */
+				}
+			}
+		}
+	} else { /* normal bidirectional request or response */
 		conversation_t *conversation;
 		conv_tables_t *ct;
 
@@ -12749,23 +12813,8 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 					   we can do than forget the old
 					   request and concentrate on the 
 					   present one instead.
-
-					   An exception is made for NT
-					   Cancel.  A Cancel request has
-					   the same TID/PID/MID/UID as
-					   the request to be cancelled;
-					   in that case, we leave the
-					   old request in place, that
-					   being the request being
-					   cancelled.
 					*/
-					if (si.cmd != 0xa4) {
-						/*
-						 * Not NT Cancel.
-						 * Remove the old entry.
-						 */
-						g_hash_table_remove(ct->unmatched, (void *)si.mid);
-					}
+					g_hash_table_remove(ct->unmatched, (void *)si.mid);
 				} else {
 					/* we have found a response to some request we have seen earlier.
 					   What we do now depends on whether this is the first response
@@ -12784,14 +12833,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 					}
 				}
 			}
-			if(si.request && si.cmd != 0xa4){
-				/*
-				 * A request, and not an NT Cancel request.
-				 * If we found a "smb_saved_info_t"
-				 * for this request, we removed it, and
-				 * we should allocate and fill in a new
-				 * one.
-				 */
+			if(si.request){
 				sip = g_mem_chunk_alloc(smb_saved_info_chunk);
 				sip->frame_req = pinfo->fd->num;
 				sip->frame_res = 0;
