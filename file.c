@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.69 1999/08/15 00:55:22 guy Exp $
+ * $Id: file.c,v 1.70 1999/08/15 01:02:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -210,15 +210,15 @@ close_cap_file(capture_file *cf, void *w, guint context) {
 }
 
 int
-read_cap_file(char *fname, char *rfilter, capture_file *cf) {
+read_cap_file(char *rfilter, capture_file *cf) {
   gchar  *name_ptr, *load_msg, *load_fmt = " Loading: %s...";
   gchar  *done_fmt = " File: %s  Drops: %d";
   gchar  *err_fmt  = " Error: Could not load '%s'";
   gint    timeout;
   size_t  msg_len;
 
-  if ((name_ptr = (gchar *) strrchr(fname, '/')) == NULL)
-    name_ptr = fname;
+  if ((name_ptr = (gchar *) strrchr(cf->filename, '/')) == NULL)
+    name_ptr = cf->filename;
   else
     name_ptr++;
 
@@ -241,7 +241,7 @@ read_cap_file(char *fname, char *rfilter, capture_file *cf) {
   wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);
   wtap_close(cf->wth);
   cf->wth = NULL;
-  cf->fh = fopen(fname, "r");
+  cf->fh = fopen(cf->filename, "r");
   thaw_clist(cf);
   
   gtk_timeout_remove(timeout);

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.48 1999/08/15 00:26:10 guy Exp $
+ * $Id: capture.c,v 1.49 1999/08/15 01:02:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -626,7 +626,7 @@ capture(void) {
     /* "pch" is non-NULL only if we successfully started a capture.
        If we haven't, there's no capture file to load. */
     if ((err = open_cap_file(cf.save_file, &cf)) == 0 &&
-	(err = read_cap_file(cf.save_file, NULL, &cf)) == 0) {
+	(err = read_cap_file(NULL, &cf)) == 0) {
       set_menu_sensitivity("/File/Save", TRUE);
       set_menu_sensitivity("/File/Save As...", FALSE);
     }

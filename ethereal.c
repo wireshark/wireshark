@@ -1,6 +1,6 @@
-/* ETHEREal.c
+/* ethereal.c
  *
- * $Id: ethereal.c,v 1.86 1999/08/15 00:26:09 guy Exp $
+ * $Id: ethereal.c,v 1.87 1999/08/15 01:02:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -447,7 +447,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   gtk_widget_destroy(GTK_WIDGET (fs));
 
   /* save the directory name. We can write over cf_name */
-  if ((err = read_cap_file(cf_name, rfilter, &cf)) == 0) {
+  if ((err = read_cap_file(rfilter, &cf)) == 0) {
 	  s = strrchr(cf_name, '/');
 	  if (s && last_open_dir) {
 		  *s = '\0';
@@ -528,7 +528,7 @@ file_save_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 	cf.save_file = g_strdup(cf_name);
 	cf.user_saved = 1;
         if ((err = open_cap_file(cf_name, &cf)) == 0 &&
-	    (err = read_cap_file(cf_name, g_strdup(cf.rfilter), &cf)) == 0) {
+	    (err = read_cap_file(g_strdup(cf.rfilter), &cf)) == 0) {
 		set_menu_sensitivity("/File/Save", FALSE);
 		set_menu_sensitivity("/File/Save As...", TRUE);
 	}
@@ -548,7 +548,7 @@ file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 	cf.filename = g_strdup(cf_name);
 	cf.user_saved = 1;
         if ((err = open_cap_file(cf.filename, &cf)) == 0 &&
-	    (err = read_cap_file(cf.filename, g_strdup(cf.rfilter), &cf)) == 0) {
+	    (err = read_cap_file(g_strdup(cf.rfilter), &cf)) == 0) {
 		set_menu_sensitivity("/File/Save", FALSE);
 		set_menu_sensitivity("/File/Save As...", TRUE);
 	}
@@ -565,7 +565,7 @@ file_reload_cmd_cb(GtkWidget *w, gpointer data) {
   if (cf.dfilter) g_free(cf.dfilter);
   cf.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
   if (open_cap_file(cf.filename, &cf) == 0)
-    read_cap_file(cf.filename, g_strdup(cf.rfilter), &cf);
+    read_cap_file(g_strdup(cf.rfilter), &cf);
   /* XXX - change the menu if it fails? */
 }
 
@@ -1416,7 +1416,7 @@ main(int argc, char *argv[])
      up on top of us. */
   if (cf_name) {
     if ((err = open_cap_file(cf_name, &cf)) == 0)
-	err = read_cap_file(cf_name, rfilter, &cf);
+	err = read_cap_file(rfilter, &cf);
     cf_name[0] = '\0';
     if (err == 0)
       set_menu_sensitivity("/File/Save As...", TRUE);
