@@ -1,5 +1,5 @@
 /* 
- * $Id: ftype-bytes.c,v 1.2 2001/02/01 20:31:21 gram Exp $
+ * $Id: ftype-bytes.c,v 1.3 2001/02/01 21:52:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -102,14 +102,14 @@ val_from_string(fvalue_t *fv, char *s, LogFunc log)
 {
 	GByteArray	*bytes;
 	guint8		val;
-	char		*p, *q, *punct;
+	guchar		*p, *q, *punct;
 	char		two_digits[3];
 	char		one_digit[2];
 	gboolean	fail = FALSE;
 
 	bytes = g_byte_array_new();
 
-	p = s;
+	p = (guchar *)s;
 	while (*p) {
 		q = p+1;
 		if (*q && isxdigit(*p) && isxdigit(*q)) {
