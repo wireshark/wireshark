@@ -1,5 +1,5 @@
 /*
- *  $Id: packet-rtps.h,v 1.2 2004/04/18 06:39:31 ulfl Exp $
+ *  $Id: packet-rtps.h,v 1.3 2004/04/22 20:29:46 jmayer Exp $
  *
  *  AUTHOR: Petr Smolik                 petr.smolik@wo.cz
  *
@@ -83,13 +83,13 @@ typedef gint32                   ObjectId;
 #define OID_READ_PUBL            0x000003C7
 #define OID_WRITE_SUBS           0x000004C2
 #define OID_READ_SUBS            0x000004C7
-//Kind
+/* Kind */
 #define OID_APPLICATION      0x01
 #define OID_CSTWRITER        0x02
 #define OID_PUBLICATION      0x03
 #define OID_SUBSCRIPTION     0x04
 #define OID_CSTREADER        0x07
-//
+
 #define OID_USEROBJ          0x00
 #define OID_RESUSEROBJ       0x40
 #define OID_METAOBJ          0x80
