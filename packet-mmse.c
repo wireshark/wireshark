@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.1 2001/09/25 21:32:41 guy Exp $
+ * $Id: packet-mmse.c,v 1.2 2001/10/19 21:40:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -344,7 +344,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->fd, COL_PROTOCOL))
-	col_set_str(pinfo->fd, COL_PROTOCOL, "mmse");
+	col_set_str(pinfo->fd, COL_PROTOCOL, "MMSE");
 
     if (check_col(pinfo->fd, COL_INFO)) {
 	col_clear(pinfo->fd, COL_INFO);
@@ -470,7 +470,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			nstime_t	 tmptime;
 			guint		 cnt;
 
-			tval = get_long_integer(tvb, offset + count, &cnt);
+			tval = get_long_integer(tvb, offset + count + 1, &cnt);
 			tmptime.secs = tval;
 			tmptime.nsecs = 0;
 			if (field == 0x80)
@@ -635,7 +635,7 @@ proto_register_mmse(void)
     /* Setup list of header fields  See Section 1.6.1 for details	*/
     static hf_register_info hf[] = {
 	{   &hf_mmse_message_type,
-	    {   "Message-Type", "mmse.message_length",
+	    {   "Message-Type", "mmse.message_type",
 		FT_UINT8, BASE_HEX, VALS(vals_message_type), 0x00,
 		"Specifies the transaction type. Effectively defines PDU.",
 		HFILL
@@ -839,7 +839,7 @@ proto_register_mmse(void)
 
     /* Register the protocol name and description */
     proto_mmse = proto_register_protocol("MMS Message Encapsulation",
-					 "WAP-MMSE", "mmse");
+					 "MMSE", "mmse");
 
     /* Required function calls to register header fields and subtrees used */
     proto_register_field_array(proto_mmse, hf, array_length(hf));
