@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.9 1998/11/18 03:01:37 gerald Exp $
+ * $Id: packet-tcp.c,v 1.10 1998/12/21 03:43:29 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,12 +47,27 @@
 extern FILE* data_out_file;
 extern packet_info pi;
 
+static gchar info_str[COL_MAX_LEN];
+static int   info_len;
+
+static void
+tcp_info_append_uint(const char *abbrev, guint32 val) {
+  int add_len = 0;
+  
+  if (info_len > 0)
+  if(info_len > 0)
+    add_len = snprintf(&info_str[info_len], COL_MAX_LEN - info_len, " %s=%u",
+      abbrev, val);
+  if (add_len > 0)
+    info_len += add_len;
+
 static void
 dissect_tcpopt_maxseg(GtkWidget *opt_tree, const char *name, const u_char *opd,
     int offset, guint optlen)
 {
   add_item_to_tree(opt_tree, offset,      optlen,
     "%s: %u bytes", name, pntohs(opd));
+  tcp_info_append_uint("MSS", pntohs(opd));
 }
 
 static void
@@ -61,12 +76,15 @@ dissect_tcpopt_wscale(GtkWidget *opt_tree, const char *name, const u_char *opd,
 {
   add_item_to_tree(opt_tree, offset,      optlen,
     "%s: %u bytes", name, *opd);
+  tcp_info_append_uint("WS", *opd);
 }
 
 static void
 dissect_tcpopt_sack(GtkWidget *opt_tree, const char *name, const u_char *opd,
     int offset, guint optlen)
 {
+  int add_len = 0;
+  
   GtkWidget *field_tree = NULL, *tf;
   guint leftedge, rightedge;
 
@@ -99,6 +117,8 @@ dissect_tcpopt_sack(GtkWidget *opt_tree, const char *name, const u_char *opd,
     optlen -= 4;
     add_item_to_tree(field_tree, offset,      8,
         "left edge = %u, right edge = %u", leftedge, rightedge);
+    tcp_info_append_uint("SLE", leftedge);
+    tcp_info_append_uint("SRE", rightedge);
     offset += 8;
   }
 }
@@ -109,6 +129,7 @@ dissect_tcpopt_echo(GtkWidget *opt_tree, const char *name, const u_char *opd,
 {
   add_item_to_tree(opt_tree, offset,      optlen,
     "%s: %u", name, pntohl(opd));
+  tcp_info_append_uint("ECHO", pntohl(opd));
 }
 
 static void
@@ -117,6 +138,8 @@ dissect_tcpopt_timestamp(GtkWidget *opt_tree, const char *name,
 {
   add_item_to_tree(opt_tree, offset,      optlen,
     "%s: tsval %u, tsecr %u", name, pntohl(opd), pntohl(opd + 4));
+  tcp_info_append_uint("TSV", pntohl(opd));
+  tcp_info_append_uint("TSER", pntohl(opd + 4));
 }
 
 static void
@@ -125,6 +148,7 @@ dissect_tcpopt_cc(GtkWidget *opt_tree, const char *name, const u_char *opd,
 {
   add_item_to_tree(opt_tree, offset,      optlen,
     "%s: %u", name, pntohl(opd));
+  tcp_info_append_uint("CC", pntohl(opd));
 }
 
 static ip_tcp_opt tcpopts[] = {
@@ -219,7 +243,7 @@ static ip_tcp_opt tcpopts[] = {
 void
 dissect_tcp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   e_tcphdr   th;
-  GtkWidget *tcp_tree, *ti, *field_tree, *tf;
+  GtkWidget *tcp_tree, *ti, *field_tree = NULL, *tf;
   gchar      flags[64] = "<None>";
   gchar     *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG"};
   gint       fpos = 0, i;
@@ -238,68 +262,89 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   th.th_seq   = ntohl(th.th_seq);
   th.th_ack   = ntohl(th.th_ack);
   
-  for (i = 0; i < 6; i++) {
-    bpos = 1 << i;
-    if (th.th_flags & bpos) {
-      if (fpos) {
-        strcpy(&flags[fpos], ", ");
-        fpos += 2;
+  info_len = 0;
+
+  if (check_col(fd, COL_PROTOCOL) || tree) {  
+    for (i = 0; i < 6; i++) {
+      bpos = 1 << i;
+      if (th.th_flags & bpos) {
+        if (fpos) {
+          strcpy(&flags[fpos], ", ");
+          fpos += 2;
+        }
+        strcpy(&flags[fpos], fstr[i]);
+        fpos += 3;
       }
-      strcpy(&flags[fpos], fstr[i]);
-      fpos += 3;
     }
+    flags[fpos] = '\0';
   }
-  flags[fpos] = '\0';
-  
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "TCP");
-  if (check_col(fd, COL_INFO))
-    col_add_fstr(fd, COL_INFO, "Source port: %s  Destination port: %s",
-      get_tcp_port(th.th_sport), get_tcp_port(th.th_dport));
-  if (check_col(fd, COL_RES_SRC_PORT))
-    col_add_str(fd, COL_RES_SRC_PORT, get_tcp_port(th.th_sport));
-  if (check_col(fd, COL_UNRES_SRC_PORT))
-    col_add_fstr(fd, COL_UNRES_SRC_PORT, "%d", th.th_sport);
-  if (check_col(fd, COL_RES_DST_PORT))
-    col_add_str(fd, COL_RES_DST_PORT, get_tcp_port(th.th_dport));
-  if (check_col(fd, COL_UNRES_DST_PORT))
-    col_add_fstr(fd, COL_UNRES_DST_PORT, "%d", th.th_dport);
   
   hlen = th.th_off * 4;  /* TCP header length, in bytes */
 
+  if (check_col(fd, COL_RES_SRC_PORT))
+    col_add_str(fd, COL_RES_SRC_PORT, get_tcp_port(th.th_sport));
+  if (check_col(fd, COL_UNRES_SRC_PORT))
+    col_add_fstr(fd, COL_UNRES_SRC_PORT, "%u", th.th_sport);
+  if (check_col(fd, COL_RES_DST_PORT))
+    col_add_str(fd, COL_RES_DST_PORT, get_tcp_port(th.th_dport));
+  if (check_col(fd, COL_UNRES_DST_PORT))
+    col_add_fstr(fd, COL_UNRES_DST_PORT, "%u", th.th_dport);
+  if (check_col(fd, COL_PROTOCOL))
+    col_add_str(fd, COL_PROTOCOL, "TCP");
+  if (check_col(fd, COL_INFO)) {
+    /* Copy the data into info_str in case one of the option handling
+       routines needs to append to it. */
+    if (th.th_flags & TH_URG)
+      info_len = snprintf(info_str, COL_MAX_LEN, "%s > %s [%s] Seq=%u Ack=%u Win=%u Urg=%u",
+        get_tcp_port(th.th_sport), get_tcp_port(th.th_dport), flags,
+        th.th_seq, th.th_ack, th.th_win, th.th_urp);
+    else
+      info_len = snprintf(info_str, COL_MAX_LEN, "%s > %s [%s] Seq=%u Ack=%u Win=%u",
+        get_tcp_port(th.th_sport), get_tcp_port(th.th_dport), flags,
+        th.th_seq, th.th_ack, th.th_win);
+    /* The info column is actually written after the options are decoded */
+  }
+  
   if (tree) {
     ti = add_item_to_tree(GTK_WIDGET(tree), offset, hlen,
       "Transmission Control Protocol");
     tcp_tree = gtk_tree_new();
     add_subtree(ti, tcp_tree, ETT_TCP);
-    add_item_to_tree(tcp_tree, offset,      2, "Source port: %d", th.th_sport);
-    add_item_to_tree(tcp_tree, offset +  2, 2, "Destination port: %d", th.th_dport);
+    add_item_to_tree(tcp_tree, offset,      2, "Source port: %s (%u)",
+      get_tcp_port(th.th_sport), th.th_sport);
+    add_item_to_tree(tcp_tree, offset +  2, 2, "Destination port: %s (%u)",
+      get_tcp_port(th.th_dport), th.th_dport);
     add_item_to_tree(tcp_tree, offset +  4, 4, "Sequence number: %u",
       th.th_seq);
     if (th.th_flags & TH_ACK)
       add_item_to_tree(tcp_tree, offset +  8, 4, "Acknowledgement number: %u",
         th.th_ack);
-    add_item_to_tree(tcp_tree, offset + 12, 1, "Header length: %d bytes", hlen);
+    add_item_to_tree(tcp_tree, offset + 12, 1, "Header length: %u bytes", hlen);
     add_item_to_tree(tcp_tree, offset + 13, 1, "Flags: %s", flags);
-    add_item_to_tree(tcp_tree, offset + 14, 2, "Window size: %d", th.th_win);
+    add_item_to_tree(tcp_tree, offset + 14, 2, "Window size: %u", th.th_win);
     add_item_to_tree(tcp_tree, offset + 16, 2, "Checksum: 0x%04x", th.th_sum);
     if (th.th_flags & TH_URG)
       add_item_to_tree(tcp_tree, offset + 18, 2, "Urgent pointer: 0x%04x",
         th.th_urp);
+  }
 
-    /* Decode TCP options, if any. */
-    if (hlen > sizeof (e_tcphdr)) {
-      /* There's more than just the fixed-length header.  Decode the
-         options. */
-      optlen = hlen - sizeof (e_tcphdr); /* length of options, in bytes */
+  /* Decode TCP options, if any. */
+  if (hlen > sizeof (e_tcphdr)) {
+    /* There's more than just the fixed-length header.  Decode the
+       options. */
+    optlen = hlen - sizeof (e_tcphdr); /* length of options, in bytes */
+    if (tree) {
       tf = add_item_to_tree(tcp_tree, offset +  20, optlen,
         "Options: (%d bytes)", optlen);
       field_tree = gtk_tree_new();
       add_subtree(tf, field_tree, ETT_TCP_OPTIONS);
-      dissect_ip_tcp_options(field_tree, &pd[offset + 20], offset + 20, optlen,
-         tcpopts, N_TCP_OPTS, TCPOPT_EOL);
     }
+    dissect_ip_tcp_options(field_tree, &pd[offset + 20], offset + 20, optlen,
+       tcpopts, N_TCP_OPTS, TCPOPT_EOL);
   }
+
+  if (check_col(fd, COL_INFO))
+    col_add_str(fd, COL_INFO, info_str);
 
   /* Skip over header + options */
   offset += hlen;
