@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.54 2000/11/01 08:31:33 guy Exp $
+ * $Id: tethereal.c,v 1.55 2000/11/06 09:28:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -122,7 +122,6 @@ static void wtap_dispatch_cb_write(u_char *, const struct wtap_pkthdr *, int,
     union wtap_pseudo_header *, const u_char *);
 static void wtap_dispatch_cb_print(u_char *, const struct wtap_pkthdr *, int,
     union wtap_pseudo_header *, const u_char *);
-static gchar *col_info(frame_data *, gint);
 
 packet_info  pi;
 capture_file cfile;
@@ -921,8 +920,9 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   frame_data    fdata;
   proto_tree   *protocol_tree;
   gboolean      passed;
-  print_args_t print_args;
+  print_args_t  print_args;
   epan_dissect_t *edt;
+  int           i;
 
   cf->count++;
 
@@ -960,26 +960,190 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr, int offset,
     } else {
       /* Just fill in the columns. */
       fill_in_columns(&fdata);
-      if (cf->iface == NULL) {
-         printf("%3s %10s %12s -> %-12s %s %s\n",
-    		  col_info(&fdata, COL_NUMBER),
-		  col_info(&fdata, COL_CLS_TIME),
-		  col_info(&fdata, COL_DEF_SRC),
-		  col_info(&fdata, COL_DEF_DST),
-		  col_info(&fdata, COL_PROTOCOL),
-		  col_info(&fdata, COL_INFO));
-      } else {
-        printf("%12s -> %-12s %s %s\n",
-		  col_info(&fdata, COL_DEF_SRC),
-		  col_info(&fdata, COL_DEF_DST),
-		  col_info(&fdata, COL_PROTOCOL),
-		  col_info(&fdata, COL_INFO));
+
+      /* Now print them. */
+      for (i = 0; i < cf->cinfo.num_cols; i++) {
+        switch (cf->cinfo.col_fmt[i]) {
+	case COL_NUMBER:
+	  /*
+	   * Don't print this if we're doing a live capture from a network
+	   * interface - if we're doing a live capture, you won't be
+	   * able to look at the capture in the future (it's not being
+	   * saved anywhere), so the frame numbers are unlikely to be
+	   * useful.
+	   *
+	   * (XXX - it might be nice to be able to save and print at
+	   * the same time, sort of like an "Update list of packets
+	   * in real time" capture in Ethereal.)
+	   */
+          if (cf->iface != NULL)
+            continue;
+          printf("%3s", cf->cinfo.col_data[i]);
+          break;
+
+        case COL_CLS_TIME:
+        case COL_REL_TIME:
+        case COL_ABS_TIME:
+        case COL_ABS_DATE_TIME:	/* XXX - wider */
+          printf("%10s", cf->cinfo.col_data[i]);
+          break;
+
+        case COL_DEF_SRC:
+        case COL_RES_SRC:
+        case COL_UNRES_SRC:
+        case COL_DEF_DL_SRC:
+        case COL_RES_DL_SRC:
+        case COL_UNRES_DL_SRC:
+        case COL_DEF_NET_SRC:
+        case COL_RES_NET_SRC:
+        case COL_UNRES_NET_SRC:
+          printf("%12s", cf->cinfo.col_data[i]);
+          break;
+
+        case COL_DEF_DST:
+        case COL_RES_DST:
+        case COL_UNRES_DST:
+        case COL_DEF_DL_DST:
+        case COL_RES_DL_DST:
+        case COL_UNRES_DL_DST:
+        case COL_DEF_NET_DST:
+        case COL_RES_NET_DST:
+        case COL_UNRES_NET_DST:
+          printf("%-12s", cf->cinfo.col_data[i]);
+          break;
+
+        default:
+          printf("%s", cf->cinfo.col_data[i]);
+          break;
+        }
+        if (i != cf->cinfo.num_cols - 1) {
+          /*
+	   * This isn't the last column, so we need to print a
+	   * separator between this column and the next.
+	   *
+	   * If we printed a network source and are printing a
+	   * network destination of the same type next, separate
+	   * them with "->"; if we printed a network destination
+	   * and are printing a network source of the same type
+	   * next, separate them with "<-"; otherwise separate them
+	   * with a space.
+	   */
+	  switch (cf->cinfo.col_fmt[i]) {
+
+	  case COL_DEF_SRC:
+	  case COL_RES_SRC:
+	  case COL_UNRES_SRC:
+	    switch (cf->cinfo.col_fmt[i + 1]) {
+
+	    case COL_DEF_DST:
+	    case COL_RES_DST:
+	    case COL_UNRES_DST:
+	      printf(" -> ");
+	      break;
+
+	    default:
+	      putchar(' ');
+	      break;
+	    }
+	    break;
+
+	  case COL_DEF_DL_SRC:
+	  case COL_RES_DL_SRC:
+	  case COL_UNRES_DL_SRC:
+	    switch (cf->cinfo.col_fmt[i + 1]) {
+
+	    case COL_DEF_DL_DST:
+	    case COL_RES_DL_DST:
+	    case COL_UNRES_DL_DST:
+	      printf(" -> ");
+	      break;
+
+	    default:
+	      putchar(' ');
+	      break;
+	    }
+	    break;
+
+	  case COL_DEF_NET_SRC:
+	  case COL_RES_NET_SRC:
+	  case COL_UNRES_NET_SRC:
+	    switch (cf->cinfo.col_fmt[i + 1]) {
+
+	    case COL_DEF_NET_DST:
+	    case COL_RES_NET_DST:
+	    case COL_UNRES_NET_DST:
+	      printf(" -> ");
+	      break;
+
+	    default:
+	      putchar(' ');
+	      break;
+	    }
+	    break;
+
+	  case COL_DEF_DST:
+	  case COL_RES_DST:
+	  case COL_UNRES_DST:
+	    switch (cf->cinfo.col_fmt[i + 1]) {
+
+	    case COL_DEF_SRC:
+	    case COL_RES_SRC:
+	    case COL_UNRES_SRC:
+	      printf(" <- ");
+	      break;
+
+	    default:
+	      putchar(' ');
+	      break;
+	    }
+	    break;
+
+	  case COL_DEF_DL_DST:
+	  case COL_RES_DL_DST:
+	  case COL_UNRES_DL_DST:
+	    switch (cf->cinfo.col_fmt[i + 1]) {
+
+	    case COL_DEF_DL_SRC:
+	    case COL_RES_DL_SRC:
+	    case COL_UNRES_DL_SRC:
+	      printf(" <- ");
+	      break;
+
+	    default:
+	      putchar(' ');
+	      break;
+	    }
+	    break;
+
+	  case COL_DEF_NET_DST:
+	  case COL_RES_NET_DST:
+	  case COL_UNRES_NET_DST:
+	    switch (cf->cinfo.col_fmt[i + 1]) {
+
+	    case COL_DEF_NET_SRC:
+	    case COL_RES_NET_SRC:
+	    case COL_UNRES_NET_SRC:
+	      printf(" <- ");
+	      break;
+
+	    default:
+	      putchar(' ');
+	      break;
+	    }
+	    break;
+
+	  default:
+	    putchar(' ');
+	    break;
+	  }
+	}
       }
     }
+    putchar('\n');
     if (print_hex) {
       print_hex_data(stdout, print_args.format, buf,
 			fdata.cap_len, fdata.flags.encoding);
-      printf("\n");
+      putchar('\n');
     }
     fdata.cinfo = NULL;
   }
@@ -1133,18 +1297,4 @@ fail:
   snprintf(err_msg, sizeof err_msg, file_open_error_message(err, FALSE), fname);
   fprintf(stderr, "tethereal: %s\n", err_msg);
   return (err);
-}
-
-/* Get the text in a given column */
-static gchar *
-col_info(frame_data *fd, gint el) {
-  int i;
-  
-  if (fd->cinfo) {
-    for (i = 0; i < fd->cinfo->num_cols; i++) {
-      if (fd->cinfo->fmt_matx[i][el])
-        return fd->cinfo->col_data[i];
-    }
-  }
-  return NULL;
 }

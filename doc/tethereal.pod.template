@@ -50,13 +50,13 @@ of the packets it captures or reads; otherwise, it writes those packets
 to the file specified by that flag.
 
 When printing a decoded form of packets, B<Tethereal> prints, by
-default, a summary line giving a time stamp for the packet if it's
-reading a capture file (but not if it's printing packets as it captures
-them), the source and destination address for the packet, the top-level
-protocol for the packet that B<Tethereal> understands, and a summary of
-the packet's contents for that protocol.  If the B<-V> flag is
-specified, it prints intead a protocol tree, showing all the fields of
-all protocols in the packet.
+default, a summary line containing the fields specified by the
+preferences file (which are also the fields displayed in the packet list
+pane in B<Ethereal>), although if it's printing packets as it captures
+them, rather than printing packets from a saved capture file, it won't
+print the "frame number" field.  If the B<-V> flag is specified, it
+prints intead a protocol tree, showing all the fields of all protocols
+in the packet.
 
 When writing packets to a file, B<Tethereal>, by default, writes the
 file in B<libpcap> format, and writes all of the packets it sees to the
