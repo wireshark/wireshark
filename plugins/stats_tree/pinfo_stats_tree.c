@@ -30,43 +30,7 @@
 
 #include <epan/stats_tree.h>
 
-static int st_node_pinfo_dl_src = -1;
-static gchar* st_str_pinfo_dl_src = "link-layer source address";
-
-static int st_node_pinfo_dl_dst = -1;
-static gchar* st_str_pinfo_dl_dst = "link-layer destination address";
-
-static int st_node_pinfo_net_src = -1;
-static gchar* st_str_pinfo_net_src = "network-layer source address";
-
-static int st_node_pinfo_net_dst = -1;
-static gchar* st_str_pinfo_net_dst = "network-layer destination address";
-
-static int st_node_pinfo_src = -1;
-static gchar* st_str_pinfo_src = "source address (net if present, DL otherwise )";
-
-static int st_node_pinfo_dst = -1;
-static gchar* st_str_pinfo_dst = "destination address (net if present, DL otherwise )";
-
-static int st_node_pinfo_ethertype = -1;
-static gchar* st_str_pinfo_ethertype = "Ethernet Type Code, if this is an Ethernet packet";
-
-static int st_node_pinfo_ipproto = -1;
-static gchar* st_str_pinfo_ipproto = "IP protocol, if this is an IP packet";
-
-static int st_node_pinfo_ipxptype = -1;
-static gchar* st_str_pinfo_ipxptype = "IPX packet type, if this is an IPX packet";
-
-static int st_node_pinfo_circuit_id = -1;
-static gchar* st_str_pinfo_circuit_id = "circuit ID, for protocols with a VC identifier";
-
-static int st_node_pinfo_srcport = -1;
-static gchar* st_str_pinfo_srcport = "source port";
-
-static int st_node_pinfo_destport = -1;
-static gchar* st_str_pinfo_destport = "destination port";
-
-
+/* XXX: this belongs to to_str.c */
 static const gchar* port_type_to_str (port_type type) {
 	switch (type) {
 		case PT_NONE:   return NULL;
@@ -85,97 +49,61 @@ static const gchar* port_type_to_str (port_type type) {
 	return NULL;
 }
 
-extern void pinfo_stats_tree_init(stats_tree* st)
-{
-	st_node_pinfo_dl_src = create_node(st, st_str_pinfo_dl_src, 0, TRUE);
-	st_node_pinfo_dl_dst = create_node(st, st_str_pinfo_dl_dst, 0, TRUE);
-	st_node_pinfo_net_src = create_node(st, st_str_pinfo_net_src, 0, TRUE);
-	st_node_pinfo_net_dst = create_node(st, st_str_pinfo_net_dst, 0, TRUE);
-	st_node_pinfo_src = create_node(st, st_str_pinfo_src, 0, TRUE);
-	st_node_pinfo_dst = create_node(st, st_str_pinfo_dst, 0, TRUE);
-	st_node_pinfo_ethertype = create_node(st, st_str_pinfo_ethertype, 0, TRUE);
-	st_node_pinfo_ipproto = create_node(st, st_str_pinfo_ipproto, 0, TRUE);
-	st_node_pinfo_ipxptype = create_node(st, st_str_pinfo_ipxptype, 0, TRUE);
-	st_node_pinfo_circuit_id = create_node(st, st_str_pinfo_circuit_id, 0, TRUE);
-	st_node_pinfo_srcport = create_node(st, st_str_pinfo_srcport, 0, TRUE);
-	st_node_pinfo_destport = create_node(st, st_str_pinfo_destport, 0, TRUE);
+/* ip host stats_tree -- basic test */
+static int st_node_ip = -1;
+static gchar* st_str_ip = "IP address";
+
+extern void ip_hosts_stats_tree_init(stats_tree* st) {
+	st_node_ip = create_node(st, st_str_ip, 0, TRUE);	
 }
 
-extern int pinfo_stats_tree_packet(stats_tree *st  , packet_info *pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
+extern int ip_hosts_stats_tree_packet(stats_tree *st  , packet_info *pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
 	static guint8 str[128];
+	
+	tick_stat_node(st, st_str_ip, 0, FALSE);
+	
+	g_snprintf(str, sizeof(str),"%s",address_to_str(&pinfo->net_src));
+	tick_stat_node(st, str, st_node_ip, FALSE);
+
+	g_snprintf(str, sizeof(str),"%s",address_to_str(&pinfo->net_dst));
+	tick_stat_node(st, str, st_node_ip, FALSE);
+	
+}
+
+
+/* packet type stats_tree -- test pivot node */
+static int st_node_ptype = -1;
+static gchar* st_str_ptype = "Port Type";
+
+extern void ptype_stats_tree_init(stats_tree* st) {
+	st_node_ptype = create_pivot_node(st, st_str_ptype, 0);
+}
+
+extern void ptype_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
 	const gchar* ptype;
 	
-	if (pinfo->dl_src.data) {
-		tick_stat_node(st, st_str_pinfo_dl_src, 0, FALSE);
-		g_snprintf(str, sizeof(str),"%s",address_to_str(&pinfo->dl_src));
-		tick_stat_node(st, str, st_node_pinfo_dl_src, FALSE);
-	}
-	
-	if (pinfo->dl_dst.data) {
-		tick_stat_node(st, st_str_pinfo_dl_dst, 0, FALSE);
-		g_snprintf(str, sizeof(str),"%s",address_to_str(&pinfo->dl_dst));
-		tick_stat_node(st, str, st_node_pinfo_dl_dst, FALSE);
-	}
-	
-	if (pinfo->net_src.data) {
-		tick_stat_node(st, st_str_pinfo_net_src, 0, FALSE);
-		g_snprintf(str, sizeof(str),"%s",address_to_str(&pinfo->net_src));
-		tick_stat_node(st, str, st_node_pinfo_net_src, FALSE);
-	}
-	
-	if (pinfo->net_dst.data) {
-		tick_stat_node(st, st_str_pinfo_net_dst, 0, FALSE);
-		g_snprintf(str, sizeof(str),"%s",address_to_str(&pinfo->net_dst));
-		tick_stat_node(st, str, st_node_pinfo_net_dst, FALSE);
-	}
-	
-	if (pinfo->src.data) {
-		tick_stat_node(st, st_str_pinfo_src, 0, FALSE);
-		g_snprintf(str, sizeof(str),"%s",address_to_str(&pinfo->src));
-		tick_stat_node(st, str, st_node_pinfo_src, FALSE);
-	}
-	
-	if (pinfo->dst.data) {
-		tick_stat_node(st, st_str_pinfo_dst, 0, FALSE);
-		g_snprintf(str, sizeof(str),"%s",address_to_str(&pinfo->dst));
-		tick_stat_node(st, str, st_node_pinfo_dst, FALSE);
-	}
-	
-	if (pinfo->ethertype) {
-		tick_stat_node(st, st_str_pinfo_ethertype, 0, FALSE);
-		g_snprintf(str, sizeof(str),"%u",pinfo->ethertype);
-		tick_stat_node(st, str, st_node_pinfo_ethertype, FALSE);
-	}
-	
-	if (pinfo->ipproto) {
-		tick_stat_node(st, st_str_pinfo_ipproto, 0, FALSE);
-		g_snprintf(str, sizeof(str),"%u",pinfo->ipproto);
-		tick_stat_node(st, str, st_node_pinfo_ipproto, FALSE);
-	}
-	
-	if (pinfo->ipxptype) {
-		tick_stat_node(st, st_str_pinfo_ipxptype, 0, FALSE);
-		g_snprintf(str, sizeof(str),"%u",pinfo->ipxptype);
-		tick_stat_node(st, str, st_node_pinfo_ipxptype, FALSE);
-	}
-	
-	if (pinfo->circuit_id) {
-		tick_stat_node(st, st_str_pinfo_circuit_id, 0, FALSE);
-		g_snprintf(str, sizeof(str),"%u",pinfo->circuit_id);
-		tick_stat_node(st, str, st_node_pinfo_circuit_id, FALSE);
-	}
-	
-	if (( ptype = port_type_to_str(pinfo->ptype) )) {
-		tick_stat_node(st, st_str_pinfo_srcport, 0, FALSE);
-		g_snprintf(str, sizeof(str),"%s:%u",ptype,pinfo->srcport);
-		tick_stat_node(st, str, st_node_pinfo_srcport, FALSE);
-	
-		tick_stat_node(st, st_str_pinfo_destport, 0, FALSE);
-		g_snprintf(str, sizeof(str),"%s:%u",ptype,pinfo->destport);
-		tick_stat_node(st, str, st_node_pinfo_destport, FALSE);
-	}
-	
-	return 1;
+	ptype = port_type_to_str(pinfo->ptype);
+
+	tick_pivot(st,st_node_ptype,ptype);
 }
 
+/* packet length stats_tree -- test range node */ 
+static int st_node_plen = -1;
+static gchar* st_str_plen = "Packet Lenght";
 
+extern void plen_stats_tree_init(stats_tree* st) {
+	st_node_plen = create_range_node(st, st_str_plen, 0, "0-19","20-39","40-79","80-159","160-319","320-639","640-1279","1280-",NULL);
+}
+
+extern void plen_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
+	tick_stat_node(st, st_str_plen, 0, FALSE);
+	tick_range(st, st_str_plen, 0, pinfo->fd->pkt_len);
+}
+
+/* register all pinfo trees */
+extern void register_pinfo_stat_trees(void) {
+	register_stats_tree("ip","ip_hosts",st_str_ip, ip_hosts_stats_tree_packet, ip_hosts_stats_tree_init );
+	register_stats_tree("ip","ptype",st_str_ptype, ptype_stats_tree_packet, ptype_stats_tree_init );
+	register_stats_tree("frame","plen",st_str_plen, plen_stats_tree_packet, plen_stats_tree_init );
+}
+ 
