@@ -2524,6 +2524,12 @@ proto_register_iscsi(void)
 				       "version_03_compatible");
 	prefs_register_obsolete_preference(iscsi_module,
 				       "bogus_pdu_max_digest_padding");
+	prefs_register_obsolete_preference(iscsi_module,
+				       "header_digest_is_crc32c");
+	prefs_register_obsolete_preference(iscsi_module,
+				       "header_digest_size");
+	prefs_register_obsolete_preference(iscsi_module,
+				       "enable_header_digests");
     }
 }
 
