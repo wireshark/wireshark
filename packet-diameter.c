@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.57 2004/01/17 12:51:00 ulfl Exp $
+ * $Id: packet-diameter.c,v 1.58 2004/01/19 18:28:14 jmayer Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -678,7 +678,7 @@ xmlDictionaryParse(xmlNodePtr cur)
  * This routine will call libxml to parse in the dictionary.
  */
 static int
-loadXMLDictionary()
+loadXMLDictionary(void)
 {
   xmlDocPtr doc;
   xmlNodePtr cur;
@@ -736,7 +736,7 @@ loadXMLDictionary()
  * with the old static data from packet-diameter-defs.h
  */
 static void
-initializeDictionaryDefaults()
+initializeDictionaryDefaults(void)
 {
   int i;
 
@@ -768,7 +768,7 @@ initializeDictionaryDefaults()
  * our static dictionary.
  */
 static void
-initializeDictionary()
+initializeDictionary(void)
 {
   /*
    * Using ugly ordering here.  If loadLibXML succeeds, then
