@@ -63,7 +63,7 @@ HEARTBEAT_ACK = 5,
 ABORT         = 6,
 SHUTDOWN      = 7,
 SHUTDOWN_ACK  = 8,
-ERROR         =  9,
+SCTP_ERROR         =  9,
 COOKIE_ECHO   = 10,
 COOKIE_ACK    = 11
 };
@@ -83,7 +83,7 @@ char *chunk_name(int type)
 		CASE(ABORT);
 		CASE(SHUTDOWN);
 		CASE(SHUTDOWN_ACK);
-		CASE(ERROR);
+		CASE(SCTP_ERROR);
 		CASE(COOKIE_ECHO);
 		CASE(COOKIE_ACK);
 	}
