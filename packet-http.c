@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@netapp.com>
  *
- * $Id: packet-http.c,v 1.6 1999/07/29 05:46:55 gram Exp $
+ * $Id: packet-http.c,v 1.7 1999/07/30 00:57:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -217,6 +217,6 @@ proto_register_http(void)
                 { "Name",           "http.abbreviation", TYPE, VALS_POINTER }},
         };*/
 
-        proto_http = proto_register_protocol("Hyptertext Transfer Protocol", "http");
+        proto_http = proto_register_protocol("Hypertext Transfer Protocol", "http");
  /*       proto_register_field_array(proto_http, hf, array_length(hf));*/
 }
