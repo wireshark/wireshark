@@ -1,4 +1,66 @@
-$Id: NEWS,v 1.121 2003/01/24 00:51:55 gerald Exp $
+$Id: NEWS,v 1.122 2003/03/05 03:51:23 gerald Exp $
+
+== March ?, 2003
+
+Ethereal 0.9.10 has been released.
+
+  This release fixes a security hole discovered by Georgi Guninski in
+  the SOCKS dissector.  All users of previous versions are encouraged
+  to upgrade.  See
+
+    http://www.ethereal.com/appnotes/enpa-sa-00008.html
+
+  for more details.
+
+New and Updated Features
+
+
+Bug Fixes
+
+  A missing comma in a string array could cause Ethereal to crash when
+  opening the preferences dialog.
+
+New Protocols
+
+MSN Messenger,
+SSH,
+
+
+Updated Protocols
+
+AFS,
+Apache JServ,
+BACNET,
+BGP,
+DCCP,
+DCERPC,
+DCERPC NT,
+DNS,
+Frame Relay,
+GTP,
+IPP,
+IPX,
+LSA,
+M3UA,
+MDSHDR,
+MPLS,
+NCP2222,
+NETLOGON,
+RADIUS,
+SAMR,
+SMB,
+SNMP,
+SPOOLSS,
+SRVSVC,
+SSL,
+Token Ring,
+X11,
+
+
+
+Updated Capture File Support
+  
+NetXRay
 
 == January 23, 2003
 

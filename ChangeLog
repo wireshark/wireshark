@@ -1,4 +1,93 @@
-$Id: ChangeLog,v 1.16 2003/01/24 00:51:54 gerald Exp $
+$Id: ChangeLog,v 1.17 2003/03/05 03:51:23 gerald Exp $
+
+Overview of changes in Ethereal 0.9.10:
+
+* Get rid of trailing enum commas in packet-rsvp.c (Albert Chin)
+* Perform the initialisation for the NT specific DCERPC dissectors as part
+  of the DCERPC dissector (Tim)
+* Remove packet-dcerpc-nt.c from the Makefiles (Tim)
+* Fix field width in MDSHDR (Olivier)
+* Remove an unused MEGACO function prototype (Joerg)
+* Add a missing include packet-dcerpc-nt.h (Joerg)
+* Fix BACNET-over-ARCNET handling (Dave Richards)
+* Add SSH dissector (Huagang Xie)
+* Call the GSSAPI dissector when disecting GSSAPI transaction keys in DNS
+  (Tim)
+* Update Laurent's email address (Laurent)
+* Support MPLS over CHDLC (Hannes Gredler)
+* Handle unknown SSH protocol versions better (Huagang)
+* Add names and types for ZLIB compressiona and AES ciphers to SSL (Yaniv)
+* Better pcap include directory detection (Guy)
+* Make column format descriptions static, fix missing comma (Guy)
+* Force dissection of M3UA parameters (Jeff Morriss)
+* Fix size of hf_afs_bos_status in AFS (Guy)
+* Apache JServ code cleanup (Laurent)
+* DCCP compilation warning fixes (Laurent)
+* M3UA fixes (Guy)
+* Add support for latest drafts (as4bytes and idr-dynamic-cap) to BGP 
+  (Akira Endoh)
+* Migrate to using callbacks in most of the DCERPC dissectors (Tim)
+* SSH version 1 support (Huagang)
+* Handle nonprintable characters in RADIUS (Guy)
+* Fix alignment issues in column-utils.c (Guy)
+* Minor M3UA corrections and modifications (Michael)
+* Fix boolean sizing in IPP (Guy)
+* Add the MEGACO and PCLI plugins to the Windows build (Guy)
+* Fix PCLI preference name (Guy)
+* Added constants for devicemode value_strings to SPOOLSS (Tim)
+* Clean up SPOOLSS filterable fields, add devicemode field strings (Tim)
+* Fix SNMP compilation errors and warnings (Laurent)
+* Forcibly remove redundant preference naming (Guy)
+* Expand preference naming text in README.developer (Guy)
+* More robust illegal SSH packet handling (Huagang)
+* Add the FAQ to the help menu (Joerg)
+* Fix a couple of checks for families with renamed preferences (Guy)
+* Add some missing specific configure options to INSTALL (Guy)
+* Put the computer_name in COL_INFO when dissecting a
+  BROWSE_REQUEST_ANNOUNCE packet (Tim)
+* Clean up the handling of null buffers in SPOOLSS (Tim)
+* Get rid of the IPX "sap_server_ident" structure, fix server name
+  length handling (Guy)
+* Improve DCERPC SRVSVC string handling (Tim)
+* Display random useful tidbits in COL_INFO for LSA, NETLOGON and SAMR
+  (Tim)
+* Fix NDR string alignment (Guy)
+* Fix string bases in SSH (Guy)
+* Generalize "cb_str_postprocess()" in DCERPC dissectors (Guy)
+* Fix --disable-gtk2 configure handling (Joerg)
+* Add MSN Messenger support (Chris)
+* Remove unprotected use of GCC __attribute__ in an unused #define
+  in packet-fcswils.c (Laurent)
+* Add support for writing Frame Relay files in NetXRay format 2.x (Guy)
+* Fix MemberType width in ncp2222 (Guy)
+* Fix string appending in DCERPC NT (Tim)
+* Fix memory leak, double free bug, other cleanups in SPOOLSS (Tim)
+* Add a wiretap encapsulation type for Frame Relay w/direction info (Guy)
+* Get rid of BASE_BIN (Guy)
+* Modify dissect_nt_sid() function to return a string version of the SID
+  (Tim)
+* Include SID and RIDs in SAMR handles, add more COL_INFO info (Tim)
+* Display X11 big-planes as hex (Guy)
+* Fix share name display in SRVSVC (Guy)
+* Improve DCERPC NT byte string display (Guy)
+* Fix some DNS field lengths (Guy)
+* Fix some tvb references in packet-tr.c (Guy)
+* Add a missing callback assignment in LSA (Guy)
+* Put the domain name in the NETLOGON DELTA_DOMAIN top-level item (Guy)
+* Decorate a NETLOGON PRIV_NAME_ARRAY with the privilege names in the
+  array (Guy)
+* Fix up the construct of BGP AS strings (Guy)
+* Display flow label IE in GTP v0 in hex (Pasi Kovanen)
+* 
+
+
+
+
+
+
+
+
+
 
 Overview of changes in Ethereal 0.9.9:
 * Get rid of unneeded comments and includes, fix registration in IPFC (Guy)
