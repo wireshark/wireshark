@@ -5,7 +5,7 @@
 * Charles Levert <charles@comm.polymtl.ca>
 * Copyright 2001 Charles Levert
 *
-* $Id: packet-cups.c,v 1.5 2001/06/18 02:17:45 guy Exp $
+* $Id: packet-cups.c,v 1.6 2001/09/20 02:26:03 guy Exp $
 *
 * 
 * This program is free software; you can redistribute it and/or
@@ -124,7 +124,8 @@ typedef enum _cups_state {
 static const value_string cups_state_values[] = {
 	{ CUPS_IDLE, 		"idle" },
 	{ CUPS_PROCESSING,	"processing" },
-	{ CUPS_STOPPED,		"stopped" }
+	{ CUPS_STOPPED,		"stopped" },
+	{ 0,			NULL }
 };
 
 static int proto_cups = -1;
@@ -180,17 +181,20 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	ptype = get_hex_uint(tvb, offset, &next_offset);
 	len = next_offset - offset;
-	if (cups_tree) {
-		ti = proto_tree_add_uint(cups_tree, hf_cups_ptype,
-		    tvb, offset, len, ptype);
-		ptype_subtree = proto_item_add_subtree(ti, ett_cups_ptype);
-		for (u = 0; u < N_CUPS_PTYPE_BITS; u++) {
-			proto_tree_add_text(ptype_subtree, tvb, offset, len,
-			    "%s",
-			    decode_boolean_bitfield(ptype,
-			      cups_ptype_bits[u].bit, sizeof (ptype)*8,
-			      cups_ptype_bits[u].on_string,
-			      cups_ptype_bits[u].off_string));
+	if (len != 0) {
+		if (cups_tree) {
+			ti = proto_tree_add_uint(cups_tree, hf_cups_ptype,
+			    tvb, offset, len, ptype);
+			ptype_subtree = proto_item_add_subtree(ti,
+			    ett_cups_ptype);
+			for (u = 0; u < N_CUPS_PTYPE_BITS; u++) {
+				proto_tree_add_text(ptype_subtree, tvb,
+				    offset, len, "%s",
+				    decode_boolean_bitfield(ptype,
+				      cups_ptype_bits[u].bit, sizeof (ptype)*8,
+				      cups_ptype_bits[u].on_string,
+				      cups_ptype_bits[u].off_string));
+			}
 		}
 	}
 	offset = next_offset;
@@ -201,9 +205,11 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	state = get_hex_uint(tvb, offset, &next_offset);
 	len = next_offset - offset;
-	if (cups_tree)
-		proto_tree_add_uint(cups_tree, hf_cups_state,
-		    tvb, offset, len, state);
+	if (len != 0) {
+		if (cups_tree)
+			proto_tree_add_uint(cups_tree, hf_cups_state,
+			    tvb, offset, len, state);
+	}
 	offset = next_offset;
 
 	if (!skip_space(tvb, offset, &next_offset))
@@ -211,6 +217,8 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = next_offset;
 
 	str = get_unquoted_string(tvb, offset, &next_offset, &len);
+	if (str == NULL)
+		return;	/* separator/terminator not found */
 	if (cups_tree)
 		proto_tree_add_text(cups_tree, tvb, offset, len,
 		    "URI: %.*s",
@@ -230,6 +238,8 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = next_offset;
 
 	str = get_quoted_string(tvb, offset, &next_offset, &len);
+	if (str == NULL)
+		return;	/* separator/terminator not found */
 	proto_tree_add_text(cups_tree, tvb, offset+1, len,
 	    "Location: \"%.*s\"",
 	    (guint16) len, str);
@@ -240,6 +250,8 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = next_offset;
 
 	str = get_quoted_string(tvb, offset, &next_offset, &len);
+	if (str == NULL)
+		return;	/* separator/terminator not found */
 	proto_tree_add_text(cups_tree, tvb, offset+1, len,
 	    "Information: \"%.*s\"",
 	    (guint16) len, str);
@@ -250,6 +262,8 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = next_offset;
 
 	str = get_quoted_string(tvb, offset, &next_offset, &len);
+	if (str == NULL)
+		return;	/* separator/terminator not found */
 	proto_tree_add_text(cups_tree, tvb, offset+1, len,
 	    "Make and model: \"%.*s\"",
 	    (guint16) len, str);
