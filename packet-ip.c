@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.154 2001/12/29 22:01:11 guy Exp $
+ * $Id: packet-ip.c,v 1.155 2002/01/10 11:27:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1010,7 +1010,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           }
           fei = proto_tree_add_none_format(ft, hf, 
                    tvb, 0, 0,
-                   "Frame:%d payload:%d-%d",
+                   "Frame:%u payload:%u-%u",
                    ipfd->frame,
                    ipfd->offset,
                    ipfd->offset+ipfd->len-1
@@ -1040,7 +1040,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           /* nothing of interest for this fragment */
           proto_tree_add_none_format(ft, hf_ip_fragment, 
                    tvb, 0, 0,
-                   "Frame:%d payload:%d-%d",
+                   "Frame:%u payload:%u-%u",
                    ipfd->frame,
                    ipfd->offset,
                    ipfd->offset+ipfd->len-1
@@ -1170,7 +1170,7 @@ dissect_mip_extensions(tvbuff_t *tvb, size_t offset, packet_info *pinfo,
 							 type?(length + 2):1,
 							 "Ext: %s",
 							 val_to_str(type, mip_extensions,
-										"Unknown ext %d"));
+										"Unknown ext %u"));
 	mip_tree = proto_item_add_subtree(ti, ett_icmp_mip);
   
 
@@ -1266,7 +1266,7 @@ dissect_mip_extensions(tvbuff_t *tvb, size_t offset, packet_info *pinfo,
 	  
 	  break;
 	default:
-	  g_warning("Unknown type(%d)!  I hope the length is right (%d)",
+	  g_warning("Unknown type(%u)!  I hope the length is right (%u)",
 				type, length);
 	  offset += length;
 	  break;

@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.43 2001/12/10 00:25:26 guy Exp $
+ * $Id: packet-clnp.c,v 1.44 2002/01/10 11:27:56 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1864,7 +1864,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           }
           fei = proto_tree_add_none_format(ft, hf, 
                    tvb, 0, 0,
-                   "Frame:%d payload:%d-%d",
+                   "Frame:%u payload:%u-%u",
                    fd->frame,
                    fd->offset,
                    fd->offset+fd->len-1
@@ -1894,7 +1894,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           /* nothing of interest for this segment */
           proto_tree_add_none_format(ft, hf_clnp_segment, 
                    tvb, 0, 0,
-                   "Frame:%d payload:%d-%d",
+                   "Frame:%u payload:%u-%u",
                    fd->frame,
                    fd->offset,
                    fd->offset+fd->len-1

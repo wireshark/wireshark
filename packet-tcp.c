@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.123 2001/12/10 00:25:39 guy Exp $
+ * $Id: packet-tcp.c,v 1.124 2002/01/10 11:27:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -360,7 +360,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		st = proto_item_add_subtree(si, ett_tcp_segments);
 		for(ipfd=ipfd_head->next; ipfd; ipfd=ipfd->next){
 			proto_tree_add_text(st, tvb, 0, 0,
-				"Frame:%d  seq#:%d-%d [%d-%d]",
+				"Frame:%u  seq#:%u-%u [%u-%u]",
 				ipfd->frame,
 				tsk->start_seq + ipfd->offset,
 				tsk->start_seq + ipfd->offset + ipfd->len - 1,
@@ -1041,7 +1041,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tcpinfo.urgent = FALSE;
 
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, " Len=%d", seglen);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " Len=%u", seglen);
 
   /* Decode TCP options, if any. */
   if (tree && hlen > TCPH_MIN_LEN) {
@@ -1049,7 +1049,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        options. */
     optlen = hlen - TCPH_MIN_LEN; /* length of options, in bytes */
     tf = proto_tree_add_text(tcp_tree, tvb, offset +  20, optlen,
-      "Options: (%d bytes)", optlen);
+      "Options: (%u bytes)", optlen);
     field_tree = proto_item_add_subtree(tf, ett_tcp_options);
     dissect_ip_tcp_options(tvb, offset + 20, optlen,
       tcpopts, N_TCP_OPTS, TCPOPT_EOL, pinfo, field_tree);

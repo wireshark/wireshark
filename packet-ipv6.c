@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.71 2001/12/10 00:25:29 guy Exp $
+ * $Id: packet-ipv6.c,v 1.72 2002/01/10 11:27:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -850,7 +850,7 @@ again:
           }
           fei = proto_tree_add_none_format(ft, hf,
                    tvb, 0, 0,
-                   "Frame:%d payload:%d-%d",
+                   "Frame:%u payload:%u-%u",
                    ipfd->frame,
                    ipfd->offset,
                    ipfd->offset+ipfd->len-1
@@ -880,7 +880,7 @@ again:
           /* nothing of interest for this fragment */
           proto_tree_add_none_format(ft, hf_ipv6_fragment,
                    tvb, 0, 0,
-                   "Frame:%d payload:%d-%d",
+                   "Frame:%u payload:%u-%u",
                    ipfd->frame,
                    ipfd->offset,
                    ipfd->offset+ipfd->len-1
