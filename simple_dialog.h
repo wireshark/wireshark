@@ -101,7 +101,7 @@ extern gpointer vsimple_dialog(ESD_TYPE_E type, gint btn_mask,
  * @param ... printf like parameters
  * @return the newly created dialog
  */
-extern gpointer simple_dialog(gint type, gint btn_mask,
+extern gpointer simple_dialog(ESD_TYPE_E type, gint btn_mask,
     const gchar *msg_format, ...);
 /** Create and show a simple dialog using a va_list.
  *
@@ -111,7 +111,7 @@ extern gpointer simple_dialog(gint type, gint btn_mask,
  * @param ap parameters
  * @return the newly created dialog
  */
-extern gpointer vsimple_dialog(gint type, gint btn_mask,
+extern gpointer vsimple_dialog(ESD_TYPE_E type, gint btn_mask,
     const gchar *msg_format, va_list ap);
 #endif
 
