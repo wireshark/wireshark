@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.205 2003/01/23 09:04:54 guy Exp $
+ * $Id: capture.c,v 1.206 2003/04/24 09:07:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -449,7 +449,6 @@ do_capture(const char *save_file)
     /* Keep a copy for later evaluation by _cwait() */
     child_process = fork_child;
 #else
-    signal(SIGCHLD, SIG_IGN);
     if (pipe(sync_pipe) < 0) {
       /* Couldn't create the pipe between parent and child. */
       error = errno;
