@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.67 2003/12/29 20:05:59 ulfl Exp $
+ * $Id: file_dlg.c,v 1.68 2003/12/29 20:41:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -655,7 +655,6 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   GtkWidget     *ok_bt, *main_vb, *ft_hb, *ft_lb, *range_fr, *range_vb, *range_tb;
   GtkTooltips   *tooltips;
   gchar         label_text[100];
-  frame_data    *packet;
 	
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
