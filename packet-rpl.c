@@ -2,7 +2,7 @@
  * Routines for RPL
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-rpl.c,v 1.5 2003/03/02 21:52:19 guy Exp $
+ * $Id: packet-rpl.c,v 1.6 2004/02/21 08:21:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -103,6 +103,7 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *rpl_container_tree;
 	guint16 offset;
 	gint ett_type;
+	gint length, reported_length;
 
 	len = tvb_get_ntohs(tvb, 0);
 	proto_tree_add_text(tree, tvb, 0, 2, "Length: %u", len);
@@ -141,9 +142,15 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					rpl_type_vals, "Unknown Type"));
 				rpl_container_tree = proto_item_add_subtree(ti, 
 					ett_type);
+				length = tvb_length_remaining(tvb, offset);
+				if (length > sublen)
+					length = sublen;
+				reported_length = tvb_reported_length_remaining(tvb, offset);
+				if (reported_length > sublen)
+					reported_length = sublen;
 				dissect_rpl_container(tvb_new_subset(tvb, 
-					offset, sublen, -1), pinfo, 
-					rpl_container_tree);
+					offset, length, reported_length),
+					pinfo, rpl_container_tree);
 
 				offset += sublen;
 			}	
@@ -256,6 +263,7 @@ dissect_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 rpl_len, rpl_type;
 	proto_item *ti;
 	proto_tree *rpl_tree;
+	tvbuff_t *next_tvb;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPL");
@@ -265,7 +273,7 @@ dissect_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_set_str(pinfo->cinfo, COL_INFO,
-		val_to_str(rpl_type, rpl_type_vals, "Unknown Type"));
+		    val_to_str(rpl_type, rpl_type_vals, "Unknown Type"));
 	}
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_rpl, tvb, 0, 
@@ -273,13 +281,14 @@ dissect_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		rpl_tree = proto_item_add_subtree(ti, ett_rpl);
 		proto_tree_add_uint_hidden(rpl_tree, hf_rpl_type, tvb, 2, 2,
 			rpl_type);
-		dissect_rpl_container(tvb_new_subset(tvb, 0, rpl_len, -1),
-			pinfo, rpl_tree);
+		next_tvb = tvb_new_subset(tvb, 0, -1, -1);
+		set_actual_length(next_tvb, rpl_len);
+		dissect_rpl_container(next_tvb, pinfo, rpl_tree);
 	
 		if (tvb_reported_length(tvb) > rpl_len)
 			call_dissector(data_handle, 
 				tvb_new_subset(tvb, rpl_len, -1, -1), pinfo,
-				tree);
+				    tree);
 	}
 }
 
