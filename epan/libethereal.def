@@ -211,6 +211,7 @@ find_protocol_by_id
 find_tap_id
 find_val_for_string
 follow_tcp_stats
+format_text
 fragment_add
 fragment_add_seq
 fragment_add_seq_check
