@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.32 2003/04/06 22:41:34 guy Exp $
+ * $Id: follow_dlg.c,v 1.33 2003/12/24 01:21:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -786,7 +786,7 @@ follow_add_to_gtk_text(char *buffer, int nchars, gboolean is_server,
     gchar         *convbuf;
 #endif
 
-#ifdef _WIN32
+#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
     /* While our isprint() hack is in place, we
      * have to use convert some chars to '.' in order
      * to be able to see the data we *should* see
@@ -795,18 +795,7 @@ follow_add_to_gtk_text(char *buffer, int nchars, gboolean is_server,
     int i;
 
     for (i = 0; i < nchars; i++) {
-	    if (buffer[i] == 0x0a || buffer[i] == 0x0d) {
-		    continue;
-	    }
-	    else if (! isprint(buffer[i])) {
-		    buffer[i] = '.';
-	    }
-    }
-#elif GTK_MAJOR_VERSION >= 2
-    int i;
-
-    for (i = 0; i < nchars; i++) {
-        if (buffer[i] == '\n')
+        if (buffer[i] == '\n' || buffer[i] == '\r')
             continue;
         if (! isprint(buffer[i])) {
             buffer[i] = '.';

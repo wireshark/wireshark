@@ -1,7 +1,7 @@
 /* gtkglobals.h
  * GTK-related Global defines, etc.
  *
- * $Id: gtkglobals.h,v 1.22 2003/08/01 01:39:01 guy Exp $
+ * $Id: gtkglobals.h,v 1.23 2003/12/24 01:21:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,14 +40,14 @@ void set_plist_font(PangoFontDescription *font);
 #endif
 void set_plist_sel_browse(gboolean);
 
-#ifdef _WIN32
+#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
 /*
  * XXX - "isprint()" can return "true" for non-ASCII characters, but
- * those don't work with GTK+ on Windows, as GTK+ on Windows assumes
- * UTF-8 strings.  Until we fix up Ethereal to properly handle
- * non-ASCII characters in all output (both GUI displays and text
- * printouts) on all platforms including Windows, we work around
- * the problem by escaping all characters that aren't printable ASCII.
+ * those don't work with GTK+ 1.3 or later, as they take UTF-8 strings
+ * as input.  Until we fix up Ethereal to properly handle non-ASCII
+ * characters in all output (both GUI displays and text printouts)
+ * in those versions of GTK+, we work around the problem by escaping
+ * all characters that aren't printable ASCII.
  */
 #undef isprint
 #define isprint(c) (c >= 0x20 && c < 0x7f)
