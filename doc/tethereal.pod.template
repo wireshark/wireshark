@@ -133,6 +133,25 @@ kilobytes (where a kilobyte is 1000 bytes, not 1024 bytes).
 
 =for html </DL>
 
+=item -b
+
+If a maximum capture file size was specified, causes B<Tethereal> to run
+in "ring buffer" mode, with the specified number of files.  In "ring
+buffer" mode, B<Tethereal> will write to several capture files; the name
+of the first file, while the capture is in progress, will be the name
+specified by the B<-w> flag, and subsequent files with have .I<n>
+appended, with I<n> counting up.
+
+When the first capture file fills up, B<Tethereal> will switch to
+writing to the next file, until it fills up the last file, at which
+point it'll discard the data in the first file and start writing to that
+file.  When that file fills up, B<Tethereal> will discard the data in
+the next file and start writing to it, and so on.
+
+When the capture completes, the files will be renamed to have names
+based on the number of the file and on the date and time at which
+packets most recently started being written to the file.
+
 =item -c
 
 Sets the default number of packets to read when capturing live
