@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.47 1999/11/28 03:35:20 gerald Exp $
+ * $Id: main.c,v 1.48 1999/11/28 14:50:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -221,10 +221,7 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
     /* the filename1 file now has all the text that was in the session */
     streamwindow = gtk_window_new( GTK_WINDOW_TOPLEVEL);
     gtk_widget_set_name( streamwindow, "TCP stream window" );
-/*    gtk_signal_connect( GTK_OBJECT(streamwindow), "delete_event",
-			NULL, "WM destroy" );
-    gtk_signal_connect( GTK_OBJECT(streamwindow), "destroy",
-			NULL, "WM destroy" );*/
+
     gtk_signal_connect( GTK_OBJECT(streamwindow), "delete_event",
 			GTK_SIGNAL_FUNC(follow_destroy_cb), NULL);
     gtk_signal_connect( GTK_OBJECT(streamwindow), "destroy",
