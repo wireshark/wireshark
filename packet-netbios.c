@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.29 2001/01/09 06:31:39 guy Exp $
+ * $Id: packet-netbios.c,v 1.30 2001/01/15 04:39:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -272,7 +272,7 @@ netbios_name_type_descr(int name_type)
 	return val_to_str(name_type, name_type_vals, "Unknown");
 }
 
-gboolean netbios_add_name(char* label, tvbuff_t *tvb, int offset,
+void netbios_add_name(char* label, tvbuff_t *tvb, int offset,
     proto_tree *tree)
 
 {/* add a name field display tree. Display the name and station type in sub-tree */
@@ -285,17 +285,7 @@ gboolean netbios_add_name(char* label, tvbuff_t *tvb, int offset,
 
 					/* decode the name field */
 	name_type = get_netbios_name( tvb, offset, name_str);
-
-/*$$$ do I need this or does tvbuffer take care of this ? */
-	if (name_type < 0) {
-		/*
-		 * Name goes past end of captured data in packet.
-		 */
-		return FALSE;
-	}
-
 	name_type_str = netbios_name_type_descr(name_type);
-
 	tf = proto_tree_add_text( tree, tvb, offset, NETBIOS_NAME_LEN,
 	    	"%s: %s<%02x> (%s)", label, name_str, name_type, name_type_str);
 
@@ -304,8 +294,6 @@ gboolean netbios_add_name(char* label, tvbuff_t *tvb, int offset,
 		15, name_str, "%s", name_str);
 	proto_tree_add_uint_format( field_tree, hf_netb_name_type, tvb, offset + 15, 1, name_type,
 	    "0x%02x (%s)", name_type, name_type_str);
-
-	return TRUE;
 }
 
 
@@ -564,8 +552,8 @@ static void  dissect_netb_name_in_conflict( tvbuff_t *tvb, int offset,
 
 {/* Handle the NAME IN CONFLICT command */
 
-	if (!netbios_add_name("Name In Conflict", tvb, offset + NB_RECVER_NAME, tree))
-		return;
+	netbios_add_name("Name In Conflict", tvb, offset + NB_RECVER_NAME,
+	    tree);
 	netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME, tree);
 }
 
@@ -596,9 +584,7 @@ static void  dissect_netb_status_query( tvbuff_t *tvb, int offset, proto_tree *t
 	}
 	nb_data2("Length of status buffer: %u", 2, tvb, offset, tree);
 	nb_resp_corrl( tvb, offset, tree); 
-	if (!netbios_add_name("Receiver's Name", tvb, offset + NB_RECVER_NAME,
-	    tree))
-		return;
+	netbios_add_name("Receiver's Name", tvb, offset + NB_RECVER_NAME, tree);
 	netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME,
 	    tree);
 }
@@ -610,9 +596,7 @@ static void  dissect_netb_datagram( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the DATAGRAM command */
 
-	if (!netbios_add_name("Receiver's Name", tvb, offset + NB_RECVER_NAME,
-	    tree))
-		return;
+	netbios_add_name("Receiver's Name", tvb, offset + NB_RECVER_NAME, tree);
 	/* Weird.  In some datagrams, this is 10 octets of 0, followed
 	   by a MAC address.... */
 
@@ -658,8 +642,7 @@ static void  dissect_netb_name_query( tvbuff_t *tvb, int offset, proto_tree *tre
 	}
 	nb_call_name_type( tvb, offset, tree);
 	nb_resp_corrl( tvb, offset, tree);
-	if (!netbios_add_name("Query Name", tvb, offset + NB_RECVER_NAME, tree))
-		return;
+	netbios_add_name("Query Name", tvb, offset + NB_RECVER_NAME, tree);
 	if (local_session_number != 0) {
 		netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME,
 		    tree);
@@ -711,9 +694,8 @@ static void  dissect_netb_add_name_resp( tvbuff_t *tvb, int offset,
 	}
 
 	nb_xmit_corrl( tvb, offset, tree); 
-	if (!netbios_add_name("Name to be added", tvb, offset + NB_RECVER_NAME,
-	    tree))
-		return;
+	netbios_add_name("Name to be added", tvb, offset + NB_RECVER_NAME,
+	    tree);
 	netbios_add_name("Name to be added", tvb, offset + NB_SENDER_NAME,
 	    tree);
 }
@@ -746,9 +728,7 @@ static void  dissect_netb_name_resp( tvbuff_t *tvb, int offset,
 	nb_xmit_corrl( tvb, offset, tree);
 	if (local_session_number != 0x00 && local_session_number != 0xFF)
 		nb_resp_corrl(tvb, offset, tree);
-	if (!netbios_add_name("Receiver's Name", tvb, offset + NB_RECVER_NAME,
-	    tree))
-		return;
+	netbios_add_name("Receiver's Name", tvb, offset + NB_RECVER_NAME, tree);
 	if (local_session_number != 0x00 && local_session_number != 0xFF) {
 		netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME,
 		    tree);
@@ -792,9 +772,7 @@ static void  dissect_netb_status_resp( tvbuff_t *tvb, int offset, proto_tree *tr
 	    decode_numeric_bitfield(data2, 0x3FFF, 2*8,
 			"Status data length = %u"));
 	nb_xmit_corrl( tvb, offset, tree); 
-	if (!netbios_add_name("Receiver's Name", tvb, offset + NB_RECVER_NAME,
-	    tree))
-		return;
+	netbios_add_name("Receiver's Name", tvb, offset + NB_RECVER_NAME, tree);
 	netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME,
 	    tree);
 }
