@@ -52,7 +52,9 @@ static int proto_radius = -1;
 static int hf_radius_length = -1;
 static int hf_radius_code = -1;
 static int hf_radius_id =-1;
-static int hf_radius_cisco_cai = -1;
+static int hf_radius_userName = -1;
+static int hf_radius_framedProtocol = -1;
+static int hf_radius_serviceType = -1;
 static int hf_radius_callingStationId = -1;
 static int hf_radius_calledStationId = -1;
 static int hf_radius_framedAddress = -1;
@@ -62,6 +64,8 @@ static int hf_radius_acctStatusType = -1;
 static int hf_radius_acctSessionId = -1;
 static int hf_radius_3gpp_SgsnIpAddr = -1;
 static int hf_radius_3gpp_GgsnIpAddr = -1;
+static int hf_radius_cisco_cai = -1;
+
 
 static char *shared_secret = NULL;
 static gpointer authenticator = NULL;
@@ -218,6 +222,7 @@ static const value_string radius_vals[] =
   {RADIUS_RESERVED,			"Reserved"},
   {0, NULL}
 };
+
 
 /*
  * These are SMI Network Management Private Enterprise Codes for
@@ -2927,19 +2932,24 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
         case( RADIUS_STRING ):
 		rdconvertbufftostr(cont,tvb,offset+2,avph->avp_length-2);
 		switch ( avph->avp_type ) {
-			case (31): /* calling station id */
+				case(1):
 				val_str = tvb_get_string(tvb,offset+2,avph->avp_length-2);
-				proto_tree_add_string_hidden(tree, hf_radius_callingStationId, tvb, offset+8,avph->avp_length-8, val_str);
+					proto_tree_add_string(tree, hf_radius_userName, tvb, offset+2,avph->avp_length-2, val_str);
 				g_free(val_str);
 				break;
 			case (30): /* called station id */
 				val_str = tvb_get_string(tvb,offset+2,avph->avp_length-2);
-				proto_tree_add_string_hidden(tree, hf_radius_calledStationId, tvb, offset+8,avph->avp_length-8, val_str);
+					proto_tree_add_string(tree, hf_radius_calledStationId, tvb, offset+2,avph->avp_length-2, val_str);
+					g_free(val_str);
+					break;
+				case (31): /* calling station id */
+					val_str = tvb_get_string(tvb,offset+2,avph->avp_length-2);
+					proto_tree_add_string(tree, hf_radius_callingStationId, tvb, offset+2,avph->avp_length-2, val_str);
 				g_free(val_str);
 				break;
 			case(44): /* accounting session id */
 				val_str = tvb_get_string(tvb,offset+2,avph->avp_length-2);
-				proto_tree_add_string_hidden(tree, hf_radius_acctSessionId, tvb, offset+8,avph->avp_length-8, val_str);
+					proto_tree_add_string(tree, hf_radius_acctSessionId, tvb, offset+2,avph->avp_length-2, val_str);
 				g_free(val_str);
 				break;
 		}
@@ -2950,7 +2960,7 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 		switch ( avph->avp_type ) {
 			case(25): /* class */
 				val_str = tvb_get_string(tvb,offset+2,avph->avp_length-2);
-				proto_tree_add_string_hidden(tree, hf_radius_class, tvb, offset+8,avph->avp_length-8, val_str);
+					proto_tree_add_bytes(tree, hf_radius_class, tvb, offset+2,avph->avp_length-2,(gconstpointer) val_str);
 				g_free(val_str);
 				break;
 		}
@@ -2967,8 +2977,14 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 		else
 	                sprintf(cont,"%u", intval);
 		switch ( avph->avp_type ) {
+				case(6): /* service type */
+					proto_tree_add_uint(tree, hf_radius_serviceType, tvb,offset+4,2, intval);
+					break;
+				case(7): /* framed protocol */
+					proto_tree_add_uint(tree, hf_radius_framedProtocol, tvb,offset+4,2, intval);
+					break;
 			case(40): /*accounting status type */
-				proto_tree_add_uint_hidden(tree, hf_radius_acctStatusType, tvb,offset+2,1, intval);
+					proto_tree_add_uint(tree, hf_radius_acctStatusType, tvb,offset+4,2, intval);
 				break;
 		}
                 break;
@@ -2978,11 +2994,11 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 		switch ( avph->avp_type ) {
 			case(8): /* framed address */
 				tvb_memcpy(tvb,(guint8 *)&val_addr,offset+2,4);
-				proto_tree_add_ipv4_hidden(tree, hf_radius_framedAddress, tvb,offset+2,4, val_addr);
+						proto_tree_add_ipv4(tree, hf_radius_framedAddress, tvb,offset+2,4, val_addr);
 				break;
 			case(4): /* nas ip */
 				tvb_memcpy(tvb,(guint8 *)&val_addr,offset+2,4);
-				proto_tree_add_ipv4_hidden(tree, hf_radius_nasIp, tvb,offset+2,4, val_addr);
+						proto_tree_add_ipv4(tree, hf_radius_nasIp, tvb,offset+2,4, val_addr);
 				break;
 		}
 		break;
@@ -3065,7 +3081,7 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 					switch ( vsa_avph->avp_type ) {
 					case (250): /* account information */
 						val_str = tvb_get_string(tvb,offset+8,avph->avp_length-8);
-						proto_tree_add_string_hidden(tree, hf_radius_cisco_cai, tvb, offset+8,avph->avp_length-8, val_str);
+						proto_tree_add_string(tree, hf_radius_cisco_cai, tvb, offset+8,avph->avp_length-8, val_str);
 						g_free(val_str);
 						break;
 					}
@@ -3073,11 +3089,11 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 					switch (vsa_avph->avp_type) {
 					case (6): /* sgsn ip addr*/	
 						tvb_memcpy(tvb,(guint8 *)&val_addr,offset+8,4);
-						proto_tree_add_ipv4_hidden(tree, hf_radius_3gpp_SgsnIpAddr, tvb,offset+2,4, val_addr);
+						proto_tree_add_ipv4(tree, hf_radius_3gpp_SgsnIpAddr, tvb,offset+8,4, val_addr);
 						break;
 					case (7): /* sgsn ip addr*/	
 						tvb_memcpy(tvb,(guint8 *)&val_addr,offset+8,4);
-						proto_tree_add_ipv4_hidden(tree, hf_radius_3gpp_GgsnIpAddr, tvb,offset+2,4, val_addr);
+						proto_tree_add_ipv4(tree, hf_radius_3gpp_GgsnIpAddr, tvb,offset+8,4, val_addr);
 						break;				
 					}
 				} 
@@ -3473,20 +3489,32 @@ proto_register_radius(void)
 		{ "Identifier",	"radius.id", FT_UINT8, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 			
-		{ &hf_radius_cisco_cai,
-		{ "Cisco Account Info",	"radius.cisco.cai", FT_STRING, BASE_DEC, NULL, 0x0,
+		{ &hf_radius_length,
+		{ "Length","radius.length", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+			
+		{ &hf_radius_userName,
+		{ "User-Name",	"radius.username", FT_STRING, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+			
+		{ &hf_radius_serviceType,
+		{ "Service-Type",	"radius.service_type", FT_UINT32, BASE_DEC, VALS(radius_service_type_vals), 0x0,
+			"", HFILL }},
+		
+		{ &hf_radius_framedProtocol,
+		{ "Framed-Protocol",	"radius.framed_protocol", FT_UINT32, BASE_DEC, VALS(radius_framed_protocol_vals), 0x0,
 			"", HFILL }},
 			
 		{ &hf_radius_callingStationId,
-		{ "Calling Station Id",	"radius.calling", FT_STRING, BASE_DEC, NULL, 0x0,
+		{ "Calling-Station-Id",	"radius.calling", FT_STRING, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 			
 		{ &hf_radius_calledStationId,
-		{ "Called Station Id",	"radius.called", FT_STRING, BASE_DEC, NULL, 0x0,
+		{ "Called-Station-Id",	"radius.called", FT_STRING, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 			
 		{ &hf_radius_class,
-		{ "Class",	"radius.class", FT_STRING, BASE_DEC, NULL, 0x0,
+		{ "Class",	"radius.class", FT_BYTES, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_radius_acctSessionId,
@@ -3495,6 +3523,10 @@ proto_register_radius(void)
 
 		{ &hf_radius_framedAddress,
 		{ "Framed Address",	"radius.framed_addr", FT_IPv4, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+			
+		{ &hf_radius_acctStatusType,
+		{ "Accounting Status Type",	"radius.acct.status_type", FT_UINT32, BASE_DEC, VALS(radius_accounting_status_type_vals), 0x0,
 			"", HFILL }},
 			
 		{ &hf_radius_nasIp,
@@ -3509,13 +3541,10 @@ proto_register_radius(void)
 		{ "GGSN IP Address",	"radius.3gpp.ggsn_ip", FT_IPv4, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 
-		{ &hf_radius_acctStatusType,
-		{ "Accounting Status Type",	"radius.acct.status_type", FT_UINT32, BASE_DEC, VALS(radius_accounting_status_type_vals), 0x0,
+		{ &hf_radius_cisco_cai,
+		{ "Cisco-Account-Info",	"radius.cisco.cai", FT_STRING, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 
-		{ &hf_radius_length,
-		{ "Length","radius.length", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }}
 	}; 
 	static gint *ett[] = {
 		&ett_radius,
