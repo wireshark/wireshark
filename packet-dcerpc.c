@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.101 2003/02/07 08:56:11 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.102 2003/02/07 19:45:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1522,7 +1522,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     dcerpc_uuid_key key;
     dcerpc_uuid_value *sub_proto;
     int length;
-    proto_tree *sub_tree = NULL;
+    proto_tree *volatile sub_tree = NULL;
     dcerpc_sub_dissector *proc;
     gchar *name = NULL;
     dcerpc_dissect_fnct_t *volatile sub_dissect;
@@ -1647,9 +1647,9 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
         		    pinfo->current_proto = saved_proto;
         		    pinfo->private_data = saved_private_data;
         		}
-		    }
+		}
 		break;
-	        }
+	    }
 	    }
         }
     } else {
@@ -1661,7 +1661,17 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
             pinfo->private_data = (void *)info;
 
             init_ndr_pointer_list(pinfo);
-            offset = sub_dissect (tvb, offset, pinfo, sub_tree, drep);
+            /*
+             * Catch ReportedBoundsError, so that even if the stub
+             * data is bad, we still show the verifier.
+             */
+            TRY {
+                offset = sub_dissect (tvb, offset, pinfo, sub_tree, drep);
+            } CATCH(BoundsError) {
+                RETHROW;
+            } CATCH(ReportedBoundsError) {
+                show_reported_bounds_error(tvb, pinfo, tree);
+            } ENDTRY;
 
             pinfo->current_proto = saved_proto;
             pinfo->private_data = saved_private_data;
