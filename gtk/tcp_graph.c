@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.40 2003/12/23 00:16:46 ulfl Exp $
+ * $Id: tcp_graph.c,v 1.41 2004/01/05 18:11:28 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1209,20 +1209,20 @@ static void callback_zoom_step (GtkWidget *spin, gpointer data)
 	*zoom_this = value;
 	if (g->zoom.flags & ZOOM_STEPS_SAME) {
 		*zoom_other = value;
-		gtk_spin_button_set_value (widget_other, *zoom_other);
+		gtk_spin_button_set_value (widget_other, (gfloat) *zoom_other);
 	} else if (g->zoom.flags & ZOOM_STEPS_KEEP_RATIO) {
 		double old_other = *zoom_other;
 		*zoom_other *= value / old_this;
 		if (*zoom_other < 1.0) {
 			*zoom_other = 1.0;
 			*zoom_this = old_this * 1.0 / old_other;
-			gtk_spin_button_set_value (widget_this, *zoom_this);
+			gtk_spin_button_set_value (widget_this, (gfloat) *zoom_this);
 		} else if (*zoom_other > 5.0) {
 			*zoom_other = 5.0;
 			*zoom_this = old_this * 5.0 / old_other;
-			gtk_spin_button_set_value (widget_this, *zoom_this);
+			gtk_spin_button_set_value (widget_this, (gfloat) *zoom_this);
 		}
-		gtk_spin_button_set_value (widget_other, *zoom_other);
+		gtk_spin_button_set_value (widget_other, (gfloat) *zoom_other);
 	}
 }
 
@@ -1411,7 +1411,7 @@ static void callback_mag_zoom (GtkWidget *spin, gpointer data)
 	if (g->magnify.flags & MAGZOOMS_SAME) {
 		*zoom_other = value;
 		/* g->magnify.flags |= MAGZOOMS_IGNORE; */
-		gtk_spin_button_set_value (widget_other, *zoom_other);
+		gtk_spin_button_set_value (widget_other, (gfloat) *zoom_other);
 	} else if (g->magnify.flags & MAGZOOMS_SAME_RATIO) {
 		double old_other = *zoom_other;
 		*zoom_other *= value / old_this;
@@ -1419,15 +1419,15 @@ static void callback_mag_zoom (GtkWidget *spin, gpointer data)
 			*zoom_other = 1.0;
 			*zoom_this = old_this * 1.0 / old_other;
 			/* g->magnify.flags |= MAGZOOMS_IGNORE; */
-			gtk_spin_button_set_value (widget_this, *zoom_this);
+			gtk_spin_button_set_value (widget_this, (gfloat) *zoom_this);
 		} else if (*zoom_other > 25.0) {
 			*zoom_other = 25.0;
 			*zoom_this = old_this * 25.0 / old_other;
 			/* g->magnify.flags |= MAGZOOMS_IGNORE; */
-			gtk_spin_button_set_value (widget_this, *zoom_this);
+			gtk_spin_button_set_value (widget_this, (gfloat) *zoom_this);
 		}
 		/* g->magnify.flags |= MAGZOOMS_IGNORE; */
-		gtk_spin_button_set_value (widget_other, *zoom_other);
+		gtk_spin_button_set_value (widget_other, (gfloat) *zoom_other);
 	}
 }
 

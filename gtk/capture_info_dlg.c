@@ -1,7 +1,7 @@
 /* capture_info_dlg.c
  * Routines for packet capture info dialog
  *
- * $Id: capture_info_dlg.c,v 1.8 2003/12/21 12:17:59 ulfl Exp $
+ * $Id: capture_info_dlg.c,v 1.9 2004/01/05 18:11:27 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -256,7 +256,7 @@ capture_info    *cinfo)
         /* don't try to update the "total" row progress bar */
         if (i != 0) {
             gtk_progress_bar_update(GTK_PROGRESS_BAR(info->counts[i].percent_pb),
-                     pct(*info->counts[i].value_ptr, *info->counts[0].value_ptr) / 100.0);
+                     (gfloat) (pct(*info->counts[i].value_ptr, *info->counts[0].value_ptr) / 100.0));
         }
 
         g_snprintf(label_str, sizeof(label_str), "%.1f%%",

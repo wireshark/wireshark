@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.39 2003/12/09 05:06:22 guy Exp $
+ * $Id: resolv.c,v 1.40 2004/01/05 18:10:02 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -535,7 +535,7 @@ parse_ether_address(const char *cp, ether_t *eth, unsigned int *mask,
       return FALSE;	/* failed */
     if (num > 0xFF)
       return FALSE;	/* not a valid octet */
-    eth->addr[i] = num;
+    eth->addr[i] = (guint8) num;
     cp = p;		/* skip past the number */
 
     /* OK, what character terminated the octet? */

@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.53 2004/01/03 18:05:56 sharpe Exp $
+ * $Id: io_stat.c,v 1.54 2004/01/05 18:11:27 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -249,7 +249,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, void *dummy 
 	}
 
 	/* update num_items */
-	if(idx>git->io->num_items){
+	if((guint32)idx > git->io->num_items){
 		git->io->num_items=idx;
 		git->io->max_interval=idx*git->io->interval;
 	}
@@ -337,7 +337,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, void *dummy 
 						}
 						i--;
 						t-=pt;
-						if(t>(git->io->interval*1000)){
+						if(t > (guint32) (git->io->interval*1000)){
 							pt=git->io->interval*1000;
 						} else {
 							pt=t;
@@ -559,7 +559,7 @@ gtk_iostat_draw(void *g)
 		if(!io->graphs[i].display){
 			continue;
 		}
-		for(idx=0;idx<num_time_intervals;idx++){
+		for(idx=0;(guint32) (idx) < num_time_intervals;idx++){
 			guint32 val;
 
 			val=get_it_value(io, i, idx);

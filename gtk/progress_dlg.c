@@ -1,7 +1,7 @@
 /* progress_dlg.c
  * Routines for progress-bar (modal) dialog
  *
- * $Id: progress_dlg.c,v 1.19 2004/01/02 13:27:00 ulfl Exp $
+ * $Id: progress_dlg.c,v 1.20 2004/01/05 18:11:28 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -230,8 +230,8 @@ delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,
 			    const GTimeVal *start_time, gfloat progress)
 {
     GTimeVal    time_now;
-    gfloat      delta_time;
-    gfloat      min_display;
+    gdouble     delta_time;
+    gdouble     min_display;
     progdlg_t  *dlg;
 
 #define INIT_DELAY          0.1 * 1e6
@@ -329,7 +329,7 @@ update_progress_dlg(progdlg_t *dlg, gfloat percentage, gchar *status)
 	GtkWidget *dlg_w = dlg->dlg_w;
 	GtkWidget *prog_bar;
 	GTimeVal   time_now;
-	gfloat     delta_time;
+	gdouble    delta_time;
 	gulong     ul_left;
 	gulong     ul_elapsed;
 	gulong     ul_percentage;
