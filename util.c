@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.13 1999/04/05 22:51:44 guy Exp $
+ * $Id: util.c,v 1.14 1999/04/06 16:24:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,14 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 
 #ifdef NEED_SNPRINTF_H
 # ifdef HAVE_STDARG_H
@@ -165,4 +173,73 @@ simple_dialog_cancel_cb(GtkWidget *w, gpointer win) {
   if (btn_mask)
     *btn_mask = ESD_BTN_CANCEL;
   gtk_widget_destroy(GTK_WIDGET(win));
+}
+
+/* Tries to mv a file. If unsuccessful, tries to cp the file.
+ * Returns 0 on failure to do either, 1 on success of either
+ */
+int
+file_mv(char *from, char *to)
+{
+
+#define COPY_BUFFER_SIZE	8192
+
+	int retval;
+
+	/* try a hard link */
+	retval = link(from, to);
+
+	/* or try a copy */
+	if (retval < 0) {
+		retval = file_cp(from, to);
+		if (!retval) {
+			return 0;
+		}
+	}
+
+	unlink(from);
+	return 1;
+}
+
+/* Copies a file.
+ * Returns 0 on failure to do either, 1 on success of either
+ */
+int
+file_cp(char *from, char *to)
+{
+
+#define COPY_BUFFER_SIZE	8192
+
+	int from_fd, to_fd, nread;
+	char *buffer;
+	gint dialogue_button = ESD_BTN_OK;
+
+	buffer = g_malloc(COPY_BUFFER_SIZE);
+
+	from_fd = open(from, O_RDONLY);
+	if (from_fd < 0) {
+		simple_dialog(ESD_TYPE_WARN, &dialogue_button,
+			"Cannot open from-file for copying.");
+		return 0;
+	}
+
+	to_fd = creat(to, 0644);
+	if (to_fd < 0) {
+		simple_dialog(ESD_TYPE_WARN, &dialogue_button,
+			"Cannot open to-file for copying.");
+		close(from_fd);
+		return 0;
+	}
+
+	while( (nread = read(from_fd, buffer, COPY_BUFFER_SIZE)) > 0) {
+		if (write(to_fd, buffer, nread) < nread) {
+			close(from_fd);
+			close(to_fd);
+			return 0;
+		}
+	}
+	close(from_fd);
+	close(to_fd);
+
+	return 1;
 }

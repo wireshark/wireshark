@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.28 1999/04/05 21:54:39 guy Exp $
+ * $Id: ethereal.c,v 1.29 1999/04/06 16:24:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,7 +32,6 @@
  * - Playback window
  * - Multiple window support
  * - Add cut/copy/paste
- * - Handle snoop files
  * - Fix progress/status bar glitches?  (GTK+ bug?)
  * - Create header parsing routines
  * - Check fopens, freads, fwrites
@@ -80,6 +79,9 @@
 #include "util.h"
 #include "gtkpacket.h"
 
+static void file_save_ok_cb(GtkWidget *w, GtkFileSelection *fs);
+static void file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs);
+
 FILE        *data_out_file = NULL;
 packet_info  pi;
 capture_file cf;
@@ -105,7 +107,8 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 		"Version %s (C) 1998 Gerald Combs <gerald@zing.org>\n"
                 "Compiled with %s\n\n"
 		"Contributors:\n"
-		"Gilbert Ramirez Jr.      <gram@verdict.uthscsa.edu>\n"
+
+		"Gilbert Ramirez          <gramirez@tivoli.com>\n"
 		"Hannes R. Boehm          <hannes@boehm.org>\n"
 		"Mike Hall                <mlh@io.com>\n"
 		"Bobo Rajec               <bobo@bsp-consulting.sk>\n"
@@ -117,8 +120,9 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 		"Martin Maciaszek         <fastjack@i-s-o.net>\n"
 		"Didier Jorand            <Didier.Jorand@alcatel.fr>\n"
 		"Jun-ichiro itojun Hagino <itojun@iijlab.net>\n"
-		"Richard Sharpe           <sharpe@ns.aus.com>\n\n"
-		"See http://ethereal.zing.org for more information",
+		"Richard Sharpe           <sharpe@ns.aus.com>\n"
+
+		"\nSee http://ethereal.zing.org for more information",
                 VERSION, comp_info_str);
 }
 
@@ -127,23 +131,35 @@ void
 file_sel_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   gchar     *cf_name;
   int        err;
+#if 0
   GtkWidget *filter_te = NULL;
 
   /* Gilbert --- I added this if statement. Is this right? */
   if (w)
 	filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
-
+#endif
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
   gtk_widget_hide(GTK_WIDGET (fs));
   gtk_widget_destroy(GTK_WIDGET (fs));
 
+#if 0
   if (w && cf.dfilter) {
 	  g_free(cf.dfilter);
 	  cf.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
   }
+#endif
+  /* this depends upon load_cap_file removing the filename from
+   * cf_name, leaving only the path to the directory. */
   if ((err = load_cap_file(cf_name, &cf)) == 0)
     chdir(cf_name);
   g_free(cf_name);
+#ifdef USE_ITEM
+    set_menu_sensitivity("/File/Save", FALSE);
+    set_menu_sensitivity("/File/Save as", TRUE);
+#else
+    set_menu_sensitivity("<Main>/File/Save", FALSE);
+    set_menu_sensitivity("<Main>/File/Save as", TRUE);
+#endif
 }
 
 /* Update the progress bar */
@@ -295,10 +311,96 @@ file_close_cmd_cb(GtkWidget *widget, gpointer data) {
 #endif
 }
 
+void
+file_save_cmd_cb(GtkWidget *w, gpointer data) {
+  file_sel = gtk_file_selection_new ("Ethereal: Save Capture File");
+  
+  /* Connect the ok_button to file_ok_sel_cb function and pass along the
+     pointer to the filter entry */
+  gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (file_sel)->ok_button),
+    "clicked", (GtkSignalFunc) file_save_ok_cb, file_sel );
+
+  /* Connect the cancel_button to destroy the widget */
+  gtk_signal_connect_object(GTK_OBJECT (GTK_FILE_SELECTION
+    (file_sel)->cancel_button), "clicked", (GtkSignalFunc)
+    gtk_widget_destroy, GTK_OBJECT (file_sel));
+
+  gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_sel), "");
+
+  gtk_widget_show(file_sel);
+}
+
+void
+file_save_as_cmd_cb(GtkWidget *w, gpointer data) {
+  file_sel = gtk_file_selection_new ("Ethereal: Save Capture File as");
+
+  /* Connect the ok_button to file_ok_sel_cb function and pass along the
+     pointer to the filter entry */
+  gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (file_sel)->ok_button),
+    "clicked", (GtkSignalFunc) file_save_as_ok_cb, file_sel );
+
+  /* Connect the cancel_button to destroy the widget */
+  gtk_signal_connect_object(GTK_OBJECT (GTK_FILE_SELECTION
+    (file_sel)->cancel_button), "clicked", (GtkSignalFunc)
+    gtk_widget_destroy, GTK_OBJECT (file_sel));
+
+  gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_sel), "");
+  gtk_widget_show(file_sel);
+}
+
+static void
+file_save_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
+	gchar	*cf_name;
+
+	cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
+	gtk_widget_hide(GTK_WIDGET (fs));
+	gtk_widget_destroy(GTK_WIDGET (fs));
+
+	if (!file_mv(cf.save_file, cf_name))
+		return;
+	g_free(cf.save_file);
+	cf.save_file = g_strdup(cf_name);
+	cf.user_saved = 1;
+	load_cap_file(cf_name, &cf);
+
+#ifdef USE_ITEM
+	set_menu_sensitivity("/File/Save", FALSE);
+	set_menu_sensitivity("/File/Save as", TRUE);
+#else
+	set_menu_sensitivity("<Main>/File/Save", FALSE);
+	set_menu_sensitivity("<Main>/File/Save as", TRUE);
+#endif
+}
+
+static void
+file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
+	gchar	*cf_name;
+
+	cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
+	gtk_widget_hide(GTK_WIDGET (fs));
+	gtk_widget_destroy(GTK_WIDGET (fs));
+
+	if (!file_cp(cf.save_file, cf_name))
+		return;
+	g_free(cf.save_file);
+	cf.save_file = g_strdup(cf_name);
+	cf.user_saved = 1;
+	load_cap_file(cf_name, &cf);
+
+#ifdef USE_ITEM
+	set_menu_sensitivity("/File/Save", FALSE);
+	set_menu_sensitivity("/File/Save as", TRUE);
+#else
+	set_menu_sensitivity("<Main>/File/Save", FALSE);
+	set_menu_sensitivity("<Main>/File/Save as", TRUE);
+#endif
+}
+
 /* Reload a file using the current display filter */
 void
 file_reload_cmd_cb(GtkWidget *w, gpointer data) {
-  GtkWidget *filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
+  /*GtkWidget *filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);*/
+  GtkWidget *filter_te;
 
   filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
 
@@ -391,12 +493,17 @@ main_realize_cb(GtkWidget *w, gpointer data) {
   if (cf_name) {
     err = load_cap_file(cf_name, &cf);
     cf_name[0] = '\0';
+#ifdef USE_ITEM
+    set_menu_sensitivity("/File/Save as", TRUE);
+#else
+    set_menu_sensitivity("<Main>/File/Save as", TRUE);
+#endif
   }
   if (start_capture) {
     if (cf.save_file)
-      capture(1);
+      capture();
     else
-      capture(0);
+      capture();
     start_capture = 0;
   }
 }
@@ -453,24 +560,23 @@ main(int argc, char *argv[])
   prefs = read_prefs();
     
   /* Initialize the capture file struct */
-  cf.plist     = NULL;
+  cf.plist		= NULL;
 #ifdef WITH_WIRETAP
-  cf.wth       = NULL;
+  cf.wth		= NULL;
 #else
-  cf.pfh       = NULL;
+  cf.pfh		= NULL;
 #endif
-  cf.fh        = NULL;
-  cf.dfilter   = NULL;
-  cf.cfilter   = NULL;
-  cf.iface     = NULL;
-  cf.save_file = NULL;
-  cf.snap      = MIN_PACKET_SIZE;
-  cf.count     = 0;
-  cf.cinfo.num_cols = prefs->num_cols;
-  cf.cinfo.fmt_matx = (gboolean **) g_malloc(sizeof(gboolean *) *
-    cf.cinfo.num_cols);
-  cf.cinfo.col_data = (gchar **) g_malloc(sizeof(gchar *) *
-    cf.cinfo.num_cols);
+  cf.fh			= NULL;
+  cf.dfilter		= NULL;
+  cf.cfilter		= NULL;
+  cf.iface		= NULL;
+  cf.save_file		= NULL;
+  cf.user_saved		= 0;
+  cf.snap		= MIN_PACKET_SIZE;
+  cf.count		= 0;
+  cf.cinfo.num_cols	= prefs->num_cols;
+  cf.cinfo.fmt_matx	= (gboolean **) g_malloc(sizeof(gboolean *) * cf.cinfo.num_cols);
+  cf.cinfo.col_data	= (gchar **) g_malloc(sizeof(gchar *) * cf.cinfo.num_cols);
 
   /* Assemble the compile-time options */
   snprintf(comp_info_str, 256,
@@ -749,6 +855,7 @@ main(int argc, char *argv[])
   ethereal_proto_init();   /* Init anything that needs initializing */
 
   gtk_widget_show(window);
+
   gtk_main();
 
   exit(0);

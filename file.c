@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.22 1999/03/23 03:14:34 gram Exp $
+ * $Id: file.c,v 1.23 1999/04/06 16:24:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -119,8 +119,8 @@ open_cap_file(char *fname, capture_file *cf) {
 #else
   cf->cd_t  = CD_UNKNOWN;
   cf->lnk_t = DLT_NULL;
-#endif
   cf->swap  = 0;
+#endif
   cf->count = 0;
   cf->drops = 0;
   cf->esec  = 0;
@@ -240,6 +240,7 @@ load_cap_file(char *fname, capture_file *cf) {
 
   close_cap_file(cf, info_bar, file_ctx);
 
+  /* Initialize protocol-speficic variables */
   ncp_init_protocol();
 
   if ((name_ptr = (gchar *) strrchr(fname, '/')) == NULL)
@@ -281,11 +282,14 @@ load_cap_file(char *fname, capture_file *cf) {
   if (err == 0) {
     msg_len = strlen(name_ptr) + strlen(done_fmt) + 64;
     load_msg = g_realloc(load_msg, msg_len);
-    snprintf(load_msg, msg_len, done_fmt, name_ptr, cf->drops);
+    if (cf->user_saved)
+	    snprintf(load_msg, msg_len, done_fmt, name_ptr, cf->drops);
+    else
+	    snprintf(load_msg, msg_len, done_fmt, "<none>", cf->drops);
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
     g_free(load_msg);
 
-    name_ptr[-1] = '\0';
+/*    name_ptr[-1] = '\0';  Why is this here? It causes problems with capture files */
 #ifdef USE_ITEM
     set_menu_sensitivity("/File/Close", TRUE);
     set_menu_sensitivity("/File/Reload", TRUE);
@@ -300,14 +304,17 @@ load_cap_file(char *fname, capture_file *cf) {
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
     g_free(load_msg);
 #ifdef USE_ITEM
-    set_menu_sensitivity("<Main>/File/Close", FALSE);
-    set_menu_sensitivity("<Main>/File/Reload", FALSE);
+    set_menu_sensitivity("/File/Close", FALSE);
+    set_menu_sensitivity("/File/Save", FALSE);
+    set_menu_sensitivity("/File/Save as", FALSE);
+    set_menu_sensitivity("/File/Reload", FALSE);
 #else
     set_menu_sensitivity("<Main>/File/Close", FALSE);
+    set_menu_sensitivity("<Main>/File/Save", FALSE);
+    set_menu_sensitivity("<Main>/File/Save as", FALSE);
     set_menu_sensitivity("<Main>/File/Reload", FALSE);
 #endif
   }
-
   return err;
 }
 

@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.4 1999/02/09 00:35:35 guy Exp $
+ * $Id: capture.h,v 1.5 1999/04/06 16:24:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,7 +41,7 @@ void   cap_prep_fs_ok_cb(GtkWidget *, gpointer);
 void   cap_prep_fs_cancel_cb(GtkWidget *, gpointer);
 void   capture_prep_ok_cb(GtkWidget *, gpointer);
 void   capture_prep_close_cb(GtkWidget *, gpointer);
-void   capture(gint);
+void   capture(void);
 float  pct(gint, gint);
 void   capture_stop_cb(GtkWidget *, gpointer);
 void   capture_pcap_cb(u_char *, const struct pcap_pkthdr *, const u_char *);

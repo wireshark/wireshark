@@ -1,7 +1,7 @@
 /* util.h
  * Utility definitions
  *
- * $Id: util.h,v 1.8 1999/03/31 08:20:28 guy Exp $
+ * $Id: util.h,v 1.9 1999/04/06 16:24:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,6 +45,12 @@ void simple_dialog(gint, gint *, gchar *, ...)
 #else
 void simple_dialog(gint, gint *, gchar *, ...);
 #endif
+
+/* Moves or copies a file. Returns 0 on failure, 1 on success */
+int file_mv(char *from, char *to);
+
+/* Copies a file. Returns 0 on failure, 1 on success */
+int file_cp(char *from, char *to);
 
 #ifdef __cplusplus
 }

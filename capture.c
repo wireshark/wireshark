@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.20 1999/02/11 07:11:45 guy Exp $
+ * $Id: capture.c,v 1.21 1999/04/06 16:24:47 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 #include <pcap.h>
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
@@ -59,6 +60,7 @@
 #include "ethereal.h"
 #include "packet.h"
 #include "file.h"
+#include "menu.h"
 #include "capture.h"
 #include "etypes.h"
 #include "util.h"
@@ -75,7 +77,6 @@ extern guint         file_ctx;
 /* Capture callback data keys */
 #define E_CAP_IFACE_KEY "cap_iface"
 #define E_CAP_FILT_KEY  "cap_filter"
-#define E_CAP_FILE_KEY  "cap_file"
 #define E_CAP_COUNT_KEY "cap_count"
 #define E_CAP_OPEN_KEY  "cap_open"
 #define E_CAP_SNAP_KEY  "cap_snap"
@@ -141,10 +142,10 @@ get_interface_list() {
 
 void
 capture_prep_cb(GtkWidget *w, gpointer d) {
-  GtkWidget     *cap_open_w, *if_cb, *if_lb, *file_te, *file_bt,
+  GtkWidget     *cap_open_w, *if_cb, *if_lb,
                 *count_lb, *count_cb, *main_vb, *if_hb, *count_hb,
-                *filter_hb, *filter_bt, *filter_te, *file_hb, *caplen_hb,
-                *bbox, *ok_bt, *cancel_bt, *capfile_ck, *snap_lb,
+                *filter_hb, *filter_bt, *filter_te, *caplen_hb,
+                *bbox, *ok_bt, *cancel_bt, *snap_lb,
                 *snap_sb;
   GtkAdjustment *adj;
   GList         *if_list, *count_list = NULL;
@@ -223,34 +224,11 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_te, TRUE, TRUE, 0);
   gtk_widget_show(filter_te);
-  
-  /* File row: File: button and text entry */
-  file_hb = gtk_hbox_new(FALSE, 3);
-  gtk_container_add(GTK_CONTAINER(main_vb), file_hb);
-  gtk_widget_show(file_hb);
-  
-  file_bt = gtk_button_new_with_label("File:");
-  gtk_box_pack_start(GTK_BOX(file_hb), file_bt, FALSE, FALSE, 0);
-  gtk_widget_show(file_bt);
-  
-  file_te = gtk_entry_new();
-  if (cf.save_file)
-    gtk_entry_set_text(GTK_ENTRY(file_te), cf.save_file);
-  gtk_box_pack_start(GTK_BOX(file_hb), file_te, TRUE, TRUE, 0);
-  gtk_widget_show(file_te);
-
-  gtk_signal_connect_object(GTK_OBJECT(file_bt), "clicked",
-    GTK_SIGNAL_FUNC(capture_prep_file_cb), GTK_OBJECT(file_te));
 
   /* Misc row: Capture file checkbox and snap spinbutton */
   caplen_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(main_vb), caplen_hb);
   gtk_widget_show(caplen_hb);
-
-  capfile_ck = gtk_check_button_new_with_label("Open file after capture");
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(capfile_ck), TRUE);
-  gtk_box_pack_start(GTK_BOX(caplen_hb), capfile_ck, FALSE, FALSE, 3);
-  gtk_widget_show(capfile_ck);
 
   snap_lb = gtk_label_new("Capture length");
   gtk_misc_set_alignment(GTK_MISC(snap_lb), 0, 0.5);
@@ -290,9 +268,7 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   /* Attach pointers to needed widgets to the capture prefs window/object */
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_IFACE_KEY, if_cb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_FILT_KEY,  filter_te);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_FILE_KEY,  file_te);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_COUNT_KEY, count_cb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_OPEN_KEY,  capfile_ck);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_SNAP_KEY,  snap_sb);
 
   gtk_widget_show(cap_open_w);
@@ -340,29 +316,28 @@ cap_prep_fs_cancel_cb(GtkWidget *w, gpointer data) {
 
 void
 capture_prep_ok_cb(GtkWidget *w, gpointer data) {
-  GtkWidget *if_cb, *filter_te, *file_te, *count_cb, *open_ck, *snap_sb;
-  gint     open;
+  GtkWidget *if_cb, *filter_te, *count_cb, *snap_sb;
 
+  gchar *filter_text;
 #ifdef GTK_HAVE_FEATURES_1_1_0
   data = w;
 #endif
   if_cb     = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_IFACE_KEY);
   filter_te = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_FILT_KEY);
-  file_te   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_FILE_KEY);
   count_cb  = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_COUNT_KEY);
-  open_ck   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_OPEN_KEY);
   snap_sb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_SNAP_KEY);
 
   if (cf.iface) g_free(cf.iface);
   cf.iface =
     g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
+
+  filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
   if (cf.cfilter) g_free(cf.cfilter);
-  cf.cfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
-  if (cf.save_file) g_free(cf.save_file);
-  cf.save_file = g_strdup(gtk_entry_get_text(GTK_ENTRY(file_te)));
+  if (filter_text && filter_text[0]) {
+	  cf.cfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te))); 
+  }
   cf.count =
     atoi(g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(count_cb)->entry))));
-  open = GTK_TOGGLE_BUTTON(open_ck)->active;
   cf.snap = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(snap_sb));
   if (cf.snap < 1)
     cf.snap = MAX_PACKET_SIZE;
@@ -370,8 +345,16 @@ capture_prep_ok_cb(GtkWidget *w, gpointer data) {
     cf.snap = MIN_PACKET_SIZE;
 
   gtk_widget_destroy(GTK_WIDGET(data));
+
+  /* Choose a random name for the capture buffer */
+  if (cf.save_file && !cf.user_saved) {
+	unlink(cf.save_file); /* silently ignore error */
+	g_free(cf.save_file);
+  }
+  cf.save_file = tempnam(NULL, "ether");
+  cf.user_saved = 0;
   
-  capture(open);
+  capture();
 }
 
 void
@@ -385,7 +368,7 @@ capture_prep_close_cb(GtkWidget *w, gpointer win) {
 }
 
 void
-capture(gint open) {
+capture(void) {
   GtkWidget  *cap_w, *main_vb, *count_lb, *tcp_lb, *udp_lb, 
              *ospf_lb, *other_lb, *stop_bt;
   pcap_t     *pch;
@@ -409,17 +392,14 @@ capture(gint open) {
   pch = pcap_open_live(cf.iface, cf.snap, 1, 250, err_str);
 
   if (pch) {
-    if (cf.save_file[0]) {
-      ld.pdh = pcap_dump_open(pch, cf.save_file);
-      if (ld.pdh == NULL) {  /* We have an error */
-        snprintf(err_str, PCAP_ERRBUF_SIZE, "Error trying to open dump "
-          "file:\n%s", pcap_geterr(pch));
-        simple_dialog(ESD_TYPE_WARN, NULL, err_str);
-        g_free(cf.save_file);
-        cf.save_file = NULL;
-        pcap_close(pch);
-        return;
-      }
+    ld.pdh = pcap_dump_open(pch, cf.save_file);
+
+    if (ld.pdh == NULL) {  /* We have an error */
+      snprintf(err_str, PCAP_ERRBUF_SIZE, "Error trying to save capture to "
+        "file:\n%s", pcap_geterr(pch));
+      simple_dialog(ESD_TYPE_WARN, NULL, err_str);
+      pcap_close(pch);
+      return;
     }
     ld.linktype = pcap_datalink(pch);
 
@@ -522,11 +502,16 @@ capture(gint open) {
       "The capture session could not be initiated.  Please\n"
       "check to make sure you have sufficient permissions, and\n"
       "that you have the proper interface specified.");
-    g_free(cf.save_file);
-    cf.save_file = NULL;
   }
 
-  if (cf.save_file && open) load_cap_file(cf.save_file, &cf);
+  if (cf.save_file) load_cap_file(cf.save_file, &cf);
+#ifdef USE_ITEM
+    set_menu_sensitivity("/File/Save", TRUE);
+    set_menu_sensitivity("/File/Save as", FALSE);
+#else
+    set_menu_sensitivity("<Main>/File/Save", TRUE);
+    set_menu_sensitivity("<Main>/File/Save as", FALSE);
+#endif
 }
 
 float

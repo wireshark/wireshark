@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.16 1999/04/05 22:51:43 guy Exp $
+ * $Id: menu.c,v 1.17 1999/04/06 16:24:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,8 +62,8 @@ static GtkItemFactoryEntry menu_items[] =
   {"/_File", NULL, NULL, 0, "<Branch>" },
   {"/File/_Open", "<control>O", GTK_MENU_FUNC(file_open_cmd_cb), 0, NULL},
   {"/File/_Close", "<control>W", GTK_MENU_FUNC(file_close_cmd_cb), 0, NULL},
-  {"/File/_Save", "<control>S", NULL, 0, NULL},
-  {"/File/Save _as", NULL, NULL, 0, NULL},
+  {"/File/_Save", "<control>S", GTK_MENU_FUNC(file_save_cmd_cb), 0, NULL},
+  {"/File/Save as", NULL, GTK_MENU_FUNC(file_save_as_cmd_cb), 0, NULL},
   {"/File/_Reload", "<control>R", GTK_MENU_FUNC(file_reload_cmd_cb), 0, NULL},
   {"/File/<separator>", NULL, NULL, 0, "<Separator>"},
   {"/File/_Print Packet", "<control>P", GTK_MENU_FUNC(file_print_cmd_cb), 0, NULL},
@@ -89,8 +89,8 @@ static GtkMenuEntry menu_items[] =
 {
   {"<Main>/File/Open", "<control>O", file_open_cmd_cb, NULL},
   {"<Main>/File/Close", "<control>W", file_close_cmd_cb, NULL},
-  {"<Main>/File/Save", "<control>S", NULL, NULL},
-  {"<Main>/File/Save as", NULL, NULL, NULL},
+  {"<Main>/File/Save", "<control>S", file_save_cmd_cb, NULL},
+  {"<Main>/File/Save as", NULL, file_save_as_cmd_cb, NULL},
   {"<Main>/File/Reload", "<control>R", file_reload_cmd_cb, NULL},
   {"<Main>/File/<separator>", NULL, NULL, NULL},
   {"<Main>/File/Print Packet", "<control>P", file_print_cmd_cb, NULL},
@@ -167,8 +167,6 @@ menus_init(void) {
 
 #ifdef USE_ITEM
     factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
-    /*gtk_item_factory_create_items(factory, nmenu_items, menu_items,
-     *NULL);grj*/
     gtk_item_factory_create_items_ac(factory, nmenu_items, menu_items, NULL,2);
     set_menu_sensitivity("/File/Close", FALSE);
     set_menu_sensitivity("/File/Save", FALSE);

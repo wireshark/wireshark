@@ -311,13 +311,19 @@ B<http://ethereal.zing.org>.
 
   Contributors
   ------------
-  Gilbert Ramirez Jr.  <gram@verdict.uthscsa.edu>
-  Hannes R. Boehm      <hannes@boehm.org>
-  Mike Hall            <mlh@io.com>
-  Bobo Rajec           <bobo@bsp-consulting.sk>
-  Laurent Deniel       <deniel@worldnet.fr>
-  Don Lafontaine       <lafont02@cn.ca>
-
+  Gilbert Ramirez          <gramirez@tivoli.com>
+  Hannes R. Boehm          <hannes@boehm.org>
+  Mike Hall                <mlh@io.com>
+  Bobo Rajec               <bobo@bsp-consulting.sk>
+  Laurent Deniel           <deniel@worldnet.fr>
+  Don Lafontaine           <lafont02@cn.ca>
+  Guy Harris               <guy@netapp.com>
+  Simon Wilkinson          <sxw@dcs.ed.ac.uk>
+  Joerg Mayer              <jmayer@telemation.de>
+  Martin Maciaszek         <fastjack@i-s-o.net>
+  Didier Jorand            <Didier.Jorand@alcatel.fr>
+  Jun-ichiro itojun Hagino <itojun@iijlab.net>
+  Richard Sharpe           <sharpe@ns.aus.com>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
