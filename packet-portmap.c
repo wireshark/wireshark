@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.22 2001/01/18 09:55:10 guy Exp $
+ * $Id: packet-portmap.c,v 1.23 2001/01/22 07:19:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -417,13 +417,13 @@ proto_register_portmap(void)
 		{ &hf_portmap_rpcb_netid, {
 			"Network Id", "portmap.rpcb.netid", FT_STRING, BASE_DEC,
 			NULL, 0, "Network Id" }},
-		{ &hf_portmap_rpcb_addr, {
+		{ &hf_portmap_rpcb_addr, {	/* address in rpcb structure in request */
 			"Universal Address", "portmap.rpcb.addr", FT_STRING, BASE_DEC,
 			NULL, 0, "Universal Address" }},
 		{ &hf_portmap_rpcb_owner, {
 			"Owner of this Service", "portmap.rpcb.owner", FT_STRING, BASE_DEC,
 			NULL, 0, "Owner of this Service" }},
-		{ &hf_portmap_uaddr, {
+		{ &hf_portmap_uaddr, {	/* address in RPCBPROC_GETADDR reply */
 			"Universal Address", "portmap.uaddr", FT_STRING, BASE_DEC,
 			NULL, 0, "Universal Address" }},
 	};
