@@ -1,9 +1,9 @@
 /* packet-ipdc.c
  * Routines for IP Device Control (SS7 over IP) dissection
  * Copyright Lucent Technologies 2004
- * Josh Bailey <joshbailey@lucent.com>
+ * Josh Bailey <joshbailey@lucent.com> and Ruud Linders <ruud@lucent.com>
  *
- * $Id: packet-ipdc.c,v 1.1 2004/03/18 08:25:09 guy Exp $
+ * $Id: packet-ipdc.c,v 1.2 2004/03/20 05:53:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,6 +59,12 @@ static gint ett_ipdc = -1;
 static gint ett_ipdc_tag = -1;
 
 static gboolean ipdc_desegment = TRUE;
+static gint ipdc_port_pref = TCP_PORT_IPDC;
+
+static dissector_handle_t q931_handle;
+
+void proto_reg_handoff_ipdc(void);
+
 
 static guint
 get_ipdc_pdu_len(tvbuff_t *tvb, int offset)
@@ -73,13 +79,14 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *ipdc_tree;
 	proto_item *ipdc_tag;
 	proto_tree *tag_tree;
+	tvbuff_t *q931_tvb;
 
 	char *des;
-	char *type;
 	char *enum_val;
 	char *tmp_str;
 	char tmp_tag_text[255];
 	const value_string *val_ptr;
+	guint32	type;
 	guint len;
 	guint i;
 	guint status;
@@ -127,7 +134,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* IPDC tags present - display message code and trans. ID */
 	protocol_id = tvb_get_guint8(tvb,4);
-       	trans_id_size = tvb_get_guint8(tvb,5);
+       	trans_id_size = TRANS_ID_SIZE_IPDC;
        	trans_id = tvb_get_ntohl(tvb,6);
        	message_code = tvb_get_ntohs(tvb,6+trans_id_size);
        	offset = 6 + trans_id_size + 2; /* past message_code */
@@ -183,91 +190,109 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		len = tvb_get_guint8(tvb,offset+1);
 		des = val_to_str(tag, tag_description, TEXT_UNDEFINED);
-		type = val_to_str(tag, tag_type, TEXT_UNDEFINED);
+		/* lookup tag type */
+		for (i = 0; (ipdc_tag_types[i].tag != tag &&
+			ipdc_tag_types[i].type != UNKNOWN); i++)
+		;
+		type = ipdc_tag_types[i].type;
 
-		/* simple ASCII strings */
-		if (strcmp(type,TT_ASCII) == 0) {
-			tmp_tag_text[len] = 0;
-			tmp_str = tvb_memdup(tvb, offset + 2, len);
-			strncpy(tmp_tag_text, tmp_str, len);
-			free(tmp_str);
+		tmp_tag = 0;
+		tmp_tag_text[len] = 0;
 
-			proto_tree_add_text(tag_tree, tvb, offset,
-			len + 2, "0x%2.2x: %s: %s", tag, des,
-			tmp_tag_text);
+		switch (type) {
+			/* simple ASCII strings */
+			case ASCII:
+				tmp_str = tvb_memdup(tvb, offset + 2, len);
+				strncpy(tmp_tag_text, tmp_str, len);
+				free(tmp_str);
+				proto_tree_add_text(tag_tree, tvb, offset,
+				len + 2, "0x%2.2x: %s: %s", tag, des,
+				tmp_tag_text);
+			break;
 
-		/* unsigned integers, or bytes */
-		} else if (strcmp(type,TT_UINT) == 0 ||
-			strcmp(type,TT_BYTE) == 0) {
-			tmp_tag = 0;
+			/* unsigned integers, or bytes */
+			case UINT:
+			case BYTE:
+				for (i = 0; i < len; i++) 
+					tmp_tag += tvb_get_guint8(tvb,
+						offset + 2 + i) * (guint32)
+							pow(256, len - (i + 1));
 
-			for (i = 0; i < len; i++) 
-				tmp_tag += tvb_get_guint8(tvb,
-					offset + 2 + i) * (guint32)
-						pow(256, len - (i + 1));
-
-			if (len == 1)
-				enum_val =
-					val_to_str( MY_TAG(tag) + tmp_tag,
+				if (len == 1)
+					enum_val =
+						val_to_str( IPDC_TAG(tag) +
+						tmp_tag,
 						tag_enum_type, TEXT_UNDEFINED);
 
-			if (len == 1 && strcmp(enum_val, TEXT_UNDEFINED) != 0) {
+				if (len == 1 &&
+					strcmp(enum_val, TEXT_UNDEFINED) != 0) {
+					proto_tree_add_text(tag_tree, tvb,
+						offset, len + 2,
+						"0x%2.2x: %s: %s",
+						tag, des, enum_val);
+				} else {
+					proto_tree_add_text(tag_tree, tvb,
+						offset, len + 2,
+						"0x%2.2x: %s: %u",
+						tag, des, tmp_tag);
+				}
+			break;
 
-				proto_tree_add_text(tag_tree, tvb, offset,
-                                len + 2, "0x%2.2x: %s: %s", tag, des, enum_val);
+			/* IP addresses */
+			case IPA:
+				if (len >= 4) {
+					sprintf(tmp_tag_text, "%u.%u.%u.%u",
+					tvb_get_guint8(tvb, offset + 2),
+					tvb_get_guint8(tvb, offset + 3),
+					tvb_get_guint8(tvb, offset + 4),
+					tvb_get_guint8(tvb, offset + 5));
+				}
 
-			} else {
-				proto_tree_add_text(tag_tree, tvb, offset,
-				len + 2, "0x%2.2x: %s: %u", tag, des, tmp_tag);
-			}
-
-		/* IP addresses */
-		} else if (strcmp(type,TT_IPA) == 0) {
-
-			if (len == 4) {
-				proto_tree_add_text(tag_tree, tvb, offset,
-				len + 2, "0x%2.2x: %s: %u.%u.%u.%u",
-				tag, des,
-				tvb_get_guint8(tvb, offset + 2),
-				tvb_get_guint8(tvb, offset + 3),
-				tvb_get_guint8(tvb, offset + 4),
-				tvb_get_guint8(tvb, offset + 5));
-			} else if (len == 6) {
-				proto_tree_add_text(tag_tree, tvb, offset,
-				len + 2, "0x%2.2x: %s: %u.%u.%u.%u:%u",
-				tag, des,
-				tvb_get_guint8(tvb, offset + 2),
-                                tvb_get_guint8(tvb, offset + 3),
-                                tvb_get_guint8(tvb, offset + 4),
-                                tvb_get_guint8(tvb, offset + 5),
-				tvb_get_ntohs(tvb, offset + 6));
-			}
-
-		/* Line status arrays */
-		} else if (strcmp(type,TT_LINESTATUS) == 0 ||
-			strcmp(type,TT_CHANNELSTATUS) == 0) {
-			proto_tree_add_text(tag_tree, tvb, offset,
-			len + 2, "0x%2.2x: %s", tag, des);
-			val_ptr = (strcmp(type,TT_LINESTATUS) == 0) ?
-				line_status_vals : channel_status_vals;
-
-			for (i = 0; i < len; i++) {
-				status = tvb_get_guint8(tvb,offset+2+i);
+				if (len == 6) {
+					sprintf(tmp_tag_text, "%s:%u",
+					tmp_tag_text,
+					tvb_get_ntohs(tvb, offset + 6));
+				}
 
 				proto_tree_add_text(tag_tree, tvb,
-					offset + 2 + i, 1, 
-					" %.2u: %.2x (%s)",
-					i + 1, status,
-					val_to_str(status,
-					val_ptr,
-					TEXT_UNDEFINED));
-			}
+					offset, len + 2,
+					"0x%2.2x: %s: %s",
+					tag, des, tmp_tag_text);
+			break;
 
-		/* default */
-		} else {
-			proto_tree_add_text(tag_tree, tvb, offset,
-			len + 2, "0x%2.2x: %s", tag, des);
-		}
+			/* Line status arrays */
+			case LINESTATUS:
+			case CHANNELSTATUS:
+				proto_tree_add_text(tag_tree, tvb, offset,
+				len + 2, "0x%2.2x: %s", tag, des);
+				val_ptr = (type == LINESTATUS) ?
+					line_status_vals : channel_status_vals;
+
+				for (i = 0; i < len; i++) {
+					status = tvb_get_guint8(tvb,offset+2+i);
+
+					proto_tree_add_text(tag_tree, tvb,
+						offset + 2 + i, 1, 
+						" %.2u: %.2x (%s)",
+						i + 1, status,
+						val_to_str(status,
+						val_ptr,
+						TEXT_UNDEFINED));
+				}
+			break;
+
+			case Q931:
+				q931_tvb =
+					tvb_new_subset(tvb, offset+2, len, len);
+				call_dissector(q931_handle,q931_tvb,pinfo,tree);
+			break;
+
+			/* default */
+			default:
+				proto_tree_add_text(tag_tree, tvb, offset,
+				len + 2, "0x%2.2x: %s", tag, des);
+			break;
+		} /* switch */
 
 		offset += len + 2;
 	}
@@ -346,18 +371,32 @@ proto_register_ipdc(void)
 	proto_register_field_array(proto_ipdc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	ipdc_module = prefs_register_protocol(proto_ipdc, NULL);
+	ipdc_module = prefs_register_protocol(proto_ipdc, proto_reg_handoff_ipdc);
 	prefs_register_bool_preference(ipdc_module, "desegment_ipdc_messages",
 		"Desegment all IPDC messages spanning multiple TCP segments",
 		"Whether the IPDC dissector should desegment all messages spanning multiple TCP segments",
 		&ipdc_desegment);
+	prefs_register_uint_preference(ipdc_module, "tcp.port",
+		"IPDC monitoring port",
+		"Set the IPDC monitoring port", 10,
+		&ipdc_port_pref);
 }
 
 void
 proto_reg_handoff_ipdc(void)
 {
-	dissector_handle_t ipdc_tcp_handle =
-		create_dissector_handle(dissect_ipdc_tcp, proto_ipdc);
+	static gint last_ipdc_port_pref = 0;
+	static dissector_handle_t ipdc_tcp_handle = NULL;
 
-	dissector_add("tcp.port", TCP_PORT_IPDC, ipdc_tcp_handle);
+	if (ipdc_tcp_handle) {
+		dissector_delete("tcp.port", last_ipdc_port_pref,
+			ipdc_tcp_handle);
+	} else {
+		ipdc_tcp_handle = 
+			create_dissector_handle(dissect_ipdc_tcp, proto_ipdc);
+		q931_handle = find_dissector("q931");
+	}
+
+	last_ipdc_port_pref = ipdc_port_pref;
+	dissector_add("tcp.port", ipdc_port_pref, ipdc_tcp_handle);
 }
