@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.52 2001/03/22 16:24:14 gram Exp $
+ * $Id: packet-atalk.c,v 1.53 2001/04/23 04:29:53 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -312,7 +312,8 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       val_to_str(op, nbp_op_vals, "Unknown (0x%01x)"), count);
   
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_nbp, tvb, offset, END_OF_FRAME, FALSE);
+    ti = proto_tree_add_item(tree, proto_nbp, tvb, offset,
+    		tvb_length_remaining(tvb, offset), FALSE);
     nbp_tree = proto_item_add_subtree(ti, ett_nbp);
 
     info_item = proto_tree_add_uint_format(nbp_tree, hf_nbp_info, tvb, offset, 1,

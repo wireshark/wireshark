@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.16 2001/03/13 21:34:23 gram Exp $
+ * $Id: packet-smtp.c,v 1.17 2001/04/23 04:29:53 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -408,7 +408,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) { /* Build the tree info ... */
 
-      ti = proto_tree_add_item(tree, proto_smtp, tvb, offset, END_OF_FRAME, FALSE);
+      ti = proto_tree_add_item(tree, proto_smtp, tvb, offset,
+      	tvb_length_remaining(tvb, offset), FALSE);
       smtp_tree = proto_item_add_subtree(ti, ett_smtp);
       proto_tree_add_boolean_hidden(smtp_tree, (request ? hf_smtp_req : hf_smtp_rsp),
 				    tvb, offset, 4, TRUE);

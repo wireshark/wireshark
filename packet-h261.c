@@ -85,7 +85,6 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	}
 
 	if ( tree ) {
-		/* Using fd->pkt_len here instead of END_OF_FRAME. This variable is changed in dissect_rtp()! */
 		ti = proto_tree_add_item( tree, proto_h261, tvb, offset, tvb_length( tvb ), FALSE );
 		h261_tree = proto_item_add_subtree( ti, ett_h261 );
 		/* SBIT 1st octet, 3 bits */

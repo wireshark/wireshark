@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.19 2001/02/19 21:02:33 guy Exp $
+ * $Id: packet-wsp.c,v 1.20 2001/04/23 04:29:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -630,7 +630,7 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					add_headers (wsp_tree, tmp_tvb);
 
 					/* TODO: Post DATA */
-					/* Runs from start of headers+headerLength to END_OF_FRAME */
+					/* Runs from start of headers+headerLength to end of frame */
 					offset = nextOffset+headerLength;
 					tmp_tvb = tvb_new_subset (tvb, offset, tvb_reported_length (tvb)-offset, tvb_reported_length (tvb)-offset);
 					add_post_data (wsp_tree, tmp_tvb, contentType);
@@ -654,10 +654,10 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					offset += count+value+1;
 
 					/* TODO: Data - decode WMLC */
-					/* Runs from offset+1+count+value+1 to END_OF_FRAME */
+					/* Runs from offset+1+count+value+1 to end of frame */
 					if (offset < tvb_reported_length (tvb))
 					{
-						ti = proto_tree_add_item (wsp_tree, hf_wsp_reply_data,tvb,offset,END_OF_FRAME,bo_little_endian);
+						ti = proto_tree_add_item (wsp_tree, hf_wsp_reply_data,tvb,offset,tvb_length_remaining(tvb, offset),bo_little_endian);
 					}
 					break;
 			}
@@ -1417,7 +1417,7 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType)
 	guint8 peek = 0;
 	proto_item *ti;
 	
-	/* VERIFY ti = proto_tree_add_item (tree, hf_wsp_post_data,tvb,offset,END_OF_FRAME,bo_little_endian); */
+	/* VERIFY ti = proto_tree_add_item (tree, hf_wsp_post_data,tvb,offset,tvb_length_remaining(tvb, offset),bo_little_endian); */
 	ti = proto_tree_add_item (tree, hf_wsp_post_data,tvb,offset,tvb_reported_length(tvb),bo_little_endian);
 
 	if (contentType == 0x12)	/* URL Encoded data */

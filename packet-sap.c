@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.20 2001/03/13 21:34:23 gram Exp $
+ * $Id: packet-sap.c,v 1.21 2001/04/23 04:29:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -162,7 +162,8 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
 	if (tree) {
-	  si = proto_tree_add_item(tree, proto_sap, tvb, offset, END_OF_FRAME, FALSE);
+	  si = proto_tree_add_item(tree, proto_sap, tvb, offset,
+	      tvb_length_remaining(tvb, offset), FALSE);
 	  sap_tree = proto_item_add_subtree(si, ett_sap);
 
 	  sif = proto_tree_add_uint(sap_tree, hf_sap_flags, tvb, offset, 1, vers_flags);
