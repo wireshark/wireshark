@@ -5,7 +5,7 @@
 /* packet-dcerpc-atsvc.h
  * Routines for ATSVC packet disassembly
  *
- * $Id$
+ * $Id: packet-dcerpc-atsvc.h 11410 2004-07-18 18:06:47Z gram $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,17 +29,6 @@
 #ifndef __PACKET_DCERPC_ATSVC_H
 #define __PACKET_DCERPC_ATSVC_H
 
-
-
-/* INCLUDED FILE : ETH_HDR */
-int atsvc_dissect_DaysOfMonth(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
-int atsvc_dissect_DaysOfWeek(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
-int atsvc_dissect_Flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
-int atsvc_dissect_JobInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
-int atsvc_dissect_JobEnumInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
-int atsvc_dissect_enum_ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
-/* END OF INCLUDED FILE : ETH_HDR */
-
-
+ETH_HDR
 
 #endif /* packet-dcerpc-atsvc.h */

@@ -93,8 +93,9 @@ typedef struct _pointer_item_t {
 #define BI_SIZE_IS		0x00000010
 #define BI_LENGTH_IS		0x00000020
 #define BI_POINTER		0x00000040
-#define BI_BITMAP32		0x00000100
-#define BI_SWITCH_TYPE		0x00000200
+#define BI_BITMAP8		0x00000100
+#define BI_BITMAP32		0x00000200
+#define BI_SWITCH_TYPE		0x00000400
 typedef struct _bracket_item_t {
 	long int flags;
 	char *case_name;
@@ -652,6 +653,13 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 		/* length_is */
 		if(!strcmp(ti->str, "length_is")){
 			br->flags|=BI_LENGTH_IS;
+			ti=ti->next;
+			continue;
+		}
+
+		/* bitmap8bit */
+		if(!strcmp(ti->str, "bitmap8bit")){
+			br->flags|=BI_BITMAP8;
 			ti=ti->next;
 			continue;
 		}
@@ -1857,12 +1865,15 @@ void parsetypedefbitmap(int pass)
 	}
 	/* check that we know how to handle the bracket thing */
 	if(bi){
-		if(bi->flags&(~(BI_BITMAP32))){
+		if(bi->flags&(~(BI_BITMAP32|BI_BITMAP8))){
 			fprintf(stderr, "ERROR: typedefbitmap unknown bracket flags encountered : 0x%08x\n",bi->flags);
 			Exit(10);
 		}
 		if(bi->flags&BI_BITMAP32){
 			alignment=4;
+		}
+		if(bi->flags&BI_BITMAP8){
+			alignment=1;
 		}
 	}
 		
@@ -1906,6 +1917,10 @@ void parsetypedefbitmap(int pass)
 		FPRINTF(eth_code, "    proto_item *item=NULL;\n");
 		FPRINTF(eth_code, "    proto_tree *tree=NULL;\n");
 		switch(alignment){
+		case 1:
+			FPRINTF(eth_code, "    guint8 flags;\n");
+			FPRINTF(eth_code, "\n");
+			break;
 		case 4:
 			FPRINTF(eth_code, "    guint32 flags;\n");
 			FPRINTF(eth_code, "\n");
@@ -1922,6 +1937,10 @@ void parsetypedefbitmap(int pass)
 		FPRINTF(eth_code, "    }\n");
 		FPRINTF(eth_code, "\n");
 		switch(alignment){
+		case 1:
+			FPRINTF(eth_code, "    offset=dissect_ndr_uint8(tvb, offset, pinfo, NULL, drep, -1, &flags);\n");
+			FPRINTF(eth_code, "\n");
+			break;
 		case 4:
 			FPRINTF(eth_code, "    offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &flags);\n");
 			FPRINTF(eth_code, "\n");
@@ -2005,6 +2024,9 @@ void parsetypedefbitmap(int pass)
 		FPRINTF(eth_code, "    return offset;\n");
 		FPRINTF(eth_code, "}\n");
 		switch(alignment){
+		case 1:
+			register_new_type(bitmap_name, dissectorname, "FT_UINT8", "BASE_HEX", "0", "NULL", alignment);
+			break;
 		case 4:
 			register_new_type(bitmap_name, dissectorname, "FT_UINT32", "BASE_HEX", "0", "NULL", alignment);
 			break;
