@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.28 2002/05/11 22:28:05 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.29 2002/05/13 01:27:07 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,6 +52,7 @@ static int hf_spoolss_printername = -1;
 static int hf_spoolss_servername = -1;
 static int hf_spoolss_username = -1;
 static int hf_spoolss_documentname = -1;
+static int hf_spoolss_outputfile = -1;
 static int hf_spoolss_datatype = -1;
 static int hf_spoolss_textstatus = -1;
 static int hf_spoolss_level = -1;
@@ -3464,6 +3465,230 @@ static int SpoolssEndPagePrinter_r(tvbuff_t *tvb, int offset,
 	return offset;
 }	
 
+/*
+ * DOC_INFO_1
+ */
+
+static gint ett_DOC_INFO_1 = -1;
+
+static int
+dissect_spoolss_doc_info_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			   proto_tree *tree, char *drep)
+{
+	proto_item *item;
+	proto_tree *subtree;
+
+	item = proto_tree_add_text(tree, tvb, offset, 0, "DOC_INFO_1");
+
+	subtree = proto_item_add_subtree(item, ett_DOC_INFO_1);
+
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, subtree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+		"Document name", hf_spoolss_documentname, 0);
+
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, subtree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+		"Output file", hf_spoolss_outputfile, 0);
+
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, subtree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+		"Data type", hf_spoolss_datatype, 0);
+
+	return offset;
+}
+
+static int
+dissect_spoolss_doc_info_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			      proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = pinfo->private_data;
+	
+	switch(di->levels) {
+	case 1:
+		offset = dissect_spoolss_doc_info_1(
+			tvb, offset, pinfo, tree, drep);
+		break;
+	default:
+		proto_tree_add_text(tree, tvb, offset, 0,
+				    "[Unknown info level %d]", di->levels);
+		break;
+	}
+
+	return offset;
+}
+
+/*
+ * DOC_INFO
+ */
+
+static gint ett_DOC_INFO = -1;
+
+static int
+dissect_spoolss_doc_info(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			 proto_tree *tree, char *drep)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	guint32 level;
+
+	item = proto_tree_add_text(tree, tvb, offset, 0, "DOC_INFO");
+
+	subtree = proto_item_add_subtree(item, ett_DOC_INFO);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
+				    hf_spoolss_level, &level);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, subtree, drep,
+				     dissect_spoolss_doc_info_data,
+				     NDR_POINTER_UNIQUE, "Document info",
+				     -1, level);
+	return offset;
+}
+
+/*
+ * DOC_INFO_CTR
+ */
+
+static gint ett_DOC_INFO_CTR = -1;
+
+static int
+dissect_spoolss_doc_info_ctr(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			     proto_tree *tree, char *drep)
+{
+	proto_item *item;
+	proto_tree *subtree;
+
+	item = proto_tree_add_text(tree, tvb, offset, 0, "DOC_INFO_CTR");
+
+	subtree = proto_item_add_subtree(item, ett_DOC_INFO_CTR);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
+				    hf_spoolss_level, NULL);
+
+	offset = dissect_spoolss_doc_info( 
+		tvb, offset, pinfo, subtree, drep); 
+
+	return offset;
+}
+
+/*
+ * StartDocPrinter
+ */
+
+static int SpoolssStartDocPrinter_q(tvbuff_t *tvb, int offset, 
+				    packet_info *pinfo, proto_tree *tree, 
+				    char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	e_ctx_hnd policy_hnd;
+	char *pol_name;
+
+	if (dcv->rep_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Reply in frame %u", dcv->rep_frame);
+
+	/* Parse packet */
+
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_spoolss_hnd, &policy_hnd,
+				       FALSE, FALSE);
+
+	dcerpc_smb_fetch_pol((const guint8 *)&policy_hnd, &pol_name, 0, 0);
+
+	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+				pol_name);
+
+	offset = dissect_spoolss_doc_info_ctr(tvb, offset, pinfo, tree, drep);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+static int SpoolssStartDocPrinter_r(tvbuff_t *tvb, int offset, 
+				    packet_info *pinfo, proto_tree *tree, 
+				    char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+	if (dcv->req_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %u", dcv->req_frame);
+
+	/* Parse packet */
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_jobid, NULL);
+
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+				  hf_spoolss_rc, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+/*
+ * EndDocPrinter
+ */
+
+static int SpoolssEndDocPrinter_q(tvbuff_t *tvb, int offset, 
+				  packet_info *pinfo, proto_tree *tree, 
+				  char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	e_ctx_hnd policy_hnd;
+	char *pol_name;
+
+	if (dcv->rep_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Reply in frame %u", dcv->rep_frame);
+
+	/* Parse packet */
+
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_spoolss_hnd, &policy_hnd,
+				       FALSE, FALSE);
+
+	dcerpc_smb_fetch_pol((const guint8 *)&policy_hnd, &pol_name, 0, 0);
+
+	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+				pol_name);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+static int SpoolssEndDocPrinter_r(tvbuff_t *tvb, int offset, 
+				  packet_info *pinfo, proto_tree *tree, 
+				  char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+	if (dcv->req_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %u", dcv->req_frame);
+
+	/* Parse packet */
+
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+				  hf_spoolss_rc, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
 #if 0
 
 /* Templates for new subdissectors */
@@ -3548,7 +3773,7 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 	{ SPOOLSS_GETPRINTPROCESSORDIRECTORY, "GetPrintProcessorDirectory", 
 	  NULL, SpoolssGeneric_r },
         { SPOOLSS_STARTDOCPRINTER, "StartDocPrinter", 
-	  NULL, SpoolssGeneric_r },
+	  SpoolssStartDocPrinter_q, SpoolssStartDocPrinter_r },
         { SPOOLSS_STARTPAGEPRINTER, "StartPagePrinter", 
 	  SpoolssStartPagePrinter_q, SpoolssStartPagePrinter_r },
         { SPOOLSS_WRITEPRINTER, "WritePrinter", 
@@ -3560,7 +3785,7 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 	{ SPOOLSS_READPRINTER, "ReadPrinter", 
 	  NULL, SpoolssGeneric_r },
         { SPOOLSS_ENDDOCPRINTER, "EndDocPrinter", 
-	  NULL, SpoolssGeneric_r },
+	  SpoolssEndDocPrinter_q, SpoolssEndDocPrinter_r },
         { SPOOLSS_ADDJOB, "AddJob", 
 	  NULL, SpoolssGeneric_r },
         { SPOOLSS_SCHEDULEJOB, "ScheduleJob", 
@@ -3719,6 +3944,9 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_spoolss_documentname,
 		  { "Document name", "spoolss.document", FT_STRING, BASE_NONE,
 		    NULL, 0, "Document name", HFILL }},
+		{ &hf_spoolss_outputfile,
+		  { "Output file", "spoolss.outputfile", FT_STRING, BASE_NONE,
+		    NULL, 0, "Output File", HFILL }},
 		{ &hf_spoolss_datatype,
 		  { "Datatype", "spoolss.Datatype", FT_STRING, BASE_NONE,
 		    NULL, 0, "Datatype", HFILL }},
@@ -3835,6 +4063,9 @@ proto_register_dcerpc_spoolss(void)
 		&ett_JOB_INFO_2,
 		&ett_SEC_DESC_BUF,
 		&ett_SYSTEM_TIME,
+		&ett_DOC_INFO_1,
+		&ett_DOC_INFO,
+		&ett_DOC_INFO_CTR,
         };
 
         proto_dcerpc_spoolss = proto_register_protocol(
