@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.12 1998/12/20 01:47:05 guy Exp $
+ * $Id: packet-dns.c,v 1.13 1999/01/04 09:13:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,6 +30,7 @@
 #include <gtk/gtk.h>
 
 #include <stdio.h>
+#include <string.h>
 #include <memory.h>
 
 #ifdef HAVE_SYS_TYPES_H
@@ -43,18 +44,21 @@
 #include "ethereal.h"
 #include "packet.h"
 #include "packet-dns.h"
+#include "util.h"
 
 
 /* DNS structs and definitions */
 
-typedef struct _e_dns {
-  guint16 dns_id;
-  guint16 dns_flags;
-  guint16 dns_quest;
-  guint16 dns_ans;
-  guint16 dns_auth;
-  guint16 dns_add;
-} e_dns;
+/* Offsets of fields in the DNS header. */
+#define	DNS_ID		0
+#define	DNS_FLAGS	2
+#define	DNS_QUEST	4
+#define	DNS_ANS	6
+#define	DNS_AUTH	8
+#define	DNS_ADD	10
+
+/* Length of DNS header. */
+#define	DNS_HDRLEN	12
 
 /* type values  */
 #define T_A             1               /* host address */
@@ -68,6 +72,27 @@ typedef struct _e_dns {
 #define T_TXT           16              /* text strings */
 #define T_AAAA          28              /* IP6 Address */
 
+/* Bit fields in the flags */
+#define F_RESPONSE      (1<<15)         /* packet is response */
+#define F_OPCODE        (0xF<<11)       /* query opcode */
+#define F_AUTHORITATIVE (1<<10)         /* response is authoritative */
+#define F_TRUNCATED     (1<<9)          /* response is truncated */
+#define F_RECDESIRED    (1<<8)          /* recursion desired */
+#define F_RECAVAIL      (1<<7)          /* recursion available */
+#define F_RCODE         (0xF<<0)        /* reply code */
+
+/* Opcodes */
+#define OPCODE_QUERY    (0<<11)         /* standard query */
+#define OPCODE_IQUERY   (1<<11)         /* inverse query */
+#define OPCODE_STATUS   (2<<11)         /* server status request */
+
+/* Reply codes */
+#define RCODE_NOERROR   (0<<0)
+#define RCODE_FMTERROR  (1<<0)
+#define RCODE_SERVFAIL  (2<<0)
+#define RCODE_NAMEERROR (3<<0)
+#define RCODE_NOTIMPL   (4<<0)
+#define RCODE_REFUSED   (5<<0)
 
 static char *
 dns_type_name (int type)
@@ -445,46 +470,103 @@ dissect_answer_records(const u_char *dns_data_ptr, int count,
 void
 dissect_dns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   const u_char *dns_data_ptr;
-  e_dns     *dh;
-  GtkWidget *dns_tree, *ti;
+  GtkWidget *dns_tree, *ti, *field_tree, *tf;
   guint16    id, flags, quest, ans, auth, add;
-  int query = 0;
+  char buf[128+1];
   int cur_off;
+  static const value_string opcode_vals[] = {
+		  { OPCODE_QUERY,  "Standard query"        },
+		  { OPCODE_IQUERY, "Inverse query"         },
+		  { OPCODE_STATUS, "Server status request" },
+		  { 0,              NULL                   } };
+  static const value_string rcode_vals[] = {
+		  { RCODE_NOERROR,   "No error"        },
+		  { RCODE_FMTERROR,  "Format error"    },
+		  { RCODE_SERVFAIL,  "Server failure"  },
+		  { RCODE_NAMEERROR, "Name error"      },
+		  { RCODE_NOTIMPL,   "Not implemented" },
+		  { RCODE_REFUSED,   "Refused"         },
+		  { 0,               NULL              } };
 
   dns_data_ptr = &pd[offset];
-  dh = (e_dns *) dns_data_ptr;
 
   /* To do: check for runts, errs, etc. */
-  id    = ntohs(dh->dns_id);
-  flags = ntohs(dh->dns_flags);
-  quest = ntohs(dh->dns_quest);
-  ans   = ntohs(dh->dns_ans);
-  auth  = ntohs(dh->dns_auth);
-  add   = ntohs(dh->dns_add);
-  
-  query = ! (flags & (1 << 15));
+  id    = pntohs(&pd[offset + DNS_ID]);
+  flags = pntohs(&pd[offset + DNS_FLAGS]);
+  quest = pntohs(&pd[offset + DNS_QUEST]);
+  ans   = pntohs(&pd[offset + DNS_ANS]);
+  auth  = pntohs(&pd[offset + DNS_AUTH]);
+  add   = pntohs(&pd[offset + DNS_ADD]);
   
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "DNS (UDP)");
-  if (check_col(fd, COL_INFO))
-    col_add_str(fd, COL_INFO, query ? "Query" : "Response");
+  if (check_col(fd, COL_INFO)) {
+    col_add_fstr(fd, COL_INFO, "%s%s",
+                val_to_str(flags & F_OPCODE, opcode_vals,
+                           "Unknown operation (%x)"),
+                (flags & F_RESPONSE) ? " response" : "");
+  }
   
   if (tree) {
     ti = add_item_to_tree(GTK_WIDGET(tree), offset, 4,
-			  query ? "DNS query" : "DNS response");
+			  (flags & F_RESPONSE) ? "DNS response" : "DNS query");
     
     dns_tree = gtk_tree_new();
     add_subtree(ti, dns_tree, ETT_DNS);
     
-    add_item_to_tree(dns_tree, offset,      2, "ID: 0x%04x", id);
+    add_item_to_tree(dns_tree, offset + DNS_ID, 2, "Transaction ID: 0x%04x",
+    			id);
 
-    add_item_to_tree(dns_tree, offset +  2, 2, "Flags: 0x%04x", flags);
-    add_item_to_tree(dns_tree, offset +  4, 2, "Questions: %d", quest);
-    add_item_to_tree(dns_tree, offset +  6, 2, "Answer RRs: %d", ans);
-    add_item_to_tree(dns_tree, offset +  8, 2, "Authority RRs: %d", auth);
-    add_item_to_tree(dns_tree, offset + 10, 2, "Additional RRs: %d", add);
+    strcpy(buf, val_to_str(flags & F_OPCODE, opcode_vals, "Unknown (%x)"));
+    if (flags & F_RESPONSE) {
+      strcat(buf, " response");
+      strcat(buf, ", ");
+      strcat(buf, val_to_str(flags & F_RCODE, rcode_vals,
+            "Unknown error (%x)"));
+    }
+    tf = add_item_to_tree(dns_tree, offset + DNS_FLAGS, 2, "Flags: 0x%04x (%s)",
+                          flags, buf);
+    field_tree = gtk_tree_new();
+    add_subtree(tf, field_tree, ETT_DNS_FLAGS);
+    add_item_to_tree(field_tree, offset + DNS_FLAGS, 2, "%s",
+       decode_boolean_bitfield(flags, F_RESPONSE,
+            2*8, "Response", "Query"));
+    add_item_to_tree(field_tree, offset + DNS_FLAGS, 2, "%s",
+       decode_enumerated_bitfield(flags, F_OPCODE,
+            2*8, opcode_vals, "%s"));
+    if (flags & F_RESPONSE) {
+      add_item_to_tree(field_tree, offset + DNS_FLAGS, 2, "%s",
+         decode_boolean_bitfield(flags, F_AUTHORITATIVE,
+              2*8,
+              "Server is an authority for domain",
+              "Server isn't an authority for domain"));
+    }
+    add_item_to_tree(field_tree, offset + DNS_FLAGS, 2, "%s",
+       decode_boolean_bitfield(flags, F_TRUNCATED,
+            2*8,
+            "Message is truncated",
+            "Message is not truncated"));
+    add_item_to_tree(field_tree, offset + DNS_FLAGS, 2, "%s",
+       decode_boolean_bitfield(flags, F_RECDESIRED,
+            2*8,
+            "Do query recursively",
+            "Don't do query recursively"));
+    if (flags & F_RESPONSE) {
+      add_item_to_tree(field_tree, offset + DNS_FLAGS, 2, "%s",
+         decode_boolean_bitfield(flags, F_RECAVAIL,
+              2*8,
+              "Server can do recursive queries",
+              "Server can't do recursive queries"));
+      add_item_to_tree(field_tree, offset + DNS_FLAGS, 2, "%s",
+         decode_enumerated_bitfield(flags, F_RCODE,
+              2*8, rcode_vals, "%s"));
+    }
+    add_item_to_tree(dns_tree, offset + DNS_QUEST, 2, "Questions: %d", quest);
+    add_item_to_tree(dns_tree, offset + DNS_ANS, 2, "Answer RRs: %d", ans);
+    add_item_to_tree(dns_tree, offset + DNS_AUTH, 2, "Authority RRs: %d", auth);
+    add_item_to_tree(dns_tree, offset + DNS_ADD, 2, "Additional RRs: %d", add);
 
-    cur_off = offset + 12;
+    cur_off = offset + DNS_HDRLEN;
     
     if (quest > 0)
       cur_off += dissect_query_records(dns_data_ptr, quest, pd, cur_off,

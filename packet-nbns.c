@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.10 1998/12/04 05:59:12 guy Exp $
+ * $Id: packet-nbns.c,v 1.11 1999/01/04 09:13:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,6 +32,7 @@
 #include <gtk/gtk.h>
 
 #include <stdio.h>
+#include <string.h>
 #include <memory.h>
 
 #ifdef HAVE_SYS_TYPES_H
@@ -45,28 +46,22 @@
 #include "ethereal.h"
 #include "packet.h"
 #include "packet-dns.h"
+#include "util.h"
 
 /* Packet structure taken from RFC 1002. See also RFC 1001.
- * The Samba source code, specifically nmblib.c, also helps a lot. */
+ * Opcode, flags, and rcode treated as "flags", similarly to DNS,
+ * to make it easier to lift the dissection code from "packet-dns.c". */
 
-struct nbns_header {
+/* Offsets of fields in the NBNS header. */
+#define	NBNS_ID		0
+#define	NBNS_FLAGS	2
+#define	NBNS_QUEST	4
+#define	NBNS_ANS	6
+#define	NBNS_AUTH	8
+#define	NBNS_ADD	10
 
-	guint16		name_tran_id;
-	guint8		r;
-	guint8		opcode;
-	struct {
-		guint8	bcast;
-		guint8	recursion_available;
-		guint8	recursion_desired;
-		guint8	trunc;
-		guint8	authoritative;
-	} nm_flags;
-	guint8		rcode;
-	guint16		qdcount;
-	guint16		ancount;
-	guint16		nscount;
-	guint16		arcount;
-};
+/* Length of NBNS header. */
+#define	NBNS_HDRLEN	12
 
 /* type values  */
 #define T_NB            32              /* NetBIOS name service RR */
@@ -91,6 +86,35 @@ struct nbdgm_header {
 	/* For error packets */
 	guint8		error_code;
 };
+
+/* Bit fields in the flags */
+#define F_RESPONSE      (1<<15)         /* packet is response */
+#define F_OPCODE        (0xF<<11)       /* query opcode */
+#define F_AUTHORITATIVE (1<<10)         /* response is authoritative */
+#define F_TRUNCATED     (1<<9)          /* response is truncated */
+#define F_RECDESIRED    (1<<8)          /* recursion desired */
+#define F_RECAVAIL      (1<<7)          /* recursion available */
+#define F_BROADCAST     (1<<4)          /* broadcast/multicast packet */
+#define F_RCODE         (0xF<<0)        /* reply code */
+
+/* Opcodes */
+#define OPCODE_QUERY          (0<<11)    /* standard query */
+#define OPCODE_REGISTRATION   (5<<11)    /* registration */
+#define OPCODE_RELEASE        (6<<11)    /* release name */
+#define OPCODE_WACK           (7<<11)    /* wait for acknowledgement */
+#define OPCODE_REFRESH        (8<<11)    /* refresh registration */
+#define OPCODE_REFRESHALT     (9<<11)    /* refresh registration (alternate opcode) */
+#define OPCODE_MHREGISTRATION (15<<11)   /* multi-homed registration */
+
+/* Reply codes */
+#define RCODE_NOERROR   (0<<0)
+#define RCODE_FMTERROR  (1<<0)
+#define RCODE_SERVFAIL  (2<<0)
+#define RCODE_NAMEERROR (3<<0)
+#define RCODE_NOTIMPL   (4<<0)
+#define RCODE_REFUSED   (5<<0)
+#define RCODE_ACTIVE    (6<<0)
+#define RCODE_CONFLICT  (7<<0)
 
 
 static char *
@@ -327,7 +351,7 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 		    name_len, type_name, class_name, ttl, data_len);
 		offset += (dptr - data_start);
 		while (data_len > 0) {
-			if (opcode == 0x7) {
+			if (opcode == OPCODE_WACK) {
 				/* WACK response.  This doesn't contain the
 				 * same type of RR data as other T_NB
 				 * responses.  */
@@ -678,61 +702,50 @@ dissect_answer_records(const u_char *nbns_data_ptr, int count,
 void
 dissect_nbns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 {
-	GtkWidget		*nbns_tree, *ti;
-	struct nbns_header	header;
-	int			nm_flags;
 	const u_char		*nbns_data_ptr;
+	GtkWidget		*nbns_tree, *ti, *field_tree, *tf;
+	guint16			id, flags, quest, ans, auth, add;
+	char			buf[128+1];
 	int			cur_off;
-
-	char *opcode[] = {
-		"Query",
-		"Unknown operation (1)",
-		"Unknown operation (2)",
-		"Unknown operation (3)",
-		"Unknown operation (4)",
-		"Registration",
-		"Release",
-		"Wait and Acknowledge",
-		"Refresh",
-		"Refresh(altcode)",
-		"Unknown operation (10)",
-		"Unknown operation (11)",
-		"Unknown operation (12)",
-		"Unknown operation (13)",
-		"Unknown operation (14)",
-		"Multi-Homed Registration",
+	static const value_string opcode_vals[] = {
+		  { OPCODE_QUERY,          "Name query"                 },
+		  { OPCODE_REGISTRATION,   "Registration"               },
+		  { OPCODE_RELEASE,        "Release"                    },
+		  { OPCODE_WACK,           "Wait for acknowledgment"    },
+		  { OPCODE_REFRESH,        "Refresh"                    },
+		  { OPCODE_REFRESHALT,     "Refresh (alternate opcode)" },
+		  { OPCODE_MHREGISTRATION, "Multi-homed registration"   },
+		  { 0,                     NULL                         }
+	};
+	static const value_string rcode_vals[] = {
+		  { RCODE_NOERROR,   "No error"              },
+		  { RCODE_FMTERROR,  "Format error"          },
+		  { RCODE_SERVFAIL,  "Server failure"        },
+		  { RCODE_NAMEERROR, "Name error"            },
+		  { RCODE_NOTIMPL,   "Not implemented"       },
+		  { RCODE_REFUSED,   "Refused"               },
+		  { RCODE_ACTIVE,    "Name is active"        },
+		  { RCODE_CONFLICT,  "Name is in conflict"   },
+		  { 0,               NULL                    }
 	};
 
 	nbns_data_ptr = &pd[offset];
 
-	/* This is taken from samba/source/nmlib.c, parse_nmb() */
-	header.name_tran_id = pntohs(&pd[offset]);
-	header.opcode = (pd[offset+2] >> 3) & 0xf;
-	header.r = (pd[offset+2] >> 7) & 1;
-
-	nm_flags = ((pd[offset+2] & 0x7) << 4) + (pd[offset+3] >> 4);
-	header.nm_flags.bcast = (nm_flags & 1) ? 1 : 0;
-	header.nm_flags.recursion_available = (nm_flags & 8) ? 1 : 0;
-	header.nm_flags.recursion_desired = (nm_flags & 0x10) ? 1 : 0;
-	header.nm_flags.trunc = (nm_flags & 0x20) ? 1 : 0;
-	header.nm_flags.authoritative = (nm_flags & 0x40) ? 1 : 0;
-
-	header.rcode = pd[offset+3] & 0xf;
-	header.qdcount = pntohs(&pd[offset+4]);
-	header.ancount = pntohs(&pd[offset+6]);
-	header.nscount = pntohs(&pd[offset+8]);
-	header.arcount = pntohs(&pd[offset+10]);
+	/* To do: check for runts, errs, etc. */
+	id    = pntohs(&pd[offset + NBNS_ID]);
+	flags = pntohs(&pd[offset + NBNS_FLAGS]);
+	quest = pntohs(&pd[offset + NBNS_QUEST]);
+	ans   = pntohs(&pd[offset + NBNS_ANS]);
+	auth  = pntohs(&pd[offset + NBNS_AUTH]);
+	add   = pntohs(&pd[offset + NBNS_ADD]);
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "NBNS (UDP)");
 	if (check_col(fd, COL_INFO)) {
-		if (header.opcode <= 15) {
-			col_add_fstr(fd, COL_INFO, "%s %s",
-			    opcode[header.opcode], header.r ? "reply" : "request");
-		} else {
-			col_add_fstr(fd, COL_INFO, "Unknown operation (%d) %s",
-			    header.opcode, header.r ? "reply" : "request");
-		}
+		col_add_fstr(fd, COL_INFO, "%s%s",
+		    val_to_str(flags & F_OPCODE, opcode_vals,
+		      "Unknown operation (%x)"),
+		    (flags & F_RESPONSE) ? " response" : "");
 	}
 
 	if (tree) {
@@ -741,49 +754,101 @@ dissect_nbns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 		nbns_tree = gtk_tree_new();
 		add_subtree(ti, nbns_tree, ETT_NBNS);
 
-		add_item_to_tree(nbns_tree, offset,	 2, "Transaction ID: 0x%04X",
-				header.name_tran_id);
-		add_item_to_tree(nbns_tree, offset +  2, 1, "Type: %s",
-				header.r == 0 ? "Request" : "Response" );
-		
-		if (header.opcode <= 15) {
-			add_item_to_tree(nbns_tree, offset + 2, 1, "Operation: %s (%d)",
-					opcode[header.opcode], header.opcode);
-		}
-		else {
-			add_item_to_tree(nbns_tree, offset + 2, 1, "Operation: Unknown (%d)",
-					header.opcode);
-		}
-		add_item_to_tree(nbns_tree, offset +  4, 2, "Questions: %d",
-					header.qdcount);
-		add_item_to_tree(nbns_tree, offset +  6, 2, "Answer RRs: %d",
-					header.ancount);
-		add_item_to_tree(nbns_tree, offset +  8, 2, "Authority RRs: %d",
-					header.nscount);
-		add_item_to_tree(nbns_tree, offset + 10, 2, "Additional RRs: %d",
-					header.arcount);
+		add_item_to_tree(nbns_tree, offset + NBNS_ID, 2,
+				"Transaction ID: 0x%04X", id);
 
-		cur_off = offset + 12;
+		strcpy(buf, val_to_str(flags & F_OPCODE, opcode_vals,
+				"Unknown (%x)"));
+		if (flags & F_RESPONSE) {
+			strcat(buf, " response");
+			strcat(buf, ", ");
+			strcat(buf, val_to_str(flags & F_RCODE, rcode_vals,
+			    "Unknown error (%x)"));
+		}
+		tf = add_item_to_tree(nbns_tree, offset + NBNS_FLAGS, 2,
+				"Flags: 0x%04x (%s)", flags, buf);
+		field_tree = gtk_tree_new();
+		add_subtree(tf, field_tree, ETT_NBNS_FLAGS);
+		add_item_to_tree(field_tree, offset + NBNS_FLAGS, 2, "%s",
+		    decode_boolean_bitfield(flags, F_RESPONSE,
+		      2*8, "Response", "Query"));
+		add_item_to_tree(field_tree, offset + NBNS_FLAGS, 2, "%s",
+		    decode_enumerated_bitfield(flags, F_OPCODE,
+		      2*8, opcode_vals, "%s"));
+		if (flags & F_RESPONSE) {
+			add_item_to_tree(field_tree, offset + NBNS_FLAGS, 2,
+				"%s",
+				decode_boolean_bitfield(flags, F_AUTHORITATIVE,
+					2*8,
+					"Server is an authority for domain",
+					"Server isn't an authority for domain"));
+		}
+		add_item_to_tree(field_tree, offset + NBNS_FLAGS, 2, "%s",
+				decode_boolean_bitfield(flags, F_TRUNCATED,
+					2*8,
+					"Message is truncated",
+					"Message is not truncated"));
+		add_item_to_tree(field_tree, offset + NBNS_FLAGS, 2, "%s",
+				decode_boolean_bitfield(flags, F_RECDESIRED,
+					2*8,
+					"Do query recursively",
+					"Don't do query recursively"));
+		if (flags & F_RESPONSE) {
+			add_item_to_tree(field_tree, offset + NBNS_FLAGS, 2,
+				"%s",
+				decode_boolean_bitfield(flags, F_RECAVAIL,
+					2*8,
+					"Server can do recursive queries",
+					"Server can't do recursive queries"));
+		}
+		add_item_to_tree(field_tree, offset + NBNS_FLAGS, 2, "%s",
+				decode_boolean_bitfield(flags, F_BROADCAST,
+					2*8,
+					"Broadcast packet",
+					"Not a broadcast packet"));
+		if (flags & F_RESPONSE) {
+			add_item_to_tree(field_tree, offset + NBNS_FLAGS, 2,
+				"%s",
+				decode_enumerated_bitfield(flags, F_RCODE,
+					2*8,
+					rcode_vals, "%s"));
+		}
+		add_item_to_tree(nbns_tree, offset + NBNS_QUEST, 2,
+					"Questions: %d",
+					quest);
+		add_item_to_tree(nbns_tree, offset + NBNS_ANS, 2,
+					"Answer RRs: %d",
+					ans);
+		add_item_to_tree(nbns_tree, offset + NBNS_AUTH, 2,
+					"Authority RRs: %d",
+					auth);
+		add_item_to_tree(nbns_tree, offset + NBNS_ADD, 2,
+					"Additional RRs: %d",
+					add);
+
+		cur_off = offset + NBNS_HDRLEN;
     
-		if (header.qdcount > 0)
+		if (quest > 0)
 			cur_off += dissect_query_records(nbns_data_ptr,
-					header.qdcount, pd, cur_off, nbns_tree);
+					quest, pd, cur_off, nbns_tree);
 
-		if (header.ancount > 0)
+		if (ans > 0)
 			cur_off += dissect_answer_records(nbns_data_ptr,
-					header.ancount, pd, cur_off, nbns_tree,
-					header.opcode, "Answers");
+					ans, pd, cur_off, nbns_tree,
+					flags & F_OPCODE,
+					"Answers");
 
-		if (header.nscount > 0)
+		if (auth > 0)
 			cur_off += dissect_answer_records(nbns_data_ptr,
-					header.nscount,	pd, cur_off, nbns_tree, 
-					header.opcode,
+					auth, pd, cur_off, nbns_tree, 
+					flags & F_OPCODE,
 					"Authoritative nameservers");
 
-		if (header.arcount > 0)
+		if (add > 0)
 			cur_off += dissect_answer_records(nbns_data_ptr,
-					header.arcount, pd, cur_off, nbns_tree, 
-					header.opcode, "Additional records");
+					add, pd, cur_off, nbns_tree, 
+					flags & F_OPCODE,
+					"Additional records");
 	}
 }
 
