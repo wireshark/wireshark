@@ -2,7 +2,7 @@
  * Routines for DCOM OXID Resolver
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-oxid.c,v 1.9 2003/10/12 12:29:39 tpot Exp $
+ * $Id: packet-dcerpc-oxid.c,v 1.10 2003/10/12 16:03:10 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -194,7 +194,7 @@ oxid_server_alive2_dissect_rply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	entries_hdr = proto_tree_add_text(bind_tree, tvb, offset, (int)security_len, "STRING BINDING");
 	entries_tree = proto_item_add_subtree(entries_hdr, 0);
 
-	while(tvb_get_ntohs(tvb, offset) != 0) { // check that this is not terminating zero
+	while(tvb_get_ntohs(tvb, offset) != 0) { /* check that this is not terminating zero */
 		
 		stringbind.wTowerId = dcerpc_tvb_get_ntohs(tvb, offset, drep);
 		proto_tree_add_text(entries_tree, tvb, offset, sizeof(stringbind.wTowerId), "Network Protocol ('TowerID'): %s (0x%x)",towerid_val2str(stringbind.wTowerId), stringbind.wTowerId);
@@ -203,7 +203,7 @@ oxid_server_alive2_dissect_rply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		offset = display_unicode_string(tvb, entries_tree, offset, hf_aNetworkAddr, &aNetworkAddr);	
 	}	
-	offset += 2; // hop over the extra terminating zero
+	offset += 2; /* hop over the extra terminating zero */
 	
 	sec_hdr = proto_tree_add_text(bind_tree, tvb, offset, 0, "SECURITY BINDING");
         sec_tree = proto_item_add_subtree(sec_hdr, 0);
@@ -219,7 +219,7 @@ oxid_server_alive2_dissect_rply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		offset = display_unicode_string(tvb, sec_tree, offset, hf_aPrinceName, &aPrinceName);
 	}
-	offset += 2; // hop over the extra terminating zero
+	offset += 2; /* hop over the extra terminating zero */
 	
 	dissect_dcerpc_uint64(tvb, offset, pinfo, tree, drep, hf_Unknown2, unknown2);
 	offset += sizeof(unknown2);
