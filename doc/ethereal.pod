@@ -55,7 +55,7 @@ B<TCPIPtrace>/B<TCPtrace>/B<UCX$TRACE> utilities, the text output from
 the B<DBS Etherwatch> VMS utility, traffic capture files from Visual
 Networks' Visual UpTime, the output from B<CoSine> L2 debug, the output
 from Accellent's 5Views LAN agents, captures in Endace Measurement
-Systems' ERF format, Linux Bluez Bluetooth stack "hcidump -w" traces,
+Systems' ERF format, Linux Bluez Bluetooth stack B<hcidump -w> traces,
 and captures from Network Instruments Observer version 9.  There is no
 need to tell B<Ethereal> what type of file you are reading; it will
 determine the file type by itself.  B<Ethereal> is also capable of
