@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.36 2000/03/20 22:22:45 gram Exp $
+ * $Id: packet-tr.c,v 1.37 2000/05/04 22:59:27 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -161,7 +161,7 @@ capture_tr(const u_char *pd, int offset, packet_counts *ld) {
 
 	/* The trn_hdr struct, as separate variables */
 	guint8			trn_fc;		/* field control field */
-	guint8			trn_shost[6];	/* source host */
+	const guint8		*trn_shost;	/* source host */
 
 	if (!BYTES_ARE_IN_FRAME(offset, TR_MIN_HEADER_LEN)) {
 		ld->other++;
@@ -177,8 +177,8 @@ capture_tr(const u_char *pd, int offset, packet_counts *ld) {
 	}
 
 	/* get the data */
-	memcpy(&trn_fc, &pd[offset + 1], sizeof(guint8));
-	memcpy(trn_shost, &pd[offset + 8], 6 * sizeof(guint8));
+	trn_fc = pd[offset + 1];
+	trn_shost = &pd[offset + 8];
 
 	frame_type = (trn_fc & 192) >> 6;
 
@@ -276,18 +276,16 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	proto_tree	*tr_tree, *bf_tree;
 	proto_item	*ti;
 	int		fixoffset = 0;
-	int			source_routed = 0;
-	int			frame_type;
+	int		source_routed = 0;
+	int		frame_type;
 	guint8		trn_rif_bytes;
 	guint8		actual_rif_bytes;
 
 	/* The trn_hdr struct, as separate variables */
 	guint8			trn_ac;		/* access control field */
 	guint8			trn_fc;		/* field control field */
-	guint8			trn_dhost[6];	/* destination host */
-	guint8			trn_shost[6];	/* source host */
-	guint16			trn_rcf;	/* routing control field */
-	guint16			trn_rseg[8];	/* routing registers */
+	const guint8		*trn_dhost;	/* destination host */
+	const guint8		*trn_shost;	/* source host */
 
 	/* non-source-routed version of source addr */
 	static guint8		trn_shost_nonsr[6];
@@ -309,16 +307,12 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		/* pd = &pd[x]; */
 	}
 
-
 	/* get the data */
-	memcpy(&trn_ac, &pd[offset+0], sizeof(guint8));
-	memcpy(&trn_fc, &pd[offset+1], sizeof(guint8));
-	memcpy(trn_dhost, &pd[offset+2], 6 * sizeof(guint8));
-	memcpy(trn_shost, &pd[offset+8], 6 * sizeof(guint8));
-	memcpy(&trn_rcf, &pd[offset+14], sizeof(guint16));
-	memcpy(trn_rseg, &pd[offset+16], 8 * sizeof(guint16));
+	trn_fc = pd[offset+1];
+	trn_dhost = &pd[offset+2];
+	trn_shost = &pd[offset+8];
 
-	memcpy(trn_shost_nonsr, &pd[offset+8], 6 * sizeof(guint8));
+	memcpy(trn_shost_nonsr, trn_shost, 6 * sizeof(guint8));
 	trn_shost_nonsr[0] &= 127;
 	frame_type = (trn_fc & 192) >> 6;
 
@@ -404,10 +398,10 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	/* XXX - copy it to some buffer associated with "pi", rather than
 	   just making "trn_shost_nonsr" static? */
-	SET_ADDRESS(&pi.dl_src, AT_ETHER, 6, &trn_shost_nonsr[0]);
-	SET_ADDRESS(&pi.src, AT_ETHER, 6, &trn_shost_nonsr[0]);
-	SET_ADDRESS(&pi.dl_dst, AT_ETHER, 6, &pd[offset + 2]);
-	SET_ADDRESS(&pi.dst, AT_ETHER, 6, &pd[offset + 2]);
+	SET_ADDRESS(&pi.dl_src,	AT_ETHER, 6, trn_shost_nonsr);
+	SET_ADDRESS(&pi.src,	AT_ETHER, 6, trn_shost_nonsr);
+	SET_ADDRESS(&pi.dl_dst,	AT_ETHER, 6, trn_dhost);
+	SET_ADDRESS(&pi.dst,	AT_ETHER, 6, trn_dhost);
 
 	/* information window */
 	if (check_col(fd, COL_PROTOCOL))
@@ -422,6 +416,7 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		tr_tree = proto_item_add_subtree(ti, ett_token_ring);
 
 		/* Create the Access Control bitfield tree */
+		trn_ac = pd[offset+0];
 		ti = proto_tree_add_item(tr_tree, hf_tr_ac, offset, 1, trn_ac);
 		bf_tree = proto_item_add_subtree(ti, ett_token_ring_ac);
 
@@ -441,7 +436,7 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		proto_tree_add_item_hidden(tr_tree, hf_tr_addr, offset + 2, 6, trn_dhost);
 		proto_tree_add_item_hidden(tr_tree, hf_tr_addr, offset + 8, 6, trn_shost);
 
-		proto_tree_add_item_hidden(tr_tree, hf_tr_sr, offset + 8, 1, source_routed);
+		proto_tree_add_item(tr_tree, hf_tr_sr, offset + 8, 1, source_routed);
 
 		/* non-source-routed version of src addr */
 		proto_tree_add_item_hidden(tr_tree, hf_tr_src, offset + 8, 6, trn_shost_nonsr);
