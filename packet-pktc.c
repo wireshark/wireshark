@@ -8,7 +8,7 @@
  * Ronnie Sahlberg 2004
  * Thomas Anders 2004
  *
- * $Id: packet-pktc.c,v 1.4 2004/05/22 21:47:32 guy Exp $
+ * $Id: packet-pktc.c,v 1.5 2004/05/25 09:41:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,6 +49,7 @@ static gint hf_pktc_version_major = -1;
 static gint hf_pktc_version_minor = -1;
 static gint hf_pktc_server_nonce = -1;
 static gint hf_pktc_server_principal = -1;
+static gint hf_pktc_timestamp = -1;
 static gint hf_pktc_snmpEngineID_len = -1;
 static gint hf_pktc_snmpEngineID = -1;
 static gint hf_pktc_snmpEngineBoots = -1;
@@ -369,6 +370,68 @@ dissect_pktc_sec_param_rec(proto_tree *tree, tvbuff_t *tvb, int offset)
     return offset;
 }
 
+static int
+dissect_pktc_rekey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint8 doi)
+{
+    guint32 snonce;
+    guint string_len;
+    const guint8 *timestr;
+
+    /* Server Nonce */
+    snonce=tvb_get_ntohl(tvb, offset);
+    proto_tree_add_uint(tree, hf_pktc_server_nonce, tvb, offset, 4, snonce);
+    offset+=4;
+
+    /* Server Kerberos Principal Identifier */
+    string_len=tvb_strsize(tvb, offset);
+    proto_tree_add_item(tree, hf_pktc_server_principal, tvb, offset, string_len, FALSE);
+    offset+=string_len;
+
+    /* Timestamp: YYMMDDhhmmssZ */
+    /* They really came up with a two-digit year in late 1990s! =8o */
+    timestr=tvb_get_ptr(tvb, offset, 13);
+    proto_tree_add_string_format(tree, hf_pktc_timestamp, tvb, offset, 13, timestr, 
+				 "Timestamp: %.2s-%.2s-%.2s %.2s:%.2s:%.2s", 
+				 timestr, timestr+2, timestr+4, timestr+6, timestr+8, timestr+10);
+    offset+=13;
+
+    /* app specific data */
+    offset=dissect_pktc_app_specific_data(pinfo, tree, tvb, offset, doi, KMMID_REKEY);
+
+    /* list of ciphersuites */
+    offset=dissect_pktc_list_of_ciphersuites(pinfo, tree, tvb, offset, doi);
+
+    /* sec param lifetime */
+    proto_tree_add_item(tree, hf_pktc_sec_param_lifetime, tvb, offset, 4, FALSE);
+    offset+=4;
+
+    /* grace period */
+    proto_tree_add_item(tree, hf_pktc_grace_period, tvb, offset, 4, FALSE);
+    offset+=4;
+
+    /* re-establish flag */
+    proto_tree_add_item(tree, hf_pktc_reestablish_flag, tvb, offset, 1, FALSE);
+    offset+=1;
+
+    /* sha-1 hmac */
+    proto_tree_add_item(tree, hf_pktc_sha1_hmac, tvb, offset, 20, FALSE);
+    offset+=20;
+
+    return offset;
+}
+
+static int
+dissect_pktc_error_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+    tvbuff_t *pktc_tvb;
+
+    /* KRB_ERROR */
+    pktc_tvb = tvb_new_subset(tvb, offset, -1, -1); 
+    offset += dissect_kerberos_main(pktc_tvb, pinfo, tree, FALSE);
+
+    return offset;
+}
+
 static void
 dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -422,7 +485,12 @@ dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case KMMID_SEC_PARAM_REC:
         offset=dissect_pktc_sec_param_rec(pktc_tree, tvb, offset);
 	break;
-    /* XXX: KMMID_REKEY, KMMID_ERROR_REPLY */
+    case KMMID_REKEY:
+        offset=dissect_pktc_rekey(pinfo, pktc_tree, tvb, offset, doi);
+	break;
+    case KMMID_ERROR_REPLY:
+        offset=dissect_pktc_error_reply(pinfo, pktc_tree, tvb, offset);
+	break;
     };
 
     proto_item_set_len(item, offset);
@@ -450,6 +518,9 @@ proto_register_pktc(void)
 	{ &hf_pktc_server_principal, {
 	    "Server Kerberos Principal Identifier", "pktc.server_principal", FT_STRING, BASE_DEC,
 	    NULL, 0, "Server Kerberos Principal Identifier", HFILL }},
+	{ &hf_pktc_timestamp, {
+	    "Timestamp", "pktc.timestamp", FT_STRING, BASE_NONE,
+	    NULL, 0, "Timestamp (UTC)", HFILL }},
 	{ &hf_pktc_app_spec_data, {
 	    "Application Specific Data", "pktc.asd", FT_NONE, BASE_HEX,
 	    NULL, 0, "KMMID/DOI application specific data", HFILL }},
