@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.142 2001/11/09 22:58:10 guy Exp $
+ * $Id: packet-smb.c,v 1.143 2001/11/10 22:23:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,6 +74,19 @@
  *	http://www.opengroup.org/products/publications/catalog/c209.htm
  *
  *	http://www.opengroup.org/products/publications/catalog/c195.htm
+ *
+ * The document "NT LAN Manager SMB File Sharing Protocol Extensions"
+ * can be found at
+ *
+ *	http://www.samba.org/samba/ftp/specs/smb-nt01.doc
+ *
+ * (or, presumably a similar path under the Samba mirrors).  As the
+ * ".doc" indicates, it's a Word document.  Some of the specs from the
+ * Microsoft FTP site can be found in the
+ *
+ *	http://www.samba.org/samba/ftp/specs/
+ *
+ * directory as well.
  *
  * Beware - these specs may have errors.
  */
@@ -335,6 +348,15 @@ static int hf_smb_nt_access_mask_write_owner = -1;
 static int hf_smb_nt_access_mask_write_dac = -1;
 static int hf_smb_nt_access_mask_read_control = -1;
 static int hf_smb_nt_access_mask_delete = -1;
+static int hf_smb_nt_access_mask_write_attributes = -1;
+static int hf_smb_nt_access_mask_read_attributes = -1;
+static int hf_smb_nt_access_mask_delete_child = -1;
+static int hf_smb_nt_access_mask_execute = -1;
+static int hf_smb_nt_access_mask_write_ea = -1;
+static int hf_smb_nt_access_mask_read_ea = -1;
+static int hf_smb_nt_access_mask_append = -1;
+static int hf_smb_nt_access_mask_write = -1;
+static int hf_smb_nt_access_mask_read = -1;
 static int hf_smb_nt_share_access_read = -1;
 static int hf_smb_nt_share_access_write = -1;
 static int hf_smb_nt_share_access_delete = -1;
@@ -5238,6 +5260,42 @@ static const true_false_string tfs_nt_access_mask_delete = {
 	"DELETE access",
 	"NO delete access"
 };
+static const true_false_string tfs_nt_access_mask_write_attributes = {
+	"WRITE ATTRIBUTES access",
+	"NO write attributes access"
+};
+static const true_false_string tfs_nt_access_mask_read_attributes = {
+	"READ ATTRIBUTES access",
+	"NO read attributes access"
+};
+static const true_false_string tfs_nt_access_mask_delete_child = {
+	"DELETE CHILD access",
+	"NO delete child access"
+};
+static const true_false_string tfs_nt_access_mask_execute = {
+	"EXECUTE access",
+	"NO execute access"
+};
+static const true_false_string tfs_nt_access_mask_write_ea = {
+	"WRITE EXTENDED ATTRIBUTES access",
+	"NO write extended attributes access"
+};
+static const true_false_string tfs_nt_access_mask_read_ea = {
+	"READ EXTENDED ATTRIBUTES access",
+	"NO read extended attributes access"
+};
+static const true_false_string tfs_nt_access_mask_append = {
+	"APPEND access",
+	"NO append access"
+};
+static const true_false_string tfs_nt_access_mask_write = {
+	"WRITE access",
+	"NO write access"
+};
+static const true_false_string tfs_nt_access_mask_read = {
+	"READ access",
+	"NO read access"
+};
 
 static const true_false_string tfs_nt_share_access_delete = {
 	"Object can be shared for DELETE",
@@ -5390,23 +5448,12 @@ dissect_nt_access_mask(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 	}
 
 	/*
-	 * XXX - Microsoft Network Monitor says the bottom 9 bits
-	 * are, going down to the bottommost bit:
+	 * Some of these bits come from 
 	 *
-	 *	write attributes permission
-	 *	read attributes permission
-	 *	delete permission
-	 *	execute permission
-	 *	write extended attributes permission
-	 *	read extended attributes permission
-	 *	append permission
-	 *	write permission
-	 *	read permission
+	 *	http://www.samba.org/samba/ftp/specs/smb-nt01.doc
 	 *
-	 * and says nothing about the bits above it.
-	 *
-	 * Does the Win32 API documentation, or the NT Native API book,
-	 * suggest anything?
+	 * and others come from the section on ZwOpenFile in "Windows(R)
+	 * NT(R)/2000 Native API Reference".
 	 */
 	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_read,
 		tvb, offset, 4, mask);
@@ -5429,6 +5476,24 @@ dissect_nt_access_mask(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_control,
 		tvb, offset, 4, mask);
 	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_delete,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_attributes,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_attributes,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_delete_child,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_execute,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_ea,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_ea,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_append,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read,
 		tvb, offset, 4, mask);
 
 	offset += 4;
@@ -10052,7 +10117,7 @@ static const value_string HRD_errors[] = {
   {0, NULL}
 };
 
-char *decode_smb_error(guint8 errcls, guint16 errcode)
+static char *decode_smb_error(guint8 errcls, guint16 errcode)
 {
 
   switch (errcls) {
@@ -10975,6 +11040,9 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_item *cmd_item = NULL;
 	proto_tree *cmd_tree = NULL;
 	int (*dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree);
+        guint32 nt_status = 0;
+        guint8 errclass = 0;
+        guint16 errcode = 0;
 
 
 	/* must check that this really is a smb packet */
@@ -11090,13 +11158,14 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	if(flags2 & 0x4000){
 		/* handle NT 32 bit error code */
+
+                nt_status = tvb_get_letohl(tvb, offset);
+
 		proto_tree_add_item(htree, hf_smb_nt_status, tvb, offset, 4,
 			TRUE);
 		offset += 4;
-	} else {
-		guint8 errclass;
-		guint16 errcode;
 
+	} else {
 		/* handle DOS error code & class */
 		errclass = tvb_get_guint8(tvb, offset);
 		proto_tree_add_uint(htree, hf_smb_error_class, tvb, offset, 1,
@@ -11206,6 +11275,38 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	  (dissect[sip->cmd])(pd, offset, pinfo->fd, parent_tree, tree, si,
 			      tvb_length(tvb), SMB_offset);
+
+	}
+
+	/* Append error info from this packet to info string. */
+	if (!sip->request && check_col(pinfo->fd, COL_INFO)) {
+		if (flags2 & 0x4000) {
+			/*
+			 * The status is an NT status code; was there
+			 * an error?
+			 */
+			if (nt_status != 0) {
+				/*
+				 * Yes.
+				 */
+				col_append_fstr(
+					pinfo->fd, COL_INFO, ", Error: %s",
+					val_to_str(nt_status, NT_errors, "%s"));
+			}
+		} else {
+			/*
+			 * The status is a DOS error class and code; was
+			 * there an error?
+			 */
+			if (errclass != SMB_SUCCESS) {
+				/*
+				 * Yes.
+				 */
+				col_append_fstr(
+					pinfo->fd, COL_INFO, ", Error: %s",
+					decode_smb_error(errclass, errcode));
+			}
+		}
 	}
 
 	return TRUE;
@@ -11838,7 +11939,7 @@ proto_register_smb(void)
 		NULL, 0, "Blocks per unit at server", HFILL }},
 
 	{ &hf_smb_blocksize,
-                { "Block Size", "smb.blocksize", FT_UINT16, BASE_DEC,
+		{ "Block Size", "smb.blocksize", FT_UINT16, BASE_DEC,
 		NULL, 0, "Block size (in bytes) at server", HFILL }},
 
 	{ &hf_smb_freeunits,
@@ -12252,6 +12353,55 @@ proto_register_smb(void)
 	{ &hf_smb_nt_access_mask_delete,
 		{ "Delete", "smb.access.delete", FT_BOOLEAN, 32,
 		TFS(&tfs_nt_access_mask_delete), 0x00010000, "Can object be deleted", HFILL }},
+
+	{ &hf_smb_nt_access_mask_write_attributes,
+		{ "Write Attributes", "smb.access.write_attributes", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_access_mask_write_attributes), 0x00000100, "Can object's attributes be written", HFILL }},
+
+	{ &hf_smb_nt_access_mask_read_attributes,
+		{ "Read Attributes", "smb.access.read_attributes", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_access_mask_read_attributes), 0x00000080, "Can object's attributes be read", HFILL }},
+
+	{ &hf_smb_nt_access_mask_delete_child,
+		{ "Delete Child", "smb.access.delete_child", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_access_mask_delete_child), 0x00000040, "Can object's subdirectories be deleted", HFILL }},
+
+	/*
+	 * "Execute" for files, "traverse" for directories.
+	 */
+	{ &hf_smb_nt_access_mask_execute,
+		{ "Execute", "smb.access.execute", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_access_mask_execute), 0x00000020, "Can object be executed (if file) or traversed (if directory)", HFILL }},
+
+	{ &hf_smb_nt_access_mask_write_ea,
+		{ "Write EA", "smb.access.write_ea", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_access_mask_write_ea), 0x00000010, "Can object's extended attributes be written", HFILL }},
+
+	{ &hf_smb_nt_access_mask_read_ea,
+		{ "Read EA", "smb.access.read_ea", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_access_mask_read_ea), 0x00000008, "Can object's extended attributes be read", HFILL }},
+
+	/*
+	 * "Append data" for files, "add subdirectory" for directories,
+	 * "create pipe instance" for named pipes.
+	 */
+	{ &hf_smb_nt_access_mask_append,
+		{ "Append", "smb.access.append", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_access_mask_append), 0x00000004, "Can object's contents be appended to", HFILL }},
+
+	/*
+	 * "Write data" for files and pipes, "add file" for directory.
+	 */
+	{ &hf_smb_nt_access_mask_write,
+		{ "Write", "smb.access.write", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_access_mask_write), 0x00000002, "Can object's contents be written", HFILL }},
+
+	/*
+	 * "Read data" for files and pipes, "list directory" for directory.
+	 */
+	{ &hf_smb_nt_access_mask_read,
+		{ "Read", "smb.access.read", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_access_mask_read), 0x00000001, "Can object's contents be read", HFILL }},
 
 	{ &hf_smb_nt_share_access_read,
 		{ "Read", "smb.share.access.read", FT_BOOLEAN, 32,
