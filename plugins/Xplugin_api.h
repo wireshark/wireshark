@@ -292,3 +292,5 @@
 #define dissect_rpc_indir_call (*p_dissect_rpc_indir_call)
 #define dissect_rpc_indir_reply (*p_dissect_rpc_indir_reply)
 #define crc16_ccitt_tvb (*p_crc16_ccitt_tvb)
+#define tvb_get_letoh64 (*p_tvb_get_letoh64)
+#define tvb_get_ntoh64 (*p_tvb_get_ntoh64)
