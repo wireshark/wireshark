@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.26 2002/04/28 10:09:25 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.27 2002/04/28 10:24:40 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,6 +78,8 @@ static int hf_lsa_quota_max_wss = -1;
 static int hf_lsa_quota_pagefile = -1;
 static int hf_lsa_mod_seq_no = -1;
 static int hf_lsa_mod_mtime = -1;
+static int hf_lsa_cur_mtime = -1;
+static int hf_lsa_old_mtime = -1;
 static int hf_lsa_name = -1;
 static int hf_lsa_flat_name = -1;
 static int hf_lsa_forest = -1;
@@ -148,6 +150,25 @@ static gint ett_lsa_trust_attr = -1;
 static gint ett_lsa_trusted_domain_auth_information = -1;
 static gint ett_lsa_auth_information = -1;
 
+
+static int
+lsa_dissect_pointer_NTTIME(tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *tree, 
+                             char *drep)
+{
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
+		di->hf_index);
+
+	return offset;
+}
 
 static int
 lsa_dissect_pointer_UNICODE_STRING(tvbuff_t *tvb, int offset, 
@@ -2548,6 +2569,131 @@ lsa_dissect_lsasetinformationtrusteddomain_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+lsa_dissect_lsaopensecret_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd_pol */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in, ref] LSA_UNICODE_STRING *name */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_name, 0);
+
+	/* [in] ACCESS_MASK access */
+	offset = lsa_dissect_ACCESS_MASK(tvb, offset,
+		pinfo, tree, drep);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsaopensecret_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [out] LSA_HANDLE *hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsasetsecret_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in, unique] LSA_SECRET *new_val */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_SECRET, NDR_POINTER_UNIQUE,
+		"LSA_SECRET pointer: new_val", -1, 0);
+
+	/* [in, unique] LSA_SECRET *old_val */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_SECRET, NDR_POINTER_UNIQUE,
+		"LSA_SECRET pointer: old_val", -1, 0);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsasetsecret_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsaquerysecret_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in, out, unique] LSA_SECRET **curr_val */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_SECRET, NDR_POINTER_UNIQUE,
+		"LSA_SECRET pointer: curr_val", -1, 0);
+
+	/* [in, out, unique] LARGE_INTEGER *curr_mtime */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_pointer_NTTIME, NDR_POINTER_UNIQUE,
+		"NTIME pointer: old_mtime", hf_lsa_cur_mtime, 0);
+
+	/* [in, out, unique] LSA_SECRET **old_val */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_SECRET, NDR_POINTER_UNIQUE,
+		"LSA_SECRET pointer: old_val", -1, 0);
+
+	/* [in, out, unique] LARGE_INTEGER *old_mtime */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_pointer_NTTIME, NDR_POINTER_UNIQUE,
+		"NTIME pointer: old_mtime", hf_lsa_old_mtime, 0);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsaquerysecret_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in, out, unique] LSA_SECRET **curr_val */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_SECRET, NDR_POINTER_UNIQUE,
+		"LSA_SECRET pointer: curr_val", -1, 0);
+
+	/* [in, out, unique] LARGE_INTEGER *curr_mtime */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_pointer_NTTIME, NDR_POINTER_UNIQUE,
+		"NTIME pointer: old_mtime", hf_lsa_cur_mtime, 0);
+
+	/* [in, out, unique] LSA_SECRET **old_val */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_SECRET, NDR_POINTER_UNIQUE,
+		"LSA_SECRET pointer: old_val", -1, 0);
+
+	/* [in, out, unique] LARGE_INTEGER *old_mtime */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_pointer_NTTIME, NDR_POINTER_UNIQUE,
+		"NTIME pointer: old_mtime", hf_lsa_old_mtime, 0);
+
+	return offset;
+}
+
 
 
 static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
@@ -2639,23 +2785,14 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 		lsa_dissect_lsasetinformationtrusteddomain_rqst,
 		lsa_dissect_lsasetinformationtrusteddomain_reply },
 	{ LSA_LSAOPENSECRET, "LSAOPENSECRET",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsaopensecret_rqst,
 		lsa_dissect_lsaopensecret_reply },
-#endif
 	{ LSA_LSASETSECRET, "LSASETSECRET",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsasetsecret_rqst,
 		lsa_dissect_lsasetsecret_reply },
-#endif
 	{ LSA_LSAQUERYSECRET, "LSAQUERYSECRET",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsaquerysecret_rqst,
 		lsa_dissect_lsaquerysecret_reply },
-#endif
 	{ LSA_LSALOOKUPPRIVILEGEVALUE, "LSALOOKUPPRIVILEGEVALUE",
 		lsa_dissect_lsalookupprivilegevalue_rqst,
 		lsa_dissect_lsalookupprivilegevalue_reply },
@@ -2988,6 +3125,14 @@ proto_register_dcerpc_lsa(void)
 	{ &hf_lsa_mod_mtime,
 		{ "MTime", "lsa.mod.mtime", FT_ABSOLUTE_TIME, BASE_NONE, 
 		NULL, 0x0, "Time when this modification occured", HFILL }},
+
+	{ &hf_lsa_cur_mtime,
+		{ "Current MTime", "lsa.cur.mtime", FT_ABSOLUTE_TIME, BASE_NONE, 
+		NULL, 0x0, "Current MTime to set", HFILL }},
+
+	{ &hf_lsa_old_mtime,
+		{ "Old MTime", "lsa.old.mtime", FT_ABSOLUTE_TIME, BASE_NONE, 
+		NULL, 0x0, "Old MTime for this object", HFILL }},
 
 	{ &hf_lsa_name,
 		{ "Name", "lsa.name", FT_STRING, BASE_NONE, 
