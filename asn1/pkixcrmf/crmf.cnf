@@ -1,0 +1,64 @@
+# CRMF.cnf
+# CRMF conformation file
+
+# $Id: cmrf.cnf 12740 2004-12-13 08:15:34Z sahlberg $
+
+#.MODULE_IMPORT
+CryptographicMessageSyntax cms
+PKIX1Explicit88	pkix1explicit
+PKIX1Implicit88	pkix1implicit
+		
+#.INCLUDE ../cms/cms-exp.cnf
+#.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
+#.INCLUDE ../pkix1implicit/pkix1implicit_exp.cnf
+
+#.EXPORTS
+Authenticator
+AttributeTypeAndValue
+CertId
+CertReq
+CertReqMessages
+CertReqMsg
+CertRequest
+CertTemplate
+Controls
+EncryptedKey
+EncryptedValue
+KeyGenParameters
+OldCertId
+OptionalValidity
+PBMParameter
+PKIArchiveOptions
+PKIPublicationInfo
+PKMACValue
+POPOPrivKey
+POPOSigningKey
+POPOSigningKeyInput
+ProofOfPossession
+ProtocolEncrKey
+RegToken
+SinglePubInfo
+SubsequentMessage
+UTF8Pairs
+
+#.REGISTER
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+CertTemplate/issuer		template_issuer
+POPOSigningKey/signature	sk_signature
+PKMACValue/value		pkmac_value
+
+#.FN_BODY AttributeTypeAndValue/type
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_crmf_type_oid, object_identifier_id);
+
+#.FN_BODY AttributeTypeAndValue/value
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+#.END
+
+

@@ -112,6 +112,7 @@ DISSECTOR_SRC =	\
 	packet-cosine.c	\
 	packet-cpfi.c	\
 	packet-cpha.c	\
+	packet-crmf.c	\
 	packet-cups.c	\
 	packet-daap.c	\
 	packet-data.c	\
@@ -576,6 +577,7 @@ DISSECTOR_INCLUDES =	\
 	packet-clip.h	\
 	packet-cmip.h \
 	packet-cms.h	\
+	packet-crmf.h	\
 	packet-data.h	\
 	packet-dccp.h	\
 	packet-dcerpc-atsvc.h	\
