@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.17 2001/12/03 20:49:03 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.18 2001/12/03 21:05:59 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -1081,7 +1081,8 @@ decode_add_tcpudp_page (gchar *prompt, gchar *table_name)
 gboolean
 decode_as_ok(void)
 {
-    return cfile.edt->pi.ethertype || cfile.edt->pi.ipproto;
+    return cfile.edt->pi.ethertype || cfile.edt->pi.ipproto ||
+	cfile.edt->pi.ptype == PT_TCP || cfile.edt->pi.ptype == PT_UDP;
 }
 
 
@@ -1122,26 +1123,26 @@ decode_add_notebook (GtkWidget *format_hb)
 	gtk_object_set_data(GTK_OBJECT(page), E_PAGE_ACTION, decode_simple);
 	label = gtk_label_new("Network");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
+    }
 
-	/* Add transport selection page */
-	switch (cfile.edt->pi.ptype) {
+    /* Add transport selection page */
+    switch (cfile.edt->pi.ptype) {
 
-	case PT_TCP:
-	    page = decode_add_tcpudp_page("TCP", "tcp.port");
-	    break;
+    case PT_TCP:
+	page = decode_add_tcpudp_page("TCP", "tcp.port");
+	break;
 
-	case PT_UDP:
-	    page = decode_add_tcpudp_page("UDP", "udp.port");
-	    break;
+    case PT_UDP:
+	page = decode_add_tcpudp_page("UDP", "udp.port");
+	break;
 
-	default:
-	    page = NULL;
-	    break;
-	}
-	if (page != NULL) {
-	    label = gtk_label_new("Transport");
-	    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
-	}
+    default:
+	page = NULL;
+	break;
+    }
+    if (page != NULL) {
+	label = gtk_label_new("Transport");
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
     }
 
     /* Select the last added page (selects first by default) */
