@@ -2,7 +2,7 @@
  * Declarations of IP protocol numbers, and of routines for converting
  * IP protocol numbers into strings.
  *
- * $Id: ipproto.h,v 1.7 2003/02/04 20:16:57 guy Exp $
+ * $Id: ipproto.h,v 1.8 2003/03/07 16:52:41 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,11 +53,12 @@
 #define IP_PROTO_ICMPV6		58		/* ICMP6 */
 #define IP_PROTO_NONE		59		/* IP6 no next header */
 #define IP_PROTO_DSTOPTS	60		/* IP6 destination options */
-#define IP_PROTO_MIPV6      62              /* Mobile IPv6 */
+#define IP_PROTO_MIPV6		62		/* Mobile IPv6 */
 #define IP_PROTO_EON		80		/* ISO cnlp */
 #define IP_PROTO_VINES		83		/* Vines over raw IP */
 #define IP_PROTO_EIGRP		88
 #define IP_PROTO_OSPF		89
+#define IP_PROTO_ETHERIP	97		/* Ethernet-within-IP (RFC 3378) */
 #define IP_PROTO_ENCAP		98		/* encapsulation header */
 #define IP_PROTO_PIM		103		/* Protocol Independent Mcast */
 #define IP_PROTO_IPCOMP		108		/* IP payload compression */

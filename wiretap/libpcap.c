@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.92 2003/01/31 01:02:07 guy Exp $
+ * $Id: libpcap.c,v 1.93 2003/03/07 16:52:46 gerald Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -324,7 +324,7 @@ static const struct {
 #if defined(DLT_ATM_RFC1483) && (DLT_ATM_RFC1483 == 13)
 	{ 13,		WTAP_ENCAP_ATM_RFC1483 },
 #elif defined(DLT_ENC) && (DLT_ENC == 13)
-	/* Put entry for DLT_ENC here */
+	{ 13,		WTAP_ENCAP_ENC0 },
 #endif
 
 	/*

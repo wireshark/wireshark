@@ -1640,6 +1640,11 @@ Miha Jemec <m.jemec [AT] iskratel.si> {
 	Support for G.711 codec
 }
 
+Markus Friedl <markus [AT] openbsd.org> {
+	Support for OpenBSD Encapsulating Device
+	Support for Ethernet-within-IP encapsulation
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
