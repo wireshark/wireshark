@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.16 2002/05/23 12:23:29 sahlberg Exp $
+ * $Id: packet-dcerpc.h,v 1.17 2002/06/19 08:34:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,21 +74,26 @@ typedef struct _e_dce_dg_common_hdr_t {
 
 
 
-#define PDU_REQ        0
-#define PDU_PING       1
-#define PDU_RESP       2
-#define PDU_FAULT      3
-#define PDU_WORKING    4
-#define PDU_NOCALL     5
-#define PDU_REJECT     6
-#define PDU_ACK        7
-#define PDU_FACK       9
-#define PDU_BIND      11
-#define PDU_BIND_ACK  12
-#define PDU_BIND_NAK  13
-#define PDU_ALTER     14
-#define PDU_ALTER_ACK 15
-#define PDU_AUTH3     16
+#define PDU_REQ         0
+#define PDU_PING        1
+#define PDU_RESP        2
+#define PDU_FAULT       3
+#define PDU_WORKING     4
+#define PDU_NOCALL      5
+#define PDU_REJECT      6
+#define PDU_ACK         7
+#define PDU_CL_CANCEL   8
+#define PDU_FACK        9
+#define PDU_CANCEL_ACK 10
+#define PDU_BIND       11
+#define PDU_BIND_ACK   12
+#define PDU_BIND_NAK   13
+#define PDU_ALTER      14
+#define PDU_ALTER_ACK  15
+#define PDU_AUTH3      16
+#define PDU_SHUTDOWN   17
+#define PDU_CO_CANCEL  18
+#define PDU_ORPHANED   19
 
 /*
  * helpers for packet-dcerpc.c and packet-dcerpc-ndr.c
