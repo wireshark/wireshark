@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.32 2002/11/27 22:21:41 guy Exp $
+ * $Id: wtap-int.h,v 1.33 2003/01/07 03:52:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -99,6 +99,7 @@ typedef struct {
 	int		end_offset;
 	int		version_major;
 	guint		padding;	/* end-of-packet padding */
+	guint		isdn_type;	/* 1 = E1 PRI, 2 = T1 PRI, 3 = BRI */
 } netxray_t;
 
 typedef struct {
