@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.4 1998/10/15 06:40:50 guy Exp $
+ * $Id: packet-nbns.c,v 1.5 1998/10/15 06:55:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -193,8 +193,8 @@ get_nbns_name_type_class(const u_char *nbns_data_ptr, const u_char *pd,
 		/* This one is; canonicalize its name. */
 		pnbname = canonicalize_netbios_name(nbname);
 	} else {
-		sprintf(nbname, "Illegal NetBIOS name (%d bytes long)",
-		    pnbname - nbname);
+		sprintf(nbname, "Illegal NetBIOS name (%ld bytes long)",
+		    (long)(pnbname - nbname));
 		goto bad;
 	}
 	if (cname == '.') {
