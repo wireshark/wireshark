@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.450 2004/06/30 05:49:30 ulfl Exp $
+ * $Id: main.c,v 1.451 2004/06/30 17:53:52 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1726,9 +1726,9 @@ main(int argc, char *argv[])
   capture_opts.has_autostop_packets = FALSE;
   capture_opts.autostop_packets = 1;
   capture_opts.has_autostop_duration = FALSE;
-  capture_opts.autostop_duration = 1;
+  capture_opts.autostop_duration = 60 /* 1 min */;
   capture_opts.has_autostop_filesize = FALSE;
-  capture_opts.autostop_filesize = 1;
+  capture_opts.autostop_filesize = 1024 * 1024 /* 1 MB */;
   capture_opts.has_autostop_files = FALSE;
   capture_opts.autostop_files = 1;
 
@@ -1736,7 +1736,7 @@ main(int argc, char *argv[])
   capture_opts.has_ring_num_files = TRUE;
   capture_opts.ring_num_files = 2;
   capture_opts.has_file_duration = FALSE;
-  capture_opts.file_duration = 1;
+  capture_opts.file_duration = 60 /* 1 min */;
 
   /* If this is a capture child process, it should pay no attention
      to the "prefs.capture_prom_mode" setting in the preferences file;

@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.135 2004/06/20 15:57:09 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.136 2004/06/30 17:53:51 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -312,7 +312,7 @@ static char *time_unit_name[MAX_TIME_UNITS] = {
 	"day(s)",
 };
 
-GtkWidget *time_unit_option_menu_new(void) {
+static GtkWidget *time_unit_option_menu_new(guint32 value) {
     GtkWidget *unit_om, *menu, *menu_item;
     int i;
 
@@ -323,14 +323,55 @@ GtkWidget *time_unit_option_menu_new(void) {
 		OBJECT_SET_DATA(menu_item, "time_unit", GINT_TO_POINTER(i));
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
-	gtk_menu_set_active(GTK_MENU(menu), TIME_UNIT_MINUTE);
+
+    /* the selected menu item can't be changed, once the option_menu 
+       is created, so set the matching menu item now */
+    /* days */
+    if(value >= 60 * 60 * 24) {
+	    gtk_menu_set_active(GTK_MENU(menu), TIME_UNIT_DAY);
+    } else {
+        /* hours */
+        if(value >= 60 * 60) {
+	        gtk_menu_set_active(GTK_MENU(menu), TIME_UNIT_HOUR);
+        } else {
+            /* minutes */
+            if(value >= 60) {
+	            gtk_menu_set_active(GTK_MENU(menu), TIME_UNIT_MINUTE);
+            } else {
+                /* seconds */
+	            gtk_menu_set_active(GTK_MENU(menu), TIME_UNIT_SECOND);
+            }
+        }
+    }
 
 	gtk_option_menu_set_menu(GTK_OPTION_MENU(unit_om), menu);
 
     return unit_om;
 }
 
-guint32 time_unit_option_menu_get_value(
+static guint32 time_unit_option_menu_set_value(
+guint32 value)
+{
+    /* days */
+    if(value >= 60 * 60 * 24) {
+        return value / (60 * 60 * 24);
+    }
+
+    /* hours */
+    if(value >= 60 * 60) {
+        return value / (60 * 60);
+    }
+
+    /* minutes */
+    if(value >= 60) {
+        return value / 60;
+    }
+
+    /* seconds */
+    return value;
+}
+
+static guint32 time_unit_option_menu_get_value(
 GtkWidget *unit_om,
 guint32 value)
 {
@@ -374,7 +415,7 @@ static char *size_unit_name[MAX_SIZE_UNITS] = {
 	"gigabyte(s)",
 };
 
-GtkWidget *size_unit_option_menu_new(void) {
+static GtkWidget *size_unit_option_menu_new(guint32 value) {
     GtkWidget *unit_om, *menu, *menu_item;
     int i;
 
@@ -385,14 +426,55 @@ GtkWidget *size_unit_option_menu_new(void) {
 		OBJECT_SET_DATA(menu_item, "size_unit", GINT_TO_POINTER(i));
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
-	gtk_menu_set_active(GTK_MENU(menu), SIZE_UNIT_MEGABYTES);
 
+    /* the selected menu item can't be changed, once the option_menu 
+       is created, so set the matching menu item now */
+    /* gigabytes */
+    if(value >= 1024 * 1024 * 1024) {
+	    gtk_menu_set_active(GTK_MENU(menu), SIZE_UNIT_GIGABYTES);
+    } else {
+        /* megabytes */
+        if(value >= 1024 * 1024) {
+	        gtk_menu_set_active(GTK_MENU(menu), SIZE_UNIT_MEGABYTES);
+        } else {
+            /* kilobytes */
+            if(value >= 1024) {
+	            gtk_menu_set_active(GTK_MENU(menu), SIZE_UNIT_KILOBYTES);
+            } else {
+                /* bytes */
+	            gtk_menu_set_active(GTK_MENU(menu), SIZE_UNIT_BYTES);
+            }
+        }
+    }
+        
 	gtk_option_menu_set_menu(GTK_OPTION_MENU(unit_om), menu);
 
     return unit_om;
 }
 
-guint32 size_unit_option_menu_get_value(
+static guint32 size_unit_option_menu_set_value(
+guint32 value)
+{
+    /* gigabytes */
+    if(value >= 1024 * 1024 * 1024) {
+        return value / (1024 * 1024 * 1024);
+    }
+
+    /* megabytes */
+    if(value >= 1024 * 1024) {
+        return value / (1024 * 1024);
+    }
+
+    /* kilobytes */
+    if(value >= 1024) {
+        return value / 1024;
+    }
+
+    /* bytes */
+    return value;
+}
+
+static guint32 size_unit_option_menu_get_value(
 GtkWidget *unit_om,
 guint32 value)
 {
@@ -484,6 +566,7 @@ capture_prep(void)
   GtkAdjustment *buffer_size_adj;
   GtkWidget     *buffer_size_lb, *buffer_size_sb;
 #endif
+  guint32       value;
 
   if (cap_open_w != NULL) {
     /* There's already a "Capture Options" dialog box; reactivate it. */
@@ -758,15 +841,19 @@ capture_prep(void)
     NULL);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), ring_filesize_cb, 0, 1, row, row+1);
 
-  ring_filesize_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_filesize,
+  ring_filesize_adj = (GtkAdjustment *) gtk_adjustment_new(0.0,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   ring_filesize_sb = gtk_spin_button_new (ring_filesize_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (ring_filesize_sb), TRUE);
   WIDGET_SET_SIZE(ring_filesize_sb, 80, -1);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), ring_filesize_sb, 1, 2, row, row+1);
 
-  ring_filesize_om = size_unit_option_menu_new();
+  ring_filesize_om = size_unit_option_menu_new(capture_opts.autostop_filesize);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), ring_filesize_om, 2, 3, row, row+1);
+
+  value = size_unit_option_menu_set_value(capture_opts.autostop_filesize);
+  gtk_adjustment_set_value(ring_filesize_adj, (gdouble) value);
+
   row++;
 
   /* Ring buffer duration row */
@@ -780,15 +867,18 @@ capture_prep(void)
     NULL);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), file_duration_cb, 0, 1, row, row+1);
 
-  file_duration_adj = (GtkAdjustment *)gtk_adjustment_new((gfloat)capture_opts.file_duration,
+  file_duration_adj = (GtkAdjustment *)gtk_adjustment_new(0.0,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   file_duration_sb = gtk_spin_button_new (file_duration_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (file_duration_sb), TRUE);
   WIDGET_SET_SIZE(file_duration_sb, 80, -1);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), file_duration_sb, 1, 2, row, row+1);
 
-  file_duration_om = time_unit_option_menu_new();
+  file_duration_om = time_unit_option_menu_new(capture_opts.file_duration);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), file_duration_om, 2, 3, row, row+1);
+
+  value = time_unit_option_menu_set_value(capture_opts.file_duration);
+  gtk_adjustment_set_value(file_duration_adj, (gdouble) value);
   row++;
 
   /* Ring buffer files row */
@@ -881,15 +971,19 @@ capture_prep(void)
     "Stop capturing after the given amount of capture data has been captured.", NULL);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_filesize_cb, 0, 1, row, row+1);
 
-  stop_filesize_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_filesize,
+  stop_filesize_adj = (GtkAdjustment *) gtk_adjustment_new(0.0,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   stop_filesize_sb = gtk_spin_button_new (stop_filesize_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_filesize_sb), TRUE);
   WIDGET_SET_SIZE(stop_filesize_sb, 80, -1);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_filesize_sb, 1, 2, row, row+1);
 
-  stop_filesize_om = size_unit_option_menu_new();
+  stop_filesize_om = size_unit_option_menu_new(capture_opts.autostop_filesize);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_filesize_om, 2, 3, row, row+1);
+
+  value = size_unit_option_menu_set_value(capture_opts.autostop_filesize);
+  gtk_adjustment_set_value(stop_filesize_adj, (gdouble) value);
+
   row++;
 
   /* Duration row */
@@ -901,15 +995,18 @@ capture_prep(void)
     "Stop capturing after the given time is exceeded.", NULL);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_duration_cb, 0, 1, row, row+1);
 
-  stop_duration_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_duration,
+  stop_duration_adj = (GtkAdjustment *) gtk_adjustment_new(0.0,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   stop_duration_sb = gtk_spin_button_new (stop_duration_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_duration_sb), TRUE);
   WIDGET_SET_SIZE(stop_duration_sb, 80, -1);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_duration_sb, 1, 2, row, row+1);
 
-  stop_duration_om = time_unit_option_menu_new();
+  stop_duration_om = time_unit_option_menu_new(capture_opts.autostop_duration);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_duration_om, 2, 3, row, row+1);
+
+  value = time_unit_option_menu_set_value(capture_opts.autostop_duration);
+  gtk_adjustment_set_value(stop_duration_adj, (gdouble) value);
   row++;
 
   /* Display-related options frame */
