@@ -1,7 +1,7 @@
 /* packet-nlsp.c
  * Routines for NetWare Link Services Protocol
  *
- * $Id: packet-nlsp.c,v 1.2 2003/03/31 23:38:37 guy Exp $
+ * $Id: packet-nlsp.c,v 1.3 2003/04/02 08:13:35 guy Exp $
  *
  * Based on ISIS dissector by Stuart Stanley <stuarts@mxmail.net>
  *
@@ -45,6 +45,7 @@ static int hf_nlsp_nr                    = -1;
 static int hf_nlsp_type                  = -1;
 static int hf_nlsp_major_version         = -1;
 static int hf_nlsp_packet_length         = -1;
+static int hf_nlsp_hello_state           = -1;
 static int hf_nlsp_hello_multicast       = -1;
 static int hf_nlsp_hello_circuit_type    = -1;
 static int hf_nlsp_hello_holding_timer   = -1;
@@ -58,6 +59,7 @@ static int hf_nlsp_lsp_router_type       = -1;
 
 static gint ett_nlsp                     = -1;
 static gint ett_nlsp_hello_clv_area_addr = -1;
+static gint ett_nlsp_hello_clv_neighbors = -1;
 static gint ett_nlsp_hello_local_mtu     = -1;
 static gint ett_nlsp_hello_clv_unknown   = -1;
 static gint ett_nlsp_lsp_info            = -1;
@@ -85,16 +87,18 @@ static gint ett_nlsp_psnp_clv_unknown    = -1;
  */
 
 #define NLSP_TYPE_L1_HELLO	15
+#define NLSP_TYPE_WAN_HELLO	17
 #define NLSP_TYPE_L1_LSP	18
 #define NLSP_TYPE_L1_CSNP	24
 #define NLSP_TYPE_L1_PSNP	26
 
 static const value_string nlsp_packet_type_vals[] = {
-	{ NLSP_TYPE_L1_HELLO, "L1 Hello"},
-	{ NLSP_TYPE_L1_LSP,   "L1 LSP"},
-	{ NLSP_TYPE_L1_CSNP,  "L1 CSNP"},
-	{ NLSP_TYPE_L1_PSNP,  "L1 PSNP"},
-	{ 0,                  NULL}
+	{ NLSP_TYPE_L1_HELLO,  "L1 Hello"},
+	{ NLSP_TYPE_WAN_HELLO, "WAN Hello"},
+	{ NLSP_TYPE_L1_LSP,    "L1 LSP"},
+	{ NLSP_TYPE_L1_CSNP,   "L1 CSNP"},
+	{ NLSP_TYPE_L1_PSNP,   "L1 PSNP"},
+	{ 0,                   NULL}
 };
 
 static const value_string nlsp_attached_flag_vals[] = {
@@ -287,6 +291,41 @@ dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 }
 
 /*
+ * Name: dissect_neighbor_clv()
+ *
+ * Description:
+ *	Decode an neighbor clv.
+ *
+ * Input:
+ *	tvbuff_t * : tvbuffer for packet data
+ *	proto_tree * : protocol display tree to fill out.  May be NULL
+ *	int : offset into packet data where we are.
+ *	int : length of clv we are decoding
+ *
+ * Output:
+ *      void, but we will add to proto tree if !NULL.
+ */
+static void
+dissect_neighbor_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
+    int length)
+{
+	while (length > 0) {
+		if (length < 6) {
+			nlsp_dissect_unknown(tvb, tree, offset,
+			    "Short neighbor entry");
+			return;
+		}
+		if (tree) {
+			proto_tree_add_text(tree, tvb, offset, 6,
+			    "Neighbor: %s",
+			    ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+		}
+		offset += 6;
+		length -= 6;
+	}
+}
+
+/*
  * Name: dissect_hello_local_mtu_clv()
  *
  * Description:
@@ -319,12 +358,18 @@ dissect_hello_local_mtu_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	length -= 4;
 }
 
-static const nlsp_clv_handle_t clv_l1_hello_opts[] = {
+static const nlsp_clv_handle_t clv_hello_opts[] = {
 	{
 		0xC0,
 		"Area address(es)",
 		&ett_nlsp_hello_clv_area_addr,
 		dissect_area_address_clv
+	},
+	{
+		6,
+		"Neighbors",
+		&ett_nlsp_hello_clv_neighbors,
+		dissect_neighbor_clv
 	},
 	{
 		0xC5,
@@ -351,13 +396,22 @@ static const nlsp_clv_handle_t clv_l1_hello_opts[] = {
  *	tvbuff_t * : tvbuffer for packet data
  *	proto_tree * : protocol display tree to add to.  May be NULL.
  *	int offset : our offset into packet data.
+ *	int : hello type, a la NLSP_TYPE_* values
  *	int : header length of packet.
  *
  * Output:
  *	void, will modify proto_tree if not NULL.
  */
 #define NLSP_HELLO_CTYPE_MASK		0x03
+#define NLSP_HELLO_STATE_MASK		0xC0
 #define NLSP_HELLO_MULTICAST_MASK	0x10
+
+static const value_string nlsp_hello_state_vals[] = {
+	{ 0, "Up" },
+	{ 1, "Initializing" },
+	{ 2, "Down" },
+	{ 0, NULL }
+};
 
 #define NLSP_HELLO_TYPE_RESERVED	0
 #define NLSP_HELLO_TYPE_LEVEL_1		1
@@ -376,15 +430,20 @@ static const value_string nlsp_hello_circuit_type_vals[] = {
 
 static void
 nlsp_dissect_nlsp_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset, int header_length)
+    int offset, int hello_type, int header_length)
 {
 	guint16		packet_length;
 	int 		len;
 	guint16		holding_timer;
 
 	if (tree) {
-		proto_tree_add_item(tree, hf_nlsp_hello_multicast, tvb,
-		    offset, 1, FALSE);
+		if (hello_type == NLSP_TYPE_WAN_HELLO) {
+			proto_tree_add_item(tree, hf_nlsp_hello_state, tvb,
+			    offset, 1, FALSE);
+		} else {
+			proto_tree_add_item(tree, hf_nlsp_hello_multicast, tvb,
+			    offset, 1, FALSE);
+		}
 		proto_tree_add_item(tree, hf_nlsp_hello_circuit_type, tvb,
 		    offset, 1, FALSE);
 	}
@@ -422,15 +481,24 @@ nlsp_dissect_nlsp_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	offset += 1;
 
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 6,
-		    "Designated Router System ID: %s",
-		    ether_to_str(tvb_get_ptr(tvb, offset, 6)));
-		proto_tree_add_text(tree, tvb, offset+6, 1,
-		    "Designated Router Pseudonode ID: %u",
-		    tvb_get_guint8(tvb, offset+6));
+	if (hello_type == NLSP_TYPE_WAN_HELLO) {
+		if (tree) {
+			proto_tree_add_text(tree, tvb, offset, 1,
+			    "Local WAN Circuit ID: %u",
+			    tvb_get_guint8(tvb, offset));
+		}
+		offset += 1;
+	} else {
+		if (tree) {
+			proto_tree_add_text(tree, tvb, offset, 6,
+			    "Designated Router System ID: %s",
+			    ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+			proto_tree_add_text(tree, tvb, offset+6, 1,
+			    "Designated Router Pseudonode ID: %u",
+			    tvb_get_guint8(tvb, offset+6));
+		}
+		offset += 7;
 	}
-	offset += 7;
 
 	len = packet_length - header_length;
 	if (len < 0) {
@@ -445,7 +513,7 @@ nlsp_dissect_nlsp_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * our list of valid ones!
 	 */
 	nlsp_dissect_clvs(tvb, tree, offset,
-	    clv_l1_hello_opts, len, ett_nlsp_hello_clv_unknown);
+	    clv_hello_opts, len, ett_nlsp_hello_clv_unknown);
 }
 
 /*
@@ -1434,8 +1502,9 @@ dissect_nlsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (packet_type) {
 
 	case NLSP_TYPE_L1_HELLO:
+	case NLSP_TYPE_WAN_HELLO:
 		nlsp_dissect_nlsp_hello(tvb, pinfo, nlsp_tree, offset,
-		    nlsp_header_length);
+		    packet_type, nlsp_header_length);
 		break;
 
 	case NLSP_TYPE_L1_LSP:
@@ -1507,10 +1576,15 @@ proto_register_nlsp(void)
 	      { "Packet Length", "nlsp.packet_length",
 	        FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 
+	    { &hf_nlsp_hello_state,
+	      { "State", "nlsp.hello.state", FT_UINT8, BASE_DEC,
+	        VALS(nlsp_hello_state_vals), NLSP_HELLO_STATE_MASK,
+		"", HFILL }},
+
 	    { &hf_nlsp_hello_multicast,
 	      { "Multicast Routing", "nlsp.hello.multicast", FT_BOOLEAN, 8,
 	        TFS(&supported_string), NLSP_HELLO_MULTICAST_MASK,
-		"If set, this router supports multicats routing", HFILL }},
+		"If set, this router supports multicast routing", HFILL }},
 
 	    { &hf_nlsp_hello_circuit_type,
 	      { "Circuit Type", "nlsp.hello.circuit_type", FT_UINT8, BASE_DEC,
@@ -1559,6 +1633,7 @@ proto_register_nlsp(void)
 	static gint *ett[] = {
 		&ett_nlsp,
 		&ett_nlsp_hello_clv_area_addr,
+		&ett_nlsp_hello_clv_neighbors,
 		&ett_nlsp_hello_local_mtu,
 		&ett_nlsp_hello_clv_unknown,
 		&ett_nlsp_lsp_info,
