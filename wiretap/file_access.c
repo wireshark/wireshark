@@ -1,6 +1,6 @@
 /* file_access.c
  *
- * $Id: file_access.c,v 1.1 2003/08/23 08:34:12 guy Exp $
+ * $Id: file_access.c,v 1.2 2003/08/26 07:10:38 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -69,6 +69,7 @@
 #include "visual.h"
 #include "cosine.h"
 #include "5views.h"
+#include "erf.h"
 
 /* The open_file_* routines should return:
  *
@@ -118,6 +119,7 @@ static int (*const open_routines[])(wtap *, int *) = {
 	vms_open,
 	dbs_etherwatch_open,
 	cosine_open,
+	erf_open,
 };
 
 #define	N_FILE_TYPES	(sizeof open_routines / sizeof open_routines[0])
@@ -448,6 +450,10 @@ static const struct file_type_info {
 	/* WTAP_FILE_5VIEWS */
 	{ "Accellent 5Views capture", "5views",
 	  _5views_dump_can_write_encap, _5views_dump_open },
+
+	/* WTAP_FILE_ERF */
+	{ "Endace DAG capture", "erf",
+	  NULL, NULL },
 };
 
 /* Name that should be somewhat descriptive. */

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.33 2003/08/23 08:34:11 guy Exp $
+# $Id: Makefile.nmake,v 1.34 2003/08/26 07:10:38 guy Exp $
 #
 
 include ..\config.nmake
@@ -21,6 +21,7 @@ OBJECTS=ascend-grammar.obj \
 	cosine.obj \
 	csids.obj \
 	dbs-etherwatch.obj \
+	erf.obj \
 	etherpeek.obj \
 	file_access.obj \
 	file_wrappers.obj \
