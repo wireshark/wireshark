@@ -36,6 +36,7 @@ static dissector_table_t ethertype_dissector_table;
 
 /* protocols and header fields */
 static int proto_symantec = -1;
+static int hf_symantec_if = -1;
 static int hf_symantec_etype = -1;
 
 static gint ett_symantec = -1;
@@ -49,9 +50,9 @@ dissect_symantec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvbuff_t *next_tvb;
 
 	/*
-	 * There appears to be 6 bytes of mysterious junk, followed by an
-	 * Ethernet type (or, at least, there's 08 00), followed by 36 bytes
-	 * of 0.
+	 * The first 4 bytes are the IPv4 address of the interface that
+	 * captured the data, followed by 2 bytes of 0, then an Ethernet
+	 * type, followed by 36 bytes of 0.
 	 */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_add_str(pinfo->cinfo, COL_PROTOCOL, "Symantec");
@@ -64,6 +65,8 @@ dissect_symantec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	etype = tvb_get_ntohs(tvb, 6);
 	if (tree) {
+		proto_tree_add_item(symantec_tree, hf_symantec_if, tvb,
+		    0, 4, FALSE);
 		proto_tree_add_uint(symantec_tree, hf_symantec_etype, tvb,
 		    6, 2, etype);
 	}
@@ -76,6 +79,9 @@ void
 proto_register_symantec(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_symantec_if,
+		    { "Interface",      "symantec.if", FT_IPv4, BASE_NONE, NULL, 0x0,
+			"Interface", HFILL }},
 		{ &hf_symantec_etype,
 		    { "Type",	"symantec.type", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
 			"", HFILL }},
