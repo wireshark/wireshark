@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.33 2000/05/19 07:00:04 guy Exp $
+ * $Id: packet-snmp.c,v 1.34 2000/05/24 05:59:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,10 +66,10 @@
 #  include <ucd-snmp/mib.h>
 
    /*
-    * Sigh.  UCD SNMP 4.1[.x] makes "snmp_set_full_objid()" a macro
+    * Sigh.  UCD SNMP 4.1.1 makes "snmp_set_full_objid()" a macro
     * that calls "ds_set_boolean()" with the first two arguments
     * being DS_LIBRARY_ID and DS_LIB_PRINT_FULL_OID; this means that,
-    * when building with 4.1[.x], we need to arrange that
+    * when building with 4.1.1, we need to arrange that
     * <ucd-snmp/default_store.h> is included, to define those two values
     * and to declare "ds_set_boolean()".
     *
