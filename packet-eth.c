@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.38 2000/05/16 06:21:32 gram Exp $
+ * $Id: packet-eth.c,v 1.39 2000/05/17 03:05:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,6 +48,7 @@ static int hf_eth_src = -1;
 static int hf_eth_len = -1;
 static int hf_eth_type = -1;
 static int hf_eth_addr = -1;
+static int hf_eth_trailer = -1;
 
 static gint ett_ieee8023 = -1;
 static gint ett_ether2 = -1;
@@ -143,18 +144,22 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item		*ti;
   guint8		*dst, *src;
   const guint8		*pd;
+
   volatile guint16	etype;
   volatile int		ethhdr_type;	/* the type of ethernet frame */
+  volatile int		eth_offset;
+  volatile guint16  	length;
 
-
-  /* These are static because I need to modify them before the TRY block,
-   * and gcc says that they might get clobbered otherwise. */
+  /* These are static because gcc says that they might get clobbered
+   * otherwise. */
   static tvbuff_t	*next_tvb = NULL;
-  static int		eth_offset;
-  static proto_tree	*fh_tree = NULL;
-  static guint16  	length;
+  static tvbuff_t	*trailer_tvb;
+  static proto_tree	*fh_tree;
 
-  tvb_compat(tvb, &pd, &eth_offset);
+  tvb_compat(tvb, &pd, (int*)&eth_offset);
+
+  /* Reset this static variable to NULL since I test it's value later */
+  trailer_tvb = NULL;
 
   pinfo->current_proto = "Ethernet";
   orig_captured_len = pinfo->captured_len;
@@ -261,6 +266,7 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (etype <= IEEE_802_3_MAX_LEN) {
 	  TRY {
 	     next_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE, etype, etype);
+	     trailer_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE + etype, -1, -1);
 	  }
 	  CATCH2(BoundsError, ReportedBoundsError) {
 	     next_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE, -1, etype);
@@ -283,7 +289,18 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
   }
 
-  /* XXX - If there's some bytes left over, mark them. */
+  /* If there's some bytes left over, mark them. */
+  if (trailer_tvb && tree) {
+	  int             trailer_length;
+	  const guint8    *ptr;
+
+	  trailer_length = tvb_length(trailer_tvb);
+	  if (trailer_length > 0) {
+		  ptr = tvb_get_ptr(trailer_tvb, 0, trailer_length);
+		  proto_tree_add_item(fh_tree, hf_eth_trailer, tvb, ETH_HEADER_SIZE + etype,
+			  trailer_length, ptr);
+	  }
+  }
 
 }
 
@@ -310,7 +327,11 @@ proto_register_eth(void)
 			"" }},
 		{ &hf_eth_addr,
 		{ "Source or Destination Address", "eth.addr", FT_ETHER, BASE_NONE, NULL, 0x0,
-			"Source or Destination Hardware Address" }}
+			"Source or Destination Hardware Address" }},
+
+                { &hf_eth_trailer,
+		{ "Trailer", "eth.trailer", FT_BYTES, BASE_NONE, NULL, 0x0,
+			"Ethernet Trailer or Checksum" }},
 
 	};
 	static gint *ett[] = {
