@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.106 2003/11/22 04:41:31 sahlberg Exp $
+ * $Id: proto.c,v 1.107 2003/11/24 21:12:10 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -154,7 +154,13 @@ static GMemChunk *gmc_hfinfo = NULL;
 
 /* Contains information about a field when a dissector calls
  * proto_tree_add_item.  */
-static GMemChunk *gmc_field_info = NULL;
+static field_info *field_info_free_list=NULL;
+static field_info *field_info_tmp=NULL;
+#define free_field_info(fi) \
+	fi->next=field_info_free_list;	\
+	field_info_free_list=fi;	
+
+
 
 /* Contains the space for proto_nodes. */
 static GMemChunk *gmc_proto_node = NULL;
@@ -203,11 +209,6 @@ proto_init(const char *plugin_dir
 		sizeof(header_field_info),
         INITIAL_NUM_PROTOCOL_HFINFO * sizeof(header_field_info),
         G_ALLOC_ONLY);
-
-	gmc_field_info = g_mem_chunk_new("gmc_field_info",
-		sizeof(field_info),
-        INITIAL_NUM_FIELD_INFO * sizeof(field_info),
-		G_ALLOC_AND_FREE);
 
 	gmc_proto_node = g_mem_chunk_new("gmc_proto_node",
 		sizeof(proto_node),
@@ -279,8 +280,18 @@ proto_cleanup(void)
 
 	if (gmc_hfinfo)
 		g_mem_chunk_destroy(gmc_hfinfo);
-	if (gmc_field_info)
-		g_mem_chunk_destroy(gmc_field_info);
+
+	while (field_info_free_list) {
+		field_info *tmpfi;
+		tmpfi=field_info_free_list->next;
+		g_free(field_info_free_list);
+		field_info_free_list=tmpfi;
+	}
+	if (field_info_tmp) {
+		g_free(field_info_tmp);
+		field_info_tmp=NULL;
+	}
+
 	if (gmc_proto_node)
 		g_mem_chunk_destroy(gmc_proto_node);
 	if (gmc_item_labels)
@@ -308,13 +319,6 @@ proto_tree_free(proto_tree *tree)
 
 	/* Then free the tree. */
 	g_node_destroy((GNode*)tree);
-}
-
-/* We accept a void* instead of a field_info* to satisfy CLEANUP_POP */
-static void
-free_field_info(void *fi)
-{
-	g_mem_chunk_free(gmc_field_info, (field_info*)fi);
 }
 
 static void
@@ -568,9 +572,28 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	if (new_fi == NULL)
 		return(NULL);
 
-	/* Register a cleanup function in case on of our tvbuff accesses
-	 * throws an exception. We need to clean up new_fi. */
-	CLEANUP_PUSH(free_field_info, new_fi);
+	/* there is a possibility here that we might raise an exception
+	 * and thus would lose track of the field_info.
+	 * store it in a temp so that if we come here again we can reclaim
+	 * the field_info without leaking memory.
+	 */
+	/* XXX this only keeps track of one field_info struct,
+	   if we ever go multithreaded for calls to this function
+	   we have to change this code to use per thread variable.
+	*/
+	if(field_info_tmp){
+		/* oops, last one we got must have been lost due
+		 * to an exception.
+		 * good thing we saved it, now we can reverse the
+		 * memory leak and reclaim it.
+		 */
+		field_info_tmp->next=field_info_free_list;
+		field_info_free_list=field_info_tmp;
+	}
+	/* we might throw an exception, keep track of this one
+	 * across the "dangerous" section below.
+	*/
+	field_info_tmp=new_fi;
 
 	switch(new_fi->hfinfo->type) {
 		case FT_NONE:
@@ -744,7 +767,10 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	 * raised by a tvbuff access method doesn't leave junk in the proto_tree. */
 	pi = proto_tree_add_node(tree, new_fi);
 
-	CLEANUP_POP;
+	/* we did not raise an exception so we dont have to remember this
+	 * field_info struct any more.
+	 */
+	field_info_tmp=NULL;
 
 	/* If the proto_tree wants to keep a record of this finfo
 	 * for quick lookup, then record it. */
@@ -1873,7 +1899,20 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		}
 	}
 
-	fi = g_mem_chunk_alloc(gmc_field_info);
+	if(!field_info_free_list){
+		int i;
+		field_info *pfi;
+		pfi=g_malloc(INITIAL_NUM_FIELD_INFO*sizeof(field_info));
+		for(i=0;i<INITIAL_NUM_FIELD_INFO;i++){
+			field_info *tmpfi;
+			tmpfi=&pfi[i];
+			tmpfi->next=field_info_free_list;
+			field_info_free_list=tmpfi;
+		}
+	}
+	fi=field_info_free_list;
+	field_info_free_list=fi->next;
+
 	fi->hfinfo = hfinfo;
 	fi->start = start;
 	if (tvb) {
