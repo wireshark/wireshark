@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.83 2002/03/10 22:18:12 guy Exp $
+ * $Id: packet-snmp.c,v 1.84 2002/03/10 23:17:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2028,7 +2028,7 @@ proto_register_snmp(void)
 
 #ifdef HAVE_UCD_SNMP_SNMP_H
 	init_mib();
-	snmp_set_suffix_only(2);
+	ds_set_int(DS_LIBRARY_ID, DS_LIB_PRINT_SUFFIX_ONLY, 2);
 #endif /* HAVE_UCD_SNMP_SNMP_H */
         proto_snmp = proto_register_protocol("Simple Network Management Protocol",
 	    "SNMP", "snmp");
