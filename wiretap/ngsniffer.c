@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.16 1999/08/20 06:55:19 guy Exp $
+ * $Id: ngsniffer.c,v 1.17 1999/08/20 07:38:30 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -395,7 +395,6 @@ static int ngsniffer_read(wtap *wth, int *err)
 	guint16 type, length;
 	struct frame2_rec frame2;
 	struct frame4_rec frame4;
-	int linktype;
 	double t;
 	guint16 time_low, time_med, time_high, true_size, size;
 	int	data_offset;
