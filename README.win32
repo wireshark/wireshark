@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.55 2003/12/31 22:17:28 guy Exp $
+$Id: README.win32,v 1.56 2004/01/07 07:17:47 guy Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -149,10 +149,10 @@ Compiling the Ethereal distribution from source
 
 You'll need the development packages for GLIB, GTK+, iconv, gettext,
 WinPcap, zlib, Net-SNMP, ADNS, and PCRE.  The GLIB, GTK+, and WinPcap
-packages are available from the respctive home pages for each project
+packages are available from the respective home pages for each project
 (the same URLs as listed above). The development packages contain header
-files and stub libaries to link against.  Precompiled versions of these
-packages are available at
+files and stub libraries to link against.  Precompiled versions of all
+of these packages, except for WinPcap, are available at
 
 	http://www.ethereal.com/distribution/win32/development/
 
@@ -165,18 +165,29 @@ C:\ethereal-win32-libs.  You can place them in a different directory, but
 you must update config.nmake accordingly.  The default location for each
 package is as follows:
 
-    Package                             Default Location
-    -------                             ----------------
+    Package                               Default Location
+    -------                               ----------------
     adns-1.0-win32-01.zip                 C:\ethereal-win32-libs
     glib-2.2.3.zip                        C:\ethereal-win32-libs\glib
     glib-dev-2.2.3.zip                    C:\ethereal-win32-libs\glib
     gtk+-1.3.0-20030717.zip               C:\ethereal-win32-libs\gtk+
     gtk+-dev-1.3.0-20030115.zip           C:\ethereal-win32-libs\gtk+
-    libiconv-1.9.1.bin.woe32.zip          C:\ethereal-win32-libs\gtk+
-    gettext-runtime-0.12.1.bin.woe32.zip  [ None ]
+    libiconv-1.9.1.bin.woe32.zip          C:\ethereal-win32-libs\libiconv-1.9.1.bin.woe32
+    gettext-runtime-0.12.1.bin.woe32.zip  C:\ethereal-win32-libs\gettext-runtime-0.12.1.bin.woe32
     net-snmp-5.1.zip                      C:\ethereal-win32-libs
     pcre-4.4.zip                          C:\ethereal-win32-libs
+    wpdpack_3_0.zip                       C:\ethereal-win32-libs
     zlib121-dll.zip                       C:\ethereal-win32-libs\zlib121-dll
+
+(to use the default locations, the directories in question should be
+created, and each zip file should be unpacked into the corresponding
+directory).  If you only want to change the C:\ethereal-win32-libs
+part, you just change the setting of ETHEREAL_LIBS in config.nmake; if
+you want to change subdirectories, you'll have to change the individual
+item for a package.  (Note that some zip files create the subdirectory -
+those zip files just have C:\ethereal-win32-libs in the list above - so
+if you don't want the package to be in that subdirectory, you'd have to
+rename the directory.)
 
 The gettext runtime package provides intl.dll, which is needed by
 GLib 2.2.3.
