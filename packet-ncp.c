@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.63 2002/05/25 01:05:56 guy Exp $
+ * $Id: packet-ncp.c,v 1.64 2002/05/25 12:44:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -469,6 +469,18 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static guint
 get_ncp_pdu_len(tvbuff_t *tvb, int offset)
 {
+  guint32 signature;
+
+  /*
+   * Check the NCP-over-TCP header signature, to make sure it's there.
+   * If it's not there, we cannot trust the next 4 bytes to be a
+   * packet length+"has signature" flag, so we just say the length is
+   * "what remains in the packet".
+   */
+  signature = tvb_get_ntohl(tvb, offset);
+  if (signature != NCPIP_RQST && signature != NCPIP_RPLY)
+    return tvb_length_remaining(tvb, offset);
+  
   /*
    * Get the length of the NCP-over-TCP packet.  Strip off the "has
    * signature" flag.
