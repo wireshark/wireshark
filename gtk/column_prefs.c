@@ -1,7 +1,7 @@
 /* column_prefs.c
  * Dialog box for column preferences
  *
- * $Id: column_prefs.c,v 1.9 2002/04/22 02:03:53 gerald Exp $
+ * $Id: column_prefs.c,v 1.10 2002/04/22 09:50:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,8 +36,7 @@
 #include "prefs.h"
 #include "column.h"
 
-static GtkWidget *column_l, *chg_bt, *del_bt, *title_te, *fmt_m, *up_bt,
-                 *dn_bt;
+static GtkWidget *column_l, *del_bt, *title_te, *fmt_m, *up_bt, *dn_bt;
 static gint       cur_fmt, cur_row;
 
 static void   column_list_select_cb(GtkCList *clist, gint row, gint column,
@@ -57,8 +56,8 @@ void          column_set_arrow_button_sensitivity(GList *);
 /* Called when the 'Columns' preference notebook page is selected. */
 GtkWidget *
 column_prefs_show() {
-  GtkWidget   *main_vb, *top_hb, *list_bb, *new_bt, *column_sc, *nl_item,
-              *nl_lb, *tb, *lb, *menu, *mitem, *arrow_hb;
+  GtkWidget   *main_vb, *top_hb, *list_bb, *new_bt, *column_sc,
+              *tb, *lb, *menu, *mitem, *arrow_hb;
   GList       *clp = NULL;
   fmt_data    *cfmt;
   gint         i, row;
@@ -262,9 +261,8 @@ column_list_new_cb(GtkWidget *w _U_, gpointer data _U_) {
 
 static void
 column_list_delete_cb(GtkWidget *w _U_, gpointer data _U_) {
-  GList      *sl, *clp;
+  GList      *clp;
   fmt_data   *cfmt;
-  GtkObject  *l_item;
   gint        pos;
 
   g_assert(cur_row >= 0);
