@@ -26,19 +26,6 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-#ifndef WIN32
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-
 #include <stdio.h>
 #include <gtk/gtk.h>
 #include "simple_dialog.h"      /* Both is used for error handling */
