@@ -473,7 +473,7 @@ BEGIN
       { 
          eventName               [0] IMPLICIT EventName, 
          streamID                [1] IMPLICIT StreamID OPTIONAL, 
-         eventParList            [2] IMPLICIT SEQUENCE OF EventParameter, 
+         eventParList            [2] IMPLICIT EventParameters, 
          timeNotation            [3] IMPLICIT TimeNotation OPTIONAL, 
          ... 
       } 
@@ -497,6 +497,8 @@ BEGIN
          ... 
        
       }
+
+      EventParameters ::= SEQUENCE OF EventParameter
 
       ServiceChangeRequest ::= SEQUENCE 
       { 
@@ -565,7 +567,7 @@ BEGIN
          streamMode        [0] IMPLICIT StreamMode OPTIONAL, 
          reserveValue      [1] IMPLICIT BOOLEAN OPTIONAL, 
          reserveGroup      [2] IMPLICIT BOOLEAN OPTIONAL, 
-         propertyParms     [3] IMPLICIT SEQUENCE OF PropertyParm, 
+         propertyParms     [3] IMPLICIT PropertyParms, 
          ... 
       } 
        
@@ -608,6 +610,8 @@ BEGIN
          extraInfo    [2] ExtraInfo OPTIONAL,
          ... 
       } 
+
+      PropertyParms ::= SEQUENCE OF PropertyParm 
        
       Name ::= OCTET STRING(SIZE(2)) 
        
@@ -642,7 +646,7 @@ BEGIN
        
       TerminationStateDescriptor ::= SEQUENCE  
       { 
-         propertyParms        [0] IMPLICIT SEQUENCE OF PropertyParm, 
+         propertyParms        [0] IMPLICIT PropertyParms, 
          eventBufferControl   [1] IMPLICIT EventBufferControl OPTIONAL, 
          serviceState         [2] IMPLICIT ServiceState OPTIONAL, 
          ... 
@@ -697,7 +701,7 @@ BEGIN
          pkgdName       [0] IMPLICIT EventName, 
          streamID       [1] IMPLICIT StreamID OPTIONAL, 
          eventAction    [2] IMPLICIT RequestedActions OPTIONAL, 
-         evParList      [3] IMPLICIT SEQUENCE OF EventParameter, 
+         evParList      [3] IMPLICIT EventParameters, 
          ... 
       } 
 
@@ -730,7 +734,7 @@ BEGIN
          pkgdName          [0] IMPLICIT EventName, 
          streamID          [1] IMPLICIT StreamID OPTIONAL, 
          eventAction       [2] IMPLICIT SecondRequestedActions OPTIONAL, 
-         evParList         [3] IMPLICIT SEQUENCE OF EventParameter, 
+         evParList         [3] IMPLICIT EventParameters, 
          ... 
       } 
        
@@ -748,7 +752,7 @@ BEGIN
       { 
          eventName      [0] IMPLICIT EventName, 
          streamID       [1] IMPLICIT StreamID OPTIONAL, 
-         eventParList   [2] IMPLICIT SEQUENCE OF EventParameter, 
+         eventParList   [2] IMPLICIT EventParameters, 
          ... 
       } 
        
@@ -813,7 +817,7 @@ BEGIN
       ModemDescriptor ::= SEQUENCE 
       { 
          mtl               [0] IMPLICIT SEQUENCE OF ModemType,  
-         mpl               [1] IMPLICIT SEQUENCE OF PropertyParm, 
+         mpl               [1] IMPLICIT PropertyParms, 
          nonStandardData   [2] IMPLICIT NonStandardData OPTIONAL 
       } 
        

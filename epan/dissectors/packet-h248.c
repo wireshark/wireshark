@@ -212,8 +212,7 @@ static int hf_h248_requestId = -1;                /* RequestID */
 static int hf_h248_observedEventLst = -1;         /* SEQUNCE_OF_ObservedEvent */
 static int hf_h248_observedEventLst_item = -1;    /* ObservedEvent */
 static int hf_h248_eventName = -1;                /* EventName */
-static int hf_h248_eventParList = -1;             /* SEQUNCE_OF_EventParameter */
-static int hf_h248_eventParList_item = -1;        /* EventParameter */
+static int hf_h248_eventParList = -1;             /* EventParameters */
 static int hf_h248_timeNotation = -1;             /* TimeNotation */
 static int hf_h248_relation = -1;                 /* Relation */
 static int hf_h248_range = -1;                    /* BOOLEAN */
@@ -221,6 +220,7 @@ static int hf_h248_sublist = -1;                  /* BOOLEAN */
 static int hf_h248_eventParameterName = -1;       /* Name */
 static int hf_h248_value = -1;                    /* Value */
 static int hf_h248_extraInfo = -1;                /* ExtraInfo */
+static int hf_h248_EventParameters_item = -1;     /* EventParameter */
 static int hf_h248_serviceChangeParms = -1;       /* ServiceChangeParm */
 static int hf_h248_serviceChangeResult = -1;      /* ServiceChangeResult */
 static int hf_h248_serviceChangeResParms = -1;    /* ServiceChangeResParm */
@@ -240,11 +240,11 @@ static int hf_h248_remoteDescriptor = -1;         /* LocalRemoteDescriptor */
 static int hf_h248_streamMode = -1;               /* StreamMode */
 static int hf_h248_reserveValue = -1;             /* BOOLEAN */
 static int hf_h248_reserveGroup = -1;             /* BOOLEAN */
-static int hf_h248_propertyParms = -1;            /* SEQUNCE_OF_PropertyParm */
-static int hf_h248_propertyParms_item = -1;       /* PropertyParm */
+static int hf_h248_propertyParms = -1;            /* PropertyParms */
 static int hf_h248_propertyName = -1;             /* PkgdName */
 static int hf_h248_propertyParamValue = -1;       /* SEQUNCE_OF_PropertyID */
 static int hf_h248_value_item = -1;               /* PropertyID */
+static int hf_h248_PropertyParms_item = -1;       /* PropertyParm */
 static int hf_h248_propGrps = -1;                 /* SEQUNCE_OF_PropertyGroup */
 static int hf_h248_propGrps_item = -1;            /* PropertyGroup */
 static int hf_h248_PropertyGroup_item = -1;       /* PropertyParm */
@@ -257,8 +257,7 @@ static int hf_h248_nonStandardData = -1;          /* NonStandardData */
 static int hf_h248_eventList = -1;                /* RequestedEvents */
 static int hf_h248_pkgdName = -1;                 /* EventName */
 static int hf_h248_eventAction = -1;              /* RequestedActions */
-static int hf_h248_evParList = -1;                /* SEQUNCE_OF_EventParameter */
-static int hf_h248_evParList_item = -1;           /* EventParameter */
+static int hf_h248_evParList = -1;                /* EventParameters */
 static int hf_h248_RequestedEvents_item = -1;     /* RequestedEvent */
 static int hf_h248_keepActive = -1;               /* BOOLEAN */
 static int hf_h248_eventDM = -1;                  /* EventDM */
@@ -282,8 +281,7 @@ static int hf_h248_sigParList_item = -1;          /* SigParameter */
 static int hf_h248_sigParameterName = -1;         /* Name */
 static int hf_h248_mtl = -1;                      /* SEQUNCE_OF_ModemType */
 static int hf_h248_mtl_item = -1;                 /* ModemType */
-static int hf_h248_mpl = -1;                      /* SEQUNCE_OF_PropertyParm */
-static int hf_h248_mpl_item = -1;                 /* PropertyParm */
+static int hf_h248_mpl = -1;                      /* PropertyParms */
 static int hf_h248_startTimer = -1;               /* INTEGER_0_99 */
 static int hf_h248_shortTimer = -1;               /* INTEGER_0_99 */
 static int hf_h248_longTimer = -1;                /* INTEGER_0_99 */
@@ -409,9 +407,9 @@ static gint ett_h248_NotifyReply = -1;
 static gint ett_h248_ObservedEventsDescriptor = -1;
 static gint ett_h248_SEQUNCE_OF_ObservedEvent = -1;
 static gint ett_h248_ObservedEvent = -1;
-static gint ett_h248_SEQUNCE_OF_EventParameter = -1;
 static gint ett_h248_ExtraInfo = -1;
 static gint ett_h248_EventParameter = -1;
+static gint ett_h248_EventParameters = -1;
 static gint ett_h248_ServiceChangeRequest = -1;
 static gint ett_h248_ServiceChangeReply = -1;
 static gint ett_h248_ServiceChangeResult = -1;
@@ -424,9 +422,9 @@ static gint ett_h248_SEQUNCE_OF_StreamDescriptor = -1;
 static gint ett_h248_StreamDescriptor = -1;
 static gint ett_h248_StreamParms = -1;
 static gint ett_h248_LocalControlDescriptor = -1;
-static gint ett_h248_SEQUNCE_OF_PropertyParm = -1;
 static gint ett_h248_PropertyParm = -1;
 static gint ett_h248_SEQUNCE_OF_PropertyID = -1;
+static gint ett_h248_PropertyParms = -1;
 static gint ett_h248_LocalRemoteDescriptor = -1;
 static gint ett_h248_SEQUNCE_OF_PropertyGroup = -1;
 static gint ett_h248_PropertyGroup = -1;
@@ -1577,32 +1575,29 @@ dissect_h248_PropertyParm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
   return offset;
 }
-static int dissect_propertyParms_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_PropertyParm(FALSE, tvb, offset, pinfo, tree, hf_h248_propertyParms_item);
+static int dissect_PropertyParms_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_h248_PropertyParm(FALSE, tvb, offset, pinfo, tree, hf_h248_PropertyParms_item);
 }
 static int dissect_PropertyGroup_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_h248_PropertyParm(FALSE, tvb, offset, pinfo, tree, hf_h248_PropertyGroup_item);
 }
-static int dissect_mpl_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_PropertyParm(FALSE, tvb, offset, pinfo, tree, hf_h248_mpl_item);
-}
 
-static const ber_sequence SEQUNCE_OF_PropertyParm_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_propertyParms_item },
+static const ber_sequence PropertyParms_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_PropertyParms_item },
 };
 
 static int
-dissect_h248_SEQUNCE_OF_PropertyParm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h248_PropertyParms(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUNCE_OF_PropertyParm_sequence_of, hf_index, ett_h248_SEQUNCE_OF_PropertyParm);
+                                   PropertyParms_sequence_of, hf_index, ett_h248_PropertyParms);
 
   return offset;
 }
 static int dissect_propertyParms_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_SEQUNCE_OF_PropertyParm(TRUE, tvb, offset, pinfo, tree, hf_h248_propertyParms);
+  return dissect_h248_PropertyParms(TRUE, tvb, offset, pinfo, tree, hf_h248_propertyParms);
 }
 static int dissect_mpl_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_SEQUNCE_OF_PropertyParm(TRUE, tvb, offset, pinfo, tree, hf_h248_mpl);
+  return dissect_h248_PropertyParms(TRUE, tvb, offset, pinfo, tree, hf_h248_mpl);
 }
 
 
@@ -2401,29 +2396,26 @@ dissect_h248_EventParameter(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 
   return offset;
 }
-static int dissect_eventParList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_EventParameter(FALSE, tvb, offset, pinfo, tree, hf_h248_eventParList_item);
-}
-static int dissect_evParList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_EventParameter(FALSE, tvb, offset, pinfo, tree, hf_h248_evParList_item);
+static int dissect_EventParameters_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_h248_EventParameter(FALSE, tvb, offset, pinfo, tree, hf_h248_EventParameters_item);
 }
 
-static const ber_sequence SEQUNCE_OF_EventParameter_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_eventParList_item },
+static const ber_sequence EventParameters_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_EventParameters_item },
 };
 
 static int
-dissect_h248_SEQUNCE_OF_EventParameter(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h248_EventParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUNCE_OF_EventParameter_sequence_of, hf_index, ett_h248_SEQUNCE_OF_EventParameter);
+                                   EventParameters_sequence_of, hf_index, ett_h248_EventParameters);
 
   return offset;
 }
 static int dissect_eventParList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_SEQUNCE_OF_EventParameter(TRUE, tvb, offset, pinfo, tree, hf_h248_eventParList);
+  return dissect_h248_EventParameters(TRUE, tvb, offset, pinfo, tree, hf_h248_eventParList);
 }
 static int dissect_evParList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_SEQUNCE_OF_EventParameter(TRUE, tvb, offset, pinfo, tree, hf_h248_evParList);
+  return dissect_h248_EventParameters(TRUE, tvb, offset, pinfo, tree, hf_h248_evParList);
 }
 
 static const ber_sequence SecondRequestedEvent_sequence[] = {
@@ -4700,10 +4692,6 @@ void proto_register_h248(void) {
       { "eventParList", "h248.eventParList",
         FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
-    { &hf_h248_eventParList_item,
-      { "Item", "h248.eventParList_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
     { &hf_h248_timeNotation,
       { "timeNotation", "h248.timeNotation",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4732,6 +4720,10 @@ void proto_register_h248(void) {
       { "extraInfo", "h248.extraInfo",
         FT_UINT32, BASE_DEC, VALS(ExtraInfo_vals), 0,
         "", HFILL }},
+    { &hf_h248_EventParameters_item,
+      { "Item", "h248.EventParameters_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventParameters/_item", HFILL }},
     { &hf_h248_serviceChangeParms,
       { "serviceChangeParms", "h248.serviceChangeParms",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4812,10 +4804,6 @@ void proto_register_h248(void) {
       { "propertyParms", "h248.propertyParms",
         FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
-    { &hf_h248_propertyParms_item,
-      { "Item", "h248.propertyParms_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
     { &hf_h248_propertyName,
       { "propertyName", "h248.propertyName",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -4828,6 +4816,10 @@ void proto_register_h248(void) {
       { "Item", "h248.value_item",
         FT_BYTES, BASE_HEX, NULL, 0,
         "PropertyParm/value/_item", HFILL }},
+    { &hf_h248_PropertyParms_item,
+      { "Item", "h248.PropertyParms_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PropertyParms/_item", HFILL }},
     { &hf_h248_propGrps,
       { "propGrps", "h248.propGrps",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -4879,10 +4871,6 @@ void proto_register_h248(void) {
     { &hf_h248_evParList,
       { "evParList", "h248.evParList",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "", HFILL }},
-    { &hf_h248_evParList_item,
-      { "Item", "h248.evParList_item",
-        FT_NONE, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_h248_RequestedEvents_item,
       { "Item", "h248.RequestedEvents_item",
@@ -4980,10 +4968,6 @@ void proto_register_h248(void) {
       { "mpl", "h248.mpl",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ModemDescriptor/mpl", HFILL }},
-    { &hf_h248_mpl_item,
-      { "Item", "h248.mpl_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ModemDescriptor/mpl/_item", HFILL }},
     { &hf_h248_startTimer,
       { "startTimer", "h248.startTimer",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -5245,9 +5229,9 @@ void proto_register_h248(void) {
     &ett_h248_ObservedEventsDescriptor,
     &ett_h248_SEQUNCE_OF_ObservedEvent,
     &ett_h248_ObservedEvent,
-    &ett_h248_SEQUNCE_OF_EventParameter,
     &ett_h248_ExtraInfo,
     &ett_h248_EventParameter,
+    &ett_h248_EventParameters,
     &ett_h248_ServiceChangeRequest,
     &ett_h248_ServiceChangeReply,
     &ett_h248_ServiceChangeResult,
@@ -5260,9 +5244,9 @@ void proto_register_h248(void) {
     &ett_h248_StreamDescriptor,
     &ett_h248_StreamParms,
     &ett_h248_LocalControlDescriptor,
-    &ett_h248_SEQUNCE_OF_PropertyParm,
     &ett_h248_PropertyParm,
     &ett_h248_SEQUNCE_OF_PropertyID,
+    &ett_h248_PropertyParms,
     &ett_h248_LocalRemoteDescriptor,
     &ett_h248_SEQUNCE_OF_PropertyGroup,
     &ett_h248_PropertyGroup,
