@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.135 2002/03/31 20:56:59 guy Exp $
+ * $Id: tethereal.c,v 1.136 2002/05/14 10:15:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -321,22 +321,31 @@ main(int argc, char *argv[])
   char                 badopt;
 
   /* Register all dissectors; we must do this before checking for the
-     "-G" flag, as the "-G" flag dumps a list of fields registered
-     by the dissectors, and we must do it before we read the preferences,
-     in case any dissectors register preferences. */
+     "-G" flag, as the "-G" flag dumps information registered by the
+     dissectors, and we must do it before we read the preferences, in
+     case any dissectors register preferences. */
   epan_init(PLUGIN_DIR,register_all_protocols,register_all_protocol_handoffs);
 
   /* Now register the preferences for any non-dissector modules.
      We must do that before we read the preferences as well. */
   prefs_register_modules();
 
-  /* If invoked with the "-G" flag, we dump out a glossary of
-     display filter symbols.
+  /* If invoked with the "-G" flag, we dump out information based on
+     the argument to the "-G" flag; if no argument is specified,
+     for backwards compatibility we dump out a glossary of display
+     filter symbols.
 
      We do this here to mirror what happens in the GTK+ version, although
      it's not necessary here. */
   if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
-    proto_registrar_dump();
+    if (argc == 2)
+      proto_registrar_dump_fields();
+    else {
+      if (strcmp(argv[2], "fields") == 0)
+        proto_registrar_dump_fields();
+      else if (strcmp(argv[2], "protocols") == 0)
+        proto_registrar_dump_protocols();
+    }
     exit(0);
   }
 

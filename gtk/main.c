@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.247 2002/05/03 03:30:15 guy Exp $
+ * $Id: main.c,v 1.248 2002/05/14 10:15:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1254,17 +1254,19 @@ main(int argc, char *argv[])
 #endif
 
   /* Register all dissectors; we must do this before checking for the
-     "-G" flag, as the "-G" flag dumps a list of fields registered
-     by the dissectors, and we must do it before we read the preferences,
-     in case any dissectors register preferences. */
+     "-G" flag, as the "-G" flag dumps information registered by the
+     dissectors, and we must do it before we read the preferences, in
+     case any dissectors register preferences. */
   epan_init(PLUGIN_DIR,register_all_protocols,register_all_protocol_handoffs);
 
   /* Now register the preferences for any non-dissector modules.
      We must do that before we read the preferences as well. */
   prefs_register_modules();
 
-  /* If invoked with the "-G" flag, we dump out a glossary of
-     display filter symbols.
+  /* If invoked with the "-G" flag, we dump out information based on
+     the argument to the "-G" flag; if no argument is specified,
+     for backwards compatibility we dump out a glossary of display
+     filter symbols.
 
      We must do this before calling "gtk_init()", because "gtk_init()"
      tries to open an X display, and we don't want to have to do any X
@@ -1281,9 +1283,19 @@ main(int argc, char *argv[])
 
 	you must give it as "-G", nothing more, nothing less;
 
-	any arguments after the "-G" flag will not be used. */
+	the first argument after the "-G" flag, if present, will be used
+	to specify the information to dump;
+
+	arguments after that will not be used. */
   if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
-    proto_registrar_dump();
+    if (argc == 2)
+      proto_registrar_dump_fields();
+    else {
+      if (strcmp(argv[2], "fields") == 0)
+        proto_registrar_dump_fields();
+      else if (strcmp(argv[2], "protocols") == 0)
+        proto_registrar_dump_protocols();
+    }
     exit(0);
   }
 

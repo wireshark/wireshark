@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.31 2002/04/29 07:55:31 guy Exp $
+ * $Id: proto.h,v 1.32 2002/05/14 10:15:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -554,8 +554,11 @@ extern gboolean proto_check_for_protocol_or_field(proto_tree* tree, int id);
  * tree. */
 extern GPtrArray* proto_get_finfo_ptr_array(proto_tree *tree, int hfindex);
 
+/* Dumps a glossary of the protocol registrations to STDOUT */
+extern void proto_registrar_dump_protocols(void);
+
 /* Dumps a glossary of the protocol and field registrations to STDOUT */
-extern void proto_registrar_dump(void);
+extern void proto_registrar_dump_fields(void);
 
 /* Points to the first element of an array of Booleans, indexed by
    a subtree item type; that array element is TRUE if subtrees of

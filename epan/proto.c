@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.68 2002/05/09 23:50:28 gram Exp $
+ * $Id: proto.c,v 1.69 2002/05/14 10:15:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2946,12 +2946,34 @@ proto_find_field_from_offset(proto_tree *tree, guint offset, tvbuff_t *tvb)
 	return offsearch.finfo;
 }
 
+/* Dumps the protocols in the registration database to stdout.  An independent
+ * program can take this output and format it into nice tables or HTML or
+ * whatever.
+ *
+ * There is one record per line. The fields are tab-delimited.
+ *
+ * Field 1 = protocol name
+ * Field 2 = protocol short name
+ * Field 3 = protocol filter name
+ */
+void
+proto_registrar_dump_protocols(void)
+{
+	protocol_t		*protocol;
+	int			i;
+	void			*cookie;
 
+	for (i = proto_get_first_protocol(&cookie); i != -1;
+	    i = proto_get_next_protocol(&cookie)) {
+		protocol = find_protocol_by_id(i);
+		printf("%s\t%s\t%s\n", protocol->name, protocol->short_name,
+		    protocol->filter_name);
+	}
+}
 
-	
-
-/* Dumps the contents of the registration database to stdout. An indepedent program can take
- * this output and format it into nice tables or HTML or whatever.
+/* Dumps the contents of the registration database to stdout. An indepedent
+ * program can take this output and format it into nice tables or HTML or
+ * whatever.
  *
  * There is one record per line. Each record is either a protocol or a header
  * field, differentiated by the first field. The fields are tab-delimited.
@@ -2971,7 +2993,7 @@ proto_find_field_from_offset(proto_tree *tree, guint offset, tvbuff_t *tvb)
  * Field 5 = parent protocol abbreviation
  */
 void
-proto_registrar_dump(void)
+proto_registrar_dump_fields(void)
 {
 	header_field_info	*hfinfo, *parent_hfinfo;
 	int			i, len;
