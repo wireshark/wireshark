@@ -7,7 +7,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h245.c,v 1.34 2003/09/02 21:40:34 guy Exp $
+ * $Id: packet-h245.c,v 1.35 2003/09/04 18:55:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -980,6 +980,8 @@ static int hf_h245_recoveryReferencePicture = -1;
 static int hf_h245_iPSourceRouteAddress_route = -1;
 static int hf_h245_audioTelephoneEvent = -1;
 static int hf_h245_alphanumeric = -1;
+static int hf_h245_h221Manufacturer = -1;
+
 
 static gint ett_h245 = -1;
 static gint ett_h245_VCCapability_set_of = -1;
@@ -7744,6 +7746,150 @@ static const value_string T35_country_code__vals[] = {
 };
 
 
+static const value_string h221Manufacturer_vals[] = {
+	{  0x04000042, "Deutsche Telekom AG" },						/* From Ref. 3 */
+	{  0x04000043, "Deutsche Telekom AG" },						/* From Ref. 3 */
+	{  0x04000082, "Siemens AG" },							/* From Ref. 3 */
+	{  0x04000084, "ITO Communication" },						/* From Ref. 3 */
+	{  0x04000086, "Hauni Elektronik" },						/* From Ref. 3 */
+	{  0x04000088, "Dr.Neuhaus Mikroelektronik" },					/* From Ref. 3 */
+	{  0x0400008a, "mps Software" },							/* From Ref. 3 */
+	{  0x0400008b, "Ferrari electronik GmbH" },					/* From Ref. 3 */
+	{  0x0400008c, "mbp Kommunikationssysteme GmbH" },				/* From Ref. 3 */
+	{  0x0400008d, "Schneider Rundfunkwerke AG" },					/* From Ref. 3 */
+	{  0x0400008e, "Digitronic computersysteme gmbh" },				/* From Ref. 3 */
+	{  0x0400008f, "DeTeWe - Deutsche Telephonwerke AG &Co" },			/* From Ref. 3 */
+	{  0x04000082, "SITK Institut für Telekommunikation GmbH & Co KG" },	/* From Ref. 3 */
+      {  0x0900003D, "Equivalence (OpenH323)" },   					/* From captures */
+	{  0x82000002, "Ericsson" },    							/* From captures */
+      {  0xa5000001, "Ericsson" },   							/* From captures */
+	{  0xb4000000, "British Telecommunications" }, 					/* From Ref. 2 */
+	{  0xb4000001, "British Telecommunications" }, 					/* From Ref. 2 */
+	{  0xb4000002, "British Telecommunications" }, 					/* From Ref. 2 */
+	{  0xb4000003, "British Telecommunications" }, 					/* From Ref. 2 */
+	{  0xb4000004, "British Telecommunications" }, 					/* From Ref. 2 */
+	{  0xb4000005, "British Telecommunications" }, 					/* From Ref. 2 */
+	{  0xb4000006, "British Telecommunications" }, 					/* From Ref. 2 */
+	{  0xb4000007, "British Telecommunications" }, 					/* From Ref. 2 */
+	{  0xb4000008, "British Telecommunications" },			 		/* From Ref. 2 */
+	{  0xb4000009, "British Telecommunications" }, 					/* From Ref. 2 */
+	{  0xb400000a, "British Telecommunications" }, 					/* From Ref. 2 */
+	{  0xb400000b, "British Telecommunications" }, 					/* From Ref. 2 */
+	{  0xb400000c, "British Telecommunications" }, 					/* From Ref. 2 */
+	{  0xb400000d, "British Telecommunications" }, 					/* From Ref. 2 */
+	{  0xb400000e, "British Telecommunications" }, 					/* From Ref. 2 */
+	{  0xb400000f, "British Telecommunications" }, 					/* From Ref. 2 */
+	{  0xb4000010, "GPT Video Systems" },	 					/* From Ref. 2 */
+	{  0xb4000011, "GPT Video Systems" },	 					/* From Ref. 2 */
+	{  0xb4000012, "GPT Video Systems" },	 					/* From Ref. 2 */
+	{  0xb4000013, "GPT Video Systems" },	 					/* From Ref. 2 */
+	{  0xb4000014, "GPT Video Systems" },	 					/* From Ref. 2 */
+	{  0xb4000015, "GPT Video Systems" },	 					/* From Ref. 2 */
+	{  0xb4000016, "GPT Video Systems" },	 					/* From Ref. 2 */
+	{  0xb4000017, "GPT Video Systems" },	 					/* From Ref. 2 */
+	{  0xb4000018, "GPT Video Systems" },	 					/* From Ref. 2 */
+	{  0xb4000019, "GPT Video Systems" },				 		/* From Ref. 2 */
+	{  0xb400001a, "GPT Video Systems" },	 					/* From Ref. 2 */
+	{  0xb400001b, "GPT Video Systems" },	 					/* From Ref. 2 */
+	{  0xb400001c, "GPT Video Systems" },				 		/* From Ref. 2 */
+	{  0xb400001d, "GPT Video Systems" },				 		/* From Ref. 2 */
+	{  0xb400001e, "GPT Video Systems" },	 		/* From Ref. 2 */
+	{  0xb400001f, "GPT Video Systems" },	 		/* From Ref. 2 */
+	{  0xb4000020, "Marconi Communications" }, 		/* From Ref. 2 */ 
+	{  0xb4000021, "Indigo Active Vision Systems" }, 	/* From Ref. 2 */ 
+	{  0xb4000022, "LiveWorks Limited" }, 			/* From Ref. 2 */ 
+	{  0xb4000023, "ATL Telecom Limited" }, 		/* From Ref. 2 */ 
+	{  0xb400002a, "Network Alchemy Limited" }, 		/* From Ref. 2 */ 
+	{  0xb4000042, "Motion Media Technology" }, 		/* From Ref. 2 */ 
+	{  0xb4000044, "Data Connection" }, 			/* From Ref. 2 */ 
+	{  0xb4000045, "Westbay Engineers" }, 			/* From Ref. 2 */ 
+	{  0xb4000049, "ImageCom" }, 				/* From Ref. 2 */ 
+	{  0xb400004d, "Madge Networks" }, 			/* From Ref. 2 */ 
+	{  0xb4000052, "Ridgeway Systems and Software" }, 	/* From Ref. 2 */ 
+	{  0xb4000053, "SpliceCom" }, 				/* From Ref. 2 */ 
+	{  0xb4000054, "TeleWare" }, 				/* From Ref. 2 */ 
+	{  0xb4000056, "Vegastream" }, 				/* From Ref. 2 */ 
+	{  0xb4000066, "Westell" }, 				/* From Ref. 2 */ 
+	{  0xb4000069, "ISDN Communications" }, 		/* From Ref. 2 */ 
+	{  0xb40000c0, "Codian" }, 				/* From Ref. 2 */ 
+
+	{  0xb5000000, "Compression Labs" },  			   		/* From Ref. 1 */
+	{  0xb5000001, "PictureTel" },  	   				/* From Ref. 1 */
+	{  0xb5000002, "Compression Labs" },  	   				/* From Ref. 1 */
+	{  0xb5000003, "VTEL" },  	  	 				/* From Ref. 1 */
+	{  0xb5000005, "ERIS" }, 	 	   				/* From Ref. 1 */
+	{  0xb5000007, "AT&T Worldworx" },  	   				/* From Ref. 1 */
+	{  0xb5000009, "VideoServer" },  	 	  			/* From Ref. 1 */
+	{  0xb500000b, "3Com Corporation" },  	   				/* From Ref. 1 */
+	{  0xb500000c, "Clarent Corporation" },					/* From Ref. 1 */
+	{  0xb500000d, "Genesys Telecommunications Labs Inc" },			/* From Ref. 1 */
+	{  0xb500000e, "C-Phone Corporation." },  	   			/* From Ref. 1 */
+	{  0xb500000f, "Science Dynamics Corporation" },   			/* From Ref. 1 */
+	{  0xb5000010, "AT&T Starpoint" },	  	   			/* From Ref. 1 */
+	{  0xb5000011, "Netscape Conference" },  	   			/* From Ref. 1 */
+	{  0xb5000012, "Cisco" },       					/* From Ref. 1 */
+	{  0xb5000013, "Cirilium, Inc." },     					/* From Ref. 1 */
+	{  0xb5000014, "Ascend Communications, Inc." },				/* From Ref. 1 */
+	{  0xb5000015, "RADVision, Inc." },    					/* From Ref. 1 */
+	{  0xb5000016, "Objective Communications" },				/* From Ref. 1 */
+	{  0xb5000017, "VocalTec Communications, Inc." },			/* From Ref. 1 */
+	{  0xb5000018, "Serome Technology, Inc." },				/* From Ref. 1 */
+	{  0xb5000019, "Aspect Communications" },				/* From Ref. 1 */
+	{  0xb500001a, "Cintech Tele-Management" },				/* From Ref. 1 */
+	{  0xb500001b, "Philips Video Conferencing Systems" },			/* From Ref. 1 */
+	{  0xb500001c, "Vertical Networks, Inc." },				/* From Ref. 1 */
+	{  0xb500001d, "Syndeo Corp." },					/* From Ref. 1 */
+	{  0xb500001e, "Telxon Corporation" },					/* From Ref. 1 */
+	{  0xb500001f, "Network Equipment Technologies" },			/* From Ref. 1 */
+	{  0xb5000020, "Pagoo, Inc." },						/* From Ref. 1 */
+	{  0xb5000021, "General Dynamics" },					/* From Ref. 1 */
+	{  0xb5000022, "Vanguard Managed Solutions" },				/* From Ref. 1 */
+	{  0xb5000023, "TeleStream Technologies, Inc." },			/* From Ref. 1 */
+	{  0xb5000024, "Spirent Communications" },				/* From Ref. 1 */
+	{  0xb5000025, "CrystalVoice Communications" },				/* From Ref. 1 */
+	{  0xb5000026, "Xiph.org" },						/* From Ref. 1 */
+	{  0xb5000027, "NACT Telecommunications" },				/* From Ref. 1 */
+	{  0xb5000028, "AudioCodes, Inc." },					/* From Ref. 1 */
+	{  0xb5000120, "AT&T - GBCS" },						/* From Ref. 1 */
+	{  0xb5000168, "Leadtek Research Inc." },				/* From Ref. 1 */
+	{  0xb5000247, "Lucent Technologies" },					/* From Ref. 1 */
+	{  0xb500029a, "Symbol Technologies Inc." },				/* From Ref. 1 */
+	{  0xb5000378, "StarVox, Inc." },					/* From Ref. 1 */
+	{  0xb50003f7, "Inari Inc." },						/* From Ref. 1 */
+	{  0xb5000727, "Quintum Technologies, Inc." },				/* From Ref. 1 */
+	{  0xb5000918, "Netrix Corporation" },					/* From Ref. 1 */
+	{  0xb500101e, "SysMaster Corporation" },				/* From Ref. 1 */
+	{  0xb5001a1a, "Alpha Telecom, Inc. U.S.A." },				/* From Ref. 1 */
+	{  0xb5002331, "ViaVideo" },						/* From Ref. 1 */
+	{  0xb500301c, "Congruency, Inc." },					/* From Ref. 1 */
+	{  0xb5003039, "MiBridge Inc." },					/* From Ref. 1 */
+	{  0xb5003838, "8x8 Inc." },						/* From Ref. 1 */
+	{  0xb5004147, "Agere Systems" },					/* From Ref. 1 */
+	{  0xb5004153, "Artisoft Inc." },					/* From Ref. 1 */
+	{  0xb5004156, "Avaya" },						/* From Ref. 1 */
+	{  0xb5004242, "IBM." },						/* From Ref. 1 */
+	{  0xb5004257, "StreamComm" },						/* From Ref. 1 */
+
+	{  0xb5004c54, "Lucent Technologies" },					/* From Ref. 1 */
+	{  0xb5004d47, "MediaGate" },						/* From Ref. 1 */
+	{  0xb5004e54, "Nortel Networks" },					/* From Ref. 1 */
+
+	{  0xb5005243, "Siemens Business Communication Systems" },	/* From Ref. 1 */
+	{  0xb500534c, "Microsoft" },   			/* From Ref. 1 */
+
+	{  0xb500600d, "Lucent Technologies" },					/* From Ref. 1 */
+
+	{  0xb5008080, "Intel" },       			/* From Ref. 1 */
+	{  0xa5000001, "Ericsson" },   				/* From captures */
+	{  0, NULL }
+};
+/* Ref 1 http://www.delta-info.com/Protocol_Test/Manufacturer_codes.html 	*/
+/* Ref 2 http://www.cix.co.uk/~bpechey/H221/h221code.htm			*/
+/* Ref 3 http://www.regtp.de/reg_tele/start/in_05-06-03-11-00_m/index.html 	*/
+
+
+
+
 static int
 dissect_h245_t35CountryCode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -7799,6 +7945,8 @@ dissect_h245_h221NonStandard(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_h221NonStandard, ett_h245_h221NonStandard, h221NonStandard_sequence);
 
 	h221NonStandard = ((t35CountryCode * 256) + t35Extension) * 65536 + manufacturerCode;
+
+	proto_tree_add_uint(tree, hf_h245_h221Manufacturer, tvb, (offset-3)>>3,4,h221NonStandard);
 
 	return offset;
 }
@@ -22152,6 +22300,9 @@ proto_register_h245(void)
 	{ &hf_h245_internationalNumber,
 		{ "internationalNumber", "h245.internationalNumber", FT_STRING, FT_NONE,
 		NULL, 0, "String for internationalNumber", HFILL }},
+	{ &hf_h245_h221Manufacturer,
+		{ "H.221 Manufacturer", "h245.h221Manufacturer", FT_UINT32, BASE_HEX,
+		VALS(h221Manufacturer_vals), 0, "H.221 Manufacturer", HFILL }},
 	};
 
 	static gint *ett[] =
