@@ -472,7 +472,7 @@ class EthCtx:
     if val.type == 'Type_Ref':
       self.type[ident]['attr'] = {}
     else:
-      (ftype, display) = val.eth_ftype()
+      (ftype, display) = val.eth_ftype(self)
       self.type[ident]['attr'] = { 'TYPE' : ftype, 'DISPLAY' : display,
                                    'STRINGS' : val.eth_strings(), 'BITMASK' : '0' }
     self.type[ident]['attr'].update(self.conform.use_item('TYPE_ATTR', ident))
@@ -508,6 +508,13 @@ class EthCtx:
   #--- eth_prepare ------------------------------------------------------------
   def eth_prepare(self):
     self.eproto = asn2c(self.proto)
+
+    #--- dummy types/fields for PDU registration ---
+    nm = 'NULL'
+    if (self.conform.check_item('PDU', nm)):
+      self.eth_reg_type('_dummy/'+nm, NullType())
+      self.eth_reg_field(nm, '_dummy/'+nm, pdu=self.conform.use_item('PDU', nm))
+
     #--- types -------------------
     self.eth_type = {}
     self.eth_type_ord = []
@@ -886,7 +893,10 @@ class EthCtx:
     fx = self.output.file_open('exp', ext='h')
     for t in self.eth_export_ord:  # vals
       if (self.eth_type[t]['export'] & 0x02) and self.eth_type[t]['val'].eth_has_vals():
-        fx.write("extern const value_string %s_vals[];\n" % (t))
+        if self.eth_type[t]['export'] & 0x08:
+          fx.write("ETH_VAR_IMPORT const value_string %s_vals[];\n" % (t))
+        else:
+          fx.write("extern const value_string %s_vals[];\n" % (t))
     for t in self.eth_export_ord:  # functions
       if (self.eth_type[t]['export'] & 0x01):
         fx.write(self.eth_type_fn_h(t))
@@ -1334,7 +1344,10 @@ class EthCnf:
           warnings.warn_explicit("Non-empty line in empty context", UserWarning, fn, lineno)
       elif ctx in ('EXPORTS', 'USER_DEFINED', 'NO_EMIT'):
         if empty.match(line): continue
-        par = get_par(line, 1, 2, fn=fn, lineno=lineno)
+        if ctx == 'EXPORTS':
+          par = get_par(line, 1, 3, fn=fn, lineno=lineno)
+        else:
+          par = get_par(line, 1, 2, fn=fn, lineno=lineno)
         if not par: continue
         flag = 0x03
         if (len(par)>=2):
@@ -1342,6 +1355,9 @@ class EthCnf:
           elif (par[1] == 'WITHOUT_VALS'): flag = 0x01
           elif (par[1] == 'ONLY_VALS'):    flag = 0x02
           else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[1]), UserWarning, fn, lineno)
+        if (len(par)>=3):
+          if (par[2] == 'ETH_VAR'):        flag |= 0x08
+          else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[2]), UserWarning, fn, lineno)
         self.add_item(ctx, par[0], flag=flag, fn=fn, lineno=lineno)
       elif ctx == 'PDU':
         if empty.match(line): continue
@@ -1620,7 +1636,7 @@ class Type (Node):
   def eth_tname(self):
     return '#' + self.type + '_' + str(id(self))
 
-  def eth_ftype(self):
+  def eth_ftype(self, ectx):
     return ('FT_NONE', 'BASE_NONE')
 
   def eth_strings(self):
@@ -1938,8 +1954,11 @@ class SequenceOfType (SqType):
     else:
       return '#' + self.type + '_' + str(id(self))
 
-  def eth_ftype(self):
-    return ('FT_NONE', 'BASE_NONE')
+  def eth_ftype(self, ectx):
+    if (ectx.NAPI()):
+      return ('FT_UINT32', 'BASE_DEC')
+    else:
+      return ('FT_NONE', 'BASE_NONE')
 
   def eth_need_tree(self):
     return True
@@ -1955,8 +1974,8 @@ class SequenceOfType (SqType):
       f = fname + '/' + '_item'
     ef = ectx.field[f]['ethname']
     out = ''
-    if (ectx.Ber()):
-      out = "static const ber_sequence_t %s_sequence_of[1] = {\n" % (tname)
+    if (not ectx.OPer()):
+      out = "static const %s_sequence_t %s_sequence_of[1] = {\n" % (ectx.encp(), tname)
       out += self.out_item(f, self.val, False, '', ectx)
       out += "};\n"
     out += ectx.eth_type_fn_hdr(tname)
@@ -2010,8 +2029,11 @@ class SetOfType (SqType):
     else:
       return '#' + self.type + '_' + str(id(self))
 
-  def eth_ftype(self):
-    return ('FT_NONE', 'BASE_NONE')
+  def eth_ftype(self, ectx):
+    if (ectx.NAPI()):
+      return ('FT_UINT32', 'BASE_DEC')
+    else:
+      return ('FT_NONE', 'BASE_NONE')
 
   def eth_need_tree(self):
     return True
@@ -2024,8 +2046,8 @@ class SetOfType (SqType):
     f = fname + '/' + '_item'
     ef = ectx.field[f]['ethname']
     out = ''
-    if (ectx.Ber()):
-      out = "static const ber_sequence_t %s_set_of[1] = {\n" % (tname)
+    if (not ectx.OPer()):
+      out = "static const %s_sequence_t %s_set_of[1] = {\n" % (ectx.encp(), tname)
       out += self.out_item(f, self.val, False, '', ectx)
       out += "};\n"
     out += ectx.eth_type_fn_hdr(tname)
@@ -2198,7 +2220,7 @@ class SetType(SqType):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_SET')
 
   def eth_type_fn(self, proto, tname, ectx):
-    out = "static per_set_new_t %s_sequence_new[] = {\n" % (tname)
+    out = "static const %s_sequence_t %s_set[] = {\n" % (ectx.encp(), tname)
     fname = ectx.eth_type[tname]['ref'][0]
     if hasattr(self, 'ext_list'):
       ext = 'ASN1_EXTENSION_ROOT'
@@ -2216,16 +2238,16 @@ class SetType(SqType):
     if (ectx.OBer()):
       body = ectx.eth_fn_call('dissect_ber_set', ret='offset',
                               par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset'),
-                                   (tname+'_sequence', 'hf_index', ectx.eth_type[tname]['tree'])))
+                                   (tname+'_set', 'hf_index', ectx.eth_type[tname]['tree'])))
     elif (ectx.NPer()):
       body = ectx.eth_fn_call('dissect_pern_set', ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree'),
                                    ('hf_index', 'item', 'private_data'),
-                                   (ectx.eth_type[tname]['tree'], tname+'_sequence', '"'+tname+'"')))
+                                   (ectx.eth_type[tname]['tree'], tname+'_set', '"'+tname+'"')))
     elif (ectx.OPer()):
       body = ectx.eth_fn_call('dissect_per_sequence', ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
-                                   (ectx.eth_type[tname]['tree'], tname+'_sequence')))
+                                   (ectx.eth_type[tname]['tree'], tname+'_set')))
     else:
       body = '#error Can not decode %s' % (tname)
     out += ectx.eth_type_fn_body(tname, body)
@@ -2279,7 +2301,7 @@ class ChoiceType (Type):
             for e in (self.ext_list):
                 e.eth_reg(ident, ectx, parent=ident)
 
-    def eth_ftype(self):
+    def eth_ftype(self, ectx):
       return ('FT_UINT32', 'BASE_DEC')
 
     def eth_strings(self):
@@ -2433,7 +2455,7 @@ class EnumeratedType (Type):
       return "%s=%s" % (named_num.ident, named_num.val)
     return "asn1.ENUM(%s)" % ",".join (map (strify_one, self.val))
 
-  def eth_ftype(self):
+  def eth_ftype(self, ectx):
     return ('FT_UINT32', 'BASE_DEC')
 
   def eth_strings(self):
@@ -2521,7 +2543,7 @@ class AnyType (Type):
   def to_python (self, ctx):
     return "asn1.ANY"
 
-  def eth_ftype(self):
+  def eth_ftype(self, ectx):
     return ('FT_NONE', 'BASE_NONE')
 
   def GetTTag(self, ectx):
@@ -2598,7 +2620,7 @@ class BooleanType (Type):
   def GetTTag(self, ectx):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_BOOLEAN')
 
-  def eth_ftype(self):
+  def eth_ftype(self, ectx):
     return ('FT_BOOLEAN', '8')
 
   def eth_type_fn(self, proto, tname, ectx):
@@ -2633,7 +2655,7 @@ class OctetStringType (Type):
     else:
       return '#' + self.type + '_' + str(id(self))
 
-  def eth_ftype(self):
+  def eth_ftype(self, ectx):
     return ('FT_BYTES', 'BASE_HEX')
 
   def GetTTag(self, ectx):
@@ -2673,7 +2695,7 @@ class CharacterStringType (Type):
     else:
       return '#' + self.type + '_' + str(id(self))
 
-  def eth_ftype(self):
+  def eth_ftype(self, ectx):
     return ('FT_STRING', 'BASE_NONE')
 
 class RestrictedCharacterStringType (CharacterStringType):
@@ -2806,7 +2828,7 @@ class ObjectIdentifierType (Type):
   def eth_tname(self):
     return 'OBJECT_IDENTIFIER'
 
-  def eth_ftype(self):
+  def eth_ftype(self, ectx):
     return ('FT_STRING', 'BASE_NONE')
 
   def GetTTag(self, ectx):
@@ -2903,7 +2925,7 @@ class IntegerType (Type):
   def GetTTag(self, ectx):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_INTEGER')
 
-  def eth_ftype(self):
+  def eth_ftype(self, ectx):
     if self.HasConstraint():
       if self.constr.type == 'SingleValue':
         if self.constr.subtype >= 0:
@@ -2996,7 +3018,7 @@ class BitStringType (Type):
   def GetTTag(self, ectx):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_BITSTRING')
 
-  def eth_ftype(self):
+  def eth_ftype(self, ectx):
     return ('FT_BYTES', 'BASE_HEX')
 
   def eth_need_tree(self):
