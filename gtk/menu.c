@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.193 2004/05/09 07:01:06 ulfl Exp $
+ * $Id: menu.c,v 1.194 2004/05/20 10:37:40 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1231,6 +1231,21 @@ timestamp_delta_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 }
 
+void
+menu_name_resolution_changed(void)
+{
+    GtkWidget *menu = NULL;
+
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Name Resolution/Enable for MAC Layer");
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), g_resolv_flags & RESOLV_MAC);
+
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Name Resolution/Enable for Network Layer");
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), g_resolv_flags & RESOLV_NETWORK);
+
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Name Resolution/Enable for Transport Layer");
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), g_resolv_flags & RESOLV_TRANSPORT);
+}
+
 static void 
 name_resolution_mac_cb(GtkWidget *w _U_, gpointer d _U_)
 {
@@ -1292,14 +1307,7 @@ menu_recent_read_finished(void) {
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Packet Bytes");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.byte_view_show);
 
-    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Name Resolution/Enable for MAC Layer");
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), g_resolv_flags & RESOLV_MAC);
-
-    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Name Resolution/Enable for Network Layer");
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), g_resolv_flags & RESOLV_NETWORK);
-
-    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Name Resolution/Enable for Transport Layer");
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), g_resolv_flags & RESOLV_TRANSPORT);
+    menu_name_resolution_changed();
 
 #ifdef HAVE_LIBPCAP
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Auto Scroll in Live Capture");

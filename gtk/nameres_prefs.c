@@ -1,7 +1,7 @@
 /* nameres_prefs.c
  * Dialog box for name resolution preferences
  *
- * $Id: nameres_prefs.c,v 1.9 2004/03/13 15:15:25 ulfl Exp $
+ * $Id: nameres_prefs.c,v 1.10 2004/05/20 10:37:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 #include "prefs_dlg.h"
 #include "ui_util.h"
 #include "main.h"
+#include "menu.h"
 #include "compat_macros.h"
 
 #define M_RESOLVE_KEY	"m_resolve"
@@ -158,6 +159,7 @@ nameres_prefs_apply(GtkWidget *w _U_)
 	 * changed?
 	 */
 	g_resolv_flags = prefs.name_resolve;
+    menu_name_resolution_changed();
 }
 
 void
