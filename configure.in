@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.105 2000/10/16 23:50:02 guy Exp $
+# $Id: configure.in,v 1.106 2000/10/17 09:21:51 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -246,6 +246,15 @@ AC_CHECK_HEADERS(netinet/in.h)
 AC_CHECK_HEADERS(stddef.h)
 AC_CHECK_HEADERS(dlfcn.h)
 AC_CHECK_HEADERS(arpa/inet.h)
+
+#
+# XXX - we should also somehow arrange to support dynamic linking on
+# HP-UX, even though it hasn't yet, apparently, implemented the
+# UNIX standard "dlopen()" interface atop its own interface.
+#
+if test "$ac_cv_header_dlfcn_h" = yes ; then
+  AC_DEFINE(HAVE_PLUGINS)
+fi
 
 dnl SNMP Check
 AC_ARG_ENABLE(snmp,
