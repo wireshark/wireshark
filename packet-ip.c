@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.122 2001/01/22 03:33:45 guy Exp $
+ * $Id: packet-ip.c,v 1.123 2001/02/21 19:35:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -87,6 +87,7 @@ static int hf_ip_frag_offset = -1;
 static int hf_ip_ttl = -1;
 static int hf_ip_proto = -1;
 static int hf_ip_checksum = -1;
+static int hf_ip_checksum_bad = 0;
 
 static gint ett_ip = -1;
 static gint ett_ip_dsfield = -1;
@@ -113,6 +114,7 @@ static int proto_icmp = -1;
 static int hf_icmp_type = -1;
 static int hf_icmp_code = -1;
 static int hf_icmp_checksum = -1;
+static int hf_icmp_checksum_bad = 0;
 
 static gint ett_icmp = -1;
 
@@ -891,6 +893,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             "Header checksum: 0x%04x (correct)", iph.ip_sum);
     }
     else {
+	proto_tree_add_item_hidden(ip_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, TRUE);
 	proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph.ip_sum,
             "Header checksum: 0x%04x (incorrect, should be 0x%04x)", iph.ip_sum,
 	    in_cksum_shouldbe(iph.ip_sum, ipsum));
@@ -1117,6 +1120,8 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			cksum,
 			"Checksum: 0x%04x (correct)", cksum);
       } else {
+        proto_tree_add_item_hidden(icmp_tree, hf_icmp_checksum_bad,
+			tvb, 2, 2, TRUE);
         proto_tree_add_uint_format(icmp_tree, hf_icmp_checksum, tvb, 2, 2,
 			cksum,
 			"Checksum: 0x%04x (incorrect, should be 0x%04x)",
@@ -1436,6 +1441,10 @@ proto_register_ip(void)
 		{ &hf_ip_checksum,
 		{ "Header checksum",	"ip.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
 			"" }},
+
+		{ &hf_ip_checksum_bad,
+		{ "Bad Header checksum",	"ip.checksum_bad", FT_BOOLEAN, 4, NULL, 0x0,
+			"" }},
 	};
 	static gint *ett[] = {
 		&ett_ip,
@@ -1498,6 +1507,10 @@ proto_register_icmp(void)
     { &hf_icmp_checksum,
       { "Checksum",	"icmp.checksum",	FT_UINT16, BASE_HEX,	NULL, 0x0,
       	"" }},
+
+	{ &hf_icmp_checksum_bad,
+	{ "Bad Checksum",	"icmp.checksum_bad", FT_BOOLEAN, 4, NULL, 0x0,
+		"" }},
   };
   static gint *ett[] = {
     &ett_icmp,
