@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.17 2002/08/21 07:55:05 guy Exp $
+ * $Id: packet-scsi.c,v 1.18 2002/08/21 10:35:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3663,6 +3663,29 @@ static const value_string element_type_code_vals[] = {
 #define SVALID 0x80
 
 static void
+dissect_scsi_smc2_volume_tag (tvbuff_t *tvb, packet_info *pinfo _U_,
+                              proto_tree *tree, guint offset,
+                              const char *name)
+{
+    char volid[32+1];
+    char *p;
+
+    tvb_memcpy (tvb, (guint8 *)volid, offset, 32);
+    p = &volid[32];
+    for (;;) {
+    	*p = '\0';
+        if (p == volid)
+            break;
+        if (*(p - 1) != ' ')
+            break;
+        p--;
+    }
+    proto_tree_add_text (tree, tvb, offset, 36,
+                         "%s: Volume Identification = %s, Volume Sequence Number = %u",
+	                 name, volid, tvb_get_ntohs (tvb, offset+34));
+}
+
+static void
 dissect_scsi_smc2_element (tvbuff_t *tvb, packet_info *pinfo _U_,
                          proto_tree *tree, guint offset,
                          guint elem_bytecnt, guint8 elem_type,
@@ -3786,9 +3809,8 @@ dissect_scsi_smc2_element (tvbuff_t *tvb, packet_info *pinfo _U_,
     if (voltag_flags & PVOLTAG) {
         if (elem_bytecnt < 36)
             return;
-        proto_tree_add_text (tree, tvb, offset, 36,
-                             "Primary Volume Tag Information: %s",
-                             tvb_bytes_to_str (tvb, offset, 36));
+        dissect_scsi_smc2_volume_tag (tvb, pinfo, tree, offset,
+                                      "Primary Volume Tag Information");
         offset += 36;
         elem_bytecnt -= 36;
     }
@@ -3796,9 +3818,8 @@ dissect_scsi_smc2_element (tvbuff_t *tvb, packet_info *pinfo _U_,
     if (voltag_flags & AVOLTAG) {
         if (elem_bytecnt < 36)
             return;
-        proto_tree_add_text (tree, tvb, offset, 36,
-                             "Alternate Volume Tag Information: %s",
-                             tvb_bytes_to_str (tvb, offset, 36));
+        dissect_scsi_smc2_volume_tag (tvb, pinfo, tree, offset,
+                                      "Alternate Volume Tag Information");
         offset += 36;
         elem_bytecnt -= 36;
     }
