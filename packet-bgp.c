@@ -2,18 +2,18 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.21 2000/04/08 07:07:08 guy Exp $
+ * $Id: packet-bgp.c,v 1.22 2000/04/11 14:21:36 itojun Exp $
  * 
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
+ * RFC1965 Autonomous System Confederations for BGP 
  * RFC1966 BGP Route Reflection An alternative to full mesh IBGP
  * RFC1997 BGP Communities Attribute
  * RFC2283 Multiprotocol Extensions for BGP-4
  *
  * TODO:
- * RFC1863 A BGP/IDRP Route Server alternative to a full mesh routing 
- * RFC1965 Autonomous System Confederations for BGP 
  * Destination Preference Attribute for BGP (work in progress)
+ * RFC1863 A BGP/IDRP Route Server alternative to a full mesh routing 
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -134,8 +134,10 @@ static const value_string bgpattr_origin[] = {
 static const value_string as_segment_type[] = {
     { 1, "AS_SET" },
     { 2, "AS_SEQUENCE" },
-    { 3, "AS_CONFED_SET" },
-    { 4, "AS_CONFED_SEQUENCE" },
+/* This is wrong according to the RFC... in the Zebra code they say that
+   cisco reversed it.  Packet traces seem to agree.                      */
+    { 4, "AS_CONFED_SET" },
+    { 3, "AS_CONFED_SEQUENCE" },
     { 0, NULL },
 };
 
@@ -361,7 +363,6 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
             len, (len == 1) ? "byte" : "bytes");
 
     /* path attributes */
-/* --- move --- */
     if (len > 0) {
         ti = proto_tree_add_text(tree, p - pd + 2, len, "Path attributes");
 	subtree = proto_item_add_subtree(ti, ett_bgp_attrs);
@@ -414,18 +415,19 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
                     if (type == AS_SET) {
                         snprintf(as_path_str, 2, "{");
                     }
-                    length = *q++;
-
-                    /* ignore confederation types until we support them */
-                    if (type == AS_CONFED_SET || type == AS_CONFED_SEQUENCE) {
-                        q += length;
-                        break;
+                    else if (type == AS_CONFED_SET) {
+                        snprintf(as_path_str, 2, "[");
                     }
+                    else if (type == AS_CONFED_SEQUENCE) {
+                        snprintf(as_path_str, 2, "(");
+                    }
+                    length = *q++;
 
                     /* snarf each value in path */
                     for (j = 0; j < length; j++) {
                         snprintf(junk_buf, sizeof(junk_buf), "%u%s", pntohs(q), 
-                                (type == AS_SET) ? ", " : " ");
+                                (type == AS_SET || type == AS_CONFED_SET) 
+                                ? ", " : " ");
                         strncat(as_path_str, junk_buf, sizeof(junk_buf));
                         q += 2;
                     }
@@ -433,6 +435,12 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
                     /* cleanup end of string */
                     if (type == AS_SET) {
                         as_path_str[strlen(as_path_str) - 2] = '}';
+                    }
+                    else if (type == AS_CONFED_SET) {
+                        as_path_str[strlen(as_path_str) - 2] = ']';
+                    }
+                    else if (type == AS_CONFED_SEQUENCE) {
+                        as_path_str[strlen(as_path_str) - 1] = ')';
                     }
                     else {
                         as_path_str[strlen(as_path_str) - 1] = '\0';
@@ -679,26 +687,29 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
                 end = p + alen + i + 3;
                 q = p + i + 3;
    
-                /* snarf each AS path tuple */
+                /* snarf each AS path tuple, we have to step through each one
+                   again to make a separate subtree so we can't just reuse
+                   as_path_str from above */
                 while (q < end) {
                     as_path_str[0] = '\0';
                     type = *q++;
                     if (type == AS_SET) {
                         snprintf(as_path_str, 2, "{");
                     }
-                    length = *q++;
-
-                    /* ignore confederation types until we support them */
-                    if (type == AS_CONFED_SET || type == AS_CONFED_SEQUENCE) {
-                        q += length;
-                        break;
+                    else if (type == AS_CONFED_SET) {
+                        snprintf(as_path_str, 2, "[");
                     }
+                    else if (type == AS_CONFED_SEQUENCE) {
+                        snprintf(as_path_str, 2, "(");
+                    }
+                    length = *q++;
 
                     /* snarf each value in path, we're just going to reuse 
                        as_path_str since we already have it malloced       */
                     for (j = 0; j < length; j++) {
                         snprintf(junk_buf, sizeof(junk_buf), "%u%s", pntohs(q),
-                                (type == AS_SET) ? ", " : " ");
+                                (type == AS_SET || type == AS_CONFED_SET) 
+                                ? ", " : " ");
                         strncat(as_path_str, junk_buf, sizeof(junk_buf));
                         q += 2;
                     }
@@ -706,6 +717,12 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
                     /* cleanup end of string */
                     if (type == AS_SET) {
                         as_path_str[strlen(as_path_str) - 2] = '}';
+                    }
+                    else if (type == AS_CONFED_SET) {
+                        as_path_str[strlen(as_path_str) - 2] = ']';
+                    }
+                    else if (type == AS_CONFED_SEQUENCE) {
+                        as_path_str[strlen(as_path_str) - 1] = ')';
                     }
                     else {
                         as_path_str[strlen(as_path_str) - 1] = '\0';
@@ -722,6 +739,17 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 	            proto_tree_add_text(as_path_tree, q - pd - length * 2 - 1, 
                             1, "Path segment length: %u %s", length,
                             (length == 1) ? "AS" : "ASs");
+
+                    /* backup and reprint path segment value(s) only */
+                    q -= 2 * length;
+                    as_path_str[0] = '\0';
+                    for (j = 0; j < length; j++) {
+                        snprintf(junk_buf, sizeof(junk_buf), "%u ", pntohs(q));
+                        strncat(as_path_str, junk_buf, sizeof(junk_buf));
+                        q += 2;
+                    }
+                    as_path_str[strlen(as_path_str) - 1] = '\0';
+
                     proto_tree_add_text(as_path_tree, q - pd - length * 2, 
                             length * 2, "Path segment value: %s", as_path_str);
                 }
@@ -868,7 +896,8 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 		    int j, advance;
 		    const char *s;
 
-		    subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_reach_nlri);
+		    subtree3 = proto_item_add_subtree(ti, 
+                            ett_bgp_mp_reach_nlri);
 
 		    j = 0;
 		    while (j < p[i + aoff + 3]) {
@@ -902,7 +931,8 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 			"Subnetwork points of attachment: %u", snpa);
 		off++;
 		if (snpa)
-		    subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_reach_nlri);
+		    subtree3 = proto_item_add_subtree(ti, 
+                            ett_bgp_mp_reach_nlri);
 		for (/*nothing*/; snpa > 0; snpa--) {
 		    proto_tree_add_text(subtree3, p - pd + i + aoff + off, 1,
 			"SNPA length: %u", p[i + aoff + off]);
@@ -920,7 +950,8 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 			"Network layer reachability information (%u %s)",
 			alen, (alen == 1) ? "byte" : "bytes");
 		if (alen)
-		    subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_unreach_nlri);
+		    subtree3 = proto_item_add_subtree(ti, 
+                            ett_bgp_mp_unreach_nlri);
 		while (alen > 0) {
 		    int advance;
 		    char buf[256];
@@ -962,7 +993,8 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 		alen -= 3;
 		aoff += 3;
 		if (alen > 0)
-		    subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_unreach_nlri);
+		    subtree3 = proto_item_add_subtree(ti, 
+                            ett_bgp_mp_unreach_nlri);
 		while (alen > 0) {
 		    int advance;
 		    char buf[256];
@@ -1026,7 +1058,6 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 
 	    i += alen + aoff;
 	}
-/* --- move --- */
         p += 2 + len;
 
         /* NLRI */

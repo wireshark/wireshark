@@ -1,7 +1,7 @@
 /* packet-bgp.c
  * Definitions for BGP packet disassembly structures and routine
  *
- * $Id: packet-bgp.h,v 1.8 2000/04/08 07:07:09 guy Exp $
+ * $Id: packet-bgp.h,v 1.9 2000/04/11 14:21:37 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -85,8 +85,10 @@ struct bgp_attr {
 /* AS_PATH segment types */
 #define AS_SET             1   /* RFC1771 */
 #define AS_SEQUENCE        2   /* RFC1771 */
-#define AS_CONFED_SET      3   /* RFC1965 */
-#define AS_CONFED_SEQUENCE 4   /* RFC1965 */
+/* This is wrong according to the RFC... in the Zebra code they say that
+   cisco reversed it.  Packet traces seem to agree.                      */
+#define AS_CONFED_SET      4   /* RFC1965 */
+#define AS_CONFED_SEQUENCE 3   /* RFC1965 */
 
 /* well-known communities, from RFC1997 */
 #define BGP_COMM_NO_EXPORT           0xFFFFFF01
