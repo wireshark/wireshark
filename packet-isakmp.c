@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.46 2001/10/25 23:51:26 guy Exp $
+ * $Id: packet-isakmp.c,v 1.47 2001/10/26 10:30:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -197,20 +197,20 @@ struct udp_encap_hdr {
 static proto_tree *dissect_payload_header(tvbuff_t *, int, int, guint8,
     guint8 *, guint16 *, proto_tree *);
 
-static void dissect_sa(tvbuff_t *, int, int, proto_tree *);
-static void dissect_proposal(tvbuff_t *, int, int, proto_tree *);
-static void dissect_transform(tvbuff_t *, int, int, proto_tree *, guint8);
-static void dissect_key_exch(tvbuff_t *, int, int, proto_tree *);
-static void dissect_id(tvbuff_t *, int, int, proto_tree *);
-static void dissect_cert(tvbuff_t *, int, int, proto_tree *);
-static void dissect_certreq(tvbuff_t *, int, int, proto_tree *);
-static void dissect_hash(tvbuff_t *, int, int, proto_tree *);
-static void dissect_sig(tvbuff_t *, int, int, proto_tree *);
-static void dissect_nonce(tvbuff_t *, int, int, proto_tree *);
-static void dissect_notif(tvbuff_t *, int, int, proto_tree *);
-static void dissect_delete(tvbuff_t *, int, int, proto_tree *);
-static void dissect_vid(tvbuff_t *, int, int, proto_tree *);
-static void dissect_config(tvbuff_t *, int, int, proto_tree *);
+static void dissect_sa(tvbuff_t *, int, int, proto_tree *, int);
+static void dissect_proposal(tvbuff_t *, int, int, proto_tree *, int);
+static void dissect_transform(tvbuff_t *, int, int, proto_tree *, int);
+static void dissect_key_exch(tvbuff_t *, int, int, proto_tree *, int);
+static void dissect_id(tvbuff_t *, int, int, proto_tree *, int);
+static void dissect_cert(tvbuff_t *, int, int, proto_tree *, int);
+static void dissect_certreq(tvbuff_t *, int, int, proto_tree *, int);
+static void dissect_hash(tvbuff_t *, int, int, proto_tree *, int);
+static void dissect_sig(tvbuff_t *, int, int, proto_tree *, int);
+static void dissect_nonce(tvbuff_t *, int, int, proto_tree *, int);
+static void dissect_notif(tvbuff_t *, int, int, proto_tree *, int);
+static void dissect_delete(tvbuff_t *, int, int, proto_tree *, int);
+static void dissect_vid(tvbuff_t *, int, int, proto_tree *, int);
+static void dissect_config(tvbuff_t *, int, int, proto_tree *, int);
 
 static const char *payloadtype2str(guint8);
 static const char *exchtype2str(guint8);
@@ -233,12 +233,12 @@ static gboolean get_num(tvbuff_t *, int, guint16, guint32 *);
 
 static struct strfunc {
   const char *	str;
-  void          (*func)(tvbuff_t *, int, int, proto_tree *);
+  void          (*func)(tvbuff_t *, int, int, proto_tree *, int);
 } strfuncs[NUM_LOAD_TYPES] = {
   {"NONE",			NULL              },
   {"Security Association",	dissect_sa        },
   {"Proposal",			dissect_proposal  },
-  {"Transform",			NULL              },
+  {"Transform",			dissect_transform },
   {"Key Exchange",		dissect_key_exch  },
   {"Identification",		dissect_id        },
   {"Certificate",		dissect_cert      },
@@ -280,11 +280,8 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, guint8 initial_payload,
       break;
     if (payload_length >= 4) {	/* XXX = > 4? */
       if (payload < NUM_LOAD_TYPES) {
-        if (next_payload == LOAD_TYPE_TRANSFORM)
-          dissect_transform(tvb, offset + 4, payload_length - 4, ntree, 0);
-            /* XXX - protocol ID? */
-        else
-          (*strfuncs[payload].func)(tvb, offset + 4, payload_length - 4, ntree);
+        (*strfuncs[payload].func)(tvb, offset + 4, payload_length - 4, ntree,
+				  -1);
       }
       else {
         proto_tree_add_text(ntree, tvb, offset + 4, payload_length - 4,
@@ -480,7 +477,8 @@ dissect_payload_header(tvbuff_t *tvb, int offset, int length, guint8 payload,
 }
 
 static void
-dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    int unused)
 {
   guint32		doi;
   guint32		situation;
@@ -523,7 +521,8 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 }
 
 static void
-dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    int unused)
 {
   guint8		protocol_id;
   guint8		spi_size;
@@ -585,7 +584,7 @@ dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 
 static void
 dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    guint8 protocol_id)
+    int protocol_id)
 {
   guint8		transform_id;
 
@@ -597,6 +596,9 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   transform_id = tvb_get_guint8(tvb, offset);
   switch (protocol_id) {
   default:
+    proto_tree_add_text(tree, tvb, offset, 1,
+			"Transform ID: %u", transform_id);
+    break;
   case 1:	/* ISAKMP */
     proto_tree_add_text(tree, tvb, offset, 1,
 			"Transform ID: %s (%u)",
@@ -662,13 +664,15 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 }
 
 static void
-dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    int unused)
 {
   proto_tree_add_text(tree, tvb, offset, length, "Key Exchange Data");
 }
 
 static void
-dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    int unused)
 {
   guint8		id_type;
   guint8		protocol_id;
@@ -720,7 +724,8 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 }
 
 static void
-dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    int unused)
 {
   guint8		cert_enc;
 
@@ -735,7 +740,8 @@ dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 }
 
 static void
-dissect_certreq(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+dissect_certreq(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    int unused)
 {
   guint8		cert_type;
 
@@ -750,25 +756,29 @@ dissect_certreq(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 }
 
 static void
-dissect_hash(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+dissect_hash(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    int unused)
 {
   proto_tree_add_text(tree, tvb, offset, length, "Hash Data");
 }
 
 static void
-dissect_sig(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+dissect_sig(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    int unused)
 {
   proto_tree_add_text(tree, tvb, offset, length, "Signature Data");
 }
 
 static void
-dissect_nonce(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+dissect_nonce(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    int unused)
 {
   proto_tree_add_text(tree, tvb, offset, length, "Nonce Data");
 }
 
 static void
-dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    int unused)
 {
   guint32		doi;
   guint8		protocol_id;
@@ -812,7 +822,8 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 }
 
 static void
-dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    int unused)
 {
   guint32		doi;
   guint8		protocol_id;
@@ -860,13 +871,15 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 }
 
 static void
-dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    int unused)
 {
   proto_tree_add_text(tree, tvb, offset, length, "Vendor ID");
 }
 
 static void
-dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    int unused)
 {
   guint8		type;
 
