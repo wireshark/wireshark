@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.76 2004/07/12 17:20:06 ulfl Exp $
+ * $Id: gui_prefs.c,v 1.77 2004/07/14 08:04:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -365,12 +365,14 @@ font_fetch(void)
 		return FALSE;
 	}
 
-    if(user_font_test(font_name)) {
-    	new_font_name = font_name;
-        return TRUE;
-    }
-
-    g_free(font_name);
+	if (!user_font_test(font_name)) {
+		/* The font isn't usable; "user_font_test()" has already
+		   told the user why.  Don't tear down the font selection
+		   dialog. */
+		g_free(font_name);
+		return FALSE;
+	}
+	new_font_name = font_name;
 	return TRUE;
 }
 
