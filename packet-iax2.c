@@ -8,7 +8,7 @@
  * IAX2 is a VoIP protocol for the open source PBX Asterisk. Please see
  * http://www.asterisk.org for more information.
  *
- * $Id: packet-iax2.c,v 1.3 2004/01/27 20:25:06 guy Exp $
+ * $Id: packet-iax2.c,v 1.4 2004/02/13 19:15:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,11 +53,15 @@ static int hf_iax2_oseqno = -1;
 static int hf_iax2_iseqno = -1;
 static int hf_iax2_type = -1;
 static int hf_iax2_csub = -1;
-static int hf_iax2_dtmf_csub = -1;
 static int hf_iax2_cmd_csub = -1;
 static int hf_iax2_iax_csub = -1;
 static int hf_iax2_voice_csub = -1;
 static int hf_iax2_ies = -1;
+
+static int hf_IAX_IE_APPARENTADDR_SINFAMILY = -1;
+static int hf_IAX_IE_APPARENTADDR_SINPORT = -1;
+static int hf_IAX_IE_APPARENTADDR_SINADDR = -1;
+static int hf_IAX_IE_APPARENTADDR_SINZERO = -1;		  
 static int hf_IAX_IE_CALLED_NUMBER = -1;
 static int hf_IAX_IE_CALLING_NUMBER = -1;
 static int hf_IAX_IE_CALLING_ANI = -1;
@@ -75,7 +79,6 @@ static int hf_IAX_IE_AUTHMETHODS = -1;
 static int hf_IAX_IE_CHALLENGE = -1;
 static int hf_IAX_IE_MD5_RESULT = -1;
 static int hf_IAX_IE_RSA_RESULT = -1;
-static int hf_IAX_IE_APPARENT_ADDR = -1;
 static int hf_IAX_IE_REFRESH = -1;
 static int hf_IAX_IE_DPSTATUS = -1;
 static int hf_IAX_IE_CALLNO = -1;
@@ -92,6 +95,7 @@ static int hf_IAX_IE_RDNIS = -1;
 static gint ett_iax2 = -1;
 static gint ett_iax2_ies = -1;
 static gint ett_iax2_codecs = -1;
+static gint ett_iax2_ies_apparent_addr = -1;
 
 static const value_string iax_frame_types[] = {
   {0, "(0?)"},
@@ -198,10 +202,9 @@ static const value_string codec_types[] = {
 static void
 dissect_iax2 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  proto_tree *iax2_tree = NULL, *ies_tree = NULL, *codec_tree = NULL;
-  proto_item *ti = 0, *ies_base = 0, *codec_base = 0;
+  proto_tree *iax2_tree = NULL, *ies_tree = NULL, *codec_tree = NULL, *sockaddr_tree = NULL;
+  proto_item *ti = 0, *ies_base = 0, *codec_base = 0, *sockaddr_item = 0;
   guint32 offset = 0, codecs = 0, i = 0, mask = 0, retransmission = 0;
-  long addr;
   guint16 scallno;
   guint16 dcallno;
   guint32 ts;
@@ -272,8 +275,7 @@ dissect_iax2 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	}
       else if (type == AST_FRAME_DTMF)
 	{
-	  proto_tree_add_uint (iax2_tree, hf_iax2_dtmf_csub, tvb,
-			       offset + 11, 1, csub);
+	  proto_tree_add_text (iax2_tree, tvb, offset + 11, 1, "DTMF digit: %c", csub);
 	  if (check_col (pinfo->cinfo, COL_INFO))
 	    {
 	      col_add_fstr (pinfo->cinfo, COL_INFO,
@@ -441,9 +443,10 @@ dissect_iax2 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				   offset + 2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_APPARENT_ADDR:
-	      addr = tvb_get_ntohl (tvb, offset + 6);
-	      ti = proto_tree_add_ipv4 (ies_tree, hf_IAX_IE_APPARENT_ADDR, tvb, offset + 6, 4, addr);
-	      proto_item_append_text( ti, ", Port: %d", tvb_get_ntohs(tvb, offset + 2));
+	      sockaddr_item = proto_tree_add_text(ies_tree, tvb, offset + 2, 16, "Apparent Address");
+	      sockaddr_tree = proto_item_add_subtree(sockaddr_item, ett_iax2_ies_apparent_addr);
+	      proto_tree_add_item(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINADDR, tvb, offset + 6, 4, FALSE);
+	      proto_tree_add_item(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINPORT, tvb, offset + 4, 2, FALSE);
 	      break;
 	    case IAX_IE_REFRESH:
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_REFRESH, tvb,
@@ -548,25 +551,27 @@ proto_register_iax2 (void)
     {&hf_iax2_csub,
      {"Sub-class", "iax2.subclass", FT_UINT8, BASE_DEC, NULL, 0x0, "",
       HFILL}},
-    {&hf_iax2_dtmf_csub,
-     {"DTMF digit", "iax2.dtmf.digit", FT_UINT8, BASE_DEC, NULL, 0x0,
-      "",
-      HFILL}},
     {&hf_iax2_cmd_csub,
      {"Control type", "iax2.control", FT_UINT8, BASE_DEC,
       VALS (iax_cmd_subclasses), 0x0, "", HFILL}},
     {&hf_iax2_voice_csub,
      {"CODEC", "iax2.voice", FT_UINT8, BASE_DEC, VALS (codec_types),
-      0x0, "",
-      HFILL}},
+      0x0, "", HFILL}},
     {&hf_iax2_iax_csub,
      {"IAX type", "iax2.iax", FT_UINT8, BASE_DEC,
       VALS (iax_iax_subclasses),
       0x0, "", HFILL}},
     {&hf_iax2_ies,
      {"Information elements", "iax2.ies", FT_BYTES, BASE_NONE, NULL,
-      0x0, "",
-      HFILL}},
+      0x0, "", HFILL}},
+	{&hf_IAX_IE_APPARENTADDR_SINFAMILY,
+     {"Family", "iax2.ies.app_addr.sinfamily", FT_UINT16, BASE_DEC, NULL, 0, "Family", HFILL }},
+	{&hf_IAX_IE_APPARENTADDR_SINPORT,
+     {"Port", "iax2.ies.app_addr.sinport", FT_UINT16, BASE_DEC, NULL, 0, "Port", HFILL }},
+	{&hf_IAX_IE_APPARENTADDR_SINADDR,
+     {"Address", "iax2.ies.app_addr.sinaddr", FT_IPv4, BASE_HEX, NULL, 0, "Address", HFILL }},
+	{&hf_IAX_IE_APPARENTADDR_SINZERO,
+     {"Zero", "iax2.ies.app_addr.sinzero", FT_BYTES, BASE_HEX, NULL, 0, "Zero", HFILL }},
     {&hf_IAX_IE_CALLED_NUMBER,
      {"Number/extension being called", "iax2.ies.called_number",
       FT_STRING,
@@ -633,10 +638,6 @@ proto_register_iax2 (void)
      {"RSA challenge result", "iax2.ies.auth.rsa", FT_STRING,
       BASE_NONE, NULL,
       0x0, "", HFILL}},
-    {&hf_IAX_IE_APPARENT_ADDR,
-     {"Apparent address of peer", "iax2.ies.address", FT_STRING,
-      BASE_NONE,
-      NULL, 0x0, "", HFILL}},
     {&hf_IAX_IE_REFRESH,
      {"When to refresh registration", "iax2.ies.refresh", FT_INT16,
       BASE_DEC,
@@ -680,7 +681,8 @@ proto_register_iax2 (void)
   static gint *ett[] = {
     &ett_iax2,
     &ett_iax2_ies,
-    &ett_iax2_codecs
+    &ett_iax2_codecs,
+	&ett_iax2_ies_apparent_addr
   };
 
   proto_iax2 =
