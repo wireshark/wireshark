@@ -1,3 +1,26 @@
+Overview of changes in Ethereal 0.8.1:
+* Fix mulitiple-selection bug in packet list (Gilbert)
+* Check for libtool and libtool version (Guy)
+* Toshiba file reader handles relative dates (Gilbert)
+* File|Open dialogue box directory hack (Gilbert)
+* Modify appearance of lines and expanders in GUI proto tree (Gilbert)
+* Make code ANSI-C compliant and other build fixes (Guy)
+* Fix side effects of using GtkCTree and GTK_SELECTION_BROWSE (Guy)
+* Abstract out some of the menu code from the GUI routines (Guy)
+* Re-arrange some GUI code (Guy)
+* "Default" button for resetting plugin filter string (Olivier)
+* Plugin status save/restore (Olivier)
+* Add notes about sniffing VMware connections (Gilbert)
+* Add focus for "Find Frame" and "Go to Frame" (Guy)
+* Reconcile differences in integer size used for ports
+	in conversation code and packet_info code (Gilbert)
+* Empty string capture filters for libpcap craziness (Gerald, Guy)
+* Manpage updates (Guy)
+* Print packets as multiple pages of PostScript (Guy)
+* Fix "Follow TCP Stream" print function (Guy)
+* Avoid segfault in SMB reported by
+	Aaron Bush <abush@microcenter.com> (Gilbert)
+
 Overview of changes in Ethereal 0.8.0:
 * RPC and NFS updates, complete NFSv2 support (Uwe, Gilbert)
 * Initial TNS support (Nathan)
