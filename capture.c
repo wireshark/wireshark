@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.77 1999/10/02 06:26:45 guy Exp $
+ * $Id: capture.c,v 1.78 1999/10/02 19:24:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -73,6 +73,10 @@
 #  include <varargs.h>
 # endif
 # include "snprintf.h"
+#endif
+
+#ifndef lib_pcap_h
+#include <pcap.h>
 #endif
 
 #include "gtk/main.h"

@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.4 1999/09/23 07:20:20 guy Exp $
+ * $Id: file_dlg.c,v 1.5 1999/10/02 19:24:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,6 +55,10 @@
 
 #ifndef __MENU_H__
 #include "menu.h"
+#endif
+
+#ifdef HAVE_LIBPCAP
+#include "capture.h"
 #endif
 
 static void file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs);

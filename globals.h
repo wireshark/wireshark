@@ -1,7 +1,7 @@
 /* globals.h
  * Global defines, etc.
  *
- * $Id: globals.h,v 1.9 1999/09/30 06:49:54 guy Exp $
+ * $Id: globals.h,v 1.10 1999/10/02 19:24:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -100,14 +100,6 @@ extern int          g_resolving_actif;
 extern ts_type timestamp_type;
 
 extern GtkStyle *item_style;
-
-#ifdef HAVE_LIBPCAP
-extern int sync_mode;	/* allow sync */
-extern int sync_pipe[2]; /* used to sync father */
-extern int fork_mode;	/* fork a child to do the capture */
-extern int quit_after_cap; /* Makes a "capture only mode". Implies -k */
-extern gboolean capture_child;	/* if this is the child for "-F"/"-S" */
-#endif
 
 #define PF_DIR ".ethereal"
 
