@@ -9,7 +9,7 @@
  * Copyright 2001, Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Updated for ANSI and Chinese ITU support by Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3.c,v 1.25 2004/02/26 09:48:27 guy Exp $
+ * $Id: packet-mtp3.c,v 1.26 2004/02/29 08:30:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -491,10 +491,10 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   }
 
-  /* Dissect the packet (even if !tree so can call sub-dissectors) */
+  /* Dissect the packet (even if !tree so can call sub-dissectors and update
+   * the source and destination address columns) */
   dissect_mtp3_sio(tvb, pinfo, mtp3_tree);
-  if (tree)
-    dissect_mtp3_routing_label(tvb, pinfo, mtp3_tree);
+  dissect_mtp3_routing_label(tvb, pinfo, mtp3_tree);
   dissect_mtp3_payload(tvb, pinfo, tree);
 }
 
