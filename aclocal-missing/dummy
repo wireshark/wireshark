@@ -1,0 +1,2 @@
+The existence of the file is a hack: I don't know how to teach
+'make dist-gzip' to include the (empty) aclocal-missing directory.

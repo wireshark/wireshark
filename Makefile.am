@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.541 2003/01/21 00:39:57 gerald Exp $
+# $Id: Makefile.am,v 1.542 2003/01/22 00:08:08 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -1037,6 +1037,7 @@ EXTRA_DIST = \
 	aclocal-fallback/gtk-2.0.m4 \
 	aclocal-fallback/gtk.m4 \
 	aclocal-flags		\
+	aclocal-missing/dummy	\
 	autogen.sh		\
 	capture-wpcap.c		\
 	capture-wpcap.h		\
@@ -1156,11 +1157,6 @@ endif
 #
 #dist-hook:
 #	@rm -f $(distdir)/register.c
-
-# Hack around the problem that I haven't found a way to include an
-# empty directroy in the distribution tarball.
-dist-hook:
-	mkdir -p aclocal-missing
 
 DIST_SUBDIRS = tools wiretap doc epan plugins packaging gtk
 
