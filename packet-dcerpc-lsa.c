@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.61 2003/01/28 06:39:39 tpot Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.62 2003/01/30 05:38:56 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -656,12 +656,20 @@ static int
 lsa_dissect_lsaqueryinformationpolicy_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
+	guint16 level;
+
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
 		"LSA_HANDLE", -1);
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
-		hf_lsa_policy_information_class, NULL);
+		hf_lsa_policy_information_class, &level);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(
+			pinfo->cinfo, COL_INFO, ", %s",
+			val_to_str(level, policy_information_class_vals,
+				   "Unknown (%d)"));
 
 	return offset;
 }
@@ -2721,8 +2729,10 @@ lsa_dissect_lsaopensecret_rqst(tvbuff_t *tvb, int offset,
 		pinfo, tree, drep);
 
 	/* [in, ref] LSA_UNICODE_STRING *name */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		hf_lsa_name);
+	dissect_ndr_nt_UNICODE_STRING_cb(
+		tvb, offset, pinfo, tree, drep, hf_lsa_name,
+		cb_str_postprocess, 
+		GINT_TO_POINTER(CB_STR_ITEM | CB_STR_COL_INFO));
 
 	/* [in] ACCESS_MASK access */
 	offset = lsa_dissect_ACCESS_MASK(tvb, offset,

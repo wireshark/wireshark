@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.67 2003/01/28 06:39:40 tpot Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.68 2003/01/30 05:38:56 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -590,7 +590,7 @@ samr_dissect_open_user_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", rid 0x%x", rid);
 
-	dcv->private_data = (void *)rid;
+	dcv->private_data = GINT_TO_POINTER(rid);
 
 	return offset;
 }
@@ -600,12 +600,23 @@ samr_dissect_open_user_reply(tvbuff_t *tvb, int offset,
 			     packet_info *pinfo, proto_tree *tree,
 			     char *drep)
 {
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	e_ctx_hnd policy_hnd;
+	guint32 rid = GPOINTER_TO_INT(dcv->private_data);
+	char *pol_name;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
 
-	dcerpc_smb_store_pol_name(&policy_hnd, "OpenUser handle");
+	if (rid)
+		pol_name = g_strdup_printf("OpenUser, rid 0x%x", rid);
+	else
+		pol_name = g_strdup("OpenUser handle");
+
+	dcerpc_smb_store_pol_name(&policy_hnd, pol_name);
+
+	g_free(pol_name);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_samr_rc, NULL);
@@ -681,17 +692,25 @@ samr_dissect_query_dispinfo_rqst(tvbuff_t *tvb, int offset,
 				 packet_info *pinfo, proto_tree *tree,
 				 char *drep)
 {
+	guint16 level;
+	guint32 start_idx;
+
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_level, NULL);
+                                     hf_samr_level, &level);
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_start_idx, NULL);
+                                     hf_samr_start_idx, &start_idx);
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_max_entries, NULL);
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_pref_maxsize, NULL);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(
+			pinfo->cinfo, COL_INFO, ", level %d, start_idx %d", 
+			level, start_idx);
 
         return offset;
 }
@@ -1128,38 +1147,16 @@ samr_dissect_get_usrdom_pwinfo_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-
-
-static int
-samr_dissect_connect2_server(tvbuff_t *tvb, int offset,
-                             packet_info *pinfo, proto_tree *parent_tree,
-                             char *drep)
-{
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-	int old_offset=offset;
-
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-			"Server");
-		tree = proto_item_add_subtree(item, ett_samr_server);
-	}
-
-	offset = dissect_ndr_nt_UNICODE_STRING_str(tvb, offset, pinfo,
-			tree, drep);
-
-	proto_item_set_len(item, offset-old_offset);
-	return offset;
-}
-
 static int
 samr_dissect_connect2_rqst(tvbuff_t *tvb, int offset,
 			   packet_info *pinfo, proto_tree *tree,
 			   char *drep)
 {
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_connect2_server, NDR_POINTER_UNIQUE,
-			"Server", hf_samr_server);
+	offset = dissect_ndr_pointer_cb(
+		tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+		"Server", hf_samr_server, cb_str_postprocess,
+		GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_ITEM | CB_STR_SAVE));
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
@@ -1173,9 +1170,11 @@ samr_dissect_connect4_rqst(tvbuff_t *tvb, int offset,
 			   packet_info *pinfo, proto_tree *tree,
 			   char *drep)
 {
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_connect2_server, NDR_POINTER_UNIQUE,
-			"Server", hf_samr_server);
+	offset = dissect_ndr_pointer_cb(
+		tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+		"Server", hf_samr_server, cb_str_postprocess,
+		GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_ITEM));
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 				     hf_samr_unknown_long, NULL);
@@ -1192,12 +1191,22 @@ samr_dissect_connect2_reply(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	e_ctx_hnd policy_hnd;
-
+	char *server = (char *)dcv->private_data, *pol_name;
+	
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
 
-	dcerpc_smb_store_pol_name(&policy_hnd, "Connect2 handle");
+	if (server)
+		pol_name = g_strdup_printf("Connect2, %s", server);
+	else
+		pol_name = g_strdup("Connect2 handle");
+
+	dcerpc_smb_store_pol_name(&policy_hnd, pol_name);
+
+	g_free(pol_name);
 
         offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_samr_rc, NULL);
@@ -1488,11 +1497,16 @@ samr_dissect_query_information_alias_rqst(tvbuff_t *tvb, int offset,
 					  packet_info *pinfo,
 					  proto_tree *tree, char *drep)
 {
+	guint16 level;
+
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
-			hf_samr_level, NULL);
+			hf_samr_level, &level);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
 	return offset;
 }
@@ -3697,11 +3711,16 @@ samr_dissect_set_information_user2_rqst(tvbuff_t *tvb, int offset,
 					packet_info *pinfo, proto_tree *tree,
 					char *drep)
 {
+	guint16 level;
+
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
-			hf_samr_level, NULL);
+			hf_samr_level, &level);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_USER_INFO, NDR_POINTER_REF,
@@ -3921,11 +3940,17 @@ samr_dissect_query_sec_object_rqst(tvbuff_t *tvb, int offset,
 				   packet_info *pinfo, proto_tree *tree,
 				   char *drep)
 {
+	guint32 info_type;
+
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_samr_info_type, NULL);
+			hf_samr_info_type, &info_type);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(
+			pinfo->cinfo, COL_INFO, ", info_type %d", info_type);
 
 	return offset;
 }
@@ -4488,7 +4513,7 @@ samr_dissect_open_alias_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", rid 0x%x", rid);
 
-	dcv->private_data = (void *)rid;
+	dcv->private_data = GINT_TO_POINTER(rid);
 
 	return offset;
 }
@@ -4498,12 +4523,25 @@ samr_dissect_open_alias_reply(tvbuff_t *tvb, int offset,
 			      packet_info *pinfo, proto_tree *tree,
 			      char *drep)
 {
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	e_ctx_hnd policy_hnd;
+	char *pol_name;
+	guint32 rid;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
 
-	dcerpc_smb_store_pol_name(&policy_hnd, "OpenAlias handle");
+	rid = GPOINTER_TO_INT(dcv->private_data);
+
+	if (rid)
+		pol_name = g_strdup_printf("OpenAlias, rid 0x%x", rid);
+	else
+		pol_name = g_strdup_printf("OpenAlias handle");
+
+	dcerpc_smb_store_pol_name(&policy_hnd, pol_name);
+
+	g_free(pol_name);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 			hf_samr_rc, NULL);
@@ -4615,11 +4653,16 @@ samr_dissect_query_information_user_rqst(tvbuff_t *tvb, int offset,
 					  packet_info *pinfo,
 					  proto_tree *tree, char *drep)
 {
+	guint16 level;
+
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
-			hf_samr_level, NULL);
+			hf_samr_level, &level);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
 	return offset;
 }
