@@ -1,6 +1,6 @@
 /* vms.c
  *
- * $Id: vms.c,v 1.11 2002/03/07 21:08:33 guy Exp $
+ * $Id: vms.c,v 1.12 2002/03/25 21:15:54 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
@@ -20,6 +20,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/* Notes:
+ *   TCPIPtrace TCP fragments don't have the header line.  So, we are never
+ *   to look for that line for the first line of a packet except the first
+ *   packet.  This allows us to read fragmented packets.  Define
+ *   TCPIPTRACE_FRAGMENTS_HAVE_HEADER_LINE to expect the first line to be
+ *   at the start of every packet.
+ */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -81,6 +88,7 @@ static gboolean parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf,
 static int parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err);
 
 
+#ifdef TCPIPTRACE_FRAGMENTS_HAVE_HEADER_LINE
 /* Seeks to the beginning of the next packet, and returns the
    byte offset.  Returns -1 on failure, and sets "*err" to the error. */
 static long vms_seek_next_packet(wtap *wth, int *err)
@@ -118,6 +126,7 @@ static long vms_seek_next_packet(wtap *wth, int *err)
   }
   return -1;
 }
+#endif /* TCPIPTRACE_FRAGMENTS_HAVE_HEADER_LINE */
 
 #define VMS_HEADER_LINES_TO_CHECK    200
 #define VMS_LINE_LENGTH        240
@@ -215,7 +224,11 @@ static gboolean vms_read(wtap *wth, int *err, long *data_offset)
     int    pkt_len;
 
     /* Find the next packet */
+#ifdef TCPIPTRACE_FRAGMENTS_HAVE_HEADER_LINE
     offset = vms_seek_next_packet(wth, err);
+#else
+    offset = file_tell(wth->fh);
+#endif
     if (offset < 1)
         return FALSE;
 
@@ -261,31 +274,36 @@ vms_seek_read (wtap *wth, long seek_off,
     return parse_vms_hex_dump(wth->random_fh, pkt_len, pd, err);
 }
 
-/* isdumpline assumes that dump lines start with some spaces followed by a
- * hex number.
+/* isdumpline assumes that dump lines start with some non-alphanumerics
+ * followed by 4 hex numbers - each 8 digits long, each hex number followed
+ * by 3 spaces.
  */
 static int
 isdumpline( guchar *line )
 {
-    int i = 0;
+    int i, j;
 
-    while (i<VMS_LINE_LENGTH && line[i] && !isalnum(line[i]))
-        i++;
+    while (*line && !isalnum(*line))
+	line++;
 
-    if (! isxdigit(line[i]))
-        return 0;
+    for (j=0; j<4; j++) {
+	for (i=0; i<8; i++, line++)
+	    if (! isxdigit(*line))
+		return FALSE;
 
-    while (i<VMS_LINE_LENGTH && isxdigit(line[i]))
-        i++;
+	for (i=0; i<3; i++, line++)
+	    if (*line != ' ')
+		return FALSE;
+    }
 
-    return isspace(line[i]);
+    return isspace(*line);
 }
 
 /* Parses a packet record header. */
 static int
 parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err)
 {
-    char    line[VMS_LINE_LENGTH];
+    char   line[VMS_LINE_LENGTH + 1];
     int    num_items_scanned;
     int	   pkt_len = 0;
     int	   pktnum;
@@ -310,6 +328,8 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err)
             }
             return -1;
         }
+	line[VMS_LINE_LENGTH] = '\0';
+
 	if ((csec == 101) && (p = strstr(line, "packet "))
 	    && (! strstr(line, "could not save "))) {
 	    /* Find text in line starting with "packet ". */
@@ -360,7 +380,7 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err)
 static gboolean
 parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
 {
-    guchar line[VMS_LINE_LENGTH];
+    guchar line[VMS_LINE_LENGTH + 1];
     int    i;
     int    offset = 0;
 
@@ -372,8 +392,9 @@ parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
             }
             return FALSE;
         }
+	line[VMS_LINE_LENGTH] = '\0';
         if (i == 0) {
-	    while (! isdumpline(line)) /* advance to start of hex data */
+	    while (! isdumpline(line)) { /* advance to start of hex data */
 	        if (file_gets(line, VMS_LINE_LENGTH, fh) == NULL) {
 		    *err = file_error(fh);
 		    if (*err == 0) {
@@ -381,6 +402,8 @@ parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
 		    }
 		    return FALSE;
 		}
+		line[VMS_LINE_LENGTH] = '\0';
+	    }
             while (line[offset] && !isxdigit(line[offset]))
                 offset++;
 	}
