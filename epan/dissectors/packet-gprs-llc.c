@@ -208,32 +208,40 @@ guint32 tbl_crc24[256] = {
 	0x00dafe19, 0x000c596f, 0x002cbb4e, 0x00fa1c38, 0x006d7f0c, 0x00bbd87a, 0x009b3a5b, 0x004d9d2d
 };
 
-#define GOOD_CRC24	0x0c91b6
 #define INIT_CRC24	0xffffff
 
-guint32 crc_calc(guint32 fcs, guchar *cp, int len)
+static guint32 crc_calc(guint32 fcs, tvbuff_t *tvb, guint len)
 {
+	const guchar *cp;
+
+	cp = tvb_get_ptr(tvb, 0, len);
 	while (len--)
 		fcs = (fcs >> 8) ^ tbl_crc24[(fcs ^ *cp++) & 0xff];
 	return fcs;
 }
 
+typedef enum {
+	FCS_VALID,
+	FCS_NOT_VALID,
+	FCS_NOT_COMPUTED
+} fcs_status_t;
+
 /* Code to actually dissect the packets */
 static void
 dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
- guint8 addr_fld=0, sapi=0, ctrl_fld_fb=0, frame_format, tmp=0 ;
- guint16 offset=0 , epm = 0, nu=0,ctrl_fld_ui_s=0,crc_start=0 ;
- proto_item *ti, *addres_field_item, *ctrl_field_item, *ui_ti;
- proto_tree *llcgprs_tree=NULL , *ad_f_tree =NULL, *ctrl_f_tree=NULL, *ui_tree=NULL;
- tvbuff_t *next_tvb;
- guint32 fcs , fcs_calc;
- guchar *data;
-/* Make entries in Protocol column and Info column on summary display */
+	guint8 addr_fld=0, sapi=0, ctrl_fld_fb=0, frame_format, tmp=0 ;
+	guint16 offset=0 , epm = 0, nu=0,ctrl_fld_ui_s=0,crc_start=0 ;
+	proto_item *ti, *addres_field_item, *ctrl_field_item, *ui_ti;
+	proto_tree *llcgprs_tree=NULL , *ad_f_tree =NULL, *ctrl_f_tree=NULL, *ui_tree=NULL;
+	tvbuff_t *next_tvb;
+	guint length;
+	guint32 fcs, fcs_calc;
+	fcs_status_t fcs_status;
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "GPRS-LLC");
 	
-        crc_start = tvb_length(tvb)-3;
         addr_fld = tvb_get_guint8(tvb,offset);
 	offset++;
 	if (addr_fld > 128 ) {
@@ -246,14 +254,37 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_add_fstr(pinfo->cinfo, COL_INFO, "SAPI: %s", match_strval(sapi,sapi_abrv));
 	
 	  
-	data = (guchar*)tvb_get_ptr(tvb, 0, crc_start+3 );
-	fcs_calc = crc_calc ( INIT_CRC24 , data , crc_start );
-	fcs_calc = ~fcs_calc;
+	length = tvb_reported_length(tvb);
+	if (tvb_bytes_exist(tvb, 0, length) && length >= 3) {
+		/*
+		 * We have all the packet data, including the full FCS,
+		 * so we can compute the FCS.
+		 *
+		 * XXX - do we need to check the PM bit?
+		 */
+	        crc_start = length-3;
+		fcs_calc = crc_calc ( INIT_CRC24 , tvb, crc_start );
+		fcs_calc = ~fcs_calc;
+		fcs_calc &= 0xffffff;
 
-	if ( memcmp ( &fcs_calc , data+crc_start , 3 ) == 0 )
-		fcs = GOOD_CRC24;
-	else
-		fcs = ~GOOD_CRC24;
+		fcs = tvb_get_letoh24(tvb, crc_start);
+		if ( fcs_calc == fcs )
+			fcs_status = FCS_VALID;
+		else
+			fcs_status = FCS_NOT_VALID;
+	} else {
+		/*
+		 * We don't have enough data to compute the FCS.
+		 */
+		fcs_status = FCS_NOT_COMPUTED;
+
+		/*
+		 * Squelch compiler warnings.
+		 */
+		fcs = 0;
+		fcs_calc = 0;
+		crc_start = 0;
+	}
         
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
@@ -264,11 +295,20 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		llcgprs_tree = proto_item_add_subtree(ti, ett_llcgprs);
 
 /* add an item to the subtree, see section 1.6 for more information */
-		if ( fcs == GOOD_CRC24 )
+		switch ( fcs_status ) {
+
+		case FCS_VALID:
 			proto_tree_add_text ( llcgprs_tree , tvb , crc_start , 3 , "FCS: 0x%06x (correct)" , fcs_calc&0xffffff );
-		else
-			proto_tree_add_text ( llcgprs_tree , tvb , crc_start , 3 , "FCS: 0x%02x%02x%02x  (incorrect, should be 0x%06x)",
-				data[crc_start] , data[crc_start+1], data[crc_start+2],  fcs_calc & 0xffffff );
+			break;
+
+		case FCS_NOT_VALID:
+			proto_tree_add_text ( llcgprs_tree , tvb , crc_start , 3 , "FCS: 0x%06x  (incorrect, should be 0x%06x)",
+				fcs,  fcs_calc );
+			break;
+
+		case FCS_NOT_COMPUTED:
+			break;	/* FCS not present */
+		}
 		addres_field_item = proto_tree_add_uint_format(llcgprs_tree,hf_llcgprs_sapi,
 		     tvb, 0,1, sapi, "Address field  SAPI: %s", match_strval(sapi,sapi_abrv));
 		ad_f_tree = proto_item_add_subtree(addres_field_item, ett_llcgprs_adf);
@@ -332,11 +372,12 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			  
  		   	  next_tvb = tvb_new_subset(tvb, offset,crc_start-3, -1 );
-		   	  if ((ignore_cipher_bit && (fcs == GOOD_CRC24)) || !(epm & 0x2)){
+		   	  if ((ignore_cipher_bit && (fcs_status == FCS_VALID)) || !(epm & 0x2)){
 			  	/*
 			  	 * Either we're ignoring the cipher bit
 			  	 * (because the bit is set but the
-			  	 * data is unciphered), or the cipher 
+			  	 * data is unciphered), and the data has
+			  	 * a valid FCS, or the cipher 
 			  	 * bit isn't set (indicating that the
 			  	 * data is unciphered).  Try dissecting
 			  	 * it with a subdissector.
