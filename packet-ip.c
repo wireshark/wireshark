@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.83 2000/04/20 07:05:54 guy Exp $
+ * $Id: packet-ip.c,v 1.84 2000/05/10 21:36:55 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -378,7 +378,7 @@ capture_ip(const u_char *pd, int offset, packet_counts *ld) {
       ld->gre++;
       break;
     case IP_PROTO_VINES:
-      ld->gre++;
+      ld->vines++;
       break;
     default:
       ld->other++;
