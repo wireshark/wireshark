@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.266 2002/05/30 11:29:38 guy Exp $
+ * $Id: packet-smb.c,v 1.267 2002/06/02 12:32:10 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -15414,10 +15414,6 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 						/* ok it is the first response we have seen to this packet */
 						sip->frame_res = pinfo->fd->num;
 						new_key = g_mem_chunk_alloc(smb_saved_info_key_chunk);
-						new_key->frame = sip->frame_req;
-						new_key->pid_mid = pid_mid;
-						g_hash_table_insert(si.ct->matched, new_key, sip);
-						new_key = g_mem_chunk_alloc(smb_saved_info_key_chunk);
 						new_key->frame = sip->frame_res;
 						new_key->pid_mid = pid_mid;
 						g_hash_table_insert(si.ct->matched, new_key, sip);
@@ -15444,6 +15440,10 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				sip->cmd = si.cmd;
 				sip->extra_info = NULL;
 				g_hash_table_insert(si.ct->unmatched, (void *)pid_mid, sip);
+				new_key = g_mem_chunk_alloc(smb_saved_info_key_chunk);
+				new_key->frame = sip->frame_req;
+				new_key->pid_mid = pid_mid;
+				g_hash_table_insert(si.ct->matched, new_key, sip);
 			}
 		} else {
 			/* we have seen this packet before; check the
