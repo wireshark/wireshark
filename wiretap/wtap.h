@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.3 1998/11/13 05:57:39 gram Exp $
+ * $Id: wtap.h,v 1.4 1998/11/13 06:47:37 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -48,6 +48,7 @@
 
 typedef struct {
 	guint16	pkt_len;
+	double	timeunit;
 } ngsniffer_t;
 
 typedef struct {
