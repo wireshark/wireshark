@@ -1,11 +1,10 @@
 /* packet-tcp.h
  *
- * $Id: packet-tcp.h,v 1.6 2000/11/18 10:38:25 guy Exp $
+ * $Id: packet-tcp.h,v 1.7 2001/09/30 23:14:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,8 +24,14 @@
 #ifndef __PACKET_TCP_H__
 #define __PACKET_TCP_H__
 
-/* Urgent pointer value for the current packet. */
-extern guint16   tcp_urgent_pointer;
+/*
+ * Private data passed from the TCP dissector to subdissectors.
+ */
+struct tcpinfo {
+	gboolean is_reassembled; /* This is reassembled data. */
+	guint16	urgent_pointer;  /* Urgent pointer value for the current packet. */
+};
+
 
 extern void decode_tcp_ports(tvbuff_t *, int, packet_info *,
 	proto_tree *, int, int);

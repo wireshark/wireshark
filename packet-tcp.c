@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.109 2001/09/28 23:34:03 guy Exp $
+ * $Id: packet-tcp.c,v 1.110 2001/09/30 23:14:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,8 +57,6 @@
 static gboolean tcp_summary_in_tree = TRUE;
 
 extern FILE* data_out_file;
-
-guint16 tcp_urgent_pointer;
 
 static int proto_tcp = -1;
 static int hf_tcp_srcport = -1;
@@ -256,11 +254,13 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		guint32 sport, guint32 dport,
 		proto_tree *tree, proto_tree *tcp_tree)
 {
+	struct tcpinfo *tcpinfo = pinfo->private;
 	fragment_data *ipfd_head;
 	tcp_segment_key old_tsk, *tsk;
 	gboolean must_desegment = FALSE;
 	gboolean called_dissector = FALSE;
 	int deseg_offset;
+	guint32 deseg_seq;
 
 	/*
 	 * Initialize these to assume no desegmentation.
@@ -326,12 +326,6 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				sport, dport);
 		called_dissector = TRUE;
 
-		/*
-		 * Advance the offset to the first byte that the
-		 * subdissector didn't process.
-		 */
-		offset += pinfo->desegment_offset;
-
 		/* Did the subdissector ask us to desegment some more data
 		   before it could handle the packet? 
 		   If so we have to create some structures in our table but
@@ -347,7 +341,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			 * of the first byte of data that the
 			 * subdissector didn't process.
 			 */
-			deseg_offset = offset;
+			deseg_offset = offset + pinfo->desegment_offset;
 		}
 
 		/* Either no desegmentation is necessary, or this is
@@ -398,6 +392,9 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 			/* add desegmented data to the data source list */
 			pinfo->fd->data_src = g_slist_append(pinfo->fd->data_src, next_tvb);
+
+			/* indicate that this is reassembled data */
+			tcpinfo->is_reassembled = TRUE;
 
 			/* save current value of *pinfo across call to
 			   dissector */
@@ -477,6 +474,18 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	    tcp_segment_key *tsk, *new_tsk;
 
 	    /*
+	     * The sequence number at which the stuff to be desegmented
+	     * starts is the sequence number of the byte at an offset
+	     * of "deseg_offset" into "tvb".
+	     *
+	     * The sequence number of the byte at an offset of "offset"
+	     * is "seq", i.e. the starting sequence number of this
+	     * segment, so the sequence number of the byte at
+	     * "deseg_offset" is "seq + (deseg_offset - offset)".
+	     */
+	    deseg_seq = seq + (deseg_offset - offset);
+
+	    /*
 	     * XXX - how do we detect out-of-order transmissions?
 	     * We can't just check for "nxtseq" being greater than
 	     * "tsk->start_seq"; for now, we check for the difference
@@ -484,7 +493,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	     * gross hack - we really need to handle out-of-order
 	     * transmissions correctly.
 	     */
-	    if ((nxtseq - (seq + pinfo->desegment_offset)) <= 1024*1024) {
+	    if ((nxtseq - deseg_seq) <= 1024*1024) {
 		/* OK, subdissector wants us to desegment
 		   some data before it can process it. Add
 		   what remains of this packet and set
@@ -497,7 +506,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		COPY_ADDRESS(tsk->src, &pinfo->src);
 		tsk->dst = g_malloc(sizeof(address));
 		COPY_ADDRESS(tsk->dst, &pinfo->dst);
-		tsk->seq = seq + pinfo->desegment_offset;
+		tsk->seq = deseg_seq;
 		tsk->start_seq = tsk->seq;
 		tsk->tot_len = nxtseq - tsk->start_seq + pinfo->desegment_len;
 		tsk->first_frame = pinfo->fd->num;
@@ -815,6 +824,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void
 dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+  struct tcpinfo tcpinfo;
   e_tcphdr   th;
   proto_tree *tcp_tree = NULL, *field_tree = NULL;
   proto_item *ti, *tf;
@@ -853,8 +863,13 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Export the urgent pointer, for the benefit of protocols such as
      rlogin. */
-  tcp_urgent_pointer = th.th_urp;
+  tcpinfo.urgent_pointer = th.th_urp;
  
+  /* Assume we'll pass un-reassembled data to subdissectors. */
+  tcpinfo.is_reassembled = FALSE;
+
+  pinfo->private = &tcpinfo;
+
   if (check_col(pinfo->fd, COL_INFO) || tree) {  
     for (i = 0; i < 8; i++) {
       bpos = 1 << i;

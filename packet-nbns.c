@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.60 2001/09/29 01:19:00 guy Exp $
+ * $Id: packet-nbns.c,v 1.61 2001/09/30 23:14:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,7 @@
 #include "packet.h"
 #include "packet-dns.h"
 #include "packet-netbios.h"
+#include "packet-tcp.h"
 #include "prefs.h"
 
 static int proto_nbns = -1;
@@ -1365,7 +1366,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item	*tf;
 	guint8		msg_type;
 	guint8		flags;
-	guint16		length;
+	int		length;
 	int		len;
 	char		name[(NETBIOS_NAME_LEN - 1)*4 + MAXDNAME];
 	int		name_type;
@@ -1503,25 +1504,25 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void
 dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	struct tcpinfo	*tcpinfo = pinfo->private;
 	int		offset = 0;
-	guint8		msg_type;
 	int		max_data;
+	guint8		msg_type;
+	guint8		flags;
+	guint32		length;
 	int		len;
 	gboolean	is_cifs;
-	static const char zeroes[4] = { 0x00, 0x00, 0x00, 0x00 };
+	proto_tree	*nbss_tree;
+	proto_item	*ti;
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "NBSS");
 	if (check_col(pinfo->fd, COL_INFO))
 		col_clear(pinfo->fd, COL_INFO);
 
-	msg_type = tvb_get_guint8(tvb, offset);
+	max_data = tvb_length(tvb);
 
-	/*
-	 * XXX - we should set this based on both the length remaining
-	 * and "length"....
-	 */
-	max_data = tvb_length_remaining(tvb, offset);
+	msg_type = tvb_get_guint8(tvb, offset);
 
 	if (pinfo->match_port == TCP_PORT_CIFS) {
 		/*
@@ -1537,40 +1538,126 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		is_cifs = FALSE;
 	}
 
-	/* Hmmm, it may be a continuation message ... */
+	/*
+	 * This might be a continuation of an earlier message.
+	 * (Yes, that might be true even if we're doing TCP reassembly,
+	 * as the first TCP segment in the capture might start in the
+	 * middle of an NBNS message.)
+	 */
 
-#define RJSHACK 1
-#ifdef RJSHACK
-	if (max_data < 4 ||
-	    ((msg_type != SESSION_REQUEST) && 
-	     (msg_type != POSITIVE_SESSION_RESPONSE) &&
-	     (msg_type != NEGATIVE_SESSION_RESPONSE) &&
-	     (msg_type != RETARGET_SESSION_RESPONSE) &&
-	     (msg_type != SESSION_KEEP_ALIVE) &&
-	     (msg_type != SESSION_MESSAGE)) ||
-	    ((msg_type == SESSION_MESSAGE) &&
-	     (tvb_memeql(tvb, offset, zeroes, 4) == 0))) {
- 
-	  /*
-	   * We don't have the first 4 bytes of an NBNS header, or
-	   * the first byte isn't one of the known message types,
-	   * or it looks like a session message with a zero header.
-	   * Assume it's a continuation message.
-	   */
-	  if (check_col(pinfo->fd, COL_INFO)) {
-	    col_add_fstr(pinfo->fd, COL_INFO, "NBSS Continuation Message");
-	  }
+	/*
+	 * If this isn't reassembled data, check to see whether it
+	 * looks like a continuation of a message.
+	 * (If it is reassembled data, it shouldn't be a continuation,
+	 * as reassembly should've gathered the continuations together
+	 * into a message.)
+	 */
+	if (!tcpinfo->is_reassembled) {
+		if (max_data < 4) {
+			/*
+			 * Not enough data for an NBSS header; assume
+			 * it's a continuation of a message.
+			 *
+			 * XXX - if there's not enough data, we should
+			 * attempt to reassemble the data, if the first byte
+			 * is a valid message type.
+			 */
+			goto continuation;
+		}
 
-	  if (tree)
-	    proto_tree_add_text(tree, tvb, offset, max_data, "Continuation data");
+		/*
+		 * We have enough data for an NBSS header.
+		 * Get the flags and length of the message,
+		 * and see if they're sane.
+		 */
+		if (is_cifs) {
+			flags = 0;
+			length = tvb_get_ntoh24(tvb, offset + 1);
+		} else {
+			flags = tvb_get_guint8(tvb, offset + 1);
+			length = tvb_get_ntohs(tvb, offset + 2);
+			if (flags & NBSS_FLAGS_E)
+				length += 65536;
+		}
+		if ((flags & (~NBSS_FLAGS_E)) != 0) {
+			/*
+			 * A bogus flag was set; assume it's a continuation.
+			 */
+			goto continuation;
+		}
 
-	  return;
+		switch (msg_type) {
+
+		case SESSION_MESSAGE:
+			/*
+			 * This is variable-length.
+			 * All we know is that it shouldn't be zero.
+			 * (XXX - can we get zero-length messages?
+			 * Not with SMB, but perhaps other NetBIOS-based
+			 * protocols have them.)
+			 */
+			if (length == 0)
+				goto continuation;
+			break;
+
+		case SESSION_REQUEST:
+			/*
+			 * This is variable-length.
+			 * The names are DNS-encoded 32-byte values;
+			 * we need at least 2 bytes (one for each name;
+			 * actually, we should have more for the first
+			 * name, as there's no name preceding it so
+			 * there should be no compression), and we
+			 * shouldn't have more than 128 bytes (actually,
+			 * we shouldn't have that many).
+			 */
+			if (length < 2 || length > 128)
+				goto continuation;
+			break;
+
+		case POSITIVE_SESSION_RESPONSE:
+			/*
+			 * This has no data, so the length must be zero.
+			 */
+			if (length != 0)
+				goto continuation;
+			break;
+
+		case NEGATIVE_SESSION_RESPONSE:
+			/*
+			 * This has 1 byte of data.
+			 */
+			if (length != 1)
+				goto continuation;
+			break;
+
+		case RETARGET_SESSION_RESPONSE:
+			/*
+			 * This has 6 bytes of data.
+			 */
+			if (length != 6)
+				goto continuation;
+			break;
+
+		case SESSION_KEEP_ALIVE:
+			/*
+			 * This has no data, so the length must be zero.
+			 */
+			if (length != 0)
+				goto continuation;
+			break;
+
+		default:
+			/*
+			 * Unknown message type; assume it's a continuation.
+			 */
+			goto continuation;
+		}
 	}
-#endif
-
+ 
 	if (check_col(pinfo->fd, COL_INFO)) {
 		col_add_fstr(pinfo->fd, COL_INFO,
-		    val_to_str(msg_type, message_types, "Unknown (%x)"));
+		    val_to_str(msg_type, message_types, "Unknown (%02x)"));
 	}
 
 	while (max_data > 0) {
@@ -1578,6 +1665,23 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    is_cifs);
 		offset += len;
 		max_data -= len;
+	}
+
+	return;
+
+continuation:
+	/*
+	 * It looks like a continuation.
+	 */
+	if (check_col(pinfo->fd, COL_INFO))
+		col_add_fstr(pinfo->fd, COL_INFO, "NBSS Continuation Message");
+
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_nbss, tvb, 0,
+		    max_data, FALSE);
+		nbss_tree = proto_item_add_subtree(ti, ett_nbss);
+		proto_tree_add_text(nbss_tree, tvb, 0, max_data,
+		    "Continuation data");
 	}
 }
 

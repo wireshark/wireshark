@@ -2,7 +2,7 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.19 2001/09/03 10:33:06 guy Exp $
+ * $Id: packet-rlogin.c,v 1.20 2001/09/30 23:14:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -178,7 +178,7 @@ rlogin_state_machine( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 }
 
 static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
-	packet_info *pinfo, proto_tree *tree)
+	packet_info *pinfo, proto_tree *tree, struct tcpinfo *tcpinfo)
 {
 /* Display the proto tree */
 	int             offset = 0;
@@ -198,10 +198,10 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 	if ( length == 0)			/* exit if no captured data */
 		return;
 
-	if ( tcp_urgent_pointer &&		/* if control message */
-	     length >= tcp_urgent_pointer) {	/* and it's in this frame */
+	if ( tcpinfo->urgent_pointer &&		/* if control message */
+	     length >= tcpinfo->urgent_pointer) {	/* and it's in this frame */
 
-		int urgent_offset = tcp_urgent_pointer - 1;
+		int urgent_offset = tcpinfo->urgent_pointer - 1;
 		guint8 Temp = tvb_get_guint8(tvb, urgent_offset);
 		
 		if (urgent_offset > offset)	/* check for data in front */
@@ -335,6 +335,7 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 static void
 dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	struct tcpinfo *tcpinfo = pinfo->private;
 	conversation_t *conversation;
 	rlogin_hash_entry_t *hash_info;
 	gint ti_offset;
@@ -375,7 +376,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if ( tvb_get_guint8(tvb, 0) == '\0')
 			strcat( temp, "Start Handshake"); 
-		else if ( tcp_urgent_pointer)
+		else if ( tcpinfo->urgent_pointer)
 			strcat( temp, "Control Message"); 
 
 		else {				/* check for terminal info */
@@ -405,7 +406,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	rlogin_state_machine( hash_info, tvb, pinfo);
 
 	if ( tree) 				/* if proto tree, decode data */
- 		rlogin_display( hash_info, tvb, pinfo, tree);
+ 		rlogin_display( hash_info, tvb, pinfo, tree, tcpinfo);
 }
 
 
