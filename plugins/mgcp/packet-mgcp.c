@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.18 2001/03/04 03:38:20 guy Exp $
+ * $Id: packet-mgcp.c,v 1.19 2001/03/15 19:46:35 oabad Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -296,7 +296,6 @@ dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   tvbuff_t *next_tvb;
 
   /* Initialize variables */
-  
   tvb_sectionend = 0;
   tvb_sectionbegin = tvb_sectionend;
   sectionlen = 0;
@@ -1118,38 +1117,23 @@ static gint tvb_find_null_line(tvbuff_t* tvb, gint offset,
    * Loop around until we either find a line begining with a carriage return
    * or newline character or until we hit the end of the tvbuff.
    */
-  tempchar = tvb_get_guint8(tvb,tvb_linebegin);
-  while( tempchar != '\r' && tempchar != '\n' &&
-	 tvb_linebegin <= maxoffset){
+  do {
+    tvb_linebegin = tvb_lineend;
+    tvb_current_len = tvb_length_remaining(tvb,tvb_linebegin);
     tvb_find_line_end(tvb, tvb_linebegin, tvb_current_len, &tvb_lineend);
-    if(tvb_lineend < maxoffset){
-      tempchar = tvb_get_guint8(tvb,tvb_lineend);
-      tvb_current_len -= tvb_section_length(tvb,tvb_linebegin,tvb_lineend); 
-      tvb_linebegin = tvb_lineend;
-    }
-    else{
-      tvb_linebegin = tvb_lineend;
-      break;
-    }
-  }
-  /*
-   * Some cleanup.  If we actually exited the while loop at a null line
-   * and set the appropraite next_token and tvb_current_len.  Otherwise 
-   * we just grab to the end of the buffer.
-   */
-  if(tempchar == '\r' || tempchar == '\n'){
-    tvb_find_line_end(tvb,tvb_linebegin,tvb_current_len,next_offset);
-    if(*next_offset < maxoffset){
-      tvb_current_len = tvb_linebegin - offset;
-    }
-    else{
-      tvb_current_len = maxoffset + 1;
-    }
+    tempchar = tvb_get_guint8(tvb,tvb_linebegin);
+  } 
+  while( tempchar != '\r' && tempchar != '\n' &&
+	 tvb_lineend <= maxoffset);
+
+  *next_offset = tvb_lineend;
+
+  if( tvb_lineend <= maxoffset ) {
+    tvb_current_len = tvb_linebegin - offset;
   }
   else {
-    *next_offset = maxoffset + 1;
     tvb_current_len = tvb_length_remaining(tvb,offset);
-  } 
+  }
 
   return (tvb_current_len);
 }
