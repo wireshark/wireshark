@@ -2,7 +2,7 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.5 2001/03/26 18:55:27 jfoster Exp $
+ * $Id: packet-wcp.c,v 1.6 2001/03/29 06:09:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -756,7 +756,7 @@ proto_register_wcp(void)
 void
 proto_reg_handoff_wcp(void) {
 
-    dissector_add("fr.ietf", NLPID_WCP, dissect_wcp, proto_wcp);
+    dissector_add("fr.ietf", NLPID_COMPRESSED, dissect_wcp, proto_wcp);
     dissector_add("ethertype",  ETHERTYPE_WCP, dissect_wcp, proto_wcp);
 }
 

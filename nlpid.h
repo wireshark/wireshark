@@ -2,7 +2,7 @@
  * Definitions of OSI NLPIDs (Network Layer Protocol IDs)
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: nlpid.h,v 1.6 2001/03/23 21:49:23 guy Exp $
+ * $Id: nlpid.h,v 1.7 2001/03/29 06:09:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,10 +43,9 @@
 #define NLPID_ISO9542X25_ESIS	0x8a
 #define NLPID_ISO10030		0x8c
 #define NLPID_ISO11577		0x8d	/* X.273 */
+#define NLPID_COMPRESSED	0xb0	/* "Data compression protocol" */
 #define NLPID_IP		0xcc
 #define NLPID_PPP		0xcf
-
-#define NLPID_WCP		0xb0	/* Wellfleet compression IP */
 
 extern const value_string nlpid_vals[];
 
