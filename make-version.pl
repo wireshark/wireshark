@@ -92,9 +92,7 @@ sub read_svn_info {
 		$version_string = strftime($version_format, gmtime($last));
 
 		$package_format =~ s/%#/$revision/;
-print "pf: $package_format r: $revision\n";
 		$package_string = strftime($package_format, gmtime($last));
-print "ps2: $package_string\n";
 	}
 }
 
