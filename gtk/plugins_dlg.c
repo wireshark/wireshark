@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.2 1999/12/09 20:55:49 oabad Exp $
+ * $Id: plugins_dlg.c,v 1.3 1999/12/12 10:22:41 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -209,6 +209,9 @@ plugins_scan_dir(const char *dirname)
     {
 	while ((file = readdir(dir)) != NULL)
 	{
+	    /* don't try to open "." and ".." */
+	    if (!(strcmp(file->d_name, "..") &&
+		  strcmp(file->d_name, "."))) continue;
 	    sprintf(filename, "%s/%s", dirname, file->d_name);
 
 	    if ((handle = dlopen(filename, RTLD_LAZY)) == NULL) continue;

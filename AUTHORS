@@ -129,6 +129,7 @@ Olivier Abad <abad@daba.dhis.net> {
 	Support for files from RADCOM WAN/LAN analyzers
 	and HP-UX nettl traces
 	LAPB, X.25
+	Plugins support
 }
 
 Thierry Andry <Thierry.Andry@advalvas.be> {
