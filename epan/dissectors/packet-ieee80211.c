@@ -1221,48 +1221,39 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 					 (tag_no >= 17 && tag_no <= 31) ?
 					 "Reserved for challenge text" :
 					 "Reserved tag number"));
-  proto_tree_add_uint (tree, (tag_no==5 ? tim_length : tag_length), tvb, offset + 1, 1, tag_len);
-
-  tag_data_ptr = tvb_get_ptr (tvb, offset + 2, tag_len);
+  proto_tree_add_uint (tree, (tag_no==TAG_TIM ? tim_length : tag_length), tvb, offset + 1, 1, tag_len);
 
   switch (tag_no)
     {
 
     case TAG_SSID:
-      memset (out_buff, 0, SHORT_STR);
+      {
+        char *ssid;
 
-      memcpy (out_buff, tag_data_ptr, (size_t) tag_len);
-      out_buff[tag_len + 1] = 0;
-      for (i = 0; i < tag_len; i++) {
-        if (!isprint( (int) out_buff[i])) {
-          print_buff[i]='.';
-        } else {
-          print_buff[i]=out_buff[i];
+        ssid = tvb_get_string(tvb, offset + 2, tag_len);
+        proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
+                               tag_len, ssid);
+        if (check_col (pinfo->cinfo, COL_INFO)) {
+          if (tag_len > 0) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID: \"%s\"",
+                            format_text(ssid, tag_len));
+          } else {
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID: Broadcast");
+          }
         }
-      }
-      print_buff[i] = 0;
-      proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
-                             tag_len, out_buff);
-      if (check_col (pinfo->cinfo, COL_INFO)) {
         if (tag_len > 0) {
-          col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID: \"%s\"", print_buff);
+          proto_item_append_text(ti, ": \"%s\"",
+                                 format_text(ssid, tag_len));
         } else {
-          col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID: Broadcast");
+          proto_item_append_text(ti, ": Broadcast");
         }
-      }
-      if (tag_len > 0) {
-        proto_item_append_text(ti, ": \"%s\"", print_buff);
-      } else {
-        proto_item_append_text(ti, ": Broadcast");
+        g_free(ssid);
       }
       break;
 
     case TAG_SUPP_RATES:
     case TAG_EXT_SUPP_RATES:
-      memset (out_buff, 0, SHORT_STR);
-      memset (print_buff, 0, SHORT_STR);
-      strcpy (out_buff, "Supported rates: ");
-
+      tag_data_ptr = tvb_get_ptr (tvb, offset + 2, tag_len);
       for (i = 0, n = 0; i < tag_len && n < SHORT_STR; i++) {
         ret = snprintf (print_buff + n, SHORT_STR - n, "%2.1f%s ",
                         (tag_data_ptr[i] & 0x7F) * 0.5,
@@ -1275,74 +1266,110 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         n += ret;
       }
       snprintf (out_buff, SHORT_STR, "Supported rates: %s [Mbit/sec]", print_buff);
-
       out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
 			     tag_len, out_buff);
       proto_item_append_text(ti, ": %s", print_buff);
       break;
 
-
-
     case TAG_FH_PARAMETER:
-      memset (out_buff, 0, SHORT_STR);
-
+      if (tag_len < 5)
+      {
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u too short, must be >= 5",
+                             tag_len);
+        break;
+      }
       snprintf (out_buff, SHORT_STR,
-		"Dwell time 0x%04X, Hop Set %2d, Hop Pattern %2d, "
-		"Hop Index %2d", pletohs (tag_data_ptr), tag_data_ptr[2],
-		tag_data_ptr[3], tag_data_ptr[4]);
-
+		"Dwell time 0x%04X, Hop Set %2d, Hop Pattern %2d, Hop Index %2d",
+		tvb_get_letohs(tvb, offset + 2),
+		tvb_get_guint8(tvb, offset + 4),
+		tvb_get_guint8(tvb, offset + 5),
+		tvb_get_guint8(tvb, offset + 6));
+      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
                              tag_len, out_buff);
       break;
 
-
-
     case TAG_DS_PARAMETER:
-      memset (out_buff, 0, SHORT_STR);
-
-      snprintf (out_buff, SHORT_STR, "Current Channel: %u", tag_data_ptr[0]);
+      if (tag_len < 1)
+      {
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u too short, must be >= 1",
+                             tag_len);
+        break;
+      }
+      snprintf (out_buff, SHORT_STR, "Current Channel: %u",
+                tvb_get_guint8(tvb, offset + 2));
+      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
                              tag_len, out_buff);
       proto_item_append_text(ti, ": %s", out_buff);
       break;
 
-
     case TAG_CF_PARAMETER:
+      if (tag_len < 6)
+      {
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u too short, must be >= 6",
+                             tag_len);
+        break;
+      }
+      snprintf (out_buff, SHORT_STR, "CFP count: %u",
+                tvb_get_guint8(tvb, offset + 2));
+      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 2,
-                             1, out_buff,"CFP count %u",tag_data_ptr[0]);
+                                   1, out_buff, "%s", out_buff);
+      snprintf (out_buff, SHORT_STR, "CFP period: %u",
+                tvb_get_guint8(tvb, offset + 3));
+      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 3,
-                             1, out_buff,"CFP period %u",tag_data_ptr[0]);
+                                   1, out_buff, "%s", out_buff);
+      snprintf (out_buff, SHORT_STR, "CFP max duration: %u",
+                tvb_get_letohs(tvb, offset + 4));
+      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 4,
-                             2, out_buff,"CFP max duration %u",pletohs (tag_data_ptr + 2));
+                                   2, out_buff, "%s", out_buff);
+      snprintf (out_buff, SHORT_STR, "CFP Remaining: %u",
+                tvb_get_letohs(tvb, offset + 6));
+      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 6,
-                             2, out_buff,"CFP Remaining %u",pletohs (tag_data_ptr + 4));
+                                   2, out_buff, "%s", out_buff);
       proto_item_append_text(ti, ": CFP count %u, CFP period %u, CFP max duration %u, "
                              "CFP Remaining %u", 
-                             tag_data_ptr[0], tag_data_ptr[1],
-                             pletohs (tag_data_ptr + 2), pletohs (tag_data_ptr + 4));
+                             tvb_get_guint8(tvb, offset + 2),
+                             tvb_get_guint8(tvb, offset + 3),
+                             tvb_get_letohs(tvb, offset + 4),
+                             tvb_get_letohs(tvb, offset + 6));
       break;
 
-
     case TAG_TIM:
+      if (tag_len < 4)
+      {
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u too short, must be >= 4",
+                             tag_len);
+        break;
+      }
+      {
+        guint8 bmapctl;
+        guint8 bmapoff;
+        guint8 bmaplen;
+        const guint8* bmap;
 
-      memset (out_buff, 0, SHORT_STR);
-      if (tag_len>3) {
-        guint8 bmapctl=tag_data_ptr[2];
-        guint8 bmapoff=bmapctl>>1;
-        guint8 bmaplen=tag_len-3;
-        const guint8* bmap=&tag_data_ptr[3]; 
-        proto_tree_add_uint(tree, tim_dtim_count, tvb,
-                            offset + 2, 1, tag_data_ptr[0]);
-        proto_tree_add_uint(tree, tim_dtim_period, tvb,
-                            offset + 3, 1, tag_data_ptr[1]);
+        proto_tree_add_item(tree, tim_dtim_count, tvb,
+                            offset + 2, 1, TRUE);
+        proto_tree_add_item(tree, tim_dtim_period, tvb,
+                            offset + 3, 1, TRUE);
+        proto_item_append_text(ti, ": DTIM %u of %u bitmap",
+                               tvb_get_guint8(tvb, offset + 2),
+                               tvb_get_guint8(tvb, offset + 3));
 
+        bmapctl = tvb_get_guint8(tvb, offset + 4);
+        bmapoff = bmapctl>>1;
         proto_tree_add_uint_format(tree, tim_bmapctl, tvb,
                             offset + 4, 1, bmapctl,
                             "Bitmap Control: 0x%02X (mcast:%u, bitmap offset %u)",
                             bmapctl, bmapctl&1, bmapoff);
-        proto_item_append_text(ti, ": DTIM %u of %u bitmap",
-                               tag_data_ptr[0], tag_data_ptr[1]);
+
+        bmaplen = tag_len - 3;
+        bmap = tvb_get_ptr(tvb, offset + 5, bmaplen);
         if (bmaplen==1 && 0==bmap[0] && !(bmapctl&1)) {
           proto_item_append_text(ti, " empty");
         } else {
@@ -1364,100 +1391,119 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
               }
             }
           }
+          out_buff[SHORT_STR-1] = '\0';
           proto_tree_add_string (tree, tag_interpretation, tvb, offset + 5,
                bmaplen, out_buff);
         }
-      } else {
-        snprintf (out_buff, SHORT_STR, "Mailformed TIM: length is %d, should be >=4",tag_len);
-        proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2, tag_len, out_buff);
       }
       break;
-
-
 
     case TAG_IBSS_PARAMETER:
-      memset (out_buff, 0, SHORT_STR);
+      if (tag_len < 2)
+      {
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u too short, must be >= 2",
+                             tag_len);
+        break;
+      }
       snprintf (out_buff, SHORT_STR, "ATIM window 0x%X",
-		pletohs (tag_data_ptr));
-
+                tvb_get_letohs(tvb, offset + 2));
+      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
 			     tag_len, out_buff);
       proto_item_append_text(ti, ": %s", out_buff);
       break;
-
 
     case TAG_COUNTRY_INFO:
-      memset (out_buff, 0, SHORT_STR);
-      for (i=0;i<2;i++) {
-        if (!isprint( (int) tag_data_ptr[i])) {
-          print_buff[i]='.';
-        } else {
-          print_buff[i]=tag_data_ptr[i];
+      {
+        char ccode[2+1];
+
+        if (tag_len < 3)
+        {
+          proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u too short, must be >= 3",
+                               tag_len);
+          break;
+        }
+        tvb_memcpy(tvb, ccode, offset + 2, 2);
+        ccode[2] = '\0';
+        snprintf (out_buff, SHORT_STR, "Country Code: %s, %s Environment",
+                 format_text(ccode, 2), 
+                 val_to_str(tvb_get_guint8(tvb, offset + 4), environment_vals,"Unknown (0x%02x)"));
+        out_buff[SHORT_STR-1] = '\0';
+        proto_item_append_text(ti, ": %s", out_buff);
+        proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,3, out_buff);
+
+        for (i = 3; (i + 3) <= tag_len; i += 3)
+        { 
+          proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 2+i,3, out_buff,
+                                       "  Start Channel: %u, Channels: %u, Max TX Power: %d dBm",
+                                       tvb_get_guint8(tvb, offset + 2 + i),
+                                       tvb_get_guint8(tvb, offset + 3 + i),
+                                       (gint)tvb_get_guint8(tvb, offset + 4 + i));
         }
       }
-      print_buff[i]='\0';
-      snprintf (out_buff, SHORT_STR, "Country Code: %s, %s Environment",
-               print_buff, 
-               val_to_str(tag_data_ptr[2], environment_vals,"Unknown (0x%02x)"));
-
-      n = strlen (out_buff);
-      proto_item_append_text(ti, ": %s", out_buff);
-      proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,3, out_buff);
-
-      for (i = 3; (i + 3) <= tag_len; i += 3)
-      { 
-        proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 2+i,3, out_buff,
-                                     "  Start Channel: %u, Channels: %u, Max TX Power: %d dBm",
-                                     tag_data_ptr[i], tag_data_ptr[i + 1],(gint)tag_data_ptr[i + 2]);
-      }
-
       break;
-
 
     case TAG_FH_HOPPING_PARAMETER:
-      memset (out_buff, 0, SHORT_STR);
+      if (tag_len < 2)
+      {
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u too short, must be >= 2",
+                             tag_len);
+        break;
+      }
       snprintf (out_buff, SHORT_STR, "Prime Radix: %u, Number of Channels: %u", 
-                       tag_data_ptr[0], tag_data_ptr[1]);
+                tvb_get_guint8(tvb, offset + 2),
+                tvb_get_guint8(tvb, offset + 3));
+      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2, tag_len, out_buff);
-			     
       proto_item_append_text(ti, ": %s", out_buff);
-
       break;
-
 
     case TAG_CHALLENGE_TEXT:
-      memset (out_buff, 0, SHORT_STR);
-      snprintf (out_buff, SHORT_STR, "Challenge text: %.47s", tag_data_ptr);
+      snprintf (out_buff, SHORT_STR, "Challenge text: %s",
+                tvb_bytes_to_str(tvb, offset + 2, tag_len));
+      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
 			     tag_len, out_buff);
-
       break;
-
-
 
     case TAG_ERP_INFO:
     case TAG_ERP_INFO_OLD:
-      memset (out_buff, 0, SHORT_STR);
+      {
+        guint8 erp_info;
 
-      snprintf (print_buff, SHORT_STR,
-                "%sNon-ERP STAs, %suse protection, %s preambles",
-                tag_data_ptr[0] & 0x01 ? "" : "no ",
-                tag_data_ptr[0] & 0x02 ? "" : "do not ",
-                tag_data_ptr[0] & 0x04 ? "short or long": "long");
-      snprintf (out_buff, SHORT_STR,
-                "ERP info: 0x%x (%s)", tag_data_ptr[0],print_buff);
-      proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
-                             tag_len, out_buff);
-      proto_item_append_text(ti, ": %s", print_buff);
-
-
+        if (tag_len < 1)
+        {
+          proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u too short, must be >= 1",
+                               tag_len);
+          break;
+        }
+        erp_info = tvb_get_guint8 (tvb, offset + 2);
+        snprintf (print_buff, SHORT_STR, "%sNon-ERP STAs, %suse protection, %s preambles",
+                  erp_info & 0x01 ? "" : "no ",
+                  erp_info & 0x02 ? "" : "do not ",
+                  erp_info & 0x04 ? "short or long": "long");
+        print_buff[SHORT_STR-1] = '\0';
+        snprintf (out_buff, SHORT_STR,
+                  "ERP info: 0x%x (%s)",erp_info,print_buff);
+        out_buff[SHORT_STR-1] = '\0';
+        proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
+                               tag_len, out_buff);
+        proto_item_append_text(ti, ": %s", print_buff);
+      }
       break;
 
     case TAG_CISCO_UNKNOWN_1:
-      memset (out_buff, 0, SHORT_STR);
       /* The Name of the sending device starts at offset 10 and is up to 
          15 or 16 bytes in length, \0 padded */
-      snprintf (out_buff, SHORT_STR, "%.16s", tag_data_ptr + 10);
+      if (tag_len < 26)
+      {
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u too short, must be >= 26",
+                             tag_len);
+        break;
+      }
+      snprintf (out_buff, SHORT_STR, "%.16s",
+                tvb_format_stringzpad(tvb, offset + 12, 16));
+      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string_format (tree, tag_interpretation, tvb, offset + 2,
 			     tag_len, "", "Tag interpretation: Unknown + Name: %s",
 			     out_buff);
@@ -1468,15 +1514,16 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
     case TAG_VENDOR_SPECIFIC_IE:
       dissect_vendor_specific_ie(tree, tvb, offset + 2, tag_len,
-				 tag_data_ptr);
+				 tvb_get_ptr (tvb, offset + 2, tag_len));
       break;
 
     case TAG_RSN_IE:
-      dissect_rsn_ie(tree, tvb, offset + 2, tag_len, tag_data_ptr);
+      dissect_rsn_ie(tree, tvb, offset + 2, tag_len,
+                     tvb_get_ptr (tvb, offset + 2, tag_len));
       break;
 
-
     default:
+      tvb_ensure_bytes_exist (tvb, offset + 2, tag_len);
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
 			     tag_len, "Not interpreted");
       proto_item_append_text(ti, ": Tag %u Len %u", tag_no, tag_len);
