@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.74 2004/04/16 18:17:47 ulfl Exp $
+ * $Id: print.c,v 1.75 2004/04/17 09:02:32 ulfl Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -322,6 +322,24 @@ proto_tree_print_node_pdml(proto_node *node, gpointer data)
 		}
 		print_escaped_xml(pdata->fh, fi->hfinfo->abbrev);
 
+#if 0
+        /* PDML spec, see: 
+         * http://analyzer.polito.it/30alpha/docs/dissectors/PDMLSpec.htm
+         *
+         * the show fields contains things in 'human readable' format
+         * showname: contains only the name of the field
+         * show: contains only the data of the field
+         * showdtl: contains additional details of the field data
+         * showmap: contains mappings of the field data (e.g. the hostname to an IP address)
+         *
+         * XXX - the showname shouldn't contain the field data itself 
+         * (like it's contained in the fi->rep->representation). 
+         * Unfortunately, we don't have the field data representation for 
+         * all fields, so this isn't currently possible */
+		fputs("\" showname=\"", pdata->fh);
+		print_escaped_xml(pdata->fh, fi->hfinfo->name);
+#endif
+
 		if (fi->rep) {
 			fputs("\" showname=\"", pdata->fh);
 			print_escaped_xml(pdata->fh, fi->rep->representation);
@@ -333,13 +351,9 @@ proto_tree_print_node_pdml(proto_node *node, gpointer data)
 			print_escaped_xml(pdata->fh, label_ptr);
 		}
 
-#if 0
-		fputs("\" showname=\"", pdata->fh);
-		print_escaped_xml(pdata->fh, fi->hfinfo->name);
         if(!fi->visible) {
     		fprintf(pdata->fh, "\" hide=\"yes");
         }
-#endif
 
 		fprintf(pdata->fh, "\" size=\"%d", fi->length);
 		fprintf(pdata->fh, "\" pos=\"%d", fi->start);
@@ -348,7 +362,7 @@ proto_tree_print_node_pdml(proto_node *node, gpointer data)
 		if (fi->hfinfo->type != FT_PROTOCOL) {
 			/* Field */
 
-			/* XXX - this is a hack until we can juse call
+			/* XXX - this is a hack until we can just call
 			 * fvalue_to_string_repr() for *all* FT_* types. */
 			dfilter_string = proto_construct_dfilter_string(fi,
 					pdata->edt);
@@ -385,7 +399,7 @@ proto_tree_print_node_pdml(proto_node *node, gpointer data)
 		}
 	}
 
-	/* We always pring all levels for PDML. Recurse here. */
+	/* We always print all levels for PDML. Recurse here. */
 	if (node->first_child != NULL) {
 		pdata->level++;
 		proto_tree_children_foreach(node,
