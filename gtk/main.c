@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.227 2002/01/11 07:40:31 guy Exp $
+ * $Id: main.c,v 1.228 2002/01/11 08:21:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -222,25 +222,310 @@ set_fonts(GdkFont *regular, GdkFont *bold)
 
 /* Match selected byte pattern */
 void
-match_selected_cb(GtkWidget *w, gpointer data)
+match_selected_cb_do(gpointer data, int action, gchar *text)
 {
-    char		*buf;
+    char		*ptr;
     GtkWidget		*filter_te;
 
-    filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
+    if (!text)
+	return;
+    g_assert(data);
+    filter_te = gtk_object_get_data(GTK_OBJECT(data), E_DFILTER_TE_KEY);
+    g_assert(filter_te);
 
-    buf = proto_alloc_dfilter_string(finfo_selected, cfile.pd);
+    ptr = gtk_entry_get_text(GTK_ENTRY(filter_te));
+
+    switch (action&MATCH_SELECTED_MASK) {
+
+    case MATCH_SELECTED_REPLACE:
+	ptr = text;
+	break;
+
+    case MATCH_SELECTED_AND:
+	if ((!ptr) || (0 == strlen(ptr)))
+	    ptr = text;
+	else
+	    ptr = g_strconcat("(", ptr, ") && (", text, ")", NULL);
+	break;
+
+    case MATCH_SELECTED_OR:
+	if ((!ptr) || (0 == strlen(ptr)))
+	    ptr = text;
+	else
+	    ptr = g_strconcat("(", ptr, ") || (", text, ")", NULL);
+	break;
+
+    case MATCH_SELECTED_NOT:
+	ptr = g_strconcat("!(", text, ")", NULL);
+	break;
+
+    case MATCH_SELECTED_AND_NOT:
+	if ((!ptr) || (0 == strlen(ptr)))
+	    ptr = g_strconcat("!(", text, ")", NULL);
+	else
+	    ptr = g_strconcat("(", ptr, ") && !(", text, ")", NULL);
+	break;
+
+    case MATCH_SELECTED_OR_NOT:
+	if ((!ptr) || (0 == strlen(ptr)))
+	    ptr = g_strconcat("!(", text, ")", NULL);
+	else
+	    ptr = g_strconcat("(", ptr, ") || !(", text, ")", NULL);
+	break;
+
+    default:
+	break;
+    }
 
     /* create a new one and set the display filter entry accordingly */
-    gtk_entry_set_text(GTK_ENTRY(filter_te), buf);
+    gtk_entry_set_text(GTK_ENTRY(filter_te), ptr);
 
     /* Run the display filter so it goes in effect. */
-    filter_packets(&cfile, buf);
+    if (action&MATCH_SELECTED_APPLY_NOW)
+	filter_packets(&cfile, ptr);
 
-    /* Don't g_free(buf) here. filter_packets() will do it the next time it's called */
+    /* Don't g_free(text) here. filter_packets() will do it the next time
+       it's called. */
+    /* XXX - what about ptr? */
 }
 
+void
+match_selected_cb_replace(GtkWidget *w, gpointer data)
+{
+    if (finfo_selected)
+	match_selected_cb_do((data ? data : w),
+	    MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW,
+	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+}
 
+void
+match_selected_cb_and(GtkWidget *w, gpointer data)
+{
+    if (finfo_selected)
+	match_selected_cb_do((data ? data : w),
+	    MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW,
+	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+}
+
+void
+match_selected_cb_or(GtkWidget *w, gpointer data)
+{
+    if (finfo_selected)
+	match_selected_cb_do((data ? data : w),
+	    MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW,
+	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+}
+
+void
+match_selected_cb_not(GtkWidget *w, gpointer data)
+{
+    if (finfo_selected)
+	match_selected_cb_do((data ? data : w),
+	    MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW,
+	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+}
+
+void
+match_selected_cb_and_not(GtkWidget *w, gpointer data)
+{
+    if (finfo_selected)
+	match_selected_cb_do((data ? data : w),
+	    MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW,
+	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+}
+
+void
+match_selected_cb_or_not(GtkWidget *w, gpointer data)
+{
+    if (finfo_selected)
+	match_selected_cb_do((data ? data : w),
+	    MATCH_SELECTED_OR_NOT,
+	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+}
+
+void
+prepare_selected_cb_replace(GtkWidget *w, gpointer data)
+{
+    if (finfo_selected)
+	match_selected_cb_do((data ? data : w),
+	    MATCH_SELECTED_REPLACE,
+	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+}
+
+void
+prepare_selected_cb_and(GtkWidget *w, gpointer data)
+{
+    if (finfo_selected)
+	match_selected_cb_do((data ? data : w),
+	    MATCH_SELECTED_AND,
+	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+}
+
+void
+prepare_selected_cb_or(GtkWidget *w, gpointer data)
+{
+    if (finfo_selected)
+	match_selected_cb_do((data ? data : w),
+	    MATCH_SELECTED_OR,
+	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+}
+
+void
+prepare_selected_cb_not(GtkWidget *w, gpointer data)
+{
+    if (finfo_selected)
+	match_selected_cb_do((data ? data : w),
+	    MATCH_SELECTED_NOT,
+	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+}
+
+void
+prepare_selected_cb_and_not(GtkWidget *w, gpointer data)
+{
+    if (finfo_selected)
+	match_selected_cb_do((data ? data : w),
+	    MATCH_SELECTED_AND_NOT,
+	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+}
+
+void
+prepare_selected_cb_or_not(GtkWidget *w, gpointer data)
+{
+    if (finfo_selected)
+	match_selected_cb_do((data ? data : w),
+	    MATCH_SELECTED_OR_NOT,
+	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+}
+
+static gchar *
+get_text_from_packet_list(gpointer data)
+{
+    gint	row = (gint)gtk_object_get_data(GTK_OBJECT(data), E_MPACKET_LIST_ROW_KEY);
+    gint	column = (gint)gtk_object_get_data(GTK_OBJECT(data), E_MPACKET_LIST_COL_KEY);
+    frame_data *fdata = (frame_data *)gtk_clist_get_row_data(GTK_CLIST(packet_list), row);
+    epan_dissect_t *edt;
+    gchar      *buf=NULL;
+    int         len;
+
+    if (fdata != NULL) {
+	wtap_seek_read(cfile.wth, fdata->file_off, &cfile.pseudo_header,
+		       cfile.pd, fdata->cap_len);
+
+	edt = epan_dissect_new(FALSE, FALSE);
+	epan_dissect_run(edt, &cfile.pseudo_header, cfile.pd, fdata,
+			 &cfile.cinfo);
+	epan_dissect_fill_in_columns(edt);
+
+	if (strlen(cfile.cinfo.col_expr[column]) != 0 &&
+	    strlen(cfile.cinfo.col_expr_val[column]) != 0) {
+	    len = strlen(cfile.cinfo.col_expr[column]) +
+		  strlen(cfile.cinfo.col_expr_val[column]) + 5;
+	    buf = g_malloc0(len);
+	    snprintf(buf, len, "%s == %s", cfile.cinfo.col_expr[column],
+		     cfile.cinfo.col_expr_val[column]);
+    	}
+
+	epan_dissect_free(edt);
+    }
+	    
+    return buf;
+}
+
+void
+match_selected_cb_replace2(GtkWidget *w, gpointer data)
+{
+    match_selected_cb_do(data,
+        MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW,
+        get_text_from_packet_list(data));
+}
+
+void
+match_selected_cb_and2(GtkWidget *w, gpointer data)
+{
+    match_selected_cb_do(data,
+        MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW,
+        get_text_from_packet_list(data));
+}
+
+void
+match_selected_cb_or2(GtkWidget *w, gpointer data)
+{
+    match_selected_cb_do(data,
+        MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW,
+        get_text_from_packet_list(data));
+}
+
+void
+match_selected_cb_not2(GtkWidget *w, gpointer data)
+{
+    match_selected_cb_do(data,
+        MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW,
+        get_text_from_packet_list(data));
+}
+
+void
+match_selected_cb_and_not2(GtkWidget *w, gpointer data)
+{
+    match_selected_cb_do(data,
+        MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW,
+        get_text_from_packet_list(data));
+}
+
+void
+match_selected_cb_or_not2(GtkWidget *w, gpointer data)
+{
+    match_selected_cb_do(data,
+        MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW,
+        get_text_from_packet_list(data));
+}
+
+void
+prepare_selected_cb_replace2(GtkWidget *w, gpointer data)
+{
+    match_selected_cb_do(data,
+        MATCH_SELECTED_REPLACE,
+        get_text_from_packet_list(data));
+}
+
+void
+prepare_selected_cb_and2(GtkWidget *w, gpointer data)
+{
+    match_selected_cb_do(data,
+        MATCH_SELECTED_AND,
+        get_text_from_packet_list(data));
+}
+
+void
+prepare_selected_cb_or2(GtkWidget *w, gpointer data)
+{
+    match_selected_cb_do(data,
+        MATCH_SELECTED_OR,
+        get_text_from_packet_list(data));
+}
+
+void
+prepare_selected_cb_not2(GtkWidget *w, gpointer data)
+{
+    match_selected_cb_do(data,
+        MATCH_SELECTED_NOT,
+        get_text_from_packet_list(data));
+}
+
+void
+prepare_selected_cb_and_not2(GtkWidget *w, gpointer data)
+{
+    match_selected_cb_do(data,
+        MATCH_SELECTED_AND_NOT,
+        get_text_from_packet_list(data));
+}
+
+void
+prepare_selected_cb_or_not2(GtkWidget *w, gpointer data)
+{
+    match_selected_cb_do(data,
+        MATCH_SELECTED_OR_NOT,
+        get_text_from_packet_list(data));
+}
 
 /* Run the current display filter on the current packet set, and
    redisplay. */
@@ -251,8 +536,10 @@ filter_activate_cb(GtkWidget *w, gpointer data)
   GList     *filter_list = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_FL_KEY);
   GList     *li, *nl = NULL;
   gboolean   add_filter = TRUE;
+  char *s = NULL;
   
-  char *s = gtk_entry_get_text(GTK_ENTRY(w));
+  g_assert(data);
+  s = gtk_entry_get_text(GTK_ENTRY(data));
   
   /* GtkCombos don't let us get at their list contents easily, so we maintain
      our own filter list, and feed it to gtk_combo_set_popdown_strings when
@@ -287,7 +574,6 @@ filter_reset_cb(GtkWidget *w, gpointer data)
   if ((filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY))) {
     gtk_entry_set_text(GTK_ENTRY(filter_te), "");
   }
-
   filter_packets(&cfile, NULL);
 }
 
@@ -1457,6 +1743,8 @@ main(int argc, char *argv[])
       cfile.cinfo.col_buf[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_INFO_LEN);
     else
       cfile.cinfo.col_buf[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+    cfile.cinfo.col_expr[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+    cfile.cinfo.col_expr_val[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
   }
 
 #ifdef HAVE_LIBPCAP
@@ -1872,6 +2160,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   GtkWidget           *main_vbox, *menubar, *u_pane, *l_pane,
                       *stat_hbox, *column_lb,
                       *filter_bt, *filter_cm, *filter_te,
+                      *filter_apply,
                       *filter_reset;
   GList               *filter_list = NULL;
   GtkAccelGroup       *accel;
@@ -2016,15 +2305,23 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_object_set_data(GTK_OBJECT(filter_te), E_DFILTER_FL_KEY, filter_list);
   gtk_box_pack_start(GTK_BOX(stat_hbox), filter_cm, TRUE, TRUE, 3);
   gtk_signal_connect(GTK_OBJECT(filter_te), "activate",
-    GTK_SIGNAL_FUNC(filter_activate_cb), (gpointer) NULL);
+    GTK_SIGNAL_FUNC(filter_activate_cb), filter_te);
   gtk_widget_show(filter_cm);
 
   filter_reset = gtk_button_new_with_label("Reset");
   gtk_object_set_data(GTK_OBJECT(filter_reset), E_DFILTER_TE_KEY, filter_te);
   gtk_signal_connect(GTK_OBJECT(filter_reset), "clicked",
-		     GTK_SIGNAL_FUNC(filter_reset_cb), (gpointer) NULL);
+		     GTK_SIGNAL_FUNC(filter_reset_cb), NULL);
   gtk_box_pack_start(GTK_BOX(stat_hbox), filter_reset, FALSE, TRUE, 1);
   gtk_widget_show(filter_reset);
+
+  filter_apply = gtk_button_new_with_label("Apply");
+  gtk_object_set_data(GTK_OBJECT(filter_apply), E_DFILTER_CM_KEY, filter_cm);
+  gtk_object_set_data(GTK_OBJECT(filter_apply), E_DFILTER_FL_KEY, filter_list);
+  gtk_signal_connect(GTK_OBJECT(filter_apply), "clicked",
+                     GTK_SIGNAL_FUNC(filter_activate_cb), filter_te);
+  gtk_box_pack_start(GTK_BOX(stat_hbox), filter_apply, FALSE, TRUE, 1);
+  gtk_widget_show(filter_apply);
 
   /* Sets the text entry widget pointer as the E_DILTER_TE_KEY data
    * of any widget that ends up calling a callback which needs
@@ -2032,8 +2329,21 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   set_menu_object_data("/File/Open...", E_DFILTER_TE_KEY, filter_te);
   set_menu_object_data("/File/Reload", E_DFILTER_TE_KEY, filter_te);
   set_menu_object_data("/Edit/Filters...", E_FILT_TE_PTR_KEY, filter_te);
-  set_menu_object_data("/Display/Match Selected", E_DFILTER_TE_KEY, filter_te);
   set_menu_object_data("/Tools/Follow TCP Stream", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("/Display/Match/Selected", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("/Display/Match/Not Selected", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("/Display/Match/And Selected", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("/Display/Match/Or Selected", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("/Display/Match/And Not Selected", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("/Display/Match/Or Not Selected", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("/Display/Prepare/Selected", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("/Display/Prepare/Not Selected", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("/Display/Prepare/And Selected", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("/Display/Prepare/Or Selected", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("/Display/Prepare/And Not Selected", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("/Display/Prepare/Or Not Selected", E_DFILTER_TE_KEY, filter_te);
+  gtk_object_set_data(GTK_OBJECT(popup_menu_object), E_DFILTER_TE_KEY, filter_te);
+  gtk_object_set_data(GTK_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY, packet_list);
 
   info_bar = gtk_statusbar_new();
   main_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "main");

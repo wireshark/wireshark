@@ -1,7 +1,7 @@
 /* keys.h
  * Key definitions for various objects
  *
- * $Id: keys.h,v 1.11 2000/08/20 21:55:57 deniel Exp $
+ * $Id: keys.h,v 1.12 2002/01/11 08:21:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,6 +32,9 @@
 #define E_DFILTER_CM_KEY          "display_filter_combo"
 #define E_DFILTER_FL_KEY          "display_filter_list"
 #define E_RFILTER_TE_KEY          "read_filter_te"
+#define E_MPACKET_LIST_KEY	  "menu_packet_list"
+#define E_MPACKET_LIST_ROW_KEY	  "menu_packet_list_row"
+#define E_MPACKET_LIST_COL_KEY	  "menu_packet_list_col"
 
 #define PRINT_CMD_LB_KEY          "printer_command_label"
 #define PRINT_CMD_TE_KEY          "printer_command_entry"

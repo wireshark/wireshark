@@ -1,7 +1,7 @@
 /* column.h
  * Definitions for column structures and routines
  *
- * $Id: column_info.h,v 1.1 2001/04/01 03:42:00 hagbard Exp $
+ * $Id: column_info.h,v 1.2 2002/01/11 08:21:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,8 @@ typedef struct _column_info {
   gchar    **col_title; /* Column titles */
   gchar    **col_data;  /* Column data */
   gchar    **col_buf;   /* Buffer into which to copy data for column */
+  gchar    **col_expr;  /* Filter expression */
+  gchar    **col_expr_val;  /* Value for filter expression */
   gboolean   writable;  /* Are we stil writing to the columns? */
 } column_info;
 

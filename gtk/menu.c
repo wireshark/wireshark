@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.59 2002/01/11 07:40:31 guy Exp $
+ * $Id: menu.c,v 1.60 2002/01/11 08:21:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -141,7 +141,20 @@ static GtkItemFactoryEntry menu_items[] =
 #endif /* HAVE_LIBPCAP */
   {"/_Display", NULL, NULL, 0, "<Branch>" },
   {"/Display/_Options...", NULL, GTK_MENU_FUNC(display_opt_cb), 0, NULL},
-  {"/Display/_Match Selected", NULL, GTK_MENU_FUNC(match_selected_cb), 0, NULL},
+  {"/Display/_Match", NULL, NULL, 0, "<Branch>" },
+  {"/Display/Match/_Selected", NULL, GTK_MENU_FUNC(match_selected_cb_replace), 0, NULL},
+  {"/Display/Match/_Not Selected", NULL, GTK_MENU_FUNC(match_selected_cb_not), 0, NULL},
+  {"/Display/Match/_And Selected", NULL, GTK_MENU_FUNC(match_selected_cb_and), 0, NULL},
+  {"/Display/Match/_Or Selected", NULL, GTK_MENU_FUNC(match_selected_cb_or), 0, NULL},
+  {"/Display/Match/A_nd Not Selected", NULL, GTK_MENU_FUNC(match_selected_cb_and_not), 0, NULL},
+  {"/Display/Match/O_r Not Selected", NULL, GTK_MENU_FUNC(match_selected_cb_or_not), 0, NULL},
+  {"/Display/_Prepare", NULL, NULL, 0, "<Branch>" },
+  {"/Display/Prepare/_Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_replace), 0, NULL},
+  {"/Display/Prepare/_Not Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_not), 0, NULL},
+  {"/Display/Prepare/_And Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_and), 0, NULL},
+  {"/Display/Prepare/_Or Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_or), 0, NULL},
+  {"/Display/Prepare/A_nd Not Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_and_not), 0, NULL},
+  {"/Display/Prepare/O_r Not Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_or_not), 0, NULL},
   {"/Display/_Colorize Display...", NULL, GTK_MENU_FUNC(color_display_cb), 0, NULL},
   {"/Display/Collapse _All", NULL, GTK_MENU_FUNC(collapse_all_cb), 0, NULL},
   {"/Display/_Expand All", NULL, GTK_MENU_FUNC(expand_all_cb), 0, NULL},
@@ -178,6 +191,20 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 	{"/Display Filters...", NULL, GTK_MENU_FUNC(dfilter_dialog_cb), 0, NULL},
 	{"/<separator>", NULL, NULL, 0, "<Separator>"},
 	{"/Mark Frame", NULL, GTK_MENU_FUNC(mark_frame_cb), 0, NULL},
+        {"/Match", NULL, NULL, 0, "<Branch>" },
+        {"/Match/_Selected", NULL, GTK_MENU_FUNC(match_selected_cb_replace2), 0, NULL},
+        {"/Match/_Not Selected", NULL, GTK_MENU_FUNC(match_selected_cb_not2), 0, NULL},
+        {"/Match/_And Selected", NULL, GTK_MENU_FUNC(match_selected_cb_and2), 0, NULL},
+        {"/Match/_Or Selected", NULL, GTK_MENU_FUNC(match_selected_cb_or2), 0, NULL},
+        {"/Match/A_nd Not Selected", NULL, GTK_MENU_FUNC(match_selected_cb_and_not2), 0, NULL},
+        {"/Match/O_r Not Selected", NULL, GTK_MENU_FUNC(match_selected_cb_or_not2), 0, NULL},
+        {"/Prepare", NULL, NULL, 0, "<Branch>" },
+        {"/Prepare/_Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_replace2), 0, NULL},
+        {"/Prepare/_Not Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_not2), 0, NULL},
+        {"/Prepare/_And Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_and2), 0, NULL},
+        {"/Prepare/_Or Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_or2), 0, NULL},
+        {"/Prepare/A_nd Not Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_and_not2), 0, NULL},
+        {"/Prepare/O_r Not Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_or_not2), 0, NULL},
 	{"/<separator>", NULL, NULL, 0, "<Separator>"},
 	{"/Colorize Display...", NULL, GTK_MENU_FUNC(color_display_cb), 0, NULL},
 	{"/Print...", NULL, GTK_MENU_FUNC(file_print_cmd_cb), 0, NULL},
@@ -193,7 +220,20 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
 	{"/<separator>", NULL, NULL, 0, "<Separator>"},
 	{"/Resolve Name", NULL, GTK_MENU_FUNC(resolve_name_cb), 0, NULL},
 	{"/Protocol Properties...", NULL, GTK_MENU_FUNC(properties_cb), 0, NULL},
-	{"/Match Selected", NULL, GTK_MENU_FUNC(match_selected_cb), 0, NULL},
+        {"/Match", NULL, NULL, 0, "<Branch>" },
+        {"/Match/_Selected", NULL, GTK_MENU_FUNC(match_selected_cb_replace), 0, NULL},
+        {"/Match/_Not Selected", NULL, GTK_MENU_FUNC(match_selected_cb_not), 0, NULL},
+        {"/Match/_And Selected", NULL, GTK_MENU_FUNC(match_selected_cb_and), 0, NULL},
+        {"/Match/_Or Selected", NULL, GTK_MENU_FUNC(match_selected_cb_or), 0, NULL},
+        {"/Match/A_nd Not Selected", NULL, GTK_MENU_FUNC(match_selected_cb_and_not), 0, NULL},
+        {"/Match/O_r Not Selected", NULL, GTK_MENU_FUNC(match_selected_cb_or_not), 0, NULL},
+        {"/Prepare", NULL, NULL, 0, "<Branch>" },
+        {"/Prepare/_Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_replace), 0, NULL},
+        {"/Prepare/_Not Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_not), 0, NULL},
+        {"/Prepare/_And Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_and), 0, NULL},
+        {"/Prepare/_Or Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_or), 0, NULL},
+        {"/Prepare/A_nd Not Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_and_not), 0, NULL},
+        {"/Prepare/O_r Not Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_or_not), 0, NULL},
 	{"/<separator>", NULL, NULL, 0, "<Separator>"},
 	{"/Collapse All", NULL, GTK_MENU_FUNC(collapse_all_cb), 0, NULL},
 	{"/Expand All", NULL, GTK_MENU_FUNC(expand_all_cb), 0, NULL}
@@ -242,17 +282,17 @@ menus_init(void) {
     /* popup */
 
     packet_list_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
-    gtk_item_factory_create_items_ac(packet_list_menu_factory, sizeof(packet_list_menu_items)/sizeof(packet_list_menu_items[0]), packet_list_menu_items, NULL, 2);
+    gtk_item_factory_create_items_ac(packet_list_menu_factory, sizeof(packet_list_menu_items)/sizeof(packet_list_menu_items[0]), packet_list_menu_items, popup_menu_object, 2);
     gtk_object_set_data(GTK_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY, packet_list_menu_factory->widget);
     popup_menu_list = g_slist_append((GSList *)popup_menu_list, packet_list_menu_factory);
 
     tree_view_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
-    gtk_item_factory_create_items_ac(tree_view_menu_factory, sizeof(tree_view_menu_items)/sizeof(tree_view_menu_items[0]), tree_view_menu_items, NULL, 2);
+    gtk_item_factory_create_items_ac(tree_view_menu_factory, sizeof(tree_view_menu_items)/sizeof(tree_view_menu_items[0]), tree_view_menu_items, popup_menu_object, 2);
     gtk_object_set_data(GTK_OBJECT(popup_menu_object), PM_TREE_VIEW_KEY, tree_view_menu_factory->widget);
     popup_menu_list = g_slist_append((GSList *)popup_menu_list, tree_view_menu_factory);
 
     hexdump_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
-    gtk_item_factory_create_items_ac(hexdump_menu_factory, sizeof(hexdump_menu_items)/sizeof(hexdump_menu_items[0]), hexdump_menu_items, NULL, 2);
+    gtk_item_factory_create_items_ac(hexdump_menu_factory, sizeof(hexdump_menu_items)/sizeof(hexdump_menu_items[0]), hexdump_menu_items, popup_menu_object, 2);
     gtk_object_set_data(GTK_OBJECT(popup_menu_object), PM_HEXDUMP_KEY, hexdump_menu_factory->widget);
     popup_menu_list = g_slist_append((GSList *)popup_menu_list, hexdump_menu_factory);
     
@@ -282,18 +322,40 @@ set_menu_sensitivity_meat(GtkItemFactory *ifactory, gchar *path, gint val) {
 	}
 }
 
+/* Enable/disable menu sensitivity                       */
+/* /menu/path            - old functionality             */
+/* <MenuName>/menu/path  - new functionality             */
+/* MenuName: <Main>, <PacketList>, <TreeView>, <HexDump> */
 static void
 set_menu_sensitivity (gchar *path, gint val) {
   GSList *menu_list = popup_menu_list;
-  gchar *shortpath = strrchr(path, '/');
+  gchar *prefix;
+  gchar *shortpath;
 
-  set_menu_sensitivity_meat(factory, path, val);
+  if ('<' == *path) {
+    /* New functionality => selective enable/disable per menu */
+    prefix=strchr(path, '/');
+    shortpath=strrchr(prefix, '/');
 
-  while (menu_list != NULL) {
-  	set_menu_sensitivity_meat(menu_list->data, shortpath, val);
-	menu_list = g_slist_next(menu_list);
+    if (0 == strncmp(path, "<Main>", 6))
+      set_menu_sensitivity_meat(factory, prefix, val);
+    else if (0 == strncmp(path, "<PacketList>", 12))
+      set_menu_sensitivity_meat(packet_list_menu_factory, shortpath, val);
+    else if (0 == strncmp(path, "<TreeView>", 10))
+      set_menu_sensitivity_meat(tree_view_menu_factory, shortpath, val);
+    else if (0 == strncmp(path, "<HexDump>", 9))
+      set_menu_sensitivity_meat(hexdump_menu_factory, shortpath, val);
+  } else {
+    /* Old functionality => enable/disable all menus with same shortpath */
+    shortpath = strrchr(path, '/');
+
+    set_menu_sensitivity_meat(factory, path, val);
+
+    while (menu_list != NULL) {
+  	  set_menu_sensitivity_meat(menu_list->data, shortpath, val);
+	  menu_list = g_slist_next(menu_list);
+    }
   }
-  
 }
 
 void
@@ -322,6 +384,8 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	GtkWidget *menu = NULL;
 	GdkEventButton *event_button = NULL;
+	GtkCList *packet_list = NULL;
+	gint row, column;
 
 	if(widget == NULL || event == NULL || data == NULL) {
 		return FALSE;
@@ -334,6 +398,19 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 	 * I guess, like a CList with one column(?) and the expander widget
 	 * as a pixmap.
 	 */
+	/* Check if we are on packet_list object */
+	if (widget == gtk_object_get_data(GTK_OBJECT(popup_menu_object),
+		E_MPACKET_LIST_KEY)) {
+	  packet_list=GTK_CLIST(widget);
+	  if (gtk_clist_get_selection_info(GTK_CLIST(packet_list),
+	      ((GdkEventButton *)event)->x,
+	      ((GdkEventButton *)event)->y,&row,&column)) {
+	    gtk_object_set_data(GTK_OBJECT(popup_menu_object),
+		E_MPACKET_LIST_ROW_KEY, (gpointer *)row);
+	    gtk_object_set_data(GTK_OBJECT(popup_menu_object),
+		E_MPACKET_LIST_COL_KEY, (gpointer *)column);
+	  }
+	}
 	menu = (GtkWidget *)data;
 	if(event->type == GDK_BUTTON_PRESS) {
 		event_button = (GdkEventButton *) event;
@@ -392,6 +469,8 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
   set_menu_sensitivity("/Display/Colorize Display...", have_captured_packets);
   set_menu_sensitivity("/Tools/Summary", have_captured_packets);
   set_menu_sensitivity("/Tools/Protocol Hierarchy Statistics", have_captured_packets);
+  set_menu_sensitivity("<PacketList>/Display/Match", have_captured_packets);
+  set_menu_sensitivity("<PacketList>/Display/Prepare", have_captured_packets);
 }
 
 /* Enable or disable menu items based on whether a packet is selected. */
@@ -416,7 +495,7 @@ set_menus_for_selected_packet(gboolean have_selected_packet)
 }
 
 /* Enable or disable menu items based on whether a tree row is selected
-   and and on whether a "Match Selected" can be done. */
+   and and on whether a "Match" can be done. */
 void
 set_menus_for_selected_tree_row(gboolean have_selected_tree)
 {
@@ -429,10 +508,20 @@ set_menus_for_selected_tree_row(gboolean have_selected_tree)
 	} else {
 	  properties = prefs_is_registered_protocol(proto_registrar_get_abbrev(hfinfo->parent));
 	}
-	set_menu_sensitivity("/Display/Match Selected",
+	set_menu_sensitivity("<Main>/Display/Match",
 	  proto_can_match_selected(finfo_selected));
-  } else
-	set_menu_sensitivity("/Display/Match Selected", FALSE);
+	set_menu_sensitivity("<TreeView>/Display/Match",
+	  proto_can_match_selected(finfo_selected));
+	set_menu_sensitivity("<Main>/Display/Prepare",
+	  proto_can_match_selected(finfo_selected));
+	set_menu_sensitivity("<TreeView>/Display/Prepare",
+	  proto_can_match_selected(finfo_selected));
+  } else {
+	set_menu_sensitivity("<Main>/Display/Match", FALSE);
+	set_menu_sensitivity("<TreeView>/Display/Match", FALSE);
+	set_menu_sensitivity("<Main>/Display/Prepare", FALSE);
+	set_menu_sensitivity("<TreeView>/Display/Prepare", FALSE);
+  }
 
   set_menu_sensitivity("/Protocol Properties...", have_selected_tree && properties);
 }

@@ -1,7 +1,7 @@
 /* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.25 2001/12/31 04:41:50 gerald Exp $
+ * $Id: main.h,v 1.26 2002/01/11 08:21:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,16 @@
 #define DEF_READY_MESSAGE " Ready to load file"
 #endif
 
+#define MATCH_SELECTED_REPLACE		0
+#define MATCH_SELECTED_AND		1
+#define MATCH_SELECTED_OR		2
+#define MATCH_SELECTED_NOT		3
+#define MATCH_SELECTED_AND_NOT		4
+#define MATCH_SELECTED_OR_NOT		5
+
+#define MATCH_SELECTED_MASK		0x0ff
+#define MATCH_SELECTED_APPLY_NOW	0x100
+
 typedef struct _selection_info {
   GtkWidget *tree;
   GtkWidget *text;
@@ -51,7 +61,30 @@ typedef struct _selection_info {
 extern GtkStyle *item_style;
 
 void about_ethereal( GtkWidget *, gpointer);
-void match_selected_cb( GtkWidget *, gpointer);
+void match_selected_cb_replace( GtkWidget *, gpointer);
+void match_selected_cb_and( GtkWidget *, gpointer);
+void match_selected_cb_or( GtkWidget *, gpointer);
+void match_selected_cb_not( GtkWidget *, gpointer);
+void match_selected_cb_and_not( GtkWidget *, gpointer);
+void match_selected_cb_or_not( GtkWidget *, gpointer);
+void prepare_selected_cb_replace( GtkWidget *, gpointer);
+void prepare_selected_cb_and( GtkWidget *, gpointer);
+void prepare_selected_cb_or( GtkWidget *, gpointer);
+void prepare_selected_cb_not( GtkWidget *, gpointer);
+void prepare_selected_cb_and_not( GtkWidget *, gpointer);
+void prepare_selected_cb_or_not( GtkWidget *, gpointer);
+void match_selected_cb_replace2( GtkWidget *, gpointer);
+void match_selected_cb_and2( GtkWidget *, gpointer);
+void match_selected_cb_or2( GtkWidget *, gpointer);
+void match_selected_cb_not2( GtkWidget *, gpointer);
+void match_selected_cb_and_not2( GtkWidget *, gpointer);
+void match_selected_cb_or_not2( GtkWidget *, gpointer);
+void prepare_selected_cb_replace2( GtkWidget *, gpointer);
+void prepare_selected_cb_and2( GtkWidget *, gpointer);
+void prepare_selected_cb_or2( GtkWidget *, gpointer);
+void prepare_selected_cb_not2( GtkWidget *, gpointer);
+void prepare_selected_cb_and_not2( GtkWidget *, gpointer);
+void prepare_selected_cb_or_not2( GtkWidget *, gpointer);
 void file_quit_cmd_cb(GtkWidget *, gpointer);
 void file_print_cmd_cb(GtkWidget *, gpointer);
 void file_print_packet_cmd_cb(GtkWidget *, gpointer);

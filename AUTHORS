@@ -991,6 +991,14 @@ Dinesh Dutt <ddutt[AT]cisco.com> {
 Nagarjuna Venna <nvenna[AT]Brixnet.com> {
 	Only display the reason in BYE RTCP packets if it's present
 }
+
+Jirka Novak <j.novak[AT]netsystem.cz> {
+	Support for generating filter expressions based on packet list
+	    column values
+	Support for adding filter expressions generated from column or
+	    protocol tree field values to the current expression rather
+	    than replacing the current expression
+}
 	
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
