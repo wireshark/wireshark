@@ -213,6 +213,7 @@ DISSECTOR_SRC =	\
 	packet-enrp.c	\
 	packet-esis.c	\
 	packet-eth.c	\
+	packet-etheric.c	\
 	packet-etherip.c	\
 	packet-ethertype.c	\
 	packet-fc.c	\
