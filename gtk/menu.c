@@ -74,6 +74,7 @@
 #include "conversations_table.h"
 #include "hostlist_table.h"
 #include "simple_dialog.h"
+#include "packet_history.h"
 
 GtkWidget *popup_menu_object;
 
@@ -207,10 +208,8 @@ static GtkItemFactoryEntry menu_items[] =
 #endif
     ITEM_FACTORY_STOCK_ENTRY("/Edit/_Find Packet...", "<control>F",
                              find_frame_cb, 0, GTK_STOCK_FIND),
-    ITEM_FACTORY_STOCK_ENTRY("/Edit/Find Ne_xt", "<control>N", find_next_cb,
-                             0, GTK_STOCK_GO_FORWARD),
-    ITEM_FACTORY_STOCK_ENTRY("/Edit/Find Pre_vious", "<control>B",
-                             find_previous_cb, 0, GTK_STOCK_GO_BACK),
+    ITEM_FACTORY_ENTRY("/Edit/Find Ne_xt", "<control>N", find_next_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Edit/Find Pre_vious", "<control>B", find_previous_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Edit/_Time Reference", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/Edit/Time Reference/Set Time Reference (toggle)", "<control>T", reftime_frame_cb, REFTIME_TOGGLE, NULL, NULL),
@@ -274,12 +273,16 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/View/_Reload", "<control>R", file_reload_cmd_cb,
                              0, GTK_STOCK_REFRESH),
     ITEM_FACTORY_ENTRY("/_Go", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Go/_Back", "<alt>Left",
+                             history_back_cb, 0, GTK_STOCK_GO_BACK),
+    ITEM_FACTORY_STOCK_ENTRY("/Go/_Forward", "<alt>Right",
+                             history_forward_cb, 0, GTK_STOCK_GO_FORWARD),
     ITEM_FACTORY_STOCK_ENTRY("/Go/_Go to Packet...", "<control>G",
                              goto_frame_cb, 0, GTK_STOCK_JUMP_TO),
     ITEM_FACTORY_ENTRY("/Go/Go to _Corresponding Packet", NULL, goto_framenum_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Go/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/Go/_First Packet", NULL,
+    ITEM_FACTORY_STOCK_ENTRY("/Go/F_irst Packet", NULL,
                              goto_top_frame_cb, 0, GTK_STOCK_GOTO_TOP),
     ITEM_FACTORY_STOCK_ENTRY("/Go/_Last Packet", NULL,
                              goto_bottom_frame_cb, 0, GTK_STOCK_GOTO_BOTTOM),
@@ -1848,3 +1851,12 @@ set_menus_for_selected_tree_row(capture_file *cf)
 
   walk_menu_tree_for_selected_tree_row(tap_menu_tree_root, cf->finfo_selected);
 }
+
+void set_menus_for_packet_history(gboolean back_history, gboolean forward_history) {
+
+  set_menu_sensitivity(main_menu_factory, "/Go/Back", back_history);
+  set_menu_sensitivity(main_menu_factory, "/Go/Forward", forward_history);
+
+  set_toolbar_for_packet_history(back_history, forward_history);
+}
+

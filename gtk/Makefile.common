@@ -61,6 +61,7 @@ ETHEREAL_GTK_SRC = \
 	main.c 	\
 	menu.c 	\
 	nameres_prefs.c	\
+	packet_history.c	\
 	packet_list.c	\
 	packet_win.c	\
 	plugins_dlg.c	\

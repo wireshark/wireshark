@@ -74,6 +74,13 @@ extern void set_menu_object_data(gchar *path, gchar *key, gpointer data);
  */
 extern gint popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data);
 
+/** The packet history has changed, we need to update the menu.
+ *
+ * @param back_history some back history entries available
+ * @param forward_history some forward history entries available
+ */
+extern void set_menus_for_packet_history(gboolean back_history, gboolean forward_history);
+
 /** The popup menu. */
 extern GtkWidget           *popup_menu_object;
 

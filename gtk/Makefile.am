@@ -69,6 +69,7 @@ noinst_HEADERS = \
 	menu.h		\
 	mtp3_stat.h	\
 	nameres_prefs.h	\
+	packet_history.h	\
 	packet_list.h	\
 	packet_win.h	\
 	prefs_dlg.h	\

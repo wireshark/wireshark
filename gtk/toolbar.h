@@ -63,6 +63,13 @@ void set_toolbar_for_capture_in_progress(gboolean have_capture_file);
  */
 void set_toolbar_for_captured_packets(gboolean have_captured_packets);
 
+/** The packet history has changed, we need to update the menu.
+ *
+ * @param back_history some back history entries available
+ * @param forward_history some forward history entries available
+ */
+void set_toolbar_for_packet_history(gboolean back_history, gboolean forward_history);
+
 /** Set object data of some buttons (where needed). It's needed so callback 
  *  functions can read back their required data. Acts like OBJECT_SET_DATA() 
  *  on multiple buttons.

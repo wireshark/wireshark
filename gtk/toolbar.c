@@ -61,6 +61,7 @@
 #include "keys.h"
 #include "compat_macros.h"
 #include "recent.h"
+#include "packet_history.h"
 
 /* All of the icons used here are coming (or are derived) from GTK2 stock icons.
  * They were converted using "The Gimp" with standard conversion from png to xpm.
@@ -120,7 +121,7 @@ static GtkWidget *new_button, *stop_button;
 static GtkWidget *capture_filter_button;
 #endif /* HAVE_LIBPCAP */
 static GtkWidget *open_button, *save_button, *save_as_button, *close_button, *reload_button;
-static GtkWidget *print_button, *find_button, *find_next_button, *find_prev_button;
+static GtkWidget *print_button, *find_button, *history_forward_button, *history_back_button;
 static GtkWidget *go_to_button, *go_to_top_button, *go_to_bottom_button;
 static GtkWidget *display_filter_button;
 static GtkWidget *zoom_in_button, *zoom_out_button, *zoom_100_button;
@@ -253,6 +254,17 @@ void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file) {
 }
 
 
+/** The packet history has changed, we need to update the menu.
+ *
+ * @param back_history some back history entries available
+ * @param forward_history some forward history entries available
+ */
+void set_toolbar_for_packet_history(gboolean back_history, gboolean forward_history) {
+    gtk_widget_set_sensitive(history_back_button, back_history);
+    gtk_widget_set_sensitive(history_forward_button, forward_history);
+}
+
+
 /* XXX - this is a quick and dirty hack to get the current state of capturing.
  * this has to be improved, and should be reside somewhere in the capture engine. */
 gboolean g_is_capture_in_progress = FALSE;
@@ -289,8 +301,6 @@ void set_toolbar_for_captured_packets(gboolean have_captured_packets) {
     if (toolbar_init) {
         gtk_widget_set_sensitive(print_button, have_captured_packets);
         gtk_widget_set_sensitive(find_button, have_captured_packets);
-        gtk_widget_set_sensitive(find_next_button, have_captured_packets);
-        gtk_widget_set_sensitive(find_prev_button, have_captured_packets);
         gtk_widget_set_sensitive(go_to_button, have_captured_packets);
         gtk_widget_set_sensitive(go_to_top_button, have_captured_packets);
         gtk_widget_set_sensitive(go_to_bottom_button, have_captured_packets);
@@ -407,12 +417,10 @@ toolbar_new(void)
 
     toolbar_item(find_button, window, main_tb, 
         GTK_STOCK_FIND, "Find a packet...", stock_search_24_xpm, find_frame_cb);
-    toolbar_item(find_prev_button, window, main_tb, 
-        GTK_STOCK_GO_BACK, "Find the previous matching packet", stock_left_arrow_24_xpm, find_previous_cb);
-    toolbar_item(find_next_button, window, main_tb, 
-        GTK_STOCK_GO_FORWARD, "Find the next matching packet", stock_right_arrow_24_xpm, find_next_cb);
-    toolbar_append_separator(main_tb);
-
+    toolbar_item(history_back_button, window, main_tb, 
+        GTK_STOCK_GO_BACK, "Go back in packet history", stock_left_arrow_24_xpm, history_back_cb);
+    toolbar_item(history_forward_button, window, main_tb, 
+        GTK_STOCK_GO_FORWARD, "Go forward in packet history", stock_right_arrow_24_xpm, history_forward_cb);
     toolbar_item(go_to_button, window, main_tb, 
         GTK_STOCK_JUMP_TO, "Go to the packet with number...", stock_jump_to_24_xpm, goto_frame_cb);
     toolbar_item(go_to_top_button, window, main_tb, 

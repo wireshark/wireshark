@@ -47,6 +47,7 @@
 #include "packet_list.h"
 #include "keys.h"
 #include "font_utils.h"
+#include "packet_history.h"
 
 #include <epan/timestamp.h>
 
@@ -263,6 +264,7 @@ packet_list_select_cb(GtkWidget *w _U_, gint row, gint col _U_, gpointer evt _U_
 
   select_packet(&cfile, row);
   gtk_widget_grab_focus(packet_list);
+  packet_history_add(row);
 }
 
 static void
@@ -576,6 +578,8 @@ packet_list_set_column_titles(void)
 void
 packet_list_clear(void)
 {
+    packet_history_clear();
+
     eth_clist_clear(ETH_CLIST(packet_list));
 }
 
