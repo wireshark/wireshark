@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.47 2001/08/20 09:16:08 guy Exp $
+ * $Id: packet-giop.c,v 1.48 2001/08/28 07:19:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,8 +28,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 
@@ -1277,12 +1275,12 @@ static int getline(FILE *fp, gchar *line, int maxlen) {
  */
 
 static void read_IOR_strings_from_file(gchar *name, int max_iorlen) {
-  guchar *buf = NULL;		/* NOTE reused for every line */
+  guchar *buf;			/* NOTE reused for every line */
   int len;
   int ior_val_len;		/* length after unstringifying. */
   FILE *fp;		
-  guint8 *out = NULL;		/* ptr to unstringified IOR */
-  tvbuff_t *tvb = NULL;		/* temp tvbuff for dissectin IORs */
+  guint8 *out;			/* ptr to unstringified IOR */
+  tvbuff_t *tvb;		/* temp tvbuff for dissectin IORs */
   guint32 my_offset = 0;
   gboolean stream_is_big_endian;
 
@@ -1291,7 +1289,7 @@ static void read_IOR_strings_from_file(gchar *name, int max_iorlen) {
 
   if (fp == NULL) {
     if (errno == EACCES)
-      fprintf(stderr, "Error opening file IOR.txt for reading: %s \n",strerror(errno));
+      fprintf(stderr, "Error opening file IOR.txt for reading: %s\n",strerror(errno));
     return;
   }
 
@@ -1304,21 +1302,29 @@ static void read_IOR_strings_from_file(gchar *name, int max_iorlen) {
 
     if(ior_val_len>0) {
     
-      /* Combination of tvb_new() and tvb_set_real_data(). Can throw ReportedBoundsError. */
+      /* Combination of tvb_new() and tvb_set_real_data().
+         Can throw ReportedBoundsError.
+
+         XXX - can it throw an exception in this case?  If so, we
+         need to catch it and clean up, but we really shouldn't allow
+         it - or "get_CDR_octet()", or "decode_IOR()" - to throw an
+         exception. */
 
       tvb =  tvb_new_real_data(out,ior_val_len,ior_val_len, "GIOP FILE IOR");
 
       stream_is_big_endian = !get_CDR_octet(tvb,&my_offset);
       decode_IOR(tvb, NULL, NULL, &my_offset, 0, stream_is_big_endian);
-            
+
       tvb_free(tvb);
-      
+
     }
+
+    g_free(out);
+
   }
-  
+
   fclose(fp);			/* be nice */
 
-  g_free(out);
   g_free(buf);
 }
 
@@ -2092,7 +2098,7 @@ void get_CDR_fixed(tvbuff_t *tvb, gchar **seq, gint *offset, guint32 digits, gin
   guint32 slen;			/* number of bytes to hold digits + extra 0's if scale <0 */
 				/* this does not include sign, decimal point and \0 */
   guint32 sindex = 0;		/* string index */
-  gchar *tmpbuf = NULL;		/* temp buff, holds string without scaling */
+  gchar *tmpbuf;		/* temp buff, holds string without scaling */
   guint8 tval;			/* temp val storage */
 
   /*
@@ -2117,7 +2123,13 @@ void get_CDR_fixed(tvbuff_t *tvb, gchar **seq, gint *offset, guint32 digits, gin
 #endif
   
   tmpbuf = g_new0(gchar, slen);	/* allocate temp buffer */ 
-  
+
+  /*
+   * Register a cleanup function in case on of our tvbuff accesses
+   * throws an exception. We need to clean up tmpbuf.
+   */
+  CLEANUP_PUSH(g_free, tmpbuf);
+
   /* If even , grab 1st dig */
 
   if (!(digits & 0x01)) {
@@ -2228,10 +2240,13 @@ void get_CDR_fixed(tvbuff_t *tvb, gchar **seq, gint *offset, guint32 digits, gin
       (*seq)[sindex] = '\0'; /* string terminator */	
       
     }
+
+    /*
+     * We're done with tmpbuf, so we can call the cleanup handler to free
+     * it, and then pop the cleanup handler.
+     */
+    CLEANUP_CALL_AND_POP;
     
-    g_free(tmpbuf);		/* release temp buffer */
-
-
 #if DEBUG
     printf("giop:get_CDR_fixed(): value = %s \n", *seq);
 #endif
@@ -2380,13 +2395,23 @@ guint8 get_CDR_octet(tvbuff_t *tvb, int *offset) {
 void get_CDR_octet_seq(tvbuff_t *tvb, gchar **seq, int *offset, int len) {
 
   if (! tvb_bytes_exist(tvb, *offset,len)) {
-    tvb_get_guint8(tvb,100000);  /* generate an exception, and stop processing */
-                                /* better than a core dump later */
+    /*
+     * Generate an exception, and stop processing.
+     * We do that now, rather than after allocating the buffer, so we
+     * don't have to worry about freeing the buffer.
+     * XXX - would we be better off using a cleanup routine?
+     */
+    tvb_get_guint8(tvb, *offset + len);
   }
 
-     *seq = g_new0(gchar, len + 1);
-     tvb_memcpy( tvb, *seq, *offset, len);
-     *offset += len;
+  /*
+   * XXX - should we just allocate "len" bytes, and have "get_CDR_string()"
+   * do what we do now, and null-terminate the string (which also means
+   * we don't need to zero out the entire allocation, just the last byte)?
+   */
+  *seq = g_new0(gchar, len + 1);
+  tvb_memcpy( tvb, *seq, *offset, len);
+  *offset += len;
 }
 
 
@@ -2442,19 +2467,14 @@ guint32 get_CDR_string(tvbuff_t *tvb, gchar **seq, int *offset, gboolean stream_
 
   slength = get_CDR_ulong(tvb,offset,stream_is_big_endian,boundary); /* get length first */
 
-  /*  Avoid crashing */
-
-  if (! tvb_bytes_exist(tvb, *offset, slength)) {
-    tvb_get_guint8(tvb,100000); /* generate an exception, and stop processing */
-                                /* better than a core dump later */
-  }
-
 #if 0
   (*offset)++;			/* must step past \0 delimiter */
 #endif
   
   if (slength > 0) {
     get_CDR_octet_seq(tvb, seq, offset, slength);
+  } else {
+    *seq = g_strdup("");	/* zero-length string */
   }
 
   return slength;		/* return length */
@@ -2687,7 +2707,7 @@ guint16 get_CDR_ushort(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian
 gint8 get_CDR_wchar(tvbuff_t *tvb, gchar **seq, int *offset, MessageHeader * header) {
   
   gint8 slength;
-  gchar *raw_wstring = NULL;
+  gchar *raw_wstring;
 
   /* CORBA chapter 15:
    *   - prior to GIOP 1.2 wchar limited to two octet fixed length.
@@ -2708,13 +2728,13 @@ gint8 get_CDR_wchar(tvbuff_t *tvb, gchar **seq, int *offset, MessageHeader * hea
 
     /* now turn octets (wchar) into something that can be printed by the user */
     *seq = make_printable_string(raw_wstring, slength);
+
+    g_free(raw_wstring);
   }
 
   /* if GIOP 1.1 negate length to indicate not an item to add to tree */
   if (header->GIOP_version.minor < 2)
     slength = -slength;
-
-  g_free(raw_wstring);  
 
   return slength;		/* return length */
 
@@ -2745,7 +2765,7 @@ guint32 get_CDR_wstring(tvbuff_t *tvb, gchar **seq, int *offset, gboolean stream
 		       int boundary, MessageHeader * header) {
   
   guint32 slength;
-  gchar *raw_wstring = NULL;
+  gchar *raw_wstring;
 
   /* CORBA chapter 15:
    *   - prior to GIOP 1.2 wstring limited to two octet fixed length.
@@ -2781,9 +2801,9 @@ guint32 get_CDR_wstring(tvbuff_t *tvb, gchar **seq, int *offset, gboolean stream
 
     /* now turn octets (wstring) into something that can be printed by the user */
     *seq = make_printable_string(raw_wstring, slength);
-  }
 
-  g_free(raw_wstring);  
+    g_free(raw_wstring);
+  }
 
   return slength;		/* return length */
 
@@ -2815,8 +2835,8 @@ dissect_target_address(tvbuff_t * tvb, packet_info *pinfo, int *offset, proto_tr
 		       MessageHeader * header, gboolean stream_is_big_endian)
 {
    guint16 discriminant;
-   gchar *object_key = NULL;
-   gchar *p_object_key = NULL;
+   gchar *object_key;
+   gchar *p_object_key;
    guint32 len = 0;
    guint32 u_octet4;
 
@@ -2829,7 +2849,7 @@ dissect_target_address(tvbuff_t * tvb, packet_info *pinfo, int *offset, proto_tr
   
    switch (discriminant)
    {
-   case 0:  /* KeyAddr */
+	   case 0:  /* KeyAddr */
 		   len = get_CDR_ulong(tvb, offset, stream_is_big_endian,GIOP_HEADER_SIZE);
 		   if(tree)
 		   {
@@ -2847,6 +2867,8 @@ dissect_target_address(tvbuff_t * tvb, packet_info *pinfo, int *offset, proto_tr
 			 proto_tree_add_text (tree, tvb, *offset -len, len,
 					       "KeyAddr (object key): %s", p_object_key);
 		       }
+		     g_free( p_object_key );
+		     g_free( object_key );
 		   }
 		   break;
            case 1: /* ProfileAddr */
@@ -2867,8 +2889,6 @@ dissect_target_address(tvbuff_t * tvb, packet_info *pinfo, int *offset, proto_tr
 	   default:
 		   break;
    }
-   g_free( object_key );
-   g_free( p_object_key );
 }
 
 static void
@@ -3251,14 +3271,14 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
 
   guint32 objkey_len = 0;	/* object key length */
   gchar *objkey = NULL;		/* object key sequence */
-  gchar *print_objkey = NULL;	/* printable object key sequence */
-  gboolean exres = FALSE;		/* result of trying explicit dissectors */
+  gchar *print_objkey;		/* printable object key sequence */
+  gboolean exres = FALSE;	/* result of trying explicit dissectors */
 
-  gchar *operation = NULL;
-  gchar *requesting_principal = NULL;
-  gchar *print_requesting_principal = NULL;
+  gchar *operation;
+  gchar *requesting_principal;
+  gchar *print_requesting_principal;
   guint8 response_expected;
-  gchar *reserved = NULL;
+  gchar *reserved;
   proto_tree *request_tree = NULL;
   proto_item *tf;
 
@@ -3319,6 +3339,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
          proto_tree_add_text (request_tree, tvb, offset-3, 3,
 	   		   "Reserved: %x %x %x", reserved[0], reserved[1], reserved[2]);
        }
+     g_free(reserved);
   }
 
 
@@ -3345,7 +3366,15 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
          /**/                 "Object Key: %s", print_objkey);
 
        }
+
+       g_free( print_objkey );  
   } 
+
+  /*
+   * Register a cleanup function in case on of our tvbuff accesses
+   * throws an exception. We need to clean up objkey.
+   */
+  CLEANUP_PUSH(g_free, objkey);
 
   /* length of operation string and string */ 
   len = get_CDR_string(tvb, &operation, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
@@ -3369,6 +3398,12 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
        }
   }
 
+  /*
+   * Register a cleanup function in case on of our tvbuff accesses
+   * throws an exception. We need to clean up operation.
+   */
+  CLEANUP_PUSH(g_free, operation);
+
   /* length of requesting_principal string */ 
   len = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
   if(tree)
@@ -3389,6 +3424,9 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
          /**/                 "Requesting Principal: %s", print_requesting_principal);
 
        }
+
+       g_free( print_requesting_principal );
+       g_free( requesting_principal );
   }
 
 
@@ -3426,11 +3464,17 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
   }
   
 
-  g_free( print_objkey );  
-  g_free( objkey );
-  g_free( operation );
-  g_free( requesting_principal );
-  g_free( print_requesting_principal );
+  /*
+   * We're done with operation, so we can call the cleanup handler to free
+   * it, and then pop the cleanup handler.
+   */
+  CLEANUP_CALL_AND_POP;
+
+  /*
+   * We're done with objkey, so we can call the cleanup handler to free
+   * it, and then pop the cleanup handler.
+   */
+  CLEANUP_CALL_AND_POP;
 
 }
 
@@ -3456,7 +3500,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   guint32 request_id;
   guint32 len = 0;
   guint8 response_flags;
-  gchar *reserved = NULL;
+  gchar *reserved;
   gchar *operation = NULL;
   proto_tree *request_tree = NULL;
   proto_item *tf;
@@ -3500,6 +3544,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
      proto_tree_add_text (request_tree, tvb, offset-3, 3,
  	   "Reserved: %x %x %x", reserved[0], reserved[1], reserved[2]);
    }
+  g_free(reserved);
 
   dissect_target_address(tvb, pinfo, &offset, request_tree, header, stream_is_big_endian);
 
@@ -3525,6 +3570,12 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
        }
 
   }
+
+  /*
+   * Register a cleanup function in case on of our tvbuff accesses
+   * throws an exception. We need to clean up operation.
+   */
+  CLEANUP_PUSH(g_free, operation);
 
   /*
    * Decode IOP::ServiceContextList
@@ -3568,8 +3619,11 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   }
   
 
-  g_free(operation);
-  g_free(reserved);
+  /*
+   * We're done with operation, so we can call the cleanup handler to free
+   * it, and then pop the cleanup handler.
+   */
+  CLEANUP_CALL_AND_POP;
 }
 
 static void
@@ -3580,8 +3634,8 @@ dissect_giop_locate_request( tvbuff_t * tvb, packet_info * pinfo,
   guint32 offset = 0;
   guint32 request_id;
   guint32 len = 0;
-  gchar *object_key = NULL;
-  gchar *p_object_key = NULL;
+  gchar *object_key;
+  gchar *p_object_key;
   proto_tree *locate_request_tree = NULL;
   proto_item *tf;
 
@@ -3628,6 +3682,9 @@ dissect_giop_locate_request( tvbuff_t * tvb, packet_info * pinfo,
 	      proto_tree_add_text (locate_request_tree, tvb, offset-len, len,
 				   "Object Key: %s", p_object_key);
 	    }
+
+	  g_free(p_object_key);
+	  g_free(object_key);
 	}
   }
   else     /* GIOP 1.2 and higher */
@@ -3636,8 +3693,6 @@ dissect_giop_locate_request( tvbuff_t * tvb, packet_info * pinfo,
 			     stream_is_big_endian);
 
   }
-  g_free(object_key);  
-  g_free(p_object_key);  
 }
 
 static void
@@ -4290,7 +4345,7 @@ void decode_IOR(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offse
   proto_tree *tree = NULL;	/* IOR tree */
   proto_item *tf;
 
-  gchar *repobuf = NULL;	/* for repository ID */
+  gchar *repobuf;		/* for repository ID */
 
   guint32 i;
 
@@ -4315,10 +4370,13 @@ void decode_IOR(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offse
     }
   }
 
-
-  /* g_free(repobuf); */	/* dont free yet, as must wait until I have  */
-				/* the object key before I can add both to hash */
-				/* this is done later */
+  /*
+   * Register a cleanup function in case on of our tvbuff accesses
+   * throws an exception. We need to clean up repobuf.
+   * We can't free it yet, as we must wait until we have the object
+   * key, as we have to add both to the hash table.
+   */
+  CLEANUP_PUSH(g_free, repobuf);
 
   /* Now get a sequence of profiles */
   /* Get sequence length (number of elements) */
@@ -4336,7 +4394,11 @@ void decode_IOR(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offse
     decode_TaggedProfile(tvb, pinfo, tree, offset, boundary, stream_is_big_endian, repobuf);
   }
 
-  g_free(repobuf);
+  /*
+   * We're done with repobuf, so we can call the cleanup handler to free
+   * it, and then pop the cleanup handler.
+   */
+  CLEANUP_CALL_AND_POP;
 
 }
 
@@ -4347,8 +4409,8 @@ static void decode_TaggedProfile(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
   guint32 pidtag;		/* profile ID TAG */
 
-  gchar *profile_data = NULL;	/* profile_data pointer */
-  gchar *p_profile_data = NULL;	/* printable profile_data pointer */
+  gchar *profile_data;		/* profile_data pointer */
+  gchar *p_profile_data;	/* printable profile_data pointer */
 
   guint32 new_boundary;		/* for encapsulations encountered */
   gboolean new_big_endianess;	/* for encapsulations encountered */
@@ -4404,11 +4466,13 @@ static void decode_TaggedProfile(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			   "Profile Data: %s", p_profile_data);
     }
       
+    g_free(p_profile_data);
+
+    g_free(profile_data);
+
     break;
       
   }
-  g_free(profile_data);
-  g_free(p_profile_data);
 
 }
 
@@ -4427,13 +4491,13 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   guint32 i;			/* loop index */
 
   guint8 v_major,v_minor;	/* IIOP sersion */
-  gchar *buf = NULL;
+  gchar *buf;
   guint32 u_octet4;		/* u long */
   guint16 u_octet2;		/* u short */
   guint32 seqlen;		/* generic sequence length */
   guint32 seqlen1;		/* generic sequence length */
-  gchar *objkey = NULL;		/* object key pointer */
-  gchar *p_chars = NULL;	/* printable characters pointer */
+  gchar *objkey;		/* object key pointer */
+  gchar *p_chars;		/* printable characters pointer */
 
   
   /* Get major/minor version */
@@ -4521,12 +4585,11 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
       proto_tree_add_text (tree, tvb, *offset -seqlen, seqlen,
 			 "Object Key: %s", p_chars);
     }
+
+    g_free(p_chars);
+    g_free(objkey);  
   }
   
-  g_free(objkey);  
-  g_free(p_chars);  
-  p_chars = NULL;               /* reuse later */
-
   /*
    * Now see if if its v1.1 or 1.2, as they can contain
    * extra sequence of IOP::TaggedComponents
@@ -4579,13 +4642,11 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	  proto_tree_add_text (tree, tvb, *offset -seqlen1, seqlen1,
 			       "component_data: %s", p_chars);
   
+	  g_free(p_chars);
 	}
-      }
 
-      g_free(buf);
-      g_free(p_chars);
-      buf = NULL;               /* reuse later */
-      p_chars = NULL;           /* reuse later */
+	g_free(buf);
+      }
 
     }
 
@@ -4658,8 +4719,8 @@ void decode_ServiceContextList(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt
   proto_item *tf;
 
   guint32 context_id;
-  gchar *context_data = NULL;
-  gchar *p_context_data = NULL;
+  gchar *context_data;
+  gchar *p_context_data;
 
   guint32 i;
   guint32 vscid;		/* Vendor Service context id */
@@ -4764,7 +4825,7 @@ static void decode_SystemExceptionReplyBody (tvbuff_t *tvb, proto_tree *tree, gi
   guint32 minor_code_value;
   guint32 completion_status;
 
-  gchar *buf = NULL;         /* pointer to string buffer */ 
+  gchar *buf;                /* pointer to string buffer */ 
 
   length = get_CDR_string(tvb, &buf, offset, stream_is_big_endian, boundary);
 
@@ -4776,6 +4837,7 @@ static void decode_SystemExceptionReplyBody (tvbuff_t *tvb, proto_tree *tree, gi
 			  "Exception id: %s", buf );
     }
   }
+  g_free(buf);
 
   minor_code_value = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
   completion_status = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
@@ -5322,7 +5384,7 @@ static void dissect_typecode_string_param(tvbuff_t *tvb, proto_tree *tree, gint 
 			                  gboolean new_stream_is_big_endian, guint32 new_boundary, int hf_id ) {
 
   guint32 u_octet4;  /* unsigned int32 */
-  gchar *buf = NULL; /* ptr to string buffer */
+  gchar *buf;        /* ptr to string buffer */
 
   /* get string */
   u_octet4 = get_CDR_string(tvb,&buf,offset,new_stream_is_big_endian,new_boundary);
@@ -5487,6 +5549,10 @@ static void dissect_data_for_typecode(tvbuff_t *tvb, proto_tree *tree, gint *off
   case tk_wchar:
     s_octet1 = get_CDR_wchar(tvb,&buf,offset,header);
     if (tree) {
+      /*
+       * XXX - can any of these throw an exception?
+       * If so, we need to catch the exception and free "buf".
+       */
       if (s_octet1 < 0) { /* no size to add to tree */
 	proto_tree_add_string(tree,hf_giop_type_string,tvb,
 			      *offset+s_octet1,(-s_octet1),buf);
@@ -5503,6 +5569,10 @@ static void dissect_data_for_typecode(tvbuff_t *tvb, proto_tree *tree, gint *off
   case tk_wstring:
     u_octet4 = get_CDR_wstring(tvb,&buf,offset,stream_is_big_endian,boundary,header);
     if (tree) {
+      /*
+       * XXX - can any of these throw an exception?
+       * If so, we need to catch the exception and free "buf".
+       */
        proto_tree_add_uint(tree,hf_giop_string_length,tvb,
 			   *offset-u_octet4-sizeof(u_octet4),4,u_octet4);
        proto_tree_add_string(tree,hf_giop_type_string,tvb,
