@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.14 2001/01/09 09:57:06 guy Exp $
+ * $Id: packet.c,v 1.15 2001/01/10 10:44:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1304,6 +1304,22 @@ old_dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 	dtbl_entry = g_hash_table_lookup(sub_dissectors,
 	    GUINT_TO_POINTER(port));
 	if (dtbl_entry != NULL) {
+		/*
+		 * Is this protocol enabled?
+		 */
+		if (dtbl_entry->proto_index != -1 &&
+		    !proto_is_protocol_enabled(dtbl_entry->proto_index)) {
+			/*
+			 * No - pretend this dissector didn't exist,
+			 * so that other dissectors might have a chance
+			 * to dissect this packet.
+			 */
+			return FALSE;
+		}
+			
+		/*
+		 * Yes, it's enabled.
+		 */
 		pi.match_port = port;
 		if (dtbl_entry->is_old_dissector)
 			(*dtbl_entry->dissector.old)(pd, offset, fd, tree);
@@ -1317,6 +1333,10 @@ old_dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 			 * let the "offset" argument handle stepping
 			 * through the packet?
 			 */
+			if (dtbl_entry->proto_index != -1) {
+				pi.current_proto =
+				    proto_get_protocol_short_name(dtbl_entry->proto_index);
+			}
 			tvb = tvb_create_from_top(offset);
 			(*dtbl_entry->dissector.new)(tvb, &pi, tree);
 		}
@@ -1336,6 +1356,19 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 	dtbl_entry = g_hash_table_lookup(sub_dissectors,
 	    GUINT_TO_POINTER(port));
 	if (dtbl_entry != NULL) {
+		/*
+		 * Is this protocol enabled?
+		 */
+		if (dtbl_entry->proto_index != -1 &&
+		    !proto_is_protocol_enabled(dtbl_entry->proto_index)) {
+			/*
+			 * No - pretend this dissector didn't exist,
+			 * so that other dissectors might have a chance
+			 * to dissect this packet.
+			 */
+			return FALSE;
+		}
+			
 		pinfo->match_port = port;
 		if (dtbl_entry->is_old_dissector) {
 			/*
@@ -1345,8 +1378,13 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 			tvb_compat(tvb, &pd, &offset);
 			(*dtbl_entry->dissector.old)(pd, offset, pinfo->fd,
 			    tree);
-		} else
+		} else {
+			if (dtbl_entry->proto_index != -1) {
+				pinfo->current_proto =
+				    proto_get_protocol_short_name(dtbl_entry->proto_index);
+			}
 			(*dtbl_entry->dissector.new)(tvb, pinfo, tree);
+		}
 		return TRUE;
 	} else
 		return FALSE;
@@ -1449,6 +1487,14 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 
 	for (entry = sub_dissectors; entry != NULL; entry = g_slist_next(entry)) {
 		dtbl_entry = (heur_dtbl_entry_t *)entry->data;
+		if (dtbl_entry->proto_index != -1 &&
+		    !proto_is_protocol_enabled(dtbl_entry->proto_index)) {
+			/*
+			 * No - don't try this dissector.
+			 */
+			continue;
+		}
+
 		if (dtbl_entry->is_old_dissector) {
 			/*
 			 * New dissector calling old dissector; use
@@ -1627,6 +1673,17 @@ old_call_dissector(dissector_handle_t handle, const u_char *pd,
 	tvbuff_t *tvb;
 
 	/*
+	 * Is this protocol enabled?
+	 */
+	if (handle->proto_index != -1 &&
+	    !proto_is_protocol_enabled(handle->proto_index)) {
+		/*
+		 * No - just dissect this packet as data.
+		 */
+		old_dissect_data(pd, offset, fd, tree);
+	}
+
+	/*
 	 * Old dissector calling new dissector; use
 	 * "tvb_create_from_top()" to remap.
 	 *
@@ -1636,6 +1693,10 @@ old_call_dissector(dissector_handle_t handle, const u_char *pd,
 	 * through the packet?
 	 */
 	tvb = tvb_create_from_top(offset);
+	if (handle->proto_index != -1) {
+		pi.current_proto =
+		    proto_get_protocol_short_name(handle->proto_index);
+	}
 	(*handle->dissector)(tvb, &pi, tree);
 }
 
@@ -1643,5 +1704,17 @@ void
 call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree)
 {
+	if (handle->proto_index != -1 &&
+	    !proto_is_protocol_enabled(handle->proto_index)) {
+		/*
+		 * No - just dissect this packet as data.
+		 */
+		dissect_data(tvb, 0, pinfo, tree);
+	}
+
+	if (handle->proto_index != -1) {
+		pinfo->current_proto =
+		    proto_get_protocol_short_name(handle->proto_index);
+	}
 	(*handle->dissector)(tvb, pinfo, tree);
 }
