@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.34 2003/03/02 15:50:55 gerald Exp $
+ * $Id: packet-ethertype.c,v 1.35 2003/04/22 08:50:07 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -53,7 +53,8 @@ const value_string etype_vals[] = {
     {ETHERTYPE_SNA,		"SNA-over-Ethernet"		},
     {ETHERTYPE_AARP,		"AARP"				},
     {ETHERTYPE_IPX,		"Netware IPX/SPX"		},
-    {ETHERTYPE_VINES,		"Vines"				},
+    {ETHERTYPE_VINES_IP,	"Vines IP"			},
+    {ETHERTYPE_VINES_ECHO,	"Vines Echo"			},
     {ETHERTYPE_TRAIN,		"Netmon Train"			},
     {ETHERTYPE_LOOP,		"Loopback"			}, /* Ethernet Loopback */
     {ETHERTYPE_WCP,		"Wellfleet Compression Protocol" },
@@ -122,7 +123,8 @@ capture_ethertype(guint16 etype, const guchar *pd, int offset, int len,
     case ETHERTYPE_VLAN:
       capture_vlan(pd, offset, len, ld);
       break;
-    case ETHERTYPE_VINES:
+    case ETHERTYPE_VINES_IP:
+    case ETHERTYPE_VINES_ECHO:
       capture_vines(ld);
       break;
     default:

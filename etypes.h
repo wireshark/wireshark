@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.32 2003/03/05 07:41:23 guy Exp $
+ * $Id: etypes.h,v 1.33 2003/04/22 08:50:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,8 +44,12 @@
  * http://www.cavebear.com/CaveBear/Ethernet/
  */
 
-#ifndef ETHERTYPE_VINES
-#define ETHERTYPE_VINES		0x0bad
+#ifndef ETHERTYPE_VINES_IP
+#define ETHERTYPE_VINES_IP	0x0bad
+#endif
+
+#ifndef ETHERTYPE_VINES_ECHO
+#define ETHERTYPE_VINES_ECHO	0x0baf
 #endif
 
 #ifndef ETHERTYPE_TRAIN

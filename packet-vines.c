@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.57 2003/04/22 08:37:55 guy Exp $
+ * $Id: packet-vines.c,v 1.58 2003/04/22 08:50:07 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -429,7 +429,7 @@ proto_register_vines_ip(void)
 void
 proto_reg_handoff_vines_ip(void)
 {
-	dissector_add("ethertype", ETHERTYPE_VINES, vines_ip_handle);
+	dissector_add("ethertype", ETHERTYPE_VINES_IP, vines_ip_handle);
 	dissector_add("ppp.protocol", PPP_VINES, vines_ip_handle);
 	dissector_add("arcnet.protocol_id", ARCNET_PROTO_BANYAN,
 	    vines_ip_handle);
@@ -476,6 +476,7 @@ proto_reg_handoff_vines_echo(void)
 	vines_echo_handle = create_dissector_handle(dissect_vines_echo,
 	    proto_vines_echo);
 	dissector_add("vines_llc.ptype", VINES_LLC_ECHO, vines_echo_handle);
+	dissector_add("ethertype", ETHERTYPE_VINES_ECHO, vines_echo_handle);
 }
 
 static const value_string pkttype_vals[] = {
