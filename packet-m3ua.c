@@ -7,7 +7,7 @@
  *
  * Copyright 2000, 2001, 2002, 2003 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m3ua.c,v 1.33 2003/09/04 14:32:01 tuexen Exp $
+ * $Id: packet-m3ua.c,v 1.34 2003/09/04 19:06:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1716,7 +1716,7 @@ proto_register_m3ua(void)
     { &hf_li,                               { "Length indicator",             "m3ua.protocol_data_2_li",                    FT_UINT8,  BASE_DEC,  NULL,                                         0x0, "", HFILL } },
     { &hf_protocol_data_opc,                { "OPC",                          "m3ua.protocol_data_opc",                     FT_UINT32, BASE_DEC,  NULL,                                         0x0, "", HFILL } },
     { &hf_protocol_data_dpc,                { "DPC",                          "m3ua.protocol_data_dpc",                     FT_UINT32, BASE_DEC,  NULL,                                         0x0, "", HFILL } },
-    { &hf_protocol_data_si,                 { "SI",                           "m3ua.protocol_data_si",                      FT_UINT8,  BASE_DEC,  NULL,                                         0x0, "", HFILL } },
+    { &hf_protocol_data_si,                 { "SI",                           "m3ua.protocol_data_si",                      FT_UINT8,  BASE_DEC,  VALS(user_identity_values),                                         0x0, "", HFILL } },
     { &hf_protocol_data_ni,                 { "NI",                           "m3ua.protocol_data_ni",                      FT_UINT8,  BASE_DEC,  NULL,                                         0x0, "", HFILL } },
     { &hf_protocol_data_mp,                 { "MP",                           "m3ua.protocol_data_mp",                      FT_UINT8,  BASE_DEC,  NULL,                                         0x0, "", HFILL } },
     { &hf_protocol_data_sls,                { "SLS",                          "m3ua.protocol_data_sls",                     FT_UINT8,  BASE_DEC,  NULL,                                         0x0, "", HFILL } },
