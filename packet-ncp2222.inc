@@ -11,7 +11,7 @@
  * Portions Copyright (c) Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp2222.inc,v 1.59 2003/08/28 17:26:15 gram Exp $
+ * $Id: packet-ncp2222.inc,v 1.60 2003/09/20 04:25:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -774,12 +774,12 @@ ncp_postseq_cleanup(void)
 {
 	if (ncp_req_hash) {
 		/* Destroy the hash, but don't clean up request_condition data. */
-		g_hash_table_destroy(ncp_req_hash);
-		ncp_req_hash = NULL;
+		/*g_hash_table_destroy(ncp_req_hash);
+		ncp_req_hash = NULL;*/
 	}
 	if (ncp_req_hash_keys) {
-		g_mem_chunk_destroy(ncp_req_hash_keys);
-		ncp_req_hash_keys = NULL;
+		/*g_mem_chunk_destroy(ncp_req_hash_keys);
+		ncp_req_hash_keys = NULL;*/
 	}
 	/* Don't free the ncp_req_hash_values or EID_hash_table, as they're
 	 * needed during random-access processing of the proto_tree.*/
@@ -806,6 +806,7 @@ ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
 	request_value->nds_version = 0;
 	strcpy(request_value->object_name, " ");
         request_value->nds_frag = TRUE;
+        strcpy(request_value->info_string, "\0");
         
         g_hash_table_insert(ncp_req_hash, request_key, request_value);
 
@@ -4070,7 +4071,6 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
         }
 }
 
-
 /*
  * Defrag logic 
  *
@@ -4338,6 +4338,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 	gboolean		run_info_str = FALSE;
         guint32                 length_remaining;
         guint32                 testvar;
+        char                    col_str[256];
 
 	func = tvb_get_guint8(tvb, 6);
 
@@ -4455,7 +4456,6 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
     	if (ncp_rec->req_info_str && check_col(pinfo->cinfo, COL_INFO)) {
     		run_info_str = TRUE;
     	}
-
 	if (ncp_tree) {
 		/* If the dissection throws an exception, be sure to free
 		 * the temporary proto_tree that was created. Because of the
@@ -4564,7 +4564,6 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 			 * get to them. */
 			request_value->req_cond_results = results;
 		}
-
 		/* Construct the info string if necessary */
 		if (run_info_str) {
 			GPtrArray *parray;
@@ -4590,31 +4589,27 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                        
                                         if (info_type == 1) {   /* Is this bytes? */
                                                 byte_string = bytes_to_str(fvalue_get(finfo->value), fvalue_length(finfo->value));
-                                                col_append_fstr(pinfo->cinfo, COL_INFO,
-              		               	                (const gchar*) ncp_rec->req_info_str->first_string,
-                                       	                byte_string);
+                                                sprintf(col_str, ncp_rec->req_info_str->first_string, byte_string);
+                                                strcat(request_value->info_string, col_str);
                                         }
                                         else
                                         {
                                                 if (info_type == 2) {   /* Is this a String? */
                                                         uni_to_string(fvalue_get(finfo->value), fvalue_length(finfo->value), non_uni_string);
-                                                        col_append_fstr(pinfo->cinfo, COL_INFO,
-                      		               	                (const gchar*) ncp_rec->req_info_str->first_string,
-                                              	                non_uni_string);
+                                                        sprintf(col_str, ncp_rec->req_info_str->first_string, non_uni_string);
+                                                        strcat(request_value->info_string, col_str);
                                                 }
                                                 else
                                                 {
-                                                        col_append_fstr(pinfo->cinfo, COL_INFO,
-                      		               	                (const gchar*) ncp_rec->req_info_str->first_string,
-                                               	                fvalue_get(finfo->value));
+                                                        sprintf(col_str, ncp_rec->req_info_str->first_string, fvalue_get(finfo->value));
+                                                        strcat(request_value->info_string, col_str);
                                                 }
                                         }
                                 }
                                 else
                                 {
-            			        col_append_fstr(pinfo->cinfo, COL_INFO,
-                			        (const gchar*) ncp_rec->req_info_str->first_string,
-        		        	        fvalue_get_integer(finfo->value));
+                                         sprintf(col_str, ncp_rec->req_info_str->first_string, fvalue_get_integer(finfo->value));
+                                         strcat(request_value->info_string, col_str);
                                 }
                         }
 			if (len > 1) {
@@ -4627,40 +4622,57 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                               if (info_type == 1) 
                                               {   /* Is this bytes? */
                                                 byte_string = bytes_to_str(fvalue_get(finfo->value), fvalue_length(finfo->value));
-                                                col_append_fstr(pinfo->cinfo, COL_INFO,
-              		               	                (const gchar*) ncp_rec->req_info_str->repeat_string,
-                                       	                byte_string);
+                                                sprintf(col_str, ncp_rec->req_info_str->repeat_string, byte_string);
+                                                strcat(request_value->info_string, col_str);
                                               }
                                               else
                                               {
                                                         if (info_type == 2) {   /* Is this a String? */
                                                                 uni_to_string(fvalue_get(finfo->value), fvalue_length(finfo->value), non_uni_string);
-                                                                col_append_fstr(pinfo->cinfo, COL_INFO,
-                              		               	                (const gchar*) ncp_rec->req_info_str->repeat_string,
-                                                       	                non_uni_string);
+                                                                sprintf(col_str, ncp_rec->req_info_str->repeat_string, non_uni_string);
+                                                                strcat(request_value->info_string, col_str);
                                                         }
                                                         else
                                                         {
-                                                                col_append_fstr(pinfo->cinfo, COL_INFO,
-                              		               	                (const gchar*) ncp_rec->req_info_str->repeat_string,
-                                                       	                fvalue_get(finfo->value));
+                                                                sprintf(col_str, ncp_rec->req_info_str->repeat_string, fvalue_get(finfo->value));
+                                                                strcat(request_value->info_string, col_str);
                                                         }
                                               }
                                         }
                                         else
                                         {
-                    			        col_append_fstr(pinfo->cinfo, COL_INFO,
-                        			        (const gchar*) ncp_rec->req_info_str->repeat_string,
-                		        	        fvalue_get_integer(finfo->value));
+                                                 sprintf(col_str, ncp_rec->req_info_str->repeat_string, fvalue_get_integer(finfo->value));
+                                                 strcat(request_value->info_string, col_str);
                                         }
                                 }
 			}
 		}
 
-
 		/* Free the temporary proto_tree */
 		CLEANUP_CALL_AND_POP;
 	}
+        if (run_info_str)
+        {
+                if (!request_value)
+                {
+		        conversation = find_conversation(&pinfo->src, &pinfo->dst,
+			    PT_NCP, nw_connection, nw_connection, 0);
+		        if (conversation != NULL) {
+			        /* find the record telling us the request made that caused
+			        this reply */
+			        request_value = ncp_hash_lookup(conversation, sequence);
+                        }
+                        if (!conversation || !request_value)
+                        {
+                                return;
+                        }
+                }
+                if (strlen(request_value->info_string) > 1)
+                {
+                        col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+                                request_value->info_string);
+                }
+        }
 }
 
 
@@ -6004,7 +6016,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         guint8                  nds_verb = 0;
         char *                  verb_string = "";
         guint32                 nds_frag = 0;
-        gboolean                added_arrow;
         nds_val			pvalues[9];
 	char			string_buffer[9][1024];
         guint8                  nds_version = 0;
@@ -6016,6 +6027,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         gboolean                resolve_eid=FALSE;
         guint32                 global_flags=0;
 	int			i;
+        char                    col_str[256];
         
 	for (i = 0; i < 9; i++) {
 		pvalues[i].vtype = 0;
@@ -7306,6 +7318,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[5].vlength = 4;
                                 pvalues[5].voffset = foffset;
                                 pvalues[5].hfname = hf_nds_upper;
+                                foffset += 4;
                                 pvalues[6].vvalue = tvb_get_letohl(tvb, foffset); /* Length of bytes field */
                                 foffset += 4;
                                 pvalues[6].vtype = VTYPE_BYTES;
@@ -8146,31 +8159,29 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                	}
                         
         }
-        if (!pinfo->fd->flags.visited) {
-                
-               	/* This is the first time we've looked at this packet.
-               	Keep track of the address and connection whence the request
-               	came, and the address and connection to which the request
-               	is being sent, so that we can match up calls with replies.
-               	(We don't include the sequence number, as we may want
-               	to have all packets over the same connection treated
-        	as being part of a single conversation so that we can
-                let the user select that conversation to be displayed.) */
-                        
-        	conversation = find_conversation(&pinfo->src, &pinfo->dst,
+
+        /* Keep track of the address and connection whence the request
+           came, and the address and connection to which the request
+           is being sent, so that we can match up calls with replies.
+           (We don't include the sequence number, as we may want
+           to have all packets over the same connection treated
+           as being part of a single conversation so that we can
+           let the user select that conversation to be displayed.) */
+
+        conversation = find_conversation(&pinfo->src, &pinfo->dst,
         	    PT_NCP, nw_connection, nw_connection, 0);
-                
-        	if (conversation == NULL) {
-        		/* It's not part of any conversation - create a new one. */
-        		conversation = conversation_new(&pinfo->src, &pinfo->dst,
-        		    PT_NCP, nw_connection, nw_connection, 0);
-        	}
+       	if (conversation == NULL) {
+       		/* It's not part of any conversation - create a new one. */
+       		conversation = conversation_new(&pinfo->src, &pinfo->dst,
+       		    PT_NCP, nw_connection, nw_connection, 0);
                         
         	request_value = ncp_hash_insert(conversation, sequence, ncp_rec);
         	request_value->req_frame_num = pinfo->fd->num;
 		request_value->req_frame_time.secs=pinfo->fd->abs_secs;
 		request_value->req_frame_time.nsecs=pinfo->fd->abs_usecs*1000;
+	}
                 
+	if (!pinfo->fd->flags.visited) {
         	/* If this is the first time we're examining the packet,
         	 * check to see if this NCP type uses a "request condition".
         	 * If so, we have to build a proto_tree because request conditions
@@ -8200,10 +8211,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                          
         	CLEANUP_PUSH(free_proto_tree, temp_tree);
                
-        	conversation = find_conversation(&pinfo->src, &pinfo->dst,
-        	    PT_NCP, nw_connection, nw_connection, 0);
-                    
-                    
+		request_value = ncp_hash_lookup(conversation, sequence);
                 
         	switch (type) {
                         case NCP_BROADCAST_SLOT:
@@ -8240,7 +8248,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
        				        proto_tree_add_uint_format(ncp_tree, hf_ncp_nds_verb, tvb, 24, 4,
        					        nds_verb, "NDS Verb: %d, (0x%02x), %s",
        					        nds_verb, nds_verb, verb_string);
-                                        added_arrow = FALSE;
 					for (i = 0; i < 9; i++) {
 						switch (pvalues[i].vtype) {
 
@@ -8274,13 +8281,8 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 								 * for MVTYPE_PROC_ENTRY_SPECIFIERS,
 								 * to add string to columninfo
 								 */
-								if (check_col(pinfo->cinfo, COL_INFO)) {
-									if (!added_arrow) {
-										col_append_str(pinfo->cinfo, COL_INFO, " -> ");
-										added_arrow = TRUE;
-									}
-									col_append_str(pinfo->cinfo, COL_INFO, pvalues[i].vstring);
-								}
+                                                                sprintf(col_str, "%s", pvalues[i].vstring);
+                                                                strcat(request_value->info_string, col_str);
 							}
 							break;
 
@@ -8304,13 +8306,8 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 								 * and the last string for MVTYPE_ATTR_REQUEST,
 								 * by "process_multivalues()".
 								 */
-								if (check_col(pinfo->cinfo, COL_INFO)) {
-									if (!added_arrow) {
-										col_append_str(pinfo->cinfo, COL_INFO, " -> ");
-										added_arrow = TRUE;
-									}
-									col_append_str(pinfo->cinfo, COL_INFO, pvalues[i].vstring);
-								}
+                                                                sprintf(col_str, "%s", pvalues[i].vstring);
+                                                                strcat(request_value->info_string, col_str);
 							}
 							break;
 
@@ -8331,24 +8328,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 						}
                                                 /* For NDS requests with just an EID, resolve name from hash table. */
                                         }
-                                        request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
-                                        if(resolve_eid) {
-                                                if (request_eid_value) {
-                                                        strcpy(global_object_name, request_eid_value->object_name);
-                                                        if (check_col(pinfo->cinfo, COL_INFO)) 
-                                                        {
-                                                                col_append_str(pinfo->cinfo, COL_INFO, ", Object Name - ");
-                                                                col_append_str(pinfo->cinfo, COL_INFO, global_object_name);
-                                                        }
-                                                }        
-                                        }
-                                        if (request_value)
-                                        {
-                                                request_value->nds_request_verb = nds_verb;
-                                                request_value->nds_version = nds_version;
-                                                strcpy(request_value->object_name, global_object_name);
-                                                request_value->req_nds_flags = global_flags;
-                                        }
                                 }
                			break;
                
@@ -8361,6 +8340,45 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                	/* Free the temporary proto_tree */
                	CLEANUP_CALL_AND_POP;
         }        
+        if (!request_value)
+        {
+	        conversation = find_conversation(&pinfo->src, &pinfo->dst,
+		    PT_NCP, nw_connection, nw_connection, 0);
+	        if (conversation != NULL) {
+		        /* find the record telling us the request made that caused
+		        this reply */
+		        request_value = ncp_hash_lookup(conversation, sequence);
+                }
+                if (!conversation || !request_value)
+                {
+                        return;
+                }
+        }
+        if (strlen(request_value->info_string) > 1)
+        {
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_str(pinfo->cinfo, COL_INFO, " -> ");
+			col_append_str(pinfo->cinfo, COL_INFO, request_value->info_string);
+		}
+        }
+        request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
+        if(resolve_eid) {
+                if (request_eid_value) {
+                        strcpy(global_object_name, request_eid_value->object_name);
+                        if (check_col(pinfo->cinfo, COL_INFO)) 
+                        {
+                                col_append_str(pinfo->cinfo, COL_INFO, ", Object Name - ");
+                                col_append_str(pinfo->cinfo, COL_INFO, global_object_name);
+                        }
+                }        
+        }
+        if (request_value)
+        {
+                request_value->nds_request_verb = nds_verb;
+                request_value->nds_version = nds_version;
+                strcpy(request_value->object_name, global_object_name);
+                request_value->req_nds_flags = global_flags;
+        }
 }
 
 /*
