@@ -4,7 +4,7 @@
  *
  * Copyright 2001, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-msdp.c,v 1.7 2002/08/02 23:35:54 jmayer Exp $
+ * $Id: packet-msdp.c,v 1.8 2003/01/20 06:24:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -169,7 +169,8 @@ static dissector_handle_t ip_handle;
 
 
 static void
-dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset);
+dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int *offset, int len);
 static void
 dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, guint16 tlv_len);
 
@@ -205,11 +206,13 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         proto_tree_add_uint(msdp_tree, hf_msdp_type, tvb, offset, 1, type);
                         proto_tree_add_uint(msdp_tree, hf_msdp_length, tvb, offset + 1, 2, length);
                         offset += 3;
+                        length -= 3;
 
                         switch (type) {
                         case MSDP_SA:
                         case MSDP_SA_RSP:
-                                dissect_msdp_sa(tvb, pinfo, msdp_tree, &offset);
+                                dissect_msdp_sa(tvb, pinfo, msdp_tree, &offset,
+                                    length);
                                 break;
                         case MSDP_SA_REQ:
                                 proto_tree_add_item(msdp_tree, hf_msdp_sa_req_res, tvb, offset, 1, FALSE);
@@ -220,9 +223,9 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 dissect_msdp_notification(tvb, pinfo, msdp_tree, &offset, length);
                                 break;
                         default:
-                                if (length > 3)
-                                        proto_tree_add_text(msdp_tree, tvb, offset, length - 3, "TLV contents");
-                                offset += (length - 3);
+                                if (length > 0)
+                                        proto_tree_add_text(msdp_tree, tvb, offset, length, "TLV contents");
+                                offset += length;
                                 break;
                         }
                 }
@@ -239,18 +242,28 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * with one exception. Encapsulated multicast data is not allowed in
  * SA Response.
  */
-static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree, int *offset, int length)
 {
         guint8 entries;
         guint32 rp_addr;
 
+        if (length < 1)
+                return;
         entries = tvb_get_guint8(tvb, *offset);
         proto_tree_add_uint(tree, hf_msdp_sa_entry_count, tvb, *offset, 1, entries);
         *offset += 1;
+        length -= 1;
 
+        if (length < 4) {
+               	*offset += length;
+                length = 0;
+                return;
+        }
         tvb_memcpy(tvb, (guint8 *)&rp_addr, *offset, 4);
         proto_tree_add_item(tree, hf_msdp_sa_rp_addr, tvb, *offset, 4, FALSE);
         *offset += 4;
+        length -= 4;
 
         /* Put each of the (S,G) entries in their own subtree.
          * This is probably visually better.
@@ -259,7 +272,12 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_item *ei;
                 proto_tree *entry_tree;
 
-                ei = proto_tree_add_text(tree, tvb, *offset, 24, "(S,G) block: %s/%u -> %s",
+                if (length < 12) {
+                	*offset += length;
+                        length = 0;
+                        return;
+                }
+                ei = proto_tree_add_text(tree, tvb, *offset, 12, "(S,G) block: %s/%u -> %s",
                                          ip_to_str(tvb_get_ptr(tvb, *offset + 8, 4)),
                                          tvb_get_guint8(tvb, *offset + 3),
                                          ip_to_str(tvb_get_ptr(tvb, *offset + 4, 4)));
@@ -267,28 +285,45 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                 proto_tree_add_item(entry_tree, hf_msdp_sa_reserved, tvb, *offset, 3, FALSE);
                 *offset += 3;
+                length -= 3;
                 proto_tree_add_item(entry_tree, hf_msdp_sa_sprefix_len, tvb, *offset, 1, FALSE);
                 *offset += 1;
+                length -= 1;
                 proto_tree_add_item(entry_tree, hf_msdp_sa_group_addr, tvb, *offset, 4, FALSE);
                 *offset += 4;
+                length -= 4;
                 proto_tree_add_item(entry_tree, hf_msdp_sa_src_addr, tvb, *offset, 4, FALSE);
                 *offset += 4;
+                length -= 4;
         }
 
         /*
          * Check if an encapsulated multicast IPv4 packet follows
          */
-        if (tvb_reported_length_remaining(tvb, *offset) > 0) {
+        if (length > 0) {
                 proto_item *ei;
                 proto_tree *enc_tree;
+                gint available_length, reported_length;
                 tvbuff_t *next_tvb;
 
-                ei = proto_tree_add_text(tree, tvb, *offset, -1,
+                ei = proto_tree_add_text(tree, tvb, *offset, length,
                                          "Encapsulated IPv4 packet: %u bytes",
-                                         tvb_reported_length_remaining(tvb, *offset));
+                                         length);
                 enc_tree = proto_item_add_subtree(ei, ett_msdp_sa_enc_data);
 
-                next_tvb = tvb_new_subset(tvb, *offset, -1, -1);
+                available_length = tvb_length_remaining(tvb, *offset);
+                reported_length = tvb_reported_length_remaining(tvb, *offset);
+                g_assert(available_length >= 0);
+                g_assert(reported_length >= 0);
+                if (available_length > reported_length)
+                        available_length = reported_length;
+                if (available_length > length)
+                        available_length = length;
+                if (reported_length > length)
+                        reported_length = length;
+
+                next_tvb = tvb_new_subset(tvb, *offset, available_length,
+                                          reported_length);
                 /* Set the information columns read-only so that they
                  * reflect the MSDP packet rather than the
                  * encapsulated packet.
@@ -296,7 +331,7 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 col_set_writable(pinfo->cinfo, FALSE);
                 call_dissector(ip_handle, next_tvb, pinfo, enc_tree);
         }
-        *offset += tvb_length_remaining(tvb, *offset);
+        *offset += length;
 
         return;
 }
