@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.56 2002/08/02 23:35:51 jmayer Exp $
+ * $Id: packet-isakmp.c,v 1.57 2002/08/18 19:19:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -189,8 +189,8 @@ struct isakmp_hdr {
 #define E_FLAG		0x01
 #define C_FLAG		0x02
 #define A_FLAG		0x04
-  guint8	message_id[4];
-  guint8	length[4];
+  guint32	message_id;
+  guint32	length;
 };
 
 struct udp_encap_hdr {
@@ -307,10 +307,10 @@ static void
 dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int			offset = 0;
-  struct isakmp_hdr *	hdr;
+  struct isakmp_hdr 	hdr;
   proto_item *		ti;
   proto_tree *		isakmp_tree = NULL;
-  struct udp_encap_hdr * encap_hdr;
+  struct udp_encap_hdr  encap_hdr;
   guint32		len;
   static const guint8	non_esp_marker[4] = { 0, 0, 0, 0 };
   tvbuff_t *		next_tvb;
@@ -320,98 +320,103 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 
-  hdr = (struct isakmp_hdr *)tvb_get_ptr(tvb, 0, sizeof (struct isakmp_hdr));
-  len = pntohl(&hdr->length);
+  hdr.length = tvb_get_ntohl(tvb, offset + sizeof(hdr) - sizeof(hdr.length));
   
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_isakmp, tvb, offset, len, FALSE);
+    ti = proto_tree_add_item(tree, proto_isakmp, tvb, offset, hdr.length, FALSE);
     isakmp_tree = proto_item_add_subtree(ti, ett_isakmp);
   }
     
-  encap_hdr = (struct udp_encap_hdr *)tvb_get_ptr(tvb, 0, sizeof(struct udp_encap_hdr));
+  tvb_memcpy(tvb, (guint8 *)&encap_hdr, 0, sizeof(encap_hdr));
   
-  if (encap_hdr->non_esp_marker[0] == 0xFF) {
+  if (encap_hdr.non_esp_marker[0] == 0xFF) {
     if (check_col(pinfo->cinfo, COL_INFO)) 
       col_set_str(pinfo->cinfo, COL_INFO, "UDP encapsulated IPSec - NAT Keepalive");
     return;
   }
-  if (memcmp(encap_hdr->non_esp_marker,non_esp_marker,4) == 0) {
+  if (memcmp(encap_hdr.non_esp_marker,non_esp_marker,4) == 0) {
     if (check_col(pinfo->cinfo, COL_INFO)) 
           col_set_str(pinfo->cinfo, COL_INFO, "UDP encapsulated IPSec - ESP");
     if (tree)
       proto_tree_add_text(isakmp_tree, tvb, offset,
-			  sizeof(encap_hdr->non_esp_marker),
+			  sizeof(encap_hdr.non_esp_marker),
 			  "Non-ESP-Marker");
-    offset += sizeof(encap_hdr->non_esp_marker);
+    offset += sizeof(encap_hdr.non_esp_marker);
     next_tvb = tvb_new_subset(tvb, offset, -1, -1);
     call_dissector(esp_handle, next_tvb, pinfo, tree);
     return;
   }
-
+  hdr.exch_type = tvb_get_guint8(tvb, sizeof(hdr.icookie) + sizeof(hdr.rcookie) + sizeof(hdr.next_payload) + sizeof(hdr.version));
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_str(pinfo->cinfo, COL_INFO, exchtype2str(hdr->exch_type));
+    col_add_str(pinfo->cinfo, COL_INFO, exchtype2str(hdr.exch_type));
 
   if (tree) {
-    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr->icookie),
-			"Initiator cookie");
-    offset += sizeof(hdr->icookie);
-    
-    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr->rcookie),
-			"Responder cookie");
-    offset += sizeof(hdr->rcookie);
+    tvb_memcpy(tvb, (guint8 *)&hdr.icookie, offset, sizeof(hdr.icookie));
+    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.icookie),
+			"Initiator cookie: 0x%s", tvb_bytes_to_str(tvb, offset, sizeof(hdr.icookie)));
+    offset += sizeof(hdr.icookie);
+   
+    tvb_memcpy(tvb, (guint8 *)&hdr.rcookie, offset, sizeof(hdr.rcookie)); 
+    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.rcookie),
+			"Responder cookie: 0x%s", tvb_bytes_to_str(tvb, offset, sizeof(hdr.rcookie)));
+    offset += sizeof(hdr.rcookie);
 
-    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr->next_payload),
+    hdr.next_payload = tvb_get_guint8(tvb, offset);
+    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.next_payload),
 			"Next payload: %s (%u)",
-			payloadtype2str(hdr->next_payload), hdr->next_payload);
-    offset += sizeof(hdr->next_payload);
+			payloadtype2str(hdr.next_payload), hdr.next_payload);
+    offset += sizeof(hdr.next_payload);
 
-    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr->version),
+    hdr.version = tvb_get_guint8(tvb, offset);
+    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.version),
 			"Version: %u.%u",
-			hi_nibble(hdr->version), lo_nibble(hdr->version));
-    offset += sizeof(hdr->version);
-    
-    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr->exch_type),
+			hi_nibble(hdr.version), lo_nibble(hdr.version));
+    offset += sizeof(hdr.version);
+   
+    hdr.exch_type = tvb_get_guint8(tvb, offset); 
+    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.exch_type),
 			"Exchange type: %s (%u)",
-			exchtype2str(hdr->exch_type), hdr->exch_type);
-    offset += sizeof(hdr->exch_type);
+			exchtype2str(hdr.exch_type), hdr.exch_type);
+    offset += sizeof(hdr.exch_type);
     
     {
       proto_item *	fti;
       proto_tree *	ftree;
-      
-      fti   = proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr->flags), "Flags");
+     
+      hdr.flags = tvb_get_guint8(tvb, offset); 
+      fti   = proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.flags), "Flags");
       ftree = proto_item_add_subtree(fti, ett_isakmp_flags);
       
       proto_tree_add_text(ftree, tvb, offset, 1, "%s",
-			  decode_boolean_bitfield(hdr->flags, E_FLAG, sizeof(hdr->flags)*8,
+			  decode_boolean_bitfield(hdr.flags, E_FLAG, sizeof(hdr.flags)*8,
 						  "Encryption", "No encryption"));
       proto_tree_add_text(ftree, tvb, offset, 1, "%s",
-			  decode_boolean_bitfield(hdr->flags, C_FLAG, sizeof(hdr->flags)*8,
+			  decode_boolean_bitfield(hdr.flags, C_FLAG, sizeof(hdr.flags)*8,
 						  "Commit", "No commit"));
       proto_tree_add_text(ftree, tvb, offset, 1, "%s",
-			  decode_boolean_bitfield(hdr->flags, A_FLAG, sizeof(hdr->flags)*8,
+			  decode_boolean_bitfield(hdr.flags, A_FLAG, sizeof(hdr.flags)*8,
 						  "Authentication", "No authentication"));
-      offset += sizeof(hdr->flags);
+      offset += sizeof(hdr.flags);
     }
 
-    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr->message_id),
-        "Message ID: 0x%02x%02x%02x%02x", hdr->message_id[0],
-        hdr->message_id[1], hdr->message_id[2], hdr->message_id[3]);
-    offset += sizeof(hdr->message_id);
+    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.message_id),
+        "Message ID: 0x%s", tvb_bytes_to_str(tvb, offset, sizeof(hdr.message_id)));
+    offset += sizeof(hdr.message_id);
     
-    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr->length),
-			"Length: %u", len);
-    offset += sizeof(hdr->length);
-    len -= sizeof(*hdr);
+    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.length),
+			"Length: %u", hdr.length);
+    offset += sizeof(hdr.length);
+    
+    len = hdr.length - sizeof(hdr);
 
-    if (hdr->flags & E_FLAG) {
+    if (hdr.flags & E_FLAG) {
       if (len && isakmp_tree) {
         proto_tree_add_text(isakmp_tree, tvb, offset, len,
 			"Encrypted payload (%d byte%s)",
 			len, plurality(len, "", "s"));
       }
     } else
-      dissect_payloads(tvb, isakmp_tree, hdr->next_payload, offset, len);
+      dissect_payloads(tvb, isakmp_tree, hdr.next_payload, offset, len);
   }
 }
 
@@ -854,7 +859,7 @@ static void
 dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     int unused _U_)
 {
-  proto_tree_add_text(tree, tvb, offset, length, "Vendor ID");
+  proto_tree_add_text(tree, tvb, offset, length, "Vendor ID: 0x%s", tvb_bytes_to_str(tvb, offset, length));
 }
 
 static void
