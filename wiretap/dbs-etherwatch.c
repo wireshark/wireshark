@@ -1,6 +1,6 @@
 /* dbs-etherwatch.c
  *
- * $Id: dbs-etherwatch.c,v 1.4 2002/03/02 20:41:07 guy Exp $
+ * $Id: dbs-etherwatch.c,v 1.5 2002/03/04 00:25:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
@@ -18,8 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -43,14 +43,14 @@ ETHERWATCH  X5-008
 42 names and addresses were loaded
 Reading recorded data from PERSISTENCE
 ------------------------------------------------------------------------------
->From 00-D0-C0-D2-4D-60 [MF1] to AA-00-04-00-FC-94 [PSERVB]
+From 00-D0-C0-D2-4D-60 [MF1] to AA-00-04-00-FC-94 [PSERVB]
 Protocol 08-00 00 00-00-00-00-00,   60 byte buffer at 10-OCT-2001 10:20:45.16
   [E..<8.....Ò.....]-    0-[45 00 00 3C 38 93 00 00 1D 06 D2 12 80 93 11 1A]
   [...Ö.Ò...(¤.....]-   16-[80 93 80 D6 02 D2 02 03 00 28 A4 90 00 00 00 00]
   [.....½.....´....]-   32-[A0 02 FF FF 95 BD 00 00 02 04 05 B4 03 03 04 01]
   [......å.....    ]-   48-[01 01 08 0A 90 90 E5 14 00 00 00 00]
 ------------------------------------------------------------------------------
->From 00-D0-C0-D2-4D-60 [MF1] to AA-00-04-00-FC-94 [PSERVB]
+From 00-D0-C0-D2-4D-60 [MF1] to AA-00-04-00-FC-94 [PSERVB]
 Protocol 08-00 00 00-00-00-00-00,   50 byte buffer at 10-OCT-2001 10:20:45.17
   [E..(8.....Ò%....]-    0-[45 00 00 28 38 94 00 00 1D 06 D2 25 80 93 11 1A]
   [...Ö.Ò...(¤.Z.4w]-   16-[80 93 80 D6 02 D2 02 03 00 28 A4 91 5A 1C 34 77]
@@ -84,23 +84,37 @@ static int parse_dbs_etherwatch_rec_hdr(wtap *wth, FILE_T fh, int *err);
 
 
 /* Seeks to the beginning of the next packet, and returns the
-   byte offset.  Returns -1 on failure. */
-/* XXX - Handle I/O errors. */
-static long dbs_etherwatch_seek_next_packet(wtap *wth)
+   byte offset.  Returns -1 on failure, and sets "*err" to the error. */
+static long dbs_etherwatch_seek_next_packet(wtap *wth, int *err)
 {
   int byte;
   unsigned int level = 0;
+  long cur_off;
 
   while ((byte = file_getc(wth->fh)) != EOF) {
     if (byte == dbs_etherwatch_rec_magic[level]) {
       level++;
       if (level >= DBS_ETHERWATCH_REC_MAGIC_SIZE) {
-	      /* note: we're leaving file pointer right after the magic characters */
-        return file_tell(wth->fh) + 1;
+        /* note: we're leaving file pointer right after the magic characters */
+        cur_off = file_tell(wth->fh);
+        if (cur_off == -1) {
+          /* Error. */
+          *err = file_error(wth->fh);
+          return -1;
+        }
+        return cur_off + 1;
       }
     } else {
       level = 0;
     }
+  }
+  if (file_eof(wth->fh)) {
+    /* We got an EOF. */
+    *err = 0;
+  } else {
+    /* We (presumably) got an error (there's no equivalent to "ferror()"
+       in zlib, alas, so we don't have a wrapper to check for an error). */
+    *err = file_error(wth->fh);
   }
   return -1;
 }
@@ -111,9 +125,10 @@ static long dbs_etherwatch_seek_next_packet(wtap *wth)
 /* Look through the first part of a file to see if this is
  * a DBS Ethertrace text trace file.
  *
- * Returns TRUE if it is, FALSE if it isn't.
+ * Returns TRUE if it is, FALSE if it isn't or if we get an I/O error;
+ * if we get an I/O error, "*err" will be set to a non-zero value.
  */
-static gboolean dbs_etherwatch_check_file_type(wtap *wth)
+static gboolean dbs_etherwatch_check_file_type(wtap *wth, int *err)
 {
 	char	buf[DBS_ETHERWATCH_LINE_LENGTH];
 	int	line, byte;
@@ -142,19 +157,28 @@ static gboolean dbs_etherwatch_check_file_type(wtap *wth)
 					level = 0;
 			}
 		}
-		else
+		else {
+			/* EOF or error. */
+			if (file_eof(wth->fh))
+				*err = 0;
+			else
+				*err = file_error(wth->fh);
 			return FALSE;
+		}
 	}
+	*err = 0;
 	return FALSE;
 }
 
 
-/* XXX - return -1 on I/O error and actually do something with 'err'. */
 int dbs_etherwatch_open(wtap *wth, int *err)
 {
 	/* Look for DBS ETHERWATCH header */
-	if (!dbs_etherwatch_check_file_type(wth)) {
-		return 0;
+	if (!dbs_etherwatch_check_file_type(wth, err)) {
+		if (*err == 0)
+			return 0;
+		else
+			return -1;
 	}
 
 	wth->data_offset = 0;
@@ -175,11 +199,9 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, long *data_offset)
 	int	pkt_len;
 
 	/* Find the next packet */
-	offset = dbs_etherwatch_seek_next_packet(wth);
-	if (offset < 1) {
-		*err = 0;	/* XXX - assume, for now, that it's an EOF */
+	offset = dbs_etherwatch_seek_next_packet(wth, err);
+	if (offset < 1)
 		return FALSE;
-	}
 
 	/* Parse the header */
 	pkt_len = parse_dbs_etherwatch_rec_hdr(wth, wth->fh, err);

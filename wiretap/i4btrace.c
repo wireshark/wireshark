@@ -1,6 +1,6 @@
 /* i4btrace.c
  *
- * $Id: i4btrace.c,v 1.16 2002/02/08 10:07:40 guy Exp $
+ * $Id: i4btrace.c,v 1.17 2002/03/04 00:25:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
@@ -18,8 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -40,6 +40,7 @@ static void i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr);
 static int i4b_read_rec_data(FILE_T fh, u_char *pd, int length, int *err);
 static void i4b_set_pseudo_header(wtap *wth, i4b_trace_hdr_t *hdr,
     union wtap_pseudo_header *pseudo_header);
+static void i4btrace_close(wtap *wth);
 
 /*
  * Test some fields in the header to see if they make sense.
@@ -89,7 +90,10 @@ int i4btrace_open(wtap *wth, int *err)
 		byte_swapped = TRUE;
 	}
 
-	file_seek(wth->fh, 0, SEEK_SET);
+	if (file_seek(wth->fh, 0, SEEK_SET) == -1) {
+		*err = file_error(wth->fh);
+		return -1;
+	}
 	wth->data_offset = 0;
 
 	/* Get capture start time */
@@ -98,6 +102,7 @@ int i4btrace_open(wtap *wth, int *err)
 	wth->capture.i4btrace = g_malloc(sizeof(i4btrace_t));
 	wth->subtype_read = i4btrace_read;
 	wth->subtype_seek_read = i4btrace_seek_read;
+	wth->subtype_close = i4btrace_close;
 	wth->snapshot_length = 0;	/* not known */
 
 	wth->capture.i4btrace->bchannel_prot[0] = -1;
@@ -331,4 +336,10 @@ i4b_set_pseudo_header(wtap *wth, i4b_trace_hdr_t *hdr,
 		}
 		break;
 	}
+}
+
+static void
+i4btrace_close(wtap *wth)
+{
+	g_free(wth->capture.i4btrace);
 }

@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.46 2002/03/02 20:41:07 guy Exp $
+ * $Id: netxray.c,v 1.47 2002/03/04 00:25:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -224,7 +224,11 @@ int netxray_open(wtap *wth, int *err)
 	wth->capture.netxray->end_offset = pletohl(&hdr.end_offset);
 
 	/* Seek to the beginning of the data records. */
-	file_seek(wth->fh, pletohl(&hdr.start_offset), SEEK_SET);
+	if (file_seek(wth->fh, pletohl(&hdr.start_offset), SEEK_SET) == -1) {
+		*err = file_error(wth->fh);
+		g_free(wth->capture.netxray);
+		return -1;
+	}	
 	wth->data_offset = pletohl(&hdr.start_offset);
 
 	return 1;
@@ -275,7 +279,11 @@ reread:
 		if (!wth->capture.netxray->wrapped) {
 			/* Yes.  Remember that we did. */
 			wth->capture.netxray->wrapped = 1;
-			file_seek(wth->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET);
+			if (file_seek(wth->fh, CAPTUREFILE_HEADER_SIZE,
+			    SEEK_SET) == -1) {
+				*err = file_error(wth->fh);
+				return FALSE;
+			}
 			wth->data_offset = CAPTUREFILE_HEADER_SIZE;
 			goto reread;
 		}
@@ -364,7 +372,10 @@ gboolean netxray_dump_open_1_1(wtap_dumper *wdh, int *err)
        haven't yet written any packets.  As we'll have to rewrite
        the header when we've written out all the packets, we just
        skip over the header for now. */
-    fseek(wdh->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET);
+    if (fseek(wdh->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET) == -1) {
+	*err = errno;
+	return FALSE;
+    }
 
     wdh->dump.netxray = g_malloc(sizeof(netxray_dump_t));
     wdh->dump.netxray->first_frame = TRUE;

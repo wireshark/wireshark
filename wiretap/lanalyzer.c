@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.30 2001/11/13 23:55:43 gram Exp $
+ * $Id: lanalyzer.c,v 1.31 2002/03/04 00:25:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -18,8 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -90,7 +90,11 @@ int lanalyzer_open(wtap *wth, int *err)
 
 	/* Read records until we find the start of packets */
 	while (1) {
-		file_seek(wth->fh, record_length, SEEK_CUR);
+		if (file_seek(wth->fh, record_length, SEEK_CUR) == -1) {
+			*err = file_error(wth->fh);
+			g_free(wth->capture.lanalyzer);
+			return -1;
+		}
 		wth->data_offset += record_length;
 		errno = WTAP_ERR_CANT_READ;
 		bytes_read = file_read(LE_record_type, 1, 2, wth->fh);
@@ -180,7 +184,11 @@ int lanalyzer_open(wtap *wth, int *err)
 			case REC_TRACE_PACKET_DATA:
 				/* Go back header number ob ytes so that lanalyzer_read
 				 * can read this header */
-				file_seek(wth->fh, -bytes_read, SEEK_CUR);
+				if (file_seek(wth->fh, -bytes_read, SEEK_CUR) == -1) {
+					*err = file_error(wth->fh);
+					g_free(wth->capture.lanalyzer);
+					return -1;
+				}
 				wth->data_offset -= bytes_read;
 				return 1;
 

@@ -1,6 +1,6 @@
 /* csids.c
  *
- * $Id: csids.c,v 1.10 2002/03/02 20:41:07 guy Exp $
+ * $Id: csids.c,v 1.11 2002/03/04 00:25:35 guy Exp $
  *
  * Copyright (c) 2000 by Mike Hall <mlh@io.com>
  * Copyright (c) 2000 by Cisco Systems
@@ -18,8 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -40,13 +40,14 @@
  * of data following for that packet.
  *
  * For a time there was an error in iplogging and the ip length, flags, and id
- * were byteswapped. We will check for this and handle it before handing to ethereal.
- *
+ * were byteswapped. We will check for this and handle it before handing to
+ * ethereal.
  */
 
 static gboolean csids_read(wtap *wth, int *err, long *data_offset);
 static int csids_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len);
+static void csids_close(wtap *wth);
 
 struct csids_header {
   guint32 seconds; /* seconds since epoch */
@@ -122,17 +123,21 @@ int csids_open(wtap *wth, int *err)
     byteswap = FALSE;
   } 
 
+  /* no file header. So reset the fh to 0 so we can read the first packet */
+  if (file_seek(wth->fh, 0, SEEK_SET) == -1) {
+    *err = file_error( wth->fh );
+    return -1;
+  }
+
   wth->data_offset = 0; 
   wth->capture.csids = g_malloc(sizeof(csids_t));
   wth->capture.csids->byteswapped = byteswap;
   wth->file_encap = WTAP_ENCAP_RAW_IP; 
   wth->file_type = WTAP_FILE_CSIDS; 
   wth->snapshot_length = 0; /* not known */
-  wth->subtype_read = csids_read; 
-  wth->subtype_seek_read = csids_seek_read; 
-
-  /* no file header. So reset the fh to 0 so we can read the first packet */
-  file_seek(wth->fh, 0, SEEK_SET); 
+  wth->subtype_read = csids_read;
+  wth->subtype_seek_read = csids_seek_read;
+  wth->subtype_close = csids_close;
 
   return 1;
 }
@@ -242,5 +247,8 @@ csids_seek_read (wtap *wth,
   return 0;
 }
 
-
-
+static void
+csids_close(wtap *wth)
+{
+  g_free(wth->capture.csids);
+}

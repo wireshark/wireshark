@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.48 2002/02/27 08:57:25 guy Exp $
+ * $Id: netmon.c,v 1.49 2002/03/04 00:25:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -266,9 +266,13 @@ int netmon_open(wtap *wth, int *err)
 		*err = WTAP_ERR_UNSUPPORTED;
 		return -1;
 	}
+	if (file_seek(wth->fh, frame_table_offset, SEEK_SET) == -1) {
+		*err = file_error(wth->fh);
+		g_free(wth->capture.netmon);
+		return -1;
+	}
 	frame_table = g_malloc(frame_table_length);
 	errno = WTAP_ERR_CANT_READ;
-	file_seek(wth->fh, frame_table_offset, SEEK_SET);
 	bytes_read = file_read(frame_table, 1, frame_table_length, wth->fh);
 	if ((guint32)bytes_read != frame_table_length) {
 		*err = file_error(wth->fh);
@@ -327,7 +331,10 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 	rec_offset = netmon->frame_table[netmon->current_frame];
 	if (wth->data_offset != rec_offset) {
 		wth->data_offset = rec_offset;
-		file_seek(wth->fh, wth->data_offset, SEEK_SET);
+		if (file_seek(wth->fh, wth->data_offset, SEEK_SET) == -1) {
+			*err = file_error(wth->fh);
+			return FALSE;
+		}
 	}
 	netmon->current_frame++;
 
@@ -566,7 +573,10 @@ gboolean netmon_dump_open(wtap_dumper *wdh, int *err)
 	   haven't yet written any packets.  As we'll have to rewrite
 	   the header when we've written out all the packets, we just
 	   skip over the header for now. */
-	fseek(wdh->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET);
+	if (fseek(wdh->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET) == -1) {
+		*err = errno;
+		return FALSE;
+	}
 
 	wdh->dump.netmon = g_malloc(sizeof(netmon_dump_t));
 	wdh->dump.netmon->frame_table_offset = CAPTUREFILE_HEADER_SIZE;

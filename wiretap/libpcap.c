@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.67 2002/03/02 20:41:07 guy Exp $
+ * $Id: libpcap.c,v 1.68 2002/03/04 00:25:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -37,7 +37,6 @@
 #if !defined(ultrix) && !defined(__alpha) && !defined(__bsdi__)
 #define BIT_SWAPPED_MAC_ADDRS
 #endif
-
 
 /* Try to read the first two records of the capture file. */
 typedef enum {
@@ -594,6 +593,7 @@ int libpcap_open(wtap *wth, int *err)
 			 * Well, we couldn't even read it.
 			 * Give up.
 			 */
+			g_free(wth->capture.pcap);
 			return -1;
 
 		case THIS_FORMAT:
@@ -601,7 +601,11 @@ int libpcap_open(wtap *wth, int *err)
 			 * Well, it looks as if it might be 991029.
 			 * Put the seek pointer back, and return success.
 			 */
-			file_seek(wth->fh, wth->data_offset, SEEK_SET);
+			if (file_seek(wth->fh, wth->data_offset, SEEK_SET) == -1) {
+				*err = file_error(wth->fh);
+				g_free(wth->capture.pcap);
+				return -1;
+			}
 			return 1;
 
 		case OTHER_FORMAT:
@@ -619,7 +623,11 @@ int libpcap_open(wtap *wth, int *err)
 		 * it as 990915.
 		 */
 		wth->file_type = WTAP_FILE_PCAP_SS990915;
-		file_seek(wth->fh, wth->data_offset, SEEK_SET);
+		if (file_seek(wth->fh, wth->data_offset, SEEK_SET) == -1) {
+			*err = file_error(wth->fh);
+			g_free(wth->capture.pcap);
+			return -1;
+		}
 	} else {
 		/*
 		 * Well, we have the standard magic number.
@@ -634,6 +642,7 @@ int libpcap_open(wtap *wth, int *err)
 			 * Well, we couldn't even read it.
 			 * Give up.
 			 */
+			g_free(wth->capture.pcap);
 			return -1;
 
 		case THIS_FORMAT:
@@ -642,7 +651,11 @@ int libpcap_open(wtap *wth, int *err)
 			 * libpcap file.
 			 * Put the seek pointer back, and return success.
 			 */
-			file_seek(wth->fh, wth->data_offset, SEEK_SET);
+			if (file_seek(wth->fh, wth->data_offset, SEEK_SET) == -1) {
+				*err = file_error(wth->fh);
+				g_free(wth->capture.pcap);
+				return -1;
+			}
 			return 1;
 
 		case OTHER_FORMAT:
@@ -658,7 +671,11 @@ int libpcap_open(wtap *wth, int *err)
 		 * ss990417.
 		 */
 		wth->file_type = WTAP_FILE_PCAP_SS990417;
-		file_seek(wth->fh, wth->data_offset, SEEK_SET);
+		if (file_seek(wth->fh, wth->data_offset, SEEK_SET) == -1) {
+			*err = file_error(wth->fh);
+			g_free(wth->capture.pcap);
+			return -1;
+		}
 		switch (libpcap_try(wth, err)) {
 
 		case BAD_READ:
@@ -666,6 +683,7 @@ int libpcap_open(wtap *wth, int *err)
 			 * Well, we couldn't even read it.
 			 * Give up.
 			 */
+			g_free(wth->capture.pcap);
 			return -1;
 
 		case THIS_FORMAT:
@@ -673,7 +691,11 @@ int libpcap_open(wtap *wth, int *err)
 			 * Well, it looks as if it might be ss990417.
 			 * Put the seek pointer back, and return success.
 			 */
-			file_seek(wth->fh, wth->data_offset, SEEK_SET);
+			if (file_seek(wth->fh, wth->data_offset, SEEK_SET) == -1) {
+				*err = file_error(wth->fh);
+				g_free(wth->capture.pcap);
+				return -1;
+			}
 			return 1;
 
 		case OTHER_FORMAT:
@@ -691,7 +713,11 @@ int libpcap_open(wtap *wth, int *err)
 		 * and treat it as a Nokia file.
 		 */
 		wth->file_type = WTAP_FILE_PCAP_NOKIA;
-		file_seek(wth->fh, wth->data_offset, SEEK_SET);
+		if (file_seek(wth->fh, wth->data_offset, SEEK_SET) == -1) {
+			*err = file_error(wth->fh);
+			g_free(wth->capture.pcap);
+			return -1;
+		}
 	}
 
 	return 1;
@@ -741,7 +767,10 @@ static libpcap_try_t libpcap_try(wtap *wth, int *err)
 	 * Now skip over the first record's data, under the assumption
 	 * that the header is sane.
 	 */
-	file_seek(wth->fh, first_rec_hdr.hdr.incl_len, SEEK_CUR);
+	if (file_seek(wth->fh, first_rec_hdr.hdr.incl_len, SEEK_CUR) == -1) {
+		*err = file_error(wth->fh);
+		return BAD_READ;
+	}
 
 	/*
 	 * Now attempt to read the second record's header.

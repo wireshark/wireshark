@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.14 2002/03/02 20:41:07 guy Exp $
+ * $Id: pppdump.c,v 1.15 2002/03/04 00:25:35 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
@@ -17,8 +17,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -195,6 +195,11 @@ pppdump_open(wtap *wth, int *err)
 
   my_file_type:
 
+	if (file_seek(wth->fh, 5, SEEK_SET) == -1) {
+		*err = file_error(wth->fh);
+		return -1;
+	}
+
 	state = wth->capture.generic = g_malloc(sizeof(pppdump_t));
 	state->timestamp = pntohl(&buffer[1]);
 	state->tenths = 0;
@@ -202,7 +207,6 @@ pppdump_open(wtap *wth, int *err)
 	init_state(state);
 
 	state->offset = 5; 
-	file_seek(wth->fh, 5, SEEK_SET); 
 	wth->file_encap = WTAP_ENCAP_PPP_WITH_PHDR; 
 	wth->file_type = WTAP_FILE_PPPDUMP; 
 
@@ -589,10 +593,10 @@ pppdump_close(wtap *wth)
 	}
 
 	if (state->pids) { /* should always be TRUE */
-        unsigned int i;
-        for (i = 0; i < g_ptr_array_len(state->pids); i++) {
-            g_free(g_ptr_array_index(state->pids, i));
-        }
+		unsigned int i;
+		for (i = 0; i < g_ptr_array_len(state->pids); i++) {
+			g_free(g_ptr_array_index(state->pids, i));
+		}
 		g_ptr_array_free(state->pids, TRUE);
 	}
 

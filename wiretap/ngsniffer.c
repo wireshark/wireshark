@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.73 2002/03/02 20:41:07 guy Exp $
+ * $Id: ngsniffer.c,v 1.74 2002/03/04 00:25:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -316,8 +316,8 @@ static int ng_file_read(void *buffer, size_t elementsize, size_t numelements,
     wtap *wth, gboolean is_random, int *err);
 static int read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream,
     int *err);
-static long ng_file_seek_seq(wtap *wth, long offset, int whence);
-static long ng_file_seek_rand(wtap *wth, long offset, int whence);
+static long ng_file_seek_seq(wtap *wth, long offset, int whence, int *err);
+static long ng_file_seek_rand(wtap *wth, long offset, int whence, int *err);
 
 int ngsniffer_open(wtap *wth, int *err)
 {
@@ -456,8 +456,12 @@ int ngsniffer_open(wtap *wth, int *err)
 	 * or REC_EOF after this?  If not, we can get rid of the loop in
 	 * "ngsniffer_read()".
 	 */
-	if (wth->random_fh != NULL)
-		file_seek(wth->random_fh, wth->data_offset, SEEK_SET);
+	if (wth->random_fh != NULL) {
+		if (file_seek(wth->random_fh, wth->data_offset, SEEK_SET) == -1) {
+			*err = file_error(wth->random_fh);
+			return -1;
+		}
+	}
 
 	/* This is a ngsniffer file */
 	wth->capture.ngsniffer = g_malloc(sizeof(ngsniffer_t));
@@ -559,7 +563,10 @@ skip_header_records(wtap *wth, int *err, gint16 version)
 			 * which implies data. Seek backwards over the
 			 * two bytes we read, and return.
 			 */
-			file_seek(wth->fh, -2, SEEK_CUR);
+			if (file_seek(wth->fh, -2, SEEK_CUR) == -1) {
+				*err = file_error(wth->fh);
+				return -1;
+			}
 			return 0;
 		}
 
@@ -603,8 +610,11 @@ skip_header_records(wtap *wth, int *err, gint16 version)
 			 * Skip the rest of the record.
 			 */
 			if (length > sizeof buffer) {
-				file_seek(wth->fh, length - sizeof buffer,
-				    SEEK_CUR);
+				if (file_seek(wth->fh, length - sizeof buffer,
+				    SEEK_CUR) == -1) {
+					*err = file_error(wth->fh);
+					return -1;
+				}
 			}
 
 			/*
@@ -637,7 +647,10 @@ skip_header_records(wtap *wth, int *err, gint16 version)
 
 		} else {
 			/* Nope, just skip over the data. */
-			file_seek(wth->fh, length, SEEK_CUR);
+			if (file_seek(wth->fh, length, SEEK_CUR) == -1) {
+				*err = file_error(wth->fh);
+				return -1;
+			}
 		}
 		wth->data_offset += length;
 	}
@@ -779,7 +792,8 @@ static gboolean ngsniffer_read(wtap *wth, int *err, long *data_offset)
 		 * it is but can't handle it.  Skip past the data
 		 * portion, and keep looping.
 		 */
-		ng_file_seek_seq(wth, length, SEEK_CUR);
+		if (ng_file_seek_seq(wth, length, SEEK_CUR, err) == -1)
+			return FALSE;
 		wth->data_offset += length;
 	}
 
@@ -867,7 +881,7 @@ static int ngsniffer_seek_read(wtap *wth, long seek_off,
 	struct frame4_rec frame4;
 	struct frame6_rec frame6;
 
-	ng_file_seek_rand(wth, seek_off, SEEK_SET);
+	ng_file_seek_rand(wth, seek_off, SEEK_SET, &err);
 
 	ret = ngsniffer_read_rec_header(wth, TRUE, &type, &length, &err);
 	if (ret <= 0) {
@@ -1682,15 +1696,19 @@ read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream, int *err)
 /* Seek in the sequential data stream; we can only seek forward, and we
    do it on compressed files by skipping forward. */
 static long
-ng_file_seek_seq(wtap *wth, long offset, int whence)
+ng_file_seek_seq(wtap *wth, long offset, int whence, int *err)
 {
-   long delta;
-   char buf[65536];
-   long amount_to_read;
-   int err;
+    long ret;
+    long delta;
+    char buf[65536];
+    long amount_to_read;
 
-   if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED)
-	return file_seek(wth->fh, offset, whence);
+    if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED) {
+	ret = file_seek(wth->fh, offset, whence);
+	if (ret == -1)
+		*err = file_error(wth->fh);
+	return ret;
+    }
 
     switch (whence) {
 
@@ -1714,7 +1732,7 @@ ng_file_seek_seq(wtap *wth, long offset, int whence)
 	amount_to_read = delta;
 	if ((unsigned long)amount_to_read > sizeof buf)
 	    amount_to_read = sizeof buf;
-	if (ng_file_read(buf, 1, amount_to_read, wth, FALSE, &err) < 0)
+	if (ng_file_read(buf, 1, amount_to_read, wth, FALSE, err) < 0)
 	    return -1;	/* error */
 	delta -= amount_to_read;
     }
@@ -1730,16 +1748,20 @@ ng_file_seek_seq(wtap *wth, long offset, int whence)
    position within the blob we have in memory (whether it's the blob we
    already had in memory or, if necessary, the one we read in). */
 static long
-ng_file_seek_rand(wtap *wth, long offset, int whence)
+ng_file_seek_rand(wtap *wth, long offset, int whence, int *err)
 {
-   ngsniffer_t *ngsniffer;
-   long delta;
-   int err;
-   GList *new, *next;
-   blob_info_t *next_blob, *new_blob;
+    long ret;
+    ngsniffer_t *ngsniffer;
+    long delta;
+    GList *new, *next;
+    blob_info_t *next_blob, *new_blob;
 
-   if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED)
-	return file_seek(wth->random_fh, offset, whence);
+    if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED) {
+	ret = file_seek(wth->random_fh, offset, whence);
+	if (ret == -1)
+		*err = file_error(wth->random_fh);
+	return ret;
+    }
 
     ngsniffer = wth->capture.ngsniffer;
 
@@ -1814,8 +1836,10 @@ ng_file_seek_rand(wtap *wth, long offset, int whence)
 
 	/* Seek in the compressed file to the offset in the compressed file
 	   of the beginning of that blob. */
-	if (file_seek(wth->random_fh, new_blob->blob_comp_offset, SEEK_SET) == -1)
+	if (file_seek(wth->random_fh, new_blob->blob_comp_offset, SEEK_SET) == -1) {
+	    *err = file_error(wth->random_fh);
 	    return -1;
+	}
 
 	/* Make the blob we found the current one. */
 	ngsniffer->current_blob = new;
@@ -1826,7 +1850,7 @@ ng_file_seek_rand(wtap *wth, long offset, int whence)
 	ngsniffer->rand.comp_offset = new_blob->blob_comp_offset;
 
 	/* Now fill the buffer. */
-	if (read_blob(wth->random_fh, &ngsniffer->rand, &err) < 0)
+	if (read_blob(wth->random_fh, &ngsniffer->rand, err) < 0)
 	    return -1;
 
 	/* Set "delta" to the amount to move within this blob; it had

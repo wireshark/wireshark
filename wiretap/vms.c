@@ -1,6 +1,6 @@
 /* vms.c
  *
- * $Id: vms.c,v 1.7 2002/03/02 20:41:08 guy Exp $
+ * $Id: vms.c,v 1.8 2002/03/04 00:25:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
@@ -18,8 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -80,12 +80,12 @@ static int parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err);
 
 
 /* Seeks to the beginning of the next packet, and returns the
-   byte offset.  Returns -1 on failure. */
-/* XXX - Handle I/O errors. */
-static long vms_seek_next_packet(wtap *wth)
+   byte offset.  Returns -1 on failure, and sets "*err" to the error. */
+static long vms_seek_next_packet(wtap *wth, int *err)
 {
   int byte;
   unsigned int level = 0;
+  long cur_off;
 
   while ((byte = file_getc(wth->fh)) != EOF) {
     if ((level == 3) && (byte != vms_rec_magic[level]))
@@ -93,12 +93,26 @@ static long vms_seek_next_packet(wtap *wth)
     if (byte == vms_rec_magic[level]) {
       level++;
       if (level >= VMS_REC_MAGIC_SIZE) {
-          /* note: we're leaving file pointer right after the magic characters */
-        return file_tell(wth->fh) + 1;
+        /* note: we're leaving file pointer right after the magic characters */
+        cur_off = file_tell(wth->fh);
+        if (cur_off == -1) {
+          /* Error. */
+          *err = file_error(wth->fh);
+          return -1;
+        }
+        return cur_off + 1;
       }
     } else {
       level = 0;
     }
+  }
+  if (file_eof(wth->fh)) {
+    /* We got an EOF. */
+    *err = 0;
+  } else {
+    /* We (presumably) got an error (there's no equivalent to "ferror()"
+       in zlib, alas, so we don't have a wrapper to check for an error). */
+    *err = file_error(wth->fh);
   }
   return -1;
 }
@@ -109,12 +123,13 @@ static long vms_seek_next_packet(wtap *wth)
 /* Look through the first part of a file to see if this is
  * a VMS trace file.
  *
- * Returns TRUE if it is, FALSE if it isn't.
+ * Returns TRUE if it is, FALSE if it isn't or if we get an I/O error;
+ * if we get an I/O error, "*err" will be set to a non-zero value.
  *
  * Leaves file handle at begining of line that contains the VMS Magic
  * identifier.
  */
-static gboolean vms_check_file_type(wtap *wth)
+static gboolean vms_check_file_type(wtap *wth, int *err)
 {
     char    buf[VMS_LINE_LENGTH];
     int    line, byte;
@@ -125,6 +140,11 @@ static gboolean vms_check_file_type(wtap *wth)
 
     for (line = 0; line < VMS_HEADER_LINES_TO_CHECK; line++) {
         mpos = file_tell(wth->fh);
+        if (mpos == -1) {
+            /* Error. */
+            *err = file_error(wth->fh);
+            return FALSE;
+        }
         if (file_gets(buf, VMS_LINE_LENGTH, wth->fh) != NULL) {
 
             reclen = strlen(buf);
@@ -139,7 +159,11 @@ static gboolean vms_check_file_type(wtap *wth)
                 if (byte == vms_hdr_magic[level]) {
                     level++;
                     if (level >= VMS_HDR_MAGIC_SIZE) {
-                        file_seek(wth->fh, mpos, SEEK_SET);
+                        if (file_seek(wth->fh, mpos, SEEK_SET) == -1) {
+                            /* Error. */
+                            *err = file_error(wth->fh);
+                            return FALSE;
+                        }
                         return TRUE;
                     }
                 }
@@ -147,19 +171,28 @@ static gboolean vms_check_file_type(wtap *wth)
                     level = 0;
             }
         }
-        else
+        else {
+            /* EOF or error. */
+            if (file_eof(wth->fh))
+                *err = 0;
+            else
+                *err = file_error(wth->fh);
             return FALSE;
+        }
     }
+    *err = 0;
     return FALSE;
 }
 
 
-/* XXX - return -1 on I/O error and actually do something with 'err'. */
 int vms_open(wtap *wth, int *err)
 {
     /* Look for VMS header */
-    if (!vms_check_file_type(wth)) {
-        return 0;
+    if (!vms_check_file_type(wth, err)) {
+        if (*err == 0)
+            return 0;
+        else
+            return -1;
     }
 
     wth->data_offset = 0;
@@ -180,11 +213,9 @@ static gboolean vms_read(wtap *wth, int *err, long *data_offset)
     int    pkt_len;
 
     /* Find the next packet */
-    offset = vms_seek_next_packet(wth);
-    if (offset < 1) {
-        *err = 0;    /* XXX - assume, for now, that it's an EOF */
+    offset = vms_seek_next_packet(wth, err);
+    if (offset < 1)
         return FALSE;
-    }
 
     /* Parse the header */
     pkt_len = parse_vms_rec_hdr(wth, wth->fh, err);

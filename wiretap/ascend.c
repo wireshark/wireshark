@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.26 2001/11/13 23:55:43 gram Exp $
+ * $Id: ascend.c,v 1.27 2002/03/04 00:25:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -18,8 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -28,6 +28,8 @@
 #include "ascend.h"
 #include "ascend-int.h"
 #include "file_wrappers.h"
+
+#include <errno.h>
 
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
@@ -112,8 +114,7 @@ static void ascend_close(wtap *wth);
    it sets "wth->capture.ascend->next_packet_seek_start" to the point
    at which the seek pointer should be set before this routine is called
    to find the packet *after* the packet it finds. */
-/* XXX - Handle I/O errors. */
-static long ascend_seek(wtap *wth, int max_seek)
+static long ascend_seek(wtap *wth, int max_seek, int *err)
 {
   int byte, bytes_read = 0;
   long date_off = -1, cur_off, packet_off;
@@ -125,6 +126,11 @@ static long ascend_seek(wtap *wth, int max_seek)
       if (x_level >= ASCEND_X_SIZE) {
         /* At what offset are we now? */
         cur_off = file_tell(wth->fh);
+        if (cur_off == -1) {
+          /* Error. */
+          *err = file_error(wth->fh);
+          return -1;
+        }
 
         /* Back up over the header we just read; that's where a read
            of this packet should start. */
@@ -139,6 +145,11 @@ static long ascend_seek(wtap *wth, int max_seek)
       if (r_level >= ASCEND_R_SIZE) {
         /* At what offset are we now? */
         cur_off = file_tell(wth->fh);
+        if (cur_off == -1) {
+          /* Error. */
+          *err = file_error(wth->fh);
+          return -1;
+        }
 
         /* Back up over the header we just read; that's where a read
            of this packet should start. */
@@ -152,7 +163,14 @@ static long ascend_seek(wtap *wth, int max_seek)
       w1_level++;
       if (w1_level >= ASCEND_W1_SIZE) {
         /* Get the offset at which the "Date:" header started. */
-        date_off = file_tell(wth->fh) - ASCEND_W1_SIZE;
+        cur_off = file_tell(wth->fh);
+        if (cur_off == -1) {
+          /* Error. */
+          *err = file_error(wth->fh);
+          return -1;
+        }
+
+        date_off = cur_off - ASCEND_W1_SIZE;
       }
     } else {
       w1_level = 0;
@@ -162,6 +180,12 @@ static long ascend_seek(wtap *wth, int max_seek)
       if (w2_level >= ASCEND_W2_SIZE) {
         /* At what offset are we now? */
         cur_off = file_tell(wth->fh);
+        if (cur_off == -1) {
+          /* Error. */
+          *err = file_error(wth->fh);
+          return -1;
+        }
+
         if (date_off != -1) {
           /* This packet has a date/time header; a read of it should
              start at the beginning of *that* header. */
@@ -179,6 +203,14 @@ static long ascend_seek(wtap *wth, int max_seek)
     }
     bytes_read++;
   }
+  if (byte != EOF || file_eof(wth->fh)) {
+    /* Either we didn't find the offset, or we got an EOF. */
+    *err = 0;
+  } else {
+    /* We (presumably) got an error (there's no equivalent to "ferror()"
+       in zlib, alas, so we don't have a wrapper to check for an error). */
+    *err = file_error(wth->fh);
+  }
   return -1;
 
 found:
@@ -195,11 +227,13 @@ found:
    * Move to where the read for this packet should start, and return
    * that seek offset.
    */
-  file_seek(wth->fh, packet_off, SEEK_SET);
+  if (file_seek(wth->fh, packet_off, SEEK_SET) == -1) {
+    *err = file_error(wth->fh);
+    return -1;
+  }
   return packet_off;
 }
 
-/* XXX - return -1 on I/O error and actually do something with 'err'. */
 int ascend_open(wtap *wth, int *err)
 {
   long offset;
@@ -210,9 +244,12 @@ int ascend_open(wtap *wth, int *err)
      fill it in. */
   wth->capture.ascend = NULL;
 
-  offset = ascend_seek(wth, ASCEND_MAX_SEEK);
+  offset = ascend_seek(wth, ASCEND_MAX_SEEK, err);
   if (offset == -1) {
-    return 0;
+    if (*err == 0)
+      return 0;
+    else
+      return -1;
   }
 
   wth->data_offset = offset;
@@ -234,7 +271,11 @@ int ascend_open(wtap *wth, int *err)
      packet's timestamp from the capture file's ctime, which gives us an
      offset that we can apply to each packet.
    */
-  fstat(wtap_fd(wth), &statbuf);
+  if (fstat(wtap_fd(wth), &statbuf) == -1) {
+    *err = errno;
+    g_free(wth->capture.ascend);
+    return -1;
+  }
   wth->capture.ascend->inittime = statbuf.st_ctime;
   wth->capture.ascend->adjusted = 0;
 
@@ -254,12 +295,14 @@ static gboolean ascend_read(wtap *wth, int *err, long *data_offset)
      give us the correct location of the packet.  Instead, we seek to the 
      offset after the header of the previous packet and try to find the next
      packet.  */
-  file_seek(wth->fh, wth->capture.ascend->next_packet_seek_start, SEEK_SET);
-  offset = ascend_seek(wth, ASCEND_MAX_SEEK);
-  if (offset == -1) {
-    *err = 0;		/* XXX - assume, for now, that it's an EOF */
+  if (file_seek(wth->fh, wth->capture.ascend->next_packet_seek_start,
+                SEEK_SET) == -1) {
+    *err = file_error(wth->fh);
     return FALSE;
   }
+  offset = ascend_seek(wth, ASCEND_MAX_SEEK, err);
+  if (offset == -1)
+    return FALSE;
   if (! parse_ascend(wth->fh, buf, &wth->pseudo_header.ascend, &header, 0)) {
     *err = WTAP_ERR_BAD_RECORD;
     return FALSE;

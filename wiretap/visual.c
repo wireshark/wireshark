@@ -2,7 +2,7 @@
  * File read and write routines for Visual Networks cap files.
  * Copyright (c) 2001, Tom Nisbet  tnisbet@visualnetworks.com
  *
- * $Id: visual.c,v 1.2 2002/02/27 08:57:25 guy Exp $
+ * $Id: visual.c,v 1.3 2002/03/04 00:25:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -421,7 +421,10 @@ gboolean visual_dump_open(wtap_dumper *wdh, int *err)
     /* All of the fields in the file header aren't known yet so
        just skip over it for now.  It will be created after all
        of the packets have been written. */
-    fseek(wdh->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET);
+    if (fseek(wdh->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET) == -1) {
+	*err = errno;
+	return FALSE;
+    }
 
     return TRUE;
 }

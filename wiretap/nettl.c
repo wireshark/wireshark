@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.22 2002/02/08 10:07:40 guy Exp $
+ * $Id: nettl.c,v 1.23 2002/03/04 00:25:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -18,8 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -95,17 +95,23 @@ int nettl_open(wtap *wth, int *err)
 	return 0;
     }
 
-    file_seek(wth->fh, 0x63, SEEK_SET);
+    if (file_seek(wth->fh, 0x63, SEEK_SET) == -1) {
+	*err = file_error(wth->fh);
+	return -1;
+    }
     wth->data_offset = 0x63;
     bytes_read = file_read(os_vers, 1, 2, wth->fh);
     if (bytes_read != 2) {
-    	*err = file_error(wth->fh);
+	*err = file_error(wth->fh);
 	if (*err != 0)
 	    return -1;
 	return 0;
     }
 
-    file_seek(wth->fh, 0x80, SEEK_SET);
+    if (file_seek(wth->fh, 0x80, SEEK_SET) == -1) {
+	*err = file_error(wth->fh);
+	return -1;
+    }
     wth->data_offset = 0x80;
 
     /* This is an nettl file */

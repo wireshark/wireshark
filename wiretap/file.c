@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.82 2002/03/02 20:41:07 guy Exp $
+ * $Id: file.c,v 1.83 2002/03/04 00:25:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -227,7 +227,15 @@ wtap* wtap_open_offline(const char *filename, int *err, gboolean do_random)
 		   to start reading at the beginning.
 
 		   Initialize the data offset while we're at it. */
-		file_seek(wth->fh, 0, SEEK_SET);
+		if (file_seek(wth->fh, 0, SEEK_SET) == -1) {
+			/* I/O error - give up */
+			*err = file_error(wth->fh);
+			if (wth->random_fh != NULL)
+				file_close(wth->random_fh);
+			file_close(wth->fh);
+			g_free(wth);
+			return NULL;
+		}
 		wth->data_offset = 0;
 		switch ((*open_routines[i])(wth, err)) {
 
@@ -451,8 +459,7 @@ gboolean wtap_dump_can_write_encap(int filetype, int encap)
 static gboolean wtap_dump_open_check(int filetype, int encap, int *err);
 static wtap_dumper* wtap_dump_alloc_wdh(int filetype, int encap, int snaplen,
     int *err);
-static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int filetype,
-    int encap, int snaplen, int *err);
+static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int filetype, int *err);
 
 wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 				int snaplen, int *err)
@@ -480,7 +487,7 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 	}
 	wdh->fh = fh;
 
-	if (!wtap_dump_open_finish(wdh, filetype, encap, snaplen, err)) {
+	if (!wtap_dump_open_finish(wdh, filetype, err)) {
 		/* Get rid of the file we created; we couldn't finish
 		   opening it. */
 		unlink(filename);
@@ -515,7 +522,7 @@ wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 	}
 	wdh->fh = fh;
 
-	if (!wtap_dump_open_finish(wdh, filetype, encap, snaplen, err))
+	if (!wtap_dump_open_finish(wdh, filetype, err))
 		return NULL;
 	return wdh;
 }
@@ -559,8 +566,7 @@ static wtap_dumper* wtap_dump_alloc_wdh(int filetype, int encap, int snaplen,
 	return wdh;
 }
 
-static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int filetype,
-				      int encap, int snaplen, int *err)
+static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int filetype, int *err)
 {
 	/* Now try to open the file for writing. */
 	if (!(*dump_open_table[filetype].dump_open)(wdh, err)) {
