@@ -1,7 +1,7 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id: packet-raw.c,v 1.32 2002/01/21 07:36:40 guy Exp $
+ * $Id: packet-raw.c,v 1.33 2002/02/05 00:09:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,8 @@ static gint ett_raw = -1;
 static const char zeroes[10];
 
 static dissector_handle_t ip_handle;
+static dissector_handle_t ipv6_handle;
+static dissector_handle_t data_handle;
 static dissector_handle_t ppp_hdlc_handle;
 
 void
@@ -76,7 +78,25 @@ capture_raw(const u_char *pd, int len, packet_counts *ld)
     capture_ip(pd, 10, len, ld);
   }
   else {
-    capture_ip(pd, 0, len, ld);
+    /* 
+     * OK, is this IPv4 or IPv6?
+     */
+    if (BYTES_ARE_IN_FRAME(0,len,1)) {
+      switch (pd[0] & 0xF0) {
+
+      case 0x40:
+        /* IPv4 */
+        capture_ip(pd, 0, len, ld);
+        break;
+
+#if 0
+      case 0x60:
+        /* IPv6 */
+        capture_ipv6(pd, 0, len, ld);
+        break;
+#endif
+      }
+    }
   }
 }
 
@@ -116,34 +136,46 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    */
   if (tvb_get_ntohs(tvb, 0) == 0xff03) {
 	call_dissector(ppp_hdlc_handle, tvb, pinfo, tree);
-	return;
   }
   /* The Linux ISDN driver sends a fake MAC address before the PPP header
    * on its ippp interfaces... */
   else if (tvb_get_ntohs(tvb, 6) == 0xff03) {
 	next_tvb = tvb_new_subset(tvb, 6, -1, -1);
 	call_dissector(ppp_hdlc_handle, next_tvb, pinfo, tree);
-	return;
   }
   /* ...except when it just puts out one byte before the PPP header... */
   else if (tvb_get_ntohs(tvb, 1) == 0xff03) {
 	next_tvb = tvb_new_subset(tvb, 1, -1, -1);
 	call_dissector(ppp_hdlc_handle, next_tvb, pinfo, tree);
-	return;
   }
   /* ...and if the connection is currently down, it sends 10 bytes of zeroes
    * instead of a fake MAC address and PPP header. */
   else if (memcmp(tvb_get_ptr(tvb, 0, 10), zeroes, 10) == 0) {
 	next_tvb = tvb_new_subset(tvb, 10, -1, -1);
 	call_dissector(ip_handle, next_tvb, pinfo, tree);
-	return;
   }
   else {
-	next_tvb = tvb_new_subset(tvb, 0, -1, -1);
-	call_dissector(ip_handle, next_tvb, pinfo, tree);
-	return;
+	/*
+	 * OK, is this IPv4 or IPv6?
+	 */
+	switch (tvb_get_guint8(tvb, 0) & 0xF0) {
+
+	case 0x40:
+	  /* IPv4 */
+	  call_dissector(ip_handle, tvb, pinfo, tree);
+	  break;
+
+	case 0x60:
+	  /* IPv6 */
+	  call_dissector(ipv6_handle, tvb, pinfo, tree);
+	  break;
+
+	default:
+	  /* None of the above. */
+	  call_dissector(data_handle, tvb, pinfo, tree);
+	  break;
+	}
   }
-  g_assert_not_reached();
 }
 
 void
@@ -163,9 +195,12 @@ proto_reg_handoff_raw(void)
   dissector_handle_t raw_handle;
 
   /*
-   * Get handles for the IP and PPP-in-HDLC-like-framing dissectors.
+   * Get handles for the IP, IPv6, undissected-data, and
+   * PPP-in-HDLC-like-framing dissectors.
    */
   ip_handle = find_dissector("ip");
+  ipv6_handle = find_dissector("ipv6");
+  data_handle = find_dissector("data");
   ppp_hdlc_handle = find_dissector("ppp_hdlc");
   raw_handle = create_dissector_handle(dissect_raw, proto_raw);
   dissector_add("wtap_encap", WTAP_ENCAP_RAW_IP, raw_handle);
