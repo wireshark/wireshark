@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.146 2000/01/08 21:56:29 gram Exp $
+# $Id: Makefile.am,v 1.147 2000/01/09 20:05:36 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -22,7 +22,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-bin_PROGRAMS = ethereal
+bin_PROGRAMS = ethereal editcap
 
 man_MANS = ethereal.1
 
@@ -274,10 +274,13 @@ ethereal_LDADD = \
 	$(ethereal_additional_libs)	\
 	@SNMP_A@			\
 	@LIBLTDL@ "-dlopen" self	\
-	"-dlopen" plugins/gryphon/gryphon.la
+	"-dlopen" plugins/gryphon/gryphon.la @GTK_LIBS@
 
 ethereal_LDFLAGS = -export-dynamic
 
+editcap_SOURCES = editcap.c
+editcap_DEPENDENCIES = wiretap/libwiretap.a
+editcap_LDADD = wiretap/libwiretap.a @GLIB_LIBS@
 
 #
 # Build "register.c", which contains a function "register_all_protocols()"
@@ -313,12 +316,6 @@ ps.c: print.ps rdps
 
 rdps: rdps.c
 	$(CC) -o rdps $(srcdir)/rdps.c
-
-editcap.o: editcap.c
-	$(COMPILE) -c $(srcdir)/editcap.c
-
-editcap: editcap.o wiretap/libwiretap.a
-	$(LINK) -o editcap editcap.o wiretap/libwiretap.a `glib-config --libs` -lz
 
 randpkt.o: randpkt.c
 	$(CC) -DHAVE_CONFIG_H -I. `glib-config --cflags` -c $(srcdir)/randpkt.c

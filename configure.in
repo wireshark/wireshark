@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.70 2000/01/07 05:21:09 gram Exp $
+# $Id: configure.in,v 1.71 2000/01/09 20:05:37 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -87,8 +87,23 @@ case "$host_os" in
   ;;
 esac
 
+# GLib checks
+# This doesn't add GLIB_CFLAGS to CFLAGS, because AM_PATH_GTK will add
+# GTK_CFLAGS to CFLAGS, and GTK_CFLAGS is a superset of CFLAGS.
+# However, this means that both @GLIB_LIBS@ and @GTK_LIBS@ will be
+# set when generating the Makefile, so we can make programs that require
+# only GLib link with @GLIB_LIBS@ and make programs that require GTK+
+# link with @GTK_LIBS@ (which includes @GLIB_LIBS@).
+# We don't add $GLIB_LIBS to LIBS, because we don't want to force all
+# programs to be built with GLib.
+#
+AM_PATH_GLIB(1.2.0, , AC_MSG_ERROR(GLib distribution not found.))
+
 # GTK checks
-AM_PATH_GTK(1.2.0, CFLAGS="$CFLAGS $GTK_CFLAGS" LIBS="$LIBS $GTK_LIBS",
+# We don't add $GLIB_LIBS to LIBS, because we don't want to force all
+# programs to be built with GTK+.
+#
+AM_PATH_GTK(1.2.0, CFLAGS="$CFLAGS $GTK_CFLAGS",
                    AC_MSG_ERROR(GTK+ distribution not found.))
 
 dnl pcap check
