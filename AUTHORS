@@ -208,7 +208,13 @@ Kojak <kojak@bigwig.net> {
 }
 
 Uwe Girlich <Uwe.Girlich@philosys.de> {
-	ONC RPC and NFS support
+	ONC RPC support
+	NFS support
+	Mount Protocol support started
+	NLM support started
+	Quake dissector
+	QuakeWorld dissector
+	Quake II dissector
 }
 
 Warren Young <tangent@mail.com> {
