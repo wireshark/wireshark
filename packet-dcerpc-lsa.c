@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.65 2003/02/03 02:14:00 tpot Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.66 2003/02/04 05:22:41 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -458,11 +458,6 @@ lsa_dissect_ACCESS_MASK(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-/*
- * XXX - it'd be nice if we could arrange that this be passed
- * some out-of-band indication of whether the handle is being opened,
- * closed, or just used.
- */
 static int
 lsa_dissect_LSA_HANDLE(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
@@ -592,7 +587,6 @@ lsa_dissect_lsaopenpolicy_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-
 static int
 lsa_dissect_lsaopenpolicy_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
@@ -610,8 +604,10 @@ static int
 lsa_dissect_lsaopenpolicy2_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
-	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-		NDR_POINTER_UNIQUE, "Server", hf_lsa_server, 0);
+	offset = dissect_ndr_pointer_cb(tvb, offset, pinfo, tree, drep,
+		dissect_ndr_wchar_array, NDR_POINTER_UNIQUE, "Server", 
+		hf_lsa_server, cb_str_postprocess, 
+		GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_SAVE | 1));
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_OBJECT_ATTRIBUTES, NDR_POINTER_REF,
