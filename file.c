@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.302 2003/08/11 22:41:09 sharpe Exp $
+ * $Id: file.c,v 1.303 2003/08/14 22:32:45 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,6 +87,8 @@
 gboolean auto_scroll_live;
 #endif
 
+#define MAX_DECODE_BUFFER_SIZE 16536
+
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
 
@@ -102,7 +104,7 @@ static void proto_tree_get_node(GNode *node, gpointer data);
 static char *file_rename_error_message(int err);
 static char *file_close_error_message(int err);
 static gboolean copy_binary_file(char *from_filename, char *to_filename);
-static char decode_data[16536];
+static char decode_data[MAX_DECODE_BUFFER_SIZE];
 
 /* Update the progress bar this many times when reading a file. */
 #define N_PROGBAR_UPDATES	100
@@ -1538,7 +1540,14 @@ void proto_tree_get_node(GNode *node, gpointer data)
 		proto_item_fill_label(fi, label_str);
 	}
     
-    strcat(string_ptr, label_ptr);
+    if (strlen(string_ptr)+strlen(label_ptr) < MAX_DECODE_BUFFER_SIZE) {
+        strcat(string_ptr, label_ptr);
+    }
+    else
+    {
+        simple_dialog(ESD_TYPE_CRIT, NULL, "Decode Buffer Size Exceeded.");
+        return;
+    }
 
     /*
 	 * Find the data for this field.
@@ -1546,7 +1555,14 @@ void proto_tree_get_node(GNode *node, gpointer data)
 	pd = get_field_data(pdata->src_list, fi);
     if (pd!=NULL) {
         if (strlen(pd) > 0) {
-            strcat(string_ptr, pd);
+            if (strlen(pd)+strlen(string_ptr) < MAX_DECODE_BUFFER_SIZE ) {
+                strcat(string_ptr, pd);
+            }
+            else
+            {
+                simple_dialog(ESD_TYPE_CRIT, NULL, "Decode Buffer Size Exceeded.");
+                return;
+            }
         }
     }
 
