@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-sna.c,v 1.42 2002/08/28 21:00:34 jmayer Exp $
+ * $Id: packet-sna.c,v 1.43 2002/09/23 21:58:22 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,8 @@
 #include "llcsaps.h"
 #include "ppptypes.h"
 #include <epan/sna-utils.h>
+#include "prefs.h"
+#include "reassemble.h"
 
 /*
  * http://www.wanresources.com/snacell.html
@@ -155,6 +157,11 @@ static gint ett_sna_rh_2 = -1;
 
 static dissector_handle_t data_handle;
 
+/* Defragment fragmented SNA BIUs*/
+static gboolean sna_defragment = FALSE;
+static GHashTable *sna_fragment_table = NULL;
+static GHashTable *sna_reassembled_table = NULL;
+
 /* Format Identifier */
 static const value_string sna_th_fid_vals[] = {
 	{ 0x0,	"SNA device <--> Non-SNA Device" },
@@ -172,11 +179,16 @@ static const value_string sna_th_fid_vals[] = {
 };
 
 /* Mapping Field */
+#define MPF_MIDDLE_SEGMENT  0
+#define MPF_LAST_SEGMENT    1
+#define MPF_FIRST_SEGMENT   2
+#define MPF_WHOLE_BIU       3
+
 static const value_string sna_th_mpf_vals[] = {
-	{ 0, "Middle segment of a BIU" },
-	{ 1, "Last segment of a BIU" },
-	{ 2, "First segment of a BIU" },
-	{ 3 , "Whole BIU" },
+	{ MPF_MIDDLE_SEGMENT,   "Middle segment of a BIU" },
+	{ MPF_LAST_SEGMENT,     "Last segment of a BIU" },
+	{ MPF_FIRST_SEGMENT,    "First segment of a BIU" },
+	{ MPF_WHOLE_BIU,        "Whole BIU" },
 	{ 0,   NULL }
 };
 
@@ -404,8 +416,20 @@ static const true_false_string sna_nlp_osi_truth =
 	{ "Optional segments present", "No optional segments present" };
 
 
+/* Values to direct the top-most dissector what to dissect
+ * after the TH. */
+enum next_dissection_enum {
+    stop_here,
+    rh_only,
+    everything
+};
+
+typedef enum next_dissection_enum next_dissection_t;
+
+
 static int  dissect_fid0_1 (tvbuff_t*, packet_info*, proto_tree*);
-static int  dissect_fid2 (tvbuff_t*, packet_info*, proto_tree*);
+static int  dissect_fid2 (tvbuff_t*, packet_info*, proto_tree*, tvbuff_t**,
+        next_dissection_t*);
 static int  dissect_fid3 (tvbuff_t*, proto_tree*);
 static int  dissect_fid4 (tvbuff_t*, packet_info*, proto_tree*);
 static int  dissect_fid5 (tvbuff_t*, proto_tree*);
@@ -413,6 +437,13 @@ static int  dissect_fidf (tvbuff_t*, proto_tree*);
 static void dissect_fid (tvbuff_t*, packet_info*, proto_tree*, proto_tree*);
 static void dissect_nlp (tvbuff_t*, packet_info*, proto_tree*, proto_tree*);
 static void dissect_rh (tvbuff_t*, int, proto_tree*);
+
+static unsigned int
+mpf_value(guint8 th_byte)
+{
+	return (th_byte & 0x0c) >> 2;
+}
+
 
 static void
 dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -451,6 +482,8 @@ dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+#define RH_LEN	3
+
 static void
 dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *parent_tree)
@@ -459,8 +492,10 @@ dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree	*th_tree = NULL, *rh_tree = NULL;
 	proto_item	*th_ti = NULL, *rh_ti = NULL;
 	guint8		th_fid;
-	int		sna_header_len = 0, th_header_len = 0;
-	int		offset;
+	int		th_header_len = 0;
+	int		offset, rh_offset;
+	tvbuff_t	*rh_tvb = NULL;
+    next_dissection_t continue_dissecting = everything;
 
 	/* Transmission Header Format Identifier */
 	th_fid = hi_nibble(tvb_get_guint8(tvb, 0));
@@ -486,7 +521,8 @@ dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			th_header_len = dissect_fid0_1(tvb, pinfo, th_tree);
 			break;
 		case 0x2:
-			th_header_len = dissect_fid2(tvb, pinfo, th_tree);
+			th_header_len = dissect_fid2(tvb, pinfo, th_tree, &rh_tvb,
+                    &continue_dissecting);
 			break;
 		case 0x3:
 			th_header_len = dissect_fid3(tvb, th_tree);
@@ -506,29 +542,154 @@ dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			return;
 	}
 
-	sna_header_len += th_header_len;
 	offset = th_header_len;
 
+    /* Short-circuit ? */
+    if (continue_dissecting == stop_here) {
+        if (tree) {
+            proto_tree_add_text(tree, tvb, offset, -1,
+                    "BIU segment data");
+        }
+        return;
+    }
+
+
+	/* If the FID dissector function didn't create an rh_tvb, then we just
+	 * use the rest of our tvbuff as the rh_tvb. */
+	if (!rh_tvb) {
+		rh_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	}
+	rh_offset = 0;
+
+	/* Process the rest of the SNA packet, starting with RH */
 	if (tree) {
+
 		proto_item_set_len(th_ti, th_header_len);
 
 		/* --- RH --- */
-		rh_ti = proto_tree_add_item(tree, hf_sna_rh, tvb, offset, 3, FALSE);
+		rh_ti = proto_tree_add_item(tree, hf_sna_rh, rh_tvb, rh_offset, RH_LEN, FALSE);
 		rh_tree = proto_item_add_subtree(rh_ti, ett_sna_rh);
-		dissect_rh(tvb, offset, rh_tree);
-
-		sna_header_len += 3;
-		offset += 3;
-	}
-	else {
-		sna_header_len += 3;
-		offset += 3;
+		dissect_rh(rh_tvb, rh_offset, rh_tree);
 	}
 
-	if (tvb_offset_exists(tvb, offset+1)) {
-		call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1),
+
+	rh_offset += RH_LEN;
+
+	if (tvb_offset_exists(rh_tvb, rh_offset+1)) {
+        /* Short-circuit ? */
+        if (continue_dissecting == rh_only) {
+            if (tree) {
+                proto_tree_add_text(tree, rh_tvb, rh_offset, -1,
+                        "BIU segment data");
+            }
+            return;
+        }
+
+		call_dissector(data_handle, tvb_new_subset(rh_tvb, rh_offset, -1, -1),
 		    pinfo, parent_tree);
 	}
+}
+
+#define FIRST_FRAG_NUMBER	0
+#define MIDDLE_FRAG_NUMBER	1
+#define LAST_FRAG_NUMBER	2
+
+/* FID2 is defragged by sequence. The weird thing is that we have neither
+ * absolute sequence numbers, nor byte offets. Other FIDs have byte offsets
+ * (the DCF field), but not FID2. The only thing we have to go with is "FIRST",
+ * "MIDDLE", or "LAST". If the BIU is split into 3 frames, then everything is
+ * fine, * "FIRST", "MIDDLE", and "LAST" map nicely onto frag-number 0, 1,
+ * and 2. However, if the BIU is split into 2 frames, then we only have
+ * "FIRST" and "LAST", and the mapping *should* be frag-number 0 and 1,
+ * *NOT* 0 and 2.
+ *
+ * The SNA docs say "FID2 PIUs cannot be blocked because there is no DCF in the
+ * TH format for deblocking" (note on Figure 4-2 in the IBM SNA documention,
+ * see the FTP URL in the comment near the top of this file). I *think*
+ * this means that the fragmented frames cannot arrive out of order.
+ * Well, I *want* it to mean this, because w/o this limitation, if you
+ * get a "FIRST" frame and a "LAST" frame, how long should you wait to
+ * see if a "MIDDLE" frame every arrives????? Thus, if frames *have* to
+ * arrive in order, then we're saved.
+ *
+ * The problem then boils down to figuring out if "LAST" means frag-number 1
+ * (in the case of a BIU split into 2 frames) or frag-number 2
+ * (in the case of a BIU split into 3 frames).
+ *
+ * Assuming fragmented FID2 BIU frames *do* arrive in order, the obvious
+ * way to handle the mapping of "LAST" to either frag-number 1 or
+ * frag-number 2 is to keep a hash which tracks the frames seen, etc.
+ * This consumes resources. A trickier way, but a way which works, is to
+ * always map the "LAST" BIU segment to frag-number 2. Here's the trickery:
+ * if we add frag-number 2, which we know to be the "LAST" BIU segment,
+ * and the reassembly code tells us that the the BIU is still not reassmebled,
+ * then, owing to the, ahem, /fact/, that fragmented BIU segments arrive
+ * in order :), we know that 1) "FIRST" did come, and 2) there's no "MIDDLE",
+ * because this BIU was fragmented into 2 frames, not 3. So, we'll be
+ * tricky and add a zero-length "MIDDLE" BIU frame (i.e, frag-number 1)
+ * to complete the reassembly.
+ */
+static tvbuff_t*
+defragment_by_sequence(packet_info *pinfo, tvbuff_t *tvb, int offset, int mpf, int id)
+{
+	fragment_data *fd_head;
+	int frag_number = -1;
+	int more_frags = TRUE;
+	tvbuff_t *rh_tvb = NULL;
+
+	/* Determine frag_number and more_frags */
+	switch(mpf) {
+		case MPF_WHOLE_BIU:
+			/* nothing */
+			break;
+		case MPF_FIRST_SEGMENT:
+			frag_number = FIRST_FRAG_NUMBER;
+			break;
+		case MPF_MIDDLE_SEGMENT:
+			frag_number = MIDDLE_FRAG_NUMBER;
+			break;
+		case MPF_LAST_SEGMENT:
+			frag_number = LAST_FRAG_NUMBER;
+			more_frags = FALSE;
+			break;
+		default:
+			g_assert_not_reached();
+	}
+
+	/* If sna_defragment is on, and this is a fragment.. */
+	if (frag_number > -1) {
+
+		/* XXX - check length ??? */
+		fd_head = fragment_add_seq(tvb, offset, pinfo, id,
+				sna_fragment_table,
+				frag_number,
+				tvb_length_remaining(tvb, offset),
+				more_frags);
+
+		/* We added the LAST segment and reassembly didn't complete. Insert
+		 * a zero-length MIDDLE segment to turn a 2-frame BIU-fragmentation
+         * into a 3-frame BIU-fragmentation (empty middle frag).
+         * See above long comment about this trickery. */
+		if (mpf == MPF_LAST_SEGMENT && !fd_head) {
+			fd_head = fragment_add_seq(tvb, offset, pinfo, id,
+					sna_fragment_table, MIDDLE_FRAG_NUMBER,
+					0, TRUE);
+		}
+
+		if (fd_head != NULL) {
+			/* We have the complete reassembled payload. */
+			rh_tvb = tvb_new_real_data(fd_head->data,
+					fd_head->len, fd_head->len);
+
+			/* Add the tvbuff to the chain of tvbuffs so that
+			 * it will get cleaned up too. */
+			tvb_set_child_real_data_tvbuff(tvb, rh_tvb);
+
+			/* Add the defragmented data to the data source list. */
+			add_new_data_source(pinfo, rh_tvb, "Reassembled SNA BIU");
+		}
+	}
+	return rh_tvb;
 }
 
 #define SNA_FID01_ADDR_LEN	2
@@ -590,17 +751,21 @@ dissect_fid0_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* FID Type 2 */
 static int
-dissect_fid2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_fid2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        tvbuff_t **rh_tvb_ptr, next_dissection_t *continue_dissecting)
 {
 	proto_tree	*bf_tree;
 	proto_item	*bf_item;
 	guint8		th_0=0, daf=0, oaf=0;
 	const guint8	*ptr;
+	unsigned int	mpf, id;
 
 	const int bytes_in_header = 6;
 
+	th_0 = tvb_get_guint8(tvb, 0);
+	mpf = mpf_value(th_0);
+
 	if (tree) {
-		th_0 = tvb_get_guint8(tvb, 0);
 		daf = tvb_get_guint8(tvb, 2);
 		oaf = tvb_get_guint8(tvb, 3);
 
@@ -612,6 +777,7 @@ dissect_fid2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(bf_tree, hf_sna_th_mpf, tvb, 0, 1, th_0);
 		proto_tree_add_uint(bf_tree, hf_sna_th_odai,tvb, 0, 1, th_0);
 		proto_tree_add_uint(bf_tree, hf_sna_th_efi, tvb, 0, 1, th_0);
+
 
 		/* Byte 1 */
 		proto_tree_add_text(tree, tvb, 1, 1, "Reserved");
@@ -637,9 +803,24 @@ dissect_fid2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	SET_ADDRESS(&pinfo->net_src, AT_SNA, SNA_FID2_ADDR_LEN, ptr);
 	SET_ADDRESS(&pinfo->src, AT_SNA, SNA_FID2_ADDR_LEN, ptr);
 
+	id = tvb_get_ntohs(tvb, 4);
 	if (tree) {
-		proto_tree_add_item(tree, hf_sna_th_snf, tvb, 4, 2, FALSE);
+		proto_tree_add_uint(tree, hf_sna_th_snf, tvb, 4, 2, id);
 	}
+
+    if (mpf != MPF_WHOLE_BIU && !sna_defragment) {
+        if (mpf == MPF_FIRST_SEGMENT) {
+            *continue_dissecting = rh_only;
+        }
+        else {
+            *continue_dissecting = stop_here;
+        }
+
+    }
+    else if (sna_defragment) {
+        *rh_tvb_ptr = defragment_by_sequence(pinfo, tvb, bytes_in_header,
+                mpf, id);
+    }
 
 	return bytes_in_header;
 }
@@ -1136,6 +1317,14 @@ dissect_rh(tvbuff_t *tvb, int offset, proto_tree *tree)
 	/* XXX - check for sdi. If TRUE, the next 4 bytes will be sense data */
 }
 
+static void
+sna_init(void)
+{
+	fragment_table_init(&sna_fragment_table);
+	reassembled_table_init(&sna_reassembled_table);
+}
+
+
 void
 proto_register_sna(void)
 {
@@ -1590,12 +1779,21 @@ proto_register_sna(void)
 		&ett_sna_rh_1,
 		&ett_sna_rh_2,
 	};
+	module_t *sna_module;
 
         proto_sna = proto_register_protocol("Systems Network Architecture",
 	    "SNA", "sna");
 	proto_register_field_array(proto_sna, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("sna", dissect_sna, proto_sna);
+
+	/* Register configuration options */
+	sna_module = prefs_register_protocol(proto_sna, NULL);
+	prefs_register_bool_preference(sna_module, "defragment",
+		"Reassemble fragmented BIUs",
+		"Whether fragmented BIUs should be reassembled",
+		&sna_defragment);
+
 }
 
 void
@@ -1608,4 +1806,6 @@ proto_reg_handoff_sna(void)
 	/* RFC 2043 */
 	dissector_add("ppp.protocol", PPP_SNA, sna_handle);
 	data_handle = find_dissector("data");
+
+    register_init_routine(sna_init);
 }
