@@ -6,7 +6,7 @@
  * "Decode Short Message with Port Number UDH as CL-WSP" preference
  * provided by Olivier Biot.
  *
- * $Id: packet-smpp.c,v 1.15 2003/07/02 21:10:50 guy Exp $
+ * $Id: packet-smpp.c,v 1.16 2003/07/07 22:42:11 guy Exp $
  *
  * Note on SMS Message reassembly
  * ------------------------------
@@ -16,8 +16,6 @@
  *   as identifier for related fragments.
  *   If the SMPP connection only allows transmission of one SMS message, then
  *   the reassembly code will not work.
- *   If the SMPP connection stays open, then the packet reassembly code will
- *   complain when several concatenated SMS messages share the same message ID.
  *
  * Note on Short Message decoding as CL-WSP
  * ----------------------------------------
@@ -223,7 +221,8 @@ static gint ett_sm_fragments	= -1;
 static dissector_table_t smpp_dissector_table;
 
 /* Short Message reassembly */
-static GHashTable *sm_fragment_table;
+static GHashTable *sm_fragment_table = NULL;
+static GHashTable *sm_reassembled_table = NULL;
 
 static const fragment_items sm_frag_items = {
 	/* Fragment subtrees */
@@ -251,6 +250,7 @@ static void
 sm_defragment_init (void)
 {
 	fragment_table_init (&sm_fragment_table);
+	reassembled_table_init(&sm_reassembled_table);
 }
 
 /*
@@ -1231,9 +1231,10 @@ parse_sm_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 		try_sm_reassemble = TRUE;
 		save_fragmented = pinfo->fragmented;
 		pinfo->fragmented = TRUE;
-		fd_sm = fragment_add_seq (tvb, udh_len, pinfo,
-				sm_id, /* guint32 ID for fragments belonging together - HELP! */
-				sm_fragment_table,
+		fd_sm = fragment_add_seq_check (tvb, udh_len, pinfo,
+				sm_id, /* guint32 ID for fragments belonging together */
+				sm_fragment_table, /* list of message fragments */
+				sm_reassembled_table, /* list of reassembled messages */
 				frag-1, /* guint32 fragment sequence number */
 				sm_data_len, /* guint32 fragment length */
 				(frags=frag)); /* Last fragment? */
