@@ -236,6 +236,8 @@ if (-d "./.svn") {
 		&update_config_nmake;
 	} elsif ($version_pref{"enable"} == 0) {
 		print "Version tag disabled in $vconf_file.\n";
+		$last = 0;
+		$revision = 0;
 	} else {
 		print "SVN version tag will be computed.\n";
 	}
