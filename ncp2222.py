@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.20 2002/03/05 03:32:38 gram Exp $
+$Id: ncp2222.py,v 1.14.2.21 2002/03/05 03:51:22 gram Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -653,7 +653,7 @@ def srec(field, endianness=None, **kw):
 def _rec(start, length, field, endianness, kw):
 	# If endianness not explicitly given, use the field's
 	# default endiannes.
-	if not endianness:
+	if endianness == None:
 		endianness = field.Endianness()
 
 	# Setting a var?
@@ -756,17 +756,34 @@ class Type:
 		return cmp(self.hfname, other.hfname)
 
 class struct(PTVC, Type):
-	def __init__(self, name, vars, descr=None):
+	def __init__(self, name, items, descr=None):
 		name = "struct_%s" % (name,)
 		NamedList.__init__(self, name, [])
 
 		self.bytes = 0
 		self.descr = descr
-		for var in vars:
-			ptvc_rec = PTVCRecord(var, var.Length(), var.Endianness(),
-				NO_VAR, NO_REPEAT, NO_REQ_COND)
+		for item in items:
+			if isinstance(item, Type):
+				field = item
+				length = field.Length()
+				endianness = field.Endianness()
+				var = NO_VAR
+				repeat = NO_REPEAT
+				req_cond = NO_REQ_COND
+			elif type(item) == type([]):
+				field = item[REC_FIELD]
+				length = item[REC_LENGTH]
+				endianness = item[REC_ENDIANNESS]
+				var = item[REC_VAR]
+				repeat = item[REC_REPEAT]
+				req_cond = item[REC_REQ_COND]
+			else:
+				assert 0, "Item %s item not handled." % (item,)
+
+			ptvc_rec = PTVCRecord(field, length, endianness, var,
+				repeat, req_cond)
 			self.list.append(ptvc_rec)
-			self.bytes = self.bytes + var.Length()
+			self.bytes = self.bytes + field.Length()
 
 		self.hfname = self.name
 
