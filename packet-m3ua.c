@@ -7,7 +7,7 @@
  *
  * Copyright 2000, 2001, 2002, 2003 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m3ua.c,v 1.32 2003/09/02 21:14:43 guy Exp $
+ * $Id: packet-m3ua.c,v 1.33 2003/09/04 14:32:01 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1633,7 +1633,17 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 
   /* make entry in the Protocol column on summary display */
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "M3UA");
+  switch(version) {
+    case M3UA_V5:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "M3UA (ID 05)");
+      break;
+    case M3UA_V6:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "M3UA (ID 06)");
+      break;
+    case M3UA_RFC:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "M3UA (RFC 3332)");
+      break;
+    };      
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
