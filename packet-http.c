@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.89 2004/01/09 21:45:29 obiot Exp $
+ * $Id: packet-http.c,v 1.90 2004/01/10 02:38:38 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -570,6 +570,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * There's stuff left over; process it.
 		 */
 		tvbuff_t *next_tvb;
+		void *save_private_data = NULL;
 
 		/*
 		 * Create a tvbuff for the payload.
@@ -603,6 +604,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * Content-Type value.  Is there any subdissector
 			 * for that content type?
 			 */
+			save_private_data = pinfo->private_data;
+			pinfo->private_data = headers.content_type;
 			handle = dissector_get_string_handle(
 			    media_type_subdissector_table,
 			    headers.content_type);
@@ -634,6 +637,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    http_tree);
 		}
 
+		if (save_private_data)
+			pinfo->private_data = save_private_data;
 		/*
 		 * We've processed "datalen" bytes worth of data
 		 * (which may be no data at all); advance the
