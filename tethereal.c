@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.209 2003/12/09 22:22:52 ulfl Exp $
+ * $Id: tethereal.c,v 1.210 2003/12/11 01:13:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1234,7 +1234,7 @@ main(int argc, char *argv[])
   }
 
   /* If printing PDML or PS, force -V */
-  if (print_format == PR_FMT_PDML || PR_FMT_PS)
+  if (print_format == PR_FMT_PDML || print_format == PR_FMT_PS)
 	  verbose = TRUE;
 
   /* If no capture filter or read filter has been specified, and there are
