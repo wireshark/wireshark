@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.230 2004/02/21 02:15:06 guy Exp $
+ * $Id: tethereal.c,v 1.231 2004/02/23 16:12:51 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -244,7 +244,7 @@ print_usage(gboolean print_ver)
     output = stdout;
     fprintf(output, "This is GNU t" PACKAGE " " VERSION
 #ifdef CVSVERSION
-	" (cvs " CVSVERSION ")"
+	" (" CVSVERSION ")"
 #endif
         "\n (C) 1998-2004 Gerald Combs <gerald@ethereal.com>"
 	"\n%s\n%s\n",

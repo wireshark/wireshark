@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.21 2004/02/22 23:40:28 guy Exp $
+# $Id: Makefile.common,v 1.22 2004/02/23 16:12:51 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -687,9 +687,12 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 	xdlc.h	\
 	xmlstub.h
 
+# "BUILT_SOURCES" are built before any "make all" or "make check" targets.
+BUILT_SOURCES =		\
+	cvsversion.h
+
 # headers needed for the generation process
 BUILT_INCLUDES =	\
-	cvsversion.h	\
 	x11-declarations.h	\
 	x11-register-info.h
 

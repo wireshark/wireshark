@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.405 2004/02/22 21:35:58 ulfl Exp $
+ * $Id: main.c,v 1.406 2004/02/23 16:12:52 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1376,7 +1376,7 @@ print_usage(gboolean print_ver) {
     output = stdout;
     fprintf(output, "This is GNU " PACKAGE " " VERSION
 #ifdef CVSVERSION
-	" (cvs " CVSVERSION ")"
+	" (" CVSVERSION ")"
 #endif
 	"\n%s\n%s\n",
 	comp_info_str->str, runtime_info_str->str);
@@ -1413,7 +1413,7 @@ show_version(void)
 
   printf(PACKAGE " " VERSION
 #ifdef CVSVERSION
-      " (cvs " CVSVERSION ")"
+      " (" CVSVERSION ")"
 #endif
       "\n%s\n%s\n",
       comp_info_str->str, runtime_info_str->str);
