@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.56 2003/07/08 07:56:27 guy Exp $
+ * $Id: packet-q931.c,v 1.57 2003/08/05 17:39:23 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -66,6 +66,9 @@ static int hf_q931_redirecting_number = -1;
 
 static gint ett_q931 = -1;
 static gint ett_q931_ie = -1;
+
+static dissector_table_t codeset_dissector_table;
+static dissector_table_t ie_dissector_table;
 
 /* desegmentation of Q.931 over TPKT over TCP */
 static gboolean q931_desegment = TRUE;
@@ -157,6 +160,16 @@ static const true_false_string tfs_call_ref_flag = {
 /*
  * Information elements.
  */
+
+/* Shifted codeset values */
+#define CS0 0x000
+#define CS1 0x100
+#define CS2 0x200
+#define CS3 0x300
+#define CS4 0x400
+#define CS5 0x500
+#define CS6 0x600
+#define CS7 0x700
 
 #define	Q931_IE_SO_MASK	0x80	/* single-octet/variable-length mask */
 /*
@@ -261,7 +274,8 @@ static const true_false_string tfs_call_ref_flag = {
 /* 0x76 is Redirection Number, but that's also Codeset 0 */
 #define	Q931_IE_CALL_APPEARANCE		0x7B
 
-static const value_string q931_info_element_vals[] = {
+/* Codeset 0 */
+static const value_string q931_info_element_vals0[] = {
 	{ Q931_IE_SEGMENTED_MESSAGE,		"Segmented message" },
 	{ Q931_IE_BEARER_CAPABILITY,		"Bearer capability" },
 	{ Q931_IE_CAUSE,			"Cause" },
@@ -305,12 +319,52 @@ static const value_string q931_info_element_vals[] = {
 	{ Q931_IE_ESCAPE,			"Escape" },
 	{ Q931_IE_CONNECTED_NUMBER,		"Connected number" },
 	{ Q931_IE_CONNECTED_SUBADDR,		"Connected subaddress" },
+	{ 0,					NULL }
+};
+/* Codeset 1 */
+static const value_string q931_info_element_vals1[] = {
+	{ 0,					NULL }
+};
+/* Codeset 2 */
+static const value_string q931_info_element_vals2[] = {
+	{ 0,					NULL }
+};
+/* Codeset 3 */
+static const value_string q931_info_element_vals3[] = {
+	{ 0,					NULL }
+};
+/* Codeset 4 */
+static const value_string q931_info_element_vals4[] = {
+	{ 0,					NULL }
+};
+/* Codeset 5 */
+static const value_string q931_info_element_vals5[] = {
 	{ Q931_IE_CHARGING_ADVICE,		"Charging advice" },
 	{ Q931_IE_OPERATOR_SYSTEM_ACCESS,	"Operator system access" },
+	{ 0,					NULL }
+};
+/* Codeset 6 */
+static const value_string q931_info_element_vals6[] = {
 	{ Q931_IE_REDIRECTING_NUMBER,		"Redirecting number" },
 	{ Q931_IE_REDIRECTING_SUBADDR,		"Redirecting subaddress" },
 	{ Q931_IE_CALL_APPEARANCE,		"Call appearance" },
 	{ 0,					NULL }
+};
+/* Codeset 7 */
+static const value_string q931_info_element_vals7[] = {
+	{ 0,					NULL }
+};
+
+/* Codeset array */
+static const value_string *q931_info_element_vals[] = {
+  q931_info_element_vals0,
+  q931_info_element_vals1,
+  q931_info_element_vals2,
+  q931_info_element_vals3,
+  q931_info_element_vals4,
+  q931_info_element_vals5,
+  q931_info_element_vals6,
+  q931_info_element_vals7,
 };
 
 static const value_string q931_congestion_level_vals[] = {
@@ -1162,14 +1216,14 @@ dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
 		case Q931_REJ_IE_MISSING:
 			proto_tree_add_text(tree, tvb, offset, 1,
 			    "Missing information element: %s",
-			    val_to_str(tvb_get_guint8(tvb, offset), q931_info_element_vals,
+			    val_to_str(tvb_get_guint8(tvb, offset), q931_info_element_vals0,
 			      "Unknown (0x%02X)"));
 			break;
 
 		case Q931_REJ_IE_INSUFFICIENT:
 			proto_tree_add_text(tree, tvb, offset, 1,
 			    "Insufficient information element: %s",
-			    val_to_str(tvb_get_guint8(tvb, offset), q931_info_element_vals,
+			    val_to_str(tvb_get_guint8(tvb, offset), q931_info_element_vals0,
 			      "Unknown (0x%02X)"));
 			break;
 
@@ -1189,7 +1243,7 @@ dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
 		do {
 			proto_tree_add_text(tree, tvb, offset, 1,
 			    "Information element: %s",
-			    val_to_str(tvb_get_guint8(tvb, offset), q931_info_element_vals,
+			    val_to_str(tvb_get_guint8(tvb, offset), q931_info_element_vals0,
 			      "Unknown (0x%02X)"));
 			offset += 1;
 			len -= 1;
@@ -2262,7 +2316,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint16		info_element_len;
 	int		codeset, locked_codeset;
 	gboolean	non_locking_shift;
-	tvbuff_t	*h225_tvb;
+	tvbuff_t	*h225_tvb, *next_tvb;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Q.931");
@@ -2308,29 +2362,45 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		info_element = tvb_get_guint8(tvb, offset);
 
+		 /* Check for the codeset shift */
+		if ((info_element & Q931_IE_SO_MASK) &&
+            ((info_element & Q931_IE_SO_IDENTIFIER_MASK) == Q931_IE_SHIFT)) {
+			non_locking_shift = info_element & Q931_IE_SHIFT_NON_LOCKING;
+			codeset = info_element & Q931_IE_SHIFT_CODESET;
+			if (!non_locking_shift)
+				locked_codeset = codeset;
+			if (q931_tree != NULL) {
+				proto_tree_add_text(q931_tree, tvb, offset, 1,
+				    "%s shift to codeset %u: %s",
+				    (non_locking_shift ? "Non-locking" : "Locking"),
+				    codeset,
+			    	val_to_str(codeset, q931_codeset_vals,
+				      "Unknown (0x%02X)"));
+			}
+			offset += 1;
+			continue;
+        }
+
 		/*
 		 * Check for the single-octet IEs.
 		 */
 		if (info_element & Q931_IE_SO_MASK) {
-			switch (info_element & Q931_IE_SO_IDENTIFIER_MASK) {
 
-			case Q931_IE_SHIFT:
-				non_locking_shift = info_element & Q931_IE_SHIFT_NON_LOCKING;
-				codeset = info_element & Q931_IE_SHIFT_CODESET;
-				if (!non_locking_shift)
-					locked_codeset = codeset;
-				if (q931_tree != NULL) {
-					proto_tree_add_text(q931_tree, tvb, offset, 1,
-					    "%s shift to codeset %u: %s",
-					    (non_locking_shift ? "Non-locking" : "Locking"),
-					    codeset,
-				    	val_to_str(codeset, q931_codeset_vals,
-					      "Unknown (0x%02X)"));
-				}
-				offset += 1;
-				continue;
+			/* check for subdissectors */
+			if (dissector_get_port_handle(codeset_dissector_table, codeset) ||
+                dissector_get_port_handle(ie_dissector_table, (codeset << 8) | (info_element & Q931_IE_SO_IDENTIFIER_MASK))) {
+				next_tvb = tvb_new_subset (tvb, offset, 1, 1);
+				if (dissector_try_port(ie_dissector_table, (codeset << 8) | (info_element & Q931_IE_SO_IDENTIFIER_MASK), next_tvb, pinfo, q931_tree) ||
+				    dissector_try_port(codeset_dissector_table, codeset, next_tvb, pinfo, q931_tree)) {
+					offset += 1;
+					codeset = locked_codeset;
+					continue;
+                }
+            }
 
-			case Q931_IE_MORE_DATA_OR_SEND_COMP:
+			switch ((codeset << 8) | (info_element & Q931_IE_SO_IDENTIFIER_MASK)) {
+
+			case CS0 | Q931_IE_MORE_DATA_OR_SEND_COMP:
 				switch (info_element) {	
 
 				case Q931_IE_MORE_DATA:
@@ -2357,7 +2427,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				}
 				break;
 
-			case Q931_IE_CONGESTION_LEVEL:
+			case CS0 | Q931_IE_CONGESTION_LEVEL:
 				if (q931_tree != NULL) {
 					proto_tree_add_text(q931_tree, tvb, offset, 1,
 					    "Congestion level: %s",
@@ -2367,7 +2437,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				}
 				break;
 
-			case Q931_IE_REPEAT_INDICATOR:
+			case CS0 | Q931_IE_REPEAT_INDICATOR:
 				if (q931_tree != NULL) {
 					proto_tree_add_text(q931_tree, tvb, offset, 1,
 					    "Repeat indicator: %s",
@@ -2402,21 +2472,21 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * IE with ASN.1 encoding of the user information.
 		 */
 		if (is_tpkt && tvb_bytes_exist(tvb, offset, 4) &&
-		    tvb_get_guint8(tvb, offset) == Q931_IE_USER_USER &&
+		    codeset == 0 && tvb_get_guint8(tvb, offset) == Q931_IE_USER_USER &&
 		    tvb_get_guint8(tvb, offset + 3) == Q931_PROTOCOL_DISCRIMINATOR_ASN1)  {
 			info_element_len = tvb_get_ntohs(tvb, offset + 1);
 			if (q931_tree != NULL) {
 				ti = proto_tree_add_text(q931_tree, tvb, offset,
 				    1+2+info_element_len, "%s",
 				    val_to_str(info_element,
-				      q931_info_element_vals,
+				      q931_info_element_vals[codeset],
 				      "Unknown information element (0x%02X)"));
 				ie_tree = proto_item_add_subtree(ti,
 				    ett_q931_ie);
 				proto_tree_add_text(ie_tree, tvb, offset, 1,
 				    "Information element: %s",
 				    val_to_str(info_element,
-				      q931_info_element_vals, "Unknown (0x%02X)"));
+				      q931_info_element_vals[codeset], "Unknown (0x%02X)"));
 				proto_tree_add_text(ie_tree, tvb, offset + 1,
 				    2, "Length: %u", info_element_len);
 				proto_tree_add_text(ie_tree, tvb, offset + 3,
@@ -2458,192 +2528,205 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset += 1 + 2 + info_element_len;
 		} else {
 			info_element_len = tvb_get_guint8(tvb, offset + 1);
+
+			/* check for subdissectors */
+			if (dissector_get_port_handle(codeset_dissector_table, codeset) ||
+                dissector_get_port_handle(ie_dissector_table, (codeset << 8) | info_element)) {
+				next_tvb = tvb_new_subset (tvb, offset, info_element_len + 2, info_element_len + 2);
+				if (dissector_try_port(ie_dissector_table, (codeset << 8) | info_element, next_tvb, pinfo, q931_tree) ||
+				    dissector_try_port(codeset_dissector_table, codeset, next_tvb, pinfo, q931_tree)) {
+					offset += 2 + info_element_len;;
+					codeset = locked_codeset;
+					continue;
+                }
+            }
+
 			if (q931_tree != NULL) {
 				ti = proto_tree_add_text(q931_tree, tvb, offset,
 				    1+1+info_element_len, "%s",
-				    val_to_str(info_element, q931_info_element_vals,
+				    val_to_str(info_element, q931_info_element_vals[codeset],
 				      "Unknown information element (0x%02X)"));
 					ie_tree = proto_item_add_subtree(ti, ett_q931_ie);
 				proto_tree_add_text(ie_tree, tvb, offset, 1,
 				    "Information element: %s",
-				    val_to_str(info_element, q931_info_element_vals,
+				    val_to_str(info_element, q931_info_element_vals[codeset],
 				      "Unknown (0x%02X)"));
 				proto_tree_add_text(ie_tree, tvb, offset + 1, 1,
 				    "Length: %u", info_element_len);
 
-				switch (info_element) {
+				switch ((codeset << 8) | info_element) {
 
-				case Q931_IE_SEGMENTED_MESSAGE:
+				case CS0 | Q931_IE_SEGMENTED_MESSAGE:
 					dissect_q931_segmented_message_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree);
 					break;
 
-				case Q931_IE_BEARER_CAPABILITY:
-				case Q931_IE_LOW_LAYER_COMPAT:
+				case CS0 | Q931_IE_BEARER_CAPABILITY:
+				case CS0 | Q931_IE_LOW_LAYER_COMPAT:
 					dissect_q931_bearer_capability_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree);
 					break;
 
-				case Q931_IE_CAUSE:
+				case CS0 | Q931_IE_CAUSE:
 					dissect_q931_cause_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree,
 					    hf_q931_cause_value);
 					break;
 
-				case Q931_IE_CALL_STATE:
+				case CS0 | Q931_IE_CALL_STATE:
 					dissect_q931_call_state_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree);
 					break;
 
-				case Q931_IE_CHANNEL_IDENTIFICATION:
+				case CS0 | Q931_IE_CHANNEL_IDENTIFICATION:
 					dissect_q931_channel_identification_ie(
 					    tvb, offset + 2, info_element_len,
 					    ie_tree);
 					break;
 
-				case Q931_IE_PROGRESS_INDICATOR:
+				case CS0 | Q931_IE_PROGRESS_INDICATOR:
 					dissect_q931_progress_indicator_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree);
 					break;
 
-				case Q931_IE_NETWORK_SPECIFIC_FACIL:
-				case Q931_IE_TRANSIT_NETWORK_SEL:
+				case CS0 | Q931_IE_NETWORK_SPECIFIC_FACIL:
+				case CS0 | Q931_IE_TRANSIT_NETWORK_SEL:
 					dissect_q931_ns_facilities_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree);
 					break;
 
-				case Q931_IE_NOTIFICATION_INDICATOR:
+				case CS0 | Q931_IE_NOTIFICATION_INDICATOR:
 					dissect_q931_notification_indicator_ie(
 					    tvb, offset + 2, info_element_len,
 					    ie_tree);
 					break;
 
-				case Q931_IE_DISPLAY:
+				case CS0 | Q931_IE_DISPLAY:
 					dissect_q931_ia5_ie(tvb, offset + 2,
 					    info_element_len, ie_tree,
 					    "Display information");
 					break;
 
-				case Q931_IE_DATE_TIME:
+				case CS0 | Q931_IE_DATE_TIME:
 					dissect_q931_date_time_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree);
 					break;
 
-				case Q931_IE_KEYPAD_FACILITY:
+				case CS0 | Q931_IE_KEYPAD_FACILITY:
 					dissect_q931_ia5_ie(tvb, offset + 2,
 					    info_element_len, ie_tree,
 					    "Keypad facility");
 					break;
 
-				case Q931_IE_SIGNAL:
+				case CS0 | Q931_IE_SIGNAL:
 					dissect_q931_signal_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree);
 					break;
 
-				case Q931_IE_INFORMATION_RATE:
+				case CS0 | Q931_IE_INFORMATION_RATE:
 					dissect_q931_information_rate_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree);
 					break;
 
-				case Q931_IE_E2E_TRANSIT_DELAY:
+				case CS0 | Q931_IE_E2E_TRANSIT_DELAY:
 					dissect_q931_e2e_transit_delay_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree);
 					break;
 
-				case Q931_IE_TD_SELECTION_AND_INT:
+				case CS0 | Q931_IE_TD_SELECTION_AND_INT:
 					dissect_q931_td_selection_and_int_ie(
 					    tvb, offset + 2, info_element_len,
 					    ie_tree);
 					break;
 
-				case Q931_IE_PL_BINARY_PARAMETERS:
+				case CS0 | Q931_IE_PL_BINARY_PARAMETERS:
 					dissect_q931_pl_binary_parameters_ie(
 					    tvb, offset + 2, info_element_len,
 					    ie_tree);
 					break;
 
-				case Q931_IE_PL_WINDOW_SIZE:
+				case CS0 | Q931_IE_PL_WINDOW_SIZE:
 					dissect_q931_pl_window_size_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree);
 					break;
 
-				case Q931_IE_PACKET_SIZE:
+				case CS0 | Q931_IE_PACKET_SIZE:
 					dissect_q931_packet_size_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree);
 					break;
 
-				case Q931_IE_CUG:
+				case CS0 | Q931_IE_CUG:
 					dissect_q931_cug_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree);
 					break;
 
-				case Q931_IE_REVERSE_CHARGE_IND:
+				case CS0 | Q931_IE_REVERSE_CHARGE_IND:
 					dissect_q931_reverse_charge_ind_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree);
 					break;
 
-				case Q931_IE_CALLING_PARTY_NUMBER:
+				case CS0 | Q931_IE_CALLING_PARTY_NUMBER:
 					dissect_q931_number_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree,
 					    hf_q931_calling_party_number);
 					break;
 
-				case Q931_IE_CONNECTED_NUMBER_DEFAULT:
+				case CS0 | Q931_IE_CONNECTED_NUMBER_DEFAULT:
 					dissect_q931_number_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree,
 					    hf_q931_connected_number);
 					break;
 
-				case Q931_IE_CALLED_PARTY_NUMBER:
+				case CS0 | Q931_IE_CALLED_PARTY_NUMBER:
 					dissect_q931_number_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree,
 					    hf_q931_called_party_number);
 					break;
 
-				case Q931_IE_REDIRECTING_NUMBER:
+				case CS0 | Q931_IE_REDIRECTING_NUMBER:
 					dissect_q931_number_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree,
 					    hf_q931_redirecting_number);
 					break;
 
-				case Q931_IE_CALLING_PARTY_SUBADDR:
-				case Q931_IE_CALLED_PARTY_SUBADDR:
+				case CS0 | Q931_IE_CALLING_PARTY_SUBADDR:
+				case CS0 | Q931_IE_CALLED_PARTY_SUBADDR:
 					dissect_q931_party_subaddr_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree);
 					break;
 
-				case Q931_IE_RESTART_INDICATOR:
+				case CS0 | Q931_IE_RESTART_INDICATOR:
 					dissect_q931_restart_indicator_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree);
 					break;
 
-				case Q931_IE_HIGH_LAYER_COMPAT:
+				case CS0 | Q931_IE_HIGH_LAYER_COMPAT:
 					dissect_q931_high_layer_compat_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree);
 					break;
 
-				case Q931_IE_USER_USER:
+				case CS0 | Q931_IE_USER_USER:
 					dissect_q931_user_user_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree);
@@ -2808,6 +2891,10 @@ proto_register_q931(void)
 	register_dissector("q931", dissect_q931, proto_q931);
 	q931_tpkt_pdu_handle = create_dissector_handle(dissect_q931_tpkt_pdu,
 	    proto_q931);
+
+ 	/* subdissector code */	
+ 	codeset_dissector_table = register_dissector_table("q931.codeset", "Q.931 Codeset", FT_UINT8, BASE_HEX);
+ 	ie_dissector_table = register_dissector_table("q931.ie", "Q.931 IE", FT_UINT16, BASE_HEX);
 
 	q931_module = prefs_register_protocol(proto_q931, NULL);
 	prefs_register_bool_preference(q931_module, "desegment_h323_messages",

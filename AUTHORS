@@ -1019,6 +1019,7 @@ Tomas Kukosa <tomas.kukosa [AT] siemens.com> {
 	Additional routines made available to plugins
 	Support in Wiretap for DLT_HHDLC
 	Fix to summary-printing code to handle reallocated line buffer
+	Support for registering subdissectors for Q.931 IEs and codesets
 }
 
 Andreas Stockmeier <a.stockmeier[AT]avm.de> {
