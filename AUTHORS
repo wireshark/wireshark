@@ -336,6 +336,8 @@ Paul Ionescu <paul@acorp.ro> {
 	DEC LANBridge Spanning Tree Protocol support
 	X.25-over-LLC support
 	IP Prefix field support in CDP
+	Frame Relay support
+	Frame-Relay-over-GRE support
 }
 
 Mark Burton <markb@ordern.com> {
