@@ -749,6 +749,7 @@ Laurent Rabret <laurent.rabret[AT]rd.francetelecom.fr> {
 	    protocols get passed through, with PPP protocol types
 	    appearing in the Ethernet protocol type field)
 	PAP support
+	BGP bug fix
 }
 
 nuf si <gnippiks[AT]yahoo.com> {
