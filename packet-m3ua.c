@@ -7,7 +7,7 @@
  *
  * Copyright 2000, 2001, 2002, 2003 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m3ua.c,v 1.31 2003/04/22 13:47:38 tuexen Exp $
+ * $Id: packet-m3ua.c,v 1.32 2003/09/02 21:14:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -480,6 +480,11 @@ static const value_string unavailability_cause_values[] = {
 #define RESERVED_8_USER_ID                8
 #define BROADBAND_ISUP_USER_ID            9
 #define SATELLITE_ISUP_USER_ID           10
+#define RESERVED_11_USER_ID              11
+#define AAL_2_SIGNALING_USER_ID          12
+#define BICC_USER_ID			 13
+#define GATEWAY_CONTROL_PROTOCOL_USER_ID 14
+#define RESERVED_15_USER_ID              15
 
 static const value_string user_identity_values[] = {
   { RESERVED_0_USER_ID,     "Reserved"       },
@@ -493,6 +498,12 @@ static const value_string user_identity_values[] = {
   { RESERVED_8_USER_ID,     "Reserved"       },
   { BROADBAND_ISUP_USER_ID, "Broadband ISUP" },
   { SATELLITE_ISUP_USER_ID, "Satellite ISUP" },
+  { RESERVED_11_USER_ID,    "Reserved"       },	
+  { AAL_2_SIGNALING_USER_ID,"AAL type2 Signaling"},
+  { BICC_USER_ID,	    "Bearer Independent Call Control (BICC)"},	
+  { GATEWAY_CONTROL_PROTOCOL_USER_ID, "Gateway Control Protocol"},
+  { RESERVED_15_USER_ID,    "Reserved"       },
+
   {0,                       NULL             } };
 
 #define CAUSE_LENGTH 2
