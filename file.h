@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.32 1999/08/13 23:47:42 gram Exp $
+ * $Id: file.h,v 1.33 1999/08/15 00:26:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -106,7 +106,7 @@ typedef struct _capture_file {
 
 int  open_cap_file(char *, capture_file *);
 void close_cap_file(capture_file *, void *, guint);
-int  load_cap_file(char *, char *, capture_file *);
+int  read_cap_file(char *, char *, capture_file *);
 int  tail_cap_file(char *, capture_file *);
 /* size_t read_frame_header(capture_file *); */
 

@@ -1,6 +1,6 @@
 /* ETHEREal.c
  *
- * $Id: ethereal.c,v 1.85 1999/08/14 19:53:31 gram Exp $
+ * $Id: ethereal.c,v 1.86 1999/08/15 00:26:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -433,11 +433,21 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 	  rfilter = g_strdup(s);
   else
 	  rfilter = NULL;
+
+  /* Try to open the capture file. */
+  if ((err = open_cap_file(cf_name, &cf)) != 0) {
+    /* We couldn't open it; don't dismiss the open dialog box,
+       just leave it around so that the user can, after they
+       dismiss the alert box popped up for the open error,
+       try again. */
+    return;
+  }
+
   gtk_widget_hide(GTK_WIDGET (fs));
   gtk_widget_destroy(GTK_WIDGET (fs));
 
   /* save the directory name. We can write over cf_name */
-  if ((err = load_cap_file(cf_name, rfilter, &cf)) == 0) {
+  if ((err = read_cap_file(cf_name, rfilter, &cf)) == 0) {
 	  s = strrchr(cf_name, '/');
 	  if (s && last_open_dir) {
 		  *s = '\0';
@@ -517,8 +527,8 @@ file_save_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 	g_free(cf.save_file);
 	cf.save_file = g_strdup(cf_name);
 	cf.user_saved = 1;
-	err = load_cap_file(cf_name, g_strdup(cf.rfilter), &cf);
-	if (err == 0) {
+        if ((err = open_cap_file(cf_name, &cf)) == 0 &&
+	    (err = read_cap_file(cf_name, g_strdup(cf.rfilter), &cf)) == 0) {
 		set_menu_sensitivity("/File/Save", FALSE);
 		set_menu_sensitivity("/File/Save As...", TRUE);
 	}
@@ -537,8 +547,8 @@ file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 	g_free(cf.filename);
 	cf.filename = g_strdup(cf_name);
 	cf.user_saved = 1;
-	err = load_cap_file(cf.filename, g_strdup(cf.rfilter), &cf);
-	if (err == 0) {
+        if ((err = open_cap_file(cf.filename, &cf)) == 0 &&
+	    (err = read_cap_file(cf.filename, g_strdup(cf.rfilter), &cf)) == 0) {
 		set_menu_sensitivity("/File/Save", FALSE);
 		set_menu_sensitivity("/File/Save As...", TRUE);
 	}
@@ -554,7 +564,8 @@ file_reload_cmd_cb(GtkWidget *w, gpointer data) {
 
   if (cf.dfilter) g_free(cf.dfilter);
   cf.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
-  load_cap_file(cf.filename, g_strdup(cf.rfilter), &cf);
+  if (open_cap_file(cf.filename, &cf) == 0)
+    read_cap_file(cf.filename, g_strdup(cf.rfilter), &cf);
   /* XXX - change the menu if it fails? */
 }
 
@@ -1404,7 +1415,8 @@ main(int argc, char *argv[])
      alert box, so, if we get one of those, it's more likely to come
      up on top of us. */
   if (cf_name) {
-    err = load_cap_file(cf_name, rfilter, &cf);
+    if ((err = open_cap_file(cf_name, &cf)) == 0)
+	err = read_cap_file(cf_name, rfilter, &cf);
     cf_name[0] = '\0';
     if (err == 0)
       set_menu_sensitivity("/File/Save As...", TRUE);

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.67 1999/08/14 18:51:26 gram Exp $
+ * $Id: file.c,v 1.68 1999/08/15 00:26:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -102,52 +102,75 @@ static gint dfilter_progress_cb(gpointer p);
 int
 open_cap_file(char *fname, capture_file *cf) {
   struct stat cf_stat;
+  FILE       *fh;
+  wtap       *wth;
+  int        err;
 
   /* First, make sure the file is valid */
-  if (stat(fname, &cf_stat))
-    return (errno);
+  if (stat(fname, &cf_stat)) {
+    err = errno;
+    goto fail;
+  }
 #ifndef WIN32
-  if (! S_ISREG(cf_stat.st_mode) && ! S_ISFIFO(cf_stat.st_mode))
-    return (OPEN_CAP_FILE_NOT_REGULAR);
+  if (! S_ISREG(cf_stat.st_mode) && ! S_ISFIFO(cf_stat.st_mode)) {
+    err = OPEN_CAP_FILE_NOT_REGULAR;
+    goto fail;
+  }
 #endif
 
-  /* Next, try to open the file */
-  cf->fh = fopen(fname, "r");
-  if (cf->fh == NULL)
-    return (errno);
+  /* Next, try to open the file.
+     XXX - we only need to do this because "wtap_open_offline()"
+     doesn't return an indication of whether the open failed because
+     we don't have access to the file, or because it's not a valid
+     capture file, so we first have to open it with "fopen()" to
+     make sure we have access to it as a boring ordinary file. */
+  fh = fopen(fname, "r");
+  if (fh == NULL) {
+    err = errno;
+    goto fail;
+  }
+  fclose(fh);
 
-  fseek(cf->fh, 0L, SEEK_END);
-  cf->f_len = ftell(cf->fh);
-  fclose(cf->fh);
-  cf->fh = NULL;
-  /* set the file name beacuse we need it to set the follow stream filter */
-  cf->filename = g_strdup( fname );
+  /* Next, try to open it as a wiretap capture file. */
+  wth = wtap_open_offline(fname);
+  if (wth == NULL) {
+    /* XXX - we assume that, because we were able to open it above,
+       this must have failed because it's not a capture file in
+       a format we can read. */
+    err = OPEN_CAP_FILE_UNKNOWN_FORMAT;
+    goto fail;
+  }
 
-  /* Next, find out what type of file we're dealing with */
-  cf->cd_t      = WTAP_FILE_UNKNOWN;
-  cf->cd_t_desc = "unknown";
+  /* The open succeeded.  Close whatever capture file we had open,
+     and fill in the information for this file. */
+  close_cap_file(cf, info_bar, file_ctx);
+
+  /* Initialize protocol-specific variables */
+  ncp_init_protocol();
+
+  cf->wth = wth;
+  cf->fh = wtap_file(cf->wth);
+  cf->f_len = cf_stat.st_size;
+
+  /* set the file name because we need it to set the follow stream filter */
+  cf->filename = g_strdup(fname);
+
+  cf->cd_t      = wtap_file_type(cf->wth);
+  cf->cd_t_desc = wtap_file_type_string(cf->wth);
   cf->count     = 0;
   cf->drops     = 0;
   cf->esec      = 0;
   cf->eusec     = 0;
-  cf->snap      = 0;
+  cf->snap      = wtap_snapshot_length(cf->wth);
   firstsec = 0, firstusec = 0;
   prevsec = 0, prevusec = 0;
  
-  cf->wth = wtap_open_offline(fname);
-  if (cf->wth == NULL) {
-
-    /* XXX - we assume that, because we were able to open it above,
-       this must have failed because it's not a capture file in
-       a format we can read. */
-    return (OPEN_CAP_FILE_UNKNOWN_FORMAT);
-  }
-
-  cf->fh = wtap_file(cf->wth);
-  cf->cd_t = wtap_file_type(cf->wth);
-  cf->cd_t_desc = wtap_file_type_string(cf->wth);
-  cf->snap = wtap_snapshot_length(cf->wth);
   return (0);
+
+fail:
+  simple_dialog(ESD_TYPE_WARN, NULL,
+			file_open_error_message(err, FALSE), fname);
+  return (err);
 }
 
 /* Reset everything to a pristine state */
@@ -187,18 +210,13 @@ close_cap_file(capture_file *cf, void *w, guint context) {
 }
 
 int
-load_cap_file(char *fname, char *rfilter, capture_file *cf) {
+read_cap_file(char *fname, char *rfilter, capture_file *cf) {
   gchar  *name_ptr, *load_msg, *load_fmt = " Loading: %s...";
   gchar  *done_fmt = " File: %s  Drops: %d";
   gchar  *err_fmt  = " Error: Could not load '%s'";
   gint    timeout;
   size_t  msg_len;
   int     err;
-
-  close_cap_file(cf, info_bar, file_ctx);
-
-  /* Initialize protocol-specific variables */
-  ncp_init_protocol();
 
   if ((name_ptr = (gchar *) strrchr(fname, '/')) == NULL)
     name_ptr = fname;
@@ -215,11 +233,8 @@ load_cap_file(char *fname, char *rfilter, capture_file *cf) {
   }
 
   err = open_cap_file(fname, cf);
-  if (err != 0) {
-    simple_dialog(ESD_TYPE_WARN, NULL,
-			file_open_error_message(err, FALSE), fname);
+  if (err != 0)
     goto fail;
-  }
 
   load_msg = g_malloc(strlen(name_ptr) + strlen(load_fmt) + 2);
   sprintf(load_msg, load_fmt, name_ptr);
@@ -352,11 +367,6 @@ int
 tail_cap_file(char *fname, capture_file *cf) {
   int     err;
   int     i;
-
-  close_cap_file(cf, info_bar, file_ctx);
-
-  /* Initialize protocol-specific variables */
-  ncp_init_protocol();
 
   err = open_cap_file(fname, cf);
   if ((err == 0) && (cf->cd_t != WTAP_FILE_UNKNOWN)) {
