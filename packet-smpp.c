@@ -8,7 +8,7 @@
  * Data Coding Scheme decoding for GSM (SMS and CBS),
  * provided by Olivier Biot.
  *
- * $Id: packet-smpp.c,v 1.19 2003/09/17 20:24:45 guy Exp $
+ * $Id: packet-smpp.c,v 1.20 2003/11/21 22:18:30 guy Exp $
  *
  * Note on SMS Message reassembly
  * ------------------------------
@@ -2992,9 +2992,10 @@ proto_register_smpp(void)
 	/* Preferences for SMPP */
 	smpp_module = prefs_register_protocol (proto_smpp, NULL);
 	prefs_register_bool_preference (smpp_module, "port_number_udh_means_wsp",
-			"Port Number UDH always triggers CL-WSP dissection",
+			"Port Number IE in UDH always triggers CL-WSP dissection",
 			"Always decode a Short Message as Connectionless WSP "
-			"if a Port Number User Data Header is present",
+			"if a Port Number Information Element is present "
+			"in the User Data Header.",
 			&port_number_udh_means_wsp);
 	prefs_register_bool_preference (smpp_module, "try_dissect_1st_fragment",
 			"Always try subdissection of 1st Short Message fragment",
