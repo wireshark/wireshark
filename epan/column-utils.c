@@ -191,7 +191,7 @@ col_clear(column_info *cinfo, gint el)
 /* Use this if "str" points to something that will stay around (and thus
    needn't be copied). */
 void
-col_set_str(column_info *cinfo, gint el, gchar* str)
+col_set_str(column_info *cinfo, gint el, const gchar* str)
 {
   int i;
   int fence;
@@ -338,11 +338,11 @@ col_append_sep_fstr(column_info *cinfo, gint el, const gchar *separator,
 void
 col_prepend_fstr(column_info *cinfo, gint el, const gchar *format, ...)
 {
-  va_list ap;
-  int     i;
-  char    orig_buf[COL_BUF_MAX_LEN];
-  char   *orig;
-  size_t  max_len;
+  va_list     ap;
+  int         i;
+  char        orig_buf[COL_BUF_MAX_LEN];
+  const char *orig;
+  size_t      max_len;
 
   g_assert(cinfo->col_first[el] >= 0);
   if (el == COL_INFO)
@@ -354,12 +354,12 @@ col_prepend_fstr(column_info *cinfo, gint el, const gchar *format, ...)
   for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
       if (cinfo->col_data[i] != cinfo->col_buf[i]) {
-      	/* This was set with "col_set_str()"; which is effectively const */
+        /* This was set with "col_set_str()"; which is effectively const */
         orig = cinfo->col_data[i];
       } else {
+        strncpy(orig_buf, cinfo->col_buf[i], max_len);
+        orig_buf[max_len - 1] = '\0';
         orig = orig_buf;
-	strncpy(orig, cinfo->col_buf[i], max_len);
-	orig[max_len - 1] = '\0';
       }
       vsnprintf(cinfo->col_buf[i], max_len, format, ap);
       cinfo->col_buf[i][max_len - 1] = '\0';

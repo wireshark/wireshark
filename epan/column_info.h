@@ -31,18 +31,18 @@
 #define COL_MAX_INFO_LEN 4096
 
 typedef struct _column_info {
-  gint       num_cols;  /* Number of columns */
-  gint      *col_fmt;   /* Format of column */
-  gboolean **fmt_matx;  /* Specifies which formats apply to a column */
-  gint      *col_first; /* First column number with a given format */
-  gint      *col_last;  /* Last column number with a given format */
-  gchar    **col_title; /* Column titles */
-  gchar    **col_data;  /* Column data */
-  gchar    **col_buf;   /* Buffer into which to copy data for column */
-  int      *col_fence;  /* Stuff in column buffer before this index is immutable */
-  gchar    **col_expr;  /* Filter expression */
-  gchar    **col_expr_val;  /* Value for filter expression */
-  gboolean   writable;  /* Are we stil writing to the columns? */
+  gint          num_cols;    /* Number of columns */
+  gint         *col_fmt;     /* Format of column */
+  gboolean    **fmt_matx;    /* Specifies which formats apply to a column */
+  gint         *col_first;   /* First column number with a given format */
+  gint         *col_last;    /* Last column number with a given format */
+  gchar       **col_title;   /* Column titles */
+  const gchar **col_data;    /* Column data */
+  gchar       **col_buf;     /* Buffer into which to copy data for column */
+  int         *col_fence;    /* Stuff in column buffer before this index is immutable */
+  gchar      **col_expr;     /* Filter expression */
+  gchar      **col_expr_val; /* Value for filter expression */
+  gboolean     writable;     /* Are we stil writing to the columns? */
 } column_info;
 
 /*

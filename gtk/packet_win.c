@@ -95,7 +95,7 @@ void new_window_cb(GtkWidget *w _U_)
 {
 #define NewWinTitleLen 1000
   char Title[NewWinTitleLen] = "";
-  char *TextPtr;
+  const char *TextPtr;
   gint tv_size = 95, bv_size = 75;
   GtkWidget *main_w, *main_vbox, *pane,
                       *tree_view, *tv_scrollw,

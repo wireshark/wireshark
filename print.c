@@ -76,7 +76,7 @@ static gboolean print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
     guint length, char_enc encoding);
 static void ps_clean_string(unsigned char *out, const unsigned char *in,
 			int outbuf_size);
-static void print_escaped_xml(FILE *fh, char *unescaped_string);
+static void print_escaped_xml(FILE *fh, const char *unescaped_string);
 
 static void print_pdml_geninfo(proto_tree *tree, FILE *fh);
 
@@ -561,9 +561,9 @@ get_field_data(GSList *src_list, field_info *fi)
 /* Print a string, escaping out certain characters that need to
  * escaped out for XML. */
 static void
-print_escaped_xml(FILE *fh, char *unescaped_string)
+print_escaped_xml(FILE *fh, const char *unescaped_string)
 {
-	unsigned char *p;
+	const unsigned char *p;
 
 	for (p = unescaped_string; *p != '\0'; p++) {
 		switch (*p) {
