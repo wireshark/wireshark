@@ -1,5 +1,6 @@
 /* packet-fcip.c
  * Routines for FCIP dissection
+ * RFC 3821, RFC 3643
  * Copyright 2001, Dinesh G Dutt (ddutt@cisco.com)
  *
  * $Id$
@@ -36,17 +37,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
-/*
- * See:
- *
- *	draft-ietf-ips-fcovertcpip-12
- *
- *	draft-ietf-ips-fcencapsulation-08
- */
-
 #define FCIP_ENCAP_HEADER_LEN                    28
 #define FCIP_MIN_HEADER_LEN                      16 /* upto frame len field */ 
-#define FCIP_ENCAP_PROTO_VER                     0xFEFE0101
 #define FCIP_IS_SF(pflags)                       ((pflags & 0x1) == 0x1)
 #define FCIP_IS_CH(pflags)                       ((pflags & 0x80) == 0x80)
 
@@ -107,8 +99,10 @@ static const value_string fcencap_proto_vals[] = {
     {0, NULL},
 };
 
-static const guint fcip_header_2_bytes[2] = {FCIP_ENCAP_PROTO_VER,
-                                             FCIP_ENCAP_PROTO_VER};
+static const guint8 fcip_header_8_bytes[8] = {
+    0x01, 0x01, 0xFE, 0xFE,
+    0x01, 0x01, 0xFE, 0xFE
+};
 
 static int proto_fcip          = -1;
 
@@ -216,8 +210,7 @@ NXT_BYTE: while (bytes_remaining) {
         /*
          * Tests a, b and c
          */
-        if (tvb_memeql(tvb, offset, (const guint8 *)fcip_header_2_bytes,
-                       8) != 0) {
+        if (tvb_memeql(tvb, offset, fcip_header_8_bytes, 8) != 0) {
             offset++;
             bytes_remaining--;
             goto NXT_BYTE;
@@ -287,8 +280,8 @@ NXT_BYTE: while (bytes_remaining) {
         if (bytes_remaining >= (frame_len)) {
             if (tvb_bytes_exist (tvb, offset+frame_len, 8)) {
                 /* The start of the next header matches what we wish to see */ 
-                if (tvb_memeql (tvb, offset+frame_len,
-                                (const guint8 *)fcip_header_2_bytes, 8) == 0) {
+                if (tvb_memeql (tvb, offset+frame_len, fcip_header_8_bytes,
+                                8) == 0) {
                     return (offset);
                 }
                 else {
