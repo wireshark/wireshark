@@ -2,7 +2,7 @@
  * Routines for ISUP dissection
  * Copyright 2001, Martina Obermeier <martina.obermeier@icn.siemens.de>
  *
- * $Id: packet-isup.c,v 1.22 2003/04/22 13:47:37 tuexen Exp $
+ * $Id: packet-isup.c,v 1.23 2003/06/25 04:27:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2357,12 +2357,114 @@ dissect_isup_message_compatibility_information_parameter(tvbuff_t *parameter_tvb
 /* ------------------------------------------------------------------
   Dissector Parameter compatibility information
  */
+static const value_string ISUP_transit_at_intermediate_exchange_indicator_vals[] = {
+	{ 0x00, "Transit interpretation" },
+	{ 0x01, "End node interpretation" },
+};
+
+static const value_string ISUP_Release_call_indicator_vals[] = {
+	{ 0x00, "Do not release call" },
+	{ 0x02, "Release call" },
+};
+
+static const value_string ISUP_Send_notification_indicator_vals[] = {
+	{ 0x00, "Do not send notification" },
+	{ 0x04, "Send notification" },
+};
+ 
+
+static const value_string ISUP_Discard_message_indicator_vals[] = {
+	{ 0x00, "Do not discard message (pass on)" },
+	{ 0x08, "Discard message" },
+};
+ 
+static const value_string ISUP_Discard_parameter_indicator_vals[] = {
+	{ 0x00, "Do not discard parameter (pass on)" },
+	{ 0x10, "Discard parameter" },
+};
+
+static const value_string ISUP_Pass_on_not_possible_indicator_vals[] = {
+	{ 0x00, "Release call" },
+	{ 0x20, "Discard message" },
+	{ 0x40, "Discard parameter" },
+	{ 0x60, "Reserved (interpreted as 00)" },
+
+};
+static const value_string ISUP_Broadband_narrowband_interworking_indicator_vals[] = {
+	{ 0x00, "Pass on" },
+	{ 0x01, "Discard message" },
+	{ 0x02, "Release call" },
+	{ 0x03, "Discard parameter" },
+}; 
+
 static void
 dissect_isup_parameter_compatibility_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint length = tvb_length(parameter_tvb);
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "Parameter compatibility information (refer to 3.41/Q.763 for detailed decoding)");
+  guint  length = tvb_length(parameter_tvb);
+  guint  len = length;
+  guint8 upgraded_parameter;
+  guint8 offset;
+  guint8 instruction_indicators; 
+  offset = 0;
+
   proto_item_set_text(parameter_item, "Parameter compatibility information (%u byte%s length)", length , plurality(length, "", "s"));
+/* etxrab Decoded as per Q.763 section 3.41 */
+
+  if (len == 0)
+		return;
+  upgraded_parameter = tvb_get_guint8(parameter_tvb, offset);
+
+  proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1,
+	    "Upgraded parameter: %s",
+	    val_to_str(upgraded_parameter, isup_parameter_type_value, NULL));
+  offset += 1;
+  len -= 1;
+  instruction_indicators = tvb_get_guint8(parameter_tvb, offset);
+
+  proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1,
+		    "Instruction indicators: 0x%x ",
+		    instruction_indicators);
+
+  proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1,
+		    "Transit at intermediate exchange indicator: Bit A %s",
+		    val_to_str(instruction_indicators & 0x01,ISUP_transit_at_intermediate_exchange_indicator_vals ,NULL));
+  
+  proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1,
+		    "Release call indicator: Bit B %s",
+		    val_to_str(instruction_indicators & 0x02,ISUP_Release_call_indicator_vals ,NULL));
+
+  proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1,
+		    "Send_notification_indicator: Bit C %s",
+		    val_to_str(instruction_indicators & 0x04,ISUP_Send_notification_indicator_vals ,NULL));
+
+  proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1,
+		    "Discard message indicator: Bit D %s",
+		    val_to_str(instruction_indicators & 0x08,ISUP_Discard_message_indicator_vals ,NULL));
+
+  proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1,
+		    "Discard parameter indicator: Bit E %s",
+		    val_to_str(instruction_indicators & 0x10,ISUP_Discard_parameter_indicator_vals ,NULL));
+
+  proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1,
+		    "Pass on not possible indicator: Bits FG %s",
+		    val_to_str(instruction_indicators & 0x60,ISUP_Pass_on_not_possible_indicator_vals ,NULL));
+  offset += 1;
+  len -= 1;
+  if (!(instruction_indicators & H_8BIT_MASK)) {
+		if (len == 0)
+			return;
+                  instruction_indicators = tvb_get_guint8(parameter_tvb, offset);
+                  proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1,
+		    "Broadband/narrowband interworking indicator: Bit JI %s",
+		    val_to_str(instruction_indicators & 0x03,ISUP_Broadband_narrowband_interworking_indicator_vals ,NULL));
+                  offset += 1;
+                  len -= 1;
+                  }
+   if (len == 0)
+   return;
+  ;
+/* etxrab */
+ 
 }
 /* ------------------------------------------------------------------
   Dissector Parameter MLPP precedence
