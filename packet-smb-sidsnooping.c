@@ -2,7 +2,7 @@
  * Routines for snooping SID to name mappings
  * Copyright 2003, Ronnie Sahlberg
  *
- * $Id: packet-smb-sidsnooping.c,v 1.1 2003/03/25 09:41:41 sahlberg Exp $
+ * $Id: packet-smb-sidsnooping.c,v 1.2 2003/03/25 19:52:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,6 +117,7 @@ lsa_QueryInfoPolicy_l3_reply(void *dummy _U_, packet_info *pinfo _U_, epan_disse
 	sid=fi->value->value.string;
 
 	add_sid_name_mapping(sid, domain);
+	return 0;
 }
 
 static gboolean
