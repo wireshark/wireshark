@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.63 2002/05/11 18:43:09 guy Exp $
+ * $Id: packet-ospf.c,v 1.64 2002/05/11 22:22:11 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -1234,6 +1234,8 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     /* skip past the LSA header to the body */
     offset += OSPF_LSA_HEADER_LENGTH;
+    if (ls_length <= OSPF_LSA_HEADER_LENGTH)
+	return offset;	/* no data, or bogus length */
     ls_length -= OSPF_LSA_HEADER_LENGTH;
 
     if (!disassemble_body)
