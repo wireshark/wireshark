@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.157 2002/09/06 22:45:40 sahlberg Exp $
+ * $Id: tethereal.c,v 1.158 2002/09/26 01:13:02 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -634,10 +634,15 @@ main(int argc, char *argv[])
         if(!strncmp(optarg,"rpc,",4)){
           if(!strncmp(optarg,"rpc,rtt,",8)){
             int rpcprogram, rpcversion;
-            if(sscanf(optarg,"rpc,rtt,%d,%d",&rpcprogram,&rpcversion)==2){
-              rpcstat_init(rpcprogram,rpcversion);
+            int pos=0;
+            if(sscanf(optarg,"rpc,rtt,%d,%d,%n",&rpcprogram,&rpcversion,&pos)==2){
+              if(pos){
+                rpcstat_init(rpcprogram,rpcversion,optarg+pos);
+              } else {
+                rpcstat_init(rpcprogram,rpcversion,NULL);
+              }
             } else {
-              fprintf(stderr, "tethereal: invalid \"-z rpc,rtt,<program>,<version>\" argument\n");
+              fprintf(stderr, "tethereal: invalid \"-z rpc,rtt,<program>,<version>[,<filterstring>]\" argument\n");
               exit(1);
             }
           } else if(!strncmp(optarg,"rpc,programs",12)){

@@ -1,7 +1,7 @@
 /* tap-rpcstat.c
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-rpcstat.c,v 1.1 2002/09/04 09:40:24 sahlberg Exp $
+ * $Id: tap-rpcstat.c,v 1.2 2002/09/26 01:13:02 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -273,12 +273,10 @@ rpcstat_find_procs(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
  * new instance for the rpc tap.
  */
 void
-rpcstat_init(guint32 program, guint32 version)
+rpcstat_init(guint32 program, guint32 version, char *filter)
 {
 	rpcstat_t *rs;
 	guint32 i;
-/*	char filter[256];*/
-
 
 	rs=g_malloc(sizeof(rpcstat_t));
 	rs->prog=rpc_prog_name(program);
@@ -313,17 +311,14 @@ rpcstat_init(guint32 program, guint32 version)
 /* It is possible to create a filter and attach it to the callbacks. Then the
  * callbacks would only be invoked if the filter matched.
  * Evaluating filters is expensive and if we can avoid it and not use them
- * we gain performance. Here we just tap everything from rpc without
- * filtering and we do the filtering we need explicitely inside the callback
- * itself (*packet) instead with a few if()s.
+ * we gain performance. 
+ * In this case we do the filtering for protocol and version inside the 
+ * callback itself but use whatever filter the user provided.
+ * (Perhaps the user only want the stats for nis+ traffic for certain objects?)
  *
- * This is what it would look like IF we wanted to use a filter when attaching
- * it to the tap.
-	snprintf(filter, 255, "(rpc.msgtyp==1) && (rpc.program==%d) && (rpc.programversion==%d)",program,version);
-	register_tap_listener("rpc", rs, filter, (void*)rpcstat_reset, (void*)rpcstat_packet, (void*)rpcstat_draw);
  */
 
-	if(register_tap_listener("rpc", rs, NULL, (void*)rpcstat_reset, (void*)rpcstat_packet, (void*)rpcstat_draw)){
+	if(register_tap_listener("rpc", rs, filter, (void*)rpcstat_reset, (void*)rpcstat_packet, (void*)rpcstat_draw)){
 		/* error, we failed to attach to the tap. clean up */
 		g_free(rs->procedures);
 		g_free(rs);

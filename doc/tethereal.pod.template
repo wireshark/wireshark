@@ -309,12 +309,18 @@ Get B<Tethereal> to collect various types of statistics and display the result
 after finishing reading the capture file.
 Currently implemented statistics are:
 
-B<-z> rpc,rtt,I<program>,I<version>
+B<-z> rpc,rtt,I<program>,I<version>[,I<filter>]
 
 Collect call/reply RTT data for I<program>/I<version>.  Data collected
 is number of calls for each procedure, MinRTT, MaxRTT and AvgRTT. 
 Example: use B<-z rpc,rtt,100003,3> to collect data for NFS v3.  This
 option can be used multiple times on the command line. 
+
+If the optional filterstring is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z rpc,rtt,100003,3,nfs.fh.hash==0x12345678> to collect NFS v3
+RTT statistics for a specific file.
+
 
 B<-z> rpc,programs
 
