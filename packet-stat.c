@@ -1,7 +1,7 @@
 /* packet-stat.c
  * Routines for stat dissection
  *
- * $Id: packet-stat.c,v 1.13 2002/02/02 03:02:06 guy Exp $
+ * $Id: packet-stat.c,v 1.14 2002/03/05 11:04:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,7 +72,7 @@ static const value_string stat_res[] =
 };
 
 /* Calculate length (including padding) of my_id structure. 
- * First read the lenght of the string and round it upwards to nearest 
+ * First read the length of the string and round it upwards to nearest 
  * multiple of 4, then add 16 (4*uint32)
  */
 static int
@@ -90,7 +90,7 @@ my_id_len(tvbuff_t *tvb, int offset)
 }
 
 /* Calculate length (including padding) of my_id structure. 
- * First read the lenght of the string and round it upwards to nearest 
+ * First read the length of the string and round it upwards to nearest 
  * multiple of 4, then add 4 (string len) and size of my_id struct.
  */
 static int
