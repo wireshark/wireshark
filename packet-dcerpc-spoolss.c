@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.10 2002/03/26 04:29:17 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.11 2002/03/26 05:20:50 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -241,7 +241,7 @@ static int SpoolssClosePrinter_q(tvbuff_t *tvb, int offset,
 				 char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	const guint8 *policy_hnd;
 
 	/* Update informational fields */
@@ -249,12 +249,9 @@ static int SpoolssClosePrinter_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "ClosePrinter request");
 
-	dcerpc_smb_store_q(di, SPOOLSS_CLOSEPRINTER, pinfo->fd->num);
-
-	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_CLOSEPRINTER)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Response in frame %d", response_num);
-
+	if (dcv->rep_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Response in frame %d", dcv->rep_frame);
 	/* Parse packet */
 
 	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
@@ -273,7 +270,7 @@ static int SpoolssClosePrinter_r(tvbuff_t *tvb, int offset,
 				 char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	const guint8 *policy_hnd;
 
 	/* Update informational fields */
@@ -281,11 +278,9 @@ static int SpoolssClosePrinter_r(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "ClosePrinter response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_CLOSEPRINTER, pinfo->fd->num);
-
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_CLOSEPRINTER)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %d", request_num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -361,7 +356,7 @@ static int SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 				   char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	char *value_name = NULL;
 	const guint8 *policy_hnd;
 
@@ -370,9 +365,9 @@ static int SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "GetPrinterData request");
 
-	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_GETPRINTERDATA)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Response in frame %d", response_num);
+	if (dcv->rep_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Response in frame %d", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -401,7 +396,7 @@ static int SpoolssGetPrinterData_r(tvbuff_t *tvb, int offset,
 				   char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	GList *dp_list = NULL;
 	guint32 size, type;
 
@@ -410,11 +405,9 @@ static int SpoolssGetPrinterData_r(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "GetPrinterData response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_GETPRINTERDATA, pinfo->fd->num);
-
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_GETPRINTERDATA)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %d", request_num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -445,21 +438,18 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 				     char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	char *key_name, *value_name;
 	const guint8 *policy_hnd;
 
 	/* Update informational fields */
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, 
-			    "GetPrinterDataEx request");
+		col_set_str(pinfo->cinfo, COL_INFO, "GetPrinterDataEx request");
 
-	dcerpc_smb_store_q(di, SPOOLSS_GETPRINTERDATAEX, pinfo->fd->num);
-
-	if ((response_num = dcerpc_smb_fetch_q(di, SPOOLSS_GETPRINTERDATAEX)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Response in frame %d", response_num);
+	if (dcv->rep_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Response in frame %d", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -508,20 +498,18 @@ static int SpoolssGetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 				     char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 size, type;
 
 	/* Update informational fields */
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, 
-			    "GetPrinterDataEx response");
+		col_set_str(pinfo->cinfo, COL_INFO, "GetPrinterDataEx response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_GETPRINTERDATAEX, pinfo->fd->num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_GETPRINTERDATAEX)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %d", request_num);
 	/* Parse packet */
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, &type, NULL);
@@ -551,7 +539,7 @@ static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 				   char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	char *value_name = NULL;
 	guint32 type, max_len;
 	const guint8 *policy_hnd;
@@ -561,11 +549,10 @@ static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "SetPrinterData request");
 
-	dcerpc_smb_store_q(di, SPOOLSS_SETPRINTERDATA, pinfo->fd->num);
+	if (dcv->rep_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Response in frame %d", dcv->rep_frame);
 
-	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_SETPRINTERDATA)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Response in frame %d", response_num);
 	/* Parse packet */
 
 	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
@@ -603,7 +590,7 @@ static int SpoolssSetPrinterData_r(tvbuff_t *tvb, int offset,
 				   char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	GList *dp_list = NULL;
 
 	/* Update informational fields */
@@ -611,11 +598,9 @@ static int SpoolssSetPrinterData_r(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "SetPrinterData response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_SETPRINTERDATA, pinfo->fd->num);
-
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_SETPRINTERDATA)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %d", request_num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -635,7 +620,7 @@ static int SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 				     char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	GList *dp_list = NULL;
 	char *key_name, *value_name;
 	guint32 type, max_len;
@@ -644,14 +629,11 @@ static int SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	/* Update informational fields */
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, 
-			    "SetPrinterDataEx request");
+		col_set_str(pinfo->cinfo, COL_INFO, "SetPrinterDataEx request");
 
-	dcerpc_smb_store_q(di, SPOOLSS_SETPRINTERDATAEX, pinfo->fd->num);
-
-	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_SETPRINTERDATAEX)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Response in frame %d", response_num);
+	if (dcv->rep_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Response in frame %d", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -696,20 +678,17 @@ static int SpoolssSetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 				     char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	GList *dp_list = NULL;
 
 	/* Update informational fields */
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, 
-			    "SetPrinterDataEx response");
+		col_set_str(pinfo->cinfo, COL_INFO, "SetPrinterDataEx response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_SETPRINTERDATAEX, pinfo->fd->num);
-
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_SETPRINTERDATAEX)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %d", request_num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -1146,7 +1125,7 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 				  char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	char *printer_name;
 	guint32 ptr = 0;
 
@@ -1155,11 +1134,10 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "OpenPrinterEx request");
 
-	dcerpc_smb_store_q(di, SPOOLSS_OPENPRINTEREX, pinfo->fd->num);
-
-	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_OPENPRINTEREX)))
+	if (dcv->rep_frame != -1)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", response_num);
+				    "Response in frame %d", dcv->rep_frame);
+
 	/* Parse packet */
 
 	offset = prs_ptr(tvb, offset, pinfo, tree, &ptr, "Printer name");
@@ -1178,10 +1156,7 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 		
 		/* Store printer name to match with response packet */
 
-		dcerpc_smb_store_priv(di, SPOOLSS_OPENPRINTEREX, 
-				      printer_name, strlen(printer_name) + 1);
-
-		g_free(printer_name);
+		dcv->private_data = printer_name;
 	}
 
 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
@@ -1202,7 +1177,7 @@ static int SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 				  char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	GList *dp_list = NULL;
 	guint32 status;
 	const guint8 *policy_hnd;
@@ -1212,11 +1187,9 @@ static int SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "OpenPrinterEx response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_OPENPRINTEREX, pinfo->fd->num);
-
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_OPENPRINTEREX)))
-	    proto_tree_add_text(tree, tvb, offset, 0, 
-				"Request in frame %d", request_num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -1227,16 +1200,16 @@ static int SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 	offset = prs_werror(tvb, offset, pinfo, tree, &status);
 
 	if (status == 0) {
-		char *printer_name;
 
 		/* Associate the returned printer handle with a name */
 
-		printer_name = dcerpc_smb_fetch_priv(
-			di, SPOOLSS_OPENPRINTEREX, NULL);
-
-		if (printer_name)
-			dcerpc_smb_store_pol(policy_hnd, printer_name,
+		if (dcv->private_data) {
+			dcerpc_smb_store_pol(policy_hnd, dcv->private_data,
 					     pinfo->fd->num, 0);
+
+			g_free(dcv->private_data);
+			dcv->private_data = NULL;
+		}
 	}
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
@@ -1381,7 +1354,7 @@ static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 			     char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	char *printer_name;
 	guint32 ptr = 0;
 	const guint8 *policy_hnd;
@@ -1391,11 +1364,9 @@ static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "RFFPCNEX request");
 
-	dcerpc_smb_store_q(di, SPOOLSS_RFFPCNEX, pinfo->fd->num);
-
-	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_RFFPCNEX)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Response in frame %d", response_num);
+	if (dcv->rep_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Response in frame %d", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -1417,6 +1388,7 @@ static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 					printer_name);
+
 		g_free(printer_name);
 	}
 
@@ -1440,18 +1412,16 @@ static int SpoolssRFFPCNEX_r(tvbuff_t *tvb, int offset,
 			     char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	/* Update informational fields */
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "RFFPCNEX response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_RFFPCNEX, pinfo->fd->num);
-
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_RFFPCNEX)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %d", request_num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -1471,20 +1441,17 @@ static int SpoolssReplyOpenPrinter_q(tvbuff_t *tvb, int offset,
 				     char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 ptr = 0, type;
 
 	/* Update informational fields */
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, 
-			    "ReplyOpenPrinter request");
+		col_set_str(pinfo->cinfo, COL_INFO, "ReplyOpenPrinter request");
 
-	dcerpc_smb_store_q(di, SPOOLSS_REPLYOPENPRINTER, pinfo->fd->num);
-
-	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_REPLYOPENPRINTER)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Response in frame %d", response_num);
+	if (dcv->rep_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Response in frame %d", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -1512,21 +1479,19 @@ static int SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
 				     char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	GList *dp_list = NULL;
 	const guint8 *policy_hnd;
 
 	/* Update informational fields */
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, 
-			    "ReplyOpenPrinter response");
+		col_set_str(pinfo->cinfo, COL_INFO, "ReplyOpenPrinter response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_REPLYOPENPRINTER, pinfo->fd->num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_REPLYOPENPRINTER)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %d", request_num);
 	/* Parse packet */
 
 	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
@@ -1627,7 +1592,7 @@ static int SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			       proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	GList *dp_list = NULL;
 	guint32 level;
 	const guint8 *policy_hnd;
@@ -1637,11 +1602,10 @@ static int SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "GetPrinter request");
 
-	dcerpc_smb_store_q(di, SPOOLSS_GETPRINTER, pinfo->fd->num);
+	if (dcv->rep_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Response in frame %d", dcv->rep_frame);
 
-	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_GETPRINTER)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Response in frame %d", response_num);
 	/* Parse packet */
 
 	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
@@ -1656,7 +1620,7 @@ static int SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
 					  prs_BUFFER, NULL, NULL);
 
-	dcerpc_smb_store_priv(di, SPOOLSS_GETPRINTER, &level, sizeof(level));
+	dcv->private_data = (void *)level;
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Offered");
 
@@ -1669,7 +1633,7 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	GList *dp_list = NULL;
 	void **data_list;
 	struct BUFFER_DATA *bd = NULL;
@@ -1679,11 +1643,9 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "GetPrinter response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_GETPRINTER, pinfo->fd->num);
-
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_GETPRINTER)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %d", request_num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -1694,15 +1656,11 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		bd = (struct BUFFER_DATA *)data_list[0];
 
 	if (bd && bd->tree) {
-		gint16 *level;
+		gint16 level = (guint32)dcv->private_data;
 
-		if (!(level = dcerpc_smb_fetch_priv(
-			di, SPOOLSS_GETPRINTER, NULL)))
-		    goto done;
+		proto_item_append_text(bd->item, ", PRINTER_INFO_%d", level);
 
-		proto_item_append_text(bd->item, ", PRINTER_INFO_%d", *level);
-
-		switch (*level) {
+		switch (level) {
 		case 0:
 			prs_PRINTER_INFO_0(bd->tvb, bd->offset, pinfo, 
 					   bd->tree, &dp_list, NULL);
@@ -1715,8 +1673,7 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		default:
 			proto_tree_add_text(tree, tvb, offset, 0,
-					    "[Unimplemented info level %d]",
-					    *level);
+					    "[Unimplemented info level %d]", level);
 			break;
 		}
 	}
@@ -1768,7 +1725,7 @@ static int SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			       proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	GList *dp_list = NULL;
 	guint32 level;
 	const guint8 *policy_hnd;
@@ -1778,11 +1735,9 @@ static int SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "SetPrinter request");
 
-	dcerpc_smb_store_q(di, SPOOLSS_SETPRINTER, pinfo->fd->num);
-
-	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_SETPRINTER)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Response in frame %d", response_num);
+	if (dcv->rep_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Response in frame %d", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -1815,7 +1770,7 @@ static int SpoolssSetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	GList *dp_list = NULL;
 
 	/* Update informational fields */
@@ -1823,11 +1778,9 @@ static int SpoolssSetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "SetPrinter response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_SETPRINTER, pinfo->fd->num);
-
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_SETPRINTER)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %d", request_num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -1887,7 +1840,7 @@ static int SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			      proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	GList *dp_list = NULL;
 	guint32 level;
 	const guint8 *policy_hnd;
@@ -1897,11 +1850,9 @@ static int SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "EnumForms request");
 
-	dcerpc_smb_store_q(di, SPOOLSS_ENUMFORMS, pinfo->fd->num);
-
-	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_ENUMFORMS)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Response in frame %d", response_num);
+	if (dcv->rep_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Response in frame %d", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -1911,7 +1862,7 @@ static int SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, &level, "Level");
 
-	dcerpc_smb_store_priv(di, SPOOLSS_ENUMFORMS, &level, sizeof(level));
+	dcv->private_data = (void *)level;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
@@ -1930,7 +1881,8 @@ static int SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			      proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num, count;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	guint32 count;
 	GList *dp_list = NULL;
 	struct BUFFER_DATA *bd = NULL;
 	void **data_list;
@@ -1940,11 +1892,9 @@ static int SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "EnumForms response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_ENUMFORMS, pinfo->fd->num);
-
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_ENUMFORMS)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %d", request_num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -1961,19 +1911,13 @@ static int SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	CLEANUP_PUSH(g_free, bd);
 
 	if (bd && bd->tree) {
-		guint32 *level, i;
+		guint32 level = (guint32)dcv->private_data, i;
 		GList *child_dp_list = NULL;
 
-		level = dcerpc_smb_fetch_priv(di, SPOOLSS_ENUMFORMS, NULL);
-
-		if (!level)
-			goto done;
-
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d",
-					*level);
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
-		proto_item_append_text(bd->item, ", FORM_%d", *level);
+		proto_item_append_text(bd->item, ", FORM_%d", level);
 
 		/* Unfortunately this array isn't in NDR format so we can't
 		   use prs_array().  The other weird thing is the
@@ -2009,7 +1953,7 @@ static int SpoolssDeletePrinter_q(tvbuff_t *tvb, int offset,
 				  char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	const guint8 *policy_hnd;
 
 	/* Update informational fields */
@@ -2017,11 +1961,9 @@ static int SpoolssDeletePrinter_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "DeletePrinter request");
 	
-	dcerpc_smb_store_q(di, SPOOLSS_DELETEPRINTER, pinfo->fd->num);
-
-	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_DELETEPRINTER)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Response in frame %d", response_num);
+	if (dcv->rep_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Response in frame %d", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2039,7 +1981,7 @@ static int SpoolssDeletePrinter_r(tvbuff_t *tvb, int offset,
 				  char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	const guint8 *policy_hnd;
 
 	/* Update informational fields */
@@ -2047,11 +1989,9 @@ static int SpoolssDeletePrinter_r(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "DeletePrinter response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_DELETEPRINTER, pinfo->fd->num);
-
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_DELETEPRINTER)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %d", request_num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -2075,36 +2015,31 @@ static int SpoolssAddPrinterEx_q(tvbuff_t *tvb, int offset,
                                  char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 ptr;
-	char *printer_name;
 	
 	/* Update informational fields */
 	
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "AddPrinterEx request");
 	
-	dcerpc_smb_store_q(di, SPOOLSS_ADDPRINTEREX, pinfo->fd->num);
-	
-	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_ADDPRINTEREX)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Response in frame %d", response_num);
-	
+	if (dcv->rep_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Response in frame %d", dcv->rep_frame);
+
 	/* Parse packet */
 	
 	offset = prs_ptr(tvb, offset, pinfo, tree, &ptr, "Server name");
 	
 	if (ptr) {
+		char *printer_name;
+
 		offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
 						  prs_UNISTR2_dp,
 						  (void *)&printer_name, NULL);
 
 		if (printer_name)
-			dcerpc_smb_store_priv(
-				di, SPOOLSS_ADDPRINTEREX, printer_name,
-				strlen(printer_name) + 1);
-
-		g_free(printer_name);
+			dcv->private_data = printer_name;
 	}
 	
 	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Level");
@@ -2129,7 +2064,7 @@ static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 status;
 	const guint8 *policy_hnd;
 
@@ -2138,11 +2073,9 @@ static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "AddPrinterEx response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_ADDPRINTEREX, pinfo->fd->num);
-
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_ADDPRINTEREX)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %d", request_num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -2153,25 +2086,22 @@ static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = prs_werror(tvb, offset, pinfo, tree, &status);	
 
 	if (status == 0) {
-		char *printer_name;
 
 		/* Associate the returned printer handle with a name */
 
-		printer_name = dcerpc_smb_fetch_priv(
-			di, SPOOLSS_ADDPRINTEREX, NULL);
-
-		if (printer_name) {
+		if (dcv->private_data) {
 
 			if (check_col(pinfo->cinfo, COL_INFO))
 				col_append_fstr(
 					pinfo->cinfo, COL_INFO, ", %s", 
-					printer_name);
+					(char *)dcv->private_data);
 
-			dcerpc_smb_store_pol(policy_hnd, printer_name,
-					     pinfo->fd->num, 0);
+			dcerpc_smb_store_pol(
+				policy_hnd, dcv->private_data, pinfo->fd->num, 0);
+
+			g_free(dcv->private_data);
+			dcv->private_data = NULL;
 		}
-
-		g_free(printer_name);
 	}
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
@@ -2188,7 +2118,7 @@ static int SpoolssEnumPrinterData_q(tvbuff_t *tvb, int offset,
 				    char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	const guint8 *policy_hnd;
 
 	/* Update informational fields */
@@ -2196,11 +2126,9 @@ static int SpoolssEnumPrinterData_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "EnumPrinterData request");
 
-	dcerpc_smb_store_q(di, SPOOLSS_ENUMPRINTERDATA, pinfo->fd->num);
-
-	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_ENUMPRINTERDATA)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Response in frame %d", response_num);
+	if (dcv->rep_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Response in frame %d", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2224,7 +2152,7 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 				    char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 data_size, type, value_size;
 	int uint16s_offset;
 	char *text;
@@ -2232,14 +2160,11 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 	/* Update informational fields */
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, 
-			    "EnumPrinterData response");
+		col_set_str(pinfo->cinfo, COL_INFO, "EnumPrinterData response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_ENUMPRINTERDATA, pinfo->fd->num);
-
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_ENUMPRINTERDATA)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %d", request_num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -2288,7 +2213,7 @@ static int SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 ptr, level;
 
 	/* Update informational fields */
@@ -2296,11 +2221,9 @@ static int SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "EnumPrinters request");
 
-	dcerpc_smb_store_q(di, SPOOLSS_ENUMPRINTERS, pinfo->fd->num);
-
-	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_ENUMPRINTERS)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Response in frame %d", response_num);
+	if (dcv->rep_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Response in frame %d", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2331,18 +2254,16 @@ static int SpoolssEnumPrinters_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	/* Update informational fields */
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "EnumPrinters response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_ENUMPRINTERS, pinfo->fd->num);
-
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_ENUMPRINTERS)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %d", request_num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -2369,19 +2290,16 @@ static int SpoolssAddPrinterDriver_q(tvbuff_t *tvb, int offset,
 				     char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	/* Update informational fields */
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, 
-			    "AddPrinterDriver request");
+		col_set_str(pinfo->cinfo, COL_INFO, "AddPrinterDriver request");
 
-	dcerpc_smb_store_q(di, SPOOLSS_ADDPRINTERDRIVER, pinfo->fd->num);
-
-	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_ADDPRINTERDRIVER)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Response in frame %d", response_num);
+	if (dcv->rep_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Response in frame %d", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2395,19 +2313,16 @@ static int SpoolssAddPrinterDriver_r(tvbuff_t *tvb, int offset,
 				     char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	/* Update informational fields */
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, 
-			    "AddPrinterDriver response");
+		col_set_str(pinfo->cinfo, COL_INFO, "AddPrinterDriver response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_ADDPRINTERDRIVER, pinfo->fd->num);
-
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_ADDPRINTERDRIVER)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %d", request_num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -2504,21 +2419,18 @@ static int SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	const guint8 *policy_hnd;
 	guint32 level;
 
 	/* Update informational fields */
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, 
-			    "AddForm request");
+		col_set_str(pinfo->cinfo, COL_INFO, "AddForm request");
 
-	dcerpc_smb_store_q(di, SPOOLSS_ADDFORM, pinfo->fd->num);
-
-	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_ADDFORM)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Response in frame %d", response_num);
+	if (dcv->rep_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Response in frame %d", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2533,7 +2445,7 @@ static int SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Store info level to match with response packet */
 
-	dcerpc_smb_store_priv(di, SPOOLSS_ADDFORM, &level, sizeof(level));
+	dcv->private_data = (void *)level;
 
 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
 					  prs_FORM_CTR, NULL, NULL);
@@ -2547,18 +2459,16 @@ static int SpoolssAddForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	/* Update informational fields */
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "AddForm response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_ADDFORM, pinfo->fd->num);
-
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_ADDFORM)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %d", request_num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -2577,7 +2487,7 @@ static int SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			       proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	const guint8 *policy_hnd;
 	char *form_name;
 
@@ -2586,11 +2496,9 @@ static int SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "DeleteForm request");
 
-	dcerpc_smb_store_q(di, SPOOLSS_DELETEFORM, pinfo->fd->num);
-
-	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_DELETEFORM)))
+	if (dcv->rep_frame != -1)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", response_num);
+				    "Response in frame %d", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2605,6 +2513,8 @@ static int SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", form_name);
 
+	g_free(form_name);
+
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
@@ -2614,18 +2524,16 @@ static int SpoolssDeleteForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	/* Update informational fields */
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "DeleteForm response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_DELETEFORM, pinfo->fd->num);
-
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_DELETEFORM)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %d", request_num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -2644,7 +2552,7 @@ static int SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	const guint8 *policy_hnd;
 	guint32 level;
 	char *form_name;
@@ -2652,14 +2560,11 @@ static int SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Update informational fields */
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, 
-			    "SetForm request");
+		col_set_str(pinfo->cinfo, COL_INFO, "SetForm request");
 
-	dcerpc_smb_store_q(di, SPOOLSS_SETFORM, pinfo->fd->num);
-
-	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_SETFORM)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Response in frame %d", response_num);
+	if (dcv->rep_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Response in frame %d", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2671,11 +2576,15 @@ static int SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					  prs_UNISTR2_dp, (void **)&form_name,
 					  NULL);	
 
+	CLEANUP_PUSH(g_free, form_name);
+
 	offset = prs_uint32(tvb, offset, pinfo, tree, &level, "Level");	
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s, level %d", 
 				form_name, level);
+
+	CLEANUP_CALL_AND_POP;
 
 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
 					  prs_FORM_CTR, NULL, NULL);
@@ -2689,7 +2598,7 @@ static int SpoolssSetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	proto_item *info_item;
 
 	/* Update informational fields */
@@ -2697,11 +2606,9 @@ static int SpoolssSetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "SetForm response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_SETFORM, pinfo->fd->num);
-
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_SETFORM)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %d", request_num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -2720,7 +2627,8 @@ static int SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num, level;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	guint32 level;
 	const guint8 *policy_hnd;
 	char *form_name;
 
@@ -2729,11 +2637,9 @@ static int SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "GetForm request");
 
-	dcerpc_smb_store_q(di, SPOOLSS_GETFORM, pinfo->fd->num);
-
-	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_GETFORM)))
+	if (dcv->rep_frame != -1)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", response_num);
+				    "Response in frame %d", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2745,13 +2651,17 @@ static int SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					  prs_UNISTR2_dp, (void **)&form_name,
 					  NULL);	
 
+	CLEANUP_PUSH(g_free, form_name);
+
 	offset = prs_uint32(tvb, offset, pinfo, tree, &level, "Level");
 
-	dcerpc_smb_store_priv(di, SPOOLSS_GETFORM, &level, sizeof(level));
+	dcv->private_data = (void *)level;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s, level %d",
 				form_name, level);
+
+	CLEANUP_CALL_AND_POP;
 
 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
 					  prs_BUFFER, NULL, NULL);
@@ -2767,7 +2677,7 @@ static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	void **data_list;
 	struct BUFFER_DATA *bd = NULL;
 
@@ -2776,11 +2686,9 @@ static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "GetForm response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_GETFORM, pinfo->fd->num);
-
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_GETFORM)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %d", request_num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -2795,14 +2703,9 @@ static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	CLEANUP_PUSH(g_free, bd);
 
 	if (bd && bd->tree) {
-		guint32 *level;
+		guint32 level = (guint32)dcv->private_data;
 
-		level = dcerpc_smb_fetch_priv(di, SPOOLSS_GETFORM, NULL);
-
-		if (!level)
-			goto done;
-
-		switch(*level) {
+		switch(level) {
 		case 1: {
 			int struct_start = bd->offset;
 			GList *dp_list = NULL;
@@ -2815,12 +2718,11 @@ static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		default:
 			proto_tree_add_text(
 				bd->tree, bd->tvb, bd->offset, 0, 
-				"[Unknown info level %d]", *level);
+				"[Unknown info level %d]", level);
 			break;
 		}
 
 	}
- done:
 
 	CLEANUP_CALL_AND_POP;
 
@@ -2838,10 +2740,16 @@ static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int SpoolssGeneric_r(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 			    proto_tree *tree, char *drep)
 {
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	int len = tvb_length(tvb);
 
 	proto_tree_add_text(tree, tvb, offset, 0, 
 			    "[Unimplemented dissector: SPOOLSS]");
+
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
 	prs_werror(tvb, len - 4, pinfo, tree, NULL);
 
@@ -2862,18 +2770,16 @@ static int SpoolssFoo_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 response_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	/* Update informational fields */
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "Foo request");
 
-	dcerpc_smb_store_q(di, SPOOLSS_FOO, pinfo->fd->num);
-
-	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_FOO)))
+	if (dcv->rep_frame != -1)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", response_num);
+				    "Response in frame %d", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2886,18 +2792,16 @@ static int SpoolssFoo_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	/* Update informational fields */
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "Foo response");
 
-	dcerpc_smb_store_r(di, SPOOLSS_FOO, pinfo->fd->num);
-
-	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_FOO)))
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %d", request_num);
+	if (dcv->req_frame != -1)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
 
 	/* Parse packet */
 
