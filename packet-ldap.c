@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.43 2002/08/02 23:35:53 jmayer Exp $
+ * $Id: packet-ldap.c,v 1.44 2002/08/21 02:18:34 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,6 +106,7 @@ static gint ett_ldap_attribute = -1;
 static gboolean ldap_desegment = TRUE;
 
 #define TCP_PORT_LDAP			389
+#define UDP_PORT_CLDAP			389
 
 static value_string msgTypes [] = {
   {LDAP_REQ_BIND, "Bind Request"},
@@ -1542,4 +1543,5 @@ proto_reg_handoff_ldap(void)
 
   ldap_handle = create_dissector_handle(dissect_ldap, proto_ldap);
   dissector_add("tcp.port", TCP_PORT_LDAP, ldap_handle);
+  dissector_add("udp.port", UDP_PORT_CLDAP, ldap_handle);
 }
