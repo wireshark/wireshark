@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.2 1999/03/01 18:57:06 gram Exp $
+ * $Id: netxray.c,v 1.3 1999/03/01 22:59:47 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -38,14 +38,15 @@ static const char netxray_magic[] = {	/* magic header */
 /* NetXRay file header (minus magic number). */
 struct netxray_hdr {
 	char	version[8];	/* version number */
-	guint32	xxx[3];		/* unknown */
+	guint32	start_time;	/* UNIX time when capture started */
+	guint32	xxx[2];		/* unknown */
 	guint32	start_offset;	/* offset of first packet in capture */
 	guint32	end_offset;	/* offset after last packet in capture */
 	guint32 xxy[3];		/* unknown */
 	guint16	network;	/* datalink type */
 	guint8	xxz[6];
-	guint32	timelo;		/* lower 32 bits of time stamp */
-	guint32	timehi;		/* upper 32 bits of time stamp */
+	guint32	timelo;		/* lower 32 bits of time stamp of capture start */
+	guint32	timehi;		/* upper 32 bits of time stamp of capture start */
 	/*
 	 * XXX - other stuff.
 	 */
@@ -124,11 +125,12 @@ int netxray_open(wtap *wth)
 	wth->subtype_read = netxray_read;
 	wth->file_encap = netxray_encap[hdr.network];
 	wth->snapshot_length = 16384;	/* XXX - not available in header */
+	wth->capture.netxray->start_time = pletohl(&hdr.start_time);
 	wth->capture.netxray->timeunit = timeunit;
 	t = (double)pletohl(&hdr.timelo)
 	    + (double)pletohl(&hdr.timehi)*4294967296.0;
 	t = t/timeunit;
-	wth->capture.netxray->starttime = t;
+	wth->capture.netxray->start_timestamp = t;
 	/*wth->frame_number = 0;*/
 	/*wth->file_byte_offset = 0x10b;*/
 
@@ -197,15 +199,13 @@ reread:
 		return -1;
 	}
 
-	/* XXX - this isn't the actual date/time the packet was captured,
-	 * but at least it gives you the right relative time stamps. */
 	t = (double)pletohl(&hdr.timelo)
 	    + (double)pletohl(&hdr.timehi)*4294967296.0;
 	t /= wth->capture.netxray->timeunit;
-	t -= wth->capture.netxray->starttime;
-	wth->phdr.ts.tv_sec = (long)t;
-	wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(wth->phdr.ts.tv_sec))
-			*1.0e6);
+	t -= wth->capture.netxray->start_timestamp;
+	wth->phdr.ts.tv_sec = wth->capture.netxray->start_time + (long)t;
+	wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(unsigned long)(t))
+		*1.0e6);
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = pletohs(&hdr.orig_len);
 	wth->phdr.pkt_encap = wth->file_encap;
