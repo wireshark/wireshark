@@ -2,7 +2,7 @@
  * Routines for Frame Relay Local Management Interface (LMI) disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-lmi.c,v 1.3 2001/03/30 10:51:50 guy Exp $
+ * $Id: packet-lmi.c,v 1.4 2001/03/30 11:03:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -126,7 +126,7 @@ dissect_lmi_link_int(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	proto_tree_add_uint(tree, hf_lmi_send_seq, tvb, offset, 1, tvb_get_guint8( tvb, offset));
 	++offset;
-	proto_tree_add_uint(tree, hf_lmi_recv_seq, tvb, offset, 0, tvb_get_guint8( tvb, offset));
+	proto_tree_add_uint(tree, hf_lmi_recv_seq, tvb, offset, 1, tvb_get_guint8( tvb, offset));
 
 }
 
