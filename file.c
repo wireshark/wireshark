@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.159 2000/01/25 04:31:14 guy Exp $
+ * $Id: file.c,v 1.160 2000/01/25 17:51:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -293,6 +293,10 @@ read_cap_file(capture_file *cf)
      bump that value by this amount. */
   cf->progbar_quantum = cf->f_len/N_PROGBAR_UPDATES;
 
+#ifndef O_BINARY
+#define O_BINARY 	0
+#endif
+
   freeze_clist(cf);
   proto_tree_is_visible = FALSE;
   success = wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf, &err);
@@ -303,7 +307,7 @@ read_cap_file(capture_file *cf)
   cf->lnk_t = wtap_file_encap(cf->wth);
   wtap_close(cf->wth);
   cf->wth = NULL;
-  cf->filed = open(cf->filename, O_RDONLY);
+  cf->filed = open(cf->filename, O_RDONLY|O_BINARY);
   cf->fh = filed_open(cf->filed, "rb");
   cf->current_frame = cf->first_displayed;
   thaw_clist(cf);
