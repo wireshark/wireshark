@@ -2,9 +2,10 @@
  * Routines for Decoding Network_Header for IP-over-FC when we only
  * capture the frame starting at the Network_Header (as opposed to
  * when we have the full FC frame).
+ * See RFC 2625.
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-ipfc.c,v 1.5 2002/12/10 02:49:31 guy Exp $
+ * $Id: packet-ipfc.c,v 1.6 2003/01/21 05:21:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
