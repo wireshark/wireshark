@@ -4,7 +4,7 @@
  * Creates random packet traces. Useful for debugging sniffers by testing
  * assumptions about the veracity of the data found in the packet.
  *
- * $Id: randpkt.c,v 1.3 1999/09/17 04:38:14 gram Exp $
+ * $Id: randpkt.c,v 1.4 1999/10/06 20:29:26 gram Exp $
  *
  * Copyright (C) 1999 by Gilbert Ramirez <gram@xiexie.org>
  * 
@@ -49,8 +49,10 @@
 /* Types of produceable packets */
 enum {
 	PKT_ARP,
+	PKT_DNS,
 	PKT_ETHERNET,
 	PKT_FDDI,
+	PKT_ICMP,
 	PKT_IP,
 	PKT_LLC,
 	PKT_TCP,
@@ -73,6 +75,38 @@ guint8 pkt_arp[] = {
 	0xff, 0xff, 0x00, 0x00,
 	0x32, 0x25, 0x0f, 0xff,
 	0x08, 0x06
+};
+
+/* Ethernet+IP+UP, indicating DNS */
+guint8 pkt_dns[] = {
+	0xff, 0xff, 0xff, 0xff,
+	0xff, 0xff, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01,
+	0x08, 0x00,
+
+	0x45, 0x00, 0x00, 0x3c,
+	0xc5, 0x9e, 0x40, 0x00,
+	0xff, 0x11, 0xd7, 0xe0,
+	0xd0, 0x15, 0x02, 0xb8,
+	0x0a, 0x01, 0x01, 0x63,
+
+	0x05, 0xe8, 0x00, 0x35,
+	0x00, 0x00, 0x2a, 0xb9,
+	0x30
+};
+
+/* Ethernet+IP, indicating ICMPP */
+guint8 pkt_icmp[] = {
+	0xff, 0xff, 0xff, 0xff,
+	0xff, 0xff, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01,
+	0x08, 0x00,
+
+	0x45, 0x00, 0x00, 0x54,
+	0x8f, 0xb3, 0x40, 0x00,
+	0xfd, 0x01, 0x8a, 0x99,
+	0xcc, 0xfc, 0x66, 0x0b,
+	0xce, 0x41, 0x62, 0x12
 };
 
 /* Ethernet, indicating IP */
@@ -127,11 +161,17 @@ pkt_example examples[] = {
 	{ "arp", "Address Resolution Protocol",
 		PKT_ARP,	pkt_arp,	WTAP_ENCAP_ETHERNET,	array_length(pkt_arp) },
 
+	{ "dns", "Domain Name Service",
+		PKT_DNS,	pkt_dns,	WTAP_ENCAP_ETHERNET,	array_length(pkt_dns) },
+
 	{ "eth", "Ethernet",
 		PKT_ETHERNET,	NULL,		WTAP_ENCAP_ETHERNET,	0 },
 
 	{ "fddi", "Fiber Distributed Data Interface",
 		PKT_FDDI,	NULL,		WTAP_ENCAP_FDDI,	0 },
+
+	{ "icmp", "Internet Control Message Protocol",
+		PKT_ICMP,	pkt_icmp,	WTAP_ENCAP_ETHERNET,	array_length(pkt_icmp) },
 
 	{ "ip", "Internet Protocol",
 		PKT_IP,		pkt_ip,		WTAP_ENCAP_ETHERNET,	array_length(pkt_ip) },
