@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-bytes.c,v 1.14 2003/02/08 04:22:37 gram Exp $
+ * $Id: ftype-bytes.c,v 1.15 2003/06/11 21:24:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,23 +58,21 @@ bytes_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 }
 
 static int
-bytes_strlen(fvalue_t *fv)
+bytes_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
 {
 	/* 3 bytes for each byte of the byte "NN:" minus 1 byte
-	 * as there's no trailing ":" */
+	 * as there's no trailing ":". */
 	return fv->value.bytes->len * 3 - 1;
 }
 
-static char *
-bytes_to_string(fvalue_t *fv)
+static void
+bytes_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
 	guint8 *c;
-	char *buf;
 	char *write_cursor;
 	unsigned int i;
 
 	c = fv->value.bytes->data;
-	buf = g_malloc0(bytes_strlen(fv));
 	write_cursor = buf;
 
 	for (i = 0; i < fv->value.bytes->len; i++) {
@@ -88,7 +86,6 @@ bytes_to_string(fvalue_t *fv)
 			write_cursor += 3;
 		}
 	}
-	return buf;
 }
 
 static void
@@ -591,8 +588,8 @@ ftype_register_bytes(void)
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
 		val_from_string,		/* val_from_string */
-		bytes_to_string,		/* val_to_string_repr */
-		bytes_strlen,			/* len_string_repr */
+		bytes_to_repr,			/* val_to_string_repr */
+		bytes_repr_len,			/* len_string_repr */
 
 		bytes_fvalue_set,		/* set_value */
 		NULL,				/* set_value_integer */
@@ -620,8 +617,8 @@ ftype_register_bytes(void)
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
 		val_from_string,		/* val_from_string */
-		bytes_to_string,		/* val_to_string_repr */
-		bytes_strlen,			/* len_string_repr */
+		bytes_to_repr,			/* val_to_string_repr */
+		bytes_repr_len,			/* len_string_repr */
 
 		bytes_fvalue_set,		/* set_value */
 		NULL,				/* set_value_integer */
@@ -649,8 +646,8 @@ ftype_register_bytes(void)
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
 		ether_from_string,		/* val_from_string */
-		bytes_to_string,		/* val_to_string_repr */
-		bytes_strlen,			/* len_string_repr */
+		bytes_to_repr,			/* val_to_string_repr */
+		bytes_repr_len,			/* len_string_repr */
 
 		ether_fvalue_set,		/* set_value */
 		NULL,				/* set_value_integer */

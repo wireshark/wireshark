@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-string.c,v 1.8 2003/02/08 04:22:37 gram Exp $
+ * $Id: ftype-string.c,v 1.9 2003/06/11 21:24:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,6 +52,31 @@ string_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 		fv->value.string = g_strdup(value);
 	}
 }
+
+static int
+string_repr_len(fvalue_t *fv, ftrepr_t rtype)
+{
+	switch (rtype) {
+		case FTREPR_DISPLAY:
+			return strlen(fv->value.string);
+		case FTREPR_DFILTER:
+			return strlen(fv->value.string) + 2;
+	}
+	g_assert_not_reached();
+	return -1;
+}
+
+static void
+string_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
+{
+	if (rtype == FTREPR_DFILTER) {
+		sprintf(buf, "\"%s\"", fv->value.string);
+	}
+	else {
+		strcpy(buf, fv->value.string);
+	}
+}
+
 
 static gpointer
 value_get(fvalue_t *fv)
@@ -124,22 +149,22 @@ ftype_register_string(void)
 {
 
 	static ftype_t string_type = {
-		"FT_STRING",
-		"character string",
-		0,
-		string_fvalue_new,
-		string_fvalue_free,
-		val_from_string,
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		"FT_STRING",			/* name */
+		"character string",		/* pretty_name */
+		0,				/* wire_size */
+		string_fvalue_new,		/* new_value */
+		string_fvalue_free,		/* free_value */
+		val_from_string,		/* val_from_string */
+		string_to_repr,			/* val_to_string_repr */
+		string_repr_len,		/* len_string_repr */
 
-		string_fvalue_set,
-		NULL,
-		NULL,
+		string_fvalue_set,		/* set_value */
+		NULL,				/* set_value_integer */
+		NULL,				/* set_value_floating */
 
-		value_get,
-		NULL,
-		NULL,
+		value_get,			/* get_value */
+		NULL,				/* get_value_integer */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,

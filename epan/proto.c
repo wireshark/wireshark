@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.90 2003/06/10 18:03:23 guy Exp $
+ * $Id: proto.c,v 1.91 2003/06/11 21:24:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3421,6 +3421,7 @@ proto_can_match_selected(field_info *finfo, epan_dissect_t *edt)
 		case FT_ETHER:
 		case FT_BYTES:
 		case FT_UINT_BYTES:
+		case FT_PROTOCOL:
 			/*
 			 * These all have values, so we can match.
 			 */
@@ -3510,19 +3511,6 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 	 * the tables used to generate human-readable values.
 	 */
 	switch(hfinfo->type) {
-
-		case FT_BOOLEAN:
-			/*
-			 * 4 bytes for " == ".
-			 * 1 byte for 1 or 0.
-			 * 1 byte for the trailing '\0'.
-			 */
-			dfilter_len = abbrev_len + 4 + 1 + 1;
-			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == %s",
-					hfinfo->abbrev,
-					fvalue_get_integer(finfo->value) ? "1" : "0");
-			break;
 
 		case FT_UINT8:
 		case FT_UINT16:
@@ -3680,37 +3668,32 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 					hfinfo->abbrev, value_str);
 			break;
 
-		case FT_STRING:
-		case FT_STRINGZ:
-		case FT_UINT_STRING:
-			/*
-			 * 4 bytes for " == ".
-			 * N bytes for the string.
-			 * 2 bytes for the opening and closing quotes.
-			 * 1 byte for the trailing '\0'.
-			 */
-			value_str = fvalue_get(finfo->value);
-			dfilter_len = abbrev_len + strlen(value_str) + 4 + 2 + 1;
-			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == \"%s\"",
-				 hfinfo->abbrev, value_str);
-			break;
 
+		/* These use the fvalue's "to_string_repr" method. */
+		case FT_BOOLEAN:
+		case FT_STRING:
 		case FT_ETHER:
 		case FT_BYTES:
 		case FT_UINT_BYTES:
-			/*
-			 * 4 bytes for " == ".
-			 * 1 byte for the trailing '\0'.
+			/* Figure out the string length needed.
+			 * 	The ft_repr length.
+			 * 	4 bytes for " == ".
+			 * 	1 byte for trailing NUL.
 			 */
-			dfilter_len = fvalue_string_repr_len(finfo->value);
+			dfilter_len = fvalue_string_repr_len(finfo->value,
+					FTREPR_DFILTER);
 			dfilter_len += abbrev_len + 4 + 1;
 			buf = g_malloc0(dfilter_len);
+
+			/* Create the string */
 			snprintf(buf, dfilter_len, "%s == ", hfinfo->abbrev);
-			stringified = fvalue_to_string_repr(finfo->value);
-			strcat(buf, stringified);
-			g_free(stringified);
+			fvalue_to_string_repr(finfo->value,
+					FTREPR_DFILTER,
+					&buf[abbrev_len + 4]);
 			break;
+
+		case FT_PROTOCOL:
+			buf = g_strdup(finfo->hfinfo->abbrev);
 
 		default:
 			/*

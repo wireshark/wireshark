@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-integer.c,v 1.12 2003/02/08 04:22:37 gram Exp $
+ * $Id: ftype-integer.c,v 1.13 2003/06/11 21:24:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -170,6 +170,18 @@ boolean_fvalue_new(fvalue_t *fv)
 	fv->value.integer = TRUE;
 }
 
+static int
+boolean_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+{
+	return 1;
+}
+
+static void
+boolean_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+{
+	sprintf(buf, "%s", fv->value.integer ? "1" : "0");
+}
+
 /* Checks for equality with zero or non-zero */
 static gboolean
 bool_eq(fvalue_t *a, fvalue_t *b)
@@ -206,22 +218,22 @@ ftype_register_integers(void)
 {
 
 	static ftype_t uint8_type = {
-		"FT_UINT8",
-		"unsigned, 1 byte",
-		1,
-		int_fvalue_new,
-		NULL,
-		val_from_string,
+		"FT_UINT8",			/* name */
+		"unsigned, 1 byte",		/* pretty name */
+		1,				/* wire_size */
+		int_fvalue_new,			/* new_value */
+		NULL,				/* free_value */
+		val_from_string,		/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
-		NULL,
-		set_integer,
-		NULL,
+		NULL,				/* set_value */
+		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_floating */
 
-		NULL,
-		get_integer,
-		NULL,
+		NULL,				/* get_value */
+		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,
@@ -230,26 +242,26 @@ ftype_register_integers(void)
 		u_cmp_lt,
 		u_cmp_le,
 
-		NULL,
-		NULL,
+		NULL,				/* len */
+		NULL,				/* slice */
 	};
 	static ftype_t uint16_type = {
-		"FT_UINT16",
-		"unsigned, 2 bytes",
-		2,
-		int_fvalue_new,
-		NULL,
-		val_from_string,
+		"FT_UINT16",			/* name */
+		"unsigned, 2 bytes",		/* pretty_name */
+		2,				/* wire_size */
+		int_fvalue_new,			/* new_value */
+		NULL,				/* free_value */
+		val_from_string,		/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
-		NULL,
-		set_integer,
-		NULL,
+		NULL,				/* set_value */
+		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_floating */
 
-		NULL,
-		get_integer,
-		NULL,
+		NULL,				/* get_value */
+		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,
@@ -258,26 +270,26 @@ ftype_register_integers(void)
 		u_cmp_lt,
 		u_cmp_le,
 
-		NULL,
-		NULL,
+		NULL,				/* len */
+		NULL,				/* slice */
 	};
 	static ftype_t uint24_type = {
-		"FT_UINT24",
-		"unsigned, 3 bytes",
-		3,
-		int_fvalue_new,
-		NULL,
-		val_from_string,
+		"FT_UINT24",			/* name */
+		"unsigned, 3 bytes",		/* pretty_name */
+		3,				/* wire_size */
+		int_fvalue_new,			/* new_value */
+		NULL,				/* free_value */
+		val_from_string,		/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
-		NULL,
-		set_integer,
-		NULL,
+		NULL,				/* set_value */
+		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_floating */
 
-		NULL,
-		get_integer,
-		NULL,
+		NULL,				/* get_value */
+		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,
@@ -286,26 +298,26 @@ ftype_register_integers(void)
 		u_cmp_lt,
 		u_cmp_le,
 
-		NULL,
-		NULL,
+		NULL,				/* len */
+		NULL,				/* slice */
 	};
 	static ftype_t uint32_type = {
-		"FT_UINT32",
-		"unsigned, 4 bytes",
-		4,
-		int_fvalue_new,
-		NULL,
-		val_from_string,
+		"FT_UINT32",			/* name */
+		"unsigned, 4 bytes",		/* pretty_name */
+		4,				/* wire_size */
+		int_fvalue_new,			/* new_value */
+		NULL,				/* free_value */
+		val_from_string,		/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
-		NULL,
-		set_integer,
-		NULL,
+		NULL,				/* set_value */
+		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_floating */
 
-		NULL,
-		get_integer,
-		NULL,
+		NULL,				/* get_value */
+		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,
@@ -314,26 +326,26 @@ ftype_register_integers(void)
 		u_cmp_lt,
 		u_cmp_le,
 
-		NULL,
-		NULL,
+		NULL,				/* len */
+		NULL,				/* slice */
 	};
 	static ftype_t int8_type = {
-		"FT_INT8",
-		"signed, 1 byte",
-		1,
-		int_fvalue_new,
-		NULL,
-		val_from_string,
+		"FT_INT8",			/* name */
+		"signed, 1 byte",		/* pretty_name */
+		1,				/* wire_size */
+		int_fvalue_new,			/* new_value */
+		NULL,				/* free_value */
+		val_from_string,		/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
-		NULL,
-		set_integer,
-		NULL,
+		NULL,				/* set_value */
+		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_floating */
 
-		NULL,
-		get_integer,
-		NULL,
+		NULL,				/* get_value */
+		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,
@@ -342,26 +354,26 @@ ftype_register_integers(void)
 		s_cmp_lt,
 		s_cmp_le,
 
-		NULL,
-		NULL,
+		NULL,				/* len */
+		NULL,				/* slice */
 	};
 	static ftype_t int16_type = {
-		"FT_INT16",
-		"signed, 2 bytes",
-		2,
-		int_fvalue_new,
-		NULL,
-		val_from_string,
+		"FT_INT16",			/* name */
+		"signed, 2 bytes",		/* pretty_name */
+		2,				/* wire_size */
+		int_fvalue_new,			/* new_value */
+		NULL,				/* free_value */
+		val_from_string,		/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
-		NULL,
-		set_integer,
-		NULL,
+		NULL,				/* set_value */
+		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_floating */
 
-		NULL,
-		get_integer,
-		NULL,
+		NULL,				/* get_value */
+		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,
@@ -370,26 +382,26 @@ ftype_register_integers(void)
 		s_cmp_lt,
 		s_cmp_le,
 
-		NULL,
-		NULL,
+		NULL,				/* len */
+		NULL,				/* slice */
 	};
 	static ftype_t int24_type = {
-		"FT_INT24",
-		"signed, 3 bytes",
-		3,
-		int_fvalue_new,
-		NULL,
-		val_from_string,
+		"FT_INT24",			/* name */
+		"signed, 3 bytes",		/* pretty_name */
+		3,				/* wire_size */
+		int_fvalue_new,			/* new_value */
+		NULL,				/* free_value */
+		val_from_string,		/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
-		NULL,
-		set_integer,
-		NULL,
+		NULL,				/* set_value */
+		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_floating */
 
-		NULL,
-		get_integer,
-		NULL,
+		NULL,				/* get_value */
+		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,
@@ -398,26 +410,26 @@ ftype_register_integers(void)
 		s_cmp_lt,
 		s_cmp_le,
 
-		NULL,
-		NULL,
+		NULL,				/* len */
+		NULL,				/* slice */
 	};
 	static ftype_t int32_type = {
-		"FT_INT32",
-		"signed, 4 bytes",
-		4,
-		int_fvalue_new,
-		NULL,
-		val_from_string,
+		"FT_INT32",			/* name */
+		"signed, 4 bytes",		/* pretty_name */
+		4,				/* wire_size */
+		int_fvalue_new,			/* new_value */
+		NULL,				/* free_value */
+		val_from_string,		/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
-		NULL,
-		set_integer,
-		NULL,
+		NULL,				/* set_value */
+		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_floating */
 
-		NULL,
-		get_integer,
-		NULL,
+		NULL,				/* get_value */
+		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,
@@ -426,55 +438,55 @@ ftype_register_integers(void)
 		s_cmp_lt,
 		s_cmp_le,
 
-		NULL,
-		NULL,
+		NULL,				/* len */
+		NULL,				/* slice */
 	};
 	static ftype_t boolean_type = {
-		"FT_BOOLEAN",
-		"Boolean",
-		0,
-		boolean_fvalue_new,
-		NULL,
-		val_from_string,
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		"FT_BOOLEAN",			/* name */
+		"Boolean",			/* pretty_name */
+		0,				/* wire_size */
+		boolean_fvalue_new,		/* new_value */
+		NULL,				/* free_value */
+		val_from_string,		/* val_from_string */
+		boolean_to_repr,		/* val_to_string_repr */
+		boolean_repr_len,		/* len_string_repr */
 
-		NULL,
-		set_integer,
-		NULL,
+		NULL,				/* set_value */
+		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_floating */
 
-		NULL,
-		get_integer,
-		NULL,
+		NULL,				/* get_value */
+		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_floating */
 
-		bool_eq,
-		bool_ne,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
+		bool_eq,			/* cmp_eq */
+		bool_ne,			/* cmp_ne */
+		NULL,				/* cmp_gt */
+		NULL,				/* cmp_ge */
+		NULL,				/* cmp_lt */
+		NULL,				/* cmp_le */
 
-		NULL,
-		NULL,
+		NULL,				/* len */
+		NULL,				/* slice */
 	};
 
 	static ftype_t ipxnet_type = {
-		"FT_IPXNET",
-		"IPX network number",
-		4,
-		int_fvalue_new,
-		NULL,
-		ipxnet_from_string,
+		"FT_IPXNET",			/* name */
+		"IPX network number",		/* pretty_name */
+		4,				/* wire_size */
+		int_fvalue_new,			/* new_value */
+		NULL,				/* free_value */
+		ipxnet_from_string,		/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
-		NULL,
-		set_integer,
-		NULL,
+		NULL,				/* set_value */
+		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_floating */
 
-		NULL,
-		get_integer,
-		NULL,
+		NULL,				/* get_value */
+		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,
@@ -483,27 +495,27 @@ ftype_register_integers(void)
 		u_cmp_lt,
 		u_cmp_le,
 
-		NULL,
-		NULL,
+		NULL,				/* len */
+		NULL,				/* slice */
 	};
 
 	static ftype_t framenum_type = {
-		"FT_FRAMENUM",
-		"frame number",
-		4,
-		int_fvalue_new,
-		NULL,
-		val_from_string,
+		"FT_FRAMENUM",			/* name */
+		"frame number",			/* pretty_name */
+		4,				/* wire_size */
+		int_fvalue_new,			/* new_value */
+		NULL,				/* free_value */
+		val_from_string,		/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
-		NULL,
-		set_integer,
-		NULL,
+		NULL,				/* set_value */
+		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_floating */
 
-		NULL,
-		get_integer,
-		NULL,
+		NULL,				/* get_value */
+		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,
@@ -512,8 +524,8 @@ ftype_register_integers(void)
 		u_cmp_lt,
 		u_cmp_le,
 
-		NULL,
-		NULL,
+		NULL,				/* len */
+		NULL,				/* slice */
 	};
 
 	ftype_register(FT_UINT8, &uint8_type);

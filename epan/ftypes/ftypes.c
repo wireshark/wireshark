@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes.c,v 1.8 2003/02/08 04:22:37 gram Exp $
+ * $Id: ftypes.c,v 1.9 2003/06/11 21:24:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +25,7 @@
 #endif
 
 #include <ftypes-int.h>
+#include <glib.h>
 
 /* Keep track of ftype_t's via their ftenum number */
 static ftype_t* type_list[FT_NUM_TYPES];
@@ -272,17 +273,21 @@ fvalue_length(fvalue_t *fv)
 }
 
 int
-fvalue_string_repr_len(fvalue_t *fv)
+fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype)
 {
 	g_assert(fv->ftype->len_string_repr);
-	return fv->ftype->len_string_repr(fv);
+	return fv->ftype->len_string_repr(fv, rtype);
 }
 
 char *
-fvalue_to_string_repr(fvalue_t *fv)
+fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 {
 	g_assert(fv->ftype->val_to_string_repr);
-	return fv->ftype->val_to_string_repr(fv);
+	if (!buf) {
+		buf = g_malloc0(fvalue_string_repr_len(fv, rtype) + 1);
+	}
+	fv->ftype->val_to_string_repr(fv, rtype, buf);
+	return buf;
 }
 
 typedef struct {

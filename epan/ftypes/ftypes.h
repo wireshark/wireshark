@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.16 2003/02/08 04:22:37 gram Exp $
+ * $Id: ftypes.h,v 1.17 2003/06/11 21:24:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,6 +64,14 @@ enum ftenum {
 
 typedef enum ftenum ftenum_t;
 typedef struct _ftype_t ftype_t;
+
+/* String representation types. */
+enum ftrepr {
+    FTREPR_DISPLAY,
+    FTREPR_DFILTER
+};
+
+typedef enum ftrepr ftrepr_t;
 
 /* Initialize the ftypes subsytem. Called once. */
 void
@@ -145,11 +153,22 @@ typedef void (*LogFunc)(char*,...);
 fvalue_t*
 fvalue_from_string(ftenum_t ftype, char *s, LogFunc log);
 
+/* Returns the length of the string required to hold the
+ * string representation of the the field value.
+ * The length DOES NOT include the terminating NUL. */
 int
-fvalue_string_repr_len(fvalue_t *fv);
+fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype);
 
+/* Creates the string representation of the field value.
+ * If given non-NULL 'buf', the string is written at the memory
+ * location pointed to by 'buf'. If 'buf' is NULL, new memory
+ * is malloc'ed and the string representation is written there.
+ * The pointer to the beginning of the string representation is
+ * returned. If 'buf' was NULL, this points to the newly-allocated
+ * memory. if 'buf' was non-NULL, then the return value will be
+ * 'buf'. */
 char *
-fvalue_to_string_repr(fvalue_t *fv);
+fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, char *buf);
 
 const char*
 fvalue_type_name(fvalue_t *fv);
