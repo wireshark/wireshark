@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.29 2002/06/20 12:34:51 sahlberg Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.30 2002/06/21 10:58:48 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -185,6 +185,15 @@ static int hf_srvsvc_minlinkthroughput = -1;
 static int hf_srvsvc_linkinfovalidtime = -1;
 static int hf_srvsvc_scavqosinfoupdatetime = -1;
 static int hf_srvsvc_maxworkitemidletime = -1;
+static int hf_srvsvc_disk_name = -1;
+static int hf_srvsvc_disk_name_len = -1;
+static int hf_srvsvc_service = -1;
+static int hf_srvsvc_service_options = -1;
+static int hf_srvsvc_transport_numberofvcs = -1;
+static int hf_srvsvc_transport_name = -1;
+static int hf_srvsvc_transport_address = -1;
+static int hf_srvsvc_transport_address_len = -1;
+static int hf_srvsvc_transport_networkaddress = -1;
 
 static int hf_srvsvc_unknown_long = -1;
 static int hf_srvsvc_unknown_bytes = -1;
@@ -4994,6 +5003,470 @@ srvsvc_dissect_netrserversetinfo_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+/*
+ * IDL typedef struct {
+ * IDL   [size_is()] [unique] wchar_t *disk;
+ * IDL } DISK_INFO_0;
+ */
+static int
+srvsvc_dissect_DISK_INFO_0(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	guint32 len;
+	dcerpc_info *di;
+	int old_offset;
+	int data16_offset;
+	char *text;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/* this call is to make ethereal eat the array header for the conformant run */
+		offset =dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, NULL);
+
+		return offset;
+	}
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_disk_name_len, &len);
+
+	old_offset=offset;
+	offset = prs_uint16s(tvb, offset, pinfo, tree, len, &data16_offset,
+			NULL);
+	text = fake_unicode(tvb, data16_offset, len);
+
+	proto_tree_add_string(tree, hf_srvsvc_disk_name, tvb, old_offset,
+		offset-old_offset, text);
+
+	g_free(text);
+  	return offset;
+}
+static int
+srvsvc_dissect_DISK_INFO_0_array(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_DISK_INFO_0);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long EntriesRead;
+ * IDL   [length_is(EntriesRead)] [size_is(EntriesRead)] [unique] DISK_INFO_0 *disk;
+ * IDL } DISK_ENUM_CONTAINER;
+ */
+static int
+srvsvc_dissect_DISK_ENUM_CONTAINER(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_num_entries, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_DISK_INFO_0_array, NDR_POINTER_UNIQUE,
+		"DISK_INFO_0 array:", -1, 0);
+
+	return offset;
+}
+
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrServerDiskEnum(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] long Level,
+ * IDL      [in] [ref] DISK_ENUM_CONTAINER *disk;
+ * IDL      [in] long maxlen,
+ * IDL      [in] [unique] long *resumehandle,
+ * IDL );
+ */
+static int
+srvsvc_dissect_netrserverdiskenum_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Server",
+			hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_info_level, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_DISK_ENUM_CONTAINER,
+			NDR_POINTER_REF, "Disks",
+			-1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_preferred_len, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_ENUM_HANDLE,
+		NDR_POINTER_UNIQUE, "Enum Handle", -1, 0);
+
+	return offset;
+}
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrServerStatisticsGet(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] [string] [unique] wchar_t *Service,
+ * IDL      [in] long Level,
+ * IDL      [in] long Options,
+ * IDL );
+ */
+static int
+srvsvc_dissect_netrserverstatisticsget_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Server",
+			hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Service",
+			hf_srvsvc_service, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_info_level, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_service_options, 0);
+
+	return offset;
+}
+
+
+/*
+ * IDL typedef struct {
+ * IDL   [size_is(transportaddresslen)] char transportaddress;
+ * IDL } TRANSPORT_ADDRESS;
+ */
+static int
+srvsvc_dissect_TRANSPORT_ADDRESS(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	dcerpc_info *di;
+	guint32 len;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_transport_address_len, &len);
+
+	proto_tree_add_item(tree, hf_srvsvc_transport_address, tvb, offset, 
+		len, FALSE);
+	offset += len;
+
+	return len;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long numberofvcs;
+ * IDL   [string] [unique] transportname;
+ * IDL   [unique] TRANSPORT_ADDRESS *transportaddress;
+ * IDL   long transportaddresslen;
+ * IDL   [string] [unique] wchar_t *networkaddress;
+ * IDL } TRANSPORT_INFO_0;
+ */
+static int
+srvsvc_dissect_TRANSPORT_INFO_0(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_transport_numberofvcs, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Name",
+		hf_srvsvc_transport_name, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_TRANSPORT_ADDRESS,
+			NDR_POINTER_UNIQUE, "Transport Address",
+			-1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_transport_address_len, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Network Address",
+		hf_srvsvc_transport_networkaddress, 0);
+
+	return offset;
+}
+static int
+srvsvc_dissect_TRANSPORT_INFO_0_array(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_TRANSPORT_INFO_0);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long EntriesRead;
+ * IDL   [size_is(EntriesRead)] [unique] TRANSPORT_INFO_0 *trans;
+ * IDL } SERVER_XPORT_INFO_0_CONTAINER;
+ */
+static int
+srvsvc_dissect_SERVER_XPORT_INFO_0_CONTAINER(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_num_entries, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_TRANSPORT_INFO_0_array, NDR_POINTER_UNIQUE,
+		"TRANSPORT_INFO_0 array:", -1, 0);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long numberofvcs;
+ * IDL   [string] [unique] transportname;
+ * IDL   [unique] TRANSPORT_ADDRESS *transportaddress;
+ * IDL   long transportaddresslen;
+ * IDL   [string] [unique] wchar_t *networkaddress;
+ * IDL } TRANSPORT_INFO_1;
+ */
+static int
+srvsvc_dissect_TRANSPORT_INFO_1(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_transport_numberofvcs, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Name",
+		hf_srvsvc_transport_name, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_TRANSPORT_ADDRESS,
+			NDR_POINTER_UNIQUE, "Transport Address",
+			-1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_transport_address_len, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Network Address",
+		hf_srvsvc_transport_networkaddress, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Domain",
+			hf_srvsvc_domain, 0);
+
+	return offset;
+}
+static int
+srvsvc_dissect_TRANSPORT_INFO_1_array(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_TRANSPORT_INFO_1);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long EntriesRead;
+ * IDL   [size_is(EntriesRead)] [unique] TRANSPORT_INFO_1 *trans;
+ * IDL } SERVER_XPORT_INFO_1_CONTAINER;
+ */
+static int
+srvsvc_dissect_SERVER_XPORT_INFO_1_CONTAINER(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_num_entries, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_TRANSPORT_INFO_1_array, NDR_POINTER_UNIQUE,
+		"TRANSPORT_INFO_1 array:", -1, 0);
+
+	return offset;
+}
+
+
+/*
+ * IDL typedef [switch_type(long)] union {
+ * IDL   [case(0)] [unique] SERVER_XPORT_INFO_0_CONTAINER *xp0;
+ * IDL   [case(1)] [unique] SERVER_XPORT_INFO_1_CONTAINER *xp1;
+ * IDL } SERVER_XPORT_ENUM_UNION;
+ */
+static int
+srvsvc_dissect_SERVER_XPORT_ENUM_UNION(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	guint32 level;
+
+	ALIGN_TO_4_BYTES;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_info_level, &level);
+
+	switch(level){
+	case 0:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SERVER_XPORT_INFO_0_CONTAINER,
+			NDR_POINTER_UNIQUE, "SERVER_XPORT_INFO_0_CONTAINER:",
+			-1, 0);
+		break;
+	case 1:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SERVER_XPORT_INFO_1_CONTAINER,
+			NDR_POINTER_UNIQUE, "SERVER_XPORT_INFO_1_CONTAINER:",
+			-1, 0);
+		break;
+	}
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long Level;
+ * IDL   SERVER_XPORT_ENUM_UNION xport;
+ * IDL } SERVER_XPORT_ENUM_STRUCT;
+ */
+static int
+srvsvc_dissect_SERVER_XPORT_ENUM_STRUCT(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_info_level, 0);
+
+	offset = srvsvc_dissect_SERVER_XPORT_ENUM_UNION(tvb, offset,
+			pinfo, tree, drep);
+
+	return offset;
+}
+
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrServerTransportAdd(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] long Level,
+ * IDL      [in] [ref] TRANSPORT_INFO_0 *trans;
+ * IDL );
+ */
+static int
+srvsvc_dissect_netrservertransportadd_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Server",
+			hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_info_level, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_TRANSPORT_INFO_0,
+			NDR_POINTER_REF, "Transports",
+			-1, 0);
+
+	return offset;
+}
+
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrServerTransportEnum(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] [ref] SERVER_XPORT_ENUM_STRUCT *xport;
+ * IDL      [in] long MaxLen,
+ * IDL      [in] [unique] long *resumehandle;
+ * IDL );
+ */
+static int
+srvsvc_dissect_netrservertransportenum_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Server",
+			hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_SERVER_XPORT_ENUM_STRUCT,
+			NDR_POINTER_REF, "Transports",
+			-1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_preferred_len, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_ENUM_HANDLE,
+		NDR_POINTER_UNIQUE, "Enum Handle", -1, 0);
+
+	return offset;
+}
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrServerTransportDel(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] long Level,
+ * IDL      [in] [ref] TRANSPORT_INFO_0 *trans;
+ * IDL );
+ */
+static int
+srvsvc_dissect_netrservertransportdel_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Server",
+			hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_info_level, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_TRANSPORT_INFO_0,
+			NDR_POINTER_REF, "Transports",
+			-1, 0);
+
+	return offset;
+}
+
 
 
 
@@ -5067,11 +5540,21 @@ static dcerpc_sub_dissector dcerpc_srvsvc_dissectors[] = {
 	{SRV_NETRSERVERSETINFO,		"NetrServerSetInfo",
 		srvsvc_dissect_netrserversetinfo_rqst, 
 		NULL},
-	{SRV_NETRSERVERDISKENUM,	"NetrServerDiskEnum", NULL, NULL},
-	{SRV_NETRSERVERSTATISTICSGET,	"NetrServerStatisticsGet", NULL, NULL},
-	{SRV_NETRSERVERTRANSPORTADD,	"NetrServerTransportAdd", NULL, NULL},
-	{SRV_NETRSERVERTRANSPORTENUM,	"NetrServerTransportEnum", NULL, NULL},
-	{SRV_NETRSERVERTRANSPORTDEL,	"NetrServerTransportDel", NULL, NULL},
+	{SRV_NETRSERVERDISKENUM,	"NetrServerDiskEnum",
+		srvsvc_dissect_netrserverdiskenum_rqst, 
+		NULL},
+	{SRV_NETRSERVERSTATISTICSGET,	"NetrServerStatisticsGet",
+		srvsvc_dissect_netrserverstatisticsget_rqst, 
+		NULL},
+	{SRV_NETRSERVERTRANSPORTADD,	"NetrServerTransportAdd",
+		srvsvc_dissect_netrservertransportadd_rqst, 
+		NULL},
+	{SRV_NETRSERVERTRANSPORTENUM,	"NetrServerTransportEnum",
+		srvsvc_dissect_netrservertransportenum_rqst, 
+		NULL},
+	{SRV_NETRSERVERTRANSPORTDEL,	"NetrServerTransportDel",
+		srvsvc_dissect_netrservertransportdel_rqst, 
+		NULL},
 	{SRV_NETRREMOTETOD,		"NetrRemoteTOD", NULL, NULL},
 	{SRV_NETRSERVERSETSERVICEBITS,	"NetrServerSetServiceBits", NULL, NULL},
 	{SRV_NETRPRPATHTYPE,		"NetrpPathType", NULL, NULL},
@@ -5522,6 +6005,33 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_maxworkitemidletime,
 	    { "Max Workitem Idle Time", "srvsvc.maxworkitemidletime", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Max Workitem Idle Time", HFILL}},
+	  { &hf_srvsvc_disk_name,
+	    { "Disk Name", "srvsvc.disk_name", FT_STRING,
+	      BASE_DEC, NULL, 0x0, "Disk Name", HFILL}},
+	  { &hf_srvsvc_disk_name_len,
+	    { "Disk Name Length", "srvsvc.disk_name_len", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Length of Disk Name", HFILL}},
+	  { &hf_srvsvc_service,
+	    { "Service", "srvsvc.service", FT_STRING,
+	      BASE_DEC, NULL, 0x0, "Service", HFILL}},
+	  { &hf_srvsvc_service_options,
+	    { "Options", "srvsvc.service_options", FT_UINT32,
+	      BASE_HEX, NULL, 0x0, "Service Options", HFILL}},
+	  { &hf_srvsvc_transport_numberofvcs,
+	    { "VCs", "srvsvc.transport.num_vcs", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Number of VCs for this transport", HFILL}},
+	  { &hf_srvsvc_transport_name,
+	    { "Name", "srvsvc.transport.name", FT_STRING,
+	      BASE_HEX, NULL, 0x0, "Name of transport", HFILL}},
+	  { &hf_srvsvc_transport_address,
+	    { "Address", "srvsvc.transport.address", FT_BYTES,
+	      BASE_HEX, NULL, 0x0, "Address of transport", HFILL}},
+	  { &hf_srvsvc_transport_address_len,
+	    { "Address Len", "srvsvc.transport.addresslen", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Length of transport address", HFILL}},
+	  { &hf_srvsvc_transport_networkaddress,
+	    { "Network Address", "srvsvc.transport.networkaddress", FT_UINT32,
+	      BASE_HEX, NULL, 0x0, "Network address for transport", HFILL}},
 	};
 
         static gint *ett[] = {
