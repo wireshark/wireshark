@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.13 2001/02/13 18:34:51 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.14 2001/02/20 09:28:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -89,7 +89,7 @@ typedef struct protocol_data {
 } protocol_data_t;
 
 static void show_relations(GtkWidget *relation_label, GtkWidget *relation_list,
-    GtkWidget *range_label, GtkWidget *range_entry, ftenum_t ftype);
+    ftenum_t ftype);
 static gboolean relation_is_presence_test(const char *string);
 static void add_relation_list(GtkWidget *relation_list, char *relation);
 static void build_boolean_values(GtkWidget *value_list_scrolled_win,
@@ -100,7 +100,8 @@ static void add_value_list_item(GtkWidget *value_list, gchar *string,
     gpointer data);
 static void display_value_fields(header_field_info *hfinfo,
     gboolean is_comparison, GtkWidget *value_label, GtkWidget *value_entry,
-    GtkWidget *value_list, GtkWidget *value_list_scrolled_win);
+    GtkWidget *value_list, GtkWidget *value_list_scrolled_win,
+    GtkWidget *range_label, GtkWidget *range_entry);
 
 /*
  * Note that this is called every time the user clicks on an item,
@@ -154,8 +155,7 @@ field_select_row_cb(GtkWidget *tree, GList *node, gint column,
 	gtk_object_set_data(GTK_OBJECT(window), E_DFILTER_EXPR_CURRENT_VAR_KEY,
 	    hfinfo);
 
-	show_relations(relation_label, relation_list, range_label,
-	    range_entry, hfinfo->type);
+	show_relations(relation_label, relation_list, hfinfo->type);
 
 	/*
 	 * Set the label for the value to indicate what type of value
@@ -221,7 +221,7 @@ field_select_row_cb(GtkWidget *tree, GList *node, gint column,
 	 * The relation we start out with is never a comparison.
 	 */
 	display_value_fields(hfinfo, FALSE, value_label, value_entry,
-	    value_list, value_list_scrolled_win);
+	    value_list, value_list_scrolled_win, range_label, range_entry);
 
 	/*
 	 * XXX - in browse mode, there always has to be something
@@ -232,7 +232,7 @@ field_select_row_cb(GtkWidget *tree, GList *node, gint column,
 
 static void
 show_relations(GtkWidget *relation_label, GtkWidget *relation_list,
-    GtkWidget *range_label, GtkWidget *range_entry, ftenum_t ftype)
+    ftenum_t ftype)
 {
 	/*
 	 * Clear out the currently displayed list of relations.
@@ -253,21 +253,24 @@ show_relations(GtkWidget *relation_label, GtkWidget *relation_list,
 		/*
 		 * Add the supported relations.
 		 */
-		if (ftype == FT_PROTOCOL)
-			add_relation_list(relation_list, "has this protocol");
-		else
-			add_relation_list(relation_list, "is present");
-		if (ftype_can_eq(ftype))
+		add_relation_list(relation_list, "is present");
+		if (ftype_can_eq(ftype) ||
+		    (ftype_can_slice(ftype) && ftype_can_eq(FT_BYTES)))
 			add_relation_list(relation_list, "==");
-		if (ftype_can_ne(ftype))
+		if (ftype_can_ne(ftype) ||
+		    (ftype_can_slice(ftype) && ftype_can_ne(FT_BYTES)))
 			add_relation_list(relation_list, "!=");
-		if (ftype_can_gt(ftype))
+		if (ftype_can_gt(ftype) ||
+		    (ftype_can_slice(ftype) && ftype_can_gt(FT_BYTES)))
 			add_relation_list(relation_list, ">");
-		if (ftype_can_lt(ftype))
+		if (ftype_can_lt(ftype) ||
+		    (ftype_can_slice(ftype) && ftype_can_lt(FT_BYTES)))
 			add_relation_list(relation_list, "<");
-		if (ftype_can_ge(ftype))
+		if (ftype_can_ge(ftype) ||
+		    (ftype_can_slice(ftype) && ftype_can_ge(FT_BYTES)))
 			add_relation_list(relation_list, ">=");
-		if (ftype_can_le(ftype))
+		if (ftype_can_le(ftype) ||
+		    (ftype_can_slice(ftype) && ftype_can_le(FT_BYTES)))
 			add_relation_list(relation_list, "<=");
 
 		/*
@@ -275,18 +278,6 @@ show_relations(GtkWidget *relation_label, GtkWidget *relation_list,
 		 */
 		gtk_widget_show(relation_label);
 		gtk_widget_show(relation_list);
-	}
-
-	/*
-	 * Are ranges supported?  If so, show the range stuff,
-	 * otherwise hide it.
-	 */
-	if (ftype_can_slice(ftype)) {
-		gtk_widget_show(range_label);
-		gtk_widget_show(range_entry);
-	} else {
-		gtk_widget_hide(range_label);
-		gtk_widget_hide(range_entry);
 	}
 }
 
@@ -297,8 +288,7 @@ show_relations(GtkWidget *relation_label, GtkWidget *relation_list,
 static gboolean
 relation_is_presence_test(const char *string)
 {
-	return (strcmp(string, "is present") == 0
-	    || strcmp(string, "has this protocol") == 0);
+	return (strcmp(string, "is present") == 0);
 }
 
 static void
@@ -321,6 +311,10 @@ relation_list_sel_cb(GtkList *relation_list, GtkWidget *child,
     gpointer user_data)
 {
 	GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(relation_list));
+	GtkWidget *range_label = gtk_object_get_data(GTK_OBJECT(window),
+	    E_DFILTER_EXPR_RANGE_LABEL_KEY);
+	GtkWidget *range_entry = gtk_object_get_data(GTK_OBJECT(window),
+	    E_DFILTER_EXPR_RANGE_ENTRY_KEY);
 	GtkWidget *value_label = gtk_object_get_data(GTK_OBJECT(window),
 	    E_DFILTER_EXPR_VALUE_LABEL_KEY);
 	GtkWidget *value_entry = gtk_object_get_data(GTK_OBJECT(window),
@@ -348,7 +342,8 @@ relation_list_sel_cb(GtkList *relation_list, GtkWidget *child,
 	 */
 	display_value_fields(hfinfo,
 	    !relation_is_presence_test(item_str),
-	    value_label, value_entry, value_list, value_list_scrolled_win);
+	    value_label, value_entry, value_list, value_list_scrolled_win,
+	    range_label, range_entry);
 }
 
 static void
@@ -447,7 +442,8 @@ add_value_list_item(GtkWidget *value_list, gchar *string, gpointer data)
 static void
 display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
     GtkWidget *value_label, GtkWidget *value_entry, GtkWidget *value_list,
-    GtkWidget *value_list_scrolled_win)
+    GtkWidget *value_list_scrolled_win, GtkWidget *range_label,
+    GtkWidget *range_entry)
 {
 	gboolean show_value_label = FALSE;
 
@@ -563,6 +559,18 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 		gtk_widget_show(value_label);
 	else
 		gtk_widget_hide(value_label);
+
+	/*
+	 * Is this a comparison, and are ranges supported by this type?
+	 * If both are true, show the range stuff, otherwise hide it.
+	 */
+	if (is_comparison && ftype_can_slice(hfinfo->type)) {
+		gtk_widget_show(range_label);
+		gtk_widget_show(range_entry);
+	} else {
+		gtk_widget_hide(range_label);
+		gtk_widget_hide(range_entry);
+	}
 }
 
 static void
@@ -918,9 +926,12 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 	 *
 	 * XXX - FT_UINT8 doesn't support ranges, so even if it did work,
 	 * it wouldn't work right.
+	 *
+	 * XXX - this no longer affects the range stuff, as that's
+	 * controlled both by the type and by the relational operator
+	 * selected.
 	 */
-	show_relations(relation_label, relation_list, range_label, range_entry,
-	    FT_UINT8);
+	show_relations(relation_label, relation_list, FT_UINT8);
 
 	value_vb = gtk_vbox_new(FALSE, 5);
 	gtk_container_border_width(GTK_CONTAINER(value_vb), 5);
