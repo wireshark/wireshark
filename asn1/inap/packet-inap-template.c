@@ -52,17 +52,26 @@ static int hf_inap_invokeid = -1;              /* INTEGER */
 static int hf_inap_absent = -1;                /* NULL */
 static int hf_inap_invokeId = -1;              /* InvokeId */
 static int hf_inap_invoke = -1;                /* InvokePDU */
+static int hf_inap_ReturnError = -1;                /* InvokePDU */
 static int hf_inap_returnResult = -1;                /* InvokePDU */
 static int hf_inap_returnResult_result = -1;
 static int hf_inap_getPassword = -1;  
 static int hf_inap_currentPassword = -1;  
+static int hf_inap_genproblem = -1;
 #include "packet-inap-hf.c"
-static guint global_tcap_itu_ssn = 241;
+
+static guint tcap_itu_ssn = 106;
+static guint tcap_itu_ssn1 = 241;
+
+
+static guint global_tcap_itu_ssn = 1;
+static guint global_tcap_itu_ssn1 = 1;
 
 /* Initialize the subtree pointers */
 static gint ett_inap = -1;
 static gint ett_inap_InvokeId = -1;
 static gint ett_inap_InvokePDU = -1;
+static gint ett_inap_ReturnErrorPDU = -1;
 static gint ett_inap_ReturnResultPDU = -1;
 static gint ett_inap_ReturnResult_result = -1;
 static gint ett_inap_INAPPDU = -1;
@@ -81,6 +90,7 @@ const value_string inap_opr_code_strings[] = {
 {45, "CallInformationRequest"},
 {53, "Cancel"},
 {20, "Connect"},
+{18, "DisconnectForwardConnection"},
 	{19,"ConnectToResource"},
 	{17,"EstablishTemporaryConnection"},
 	{24,"EventReportBCSM"},
@@ -91,8 +101,35 @@ const value_string inap_opr_code_strings[] = {
 	{99,"ReceivedInformation"}, /*???????*/
 	{33,"ResetTimer"},
 	{23,"RequestReportBCSMEvent"},
-	{49,"SpecializedResourceReport"}
+	{49,"SpecializedResourceReport"},
+	{22,"ReleaseCall"}
 };
+
+const value_string inap_error_code_strings[] = {
+
+{0,"cancelled"},
+{1,"cancelFailed"},
+{3,"etcFailed"},
+{4,"improperCallerResponse"},
+{6,"missingCustomerRecord"},
+{7,"missingParameter"},
+{8,"parameterOutOfRange"},
+{10,"RequestedInfoError"},
+{11,"SystemFailure"},
+{12,"TaskRefused"},
+{13,"UnavailableResource"},
+{14,"UnexpectedComponentSequence"},
+{15,"UnexpectedDataValue"},
+{16,"UnexpectedParameter"},
+{17,"UnknownLegID"}
+};
+
+const value_string inap_general_problem_strings[] = {
+{0,"General Problem Unrecognized Component"},
+{1,"General Problem Mistyped Component"},
+{3,"General Problem Badly Structured Component"},
+};
+
 
 
 static guint32 opcode=0;
@@ -107,6 +144,20 @@ dissect_inap_Opcode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet
 
   return offset;
 }
+
+
+
+static int
+dissect_inap_errorCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_index, &opcode);
+
+  if (check_col(pinfo->cinfo, COL_INFO)){
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, inap_error_code_strings, "Unknown Inap (%u)"));
+  }
+
+  return offset;
+}
+
 
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   switch(opcode){
@@ -125,7 +176,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case  20: /*Connect*/
     offset=dissect_inap_Connectarg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
-    case  18: /*DisconnectForwardConnections*/
+  case  18: /*DisconnectForwardConnections*/
     proto_tree_add_text(tree, tvb, offset, -1, "Disconnect Forward Connection");
     break;
   case  19: /*ConnectToResource*/
@@ -157,6 +208,9 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case 33: /*ResetTimer*/
     offset=dissect_inap_ResetTimer(FALSE, tvb, offset, pinfo, tree, -1);
     break;
+   case 22: /*ResetTimer*/
+    offset=dissect_inap_ReleaseCallArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
    default:
     proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
     /* todo call the asn.1 dissector */
@@ -179,6 +233,12 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
 static int 
 dissect_invokeCmd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_Opcode(FALSE, tvb, offset, pinfo, tree, hf_inap_invokeCmd);
+}
+
+
+static int 
+dissect_errorCode(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_errorCode(FALSE, tvb, offset, pinfo, tree, hf_inap_ReturnError);
 }
 
 static int dissect_invokeid(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -228,8 +288,29 @@ dissect_inap_InvokePDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 
   return offset;
 }
+
+
+static const ber_sequence_t returnErrorPDU_sequence[] = {
+  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_invokeId },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_errorCode },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_returnErrorPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                returnErrorPDU_sequence, hf_index, ett_inap_ReturnErrorPDU);
+
+  return offset;
+}
+
+
 static int dissect_invoke_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_InvokePDU(TRUE, tvb, offset, pinfo, tree, hf_inap_invoke);
+}
+
+static int dissect_returnError_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_returnErrorPDU(TRUE, tvb, offset, pinfo, tree, hf_inap_invoke);
 }
 
 static const ber_sequence_t ReturnResult_result_sequence[] = {
@@ -262,6 +343,11 @@ static int dissect_returnResult_impl(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_inap_returnResultPDU(TRUE, tvb, offset, pinfo, tree, hf_inap_returnResult);
 }
 
+
+static int dissect_reject_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_inap_RejectPDU(TRUE, tvb, offset, pinfo, tree, -1);
+}
+
 static const value_string INAPPDU_vals[] = {
   {   1, "invoke" },
   {   2, "returnResult" },
@@ -273,10 +359,8 @@ static const value_string INAPPDU_vals[] = {
 static const ber_choice_t INAPPDU_choice[] = {
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_invoke_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_returnResult_impl },
-#ifdef REMOVED
   {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_returnError_impl },
   {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_reject_impl },
-#endif
   { 0, 0, 0, 0, NULL }
 };
 
@@ -329,9 +413,21 @@ dissect_inap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 /*--- proto_reg_handoff_inap ---------------------------------------*/
 void proto_reg_handoff_inap(void) {
     dissector_handle_t	inap_handle;
-
+	static int inap_prefs_initialized = FALSE;
+    
     inap_handle = create_dissector_handle(dissect_inap, proto_inap);
+	
+	if (!inap_prefs_initialized) {
+		inap_prefs_initialized = TRUE;
+	}
+	else {
+		dissector_delete("tcap.itu_ssn", tcap_itu_ssn, inap_handle);
+		dissector_delete("tcap.itu_ssn", tcap_itu_ssn1, inap_handle);
+	}
+	tcap_itu_ssn = global_tcap_itu_ssn;
+	tcap_itu_ssn1 = global_tcap_itu_ssn1;
     dissector_add("tcap.itu_ssn", global_tcap_itu_ssn, inap_handle);
+    dissector_add("tcap.itu_ssn", global_tcap_itu_ssn1, inap_handle);
    
 }
 
@@ -344,7 +440,11 @@ void proto_register_inap(void) {
       { "invokeCmd", "inap.invokeCmd",
         FT_UINT32, BASE_DEC, VALS(inap_opr_code_strings), 0,
         "InvokePDU/invokeCmd", HFILL }},
-    { &hf_inap_invokeid,
+   { &hf_inap_ReturnError,
+      { "ReturnError", "inap.ReturnError",
+        FT_UINT32, BASE_DEC, VALS(inap_error_code_strings), 0,
+        "InvokePDU/ReturnError", HFILL }},
+     { &hf_inap_invokeid,
       { "invokeid", "inap.invokeid",
         FT_INT32, BASE_DEC, NULL, 0,
         "InvokeId/invokeid", HFILL }},
@@ -379,6 +479,7 @@ void proto_register_inap(void) {
     &ett_inap,
     &ett_inap_InvokeId,
     &ett_inap_InvokePDU,
+    &ett_inap_ReturnErrorPDU,
     &ett_inap_ReturnResultPDU,
     &ett_inap_ReturnResult_result,
     &ett_inap_INAPPDU,
@@ -393,6 +494,7 @@ void proto_register_inap(void) {
   proto_register_field_array(proto_inap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   
+  
   inap_module = prefs_register_protocol(proto_inap, proto_reg_handoff_inap);
   
   prefs_register_uint_preference(inap_module, "tcap.itu_ssn",
@@ -400,6 +502,10 @@ void proto_register_inap(void) {
 		"Set Subsystem number used for INAP",
 		10, &global_tcap_itu_ssn);
 
+ prefs_register_uint_preference(inap_module, "tcap.itu_ssn1",
+		"Subsystem number used for INAP",
+		"Set Subsystem number used for INAP",
+		10, &global_tcap_itu_ssn1);
 
 }
 

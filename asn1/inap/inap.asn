@@ -344,7 +344,8 @@ CallInformationRequestarg ::=	SEQUENCE {
 	calledAddress (3),
 	releaseCause (30)},
 	correlationID [1] IMPLICIT OCTET STRING  OPTIONAL,
-	extensions [2] IMPLICIT Extensions OPTIONAL}
+	extensions [2] IMPLICIT Extensions OPTIONAL,
+	legID 				[3] LegID OPTIONAL }
  
 Cancelarg ::=	CHOICE {
 	invokeID [0] IMPLICIT INTEGER (-128..127),
@@ -642,7 +643,15 @@ PromptAndCollectUserInformationres ::=	CHOICE {
  ResourceStatus ::= ENUMERATED {
 	busy (0),
 	idle (1)}
+
 ReleaseCall ::=	OCTET STRING (SIZE (2..10)) 
+
+ReleaseCallArg ::= CHOICE {
+	initialCallSegment Cause ,
+	allCallSegments [2] SEQUENCE {
+		releaseCause [0] Cause OPTIONAL }
+}
+
 RequestCurrentStatusReportarg ::= 	CHOICE {
 	lineID [0] IMPLICIT OCTET STRING ,
 	facilityGroupID [1] FacilityGroupID,
@@ -857,5 +866,45 @@ TaskRefused ::=	ENUMERATED {
 -- ::= localValue 17-
 --unknownResource ERROR
 -- ::= localValue 18
+
+-- additional pdus for reject
+
+InvokeIDType ::= INTEGER
+
+RejectPDU ::= SEQUENCE {
+		rinvokeID CHOICE {
+				invidtype InvokeIDType, 
+				null NULL},
+		rproblem CHOICE {
+				gp [0] IMPLICIT GeneralProblem,
+				ip [1] IMPLICIT InvokeProblem,
+				rrp [2] IMPLICIT ReturnResultProblem,
+				rep [3] IMPLICIT ReturnErrorProblem}}
+
+GeneralProblem ::= INTEGER { -- ROSE-provider detected
+		unrecognisedAPDU(0),
+		mistypedAPDU(1),
+		badlyStructuredAPDU(2)}
+InvokeProblem ::= INTEGER { -- ROSE-user detected
+		duplicateInvocation(0),
+		unrecognisedOperation(1),
+		mistypedArgument(2),
+		resourceLimitation(3),
+		initiatorReleasing(4),
+		unrecognisedLinkedID(5),
+		linkedResponseUnexpected(6),
+		unexpectedChildOperation(7)}
+ReturnResultProblem ::= INTEGER { -- ROSE-user detected
+		unrecognisedInvocation(0),
+		resultResponseUnexpected(1),
+		mistypedResult(2)}
+ReturnErrorProblem ::= INTEGER { -- ROSE-user detected
+		unrecognisedInvocation(0),
+		errorResponseUnexpected(1),
+		unrecognisedError(2),
+		unexpectedError(3),
+		mistypedParameter(4)}
+
+
 
 END
