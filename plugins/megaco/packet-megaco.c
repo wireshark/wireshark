@@ -2,7 +2,7 @@
 * Routines for megaco packet disassembly
 * RFC 3015
 *
-* $Id: packet-megaco.c,v 1.9 2003/07/30 06:28:55 guy Exp $
+* $Id: packet-megaco.c,v 1.10 2003/08/26 21:36:17 sahlberg Exp $
 *
 * Christian Falckenberg, 2002/10/17
 * Copyright (c) 2002 by Christian Falckenberg
@@ -63,7 +63,7 @@ G_MODULE_EXPORT const gchar version[] = VERSION;
 void proto_reg_handoff_megaco(void);
 
 /* Define the megaco proto */
-static int proto_megaco				= -1;
+static int proto_megaco			= -1;
 
 /* Define headers for megaco */
 static int hf_megaco_version    	= -1;
@@ -79,51 +79,52 @@ static int hf_megaco_termid		= -1;
 /* Define headers in subtree for megaco */
 static int hf_megaco_modem_descriptor           = -1;
 static int hf_megaco_multiplex_descriptor       = -1;
-static int hf_megaco_media_descriptor			= -1;
+static int hf_megaco_media_descriptor		= -1;
 static int hf_megaco_events_descriptor          = -1;
 static int hf_megaco_signal_descriptor          = -1;
 static int hf_megaco_audit_descriptor           = -1;
 static int hf_megaco_servicechange_descriptor	= -1;
 static int hf_megaco_digitmap_descriptor		= -1;
-static int hf_megaco_statistics_descriptor		= -1;
+static int hf_megaco_statistics_descriptor	= -1;
 static int hf_megaco_observedevents_descriptor	= -1;
 static int hf_megaco_topology_descriptor		= -1;
-static int hf_megaco_error_descriptor			= -1;
+static int hf_megaco_error_descriptor		= -1;
 static int hf_megaco_TerminationState_descriptor= -1;
-static int hf_megaco_Remote_descriptor 			= -1;
-static int hf_megaco_Local_descriptor 			= -1;
+static int hf_megaco_Remote_descriptor 		= -1;
+static int hf_megaco_Local_descriptor 		= -1;
 static int hf_megaco_LocalControl_descriptor 	= -1;
 static int hf_megaco_packages_descriptor		= -1;
-static int hf_megaco_error_Frame				= -1;
-static int hf_megaco_Service_State				= -1;
+static int hf_megaco_error_Frame			= -1;
+static int hf_megaco_Service_State			= -1;
 static int hf_megaco_Event_Buffer_Control		= -1;
-static int hf_megaco_mode						= -1;
-static int hf_megaco_reserve_group				= -1;
-static int hf_megaco_reserve_value				= -1;
-static int hf_megaco_streamid 					= -1;
-static int hf_megaco_requestid 					= -1;
-static int hf_megaco_pkgdname					= -1;
-static int hf_megaco_h245		= -1;
+static int hf_megaco_mode				= -1;
+static int hf_megaco_reserve_group			= -1;
+static int hf_megaco_reserve_value			= -1;
+static int hf_megaco_streamid 				= -1;
+static int hf_megaco_requestid 				= -1;
+static int hf_megaco_pkgdname				= -1;
+static int hf_megaco_mId				= -1;
+static int hf_megaco_h245				= -1;
+static int hf_megaco_raw_text				= -1;
 
 /* Define the trees for megaco */
-static int ett_megaco 							= -1;
-static int ett_megaco_command_line 				= -1;
+static int ett_megaco 					= -1;
+static int ett_megaco_command_line 			= -1;
 static int ett_megaco_mediadescriptor			= -1;
-static int ett_megaco_descriptors 				= -1;
+static int ett_megaco_descriptors 			= -1;
 static int ett_megaco_TerminationState			= -1;
 static int ett_megaco_Localdescriptor			= -1;
 static int ett_megaco_Remotedescriptor			= -1;
-static int ett_megaco_LocalControldescriptor	= -1;
+static int ett_megaco_LocalControldescriptor		= -1;
 static int ett_megaco_auditdescriptor			= -1;
 static int ett_megaco_eventsdescriptor			= -1;
-static int ett_megaco_observedeventsdescriptor	= -1;
-static int ett_megaco_observedevent				= -1;
+static int ett_megaco_observedeventsdescriptor		= -1;
+static int ett_megaco_observedevent			= -1;
 static int ett_megaco_packagesdescriptor		= -1;
 static int ett_megaco_requestedevent			= -1;
 static int ett_megaco_signalsdescriptor			= -1;
 static int ett_megaco_requestedsignal			= -1;
-static int ett_megaco_h245 = -1;
-
+static int ett_megaco_h245 				= -1;
 
 
 /*
@@ -204,6 +205,8 @@ static void
 dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *tree, gint tvb_next_offset, gint tvb_current_offset);
 static void
 dissect_megaco_Packagesdescriptor(tvbuff_t *tvb, proto_tree *tree, gint tvb_next_offset, gint tvb_current_offset);
+static void 
+tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
 
 static dissector_handle_t sdp_handle;
 static dissector_handle_t h245_handle;
@@ -233,16 +236,17 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	top_tree=tree;
 
 	/* Initialize variables */
-	tvb_len						= tvb_length(tvb);
-	megaco_tree					= NULL;
-	ti							= NULL;
+	tvb_len					= tvb_length(tvb);
+	megaco_tree				= NULL;
+	ti					= NULL;
 	tvb_previous_offset			= 0;
 	tvb_current_offset			= 0;
+	tvb_offset				= 0;
 	tvb_next_offset				= 0;
-	tvb_command_start_offset	= 0;
-	tvb_command_end_offset		= 0;
-	tvb_RBRKT					= 0;
-	tvb_LBRKT					= 0;
+	tvb_command_start_offset		= 0;
+	tvb_command_end_offset			= 0;
+	tvb_RBRKT				= 0;
+	tvb_LBRKT				= 0;
 	RBRKT_counter				= 0;
 	LBRKT_counter				= 0;
 	
@@ -259,217 +263,288 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_add_str(pinfo->cinfo, COL_PROTOCOL, "MEGACO");
 	
-	
-	/* Display transaction in info column
-	* tvb_previous_offset ll be on the of the action */
-	
-	tvb_offset = tvb_find_guint8(tvb, 0, tvb_len, ':');
-	tvb_current_offset = tvb_find_guint8(tvb, 0, tvb_len, '=');
-	
-	/* Transaction / TransactionResponseAck */
-	if (tvb_find_guint8(tvb, 0, tvb_len, 'T') != -1 && tvb_find_guint8(tvb, 0, tvb_len, 'T') < tvb_current_offset)
-		tvb_previous_offset = tvb_find_guint8(tvb, 0, tvb_len, 'T');
-	
-	/* Reply */
-	if (tvb_find_guint8(tvb, 0, tvb_len, 'R') != -1 && tvb_find_guint8(tvb, 0, tvb_len, 'R') < tvb_current_offset) 
-		tvb_previous_offset = tvb_find_guint8(tvb, 0, tvb_len, 'R');
-	
-	/* Pending */
-	if (tvb_find_guint8(tvb, 0, tvb_len, 'P') != -1 && tvb_find_guint8(tvb, 0, tvb_len, 'P') < tvb_current_offset) 
-		tvb_previous_offset = tvb_find_guint8(tvb, 0, tvb_len, 'P');
-	
-	/* ERROR */
-	if (tvb_find_guint8(tvb, tvb_offset, tvb_len, 'E') != -1 && tvb_find_guint8(tvb, tvb_offset, tvb_len, 'E') < tvb_current_offset) 
-		tvb_previous_offset = tvb_find_guint8(tvb, tvb_offset, tvb_len, 'E');
-	
-	if (tvb_current_offset == -1) {
-		ti = proto_tree_add_item(tree,proto_megaco,tvb, 0, -1, FALSE);
-		megaco_tree = proto_item_add_subtree(ti, ett_megaco);
-		proto_tree_add_text(megaco_tree, tvb, 0, -1,
-		    "Sorry, no \"=\" in this packet, I can't parse it");
-		return;
-	}
-	/*
-	 * "tvb_previous_offset" will only be set if the corresponding
-	 * "tvb_find_guint8()" didn't return -1, so it's not -1.
-	 */
-	len = tvb_current_offset - tvb_previous_offset;
-	
-	tvb_get_nstringz0(tvb,tvb_previous_offset,len+1,transaction);	
-	
-	tvb_offset = tvb_skip_wsp(tvb, tvb_current_offset +1);
-	
-	tvb_current_offset  = tvb_find_guint8(tvb, tvb_offset,
-		tvb_len, '{');
-	if (tvb_current_offset == -1) {
-		ti = proto_tree_add_item(tree,proto_megaco,tvb, 0, -1, FALSE);
-		megaco_tree = proto_item_add_subtree(ti, ett_megaco);
-		proto_tree_add_text(megaco_tree, tvb, 0, -1,
-		    "Sorry, no \"{\" in this packet, I can't parse it");
-		return;
-	}
-	
-	len = tvb_current_offset - tvb_offset;
-	
-	if (tvb_get_guint8(tvb, tvb_current_offset-1 ) == ' ')
-		len--;
-	
-	
-	if ( transaction[0] == 'T'){ 
-		if (check_col(pinfo->cinfo, COL_INFO) )
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request",
-			tvb_format_text(tvb,tvb_offset,len));
-	}
-	if ( (transaction[0] == 'P' && transaction[1] != 'e') || transaction[0] == 'R'){ 
-		if (check_col(pinfo->cinfo, COL_INFO) )
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Reply",
-			tvb_format_text(tvb,tvb_offset,len));
-	}
-	if (  transaction[1] == 'N' || ( transaction[0] == 'P' && transaction[1] == 'e')){ 
-		if (check_col(pinfo->cinfo, COL_INFO) )
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Pending",
-			tvb_format_text(tvb,tvb_offset,len)); 
-	}
-	if ( transaction[0] == 'E'){ 
-		if (check_col(pinfo->cinfo, COL_INFO) )
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Error"
-			);
-	}
-	
-	
 	/* Build the info tree if we've been given a root */
 	if (tree){
 		/* Create megaco subtree */
 		ti = proto_tree_add_item(tree,proto_megaco,tvb, 0, -1, FALSE);
 		megaco_tree = proto_item_add_subtree(ti, ett_megaco);
 		
-		if(global_megaco_dissect_tree)
-			my_proto_tree_add_string = proto_tree_add_string;
-		else 
-			my_proto_tree_add_string = proto_tree_add_string_hidden;
+	} 
+	if(global_megaco_dissect_tree)
+		my_proto_tree_add_string = proto_tree_add_string;
+	else 
+		my_proto_tree_add_string = proto_tree_add_string_hidden;
+
+ 	/*  Format of 'message' is = MegacopToken SLASH Version SEP mId SEP messageBody */
+	/*  MegacopToken = "MEGACO" or "!"						*/
+  	/*  According to H248.1-200205 Annex B Text encoding ( protocol version 2 )     */
+
+	/* Find version */
+	tvb_previous_offset = tvb_find_guint8(tvb, 0,
+		tvb_len, '/');
+	if (tvb_previous_offset == -1) {
+		proto_tree_add_text(megaco_tree, tvb, 0, -1,
+		    "Sorry, no \"/\" in the MEGACO header, I can't parse this packet");
+		return;
+	}
+	tvb_previous_offset = tvb_previous_offset + 1;
+	/* As version should follow /, just add 1, works till ver 9 */	
+	tvb_current_offset  = tvb_previous_offset + 1;
+
 		
-		/* Find version */
-		tvb_previous_offset = tvb_find_guint8(tvb, 0,
-			tvb_len, '/') + 1;
-		if (tvb_previous_offset == -1) {
-			proto_tree_add_text(megaco_tree, tvb, 0, -1,
-			    "Sorry, no \"/\" in the MEGACO header, I can't parse this packet");
-			return;
-		}
+	tokenlen = tvb_current_offset - tvb_previous_offset;
 		
-		tvb_current_offset  = tvb_find_guint8(tvb, tvb_previous_offset,
-			tvb_len, ' ');
-		if (tvb_previous_offset == -1) {
-			proto_tree_add_text(megaco_tree, tvb, 0, -1,
-			    "Sorry, no \" \" after the \"/\" in the MEGACO header, I can't parse this packet");
-			return;
-		}
+	if (tree)
+		my_proto_tree_add_string(megaco_tree, hf_megaco_version, tvb,
+		tvb_previous_offset, tokenlen,
+		tvb_format_text(tvb, tvb_previous_offset,
+		tokenlen));
+	/* Pos of version + 2 should take us past version + SEP					*/
+
+	tvb_previous_offset = tvb_previous_offset + 2; 
+	/* in case of CRLF				*/
+	if (tvb_get_guint8(tvb, tvb_current_offset ) == '\n')
+		tvb_previous_offset++;
+	if (tvb_get_guint8(tvb, tvb_current_offset ) == '\r')
+		tvb_previous_offset++;
+
+	/* mId should follow here,								*/ 
+	/* mId = (( domainAddress / domainName ) [":" portNumber]) / mtpAddress / deviceName 	*/
+	/* domainAddress = "[" (IPv4address / IPv6address) "]"					*/
+	/* domainName = "<" (ALPHA / DIGIT) *63(ALPHA / DIGIT / "-" /".") ">"			*/
+	/* mtpAddress = MTPToken LBRKT 4*8 (HEXDIG) RBRKT					*/
+	/* MTPToken = ("MTP")									*/
+	/* deviceName = pathNAME								*/
+	/* pathNAME = ["*"] NAME *("/" / "*"/ ALPHA / DIGIT /"_" / "$" )["@" pathDomainName ]	*/		
+
+	tokenlen = tvb_find_line_end( tvb, tvb_previous_offset, -1, &tvb_next_offset, FALSE);
+
+/* Att this point we should point to the "\n" ending the mId element */
+
 		
-		tokenlen = tvb_current_offset - tvb_previous_offset;
-		
-		if (tree)
-			my_proto_tree_add_string(megaco_tree, hf_megaco_version, tvb,
-			tvb_previous_offset, tokenlen,
-			tvb_format_text(tvb, tvb_previous_offset,
-			tokenlen));
-		
-		/* Find transaction */
-		tvb_offset = tvb_find_guint8(tvb, 0,
-			tvb_len, ':');
-		
-		/* Transaction / TransactionResponseAck */
-		
-		/* We did this earlier, so we know it doesn't fail */
-		tvb_current_offset = tvb_find_guint8(tvb, 0,
-			tvb_len, '=');
-		
-		tvb_previous_offset = tvb_find_guint8(tvb, tvb_offset, tvb_len, transaction[0]);
-		if (tvb_previous_offset == -1) {
-			proto_tree_add_text(megaco_tree, tvb, 0, -1,
-			    "Sorry, no \"%c\" past the \":\" in this packet, I can't parse it",
-			    transaction[0]);
-			return;
-		}
-		
-		tokenlen = tvb_current_offset - tvb_previous_offset;
-		
-		if (tvb_get_guint8(tvb, tvb_current_offset-1 ) == ' ')
-			tokenlen--;
-		
-		if ( transaction[0] == 'T'){ 
-			my_proto_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
-				tvb_previous_offset, tokenlen,
-				"Request" );
-		}
-		if (  (transaction[0] == 'P' && transaction[1] != 'e') || transaction[0] == 'R'){
-			my_proto_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
-				tvb_previous_offset, tokenlen,
-				"Reply" );
-		}
-		if (  transaction[1] == 'N' || ( transaction[0] == 'P' && transaction[2] == 'n')){ 
-			my_proto_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
-				tvb_previous_offset, tokenlen,
-				"Pending" );
-		}
-		
-		
-		if ( transaction[0] == 'E'){
-			my_proto_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
+	if (tree)
+		my_proto_tree_add_string(megaco_tree, hf_megaco_mId, tvb,
+		tvb_previous_offset, tokenlen,
+		tvb_format_text(tvb, tvb_previous_offset,
+		tokenlen));
+
+	tvb_previous_offset = tvb_next_offset;
+
+/* Next part is 										*/
+/*	: messageBody = ( errorDescriptor / transactionList )					*/
+/* 		errorDescriptor = ErrorToken EQUAL ErrorCode LBRKT [quotedString] RBRKT		*/ 
+/* 			ErrorToken = ("Error" / "ER")						*/
+
+/*		transactionList = 1*( transactionRequest / transactionReply /			*/
+/*					transactionPending / transactionResponseAck )		*/
+
+/*		transactionResponseAck = ResponseAckToken LBRKT 				*/
+/*			transactionAck*(COMMA transactionAck) RBRKT				*/
+/*				ResponseAckToken = ("TransactionResponseAck"/ "K") 		*/
+
+/*		transactionPending = PendingToken EQUAL TransactionID LBRKT RBRKT		*/
+/*			PendingToken = ("Pending" / "PN")					*/
+
+/*		transactionReply = ReplyToken EQUAL TransactionID LBRKT				*/
+/*			[ ImmAckRequiredToken COMMA]( errorDescriptor / actionReplyList ) RBRKT */
+/*			ReplyToken = ("Reply" / "P")						*/
+
+/*		transactionRequest = TransToken EQUAL TransactionID LBRKT			*/
+/*			actionRequest *(COMMA actionRequest) RBRKT				*/	
+/*			TransToken = ("Transaction" / "T")					*/
+
+	tempchar = tvb_get_guint8(tvb, tvb_previous_offset );			
+	
+	switch ( tempchar ){
+		/* errorDescriptor */
+		case 'E':
+			if (check_col(pinfo->cinfo, COL_INFO) )
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Error");
+			tokenlen = tvb_len - tvb_previous_offset;
+			if (tree) {
+				my_proto_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
 				tvb_previous_offset, tokenlen,
 				"Error" );
 			
-			tvb_offset = tvb_find_guint8(tvb, 0, tvb_len, '/');
-			tvb_command_start_offset = tvb_find_guint8(tvb, tvb_offset, tvb_len, 'E');
-			dissect_megaco_errordescriptor(tvb, megaco_tree, tvb_len-1, tvb_command_start_offset);
+				tvb_command_start_offset = tvb_previous_offset;
+				dissect_megaco_errordescriptor(tvb, megaco_tree, tvb_len-1, tvb_command_start_offset);
+			}
 			return;
-		}
-		
-		/* Find transaction id */
-		
-		tvb_previous_offset = tvb_skip_wsp(tvb, tvb_current_offset +1);
-		
-		tvb_current_offset  = tvb_find_guint8(tvb, tvb_previous_offset,
-							  tvb_len, '{');
-		
-		tokenlen = tvb_current_offset - tvb_previous_offset;
-		
-		if (tvb_get_guint8(tvb, tvb_current_offset-1 ) == ' '){
-			tokenlen--;
-		}
-		
-		my_proto_tree_add_string(megaco_tree, hf_megaco_transid, tvb,
+			break;		
+		/* transactionResponseAck 	*/
+		case 'K':
+			tvb_offset  = tvb_find_guint8(tvb, tvb_offset, tvb_len, '{');
+			tokenlen = tvb_offset - tvb_previous_offset;
+			my_proto_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
+				tvb_previous_offset, tokenlen,
+				"TransactionResponseAck" );
+			
+			tvb_previous_offset = tvb_skip_wsp(tvb, tvb_offset+1);
+			len = tvb_len - tvb_previous_offset - 2;
+			if (check_col(pinfo->cinfo, COL_INFO) )
+				col_add_fstr(pinfo->cinfo, COL_INFO, "%s TransactionResponseAck",
+				tvb_format_text(tvb,tvb_previous_offset,len));
+			if(tree)
+				my_proto_tree_add_string(megaco_tree, hf_megaco_transid, tvb,
+				tvb_previous_offset, len,
+				tvb_format_text(tvb,tvb_previous_offset,len));
+			      if(global_megaco_raw_text){
+				tvb_raw_text_add(tvb_new_subset(tvb,0,tvb_len,-1),
+			 	 megaco_tree);
+				}
+			return;
+			break;
+		/* Pe and PN is transactionPending, P+"any char" is transactionReply */
+		case 'P':
+			tempchar = tvb_get_guint8(tvb, tvb_previous_offset + 1 );
+			switch ( tempchar ){
+				case 'e':
+					tokenlen = 7;
+					if (tree)
+					my_proto_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
+					tvb_previous_offset, tokenlen,
+					"Pending" );
+
+					tvb_offset  = tvb_find_guint8(tvb, tvb_previous_offset, tvb_len, '=')+1;
+					tvb_previous_offset = tvb_skip_wsp(tvb, tvb_offset);
+					len = tvb_len - tvb_offset - 2;
+					if (check_col(pinfo->cinfo, COL_INFO) )
+					col_add_fstr(pinfo->cinfo, COL_INFO, "%s Pending",
+					tvb_format_text(tvb,tvb_offset,len)); 
+
+					if(tree)
+					my_proto_tree_add_string(megaco_tree, hf_megaco_transid, tvb,
+					tvb_previous_offset, tokenlen,
+					tvb_format_text(tvb,tvb_offset,len));
+	
+				return;
+				break;
+				case 'N':
+					tokenlen = 2;
+					if (tree)
+					my_proto_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
+					tvb_previous_offset, tokenlen,
+					"Pending" );
+
+					tvb_offset  = tvb_find_guint8(tvb, tvb_previous_offset, tvb_len, '=')+1;
+					len = tvb_len - tvb_offset - 2;
+					if (check_col(pinfo->cinfo, COL_INFO) )
+					col_add_fstr(pinfo->cinfo, COL_INFO, "%s Pending",
+					tvb_format_text(tvb,tvb_offset,len)); 	
+
+					if(tree)
+					my_proto_tree_add_string(megaco_tree, hf_megaco_transid, tvb,
+					tvb_previous_offset, tokenlen,
+					tvb_format_text(tvb,tvb_offset,len));
+					return;
+					break;
+				/* Reply */
+   				default :
+					tokenlen = 1;
+					if (tree)
+					my_proto_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
+					tvb_previous_offset, tokenlen,
+					"Reply" );
+
+					tvb_offset  = tvb_find_guint8(tvb, tvb_previous_offset, tvb_len, '=')+1;
+					tvb_offset = tvb_skip_wsp(tvb, tvb_offset);
+					tvb_current_offset  = tvb_find_guint8(tvb, tvb_offset, tvb_len, '{');
+					len = tvb_current_offset - tvb_offset;
+
+					if (check_col(pinfo->cinfo, COL_INFO) )
+					col_add_fstr(pinfo->cinfo, COL_INFO, "%s Reply",
+					tvb_format_text(tvb,tvb_offset,len));
+					if(tree)
+					my_proto_tree_add_string(megaco_tree, hf_megaco_transid, tvb,
+					tvb_offset, len,
+					tvb_format_text(tvb,tvb_offset,len));
+				break;
+				}/* end switch */
+			break; /* Case 'P' */
+		/* transactionReply */
+		case 'R':
+			tokenlen = 5;
+			if (tree)
+			my_proto_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
 			tvb_previous_offset, tokenlen,
-			tvb_format_text(tvb, tvb_previous_offset,
-			tokenlen));
-		
-		/* Return if transaction = Pending */
-		if ( transaction[0] == 'P' && ( transaction[1] == 'e' || transaction[1] == 'N')){
-			return;
-		}
-		
-		
-		/* Return if there is an error */
-		tvb_current_offset = tvb_skip_wsp(tvb, tvb_current_offset+1);
-		tempchar = tvb_get_guint8(tvb, tvb_current_offset );
-		
-		if ( tempchar == 'E'){
-			tvb_previous_offset = tvb_current_offset;
-			
-			tvb_current_offset = tvb_find_guint8(tvb, tvb_current_offset,
-				tvb_len, '}');
-			tvb_current_offset = tvb_find_guint8(tvb, tvb_current_offset+1,
-				tvb_len, '}');
-			
-			tvb_current_offset = tvb_skip_wsp(tvb, tvb_current_offset-1);
-			
-			dissect_megaco_errordescriptor(tvb, megaco_tree, tvb_current_offset , tvb_previous_offset);
-			
-			return;
-		}
-		
-		
-		
-		
+			"Reply" );
+
+			tvb_offset  = tvb_find_guint8(tvb, tvb_previous_offset, tvb_len, '=')+1;
+			tvb_offset = tvb_skip_wsp(tvb, tvb_offset);
+			tvb_current_offset  = tvb_find_guint8(tvb, tvb_offset, tvb_len, '{');
+			len = tvb_current_offset - tvb_offset;
+
+			if (check_col(pinfo->cinfo, COL_INFO) )
+				col_add_fstr(pinfo->cinfo, COL_INFO, "%s Reply",
+				tvb_format_text(tvb,tvb_offset,len));
+			if(tree)
+				my_proto_tree_add_string(megaco_tree, hf_megaco_transid, tvb,
+				tvb_offset, len,
+				tvb_format_text(tvb,tvb_offset,len));
+			break;
+		/* TransactionRequest or TransactionResponseAck	*/
+
+		case 'T':
+			tokenlen = 1;
+ 			tvb_get_guint8(tvb, tvb_previous_offset + 1 );			
+			if (tvb_get_guint8(tvb, tvb_previous_offset + 1 )!= 'r' )
+			{ 	   	
+				/* TransactionRequest short notation */
+			}
+			else{				/* TransactionRequest or TransactionResponseAck	*/
+				len = 22;         /* TransactionResponseAck is 22 characters      */
+				tokenlen = 11;
+				tvb_get_nstringz0(tvb,tvb_previous_offset,len+1,transaction);
+	
+ 				if ( transaction[20] == 'A'){ 
+					tvb_offset  = tvb_find_guint8(tvb, tvb_offset, tvb_len, '{');
+					len = tvb_len - tvb_offset - 1;
+					if (check_col(pinfo->cinfo, COL_INFO) )
+						col_add_fstr(pinfo->cinfo, COL_INFO, "%s TransactionResponseAck",
+						tvb_format_text(tvb,tvb_offset,len));
+					return;
+					break;
+				}
+			}/* else  */
+
+			/* TransactionRequest 	*/
+			if(tree)
+			my_proto_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
+				tvb_previous_offset, tokenlen,
+				"Request" );
+			tvb_offset  = tvb_find_guint8(tvb, tvb_offset, tvb_len, '=')+1;
+			tvb_offset = tvb_skip_wsp(tvb, tvb_offset);
+			tvb_current_offset  = tvb_find_guint8(tvb, tvb_offset, tvb_len, '{');
+			len = tvb_current_offset - tvb_offset; 
+			if (check_col(pinfo->cinfo, COL_INFO) )
+				col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request",
+				tvb_format_text(tvb,tvb_offset,len));
+			if(tree)
+				my_proto_tree_add_string(megaco_tree, hf_megaco_transid, tvb,
+				tvb_offset,len,
+				tvb_format_text(tvb,tvb_offset,len));
+
+			break;
+		default :
+			ti = proto_tree_add_item(tree,proto_megaco,tvb, 0, -1, FALSE);
+			megaco_tree = proto_item_add_subtree(ti, ett_megaco);
+			proto_tree_add_text(megaco_tree, tvb, 0, -1,
+		    "Sorry, can't understand errorDescriptor / transactionList = %s, can't parse it pos %u",
+                         tvb_format_text(tvb,tvb_previous_offset,2),tvb_previous_offset);
+		return;
+		break;
+		} /* end switch */
+/* 		Only these remains now									*/
+/*		transactionReply = ReplyToken EQUAL TransactionID LBRKT					*/
+/*			[ ImmAckRequiredToken COMMA]( errorDescriptor / actionReplyList ) RBRKT		*/
+/*			ReplyToken = ("Reply" / "P")							*/
+
+/*		transactionRequest = TransToken EQUAL TransactionID LBRKT				*/
+/*			actionRequest *(COMMA actionRequest) RBRKT					*/	
+/*			TransToken = ("Transaction" / "T")						*/
+
+/* Ready to here etxrab */
+if(tree) {   /* Only do the rest if tree built */	
 		/* Find Context */
 nextcontext:
 		tvb_previous_offset = tvb_find_guint8(tvb, tvb_current_offset,
@@ -826,6 +901,9 @@ nextcontext:
 			}
 		} while ( tvb_command_end_offset < tvb_len );
 	}
+      if(global_megaco_raw_text){
+	tvb_raw_text_add(tvb_new_subset(tvb,0,tvb_len,-1), megaco_tree);
+	}
 }
 
 static void
@@ -949,6 +1027,10 @@ dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_tree_command_line, 
 					break;
 					
 				case 'e':
+					dissect_megaco_servicechangedescriptor(tvb, megaco_tree_command_line, tvb_RBRKT, tvb_previous_offset);
+					break;
+
+				case 'V':
 					dissect_megaco_servicechangedescriptor(tvb, megaco_tree_command_line, tvb_RBRKT, tvb_previous_offset);
 					break;
 					
@@ -1192,7 +1274,6 @@ dissect_megaco_mediadescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
 			
 		}	
 	}
-	
 }
 
 static void
@@ -2617,6 +2698,25 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 		tvb_offset = tvb_find_guint8(tvb, tvb_current_offset , tvb_next_offset, '=');
 	}
 }
+/* Copied from MGCP dissector, prints whole message in raw text */
+
+static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree){
+
+  gint tvb_linebegin,tvb_lineend,tvb_len,linelen;
+
+  tvb_linebegin = 0;
+  tvb_len = tvb_length(tvb);
+
+  do {
+    tvb_find_line_end(tvb,tvb_linebegin,-1,&tvb_lineend,FALSE);
+    linelen = tvb_lineend - tvb_linebegin;
+    proto_tree_add_text(tree, tvb, tvb_linebegin, linelen,
+			"%s", tvb_format_text(tvb,tvb_linebegin,
+					      linelen));
+    tvb_linebegin = tvb_lineend;
+  } while ( tvb_lineend < tvb_len );
+}
+
 /* Register all the bits needed with the filtering engine */
 
 void
@@ -2690,7 +2790,7 @@ proto_register_megaco(void)
 		{ "RequestID", "megaco.requestid", FT_STRING, BASE_DEC, NULL, 0x0,
 		"RequestID in Events or Observedevents Descriptor ", HFILL }},
 		{ &hf_megaco_servicechange_descriptor,
-		{ "Service Chnage Descriptor", "megaco.servicechange", FT_STRING, BASE_DEC, NULL, 0x0,
+		{ "Service Change Descriptor", "megaco.servicechange", FT_STRING, BASE_DEC, NULL, 0x0,
 		"Service Change Descriptor of the megaco Command ", HFILL }},
 		{ &hf_megaco_Service_State,
 		{ "Service State", "megaco.servicestates", FT_STRING, BASE_DEC, NULL, 0x0,
@@ -2719,14 +2819,18 @@ proto_register_megaco(void)
 		{ &hf_megaco_transid,
 		{ "Transaction ID", "megaco.transid", FT_STRING, BASE_DEC, NULL, 0x0,
 		"Transaction ID of this message", HFILL }},
+		{ &hf_megaco_mId,
+		{ "MediagatewayID", "megaco.mId", FT_STRING, BASE_DEC, NULL, 0x0,
+		"Mediagateway ID", HFILL }},
 		{ &hf_megaco_version,
 		{ "Version", "megaco.version", FT_STRING, BASE_DEC, NULL, 0x0,
 		"Version", HFILL }},	
-
 		{ &hf_megaco_h245,
 		{ "h245", "megaco.h245", FT_STRING, BASE_DEC, NULL, 0x0,
 		"Embedded H.245 message", HFILL }},	
-		
+		{ &hf_megaco_raw_text,
+		{ "Raw text", "megaco.raw_text", FT_STRING, BASE_DEC, NULL, 0x0,
+		"Raw text", HFILL }},		
 		
 		/* Add more fields here */
 	};
@@ -2911,4 +3015,5 @@ plugin_init(plugin_address_table_t *pat
 #endif
 
 /* End the functions we need for plugin stuff */
+
 
