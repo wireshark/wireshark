@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.11 2000/07/09 03:29:40 guy Exp $
+ * $Id: display_opts.c,v 1.12 2000/07/09 20:59:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -90,7 +90,8 @@ static void display_opt_destroy_cb(GtkWidget *, gpointer);
  */
 static GtkWidget *display_opt_w;
 
-static ts_type prev_timestamp_type;
+static ts_type initial_timestamp_type;
+static ts_type current_timestamp_type;
 
 void
 display_opt_cb(GtkWidget *w, gpointer d) {
@@ -103,9 +104,16 @@ display_opt_cb(GtkWidget *w, gpointer d) {
     return;
   }
 
-  /* Save the current timestamp type, so that "Cancel" can put it back
-     if we've changed it with "Apply". */
-  prev_timestamp_type = timestamp_type;
+  /* Save the timestamp type as of when the dialog box was first popped
+     up, so that "Cancel" can put it back if we've changed it with "Apply". */
+  initial_timestamp_type = timestamp_type;
+
+  /* Save the current timestamp type, so that we know whether it was
+     changed; we don't want to redisplay the time fields unless we've
+     changed it (as redisplaying the time fields could be expensive -
+     we have to scan through all the packets and rebuild the packet
+     list). */
+  current_timestamp_type = timestamp_type;
 
   display_opt_w = dlg_window_new();
   gtk_window_set_title(GTK_WINDOW(display_opt_w), "Ethereal: Display Options");
@@ -221,8 +229,9 @@ display_opt_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 
-  if (timestamp_type != prev_timestamp_type) {
+  if (timestamp_type != current_timestamp_type) {
     /* Time stamp format changed; update the display. */
+    current_timestamp_type = timestamp_type;
     change_time_formats(&cfile);
   }
 }
@@ -231,8 +240,9 @@ static void
 display_opt_apply_cb(GtkWidget *ok_bt, gpointer parent_w) {
   get_display_options(GTK_WIDGET(parent_w));
 
-  if (timestamp_type != prev_timestamp_type) {
+  if (timestamp_type != current_timestamp_type) {
     /* Time stamp format changed; update the display. */
+    current_timestamp_type = timestamp_type;
     change_time_formats(&cfile);
   }
 }
@@ -285,10 +295,11 @@ get_display_options(GtkWidget *parent_w)
 }
 
 static void
-display_opt_close_cb(GtkWidget *close_bt, gpointer parent_w) {
-
-  if (timestamp_type != prev_timestamp_type) {
-    timestamp_type = prev_timestamp_type;
+display_opt_close_cb(GtkWidget *close_bt, gpointer parent_w)
+{
+  /* Revert the timestamp type to the value it had when we started. */
+  if (timestamp_type != initial_timestamp_type) {
+    timestamp_type = initial_timestamp_type;
     change_time_formats(&cfile);
   }
 
