@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.77 2003/01/03 22:31:26 guy Exp $
+ * $Id: wtap.c,v 1.78 2003/01/08 05:03:54 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -160,6 +160,9 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_SDLC */
 	{ "SDLC", "sdlc" },
+
+	/* WTAP_ENCAP_TZSP */
+	{ "Tazmen sniffer protocol", "tzsp" },
 };
 
 /* Name that should be somewhat descriptive. */

@@ -1321,6 +1321,8 @@ Chris Waters <chris[AT]waters.co.nz> {
 	    protocol tree
 	Export "find_dissector_table()" and add
 	    "dissector_handle_get_protocol_index()"
+	Support Tazmen Sniffer Protocol and DLT_TZSP captures from
+	    network-based libpcaps that use that protocol
 }
 
 Solomon Peachy <pizza[AT]shaftnet.org> {
