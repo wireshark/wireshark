@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.22 1999/10/15 05:30:41 itojun Exp $
+ * $Id: packet-ipv6.c,v 1.23 1999/10/15 16:59:12 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -157,6 +157,7 @@ dissect_opts(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
     static const value_string rtalertvals[] = {
 	{ IP6OPT_RTALERT_MLD, "MLD" },
 	{ IP6OPT_RTALERT_RSVP, "RSVP" },
+	{ 0, NULL },
     };
 
     memcpy(&ext, (void *) &pd[offset], sizeof(ext)); 
