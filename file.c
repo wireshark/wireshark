@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.30 1999/06/19 03:14:29 guy Exp $
+ * $Id: file.c,v 1.31 1999/06/19 03:22:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -647,11 +647,11 @@ init_col_widths(capture_file *cf)
 
   /* XXX - this should use the column *title* font, not the font for
      the items in the list.
-     But how do you get that font?  We set the font for the packet list
-     in "main()", but why does that affect only the list entries, not
-     the title?  Is it because it's not supposed to affect the title,
-     or is it because we did a "gtk_clist_new_with_titles()" and
-     that put the titles in *before* we changed the font? */
+
+     Unfortunately, it's not clear how to get that font - it'd be
+     the font used for buttons; there doesn't seem to be a way to get
+     that from a clist, or to get one of the buttons in that clist from
+     the clist in order to get its font. */
   for (i = 0; i < cf->cinfo.num_cols; i++)
     cf->cinfo.col_width[i] = gdk_string_width(pl_style->font,
                                                cf->cinfo.col_title[i]);
