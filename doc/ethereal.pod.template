@@ -139,10 +139,10 @@ Reads packet data from I<file>.
 
 =item -R
 
-Causes the specified filter (which uses the syntax of display filters,
-rather than that of capture filters) to be applied, when a capture file
-is read, to all packets read from the capture file; packets not matching
-the filter are discarded.
+When reading a capture file specified with the B<-r> flag, causes the
+specified filter (which uses the syntax of display filters, rather than
+that of capture filters) to be applied to all packets read from the
+capture file; packets not matching the filter are discarded.
 
 =item -S
 
