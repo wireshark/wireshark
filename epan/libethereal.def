@@ -88,6 +88,7 @@ decode_numeric_bitfield
 deletefile
 dfilter_apply_edt
 dfilter_compile
+dfilter_dump
 dfilter_error_msg               DATA
 dfilter_free
 DisengageReason_vals            DATA
