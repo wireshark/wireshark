@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.234 2004/02/03 18:39:52 guy Exp $
+ * $Id: capture.c,v 1.235 2004/02/03 19:54:08 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1536,9 +1536,9 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
       /* filter string invalid, did the user tried a display filter? */
       if (dfilter_compile(cfile.cfilter, &rfcode) && rfcode != NULL) {
         snprintf(errmsg, sizeof errmsg,
-          "%sInvalid capture filter: \"%s\"!%s%s\n"
+          "%sInvalid capture filter: \"%s\"!%s\n"
           "\n"
-          "That string looks like a valid display filter.\n"
+          "That string looks like a valid display filter (%s).\n"
           "\n"
           "Note that display filters and capture filters don't have the same syntax,\n"
           "so you can't use most display filter expressions as capture filters.\n"
