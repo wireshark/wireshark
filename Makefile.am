@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.336 2001/06/18 05:27:16 guy Exp $
+# $Id: Makefile.am,v 1.337 2001/06/21 15:16:43 girlich Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -185,6 +185,8 @@ DISSECTOR_SRC = \
 	packet-q2931.c \
 	packet-q931.c  \
 	packet-quake.c \
+	packet-quakeworld.c \
+	packet-quake2.c \
 	packet-radius.c\
 	packet-ranap.c \
 	packet-raw.c   \
