@@ -1,7 +1,7 @@
 /* packet-bgp.c
  * Definitions for BGP packet disassembly structures and routine
  *
- * $Id: packet-bgp.h,v 1.9 2000/04/11 14:21:37 itojun Exp $
+ * $Id: packet-bgp.h,v 1.10 2000/12/25 05:28:40 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,12 +33,14 @@
 #define BGP_MIN_UPDATE_MSG_SIZE		23
 #define BGP_MIN_NOTIFICATION_MSG_SIZE	21
 #define BGP_MIN_KEEPALVE_MSG_SIZE	BGP_HEADER_SIZE
+#define BGP_TCP_PORT			179
 
 /* BGP message types */
 #define BGP_OPEN		1
 #define BGP_UPDATE		2
 #define BGP_NOTIFICATION	3
 #define BGP_KEEPALIVE		4
+#define BGP_ROUTE_REFRESH       5
 
 /* BGP header */
 struct bgp {
@@ -70,6 +72,16 @@ struct bgp_notification {
     /* data should follow */
 };
 
+/* BGP ROUTE-REFRESH message */
+struct bgp_route_refresh {
+    guint8 bgpr_marker[BGP_MARKER_SIZE];
+    guint16 bgpr_len;
+    guint8 bgpr_type;
+    guint16 bgpr_afi;
+    guint8 bgpr_reserved;
+    guint8 bgpr_safi;
+};
+
 /* path attribute */
 struct bgp_attr {
     guint8 bgpa_flags;
@@ -85,10 +97,17 @@ struct bgp_attr {
 /* AS_PATH segment types */
 #define AS_SET             1   /* RFC1771 */
 #define AS_SEQUENCE        2   /* RFC1771 */
-/* This is wrong according to the RFC... in the Zebra code they say that
-   cisco reversed it.  Packet traces seem to agree.                      */
-#define AS_CONFED_SET      4   /* RFC1965 */
-#define AS_CONFED_SEQUENCE 3   /* RFC1965 */
+#define AS_CONFED_SET      4   /* RFC1965 has the wrong values, corrected in  */
+#define AS_CONFED_SEQUENCE 3   /* draft-ietf-idr-bgp-confed-rfc1965bis-01.txt */
+
+/* OPEN message Optional Parameter types  */
+#define BGP_OPTION_AUTHENTICATION	1   /* RFC1771 */
+#define BGP_OPTION_CAPABILITY		2   /* RFC2842 */
+
+/* BGP capability code */
+#define BGP_CAPABILITY_RESERVED		0   /* RFC2434 */
+#define BGP_CAPABILITY_MULTIPROTOCOL	1   /* RFC2858 */
+#define BGP_CAPABILITY_ROUTE_REFRESH	2   /* RFC2918 */
 
 /* well-known communities, from RFC1997 */
 #define BGP_COMM_NO_EXPORT           0xFFFFFF01
@@ -106,13 +125,13 @@ struct bgp_attr {
 #define BGPTYPE_ATOMIC_AGGREGATE  6   /* RFC1771          */
 #define BGPTYPE_AGGREGATOR        7   /* RFC1771          */
 #define BGPTYPE_COMMUNITIES       8   /* RFC1997          */
-#define BGPTYPE_ORIGINATOR_ID     9   /* RFC1966          */
-#define BGPTYPE_CLUSTER_LIST     10   /* RFC1966          */
+#define BGPTYPE_ORIGINATOR_ID     9   /* RFC2796          */
+#define BGPTYPE_CLUSTER_LIST     10   /* RFC2796          */
 #define BGPTYPE_DPA              11   /* work in progress */
 #define BGPTYPE_ADVERTISER       12   /* RFC1863          */
 #define BGPTYPE_RCID_PATH        13   /* RFC1863          */
-#define BGPTYPE_MP_REACH_NLRI    14   /* RFC2283          */
-#define BGPTYPE_MP_UNREACH_NLRI  15   /* RFC2283          */
+#define BGPTYPE_MP_REACH_NLRI    14   /* RFC2858          */
+#define BGPTYPE_MP_UNREACH_NLRI  15   /* RFC2858          */
 
 /* RFC1700 address family numbers */
 #define AFNUM_INET	1
