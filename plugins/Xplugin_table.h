@@ -213,3 +213,5 @@ typedef char *(*addr_dissector_handle_get_short_name) (dissector_handle_t);
 typedef int (*addr_dissector_handle_get_protocol_index) (dissector_handle_t);
 typedef void (*addr_new_register_dissector) (const char *, new_dissector_t, int);
 typedef dissector_handle_t (*addr_new_create_dissector_handle) (new_dissector_t, int);
+typedef void (*addr_register_giop_user_module) (giop_sub_dissector_t (*), gchar *, gchar *, int);
+typedef void (*addr_delete_giop_user_module) (giop_sub_dissector_t (*), gchar *, gchar *);

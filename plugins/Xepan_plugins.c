@@ -213,3 +213,5 @@ patable.p_dissector_handle_get_short_name = dissector_handle_get_short_name;
 patable.p_dissector_handle_get_protocol_index = dissector_handle_get_protocol_index;
 patable.p_new_register_dissector = new_register_dissector;
 patable.p_new_create_dissector_handle = new_create_dissector_handle;
+patable.p_register_giop_user_module = register_giop_user_module;
+patable.p_delete_giop_user_module = delete_giop_user_module;

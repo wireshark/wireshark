@@ -213,3 +213,5 @@
 #define dissector_handle_get_protocol_index (*p_dissector_handle_get_protocol_index)
 #define new_register_dissector (*p_new_register_dissector)
 #define new_create_dissector_handle (*p_new_create_dissector_handle)
+#define register_giop_user_module (*p_register_giop_user_module)
+#define delete_giop_user_module (*p_delete_giop_user_module)
