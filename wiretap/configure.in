@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.47 2003/07/23 20:32:37 gerald Exp $
+# $Id: configure.in,v 1.48 2003/08/21 07:25:22 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -170,7 +170,7 @@ AC_C_BIGENDIAN
 # there's no benefit to not looking for the header.
 #
 AC_ARG_WITH(pcap,
-[  --with-pcap=DIR      libpcap is located in directory DIR.],
+[  --with-pcap=DIR         libpcap is located in directory DIR.],
 [
 	if test $withval != yes -a $withval != no
 	then
