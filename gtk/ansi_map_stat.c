@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: ansi_map_stat.c,v 1.22 2004/05/23 23:24:05 ulfl Exp $
+ * $Id: ansi_map_stat.c,v 1.23 2004/05/26 11:37:36 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -311,13 +311,13 @@ ansi_map_stat_gtk_win_create(
 	gtk_widget_show(column_lb);
 
 	col_arrows[i].ascend_pm = xpm_to_widget(clist_ascend_xpm);
-	//    gtk_pixmap_new(ascend_pm, ascend_bm);
+	/*    gtk_pixmap_new(ascend_pm, ascend_bm); */
 
 	gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm,
 	    1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
 
 	col_arrows[i].descend_pm = xpm_to_widget(clist_descend_xpm);
-	//    gtk_pixmap_new(descend_pm, descend_bm);
+	/*    gtk_pixmap_new(descend_pm, descend_bm); */
 
 	gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm,
 	    1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
