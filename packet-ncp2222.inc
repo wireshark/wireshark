@@ -7,7 +7,7 @@
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp2222.inc,v 1.10 2002/05/09 23:50:25 gram Exp $
+ * $Id: packet-ncp2222.inc,v 1.11 2002/05/11 23:04:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -251,6 +251,22 @@ get_item_name(proto_item *item)
 
 typedef proto_item* (*padd_func_t)(ptvcursor_t*, const ptvc_record*);
 
+/*
+ * XXX - are these just DOS-format dates and times?
+ *
+ * Should we put code to understand various date and time formats (UNIX,
+ * DOS, SMB weird mutant UNIX, NT, Mac, etc. into libethereal, and have
+ * the "display" member of an HF_ABSOLUTE_TIME field specify whether
+ * it's DOS date/DOS time, DOS time/DOS date, NT time, UNIX time_t,
+ * UNIX "struct timeval", NFSv3/NFSv4 seconds/nanoseconds, Mac, etc.?
+ *
+ * What about hijacking the "bitmask" field to specify the precision of
+ * the time stamp, or putting a combination of precision and format
+ * into the "display" member?
+ *
+ * What about relative times?  Should they have units (seconds, milliseconds,
+ * microseconds, nanoseconds, etc.), precision, and format in there?
+ */
 typedef struct {
 	guint	year;
 	guint	month;
