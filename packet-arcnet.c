@@ -2,7 +2,7 @@
  * Routines for arcnet dissection
  * Copyright 2001-2002, Peter Fales <ethereal@fales-lorenz.net>
  *
- * $Id: packet-arcnet.c,v 1.9 2003/01/23 10:11:54 guy Exp $
+ * $Id: packet-arcnet.c,v 1.10 2003/12/19 01:24:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,7 +58,7 @@ void
 capture_arcnet (const guchar *pd, int len, packet_counts *ld,
 		gboolean has_offset, gboolean has_exception)
 {
-  int offset = has_offset ? 2 : 4;
+  int offset = has_offset ? 4 : 2;
 
   if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
     ld->other++;
