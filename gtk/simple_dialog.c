@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.31 2004/04/16 23:16:29 guy Exp $
+ * $Id: simple_dialog.c,v 1.32 2004/05/01 22:55:22 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,8 @@
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "compat_macros.h"
+
+#include <epan/strutil.h>
 
 #include "image/stock_dialog_error_48.xpm"
 #include "image/stock_dialog_info_48.xpm"
@@ -325,4 +327,21 @@ simple_dialog_primary_start(void) {
 char *
 simple_dialog_primary_end(void) {
     return PRIMARY_TEXT_END;
+}
+
+char *
+simple_dialog_format_message(const char *msg)
+{
+    char *str;
+
+    if (msg) {
+#if GTK_MAJOR_VERSION < 2
+	str = g_strdup(msg);
+#else
+	str = xml_escape(msg);
+#endif
+    } else {
+	str = NULL;
+    }
+    return str;
 }

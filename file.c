@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.380 2004/05/01 15:15:07 ulfl Exp $
+ * $Id: file.c,v 1.381 2004/05/01 22:55:21 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -979,13 +979,18 @@ filter_packets(capture_file *cf, gchar *dftext, gboolean force)
     dftext = g_strdup(dftext);
     if (!dfilter_compile(dftext, &dfcode)) {
       /* The attempt failed; report an error. */
+      gchar *safe_dftext = simple_dialog_format_message(dftext);
+      gchar *safe_dfilter_error_msg = simple_dialog_format_message(
+	  dfilter_error_msg);
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, 
           "%s%s%s\n"
           "\n"
-          "The display filter \"%s\" is not a valid display filter.\n"
+          "The following display filter is not a valid display filter:\n%s\n"
           "See the help for a description of the display filter syntax.",
-          simple_dialog_primary_start(), dfilter_error_msg,
-          simple_dialog_primary_end(), dftext);
+          simple_dialog_primary_start(), safe_dfilter_error_msg,
+          simple_dialog_primary_end(), safe_dftext);
+      g_free(safe_dfilter_error_msg);
+      g_free(safe_dftext);
       g_free(dftext);
       return FALSE;
     }

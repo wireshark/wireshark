@@ -2,7 +2,7 @@
  * Definitions for alert box routines with toolkit-independent APIs but
  * toolkit-dependent implementations.
  *
- * $Id: simple_dialog.h,v 1.12 2004/04/16 23:16:28 guy Exp $
+ * $Id: simple_dialog.h,v 1.13 2004/05/01 22:55:22 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,6 +79,7 @@ typedef void (* simple_dialog_cb_t) (gpointer dialog, gint btn, gpointer data);
 extern void simple_dialog_set_cb(gpointer dialog, simple_dialog_cb_t callback_fct, gpointer data);
 
 extern char *simple_dialog_primary_start(void);
+extern char *simple_dialog_format_message(const char *msg);
 extern char *simple_dialog_primary_end(void);
 
 /*
