@@ -421,6 +421,11 @@ rtpstream_on_analyse                   (GtkButton       *button _U_,
 	address ip_dst_rev;
 	guint16 port_dst_rev = 0;
 	guint32 ssrc_rev = 0;
+
+	if (!(selected_stream_fwd || selected_stream_rev))
+	{
+		return;
+	}
 	
 	SET_ADDRESS(&ip_src_fwd,AT_NONE,0,NULL);
 	SET_ADDRESS(&ip_dst_fwd,AT_NONE,0,NULL);
