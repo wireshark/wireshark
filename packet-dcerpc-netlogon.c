@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.68 2003/01/30 08:19:38 guy Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.69 2003/01/31 07:32:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1846,7 +1846,7 @@ netlogon_dissect_DELTA_DOMAIN(tvbuff_t *tvb, int offset,
 			char *drep)
 {
 	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_domain_name, 0);
+		hf_netlogon_domain_name, 1);
 
 	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_oem_info, 0);
