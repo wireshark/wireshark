@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.9 1999/08/03 14:49:34 gram Exp $
+ * $Id: proto.c,v 1.10 1999/08/03 14:59:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -119,6 +119,7 @@ void proto_register_osi(void);
 void proto_register_ospf(void);
 void proto_register_pop(void);
 void proto_register_ppp(void);
+void proto_register_radius(void);
 void proto_register_rip(void);
 void proto_register_rsvp(void);
 void proto_register_rtsp(void);
@@ -213,6 +214,7 @@ proto_init(void)
 	proto_register_ospf();
 	proto_register_pop();
 	proto_register_ppp();
+	proto_register_radius();
 	proto_register_rip();
 	proto_register_rsvp();
 	proto_register_rtsp();

@@ -1,7 +1,7 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
  *
- * $Id: packet-radius.c,v 1.2 1999/07/13 02:52:54 gram Exp $
+ * $Id: packet-radius.c,v 1.3 1999/08/03 14:59:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -20,6 +20,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+int proto_radius = -1;
+int hf_radius_length = -1;
+int hf_radius_code = -1;
+int hf_radius_id =-1;
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -433,8 +437,7 @@ value_string *valstrarr;
   {
         case( RADIUS_STRING ):
         case( RADIUS_BINSTRING ):
-
-result=rdconvertbufftostr(avph->avp_length-2,&(pd[offset+2]));
+		result=rdconvertbufftostr(avph->avp_length-2,&(pd[offset+2]));
                 break;
         case( RADIUS_INTEGER4 ):
                 sprintf(textbuffer,"%u", intval);
@@ -513,8 +516,10 @@ void dissect_attribute_value_pairs(const u_char *pd, int offset, frame_data
         proto_tree_add_text(tree,offset,0,"No Attribute Value Pairs Found");
         return;
   }
+
   while (avplength > 0 )
   {
+
      memcpy(&avph,&pd[offset],sizeof(e_avphdr));
      avplength=avplength-avph.avp_length;
      avptpstrval=match_strval(avph.avp_type, radius_attrib_type_vals);
@@ -526,6 +531,7 @@ void dissect_attribute_value_pairs(const u_char *pd, int offset, frame_data
      offset=offset+avph.avp_length;
   }
 }
+
 void dissect_radius(const u_char *pd, int offset, frame_data *fd, 
 proto_tree
 *tree)
@@ -547,38 +553,54 @@ proto_tree
   rhident= (int)rh.rh_ident;
   rhlength= (int)ntohs(rh.rh_pktlength);
   codestrval=  match_strval(rhcode,radius_vals);
+  if (codestrval==NULL)
+  {
+	codestrval="Unknown Packet";
+  }
   if (check_col(fd, COL_PROTOCOL))
         col_add_str(fd, COL_PROTOCOL, "RADIUS");
-  if (check_col(fd, COL_INFO) && codestrval !=NULL)
+  if (check_col(fd, COL_INFO))
   {
-        col_add_fstr(fd,COL_INFO,codestrval);
+	sprintf(textbuffer,"%s(%d) (id=%d, l=%d)",
+		codestrval, rhcode, rhident, rhlength);
+        col_add_fstr(fd,COL_INFO,textbuffer);
   }
 
   if (tree)
   {
-
-        ti = proto_tree_add_text(tree, offset, rhlength, "RADIUS");
+	
+        ti = proto_tree_add_item(tree,proto_radius, offset, rhlength,
+			NULL);
 
         radius_tree = proto_item_add_subtree(ti, ETT_RADIUS);
-        proto_tree_add_text(radius_tree, offset,      1,
-                "Packet code:0x%01x (%s)",rhcode, codestrval);
-        proto_tree_add_text(radius_tree, offset+1, 1,
-                "Packet identifier: 0x%01x (%d)", rhident, rhident);
-        proto_tree_add_text(radius_tree, offset+2, 2,
-                "Packet length: 0x%02x (%d)", rhlength,rhlength);
-        proto_tree_add_text(radius_tree, offset+4, AUTHENTICATOR_LENGTH,
-                        "Authenticator");
-        hdrlength=RD_HDR_LENGTH+AUTHENTICATOR_LENGTH;
-        avplength= rhlength - hdrlength;
+
+	proto_tree_add_item_format(radius_tree,hf_radius_code, offset,      1,
+                rh.rh_code, "Packet code:0x%01x (%s)",rhcode, codestrval);
+        proto_tree_add_item_format(radius_tree,hf_radius_id, offset+1, 1,
+                rh.rh_ident, "Packet identifier: 0x%01x (%d)",
+			rhident,rhident);         
+
+	proto_tree_add_item_format(radius_tree, hf_radius_length,
+			offset+2, 2,
+                 (guint16)rhlength, 
+		"Packet length: 0x%02x(%d)",rhlength,rhlength); 
+         proto_tree_add_text(radius_tree, offset+4,
+			AUTHENTICATOR_LENGTH,
+                         "Authenticator");
+   
+	hdrlength=RD_HDR_LENGTH+AUTHENTICATOR_LENGTH;
+        avplength= rhlength -hdrlength;
 
         offsetavp=offset+hdrlength;
 
 
         /* list the attribute value pairs */
-        avptf = proto_tree_add_text(radius_tree,
-                        offset+hdrlength,avplength,
+
+        avptf = proto_tree_add_text(radius_tree
+                        ,offset+hdrlength,avplength,
                         "Attribute value pairs");
         avptree = proto_item_add_subtree(avptf, ETT_RADIUS_AVP);
+
         if (avptree !=NULL)
         {
                 dissect_attribute_value_pairs( pd,
@@ -586,3 +608,20 @@ proto_tree
         }
   }
 }
+/* registration with the filtering engine */
+void
+proto_register_radius(void)
+{
+	static hf_register_info hf[] = {
+		{ &hf_radius_code,
+		{ "Code","radius.code", FT_UINT8, NULL }},
+		{ &hf_radius_id,
+		{ "Identifier",	"radius.id", FT_UINT8, NULL }},
+		{ &hf_radius_length,
+		{ "Length","radius.length", FT_UINT16, NULL }}
+	};
+
+	proto_radius = proto_register_protocol ("Radius Protocol", "radius");
+	proto_register_field_array(proto_radius, hf, array_length(hf));
+}
+
