@@ -538,7 +538,7 @@ SectionEnd
 
 Section "Load Winpcap NPF service at startup" SecNPFservice
 ;-------------------------------------------
-	WriteRegDWORD HKEY_LOCAL_MACHINE "SYSTEM\CurrentControlSet\Services\NPF" "Start" 1
+	WriteRegDWORD HKEY_LOCAL_MACHINE "SYSTEM\CurrentControlSet\Services\NPF" "Start" 2 ;set NPF to (SERVICE_AUTO_START)
 SectionEnd
 
 Section "Uninstall"
