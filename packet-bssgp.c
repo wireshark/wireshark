@@ -2,7 +2,7 @@
  * Routines for BSSGP (BSS GPRS Protocol ETSI GSM 08.18 version 6.7.1 TS 101 343 ) dissection
  * Copyright 2000, Josef Korelus <jkor@quick.cz>
  *
- * $Id: packet-bssgp.c,v 1.4 2003/09/15 18:49:06 guy Exp $
+ * $Id: packet-bssgp.c,v 1.5 2003/10/05 23:27:24 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -732,31 +732,35 @@ static void mccmnc(guint32 mcmn, char buf[]){
 		guint32 mcc1 : 4 ;
 		guint32 mcc2 : 4 ;		
 	} stru_mncmcc;
-	stru_mncmcc  *r_mncmcc;
+	typedef union {
+		guint32 i;
+		stru_mncmcc s;
+	} u_mncmcc;
+	u_mncmcc  *r_mncmcc;
 	guint8 pom =0,i=0 ;
-		r_mncmcc = (stru_mncmcc *) &mcmn;
+		r_mncmcc = (u_mncmcc *)&mcmn;
 		for (i=0;i<8;i++){
 		  switch (i) {
 			  case 0 :
-				  pom = r_mncmcc->mcc1;
+				  pom = r_mncmcc->s.mcc1;
 			  	break;
 			  case 1 :	
-				  pom = r_mncmcc->mcc2;
+				  pom = r_mncmcc->s.mcc2;
 				break;
 			  case 2 :
-				  pom = r_mncmcc->mcc3;
+				  pom = r_mncmcc->s.mcc3;
 				break;
 			  case 3 :
 			  	  pom = 0x61;/* 0x61 because i need space " " (0x61-1)^0x40*/	
 				break;
 			  case 4 :
-				  pom = r_mncmcc->mnc1;
+				  pom = r_mncmcc->s.mnc1;
 				break;
 			  case 5 :
-				  pom = r_mncmcc->mnc2;
+				  pom = r_mncmcc->s.mnc2;
 				break;
 			  case 6 :
-				  pom = r_mncmcc->mnc3;	  
+				  pom = r_mncmcc->s.mnc3;	  
 			  	  pom = (pom == 0xf)?0x41: pom;/* 0x41 because i need null on the end of string (0x41-1)^0x40*/
 				break;
 			  case 7 :
