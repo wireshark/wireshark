@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2001, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.55 2001/06/18 16:38:22 girlich Exp $
+ * $Id: packet-nfs.c,v 1.56 2001/06/19 08:33:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -839,7 +839,8 @@ dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, int offset, proto_tree *tree
 		}
 	}
 
-	out:
+out:
+	;
 }
 
 
