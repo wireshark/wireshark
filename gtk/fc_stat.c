@@ -1,7 +1,7 @@
 /* fc_stat.c
  * fc_stat   2003 Ronnie Sahlberg
  *
- * $Id: fc_stat.c,v 1.29 2004/02/27 19:07:18 ulfl Exp $
+ * $Id: fc_stat.c,v 1.30 2004/03/13 15:15:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -160,7 +160,7 @@ gtk_fcstat_init(char *optarg)
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 	gtk_widget_show(label);
 
-	snprintf(filter_string,255,"Filter:%s",filter?filter:"");
+	g_snprintf(filter_string,255,"Filter:%s",filter?filter:"");
 	label=gtk_label_new(filter_string);
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 	gtk_widget_show(label);

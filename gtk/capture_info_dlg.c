@@ -1,7 +1,7 @@
 /* capture_info_dlg.c
  * Routines for packet capture info dialog
  *
- * $Id: capture_info_dlg.c,v 1.12 2004/02/21 12:58:42 ulfl Exp $
+ * $Id: capture_info_dlg.c,v 1.13 2004/03/13 15:15:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -236,7 +236,7 @@ capture_info    *cinfo)
 
 
   /* calculate and display running time */
-  snprintf(label_str, sizeof(label_str), "%02ld:%02ld:%02ld", 
+  g_snprintf(label_str, sizeof(label_str), "%02ld:%02ld:%02ld", 
            (long)(cinfo->running_time/3600), (long)((cinfo->running_time%3600)/60),
            (long)(cinfo->running_time%60));
   gtk_label_set(GTK_LABEL(info->running_time_lb), label_str);
@@ -244,7 +244,7 @@ capture_info    *cinfo)
   if (cinfo->new_packets) {
 
     for (i = 0; i < CAPTURE_PACKET_COUNTS; i++) {
-        snprintf(label_str, sizeof(label_str), "%d",
+        g_snprintf(label_str, sizeof(label_str), "%d",
                  *info->counts[i].value_ptr);
         gtk_label_set(GTK_LABEL(info->counts[i].value_lb), label_str);
 

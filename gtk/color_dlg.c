@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.43 2004/03/13 11:43:21 ulfl Exp $
+ * $Id: color_dlg.c,v 1.44 2004/03/13 15:15:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -508,9 +508,9 @@ add_filter_to_list(gpointer filter_arg, gpointer list_arg)
 
   store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list_arg)));
   gtk_list_store_append(store, &iter);
-  sprintf(fg_str, "#%04X%04X%04X",
+  g_snprintf(fg_str, 14, "#%04X%04X%04X",
           colorf->fg_color.red, colorf->fg_color.green, colorf->fg_color.blue);
-  sprintf(bg_str, "#%04X%04X%04X",
+  g_snprintf(bg_str, 14, "#%04X%04X%04X",
           colorf->bg_color.red, colorf->bg_color.green, colorf->bg_color.blue);
   gtk_list_store_set(store, &iter, 0, colorf->filter_name,
                      1, colorf->filter_text, 2, fg_str, 3, bg_str,
@@ -1483,9 +1483,9 @@ edit_color_filter_ok_cb                (GtkButton       *button,
         gtk_clist_set_background(GTK_CLIST(color_filters), row_selected,
                                  &new_bg_color);
 #else
-        sprintf(fg_str, "#%04X%04X%04X",
+        g_snprintf(fg_str, 14, "#%04X%04X%04X",
                 new_fg_color.red, new_fg_color.green, new_fg_color.blue);
-        sprintf(bg_str, "#%04X%04X%04X",
+        g_snprintf(bg_str, 14, "#%04X%04X%04X",
                 new_bg_color.red, new_bg_color.green, new_bg_color.blue);
         model = gtk_tree_view_get_model(GTK_TREE_VIEW(color_filters));
         gtk_tree_model_iter_nth_child(model, &iter, NULL, row_selected);

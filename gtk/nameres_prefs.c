@@ -1,7 +1,7 @@
 /* nameres_prefs.c
  * Dialog box for name resolution preferences
  *
- * $Id: nameres_prefs.c,v 1.8 2003/07/22 03:14:31 gerald Exp $
+ * $Id: nameres_prefs.c,v 1.9 2004/03/13 15:15:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -108,7 +108,7 @@ nameres_prefs_show(void)
 	OBJECT_SET_DATA(main_vb, C_RESOLVE_KEY, c_resolv_cb);
 
 	/* Max concurrent requests */
-	sprintf(concur_str, "%d", prefs.name_resolve_concurrency);
+	g_snprintf(concur_str, 10+1, "%d", prefs.name_resolve_concurrency);
 	resolv_concurrency_te = create_preference_entry(main_tb, 4, 
 	    "Maximum concurrent requests:", NULL, concur_str);
 	OBJECT_SET_DATA(main_vb, RESOLVE_CONCURRENCY_KEY, resolv_concurrency_te);

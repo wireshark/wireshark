@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.30 2004/02/13 00:53:34 guy Exp $
+ * $Id: capture_prefs.c,v 1.31 2004/03/13 15:15:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -743,10 +743,10 @@ ifopts_write_new_descr(void)
 		if ((strlen(ifnm) + strlen(desc) + 4 + 
 				strlen(new_descr)) <  MAX_VAL_LEN) {
 			if (first_if == 1)
-				snprintf(tmp_descr, IFOPTS_MAX_DESCR_LEN+MAX_WIN_IF_NAME_LEN+4,
+				g_snprintf(tmp_descr, IFOPTS_MAX_DESCR_LEN+MAX_WIN_IF_NAME_LEN+4,
 						"%s(%s)", ifnm, desc);
 			else
-				snprintf(tmp_descr, IFOPTS_MAX_DESCR_LEN+MAX_WIN_IF_NAME_LEN+4,
+				g_snprintf(tmp_descr, IFOPTS_MAX_DESCR_LEN+MAX_WIN_IF_NAME_LEN+4,
 						",%s(%s)", ifnm, desc);
 			strcat(new_descr, tmp_descr);
 			/* set first-in-list flag to false */
@@ -830,9 +830,9 @@ ifopts_write_new_hide(void)
 		 */
 		if ((strlen(ifnm) + 2 + strlen(new_hide)) <  MAX_VAL_LEN) {
 			if (first_if == 1)
-				snprintf(tmp_hide, MAX_WIN_IF_NAME_LEN+2, "%s", ifnm);
+				g_snprintf(tmp_hide, MAX_WIN_IF_NAME_LEN+2, "%s", ifnm);
 			else
-				snprintf(tmp_hide, MAX_WIN_IF_NAME_LEN+2, ",%s", ifnm);
+				g_snprintf(tmp_hide, MAX_WIN_IF_NAME_LEN+2, ",%s", ifnm);
 			strcat(new_hide, tmp_hide);
 			/* set first-in-list flag to false */
 			first_if = 0;

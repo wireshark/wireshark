@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table.c   2003 Ronnie Sahlberg
  * Helper routines common to all host list taps.
  *
- * $Id: hostlist_table.c,v 1.4 2004/02/23 22:48:51 guy Exp $
+ * $Id: hostlist_table.c,v 1.5 2004/03/13 15:15:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,7 +72,7 @@ hostlist_port_to_str(int port_type, guint32 port)
 	switch(port_type){
 	case PT_TCP:
 	case PT_UDP:
-		snprintf(strp, 11, "%d", port);
+		g_snprintf(strp, 11, "%d", port);
 		return strp;
 	}
 	return NULL;
@@ -144,7 +144,7 @@ reset_hostlist_table_data(hostlist_table *hosts)
 	guint32 i;
 	char title[256];
 
-	snprintf(title, 255, "%s: %s", hosts->name, cf_get_display_name(&cfile));
+	g_snprintf(title, 255, "%s: %s", hosts->name, cf_get_display_name(&cfile));
 	gtk_window_set_title(GTK_WINDOW(hosts->win), title);
 
 	/* remove all entries from the clist */
@@ -283,7 +283,7 @@ hostlist_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint c
 
 	sport=hostlist_port_to_str(hl->hosts[selection].port_type, hl->hosts[selection].src_port);
 
-	snprintf(dirstr, 127, "%s==%s %s%s%s%s",
+	g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
 		hostlist_get_filter_name(&hl->hosts[selection].src_address, 
 		hl->hosts[selection].sat, hl->hosts[selection].port_type,  FN_ANY_ADDRESS),
 		address_to_str(&hl->hosts[selection].src_address),
@@ -296,27 +296,27 @@ hostlist_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint c
 	switch(type){
 	case 0:
 		/* selected */
-		snprintf(str, 255, "%s", dirstr);
+		g_snprintf(str, 255, "%s", dirstr);
 		break;
 	case 1:
 		/* not selected */
-		snprintf(str, 255, "!(%s)", dirstr);
+		g_snprintf(str, 255, "!(%s)", dirstr);
 		break;
 	case 2:
 		/* and selected */
-		snprintf(str, 255, "(%s) && (%s)", current_filter, dirstr);
+		g_snprintf(str, 255, "(%s) && (%s)", current_filter, dirstr);
 		break;
 	case 3:
 		/* or selected */
-		snprintf(str, 255, "(%s) || (%s)", current_filter, dirstr);
+		g_snprintf(str, 255, "(%s) || (%s)", current_filter, dirstr);
 		break;
 	case 4:
 		/* and not selected */
-		snprintf(str, 255, "(%s) && !(%s)", current_filter, dirstr);
+		g_snprintf(str, 255, "(%s) && !(%s)", current_filter, dirstr);
 		break;
 	case 5:
 		/* or not selected */
-		snprintf(str, 255, "(%s) || !(%s)", current_filter, dirstr);
+		g_snprintf(str, 255, "(%s) || !(%s)", current_filter, dirstr);
 		break;
 	}
 
@@ -435,21 +435,21 @@ draw_hostlist_table_data(hostlist_table *hl)
 
 		j=gtk_clist_find_row_from_data(hl->table, (gpointer)i);
 
-		sprintf(str, "%u", hl->hosts[i].tx_frames+hl->hosts[i].rx_frames);
+		g_snprintf(str, 16, "%u", hl->hosts[i].tx_frames+hl->hosts[i].rx_frames);
 		gtk_clist_set_text(hl->table, j, 2, str);		
-		sprintf(str, "%u", hl->hosts[i].tx_bytes+hl->hosts[i].rx_bytes);
+		g_snprintf(str, 16, "%u", hl->hosts[i].tx_bytes+hl->hosts[i].rx_bytes);
 		gtk_clist_set_text(hl->table, j, 3, str);		
 
 
-		sprintf(str, "%u", hl->hosts[i].tx_frames);
+		g_snprintf(str, 16, "%u", hl->hosts[i].tx_frames);
 		gtk_clist_set_text(hl->table, j, 4, str);	
-		sprintf(str, "%u", hl->hosts[i].tx_bytes);
+		g_snprintf(str, 16, "%u", hl->hosts[i].tx_bytes);
 		gtk_clist_set_text(hl->table, j, 5, str);		
 
 
-		sprintf(str, "%u", hl->hosts[i].rx_frames);
+		g_snprintf(str, 16, "%u", hl->hosts[i].rx_frames);
 		gtk_clist_set_text(hl->table, j, 6, str);		
-		sprintf(str, "%u", hl->hosts[i].rx_bytes);
+		g_snprintf(str, 16, "%u", hl->hosts[i].rx_bytes);
 		gtk_clist_set_text(hl->table, j, 7, str);		
 
 	}
@@ -478,7 +478,7 @@ init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char 
 	hosttable->name=table_name;
 	hosttable->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(hosttable->win), 750, 400);
-	snprintf(title, 255, "%s: %s", table_name, cf_get_display_name(&cfile));
+	g_snprintf(title, 255, "%s: %s", table_name, cf_get_display_name(&cfile));
 	gtk_window_set_title(GTK_WINDOW(hosttable->win), title);
 
 	SIGNAL_CONNECT(hosttable->win, "destroy", hostlist_win_destroy_cb, hosttable);
@@ -664,19 +664,19 @@ add_hostlist_table_data(hostlist_table *hl, address *addr, guint32 src_port, gbo
 		entries[0]=address_to_str(&talker->src_address);
 		entries[1]=sport?sport:"";
 
-		sprintf(frames,"%u", talker->tx_frames+talker->rx_frames);
+		g_snprintf(frames, 16, "%u", talker->tx_frames+talker->rx_frames);
 		entries[2]=frames;
-		sprintf(bytes,"%u", talker->tx_bytes+talker->rx_bytes);
+		g_snprintf(bytes, 16, "%u", talker->tx_bytes+talker->rx_bytes);
 		entries[3]=bytes;
 
-		sprintf(txframes,"%u", talker->tx_frames);
+		g_snprintf(txframes, 16, "%u", talker->tx_frames);
 		entries[4]=txframes;
-		sprintf(txbytes,"%u", talker->tx_bytes);
+		g_snprintf(txbytes, 16, "%u", talker->tx_bytes);
 		entries[5]=txbytes;
 
-		sprintf(rxframes,"%u", talker->rx_frames);
+		g_snprintf(rxframes, 16, "%u", talker->rx_frames);
 		entries[6]=rxframes;
-		sprintf(rxbytes,"%u", talker->rx_bytes);
+		g_snprintf(rxbytes, 16, "%u", talker->rx_bytes);
 		entries[7]=rxbytes;
 
 		gtk_clist_insert(hl->table, talker_idx, entries);

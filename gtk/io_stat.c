@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.72 2004/03/08 07:47:14 sahlberg Exp $
+ * $Id: io_stat.c,v 1.73 2004/03/13 15:15:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -486,18 +486,18 @@ get_it_value(io_stat_t *io, int graph_id, int idx)
 
 
 static void
-print_time_scale_string(char *buf, guint32 t)
+print_time_scale_string(char *buf, int buf_len, guint32 t)
 {
 	if(t>=10000000){
-		sprintf(buf, "%ds",t/1000000);
+		g_snprintf(buf, buf_len, "%ds",t/1000000);
 	} else if(t>=1000000){
-		sprintf(buf, "%d.%03ds",t/1000000,(t%1000000)/1000);
+		g_snprintf(buf, buf_len, "%d.%03ds",t/1000000,(t%1000000)/1000);
 	} else if(t>=10000){
-		sprintf(buf, "%dms",t/1000);
+		g_snprintf(buf, buf_len, "%dms",t/1000);
 	} else if(t>=1000){
-		sprintf(buf, "%d.%03dms",t/1000,t%1000);
+		g_snprintf(buf, buf_len, "%d.%03dms",t/1000,t%1000);
 	} else {
-		sprintf(buf, "%dus",t);
+		g_snprintf(buf, buf_len, "%dus",t);
 	}
 }
 
@@ -648,9 +648,9 @@ io_stat_draw(io_stat_t *io)
 	 * top y scale label will be the widest one
 	 */
 	if(draw_y_as_time){
-		print_time_scale_string(label_string, max_y);
+		print_time_scale_string(label_string, 15, max_y);
 	} else {
-		sprintf(label_string,"%d", max_y);
+		g_snprintf(label_string, 15, "%d", max_y);
 	}
 #if GTK_MAJOR_VERSION < 2
         label_width=gdk_string_width(font, label_string);
@@ -698,9 +698,9 @@ io_stat_draw(io_stat_t *io)
 		/* draw the labels */
 		if(i==0){
 			if(draw_y_as_time){
-				print_time_scale_string(label_string, (max_y*i/10));
+				print_time_scale_string(label_string, 15, (max_y*i/10));
 			} else {
-				sprintf(label_string,"%d", max_y*i/10);
+				g_snprintf(label_string, 15, "%d", max_y*i/10);
 			}
 #if GTK_MAJOR_VERSION < 2
 	                lwidth=gdk_string_width(font, label_string);
@@ -722,9 +722,9 @@ io_stat_draw(io_stat_t *io)
 		}
 		if(i==5){
 			if(draw_y_as_time){
-				print_time_scale_string(label_string, (max_y*i/10));
+				print_time_scale_string(label_string, 15, (max_y*i/10));
 			} else {
-				sprintf(label_string,"%d", max_y*i/10);
+				g_snprintf(label_string, 15, "%d", max_y*i/10);
 			}
 #if GTK_MAJOR_VERSION < 2
 	                lwidth=gdk_string_width(font, label_string);
@@ -746,9 +746,9 @@ io_stat_draw(io_stat_t *io)
 		}
 		if(i==10){
 			if(draw_y_as_time){
-				print_time_scale_string(label_string, (max_y*i/10));
+				print_time_scale_string(label_string, 15, (max_y*i/10));
 			} else {
-				sprintf(label_string,"%d", max_y*i/10);
+				g_snprintf(label_string, 15, "%d", max_y*i/10);
 			}
 #if GTK_MAJOR_VERSION < 2
 	                lwidth=gdk_string_width(font, label_string);
@@ -832,13 +832,13 @@ io_stat_draw(io_stat_t *io)
 		if(xlen==10){
 			int lwidth;
 			if(io->interval>=1000){
-				sprintf(label_string,"%ds", current_interval/1000);
+				g_snprintf(label_string, 15, "%ds", current_interval/1000);
 			} else if(io->interval>=100){
-				sprintf(label_string,"%d.%1ds", current_interval/1000,(current_interval/100)%10);
+				g_snprintf(label_string, 15, "%d.%1ds", current_interval/1000,(current_interval/100)%10);
 			} else if(io->interval>=10){
-				sprintf(label_string,"%d.%2ds", current_interval/1000,(current_interval/10)%100);
+				g_snprintf(label_string, 15, "%d.%2ds", current_interval/1000,(current_interval/10)%100);
 			} else {
-				sprintf(label_string,"%d.%3ds", current_interval/1000,current_interval%1000);
+				g_snprintf(label_string, 15, "%d.%3ds", current_interval/1000,current_interval%1000);
 			}
 #if GTK_MAJOR_VERSION < 2
                         lwidth=gdk_string_width(font, label_string);
@@ -1310,7 +1310,7 @@ create_pixels_per_tick_menu_items(io_stat_t *io, GtkWidget *menu)
 	int i;
 
 	for(i=0;i<MAX_PIXELS_PER_TICK;i++){
-		sprintf(str,"%d", pixels_per_tick[i]);
+		g_snprintf(str, 5, "%d", pixels_per_tick[i]);
 		menu_item=gtk_menu_item_new_with_label(str);
 
 		OBJECT_SET_DATA(menu_item, "pixels_per_tick",
@@ -1346,13 +1346,13 @@ create_tick_interval_menu_items(io_stat_t *io, GtkWidget *menu)
 
 	for(i=0;i<MAX_TICK_VALUES;i++){
 		if(tick_interval_values[i]>=1000){
-			sprintf(str,"%d sec", tick_interval_values[i]/1000);
+			g_snprintf(str, 15, "%d sec", tick_interval_values[i]/1000);
 		} else if(tick_interval_values[i]>=100){
-			sprintf(str,"0.%1d sec", (tick_interval_values[i]/100)%10);
+			g_snprintf(str, 15, "0.%1d sec", (tick_interval_values[i]/100)%10);
 		} else if(tick_interval_values[i]>=10){
-			sprintf(str,"0.%02d sec", (tick_interval_values[i]/10)%10);
+			g_snprintf(str, 15, "0.%02d sec", (tick_interval_values[i]/10)%10);
 		} else {
-			sprintf(str,"0.%03d sec", (tick_interval_values[i])%10);
+			g_snprintf(str, 15, "0.%03d sec", (tick_interval_values[i])%10);
 		}
 
 		menu_item=gtk_menu_item_new_with_label(str);
@@ -1377,7 +1377,7 @@ create_yscale_max_menu_items(io_stat_t *io, GtkWidget *menu)
 		if(yscale_max[i]==AUTO_MAX_YSCALE){
 			strcpy(str,"Auto");
 		} else {
-			sprintf(str,"%d", yscale_max[i]);
+			g_snprintf(str, 15, "%d", yscale_max[i]);
 		}
 		menu_item=gtk_menu_item_new_with_label(str);
 		OBJECT_SET_DATA(menu_item, "yscale_max", yscale_max[i]);
@@ -1751,7 +1751,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_box_set_child_packing(GTK_BOX(box), hbox, FALSE, FALSE, 0, GTK_PACK_START);
 	gtk_widget_show(hbox);
 
-	sprintf(str, "Graph %d", num);
+	g_snprintf(str, 256, "Graph %d", num);
     gio->display_button=gtk_toggle_button_new_with_label(str);
 	gtk_box_pack_start(GTK_BOX(hbox), gio->display_button, FALSE, FALSE, 0);
 	gtk_widget_show(gio->display_button);
@@ -1790,7 +1790,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	/* filter prefs dialog */
 	gio->filter_bt=BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY);
 
-	sprintf(str, "Ethereal: Display Filter  IO-Stat (Filter:%d)", num);
+	g_snprintf(str, 256, "Ethereal: Display Filter  IO-Stat (Filter:%d)", num);
 	if(gio->args->title){
 		free(gio->args->title);
 	}
@@ -1819,7 +1819,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	/*
 	 * create PlotStyle menu
 	 */
-	sprintf(str, " Style:");
+	g_snprintf(str, 256, " Style:");
 	label=gtk_label_new(str);
 	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);

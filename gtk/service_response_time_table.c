@@ -3,7 +3,7 @@
  * Helper routines common to all service response time statistics
  * tap.
  *
- * $Id: service_response_time_table.c,v 1.15 2004/02/23 22:48:52 guy Exp $
+ * $Id: service_response_time_table.c,v 1.16 2004/03/13 15:15:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -183,27 +183,27 @@ srt_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	switch(type){
 	case 0:
 		/* selected */
-		snprintf(str, 255, "%s==%d", rst->filter_string, selection);
+		g_snprintf(str, 255, "%s==%d", rst->filter_string, selection);
 		break;
 	case 1:
 		/* not selected */
-		snprintf(str, 255, "!(%s==%d)", rst->filter_string, selection);
+		g_snprintf(str, 255, "!(%s==%d)", rst->filter_string, selection);
 		break;
 	case 2:
 		/* and selected */
-		snprintf(str, 255, "(%s) && (%s==%d)", current_filter, rst->filter_string, selection);
+		g_snprintf(str, 255, "(%s) && (%s==%d)", current_filter, rst->filter_string, selection);
 		break;
 	case 3:
 		/* or selected */
-		snprintf(str, 255, "(%s) || (%s==%d)", current_filter, rst->filter_string, selection);
+		g_snprintf(str, 255, "(%s) || (%s==%d)", current_filter, rst->filter_string, selection);
 		break;
 	case 4:
 		/* and not selected */
-		snprintf(str, 255, "(%s) && !(%s==%d)", current_filter, rst->filter_string, selection);
+		g_snprintf(str, 255, "(%s) && !(%s==%d)", current_filter, rst->filter_string, selection);
 		break;
 	case 5:
 		/* or not selected */
-		snprintf(str, 255, "(%s) || !(%s==%d)", current_filter, rst->filter_string, selection);
+		g_snprintf(str, 255, "(%s) || !(%s==%d)", current_filter, rst->filter_string, selection);
 		break;
 	}
 
@@ -431,7 +431,7 @@ init_srt_table_row(srt_stat_table *rst, int index, char *procedure)
 	char str[10];
 
 
-	sprintf(str,"%d",index);
+	g_snprintf(str, 10, "%d",index);
 	rst->procedures[index].entries[0]=g_strdup(str);
 
 	rst->procedures[index].entries[1]=g_strdup(procedure);
@@ -518,27 +518,27 @@ draw_srt_table_data(srt_stat_table *rst)
 		}
 
 		j=gtk_clist_find_row_from_data(rst->table, (gpointer)i);
-		sprintf(str,"%d", rst->procedures[i].num);
+		g_snprintf(str, 256, "%d", rst->procedures[i].num);
 		strp=g_strdup(str);
 		gtk_clist_set_text(rst->table, j, 2, strp);
 		g_free(rst->procedures[i].entries[2]);
 		rst->procedures[i].entries[2]=strp;
 
 
-		sprintf(str,"%3d.%05d", (int)rst->procedures[i].min.secs,rst->procedures[i].min.nsecs/10000);
+		g_snprintf(str, 256, "%3d.%05d", (int)rst->procedures[i].min.secs,rst->procedures[i].min.nsecs/10000);
 		strp=g_strdup(str);
 		gtk_clist_set_text(rst->table, j, 3, strp);
 		g_free(rst->procedures[i].entries[3]);
 		rst->procedures[i].entries[3]=strp;
 
 
-		sprintf(str,"%3d.%05d", (int)rst->procedures[i].max.secs,rst->procedures[i].max.nsecs/10000);
+		g_snprintf(str, 256, "%3d.%05d", (int)rst->procedures[i].max.secs,rst->procedures[i].max.nsecs/10000);
 		strp=g_strdup(str);
 		gtk_clist_set_text(rst->table, j, 4, strp);
 		g_free(rst->procedures[i].entries[4]);
 		rst->procedures[i].entries[4]=strp;
 
-		sprintf(str,"%3d.%05d", td/100000, td%100000);
+		g_snprintf(str, 256, "%3d.%05d", td/100000, td%100000);
 		strp=g_strdup(str);
 		gtk_clist_set_text(rst->table, j, 5, strp);
 		g_free(rst->procedures[i].entries[5]);

@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: ansi_a_stat.c,v 1.15 2004/02/23 19:19:35 ulfl Exp $
+ * $Id: ansi_a_stat.c,v 1.16 2004/03/13 15:15:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -128,7 +128,7 @@ ansi_a_stat_draw(
     void		*tapdata)
 {
     int			i, j;
-    char		str[256], *strp;
+    char		*strp;
 
 
     tapdata = tapdata;
@@ -141,9 +141,8 @@ ansi_a_stat_draw(
 	{
 	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg_bsmap.table), (gpointer) i);
 
-	    sprintf(str, "%d",
-		stat.bsmap_message_type[ansi_a_ios401_bsmap_strings[i].value]);
-	    strp = g_strdup(str);
+	    strp = g_strdup_printf("%d",
+		    stat.bsmap_message_type[ansi_a_ios401_bsmap_strings[i].value]);
 	    gtk_clist_set_text(GTK_CLIST(dlg_bsmap.table), j, 2, strp);
 	    g_free(strp);
 
@@ -161,9 +160,8 @@ ansi_a_stat_draw(
 	{
 	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg_dtap.table), (gpointer) i);
 
-	    sprintf(str, "%d",
-		stat.dtap_message_type[ansi_a_ios401_dtap_strings[i].value]);
-	    strp = g_strdup(str);
+	    strp = g_strdup_printf("%d",
+		    stat.dtap_message_type[ansi_a_ios401_dtap_strings[i].value]);
 	    gtk_clist_set_text(GTK_CLIST(dlg_dtap.table), j, 2, strp);
 	    g_free(strp);
 
@@ -454,7 +452,7 @@ ansi_a_stat_gtk_bsmap_cb(
     i = 0;
     while (ansi_a_ios401_bsmap_strings[i].strptr)
     {
-	sprintf(str, "0x%02x", ansi_a_ios401_bsmap_strings[i].value);
+	g_snprintf(str, 100, "0x%02x", ansi_a_ios401_bsmap_strings[i].value);
 	dlg_bsmap.entries[0] = g_strdup(str);
 
 	dlg_bsmap.entries[1] = g_strdup(ansi_a_ios401_bsmap_strings[i].strptr);
@@ -494,7 +492,7 @@ ansi_a_stat_gtk_dtap_cb(
     i = 0;
     while (ansi_a_ios401_dtap_strings[i].strptr)
     {
-	sprintf(str, "0x%02x", ansi_a_ios401_dtap_strings[i].value);
+	g_snprintf(str, 100, "0x%02x", ansi_a_ios401_dtap_strings[i].value);
 	dlg_dtap.entries[0] = g_strdup(str);
 
 	dlg_dtap.entries[1] = g_strdup(ansi_a_ios401_dtap_strings[i].strptr);

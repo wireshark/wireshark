@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.40 2004/02/27 19:07:20 ulfl Exp $
+ * $Id: smb_stat.c,v 1.41 2004/03/13 15:15:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -182,7 +182,7 @@ gtk_smbstat_init(char *optarg)
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 	gtk_widget_show(label);
 
-	snprintf(filter_string,255,"Filter:%s",filter?filter:"");
+	g_snprintf(filter_string,255,"Filter:%s",filter?filter:"");
 	label=gtk_label_new(filter_string);
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 	gtk_widget_show(label);

@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.65 2004/02/24 18:39:13 ulfl Exp $
+ * $Id: gui_prefs.c,v 1.66 2004/03/13 15:15:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -268,7 +268,7 @@ gui_prefs_show(void)
 	/* Number of entries in the recent_files list ... */
 	recent_files_count_max_te = create_preference_entry(main_tb, pos++,
 	    "\"Open Recent\" max. list entries:", "Maximum number of recent files", recent_files_count_max_str);
-	sprintf(current_val_str, "%d", prefs.gui_recent_files_count_max);
+	g_snprintf(current_val_str, 128, "%d", prefs.gui_recent_files_count_max);
 	gtk_entry_set_text(GTK_ENTRY(recent_files_count_max_te), current_val_str);
 	OBJECT_SET_DATA(main_vb, GUI_RECENT_FILES_COUNT_KEY, recent_files_count_max_te);
 	SIGNAL_CONNECT(recent_files_count_max_te, "focus_out_event", recent_files_count_changed_cb, main_vb);

@@ -1,7 +1,7 @@
 /* bootp_stat.c
  * boop_stat   2003 Jean-Michel FAYARD
  *
- * $Id: bootp_stat.c,v 1.23 2004/03/13 14:07:12 ulfl Exp $
+ * $Id: bootp_stat.c,v 1.24 2004/03/13 15:15:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,8 +78,10 @@ dhcp_reset_hash(gchar *key _U_ , dhcp_message_type_t *data, gpointer ptr _U_ )
  * or create it if it don't exist.
  */
 static void
-dhcp_draw_message_type(gchar *key _U_, dhcp_message_type_t *data, gchar * string_buff )
+dhcp_draw_message_type(gchar *key _U_, dhcp_message_type_t *data, gchar * unused _U_ )
 {
+	char string_buff[256];
+
 	if ((data==NULL) || (data->packets==0))
 		return;
 	if (data->widget==NULL){	/* create an entry in the table */
@@ -89,13 +91,13 @@ dhcp_draw_message_type(gchar *key _U_, dhcp_message_type_t *data, gchar * string
 
 
 		/* Maybe we should display the hexadecimal value ? */
-		/* sprintf(string_buff, "%s  (0X%x)", data->name, *key); */
+		/* g_snprintf(string_buff, 256, "%s  (0X%x)", data->name, *key); */
 		tmp = gtk_label_new( data->name  /* string_buff */ );
 		gtk_table_attach_defaults(GTK_TABLE(data->sp->table_message_type), tmp, x, x+1, y, y+1);
 		gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
 		gtk_widget_show(tmp);
 
-		sprintf( string_buff, "%9d", data->packets );
+		g_snprintf( string_buff, 256, "%9d", data->packets );
 		data->widget = gtk_label_new( string_buff );
 		gtk_table_attach_defaults(GTK_TABLE(data->sp->table_message_type), data->widget, x+1, x+2, y, y+1);
 		gtk_label_set_justify(GTK_LABEL(data->widget), GTK_JUSTIFY_LEFT);
@@ -104,7 +106,7 @@ dhcp_draw_message_type(gchar *key _U_, dhcp_message_type_t *data, gchar * string
 		data->sp->index++;
 	} else {
 		/* Just update the label string */
-		sprintf( string_buff, "%9d", data->packets );
+		g_snprintf( string_buff, 256, "%9d", data->packets );
 		gtk_label_set( GTK_LABEL(data->widget), string_buff);
 	}
 }
@@ -149,11 +151,10 @@ static void
 dhcpstat_draw(void *psp)
 {
 	dhcpstat_t *sp=psp;
-	char str[256];
 	guint index;
 
 	index=sp->index;
-	g_hash_table_foreach( sp->hash, (GHFunc) dhcp_draw_message_type, str );
+	g_hash_table_foreach( sp->hash, (GHFunc) dhcp_draw_message_type, NULL );
 	if (index != sp->index){
 		/* We have inserted a new entry corresponding to a status code ,
 		 * let's resize the table */

@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: isup_stat.c,v 1.19 2004/02/23 19:19:37 ulfl Exp $
+ * $Id: isup_stat.c,v 1.20 2004/03/13 15:15:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,7 +122,7 @@ isup_stat_draw(
     void		*tapdata)
 {
     int			i, j;
-    char		str[256], *strp;
+    char		*strp;
 
 
     tapdata = tapdata;
@@ -135,9 +135,8 @@ isup_stat_draw(
 	{
 	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg.table), (gpointer) i);
 
-	    sprintf(str, "%d",
-		stat.message_type[isup_message_type_value[i].value]);
-	    strp = g_strdup(str);
+	    strp = g_strdup_printf("%d",
+		    stat.message_type[isup_message_type_value[i].value]);
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 3, strp);
 	    g_free(strp);
 
@@ -430,7 +429,7 @@ isup_stat_gtk_cb(
     i = 0;
     while (isup_message_type_value[i].strptr)
     {
-	sprintf(str, "%u", isup_message_type_value[i].value);
+	g_snprintf(str, 100, "%u", isup_message_type_value[i].value);
 	dlg.entries[0] = g_strdup(str);
 
 	dlg.entries[1] = g_strdup(isup_message_type_value_acro[i].strptr);

@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.38 2004/03/13 14:07:12 ulfl Exp $
+ * $Id: decode_as_dlg.c,v 1.39 2004/03/13 15:15:23 ulfl Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -290,26 +290,26 @@ decode_build_show_list (gchar *table_name, ftenum_t selector_type,
 	switch (get_dissector_table_base(table_name)) {
 
 	case BASE_DEC:
-	    sprintf(string1, "%u", GPOINTER_TO_UINT(key));
+	    g_snprintf(string1, sizeof(string1), "%u", GPOINTER_TO_UINT(key));
 	    break;
 
 	case BASE_HEX:
 	    switch (get_dissector_table_selector_type(table_name)) {
 
 	    case FT_UINT8:
-		sprintf(string1, "0x%02x", GPOINTER_TO_UINT(key));
+		g_snprintf(string1, sizeof(string1), "0x%02x", GPOINTER_TO_UINT(key));
 		break;
 
 	    case FT_UINT16:
-		sprintf(string1, "0x%04x", GPOINTER_TO_UINT(key));
+		g_snprintf(string1, sizeof(string1), "0x%04x", GPOINTER_TO_UINT(key));
 		break;
 
 	    case FT_UINT24:
-		sprintf(string1, "0x%06x", GPOINTER_TO_UINT(key));
+		g_snprintf(string1, sizeof(string1), "0x%06x", GPOINTER_TO_UINT(key));
 		break;
 
 	    case FT_UINT32:
-		sprintf(string1, "0x%08x", GPOINTER_TO_UINT(key));
+		g_snprintf(string1, sizeof(string1), "0x%08x", GPOINTER_TO_UINT(key));
 		break;
 
 	    default:
@@ -319,7 +319,7 @@ decode_build_show_list (gchar *table_name, ftenum_t selector_type,
 	    break;
 
 	case BASE_OCT:
-	    sprintf(string1, "%#o", GPOINTER_TO_UINT(key));
+	    g_snprintf(string1, sizeof(string1), "%#o", GPOINTER_TO_UINT(key));
 	    break;
 	}
 	text[E_LIST_D_SELECTOR] = string1;
@@ -990,13 +990,13 @@ decode_add_srcdst_menu (GtkWidget *page)
 
     optmenu = gtk_option_menu_new();
     menu = gtk_menu_new();
-    sprintf(tmp, "source (%u)", cfile.edt->pi.srcport);
+    g_snprintf(tmp, 100, "source (%u)", cfile.edt->pi.srcport);
     menuitem = gtk_menu_item_new_with_label(tmp);
     OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_SPORT));
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
-    sprintf(tmp, "destination (%u)", cfile.edt->pi.destport);
+    g_snprintf(tmp, 100, "destination (%u)", cfile.edt->pi.destport);
     menuitem = gtk_menu_item_new_with_label(tmp);
     OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_DPORT));
     gtk_menu_append(GTK_MENU(menu), menuitem);
@@ -1394,7 +1394,7 @@ decode_add_notebook (GtkWidget *format_hb)
 
     /* Add link level selection page */
     if (cfile.edt->pi.ethertype) {
-	sprintf(buffer, "Ethertype 0x%04x", cfile.edt->pi.ethertype);
+	g_snprintf(buffer, 40, "Ethertype 0x%04x", cfile.edt->pi.ethertype);
 	page = decode_add_simple_page(buffer, "Link", "ethertype", cfile.edt->pi.ethertype);
 	label = gtk_label_new("Link");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
@@ -1405,7 +1405,7 @@ decode_add_notebook (GtkWidget *format_hb)
 	/*
 	 * The network-layer protocol is IP.
 	 */
-	sprintf(buffer, "IP protocol %u", cfile.edt->pi.ipproto);
+	g_snprintf(buffer, 40, "IP protocol %u", cfile.edt->pi.ipproto);
 	page = decode_add_simple_page(buffer, "Network", "ip.proto", cfile.edt->pi.ipproto);
 	OBJECT_SET_DATA(page, E_PAGE_ACTION, decode_simple);
 	label = gtk_label_new("Network");

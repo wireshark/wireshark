@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.79 2004/02/06 19:19:10 ulfl Exp $
+ * $Id: prefs_dlg.c,v 1.80 2004/03/13 15:15:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -151,15 +151,15 @@ pref_show(pref_t *pref, gpointer user_data)
     switch (pref->info.base) {
 
     case 10:
-      sprintf(uint_str, "%u", pref->saved_val.uint);
+      g_snprintf(uint_str, 10+1, "%u", pref->saved_val.uint);
       break;
 
     case 8:
-      sprintf(uint_str, "%o", pref->saved_val.uint);
+      g_snprintf(uint_str, 10+1, "%o", pref->saved_val.uint);
       break;
 
     case 16:
-      sprintf(uint_str, "%x", pref->saved_val.uint);
+      g_snprintf(uint_str, 10+1, "%x", pref->saved_val.uint);
       break;
     }
     pref->control = create_preference_entry(main_tb, pref->ordinal,

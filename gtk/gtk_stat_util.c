@@ -2,7 +2,7 @@
  * gui functions used by stats
  * Copyright 2003 Lars Roland
  *
- * $Id: gtk_stat_util.c,v 1.4 2004/02/06 19:19:10 ulfl Exp $
+ * $Id: gtk_stat_util.c,v 1.5 2004/03/13 15:15:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -83,7 +83,7 @@ init_main_stat_window(GtkWidget *window, GtkWidget *mainbox, char *title, char *
 	gtk_box_pack_start(GTK_BOX(mainbox), main_label, FALSE, FALSE, 0);
 	gtk_widget_show(main_label);
 
-	snprintf(filter_string,255,"Filter:%s",filter?filter:"");
+	g_snprintf(filter_string,255,"Filter:%s",filter?filter:"");
 	filter_label=gtk_label_new(filter_string);
 	gtk_box_pack_start(GTK_BOX(mainbox), filter_label, FALSE, FALSE, 0);
 	gtk_widget_show(filter_label);

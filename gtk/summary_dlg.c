@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.27 2004/02/13 00:53:36 guy Exp $
+ * $Id: summary_dlg.c,v 1.28 2004/03/13 15:15:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,10 +31,6 @@
 #include <gtk/gtk.h>
 
 #include <wtap.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include "summary.h"
 #include "summary_dlg.h"
@@ -96,20 +92,20 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(file_box);
 
   /* filename */
-  snprintf(string_buff, SUM_STR_MAX, "Name: %s", summary.filename);
+  g_snprintf(string_buff, SUM_STR_MAX, "Name: %s", summary.filename);
   add_string_to_box(string_buff, file_box);
 
   /* length */
-  snprintf(string_buff, SUM_STR_MAX, "Length: %lu", summary.file_length);
+  g_snprintf(string_buff, SUM_STR_MAX, "Length: %lu", summary.file_length);
   add_string_to_box(string_buff, file_box);
 
   /* format */
-  snprintf(string_buff, SUM_STR_MAX, "Format: %s", wtap_file_type_string(summary.encap_type));
+  g_snprintf(string_buff, SUM_STR_MAX, "Format: %s", wtap_file_type_string(summary.encap_type));
   add_string_to_box(string_buff, file_box);
 
   if (summary.has_snap) {
     /* snapshot length */
-    snprintf(string_buff, SUM_STR_MAX, "Snapshot length: %u", summary.snap);
+    g_snprintf(string_buff, SUM_STR_MAX, "Snapshot length: %u", summary.snap);
     add_string_to_box(string_buff, file_box);
   }
 
@@ -124,14 +120,14 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(data_box);
 
   /* seconds */
-  snprintf(string_buff, SUM_STR_MAX, "Elapsed time: %.3f seconds", summary.elapsed_time);
+  g_snprintf(string_buff, SUM_STR_MAX, "Elapsed time: %.3f seconds", summary.elapsed_time);
   add_string_to_box(string_buff, data_box);
 
-  snprintf(string_buff, SUM_STR_MAX, "Between first and last packet: %.3f seconds", seconds);
+  g_snprintf(string_buff, SUM_STR_MAX, "Between first and last packet: %.3f seconds", seconds);
   add_string_to_box(string_buff, data_box);
 
   /* Packet count */
-  snprintf(string_buff, SUM_STR_MAX, "Packet count: %i", summary.packet_count);
+  g_snprintf(string_buff, SUM_STR_MAX, "Packet count: %i", summary.packet_count);
   add_string_to_box(string_buff, data_box);
 
   /* Filtered Packet count */
@@ -140,39 +136,39 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 	add_string_to_box("Filtered packet count: 0", data_box);
 
   /* Marked Packet count */
-  snprintf(string_buff, SUM_STR_MAX, "Marked packet count: %i", summary.marked_count);
+  g_snprintf(string_buff, SUM_STR_MAX, "Marked packet count: %i", summary.marked_count);
   add_string_to_box(string_buff, data_box);
 
   /* Packets per second */
   if (seconds > 0){
-    snprintf(string_buff, SUM_STR_MAX, "Avg. packets/sec: %.3f", summary.packet_count/seconds);
+    g_snprintf(string_buff, SUM_STR_MAX, "Avg. packets/sec: %.3f", summary.packet_count/seconds);
     add_string_to_box(string_buff, data_box);
   }
 
   /* Packet size */
   if (summary.packet_count > 0){
-    snprintf(string_buff, SUM_STR_MAX, "Avg. packet size: %.3f bytes",
+    g_snprintf(string_buff, SUM_STR_MAX, "Avg. packet size: %.3f bytes",
       (float)summary.bytes/summary.packet_count);
     add_string_to_box(string_buff, data_box);
   }
 
   /* Dropped count */
   if (summary.drops_known) {
-    snprintf(string_buff, SUM_STR_MAX, "Dropped packets: %u", summary.drops);
+    g_snprintf(string_buff, SUM_STR_MAX, "Dropped packets: %u", summary.drops);
     add_string_to_box(string_buff, data_box);
   }
 
   /* Byte count */
-  snprintf(string_buff, SUM_STR_MAX, "Bytes of traffic: %d", summary.bytes);
+  g_snprintf(string_buff, SUM_STR_MAX, "Bytes of traffic: %d", summary.bytes);
   add_string_to_box(string_buff, data_box);
 
   /* Bytes per second */
   if (seconds > 0){
-    snprintf(string_buff, SUM_STR_MAX, "Avg. bytes/sec: %.3f", summary.bytes/seconds);
+    g_snprintf(string_buff, SUM_STR_MAX, "Avg. bytes/sec: %.3f", summary.bytes/seconds);
     add_string_to_box(string_buff, data_box);
 
     /* MBit per second */
-    snprintf(string_buff, SUM_STR_MAX, "Avg. Mbit/sec: %.3f",
+    g_snprintf(string_buff, SUM_STR_MAX, "Avg. Mbit/sec: %.3f",
              summary.bytes * 8.0 / (seconds * 1000.0 * 1000.0));
     add_string_to_box(string_buff, data_box);
   }
@@ -209,43 +205,43 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
     /* seconds */
     seconds = (summary.filtered_stop - summary.filtered_start);
-    snprintf(string_buff, SUM_STR_MAX, "Between first and last packet: %.3f seconds", seconds);
+    g_snprintf(string_buff, SUM_STR_MAX, "Between first and last packet: %.3f seconds", seconds);
     add_string_to_box(string_buff, filter_box);
 
     /* Packet count */
-    snprintf(string_buff, SUM_STR_MAX, "Packet count: %i", summary.filtered_count);
+    g_snprintf(string_buff, SUM_STR_MAX, "Packet count: %i", summary.filtered_count);
     add_string_to_box(string_buff, filter_box);
 
     /* Packets per second */
     if (seconds > 0){
-      snprintf(string_buff, SUM_STR_MAX, "Avg. packets/sec: %.3f", summary.filtered_count/seconds);
+      g_snprintf(string_buff, SUM_STR_MAX, "Avg. packets/sec: %.3f", summary.filtered_count/seconds);
       add_string_to_box(string_buff, filter_box);
     }
 
     /* Packet size */
     if (summary.filtered_count > 0){
-      snprintf(string_buff, SUM_STR_MAX, "Avg. packet size: %.3f bytes",
+      g_snprintf(string_buff, SUM_STR_MAX, "Avg. packet size: %.3f bytes",
           (float) summary.filtered_bytes/summary.filtered_count);
       add_string_to_box(string_buff, filter_box);
     }
 
     /* Byte count */
-    snprintf(string_buff, SUM_STR_MAX, "Bytes of traffic: %d", summary.filtered_bytes);
+    g_snprintf(string_buff, SUM_STR_MAX, "Bytes of traffic: %d", summary.filtered_bytes);
     add_string_to_box(string_buff, filter_box);
 
     /* Bytes per second */
     if (seconds > 0){
-      snprintf(string_buff, SUM_STR_MAX, "Avg. bytes/sec: %.3f", summary.filtered_bytes/seconds);
+      g_snprintf(string_buff, SUM_STR_MAX, "Avg. bytes/sec: %.3f", summary.filtered_bytes/seconds);
       add_string_to_box(string_buff, filter_box);
 
       /* MBit per second */
-      snprintf(string_buff, SUM_STR_MAX, "Avg. Mbit/sec: %.3f",
+      g_snprintf(string_buff, SUM_STR_MAX, "Avg. Mbit/sec: %.3f",
 	       summary.filtered_bytes * 8.0 / (seconds * 1000.0 * 1000.0));
       add_string_to_box(string_buff, filter_box);
     }
   } else {
     /* Display filter */
-    snprintf(string_buff, SUM_STR_MAX, "Display filter: none");
+    g_snprintf(string_buff, SUM_STR_MAX, "Display filter: none");
     add_string_to_box(string_buff, filter_box);
   }
 
@@ -261,18 +257,18 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* interface */
   if (summary.iface) {
-    snprintf(string_buff, SUM_STR_MAX, "Interface: %s", summary.iface);
+    g_snprintf(string_buff, SUM_STR_MAX, "Interface: %s", summary.iface);
   } else {
-    sprintf(string_buff, "Interface: unknown");
+    g_snprintf(string_buff, SUM_STR_MAX, "Interface: unknown");
   }
   add_string_to_box(string_buff, capture_box);
 
 #ifdef HAVE_LIBPCAP
   /* Capture filter */
   if (summary.cfilter && summary.cfilter[0] != '\0') {
-    snprintf(string_buff, SUM_STR_MAX, "Capture filter: %s", summary.cfilter);
+    g_snprintf(string_buff, SUM_STR_MAX, "Capture filter: %s", summary.cfilter);
   } else {
-    sprintf(string_buff, "Capture filter: none");
+    g_snprintf(string_buff, SUM_STR_MAX, "Capture filter: none");
   }
   add_string_to_box(string_buff, capture_box);
 #endif

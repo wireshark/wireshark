@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: ansi_map_stat.c,v 1.18 2004/02/23 19:19:35 ulfl Exp $
+ * $Id: ansi_map_stat.c,v 1.19 2004/03/13 15:15:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -121,7 +121,7 @@ ansi_map_stat_draw(
     void		*tapdata)
 {
     int			i, j;
-    char		str[256], *strp;
+    char		*strp;
 
 
     tapdata = tapdata;
@@ -134,9 +134,8 @@ ansi_map_stat_draw(
 	{
 	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg.table), (gpointer) i);
 
-	    sprintf(str, "%d",
-		stat.message_type[ansi_map_opr_code_strings[i].value]);
-	    strp = g_strdup(str);
+	    strp = g_strdup_printf("%d",
+		    stat.message_type[ansi_map_opr_code_strings[i].value]);
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 2, strp);
 	    g_free(strp);
 
@@ -427,7 +426,7 @@ ansi_map_stat_gtk_cb(
     i = 0;
     while (ansi_map_opr_code_strings[i].strptr)
     {
-	sprintf(str, "0x%02x", ansi_map_opr_code_strings[i].value);
+	g_snprintf(str, 100, "0x%02x", ansi_map_opr_code_strings[i].value);
 	dlg.entries[0] = g_strdup(str);
 
 	dlg.entries[1] = g_strdup(ansi_map_opr_code_strings[i].strptr);

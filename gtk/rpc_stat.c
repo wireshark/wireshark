@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.42 2004/02/27 19:07:20 ulfl Exp $
+ * $Id: rpc_stat.c,v 1.43 2004/03/13 15:15:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -248,7 +248,7 @@ gtk_rpcstat_init(char *optarg)
 	gtk_box_pack_start(GTK_BOX(vbox), stat_label, FALSE, FALSE, 0);
 	gtk_widget_show(stat_label);
 
-	snprintf(filter_string,255,"Filter:%s",filter?filter:"");
+	g_snprintf(filter_string,255,"Filter:%s",filter?filter:"");
 	filter_label=gtk_label_new(filter_string);
 	gtk_box_pack_start(GTK_BOX(vbox), filter_label, FALSE, FALSE, 0);
 	gtk_widget_show(filter_label);
@@ -338,7 +338,7 @@ rpcstat_program_select(GtkWidget *item _U_, gpointer key)
 	for(i=rpc_min_vers;i<=rpc_max_vers;i++){
 		GtkWidget *menu_item;
 		char vs[5];
-		sprintf(vs,"%d",i);
+		g_snprintf(vs, 5, "%d",i);
 		menu_item=gtk_menu_item_new_with_label(vs);
 		SIGNAL_CONNECT(menu_item, "activate", rpcstat_version_select,
                                i);
@@ -444,7 +444,7 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	for(i=rpc_min_vers;i<=rpc_max_vers;i++){
 		GtkWidget *menu_item;
 		char vs[5];
-		sprintf(vs,"%d",i);
+		g_snprintf(vs, 5, "%d",i);
 		menu_item=gtk_menu_item_new_with_label(vs);
 		SIGNAL_CONNECT(menu_item, "activate", rpcstat_version_select,
                                i);

@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.52 2004/03/13 14:07:13 ulfl Exp $
+ * $Id: follow_dlg.c,v 1.53 2004/03/13 15:15:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,10 +36,6 @@
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
 #endif
 
 #include <ctype.h>
@@ -343,7 +339,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	stream_menu = gtk_menu_new();
 
 	/* Both Hosts */
-	snprintf(string, sizeof(string),
+	g_snprintf(string, sizeof(string),
 		 "Entire conversation (%u bytes)",
 		 stats.bytes_written[0] + stats.bytes_written[1]);
 	stream_mi = gtk_menu_item_new_with_label(string);
@@ -354,7 +350,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	follow_info->show_stream = BOTH_HOSTS;
 
 	/* Host 0 --> Host 1 */
-	snprintf(string, sizeof(string), "%s:%s --> %s:%s (%u bytes)",
+	g_snprintf(string, sizeof(string), "%s:%s --> %s:%s (%u bytes)",
 		 hostname0, port0, hostname1, port1,
 		 stats.bytes_written[0]);
 	stream_mi = gtk_menu_item_new_with_label(string);
@@ -364,7 +360,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	gtk_widget_show(stream_mi);
 
 	/* Host 1 --> Host 0 */
-	snprintf(string, sizeof(string), "%s:%s --> %s:%s (%u bytes)",
+	g_snprintf(string, sizeof(string), "%s:%s --> %s:%s (%u bytes)",
 		 hostname1, port1, hostname0, port0,
 		 stats.bytes_written[1]);
 	stream_mi = gtk_menu_item_new_with_label(string);
@@ -668,7 +664,7 @@ follow_read_stream(follow_info_t *follow_info,
 
 		case SHOW_CARRAY:
 		    current_pos = 0;
-		    sprintf(initbuf, "char peer%d_%d[] = {\n", is_server ? 1 : 0,
+		    g_snprintf(initbuf, 256, "char peer%d_%d[] = {\n", is_server ? 1 : 0,
 			    is_server ? server_packet_count++ : client_packet_count++);
 		    if (!(*print_line) (initbuf, strlen(initbuf), is_server, arg))
 			goto print_error;

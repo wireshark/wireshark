@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: gsm_a_stat.c,v 1.15 2004/02/23 19:19:36 ulfl Exp $
+ * $Id: gsm_a_stat.c,v 1.16 2004/03/13 15:15:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -170,7 +170,7 @@ gsm_a_stat_draw_aux(
     const value_string	*msg_strings)
 {
     int			i, j;
-    char		str[256], *strp;
+    char		*strp;
 
 
     if (dlg_p->win != NULL)
@@ -181,8 +181,7 @@ gsm_a_stat_draw_aux(
 	{
 	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg_p->table), (gpointer) i);
 
-	    sprintf(str, "%d", message_count[msg_strings[i].value]);
-	    strp = g_strdup(str);
+	    strp = g_strdup_printf("%d", message_count[msg_strings[i].value]);
 	    gtk_clist_set_text(GTK_CLIST(dlg_p->table), j, 2, strp);
 	    g_free(strp);
 
@@ -537,7 +536,7 @@ gsm_a_stat_gtk_bssmap_cb(
     i = 0;
     while (gsm_a_bssmap_msg_strings[i].strptr)
     {
-	sprintf(str, "0x%02x", gsm_a_bssmap_msg_strings[i].value);
+	g_snprintf(str, 100, "0x%02x", gsm_a_bssmap_msg_strings[i].value);
 	dlg_bssmap.entries[0] = g_strdup(str);
 
 	dlg_bssmap.entries[1] = g_strdup(gsm_a_bssmap_msg_strings[i].strptr);
@@ -580,7 +579,7 @@ gsm_a_stat_gtk_dtap_cb(
     i = 0;
     while (dtap_msg_strings[i].strptr)
     {
-	sprintf(str, "0x%02x", dtap_msg_strings[i].value);
+	g_snprintf(str, 100, "0x%02x", dtap_msg_strings[i].value);
 	dlg_dtap_p->entries[0] = g_strdup(str);
 
 	dlg_dtap_p->entries[1] = g_strdup(dtap_msg_strings[i].strptr);

@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.57 2004/02/27 10:03:48 sahlberg Exp $
+ * $Id: tcp_graph.c,v 1.58 2004/03/13 15:15:26 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,10 +32,6 @@
 #include <gdk/gdkkeysyms.h>
 #include <math.h>		/* rint() */
 #include <string.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include "ipproto.h"
 #include "globals.h" 		/* cfile */
@@ -638,7 +634,7 @@ static void display_text (struct graph *g)
 #if GTK_MAJOR_VERSION < 2
 	gtk_text_freeze (GTK_TEXT (g->text));
 #endif
-	snprintf ((char * )line, 256, "%10s%15s%15s%15s%15s%15s%15s%10s\n",
+	g_snprintf ((char * )line, 256, "%10s%15s%15s%15s%15s%15s%15s%10s\n",
 					"pkt num", "time", "delta first", "delta prev",
 					"seqno", "delta first", "delta prev", "data (B)");
 	gtk_text_insert (GTK_TEXT (g->text), g->font, NULL, NULL,
@@ -677,7 +673,7 @@ static void display_text (struct graph *g)
 			seq_opposite_prev = seq;
 			c = &color;
 		}
-		snprintf ((char *)line, 256, "%10d%15.6f%15.6f%15.6f%15u%15d%15d%10u\n",
+		g_snprintf ((char *)line, 256, "%10d%15.6f%15.6f%15.6f%15u%15d%15d%10u\n",
 						ptr->num, time, time-first_time, time-prev_time,
 						seq, seq_delta_isn, seq_delta_prev,
 						g_ntohs (ptr->iphdr.tot_len) - 4*IHL(&(ptr->iphdr)) -
@@ -712,7 +708,7 @@ static void create_drawing_area (struct graph *g)
 							"-*-*-m-*-iso8859-2");
 #endif
 	get_headers (cfile.current_frame, cfile.pd, &current);
-	snprintf (window_title, WINDOW_TITLE_LENGTH, "TCP Graph %d: %s %d.%d.%d.%d:%d -> %d.%d.%d.%d:%d",
+	g_snprintf (window_title, WINDOW_TITLE_LENGTH, "TCP Graph %d: %s %d.%d.%d.%d:%d -> %d.%d.%d.%d:%d",
 					refnum,
 					cf_get_display_name(&cfile),
 					(current.iphdr.saddr    )&0xff,
@@ -884,7 +880,7 @@ static void control_panel_create (struct graph *g)
 	control_panel_add_cross_page (g, notebook);
 	control_panel_add_graph_type_page (g, notebook);
 
-	snprintf (window_title, WINDOW_TITLE_LENGTH,
+	g_snprintf (window_title, WINDOW_TITLE_LENGTH,
 				"Graph %d - Control - Ethereal", refnum);
 	toplevel = window_new (GTK_WINDOW_TOPLEVEL, window_title);
 	SIGNAL_CONNECT(toplevel, "destroy", callback_toplevel_destroy, g);
@@ -1253,9 +1249,9 @@ static void update_zoom_spins (struct graph *g)
 {
 	char s[32];
 
-	snprintf (s, 32, "%.3f", g->zoom.x / g->zoom.initial.x);
+	g_snprintf (s, 32, "%.3f", g->zoom.x / g->zoom.initial.x);
 	gtk_entry_set_text (g->zoom.widget.h_zoom, s);
-	snprintf (s, 32, "%.3f", g->zoom.y / g->zoom.initial.y);
+	g_snprintf (s, 32, "%.3f", g->zoom.y / g->zoom.initial.y);
 	gtk_entry_set_text (g->zoom.widget.v_zoom, s);
 }
 
@@ -2257,7 +2253,7 @@ static void v_axis_pixmap_draw (struct axis *axis)
 			continue;
 		gdk_draw_line (axis->pixmap[not_disp], g->fg_gc,
                                axis->s.width - 15, y, axis->s.width - 1, y);
-		snprintf (desc, 32, "%.*f", rdigits, i*axis->major + fl);
+		g_snprintf (desc, 32, "%.*f", rdigits, i*axis->major + fl);
 #if GTK_MAJOR_VERSION < 2
 		w = gdk_string_width(g->font, desc);
 		h = gdk_string_height(g->font, desc);
@@ -2360,7 +2356,7 @@ static void h_axis_pixmap_draw (struct axis *axis)
 		if (x < 0 || x > axis->s.width)
 			continue;
 		gdk_draw_line (axis->pixmap[not_disp], g->fg_gc, x, 0, x, 15);
-		snprintf (desc, 32, "%.*f", rdigits, i*axis->major + fl);
+		g_snprintf (desc, 32, "%.*f", rdigits, i*axis->major + fl);
 #if GTK_MAJOR_VERSION < 2
 		w = gdk_string_width (g->font, desc);
 		h = gdk_string_height (g->font, desc);
@@ -2544,7 +2540,7 @@ static int get_label_dim (struct axis *axis, int dir, double label)
 			break;
 		y = y - floor (y);
 	}
-	snprintf (str, 32, "%.*f", rdigits, label);
+	g_snprintf (str, 32, "%.*f", rdigits, label);
 	switch (dir) {
 	case AXIS_HORIZONTAL:
 #if GTK_MAJOR_VERSION < 2

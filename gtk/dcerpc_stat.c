@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.52 2004/02/27 19:07:18 ulfl Exp $
+ * $Id: dcerpc_stat.c,v 1.53 2004/03/13 15:15:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -275,7 +275,7 @@ gtk_dcerpcstat_init(char *optarg)
 	gtk_box_pack_start(GTK_BOX(vbox), stat_label, FALSE, FALSE, 0);
 	gtk_widget_show(stat_label);
 
-	snprintf(filter_string,255,"Filter:%s",filter?filter:"");
+	g_snprintf(filter_string,255,"Filter:%s",filter?filter:"");
 	filter_label=gtk_label_new(filter_string);
 	gtk_box_pack_start(GTK_BOX(vbox), filter_label, FALSE, FALSE, 0);
 	gtk_widget_show(filter_label);
@@ -388,7 +388,7 @@ dcerpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer *user_data _U_
 		return NULL;
 	}
 
-	sprintf(vs,"%u",k->ver);
+	g_snprintf(vs, 5, "%u",k->ver);
 	menu_item=gtk_menu_item_new_with_label(vs);
 	SIGNAL_CONNECT(menu_item, "activate", dcerpcstat_version_select,
                        ((int)k->ver));
@@ -435,7 +435,7 @@ dcerpcstat_add_program_to_menu(dcerpc_uuid_key *k, dcerpc_uuid_value *v)
 	case 0:
 
 		first_menu_name=v->name;
-		snprintf(str,63,"%s ...",v->name);
+		g_snprintf(str,63,"%s ...",v->name);
 		program_submenu_item=gtk_menu_item_new();
 		box=gtk_hbox_new(TRUE,0);
 		gtk_container_add(GTK_CONTAINER(program_submenu_item), box);
@@ -452,7 +452,7 @@ dcerpcstat_add_program_to_menu(dcerpc_uuid_key *k, dcerpc_uuid_value *v)
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(program_submenu_item), program_submenu_menu);
 		break;
 	case 14:
-		snprintf(str,63,"%s - %s",first_menu_name,v->name);
+		g_snprintf(str,63,"%s - %s",first_menu_name,v->name);
 		gtk_label_set_text(GTK_LABEL(program_submenu_label), str);
 		break;
 /*qqq*/

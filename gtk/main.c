@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.413 2004/03/13 14:07:14 ulfl Exp $
+ * $Id: main.c,v 1.414 2004/03/13 15:15:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,10 +54,6 @@
 
 #ifdef HAVE_IO_H
 #include <io.h> /* open/close on win32 */
-#endif
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
 #endif
 
 #ifdef NEED_STRERROR_H
@@ -231,7 +227,7 @@ about_ethereal( GtkWidget *w _U_, gpointer data _U_ )
   gtk_widget_show(top_hb);
 
   /* Construct the message string */
-  snprintf(message, MAX_ABOUT_MSG_LEN,
+  g_snprintf(message, MAX_ABOUT_MSG_LEN,
 	   "Ethereal - Network Protocol Analyzer\n\n"
 	   
 	   "Version " VERSION
@@ -628,7 +624,7 @@ get_text_from_packet_list(gpointer data)
 	    len = strlen(cfile.cinfo.col_expr[column]) +
 		  strlen(cfile.cinfo.col_expr_val[column]) + 5;
 	    buf = g_malloc0(len);
-	    snprintf(buf, len, "%s == %s", cfile.cinfo.col_expr[column],
+	    g_snprintf(buf, len, "%s == %s", cfile.cinfo.col_expr[column],
 		     cfile.cinfo.col_expr_val[column]);
     	}
 

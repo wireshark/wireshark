@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.32 2004/02/23 22:48:51 guy Exp $
+ * $Id: endpoint_talkers_table.c,v 1.33 2004/03/13 15:15:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,7 +76,7 @@ ett_port_to_str(int port_type, guint32 port)
 	switch(port_type){
 	case PT_TCP:
 	case PT_UDP:
-		snprintf(strp, 11, "%d", port);
+		g_snprintf(strp, 11, "%d", port);
 		return strp;
 	}
 	return NULL;
@@ -212,7 +212,7 @@ reset_ett_table_data(endpoints_table *et)
 	guint32 i;
 	char title[256];
 
-	snprintf(title, 255, "%s Conversations: %s", et->name, cf_get_display_name(&cfile));
+	g_snprintf(title, 255, "%s Conversations: %s", et->name, cf_get_display_name(&cfile));
 	gtk_window_set_title(GTK_WINDOW(et->win), title);
 
 	/* remove all entries from the clist */
@@ -372,7 +372,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	switch(direction){
 	case 0:
 		/* EP1 <-> EP2 */
-		snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
+		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
 			ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_ADDRESS),
 			address_to_str(&et->endpoints[selection].src_address),
 			sport?" && ":"",
@@ -389,7 +389,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 		break;
 	case 1:
 		/* EP1 --> EP2 */
-		snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
+		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
 			ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_ADDRESS),
 			address_to_str(&et->endpoints[selection].src_address),
 			sport?" && ":"",
@@ -406,7 +406,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 		break;
 	case 2:
 		/* EP1 <-- EP2 */
-		snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
+		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
 			ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_ADDRESS),
 			address_to_str(&et->endpoints[selection].src_address),
 			sport?" && ":"",
@@ -423,7 +423,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 		break;
 	case 3:
 		/* EP1 <-> ANY */
-		snprintf(dirstr, 127, "%s==%s %s%s%s%s",
+		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
 			ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_ADDRESS),
 			address_to_str(&et->endpoints[selection].src_address),
 			sport?" && ":"",
@@ -434,7 +434,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 		break;
 	case 4:
 		/* EP1 --> ANY */
-		snprintf(dirstr, 127, "%s==%s %s%s%s%s",
+		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
 			ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_ADDRESS),
 			address_to_str(&et->endpoints[selection].src_address),
 			sport?" && ":"",
@@ -445,7 +445,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 		break;
 	case 5:
 		/* EP1 <-- ANY */
-		snprintf(dirstr, 127, "%s==%s %s%s%s%s",
+		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
 			ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_ADDRESS),
 			address_to_str(&et->endpoints[selection].src_address),
 			sport?" && ":"",
@@ -456,7 +456,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 		break;
 	case 6:
 		/* EP2 <-> ANY */
-		snprintf(dirstr, 127, "%s==%s %s%s%s%s",
+		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
 			ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_ADDRESS),
 			address_to_str(&et->endpoints[selection].dst_address),
 			dport?" && ":"",
@@ -467,7 +467,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 		break;
 	case 7:
 		/* EP2 --> ANY */
-		snprintf(dirstr, 127, "%s==%s %s%s%s%s",
+		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
 			ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_ADDRESS),
 			address_to_str(&et->endpoints[selection].dst_address),
 			dport?" && ":"",
@@ -478,7 +478,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 		break;
 	case 8:
 		/* EP2 <-- ANY */
-		snprintf(dirstr, 127, "%s==%s %s%s%s%s",
+		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
 			ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_ADDRESS),
 			address_to_str(&et->endpoints[selection].dst_address),
 			dport?" && ":"",
@@ -493,27 +493,27 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	switch(type){
 	case 0:
 		/* selected */
-		snprintf(str, 255, "%s", dirstr);
+		g_snprintf(str, 255, "%s", dirstr);
 		break;
 	case 1:
 		/* not selected */
-		snprintf(str, 255, "!(%s)", dirstr);
+		g_snprintf(str, 255, "!(%s)", dirstr);
 		break;
 	case 2:
 		/* and selected */
-		snprintf(str, 255, "(%s) && (%s)", current_filter, dirstr);
+		g_snprintf(str, 255, "(%s) && (%s)", current_filter, dirstr);
 		break;
 	case 3:
 		/* or selected */
-		snprintf(str, 255, "(%s) || (%s)", current_filter, dirstr);
+		g_snprintf(str, 255, "(%s) || (%s)", current_filter, dirstr);
 		break;
 	case 4:
 		/* and not selected */
-		snprintf(str, 255, "(%s) && !(%s)", current_filter, dirstr);
+		g_snprintf(str, 255, "(%s) && !(%s)", current_filter, dirstr);
 		break;
 	case 5:
 		/* or not selected */
-		snprintf(str, 255, "(%s) || !(%s)", current_filter, dirstr);
+		g_snprintf(str, 255, "(%s) || !(%s)", current_filter, dirstr);
 		break;
 	}
 
@@ -918,21 +918,21 @@ draw_ett_table_data(endpoints_table *et)
 
 		j=gtk_clist_find_row_from_data(et->table, (gpointer)i);
 
-		sprintf(str, "%u", et->endpoints[i].tx_frames+et->endpoints[i].rx_frames);
+		g_snprintf(str, 16, "%u", et->endpoints[i].tx_frames+et->endpoints[i].rx_frames);
 		gtk_clist_set_text(et->table, j, 4, str);		
-		sprintf(str, "%u", et->endpoints[i].tx_bytes+et->endpoints[i].rx_bytes);
+		g_snprintf(str, 16, "%u", et->endpoints[i].tx_bytes+et->endpoints[i].rx_bytes);
 		gtk_clist_set_text(et->table, j, 5, str);		
 
 
-		sprintf(str, "%u", et->endpoints[i].tx_frames);
+		g_snprintf(str, 16, "%u", et->endpoints[i].tx_frames);
 		gtk_clist_set_text(et->table, j, 6, str);	
-		sprintf(str, "%u", et->endpoints[i].tx_bytes);
+		g_snprintf(str, 16, "%u", et->endpoints[i].tx_bytes);
 		gtk_clist_set_text(et->table, j, 7, str);		
 
 
-		sprintf(str, "%u", et->endpoints[i].rx_frames);
+		g_snprintf(str, 16, "%u", et->endpoints[i].rx_frames);
 		gtk_clist_set_text(et->table, j, 8, str);		
-		sprintf(str, "%u", et->endpoints[i].rx_bytes);
+		g_snprintf(str, 16, "%u", et->endpoints[i].rx_bytes);
 		gtk_clist_set_text(et->table, j, 9, str);		
 
 	}
@@ -960,7 +960,7 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 	talkers=g_malloc(sizeof(endpoints_table));
 
 	talkers->name=table_name;
-	snprintf(title, 255, "%s Conversations: %s", table_name, cf_get_display_name(&cfile));
+	g_snprintf(title, 255, "%s Conversations: %s", table_name, cf_get_display_name(&cfile));
 	talkers->win=window_new(GTK_WINDOW_TOPLEVEL, title);
 	gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
 
@@ -971,7 +971,7 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
 	gtk_widget_show(vbox);
 
-	snprintf(title, 255, "%s Conversations", table_name);
+	g_snprintf(title, 255, "%s Conversations", table_name);
 	label=gtk_label_new(title);
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 	gtk_widget_show(label);
@@ -1182,19 +1182,19 @@ add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_
 		entries[2]=address_to_str(&talker->dst_address);
 		entries[3]=dport?dport:"";
 
-		sprintf(frames,"%u", talker->tx_frames+talker->rx_frames);
+		g_snprintf(frames, 16, "%u", talker->tx_frames+talker->rx_frames);
 		entries[4]=frames;
-		sprintf(bytes,"%u", talker->tx_bytes+talker->rx_bytes);
+		g_snprintf(bytes, 16, "%u", talker->tx_bytes+talker->rx_bytes);
 		entries[5]=bytes;
 
-		sprintf(txframes,"%u", talker->tx_frames);
+		g_snprintf(txframes, 16, "%u", talker->tx_frames);
 		entries[6]=txframes;
-		sprintf(txbytes,"%u", talker->tx_bytes);
+		g_snprintf(txbytes, 16, "%u", talker->tx_bytes);
 		entries[7]=txbytes;
 
-		sprintf(rxframes,"%u", talker->rx_frames);
+		g_snprintf(rxframes, 16, "%u", talker->rx_frames);
 		entries[8]=rxframes;
-		sprintf(rxbytes,"%u", talker->rx_bytes);
+		g_snprintf(rxbytes, 16, "%u", talker->rx_bytes);
 		entries[9]=rxbytes;
 
 		gtk_clist_insert(et->table, talker_idx, entries);

@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: gsm_map_stat.c,v 1.4 2004/02/23 19:19:36 ulfl Exp $
+ * $Id: gsm_map_stat.c,v 1.5 2004/03/13 15:15:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -119,7 +119,7 @@ gsm_map_stat_draw(
     void		*tapdata)
 {
     int			i, j;
-    char		str[256], *strp;
+    char		*strp;
 
 
     tapdata = tapdata;
@@ -132,8 +132,7 @@ gsm_map_stat_draw(
 	{
 	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg.table), (gpointer) i);
 
-	    sprintf(str, "%d", stat.opr_code[i]);
-	    strp = g_strdup(str);
+	    strp = g_strdup_printf("%d", stat.opr_code[i]);
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 2, strp);
 	    g_free(strp);
 
@@ -438,7 +437,7 @@ gsm_map_stat_gtk_cb(
     i = 0;
     while (gsm_map_opr_code_strings[i].strptr)
     {
-	sprintf(str, "%u", gsm_map_opr_code_strings[i].value);
+	g_snprintf(str, 100, "%u", gsm_map_opr_code_strings[i].value);
 	dlg.entries[0] = g_strdup(str);
 
 	dlg.entries[1] = g_strdup(gsm_map_opr_code_strings[i].strptr);

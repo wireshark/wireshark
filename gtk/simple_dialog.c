@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.28 2004/02/23 00:05:50 guy Exp $
+ * $Id: simple_dialog.c,v 1.29 2004/03/13 15:15:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,10 +29,6 @@
 #include <gtk/gtk.h>
 
 #include <stdio.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include "gtkglobals.h"
 #include "simple_dialog.h"
