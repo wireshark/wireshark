@@ -1,11 +1,12 @@
 /* packet-l2tp.c
- * Routines for the Layer Two Tunnelling Protocol (L2TP)
+ * Routines for Layer Two Tunnelling Protocol (L2TP) (RFC 2661) packet
+ * disassembly
  * John Thomes <john@ensemblecom.com>
  *
- * $Id: packet-l2tp.c,v 1.1 2000/01/07 09:10:12 guy Exp $
+ * $Id: packet-l2tp.c,v 1.2 2000/01/07 21:53:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
  * 
@@ -25,10 +26,10 @@
  */
 
 
-int proto_l2tp = -1;
-int hf_l2tp_length = -1;
-int hf_l2tp_code = -1;
-int hf_l2tp_id =-1;
+static int proto_l2tp = -1;
+static int hf_l2tp_length = -1;
+static int hf_l2tp_code = -1;
+static int hf_l2tp_id =-1;
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -66,28 +67,6 @@ int hf_l2tp_id =-1;
 #define FRAMING_SYNC(msg_info)  (msg_info & 0x0002) /* SYNC Type */
 
 
-
-unsigned short  ver;	        /* Version and more */
-unsigned short  length;		/* Length field */
-unsigned short  tid;		/* Tunnel ID */
-unsigned short  cid;		/* Call ID */
-unsigned short  Nr;		/* Next recv */
-unsigned short  Ns;		/* Next sent */
-
-unsigned short ver_len_hidden;
-unsigned short vendor;
-unsigned short avp_type;
-unsigned short msg_type;
-unsigned short avp_len;
-unsigned short error_type;
-unsigned short avp_ver;
-unsigned short avp_rev;
-unsigned short framing;
-unsigned short firmware_rev;
-unsigned short gen_type;
-unsigned long long_type;
-char  error_string[100];
-char  message_string[200];
 
 static gint ett_l2tp = -1;
 static gint ett_l2tp_avp = -1;
@@ -238,6 +217,26 @@ void dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   u_char *tmp_ptr;			/* temp pointer used during AVP decode */
   u_char *ptr;				/* pointer used during l2tp  decode */
   int index = 2;			/* keeps track of depth into the AVP */
+  unsigned short  ver;		        /* Version and more */
+  unsigned short  length;		/* Length field */
+  unsigned short  tid;			/* Tunnel ID */
+  unsigned short  cid;			/* Call ID */
+  unsigned short  Nr;			/* Next recv */
+  unsigned short  Ns;			/* Next sent */
+  unsigned short ver_len_hidden;
+  unsigned short vendor;
+  unsigned short avp_type;
+  unsigned short msg_type;
+  unsigned short avp_len;
+  unsigned short error_type;
+  unsigned short avp_ver;
+  unsigned short avp_rev;
+  unsigned short framing;
+  unsigned short firmware_rev;
+  unsigned short gen_type;
+  unsigned long long_type;
+  char  error_string[100];
+  char  message_string[200];
 
   ptr =  (u_char * )pd;			/* point to the frame */
   ptr = ptr + offset;			/* current offset into the decoded frame  */
