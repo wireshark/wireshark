@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.36 1999/10/19 05:31:12 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.37 1999/11/15 06:32:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -86,7 +86,7 @@ static GNode* dfilter_mknode_ether_value(gchar*);
 static GNode* dfilter_mknode_ether_variable(gint id);
 static GNode* dfilter_mknode_ipxnet_value(guint32);
 static GNode* dfilter_mknode_ipxnet_variable(gint id);
-static GNode* dfilter_mknode_ipv4_value(char *host);
+static GNode* dfilter_mknode_ipv4_value(char *host, int nmask_bits);
 static GNode* dfilter_mknode_ipv4_variable(gint id);
 static GNode* dfilter_mknode_ipv6_value(char *host);
 static GNode* dfilter_mknode_ipv6_variable(gint id);
@@ -358,22 +358,77 @@ floating_value:	T_VAL_UNQUOTED_STRING
 	;
 
 ipv4_value:	T_VAL_UNQUOTED_STRING
-		{
-			$$ = dfilter_mknode_ipv4_value($1);
-			g_free($1);
-			if ($$ == NULL) {
-				YYERROR;
-			}
+	{
+		$$ = dfilter_mknode_ipv4_value($1, 32);
+		g_free($1);
+		if ($$ == NULL) {
+			YYERROR;
 		}
+	}
 
 	|	T_VAL_BYTE_STRING
-		{
-			$$ = dfilter_mknode_ipv4_value($1);
-			g_free($1);
-			if ($$ == NULL) {
-				YYERROR;
-			}
+	{
+		$$ = dfilter_mknode_ipv4_value($1, 32);
+		g_free($1);
+		if ($$ == NULL) {
+			YYERROR;
 		}
+	}
+
+	|	T_VAL_UNQUOTED_STRING '/' T_VAL_UNQUOTED_STRING
+	{
+		gboolean	success;
+		guint32		nmask_bits;
+
+		nmask_bits = string_to_guint32($3, &success);
+		if (!success) {
+			g_free($1);
+			g_free($3);
+			YYERROR;
+		}
+
+		if (nmask_bits > 32) {
+			dfilter_fail("The number of netmask bits in \"%s/%s\" should "
+				"be between 0 and 32.", $1, $3);
+			g_free($1);
+			g_free($3);
+			YYERROR;
+		}
+
+		$$ = dfilter_mknode_ipv4_value($1, nmask_bits);
+		g_free($1);
+		g_free($3);
+		if ($$ == NULL) {
+			YYERROR;
+		}
+	}
+
+	|	T_VAL_BYTE_STRING '/' T_VAL_UNQUOTED_STRING
+	{
+		gboolean	success;
+		guint32		nmask_bits;
+
+		nmask_bits = string_to_guint32($3, &success);
+		if (!success) {
+			g_free($1);
+			g_free($3);
+			YYERROR;
+		}
+
+		if (nmask_bits > 32) {
+			dfilter_fail("The number of netmask bits in \"%s/%s\" should "
+				"be between 0 and 32.", $1, $3);
+			g_free($1);
+			g_free($3);
+			YYERROR;
+		}
+		$$ = dfilter_mknode_ipv4_value($1, nmask_bits);
+		g_free($1);
+		g_free($3);
+		if ($$ == NULL) {
+			YYERROR;
+		}
+	}
 	;
 
 ipv6_value:	T_VAL_UNQUOTED_STRING
@@ -640,9 +695,9 @@ dfilter_mknode_ipv4_variable(gint id)
 
 	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = variable;
-	node->elem_size = sizeof(guint32);
-	node->fill_array_func = fill_array_numeric_variable; /* cheating ! */
-	node->check_relation_func = check_relation_numeric; /* cheating ! */
+	node->elem_size = sizeof(ipv4_addr);
+	node->fill_array_func = fill_array_ipv4_variable;
+	node->check_relation_func = check_relation_ipv4;
 	node->value.variable = id;
 	gnode = g_node_new(node);
 
@@ -820,17 +875,18 @@ dfilter_mknode_ipxnet_value(guint32 ipx_net_val)
 
 /* Returns NULL on bad parse of IP value */
 static GNode*
-dfilter_mknode_ipv4_value(char *host)
+dfilter_mknode_ipv4_value(char *host, int nmask_bits)
 {
 	dfilter_node	*node;
 	GNode		*gnode;
+	guint32		addr;
 
 	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = numeric;
-	node->elem_size = sizeof(guint32);
-	node->fill_array_func = fill_array_numeric_value; /* cheating ! */
-	node->check_relation_func = check_relation_numeric; /* cheating ! */
-	if (!get_host_ipaddr(host, &node->value.numeric)) {
+	node->elem_size = sizeof(ipv4_addr);
+	node->fill_array_func = fill_array_ipv4_value;
+	node->check_relation_func = check_relation_ipv4;
+	if (!get_host_ipaddr(host, &addr)) {
 		/* Rather than free the mem_chunk allocation, let it
 		 * stay. It will be cleaned up when "dfilter_compile()"
 		 * calls "dfilter_destroy()". */
@@ -838,7 +894,8 @@ dfilter_mknode_ipv4_value(char *host)
 		    host);
 		return NULL;
 	}
-	node->value.numeric = htonl(node->value.numeric);
+	ipv4_addr_set_host_order_addr(&node->value.ipv4, addr);
+	ipv4_addr_set_netmask_bits(&node->value.ipv4, nmask_bits);
 
 	gnode = g_node_new(node);
 	return gnode;

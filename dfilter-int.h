@@ -2,7 +2,7 @@
  * Definitions for routines common to multiple modules in the display
  * filter code, but not used outside that code.
  *
- * $Id: dfilter-int.h,v 1.10 1999/10/19 05:31:13 gram Exp $
+ * $Id: dfilter-int.h,v 1.11 1999/11/15 06:32:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,6 +26,10 @@
 
 #ifndef __DFILTER_INT_H__
 #define __DFILTER_INT_H__
+
+#ifndef __IPV4_H__
+#include "ipv4.h"
+#endif
 
 /* in dfilter-scanner.l */
 GByteArray *byte_str_to_guint8_array(const char *s);
@@ -55,6 +59,7 @@ void dfilter_fail(char *fmt, ...);
 gboolean check_relation_numeric(gint operand, GArray *a, GArray *b);
 gboolean check_relation_floating(gint operand, GArray *a, GArray *b);
 gboolean check_relation_ether(gint operand, GArray *a, GArray *b);
+gboolean check_relation_ipv4(gint operand, GArray *a, GArray *b);
 gboolean check_relation_ipv6(gint operand, GArray *a, GArray *b);
 gboolean check_relation_bytes(gint operand, GArray *a, GArray *b);
 
@@ -64,6 +69,8 @@ gboolean fill_array_floating_value(GNode *gnode, gpointer data);
 gboolean fill_array_floating_variable(GNode *gnode, gpointer data);
 gboolean fill_array_ether_value(GNode *gnode, gpointer data);
 gboolean fill_array_ether_variable(GNode *gnode, gpointer data);
+gboolean fill_array_ipv4_value(GNode *gnode, gpointer data);
+gboolean fill_array_ipv4_variable(GNode *gnode, gpointer data);
 gboolean fill_array_ipv6_value(GNode *gnode, gpointer data);
 gboolean fill_array_ipv6_variable(GNode *gnode, gpointer data);
 gboolean fill_array_bytes_value(GNode *gnode, gpointer data);
@@ -113,9 +120,10 @@ typedef struct dfilter_node {
 
 		guint32		numeric;
 		double		floating;
-		struct timeval	abs_time; /* the whole struct, not a pointer */
+		struct timeval	abs_time;	/* the whole struct, not a pointer */
 		gchar		*string;
 		guint8		ether[6];
+		ipv4_addr	ipv4;		/* the whole struct, not a pointer */
 		guint8		ipv6[16];
 		GByteArray	*bytes;
 	}				value;

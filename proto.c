@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.47 1999/11/11 16:20:25 nneul Exp $
+ * $Id: proto.c,v 1.48 1999/11/15 06:32:14 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -340,6 +340,10 @@ NOTES
 			break;
 
 		case FT_IPv4:
+			ipv4_addr_set_net_order_addr(&(fi->value.ipv4), va_arg(ap, unsigned int));
+			ipv4_addr_set_netmask_bits(&(fi->value.ipv4), 32);
+			break;
+
 		case FT_IPXNET:
 			fi->value.numeric = va_arg(ap, unsigned int);
 			break;
@@ -480,6 +484,7 @@ void
 proto_item_fill_label(field_info *fi, gchar *label_str)
 {
 	struct header_field_info	*hfinfo = fi->hfinfo;
+	guint32				n_addr; /* network-order IPv4 address */
 
 	switch(hfinfo->type) {
 		case FT_NONE:
@@ -569,10 +574,11 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_IPv4:
+			n_addr = ipv4_get_net_order_addr(&fi->value.ipv4);
 			snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s (%s)", fi->hfinfo->name,
-				get_hostname(fi->value.numeric),
-				ip_to_str((guint8*)&fi->value.numeric));
+				get_hostname(n_addr),
+				ip_to_str((guint8*)&n_addr));
 			break;
 
 		case FT_IPv6:
@@ -1009,7 +1015,8 @@ proto_registrar_is_protocol(int n)
 		return FALSE;
 }
 
-/* Returns length of field.
+/* Returns length of field in packet (not necessarily the length
+ * in our internal representation, as in the case of IPv4).
  * 0 means undeterminable at time of registration
  * -1 means the field is not registered. */
 gint

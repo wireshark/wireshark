@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.18 1999/11/11 16:20:25 nneul Exp $
+ * $Id: proto.h,v 1.19 1999/11/15 06:32:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,6 +35,10 @@
 
 #ifdef HAVE_WINSOCK_H
 # include <winsock.h>
+#endif
+
+#ifndef __IPV4_H__
+#include "ipv4.h"
 #endif
 
 /* needs glib.h */
@@ -122,6 +126,7 @@ typedef struct field_info {
 		gchar		*string;
 		guint8		*bytes;
 		guint8		ether[6];
+		ipv4_addr	ipv4;
 		guint8		ipv6[16];
 	}				value;
 } field_info;

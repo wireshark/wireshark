@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.31 1999/10/19 05:31:14 gram Exp $
+ * $Id: dfilter.c,v 1.32 1999/11/15 06:32:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -520,6 +520,17 @@ gboolean fill_array_ether_variable(GNode *gnode, gpointer data)
 	return FALSE; /* FALSE = do not end traversal of GNode tree */
 }
 
+gboolean fill_array_ipv4_variable(GNode *gnode, gpointer data)
+{
+	proto_tree_search_info	*sinfo = (proto_tree_search_info*)data;
+	field_info		*fi = (field_info*) (gnode->data);
+
+	if (fi->hfinfo->id == sinfo->target) {
+		g_array_append_val(sinfo->result.array, fi->value.ipv4);
+	}
+
+	return FALSE; /* FALSE = do not end traversal of GNode tree */
+}
 gboolean fill_array_ipv6_variable(GNode *gnode, gpointer data)
 {
 	proto_tree_search_info	*sinfo = (proto_tree_search_info*)data;
@@ -594,6 +605,16 @@ gboolean fill_array_ether_value(GNode *gnode, gpointer data)
 	dfilter_node	*dnode = (dfilter_node*) (gnode->data);
 
 	g_array_append_val(array, dnode->value.ether);
+
+	return FALSE; /* FALSE = do not end traversal of GNode tree */
+}
+
+gboolean fill_array_ipv4_value(GNode *gnode, gpointer data)
+{
+	GArray		*array = (GArray*)data;
+	dfilter_node	*dnode = (dfilter_node*) (gnode->data);
+
+	g_array_append_val(array, dnode->value.ipv4);
 
 	return FALSE; /* FALSE = do not end traversal of GNode tree */
 }
@@ -769,6 +790,87 @@ gboolean check_relation_floating(gint operand, GArray *a, GArray *b)
 
 	default:
 		g_assert_not_reached();
+	}
+
+	g_assert_not_reached();
+	return FALSE;
+}
+
+gboolean check_relation_ipv4(gint operand, GArray *a, GArray *b)
+{
+	int		i, j, len_a, len_b;
+	ipv4_addr	*ptr_a, *ptr_b;
+
+	len_a = a->len;
+	len_b = b->len;
+
+
+	switch(operand) {
+	case TOK_EQ:
+		for(i = 0; i < len_a; i++) {
+			ptr_a = (ipv4_addr*) g_array_index_ptr(a, sizeof(ipv4_addr), i);
+			for (j = 0; j < len_b; j++) {
+				ptr_b = (ipv4_addr*) g_array_index_ptr(b, sizeof(ipv4_addr), j);
+				if (ipv4_addr_eq(ptr_a, ptr_b))
+					return TRUE;
+			}
+		}
+		return FALSE;
+
+	case TOK_NE:
+		for(i = 0; i < len_a; i++) {
+			ptr_a = (ipv4_addr*) g_array_index_ptr(a, sizeof(ipv4_addr), i);
+			for (j = 0; j < len_b; j++) {
+				ptr_b = (ipv4_addr*) g_array_index_ptr(b, sizeof(ipv4_addr), j);
+				if (!ipv4_addr_eq(ptr_a, ptr_b))
+					return TRUE;
+			}
+		}
+		return FALSE;
+
+	case TOK_GT:
+		for(i = 0; i < len_a; i++) {
+			ptr_a = (ipv4_addr*) g_array_index_ptr(a, sizeof(ipv4_addr), i);
+			for (j = 0; j < len_b; j++) {
+				ptr_b = (ipv4_addr*) g_array_index_ptr(b, sizeof(ipv4_addr), j);
+				if (ipv4_addr_gt(ptr_a, ptr_b))
+					return TRUE;
+			}
+		}
+		return FALSE;
+
+	case TOK_GE:
+		for(i = 0; i < len_a; i++) {
+			ptr_a = (ipv4_addr*) g_array_index_ptr(a, sizeof(ipv4_addr), i);
+			for (j = 0; j < len_b; j++) {
+				ptr_b = (ipv4_addr*) g_array_index_ptr(b, sizeof(ipv4_addr), j);
+				if (ipv4_addr_ge(ptr_a, ptr_b))
+					return TRUE;
+			}
+		}
+		return FALSE;
+
+	case TOK_LT:
+		for(i = 0; i < len_a; i++) {
+			ptr_a = (ipv4_addr*) g_array_index_ptr(a, sizeof(ipv4_addr), i);
+			for (j = 0; j < len_b; j++) {
+				ptr_b = (ipv4_addr*) g_array_index_ptr(b, sizeof(ipv4_addr), j);
+				if (ipv4_addr_lt(ptr_a, ptr_b))
+					return TRUE;
+			}
+		}
+		return FALSE;
+
+	case TOK_LE:
+		for(i = 0; i < len_a; i++) {
+			ptr_a = (ipv4_addr*) g_array_index_ptr(a, sizeof(ipv4_addr), i);
+			for (j = 0; j < len_b; j++) {
+				ptr_b = (ipv4_addr*) g_array_index_ptr(b, sizeof(ipv4_addr), j);
+				if (ipv4_addr_le(ptr_a, ptr_b))
+					return TRUE;
+			}
+		}
+		return FALSE;
 	}
 
 	g_assert_not_reached();

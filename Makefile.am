@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.106 1999/11/11 23:13:42 nneul Exp $
+# $Id: Makefile.am,v 1.107 1999/11/15 06:32:10 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -161,6 +161,8 @@ ethereal_SOURCES = \
 	globals.h      \
 	inet_v6defs.h  \
 	ipproto.c      \
+	ipv4.c         \
+	ipv4.h         \
 	packet.c       \
 	packet.h       \
 	prefs.c        \

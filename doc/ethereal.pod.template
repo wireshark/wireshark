@@ -509,6 +509,25 @@ IPv4 addresses can be represented in either dotted decimal notation, or by using
     ip.dst eq www.mit.edu
     ip.src == 192.168.1.1
 
+IPv4 address can be compared with the same logical relations as numbers: eq, ne, gt,
+ge, lt, and le. The IPv4 address is stored in host order, so you do not have to worry
+about how the endianness of an IPv4 address when using it in a display filter.
+
+Classless InterDomain Routing (CIDR) notation can be used to test if an IPv4 address
+is in a certain subnet. For example, this display filter will find all packets
+in the 129.111 Class-B network:
+
+    ip.addr == 129.111.0.0/16
+
+Remember, the number after the slash represents the number of bits used to represent
+the network. CIDR notation can also be used with hostnames, in this example of finding
+IP addresses on the same Class C network as 'sneezy'
+
+    ip.addr eq sneezy/24
+
+The CIDR notation can only be used on IP addresses or hostnames, not in variable names.
+So, a display filter like "ip.src/24 == ip.dst/24" is not valid. (yet)
+
 IPX networks are represented by unsigned 32-bit integers. Most likely you will be using
 hexadecimal when testing for IPX network values:
 
