@@ -38,6 +38,15 @@ extern const value_string platform_id_vals[];
 
 /* Routines for handling deferral of referants in NDR */
 
+#define ALIGN_TO_8_BYTES \
+	{ dcerpc_info *xzdi; \
+	  xzdi=pinfo->private_data; \
+	  if(!xzdi->conformant_run) { \
+		if(offset&0x07) { \
+			offset=(offset&0xfffffff8)+8; \
+		} \
+	  } \
+	}
 #define ALIGN_TO_4_BYTES \
 	{ dcerpc_info *xzdi; \
 	  xzdi=pinfo->private_data; \
