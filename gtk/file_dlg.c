@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.40 2001/06/05 07:38:37 guy Exp $
+ * $Id: file_dlg.c,v 1.41 2001/08/21 06:39:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,8 @@
 
 #include <string.h>
 
+#include <epan/filesystem.h>
+
 #include "globals.h"
 #include "gtkglobals.h"
 #include "prefs.h"
@@ -47,7 +49,6 @@
 #include "menu.h"
 #include "file_dlg.h"
 #include "dlg_utils.h"
-#include "util.h"
 #include "main.h"
 
 static void file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs);

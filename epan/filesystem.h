@@ -1,12 +1,11 @@
 /* filesystem.h
  * Filesystem utility definitions
  *
- * $Id: filesystem.h,v 1.3 2001/04/02 09:53:44 guy Exp $
+ * $Id: filesystem.h,v 1.4 2001/08/21 06:39:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -44,6 +43,25 @@ char *get_basename(char *);
  * it....
  */
 char *get_dirname(char *);
+
+/*
+ * Given a pathname, return:
+ *
+ *	the errno, if an attempt to "stat()" the file fails;
+ *
+ *	EISDIR, if the attempt succeeded and the file turned out
+ *	to be a directory;
+ *
+ *	0, if the attempt succeeded and the file turned out not
+ *	to be a directory.
+ */
+int test_for_directory(const char *);
+
+/*
+ * Get the directory in which global configuration and data files are
+ * stored.
+ */
+const char *get_datafile_dir(void);
 
 /* Returns the user's home directory, via the HOME environment
  * variable, or a default directory if HOME is not set */

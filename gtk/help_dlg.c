@@ -1,11 +1,11 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.17 2001/05/12 19:45:37 gerald Exp $
+ * $Id: help_dlg.c,v 1.18 2001/08/21 06:39:18 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2000 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -46,7 +45,6 @@
 #include "globals.h"
 #include "gtkglobals.h"
 #include "main.h"
-#include "util.h"
 #include "ui_util.h"
 #include "proto.h"
 

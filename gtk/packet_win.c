@@ -3,10 +3,10 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.21 2001/03/24 23:53:07 guy Exp $
+ * $Id: packet_win.c,v 1.22 2001/08/21 06:39:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  * 
  * This program is free software; you can redistribute it and/or
@@ -28,7 +28,6 @@
  * - improve the window Title and allow user to config it
  * - Add print support ? ( could be a mess)
  * - Add button to have main window jump to this packet ?
- *
  */
 
 
@@ -58,7 +57,6 @@
 #include "column.h"
 #include "print.h"
 #include "resolv.h"
-#include "util.h"
 #include "packet_win.h"
 #include "simple_dialog.h"
 #include "proto_draw.h"

@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.60 2001/07/23 18:14:36 guy Exp $
+ * $Id: prefs.c,v 1.61 2001/08/21 06:39:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,11 +66,11 @@ static gchar *put_string_list(GList *);
 static void   clear_string_list(GList *);
 static void   free_col_info(e_prefs *);
 
-#define PF_NAME "preferences"
-
-#define GPF_PATH	DATAFILE_DIR "/ethereal.conf"
+#define GPF_NAME	"ethereal.conf"
+#define PF_NAME		"preferences"
 
 static gboolean init_prefs = TRUE;
+static gchar *gpf_path = NULL;
 static gchar *pf_path = NULL;
 
 /*
@@ -724,11 +724,18 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
     prefs.name_resolve        = PREFS_RESOLV_ALL;
   }
 
+  /* Construct the pathname of the global preferences file. */
+  if (! gpf_path) {
+    gpf_path = (gchar *) g_malloc(strlen(get_datafile_dir()) +
+      strlen(GPF_NAME) + 2);
+    sprintf(gpf_path, "%s%c%s", get_datafile_dir(), G_DIR_SEPARATOR, GPF_NAME);
+  }
+
   /* Read the global preferences file, if it exists. */
   *gpf_path_return = NULL;
-  if ((pf = fopen(GPF_PATH, "r")) != NULL) {
+  if ((pf = fopen(gpf_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
-    read_prefs_file(GPF_PATH, pf);
+    read_prefs_file(gpf_path, pf);
     fclose(pf);
   } else {
     /* We failed to open it.  If we failed for some reason other than
@@ -736,7 +743,7 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
        caller can report the error. */
     if (errno != ENOENT) {
       *gpf_errno_return = errno;
-      *gpf_path_return = GPF_PATH;
+      *gpf_path_return = gpf_path;
     }
   }
 

@@ -1,4 +1,4 @@
-/* $Id: config.h.win32,v 1.31 2001/08/18 23:21:30 guy Exp $ */
+/* $Id: config.h.win32,v 1.32 2001/08/21 06:39:14 guy Exp $ */
 /* config.h.win32 Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
@@ -34,8 +34,6 @@
 #define PLUGINS_NEED_ADDRESS_TABLE 1
 
 /* #undef HAVE_SA_LEN */
-
-#define DATAFILE_DIR "/usr/local/etc"
 
 /* #undef NEED_SNPRINTF_H */
 

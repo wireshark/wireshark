@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.243 2001/07/17 05:32:42 hagbard Exp $
+ * $Id: file.c,v 1.244 2001/08/21 06:39:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -69,6 +69,7 @@
 #endif
 
 #include <epan.h>
+#include <filesystem.h>
 
 #include "gtk/main.h"
 #include "color.h"

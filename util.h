@@ -1,12 +1,11 @@
 /* util.h
  * Utility definitions
  *
- * $Id: util.h,v 1.23 2001/04/02 09:53:43 guy Exp $
+ * $Id: util.h,v 1.24 2001/08/21 06:39:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,38 +28,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-/*
- * Given a pathname, return:
- *
- *	the errno, if an attempt to "stat()" the file fails;
- *
- *	EISDIR, if the attempt succeeded and the file turned out
- *	to be a directory;
- *
- *	0, if the attempt succeeded and the file turned out not
- *	to be a directory.
- */
-int test_for_directory(const char *);
-
-/*
- * Given a pathname, return a pointer to the last pathname separator
- * character in the pathname, or NULL if the pathname contains no
- * separators.
- */
-char *find_last_pathname_separator(char *);
-
-/*
- * Given a pathname, return the last component.
- */
-char *get_basename(char *);
-
-/*
- * Given a pathname, return a string containing everything but the
- * last component.  NOTE: this overwrites the pathname handed into
- * it....
- */
-char *get_dirname(char *);
 
 int create_tempfile(char *, int, const char *);
 

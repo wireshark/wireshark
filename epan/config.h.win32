@@ -1,4 +1,4 @@
-/* $Id: config.h.win32,v 1.7 2001/05/01 02:44:52 guy Exp $ */
+/* $Id: config.h.win32,v 1.8 2001/08/21 06:39:16 guy Exp $ */
 /* config.h.win32 Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
@@ -27,8 +27,6 @@
 #define YYTEXT_POINTER 1
 
 #define HAVE_PLUGINS 1
-
-#define DATAFILE_DIR "/usr/local/etc"
 
 #define NEED_INET_ATON_H 1
 

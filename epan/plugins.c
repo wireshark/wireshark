@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.27 2001/08/19 00:42:36 guy Exp $
+ * $Id: plugins.c,v 1.28 2001/08/21 06:39:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,10 +70,7 @@ static plugin_address_table_t	patable;
 /* linked list of all plugins */
 plugin *plugin_list;
 
-#ifdef WIN32
-#include <stdio.h>
-static gchar std_plug_dir[] = "C:\\Program Files\\Ethereal\\plugins\\" VERSION;
-#else
+#ifndef WIN32
 static gchar std_plug_dir[] = "/usr/lib/ethereal/plugins/" VERSION;
 static gchar local_plug_dir[] = "/usr/local/lib/ethereal/plugins/" VERSION;
 #endif
@@ -277,13 +274,11 @@ void
 init_plugins(const char *plugin_dir)
 {
 #ifdef WIN32
-    char prog_pathname[_MAX_PATH+2];
-    char *dir_end;
-    size_t install_plugin_dir_len;
-    char *install_plugin_dir;
+    const char *datafile_dir;
 #else
-    struct stat std_dir_stat, local_dir_stat, plugin_dir_stat;
+    struct stat std_dir_stat, local_dir_stat;
 #endif
+    struct stat plugin_dir_stat;
 
     if (plugin_list == NULL)      /* ensure init_plugins is only run once */
     {
@@ -423,77 +418,46 @@ init_plugins(const char *plugin_dir)
 
 #ifdef WIN32
 	/*
-	 * Scan the default installation directory.
+	 * On Windows, the data file directory is the installation
+	 * directory; the plugins are stored under it.
 	 *
-	 * This may not, in fact, be where Ethereal is installed;
-	 * we check that directory later, but we check this directory
-	 * as well, so that if you're running the program from a
-	 * source directory in which you've built it, you still get
-	 * to see the plugins installed on your system.
+	 * Assume we're running the installed version of Ethereal;
+	 * on Windows, the data file directory is the directory
+	 * in which the Ethereal binary resides.
 	 */
-	plugins_scan_dir(std_plug_dir);
+	datafile_dir = get_datafile_dir();
+	plugin_dir = g_malloc(strlen(datafile_dir) + strlen("plugins") +
+	    strlen(VERSION) + 3);
+	sprintf(plugin_dir, "%s\\plugins\\%s", datafile_dir, VERSION);
 
 	/*
-	 * Now attempt to get the full pathname of the currently running
-	 * program, and assume that might contain the pathname of the
-	 * directory in which Ethereal was installed.
+	 * Make sure that pathname refers to a directory.
 	 */
-	if (GetModuleFileName(NULL, prog_pathname, sizeof prog_pathname) != 0) {
+	if (test_for_directory(plugin_dir) != 0) {
 		/*
-		 * If the program is an installed version, the full pathname
-		 * includes the pathname of the directory in which it was
-		 * installed; get that directory's pathname, and construct
-		 * from it the pathname of the directory in which the
-		 * plugins were installed.
+		 * Either it doesn't refer to a directory or it
+		 * refers to something that doesn't exist.
 		 *
-		 * First, find the last "\\" in the directory, as that
-		 * marks the end of the directory pathname.
+		 * Assume that means we're running, for example,
+		 * a version of Ethereal we've built in a source
+		 * directory, and fall back on the default
+		 * installation directory, so you can put the plugins
+		 * somewhere so they can be used with this version
+		 * of Ethereal.
+		 *
+		 * XXX - should we, instead, have the Windows build
+		 * procedure create a subdirectory of the "plugins"
+		 * source directory, and copy the plugin DLLs there,
+		 * so that you use the plugins from the build tree?
 		 */
-		dir_end = strrchr(prog_pathname, '\\');
-		if (dir_end != NULL) {
-			/*
-			 * Include the "\\" in the directory's pathname,
-			 * as we'll be appending to that pathname.
-			 */
-			dir_end++;
-
-			/*
-			 * Found it - now figure out how long the plugin
-			 * directory pathname will be.
-			 * It's the length of the directory pathname
-			 * (dir_end - prog_pathname), plus the length of
-			 * the plugin directory's relative pathname.
-			 */
-			install_plugin_dir_len = (dir_end - prog_pathname) +
-			    strlen("plugins\\"VERSION);
-
-			/*
-			 * Allocate a buffer for the plugin directory
-			 * pathname, and construct it.
-			 */
-			install_plugin_dir =
-			    g_malloc(install_plugin_dir_len + 1);
-			strncpy(install_plugin_dir, prog_pathname,
-			    dir_end - prog_pathname);
-			strcpy(install_plugin_dir + (dir_end - prog_pathname),
-			    "plugins\\"VERSION);
-
-			/*
-			 * Is it the same as the standard plugin directory?
-			 * (Do a case-insensitive string comparison; this
-			 * *is* Windows, after all.)
-			 *
-			 * XXX - is there another way to determine whether
-			 * two pathnames refer to the same file?
-			 */
-			if (g_strcasecmp(std_plug_dir, install_plugin_dir) != 0) {
-				/*
-				 * It's a different directory - scan it.
-				 */
-				plugins_scan_dir(install_plugin_dir);
-			}
-		}
+		plugin_dir =
+		    "C:\\Program Files\\Ethereal\\plugins\\" VERSION;
 	}
+
+	/*
+	 * Scan that directory.
+	 */
+	plugins_scan_dir(plugin_dir);
 #else
 	/*
 	 * XXX - why not just scan "plugin_dir"?  That's where we

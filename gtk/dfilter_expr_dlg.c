@@ -7,10 +7,10 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.22 2001/04/20 21:57:55 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.23 2001/08/21 06:39:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2000 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -26,7 +26,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 /* Todo - 
@@ -62,7 +61,6 @@
 #include "globals.h"
 #include "gtkglobals.h"
 #include "main.h"
-#include "util.h"
 #include "ui_util.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"

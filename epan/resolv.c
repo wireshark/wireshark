@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.11 2001/06/07 22:07:02 guy Exp $
+ * $Id: resolv.c,v 1.12 2001/08/21 06:39:16 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -83,9 +83,14 @@
 
 #include "prefs.h"
 
+/*
+ * XXX - on Windows, do "/etc/ethers" and "/etc/ipxnets" exist, perhaps in
+ * some other directory, or should we instead look for them in the Ethereal
+ * installation directory, treating them as Ethereal-specific files?
+ */
 #define EPATH_ETHERS 		"/etc/ethers"
 #define EPATH_IPXNETS 		"/etc/ipxnets"
-#define EPATH_MANUF  		DATAFILE_DIR "/manuf"
+#define ENAME_MANUF		"manuf"
 #define EPATH_PERSONAL_ETHERS 	".ethereal/ethers"  /* with "$HOME/" prefix */
 #define EPATH_PERSONAL_IPXNETS 	".ethereal/ipxnets" /* with "$HOME/" prefix */
 
@@ -173,7 +178,6 @@ gchar *g_ethers_path  = EPATH_ETHERS;
 gchar *g_pethers_path = NULL; 		/* "$HOME"/EPATH_PERSONAL_ETHERS    */
 gchar *g_ipxnets_path  = EPATH_IPXNETS;
 gchar *g_pipxnets_path = NULL;		/* "$HOME"/EPATH_PERSONAL_IPXNETS   */
-gchar *g_manuf_path   = EPATH_MANUF;	/* may only be changed before the   */
 					/* first resolving call        	    */
 
 /*
@@ -624,6 +628,7 @@ static hashmanuf_t *manuf_name_lookup(const guint8 *addr)
 static void initialize_ethers(void)
 {
   ether_t *eth;
+  char *manuf_path;
 
   /* Set g_pethers_path here, but don't actually do anything
    * with it. It's used in get_ethbyname() and get_ethbyaddr()
@@ -637,13 +642,22 @@ static void initialize_ethers(void)
 
   /* manuf hash table initialization */
 
-  set_ethent(g_manuf_path);
+  /* Compute the pathname of the manuf file */
+  manuf_path = (gchar *) g_malloc(strlen(get_datafile_dir()) +
+    strlen(ENAME_MANUF) + 2);
+  sprintf(manuf_path, "%s%c%s", get_datafile_dir(), G_DIR_SEPARATOR,
+    ENAME_MANUF);
+  
+  /* Read it and initialize the hash table */
+  set_ethent(manuf_path);
 
   while ((eth = get_ethent(0))) {
     add_manuf_name(eth->addr, eth->name);
   }
 
   end_ethent();
+
+  g_free(manuf_path);
 
 } /* initialize_ethers */
 

@@ -1,12 +1,11 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.24 2001/01/11 04:40:26 gram Exp $
+ * $Id: prefs_dlg.c,v 1.25 2001/08/21 06:39:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -56,7 +55,6 @@
 #include "print_prefs.h"
 #include "stream_prefs.h"
 #include "gui_prefs.h"
-#include "util.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
 #include "simple_dialog.h"
