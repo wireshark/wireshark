@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.15 2002/04/13 18:36:23 guy Exp $
+ * $Id: text2pcap.c,v 1.16 2002/04/15 21:53:55 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -449,7 +449,7 @@ static unsigned long crc_c[256] =
 0xBE2DA0A5L, 0x4C4623A6L, 0x5F16D052L, 0xAD7D5351L,  
 }; 
      
-static unsigned int
+static unsigned long
 crc32c(const unsigned char* buf, unsigned int len, unsigned long crc32_init)
 {
   unsigned int i; 
@@ -458,7 +458,23 @@ crc32c(const unsigned char* buf, unsigned int len, unsigned long crc32_init)
   crc32 = crc32_init;
   for (i = 0; i < len; i++)  
     CRC32C(crc32, buf[i]); 
-  return crc32; 
+
+  return ( crc32 );
+}
+
+static unsigned long
+finalize_crc32c(unsigned long crc32)
+{
+  unsigned long result;
+  unsigned char byte0,byte1,byte2,byte3;
+    
+  result = ~crc32;
+  byte0 = result & 0xff;
+  byte1 = (result>>8) & 0xff;
+  byte2 = (result>>16) & 0xff;
+  byte3 = (result>>24) & 0xff;
+  result = ((byte0 << 24) | (byte1 << 16) | (byte2 << 8) | byte3);
+  return ( result );
 }
 
 static unsigned long
@@ -560,7 +576,7 @@ write_current_packet (void)
             HDR_SCTP.checksum  = crc32c((unsigned char *)&HDR_SCTP, sizeof(HDR_SCTP), ~0L);
             if (hdr_data_chunk)
               HDR_SCTP.checksum  = crc32c((unsigned char *)&HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK), HDR_SCTP.checksum);
-            HDR_SCTP.checksum  = htonl(crc32c(packet_buf, curr_offset, HDR_SCTP.checksum));
+            HDR_SCTP.checksum  = htonl(finalize_crc32c(crc32c(packet_buf, curr_offset, HDR_SCTP.checksum)));
             
             fwrite(&HDR_SCTP, sizeof(HDR_SCTP), 1, output_file);
         }
@@ -1060,7 +1076,7 @@ parse_options (int argc, char *argv[])
             }
             p++;
             optarg = p;
-            hdr_data_chunk_ppid = strtol(optarg, &p, 10);
+            hdr_data_chunk_ppid = strtoul(optarg, &p, 10);
             if (p == optarg || *p != '\0') {
                 fprintf(stderr, "Bad ppi for '-%c'\n", c);
                 help(argv[0]);
@@ -1165,7 +1181,7 @@ parse_options (int argc, char *argv[])
                              hdr_udp_src, hdr_udp_dest); 
         if (hdr_sctp) fprintf(stderr, "Generate dummy SCTP header: Source port: %ld. Dest port: %ld. Tag: %ld\n", 
                               hdr_sctp_src, hdr_sctp_dest, hdr_sctp_tag); 
-        if (hdr_data_chunk) fprintf(stderr, "Generate dummy DATA chunk header: TSN: %ld. SID: %d. SSN: %d. PPID: %ld\n", 
+        if (hdr_data_chunk) fprintf(stderr, "Generate dummy DATA chunk header: TSN: %lu. SID: %d. SSN: %d. PPID: %lu\n", 
                                     hdr_data_chunk_tsn, hdr_data_chunk_sid, hdr_data_chunk_ssn, hdr_data_chunk_ppid); 
     }
 }
