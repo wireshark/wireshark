@@ -1,7 +1,7 @@
 /* keys.h
  * Key definitions for various objects
  *
- * $Id: keys.h,v 1.2 1999/09/09 04:25:49 guy Exp $
+ * $Id: keys.h,v 1.3 1999/09/12 06:11:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,14 +28,14 @@
 
 /* Keys for gtk_object_set_data */
 
-#define E_DFILTER_TE_KEY "display_filter_te"
-#define E_RFILTER_TE_KEY "read_filter_te"
+#define E_DFILTER_TE_KEY     "display_filter_te"
+#define E_RFILTER_TE_KEY     "read_filter_te"
 
-#define PRINT_CMD_LB_KEY  "printer_command_label"
-#define PRINT_CMD_TE_KEY  "printer_command_entry"
-#define PRINT_FILE_BT_KEY "printer_file_button"
-#define PRINT_FILE_TE_KEY "printer_file_entry"
-#define PRINT_DEST_RB_KEY "printer_destination_radio_button"
-
+#define PRINT_CMD_LB_KEY     "printer_command_label"
+#define PRINT_CMD_TE_KEY     "printer_command_entry"
+#define PRINT_FILE_BT_KEY    "printer_file_button"
+#define PRINT_FILE_TE_KEY    "printer_file_entry"
+#define PRINT_DEST_RB_KEY    "printer_destination_radio_button"
+#define PRINT_SUMMARY_RB_KEY "printer_summary_radio_button"
 
 #endif

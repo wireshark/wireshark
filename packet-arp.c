@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.16 1999/07/30 05:42:25 guy Exp $
+ * $Id: packet-arp.c,v 1.17 1999/09/12 06:11:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -188,10 +188,19 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   tpa_str = arpproaddr_to_str((guint8 *) &pd[tpa_offset], ar_pln, ar_pro);
   
   if (check_col(fd, COL_PROTOCOL)) {
-    if ((op_str = match_strval(ar_op, op_vals)))
-      col_add_str(fd, COL_PROTOCOL, op_str);
-    else
+    switch (ar_op) {
+
+    case ARPOP_REQUEST:
+    case ARPOP_REPLY:
+    default:
       col_add_str(fd, COL_PROTOCOL, "ARP");
+      break;
+
+    case ARPOP_RREQUEST:
+    case ARPOP_RREPLY:
+      col_add_str(fd, COL_PROTOCOL, "RARP");
+      break;
+    }
   }
 
   if (check_col(fd, COL_INFO)) {

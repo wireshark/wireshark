@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.23 1999/09/11 22:36:30 gerald Exp $
+ * $Id: proto.c,v 1.24 1999/09/12 06:11:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -412,10 +412,13 @@ NOTES
 		case FT_UINT32:
 		case FT_VALS_UINT24:
 		case FT_VALS_UINT32:
-		case FT_RELATIVE_TIME:
 		case FT_IPv4:
 		case FT_IPXNET:
 			fi->value.numeric = va_arg(ap, unsigned int);
+			break;
+
+		case FT_DOUBLE:
+			fi->value.floating = va_arg(ap, double);
 			break;
 
 		case FT_ETHER:
@@ -423,7 +426,8 @@ NOTES
 			break;
 
 		case FT_ABSOLUTE_TIME:
-			memcpy(&fi->value.abs_time, va_arg(ap, struct timeval*),
+		case FT_RELATIVE_TIME:
+			memcpy(&fi->value.time, va_arg(ap, struct timeval*),
 				sizeof(struct timeval));
 			break;
 
@@ -556,10 +560,22 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 				fi->value.numeric);
 			break;
 
+		case FT_DOUBLE:
+			snprintf(label_str, ITEM_LABEL_LENGTH,
+				"%s: %g", fi->hfinfo->name,
+				fi->value.floating);
+			break;
+
 		case FT_ABSOLUTE_TIME:
 			snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s", fi->hfinfo->name,
-				abs_time_to_str(&fi->value.abs_time));
+				abs_time_to_str(&fi->value.time));
+			break;
+
+		case FT_RELATIVE_TIME:
+			snprintf(label_str, ITEM_LABEL_LENGTH,
+				"%s: %s seconds", fi->hfinfo->name,
+				rel_time_to_str(&fi->value.time));
 			break;
 
 		case FT_VALS_UINT8:
@@ -822,6 +838,9 @@ proto_registrar_dump(void)
 				break;
 			case FT_UINT32:
 				enum_name = "FT_UINT32";
+				break;
+			case FT_DOUBLE:
+				enum_name = "FT_DOUBLE";
 				break;
 			case FT_ABSOLUTE_TIME:
 				enum_name = "FT_ABSOLUTE_TIME";

@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.9 1999/08/29 04:06:43 gram Exp $
+ * $Id: proto.h,v 1.10 1999/09/12 06:11:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -56,6 +56,7 @@ enum ftenum {
 	FT_UINT8,
 	FT_UINT16,
 	FT_UINT32,
+	FT_DOUBLE,
 	FT_ABSOLUTE_TIME,
 	FT_RELATIVE_TIME,
 	FT_STRING,
@@ -105,7 +106,8 @@ typedef struct field_info {
 	union {
 		gboolean	boolean;
 		guint32		numeric;
-		struct timeval	abs_time; /* the whole struct, not a pointer */
+		struct timeval	time; /* the whole struct, not a pointer */
+		gdouble		floating;
 		gchar		*string;
 		guint8		ether[6];
 	}				value;

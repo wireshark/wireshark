@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.41 1999/09/11 04:50:35 gerald Exp $
+ * $Id: packet.c,v 1.42 1999/09/12 06:11:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,6 +62,8 @@ extern capture_file  cf;
 
 int proto_frame = -1;
 int hf_frame_arrival_time = -1;
+int hf_frame_time_delta = -1;
+int hf_frame_number = -1;
 int hf_frame_packet_len = -1;
 int hf_frame_capture_len = -1;
 
@@ -266,6 +268,25 @@ abs_time_to_str(struct timeval *abs_time)
         return cur;
 }
 
+gchar *
+rel_time_to_str(struct timeval *rel_time)
+{
+        static gchar *cur;
+        static char str[3][10+1+6+1];
+
+        if (cur == &str[0][0]) {
+                cur = &str[1][0];
+        } else if (cur == &str[1][0]) {
+                cur = &str[2][0];
+        } else {
+                cur = &str[0][0];
+        }
+
+	sprintf(cur, "%ld.%06ld", (long)rel_time->tv_sec,
+		(long)rel_time->tv_usec);
+
+        return cur;
+}
 
 /*
  * Given a pointer into a data buffer, and to the end of the buffer,
@@ -638,6 +659,15 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 	  proto_tree_add_item(fh_tree, hf_frame_arrival_time,
 		0, 0, &tv);
 
+	  tv.tv_sec = fd->del_secs;
+	  tv.tv_usec = fd->del_usecs;
+
+	  proto_tree_add_item(fh_tree, hf_frame_time_delta,
+		0, 0, &tv);
+
+	  proto_tree_add_item(fh_tree, hf_frame_number,
+		0, 0, fd->num);
+
 	  proto_tree_add_item_format(fh_tree, hf_frame_packet_len,
 		0, 0, fd->pkt_len, "Packet Length: %d byte%s", fd->pkt_len,
 		plurality(fd->pkt_len, "", "s"));
@@ -696,6 +726,12 @@ proto_register_frame(void)
 	static hf_register_info hf[] = {
 		{ &hf_frame_arrival_time,
 		{ "Arrival Time",		"frame.time", FT_ABSOLUTE_TIME, NULL }},
+
+		{ &hf_frame_time_delta,
+		{ "Time delta from previous packet",	"frame.time_delta", FT_RELATIVE_TIME, NULL }},
+
+		{ &hf_frame_number,
+		{ "Frame Number",		"frame.number", FT_UINT32, NULL }},
 
 		{ &hf_frame_packet_len,
 		{ "Total Frame Length",		"frame.pkt_len", FT_UINT32, NULL }},

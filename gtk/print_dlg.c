@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.3 1999/09/09 04:25:49 guy Exp $
+ * $Id: print_dlg.c,v 1.4 1999/09/12 06:11:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -77,6 +77,8 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   GtkWidget     *cmd_lb, *cmd_te;
   GtkWidget     *file_bt_hb, *file_bt, *file_te;
   GSList        *dest_grp;
+  GtkWidget     *summary_rb, *detail_rb;
+  GSList        *summary_grp;
   GtkWidget     *bbox, *ok_bt, *cancel_bt;
 
   /* XXX - don't pop up one if there's already one open; instead,
@@ -188,6 +190,17 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_signal_connect(GTK_OBJECT(file_bt), "clicked",
 		GTK_SIGNAL_FUNC(print_file_cb), GTK_OBJECT(file_te));
 
+  /* "Print summary"/"Print detail" radio buttons */
+  summary_rb = gtk_radio_button_new_with_label(NULL, "Print summary");
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(summary_rb), FALSE);
+  summary_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(summary_rb));
+  gtk_container_add(GTK_CONTAINER(main_vb), summary_rb);
+  gtk_widget_show(summary_rb);
+  detail_rb = gtk_radio_button_new_with_label(summary_grp, "Print detail");
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(detail_rb), TRUE);
+  gtk_container_add(GTK_CONTAINER(main_vb), detail_rb);
+  gtk_widget_show(detail_rb);
+
   /* Button row: OK and Cancel buttons */
   bbox = gtk_hbutton_box_new();
   gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
@@ -199,6 +212,7 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_DEST_RB_KEY, dest_rb);
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_CMD_TE_KEY, cmd_te);
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_FILE_TE_KEY, file_te);
+  gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_SUMMARY_RB_KEY, summary_rb);
   gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
     GTK_SIGNAL_FUNC(print_ok_cb), GTK_OBJECT(print_w));
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
@@ -284,21 +298,23 @@ static void
 print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 {
   GtkWidget *button;
-  char *dest;
+  print_args_t print_args;
 
   button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(ok_bt),
                                               PRINT_DEST_RB_KEY);
-  if (GTK_TOGGLE_BUTTON (button)->active)
-    print_to_file = TRUE;
-  else
-    print_to_file = FALSE;
+  print_to_file = GTK_TOGGLE_BUTTON (button)->active;
+  print_args.to_file = print_to_file;
 
-  if (print_to_file)
-    dest = g_strdup(gtk_entry_get_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(ok_bt),
+  if (print_args.to_file)
+    print_args.dest = g_strdup(gtk_entry_get_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(ok_bt),
       PRINT_FILE_TE_KEY))));
   else
-    dest = g_strdup(gtk_entry_get_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(ok_bt),
+    print_args.dest = g_strdup(gtk_entry_get_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(ok_bt),
       PRINT_CMD_TE_KEY))));
+
+  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(ok_bt),
+                                              PRINT_SUMMARY_RB_KEY);
+  print_args.print_summary = GTK_TOGGLE_BUTTON (button)->active;
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 #if 0
@@ -306,16 +322,16 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 #endif
 
   /* Now print the packets */
-  if (!print_packets(&cf, print_to_file, dest)) {
-    if (print_to_file)
+  if (!print_packets(&cf, &print_args)) {
+    if (print_args.to_file)
       simple_dialog(ESD_TYPE_WARN, NULL,
-        file_write_error_message(errno), dest);
+        file_write_error_message(errno), print_args.dest);
     else
       simple_dialog(ESD_TYPE_WARN, NULL, "Couldn't run print command %s.",
-        prefs.pr_cmd);
+        print_args.dest);
   }
 
-  g_free(dest);
+  g_free(print_args.dest);
 }
 
 static void
@@ -365,7 +381,7 @@ file_print_packet_cmd_cb(GtkWidget *widget, gpointer data) {
   }
 
   print_preamble(fh);
-  proto_tree_print(-1, (GNode*) cf.protocol_tree, cf.pd, cf.fd, fh);
+  proto_tree_print(TRUE, (GNode*) cf.protocol_tree, cf.pd, cf.fd, fh);
   print_finale(fh);
   close_print_dest(prefs.pr_dest == PR_DEST_FILE, fh);
 }

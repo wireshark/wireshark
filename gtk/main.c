@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.3 1999/09/11 12:36:14 deniel Exp $
+ * $Id: main.c,v 1.4 1999/09/12 06:11:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -501,7 +501,6 @@ main(int argc, char *argv[])
   dfilter             *rfcode = NULL;
   gboolean             rfilter_parse_failed = FALSE;
   e_prefs             *prefs;
-  gchar              **col_title;
 
   ethereal_path = argv[0];
 
@@ -553,8 +552,9 @@ main(int argc, char *argv[])
   cf.cinfo.num_cols	= prefs->num_cols;
   cf.cinfo.col_fmt      = (gint *) g_malloc(sizeof(gint) * cf.cinfo.num_cols);
   cf.cinfo.fmt_matx	= (gboolean **) g_malloc(sizeof(gboolean *) * cf.cinfo.num_cols);
-  cf.cinfo.col_data	= (gchar **) g_malloc(sizeof(gchar *) * cf.cinfo.num_cols);
   cf.cinfo.col_width	= (gint *) g_malloc(sizeof(gint) * cf.cinfo.num_cols);
+  cf.cinfo.col_title    = (gchar **) g_malloc(sizeof(gchar *) * cf.cinfo.num_cols);
+  cf.cinfo.col_data	= (gchar **) g_malloc(sizeof(gchar *) * cf.cinfo.num_cols);
 
   /* Assemble the compile-time options */
   snprintf(comp_info_str, 256,
@@ -695,11 +695,9 @@ main(int argc, char *argv[])
 #endif
 
   /* Build the column format array */  
-  col_title = (gchar **) g_malloc(sizeof(gchar *) * cf.cinfo.num_cols);
-  
   for (i = 0; i < cf.cinfo.num_cols; i++) {
     cf.cinfo.col_fmt[i] = get_column_format(i);
-    col_title[i] = g_strdup(get_column_title(i));
+    cf.cinfo.col_title[i] = g_strdup(get_column_title(i));
     cf.cinfo.fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
       NUM_COL_FMTS);
     get_column_format_matches(cf.cinfo.fmt_matx[i], cf.cinfo.col_fmt[i]);
@@ -761,7 +759,7 @@ main(int argc, char *argv[])
   gtk_widget_show(l_pane);
 
   /* Packet list */
-  packet_list = gtk_clist_new_with_titles(cf.cinfo.num_cols, col_title);
+  packet_list = gtk_clist_new_with_titles(cf.cinfo.num_cols, cf.cinfo.col_title);
   gtk_clist_column_titles_passive(GTK_CLIST(packet_list));
   packet_sw = gtk_scrolled_window_new(NULL, NULL);
   gtk_widget_show(packet_sw);

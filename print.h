@@ -1,7 +1,7 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id: print.h,v 1.10 1999/09/01 03:04:12 gram Exp $
+ * $Id: print.h,v 1.11 1999/09/12 06:11:37 guy Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -34,7 +34,7 @@ FILE *open_print_dest(int to_file, const char *dest);
 void close_print_dest(int to_file, FILE *fh);
 void print_preamble(FILE *fh);
 void print_finale(FILE *fh);
-void proto_tree_print(int frame_num, GNode *protocol_tree,
+void proto_tree_print(gboolean print_one, GNode *protocol_tree,
     const u_char *pd, frame_data *fd, FILE *fh);
 
 #endif /* print.h */

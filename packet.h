@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.96 1999/09/11 04:19:25 gerald Exp $
+ * $Id: packet.h,v 1.97 1999/09/12 06:11:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -81,6 +81,7 @@ typedef struct _column_info {
   gint      *col_fmt;   /* Format of column */
   gboolean **fmt_matx;  /* Specifies which formats apply to a column */
   gint      *col_width; /* Column widths to use during a "-S" capture */
+  gchar    **col_title; /* Column titles */
   gchar    **col_data;  /* Column data */
 } column_info;
 
@@ -99,6 +100,7 @@ typedef struct _packet_counts {
 
 typedef struct _frame_data {
   struct _frame_data *next; /* Next element in list */
+  guint32      num;       /* Frame number */
   guint32      pkt_len;   /* Packet length */
   guint32      cap_len;   /* Amount actually captured */
   guint32      rel_secs;  /* Relative seconds */
@@ -334,6 +336,7 @@ enum {
 gchar*     ether_to_str(const guint8 *);
 gchar*     ip_to_str(const guint8 *);
 gchar*	   abs_time_to_str(struct timeval*);
+gchar*	   rel_time_to_str(struct timeval*);
 gchar*     time_secs_to_str(guint32);
 gchar*     bytes_to_str(const guint8 *, int);
 const u_char *find_line_end(const u_char *data, const u_char *dataend,

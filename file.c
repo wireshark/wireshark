@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.89 1999/09/11 12:33:56 deniel Exp $
+ * $Id: file.c,v 1.90 1999/09/12 06:11:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -451,12 +451,34 @@ col_add_cls_time(frame_data *fd)
 }
 
 static void
+fill_in_columns(frame_data *fd)
+{
+  if (check_col(fd, COL_NUMBER))
+    col_add_fstr(fd, COL_NUMBER, "%u", fd->num);
+
+  /* Set any time stamp columns. */
+  if (check_col(fd, COL_CLS_TIME))
+    col_add_cls_time(fd);
+  if (check_col(fd, COL_ABS_TIME))
+    col_add_abs_time(fd, COL_ABS_TIME);
+  if (check_col(fd, COL_REL_TIME))
+    col_add_rel_time(fd, COL_REL_TIME);
+  if (check_col(fd, COL_DELTA_TIME))
+    col_add_delta_time(fd, COL_DELTA_TIME);
+
+  if (check_col(fd, COL_PACKET_LENGTH))
+    col_add_fstr(fd, COL_PACKET_LENGTH, "%d", fd->pkt_len);
+}
+
+static void
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf)
 {
   gint          i, row;
   gint		crow;
   gint 		color;
   proto_tree   *protocol_tree;
+
+  fdata->num = cf->count;
 
   /* If we don't have the time stamp of the first packet in the
      capture, it's because this is the first packet.  Save the time
@@ -508,9 +530,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
 	color = -1;
   }
   if (fdata->passed_dfilter) {
-    if (check_col(fdata, COL_NUMBER))
-      col_add_fstr(fdata, COL_NUMBER, "%d", cf->count);
-
     /* If we don't have the time stamp of the previous displayed packet,
        it's because this is the first displayed packet.  Save the time
        stamp of this packet as the time stamp of the previous displayed
@@ -536,39 +555,25 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
     prevsec = fdata->abs_secs;
     prevusec = fdata->abs_usecs;
 
-    /* Set any time stamp columns. */
-    if (check_col(fdata, COL_CLS_TIME))
-      col_add_cls_time(fdata);
-    if (check_col(fdata, COL_ABS_TIME))
-      col_add_abs_time(fdata, COL_ABS_TIME);
-    if (check_col(fdata, COL_REL_TIME))
-      col_add_rel_time(fdata, COL_REL_TIME);
-    if (check_col(fdata, COL_DELTA_TIME))
-      col_add_delta_time(fdata, COL_DELTA_TIME);
-
-    if (check_col(fdata, COL_PACKET_LENGTH))
-      col_add_fstr(fdata, COL_PACKET_LENGTH, "%d", fdata->pkt_len);
+    fill_in_columns(fdata);
 
     row = gtk_clist_append(GTK_CLIST(packet_list), fdata->cinfo->col_data);
     fdata->row = row;
 
-        if (cf->colors->color_filters && (color != -1)){
-                gtk_clist_set_background(GTK_CLIST(packet_list), row,
+    if (cf->colors->color_filters && (color != -1)){
+        gtk_clist_set_background(GTK_CLIST(packet_list), row,
                    &(color_filter(cf,color)->bg_color));
-                gtk_clist_set_foreground(GTK_CLIST(packet_list), row,
+        gtk_clist_set_foreground(GTK_CLIST(packet_list), row,
                    &(color_filter(cf,color)->fg_color));
-	} else {
-                gtk_clist_set_background(GTK_CLIST(packet_list), row,
-                   &WHITE);
-                gtk_clist_set_foreground(GTK_CLIST(packet_list), row,
-                   &BLACK);
-
-	}
+    } else {
+        gtk_clist_set_background(GTK_CLIST(packet_list), row, &WHITE);
+        gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &BLACK);
+    }
 
     /* If this was the selected packet, remember the row it's in, so
        we can re-select it.  ("selected_packet" is 0-origin, as it's
-       a GList index; "count", however, is 1-origin.) */
-    if (cf->selected_packet == cf->count - 1)
+       a GList index; "num", however, is 1-origin.) */
+    if (cf->selected_packet == fdata->num - 1)
       cf->selected_row = row;
   } else
     fdata->row = -1;	/* not in the display */
@@ -728,12 +733,16 @@ filter_packets(capture_file *cf)
 }
 
 int
-print_packets(capture_file *cf, int to_file, const char *dest)
+print_packets(capture_file *cf, print_args_t *print_args)
 {
+  int         i;
   frame_data *fd;
   proto_tree *protocol_tree;
+  gint       *col_widths = NULL;
+  gint        data_width;
+  gboolean    print_separator;
 
-  cf->print_fh = open_print_dest(to_file, dest);
+  cf->print_fh = open_print_dest(print_args->to_file, print_args->dest);
   if (cf->print_fh == NULL)
     return FALSE;	/* attempt to open destination failed */
 
@@ -746,30 +755,88 @@ print_packets(capture_file *cf, int to_file, const char *dest)
   print_preamble(cf->print_fh);
 #endif
 
+  if (print_args->print_summary) {
+    /* We're printing packet summaries.
+
+       Find the widths for each of the columns - maximum of the
+       width of the title and the width of the data - and print
+       the column titles. */
+    col_widths = (gint *) g_malloc(sizeof(gint) * cf->cinfo.num_cols);
+    for (i = 0; i < cf->cinfo.num_cols; i++) {
+      /* Don't pad the last column. */
+      if (i == cf->cinfo.num_cols - 1)
+        col_widths[i] = 0;
+      else {
+        col_widths[i] = strlen(cf->cinfo.col_title[i]);
+        data_width = get_column_char_width(get_column_format(i));
+        if (data_width > col_widths[i])
+          col_widths[i] = data_width;
+      }
+
+      /* Right-justify the packet number column. */
+      if (cf->cinfo.col_fmt[i] == COL_NUMBER)
+        fprintf(cf->print_fh, "%*s", col_widths[i], cf->cinfo.col_title[i]);
+      else
+        fprintf(cf->print_fh, "%-*s", col_widths[i], cf->cinfo.col_title[i]);
+      if (i == cf->cinfo.num_cols - 1)
+        fputc('\n', cf->print_fh);
+      else
+        fputc(' ', cf->print_fh);
+    }
+  }
+
+  print_separator = FALSE;
   proto_tree_is_visible = TRUE;
 
-  /* Iterate through the list of packets, printing each of them.  */
-  cf->count = 0;
+  /* Iterate through the list of packets, printing the packets that
+     were selected by the current display filter.  */
   for (fd = cf->plist; fd != NULL; fd = fd->next) {
-    cf->count++;
+    if (fd->passed_dfilter) {
+      wtap_seek_read (cf->cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
+      if (print_args->print_summary) {
+        /* Fill in the column information, but don't bother creating
+           the logical protocol tree. */
+        fd->cinfo = &cf->cinfo;
+        for (i = 0; i < fd->cinfo->num_cols; i++) {
+          fd->cinfo->col_data[i][0] = '\0';
+        }
+        dissect_packet(cf->pd, fd, NULL);
+        fill_in_columns(fd);
+        for (i = 0; i < cf->cinfo.num_cols; i++) {
+          /* Right-justify the packet number column. */
+          if (cf->cinfo.col_fmt[i] == COL_NUMBER)
+            fprintf(cf->print_fh, "%*s", col_widths[i], cf->cinfo.col_data[i]);
+          else
+            fprintf(cf->print_fh, "%-*s", col_widths[i], cf->cinfo.col_data[i]);
+          if (i == cf->cinfo.num_cols - 1)
+            fputc('\n', cf->print_fh);
+          else
+            fputc(' ', cf->print_fh);
+        }
+      } else {
+        if (print_separator)
+          fputc('\n', cf->print_fh);
 
-    wtap_seek_read (cf-> cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
+        /* Create the logical protocol tree. */
+        protocol_tree = proto_tree_create_root();
+        dissect_packet(cf->pd, fd, protocol_tree);
 
-    /* create the logical protocol tree */
-    protocol_tree = proto_tree_create_root();
-    dissect_packet(cf->pd, fd, protocol_tree);
+        /* Print the information in that tree. */
+        proto_tree_print(FALSE, (GNode *)protocol_tree, cf->pd, fd, cf->print_fh);
 
-    /* Print the packet */
-    proto_tree_print(cf->count, (GNode *)protocol_tree, cf->pd, fd, cf->print_fh);
+        proto_tree_free(protocol_tree);
 
-    proto_tree_free(protocol_tree);
+        /* Print a blank line if we print anything after this. */
+        print_separator = TRUE;
+      }
+    }
   }
 
 #if 0
   print_finale(cf->print_fh);
 #endif
 
-  close_print_dest(to_file, cf->print_fh);
+  close_print_dest(print_args->to_file, cf->print_fh);
   cf->print_fh = NULL;
   return TRUE;
 }

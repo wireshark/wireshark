@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.18 1999/09/09 02:42:25 gram Exp $
+ * $Id: print.c,v 1.19 1999/09/12 06:11:37 guy Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -92,7 +92,7 @@ void print_finale(FILE *fh)
 		print_ps_finale(fh);
 }
 
-void proto_tree_print(int frame_num, GNode *protocol_tree,
+void proto_tree_print(gboolean print_one, GNode *protocol_tree,
     const u_char *pd, frame_data *fd, FILE *fh)
 {
 	print_data data;
@@ -107,22 +107,12 @@ void proto_tree_print(int frame_num, GNode *protocol_tree,
 	   and I'll have to spend some time learning enough about
 	   PostScript to figure it out, so, for now, we only print
 	   multiple frames as text. */
-	if (prefs.pr_format == PR_FMT_TEXT || frame_num != -1) {
-		if (frame_num != -1)
-			fprintf(fh, "Frame %d:\n\n", frame_num);
+	if (prefs.pr_format == PR_FMT_TEXT || !print_one) {
 		g_node_children_foreach((GNode*) protocol_tree, G_TRAVERSE_ALL,
 			proto_tree_print_node_text, &data);
-		if (frame_num != -1)
-			fprintf(fh, "\n");
 	} else {
-		if (frame_num != -1) {
-			fprintf(fh, "0 (Frame %d:) putline\n", frame_num);
-			fprintf(fh, "0 () putline\n");
-		}
 		g_node_children_foreach((GNode*) protocol_tree, G_TRAVERSE_ALL,
 			proto_tree_print_node_ps, &data);
-		if (frame_num != -1)
-			fprintf(fh, "0 () putline\n");
 	}
 }
 

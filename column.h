@@ -1,7 +1,7 @@
 /* column.h
  * Definitions for column handling routines
  *
- * $Id: column.h,v 1.5 1999/09/10 06:53:23 guy Exp $
+ * $Id: column.h,v 1.6 1999/09/12 06:11:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,6 +43,7 @@ gchar               *get_column_title(gint);
 gchar               *col_format_to_pref_str(void);
 void                 get_column_format_matches(gboolean *, gint);
 gint                 get_column_width(gint format, GdkFont *font);
+gint                 get_column_char_width(gint format);
 GtkWidget           *column_prefs_show(void);
 void                 column_prefs_ok(GtkWidget *);
 void                 column_prefs_save(GtkWidget *);
