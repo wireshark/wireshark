@@ -445,26 +445,32 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 	    case TYPE_VOIP_VLAN_REPLY:
 	      tlvi = proto_tree_add_text(cdp_tree, tvb,
-					 offset, length, "VoIP VLAN Reply");
+					 offset, length, "VoIP VLAN Reply: %u", tvb_get_ntohs(tvb, offset + 5));
 	      tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
 	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
 				  offset + TLV_TYPE, 2, type);
 	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
 				  offset + TLV_LENGTH, 2, length);
 	      proto_tree_add_text(tlv_tree, tvb, offset + 4,
-				  length - 4, "Data");
+				  1, "Data");
+	      proto_tree_add_text(tlv_tree, tvb, offset + 5,
+				  2, "Voice VLAN: %u",
+				  tvb_get_ntohs(tvb, offset + 5));
 	      offset += length;
 	      break;
 	    case TYPE_VOIP_VLAN_QUERY:
 	      tlvi = proto_tree_add_text(cdp_tree, tvb,
-					 offset, length, "VoIP VLAN Query");
+					 offset, length, "VoIP VLAN Query: %u", tvb_get_ntohs(tvb, offset + 5));
 	      tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
 	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
 				  offset + TLV_TYPE, 2, type);
 	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
 				  offset + TLV_LENGTH, 2, length);
 	      proto_tree_add_text(tlv_tree, tvb, offset + 4,
-				  length - 4, "Data");
+				  1, "Data");
+	      proto_tree_add_text(tlv_tree, tvb, offset + 5,
+				  2, "Voice VLAN: %u",
+				  tvb_get_ntohs(tvb, offset + 5));
 	      offset += length;
 	      break;
 	    case TYPE_MTU:
