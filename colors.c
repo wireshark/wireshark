@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.21 1999/12/19 07:28:35 guy Exp $
+ * $Id: colors.c,v 1.22 1999/12/19 07:38:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -139,39 +139,6 @@ colfilter_new(void)
 #endif
   read_filters(filter);
   return filter;
-}
-
-static void
-set_color_filter_name(colfilter *filter, gint n, gchar *str)
-{
-	/* gtk_clist_set_text frees old text (if any) and allocates new space */
-	gtk_clist_set_text(GTK_CLIST(filter->color_filters),n,0,str);
-}
-
-static gchar *
-get_color_filter_name(colfilter *filter, gint n)
-{
-	gchar *filter_name;
-
-	gtk_clist_get_text(GTK_CLIST(filter->color_filters),n,0,
-		(gchar **)&filter_name);
-	return filter_name;
-}
-
-static void
-set_color_filter_string(colfilter *filter, gint n, gchar *str)
-{
-	gtk_clist_set_text(GTK_CLIST(filter->color_filters),n,1,str);
-}
-
-static gchar *
-get_color_filter_string(colfilter *filter, gint n)
-{
-	gchar *filter_string;
-
-	gtk_clist_get_text(GTK_CLIST(filter->color_filters),n,1,
-		(gchar **)&filter_string);
-	return filter_string;
 }
 
 color_filter_t *
@@ -645,8 +612,11 @@ colorize_ok_cb                         (GtkButton       *button,
 	if( color_filter(cf.colors->row_selected)->c_colorfilter != NULL)
 	    dfilter_destroy(color_filter(cf.colors->row_selected)->c_colorfilter);
 	color_filter(cf.colors->row_selected)->c_colorfilter = compiled_filter;
-	set_color_filter_string(cf.colors,cf.colors->row_selected,filter_text);
-	set_color_filter_name(cf.colors,cf.colors->row_selected,filter_name);
+	/* gtk_clist_set_text frees old text (if any) and allocates new space */
+	gtk_clist_set_text(GTK_CLIST(cf.colors->color_filters),
+		cf.colors->row_selected, 0, filter_name);
+	gtk_clist_set_text(GTK_CLIST(cf.colors->color_filters),
+		cf.colors->row_selected, 1, filter_text);
         gtk_widget_destroy(dialog);
   }
 }
@@ -984,7 +954,7 @@ create_colorize_win (colfilter *filter,
   gtk_object_set_data_full (GTK_OBJECT (colorize_win), "*colorize_filter_name", *colorize_filter_name,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_entry_set_text(GTK_ENTRY(*colorize_filter_name),
-	get_color_filter_name(filter, filter->row_selected));
+	color_filter(filter->row_selected)->filter_name);
 
   style = gtk_style_copy(gtk_widget_get_style(*colorize_filter_name));
   style->base[GTK_STATE_NORMAL] = color_filter(filter->row_selected)->bg_color;
@@ -1014,7 +984,7 @@ create_colorize_win (colfilter *filter,
   gtk_object_set_data_full (GTK_OBJECT (colorize_win), "*colorize_filter_text", *colorize_filter_text,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_entry_set_text(GTK_ENTRY(*colorize_filter_text),
-	get_color_filter_string(filter, filter->row_selected));
+	color_filter(filter->row_selected)->filter_text);
 #if 0
   style = gtk_style_copy(gtk_widget_get_style(*colorize_filter_text));
   style->base[GTK_STATE_NORMAL] = color_filter(filter->row_selected)->bg_color;
