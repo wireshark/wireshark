@@ -59,7 +59,7 @@ The two functions to start or stop tapping are
 
 register_tap_listener(char *tapname, void *tapdata, char *fstring,
 	void (*reset)(void *tapdata),
-	int  (*packet)(void *tapdata, packet_info *pinfo, void *<pointer>),
+	int  (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, void *<pointer>),
 	void (*draw)(void *tapdata),
 
 remove_tap_listener(void *tapdata);
@@ -105,7 +105,7 @@ listener that it is about to start [re]reading a capture file or a new capture
 from an interface and that your application should reset any state it has
 in the *tapdata instance.
 
-int (*packet)(void *tapdata, packet_info *pinfo, void *data)
+int (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, void *data)
 This callback is used whenever a new packet has arrived at the tap and that
 it has passed the filter (if there were a filter).
 The *data structure type is specific to each tap.
@@ -160,8 +160,8 @@ Well, try this :
 
 	Let struct contain an email address?
 	Then you have something simple that will make ethereal send an email
-	out automagically for each and every time it dissects (or the user 
-	clicks on) a packet containing TCP traffic to port 57.
+	out automagically for each and every time it dissects 
+	a packet containing TCP traffic to port 57.
 	Please put in some rate limitation if you do this.
 
 	Let struct contain a command line and make (*packet) execute it?
