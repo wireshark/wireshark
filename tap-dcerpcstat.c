@@ -1,7 +1,7 @@
 /* tap-dcerpcstat.c
  * dcerpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-dcerpcstat.c,v 1.2 2002/10/25 01:02:49 guy Exp $
+ * $Id: tap-dcerpcstat.c,v 1.3 2002/10/31 22:16:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,7 @@
 #include "epan/packet_info.h"
 #include "tap.h"
 #include "packet-dcerpc.h"
-#include "tap-dcerpcstat.h"
+#include "register.h"
 
 /* used to keep track of statistics for a specific procedure */
 typedef struct _rpc_procedure_t {
@@ -60,8 +60,10 @@ typedef struct _rpcstat_t {
 
 
 static int
-dcerpcstat_packet(rpcstat_t *rs, packet_info *pinfo, dcerpc_info *ri)
+dcerpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, void *pri)
 {
+	dcerpc_info *ri=pri;
+	rpcstat_t *rs=prs;
 	nstime_t delta;
 	rpc_procedure_t *rp;
 
@@ -146,8 +148,9 @@ dcerpcstat_packet(rpcstat_t *rs, packet_info *pinfo, dcerpc_info *ri)
 }
 
 static void
-dcerpcstat_draw(rpcstat_t *rs)
+dcerpcstat_draw(void *prs)
 {
+	rpcstat_t *rs=prs;
 	guint32 i;
 #ifdef G_HAVE_UINT64
 	guint64 td;
@@ -183,22 +186,50 @@ dcerpcstat_draw(rpcstat_t *rs)
 
 
 
-void
-dcerpcstat_init(e_uuid_t *uuid, int major, int minor, char *filter)
+static void
+dcerpcstat_init(char *optarg)
 {
 	rpcstat_t *rs;
 	guint32 i, max_procs;
 	dcerpc_sub_dissector *procs;
-
-	rs=g_malloc(sizeof(rpcstat_t));
-	rs->prog=dcerpc_get_proto_name(uuid, (minor<<8)|(major&0xff) );
-	if(!rs->prog){
-		g_free(rs);
-		fprintf(stderr,"tethereal: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%d.%d not supported\n",uuid->Data1,uuid->Data2,uuid->Data3,uuid->Data4[0],uuid->Data4[1],uuid->Data4[2],uuid->Data4[3],uuid->Data4[4],uuid->Data4[5],uuid->Data4[6],uuid->Data4[7],major,minor);
+	e_uuid_t uuid;
+	int d1,d2,d3,d40,d41,d42,d43,d44,d45,d46,d47;
+	int major, minor;
+	int pos=0;
+        char *filter=NULL;
+    
+	if(sscanf(optarg,"dcerpc,rtt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d%n", &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos)==13){
+		uuid.Data1=d1;
+		uuid.Data2=d2;
+		uuid.Data3=d3;
+		uuid.Data4[0]=d40;
+		uuid.Data4[1]=d41;
+		uuid.Data4[2]=d42;
+		uuid.Data4[3]=d43;
+		uuid.Data4[4]=d44;
+		uuid.Data4[5]=d45;
+		uuid.Data4[6]=d46;
+		uuid.Data4[7]=d47;
+		if(pos){
+			filter=optarg+pos;
+		} else {
+			filter=NULL;
+		}
+	} else {
+		fprintf(stderr, "tethereal: invalid \"-z dcerpc,rtt,<uuid>,<major version>.<minor version>[,<filter>]\" argument\n");
 		exit(1);
 	}
-	procs=dcerpc_get_proto_sub_dissector(uuid, (minor<<8)|(major&0xff) );
-	rs->uuid=*uuid;
+
+
+	rs=g_malloc(sizeof(rpcstat_t));
+	rs->prog=dcerpc_get_proto_name(&uuid, (minor<<8)|(major&0xff) );
+	if(!rs->prog){
+		g_free(rs);
+		fprintf(stderr,"tethereal: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%d.%d not supported\n",uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],major,minor);
+		exit(1);
+	}
+	procs=dcerpc_get_proto_sub_dissector(&uuid, (minor<<8)|(major&0xff) );
+	rs->uuid=uuid;
 	rs->ver=(minor<<8)|(major&0xff);
 
 	if(filter){
@@ -232,7 +263,7 @@ dcerpcstat_init(e_uuid_t *uuid, int major, int minor, char *filter)
 		rs->procedures[i].tot.nsecs=0;
 	}
 
-	if(register_tap_listener("dcerpc", rs, filter, NULL, (void*)dcerpcstat_packet, (void*)dcerpcstat_draw)){
+	if(register_tap_listener("dcerpc", rs, filter, NULL, dcerpcstat_packet, dcerpcstat_draw)){
 		/* error, we failed to attach to the tap. clean up */
 		g_free(rs->procedures);
 		g_free(rs->filter);
@@ -243,3 +274,8 @@ dcerpcstat_init(e_uuid_t *uuid, int major, int minor, char *filter)
 	}
 }
 
+void
+register_tap_listener_dcerpcstat(void)
+{
+	register_ethereal_tap("dcerpc,rtt,", dcerpcstat_init, NULL, NULL);
+}

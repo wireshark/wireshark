@@ -1,7 +1,7 @@
 /* tap.c
  * packet tap interface   2002 Ronnie Sahlberg
  *
- * $Id: tap.c,v 1.6 2002/10/23 23:12:34 guy Exp $
+ * $Id: tap.c,v 1.7 2002/10/31 22:16:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,9 +74,9 @@ typedef struct _tap_listener_t {
 	int needs_redraw;
 	dfilter_t *code;
 	void *tapdata;
-	void (*reset)(void *tapdata);
-	int  (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, void *data);
-	void (*draw)(void *tapdata);
+	tap_reset_cb reset;
+	tap_packet_cb packet;
+	tap_draw_cb draw;
 } tap_listener_t;
 static volatile tap_listener_t *tap_listener_queue=NULL;
 
@@ -339,7 +339,7 @@ find_tap_id(char *name)
  * !0: error
 */
 int
-register_tap_listener(char *tapname, void *tapdata, char *fstring, void (*reset)(void *tapdata), int (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, void *data), void (*draw)(void *tapdata))
+register_tap_listener(char *tapname, void *tapdata, char *fstring, tap_reset_cb reset, tap_packet_cb packet, tap_draw_cb draw)
 {
 	tap_listener_t *tl;
 	int tap_id;

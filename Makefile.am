@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.511 2002/10/31 07:12:23 guy Exp $
+# $Id: Makefile.am,v 1.512 2002/10/31 22:16:00 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -638,12 +638,6 @@ ETHEREAL_COMMON_SRC = \
 	smb.h          \
 	tap.c		\
 	tap.h		\
-	tap-dcerpcstat.c	\
-	tap-dcerpcstat.h	\
-	tap-rpcstat.c	\
-	tap-rpcstat.h	\
-	tap-rpcprogs.c	\
-	tap-rpcprogs.h	\
 	util.c         \
 	util.h         \
 	x11-declarations.h \
@@ -669,8 +663,6 @@ ethereal_SOURCES = \
 	filters.h      \
 	globals.h      \
 	menu.h         \
-	\
-	\
 	progress_dlg.h \
 	proto_hier_stats.h	\
 	proto_hier_stats.c	\
@@ -691,8 +683,6 @@ ethereal_static_SOURCES = \
 	filters.h      \
 	globals.h      \
 	menu.h         \
-	\
-	\
 	progress_dlg.h \
 	proto_hier_stats.h	\
 	proto_hier_stats.c	\
@@ -779,15 +769,24 @@ ethereal_static_LDADD = \
 ethereal_LDFLAGS = -export-dynamic
 ethereal_static_LDFLAGS = -Wl,-static
 
+TETHEREAL_TAP_SRC = \
+	tap-dcerpcstat.c	\
+	tap-rpcstat.c		\
+	tap-rpcprogs.c
+
 tethereal_SOURCES = \
 	$(DISSECTOR_SRC) \
 	$(ETHEREAL_COMMON_SRC) \
+	$(TETHEREAL_TAP_SRC) \
+	tethereal-tap-register.c \
 	register.c     \
 	tethereal.c
 
 tethereal_static_SOURCES = \
 	$(DISSECTOR_SRC) \
 	$(ETHEREAL_COMMON_SRC) \
+	$(TETHEREAL_TAP_SRC) \
+	tethereal-tap-register.c \
 	register-static.c     \
 	tethereal.c
 
@@ -892,7 +891,8 @@ SUFFIXES = .sh
 #
 # Therefore, we have a script to generate the "register.c" file.
 #
-# The first argument is the directory in which the source files live.
+# The first argument is the name of the file to write.
+# The second argument is the directory in which the source files live.
 # All subsequent arguments are the files to scan.
 #
 register.c: $(DISSECTOR_SRC) $(srcdir)/make-reg-dotc
@@ -902,6 +902,24 @@ register.c: $(DISSECTOR_SRC) $(srcdir)/make-reg-dotc
 register-static.c: $(plugin_src) $(DISSECTOR_SRC) $(srcdir)/make-reg-dotc
 	@echo Making register-static.c
 	@$(srcdir)/make-reg-dotc register-static.c $(srcdir) $(plugin_src) $(DISSECTOR_SRC)
+
+#
+# Build "tethereal-tap-register.c", which contains a function 
+# "register_all_tap_listeners()"
+# that calls the register routines for all tehtereal tap listeners.
+#
+# We do this by grepping through sources.
+#
+# Formatting conventions:  The name of the tap_listener_register_* 
+# routines must start in column zero, or must be preceded only by 
+# "void " starting in column zero, and must not be inside #if.
+#
+# The first argument is the directory in which the source files live.
+# All subsequent arguments are the files to scan.
+#
+tethereal-tap-register.c: $(TETHEREAL_TAP_SRC) $(srcdir)/make-tapreg-dotc
+	@echo Making tethereal-tap-register.c
+	@$(srcdir)/make-tapreg-dotc tethereal-tap-register.c $(srcdir) $(TETHEREAL_TAP_SRC)
 
 ps.c: print.ps rdps
 	./rdps $(srcdir)/print.ps ps.c

@@ -53,6 +53,7 @@ stamp-h1
 tethereal
 tethereal.1
 tethereal_static
+tethereal-tap-register.c
 text2pcap
 text2pcap-scanner.c
 text2pcap.1

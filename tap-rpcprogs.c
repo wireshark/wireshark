@@ -1,7 +1,7 @@
 /* tap-rpcprogs.c
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-rpcprogs.c,v 1.2 2002/10/23 23:12:34 guy Exp $
+ * $Id: tap-rpcprogs.c,v 1.3 2002/10/31 22:16:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,9 +39,8 @@
 #include <string.h>
 #include "epan/packet_info.h"
 #include "tap.h"
-#include "tap-rpcprogs.h"
 #include "packet-rpc.h"
-
+#include "register.h"
 
 /* used to keep track of statistics for a specific program/version */
 typedef struct _rpc_program_t {
@@ -58,8 +57,9 @@ static rpc_program_t *prog_list=NULL;
 static int already_enabled=0;
 
 static int
-rpcprogs_packet(void *dummy1 _U_, packet_info *pinfo, epan_dissect_t *edt _U_, rpc_call_info_value *ri)
+rpcprogs_packet(void *dummy1 _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void *pri)
 {
+	rpc_call_info_value *ri=pri;
 	nstime_t delta;
 	rpc_program_t *rp=NULL;
 
@@ -219,20 +219,25 @@ rpcprogs_draw(void *dummy _U_)
 }
 
 
-void
-rpcprogs_init(void)
+static void
+rpcprogs_init(char *optarg _U_)
 {
 	if(already_enabled){
 		return;
 	}
 	already_enabled=1;
 
-	if(register_tap_listener("rpc", NULL, NULL, NULL, (void*)rpcprogs_packet, (void*)rpcprogs_draw)){
+	if(register_tap_listener("rpc", NULL, NULL, NULL, rpcprogs_packet, rpcprogs_draw)){
 		fprintf(stderr,"tethereal: rpcprogs_init() failed to attach to tap.\n");
 		exit(1);
 	}
 }
 
 
+void
+register_tap_listener_rpcprogs(void)
+{
+	register_ethereal_tap("rpc,programs", rpcprogs_init, NULL, NULL);
+}
 
 

@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.246 2002/10/31 07:12:23 guy Exp $
+# $Id: Makefile.nmake,v 1.247 2002/10/31 22:16:01 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -321,6 +321,13 @@ DISSECTOR_SRC = \
 
 DISSECTOR_OBJECTS = $(DISSECTOR_SRC:.c=.obj)
 
+TETHEREAL_TAP_SRC = \
+	tap-dcerpcstat.c	\
+	tap-rpcstat.c		\
+	tap-rpcprogs.c
+
+TETHEREAL_TAP_OBJECTS = $(TETHEREAL_TAP_SRC:.c=.obj)
+
 ETHEREAL_COMMON_OBJECTS = \
 	afn.obj          \
 	asn1.obj         \
@@ -342,9 +349,6 @@ ETHEREAL_COMMON_OBJECTS = \
 	register.obj     \
 	ringbuffer.obj   \
 	tap.obj		\
-	tap-dcerpcstat.obj	\
-	tap-rpcstat.obj	\
-	tap-rpcprogs.obj	\
 	util.obj         \
 	xdlc.obj         \
 	xmlstub.obj	 \
@@ -361,6 +365,8 @@ ethereal_OBJECTS = \
 tethereal_OBJECTS = \
 	$(DISSECTOR_OBJECTS) \
 	$(ETHEREAL_COMMON_OBJECTS) \
+	$(TETHEREAL_TAP_OBJECTS) \
+	tethereal-tap-register.obj \
 	tethereal.obj
 
 dftest_OBJECTS = \
@@ -498,14 +504,65 @@ packet-ncp2222.c : ncp2222.py
 	touch packet-ncp.c $@
 !ENDIF
 
+#
+# Build "register.c", which contains a function "register_all_protocols()"
+# that calls the register routines for all protocols.
+#
+# We do this by grepping through sources.  If that turns out to be too slow,
+# maybe we could just require every .o file to have an register routine
+# of a given name (packet-aarp.o -> proto_register_aarp, etc.).
+#
+# Formatting conventions:  The name of the proto_register_* routines must
+# start in column zero, or must be preceded only by "void " starting in
+# column zero, and must not be inside #if.
+#
+# We assume that all dissector routines are in "packet-XXX.c" files.
+#
+# For some unknown reason, having a big "for" loop in the Makefile
+# to scan all the "packet-XXX.c" files doesn't work with some "make"s;
+# they seem to pass only the first few names in the list to the shell,
+# for some reason.
+#
+# Therefore, we have a script to generate the "register.c" file.
+#
+# The first argument is the name of the file to write.
+# The second argument is the directory in which the source files live.
+# All subsequent arguments are the files to scan.
+#
+# On Windows, however, that script runs slowly, as multiple greps
+# and seds are run for each input file, so, if Python is present
+# (as indicated by PYTHON being defined), we run a faster Python
+# script to do that work instead.  That script doesn't take the name
+# of the file to write as an argument; it always writes to
+# "register.c".
+#
 register.c: $(DISSECTOR_SRC)
 !IFDEF PYTHON
 	@echo Making register.c (using python)
 	@$(PYTHON) make-reg-dotc.py . $(DISSECTOR_SRC)
 !ELSE
 	@echo Making register.c (using sh)
-	@sh make-reg-dotc register.c $(DISSECTOR_SRC)
+	@sh make-reg-dotc register.c . $(DISSECTOR_SRC)
 !ENDIF
+
+#
+# Build "tethereal-tap-register.c", which contains a function 
+# "register_all_tap_listeners()"
+# that calls the register routines for all tehtereal tap listeners.
+#
+# We do this by grepping through sources.
+#
+# Formatting conventions:  The name of the tap_listener_register_* 
+# routines must start in column zero, or must be preceded only by 
+# "void " starting in column zero, and must not be inside #if.
+#
+# The first argument is the name of the file to write.
+# The second argument is the directory in which the source files live.
+# All subsequent arguments are the files to scan.
+#
+tethereal-tap-register.c: $(TETHEREAL_TAP_SRC)
+	@echo Making tethereal-tap-register.c
+	@sh make-tapreg-dotc tethereal-tap-register.c . $(TETHEREAL_TAP_SRC)
 
 text2pcap-scanner.c : text2pcap-scanner.l
 	$(LEX) -otext2pcap-scanner.c text2pcap-scanner.l

@@ -1,7 +1,7 @@
 /* tap-rpcstat.c
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-rpcstat.c,v 1.4 2002/10/23 23:12:34 guy Exp $
+ * $Id: tap-rpcstat.c,v 1.5 2002/10/31 22:16:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,9 +41,8 @@
 #include <string.h>
 #include "epan/packet_info.h"
 #include "tap.h"
-#include "tap-rpcstat.h"
 #include "packet-rpc.h"
-
+#include "register.h"
 
 /* used to keep track of statistics for a specific procedure */
 typedef struct _rpc_procedure_t {
@@ -77,8 +76,9 @@ typedef struct _rpcstat_t {
  * situations, here is a good place to put that code.
  */
 static void
-rpcstat_reset(rpcstat_t *rs)
+rpcstat_reset(void *prs)
 {
+	rpcstat_t *rs=prs;
 	guint32 i;
 
 	for(i=0;i<rs->num_procedures;i++){
@@ -124,8 +124,10 @@ rpcstat_reset(rpcstat_t *rs)
  * !0: state has changed, call (*draw) sometime later
  */
 static int
-rpcstat_packet(rpcstat_t *rs, packet_info *pinfo, epan_dissect_t *edt _U_, rpc_call_info_value *ri)
+rpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, void *pri)
 {
+	rpcstat_t *rs=prs;
+	rpc_call_info_value *ri=pri;
 	nstime_t delta;
 	rpc_procedure_t *rp;
 
@@ -201,8 +203,9 @@ rpcstat_packet(rpcstat_t *rs, packet_info *pinfo, epan_dissect_t *edt _U_, rpc_c
  * beneath us. Beware.
  */
 static void
-rpcstat_draw(rpcstat_t *rs)
+rpcstat_draw(void *prs)
 {
+	rpcstat_t *rs=prs;
 	guint32 i;
 #ifdef G_HAVE_UINT64
 	guint64 td;
@@ -274,11 +277,26 @@ rpcstat_find_procs(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
  * and it creates a new instance to store statistics in and registers this
  * new instance for the rpc tap.
  */
-void
-rpcstat_init(guint32 program, guint32 version, char *filter)
+static void
+rpcstat_init(char *optarg)
 {
 	rpcstat_t *rs;
 	guint32 i;
+	int program, version;
+	int pos=0;
+	char *filter=NULL;
+
+	if(sscanf(optarg,"rpc,rtt,%d,%d,%n",&program,&version,&pos)==2){
+		if(pos){
+			filter=optarg+pos;
+		} else {
+			filter=NULL;
+		}
+	} else {
+		fprintf(stderr, "tethereal: invalid \"-z rpc,rtt,<program>,<version>[,<filter>]\" argument\n");
+		exit(1);
+	}
+
 
 	rs=g_malloc(sizeof(rpcstat_t));
 	rs->prog=rpc_prog_name(program);
@@ -325,7 +343,7 @@ rpcstat_init(guint32 program, guint32 version, char *filter)
  *
  */
 
-	if(register_tap_listener("rpc", rs, filter, (void*)rpcstat_reset, (void*)rpcstat_packet, (void*)rpcstat_draw)){
+	if(register_tap_listener("rpc", rs, filter, rpcstat_reset, rpcstat_packet, rpcstat_draw)){
 		/* error, we failed to attach to the tap. clean up */
 		g_free(rs->procedures);
 		g_free(rs->filter);
@@ -337,5 +355,9 @@ rpcstat_init(guint32 program, guint32 version, char *filter)
 }
 
 
-
+void
+register_tap_listener_rpcstat(void)
+{
+	register_ethereal_tap("rpc,rtt,", rpcstat_init, NULL, NULL);
+}
 
