@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.163 2001/12/04 08:25:55 guy Exp $
+ * $Id: capture.c,v 1.164 2002/01/03 22:03:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -204,11 +204,12 @@ static float pct(gint, gint);
 static void stop_capture(int signo);
 
 typedef struct _loop_data {
-  gint           go;           /* TRUE as long as we're supposed to keep capturing */
+  gboolean       go;           /* TRUE as long as we're supposed to keep capturing */
   gint           max;          /* Number of packets we're supposed to capture - 0 means infinite */
   int            err;          /* if non-zero, error seen while capturing */
   gint           linktype;
   gint           sync_packets;
+  gboolean       pcap_err;     /* TRUE if error from pcap */
   gboolean       from_pipe;    /* TRUE if we are capturing data from a pipe */
   gboolean       modified;     /* TRUE if data in the pipe uses modified pcap headers */
   gboolean       byte_swapped; /* TRUE if data in the pipe is byte swapped */
@@ -1303,6 +1304,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   ld.max            = cfile.count;
   ld.err            = 0;	/* no error seen yet */
   ld.linktype       = WTAP_ENCAP_UNKNOWN;
+  ld.pcap_err       = FALSE;
   ld.from_pipe      = FALSE;
   ld.sync_packets   = 0;
   ld.counts.sctp    = 0;
@@ -1639,10 +1641,18 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 	 * it.
 	 */
 	inpkts = pcap_dispatch(pch, 1, capture_pcap_cb, (u_char *) &ld);
+	if (inpkts < 0) {
+	  ld.pcap_err = TRUE;
+	  ld.go = FALSE;
+	}
       } else
 	inpkts = 0;
 #else
       inpkts = pcap_dispatch(pch, 1, capture_pcap_cb, (u_char *) &ld);
+      if (inpkts < 0) {
+        ld.pcap_err = TRUE;
+        ld.go = FALSE;
+      }
 #endif
     }
     if (inpkts > 0)
@@ -1703,6 +1713,20 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   /* delete stop conditions */
   cnd_delete(cnd_stop_capturesize);
   cnd_delete(cnd_stop_timeout);
+
+  if (ld.pcap_err) {
+    snprintf(errmsg, sizeof(errmsg), "Error while capturing packets: %s",
+      pcap_geterr(pch));
+    if (capture_child) {
+      /* Tell the parent, so that they can pop up the message;
+         we're going to exit, so if we try to pop it up, either
+         it won't pop up or it'll disappear as soon as we exit. */
+      send_errmsg_to_parent(errmsg);
+    } else {
+     /* Just pop up the message ourselves. */
+     simple_dialog(ESD_TYPE_WARN, NULL, "%s", errmsg);
+    }
+  }
 
   if (ld.err != 0) {
     get_capture_file_io_error(errmsg, sizeof(errmsg), cfile.save_file, ld.err,

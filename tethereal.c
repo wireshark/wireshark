@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.112 2001/12/21 20:32:53 guy Exp $
+ * $Id: tethereal.c,v 1.113 2002/01/03 22:03:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,6 +57,7 @@
 
 #ifdef HAVE_LIBPCAP
 #include <pcap.h>
+#include <setjmp.h>
 #endif
 
 #ifdef HAVE_LIBZ
@@ -122,10 +123,11 @@ static gboolean line_buffered;
 
 #ifdef HAVE_LIBPCAP
 typedef struct _loop_data {
+  gboolean       go;           /* TRUE as long as we're supposed to keep capturing */
   gint           linktype;
   pcap_t        *pch;
   wtap_dumper   *pdh;
-  gboolean       go;
+  jmp_buf        stopenv;
 } loop_data;
 
 static loop_data ld;
@@ -755,14 +757,15 @@ main(int argc, char *argv[])
 /* Do the low-level work of a capture.
    Returns TRUE if it succeeds, FALSE otherwise. */
 static int
-capture(int packet_count, int out_file_type)
+capture(volatile int packet_count, int out_file_type)
 {
   gchar       open_err_str[PCAP_ERRBUF_SIZE];
   gchar       lookup_net_err_str[PCAP_ERRBUF_SIZE];
   bpf_u_int32 netnum, netmask;
   struct bpf_program fcode;
   void        (*oldhandler)(int);
-  int         err, inpkts;
+  int         err;
+  volatile int inpkts = 0;
   char        errmsg[1024+1];
   condition *cnd_stop_capturesize;
   condition *cnd_stop_timeout;
@@ -848,7 +851,7 @@ capture(int packet_count, int out_file_type)
        * we just warn the user, and punt and use 0.
        */
       fprintf(stderr, 
-        "Warning:  Couldn't obtain netmask info (%s)\n.", lookup_net_err_str);
+        "Warning:  Couldn't obtain netmask info (%s).\n", lookup_net_err_str);
       netmask = 0;
     }
     if (pcap_compile(ld.pch, &fcode, cfile.cfilter, 1, netmask) < 0) {
@@ -923,12 +926,15 @@ capture(int packet_count, int out_file_type)
 
   if (packet_count == 0)
     packet_count = -1; /* infinite capturng */
-  ld.go = TRUE;
+  if (!setjmp(ld.stopenv))
+    ld.go = TRUE;
+  else
+    ld.go = FALSE;
   while (ld.go) {
     if (packet_count > 0)
       packet_count--;
     inpkts = pcap_dispatch(ld.pch, 1, capture_pcap_cb, (u_char *) &ld);
-    if (packet_count == 0) {
+    if (packet_count == 0 || inpkts < 0) {
       ld.go = FALSE;
     } else if (cnd_eval(cnd_stop_timeout) == TRUE) {
       /* The specified capture time has elapsed; stop the capture. */
@@ -1038,9 +1044,11 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
 static void
 capture_cleanup(int signum)
 {
-  /* Just set the loop flag to false. This will initiate 
-     a proper termination. */
-  ld.go = FALSE;
+  /* Longjmp back to the starting point; "pcap_dispatch()", on many
+     platforms, just keeps looping if it gets EINTR, so if we set
+     "ld.go" to FALSE and return, we won't break out of it and quit
+     capturing. */
+  longjmp(ld.stopenv, 1);
 }
 #endif /* HAVE_LIBPCAP */
 
