@@ -40,10 +40,7 @@
   NOTES:
   1) p. 586 Chapter 23.2 of "The ICE Protocol"
      "Data is always encoded using little-endian byte order for numeric types."
-  2) You need to turn on 'Try heuristic sub-dissector first'
-     in Preferences/Protocols/TCP Option menu, in order to view ICEP packets 
-     correctly. Why? Why not for UDP?
-  3) Informations about Ice can be found here: http://www.zeroc.com
+  2) Informations about Ice can be found here: http://www.zeroc.com
 */
 
 #ifdef HAVE_CONFIG_H
@@ -57,6 +54,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/dissectors/packet-tcp.h>
 
 #if 0
 #define DBG(str, args...)       do {\
@@ -1118,8 +1116,12 @@ static void dissect_icep_reply(tvbuff_t *tvb, guint32 offset, proto_tree *icep_t
 	DBG("consumed --> %d\n", reported_reply_data);
 }
 
-/* entry point */
-static gboolean dissect_icep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static guint get_icep_pdu_len(tvbuff_t *tvb, int offset)
+{
+	return tvb_get_letohl(tvb, offset + 10);
+}
+
+static void dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	/*  p. 611, chapter 23.3.1:
 	 *
@@ -1138,41 +1140,7 @@ static gboolean dissect_icep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_item *ti = NULL;
 	proto_tree *icep_tree = NULL;
 	guint32 offset = 0;
-	guint32 messageSize = 0;
-	guint8 buf[4] = { 0, 0, 0, 0};
-	
-	DBG("triggered\n");
-	
-        /* get at least a full message header (taken from packet-yhoo.c) */
-	
-	if ( !tvb_bytes_exist(tvb, 0, ICEP_HEADER_SIZE) ) {
-		/* Not enough data captured; maybe it is a ICEP packet,
-		   but it contains too little data to tell. */
-		return FALSE;
-	}
-	
-        /* check for magic string (taken from packet-giop.c) */
-	
-	tvb_memcpy(tvb, (guint8 *)&buf, 0, 4);
-	if ( memcmp(buf, ICEP_MAGIC, 4) != 0 ) {
-		/* Not a ICEP packet. */
-		return FALSE;
-	}
-		
-	/* check for fragmentation */
-	
-	messageSize = tvb_get_letohl(tvb, 10);
-	
-	if ( !tvb_bytes_exist(tvb, 0, messageSize) ) {
-		/* 
-		 * this is probably a ICEP pkt but is spanned across TCP
-		 * segments. Reassembly is in the TODO list.
-		 */
-		return FALSE;
-	}
-	
-	/* start dissecting */
-	
+
         /* Make entries in Protocol column and Info column on summary display */
 	
 	if ( check_col(pinfo->cinfo, COL_PROTOCOL) ) 
@@ -1263,7 +1231,27 @@ static gboolean dissect_icep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					    tvb_get_guint8(tvb, 8));
 		break;
 	}
+}	
+
+/* entry point */
+static gboolean dissect_icep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	DBG("triggered\n");
 	
+        /* get at least a full message header (taken from packet-yhoo.c) */
+	
+        /* check for magic string (taken from packet-giop.c) */
+	
+	if ( tvb_memeql(tvb, 0, ICEP_MAGIC, 4) == -1 ) {
+		/* Not a ICEP packet. */
+		return FALSE;
+	}
+		
+	/* start dissecting */
+	
+	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, ICEP_HEADER_SIZE,
+	    get_icep_pdu_len, dissect_icep_pdu);
+
 	return TRUE;
 }
 
