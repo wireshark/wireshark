@@ -1,4 +1,4 @@
-/* $Id: config.h.win32,v 1.11 2003/06/02 18:40:01 gerald Exp $ */
+/* $Id: config.h.win32,v 1.12 2003/06/12 09:45:42 guy Exp $ */
 /* config.h.win32 Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
@@ -72,7 +72,7 @@
 /* #undef HAVE_UNISTD_H */
 
 /* Define to use GNU ADNS library */
-#define HAVE_GNU_ADNS 1
+@HAVE_GNU_ADNS@
 #define ADNS_JGAA_WIN32 1
 
 #define HAVE_PLUGINS		1
