@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.121 2003/04/06 02:32:34 guy Exp $
+ * $Id: packet-ipx.c,v 1.122 2003/04/06 22:50:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -220,7 +220,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16		ipx_length;
 
 	guint16		ipx_dsocket, ipx_ssocket;
-	guint16		low_socket, high_socket;
+	guint16		first_socket, second_socket;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX");
@@ -293,26 +293,39 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * packets with a type of NCP and a destination socket of
 	 * IPX_SOCKET_SAP.
 	 *
-	 * Assume the lower-numbered socket number is more likely
-	 * to be the right one, along the lines of what we do for
-	 * TCP and UDP.  We've seen NCP packets with a type of NCP,
-	 * a source socket of IPX_SOCKET_NCP, and a destination
-	 * socket of IPX_SOCKET_IPX_MESSAGE, and we've seen NCP
-	 * packets with a type of NCP, a source socket of
+	 * We've seen NCP packets with a type of NCP, a source socket of
+	 * IPX_SOCKET_NCP, and a destination socket of IPX_SOCKET_IPX_MESSAGE,
+	 * and we've seen NCP packets with a type of NCP, a source socket of
 	 * IPX_SOCKET_IPX_MESSAGE, and a destination socket of
-	 * IPX_SOCKET_NCP.
+	 * IPX_SOCKET_NCP, so testing the destination socket first doesn't
+	 * always give the right answer.  We've also seen SAP packets with
+	 * a source socket of IPX_SOCKET_SAP and a destination socket of
+	 * IPX_SOCKET_IPX_MESSAGE.
+	 *
+	 * Unfortunately, we've also seen packets with a source socket
+	 * of IPX_SOCKET_NWLINK_SMB_SERVER and a destination socket
+	 * of IPX_SOCKET_NWLINK_SMB_NAMEQUERY that were NMPI packets,
+	 * not SMB packets, so testing the lower-valued socket first
+	 * also doesn't always give the right answer.
+	 *
+	 * So we start out assuming we should test the lower-numbered
+	 * socket number first, but, if the higher-numbered socket is
+	 * IPX_SOCKET_NWLINK_SMB_NAMEQUERY, we assume that it's a
+	 * NMPI query, and test only that socket.
 	 */
 	if (ipx_ssocket > ipx_dsocket) {
-		low_socket = ipx_dsocket;
-		high_socket = ipx_ssocket;
+		first_socket = ipx_dsocket;
+		second_socket = ipx_ssocket;
 	} else {
-		low_socket = ipx_ssocket;
-		high_socket = ipx_dsocket;
+		first_socket = ipx_ssocket;
+		second_socket = ipx_dsocket;
 	}
-	if (dissector_try_port(ipx_socket_dissector_table, low_socket,
-	    next_tvb, pinfo, tree))
-		return;
-	if (dissector_try_port(ipx_socket_dissector_table, high_socket,
+	if (second_socket != IPX_SOCKET_NWLINK_SMB_NAMEQUERY) {
+		if (dissector_try_port(ipx_socket_dissector_table, first_socket,
+		    next_tvb, pinfo, tree))
+			return;
+	}
+	if (dissector_try_port(ipx_socket_dissector_table, second_socket,
 	    next_tvb, pinfo, tree))
 		return;
 
