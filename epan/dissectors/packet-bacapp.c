@@ -1,7 +1,6 @@
 /* packet-bacapp.c
  * Routines for BACnet (APDU) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
- *
  * modified 2004, Herbert Lischka <lischka@kieback-peter.de>, Berlin
  *
  * $Id$
@@ -9,8 +8,6 @@
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
- * Copied from README.developer,v 1.23
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -46,6 +43,17 @@
 #ifndef max
 #define max(a,b) (((a)>(b))?(a):(b))
 #endif
+
+/*
+ * XXX - this is an ASN.1-based protocol, so the dissector should perhaps
+ * be generated from the ASN.1 specification.
+ *
+ * However, they seem to indicate in 20 "ENCODING BACnet PROTOCOL DATA
+ * UNITS" in the BACnet spec that they're not using BER uniformly - the
+ * fixed portion of each APDU is encoded implicitly rather than using
+ * BER's explicit tagging - so that might not be possible.  If it's not,
+ * it should probably still use the packet-ber.c routines.
+ */
 
 static const value_string bacapp_type_name[] = {
 	{0, "Conf-Request "},
@@ -828,14 +836,14 @@ void
 fUnsignedTag (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *label, guint64 lvt)
 {
 	guint8 tmp, i;
-	long val = 0;
+	guint64 val = 0;
 
 	(*offset)++;
 	for (i = 0; i < min((guint8) lvt,8); i++) {
 		tmp = tvb_get_guint8(tvb, (*offset)+i);
 		val = (val << 8) + tmp;
 	}
-	proto_tree_add_text(tree, tvb, *offset, min((guint8) lvt,8), "%s%ld", LABEL(label), val);
+	proto_tree_add_text(tree, tvb, *offset, min((guint8) lvt,8), "%s%" PRIu64, LABEL(label), val);
 	(*offset)+=min((guint8) lvt,8);
 }
 
@@ -843,14 +851,14 @@ void
 fSignedTag (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *label, guint64 lvt)
 {
 	guint8 tmp, i;
-	long val = 0;
+	guint64 val = 0;
 
 	(*offset)++;
 	for (i = 0; i < min((guint8) lvt,8); i++) {
 		tmp = tvb_get_guint8(tvb, (*offset)+i);
 		val = (val << 8) + tmp;
 	}
-	proto_tree_add_text(tree, tvb, *offset, min((guint8) lvt,8), "%s%ld", LABEL(label), val);
+	proto_tree_add_text(tree, tvb, *offset, min((guint8) lvt,8), "%s%" PRIu64, LABEL(label), val);
 	(*offset)+=min((guint8) lvt,8);
 }
 
@@ -893,10 +901,10 @@ fOctetString (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *label, gui
 {
 	guint8 *str_val, len;
 
-	if ((lvt == 0) || (lvt > tvb->length))
-		lvt = tvb->length - *offset;
+	if ((lvt == 0) || (lvt > tvb_reported_length(tvb)))
+		lvt = tvb_reported_length(tvb) - *offset;
 
-	proto_tree_add_text(tree, tvb, *offset, (int)lvt, "[displayed OctetString with %ld Bytes:] %s", (long)lvt, LABEL(label));
+	proto_tree_add_text(tree, tvb, *offset, (int)lvt, "[displayed OctetString with %" PRIu64 " Bytes:] %s", lvt, LABEL(label));
 
 	do {
 		len = (guint8) min (lvt, 200);
@@ -906,10 +914,6 @@ fOctetString (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *label, gui
 		lvt -= len;
 		(*offset) += len;
 	} while (lvt > 0);
-
-	if (tvb->length < tvb->reported_length)
-		proto_tree_add_text(tree, tvb, *offset-1, 1, "[Frame is %d Bytes shorter than expected]", tvb->reported_length - tvb->length);
-
 }
 
 void
@@ -1142,7 +1146,7 @@ fApplicationTags (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *label,
 			if (src != NULL)
 				proto_tree_add_text(tree, tvb, *offset, (guint8)lvt, "%s%s", LABEL(label), val_to_str((guint) val, src, "Reserved by ASHRAE"));
 			else
-				proto_tree_add_text(tree, tvb, *offset, (guint8)lvt, "%s%ld", LABEL(label), (long)val);
+				proto_tree_add_text(tree, tvb, *offset, (guint8)lvt, "%s%" PRIu64, LABEL(label), val);
 
 			(*offset)+=(guint8)lvt;
 			break;
@@ -1172,7 +1176,7 @@ fPropertyValue (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offs
 	guint64 lvt;
 	static int awaitingClosingTag = 0;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -1236,7 +1240,7 @@ fSubscribeCOV (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offse
 	guint64 lvt;
 	guint32 val = 0;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -1281,7 +1285,7 @@ fWhoHas (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -1311,7 +1315,7 @@ fUTCTimeSynchronization (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 	guint8 tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	(*offset) += fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -1326,7 +1330,7 @@ fTimeSynchronization (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 	guint8 tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	(*offset) += fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -1341,7 +1345,7 @@ fTextMessage (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset
 	guint8 tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	(*offset) += fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -1377,7 +1381,7 @@ fPrivateTransfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *of
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -1407,7 +1411,7 @@ fNotificationParameters (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -1434,7 +1438,7 @@ fEventNotification (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *
 	guint64 lvt;
 	guint32 val = 0;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -1500,7 +1504,7 @@ fCOVNotification (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *of
 	guint64 lvt;
 	guint32 val = 0;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -1629,7 +1633,7 @@ fAckAlarmRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *of
 void
 fGetAlarmSummary (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	fObjectIdentifier (tvb, tree, offset, "objectIdentifier: ");
@@ -1645,7 +1649,7 @@ fgetEnrollmentSummaryRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	guint8 tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	(*offset) += fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -1685,7 +1689,7 @@ fgetEnrollmentSummaryAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	guint8 tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	fObjectIdentifier (tvb, tree, offset, "ObjectId: ");
@@ -1705,7 +1709,7 @@ fGetEventInformationRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	guint8 tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	(*offset) += fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -1727,7 +1731,7 @@ flistOfEventSummaries (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 	guint8 tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	(*offset) += fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -1775,7 +1779,7 @@ fGetEventInformation (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 	guint8 tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	(*offset) += fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -1800,7 +1804,7 @@ fAddListElement (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *off
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -1843,7 +1847,7 @@ fDeleteObject (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 void
 fWritePropertyMultiple (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	/* not yet implemented */
@@ -1855,7 +1859,7 @@ fWritePropertyMultiple (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 void
 fDeviceCommunicationControl (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	/* not yet implemented */
@@ -1867,7 +1871,7 @@ fDeviceCommunicationControl (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 void
 fReinitializeDevice (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	/* not yet implemented */
@@ -1879,7 +1883,7 @@ fReinitializeDevice (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 void
 fVtOpen (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	/* not yet implemented */
@@ -1891,7 +1895,7 @@ fVtOpen (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 void
 fVtClose (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	/* not yet implemented */
@@ -1903,7 +1907,7 @@ fVtClose (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 void
 fVtData (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	/* not yet implemented */
@@ -1915,7 +1919,7 @@ fVtData (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 void
 fAuthenticate (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	/* not yet implemented */
@@ -1927,7 +1931,7 @@ fAuthenticate (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offse
 void
 fRequestKey (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	/* not yet implemented */
@@ -1939,7 +1943,7 @@ fRequestKey (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 void
 fLifeSafetyOperation (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	/* not yet implemented */
@@ -1951,7 +1955,7 @@ fLifeSafetyOperation (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 void
 fSubscribeCOVProperty (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	/* not yet implemented */
@@ -1963,7 +1967,7 @@ fSubscribeCOVProperty (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 void
 fRemoveListElement (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	/* not yet implemented */
@@ -1978,7 +1982,7 @@ fReadWriteProperty (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -2023,7 +2027,7 @@ fPropertyReference (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -2051,7 +2055,7 @@ fSelectionCriteria (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -2082,7 +2086,7 @@ fObjectSelectionCriteria (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -2116,7 +2120,7 @@ fReadPropertyConditional (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -2149,7 +2153,7 @@ fReadWriteMultipleProperty (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -2165,7 +2169,7 @@ fReadAccessSpecification (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -2198,7 +2202,7 @@ fWriteAccessSpecification (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -2231,7 +2235,7 @@ fReadAccessResult (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *o
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -2293,7 +2297,7 @@ fReadPropertyConditionalAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -2310,7 +2314,7 @@ fObjectSpecifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *of
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -2334,7 +2338,7 @@ fCreateObject (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offse
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -2373,7 +2377,7 @@ fReadRangeRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *o
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -2433,7 +2437,7 @@ fReadRangeAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offse
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -2525,7 +2529,7 @@ fAtomicWriteFileRequest (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 		if (bacapp_flags & 0x04) { /* More Flag is set */
 			fOctetString (tvb, tree, offset, "   fileData: ", 0);
 		} else {
-			fOctetString (tvb, tree, offset, "   fileData: ", tvb->length - *offset - 1);
+			fOctetString (tvb, tree, offset, "   fileData: ", tvb_reported_length(tvb) - *offset - 1);
 			(*offset) += fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
 			if (lvt == 7) {   /* closing Tag */
 				proto_tree_add_text(tree, tvb, (*offset)++, 1, "}");
@@ -2606,7 +2610,7 @@ fAtomicReadFile (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 		if (bacapp_flags & 0x04) { /* More Flag is set */
 			fOctetString (tvb, tree, offset, "   fileData: ", 0);
 		} else {
-			fOctetString (tvb, tree, offset, "   fileData: ", tvb->length - *offset - 1);
+			fOctetString (tvb, tree, offset, "   fileData: ", tvb_reported_length(tvb) - *offset - 1);
 			(*offset) += fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
 			if (lvt == 7) {   /* closing Tag */
 				proto_tree_add_text(tree, tvb, (*offset)++, 1, "}");
@@ -2663,7 +2667,7 @@ fReadPropertyMultipleRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -2694,7 +2698,7 @@ fReadPropertyMultipleAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -2752,12 +2756,14 @@ fTagRequests (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
 
-//	if (class_tag)	{	/* Context Specific Tag detected */
+#if 0
+	if (class_tag)	{	/* Context Specific Tag detected */
+#endif
 		switch (service_choice) {
 		case 0:	/* acknowledgeAlarm */
 			fAckAlarmRequest (tvb, pinfo, tree, offset); /* offset changes his value on return */
@@ -2853,9 +2859,11 @@ fTagRequests (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset
 			return;
 		break;
 		}
-//	} else {	/* Application Specific Tags */
-//		fApplicationTags (tvb, tree, offset, NULL, NULL);
-//	}
+#if 0
+	} else {	/* Application Specific Tags */
+		fApplicationTags (tvb, tree, offset, NULL, NULL);
+	}
+#endif
 
  /*	fTagRequests (tvb, pinfo, tree, offset, service_choice); ### */
 }
@@ -2866,12 +2874,14 @@ fTags (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, gint 
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
 
-//	if (class_tag)	{	/* Context Specific Tag detected */
+#if 0
+	if (class_tag)	{	/* Context Specific Tag detected */
+#endif
 		switch (service_choice) {
 		case 0:	/* acknowledgeAlarm */
 			fAckAlarm (tvb, pinfo, tree, offset); /* offset changes his value on return */
@@ -2967,9 +2977,11 @@ fTags (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, gint 
 			return;
 		break;
 		}
-//	} else {	/* Application Specific Tags */
-//		fApplicationTags (tvb, pinfo, tree, offset, NULL, NULL);
-//	}
+#if 0
+	} else {	/* Application Specific Tags */
+		fApplicationTags (tvb, pinfo, tree, offset, NULL, NULL);
+	}
+#endif
 }
 
 void
@@ -3021,7 +3033,7 @@ fWhoIs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 	guint8 tag_no, class_tag;
 	guint64 lvt;
 
-	if ((*offset) >= tvb->length)
+	if ((*offset) >= tvb_reported_length(tvb))
 		return;
 
 	(*offset) += fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -3047,7 +3059,7 @@ fUnconfirmedTags (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *of
 	guint8 offs, tag_no, class_tag;
 	guint64 lvt;
 
-	if (*offset >= tvb->length)
+	if (*offset >= tvb_reported_length(tvb))
 		return;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -3385,7 +3397,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 	}
 
-	next_tvb = tvb_new_subset(tvb,offset,-1,tvb->reported_length - offset);
+	next_tvb = tvb_new_subset(tvb,offset,-1,-1);
 	call_dissector(data_handle,next_tvb, pinfo, tree);
 }
 
