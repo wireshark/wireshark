@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.128 2001/03/28 06:20:22 guy Exp $
+ * $Id: packet-ip.c,v 1.129 2001/03/28 21:33:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -906,7 +906,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             "Header checksum: 0x%04x (correct)", iph.ip_sum);
     }
     else {
-	proto_tree_add_item_hidden(ip_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, TRUE);
+	proto_tree_add_boolean_hidden(ip_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, TRUE);
 	proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph.ip_sum,
             "Header checksum: 0x%04x (incorrect, should be 0x%04x)", iph.ip_sum,
 	    in_cksum_shouldbe(iph.ip_sum, ipsum));
@@ -1133,7 +1133,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			cksum,
 			"Checksum: 0x%04x (correct)", cksum);
       } else {
-        proto_tree_add_item_hidden(icmp_tree, hf_icmp_checksum_bad,
+        proto_tree_add_boolean_hidden(icmp_tree, hf_icmp_checksum_bad,
 			tvb, 2, 2, TRUE);
         proto_tree_add_uint_format(icmp_tree, hf_icmp_checksum, tvb, 2, 2,
 			cksum,

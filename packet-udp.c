@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.88 2001/02/28 19:33:49 guy Exp $
+ * $Id: packet-udp.c,v 1.89 2001/03/28 21:33:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -193,7 +193,7 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
           offset + 6, 2, uh_sum, "Checksum: 0x%04x (correct)", uh_sum);
       } else {
-	proto_tree_add_item_hidden(udp_tree, hf_udp_checksum_bad, tvb,
+	proto_tree_add_boolean_hidden(udp_tree, hf_udp_checksum_bad, tvb,
 	   offset + 6, 2, TRUE);
         proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
           offset + 6, 2, uh_sum,

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.100 2001/02/28 19:33:49 guy Exp $
+ * $Id: packet-tcp.c,v 1.101 2001/03/28 21:33:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -558,7 +558,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
            offset + 16, 2, th.th_sum, "Checksum: 0x%04x (correct)", th.th_sum);
       } else {
-	proto_tree_add_item_hidden(tcp_tree, hf_tcp_checksum_bad, tvb,
+	proto_tree_add_boolean_hidden(tcp_tree, hf_tcp_checksum_bad, tvb,
 	   offset + 16, 2, TRUE);
         proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
            offset + 16, 2, th.th_sum,
