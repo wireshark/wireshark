@@ -1,7 +1,7 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id: print.h,v 1.31 2003/12/06 06:09:10 gram Exp $
+ * $Id: print.h,v 1.32 2003/12/09 22:04:57 ulfl Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -33,20 +33,37 @@
 #define PR_FMT_PS   1
 #define PR_FMT_PDML 2
 
+/* print_range, enum which frames should be printed */
+typedef enum {
+  print_range_selected_only,    /* selected frame(s) only (currently only one) */
+  print_range_marked_only,      /* marked frames only */
+  print_range_all_displayed,    /* all frames currently displayed */
+  print_range_all_captured      /* all frames in capture */
+} print_range_e;
+
+/* print_dissections, enum how the dissections should be printed */
+typedef enum {
+  print_dissections_collapsed,    /* no dissection details */
+  print_dissections_as_displayed, /* details as displayed */
+  print_dissections_expanded      /* all dissection details */
+} print_dissections_e;
+
 typedef struct {
+  gint		format;		/* text or PostScript */
   gboolean	to_file;	/* TRUE if we're printing to a file */
   char		*dest;		/* if printing to file, pathname;
 				   if not, command string */
-  gint		format;		/* text or PostScript */
+  print_range_e print_range;
+  /*guint32		print_range_min;*/
+  /*guint32		print_range_max;*/
+
   gboolean	print_summary;	/* TRUE if we should just print summary;
 				   FALSE if we should print protocol tree. */
-  gboolean	print_hex;	/* TRUE if we should also print hex data;
-				   FALSE if we should print only if not dissected. */
   gboolean	expand_all;	/* TRUE if we should expand all levels;
 				   FALSE if we should expand as displayed. */
-  gboolean      print_only_marked; /* TRUE if we should print only marked
-				      frames; FALSE if we should print
-				      all frames. */
+  print_dissections_e   print_dissections;
+  gboolean	print_hex;	/* TRUE if we should also print hex data;
+				   FALSE if we should print only if not dissected. */
 } print_args_t;
 
 /* Functions in print.h */
