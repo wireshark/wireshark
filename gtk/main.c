@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.51 1999/11/29 03:56:26 gram Exp $
+ * $Id: main.c,v 1.52 1999/11/29 04:30:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -73,9 +73,15 @@
 # include "snprintf.h"
 #endif
 
+#if defined(HAVE_UCD_SNMP_SNMP_H)
 #ifdef HAVE_UCD_SNMP_VERSION_H
 #include <ucd-snmp/version.h>
-#endif
+#endif /* HAVE_UCD_SNMP_VERSION_H */
+#elif defined(HAVE_SNMP_SNMP_H)
+#ifdef HAVE_SNMP_VERSION_H
+#include <snmp/version.h>
+#endif /* HAVE_SNMP_VERSION_H */
+#endif /* SNMP */
 
 #ifdef NEED_STRERROR_H
 #include "strerror.h"
@@ -961,12 +967,16 @@ main(int argc, char *argv[])
 #if defined(HAVE_UCD_SNMP_SNMP_H)
 #ifdef HAVE_UCD_SNMP_VERSION_H
    "with UCD SNMP ", VersionInfo
-#else
+#else /* HAVE_UCD_SNMP_VERSION_H */
    "with UCD SNMP ", "(version unknown)"
-#endif
+#endif /* HAVE_UCD_SNMP_VERSION_H */
 #elif defined(HAVE_SNMP_SNMP_H)
+#ifdef HAVE_SNMP_VERSION_H
+   "with CMU SNMP ", snmp_Version()
+#else /* HAVE_SNMP_VERSION_H */
    "with CMU SNMP ", "(version unknown)"
-#else
+#endif /* HAVE_SNMP_VERSION_H */
+#else /* no SNMP */
    "without SNMP", ""
 #endif
    );

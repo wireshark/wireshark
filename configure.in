@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.59 1999/11/29 03:07:19 guy Exp $
+# $Id: configure.in,v 1.60 1999/11/29 04:31:05 guy Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -145,7 +145,7 @@ if test "x$enable_snmp" = "xno" ; then
 else
 	AC_MSG_RESULT(yes)
 	AC_ETHEREAL_UCDSNMP_CHECK
-	AC_CHECK_HEADERS(ucd-snmp/snmp.h ucd-snmp/version.h snmp/snmp.h)
+	AC_CHECK_HEADERS(ucd-snmp/snmp.h ucd-snmp/version.h snmp/snmp.h snmp/version.h)
 	AC_CHECK_LIB(snmp, asn_parse_header,
 		[
 		SNMP_A=-lsnmp
