@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.66 2001/06/15 20:35:08 guy Exp $
+ * $Id: packet-ppp.c,v 1.67 2001/06/16 00:51:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1071,6 +1071,10 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
   id = tvb_get_guint8(tvb, 1);
   length = tvb_get_ntohs(tvb, 2);
 
+  if(check_col(pinfo->fd, COL_PROTOCOL))
+    col_set_str(pinfo->fd, COL_PROTOCOL,
+		proto_get_protocol_short_name(proto_id));
+
   if(check_col(pinfo->fd, COL_INFO))
 	col_add_fstr(pinfo->fd, COL_INFO, "%s %s",
 		proto_get_protocol_short_name(proto_id),
@@ -1418,6 +1422,10 @@ dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   code = tvb_get_guint8(tvb, 0);
   id = tvb_get_guint8(tvb, 1);
   length = tvb_get_ntohs(tvb, 2);
+
+  if(check_col(pinfo->fd, COL_PROTOCOL))
+    col_set_str(pinfo->fd, COL_PROTOCOL,
+		proto_get_protocol_short_name(proto_pap));
 
   if(check_col(pinfo->fd, COL_INFO))
 	col_add_fstr(pinfo->fd, COL_INFO, "%s %s",
