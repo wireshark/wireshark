@@ -3,7 +3,7 @@
  * Routines for JFIF image/jpeg media dissection
  * Copyright 2004, Olivier Biot.
  *
- * $Id: packet-image-jfif.c,v 1.4 2004/03/08 22:03:58 obiot Exp $
+ * $Id: packet-image-jfif.c,v 1.5 2004/05/31 01:24:03 obiot Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -17,6 +17,9 @@
  * The JFIF specifications are found at several locations, such as:
  * http://www.jpeg.org/public/jfif.pdf
  * http://www.w3.org/Graphics/JPEG/itu-t81.pdf
+ *
+ * The Exif specifications are found at several locations, such as:
+ * http://www.exif.org/
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -237,6 +240,74 @@ static const value_string vals_extension_code[] = {
 	{ 0x11, "Thumbnail encoded using 1 byte (8 bits) per pixel" },
 	{ 0x13, "Thumbnail encoded using 3 bytes (24 bits) per pixel" },
 	{ 0x00, NULL }
+};
+
+static const value_string vals_exif_tags[] = {
+	/*
+	 * Tags related to image data structure:
+	 */
+	{ 0x0100, "ImageWidth" },
+	{ 0x0101, "ImageLength" },
+	{ 0x0102, "BitsPerSample" },
+	{ 0x0103, "Compression" },
+	{ 0x0106, "PhotometricInterpretation" },
+	{ 0x0112, "Orientation" },
+	{ 0x0115, "SamplesPerPixel" },
+	{ 0x011C, "PlanarConfiguration" },
+	{ 0x0212, "YCbCrSubSampling" },
+	{ 0x0213, "YCbCrPositioning" },
+	{ 0x011A, "XResolution" },
+	{ 0x011B, "YResolution" },
+	{ 0x0128, "ResolutionUnit" },
+	/*
+	 * Tags relating to recording offset:
+	 */
+	{ 0x0111, "StripOffsets" },
+	{ 0x0116, "RowsPerStrip" },
+	{ 0x0117, "StripByteCounts" },
+	{ 0x0201, "JPEGInterchangeFormat" },
+	{ 0x0202, "JPEGInterchangeFormatLength" },
+	/*
+	 * Tags relating to image data characteristics:
+	 */
+	{ 0x012D, "TransferFunction" },
+	{ 0x013E, "WhitePoint" },
+	{ 0x013F, "PrimaryChromaticities" },
+	{ 0x0211, "YCbCrCoefficients" },
+	{ 0x0214, "ReferenceBlackWhite" },
+	/*
+	 * Other tags:
+	 */
+	{ 0x0132, "DateTime" },
+	{ 0x010E, "ImageDescription" },
+	{ 0x010F, "Make" },
+	{ 0x0110, "Model" },
+	{ 0x0131, "Software" },
+	{ 0x013B, "Artist" },
+	{ 0x8296, "Copyright" },
+	/*
+	 * Exif-specific IFD:
+	 */
+	{ 0x8769, "Exif IFD Pointer"},
+	{ 0x8825, "GPS IFD Pointer"},
+	{ 0xA005, "Interoperability IFD Pointer"},
+
+	{ 0x0000, NULL }
+};
+
+static const value_string vals_exif_types[] = {
+	{ 0x0001, "BYTE" },
+	{ 0x0002, "ASCII" },
+	{ 0x0003, "SHORT" },
+	{ 0x0004, "LONG" },
+	{ 0x0005, "RATIONAL" },
+	/* 0x0006 */
+	{ 0x0007, "UNDEFINED" },
+	/* 0x0008 */
+	{ 0x0009, "SLONG" },
+	{ 0x000A, "SRATIONAL" },
+
+	{ 0x0000, NULL }
 };
 
 /* Initialize the protocol and registered fields */
@@ -511,6 +582,170 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 	return;
 }
 
+/* Process an APP1 block.
+ *
+ * XXX - This code only works on US-ASCII systems!!!
+ */
+static void
+process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
+		guint16 marker, const char *marker_name)
+{
+	proto_item *ti = NULL;
+	proto_tree *subtree = NULL;
+	proto_tree *subtree_details = NULL;
+	char *str;
+	gint str_size;
+	guint32 offset, tiff_start;
+
+	if (!tree)
+		return;
+
+	ti = proto_tree_add_item(tree, hf_marker_segment,
+			tvb, 0, -1, FALSE);
+	subtree = proto_item_add_subtree(ti, ett_marker_segment);
+
+	proto_item_append_text(ti, ": %s (0x%04X)", marker_name, marker);
+	proto_tree_add_item(subtree, hf_marker, tvb, 0, 2, FALSE);
+
+	proto_tree_add_item(subtree, hf_len, tvb, 2, 2, FALSE);
+
+	str = tvb_get_stringz(tvb, 4, &str_size);
+	ti = proto_tree_add_item(subtree, hf_identifier, tvb, 4, str_size, FALSE);
+	offset = tiff_start = 4 + str_size;
+	if (strcmp(str, "Exif") == 0) {
+		/*
+		 * Endianness
+		 */
+		gboolean is_little_endian;
+		guint16 val_16;
+		guint32 val_32;
+		guint16 num_fields;
+
+		offset++; /* Skip a byte supposed to be 0x00 */
+
+		val_16 = tvb_get_ntohs(tvb, offset);
+		if (val_16 == 0x4949) {
+			is_little_endian = TRUE;
+			proto_tree_add_text(subtree, tvb, offset, 2, "Endianness: little endian");
+		} else if (val_16 == 0x4D4D) {
+			is_little_endian = FALSE;
+			proto_tree_add_text(subtree, tvb, offset, 2, "Endianness: big endian");
+		} else {
+			/* Error: invalid endianness encoding */
+			proto_tree_add_text(subtree, tvb, offset, 2,
+					"Incorrect endianness encoding - skipping the remainder of this application marker");
+			return;
+		}
+		offset += 2;
+		/*
+		 * Fixed value 42 = 0x002a
+		 */
+		offset += 2;
+		/*
+		 * Offset to IFD
+		 */
+		if (is_little_endian) {
+			val_16 = tvb_get_letohs(tvb, offset);
+		} else {
+			val_16 = tvb_get_ntohs(tvb, offset);
+		}
+		proto_tree_add_text(subtree, tvb, offset, 4,
+				"Start offset of IFD starting from the TIFF header start: %u bytes", val_16);
+		offset += 4;
+		/*
+		 * Skip the following portion
+		 */
+		proto_tree_add_text(subtree, tvb, offset, val_16 + tiff_start - offset,
+				"Skipped data between end of TIFF header and start of IFD (%u bytes)",
+				val_16 + tiff_start - offset);
+		offset = val_16 + tiff_start + 1;
+		/*
+		 * Process the "0th" IFD
+		 */
+		if (is_little_endian) {
+			num_fields = tvb_get_letohs(tvb, offset);
+		} else {
+			num_fields = tvb_get_ntohs(tvb, offset);
+		}
+		proto_tree_add_text(subtree, tvb, offset, 2, "Number of fields in this IFD: %u", num_fields);
+		offset += 2;
+		while (num_fields-- > 0) {
+			guint16 tag, type;
+			guint32 count, off;
+
+			if (is_little_endian) {
+				tag = tvb_get_letohs(tvb, offset);
+				type = tvb_get_letohs(tvb, offset + 2);
+				count = tvb_get_letohl(tvb, offset + 4);
+				off = tvb_get_letohl(tvb, offset + 8);
+			} else {
+				tag = tvb_get_ntohs(tvb, offset);
+				type = tvb_get_ntohs(tvb, offset + 2);
+				count = tvb_get_ntohl(tvb, offset + 4);
+				off = tvb_get_ntohl(tvb, offset + 8);
+			}
+			/* TODO - refine this */
+			proto_tree_add_text(subtree, tvb, offset, 2,
+					"Exif Tag: 0x%04X (%s), Type: %u (%s), Count: %u, "
+					"Value offset from start of TIFF header: %u",
+					tag, val_to_str(tag, vals_exif_tags, "Unknown Exif tag"),
+					type, val_to_str(type, vals_exif_types, "Unknown Exif type"),
+					count, off);
+			offset += 12;
+		}
+		/*
+		 * Offset to the "1st" IFD
+		 */
+		if (is_little_endian) {
+			val_32 = tvb_get_letohl(tvb, offset);
+		} else {
+			val_32 = tvb_get_ntohl(tvb, offset);
+		}
+		proto_tree_add_text(subtree, tvb, offset, 4,
+				"Offset to next IFD from start of TIFF header: %u bytes", val_32);
+		/* TODO - Continue parsing the "1th" IFD */
+		offset += 4;
+		proto_tree_add_text(subtree, tvb, offset, -1, "Remainder of APP1 marker skipped");
+	} else {
+		proto_item_append_text(ti, " (Unknown identifier)");
+	}
+}
+
+/* Process an APP2 block.
+ *
+ * XXX - This code only works on US-ASCII systems!!!
+ */
+static void
+process_app2_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
+		guint16 marker, const char *marker_name)
+{
+	proto_item *ti = NULL;
+	proto_tree *subtree = NULL;
+	proto_tree *subtree_details = NULL;
+	char *str;
+	gint str_size;
+
+	if (!tree)
+		return;
+
+	ti = proto_tree_add_item(tree, hf_marker_segment,
+			tvb, 0, -1, FALSE);
+	subtree = proto_item_add_subtree(ti, ett_marker_segment);
+
+	proto_item_append_text(ti, ": %s (0x%04X)", marker_name, marker);
+	proto_tree_add_item(subtree, hf_marker, tvb, 0, 2, FALSE);
+
+	proto_tree_add_item(subtree, hf_len, tvb, 2, 2, FALSE);
+
+	str = tvb_get_stringz(tvb, 4, &str_size);
+	ti = proto_tree_add_item(subtree, hf_identifier, tvb, 4, str_size, FALSE);
+	if (strcmp(str, "FPXR") == 0) {
+		proto_tree_add_text(tree, tvb, 0, -1, "Exif FlashPix APP2 application marker");
+	} else {
+		proto_item_append_text(ti, " (Unknown identifier)");
+	}
+}
+
 static void
 dissect_jfif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
@@ -542,24 +777,7 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	if (tree)
 		proto_tree_add_item(subtree, hf_marker, tvb, 0, 2, FALSE);
 
-	marker = tvb_get_ntohs(tvb, 2);
-	if (marker != MARKER_APP0) {
-		if (tree) {
-			proto_tree_add_text(subtree, tvb, 2, 2, ErrorInvalidJFIF);
-			return;
-		}
-	}
-
-	if (! tree)
-		return;
-
-	offset = 4;
-	/* The APP0 segment has a length field */
-	len = tvb_get_ntohs(tvb, offset);
-	tmp_tvb = tvb_new_subset(tvb, offset - 2, 2 + len, 2 + len);
-	process_app0_segment(subtree, tmp_tvb, len, marker,
-			match_strval(marker, vals_marker));
-	offset += len;
+	offset = 2;
 
 	/*
 	 * Process the remaining markers and marker segments
@@ -576,6 +794,12 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 				switch (marker) {
 					case MARKER_APP0:
 						process_app0_segment(subtree, tmp_tvb, len, marker, str);
+						break;
+					case MARKER_APP1:
+						process_app1_segment(subtree, tmp_tvb, len, marker, str);
+						break;
+					case MARKER_APP2:
+						process_app2_segment(subtree, tmp_tvb, len, marker, str);
 						break;
 					case MARKER_SOF0:
 					case MARKER_SOF1:
