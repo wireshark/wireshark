@@ -128,6 +128,7 @@ TETHEREAL_TAP_SRC =	\
 	tap-sipstat.c \
 	tap-smbsids.c	\
 	tap-smbstat.c	\
+	tap-stats_tree.c	\
 	tap-wspstat.c
 
 # helpers alraedy available on some platforms (and on others not)

@@ -142,6 +142,7 @@ ETHEREAL_TAP_SRC = \
 	rpc_stat.c	\
 	rtp_analysis.c	\
 	rtp_stream_dlg.c	\
+	stats_tree_stat.c	\
 	sctp_assoc_analyse.c	\
 	sctp_stat_dlg.c	\
 	sip_stat.c	\
