@@ -10,7 +10,7 @@
  *   2000 Access Network Interfaces
  *			3GPP2 A.S0001-1		TIA/EIA-2001
  *
- * $Id: packet-ansi_a.c,v 1.8 2003/11/10 22:31:06 guy Exp $
+ * $Id: packet-ansi_a.c,v 1.9 2003/11/11 05:51:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4248,22 +4248,10 @@ static guint8
 elem_is2000_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
 {
     guint8	oct;
-    guint8	oct_len;
     guint32	curr_offset;
 
     add_string = add_string;
     curr_offset = offset;
-
-    oct_len = tvb_get_guint8(tvb, curr_offset);
-
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"Bit-Exact Length Octet Count: %u",
-	oct_len);
-
-    curr_offset++;
-
-    NO_MORE_DATA_CHECK(len);
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -4282,15 +4270,11 @@ elem_is2000_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     NO_MORE_DATA_CHECK(len);
 
-    if (oct_len > 0)
-    {
-	SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
+    proto_tree_add_text(tree, tvb, curr_offset,
+	len - (curr_offset - offset),
+	"IS-2000 Service Configuration Record Content");
 
-	proto_tree_add_text(tree, tvb, curr_offset, oct_len,
-	    "IS-2000 Service Configuration Record Content");
-
-	curr_offset += oct_len;
-    }
+    curr_offset += len - (curr_offset - offset);
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -5867,90 +5851,90 @@ elem_paca_reoi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
 typedef enum
 {
-    P_ACC_NET_ID,	/* Access Network Identifiers */
-    P_ADDS_USER_PART,	/* ADDS User Part */
-    P_AMPS_HHO_PARAM,	/* AMPS Hard Handoff Parameters */
-    P_ANCH_PDSN_ADDR,	/* Anchor PDSN Address */
-    P_ANCH_PP_ADDR,	/* Anchor P-P Address */
-    P_AUTH_CHLG_PARAM,	/* Authentication Challenge Parameter */
-    P_AUTH_CNF_PARAM,	/* Authentication Confirmation Parameter (RANDC) */
-    P_AUTH_DATA,	/* Authentication Data */
-    P_AUTH_EVENT,	/* Authentication Event */
-    P_AUTH_PARAM_COUNT,	/* Authentication Parameter COUNT */
-    P_AUTH_RESP_PARAM,	/* Authentication Response Parameter */
-    P_BAND_CLASS,	/* Band Class */
-    P_CLD_PARTY_ASCII_NUM,	/* Called Party ASCII Number */
-    P_CLD_PARTY_BCD_NUM,	/* Called Party BCD Number */
-    P_CLG_PARTY_ASCII_NUM,	/* Calling Party ASCII Number */
-    P_CAUSE,	/* Cause */
-    P_CAUSE_L3,	/* Cause Layer 3 */
-    P_CDMA_SOWD,	/* CDMA Serving One Way Delay */
-    P_CELL_ID,	/* Cell Identifier */
-    P_CELL_ID_LIST,	/* Cell Identifier List */
-    P_CHAN_NUM,	/* Channel Number */
-    P_CHAN_TYPE,	/* Channel Type */
-    P_CCT_GROUP,	/* Circuit Group */
-    P_CIC,	/* Circuit Identity Code */
-    P_CIC_EXT,	/* Circuit Identity Code Extension */
-    P_CM_INFO_TYPE_2,	/* Classmark Information Type 2 */
-    P_DOWNLINK_RE,	/* Downlink Radio Environment */
-    P_DOWNLINK_RE_LIST,	/* Downlink Radio Environment List */
-    P_ENC_INFO,	/* Encryption Information */
-    P_EXT_HO_DIR_PARAMS,	/* Extended Handoff Direction Parameters */
-    P_GEO_LOC,	/* Geographic Location */
-    P_SSCI,	/* Special Service Call Indicator */
-    P_HO_POW_LEV,	/* Handoff Power Level */
-    P_HHO_PARAMS,	/* Hard Handoff Parameters */
-    P_IE_REQD,	/* Information Element Requested */
-    P_IS2000_CHAN_ID,	/* IS-2000 Channel Identity */
-    P_IS2000_CHAN_ID_3X,	/* IS-2000 Channel Identity 3X */
-    P_IS2000_MOB_CAP,	/* IS-2000 Mobile Capabilities */
-    P_IS2000_NN_SCR,	/* IS-2000 Non-Negotiable Service Configuration Record */
-    P_IS2000_SCR,	/* IS-2000 Service Configuration Record */
-    P_IS2000_CAUSE,	/* IS-95/IS-2000 Cause Value */
-    P_IS2000_RED_RECORD,	/* IS-2000 Redirection Record */
-    P_IS95_CHAN_ID,	/* IS-95 Channel Identity */
-    P_IS95_MS_MEAS_CHAN_ID,	/* IS-95 MS Measured Channel Identity */
-    P_L3_INFO,	/* Layer 3 Information */
-    P_LAI,	/* Location Area Information */
-    P_MWI,	/* Message Waiting Indication */
-    P_MID,	/* Mobile Identity */
-    P_MS_INFO_RECS,	/* MS Information Records */
-    P_ORIG_CI,	/* Origination Continuation Indicator */
-    P_PACA_ORDER,	/* PACA Order */
-    P_PACA_REOI,	/* PACA Reorigination Indicator */
-    P_PACA_TS,	/* PACA Timestamp */
-    P_PSP,	/* Packet Session Parameters */
-    P_PDSN_IP_ADDR,	/* PDSN IP Address */
-    P_PDI,	/* Power Down Indicator */
-    P_PRIO,	/* Priority */
-    P_PREV,	/* Protocol Revision */
-    P_PTYPE,	/* Protocol Type */
-    P_PSMM_COUNT,	/* PSMM Count */
-    P_QOS_PARAMS,	/* Quality of Service Parameters */
-    P_RE_RES,	/* Radio Environment and Resources */
-    P_REG_TYPE,	/* Registration Type */
-    P_REJ_CAUSE,	/* Reject Cause */
-    P_RESP_REQ,	/* Response Request */
-    P_RET_CAUSE,	/* Return Cause */
-    P_RF_CHAN_ID,	/* RF Channel Identity */
-    P_SO,	/* Service Option */
-    P_SOCI,	/* Service Option Connection Identifier (SOCI) */
-    P_SO_LIST,	/* Service Option List */
-    P_S_RED_INFO,	/* Service Redirection Info */
-    P_SR_ID,	/* Session Reference Identifier (SR_ID) */
-    P_MY_SID,	/* SID (P_SID collides with something you get when you include <stdlib.h> on HP-UX and Tru64 UNIX) */
-    P_SIGNAL,	/* Signal */
-    P_SCI,	/* Slot Cycle Index */
-    P_SW_VER,	/* Software Version */
-    P_SRNC_TRNC_TC,	/* Source RNC to Target RNC Transparent Container */
-    P_S_PDSN_ADDR,	/* Source PDSN Address */
-    P_TAG,	/* Tag */
-    P_TRNC_SRNC_TC,	/* Target RNC to Source RNC Transparent Container */
-    P_XMODE,	/* Transcoder Mode */
-    P_UZ_ID,	/* User Zone ID */
-    P_VP_REQ,	/* Voice Privacy Request */
-    P_NONE,	/* NONE */
+    ANSI_A_E_ACC_NET_ID,	/* Access Network Identifiers */
+    ANSI_A_E_ADDS_USER_PART,	/* ADDS User Part */
+    ANSI_A_E_AMPS_HHO_PARAM,	/* AMPS Hard Handoff Parameters */
+    ANSI_A_E_ANCH_PDSN_ADDR,	/* Anchor PDSN Address */
+    ANSI_A_E_ANCH_PP_ADDR,	/* Anchor P-P Address */
+    ANSI_A_E_AUTH_CHLG_PARAM,	/* Authentication Challenge Parameter */
+    ANSI_A_E_AUTH_CNF_PARAM,	/* Authentication Confirmation Parameter (RANDC) */
+    ANSI_A_E_AUTH_DATA,	/* Authentication Data */
+    ANSI_A_E_AUTH_EVENT,	/* Authentication Event */
+    ANSI_A_E_AUTH_PARAM_COUNT,	/* Authentication Parameter COUNT */
+    ANSI_A_E_AUTH_RESP_PARAM,	/* Authentication Response Parameter */
+    ANSI_A_E_BAND_CLASS,	/* Band Class */
+    ANSI_A_E_CLD_PARTY_ASCII_NUM,	/* Called Party ASCII Number */
+    ANSI_A_E_CLD_PARTY_BCD_NUM,	/* Called Party BCD Number */
+    ANSI_A_E_CLG_PARTY_ASCII_NUM,	/* Calling Party ASCII Number */
+    ANSI_A_E_CAUSE,	/* Cause */
+    ANSI_A_E_CAUSE_L3,	/* Cause Layer 3 */
+    ANSI_A_E_CDMA_SOWD,	/* CDMA Serving One Way Delay */
+    ANSI_A_E_CELL_ID,	/* Cell Identifier */
+    ANSI_A_E_CELL_ID_LIST,	/* Cell Identifier List */
+    ANSI_A_E_CHAN_NUM,	/* Channel Number */
+    ANSI_A_E_CHAN_TYPE,	/* Channel Type */
+    ANSI_A_E_CCT_GROUP,	/* Circuit Group */
+    ANSI_A_E_CIC,	/* Circuit Identity Code */
+    ANSI_A_E_CIC_EXT,	/* Circuit Identity Code Extension */
+    ANSI_A_E_CM_INFO_TYPE_2,	/* Classmark Information Type 2 */
+    ANSI_A_E_DOWNLINK_RE,	/* Downlink Radio Environment */
+    ANSI_A_E_DOWNLINK_RE_LIST,	/* Downlink Radio Environment List */
+    ANSI_A_E_ENC_INFO,	/* Encryption Information */
+    ANSI_A_E_EXT_HO_DIR_PARAMS,	/* Extended Handoff Direction Parameters */
+    ANSI_A_E_GEO_LOC,	/* Geographic Location */
+    ANSI_A_E_SSCI,	/* Special Service Call Indicator */
+    ANSI_A_E_HO_POW_LEV,	/* Handoff Power Level */
+    ANSI_A_E_HHO_PARAMS,	/* Hard Handoff Parameters */
+    ANSI_A_E_IE_REQD,	/* Information Element Requested */
+    ANSI_A_E_IS2000_CHAN_ID,	/* IS-2000 Channel Identity */
+    ANSI_A_E_IS2000_CHAN_ID_3X,	/* IS-2000 Channel Identity 3X */
+    ANSI_A_E_IS2000_MOB_CAP,	/* IS-2000 Mobile Capabilities */
+    ANSI_A_E_IS2000_NN_SCR,	/* IS-2000 Non-Negotiable Service Configuration Record */
+    ANSI_A_E_IS2000_SCR,	/* IS-2000 Service Configuration Record */
+    ANSI_A_E_IS2000_CAUSE,	/* IS-95/IS-2000 Cause Value */
+    ANSI_A_E_IS2000_RED_RECORD,	/* IS-2000 Redirection Record */
+    ANSI_A_E_IS95_CHAN_ID,	/* IS-95 Channel Identity */
+    ANSI_A_E_IS95_MS_MEAS_CHAN_ID,	/* IS-95 MS Measured Channel Identity */
+    ANSI_A_E_L3_INFO,	/* Layer 3 Information */
+    ANSI_A_E_LAI,	/* Location Area Information */
+    ANSI_A_E_MWI,	/* Message Waiting Indication */
+    ANSI_A_E_MID,	/* Mobile Identity */
+    ANSI_A_E_MS_INFO_RECS,	/* MS Information Records */
+    ANSI_A_E_ORIG_CI,	/* Origination Continuation Indicator */
+    ANSI_A_E_PACA_ORDER,	/* PACA Order */
+    ANSI_A_E_PACA_REOI,	/* PACA Reorigination Indicator */
+    ANSI_A_E_PACA_TS,	/* PACA Timestamp */
+    ANSI_A_E_PSP,	/* Packet Session Parameters */
+    ANSI_A_E_PDSN_IP_ADDR,	/* PDSN IP Address */
+    ANSI_A_E_PDI,	/* Power Down Indicator */
+    ANSI_A_E_PRIO,	/* Priority */
+    ANSI_A_E_PREV,	/* Protocol Revision */
+    ANSI_A_E_PTYPE,	/* Protocol Type */
+    ANSI_A_E_PSMM_COUNT,	/* PSMM Count */
+    ANSI_A_E_QOS_PARAMS,	/* Quality of Service Parameters */
+    ANSI_A_E_RE_RES,	/* Radio Environment and Resources */
+    ANSI_A_E_REG_TYPE,	/* Registration Type */
+    ANSI_A_E_REJ_CAUSE,	/* Reject Cause */
+    ANSI_A_E_RESP_REQ,	/* Response Request */
+    ANSI_A_E_RET_CAUSE,	/* Return Cause */
+    ANSI_A_E_RF_CHAN_ID,	/* RF Channel Identity */
+    ANSI_A_E_SO,	/* Service Option */
+    ANSI_A_E_SOCI,	/* Service Option Connection Identifier (SOCI) */
+    ANSI_A_E_SO_LIST,	/* Service Option List */
+    ANSI_A_E_S_RED_INFO,	/* Service Redirection Info */
+    ANSI_A_E_SR_ID,	/* Session Reference Identifier (SR_ID) */
+    ANSI_A_E_SID,	/* SID */
+    ANSI_A_E_SIGNAL,	/* Signal */
+    ANSI_A_E_SCI,	/* Slot Cycle Index */
+    ANSI_A_E_SW_VER,	/* Software Version */
+    ANSI_A_E_SRNC_TRNC_TC,	/* Source RNC to Target RNC Transparent Container */
+    ANSI_A_E_S_PDSN_ADDR,	/* Source PDSN Address */
+    ANSI_A_E_TAG,	/* Tag */
+    ANSI_A_E_TRNC_SRNC_TC,	/* Target RNC to Source RNC Transparent Container */
+    ANSI_A_E_XMODE,	/* Transcoder Mode */
+    ANSI_A_E_UZ_ID,	/* User Zone ID */
+    ANSI_A_E_VP_REQ,	/* Voice Privacy Request */
+    ANSI_A_E_NONE,	/* NONE */
 }
 elem_idx_t;
 
@@ -6413,9 +6397,9 @@ bsmap_cl3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_CELL_ID, "");
+    ELEM_MAND_TLV(ANSI_A_E_CELL_ID, "");
 
-    ELEM_MAND_TLV(P_L3_INFO, "");
+    ELEM_MAND_TLV(ANSI_A_E_L3_INFO, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6475,45 +6459,45 @@ dtap_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset++;
     curr_len--;
 
-    ELEM_MAND_LV(P_CM_INFO_TYPE_2, "");
+    ELEM_MAND_LV(ANSI_A_E_CM_INFO_TYPE_2, "");
 
-    ELEM_MAND_LV(P_MID, "");
+    ELEM_MAND_LV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TLV(P_CLD_PARTY_BCD_NUM, "");
+    ELEM_OPT_TLV(ANSI_A_E_CLD_PARTY_BCD_NUM, "");
 
-    ELEM_OPT_TLV(P_MID, "");
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TV(P_SCI, "");
+    ELEM_OPT_TV(ANSI_A_E_SCI, "");
 
-    ELEM_OPT_TLV(P_AUTH_RESP_PARAM, "");
+    ELEM_OPT_TLV(ANSI_A_E_AUTH_RESP_PARAM, "");
 
-    ELEM_OPT_TV(P_AUTH_CNF_PARAM, "");
+    ELEM_OPT_TV(ANSI_A_E_AUTH_CNF_PARAM, "");
 
-    ELEM_OPT_TV(P_AUTH_PARAM_COUNT, "");
+    ELEM_OPT_TV(ANSI_A_E_AUTH_PARAM_COUNT, "");
 
-    ELEM_OPT_TLV(P_AUTH_CHLG_PARAM, "");
+    ELEM_OPT_TLV(ANSI_A_E_AUTH_CHLG_PARAM, "");
 
-    ELEM_OPT_TV(P_SO, "");
+    ELEM_OPT_TV(ANSI_A_E_SO, "");
 
-    ELEM_OPT_T(P_VP_REQ, "");
+    ELEM_OPT_T(ANSI_A_E_VP_REQ, "");
 
-    ELEM_OPT_TV(P_RE_RES, "");
+    ELEM_OPT_TV(ANSI_A_E_RE_RES, "");
 
-    ELEM_OPT_TLV(P_CLD_PARTY_ASCII_NUM, "");
+    ELEM_OPT_TLV(ANSI_A_E_CLD_PARTY_ASCII_NUM, "");
 
-    ELEM_OPT_TV(P_CIC, "");
+    ELEM_OPT_TV(ANSI_A_E_CIC, "");
 
-    ELEM_OPT_TLV(P_AUTH_EVENT, "");
+    ELEM_OPT_TLV(ANSI_A_E_AUTH_EVENT, "");
 
-    ELEM_OPT_TLV(P_AUTH_DATA, "");
+    ELEM_OPT_TLV(ANSI_A_E_AUTH_DATA, "");
 
-    ELEM_OPT_TLV(P_PACA_REOI, "");
+    ELEM_OPT_TLV(ANSI_A_E_PACA_REOI, "");
 
-    ELEM_OPT_TLV(P_UZ_ID, "");
+    ELEM_OPT_TLV(ANSI_A_E_UZ_ID, "");
 
-    ELEM_OPT_TLV(P_IS2000_MOB_CAP, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
 
-    ELEM_OPT_TLV(P_CDMA_SOWD, "");
+    ELEM_OPT_TLV(ANSI_A_E_CDMA_SOWD, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6531,17 +6515,17 @@ bsmap_page_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_MID, "");
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TV(P_TAG, "");
+    ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
-    ELEM_OPT_TLV(P_CELL_ID_LIST, "");
+    ELEM_OPT_TLV(ANSI_A_E_CELL_ID_LIST, "");
 
-    ELEM_OPT_TV(P_SCI, "");
+    ELEM_OPT_TV(ANSI_A_E_SCI, "");
 
-    ELEM_OPT_TV(P_SO, "");
+    ELEM_OPT_TV(ANSI_A_E_SO, "");
 
-    ELEM_OPT_TLV(P_IS2000_MOB_CAP, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6559,39 +6543,39 @@ dtap_page_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(P_CM_INFO_TYPE_2, "");
+    ELEM_MAND_LV(ANSI_A_E_CM_INFO_TYPE_2, "");
 
-    ELEM_MAND_LV(P_MID, "");
+    ELEM_MAND_LV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TV(P_TAG, "");
+    ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
-    ELEM_OPT_TLV(P_MID, "");
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TV(P_SCI, "");
+    ELEM_OPT_TV(ANSI_A_E_SCI, "");
 
-    ELEM_OPT_TLV(P_AUTH_RESP_PARAM, "");
+    ELEM_OPT_TLV(ANSI_A_E_AUTH_RESP_PARAM, "");
 
-    ELEM_OPT_TV(P_AUTH_CNF_PARAM, "");
+    ELEM_OPT_TV(ANSI_A_E_AUTH_CNF_PARAM, "");
 
-    ELEM_OPT_TV(P_AUTH_PARAM_COUNT, "");
+    ELEM_OPT_TV(ANSI_A_E_AUTH_PARAM_COUNT, "");
 
-    ELEM_OPT_TLV(P_AUTH_CHLG_PARAM, "");
+    ELEM_OPT_TLV(ANSI_A_E_AUTH_CHLG_PARAM, "");
 
-    ELEM_OPT_TV(P_SO, "");
+    ELEM_OPT_TV(ANSI_A_E_SO, "");
 
-    ELEM_OPT_T(P_VP_REQ, "");
+    ELEM_OPT_T(ANSI_A_E_VP_REQ, "");
 
-    ELEM_OPT_TV(P_CIC, "");
+    ELEM_OPT_TV(ANSI_A_E_CIC, "");
 
-    ELEM_OPT_TLV(P_AUTH_EVENT, "");
+    ELEM_OPT_TLV(ANSI_A_E_AUTH_EVENT, "");
 
-    ELEM_OPT_TV(P_RE_RES, "");
+    ELEM_OPT_TV(ANSI_A_E_RE_RES, "");
 
-    ELEM_OPT_TLV(P_UZ_ID, "");
+    ELEM_OPT_TLV(ANSI_A_E_UZ_ID, "");
 
-    ELEM_OPT_TLV(P_IS2000_MOB_CAP, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
 
-    ELEM_OPT_TLV(P_CDMA_SOWD, "");
+    ELEM_OPT_TLV(ANSI_A_E_CDMA_SOWD, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6609,9 +6593,9 @@ dtap_progress(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TV(P_SIGNAL, "");
+    ELEM_OPT_TV(ANSI_A_E_SIGNAL, "");
 
-    ELEM_OPT_TLV(P_MS_INFO_RECS, "");
+    ELEM_OPT_TLV(ANSI_A_E_MS_INFO_RECS, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6629,25 +6613,25 @@ bsmap_ass_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_CHAN_TYPE, "");
+    ELEM_MAND_TLV(ANSI_A_E_CHAN_TYPE, "");
 
-    ELEM_OPT_TV(P_CIC, "");
+    ELEM_OPT_TV(ANSI_A_E_CIC, "");
 
-    ELEM_OPT_TLV(P_ENC_INFO, "");
+    ELEM_OPT_TLV(ANSI_A_E_ENC_INFO, "");
 
-    ELEM_OPT_TV(P_SO, "");
+    ELEM_OPT_TV(ANSI_A_E_SO, "");
 
-    ELEM_OPT_TV(P_SIGNAL, "");
+    ELEM_OPT_TV(ANSI_A_E_SIGNAL, "");
 
-    ELEM_OPT_TLV(P_CLG_PARTY_ASCII_NUM, "");
+    ELEM_OPT_TLV(ANSI_A_E_CLG_PARTY_ASCII_NUM, "");
 
-    ELEM_OPT_TLV(P_MS_INFO_RECS, "");
+    ELEM_OPT_TLV(ANSI_A_E_MS_INFO_RECS, "");
 
-    ELEM_OPT_TLV(P_PRIO, "");
+    ELEM_OPT_TLV(ANSI_A_E_PRIO, "");
 
-    ELEM_OPT_TLV(P_PACA_TS, "");
+    ELEM_OPT_TLV(ANSI_A_E_PACA_TS, "");
 
-    ELEM_OPT_TLV(P_QOS_PARAMS, "");
+    ELEM_OPT_TLV(ANSI_A_E_QOS_PARAMS, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6665,11 +6649,11 @@ bsmap_ass_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TV(P_CHAN_NUM, "");
+    ELEM_MAND_TV(ANSI_A_E_CHAN_NUM, "");
 
-    ELEM_OPT_TLV(P_ENC_INFO, "");
+    ELEM_OPT_TLV(ANSI_A_E_ENC_INFO, "");
 
-    ELEM_OPT_TV(P_SO, "");
+    ELEM_OPT_TV(ANSI_A_E_SO, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6687,7 +6671,7 @@ bsmap_ass_failure(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_CAUSE, "");
+    ELEM_MAND_TLV(ANSI_A_E_CAUSE, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6705,9 +6689,9 @@ bsmap_clr_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_CAUSE, "");
+    ELEM_MAND_TLV(ANSI_A_E_CAUSE, "");
 
-    ELEM_OPT_TLV(P_CAUSE_L3, "");
+    ELEM_OPT_TLV(ANSI_A_E_CAUSE_L3, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6725,9 +6709,9 @@ bsmap_clr_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_CAUSE, "");
+    ELEM_MAND_TLV(ANSI_A_E_CAUSE, "");
 
-    ELEM_OPT_TLV(P_CAUSE_L3, "");
+    ELEM_OPT_TLV(ANSI_A_E_CAUSE_L3, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6745,7 +6729,7 @@ bsmap_clr_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_T(P_PDI, "");
+    ELEM_OPT_T(ANSI_A_E_PDI, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6763,7 +6747,7 @@ dtap_alert_with_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TLV(P_MS_INFO_RECS, "");
+    ELEM_OPT_TLV(ANSI_A_E_MS_INFO_RECS, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6781,13 +6765,13 @@ bsmap_bs_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_MID, "");
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TLV(P_MID, "");
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TV(P_SO, "");
+    ELEM_OPT_TV(ANSI_A_E_SO, "");
 
-    ELEM_OPT_TV(P_TAG, "");
+    ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6805,13 +6789,13 @@ bsmap_bs_srvc_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_MID, "");
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TLV(P_MID, "");
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TV(P_TAG, "");
+    ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
-    ELEM_OPT_TLV(P_CAUSE, "");
+    ELEM_OPT_TLV(ANSI_A_E_CAUSE, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6829,17 +6813,17 @@ dtap_flash_with_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TLV(P_CLD_PARTY_BCD_NUM, "");
+    ELEM_OPT_TLV(ANSI_A_E_CLD_PARTY_BCD_NUM, "");
 
-    ELEM_OPT_TV(P_SIGNAL, "");
+    ELEM_OPT_TV(ANSI_A_E_SIGNAL, "");
 
-    ELEM_OPT_TV(P_MWI, "");
+    ELEM_OPT_TV(ANSI_A_E_MWI, "");
 
-    ELEM_OPT_TLV(P_CLG_PARTY_ASCII_NUM, "");
+    ELEM_OPT_TLV(ANSI_A_E_CLG_PARTY_ASCII_NUM, "");
 
-    ELEM_OPT_TV(P_TAG, "");
+    ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
-    ELEM_OPT_TLV(P_MS_INFO_RECS, "");
+    ELEM_OPT_TLV(ANSI_A_E_MS_INFO_RECS, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6857,7 +6841,7 @@ dtap_flash_with_info_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TV(P_TAG, "");
+    ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6875,23 +6859,23 @@ bsmap_feat_noti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_MID, "");
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TV(P_TAG, "");
+    ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
-    ELEM_OPT_TLV(P_CELL_ID_LIST, "");
+    ELEM_OPT_TLV(ANSI_A_E_CELL_ID_LIST, "");
 
-    ELEM_OPT_TV(P_SCI, "");
+    ELEM_OPT_TV(ANSI_A_E_SCI, "");
 
-    ELEM_OPT_TV(P_SIGNAL, "");
+    ELEM_OPT_TV(ANSI_A_E_SIGNAL, "");
 
-    ELEM_OPT_TV(P_MWI, "");
+    ELEM_OPT_TV(ANSI_A_E_MWI, "");
 
-    ELEM_OPT_TLV(P_CLG_PARTY_ASCII_NUM, "");
+    ELEM_OPT_TLV(ANSI_A_E_CLG_PARTY_ASCII_NUM, "");
 
-    ELEM_OPT_TLV(P_MS_INFO_RECS, "");
+    ELEM_OPT_TLV(ANSI_A_E_MS_INFO_RECS, "");
 
-    ELEM_OPT_TLV(P_IS2000_MOB_CAP, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6909,9 +6893,9 @@ bsmap_feat_noti_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_MID, "");
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TV(P_TAG, "");
+    ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6929,9 +6913,9 @@ bsmap_paca_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TLV(P_PRIO, "");
+    ELEM_OPT_TLV(ANSI_A_E_PRIO, "");
 
-    ELEM_OPT_TLV(P_PACA_TS, "");
+    ELEM_OPT_TLV(ANSI_A_E_PACA_TS, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6949,7 +6933,7 @@ bsmap_paca_command_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TLV(P_CAUSE, "");
+    ELEM_OPT_TLV(ANSI_A_E_CAUSE, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6967,23 +6951,23 @@ bsmap_paca_update(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TLV(P_MID, "");
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TLV(P_MID, "");
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TLV(P_PACA_ORDER, "");
+    ELEM_OPT_TLV(ANSI_A_E_PACA_ORDER, "");
 
-    ELEM_OPT_TLV(P_PRIO, "");
+    ELEM_OPT_TLV(ANSI_A_E_PRIO, "");
 
-    ELEM_OPT_TLV(P_AUTH_RESP_PARAM, "");
+    ELEM_OPT_TLV(ANSI_A_E_AUTH_RESP_PARAM, "");
 
-    ELEM_OPT_TV(P_AUTH_CNF_PARAM, "");
+    ELEM_OPT_TV(ANSI_A_E_AUTH_CNF_PARAM, "");
 
-    ELEM_OPT_TV(P_AUTH_PARAM_COUNT, "");
+    ELEM_OPT_TV(ANSI_A_E_AUTH_PARAM_COUNT, "");
 
-    ELEM_OPT_TLV(P_AUTH_CHLG_PARAM, "");
+    ELEM_OPT_TLV(ANSI_A_E_AUTH_CHLG_PARAM, "");
 
-    ELEM_OPT_TLV(P_AUTH_EVENT, "");
+    ELEM_OPT_TLV(ANSI_A_E_AUTH_EVENT, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7001,11 +6985,11 @@ bsmap_paca_update_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TLV(P_MID, "");
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TLV(P_PRIO, "");
+    ELEM_OPT_TLV(ANSI_A_E_PRIO, "");
 
-    ELEM_OPT_TLV(P_CAUSE, "");
+    ELEM_OPT_TLV(ANSI_A_E_CAUSE, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7023,15 +7007,15 @@ bsmap_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_AUTH_CHLG_PARAM, "");
+    ELEM_MAND_TLV(ANSI_A_E_AUTH_CHLG_PARAM, "");
 
-    ELEM_OPT_TLV(P_MID, "");
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TV(P_TAG, "");
+    ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
-    ELEM_OPT_TLV(P_CELL_ID_LIST, "");
+    ELEM_OPT_TLV(ANSI_A_E_CELL_ID_LIST, "");
 
-    ELEM_OPT_TV(P_SCI, "");
+    ELEM_OPT_TV(ANSI_A_E_SCI, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7046,9 +7030,9 @@ dtap_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(P_AUTH_CHLG_PARAM, "");
+    ELEM_MAND_LV(ANSI_A_E_AUTH_CHLG_PARAM, "");
 
-    ELEM_OPT_TLV(P_IS2000_MOB_CAP, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7066,13 +7050,13 @@ bsmap_auth_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_AUTH_RESP_PARAM, "");
+    ELEM_MAND_TLV(ANSI_A_E_AUTH_RESP_PARAM, "");
 
-    ELEM_OPT_TLV(P_MID, "");
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TV(P_TAG, "");
+    ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
-    ELEM_OPT_TLV(P_MID, "");
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7087,7 +7071,7 @@ dtap_auth_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(P_AUTH_RESP_PARAM, "");
+    ELEM_MAND_LV(ANSI_A_E_AUTH_RESP_PARAM, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7105,7 +7089,7 @@ bsmap_user_zone_update(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TLV(P_UZ_ID, "");
+    ELEM_OPT_TLV(ANSI_A_E_UZ_ID, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7123,7 +7107,7 @@ dtap_ssd_update_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(P_AUTH_CHLG_PARAM, "");
+    ELEM_MAND_LV(ANSI_A_E_AUTH_CHLG_PARAM, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7141,7 +7125,7 @@ dtap_bs_challenge(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(P_AUTH_CHLG_PARAM, "");
+    ELEM_MAND_LV(ANSI_A_E_AUTH_CHLG_PARAM, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7159,7 +7143,7 @@ dtap_bs_challenge_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(P_AUTH_RESP_PARAM, "");
+    ELEM_MAND_LV(ANSI_A_E_AUTH_RESP_PARAM, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7177,7 +7161,7 @@ dtap_ssd_update_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TLV(P_CAUSE_L3, "");
+    ELEM_OPT_TLV(ANSI_A_E_CAUSE_L3, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7195,31 +7179,31 @@ dtap_lu_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(P_MID, "");
+    ELEM_MAND_LV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TV(P_LAI, "");
+    ELEM_OPT_TV(ANSI_A_E_LAI, "");
 
-    ELEM_OPT_TLV(P_CM_INFO_TYPE_2, "");
+    ELEM_OPT_TLV(ANSI_A_E_CM_INFO_TYPE_2, "");
 
-    ELEM_OPT_TV(P_REG_TYPE, "");
+    ELEM_OPT_TV(ANSI_A_E_REG_TYPE, "");
 
-    ELEM_OPT_TLV(P_MID, "");
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TV(P_SCI, "");
+    ELEM_OPT_TV(ANSI_A_E_SCI, "");
 
-    ELEM_OPT_TLV(P_AUTH_RESP_PARAM, "");
+    ELEM_OPT_TLV(ANSI_A_E_AUTH_RESP_PARAM, "");
 
-    ELEM_OPT_TV(P_AUTH_CNF_PARAM, "");
+    ELEM_OPT_TV(ANSI_A_E_AUTH_CNF_PARAM, "");
 
-    ELEM_OPT_TV(P_AUTH_PARAM_COUNT, "");
+    ELEM_OPT_TV(ANSI_A_E_AUTH_PARAM_COUNT, "");
 
-    ELEM_OPT_TLV(P_AUTH_CHLG_PARAM, "");
+    ELEM_OPT_TLV(ANSI_A_E_AUTH_CHLG_PARAM, "");
 
-    ELEM_OPT_TLV(P_AUTH_EVENT, "");
+    ELEM_OPT_TLV(ANSI_A_E_AUTH_EVENT, "");
 
-    ELEM_OPT_TLV(P_UZ_ID, "");
+    ELEM_OPT_TLV(ANSI_A_E_UZ_ID, "");
 
-    ELEM_OPT_TLV(P_IS2000_MOB_CAP, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7237,7 +7221,7 @@ dtap_lu_accept(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TV(P_LAI, "");
+    ELEM_OPT_TV(ANSI_A_E_LAI, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7255,7 +7239,7 @@ dtap_lu_reject(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_V(P_REJ_CAUSE);
+    ELEM_MAND_V(ANSI_A_E_REJ_CAUSE);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7273,7 +7257,7 @@ bsmap_priv_mode_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_ENC_INFO, "");
+    ELEM_MAND_TLV(ANSI_A_E_ENC_INFO, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7291,9 +7275,9 @@ bsmap_priv_mode_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TLV(P_ENC_INFO, "");
+    ELEM_OPT_TLV(ANSI_A_E_ENC_INFO, "");
 
-    ELEM_OPT_T(P_VP_REQ, "");
+    ELEM_OPT_T(ANSI_A_E_VP_REQ, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7311,39 +7295,39 @@ bsmap_ho_reqd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_CAUSE, "");
+    ELEM_MAND_TLV(ANSI_A_E_CAUSE, "");
 
-    ELEM_MAND_TLV(P_CELL_ID_LIST, " (Target)");
+    ELEM_MAND_TLV(ANSI_A_E_CELL_ID_LIST, " (Target)");
 
-    ELEM_OPT_TLV(P_CM_INFO_TYPE_2, "");
+    ELEM_OPT_TLV(ANSI_A_E_CM_INFO_TYPE_2, "");
 
-    ELEM_OPT_T(P_RESP_REQ, "");
+    ELEM_OPT_T(ANSI_A_E_RESP_REQ, "");
 
-    ELEM_OPT_TLV(P_ENC_INFO, "");
+    ELEM_OPT_TLV(ANSI_A_E_ENC_INFO, "");
 
-    ELEM_OPT_TLV(P_IS95_CHAN_ID, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS95_CHAN_ID, "");
 
-    ELEM_OPT_TLV(P_MID, "");
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TLV(P_DOWNLINK_RE, "");
+    ELEM_OPT_TLV(ANSI_A_E_DOWNLINK_RE, "");
 
-    ELEM_OPT_TV(P_SO, "");
+    ELEM_OPT_TV(ANSI_A_E_SO, "");
 
-    ELEM_OPT_TLV(P_CDMA_SOWD, "");
+    ELEM_OPT_TLV(ANSI_A_E_CDMA_SOWD, "");
 
-    ELEM_OPT_TLV(P_IS95_MS_MEAS_CHAN_ID, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS95_MS_MEAS_CHAN_ID, "");
 
-    ELEM_OPT_TLV(P_IS2000_CHAN_ID, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_CHAN_ID, "");
 
-    ELEM_OPT_TLV(P_QOS_PARAMS, "");
+    ELEM_OPT_TLV(ANSI_A_E_QOS_PARAMS, "");
 
-    ELEM_OPT_TLV(P_IS2000_MOB_CAP, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
 
-    ELEM_OPT_TLV(P_IS2000_SCR, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_SCR, "");
 
-    ELEM_OPT_TLV(P_PDSN_IP_ADDR, "");
+    ELEM_OPT_TLV(ANSI_A_E_PDSN_IP_ADDR, "");
 
-    ELEM_OPT_TLV(P_PTYPE, "");
+    ELEM_OPT_TLV(ANSI_A_E_PTYPE, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7361,41 +7345,41 @@ bsmap_ho_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_CHAN_TYPE, "");
+    ELEM_MAND_TLV(ANSI_A_E_CHAN_TYPE, "");
 
-    ELEM_MAND_TLV(P_ENC_INFO, "");
+    ELEM_MAND_TLV(ANSI_A_E_ENC_INFO, "");
 
-    ELEM_MAND_TLV(P_CM_INFO_TYPE_2, "");
+    ELEM_MAND_TLV(ANSI_A_E_CM_INFO_TYPE_2, "");
 
-    ELEM_MAND_TLV(P_CELL_ID_LIST, "(Target)");
+    ELEM_MAND_TLV(ANSI_A_E_CELL_ID_LIST, "(Target)");
 
-    ELEM_OPT_TLV(P_CIC_EXT, "");
+    ELEM_OPT_TLV(ANSI_A_E_CIC_EXT, "");
 
-    ELEM_OPT_TLV(P_IS95_CHAN_ID, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS95_CHAN_ID, "");
 
-    ELEM_OPT_TLV(P_MID, "");
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TLV(P_MID, "");
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TLV(P_DOWNLINK_RE, "");
+    ELEM_OPT_TLV(ANSI_A_E_DOWNLINK_RE, "");
 
-    ELEM_OPT_TV(P_SO, "");
+    ELEM_OPT_TV(ANSI_A_E_SO, "");
 
-    ELEM_OPT_TLV(P_CDMA_SOWD, "");
+    ELEM_OPT_TLV(ANSI_A_E_CDMA_SOWD, "");
 
-    ELEM_OPT_TLV(P_IS95_MS_MEAS_CHAN_ID, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS95_MS_MEAS_CHAN_ID, "");
 
-    ELEM_OPT_TLV(P_IS2000_CHAN_ID, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_CHAN_ID, "");
 
-    ELEM_OPT_TLV(P_QOS_PARAMS, "");
+    ELEM_OPT_TLV(ANSI_A_E_QOS_PARAMS, "");
 
-    ELEM_OPT_TLV(P_IS2000_MOB_CAP, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
 
-    ELEM_OPT_TLV(P_IS2000_SCR, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_SCR, "");
 
-    ELEM_OPT_TLV(P_PDSN_IP_ADDR, "");
+    ELEM_OPT_TLV(ANSI_A_E_PDSN_IP_ADDR, "");
 
-    ELEM_OPT_TLV(P_PTYPE, "");
+    ELEM_OPT_TLV(ANSI_A_E_PTYPE, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7413,19 +7397,19 @@ bsmap_ho_req_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TLV(P_IS95_CHAN_ID, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS95_CHAN_ID, "");
 
-    ELEM_OPT_TLV(P_CELL_ID_LIST, "");
+    ELEM_OPT_TLV(ANSI_A_E_CELL_ID_LIST, "");
 
-    ELEM_OPT_TLV(P_EXT_HO_DIR_PARAMS, "");
+    ELEM_OPT_TLV(ANSI_A_E_EXT_HO_DIR_PARAMS, "");
 
-    ELEM_OPT_TV(P_HHO_PARAMS, "");
+    ELEM_OPT_TV(ANSI_A_E_HHO_PARAMS, "");
 
-    ELEM_OPT_TLV(P_IS2000_CHAN_ID, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_CHAN_ID, "");
 
-    ELEM_OPT_TLV(P_IS2000_SCR, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_SCR, "");
 
-    ELEM_OPT_TLV(P_IS2000_NN_SCR, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_NN_SCR, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7443,7 +7427,7 @@ bsmap_ho_failure(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_CAUSE, "");
+    ELEM_MAND_TLV(ANSI_A_E_CAUSE, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7461,25 +7445,25 @@ bsmap_ho_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TV(P_RF_CHAN_ID, "");
+    ELEM_OPT_TV(ANSI_A_E_RF_CHAN_ID, "");
 
-    ELEM_OPT_TLV(P_IS95_CHAN_ID, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS95_CHAN_ID, "");
 
-    ELEM_OPT_TLV(P_CELL_ID_LIST, "");
+    ELEM_OPT_TLV(ANSI_A_E_CELL_ID_LIST, "");
 
-    ELEM_OPT_TLV(P_HO_POW_LEV, "");
+    ELEM_OPT_TLV(ANSI_A_E_HO_POW_LEV, "");
 
-    ELEM_OPT_TV(P_MY_SID, "");
+    ELEM_OPT_TV(ANSI_A_E_SID, "");
 
-    ELEM_OPT_TLV(P_EXT_HO_DIR_PARAMS, "");
+    ELEM_OPT_TLV(ANSI_A_E_EXT_HO_DIR_PARAMS, "");
 
-    ELEM_OPT_TV(P_HHO_PARAMS, "");
+    ELEM_OPT_TV(ANSI_A_E_HHO_PARAMS, "");
 
-    ELEM_OPT_TLV(P_IS2000_CHAN_ID, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_CHAN_ID, "");
 
-    ELEM_OPT_TLV(P_IS2000_SCR, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_SCR, "");
 
-    ELEM_OPT_TLV(P_IS2000_NN_SCR, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_NN_SCR, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7497,7 +7481,7 @@ bsmap_ho_reqd_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_CAUSE, "");
+    ELEM_MAND_TLV(ANSI_A_E_CAUSE, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7515,9 +7499,9 @@ bsmap_ho_performed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_CAUSE, "");
+    ELEM_MAND_TLV(ANSI_A_E_CAUSE, "");
 
-    ELEM_OPT_TLV(P_CELL_ID_LIST, "");
+    ELEM_OPT_TLV(ANSI_A_E_CELL_ID_LIST, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7535,11 +7519,11 @@ bsmap_block(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TV(P_CIC, "");
+    ELEM_MAND_TV(ANSI_A_E_CIC, "");
 
-    ELEM_MAND_TLV(P_CAUSE, "");
+    ELEM_MAND_TLV(ANSI_A_E_CAUSE, "");
 
-    ELEM_OPT_TLV(P_CCT_GROUP, "");
+    ELEM_OPT_TLV(ANSI_A_E_CCT_GROUP, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7557,7 +7541,7 @@ bsmap_block_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TV(P_CIC, "");
+    ELEM_MAND_TV(ANSI_A_E_CIC, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7575,9 +7559,9 @@ bsmap_unblock(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TV(P_CIC, "");
+    ELEM_MAND_TV(ANSI_A_E_CIC, "");
 
-    ELEM_OPT_TLV(P_CCT_GROUP, "");
+    ELEM_OPT_TLV(ANSI_A_E_CCT_GROUP, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7595,7 +7579,7 @@ bsmap_unblock_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TV(P_CIC, "");
+    ELEM_MAND_TV(ANSI_A_E_CIC, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7613,9 +7597,9 @@ bsmap_reset(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_CAUSE, "");
+    ELEM_MAND_TLV(ANSI_A_E_CAUSE, "");
 
-    ELEM_OPT_TLV(P_SW_VER, "");
+    ELEM_OPT_TLV(ANSI_A_E_SW_VER, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7633,7 +7617,7 @@ bsmap_reset_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TLV(P_SW_VER, "");
+    ELEM_OPT_TLV(ANSI_A_E_SW_VER, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7651,11 +7635,11 @@ bsmap_reset_cct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TV(P_CIC, "");
+    ELEM_MAND_TV(ANSI_A_E_CIC, "");
 
-    ELEM_MAND_TLV(P_CAUSE, "");
+    ELEM_MAND_TLV(ANSI_A_E_CAUSE, "");
 
-    ELEM_OPT_TLV(P_CCT_GROUP, "");
+    ELEM_OPT_TLV(ANSI_A_E_CCT_GROUP, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7673,7 +7657,7 @@ bsmap_reset_cct_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TV(P_CIC, "");
+    ELEM_MAND_TV(ANSI_A_E_CIC, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7691,7 +7675,7 @@ bsmap_xmode_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_XMODE, "");
+    ELEM_MAND_TLV(ANSI_A_E_XMODE, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7709,7 +7693,7 @@ bsmap_xmode_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_CAUSE, "");
+    ELEM_MAND_TLV(ANSI_A_E_CAUSE, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7727,17 +7711,17 @@ bsmap_adds_page(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_MID, "");
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
-    ELEM_MAND_TLV(P_ADDS_USER_PART, "");
+    ELEM_MAND_TLV(ANSI_A_E_ADDS_USER_PART, "");
 
-    ELEM_OPT_TV(P_TAG, "");
+    ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
-    ELEM_OPT_TLV(P_CELL_ID_LIST, "");
+    ELEM_OPT_TLV(ANSI_A_E_CELL_ID_LIST, "");
 
-    ELEM_OPT_TV(P_SCI, "");
+    ELEM_OPT_TV(ANSI_A_E_SCI, "");
 
-    ELEM_OPT_TLV(P_IS2000_MOB_CAP, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7755,25 +7739,25 @@ bsmap_adds_transfer(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_MID, "");
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
-    ELEM_MAND_TLV(P_ADDS_USER_PART, "");
+    ELEM_MAND_TLV(ANSI_A_E_ADDS_USER_PART, "");
 
-    ELEM_OPT_TLV(P_MID, "");
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TLV(P_AUTH_RESP_PARAM, "");
+    ELEM_OPT_TLV(ANSI_A_E_AUTH_RESP_PARAM, "");
 
-    ELEM_OPT_TV(P_AUTH_CNF_PARAM, "");
+    ELEM_OPT_TV(ANSI_A_E_AUTH_CNF_PARAM, "");
 
-    ELEM_OPT_TV(P_AUTH_PARAM_COUNT, "");
+    ELEM_OPT_TV(ANSI_A_E_AUTH_PARAM_COUNT, "");
 
-    ELEM_OPT_TLV(P_AUTH_CHLG_PARAM, "");
+    ELEM_OPT_TLV(ANSI_A_E_AUTH_CHLG_PARAM, "");
 
-    ELEM_OPT_TLV(P_AUTH_EVENT, "");
+    ELEM_OPT_TLV(ANSI_A_E_AUTH_EVENT, "");
 
-    ELEM_OPT_TLV(P_CELL_ID, "");
+    ELEM_OPT_TLV(ANSI_A_E_CELL_ID, "");
 
-    ELEM_OPT_TLV(P_CDMA_SOWD, "");
+    ELEM_OPT_TLV(ANSI_A_E_CDMA_SOWD, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7791,11 +7775,11 @@ dtap_adds_deliver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(P_ADDS_USER_PART, "");
+    ELEM_MAND_LV(ANSI_A_E_ADDS_USER_PART, "");
 
-    ELEM_OPT_TV(P_TAG, "");
+    ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
-    ELEM_OPT_TLV(P_CDMA_SOWD, "");
+    ELEM_OPT_TLV(ANSI_A_E_CDMA_SOWD, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7813,15 +7797,15 @@ bsmap_adds_page_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(P_MID, "");
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TV(P_TAG, "");
+    ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
-    ELEM_OPT_TLV(P_MID, "");
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TLV(P_CAUSE, "");
+    ELEM_OPT_TLV(ANSI_A_E_CAUSE, "");
 
-    ELEM_OPT_TLV(P_CELL_ID, "");
+    ELEM_OPT_TLV(ANSI_A_E_CELL_ID, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7839,9 +7823,9 @@ dtap_adds_deliver_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TV(P_TAG, "");
+    ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
-    ELEM_OPT_TLV(P_CAUSE, "");
+    ELEM_OPT_TLV(ANSI_A_E_CAUSE, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7859,11 +7843,11 @@ bsmap_rejection(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TLV(P_MID, "");
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TLV(P_MID, "");
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TLV(P_IS2000_CAUSE, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_CAUSE, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7878,7 +7862,7 @@ dtap_rejection(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TLV(P_IS2000_CAUSE, "");
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_CAUSE, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -8383,7 +8367,7 @@ proto_register_ansi_a(void)
 #define	MAX_NUM_BSMAP_MSG	ANSI_A_MAX(NUM_IOS401_BSMAP_MSG, 0)
 #define	NUM_INDIVIDUAL_ELEMS	9
     gint **ett;
-    gint ett_len = (NUM_INDIVIDUAL_ELEMS+MAX_NUM_DTAP_MSG+MAX_NUM_BSMAP_MSG+NUM_ELEM_1+NUM_MS_INFO_REC) * sizeof (gint *);
+    gint ett_len = (NUM_INDIVIDUAL_ELEMS+MAX_NUM_DTAP_MSG+MAX_NUM_BSMAP_MSG+NUM_ELEM_1+NUM_MS_INFO_REC) * sizeof(gint *);
 
     /*
      * XXX - at least one version of the HP C compiler apparently doesn't
@@ -8392,8 +8376,12 @@ proto_register_ansi_a(void)
      * initializes "ett_let" as an array size.  Therefore, we dynamically
      * allocate the array instead.
      */
-    ett = g_malloc (ett_len);
-    memset((void *) ett, -1, ett_len);
+    ett = g_malloc(ett_len);
+
+    memset((void *) ett_dtap_msg, -1, sizeof(gint) * MAX_NUM_DTAP_MSG);
+    memset((void *) ett_bsmap_msg, -1, sizeof(gint) * MAX_NUM_BSMAP_MSG);
+    memset((void *) ett_ansi_elem_1, -1, sizeof(gint) * NUM_ELEM_1);
+    memset((void *) ett_ansi_ms_info_rec, -1, sizeof(gint) * NUM_MS_INFO_REC);
 
     ett[0] = &ett_bsmap;
     ett[1] = &ett_dtap;
@@ -8445,7 +8433,7 @@ proto_register_ansi_a(void)
 	register_dissector_table("ansi_a.ota", "IS-683-A (OTA)",
 	FT_UINT8, BASE_DEC);
 
-    proto_register_subtree_array(ett, array_length(ett));
+    proto_register_subtree_array(ett, ett_len / sizeof(gint *));
 
     /*
      * setup for preferences
