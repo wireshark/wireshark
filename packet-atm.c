@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.59 2003/01/10 09:46:19 guy Exp $
+ * $Id: packet-atm.c,v 1.60 2003/01/11 06:03:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1404,27 +1404,27 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_item(tree, proto_oamaal, tvb, offset, -1, FALSE);
     aal_tree = proto_item_add_subtree(ti, ett_oamaal);
     octet = tvb_get_guint8(tvb, offset);
-    proto_tree_add_text(aal_tree, tvb, offset, 2, "OAM Type: %s",
+    proto_tree_add_text(aal_tree, tvb, offset, 1, "OAM Type: %s",
 		val_to_str(octet >> 4, oam_type_vals, "Unknown (%u)"));
     switch (octet >> 4) {
 
     case OAM_TYPE_FM:
-      proto_tree_add_text(aal_tree, tvb, offset, 2, "Function Type: %s",
+      proto_tree_add_text(aal_tree, tvb, offset, 1, "Function Type: %s",
 		val_to_str(octet & 0x0F, ft_fm_vals, "Unknown (%u)"));
       break;
 
     case OAM_TYPE_PM:
-      proto_tree_add_text(aal_tree, tvb, offset, 2, "Function Type: %s",
+      proto_tree_add_text(aal_tree, tvb, offset, 1, "Function Type: %s",
 		val_to_str(octet & 0x0F, ft_pm_vals, "Unknown (%u)"));
       break;
 
     case OAM_TYPE_AD:
-      proto_tree_add_text(aal_tree, tvb, offset, 2, "Function Type: %s",
+      proto_tree_add_text(aal_tree, tvb, offset, 1, "Function Type: %s",
 		val_to_str(octet & 0x0F, ft_ad_vals, "Unknown (%u)"));
       break;
 
     default:
-      proto_tree_add_text(aal_tree, tvb, offset, 2, "Function Type: %u",
+      proto_tree_add_text(aal_tree, tvb, offset, 1, "Function Type: %u",
 		octet & 0x0F);
       break;
     }
