@@ -44,4 +44,18 @@ void colors_init(void);
  */
 gboolean get_color(GdkColor *new_color);
 
+/** Convert color_t to GdkColor.
+ *
+ * @param target the GdkColor to be filled
+ * @param source the source color_t
+ */
+void color_t_to_gdkcolor(GdkColor *target, color_t *source);
+
+/** Convert GdkColor to color_t.
+ *
+ * @param target the source color_t
+ * @param source the GdkColor to be filled
+ */
+void gdkcolor_to_color_t(color_t *target, GdkColor *source);
+
 #endif

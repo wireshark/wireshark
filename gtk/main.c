@@ -90,7 +90,6 @@
 #include "layout_prefs.h"
 #include "color.h"
 #include "color_filters.h"
-#include "color_utils.h"
 #include "print.h"
 #include "simple_dialog.h"
 #include "register.h"

@@ -29,7 +29,7 @@
 #include <gtk/gtk.h>
 
 #include "color.h"
-#include "color_utils.h"
+#include "colors.h"
 #include "globals.h"
 #include "stream_prefs.h"
 #include "keys.h"

@@ -5,9 +5,8 @@
  * $Id$
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -28,22 +27,19 @@
 #define __COLOR_UTILS_H__
 
 /** @file
- * Utilities for converting between "toolkit-independent"
- * and GDK notions of color.
+ * Toolkit-dependent implementations of routines to handle colors.
  */
 
-/** Convert color_t to GdkColor.
+/** Create a color from R, G, and B values, and do whatever toolkit-dependent
+ ** work needs to be done.
  *
- * @param target the GdkColor to be filled
- * @param source the source color_t
- */
-void color_t_to_gdkcolor(GdkColor *target, color_t *source);
-
-/** Convert GdkColor to color_t.
- *
- * @param target the source color_t
+ * @param color the color_t to be filled
+ * @param red the red value for the color
+ * @param green the green value for the color
+ * @param blue the blue value for the color
  * @param source the GdkColor to be filled
+ * @return TRUE if it succeeds, FALSE if it fails
  */
-void gdkcolor_to_color_t(color_t *target, GdkColor *source);
+gboolean create_color(color_t *color, guint16 red, guint16 green, guint16 blue);
 
 #endif

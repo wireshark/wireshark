@@ -43,7 +43,7 @@
 #include "isprint.h"
 
 #include "color.h"
-#include "color_utils.h"
+#include "colors.h"
 #include "file.h"
 #include "follow_dlg.h"
 #include "follow.h"

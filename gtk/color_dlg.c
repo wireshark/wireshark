@@ -36,7 +36,6 @@
 #include "colors.h"
 #include "color_filters.h"
 #include "color_dlg.h"
-#include "color_utils.h"
 #include "file.h"
 #include <epan/dfilter/dfilter.h>
 #include "simple_dialog.h"

@@ -1,13 +1,11 @@
 /* color_utils.c
- * Utilities for converting between "toolkit-independent" and GDK
- * notions of color
+ * Toolkit-dependent implementations of routines to handle colors.
  *
  * $Id$
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -30,22 +28,25 @@
 
 #include <gtk/gtk.h>
 
-#include "color.h"	/* to declare "color_t" */
+#include "color.h"
 
-void
-color_t_to_gdkcolor(GdkColor *target, color_t *source)
-{
-  target->pixel = source->pixel;
-  target->red   = source->red;
-  target->green = source->green;
-  target->blue  = source->blue;
-}
+#include "color_utils.h"
 
-void
-gdkcolor_to_color_t(color_t *target, GdkColor *source)
+/*
+ * Create a color from R, G, and B values, and do whatever toolkit-dependent
+ * work needs to be done.
+ * Returns TRUE if it succeeds, FALSE if it fails.
+ */
+gboolean
+create_color(color_t *color, guint16 red, guint16 green, guint16 blue)
 {
-  target->pixel = source->pixel;
-  target->red   = source->red;
-  target->green = source->green;
-  target->blue  = source->blue;
+	GdkColor gdk_color;
+
+	gdk_color.red = red;
+	gdk_color.green = green;
+	gdk_color.blue = blue;
+	if (!get_color(&gdk_color))
+		return FALSE;
+	gdkcolor_to_color_t(color, &gdk_color);
+	return TRUE;
 }

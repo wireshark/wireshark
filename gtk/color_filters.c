@@ -242,7 +242,6 @@ read_filters_file(FILE *f, gpointer arg)
 
 			/* we got a complete color filter */
 
-			GdkColor gdk_fg_color, gdk_bg_color;
 			color_t bg_color, fg_color;
 			color_filter_t *colorf;
 			dfilter_t *temp_dfilter;
@@ -255,10 +254,7 @@ read_filters_file(FILE *f, gpointer arg)
 				continue;
 			}
 
-			gdk_fg_color.red = fg_r;
-			gdk_fg_color.green = fg_g;
-			gdk_fg_color.blue = fg_b;
-			if (!get_color(&gdk_fg_color)) {
+			if (!create_color(&fg_color, fg_r, fg_g, fg_b)) {
 				/* oops */
 				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				    "Could not allocate foreground color "
@@ -267,11 +263,7 @@ read_filters_file(FILE *f, gpointer arg)
 				skip_end_of_line = TRUE;
 				continue;
 			}
-			gdkcolor_to_color_t(&fg_color, &gdk_fg_color);
-			gdk_bg_color.red = bg_r;
-			gdk_bg_color.green = bg_g;
-			gdk_bg_color.blue = bg_b;
-			if (!get_color(&gdk_bg_color)) {
+			if (!create_color(&bg_color, bg_r, bg_g, bg_b)) {
 				/* oops */
 				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				    "Could not allocate background color "
@@ -280,7 +272,6 @@ read_filters_file(FILE *f, gpointer arg)
 				skip_end_of_line = TRUE;
 				continue;
 			}
-			gdkcolor_to_color_t(&bg_color, &gdk_bg_color);
 
 			colorf = new_color_filter(name, filter_exp, &bg_color,
 			    &fg_color);

@@ -37,7 +37,7 @@
 #include "ui_util.h"
 #include "main.h"
 #include "menu.h"
-#include "color_utils.h"
+#include "colors.h"
 #include "column.h"
 #include "epan/column_info.h"
 #include "compat_macros.h"

@@ -29,6 +29,8 @@
 
 #include <string.h>
 
+#include "color.h"	/* to declare "color_t" */
+
 #include "colors.h"
 #include "simple_dialog.h"
 #include "gtkglobals.h"
@@ -84,4 +86,22 @@ get_color(GdkColor *new_color)
 			return (TRUE);
 	}
 	return (gdk_colormap_alloc_color(our_cmap, new_color, FALSE, TRUE));
+}
+
+void
+color_t_to_gdkcolor(GdkColor *target, color_t *source)
+{
+	target->pixel = source->pixel;
+	target->red   = source->red;
+	target->green = source->green;
+	target->blue  = source->blue;
+}
+
+void
+gdkcolor_to_color_t(color_t *target, GdkColor *source)
+{
+	target->pixel = source->pixel;
+	target->red   = source->red;
+	target->green = source->green;
+	target->blue  = source->blue;
 }
