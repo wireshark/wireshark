@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.136 2004/06/20 14:48:23 ulfl Exp $
+ * $Id: prefs.c,v 1.137 2004/06/20 15:57:07 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1011,6 +1011,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     prefs.gui_fileopen_style         = FO_STYLE_LAST_OPENED;
     prefs.gui_recent_files_count_max = 10;
     prefs.gui_fileopen_dir           = g_strdup("");
+    prefs.gui_ask_unsaved            = TRUE;
     prefs.gui_layout_type            = layout_type_5;
     prefs.gui_layout_content_1       = layout_pane_content_plist;
     prefs.gui_layout_content_2       = layout_pane_content_pdetails;
@@ -1312,6 +1313,7 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_RECENT_COUNT_MAX         "gui.recent_files_count.max"
 #define PRS_GUI_FILEOPEN_DIR             "gui.fileopen.dir"
 #define PRS_GUI_FILEOPEN_REMEMBERED_DIR  "gui.fileopen.remembered_dir"
+#define PRS_GUI_ASK_UNSAVED              "gui.ask_unsaved"
 #define PRS_GUI_GEOMETRY_SAVE_POSITION   "gui.geometry.save.position"
 #define PRS_GUI_GEOMETRY_SAVE_SIZE       "gui.geometry.save.size"
 #define PRS_GUI_GEOMETRY_SAVE_MAXIMIZED  "gui.geometry.save.maximized"
@@ -1638,6 +1640,13 @@ set_pref(gchar *pref_name, gchar *value)
     prefs.gui_fileopen_dir = g_strdup(value);
   } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_REMEMBERED_DIR) == 0) { /* deprecated */
 
+  } else if (strcmp(pref_name, PRS_GUI_ASK_UNSAVED) == 0) {
+    if (strcasecmp(value, "true") == 0) {
+	    prefs.gui_ask_unsaved = TRUE;
+    }
+    else {
+	    prefs.gui_ask_unsaved = FALSE;
+    }
   } else if (strcmp(pref_name, PRS_GUI_LAYOUT_TYPE) == 0) {
     prefs.gui_layout_type = strtoul(value, NULL, 10);
 
@@ -2182,6 +2191,11 @@ write_prefs(char **pf_path_return)
                   prefs.gui_fileopen_dir);
   }
                   
+  fprintf(pf, "\n# Ask to save unsaved capture files?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(pf, PRS_GUI_ASK_UNSAVED ": %s\n",
+		  prefs.gui_ask_unsaved == TRUE ? "TRUE" : "FALSE");
+                  
   fprintf (pf, "\n######## User Interface: Layout ########\n");
 
   fprintf(pf, "\n# Layout type (1-6).\n");
@@ -2371,6 +2385,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_fileopen_dir = g_strdup(src->gui_fileopen_dir);
   dest->gui_console_open = src->gui_console_open;
   dest->gui_fileopen_style = src->gui_fileopen_style;
+  dest->gui_ask_unsaved = src->gui_ask_unsaved;
   dest->gui_layout_type = src->gui_layout_type;
   dest->gui_layout_content_1 = src->gui_layout_content_1;
   dest->gui_layout_content_2 = src->gui_layout_content_2;

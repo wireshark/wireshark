@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.134 2004/06/20 13:39:44 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.135 2004/06/20 15:57:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1106,7 +1106,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   gpointer  dialog;
 
-  if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
+  if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
     /* user didn't saved his current file, ask him */
     dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO_CANCEL,
                 PRIMARY_TEXT_START "Save capture file before starting a new capture?" PRIMARY_TEXT_END "\n\n"

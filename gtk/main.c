@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.444 2004/06/20 14:48:24 ulfl Exp $
+ * $Id: main.c,v 1.445 2004/06/20 15:57:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -828,7 +828,7 @@ main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer
 {
   gpointer dialog;
 
-  if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
+  if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
     /* user didn't saved his current file, ask him */
     dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO_CANCEL,
                 PRIMARY_TEXT_START "Save capture file before program quit?" PRIMARY_TEXT_END "\n\n"
@@ -922,7 +922,7 @@ file_quit_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
   gpointer dialog;
 
-  if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
+  if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
     /* user didn't saved his current file, ask him */
     dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO_CANCEL,
                 PRIMARY_TEXT_START "Save capture file before program quit?" PRIMARY_TEXT_END "\n\n"
@@ -1360,7 +1360,7 @@ GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
         g_free(cf_name_ori);
 
         /* ask the user to save it's current capture file first */
-        if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
+        if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
             /* user didn't saved his current file, ask him */
             dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
                         ESD_BTNS_YES_NO_CANCEL,
