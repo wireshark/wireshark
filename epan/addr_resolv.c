@@ -1534,7 +1534,8 @@ host_name_lookup_cleanup(void) {
     g_free(qdata);
   }
   
-  adns_finish(ads);
+  if (adns_initialized)
+    adns_finish(ads);
 }
 
 #else
