@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.43 1999/10/16 09:13:03 deniel Exp $
+ * $Id: proto.c,v 1.44 1999/10/16 15:46:01 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1322,6 +1322,9 @@ proto_registrar_dump(void)
 				break;
 			case FT_UINT16:
 				enum_name = "FT_UINT16";
+				break;
+			case FT_UINT24:
+				enum_name = "FT_UINT24";
 				break;
 			case FT_UINT32:
 				enum_name = "FT_UINT32";
