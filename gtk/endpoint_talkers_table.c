@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.33 2004/03/13 15:15:23 ulfl Exp $
+ * $Id: endpoint_talkers_table.c,v 1.34 2004/04/12 07:10:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,7 @@
 #include "gtkglobals.h"
 #include "main.h"
 #include "ui_util.h"
+#include "dlg_utils.h"
 
 extern GtkWidget   *main_display_filter_widget;
 
@@ -953,6 +954,8 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 	endpoints_table *talkers;
 	GtkWidget *vbox;
 	GtkWidget *label;
+    GtkWidget *bbox;
+    GtkWidget *close_bt;
 	char title[256];
 	char *default_titles[] = { "EP1 Address", "Port", "EP2 Address", "Port", "Frames", "Bytes", "-> Frames", "-> Bytes", "<- Frames", "<- Bytes" };
 
@@ -961,32 +964,27 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 
 	talkers->name=table_name;
 	g_snprintf(title, 255, "%s Conversations: %s", table_name, cf_get_display_name(&cfile));
-	talkers->win=window_new(GTK_WINDOW_TOPLEVEL, title);
+	talkers->win=dlg_window_new(title);
 	gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
 
 	SIGNAL_CONNECT(talkers->win, "destroy", ett_win_destroy_cb, talkers);
 
-	vbox=gtk_vbox_new(FALSE, 0);
+	vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(talkers->win), vbox);
-	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
-	gtk_widget_show(vbox);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
 	g_snprintf(title, 255, "%s Conversations", table_name);
 	label=gtk_label_new(title);
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-	gtk_widget_show(label);
 
 	/* We must display TOP LEVEL Widget before calling init_ett_table() */
-	gtk_widget_show(talkers->win);
+	gtk_widget_show_all(talkers->win);
 
 
 	talkers->scrolled_window=scrolled_window_new(NULL, NULL);
 	gtk_box_pack_start(GTK_BOX(vbox), talkers->scrolled_window, TRUE, TRUE, 0);
 
 	talkers->table=(GtkCList *)gtk_clist_new(NUM_COLS);
-
-	gtk_widget_show(GTK_WIDGET(talkers->table));
-	gtk_widget_show(talkers->scrolled_window);
 
 	col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * NUM_COLS);
 	win_style = gtk_widget_get_style(talkers->scrolled_window);
@@ -1043,9 +1041,6 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 
 	SIGNAL_CONNECT(talkers->table, "click-column", ett_click_column_cb, col_arrows);
 
-	gtk_widget_show(GTK_WIDGET(talkers->table));
-	gtk_widget_show(talkers->scrolled_window);
-
 	talkers->num_endpoints=0;
 	talkers->endpoints=NULL;
 
@@ -1067,6 +1062,19 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 		g_free(talkers);
 		return;
 	}
+
+	/* Button row. */
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+
+	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, talkers->win);
+	gtk_widget_grab_default(close_bt);
+
+	/* Catch the "key_press_event" signal in the window, so that we can 
+	   catch the ESC key being pressed and act as if the "Close" button had
+	   been selected. */
+	dlg_set_cancel(talkers->win, close_bt);
 
 	gtk_widget_show_all(talkers->win);
 	retap_packets(&cfile);

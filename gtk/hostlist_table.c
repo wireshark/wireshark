@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table.c   2003 Ronnie Sahlberg
  * Helper routines common to all host list taps.
  *
- * $Id: hostlist_table.c,v 1.5 2004/03/13 15:15:24 ulfl Exp $
+ * $Id: hostlist_table.c,v 1.6 2004/04/12 07:10:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +47,7 @@
 #include "gtkglobals.h"
 #include "main.h"
 #include "ui_util.h"
+#include "dlg_utils.h"
 
 extern GtkWidget   *main_display_filter_widget;
 
@@ -469,6 +470,8 @@ init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char 
 	hostlist_table *hosttable;
 	GtkWidget *vbox;
 	GtkWidget *label;
+    GtkWidget *bbox;
+    GtkWidget *close_bt;
 	char title[256];
 	char *default_titles[] = { "Address", "Port", "Frames", "Bytes", "Tx Frames", "Tx Bytes", "Rx Frames", "Rx Bytes" };
 
@@ -476,33 +479,28 @@ init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char 
 	hosttable=g_malloc(sizeof(hostlist_table));
 
 	hosttable->name=table_name;
-	hosttable->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size(GTK_WINDOW(hosttable->win), 750, 400);
 	g_snprintf(title, 255, "%s: %s", table_name, cf_get_display_name(&cfile));
-	gtk_window_set_title(GTK_WINDOW(hosttable->win), title);
+    hosttable->win = dlg_window_new(title);
+	gtk_window_set_default_size(GTK_WINDOW(hosttable->win), 750, 400);
+
 
 	SIGNAL_CONNECT(hosttable->win, "destroy", hostlist_win_destroy_cb, hosttable);
 
-	vbox=gtk_vbox_new(FALSE, 0);
+	vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(hosttable->win), vbox);
-	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
-	gtk_widget_show(vbox);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
 	label=gtk_label_new(table_name);
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-	gtk_widget_show(label);
 
 	/* We must display TOP LEVEL Widget before calling init_hostlist_table() */
-	gtk_widget_show(hosttable->win);
+	gtk_widget_show_all(hosttable->win);
 
 
 	hosttable->scrolled_window=scrolled_window_new(NULL, NULL);
 	gtk_box_pack_start(GTK_BOX(vbox), hosttable->scrolled_window, TRUE, TRUE, 0);
 
 	hosttable->table=(GtkCList *)gtk_clist_new(NUM_COLS);
-
-	gtk_widget_show(GTK_WIDGET(hosttable->table));
-	gtk_widget_show(hosttable->scrolled_window);
 
 	col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * NUM_COLS);
 	win_style = gtk_widget_get_style(hosttable->scrolled_window);
@@ -557,9 +555,6 @@ init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char 
 
 	SIGNAL_CONNECT(hosttable->table, "click-column", hostlist_click_column_cb, col_arrows);
 
-	gtk_widget_show(GTK_WIDGET(hosttable->table));
-	gtk_widget_show(hosttable->scrolled_window);
-
 	hosttable->num_hosts=0;
 	hosttable->hosts=NULL;
 
@@ -580,6 +575,19 @@ init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char 
 		g_free(hosttable);
 		return;
 	}
+
+	/* Button row. */
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+
+	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, hosttable->win);
+	gtk_widget_grab_default(close_bt);
+
+	/* Catch the "key_press_event" signal in the window, so that we can 
+	   catch the ESC key being pressed and act as if the "Close" button had
+	   been selected. */
+	dlg_set_cancel(hosttable->win, close_bt);
 
 	gtk_widget_show_all(hosttable->win);
 	retap_packets(&cfile);
