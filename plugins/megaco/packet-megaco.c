@@ -79,51 +79,51 @@ static int hf_megaco_termid			= -1;
 /* Define headers in subtree for megaco */
 static int hf_megaco_modem_descriptor           = -1;
 static int hf_megaco_multiplex_descriptor       = -1;
-static int hf_megaco_media_descriptor		= -1;
+static int hf_megaco_media_descriptor			= -1;
 static int hf_megaco_events_descriptor          = -1;
 static int hf_megaco_signal_descriptor          = -1;
 static int hf_megaco_audit_descriptor           = -1;
 static int hf_megaco_servicechange_descriptor	= -1;
-static int hf_megaco_digitmap_descriptor	= -1;
-static int hf_megaco_statistics_descriptor	= -1;
+static int hf_megaco_digitmap_descriptor		= -1;
+static int hf_megaco_statistics_descriptor		= -1;
 static int hf_megaco_observedevents_descriptor	= -1;
-static int hf_megaco_topology_descriptor	= -1;
-static int hf_megaco_error_descriptor		= -1;
+static int hf_megaco_topology_descriptor		= -1;
+static int hf_megaco_error_descriptor			= -1;
 static int hf_megaco_TerminationState_descriptor= -1;
-static int hf_megaco_Remote_descriptor 		= -1;
-static int hf_megaco_Local_descriptor 		= -1;
+static int hf_megaco_Remote_descriptor 			= -1;
+static int hf_megaco_Local_descriptor 			= -1;
 static int hf_megaco_LocalControl_descriptor 	= -1;
 static int hf_megaco_packages_descriptor		= -1;
-static int hf_megaco_error_Frame			= -1;
-static int hf_megaco_Service_State			= -1;
+static int hf_megaco_error_Frame				= -1;
+static int hf_megaco_Service_State				= -1;
 static int hf_megaco_Event_Buffer_Control		= -1;
-static int hf_megaco_mode				= -1;
-static int hf_megaco_reserve_group			= -1;
-static int hf_megaco_reserve_value			= -1;
-static int hf_megaco_streamid 				= -1;
-static int hf_megaco_requestid 				= -1;
-static int hf_megaco_pkgdname				= -1;
-static int hf_megaco_mId				= -1;
-static int hf_megaco_h245				= -1;
+static int hf_megaco_mode						= -1;
+static int hf_megaco_reserve_group				= -1;
+static int hf_megaco_reserve_value				= -1;
+static int hf_megaco_streamid 					= -1;
+static int hf_megaco_requestid 					= -1;
+static int hf_megaco_pkgdname					= -1;
+static int hf_megaco_mId						= -1;
+static int hf_megaco_h245						= -1;
 
 /* Define the trees for megaco */
-static int ett_megaco 					= -1;
-static int ett_megaco_command_line 			= -1;
+static int ett_megaco 							= -1;
+static int ett_megaco_command_line 				= -1;
 static int ett_megaco_mediadescriptor			= -1;
-static int ett_megaco_descriptors 			= -1;
+static int ett_megaco_descriptors 				= -1;
 static int ett_megaco_TerminationState			= -1;
 static int ett_megaco_Localdescriptor			= -1;
 static int ett_megaco_Remotedescriptor			= -1;
-static int ett_megaco_LocalControldescriptor		= -1;
+static int ett_megaco_LocalControldescriptor	= -1;
 static int ett_megaco_auditdescriptor			= -1;
 static int ett_megaco_eventsdescriptor			= -1;
-static int ett_megaco_observedeventsdescriptor		= -1;
-static int ett_megaco_observedevent			= -1;
+static int ett_megaco_observedeventsdescriptor	= -1;
+static int ett_megaco_observedevent				= -1;
 static int ett_megaco_packagesdescriptor		= -1;
 static int ett_megaco_requestedevent			= -1;
 static int ett_megaco_signalsdescriptor			= -1;
 static int ett_megaco_requestedsignal			= -1;
-static int ett_megaco_h245 				= -1;
+static int ett_megaco_h245 						= -1;
 
 
 /*
@@ -255,8 +255,16 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * binary encodings. Bugfix add skipping of leading spaces.
 	 */
 	tvb_offset = tvb_skip_wsp(tvb, tvb_offset);
+	/* Quick fix for MEGACO not following the RFC, hopfully not breaking any thing 
+	 * If any of the first 5 chars is junk, skip them.Only works for M(EGACO) with capital m ( Hmm)
+	 */
+	tvb_next_offset = tvb_find_guint8(tvb, tvb_offset, 5, 'M');
+	if  ( tvb_next_offset != -1 )
+		tvb_offset = tvb_next_offset;
 	if(!tvb_get_nstringz0(tvb,tvb_offset,sizeof(word),word)) return;
-	if (strncasecmp(word, "MEGACO", 6) != 0 && tvb_get_guint8(tvb, tvb_offset ) != '!') return;
+	if (strncasecmp(word, "MEGACO", 6) != 0 && tvb_get_guint8(tvb, tvb_offset ) != '!'){
+			return;
+	}
 	
 	
 	/* Display MEGACO in protocol column */
@@ -498,7 +506,10 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
  				if ( transaction[19] == 'A'){ 
 					tvb_offset  = tvb_find_guint8(tvb, tvb_offset, tvb_len, '{')+1;
-					len = tvb_len - tvb_offset - 1;
+					tvb_offset = tvb_skip_wsp(tvb, tvb_offset);
+					tvb_next_offset = tvb_find_guint8(tvb, tvb_offset, tvb_len, '}') - 1;
+					tvb_next_offset = tvb_skip_wsp_return(tvb, tvb_next_offset);
+					len = tvb_next_offset - tvb_offset;
 					if (check_col(pinfo->cinfo, COL_INFO) )
 						col_add_fstr(pinfo->cinfo, COL_INFO, "%s TransactionResponseAck",
 						tvb_format_text(tvb,tvb_offset,len));
@@ -2711,5 +2722,4 @@ plugin_init(plugin_address_table_t *pat
 #endif
 
 /* End the functions we need for plugin stuff */
-
 
