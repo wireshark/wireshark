@@ -2,7 +2,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.h,v 1.42 2004/05/09 10:03:37 guy Exp $
+ * $Id: packet-dcerpc.h,v 1.43 2004/06/09 09:24:07 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -226,18 +226,13 @@ value_string *value_string_from_subdissectors(dcerpc_sub_dissector *sd);
 
 /* Private data structure to pass to DCERPC dissector. This is used to
    pass transport specific information down to the dissector from the
-   dissector that parsed this encapsulated calls. */
-
-#define DCERPC_TRANSPORT_SMB  1
+   dissector that parsed this encapsulated calls. 
+   When it comes to DCERPC over SMB the only thing we really want to pass
+   on is the FID.
+*/
 
 typedef struct _dcerpc_private_info {
-    int transport_type;		/* Tag */
-
-    union {
-	struct {		/* DCERPC_TRANSPORT_SMB */
-	    guint16 fid;
-	} smb;
-    } data;
+	guint16 fid;
 } dcerpc_private_info;
 
 /* Private data passed to subdissectors from the main DCERPC dissector. */

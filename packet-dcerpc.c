@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.178 2004/06/05 11:44:14 jmayer Exp $
+ * $Id: packet-dcerpc.c,v 1.179 2004/06/09 09:24:06 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -270,6 +270,14 @@ static const value_string reject_status_vals[] = {
 	{ 0x1c010017, "nca_unsupported_type" },
 	{ 0,          NULL }
 };
+
+
+/* we need to keep track of what transport were used, ie what handle we came
+ * in through so we know what kind of pinfo->private_data was passed to us.
+ */
+#define DCE_TRANSPORT_UNKNOWN		0
+#define DCE_CN_TRANSPORT_SMBPIPE	1
+
 
 static int proto_dcerpc = -1;
 
@@ -2152,23 +2160,28 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, int stub_offset, packet_info *pinfo,
 
 
 /* We need to hash in the SMB fid number to generate a unique hash table
-   key as DCERPC over SMB allows several pipes over the same TCP/IP
-   socket. */
+ * key as DCERPC over SMB allows several pipes over the same TCP/IP
+ * socket. 
+ * We pass this function the transport type here to make sure we only look
+ * at this function iff it came across an SMB pipe.
+ * Other transports might need to mix in their own extra multiplexing data
+ * as well in the future.
+ */
 
-static guint16 get_smb_fid (void *private_data)
+static guint16 get_transport_salt (packet_info *pinfo, int transport_type)
 {
-    dcerpc_private_info *priv = (dcerpc_private_info *)private_data;
+    dcerpc_private_info *priv = (dcerpc_private_info *)pinfo->private_data;
 
     if (!priv)
         return 0;	/* Nothing to see here */
 
-    /* DCERPC over smb */
-
-    if (priv->transport_type == DCERPC_TRANSPORT_SMB)
-        return priv->data.smb.fid;
+    switch(transport_type){
+	case DCE_CN_TRANSPORT_SMBPIPE:
+	    /* DCERPC over smb */
+	    return priv->fid;
+    }
 
     /* Some other transport... */
-
     return 0;
 }
 
@@ -2178,7 +2191,8 @@ static guint16 get_smb_fid (void *private_data)
 
 static void
 dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo, 
-			proto_tree *dcerpc_tree, e_dce_cn_common_hdr_t *hdr)
+			proto_tree *dcerpc_tree, e_dce_cn_common_hdr_t *hdr,
+			int transport_type)
 {
     conversation_t *conv = NULL;
     guint8 num_ctx_items = 0;
@@ -2291,7 +2305,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	        key = g_mem_chunk_alloc (dcerpc_bind_key_chunk);
         	key->conv = conv;
         	key->ctx_id = ctx_id;
-        	key->smb_fid = get_smb_fid(pinfo->private_data);
+        	key->smb_fid = get_transport_salt(pinfo, transport_type);
 
         	value = g_mem_chunk_alloc (dcerpc_bind_value_chunk);
         	value->uuid = if_id;
@@ -2749,7 +2763,8 @@ end_cn_stub:
 
 static void
 dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo, 
-			proto_tree *dcerpc_tree, proto_tree *tree, e_dce_cn_common_hdr_t *hdr)
+			proto_tree *dcerpc_tree, proto_tree *tree,
+			e_dce_cn_common_hdr_t *hdr, int transport_type)
 {
     conversation_t *conv;
     guint16 ctx_id;
@@ -2827,7 +2842,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 		bind_key.conv=conv;
 		bind_key.ctx_id=ctx_id;
-		bind_key.smb_fid=get_smb_fid(pinfo->private_data);
+		bind_key.smb_fid=get_transport_salt(pinfo, transport_type);
 
 		if((bind_value=g_hash_table_lookup(dcerpc_binds, &bind_key)) ){
 			if(!(hdr->flags&PFC_FIRST_FRAG)){
@@ -2836,7 +2851,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 				call_key.conv=conv;
 				call_key.call_id=hdr->call_id;
-				call_key.smb_fid=get_smb_fid(pinfo->private_data);
+				call_key.smb_fid=get_transport_salt(pinfo, transport_type);
 				if((call_value=g_hash_table_lookup(dcerpc_calls, &call_key))){
 					new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
 					*new_matched_key = matched_key;
@@ -2855,7 +2870,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				call_key=g_mem_chunk_alloc (dcerpc_call_key_chunk);
 				call_key->conv=conv;
 				call_key->call_id=hdr->call_id;
-				call_key->smb_fid=get_smb_fid(pinfo->private_data);
+				call_key->smb_fid=get_transport_salt(pinfo, transport_type);
 
 				/* if there is already a matching call in the table
 				   remove it so it is replaced with the new one */
@@ -2890,7 +2905,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
             /* handoff this call */
 	    di->conv = conv;
 	    di->call_id = hdr->call_id;
-	    di->smb_fid = get_smb_fid(pinfo->private_data);
+	    di->smb_fid = get_transport_salt(pinfo, transport_type);
 	    di->ptype = PDU_REQ;
 	    di->call_data = value;
 		di->hf_index = -1;
@@ -2911,7 +2926,8 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 static void
 dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-			proto_tree *dcerpc_tree, proto_tree *tree, e_dce_cn_common_hdr_t *hdr)
+			proto_tree *dcerpc_tree, proto_tree *tree,
+			e_dce_cn_common_hdr_t *hdr, int transport_type)
 {
     dcerpc_call_value *value = NULL;
     conversation_t *conv;
@@ -2965,7 +2981,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 		call_key.conv=conv;
 		call_key.call_id=hdr->call_id;
-		call_key.smb_fid=get_smb_fid(pinfo->private_data);
+		call_key.smb_fid=get_transport_salt(pinfo, transport_type);
 
 		if((call_value=g_hash_table_lookup(dcerpc_calls, &call_key))){
 			new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
@@ -2985,7 +3001,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
             /* handoff this call */
 	    di->conv = conv;
 	    di->call_id = hdr->call_id;
-	    di->smb_fid = get_smb_fid(pinfo->private_data);
+	    di->smb_fid = get_transport_salt(pinfo, transport_type);
 	    di->ptype = PDU_RESP;
 	    di->call_data = value;
 
@@ -3015,7 +3031,8 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 static void
 dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                         proto_tree *dcerpc_tree, e_dce_cn_common_hdr_t *hdr)
+                         proto_tree *dcerpc_tree, e_dce_cn_common_hdr_t *hdr,
+			 int transport_type)
 {
     dcerpc_call_value *value = NULL;
     conversation_t *conv;
@@ -3076,7 +3093,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 		call_key.conv=conv;
 		call_key.call_id=hdr->call_id;
-		call_key.smb_fid=get_smb_fid(pinfo->private_data);
+		call_key.smb_fid=get_transport_salt(pinfo, transport_type);
 
 		if((call_value=g_hash_table_lookup(dcerpc_calls, &call_key))){
 			new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
@@ -3098,7 +3115,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
             /* handoff this call */
 	    di->conv = conv;
 	    di->call_id = hdr->call_id;
-	    di->smb_fid = get_smb_fid(pinfo->private_data);
+	    di->smb_fid = get_transport_salt(pinfo, transport_type);
 	    di->ptype = PDU_FAULT;
 	    di->call_data = value;
 
@@ -3267,11 +3284,14 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 /*
- * DCERPC dissector for connection oriented calls
+ * DCERPC dissector for connection oriented calls.
+ * We use transport type to later multiplex between what kind of
+ * pinfo->private_data structure to expect.
  */
 static gboolean
 dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
-                   proto_tree *tree, gboolean can_desegment, int *pkt_len)
+                   proto_tree *tree, gboolean can_desegment, int *pkt_len,
+		   int transport_type)
 {
     static const guint8 nulls[4] = { 0 };
     int start_offset;
@@ -3409,7 +3429,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
     switch (hdr.ptype) {
     case PDU_BIND:
     case PDU_ALTER:
-        dissect_dcerpc_cn_bind (tvb, offset, pinfo, dcerpc_tree, &hdr);
+        dissect_dcerpc_cn_bind (tvb, offset, pinfo, dcerpc_tree, &hdr, transport_type);
         break;
 
     case PDU_BIND_ACK:
@@ -3426,15 +3446,15 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
         break;
 
     case PDU_REQ:
-        dissect_dcerpc_cn_rqst (tvb, offset, pinfo, dcerpc_tree, tree, &hdr);
+        dissect_dcerpc_cn_rqst (tvb, offset, pinfo, dcerpc_tree, tree, &hdr, transport_type);
         break;
 
     case PDU_RESP:
-        dissect_dcerpc_cn_resp (tvb, offset, pinfo, dcerpc_tree, tree, &hdr);
+        dissect_dcerpc_cn_resp (tvb, offset, pinfo, dcerpc_tree, tree, &hdr, transport_type);
         break;
 
     case PDU_FAULT:
-        dissect_dcerpc_cn_fault (tvb, offset, pinfo, dcerpc_tree, &hdr);
+        dissect_dcerpc_cn_fault (tvb, offset, pinfo, dcerpc_tree, &hdr, transport_type);
         break;
 
     case PDU_BIND_NAK:
@@ -3478,7 +3498,7 @@ dissect_dcerpc_cn_pk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * Only one PDU per transport packet, and only one transport
      * packet per PDU.
      */
-    if (!dissect_dcerpc_cn (tvb, 0, pinfo, tree, FALSE, NULL)) {
+    if (!dissect_dcerpc_cn (tvb, 0, pinfo, tree, FALSE, NULL, DCE_TRANSPORT_UNKNOWN)) {
         /*
          * It wasn't a DCERPC PDU.
          */
@@ -3493,10 +3513,12 @@ dissect_dcerpc_cn_pk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /*
  * DCERPC dissector for connection oriented calls over byte-stream
- * transports
+ * transports.
+ * we need to distinguish here between SMB and non-TCP (more in the future?)
+ * to be able to know what kind of private_data structure to expect.
  */
 static gboolean
-dissect_dcerpc_cn_bs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dcerpc_cn_bs_body (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int transport_type)
 {
     volatile int offset = 0;
     int pdu_len;
@@ -3520,7 +3542,8 @@ dissect_dcerpc_cn_bs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         is_dcerpc_pdu = FALSE;
         TRY {
             is_dcerpc_pdu = dissect_dcerpc_cn (tvb, offset, pinfo, tree,
-                                               dcerpc_cn_desegment, &pdu_len);
+                                               dcerpc_cn_desegment, &pdu_len,
+					       transport_type);
         } CATCH(BoundsError) {
             RETHROW;
         } CATCH(ReportedBoundsError) {
@@ -3553,6 +3576,20 @@ dissect_dcerpc_cn_bs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     return ret;
 }
+
+static gboolean
+dissect_dcerpc_cn_bs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	return dissect_dcerpc_cn_bs_body(tvb, pinfo, tree, DCE_TRANSPORT_UNKNOWN);
+}
+
+static gboolean
+dissect_dcerpc_cn_smbpipe (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	return dissect_dcerpc_cn_bs_body(tvb, pinfo, tree, DCE_CN_TRANSPORT_SMBPIPE);
+}
+
+
 
 static void
 dissect_dcerpc_dg_auth (tvbuff_t *tvb, int offset, proto_tree *dcerpc_tree,
@@ -3844,7 +3881,8 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void
 dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
                         proto_tree *dcerpc_tree, proto_tree *tree,
-                        e_dce_dg_common_hdr_t *hdr, conversation_t *conv)
+                        e_dce_dg_common_hdr_t *hdr, conversation_t *conv,
+			int transport_type)
 {
     dcerpc_info *di;
     dcerpc_call_value *value, v;
@@ -3859,7 +3897,7 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	call_key=g_mem_chunk_alloc (dcerpc_call_key_chunk);
 	call_key->conv=conv;
 	call_key->call_id=hdr->seqnum;
-	call_key->smb_fid=get_smb_fid(pinfo->private_data);
+	call_key->smb_fid=get_transport_salt(pinfo, transport_type);
 
 	call_value=g_mem_chunk_alloc (dcerpc_call_value_chunk);
 	call_value->uuid = hdr->if_id;
@@ -3910,7 +3948,8 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void
 dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
                         proto_tree *dcerpc_tree, proto_tree *tree,
-                        e_dce_dg_common_hdr_t *hdr, conversation_t *conv)
+                        e_dce_dg_common_hdr_t *hdr, conversation_t *conv,
+			int transport_type)
 {
     dcerpc_info *di;
     dcerpc_call_value *value, v;
@@ -3924,7 +3963,7 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	call_key.conv=conv;
 	call_key.call_id=hdr->seqnum;
-	call_key.smb_fid=get_smb_fid(pinfo->private_data);
+	call_key.smb_fid=get_transport_salt(pinfo, transport_type);
 
 	if((call_value=g_hash_table_lookup(dcerpc_calls, &call_key))){
 	    new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
@@ -3991,6 +4030,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int auth_level;
     char uuid_str[DCERPC_UUID_STR_LEN]; 
     int uuid_str_len;
+    int transport_type=DCE_TRANSPORT_UNKNOWN;
 
     /*
      * Check if this looks like a CL DCERPC call.  All dg packets
@@ -4303,11 +4343,11 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
     case PDU_REQ:
-        dissect_dcerpc_dg_rqst (tvb, offset, pinfo, dcerpc_tree, tree, &hdr, conv);
+        dissect_dcerpc_dg_rqst (tvb, offset, pinfo, dcerpc_tree, tree, &hdr, conv, transport_type);
         break;
 
     case PDU_RESP:
-        dissect_dcerpc_dg_resp (tvb, offset, pinfo, dcerpc_tree, tree, &hdr, conv);
+        dissect_dcerpc_dg_resp (tvb, offset, pinfo, dcerpc_tree, tree, &hdr, conv, transport_type);
         break;
 
     /* these requests have no body */
@@ -4689,6 +4729,6 @@ proto_reg_handoff_dcerpc (void)
     heur_dissector_add ("tcp", dissect_dcerpc_cn_bs, proto_dcerpc);
     heur_dissector_add ("netbios", dissect_dcerpc_cn_pk, proto_dcerpc);
     heur_dissector_add ("udp", dissect_dcerpc_dg, proto_dcerpc);
-    heur_dissector_add ("smb_transact", dissect_dcerpc_cn_bs, proto_dcerpc);
+    heur_dissector_add ("smb_transact", dissect_dcerpc_cn_smbpipe, proto_dcerpc);
     dcerpc_smb_init(proto_dcerpc);
 }
