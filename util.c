@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.72 2003/11/18 04:16:28 gerald Exp $
+ * $Id: util.c,v 1.73 2003/12/01 20:27:09 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -706,8 +706,10 @@ gchar *get_conn_cfilter(void) {
 			return filter_str->str;
 		}
 	} else if ((env = getenv("CLIENTNAME")) != NULL) {
-		g_string_sprintf(filter_str, "not ip host %s", env);
-		return filter_str->str;
+		if (g_strcasecmp("console", env) != 0) {
+			g_string_sprintf(filter_str, "not ip host %s", env);
+			return filter_str->str;
+		}
 	}
 	return "";
 }		
