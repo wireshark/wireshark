@@ -2,7 +2,7 @@
  * Definitions for routines common to multiple modules in the Lucent/Ascend
  * capture file reading code code, but not used outside that code.
  *
- * $Id: ascend-int.h,v 1.3 1999/10/10 18:16:43 guy Exp $
+ * $Id: ascend-int.h,v 1.4 1999/11/24 19:29:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,11 @@ typedef struct {
   guint32 caplen;
   guint32 len;
 } ascend_pkthdr;
+
+/*
+ * Pointer to the pseudo-header for the current packet.
+ */
+extern struct ascend_phdr *pseudo_header;
 
 /* Here we provide interfaces to make our scanner act and look like lex */
 int ascendlex(void);

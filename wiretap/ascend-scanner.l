@@ -1,7 +1,7 @@
 %{
 /* ascend-scanner.l
  *
- * $Id: ascend-scanner.l,v 1.8 1999/11/18 21:48:53 guy Exp $
+ * $Id: ascend-scanner.l,v 1.9 1999/11/24 19:29:45 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -40,8 +40,6 @@ extern char *ascend_ra_ptr;
 extern char *ascend_ra_last;
 #define YY_INPUT(buf,result,max_size) { int c = file_getc(yy_fh);  \
 result = (c==EOF) ? YY_NULL : (buf[0] = c, 1); } 
-
-struct ascend_phdr *pseudo_header;
 
 int at_eof;
 int mul, scratch;
