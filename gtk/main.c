@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.83 2000/01/06 07:33:33 guy Exp $
+ * $Id: main.c,v 1.84 2000/01/06 08:20:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -327,7 +327,6 @@ follow_charset_toggle_cb(GtkWidget *w, gpointer parent_w)
 	GtkWidget	*button, *text;
 	char		*filename;
 
-
 	button = (GtkWidget*) gtk_object_get_data(GTK_OBJECT(parent_w),
 						E_FOLLOW_ASCII_KEY);
 	text = (GtkWidget*) gtk_object_get_data(GTK_OBJECT(parent_w),
@@ -345,12 +344,84 @@ follow_charset_toggle_cb(GtkWidget *w, gpointer parent_w)
 	follow_load_text(text, filename, show_ascii);
 }
 
-static void follow_print_stream(GtkWidget *w, gpointer parent_w)
+#define FLT_BUF_SIZE 1024
+static void
+follow_read_stream(char *filename, gboolean show_ascii,
+   void (*print_line)(char *, int, gboolean, void *), void *arg)
 {
-       FILE *fh = NULL;
-       int to_file = -1;
-       char* print_dest = NULL;
+  tcp_stream_chunk sc;
+  int bcount;
+  guint32 client_addr = 0;
+  guint16 client_port = 0;
+
+  data_out_file = fopen( filename, "r" );
+  if( data_out_file ) {
+    char buffer[FLT_BUF_SIZE];
+    int nchars;
+    while(fread(&sc.src_addr, 1, sizeof(sc), data_out_file)) {
+      if (client_addr == 0) {
+        client_addr = sc.src_addr;
+        client_port = sc.src_port;
+      }
+        
+      while (sc.dlen > 0) {
+        bcount = (sc.dlen < FLT_BUF_SIZE) ? sc.dlen : FLT_BUF_SIZE;
+        nchars = fread( buffer, 1, bcount, data_out_file );
+        if (nchars == 0)
+          break;
+        sc.dlen -= bcount;
+        if (show_ascii) {
+		/* If our native arch is EBCDIC, call:
+		 * ASCII_TO_EBCDIC(buffer, nchars);
+		 */
+	}
+	else {
+		/* If our native arch is ASCII, call: */
+		EBCDIC_to_ASCII(buffer, nchars);
+	}
+        if (client_addr == sc.src_addr && client_port == sc.src_port)
+	  (*print_line)( buffer, nchars, FALSE, arg );
+	else
+	  (*print_line)( buffer, nchars, TRUE, arg );
+      }
+    }
+    if( ferror( data_out_file ) ) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        "Error reading temporary file %s: %s", filename, strerror(errno));
+    }
+    fclose( data_out_file );
+  } else {
+    simple_dialog(ESD_TYPE_WARN, NULL,
+      "Could not open temporary file %s: %s", filename, strerror(errno));
+  }
+}
+
+/*
+ * XXX - for text printing, we probably want to wrap lines at 80 characters;
+ * for PostScript printing, we probably want to wrap them at the appropriate
+ * width, and perhaps put some kind of dingbat (to use the technical term)
+ * to indicate a wrapped line, along the lines of what's done when displaying
+ * this in a window, as per Warren Young's suggestion.
+ *
+ * For now, we support only text printing.
+ */
+static void
+follow_print_text(char *buffer, int nchars, gboolean is_server, void *arg)
+{
+  FILE *fh = arg;
+
+  fwrite(buffer, nchars, 1, fh);
+}
+
+static void
+follow_print_stream(GtkWidget *w, gpointer parent_w)
+{
+       FILE *fh;
+       gboolean to_file;
+       char* print_dest;
        char* filename;
+       gboolean show_ascii = FALSE;
+       GtkWidget *button;
 
        switch (prefs.pr_dest) {
                case PR_DEST_CMD:
@@ -362,20 +433,16 @@ static void follow_print_stream(GtkWidget *w, gpointer parent_w)
                        print_dest = prefs.pr_file;
                        to_file = TRUE;
                        break;
+               default: /* "Can't happen" */
+                       simple_dialog(ESD_TYPE_WARN, NULL,
+                               "Couldn't figure out where to send the print "
+                               "job. Check your preferences.");
+                       return;
        }
 
-       if (print_dest != NULL) {
-               fh = open_print_dest(to_file, print_dest);
-       }
-
+       fh = open_print_dest(to_file, print_dest);
        if (fh == NULL) {
                switch (to_file) {
-                       case -1:
-                               simple_dialog(ESD_TYPE_WARN, NULL,
-                                               "Couldn't figure out where to send the print "
-                                               "job. Check your preferences.");
-                               break;
-
                        case FALSE:
                                simple_dialog(ESD_TYPE_WARN, NULL,
                                                "Couldn't run print command %s.", prefs.pr_cmd);
@@ -390,14 +457,17 @@ static void follow_print_stream(GtkWidget *w, gpointer parent_w)
                return;
        }
 
+       button = (GtkWidget*) gtk_object_get_data(GTK_OBJECT(parent_w),
+                       E_FOLLOW_ASCII_KEY);
+       if (GTK_TOGGLE_BUTTON(button)->active)
+               show_ascii = TRUE;
+
        filename = (char*) gtk_object_get_data(GTK_OBJECT(parent_w),
                        E_FOLLOW_FILENAME_KEY);
 
        if (filename != NULL) {
-               /* XXX - make this look at the preferences and print in
-	          PostScript if that's what the user specified. */
                print_preamble(fh, PR_FMT_TEXT);
-               print_file(fh, filename, PR_FMT_TEXT);
+               follow_read_stream(filename, show_ascii, follow_print_text, fh);
                print_finale(fh, PR_FMT_TEXT);
                close_print_dest(to_file, fh);
        }
@@ -406,14 +476,23 @@ static void follow_print_stream(GtkWidget *w, gpointer parent_w)
        }
 }
 
-#define FLT_BUF_SIZE 1024
+static void
+follow_add_to_gtk_text(char *buffer, int nchars, gboolean is_server, void *arg)
+{
+  GtkWidget *text = arg;
+
+  if (is_server)
+    gtk_text_insert( GTK_TEXT(text), m_r_font, &prefs.st_server_fg,
+            &prefs.st_server_bg, buffer, nchars );
+  else
+    gtk_text_insert( GTK_TEXT(text), m_r_font, &prefs.st_client_fg,
+            &prefs.st_client_bg, buffer, nchars );
+}
+
 static void
 follow_load_text(GtkWidget *text, char *filename, gboolean show_ascii)
 {
-  int bytes_already, bcount;
-  tcp_stream_chunk sc;
-  guint32 client_addr = 0;
-  guint16 client_port = 0;
+  int bytes_already;
 
   /* Delete any info already in text box */
   bytes_already = gtk_text_get_length(GTK_TEXT(text));
@@ -422,51 +501,10 @@ follow_load_text(GtkWidget *text, char *filename, gboolean show_ascii)
     gtk_text_forward_delete(GTK_TEXT(text), bytes_already);
   }
 
-    /* stop the updates while we fill the text box */
-    gtk_text_freeze( GTK_TEXT(text) );
-    data_out_file = fopen( filename, "r" );
-    if( data_out_file ) {
-      char buffer[FLT_BUF_SIZE];
-      int nchars;
-      while(fread(&sc.src_addr, 1, sizeof(sc), data_out_file)) {
-        if (client_addr == 0) {
-          client_addr = sc.src_addr;
-          client_port = sc.src_port;
-        }
-        
-        while (sc.dlen > 0) {
-          bcount = (sc.dlen < FLT_BUF_SIZE) ? sc.dlen : FLT_BUF_SIZE;
-	  nchars = fread( buffer, 1, bcount, data_out_file );
-          if (nchars == 0)
-            break;
-          sc.dlen -= bcount;
-	  if (show_ascii) {
-		  /* If our native arch is EBCDIC, call:
-		   * ASCII_TO_EBCDIC(buffer, nchars);
-		   */
-	  }
-	  else {
-		  /* If our native arch is ASCII, call: */
-		  EBCDIC_to_ASCII(buffer, nchars);
-	  }
-          if (client_addr == sc.src_addr && client_port == sc.src_port)
-	    gtk_text_insert( GTK_TEXT(text), m_r_font, &prefs.st_client_fg,
-              &prefs.st_client_bg, buffer, nchars );
-          else
-	    gtk_text_insert( GTK_TEXT(text), m_r_font, &prefs.st_server_fg,
-              &prefs.st_server_bg, buffer, nchars );
-	}
-      }
-      if( ferror( data_out_file ) ) {
-        simple_dialog(ESD_TYPE_WARN, NULL,
-          "Error reading temporary file %s: %s", filename, strerror(errno));
-      }
-      fclose( data_out_file );
-    } else {
-      simple_dialog(ESD_TYPE_WARN, NULL,
-        "Could not open temporary file %s: %s", filename, strerror(errno));
-    }
-    gtk_text_thaw( GTK_TEXT(text) );
+  /* stop the updates while we fill the text box */
+  gtk_text_freeze( GTK_TEXT(text) );
+  follow_read_stream(filename, show_ascii, follow_add_to_gtk_text, text);
+  gtk_text_thaw( GTK_TEXT(text) );
 }
 
 /* Match selected byte pattern */
