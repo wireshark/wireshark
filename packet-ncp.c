@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.57 2002/05/11 18:58:02 guy Exp $
+ * $Id: packet-ncp.c,v 1.58 2002/05/15 06:50:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 # include <netinet/in.h>
 #endif
 
+#include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
@@ -52,8 +53,26 @@ static int hf_ncp_type = -1;
 static int hf_ncp_seq = -1;
 static int hf_ncp_connection = -1;
 static int hf_ncp_task = -1;
+static int hf_ncp_stream_type = -1;
+static int hf_ncp_system_flags = -1;
+static int hf_ncp_system_flags_abt = -1;
+static int hf_ncp_system_flags_eob = -1;
+static int hf_ncp_system_flags_sys = -1;
+static int hf_ncp_src_connection = -1;
+static int hf_ncp_dst_connection = -1;
+static int hf_ncp_packet_seqno = -1;
+static int hf_ncp_delay_time = -1;
+static int hf_ncp_burst_seqno = -1;
+static int hf_ncp_ack_seqno = -1;
+static int hf_ncp_burst_len = -1;
+static int hf_ncp_data_offset = -1;
+static int hf_ncp_data_bytes = -1;
+static int hf_ncp_missing_fraglist_count = -1;
+static int hf_ncp_missing_data_offset = -1;
+static int hf_ncp_missing_data_count = -1;
 
 gint ett_ncp = -1;
+static gint ett_ncp_system_flags = -1;
 
 #define TCP_PORT_NCP		524
 #define UDP_PORT_NCP		524
@@ -104,7 +123,9 @@ static const value_string ncp_ip_signature[] = {
 
 */
 
-/* Every NCP packet has this common header */
+/*
+ * Every NCP packet has this common header (except for burst packets).
+ */
 struct ncp_common_header {
 	guint16	type;
 	guint8	sequence;
@@ -125,6 +146,13 @@ static value_string ncp_type_vals[] = {
 };
 
 
+/*
+ * Burst packet system flags.
+ */
+#define ABT	0x04		/* Abort request */
+#define EOB	0x10		/* End of burst */
+#define SYS	0x80		/* System packet */
+
 static void
 dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -134,8 +162,15 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	struct ncp_ip_rqhdr		ncpiphrq;
 	struct ncp_common_header	header;
 	guint16				nw_connection;
+	guint16				flags;
+	char				flags_str[1+3+1+3+1+3+1+1];
+	char				*sep;
+	proto_tree			*flags_tree = NULL;
+	guint16				data_len;
+	guint16				missing_fraglist_count;
 	int				hdr_offset = 0;
 	int				commhdr;
+	int				offset;
 	tvbuff_t       			*next_tvb;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -163,6 +198,12 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	header.conn_low		= tvb_get_guint8(tvb, commhdr+3);
 	header.conn_high	= tvb_get_guint8(tvb, commhdr+5);
 
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO,
+		    "%s",
+		    val_to_str(header.type, ncp_type_vals, "Unknown type (0x%04x)"));
+	}
+
 	nw_connection = (header.conn_high << 16) + header.conn_low;
 
 	if (tree) {
@@ -178,40 +219,162 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			};
 		};
 		proto_tree_add_uint(ncp_tree, hf_ncp_type,	tvb, commhdr + 0, 2, header.type);
+	}
+
+
+	switch (header.type) {
+
+	case 0x1111:	/* "Allocate Slot Request"? */
+	case 0x2222:	/* Server NCP Request */
 		proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
 		proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
 		proto_tree_add_item(ncp_tree, hf_ncp_task,	tvb, commhdr + 4, 1, FALSE);
-	}
-
-
-	if (header.type == 0x1111 || header.type == 0x2222) {
 		next_tvb = tvb_new_subset( tvb, hdr_offset, -1, -1 );
 		dissect_ncp_request(next_tvb, pinfo, nw_connection,
 			header.sequence, header.type, ncp_tree);
-	}
-	else if (header.type == 0x3333) {
+		break;
+
+	case 0x3333:	/* Server NCP Reply */
+		proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
+		proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
+		proto_tree_add_item(ncp_tree, hf_ncp_task,	tvb, commhdr + 4, 1, FALSE);
 		next_tvb = tvb_new_subset( tvb, hdr_offset, -1, -1 );
 		dissect_ncp_reply(next_tvb, pinfo, nw_connection,
 			header.sequence, ncp_tree);
-	}
-	else if (	header.type == 0x5555 ||
-			header.type == 0x7777 ||
-			header.type == 0x9999		) {
+		break;
 
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Type 0x%04x", header.type);
-		}
-
+	case 0x5555:	/* Deallocate Slot Request */
+	case 0x9999:	/* Positive Acknowledgement */
+		proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
+		proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
+		proto_tree_add_item(ncp_tree, hf_ncp_task,	tvb, commhdr + 4, 1, FALSE);
 		if (tree) {
 			proto_tree_add_text(ncp_tree, tvb, commhdr + 0, 2, "Type 0x%04x not supported yet", header.type);
 		}
+		break;
 
-		return;
-	}
- 	else {
+
+	case 0x7777:	/* Packet Burst Packet */
+		/*
+		 * XXX - we should keep track of whether there's a burst
+		 * outstanding on a connection and, if not, treat the
+		 * beginning of the data as a burst header.
+		 *
+		 * The burst header contains:
+		 *
+		 *	4 bytes of little-endian function number:
+		 *	    1 = read, 2 = write;
+		 *
+		 *	4 bytes of file handle;
+		 *
+		 *	8 reserved bytes;
+		 *
+		 *	4 bytes of big-endian file offset;
+		 *
+		 *	4 bytes of big-endian byte count.
+		 *
+		 * The data follows for a burst write operation.
+		 *
+		 * The first packet of a burst read reply contains:
+		 *
+		 *	4 bytes of little-endian result code:
+		 *	   0: No error
+		 *	   1: Initial error
+		 *	   2: I/O error
+		 *	   3: No data read;
+		 *
+		 *	4 bytes of returned byte count (big-endian?).
+		 *
+		 * The data follows.
+		 *
+		 * Each burst of a write request is responded to with a
+		 * burst packet with a 2-byte little-endian result code:
+		 *
+		 *	0: Write successful
+		 *	4: Write error
+		 */
+		flags = tvb_get_guint8(tvb, commhdr + 2);
+		strcpy(flags_str, "");
+		sep = " (";
+		if (flags & ABT) {
+			strcat(flags_str, sep);
+			strcat(flags_str, "ABT");
+			sep = ",";
+		}
+		if (flags & EOB) {
+			strcat(flags_str, sep);
+			strcat(flags_str, "EOB");
+			sep = ",";
+		}
+		if (flags & SYS) {
+			strcat(flags_str, sep);
+			strcat(flags_str, "SYS");
+		}
+		if (flags_str[0] != '\0')
+			strcat(flags_str, ")");
+		ti = proto_tree_add_uint_format(ncp_tree, hf_ncp_system_flags,
+		    tvb, commhdr + 2, 1, flags, "Flags: 0x%04x%s", flags,
+		    flags_str);
+		flags_tree = proto_item_add_subtree(ti, ett_ncp_system_flags);
+		proto_tree_add_item(flags_tree, hf_ncp_system_flags_abt,
+		    tvb, commhdr + 2, 1, FALSE);
+		proto_tree_add_item(flags_tree, hf_ncp_system_flags_eob,
+		    tvb, commhdr + 2, 1, FALSE);
+		proto_tree_add_item(flags_tree, hf_ncp_system_flags_sys,
+		    tvb, commhdr + 2, 1, FALSE);
+
+		proto_tree_add_item(ncp_tree, hf_ncp_stream_type,
+		    tvb, commhdr + 3, 1, FALSE);
+		proto_tree_add_item(ncp_tree, hf_ncp_src_connection,
+		    tvb, commhdr + 4, 4, FALSE);
+		proto_tree_add_item(ncp_tree, hf_ncp_dst_connection,
+		    tvb, commhdr + 8, 4, FALSE);
+		proto_tree_add_item(ncp_tree, hf_ncp_packet_seqno,
+		    tvb, commhdr + 12, 4, FALSE);
+		proto_tree_add_item(ncp_tree, hf_ncp_delay_time,
+		    tvb, commhdr + 16, 4, FALSE);
+		proto_tree_add_item(ncp_tree, hf_ncp_burst_seqno,
+		    tvb, commhdr + 20, 2, FALSE);
+		proto_tree_add_item(ncp_tree, hf_ncp_ack_seqno,
+		    tvb, commhdr + 22, 2, FALSE);
+		proto_tree_add_item(ncp_tree, hf_ncp_burst_len,
+		    tvb, commhdr + 24, 4, FALSE);
+		proto_tree_add_item(ncp_tree, hf_ncp_data_offset,
+		    tvb, commhdr + 28, 4, FALSE);
+		data_len = tvb_get_ntohs(tvb, commhdr + 32);
+		proto_tree_add_uint(ncp_tree, hf_ncp_data_bytes,
+		    tvb, commhdr + 32, 2, data_len);
+		missing_fraglist_count = tvb_get_ntohs(tvb, commhdr + 34);
+		proto_tree_add_item(ncp_tree, hf_ncp_missing_fraglist_count,
+		    tvb, commhdr + 34, 2, FALSE);
+		if (flags & SYS) {
+			/*
+			 * System packet; show missing fragments if there
+			 * are any.
+			 */
+			offset = commhdr + 36;
+			while (missing_fraglist_count != 0) {
+				proto_tree_add_item(ncp_tree, hf_ncp_missing_data_offset,
+				    tvb, offset, 4, FALSE);
+				proto_tree_add_item(ncp_tree, hf_ncp_missing_data_count,
+				    tvb, offset, 2, FALSE);
+				missing_fraglist_count--;
+			}
+		} else {
+			if (data_len != 0) {
+				proto_tree_add_text(ncp_tree, tvb, commhdr + 36,
+				    data_len, "Data");
+			}
+		}
+		break;
+
+	default:
 		/* The value_string for hf_ncp_type already indicates that this type is unknown.
 		 * Just return and do no more parsing. */
- 		return;
+		proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
+		proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
+		proto_tree_add_item(ncp_tree, hf_ncp_task,	tvb, commhdr + 4, 1, FALSE);
+		break;
  	}
 }
 
@@ -253,10 +416,79 @@ proto_register_ncp(void)
     { &hf_ncp_task,
       { "Task Number",     	"ncp.task",
 	FT_UINT8, BASE_DEC, NULL, 0x0,
-	"", HFILL }}
+	"", HFILL }},
+    { &hf_ncp_stream_type,
+      { "Stream Type",     	"ncp.stream_type",
+	FT_UINT8, BASE_HEX, NULL, 0x0,
+	"Type of burst", HFILL }},
+    { &hf_ncp_system_flags,
+      { "System Flags",     	"ncp.system_flags",
+	FT_UINT8, BASE_HEX, NULL, 0x0,
+	"", HFILL }},
+    { &hf_ncp_system_flags_abt,
+      { "ABT",     	"ncp.system_flags.abt",
+	FT_BOOLEAN, 8, NULL, ABT,
+	"Is this an abort request?", HFILL }},
+    { &hf_ncp_system_flags_eob,
+      { "EOB",     	"ncp.system_flags.eob",
+	FT_BOOLEAN, 8, NULL, EOB,
+	"Is this the last packet of the burst?", HFILL }},
+    { &hf_ncp_system_flags_sys,
+      { "SYS",     	"ncp.system_flags.sys",
+	FT_BOOLEAN, 8, NULL, SYS,
+	"Is this a system packet?", HFILL }},
+    { &hf_ncp_src_connection,
+      { "Source Connection ID",    "ncp.src_connection",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"The workstation's connection identification number", HFILL }},
+    { &hf_ncp_dst_connection,
+      { "Destination Connection ID",    "ncp.dst_connection",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"The server's connection identification number", HFILL }},
+    { &hf_ncp_packet_seqno,
+      { "Packet Sequence Number",    "ncp.packet_seqno",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"Sequence number of this packet in a burst", HFILL }},
+    { &hf_ncp_delay_time,
+      { "Delay Time",    "ncp.delay_time",	/* in 100 us increments */
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"Delay time between consecutive packet sends (100 us increments)", HFILL }},
+    { &hf_ncp_burst_seqno,
+      { "Burst Sequence Number",    "ncp.burst_seqno",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Sequence number of this packet in the burst", HFILL }},
+    { &hf_ncp_ack_seqno,
+      { "ACK Sequence Number",    "ncp.ack_seqno",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Next expected burst sequence number", HFILL }},
+    { &hf_ncp_burst_len,
+      { "Burst Length",    "ncp.burst_len",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"Total length of data in this burst", HFILL }},
+    { &hf_ncp_data_offset,
+      { "Data Offset",    "ncp.data_offset",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"Offset of this packet in the burst", HFILL }},
+    { &hf_ncp_data_bytes,
+      { "Data Bytes",    "ncp.data_bytes",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Number of data bytes in this packet", HFILL }},
+    { &hf_ncp_missing_fraglist_count,
+      { "Missing Fragment List Count",    "ncp.missing_fraglist_count",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Number of missing fragments reported", HFILL }},
+    { &hf_ncp_missing_data_offset,
+      { "Missing Data Offset",    "ncp.missing_data_offset",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"Offset of beginning of missing data", HFILL }},
+    { &hf_ncp_missing_data_count,
+      { "Missing Data Count",    "ncp.missing_data_count",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Number of bytes of missing data", HFILL }},
   };
   static gint *ett[] = {
     &ett_ncp,
+    &ett_ncp_system_flags,
   };
   module_t *ncp_module;
 
