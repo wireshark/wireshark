@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.24 2004/02/01 13:13:33 ulfl Exp $
+ * $Id: summary_dlg.c,v 1.25 2004/02/01 15:33:08 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -91,6 +91,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(file_fr);
 
   file_box = gtk_vbox_new(FALSE, 3);
+  gtk_container_border_width(GTK_CONTAINER(file_box), 5);
   gtk_container_add(GTK_CONTAINER(file_fr), file_box);
   gtk_widget_show(file_box);
 
@@ -118,6 +119,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(data_fr);
 
   data_box = gtk_vbox_new(FALSE, 3);
+  gtk_container_border_width(GTK_CONTAINER(data_box), 5);
   gtk_container_add(GTK_CONTAINER(data_fr), data_box);
   gtk_widget_show(data_box);
 
@@ -181,6 +183,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(filter_fr);
 
   filter_box = gtk_vbox_new( FALSE, 3);
+  gtk_container_border_width(GTK_CONTAINER(filter_box), 5);
   gtk_container_add(GTK_CONTAINER(filter_fr), filter_box);
   gtk_widget_show(filter_box);
 
@@ -252,6 +255,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(capture_fr);
 
   capture_box = gtk_vbox_new(FALSE, 3);
+  gtk_container_border_width(GTK_CONTAINER(capture_box), 5);
   gtk_container_add(GTK_CONTAINER(capture_fr), capture_box);
   gtk_widget_show(capture_box);
 
