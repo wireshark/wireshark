@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.24 2002/06/30 11:33:27 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.25 2002/06/30 11:42:47 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,7 +138,6 @@ static int hf_netlogon_logonsrv_handle = -1;
 
 static gint ett_dcerpc_netlogon = -1;
 static gint ett_NETLOGON_SECURITY_DESCRIPTOR = -1;
-static gint ett_TYPE_2 = -1;
 static gint ett_CYPHER_BLOCK = -1;
 static gint ett_NETLOGON_AUTHENTICATOR = -1;
 static gint ett_NETLOGON_LOGON_IDENTITY_INFO = -1;
@@ -345,6 +344,75 @@ netlogon_dissect_netlogonuaslogon_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+/*
+ * IDL typedef struct {
+ * IDL   long duration;
+ * IDL   short logon_count;
+ * IDL } LOGOFF_UAS_INFO;
+ */
+static int
+netlogon_dissect_LOGOFF_UAS_INFO(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *tree,
+			char *drep)
+{
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	proto_tree_add_text(tree, tvb, offset, 4, "Duration: unknown time format");
+	offset+= 4;
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_logon_count16, NULL);
+
+	return offset;
+}
+
+/*
+ * IDL long NetLogonUasLogoff(
+ * IDL      [in][unique][string] wchar_t *ServerName,
+ * IDL      [in][ref][string] wchar_t *UserName,
+ * IDL      [in][ref][string] wchar_t *Workstation,
+ * IDL      [out][ref] LOGOFF_UAS_INFO *info
+ * IDL );
+ */
+static int
+netlogon_dissect_netlogonuaslogoff_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_REF,
+		"Account", hf_netlogon_acct_name, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_REF,
+		"Workstation", hf_netlogon_workstation, 0);
+
+	return offset;
+}
+
+
+static int
+netlogon_dissect_netlogonuaslogoff_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_LOGOFF_UAS_INFO, NDR_POINTER_REF,
+		"LOGOFF_UAS_INFO", -1, 0);
+
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
+
+	return offset;
+}
+
 
 
 
@@ -461,30 +529,6 @@ netlogon_dissect_NETLOGON_SECURITY_DESCRIPTOR(tvbuff_t *tvb, int offset,
 }
 
 
-static int
-netlogon_dissect_TYPE_2(tvbuff_t *tvb, int offset,
-			packet_info *pinfo, proto_tree *parent_tree,
-			char *drep)
-{
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
- 	int old_offset=offset;
-
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
-			"TYPE_2:");
-		tree = proto_item_add_subtree(item, ett_TYPE_2);
-	}
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, NULL);
-
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_short, NULL);
-
-	proto_item_set_len(item, offset-old_offset);
-	return offset;
-}
 #if 0
 static int
 netlogon_dissect_CYPHER_BLOCK(tvbuff_t *tvb, int offset,
@@ -3403,39 +3447,6 @@ netlogon_dissect_TYPE_47(tvbuff_t *tvb, int offset,
 
 
 static int
-netlogon_dissect_netlogonuaslogoff_rqst(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
-{
-	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
-		pinfo, tree, drep);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_REF,
-		"unknown string", hf_netlogon_unknown_string, -1);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_REF,
-		"unknown string", hf_netlogon_unknown_string, -1);
-
-	return offset;
-}
-
-
-static int
-netlogon_dissect_netlogonuaslogoff_reply(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
-{
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_TYPE_2, NDR_POINTER_REF,
-		"TYPE_2 pointer: unknown_TYPE_2", -1, 0);
-
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_netlogon_rc, NULL);
-
-	return offset;
-}
-
-static int
 netlogon_dissect_netlogonsamlogon_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
@@ -5626,7 +5637,6 @@ static hf_register_info hf[] = {
         static gint *ett[] = {
                 &ett_dcerpc_netlogon,
 		&ett_NETLOGON_SECURITY_DESCRIPTOR,
-		&ett_TYPE_2,
 		&ett_CYPHER_BLOCK,
 		&ett_NETLOGON_AUTHENTICATOR,
 		&ett_NETLOGON_LOGON_IDENTITY_INFO,
