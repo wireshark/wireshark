@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.66 2004/03/13 10:15:35 jmayer Exp $
+# $Id: configure.in,v 1.67 2004/03/17 18:20:58 jmayer Exp $
 #
 AC_INIT(epan.c)
 
@@ -177,6 +177,43 @@ else
 	AC_MSG_RESULT(yes)
 	AC_ETHEREAL_IPV6_STACK
 fi
+
+
+dnl kerberos/heimdal check
+AC_MSG_CHECKING(whether to use kerberos/heimdal)
+
+AC_ARG_WITH(krb5,
+changequote(<<, >>)dnl
+<<  --with-krb5[=DIR]       use kerberos/heimdal (located in directory DIR, if supplied) to use in kerberos dissection  [default=no]>>,
+changequote([, ])dnl
+[
+	if test $withval = no
+	then
+		want_krb5=no
+	elif test $withval = yes
+	then
+		want_krb5=yes
+	else
+		want_krb5=no
+		krb5_dir=$withval
+	fi
+],[
+	#
+	# Use kerberos/heimdal if it's present, otherwise don't.
+	#
+	want_krb5=no
+	krb5_dir=
+])
+if test "x$want_krb5" = "xno" ; then
+        AC_MSG_RESULT(no)
+else
+        AC_MSG_RESULT(yes)
+        AC_ETHEREAL_KRB5_CHECK
+	if test "x$want_krb5" = "xno" ; then
+		AC_MSG_RESULT(heimdal not found - disabling dissection for some kerberos data in packet decoding)
+	fi
+fi
+
 
 AC_CHECK_FUNC(inet_aton, INET_ATON_O="",
   INET_ATON_O="inet_aton.lo")

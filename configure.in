@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.250 2004/03/04 06:28:42 guy Exp $
+# $Id: configure.in,v 1.251 2004/03/17 18:20:57 jmayer Exp $
 #
 AC_INIT(etypes.h)
 
@@ -701,6 +701,43 @@ fi
 
 AC_SUBST(SNMP_LIBS)
 
+
+dnl kerberos/heimdal check
+AC_MSG_CHECKING(whether to use kerberos/heimdal)
+
+AC_ARG_WITH(krb5,
+changequote(<<, >>)dnl
+<<  --with-krb5[=DIR]       use kerberos/heimdal (located in directory DIR, if supplied) to use in kerberos dissection  [default=no]>>,
+changequote([, ])dnl
+[
+	if test $withval = no
+	then
+		want_krb5=no
+	elif test $withval = yes
+	then
+		want_krb5=yes
+	else
+		want_krb5=no
+		krb5_dir=$withval
+	fi
+],[
+	#
+	# Use kerberos/heimdal if it's present, otherwise don't.
+	#
+	want_krb5=no
+	krb5_dir=
+])
+if test "x$want_krb5" = "xno" ; then
+        AC_MSG_RESULT(no)
+else
+        AC_MSG_RESULT(yes)
+        AC_ETHEREAL_KRB5_CHECK
+	if test "x$want_krb5" = "xno" ; then
+		AC_MSG_RESULT(heimdal not found - disabling dissection for some kerberos data in packet decoding)
+	fi
+fi
+
+
 dnl ADNS Check
 ADNS_LIBS=''
 AC_MSG_CHECKING(whether to use the GNU ADNS library if available)
@@ -916,6 +953,12 @@ else
 	pcre_message="yes"
 fi
 
+if test "x$want_krb5" = "xno" ; then
+	krb5_message="no"
+else
+	krb5_message="yes (heimdal)"
+fi
+
 if test "x$have_good_adns" = "xyes" ; then
 	adns_message="yes"
 else
@@ -951,6 +994,7 @@ fi
 echo "                  Use pcap library : $want_pcap"
 echo "                  Use zlib library : $zlib_message"
 echo "                  Use pcre library : $pcre_message"
+echo "              Use kerberos library : $krb5_message"
 echo "              Use GNU ADNS library : $adns_message"
 echo "          Use IPv6 name resolution : $enable_ipv6"
 echo "     Use UCD SNMP/NET-SNMP library : $snmp_libs_message"

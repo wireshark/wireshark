@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.721 2004/03/14 08:07:16 jmayer Exp $
+# $Id: Makefile.am,v 1.722 2004/03/17 18:20:57 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -369,6 +369,7 @@ EXTRA_DIST = \
 	README.hpux		\
 	README.irix		\
 	README.linux		\
+	REAMDE.macos		\
 	README.tru64		\
 	README.vmware		\
 	README.win32		\

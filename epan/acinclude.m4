@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.6 2003/12/17 02:41:04 guy Exp $
+dnl $Id: acinclude.m4,v 1.7 2004/03/17 18:20:58 jmayer Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -288,3 +288,120 @@ AC_DEFUN(AC_ETHEREAL_LIBPCRE_CHECK,
 		AC_SUBST(PCRE_LIBS)
 	fi
 ])
+
+
+#
+# AC_ETHEREAL_KRB5_CHECK
+#
+AC_DEFUN(AC_ETHEREAL_KRB5_CHECK,
+[
+	if test "x$krb5_dir" != "x"
+	then
+	  #
+	  # The user specified a directory in which kerberos resides,
+	  # so add the "include" subdirectory of that directory to
+	  # the include file search path and the "lib" subdirectory
+	  # of that directory to the library search path.
+	  #
+	  # XXX - if there's also a kerberos in a directory that's
+	  # already in CFLAGS, CPPFLAGS, or LDFLAGS, this won't
+	  # make us find the version in the specified directory,
+	  # as the compiler and/or linker will search that other
+	  # directory before it searches the specified directory.
+	  #
+	  ethereal_save_CFLAGS="$CFLAGS"
+	  CFLAGS="$CFLAGS -I$krb5_dir/include"
+	  ethereal_save_CPPFLAGS="$CPPFLAGS"
+	  CPPFLAGS="$CPPFLAGS -I$krb5_dir/include"
+	  ethereal_save_LIBS="$LIBS"
+	  LIBS="$LIBS -lkrb5 -lasn1 -lcrypto -lroken -lcrypt -lresolv"
+	  ethereal_save_LDFLAGS="$LDFLAGS"
+	  LDFLAGS="$LDFLAGS -L$krb5_dir/lib"
+	else
+	  AC_PATH_PROG(KRB5_CONFIG, krb5-config) 
+	  if test -x $KRB5_CONFIG
+	  then
+	    KRB5_FLAGS=`$KRB5_CONFIG --cflags`
+	    CFLAGS="$CFLAGS $KRB5_FLAGS"
+            CPPFLAGS="$CPPFLAGS $KRB5_FLAGS"
+	    KRB5_LIBS=`$KRB5_CONFIG --libs`
+	    LIBS="$LIBS $KRB5_LIBS"
+	    ac_krb5_version=`$KRB5_CONFIG --version | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/i'`
+ 	  fi
+	fi
+
+	#
+	# Make sure we have "krb5.h".  If we don't, it means we probably
+	# don't have kerberos, so don't use it.
+	#
+	AC_CHECK_HEADER(krb5.h,,
+	  [
+	    if test "x$krb5_dir" != "x"
+	    then
+	      #
+	      # The user used "--with-krb5=" to specify a directory
+	      # containing kerberos, but we didn't find the header file
+	      # there; that either means they didn't specify the
+	      # right directory or are confused about whether kerberos
+	      # is, in fact, installed.  Report the error and give up.
+	      #
+	      AC_MSG_ERROR([kerberos header not found in directory specified in --with-krb5])
+	    else
+	      if test "x$want_krb5" = "xyes"
+	      then
+		#
+		# The user tried to force us to use the library, but we
+		# couldn't find the header file; report an error.
+		#
+		AC_MSG_ERROR(Header file krb5.h not found.)
+	      else
+		#
+		# We couldn't find the header file; don't use the
+		# library, as it's probably not present.
+		#
+		want_krb5=no
+	      fi
+	    fi
+	  ])
+
+	if test "x$want_krb5" != "xno" -a "x$ac_krb5_version" = "xHEIMDAL"
+	then
+		#
+		# Well, we at least have the krb5 header file.
+		#
+		AC_CHECK_LIB(krb5, krb5_kt_resolve,
+		[
+			if test "x$krb5_dir" != "x"
+			then
+				#
+				# Put the "-I" and "-L" flags for pcre at
+				# the beginning of CFLAGS, CPPFLAGS,
+				# LDFLAGS, and LIBS.
+				#
+				KRB5_LIBS="-L$krb5_dir/lib $KRB5_LIBS"
+			fi
+			AC_DEFINE(HAVE_KERBEROS, 1, [Define to use kerberos])
+			AC_DEFINE(HAVE_HEIMDAL_KERBEROS, 1, [Define to use heimdal kerberos])
+		],[
+			if test "x$krb5_dir" != "x"
+			then
+				#
+				# Restore the versions of CFLAGS, CPPFLAGS,
+				# LDFLAGS, and LIBS before we added the
+				# "--with-krb5=" directory, as we didn't
+				# actually find kerberos there.
+				#
+				CFLAGS="$ethereal_save_CFLAGS"
+				CPPFLAGS="$ethereal_save_CPPFLAGS"
+				LDFLAGS="$ethereal_save_LDFLAGS"
+				LIBS="$ethereal_save_LIBS"
+				KRB5_LIBS=""
+			fi
+			want_krb5=no
+		])
+		AC_SUBST(KRB5_LIBS)
+	else
+		want_krb5=no
+	fi
+])
+
