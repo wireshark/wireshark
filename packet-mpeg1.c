@@ -2,7 +2,7 @@
  *
  * Routines for RFC 2250 MPEG-1 dissection
  *
- * $Id: packet-mpeg1.c,v 1.9 2002/08/28 21:00:22 jmayer Exp $
+ * $Id: packet-mpeg1.c,v 1.10 2003/08/23 06:36:46 guy Exp $
  *
  * Copyright 2001,
  * Francisco Javier Cabello Torres, <fjcabello@vtools.es>
@@ -28,8 +28,6 @@
 
 /*
  * This dissector tries to dissect the MPEG-1 video streams.
- *
- * This dissector is called by the RTP dissector
  */
 
 
@@ -42,6 +40,8 @@
 
 #include <stdio.h>
 #include <string.h>
+
+#include "rtp_pt.h"
 
 #define RTP_MPG_MBZ(word) ( word >> 11)
 #define RTP_MPG_T(word)   ( (word >> 10) & 1 )
@@ -382,6 +382,13 @@ proto_register_mpeg1(void)
 	proto_mpg = proto_register_protocol("RFC 2250 MPEG1","MPEG1","mpeg1");
 	proto_register_field_array(proto_mpg, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
 
-	register_dissector("mpeg1", dissect_mpeg1, proto_mpg);
+void
+proto_reg_handoff_mpeg1(void)
+{
+	dissector_handle_t mpeg1_handle;
+
+	mpeg1_handle = create_dissector_handle(dissect_mpeg1, proto_mpg);
+	dissector_add("rtp.pt", PT_MPV, mpeg1_handle);
 }

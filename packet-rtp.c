@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.40 2003/08/23 04:18:18 sahlberg Exp $
+ * $Id: packet-rtp.c,v 1.41 2003/08/23 06:36:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,10 +62,13 @@
 #include <string.h>
 
 #include "packet-rtp.h"
+#include "rtp_pt.h"
 #include <epan/conversation.h>
 #include "tap.h"
 
 static int rtp_tap = -1;
+
+static dissector_table_t rtp_pt_dissector_table;
 
 /* RTP header fields             */
 static int proto_rtp           = -1;
@@ -93,9 +96,6 @@ static gint ett_rtp       = -1;
 static gint ett_csrc_list = -1;
 static gint ett_hdr_ext   = -1;
 
-static dissector_handle_t h261_handle;
-static dissector_handle_t h263_handle;
-static dissector_handle_t mpeg1_handle;
 static dissector_handle_t data_handle;
 
 static gboolean dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo,
@@ -137,40 +137,6 @@ static const value_string rtp_version_vals[] =
 
 /* Payload type is the last 7 bits */
 #define RTP_PAYLOAD_TYPE(octet)	((octet) & 0x7F)
-
-/*
- * RTP Payload types
- * Table B.2 / H.225.0
- * Also RFC 1890, and
- *
- *	http://www.iana.org/assignments/rtp-parameters
- */
-#define PT_PCMU		0	/* RFC 1890 */
-#define PT_1016		1	/* RFC 1890 */
-#define PT_G721		2	/* RFC 1890 */
-#define PT_GSM		3	/* RFC 1890 */
-#define PT_G723		4	/* From Vineet Kumar of Intel; see the Web page */
-#define PT_DVI4_8000	5	/* RFC 1890 */
-#define PT_DVI4_16000	6	/* RFC 1890 */
-#define PT_LPC		7	/* RFC 1890 */
-#define PT_PCMA		8	/* RFC 1890 */
-#define PT_G722		9	/* RFC 1890 */
-#define PT_L16_STEREO	10	/* RFC 1890 */
-#define PT_L16_MONO	11	/* RFC 1890 */
-#define PT_QCELP	12	/* Qualcomm Code Excited Linear Predictive coding? */
-#define PT_CN		13	/* RFC 3389 */
-#define PT_MPA		14	/* RFC 1890, RFC 2250 */
-#define PT_G728		15	/* RFC 1890 */
-#define PT_DVI4_11025	16	/* from Joseph Di Pol of Sun; see the Web page */
-#define PT_DVI4_22050	17	/* from Joseph Di Pol of Sun; see the Web page */
-#define PT_G729		18
-#define PT_CELB		25	/* RFC 2029 */
-#define PT_JPEG		26	/* RFC 2435 */
-#define PT_NV		28	/* RFC 1890 */
-#define PT_H261		31	/* RFC 2032 */
-#define PT_MPV		32	/* RFC 2250 */
-#define PT_MP2T		33	/* RFC 2250 */
-#define PT_H263		34	/* from Chunrong Zhu of Intel; see the Web page */
 
 static const value_string rtp_payload_type_vals[] =
 {
@@ -311,29 +277,10 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	tvbuff_t *newtvb;
 
-	switch( payload_type ) {
-		case PT_H261:
-			newtvb = tvb_new_subset( tvb, offset, data_len,
-			    data_reported_len );
-			call_dissector(h261_handle, newtvb, pinfo, tree);
-			break;
-
-                case PT_H263:
-                        newtvb = tvb_new_subset( tvb, offset, data_len,
-                            data_reported_len );
-                        call_dissector(h263_handle, newtvb, pinfo, tree);
-                        break;
- 
-		case PT_MPV:
-			newtvb = tvb_new_subset( tvb, offset, data_len,
-			    data_reported_len );
-			call_dissector(mpeg1_handle, newtvb, pinfo, tree);
-			break;
-
-		default:
-			proto_tree_add_item( rtp_tree, hf_rtp_data, tvb, offset, data_len, FALSE );
-			break;
-	}
+	newtvb = tvb_new_subset( tvb, offset, data_len, data_reported_len );
+	if (!dissector_try_port(rtp_pt_dissector_table, payload_type, newtvb,
+	    pinfo, tree))
+		proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
 }
 
 static void
@@ -805,6 +752,9 @@ proto_register_rtp(void)
 	register_dissector("rtp", dissect_rtp, proto_rtp);
 	rtp_tap = register_tap("rtp");
 
+	rtp_pt_dissector_table = register_dissector_table("rtp.pt",
+	    "RTP payload type", FT_UINT8, BASE_DEC);
+
 #if 0
 	register_init_routine( &rtp_init );
 #endif
@@ -815,12 +765,6 @@ proto_reg_handoff_rtp(void)
 {
 	dissector_handle_t rtp_handle;
 
-	/*
-	 * Get handles for the H.261 and MPEG-1 dissectors.
-	 */
-	h261_handle = find_dissector("h261");
-        h263_handle = find_dissector("h263");
-	mpeg1_handle = find_dissector("mpeg1");
 	data_handle = find_dissector("data");
 
 	/*

@@ -5,7 +5,7 @@
  * Copyright 2003 Niklas Ögren <niklas.ogren@7l.se>
  * Seven Levels Consultants AB
  *
- * $Id: packet-h263.c,v 1.1 2003/08/23 04:19:22 sahlberg Exp $
+ * $Id: packet-h263.c,v 1.2 2003/08/23 06:36:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,8 +31,6 @@
 /*
  * This dissector tries to dissect the H.263 protocol according to
  * ITU-T Recommendations and RFC 2190
- *
- * This dissector is called by the RTP dissector
  */
 
 
@@ -45,6 +43,8 @@
 
 #include <stdio.h>
 #include <string.h>
+
+#include "rtp_pt.h"
 
 /* H.263 header fields             */
 static int proto_h263          = -1;
@@ -485,6 +485,13 @@ proto_register_h263(void)
 	    "H.263", "h263");
 	proto_register_field_array(proto_h263, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
 
-	register_dissector("h263", dissect_h263, proto_h263);
+void
+proto_reg_handoff_h263(void)
+{
+	dissector_handle_t h263_handle;
+
+	h263_handle = create_dissector_handle(dissect_h263, proto_h263);
+	dissector_add("rtp.pt", PT_H263, h263_handle);
 }

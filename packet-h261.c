@@ -2,7 +2,7 @@
  *
  * Routines for ITU-T Recommendation H.261 dissection
  *
- * $Id: packet-h261.c,v 1.18 2003/01/03 20:42:43 sahlberg Exp $
+ * $Id: packet-h261.c,v 1.19 2003/08/23 06:36:46 guy Exp $
  *
  * Copyright 2000, Philips Electronics N.V.
  * Andreas Sikkema <andreas.sikkema@philips.com>
@@ -29,8 +29,6 @@
 /*
  * This dissector tries to dissect the H.261 protocol according to Annex C
  * of ITU-T Recommendation H.225.0 (02/98)
- *
- * This dissector is called by the RTP dissector
  */
 
 
@@ -43,6 +41,8 @@
 
 #include <stdio.h>
 #include <string.h>
+
+#include "rtp_pt.h"
 
 /* H.261 header fields             */
 static int proto_h261          = -1;
@@ -251,6 +251,13 @@ proto_register_h261(void)
 	    "H.261", "h261");
 	proto_register_field_array(proto_h261, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
 
-	register_dissector("h261", dissect_h261, proto_h261);
+void
+proto_reg_handoff_h261(void)
+{
+	dissector_handle_t h261_handle;
+
+	h261_handle = create_dissector_handle(dissect_h261, proto_h261);
+	dissector_add("rtp.pt", PT_H261, h261_handle);
 }
