@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.33 2001/06/18 05:54:26 guy Exp $
+ * $Id: packet-icq.c,v 1.34 2001/06/18 06:31:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1781,12 +1781,15 @@ dissect_icqv5Client(tvbuff_t *tvb,
 
     /*
      * Make a copy of the packet data, and decrypt it.
-     * The decryption processes 4 bytes at a time, so we round the
-     * size of the ICQ content to a multiple of 4, allocate enough
-     * space for that many bytes, and pass that to "decrypt_v5()"
-     * as the number of bytes to decrypt.
+     * The decryption processes 4 bytes at a time, and starts at
+     * an offset of ICQ5_CL_SESSIONID (which isn't a multiple of 4),
+     * so we make sure that there are
+     *
+     *	(ICQ5_CL_SESSIONID + a multiple of 4)
+     *
+     * bytes in the buffer.
      */
-    rounded_size = ((pktsize + 3)/4)*4;
+    rounded_size = ((((pktsize - ICQ5_CL_SESSIONID) + 3)/4)*4) + ICQ5_CL_SESSIONID;
     decr_pd = g_malloc(rounded_size);
     tvb_memcpy(tvb, decr_pd, 0, pktsize);
     decrypt_v5(decr_pd, rounded_size, key);
