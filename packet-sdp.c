@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.13 2000/11/12 21:23:53 guy Exp $
+ * $Id: packet-sdp.c,v 1.14 2000/11/13 01:43:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -65,12 +65,26 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	pinfo->current_proto = "SDP";
 
+	/*
+	 * As RFC 2327 says, "SDP is purely a format for session
+	 * description - it does not incorporate a transport protocol,
+	 * and is intended to use different transport protocols as
+	 * appropriate including the Session Announcement Protocol,
+	 * Session Initiation Protocol, Real-Time Streaming Protocol,
+	 * electronic mail using the MIME extensions, and the
+	 * Hypertext Transport Protocol."
+	 *
+	 * We therefore don't set the protocol or info columns;
+	 * instead, we append to them, so that we don't erase
+	 * what the protocol inside which the SDP stuff resides
+	 * put there.
+	 */
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_append_str(pinfo->fd, COL_PROTOCOL, "/SDP");
 
 	if (check_col(pinfo->fd, COL_INFO)) {
 		/* XXX: Needs description. */
-		col_add_str(pinfo->fd, COL_INFO, "Session Description");
+		col_append_str(pinfo->fd, COL_INFO, ", with session description");
 	}
 
 	if (!tree)
