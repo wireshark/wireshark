@@ -2075,6 +2075,8 @@ B<http://www.ethereal.com>.
   Felix Fei                <felix.fei [AT] utstar.com>
   Christoph Neusch         <christoph.neusch [AT] nortelnetworks.com>
   Jan Kiszka               <jan.kiszka [AT] web.de>
+  Joshua Craig Douglas     <jdouglas [AT] enterasys.com>
+  Dick Gooris              <gooris [AT] lucent.com>
   Pavel Roskin             <proski [AT] gnu.org>
   Georgi Guninski          <guninski [AT] guninski.com>
   Jason Copenhaver         <jcopenha [AT] typedef.org>
@@ -2105,8 +2107,7 @@ B<http://www.ethereal.com>.
                            <melerski [AT] poczta.onet.pl>
   Arnaud Jacques           <webmaster [AT] securiteinfo.com>
   D. Manzella              <manzella [AT] lucent.com>
-  Joshua Craig Douglas     <jdouglas [AT] enterasys.com>
-  Dick Gooris              <gooris [AT] lucent.com>
+  Jari Mustajarvi          <jari.mustajarvi [AT] nokia.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

@@ -8,7 +8,7 @@
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-sccp.c,v 1.19 2003/12/18 00:43:48 guy Exp $
+ * $Id: packet-sccp.c,v 1.20 2004/01/08 20:19:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1549,6 +1549,8 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     proto_tree_add_uint(sccp_tree, hf_var, tvb, \
 			offset, ptr_size, var); \
     var += offset; \
+    if (ptr_size == POINTER_LENGTH_LONG) \
+	var += 1; \
     offset += ptr_size;
 
 /* Macro for getting pointer to optional parameters */
@@ -1560,6 +1562,8 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     proto_tree_add_uint(sccp_tree, hf_sccp_optional_pointer, tvb, \
 			offset, ptr_size, optional_pointer); \
     optional_pointer += offset; \
+    if (ptr_size == POINTER_LENGTH_LONG) \
+	optional_pointer += 1; \
     offset += ptr_size;
 
 
