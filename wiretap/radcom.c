@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.39 2002/08/28 20:30:45 jmayer Exp $
+ * $Id: radcom.c,v 1.40 2002/12/17 21:53:57 oabad Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -48,8 +48,18 @@ struct unaligned_frame_date {
 	char	usec[4];
 };
 
+/* Found at the beginning of the file. Bytes 2 and 3 (D2:00) seem to be
+ * different in some captures */
 static guint8 radcom_magic[8] = {
 	0x42, 0xD2, 0x00, 0x34, 0x12, 0x66, 0x22, 0x88
+};
+
+static guint8 encap_magic[4] = {
+    0x00, 0x42, 0x43, 0x09
+};
+
+static guint8 active_time_magic[11] = {
+	0x41, 0x63, 0x74, 0x69, 0x76, 0x65, 0x20, 0x54, 0x69, 0x6d, 0x65
 };
 
 /* RADCOM record header - followed by frame data (perhaps including FCS).
@@ -79,17 +89,14 @@ static gboolean radcom_read_rec_data(FILE_T fh, guchar *pd, int length,
 int radcom_open(wtap *wth, int *err)
 {
 	int bytes_read;
-	char magic[8];
+	guint8 r_magic[8], t_magic[11], search_encap[7];
 	struct frame_date start_date;
 	guint32 sec;
 	struct tm tm;
-	char byte;
-	char encap_magic[4] = {0x00, 0x42, 0x43, 0x09};
-	char search_encap[7];
 
 	/* Read in the string that should be at the start of a RADCOM file */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(magic, 1, 8, wth->fh);
+	bytes_read = file_read(r_magic, 1, 8, wth->fh);
 	if (bytes_read != 8) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -97,37 +104,48 @@ int radcom_open(wtap *wth, int *err)
 		return 0;
 	}
 
-	if (memcmp(magic, radcom_magic, 8) != 0) {
+        /* XXX: bytes 2 and 3 of the "magic" header seem to be different in some
+         * captures. We force them to our standard value so that the test
+         * succeeds (until we find if they have a special meaning, perhaps a
+         * version number ?) */
+        r_magic[1] = 0xD2;
+        r_magic[2] = 0x00;
+	if (memcmp(r_magic, radcom_magic, 8) != 0) {
 		return 0;
 	}
 
-	if (file_seek(wth->fh, 0x8B, SEEK_SET, err) == -1)
-		return -1;
-	wth->data_offset = 0x8B;
+        /* Look for the "Active Time" string. The "frame_date" structure should
+         * be located 32 bytes before the beginning of this string */
+	wth->data_offset = 8;
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&byte, 1, 1, wth->fh);
-	if (bytes_read != 1) {
+	bytes_read = file_read(t_magic, 1, 11, wth->fh);
+	if (bytes_read != 11) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += 1;
-	while (byte) {
-		errno = WTAP_ERR_CANT_READ;
-		bytes_read = file_read(&byte, 1, 1, wth->fh);
-		if (bytes_read != 1) {
-			*err = file_error(wth->fh);
-			if (*err != 0)
-				return -1;
-			return 0;
-		}
-		wth->data_offset += 1;
-	}
+        while (memcmp(t_magic, active_time_magic, 11) != 0)
+        {
+            if (file_seek(wth->fh, -10, SEEK_CUR, err) == -1)
+                return -1;
+            wth->data_offset += 1;
+            errno = WTAP_ERR_CANT_READ;
+            bytes_read = file_read(t_magic, 1, 11, wth->fh);
+            if (bytes_read != 11) {
+                *err = file_error(wth->fh);
+                if (*err != 0)
+                    return -1;
+                return 0;
+            }
+        }
+        if (file_seek(wth->fh, -43, SEEK_CUR, err) == -1) return -1;
+	wth->data_offset -= 32;
 
 	/* Get capture start time */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&start_date, 1, sizeof(struct frame_date), wth->fh);
+	bytes_read = file_read(&start_date, 1, sizeof(struct frame_date),
+                               wth->fh);
 	if (bytes_read != sizeof(struct frame_date)) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -140,7 +158,7 @@ int radcom_open(wtap *wth, int *err)
 	wth->file_type = WTAP_FILE_RADCOM;
 	wth->subtype_read = radcom_read;
 	wth->subtype_seek_read = radcom_seek_read;
-	wth->snapshot_length = 0;	/* not available in header, only in frame */
+	wth->snapshot_length = 0; /* not available in header, only in frame */
 
 	tm.tm_year = pletohs(&start_date.year)-1900;
 	tm.tm_mon = start_date.month-1;
