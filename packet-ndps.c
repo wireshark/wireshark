@@ -3,7 +3,7 @@
  * Greg Morris <gmorris@novell.com>
  * Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ndps.c,v 1.15 2003/04/08 03:00:32 guy Exp $
+ * $Id: packet-ndps.c,v 1.16 2003/04/09 08:43:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3300,6 +3300,25 @@ get_ndps_pdu_len(tvbuff_t *tvb, int offset)
 }
 
 static void
+dissect_ndps_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    proto_tree	    *ndps_tree = NULL;
+    proto_item	    *ti;
+
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDPS");
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_clear(pinfo->cinfo, COL_INFO);
+	
+    if (tree) {
+        ti = proto_tree_add_item(tree, proto_ndps, tvb, 0, -1, FALSE);
+        ndps_tree = proto_item_add_subtree(ti, ett_ndps);
+    }
+    dissect_ndps(tvb, pinfo, ndps_tree);
+}
+
+static void
 ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint16         record_mark=0;
@@ -3429,26 +3448,8 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ndps_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree	    *ndps_tree = NULL;
-    proto_item	    *ti;
-
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDPS");
-
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
-	
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_ndps, tvb, 0, -1, FALSE);
-        ndps_tree = proto_item_add_subtree(ti, ett_ndps);
-    }
-    tcp_dissect_pdus(tvb, pinfo, ndps_tree, ndps_desegment, 4, get_ndps_pdu_len,
-	dissect_ndps);
-    if (tvb_length_remaining(tvb, 0) < 8)
-    {
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_set_str(pinfo->cinfo, COL_INFO, "Ack");
-    }
+    tcp_dissect_pdus(tvb, pinfo, tree, ndps_desegment, 4, get_ndps_pdu_len,
+	dissect_ndps_pdu);
 }
 
 
@@ -3475,7 +3476,7 @@ static void
 dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, guint32 ndps_prog, guint32 ndps_func, int foffset)
 {
     ndps_req_hash_value	*request_value = NULL;
-    conversation_t		*conversation;
+    conversation_t      *conversation;
     guint32             i=0;
     guint32             j=0;
     guint32             name_len=0;
@@ -6463,8 +6464,8 @@ ndps_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffset
 static void
 dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffset)
 {
-    conversation_t			*conversation = NULL;
-    ndps_req_hash_value		*request_value = NULL;
+    conversation_t          *conversation = NULL;
+    ndps_req_hash_value     *request_value = NULL;
     proto_tree              *atree;
     proto_item              *aitem;
     proto_tree              *btree;
@@ -9103,8 +9104,8 @@ proto_register_ndps(void)
 
 	static gint *ett[] = {
 		&ett_ndps,
-    	&ett_ndps_segments,
-    	&ett_ndps_segment,
+		&ett_ndps_segments,
+		&ett_ndps_segment,
 	};
 	module_t *ndps_module;
 	
@@ -9113,14 +9114,14 @@ proto_register_ndps(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	ndps_module = prefs_register_protocol(proto_ndps, NULL);
-	prefs_register_bool_preference(ndps_module, "desegment_ndps",
+	prefs_register_bool_preference(ndps_module, "desegment_tcp",
 	    "Desegment all NDPS messages spanning multiple TCP segments",
 	    "Whether the NDPS dissector should desegment all messages spanning multiple TCP segments",
 	    &ndps_desegment);
-    prefs_register_bool_preference(ndps_module, "desegment_spx",
-      "Desegment all NDPS messages spanning multiple SPX packets",
-      "Whether the NDPS dissector should desegment all messages spanning multiple SPX packets",
-      &ndps_defragment);
+	prefs_register_bool_preference(ndps_module, "desegment_spx",
+	    "Desegment all NDPS messages spanning multiple SPX packets",
+	    "Whether the NDPS dissector should desegment all messages spanning multiple SPX packets",
+	    &ndps_defragment);
 
 	register_init_routine(&ndps_init_protocol);
 	register_postseq_cleanup_routine(&ndps_postseq_cleanup);

@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.98 2003/03/13 18:17:59 guy Exp $
+ * $Id: prefs.c,v 1.99 2003/04/09 08:43:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1731,6 +1731,10 @@ set_pref(gchar *pref_name, gchar *value)
         /* Handle old names for UDP preferences. */
         if (strcmp(dotp, "udp_summary_in_tree") == 0)
           pref = find_preference(module, "summary_in_tree");
+      } else if (strcmp(module->name, "ndps") == 0) {
+        /* Handle old names for NDPS preferences. */
+        if (strcmp(dotp, "desegment_ndps") == 0)
+          pref = find_preference(module, "desegment_tcp");
       }
     }
     if (pref == NULL)
