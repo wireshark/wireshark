@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.65 2003/10/15 09:18:33 guy Exp $
+ * $Id: packet-gtp.c,v 1.66 2003/10/16 06:47:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1324,17 +1324,6 @@ static const value_string tft_code_type[] = {
 	{ 5, "Delete packet filters from existing TFT" },
 	{ 6, "Reserved" },
 	{ 7, "Reserved" },
-	{ 0, NULL }
-};
-
-static const value_string cdr_close_type[] = {
-	{ 0, "PDP release" },
-	{ 1, "Volume limit" },
-	{ 2, "Time limit" },
-	{ 3, "SGSN change" },
-	{ 4, "Max changes" },
-	{ 6, "Management" },
-	{ 7, "Abnormal" },
 	{ 0, NULL }
 };
 
