@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-tvbuff.c,v 1.16 2004/02/01 22:42:24 guy Exp $
+ * $Id: ftype-tvbuff.c,v 1.17 2004/02/22 03:04:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -241,6 +241,9 @@ ftype_register_tvbuff(void)
 		value_get,
 		NULL,
 		NULL,
+
+
+		/* TODO - tvb's *can* do 'eq', etc. */
 
 		NULL,				/* cmp_eq */
 		NULL,				/* cmp_ne */

@@ -4,7 +4,7 @@ Test-suite to test ethereal's dfilter mechanism.
 """
 
 #
-# $Id: dfilter-test.py,v 1.3 2003/08/27 15:23:11 gram Exp $
+# $Id: dfilter-test.py,v 1.4 2004/02/22 03:04:41 gram Exp $
 #
 # Copyright (C) 2003 by Gilbert Ramirez <gram@alumni.rice.edu>
 #  
@@ -207,6 +207,9 @@ class Test:
 
 #		print "GOT", len(output), "lines:", output, retval
 
+		if retval:
+			tethereal_failed = 1
+
 		if tethereal_failed:
 			if num_lines_expected == None:
 				if VERBOSE:
@@ -215,6 +218,7 @@ class Test:
 			else:
 				print "\nGot:", output
 				return FAILED
+
 		elif len(output) == num_lines_expected:
 			if VERBOSE:
 				print "\nGot:", output
@@ -1005,7 +1009,7 @@ class String(Test):
 
 	def ck_contains_5(self):
 		return self.DFilterCount(pkt_http,
-			'http.request.method contains 50:4f:53:54"', 0) # "POST"
+			'http.request.method contains 50:4f:53:54"', None) # "POST"
 
 	def ck_contains_6(self):
 		return self.DFilterCount(pkt_http,
@@ -1150,6 +1154,20 @@ class Time(Test):
 class TVB(Test):
 	"""Tests routines in ftype-tvb.c"""
 
+	def ck_eq_1(self):
+		# We expect 0 because even though this byte
+		# string matches the 'eth' protocol, protocols cannot
+		# work in an '==' comparison yet.
+		return self.DFilterCount(pkt_http,
+			"eth == 00:e0:81:00:b0:28:00:09:6b:88:f6:c9:08:00", None)
+
+	def ck_eq_2(self):
+		# We expect 0 because even though this byte
+		# string matches the 'eth' protocol, protocols cannot
+		# work in an '==' comparison yet.
+		return self.DFilterCount(pkt_http,
+			"00:e0:81:00:b0:28:00:09:6b:88:f6:c9:08:00 == eth", None)
+
 	def ck_slice_1(self):
 		return self.DFilterCount(pkt_http,
 			"ip[0:2] == 45:00", 1)
@@ -1194,6 +1212,9 @@ class TVB(Test):
 
 
 	tests = [
+		ck_eq_1,
+		ck_eq_2,
+
 		ck_slice_1,
 		ck_slice_2,
 		ck_slice_3,

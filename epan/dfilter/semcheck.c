@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.23 2004/02/11 21:20:52 guy Exp $
+ * $Id: semcheck.c,v 1.24 2004/02/22 03:04:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -423,7 +423,8 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 }
 
 static void
-check_relation_LHS_STRING(FtypeCanFunc can_func _U_, gboolean allow_partial_value _U_,
+check_relation_LHS_STRING(const char* relation_string,
+		FtypeCanFunc can_func _U_, gboolean allow_partial_value _U_,
 		stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
@@ -442,6 +443,13 @@ check_relation_LHS_STRING(FtypeCanFunc can_func _U_, gboolean allow_partial_valu
 	if (type2 == STTYPE_FIELD) {
 		hfinfo2 = stnode_data(st_arg2);
 		ftype2 = hfinfo2->type;
+
+		if (!can_func(ftype2)) {
+			dfilter_fail("%s (type=%s) cannot participate in '%s' comparison.",
+					hfinfo2->abbrev, ftype_pretty_name(ftype2),
+					relation_string);
+			THROW(TypeError);
+		}
 
 		s = stnode_data(st_arg1);
 		fvalue = fvalue_from_string(ftype2, s, dfilter_fail);
@@ -480,7 +488,8 @@ check_relation_LHS_STRING(FtypeCanFunc can_func _U_, gboolean allow_partial_valu
 }
 
 static void
-check_relation_LHS_UNPARSED(FtypeCanFunc can_func _U_, gboolean allow_partial_value,
+check_relation_LHS_UNPARSED(const char* relation_string,
+		FtypeCanFunc can_func, gboolean allow_partial_value,
 		stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
@@ -499,6 +508,13 @@ check_relation_LHS_UNPARSED(FtypeCanFunc can_func _U_, gboolean allow_partial_va
 	if (type2 == STTYPE_FIELD) {
 		hfinfo2 = stnode_data(st_arg2);
 		ftype2 = hfinfo2->type;
+
+		if (!can_func(ftype2)) {
+			dfilter_fail("%s (type=%s) cannot participate in '%s' comparison.",
+					hfinfo2->abbrev, ftype_pretty_name(ftype2),
+					relation_string);
+			THROW(TypeError);
+		}
 
 		s = stnode_data(st_arg1);
 		fvalue = fvalue_from_unparsed(ftype2, s, allow_partial_value, dfilter_fail);
@@ -716,7 +732,7 @@ check_relation(const char *relation_string, gboolean allow_partial_value,
 					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_STRING:
-			check_relation_LHS_STRING(can_func,
+			check_relation_LHS_STRING(relation_string, can_func,
 					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_RANGE:
@@ -724,7 +740,7 @@ check_relation(const char *relation_string, gboolean allow_partial_value,
 					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_UNPARSED:
-			check_relation_LHS_UNPARSED(can_func,
+			check_relation_LHS_UNPARSED(relation_string, can_func,
 					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
 
