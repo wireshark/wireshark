@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.10 2001/09/30 13:48:20 sharpe Exp $
+ * $Id: packet-dcerpc.c,v 1.11 2001/09/30 21:56:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,6 +122,8 @@ static int hf_dcerpc_cn_sec_addr_len = -1;
 static int hf_dcerpc_cn_num_results = -1;
 static int hf_dcerpc_cn_ack_result = -1;
 static int hf_dcerpc_cn_ack_reason = -1;
+static int hf_dcerpc_cn_ack_trans_id = -1;
+static int hf_dcerpc_cn_ack_trans_ver = -1;
 static int hf_dcerpc_cn_cancel_count = -1;
 static int hf_dcerpc_auth_type = -1;
 static int hf_dcerpc_auth_level = -1;
@@ -420,12 +422,14 @@ dcerpc_tvb_get_uuid (tvbuff_t *tvb, gint offset, char *drep, e_uuid_t *uuid)
 
 static int
 dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
+                    proto_tree *dcerpc_tree,
                     tvbuff_t *tvb, gint offset,
                     e_uuid_t *uuid, guint16 ver, 
                     guint16 opnum, gboolean is_rqst)
 {
     dcerpc_uuid_key key;
     dcerpc_uuid_value *sub_proto;
+    int length;
     proto_item *sub_item;
     proto_tree *sub_tree;
     dcerpc_sub_dissector *proc;
@@ -435,8 +439,15 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     key.ver = ver;
 
     
-    if ((sub_proto = g_hash_table_lookup (dcerpc_uuids, &key)) == 0)
+    if ((sub_proto = g_hash_table_lookup (dcerpc_uuids, &key)) == 0) {
+        length = tvb_length_remaining (tvb, offset);
+        if (length > 0) {
+            proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+                                 "Stub data (%d byte%s)", length,
+                                 plurality(length, "", "s"));
+        }
         return -1;
+    }
 
     if (tree) {
         sub_item = proto_tree_add_item (tree, sub_proto->proto, tvb, offset, 
@@ -475,7 +486,12 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 {
     int offset;
     guint8 auth_pad_len;
+
     /*
+     * The authentication information is at the *end* of the PDU; in
+     * request and response PDUs, the request and response stub data
+     * come before it.
+     *
      * If the full packet is here, and we've got an auth len, and it's
      * valid, then dissect the auth info
      */
@@ -526,8 +542,11 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     dcerpc_conv_key *key;
     dcerpc_conv_value *value;
     guint8 num_ctx_items;
+    guint i;
+    gboolean saw_ctx_item = FALSE;
     guint16 ctx_id;
     guint16 num_trans_items;
+    guint j;
     e_uuid_t if_id;
     e_uuid_t trans_id;
     guint32 trans_ver;
@@ -549,81 +568,89 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     /* padding */
     offset += 3;
 
-    offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
-                                    hf_dcerpc_cn_ctx_id, &ctx_id);
+    for (i = 0; i < num_ctx_items; i++) {
+      offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+                                      hf_dcerpc_cn_ctx_id, &ctx_id);
 
-    offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
-                                    hf_dcerpc_cn_num_trans_items, &num_trans_items);
+      offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+                                      hf_dcerpc_cn_num_trans_items, &num_trans_items);
 
-    dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &if_id);
-    if (dcerpc_tree) {
-        proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_cn_bind_if_id, tvb,
-                                      offset, 16, "HMMM",
-                                      "Interface UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                                      if_id.Data1, if_id.Data2, if_id.Data3,
-                                      if_id.Data4[0], if_id.Data4[1],
-                                      if_id.Data4[2], if_id.Data4[3],
-                                      if_id.Data4[4], if_id.Data4[5],
-                                      if_id.Data4[6], if_id.Data4[7]);
+      dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &if_id);
+      if (dcerpc_tree) {
+          proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_cn_bind_if_id, tvb,
+                                        offset, 16, "HMMM",
+                                        "Interface UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                                        if_id.Data1, if_id.Data2, if_id.Data3,
+                                        if_id.Data4[0], if_id.Data4[1],
+                                        if_id.Data4[2], if_id.Data4[3],
+                                        if_id.Data4[4], if_id.Data4[5],
+                                        if_id.Data4[6], if_id.Data4[7]);
+      }
+      offset += 16;
+
+      if (hdr->drep[0] & 0x10) {
+          offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+                                          hf_dcerpc_cn_bind_if_ver, &if_ver);
+          offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+                                          hf_dcerpc_cn_bind_if_ver_minor, &if_ver_minor);
+      } else {
+          offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+                                          hf_dcerpc_cn_bind_if_ver_minor, &if_ver_minor);
+          offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+                                          hf_dcerpc_cn_bind_if_ver, &if_ver);
+      }
+
+      if (!saw_ctx_item) {
+        conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
+                                  pinfo->srcport, pinfo->destport, 0);
+        if (conv == NULL) {
+            conv = conversation_new (&pinfo->src, &pinfo->dst, pinfo->ptype,
+                                     pinfo->srcport, pinfo->destport, 0);
+        }
+
+        key = g_mem_chunk_alloc (dcerpc_conv_key_chunk);
+        key->conv = conv;
+        key->ctx_id = ctx_id;
+
+        value = g_mem_chunk_alloc (dcerpc_conv_value_chunk);
+        value->uuid = if_id;
+        value->ver = if_ver;
+
+        g_hash_table_insert (dcerpc_convs, key, value);
+
+        if (check_col (pinfo->fd, COL_INFO)) {
+          col_add_fstr (pinfo->fd, COL_INFO, "%s: UUID %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x ver %d.%d",
+                        hdr->ptype == PDU_BIND ? "Bind" : "Alter Ctx",
+                        if_id.Data1, if_id.Data2, if_id.Data3,
+                        if_id.Data4[0], if_id.Data4[1],
+                        if_id.Data4[2], if_id.Data4[3],
+                        if_id.Data4[4], if_id.Data4[5],
+                        if_id.Data4[6], if_id.Data4[7],
+                        if_ver, if_ver_minor);
+        }
+        saw_ctx_item = TRUE;
+      }
+
+      for (j = 0; j < num_trans_items; j++) {
+        dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &trans_id);
+        if (dcerpc_tree) {
+            proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_cn_bind_trans_id, tvb,
+                                          offset, 16, "HMMM",
+                                          "Transfer Syntax: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                                          trans_id.Data1, trans_id.Data2, trans_id.Data3,
+                                          trans_id.Data4[0], trans_id.Data4[1],
+                                          trans_id.Data4[2], trans_id.Data4[3],
+                                          trans_id.Data4[4], trans_id.Data4[5],
+                                          trans_id.Data4[6], trans_id.Data4[7]);
+        }
+        offset += 16;
+
+        offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+                                        hf_dcerpc_cn_bind_trans_ver, &trans_ver);
+      }
     }
-    offset += 16;
-
-    if (hdr->drep[0] & 0x10) {
-        offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
-                                        hf_dcerpc_cn_bind_if_ver, &if_ver);
-        offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
-                                        hf_dcerpc_cn_bind_if_ver_minor, &if_ver_minor);
-    } else {
-        offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
-                                        hf_dcerpc_cn_bind_if_ver_minor, &if_ver_minor);
-        offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
-                                        hf_dcerpc_cn_bind_if_ver, &if_ver);
-    }
-
-    dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &trans_id);
-    if (dcerpc_tree) {
-        proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_cn_bind_trans_id, tvb,
-                                      offset, 16, "HMMM",
-                                      "Transfer Syntax: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                                      trans_id.Data1, trans_id.Data2, trans_id.Data3,
-                                      trans_id.Data4[0], trans_id.Data4[1],
-                                      trans_id.Data4[2], trans_id.Data4[3],
-                                      trans_id.Data4[4], trans_id.Data4[5],
-                                      trans_id.Data4[6], trans_id.Data4[7]);
-    }
-    offset += 16;
-
-    offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
-                                    hf_dcerpc_cn_bind_trans_ver, &trans_ver);
 
     dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr);
-
-    if (check_col (pinfo->fd, COL_INFO)) {
-        col_add_fstr (pinfo->fd, COL_INFO, "%s: UUID %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x ver %d.%d",
-                      hdr->ptype == PDU_BIND ? "Bind" : "Alter Ctx",
-                      if_id.Data1, if_id.Data2, if_id.Data3,
-                      if_id.Data4[0], if_id.Data4[1],
-                      if_id.Data4[2], if_id.Data4[3],
-                      if_id.Data4[4], if_id.Data4[5],
-                      if_id.Data4[6], if_id.Data4[7],
-                      if_ver, if_ver_minor);
-    }
-    conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
-                              pinfo->srcport, pinfo->destport, 0);
-    if (conv == NULL) {
-        conv = conversation_new (&pinfo->src, &pinfo->dst, pinfo->ptype,
-                                 pinfo->srcport, pinfo->destport, 0);
-    }
-
-    key = g_mem_chunk_alloc (dcerpc_conv_key_chunk);
-    key->conv = conv;
-    key->ctx_id = ctx_id;
-
-    value = g_mem_chunk_alloc (dcerpc_conv_value_chunk);
-    value->uuid = if_id;
-    value->ver = if_ver;
-
-    g_hash_table_insert (dcerpc_convs, key, value);
 }
 
 static void
@@ -633,8 +660,11 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerp
     guint16 max_xmit, max_recv;
     guint16 sec_addr_len;
     guint8 num_results;
-    guint16 result = 0;
-    guint16 reason = 0;
+    guint i;
+    guint16 result;
+    guint16 reason;
+    e_uuid_t trans_id;
+    guint32 trans_ver;
 
     int offset = 16;
 
@@ -661,19 +691,35 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerp
     /* padding */
     offset += 3;
 
-    if (num_results == 1) {
+    for (i = 0; i < num_results; i++) {
         offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, 
                                         hdr->drep, hf_dcerpc_cn_ack_result,
                                         &result);
         offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, 
                                         hdr->drep, hf_dcerpc_cn_ack_reason,
                                         &reason);
+
+        dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &trans_id);
+        if (dcerpc_tree) {
+            proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_cn_ack_trans_id, tvb,
+                                          offset, 16, "HMMM",
+                                          "Transfer Syntax: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                                          trans_id.Data1, trans_id.Data2, trans_id.Data3,
+                                          trans_id.Data4[0], trans_id.Data4[1],
+                                          trans_id.Data4[2], trans_id.Data4[3],
+                                          trans_id.Data4[4], trans_id.Data4[5],
+                                          trans_id.Data4[6], trans_id.Data4[7]);
+        }
+        offset += 16;
+
+        offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+                                        hf_dcerpc_cn_ack_trans_ver, &trans_ver);
     }
     
     dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr);
 
     if (check_col (pinfo->fd, COL_INFO)) {
-        if (num_results == 1 && result == 0) {
+        if (num_results != 0 && result == 0) {
             col_add_fstr (pinfo->fd, COL_INFO, "%s ack: accept  max_xmit: %d  max_recv: %d",
                           hdr->ptype == PDU_BIND_ACK ? "Bind" : "Alter ctx",
                           max_xmit, max_recv);
@@ -708,6 +754,11 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_opnum, &opnum);
 
+    if (check_col (pinfo->fd, COL_INFO)) {
+        col_add_fstr (pinfo->fd, COL_INFO, "Request: opnum: %d  ctx_id:%d",
+                         opnum, ctx_id);
+    }
+
     if (hdr->flags & 0x80) {
         dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &obj_id);
         if (dcerpc_tree) {
@@ -729,11 +780,6 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 
     auth_sz = dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr);
 
-    if (check_col (pinfo->fd, COL_INFO)) {
-        col_add_fstr (pinfo->fd, COL_INFO, "Request: opnum: %d  ctx_id:%d",
-                         opnum, ctx_id);
-    }
-
     conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
                               pinfo->srcport, pinfo->destport, 0);
     if (!conv) {
@@ -741,6 +787,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     } else {
         dcerpc_conv_key key;
         dcerpc_conv_value *value;
+        int length, reported_length, stub_length;
 
         key.conv = conv;
         key.ctx_id = ctx_id;
@@ -752,11 +799,17 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
                                  value->ver, &value->uuid);
 
             /* handoff this call */
-            dcerpc_try_handoff (pinfo, tree, 
-                                tvb_new_subset (tvb, offset, 
-                                                hdr->frag_len - offset - auth_sz,
-                                                hdr->frag_len - offset - auth_sz), 0,
-                                &value->uuid, value->ver,
+            length = tvb_length_remaining(tvb, offset);
+            reported_length = tvb_reported_length_remaining(tvb, offset);
+            stub_length = hdr->frag_len - offset - auth_sz;
+            if (length > stub_length)
+              length = stub_length;
+            if (reported_length > stub_length)
+              reported_length = stub_length;
+            dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
+                                tvb_new_subset (tvb, offset, length,
+                                                reported_length),
+                                0, &value->uuid, value->ver,
                                 opnum, TRUE);
         }
     }
@@ -777,6 +830,11 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_ctx_id, &ctx_id);
 
+    if (check_col (pinfo->fd, COL_INFO)) {
+        col_add_fstr (pinfo->fd, COL_INFO, "Response: call_id: %d  ctx_id:%d",
+                      hdr->call_id, ctx_id);
+    }
+
     offset = dissect_dcerpc_uint8 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                    hf_dcerpc_cn_cancel_count, NULL);
     /* padding */
@@ -784,23 +842,27 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 
     auth_sz = dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr);
 
-    if (check_col (pinfo->fd, COL_INFO)) {
-        col_add_fstr (pinfo->fd, COL_INFO, "Response: call_id: %d  ctx_id:%d",
-                      hdr->call_id, ctx_id);
-    }
-
     conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
                               pinfo->srcport, pinfo->destport, 0);
     if (!conv) {
         /* no point in creating one here, really */
     } else {
         dcerpc_call_value *value = dcerpc_call_lookup (hdr->call_id, conv);
+        int length, reported_length, stub_length;
+
         if (value) {
-            dcerpc_try_handoff (pinfo, tree, 
-                                tvb_new_subset (tvb, offset, 
-                                                hdr->frag_len - offset - auth_sz,
-                                                hdr->frag_len - offset - auth_sz), 0,
-                                &value->uuid, value->ver,
+            /* handoff this call */
+            length = tvb_length_remaining(tvb, offset);
+            reported_length = tvb_reported_length_remaining(tvb, offset);
+            stub_length = hdr->frag_len - offset - auth_sz;
+            if (length > stub_length)
+              length = stub_length;
+            if (reported_length > stub_length)
+              reported_length = stub_length;
+            dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
+                                tvb_new_subset (tvb, offset, length,
+                                                reported_length),
+                                0, &value->uuid, value->ver,
                                 value->opnum, FALSE);
         }
     }
@@ -1136,17 +1198,17 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case PDU_REQ:
         dcerpc_call_add_map (hdr.seqnum, conv, hdr.opnum,
                              hdr.if_ver, &hdr.if_id);
-        dcerpc_try_handoff (pinfo, tree, tvb, offset,
+        dcerpc_try_handoff (pinfo, tree, dcerpc_tree, tvb, offset,
                             &hdr.if_id, hdr.if_ver, hdr.opnum, TRUE);
         break;
     case PDU_RESP:
         {
             dcerpc_call_value *v = dcerpc_call_lookup (hdr.seqnum, conv);
             if (v) {
-                dcerpc_try_handoff (pinfo, tree, tvb, offset,
+                dcerpc_try_handoff (pinfo, tree, dcerpc_tree, tvb, offset,
                                     &v->uuid, v->ver, v->opnum, FALSE);
             } else {
-                dcerpc_try_handoff (pinfo, tree, tvb, offset,
+                dcerpc_try_handoff (pinfo, tree, dcerpc_tree, tvb, offset,
                                     &hdr.if_id, hdr.if_ver, hdr.opnum, FALSE);
             }
         }
@@ -1266,6 +1328,10 @@ proto_register_dcerpc (void)
           { "Ack result", "dcerpc.cn_ack_result", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_cn_ack_reason,
           { "Ack reason", "dcerpc.cn_ack_reason", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+        { &hf_dcerpc_cn_ack_trans_id,
+          { "Transfer Syntax", "dcerpc.cn_ack_trans_id", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+        { &hf_dcerpc_cn_ack_trans_ver,
+          { "Syntax ver", "dcerpc.cn_ack_trans_ver", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_cn_cancel_count,
           { "Cancel count", "dcerpc.cn_cancel_count", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_auth_type,
