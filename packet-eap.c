@@ -1,7 +1,7 @@
 /* packet-eap.c
  * Routines for EAP Extensible Authentication Protocol header disassembly
  *
- * $Id: packet-eap.c,v 1.5 2002/01/21 07:36:34 guy Exp $
+ * $Id: packet-eap.c,v 1.6 2002/02/06 22:45:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,25 +58,23 @@ typedef struct _e_eap {
     guint16 eap_len;
 } e_eap;
 
-static const char *eap_code_name[] = { 
-    "Undefined",
-    "Request",
-    "Response",
-    "Success",
-    "Failure",
+static const value_string eap_code_vals[] = { 
+    { 1, "Request" },
+    { 2, "Response" },
+    { 3, "Success" },
+    { 4, "Failure" },
+    { 0, NULL }
 };
-#define EAP_CODE_COUNT (sizeof(eap_code_name)/sizeof(eap_code_name[0]))
 
-static const char *eap_type_name[] = { 
-    "Undefined",
-    "Identity",
-    "Nak (Response only)",
-    "MD5-Challenge",
-    "One-Time Password",
-    "Generic Token Card",
+static const value_string eap_type_vals[] = { 
+    { 1, "Identity" },
+    { 2, "Notification" },
+    { 3, "Nak (Response only)" },
+    { 4, "MD5-Challenge" },
+    { 5, "One-Time Password" },
+    { 6, "Generic Token Card" },
+    { 0, NULL }
 };
-#define EAP_TYPE_COUNT (sizeof(eap_type_name)/sizeof(eap_type_name[0]))
-
 
 void
 dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -104,9 +102,8 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(tree, proto_eap, tvb, 0, len, FALSE);
     eap_tree = proto_item_add_subtree(ti, ett_eap);
 
-    proto_tree_add_text(eap_tree, tvb, 0, 0, "Code: %s (%u) ", 
-			eaph.eap_code > EAP_CODE_COUNT?
-			"Unknown": eap_code_name[eaph.eap_code],
+    proto_tree_add_text(eap_tree, tvb, 0, 0, "Code: %s (%u) ",
+			val_to_str(eaph.eap_code, eap_code_vals, "Unknown"),
 			eaph.eap_code);
 
     proto_tree_add_uint(eap_tree, hf_eap_identifier, tvb, 1, 1, eaph.eap_id);
@@ -115,8 +112,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (len > 4) {
 	guint8 eap_type = tvb_get_guint8(tvb, 4);
 	proto_tree_add_text(eap_tree, tvb, 4, 1, "Type: %s (%u)", 
-			    eap_type > EAP_TYPE_COUNT?
-			    "Unknown" : eap_type_name[eap_type],
+			    val_to_str(eap_type, eap_type_vals, "Unknown"),
 			    eap_type);
     }
     if (len > 5)
