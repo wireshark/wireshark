@@ -322,6 +322,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	case NETTL_SUBSYS_GSC100BT :
 	case NETTL_SUBSYS_PCI100BT :
 	case NETTL_SUBSYS_SPP100BT :
+	case NETTL_SUBSYS_100VG :
 	case NETTL_SUBSYS_GELAN :
 	case NETTL_SUBSYS_BTLAN :
 	case NETTL_SUBSYS_INTL100 :
