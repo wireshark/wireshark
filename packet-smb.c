@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.202 2002/01/29 21:49:43 guy Exp $
+ * $Id: packet-smb.c,v 1.203 2002/02/01 04:42:24 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6750,22 +6750,22 @@ dissect_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *p
 
 	  /* offset to owner sid */
 	  owner_sid_offset = tvb_get_letohl(tvb, offset);
-	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to owner SID : %d", owner_sid_offset);
+	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to owner SID: %d", owner_sid_offset);
 	  offset += 4;
 
 	  /* offset to group sid */
 	  group_sid_offset = tvb_get_letohl(tvb, offset);
-	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to group SID : %d", group_sid_offset);
+	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to group SID: %d", group_sid_offset);
 	  offset += 4;
 
 	  /* offset to sacl */
 	  sacl_offset = tvb_get_letohl(tvb, offset);
-	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to SACL : %d", sacl_offset);
+	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to SACL: %d", sacl_offset);
 	  offset += 4;
 
 	  /* offset to dacl */
 	  dacl_offset = tvb_get_letohl(tvb, offset);
-	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to DACL : %d", dacl_offset);
+	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to DACL: %d", dacl_offset);
 	  offset += 4;
 
 	  /*owner SID*/
