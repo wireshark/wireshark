@@ -3,7 +3,7 @@
  * dissection
  * Copyright 2003, Josef Korelus <jkor@quick.cz>
  *
- * $Id: packet-gprs-ns.c,v 1.7 2003/11/14 18:59:00 guy Exp $
+ * $Id: packet-gprs-ns.c,v 1.8 2004/02/18 10:11:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -154,7 +154,7 @@ process_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 				if (tree) {
 					proto_tree_add_text(tree,
 					    tvb, offset, length,
-					    "Bad cause length %u, should be 1\n",
+					    "Bad cause length %u, should be 1",
 					    length);
 				}
 			}
@@ -176,7 +176,7 @@ process_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 				if (tree) {
 					proto_tree_add_text(tree,
 					    tvb, offset, length,
-					    "Bad NS-VCI length %u, should be 2\n",
+					    "Bad NS-VCI length %u, should be 2",
 					    length);
 				}
 			}
@@ -210,7 +210,7 @@ process_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 				if (tree) {
 					proto_tree_add_text(tree,
 					    tvb, offset, length,
-					    "Bad BVCI length %u, should be 2\n",
+					    "Bad BVCI length %u, should be 2",
 					    length);
 				}
 			}
@@ -232,7 +232,7 @@ process_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 				if (tree) {
 					proto_tree_add_text(tree,
 					    tvb, offset, length,
-					    "Bad NSEI length %u, should be 2\n",
+					    "Bad NSEI length %u, should be 2",
 					    length);
 				}
 			}

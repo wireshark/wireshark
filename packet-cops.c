@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.42 2004/01/17 12:50:59 ulfl Exp $
+ * $Id: packet-cops.c,v 1.43 2004/02/18 10:11:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -614,7 +614,7 @@ static int dissect_cops_object(tvbuff_t *tvb, guint32 offset, proto_tree *tree)
   if (object_len < COPS_OBJECT_HDR_SIZE) {
     /* Bogus! */
     proto_tree_add_text(tree, tvb, offset, 2,
-                        "Bad COPS object length: %u, should be at least %u\n",
+                        "Bad COPS object length: %u, should be at least %u",
                         object_len, COPS_OBJECT_HDR_SIZE);
     return -1;
   }
@@ -666,7 +666,7 @@ static void dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *t
     if (object_len < COPS_OBJECT_HDR_SIZE) {
       /* Bogus! */
       proto_tree_add_text(tree, tvb, offset, 2,
-                          "Bad COPS PR object length: %u, should be at least %u\n",
+                          "Bad COPS PR object length: %u, should be at least %u",
                           object_len, COPS_OBJECT_HDR_SIZE);
       return;
     }

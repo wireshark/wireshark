@@ -2,7 +2,7 @@
  * Routines for Q.933 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q933.c,v 1.4 2003/11/03 20:57:36 guy Exp $
+ * $Id: packet-q933.c,v 1.5 2004/02/18 10:11:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -264,7 +264,7 @@ dissect_q933_segmented_message_ie(tvbuff_t *tvb, int offset, int len,
 {
 	if (len != 2) {
 		proto_tree_add_text(tree, tvb, offset, len,
-		    "Segmented message: length is %d, should be 2\n", len);
+		    "Segmented message: length is %d, should be 2", len);
 		return;
 	}
 	if (tvb_get_guint8(tvb, offset) & 0x80) {
@@ -277,7 +277,7 @@ dissect_q933_segmented_message_ie(tvbuff_t *tvb, int offset, int len,
 		    tvb_get_guint8(tvb, offset) & 0x7F);
 	}
 	proto_tree_add_text(tree, tvb, offset + 1, 1,
-	    "Segmented message type: %u\n", tvb_get_guint8(tvb, offset + 1));
+	    "Segmented message type: %u", tvb_get_guint8(tvb, offset + 1));
 }
 
 /*

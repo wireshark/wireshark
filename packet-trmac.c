@@ -2,7 +2,7 @@
  * Routines for Token-Ring Media Access Control
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-trmac.c,v 1.38 2002/08/28 21:00:36 jmayer Exp $
+ * $Id: packet-trmac.c,v 1.39 2004/02/18 10:11:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -293,7 +293,7 @@ dissect_trmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	mv_val = tvb_get_guint8(tvb, 3);
 
 	/* Interpret the major vector */
-	mv_text = val_to_str(mv_val, major_vector_vs, "Unknown Major Vector: %d\n");
+	mv_text = val_to_str(mv_val, major_vector_vs, "Unknown Major Vector: %u");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_str(pinfo->cinfo, COL_INFO, mv_text);

@@ -3,7 +3,7 @@
  * Enterasys Networks Home: http://www.enterasys.com/
  * Copyright 2003, Joshua Craig Douglas <jdouglas@enterasys.com>
  *
- * $Id: packet-ismp.c,v 1.3 2004/01/03 03:37:26 guy Exp $
+ * $Id: packet-ismp.c,v 1.4 2004/02/18 10:11:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -465,7 +465,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 						case EDP_TUPLE_UNKNOWN:
 						default:
 							proto_tree_add_text(edp_tuples_leaf_tree, tvb, offset, tuple_length,
-								"Unknown Tuple Data %s\n", tvb_format_text(tvb, offset, tuple_length));
+								"Unknown Tuple Data %s", tvb_format_text(tvb, offset, tuple_length));
 							break;
 					}  
 				}
