@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.99 2000/03/21 06:51:58 guy Exp $
+ * $Id: capture.c,v 1.100 2000/05/06 05:08:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -114,6 +114,7 @@ static void capture_delete_cb(GtkWidget *, GdkEvent *, gpointer);
 static void capture_stop_cb(GtkWidget *, gpointer);
 static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
   const u_char *);
+static void send_errmsg_to_parent(const char *);
 static float pct(gint, gint);
 
 typedef struct _loop_data {
@@ -164,12 +165,14 @@ do_capture(char *capfile_name)
   g_assert(cf.save_file == NULL);
   cf.save_file = capfile_name;
 
-  if (sync_mode) {	/*  use fork() for capture */
+  if (sync_mode) {	/* do the capture in a child process */
 #ifndef _WIN32
     int  fork_child;
     char ssnap[24];
     char scount[24];	/* need a constant for len of numbers */
     char save_file_fd[24];
+    char errmsg[1024+1];
+    int error;
 
     sprintf(ssnap,"%d",cf.snap); /* in lieu of itoa */
     sprintf(scount,"%d",cf.count);
@@ -200,103 +203,125 @@ do_capture(char *capfile_name)
 		(cf.cfilter == NULL)? 0 : "-f",
 		(cf.cfilter == NULL)? 0 : cf.cfilter,
 		(const char *)NULL);	
-    } else {
-      /* Parent process - read messages from the child process over the
-         sync pipe. */
-      close(sync_pipe[1]);
+      snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
+		ethereal_path, strerror(errno));
+      send_errmsg_to_parent(errmsg);
 
-      /* Read a byte count from "sync_pipe[0]", terminated with a
-	 colon; if the count is 0, the child process created the
-	 capture file and we should start reading from it, otherwise
-	 the capture couldn't start and the count is a count of bytes
-	 of error message, and we should display the message. */
-      byte_count = 0;
-      for (;;) {
-	i = read(sync_pipe[0], &c, 1);
-	if (i == 0) {
-	  /* EOF - the child process died.
-	     Close the read side of the sync pipe, remove the capture file,
-	     and report the failure.
-	     XXX - reap the child process and report the status in detail. */
-	  close(sync_pipe[0]);
-	  unlink(cf.save_file);
-	  g_free(cf.save_file);
-	  cf.save_file = NULL;
-	  simple_dialog(ESD_TYPE_WARN, NULL, "Capture child process died");
-	  return;
-	}
-	if (c == ';')
-	  break;
-	if (!isdigit(c)) {
-	  /* Child process handed us crap.
-	     Close the read side of the sync pipe, remove the capture file,
-	     and report the failure. */
-	  close(sync_pipe[0]);
-	  unlink(cf.save_file);
-	  g_free(cf.save_file);
-	  cf.save_file = NULL;
-	  simple_dialog(ESD_TYPE_WARN, NULL,
-	     "Capture child process sent us a bad message");
-	  return;
-	}
-	byte_count = byte_count*10 + c - '0';
+      /* Exit with "_exit()", so that we don't close the connection
+         to the X server (and cause stuff buffered up by our parent but
+	 not yet sent to be sent, as that stuff should only be sent by
+	 our parent). */
+      _exit(2);
+    }
+
+    if (fork_child == -1) {
+      /* We couldn't even create the child process. */
+      error = errno;
+      close(sync_pipe[1]);
+      close(sync_pipe[0]);
+      unlink(cf.save_file);
+      g_free(cf.save_file);
+      cf.save_file = NULL;
+      simple_dialog(ESD_TYPE_WARN, NULL, "Couldn't create child process: %s",
+			strerror(error));
+      return;
+    }
+
+    /* Parent process - read messages from the child process over the
+       sync pipe. */
+    close(sync_pipe[1]);
+
+    /* Read a byte count from "sync_pipe[0]", terminated with a
+       colon; if the count is 0, the child process created the
+       capture file and we should start reading from it, otherwise
+       the capture couldn't start and the count is a count of bytes
+       of error message, and we should display the message. */
+    byte_count = 0;
+    for (;;) {
+      i = read(sync_pipe[0], &c, 1);
+      if (i == 0) {
+	/* EOF - the child process died.
+	   Close the read side of the sync pipe, remove the capture file,
+	   and report the failure.
+	   XXX - reap the child process and report the status in detail. */
+	close(sync_pipe[0]);
+	unlink(cf.save_file);
+	g_free(cf.save_file);
+	cf.save_file = NULL;
+	simple_dialog(ESD_TYPE_WARN, NULL, "Capture child process died");
+	return;
       }
-      if (byte_count == 0) {
-	/* Success.  Open the capture file, and set up to read it. */
-	err = start_tail_cap_file(cf.save_file, is_tempfile, &cf);
-	if (err == 0) {
-	  /* We were able to open and set up to read the capture file;
-	     arrange that our callback be called whenever it's possible
-	     to read from the sync pipe, so that it's called when
-	     the child process wants to tell us something. */
-	  cap_input_id = gtk_input_add_full(sync_pipe[0],
+      if (c == ';')
+	break;
+      if (!isdigit(c)) {
+	/* Child process handed us crap.
+	   Close the read side of the sync pipe, remove the capture file,
+	   and report the failure. */
+	close(sync_pipe[0]);
+	unlink(cf.save_file);
+	g_free(cf.save_file);
+	cf.save_file = NULL;
+	simple_dialog(ESD_TYPE_WARN, NULL,
+			"Capture child process sent us a bad message");
+	return;
+      }
+      byte_count = byte_count*10 + c - '0';
+    }
+    if (byte_count == 0) {
+      /* Success.  Open the capture file, and set up to read it. */
+      err = start_tail_cap_file(cf.save_file, is_tempfile, &cf);
+      if (err == 0) {
+	/* We were able to open and set up to read the capture file;
+	   arrange that our callback be called whenever it's possible
+	   to read from the sync pipe, so that it's called when
+	   the child process wants to tell us something. */
+	cap_input_id = gtk_input_add_full(sync_pipe[0],
 				       GDK_INPUT_READ|GDK_INPUT_EXCEPTION,
 				       cap_file_input_cb,
 				       NULL,
 				       (gpointer) &cf,
 				       NULL);
-	} else {
-	  /* We weren't able to open the capture file; complain, and
-	     close the sync pipe. */
-	  simple_dialog(ESD_TYPE_WARN, NULL,
+      } else {
+	/* We weren't able to open the capture file; complain, and
+	   close the sync pipe. */
+	simple_dialog(ESD_TYPE_WARN, NULL,
 			file_open_error_message(err, FALSE), cf.save_file);
 
-	  /* Close the sync pipe. */
-	  close(sync_pipe[0]);
+	/* Close the sync pipe. */
+	close(sync_pipe[0]);
 
-	  /* Don't unlink the save file - leave it around, for debugging
-	     purposes. */
-	  g_free(cf.save_file);
-	  cf.save_file = NULL;
-	}
-      } else {
-	/* Failure - the child process sent us a message indicating
-	   what the problem was. */
-	msg = g_malloc(byte_count + 1);
-	if (msg == NULL) {
-	  simple_dialog(ESD_TYPE_WARN, NULL,
+	/* Don't unlink the save file - leave it around, for debugging
+	   purposes. */
+	g_free(cf.save_file);
+	cf.save_file = NULL;
+      }
+    } else {
+      /* Failure - the child process sent us a message indicating
+	 what the problem was. */
+      msg = g_malloc(byte_count + 1);
+      if (msg == NULL) {
+	simple_dialog(ESD_TYPE_WARN, NULL,
 		"Capture child process failed, but its error message was too big.");
-	} else {
-	  i = read(sync_pipe[0], msg, byte_count);
-	  if (i < 0) {
-	    simple_dialog(ESD_TYPE_WARN, NULL,
+      } else {
+	i = read(sync_pipe[0], msg, byte_count);
+	if (i < 0) {
+	  simple_dialog(ESD_TYPE_WARN, NULL,
 		  "Capture child process failed: Error %s reading its error message.",
 		  strerror(errno));
-	  } else if (i == 0) {
-	    simple_dialog(ESD_TYPE_WARN, NULL,
+	} else if (i == 0) {
+	  simple_dialog(ESD_TYPE_WARN, NULL,
 		  "Capture child process failed: EOF reading its error message.");
-	  } else
+	} else
 	    simple_dialog(ESD_TYPE_WARN, NULL, msg);
-	  g_free(msg);
+	g_free(msg);
 
-	  /* Close the sync pipe. */
-	  close(sync_pipe[0]);
+	/* Close the sync pipe. */
+	close(sync_pipe[0]);
 
-	  /* Get rid of the save file - the capture never started. */
-	  unlink(cf.save_file);
-	  g_free(cf.save_file);
-	  cf.save_file = NULL;
-	}
+	/* Get rid of the save file - the capture never started. */
+	unlink(cf.save_file);
+	g_free(cf.save_file);
+	cf.save_file = NULL;
       }
     }
 #endif
@@ -851,11 +876,7 @@ error:
     /* This is the child process for a sync mode capture.
        Send the error message to our parent, so they can display a
        dialog box containing it. */
-    int msglen = strlen(errmsg);
-    char lenbuf[10+1+1];
-    sprintf(lenbuf, "%u;", msglen);
-    write(1, lenbuf, strlen(lenbuf));
-    write(1, errmsg, msglen);
+    send_errmsg_to_parent(errmsg);
   } else {
     /* Display the dialog box ourselves; there's no parent. */
     simple_dialog(ESD_TYPE_WARN, NULL, errmsg);
@@ -864,6 +885,17 @@ error:
     pcap_close(pch);
 
   return FALSE;
+}
+
+static void
+send_errmsg_to_parent(const char *errmsg)
+{
+    int msglen = strlen(errmsg);
+    char lenbuf[10+1+1];
+
+    sprintf(lenbuf, "%u;", msglen);
+    write(1, lenbuf, strlen(lenbuf));
+    write(1, errmsg, msglen);
 }
 
 static float
