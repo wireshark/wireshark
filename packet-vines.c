@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.30 2001/04/23 17:51:34 guy Exp $
+ * $Id: packet-vines.c,v 1.31 2001/05/30 07:41:18 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -77,6 +77,8 @@ capture_vines(const u_char *pd, int offset, packet_counts *ld)
 	ld->vines++;
 }
 
+static dissector_handle_t vines_handle;
+
 /* AFAIK Vines FRP (Fragmentation Protocol) is used on all media except
  * Ethernet and TR (and probably FDDI) - Fragmentation on these media types
  * is not possible
@@ -142,7 +144,7 @@ dissect_vines_frp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Decode the "real" Vines now */
 	next_tvb = tvb_new_subset(tvb, 2, -1, -1);
-	dissect_vines(next_tvb, pinfo, tree);
+	call_dissector(vines_handle, next_tvb, pinfo, tree);
 }
 
 void
@@ -160,6 +162,11 @@ proto_register_vines_frp(void)
 void
 proto_reg_handoff_vines_frp(void)
 {
+	/*
+	 * Get handle for the Vines dissector.
+	 */
+	vines_handle = find_dissector("vines");
+
 	dissector_add("ip.proto", IP_PROTO_VINES, dissect_vines_frp,
 	    proto_vines_frp);
 
@@ -168,6 +175,8 @@ proto_reg_handoff_vines_frp(void)
 	dissector_add("udp.port", UDP_PORT_VINES, dissect_vines_frp,
 	    proto_vines_frp);
 }
+
+static dissector_table_t vines_dissector_table;
 
 static void
 dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -181,10 +190,6 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int  is_broadcast = 0;
 	int  hops = 0;
 	tvbuff_t *next_tvb;
-
-	CHECK_DISPLAY_AS_DATA(proto_vines, tvb, pinfo, tree);
-
-	pinfo->current_proto = "Vines";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "Vines");
@@ -309,15 +314,10 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	offset += 18;
-	switch (viph.vip_proto) {
-	case VIP_PROTO_SPP:
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-		dissect_vines_spp(next_tvb, pinfo, tree);
-		break;
-	default:
-		dissect_data(tvb, offset, pinfo, tree);
-		break;
-	}
+	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	if (!dissector_try_port(vines_dissector_table, viph.vip_proto,
+	    next_tvb, pinfo, tree))
+		dissect_data(next_tvb, 0, pinfo, tree);
 }
 
 void
@@ -337,6 +337,11 @@ proto_register_vines(void)
 	proto_vines = proto_register_protocol("Banyan Vines", "Vines", "vines");
 	proto_register_field_array(proto_vines, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/* subdissector code */
+	vines_dissector_table = register_dissector_table("vines.proto");
+
+	register_dissector("vines", dissect_vines, proto_vines);
 }
 
 void
@@ -353,10 +358,6 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	e_vspp       viph;
 	proto_tree *vspp_tree;
 	proto_item *ti;
-
-	CHECK_DISPLAY_AS_DATA(proto_vines_spp, tvb, pinfo, tree);
-
-	pinfo->current_proto = "Vines SPP";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "VSPP");
@@ -468,3 +469,11 @@ proto_register_vines_spp(void)
 	    "Vines SPP", "vines_spp");
 	proto_register_subtree_array(ett, array_length(ett));
 }
+
+void
+proto_register_handoff_vines_spp(void)
+{
+	dissector_add("vines.proto", VIP_PROTO_SPP, dissect_vines_spp,
+	    proto_vines_spp);
+}
+
