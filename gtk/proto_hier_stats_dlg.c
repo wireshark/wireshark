@@ -1,6 +1,6 @@
 /* proto_hier_stats_dlg.c
  *
- * $Id: proto_hier_stats_dlg.c,v 1.1 2001/03/22 23:54:47 gram Exp $
+ * $Id: proto_hier_stats_dlg.c,v 1.2 2001/03/24 02:07:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -113,10 +113,9 @@ fill_in_ctree(GtkWidget *tree, ph_stats_t *ps)
 }
 
 static void
-create_tree(GtkWidget *container)
+create_tree(GtkWidget *container, ph_stats_t *ps)
 {
 	GtkWidget	*sw, *tree;
-	ph_stats_t	*ps;
 	int		i, height;
 	gchar		*column_titles[NUM_STAT_COLUMNS] = {
 		"Protocol",
@@ -126,8 +125,6 @@ create_tree(GtkWidget *container)
 		"Last-Protocol Packets",
 		"Last-Protocol Bytes",
 	};
-
-	ps = ph_stats_new();
 
 	/* Scrolled Window */
 	sw = gtk_scrolled_window_new(NULL, NULL);
@@ -141,7 +138,7 @@ create_tree(GtkWidget *container)
 	/* XXX - get 'pos' to set vertical scroll-bar placement. */
 	/* XXX - set line style from preferences ???. */
 
-	/* The titel bars do nothing. */
+	/* The title bars do nothing. */
 	gtk_clist_column_titles_passive(GTK_CLIST(tree));
 
 	/* Auto Resize all columns */
@@ -173,8 +170,17 @@ create_tree(GtkWidget *container)
 void
 proto_hier_stats_cb(GtkWidget *w, gpointer d)
 {
+	ph_stats_t	*ps;
 	GtkWidget	*dlg, *bt, *vbox, *frame, *bbox;
 	const gchar	*wname = "Protocol Hierarchy Statistics";
+
+	/* Get the statistics. */
+	ps = ph_stats_new();
+	if (ps == NULL) {
+		/* The user gave up before we finished; don't pop up
+		   a statistics window. */
+		return;
+	}
 
 	dlg = dlg_window_new(wname);
 
@@ -188,7 +194,7 @@ proto_hier_stats_cb(GtkWidget *w, gpointer d)
 
 
 	/* Data section */
-	create_tree(frame);
+	create_tree(frame, ps);
 
 	/* Button row. We put it in an HButtonBox to
 	 * keep it from expanding to the width of the window. */

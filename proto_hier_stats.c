@@ -1,7 +1,7 @@
 /* proto_hier_stats.c
  * Routines for calculating statistics based on protocol.
  *
- * $Id: proto_hier_stats.c,v 1.2 2001/03/23 21:55:36 guy Exp $
+ * $Id: proto_hier_stats.c,v 1.3 2001/03/24 02:07:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,10 +30,14 @@
 
 #include "globals.h"
 #include "proto_hier_stats.h"
+#include "progress_dlg.h"
 #include <wtap.h>
 
 #include <stdio.h>
 #include <glib.h>
+
+/* Update the progress bar this many times when scanning the packet list. */
+#define N_PROGBAR_UPDATES	100
 
 static GNode*
 find_stat_node(GNode *parent_node, header_field_info *needle_hfinfo)
@@ -147,6 +151,11 @@ ph_stats_new(void)
 	ph_stats_t	*ps;
 	frame_data	*frame;
 	guint		tot_packets, tot_bytes;
+	progdlg_t	*progbar;
+	gboolean	stop_flag;
+	guint32		progbar_quantum;
+	guint32		progbar_nextstep;
+	int		count;
 
 	/* Initialize the data */
 	ps = g_new(ph_stats_t, 1);
@@ -154,22 +163,72 @@ ph_stats_new(void)
 	ps->tot_bytes = 0;
 	ps->stats_tree = g_node_new(NULL);
 
-	frame = cfile.plist;
+	/* Update the progress bar when it gets to this value. */
+	progbar_nextstep = 0;
+	/* When we reach the value that triggers a progress bar update,
+	   bump that value by this amount. */
+	progbar_quantum = cfile.count/N_PROGBAR_UPDATES;
+	/* Count of packets at which we've looked. */
+	count = 0;
+
+	stop_flag = FALSE;
+	progbar = create_progress_dlg("Computing protocol statistics", "Stop",
+	    &stop_flag);
+
 	tot_packets = 0;
 	tot_bytes = 0;
 
-	while (frame) {
-		/* Skip frames that are hidden due to the display filter */
-		if (!frame->flags.passed_dfilter) {
-			continue;
+	for (frame = cfile.plist; frame != NULL; frame = frame->next) {
+		/* Update the progress bar, but do it only N_PROGBAR_UPDATES
+		   times; when we update it, we have to run the GTK+ main
+		   loop to get it to repaint what's pending, and doing so
+		   may involve an "ioctl()" to see if there's any pending
+		   input from an X server, and doing that for every packet
+		   can be costly, especially on a big file. */
+		if (count >= progbar_nextstep) {
+			/* let's not divide by zero. I should never be started
+			 * with count == 0, so let's assert that
+			 */
+			g_assert(cfile.count > 0);
+
+			update_progress_dlg(progbar,
+			    (gfloat) count / cfile.count);
+
+			progbar_nextstep += progbar_quantum;
 		}
 
-		process_frame(frame, ps);
+		if (stop_flag) {
+			/* Well, the user decided to abort the statistics.
+			   computation process  Just stop. */
+			break;
+		}
 
-		tot_packets++;
-		tot_bytes += frame->pkt_len;
+		/* Skip frames that are hidden due to the display filter.
+		   XXX - should the progress bar count only packets that
+		   passed the display filter?  If so, it should
+		   probably do so for other loops (see "file.c") that
+		   look only at those packets. */
+		if (frame->flags.passed_dfilter) {
+			process_frame(frame, ps);
 
-		frame = frame->next;
+			tot_packets++;
+			tot_bytes += frame->pkt_len;
+		}
+
+		count++;
+	}
+
+	/* We're done calculating the statistics; destroy the progress bar. */
+	destroy_progress_dlg(progbar);
+
+	if (stop_flag) {
+		/*
+		 * We quit in the middle; throw away the statistics
+		 * and return NULL, so our caller doesn't pop up a
+		 * window with the incomplete statistics.
+		 */
+		ph_stats_free(ps);
+		return NULL;
 	}
 
 	ps->tot_packets = tot_packets;

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.233 2001/03/23 14:43:59 jfoster Exp $
+ * $Id: file.c,v 1.234 2001/03/24 02:07:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -81,6 +81,7 @@
 #include "menu.h"
 #include "util.h"
 #include "simple_dialog.h"
+#include "progress_dlg.h"
 #include "ui_util.h"
 #include "prefs.h"
 #include "gtk/proto_draw.h"
