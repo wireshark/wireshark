@@ -2,7 +2,7 @@
  * Routines for h225 packet dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id: packet-h225-template.h 12203 2004-10-05 09:18:55Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,7 +65,7 @@ typedef struct _h225_packet_info {
  */
 
 
-#include "packet-H225-exp.h" 
+#include "packet-h225-exp.h" 
 
 #endif  /* PACKET_H225_H */
 
