@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.23 2003/10/27 22:28:48 guy Exp $
+ * $Id: packet-per.c,v 1.24 2004/02/16 18:31:39 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,7 +54,7 @@ static int hf_per_sequence_of_length = -1;
 static int hf_per_object_identifier_length = -1;
 static int hf_per_open_type_length = -1;
 static int hf_per_octet_string_length = -1;
-
+static int hf_per_bit_string_length = -1;
 
 static gint ett_per_sequence_of_item = -1;
 
@@ -135,7 +135,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, packet_info *pinfo
 }
 
 /* 10.6   normally small non-negative whole number */
-guint32
+static guint32
 dissect_per_normally_small_nonnegative_whole_number(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, guint32 *length)
 {
 	gboolean small_number;
@@ -1289,6 +1289,96 @@ DEBUG_ENTRY("dissect_per_sequence");
 
 
 
+/* 15 Encoding the bitstring type
+
+   max_len or min_len == -1 means there is no lower/upper constraint
+
+*/
+guint32
+dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
+{
+	guint32 length;
+	header_field_info *hfi;
+
+	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
+
+DEBUG_ENTRY("dissect_per_bit_string");
+	/* 15.8 if the length is 0 bytes there will be no encoding */
+	if(max_len==0) {
+		return offset;
+	}
+
+	if(min_len==-1) {
+		min_len=0;
+	}
+
+	/* 15.9 if length is fixed and less than or equal to sixteen bits*/
+	if((min_len==max_len)&&(max_len<=16)){
+		static char bytes[4];
+		guint32 i, old_offset=offset;
+		gboolean bit;
+
+		bytes[0]=bytes[1]=bytes[2]=0;
+		for(i=0;i<min_len;i++){
+			offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
+			bytes[0]=(bytes[0]<<1)|bit;
+		}
+		if(min_len>8){
+			for(i=8;i<min_len;i++){
+				offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
+				bytes[1]=(bytes[1]<<1)|bit;
+			}
+			if(min_len<16){
+				bytes[1]|=bytes[0]<<(min_len-8);
+				bytes[0]>>=16-min_len;
+			}
+		}
+		if (hfi) {
+			proto_tree_add_bytes(tree, hf_index, tvb, old_offset>>3, (min_len+7)/8+(offset&0x07)?1:0, bytes);
+		}
+		return offset;
+	}
+
+
+	/* 15.10 if length is fixed and less than to 64kbits*/
+	if((min_len==max_len)&&(min_len<65536)){
+		/* align to byte */
+		if(offset&0x07){
+			offset=(offset&0xfffffff8)+8;
+		}
+		if (hfi) {
+			proto_tree_add_item(tree, hf_index, tvb, offset>>3, (min_len+7)/8, FALSE);
+		}
+		offset+=min_len;
+		return offset;
+	}
+
+	/* 15.11 */
+	if(max_len>0){
+		proto_tree *etr = NULL;
+
+		if(display_internal_per_fields){
+			etr=tree;
+		}
+		offset=dissect_per_constrained_integer(tvb, offset, pinfo,
+			etr, hf_per_bit_string_length, min_len, max_len,
+			&length, NULL, FALSE);
+	} else {
+		offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_bit_string_length, &length);
+	}
+	if(length){
+		/* align to byte */
+		if(offset&0x07){
+			offset=(offset&0xfffffff8)+8;
+		}
+		if (hfi) {
+			proto_tree_add_item(tree, hf_index, tvb, offset>>3, (length+7)/8, FALSE);
+		}
+	}
+	offset+=length;
+
+	return offset;
+}
 
 
 /* this fucntion dissects an OCTET STRING
@@ -1450,6 +1540,9 @@ proto_register_per(void)
 	{ &hf_per_octet_string_length,
 		{ "Octet String Length", "per.octet_string_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of bytes in the Octet String", HFILL }},
+	{ &hf_per_bit_string_length,
+		{ "Bit String Length", "per.bit_string_length", FT_UINT32, BASE_DEC,
+		NULL, 0, "Number of bits in the Bit String", HFILL }},
 	};
 
 	static gint *ett[] =
