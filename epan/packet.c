@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.66 2002/03/02 20:48:10 guy Exp $
+ * $Id: packet.c,v 1.67 2002/03/28 09:12:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -244,6 +244,18 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 {
 	int i;
 
+	if (cinfo != NULL) {
+		for (i = 0; i < cinfo->num_cols; i++) {
+			cinfo->col_buf[i][0] = '\0';
+			cinfo->col_data[i] = cinfo->col_buf[i];
+		}
+
+		col_set_writable(cinfo, TRUE);
+	}
+	edt->pi.current_proto = "<Missing Protocol Name>";
+	edt->pi.cinfo = cinfo;
+	edt->pi.fd = fd;
+	edt->pi.pseudo_header = pseudo_header;
 	edt->pi.dl_src.type = AT_NONE;
 	edt->pi.dl_dst.type = AT_NONE;
 	edt->pi.net_src.type = AT_NONE;
@@ -258,22 +270,10 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.ptype = PT_NONE;
 	edt->pi.srcport  = 0;
 	edt->pi.destport = 0;
-	edt->pi.current_proto = "<Missing Protocol Name>";
+	edt->pi.match_port = 0;
+	edt->pi.can_desegment = 0;
 	edt->pi.p2p_dir = P2P_DIR_UNKNOWN;
 	edt->pi.private_data = NULL;
-
-	edt->pi.fd = fd;
-	edt->pi.pseudo_header = pseudo_header;
-
-	edt->pi.cinfo = cinfo;
-	if (cinfo != NULL) {
-		for (i = 0; i < cinfo->num_cols; i++) {
-			cinfo->col_buf[i][0] = '\0';
-			cinfo->col_data[i] = cinfo->col_buf[i];
-		}
-
-		col_set_writable(cinfo, TRUE);
-	}
 
 	TRY {
 		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
