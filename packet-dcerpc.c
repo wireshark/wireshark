@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.88 2002/11/28 03:57:49 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.89 2002/12/05 18:26:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,7 +57,7 @@ static const value_string pckt_vals[] = {
     { PDU_BIND_NAK,   "Bind_nak"},
     { PDU_ALTER,      "Alter_context"},
     { PDU_ALTER_ACK,  "Alter_context_resp"},
-    { PDU_AUTH3,      "AUTH3?"},
+    { PDU_AUTH3,      "AUTH3"},
     { PDU_SHUTDOWN,   "Shutdown"},
     { PDU_CO_CANCEL,  "Co_cancel"},
     { PDU_ORPHANED,   "Orphaned"},
