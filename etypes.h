@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.15 2001/01/13 07:47:48 guy Exp $
+ * $Id: etypes.h,v 1.16 2001/03/29 08:05:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -124,6 +124,10 @@
 #ifndef ETHERTYPE_TRAIN
 #define ETHERTYPE_TRAIN 0x1984
 /* Created by Netmon as a summary packet */
+#endif
+
+#ifndef ETHERTYPE_WCP
+#define ETHERTYPE_WCP 0x80ff	/* Wellfleet Compression Protocol */
 #endif
 
 #ifndef ETHERTYPE_LOOP

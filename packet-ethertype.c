@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.12 2001/02/01 07:34:29 guy Exp $
+ * $Id: packet-ethertype.c,v 1.13 2001/03/29 08:05:06 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -56,6 +56,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_VINES,		"Vines"				},
     {ETHERTYPE_TRAIN,		"Netmon Train"			},
     {ETHERTYPE_LOOP,		"Loopback"			}, /* Ethernet Loopback */
+    {ETHERTYPE_WCP,		"Wellfleet Compression Protocol" },
     {ETHERTYPE_PPPOED,		"PPPoE Discovery"		}, 
     {ETHERTYPE_PPPOES,		"PPPoE Session"			}, 
     {ETHERTYPE_VLAN,		"802.1Q Virtual LAN"		},

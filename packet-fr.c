@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.12 2001/03/23 23:56:03 guy Exp $
+ * $Id: packet-fr.c,v 1.13 2001/03/29 08:05:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -274,7 +274,7 @@ void proto_register_fr(void)
             FRELAY_EA, "Extended Address" }},
         { &hf_fr_nlpid, { 
            "NLPID", "fr.nlpid", FT_UINT8, BASE_HEX, 
-            NULL, 0x0, "FrameRelay Encapsulated Protocol NLPID" }},
+            VALS(nlpid_vals), 0x0, "FrameRelay Encapsulated Protocol NLPID" }},
 	{ &hf_fr_oui, {
 	   "Organization Code",	"fr.snap.oui", FT_UINT24, BASE_HEX, 
 	   VALS(oui_vals), 0x0, ""}},
