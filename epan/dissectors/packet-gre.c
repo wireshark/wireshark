@@ -124,6 +124,11 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       len += 4;
     is_ppp = TRUE;
     break;
+  case ETHERTYPE_CDMA2000_A10_UBS:
+    if (flags_and_ver & GH_P_A)
+      len += 4;
+   is_ppp = TRUE;
+   break;
 
   case GRE_WCCP:
     /* WCCP2 puts an extra 4 octets into the header, but uses the same
