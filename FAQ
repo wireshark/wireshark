@@ -167,27 +167,27 @@
 
             802.1q Virtual LAN
             802.1x Authentication
-            Address Resolution Protocol
-            Ad hoc On-demand Distance Vector Routing Protocol
-            Ad hoc On-demand Distance Vector Routing Protocol v6
             AFS (4.0) Replication Server call declarations
-            Aggregate Server Access Protocol
-            Andrew File System (AFS)
             AOL Instant Messenger
-            Apache JServ Protocol v1.3
-            Appletalk Address Resolution Protocol
-            AppleTalk Filing Protocol
-            AppleTalk Session Protocol
-            AppleTalk Transaction Protocol packet
             ARCNET
-            Async data over ISDN (V.120)
             ATM
             ATM AAL1
             ATM AAL3/4
             ATM LAN Emulation
             ATM OAM AAL
-            Authentication Header
             AVS WLAN Capture header
+            Ad hoc On-demand Distance Vector Routing Protocol
+            Ad hoc On-demand Distance Vector Routing Protocol v6
+            Address Resolution Protocol
+            Aggregate Server Access Protocol
+            Andrew File System (AFS)
+            Apache JServ Protocol v1.3
+            AppleTalk Filing Protocol
+            AppleTalk Session Protocol
+            AppleTalk Transaction Protocol packet
+            Appletalk Address Resolution Protocol
+            Async data over ISDN (V.120)
+            Authentication Header
             BACnet Virtual Link Control
             Banyan Vines
             Banyan Vines Fragmentation Protocol
@@ -200,30 +200,27 @@
             Building Automation and Control Network APDU
             Building Automation and Control Network NPDU
             CDS Clerk Server Calls
-            Checkpoint FW-1
             Check Point High Availability Protocol
+            Checkpoint FW-1
             Cisco Auto-RP
             Cisco Discovery Protocol
             Cisco Group Management Protocol
             Cisco HDLC
             Cisco Hot Standby Router Protocol
-            Cisco Interior Gateway Routing Protocol
             Cisco ISL
+            Cisco Interior Gateway Routing Protocol
             Cisco NetFlow
             Cisco SLARP
             Clearcase NFS
+            CoSine IPNOS L2 debug output
             Common Open Policy Service
             Common Unix Printing System (CUPS) Browsing Protocol
-            CoSine IPNOS L2 debug output
-            Data
-            Datagram Delivery Protocol
-            Data Link SWitching
-            Data Stream Interface
             DCE DFS Calls
             DCE Distributed Time Service Local Server
             DCE Distributed Time Service Provider
             DCE Name Service
             DCE RPC
+            DCE Security ID Mapper
             DCE/RPC BOS Server
             DCE/RPC CDS Solicitation
             DCE/RPC Conversation Manager
@@ -232,22 +229,25 @@
             DCE/RPC FLDB UBIK TRANSFER
             DCE/RPC FLDB UBIKVOTE
             DCE/RPC Kerberos V
-            DCE/RPC Remote Management
-            DCE/RPC Repserver Calls
             DCE/RPC RS_ACCT
             DCE/RPC RS_MISC
             DCE/RPC RS_UNIX
+            DCE/RPC Remote Management
+            DCE/RPC Repserver Calls
             DCE/RPC TokenServer Calls
             DCE/RPC UpServer
-            DCE Security ID Mapper
             DCOM OXID Resolver
             DCOM Remote Activation
             DEC Spanning Tree Protocol
             DHCPv6
+            DNS Control Program Server
+            Data
+            Data Link SWitching
+            Data Stream Interface
+            Datagram Delivery Protocol
             Diameter Protocol
             Distance Vector Multicast Routing Protocol
             Distributed Checksum Clearinghouse Prototocl
-            DNS Control Program Server
             Domain Name Service
             Dummy Protocol
             Dynamic DNS Tools Protocol
@@ -258,6 +258,8 @@
             FC Extended Link Svc
             FC Fabric Configuration Server
             FCIP
+            FTP Data
+            FTServer Operations
             Fiber Distributed Data Interface
             Fibre Channel
             Fibre Channel Common Transport
@@ -269,17 +271,15 @@
             Financial Information eXchange Protocol
             Frame
             Frame Relay
-            FTP Data
-            FTServer Operations
             GARP Multicast Registration Protocol
             GARP VLAN Registration Protocol
+            GPRS Tunneling Protocol
+            GPRS Tunnelling Protocol v0
+            GPRS Tunnelling Protocol v1
             General Inter-ORB Protocol
             Generic Routing Encapsulation
             Generic Security Service Application Program Interface
             Gnutella Protocol
-            GPRS Tunneling Protocol
-            GPRS Tunnelling Protocol v0
-            GPRS Tunnelling Protocol v1
             Hummingbird NFS Daemon
             HyperSCSI
             Hypertext Transfer Protocol
@@ -287,6 +287,19 @@
             IEEE 802.11 wireless LAN
             IEEE 802.11 wireless LAN management frame
             ILMI
+            IP Over FC
+            IP Payload Compression
+            IPX Message
+            IPX Routing Information Protocol
+            ISDN
+            ISDN Q.921-User Adaptation Layer
+            ISDN User Part
+            ISO 10589 ISIS InTRA Domain Routeing Information Exchange Protocol
+            ISO 8073 COTP Connection-Oriented Transport Protocol
+            ISO 8473 CLNP ConnectionLess Network Protocol
+            ISO 8602 CLTP ConnectionLess Transport Protocol
+            ISO 9542 ESIS Routeing Information Exchange Protocol
+            ITU-T Recommendation H.261
             Inter-Access-Point Protocol
             Interbase
             Internet Cache Protocol
@@ -301,20 +314,6 @@
             Internet Relay Chat
             Internet Security Association and Key Management Protocol
             Internetwork Packet eXchange
-            IP Over FC
-            IP Payload Compression
-            IPX Message
-            IPX Routing Information Protocol
-            iSCSI
-            ISDN
-            ISDN Q.921-User Adaptation Layer
-            ISDN User Part
-            ISO 10589 ISIS InTRA Domain Routeing Information Exchange Protocol
-            ISO 8073 COTP Connection-Oriented Transport Protocol
-            ISO 8473 CLNP ConnectionLess Network Protocol
-            ISO 8602 CLTP ConnectionLess Transport Protocol
-            ISO 9542 ESIS Routeing Information Exchange Protocol
-            ITU-T Recommendation H.261
             Java RMI
             Java Serialization
             Kerberos
@@ -323,8 +322,8 @@
             Layer 2 Tunneling Protocol
             Lightweight Directory Access Protocol
             Line Printer Daemon Protocol
-            Link Access Procedure Balanced Ethernet (LAPBETHER)
             Link Access Procedure Balanced (LAPB)
+            Link Access Procedure Balanced Ethernet (LAPBETHER)
             Link Access Procedure, Channel D (LAPD)
             Link Aggregation Control Protocol
             Link Management Protocol (LMP)
@@ -334,6 +333,13 @@
             Logical-Link Control
             Lucent/Ascend debug output
             MDS Header
+            MMS Message Encapsulation
+            MS Proxy Protocol
+            MSNIP: Multicast Source Notification of Interest Protocol
+            MTP 2 Transparent Proxy
+            MTP 2 User Adaptation Layer
+            MTP 3 User Adaptation Layer
+            MTP2 Peer Adaptation Layer
             Message Transfer Part Level 2
             Message Transfer Part Level 3
             Message Transfer Part Level 3 Management
@@ -351,27 +357,26 @@
             Microsoft Windows Lanman Remote API Protocol
             Microsoft Windows Logon Protocol
             Microsoft Workstation Service
-            MMS Message Encapsulation
             Mobile IP
             Modbus/TCP
             Mount Service
-            MSNIP: Multicast Source Notification of Interest Protocol
-            MS Proxy Protocol
-            MTP2 Peer Adaptation Layer
-            MTP 2 Transparent Proxy
-            MTP 2 User Adaptation Layer
-            MTP 3 User Adaptation Layer
+            MultiProtocol Label Switching Header
             Multicast Router DISCovery protocol
             Multicast Source Discovery Protocol
-            MultiProtocol Label Switching Header
             MySQL Protocol
+            NFSACL
+            NFSAUTH
+            NIS+
+            NIS+ Callback
+            NSPI
+            NTLM Secure Service Provider
             Name Binding Protocol
             Name Management Protocol over IPX
             NetBIOS
             NetBIOS Datagram Service
             NetBIOS Name Service
-            NetBIOS over IPX
             NetBIOS Session Service
+            NetBIOS over IPX
             NetWare Core Protocol
             Network Data Management Protocol
             Network File System
@@ -380,25 +385,15 @@
             Network Status Monitor CallBack Protocol
             Network Status Monitor Protocol
             Network Time Protocol
-            NFSACL
-            NFSAUTH
-            NIS+
-            NIS+ Callback
             Novell Distributed Print System
-            NSPI
-            NTLM Secure Service Provider
             Null/Loopback
-            OpenBSD Packet Filter log file
             Open Shortest Path First
+            OpenBSD Packet Filter log file
             PC NFS
-            Point-to-Point Protocol
-            Point-to-Point Tunnelling Protocol
-            Portmap
-            Post Office Protocol
             PPP Bandwidth Allocation Control Protocol
             PPP Bandwidth Allocation Protocol
-            PPP Callback Control Protocol
             PPP CDP Control Protocol
+            PPP Callback Control Protocol
             PPP Challenge Handshake Authentication Protocol
             PPP Compressed Datagram
             PPP Compression Control Protocol
@@ -408,48 +403,62 @@
             PPP MPLS Control Protocol
             PPP Multilink Protocol
             PPP Multiplexing
-            PPPMux Control Protocol
-            PPP-over-Ethernet Discovery
-            PPP-over-Ethernet Session
             PPP Password Authentication Protocol
             PPP VJ Compression
+            PPP-over-Ethernet Discovery
+            PPP-over-Ethernet Session
+            PPPMux Control Protocol
+            Point-to-Point Protocol
+            Point-to-Point Tunnelling Protocol
+            Portmap
+            Post Office Protocol
             Pragmatic General Multicast
             Prism
             Privilege Server operations
             Protocol Independent Multicast
             Q.2931
             Q.931
-            Quake III Arena Network Protocol
             Quake II Network Protocol
+            Quake III Arena Network Protocol
             Quake Network Protocol
             QuakeWorld Network Protocol
             Qualified Logical Link Control
+            RFC 2250 MPEG1
+            RIPng
+            RPC Browser
+            RSTAT
+            RX Protocol
             Radio Access Network Application Part
             Radius Protocol
             Raw packet data
             Real Time Streaming Protocol
-            Real-time Transport Control Protocol
             Real-Time Transport Protocol
-            Registry server administration operations.
+            Real-time Transport Control Protocol
             Registry Server Attributes Manipulation Interface
+            Registry server administration operations.
             Remote Override interface
             Remote Procedure Call
             Remote Program Load
             Remote Quota
-            Remote sec_login preauth interface.
             Remote Shell
             Remote Wall protocol
+            Remote sec_login preauth interface.
             Resource ReserVation Protocol (RSVP)
-            RFC 2250 MPEG1
-            RIPng
             Rlogin Protocol
             Routing Information Protocol
             Routing Table Maintenance Protocol
-            RPC Browser
-            RSTAT
-            RX Protocol
             SADMIND
             SCSI
+            SGI Mount Service
+            SMB (Server Message Block Protocol)
+            SMB MailSlot Protocol
+            SMB Pipe Protocol
+            SNA-over-Ethernet
+            SNMP Multiplex Protocol
+            SPNEGO-KRB5
+            SPRAY
+            SS7 SCCP-User Adaptation Layer
+            SSCOP
             Secure Socket Layer
             Sequenced Packet eXchange
             Service Advertisement Protocol
@@ -457,7 +466,6 @@
             Session Announcement Protocol
             Session Description Protocol
             Session Initiation Protocol
-            SGI Mount Service
             Short Message Peer to Peer
             Signalling Connection Control Part
             Signalling Connection Control Part Management
@@ -466,32 +474,23 @@
             Sinec H1 Protocol
             Skinny Client Control Protocol
             SliMP3 Communication Protocol
-            SMB MailSlot Protocol
-            SMB Pipe Protocol
-            SMB (Server Message Block Protocol)
-            SNA-over-Ethernet
-            SNMP Multiplex Protocol
             Socks Protocol
             Spanning Tree Protocol
             Spnego
-            SPNEGO-KRB5
-            SPRAY
-            SS7 SCCP-User Adaptation Layer
-            SSCOP
             Stream Control Transmission Protocol
             Synchronous Data Link Control (SDLC)
             Syslog message
             Systems Network Architecture
-            Tabular Data Stream
             TACACS
             TACACS+
+            TPKT
+            Tabular Data Stream
             Tazmen Sniffer Protocol
             Telnet
             Time Protocol
             Time Synchronization Protocol
             Token-Ring
             Token-Ring Media Access Control
-            TPKT
             Transmission Control Protocol
             Transparent Network Substrate Protocol
             Trivial File Transfer Protocol
@@ -507,11 +506,11 @@
             Wireless Session Protocol
             Wireless Transaction Protocol
             Wireless Transport Layer Security
-            X11
+            X Display Manager Control Protocol
             X.25
             X.25 over TCP
             X.29
-            X Display Manager Control Protocol
+            X11
             Xyplex
             Yahoo Messenger Protocol
             Yellow Pages Bind
@@ -520,6 +519,7 @@
             Yellow Pages Transfer
             Zebra Protocol
             Zone Information Protocol
+            iSCSI
 
    Q 1.3: Are there any plans to support {your favorite protocol}?
 
@@ -758,8 +758,14 @@
    to a single port so that you can plug your sniffer into that single
    port to sniff all traffic. You would have to check the documentation
    for the switch to see if this is possible and, if so, to see how to do
-   this. See, for example, this documentation from Cisco on the Switched
-   Port Analyzer (SPAN) feature on Catalyst switches.
+   this. See, for example:
+     * this documentation from Cisco on the Switched Port Analyzer (SPAN)
+       feature on Catalyst switches;
+     * documentation from HP on how to set `monitoring'/`mirroring' on
+       ports on the console for HP Advancestack Switch 208 and 224;
+     * the `Network Monitoring Port Features' section of chapter 6 of
+       documentation from HP for HP ProCurve Switches 1600M, 2424M,
+       4000M, and 8000M.
 
    Note also that many firewall/NAT boxes have a switch built into them;
    this includes many of the "cable/DSL router" boxes. If you have a box
@@ -1504,4 +1510,4 @@ echo "Mode: ess" >/proc/driver/aironet/ethN/Config
    list. 
    For corrections/additions/suggestions for this page, please send email
    to: ethereal-web[AT]ethereal.com
-   Last modified: Thu, February 27 2003.
+   Last modified: Wed, March 05 2003.
