@@ -7,7 +7,7 @@
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp2222.inc,v 1.8.2.5 2002/03/01 03:19:30 gram Exp $
+ * $Id: packet-ncp2222.inc,v 1.8.2.6 2002/03/02 03:38:27 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -233,6 +233,105 @@ ncp_record_find(guint8 func, guint8 subfunc)
 	return NULL;
 }
 
+/* Given a proto_item*, assume it contains an integer value
+ * and return a guint from it. */
+guint
+get_item_value(proto_item *item)
+{
+	return PITEM_FINFO(item)->value->value.integer;
+}
+
+char*
+get_item_name(proto_item *item)
+{
+	return PITEM_FINFO(item)->hfinfo->name;
+}
+
+
+typedef proto_item* (*padd_func_t)(ptvcursor_t*, const ptvc_record*);
+
+typedef struct {
+	guint	year;
+	guint	month;
+	guint	day;
+} nw_date_t;
+
+typedef struct {
+	guint	hour;
+	guint	minute;
+	guint	second;
+} nw_time_t;
+
+/* Given an integer, fill in a nw_date_t struct. */
+static void
+uint_to_nwdate(guint data, nw_date_t *nwdate)
+{
+	nwdate->day   =  data & 0x001f;
+	nwdate->month = (data & 0x01e0) >> 5;
+	nwdate->year  = ((data & 0xfe00) >> 9) + 1980;
+}
+
+/* Given an integer, fill in a nw_time_t struct. */
+static void
+uint_to_nwtime(guint data, nw_time_t *nwtime)
+{
+	/* 2-second resolution */
+	nwtime->second = (data & 0x001f) * 2;
+	nwtime->minute = ((data & 0x07e0) >> 5) + 1;
+	nwtime->hour   = ((data & 0xf800) >> 11) + 1;
+}
+
+
+static proto_item*
+padd_normal(ptvcursor_t *ptvc, const ptvc_record *rec)
+{
+	return ptvcursor_add(ptvc, *rec->hf_ptr,
+		rec->length, rec->endianness);
+}
+
+
+static proto_item*
+padd_date(ptvcursor_t *ptvc, const ptvc_record *rec)
+{
+	proto_item	*item;
+	nw_date_t	nw_date;
+	gint		offset;
+
+	offset = ptvcursor_current_offset(ptvc);
+
+	item = ptvcursor_add(ptvc, *rec->hf_ptr,
+		rec->length, rec->endianness);
+
+	uint_to_nwdate(get_item_value(item), &nw_date);
+	
+	proto_item_set_text(item, get_item_name(item)); 
+	proto_item_append_text(item, ": %04u/%02u/%02u",
+			nw_date.year, nw_date.month, nw_date.day);
+	return item;
+}
+
+static proto_item*
+padd_time(ptvcursor_t *ptvc, const ptvc_record *rec)
+{
+	proto_item	*item;
+	nw_time_t	nw_time;
+	gint		offset;
+
+	offset = ptvcursor_current_offset(ptvc);
+
+	item = ptvcursor_add(ptvc, *rec->hf_ptr,
+		rec->length, rec->endianness);
+
+	uint_to_nwtime(get_item_value(item), &nw_time);
+	
+	proto_item_set_text(item, get_item_name(item)); 
+	proto_item_append_text(item, ": %02u:%02u:%02u",
+			nw_time.hour, nw_time.minute, nw_time.second);
+	return item;
+}
+
+
+
 /* Add a value for a ptvc_record, and process the sub-ptvc_record
  * that it points to. */
 static void
@@ -294,12 +393,6 @@ process_struct_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 	process_ptvc_record(ptvc, sub_rec, req_cond_results, really_decode, ncp_rec);
 }
 
-guint
-get_item_value(proto_item *item)
-{
-	return PITEM_FINFO(item)->value->value.integer;
-}
-
 /* Run through the table of ptvc_record's and add info to the tree. This
  * is the work-horse of process_ptvc_record(). */
 static void
@@ -307,8 +400,9 @@ _process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 		int *req_cond_results, gboolean really_decode,
 		const ncp_record *ncp_rec)
 {
-	proto_item *item;
-	guint i, repeat_count;
+	proto_item	*item;
+	guint		i, repeat_count;
+	padd_func_t	func = NULL;
 
 	if (rec->sub_ptvc_rec) {
 		/* Repeat this? */
@@ -343,8 +437,21 @@ _process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 		 * to set a 'var'. */
 		if (rec->repeat_index == NO_REPEAT) {
 			if (really_decode) {
-				item = ptvcursor_add(ptvc, *rec->hf_ptr, rec->length,
-					rec->endianness);
+				/* Handle any special formatting. */
+				switch(rec->special_fmt) {
+					case NCP_FMT_NONE:
+						func = padd_normal;
+						break;
+					case NCP_FMT_NW_DATE:
+						func = padd_date;
+						break;
+					case NCP_FMT_NW_TIME:
+						func = padd_time;
+						break;
+					default:
+						g_assert_not_reached();
+				}
+				item = func(ptvc, rec);
 
 				/* Set the value as a 'var' ? */
 				if (rec->var_index != NO_VAR) {
@@ -365,9 +472,22 @@ _process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 			/* We do repeat this field. */
 			repeat_count = repeat_vars[rec->repeat_index];
 			if (really_decode) {
+				/* Handle any special formatting. */
+				switch(rec->special_fmt) {
+					case NCP_FMT_NONE:
+						func = padd_normal;
+						break;
+					case NCP_FMT_NW_DATE:
+						func = padd_date;
+						break;
+					case NCP_FMT_NW_TIME:
+						func = padd_time;
+						break;
+					default:
+						g_assert_not_reached();
+				}
 				for (i = 0; i < repeat_count; i++ ) {
-					ptvcursor_add(ptvc, *rec->hf_ptr,
-						rec->length, rec->endianness);
+					func(ptvc, rec);
 				}
 			}
 			else {

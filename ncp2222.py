@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.14 2002/03/01 03:19:27 gram Exp $
+$Id: ncp2222.py,v 1.14.2.15 2002/03/02 03:38:24 gram Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -268,7 +268,7 @@ class PTVC(NamedList):
 		x =  "static const ptvc_record %s[] = {\n" % (self.Name())
 		for ptvc_rec in self.list:
 			x = x +  "\t%s,\n" % (ptvc_rec.Code())
-		x = x + "\t{ NULL, 0, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND }\n"
+		x = x + "\t{ NULL, 0, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND, NCP_FMT_NONE }\n"
 		x = x + "};\n"
 		return x
 
@@ -298,7 +298,7 @@ class PTVCBitfield(PTVC):
 		x = x + "static const ptvc_record ptvc_%s[] = {\n" % (self.Name())
 		for ptvc_rec in self.list:
 			x = x +  "\t%s,\n" % (ptvc_rec.Code())
-		x = x + "\t{ NULL, 0, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND }\n"
+		x = x + "\t{ NULL, 0, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND, NCP_FMT_NONE }\n"
 		x = x + "};\n"
 
 		x = x + "static const sub_ptvc_record %s = {\n" % (self.Name(),)
@@ -383,9 +383,10 @@ class PTVCRecord:
 			sub_ptvc_name = "&%s" % (sub_ptvc_name,)
 
 
-		return "{ &%s, %s, %s, %s, %s, %s, %s }" % (self.field.HFName(),
-				length, sub_ptvc_name, endianness,
-				var, repeat, req_cond)
+		return "{ &%s, %s, %s, %s, %s, %s, %s, %s }" % \
+			(self.field.HFName(), length, sub_ptvc_name, 
+			endianness, var, repeat, req_cond,
+			self.field.SpecialFmt())
 
 	def Offset(self):
 		return self.offset
@@ -700,6 +701,7 @@ class Type:
 		self.bytes = bytes
 		self.endianness = endianness
 		self.hfname = "hf_ncp_" + self.abbrev
+		self.special_fmt = "NCP_FMT_NONE"
 
 	def Length(self):
 		return self.bytes
@@ -739,6 +741,15 @@ class Type:
 	def PTVCName(self):
 		return "NULL"
 
+	def NWDate(self):
+		self.special_fmt = "NCP_FMT_NW_DATE"
+
+	def NWTime(self):
+		self.special_fmt = "NCP_FMT_NW_TIME"
+
+	def SpecialFmt(self):
+		return self.special_fmt
+
 	def __cmp__(self, other):
 		return cmp(self.hfname, other.hfname)
 
@@ -763,14 +774,14 @@ class struct(PTVC, Type):
 		return vars
 
 	def ReferenceString(self, var, repeat, req_cond):
-		return "{ PTVC_STRUCT, NO_LENGTH, &%s, NO_ENDIANNESS, %s, %s, %s}" % \
+		return "{ PTVC_STRUCT, NO_LENGTH, &%s, NO_ENDIANNESS, %s, %s, %s, NCP_FMT_NONE }" % \
 			(self.name, var, repeat, req_cond)
 
 	def Code(self):
 		x = "static const ptvc_record ptvc_%s[] = {\n" % (self.name,)
 		for ptvc_rec in self.list:
 			x = x +  "\t%s,\n" % (ptvc_rec.Code())
-		x = x + "\t{ NULL, NO_LENGTH, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND }\n"
+		x = x + "\t{ NULL, NO_LENGTH, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND, NCP_FMT_NONE }\n"
 		x = x + "};\n"
 
 		x = x + "static const sub_ptvc_record %s = {\n" % (self.name,)
@@ -940,13 +951,13 @@ class bitfield8(bitfield, uint8):
 
 class bf_uint(Type):
 	type	= "bf_uint"
-	disp	= 'BASE_HEX'
+	disp	= None
 
 	def __init__(self, bitmask, abbrev, descr):
+		bytes = int(self.disp) / 8
+		Type.__init__(self, abbrev, descr, bytes, NA)
 		self.bitmask = bitmask
-		self.abbrev = abbrev
-		self.descr = descr
-		self.hfname = "hf_ncp_" + self.abbrev
+
 
 	def Mask(self):
 		return self.bitmask
@@ -955,6 +966,7 @@ class bf_boolean8(bf_uint, boolean8):
 	type	= "bf_boolean8"
 	ftype	= "FT_BOOLEAN"
 	disp	= "8"
+
 
 #class data(Type):
 #	type	= "data"
@@ -1043,8 +1055,10 @@ AllocFreeCount			= uint32("alloc_free_count", "Reclaimable Free Bytes", LE)
 ApplicationNumber		= uint16("application_number", "Application Number")
 ArchivedTime			= uint16("archived_time", "Archived Time", LE)
 ArchivedTime.Display("BASE_HEX")
+ArchivedTime.NWTime()
 ArchivedDate			= uint16("archived_date", "Archived Date", LE)
 ArchivedDate.Display("BASE_HEX")
+ArchivedDate.NWDate()
 ArchivedDateAndTime		= uint32("archived_date_and_time", "Archived Date & Time")
 ArchiverID			= uint32("archiver_id", "Archiver ID")
 ArchiverID.Display("BASE_HEX")
@@ -1277,9 +1291,11 @@ CPUType				= val_string8("cpu_type", "CPU Type", [
 ])    
 CreationDate 			= uint16("creation_date", "Creation Date", LE)
 CreationDate.Display("BASE_HEX")
+CreationDate.NWDate()
 CreationDateAndTime		= uint32("creation_date_and_time", "Creation Date & Time")
 CreationTime			= uint16("creation_time", "Creation Time", LE)
 CreationTime.Display("BASE_HEX")
+CreationTime.NWTime()
 CreatorID			= uint32("creator_id", "Creator ID")
 CreatorID.Display("BASE_HEX")
 CreatorNameSpaceNumber		= val_string8("creator_name_space_number", "Creator Name Space Number", [
@@ -2427,8 +2443,10 @@ Minute				= uint8("s_minute", "Minutes")
 MixedModePathFlag		= uint8("mixed_mode_path_flag", "Mixed Mode Path Flag")
 ModifiedDate			= uint16("modified_date", "Modified Date", LE)
 ModifiedDate.Display("BASE_HEX")
+ModifiedDate.NWDate()
 ModifiedTime			= uint16("modified_time", "Modified Time", LE)
 ModifiedTime.Display("BASE_HEX")
+ModifiedTime.NWTime()
 ModifierID 			= uint32("modifier_id", "Modifier ID")
 ModifierID.Display("BASE_HEX")
 ModifyDOSInfoMaskHigh		= bitfield8("modify_dos_info_mask_high", "Modify DOS Info Mask (byte 2)", [
