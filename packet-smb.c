@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.325 2003/04/14 10:58:21 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.326 2003/04/14 17:31:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3409,8 +3409,13 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	COUNT_BYTES(2);
 
 	/* file data */
-	/* another way to transport DCERPC over SMB is to skip Transaction completely and just
-	   read write */
+	/* transporting DCERPC over SMB seems to be implemented in various
+	   ways. We might just assume it can be done by an almost random
+	   mix of Trans/Read/Write calls
+
+	   if we suspect dcerpc, just send them all down to packet-smb-pipe.c
+	   and let him sort them out
+	*/
 	if(bc){
 		if(si->sip != NULL && si->sip->flags&SMB_SIF_TID_IS_IPC){
 			/* dcerpc call */
@@ -3512,8 +3517,13 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	COUNT_BYTES(2);
 
 	/* file data */
-	/* another way to transport DCERPC over SMB is to skip Transaction completely and just
-	   read write */
+	/* transporting DCERPC over SMB seems to be implemented in various
+	   ways. We might just assume it can be done by an almost random
+	   mix of Trans/Read/Write calls
+
+	   if we suspect dcerpc, just send them all down to packet-smb-pipe.c
+	   and let him sort them out
+	*/
 	if (bc != 0) {
 		if( (si->sip && si->sip->flags&SMB_SIF_TID_IS_IPC) && (ofs==0) ){
 			/* dcerpc call */
@@ -5426,7 +5436,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	BYTE_COUNT;
 
-	/* if the MessageStart flag is set
+	/* if both the MessageStart and the  WriteRawNamedPipe flags are set
 	   the first two bytes of the payload is the length of the data
 	   also this tells us that this is indeed the IPC$ share
 	   (if we didnt already know that 
