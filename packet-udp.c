@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.14 1999/03/23 03:14:45 gram Exp $
+ * $Id: packet-udp.c,v 1.15 1999/05/10 21:50:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,6 +43,8 @@
 #include <glib.h>
 #include "packet.h"
 #include "resolv.h"
+
+extern packet_info pi;
 
 /* UDP structs and definitions */
 
@@ -160,6 +162,7 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   struct hash_struct *dissect_routine = NULL;
   proto_tree *udp_tree;
   proto_item *ti;
+  guint      payload;
 
   /* To do: Check for {cap len,pkt len} < struct len */
   /* Avoids alignment problems on many architectures. */
@@ -169,6 +172,8 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   uh_ulen  = ntohs(uh.uh_ulen);
   uh_sum   = ntohs(uh.uh_sum);
   
+  payload = pi.payload - sizeof(e_udphdr);
+
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "UDP");
   if (check_col(fd, COL_INFO))
@@ -214,7 +219,7 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       dissect_nbns(pd, offset, fd, tree);
       break;
     case UDP_PORT_NBDGM:
-      dissect_nbdgm(pd, offset, fd, tree);
+      dissect_nbdgm(pd, offset, fd, tree, payload);
       break;
     case UDP_PORT_IPX: /* RFC 1234 */
       dissect_ipx(pd, offset, fd, tree);
