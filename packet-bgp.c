@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.67 2002/08/28 21:00:07 jmayer Exp $
+ * $Id: packet-bgp.c,v 1.68 2002/10/10 01:36:53 gerald Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -970,6 +970,13 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
         end = o + len;
         while (o < end) {
             i = decode_prefix4(tvb, o, junk_buf, sizeof(junk_buf));
+            if (i < 0 || 32 < i) {
+                proto_tree_add_text (tree, tvb, o, len, 
+                    "Invalid withdrawn route prefix length: %u", 
+                        tvb_get_guint8(tvb, o) );
+                return;
+            }
+
             proto_tree_add_text(subtree, tvb, o, i, "%s", junk_buf);
             o += i;
         }
@@ -1776,6 +1783,13 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
             end = o + len;
             while (o < end) {
                 i = decode_prefix4(tvb, o, junk_buf, sizeof(junk_buf));
+                if (i < 0 || 32 < i) {
+                    proto_tree_add_text (tree, tvb, o, len, 
+                        "Invalid NLRI prefix length: %u", 
+                            tvb_get_guint8(tvb, o) );
+                    return;
+                }
+                
                 proto_tree_add_text(subtree, tvb, o, i, "%s", junk_buf);
                 o += i;
             }
