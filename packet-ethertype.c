@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.41 2003/11/27 21:09:42 guy Exp $
+ * $Id: packet-ethertype.c,v 1.42 2004/01/28 03:36:37 gerald Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -273,12 +273,12 @@ add_dix_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
 			/* The packet doesn't have "length" bytes worth of
 			   captured data left in it.  No trailer to display. */
 			trailer_tvb = NULL;
+			add_ethernet_trailer(fh_tree, trailer_id, tvb, trailer_tvb, fcs_len);
 		}
 		ENDTRY;
 	} else
 		trailer_tvb = NULL;	/* no trailer */
 
-	add_ethernet_trailer(fh_tree, trailer_id, tvb, trailer_tvb, fcs_len);
 }
 
 void
