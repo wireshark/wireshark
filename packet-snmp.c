@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.114 2003/09/08 20:16:47 guy Exp $
+ * $Id: packet-snmp.c,v 1.115 2003/09/08 20:21:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2301,12 +2301,15 @@ process_prefs(void)
 {
 #ifdef HAVE_SOME_SNMP
 	gchar *tmp_mib_modules;
+	static gboolean mibs_loaded = FALSE;
 
-	/*
-	 * Unload the MIBs, as we'll be reloading them based on the
-	 * current preference setting.
-	 */
-	shutdown_mib();	/* unload MIBs */
+	if (mibs_loaded) {
+		/*
+		 * Unload the MIBs, as we'll be reloading them based on
+		 * the current preference setting.
+		 */
+		shutdown_mib();	/* unload MIBs */
+	}
 
 	/*
 	 * Cannot check if MIBS is already set, as it could be set by Ethereal.
@@ -2337,6 +2340,7 @@ process_prefs(void)
 	read_premib_configs();
 	init_mib();
 	read_configs();
+	mibs_loaded = TRUE;
 #endif /* HAVE_SOME_SNMP */
 }
 
