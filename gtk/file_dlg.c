@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.63 2003/10/14 23:42:19 guy Exp $
+ * $Id: file_dlg.c,v 1.64 2003/10/16 00:45:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -644,15 +644,10 @@ file_save_as_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 
 /* Reload a file using the current read and display filters */
 void
-file_reload_cmd_cb(GtkWidget *w, gpointer data _U_) {
-  GtkWidget *filter_te = OBJECT_GET_DATA(w, E_DFILTER_TE_KEY);
+file_reload_cmd_cb(GtkWidget *w _U_, gpointer data _U_) {
   gchar *filename;
   gboolean is_tempfile;
   int err;
-
-  if (cfile.dfilter)
-    g_free(cfile.dfilter);
-  cfile.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
 
   /* If the file could be opened, "cf_open()" calls "cf_close()"
      to get rid of state for the old capture file before filling in state

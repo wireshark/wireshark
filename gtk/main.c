@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.323 2003/10/15 19:40:40 guy Exp $
+ * $Id: main.c,v 1.324 2003/10/16 00:45:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2915,7 +2915,6 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
      * of any widget that ends up calling a callback which needs
      * that text entry pointer */
     set_menu_object_data("/File/Open...", E_DFILTER_TE_KEY, filter_te);
-    set_menu_object_data("/File/Reload", E_DFILTER_TE_KEY, filter_te);
     set_menu_object_data("/Edit/Filters...", E_FILT_TE_PTR_KEY, filter_te);
     set_menu_object_data("/Tools/Follow TCP Stream", E_DFILTER_TE_KEY,
                          filter_te);
