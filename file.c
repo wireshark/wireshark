@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.121 1999/11/19 22:31:48 gram Exp $
+ * $Id: file.c,v 1.122 1999/11/22 06:24:38 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -985,6 +985,7 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   fdata->lnk_t = phdr->pkt_encap;
   fdata->abs_secs  = phdr->ts.tv_sec;
   fdata->abs_usecs = phdr->ts.tv_usec;
+  fdata->encoding = CHAR_ASCII;
   fdata->pseudo_header = phdr->pseudo_header;
   fdata->cinfo = NULL;
 
@@ -1280,7 +1281,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
 
 	if (print_args->print_hex) {
 	  /* Print the full packet data as hex. */
-	  print_hex_data(cf->print_fh, cf->pd, fd->cap_len);
+	  print_hex_data(cf->print_fh, cf->pd, fd->cap_len, fd->encoding);
 	}
 
         /* Print a blank line if we print anything after this. */
@@ -1557,7 +1558,7 @@ select_packet(capture_file *cf, int row)
   clear_tree_and_hex_views();
   proto_tree_draw(cf->protocol_tree, tree_view);
   packet_hex_print(GTK_TEXT(byte_view), cf->pd, cf->current_frame->cap_len,
-			-1, -1);
+			-1, -1, cf->current_frame->encoding);
   gtk_text_thaw(GTK_TEXT(byte_view));
 
   /* A packet is selected, so "File/Print Packet" has something to print. */

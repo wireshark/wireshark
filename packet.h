@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.149 1999/11/21 20:02:32 gram Exp $
+ * $Id: packet.h,v 1.150 1999/11/22 06:24:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -106,6 +106,12 @@ typedef struct _packet_counts {
   gint           total;
 } packet_counts;
 
+/* Types of character encodings */
+typedef enum {
+	CHAR_ASCII,	/* ASCII */
+	CHAR_EBCDIC	/* EBCDIC */
+} char_enc;
+
 /* XXX - some of this stuff is used only while a packet is being dissected;
    should we keep around a separate data structure for that, to save
    memory?
@@ -129,6 +135,7 @@ typedef struct _frame_data {
   gint         row;       /* Row number for this packet in the display */
   int          lnk_t;     /* Per-packet encapsulation/data-link type */
   gboolean     passed_dfilter; /* TRUE = display, FALSE = no display */
+  char_enc     encoding;  /* Character encoding (ASCII, EBCDIC...) */
   union pseudo_header pseudo_header; /* "pseudo-header" from wiretap */
 } frame_data;
 

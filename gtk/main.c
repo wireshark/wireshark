@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.41 1999/11/21 15:06:07 deniel Exp $
+ * $Id: main.c,v 1.42 1999/11/22 06:24:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -729,8 +729,8 @@ tree_view_cb(GtkWidget *w, gpointer data) {
   gtk_text_forward_delete(GTK_TEXT(byte_view),
     gtk_text_get_length(GTK_TEXT(byte_view)));
   packet_hex_print(GTK_TEXT(byte_view), cf.pd, cf.current_frame->cap_len, 
-		   tree_selected_start, 
-		   tree_selected_len);
+		   tree_selected_start, tree_selected_len,
+		   cf.current_frame->encoding);
   
   gtk_text_thaw(GTK_TEXT(byte_view));
 }

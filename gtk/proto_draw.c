@@ -1,7 +1,7 @@
 /* gtkpacket.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.5 1999/11/16 11:44:20 guy Exp $
+ * $Id: proto_draw.c,v 1.6 1999/11/22 06:24:55 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,6 +43,7 @@
 #include <stdio.h>
 #include "main.h"
 #include "packet.h"
+#include "util.h"
 
 #include "proto_draw.h"
 
@@ -56,11 +57,12 @@ static void
 proto_tree_draw_node(GNode *node, gpointer data);
 
 void
-packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen) {
+packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
+		char_enc encoding) {
   gint     i = 0, j, k, cur;
-  gchar    line[128], hexchars[] = "0123456789abcdef";
+  gchar    line[128], hexchars[] = "0123456789abcdef", c = '\0';
   GdkFont *cur_font, *new_font;
-  
+
   while (i < len) {
     /* Print the line number */
     sprintf(line, "%04x  ", i);
@@ -92,13 +94,23 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen) {
     }
     line[cur++] = ' ';
     gtk_text_insert(bv, cur_font, NULL, NULL, line, cur);
+
     cur = 0;
     i = j;
     /* Print the ASCII bit */
     cur_font = (i >= bstart && i < (bstart + blen)) ? m_b_font : m_r_font;
     while (i < k) {
       if (i < len) {
-        line[cur++] = (isgraph(pd[i])) ? pd[i] : '.';
+	      if (encoding == CHAR_ASCII) {
+		c = pd[i];
+	      }
+	      else if (encoding == CHAR_EBCDIC) {
+		c = EBCDIC_to_ASCII1(pd[i]);
+	      }
+	      else {
+		      g_assert_not_reached();
+	      }
+              line[cur++] = (isgraph(c)) ? c : '.';
       } else {
         line[cur++] = ' ';
       }

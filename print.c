@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.22 1999/10/30 06:41:36 guy Exp $
+ * $Id: print.c,v 1.23 1999/11/22 06:24:41 gram Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -46,7 +46,8 @@ static void proto_tree_print_node_text(GNode *node, gpointer data);
 static void proto_tree_print_node_ps(GNode *node, gpointer data);
 static void ps_clean_string(unsigned char *out, const unsigned char *in,
 			int outbuf_size);
-static void print_hex_data_ps(FILE *fh, register const u_char *cp, register u_int length);
+static void print_hex_data_ps(FILE *fh, register const u_char *cp,
+		register u_int length, char_enc encoding);
 static void print_ps_file(FILE* target_fh, FILE* source_fh);
 static void print_text_file(FILE* target_fh, FILE* source_fh);
 
@@ -59,6 +60,7 @@ typedef struct {
 	const guint8	*pd;
 	gboolean	print_all_levels;
 	gboolean	print_hex_for_data;
+	char_enc	encoding;
 } print_data;
 
 FILE *open_print_dest(int to_file, const char *dest)
@@ -118,6 +120,7 @@ void proto_tree_print(gboolean print_one_packet, print_args_t *print_args,
 	data.level = 0;
 	data.fh = fh;
 	data.pd = pd;
+	data.encoding = fd->encoding;
 	data.print_all_levels = print_args->expand_all;
 	data.print_hex_for_data = !print_args->print_hex;
 	    /* If we're printing the entire packet in hex, don't
@@ -179,7 +182,8 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 	/* If it's uninterpreted data, dump it (unless our caller will
 	   be printing the entire packet in hex). */
 	if (fi->hfinfo->id == proto_data && pdata->print_hex_for_data)
-		print_hex_data(pdata->fh, &pdata->pd[fi->start], fi->length);
+		print_hex_data(pdata->fh, &pdata->pd[fi->start], fi->length,
+				pdata->encoding);
 
 	/* If we're printing all levels, or if this level is expanded,
 	   recurse into the subtree, if it exists. */
@@ -195,7 +199,8 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 
 /* This routine was created by Dan Lasley <DLASLEY@PROMUS.com>, and
 only slightly modified for ethereal by Gilbert Ramirez. */
-void print_hex_data(FILE *fh, register const u_char *cp, register u_int length)
+void print_hex_data(FILE *fh, register const u_char *cp, register u_int length,
+		char_enc encoding)
 {
         register int ad, i, j, k;
         u_char c;
@@ -211,6 +216,9 @@ void print_hex_data(FILE *fh, register const u_char *cp, register u_int length)
                 line[j++] = binhex[c>>4];
                 line[j++] = binhex[c&0xf];
                 if (i&1) j++;
+		if (encoding == CHAR_EBCDIC) {
+			c = EBCDIC_to_ASCII1(c);
+		}
                 line[42+k++] = c >= ' ' && c < 0x7f ? c : '.';
                 if ((i & 15) == 15) {
                         fprintf (fh, "\n%4x  %s", ad, line);
@@ -258,7 +266,8 @@ void proto_tree_print_node_ps(GNode *node, gpointer data)
 	/* If it's uninterpreted data, dump it. */
 	if (fi->hfinfo->id == proto_data) {
 		print_ps_hex(pdata->fh);
-		print_hex_data_ps(pdata->fh, &pdata->pd[fi->start], fi->length);
+		print_hex_data_ps(pdata->fh, &pdata->pd[fi->start], fi->length,
+				pdata->encoding);
 	}
 
 	/* Recurse into the subtree, if it exists */
@@ -299,7 +308,8 @@ void ps_clean_string(unsigned char *out, const unsigned char *in,
 }
 
 static
-void print_hex_data_ps(FILE *fh, register const u_char *cp, register u_int length)
+void print_hex_data_ps(FILE *fh, register const u_char *cp, register u_int length,
+		char_enc encoding)
 {
         register int ad, i, j, k;
         u_char c;
@@ -316,9 +326,12 @@ void print_hex_data_ps(FILE *fh, register const u_char *cp, register u_int lengt
                 line[j++] = binhex[c>>4];
                 line[j++] = binhex[c&0xf];
                 if (i&1) j++;
+		if (encoding == CHAR_EBCDIC) {
+			c = EBCDIC_to_ASCII1(c);
+		}
                 line[42+k++] = c >= ' ' && c < 0x7f ? c : '.';
                 if ((i & 15) == 15) {
-						ps_clean_string(psline, line, MAX_LINE_LENGTH);
+			ps_clean_string(psline, line, MAX_LINE_LENGTH);
                         fprintf (fh, "(%4x  %s) hexdump\n", ad, psline);
                         memset (line, ' ', sizeof line);
                         line[sizeof (line)-1] = j = k = 0;
