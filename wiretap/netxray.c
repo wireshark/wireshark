@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.76 2003/01/31 01:02:08 guy Exp $
+ * $Id: netxray.c,v 1.77 2003/03/01 09:42:44 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -245,6 +245,18 @@ int netxray_open(wtap *wth, int *err)
 			timeunit = TpS[hdr.timeunit];
 			version_major = 2;
 			file_type = WTAP_FILE_NETXRAY_2_00x;
+
+			/*
+			 * It appears that if hdr.xxb[20] is 2, that indicates
+			 * that it's a gigabit Ethernet capture, possibly
+			 * from a special whizzo gigabit pod, and also
+			 * indicates that the time stamps have nanosecond
+			 * resolution (or, at least, 1000 times greater
+			 * resolution), possibly thanks to a high-resolution
+			 * timer on the pod.
+			 */
+			if (hdr.xxb[20] == 2)
+				timeunit = timeunit*1000.0;
 		} else {
 			g_message("netxray: version \"%.8s\" unsupported", hdr.version);
 			*err = WTAP_ERR_UNSUPPORTED;
