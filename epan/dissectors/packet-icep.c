@@ -27,10 +27,9 @@
 /*
   TODO:
   1) Dissect encoded data (do sth like idl2eth for CORBA).
-  2) Reassembling PDUs spanning across multiple TCP segments.
-  3) Add conversations.
-  4) Register a dissector as one that can be selected by a UDP/TCP port number.
-  5) Put in Preferences/Protocols/ICEP Option menu:
+  2) Add conversations.
+  3) Register a dissector as one that can be selected by a UDP/TCP port number.
+  4) Put in Preferences/Protocols/ICEP Option menu:
       - ICEP_MAX_ICE_STRING_LEN
       - ICEP_MAX_BATCH_REQUESTS
       - ICEP_MAX_ICE_CONTEXT_PAIRS
@@ -607,7 +606,7 @@ static void dissect_ice_params(proto_tree *tree, tvbuff_t *tvb,
 		return;
 	
 	/* check if I got all encapsulated data */
-	tvb_data_remained = tvb_length_remaining(tvb, offset);
+	tvb_data_remained = tvb_reported_length_remaining(tvb, offset);
 	
 	if ( tvb_data_remained < ( size - ICEP_MIN_PARAMS_SIZE ) ) {
 		
