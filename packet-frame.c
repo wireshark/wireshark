@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.10 2001/11/01 04:00:56 gram Exp $
+ * $Id: packet-frame.c,v 1.11 2001/11/26 01:23:59 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,6 +48,8 @@ static int proto_short = -1;
 int proto_malformed = -1;
 
 static gint ett_frame = -1;
+
+static dissector_handle_t data_handle;
 
 /* Preferences */
 static gboolean show_file_off = FALSE;
@@ -138,7 +140,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				col_set_str(pinfo->fd, COL_PROTOCOL, "UNKNOWN");
 			if (check_col(pinfo->fd, COL_INFO))
 				col_add_fstr(pinfo->fd, COL_INFO, "WTAP_ENCAP = 0x%x", pinfo->fd->lnk_t);
-			dissect_data(tvb, 0, pinfo, tree);
+			call_dissector(data_handle,tvb, pinfo, tree);
 		}
 	}
 	CATCH(BoundsError) {
@@ -224,4 +226,9 @@ proto_register_frame(void)
     frame_module = prefs_register_protocol(proto_frame, NULL);
     prefs_register_bool_preference(frame_module, "show_file_off",
         "Show File Offset", "Show File Offset", &show_file_off);
+}
+
+void
+proto_reg_handoff_frame(void){
+  data_handle = find_dissector("data");
 }
