@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-giop.c,v 1.4 1999/07/29 05:46:54 gram Exp $
+ * $Id: packet-giop.c,v 1.5 1999/08/26 07:34:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -211,7 +211,7 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
 #define END_OF_GIOP_MESSAGE (offset - first_offset - GIOP_HEADER_SIZE)
 
-  if (fd->cap_len < offset + GIOP_HEADER_SIZE) {
+  if (pi.captured_len < offset + GIOP_HEADER_SIZE) {
     dissect_data(pd, offset, fd, tree);
     return;
   }
@@ -304,7 +304,7 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
   offset += GIOP_HEADER_SIZE;
 
-  if (fd->cap_len < offset + message_size) {
+  if (pi.captured_len < offset + message_size) {
     dissect_data(pd, offset, fd, tree);
     return;
   }
@@ -691,7 +691,7 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
   offset = first_offset + GIOP_HEADER_SIZE + message_size;
 
-  if (offset < fd->cap_len) {
+  if (offset < pi.captured_len) {
     dissect_data(pd, offset, fd, tree);
   }
 

@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.12 1999/07/29 05:47:01 gram Exp $
+ * $Id: packet-ospf.c,v 1.13 1999/08/26 07:34:41 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -162,7 +162,7 @@ dissect_ospf_hello(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
     memcpy(&ospfhello, &pd[offset], sizeof(e_ospf_hello));
 
     if (tree) {
-	ti = proto_tree_add_text(tree, offset, (fd->cap_len - offset) , "OSPF Hello Packet"); 
+	ti = proto_tree_add_text(tree, offset, END_OF_FRAME, "OSPF Hello Packet"); 
 	ospf_hello_tree = proto_item_add_subtree(ti, ETT_OSPF_HELLO);
 
 
@@ -200,8 +200,8 @@ dissect_ospf_hello(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 
 
 	offset+=20;
-	while(((int)(fd->cap_len - offset)) >= 4){
-	    printf("%d", fd->cap_len - offset);
+	while(((int)(pi.captured_len - offset)) >= 4){
+	    printf("%d", pi.captured_len - offset);
 	    ospfneighbor=(guint32 *) &pd[offset];
 	    proto_tree_add_text(ospf_hello_tree, offset, 4, "Active Neighbor: %s",  ip_to_str((guint8 *) ospfneighbor));
 	    offset+=4;
@@ -223,7 +223,7 @@ dissect_ospf_db_desc(const u_char *pd, int offset, frame_data *fd, proto_tree *t
     memcpy(&ospf_dbd, &pd[offset], sizeof(e_ospf_dbd));
 
     if (tree) {
-	ti = proto_tree_add_text(tree, offset, (fd->cap_len - offset) , "OSPF DB Description"); 
+	ti = proto_tree_add_text(tree, offset, END_OF_FRAME, "OSPF DB Description"); 
 	ospf_db_desc_tree = proto_item_add_subtree(ti, ETT_OSPF_DESC);
 
 	proto_tree_add_text(ospf_db_desc_tree, offset, 2, "Interface MTU: %d", ntohs(ospf_dbd.interface_mtu) );
@@ -274,7 +274,7 @@ dissect_ospf_db_desc(const u_char *pd, int offset, frame_data *fd, proto_tree *t
     /* LS Headers will be processed here */
     /* skip to the end of DB-Desc header */
     offset+=8;
-    while( ((int) (fd->cap_len - offset)) >= OSPF_LSA_HEADER_LENGTH ) {
+    while( ((int) (pi.captured_len - offset)) >= OSPF_LSA_HEADER_LENGTH ) {
        dissect_ospf_lsa(pd, offset, fd, tree, FALSE);
        offset+=OSPF_LSA_HEADER_LENGTH;
     }
@@ -291,7 +291,7 @@ dissect_ospf_ls_req(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
     /* zero or more LS requests may be within a LS Request */
     /* we place every request for a LSA in a single subtree */
     if (tree) {
-	while( ((int) ( fd->cap_len - offset)) >= OSPF_LS_REQ_LENGTH ){
+	while( ((int) (pi.captured_len - offset)) >= OSPF_LS_REQ_LENGTH ){
              memcpy(&ospf_lsr, &pd[offset], sizeof(e_ospf_ls_req));
 	     ti = proto_tree_add_text(tree, offset, OSPF_LS_REQ_LENGTH, "Link State Request"); 
 	     ospf_lsr_tree = proto_item_add_subtree(ti, ETT_OSPF_LSR);
@@ -342,7 +342,7 @@ dissect_ospf_ls_upd(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
     memcpy(&upd_hdr, &pd[offset], sizeof(e_ospf_lsa_upd_hdr));
 
     if (tree) {
-	ti = proto_tree_add_text(tree, offset, (fd->cap_len - offset) , "LS Update Packet"); 
+	ti = proto_tree_add_text(tree, offset, END_OF_FRAME, "LS Update Packet"); 
 	ospf_lsa_upd_tree = proto_item_add_subtree(ti, ETT_OSPF_LSA_UPD);
 
 	proto_tree_add_text(ospf_lsa_upd_tree, offset, 4, "Nr oF LSAs: %ld", (long)ntohl(upd_hdr.lsa_nr) );
@@ -361,7 +361,7 @@ void
 dissect_ospf_ls_ack(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     /* the body of a LS Ack packet simply contains zero or more LSA Headers */
-    while( ((int)(fd->cap_len - offset)) >= OSPF_LSA_HEADER_LENGTH ) {
+    while( ((int)(pi.captured_len - offset)) >= OSPF_LSA_HEADER_LENGTH ) {
        dissect_ospf_lsa(pd, offset, fd, tree, FALSE);
        offset+=OSPF_LSA_HEADER_LENGTH;
     }
@@ -523,7 +523,7 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
                                                  ip_to_str((guint8 *) &(network_lsa.network_mask)));
 		offset += 4;
 
-		while( ((int) (fd->cap_len - offset)) >= 4){
+		while( ((int) (pi.captured_len - offset)) >= 4){
 		    attached_router = (guint32 *) &pd[offset];
 		    proto_tree_add_text(ospf_lsa_tree, offset, 4, "Attached Router: %s", 
                                                  ip_to_str((guint8 *) attached_router));
@@ -567,7 +567,7 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
                 break;
             default:
                /* unknown LSA type */
-	        proto_tree_add_text(ospf_lsa_tree, offset, (fd->cap_len - offset), "Unknown LSA Type");
+	        proto_tree_add_text(ospf_lsa_tree, offset, END_OF_FRAME, "Unknown LSA Type");
         }
     }
     /* return the length of this LSA */

@@ -2,7 +2,7 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.11 1999/08/04 00:33:11 guy Exp $
+ * $Id: packet-rip.c,v 1.12 1999/08/26 07:34:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -92,7 +92,7 @@ dissect_rip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
         col_add_str(fd, COL_INFO, packet_type[rip_header.command]); 
 
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_rip, offset, (fd->cap_len - offset), NULL);
+	ti = proto_tree_add_item(tree, proto_rip, offset, END_OF_FRAME, NULL);
 	rip_tree = proto_item_add_subtree(ti, ETT_RIP);
 
 	proto_tree_add_text(rip_tree, offset, 1, "Command: %d (%s)", rip_header.command, packet_type[rip_header.command]); 
@@ -105,7 +105,7 @@ dissect_rip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
         /* zero or more entries */
 
-	while((fd->cap_len - offset) >= RIP_ENTRY_LENGTH){
+	while((pi.captured_len - offset) >= RIP_ENTRY_LENGTH){
 	    memcpy(&rip_entry, &pd[offset], sizeof(rip_entry)); /* avoid alignment problem */
 	    family = ntohs(rip_entry.vektor.family);
 	    switch (family) {
