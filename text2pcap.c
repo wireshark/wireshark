@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.18 2002/06/30 20:28:54 guy Exp $
+ * $Id: text2pcap.c,v 1.19 2002/07/15 20:57:13 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -93,17 +93,24 @@
 #define __USE_XOPEN
 
 #include <time.h>
+#include <glib.h>
 
-#include <sys/types.h>
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #endif
+
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
 #endif
+
 #ifdef HAVE_WINSOCK2_H
 # include <winsock2.h>
 #endif
+
 #include <errno.h>
 #include <assert.h>
 
@@ -113,14 +120,6 @@
 
 #ifdef NEED_STRPTIME_H
 # include "strptime.h"
-#endif
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-#ifndef FALSE
-#define FALSE 0
 #endif
 
 #include "text2pcap.h"
