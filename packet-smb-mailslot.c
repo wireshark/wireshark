@@ -2,7 +2,7 @@
  * Routines for SMB mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.22 2001/11/18 02:51:19 guy Exp $
+ * $Id: packet-smb-mailslot.c,v 1.23 2001/11/19 10:06:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,9 +68,9 @@ static const value_string class_vals[] = {
 */
   
 gboolean
-dissect_mailslot_smb(tvbuff_t *total_tvb, tvbuff_t *setup_tvb,
-		     tvbuff_t *tvb, const char *mailslot,
-		     packet_info *pinfo, proto_tree *parent_tree)
+dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
+		     tvbuff_t *tvb, const char *mailslot, packet_info *pinfo,
+		     proto_tree *parent_tree)
 {
 	smb_info_t *smb_info;
 	smb_transact_info_t *tri;
@@ -130,9 +130,11 @@ dissect_mailslot_smb(tvbuff_t *total_tvb, tvbuff_t *setup_tvb,
 	}
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, proto_smb_msp, total_tvb,
-			0, tvb_length(total_tvb), FALSE);
+		item = proto_tree_add_item(parent_tree, proto_smb_msp, mshdr_tvb,
+			0, tvb_length(mshdr_tvb), FALSE);
 		tree = proto_item_add_subtree(item, ett_smb_msp);
+
+		/* These are in the setup words; use "setup_tvb". */
 
 		/* opcode */
 		proto_tree_add_uint(tree, hf_opcode, setup_tvb, offset, 2,
@@ -148,15 +150,16 @@ dissect_mailslot_smb(tvbuff_t *total_tvb, tvbuff_t *setup_tvb,
 		proto_tree_add_item(tree, hf_class, setup_tvb, offset, 2, TRUE);
 		offset += 2;
 
+		/* These are in the rest of the data; use "mshdr_tvb", which
+		   starts at the same place "setup_tvb" does. */
+
 		/* size */
-		proto_tree_add_item(tree, hf_size, setup_tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_size, mshdr_tvb, offset, 2, TRUE);
 		offset += 2;
 
 		/* mailslot name */
-		len = tvb_strsize(setup_tvb, offset);
-		proto_tree_add_item(tree, hf_name, setup_tvb, offset, len,
-		    TRUE);
-		offset += len;
+		len = tvb_strsize(mshdr_tvb, offset);
+		proto_tree_add_item(tree, hf_name, mshdr_tvb, offset, len, TRUE);
 	}
 
 	dissected = FALSE;

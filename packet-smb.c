@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.157 2001/11/18 22:12:46 guy Exp $
+ * $Id: packet-smb.c,v 1.158 2001/11/19 10:06:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2429,6 +2429,15 @@ dissect_open_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	return offset;
 }
 
+void
+add_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+    guint16 fid)
+{
+	proto_tree_add_uint(tree, hf_smb_fid, tvb, offset, 2, fid);
+	if (check_col(pinfo->fd, COL_INFO))
+		col_append_fstr(pinfo->fd, COL_INFO, ", FID: 0x%04x", fid);
+}
+
 static int
 dissect_open_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
@@ -2440,11 +2449,8 @@ dissect_open_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_smb_fid, tvb, offset, 2, fid);
+	add_fid(tvb, pinfo, tree, offset, fid);
 	offset += 2;
-
-	if (check_col(pinfo->fd, COL_INFO))
-		col_append_fstr(pinfo->fd, COL_INFO, ", FID: 0x%04x", fid);
 
 	/* File Attributes */
 	offset = dissect_file_attributes(tvb, pinfo, tree, offset);
@@ -2471,11 +2477,13 @@ dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, pro
 {
 	guint8 wc;
 	guint16 bc;
+	guint16 fid;
 
 	WORD_COUNT;
 
 	/* fid */
-	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	fid = tvb_get_letohs(tvb, offset);
+	add_fid(tvb, pinfo, tree, offset, fid);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -3031,11 +3039,8 @@ dissect_create_temporary_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_smb_fid, tvb, offset, 2, fid);
+	add_fid(tvb, pinfo, tree, offset, fid);
 	offset += 2;
-
-	if (check_col(pinfo->fd, COL_INFO))
-		col_append_fstr(pinfo->fd, COL_INFO, ", FID: 0x%04x", fid);
 
 	BYTE_COUNT;
 
@@ -4397,11 +4402,8 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_smb_fid, tvb, offset, 2, fid);
+	add_fid(tvb, pinfo, tree, offset, fid);
 	offset += 2;
-
-	if (check_col(pinfo->fd, COL_INFO))
-		col_append_fstr(pinfo->fd, COL_INFO, ", FID: 0x%04x", fid);
 
 	/* File Attributes */
 	offset = dissect_file_attributes(tvb, pinfo, tree, offset);
@@ -6627,11 +6629,8 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo, int offset, p
 		
 		/* fid */
 		fid = tvb_get_letohs(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_fid, tvb, offset, 2, fid);
+		add_fid(tvb, pinfo, tree, offset, fid);
 		offset += 2;
-
-		if (check_col(pinfo->fd, COL_INFO))
-			col_append_fstr(pinfo->fd, COL_INFO, ", FID: 0x%04x", fid);
 
 		/* create action */
 		proto_tree_add_item(tree, hf_smb_create_action, tvb, offset, 4, TRUE);
@@ -7266,11 +7265,8 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_smb_fid, tvb, offset, 2, fid);
+	add_fid(tvb, pinfo, tree, offset, fid);
 	offset += 2;
-
-	if (check_col(pinfo->fd, COL_INFO))
-		col_append_fstr(pinfo->fd, COL_INFO, ", FID: 0x%04x", fid);
 
 	/* create action */
 	/*XXX is this really the same as create disposition in the request? it looks so*/
@@ -8826,11 +8822,62 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 
+static void
+dissect_trans_data(tvbuff_t *s_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
+    packet_info *pinfo, proto_tree *tree)
+{
+	int i;
+	int offset;
+	guint length;
+
+	/*
+	 * Show the setup words.
+	 */
+	if (s_tvb != NULL) {
+		length = tvb_length(s_tvb);
+		for (i = 0, offset = 0; length >= 2;
+		    i++, offset += 2, length -= 2) {
+			/*
+			 * XXX - add a setup word filterable field?
+			 */
+			proto_tree_add_text(tree, s_tvb, offset, 2,
+			    "Setup Word %d: 0x%04x", i,
+			    tvb_get_letohs(s_tvb, offset));
+		}
+	}
+
+	/*
+	 * Show the parameters, if any.
+	 */
+	if (p_tvb != NULL) {
+		length = tvb_length(p_tvb);
+		if (length != 0) {
+			proto_tree_add_text(tree, p_tvb, 0, length,
+			    "Parameters: %s",
+			    tvb_bytes_to_str(p_tvb, 0, length));
+		}
+	}
+
+	/*
+	 * Show the data, if any.
+	 */
+	if (d_tvb != NULL) {
+		length = tvb_length(d_tvb);
+		if (length != 0) {
+			proto_tree_add_text(tree, d_tvb, 0, length,
+			    "Data: %s", tvb_bytes_to_str(d_tvb, 0, length));
+		}
+	}
+}
+
 static int
 dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8 wc, sc=0;
-	int so=0;
+	int so=offset;
+	int sl=0;
+	int tpo=offset;
+	int tpc=0;
 	guint16 od=0, tf, po=0, pc=0, dc=0, pd, dd=0;
 	guint16 subcmd;
 	guint32 to;
@@ -8848,7 +8895,8 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	WORD_COUNT;
 
 	if(wc==8){
-	/*secondary client request*/
+		/*secondary client request*/
+
 		/* total param count, only a 16bit integer here*/
 		proto_tree_add_uint(tree, hf_smb_total_param_count, tvb, offset, 2, tvb_get_letohs(tvb, offset));
 		offset += 2;
@@ -8892,8 +8940,14 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
 			offset += 2;
 		}
+
+		/* There are no setup words. */
+		so = offset;
+		sc = 0;
+		sl = 0;
 	} else {
-	/* it is not a secondary request */
+		/* it is not a secondary request */
+
 		/* total param count , only a 16 bit integer here*/
 		proto_tree_add_uint(tree, hf_smb_total_param_count, tvb, offset, 2, tvb_get_letohs(tvb, offset));
 		offset += 2;
@@ -8906,11 +8960,11 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_uint(tree, hf_smb_max_param_count, tvb, offset, 2, tvb_get_letohs(tvb, offset));
 		offset += 2;
 
-		/* max data count , only 16bit integer here*/
+		/* max data count, only 16bit integer here*/
 		proto_tree_add_uint(tree, hf_smb_max_data_count, tvb, offset, 2, tvb_get_letohs(tvb, offset));
 		offset += 2;
 
-		/* max setup count , only 16bit integer here*/
+		/* max setup count, only 16bit integer here*/
 		proto_tree_add_uint(tree, hf_smb_max_setup_count, tvb, offset, 1, tvb_get_guint8(tvb, offset));
 		offset += 1;
 
@@ -8968,8 +9022,9 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
 		offset += 1;
 		
-		/* this is where the setup bytes start */	
+		/* this is where the setup bytes, if any start */	
 		so = offset;
+		sl = sc*2;
 
 		/* if there were any setup bytes, decode them */
 		if(sc){
@@ -9015,41 +9070,21 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				break;
 
 			case 0x25:
-				/* MSRPC transactions have two setup count 
-				   words which we decode here.  Setup word 1 
-				   is always 0x26.  The second setup word is 
-				   the fid which the transaction occurs on. */
-				if (sc == 2) {
-					guint16 sw1, sw2;
-
-					sw1 = tvb_get_letohs(tvb, offset);
-					sw2 = tvb_get_letohs(tvb, offset + 2);
-					
-					proto_tree_add_uint(tree, hf_smb_setupword1, tvb, offset, 2, sw1);
-					proto_tree_add_uint(tree, hf_smb_setupword2, tvb, offset + 2, 2, sw2);
-
-					/* Make fid hidden so we can find it
-					   in a filter. */
-
-					if (sw1 == 0x26)
-						proto_tree_add_uint_hidden(tree, hf_smb_fid, tvb, offset + 2, 2, sw2);
-				}
-				/* TRANSACTION setup words also processed
-				   below */
+				/* TRANSACTION setup words processed below */
 				break;
 			}
 
-			offset += sc*2;
+			offset += sl;
 		}
-
 	}
 
 	BYTE_COUNT;
 	
 	if(wc!=8){
+		/* primary request */
 		/* name is NULL if transaction2 */
-		if(si->cmd!=0x32){
-			/* Transaction Name */	
+		if(si->cmd == 0x25){
+			/* Transaction Name */
 			an = get_unicode_or_ascii_string(tvb, &offset,
 				pinfo, &an_len, FALSE, FALSE, &bc);
 			if (an == NULL)
@@ -9059,6 +9094,15 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			COUNT_BYTES(an_len);
 		}
 	}
+
+	/*
+	 * The pipe or mailslot arguments for Transaction start with
+	 * the first setup word (or where the first setup word would
+	 * be if there were any setup words), and run to the current
+	 * offset (which could mean that there aren't any).
+	 */
+	tpo = so;
+	tpc = offset - tpo;
 
 	/* parameters */
 	if(po>offset){
@@ -9123,27 +9167,31 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if(dd==0){
 			tvbuff_t *t_tvb, *p_tvb, *d_tvb, *s_tvb;
 
-			t_tvb = tvb_new_subset(tvb, po, -1, -1);
+			t_tvb = tvb_new_subset(tvb, tpo, tpc, tpc);
 			if(pc>0){
 				if(pc>tvb_length_remaining(tvb, po)){
-    					p_tvb = tvb_new_subset(tvb, po, tvb_length_remaining(tvb, po), pc);
+					p_tvb = tvb_new_subset(tvb, po, tvb_length_remaining(tvb, po), pc);
 				} else {
-    					p_tvb = tvb_new_subset(tvb, po, pc, pc);
+					p_tvb = tvb_new_subset(tvb, po, pc, pc);
 				}
 			} else {
 				p_tvb = NULL;
 			}
 			if(dc>0){
 				if(dc>tvb_length_remaining(tvb, od)){
-    					d_tvb = tvb_new_subset(tvb, od, tvb_length_remaining(tvb, od), dc);
+					d_tvb = tvb_new_subset(tvb, od, tvb_length_remaining(tvb, od), dc);
 				} else {
-    					d_tvb = tvb_new_subset(tvb, od, dc, dc);
+					d_tvb = tvb_new_subset(tvb, od, dc, dc);
 				}
 			} else {
 				d_tvb = NULL;
 			}
-			if(sc){
-    				s_tvb = tvb_new_subset(tvb, so, tvb_length_remaining(tvb, so), tvb_length_remaining(tvb, so));
+			if(sl){
+				if(sl>tvb_length_remaining(tvb, so)){
+					s_tvb = tvb_new_subset(tvb, so, tvb_length_remaining(tvb, so), sl);
+				} else {
+					s_tvb = tvb_new_subset(tvb, so, sl, sl);
+				}
 			} else {
 				s_tvb = NULL;
 			}
@@ -9178,26 +9226,17 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				if (!si->unidir)
 					tri->subcmd=TRANSACTION_PIPE;
 				dissected_trans = dissect_pipe_smb(t_tvb,
-				    p_tvb, d_tvb, an+6, pinfo, top_tree);
+				    s_tvb, p_tvb, d_tvb, an+6, pinfo, top_tree);
 			} else if(strncmp("\\MAILSLOT\\", an, 10) == 0){
 				if (!si->unidir)
 					tri->subcmd=TRANSACTION_MAILSLOT;
 				dissected_trans = dissect_mailslot_smb(t_tvb,
 				    s_tvb, d_tvb, an+10, pinfo, top_tree);
-			} else {
-				/*
-				 * We don't know that this is some protocol
-				 * atop SMB Transactions, so just show it
-				 * as data.
-				 */
-				proto_tree_add_text(tree, t_tvb, 0,
-				    tvb_length(t_tvb),
-				    "Data: %s",
-				    tvb_bytes_to_str(t_tvb, 0, tvb_length(t_tvb)));
-				dissected_trans = TRUE;
 			}
-			if (!dissected_trans)
-				dissect_data(t_tvb, 0, pinfo, top_tree);
+			if (!dissected_trans) {
+				dissect_trans_data(s_tvb, p_tvb, d_tvb,
+				    pinfo, tree);
+			}
 		} else {
 			if(check_col(pinfo->fd, COL_INFO)){
 				col_append_str(pinfo->fd, COL_INFO,
@@ -10293,11 +10332,8 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 	case 0x00:	/*TRANS2_OPEN2*/
 		/* fid */
 		fid = tvb_get_letohs(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_fid, tvb, offset, 2, fid);
+		add_fid(tvb, pinfo, tree, offset, fid);
 		offset += 2;
-
-		if (check_col(pinfo->fd, COL_INFO))
-			col_append_fstr(pinfo->fd, COL_INFO, ", FID: 0x%04x", fid);
 
 		/* File Attributes */
 		offset = dissect_file_attributes(tvb, pinfo, tree, offset);
@@ -10448,9 +10484,12 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 static int
 dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
-	guint8 sc=0, wc;
+	guint8 sc, wc;
 	guint16 od=0, tf, po=0, pc=0, pd, dc=0, dd=0;
-	int so=0;
+	int so=offset;
+	int sl=0;
+	int tpo=offset;
+	int tpc=0;
 	guint32 to;
 	smb_info_t *si;
 	smb_transact2_info_t *t2i = NULL;
@@ -10555,13 +10594,23 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset += 1;
 
 	/* save setup offset */	
-	so=offset;
+	so = offset;
 
 	/* if there were any setup bytes, decode them */
-	if(sc){
+	sl = sc*2;
+	if(sl){
 		/* XXXX dissect setup words */
-		offset += sc*2;
+		offset += sl;
 	}
+
+	/*
+	 * The pipe or mailslot arguments for Transaction start with
+	 * the first setup word (or where the first setup word would
+	 * be if there were any setup words), and run to the current
+	 * offset (which could mean that there aren't any).
+	 */
+	tpo = so;
+	tpc = offset - tpo;
 
 	BYTE_COUNT;
 	
@@ -10626,27 +10675,32 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			tvbuff_t *t_tvb, *p_tvb, *d_tvb, *s_tvb;
 			smb_transact_info_t *tri;
 
-			t_tvb = tvb_new_subset(tvb, po, -1, -1);
+			t_tvb = tvb_new_subset(tvb, tpo, tpc, tpc);
 			if(pc>0){
 				if(pc>tvb_length_remaining(tvb, po)){
-    					p_tvb = tvb_new_subset(tvb, po, tvb_length_remaining(tvb, po), pc);
+					p_tvb = tvb_new_subset(tvb, po, tvb_length_remaining(tvb, po), pc);
 				} else {
-    					p_tvb = tvb_new_subset(tvb, po, pc, pc);
+					p_tvb = tvb_new_subset(tvb, po, pc, pc);
 				}
 			} else {
 				p_tvb = NULL;
 			}
 			if(dc>0){
 				if(dc>tvb_length_remaining(tvb, od)){
-    					d_tvb = tvb_new_subset(tvb, od, tvb_length_remaining(tvb, od), dc);
+					d_tvb = tvb_new_subset(tvb, od, tvb_length_remaining(tvb, od), dc);
 				} else {
-    					d_tvb = tvb_new_subset(tvb, od, dc, dc);
+					d_tvb = tvb_new_subset(tvb, od, dc, dc);
 				}
 			} else {
 				d_tvb = NULL;
 			}
-			if(sc){
-    				s_tvb = tvb_new_subset(tvb, so, tvb_length_remaining(tvb, so), tvb_length_remaining(tvb, so));
+			/* Convert setup count from words to bytes. */
+			if(sl){
+				if(sl>tvb_length_remaining(tvb, so)){
+					s_tvb = tvb_new_subset(tvb, so, tvb_length_remaining(tvb, so), sl);
+				} else {
+					s_tvb = tvb_new_subset(tvb, so, sl, sl);
+				}
 			} else {
 				s_tvb = NULL;
 			}
@@ -10661,8 +10715,8 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 				case TRANSACTION_PIPE:
 					dissected_trans = dissect_pipe_smb(
-					    t_tvb, p_tvb, d_tvb, NULL, pinfo,
-					    top_tree);
+					    t_tvb, s_tvb, p_tvb, d_tvb, NULL,
+					    pinfo, top_tree);
 					break;
 
 				case TRANSACTION_MAILSLOT:
@@ -10670,34 +10724,12 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					    t_tvb, s_tvb, d_tvb, NULL, pinfo,
 					    top_tree);
 					break;
-
-				default:
-					/*
-					 * We don't know that this is some
-					 * protocol atop SMB Transactions,
-					 * so just show it as data.
-					 */
-					proto_tree_add_text(tree, t_tvb, 0,
-					    tvb_length(t_tvb),
-					    "Data: %s",
-					    tvb_bytes_to_str(t_tvb, 0, tvb_length(t_tvb)));
-					dissected_trans = TRUE;
-					break;
 				}
-			} else {
-				/*
-				 * We don't know that this is some protocol
-				 * atop SMB Transactions, so just show it
-				 * as data.
-				 */
-				proto_tree_add_text(tree, t_tvb, 0,
-				    tvb_length(t_tvb),
-				    "Data: %s",
-				    tvb_bytes_to_str(t_tvb, 0, tvb_length(t_tvb)));
-				dissected_trans = TRUE;
 			}
-			if (!dissected_trans)
-				dissect_data(t_tvb, 0, pinfo, top_tree);
+			if (!dissected_trans) {
+				dissect_trans_data(s_tvb, p_tvb, d_tvb,
+				    pinfo, tree);
+			}
 		} else {
 			if(check_col(pinfo->fd, COL_INFO)){
 				col_append_str(pinfo->fd, COL_INFO,
@@ -12755,7 +12787,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		 * frame - if we know the frame number (i.e., it's not 0).
 		 */
 		if(si.request){
-			if (sip->frame_res != 0)
+			if (si.cmd != 0xa4 && sip->frame_res != 0)
 				proto_tree_add_uint(htree, hf_smb_response_in, tvb, 0, 0, sip->frame_res);
 		} else {
 			if (sip->frame_req != 0)
@@ -12900,10 +12932,6 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 extern void register_proto_smb_browse( void);
 extern void register_proto_smb_logon( void);
-extern void register_proto_smb_mailslot( void);
-extern void register_proto_smb_pipe( void);
-extern void register_proto_smb_mailslot( void);
-
 
 void
 proto_register_smb(void)
@@ -14595,16 +14623,6 @@ proto_register_smb(void)
 	{ &hf_smb_fs_attr_vic,
 		{ "Compressed", "smb.fs.attr.vic", FT_BOOLEAN, 32,
 		TFS(&tfs_fs_attr_vic), 0x00008000, "Is this FS Compressed?", HFILL }},
-
-	{ &hf_smb_setupword1,
-		{ "Setup Word 1", "smb.transaction.setupword1", FT_UINT16, BASE_HEX,
-		NULL, 0, "First setup word in TRANSACTION command", HFILL }},
-
-	{ &hf_smb_setupword2,
-		{ "Setup Word 2", "smb.transaction.setupword2", FT_UINT16, BASE_HEX,
-		NULL, 0, "Second setup word in TRANSACTION command", HFILL }},
-
-
 	};
 	static gint *ett[] = {
 		&ett_smb,

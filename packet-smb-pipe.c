@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.44 2001/11/18 22:44:07 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.45 2001/11/19 10:06:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -140,6 +140,9 @@ static gint ett_lanman_shares = -1;
 static gint ett_lanman_share = -1;
 static gint ett_lanman_servers = -1;
 static gint ett_lanman_server = -1;
+
+static int proto_smb_msrpc = -1;
+static gint ett_smbrpc = -1;
 
 /*
  * See
@@ -1967,6 +1970,10 @@ dissect_pipe_lanman(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 	proto_item *entry_item;
 	proto_tree *entry_tree;
 
+	if (!proto_is_protocol_enabled(proto_smb_lanman))
+		return FALSE;
+	pinfo->current_proto = "LANMAN";
+
 	if (check_col(pinfo->fd, COL_PROTOCOL)) {
 		col_set_str(pinfo->fd, COL_PROTOCOL, "LANMAN");
 	}
@@ -2176,24 +2183,99 @@ dissect_pipe_lanman(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 static heur_dissector_list_t msrpc_heur_subdissector_list;
 
 static gboolean
-dissect_pipe_msrpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+dissect_pipe_msrpc(tvbuff_t *t_tvb, tvbuff_t *s_tvb, tvbuff_t *d_tvb,
+		   packet_info *pinfo, proto_tree *parent_tree)
 {
+	guint16 fid;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
 	dcerpc_private_info dcerpc_priv;
 	smb_info_t *smb_priv = (smb_info_t *)pinfo->private_data;
         gboolean result;
 
+	if (!proto_is_protocol_enabled(proto_smb_msrpc))
+		return FALSE;
+
+	/*
+	 * Do we have any setup words at all?
+	 */
+	if (s_tvb == NULL) {
+		/*
+		 * No.  This has to be a response.
+		 */
+		if (smb_priv->request) {
+			/*
+			 * It's not - assume this isn't DCERPC-over-SMB.
+			 */
+			return FALSE;
+		}
+	} else {
+		/*
+		 * Yes.  Do we have at least two of them?
+		 */
+		if (!tvb_bytes_exist(s_tvb, 0, 4)) {
+			/*
+			 * No - assume this isn't DCERPC-over-SMB.
+			 */
+			return FALSE;
+		}
+
+		/*
+		 * Is the first one 0x26?
+		 */
+		if (tvb_get_letohs(s_tvb, 0) != 0x26) {
+			/*
+			 * No - assume this isn't DCERPC-over-SMB.
+			 */
+			return FALSE;
+		}
+	}
+
+	/*
+	 * Create an tree for DCERPC-over-SMB.
+	 */
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, proto_smb_msrpc,
+		    t_tvb, 0, tvb_length(t_tvb), FALSE);
+		tree = proto_item_add_subtree(item, ett_smbrpc);
+	}
+
+	/*
+	 * Set the columns.
+	 */
+	if (check_col(pinfo->fd, COL_PROTOCOL)) {
+		col_set_str(pinfo->fd, COL_PROTOCOL, "SMBRPC");
+	}
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_set_str(pinfo->fd, COL_INFO,
+		    smb_priv->request ? "Request" : "Response");
+	}
+
+	if (s_tvb == NULL) {
+		/*
+		 * No setup words, so we don't know the FID.
+		 */
+		fid = 0;	/* XXX */
+	} else {
+		/*
+		 * Treat the second setup word as the FID.
+		 */
+		fid = tvb_get_letohs(s_tvb, 2);
+		add_fid(s_tvb, pinfo, tree, 2, fid);
+	}
+
 	dcerpc_priv.transport_type = DCERPC_TRANSPORT_SMB;
-	dcerpc_priv.data.smb.fid = smb_priv->fid;
+	dcerpc_priv.data.smb.fid = fid;
 
 	pinfo->private_data = &dcerpc_priv;
 
-        result = dissector_try_heuristic(msrpc_heur_subdissector_list, tvb,
+        result = dissector_try_heuristic(msrpc_heur_subdissector_list, d_tvb,
                                          pinfo, parent_tree);
 
 	pinfo->private_data = smb_priv;
 
         if (!result)
-                dissect_data(tvb, 0, pinfo, parent_tree);
+                dissect_data(d_tvb, 0, pinfo, parent_tree);
 
         return TRUE;
 }
@@ -2204,21 +2286,18 @@ dissect_pipe_msrpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 /* decode the SMB pipe protocol
    for requests
     pipe is the name of the pipe, e.g. LANMAN
-    smb_info->trans_subcmd is set to the symbolic constatn matching the mailslot name
+    smb_info->trans_subcmd is set to the symbolic constant matching the mailslot name
   for responses
     pipe is NULL
     smb_info->trans_subcmd gives us which pipe this response is for
 */
 gboolean
-dissect_pipe_smb(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
-		 const char *pipe, packet_info *pinfo, proto_tree *tree)
+dissect_pipe_smb(tvbuff_t *t_tvb, tvbuff_t *s_tvb, tvbuff_t *p_tvb,
+		 tvbuff_t *d_tvb, const char *pipe, packet_info *pinfo,
+		 proto_tree *tree)
 {
 	smb_info_t *smb_info;
 	smb_transact_info_t *tri;
-
-	if (!proto_is_protocol_enabled(proto_smb_lanman))
-		return FALSE;
-	pinfo->current_proto = "LANMAN";
 
 	smb_info = pinfo->private_data;
 	if (smb_info->sip != NULL)
@@ -2246,7 +2325,7 @@ dissect_pipe_smb(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		return dissect_pipe_lanman(t_tvb, p_tvb, d_tvb, pinfo, tree);
 		break;
 	case PIPE_MSRPC:
-                return dissect_pipe_msrpc(d_tvb, pinfo, tree);
+                return dissect_pipe_msrpc(t_tvb, s_tvb, d_tvb, pinfo, tree);
 		break;
 	}
 
@@ -2574,6 +2653,7 @@ register_proto_smb_pipe(void)
 		&ett_lanman_server,
 		&ett_lanman_shares,
 		&ett_lanman_share,
+		&ett_smbrpc,
 	};
 
 	proto_smb_lanman = proto_register_protocol(
@@ -2581,5 +2661,7 @@ register_proto_smb_pipe(void)
 	proto_register_field_array(proto_smb_lanman, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	proto_smb_msrpc = proto_register_protocol(
+		"MSRPC-over-SMB", "SMBRPC", "smbrpc");
         register_heur_dissector_list("msrpc", &msrpc_heur_subdissector_list);
 }
