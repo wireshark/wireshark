@@ -1,7 +1,7 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.11 2003/03/25 06:04:51 guy Exp $
+ * $Id: pcap-util.c,v 1.12 2003/06/10 08:01:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -407,7 +407,7 @@ get_interface_list(int *err, char *err_str) {
   wchar_t *names;
   char *win95names;
   char newname[MAX_WIN_IF_NAME_LEN + 1];
-  int i, j, done;
+  int i, j;
 
   /* On Windows pcap_lookupdev is implemented by calling
    * PacketGetAdapterNames.  According to the documentation I can find
@@ -433,7 +433,7 @@ get_interface_list(int *err, char *err_str) {
    */
 
   names = (wchar_t *)pcap_lookupdev(err_str);
-  i = done = 0;
+  i = 0;
 
   if (names) {
 	  char* desc = 0;
@@ -447,7 +447,7 @@ get_interface_list(int *err, char *err_str) {
 		  desc_pos++;	/* Step over the extra '\0' */
 		  desc = (char*)(names + desc_pos); /* cast *after* addition */
 
-		  do
+		  while (names[i] != 0)
 		  {
 			j = 0;
 			while (*desc) {
@@ -464,11 +464,9 @@ get_interface_list(int *err, char *err_str) {
 				newname[j++] = names[i++];
 			}
 			i++;
-			if (names[i] == 0)
-			    done = 1;
 			newname[j] = 0;
 			il = g_list_append(il, g_strdup(newname));
-		  } while (!done);
+		  }
 	  }
 	  else {
 		  /* Otherwise we are in Windows 95/98 and using ascii(8 bit)
@@ -479,7 +477,7 @@ get_interface_list(int *err, char *err_str) {
 		  desc_pos++;	/* Step over the extra '\0' */
 		  desc = win95names + desc_pos;
 
-		  do
+		  while (win95names[i] == 0)
 		  {
 			j = 0;
 			while (*desc) {
@@ -496,12 +494,17 @@ get_interface_list(int *err, char *err_str) {
 				newname[j++] = win95names[i++];
 			}
 			i++;
-			if (win95names[i] == 0)
-			    done = 1;
 			newname[j] = 0;
 			il = g_list_append(il, g_strdup(newname));
-		  } while (!done);
+		  }
 	  }
+  }
+
+  if (il == NULL) {
+    /*
+     * No interfaces found.
+     */
+    *err = NO_INTERFACES_FOUND;
   }
   return(il);
 }
