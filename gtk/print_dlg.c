@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.71 2004/04/24 23:13:46 ulfl Exp $
+ * $Id: print_dlg.c,v 1.72 2004/04/25 08:01:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,24 +65,9 @@ static void print_ok_cb(GtkWidget *ok_bt, gpointer parent_w);
 static void print_close_cb(GtkWidget *close_bt, gpointer parent_w);
 static void print_destroy_cb(GtkWidget *win, gpointer user_data);
 
-static gboolean print_prefs_init = FALSE;
 
-/*
- * Remember whether we printed to a printer or a file the last time we
- * printed something.
- */
-static int     print_to_file;
 
-/*
- * Remember whether we printed as text or PostScript the last time we
- * printed something.
- */
-static gint	print_format;
-
-static gchar * print_file;
-static gchar * print_cmd;
-
-#define PRINT_RANGE_KEY           "printer_range"
+#define PRINT_ARGS_KEY           "printer_args"
 
 #define PRINT_PS_RB_KEY           "printer_ps_radio_button"
 #define PRINT_PDML_RB_KEY         "printer_pdml_radio_button"
@@ -106,8 +91,15 @@ static gchar * print_cmd;
  */
 static GtkWidget *print_w;
 
+static print_args_t  print_args;
 
-/* Print the capture */
+static gchar * print_file;
+static gchar * print_cmd;
+
+static gboolean print_prefs_init = FALSE;
+
+
+/* Open the print dialog */
 void
 file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
@@ -142,7 +134,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   GtkTooltips   *tooltips;
 
-  packet_range_t *range;
+  print_args_t  *args = &print_args;
 
   if (print_w != NULL) {
     /* There's already a "Print" dialog box; reactivate it. */
@@ -150,17 +142,21 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
     return;
   }
 
-  /* init the packet range */
-  range = g_malloc(sizeof(packet_range_t));
-  packet_range_init(range);
-
-  /* get settings from preferences only once */
+  /* get settings from preferences (and other initial values) only once */
   if(print_prefs_init == FALSE) {
-      print_prefs_init  = TRUE;
-      print_to_file     = prefs.pr_dest;
-      print_format      = prefs.pr_format;
-      print_cmd         = prefs.pr_cmd;
-      print_file        = prefs.pr_file;
+      print_prefs_init          = TRUE;
+      args->format              = prefs.pr_format;
+      args->to_file             = prefs.pr_dest;
+      args->dest                = NULL;
+      args->print_summary       = TRUE;
+      args->print_dissections   = print_dissections_as_displayed;
+      args->print_hex           = FALSE;
+      args->print_formfeed      = FALSE;
+      print_cmd                 = prefs.pr_cmd;
+      print_file                = prefs.pr_file;
+
+      /* init the printing range */
+      packet_range_init(&args->range);
   }
 
   /* Enable tooltips */
@@ -195,23 +191,23 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_container_add(GTK_CONTAINER(printer_fr), printer_vb);
   gtk_widget_show(printer_vb);
 
-  /* "Plain text" / "Postscript" / "PDML" radio buttons */
+  /* "Plain text" / "Postscript" / "PDML", ... radio buttons */
   text_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "Plain _text", accel_group);
-  if (print_format == PR_FMT_TEXT)
+  if (args->format == PR_FMT_TEXT)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(text_rb), TRUE);
   gtk_tooltips_set_tip (tooltips, text_rb, ("Print output in ascii \"plain text\" format. If you're unsure, use this format."), NULL);
   gtk_box_pack_start(GTK_BOX(printer_vb), text_rb, FALSE, FALSE, 0);
   gtk_widget_show(text_rb);
 
   ps_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(text_rb, "_PostScript", accel_group);
-  if (print_format == PR_FMT_PS)
+  if (args->format == PR_FMT_PS)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ps_rb), TRUE);
   gtk_tooltips_set_tip (tooltips, ps_rb, ("Print output in \"postscript\" format, for postscript capable printers or print servers."), NULL);
   gtk_box_pack_start(GTK_BOX(printer_vb), ps_rb, FALSE, FALSE, 0);
   gtk_widget_show(ps_rb);
 
   pdml_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(text_rb, "PDM_L (XML: Packet Details Markup Language)", accel_group);
-  if (print_format == PR_FMT_PDML)
+  if (args->format == PR_FMT_PDML)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(pdml_rb), TRUE);
   gtk_tooltips_set_tip (tooltips, pdml_rb, (
       "Print output in \"PDML\" (Packet Details Markup Language), "
@@ -221,7 +217,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_widget_show(pdml_rb);
 
   psml_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(text_rb, "PSML (XML: Packet Summary Markup Language)", accel_group);
-  if (print_format == PR_FMT_PSML)
+  if (args->format == PR_FMT_PSML)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(psml_rb), TRUE);
   gtk_tooltips_set_tip (tooltips, psml_rb, (
       "Print output in \"PSML\" (Packet Summary Markup Language), "
@@ -244,7 +240,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   /* Output to file button */
   dest_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Output to _file:", accel_group);
-  if (print_to_file)
+  if (args->to_file)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(dest_cb), TRUE);
   gtk_tooltips_set_tip (tooltips, dest_cb, ("Output to file instead of printer"), NULL);
   gtk_table_attach_defaults(GTK_TABLE(printer_tb), dest_cb, 0, 1, 0, 1);
@@ -256,9 +252,9 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_tooltips_set_tip (tooltips, file_te, ("Enter Output filename"), NULL);
   gtk_entry_set_text(GTK_ENTRY(file_te), print_file);
   gtk_table_attach_defaults(GTK_TABLE(printer_tb), file_te, 1, 2, 0, 1);
-  gtk_widget_set_sensitive(file_te, print_to_file);
+  gtk_widget_set_sensitive(file_te, args->to_file);
   gtk_widget_show(file_te);
-  if (print_to_file)
+  if (args->to_file)
     gtk_widget_grab_focus(file_te);
 
   file_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_BROWSE);
@@ -266,7 +262,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   OBJECT_SET_DATA(file_bt, E_FILE_TE_PTR_KEY, file_te);
   gtk_tooltips_set_tip (tooltips, file_bt, ("Browse output filename in filesystem"), NULL);
   gtk_table_attach_defaults(GTK_TABLE(printer_tb), file_bt, 2, 3, 0, 1);
-  gtk_widget_set_sensitive(file_bt, print_to_file);
+  gtk_widget_set_sensitive(file_bt, args->to_file);
   gtk_widget_show(file_bt);
 
   /* Command label and text entry */
@@ -275,7 +271,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   OBJECT_SET_DATA(dest_cb, PRINT_CMD_LB_KEY, cmd_lb);
   gtk_misc_set_alignment(GTK_MISC(cmd_lb), 1.0, 0.5);
   gtk_table_attach_defaults(GTK_TABLE(printer_tb), cmd_lb, 0, 1, 1, 2);
-  gtk_widget_set_sensitive(cmd_lb, !print_to_file);
+  gtk_widget_set_sensitive(cmd_lb, !args->to_file);
   gtk_widget_show(cmd_lb);
 
   cmd_te = gtk_entry_new();
@@ -285,7 +281,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_tooltips_set_tip (tooltips, cmd_te, ("Enter print command"), NULL);
   gtk_entry_set_text(GTK_ENTRY(cmd_te), print_cmd);
   gtk_table_attach_defaults(GTK_TABLE(printer_tb), cmd_te, 1, 2, 1, 2);
-  gtk_widget_set_sensitive(cmd_te, !print_to_file);
+  gtk_widget_set_sensitive(cmd_te, !args->to_file);
   gtk_widget_show(cmd_te);
 #endif
 
@@ -305,7 +301,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_box_pack_start(GTK_BOX(packet_hb), range_fr, FALSE, FALSE, 0);
   gtk_widget_show(range_fr);
 
-  range_tb = range_new(range
+  range_tb = range_new(&args->range
 #if GTK_MAJOR_VERSION < 2
   , accel_group
 #endif
@@ -326,7 +322,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   /* "Print summary line" check button */
   summary_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Packet summary line", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(summary_cb), FALSE);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(summary_cb), args->print_summary);
   SIGNAL_CONNECT(summary_cb, "clicked", print_cmd_toggle_detail, print_w);
   gtk_tooltips_set_tip (tooltips, summary_cb, ("Output of a packet summary line, like in the packet list"), NULL);
   gtk_container_add(GTK_CONTAINER(format_vb), summary_cb);
@@ -335,7 +331,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   /* "Details" check button */
   details_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Packet details:", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(details_cb), TRUE);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(details_cb), args->print_dissections != print_dissections_none);
   SIGNAL_CONNECT(details_cb, "clicked", print_cmd_toggle_detail, print_w);
   gtk_tooltips_set_tip (tooltips, details_cb, ("Output format of the selected packet details (protocol tree)."), NULL);
   gtk_container_add(GTK_CONTAINER(format_vb), details_cb);
@@ -359,26 +355,26 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   /* "All collapsed"/"As displayed"/"All Expanded" radio buttons */
   collapse_all_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "All co_llapsed", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(collapse_all_rb), FALSE);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(collapse_all_rb), args->print_dissections == print_dissections_collapsed);
   gtk_tooltips_set_tip (tooltips, collapse_all_rb, ("Output of the packet details tree \"collapsed\""), NULL);
   gtk_container_add(GTK_CONTAINER(details_vb), collapse_all_rb);
   gtk_widget_show(collapse_all_rb);
 
   as_displayed_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(collapse_all_rb, "As displa_yed", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(as_displayed_rb), TRUE);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(as_displayed_rb), args->print_dissections == print_dissections_as_displayed);
   gtk_tooltips_set_tip (tooltips, as_displayed_rb, ("Output of the packet details tree \"as displayed\""), NULL);
   gtk_container_add(GTK_CONTAINER(details_vb), as_displayed_rb);
   gtk_widget_show(as_displayed_rb);
 
   expand_all_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(collapse_all_rb, "All e_xpanded", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(expand_all_rb), FALSE);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(expand_all_rb), args->print_dissections == print_dissections_expanded);
   gtk_tooltips_set_tip (tooltips, expand_all_rb, ("Output of the packet details tree \"expanded\""), NULL);
   gtk_container_add(GTK_CONTAINER(details_vb), expand_all_rb);
   gtk_widget_show(expand_all_rb);
 
   /* "Print hex" check button. */
   hex_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Packet bytes", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(hex_cb), FALSE);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(hex_cb), args->print_hex);
   SIGNAL_CONNECT(hex_cb, "clicked", print_cmd_toggle_detail, print_w);
   gtk_tooltips_set_tip (tooltips, hex_cb, ("Add a hexdump of the packet data"), NULL);
   gtk_container_add(GTK_CONTAINER(format_vb), hex_cb);
@@ -391,7 +387,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   /* "Each packet on a new page" check button. */
   formfeed_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Each packet on a new page", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(formfeed_cb), FALSE);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(formfeed_cb), args->print_formfeed);
   gtk_tooltips_set_tip (tooltips, formfeed_cb, ("When checked, a new page will be used for each packet. "
       "This is done by adding a formfeed (or similar) between the packet outputs."), NULL);
   gtk_container_add(GTK_CONTAINER(format_vb), formfeed_cb);
@@ -425,7 +421,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   OBJECT_SET_DATA(ok_bt, PRINT_CMD_TE_KEY, cmd_te);
 #endif
 
-  OBJECT_SET_DATA(ok_bt, PRINT_RANGE_KEY, range);
+  OBJECT_SET_DATA(ok_bt, PRINT_ARGS_KEY, args);
   OBJECT_SET_DATA(ok_bt, PRINT_FILE_TE_KEY, file_te);
   OBJECT_SET_DATA(ok_bt, PRINT_SUMMARY_CB_KEY, summary_cb);
   OBJECT_SET_DATA(ok_bt, PRINT_DETAILS_CB_KEY, details_cb);
@@ -460,6 +456,8 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_widget_show(print_w);
 }
 
+
+/* user changed "print to" destination */
 static void
 print_cmd_toggle_dest(GtkWidget *widget, gpointer data _U_)
 {
@@ -476,14 +474,7 @@ print_cmd_toggle_dest(GtkWidget *widget, gpointer data _U_)
   file_bt = GTK_WIDGET(OBJECT_GET_DATA(widget, PRINT_FILE_BT_KEY));
   file_te = GTK_WIDGET(OBJECT_GET_DATA(widget, PRINT_FILE_TE_KEY));
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
-    /* They selected "Print to File" */
-    to_file = TRUE;
-  } else {
-    /* They selected "Print to Command" on UNIX or "Print to Printer"
-       on Windows */
-    to_file = FALSE;
-  }
+  to_file = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
 #ifndef _WIN32
   gtk_widget_set_sensitive(cmd_lb, !to_file);
   gtk_widget_set_sensitive(cmd_te, !to_file);
@@ -493,6 +484,7 @@ print_cmd_toggle_dest(GtkWidget *widget, gpointer data _U_)
 }
 
 
+/* user changed "packet details" */
 static void
 print_cmd_toggle_detail(GtkWidget *widget _U_, gpointer data)
 {
@@ -504,51 +496,29 @@ print_cmd_toggle_detail(GtkWidget *widget _U_, gpointer data)
   summary_cb = GTK_WIDGET(OBJECT_GET_DATA(data, PRINT_SUMMARY_CB_KEY));
   details_cb = GTK_WIDGET(OBJECT_GET_DATA(data, PRINT_DETAILS_CB_KEY));
   collapse_all_rb = GTK_WIDGET(OBJECT_GET_DATA(data, PRINT_COLLAPSE_ALL_RB_KEY));
-  as_displayed_rb = GTK_WIDGET(OBJECT_GET_DATA(data,
-                                               PRINT_AS_DISPLAYED_RB_KEY));
+  as_displayed_rb = GTK_WIDGET(OBJECT_GET_DATA(data, PRINT_AS_DISPLAYED_RB_KEY));
   expand_all_rb = GTK_WIDGET(OBJECT_GET_DATA(data, PRINT_EXPAND_ALL_RB_KEY));
   hex_cb = GTK_WIDGET(OBJECT_GET_DATA(data, PRINT_HEX_CB_KEY));
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (details_cb))) {
-    /* They selected "Print detail" */
-    print_detail = TRUE;
-  } else {
-    /* They selected "Print summary" */
-    print_detail = FALSE;
-  }
-
+  /* is user disabled details, disable the corresponding buttons */
+  print_detail = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (details_cb));
   gtk_widget_set_sensitive(collapse_all_rb, print_detail);
   gtk_widget_set_sensitive(as_displayed_rb, print_detail);
   gtk_widget_set_sensitive(expand_all_rb, print_detail);
 
-  print_detail = 
+  /* if user selected nothing to print at all, disable the "ok" button */
+  gtk_widget_set_sensitive(print_bt, 
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (summary_cb)) ||
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (details_cb)) ||
-      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (hex_cb));
-
-  gtk_widget_set_sensitive(print_bt, print_detail);
+      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (hex_cb)));
 }
 
-#ifdef _WIN32
-
-void setup_mswin_print( print_args_t *print_args) {
-
-/*XXX should use temp file stuff in util routines */
-
-    char *path1;
-
-    path1 = tmpnam(NULL);
-
-    print_args->dest = g_strdup(path1);
-    print_args->to_file = TRUE;
-}
-#endif
 
 static void
 print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 {
   GtkWidget     *button;
-  print_args_t  print_args;
+  print_args_t  *args;
   const gchar   *g_dest;
   gchar         *f_name;
   gchar         *dirname;
@@ -556,11 +526,12 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   int win_printer_flag = FALSE;
 #endif
 
-  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_DEST_CB_KEY);
-  print_to_file = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
-  print_args.to_file = print_to_file;
+  args = (print_args_t *)OBJECT_GET_DATA(ok_bt, PRINT_ARGS_KEY);
 
-  if (print_args.to_file) {
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_DEST_CB_KEY);
+  args->to_file = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
+
+  if (args->to_file) {
     g_dest = gtk_entry_get_text(GTK_ENTRY(OBJECT_GET_DATA(ok_bt,
                                                           PRINT_FILE_TE_KEY)));
     if (!g_dest[0]) {
@@ -568,7 +539,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
         "Printing to file, but no file specified.");
       return;
     }
-    print_args.dest = g_strdup(g_dest);
+    args->dest = g_strdup(g_dest);
     /* Save the directory name for future file dialogs. */
     f_name = g_strdup(g_dest);
     dirname = get_dirname(f_name);  /* Overwrites f_name */
@@ -577,75 +548,74 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   } else {
 #ifdef _WIN32
     win_printer_flag = TRUE;
-    setup_mswin_print(&print_args);
+    /*XXX should use temp file stuff in util routines */
+    args->dest = g_strdup(tmpnam(NULL));
+    args->to_file = TRUE;
 #else
-    print_args.dest = g_strdup(gtk_entry_get_text(GTK_ENTRY(OBJECT_GET_DATA(ok_bt,
+    args->dest = g_strdup(gtk_entry_get_text(GTK_ENTRY(OBJECT_GET_DATA(ok_bt,
       PRINT_CMD_TE_KEY))));
 #endif
   }
 
-  print_format = PR_FMT_TEXT;
+  args->format = PR_FMT_TEXT;
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_PS_RB_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button)))
-    print_format = PR_FMT_PS;
+    args->format = PR_FMT_PS;
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_PDML_RB_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button)))
-    print_format = PR_FMT_PDML;
+    args->format = PR_FMT_PDML;
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_PSML_RB_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button)))
-    print_format = PR_FMT_PSML;
-  print_args.format = print_format;
+    args->format = PR_FMT_PSML;
 
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_SUMMARY_CB_KEY);
-  print_args.print_summary = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
+  args->print_summary = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
 
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_COLLAPSE_ALL_RB_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button))) {
-    print_args.print_dissections = print_dissections_collapsed;
+    args->print_dissections = print_dissections_collapsed;
   }
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_AS_DISPLAYED_RB_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button))) {
-    print_args.print_dissections = print_dissections_as_displayed;
+    args->print_dissections = print_dissections_as_displayed;
   }
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_EXPAND_ALL_RB_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button))) {
-    print_args.print_dissections = print_dissections_expanded;
+    args->print_dissections = print_dissections_expanded;
   }
 
   /* the details setting has priority over the radio buttons */
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_DETAILS_CB_KEY);
   if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button))) {
-    print_args.print_dissections = print_dissections_none;
+    args->print_dissections = print_dissections_none;
   }
 
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_HEX_CB_KEY);
-  print_args.print_hex = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
+  args->print_hex = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
 
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_FORMFEED_CB_KEY);
-  print_args.print_formfeed = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
+  args->print_formfeed = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
 
-
-  print_args.range = *((packet_range_t *)OBJECT_GET_DATA(ok_bt, PRINT_RANGE_KEY));
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 
   /* Now print the packets */
-  switch (print_packets(&cfile, &print_args)) {
+  switch (print_packets(&cfile, args)) {
 
   case PP_OK:
     break;
 
   case PP_OPEN_ERROR:
-    if (print_args.to_file)
-      open_failure_alert_box(print_args.dest, errno, TRUE);
+    if (args->to_file)
+      open_failure_alert_box(args->dest, errno, TRUE);
     else
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't run print command %s.",
-        print_args.dest);
+        args->dest);
     break;
 
   case PP_WRITE_ERROR:
-    if (print_args.to_file)
-      write_failure_alert_box(print_args.dest, errno);
+    if (args->to_file)
+      write_failure_alert_box(args->dest, errno);
     else
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 	"Error writing to print command: %s", strerror(errno));
@@ -654,14 +624,14 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 
 #ifdef _WIN32
   if (win_printer_flag) {
-    print_mswin(print_args.dest);
+    print_mswin(args->dest);
 
     /* trash temp file */
-    remove(print_args.dest);
+    remove(args->dest);
   }
 #endif
 
-  g_free(print_args.dest);
+  g_free(args->dest);
 }
 
 static void
@@ -675,7 +645,6 @@ static void
 print_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 {
   GtkWidget *fs;
-  gpointer  range;
 
   /* Is there a file selection dialog associated with this
      Print File dialog? */
@@ -685,9 +654,6 @@ print_destroy_cb(GtkWidget *win, gpointer user_data _U_)
     /* Yes.  Destroy it. */
     gtk_widget_destroy(fs);
   }
-
-  range = OBJECT_GET_DATA(win, PRINT_RANGE_KEY);
-  g_free(range);
 
   /* Note that we no longer have a "Print" dialog box. */
   print_w = NULL;

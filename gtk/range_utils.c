@@ -1,7 +1,7 @@
 /* range_utils.c
  * Packet range routines (save, print, ...) for GTK things
  *
- * $Id: range_utils.c,v 1.2 2004/04/23 05:16:21 guy Exp $
+ * $Id: range_utils.c,v 1.3 2004/04/25 08:01:06 ulfl Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -459,9 +459,28 @@ GtkWidget *range_new(packet_range_t *range
   OBJECT_SET_DATA(range_tb, RANGE_SELECT_USER_D_KEY,        select_user_range_d_lb);
   OBJECT_SET_DATA(range_tb, RANGE_SELECT_USER_ENTRY_KEY,    select_user_range_entry);
 
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(captured_bt), TRUE);
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(displayed_bt), FALSE);
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_all_rb),  TRUE);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(captured_bt), !range->process_filtered);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(displayed_bt), range->process_filtered);
+
+  switch(range->process) {
+  case(range_process_all):
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_all_rb),  TRUE);
+    break;
+  case(range_process_selected):
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_curr_rb),  TRUE);
+    break;
+  case(range_process_marked):
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_marked_only_rb),  TRUE);
+    break;
+  case(range_process_marked_range):
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_marked_range_rb),  TRUE);
+    break;
+  case(range_process_user_range):
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_user_range_rb),  TRUE);
+    break;
+  default:
+      g_assert_not_reached();
+  }
 
   return range_tb;
 }
