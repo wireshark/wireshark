@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.208 2002/09/06 22:45:40 sahlberg Exp $
+# $Id: Makefile.nmake,v 1.209 2002/09/10 08:28:14 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -463,7 +463,7 @@ clean:
 	rm -f $(ethereal_OBJECTS) $(EXTRA_OBJECTS) $(EXECUTABLES) $(PDB_FILE) \
 		tethereal.obj editcap.obj mergecap.obj text2pcap.obj \
 		text2pcap-scanner.obj text2pcap-scanner.c register.c \
-		rdps.obj rdps.pdb config.h ps.c packet-ncp2222.c register.c \
+		rdps.obj rdps.pdb config.h ps.c \
 		rdps.exe rdps.ilk dftest.obj dftest.exe $(RESOURCES)
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
@@ -482,6 +482,11 @@ clean:
 	cd ../packaging/nsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../..
+
+# Call distclean only, if you would like to remove ALL generated files.
+# Be sure to have python and perl installed to regenerate them.
+distclean: clean
+	rm -f x11-declarations.h x11-register-info.h packet-ncp2222.c
 
 tools::
 	cd tools
