@@ -1,8 +1,8 @@
 /* packet-dcerpc-spoolss.c
  * Routines for SMB \PIPE\spoolss packet disassembly
- * Copyright 2001, Tim Potter <tpot@samba.org>
+ * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.13 2002/04/04 00:56:06 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.14 2002/04/05 03:07:28 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -747,7 +747,10 @@ static int prs_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	subtree = proto_item_add_subtree(item, ett_DEVMODE);
 
-	offset = prs_uint16uni(tvb, offset, pinfo, subtree, NULL, "Devicename");
+	/* The device name is stored in a 32-wchar buffer */
+
+	prs_uint16uni(tvb, offset, pinfo, subtree, NULL, "Devicename");
+	offset += 64;
 
 	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Spec version");
 	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Driver version");
@@ -770,9 +773,8 @@ static int prs_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "TT option");
 	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Collate");
 
-	offset = prs_uint16s(tvb, offset, pinfo, subtree, 32, NULL, "Buffer");
-
-	offset = prs_uint16uni(tvb, offset, pinfo, subtree, NULL, "Form name");
+	prs_uint16uni(tvb, offset, pinfo, subtree, NULL, "Form name");
+	offset += 64;
 
 	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Log pixels");
 
@@ -946,6 +948,7 @@ static int prs_PRINTER_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			      proto_tree *tree, GList **dp_list, void **data)
 {
 	int struct_start = offset;
+	guint32 rel_offset;
 	
 	offset = prs_relstr(tvb, offset, pinfo, tree, dp_list, struct_start,
 			    NULL, "Server name");
@@ -967,7 +970,49 @@ static int prs_PRINTER_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	
 	offset = prs_relstr(tvb, offset, pinfo, tree, dp_list, struct_start,
 			    NULL, "Location");
+
+	/* This is a relative devicemode */
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, &rel_offset, NULL);
+
+	prs_DEVMODE(
+		tvb, struct_start + rel_offset, pinfo, tree, dp_list, NULL);
 	
+	offset = prs_relstr(tvb, offset, pinfo, tree, dp_list, struct_start,
+			    NULL, "Separator file");
+
+	offset = prs_relstr(tvb, offset, pinfo, tree, dp_list, struct_start,
+			    NULL, "Print processor");
+
+	offset = prs_relstr(tvb, offset, pinfo, tree, dp_list, struct_start,
+			    NULL, "Datatype");
+
+	offset = prs_relstr(tvb, offset, pinfo, tree, dp_list, struct_start,
+			    NULL, "Parameters");
+
+	/* This is a relative security descriptor */
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, &rel_offset, NULL);
+
+	dissect_nt_sec_desc(tvb, pinfo, struct_start + rel_offset, tree, 0);
+	
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Attributes");
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Priority");
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, 
+			    "Default priority");
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Start time");
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "End time");
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Status");
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Jobs");
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Average PPM");
+
 	return offset;
 }
 
@@ -1655,6 +1700,7 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	GList *dp_list = NULL;
 	void **data_list;
 	struct BUFFER_DATA *bd = NULL;
+	gint16 level = (guint32)dcv->private_data;
 
 	/* Update informational fields */
 
@@ -1665,6 +1711,9 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree_add_text(tree, tvb, offset, 0, 
 				    "Request in frame %d", dcv->req_frame);
 
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+
 	/* Parse packet */
 
 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
@@ -1674,8 +1723,6 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		bd = (struct BUFFER_DATA *)data_list[0];
 
 	if (bd && bd->tree) {
-		gint16 level = (guint32)dcv->private_data;
-
 		proto_item_append_text(bd->item, ", PRINTER_INFO_%d", level);
 
 		switch (level) {
