@@ -2,7 +2,7 @@
  * Fibre Channel Basic Link Services header
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fcbls.h,v 1.1 2002/12/08 02:32:17 gerald Exp $
+ * $Id: packet-fcbls.h,v 1.2 2003/07/09 06:24:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,16 +32,6 @@
 #define FC_BLS_BAACC        0x04 
 #define FC_BLS_BARJT        0x05
 #define FC_BLS_PRMT         0x06
-
-static const value_string fc_bls_proto_val[] = {
-    {FC_BLS_NOP    , "NOP"},
-    {FC_BLS_ABTS   , "ABTS"},
-    {FC_BLS_RMC    , "RMC"},
-    {FC_BLS_BAACC  , "BA_ACC"},
-    {FC_BLS_BARJT  , "BA_RJT"},
-    {FC_BLS_PRMT   , "PRMT"},
-    {0, NULL},
-};
 
 #define FC_BLS_BARJT_INVCMDCODE     0x01
 #define FC_BLS_BARJT_LOGERR         0x03

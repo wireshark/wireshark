@@ -4,7 +4,7 @@
  *   Copyright 2003  Ronnie Sahlberg, exchange first/last matching and 
  *                                    tap listener and misc updates
  *
- * $Id: packet-fc.c,v 1.11 2003/06/25 11:15:33 sahlberg Exp $
+ * $Id: packet-fc.c,v 1.12 2003/07/09 06:23:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -276,6 +276,16 @@ static const value_string fc_wka_vals[] = {
     {FC_WKA_FABRIC_CTRLR, "Fabric Ctlr"},
     {FC_WKA_FPORT,        "F_Port Server"},
     {FC_WKA_BCAST,        "Broadcast ID"},
+    {0, NULL},
+};
+
+static const value_string fc_routing_val[] = {
+    {FC_RCTL_DEV_DATA,  "Device_Data"},
+    {FC_RCTL_ELS,       "Extended Link Services"},
+    {FC_RCTL_LINK_DATA, "FC-4 Link_Data"},
+    {FC_RCTL_VIDEO,     "Video_Data"},
+    {FC_RCTL_BLS,       "Basic Link Services"},
+    {FC_RCTL_LINK_CTL,  "Link_Control Frame"},
     {0, NULL},
 };
 
@@ -667,6 +677,22 @@ dissect_fc_fctl(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, 
 	proto_item_append_text(item, "  %s", str);
 }
 
+static const value_string fc_bls_proto_val[] = {
+    {FC_BLS_NOP    , "NOP"},
+    {FC_BLS_ABTS   , "ABTS"},
+    {FC_BLS_RMC    , "RMC"},
+    {FC_BLS_BAACC  , "BA_ACC"},
+    {FC_BLS_BARJT  , "BA_RJT"},
+    {FC_BLS_PRMT   , "PRMT"},
+    {0, NULL},
+};
+
+static const value_string fc_els_proto_val[] = {
+    {0x01    , "Solicited Data"},
+    {0x02    , "Request"},
+    {0x03    , "Reply"},
+    {0, NULL},
+};
 
 /* Code to actually dissect the packets */
 static void
@@ -819,29 +845,103 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     fchdr.fced=fc_ex;
 
-    if (ftype == FC_FTYPE_LINKCTL) {
+    switch (fchdr.r_ctl & 0xF0) {
+
+    case FC_RCTL_DEV_DATA:
+    case FC_RCTL_LINK_DATA:
+    case FC_RCTL_VIDEO:
+        /* the lower 4 bits of R_CTL are the information category */
+        proto_tree_add_uint_format (fc_tree, hf_fc_rctl, tvb, offset,
+                                    FC_RCTL_SIZE, fchdr.r_ctl,
+                                    "R_CTL: 0x%x(%s/%s)",
+                                    fchdr.r_ctl,
+                                    val_to_str ((fchdr.r_ctl & 0xF0),
+                                                fc_routing_val, "0x%x"),
+                                    val_to_str ((fchdr.r_ctl & 0x0F),
+                                                fc_iu_val, "0x%x")); 
+        break;
+
+    case FC_RCTL_LINK_CTL:
         /* the lower 4 bits of R_CTL indicate the type of link ctl frame */
         proto_tree_add_uint_format (fc_tree, hf_fc_rctl, tvb, offset,
                                     FC_RCTL_SIZE, fchdr.r_ctl,
-                                    "R_CTL: 0x%x(%s)",
+                                    "R_CTL: 0x%x(%s/%s)",
                                     fchdr.r_ctl,
+                                    val_to_str ((fchdr.r_ctl & 0xF0),
+                                                fc_routing_val, "0x%x"),
                                     val_to_str ((fchdr.r_ctl & 0x0F),
                                                 fc_lctl_proto_val, "0x%x")); 
-    } else if (ftype == FC_FTYPE_BLS) {
-        /* the lower 4 bits of R_CTL indicate the type of BLS frame */
+        break;
+
+    case FC_RCTL_BLS:
+        switch (fchdr.type) {
+
+        case 0x00:
+            /* the lower 4 bits of R_CTL indicate the type of BLS frame */
+            proto_tree_add_uint_format (fc_tree, hf_fc_rctl, tvb, offset,
+                                        FC_RCTL_SIZE, fchdr.r_ctl,
+                                        "R_CTL: 0x%x(%s/%s)",
+                                        fchdr.r_ctl,
+                                        val_to_str ((fchdr.r_ctl & 0xF0),
+                                                    fc_routing_val, "0x%x"),
+                                        val_to_str ((fchdr.r_ctl & 0x0F),
+                                                    fc_bls_proto_val, "0x%x")); 
+            break;
+
+        default:
+            proto_tree_add_uint_format (fc_tree, hf_fc_rctl, tvb, offset,
+                                        FC_RCTL_SIZE, fchdr.r_ctl,
+                                        "R_CTL: 0x%x(%s/0x%x)",
+                                        fchdr.r_ctl,
+                                        val_to_str ((fchdr.r_ctl & 0xF0),
+                                                    fc_routing_val, "0x%x"),
+                                        fchdr.r_ctl & 0x0F);
+            break;
+        }
+        break;
+
+    case FC_RCTL_ELS:
+        switch (fchdr.type) {
+
+        case 0x01:
+            /* the lower 4 bits of R_CTL indicate the type of ELS frame */
+            proto_tree_add_uint_format (fc_tree, hf_fc_rctl, tvb, offset,
+                                        FC_RCTL_SIZE, fchdr.r_ctl,
+                                        "R_CTL: 0x%x(%s/%s)",
+                                        fchdr.r_ctl,
+                                        val_to_str ((fchdr.r_ctl & 0xF0),
+                                                    fc_routing_val, "0x%x"),
+                                        val_to_str ((fchdr.r_ctl & 0x0F),
+                                                    fc_els_proto_val, "0x%x")); 
+            break;
+
+        default:
+            proto_tree_add_uint_format (fc_tree, hf_fc_rctl, tvb, offset,
+                                        FC_RCTL_SIZE, fchdr.r_ctl,
+                                        "R_CTL: 0x%x(%s/0x%x)",
+                                        fchdr.r_ctl,
+                                        val_to_str ((fchdr.r_ctl & 0xF0),
+                                                    fc_routing_val, "0x%x"),
+                                        fchdr.r_ctl & 0x0F);
+            break;
+        }
+        break;
+
+    default:
         proto_tree_add_uint_format (fc_tree, hf_fc_rctl, tvb, offset,
                                     FC_RCTL_SIZE, fchdr.r_ctl,
-                                    "R_CTL: 0x%x(%s)",
+                                    "R_CTL: 0x%x(%s/0x%x)",
                                     fchdr.r_ctl,
-                                    val_to_str ((fchdr.r_ctl & 0x0F),
-                                                fc_bls_proto_val, "0x%x")); 
-    } else {
-        proto_tree_add_item (fc_tree, hf_fc_rctl, tvb, offset, 1, FALSE);
+                                    val_to_str ((fchdr.r_ctl & 0xF0),
+                                                fc_routing_val, "0x%x"),
+                                    fchdr.r_ctl & 0x0F);
+        break;
     }
         
     proto_tree_add_uint_hidden (fc_tree, hf_fc_ftype, tvb, offset, 1,
                            ftype); 
 
+    /* XXX - use "fc_wka_vals[]" on this? */
     proto_tree_add_string (fc_tree, hf_fc_did, tvb, offset+1, 3,
                            fc32_to_str (fchdr.d_id));
     proto_tree_add_string_hidden (fc_tree, hf_fc_id, tvb, offset+1, 3,
@@ -849,6 +949,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_uint (fc_tree, hf_fc_csctl, tvb, offset+4, 1, fchdr.cs_ctl);
 
+    /* XXX - use "fc_wka_vals[]" on this? */
     proto_tree_add_string (fc_tree, hf_fc_sid, tvb, offset+5, 3,
                            fc32_to_str (fchdr.s_id));
     proto_tree_add_string_hidden (fc_tree, hf_fc_id, tvb, offset+5, 3,
