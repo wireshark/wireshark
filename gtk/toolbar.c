@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.2 2003/10/15 22:34:58 guy Exp $
+ * $Id: toolbar.c,v 1.3 2003/10/15 22:37:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -351,7 +351,7 @@ void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar) {
 	iconw = gtk_pixmap_new(icon, mask);
 
 	find_button = gtk_toolbar_append_item (GTK_TOOLBAR (*toolbar),
-								"Find", "Find frame by display filter...", "Private",
+								"Find", "Find frame...", "Private",
 								iconw, GTK_SIGNAL_FUNC (find_frame_cb), NULL);
 	gtk_toolbar_append_space (GTK_TOOLBAR(*toolbar));
 	
