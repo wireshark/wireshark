@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.24 2002/04/13 00:02:55 guy Exp $
+ * $Id: packet-frame.c,v 1.25 2002/05/03 21:38:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,8 @@ static int hf_frame_packet_len = -1;
 static int hf_frame_capture_len = -1;
 static int hf_frame_p2p_dir = -1;
 static int hf_frame_file_off = -1;
+static int hf_frame_marked = -1;
+
 static int proto_short = -1;
 int proto_malformed = -1;
 static int proto_unreassembled = -1;
@@ -97,6 +99,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  cap_len = tvb_length(tvb);
 	  pkt_len = tvb_reported_length(tvb);
 
+	  proto_tree_add_boolean_hidden(tree, hf_frame_marked, tvb, 0, 0,pinfo->fd->flags.marked);
 	  ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, -1,
 	    "Frame %u (%u on wire, %u captured)", pinfo->fd->num, pkt_len, cap_len);
 
@@ -235,6 +238,9 @@ proto_register_frame(void)
 		{ "File Offset",	"frame.file_off", FT_INT32, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 
+		{ &hf_frame_marked,
+		{ "Frame is marked",	"frame.marked", FT_BOOLEAN, 8, NULL, 0x0,
+			"Frame is marked in the GUI", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_frame,

@@ -1148,6 +1148,7 @@ Didier Gautheron <dgautheron[AT]magic.fr> {
 	X11 bug fix
 	Appletalk Transaction Protocol, Appletalk Stream Protocol, and
 	    Appletalk Filing Protocol support
+	"frame.marked" field set on marked frames
 }
 
 Phil Williams <csypbw[AT]comp.leeds.ac.uk> {

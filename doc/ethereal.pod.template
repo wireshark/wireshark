@@ -321,7 +321,11 @@ Go to a particular numbered packet.
 
 =item Edit:Mark Frame
 
-Mark (or unmark if currently marked) the selected packet.
+Mark (or unmark if currently marked) the selected packet.  The field
+"frame.marked" is set for frames that are marked, so that, for example,
+a display filters can be used to display only marked frames, and so that
+the L<Find Frame> menu item can be used to find the next or previous
+marked frame.
 
 =item Edit:Mark All Frames
 
