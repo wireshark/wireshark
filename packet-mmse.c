@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.22 2003/12/07 03:17:42 guy Exp $
+ * $Id: packet-mmse.c,v 1.23 2003/12/07 18:09:52 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -865,9 +865,9 @@ proto_reg_handoff_mmse(void)
     dissector_add("wsp.content_type.integer",
 			MMS_CONTENT_TYPE,
   			mmse_handle);
-    dissector_add_string("wsp.content_type.literal",
-			"application/vnd.wap.mms-message",
-  			mmse_handle);
+	/* As the media types for WSP and HTTP are the same, the WSP dissector
+	 * uses the same string dissector table as the HTTP protocol. This is
+	 * not true for the integer representation of the WSP media types. */
     dissector_add_string("media_type",
 			"application/vnd.wap.mms-message",
   			mmse_handle);

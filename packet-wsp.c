@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.92 2003/12/04 06:02:45 gram Exp $
+ * $Id: packet-wsp.c,v 1.93 2003/12/07 18:09:52 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6508,16 +6508,14 @@ proto_register_wsp(void)
 			"wsp.content_type.integer",
 			"WSP content type (well-known integer value)",
 			FT_UINT32, BASE_HEX);
-	wsp_dissector_table_text = register_dissector_table(
-			"wsp.content_type.literal",
-			"WSP content type (textual value)",
-			FT_STRING, BASE_NONE);
+	/* As the media types for WSP and HTTP are the same, the WSP dissector
+	 * uses the same string dissector table as the HTTP protocol. This is
+	 * not true for the integer representation of the WSP media types. */
+	wsp_dissector_table_text = find_dissector_table("media_type");
 	register_heur_dissector_list("wsp", &heur_subdissector_list);
 
 	wsp_fromudp_handle = create_dissector_handle(dissect_wsp_fromudp,
 	    proto_wsp);
-	
-	
 };
 
 void
