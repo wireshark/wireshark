@@ -1,7 +1,7 @@
 /* packet-chdlc.c
  * Routines for Cisco HDLC packet disassembly
  *
- * $Id: packet-chdlc.c,v 1.17 2003/01/06 22:10:49 guy Exp $
+ * $Id: packet-chdlc.c,v 1.18 2003/01/11 10:16:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +29,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "etypes.h"
+#include "chdlctypes.h"
 #include <epan/resolv.h>
 #include "packet-chdlc.h"
 #include "packet-ip.h"
@@ -90,11 +91,12 @@ const value_string chdlc_vals[] = {
 	{ETHERTYPE_IP,        "IP"},
 	{CISCO_SLARP,         "SLARP"},
 	{ETHERTYPE_DEC_LB,    "DEC LanBridge"},
+	{CHDLCTYPE_BPDU,      "Spanning Tree BPDU"},
 	{ETHERTYPE_ATALK,     "Appletalk"},
 	{ETHERTYPE_AARP,      "AARP"},
 	{ETHERTYPE_IPX,       "Netware IPX/SPX"},
 	{ETHERTYPE_ETHBRIDGE, "Transparent Ethernet bridging" },
-	{ETHERTYPE_OSI,       "OSI" },
+	{CHDLCTYPE_OSI,       "OSI" },
 	{0,                   NULL}
 };
 

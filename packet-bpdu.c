@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.44 2003/01/11 10:01:51 guy Exp $
+ * $Id: packet-bpdu.c,v 1.45 2003/01/11 10:16:22 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  *
@@ -34,6 +34,7 @@
 #include <epan/packet.h>
 #include "llcsaps.h"
 #include "ppptypes.h"
+#include "chdlctypes.h"
 #include <epan/resolv.h>
 
 /* Offsets of fields within a BPDU */
@@ -768,5 +769,5 @@ proto_reg_handoff_bpdu(void)
   bpdu_handle = find_dissector("bpdu");
   dissector_add("llc.dsap", SAP_BPDU, bpdu_handle);
   dissector_add("ppp.protocol", PPP_BPDU, bpdu_handle);
-  dissector_add("chdlctype", 0x4242, bpdu_handle);
+  dissector_add("chdlctype", CHDLCTYPE_BPDU, bpdu_handle);
 }

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.535 2003/01/08 05:03:51 guy Exp $
+# $Id: Makefile.am,v 1.536 2003/01/11 10:16:21 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -625,6 +625,7 @@ ETHEREAL_COMMON_SRC = \
 	capture_stop_conditions.h   \
 	cfile.c         \
 	cfile.h         \
+	chdlctypes.h   \
 	color.h        \
 	column.c       \
 	column.h       \
