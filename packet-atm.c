@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.15 2000/05/11 22:04:15 gram Exp $
+ * $Id: packet-atm.c,v 1.16 2000/05/15 06:22:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -373,6 +373,10 @@ dissect_le_control(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 static void
 dissect_lane(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 {
+  tvbuff_t	*next_tvb;
+
+  next_tvb = tvb_new_subset(pi.compat_top_tvb, offset, -1);
+
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "ATM LANE");
   if (check_col(fd, COL_INFO))
@@ -400,12 +404,12 @@ dissect_lane(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     offset += 2;
 
     /* Dissect as Token-Ring */
-    dissect_tr(pd, offset, fd, tree);
+    dissect_tr(next_tvb, &pi, tree);
     break;
 
   default:
     /* Dump it as raw data. */
-    dissect_data(pd, offset, fd, tree);
+    dissect_data_tvb(next_tvb, &pi, tree);
     break;
   }
 }

@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.39 2000/05/11 22:04:17 gram Exp $
+ * $Id: packet-tr.c,v 1.40 2000/05/15 06:22:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -134,6 +134,29 @@ static const value_string direction_vals[] = {
  * (And this real frame x bytes in looks like a proper TR frame that goes on the wire
  * with none of the Linux idiosyncrasies).
  */
+int check_for_old_linux_tvb(tvbuff_t *tvb)
+{
+	guint8	*data;
+	int	x, bytes;
+
+	/* Restrict our looping to the boundaries of the frame */
+	bytes = tvb_length(tvb);
+	if (bytes > 19) {
+		bytes = 19;
+	}
+
+	data = tvb_get_ptr(tvb, 0, bytes);
+
+	for(x = 1; x <= bytes-1 ;x++)
+	{
+		if (memcmp(&data[0], &data[x], x) == 0)
+		{
+			return x;
+		}
+	}
+	return 0;		
+}
+
 int check_for_old_linux(const u_char * pd)
 {
 	int x;
@@ -147,8 +170,9 @@ int check_for_old_linux(const u_char * pd)
 	return 0;		
 }
 
+
 static void
-add_ring_bridge_pairs(int rcf_len, const u_char *pd, int offset, proto_tree *tree);
+add_ring_bridge_pairs(int rcf_len, tvbuff_t*, proto_tree *tree);
 
 void
 capture_tr(const u_char *pd, int offset, packet_counts *ld) {
@@ -251,7 +275,7 @@ capture_tr(const u_char *pd, int offset, packet_counts *ld) {
                 }
 	}
 	
-	offset += actual_rif_bytes + 14;
+	offset += actual_rif_bytes + TR_MIN_HEADER_LEN;
 
 	/* The package is either MAC or LLC */
 	switch (frame_type) {
@@ -271,16 +295,25 @@ capture_tr(const u_char *pd, int offset, packet_counts *ld) {
 
 
 void
-dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-
+dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
 	proto_tree	*tr_tree, *bf_tree;
 	proto_item	*ti;
-	int		fixoffset = 0;
-	int		source_routed = 0;
 	int		frame_type;
-	guint8		trn_rif_bytes;
-	guint8		actual_rif_bytes;
+	guint8		rcf1, rcf2;
 	tvbuff_t	*next_tvb;
+	int		next_offset;
+	const guint8*	next_pd;
+
+	volatile int		fixoffset = 0;
+	volatile int		source_routed = 0;
+	volatile guint8		trn_rif_bytes;
+	volatile guint8		actual_rif_bytes;
+
+	/* I make tr_tvb static because I need to set it before any TRY block.
+	 * If tr_tvb were not static, the possibility exists that the value
+	 * I give to tr_tvb would be clobbered. */
+	static tvbuff_t	*tr_tvb = NULL;
 
 	/* The trn_hdr struct, as separate variables */
 	guint8			trn_ac;		/* access control field */
@@ -295,33 +328,38 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	/* Token-Ring Strings */
 	char *fc[] = { "MAC", "LLC", "Reserved", "Unknown" };
 
-	if (!BYTES_ARE_IN_FRAME(offset, TR_MIN_HEADER_LEN)) {
-		dissect_data(pd, offset, fd, tree);
-		return;
-	}
+	pinfo->current_proto = "Token-Ring";
 
-	if ((x = check_for_old_linux(pd)))
-	{
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_add_str(pinfo->fd, COL_PROTOCOL, "TR");
+
+	if ((x = check_for_old_linux_tvb((tvbuff_t*) tvb))) {
 		/* Actually packet starts x bytes into what we have got but with all
 		   source routing compressed. See comment above */
-		offset += x;
-		/* pd = &pd[x]; */
+		tr_tvb = tvb_new_subset((tvbuff_t*) tvb, x, -1);
+	}
+	else {
+		tr_tvb = tvb;
 	}
 
-	/* get the data */
-	trn_fc = pd[offset+1];
-	trn_dhost = &pd[offset+2];
-	trn_shost = &pd[offset+8];
+	/* Get the data */
+	trn_fc		= tvb_get_guint8(tr_tvb, 1);
+	trn_dhost	= tvb_get_ptr(tr_tvb, 2, 6);
+	trn_shost	= tvb_get_ptr(tr_tvb, 8, 6);
 
-	memcpy(trn_shost_nonsr, trn_shost, 6 * sizeof(guint8));
+
+	memcpy(trn_shost_nonsr, trn_shost, 6);
 	trn_shost_nonsr[0] &= 127;
 	frame_type = (trn_fc & 192) >> 6;
+
+	if (check_col(pinfo->fd, COL_INFO))
+		col_add_fstr(pinfo->fd, COL_INFO, "Token-Ring %s", fc[frame_type]);
 
 	/* if the high bit on the first byte of src hwaddr is 1, then
 		this packet is source-routed */
 	source_routed = trn_shost[0] & 128;
 
-	trn_rif_bytes = pd[offset+14] & 31;
+	trn_rif_bytes = tvb_get_guint8(tr_tvb, 14) & 31;
 
 	/* sometimes we have a RCF but no RIF... half source-routed? */
 	/* I'll check for 2 bytes of RIF and the 0x70 byte */
@@ -336,23 +374,23 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		 * see if there's a SNAP or IPX field right after
 		 * my RIF fields.
 		 */
-		else if ( (
-			pd[offset + 0x0e + trn_rif_bytes] == 0xaa &&
-			pd[offset + 0x0f + trn_rif_bytes] == 0xaa &&
-			pd[offset + 0x10 + trn_rif_bytes] == 0x03) ||
-			  (
-			pd[offset + 0x0e + trn_rif_bytes] == 0xe0 &&
-			pd[offset + 0x0f + trn_rif_bytes] == 0xe0) ) {
+		else {
+			TRY {
+				if ( ( tvb_get_ntohs(tr_tvb, trn_rif_bytes + 0x0e) == 0xaaaa &&
+					tvb_get_guint8(tr_tvb, trn_rif_bytes + 0x10) == 0x03)   ||
+					  
+					tvb_get_ntohs(tr_tvb, trn_rif_bytes + 0x0e) == 0xe0e0 ) {
 
-			source_routed = 1;
+					source_routed = 1;
+				}
+			}
+			CATCH(BoundsError) {
+				/* We had no information beyond the TR header. Just assume
+				 * this is a normal (non-Linux) TR header. */
+				;
+			}
+			ENDTRY;
 		}
-/*		else {
-			printf("0e+%d = %02X   0f+%d = %02X\n", trn_rif_bytes,
-					pd[offset + 0x0e + trn_rif_bytes],
-					trn_rif_bytes,
-					pd[offset + 0x0f + trn_rif_bytes]);
-		} */
-
 	}
 
 	if (source_routed) {
@@ -366,36 +404,41 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	/* this is a silly hack for Linux 2.0.x. Read the comment below,
 	in front of the other #ifdef linux. If we're sniffing our own NIC,
 	 we get a full RIF, sometimes with garbage */
-	if ((source_routed && trn_rif_bytes == 2 && frame_type == 1) ||
-		(!source_routed && frame_type == 1)) {
-		/* look for SNAP or IPX only */
-		if ( 	(pd[offset + 0x20] == 0xaa &&
-		      	pd[offset + 0x21] == 0xaa &&
-		      	pd[offset + 0x22] == 03)
-		 ||
-		     	(pd[offset + 0x20] == 0xe0 &&
-		      	pd[offset + 0x21] == 0xe0) ) {
+	TRY {
+		if ((source_routed && trn_rif_bytes == 2 && frame_type == 1) ||
+			(!source_routed && frame_type == 1)) {
+			/* look for SNAP or IPX only */
+			if ( 	
+				(tvb_get_ntohs(tr_tvb, 0x20) == 0xaaaa &&
+				tvb_get_guint8(tr_tvb, 0x22) == 0x03)
+			 ||
+				tvb_get_ntohs(tr_tvb, 0x20) == 0xe0e0 ) { 
 
-			actual_rif_bytes = 18;
-               }
-		else if (
-			pd[0x23] == 0 &&
-			pd[0x24] == 0 &&
-			pd[0x25] == 0 &&
-			pd[0x26] == 0x00 &&
-			pd[0x27] == 0x11) {
+				actual_rif_bytes = 18;
+		       }
+			else if (
+					tvb_get_ntohl(tr_tvb, 0x23) == 0 &&
+					tvb_get_guint8(tr_tvb, 0x27) == 0x11) {
 
-                        actual_rif_bytes = 18;
+				actual_rif_bytes = 18;
 
-                       /* Linux 2.0.x also requires drivers pass up a fake SNAP and LLC header before th
-                          real LLC hdr for all Token Ring frames that arrive with DSAP and SSAP != 0xAA
-                          (i.e. for non SNAP frames e.g. for Netware frames)
-                          the fake SNAP header has the ETH_P_TR_802_2 ether type (0x0011) and the protocol id
-                          bytes as zero frame looks like :-
-                          TR Header | Fake LLC | Fake SNAP | Wire LLC | Rest of data */
-                       fixoffset += 8; /* Skip fake LLC and SNAP */
-                }
+			       /* Linux 2.0.x also requires drivers pass up a fake SNAP and LLC header before th
+				  real LLC hdr for all Token Ring frames that arrive with DSAP and SSAP != 0xAA
+				  (i.e. for non SNAP frames e.g. for Netware frames)
+				  the fake SNAP header has the ETH_P_TR_802_2 ether type (0x0011) and the protocol id
+				  bytes as zero frame looks like :-
+				  TR Header | Fake LLC | Fake SNAP | Wire LLC | Rest of data */
+			       fixoffset += 8; /* Skip fake LLC and SNAP */
+			}
+		}
 	}
+	CATCH(BoundsError) {
+		/* We had no information beyond the TR header. Just assume
+		 * this is a normal (non-Linux) TR header. */
+		;
+	}
+	ENDTRY;
+
 
 	/* XXX - copy it to some buffer associated with "pi", rather than
 	   just making "trn_shost_nonsr" static? */
@@ -404,58 +447,53 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	SET_ADDRESS(&pi.dl_dst,	AT_ETHER, 6, trn_dhost);
 	SET_ADDRESS(&pi.dst,	AT_ETHER, 6, trn_dhost);
 
-	/* information window */
-	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "TR");
-	if (check_col(fd, COL_INFO))
-		col_add_fstr(fd, COL_INFO, "Token-Ring %s", fc[frame_type]);
-
 	/* protocol analysis tree */
 	if (tree) {
 		/* Create Token-Ring Tree */
-		ti = proto_tree_add_item(tree, proto_tr, NullTVB, offset, 14 + actual_rif_bytes, NULL);
+		ti = proto_tree_add_item(tree, proto_tr, tr_tvb, 0, TR_MIN_HEADER_LEN + actual_rif_bytes, NULL);
 		tr_tree = proto_item_add_subtree(ti, ett_token_ring);
 
 		/* Create the Access Control bitfield tree */
-		trn_ac = pd[offset+0];
-		ti = proto_tree_add_item(tr_tree, hf_tr_ac, NullTVB, offset, 1, trn_ac);
+		trn_ac = tvb_get_guint8(tr_tvb, 0);
+		ti = proto_tree_add_item(tr_tree, hf_tr_ac, tr_tvb, 0, 1, trn_ac);
 		bf_tree = proto_item_add_subtree(ti, ett_token_ring_ac);
 
-		proto_tree_add_item(bf_tree, hf_tr_priority, NullTVB, offset, 1, trn_ac);
-		proto_tree_add_item(bf_tree, hf_tr_frame, NullTVB, offset, 1, trn_ac);
-		proto_tree_add_item(bf_tree, hf_tr_monitor_cnt, NullTVB, offset, 1, trn_ac);
-		proto_tree_add_item(bf_tree, hf_tr_priority_reservation, NullTVB, offset, 1, trn_ac);
+		proto_tree_add_item(bf_tree, hf_tr_priority, tr_tvb, 0, 1, trn_ac);
+		proto_tree_add_item(bf_tree, hf_tr_frame, tr_tvb, 0, 1, trn_ac);
+		proto_tree_add_item(bf_tree, hf_tr_monitor_cnt, tr_tvb, 0, 1, trn_ac);
+		proto_tree_add_item(bf_tree, hf_tr_priority_reservation, tr_tvb, 0, 1, trn_ac);
 
 		/* Create the Frame Control bitfield tree */
-		ti = proto_tree_add_item(tr_tree, hf_tr_fc, NullTVB, offset + 1, 1, trn_fc);
+		ti = proto_tree_add_item(tr_tree, hf_tr_fc, tr_tvb, 1, 1, trn_fc);
 		bf_tree = proto_item_add_subtree(ti, ett_token_ring_fc);
 
-		proto_tree_add_item(bf_tree, hf_tr_fc_type, NullTVB, offset + 1, 1, trn_fc);
-		proto_tree_add_item(bf_tree, hf_tr_fc_pcf, NullTVB,  offset + 1, 1, trn_fc);
-		proto_tree_add_item(tr_tree, hf_tr_dst, NullTVB, offset + 2, 6, trn_dhost);
-		proto_tree_add_item(tr_tree, hf_tr_src, NullTVB, offset + 8, 6, trn_shost);
-		proto_tree_add_item_hidden(tr_tree, hf_tr_addr, NullTVB, offset + 2, 6, trn_dhost);
-		proto_tree_add_item_hidden(tr_tree, hf_tr_addr, NullTVB, offset + 8, 6, trn_shost);
+		proto_tree_add_item(bf_tree, hf_tr_fc_type, tr_tvb, 1, 1, trn_fc);
+		proto_tree_add_item(bf_tree, hf_tr_fc_pcf, tr_tvb,  1, 1, trn_fc);
+		proto_tree_add_item(tr_tree, hf_tr_dst, tr_tvb, 2, 6, trn_dhost);
+		proto_tree_add_item(tr_tree, hf_tr_src, tr_tvb, 8, 6, trn_shost);
+		proto_tree_add_item_hidden(tr_tree, hf_tr_addr, tr_tvb, 2, 6, trn_dhost);
+		proto_tree_add_item_hidden(tr_tree, hf_tr_addr, tr_tvb, 8, 6, trn_shost);
 
-		proto_tree_add_item(tr_tree, hf_tr_sr, NullTVB, offset + 8, 1, source_routed);
+		proto_tree_add_item(tr_tree, hf_tr_sr, tr_tvb, 8, 1, source_routed);
 
 		/* non-source-routed version of src addr */
-		proto_tree_add_item_hidden(tr_tree, hf_tr_src, NullTVB, offset + 8, 6, trn_shost_nonsr);
+		proto_tree_add_item_hidden(tr_tree, hf_tr_src, tr_tvb, 8, 6, trn_shost_nonsr);
 
 		if (source_routed) {
 			/* RCF Byte 1 */
-			proto_tree_add_item(tr_tree, hf_tr_rif_bytes, NullTVB, offset + 14, 1, trn_rif_bytes);
-			proto_tree_add_item(tr_tree, hf_tr_broadcast, NullTVB, offset + 14, 1, pd[offset + 14] & 224);
+			rcf1 = tvb_get_guint8(tr_tvb, 14);
+			proto_tree_add_item(tr_tree, hf_tr_rif_bytes, tr_tvb, 14, 1, trn_rif_bytes);
+			proto_tree_add_item(tr_tree, hf_tr_broadcast, tr_tvb, 14, 1, rcf1 & 224);
 
 			/* RCF Byte 2 */
-			proto_tree_add_item(tr_tree, hf_tr_max_frame_size, NullTVB, offset + 15, 1, pd[offset + 15] & 112);
-			proto_tree_add_item(tr_tree, hf_tr_direction, NullTVB, offset + 15, 1, pd[offset + 15] & 128);
+			rcf2 = tvb_get_guint8(tr_tvb, 15);
+			proto_tree_add_item(tr_tree, hf_tr_max_frame_size, tr_tvb, 15, 1, rcf2 & 112);
+			proto_tree_add_item(tr_tree, hf_tr_direction, tr_tvb, 15, 1, rcf2 & 128);
 
 			/* if we have more than 2 bytes of RIF, then we have
 				ring/bridge pairs */
-			if ((trn_rif_bytes > 2) && BYTES_ARE_IN_FRAME(offset + 14, trn_rif_bytes)) {
-				add_ring_bridge_pairs(trn_rif_bytes,
-					pd, offset, tr_tree);
+			if (trn_rif_bytes > 2) {
+				add_ring_bridge_pairs(trn_rif_bytes, tr_tvb, tr_tree);
 			}
 		}
 
@@ -467,47 +505,49 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		are filled with garbage. The best way to detect this problem is
 		to know the src hwaddr of the machine from which you were running
 		tcpdump. W/o that, however, I'm guessing that DSAP == SSAP if the
-		frame type is LLC.  It's very much a hack. -- Gilbert Ramirez */
+		frame type is LLC.  It's very much a hack. */
 		if (actual_rif_bytes > trn_rif_bytes) {
-			proto_tree_add_text(tr_tree, NullTVB, 14 + trn_rif_bytes, actual_rif_bytes - trn_rif_bytes,
+			proto_tree_add_text(tr_tree, tr_tvb, TR_MIN_HEADER_LEN + trn_rif_bytes, actual_rif_bytes - trn_rif_bytes,
 				"Empty RIF from Linux 2.0.x driver. The sniffing NIC "
 				"is also running a protocol stack.");
 		}
 		if (fixoffset) {
-			proto_tree_add_text(tr_tree, NullTVB, 14 + 18,8,"Linux 2.0.x fake LLC and SNAP header");
+			proto_tree_add_text(tr_tree, tr_tvb, TR_MIN_HEADER_LEN + 18,8,"Linux 2.0.x fake LLC and SNAP header");
 		}
 	}
-	offset += 14 + actual_rif_bytes + fixoffset;
 
-	if (IS_DATA_IN_FRAME(offset)) {
-		next_tvb = tvb_new_subset(pi.compat_top_tvb, offset, -1);
-		/* The package is either MAC or LLC */
-		switch (frame_type) {
-			/* MAC */
-			case 0:
-				dissect_trmac(pd, offset, fd, tree);
-				break;
-			case 1:
-			        dissect_llc(next_tvb, &pi, tree);
-				break;
-			default:
-				/* non-MAC, non-LLC, i.e., "Reserved" */
-				dissect_data_tvb(next_tvb, &pi, tree);
-				break;
-		}
+
+
+	next_tvb = tvb_new_subset(tr_tvb, TR_MIN_HEADER_LEN + actual_rif_bytes + fixoffset, -1);
+	tvb_compat(next_tvb, &next_pd, &next_offset);
+
+	/* The package is either MAC or LLC */
+	switch (frame_type) {
+		/* MAC */
+		case 0:
+			dissect_trmac(next_pd, next_offset, pinfo->fd, tree);
+			break;
+		case 1:
+			dissect_llc(next_tvb, pinfo, tree);
+			break;
+		default:
+			/* non-MAC, non-LLC, i.e., "Reserved" */
+			dissect_data_tvb(next_tvb, pinfo, tree);
+			break;
 	}
 }
 
 /* this routine is taken from the Linux net/802/tr.c code, which shows
 ring-bridge pairs in the /proc/net/tr_rif virtual file. */
 static void
-add_ring_bridge_pairs(int rcf_len, const u_char *pd, int offset, proto_tree *tree)
+add_ring_bridge_pairs(int rcf_len, tvbuff_t *tvb, proto_tree *tree)
 {
 	int 	j, size;
 	int 	segment, brdgnmb, unprocessed_rif;
 	int	buff_offset=0;
 
-#define RIF_BYTES_TO_PROCESS 30
+#define RIF_OFFSET		16
+#define RIF_BYTES_TO_PROCESS	30
 
 	char	buffer[3 + (RIF_BYTES_TO_PROCESS / 2) * 6 + 1];
 
@@ -521,22 +561,22 @@ add_ring_bridge_pairs(int rcf_len, const u_char *pd, int offset, proto_tree *tre
 
 	for(j = 1; j < rcf_len - 1; j += 2) {
 		if (j==1) {
-			segment=pntohs(&pd[offset + 16]) >> 4;
+			segment = tvb_get_ntohs(tvb, RIF_OFFSET) >> 4;
 			size = sprintf(buffer, "%03X",segment);
-			proto_tree_add_item_hidden(tree, hf_tr_rif_ring, NullTVB, offset + 16, 2, segment);
+			proto_tree_add_item_hidden(tree, hf_tr_rif_ring, tvb, TR_MIN_HEADER_LEN + 2, 2, segment);
 			buff_offset += size;
 		}
-		segment=pntohs(&pd[offset+17+j]) >> 4;
-		brdgnmb=pd[offset+16+j] & 0x0f;
+		segment = tvb_get_ntohs(tvb, RIF_OFFSET + 1 + j) >> 4;
+		brdgnmb = tvb_get_guint8(tvb, RIF_OFFSET + j) & 0x0f;
 		size = sprintf(buffer+buff_offset, "-%01X-%03X",brdgnmb,segment);
-		proto_tree_add_item_hidden(tree, hf_tr_rif_ring, NullTVB, offset+17+j, 2, segment);
-		proto_tree_add_item_hidden(tree, hf_tr_rif_bridge, NullTVB, offset+16+j, 1, brdgnmb);
+		proto_tree_add_item_hidden(tree, hf_tr_rif_ring, tvb, TR_MIN_HEADER_LEN + 3 + j, 2, segment);
+		proto_tree_add_item_hidden(tree, hf_tr_rif_bridge, tvb, TR_MIN_HEADER_LEN + 2 + j, 1, brdgnmb);
 		buff_offset += size;	
 	}
-	proto_tree_add_item(tree, hf_tr_rif, NullTVB, offset+16, rcf_len, buffer);
+	proto_tree_add_item(tree, hf_tr_rif, tvb, TR_MIN_HEADER_LEN + 2, rcf_len, buffer);
 
 	if (unprocessed_rif > 0) {
-		proto_tree_add_text(tree, NullTVB, offset+14+RIF_BYTES_TO_PROCESS, unprocessed_rif,
+		proto_tree_add_text(tree, tvb, TR_MIN_HEADER_LEN + RIF_BYTES_TO_PROCESS, unprocessed_rif,
 				"Extra RIF bytes beyond spec: %d", unprocessed_rif);
 	}
 }

@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.35 2000/05/12 19:15:53 gram Exp $
+ * $Id: packet-eth.c,v 1.36 2000/05/15 06:22:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -139,29 +139,36 @@ capture_eth(const u_char *pd, int offset, packet_counts *ld)
 void
 dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-  int        orig_captured_len;
-  guint16    etype, length;
-  proto_tree *fh_tree = NULL;
-  proto_item *ti;
-  int        ethhdr_type;	/* the type of ethernet frame */
-  tvbuff_t   *next_tvb;
+  int        		orig_captured_len;
+  guint16    		length;
+  volatile guint16	etype;
+  proto_item		*ti;
+  volatile int		ethhdr_type;	/* the type of ethernet frame */
 
-  if (!BYTES_ARE_IN_FRAME(offset, ETH_HEADER_SIZE)) {
-    dissect_data(pd, offset, fd, tree);
+  /* These are static because I need to modify them before the TRY block,
+   * and gcc says that they might get clobbered otherwise. */
+  static tvbuff_t	*next_tvb = NULL;
+  static int		eth_offset;
+  static proto_tree	*fh_tree = NULL;
+
+  eth_offset = offset;
+
+  if (!BYTES_ARE_IN_FRAME(eth_offset, ETH_HEADER_SIZE)) {
+    dissect_data(pd, eth_offset, fd, tree);
     return;
   }
-
+  pi.current_proto = "Ethernet";
   orig_captured_len = pi.captured_len;
 
-  SET_ADDRESS(&pi.dl_src, AT_ETHER, 6, &pd[offset+6]);
-  SET_ADDRESS(&pi.src, AT_ETHER, 6, &pd[offset+6]);
-  SET_ADDRESS(&pi.dl_dst, AT_ETHER, 6, &pd[offset+0]);
-  SET_ADDRESS(&pi.dst, AT_ETHER, 6, &pd[offset+0]);
+  SET_ADDRESS(&pi.dl_src, AT_ETHER, 6, &pd[eth_offset+6]);
+  SET_ADDRESS(&pi.src, AT_ETHER, 6, &pd[eth_offset+6]);
+  SET_ADDRESS(&pi.dl_dst, AT_ETHER, 6, &pd[eth_offset+0]);
+  SET_ADDRESS(&pi.dst, AT_ETHER, 6, &pd[eth_offset+0]);
 
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "Ethernet");
 
-  etype = pntohs(&pd[offset+12]);
+  etype = pntohs(&pd[eth_offset+12]);
 
 	/* either ethernet802.3 or ethernet802.2 */
   if (etype <= IEEE_802_3_MAX_LEN) {
@@ -173,7 +180,7 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
        (IPX/SPX is they only thing that can be contained inside a
        straight 802.3 packet). A non-0xffff value means that there's an
        802.2 layer inside the 802.3 layer */
-    if (pd[offset+14] == 0xff && pd[offset+15] == 0xff) {
+    if (pd[eth_offset+14] == 0xff && pd[eth_offset+15] == 0xff) {
       ethhdr_type = ETHERNET_802_3;
     }
     else {
@@ -184,9 +191,9 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
        destination address field; fortunately, they can be recognized by
        checking the first 5 octets of the destination address, which are
        01-00-0C-00-00 for ISL frames. */
-    if (pd[offset] == 0x01 && pd[offset+1] == 0x00 && pd[offset+2] == 0x0C
-	&& pd[offset+3] == 0x00 && pd[offset+4] == 0x00) {
-      dissect_isl(pd, offset, fd, tree);
+    if (pd[eth_offset] == 0x01 && pd[eth_offset+1] == 0x00 && pd[eth_offset+2] == 0x0C
+	&& pd[eth_offset+3] == 0x00 && pd[eth_offset+4] == 0x00) {
+      dissect_isl(pd, eth_offset, fd, tree);
       return;
     }
 
@@ -196,19 +203,19 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     }
     if (tree) {
 
-	ti = proto_tree_add_protocol_format(tree, proto_eth, NullTVB, offset, ETH_HEADER_SIZE,
+	ti = proto_tree_add_protocol_format(tree, proto_eth, NullTVB, eth_offset, ETH_HEADER_SIZE,
 		"IEEE 802.3 %s", (ethhdr_type == ETHERNET_802_3 ? "Raw " : ""));
 
 	fh_tree = proto_item_add_subtree(ti, ett_ieee8023);
 
-	proto_tree_add_item(fh_tree, hf_eth_dst, NullTVB, offset+0, 6, &pd[offset+0]);
-	proto_tree_add_item(fh_tree, hf_eth_src, NullTVB, offset+6, 6, &pd[offset+6]);
+	proto_tree_add_item(fh_tree, hf_eth_dst, NullTVB, eth_offset+0, 6, &pd[eth_offset+0]);
+	proto_tree_add_item(fh_tree, hf_eth_src, NullTVB, eth_offset+6, 6, &pd[eth_offset+6]);
 
 /* add items for eth.addr filter */
-	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, NullTVB, offset + 0, 6, &pd[offset+0]);
-	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, NullTVB, offset + 6, 6, &pd[offset+6]);
+	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, NullTVB, eth_offset + 0, 6, &pd[eth_offset+0]);
+	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, NullTVB, eth_offset + 6, 6, &pd[eth_offset+6]);
 
-	proto_tree_add_item(fh_tree, hf_eth_len, NullTVB, offset+12, 2, length);
+	proto_tree_add_item(fh_tree, hf_eth_len, NullTVB, eth_offset+12, 2, length);
     }
 
     /* Convert the LLC length from the 802.3 header to a total
@@ -216,7 +223,7 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
        the Ethernet header, and adding in the Ethernet header size,
        and set the payload and captured-payload lengths to the minima
        of the total length and the frame lengths. */
-    length += offset + ETH_HEADER_SIZE;
+    length += eth_offset + ETH_HEADER_SIZE;
     if (pi.len > length)
       pi.len = length;
     if (pi.captured_len > length)
@@ -227,37 +234,43 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
       col_add_str(fd, COL_INFO, "Ethernet II");
     if (tree) {
 
-	ti = proto_tree_add_protocol_format(tree, proto_eth, NullTVB, offset, ETH_HEADER_SIZE,
+	ti = proto_tree_add_protocol_format(tree, proto_eth, NullTVB, eth_offset, ETH_HEADER_SIZE,
 		"Ethernet II");
 
 	fh_tree = proto_item_add_subtree(ti, ett_ether2);
 
-	proto_tree_add_item(fh_tree, hf_eth_dst, NullTVB, offset+0, 6, &pd[offset+0]);
-	proto_tree_add_item(fh_tree, hf_eth_src, NullTVB, offset+6, 6, &pd[offset+6]);
+	proto_tree_add_item(fh_tree, hf_eth_dst, NullTVB, eth_offset+0, 6, &pd[eth_offset+0]);
+	proto_tree_add_item(fh_tree, hf_eth_src, NullTVB, eth_offset+6, 6, &pd[eth_offset+6]);
 /* add items for eth.addr filter */
-	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, NullTVB, offset + 0, 6, &pd[offset+0]);
-	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, NullTVB, offset + 6, 6, &pd[offset+6]);
+	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, NullTVB, eth_offset + 0, 6, &pd[eth_offset+0]);
+	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, NullTVB, eth_offset + 6, 6, &pd[eth_offset+6]);
     }
   }
-  offset += ETH_HEADER_SIZE;
+  eth_offset += ETH_HEADER_SIZE;
 
   /* Give the next dissector only 'length' number of bytes */
   if (etype <= IEEE_802_3_MAX_LEN) {
-     next_tvb = tvb_new_subset(pi.compat_top_tvb, offset, etype);
+	  TRY {
+	     next_tvb = tvb_new_subset(pi.compat_top_tvb, eth_offset, etype);
+	  }
+	  CATCH(BoundsError) {
+	     next_tvb = tvb_new_subset(pi.compat_top_tvb, eth_offset, -1);
+	  }
+	  ENDTRY;
   }
   else {
-     next_tvb = tvb_new_subset(pi.compat_top_tvb, offset, -1);
+     next_tvb = tvb_new_subset(pi.compat_top_tvb, eth_offset, -1);
   }
 
   switch (ethhdr_type) {
     case ETHERNET_802_3:
-      dissect_ipx(pd, offset, fd, tree);
+      dissect_ipx(pd, eth_offset, fd, tree);
       break;
     case ETHERNET_802_2:
       dissect_llc(next_tvb, &pi, tree);
       break;
     case ETHERNET_II:
-      ethertype(etype, offset, pd, fd, tree, fh_tree, hf_eth_type);
+      ethertype(etype, eth_offset, pd, fd, tree, fh_tree, hf_eth_type);
       break;
   }
 
