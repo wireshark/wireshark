@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.4 2003/08/27 12:10:21 sahlberg Exp $
+ * $Id: endpoint_talkers_table.c,v 1.5 2003/08/27 21:54:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -159,10 +159,12 @@ ett_click_column_cb(GtkCList *clist, gint column, gpointer data)
 	0: EP1 To/From EP2
 	1: EP1 To EP2
 	2: EP1 From EP2
-	3: EP1 To ANY
-	4: EP1 From ANY
-	5: EP2 To ANY
-	6: EP2 From ANY
+	3: EP1 To/From ANY
+	4: EP1 To ANY
+	5: EP1 From ANY
+6: EP1 To/From ANY
+	7: EP2 To ANY
+	8: EP2 From ANY
 */
 static void
 ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callback_action)
@@ -185,8 +187,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 		return;
 	}
 	/* translate it back from row index to index in enndpoint array */
-	selection=gtk_clist_find_row_from_data(et->table, (gpointer)selection);
-
+	selection=gtk_clist_get_row_data(et->table, selection);
 
 	switch(direction){
 	case 0:
@@ -241,6 +242,17 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 		);
 		break;
 	case 3:
+		/* EP1 <-> ANY */
+		snprintf(dirstr, 127, "%s==%s %s%s%s%s",
+			et->filter_names[0], 
+			address_to_str(&et->endpoints[selection].src_address),
+			(et->port_to_str)?" && ":"",
+			(et->port_to_str)?et->filter_names[3]:"",
+			(et->port_to_str)?"==":"",
+			(et->port_to_str)?et->port_to_str(et->endpoints[selection].src_port):""
+		);
+		break;
+	case 4:
 		/* EP1 --> ANY */
 		snprintf(dirstr, 127, "%s==%s %s%s%s%s",
 			et->filter_names[1], 
@@ -251,7 +263,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 			(et->port_to_str)?et->port_to_str(et->endpoints[selection].src_port):""
 		);
 		break;
-	case 4:
+	case 5:
 		/* EP1 <-- ANY */
 		snprintf(dirstr, 127, "%s==%s %s%s%s%s",
 			et->filter_names[2], 
@@ -262,7 +274,18 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 			(et->port_to_str)?et->port_to_str(et->endpoints[selection].src_port):""
 		);
 		break;
-	case 5:
+	case 6:
+		/* EP2 <-> ANY */
+		snprintf(dirstr, 127, "%s==%s %s%s%s%s",
+			et->filter_names[0], 
+			address_to_str(&et->endpoints[selection].dst_address),
+			(et->port_to_str)?" && ":"",
+			(et->port_to_str)?et->filter_names[3]:"",
+			(et->port_to_str)?"==":"",
+			(et->port_to_str)?et->port_to_str(et->endpoints[selection].dst_port):""
+		);
+		break;
+	case 7:
 		/* EP2 --> ANY */
 		snprintf(dirstr, 127, "%s==%s %s%s%s%s",
 			et->filter_names[1], 
@@ -273,7 +296,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 			(et->port_to_str)?et->port_to_str(et->endpoints[selection].dst_port):""
 		);
 		break;
-	case 6:
+	case 8:
 		/* EP2 <-- ANY */
 		snprintf(dirstr, 127, "%s==%s %s%s%s%s",
 			et->filter_names[2], 
@@ -321,7 +344,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 		/* match */
 		/* XXX FIXME, this is not enough to make the dispplay filters
 		reapply to the main window */
-		redissect_packets(&cfile);
+		filter_packets(&cfile, str);
 	case 1:
 		/* prepare */
 		/* do nothing */
@@ -354,14 +377,18 @@ static GtkItemFactoryEntry ett_list_menu_items[] =
 		ett_select_filter_cb, 0*65536+0*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Match Display Filter/Selected/EP1 <-- EP2", NULL,
 		ett_select_filter_cb, 0*65536+0*256+2, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Selected/EP1 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Selected/EP1 <-> ANY", NULL,
 		ett_select_filter_cb, 0*65536+0*256+3, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Selected/EP1 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Selected/EP1 --> ANY", NULL,
 		ett_select_filter_cb, 0*65536+0*256+4, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Selected/EP2 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Selected/EP1 <-- ANY", NULL,
 		ett_select_filter_cb, 0*65536+0*256+5, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Selected/EP2 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Selected/ANY <-> EP2", NULL,
 		ett_select_filter_cb, 0*65536+0*256+6, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Selected/ANY <-- EP2", NULL,
+		ett_select_filter_cb, 0*65536+0*256+7, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Selected/ANY --> EP2", NULL,
+		ett_select_filter_cb, 0*65536+0*256+8, NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Match Display Filter/Not Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Match Display Filter/Not Selected/EP1 <-> EP2", NULL,
@@ -372,12 +399,17 @@ static GtkItemFactoryEntry ett_list_menu_items[] =
 		ett_select_filter_cb, 0*65536+1*256+2, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Match Display Filter/Not Selected/EP1 --> ANY", NULL,
 		ett_select_filter_cb, 0*65536+1*256+3, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Not Selected/EP1 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Not Selected/EP1 <-> ANY", NULL,
 		ett_select_filter_cb, 0*65536+1*256+4, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Not Selected/EP2 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Not Selected/EP1 <-- ANY", NULL,
 		ett_select_filter_cb, 0*65536+1*256+5, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Not Selected/EP2 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Not Selected/ANY <-> EP2", NULL,
 		ett_select_filter_cb, 0*65536+1*256+6, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Not Selected/ANY <-- EP2", NULL,
+		ett_select_filter_cb, 0*65536+1*256+7, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Not Selected/ANY --> EP2", NULL,
+		ett_select_filter_cb, 0*65536+1*256+8, NULL, NULL),
+
 
 	ITEM_FACTORY_ENTRY("/Match Display Filter/And Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Match Display Filter/And Selected/EP1 <-> EP2", NULL,
@@ -386,14 +418,18 @@ static GtkItemFactoryEntry ett_list_menu_items[] =
 		ett_select_filter_cb, 0*65536+2*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Match Display Filter/And Selected/EP1 <-- EP2", NULL,
 		ett_select_filter_cb, 0*65536+2*256+2, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/And Selected/EP1 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/And Selected/EP1 <-> ANY", NULL,
 		ett_select_filter_cb, 0*65536+2*256+3, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/And Selected/EP1 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/And Selected/EP1 --> ANY", NULL,
 		ett_select_filter_cb, 0*65536+2*256+4, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/And Selected/EP2 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/And Selected/EP1 <-- ANY", NULL,
 		ett_select_filter_cb, 0*65536+2*256+5, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/And Selected/EP2 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/And Selected/ANY <-> EP2", NULL,
 		ett_select_filter_cb, 0*65536+2*256+6, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Match Display Filter/And Selected/ANY <-- EP2", NULL,
+		ett_select_filter_cb, 0*65536+2*256+7, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Match Display Filter/And Selected/ANY --> EP2", NULL,
+		ett_select_filter_cb, 0*65536+2*256+8, NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Selected/EP1 <-> EP2", NULL,
@@ -402,14 +438,18 @@ static GtkItemFactoryEntry ett_list_menu_items[] =
 		ett_select_filter_cb, 0*65536+3*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Selected/EP1 <-- EP2", NULL,
 		ett_select_filter_cb, 0*65536+3*256+2, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Selected/EP1 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Selected/EP1 <-> ANY", NULL,
 		ett_select_filter_cb, 0*65536+3*256+3, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Selected/EP1 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Selected/EP1 --> ANY", NULL,
 		ett_select_filter_cb, 0*65536+3*256+4, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Selected/EP2 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Selected/EP1 <-- ANY", NULL,
 		ett_select_filter_cb, 0*65536+3*256+5, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Selected/EP2 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Selected/ANY <-> EP2", NULL,
 		ett_select_filter_cb, 0*65536+3*256+6, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Selected/ANY <-- EP2", NULL,
+		ett_select_filter_cb, 0*65536+3*256+7, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Selected/ANY --> EP2", NULL,
+		ett_select_filter_cb, 0*65536+3*256+8, NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Match Display Filter/And Not Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Match Display Filter/And Not Selected/EP1 <-> EP2", NULL,
@@ -418,14 +458,18 @@ static GtkItemFactoryEntry ett_list_menu_items[] =
 		ett_select_filter_cb, 0*65536+4*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Match Display Filter/And Not Selected/EP1 <-- EP2", NULL,
 		ett_select_filter_cb, 0*65536+4*256+2, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/And Not Selected/EP1 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/And Not Selected/EP1 <-> ANY", NULL,
 		ett_select_filter_cb, 0*65536+4*256+3, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/And Not Selected/EP1 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/And Not Selected/EP1 --> ANY", NULL,
 		ett_select_filter_cb, 0*65536+4*256+4, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/And Not Selected/EP2 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/And Not Selected/EP1 <-- ANY", NULL,
 		ett_select_filter_cb, 0*65536+4*256+5, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/And Not Selected/EP2 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/And Not Selected/ANY <-> EP2", NULL,
 		ett_select_filter_cb, 0*65536+4*256+6, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Match Display Filter/And Not Selected/ANY <-- EP2", NULL,
+		ett_select_filter_cb, 0*65536+4*256+7, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Match Display Filter/And Not Selected/ANY --> EP2", NULL,
+		ett_select_filter_cb, 0*65536+4*256+8, NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Not Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Not Selected/EP1 <-> EP2", NULL,
@@ -434,14 +478,18 @@ static GtkItemFactoryEntry ett_list_menu_items[] =
 		ett_select_filter_cb, 0*65536+5*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Not Selected/EP1 <-- EP2", NULL,
 		ett_select_filter_cb, 0*65536+5*256+2, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Not Selected/EP1 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Not Selected/EP1 <-> ANY", NULL,
 		ett_select_filter_cb, 0*65536+5*256+3, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Not Selected/EP1 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Not Selected/EP1 --> ANY", NULL,
 		ett_select_filter_cb, 0*65536+5*256+4, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Not Selected/EP2 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Not Selected/EP1 <-- ANY", NULL,
 		ett_select_filter_cb, 0*65536+5*256+5, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Not Selected/EP2 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Not Selected/ANY <-> EP2", NULL,
 		ett_select_filter_cb, 0*65536+5*256+6, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Not Selected/ANY <-- EP2", NULL,
+		ett_select_filter_cb, 0*65536+5*256+7, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Not Selected/ANY --> EP2", NULL,
+		ett_select_filter_cb, 0*65536+5*256+8, NULL, NULL),
 
 	/* Prepare */
 	ITEM_FACTORY_ENTRY("/Prepare Display Filter", NULL, NULL, 0, "<Branch>", NULL),
@@ -452,14 +500,18 @@ static GtkItemFactoryEntry ett_list_menu_items[] =
 		ett_select_filter_cb, 1*65536+0*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Selected/EP1 <-- EP2", NULL,
 		ett_select_filter_cb, 1*65536+0*256+2, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Selected/EP1 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Selected/EP1 <-> ANY", NULL,
 		ett_select_filter_cb, 1*65536+0*256+3, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Selected/EP1 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Selected/EP1 --> ANY", NULL,
 		ett_select_filter_cb, 1*65536+0*256+4, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Selected/EP2 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Selected/EP1 <-- ANY", NULL,
 		ett_select_filter_cb, 1*65536+0*256+5, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Selected/EP2 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Selected/ANY <-> EP2", NULL,
 		ett_select_filter_cb, 1*65536+0*256+6, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Selected/ANY <-- EP2", NULL,
+		ett_select_filter_cb, 1*65536+0*256+7, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Selected/ANY --> EP2", NULL,
+		ett_select_filter_cb, 1*65536+0*256+8, NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Not Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Not Selected/EP1 <-> EP2", NULL,
@@ -468,14 +520,18 @@ static GtkItemFactoryEntry ett_list_menu_items[] =
 		ett_select_filter_cb, 1*65536+1*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Not Selected/EP1 <-- EP2", NULL,
 		ett_select_filter_cb, 1*65536+1*256+2, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Not Selected/EP1 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Not Selected/EP1 <-> ANY", NULL,
 		ett_select_filter_cb, 1*65536+1*256+3, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Not Selected/EP1 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Not Selected/EP1 --> ANY", NULL,
 		ett_select_filter_cb, 1*65536+1*256+4, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Not Selected/EP2 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Not Selected/EP1 <-- ANY", NULL,
 		ett_select_filter_cb, 1*65536+1*256+5, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Not Selected/EP2 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Not Selected/ANY <-> EP2", NULL,
 		ett_select_filter_cb, 1*65536+1*256+6, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Not Selected/ANY <-- EP2", NULL,
+		ett_select_filter_cb, 1*65536+1*256+7, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Not Selected/ANY --> EP2", NULL,
+		ett_select_filter_cb, 1*65536+1*256+8, NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Selected/EP1 <-> EP2", NULL,
@@ -484,14 +540,18 @@ static GtkItemFactoryEntry ett_list_menu_items[] =
 		ett_select_filter_cb, 1*65536+2*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Selected/EP1 <-- EP2", NULL,
 		ett_select_filter_cb, 1*65536+2*256+2, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Selected/EP1 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Selected/EP1 <-> ANY", NULL,
 		ett_select_filter_cb, 1*65536+2*256+3, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Selected/EP1 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Selected/EP1 --> ANY", NULL,
 		ett_select_filter_cb, 1*65536+2*256+4, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Selected/EP2 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Selected/EP1 <-- ANY", NULL,
 		ett_select_filter_cb, 1*65536+2*256+5, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Selected/EP2 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Selected/ANY <-> EP2", NULL,
 		ett_select_filter_cb, 1*65536+2*256+6, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Selected/ANY <-- EP2", NULL,
+		ett_select_filter_cb, 1*65536+2*256+7, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Selected/ANY --> EP2", NULL,
+		ett_select_filter_cb, 1*65536+2*256+8, NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Selected/EP1 <-> EP2", NULL,
@@ -500,14 +560,18 @@ static GtkItemFactoryEntry ett_list_menu_items[] =
 		ett_select_filter_cb, 1*65536+3*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Selected/EP1 <-- EP2", NULL,
 		ett_select_filter_cb, 1*65536+3*256+2, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Selected/EP1 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Selected/EP1 <-> ANY", NULL,
 		ett_select_filter_cb, 1*65536+3*256+3, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Selected/EP1 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Selected/EP1 --> ANY", NULL,
 		ett_select_filter_cb, 1*65536+3*256+4, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Selected/EP2 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Selected/EP1 <-- ANY", NULL,
 		ett_select_filter_cb, 1*65536+3*256+5, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Selected/EP2 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Selected/ANY <-> EP2", NULL,
 		ett_select_filter_cb, 1*65536+3*256+6, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Selected/ANY <-- EP2", NULL,
+		ett_select_filter_cb, 1*65536+3*256+7, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Selected/ANY --> EP2", NULL,
+		ett_select_filter_cb, 1*65536+3*256+8, NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Not Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Not Selected/EP1 <-> EP2", NULL,
@@ -516,14 +580,18 @@ static GtkItemFactoryEntry ett_list_menu_items[] =
 		ett_select_filter_cb, 1*65536+4*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Not Selected/EP1 <-- EP2", NULL,
 		ett_select_filter_cb, 1*65536+4*256+2, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Not Selected/EP1 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Not Selected/EP1 <-> ANY", NULL,
 		ett_select_filter_cb, 1*65536+4*256+3, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Not Selected/EP1 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Not Selected/EP1 --> ANY", NULL,
 		ett_select_filter_cb, 1*65536+4*256+4, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Not Selected/EP2 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Not Selected/EP1 <-- ANY", NULL,
 		ett_select_filter_cb, 1*65536+4*256+5, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Not Selected/EP2 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Not Selected/ANY <-> EP2", NULL,
 		ett_select_filter_cb, 1*65536+4*256+6, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Not Selected/ANY <-- EP2", NULL,
+		ett_select_filter_cb, 1*65536+4*256+7, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Not Selected/ANY --> EP2", NULL,
+		ett_select_filter_cb, 1*65536+4*256+8, NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Not Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Not Selected/EP1 <-> EP2", NULL,
@@ -532,14 +600,18 @@ static GtkItemFactoryEntry ett_list_menu_items[] =
 		ett_select_filter_cb, 1*65536+5*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Not Selected/EP1 <-- EP2", NULL,
 		ett_select_filter_cb, 1*65536+5*256+2, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Not Selected/EP1 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Not Selected/EP1 <-> ANY", NULL,
 		ett_select_filter_cb, 1*65536+5*256+3, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Not Selected/EP1 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Not Selected/EP1 --> ANY", NULL,
 		ett_select_filter_cb, 1*65536+5*256+4, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Not Selected/EP2 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Not Selected/EP1 <-- ANY", NULL,
 		ett_select_filter_cb, 1*65536+5*256+5, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Not Selected/EP2 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Not Selected/ANY <-> EP2", NULL,
 		ett_select_filter_cb, 1*65536+5*256+6, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Not Selected/ANY <-- EP2", NULL,
+		ett_select_filter_cb, 1*65536+5*256+7, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Not Selected/ANY --> EP2", NULL,
+		ett_select_filter_cb, 1*65536+5*256+8, NULL, NULL),
 
 
 };
@@ -780,9 +852,6 @@ add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_
 		gtk_clist_set_row_data(et->table, talker_idx, (gpointer) talker_idx);
 	}
 
-	if(et->num_endpoints==1){
-		gtk_clist_select_row(et->table, 0, 0);
-	}
 }
 
 
