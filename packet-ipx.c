@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.119 2003/01/30 05:21:34 guy Exp $
+ * $Id: packet-ipx.c,v 1.120 2003/03/31 08:10:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -118,7 +118,7 @@ dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 /* ================================================================= */
 /* IPX                                                               */
 /* ================================================================= */
-static const value_string ipx_socket_vals[] = {
+const value_string ipx_socket_vals[] = {
 	{ IPX_SOCKET_PING_CISCO,		"CISCO PING" },
 	{ IPX_SOCKET_NCP,			"NCP" },
 	{ IPX_SOCKET_SAP,			"SAP" },
@@ -143,7 +143,8 @@ static const value_string ipx_socket_vals[] = {
 	{ IPX_SOCKET_TCP_TUNNEL,		"TCP Tunnel" },
 	{ IPX_SOCKET_ADSM,			"ADSM" },
 	{ IPX_SOCKET_EIGRP,			"Cisco EIGRP for IPX" },
-	{ IPX_SOCKET_WIDE_AREA_ROUTER,		"Wide Area Router" },
+	{ IPX_SOCKET_NLSP,			"NetWare Link Services Protocol" },
+	{ IPX_SOCKET_IPXWAN2,			"IPX WAN 2" },
 	{ SPX_SOCKET_PA,			"NDPS Printer Agent/PSM" },
 	{ SPX_SOCKET_BROKER,			"NDPS Broker" },
 	{ SPX_SOCKET_SRS,			"NDPS Service Registry Service" },
@@ -578,7 +579,7 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * which has a huge list - but many of the entries list only the
  * organization owning the SAP type, not what the type is for).
  */
-static const value_string server_vals[] = {
+const value_string server_vals[] = {
 	{ 0x0000,	"Unknown" },
 	{ 0x0001,	"User" },
 	{ 0x0002,	"User Group" },
