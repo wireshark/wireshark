@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.37 2002/09/09 20:38:58 guy Exp $
+ * $Id: print_dlg.c,v 1.38 2002/09/22 17:52:36 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -483,31 +483,27 @@ print_file_cb(GtkWidget *file_bt, gpointer file_te)
 static void
 print_fs_ok_cb(GtkWidget *w _U_, gpointer data)
 {
-  gchar     *cf_name;
-  gchar     *dirname;
+  gchar     *f_name;
 
-  cf_name = g_strdup(gtk_file_selection_get_filename(
+  f_name = g_strdup(gtk_file_selection_get_filename(
     GTK_FILE_SELECTION (data)));
 
   /* Perhaps the user specified a directory instead of a file.
      Check whether they did. */
-  if (test_for_directory(cf_name) == EISDIR) {
+  if (test_for_directory(f_name) == EISDIR) {
         /* It's a directory - set the file selection box to display it. */
-        set_last_open_dir(cf_name);
-        g_free(cf_name);
+        set_last_open_dir(f_name);
+        g_free(f_name);
         gtk_file_selection_set_filename(GTK_FILE_SELECTION(data),
           last_open_dir);
         return;
   }
 
   gtk_entry_set_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(data),
-      PRINT_FILE_TE_KEY)), cf_name);
+      PRINT_FILE_TE_KEY)), f_name);
   gtk_widget_destroy(GTK_WIDGET(data));
 
-  /* Save the directory name for future file dialogs. */
-  dirname = get_dirname(cf_name);  /* Overwrites cf_name */
-  set_last_open_dir(dirname);
-  g_free(cf_name);
+  g_free(f_name);
 }
 
 static void
@@ -558,6 +554,9 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 {
   GtkWidget *button;
   print_args_t print_args;
+  gchar *g_dest;
+  gchar *f_name;
+  gchar *dirname;
 #ifdef _WIN32
   int win_printer_flag = FALSE;
 #endif
@@ -568,8 +567,19 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   print_args.to_file = print_to_file;
 
   if (print_args.to_file) {
-    print_args.dest = g_strdup(gtk_entry_get_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(ok_bt),
-      PRINT_FILE_TE_KEY))));
+    g_dest = gtk_entry_get_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(ok_bt),
+      PRINT_FILE_TE_KEY)));
+    if (!g_dest[0]) {
+      simple_dialog(ESD_TYPE_CRIT, NULL,
+        "Printing to file, but no file specified.");
+      return;
+    }
+    print_args.dest = g_strdup(g_dest);
+    /* Save the directory name for future file dialogs. */
+    f_name = g_strdup(g_dest);
+    dirname = get_dirname(f_name);  /* Overwrites f_name */
+    set_last_open_dir(dirname);
+    g_free(f_name);
   } else {
 #ifdef _WIN32
     win_printer_flag = TRUE;

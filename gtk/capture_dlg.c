@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.73 2002/09/09 20:38:58 guy Exp $
+ * $Id: capture_dlg.c,v 1.74 2002/09/22 17:52:36 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -624,7 +624,6 @@ static void
 cap_prep_fs_ok_cb(GtkWidget *w _U_, gpointer data)
 {
   gchar     *cf_name;
-  gchar     *dirname;
 
   cf_name = g_strdup(gtk_file_selection_get_filename(
     GTK_FILE_SELECTION (data)));
@@ -644,10 +643,6 @@ cap_prep_fs_ok_cb(GtkWidget *w _U_, gpointer data)
       E_CAP_FILE_TE_KEY)), cf_name);
 
   gtk_widget_destroy(GTK_WIDGET(data));
-
-  /* Save the directory name for future file dialogs. */
-  dirname = get_dirname(cf_name);  /* Overwrites cf_name */
-  set_last_open_dir(dirname);
   g_free(cf_name);
 }
 
@@ -692,6 +687,8 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   gchar *if_name;
   gchar *filter_text;
   gchar *save_file;
+  gchar *cf_name;
+  gchar *dirname;
 
   if_cb     = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_IFACE_KEY);
   snap_cb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SNAP_CB_KEY);
@@ -765,6 +762,11 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   if (save_file && save_file[0]) {
     /* User specified a file to which the capture should be written. */
     save_file = g_strdup(save_file);
+    /* Save the directory name for future file dialogs. */
+    cf_name = g_strdup(save_file);
+    dirname = get_dirname(cf_name);  /* Overwrites cf_name */
+    set_last_open_dir(dirname);
+    g_free(cf_name);
   } else {
     /* User didn't specify a file; save to a temporary file. */
     save_file = NULL;
