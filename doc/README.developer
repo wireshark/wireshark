@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.39 2001/11/13 23:55:35 gram Exp $
+$Id: README.developer,v 1.40 2001/11/27 05:05:02 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -85,7 +85,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.39 2001/11/13 23:55:35 gram Exp $"
+The "$Id: README.developer,v 1.40 2001/11/27 05:05:02 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -95,7 +95,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.39 2001/11/13 23:55:35 gram Exp $
+ * $Id: README.developer,v 1.40 2001/11/27 05:05:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -323,9 +323,11 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 NOTE: See the README.tvbuff for more details
 
 The "tvb" argument to a dissector points to a buffer containing the raw
-data for the frame. A tvbuffer is a opaque data structure, the internal
-data structures are hidden and the data must be access via the tvbuffer
-accessors.
+data to be analyzed by the dissector; for example, for a protocol
+running atop UDP, it contains the UDP payload (but not the UDP header,
+or any protocol headers above it).  A tvbuffer is a opaque data
+structure, the internal data structures are hidden and the data must be
+access via the tvbuffer accessors.
 
 The accessors are:
 
