@@ -169,7 +169,7 @@
 	</section>
 
 	<section id="ChLibsWin32GTK">
-	<title>Win32 native</title>
+	<title>Win32 MSVC</title>
 	<para>
 	You can get the latest version at: 
 	<ulink url="http://www.gimp.org/%7Etml/gimp/win32/downloads.html"/>.
@@ -193,7 +193,7 @@
 	</section>
 
 	<section id="ChLibsWin32SNMP">
-	<title>Win32 native</title>
+	<title>Win32 MSVC</title>
 	<para>
 	You can get the latest version at: 
 	<ulink url="http://sourceforge.net/projects/net-snmp/"/>.
@@ -220,7 +220,7 @@ utilities."
 	</section>
 
 	<section id="ChLibsWin32ADNS">
-	<title>Win32 native</title>
+	<title>Win32 MSVC</title>
 	<para>
 	You can get the latest version at: 
 	<ulink url="http://adns.jgaa.com/"/>
@@ -246,7 +246,7 @@ utilities."
 	</section>
 
 	<section id="ChLibsWin32PCRE">
-	<title>Win32 native</title>
+	<title>Win32 MSVC</title>
 	<para>
 	You can get the latest version at: 
 	<ulink url="http://gnuwin32.sourceforge.net/packages/pcre.htm"/>
@@ -276,7 +276,7 @@ utilities."
 	</section>
 
 	<section id="ChLibsWin32Zlib">
-	<title>Win32 native</title>
+	<title>Win32 MSVC</title>
 	<para>
 	You can get the latest version at: 
 	<ulink url="http://gnuwin32.sourceforge.net/packages/zlib.htm"/>
@@ -306,7 +306,7 @@ utilities."
 	</section>
 
 	<section id="ChLibsWinpPcap">
-	<title>Win32 native: WinPcap</title>
+	<title>Win32 MSVC: WinPcap</title>
 	<para>
 	You can get the "Windows packet capture library" at:
 	<ulink url="http://winpcap.polito.it/install/default.htm"/>

@@ -300,7 +300,7 @@
 	</para>
 	
 	<section>
-	<title>Unix platforms</title>
+	<title>Unix</title>
 	<para>
 	Run the autogen.sh script at the top-level ethereal directory to configure 
 	your build directory.
@@ -313,7 +313,7 @@ make
 	</section>
 	
 	<section>
-	<title>Win32 platforms</title>
+	<title>Win32 native</title>
 	<para>
 	The place to look at is <filename>doc/README.win32</filename>, 
 	you will get the latest infos for generation on the win32

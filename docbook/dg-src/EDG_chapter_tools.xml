@@ -80,28 +80,21 @@
 	</para>
 	</section>
 	
-	<section id="ChToolsInstallWin32">
-	<title>Win32</title>
-	<para>
-	There are typically two different ways to install the tools, native tools
-	and the tools provided using the cygwin packages. Have a look at 
-	<xref linkend="ChToolsWin32Recommended"/> for an overview of the 
-	recommended tools.
-	</para>
-	
 	<section id="ChToolsInstallWin32Native">
-	<title>Native</title>
+	<title>Win32 Native</title>
 	<para>
 	The native tools will typically be a bit faster, but more complicated to 
 	install. You will have to download a lot of tools from different webpages, 
 	and install them in the ways they have to be installed. The default 
 	installation location will typically not be the 
-	<filename>c:\program files</filename> folder.
+	<filename>c:\program files</filename> folder. Have a look at 
+	<xref linkend="ChToolsWin32Recommended"/> for an overview of the 
+	recommended tools.
 	</para>
 	</section>
 	
 	<section id="ChToolsInstallCygwin">
-	<title>Cygwin</title>
+	<title>Win32 Cygwin</title>
 	<para>
 	Installation of the cygwin tools is very simple. As cygwin uses an 
 	unix emulation layer,
@@ -138,7 +131,6 @@
 	list of required / recommended packages needed to develop Ethereal in
 	<xref linkend="ChToolsWin32Recommended"/>.
 	</para>	
-	</section>
 	</section>
 	
   </section>
