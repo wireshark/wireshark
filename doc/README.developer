@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.31 2001/07/20 09:55:08 guy Exp $
+$Id: README.developer,v 1.32 2001/07/20 23:38:30 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -18,12 +18,35 @@ add to the protocol tree, and work with registered header fields.
 
 1.1 Code style.
 
-1.1.1 Comments.
+1.1.1 Portability.
 
-Don't use C++-style comments (comments beginning with "//" and running to the
-end of the line); Ethereal's dissectors are written in C, and thus run through C
-rather than C++ compilers, and not all C compilers support C++-style comments
-(GCC does, but IBM's C compiler for AIX, for example, doesn't do so by default).
+Ethereal runs on many platforms, and can be compiled with a number of
+different compilers; here are some rules for writing code that will work
+on multiple platforms.
+
+Don't use C++-style comments (comments beginning with "//" and running
+to the end of the line); Ethereal's dissectors are written in C, and
+thus run through C rather than C++ compilers, and not all C compilers
+support C++-style comments (GCC does, but IBM's C compiler for AIX, for
+example, doesn't do so by default).
+
+Don't use zero-length arrays; not all compilers support them.  If an
+array would have no members, just leave it out.
+
+Don't use "inline"; not all compilers support it.  If you want to have a
+function be an inline function if the compiler supports it, use
+G_INLINE_FUNC, which is declared by <glib.h>.  This may not work with
+functions declared in header files; if it doesn't work, don't declare
+the function in a header file, even if this requires that you not make
+it inline on any platform.
+
+Don't use "long long"; use "gint64" or "guint64", and only do so if
+G_HAVE_GINT64 is defined.  Make sure your code works even if
+G_HAVE_GINT64 isn't defined, even if that means treating 64-bit integral
+data types as opaque arrays of bytes on platforms where it's not
+defined.  Also, don't assume you can use "%lld", "%llu", "%llx", or
+"%llo" to print 64-bit integral data types - not all platforms support
+"%ll" for printing them.
 
 1.1.2 Name convention.
 
@@ -62,7 +85,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.31 2001/07/20 09:55:08 guy Exp $"
+The "$Id: README.developer,v 1.32 2001/07/20 23:38:30 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -72,7 +95,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.31 2001/07/20 09:55:08 guy Exp $
+ * $Id: README.developer,v 1.32 2001/07/20 23:38:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
