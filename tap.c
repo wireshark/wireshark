@@ -1,7 +1,7 @@
 /* tap.c
  * packet tap interface   2002 Ronnie Sahlberg
  *
- * $Id: tap.c,v 1.2 2002/09/05 06:46:34 sahlberg Exp $
+ * $Id: tap.c,v 1.3 2002/09/14 07:42:52 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -237,20 +237,26 @@ tap_push_tapped_queue(void)
 	epan_dissect_t *edt;
 
 	tapping_is_active=0;
+	edt=epan_dissect_new(TRUE, FALSE);
+
+	/* loop over all tap listeners and build the list of all
+	   interesting hf_fields */
+	for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
+		if(tl->code){
+			epan_dissect_prime_dfilter(edt, tl->code);
+		}
+	}
+
+	epan_dissect_run(edt, l_pseudo_header, l_buf, l_fdata, NULL);
+
+	/* loop over all tap listeners and call the listener callback
+	   for all packets that match the filter. */
 	for(tp=tap_packet_list_queue;tp;tp=tp->next){
 		for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
 			if(tp->tap_id==tl->tap_id){
 				int passed=TRUE;
 				if(tl->code){
-					edt=epan_dissect_new(TRUE, FALSE);
-					epan_dissect_prime_dfilter(edt, tl->code);
-					epan_dissect_run(edt, 
-						l_pseudo_header,
-						l_buf,
-						l_fdata,         
-						NULL);
 					passed=dfilter_apply_edt(tl->code, edt);
-					epan_dissect_free(edt);
 				}
 				if(passed && tl->packet){
 					tl->needs_redraw|=tl->packet(tl->tapdata, tp->pinfo, tp->tap_specific_data);
@@ -259,6 +265,7 @@ tap_push_tapped_queue(void)
 		}
 	}
 
+	epan_dissect_free(edt);
 }
 
 /* This function is called when we need to reset all tap listeners, for example
