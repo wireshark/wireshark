@@ -212,6 +212,9 @@ reset_ct_table_data(conversations_table *ct)
 {
     guint32 i;
     char title[256];
+	
+	/* Allow clist to update */
+	gtk_clist_thaw(ct->table);
 
     if(ct->page_lb) {
         g_snprintf(title, 255, "Conversations: %s", cf_get_display_name(&cfile));
@@ -285,6 +288,12 @@ ct_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 		return i1-i2;
 	}
 	g_assert_not_reached();
+	
+	/* Allow clist to redraw */
+	
+	gtk_clist_thaw(clist);
+	gtk_clist_freeze(clist);
+	
 	return 0;
 }
 
@@ -294,8 +303,6 @@ ct_click_column_cb(GtkCList *clist, gint column, gpointer data)
 {
 	column_arrows *col_arrows = (column_arrows *) data;
 	int i;
-
-	gtk_clist_freeze(clist);
 
 	for (i = 0; i < NUM_COLS; i++) {
 		gtk_widget_hide(col_arrows[i].ascend_pm);
@@ -318,7 +325,9 @@ ct_click_column_cb(GtkCList *clist, gint column, gpointer data)
 
 	gtk_clist_sort(clist);
 
+	/* Allow update of clist */
 	gtk_clist_thaw(clist);
+	gtk_clist_freeze(clist);
 
 }
 
@@ -931,8 +940,73 @@ ct_create_popup_menu(conversations_table *ct)
 	SIGNAL_CONNECT(ct->table, "button_press_event", ct_show_popup_menu_cb, ct);
 }
 
+/* Draw/refresh the address fields of a single entry at the specified index */
+static void
+draw_ct_table_address(conversations_table *ct, int conversation_idx)
+{
+    char *entry;
+    char *port;
+    address_type  at;
+    guint32 pt;
 
-/* XXX should freeze/thaw table here and in the srt thingy? */
+    at = ct->conversations[conversation_idx].src_address.type;
+    if(!ct->resolve_names) at = AT_NONE;
+    switch(at) {
+    case(AT_IPv4):
+        entry=get_hostname((*(guint *)ct->conversations[conversation_idx].src_address.data));
+        break;
+    case(AT_ETHER):
+        entry=get_ether_name(ct->conversations[conversation_idx].src_address.data);
+        break;
+    default:
+        entry=address_to_str(&ct->conversations[conversation_idx].src_address);
+    }
+    gtk_clist_set_text(ct->table, conversation_idx, 0, entry);
+
+    pt = ct->conversations[conversation_idx].port_type;
+    if(!ct->resolve_names) pt = PT_NONE;
+    switch(pt) {
+    case(PT_TCP):
+        entry=get_tcp_port(ct->conversations[conversation_idx].src_port);
+        break;
+    case(PT_UDP):
+        entry=get_udp_port(ct->conversations[conversation_idx].src_port);
+        break;
+    default:
+        port=ct_port_to_str(ct->conversations[conversation_idx].port_type, ct->conversations[conversation_idx].src_port);
+        entry=port?port:"";
+    }
+    gtk_clist_set_text(ct->table, conversation_idx, 1, entry);
+
+    at = ct->conversations[conversation_idx].dst_address.type;
+    if(!ct->resolve_names) at = AT_NONE;
+    switch(at) {
+    case(AT_IPv4):
+        entry=get_hostname((*(guint *)ct->conversations[conversation_idx].dst_address.data));
+        break;
+    case(AT_ETHER):
+        entry=get_ether_name(ct->conversations[conversation_idx].dst_address.data);
+        break;
+    default:
+        entry=address_to_str(&ct->conversations[conversation_idx].dst_address);
+    }
+    gtk_clist_set_text(ct->table, conversation_idx, 2, entry);
+
+    switch(pt) {
+    case(PT_TCP):
+        entry=get_tcp_port(ct->conversations[conversation_idx].dst_port);
+        break;
+    case(PT_UDP):
+        entry=get_udp_port(ct->conversations[conversation_idx].dst_port);
+        break;
+    default:
+        port=ct_port_to_str(ct->conversations[conversation_idx].port_type, ct->conversations[conversation_idx].dst_port);
+        entry=port?port:"";
+    }
+    gtk_clist_set_text(ct->table, conversation_idx, 3, entry);
+}
+
+/* Refresh the address fields of all entries in the list */
 static void
 draw_ct_table_addresses(conversations_table *ct)
 {
@@ -941,13 +1015,17 @@ draw_ct_table_addresses(conversations_table *ct)
 
 
     for(i=0;i<ct->num_conversations;i++){
+#if 0
         char *entry;
         char *port;
         address_type  at;
         guint32 pt;
+#endif
 
         j=gtk_clist_find_row_from_data(ct->table, (gpointer)i);
 
+        draw_ct_table_address(ct, j);
+#if 0
         at = ct->conversations[i].src_address.type;
         if(!ct->resolve_names) at = AT_NONE;
         switch(at) {
@@ -1003,6 +1081,7 @@ draw_ct_table_addresses(conversations_table *ct)
             entry=port?port:"";
         }
         gtk_clist_set_text(ct->table, j, 3, entry);
+#endif
     }
 }
 
@@ -1013,9 +1092,6 @@ draw_ct_table_data(conversations_table *ct)
     guint32 i;
     int j;
     char title[256];
-
-    /* Freeze the table since quite a few changes will occur */
-    gtk_clist_freeze(ct->table);
 
     if (ct->page_lb) {
         if(ct->num_conversations) {
@@ -1050,12 +1126,14 @@ draw_ct_table_data(conversations_table *ct)
         gtk_clist_set_text(ct->table, j, 9, str);
 
     }
+	
+	draw_ct_table_addresses(ct);
+	
     gtk_clist_sort(ct->table);
 
-    /* update table, so resolved addresses will be shown now */
-    draw_ct_table_addresses(ct);
-
+	/* Allow table to redraw */
     gtk_clist_thaw(ct->table);
+	gtk_clist_freeze(ct->table);
 }
 
 
@@ -1262,6 +1340,11 @@ init_conversation_table(gboolean hide_ports, char *table_name, char *tap_name, c
 
     retap_packets(&cfile);
 
+	
+    /* Keep clist frozen to cause modifications to the clist (inserts, appends, others that are extremely slow
+	   in GTK2) to not be drawn, allow refreshes to occur at strategic points for performance */
+  	gtk_clist_freeze(conversations->table);
+
     /* after retapping, redraw table */
     draw_ct_table_data(conversations);
 }
@@ -1352,6 +1435,10 @@ ct_resolve_toggle_dest(GtkWidget *widget, gpointer data)
         conversations->resolve_names = resolve_names;
 
         draw_ct_table_addresses(conversations);
+
+	    /* Allow table to redraw */
+        gtk_clist_thaw(conversations->table);
+	    gtk_clist_freeze(conversations->table);
     }
 }
 
@@ -1538,9 +1625,6 @@ add_conversation_table_data(conversations_table *ct, address *src, address *dst,
         char *entries[NUM_COLS];
         char frames[16],bytes[16],txframes[16],txbytes[16],rxframes[16],rxbytes[16];
 
-	  /* Freeze the table while performing updates */
-        gtk_clist_freeze(ct->table);
-
         /* these values will be filled by call to draw_ct_table_addresses() below */
         entries[0] = "";
         entries[1] = "";
@@ -1565,7 +1649,7 @@ add_conversation_table_data(conversations_table *ct, address *src, address *dst,
         gtk_clist_insert(ct->table, conversation_idx, entries);
         gtk_clist_set_row_data(ct->table, conversation_idx, (gpointer) conversation_idx);
 
-        gtk_clist_thaw(ct->table);
+        draw_ct_table_address(ct, conversation_idx);
     }
 }
 

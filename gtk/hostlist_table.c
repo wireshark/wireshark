@@ -143,6 +143,9 @@ reset_hostlist_table_data(hostlist_table *hosts)
 {
     guint32 i;
     char title[256];
+	
+	/* Allow clist to update */
+    gtk_clist_thaw(hosts->table);
 
     if(hosts->page_lb) {
         g_snprintf(title, 255, "Endpoints: %s", cf_get_display_name(&cfile));
@@ -212,6 +215,12 @@ hostlist_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 		return i1-i2;
 	}
 	g_assert_not_reached();
+	
+	/* Allow clist to redraw */
+	
+	gtk_clist_thaw(clist);
+	gtk_clist_freeze(clist);
+	
 	return 0;
 }
 
@@ -220,8 +229,6 @@ hostlist_click_column_cb(GtkCList *clist, gint column, gpointer data)
 {
 	column_arrows *col_arrows = (column_arrows *) data;
 	int i;
-
-	gtk_clist_freeze(clist);
 
 	for (i = 0; i < NUM_COLS; i++) {
 		gtk_widget_hide(col_arrows[i].ascend_pm);
@@ -244,7 +251,9 @@ hostlist_click_column_cb(GtkCList *clist, gint column, gpointer data)
 
 	gtk_clist_sort(clist);
 
+	/* Allow update of clist */
 	gtk_clist_thaw(clist);
+	gtk_clist_freeze(clist);
 }
 
 
@@ -444,7 +453,46 @@ hostlist_create_popup_menu(hostlist_table *hl)
 }
 
 
-/* XXX should freeze/thaw table here and in the srt thingy? */
+/* Draw/refresh the address field of a single entry at the specified index */
+static void
+draw_hostlist_table_address(hostlist_table *hl, int hostlist_idx)
+{
+    char *entry;
+    char *port;
+    address_type  at;
+    guint32 pt;
+
+    at = hl->hosts[hostlist_idx].address.type;
+    if(!hl->resolve_names) at = AT_NONE;
+    switch(at) {
+    case(AT_IPv4):
+        entry=get_hostname((*(guint *)hl->hosts[hostlist_idx].address.data));
+        break;
+    case(AT_ETHER):
+        entry=get_ether_name(hl->hosts[hostlist_idx].address.data);
+        break;
+    default:
+        entry=address_to_str(&hl->hosts[hostlist_idx].address);
+    }
+    gtk_clist_set_text(hl->table, hostlist_idx, 0, entry);
+
+    pt = hl->hosts[hostlist_idx].port_type;
+    if(!hl->resolve_names) pt = PT_NONE;
+    switch(pt) {
+    case(PT_TCP):
+        entry=get_tcp_port(hl->hosts[hostlist_idx].port);
+        break;
+    case(PT_UDP):
+        entry=get_udp_port(hl->hosts[hostlist_idx].port);
+        break;
+    default:
+        port=hostlist_port_to_str(hl->hosts[hostlist_idx].port_type, hl->hosts[hostlist_idx].port);
+        entry=port?port:"";
+    }
+    gtk_clist_set_text(hl->table, hostlist_idx, 1, entry);
+}
+
+/* Refresh the address fields of all entries in the list */
 static void
 draw_hostlist_table_addresses(hostlist_table *hl)
 {
@@ -453,13 +501,18 @@ draw_hostlist_table_addresses(hostlist_table *hl)
 
 
     for(i=0;i<hl->num_hosts;i++){
+#if 0
         char *entry;
         char *port;
         address_type  at;
         guint32 pt;
+#endif
 
         j=gtk_clist_find_row_from_data(hl->table, (gpointer)i);
 
+        draw_hostlist_table_address(hl, j);
+
+#if 0
         at = hl->hosts[i].address.type;
         if(!hl->resolve_names) at = AT_NONE;
         switch(at) {
@@ -488,6 +541,7 @@ draw_hostlist_table_addresses(hostlist_table *hl)
             entry=port?port:"";
         }
         gtk_clist_set_text(hl->table, j, 1, entry);
+#endif
     }
 }
 
@@ -498,9 +552,6 @@ draw_hostlist_table_data(hostlist_table *hl)
     guint32 i;
     int j;
     char title[256];
-
-    /* Freeze the Hostlist since quite a few changes will occur */
-    gtk_clist_freeze(hl->table);
 
     if (hl->page_lb) {
         if(hl->num_hosts) {
@@ -535,12 +586,14 @@ draw_hostlist_table_data(hostlist_table *hl)
         gtk_clist_set_text(hl->table, j, 7, str);
 
     }
+	
+	draw_hostlist_table_addresses(hl);
+	
     gtk_clist_sort(hl->table);
 
-    /* update table, so resolved addresses will be shown now */
-    draw_hostlist_table_addresses(hl);
-
+	/* Allow table to redraw. */
     gtk_clist_thaw(hl->table);
+	gtk_clist_freeze(hl->table);
 }
 
 #if (GTK_MAJOR_VERSION > 2)
@@ -738,6 +791,11 @@ init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char 
     window_present(hosttable->win);
 
     retap_packets(&cfile);
+	
+    /* Keep clist frozen to cause modifications to the clist (inserts, appends, others that are extremely slow
+	   in GTK2) to not be drawn, allow refreshes to occur at strategic points for performance */
+  	gtk_clist_freeze(hosttable->table);
+
 
     /* after retapping, redraw table */
     draw_hostlist_table_data(hosttable);
@@ -828,6 +886,9 @@ hostlist_resolve_toggle_dest(GtkWidget *widget, gpointer data)
         hosttable->resolve_names = resolve_names;
 
         draw_hostlist_table_addresses(hosttable);
+
+        gtk_clist_thaw(hosttable->table);
+        gtk_clist_freeze(hosttable->table);
     }
 }
 
@@ -985,10 +1046,6 @@ add_hostlist_table_data(hostlist_table *hl, address *addr, guint32 port, gboolea
         char *entries[NUM_COLS];
         char frames[16],bytes[16],txframes[16],txbytes[16],rxframes[16],rxbytes[16];
 
-
-	  /* Freeze the hostlist while performing updates */
-        gtk_clist_freeze(hl->table);
-
         /* these values will be filled by call to draw_hostlist_table_addresses() below */
         entries[0]="";
         entries[1]="";
@@ -1011,7 +1068,7 @@ add_hostlist_table_data(hostlist_table *hl, address *addr, guint32 port, gboolea
         gtk_clist_insert(hl->table, talker_idx, entries);
         gtk_clist_set_row_data(hl->table, talker_idx, (gpointer) talker_idx);
 
-        gtk_clist_thaw(hl->table);
+		draw_hostlist_table_address(hl, talker_idx);
     }
 }
 
