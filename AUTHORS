@@ -1674,6 +1674,10 @@ Erwin Rol <erwin [AT] muffin.org> {
 	ArtNET support
 }
 
+Duncan Laurie <duncan [AT] sun.com> {
+	IPMI-over-LAN support (IPMI, RMCP, partial ASF)
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
