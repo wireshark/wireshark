@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.32 1999/07/20 05:07:57 guy Exp $
+ * $Id: capture.c,v 1.33 1999/07/20 06:16:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -411,7 +411,6 @@ capture(void) {
   ld.counts.total = 0;
   ld.max          = cf.count;
   ld.linktype     = DLT_NULL;
-  ld.signal_sent  = 0;
   ld.sync_time    = 0;
   ld.counts.tcp   = 0;
   ld.counts.udp   = 0;
@@ -449,6 +448,15 @@ capture(void) {
         simple_dialog(ESD_TYPE_WARN, NULL, "Can't install filter.");
         return;
       }
+    }
+
+    if (sync_mode) {
+      /* Sync out the capture file, so the header makes it to the file
+         system, and signal our parent so that they'll open the capture
+	 file and update its windows to indicate that we have a live
+	 capture in progress. */
+      fflush((FILE *)ld.pdh);
+      kill(getppid(), SIGUSR2);
     }
 
     cap_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -622,15 +630,6 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
       capture_raw(pd, phdr->caplen, &ld->counts);
       break;
   }
-
-  if (sync_mode && !ld->signal_sent) {
-    /* will trigger the father to open the cap file which contains 
-       at least one complete packet */
-    fflush((FILE *)ld->pdh);
-    kill(getppid(), SIGUSR2);
-    ld->signal_sent = 1;
-  }
-  
 }
 
 #endif /* HAVE_LIBPCAP */
