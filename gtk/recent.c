@@ -184,12 +184,18 @@ write_recent(char **rf_path_return)
 
   fprintf(rf, "\n# Main window panes (GTK2 only).\n");
   fprintf(rf, "# Decimal numbers.\n");
-  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE ": %d\n",
+  if (recent.gui_geometry_main_upper_pane != 0) {
+    fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE ": %d\n",
 		  recent.gui_geometry_main_upper_pane);
-  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE ": %d\n",
+  }
+  if (recent.gui_geometry_main_lower_pane != 0) {
+    fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE ": %d\n",
 		  recent.gui_geometry_main_lower_pane);
-  fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE ": %d\n",
+  }
+  if (recent.gui_geometry_status_pane != 0) {
+    fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE ": %d\n",
 		  recent.gui_geometry_status_pane);
+  }
 
   if (get_last_open_dir() != NULL) {
     fprintf(rf, "\n# Last directory navigated to in File Open dialog.\n");
