@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.27 2003/05/24 22:58:50 guy Exp $
+ * $Id: packet-isis-clv.c,v 1.28 2003/06/04 08:46:35 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -177,7 +177,7 @@ isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		  g_string_sprintfa(gstr, "%s",
 		    tvb_format_text(tvb, offset, length));
                 } else {
-		  g_string_sprintfa(gstr, "no clear-text password found!!!");
+		  g_string_append(gstr, "no clear-text password found!!!");
 		}
 		break;
 	case 54:
@@ -194,7 +194,7 @@ isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		    length--;
 		  }
 		} else {
-		  g_string_sprintfa(gstr,
+		  g_string_append(gstr,
 		      "illegal hmac-md5 digest format (must be 16 bytes)");
 		}
 		break;
