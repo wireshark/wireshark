@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.9 1999/12/09 02:53:33 guy Exp $
+ * $Id: packet-gre.c,v 1.10 1999/12/10 02:29:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -213,7 +213,7 @@ add_flags_and_ver(proto_tree *tree, guint16 flags_and_ver, int offset, int is_pp
   int		nbits = sizeof(flags_and_ver) * 8;
   
   ti = proto_tree_add_text(tree, offset, 2, 
-			   "Flags and version: %#08x", flags_and_ver);
+			   "Flags and version: %#04x", flags_and_ver);
   fv_tree = proto_item_add_subtree(ti, ett_gre_flags);
   
   proto_tree_add_text(fv_tree, offset, sizeof(flags_and_ver), "%s",
