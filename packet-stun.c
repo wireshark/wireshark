@@ -2,7 +2,7 @@
  * Routines for Simple Traversal of UDP Through NAT dissection
  * Copyright 2003, Shiang-Ming Huang <smhuang@pcs.csie.nctu.edu.tw>
  *
- * $Id: packet-stun.c,v 1.3 2003/09/05 04:39:19 guy Exp $
+ * $Id: packet-stun.c,v 1.4 2004/01/04 20:44:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -254,7 +254,7 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				case MESSAGE_INTEGRITY:
 					proto_tree_add_item(att_tree, stun_att_type, tvb, offset, 2, FALSE);
 					proto_tree_add_item(att_tree, stun_att_length, tvb, offset+2, 2, FALSE);
-					proto_tree_add_item(att_tree, stun_att_length, tvb, offset+2, att_length, FALSE);
+					proto_tree_add_item(att_tree, stun_att_value, tvb, offset+4, att_length, FALSE);
 					
 					offset = offset+(ATTR_HDR_LEN+att_length);
 					
