@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.517 2002/11/03 17:38:30 oabad Exp $
+# $Id: Makefile.am,v 1.518 2002/11/04 12:10:59 sahlberg Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -765,6 +765,7 @@ ethereal_static_LDFLAGS = -Wl,-static
 TETHEREAL_TAP_SRC = \
 	tap-dcerpcstat.c	\
 	tap-iostat.c		\
+	tap-protocolinfo.c	\
 	tap-protohierstat.c	\
 	tap-rpcstat.c		\
 	tap-rpcprogs.c

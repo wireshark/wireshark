@@ -345,7 +345,36 @@ all filters and presented with one column of statistics for each filter.
 
 This option can be used multiple times on the command line. 
 
- 
+
+B<-z> proto,colinfo,I<filter>,I<field>
+
+Append all I<field> values for the packet to the COL_INFO information line.
+This feature can be used to append arbitrary fields to the COL_INFO line
+in addition to the normal content of the COL_INFO line.
+I<field> is the display-filter name of a field which value should be placed
+on the COL_INFO line.
+I<filter> is a filter string that controls for which packets the field value
+will be presented on COL_INFO line. I<field> will only be presented on the
+COL_INFO line for the packets which match I<filter>.
+
+NOTE: In order for I<tethereal> to be able to extract the I<field> value from
+the packet, I<field> MUST be part of the I<filter> string. If not, I<tethereal>
+will not be able to extract its value.
+
+For a simple example to add the "nfs.fh.hash" field to COL_INFO for all
+packets containing the "nfs.fh.hash" field, use
+
+B<-z proto,colinfo,nfs.fh.hash,nfs.fh.hash>
+
+
+To put "nfs.fh.hash" on COL_INFO but only for packets coming from host 1.2.3.4
+use :
+
+B<-z "proto,colinfo,nfs.fh.hash && ip.src==1.2.3.4,nfs.fh.hash">
+
+This option can be used multiple times on the command line. 
+
+
 B<-z> rpc,rtt,I<program>,I<version>[,I<filter>]
 
 Collect call/reply RTT data for I<program>/I<version>.  Data collected
