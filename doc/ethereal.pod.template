@@ -28,6 +28,7 @@ S<[ B<-T> tree view height ]>
 S<[ B<-t> time stamp format ]>
 S<[ B<-v> ]>
 S<[ B<-w> savefile]>
+S<[ infile ]>
 
 =head1 DESCRIPTION
 
@@ -71,6 +72,9 @@ from the display filter syntax.
 Compressed file support uses (and therefore requires) the zlib library. 
 If the zlib library is not present, B<Ethereal> will compile, but will
 be unable to read compressed files.
+
+The pathname of a capture file to be read can be specified with the
+B<-r> option or can be specified as a command-line argument.
 
 =head1 OPTIONS
 
@@ -166,7 +170,7 @@ B<-i> and B<-w> parameters.
 
 =item -r
 
-Reads packet data from I<file>.
+Reads packet data from I<infile>.
 
 =item -R
 

@@ -194,7 +194,7 @@ machine.
 
 =item -r
 
-Reads packet data from I<file>.
+Reads packet data from I<infile>.
 
 =item -R
 

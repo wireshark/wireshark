@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.212 2001/11/21 23:16:26 gram Exp $
+ * $Id: main.c,v 1.213 2001/11/24 08:46:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -798,14 +798,15 @@ print_usage(void) {
   fprintf(stderr, "\t[ -n ] [ -N <resolving> ]\n");
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -P <packet list height> ]\n");
   fprintf(stderr, "\t[ -r <infile> ] [ -R <read filter> ] [ -s <snaplen> ] \n");
-  fprintf(stderr, "\t[ -t <time stamp format> ] [ -T <tree view height> ] [ -w <savefile> ]\n");
+  fprintf(stderr, "\t[ -t <time stamp format> ] [ -T <tree view height> ]\n");
+  fprintf(stderr, "\t[ -w <savefile> ] [ <infile> ]\n");
 #else
   fprintf(stderr, "%s [ -vh ] [ -B <byte view height> ] [ -m <medium font> ]\n",
 	  PACKAGE);
   fprintf(stderr, "\t[ -n ] [ -N <resolving> ]\n");
   fprintf(stderr, "\t[ -o <preference setting> ... [ -P <packet list height> ]\n");
   fprintf(stderr, "\t[ -r <infile> ] [ -R <read filter> ] [ -t <time stamp format> ]\n");
-  fprintf(stderr, "\t[ -T <tree view height> ]\n");
+  fprintf(stderr, "\t[ -T <tree view height> ] [ <infile> ]\n");
 #endif
 }
 
@@ -1251,6 +1252,38 @@ main(int argc, char *argv[])
         arg_error = TRUE;
         break;
     }
+  }
+  argc -= optind;
+  argv += optind;
+  if (argc >= 1) {
+    if (cf_name != NULL) {
+      /*
+       * Input file name specified with "-r" *and* specified as a regular
+       * command-line argument.
+       */
+      arg_error = TRUE;
+    } else {
+      /*
+       * Input file name not specified with "-r", and a command-line argument
+       * was specified; treat it as the input file name.
+       *
+       * Yes, this is different from tethereal, where non-flag command-line
+       * arguments are a filter, but this works better on GUI desktops
+       * where a command can be specified to be run to open a particular
+       * file - yes, you could have "-r" as the last part of the command,
+       * but that's a bit ugly.
+       */
+      cf_name = g_strdup(argv[0]);
+    }
+    argc--;
+    argv++;
+  }
+
+  if (argc != 0) {
+    /*
+     * Extra command line arguments were specified; complain.
+     */
+    arg_error = TRUE;
   }
 
 #ifdef WIN32
