@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.53 2000/04/03 09:24:08 guy Exp $
+ * $Id: packet-udp.c,v 1.54 2000/04/03 09:41:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -130,22 +130,6 @@ typedef struct _e_udphdr {
 #define UDP_PORT_DHIS2	58801
 
 static dissector_table_t udp_dissector_table;
-
-void init_dissect_udp(void) {
-
-  udp_dissector_table = register_dissector_table(hf_udp_port);
-
-  /* Now add the protocols we know about */
-
-  dissector_add("udp.port", UDP_PORT_BOOTPS, dissect_bootp);
-  dissector_add("udp.port", UDP_PORT_TFTP, dissect_tftp);
-  dissector_add("udp.port", UDP_PORT_SAP, dissect_sap);
-  dissector_add("udp.port", UDP_PORT_HSRP, dissect_hsrp);
-  dissector_add("udp.port", UDP_PORT_PIM_RP_DISC, dissect_auto_rp);
-  dissector_add("udp.port", UDP_PORT_TACACS, dissect_tacacs);
-  dissector_add("udp.port", UDP_PORT_DHIS1, dissect_dhis);
-  dissector_add("udp.port", UDP_PORT_DHIS2, dissect_dhis);
-}
 
 void
 dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
@@ -334,4 +318,21 @@ proto_register_udp(void)
 	proto_udp = proto_register_protocol("User Datagram Protocol", "udp");
 	proto_register_field_array(proto_udp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+/* subdissector code */
+	udp_dissector_table = register_dissector_table(hf_udp_port);
+
+	/* Now add the protocols we know about.
+	   XXX - we should add all the UDP ports this way, rather
+	   than having the giant "if", just as is now done in
+	   "packet-tcp.c". */
+
+	dissector_add("udp.port", UDP_PORT_BOOTPS, dissect_bootp);
+	dissector_add("udp.port", UDP_PORT_TFTP, dissect_tftp);
+	dissector_add("udp.port", UDP_PORT_SAP, dissect_sap);
+	dissector_add("udp.port", UDP_PORT_HSRP, dissect_hsrp);
+	dissector_add("udp.port", UDP_PORT_PIM_RP_DISC, dissect_auto_rp);
+	dissector_add("udp.port", UDP_PORT_TACACS, dissect_tacacs);
+	dissector_add("udp.port", UDP_PORT_DHIS1, dissect_dhis);
+	dissector_add("udp.port", UDP_PORT_DHIS2, dissect_dhis);
 }

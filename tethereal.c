@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.21 2000/03/28 20:20:02 gram Exp $
+ * $Id: tethereal.c,v 1.22 2000/04/03 09:41:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -127,7 +127,6 @@ static void
 ethereal_proto_init(void) {
   init_dissect_rpc();
   proto_init();
-  init_dissect_udp();
   dfilter_init();
 #ifdef HAVE_PLUGINS
   init_plugins();

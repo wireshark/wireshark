@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.112 2000/04/01 12:03:34 guy Exp $
+ * $Id: main.c,v 1.113 2000/04/03 09:41:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1073,7 +1073,6 @@ static void
 ethereal_proto_init(void) {
   init_dissect_rpc();
   proto_init();
-  init_dissect_udp();
   dfilter_init();
 #ifdef HAVE_PLUGINS
   init_plugins();

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.176 2000/04/03 09:24:09 guy Exp $
+ * $Id: packet.h,v 1.177 2000/04/03 09:41:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -293,7 +293,6 @@ void register_init_routine(void (*func)(void));
 void init_all_protocols(void);
 
 void init_dissect_rpc(void);
-void init_dissect_udp(void);
 
 /*
  * Routines should take four args: packet data *, offset, frame_data *,
