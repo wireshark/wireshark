@@ -40,10 +40,10 @@
 #include <string.h>
 #include <glib.h>
 
-
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
+
+#include <epan/dissectors/packet-tcp.h>
 
 #include "plugins/plugin_api_defs.h"
 
@@ -296,7 +296,7 @@ static const value_string resp_errors[] = {
 #define NORHL(FLAGS,VAR) VAR = (FLAGS & NETWORK_BYTE_ORDER) ? VAR : g_htonl(VAR)
 #define NORHS(FLAGS,VAR) VAR = (FLAGS & NETWORK_BYTE_ORDER) ? VAR : g_htons(VAR)
 
-int dissect_octet_string(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
+static int dissect_octet_string(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
 {
 	guint32 n_oct, p_noct;
 	char context[1024];
@@ -315,7 +315,7 @@ int dissect_octet_string(tvbuff_t *tvb, proto_tree *tree, int offset, char flags
 }
 
 
-int convert_oid_to_str(guint32 *oid, int len, char* str, int slen, char prefix)
+static int convert_oid_to_str(guint32 *oid, int len, char* str, int slen, char prefix)
 {
 	int i;
 	char tlen = 0;
@@ -336,7 +336,7 @@ int convert_oid_to_str(guint32 *oid, int len, char* str, int slen, char prefix)
 	return tlen;
 }
 
-int dissect_object_id(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
+static int dissect_object_id(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
 {
 	guint8 n_subid;
 	guint8 prefix;
@@ -378,7 +378,7 @@ int dissect_object_id(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
 	return 4 + (n_subid * 4);
 }
 
-int dissect_search_range(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
+static int dissect_search_range(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
 {
 
 	offset += dissect_object_id(tvb, tree, offset, flags); 
@@ -387,7 +387,7 @@ int dissect_search_range(tvbuff_t *tvb, proto_tree *tree, int offset, char flags
 	return offset;
 }
 
-int dissect_val64(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
+static int dissect_val64(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
 {
 	guint64 val;
 
@@ -399,7 +399,7 @@ int dissect_val64(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
 	return sizeof(val);
 }
 
-int dissect_val32(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
+static int dissect_val32(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
 {
 	guint32 val;
 	val = tvb_get_ntohl(tvb, offset);
@@ -411,7 +411,7 @@ int dissect_val32(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
 	return sizeof(val);
 }
 
-int dissect_varbind(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flags)
+static int dissect_varbind(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flags)
 {
 	guint16 vtag;
 	int tlen;
@@ -463,7 +463,7 @@ int dissect_varbind(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char f
 	return tlen + 4;
 } 
 
-int dissect_response_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void dissect_response_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
 {	
 	proto_item* item;
         proto_tree* subtree;
@@ -471,10 +471,8 @@ int dissect_response_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, cha
 	guint16 r_error;
 	guint16 r_index;
 
-        if(tree) {
-                item = proto_tree_add_text(tree, tvb, offset, len, "Response-PDU");
-                subtree = proto_item_add_subtree(item, ett_response);
-        } else return len;
+	item = proto_tree_add_text(tree, tvb, offset, len, "Response-PDU");
+	subtree = proto_item_add_subtree(item, ett_response);
 
 	r_uptime = tvb_get_ntohl(tvb, offset);
 	r_error  = tvb_get_ntohs(tvb, offset + 4);
@@ -493,21 +491,15 @@ int dissect_response_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, cha
 	while(len > offset) {
 		offset += dissect_varbind(tvb, subtree, offset, len, flags);
 	}
-	
-	return offset;
-
 }
 
-int dissect_getnext_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void dissect_getnext_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
 {
 	proto_item* item;
 	proto_tree* subtree;
 
-	if(tree) {
-		item = proto_tree_add_text(tree, tvb, offset, len, "GetNext-PDU");
-		subtree = proto_item_add_subtree(item, ett_getnext); 
-	} else return offset;
-
+	item = proto_tree_add_text(tree, tvb, offset, len, "GetNext-PDU");
+	subtree = proto_item_add_subtree(item, ett_getnext); 
 
 	if(flags & NON_DEFAULT_CONTEXT) {
 		/* show context */
@@ -517,18 +509,15 @@ int dissect_getnext_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char
 	while(len > offset) {	
 		offset += dissect_search_range(tvb, subtree, offset, flags);
 	}
-	return offset;
 }
 
-int dissect_get_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void dissect_get_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
 {
 	proto_item* item;
         proto_tree* subtree;
 
-        if(tree) {
-                item = proto_tree_add_text(tree, tvb, offset, len, "Get-PDU");
-                subtree = proto_item_add_subtree(item, ett_get);
-        } else return offset;
+	item = proto_tree_add_text(tree, tvb, offset, len, "Get-PDU");
+	subtree = proto_item_add_subtree(item, ett_get);
 
 	if(flags & NON_DEFAULT_CONTEXT) {
                 /* show context */
@@ -537,22 +526,19 @@ int dissect_get_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char fla
 
 	while(len >= offset) {
                 offset += dissect_search_range(tvb, subtree, offset, flags);
-		tvb_get_ntohl(tvb, offset); offset+=4; /* skip 0 end dword */
+		offset += 4; /* skip 0 end dword */
         }
-        return offset;
 }
 
-int dissect_getbulk_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void dissect_getbulk_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
 {
 	proto_item* item;
         proto_tree* subtree;
 	guint16 non_repeaters;
 	guint16 max_repetitions;
 
-        if(tree) {
-                item = proto_tree_add_text(tree, tvb, offset, len, "GetBulk-PDU");
-                subtree = proto_item_add_subtree(item, ett_getbulk);
-        } else return offset;
+	item = proto_tree_add_text(tree, tvb, offset, len, "GetBulk-PDU");
+	subtree = proto_item_add_subtree(item, ett_getbulk);
 
 	if(flags & NON_DEFAULT_CONTEXT) {
                 /* show context */
@@ -572,19 +558,16 @@ int dissect_getbulk_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char
 	while(len >= offset) {
                 offset += dissect_search_range(tvb, subtree, offset, flags);
 	}
-	return offset;
 }
 
-int dissect_open_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void dissect_open_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
 {
 	proto_item* item;
 	proto_tree* subtree;
 	guint8 timeout;
 
-	if(tree) { 
-		item = proto_tree_add_text(tree, tvb, offset, len, "Open-PDU");
-		subtree = proto_item_add_subtree(item, ett_open);
-	} else return offset;
+	item = proto_tree_add_text(tree, tvb, offset, len, "Open-PDU");
+	subtree = proto_item_add_subtree(item, ett_open);
 
 	timeout = tvb_get_guint8(tvb, offset);
 	tvb_get_ntoh24(tvb, offset + 1);
@@ -597,32 +580,26 @@ int dissect_open_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char fl
 	
 	/* Octet string */
 	offset += dissect_octet_string(tvb, subtree, offset, flags);
-
-	return offset;
 }
 
-int dissect_close_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len)
+static void dissect_close_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len)
 {
 	proto_item* item;
         proto_tree* subtree;
 	guint8 reason;
 
-	if(tree) {
-                item = proto_tree_add_text(tree, tvb, offset, len, "Close-PDU");
-                subtree = proto_item_add_subtree(item, ett_close);
-        } else return offset;
+	item = proto_tree_add_text(tree, tvb, offset, len, "Close-PDU");
+	subtree = proto_item_add_subtree(item, ett_close);
 
 	reason = tvb_get_guint8(tvb, offset);
 	tvb_get_ntoh24(tvb, offset + 1);
 
 	proto_tree_add_uint(subtree, hf_close_reason, tvb, offset, 1, reason);
 	offset+=4;
-
-	return offset;
 }
 
 
-int dissect_register_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void dissect_register_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
 {
 	proto_item* item;
         proto_tree* subtree;
@@ -631,10 +608,8 @@ int dissect_register_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, cha
 	guint8 range_subid;
 	guint32 upper_bound;
 
-	if(tree) {
-                item = proto_tree_add_text(tree, tvb, offset, len, "Register-PDU");
-                subtree = proto_item_add_subtree(item, ett_register);
-        } else return offset;
+	item = proto_tree_add_text(tree, tvb, offset, len, "Register-PDU");
+	subtree = proto_item_add_subtree(item, ett_register);
 
 	if(flags & NON_DEFAULT_CONTEXT) {
                 /* show context */
@@ -663,12 +638,10 @@ int dissect_register_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, cha
 		proto_tree_add_uint(subtree, hf_reg_ubound, tvb, offset, 4, upper_bound); 
 		offset += 4;
 	}
-	
-	return offset;
 }
 
 
-int dissect_unregister_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void dissect_unregister_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
 {
 	proto_item* item;
         proto_tree* subtree;
@@ -677,10 +650,8 @@ int dissect_unregister_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, c
         guint8 range_subid;
         guint32 upper_bound;
 
-	if(tree) {
-                item = proto_tree_add_text(tree, tvb, offset, len, "Unregister-PDU");
-                subtree = proto_item_add_subtree(item, ett_unregister);
-        } else return offset;
+	item = proto_tree_add_text(tree, tvb, offset, len, "Unregister-PDU");
+	subtree = proto_item_add_subtree(item, ett_unregister);
 
 	if(flags & NON_DEFAULT_CONTEXT) {
                 /* show context */
@@ -708,19 +679,15 @@ int dissect_unregister_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, c
                 proto_tree_add_uint(subtree, hf_unreg_ubound, tvb, offset, 4, upper_bound);
                 offset += 4;
         }
-
-        return offset;
 }
 
-int dissect_testset_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void dissect_testset_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
 {
 	proto_item* item;
         proto_tree* subtree;
 
-	if(tree) {
-                item = proto_tree_add_text(tree, tvb, offset, len, "Testset-PDU");
-                subtree = proto_item_add_subtree(item, ett_testset);
-        } else return offset;
+	item = proto_tree_add_text(tree, tvb, offset, len, "Testset-PDU");
+	subtree = proto_item_add_subtree(item, ett_testset);
 
 	if(flags & NON_DEFAULT_CONTEXT) {
                 /* show context */
@@ -730,19 +697,15 @@ int dissect_testset_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char
 	while(len > offset) {
 		offset += dissect_varbind(tvb, subtree, offset, len, flags);
 	}
-	
-	return offset;
 }
 
-int dissect_notify_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void dissect_notify_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
 {
 	proto_item* item;
         proto_tree* subtree;
 
-	if(tree) {
-                item = proto_tree_add_text(tree, tvb, offset, len, "Notify-PDU");
-                subtree = proto_item_add_subtree(item, ett_notify);
-        } else return offset;
+	item = proto_tree_add_text(tree, tvb, offset, len, "Notify-PDU");
+	subtree = proto_item_add_subtree(item, ett_notify);
 
 	if(flags & NON_DEFAULT_CONTEXT) {
                 /* show context */
@@ -752,36 +715,29 @@ int dissect_notify_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char 
 	while(len > offset) {
                 offset += dissect_varbind(tvb, subtree, offset, len, flags);
         }
-	return offset;
 }
 
-int dissect_ping_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void dissect_ping_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
 {
 	proto_item* item;
         proto_tree* subtree;
 
-        if(tree) {
-                item = proto_tree_add_text(tree, tvb, offset, len, "Ping-PDU");
-                subtree = proto_item_add_subtree(item, ett_ping);
-        } else return offset;
+	item = proto_tree_add_text(tree, tvb, offset, len, "Ping-PDU");
+	subtree = proto_item_add_subtree(item, ett_ping);
 
 	if(flags & NON_DEFAULT_CONTEXT) {
                 /* show context */
                 offset += dissect_octet_string(tvb, subtree, offset, flags);
         }
-	
-	return offset;
 }
 
-int dissect_idx_alloc_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void dissect_idx_alloc_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
 {
 	proto_item* item;
         proto_tree* subtree;
 
-        if(tree) {
-                item = proto_tree_add_text(tree, tvb, offset, len, "IndexAllocate-PDU");
-                subtree = proto_item_add_subtree(item, ett_idxalloc);
-        } else return offset;
+	item = proto_tree_add_text(tree, tvb, offset, len, "IndexAllocate-PDU");
+	subtree = proto_item_add_subtree(item, ett_idxalloc);
 
 	if(flags & NON_DEFAULT_CONTEXT) {
                 /* show context */
@@ -791,19 +747,16 @@ int dissect_idx_alloc_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, ch
 	while(len > offset) {
 		offset += dissect_varbind(tvb, subtree, offset, len, flags);
 	}
-	return offset;
 }
 
 
-int dissect_idx_dealloc_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void dissect_idx_dealloc_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
 {
         proto_item* item;
         proto_tree* subtree;
 
-        if(tree) {
-                item = proto_tree_add_text(tree, tvb, offset, len, "IndexDeallocate-PDU");
-                subtree = proto_item_add_subtree(item, ett_idxdalloc);
-        } else return offset;
+	item = proto_tree_add_text(tree, tvb, offset, len, "IndexDeallocate-PDU");
+	subtree = proto_item_add_subtree(item, ett_idxdalloc);
 
         if(flags & NON_DEFAULT_CONTEXT) {
                 /* show context */
@@ -813,18 +766,15 @@ int dissect_idx_dealloc_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, 
         while(len > offset) {
                 offset += dissect_varbind(tvb, subtree, offset, len, flags);
         }
-        return offset;
 }
 
-int dissect_add_caps_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void dissect_add_caps_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
 {
 	proto_item* item;
         proto_tree* subtree;
 
-        if(tree) {
-                item = proto_tree_add_text(tree, tvb, offset, len, "AddAgentCaps-PDU");
-                subtree = proto_item_add_subtree(item, ett_addcap);
-        } else return offset;	
+	item = proto_tree_add_text(tree, tvb, offset, len, "AddAgentCaps-PDU");
+	subtree = proto_item_add_subtree(item, ett_addcap);
 
 	if(flags & NON_DEFAULT_CONTEXT) {
                 /* show context */
@@ -834,19 +784,15 @@ int dissect_add_caps_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, cha
 	offset += dissect_object_id(tvb, subtree, offset, flags);
 
 	offset += dissect_octet_string(tvb, subtree, offset, flags);
-
-	return offset;
 }
 
-int dissect_rem_caps_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void dissect_rem_caps_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
 {
         proto_item* item;
         proto_tree* subtree;
 
-        if(tree) {
-                item = proto_tree_add_text(tree, tvb, offset, len, "RemoveAgentCaps-PDU");
-                subtree = proto_item_add_subtree(item, ett_remcap);
-        } else return offset;
+	item = proto_tree_add_text(tree, tvb, offset, len, "RemoveAgentCaps-PDU");
+	subtree = proto_item_add_subtree(item, ett_remcap);
 
         if(flags & NON_DEFAULT_CONTEXT) {
                 /* show context */
@@ -854,15 +800,35 @@ int dissect_rem_caps_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, cha
         }
 
         offset += dissect_object_id(tvb, subtree, offset, flags);
-
-        return offset;
 }
 
 
-int dissect_agentx_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static guint get_agentx_pdu_len(tvbuff_t *tvb, int offset)
+{
+	guint32 plen;
+
+	/*
+	 * Get the payload length.
+	 */
+	plen = tvb_get_ntohl(tvb, offset+16);
+
+	/*
+	 * Arbitrarily limit it to 2^24, so we don't have to worry about
+	 * overflow.
+	 */
+	if (plen > 0xFFFFFF)
+		plen = 0xFFFFFF;
+
+	/*
+	 * That length doesn't include the header; add that in.
+	 */
+	return plen + 20;
+}
+
+static void dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree)
 {
-        int length_remaining;
+	int offset = 0;
 	proto_tree* agentx_tree ,*pdu_hdr_tree;
 	proto_item* pdu_item , *t_item;
 	guint8 version;
@@ -872,16 +838,6 @@ int dissect_agentx_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 trans_id;
 	guint32 packet_id;
 	guint32 payload_len;
-
-	length_remaining = tvb_ensure_length_remaining(tvb, offset);
-
-	if(pinfo->can_desegment) {
-		if(length_remaining < 5) {
-			pinfo->desegment_offset = offset;
-			pinfo->desegment_len = 5 - length_remaining;	
-			return (0);
-		}
-	}
 
 	version = tvb_get_guint8(tvb,0); offset+=1;
 	type = tvb_get_guint8(tvb,1); offset+=1;
@@ -909,20 +865,15 @@ int dissect_agentx_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			session_id,trans_id,packet_id,payload_len);
 
 
-        if(tree) {
-                //t_item = proto_tree_add_item(tree, proto_agentx, tvb, 0, -1, FALSE);
+	if(!tree)
+		return;
 
-		t_item = proto_tree_add_protocol_format(tree, proto_agentx, tvb, 0, -1,
+	/*t_item = proto_tree_add_item(tree, proto_agentx, tvb, 0, -1, FALSE);*/
+	t_item = proto_tree_add_protocol_format(tree, proto_agentx, tvb, 0, -1,
                 "Agent Extensibility (AgentX) Protocol: %s, sid=%d, tid=%d, packid=%d, plen=%d",
 			val_to_str(type,type_values,"unknown"),
 			session_id,trans_id,packet_id,payload_len);
-
-
-		
-
-                agentx_tree = proto_item_add_subtree(t_item, ett_agentx);
-        }
-	else return (0);
+	agentx_tree = proto_item_add_subtree(t_item, ett_agentx);
 
 	pdu_item = proto_tree_add_text(agentx_tree, tvb, 0, 5, "PDU Header: Type[%u], len=%d, sid=%d, tid=%d, packid=%d",
 			(char)type,payload_len,session_id,trans_id,packet_id);
@@ -939,35 +890,35 @@ int dissect_agentx_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	switch(type) {
 		case AGENTX_OPEN_PDU:
-		offset += dissect_open_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);	
+		dissect_open_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);	
 		break;
 
         	case AGENTX_CLOSE_PDU:
-		offset += dissect_close_pdu(tvb, pdu_hdr_tree, offset,payload_len);	
+		dissect_close_pdu(tvb, pdu_hdr_tree, offset,payload_len);	
 		break;
  
         	case AGENTX_REGISTER_PDU:
-		offset += dissect_register_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_register_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
 		break;
 
         	case AGENTX_UNREGISTER_PDU:
-		offset += dissect_unregister_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_unregister_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
 		break;
 
         	case AGENTX_GET_PDU:
-		offset += dissect_get_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_get_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
 		break;
 
         	case AGENTX_GETNEXT_PDU:
-		offset += dissect_getnext_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_getnext_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
 		break;
 
        	 	case AGENTX_GETBULK_PDU:
-		offset += dissect_getbulk_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_getbulk_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
 		break;
 
         	case AGENTX_TESTSET_PDU:
-		offset += dissect_testset_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_testset_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
 		break;
 
         	case AGENTX_COMMITSET_PDU:
@@ -977,59 +928,40 @@ int dissect_agentx_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		break;
 
         	case AGENTX_NOTIFY_PDU:
-		offset +=  dissect_notify_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_notify_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
 		break;
 
         	case AGENTX_PING_PDU:
-		offset +=  dissect_ping_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_ping_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
 		break;
 
         	case AGENTX_INDEX_ALLOC_PDU:
-		offset +=  dissect_idx_alloc_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_idx_alloc_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
 		break;
 
         	case AGENTX_INDEX_DEALLOC_PDU:
-		offset +=  dissect_idx_dealloc_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_idx_dealloc_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
 		break;
 
         	case AGENTX_ADD_AGENT_CAPS_PDU:
-		offset +=  dissect_add_caps_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_add_caps_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
 		break;
 
         	case AGENTX_REM_AGENT_CAPS_PDU:
-		offset +=  dissect_rem_caps_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_rem_caps_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
 		break;
 
         	case AGENTX_RESPONSE_PDU:
-		offset += dissect_response_pdu(tvb, pdu_hdr_tree, offset, payload_len, flags);
+		dissect_response_pdu(tvb, pdu_hdr_tree, offset, payload_len, flags);
 		break;
 	}
-	
-
-	return offset;
 }
 
-static void
-dissect_agentx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_agentx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	volatile int offset = 0;
-	int len;
-
-
-	while (tvb_reported_length_remaining(tvb, offset) > 0) {
-
-		/* dissect mssage here */
-		len = dissect_agentx_pdu(tvb, offset, pinfo, tree);
-		if(len == 0) {
-			break;
-		}
-		offset+=len;
-	}
-	
+	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 20, get_agentx_pdu_len,
+	    dissect_agentx_pdu);
 }
-
-
-
 
 void
 proto_register_agentx(void)
@@ -1214,10 +1146,10 @@ proto_register_agentx(void)
 void
 proto_reg_handoff_agentx(void)
 {
-  static int agentx_prefs_initialized = FALSE;
-  static dissector_handle_t agentx_handle;
+	static int agentx_prefs_initialized = FALSE;
+	static dissector_handle_t agentx_handle;
 
-  if(!agentx_prefs_initialized) {
+	if(!agentx_prefs_initialized) {
                 agentx_handle = create_dissector_handle(dissect_agentx, proto_agentx);
                 agentx_prefs_initialized = TRUE;
         }
@@ -1228,8 +1160,7 @@ proto_reg_handoff_agentx(void)
 
         agentx_tcp_port = global_agentx_tcp_port;
 
-  dissector_add("tcp.port", agentx_tcp_port, agentx_handle);
-
+	dissector_add("tcp.port", agentx_tcp_port, agentx_handle);
 }
 
 /* Start the functions we need for the plugin stuff */
