@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.25 2001/12/18 19:09:04 gram Exp $
+ * $Id: proto.h,v 1.26 2002/01/04 08:56:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -553,12 +553,6 @@ extern GPtrArray* proto_get_finfo_ptr_array(proto_tree *tree, int hfindex);
 
 /* Dumps a glossary of the protocol and field registrations to STDOUT */
 extern void proto_registrar_dump(void);
-
-/* Is the parsing being done for a visible proto_tree or an invisible one?
- * By setting this correctly, the proto_tree creation is sped up by not
- * having to call vsnprintf and copy strings around.
- */
-extern gboolean proto_tree_is_visible;
 
 /* Points to the first element of an array of Booleans, indexed by
    a subtree item type; that array element is TRUE if subtrees of
