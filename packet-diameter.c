@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.46 2002/04/29 08:20:07 guy Exp $
+ * $Id: packet-diameter.c,v 1.47 2002/05/02 19:32:19 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -370,7 +370,7 @@ addStaticAVP(int code, gchar *name, diameterDataType type, value_string *values)
  * add them too.
  */
 static int
-xmlParseAVP(xmlDocPtr doc, xmlNodePtr cur)
+xmlParseAVP(xmlNodePtr cur)
 {
   char *name=NULL, *description=NULL, *code=NULL, *mayEncrypt=NULL,
 	*mandatory=NULL, *protected=NULL, *vendorBit=NULL, *vendorName = NULL,
@@ -508,7 +508,7 @@ addCommand(int code, char *name, char *vendorId)
  * list of commands.
  */
 static int
-xmlParseCommand(xmlDocPtr doc, xmlNodePtr cur)
+xmlParseCommand(xmlNodePtr cur)
 {
   char *name, *code, *vendorIdString;
 
@@ -585,7 +585,7 @@ addVendor(int id, gchar *name, gchar *longName)
  * This routine will pars in a XML vendor entry.
  */
 static int
-xmlParseVendor(xmlDocPtr doc, xmlNodePtr cur)
+xmlParseVendor(xmlNodePtr cur)
 {
   char *name=NULL, *code=NULL, *id=NULL;
 
@@ -606,7 +606,7 @@ xmlParseVendor(xmlDocPtr doc, xmlNodePtr cur)
  * This routine will either parse in the base protocol, or an application.
  */
 static int
-xmlDictionaryParseSegment(xmlDocPtr doc, xmlNodePtr cur, int base)
+xmlDictionaryParseSegment(xmlNodePtr cur, int base)
 {
   if (!base) {
 	char *name;
@@ -638,14 +638,14 @@ xmlDictionaryParseSegment(xmlDocPtr doc, xmlNodePtr cur, int base)
   while (cur != NULL) {
 	if (!strcasecmp((char *)cur->name, "avp")) {
 	  /* we have an avp!!! */
-	  xmlParseAVP(doc, cur);
+	  xmlParseAVP(cur);
 	} else if (!strcasecmp((char *)cur->name, "vendor")) {
 	  /* we have a vendor */
-	  xmlParseVendor(doc, cur);
+	  xmlParseVendor(cur);
 	  /* For now, ignore typedefn and text */
 	} else if (!strcasecmp((char *)cur->name, "command")) {
 	  /* Found a command */
-	  xmlParseCommand(doc,cur);
+	  xmlParseCommand(cur);
 	} else if (!strcasecmp((char *)cur->name, "text")) {
 	} else if (!strcasecmp((char *)cur->name, "comment")) {
 	} else if (!strcasecmp((char *)cur->name, "typedefn")) {
@@ -666,16 +666,16 @@ xmlDictionaryParseSegment(xmlDocPtr doc, xmlNodePtr cur, int base)
  * dictionary that has been parsed by libxml.
  */
 static int
-xmlDictionaryParse(xmlDocPtr doc, xmlNodePtr cur)
+xmlDictionaryParse(xmlNodePtr cur)
 {
   /* We should expect a base protocol, followed by multiple applicaitons */
   while (cur != NULL) {
 	if (!strcasecmp((char *)cur->name, "base")) {
 	  /* Base protocol.  Descend and parse */
-	  xmlDictionaryParseSegment(doc, cur, 1);
+	  xmlDictionaryParseSegment(cur, 1);
 	} else if (!strcasecmp((char *)cur->name, "application")) {
 	  /* Application.  Descend and parse */
-	  xmlDictionaryParseSegment(doc, cur, 0);
+	  xmlDictionaryParseSegment(cur, 0);
 	} else if (!strcasecmp((char *)cur->name, "text")) {
 	  /* Ignore text */
 	} else {
@@ -734,7 +734,7 @@ loadXMLDictionary()
    * Ok, the dictionary has been parsed by libxml, and is valid.
    * All we have to do now is read in our information.
    */
-  if (xmlDictionaryParse(doc, cur->xmlChildrenNode) != 0) {
+  if (xmlDictionaryParse(cur->xmlChildrenNode) != 0) {
 	/* Error has already been printed */
 	return -1;
   }
