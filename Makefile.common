@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.48 2004/06/18 10:01:59 ulfl Exp $
+# $Id: Makefile.common,v 1.49 2004/06/25 07:19:46 sahlberg Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -218,6 +218,7 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 	bridged_pids.h	\
 	chdlctypes.h	\
 	column.h	\
+	crc16.h	\
 	crc32.h	\
 	crypt-des.h	\
 	crypt-md4.h	\

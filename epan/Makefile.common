@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.28 2004/06/04 00:12:12 sahlberg Exp $
+# $Id: Makefile.common,v 1.29 2004/06/25 07:19:47 sahlberg Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -497,6 +497,7 @@ DISSECTOR_SUPPORT_SRC =	\
 	../afn.c	\
 	../asn1.c	\
 	../column.c	\
+	../crc16.c	\
 	../crc32.c	\
 	../crypt-des.c	\
 	../crypt-md4.c	\
