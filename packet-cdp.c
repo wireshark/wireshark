@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.53 2004/03/16 19:13:38 guy Exp $
+ * $Id: packet-cdp.c,v 1.54 2004/03/22 01:18:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -389,7 +389,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    "Cluster Commander MAC: %s",
 				    ether_to_str(tvb_get_ptr(tvb, offset+21, 6)));
 		proto_tree_add_text(tlv_tree, tvb, offset+27, 6,
-				    "Switchs' MAC: %s",
+				    "Switch's MAC: %s",
 				    ether_to_str(tvb_get_ptr(tvb, offset+27, 6)));
 		proto_tree_add_text(tlv_tree, tvb, offset+33, 1,
 				    "UNKNOWN: 0x%02X",
