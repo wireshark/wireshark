@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.54 2003/12/03 10:14:34 sahlberg Exp $
+ * $Id: tvbuff.c,v 1.55 2003/12/23 21:22:00 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -589,6 +589,17 @@ tvb_ensure_length_remaining(tvbuff_t *tvb, gint offset)
 
 	if (!compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length, &exception)) {
 		THROW(exception);
+	}
+	if (abs_length == 0) {
+		/*
+		 * This routine ensures there's at least one byte available.
+		 * There aren't any bytes available, so throw the appropriate
+		 * exception.
+		 */
+		if (abs_offset > tvb->reported_length)
+			THROW(ReportedBoundsError);
+		else
+			THROW(BoundsError);
 	}
 	return abs_length;
 }

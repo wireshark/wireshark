@@ -1,7 +1,7 @@
 /* packet-beep.c
  * Routines for BEEP packet disassembly
  *
- * $Id: packet-beep.c,v 1.13 2003/07/25 04:17:36 gram Exp $
+ * $Id: packet-beep.c,v 1.14 2003/12/23 21:18:57 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  * Modified 2001 Darren New <dnew@invisible.net> for BEEP.
@@ -388,9 +388,6 @@ static int header_len(tvbuff_t *tvb, int offset)
    */
 
   while (1) {
-
-    if (tvb_ensure_length_remaining(tvb, offset + i) < 1)
-      return i;   /* Not enough characters left ... */
 
     if ((sc = tvb_get_guint8(tvb, offset + i)) == 0x0d
 	&& tvb_get_guint8(tvb, offset + i + 1) == 0x0a)
