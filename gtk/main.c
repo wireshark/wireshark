@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.310 2003/09/10 05:35:26 guy Exp $
+ * $Id: main.c,v 1.311 2003/09/12 02:48:22 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -721,6 +721,19 @@ packet_list_click_column_cb(GtkCList *clist, gint column, gpointer data)
   gtk_clist_sort(clist);
 }
 
+/* mark as reference time frame */
+static void
+set_frame_reftime(gboolean set, frame_data *frame, gint row) {
+  if (row == -1)
+    return;
+  if (set) {
+    frame->flags.ref_time=1;
+  } else {
+    frame->flags.ref_time=0;
+  }
+  reftime_packets(&cfile);
+}
+
 /* mark packets */
 static void
 set_frame_mark(gboolean set, frame_data *frame, gint row) {
@@ -788,6 +801,16 @@ packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_)
     return FALSE;
 }
 #endif
+
+void reftime_frame_cb(GtkWidget *w _U_, gpointer data _U_) {
+  if (cfile.current_frame) {
+    /* XXX hum, should better have a "cfile->current_row" here ... */
+    set_frame_reftime(!cfile.current_frame->flags.ref_time,
+		   cfile.current_frame,
+		   gtk_clist_find_row_from_data(GTK_CLIST(packet_list),
+						cfile.current_frame));
+  }
+}
 
 void mark_frame_cb(GtkWidget *w _U_, gpointer data _U_) {
   if (cfile.current_frame) {

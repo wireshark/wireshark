@@ -480,6 +480,20 @@ matching the filter from the previous search.
 
 Go to a particular numbered packet.
 
+=item Edit:Set Time Reference
+
+Set (or unset if currently set) the selected packet as a Time Reference packet.
+When a packet is set as a Time Reference packet, the timestamps in the packet
+pane will be replaced with the string "*REF*".
+The relative time timestamp in later packets will then be calculated relative
+to the timestamp of this Time Reference frame and not the first frame in 
+the capture.
+
+Packets that have been selected as Time Reference packets will always be 
+displayed in the packet pane. Display filters will not affect or hide these 
+packets.
+
+
 =item Edit:Mark Frame
 
 Mark (or unmark if currently marked) the selected packet.  The field

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.309 2003/09/10 22:23:58 guy Exp $
+ * $Id: file.c,v 1.310 2003/09/12 02:48:20 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -699,6 +699,12 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     firstsec  = fdata->abs_secs;
     firstusec = fdata->abs_usecs;
   }
+  /* if this frames is marked as a reference time frame, reset
+     firstsec and firstusec to this frame */
+  if(fdata->flags.ref_time){
+    firstsec  = fdata->abs_secs;
+    firstusec = fdata->abs_usecs;
+  }
 
   /* If we don't have the time stamp of the previous displayed packet,
      it's because this is the first displayed packet.  Save the time
@@ -779,8 +785,11 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   }
 
 
-  if (fdata->flags.passed_dfilter) {
-    /* This frame passed the display filter, so add it to the clist. */
+  if( (fdata->flags.passed_dfilter) 
+   || (edt->pi.fd->flags.ref_time) ){
+    /* This frame either passed the display filter list or is marked as
+       a time reference frame.  All time reference frames are displayed
+       even if they dont pass the display filter */
 
     /* increase cul_bytes with this packets length */
     cul_bytes += fdata->pkt_len;
@@ -938,6 +947,12 @@ void
 colorize_packets(capture_file *cf)
 {
   rescan_packets(cf, "Colorizing", "all frames", FALSE, FALSE);
+}
+
+void
+reftime_packets(capture_file *cf)
+{
+  rescan_packets(cf, "Updating Reftime", "all frames", FALSE, FALSE);
 }
 
 void

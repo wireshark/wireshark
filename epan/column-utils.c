@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.38 2003/09/03 10:49:02 sahlberg Exp $
+ * $Id: column-utils.c,v 1.39 2003/09/12 02:48:21 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -729,23 +729,48 @@ fill_in_columns(packet_info *pinfo)
       break;
 
     case COL_CLS_TIME:
-      col_set_cls_time(pinfo->fd, pinfo->cinfo, i);
+      if(pinfo->fd->flags.ref_time){
+         snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "*REF*");
+         pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
+      } else {
+         col_set_cls_time(pinfo->fd, pinfo->cinfo, i);
+      }
       break;
 
     case COL_ABS_TIME:
-      col_set_abs_time(pinfo->fd, pinfo->cinfo, i);
+      if(pinfo->fd->flags.ref_time){
+         snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "*REF*");
+         pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
+      } else {
+         col_set_abs_time(pinfo->fd, pinfo->cinfo, i);
+      }
       break;
 
     case COL_ABS_DATE_TIME:
-      col_set_abs_date_time(pinfo->fd, pinfo->cinfo, i);
+      if(pinfo->fd->flags.ref_time){
+         snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "*REF*");
+         pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
+      } else {
+         col_set_abs_date_time(pinfo->fd, pinfo->cinfo, i);
+      }
       break;
 
     case COL_REL_TIME:
-      col_set_rel_time(pinfo->fd, pinfo->cinfo, i);
+      if(pinfo->fd->flags.ref_time){
+         snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "*REF*");
+         pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
+      } else {
+         col_set_rel_time(pinfo->fd, pinfo->cinfo, i);
+      }
       break;
 
     case COL_DELTA_TIME:
-      col_set_delta_time(pinfo->fd, pinfo->cinfo, i);
+      if(pinfo->fd->flags.ref_time){
+         snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "*REF*");
+         pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
+      } else {
+         col_set_delta_time(pinfo->fd, pinfo->cinfo, i);
+      }
       break;
 
     case COL_DEF_SRC:
