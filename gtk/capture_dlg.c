@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.119 2004/03/06 06:50:34 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.120 2004/03/06 11:10:14 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -392,19 +392,30 @@ guint32 value)
     unit = GPOINTER_TO_INT(OBJECT_GET_DATA(menu_item, "size_unit"));
 
 
-    /* TBD: how to handle wraps? */
     switch(unit) {
     case(SIZE_UNIT_BYTES):
         return value;
         break;
     case(SIZE_UNIT_KILOBYTES):
-        return value * 1024;
+        if(value > G_MAXINT / 1024) {
+            return 0;
+        } else {
+            return value * 1024;
+        }
         break;
     case(SIZE_UNIT_MEGABYTES):
-        return value * 1024 * 1024;
+        if(value > G_MAXINT / (1024 * 1024)) {
+            return 0;
+        } else {
+            return value * 1024 * 1024;
+        }
         break;
     case(SIZE_UNIT_GIGABYTES):
-        return value * 1024 * 1024 * 1024;
+        if(value > G_MAXINT / (1024 * 1024 * 1024)) {
+            return 0;
+        } else {
+            return value * 1024 * 1024 * 1024;
+        }
         break;
     default:
         g_assert_not_reached();
@@ -416,7 +427,7 @@ guint32 value)
 void
 capture_prep(void)
 {
-  GtkWidget     *main_vb, *multi_tb,
+  GtkWidget     *main_vb,
                 *main_hb, *left_vb, *right_vb,
 
                 *capture_fr, *capture_vb,
@@ -428,16 +439,16 @@ capture_prep(void)
 
                 *file_fr, *file_vb,
                 *file_hb, *file_bt, *file_lb, *file_te,
-                *multi_files_on_cb, 
+                *multi_tb, *multi_files_on_cb, 
                 *ring_filesize_cb, *ring_filesize_sb, *ring_filesize_om,
                 *file_duration_cb, *file_duration_sb, *file_duration_om,
                 *ringbuffer_nbf_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_lb, 
                 *stop_files_cb, *stop_files_sb, *stop_files_lb,
 
-                *limit_fr, *limit_vb,
-                *count_hb, *stop_packets_cb, *stop_packets_sb, *stop_packets_lb,
-                *stop_filesize_hb, *stop_filesize_cb, *stop_filesize_sb, *stop_filesize_om,
-                *stop_duration_hb, *stop_duration_cb, *stop_duration_sb, *stop_duration_om,
+                *limit_fr, *limit_vb, *limit_tb,
+                *stop_packets_cb, *stop_packets_sb, *stop_packets_lb,
+                *stop_filesize_cb, *stop_filesize_sb, *stop_filesize_om,
+                *stop_duration_cb, *stop_duration_sb, *stop_duration_om,
 
                 *display_fr, *display_vb,
                 *sync_cb, *auto_scroll_cb,
@@ -736,67 +747,67 @@ capture_prep(void)
   gtk_container_border_width(GTK_CONTAINER(limit_vb), 5);
   gtk_container_add(GTK_CONTAINER(limit_fr), limit_vb);
 
-  /* Packet count row */
-  count_hb = gtk_hbox_new(FALSE, 3);
-  gtk_container_add(GTK_CONTAINER(limit_vb), count_hb);
+  /* limits table */
+  limit_tb = gtk_table_new(3, 3, FALSE);
+  gtk_table_set_row_spacings(GTK_TABLE(limit_tb), 1);
+  gtk_table_set_col_spacings(GTK_TABLE(limit_tb), 3);
+  gtk_box_pack_start(GTK_BOX(limit_vb), limit_tb, FALSE, FALSE, 0);
+  row = 0;
 
+  /* Packet count row */
   stop_packets_cb = gtk_check_button_new_with_label("... after");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(stop_packets_cb),
 		capture_opts.has_autostop_packets);
   SIGNAL_CONNECT(stop_packets_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
-  gtk_box_pack_start(GTK_BOX(count_hb), stop_packets_cb, FALSE, FALSE, 0);
+  gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_packets_cb, 0, 1, row, row+1);
 
   stop_packets_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_packets,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   stop_packets_sb = gtk_spin_button_new (stop_packets_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_packets_sb), TRUE);
   WIDGET_SET_SIZE(stop_packets_sb, 80, -1);
-  gtk_box_pack_start (GTK_BOX(count_hb), stop_packets_sb, FALSE, FALSE, 0);
+  gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_packets_sb, 1, 2, row, row+1);
 
   stop_packets_lb = gtk_label_new("packet(s)");
   gtk_misc_set_alignment(GTK_MISC(stop_packets_lb), 0, 0.5);
-  gtk_box_pack_start(GTK_BOX(count_hb), stop_packets_lb, FALSE, FALSE, 0);
+  gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_packets_lb, 2, 3, row, row+1);
+  row++;
 
   /* Filesize row */
-  stop_filesize_hb = gtk_hbox_new(FALSE, 3);
-  gtk_container_add(GTK_CONTAINER(limit_vb), stop_filesize_hb);
-
   stop_filesize_cb = gtk_check_button_new_with_label("... after");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(stop_filesize_cb),
 		capture_opts.has_autostop_filesize);
   SIGNAL_CONNECT(stop_filesize_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
-  gtk_box_pack_start(GTK_BOX(stop_filesize_hb), stop_filesize_cb, FALSE, FALSE, 0);
+  gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_filesize_cb, 0, 1, row, row+1);
 
   stop_filesize_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_filesize,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   stop_filesize_sb = gtk_spin_button_new (stop_filesize_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_filesize_sb), TRUE);
   WIDGET_SET_SIZE(stop_filesize_sb, 80, -1);
-  gtk_box_pack_start (GTK_BOX(stop_filesize_hb), stop_filesize_sb, FALSE, FALSE, 0);
+  gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_filesize_sb, 1, 2, row, row+1);
 
   stop_filesize_om = size_unit_option_menu_new();
-  gtk_box_pack_start(GTK_BOX(stop_filesize_hb), stop_filesize_om, FALSE, FALSE, 0);
+  gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_filesize_om, 2, 3, row, row+1);
+  row++;
 
   /* Duration row */
-  stop_duration_hb = gtk_hbox_new(FALSE, 3);
-  gtk_container_add(GTK_CONTAINER(limit_vb), stop_duration_hb);
-
   stop_duration_cb = gtk_check_button_new_with_label("... after");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(stop_duration_cb),
 		capture_opts.has_autostop_duration);
   SIGNAL_CONNECT(stop_duration_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
-  gtk_box_pack_start(GTK_BOX(stop_duration_hb), stop_duration_cb, FALSE, FALSE, 0);
+  gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_duration_cb, 0, 1, row, row+1);
 
   stop_duration_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_duration,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   stop_duration_sb = gtk_spin_button_new (stop_duration_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_duration_sb), TRUE);
   WIDGET_SET_SIZE(stop_duration_sb, 80, -1);
-  gtk_box_pack_start (GTK_BOX(stop_duration_hb), stop_duration_sb, FALSE, FALSE, 0);
+  gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_duration_sb, 1, 2, row, row+1);
 
   stop_duration_om = time_unit_option_menu_new();
-  gtk_box_pack_start(GTK_BOX(stop_duration_hb), stop_duration_om, 
-		     FALSE, FALSE, 0);
+  gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_duration_om, 2, 3, row, row+1);
+  row++;
 
   /* Display-related options frame */
   display_fr = gtk_frame_new("Display Options");
@@ -1106,6 +1117,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   const gchar *g_save_file;
   gchar *cf_name;
   gchar *dirname;
+  gint32 tmp;
 
   if_cb     = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_IFACE_KEY);
   snap_cb   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SNAP_CB_KEY);
@@ -1250,10 +1262,16 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
     capture_opts.has_autostop_filesize =
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ring_filesize_cb));
     if (capture_opts.has_autostop_filesize) {
-      capture_opts.autostop_filesize =
-        gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(ring_filesize_sb));
-      capture_opts.autostop_filesize =
-        size_unit_option_menu_get_value(ring_filesize_om, capture_opts.autostop_filesize);
+      tmp = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(ring_filesize_sb));
+      tmp = size_unit_option_menu_get_value(ring_filesize_om, tmp);
+      if(tmp != 0) {
+        capture_opts.autostop_filesize = tmp;
+      } else {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+          PRIMARY_TEXT_START "Multiple files: Requested filesize too large!\n\n" PRIMARY_TEXT_END
+          "The setting \"Next file every x byte(s)\" can't be greater than %u bytes (2GB).", G_MAXINT);
+        return;
+      }        
     }
 
     /* test if the settings are ok for a ringbuffer */
@@ -1274,11 +1292,16 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
     capture_opts.has_autostop_filesize =
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_filesize_cb));
     if (capture_opts.has_autostop_filesize) {
-      capture_opts.autostop_filesize =
-        gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(stop_filesize_sb));
-      capture_opts.autostop_filesize =
-        size_unit_option_menu_get_value(stop_filesize_om, capture_opts.autostop_filesize);
-
+      tmp = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(stop_filesize_sb));
+      tmp = size_unit_option_menu_get_value(stop_filesize_om, tmp);
+      if(tmp != 0) {
+        capture_opts.autostop_filesize = tmp;
+      } else {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+          PRIMARY_TEXT_START "Stop Capture: Requested filesize too large!\n\n" PRIMARY_TEXT_END
+          "The setting \"... after x byte(s)\" can't be greater than %u bytes (2GB).", G_MAXINT);
+        return;
+      }        
     }
   }
 
