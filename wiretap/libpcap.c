@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.76 2002/06/07 21:11:24 guy Exp $
+ * $Id: libpcap.c,v 1.77 2002/06/10 15:45:30 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -389,6 +389,18 @@ static const struct {
 	{ 123,		WTAP_ENCAP_ATM_SNIFFER }, /* SunATM */
 };
 #define NUM_PCAP_ENCAPS (sizeof pcap_to_wtap_map / sizeof pcap_to_wtap_map[0])
+
+int wtap_pcap_encap_to_wtap_encap(int encap)
+{
+	unsigned int i;
+
+	for (i = 0; i < NUM_PCAP_ENCAPS; i++) {
+		if (pcap_to_wtap_map[i].dlt_value == encap)
+			return pcap_to_wtap_map[i].wtap_encap_value;
+	}
+	return WTAP_ENCAP_UNKNOWN;
+}
+
 
 int libpcap_open(wtap *wth, int *err)
 {
@@ -1138,17 +1150,6 @@ static void
 libpcap_close(wtap *wth)
 {
 	g_free(wth->capture.pcap);
-}
-
-int wtap_pcap_encap_to_wtap_encap(int encap)
-{
-	unsigned int i;
-
-	for (i = 0; i < NUM_PCAP_ENCAPS; i++) {
-		if (pcap_to_wtap_map[i].dlt_value == encap)
-			return pcap_to_wtap_map[i].wtap_encap_value;
-	}
-	return WTAP_ENCAP_UNKNOWN;
 }
 
 static int wtap_wtap_encap_to_pcap_encap(int encap)
