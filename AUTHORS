@@ -461,10 +461,11 @@ Jose Pedro Oliveira <jpo[AT]di.uminho.pt> {
 }
 
 David Frascone <dave[AT]frascone.com> {
-	DIAMETER
+	DIAMETER support
 	Bug fixes and enhancements to Mobile IP
 	Support for Mobile IP's use of ICMP Router Advertisements
 	Removal of unused variables and functions
+	LWAPP support
 }
 
 Peter Kjellerstedt <pkj[AT]axis.com> {
