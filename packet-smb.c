@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.117 2001/09/28 08:39:59 guy Exp $
+ * $Id: packet-smb.c,v 1.118 2001/09/28 22:43:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12450,7 +12450,7 @@ static const value_string NT_errors[] = {
 
 #define SMB_FLAGS_DIRN 0x80
 
-void
+gboolean
 dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data)
 {
 	proto_tree      *smb_tree = tree, *smb_hdr_tree = NULL, *flags_tree, *flags2_tree;
@@ -12460,9 +12460,23 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	guint32         status;
 	int             SMB_offset = offset;
 	struct          smb_info si;
+	static const char smb_signature[4] = { 0xFF, 'S', 'M', 'B' };
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_smb, pd, offset, fd, tree);
+	/* Is dissection of SMB messages enabled? */
+	if (!proto_is_protocol_enabled(proto_smb)) {
+	  /* No. */
+	  return FALSE;
+	}
 
+	/* OK, is this an SMB message? */
+	if (!BYTES_ARE_IN_FRAME(SMB_offset, 4))
+	  return FALSE;
+	if (memcmp(&pd[SMB_offset], smb_signature, 4) != 0) {
+	  /* No. */
+	  return FALSE;
+	}
+
+	/* Yes. */
 	si.unicode = FALSE;
     	si.ddisp = 0;
 
@@ -12509,7 +12523,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	   an NT error code or a DOS error code. */
 
 	if (!BYTES_ARE_IN_FRAME(SMB_offset + 10, 2))
-	  return;
+	  return TRUE;
 
 	flags2 = GSHORT(pd, SMB_offset + 10);
 
@@ -12709,7 +12723,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	/* Now the TID, tree ID */
 
 	if (!BYTES_ARE_IN_FRAME(offset, 2))
-	  return;
+	  return TRUE;
 
 	tid = GSHORT(pd, offset);
 	si.tid = tid;
@@ -12725,7 +12739,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	/* Now the PID, Process ID */
 
 	if (!BYTES_ARE_IN_FRAME(offset, 2))
-	  return;
+	  return TRUE;
 
 	pid = GSHORT(pd, offset);
 	si.pid = pid;
@@ -12768,6 +12782,8 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	(dissect[cmd])(pd, offset, fd, tree, smb_tree, si, max_data,
 		       SMB_offset);
+
+	return TRUE;
 }
 
 /*** External routines called during the registration process */

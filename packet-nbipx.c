@@ -2,12 +2,11 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-nbipx.c,v 1.38 2001/04/23 18:10:28 guy Exp $
+ * $Id: packet-nbipx.c,v 1.39 2001/09/28 22:43:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -220,9 +219,6 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		name_type_flag;
 	proto_tree	*name_type_flag_tree;
 	proto_item	*tf;
-	tvbuff_t	*next_tvb;
-	const guint8	*next_pd;
-	int		next_offset;
 	char		name[(NETBIOS_NAME_LEN - 1)*4 + 1];
 	int		name_type;
 	gboolean	has_payload;
@@ -470,10 +466,8 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item_set_len(ti, offset);
 
 	if (has_payload && tvb_offset_exists(tvb, offset)) {
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-		tvb_compat(next_tvb, &next_pd, &next_offset);
-		dissect_smb(next_pd, next_offset, pinfo->fd, tree,
-		    tvb_length(next_tvb));
+		dissect_netbios_payload(tvb, offset, pinfo, tree,
+			tvb_length_remaining(tvb, offset));
 	}
 }
 
@@ -680,9 +674,6 @@ dissect_nmpi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		name_type;
 	char		node_name[(NETBIOS_NAME_LEN - 1)*4 + 1];
 	int		node_name_type = 0;
-	tvbuff_t	*next_tvb;
-	const guint8	*next_pd;
-	int		next_offset;
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "NMPI");
@@ -776,10 +767,8 @@ dissect_nmpi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 1 + 1 + 2 + NETBIOS_NAME_LEN + NETBIOS_NAME_LEN;
 
 	if (opcode == IMSLOT_SEND && tvb_offset_exists(tvb, offset)) {
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-		tvb_compat(next_tvb, &next_pd, &next_offset);
-		dissect_smb(next_pd, next_offset, pinfo->fd, tree,
-		    tvb_length(next_tvb));
+		dissect_netbios_payload(tvb, offset, pinfo, tree,
+			tvb_length_remaining(tvb, offset));
 	}
 }
 

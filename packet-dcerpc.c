@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.8 2001/09/03 10:33:05 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.9 2001/09/28 22:43:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -102,6 +102,11 @@ static int hf_dcerpc_cn_num_results = -1;
 static int hf_dcerpc_cn_ack_result = -1;
 static int hf_dcerpc_cn_ack_reason = -1;
 static int hf_dcerpc_cn_cancel_count = -1;
+static int hf_dcerpc_auth_type = -1;
+static int hf_dcerpc_auth_level = -1;
+static int hf_dcerpc_auth_pad_len = -1;
+static int hf_dcerpc_auth_rsrvd = -1;
+static int hf_dcerpc_auth_ctx_id = -1;
 static int hf_dcerpc_dg_flags1 = -1;
 static int hf_dcerpc_dg_flags1_rsrvd_01 = -1;
 static int hf_dcerpc_dg_flags1_last_frag = -1;
@@ -442,6 +447,50 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     return 0;
 }
 
+static int
+dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tree,
+                        e_dce_cn_common_hdr_t *hdr)
+{
+    int offset;
+    guint8 auth_pad_len;
+    /*
+     * If the full packet is here, and we've got an auth len, and it's
+     * valid, then dissect the auth info
+     */
+    if (tvb_length (tvb) >= hdr->frag_len
+        && hdr->auth_len
+        && (hdr->auth_len + 8 <= hdr->frag_len)) {
+
+        offset = hdr->frag_len - (hdr->auth_len + 8);
+        
+        offset = dissect_dcerpc_uint8 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+                                       hf_dcerpc_auth_type, NULL);
+        offset = dissect_dcerpc_uint8 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+                                       hf_dcerpc_auth_level, NULL);
+        offset = dissect_dcerpc_uint8 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+                                       hf_dcerpc_auth_pad_len, &auth_pad_len);
+        offset = dissect_dcerpc_uint8 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+                                       hf_dcerpc_auth_rsrvd, NULL);
+        offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+                                        hf_dcerpc_auth_ctx_id, NULL);
+
+        proto_tree_add_text (dcerpc_tree, tvb, offset, hdr->auth_len, "Auth Data");
+
+        /* figure out where the auth padding starts */
+        offset = hdr->frag_len - (hdr->auth_len + 8 + auth_pad_len);
+        if (offset > 0 && auth_pad_len) {
+            proto_tree_add_text (dcerpc_tree, tvb, offset, 
+                                 auth_pad_len, "Auth padding");
+            return hdr->auth_len + 8 + auth_pad_len;
+        } else {
+            return hdr->auth_len + 8;
+        }
+    } else {
+        return 0;
+    }
+}
+
+
 
 /*
  * Connection oriented packet types
@@ -525,6 +574,8 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_bind_trans_ver, &trans_ver);
 
+    dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr);
+
     if (check_col (pinfo->fd, COL_INFO)) {
         col_add_fstr (pinfo->fd, COL_INFO, "%s: UUID %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x ver %d.%d",
                       hdr->ptype == PDU_BIND ? "Bind" : "Alter Ctx",
@@ -597,6 +648,8 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerp
                                         &reason);
     }
     
+    dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr);
+
     if (check_col (pinfo->fd, COL_INFO)) {
         if (num_results == 1 && result == 0) {
             col_add_fstr (pinfo->fd, COL_INFO, "%s ack: accept  max_xmit: %d  max_recv: %d",
@@ -621,7 +674,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     guint16 ctx_id;
     guint16 opnum;
     e_uuid_t obj_id;
-
+    int auth_sz = 0;
     int offset = 16;
 
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
@@ -652,6 +705,8 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
         offset += 16;
     }
 
+    auth_sz = dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr);
+
     if (check_col (pinfo->fd, COL_INFO)) {
         col_add_fstr (pinfo->fd, COL_INFO, "Request: opnum: %d  ctx_id:%d",
                          opnum, ctx_id);
@@ -675,7 +730,10 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
                                  value->ver, &value->uuid);
 
             /* handoff this call */
-            dcerpc_try_handoff (pinfo, tree, tvb, offset,
+            dcerpc_try_handoff (pinfo, tree, 
+                                tvb_new_subset (tvb, offset, 
+                                                hdr->frag_len - offset - auth_sz,
+                                                hdr->frag_len - offset - auth_sz), 0,
                                 &value->uuid, value->ver,
                                 opnum, TRUE);
         }
@@ -688,7 +746,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 {
     conversation_t *conv;
     guint16 ctx_id;
-
+    int auth_sz = 0;
     int offset = 16;
 
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
@@ -702,6 +760,8 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     /* padding */
     offset++;
 
+    auth_sz = dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr);
+
     if (check_col (pinfo->fd, COL_INFO)) {
         col_add_fstr (pinfo->fd, COL_INFO, "Response: call_id: %d  ctx_id:%d",
                       hdr->call_id, ctx_id);
@@ -714,7 +774,10 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     } else {
         dcerpc_call_value *value = dcerpc_call_lookup (hdr->call_id, conv);
         if (value) {
-            dcerpc_try_handoff (pinfo, tree, tvb, offset, 
+            dcerpc_try_handoff (pinfo, tree, 
+                                tvb_new_subset (tvb, offset, 
+                                                hdr->frag_len - offset - auth_sz,
+                                                hdr->frag_len - offset - auth_sz), 0,
                                 &value->uuid, value->ver,
                                 value->opnum, FALSE);
         }
@@ -727,6 +790,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 static gboolean
 dissect_dcerpc_cn (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+    static char nulls[4] = { 0 };
     proto_item *ti = NULL;
     proto_item *tf = NULL;
     proto_tree *dcerpc_tree = NULL;
@@ -737,6 +801,13 @@ dissect_dcerpc_cn (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * Check if this looks like a C/O DCERPC call
      */
+    /*
+     * when done over nbt, dcerpc requests are padded with 4 bytes of null
+     * data for some reason.
+     */
+    if (tvb_bytes_exist (tvb, 0, 4) && tvb_memeql (tvb, 0, nulls, 4) == 0) {
+        tvb = tvb_new_subset (tvb, 4, -1, -1);
+    }
     if (!tvb_bytes_exist (tvb, 0, sizeof (hdr))) {
         return FALSE;
     }
@@ -824,6 +895,8 @@ dissect_dcerpc_cn (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
     default:
+        /* might as well dissect the auth info */
+        dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, &hdr);
         break;
     }
     return TRUE;
@@ -1158,6 +1231,16 @@ proto_register_dcerpc (void)
           { "Ack reason", "dcerpc.cn_ack_reason", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_cn_cancel_count,
           { "Cancel count", "dcerpc.cn_cancel_count", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+        { &hf_dcerpc_auth_type,
+          { "Auth type", "dcerpc.auth_type", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+        { &hf_dcerpc_auth_level,
+          { "Auth level", "dcerpc.auth_level", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+        { &hf_dcerpc_auth_pad_len,
+          { "Auth pad len", "dcerpc.auth_pad_len", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+        { &hf_dcerpc_auth_rsrvd,
+          { "Auth Rsrvd", "dcerpc.auth_rsrvd", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+        { &hf_dcerpc_auth_ctx_id,
+          { "Auth Context ID", "dcerpc.auth_ctx_id", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_dg_flags1,
           { "Flags1", "dcerpc.dg_flags1", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_dg_flags1_rsrvd_01,
@@ -1244,5 +1327,6 @@ void
 proto_reg_handoff_dcerpc (void)
 {
     heur_dissector_add ("tcp", dissect_dcerpc_cn, proto_dcerpc);
+    heur_dissector_add ("netbios", dissect_dcerpc_cn, proto_dcerpc);
     heur_dissector_add ("udp", dissect_dcerpc_dg, proto_dcerpc);
 }

@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.56 2001/09/17 02:07:00 guy Exp $
+ * $Id: packet-nbns.c,v 1.57 2001/09/28 22:43:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1284,16 +1284,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * only our stuff.
 		 */
 		proto_item_set_len(ti, offset);
-		{
-			const guint8	*next_pd;
-			int		next_offset;
-
-			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-			tvb_compat(next_tvb, &next_pd, &next_offset);
-
-			dissect_smb(next_pd, next_offset, pinfo->fd, tree,
-			    max_data);
-		}
+		dissect_netbios_payload(tvb, offset, pinfo, tree, max_data);
 		break;
 
 	case NBDS_ERROR:
@@ -1383,7 +1374,6 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int		len;
 	char		name[(NETBIOS_NAME_LEN - 1)*4 + MAXDNAME];
 	int		name_type;
-	tvbuff_t	*next_tvb;
 
 	msg_type = tvb_get_guint8(tvb, offset);
 
@@ -1499,16 +1489,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	   * only our stuff.
 	   */
 	  proto_item_set_len(ti, offset);
-	  {
-		const guint8	*next_pd;
-		int		next_offset;
-
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-		tvb_compat(next_tvb, &next_pd, &next_offset);
-
-		dissect_smb(next_pd, next_offset, pinfo->fd, tree,
-		    max_data - 4);
-	  }
+	  dissect_netbios_payload(tvb, offset, pinfo, tree, length);
 	  break;
 
 	}
@@ -1555,20 +1536,15 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 #define RJSHACK 1
 #ifdef RJSHACK
-	if (((msg_type != SESSION_REQUEST) && 
+	if ((msg_type != SESSION_REQUEST) && 
 	     (msg_type != POSITIVE_SESSION_RESPONSE) &&
 	     (msg_type != NEGATIVE_SESSION_RESPONSE) &&
 	     (msg_type != RETARGET_SESSION_RESPONSE) &&
 	     (msg_type != SESSION_KEEP_ALIVE) &&
-	     (msg_type != SESSION_MESSAGE)) ||
-	    ((msg_type == SESSION_MESSAGE) &&
-	     (max_data < 8 || tvb_memeql(tvb, offset + 4, "\377SMB", 4) != 0))) {
+	     (msg_type != SESSION_MESSAGE)) {
  
 	  /*
-	   * Either the first byte isn't one of the known message types,
-	   * or it's a session message but we either don't have enough
-	   * data in the frame for the NBSS/CIFS header plus an SMB header,
-	   * or we do but the message data doesn't begin with 0xFF S M B.
+	   * The first byte isn't one of the known message types.
 	   * Assume it's a continuation message.
 	   */
 	  if (check_col(pinfo->fd, COL_INFO)) {

@@ -1,11 +1,10 @@
 /* packet-smb.h
  *
- * $Id: packet-smb.h,v 1.2 2000/08/11 13:33:52 deniel Exp $
+ * $Id: packet-smb.h,v 1.3 2001/09/28 22:43:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,6 +24,6 @@
 #ifndef __PACKET_SMB_H__
 #define __PACKET_SMB_H__
 
-void dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data);
+gboolean dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data);
 
 #endif

@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.35 2001/09/14 07:10:05 guy Exp $
+ * $Id: packet-netbios.c,v 1.36 2001/09/28 22:43:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -954,6 +954,40 @@ void (*dissect_netb[])(tvbuff_t *, int, proto_tree *) = {
   dissect_netb_unknown,	
 };
 
+static heur_dissector_list_t netbios_heur_subdissector_list;
+
+void
+dissect_netbios_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
+   proto_tree *tree, int max_data)
+{
+	tvbuff_t	*next_tvb;
+	const guint8	*next_pd;
+	int		next_offset;
+
+	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+
+	/*
+	 * Try the heuristic dissectors for NetBIOS.
+	 */
+	if (dissector_try_heuristic(netbios_heur_subdissector_list,
+				    next_tvb, pinfo, tree))
+		return;
+
+	/*
+	 * OK, none of them matched.  Try the SMB dissector.
+	 * (XXX - once the SMB dissector is tvbuffified, it should
+	 * become a regular heuristic dissector.)
+	 */
+	tvb_compat(next_tvb, &next_pd, &next_offset);
+
+	if (dissect_smb(next_pd, next_offset, pinfo->fd, tree, max_data))
+		return;
+
+	/*
+	 * It's none of the above.  Dissect it as data.
+	 */
+	dissect_data(next_tvb, 0, pinfo, tree);
+}
 
 static void
 dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1036,28 +1070,8 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	offset += hdr_len;			/* move past header */
 
-						/* Test for SMB data */
-
-	if (tvb_bytes_exist(tvb, offset, 4)){	/* if enough data */
-
-		if (( tvb_get_guint8( tvb, offset) == 0xff) &&	/* if SMB marker */
-		    ( tvb_get_guint8( tvb, offset + 1) == 'S') &&
-		    ( tvb_get_guint8( tvb, offset + 2) == 'M') &&
-		    ( tvb_get_guint8( tvb, offset + 3) == 'B')) {
-
-			tvbuff_t	*next_tvb;
-			const guint8	*next_pd;
-			int		next_offset;
-
-			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-			tvb_compat(next_tvb, &next_pd, &next_offset);
-
-							/* decode SMB */
-			dissect_smb( next_pd, next_offset, pinfo->fd, tree, 
-				tvb_length_remaining(tvb, offset) - next_offset);
-
-		}
-	}
+	dissect_netbios_payload(tvb, offset, pinfo, tree,
+			tvb_length_remaining(tvb, offset));
 }
 
 
@@ -1139,6 +1153,8 @@ void proto_register_netbios(void)
 	proto_netbios = proto_register_protocol("NetBIOS", "NetBIOS", "netbios");
 	proto_register_subtree_array(ett, array_length(ett));                 
 	proto_register_field_array(proto_netbios, hf_netb, array_length(hf_netb));
+
+	register_heur_dissector_list("netbios", &netbios_heur_subdissector_list);
 }
 
 void

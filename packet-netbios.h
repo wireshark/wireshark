@@ -5,12 +5,11 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.h,v 1.9 2001/01/15 04:39:28 guy Exp $
+ * $Id: packet-netbios.h,v 1.10 2001/09/28 22:43:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -41,5 +40,7 @@ extern int get_netbios_name(tvbuff_t *tvb, int offset,
 extern char *netbios_name_type_descr(int name_type);
 extern void netbios_add_name( char* label, tvbuff_t *tvb, int offset,
     proto_tree *tree);
+extern void dissect_netbios_payload(tvbuff_t *tvb, int offset,
+   packet_info *pinfo, proto_tree *tree, int max_data);
 
 #endif
