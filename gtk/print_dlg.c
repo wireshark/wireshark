@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.10 1999/12/09 07:19:19 guy Exp $
+ * $Id: print_dlg.c,v 1.11 2000/01/03 06:28:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,7 +45,7 @@
 #include "prefs_dlg.h"
 #endif
 
-#ifndef __UTIL_H__
+#ifndef __UI_UTIL_H__
 #include "ui_util.h"
 #endif
 
