@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.74 2000/02/15 21:02:15 gram Exp $
+ * $Id: packet-ip.c,v 1.75 2000/03/07 05:24:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -425,7 +425,7 @@ dissect_ipopt_security(const ip_tcp_opt *optp, const u_char *opd, int offset,
 
   val = pntohs(opd);
   proto_tree_add_text(field_tree, offset,         2,
-              "Compartments: %d", val);
+              "Compartments: %u", val);
   offset += 2;
   opd += 2;
 
@@ -448,7 +448,7 @@ dissect_ipopt_route(const ip_tcp_opt *optp, const u_char *opd, int offset,
   int optoffset = 0;
   struct in_addr addr;
 
-  tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s (%d bytes)",
+  tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s (%u bytes)",
 				optp->name, optlen);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
 
@@ -721,7 +721,7 @@ dissect_ip_tcp_options(const u_char *opd, int offset, guint length,
         return;
       } else {
         if (optp == NULL) {
-          proto_tree_add_text(opt_tree, offset,    len, "%s (%d byte%s)",
+          proto_tree_add_text(opt_tree, offset,    len, "%s (%u byte%s)",
 				name, len, plurality(len, "", "s"));
         } else {
           if (dissect != NULL) {
@@ -984,7 +984,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
          options. */
       optlen = hlen - sizeof (e_ip);	/* length of options, in bytes */
       tf = proto_tree_add_text(ip_tree, offset +  20, optlen,
-        "Options: (%d bytes)", optlen);
+        "Options: (%u bytes)", optlen);
       field_tree = proto_item_add_subtree(tf, ett_ip_options);
       dissect_ip_tcp_options(&pd[offset + 20], offset + 20, optlen,
          ipopts, N_IP_OPTS, IPOPT_END, field_tree);
@@ -1007,7 +1007,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     if (check_col(fd, COL_PROTOCOL))
       col_add_str(fd, COL_PROTOCOL, "IP");
     if (check_col(fd, COL_INFO))
-      col_add_fstr(fd, COL_INFO, "Fragmented IP protocol (proto=%s 0x%02x, off=%d)",
+      col_add_fstr(fd, COL_INFO, "Fragmented IP protocol (proto=%s 0x%02x, off=%u)",
 	ipprotostr(iph.ip_p), iph.ip_p, iph.ip_off & IP_OFFSET);
     dissect_data(pd, offset, fd, tree);
     return;
@@ -1203,11 +1203,11 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     icmp_tree = proto_item_add_subtree(ti, ett_icmp);
     proto_tree_add_item_format(icmp_tree, hf_icmp_type, offset,      1, 
 			       ih.icmp_type,
-			       "Type: %d (%s)",
+			       "Type: %u (%s)",
 			       ih.icmp_type, type_str);
     proto_tree_add_item_format(icmp_tree, hf_icmp_code,	offset +  1, 1, 
 			       ih.icmp_code,
-			       "Code: %d %s",
+			       "Code: %u %s",
 			       ih.icmp_code, code_str);
     proto_tree_add_item(icmp_tree, hf_icmp_checksum, offset +  2, 2, 
 			cksum);
@@ -1286,7 +1286,7 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	      "Router address: %s",
 	      ip_to_str((guint8 *)&pd[offset +  8 + (i*8)]));
 	    proto_tree_add_text(icmp_tree, offset + 12 + (i*8), 4,
-	      "Preference level: %d", pntohl(&pd[offset + 12 + (i*8)]));
+	      "Preference level: %u", pntohl(&pd[offset + 12 + (i*8)]));
 	  }
 	} else
 	  dissect_data(pd, offset + 8, fd, icmp_tree);
@@ -1364,7 +1364,7 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			hi_nibble(ih.igmp_v_t));
     proto_tree_add_item_format(igmp_tree, hf_igmp_type,  offset    , 1, 
 			       lo_nibble(ih.igmp_v_t),
-			       "Type: %d (%s)",
+			       "Type: %u (%s)",
 			       lo_nibble(ih.igmp_v_t), type_str);
     proto_tree_add_item_format(igmp_tree, hf_igmp_unused, offset + 1, 1,
 			       ih.igmp_unused,
@@ -1593,14 +1593,14 @@ static const value_string eigrp_opcode_vals[] = {
      ti = proto_tree_add_item(tree, proto_eigrp, offset, END_OF_FRAME, NULL);
      eigrp_tree = proto_item_add_subtree(ti, ett_eigrp);
   
-     proto_tree_add_text(eigrp_tree, offset, 1, "Version: %d", ih.eigrp_version); 
-     proto_tree_add_text(eigrp_tree, offset + 1, 1, "Opcode: %d (%s)", ih.eigrp_opcode,
+     proto_tree_add_text(eigrp_tree, offset, 1, "Version: %u", ih.eigrp_version); 
+     proto_tree_add_text(eigrp_tree, offset + 1, 1, "Opcode: %u (%s)", ih.eigrp_opcode,
          val_to_str( ih.eigrp_opcode, eigrp_opcode_vals, "Unknown") );
      proto_tree_add_text(eigrp_tree, offset + 2, 2, "Checksum: 0x%x", cksum); 
-     proto_tree_add_text(eigrp_tree, offset + 4, 2, "Subnets in local net: %d", ih.eigrp_subnets); 
+     proto_tree_add_text(eigrp_tree, offset + 4, 2, "Subnets in local net: %u", ih.eigrp_subnets); 
      proto_tree_add_text(eigrp_tree, offset + 6, 2, "Networks in Autonomous System: %d", ih.eigrp_networks); 
      proto_tree_add_text(eigrp_tree, offset + 8, 4, "Sequence Number: 0x%x", ih.eigrp_sequence); 
-     proto_tree_add_text(eigrp_tree, offset + 12, 4, "Autonomous System number: %ld", ih.eigrp_asnumber); 
+     proto_tree_add_text(eigrp_tree, offset + 12, 4, "Autonomous System number: %u", ih.eigrp_asnumber); 
    }
 }
 

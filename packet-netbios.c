@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.16 2000/02/16 00:44:45 sharpe Exp $
+ * $Id: packet-netbios.c,v 1.17 2000/03/07 05:20:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -754,7 +754,7 @@ static void  dissect_netb_status_resp(const u_char *pd, int offset,
 		    status_response);
 	}
 	data2 = pletohs(&pd[offset + NB_DATA2]);
-	td2 = proto_tree_add_text(tree, offset + NB_DATA2, 2, "Status: 0x04x",
+	td2 = proto_tree_add_text(tree, offset + NB_DATA2, 2, "Status: 0x%04x",
 	    data2);
 	data2_tree = proto_item_add_subtree(td2, ett_netb_status);
 	if (data2 & 0x8000) {

@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.27 2000/02/15 21:02:21 gram Exp $
+ * $Id: packet-ipv6.c,v 1.28 2000/03/07 05:26:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -91,7 +91,7 @@ dissect_routing6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     if (tree) {
 	/* !!! specify length */
 	ti = proto_tree_add_text(tree, offset, len,
-	    "Routing Header, Type %d", rt.ip6r_type);
+	    "Routing Header, Type %u", rt.ip6r_type);
 	rthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
 
 	proto_tree_add_text(rthdr_tree,
@@ -99,13 +99,13 @@ dissect_routing6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    "Next header: %s (0x%02x)", ipprotostr(rt.ip6r_nxt), rt.ip6r_nxt);
 	proto_tree_add_text(rthdr_tree,
 	    offset + offsetof(struct ip6_rthdr, ip6r_len), 1,
-	    "Length: %d (%d bytes)", rt.ip6r_len, len);
+	    "Length: %u (%d bytes)", rt.ip6r_len, len);
 	proto_tree_add_text(rthdr_tree,
 	    offset + offsetof(struct ip6_rthdr, ip6r_type), 1,
-	    "Type: %d", rt.ip6r_type, len);
+	    "Type: %u", rt.ip6r_type);
 	proto_tree_add_text(rthdr_tree,
 	    offset + offsetof(struct ip6_rthdr, ip6r_segleft), 1,
-	    "Segments left: %d", rt.ip6r_segleft, len);
+	    "Segments left: %u", rt.ip6r_segleft);
 
 	if (rt.ip6r_type == 0 && len <= sizeof(buf)) {
 	    struct e_in6_addr *a;
@@ -181,7 +181,7 @@ dissect_opts(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	    "Next header: %s (0x%02x)", ipprotostr(ext.ip6e_nxt), ext.ip6e_nxt);
 	proto_tree_add_text(dstopt_tree,
 	    offset + offsetof(struct ip6_ext, ip6e_len), 1,
-	    "Length: %d (%d bytes)", ext.ip6e_len, len);
+	    "Length: %u (%d bytes)", ext.ip6e_len, len);
 
 	p = (u_char *)(pd + offset + 2);
 	while (p < pd + offset + len) {
@@ -193,18 +193,18 @@ dissect_opts(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		break;
 	    case IP6OPT_PADN:
 		proto_tree_add_text(dstopt_tree, p - pd, p[1] + 2,
-		    "PadN: %d bytes", p[1] + 2);
+		    "PadN: %u bytes", p[1] + 2);
 		p += p[1];
 		p += 2;
 		break;
 	    case IP6OPT_JUMBO:
 		if (p[1] == 4) {
 		    proto_tree_add_text(dstopt_tree, p - pd, p[1] + 2,
-			"Jumbo payload: %u (%d bytes)",
+			"Jumbo payload: %u (%u bytes)",
 			pntohl(&p[2]), p[1] + 2);
 		} else {
 		    proto_tree_add_text(dstopt_tree, p - pd, p[1] + 2,
-			"Jumbo payload: Invalid length (%d bytes)",
+			"Jumbo payload: Invalid length (%u bytes)",
 			p[1] + 2);
 		}
 		p += p[1];
@@ -220,7 +220,7 @@ dissect_opts(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		} else
 		    rta = "Invalid length";
 		ti = proto_tree_add_text(dstopt_tree, p - pd, p[1] + 2,
-		    "Router alert: %s (%d bytes)", rta, p[1] + 2);
+		    "Router alert: %s (%u bytes)", rta, p[1] + 2);
 		p += p[1];
 		p += 2;
 		break;

@@ -3,7 +3,7 @@
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  * derived from packet-rip.c
  *
- * $Id: packet-ripng.c,v 1.6 1999/11/16 11:42:51 guy Exp $
+ * $Id: packet-ripng.c,v 1.7 2000/03/07 05:28:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,7 +71,7 @@ dissect_ripng(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     cmd = val_to_str(rip6.rip6_cmd, cmdvals, "Unknown");
 
     if (check_col(fd, COL_PROTOCOL))
-        col_add_fstr(fd, COL_PROTOCOL, "RIPng version %d", rip6.rip6_vers);
+        col_add_fstr(fd, COL_PROTOCOL, "RIPng version %u", rip6.rip6_vers);
     if (check_col(fd, COL_INFO))
 	col_add_fstr(fd, COL_INFO, "%s", cmd); 
 
@@ -90,14 +90,14 @@ dissect_ripng(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    memcpy(&ni6, &pd[offset], sizeof(ni6));
 	    if (ni6.rip6_tag) {
 		ti = proto_tree_add_text(ripng_tree, offset,
-				sizeof(ni6), "IP Address: %s/%d, Metric: %ld, tag: 0x%04x",
+				sizeof(ni6), "IP Address: %s/%u, Metric: %u, tag: 0x%04x",
 				ip6_to_str(&ni6.rip6_dest),
 				ni6.rip6_plen,
 				ni6.rip6_metric,
 				ntohs(ni6.rip6_tag));
 	    } else {
 		ti = proto_tree_add_text(ripng_tree, offset,
-				sizeof(ni6), "IP Address: %s/%d, Metric: %ld",
+				sizeof(ni6), "IP Address: %s/%u, Metric: %u",
 				ip6_to_str(&ni6.rip6_dest),
 				ni6.rip6_plen,
 				ni6.rip6_metric);
@@ -113,11 +113,11 @@ dissect_ripng(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			ntohs(ni6.rip6_tag));
 	    proto_tree_add_text(subtree,
 			offset + offsetof(struct netinfo6, rip6_plen),
-			sizeof(ni6.rip6_plen), "Prefix length: %d",
+			sizeof(ni6.rip6_plen), "Prefix length: %u",
 			ni6.rip6_plen);
 	    proto_tree_add_text(subtree,
 			offset + offsetof(struct netinfo6, rip6_metric),
-			sizeof(ni6.rip6_metric), "Metric: %d",
+			sizeof(ni6.rip6_metric), "Metric: %u",
 			ni6.rip6_metric);
 
             offset += sizeof(ni6);

@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.21 2000/01/26 09:52:42 girlich Exp $
+ * $Id: packet-nfs.c,v 1.22 2000/03/07 05:22:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1783,7 +1783,7 @@ dissect_set_atime(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	if (tree) {
 		set_atime_item = proto_tree_add_text(tree, offset,
 			END_OF_FRAME, "%s: %s",
-			name, set_it_name, set_it);
+			name, set_it_name);
 		if (set_atime_item)
 			set_atime_tree = proto_item_add_subtree(set_atime_item, ett_nfs_set_atime);
 	}
@@ -1831,7 +1831,7 @@ dissect_set_mtime(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	if (tree) {
 		set_mtime_item = proto_tree_add_text(tree, offset,
 			END_OF_FRAME, "%s: %s",
-			name, set_it_name, set_it);
+			name, set_it_name);
 		if (set_mtime_item)
 			set_mtime_tree = proto_item_add_subtree(set_mtime_item, ett_nfs_set_mtime);
 	}
