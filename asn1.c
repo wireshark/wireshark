@@ -1,7 +1,7 @@
 /* asn1.c
  * Routines for ASN.1 BER dissection
  *
- * $Id: asn1.c,v 1.8 2002/01/21 07:36:31 guy Exp $
+ * $Id: asn1.c,v 1.9 2002/02/20 22:46:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -647,6 +647,20 @@ asn1_string_value_decode ( ASN1_SCK *asn1, int enc_len, guchar **octets)
     guchar       *ptr;
 
     eoc = asn1->offset + enc_len;
+
+    /*
+     * First, make sure the entire string is in the tvbuff, and throw
+     * an exception if it isn't.  If the length is bogus, this should
+     * keep us from trying to allocate an immensely large buffer.
+     * (It won't help if the length is *valid* but immensely large,
+     * but that's another matter.)
+     *
+     * We do that by attempting to fetch the last byte (if the length
+     * isn't 0).
+     */
+    if (enc_len != 0)
+	tvb_get_guint8(asn1->tvb, eoc - 1);
+
     *octets = g_malloc (enc_len);
     ptr = *octets;
     while (asn1->offset < eoc) {
@@ -795,6 +809,20 @@ asn1_oid_value_decode ( ASN1_SCK *asn1, int enc_len, subid_t **oid, guint *len)
     subid_t      *optr;
 
     eoc = asn1->offset + enc_len;
+
+    /*
+     * First, make sure the entire string is in the tvbuff, and throw
+     * an exception if it isn't.  If the length is bogus, this should
+     * keep us from trying to allocate an immensely large buffer.
+     * (It won't help if the length is *valid* but immensely large,
+     * but that's another matter.)
+     *
+     * We do that by attempting to fetch the last byte (if the length
+     * isn't 0).
+     */
+    if (enc_len != 0)
+	tvb_get_guint8(asn1->tvb, eoc - 1);
+
     size = enc_len + 1;
     *oid = g_malloc(size * sizeof(gulong));
     optr = *oid;
