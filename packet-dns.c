@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.93 2002/08/30 02:11:16 sharpe Exp $
+ * $Id: packet-dns.c,v 1.94 2002/08/30 15:17:12 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -406,7 +406,7 @@ dns_long_type_name (guint type)
     NULL,
     "EDNS0 option"			/* RFC 2671 */
   };
-  static char unkbuf[7+1+2+1+4+1+1+10+1+1];	/* "Unknown RR type (%d)" */
+  static char unkbuf[7+1+2+1+4+1+1+10+1+1];	/* "Unknown RR type (%u)" */
 
   if (type < sizeof(type_names)/sizeof(type_names[0]))
     return type_names[type] ? type_names[type] : "unknown";
@@ -447,7 +447,7 @@ dns_long_type_name (guint type)
       return "Request for all records";
     }
 
-  sprintf(unkbuf, "Unknown RR type (%d)", type);
+  sprintf(unkbuf, "Unknown RR type (%u)", type);
   return unkbuf;
 }
 
@@ -698,6 +698,7 @@ rfc1867_angle(tvbuff_t *tvb, int offset, const char *nsew)
   guint32 angle;
   char direction;
   guint32 degrees, minutes, secs, tsecs;
+      /* "%u deg %u min %u.%03u sec %c" */
   static char buf[10+1+3+1 + 2+1+3+1 + 2+1+3+1+3+1 + 1 + 1];
 
   angle = tvb_get_ntohl(tvb, offset);
