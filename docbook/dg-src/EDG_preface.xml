@@ -1,0 +1,124 @@
+<!-- $Id: EUG_preface.xml 11618 2004-08-06 21:06:27Z jmayer $ -->
+
+<preface id="Preface">
+  <title>Preface</title>
+  <section id="PreForeword">
+  <title>Foreword</title>
+  <para>
+    Frequently people new to Ethereal development are asking questions 
+	about how to implement new features to Ethereal. This book tries to give 
+	you a guide to start your own experiments into the wonderful world of 
+	Ethereal development.
+  </para>
+  <para>
+    We hope that you find it useful, and look forward to your comments.
+  </para>
+  </section>
+
+  <section id="PreAudience">
+  <title>Who should read this document?</title>
+  <para>
+  The intended audience of this book is anyone going into the development of 
+  Ethereal.
+  </para>
+  <para>
+  This book is not intended to explain the usage of Ethereal in general. 
+  Please refer to the "Ethereal User's Guide" about Ethereal usage.
+  </para>
+  <para>
+  By reading this book, you will learn how to develop Ethereal. It will 
+  hopefully guide you around some common problems that frequently appears for 
+  new (and sometimes even advanced) developers of Ethereal.
+  </para>
+  </section>
+
+  <section id="PreAck">
+  <title>Acknowledgements</title>
+  <para>
+    The authors would like to thank the whole Ethereal team for their 
+	assistance. In particular, the authors would like to thank:
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Gerald Combs, for initiating the Ethereal project.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Guy Harris, for many helpful hints and a great deal of patience 
+	  in reviewing this document.
+	</para>
+      </listitem>
+    </itemizedlist>
+  </para>
+  <para>
+    The authors would also like to thank the following people for their 
+	helpful feedback on this document:
+    <itemizedlist>
+      <listitem>
+      <para>XXX - We hopefully might get some feedback in the future :-)
+      </para>
+      </listitem>
+    </itemizedlist>
+  </para>
+  </section>
+
+  <section id="PreAbout">
+    <title>About this document</title>
+    <para>
+      This book was developed by 
+      <ulink url="mailto:&AuthorEmail;">Ulf Lamping</ulink>.
+    </para>
+    <para>
+      It is written in DocBook/XML.
+    </para>
+    <para>
+	You will find some specially marked parts in this book:
+    </para>
+    <warning><title>This is a warning!</title>
+	<para>
+	You should pay attention to a warning, as otherwise data loss might occur.
+	</para>
+    </warning>
+    <note><title>This is a note!</title>
+	<para>
+	A note will point you to common mistakes and things that might not be 
+	obvious.
+	</para>
+    </note>
+    <tip><title>This is a tip!</title>
+	<para>
+	Tips will be helpful for your everyday work using Ethereal.
+	</para>
+    </tip>
+  </section>
+  
+  <section id="PreDownload">
+    <title>Where to get the latest copy of this document?</title>
+    <para>
+      The latest copy of this documentation can always be found at: 
+     <!-- <ulink url="&LatestVersionWebsite;">&LatestVersionWebsite;</ulink>; 
+      and at: --> 
+      <ulink url="&EtherealWebSite;/docs/developer-guide/"/>.
+    </para>
+   <!-- <para>
+      In addition, you can find a PDF version of the guide at: 
+      <ulink url="&LatestVersionPDFWebsiteA4;">
+	&LatestVersionPDFWebsiteA4;
+      </ulink> 
+      in A4 and 
+      <ulink url="&LatestVersionPDFWebsiteUSLetter;">
+	&LatestVersionPDFWebsiteUSLetter
+      </ulink> 
+      in US Letter.
+    </para> -->    
+  </section>
+
+  <section id="PreFeedback">
+    <title>Providing feedback about this document</title>
+    <para>
+      Should you have any feedback about this document, please send them 
+      to the authors through <ulink url="mailto:&EtherealDevMailList;">&EtherealDevMailList;</ulink>.
+    </para>
+  </section>
+</preface>

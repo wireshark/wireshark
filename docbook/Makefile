@@ -32,7 +32,9 @@ XSLTPROC="xsltproc"
 XMLLINT="xmllint"
 
 # as eug_chm will stop with an error, make sure it's the last in this dependency list
-all: eug_validate eug_pdf_a4 eug_html eug_html_chunked eug_chm 
+all: eug edg 
+
+eug: eug_validate eug_pdf_a4 eug_html eug_html_chunked eug_chm 
 
 clean:
 	rm -f *.html
@@ -109,3 +111,23 @@ ifdef HHC
 	rm -r htmlhelp.hhp
 	rm -r toc.hhc
 endif
+
+
+edg: edg_validate edg_html_chunked 
+#eug_pdf_a4 eug_html eug_chm 
+
+# validate the content
+edg_validate:
+	@ echo --- VALIDATING XML ---
+	$(XMLLINT) --valid --noout developer-guide.xml
+
+# create html chunked page files
+edg_html_chunked: images
+	@ echo --- HTML CHUNKED ---
+	mkdir -p edg_html_chunked
+	mkdir -p edg_html_chunked/graphics
+	mkdir -p edg_html_chunked/graphics/toolbar
+	cp ./graphics/*.* edg_html_chunked/graphics
+	cp ./graphics/toolbar/*.* edg_html_chunked/graphics/toolbar
+	$(XSLTPROC) --stringparam base.dir edg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/html/chunk.xsl developer-guide.xml
+
