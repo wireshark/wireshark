@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.86 2004/03/06 02:26:31 guy Exp $
+ * $Id: packet-bgp.c,v 1.87 2004/03/06 03:25:09 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -56,6 +56,7 @@
 #endif
 
 #include <epan/packet.h>
+#include <epan/addr_and_mask.h>
 #include "packet-bgp.h"
 #include "packet-ipv6.h"
 #include "packet-frame.h"
@@ -368,20 +369,14 @@ decode_prefix4(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
     guint8 plen;      /* prefix length                      */
     int    length;    /* number of octets needed for prefix */
 
-    /* snarf length */
+    /* snarf length and prefix */
     plen = tvb_get_guint8(tvb, offset);
-    if (plen > 32 || plen == 0) {
-	proto_tree_add_text(tree, tvb, offset, 1, "%s length %u invalid",
+    length = ipv4_addr_and_mask(tvb, offset + 1, ip_addr.addr_bytes, plen);
+    if (length < 0) {
+	proto_tree_add_text(tree, tvb, offset, 1, "%s length %u invalid (> 32)",
 	    tag, plen);
 	return -1;
     }
-    length = (plen + 7) / 8;
-
-    /* snarf prefix */
-    memset((void *)&ip_addr, 0, sizeof(ip_addr));
-    tvb_memcpy(tvb, ip_addr.addr_bytes, offset + 1, length);
-    if (plen % 8)
-	ip_addr.addr_bytes[length - 1] &= ((0xff00 >> (plen % 8)) & 0xff);
 
     /* put prefix into protocol tree */
     ti = proto_tree_add_text(tree, tvb, offset,
@@ -413,20 +408,14 @@ decode_prefix6(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
     int               plen;     /* prefix length                      */
     int               length;   /* number of octets needed for prefix */
 
-    /* snarf length */
+    /* snarf length and prefix */
     plen = tvb_get_guint8(tvb, offset);
-    if (plen > 128 || plen == 0) {
+    length = ipv6_addr_and_mask(tvb, offset + 1, &addr, plen);
+    if (length < 0) {
 	proto_tree_add_text(tree, tvb, offset, 1, "%s length %u invalid",
 	    tag, plen);
 	return -1;
     }
-    length = (plen + 7) / 8;
-
-    /* snarf prefix */
-    memset(&addr, 0, sizeof(addr));
-    tvb_memcpy(tvb, (guint8 *)&addr, offset + 1, length);
-    if (plen % 8)
-	addr.s6_addr[length - 1] &= ((0xff00 >> (plen % 8)) & 0xff);
 
     /* put prefix into protocol tree */
     ti = proto_tree_add_text(tree, tvb, offset,
@@ -663,18 +652,13 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 return -1;
             }
             plen -= (labnum * 3*8);
-            if (plen > 32 || plen == 0) {
+            length = ipv4_addr_and_mask(tvb, offset, ip4addr.addr_bytes, plen);
+            if (length < 0) {
                 proto_tree_add_text(tree, tvb, start_offset, 1,
                         "%s IPv4 prefix length %u invalid",
                         tag, plen + (labnum * 3*8));
                 return -1;
             }
-
-            length = (plen + 7) / 8;
-            memset((void *)&ip4addr, 0, sizeof(ip4addr));
-            tvb_memcpy(tvb, (void *)ip4addr.addr_bytes, offset, length);
-            if (plen % 8)
-                ip4addr.addr_bytes[length - 1] &= ((0xff00 >> (plen % 8)) & 0xff);
 
             ti = proto_tree_add_text(tree, tvb, start_offset,
                     (offset + 1 + length) - start_offset,
@@ -718,18 +702,13 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             switch (rd_type) {
 
             case FORMAT_AS2_LOC: /* Code borrowed from the decode_prefix4 function */
-                if (plen > 32 || plen == 0) {
+                length = ipv4_addr_and_mask(tvb, offset + 8, ip4addr.addr_bytes, plen);
+                if (length < 0) {
                     proto_tree_add_text(tree, tvb, start_offset, 1,
                             "%s IPv4 prefix length %u invalid",
                             tag, plen + (labnum * 3*8) + 8*8);
                     return -1;
                 }
-
-                length = (plen + 7) / 8;
-                memset(ip4addr.addr_bytes, 0, 4);
-                tvb_memcpy(tvb, ip4addr.addr_bytes, offset + 8, length);
-                if (plen % 8)
-                    ip4addr.addr_bytes[length - 1] &= ((0xff00 >> (plen % 8)) & 0xff);
 
                 ti = proto_tree_add_text(tree, tvb, start_offset,
                         (offset + 8 + length) - start_offset,
@@ -753,18 +732,13 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             case FORMAT_IP_LOC: /* Code borrowed from the decode_prefix4 function */
                 tvb_memcpy(tvb, ip4addr.addr_bytes, offset + 2, 4);
 
-                if (plen > 32 || plen == 0) {
+                length = ipv4_addr_and_mask(tvb, offset + 8, ip4addr2.addr_bytes, plen);
+                if (length < 0) {
                         proto_tree_add_text(tree, tvb, start_offset, 1,
                                 "%s IPv4 prefix length %u invalid",
                                 tag, plen + (labnum * 3*8) + 8*8);
                         return -1;
                 }
-
-                length = (plen + 7) / 8;
-                memset((void *)&ip4addr2, 0, sizeof(ip4addr2));
-                tvb_memcpy(tvb, ip4addr2.addr_bytes, offset + 8, length);
-                if (plen % 8)
-                    ip4addr2.addr_bytes[length - 1] &= ((0xff00 >> (plen % 8)) & 0xff);
 
                 ti = proto_tree_add_text(tree, tvb, start_offset,
                         (offset + 8 + length) - start_offset,
@@ -815,17 +789,12 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             }
             plen -= (labnum * 3*8);
 
-            if (plen > 128 || plen == 0) {
+            length = ipv6_addr_and_mask(tvb, offset, &ip6addr, plen);
+            if (length < 0) {
                 proto_tree_add_text(tree, tvb, start_offset, 1,
                         "%s IPv6 prefix length %u invalid", tag, plen);
                 return -1;
             }
-
-	    length = (plen + 7) / 8;
-	    memset(ip6addr.u6_addr.u6_addr8, 0, 16);
-	    tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8, offset, length);
-	    if (plen % 8)
-		ip6addr.u6_addr.u6_addr8[length - 1] &= ((0xff00 >> (plen % 8)) & 0xff);
 
 	    ti = proto_tree_add_text(tree, tvb, start_offset,
 		 (offset + length) - start_offset,
@@ -861,18 +830,13 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             switch (rd_type) {
 
             case FORMAT_AS2_LOC:
-                if (plen > 128 || plen == 0) {
+                length = ipv6_addr_and_mask(tvb, offset + 8, &ip6addr, plen);
+                if (length < 0) {
                     proto_tree_add_text(tree, tvb, start_offset, 1,
                             "%s IPv6 prefix length %u invalid",
                             tag, plen + (labnum * 3*8) + 8*8);
                     return -1;
                 }
-
-                length = (plen + 7) / 8;
-                memset(ip6addr.u6_addr.u6_addr8, 0, 16);
-                tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8, offset + 8, length);
-                if (plen % 8)
-                    ip6addr.u6_addr.u6_addr8[length - 1] &= ((0xff00 >> (plen % 8)) & 0xff);
 
                 ti = proto_tree_add_text(tree, tvb, start_offset,
                         (offset + 8 + length) - start_offset,
@@ -887,17 +851,13 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             case FORMAT_IP_LOC: 
                 tvb_memcpy(tvb, ip4addr.addr_bytes, offset + 2, 4);
 
-                if (plen > 128 || plen == 0) {
+                length = ipv6_addr_and_mask(tvb, offset + 8, &ip6addr, plen);
+                if (length < 0) {
                     proto_tree_add_text(tree, tvb, start_offset, 1,
                             "%s IPv6 prefix length %u invalid",
                             tag, plen + (labnum * 3*8) + 8*8);
                     return -1;
                 }
-                length = (plen + 7) / 8;
-                memset(ip6addr.u6_addr.u6_addr8, 0, 16);
-                tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8, offset + 8, length);
-                if (plen % 8)
-                    ip6addr.u6_addr.u6_addr8[length - 1] &= ((0xff00 >> (plen % 8)) & 0xff);
 
                 ti = proto_tree_add_text(tree, tvb, start_offset,
                         (offset + 8 + length) - start_offset,
