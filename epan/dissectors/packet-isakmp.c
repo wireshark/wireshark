@@ -294,7 +294,7 @@ static struct strfunc {
   {"Delete",			dissect_delete    },
   {"Vendor ID",			dissect_vid       },
   {"Attrib",			dissect_config	  },
-  {"NAT-Discovery",		dissect_nat_discovery }, /* draft-ietf-ipsec-nat-t-ike */
+  {"NAT-Discovery",		dissect_nat_discovery }, /* draft-ietf-ipsec-nat-t-ike-04 */
   {"NAT-Original Address",	dissect_nat_original_address } /* draft-ietf-ipsec-nat-t-ike */
 };
 
@@ -1351,7 +1351,7 @@ payloadtype2str(guint8 type) {
   if (type < 128)
     return "RESERVED";
   if (type == 130)
-    return "NAT-D (draft-ietf-ipsec-nat-t-ike-01 to 04)";
+    return "NAT-D (draft-ietf-ipsec-nat-t-ike-01 to 03)";
   if (type == 131)
     return "NAT-OA (draft-ietf-ipsec-nat-t-ike-01 to 04)";
   return "Private USE";
