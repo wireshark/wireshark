@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.374 2004/04/16 18:17:47 ulfl Exp $
+ * $Id: file.c,v 1.375 2004/04/16 20:20:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1488,6 +1488,9 @@ retap_packets(capture_file *cf)
 typedef struct {
   print_args_t *print_args;
   FILE         *print_fh;
+  gboolean      print_header_line;
+  char         *header_line_buf;
+  int           header_line_buf_len;
   gboolean      print_separator;
   char         *line_buf;
   int           line_buf_len;
@@ -1508,7 +1511,6 @@ print_packet(capture_file *cf, frame_data *fdata,
   int             cp_off;
   gboolean        proto_tree_needed;
 
-
   proto_tree_needed = 
       args->print_args->print_dissections != print_dissections_none || args->print_args->print_hex;
 
@@ -1522,6 +1524,11 @@ print_packet(capture_file *cf, frame_data *fdata,
     print_line(args->print_fh, 0, args->print_args->format, "");
 
   if (args->print_args->print_summary) {
+    if (args->print_header_line) {
+      print_line(args->print_fh, 0, args->print_args->format,
+                 args->header_line_buf);
+      args->print_header_line = FALSE;	/* we might not need to print any more */
+    }
     cp = &args->line_buf[0];
     line_len = 0;
     for (i = 0; i < cf->cinfo.num_cols; i++) {
@@ -1554,11 +1561,19 @@ print_packet(capture_file *cf, frame_data *fdata,
   } /* if (print_summary) */
   
   if (args->print_args->print_dissections != print_dissections_none) {
+    if (args->print_args->print_summary) {
+      /* Separate the summary line from the tree with a blank line. */
+      print_line(args->print_fh, 0, args->print_args->format, "");
+    }
+
     /* Print the information in that tree. */
     proto_tree_print(args->print_args, edt, args->print_fh);
 
     /* Print a blank line if we print anything after this (aka more than one packet). */
     args->print_separator = TRUE;
+
+    /* Print a header line if we print any more packet summaries */
+    args->print_header_line = TRUE;
   }
 
   if (args->print_args->print_hex) {
@@ -1567,6 +1582,9 @@ print_packet(capture_file *cf, frame_data *fdata,
 
     /* Print a blank line if we print anything after this (aka more than one packet). */
     args->print_separator = TRUE;
+
+    /* Print a header line if we print any more packet summaries */
+    args->print_header_line = TRUE;
   } /* if (print_summary) */
 
   epan_dissect_free(edt);
@@ -1598,20 +1616,23 @@ print_packets(capture_file *cf, print_args_t *print_args)
   }
 
   callback_args.print_args = print_args;
+  callback_args.print_header_line = TRUE;
+  callback_args.header_line_buf = NULL;
+  callback_args.header_line_buf_len = 256;
   callback_args.print_separator = FALSE;
   callback_args.line_buf = NULL;
   callback_args.line_buf_len = 256;
   callback_args.col_widths = NULL;
   if (print_args->print_summary) {
-    /* We're printing packet summaries.  Allocate the line buffer at
-       its initial length. */
-    callback_args.line_buf = g_malloc(callback_args.line_buf_len + 1);
+    /* We're printing packet summaries.  Allocate the header line buffer
+       and get the column widths. */
+    callback_args.header_line_buf = g_malloc(callback_args.header_line_buf_len + 1);
 
     /* Find the widths for each of the columns - maximum of the
-       width of the title and the width of the data - and print
-       the column titles. */
+       width of the title and the width of the data - and construct
+       a buffer with a line containing the column titles. */
     callback_args.col_widths = (gint *) g_malloc(sizeof(gint) * cf->cinfo.num_cols);
-    cp = &callback_args.line_buf[0];
+    cp = &callback_args.header_line_buf[0];
     line_len = 0;
     for (i = 0; i < cf->cinfo.num_cols; i++) {
       /* Don't pad the last column. */
@@ -1632,12 +1653,12 @@ print_packets(capture_file *cf, print_args_t *print_args)
       /* Make sure there's room in the line buffer for the column; if not,
          double its length. */
       line_len += column_len + 1;	/* "+1" for space */
-      if (line_len > callback_args.line_buf_len) {
-        cp_off = cp - callback_args.line_buf;
-        callback_args.line_buf_len = 2 * line_len;
-        callback_args.line_buf = g_realloc(callback_args.line_buf,
-                                           callback_args.line_buf_len + 1);
-        cp = callback_args.line_buf + cp_off;
+      if (line_len > callback_args.header_line_buf_len) {
+        cp_off = cp - callback_args.header_line_buf;
+        callback_args.header_line_buf_len = 2 * line_len;
+        callback_args.header_line_buf = g_realloc(callback_args.header_line_buf,
+                                                  callback_args.header_line_buf_len + 1);
+        cp = callback_args.header_line_buf + cp_off;
       }
 
       /* Right-justify the packet number column. */
@@ -1650,8 +1671,11 @@ print_packets(capture_file *cf, print_args_t *print_args)
         *cp++ = ' ';
     }
     *cp = '\0';
-    print_line(callback_args.print_fh, 0, print_args->format,
-               callback_args.line_buf);
+
+    /* Now start out the main line buffer with the same length as the
+       header line buffer. */
+    callback_args.line_buf_len = callback_args.header_line_buf_len;
+    callback_args.line_buf = g_malloc(callback_args.line_buf_len + 1);
   } /* if (print_summary) */
 
   /* Iterate through the list of packets, printing the packets we were
@@ -1660,10 +1684,12 @@ print_packets(capture_file *cf, print_args_t *print_args)
                                   "selected packets", print_packet,
                                   &callback_args);
 
-  if (callback_args.col_widths != NULL)
-    g_free(callback_args.col_widths);
+  if (callback_args.header_line_buf != NULL)
+    g_free(callback_args.header_line_buf);
   if (callback_args.line_buf != NULL)
     g_free(callback_args.line_buf);
+  if (callback_args.col_widths != NULL)
+    g_free(callback_args.col_widths);
 
   switch (ret) {
 
