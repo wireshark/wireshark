@@ -1,7 +1,7 @@
 /* packet-igmp.c   2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  * Routines for IGMP packet disassembly
  *
- * $Id: packet-igmp.c,v 1.6 2001/06/27 20:19:19 guy Exp $
+ * $Id: packet-igmp.c,v 1.7 2001/06/29 18:55:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,7 +30,7 @@
 	draft-ietf-idmr-igmp-v3-07	Version 3
 
 	Size in bytes for each packet
-	type	RFC988	RFC1054	RFC2236 RFC????  DVMRP  MRDISC
+	type	RFC988	RFC1054	RFC2236 RFC????  DVMRP  MRDISC  MSNIP
 	        v0      v1      v2      v3       v1/v3
 	0x01      20
 	0x02      20
@@ -46,9 +46,10 @@
 	0x16                      8
 	0x17                      8
 	0x22                            >=8
-	0x24                                            a
-	0x25                                            a
-	0x26                                            a
+	0x23                                                    >=8b      
+	0x24                                            >=8a    8b
+	0x25                                            4a      >=8b
+	0x26                                            4a
 
 
    * Differs in second byte of protocol. Always 0 in V1
@@ -69,6 +70,13 @@
 	draft-ietf-idmr-igmp-mrdisc-06.txt
 	TTL == 1 and IP.DST==224.0.0.2 for all packets
 
+   b MSNIP Protocol  see packet-msnip.c
+
+	MSNIP : Multicast Source Notification of Interest Protocol
+	draft-ietf-idmr-msnip-00.txt
+	0x23, 0x24 are sent with ip.dst==224.0.0.22
+	0x25 is sent as unicast.
+
 */
 
 #ifdef HAVE_CONFIG_H
@@ -88,6 +96,7 @@
 #include "in_cksum.h"
 #include "packet-dvmrp.h"
 #include "packet-mrdisc.h"
+#include "packet-msnip.h"
 
 static int proto_igmp = -1;
 static int hf_type = -1;
@@ -118,7 +127,8 @@ static int ett_group_record = -1;
 static int ett_sqrv_bits = -1;
 static int ett_max_resp = -1;
 
-#define MC_ALL_ROUTERS	0xe0000002
+#define MC_ALL_ROUTERS		0xe0000002
+#define MC_ALL_IGMPV3_ROUTERS	0xe0000016
 
 
 #define IGMP_V0_CREATE_GROUP_REQUEST	0x01
@@ -138,6 +148,7 @@ static int ett_max_resp = -1;
 #define IGMP_V1_TRACEROUTE_RESPONSE	0x1e	/* XXX */
 #define IGMP_V1_TRACEROUTE_MESSAGE	0x1f	/* XXX */
 #define IGMP_V3_MEMBERSHIP_REPORT	0x22
+#define IGMP_TYPE_0x23			0x23
 #define IGMP_TYPE_0x24			0x24
 #define IGMP_TYPE_0x25			0x25
 #define IGMP_TYPE_0x26			0x26
@@ -675,16 +686,32 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	case IGMP_V3_MEMBERSHIP_REPORT:
 		offset = dissect_igmp_v3_response(tvb, pinfo, tree, type, offset);
 		break;
+	case IGMP_TYPE_0x23:
+		dst = htonl(MC_ALL_IGMPV3_ROUTERS);
+		if (!memcmp(pinfo->dst.data, &dst, 4)) {
+			offset = dissect_msnip(tvb, pinfo, parent_tree, offset);
+		}
+		break;
 	case IGMP_TYPE_0x24:
 		dst = htonl(MC_ALL_ROUTERS);
 		if (!memcmp(pinfo->dst.data, &dst, 4)) {
 			offset = dissect_mrdisc(tvb, pinfo, parent_tree, offset);
+		}  
+		dst = htonl(MC_ALL_IGMPV3_ROUTERS);
+		if (!memcmp(pinfo->dst.data, &dst, 4)) {
+			offset = dissect_msnip(tvb, pinfo, parent_tree, offset);
 		}
 		break;
 	case IGMP_TYPE_0x25:
-		dst = htonl(MC_ALL_ROUTERS);
-		if (!memcmp(pinfo->dst.data, &dst, 4)) {
-			offset = dissect_mrdisc(tvb, pinfo, parent_tree, offset);
+		if ( (pinfo->iplen-pinfo->iphdrlen*4)>=8 ) {
+			/* if len of igmp packet>=8 we assume it is MSNIP */
+			offset = dissect_msnip(tvb, pinfo, parent_tree, offset);
+		} else {
+			/* ok its not MSNIP, check if it might be MRDISC */
+			dst = htonl(MC_ALL_ROUTERS);
+			if (!memcmp(pinfo->dst.data, &dst, 4)) {
+				offset = dissect_mrdisc(tvb, pinfo, parent_tree, offset);
+			}
 		}
 		break;
 	case IGMP_TYPE_0x26:

@@ -535,6 +535,7 @@ Ronnie Sahlberg <rsahlber@bigpond.net.au> {
 	Support for filtering on absolute and relative time fields
 	DVMRP support
 	MRDISC support
+	MSNIP support
 }
 
 Borosa Tomislav <tomislav.borosa@SIEMENS.HR> {
