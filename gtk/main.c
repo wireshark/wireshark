@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.456 2004/07/09 21:13:22 guy Exp $
+ * $Id: main.c,v 1.457 2004/07/12 19:10:58 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -831,6 +831,9 @@ main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer
   gpointer dialog;
 
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
+#if GTK_MAJOR_VERSION >= 2
+    gtk_window_present(GTK_WINDOW(top_level));
+#endif
     /* user didn't saved his current file, ask him */
     dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO_CANCEL,
                 PRIMARY_TEXT_START "Save capture file before program quit?" PRIMARY_TEXT_END "\n\n"
