@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.40 2003/10/14 09:55:40 sahlberg Exp $
+ * $Id: io_stat.c,v 1.41 2003/10/14 10:01:00 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -133,10 +133,6 @@ typedef struct _io_stat_graph_t {
 	GtkWidget *filter_bt;
 } io_stat_graph_t;
 
-typedef struct _io_stat_count_type_t {
-	struct _io_stat_t *io;
-	int count_type;
-} io_stat_count_type_t;
 
 typedef struct _io_stat_t {
 	gboolean needs_redraw;
@@ -146,7 +142,6 @@ typedef struct _io_stat_t {
 	guint32 num_items;
 
 	struct _io_stat_graph_t graphs[MAX_GRAPHS];
-	struct _io_stat_count_type_t counttype[MAX_COUNT_TYPES];
 	GtkWidget *window;
 	GtkWidget *draw_area;
 	GdkPixmap *pixmap;
@@ -1240,36 +1235,40 @@ create_yscale_max_menu_items(io_stat_t *io, GtkWidget *menu)
 }
 
 static void
-count_type_select(GtkWidget *item _U_, gpointer key)
+count_type_select(GtkWidget *item, gpointer key)
 {
-	io_stat_count_type_t *ct=(io_stat_count_type_t *)key;
+	int val;
+	io_stat_t *io;
 
-	ct->io->count_type=ct->count_type;
+	io=(io_stat_t *)key;
+	val=(int)gtk_object_get_data(GTK_OBJECT(item), "count_type");
 
-	if(ct->io->count_type==COUNT_TYPE_ADVANCED){
+	io->count_type=val;
+
+	if(io->count_type==COUNT_TYPE_ADVANCED){
 		int i;
 		for(i=0;i<MAX_GRAPHS;i++){
-			ct->io->graphs[i].display=0;
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ct->io->graphs[i].display_button), ct->io->graphs[i].display);
-			gtk_widget_show(ct->io->graphs[i].advanced_buttons);
+			io->graphs[i].display=0;
+			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(io->graphs[i].display_button), io->graphs[i].display);
+			gtk_widget_show(io->graphs[i].advanced_buttons);
 /* redraw the entire window so teh unhidden widgets show up, hopefully */
 {GdkRectangle update_rect;
 update_rect.x=0;
 update_rect.y=0;
-update_rect.width=ct->io->window->allocation.width;
-update_rect.height=ct->io->window->allocation.height;
-gtk_widget_draw(ct->io->window, &update_rect);
+update_rect.width=io->window->allocation.width;
+update_rect.height=io->window->allocation.height;
+gtk_widget_draw(io->window, &update_rect);
 }
 		}
 	} else {
 		int i;
 		for(i=0;i<MAX_GRAPHS;i++){
-			gtk_widget_hide(ct->io->graphs[i].advanced_buttons);
+			gtk_widget_hide(io->graphs[i].advanced_buttons);
 		}
 	}
 
-	ct->io->needs_redraw=TRUE;
-	gtk_iostat_draw(&ct->io->graphs[0]);
+	io->needs_redraw=TRUE;
+	gtk_iostat_draw(&io->graphs[0]);
 }
 
 static void 
@@ -1280,9 +1279,8 @@ create_frames_or_bytes_menu_items(io_stat_t *io, GtkWidget *menu)
 
 	for(i=0;i<MAX_COUNT_TYPES;i++){
 		menu_item=gtk_menu_item_new_with_label(count_type_names[i]);
-		io->counttype[i].io=io;
-		io->counttype[i].count_type=i;
-		SIGNAL_CONNECT(menu_item, "activate", count_type_select, &io->counttype[i]);
+		gtk_object_set_data(GTK_OBJECT(menu_item), "count_type", (gpointer)i);
+		SIGNAL_CONNECT(menu_item, "activate", count_type_select, io);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
