@@ -375,7 +375,7 @@ merge_open_in_files(int in_file_count, char *in_file_names[], merge_in_file_t *i
  * Convenience function: merge two files into one.
  */
 gboolean
-merge_n_files(int out_fd, int in_file_count, char **in_filenames, gboolean do_append, int *err)
+merge_n_files(int out_fd, int in_file_count, char **in_filenames, int filetype, gboolean do_append, int *err)
 {
   extern char *optarg;
   extern int   optind;
@@ -386,7 +386,7 @@ merge_n_files(int out_fd, int in_file_count, char **in_filenames, gboolean do_ap
   /* initialize out_file */
   out_file.fd         = out_fd;
   out_file.pdh        = NULL;              /* wiretap dumpfile */
-  out_file.file_type  = WTAP_FILE_PCAP;    /* default to "libpcap" */
+  out_file.file_type  = filetype;
   out_file.frame_type = -2;                /* leave type alone */
   out_file.snaplen    = 0;                 /* no limit */
   out_file.count      = 1;                 /* frames output */
