@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.24 2004/02/01 06:49:25 jmayer Exp $
+ * $Id: plugin_api_list.c,v 1.25 2004/02/02 18:00:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -183,7 +183,7 @@ gint tvb_get_nstringz0(tvbuff_t*, gint, guint, guint8*);
 gint tvb_find_line_end(tvbuff_t*, gint, int, gint *, gboolean);
 gint tvb_find_line_end_unquoted(tvbuff_t*, gint, int, gint *);
 
-gint tvb_strneql(tvbuff_t*, gint, const guint8 *, gint);
+gint tvb_strneql(tvbuff_t*, gint, const gchar *, gint);
 gint tvb_strncaseeql(tvbuff_t*, gint, const gchar *, gint);
 
 gchar *tvb_bytes_to_str(tvbuff_t*, gint, gint len);
