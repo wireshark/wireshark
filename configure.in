@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.134 2001/07/26 07:25:43 guy Exp $
+# $Id: configure.in,v 1.135 2001/07/26 22:05:01 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -617,8 +617,10 @@ then
     eval echo "$PLUGIN_DIR"
   )`
   AC_DEFINE_UNQUOTED(PLUGIN_DIR,"$PLUGIN_DIR", [Plugin installation directory])
-  AC_SUBST(PLUGIN_DIR)
+else
+  AC_DEFINE(PLUGIN_DIR,NULL)
 fi
+AC_SUBST(PLUGIN_DIR)
 
 dnl libtool defs
 AC_LIBTOOL_DLOPEN
