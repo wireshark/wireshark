@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.174 2003/02/27 03:56:46 guy Exp $
+ * $Id: packet-tcp.c,v 1.175 2003/03/01 04:24:40 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -103,6 +103,17 @@ static int hf_tcp_segment_overlap_conflict = -1;
 static int hf_tcp_segment_multiple_tails = -1;
 static int hf_tcp_segment_too_long_fragment = -1;
 static int hf_tcp_segment_error = -1;
+static int hf_tcp_option_mss = -1;
+static int hf_tcp_option_window = -1;
+static int hf_tcp_option_sack_perm = -1;
+static int hf_tcp_option_sack = -1;
+static int hf_tcp_option_echo = -1;
+static int hf_tcp_option_echo_reply = -1;
+static int hf_tcp_option_time_stamp = -1;
+static int hf_tcp_option_cc = -1;
+static int hf_tcp_option_ccnew = -1;
+static int hf_tcp_option_ccecho = -1;
+static int hf_tcp_option_md5 = -1;
 
 static gint ett_tcp = -1;
 static gint ett_tcp_flags = -1;
