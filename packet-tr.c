@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.40 2000/05/15 06:22:06 gram Exp $
+ * $Id: packet-tr.c,v 1.41 2000/05/16 04:44:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -336,7 +336,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if ((x = check_for_old_linux_tvb((tvbuff_t*) tvb))) {
 		/* Actually packet starts x bytes into what we have got but with all
 		   source routing compressed. See comment above */
-		tr_tvb = tvb_new_subset((tvbuff_t*) tvb, x, -1);
+		tr_tvb = tvb_new_subset((tvbuff_t*) tvb, x, -1, -1);
 	}
 	else {
 		tr_tvb = tvb;
@@ -518,7 +518,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 
-	next_tvb = tvb_new_subset(tr_tvb, TR_MIN_HEADER_LEN + actual_rif_bytes + fixoffset, -1);
+	next_tvb = tvb_new_subset(tr_tvb, TR_MIN_HEADER_LEN + actual_rif_bytes + fixoffset, -1, -1);
 	tvb_compat(next_tvb, &next_pd, &next_offset);
 
 	/* The package is either MAC or LLC */

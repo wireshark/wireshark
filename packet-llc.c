@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.59 2000/05/12 05:06:26 gram Exp $
+ * $Id: packet-llc.c,v 1.60 2000/05/16 04:44:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -342,7 +342,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				oui);
 		}
 
-		next_tvb = tvb_new_subset(tvb, 8, -1);
+		next_tvb = tvb_new_subset(tvb, 8, -1, -1);
 		tvb_compat(next_tvb, &pd, &offset);
 
 		switch (oui) {
@@ -432,7 +432,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			);
 		}
 
-		next_tvb = tvb_new_subset(tvb, llc_header_len, -1);
+		next_tvb = tvb_new_subset(tvb, llc_header_len, -1, -1);
 		if (XDLC_IS_INFORMATION(control)) {
 			tvb_compat(tvb, &pd, &offset);
 			/* non-SNAP */

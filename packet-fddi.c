@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.32 2000/05/11 22:04:16 gram Exp $
+ * $Id: packet-fddi.c,v 1.33 2000/05/16 04:44:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -313,7 +313,7 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   }
 
-  next_tvb = tvb_new_subset(tvb, FDDI_HEADER_SIZE, -1);
+  next_tvb = tvb_new_subset(tvb, FDDI_HEADER_SIZE, -1, -1);
 
   switch (fc) {
 

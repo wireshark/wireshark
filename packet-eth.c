@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.36 2000/05/15 06:22:05 gram Exp $
+ * $Id: packet-eth.c,v 1.37 2000/05/16 04:44:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -251,15 +251,15 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   /* Give the next dissector only 'length' number of bytes */
   if (etype <= IEEE_802_3_MAX_LEN) {
 	  TRY {
-	     next_tvb = tvb_new_subset(pi.compat_top_tvb, eth_offset, etype);
+	     next_tvb = tvb_new_subset(pi.compat_top_tvb, eth_offset, etype, etype);
 	  }
-	  CATCH(BoundsError) {
-	     next_tvb = tvb_new_subset(pi.compat_top_tvb, eth_offset, -1);
+	  CATCH2(BoundsError, ReportedBoundsError) {
+	     next_tvb = tvb_new_subset(pi.compat_top_tvb, eth_offset, -1, etype);
 	  }
 	  ENDTRY;
   }
   else {
-     next_tvb = tvb_new_subset(pi.compat_top_tvb, eth_offset, -1);
+     next_tvb = tvb_new_subset(pi.compat_top_tvb, eth_offset, -1, -1);
   }
 
   switch (ethhdr_type) {

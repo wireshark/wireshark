@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.2 2000/05/15 04:37:27 gram Exp $
+ * $Id: tvbuff.c,v 1.3 2000/05/16 04:44:14 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -121,6 +121,9 @@ struct tvbuff {
 	/* Length of virtual buffer (and/or real_data). */
 	guint			length;
 
+	/* Reported length. */
+	gint			reported_length;
+
 	/* Offset from beginning of first TVBUFF_REAL. */
 	gint			raw_offset;
 
@@ -163,6 +166,7 @@ tvb_init(tvbuff_t *tvb, tvbuff_type type)
 	tvb->initialized	= FALSE;
 	tvb->usage_count	= 1;
 	tvb->length		= 0;
+	tvb->reported_length	= 0;
 	tvb->free_cb		= NULL;
 	tvb->real_data		= NULL;
 	tvb->raw_offset		= -1;
@@ -298,23 +302,25 @@ tvb_set_free_cb(tvbuff_t* tvb, tvbuff_free_cb_t func)
 }
 
 void
-tvb_set_real_data(tvbuff_t* tvb, const guint8* data, guint length)
+tvb_set_real_data(tvbuff_t* tvb, const guint8* data, guint length, gint reported_length)
 {
 	g_assert(tvb->type == TVBUFF_REAL_DATA);
 	g_assert(!tvb->initialized);
+	g_assert(reported_length >= -1);
 
-	tvb->real_data = (gpointer) data;
-	tvb->length = length;
-	tvb->initialized = TRUE;
+	tvb->real_data		= (gpointer) data;
+	tvb->length		= length;
+	tvb->reported_length	= reported_length;
+	tvb->initialized	= TRUE;
 }
 
 tvbuff_t*
-tvb_new_real_data(const guint8* data, guint length)
+tvb_new_real_data(const guint8* data, guint length, gint reported_length)
 {
 	tvbuff_t	*tvb;
 
 	tvb = tvb_new(TVBUFF_REAL_DATA);
-	tvb_set_real_data(tvb, data, length);
+	tvb_set_real_data(tvb, data, length, reported_length);
 
 	return tvb;
 }
@@ -326,7 +332,7 @@ tvb_new_real_data(const guint8* data, guint length)
  * No exception is thrown. */
 static gboolean
 compute_offset_length(tvbuff_t *tvb, gint offset, gint length,
-		guint *offset_ptr, guint *length_ptr)
+		guint *offset_ptr, guint *length_ptr, int *exception)
 {
 	g_assert(offset_ptr);
 	g_assert(length_ptr);
@@ -335,7 +341,16 @@ compute_offset_length(tvbuff_t *tvb, gint offset, gint length,
 	if (offset >= 0) {
 		*offset_ptr = offset;
 	}
+	else if ((tvb->reported_length > -1) && -offset > tvb->reported_length) {
+		if (exception) {
+			*exception = ReportedBoundsError;
+		}
+		return FALSE;
+	}
 	else if (-offset > tvb->length) {
+		if (exception) {
+			*exception = BoundsError;
+		}
 		return FALSE;
 	}
 	else {
@@ -357,18 +372,33 @@ compute_offset_length(tvbuff_t *tvb, gint offset, gint length,
 
 static gboolean
 check_offset_length_no_exception(tvbuff_t *tvb, gint offset, gint length,
-		guint *offset_ptr, guint *length_ptr)
+		guint *offset_ptr, guint *length_ptr, int *exception)
 {
 	g_assert(tvb->initialized);
 
-	if (!compute_offset_length(tvb, offset, length, offset_ptr, length_ptr)) {
+	if (!compute_offset_length(tvb, offset, length, offset_ptr, length_ptr, exception)) {
 		return FALSE;
 	}
 
 	if (*offset_ptr + *length_ptr <= tvb->length) {
 		return TRUE;
 	}
+	else if (tvb->reported_length == -1) {
+		if (exception) {
+			*exception = BoundsError;
+		}
+		return FALSE;
+	}
+	else if (*offset_ptr + *length_ptr <= tvb->reported_length) {
+		if (exception) {
+			*exception = BoundsError;
+		}
+		return FALSE;
+	}
 	else {
+		if (exception) {
+			*exception = ReportedBoundsError;
+		}
 		return FALSE;
 	}
 
@@ -382,8 +412,11 @@ static void
 check_offset_length(tvbuff_t *tvb, gint offset, gint length,
 		guint *offset_ptr, guint *length_ptr)
 {
-	if (!check_offset_length_no_exception(tvb, offset, length, offset_ptr, length_ptr)) {
-		THROW(BoundsError);
+	int exception = 0;
+
+	if (!check_offset_length_no_exception(tvb, offset, length, offset_ptr, length_ptr, &exception)) {
+		g_assert(exception > 0);
+		THROW(exception);
 	}
 	return;
 }
@@ -396,7 +429,7 @@ add_to_used_in_list(tvbuff_t *tvb, tvbuff_t *used_in)
 
 void
 tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
-		gint backing_offset, gint backing_length)
+		gint backing_offset, gint backing_length, gint reported_length)
 {
 	g_assert(tvb->type == TVBUFF_SUBSET);
 	g_assert(!tvb->initialized);
@@ -406,9 +439,10 @@ tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
 			&tvb->tvbuffs.subset.length);
 
 	tvb_increment_usage_count(backing, 1);
-	tvb->tvbuffs.subset.tvb = backing;
-	tvb->length = tvb->tvbuffs.subset.length;
-	tvb->initialized = TRUE;
+	tvb->tvbuffs.subset.tvb		= backing;
+	tvb->length			= tvb->tvbuffs.subset.length;
+	tvb->reported_length		= reported_length;
+	tvb->initialized		= TRUE;
 	add_to_used_in_list(backing, tvb);
 
 	/* Optimization. If the backing buffer has a pointer to contiguous, real data,
@@ -420,12 +454,12 @@ tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
 
 
 tvbuff_t*
-tvb_new_subset(tvbuff_t *backing, gint backing_offset, gint backing_length)
+tvb_new_subset(tvbuff_t *backing, gint backing_offset, gint backing_length, gint reported_length)
 {
 	tvbuff_t	*tvb;
 
 	tvb = tvb_new(TVBUFF_SUBSET);
-	tvb_set_subset(tvb, backing, backing_offset, backing_length);
+	tvb_set_subset(tvb, backing, backing_offset, backing_length, reported_length);
 
 	return tvb;
 }
@@ -503,8 +537,7 @@ tvb_length_remaining(tvbuff_t *tvb, gint offset)
 
 	g_assert(tvb->initialized);
 
-	if (compute_offset_length(tvb, offset, -1,
-			&abs_offset, &abs_length)) {
+	if (compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length, NULL)) {
 		return abs_length;
 	}
 	else {
@@ -523,7 +556,7 @@ tvb_bytes_exist(tvbuff_t *tvb, gint offset, gint length)
 
 	g_assert(tvb->initialized);
 
-	if (!compute_offset_length(tvb, offset, length, &abs_offset, &abs_length))
+	if (!compute_offset_length(tvb, offset, length, &abs_offset, &abs_length, NULL))
 		return FALSE;
 
 	if (abs_offset + abs_length <= tvb->length) {
@@ -540,7 +573,7 @@ tvb_offset_exists(tvbuff_t *tvb, gint offset)
 	guint		abs_offset, abs_length;
 
 	g_assert(tvb->initialized);
-	if (compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length)) {
+	if (compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length, NULL)) {
 		return TRUE;
 	}
 	else {
@@ -635,7 +668,7 @@ composite_ensure_contiguous(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 	g_assert(member_tvb);
 
 	if (check_offset_length_no_exception(member_tvb, abs_offset - composite->start_offsets[i],
-				abs_length, &member_offset, &member_length)) {
+				abs_length, &member_offset, &member_length, NULL)) {
 
 		g_assert(!tvb->real_data);
 		return ensure_contiguous(member_tvb, member_offset, member_length);
@@ -706,7 +739,7 @@ composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, guint abs_leng
 	g_assert(member_tvb);
 
 	if (check_offset_length_no_exception(member_tvb, abs_offset - composite->start_offsets[i],
-				abs_length, &member_offset, &member_length)) {
+				abs_length, &member_offset, &member_length, NULL)) {
 
 		g_assert(!tvb->real_data);
 		return tvb_memcpy(member_tvb, target, member_offset, member_length);
@@ -718,7 +751,7 @@ composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, guint abs_leng
 		 * until we have copied all data.
 		 */
 		retval = compute_offset_length(member_tvb, abs_offset - composite->start_offsets[i], -1,
-				&member_offset, &member_length);
+				&member_offset, &member_length, NULL);
 		g_assert(retval);
 
 		tvb_memcpy(member_tvb, target, member_offset, member_length);

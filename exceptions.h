@@ -10,6 +10,7 @@
 
 /* Ethereal's exceptions */
 #define BoundsError		1	/* Index is out of range */
+#define ReportedBoundsError	2	/* Index is beyond reported length (not cap_len) */
 
 /* Usage:
  *
@@ -18,6 +19,10 @@
  * }
  *
  * CATCH(exception) {
+ * 	code;
+ * }
+ *
+ * CATCH2(exception1, exception2) {
  * 	code;
  * }
  *
@@ -47,6 +52,9 @@
  * 	}
  * 	else if (x == 2) {
  * 		<CATCH(2) code>
+ * 	}
+ * 	else if (x == 3 || x == 4) {
+ * 		<CATCH2(3,4) code>
  * 	}
  * 	else {
  * 		<CATCH_ALL code> {
@@ -84,7 +92,6 @@
 #define TRY \
 {\
 	except_t *exc; \
-	int caught = 0; \
 	static const except_id_t catch_spec[] = { \
 		{ XCEPT_GROUP_ETHEREAL, XCEPT_CODE_ANY } }; \
 	except_try_push(catch_spec, 1, &exc); \
@@ -99,14 +106,16 @@
 #define CATCH(x) \
 	} \
 	else if (exc->except_id.except_code == (x)) { \
-		caught = 1;
 		/* user's code goes here */
 
+#define CATCH2(x,y) \
+	} \
+	else if (exc->except_id.except_code == (x) || exc->except_id.except_code == (y)) { \
+		/* user's code goes here */
 
 #define CATCH_ALL \
 	} \
 	else { \
-		caught = 1;
 		/* user's code goes here */
 
 #define FINALLY \

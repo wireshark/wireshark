@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.2 2000/05/15 04:37:27 gram Exp $
+ * $Id: tvbuff.h,v 1.3 2000/05/16 04:44:14 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -119,10 +119,10 @@ void tvb_set_free_cb(tvbuff_t*, tvbuff_free_cb_t);
 
 
 /* Sets parameters for TVBUFF_REAL_DATA */
-void tvb_set_real_data(tvbuff_t*, const guint8* data, guint length);
+void tvb_set_real_data(tvbuff_t*, const guint8* data, guint length, gint reported_length);
 
 /* Combination of tvb_new() and tvb_set_real_data() */
-tvbuff_t* tvb_new_real_data(const guint8* data, guint length);
+tvbuff_t* tvb_new_real_data(const guint8* data, guint length, gint reported_length);
 
 
 /* Define the subset of the backing buffer to use.
@@ -138,11 +138,11 @@ tvbuff_t* tvb_new_real_data(const guint8* data, guint length);
  * Will throw BoundsError if 'backing_offset'/'length'
  * is beyond the bounds of the backing tvbuff. */
 void tvb_set_subset(tvbuff_t* tvb, tvbuff_t* backing,
-		gint backing_offset, gint backing_length);
+		gint backing_offset, gint backing_length, gint reported_length);
 
 /* Combination of tvb_new() and tvb_set_subset() */
 tvbuff_t* tvb_new_subset(tvbuff_t* backing,
-		gint backing_offset, gint backing_length);
+		gint backing_offset, gint backing_length, gint reported_length);
 
 
 /* Both tvb_composite_append and tvb_composite_prepend can throw

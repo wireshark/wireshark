@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.16 2000/05/15 06:22:05 gram Exp $
+ * $Id: packet-atm.c,v 1.17 2000/05/16 04:44:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -375,7 +375,7 @@ dissect_lane(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
   tvbuff_t	*next_tvb;
 
-  next_tvb = tvb_new_subset(pi.compat_top_tvb, offset, -1);
+  next_tvb = tvb_new_subset(pi.compat_top_tvb, offset, -1, -1);
 
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "ATM LANE");
@@ -717,7 +717,7 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
       /* Dissect as WTAP_ENCAP_ATM_RFC1483 */
       /* The ATM iptrace capture that we have hows LLC at this point,
        * so that's what I'm calling */
-      next_tvb = tvb_new_subset(pi.compat_top_tvb, offset, -1);
+      next_tvb = tvb_new_subset(pi.compat_top_tvb, offset, -1, -1);
       dissect_llc(next_tvb, &pi, tree);
       break;
 

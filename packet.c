@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.82 2000/05/15 06:22:07 gram Exp $
+ * $Id: packet.c,v 1.83 2000/05/16 04:44:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -104,6 +104,8 @@ static int hf_frame_time_delta = -1;
 static int hf_frame_number = -1;
 static int hf_frame_packet_len = -1;
 static int hf_frame_capture_len = -1;
+static int proto_short = -1;
+static int proto_malformed = -1;
 
 static gint ett_frame = -1;
 
@@ -1165,7 +1167,7 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 	pi.len = fd->pkt_len;
 	pi.captured_len = fd->cap_len;
 
-	tvb = tvb_new_real_data(pd, fd->cap_len);
+	tvb = tvb_new_real_data(pd, fd->cap_len, -1);
 	pi.fd = fd;
 	pi.compat_top_tvb = tvb;
 
@@ -1214,7 +1216,12 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 		}
 	}
 	CATCH(BoundsError) {
-		proto_tree_add_text(tree, NullTVB, 0, 0, "[Short Frame: %s]", pi.current_proto );
+		proto_tree_add_protocol_format(tree, proto_short, NullTVB, 0, 0,
+				"[Short Frame: %s]", pi.current_proto );
+	}
+	CATCH(ReportedBoundsError) {
+		proto_tree_add_protocol_format(tree, proto_malformed, NullTVB, 0, 0,
+				"[Malformed Frame: %s]", pi.current_proto );
 	}
 	ENDTRY;
 
@@ -1313,6 +1320,8 @@ proto_register_frame(void)
 	proto_register_field_array(proto_frame, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	proto_short = proto_register_protocol("Short Frame", "short");
+	proto_malformed = proto_register_protocol("Malformed Frame", "malformed");
 	register_init_routine(&packet_init_protocol);
 
 }
