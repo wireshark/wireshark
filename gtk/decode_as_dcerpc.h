@@ -1,6 +1,6 @@
 /* decode_as_dcerpc.h
  *
- * $Id: decode_as_dlg.h 11400 2004-07-18 00:24:25Z guy $
+ * $Id$
  *
  * Routines to modify dcerpc bindings on the fly.
  * Only internally used between decode_as_dlg and decode_as_dcerpc
