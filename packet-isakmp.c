@@ -2,7 +2,7 @@
  * Routines for the Internet Security Association and Key Management Protocol (ISAKMP)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.10 1999/11/16 11:42:37 guy Exp $
+ * $Id: packet-isakmp.c,v 1.11 1999/12/06 03:39:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -68,7 +68,31 @@ static const char *prototypestr[NUM_PROTO_TYPES] = {
   "IPCOMP"
 };
 
-#define NUM_ATT_TYPES	13
+#define NUM_P1_ATT_TYPES	17
+#define p1_atttype2str(t)	\
+  ((t < NUM_P1_ATT_TYPES) ? p1_atttypestr[t] : "UNKNOWN-ATTRIBUTE-TYPE")
+
+static const char *p1_atttypestr[NUM_P1_ATT_TYPES] = {
+  "UNKNOWN-ATTRIBUTE-TYPE",
+  "Encryption-Algorithm",
+  "Hash-Algorithm",
+  "Authentication-Method",
+  "Group-Description",
+  "Group-Type",
+  "Group-Prime",
+  "Group-Generator-One",
+  "Group-Generator-Two",
+  "Group-Curve-A",
+  "Group-Curve-B",
+  "Life-Type",
+  "Life-Duration",
+  "PRF",
+  "Key-Length",
+  "Field-Size",
+  "Group-Order"
+};
+
+#define NUM_ATT_TYPES	10
 #define atttype2str(t)	\
   ((t < NUM_ATT_TYPES) ? atttypestr[t] : "UNKNOWN-ATTRIBUTE-TYPE")
 
@@ -83,10 +107,6 @@ static const char *atttypestr[NUM_ATT_TYPES] = {
   "Key-Rounds",
   "Compress-Dictinary-Size",
   "Compress-Private-Algorithm"
-  "UNKNOWN-ATTRIBUTE-TYPE",
-  "Oakley-Life",
-  "Oakley-Value",
-  "Oakley-Life-Duration"
 };
 
 #define NUM_TRANS_TYPES	2
@@ -96,6 +116,37 @@ static const char *atttypestr[NUM_ATT_TYPES] = {
 static const char *transtypestr[NUM_TRANS_TYPES] = {
   "RESERVED",
   "KEY_IKE"
+};
+
+#define NUM_AH_TRANS_TYPES	5
+#define ah_trans2str(t)		\
+  ((t < NUM_AH_TRANS_TYPES) ? ah_transtypestr[t] : "UNKNOWN-AH-TRANS-TYPE")
+
+static const char *ah_transtypestr[NUM_AH_TRANS_TYPES] = {
+  "RESERVED",
+  "RESERVED",
+  "MD5",
+  "SHA",
+  "DES"
+};
+
+#define NUM_ESP_TRANS_TYPES	12
+#define esp_trans2str(t)	\
+  ((t < NUM_ESP_TRANS_TYPES) ? esp_transtypestr[t] : "UNKNOWN-ESP-TRANS-TYPE")
+
+static const char *esp_transtypestr[NUM_ESP_TRANS_TYPES] = {
+  "RESERVED",
+  "DES-IV64",
+  "DES",
+  "3DES",
+  "RC5",
+  "IDEA",
+  "CAST",
+  "BLOWFISH",
+  "3IDEA",
+  "DES-IV32",
+  "RC4",
+  "NULL"
 };
 
 #define NUM_ID_TYPES	12
@@ -236,7 +287,8 @@ struct vid_hdr {
 static void dissect_none(const u_char *, int, frame_data *, proto_tree *);
 static void dissect_sa(const u_char *, int, frame_data *, proto_tree *);
 static void dissect_proposal(const u_char *, int, frame_data *, proto_tree *);
-static void dissect_transform(const u_char *, int, frame_data *, proto_tree *);
+static void dissect_transform(const u_char *, int, frame_data *, proto_tree *,
+		guint8);
 static void dissect_key_exch(const u_char *, int, frame_data *, proto_tree *);
 static void dissect_id(const u_char *, int, frame_data *, proto_tree *);
 static void dissect_cert(const u_char *, int, frame_data *, proto_tree *);
@@ -253,12 +305,13 @@ static const char *exchtype2str(guint8);
 static const char *doitype2str(guint32);
 static const char *msgtype2str(guint16);
 static const char *situation2str(guint32);
-static const char *value2str(guint16, guint16);
+static const char *value2str(int, guint16, guint16);
 static const char *num2str(const guint8 *, guint16);
 
 #define NUM_LOAD_TYPES		14
 #define loadtype2str(t)	\
   ((t < NUM_LOAD_TYPES) ? strfuncs[t].str : "Unknown payload type")
+#define	LOAD_TYPE_TRANSFORM	3
 
 static struct strfunc {
   const char *	str;
@@ -267,7 +320,7 @@ static struct strfunc {
   {"NONE",			dissect_none      },
   {"Security Association",	dissect_sa        },
   {"Proposal",			dissect_proposal  },
-  {"Transform",			dissect_transform },
+  {"Transform",			NULL },
   {"Key Exchange",		dissect_key_exch  },
   {"Identification",		dissect_id        },
   {"Certificate",		dissect_cert      },
@@ -349,8 +402,12 @@ void dissect_isakmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 			"Length: %u", len);
     offset += sizeof(hdr->length);
 
-    if (hdr->next_payload < NUM_LOAD_TYPES)
-      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, isakmp_tree);
+    if (hdr->next_payload < NUM_LOAD_TYPES) {
+      if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
+        dissect_transform(pd, offset, fd, isakmp_tree, 0);	/* XXX - protocol ID? */
+      else
+        (*strfuncs[hdr->next_payload].func)(pd, offset, fd, isakmp_tree);
+    }
     else
       dissect_data(pd, offset, fd, isakmp_tree);
   }
@@ -394,8 +451,12 @@ dissect_sa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   dissect_proposal(pd, offset, fd, ntree);
   offset += (length - sizeof(*hdr));
   
-  if (hdr->next_payload < NUM_LOAD_TYPES)
-    (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  if (hdr->next_payload < NUM_LOAD_TYPES) {
+    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
+      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
+    else
+      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  }
   else
     dissect_data(pd, offset, fd, tree);
 }
@@ -407,8 +468,9 @@ dissect_proposal(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   guint16		length	= pntohs(&hdr->length);
   proto_item *		ti	= proto_tree_add_text(tree, offset, length, "Proposal payload");
   proto_tree *		ntree;
-  guint8		i;
-  
+
+  int			next_hdr_offset = offset + length;
+
   ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
   
   proto_tree_add_text(ntree, offset, sizeof(hdr->next_payload),
@@ -432,29 +494,33 @@ dissect_proposal(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   proto_tree_add_text(ntree, offset, sizeof(hdr->spi_size),
 		      "SPI size: %u", hdr->spi_size);
   offset += sizeof(hdr->spi_size);
-  
+
+  proto_tree_add_text(ntree, offset, sizeof(hdr->num_transforms),
+		      "Number of transforms: %u", hdr->num_transforms);
+  offset += sizeof(hdr->num_transforms);
+
   if (hdr->spi_size) {
     proto_tree_add_text(ntree, offset, hdr->spi_size, "SPI");
     offset += hdr->spi_size;
   }
 
-  proto_tree_add_text(ntree, offset, sizeof(hdr->num_transforms),
-		      "Number of transforms: %u", hdr->num_transforms);
-  offset += sizeof(hdr->num_transforms);
-  
-  for (i = 0; i < hdr->num_transforms; ++i) {
-    dissect_transform(pd, offset, fd, ntree);
-    offset += TRANS_LEN(pd+offset);
-  }
+  if (hdr->num_transforms > 0)
+    dissect_transform(pd, offset, fd, ntree, hdr->protocol_id);
 
-  if (hdr->next_payload < NUM_LOAD_TYPES)
-    (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  if (hdr->next_payload < NUM_LOAD_TYPES) {
+    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
+      dissect_transform(pd, next_hdr_offset, fd, tree, 0);	/* XXX - protocol ID? */
+    else
+      (*strfuncs[hdr->next_payload].func)(pd, next_hdr_offset, fd, tree);
+  }
   else
-    dissect_data(pd, offset, fd, tree);
+    dissect_data(pd, next_hdr_offset, fd, tree);
 }
 
 static void
-dissect_transform(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_transform(const u_char *pd, int offset, frame_data *fd,
+		proto_tree *tree, guint8 protocol_id)
+{
 
   struct trans_hdr *	hdr	= (struct trans_hdr *)(pd + offset);
   guint16		length	= pntohs(&hdr->length);
@@ -475,22 +541,47 @@ dissect_transform(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   proto_tree_add_text(ntree, offset, sizeof(hdr->transform_num),
 		      "Transform number: %u", hdr->transform_num);
   offset += sizeof(hdr->transform_num);
-  
-  proto_tree_add_text(ntree, offset, sizeof(hdr->transform_id),
-		      "Transform ID: %s (%u)",
-		      trans2str(hdr->transform_id), hdr->transform_id);
+
+  switch (protocol_id) {
+  default:
+  case 1:	/* ISAKMP */
+    proto_tree_add_text(ntree, offset, sizeof(hdr->transform_id),
+			"Transform ID: %s (%u)",
+			trans2str(hdr->transform_id), hdr->transform_id);
+    break;
+  case 2:	/* AH */
+    proto_tree_add_text(ntree, offset, sizeof(hdr->transform_id),
+			"Transform ID: %s (%u)",
+			ah_trans2str(hdr->transform_id), hdr->transform_id);
+    break;
+  case 3:	/* ESP */
+    proto_tree_add_text(ntree, offset, sizeof(hdr->transform_id),
+			"Transform ID: %s (%u)",
+			esp_trans2str(hdr->transform_id), hdr->transform_id);
+    break;
+  }
   offset += sizeof(hdr->transform_id) + sizeof(hdr->reserved2);
   
   length -= sizeof(*hdr);
   while (length) {
+    const char *str = NULL;
+    int ike_phase1 = 0;
     guint16 type    = pntohs(pd + offset) & 0x7fff;
     guint16 val_len = pntohs(pd + offset + 2);
-    
+
+    if (protocol_id == 1 && hdr->transform_id == 1) {
+      ike_phase1 = 1;
+      str = p1_atttype2str(type);
+    }
+    else {
+      str = atttype2str(type);
+    }
+
     if (pd[offset] & 0xf0) {
       proto_tree_add_text(ntree, offset, 4,
 			  "%s (%u): %s (%u)",
-			  atttype2str(type), type,
-			  value2str(type, val_len), val_len);
+			  str, type,
+			  value2str(ike_phase1, type, val_len), val_len);
       offset += 4;
       length -= 4;
     }
@@ -499,15 +590,19 @@ dissect_transform(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
       
       proto_tree_add_text(ntree, offset, pack_len,
 			  "%s (%u): %s",
-			  atttype2str(type), type,
+			  str, type,
 			  num2str(pd + offset + 4, val_len));
       offset += pack_len;
       length -= pack_len;
     }
   }
 
-  if (hdr->next_payload < NUM_LOAD_TYPES)
-    (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  if (hdr->next_payload < NUM_LOAD_TYPES) {
+    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
+      dissect_transform(pd, offset, fd, tree, protocol_id);
+    else
+      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  }
   else
     dissect_data(pd, offset, fd, tree);
 }
@@ -534,8 +629,12 @@ dissect_key_exch(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   proto_tree_add_text(ntree, offset, length - sizeof(*hdr), "Key Exchange Data");
   offset += (length - sizeof(*hdr));
   
-  if (hdr->next_payload < NUM_LOAD_TYPES)
-    (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  if (hdr->next_payload < NUM_LOAD_TYPES) {
+    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
+      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
+    else
+      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  }
   else
     dissect_data(pd, offset, fd, tree);
 }
@@ -587,8 +686,12 @@ dissect_id(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
   offset += (length - sizeof(*hdr));
   
-  if (hdr->next_payload < NUM_LOAD_TYPES)
-    (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  if (hdr->next_payload < NUM_LOAD_TYPES) {
+    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
+      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
+    else
+      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  }
   else
     dissect_data(pd, offset, fd, tree);
 }
@@ -619,8 +722,12 @@ dissect_cert(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_tree_add_text(ntree, offset, length - sizeof(*hdr), "Certificate Data");
   offset += (length - sizeof(*hdr));
   
-  if (hdr->next_payload < NUM_LOAD_TYPES)
-    (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  if (hdr->next_payload < NUM_LOAD_TYPES) {
+    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
+      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
+    else
+      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  }
   else
     dissect_data(pd, offset, fd, tree);
 }
@@ -651,8 +758,12 @@ dissect_certreq(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
   proto_tree_add_text(ntree, offset, length - sizeof(*hdr), "Certificate Authority");
   offset += (length - sizeof(*hdr));
   
-  if (hdr->next_payload < NUM_LOAD_TYPES)
-    (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  if (hdr->next_payload < NUM_LOAD_TYPES) {
+    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
+      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
+    else
+      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  }
   else
     dissect_data(pd, offset, fd, tree);
 }
@@ -679,8 +790,12 @@ dissect_hash(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_tree_add_text(ntree, offset, length - sizeof(*hdr), "Hash Data");
   offset += (length - sizeof(*hdr));
   
-  if (hdr->next_payload < NUM_LOAD_TYPES)
-    (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  if (hdr->next_payload < NUM_LOAD_TYPES) {
+    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
+      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
+    else
+      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  }
   else
     dissect_data(pd, offset, fd, tree);
 }
@@ -707,8 +822,12 @@ dissect_sig(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_tree_add_text(ntree, offset, length - sizeof(*hdr), "Signature Data");
   offset += (length - sizeof(*hdr));
   
-  if (hdr->next_payload < NUM_LOAD_TYPES)
-    (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  if (hdr->next_payload < NUM_LOAD_TYPES) {
+    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
+      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
+    else
+      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  }
   else
     dissect_data(pd, offset, fd, tree);
 }
@@ -735,8 +854,12 @@ dissect_nonce(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_tree_add_text(ntree, offset, length - sizeof(*hdr), "Nonce Data");
   offset += (length - sizeof(*hdr));
   
-  if (hdr->next_payload < NUM_LOAD_TYPES)
-    (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  if (hdr->next_payload < NUM_LOAD_TYPES) {
+    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
+      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
+    else
+      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  }
   else
     dissect_data(pd, offset, fd, tree);
 }
@@ -790,8 +913,12 @@ dissect_notif(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     offset += (length - sizeof(*hdr) - hdr->spi_size);
   }
   
-  if (hdr->next_payload < NUM_LOAD_TYPES)
-    (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  if (hdr->next_payload < NUM_LOAD_TYPES) {
+    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
+      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
+    else
+      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  }
   else
     dissect_data(pd, offset, fd, tree);
 }
@@ -841,8 +968,12 @@ dissect_delete(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     offset += hdr->spi_size;
   }
 
-  if (hdr->next_payload < NUM_LOAD_TYPES)
-    (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  if (hdr->next_payload < NUM_LOAD_TYPES) {
+    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
+      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
+    else
+      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  }
   else
     dissect_data(pd, offset, fd, tree);
 }
@@ -869,8 +1000,12 @@ dissect_vid(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_tree_add_text(ntree, offset, length - sizeof(*hdr), "Vendor ID");
   offset += (length - sizeof(*hdr));
   
-  if (hdr->next_payload < NUM_LOAD_TYPES)
-    (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  if (hdr->next_payload < NUM_LOAD_TYPES) {
+    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
+      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
+    else
+      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  }
   else
     dissect_data(pd, offset, fd, tree);
 }
@@ -892,7 +1027,7 @@ exchtype2str(guint8 type) {
   static const char * exchstrs[NUM_EXCHSTRS] = {
     "NONE",
     "Base",
-    "Identity Protection",
+    "Identity Protection (Main Mode)",
     "Authentication Only",
     "Aggressive",
     "Informational"
@@ -900,6 +1035,12 @@ exchtype2str(guint8 type) {
   
   if (type < NUM_EXCHSTRS) return exchstrs[type];
   if (type < 32)           return "ISAKMP Future Use";
+  switch (type) {
+  case 32:
+    return "Quick Mode";
+  case 33:
+    return "New Group Mode";
+  }
   if (type < 240)          return "DOI Specific Use";
   if (type < 256)          return "Private Use";
   
@@ -994,18 +1135,20 @@ situation2str(guint32 type) {
 }
 
 static const char *
-value2str(guint16 att_type, guint16 value) {
+value2str(int ike_p1, guint16 att_type, guint16 value) {
   
   if (value == 0) return "RESERVED";
   
+  if (!ike_p1) {
   switch (att_type) {
     case 1:
-    case 2:
       switch (value) {
         case 1:  return "Seconds";
         case 2:  return "Kilobytes";
         default: return "UNKNOWN-SA-VALUE";
       }
+    case 2:
+      return "Duration-Value";
     case 3:
       return "Group-Value";
     case 4:
@@ -1022,9 +1165,74 @@ value2str(guint16 att_type, guint16 value) {
         case 4:  return "KPDK";
         default: return "UNKNOWN-AUTHENTICATION-VALUE";
       }
-    case 11:
-      return "Life-Type";
+    case 6:
+      return "Key-Length";
+    case 7:
+      return "Key-Rounds";
+    case 8:
+      return "log2-size";
     default: return "UNKNOWN-ATTRIBUTE-TYPE";
+  }
+  }
+  else {
+    switch (att_type) {
+      case 1:
+        switch (value) {
+          case 1:  return "DES-CBC";
+          case 2:  return "IDEA-CBC";
+          case 3:  return "BLOWFISH-CBC";
+          case 4:  return "RC5-R16-B64-CBC";
+          case 5:  return "3DES-CBC";
+          case 6:  return "CAST-CBC";
+          default: return "UNKNOWN-ENCRYPTION-ALG";
+        }
+      case 2:
+        switch (value) {
+          case 1:  return "MD5";
+          case 2:  return "SHA";
+          case 3:  return "TIGER";
+          default: return "UNKNOWN-HASH-ALG";
+        }
+      case 3:
+        switch (value) {
+          case 1:  return "PSK";
+          case 2:  return "DSS-SIG";
+          case 3:  return "RSA-SIG";
+          case 4:  return "RSA-ENC";
+          case 5:  return "RSA-Revised-ENC";
+          default: return "UNKNOWN-AUTH-METHOD";
+        }
+      case 4:
+      case 6:
+      case 7:
+      case 8:
+      case 9:
+      case 10:
+      case 16:
+        return "Group-Value";
+      case 5:
+        switch (value) {
+          case 1:  return "MODP";
+          case 2:  return "ECP";
+          case 3:  return "EC2N";
+          default: return "UNKNOWN-GROUPT-TYPE";
+        }
+      case 11:
+        switch (value) {
+          case 1:  return "Seconds";
+          case 2:  return "Kilobytes";
+          default: return "UNKNOWN-SA-VALUE";
+        }
+      case 12:
+        return "Duration-Value";
+      case 13:
+        return "PRF-Value";
+      case 14:
+        return "Key-Length";
+      case 15:
+        return "Field-Size";
+      default: return "UNKNOWN-ATTRIBUTE-TYPE";
+    }
   }
 }
 
