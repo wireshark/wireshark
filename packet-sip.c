@@ -18,7 +18,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.64 2004/04/14 04:45:10 etxrab Exp $
+ * $Id: packet-sip.c,v 1.65 2004/04/22 20:09:41 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,6 +63,9 @@
 
 static gint sip_tap = -1;
 
+/* Initial size of hash table tracking state of calls */
+#define SIP_INIT_HASH_TABLE_SIZE 50
+
 /* Initialize the protocol and registered fields */
 static gint proto_sip = -1;
 static gint proto_raw_sip = -1;
@@ -74,6 +77,7 @@ static gint hf_Status_Line = -1;
 static gint hf_sip_to_addr = -1;
 static gint hf_sip_from_addr = -1;
 static gint hf_sip_tag = -1;
+static gint hf_sip_resend = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_sip 		= -1;
@@ -365,6 +369,11 @@ static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree,
     guint meth_len);
 static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree);
 static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
+static int sip_is_packet_resend(packet_info *pinfo,
+				gchar* cseq_method,
+				gchar* call_id, guint32 cseq_number,
+				line_type_t line_type);
+
 
 /* SIP content type and internet media type used by other dissectors
  * are the same.  List of media types from IANA at:
@@ -376,6 +385,134 @@ static dissector_table_t media_type_dissector_table;
 
 /* Store the info needed by the SIP tap for one packet */
 static sip_info_value_t *stat_info;
+
+
+/****************************************************************************
+ * Conversation-type definitions
+ *
+ * For each call, keep track of the current cseq number and state of
+ * transaction, in order to be able to detect retransmissions.
+ *
+ * Don't use the conservation mechanism, but instead:
+ * - store with each dissected packet whether its a resend (1=yes, 2=no)
+ * - maintain a global hash table of
+ *   (call_id, source_addr, dest_addr) -> (cseq, transaction_state)
+ ****************************************************************************/
+
+static GHashTable *sip_hash = NULL;           /* Hash table */
+static GMemChunk  *sip_hash_keys = NULL;      /* Hash key chunk */
+static GMemChunk  *sip_hash_values = NULL;    /* Hash value chunk */
+
+/* Types for hash table keys and values */
+#define MAX_CALL_ID_SIZE 128
+typedef struct
+{
+	char call_id[MAX_CALL_ID_SIZE];
+	address source_address;
+	guint32 source_port;
+	address dest_address;
+	guint32 dest_port;
+} sip_hash_key;
+
+
+typedef enum
+{
+	request_outstanding,
+	final_response_seen
+} transaction_state_t;
+
+typedef struct
+{
+	guint32 cseq;
+	transaction_state_t transaction_state;
+} sip_hash_value;
+
+
+/************************/
+/* Hash table functions */
+
+/* Equal keys */
+gint sip_equal(gconstpointer v, gconstpointer v2)
+{
+	const sip_hash_key* val1 = (sip_hash_key*)v;
+	const sip_hash_key* val2 = (sip_hash_key*)v2;
+
+	/* Call id must match */
+	if (strcmp(val1->call_id, val2->call_id) != 0)
+	{
+		return 0;
+	}
+
+	/* Addresses must match (in either direction) */
+
+	/* Same way */
+	if (	(ADDRESSES_EQUAL(&(val1->source_address), &(val2->source_address))) &&
+		(val1->source_port == val2->source_port) &&
+		(ADDRESSES_EQUAL(&(val1->dest_address), &(val2->dest_address))) &&
+		(val1->dest_port == val2->dest_port))
+	{
+		return 1;
+	}
+	else
+	/* Opposite way */
+	if (	(ADDRESSES_EQUAL(&(val1->source_address), &(val2->dest_address))) &&
+		(val1->source_port == val2->dest_port) &&
+		(ADDRESSES_EQUAL(&(val1->dest_address), &(val2->source_address))) &&
+		(val1->dest_port == val2->source_port))
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+/* Compute a hash value for a given key. */
+/* Don't try to use addresses here, call-id should be almost unique. */
+guint sip_hash_func(gconstpointer v)
+{
+	gint n;
+	sip_hash_key *key = (sip_hash_key*)v;
+	guint value = strlen(key->call_id);
+	gint chars_to_use = value / 4;
+
+	/* First few characters from the call-id should be enough... */
+	for (n=0; n < chars_to_use; n++)
+	{
+		value += key->call_id[n];
+	}
+
+	return value;
+}
+
+
+/* Initializes the hash table and the mem_chunk area each time a new
+ * file is loaded or re-loaded in ethereal */
+static void
+sip_init_protocol(void)
+{
+	/* Destroy any existing memory chunks / hashes. */
+	if (sip_hash)
+		g_hash_table_destroy(sip_hash);
+	if (sip_hash_keys)
+		g_mem_chunk_destroy(sip_hash_keys);
+	if (sip_hash_values)
+		g_mem_chunk_destroy(sip_hash_values);
+
+	/* Now create them over */
+	sip_hash = g_hash_table_new(sip_hash_func, sip_equal);
+	sip_hash_keys = g_mem_chunk_new("sip_hash_keys",
+					sizeof(sip_hash_key),
+					SIP_INIT_HASH_TABLE_SIZE * sizeof(sip_hash_key),
+					G_ALLOC_ONLY);
+	sip_hash_values = g_mem_chunk_new("sip_hash_values",
+					sizeof(sip_hash_value),
+					SIP_INIT_HASH_TABLE_SIZE * sizeof(sip_hash_value),
+					G_ALLOC_ONLY);
+}
+
+
 
 /* Code to actually dissect the packets */
 static int
@@ -415,15 +552,19 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_item *ts = NULL, *ti = NULL, *th = NULL, *sip_element_item = NULL;
         proto_tree *sip_tree = NULL, *reqresp_tree = NULL , *hdr_tree = NULL, *sip_element_tree = NULL, *message_body_tree = NULL;
 	guchar contacts = 0, contact_is_star = 0, expires_is_0 = 0;
-	char csec_method[16] = "";
+	guint32 cseq_number = 0;
+	char    cseq_method[16] = "";
+	char	call_id[MAX_CALL_ID_SIZE] = "";
 	char *media_type_str = NULL;
 	char *media_type_str_lower_case = NULL;
 	char *content_type_parameter_str = NULL;
+	gboolean packet_is_resend = FALSE;
 
 	/* Initialise stat info for passing to tap */
 	stat_info = g_malloc(sizeof(sip_info_value_t));
 	stat_info->response_code = 0;
 	stat_info->request_method = NULL;
+	stat_info->resend = 0;
 
         /*
          * Note that "tvb_find_line_end()" will return a value that
@@ -696,16 +837,36 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					break;
 
 				case POS_CSEQ :
+					/* Store the sequence number */
+					cseq_number = atoi(value);
+
 					/* Extract method name from value */
 					for (value_offset = 0; value_offset < (gint)strlen(value); value_offset++)
 					{
 						if (isalpha((guchar)value[value_offset]))
 						{
-							strcpy(csec_method,value+value_offset);
+							strcpy(cseq_method,value+value_offset);
 							break;
 						}
 					}
 					/* Add 'CSeq' string item to tree */
+					if(hdr_tree) {
+						proto_tree_add_string_format(hdr_tree,
+						    hf_header_array[hf_index], tvb,
+						    offset, next_offset - offset,
+						    value, "%s",
+						    tvb_format_text(tvb, offset, linelen));
+					}
+					break;
+
+				case POS_CALL_ID :
+					/* Store the Call-id */
+					strncpy(call_id, value,
+						strlen(value)+1 < MAX_CALL_ID_SIZE ?
+							strlen(value)+1 :
+							MAX_CALL_ID_SIZE);
+
+					/* Add 'Call-id' string item to tree */
 					if(hdr_tree) {
 						proto_tree_add_string_format(hdr_tree,
 						    hf_header_array[hf_index], tvb,
@@ -857,11 +1018,24 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		/* Registration responses */
-		if (line_type == STATUS_LINE && (strcmp(csec_method, "REGISTER") == 0))
+		if (line_type == STATUS_LINE && (strcmp(cseq_method, "REGISTER") == 0))
 		{
 			col_append_fstr(pinfo->cinfo, COL_INFO, "    (%d bindings)", contacts);
 		}
 	}
+
+	/* Check if this packet is a resend. */
+	packet_is_resend = sip_is_packet_resend(pinfo, cseq_method, call_id,
+						cseq_number, line_type);
+	/* Mark whether this is a resend for the tap */
+	stat_info->resend = packet_is_resend;
+
+	if (reqresp_tree)
+	{
+		proto_tree_add_boolean(reqresp_tree, hf_sip_resend, tvb, 0, 0,
+					packet_is_resend);
+	}
+
 
         if (global_sip_raw_text)
                 tvb_raw_text_add(tvb, tree);
@@ -899,6 +1073,7 @@ static void
 dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree)
 {
 	char string[3+1];
+	gint response_code = 0;
 
         /*
          * We know we have the entire status code; otherwise,
@@ -908,12 +1083,16 @@ dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree)
          */
         tvb_memcpy(tvb, (guint8 *)string, SIP2_HDR_LEN + 1, 3);
         string[3] = '\0';
+	response_code = atoi(string);
+
+	/* Add numerical response code to tree */
         if (tree) {
-        	proto_tree_add_string(tree, hf_Status_Code, tvb, SIP2_HDR_LEN + 1,
-        	    3, string);
+		proto_tree_add_uint(tree, hf_Status_Code, tvb, SIP2_HDR_LEN + 1,
+					3, response_code);
 	}
+
         /* Add response code for sending to tap */
-        stat_info->response_code = atoi(string);
+        stat_info->response_code = response_code;
 }
 
 /* From section 4.1 of RFC 2543:
@@ -1106,6 +1285,129 @@ tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
         }
 }
 
+/* Check to see if this packet is a resent request */
+int sip_is_packet_resend(packet_info *pinfo,
+			gchar *cseq_method,
+			gchar *call_id,
+			guint32 cseq_number, line_type_t line_type)
+{
+	guint32 cseq_to_compare = 0;
+	sip_hash_key   key;
+	sip_hash_key   *p_key = 0;
+	sip_hash_value *p_val = 0;
+	int result = 0;
+	guint32 stored_answer;
+
+	/* Only consider retransmission of UDP packets */
+	if (pinfo->ptype != PT_UDP)
+	{
+		return 0;
+	}
+
+	/* Get any packet-stored answer seen in previous dissection */
+	stored_answer = (gint32)(p_get_proto_data(pinfo->fd, proto_sip));
+	if (stored_answer != 0)
+	{
+		return (stored_answer == 1);
+	}
+
+	/* No packet entry found, consult global hash table */
+
+	/* Prepare the key */
+	strncpy(key.call_id, call_id,
+		(strlen(call_id)+1 <= MAX_CALL_ID_SIZE) ?
+			strlen(call_id)+1 :
+			MAX_CALL_ID_SIZE);
+	COPY_ADDRESS(&key.dest_address, &pinfo->net_dst);
+	COPY_ADDRESS(&key.source_address, &pinfo->net_src);
+	key.dest_port = pinfo->destport;
+	key.source_port = pinfo->srcport;
+
+	/* Do the lookup */
+	p_val = (sip_hash_value*)g_hash_table_lookup(sip_hash, &key);
+
+	/* Table entry found, we'll use its value for comparison */
+	if (p_val)
+	{
+		cseq_to_compare = p_val->cseq;
+	}
+	else
+	{
+		/* Create a new table entry for this call-id */
+
+		/* Allocate a new key and value */
+		p_key = g_mem_chunk_alloc(sip_hash_keys);
+		p_val = g_mem_chunk_alloc(sip_hash_values);
+
+		/* Just give up if allocations failed */
+		if (!p_key || !p_val)
+		{
+			return 0;
+		}
+
+		/* Fill in key and value details */
+		strcpy(p_key->call_id, call_id);
+		COPY_ADDRESS(&(p_key->dest_address), &pinfo->net_dst);
+		COPY_ADDRESS(&(p_key->source_address), &pinfo->net_src);
+		p_key->dest_port = pinfo->destport;
+		p_key->source_port = pinfo->srcport;
+
+		p_val->cseq = cseq_number;
+
+
+		/* Insert into the table */
+		g_hash_table_insert(sip_hash, p_key, p_val);
+
+		/* Assume have seen no cseq yet */
+		cseq_to_compare = 0;
+	}
+
+	/* Update the hash value */
+	p_val->cseq = cseq_number;
+
+
+	/******************************************/
+	/* Is it a resend???                      */
+
+	/* Does this look like a resent request ? */
+	if ((line_type == REQUEST_LINE) && (cseq_number <= cseq_to_compare) &&
+		(p_val->transaction_state == request_outstanding) &&
+		(strcmp(cseq_method, "ACK") != 0))
+	{
+		result = 1;
+	}
+
+	/* Does this look like a resent final response ? */
+	if ((line_type == STATUS_LINE) && (cseq_number <= cseq_to_compare) &&
+		(p_val->transaction_state == final_response_seen) &&
+		(stat_info->response_code >= 200))
+	{
+		result = 1;
+	}
+
+	/* Update state of transaction */
+	switch (line_type)
+	{
+		case REQUEST_LINE:
+			p_val->transaction_state = request_outstanding;
+			break;
+		case STATUS_LINE:
+			if (stat_info->response_code >= 200)
+			{
+				p_val->transaction_state = final_response_seen;
+			}
+			break;
+		default:
+			break;
+	}
+
+	/* Store value with packet to indicate not a resend (1=yes, 2=no) */
+	p_add_proto_data(pinfo->fd, proto_sip, result ? (void*)1 : (void*) 2);
+
+	return result;
+}
+
+
 /* Register the protocol with Ethereal */
 void proto_register_sip(void)
 {
@@ -1130,7 +1432,7 @@ void proto_register_sip(void)
                 },
                 { &hf_Status_Code,
 		       { "Status-Code", 		"sip.Status-Code",
-		       FT_STRING, BASE_NONE,NULL,0x0,
+		       FT_UINT32, BASE_DEC,NULL,0x0,
 			"SIP Status Code", HFILL }
 		},
 		{ &hf_Status_Line,
@@ -1522,6 +1824,12 @@ void proto_register_sip(void)
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"SIP-If-Match Header", HFILL }
 		},
+		{ &hf_sip_resend,
+			{ "Resent Packet", "sip.resend",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"", HFILL }
+		}
+
         };
 
         /* Setup protocol subtree array */
@@ -1568,6 +1876,8 @@ void proto_register_sip(void)
 		"Disable it to allow SIP traffic with a different version "
 		"to be dissected as SIP.",
 		&strict_sip_version);
+
+	register_init_routine(&sip_init_protocol);
 
 	/* Register for tapping */
 	sip_tap = register_tap("sip");

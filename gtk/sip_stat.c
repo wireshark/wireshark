@@ -1,7 +1,7 @@
 /* sip_stat.c
  * sip_stat   2004 Martin Mathieson
  *
- * $Id: sip_stat.c,v 1.4 2004/04/12 09:48:18 ulfl Exp $
+ * $Id: sip_stat.c,v 1.5 2004/04/22 20:08:46 etxrab Exp $
  * Copied from http_stat.c
  *
  * Ethereal - Network traffic analyzer
@@ -55,7 +55,9 @@ typedef struct _sip_stats_t {
     GHashTable  *hash_responses;
     GHashTable  *hash_requests;
     guint32	    packets;        /* number of sip packets, including continuations */
+    guint32     resent_packets;
     GtkWidget   *packets_label;
+    GtkWidget   *resent_label;
 
     GtkWidget   *request_box;		/* container for INVITE, ... */
 
@@ -328,6 +330,7 @@ sipstat_reset(void *psp)
     if (sp)
     {
     	sp->packets = 0;
+        sp->resent_packets = 0;
         g_hash_table_foreach(sp->hash_responses, (GHFunc)sip_reset_hash_responses, NULL);
         g_hash_table_foreach(sp->hash_requests, (GHFunc)sip_reset_hash_requests, NULL);
     }
@@ -342,6 +345,13 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, void 
 
     /* Total number of packets, including continuation packets */
     sp->packets++;
+
+    /* Update resent count if flag set */
+    if (value->resend)
+    {
+        sp->resent_packets++;
+    }
+
 
     /* Looking at both requests and responses */
     if (value->response_code != 0)
@@ -444,6 +454,11 @@ sipstat_draw(void *psp)
     g_snprintf(string_buff, sizeof(string_buff),
                 "SIP stats (%d packets)", sp->packets);
     gtk_label_set(GTK_LABEL(sp->packets_label), string_buff);
+
+    /* Set resend count label */
+    g_snprintf(string_buff, sizeof(string_buff),
+                "(%d resent packets)", sp->resent_packets);
+    gtk_label_set(GTK_LABEL(sp->resent_label), string_buff);
 
     /* Draw responses and requests from their tables */
     g_hash_table_foreach(sp->hash_responses, (GHFunc)sip_draw_hash_responses, NULL);
@@ -551,6 +566,11 @@ gtk_sipstat_init(char *optarg)
     sp->packets = 0;
     sp->packets_label = gtk_label_new("SIP stats (0 SIP packets)");
     gtk_container_add(GTK_CONTAINER(main_vb), sp->packets_label);
+
+    sp->resent_packets = 0;
+    sp->resent_label = gtk_label_new("(0 resent packets)");
+    gtk_container_add(GTK_CONTAINER(main_vb), sp->resent_label);
+    gtk_widget_show(sp->resent_label);
 
 
     /* Informational response frame */

@@ -1,6 +1,6 @@
 /* packet-sip.h
  *
- * $Id: packet-sip.h,v 1.1 2004/03/26 01:55:41 gerald Exp $
+ * $Id: packet-sip.h,v 1.2 2004/04/22 20:09:41 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,6 +30,7 @@ typedef struct _sip_info_value_t
 {
     gchar	*request_method;
     guint	 response_code;
+	guchar	resend;
 } sip_info_value_t;
 
 #endif
