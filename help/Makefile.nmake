@@ -1,41 +1,12 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.1 2003/11/18 23:11:49 ulfl Exp $
+# $Id: Makefile.nmake,v 1.2 2003/12/22 08:07:13 ulfl Exp $
 
 include ..\config.nmake
 
 ############### no need to modify below this line #########
 
-# nmake seems to have problems with implicit rules and unknown source filetypes!
-# so nmake has to use explicit rules to build .h files.
-
-
-INCLUDES =            \
-	capture_filters.h \
-	display_filters.h \
-	faq.h             \
-	overview.h        \
-	well_known.h
-
-all_includes: $(INCLUDES) convert-include.sh Makefile.nmake
-
-capture_filters.h: capture_filters.txt
-	$(SH) convert-include.sh $*
-
-display_filters.h: display_filters.txt
-	$(SH) convert-include.sh $*
-
-faq.h: faq.txt
-	$(SH) convert-include.sh $*
-
-overview.h: overview.txt
-	$(SH) convert-include.sh $*
-
-well_known.h: well_known.txt
-	$(SH) convert-include.sh $*
-
 clean:
-	rm -f $(INCLUDES)
 
 distclean: clean
