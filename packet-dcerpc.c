@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.17 2001/11/27 09:37:18 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.18 2001/11/27 11:01:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -918,6 +918,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
     static char nulls[4] = { 0 };
     int start_offset;
+    int padding = 0;
     proto_item *ti = NULL;
     proto_item *tf = NULL;
     proto_tree *dcerpc_tree = NULL;
@@ -926,11 +927,13 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
     e_dce_cn_common_hdr_t hdr;
 
     /*
-     * Check if this looks like a C/O DCERPC call
-     */
-    /*
      * when done over nbt, dcerpc requests are padded with 4 bytes of null
      * data for some reason.
+     *
+     * XXX - if that's always the case, the right way to do this would
+     * be to have a "dissect_dcerpc_cn_nb" routine which strips off
+     * the 4 bytes of null padding, and make that the dissector
+     * used for "netbios".
      */
     if (tvb_bytes_exist (tvb, offset, 4) &&
  	tvb_memeql (tvb, offset, nulls, 4) == 0) {
@@ -939,7 +942,12 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
          * Skip the padding.
          */
         offset += 4;
+        padding += 4;
     }
+
+    /*
+     * Check if this looks like a C/O DCERPC call
+     */
     if (!tvb_bytes_exist (tvb, offset, sizeof (hdr))) {
         return -1;
     }
@@ -1045,7 +1053,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
         dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, &hdr);
         break;
     }
-    return hdr.frag_len;
+    return hdr.frag_len + padding;
 }
 
 /*
