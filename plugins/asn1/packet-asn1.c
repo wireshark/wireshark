@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.19 2004/02/21 02:15:07 guy Exp $
+ * $Id: packet-asn1.c,v 1.20 2004/02/22 23:53:57 guy Exp $
  *
  * A plugin for:
  *
@@ -137,16 +137,16 @@ static guint tcp_port_asn1 = TCP_PORT_ASN1;
 static guint udp_port_asn1 = UDP_PORT_ASN1;
 
 static gboolean asn1_desegment = TRUE;
-static char *asn1_filename = 0;
-static char *default_asn1_filename = 0;
-#define ASN1FILE "asn1" G_DIR_SEPARATOR_S "default.tt"
+static char *asn1_filename = NULL;
+static char *old_default_asn1_filename = NULL;
+#define OLD_DEFAULT_ASN1FILE "asn1" G_DIR_SEPARATOR_S "default.tt"
 #ifdef WIN32
-#define OLD_ASN1FILE "asn1/default.tt"
-static char *old_default_asn1_filename = 0;
+#define BAD_SEPARATOR_OLD_DEFAULT_ASN1FILE "asn1/default.tt"
+static char *bad_separator_old_default_asn1_filename = NULL;
 #endif
-static char *current_asn1 = 0;
-static char *asn1_pduname = 0;
-static char *current_pduname = 0;
+static char *current_asn1 = NULL;
+static char *asn1_pduname = NULL;
+static char *current_pduname = NULL;
 static gboolean asn1_debug = FALSE;
 static guint first_pdu_offset = 0;
 static gboolean asn1_message_win = FALSE;
@@ -2590,9 +2590,16 @@ read_asn1_type_table(char *filename)
 
 	f = fopen(filename, "rb");
 	if (f == 0) {
-		if ((strcmp(filename, default_asn1_filename) != 0
+		/*
+		 * Ignore "file not found" errors if it's the old default
+		 * ASN.1 file name, as we never shipped such a file.
+		 * Also, on Win32, ignore the earlier default, which
+		 * had a "/" rather than a "\" as the last pathname
+		 * separator.
+		 */
+		if ((strcmp(filename, old_default_asn1_filename) != 0
 #ifdef WIN32
-		    && strcmp(filename, old_default_asn1_filename) != 0
+		    && strcmp(filename, bad_separator_old_default_asn1_filename) != 0
 #endif
 		    ) || errno != ENOENT)
 			report_open_failure(filename, errno, FALSE);
@@ -4685,10 +4692,9 @@ proto_register_asn1(void) {
 				 "Desegment ASN.1 messages that span TCP segments",
 				 &asn1_desegment);
 
-  default_asn1_filename = get_datafile_path(ASN1FILE);
-  asn1_filename = default_asn1_filename;
+  old_default_asn1_filename = get_datafile_path(OLD_DEFAULT_ASN1FILE);
 #ifdef WIN32
-  old_default_asn1_filename = get_datafile_path(OLD_ASN1FILE);
+  bad_separator_old_default_asn1_filename = get_datafile_path(BAD_SEPARATOR_OLD_DEFAULT_ASN1FILE);
 #endif
 
   prefs_register_string_preference(asn1_module, "file",
