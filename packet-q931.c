@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.55 2003/06/25 06:12:13 guy Exp $
+ * $Id: packet-q931.c,v 1.56 2003/07/08 07:56:27 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -931,94 +931,136 @@ static const value_string q931_cause_recommendation_vals[] = {
 /*
  * Cause codes for Cause.
  */
+#define	Q931_CAUSE_UNALLOC_NUMBER	0x01
+#define	Q931_CAUSE_NO_ROUTE_TO_DEST	0x03
+#define	Q931_CAUSE_CALL_REJECTED	0x15
+#define	Q931_CAUSE_NUMBER_CHANGED	0x16
+#define	Q931_CAUSE_ACCESS_INFO_DISC	0x2B
+#define	Q931_CAUSE_QOS_UNAVAILABLE	0x31
+#define	Q931_CAUSE_CHAN_NONEXISTENT	0x52
+#define	Q931_CAUSE_INCOMPATIBLE_DEST	0x58
+#define	Q931_CAUSE_MAND_IE_MISSING	0x60
+#define	Q931_CAUSE_MT_NONEX_OR_UNIMPL	0x61
+#define	Q931_CAUSE_IE_NONEX_OR_UNIMPL	0x63
+#define	Q931_CAUSE_INVALID_IE_CONTENTS	0x64
+#define	Q931_CAUSE_MSG_INCOMPAT_W_CS	0x65
+#define	Q931_CAUSE_REC_TIMER_EXP	0x66
+
 const value_string q931_cause_code_vals[] = {
-	{ 0x00,	"Valid cause code not yet received" },
-	{ 0x01,	"Unallocated (unassigned) number" },
-	{ 0x02,	"No route to specified transit network" },
-	{ 0x03,	"No route to destination" },
-	{ 0x04,	"Send special information tone" },
-	{ 0x05,	"Misdialled trunk prefix" },
-	{ 0x06,	"Channel unacceptable" },
-	{ 0x07,	"Call awarded and being delivered in an established channel" },
-	{ 0x08,	"Prefix 0 dialed but not allowed" },
-	{ 0x09,	"Prefix 1 dialed but not allowed" },
-	{ 0x0A,	"Prefix 1 dialed but not required" },
-	{ 0x0B,	"More digits received than allowed, call is proceeding" },
-	{ 0x10,	"Normal call clearing" },
-	{ 0x11,	"User busy" },
-	{ 0x12,	"No user responding" },
-	{ 0x13,	"No answer from user (user alerted)" },
-	{ 0x14,	"Subscriber absent" },
-	{ 0x15,	"Call rejected" },
-	{ 0x16,	"Number changed" },
-	{ 0x17,	"Reverse charging rejected" },
-	{ 0x18,	"Call suspended" },
-	{ 0x19,	"Call resumed" },
-	{ 0x1A,	"Non-selected user clearing" },
-	{ 0x1B,	"Destination out of order" },
-	{ 0x1C,	"Invalid number format (incomplete number)" },
-	{ 0x1D,	"Facility rejected" },
-	{ 0x1E,	"Response to STATUS ENQUIRY" },
-	{ 0x1F,	"Normal unspecified" },
-	{ 0x21,	"Circuit out of order" },
-	{ 0x22,	"No circuit/channel available" },
-	{ 0x23,	"Destination unattainable" },
-	{ 0x25,	"Degraded service" },
-	{ 0x26,	"Network out of order" },
-	{ 0x27,	"Transit delay range cannot be achieved" },
-	{ 0x28,	"Throughput range cannot be achieved" },
-	{ 0x29,	"Temporary failure" },
-	{ 0x2A,	"Switching equipment congestion" },
-	{ 0x2B,	"Access information discarded" },
-	{ 0x2C,	"Requested circuit/channel not available" },
-	{ 0x2D,	"Pre-empted" },
-	{ 0x2E,	"Precedence call blocked" },
-	{ 0x2F,	"Resources unavailable, unspecified" },
-	{ 0x31,	"Quality of service unavailable" },
-	{ 0x32,	"Requested facility not subscribed" },
-	{ 0x33,	"Reverse charging not allowed" },
-	{ 0x34,	"Outgoing calls barred" },
-	{ 0x35,	"Outgoing calls barred within CUG" },
-	{ 0x36,	"Incoming calls barred" },
-	{ 0x37,	"Incoming calls barred within CUG" },
-	{ 0x38,	"Call waiting not subscribed" },
-	{ 0x39,	"Bearer capability not authorized" },
-	{ 0x3A,	"Bearer capability not presently available" },
-	{ 0x3E,	"Inconsistency in designated outgoing access information and subscriber class" },
-	{ 0x3F,	"Service or option not available, unspecified" },
-	{ 0x41,	"Bearer capability not implemented" },
-	{ 0x42,	"Channel type not implemented" },
-	{ 0x43,	"Transit network selection not implemented" },
-	{ 0x44,	"Message not implemented" },
-	{ 0x45,	"Requested facility not implemented" },
-	{ 0x46,	"Only restricted digital information bearer capability is available" },
-	{ 0x4F,	"Service or option not implemented, unspecified" },
-	{ 0x51,	"Invalid call reference value" },
-	{ 0x52,	"Identified channel does not exist" },
-	{ 0x53,	"Call identity does not exist for suspended call" },
-	{ 0x54,	"Call identity in use" },
-	{ 0x55,	"No call suspended" },
-	{ 0x56,	"Call having the requested call identity has been cleared" },
-	{ 0x57,	"Called user not member of CUG" },
-	{ 0x58,	"Incompatible destination" },
-	{ 0x59,	"Non-existent abbreviated address entry" },
-	{ 0x5A,	"Destination address missing, and direct call not subscribed" },
-	{ 0x5B,	"Invalid transit network selection (national use)" },
-	{ 0x5C,	"Invalid facility parameter" },
-	{ 0x5D,	"Mandatory information element is missing" },
-	{ 0x5F,	"Invalid message, unspecified" },
-	{ 0x60,	"Mandatory information element is missing" },
-	{ 0x61,	"Message type non-existent or not implemented" },
-	{ 0x62,	"Message not compatible with call state or message type non-existent or not implemented" },
-	{ 0x63,	"Information element nonexistant or not implemented" },
-	{ 0x64,	"Invalid information element contents" },
-	{ 0x65,	"Message not compatible with call state" },
-	{ 0x66,	"Recovery on timer expiry" },
-	{ 0x67,	"Parameter non-existent or not implemented - passed on" },
-	{ 0x6E,	"Message with unrecognized parameter discarded" },
-	{ 0x6F,	"Protocol error, unspecified" },
-	{ 0x7F,	"Internetworking, unspecified" },
-	{ 0,	NULL }
+	{ 0x00,				"Valid cause code not yet received" },
+	{ Q931_CAUSE_UNALLOC_NUMBER,	"Unallocated (unassigned) number" },
+	{ 0x02,				"No route to specified transit network" },
+	{ Q931_CAUSE_NO_ROUTE_TO_DEST,	"No route to destination" },
+	{ 0x04,				"Send special information tone" },
+	{ 0x05,				"Misdialled trunk prefix" },
+	{ 0x06,				"Channel unacceptable" },
+	{ 0x07,				"Call awarded and being delivered in an established channel" },
+	{ 0x08,				"Prefix 0 dialed but not allowed" },
+					/* Q.850 - "Preemption" */
+	{ 0x09,				"Prefix 1 dialed but not allowed" },
+					/* Q.850 - "Preemption - circuit reserved for reuse" */
+	{ 0x0A,				"Prefix 1 dialed but not required" },
+	{ 0x0B,				"More digits received than allowed, call is proceeding" },
+	{ 0x0E,				"QoR: ported number" },
+	{ 0x10,				"Normal call clearing" },
+	{ 0x11,				"User busy" },
+	{ 0x12,				"No user responding" },
+	{ 0x13,				"No answer from user (user alerted)" },
+	{ 0x14,				"Subscriber absent" },
+	{ Q931_CAUSE_CALL_REJECTED,	"Call rejected" },
+	{ Q931_CAUSE_NUMBER_CHANGED,	"Number changed" },
+	{ 0x17,				"Reverse charging rejected" },
+					/* Q.850 - "Redirection to new destination" */
+	{ 0x18,				"Call suspended" },
+					/* Q.850 Amendment 1 - "Call rejected due to feature at the destination" */
+	{ 0x19,				"Call resumed" },
+					/* Q.850 - "Exchange routing error */
+	{ 0x1A,				"Non-selected user clearing" },
+	{ 0x1B,				"Destination out of order" },
+	{ 0x1C,				"Invalid number format (incomplete number)" },
+	{ 0x1D,				"Facility rejected" },
+	{ 0x1E,				"Response to STATUS ENQUIRY" },
+	{ 0x1F,				"Normal unspecified" },
+	{ 0x21,				"Circuit out of order" },
+	{ 0x22,				"No circuit/channel available" },
+	{ 0x23,				"Destination unattainable" },
+	{ 0x25,				"Degraded service" },
+	{ 0x26,				"Network out of order" },
+	{ 0x27,				"Transit delay range cannot be achieved" },
+					/* Q.850 - "Permanent frame mode connection out of service" */
+	{ 0x28,				"Throughput range cannot be achieved" },
+					/* Q.850 - "Permanent frame mode connection operational" */
+	{ 0x29,				"Temporary failure" },
+	{ 0x2A,				"Switching equipment congestion" },
+	{ Q931_CAUSE_ACCESS_INFO_DISC,	"Access information discarded" },
+	{ 0x2C,				"Requested circuit/channel not available" },
+	{ 0x2D,				"Pre-empted" },
+	{ 0x2E,				"Precedence call blocked" },
+	{ 0x2F,				"Resources unavailable, unspecified" },
+	{ Q931_CAUSE_QOS_UNAVAILABLE,	"Quality of service unavailable" },
+	{ 0x32,				"Requested facility not subscribed" },
+	{ 0x33,				"Reverse charging not allowed" },
+	{ 0x34,				"Outgoing calls barred" },
+	{ 0x35,				"Outgoing calls barred within CUG" },
+	{ 0x36,				"Incoming calls barred" },
+	{ 0x37,				"Incoming calls barred within CUG" },
+	{ 0x38,				"Call waiting not subscribed" },
+	{ 0x39,				"Bearer capability not authorized" },
+	{ 0x3A,				"Bearer capability not presently available" },
+	{ 0x3E,				"Inconsistency in designated outgoing access information and subscriber class" },
+	{ 0x3F,				"Service or option not available, unspecified" },
+	{ 0x41,				"Bearer capability not implemented" },
+	{ 0x42,				"Channel type not implemented" },
+	{ 0x43,				"Transit network selection not implemented" },
+	{ 0x44,				"Message not implemented" },
+	{ 0x45,				"Requested facility not implemented" },
+	{ 0x46,				"Only restricted digital information bearer capability is available" },
+	{ 0x4F,				"Service or option not implemented, unspecified" },
+	{ 0x51,				"Invalid call reference value" },
+	{ Q931_CAUSE_CHAN_NONEXISTENT,	"Identified channel does not exist" },
+	{ 0x53,				"Call identity does not exist for suspended call" },
+	{ 0x54,				"Call identity in use" },
+	{ 0x55,				"No call suspended" },
+	{ 0x56,				"Call having the requested call identity has been cleared" },
+	{ 0x57,				"Called user not member of CUG" },
+	{ Q931_CAUSE_INCOMPATIBLE_DEST,	"Incompatible destination" },
+	{ 0x59,				"Non-existent abbreviated address entry" },
+	{ 0x5A,				"Destination address missing, and direct call not subscribed" },
+					/* Q.850 - "Non-existent CUG" */
+	{ 0x5B,				"Invalid transit network selection (national use)" },
+	{ 0x5C,				"Invalid facility parameter" },
+	{ 0x5D,				"Mandatory information element is missing" },
+	{ 0x5F,				"Invalid message, unspecified" },
+	{ Q931_CAUSE_MAND_IE_MISSING,	"Mandatory information element is missing" },
+	{ Q931_CAUSE_MT_NONEX_OR_UNIMPL,"Message type non-existent or not implemented" },
+	{ 0x62,				"Message not compatible with call state or message type non-existent or not implemented" },
+	{ Q931_CAUSE_IE_NONEX_OR_UNIMPL,"Information element nonexistant or not implemented" },
+	{ Q931_CAUSE_INVALID_IE_CONTENTS,"Invalid information element contents" },
+	{ Q931_CAUSE_MSG_INCOMPAT_W_CS,	"Message not compatible with call state" },
+	{ Q931_CAUSE_REC_TIMER_EXP,	"Recovery on timer expiry" },
+	{ 0x67,				"Parameter non-existent or not implemented - passed on" },
+	{ 0x6E,				"Message with unrecognized parameter discarded" },
+	{ 0x6F,				"Protocol error, unspecified" },
+	{ 0x7F,				"Internetworking, unspecified" },
+	{ 0,				NULL }
+};
+
+static const value_string q931_cause_condition_vals[] = {
+	{ 0x00, "Unknown" },
+	{ 0x01, "Permanent" },
+	{ 0x02, "Transient" },
+	{ 0x00, NULL }
+};
+
+#define	Q931_REJ_USER_SPECIFIC		0x00
+#define	Q931_REJ_IE_MISSING		0x04
+#define	Q931_REJ_IE_INSUFFICIENT	0x08
+
+static const value_string q931_rejection_reason_vals[] = {
+	{ 0x00, "User specific" },
+	{ 0x04, "Information element missing" },
+	{ 0x08, "Information element contents are not sufficient" },
+	{ 0x00, NULL }
 };
 
 void
@@ -1026,7 +1068,9 @@ dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree, int hf_cause_value)
 {
 	guint8 octet;
+	guint8 cause_value;
 	guint8 coding_standard;
+	guint8 rejection_reason;
 
 	if (len == 0)
 		return;
@@ -1067,15 +1111,111 @@ dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	octet = tvb_get_guint8(tvb, offset);
-	proto_tree_add_uint(tree, hf_cause_value, tvb, 0, 1, octet & 0x7F);
+	cause_value = octet & 0x7F;
+	proto_tree_add_uint(tree, hf_cause_value, tvb, 0, 1, cause_value);
 	offset += 1;
 	len -= 1;
 
 	if (len == 0)
 		return;
-	proto_tree_add_text(tree, tvb, offset, len,
-	    "Diagnostics: %s",
-	    tvb_bytes_to_str(tvb, offset, len));
+	switch (cause_value) {
+
+	case Q931_CAUSE_UNALLOC_NUMBER:
+	case Q931_CAUSE_NO_ROUTE_TO_DEST:
+	case Q931_CAUSE_QOS_UNAVAILABLE:
+		octet = tvb_get_guint8(tvb, offset);
+		proto_tree_add_text(tree, tvb, offset, 1,
+		    "Network service: %s",
+		    (octet & 0x80) ? "User" : "Provider");
+		proto_tree_add_text(tree, tvb, offset, 1,
+		    "%s",
+		    (octet & 0x40) ? "Abnormal" : "Normal");
+		proto_tree_add_text(tree, tvb, offset, 1,
+		    "Condition: %s",
+		    val_to_str(octet & 0x03, q931_cause_condition_vals,
+		      "Unknown (0x%X)"));
+		break;
+
+	case Q931_CAUSE_CALL_REJECTED:
+		rejection_reason = octet & 0x7C;
+		proto_tree_add_text(tree, tvb, offset, 1,
+		    "Rejection reason: %s",
+		    val_to_str(octet & 0x7C, q931_rejection_reason_vals,
+		      "Unknown (0x%X)"));
+		proto_tree_add_text(tree, tvb, offset, 1,
+		    "Condition: %s",
+		    val_to_str(octet & 0x03, q931_cause_condition_vals,
+		      "Unknown (0x%X)"));
+		offset += 1;
+		len -= 1;
+
+		if (len == 0)
+			return;
+		switch (rejection_reason) {
+
+		case Q931_REJ_USER_SPECIFIC:
+			proto_tree_add_text(tree, tvb, offset, len,
+			    "User specific diagnostic: %s",
+			    tvb_bytes_to_str(tvb, offset, len));
+			break;
+
+		case Q931_REJ_IE_MISSING:
+			proto_tree_add_text(tree, tvb, offset, 1,
+			    "Missing information element: %s",
+			    val_to_str(tvb_get_guint8(tvb, offset), q931_info_element_vals,
+			      "Unknown (0x%02X)"));
+			break;
+
+		case Q931_REJ_IE_INSUFFICIENT:
+			proto_tree_add_text(tree, tvb, offset, 1,
+			    "Insufficient information element: %s",
+			    val_to_str(tvb_get_guint8(tvb, offset), q931_info_element_vals,
+			      "Unknown (0x%02X)"));
+			break;
+
+		default:
+			proto_tree_add_text(tree, tvb, offset, len,
+			    "Diagnostic: %s",
+			    tvb_bytes_to_str(tvb, offset, len));
+			break;
+		}
+		break;
+
+	case Q931_CAUSE_ACCESS_INFO_DISC:
+	case Q931_CAUSE_INCOMPATIBLE_DEST:
+	case Q931_CAUSE_MAND_IE_MISSING:
+	case Q931_CAUSE_IE_NONEX_OR_UNIMPL:
+	case Q931_CAUSE_INVALID_IE_CONTENTS:
+		do {
+			proto_tree_add_text(tree, tvb, offset, 1,
+			    "Information element: %s",
+			    val_to_str(tvb_get_guint8(tvb, offset), q931_info_element_vals,
+			      "Unknown (0x%02X)"));
+			offset += 1;
+			len -= 1;
+		} while (len != 0);
+		break;
+
+	case Q931_CAUSE_MT_NONEX_OR_UNIMPL:
+	case Q931_CAUSE_MSG_INCOMPAT_W_CS:
+		proto_tree_add_text(tree, tvb, offset, 1,
+		    "Message type: %s",
+		    val_to_str(tvb_get_guint8(tvb, offset), q931_message_type_vals,
+		      "Unknown (0x%02X)"));
+		break;
+
+	case Q931_CAUSE_REC_TIMER_EXP:
+		if (len < 3)
+			return;
+		proto_tree_add_text(tree, tvb, offset, 3,
+		    "Timer: %.3s", tvb_get_ptr(tvb, offset, 3));
+		break;
+
+	default:
+		proto_tree_add_text(tree, tvb, offset, len,
+		    "Diagnostics: %s",
+		    tvb_bytes_to_str(tvb, offset, len));
+	}
 }
 
 /*
