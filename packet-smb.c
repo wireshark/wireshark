@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.9 1999/05/11 07:22:30 guy Exp $
+ * $Id: packet-smb.c,v 1.10 1999/05/11 08:21:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -350,6 +350,51 @@ dissect_dos_time(guint16 time)
 	return timebuf;
 }
 
+/* Max string length for displaying Unicode strings.  */
+#define	MAX_UNICODE_STR_LEN	256
+
+/* Turn a little-endian Unicode '\0'-terminated string into a string we
+   can display.
+   XXX - for now, we just handle the ISO 8859-1 characters. */
+static gchar *
+unicode_to_str(const guint8 *us, int *us_lenp) {
+  static gchar  str[3][MAX_UNICODE_STR_LEN+3+1];
+  static gchar *cur;
+  gchar        *p;
+  int           len;
+  int           us_len;
+  int           overflow = 0;
+
+  if (cur == &str[0][0]) {
+    cur = &str[1][0];
+  } else if (cur == &str[1][0]) {  
+    cur = &str[2][0];
+  } else {  
+    cur = &str[0][0];
+  }
+  p = cur;
+  len = MAX_UNICODE_STR_LEN;
+  us_len = 0;
+  while (*us != 0 || *(us + 1) != 0) {
+    if (len > 0) {
+      *p++ = *us;
+      len--;
+    } else
+      overflow = 1;
+    us += 2;
+    us_len += 2;
+  }
+  if (overflow) {
+    /* Note that we're not showing the full string.  */
+    *p++ = '.';
+    *p++ = '.';
+    *p++ = '.';
+  }
+  *p = '\0';
+  *us_lenp = us_len;
+  return cur;
+}
+
 /*
  * Each dissect routine is passed an offset to wct and works from there 
  */
@@ -579,6 +624,8 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
   proto_tree    *dialects = NULL, *mode_tree, *caps_tree, *rawmode_tree;
   proto_item    *ti;
   const char    *str;
+  char          *ustr;
+  int           ustr_len;
 
   wct = pd[offset];    /* Should be 0, 1 or 13 or 17, I think */
 
@@ -789,11 +836,13 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     offset += 2;
 
-    /* Encryption Key Length, should be zero */
+    /* Challenge Length */
+
+    enckeylen = GSHORT(pd, offset);
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Encryption Key Length: %u (should be zero)", GSHORT(pd, offset));
+      proto_tree_add_item(tree, offset, 2, "Challenge Length: %u", enckeylen);
 
     }
 
@@ -817,17 +866,19 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     offset += 2;
 
-    /* Encryption key, might be a null string ??? Not sure */
+    if (enckeylen) { /* only if non-zero key len */
 
-    str = pd + offset;
+      str = pd + offset;
 
-    if (tree) {
+      if (tree) {
 
-      proto_tree_add_item(tree, offset, strlen(str)+1, "Encryption Key: %s", str);
+	proto_tree_add_item(tree, offset, enckeylen, "Challenge: %s",
+				bytes_to_str(str, enckeylen));
+      }
+
+      offset += enckeylen;
 
     }
-
-    offset += strlen(str) + 1;
 
     /* Primary Domain ... */
 
@@ -866,6 +917,14 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 			  decode_boolean_bitfield(mode, 0x02, 8,
 						  "Passwords = Encrypted",
 						  "Passwords = Plaintext"));
+      proto_tree_add_item(mode_tree, offset, 1, "%s",
+			  decode_boolean_bitfield(mode, 0x04, 8,
+						  "Security signatures enabled",
+						  "Security signatures not enabled"));
+      proto_tree_add_item(mode_tree, offset, 1, "%s",
+			  decode_boolean_bitfield(mode, 0x08, 8,
+						  "Security signatures required",
+						  "Security signatures not required"));
 
     }
 
@@ -966,6 +1025,14 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 			  decode_boolean_bitfield(caps, 0x4000, 32,
 						  "Large READX supported",
 						  "Large READX not supported"));
+      proto_tree_add_item(caps_tree, offset, 4, "%s",
+			  decode_boolean_bitfield(caps, 0x8000, 32,
+						  "Large WRITEX supported",
+						  "Large WRITEX not supported"));
+      proto_tree_add_item(caps_tree, offset, 4, "%s",
+			  decode_boolean_bitfield(caps, 0x80000000, 32,
+						  "Extended security exchanges supported",
+						  "Extended security exchanges not supported"));
     }
 
     offset += 4;
@@ -1016,27 +1083,35 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     if (enckeylen) { /* only if non-zero key len */
 
-      /* Encryption challenge key, a NULL terminated string */
+      /* Encryption challenge key */
 
       str = pd + offset;
 
       if (tree) {
 
-	proto_tree_add_item(tree, offset, strlen(str)+1, "Challenge encryption key: %s", str);
+	proto_tree_add_item(tree, offset, enckeylen, "Challenge encryption key: %s",
+				bytes_to_str(str, enckeylen));
 
       }
 
-      offset += strlen(str) + 1;
+      offset += enckeylen;
 
     }
 
-    /* The domain, another null terminated string */
+    /* The domain, a null terminated string; Unicode if "caps" has
+       the 0x0004 bit set, ASCII (OEM character set) otherwise.
+       XXX - for now, we just handle the ISO 8859-1 subset of Unicode. */
 
     str = pd + offset;
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, strlen(str)+1, "OEM domain name: %s", str);
+      if (caps & 0x0004) {
+      	ustr = unicode_to_str(str, &ustr_len);
+	proto_tree_add_item(tree, offset, ustr_len+2, "OEM domain name: %s", ustr);
+      } else {
+	proto_tree_add_item(tree, offset, strlen(str)+1, "OEM domain name: %s", str);
+      }
 
     }
 
@@ -1605,6 +1680,14 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 			      decode_boolean_bitfield(flags2, 0x0002, 16,
 						      "Extended attributes supported",
 						      "Extended attributes not supported"));
+	  proto_tree_add_item(flags2_tree, offset, 1, "%s",
+			      decode_boolean_bitfield(flags2, 0x0004, 16,
+						      "Security signatures supported",
+						      "Security signatures not supported"));
+	  proto_tree_add_item(flags2_tree, offset, 1, "%s",
+			      decode_boolean_bitfield(flags2, 0x0800, 16,
+						      "Extended security negotiation supported",
+						      "Extended security negotiation not supported"));
 	  proto_tree_add_item(flags2_tree, offset, 1, "%s",
 			      decode_boolean_bitfield(flags2, 0x1000, 16, 
 						      "Resolve pathnames with DFS",

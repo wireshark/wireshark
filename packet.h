@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.53 1999/05/10 21:50:11 guy Exp $
+ * $Id: packet.h,v 1.54 1999/05/11 08:21:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -257,6 +257,7 @@ enum {
 gchar*     ether_to_str(const guint8 *);
 gchar*     ip_to_str(const guint8 *);
 gchar*     time_secs_to_str(guint32);
+gchar*     bytes_to_str(const guint8 *, int);
 const u_char *find_line_end(const u_char *data, const u_char *dataend,
     const u_char **eol);
 int        get_token_len(const u_char *linep, const u_char *lineend,

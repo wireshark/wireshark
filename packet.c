@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.24 1999/03/31 08:20:28 guy Exp $
+ * $Id: packet.c,v 1.25 1999/05/11 08:21:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -133,6 +133,45 @@ time_secs_to_str(guint32 time)
     do_comma = 0;
   if (secs != 0)
     sprintf(p, "%s%u second%s", COMMA(do_comma), secs, PLURALIZE(secs));
+  return cur;
+}
+
+/* Max string length for displaying byte string.  */
+#define	MAX_BYTE_STR_LEN	16
+
+/* Turn an array of bytes into a string showing the bytes in hex. */
+gchar *
+bytes_to_str(const guint8 *bd, int bd_len) {
+  static gchar  str[3][MAX_BYTE_STR_LEN+3+1];
+  static gchar *cur;
+  gchar        *p;
+  int           len;
+  static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
+                                '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
+  if (cur == &str[0][0]) {
+    cur = &str[1][0];
+  } else if (cur == &str[1][0]) {  
+    cur = &str[2][0];
+  } else {  
+    cur = &str[0][0];
+  }
+  p = cur;
+  len = MAX_BYTE_STR_LEN;
+  while (bd_len > 0 && len > 0) {
+    *p++ = hex[(*bd) >> 4];
+    *p++ = hex[(*bd) & 0xF];
+    len -= 2;
+    bd++;
+    bd_len--;
+  }
+  if (bd_len != 0) {
+    /* Note that we're not showing the full string.  */
+    *p++ = '.';
+    *p++ = '.';
+    *p++ = '.';
+  }
+  *p = '\0';
   return cur;
 }
 

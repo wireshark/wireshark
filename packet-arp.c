@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.12 1999/03/23 03:14:35 gram Exp $
+ * $Id: packet-arp.c,v 1.13 1999/05/11 08:21:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,9 +71,6 @@
 #define ARPHRD_TWINAX	26		/* Twinaxial			*/
 #define ARPHRD_EUI_64	27		/* EUI-64			*/
 
-/* Max string length for displaying unknown type of ARP address.  */
-#define	MAX_ADDR_STR_LEN	16
-
 /* ARP / RARP structs and definitions */
 #ifndef ARPOP_REQUEST
 #define ARPOP_REQUEST  1       /* ARP request.  */
@@ -89,41 +86,6 @@
 #define ARPOP_RREPLY   4       /* RARP reply.  */
 #endif
 
-static gchar *
-arpaddr_to_str(guint8 *ad, int ad_len) {
-  static gchar  str[3][MAX_ADDR_STR_LEN+3+1];
-  static gchar *cur;
-  gchar        *p;
-  int           len;
-  static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
-                                '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {  
-    cur = &str[2][0];
-  } else {  
-    cur = &str[0][0];
-  }
-  p = cur;
-  len = MAX_ADDR_STR_LEN;
-  while (ad_len > 0 && len > 0) {
-    *p++ = hex[(*ad) >> 4];
-    *p++ = hex[(*ad) & 0xF];
-    len -= 2;
-    ad++;
-    ad_len--;
-  }
-  if (ad_len != 0) {
-    /* Note that we're not showing the full address.  */
-    *p++ = '.';
-    *p++ = '.';
-    *p++ = '.';
-  }
-  *p = '\0';
-  return cur;
-}
-
 gchar *
 arphrdaddr_to_str(guint8 *ad, int ad_len, guint16 type) {
   if ((type == ARPHRD_ETHER || type == ARPHRD_EETHER || type == ARPHRD_IEEE802)
@@ -132,7 +94,7 @@ arphrdaddr_to_str(guint8 *ad, int ad_len, guint16 type) {
        address, which are the same type of address). */
     return ether_to_str(ad);
   }
-  return arpaddr_to_str(ad, ad_len);
+  return bytes_to_str(ad, ad_len);
 }
 
 static gchar *
@@ -141,7 +103,7 @@ arpproaddr_to_str(guint8 *ad, int ad_len, guint16 type) {
     /* IP address.  */
     return ip_to_str(ad);
   }
-  return arpaddr_to_str(ad, ad_len);
+  return bytes_to_str(ad, ad_len);
 }
 
 gchar *
