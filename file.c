@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.118 1999/11/06 06:54:21 guy Exp $
+ * $Id: file.c,v 1.119 1999/11/08 01:03:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -221,6 +221,7 @@ close_cap_file(capture_file *cf, void *w, guint context) {
   set_menu_sensitivity("/Display/Match Selected", FALSE);
   set_menu_sensitivity("/Display/Colorize Display...", FALSE);
   set_menu_sensitivity("/Display/Find Frame...", FALSE);
+  set_menu_sensitivity("/Display/Go To Frame...", FALSE);
   set_menu_sensitivity("/Display/Collapse All", FALSE);
   set_menu_sensitivity("/Display/Expand All", FALSE);
   set_menu_sensitivity("/Tools/Follow TCP Stream", FALSE);
@@ -292,6 +293,7 @@ read_cap_file(capture_file *cf) {
   set_menu_sensitivity("/Display/Match Selected", TRUE);
   set_menu_sensitivity("/Display/Colorize Display...", TRUE);
   set_menu_sensitivity("/Display/Find Frame...", TRUE);
+  set_menu_sensitivity("/Display/Go To Frame...", TRUE);
   set_menu_sensitivity("/Tools/Follow TCP Stream", TRUE);
   set_menu_sensitivity("/Tools/Graph", TRUE);
   set_menu_sensitivity("/Tools/Summary", TRUE);
@@ -526,6 +528,7 @@ tail_cap_file(char *fname, capture_file *cf) {
     set_menu_sensitivity("/Display/Match Selected", TRUE);
     set_menu_sensitivity("/Display/Colorize Display...", TRUE);
     set_menu_sensitivity("/Display/Find Frame...", TRUE);
+    set_menu_sensitivity("/Display/Go To Frame...", TRUE);
     set_menu_sensitivity("/Tools/Follow TCP Stream", TRUE);
     set_menu_sensitivity("/Tools/Graph", TRUE);
     set_menu_sensitivity("/Tools/Summary", TRUE);
@@ -1485,6 +1488,25 @@ find_packet(capture_file *cf, dfilter *sfcode)
     if (!gtk_clist_row_is_visible(GTK_CLIST(packet_list), new_fd->row))
       gtk_clist_moveto(GTK_CLIST(packet_list), new_fd->row, -1, 0.0, 0.0);
     gtk_clist_select_row(GTK_CLIST(packet_list), new_fd->row, -1);
+    return TRUE;	/* success */
+  } else
+    return FALSE;	/* failure */
+}
+
+gboolean
+goto_frame(capture_file *cf, guint fnumber)
+{
+  frame_data *fd;
+
+  for (fd = cf->plist; fd != NULL && fd->num < fnumber; fd = fd->next)
+    ;
+
+  if (fd != NULL && fd->passed_dfilter) {
+    /* We found that frame, and it's currently being displayed.
+       Make it visible, and select it. */
+    if (!gtk_clist_row_is_visible(GTK_CLIST(packet_list), fd->row))
+      gtk_clist_moveto(GTK_CLIST(packet_list), fd->row, -1, 0.0, 0.0);
+    gtk_clist_select_row(GTK_CLIST(packet_list), fd->row, -1);
     return TRUE;	/* success */
   } else
     return FALSE;	/* failure */
