@@ -10,7 +10,7 @@
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.34 2002/04/14 23:22:21 guy Exp $
+ * $Id: packet-sctp.c,v 1.35 2002/04/16 19:58:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -141,7 +141,7 @@ static int hf_sctp_asconf_addr = -1;
 static int hf_sctp_asconf_ipv4_address = -1;
 static int hf_sctp_asconf_ipv6_address = -1;
 static int hf_sctp_adap_indication = -1;
-
+static int hf_sctp_abort_chunk_t_bit = -1;
 static dissector_table_t sctp_port_dissector_table;
 static dissector_table_t sctp_ppi_dissector_table;
 
@@ -153,6 +153,8 @@ static gint ett_sctp_chunk = -1;
 static gint ett_sctp_chunk_parameter = -1;
 static gint ett_sctp_chunk_cause = -1;
 static gint ett_sctp_data_chunk_flags = -1;
+static gint ett_sctp_shutdown_complete_chunk_flags = -1;
+static gint ett_sctp_abort_chunk_flags = -1;
 static gint ett_sctp_sack_chunk_gap_block = -1;
 static gint ett_sctp_supported_address_types_parameter = -1;
 static gint ett_sctp_unrecognized_parameter_parameter = -1;
@@ -1591,33 +1593,36 @@ dissect_heartbeat_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo,
 }
 
 static void
-dissect_abort_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo,
-		    proto_tree *chunk_tree, proto_item *chunk_item)
+dissect_abort_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 {
+  guint8 flags;
   guint offset, number_of_causes;
   guint16 length, padding_length, total_length;
   tvbuff_t *cause_tvb;
-  
+  proto_tree *flag_tree;
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_str(pinfo->cinfo, COL_INFO, "ABORT ");
 
   if (chunk_tree) {
+    flags     = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET);
+    flag_tree = proto_item_add_subtree(flags_item, ett_sctp_abort_chunk_flags);
+    proto_tree_add_boolean(flag_tree, hf_sctp_abort_chunk_t_bit, chunk_tvb, CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH, flags);
+
     number_of_causes = 0;
     offset = ABORT_CHUNK_FIRST_ERROR_CAUSE_OFFSET;
     while(tvb_reported_length_remaining(chunk_tvb, offset)) {
-	length         = tvb_get_ntohs(chunk_tvb, offset + CAUSE_LENGTH_OFFSET);
-	padding_length = nr_of_padding_bytes(length);
-	total_length   = length + padding_length;
-	/* create a tvb for the chunk including the padding bytes */
-	cause_tvb      = tvb_new_subset(chunk_tvb, offset, total_length, total_length);
-	dissect_error_cause(cause_tvb, pinfo, chunk_tree); 
-	/* get rid of the handled parameter */
-	offset += total_length;
-	number_of_causes++;
+      length         = tvb_get_ntohs(chunk_tvb, offset + CAUSE_LENGTH_OFFSET);
+      padding_length = nr_of_padding_bytes(length);
+      total_length   = length + padding_length;
+      /* create a tvb for the chunk including the padding bytes */
+      cause_tvb      = tvb_new_subset(chunk_tvb, offset, total_length, total_length);
+      dissect_error_cause(cause_tvb, pinfo, chunk_tree); 
+      /* get rid of the handled parameter */
+      offset += total_length;
+      number_of_causes++;
     };
     
-    proto_item_set_text(chunk_item, "Abort chunk with %u cause%s",
-			number_of_causes, plurality(number_of_causes, "", "s"));
+    proto_item_set_text(chunk_item, "Abort chunk with %u cause%s", number_of_causes, plurality(number_of_causes, "", "s"));
   } 
 }
 
@@ -1780,7 +1785,7 @@ dissect_shutdown_complete_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo,
     flags             = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET);
     length            = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET);
     
-    flag_tree = proto_item_add_subtree(flags_item, ett_sctp_data_chunk_flags);
+    flag_tree = proto_item_add_subtree(flags_item, ett_sctp_shutdown_complete_chunk_flags);
     proto_tree_add_boolean(flag_tree, hf_sctp_shutdown_complete_chunk_t_bit, chunk_tvb,
 			   CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH, flags);
     
@@ -1994,7 +1999,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
     dissect_heartbeat_ack_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item);
     break;
   case SCTP_ABORT_CHUNK_ID:
-    dissect_abort_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item);
+    dissect_abort_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item, flags_item);
     break;
   case SCTP_SHUTDOWN_CHUNK_ID:
     dissect_shutdown_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item);
@@ -2348,7 +2353,12 @@ proto_register_sctp(void)
        "", HFILL }
     }, 
     {&hf_sctp_shutdown_complete_chunk_t_bit,
-     { "E-Bit", "sctp.shutdown_complete.t_bit",
+     { "T-Bit", "sctp.shutdown_complete.t_bit",
+       FT_BOOLEAN, 8, TFS(&sctp_shutdown_complete_chunk_t_bit_value), SCTP_SHUTDOWN_COMPLETE_CHUNK_T_BIT,
+       "", HFILL }
+    },
+    {&hf_sctp_abort_chunk_t_bit,
+     { "T-Bit", "sctp.abort.t_bit",
        FT_BOOLEAN, 8, TFS(&sctp_shutdown_complete_chunk_t_bit_value), SCTP_SHUTDOWN_COMPLETE_CHUNK_T_BIT,
        "", HFILL }
     },
@@ -2496,6 +2506,8 @@ proto_register_sctp(void)
     &ett_sctp_chunk_parameter,
     &ett_sctp_chunk_cause,
     &ett_sctp_data_chunk_flags,
+    &ett_sctp_shutdown_complete_chunk_flags,
+    &ett_sctp_abort_chunk_flags,
     &ett_sctp_sack_chunk_gap_block,
     &ett_sctp_supported_address_types_parameter,
     &ett_sctp_unrecognized_parameter_parameter,
