@@ -6,13 +6,13 @@ text2pcap - Generate a capture file from an ASCII hexdump of packets
 =head1 SYNOPSYS
 
 B<text2pcap>
-S<[ B<-d> ]> 
-S<[ B<-q> ]> 
-S<[ B<-o> hex|oct ]> 
-S<[ B<-l> typenum ]> 
-S<[ B<-e> l3pid ]> 
-S<[ B<-i> proto]> 
-S<[ B<-u> srcport destport]> 
+S<[ B<-d> ]>
+S<[ B<-q> ]>
+S<[ B<-o> hex|oct ]>
+S<[ B<-l> typenum ]>
+S<[ B<-e> l3pid ]>
+S<[ B<-i> proto ]>
+S<[ B<-u> srcport,destport ]>
 I<infile>
 I<outfile>
 
@@ -123,14 +123,14 @@ an IP header. Note that this automatically includes an appropriate
 Ethernet header as well. Example: I<-i 46> to specify an RSVP packet
 (IP protocol 46).
 
-=item -u srcport destport
+=item -u srcport,destport
 
 Include dummy UDP headers before each packet. Specify the source and
 destination UDP ports for the packet in decimal. Use this option if
 your dump is the UDP payload of a packet but does not include any UDP,
 IP or Ethernet headers. Note that this automatically includes
 appropriate Ethernet and IP headers with each packet. Example: I<-u
-1000 69> to make the packets look like TFTP/UDP packets.
+1000,69> to make the packets look like TFTP/UDP packets.
 
 
 =head1 SEE ALSO

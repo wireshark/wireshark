@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.3 2001/07/13 00:55:52 guy Exp $
+ * $Id: text2pcap.c,v 1.4 2001/08/01 03:22:14 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -603,6 +603,7 @@ static void
 parse_options (int argc, char *argv[])
 {
     int c;
+    char *p;
 
     /* Scan CLI parameters */
     while ((c = getopt(argc, argv, "dqr:w:e:i:l:o:u:")) != -1) {
@@ -642,11 +643,19 @@ parse_options (int argc, char *argv[])
             
         case 'u':
             hdr_udp = TRUE;
-            if (!optarg || sscanf(optarg, "%ld", &hdr_udp_src) < 1) {
+            hdr_udp_src = strtol(optarg, &p, 10);
+            if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-u'\n");
                 help(argv[0]);
             }
-            if (optind >= argc || sscanf(argv[optind], "%ld", &hdr_udp_dest) < 1) {
+            if (*p == '\0') {
+                fprintf(stderr, "No dest port specified for '-u'\n");
+                help(argv[0]);
+            }
+            p++;
+            optarg = p;
+            hdr_udp_dest = strtol(optarg, &p, 10);
+            if (p == optarg || *p != '\0') {
                 fprintf(stderr, "Bad dest port for '-u'\n");
                 help(argv[0]);
             }
