@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.1 2004/05/20 12:01:12 ulfl Exp $
+ * $Id: about_dlg.c,v 1.2 2004/05/20 13:48:25 ulfl Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -30,9 +30,11 @@
 #include <gtk/gtk.h>
 
 #include <epan/filesystem.h>
+#include <epan/plugins.h>
 #include "ui_util.h"
 #include "dlg_utils.h"
 #include "compat_macros.h"
+#include "globals.h"
 
 extern GString *comp_info_str, *runtime_info_str;
 
@@ -123,27 +125,59 @@ about_dirs_new(void)
   gtk_table_set_col_spacings(GTK_TABLE(table), 6);
   row = 0;
 
-  path = get_persconffile_path("", FALSE);
-  about_dirs_row(table, row, "Personal configuration:", path, 
-      "\"dfilters\", \"preferences\", ...");
-  g_free((void *) path);
+
+  /* "file open" */
+  about_dirs_row(table, row, "\"File\" dialogs:", last_open_dir,
+      "capture files");
   row++;
 
-  path = get_datafile_dir();
-  about_dirs_row(table, row, "Global configuration and data:", path,
-      "same as in personal conf.");
-  /*g_free(path);*/
-  row++;
-
-  path = get_systemfile_dir();
-  about_dirs_row(table, row, "System:", path,
-      "\"ethers\", ...");
-  /*g_free(path);*/
-  row++;
-
+  /* temp */
   path = get_tempfile_path("");
   about_dirs_row(table, row, "Temp:", path,
       "untitled capture files");
+  g_free((void *) path);
+  row++;
+
+  /* pers conf */
+  path = get_persconffile_path("", FALSE);
+  about_dirs_row(table, row, "Personal configuration:", path, 
+      "\"dfilters\", \"preferences\", \"ethers\", ...");
+  g_free((void *) path);
+  row++;
+
+  /* global conf */
+  path = get_datafile_dir();
+  about_dirs_row(table, row, "Global configuration:", path,
+      "\"dfilters\", \"preferences\", \"manuf\", ...");
+  /*g_free(path);*/
+  row++;
+
+  /* system */
+  path = get_systemfile_dir();
+  about_dirs_row(table, row, "System:", path,
+      "\"ethers\", \"ipxnets\"");
+  /*g_free(path);*/
+  row++;
+
+  /* program */
+  path = strdup(ethereal_path);
+  path = get_dirname((char *) path);
+  about_dirs_row(table, row, "Program:", path,
+      "program files");
+  g_free((void *) path);
+  row++;
+
+  /* pers plugins */
+  path = get_plugins_pers_dir();
+  about_dirs_row(table, row, "Personal Plugins:", path,
+      "dissector plugins");
+  g_free((void *) path);
+  row++;
+
+  /* global plugins */
+  path = get_plugins_global_dir(PLUGIN_DIR);
+  about_dirs_row(table, row, "Global Plugins:", path,
+      "dissector plugins");
   g_free((void *) path);
   row++;
 

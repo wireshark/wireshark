@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.80 2004/03/04 07:07:01 guy Exp $
+ * $Id: plugins.c,v 1.81 2004/05/20 13:48:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -308,19 +308,16 @@ plugins_scan_dir(const char *dirname)
 #endif
 }
 
-/*
- * init plugins
- */
-void
-init_plugins(const char *plugin_dir)
+
+/* get the global plugin dir */
+/* Return value is malloced so the caller should g_free() it. */
+const char *get_plugins_global_dir(const char *plugin_dir)
 {
 #ifdef WIN32
-    const char *datafile_dir;
     char *install_plugin_dir;
 #endif
 
-    if (plugin_list == NULL)      /* ensure init_plugins is only run once */
-    {
+
 #ifdef WIN32
 	/*
 	 * On Windows, the data file directory is the installation
@@ -330,10 +327,7 @@ init_plugins(const char *plugin_dir)
 	 * on Windows, the data file directory is the directory
 	 * in which the Ethereal binary resides.
 	 */
-	datafile_dir = get_datafile_dir();
-	install_plugin_dir = g_malloc(strlen(datafile_dir) + strlen("plugins") +
-	    strlen(VERSION) + 3);
-	sprintf(install_plugin_dir, "%s\\plugins\\%s", datafile_dir, VERSION);
+	install_plugin_dir = g_strdup_printf("%s\\plugins\\%s", get_datafile_dir(), VERSION);
 
 	/*
 	 * Make sure that pathname refers to a directory.
@@ -355,24 +349,53 @@ init_plugins(const char *plugin_dir)
 		 * source directory, and copy the plugin DLLs there,
 		 * so that you use the plugins from the build tree?
 		 */
+        g_free(install_plugin_dir);
 		install_plugin_dir =
 		    g_strdup("C:\\Program Files\\Ethereal\\plugins\\" VERSION);
 	}
 
-	/*
-	 * Scan that directory.
-	 */
-	plugins_scan_dir(install_plugin_dir);
-	g_free(install_plugin_dir);
+	return(install_plugin_dir);
 #else
 	/*
 	 * Scan the plugin directory.
 	 */
-	plugins_scan_dir(plugin_dir);
+	return strdup(plugin_dir);
 #endif
-	if (!user_plug_dir)
-	    user_plug_dir = get_persconffile_path(PLUGINS_DIR_NAME, FALSE);
-	plugins_scan_dir(user_plug_dir);
+}
+
+
+/* get the personal plugin dir */
+/* Return value is malloced so the caller should g_free() it. */
+const char *get_plugins_pers_dir(void)
+{
+    return get_persconffile_path(PLUGINS_DIR_NAME, FALSE);
+}
+
+/*
+ * init plugins
+ */
+void
+init_plugins(const char *plugin_dir)
+{
+#ifdef WIN32
+    const char *datafile_dir;
+#endif
+
+    if (plugin_list == NULL)      /* ensure init_plugins is only run once */
+    {
+	/*
+	 * Scan the global plugin directory.
+	 */
+    datafile_dir = get_plugins_global_dir(plugin_dir);
+	plugins_scan_dir(datafile_dir);
+    g_free((char *) datafile_dir);
+
+	/*
+	 * Scan the users plugin directory.
+	 */
+    datafile_dir = get_plugins_pers_dir();
+	plugins_scan_dir(datafile_dir);
+    g_free((char *) datafile_dir);
     }
 }
 

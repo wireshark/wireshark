@@ -1,7 +1,7 @@
 /* plugins.h
  * definitions for plugins structures
  *
- * $Id: plugins.h,v 1.10 2004/05/09 10:03:40 guy Exp $
+ * $Id: plugins.h,v 1.11 2004/05/20 13:48:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,7 +41,15 @@ typedef struct _plugin {
 
 ETH_VAR_IMPORT plugin *plugin_list;
 
-void init_plugins(const char *);
-void register_all_plugin_handoffs(void);
+extern void init_plugins(const char *);
+extern void register_all_plugin_handoffs(void);
+
+/* get the global plugin dir */
+/* Return value is g_malloced so the caller should g_free() it. */
+extern const char *get_plugins_global_dir(const char *plugin_dir);
+
+/* get the personal plugin dir */
+/* Return value is g_malloced so the caller should g_free() it. */
+extern const char *get_plugins_pers_dir(void);
 
 #endif /* __PLUGINS_H__ */
