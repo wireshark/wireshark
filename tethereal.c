@@ -2594,11 +2594,13 @@ process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
       if (!quiet && !print_packet_info) {
       	/* Don't print a packet count if we were asked not to with "-q"
       	   or if we're also printing packet info. */
+#ifdef HAVE_LIBPCAP
         if (ld.packet_count != 0) {
           fprintf(stderr, "\r%u ", ld.packet_count);
           /* stderr could be line buffered */
           fflush(stderr);
         }
+#endif
       }
     }
     if (print_packet_info) {
