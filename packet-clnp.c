@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.18 2000/12/23 21:40:22 guy Exp $
+ * $Id: packet-clnp.c,v 1.19 2000/12/23 23:06:50 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -100,12 +100,21 @@ static int hf_clnp_src         = -1;
 #define ERQ_NPDU		0x1E
 #define ERP_NPDU		0x1F
 
-static const value_string npdu_type_vals[] = {
+static const value_string npdu_type_abbrev_vals[] = {
   { DT_NPDU,	"DT" },
   { MD_NPDU,	"MD" },
   { ER_NPDU,	"ER" },
   { ERQ_NPDU,	"ERQ" },
   { ERP_NPDU,	"ERP" },
+  { 0,		NULL }
+};
+
+static const value_string npdu_type_vals[] = {
+  { DT_NPDU,	"Data" },
+  { MD_NPDU,	"Multicast Data" },
+  { ER_NPDU,	"Error Report" },
+  { ERQ_NPDU,	"Echo Request" },
+  { ERP_NPDU,	"Echo Response" },
   { 0,		NULL }
 };
 
@@ -1608,12 +1617,12 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     cnf_ttl = tvb_get_guint8(tvb, P_CLNP_TTL);
     proto_tree_add_uint_format(clnp_tree, hf_clnp_ttl, tvb, P_CLNP_TTL, 1, 
 			       cnf_ttl,
-			       "Holding Time : %u (%u secs)", 
-			       cnf_ttl, cnf_ttl / 2);
+			       "Holding Time : %u (%u.%u secs)", 
+			       cnf_ttl, cnf_ttl / 2, (cnf_ttl % 2) * 5);
   }
 
   cnf_type = tvb_get_guint8(tvb, P_CLNP_TYPE);
-  pdu_type_string = val_to_str(cnf_type & CNF_TYPE, npdu_type_vals,
+  pdu_type_string = val_to_str(cnf_type & CNF_TYPE, npdu_type_abbrev_vals,
 				"Unknown (0x%02x)");
   flag_string[0] = '\0';
   if (cnf_type & CNF_SEG_OK)
