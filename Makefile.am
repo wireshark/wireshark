@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.464 2002/08/31 09:55:18 oabad Exp $
+# $Id: Makefile.am,v 1.465 2002/09/01 23:54:54 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -914,6 +914,7 @@ EXTRA_DIST = \
 	README.vmware		\
 	README.win32		\
 	TODO			\
+	aclocal-fallback/*.m4	\
 	aclocal-flags		\
 	autogen.sh		\
 	capture-wpcap.c		\
@@ -1031,6 +1032,11 @@ endif
 #
 #dist-hook:
 #	@rm -f $(distdir)/register.c
+
+# Hack around the problem that I haven't found a way to include an
+# empty directroy in the distribution tarball.
+dist-hook:
+	mkdir -p aclocal-missing
 
 if HAVE_PLUGINS
 SUBDIRS = tools wiretap doc epan plugins packaging @ethereal_SUBDIRS@
