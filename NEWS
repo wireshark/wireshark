@@ -22,7 +22,7 @@ Overview of changes in Ethereal 0.8.16:
 * Ethernet/ethertype() update (Guy)
 * NLM update (Guy)
 * Look for SSL library for those that have UCD SNMP compiled with
-	SSL supoprt (Andy Hood)
+	SSL support (Andy Hood)
 * GTK dialog box handling cleanup (Guy)
 * Support for SUA Light (Micahel Tuexen)
 * Mobile IPv6 updates (Borosa Tomislav)
@@ -38,7 +38,8 @@ Overview of changes in Ethereal 0.8.16:
 * Cleanup usage of pcap (Guy)
 * SMB update, new error code (Richard)
 * SNMPv2u support (Guy)
-* Fix bounds problem in invalid SIP packet (Ruud Linders <ruud@lucent.com>, Gerald)
+* Fix bounds problem in invalid SIP packet (Ruud Linders <ruud@lucent.com>,
+	 Gerald)
 * WTLS support and WSP fixes (Alexandre P. Ferreira)
 * Work around CMU SNMP bug (Guy)
 
@@ -61,7 +62,8 @@ Overview of changes in Ethereal 0.8.15:
 * RTSP updates (Guy)
 * Miscellaneous clean-ups (Guy, Gilbert)
 * NBIPX update (Guy)
-* Fix for improper buffer-overflow check in wiretap's pppdump support (Daniel Thompson)
+* Fix for improper buffer-overflow check in wiretap's pppdump support
+	(Daniel Thompson)
 * ISAKMP fix (itojun)
 * Add TCP segment and UDP datagram checksumming code (Guy)
 * Added Router-Alert IP option, RFC 2113 (Ashok)
@@ -73,7 +75,8 @@ Overview of changes in Ethereal 0.8.15:
 * Enable FT_BYTES display filtering (Ed Warnicke)
 * Added tethereal_static build target (Nathan)
 * Kerberos update (Nathan, Guy)
-* DLT_LINUX_SLL capture type support, used with current libpcap captures on the Linux "any" device. (Guy)
+* DLT_LINUX_SLL capture type support, used with current libpcap captures
+	on the Linux "any" device. (Guy)
 * CLNP update (Guy)
 * TFTP update (Guy)
 * BGP update (Greg Hankins)
