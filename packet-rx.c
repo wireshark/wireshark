@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.33 2002/02/03 15:59:42 nneul Exp $
+ * $Id: packet-rx.c,v 1.34 2002/02/05 21:02:36 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,6 +84,7 @@ static const value_string rx_reason[] = {
 	{ RX_ACK_PING,			"Ping"			},
 	{ RX_ACK_PING_RESPONSE,		"Ping Response"		},
 	{ RX_ACK_DELAY,			"Delay"			},
+	{ RX_ACK_IDLE,			"Idle"			},
 	{ 0,				NULL			}
 };
 

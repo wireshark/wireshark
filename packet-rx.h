@@ -1,7 +1,7 @@
 /* packet-rx.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-rx.h,v 1.8 2002/02/03 15:59:42 nneul Exp $
+ * $Id: packet-rx.h,v 1.9 2002/02/05 21:02:36 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,6 +75,7 @@ struct rxinfo {
 #define RX_ACK_PING 6
 #define RX_ACK_PING_RESPONSE 7
 #define RX_ACK_DELAY 8
+#define RX_ACK_IDLE 9
 
 #define RX_MAXCALLS	4
 
