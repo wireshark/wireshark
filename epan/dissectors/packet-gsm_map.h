@@ -1,15 +1,9 @@
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-gsm_map.h                                                         */
-/* ../../tools/asn2eth.py -X -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
-
-/* Input file: packet-gsm_map-template.h */
-
-/* packet-gsm_map-template.h
- * Routines for GSM MAP packet dissection
- * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
+/* packet-gsm_map.h
  *
  * $Id$
+ *
+ * Copyright 2004, Michael Lum <mlum [AT] telostech.com>,
+ * In association with Telos Technology Inc.
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,13 +21,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef PACKET_GSM_MAP_H
-#define PACKET_GSM_MAP_H
 
-/* Defines for the GSM MAP taps */
 #define	GSM_MAP_MAX_NUM_OPR_CODES	256
 
 typedef struct _gsm_map_tap_rec_t {
@@ -42,8 +33,10 @@ typedef struct _gsm_map_tap_rec_t {
     guint16		size;
 } gsm_map_tap_rec_t;
 
+
+/*
+ * the following allows TAP code access to the operations
+ * without having to duplicate it. With MSVC and a 
+ * libethereal.dll, we need a special declaration.
+ */
 ETH_VAR_IMPORT const value_string gsm_map_opr_code_strings[];
-
-/* #include "packet-gsm_map-exp.h"*/
-
-#endif  /* PACKET_GSM_MAP_H */
