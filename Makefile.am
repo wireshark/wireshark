@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.110 1999/11/17 23:31:22 gram Exp $
+# $Id: Makefile.am,v 1.111 1999/11/18 07:29:53 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -196,6 +196,7 @@ EXTRA_ethereal_SOURCES = \
 	dfilter-grammar.h \
 	dfilter-scanner.c \
 	packet-snmp.c	\
+	packet-snmp.h	\
 	snprintf.c	\
 	snprintf.h	\
 	snprintf-imp.h	\

@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.13 1999/11/16 11:42:58 guy Exp $
+ * $Id: packet-snmp.c,v 1.14 1999/11/18 07:29:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -51,6 +51,8 @@
 
 #include <glib.h>
 #include "packet.h"
+
+#include "packet-snmp.h"
 
 #define in_addr_t u_int
 
@@ -286,6 +288,13 @@ dissect_snmp_error(const u_char *pd, int offset, frame_data *fd,
 void
 dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 {
+	dissect_snmp_pdu(pd, offset, fd, tree, "SNMP", proto_snmp, ett_snmp);
+}
+
+void
+dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
+    proto_tree *tree, char *proto_name, int proto, gint ett)
+{
 	int length=fd->pkt_len-offset;
 	u_char *data, *tmp_data;
 
@@ -334,7 +343,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	proto_item *item=NULL;
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "SNMP");
+		col_add_str(fd, COL_PROTOCOL, proto_name);
 
 	/* NOTE: we have to parse the message piece by piece, since the
 	 * capture length may be less than the message length: a 'global'
@@ -456,8 +465,8 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		if (tree) {
 			/* all_length=header_length+pdu_type_length+request_id_length+error_status_length+error_index_length; */
 			all_length=fd->pkt_len-offset;
-			item = proto_tree_add_item(tree, proto_snmp, offset, all_length, NULL);
-			snmp_tree = proto_item_add_subtree(item, ett_snmp);
+			item = proto_tree_add_item(tree, proto, offset, all_length, NULL);
+			snmp_tree = proto_item_add_subtree(item, ett);
 			proto_tree_add_text(snmp_tree, offset, header_length, "Community: \"%s\", Version: %s", community, val_to_str(version, versions, "Unknown version %#x"));
 			offset+=header_length;
 			proto_tree_add_text(snmp_tree, offset, pdu_type_length, "%s", pdu_type_string);
@@ -484,8 +493,8 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			col_add_str(fd, COL_INFO, pdu_type_string);
 		if(tree) {
 			all_length=fd->pkt_len-offset;
-			item = proto_tree_add_item(tree, proto_snmp, offset, all_length, NULL);
-			snmp_tree = proto_item_add_subtree(item, ett_snmp);
+			item = proto_tree_add_item(tree, proto, offset, all_length, NULL);
+			snmp_tree = proto_item_add_subtree(item, ett);
 			proto_tree_add_text(snmp_tree, offset, header_length, "Community: \"%s\", Version: %s", community, val_to_str(version, versions, "Unknown version %#x"));
 			offset+=header_length;
 			proto_tree_add_text(snmp_tree, offset, pdu_type_length, "Pdu type: %s", pdu_type_string);

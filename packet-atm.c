@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.2 1999/11/16 11:42:25 guy Exp $
+ * $Id: packet-atm.c,v 1.3 1999/11/18 07:29:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,14 +36,18 @@
 #include "packet.h"
 #include "resolv.h"
 
+#include "packet-snmp.h"
+
 static int proto_atm = -1;
 static int proto_atm_lane = -1;
+static int proto_ilmi = -1;
 
 static gint ett_atm = -1;
 static gint ett_atm_lane = -1;
 static gint ett_atm_lane_lc_lan_dest = -1;
 static gint ett_atm_lane_lc_lan_dest_rd = -1;
 static gint ett_atm_lane_lc_flags = -1;
+static gint ett_ilmi = -1;
 
 /*
  * See
@@ -529,6 +533,12 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
       dissect_lane(pd, offset, fd, tree);
       break;
 
+#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+    case ATT_HL_ILMI:
+      dissect_snmp_pdu(pd, offset, fd, tree, "ILMI", proto_ilmi, ett_ilmi);
+      break;
+#endif
+
     default:
       if (tree) {
         /* Dump it as raw data. */
@@ -553,8 +563,10 @@ proto_register_atm(void)
 		&ett_atm_lane_lc_lan_dest,
 		&ett_atm_lane_lc_lan_dest_rd,
 		&ett_atm_lane_lc_flags,
+		&ett_ilmi,
 	};
 	proto_atm = proto_register_protocol("ATM", "atm");
 	proto_atm_lane = proto_register_protocol("ATM LANE", "lane");
+	proto_ilmi = proto_register_protocol("ILMI", "ilmi");
 	proto_register_subtree_array(ett, array_length(ett));
 }
