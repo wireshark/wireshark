@@ -351,7 +351,6 @@ SectionEnd
 !ifdef GTK_WIMP_DIR
 Section "GTK-Wimp" SecGTKWimp
 ;-------------------------------------------
-SectionIn 1
 SetOutPath $INSTDIR\lib\gtk-2.0\${GTK2_INST_VERSION}.0\engines
 File "${GTK_WIMP_DIR}\libwimp.dll"
 SetOutPath $INSTDIR\share\themes\Default\gtk-2.0
