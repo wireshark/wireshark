@@ -3253,6 +3253,55 @@ cf_close_failure_alert_box(const char *filename, int err)
   }
 }
 
+void
+cf_reload() {
+  gchar *filename;
+  gboolean is_tempfile;
+
+  /* If the file could be opened, "cf_open()" calls "cf_close()"
+     to get rid of state for the old capture file before filling in state
+     for the new capture file.  "cf_close()" will remove the file if
+     it's a temporary file; we don't want that to happen (for one thing,
+     it'd prevent subsequent reopens from working).  Remember whether it's
+     a temporary file, mark it as not being a temporary file, and then
+     reopen it as the type of file it was.
+
+     Also, "cf_close()" will free "cfile.filename", so we must make
+     a copy of it first. */
+  filename = g_strdup(cfile.filename);
+  is_tempfile = cfile.is_tempfile;
+  cfile.is_tempfile = FALSE;
+  if (cf_open(filename, is_tempfile, &cfile) == 0) {
+    switch (cf_read(&cfile)) {
+
+    case READ_SUCCESS:
+    case READ_ERROR:
+      /* Just because we got an error, that doesn't mean we were unable
+         to read any of the file; we handle what we could get from the
+         file. */
+      break;
+
+    case READ_ABORTED:
+      /* The user bailed out of re-reading the capture file; the
+         capture file has been closed - just free the capture file name
+         string and return (without changing the last containing
+         directory). */
+      g_free(filename);
+      return;
+    }
+  } else {
+    /* The open failed, so "cfile.is_tempfile" wasn't set to "is_tempfile".
+       Instead, the file was left open, so we should restore "cfile.is_tempfile"
+       ourselves.
+
+       XXX - change the menu?  Presumably "cf_open()" will do that;
+       make sure it does! */
+    cfile.is_tempfile = is_tempfile;
+  }
+  /* "cf_open()" made a copy of the file name we handed it, so
+     we should free up our copy. */
+  g_free(filename);
+}
 
 /* Copies a file in binary mode, for those operating systems that care about
  * such things.
