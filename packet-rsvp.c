@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.36 2001/04/17 06:43:19 guy Exp $
+ * $Id: packet-rsvp.c,v 1.37 2001/04/19 22:55:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -392,7 +392,7 @@ static hf_register_info rsvpf_info[] = {
 
     /* Message type number */
     {&rsvp_filter[RSVPF_MSG], 
-     { "Message Type", "rsvp.msg", FT_UINT8, BASE_NONE, message_type_vals, 0x0,
+     { "Message Type", "rsvp.msg", FT_UINT8, BASE_DEC, VALS(message_type_vals), 0x0,
      	"" }},
 
     /* Message type shorthands */
@@ -428,90 +428,90 @@ static hf_register_info rsvpf_info[] = {
      { "Resv Tear Confirm Message", "rsvp.rtearconf", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
-    /* Object present */
+    /* Object class */
     {&rsvp_filter[RSVPF_OBJECT], 
-     { "", "rsvp.object", FT_UINT8, BASE_NONE, rsvp_class_vals, 0x0,
+     { "Object class", "rsvp.object", FT_UINT8, BASE_DEC, VALS(rsvp_class_vals), 0x0,
      	"" }},
 
     /* Object present shorthands */
     {&rsvp_filter[RSVPF_SESSION], 
-     { "SESSION", "rsvp.session", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "SESSION", "rsvp.session", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_HOP], 
-     { "HOP", "rsvp.hop", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "HOP", "rsvp.hop", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_INTEGRITY], 
-     { "INTEGRITY", "rsvp.integrity", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "INTEGRITY", "rsvp.integrity", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_TIME_VALUES], 
-     { "TIME VALUES", "rsvp.time", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "TIME VALUES", "rsvp.time", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_ERROR], 
-     { "ERROR", "rsvp.error", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "ERROR", "rsvp.error", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_SCOPE], 
-     { "SCOPE", "rsvp.scope", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "SCOPE", "rsvp.scope", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_STYLE], 
-     { "STYLE", "rsvp.style", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "STYLE", "rsvp.style", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_FLOWSPEC], 
-     { "FLOWSPEC", "rsvp.flowspec", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "FLOWSPEC", "rsvp.flowspec", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_FILTER_SPEC], 
-     { "FILTERSPEC", "rsvp.filter", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "FILTERSPEC", "rsvp.filter", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_SENDER], 
-     { "SENDER TEMPLATE", "rsvp.sender", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "SENDER TEMPLATE", "rsvp.sender", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_TSPEC], 
-     { "SENDER TSPEC", "rsvp.tspec", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "SENDER TSPEC", "rsvp.tspec", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_ADSPEC], 
-     { "ADSPEC", "rsvp.adspec", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "ADSPEC", "rsvp.adspec", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_POLICY], 
-     { "POLICY", "rsvp.policy", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "POLICY", "rsvp.policy", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_CONFIRM], 
-     { "CONFIRM", "rsvp.confirm", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "CONFIRM", "rsvp.confirm", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_LABEL], 
-     { "LABEL", "rsvp.label", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "LABEL", "rsvp.label", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_LABEL_REQUEST], 
-     { "LABEL REQUEST", "rsvp.label_request", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "LABEL REQUEST", "rsvp.label_request", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_SESSION_ATTRIBUTE], 
-     { "SESSION ATTRIBUTE", "rsvp.session_attribute", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "SESSION ATTRIBUTE", "rsvp.session_attribute", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_EXPLICIT_ROUTE], 
-     { "EXPLICIT ROUTE", "rsvp.explicit_route", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "EXPLICIT ROUTE", "rsvp.explicit_route", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_RECORD_ROUTE], 
-     { "RECORD ROUTE", "rsvp.record_route", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "RECORD ROUTE", "rsvp.record_route", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_UNKNOWN_OBJ], 
-     { "Unknown object", "rsvp.obj_unknown", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "Unknown object", "rsvp.obj_unknown", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     /* Session fields */
@@ -520,19 +520,19 @@ static hf_register_info rsvpf_info[] = {
      	"" }},
 
     {&rsvp_filter[RSVPF_SESSION_PORT], 
-     { "Port number", "rsvp.session.port", FT_UINT16, BASE_NONE, NULL, 0x0,
+     { "Port number", "rsvp.session.port", FT_UINT16, BASE_DEC, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_SESSION_PROTO], 
-     { "Protocol", "rsvp.session.proto", FT_UINT8, BASE_NONE, VALS(proto_vals), 0x0,
+     { "Protocol", "rsvp.session.proto", FT_UINT8, BASE_DEC, VALS(proto_vals), 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_SESSION_TUNNEL_ID], 
-     { "Tunnel ID", "rsvp.session.tunnel_id", FT_UINT16, BASE_NONE, NULL, 0x0,
+     { "Tunnel ID", "rsvp.session.tunnel_id", FT_UINT16, BASE_DEC, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID], 
-     { "Extended tunnel ID", "rsvp.session.ext_tunnel_id", FT_UINT32, BASE_NONE, NULL, 0x0,
+     { "Extended tunnel ID", "rsvp.session.ext_tunnel_id", FT_UINT32, BASE_DEC, NULL, 0x0,
      	"" }},
 
     /* Sender template/Filterspec fields */
@@ -541,11 +541,11 @@ static hf_register_info rsvpf_info[] = {
      	"" }},
 
     {&rsvp_filter[RSVPF_SENDER_PORT], 
-     { "Sender port number", "rsvp.sender.port", FT_UINT16, BASE_NONE, NULL, 0x0,
+     { "Sender port number", "rsvp.sender.port", FT_UINT16, BASE_DEC, NULL, 0x0,
        "" }},
 
     {&rsvp_filter[RSVPF_SENDER_LSP_ID], 
-     { "Sender LSP ID", "rsvp.sender.lsp_id", FT_UINT16, BASE_NONE, NULL, 0x0,
+     { "Sender LSP ID", "rsvp.sender.lsp_id", FT_UINT16, BASE_DEC, NULL, 0x0,
      	"" }}
 };
 
@@ -672,10 +672,10 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    class = tvb_get_guint8(tvb, offset+2);
 	    type = tvb_get_guint8(tvb, offset+3);
 	    object_type = val_to_str(class, rsvp_class_vals, "Unknown");
-	    ti = proto_tree_add_uint_hidden(rsvp_tree, rsvp_filter[RSVPF_OBJECT], tvb, 
+	    proto_tree_add_uint_hidden(rsvp_tree, rsvp_filter[RSVPF_OBJECT], tvb, 
 					    offset, obj_length, class);
-	    ti = proto_tree_add_uint(rsvp_tree, rsvp_filter[rsvp_class_to_filter_num(class)],
-	    			     tvb, offset, obj_length, class);
+	    ti = proto_tree_add_boolean(rsvp_tree, rsvp_filter[rsvp_class_to_filter_num(class)],
+	    			     tvb, offset, obj_length, TRUE);
 
 	    offset2 = offset+4;
 
