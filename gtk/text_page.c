@@ -1,6 +1,6 @@
 /* text_page.c
  *
- * $Id: text_page.c,v 1.1 2004/06/05 09:57:11 ulfl Exp $
+ * $Id: text_page.c,v 1.2 2004/06/07 19:49:37 guy Exp $
  *
  * Ulf Lamping
  *
@@ -178,7 +178,9 @@ static void text_page_clear(GtkWidget *page)
  */
 void text_page_redraw(GtkWidget *page, const char *absolute_path)
 {
+#if GTK_MAJOR_VERSION < 2
   GtkWidget *txt = OBJECT_GET_DATA(page, TEXT_KEY);
+#endif
 
 #if GTK_MAJOR_VERSION < 2
   gtk_text_freeze(GTK_TEXT(txt));
