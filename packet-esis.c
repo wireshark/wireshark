@@ -2,7 +2,7 @@
  * Routines for ISO/OSI End System to Intermediate System  
  * Routing Exchange Protocol ISO 9542.
  *
- * $Id: packet-esis.c,v 1.24 2002/04/07 22:00:34 guy Exp $
+ * $Id: packet-esis.c,v 1.25 2002/04/30 23:56:58 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -182,7 +182,7 @@ esis_dissect_esh_pdu( u_char len, tvbuff_t *tvb, proto_tree *tree) {
        offset += sal;
        len    -= ( sal + 1 );
     }
-    dissect_osi_options( PDU_TYPE_ESIS_ESH, len, tvb, offset, tree );
+    dissect_osi_options( len, tvb, offset, tree );
   }  
 } /* esis_dissect_esh_pdu */ ;
 
@@ -205,7 +205,7 @@ esis_dissect_ish_pdu( u_char len, tvbuff_t *tvb, proto_tree *tree) {
     offset += netl;
     len    -= ( netl + 1 );
 
-    dissect_osi_options( PDU_TYPE_ESIS_ISH, len, tvb, offset, tree );
+    dissect_osi_options( len, tvb, offset, tree );
   }
 };
 
@@ -255,7 +255,7 @@ esis_dissect_redirect_pdu( u_char len, tvbuff_t *tvb, proto_tree *tree) {
       offset += tmpl;
       len    -= ( tmpl + 1 );
     }
-    dissect_osi_options( PDU_TYPE_ESIS_RD, len, tvb, offset, tree );
+    dissect_osi_options( len, tvb, offset, tree );
   }
 }
 
