@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.63 2003/03/04 08:20:36 guy Exp $
+ * $Id: packet-atm.c,v 1.64 2003/03/07 03:19:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1018,29 +1018,46 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        * and must be less than the amount of space left after
        * we remove the trailer.
        *
-       * If it's not same, assume we don't have a trailer.
+       * If it's not sane, assume we don't have a trailer.
        */
       if (aal5_length > 0 && aal5_length <= length - 8) {
-        if (tree) {
-          pad_length = length - aal5_length - 8;
-          if (pad_length > 0) {
-            proto_tree_add_text(atm_tree, tvb, aal5_length, pad_length,
-		"Padding");
-	  }
-          proto_tree_add_text(atm_tree, tvb, length - 8, 1, "AAL5 UU: 0x%02x",
+        /*
+         * How much padding is there?
+         */
+        pad_length = length - aal5_length - 8;
+
+        /*
+         * There is no reason for more than 47 bytes of padding.
+         * The most padding you can have would be 7 bytes at the
+         * end of the next-to-last cell (8 bytes after the end of
+         * the data means you can fit the trailer in that cell),
+         * plus 40 bytes in the last cell (with the last 8 bytes
+         * being padding).
+         *
+         * If there's more than 47 bytes of padding, assume we don't
+         * have a trailer.
+         */
+        if (pad_length <= 47) {
+          if (tree) {
+            if (pad_length > 0) {
+              proto_tree_add_text(atm_tree, tvb, aal5_length, pad_length,
+  		"Padding");
+            }
+            proto_tree_add_text(atm_tree, tvb, length - 8, 1, "AAL5 UU: 0x%02x",
 		tvb_get_guint8(tvb, length - 8));
-          proto_tree_add_text(atm_tree, tvb, length - 7, 1, "AAL5 CPI: 0x%02x",
+            proto_tree_add_text(atm_tree, tvb, length - 7, 1, "AAL5 CPI: 0x%02x",
 		tvb_get_guint8(tvb, length - 7));
-          proto_tree_add_text(atm_tree, tvb, length - 6, 2, "AAL5 len: %u",
+            proto_tree_add_text(atm_tree, tvb, length - 6, 2, "AAL5 len: %u",
 		aal5_length);
-          crc = tvb_get_ntohl(tvb, length - 4);
-          calc_crc = update_crc(0xFFFFFFFF, tvb_get_ptr(tvb, 0, length),
+            crc = tvb_get_ntohl(tvb, length - 4);
+            calc_crc = update_crc(0xFFFFFFFF, tvb_get_ptr(tvb, 0, length),
 		length);
-          proto_tree_add_text(atm_tree, tvb, length - 4, 4,
+            proto_tree_add_text(atm_tree, tvb, length - 4, 4,
 		"AAL5 CRC: 0x%08X (%s)", crc,
 		(calc_crc == 0xC704DD7B) ? "correct" : "incorrect");
+	  }
+          next_tvb = tvb_new_subset(tvb, 0, aal5_length, aal5_length);
 	}
-        next_tvb = tvb_new_subset(tvb, 0, aal5_length, aal5_length);
       }
     }
   }
