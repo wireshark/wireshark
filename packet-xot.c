@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-xot.c,v 1.4 2001/01/22 08:03:46 guy Exp $
+ * $Id: packet-xot.c,v 1.5 2001/02/12 09:06:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,12 +36,13 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
-#include "packet-x25.h"
 
 #define TCP_PORT_XOT 1998
 
 static gint proto_xot = -1;
 static gint ett_xot = -1;
+
+static dissector_handle_t x25_handle;
 
 static void dissect_xot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -70,7 +71,7 @@ static void dissect_xot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       ti = proto_tree_add_text(xot_tree, tvb, 2,2,"XOT length : %u",len) ;
   }
   next_tvb =  tvb_new_subset(tvb,4, -1 , -1);
-  dissect_x25(next_tvb,pinfo,tree);
+  call_dissector(x25_handle,next_tvb,pinfo,tree);
 }
  
 /* Register the protocol with Ethereal */
@@ -93,5 +94,10 @@ void proto_register_xot(void)
 void
 proto_reg_handoff_xot(void)
 {
+  /*
+   * Get a handle for the X.25 dissector.
+   */
+  x25_handle = find_dissector("x.25");
+
   dissector_add("tcp.port", TCP_PORT_XOT, dissect_xot, proto_xot);
 }

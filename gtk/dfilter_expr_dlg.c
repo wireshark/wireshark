@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.10 2001/02/01 22:40:49 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.11 2001/02/12 09:06:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1002,21 +1002,38 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
 	len = proto_registrar_n();
 	for (i = 0; i < len; i++) {
-		if (!proto_registrar_is_protocol(i)) {
-			hfinfo = proto_registrar_get_nth(i);
+		/*
+		 * If this field is a protocol, skip it - we already put
+		 * it in above.
+		 */
+		if (proto_registrar_is_protocol(i))
+			continue;
 
-			/* Create a node for the item, and put it
-			   under its parent protocol. */
-			protocol_node = g_hash_table_lookup(proto_array,
-					(gpointer)proto_registrar_get_parent(i));
-			item_node = gtk_ctree_insert_node(GTK_CTREE(tree),
-			    protocol_node, NULL,
-			    &hfinfo->name, 5,
-			    NULL, NULL, NULL, NULL,
-			    FALSE, FALSE);
-			gtk_ctree_node_set_row_data(GTK_CTREE(tree),
-			    item_node, hfinfo);
-		}
+		hfinfo = proto_registrar_get_nth(i);
+
+		/*
+		 * If there's another field with the same name as this
+		 * one, skip it - all fields with the same name should
+		 * have the same type/radix/value list, they would
+		 * just have different bit masks.  (If a field isn't
+		 * a bitfield, but can be, say, 1 or 2 bytes long,
+		 * it can just be made FT_UINT16, meaning the *maximum*
+		 * length is 2 bytes.)
+		 */
+		if (hfinfo->same_name != NULL)
+			continue;
+
+		/* Create a node for the item, and put it
+		   under its parent protocol. */
+		protocol_node = g_hash_table_lookup(proto_array,
+				(gpointer)proto_registrar_get_parent(i));
+		item_node = gtk_ctree_insert_node(GTK_CTREE(tree),
+		    protocol_node, NULL,
+		    &hfinfo->name, 5,
+		    NULL, NULL, NULL, NULL,
+		    FALSE, FALSE);
+		gtk_ctree_node_set_row_data(GTK_CTREE(tree),
+		    item_node, hfinfo);
 	}
 
 	g_hash_table_destroy(proto_array);

@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-lapb.c,v 1.28 2001/01/22 00:20:29 guy Exp $
+ * $Id: packet-lapb.c,v 1.29 2001/02/12 09:06:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,7 +36,6 @@
 #include <glib.h>
 #include <string.h>
 #include "packet.h"
-#include "packet-x25.h"
 #include "xdlc.h"
 
 #define FROM_DCE	0x80
@@ -47,6 +46,8 @@ static int hf_lapb_control = -1;
 
 static gint ett_lapb = -1;
 static gint ett_lapb_control = -1;
+
+static dissector_handle_t x25_handle;
 
 static void
 dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -108,7 +109,7 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* not end of frame ==> X.25 */
     if (tvb_length(tvb) > 2) {
 	    next_tvb = tvb_new_subset(tvb, 2, -1, -1);
-	    dissect_x25(next_tvb, pinfo, tree);
+	    call_dissector(x25_handle, next_tvb, pinfo, tree);
     }
 }
 
@@ -140,5 +141,10 @@ proto_register_lapb(void)
 void
 proto_reg_handoff_lapb(void)
 {
+    /*
+     * Get a handle for the X.25 dissector.
+     */
+    x25_handle = find_dissector("x.25");
+
     dissector_add("wtap_encap", WTAP_ENCAP_LAPB, dissect_lapb, proto_lapb);
 }

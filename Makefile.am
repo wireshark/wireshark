@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.282 2001/02/08 07:08:04 guy Exp $
+# $Id: Makefile.am,v 1.283 2001/02/12 09:06:17 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -303,7 +303,6 @@ noinst_HEADERS = \
 	packet-x11-declarations.h	\
 	packet-x11-register-info.h	\
 	packet-x11-keysym.h	\
-	packet-x25.h   \
 	packet-yhoo.h  \
 	packet-ypbind.h \
 	packet-ypserv.h \
