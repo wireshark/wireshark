@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: mergecap.c,v 1.11 2002/08/28 21:00:06 jmayer Exp $
+ * $Id: mergecap.c,v 1.12 2004/01/16 20:03:10 jmayer Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -30,6 +30,7 @@
 #include "getopt.h"
 #endif
 
+#include "cvsversion.h"
 
 /*
  * Global variables
@@ -444,7 +445,7 @@ main(int argc, char *argv[])
       break;
 
     case 'h':
-      fprintf(stderr, "mergecap version %s\n", VERSION);
+      fprintf(stderr, "mergecap version %s%s\n", VERSION, CVSVERSION);
       usage();
       exit(1);
       break;

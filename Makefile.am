@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.691 2004/01/16 04:37:54 gerald Exp $
+# $Id: Makefile.am,v 1.692 2004/01/16 20:03:10 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -848,6 +848,7 @@ DISSECTOR_SUPPORT_SRC = \
 	xmlstub.h
 
 BUILT_SOURCES = \
+	cvsversion.h	\
 	x11-declarations.h \
 	x11-register-info.h
 
@@ -1032,7 +1033,7 @@ text2pcap_DEPENDENCIES = text2pcap.h
 text2pcap_LDADD = $(text2pcap_optional_objects) \
 	@GLIB_LIBS@ -lm
 
-mergecap_SOURCES = mergecap.c
+mergecap_SOURCES = mergecap.c cvsversion.h
 mergecap_DEPENDENCIES = wiretap/libwiretap.a
 
 editcap_SOURCES = editcap.c
@@ -1046,6 +1047,12 @@ mergecap_LDADD = wiretap/libwiretap.a @GLIB_LIBS@
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap
+
+#
+# Build the version string
+#
+cvsversion.h:
+	$(PERL) make-version.pl `find . -name "Entries"`
 
 #
 # Build various header files for the X11 dissector.

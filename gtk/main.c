@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.353 2004/01/11 22:17:43 guy Exp $
+ * $Id: main.c,v 1.354 2004/01/16 20:04:21 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,6 +77,7 @@
 #include <epan/filesystem.h>
 #include <epan/epan_dissect.h>
 
+#include "cvsversion.h"
 #include "main.h"
 #include <epan/timestamp.h>
 #include <epan/packet.h>
@@ -207,7 +208,7 @@ about_ethereal( GtkWidget *w _U_, gpointer data _U_ ) {
   snprintf(message, MAX_ABOUT_MSG_LEN,
 	   "Ethereal - Network Protocol Analyzer\n\n"
 	   
-	   "Version " VERSION " (C) 1998-2003 Gerald Combs <gerald@ethereal.com>\n\n"
+	   "Version " VERSION CVSVERSION " (C) 1998-2003 Gerald Combs <gerald@ethereal.com>\n\n"
 	   
        "%s\n"
        "%s\n\n"
@@ -1199,7 +1200,7 @@ static void
 print_usage(gboolean print_ver) {
 
   if (print_ver) {
-    fprintf(stderr, "This is GNU " PACKAGE " " VERSION "\n%s\n%s\n",
+    fprintf(stderr, "This is GNU " PACKAGE " " VERSION CVSVERSION "\n%s\n%s\n",
 	  comp_info_str->str, runtime_info_str->str);
   }
 #ifdef HAVE_LIBPCAP
@@ -1230,7 +1231,7 @@ show_version(void)
   create_console();
 #endif
 
-  printf("%s %s\n%s\n%s\n", PACKAGE, VERSION, comp_info_str->str,
+  printf("%s %s%s\n%s\n%s\n", PACKAGE, VERSION, CVSVERSION, comp_info_str->str,
          runtime_info_str->str);
 }
 
