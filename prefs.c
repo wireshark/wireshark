@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.59 2001/07/23 00:12:47 guy Exp $
+ * $Id: prefs.c,v 1.60 2001/07/23 18:14:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -378,7 +378,8 @@ get_string_list(gchar *str)
 
   gint      state = PRE_STRING, i = 0, j = 0;
   gboolean  backslash = FALSE;
-  gchar     cur_c, *slstr = NULL;
+  guchar    cur_c;
+  gchar    *slstr = NULL;
   GList    *sl = NULL;
 
   /* Allocate a buffer for the first string.   */
