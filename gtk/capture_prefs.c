@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.21 2003/09/10 05:35:26 guy Exp $
+ * $Id: capture_prefs.c,v 1.22 2003/09/10 06:55:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -113,8 +113,10 @@ capture_prefs_show(void)
 	if_list = get_interface_list(&err, err_str);
 	combo_list = build_capture_combo_list(if_list, FALSE);
 	free_interface_list(if_list);
-	gtk_combo_set_popdown_strings(GTK_COMBO(if_cb), combo_list);
-	free_capture_combo_list(combo_list);
+	if (combo_list != NULL) {
+		gtk_combo_set_popdown_strings(GTK_COMBO(if_cb), combo_list);
+		free_capture_combo_list(combo_list);
+	}
 	if (prefs.capture_device)
 		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry),
 		    prefs.capture_device);
