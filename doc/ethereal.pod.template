@@ -1455,7 +1455,7 @@ B<http://www.ethereal.com>.
   Jaime Fournier           <jafour1[AT]yahoo.com>
   Markus Steinmann         <ms[AT]seh.de>
   Tsutomu Mieno            <iitom[AT]utouto.com>
-  Yasuhiro Shirasaki       <yasuhiro@gnome[AT]gr.jp>
+  Yasuhiro Shirasaki       <yasuhiro[AT]gnome.gr.jp>
   Anand V. Narwani         <anarwani[AT]cisco.com>
   Christopher K. St. John  <cks[AT]distributopia.com>
   Nix                      <nix[AT]esperi.demon.co.uk>
@@ -1467,7 +1467,8 @@ B<http://www.ethereal.com>.
   Hidetaka Ogawa           <ogawa[AT]bs2.qnes.nec.co.jp>
   Jan Kratochvil           <short[AT]ucw.cz>
   Alfred Koebler           <ak[AT]icon-sult.de>
-  Vassilii Khachaturov     <Vassilii.Khachaturov@comverse.com>
+  Vassilii Khachaturov     <Vassilii.Khachaturov[AT]comverse.com>
+  Bill Studenmund          <wrstuden[AT]wasabisystems.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.11 2002/08/02 23:36:00 jmayer Exp $
+ * $Id: packet-scsi.c,v 1.12 2002/08/18 19:59:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1869,7 +1869,8 @@ dissect_scsi_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         desclen = tvb_get_guint8 (tvb, offset+3);
         proto_tree_add_text (tree, tvb, offset+3, 1,
                              "Block Descriptor Length: %u", desclen);
-        offset = 4;
+        tot_len += offset;
+        offset += 4;
         tot_len -= 3;           /* tot_len does not include the len field */
         if (desclen) {
             proto_tree_add_text (tree, tvb, offset, 4, "No. of Blocks: %u",
@@ -1938,7 +1939,8 @@ dissect_scsi_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         desclen = tvb_get_guint8 (tvb, offset+6);
         proto_tree_add_text (tree, tvb, offset+6, 1,
                              "Block Descriptor Length: %u", desclen);
-        offset = 8;
+        tot_len += offset;
+        offset += 8;
         tot_len -= 6;           /* tot_len does not include the len field */
         if (desclen) {
             proto_tree_add_text (tree, tvb, offset, 8, "No. of Blocks: %s",
@@ -2006,7 +2008,8 @@ dissect_scsi_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         desclen = tvb_get_guint8 (tvb, offset+3);
         proto_tree_add_text (tree, tvb, offset+3, 1,
                              "Block Descriptor Length: %u", desclen);
-        offset = 4;
+        tot_len += offset;
+        offset += 4;
         /* The actual payload is the min of the length in the response & the
          * space allocated by the initiator as specified in the request.
          */

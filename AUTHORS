@@ -1307,7 +1307,7 @@ Tsutomu Mieno <iitom[AT]utouto.com> {
 	DHCPv6 updates
 }
 
-Yasuhiro Shirasaki <yasuhiro@gnome[AT]gr.jp> {
+Yasuhiro Shirasaki <yasuhiro[AT]gnome.gr.jp> {
 	DHCPv6 updates
 }
 
@@ -1366,9 +1366,13 @@ Alfred Koebler <ak[AT]icon-sult.de> {
 	    files for Ethernet)
 }
 
-Vassilii Khachaturov <Vassilii.Khachaturov@comverse.com> {
+Vassilii Khachaturov <Vassilii.Khachaturov[AT]comverse.com> {
 	Put protocol blurbs into tables generated with the "-G fields"
 	    flag
+}
+
+Bill Studenmund <wrstuden[AT]wasabisystems.com> {
+	Fix handling of SCSI mode sense
 }
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
