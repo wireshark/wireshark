@@ -1,7 +1,7 @@
 /* gtkpacket.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.16 2000/04/27 17:04:37 gram Exp $
+ * $Id: proto_draw.c,v 1.17 2000/04/27 20:39:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -88,7 +88,7 @@ void
 packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
 		char_enc encoding) {
   gint     i = 0, j, k, cur;
-  gchar    line[128], hexchars[] = "0123456789abcdef", c = '\0';
+  guchar   line[128], hexchars[] = "0123456789abcdef", c = '\0';
   GdkFont *cur_font, *new_font;
   gint	   bend = -1;
 
@@ -155,7 +155,7 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
 	      else {
 		      g_assert_not_reached();
 	      }
-              line[cur++] = (isgraph(c) || c == ' ') ? c : '.';
+              line[cur++] = (isprint(c)) ? c : '.';
       } else {
         line[cur++] = ' ';
       }
