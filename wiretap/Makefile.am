@@ -16,6 +16,8 @@ libwiretap_a_SOURCES = \
 	lanalyzer.h		\
 	libpcap.c		\
 	libpcap.h		\
+	netmon.c		\
+	netmon.h		\
 	ngsniffer.c		\
 	ngsniffer.h		\
 	snoop.c			\

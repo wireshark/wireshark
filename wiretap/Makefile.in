@@ -85,6 +85,8 @@ libwiretap_a_SOURCES = \
 	lanalyzer.h		\
 	libpcap.c		\
 	libpcap.h		\
+	netmon.c		\
+	netmon.h		\
 	ngsniffer.c		\
 	ngsniffer.h		\
 	snoop.c			\
@@ -104,7 +106,7 @@ LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 libwiretap_a_LIBADD = 
 libwiretap_a_OBJECTS =  buffer.o file.o iptrace.o lanalyzer.o libpcap.o \
-ngsniffer.o snoop.o wtap.o
+netmon.o ngsniffer.o snoop.o wtap.o
 AR = ar
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
@@ -119,8 +121,8 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP = --best
 DEP_FILES =  .deps/buffer.P .deps/file.P .deps/iptrace.P \
-.deps/lanalyzer.P .deps/libpcap.P .deps/ngsniffer.P .deps/snoop.P \
-.deps/wtap.P
+.deps/lanalyzer.P .deps/libpcap.P .deps/netmon.P .deps/ngsniffer.P \
+.deps/snoop.P .deps/wtap.P
 SOURCES = $(libwiretap_a_SOURCES)
 OBJECTS = $(libwiretap_a_OBJECTS)
 
