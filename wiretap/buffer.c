@@ -1,6 +1,6 @@
 /* buffer.c
  *
- * $Id: buffer.c,v 1.2 1998/11/12 06:01:18 gram Exp $
+ * $Id: buffer.c,v 1.3 1998/11/12 23:29:33 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -23,9 +23,11 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "buffer.h"
+#include "glib.h"
 
 /*#define DEBUG*/
 #define DEBUG_PROGRAM_NAME "buffer.c"

@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.2 1998/11/12 06:01:21 gram Exp $
+ * $Id: file.c,v 1.3 1998/11/12 23:29:34 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "wtap.h"
 #include "lanalyzer.h"
 #include "ngsniffer.h"
@@ -49,15 +50,15 @@ wtap* wtap_open_offline(char *filename, int filetype)
 	/* If the filetype is unknown, try all my file types */
 	if (filetype == WTAP_FILE_UNKNOWN) {
 		/* WTAP_FILE_PCAP */
-		if (wth->file_type = open_file_pcap(wth, filename)) {
+		if ((wth->file_type = open_file_pcap(wth, filename)) != WTAP_FILE_UNKNOWN) {
 			goto success;
 		}
 		/* WTAP_FILE_NGSNIFFER */
-		if (wth->file_type = ngsniffer_open(wth)) {
+		if ((wth->file_type = ngsniffer_open(wth)) != WTAP_FILE_UNKNOWN) {
 			goto success;
 		}
 		/* WTAP_FILE_LANALYZER */
-		if (wth->file_type = lanalyzer_open(wth)) {
+		if ((wth->file_type = lanalyzer_open(wth)) != WTAP_FILE_UNKNOWN) {
 			goto success;
 		}
 
@@ -69,17 +70,17 @@ wtap* wtap_open_offline(char *filename, int filetype)
 	/* If the user tells us what the file is supposed to be, check it */
 	switch (filetype) {
 		case WTAP_FILE_PCAP:
-			if (wth->file_type = open_file_pcap(wth, filename)) {
+			if ((wth->file_type = open_file_pcap(wth, filename)) != WTAP_FILE_UNKNOWN) {
 				goto success;
 			}
 			break;
 		case WTAP_FILE_NGSNIFFER:
-			if (wth->file_type = ngsniffer_open(wth)) {
+			if ((wth->file_type = ngsniffer_open(wth)) != WTAP_FILE_UNKNOWN) {
 				goto success;
 			}
 			break;
 		case WTAP_FILE_LANALYZER:
-			if (wth->file_type = lanalyzer_open(wth)) {
+			if ((wth->file_type = lanalyzer_open(wth)) != WTAP_FILE_UNKNOWN) {
 				goto success;
 			}
 			break;
@@ -141,7 +142,7 @@ int open_file_pcap(wtap *wth, char *filename)
 
 
 static
-int convert_dlt_to_wtap_encap(dlt)
+int convert_dlt_to_wtap_encap(int dlt)
 {
 	int encap[] = {
 		WTAP_ENCAP_NONE,
