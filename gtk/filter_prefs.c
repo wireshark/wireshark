@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.55 2004/01/25 21:27:15 ulfl Exp $
+ * $Id: filter_prefs.c,v 1.56 2004/01/25 22:21:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1311,7 +1311,6 @@ filter_te_syntax_check_cb(GtkWidget *w _U_)
     dfilter_t   *dfp;
     GdkColor    bg;
     GtkStyle    *style;
-    gboolean    ok = FALSE;
 
     strval = gtk_entry_get_text(GTK_ENTRY(w));
 
