@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.12 2000/07/05 02:45:39 guy Exp $
+ * $Id: filter_prefs.c,v 1.13 2000/07/29 03:20:51 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -200,6 +200,8 @@ static GtkWidget *global_filter_w;
 void
 filter_dialog_cb(GtkWidget *w)
 {
+	GtkWidget *filter_te;
+
 	/* Has a filter dialog box already been opened for editing? */
 	if (global_filter_w != NULL) {
 		/* Yes.  Just reactivate it. */
@@ -208,7 +210,9 @@ filter_dialog_cb(GtkWidget *w)
 	}
 
 	/* No.  Create one. */
-	global_filter_w = filter_dialog_new(NULL, NULL);
+	/* But first, get the text entry attached to the button. */
+	filter_te = gtk_object_get_data(GTK_OBJECT(w), E_FILT_TE_PTR_KEY);
+	global_filter_w = filter_dialog_new(NULL, filter_te);
 }
 
 static GtkWidget *
