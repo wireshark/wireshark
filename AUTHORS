@@ -226,7 +226,7 @@ Uwe Girlich <Uwe.Girlich[AT]philosys.de> {
 	NFS support
 	Mount Protocol support started
 	NLM support started
-	PC NFS support started
+	PCNFSD support started
 	TSP support
 	Quake dissector
 	QuakeWorld dissector
@@ -535,6 +535,7 @@ Mike Frisch <mfrisch[AT]saturn.tlug.org> {
 	AUTH_DES support
 	Tvbuffified NFS dissector
 	RPCSEC_GSS fixes
+	PCNFSD updates
 }
 
 Burke Lau <burke_lau[AT]agilent.com> {

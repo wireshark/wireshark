@@ -1,7 +1,7 @@
 /* packet-pcnfsd.c
  * Routines for PCNFSD dissection
  *
- * $Id: packet-pcnfsd.c,v 1.7 2002/04/14 23:04:03 guy Exp $
+ * $Id: packet-pcnfsd.c,v 1.8 2002/05/14 21:22:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,12 +58,121 @@ static int hf_pcnfsd_gid = -1;
 static int hf_pcnfsd_gids_count = -1;
 static int hf_pcnfsd_homedir = -1;
 static int hf_pcnfsd_def_umask = -1;
+static int hf_pcnfsd_username = -1;
 
 
 static gint ett_pcnfsd = -1;
 static gint ett_pcnfsd_auth_ident = -1;
 static gint ett_pcnfsd_auth_password = -1;
 static gint ett_pcnfsd_gids = -1;
+
+int
+dissect_pcnfsd_username(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	return dissect_rpc_string(tvb, tree, hf_pcnfsd_username, offset, NULL);
+}
+
+#define MAP_REQ_UID		0
+#define MAP_REQ_GID		1
+#define MAP_REQ_UNAME	2
+#define MAP_REQ_GNAME	3
+
+static const value_string names_mapreq[] =
+{
+	{	MAP_REQ_UID,	"MAP_REQ_UID"	},
+	{	MAP_REQ_GID,	"MAP_REQ_GID"	},
+	{	MAP_REQ_UNAME,	"MAP_REQ_UNAME"	},
+	{	MAP_REQ_GNAME,	"MAP_REQ_GNAME"	},
+	{	0,	NULL	}
+};
+
+int
+dissect_pcnfsd_mapreq(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	guint32 mapreq;
+
+	mapreq = tvb_get_ntohl(tvb, offset + 0);
+
+	if (tree)
+		proto_tree_add_text(tree, tvb, offset, 4, "Request: %s (%u)", 
+			val_to_str(mapreq, names_mapreq, "%u"), mapreq);
+
+	offset += 4;
+
+	return offset;
+}
+
+int
+dissect_pcnfsd2_dissect_mapreq_arg_item(tvbuff_t *tvb, int offset, 
+	packet_info *pinfo _U_, proto_tree *tree)
+{
+	offset = dissect_pcnfsd_mapreq(tvb, offset, tree);
+
+	offset = dissect_rpc_uint32(tvb, tree, hf_pcnfsd_uid, offset);
+
+	offset = dissect_pcnfsd_username(tvb, offset, tree);
+
+	return offset;
+}
+
+int
+dissect_pcnfsd2_mapid_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *tree)
+{
+	offset = dissect_rpc_string(tvb, tree, hf_pcnfsd_comment, offset, NULL);
+
+	offset = dissect_rpc_list(tvb, pinfo, tree, offset, 
+		dissect_pcnfsd2_dissect_mapreq_arg_item);
+
+	return offset;
+}
+
+#define MAP_RES_OK		0
+#define MAP_RES_UNKNOWN	1
+#define MAP_RES_DENIED	2
+
+static const value_string names_maprstat[] =
+{
+	{	MAP_RES_OK,	"MAP_RES_OK"	},
+	{	MAP_RES_UNKNOWN,	"MAP_RES_UNKNOWN"	},
+	{	MAP_RES_DENIED,	"MAP_RES_DENIED"	},
+	{	0,	NULL	}
+};
+
+int
+dissect_pcnfsd2_dissect_mapreq_res_item(tvbuff_t *tvb, int offset,
+	packet_info *pinfo _U_, proto_tree *tree)
+{
+	guint32 maprstat;
+
+	offset = dissect_pcnfsd_mapreq(tvb, offset, tree);
+
+	maprstat = tvb_get_ntohl(tvb, offset + 0);
+
+	if (tree)
+		proto_tree_add_text(tree, tvb, offset, 4, "Status: %s (%u)", 
+			val_to_str(maprstat, names_maprstat, "%u"), maprstat);
+
+	offset += 4;
+
+	offset = dissect_rpc_uint32(tvb, tree, hf_pcnfsd_uid, offset);
+
+	offset = dissect_pcnfsd_username(tvb, offset, tree);
+
+	return offset;
+}
+
+int
+dissect_pcnfsd2_mapid_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *tree)
+{
+	offset = dissect_rpc_string(tvb, tree, hf_pcnfsd_comment, offset, NULL);
+
+	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
+		dissect_pcnfsd2_dissect_mapreq_res_item);
+
+	return offset;
+}
 
 /* "NFS Illustrated 14.7.13 */
 static void
@@ -225,7 +334,8 @@ static const vsff pcnfsd2_proc[] = {
 	{ 9,	"PR_REQUEUE",	NULL,				NULL },
 	{ 10,	"PR_HOLD",	NULL,				NULL },
 	{ 11,	"PR_RELEASE",	NULL,				NULL },
-	{ 12,	"MAPID",	NULL,				NULL },
+	{ 12,	"MAPID",	
+	dissect_pcnfsd2_mapid_call, dissect_pcnfsd2_mapid_reply },
 	{ 13,	"AUTH",		
 	dissect_pcnfsd2_auth_call,	dissect_pcnfsd2_auth_reply },
 	{ 14,	"ALERT",	NULL,				NULL },
@@ -274,6 +384,9 @@ proto_register_pcnfsd(void)
 		{ &hf_pcnfsd_def_umask, {
                         "def_umask", "pcnfsd.def_umask", FT_INT32, BASE_OCT,
                         NULL, 0, "def_umask", HFILL }},
+		{ &hf_pcnfsd_username, {
+			"User name", "pcnfsd.username", FT_STRING, BASE_DEC,
+			NULL, 0, "pcnfsd.username", HFILL }},
 	};
 
 	static gint *ett[] = {
