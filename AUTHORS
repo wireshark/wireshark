@@ -1421,7 +1421,7 @@ Prabhakar Krishnan <Prabhakar.Krishnan[AT]netapp.com> {
 }
 
 Jim McDonough <jmcd[AT]us.ibm.com> {
-	Support for LsaQueryInformationPolicy2 in the LSA dissector
+	Enhancements to SMB and the DCE RPC-based protocols used by SMB
 	NTLMSSP updates
 }
 
@@ -1685,6 +1685,7 @@ And assorted fixes and enhancements by the people listed above and by:
 	Jason Copenhaver <jcopenha [AT] typedef.org>
 	Eric Perie <eric.perie [AT] colubris.com>
 	David Yon <yon [AT] tacticalsoftware.com>
+	Marcio Franco <franco.marcio [AT] rd.francetelecom.fr>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.

@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.332 2003/04/20 11:36:15 guy Exp $
+ * $Id: packet-smb.c,v 1.333 2003/04/24 09:04:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -11852,6 +11852,10 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	fn_len = tvb_get_guint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_file_name_len, tvb, offset, 1, fn_len);
 	COUNT_BYTES_SUBR(1);
+	if (si->unicode)
+		fn_len += 2;	/* include terminating '\0' */
+	else
+		fn_len++;	/* include terminating '\0' */
 
 	/* file name */
 	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, FALSE, TRUE, bcp);
@@ -11859,10 +11863,6 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
 	COUNT_BYTES_SUBR(fn_len);
-	if (si->unicode)
-		fn_len += 2;	/* include terminating '\0' */
-	else
-		fn_len++;	/* include terminating '\0' */
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
