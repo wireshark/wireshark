@@ -5,7 +5,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-spnego.c,v 1.46 2003/05/24 23:26:17 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.47 2003/05/25 00:36:30 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1528,6 +1528,31 @@ proto_register_spnego(void)
 		{ &hf_spnego_reqflags, 
 		  { "reqFlags", "spnego.negtokeninit.reqflags", FT_BYTES,
 		    BASE_HEX, NULL, 0, "reqFlags", HFILL }},
+                { &hf_gssapi_reqflags_deleg,
+                  { "Delegation", "gssapi.reqflags.deleg", FT_BOOLEAN, 8,
+                    TFS(&tfs_reqflags_deleg), 0x01, "Delegation", HFILL }},
+                { &hf_gssapi_reqflags_mutual,
+                  { "Mutual Authentication", "gssapi.reqflags.mutual", FT_BOOLEAN,
+                    8, TFS(&tfs_reqflags_mutual), 0x02, "Mutual Authentication", HFILL}},
+                { &hf_gssapi_reqflags_replay,
+                  { "Replay Detection", "gssapi.reqflags.replay", FT_BOOLEAN,
+                    8, TFS(&tfs_reqflags_replay), 0x04, "Replay Detection", HFILL}},
+                { &hf_gssapi_reqflags_sequence,
+                  { "Out-of-sequence Detection", "gssapi.reqflags.sequence",
+                    FT_BOOLEAN, 8, TFS(&tfs_reqflags_sequence), 0x08, 
+                    "Out-of-sequence Detection", HFILL}},
+                { &hf_gssapi_reqflags_anon,
+                  { "Anonymous Authentication", "gssapi.reqflags.anon", 
+                    FT_BOOLEAN, 8, TFS(&tfs_reqflags_anon), 0x10,
+                    "Anonymous Authentication", HFILL}},
+                { &hf_gssapi_reqflags_conf,
+                  { "Per-message Confidentiality", "gssapi.reqflags.conf",
+                    FT_BOOLEAN, 8, TFS(&tfs_reqflags_conf), 0x20, 
+                    "Per-message Confidentiality", HFILL}},
+                { &hf_gssapi_reqflags_integ,
+                  { "Per-message Integrity", "gssapi.reqflags.integ", 
+                    FT_BOOLEAN, 8, TFS(&tfs_reqflags_integ), 0x40,
+                    "Per-message Integrity", HFILL}},
 		{ &hf_spnego_wraptoken,
 		  { "wrapToken", "spnego.wraptoken",
 		    FT_NONE, BASE_NONE, NULL, 0x0, "SPNEGO wrapToken",
