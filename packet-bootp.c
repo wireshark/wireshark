@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-bootp.c,v 1.72 2003/02/07 04:25:37 gerald Exp $
+ * $Id: packet-bootp.c,v 1.73 2003/02/13 08:29:19 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -114,7 +114,7 @@ get_dhcp_type(guint8 byte)
 		"ACK",
 		"NAK",
 		"Release",
-		"Inform"
+		"Inform",
 		"Force Renew"
 	};
 	int i;
