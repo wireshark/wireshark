@@ -361,6 +361,7 @@ proto_register_protocol
 proto_register_subtree_array
 proto_registrar_dump_fields
 proto_registrar_dump_protocols
+proto_registrar_dump_values
 proto_registrar_get_abbrev
 proto_registrar_get_byname
 proto_registrar_get_ftype
