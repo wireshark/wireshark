@@ -514,6 +514,10 @@ static iax_call_data *iax_lookup_circuit_details_from_dest( guint src_circuit_id
 #ifdef DEBUG_HASHING
     g_message( "++ destination circuit not found, must have missed NEW packet" );
 #endif
+    if( reversed_p )
+      *reversed_p = FALSE;
+    if( circuit_p )
+      *circuit_p = NULL;
     return NULL;
   }
 
@@ -565,6 +569,10 @@ static iax_call_data *iax_lookup_circuit_details_from_dest( guint src_circuit_id
 		 src_circuit_id,dst_circuit_id,
 		 iax_call->forward_circuit_id,
 		 iax_call->reverse_circuit_id);
+      if( reversed_p )
+        *reversed_p = FALSE;
+      if( circuit_p )
+        *circuit_p = NULL;
       return NULL;
     }
   } else if ( dst_circuit_id == iax_call -> reverse_circuit_id ) {
@@ -581,6 +589,10 @@ static iax_call_data *iax_lookup_circuit_details_from_dest( guint src_circuit_id
 		 src_circuit_id,dst_circuit_id,
 		 iax_call->forward_circuit_id,
 		 iax_call->reverse_circuit_id);
+      if( reversed_p )
+        *reversed_p = FALSE;
+      if( circuit_p )
+        *circuit_p = NULL;
       return NULL;
     }
   } else {
@@ -1125,15 +1137,15 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
 
   circuit_t *circuit;
 
-      /*
-       * remove the top bit for retransmission detection 
-       */
-      dcallno = tvb_get_ntohs(tvb, offset);
-      retransmission = dcallno & 0x8000;
-      dcallno = dcallno & 0x7FFF;
-      ts = tvb_get_ntohl(tvb, offset+2);
-      type = tvb_get_guint8(tvb, offset + 8);
-      csub = tvb_get_guint8(tvb, offset + 9);
+  /*
+   * remove the top bit for retransmission detection 
+   */
+  dcallno = tvb_get_ntohs(tvb, offset);
+  retransmission = dcallno & 0x8000;
+  dcallno = dcallno & 0x7FFF;
+  ts = tvb_get_ntohl(tvb, offset+2);
+  type = tvb_get_guint8(tvb, offset + 8);
+  csub = tvb_get_guint8(tvb, offset + 9);
 
   /* see if we've seen this packet before */
   iax_packet = (iax_packet_data *)p_get_proto_data(pinfo->fd,proto_iax2);
@@ -1153,6 +1165,15 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
     p_add_proto_data(pinfo->fd,proto_iax2,iax_packet);
   } else {
     iax_call = iax_packet->call_data;
+
+    /*
+     * XXX - the code needs to set "circuit" and "reversed" somehow here,
+     * by determining them based on values in "iax_call" or "iax_packet".
+     * I leave that as an exercise for somebody who wants to maintain
+     * this code.
+     */
+    circuit = NULL;
+    reversed = FALSE;
   }
    
   if( iax2_tree ) {
