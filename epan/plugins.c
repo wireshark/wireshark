@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.36 2001/10/22 22:59:25 guy Exp $
+ * $Id: plugins.c,v 1.37 2001/10/24 07:18:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -503,12 +503,7 @@ init_plugins(const char *plugin_dir)
 	}
 #endif
 	if (!user_plug_dir)
-	{
-	    user_plug_dir = (gchar *)g_malloc(strlen(get_persconffile_dir()) +
-					      strlen(PLUGINS_DIR_NAME) + 2);
-	    sprintf(user_plug_dir, "%s" G_DIR_SEPARATOR_S "%s",
-		    get_persconffile_dir(), PLUGINS_DIR_NAME);
-	}
+	    user_plug_dir = get_persconffile_path(PLUGINS_DIR_NAME, FALSE);
 	plugins_scan_dir(user_plug_dir);
     }
 }

@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.13 2001/10/24 06:13:05 guy Exp $
+ * $Id: filesystem.c,v 1.14 2001/10/24 07:18:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -311,7 +311,7 @@ get_systemfile_dir(void)
  * or, if %APPDATA% isn't set, it's "%USERPROFILE%\Application Data"
  * (which is what %APPDATA% normally is on Windows 2000).
  */
-const char *
+static const char *
 get_persconffile_dir(void)
 {
 #ifdef WIN32
@@ -444,3 +444,110 @@ create_persconffile_dir(char **pf_dir_path_return)
 		*pf_dir_path_return = g_strdup(pf_dir_path);
 	return ret;
 }
+
+#ifdef WIN32
+/*
+ * Returns the user's home directory on Win32.
+ */
+static const char *
+get_home_dir(void)
+{
+	static const char *home = NULL;
+	char *homedrive, *homepath;
+	char *homestring;
+	char *lastsep;
+
+	/* Return the cached value, if available */
+	if (home)
+		return home;
+
+	/*
+	 * XXX - should we use USERPROFILE anywhere in this process?
+	 * Is there a chance that it might be set but one or more of
+	 * HOMEDRIVE or HOMEPATH isn't set?
+	 */
+	homedrive = getenv("HOMEDRIVE");
+	if (homedrive != NULL) {
+		homepath = getenv("HOMEPATH");
+		if (homepath != NULL) {
+			/*
+			 * This is cached, so we don't need to worry about
+			 * allocating multiple ones of them.
+			 */
+			homestring =
+			    g_malloc(strlen(homedrive) + strlen(homepath) + 1);
+			strcpy(homestring, homedrive);
+			strcat(homestring, homepath);
+
+			/*
+			 * Trim off any trailing slash or backslash.
+			 */
+			lastsep = find_last_pathname_separator(homestring);
+			if (lastsep != NULL && *(lastsep + 1) == '\0') {
+				/*
+				 * Last separator is the last character
+				 * in the string.  Nuke it.
+				 */
+				*lastsep = '\0';
+			}
+			home = homestring;
+		} else
+			home = homedrive;
+	} else {
+		/*
+		 * Give up and use C:.
+		 */
+		home = "C:";
+	}
+}
+#endif
+
+/*
+ * Construct the path name of a personal configuration file, given the
+ * file name.
+ *
+ * On Win32, if "for_writing" is FALSE, we check whether the file exists
+ * and, if not, construct a path name relative to the ".ethereal"
+ * subdirectory of the user's home directory, and check whether that
+ * exists; if it does, we return that, so that configuration files
+ * from earlier versions can be read.
+ */
+char *
+get_persconffile_path(const char *filename, gboolean for_writing)
+{
+	char *path;
+#ifdef WIN32
+	struct stat s_buf;
+	char *old_path;
+#endif
+
+	path = (gchar *) g_malloc(strlen(get_persconffile_dir()) +
+	    strlen(filename) + 2);
+	sprintf(path, "%s" G_DIR_SEPARATOR_S "%s", get_persconffile_dir(),
+	    filename);
+#ifdef WIN32
+	if (!for_writing) {
+		if (stat(path, &s_buf) != 0 && errno == ENOENT) {
+			/*
+			 * OK, it's not in the personal configuration file
+			 * directory; is it in the ".ethereal" subdirectory
+			 * of their home directory?
+			 */
+			old_path = (gchar *) g_malloc(strlen(get_home_dir()) +
+			    strlen(".ethereal") + strlen(filename) + 3);
+			sprintf(old_path,
+			    "%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR ".ethereal",
+			    get_home_dir(), filename);
+			if (stat(old_path, &s_buf) == 0) {
+				/*
+				 * OK, it exists; return it instead.
+				 */
+				g_free(path);
+				path = old_path;
+			}
+		}
+	}
+#endif
+
+	return path;
+}		

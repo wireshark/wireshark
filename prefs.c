@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.67 2001/10/23 05:00:57 guy Exp $
+ * $Id: prefs.c,v 1.68 2001/10/24 07:18:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,8 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+
+#include <glib.h>
 
 #include <filesystem.h>
 #include "globals.h"
@@ -595,23 +597,6 @@ print.file: /a/very/long/path/
 
 static void read_prefs_file(const char *pf_path, FILE *pf);
 
-/*
- * Get the pathname of the preferences file.
- */
-static const char *
-get_preffile_path(void)
-{
-  static gchar *pf_path = NULL;
-
-  if (pf_path == NULL) {
-    pf_path = (gchar *) g_malloc(strlen(get_persconffile_dir()) +
-      strlen(PF_NAME) + 2);
-    sprintf(pf_path, "%s" G_DIR_SEPARATOR_S "%s", get_persconffile_dir(),
-      PF_NAME);
-  }
-  return pf_path;
-}
-
 /* Read the preferences file, fill in "prefs", and return a pointer to it.
 
    If we got an error (other than "it doesn't exist") trying to read
@@ -765,7 +750,7 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
   }
 
   /* Construct the pathname of the user's preferences file. */
-  pf_path = get_preffile_path();
+  pf_path = get_persconffile_path(PF_NAME, FALSE);
     
   /* Read the user's preferences file, if it exists. */
   *pf_path_return = NULL;
@@ -1466,7 +1451,7 @@ write_prefs(const char **pf_path_return)
    *   so that duplication can be avoided with filter.c
    */
 
-  pf_path = get_preffile_path();
+  pf_path = get_persconffile_path(PF_NAME, TRUE);
   if ((pf = fopen(pf_path, "w")) == NULL) {
     *pf_path_return = pf_path;
     return errno;

@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.15 2001/10/22 22:59:25 guy Exp $
+ * $Id: resolv.c,v 1.16 2001/10/24 07:18:37 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -637,12 +637,8 @@ static void initialize_ethers(void)
   /* Set g_pethers_path here, but don't actually do anything
    * with it. It's used in get_ethbyname() and get_ethbyaddr()
    */
-  if (g_pethers_path == NULL) {
-    g_pethers_path = g_malloc(strlen(get_persconffile_dir()) +
-			      strlen(ENAME_ETHERS) + 2);
-    sprintf(g_pethers_path, "%s" G_DIR_SEPARATOR_S "%s", 
-	    get_persconffile_dir(), ENAME_ETHERS);
-  }
+  if (g_pethers_path == NULL)
+    g_pethers_path = get_persconffile_path(ENAME_ETHERS, FALSE);
 
   /* manuf hash table initialization */
 
@@ -949,12 +945,8 @@ static void initialize_ipxnets(void)
   /* Set g_pipxnets_path here, but don't actually do anything
    * with it. It's used in get_ipxnetbyname() and get_ipxnetbyaddr()
    */
-  if (g_pipxnets_path == NULL) {
-    g_pipxnets_path = g_malloc(strlen(get_persconffile_dir()) +
-			       strlen(ENAME_IPXNETS) + 2);
-    sprintf(g_pipxnets_path, "%s" G_DIR_SEPARATOR_S "%s", 
-	    get_persconffile_dir(), ENAME_IPXNETS);
-  }
+  if (g_pipxnets_path == NULL)
+    g_pipxnets_path = get_persconffile_path(ENAME_IPXNETS, FALSE);
 
 } /* initialize_ipxnets */
 

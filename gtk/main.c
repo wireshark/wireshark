@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.207 2001/10/22 22:59:26 guy Exp $
+ * $Id: main.c,v 1.208 2001/10/24 07:18:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1325,10 +1325,7 @@ main(int argc, char *argv[])
   else if (cfile.snap < MIN_PACKET_SIZE)
     cfile.snap = MIN_PACKET_SIZE;
   
-  rc_file = (gchar *) g_malloc(strlen(get_persconffile_dir()) +
-    strlen(RC_FILE) + 2);
-  sprintf(rc_file, "%s" G_DIR_SEPARATOR_S "%s", get_persconffile_dir(),
-    RC_FILE);
+  rc_file = get_persconffile_path(RC_FILE, FALSE);
   gtk_rc_parse(rc_file);
 
   /* Try to load the regular and boldface fixed-width fonts */

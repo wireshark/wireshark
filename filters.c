@@ -1,7 +1,7 @@
 /* filters.c
  * Code for reading and writing the filters file.
  *
- * $Id: filters.c,v 1.12 2001/10/23 05:00:57 guy Exp $
+ * $Id: filters.c,v 1.13 2001/10/24 07:18:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,7 +81,6 @@ void
 read_filter_list(filter_list_type_t list, char **pref_path_return,
     int *errno_return)
 {
-  const char *pf_dir_path;
   char       *ff_path, *ff_name;
   FILE       *ff;
   GList      **flp;
@@ -113,10 +112,7 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
   }
 
   /* To do: generalize this */
-  pf_dir_path = get_persconffile_dir();
-  ff_path = (gchar *) g_malloc(strlen(pf_dir_path) + strlen(ff_name) + 2);
-  sprintf(ff_path, "%s" G_DIR_SEPARATOR_S "%s", pf_dir_path, ff_name);
-
+  ff_path = get_persconffile_path(ff_name, FALSE);
   if ((ff = fopen(ff_path, "r")) == NULL) {
     /*
      * Did that fail because we the file didn't exist?
@@ -138,8 +134,8 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
      * the filter lists, and delete the ones that don't belong in
      * a particular list.
      */
-    sprintf(ff_path, "%s" G_DIR_SEPARATOR_S "%s", pf_dir_path,
-      FILTER_FILE_NAME);
+    g_free(ff_path);
+    ff_path = get_persconffile_path(FILTER_FILE_NAME, FALSE);
     if ((ff = fopen(ff_path, "r")) == NULL) {
       /*
        * Well, that didn't work, either.  Just give up.
@@ -410,9 +406,7 @@ void
 save_filter_list(filter_list_type_t list, char **pref_path_return,
     int *errno_return)
 {
-  const char *pf_dir_path;
   gchar      *ff_path, *ff_path_new, *ff_name;
-  int         path_length;
   GList      *fl;
   GList      *flp;
   filter_def *filt;
@@ -438,15 +432,12 @@ save_filter_list(filter_list_type_t list, char **pref_path_return,
     return;
   }
 
-  pf_dir_path = get_persconffile_dir();
-  path_length = strlen(pf_dir_path) + strlen(ff_name) + 2;
-  ff_path = (gchar *) g_malloc(path_length);
-  sprintf(ff_path, "%s" G_DIR_SEPARATOR_S "%s", pf_dir_path, ff_name);
+  ff_path = get_persconffile_path(ff_name, TRUE);
 
   /* Write to "XXX.new", and rename if that succeeds.
      That means we don't trash the file if we fail to write it out
      completely. */
-  ff_path_new = (gchar *) g_malloc(path_length + 4);
+  ff_path_new = (gchar *) g_malloc(strlen(ff_path) + 5);
   sprintf(ff_path_new, "%s.new", ff_path);
 
   if ((ff = fopen(ff_path_new, "w")) == NULL) {

@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.14 2001/10/24 06:13:06 guy Exp $
+ * $Id: colors.c,v 1.15 2001/10/24 07:18:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -162,24 +162,6 @@ delete_color_filter(color_filter_t *colorf)
 	g_free(colorf);
 }
 
-/*
- * Get the pathname of the preferences file.
- */
-static const char *
-get_colorfilter_file_path(void)
-{
-  static gchar *cf_path = NULL;
-  static const char fname[] = "colorfilters";
-
-  if (cf_path == NULL) {
-    cf_path = (gchar *) g_malloc(strlen(get_persconffile_dir()) +
-      sizeof fname + 1);
-    sprintf(cf_path, "%s" G_DIR_SEPARATOR_S "%s", get_persconffile_dir(),
-      fname);
-  }
-  return cf_path;
-}
-
 static gboolean
 read_filters(colfilter *filter)
 {
@@ -203,7 +185,7 @@ read_filters(colfilter *filter)
 		return FALSE;
 	/* we have a clist */
 
-	path = get_colorfilter_file_path();
+	path = get_persconffile_path("colorfilters", FALSE);
 	if ((f = fopen(path, "r")) == NULL) {
 	  if (errno != ENOENT) {
 	    simple_dialog(ESD_TYPE_CRIT, NULL,
@@ -302,7 +284,7 @@ write_filters(colfilter *filter)
 	  return FALSE;
 	}
 
-	path = get_colorfilter_file_path();
+	path = get_persconffile_path("colorfilters", TRUE);
 	if ((f = fopen(path, "w+")) == NULL) {
 	  simple_dialog(ESD_TYPE_CRIT, NULL,
 		"Could not open\n%s\nfor writing: %s.",

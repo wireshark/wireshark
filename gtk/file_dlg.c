@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.42 2001/09/10 08:49:11 guy Exp $
+ * $Id: file_dlg.c,v 1.43 2001/10/24 07:18:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,8 @@
 #endif
 
 #include <string.h>
+
+#include <glib.h>
 
 #include <epan/filesystem.h>
 
