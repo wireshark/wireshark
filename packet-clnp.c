@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.25 2001/03/13 21:34:23 gram Exp $
+ * $Id: packet-clnp.c,v 1.26 2001/03/15 06:41:12 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1703,10 +1703,10 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     opt_len -= dst_len + src_len +2;
   }
 
-  if (check_col(pinfo->fd, COL_RES_NET_SRC))
-    col_add_fstr(pinfo->fd, COL_RES_NET_SRC, "%s", print_nsap_net(src_addr, src_len));
-  if (check_col(pinfo->fd, COL_RES_NET_DST))
-    col_add_fstr(pinfo->fd, COL_RES_NET_DST, "%s", print_nsap_net(dst_addr, dst_len));
+  SET_ADDRESS(&pinfo->net_src, AT_OSI, src_len, src_addr);
+  SET_ADDRESS(&pinfo->src, AT_OSI, src_len, src_addr);
+  SET_ADDRESS(&pinfo->net_dst, AT_OSI, dst_len, dst_addr);
+  SET_ADDRESS(&pinfo->dst, AT_OSI, dst_len, dst_addr);
 
   /* Segmentation Part */
 

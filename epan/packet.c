@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.20 2001/02/08 07:06:55 guy Exp $
+ * $Id: packet.c,v 1.21 2001/03/15 06:41:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -78,6 +78,7 @@
 #include "packet-ipv6.h"
 #include "packet-sna.h"
 #include "packet-vines.h"
+#include "packet-osi.h"
 
 #include "resolv.h"
 #include "tvbuff.h"
@@ -837,6 +838,13 @@ col_set_addr(frame_data *fd, int col, address *addr, gboolean is_res)
 
   case AT_VINES:
     strncpy(fd->cinfo->col_buf[col], vines_addr_to_str(&addr->data[0]),
+      COL_MAX_LEN);
+    fd->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
+    fd->cinfo->col_data[col] = fd->cinfo->col_buf[col];
+    break;
+
+  case AT_OSI:
+    strncpy(fd->cinfo->col_buf[col], print_nsap_net(addr->data, addr->len),
       COL_MAX_LEN);
     fd->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
     fd->cinfo->col_data[col] = fd->cinfo->col_buf[col];
