@@ -272,7 +272,7 @@ dissect_h248_annex_C_PDU(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinf
 			dissect_nsap(new_tvb, 0,tvb_length_remaining(new_tvb, 0), tree);
 			break;
 		case 0x9001: /* TMR */
-			offset = dissect_ber_integer(pinfo, tree, tvb, offset, hf_h248_package_annex_C_TMR, NULL);
+			offset = dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_h248_package_annex_C_TMR, NULL);
 			break;
 		case 0x9023: /* User Service Information */
 			offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_USI, &new_tvb);
@@ -304,7 +304,7 @@ guint offset=0;
 			proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), "H.248: Dissector for Package/ID:0x%04x not implemented (yet).", name_major);
 			break;
 		case 0x001e: /* Bearer Characteristics Q.1950 Annex A */
-			offset = dissect_ber_integer(pinfo, tree, tvb, offset, hf_h248_package_bcp_BNCChar_PDU, NULL);
+			offset = dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_h248_package_bcp_BNCChar_PDU, NULL);
 			break;
 		case 0x0021: /* Generic Bearer Connection Q.1950 Annex A */
 			proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), "H.248: Dissector for Package/ID:0x%04x not implemented (yet).", name_major);
