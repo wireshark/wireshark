@@ -403,6 +403,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 	volatile address save_net_dst;
 	volatile address save_src;
 	volatile address save_dst;
+	gint saved_layer_names_len = 0;
 
 	if (handle->protocol != NULL &&
 	    !proto_is_protocol_enabled(handle->protocol)) {
@@ -414,6 +415,9 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 
 	saved_proto = pinfo->current_proto;
 	saved_can_desegment = pinfo->can_desegment;
+
+	if (pinfo->layer_names != NULL)
+		saved_layer_names_len = pinfo->layer_names->len;
 
 	/*
 	 * can_desegment is set to 2 by anyone which offers the
@@ -440,7 +444,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 			if (pinfo->layer_names->len > 0)
 				g_string_append(pinfo->layer_names, ":");
 			g_string_append(pinfo->layer_names, 
-				proto_get_protocol_filter_name(proto_get_id(handle->protocol)));
+			    proto_get_protocol_filter_name(proto_get_id(handle->protocol)));
 		}
 	}
 
@@ -535,6 +539,18 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 		 * Just call the subdissector.
 		 */
 		ret = call_dissector_through_handle(handle, tvb, pinfo, tree);
+	}
+
+	if (ret == 0) {
+		/*
+		 * That dissector didn't accept the packet, so
+		 * remove its protocol's name from the list
+		 * of protocols.
+		 */
+		if (pinfo->layer_names != NULL) {
+			g_string_truncate(pinfo->layer_names,
+			    saved_layer_names_len);
+		}
 	}
 	pinfo->current_proto = saved_proto;
 	pinfo->can_desegment = saved_can_desegment;
@@ -1437,6 +1453,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 	GSList *entry;
 	heur_dtbl_entry_t *dtbl_entry;
 	guint16 saved_can_desegment;
+	gint saved_layer_names_len = 0;
 
 	/* can_desegment is set to 2 by anyone which offers this api/service.
 	   then everytime a subdissector is called it is decremented by one.
@@ -1453,10 +1470,15 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 
 	status = FALSE;
 	saved_proto = pinfo->current_proto;
+
+	if (pinfo->layer_names != NULL)
+		saved_layer_names_len = pinfo->layer_names->len;
+
 	for (entry = sub_dissectors; entry != NULL; entry = g_slist_next(entry)) {
 		/* XXX - why set this now and above? */
 		pinfo->can_desegment = saved_can_desegment-(saved_can_desegment>0);
 		dtbl_entry = (heur_dtbl_entry_t *)entry->data;
+
 		if (dtbl_entry->protocol != NULL &&
 		    !proto_is_protocol_enabled(dtbl_entry->protocol)) {
 			/*
@@ -1469,9 +1491,31 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 			pinfo->current_proto =
 			    proto_get_protocol_short_name(dtbl_entry->protocol);
 		}
+
+		/*
+		 * Add the protocol name to the layers; we'll remove it
+		 * if the dissector fails.
+		 */
+		if (pinfo->layer_names) {
+			if (pinfo->layer_names->len > 0)
+				g_string_append(pinfo->layer_names, ":");
+			g_string_append(pinfo->layer_names,
+			    proto_get_protocol_filter_name(proto_get_id(dtbl_entry->protocol)));
+		}
+
 		if ((*dtbl_entry->dissector)(tvb, pinfo, tree)) {
 			status = TRUE;
 			break;
+		} else {
+			/*
+			 * That dissector didn't accept the packet, so
+			 * remove its protocol's name from the list
+			 * of protocols.
+			 */
+			if (pinfo->layer_names != NULL) {
+				g_string_truncate(pinfo->layer_names,
+				    saved_layer_names_len);
+			}
 		}
 	}
 	pinfo->current_proto = saved_proto;
