@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.31 2001/04/01 07:32:35 hagbard Exp $
+ * $Id: packet.c,v 1.32 2001/04/01 22:01:34 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -82,10 +82,12 @@
 #include "tvbuff.h"
 #include "plugins.h"
 
+static dissector_handle_t frame_handle = NULL;
+
 void
 packet_init(void)
 {
-  /* nothing */
+  frame_handle = find_dissector("frame");
 }
 
 void
@@ -155,7 +157,8 @@ dissect_packet(tvbuff_t **p_tvb, union wtap_pseudo_header *pseudo_header,
 	}
 	ENDTRY;
 
-	dissect_frame(*p_tvb, &pi, tree);
+	if(frame_handle != NULL)
+	  call_dissector(frame_handle, *p_tvb, &pi, tree);
 
 	fd->flags.visited = 1;
 }

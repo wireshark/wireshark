@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.c,v 1.8 2001/04/01 04:11:50 hagbard Exp $
+ * $Id: epan.c,v 1.9 2001/04/01 22:01:34 hagbard Exp $
  *
  * Ethereal Protocol Analyzer Library
  *
@@ -46,9 +46,9 @@ epan_init(const char *plugin_dir)
 {
 	except_init();
 	tvbuff_init();
-	packet_init();
 	frame_data_init();
 	proto_init(plugin_dir);
+	packet_init();
 	dfilter_init();
 }
 
