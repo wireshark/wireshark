@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.93 2003/02/04 20:16:57 guy Exp $
+ * $Id: packet-ipv6.c,v 1.94 2003/03/04 06:47:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -635,7 +635,7 @@ again:
    * in the fragment, then just add the fragment to the hashtable.
    */
   save_fragmented = pinfo->fragmented;
-  if (ipv6_reassemble && frag && tvb_reported_length(tvb) <= tvb_length(tvb)) {
+  if (ipv6_reassemble && frag && tvb_bytes_exist(tvb, offset, plen)) {
     ipfd_head = fragment_add(tvb, offset, pinfo, ident,
 			     ipv6_fragment_table,
 			     offlg & IP6F_OFF_MASK,

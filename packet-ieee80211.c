@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.82 2003/02/18 21:29:51 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.83 2003/03/04 06:47:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1759,7 +1759,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 				     wlan_fragment_table,
 				     wlan_reassembled_table,
 				     frag_number,
-				     len,
+				     reported_len,
 				     more_frags);
     if (fd_head != NULL) {
       /*

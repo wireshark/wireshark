@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.67 2003/02/25 18:59:47 guy Exp $
+ * $Id: packet-clnp.c,v 1.68 2003/03/04 06:47:08 guy Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1863,14 +1863,14 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   offset = cnf_hdr_len;
 
-  /* If clnp_reassemble is on, and this is a segment, we have all the
+  /* If clnp_reassemble is on, this is a segment, we have all the
    * data in the segment, and the checksum is valid, then just add the
    * segment to the hashtable.
    */
   save_fragmented = pinfo->fragmented;
   if (clnp_reassemble && (cnf_type & CNF_SEG_OK) &&
 	((cnf_type & CNF_MORE_SEGS) || segment_offset != 0) &&
-	(tvb_reported_length(tvb) <= tvb_length(tvb)) &&
+	tvb_bytes_exist(tvb, offset, segment_length - cnf_hdr_len) &&
 	cksum_status != CKSUM_NOT_OK) {
     fd_head = fragment_add(tvb, offset, pinfo, du_id, clnp_segment_table,
 			   segment_offset, segment_length - cnf_hdr_len,

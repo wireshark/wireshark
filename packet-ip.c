@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.184 2003/03/03 23:20:57 sahlberg Exp $
+ * $Id: packet-ip.c,v 1.185 2003/03/04 06:47:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1005,7 +1005,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   pinfo->iplen = iph->ip_len;
 
-  pinfo->iphdrlen = lo_nibble(iph->ip_v_hl);
+  pinfo->iphdrlen = hlen;
 
   SET_ADDRESS(&pinfo->net_src, AT_IPv4, 4, tvb_get_ptr(tvb, offset + IPH_SRC, 4));
   SET_ADDRESS(&pinfo->src, AT_IPv4, 4, tvb_get_ptr(tvb, offset + IPH_SRC, 4));
@@ -1022,11 +1022,12 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    */
   save_fragmented = pinfo->fragmented;
   if (ip_defragment && (iph->ip_off & (IP_MF|IP_OFFSET)) &&
-	tvb_reported_length(tvb) <= tvb_length(tvb) && ipsum == 0) {
+      tvb_bytes_exist(tvb, offset, pinfo->iplen - pinfo->iphdrlen) &&
+      ipsum == 0) {
     ipfd_head = fragment_add(tvb, offset, pinfo, iph->ip_id,
 			     ip_fragment_table,
 			     (iph->ip_off & IP_OFFSET)*8,
-			     pinfo->iplen - (pinfo->iphdrlen*4),
+			     pinfo->iplen - pinfo->iphdrlen,
 			     iph->ip_off & IP_MF);
 
     if (ipfd_head != NULL) {

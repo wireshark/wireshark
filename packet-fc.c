@@ -2,7 +2,7 @@
  * Routines for Fibre Channel Decoding (FC Header, Link Ctl & Basic Link Svc) 
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fc.c,v 1.3 2003/01/28 23:56:38 guy Exp $
+ * $Id: packet-fc.c,v 1.4 2003/03/04 06:47:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -659,7 +659,8 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * present, if we're configured to reassemble.
      */
     if ((ftype != FC_FTYPE_LINKCTL) && (ftype != FC_FTYPE_BLS) &&
-        seqcnt && fc_reassemble) {
+        seqcnt && fc_reassemble &&
+        tvb_bytes_exist(tvb, FC_HEADER_SIZE, frag_size)) {
         /* Add this to the list of fragments */
         frag_id = (pinfo->oxid << 16) | is_exchg_resp;
 

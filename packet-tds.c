@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.10 2002/12/19 11:22:38 sahlberg Exp $
+ * $Id: packet-tds.c,v 1.11 2003/03/04 06:47:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -871,7 +871,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	save_fragmented = pinfo->fragmented;
 	if (tds_defragment) {
-		len = tvb_length_remaining(tvb, offset);
+		len = tvb_reported_length_remaining(tvb, offset);
 		fd_head = fragment_add_seq_next(tvb, offset, pinfo, channel,
 		    tds_fragment_table, tds_reassembled_table,
 		    len, status == 0x00);

@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.28 2002/12/19 11:22:38 sahlberg Exp $
+ * $Id: reassemble.c,v 1.29 2003/03/04 06:47:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1084,8 +1084,8 @@ fragment_add_seq_check_work(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	/*
-	 * If this is a short frame, then we can't, and don't, do
-	 * reassembly on it.
+	 * If we don't have all the data that is in this fragment,
+	 * then we can't, and don't, do reassembly on it.
 	 *
 	 * If it's the first frame, handle it as an unfragmented packet.
 	 * Otherwise, just handle it as a fragment.
@@ -1093,7 +1093,7 @@ fragment_add_seq_check_work(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * If "more_frags" isn't set, we get rid of the entry in the
 	 * hash table for this reassembly, as we don't need it any more.
 	 */
-	if (tvb_reported_length(tvb) > tvb_length(tvb)) {
+	if (!tvb_bytes_exist(tvb, offset, frag_data_len)) {
 		if (!more_frags) {
 			/*
 			 * Remove this from the table of in-progress

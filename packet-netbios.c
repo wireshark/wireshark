@@ -5,7 +5,7 @@
  *
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.55 2002/12/19 11:22:33 sahlberg Exp $
+ * $Id: packet-netbios.c,v 1.56 2003/03/04 06:47:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1191,8 +1191,9 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/*
 			 * Possibly fragmented.
 			 */
-			if (netbios_defragment) {
-				len = tvb_length_remaining(tvb, offset);
+			len = tvb_reported_length_remaining(tvb, offset);
+			if (netbios_defragment &&
+			    tvb_bytes_exist(tvb, offset, len)) {
 				fd_head = fragment_add_seq_next(tvb, offset,
 				    pinfo, session_id,
 				    netbios_fragment_table,
