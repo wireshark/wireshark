@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.58 2004/01/05 15:03:38 ulfl Exp $
+ * $Id: plugin_api.h,v 1.59 2004/02/21 11:38:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -56,6 +56,7 @@
 #include "xdlc.h"
 #include "epan/except.h"
 #include "epan/filesystem.h"
+#include "report_err.h"
 
 #include "plugin_table.h"
 
