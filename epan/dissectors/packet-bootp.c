@@ -75,9 +75,9 @@ static int hf_bootp_cookie = -1;
 static int hf_bootp_vendor = -1;
 static int hf_bootp_dhcp = -1;
 
-static guint ett_bootp = -1;
-static guint ett_bootp_flags = -1;
-static guint ett_bootp_option = -1;
+static gint ett_bootp = -1;
+static gint ett_bootp_flags = -1;
+static gint ett_bootp_option = -1;
 
 gboolean novell_string = FALSE;
 
