@@ -73,6 +73,7 @@ FILE SECTION
   
   <!ENTITY BuildIntroduction SYSTEM "edg_src/EDG_chapter_build_intro.xml">
   <!ENTITY HowEtherealWorks SYSTEM "edg_src/EDG_chapter_works.xml">
+  <!ENTITY Capture SYSTEM "edg_src/EDG_chapter_capture.xml">
   <!ENTITY Dissection SYSTEM "edg_src/EDG_chapter_dissection.xml">
   <!ENTITY UserInterface SYSTEM "edg_src/EDG_chapter_userinterface.xml">
 
@@ -134,6 +135,7 @@ to change the sources (e.g. adding a new dissector).</command>
 </partintro>
 &HowEtherealWorks;
 &BuildIntroduction;
+&Capture;
 &Dissection;
 &UserInterface;
 </part>
