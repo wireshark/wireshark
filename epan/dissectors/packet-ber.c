@@ -118,6 +118,12 @@ proto_item *get_ber_last_created_item(void) {
 static GHashTable *oid_table=NULL;
 
 void
+dissect_ber_oid_NULL_callback(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+{
+	return;
+}
+
+void
 register_ber_oid_dissector(char *oid, dissector_t dissector, int proto, char *name)
 {
 	dissector_handle_t dissector_handle;

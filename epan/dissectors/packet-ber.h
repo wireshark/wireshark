@@ -160,5 +160,6 @@ extern proto_item *get_ber_last_created_item(void);
 
 int call_ber_oid_callback(char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 void register_ber_oid_dissector(char *oid, dissector_t dissector, int proto, char *name);
+void dissect_ber_oid_NULL_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 #endif  /* __PACKET_BER_H__ */
