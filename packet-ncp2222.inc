@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.36 2002/10/15 07:47:57 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.37 2002/10/15 17:31:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -725,6 +725,9 @@ ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
 	request_value->ncp_rec = ncp_rec;
 	request_value->req_cond_results = NULL;
         request_value->req_nds_flags = 0;
+	request_value->nds_request_verb = 0;
+	request_value->nds_version = 0;
+	request_value->object_name = NULL;
         
         g_hash_table_insert(ncp_req_hash, request_key, request_value);
 
