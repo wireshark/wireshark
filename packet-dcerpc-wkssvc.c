@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.6 2003/04/26 00:00:30 sharpe Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.7 2003/04/26 00:44:21 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,11 +32,20 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-wkssvc.h"
+#include "packet-dcerpc-nt.h"
+#include "smb.h"
 
 static int proto_dcerpc_wkssvc = -1;
 static int hf_wkssvc_server = -1;
 static int hf_wkssvc_info_level = -1;
+static int hf_wkssvc_platform_id = -1; 
+static int hf_wkssvc_net_group = -1;
+static int hf_wkssvc_ver_major = -1;
+static int hf_wkssvc_ver_minor = -1;
+static int hf_wkssvc_rc = -1;
 static gint ett_dcerpc_wkssvc = -1;
+
+extern const value_string platform_id_vals[];
 
 static e_uuid_t uuid_dcerpc_wkssvc = {
         0x6bffd098, 0xa112, 0x3610,
@@ -44,6 +53,38 @@ static e_uuid_t uuid_dcerpc_wkssvc = {
 };
 
 static guint16 ver_dcerpc_wkssvc = 1;
+
+/*
+ * IDL typedef struct {
+ * IDL   long platform_id;
+ * IDL   [string] [unique] wchar_t *server;
+ * IDL   [string] [unique] wchar_t *lan_grp;
+ * IDL   long ver_major;
+ * IDL   long ver_minor;
+ * IDL } WKS_INFO_100;
+ */
+static int
+wkssvc_dissect_WKS_INFO_100(tvbuff_t *tvb, int offset,
+			    packet_info *pinfo, proto_tree *tree,
+			    char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_platform_id, NULL);
+
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_wkssvc_server, 0);
+
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Net Group", hf_wkssvc_net_group, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_ver_major, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_ver_minor, NULL);
+
+	return offset;
+}
 
 /*
  * IDL long NetrQueryInfo(
@@ -68,12 +109,47 @@ wkssvc_dissect_netrqueryinfo_rqst(tvbuff_t *tvb, int offset,
 
 }
 
+/*
+ * IDL typedef [switch_type(long)] union {
+ * IDL   [case(100)] [unique] WKS_INFO_100 *wks100;
+ * IDL } WKS_INFO_UNION;
+ */
+static int
+wkssvc_dissect_WKS_INFO_UNION(tvbuff_t *tvb, int offset,
+			      packet_info *pinfo, proto_tree *tree,
+			      char *drep)
+{
+	guint32 level;
+
+	ALIGN_TO_4_BYTES;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_wkssvc_info_level, &level);
+
+	switch(level){
+	case 100:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			wkssvc_dissect_WKS_INFO_100,
+			NDR_POINTER_UNIQUE, "WKS_INFO_100:", -1);
+		break;
+
+	}
+
+	return offset;
+
+}
+
 static int wkssvc_dissect_netrqueryinfo_reply(tvbuff_t *tvb, int offset,
 				      packet_info *pinfo, proto_tree *tree,
 				      char *drep)
 {
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			wkssvc_dissect_WKS_INFO_UNION,
+			NDR_POINTER_REF, "Server Info", -1);
 
-  return offset;
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_rc, NULL);
+
+	return offset;
 }
 
 static dcerpc_sub_dissector dcerpc_wkssvc_dissectors[] = {
@@ -91,9 +167,25 @@ proto_register_dcerpc_wkssvc(void)
 	  { &hf_wkssvc_server,
 	    { "Server", "wkssvc.server", FT_STRING, BASE_NONE,
 	      NULL, 0x0, "Server Name", HFILL}},
+	  { &hf_wkssvc_net_group,
+	    { "Net Group", "wkssvc.netgrp", FT_STRING, BASE_NONE,
+	      NULL, 0x0, "Net Group", HFILL}},
 	  { &hf_wkssvc_info_level,
-	    { "Info Level", "svrsvc.info_level", FT_UINT32,
+	    { "Info Level", "wkssvc.info_level", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Info Level", HFILL}},
+	  { &hf_wkssvc_platform_id,
+	    { "Platform ID", "wkssvc.info.platform_id", FT_UINT32,
+	      BASE_DEC, VALS(platform_id_vals), 0x0, "Platform ID", HFILL}},
+	  { &hf_wkssvc_ver_major,
+	    { "Major Version", "wkssvc.version.major", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Major Version", HFILL}},
+	  { &hf_wkssvc_ver_minor,
+	    { "Minor Version", "wkssvc.version.minor", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Minor Version", HFILL}},
+	  { &hf_wkssvc_rc,
+	    { "Return code", "srvsvc.rc", FT_UINT32,
+	      BASE_HEX, VALS(DOS_errors), 0x0, "Return Code", HFILL}},
+
 	};
         static gint *ett[] = {
                 &ett_dcerpc_wkssvc
