@@ -2,7 +2,7 @@
  * Routines for RADIUS packet disassembly
  * Copyright 1999 Johan Feyaerts
  *
- * $Id: packet-radius.c,v 1.35 2001/09/30 13:23:20 sharpe Exp $
+ * $Id: packet-radius.c,v 1.36 2001/10/01 08:47:50 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -230,17 +230,48 @@ static value_string radius_service_type_vals[]=
  *
  * for a list.
  */
+#define VENDOR_ACC 5
+#define VENDOR_CISCO 9
+#define VENDOR_SHIVA 166
+#define VENDOR_LIVINGSTON 307
+#define VENDOR_3COM 429
+#define VENDOR_ASCEND 529
+#define VENDOR_BAY 1584
+#define VENDOR_JUNIPER 2636
+#define VENDOR_COSINE 3085
+#define VENDOR_UNISPHERE 4874
+
 static value_string radius_vendor_specific_vendors[]=
-{{5, "ACC"},
-{9,"Cisco"},
-{166,"Shiva"},
-{307,"Livingston"},
-{429,"3Com"},
-{529,"Ascend"},
-{1584,"Bay Networks"},
-{2636,"Juniper Networks"},
-{3085,"CoSine Communications"},
-{4874,"Unisphere Networks"},
+{{VENDOR_ACC,"ACC"},
+{VENDOR_CISCO,"Cisco"},
+{VENDOR_SHIVA,"Shiva"},
+{VENDOR_LIVINGSTON,"Livingston"},
+{VENDOR_3COM,"3Com"},
+{VENDOR_ASCEND,"Ascend"},
+{VENDOR_BAY,"Bay Networks"},
+{VENDOR_JUNIPER,"Juniper Networks"},
+{VENDOR_COSINE,"CoSine Communications"},
+{VENDOR_UNISPHERE,"Unisphere Networks"},
+{0,NULL}};
+
+#define VENDOR_COSINE_VSA_CONNECION_PROFILE_NAME 1
+#define VENDOR_COSINE_VSA_ENTERPRISE_ID 2
+#define VENDOR_COSINE_VSA_ADDRESS_POOL_NAME 3
+#define VENDOR_COSINE_VSA_DS_BYTE 4
+#define VENDOR_COSINE_VSA_VPI_VCI 5
+#define VENDOR_COSINE_VSA_DLCI 6
+#define VENDOR_COSINE_VSA_LNS_IP_ADDRESS 7
+#define VENDOR_COSINE_VSA_CLI_USER_PERMISSION_ID 8
+
+static value_string radius_vendor_cosine_types[]=
+{{VENDOR_COSINE_VSA_CONNECION_PROFILE_NAME,"Connection Profile Name"},
+{VENDOR_COSINE_VSA_ENTERPRISE_ID,"Enterprise ID"},
+{VENDOR_COSINE_VSA_ADDRESS_POOL_NAME,"Address Pool Name"},
+{VENDOR_COSINE_VSA_DS_BYTE,"DS Byte"},
+{VENDOR_COSINE_VSA_VPI_VCI,"VPI/VCI"},
+{VENDOR_COSINE_VSA_DLCI,"DLCI"},
+{VENDOR_COSINE_VSA_LNS_IP_ADDRESS,"LNS IP Address"},
+{VENDOR_COSINE_VSA_CLI_USER_PERMISSION_ID,"CLI User Permission ID"},
 {0,NULL}};
 
 static value_string radius_framed_protocol_vals[]=
@@ -606,6 +637,7 @@ gchar *rd_value_to_str(e_avphdr *avph, tvbuff_t *tvb, int offset)
   guint32 intval;
   const guint8 *pd;
   guint8 tag;
+  guint8 vtype;
   char *rtimestamp;
   extern char *tzname[2];
 
@@ -710,10 +742,50 @@ gchar *rd_value_to_str(e_avphdr *avph, tvbuff_t *tvb, int offset)
                 break;
 	case ( RADIUS_VENDOR_SPECIFIC ):
 		valstrarr=radius_vendor_specific_vendors;
-		sprintf(textbuffer,"Vendor:%s, Value:",
-				rd_match_strval(tvb_get_ntohl(tvb,offset+2),valstrarr));
+		sprintf(textbuffer,"Vendor:%s,",
+			rd_match_strval(tvb_get_ntohl(tvb,offset+2),valstrarr));
 		cont=&textbuffer[strlen(textbuffer)];
-		rdconvertbufftostr(cont,tvb,offset+6,avph->avp_length-6);
+		switch (tvb_get_ntohl(tvb,offset+2)) {
+		case ( VENDOR_COSINE ):
+			vtype = tvb_get_guint8(tvb,offset+6);
+			switch (vtype) {
+			case ( VENDOR_COSINE_VSA_CONNECION_PROFILE_NAME ):
+			case ( VENDOR_COSINE_VSA_ENTERPRISE_ID ):
+			case ( VENDOR_COSINE_VSA_ADDRESS_POOL_NAME ):
+			case ( VENDOR_COSINE_VSA_CLI_USER_PERMISSION_ID ):
+				sprintf(cont," Type:%s, Value:",
+					rd_match_strval(vtype, radius_vendor_cosine_types));
+				cont=&textbuffer[strlen(textbuffer)];
+				rdconvertbufftostr(cont,tvb,offset+8,avph->avp_length-8);
+				break;
+			case ( VENDOR_COSINE_VSA_VPI_VCI ):
+				sprintf(cont," Type:%s, Value:%u/%u",
+					rd_match_strval(vtype, radius_vendor_cosine_types),
+					tvb_get_ntohs(tvb,offset+8),
+					tvb_get_ntohs(tvb,offset+10));
+				break;
+			case ( VENDOR_COSINE_VSA_DS_BYTE ):
+			case ( VENDOR_COSINE_VSA_DLCI ):
+				sprintf(cont," Type:%s, Value:%u",
+					rd_match_strval(vtype, radius_vendor_cosine_types),
+					tvb_get_ntohl(tvb,offset+8));
+				break;
+			case ( VENDOR_COSINE_VSA_LNS_IP_ADDRESS ):
+				sprintf(cont," Type:%s, Value:",
+					rd_match_strval(vtype, radius_vendor_cosine_types));
+				cont=&textbuffer[strlen(textbuffer)];
+				ip_to_str_buf(tvb_get_ptr(tvb,offset+8,4),cont);
+				break;
+			default:
+				sprintf(cont," Unknown Value Type");
+				break;
+			}
+			break;
+		default: 
+			sprintf(cont, " Value:");
+			rdconvertbufftostr(cont,tvb,offset+6,avph->avp_length-6);
+			break;
+		}
 		break;
         case( RADIUS_TIMESTAMP ):
 		intval=tvb_get_ntohl(tvb,offset+2);
