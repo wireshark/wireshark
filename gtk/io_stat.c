@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.1 2002/11/14 10:32:22 sahlberg Exp $
+ * $Id: io_stat.c,v 1.2 2002/11/15 10:55:19 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -20,12 +20,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
-
-/* This module provides rpc call/reply RTT statistics to tethereal.
- * It is only used by tethereal and not ethereal
- *
- * It serves as an example on how to use the tap api.
  */
 
 
@@ -49,9 +43,7 @@
 #include "simple_dialog.h"
 #include "../globals.h"
 #include "../color.h"
-
-#if GTK_MAJOR_VERSION == 2
-
+#include "compat_macros.h"
 
 void protect_thread_critical_region(void);
 void unprotect_thread_critical_region(void);
@@ -66,7 +58,7 @@ static guint32 yscale_max[MAX_YSCALE] = {AUTO_MAX_YSCALE, 10, 20, 50, 100, 200, 
 static guint32 pixels_per_tick[MAX_PIXELS_PER_TICK] = {1, 2, 5, 10};
 
 #define MAX_COUNT_TYPES 2
-static char *max_count_types[MAX_COUNT_TYPES] = {"frames", "bytes"};
+static char *max_count_types[MAX_COUNT_TYPES] = {"frames/s", "bytes/s"};
 
 
 
@@ -220,22 +212,30 @@ gtk_iostat_draw(void *g)
 	io_stat_graph_t *git=g;
 	io_stat_t *io;
 	io_stat_item_t *it;
-	guint32 i;
+	int i;
 	guint32 last_interval, first_interval, interval_delta, current_interval, delta_multiplier;
 	guint32 max_y;
 	guint32 left_x_border;
 	guint32 right_x_border;
 	guint32 top_y_border;
 	guint32 bottom_y_border;
-	PangoFontDescription *pango_font;
+#if GTK_MAJOR_VERSION < 2
 	GdkFont *font;
+#else
+	GdkFont *font;
+	PangoFontDescription *pango_font;
+#endif
 	guint32 label_width, label_height;
 	guint32 draw_width, draw_height;
 	char label_string[15];
 
 	io=git->io;
+#if GTK_MAJOR_VERSION <2
+	font = io->draw_area->style->font;
+#else
 	pango_font = io->draw_area->style->font_desc;
 	font=gdk_font_from_description(pango_font);
+#endif
 
 	if(!git->io->needs_redraw){
 		return;
@@ -391,7 +391,7 @@ gtk_iostat_draw(void *g)
 
 
 	/* loop over all items */
-	for(i=0;i<MAX_GRAPHS;i++){
+	for(i=MAX_GRAPHS-1;i>=0;i--){
 		if( (!io->graphs[i].display) || (!io->graphs[i].counts) ){
 			continue;
 		}
@@ -471,12 +471,13 @@ gtk_iostat_draw(void *g)
 		}
 	}
 
-	gdk_draw_drawable(io->draw_area->window,
+	gdk_draw_pixmap(io->draw_area->window,
 			io->draw_area->style->fg_gc[GTK_WIDGET_STATE(io->draw_area)],
 			io->pixmap,
 			0, 0,
 			0, 0,
 			io->pixmap_width, io->pixmap_height);
+
 }
 
 
@@ -598,7 +599,7 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	}
 
 	if(io->pixmap){
-		g_object_unref(io->pixmap);
+		gdk_pixmap_unref(io->pixmap);
 		io->pixmap=NULL;
 	}
 
@@ -619,7 +620,12 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	/* set up the colors and the GC structs for this pixmap */
 	for(i=0;i<MAX_GRAPHS;i++){
 		io->graphs[i].gc=gdk_gc_new(io->pixmap);
+#if GTK_MAJOR_VERSION < 2
+		/* XXX dont have a clue how to do this in gtk1 */
+#else
 		gdk_gc_set_rgb_fg_color(io->graphs[i].gc, &io->graphs[i].color);
+#endif
+		
 	}
 
 	io->needs_redraw=1;
@@ -638,7 +644,7 @@ expose_event(GtkWidget *widget, GdkEventExpose *event)
 	}
 
 
-	gdk_draw_drawable(widget->window,
+	gdk_draw_pixmap(widget->window,
 			widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
 			io->pixmap,
 			event->area.x, event->area.y,
@@ -653,14 +659,14 @@ void
 create_draw_area(io_stat_t *io, GtkWidget *box)
 {
 	io->draw_area=gtk_drawing_area_new();
-	g_signal_connect(G_OBJECT(io->draw_area), "destroy", G_CALLBACK(quit), io);
+	SIGNAL_CONNECT(io->draw_area, "destroy", quit, io);
 	g_hash_table_insert(io_stat_widget_table, (void*)io->draw_area, (void*)io);
 
-	gtk_widget_set_size_request(GTK_WIDGET(io->draw_area), io->pixmap_width, io->pixmap_height);
+	WIDGET_SET_SIZE(io->draw_area, io->pixmap_width, io->pixmap_height);
 
 	/* signals needed to handle backing pixmap */
-	g_signal_connect(G_OBJECT(io->draw_area), "expose_event", G_CALLBACK(expose_event), NULL);
-	g_signal_connect(G_OBJECT(io->draw_area), "configure_event", G_CALLBACK(configure_event), io);
+	SIGNAL_CONNECT(io->draw_area, "expose_event", expose_event, NULL);
+	SIGNAL_CONNECT(io->draw_area, "configure_event", configure_event, io);
 
 	gtk_widget_show(io->draw_area);
 	gtk_box_pack_start(GTK_BOX(box), io->draw_area, TRUE, TRUE, 0);
@@ -688,8 +694,7 @@ create_pixels_per_tick_menu_items(io_stat_t *io, GtkWidget *menu)
 		menu_item=gtk_menu_item_new_with_label(str);
 		io->pixelspertick[i].io=io;
 		io->pixelspertick[i].pixels_per_tick=pixels_per_tick[i];
-		gtk_signal_connect(GTK_OBJECT(menu_item), "activate", 
-			GTK_SIGNAL_FUNC(pixels_per_tick_select), (gpointer)&io->pixelspertick[i]);
+		SIGNAL_CONNECT(menu_item, "activate", pixels_per_tick_select, &io->pixelspertick[i]);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
@@ -724,8 +729,7 @@ create_yscale_max_menu_items(io_stat_t *io, GtkWidget *menu)
 		menu_item=gtk_menu_item_new_with_label(str);
 		io->yscale[i].io=io;
 		io->yscale[i].yscale=yscale_max[i];
-		gtk_signal_connect(GTK_OBJECT(menu_item), "activate", 
-			GTK_SIGNAL_FUNC(yscale_select), (gpointer)&io->yscale[i]);
+		SIGNAL_CONNECT(menu_item, "activate", yscale_select, &io->yscale[i]);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
@@ -752,8 +756,7 @@ create_frames_or_bytes_menu_items(io_stat_t *io, GtkWidget *menu)
 		menu_item=gtk_menu_item_new_with_label(max_count_types[i]);
 		io->counttype[i].io=io;
 		io->counttype[i].count_type=i;
-		gtk_signal_connect(GTK_OBJECT(menu_item), "activate", 
-			GTK_SIGNAL_FUNC(count_type_select), (gpointer)&io->counttype[i]);
+		SIGNAL_CONNECT(menu_item, "activate", count_type_select, &io->counttype[i]);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
@@ -881,7 +884,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box)
 	gtk_box_pack_start(GTK_BOX(hbox), gio->display_button, FALSE, FALSE, 0);
 	gtk_widget_show(gio->display_button);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
-	gtk_signal_connect(GTK_OBJECT(gio->display_button), "toggled", GTK_SIGNAL_FUNC(filter_callback), gio);
+	SIGNAL_CONNECT(gio->display_button, "toggled", filter_callback, gio);
 
 
 
@@ -892,11 +895,16 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box)
 	gio->color_button=gtk_toggle_button_new();
 	gtk_box_pack_start(GTK_BOX(hbox), gio->color_button, FALSE, FALSE, 0);
 	gtk_widget_show(gio->color_button);
+
+#if GTK_MAJOR_VERSION < 2
+		/* XXX dont have a clue how to do this in gtk1 */
+#else
 	gtk_widget_modify_bg(gio->color_button, GTK_STATE_NORMAL, &gio->color); 
 	gtk_widget_modify_bg(gio->color_button, GTK_STATE_ACTIVE, &gio->color); 
 	gtk_widget_modify_bg(gio->color_button, GTK_STATE_PRELIGHT, &gio->color); 
 	gtk_widget_modify_bg(gio->color_button, GTK_STATE_SELECTED, &gio->color); 
 	gtk_widget_modify_bg(gio->color_button, GTK_STATE_INSENSITIVE, &gio->color); 
+#endif
 /*	gtk_signal_connect(GTK_OBJECT(gio->display_button), "toggled", GTK_SIGNAL_FUNC(filter_callback), gio);*/
 
 
@@ -907,7 +915,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box)
 	gio->filter_button=gtk_entry_new_with_max_length(256);
 	gtk_box_pack_start(GTK_BOX(hbox), gio->filter_button, FALSE, FALSE, 0);
 	gtk_widget_show(gio->filter_button);
-	gtk_signal_connect(GTK_OBJECT(gio->filter_button), "activate", GTK_SIGNAL_FUNC(filter_callback), gio);
+	SIGNAL_CONNECT(gio->filter_button, "activate", filter_callback, gio);
 
 	return hbox;
 }
@@ -966,16 +974,13 @@ gtk_iostat_cb(GtkWidget *w _U_, gpointer d _U_)
 }
 
 
-#endif
 
 
 void
 register_tap_listener_gtk_iostat(void)
 {
-#if GTK_MAJOR_VERSION == 2
 	io_stat_widget_table = g_hash_table_new(io_stat_widget_hash,
 			io_stat_widget_equal);
 	register_ethereal_tap("io,stat", gtk_iostat_init, NULL, NULL);
-#endif
 }
 

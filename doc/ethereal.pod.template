@@ -287,6 +287,19 @@ on those calls that match that filter.
 Example: use B<-z dcerpc,rtt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1.2.3.4> to collect SAMR
 RTT statistics for a specific host.
 
+B<-z> io,stat
+
+Collect frame/bytes statistics for the capture in intervals of 1 seconds.
+This option will open a window with up to 5 color-coded graphs where
+number-of-frames-per-second or number-of-bytes-per-second statistics
+can be calculated and displayed.
+
+This option can be used multiple times on the command line. 
+
+This graph window can also be opened from the Tools:Statistics:Traffic:IO-Stat
+menu item.
+
+
 B<-z> rpc,rtt,I<program>,I<version>[,<filter>]
 
 Collect call/reply RTT data for I<program>/I<version>.  Data collected
@@ -582,6 +595,17 @@ This dialog will also allow an optional filter string to be used.
 If an optional filter string is used only such DCE-RPC request/response pairs 
 that match that filter will be used to calculate the statistics. If no filter 
 string is specified all request/response pairs will be used.
+
+=item Tools:Statistics:Traffic:IO-Stat
+
+Open a window where up to 5 graphs in different colors can be displayed
+to indicate number of frames or number of bytes per second for all packets
+matching the specified filter.
+By default only one graph will be displayed showing number of frames per second.
+
+The Y-scale shows how many frames/bytes per second was measured.
+The X-scale shows how many seconds into the capture the measurement was taken.
+
 
 =head2 WINDOWS
 

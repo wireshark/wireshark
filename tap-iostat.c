@@ -1,7 +1,7 @@
 /* tap-iostat.c
  * iostat   2002 Ronnie Sahlberg
  *
- * $Id: tap-iostat.c,v 1.2 2002/11/01 09:40:23 guy Exp $
+ * $Id: tap-iostat.c,v 1.3 2002/11/15 10:55:15 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -20,12 +20,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
-
-/* This module provides rpc call/reply RTT statistics to tethereal.
- * It is only used by tethereal and not ethereal
- *
- * It serves as an example on how to use the tap api.
  */
 
 #ifdef HAVE_CONFIG_H
