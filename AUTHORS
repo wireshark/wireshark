@@ -1639,7 +1639,8 @@ Laurent Meyer <laurent.meyer [AT] thales-avionics.com> {
 }
 
 Lars Roland <Lars.Roland [AT] gmx.net> {
-	MGCP request/response matching and MGCPSTAT calculation
+	MGCP request/response matching and MGCP statistics tap
+	Routines for handling time statistics
 }
 
 Miha Jemec <m.jemec [AT] iskratel.si> {

@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.85 2003/03/06 21:21:43 deniel Exp $
+ * $Id: menu.c,v 1.86 2003/04/16 07:24:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,9 +62,11 @@
 #include "rpc_progs.h"
 #include "dcerpc_stat.h"
 #include "smb_stat.h"
+#include "mgcp_stat.h"
 #include "compat_macros.h"
 #include "gtkglobals.h"
 #include "tap_rtp.h"
+#include "../tap.h"
 
 GtkWidget *popup_menu_object;
 
@@ -254,6 +256,10 @@ static GtkItemFactoryEntry menu_items[] =
                        NULL),
     ITEM_FACTORY_ENTRY("/Tools/Statistics/SMB/RTT", NULL, gtk_smbstat_cb,
                        0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Tools/Statistics/MGCP", NULL, NULL, 0, "<Branch>",
+                       NULL),
+    ITEM_FACTORY_ENTRY("/Tools/Statistics/MGCP/RTD", NULL, gtk_mgcpstat_cb,
+                       0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Tools/Statistics/RTP Analysis...", NULL, rtp_analyse_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<LastBranch>", NULL),
@@ -429,6 +435,10 @@ menus_init(void) {
     set_menu_sensitivity("/Edit/Copy", FALSE);
     set_menu_sensitivity("/Edit/Paste", FALSE);
 #endif
+
+    if(!find_tap_id("mgcp")) {
+    	set_menu_sensitivity("/Tools/Statistics/MGCP/RTD", FALSE);
+    }
     set_menus_for_captured_packets(FALSE);
     set_menus_for_selected_packet(FALSE);
     set_menus_for_selected_tree_row(FALSE);

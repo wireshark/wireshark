@@ -1,22 +1,22 @@
 /* tap-mgcpstat.c
  * mgcpstat   2003 Lars Roland
  *
- * $Id: tap-mgcpstat.c,v 1.3 2003/03/12 00:36:22 guy Exp $
+ * $Id: tap-mgcpstat.c,v 1.4 2003/04/16 07:24:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -38,67 +38,32 @@
 #include "epan/value_string.h"
 #include "register.h"
 #include "plugins/mgcp/packet-mgcp.h"
+#include "timestats.h"
 
-
-/* Summary of response-time calculations*/
-typedef struct _rtd_t {
-	long int num;
-	nstime_t min;
-	nstime_t max;
-	nstime_t tot;
-} rtd_t;
+#define NUM_TIMESTATS 11
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _mgcpstat_t {
 	char *filter;
-        rtd_t rtd;
-	long int open_req_num;
-	long int disc_rsp_num;
-	long int req_dup_num;
-	long int rsp_dup_num;
+        timestat_t rtd[NUM_TIMESTATS];
+	guint32 open_req_num;
+	guint32 disc_rsp_num;
+	guint32 req_dup_num;
+	guint32 rsp_dup_num;
 } mgcpstat_t;
 
-/* A Function to update a mgcp_rtd_t struct */
-
-void
-rtd_stat_update(rtd_t *rtd,nstime_t delta)
-{
-	rtd->num++;
-	if((rtd->max.secs==0)
-	&& (rtd->max.nsecs==0) ){
-		rtd->max.secs=delta.secs;
-		rtd->max.nsecs=delta.nsecs;
-	}
-	
-	if((rtd->min.secs==0)
-	&& (rtd->min.nsecs==0) ){
-		rtd->min.secs=delta.secs;
-		rtd->min.nsecs=delta.nsecs;
-	}
-	
-	if( (delta.secs<rtd->min.secs)
-	||( (delta.secs==rtd->min.secs)
-	  &&(delta.nsecs<rtd->min.nsecs) ) ){
-		rtd->min.secs=delta.secs;
-		rtd->min.nsecs=delta.nsecs;
-	}
-	
-	if( (delta.secs>rtd->max.secs)
-	||( (delta.secs==rtd->max.secs)
-	  &&(delta.nsecs>rtd->max.nsecs) ) ){
-		rtd->max.secs=delta.secs;
-		rtd->max.nsecs=delta.nsecs;
-	}
-		
-	rtd->tot.secs += delta.secs;
-	rtd->tot.nsecs += delta.nsecs;
-	if(rtd->tot.nsecs>1000000000){
-		rtd->tot.nsecs-=1000000000;
-		rtd->tot.secs++;	
-	}
-	
-	
-}
+static const value_string mgcp_mesage_type[] = {
+  {  0,	"Overall"},
+  {  1,	"EPCF   "},
+  {  2,	"CRCX   "},
+  {  3,	"MDCX   "},
+  {  4,	"DLCX   "},
+  {  5,	"RQNT   "},
+  {  6,	"NTFY   "},
+  {  7,	"AUEP   "},
+  {  8, "AUCX   "},
+  {  9, "RSIP   "},
+};
 
 static int
 mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, void *pmi)
@@ -108,7 +73,7 @@ mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, void *pm
 	nstime_t delta;
 
 	switch (mi->mgcp_type) {
-	
+
 	case MGCP_REQUEST:
 		if(mi->is_duplicate){
 			/* Duplicate is ignored */
@@ -120,7 +85,7 @@ mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, void *pm
 			return 0;
 		}
 	break;
-			
+
 	case MGCP_RESPONSE:
 		if(mi->is_duplicate){
 			/* Duplicate is ignored */
@@ -141,8 +106,40 @@ mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, void *pm
 				delta.nsecs+=1000000000;
 				delta.secs--;
 			}
-			
-			rtd_stat_update(&(ms->rtd),delta);
+
+			time_stat_update(&(ms->rtd[0]),&delta, pinfo);
+
+			if (strncasecmp(mi->code, "EPCF", 4) == 0 ) {
+				time_stat_update(&(ms->rtd[1]),&delta, pinfo);
+			}
+			else if (strncasecmp(mi->code, "CRCX", 4) == 0 ) {
+				time_stat_update(&(ms->rtd[2]),&delta, pinfo);
+			}
+			else if (strncasecmp(mi->code, "MDCX", 4) == 0 ) {
+				time_stat_update(&(ms->rtd[3]),&delta, pinfo);
+			}
+			else if (strncasecmp(mi->code, "DLCX", 4) == 0 ) {
+				time_stat_update(&(ms->rtd[4]),&delta, pinfo);
+			}
+			else if (strncasecmp(mi->code, "RQNT", 4) == 0 ) {
+				time_stat_update(&(ms->rtd[5]),&delta, pinfo);
+			}
+			else if (strncasecmp(mi->code, "NTFY", 4) == 0 ) {
+				time_stat_update(&(ms->rtd[6]),&delta, pinfo);
+			}
+			else if (strncasecmp(mi->code, "AUEP", 4) == 0 ) {
+				time_stat_update(&(ms->rtd[7]),&delta, pinfo);
+			}
+			else if (strncasecmp(mi->code, "AUCX", 4) == 0 ) {
+				time_stat_update(&(ms->rtd[8]),&delta, pinfo);
+			}
+			else if (strncasecmp(mi->code, "RSIP", 4) == 0 ) {
+				time_stat_update(&(ms->rtd[9]),&delta, pinfo);
+			}
+			else {
+				time_stat_update(&(ms->rtd[10]),&delta, pinfo);
+			}
+
 			return 1;
 		}
 	break;
@@ -157,42 +154,29 @@ static void
 mgcpstat_draw(void *pms)
 {
 	mgcpstat_t *ms=(mgcpstat_t *)pms;
-	
-#ifdef G_HAVE_UINT64
-	guint64 avg;
-#else
-	guint32 avg;
-#endif
- 
-
-	/* calculating average rtd */
-	/* scale it to units of 10us.*/
-	/* for long captures with a large tot time, this can overflow on 32bit */
-	avg=(int)ms->rtd.tot.secs;
-	avg=avg*100000+(int)ms->rtd.tot.nsecs/10000;
-	if(ms->rtd.num){
-		avg/=ms->rtd.num;
-	} else {
-		avg=0;
-	}
+	int i;
 
 	/* printing results */
 	printf("\n");
-	printf("===================================================================\n");
+	printf("=====================================================================================================\n");
 	printf("MGCP Response Time Delay (RTD) Statistics:\n");
-	printf("Filter: %s\n",ms->filter?ms->filter:"");
-        printf("Duplicate requests: %ld\n",ms->req_dup_num);
-        printf("Duplicate responses: %ld\n",ms->rsp_dup_num);
-        printf("Open requests: %ld\n",ms->open_req_num);
-        printf("Discarded responses: %ld\n",ms->disc_rsp_num);
-        printf("Messages   |     Min RTD     |     Max RTD     |     Avg RTD \n");
-        printf("%7ld    |  %5d.%03d msec |  %5d.%03d msec | %5d.%02d0 msec\n",
-        	ms->rtd.num,
-		(int)((ms->rtd.min.secs*1000)+(ms->rtd.min.nsecs/1000000)),(ms->rtd.min.nsecs%1000000)/1000,
-		(int)((ms->rtd.max.secs*1000)+(ms->rtd.max.nsecs/1000000)),(ms->rtd.max.nsecs%1000000)/1000,
-		avg/100, avg%100
-	);
-        printf("===================================================================\n");
+	printf("Filter for statistics: %s\n",ms->filter?ms->filter:"");
+        printf("Duplicate requests: %u\n",ms->req_dup_num);
+        printf("Duplicate responses: %u\n",ms->rsp_dup_num);
+        printf("Open requests: %u\n",ms->open_req_num);
+        printf("Discarded responses: %u\n",ms->disc_rsp_num);
+        printf("Type    | Messages   |    Min RTD    |    Max RTD    |    Avg RTD    | Min in Frame | Max in Frame |\n");
+        for(i=0;i<NUM_TIMESTATS;i++) {
+        	if(ms->rtd[i].num) {
+        		printf("%s | %7u    | %8.2f msec | %8.2f msec | %8.2f msec |  %10u  |  %10u  |\n",
+        			val_to_str(i,mgcp_mesage_type,"Other  "),ms->rtd[i].num,
+				nstime_to_msec(&(ms->rtd[i].min)), nstime_to_msec(&(ms->rtd[i].max)),
+				get_average(&(ms->rtd[i].tot), ms->rtd[i].num),
+				ms->rtd[i].min_num, ms->rtd[i].max_num
+			);
+		}
+	}
+        printf("=====================================================================================================\n");
 }
 
 
@@ -200,30 +184,32 @@ static void
 mgcpstat_init(char *optarg)
 {
 	mgcpstat_t *ms;
+	int i;
 	char *filter=NULL;
 
 
 	if(!strncmp(optarg,"mgcp,rtd,",9)){
 		filter=optarg+9;
 	} else {
-		filter=NULL;
+		filter=g_malloc(1);
+		*filter='\0';
 	}
 
 	ms=g_malloc(sizeof(mgcpstat_t));
-	if(filter){
-		ms->filter=g_malloc(strlen(filter)+1);
-		strcpy(ms->filter, filter);
-	} else {
-		ms->filter=NULL;
-	}
+	ms->filter=g_malloc(strlen(filter)+1);
+	strcpy(ms->filter, filter);
 
-	ms->rtd.num=0;
-	ms->rtd.min.secs=0;
-        ms->rtd.min.nsecs=0;
-        ms->rtd.max.secs=0;
-        ms->rtd.max.nsecs=0;
-        ms->rtd.tot.secs=0;
-        ms->rtd.tot.nsecs=0;
+	for(i=0;i<NUM_TIMESTATS;i++) {
+		ms->rtd[i].num=0;
+		ms->rtd[i].min_num=0;
+		ms->rtd[i].max_num=0;
+		ms->rtd[i].min.secs=0;
+        	ms->rtd[i].min.nsecs=0;
+        	ms->rtd[i].max.secs=0;
+        	ms->rtd[i].max.nsecs=0;
+        	ms->rtd[i].tot.secs=0;
+        	ms->rtd[i].tot.nsecs=0;
+	}
 
 	ms->open_req_num=0;
 	ms->disc_rsp_num=0;
