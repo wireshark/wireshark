@@ -757,6 +757,8 @@ capture_prep(void)
   gtk_container_border_width(GTK_CONTAINER(right_vb), 0);
   gtk_box_pack_start(GTK_BOX(main_hb), right_vb, FALSE, FALSE, 0);
 
+  /* let an eventually capture filters dialog know the text entry to fill in */
+  OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
 
   /* Capture file-related options frame */
   file_fr = gtk_frame_new("Capture File(s)");
