@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.4 2000/01/07 22:05:42 guy Exp $
+ * $Id: smb.h,v 1.5 2000/02/14 04:02:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -625,6 +625,24 @@
 
 #define SMB_LMapi_SetUserInfo     0x0072
 #define SMB_LMapi_UserPasswordSet 0x0073
+
+struct smb_request_val {
+  guint16 last_transact2_command;
+  gchar *last_transact_command;
+  guint16 mid;
+  guint16 last_lanman_cmd;
+  gchar *last_param_descrip;   /* Keep these descriptors around */
+  gchar *last_data_descrip;
+  guint16 trans_response_seen;
+  guint16 last_level;          /* Last level in request */
+};
+
+struct smb_info {
+  int tid, uid, mid, pid;   /* Any more?  */
+  conversation_t *conversation;
+  struct smb_request_val *request_val;
+  int unicode;
+};
 
 
 #endif

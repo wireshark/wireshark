@@ -94,6 +94,11 @@ DISSECTOR_OBJECTS = \
 	packet-sap.obj   \
 	packet-sdp.obj   \
 	packet-smb.obj   \
+	packet-smb-browse.obj \
+	packet-smb-common.obj \
+	packet-smb-logon.obj \
+	packet-smb-mailslot.obj \
+	packet-smb-pipe.obj \
 	packet-sna.obj   \
 	packet-snmp.obj	\
 	packet-srvloc.obj \
