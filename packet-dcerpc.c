@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.50 2002/05/24 11:51:14 sahlberg Exp $
+ * $Id: packet-dcerpc.c,v 1.51 2002/05/25 08:37:44 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1555,10 +1555,16 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 	       entire PDU, just call the handoff directly */
 	    if( (!dcerpc_reassemble)
 	      || ((hdr->flags&0x03)==0x03) ){
-                dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
-                                tvb_new_subset (tvb, offset, length,
-                                                reported_length),
-                                0, opnum, TRUE, hdr->drep, &di, auth_level);
+		if(hdr->flags&0x01){
+                    dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
+                       	        tvb_new_subset (tvb, offset, length,
+                               	                reported_length),
+                               	0, opnum, TRUE, hdr->drep, &di, auth_level);
+		} else {
+		    if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
+		    }
+		}
             } else if(dcerpc_reassemble){
 	        /*OK we need to do reassembly */
 	        /* handle first fragment */
@@ -1771,11 +1777,17 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 	       entire PDU, just call the handoff directly */
 	    if( (!dcerpc_reassemble)
 	      || ((hdr->flags&0x03)==0x03) ){
-                dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
+		if(hdr->flags&0x01){
+                    dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
                                 tvb_new_subset (tvb, offset, length,
                                                 reported_length),
                                 0, value->opnum, FALSE, hdr->drep, &di,
                                 auth_level);
+		} else {
+		    if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
+		    }
+		}
             } else if(dcerpc_reassemble){
 	        /*OK we need to do reassembly */
 	        /* handle first fragment */
