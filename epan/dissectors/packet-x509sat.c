@@ -5,7 +5,6 @@
 
 /* Input file: packet-x509sat-template.c */
 
-#define BER_UNI_TAG_TeletexString	    20  /* until we fix the bug in asn2eth */
 /* packet-x509sat.c
  * Routines for X.509 Selected Attribute Types packet dissection
  *  Ronnie Sahlberg 2004

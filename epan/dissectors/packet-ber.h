@@ -59,7 +59,7 @@ typedef int (*ber_callback)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 #define BER_UNI_TAG_SET			    17	/* SET, SET OF */
 #define BER_UNI_TAG_NumericString	    18
 #define BER_UNI_TAG_PrintableString	    19
-#define BER_UNI_TAG_TeletextString	    20  /* TeletextString, T61String */
+#define BER_UNI_TAG_TeletexString	    20  /* TeletextString, T61String */
 #define BER_UNI_TAG_VideotexString	    21
 #define BER_UNI_TAG_IA5String		    22
 #define BER_UNI_TAG_UTCTime		    23

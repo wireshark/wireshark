@@ -107,7 +107,7 @@ static const value_string ber_uni_tag_codes[] = {
 	{ BER_UNI_TAG_SET				, "SET, SET OF" },
 	{ BER_UNI_TAG_NumericString	, "NumericString" },
 	{ BER_UNI_TAG_PrintableString	, "PrintableString" },
-	{ BER_UNI_TAG_TeletextString	, "TeletextString, T61String" },
+	{ BER_UNI_TAG_TeletexString	, "TeletexString, T61String" },
 	{ BER_UNI_TAG_VideotexString	, "VideotexString" },
 	{ BER_UNI_TAG_IA5String		, "IA5String" },
 	{ BER_UNI_TAG_UTCTime		, "UTCTime" },
