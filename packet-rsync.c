@@ -3,7 +3,7 @@
  * [ very rough, but mininally functional ]
  * Copyright 2003, Brad Hards <bradh@frogmouth.net>
  *
- * $Id: packet-rsync.c,v 1.1 2003/02/18 21:47:56 guy Exp $
+ * $Id: packet-rsync.c,v 1.2 2003/02/20 12:04:11 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,7 +50,7 @@ typedef enum _rsync_state {
   RSYNC_SERV_RESPONSE = 4,
   RSYNC_COMMAND = 5,
   RSYNC_SERV_MOTD = 6,
-  RSYNC_DATA = 7,
+  RSYNC_DATA = 7
 } rsync_state_t;
 
 static gboolean rsync_desegment = TRUE;
