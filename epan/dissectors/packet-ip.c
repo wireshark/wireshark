@@ -1404,8 +1404,11 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
   }
 
-  if (check_col(pinfo->cinfo, COL_INFO))
+  if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_str(pinfo->cinfo, COL_INFO, type_str);
+    if (type_str[0] != '\0')
+      col_append_fstr(pinfo->cinfo, COL_INFO, " %s", code_str);
+  }
 
   if (tree) {
     length = tvb_length(tvb);
