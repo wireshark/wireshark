@@ -504,6 +504,54 @@ arcfour_mic_cksum(krb5_keyblock *key, unsigned usage,
 }
 
 static int
+heimdal_be_to_uint32(u_char *p, guint32 *n)
+{
+    *n = (p[0] <<24) | (p[1] << 16) | (p[2] << 8) | (p[3] << 0);
+    return 0;
+}
+
+/*
+ * Verify padding of a gss wrapped message and return its length.
+ */
+
+static guint32
+_gssapi_verify_pad(krb5_data *wrapped_token, 
+		   size_t datalen,
+		   size_t *padlen)
+{
+    u_char *pad;
+    size_t padlength;
+    int i;
+
+    pad = (u_char *)wrapped_token->data + wrapped_token->length - 1;
+    padlength = *pad;
+
+    if (padlength > datalen)
+	return 1;
+
+    for (i = padlength; i > 0 && *pad == padlength; i--, pad--)
+	;
+    if (i != 0)
+	return 2;
+
+    *padlen = padlength;
+
+    return 0;
+}
+
+static guint32 
+gss_release_buffer
+           (
+            krb5_data *buffer
+           )
+{
+  g_free (buffer->data);
+  buffer->data  = NULL;
+  buffer->length = 0;
+  return 0;
+}
+
+static int
 heimdal_decrypt_arcfour(packet_info *pinfo,
 	 guint32 *minor_status,
 	 const krb5_data *input_message_buffer,
@@ -559,7 +607,7 @@ heimdal_decrypt_arcfour(packet_info *pinfo,
 	memset(k6_data, 0, sizeof(k6_data));
     }
 
-    gssapi_decode_be_om_uint32(SND_SEQ, &seq_number);
+    heimdal_be_to_uint32(SND_SEQ, &seq_number);
 
     cmp = memcmp(&SND_SEQ[4], "\xff\xff\xff\xff", 4);
     if(cmp){
@@ -617,7 +665,7 @@ heimdal_decrypt_arcfour(packet_info *pinfo,
 
     ret = _gssapi_verify_pad(output_message_buffer, datalen, &padlen);
     if (ret) {
-	gss_release_buffer(minor_status, output_message_buffer);
+	gss_release_buffer(output_message_buffer);
 	return 9;
     }
     output_message_buffer->length -= padlen;
@@ -629,7 +677,7 @@ heimdal_decrypt_arcfour(packet_info *pinfo,
 			    output_message_buffer->data, 
 			    output_message_buffer->length + padlen);
     if (ret) {
-	gss_release_buffer(minor_status, output_message_buffer);
+	gss_release_buffer(output_message_buffer);
 	return 10;
     }
 
@@ -637,7 +685,7 @@ heimdal_decrypt_arcfour(packet_info *pinfo,
 	tvb_get_ptr(pinfo->gssapi_wrap_tvb, 16, 8),
 	8); /* SGN_CKSUM */
     if (cmp) {
-	gss_release_buffer(minor_status, output_message_buffer);
+	gss_release_buffer(output_message_buffer);
 	return 11;
     }
 
