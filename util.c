@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.39 2000/03/21 06:51:59 guy Exp $
+ * $Id: util.c,v 1.40 2000/07/31 04:53:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -91,6 +91,51 @@ typedef int mode_t;	/* for win32 */
 #include "globals.h"
 
 #endif
+
+/*
+ * Given a pathname, return:
+ *
+ *	the errno, if an attempt to "stat()" the file fails;
+ *
+ *	EISDIR, if the attempt succeeded and the file turned out
+ *	to be a directory;
+ *
+ *	0, if the attempt succeeded and the file turned out not
+ *	to be a directory.
+ */
+
+/*
+ * Visual C++ on Win32 systems doesn't define these.  (Old UNIX systems don't
+ * define them either.)
+ *
+ * Visual C++ on Win32 systems doesn't define S_IFIFO, it defines _S_IFIFO.
+ */
+#ifndef S_ISREG
+#define S_ISREG(mode)   (((mode) & S_IFMT) == S_IFREG)
+#endif
+#ifndef S_IFIFO
+#define S_IFIFO	_S_IFIFO
+#endif
+#ifndef S_ISFIFO
+#define S_ISFIFO(mode)  (((mode) & S_IFMT) == S_IFIFO)
+#endif
+#ifndef S_ISDIR
+#define S_ISDIR(mode)   (((mode) & S_IFMT) == S_IFDIR)
+#endif
+
+int
+test_for_directory(const char *path)
+{
+	struct stat statb;
+
+	if (stat(path, &statb) < 0)
+		return errno;
+
+	if (S_ISDIR(statb.st_mode))
+		return EISDIR;
+	else
+		return 0;
+}
 
 /*
  * Given a pathname, return a pointer to the last pathname separator

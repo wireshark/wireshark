@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.28 2000/07/20 05:09:58 guy Exp $
+ * $Id: file_dlg.c,v 1.29 2000/07/31 04:53:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,24 +94,14 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
     return;
   }
 
-  /* XXX - GTK+'s file selection dialog box doesn't let you set the
-     initial directory it should show; it always uses the current
-     directory.  We want to start out by showing the user the files
-     in the last directory in which they looked, so we have to "chdir()"
-     there.
-
-     This means means that if Ethereal dumps core, the core file will be
-     dumped in whatever directory it last "chdir()"red to, rather
-     than in the directory in which you started it.
-
-     It also means, for better or worse, that *all* file selection
-     dialog boxes will start in that directory. */
-  if (last_open_dir)
-	  chdir(last_open_dir);
-
   file_open_w = gtk_file_selection_new ("Ethereal: Open Capture File");
   gtk_signal_connect(GTK_OBJECT(file_open_w), "destroy",
 	GTK_SIGNAL_FUNC(file_open_destroy_cb), NULL);
+
+  /* If we've opened a file, start out by showing the files in the directory
+     in which that file resided. */
+  if (last_open_dir)
+    gtk_file_selection_complete(GTK_FILE_SELECTION(file_open_w), last_open_dir);
 
   resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
 		  "Enable name resolution", NULL);
@@ -180,19 +170,13 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   }
 
   /* Perhaps the user specified a directory instead of a file.
-   * See if we can chdir to it. */
-  if (chdir(cf_name) == 0) {
-	int	cf_name_len;
-
+     Check whether they did. */
+  if (test_for_directory(cf_name) == EISDIR) {
+	/* It's a directory - set the file selection box to display that
+	   directory, don't try to open the directory as a capture file. */
 	g_free(last_open_dir);
-
-	/* Append a slash, even if not needed */
-	cf_name_len = strlen(cf_name);
-	last_open_dir = g_malloc(cf_name_len + 2);
-	strcpy(last_open_dir, cf_name);
-	strcat(last_open_dir, "/");
-	g_free(cf_name);
-    	gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
+	last_open_dir = cf_name;
+	gtk_file_selection_complete(GTK_FILE_SELECTION(fs), last_open_dir);
     	return;
   }
 
@@ -418,6 +402,11 @@ file_save_as_cmd_cb(GtkWidget *w, gpointer data)
   file_save_as_w = gtk_file_selection_new ("Ethereal: Save Capture File As");
   gtk_signal_connect(GTK_OBJECT(file_save_as_w), "destroy",
 	GTK_SIGNAL_FUNC(file_save_as_destroy_cb), NULL);
+
+  /* If we've opened a file, start out by showing the files in the directory
+     in which that file resided. */
+  if (last_open_dir)
+    gtk_file_selection_complete(GTK_FILE_SELECTION(file_save_as_w), last_open_dir);
 
   /* Connect the ok_button to file_save_as_ok_cb function and pass along a
      pointer to the file selection box widget */

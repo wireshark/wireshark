@@ -1,7 +1,7 @@
 /* util.h
  * Utility definitions
  *
- * $Id: util.h,v 1.19 2000/02/22 07:07:47 guy Exp $
+ * $Id: util.h,v 1.20 2000/07/31 04:53:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,6 +29,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+/*
+ * Given a pathname, return:
+ *
+ *	the errno, if an attempt to "stat()" the file fails;
+ *
+ *	EISDIR, if the attempt succeeded and the file turned out
+ *	to be a directory;
+ *
+ *	0, if the attempt succeeded and the file turned out not
+ *	to be a directory.
+ */
+int test_for_directory(const char *);
 
 /*
  * Given a pathname, return the last component.
