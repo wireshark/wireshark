@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: mergecap.c,v 1.21 2004/06/18 10:01:59 ulfl Exp $
+ * $Id: mergecap.c,v 1.22 2004/06/29 20:59:23 ulfl Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -32,6 +32,14 @@
 
 #include "cvsversion.h"
 #include "merge.h"
+
+#ifdef HAVE_IO_H
+# include <io.h>
+#endif
+
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
 
 
 /*
@@ -82,9 +90,10 @@ main(int argc, char *argv[])
   merge_in_file_t   *in_files      = NULL;
   merge_out_file_t   out_file;
   int          err;
+  char        *out_filename;
 
   /* initialize out_file */
-  out_file.filename   = NULL;
+  out_file.fd         = 0;
   out_file.pdh        = NULL;              /* wiretap dumpfile */
   out_file.file_type  = WTAP_FILE_PCAP;    /* default to "libpcap" */
   out_file.frame_type = -2;                /* leave type alone */
@@ -98,7 +107,7 @@ main(int argc, char *argv[])
 
     switch (opt) {
     case 'w':
-      out_file.filename = optarg;
+	  out_filename = optarg;
       break;
 
     case 'a':
@@ -159,7 +168,7 @@ main(int argc, char *argv[])
    * filename and one input file
    */
   in_file_count = argc - optind;
-  if (!out_file.filename) {
+  if (!out_filename) {
     fprintf(stderr, "mergecap: an output filename must be set with -w\n");
     fprintf(stderr, "          run with -h for help\n");
     exit(1);
@@ -177,6 +186,19 @@ main(int argc, char *argv[])
     out_file.frame_type = merge_select_frame_type(in_file_count, in_files);
 
   /* open the outfile */
+  if (strncmp(out_filename, "-", 2) == 0) {  
+    /* use stdout as the outfile */
+    out_file.fd = 1 /*stdout*/;
+  } else {
+    /* open the outfile */
+    out_file.fd = open(out_filename, O_BINARY | O_WRONLY);
+  }
+  if(out_file.fd == -1) {
+    fprintf(stderr, "mergecap: couldn't open output file\n");
+    exit(1);
+  }  
+    
+  /* prepare the outfile */
   if (!merge_open_outfile(&out_file, merge_max_snapshot_length(in_file_count, in_files), &err)) {
     merge_close_in_files(in_file_count, in_files);
     exit(1);

@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.124 2004/06/29 03:27:51 jmayer Exp $
+ * $Id: file_dlg.c,v 1.125 2004/06/29 20:59:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,6 +57,7 @@
 #include "range_utils.h"
 #endif
 #include "merge.h"
+#include "util.h"
 
 
 static void file_open_ok_cb(GtkWidget *w, gpointer fs);
@@ -925,12 +926,13 @@ file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
 static void
 file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   gchar     *cf_name, *rfilter, *s;
-  gchar     *cf_merged_name;
   GtkWidget *filter_te, *rb;
   dfilter_t *rfcode = NULL;
   int        err;
   gboolean   merge_ok;
   char      *in_filenames[2];
+  int       out_fd;
+  char      tmpname[128+1];
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
@@ -956,8 +958,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
     	return;
   }
 
-  /*XXX should use temp file stuff in util routines? */
-  cf_merged_name = g_strdup(tmpnam(NULL));
+  out_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
 
   /* merge or append the two files */
   rb = OBJECT_GET_DATA(w, E_MERGE_CHRONO_KEY);
@@ -965,19 +966,19 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
       /* chonological order */
       in_filenames[0] = cfile.filename;
       in_filenames[1] = cf_name;
-      merge_ok = merge_n_files(cf_merged_name, 2, in_filenames, FALSE, &err);
+      merge_ok = merge_n_files(out_fd, 2, in_filenames, FALSE, &err);
   } else {
       rb = OBJECT_GET_DATA(w, E_MERGE_PREPEND_KEY);
       if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rb))) {
           /* prepend file */
           in_filenames[0] = cfile.filename;
           in_filenames[1] = cf_name;
-          merge_ok = merge_n_files(cf_merged_name, 2, in_filenames, TRUE, &err);
+          merge_ok = merge_n_files(out_fd, 2, in_filenames, TRUE, &err);
       } else {
           /* append file */
           in_filenames[0] = cf_name;
           in_filenames[1] = cfile.filename;
-          merge_ok = merge_n_files(cf_merged_name, 2, in_filenames, TRUE, &err);
+          merge_ok = merge_n_files(out_fd, 2, in_filenames, TRUE, &err);
       }
   }
 
@@ -990,7 +991,6 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
 		  wtap_strerror(err));
     if (rfcode != NULL)
       dfilter_free(rfcode);
-    g_free(cf_merged_name);
     return;
   }
 
@@ -1000,14 +1000,13 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   window_destroy(GTK_WIDGET (fs));
 
   /* Try to open the merged capture file. */
-  if ((err = cf_open(cf_merged_name, TRUE /* temporary file */, &cfile)) != 0) {
+  if ((err = cf_open(tmpname, TRUE /* temporary file */, &cfile)) != 0) {
     /* We couldn't open it; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the open error,
        try again. */
     if (rfcode != NULL)
       dfilter_free(rfcode);
-    g_free(cf_merged_name);
     return;
   }
 
@@ -1030,18 +1029,15 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
        capture file has been closed - just free the capture file name
        string and return (without changing the last containing
        directory). */
-    g_free(cf_merged_name);
     return;
   }
 
   /* Save the name of the containing directory specified in the path name,
      if any; we can write over cf_merged_name, which is a good thing, given that
      "get_dirname()" does write over its argument. */
-  s = get_dirname(cf_merged_name);
+  s = get_dirname(tmpname);
   set_last_open_dir(s);
   gtk_widget_grab_focus(packet_list);
-
-  g_free(cf_merged_name);
 }
 
 static void

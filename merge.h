@@ -2,7 +2,7 @@
  * Definitions for menu routines with toolkit-independent APIs but
  * toolkit-dependent implementations.
  *
- * $Id: merge.h,v 1.3 2004/06/21 16:45:06 ulfl Exp $
+ * $Id: merge.h,v 1.4 2004/06/29 20:59:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,7 +46,7 @@ typedef struct merge_in_file_s {
  * Structures to manage our output file.
  */
 typedef struct merge_out_file_s {
-  const char  *filename;
+  int          fd;
   wtap_dumper *pdh;
   int          file_type;
   int          frame_type;
@@ -152,7 +152,7 @@ merge_append_files(int in_file_count, merge_in_file_t in_files[], merge_out_file
  * @return TRUE if function succeeded
  */
 extern gboolean
-merge_n_files(char *out_filename, int in_file_count, char **in_filenames, gboolean do_append, int *err);
+merge_n_files(int out_fd, int in_file_count, char **in_filenames, gboolean do_append, int *err);
 
 
 #ifdef __cplusplus

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.448 2004/06/29 03:27:51 jmayer Exp $
+ * $Id: main.c,v 1.449 2004/06/29 20:59:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1294,35 +1294,33 @@ dnd_uri2filename(gchar *cf_name)
 static void
 dnd_merge_files(int in_file_count, char **in_filenames)
 {
-    gchar *cf_merged_name;
+    int out_fd;
     gboolean merge_ok;
     int err;
+    char      tmpname[128+1];
 
 
-    /*XXX should use temp file stuff in util routines? */
-    cf_merged_name = g_strdup(tmpnam(NULL));
+    out_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
 
     /* merge the files in chonological order */
-    merge_ok = merge_n_files(cf_merged_name, in_file_count, in_filenames, FALSE, &err);
+    merge_ok = merge_n_files(out_fd, in_file_count, in_filenames, FALSE, &err);
 
   if(!merge_ok) {
     /* merge failed */
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		  "An error occurred while merging the files: \"%s\".",
 		  wtap_strerror(err));
-    g_free(cf_merged_name);
     return;
   }
 
   cf_close(&cfile);
 
   /* Try to open the merged capture file. */
-  if ((err = cf_open(cf_merged_name, TRUE /* temporary file */, &cfile)) != 0) {
+  if ((err = cf_open(tmpname, TRUE /* temporary file */, &cfile)) != 0) {
     /* We couldn't open it; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the open error,
        try again. */
-    g_free(cf_merged_name);
     return;
   }
 
@@ -1340,13 +1338,10 @@ dnd_merge_files(int in_file_count, char **in_filenames)
        capture file has been closed - just free the capture file name
        string and return (without changing the last containing
        directory). */
-    g_free(cf_merged_name);
     return;
   }
 
   gtk_widget_grab_focus(packet_list);
-
-  g_free(cf_merged_name);
 }
 
 /* open/merge the dnd file */

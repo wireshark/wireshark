@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: merge.c,v 1.5 2004/06/21 16:45:06 ulfl Exp $
+ * $Id: merge.c,v 1.6 2004/06/29 20:59:23 ulfl Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -55,8 +55,8 @@ write_frame(wtap *wth, merge_out_file_t *out_file, int *err)
 
   if (!wtap_dump(out_file->pdh, phdr, wtap_pseudoheader(wth), wtap_buf_ptr(wth), err)) {
     if (merge_verbose == VERBOSE_ERRORS)
-      fprintf(stderr, "mergecap: Error writing to %s: %s\n",
-            out_file->filename, wtap_strerror(*err));
+      fprintf(stderr, "mergecap: Error writing to outfile: %s\n",
+            wtap_strerror(*err));
     return FALSE;
   }
 
@@ -102,8 +102,8 @@ merge_append_files(int count, merge_in_file_t in_files[], merge_out_file_t *out_
   for (i = 0; i < count; i++) {
     if (!append_loop(in_files[i].wth, 0, out_file, err, &err_info)) {
         if (merge_verbose == VERBOSE_ERRORS)
-          fprintf(stderr, "mergecap: Error appending %s to %s: %s\n",
-                  in_files[i].filename, out_file->filename, wtap_strerror(*err));
+          fprintf(stderr, "mergecap: Error appending %s to outfile: %s\n",
+                  in_files[i].filename, wtap_strerror(*err));
           switch (*err) {
 
           case WTAP_ERR_UNSUPPORTED:
@@ -248,8 +248,8 @@ merge_close_outfile(merge_out_file_t *out_file)
   int err;
   if (!wtap_dump_close(out_file->pdh, &err)) {
     if (merge_verbose == VERBOSE_ERRORS)
-        fprintf(stderr, "mergecap: Error closing file %s: %s\n",
-            out_file->filename, wtap_strerror(err));
+        fprintf(stderr, "mergecap: Error closing output file: %s\n",
+            wtap_strerror(err));
   }
 }
 
@@ -269,16 +269,12 @@ merge_open_outfile(merge_out_file_t *out_file, int snapshot_len, int *err)
     return FALSE;
   }
 
-  /* Allow output to stdout by using - */
-  if (strncmp(out_file->filename, "-", 2) == 0)
-    out_file->filename = "";
 
-
-  out_file->pdh = wtap_dump_open(out_file->filename, out_file->file_type,
+  out_file->pdh = wtap_dump_fdopen(out_file->fd, out_file->file_type,
                                  out_file->frame_type, snapshot_len, err);
   if (!out_file->pdh) {
     if (merge_verbose == VERBOSE_ERRORS) {
-        fprintf(stderr, "mergecap: Can't open/create %s:\n", out_file->filename);
+        fprintf(stderr, "mergecap: Can't open/create output file:\n");
         fprintf(stderr, "          %s\n", wtap_strerror(*err));
     }
     return FALSE;
@@ -379,7 +375,7 @@ merge_open_in_files(int in_file_count, char *in_file_names[], merge_in_file_t *i
  * Convenience function: merge two files into one.
  */
 gboolean
-merge_n_files(char *out_filename, int in_file_count, char **in_filenames, gboolean do_append, int *err)
+merge_n_files(int out_fd, int in_file_count, char **in_filenames, gboolean do_append, int *err)
 {
   extern char *optarg;
   extern int   optind;
@@ -388,7 +384,7 @@ merge_n_files(char *out_filename, int in_file_count, char **in_filenames, gboole
   gboolean     ret;
 
   /* initialize out_file */
-  out_file.filename   = out_filename;
+  out_file.fd         = out_fd;
   out_file.pdh        = NULL;              /* wiretap dumpfile */
   out_file.file_type  = WTAP_FILE_PCAP;    /* default to "libpcap" */
   out_file.frame_type = -2;                /* leave type alone */
