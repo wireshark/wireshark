@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.54 2004/03/07 18:18:43 ulfl Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.55 2004/03/13 11:47:08 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,10 +46,6 @@
 #include <gtk/gtk.h>
 #include <ctype.h>
 #include <string.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include "globals.h"
 #include "main.h"
@@ -173,7 +169,7 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
         /*
          * Indicate what type of value it is.
          */
-        snprintf(value_label_string, sizeof value_label_string,
+        g_snprintf(value_label_string, sizeof value_label_string,
                  "Value (%s)", value_type);
         gtk_label_set_text(GTK_LABEL(value_label), value_label_string);
     }
@@ -701,14 +697,14 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
             case FT_UINT8:
             case FT_UINT16:
             case FT_UINT32:
-                snprintf(value_string, sizeof value_string,
+                g_snprintf(value_string, sizeof value_string,
                          "%u", value->value);
                 break;
 
             case FT_INT8:
             case FT_INT16:
             case FT_INT32:
-                snprintf(value_string, sizeof value_string,
+                g_snprintf(value_string, sizeof value_string,
                          "%d", value->value);
                 break;
 
@@ -718,12 +714,12 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
             break;
 
         case BASE_HEX:
-            snprintf(value_string, sizeof value_string, "0x%x",
+            g_snprintf(value_string, sizeof value_string, "0x%x",
                      value->value);
             break;
 
         case BASE_OCT:
-            snprintf(value_string, sizeof value_string, "%#o",
+            g_snprintf(value_string, sizeof value_string, "%#o",
                      value->value);
             break;
 
@@ -741,7 +737,7 @@ dfilter_report_bad_value(char *format, ...)
 	va_list args;
 
 	va_start(args, format);
-	vsnprintf(error_msg_buf, sizeof error_msg_buf, format, args);
+	g_vsnprintf(error_msg_buf, sizeof error_msg_buf, format, args);
 	va_end(args);
 
 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_msg_buf);
@@ -1356,10 +1352,10 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
         protocol_node = g_hash_table_lookup(proto_array,
                                             GINT_TO_POINTER(proto_registrar_get_parent(i)));
         if (hfinfo->blurb != NULL && hfinfo->blurb[0] != '\0') {
-            snprintf(str, TAG_STRING_LEN, "%s - %s (%s)", hfinfo->abbrev,
+            g_snprintf(str, TAG_STRING_LEN, "%s - %s (%s)", hfinfo->abbrev,
                      hfinfo->name, hfinfo->blurb);
         } else {
-            snprintf(str, TAG_STRING_LEN, "%s - %s", hfinfo->abbrev,
+            g_snprintf(str, TAG_STRING_LEN, "%s - %s", hfinfo->abbrev,
                      hfinfo->name);
         }
         str[TAG_STRING_LEN]=0;
@@ -1400,10 +1396,10 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 			continue;
 
 		if (hfinfo->blurb != NULL && hfinfo->blurb[0] != '\0') {
-			snprintf(str, TAG_STRING_LEN, "%s - %s (%s)",
+			g_snprintf(str, TAG_STRING_LEN, "%s - %s (%s)",
 			    hfinfo->abbrev, hfinfo->name, hfinfo->blurb);
 		} else {
-			snprintf(str, TAG_STRING_LEN, "%s - %s", hfinfo->abbrev,
+			g_snprintf(str, TAG_STRING_LEN, "%s - %s", hfinfo->abbrev,
 			    hfinfo->name);
 		}
 		str[TAG_STRING_LEN]=0;
