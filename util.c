@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.47 2000/10/11 07:35:00 guy Exp $
+ * $Id: util.c,v 1.48 2000/12/23 19:50:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -631,6 +631,23 @@ get_interface_list(int *err, char *err_str)
 		ifr = (struct ifreq *) ((char *) ifr + sizeof(struct ifreq));
 #endif
 	}
+
+#ifdef linux
+	/*
+	 * OK, maybe we have support for the "any" device, to do a cooked
+	 * capture on all interfaces at once.
+	 * Try opening it and, if that succeeds, add it to the end of
+	 * the list of interfaces.
+	 */
+	pch = pcap_open_live("any", MIN_PACKET_SIZE, 0, 0, err_str);
+	if (pch != NULL) {
+		/*
+		 * It worked; we can use the "any" device.
+		 */
+		il = g_list_insert(il, g_strdup("any"), -1);
+		pcap_close(pch);
+	}
+#endif
 
 	g_free(ifc.ifc_buf);
 	close(sock);
