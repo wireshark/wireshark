@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.5 1999/09/14 08:06:33 guy Exp $
+ * $Id: main.c,v 1.6 1999/09/22 01:26:33 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -846,7 +846,7 @@ main(int argc, char *argv[])
   gtk_box_pack_start(GTK_BOX(main_vbox), stat_hbox, FALSE, TRUE, 0);
   gtk_widget_show(stat_hbox);
 
-  prog_bar = gtk_progress_bar_new();  
+  prog_bar = gtk_progress_bar_new();
   gtk_box_pack_start(GTK_BOX(stat_hbox), prog_bar, FALSE, TRUE, 3);
   gtk_widget_show(prog_bar);
 

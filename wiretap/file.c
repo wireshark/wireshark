@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.20 1999/09/11 04:50:44 gerald Exp $
+ * $Id: file.c,v 1.21 1999/09/22 01:26:46 ashokn Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include "file.h"
 #include "wtap.h"
 #include "buffer.h"
 #include "lanalyzer.h"
@@ -71,8 +72,8 @@ static int (*open_routines[])(wtap *, int *) = {
 
 int wtap_def_seek_read (FILE *fh, int seek_off, guint8 *pd, int len)
 {
-	fseek(fh, seek_off, SEEK_SET);
-	return fread(pd, sizeof(guint8), len, fh);
+	file_seek(fh, seek_off, SEEK_SET);
+	return file_read(pd, sizeof(guint8), len, fh);
 }
 
 #define	N_FILE_TYPES	(sizeof open_routines / sizeof open_routines[0])
@@ -105,7 +106,7 @@ wtap* wtap_open_offline(const char *filename, int *err)
 
 	/* Open the file */
 	errno = WTAP_ERR_CANT_OPEN;
-	if (!(wth->fh = fopen(filename, "rb"))) {
+	if (!(wth->fh = file_open(filename, "rb"))) {
 		*err = errno;
 		free(wth);
 		return NULL;
@@ -122,7 +123,7 @@ wtap* wtap_open_offline(const char *filename, int *err)
 		case -1:
 			/* I/O error - give up */
 			*err = errno;
-			fclose(wth->fh);
+			file_close(wth->fh);
 			free(wth);
 			return NULL;
 
@@ -137,7 +138,7 @@ wtap* wtap_open_offline(const char *filename, int *err)
 	}
 
 	/* Well, it's not one of the types of file we know about. */
-	fclose(wth->fh);
+	file_close(wth->fh);
 	free(wth);
 	*err = WTAP_ERR_FILE_UNKNOWN_FORMAT;
 	return NULL;
@@ -157,10 +158,10 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 {
 	FILE *fh;
 
-	/* In case "fopen()" fails but doesn't set "errno", set "errno"
+	/* In case "file_open()" fails but doesn't set "errno", set "errno"
 	   to a generic "the open failed" error. */
 	errno = WTAP_ERR_CANT_OPEN;
-	fh = fopen(filename, "w");
+	fh = file_open(filename, "w");
 	if (fh == NULL) {
 		*err = errno;
 		return NULL;	/* can't create file */
@@ -173,10 +174,10 @@ wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 {
 	FILE *fh;
 
-	/* In case "fopen()" fails but doesn't set "errno", set "errno"
+	/* In case "file_open()" fails but doesn't set "errno", set "errno"
 	   to a generic "the open failed" error. */
 	errno = WTAP_ERR_CANT_OPEN;
-	fh = fdopen(fd, "w");
+	fh = filed_open(fd, "w");
 	if (fh == NULL) {
 		*err = errno;
 		return NULL;	/* can't create standard I/O stream */
@@ -194,7 +195,7 @@ static wtap_dumper* wtap_dump_open_common(FILE *fh, int filetype, int encap,
 		*err = errno;
 		/* NOTE: this means the FD handed to "wtap_dump_fdopen()"
 		   will be closed if the malloc fails. */
-		fclose(fh);
+		file_close(fh);
 		return NULL;
 	}
 	wdh->fh = fh;
@@ -218,7 +219,7 @@ static wtap_dumper* wtap_dump_open_common(FILE *fh, int filetype, int encap,
 
 fail:
 	free(wdh);
-	fclose(fh);
+	file_close(fh);
 	return NULL;	/* XXX - provide a reason why we failed */
 }
 
@@ -240,10 +241,10 @@ int wtap_dump_close(wtap_dumper *wdh, int *err)
 	if (!(wdh->subtype_close)(wdh, err))
 		ret = 0;
 	errno = WTAP_ERR_CANT_CLOSE;
-	if (fclose(wdh->fh) == EOF) {
+	if (file_close(wdh->fh) == EOF) {
 		if (ret) {
 			/* The per-format close function succeeded,
-			   but the fclose didn't.  Save the reason
+			   but the file_close didn't.  Save the reason
 			   why, if our caller asked for it. */
 			if (err != NULL)
 				*err = errno;

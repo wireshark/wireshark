@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.13 1999/09/11 04:50:44 gerald Exp $
+# $Id: configure.in,v 1.14 1999/09/22 01:26:46 ashokn Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(wtap.c)
 AM_INIT_AUTOMAKE(libwtap.a, 0.0.0)
@@ -35,5 +35,17 @@ fi
 dnl Checks for header files
 AC_HEADER_STDC
 AC_CHECK_HEADERS(unistd.h sys/time.h netinet/in.h)
+
+dnl zlib check
+AC_ARG_ENABLE(zlib,
+[  --enable-zlib           use zlib to read compressed data.  [default=yes]],,enable_zlib=yes)
+
+AC_MSG_CHECKING(whether to use zlib for reading compressed capture files)
+if test "x$enable_zlib" = "xno" ; then
+        AC_MSG_RESULT(no)
+else
+        AC_MSG_RESULT(yes)
+	AC_WIRETAP_ZLIB_CHECK
+fi
 
 AC_OUTPUT(Makefile)

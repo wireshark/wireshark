@@ -194,3 +194,12 @@ main ()
   AC_SUBST(GLIB_LIBS)
   rm -f conf.glibtest
 ])
+
+#
+# AC_WIRETAP_ZLIB_CHECK
+#
+AC_DEFUN(AC_WIRETAP_ZLIB_CHECK,
+[
+        AC_CHECK_HEADER(zlib.h,,enable_zlib=no)
+        AC_CHECK_LIB(z, gzopen,,enable_zlib=no)
+])

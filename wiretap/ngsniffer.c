@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.21 1999/08/28 01:19:44 guy Exp $
+ * $Id: ngsniffer.c,v 1.22 1999/09/22 01:26:48 ashokn Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -62,6 +62,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <time.h>
+#include "file.h"
 #include "wtap.h"
 #include "buffer.h"
 #include "ngsniffer.h"
@@ -268,12 +269,12 @@ int ngsniffer_open(wtap *wth, int *err)
 	struct tm tm;
 
 	/* Read in the string that should be at the start of a Sniffer file */
-	fseek(wth->fh, 0, SEEK_SET);
+	file_seek(wth->fh, 0, SEEK_SET);
 	wth->data_offset = 0;
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(magic, 1, 17, wth->fh);
+	bytes_read = file_read(magic, 1, 17, wth->fh);
 	if (bytes_read != 17) {
-		if (ferror(wth->fh)) {
+		if (file_error(wth->fh)) {
 			*err = errno;
 			return -1;
 		}
@@ -292,10 +293,10 @@ int ngsniffer_open(wtap *wth, int *err)
 	 * record.
 	 */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(record_type, 1, 2, wth->fh);
-	bytes_read += fread(record_length, 1, 4, wth->fh);
+	bytes_read = file_read(record_type, 1, 2, wth->fh);
+	bytes_read += file_read(record_length, 1, 4, wth->fh);
 	if (bytes_read != 6) {
-		if (ferror(wth->fh)) {
+		if (file_error(wth->fh)) {
 			*err = errno;
 			return -1;
 		}
@@ -313,9 +314,9 @@ int ngsniffer_open(wtap *wth, int *err)
 	}
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(&version, 1, sizeof version, wth->fh);
+	bytes_read = file_read(&version, 1, sizeof version, wth->fh);
 	if (bytes_read != sizeof version) {
-		if (ferror(wth->fh)) {
+		if (file_error(wth->fh)) {
 			*err = errno;
 			return -1;
 		}
@@ -408,9 +409,9 @@ static int ngsniffer_read(wtap *wth, int *err)
 		 * Read the record header.
 		 */
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = fread(record_type, 1, 2, wth->fh);
+		bytes_read = file_read(record_type, 1, 2, wth->fh);
 		if (bytes_read != 2) {
-			if (ferror(wth->fh)) {
+			if (file_error(wth->fh)) {
 				*err = errno;
 				return -1;
 			}
@@ -422,9 +423,9 @@ static int ngsniffer_read(wtap *wth, int *err)
 		}
 		wth->data_offset += 2;
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = fread(record_length, 1, 4, wth->fh);
+		bytes_read = file_read(record_length, 1, 4, wth->fh);
 		if (bytes_read != 4) {
-			if (ferror(wth->fh))
+			if (file_error(wth->fh))
 				*err = errno;
 			else
 				*err = WTAP_ERR_SHORT_READ;
@@ -450,9 +451,9 @@ static int ngsniffer_read(wtap *wth, int *err)
 
 			/* Read the f_frame2_struct */
 			errno = WTAP_ERR_CANT_READ;
-			bytes_read = fread(&frame2, 1, sizeof frame2, wth->fh);
+			bytes_read = file_read(&frame2, 1, sizeof frame2, wth->fh);
 			if (bytes_read != sizeof frame2) {
-				if (ferror(wth->fh))
+				if (file_error(wth->fh))
 					*err = errno;
 				else
 					*err = WTAP_ERR_SHORT_READ;
@@ -487,9 +488,9 @@ static int ngsniffer_read(wtap *wth, int *err)
 
 			/* Read the f_frame4_struct */
 			errno = WTAP_ERR_CANT_READ;
-			bytes_read = fread(&frame4, 1, sizeof frame4, wth->fh);
+			bytes_read = file_read(&frame4, 1, sizeof frame4, wth->fh);
 			if (bytes_read != sizeof frame4) {
-				if (ferror(wth->fh))
+				if (file_error(wth->fh))
 					*err = errno;
 				else
 					*err = WTAP_ERR_SHORT_READ;
@@ -546,7 +547,7 @@ static int ngsniffer_read(wtap *wth, int *err)
 		 * it is but can't handle it.  Skip past the data
 		 * portion, and keep looping.
 		 */
-		fseek(wth->fh, length, SEEK_CUR);
+		file_seek(wth->fh, length, SEEK_CUR);
 		wth->data_offset += length;
 	}
 
@@ -560,11 +561,11 @@ found:
 	buffer_assure_space(wth->frame_buffer, length);
 	data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
+	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
 			length, wth->fh);
 
 	if (bytes_read != length) {
-		if (ferror(wth->fh))
+		if (file_error(wth->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_READ;

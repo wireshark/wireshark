@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.14 1999/08/28 01:19:43 guy Exp $
+ * $Id: lanalyzer.c,v 1.15 1999/09/22 01:26:47 ashokn Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <time.h>
+#include "file.h"
 #include "wtap.h"
 #include "buffer.h"
 #include "lanalyzer.h"
@@ -60,13 +61,13 @@ int lanalyzer_open(wtap *wth, int *err)
 	guint8 cr_day, cr_month, cr_year;
 	struct tm tm;
 
-	fseek(wth->fh, 0, SEEK_SET);
+	file_seek(wth->fh, 0, SEEK_SET);
 	wth->data_offset = 0;
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(LE_record_type, 1, 2, wth->fh);
-	bytes_read += fread(LE_record_length, 1, 2, wth->fh);
+	bytes_read = file_read(LE_record_type, 1, 2, wth->fh);
+	bytes_read += file_read(LE_record_length, 1, 2, wth->fh);
 	if (bytes_read != 4) {
-		if (ferror(wth->fh)) {
+		if (file_error(wth->fh)) {
 			*err = errno;
 			return -1;
 		}
@@ -90,13 +91,13 @@ int lanalyzer_open(wtap *wth, int *err)
 
 	/* Read records until we find the start of packets */
 	while (1) {
-		fseek(wth->fh, record_length, SEEK_CUR);
+		file_seek(wth->fh, record_length, SEEK_CUR);
 		wth->data_offset += record_length;
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = fread(LE_record_type, 1, 2, wth->fh);
-		bytes_read += fread(LE_record_length, 1, 2, wth->fh);
+		bytes_read = file_read(LE_record_type, 1, 2, wth->fh);
+		bytes_read += file_read(LE_record_length, 1, 2, wth->fh);
 		if (bytes_read != 4) {
-			if (ferror(wth->fh)) {
+			if (file_error(wth->fh)) {
 				*err = errno;
 				free(wth->capture.lanalyzer);
 				return -1;
@@ -114,10 +115,10 @@ int lanalyzer_open(wtap *wth, int *err)
 			/* Trace Summary Record */
 			case REC_TRACE_SUMMARY:
 				errno = WTAP_ERR_CANT_READ;
-				bytes_read = fread(summary, 1, sizeof summary,
+				bytes_read = file_read(summary, 1, sizeof summary,
 				    wth->fh);
 				if (bytes_read != sizeof summary) {
-					if (ferror(wth->fh)) {
+					if (file_error(wth->fh)) {
 						*err = errno;
 						g_free(wth->capture.lanalyzer);
 						return -1;
@@ -180,7 +181,7 @@ int lanalyzer_open(wtap *wth, int *err)
 			case REC_TRACE_PACKET_DATA:
 				/* Go back header number ob ytes so that lanalyzer_read
 				 * can read this header */
-				fseek(wth->fh, -bytes_read, SEEK_CUR);
+				file_seek(wth->fh, -bytes_read, SEEK_CUR);
 				wth->data_offset -= bytes_read;
 				return 1;
 
@@ -211,9 +212,9 @@ static int lanalyzer_read(wtap *wth, int *err)
 
 	/* read the record type and length. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(LE_record_type, 1, 2, wth->fh);
+	bytes_read = file_read(LE_record_type, 1, 2, wth->fh);
 	if (bytes_read != 2) {
-		if (ferror(wth->fh)) {
+		if (file_error(wth->fh)) {
 			*err = errno;
 			return -1;
 		}
@@ -224,9 +225,9 @@ static int lanalyzer_read(wtap *wth, int *err)
 		return 0;
 	}
 	wth->data_offset += 2;
-	bytes_read = fread(LE_record_length, 1, 2, wth->fh);
+	bytes_read = file_read(LE_record_length, 1, 2, wth->fh);
 	if (bytes_read != 2) {
-		if (ferror(wth->fh))
+		if (file_error(wth->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_READ;
@@ -252,9 +253,9 @@ static int lanalyzer_read(wtap *wth, int *err)
 
 	/* Read the descriptor data */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(descriptor, 1, DESCRIPTOR_LEN, wth->fh);
+	bytes_read = file_read(descriptor, 1, DESCRIPTOR_LEN, wth->fh);
 	if (bytes_read != DESCRIPTOR_LEN) {
-		if (ferror(wth->fh))
+		if (file_error(wth->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_READ;
@@ -266,11 +267,11 @@ static int lanalyzer_read(wtap *wth, int *err)
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
+	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
 		packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
-		if (ferror(wth->fh))
+		if (file_error(wth->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_READ;

@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.44 1999/09/12 20:23:32 guy Exp $
+ * $Id: file.h,v 1.45 1999/09/22 01:26:24 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,10 +48,40 @@
 #include "colors.h"
 #endif
 
+#include <errno.h>
+
+#ifdef HAVE_LIBZ
+#include "zlib.h"
+
+#define FILE_T gzFile
+#define file_open gzopen
+#define filed_open gzdopen
+#define file_seek gzseek
+#define file_read(buf, bsize, count, file) gzread((file),(buf),((count)*(bsize)))
+#define file_write(buf, bsize, count, file) gzwrite((file),(buf),((count)*(bsize)))
+#define file_close gzclose
+static inline int file_error(void *fh) {
+    int errnum;
+    gzerror(fh, &errnum);
+    if (errnum<0) return errnum;
+    return 0;
+}
+
+#else /* No zLib */
+#define FILE_T FILE *
+#define file_open fopen
+#define filed_open fdopen
+#define file_seek fseek
+#define file_read fread
+#define file_write fwrite
+#define file_close fclose
+#define file_error ferror
+#endif /* HAVE_LIBZ */
+
 typedef struct bpf_program bpf_prog;
 
 typedef struct _capture_file {
-  FILE        *fh;        /* Capture file */
+  FILE_T       fh;        /* Capture file */
   gchar       *filename;  /* filename */
   long         f_len;     /* File length */
   guint16      cd_t;      /* Capture data type */
@@ -66,6 +96,9 @@ typedef struct _capture_file {
   gboolean     update_progbar; /* TRUE if we should update the progress bar */
   long         progbar_quantum; /* Number of bytes read per progress bar update */
   long         progbar_nextstep; /* Next point at which to update progress bar */
+  float        bouncebar_pos; /* Position of bounce bar */
+  float        bouncebar_step; /* Step */
+  int          bouncebar_reversed; /* Are we going right-to-left? */
   gchar       *iface;     /* Interface */
   gchar       *save_file; /* File that user saved capture to */
   int          save_file_fd; /* File descriptor for saved file */

@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.19 1999/09/11 06:48:33 guy Exp $
+ * $Id: wtap.c,v 1.20 1999/09/22 01:26:50 ashokn Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -21,10 +21,12 @@
  *
  */
 #include <string.h>
+#include <errno.h>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include "file.h"
 #include "wtap.h"
 #include "buffer.h"
 #include "ascend.h"
@@ -168,7 +170,7 @@ void wtap_close(wtap *wth)
 			 nothing */
 	}
 
-	fclose(wth->fh);
+	file_close(wth->fh);
 }
 
 int wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user,

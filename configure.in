@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.42 1999/09/01 22:59:48 guy Exp $
+# $Id: configure.in,v 1.43 1999/09/22 01:26:23 ashokn Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -70,6 +70,22 @@ else
 	AC_MSG_RESULT(yes)
 	AC_ETHEREAL_PCAP_CHECK
 fi
+
+dnl zlib check
+AC_ARG_ENABLE(zlib,
+[  --enable-zlib           use zlib to read compressed data.  [default=yes]],,enable_zlib=yes)
+
+AC_MSG_CHECKING(whether to use zlib for reading compressed capture files)
+if test "x$enable_zlib" = "xno" ; then
+        AC_MSG_RESULT(no)
+else
+        AC_MSG_RESULT(yes)
+        AC_ETHEREAL_ZLIB_CHECK
+	if test "x$enable_zlib" = "xno" ; then
+		AC_MSG_RESULT(zlib not found - disabling compressed capture file support)
+	fi
+fi
+
 
 dnl ipv6 check
 AC_ARG_ENABLE(ipv6,

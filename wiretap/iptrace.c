@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.10 1999/08/28 01:19:43 guy Exp $
+ * $Id: iptrace.c,v 1.11 1999/09/22 01:26:46 ashokn Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -27,6 +27,7 @@
 #include <errno.h>
 #include <time.h>
 #include <string.h>
+#include "file.h"
 #include "wtap.h"
 #include "buffer.h"
 #include "iptrace.h"
@@ -38,12 +39,12 @@ int iptrace_open(wtap *wth, int *err)
 	int bytes_read;
 	char name[12];
 
-	fseek(wth->fh, 0, SEEK_SET);
+	file_seek(wth->fh, 0, SEEK_SET);
 	wth->data_offset = 0;
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(name, 1, 11, wth->fh);
+	bytes_read = file_read(name, 1, 11, wth->fh);
 	if (bytes_read != 11) {
-		if (ferror(wth->fh)) {
+		if (file_error(wth->fh)) {
 			*err = errno;
 			return -1;
 		}
@@ -71,9 +72,9 @@ static int iptrace_read(wtap *wth, int *err)
 
 	/* Read the descriptor data */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(header, 1, 40, wth->fh);
+	bytes_read = file_read(header, 1, 40, wth->fh);
 	if (bytes_read != 40) {
-		if (ferror(wth->fh)) {
+		if (file_error(wth->fh)) {
 			*err = errno;
 			return -1;
 		}
@@ -91,11 +92,11 @@ static int iptrace_read(wtap *wth, int *err)
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
+	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
 		packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
-		if (ferror(wth->fh))
+		if (file_error(wth->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_READ;

@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <time.h>
+#include "file.h"
 #include "wtap.h"
 #include "buffer.h"
 #include "radcom.h"
@@ -78,11 +79,11 @@ int radcom_open(wtap *wth, int *err)
 	char search_encap[7];
 
 	/* Read in the string that should be at the start of a RADCOM file */
-	fseek(wth->fh, 0, SEEK_SET);
+	file_seek(wth->fh, 0, SEEK_SET);
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(magic, 1, 8, wth->fh);
+	bytes_read = file_read(magic, 1, 8, wth->fh);
 	if (bytes_read != 8) {
-		if (ferror(wth->fh)) {
+		if (file_error(wth->fh)) {
 			*err = errno;
 			return -1;
 		}
@@ -93,12 +94,12 @@ int radcom_open(wtap *wth, int *err)
 		return 0;
 	}
 
-	fseek(wth->fh, 0x8B, SEEK_SET);
+	file_seek(wth->fh, 0x8B, SEEK_SET);
 	wth->data_offset = 0x8B;
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(&byte, 1, 1, wth->fh);
+	bytes_read = file_read(&byte, 1, 1, wth->fh);
 	if (bytes_read != 1) {
-		if (ferror(wth->fh)) {
+		if (file_error(wth->fh)) {
 			*err = errno;
 			return -1;
 		}
@@ -107,9 +108,9 @@ int radcom_open(wtap *wth, int *err)
 	wth->data_offset += 1;
 	while (byte) {
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = fread(&byte, 1, 1, wth->fh);
+		bytes_read = file_read(&byte, 1, 1, wth->fh);
 		if (bytes_read != 1) {
-			if (ferror(wth->fh)) {
+			if (file_error(wth->fh)) {
 				*err = errno;
 				return -1;
 			}
@@ -117,14 +118,14 @@ int radcom_open(wtap *wth, int *err)
 		}
 		wth->data_offset += 1;
 	}
-	fseek(wth->fh, 1, SEEK_CUR);
+	file_seek(wth->fh, 1, SEEK_CUR);
 	wth->data_offset += 1;
 
 	/* Get capture start time */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(&start_date, 1, sizeof(struct frame_date), wth->fh);
+	bytes_read = file_read(&start_date, 1, sizeof(struct frame_date), wth->fh);
 	if (bytes_read != sizeof(struct frame_date)) {
-		if (ferror(wth->fh)) {
+		if (file_error(wth->fh)) {
 			*err = errno;
 			return -1;
 		}
@@ -148,29 +149,29 @@ int radcom_open(wtap *wth, int *err)
 	tm.tm_isdst = -1;
 	wth->capture.radcom->start = mktime(&tm);
 
-	fseek(wth->fh, sizeof(struct frame_date), SEEK_CUR);
+	file_seek(wth->fh, sizeof(struct frame_date), SEEK_CUR);
 	wth->data_offset += sizeof(struct frame_date);
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(search_encap, 1, 7, wth->fh);
+	bytes_read = file_read(search_encap, 1, 7, wth->fh);
 	if (bytes_read != 7) {
 		goto read_error;
 	}
 	wth->data_offset += 7;
 	while (memcmp(encap_magic, search_encap, 7)) {
-		fseek(wth->fh, -6, SEEK_CUR);
+		file_seek(wth->fh, -6, SEEK_CUR);
 		wth->data_offset -= 6;
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = fread(search_encap, 1, 7, wth->fh);
+		bytes_read = file_read(search_encap, 1, 7, wth->fh);
 		if (bytes_read != 7) {
 			goto read_error;
 		}
 		wth->data_offset += 7;
 	}
-	fseek(wth->fh, 12, SEEK_CUR);
+	file_seek(wth->fh, 12, SEEK_CUR);
 	wth->data_offset += 12;
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(search_encap, 1, 4, wth->fh);
+	bytes_read = file_read(search_encap, 1, 4, wth->fh);
 	if (bytes_read != 4) {
 		goto read_error;
 	}
@@ -185,16 +186,16 @@ int radcom_open(wtap *wth, int *err)
 		return -1;
 	}
 
-	/*bytes_read = fread(&next_date, 1, sizeof(struct frame_date), wth->fh);
+	/*bytes_read = file_read(&next_date, 1, sizeof(struct frame_date), wth->fh);
 	errno = WTAP_ERR_CANT_READ;
 	if (bytes_read != sizeof(struct frame_date)) {
 		goto read_error;
 	}
 
 	while (memcmp(&start_date, &next_date, 4)) {
-		fseek(wth->fh, 1-sizeof(struct frame_date), SEEK_CUR);
+		file_seek(wth->fh, 1-sizeof(struct frame_date), SEEK_CUR);
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = fread(&next_date, 1, sizeof(struct frame_date),
+		bytes_read = file_read(&next_date, 1, sizeof(struct frame_date),
 				   wth->fh);
 		if (bytes_read != sizeof(struct frame_date)) {
 			goto read_error;
@@ -202,17 +203,17 @@ int radcom_open(wtap *wth, int *err)
 	}*/
 
 	if (wth->file_encap == WTAP_ENCAP_ETHERNET) {
-		fseek(wth->fh, 294, SEEK_CUR);
+		file_seek(wth->fh, 294, SEEK_CUR);
 		wth->data_offset += 294;
 	} else if (wth->file_encap == WTAP_ENCAP_LAPB) {
-		fseek(wth->fh, 297, SEEK_CUR);
+		file_seek(wth->fh, 297, SEEK_CUR);
 		wth->data_offset += 297;
 	}
 
 	return 1;
 
 read_error:
-	if (ferror(wth->fh)) {
+	if (file_error(wth->fh)) {
 		*err = errno;
 		free(wth->capture.radcom);
 		return -1;
@@ -234,9 +235,9 @@ static int radcom_read(wtap *wth, int *err)
 
 	/* Read record header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(&hdr, 1, sizeof hdr, wth->fh);
+	bytes_read = file_read(&hdr, 1, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
-		if (ferror(wth->fh)) {
+		if (file_error(wth->fh)) {
 			*err = errno;
 			return -1;
 		}
@@ -274,11 +275,11 @@ static int radcom_read(wtap *wth, int *err)
 	buffer_assure_space(wth->frame_buffer, length);
 	data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
+	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
 			length, wth->fh);
 
 	if (bytes_read != length) {
-		if (ferror(wth->fh))
+		if (file_error(wth->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_READ;
@@ -292,9 +293,9 @@ static int radcom_read(wtap *wth, int *err)
 		/* Read the FCS.
 		   XXX - should we put it in the pseudo-header? */
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = fread(&fcs, 1, sizeof fcs, wth->fh);
+		bytes_read = file_read(&fcs, 1, sizeof fcs, wth->fh);
 		if (bytes_read != sizeof fcs) {
-			if (ferror(wth->fh))
+			if (file_error(wth->fh))
 				*err = errno;
 			else
 				*err = WTAP_ERR_SHORT_READ;

@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.38 1999/09/13 03:52:53 gerald Exp $
+ * $Id: wtap.h,v 1.39 1999/09/22 01:26:50 ashokn Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -28,7 +28,7 @@
  * what is contained in the packet trace file.
  *
  * WTAP_ENCAP_PER_PACKET is a value passed to "wtap_dump_open()" or
- * "wtap_dump_fdopen()" to indicate that there is no single encapsulation
+ * "wtap_dump_fd_open()" to indicate that there is no single encapsulation
  * type for all packets in the file; this may cause those routines to
  * fail if the capture file format being written can't support that.
  *
@@ -282,7 +282,8 @@ struct Buffer;
 
 typedef int (*subtype_read_func)(struct wtap*, int*);
 typedef struct wtap {
-	FILE*			fh;
+    /* FILE_T			fh; */
+	void *			fh;
 	int			file_type;
 	int			snapshot_length;
 	struct Buffer		*frame_buffer;

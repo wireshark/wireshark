@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.17 1999/08/31 22:36:20 guy Exp $
+ * $Id: libpcap.c,v 1.18 1999/09/22 01:26:47 ashokn Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -25,6 +25,7 @@
 #endif
 #include <stdlib.h>
 #include <errno.h>
+#include "file.h"
 #include "wtap.h"
 #include "buffer.h"
 #include "libpcap.h"
@@ -146,12 +147,12 @@ int libpcap_open(wtap *wth, int *err)
 	int byte_swapped = 0;
 
 	/* Read in the number that should be at the start of a "libpcap" file */
-	fseek(wth->fh, 0, SEEK_SET);
+	file_seek(wth->fh, 0, SEEK_SET);
 	wth->data_offset = 0;
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(&magic, 1, sizeof magic, wth->fh);
+	bytes_read = file_read(&magic, 1, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
-		if (ferror(wth->fh)) {
+		if (file_error(wth->fh)) {
 			*err = errno;
 			return -1;
 		}
@@ -170,9 +171,9 @@ int libpcap_open(wtap *wth, int *err)
 
 	/* Read the rest of the header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(&hdr, 1, sizeof hdr, wth->fh);
+	bytes_read = file_read(&hdr, 1, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
-		if (ferror(wth->fh)) {
+		if (file_error(wth->fh)) {
 			*err = errno;
 			return -1;
 		}
@@ -224,9 +225,9 @@ static int libpcap_read(wtap *wth, int *err)
 
 	/* Read record header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(&hdr, 1, sizeof hdr, wth->fh);
+	bytes_read = file_read(&hdr, 1, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
-		if (ferror(wth->fh)) {
+		if (file_error(wth->fh)) {
 			*err = errno;
 			return -1;
 		}
@@ -280,11 +281,11 @@ static int libpcap_read(wtap *wth, int *err)
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
+	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
 			packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
-		if (ferror(wth->fh))
+		if (file_error(wth->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_READ;
@@ -350,7 +351,7 @@ int libpcap_dump_open(wtap_dumper *wdh, int *err)
 	wdh->subtype_close = libpcap_dump_close;
 
 	/* Write the file header. */
-	nwritten = fwrite(&pcap_magic, 1, sizeof pcap_magic, wdh->fh);
+	nwritten = file_write(&pcap_magic, 1, sizeof pcap_magic, wdh->fh);
 	if (nwritten != sizeof pcap_magic) {
 		if (nwritten < 0)
 			*err = errno;
@@ -366,7 +367,7 @@ int libpcap_dump_open(wtap_dumper *wdh, int *err)
 	file_hdr.sigfigs = 0;	/* unknown, but also apparently unused */
 	file_hdr.snaplen = wdh->snaplen;
 	file_hdr.network = wtap_encap[wdh->encap];
-	nwritten = fwrite(&file_hdr, 1, sizeof file_hdr, wdh->fh);
+	nwritten = file_write(&file_hdr, 1, sizeof file_hdr, wdh->fh);
 	if (nwritten != sizeof file_hdr) {
 		if (nwritten < 0)
 			*err = errno;
@@ -390,7 +391,7 @@ static int libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	rec_hdr.ts_usec = phdr->ts.tv_usec;
 	rec_hdr.incl_len = phdr->caplen;
 	rec_hdr.orig_len = phdr->len;
-	nwritten = fwrite(&rec_hdr, 1, sizeof rec_hdr, wdh->fh);
+	nwritten = file_write(&rec_hdr, 1, sizeof rec_hdr, wdh->fh);
 	if (nwritten != sizeof rec_hdr) {
 		if (nwritten < 0)
 			*err = errno;
@@ -398,7 +399,7 @@ static int libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 			*err = WTAP_ERR_SHORT_WRITE;
 		return 0;
 	}
-	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
+	nwritten = file_write(pd, 1, phdr->caplen, wdh->fh);
 	if (nwritten != phdr->caplen) {
 		if (nwritten < 0)
 			*err = errno;

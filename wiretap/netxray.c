@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.13 1999/08/28 01:19:44 guy Exp $
+ * $Id: netxray.c,v 1.14 1999/09/22 01:26:48 ashokn Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <time.h>
+#include "file.h"
 #include "wtap.h"
 #include "netxray.h"
 #include "buffer.h"
@@ -115,12 +116,12 @@ int netxray_open(wtap *wth, int *err)
 
 	/* Read in the string that should be at the start of a NetXRay
 	 * file */
-	fseek(wth->fh, 0, SEEK_SET);
+	file_seek(wth->fh, 0, SEEK_SET);
 	wth->data_offset = 0;
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(magic, 1, sizeof magic, wth->fh);
+	bytes_read = file_read(magic, 1, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
-		if (ferror(wth->fh)) {
+		if (file_error(wth->fh)) {
 			*err = errno;
 			return -1;
 		}
@@ -134,9 +135,9 @@ int netxray_open(wtap *wth, int *err)
 
 	/* Read the rest of the header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(&hdr, 1, sizeof hdr, wth->fh);
+	bytes_read = file_read(&hdr, 1, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
-		if (ferror(wth->fh)) {
+		if (file_error(wth->fh)) {
 			*err = errno;
 			return -1;
 		}
@@ -201,7 +202,7 @@ int netxray_open(wtap *wth, int *err)
 	wth->capture.netxray->end_offset = pletohl(&hdr.end_offset);
 
 	/* Seek to the beginning of the data records. */
-	fseek(wth->fh, pletohl(&hdr.start_offset), SEEK_SET);
+	file_seek(wth->fh, pletohl(&hdr.start_offset), SEEK_SET);
 	wth->data_offset = pletohl(&hdr.start_offset);
 
 	return 1;
@@ -238,9 +239,9 @@ reread:
 		break;
 	}
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(&hdr, 1, hdr_size, wth->fh);
+	bytes_read = file_read(&hdr, 1, hdr_size, wth->fh);
 	if (bytes_read != hdr_size) {
-		if (ferror(wth->fh)) {
+		if (file_error(wth->fh)) {
 			*err = errno;
 			return -1;
 		}
@@ -253,7 +254,7 @@ reread:
 		if (!wth->capture.netxray->wrapped) {
 			/* Yes.  Remember that we did. */
 			wth->capture.netxray->wrapped = 1;
-			fseek(wth->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET);
+			file_seek(wth->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET);
 			wth->data_offset = CAPTUREFILE_HEADER_SIZE;
 			goto reread;
 		}
@@ -267,11 +268,11 @@ reread:
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
+	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
 			packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
-		if (ferror(wth->fh))
+		if (file_error(wth->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_READ;
