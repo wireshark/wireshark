@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.39 2003/03/31 07:37:23 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.40 2003/03/31 23:37:37 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -1797,7 +1797,7 @@ isis_register_lsp(int proto_isis) {
 		{ &hf_isis_lsp_p,
 		{ "Partition Repair",	"isis.lsp.partition_repair", FT_BOOLEAN, 8,
 			TFS(&supported_string), ISIS_LSP_PARTITION_MASK,
-			"If set, this router supports the optional Partion Repair function", HFILL }},
+			"If set, this router supports the optional Partition Repair function", HFILL }},
 
 		{ &hf_isis_lsp_att,
 		{ "Attachment",	"isis.lsp.att", FT_UINT8, BASE_DEC,
