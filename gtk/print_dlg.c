@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.7 1999/09/29 22:19:23 guy Exp $
+ * $Id: print_dlg.c,v 1.8 1999/09/29 22:25:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -254,6 +254,8 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
 			expand_all_rb);
   gtk_object_set_data(GTK_OBJECT(detail_rb), PRINT_AS_DISPLAYED_RB_KEY,
 			as_displayed_rb);
+  gtk_object_set_data(GTK_OBJECT(detail_rb), PRINT_HEX_CB_KEY,
+			hex_cb);
 
   /* Button row: OK and Cancel buttons */
   bbox = gtk_hbutton_box_new();
@@ -319,13 +321,15 @@ print_cmd_toggle_dest(GtkWidget *widget, gpointer data)
 static void
 print_cmd_toggle_detail(GtkWidget *widget, gpointer data)
 {
-  GtkWidget     *expand_all_rb, *as_displayed_rb;
+  GtkWidget     *expand_all_rb, *as_displayed_rb, *hex_cb;
   gboolean      print_detail;
 
   expand_all_rb = GTK_WIDGET(gtk_object_get_data(GTK_OBJECT(widget),
     PRINT_EXPAND_ALL_RB_KEY));
   as_displayed_rb = GTK_WIDGET(gtk_object_get_data(GTK_OBJECT(widget),
     PRINT_AS_DISPLAYED_RB_KEY));
+  hex_cb = GTK_WIDGET(gtk_object_get_data(GTK_OBJECT(widget),
+    PRINT_HEX_CB_KEY));
   if (GTK_TOGGLE_BUTTON (widget)->active) {
     /* They selected "Print detail" */
     print_detail = TRUE;
@@ -335,6 +339,7 @@ print_cmd_toggle_detail(GtkWidget *widget, gpointer data)
   }
   gtk_widget_set_sensitive(expand_all_rb, print_detail);
   gtk_widget_set_sensitive(as_displayed_rb, print_detail);
+  gtk_widget_set_sensitive(hex_cb, print_detail);
 }
 
 static void
