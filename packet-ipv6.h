@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.h,v 1.3 1999/04/06 16:24:49 gram Exp $
+ * $Id: packet-ipv6.h,v 1.4 1999/07/23 15:08:25 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,22 @@ struct e_in6_addr {
 		guint8   u6_addr8[16];
 	} u6_addr;			/* 128 bit IP6 address */
 };
+
+#ifdef s6_addr32
+#undef s6_addr32
+#endif
+
+#ifdef s6_addr16
+#undef s6_addr16
+#endif
+
+#ifdef s6_addr8
+#undef s6_addr8
+#endif
+
+#ifdef s6_addr
+#undef s6_addr
+#endif
 
 #define s6_addr32 u6_addr.u6_addr32
 #define s6_addr16 u6_addr.u6_addr16

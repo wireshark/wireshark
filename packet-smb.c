@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.19 1999/07/13 02:52:56 gram Exp $
+ * $Id: packet-smb.c,v 1.20 1999/07/23 15:08:25 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -576,7 +576,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
   proto_item    *ti;
   guint8        WordCount;
   guint8        AndXReserved;
-  guint8        AndXCommand;
+  guint8        AndXCommand = 0;
   guint32       SessionKey;
   guint32       Reserved;
   guint32       Capabilities;
