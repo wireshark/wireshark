@@ -13,10 +13,17 @@
 
 
 #.TYPE_RENAME
+InsertSubscriberDataArg/bearerServiceList bearerServiceList
+InsertSubscriberDataRes/bearerServiceList bearerServiceList
+InsertSubscriberDataRes/ss-List ss_List
+DeleteSubscriberDataArg/ss-List ss_List
+SendRoutingInfoRes/ss-List ss_List
 
 #.FIELD_RENAME
 RequestedInfo/locationInformation  locationInformationFlag
 RequestedInfo/subscriberState      subscriberStateFlag
+AdditionalSignalInfo/signalInfo    ext_signalInfo
+ForwardingInfo/forwardingFeatureList forwardingFeatureList_1_32
 #----------------------------------------------------------------------------------------
 #.FN_BODY Sm-RP-UI
 
@@ -114,6 +121,29 @@ RequestedInfo/subscriberState      subscriberStateFlag
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_map_gmsc_address_digits, parameter_tvb, 1, -1, digit_str);
+ g_free(digit_str);
+
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY Hlr-Number
+
+ tvbuff_t	*parameter_tvb;
+ char		*digit_str;
+
+ offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                    &parameter_tvb);
+
+ if (!parameter_tvb)
+	return offset;
+
+ proto_tree_add_item(tree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(tree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(tree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
+
+ digit_str = unpack_digits(parameter_tvb, 1);
+
+ proto_tree_add_string(tree, hf_gsm_map_map_hlr_number_digits, parameter_tvb, 1, -1, digit_str);
  g_free(digit_str);
 
 

@@ -9,11 +9,21 @@ DEFINITIONS::=
 BEGIN
 
 
-Bss-APDU ::=        SEQUENCE {
-            protocolId  ProtocolId,
+Bss-APDU ::=  SEQUENCE {
+            protocolId		ProtocolId,
             signalInfo           SignalInfo, 
             extensionContainer   ExtensionContainer OPTIONAL, 
             ... } 
+-- From V9 ???
+An-APDU ::= SEQUENCE {
+         accessNetworkProtocolId   ENUMERATED {
+            ts3G-48006    (1 ), 
+            ts3G-25413    (2 ), 
+            ... }, 
+         signalInfo2                SignalInfo2, 
+         extensionContainer        ExtensionContainer} 
+
+SignalInfo2 ::= OCTET STRING (  SIZE (1 .. 2560 ) )
 
 SupportedCamelPhases ::= BIT STRING {
   phase1  (0 ), 
@@ -55,11 +65,11 @@ UpdateLocationRes ::= SEQUENCE {
 -- Ethereal adaptation 
 PrivateExtensionList ::= SEQUENCE OF PrivateExtension
 
-PrivateExtension ::= SEQUENCE {
---                  extId      MAP-EXTENSION .&extensionId , 
---                  extType    MAP-EXTENSION .&ExtensionType   OPTIONAL
---{ @extId   }  )  OPTIONAL
+PrivateExtension ::=  SEQUENCE {
+  extId      OBJECT IDENTIFIER,  -- MAP-EXTENSION .&extensionId
+  extType    OCTET STRING OPTIONAL -- { @extId   }
 } 
+
 
 
 PcsExtensions ::= SEQUENCE {
@@ -166,6 +176,17 @@ Vlr-Number ::= OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) )
 --   ARGUMENT
 --Bss-APDU ::=  SEQUENCE { ... defined elsewhere
 -- ::= localValue : 29
+-- V9 ???
+--sendEndSignal OPERATION  ::=  {
+--   ARGUMENT     [3] IMPLICIT SEQUENCE {
+--      an-APDU              
+--    :
+
+SendEndSignalV9Arg ::= [3] IMPLICIT SEQUENCE {
+      an-APDU 	An-APDU,              
+	extensionContainer   [0] IMPLICIT ExtensionContainer
+}
+
 
 --processAccessSignalling OPERATION
 --   ARGUMENT
@@ -2243,7 +2264,7 @@ UnknownOrUnreachableLCSClient-Param ::= SEQUENCE {
          ... }
 -- ::= localValue : 58
 
-ExtensionContainer  ::=    SEQUENCE {
+ExtensionContainer ::=    SEQUENCE {
    privateExtensionList [0] IMPLICIT PrivateExtensionList OPTIONAL, 
    pcsExtensions     [1] IMPLICIT PcsExtensions OPTIONAL, 
    ... }

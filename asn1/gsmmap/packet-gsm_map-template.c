@@ -57,7 +57,9 @@ static int hf_gsm_map_invokeId = -1;              /* InvokeId */
 static int hf_gsm_map_invoke = -1;                /* InvokePDU */
 static int hf_gsm_map_returnResult = -1;          /* InvokePDU */
 static int hf_gsm_map_returnResult_result = -1;
+static int hf_gsm_map_returnError = -1;
 static int hf_gsm_map_SendAuthenticationInfoArg = -1;
+static int hf_gsm_mapSendEndSignal = -1;
 static int hf_gsm_map_getPassword = -1;  
 static int hf_gsm_map_currentPassword = -1;
 static int hf_gsm_map_extension = -1;
@@ -68,11 +70,13 @@ static int hf_gsm_map_servicecentreaddress_digits = -1;
 static int hf_gsm_map_imsi_digits = -1;
 static int hf_gsm_map_map_gmsc_address_digits = -1;
 static int hf_gsm_map_map_RoamingNumber_digits = -1;
+static int hf_gsm_map_map_hlr_number_digits = -1;
 static int hf_gsm_map_Ss_Status_unused = -1;
 static int hf_gsm_map_Ss_Status_q_bit = -1;
 static int hf_gsm_map_Ss_Status_p_bit = -1;
 static int hf_gsm_map_Ss_Status_r_bit = -1;
 static int hf_gsm_map_Ss_Status_a_bit = -1;
+
 #include "packet-gsm_map-hf.c"
 
 /* Initialize the subtree pointers */
@@ -80,9 +84,11 @@ static gint ett_gsm_map = -1;
 static gint ett_gsm_map_InvokeId = -1;
 static gint ett_gsm_map_InvokePDU = -1;
 static gint ett_gsm_map_ReturnResultPDU = -1;
+static gint ett_gsm_map_ReturnErrorPDU = -1;
 static gint ett_gsm_map_ReturnResult_result = -1;
+static gint ett_gsm_map_ReturnError_result = -1;
 static gint ett_gsm_map_GSMMAPPDU = -1;
-static int gsm_map_tap = -1;
+
 #include "packet-gsm_map-ett.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
@@ -101,6 +107,8 @@ static guint global_tcap_itu_ssn4 = 9;
 static proto_tree *top_tree;
 int application_context_version;
 gint protocolId;
+static int gsm_map_tap = -1;
+
 
 static char*
 unpack_digits(tvbuff_t *tvb, int offset){
@@ -288,13 +296,16 @@ dissect_gsm_map_Opcode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
   offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_index, &opcode);
 
   if (check_col(pinfo->cinfo, COL_INFO)){
-    col_set_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, gsm_map_opr_code_strings, "Unknown GSM-MAP (%u)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, val_to_str(opcode, gsm_map_opr_code_strings, "Unknown GSM-MAP (%u)"));
   }
 
   return offset;
 }
 
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+
+	guint8 octet;
+
   switch(opcode){
   case  2: /*updateLocation*/
     offset=dissect_gsm_map_UpdateLocationArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -332,7 +343,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_Ss_ForBS(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 14: /*interrogateSS*/
-    offset=dissect_gsm_map_Ss_ForBS(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_InterrogateSS_Res(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 17: /*registerPassword*/
     offset=dissect_gsm_map_Ss_Code(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ss_Code);
@@ -356,7 +367,13 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_NoteMsPresentForGprsArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 29: /*sendEndSignal*/
-    offset=dissect_gsm_map_Bss_APDU(FALSE, tvb, offset, pinfo, tree, -1);
+	octet = tvb_get_guint8(tvb,0) & 0xf;
+	if ( octet == 3){ /* This is a V9 message ??? */
+		offset = offset +2;
+		offset=dissect_gsm_map_SendEndSignalV9Arg(TRUE, tvb, offset, pinfo, tree, hf_gsm_mapSendEndSignal);
+	}else{
+		offset=dissect_gsm_map_Bss_APDU(FALSE, tvb, offset, pinfo, tree, hf_gsm_mapSendEndSignal);
+	}
     break;
   case 31: /*provideSIWFSNumbe*/
     offset=dissect_gsm_map_ProvideSIWFSNumberArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -527,7 +544,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     offset=dissect_gsm_map_Ss_Info(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 14: /*interrogateSS*/
-    offset=dissect_gsm_map_Ss_Info(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_InterrogateSS_Res(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 17: /*registerPassword*/
     offset=dissect_gsm_map_NewPassword(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ss_Code);
@@ -743,12 +760,46 @@ dissect_gsm_map_returnResultPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 static int dissect_returnResult_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_returnResultPDU(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_returnResult);
 }
+/* TODO code this part
+static const ber_sequence_t ReturnError_result_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_errorCode },
+  { BER_CLASS_UNI, -1 depends on Cmd, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_errorCodeparam },
+  { 0, 0, 0, NULL }
+};
+*/
+static int
+dissect_ReturnError_result(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+		return tvb_length_remaining(tvb,offset);
+		/*
+  offset = dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset,
+                                ReturnError_result_sequence, hf_gsm_map_returnResult_result, ett_gsm_map_ReturnError_result);
+*/
+  return offset;
+}
+
+static const ber_sequence_t ReturnErrorPDU_sequence[] = {
+  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_invokeId },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ReturnError_result },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ReturnErrorPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                ReturnErrorPDU_sequence, hf_index, ett_gsm_map_ReturnErrorPDU);
+
+  return offset;
+}
+static int dissect_returnError_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_ReturnErrorPDU(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_returnError);
+}
+
 
 static const value_string GSMMAPPDU_vals[] = {
-  {   1, "invoke" },
-  {   2, "returnResult" },
-  {   3, "returnError" },
-  {   4, "reject" },
+  {   1, "Invoke " },
+  {   2, "ReturnResult " },
+  {   3, "ReturnError " },
+  {   4, "Reject " },
   { 0, NULL }
 };
 
@@ -770,6 +821,7 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
 	char *version_ptr, *version_str;
 
+	opcode = 0;
 	application_context_version = 0;
 	if (pinfo->private_data != NULL){
 		version_ptr = strrchr(pinfo->private_data,'.');
@@ -781,12 +833,13 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
   /* Get the length and add 2 */
   gsm_map_pdu_size = tvb_get_guint8(tvb, offset+1)+2;
 
+  if (check_col(pinfo->cinfo, COL_INFO)){
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str(gsmmap_pdu_type, GSMMAPPDU_vals, "Unknown GSM-MAP PDU (%u)"));
+  }
+
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               GSMMAPPDU_choice, hf_index, ett_gsm_map_GSMMAPPDU);
 
-  if (check_col(pinfo->cinfo, COL_INFO)){
-    col_prepend_fstr(pinfo->cinfo, COL_INFO, val_to_str(opcode, gsm_map_opr_code_strings, "Unknown GSM-MAP (%u)"));
-  }
 
   return offset;
 }
@@ -1004,6 +1057,10 @@ void proto_register_gsm_map(void) {
       { "currentPassword", "gsm_map.currentPassword",
         FT_STRING, BASE_NONE, NULL, 0,
         "", HFILL }},
+	{ &hf_gsm_mapSendEndSignal,
+      { "mapSendEndSignalArg", "gsm_map.mapsendendsignalarg",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "mapSendEndSignalArg", HFILL }},
     { &hf_gsm_map_invoke,
       { "invoke", "gsm_map.invoke",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1012,6 +1069,10 @@ void proto_register_gsm_map(void) {
       { "returnResult", "gsm_map.returnResult",
         FT_NONE, BASE_NONE, NULL, 0,
         "GSMMAPPDU/returnResult", HFILL }},
+	{&hf_gsm_map_returnError,
+      { "returnError", "gsm_map.returnError",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GSMMAPPDU/returnError", HFILL }},
     { &hf_gsm_map_getPassword,
       { "Password", "gsm_map.password",
         FT_UINT8, BASE_DEC, VALS(gsm_map_GetPasswordArg_vals), 0,
@@ -1048,6 +1109,10 @@ void proto_register_gsm_map(void) {
       { "RoamingNumber digits", "gsm_map.RoamingNumber_digits",
         FT_STRING, BASE_NONE, NULL, 0,
         "RoamingNumber digits", HFILL }},
+	{&hf_gsm_map_map_hlr_number_digits,
+      { "Hlr-Number digits", "gsm_map.hlr_number_digits",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Hlr-Number digits", HFILL }},
 	{ &hf_gsm_map_Ss_Status_unused,
       { "Unused", "gsm_map.unused",
         FT_UINT8, BASE_HEX, NULL, 0xf0,
@@ -1078,7 +1143,9 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_InvokeId,
     &ett_gsm_map_InvokePDU,
     &ett_gsm_map_ReturnResultPDU,
+	&ett_gsm_map_ReturnErrorPDU,
     &ett_gsm_map_ReturnResult_result,
+	&ett_gsm_map_ReturnError_result,
     &ett_gsm_map_GSMMAPPDU,
 #include "packet-gsm_map-ettarr.c"
   };
