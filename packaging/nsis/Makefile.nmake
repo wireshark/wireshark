@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.8 2001/12/12 01:29:07 guy Exp $
+# $Id: Makefile.nmake,v 1.9 2001/12/19 19:16:12 guy Exp $
 #
 #
 # NSIS is a free packager/installer/uninstaller program for Win32.
@@ -12,8 +12,6 @@ include ../../config.nmake
 
 EXE=../../ethereal.exe ../../tethereal.exe ../../editcap.exe \
 	../../text2pcap.exe ../../mergecap.exe
-PDB=../../ethereal.pdb ../../tethereal.pdb ../../editcap.pdb \
-	../../text2pcap.pdb ../../mergecap.pdb
 DLL=../../wiretap/wiretap-$(WTAP_VERSION).dll
 DOC=../../doc/ethereal.html		\
 	../../doc/tethereal.html	\
@@ -27,7 +25,7 @@ GPL=GPL.txt
 PLUGINS=../../plugins/mgcp/mgcp.dll	\
 	../../plugins/gryphon/gryphon.dll
 
-DELIVERABLES=$(EXE) $(DLL) $(DOC) $(GPL) $(PLUGINS) $(PDB)
+DELIVERABLES=$(EXE) $(DLL) $(DOC) $(GPL) $(PLUGINS) 
 
 
 ethereal-setup.exe : ethereal.nsi $(DELIVERABLES)

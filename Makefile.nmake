@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.155 2001/12/16 22:30:09 guy Exp $
+# $Id: Makefile.nmake,v 1.156 2001/12/19 19:16:10 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -330,10 +330,6 @@ dftest_LIBS= epan\ethereal.lib \
 
 EXECUTABLES=ethereal.exe tethereal.exe editcap.exe mergecap.exe text2pcap.exe
 
-EXECUTABLES_PDBS = $(EXECUTABLES:.exe=.pdb)
-
-PDBS = $(EXECUTABLES_PDBS) $(PDB_FILE) 
-
 RESOURCES=image\ethereal.res image\tethereal.res image\editcap.res image\mergecap.res image\text2pcap.res
 
 all: tools wiretap gtk epan image $(EXECUTABLES) $(RESOURCES)
@@ -406,7 +402,7 @@ text2pcap-scanner.c : text2pcap-scanner.l
 	$(LEX) -otext2pcap-scanner.c text2pcap-scanner.l
 
 clean:
-	rm -f $(ethereal_OBJECTS) $(EXTRA_OBJECTS) $(EXECUTABLES) $(PDBS) \
+	rm -f $(ethereal_OBJECTS) $(EXTRA_OBJECTS) $(EXECUTABLES) $(PDB_FILE) \
 		tethereal.obj editcap.obj mergecap.obj text2pcap.obj \
 		text2pcap-scanner.obj text2pcap-scanner.c register.c \
 		rdps.obj rdps.pdb config.h ps.c packet-ncp2222.c register.c

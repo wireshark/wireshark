@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi.in,v 1.10 2001/12/12 07:52:23 guy Exp $
+; $Id: ethereal.nsi.in,v 1.11 2001/12/19 19:16:12 guy Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -122,16 +122,6 @@ File "..\..\plugins\giop\cosnaming.dll"
 File "..\..\plugins\giop\coseventcomm.dll"
 SectionEnd
 
-Section "Debug PDB Files"
-;-------------------------------------------
-SetOutPath $INSTDIR
-File "..\..\ethereal.pdb"
-File "..\..\tethereal.pdb"
-File "..\..\editcap.pdb"
-File "..\..\mergecap.pdb"
-File "..\..\text2pcap.pdb"
-SectionEnd
-
 SectionDivider
 ;-------------------------------------------
 
@@ -162,7 +152,6 @@ Delete "$INSTDIR\mobileipv4.xml"
 Delete "$INSTDIR\nasreq.xml"
 Delete "$INSTDIR\sunping.xml"
 Delete "$INSTDIR\*.exe"
-Delete "$INSTDIR\*.pdb"
 Delete "$INSTDIR\*.html"
 Delete "$INSTDIR\*.dll"
 Delete "$INSTDIR\plugins\@VERSION@\coseventcomm.dll"

@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.29 2001/11/07 18:49:57 guy Exp $
+$Id: README.win32,v 1.30 2001/12/19 19:16:11 guy Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -13,18 +13,21 @@ The installation package allows you to install:
 	o Editcap - a console, line-mode utility to convert
 		capture files from one format to another.
 		(The same functions are available in Ethereal)
+        o Text2Pcap - a console, line-mode utility to generate 
+		a capture file from an ASCII hexdump of packets
+        o Mergecap - a console, line-mode utility to merge two 
+		capture files into one
 
 Additionally, the installation package contains a "plugins"
-option, which installs the Gryphon and MGCP dissector plugins
+option, which installs the Gryphon, MGCP and GIOP dissector plugins
 for use with Ethereal and Tethereal.
 
-The "Debug PDB Files" are useful to install if you are experiencing
-a crash when running and Ethereal. Dr. Watson or your debugger
-can use the information in these files to provide useful information
-to the Ethereal developers that will help them pinpoint the problem.
-However, for general usage of Ethereal, these files are not
-necessary. In the future, we may package them separately from
-Ethereal.
+All binaries in Ethereal package are now built with debugging
+information embedded. If you are experiencing a crash when running
+Ethereal or other binaries, Dr. Watson or your debugger
+can use the information embedded in the binary to provide useful 
+information to the Ethereal developers that will help them pinpoint 
+the problem. 
 
 In the past, two versions of Ethereal binaries were published -- a
 version that could capture packets and a version which could not.
