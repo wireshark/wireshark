@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.30 2000/05/11 08:15:08 gram Exp $
+ * $Id: packet-fddi.c,v 1.31 2000/05/11 16:52:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -268,8 +268,6 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   pinfo->current_proto = "fddi";
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_add_str(pinfo->fd, COL_PROTOCOL, "FDDI");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_add_str(pinfo->fd, COL_INFO, fc_str);
 
   /* Extract the source and destination addresses, possibly bit-swapping
      them. */
@@ -283,6 +281,9 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   fc = (int) tvb_get_guint8(tvb, FDDI_P_FC);
   fc_str = fddifc_to_str(fc);
+
+  if (check_col(pinfo->fd, COL_INFO))
+    col_add_str(pinfo->fd, COL_INFO, fc_str);
 
   /* XXX - copy them to some buffer associated with "pi", rather than
      just making "src" and "dst" static? */
