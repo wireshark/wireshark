@@ -4,7 +4,7 @@
  *       with great support with testing and providing capturefiles
  *       from Martin Regner
  *
- * $Id: packet-h245.c,v 1.26 2003/07/29 08:59:14 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.27 2003/07/31 10:28:12 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -17884,7 +17884,7 @@ dissect_h245_FunctionNotUnderstood(tvbuff_t *tvb, int offset, packet_info *pinfo
 static int
 dissect_h245_signalType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_h245_signalType, 1, 128, "0123456789#*ABCD!", 17);
+	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_h245_signalType, 1, 128, "!#*0123456789ABCD", 17);
 
 	return offset;
 }
@@ -18022,7 +18022,7 @@ dissect_h245_Q2931Address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 static int
 dissect_h245_e164Address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_h245_e164Address, 1, 128, "0123456789#*,", 13);
+	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_h245_e164Address, 1, 128, "#*,0123456789", 13);
 
 	return offset;
 }
