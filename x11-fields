@@ -1,11 +1,11 @@
 acceleration-denominator	INT16	DEC
 acceleration-numerator	INT16	DEC
-access-mode	UINT8	VALS
+access-mode	UINT8	DEC	VALS
 address		BYTES	NONE
 address-length	UINT16	DEC
-alloc		UINT8	VALS
-allow-events-mode	UINT8	VALS
-allow-exposures	UINT8	VALS(yes_no_default)
+alloc		UINT8	DEC	VALS
+allow-events-mode	UINT8	DEC	VALS
+allow-exposures	UINT8	DEC	VALS(yes_no_default)
 arcs		NONE	NONE
 
 arc		NONE	NONE
@@ -15,38 +15,38 @@ arc		NONE	NONE
 	height	UINT16	DEC
 	angle1	INT16	DEC
 	angle2	INT16	DEC
-	mode	UINT8	VALS		Tell us if we're drawing an arc or a pie
+	mode	UINT8	DEC	VALS	Tell us if we're drawing an arc or a pie
 
 atom		UINT32	HEX
-auto-repeat-mode	UINT8	VALS
+auto-repeat-mode	UINT8	DEC	VALS
 back-blue	UINT16	DEC		Background blue value for a cursor
 back-green	UINT16	DEC		Background green value for a cursor
 back-red	UINT16	DEC		Background red value for a cursor
 background	UINT32	HEX		Background color
 background-pixel	UINT32	HEX	Background color for a window
-background-pixmap	UINT32	VALS	Background pixmap for a window
+background-pixmap	UINT32	DEC	VALS	Background pixmap for a window
 backing-pixel	UINT32	HEX
 backing-planes	UINT32	HEX
-backing-store	UINT8	VALS
+backing-store	UINT8	DEC	VALS
 bell-duration	INT16	DEC
 bell-percent	INT8	DEC
 bell-pitch	INT16	DEC
-bit-gravity	UINT8	VALS(gravity)
+bit-gravity	UINT8	DEC	VALS(gravity)
 bit-plane	UINT32	BIN
 blue		UINT16	DEC
 blues		UINT16	DEC
 border-pixel	UINT32	HEX
-border-pixmap	UINT32	VALS
+border-pixmap	UINT32	DEC	VALS
 border-width	UINT16	DEC
-button		UINT8	VALS
-cap-style	UINT8	VALS
-change-host-mode	UINT8	VALS(insert_delete)
+button		UINT8	DEC	VALS
+cap-style	UINT8	DEC	VALS
+change-host-mode	UINT8	DEC	VALS(insert_delete)
 cid		UINT32	HEX
-class		UINT8	VALS
-clip-mask	UINT32	VALS(zero_is_none)
+class		UINT8	DEC	VALS
+clip-mask	UINT32	DEC	VALS(zero_is_none)
 clip-x-origin	INT16	DEC
 clip-y-origin	INT16	DEC
-close-down-mode	UINT8	VALS
+close-down-mode	UINT8	DEC	VALS
 cmap		UINT32	HEX
 colormap	UINT32	HEX
 
@@ -64,7 +64,7 @@ coloritem		NONE	NONE
 		unused		BOOLEAN	8	0xf8
 	unused		NONE	NONE
 
-colors		UINT16	DEC			The number of color cells to allocate.
+colors		UINT16	DEC			The number of color cells to allocate
 
 configure-window-mask	UINT16	HEX
 	x		BOOLEAN	16	0x0001
@@ -75,16 +75,16 @@ configure-window-mask	UINT16	HEX
 	sibling		BOOLEAN	16	0x0020
 	stack-mode	BOOLEAN	16	0x0040
 
-confine-to	UINT32	VALS(zero_is_none)
-contiguous	BOOLEAN	8
-coordinate-mode	UINT8	VALS
+confine-to	UINT32	DEC	VALS(zero_is_none)
+contiguous	BOOLEAN	NONE
+coordinate-mode	UINT8	DEC	VALS
 count		UINT8	DEC
-cursor		UINT32	VALS(zero_is_none)
+cursor		UINT32	DEC	VALS(zero_is_none)
 dash-offset	UINT16	DEC
 dashes		BYTES	NONE
 dashes-length	UINT16	DEC
-do-acceleration	BOOLEAN	8
-do-threshold	BOOLEAN	8
+do-acceleration	BOOLEAN	NONE
+do-threshold	BOOLEAN	NONE
 
 do-not-propagate-mask	UINT32	HEX
 	KeyPress		BOOLEAN 32	0x00000001
@@ -131,10 +131,10 @@ green		UINT16	DEC
 greens		UINT16	DEC
 data		BYTES	NONE
 data-length	UINT32	DEC
-delete		BOOLEAN	8		Delete this property after reading
+delete		BOOLEAN	NONE		Delete this property after reading
 delta		INT16	DEC
 depth		UINT8	DEC
-direction	UINT8	VALS
+direction	UINT8	DEC	VALS
 drawable	UINT32	HEX
 dst-drawable	UINT32	HEX
 dst-gc		UINT32	HEX
@@ -170,34 +170,34 @@ event-mask	UINT32	HEX
 	OwnerGrabButton		BOOLEAN 32	0x01000000
 	erroneous-bits		BOOLEAN 32	0xfe000000
 
-exposures	BOOLEAN	8
-family		UINT8	VALS
+exposures	BOOLEAN	NONE
+family		UINT8	DEC	VALS
 fid		UINT32	HEX		Font id
-fill-rule	UINT8	VALS
-fill-style	UINT8	VALS
+fill-rule	UINT8	DEC	VALS
+fill-style	UINT8	DEC	VALS
 first-keycode	UINT8	DEC
-focus		UINT8	VALS
+focus		UINT8	DEC	VALS
 font		UINT32	HEX
 fore-blue	UINT16	DEC
 fore-green	UINT16	DEC
 fore-red	UINT16	DEC
 foreground	UINT32	HEX
 format		UINT8	DEC
-function	UINT8	VALS
+function	UINT8	DEC	VALS
 gc		UINT32	HEX
-get-property-type	UINT32	VALS(zero_is_any_property_type)
+get-property-type	UINT32	DEC	VALS(zero_is_any_property_type)
 grab_window	UINT32	HEX
-graphics-exposures	BOOLEAN	8
+graphics-exposures	BOOLEAN	NONE
 height		UINT16	DEC
-image-format	UINT8	VALS
-image-pixmap-format	UINT8	VALS
+image-format	UINT8	DEC	VALS
+image-pixmap-format	UINT8	DEC	VALS
 interval	INT16	DEC
 items		NONE	NONE
-join-style	UINT8	VALS
-key		UINT8	VALS
+join-style	UINT8	DEC	VALS
+key		UINT8	DEC	VALS
 key-click-percent	INT8	DEC
 keyboard-key	UINT8	DEC
-keyboard-mode	UINT8	VALS(pointer_keyboard_mode)
+keyboard-mode	UINT8	DEC	VALS(pointer_keyboard_mode)
 
 keyboard-value-mask	UINT32	HEX
 	key-click-percent	BOOLEAN	32	0x0001
@@ -222,20 +222,20 @@ keysyms		NONE	NONE
 
 keysyms-per-keycode	UINT8	DEC
 led		UINT8	DEC
-led-mode	UINT8	VALS(on_off)
+led-mode	UINT8	DEC	VALS(on_off)
 left-pad	UINT8	DEC
-line-style	UINT8	VALS
+line-style	UINT8	DEC	VALS
 line-width	UINT16	DEC
 long-length	UINT32	DEC		The maximum length of the property in bytes
 long-offset	UINT32	DEC		The starting position in the property bytes array
 map		BYTES	NONE
 map-length	UINT8	DEC
-mask		UINT32	VALS(zero_is_none)
+mask		UINT32	DEC	VALS(zero_is_none)
 mask-char	UINT16	DEC
-mask-font	UINT32	VALS(zero_is_none)
+mask-font	UINT32	DEC	VALS(zero_is_none)
 max-names	UINT16	DEC
 mid		UINT32	HEX
-mode		UINT8	VALS
+mode		UINT8	DEC	VALS
 
 modifiers-mask		UINT16	HEX
 	Shift			BOOLEAN	16	0x0001
@@ -251,13 +251,13 @@ modifiers-mask		UINT16	HEX
 
 name		STRING	HEX
 name-length	UINT16	DEC
-odd-length	BOOLEAN	8
-only-if-exists	BOOLEAN	8
-opcode		UINT8	VALS
-ordering	UINT8	VALS
-override-redirect	BOOLEAN	8	Window manager doesn't manage this window when true
-owner		UINT32	VALS(zero_is_none)
-owner-events	BOOLEAN 8
+odd-length	BOOLEAN	NONE
+only-if-exists	BOOLEAN	NONE
+opcode		UINT8	DEC	VALS
+ordering	UINT8	DEC	VALS
+override-redirect	BOOLEAN	NONE	Window manager doesn't manage this window when true
+owner		UINT32	DEC	VALS(zero_is_none)
+owner-events	BOOLEAN	NONE
 parent		UINT32	HEX
 
 path	NONE	NONE
@@ -271,7 +271,7 @@ pixel		UINT32	HEX
 pixels		NONE	NONE
 pixels_item	UINT32	HEX
 pixmap		UINT32	HEX
-plane-mask	UINT32	VALS
+plane-mask	UINT32	DEC	VALS
 planes		UINT16	DEC
 point		NONE	NONE
 points		NONE	NONE
@@ -294,8 +294,8 @@ pointer-event-mask	UINT16	HEX
 	KeymapState		BOOLEAN 16	0x4000
 	erroneous-bits		BOOLEAN 16	0x8003
 
-pointer-mode	UINT8	VALS(pointer_keyboard_mode)
-prefer-blanking	UINT8	VALS(yes_no_default)
+pointer-mode	UINT8	DEC	VALS(pointer_keyboard_mode)
+prefer-blanking	UINT8	DEC	VALS(yes_no_default)
 
 properties	NONE	NONE
 	item	UINT32	HEX
@@ -310,14 +310,14 @@ rectangle-x	INT16	DEC
 rectangle-y	INT16	DEC
 red		UINT16	DEC
 reds		UINT16	DEC
-request		UINT8	VALS(opcode)
+request		UINT8	DEC	VALS(opcode)
 requestor	UINT32	HEX
 request-length	UINT16	DEC		Request length
-resource	UINT32	VALS(all_temporary)
-revert-to	UINT8	VALS
-save-set-mode	UINT8	VALS(insert_delete)
-save-under	BOOLEAN	8
-screen-saver-mode	UINT8	VALS
+resource	UINT32	DEC	VALS(all_temporary)
+revert-to	UINT8	DEC	VALS
+save-set-mode	UINT8	DEC	VALS(insert_delete)
+save-under	BOOLEAN	NONE
+screen-saver-mode	UINT8	DEC	VALS
 segment		NONE	NONE
 segments	NONE	NONE
 segment_x1	INT16	DEC
@@ -325,7 +325,7 @@ segment_x2	INT16	DEC
 segment_y1	INT16	DEC
 segment_y2	INT16	DEC
 selection	UINT32	HEX
-shape		UINT8	VALS
+shape		UINT8	DEC	VALS
 sibling		UINT32	HEX
 source-pixmap	UINT32	HEX
 source-font	UINT32	HEX
@@ -339,7 +339,7 @@ src-window	UINT32	HEX
 src-x		INT16	DEC
 src-y		INT16	DEC
 start		UINT32	DEC
-stack-mode	UINT8	VALS
+stack-mode	UINT8	DEC	VALS
 stipple		UINT32	HEX
 stop		UINT32	DEC
 str-number-in-path	UINT16	DEC
@@ -349,7 +349,7 @@ string16	STRING	HEX
 	bytes	BYTES	NONE
 
 string-length	UINT32	DEC
-subwindow-mode	UINT8	VALS
+subwindow-mode	UINT8	DEC	VALS
 target		UINT32	HEX
 
 textitem	NONE	NONE
@@ -375,9 +375,9 @@ warp-pointer-dst-window	UINT32	HEX	VALS(zero_is_none)
 warp-pointer-src-window	UINT32	HEX	VALS(zero_is_none)
 wid		UINT32	HEX		Window id
 width		UINT16	DEC
-win-gravity	UINT8	VALS(gravity)
+win-gravity	UINT8	DEC	VALS(gravity)
 window		UINT32	HEX
-window-class	UINT16	VALS		Window class
+window-class	UINT16	DEC	VALS		Window class
 
 window-value-mask	UINT32	HEX
 	background-pixmap	BOOLEAN	32	0x00000001
