@@ -3,7 +3,7 @@
  *
  * Declarations for disassembly of WSP component of WAP traffic.
  *
- * $Id: packet-wsp.h,v 1.1 2000/11/04 03:30:40 guy Exp $
+ * $Id: packet-wsp.h,v 1.2 2001/01/03 08:42:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,8 +60,5 @@ static const value_string vals_wsp_reason_codes[] = {
 	{ 0xED, "Push message discarded" },
 	{ 0xEE, "Content type cannot be processed" },
 };
-
-void
-dissect_wsp(tvbuff_t *, packet_info *, proto_tree *);
 
 #endif /* packet-wsp.h */

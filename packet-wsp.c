@@ -3,7 +3,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.6 2001/01/03 06:55:34 guy Exp $
+ * $Id: packet-wsp.c,v 1.7 2001/01/03 08:42:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -369,7 +369,7 @@ tvb_get_guintvar (tvbuff_t *tvb, guint offset, guint *octetCount)
 }
 
 /* Code to actually dissect the packets */
-void
+static void
 dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	frame_data *fdata = pinfo->fd;
@@ -1468,6 +1468,8 @@ proto_register_wsp(void)
 /* Required function calls to register the header fields and subtrees used  */
 	proto_register_field_array(proto_wsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	register_dissector("wsp", dissect_wsp);
 };
 
 void

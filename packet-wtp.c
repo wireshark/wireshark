@@ -3,7 +3,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.6 2001/01/03 06:55:34 guy Exp $
+ * $Id: packet-wtp.c,v 1.7 2001/01/03 08:42:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -161,6 +161,8 @@ static int hf_wtp_header_missing_packets		= HF_EMPTY;
 /* Initialize the subtree pointers */
 static gint ett_wtp 							= ETT_EMPTY;
 static gint ett_header 							= ETT_EMPTY;
+
+static dissector_handle_t wsp_handle;
 
 /* Declarations */
 static char transaction_class(unsigned char octet);
@@ -417,7 +419,7 @@ dissect_wtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tvb_reported_length (tvb) > cbHeader)
 	{
 		wsp_tvb = tvb_new_subset(tvb, cbHeader, -1, tvb_reported_length (tvb)-cbHeader);
-		dissect_wsp( wsp_tvb, pinfo, tree);
+		call_dissector(wsp_handle, wsp_tvb, pinfo, tree);
 	}
 
 #ifdef DEBUG
@@ -617,6 +619,11 @@ proto_register_wtp(void)
 void
 proto_reg_handoff_wtp(void)
 {
+	/*
+	 * Get a handle for the IP WSP dissector.
+	 */
+	wsp_handle = find_dissector("wsp");
+
 	dissector_add("udp.port", UDP_PORT_WTP_WSP, dissect_wtp);
 	/* dissector_add("udp.port", UDP_PORT_WTLS_WTP_WSP, dissect_wsp); */
 }
