@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.55 2002/04/17 08:25:05 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.56 2002/04/17 09:30:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1811,8 +1811,8 @@ proto_register_wlan (void)
   };
 
   static const true_false_string more_frags = {
-    "MSDU/MMPDU is fragmented",
-    "No fragments"
+    "More fragments follow",
+    "This is the last fragment"
   };
 
   static const true_false_string retry_flags = {
@@ -1989,7 +1989,7 @@ proto_register_wlan (void)
       "From DS flag", HFILL }},		/* 5 */
 
     {&hf_fc_more_frag,
-     {"Fragments", "wlan.fc.frag", FT_BOOLEAN, 8, TFS (&more_frags), FLAG_MORE_FRAGMENTS,
+     {"More Fragments", "wlan.fc.frag", FT_BOOLEAN, 8, TFS (&more_frags), FLAG_MORE_FRAGMENTS,
       "More Fragments flag", HFILL }},	/* 6 */
 
     {&hf_fc_retry,
