@@ -14,7 +14,7 @@
  *
  *	http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-03.txt
  *
- * $Id: packet-kerberos.c,v 1.38 2003/04/25 21:30:42 guy Exp $
+ * $Id: packet-kerberos.c,v 1.39 2003/06/01 20:34:20 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -565,6 +565,20 @@ krb_proto_tree_add_time(proto_tree *tree, tvbuff_t *tvb, int offset,
 
     which is all over the place in krb5 */
 
+/*
+ * Dissect Kerberos 5 flags, which seems to be encoded as an ASN.1 
+ * bit field ... but, there is a one byte padding field (why the f***
+ * they did that I don't know ...
+ *
+ * We will use this routine to dissect several different types of flags
+ * so we will pass in the ETT value to build the flags etc
+ */
+static void 
+dissect_ap_options(tvbuff_t *tvb, int offset)
+{
+
+}
+ 
 static void
 dissect_type_value_pair(ASN1_SCK *asn1p, int *inoff,
                         guint32 *type, int *type_len, int *type_off,

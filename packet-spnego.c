@@ -5,7 +5,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-spnego.c,v 1.49 2003/05/26 20:44:20 guy Exp $
+ * $Id: packet-spnego.c,v 1.50 2003/06/01 20:34:20 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1106,19 +1106,26 @@ dissect_spnego_responseToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	offset = hnd->offset;
 
-	item = proto_tree_add_item(tree, hf_spnego_responsetoken, tvb, offset, 
-				   nbytes, FALSE); 
+	item = proto_tree_add_item(tree, hf_spnego_responsetoken, tvb, offset -2 , 
+				   nbytes + 2, FALSE); 
 
 	subtree = proto_item_add_subtree(item, ett_spnego_responsetoken);
 
+
 	/*
 	 * Now, we should be able to dispatch after creating a new TVB.
+	 * However, we should make sure that there is something in the 
+	 * response token ...
 	 */
 
-	token_tvb = tvb_new_subset(tvb, offset, nbytes, -1);
-	if (next_level_dissector)
-	  call_dissector(next_level_dissector, token_tvb, pinfo, subtree);
-
+	if (nbytes) {
+	  token_tvb = tvb_new_subset(tvb, offset, nbytes, -1);
+	  if (next_level_dissector)
+	    call_dissector(next_level_dissector, token_tvb, pinfo, subtree);
+	}
+	else {
+	  proto_tree_add_text(subtree, tvb, offset-2, 2, "<Empty String>");
+	}
 	hnd->offset += nbytes; /* Update this ... */
 
  done:
@@ -1660,4 +1667,9 @@ proto_reg_handoff_spnego(void)
 	gssapi_init_oid("1.2.840.113554.1.2.2", proto_spnego_krb5, ett_spnego_krb5,
 			spnego_krb5_handle, spnego_krb5_wrap_handle,
 			"KRB5 - Kerberos 5");
+
+	/*
+	 * Find the data handle for some calls
+	 */
+	data_handle = find_dissector("data");
 }
