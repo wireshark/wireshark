@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, or simply convert from one 
  * format to another format.
  *
- * $Id: editcap.c,v 1.11 2000/05/19 23:06:06 gram Exp $
+ * $Id: editcap.c,v 1.12 2000/08/09 06:00:54 guy Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
 
   /* Process the options first */
 
-  while ((opt = getopt(argc, argv, "T:F:rvs:")) != EOF) {
+  while ((opt = getopt(argc, argv, "T:F:rvs:h")) != EOF) {
 
     switch (opt) {
 
