@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.84 1999/11/30 20:49:45 guy Exp $
+ * $Id: capture.c,v 1.85 1999/11/30 23:56:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -480,7 +480,7 @@ int
 capture(void)
 {
   GtkWidget  *cap_w, *main_vb, *count_lb, *tcp_lb, *udp_lb, *icmp_lb,
-             *ospf_lb, *gre_lb, *netbios_lb, *other_lb, *stop_bt;
+             *ospf_lb, *gre_lb, *netbios_lb, *ipx_lb, *other_lb, *stop_bt;
   pcap_t     *pch;
   gchar       err_str[PCAP_ERRBUF_SIZE], label_str[32];
   loop_data   ld;
@@ -499,6 +499,7 @@ capture(void)
   ld.counts.icmp    = 0;
   ld.counts.ospf    = 0;
   ld.counts.gre     = 0;
+  ld.counts.ipx     = 0;
   ld.counts.netbios = 0;
   ld.counts.other   = 0;
   ld.pdh            = NULL;
@@ -630,6 +631,10 @@ capture(void)
   gtk_box_pack_start(GTK_BOX(main_vb), netbios_lb, FALSE, FALSE, 3);
   gtk_widget_show(netbios_lb);
 
+  ipx_lb = gtk_label_new("IPX: 0 (0.0%)");
+  gtk_box_pack_start(GTK_BOX(main_vb), ipx_lb, FALSE, FALSE, 3);
+  gtk_widget_show(ipx_lb);
+
   other_lb = gtk_label_new("Other: 0 (0.0%)");
   gtk_box_pack_start(GTK_BOX(main_vb), other_lb, FALSE, FALSE, 3);
   gtk_widget_show(other_lb);
@@ -684,6 +689,10 @@ capture(void)
       sprintf(label_str, "NetBIOS: %d (%.1f%%)", ld.counts.netbios,
 		pct(ld.counts.netbios, ld.counts.total));
       gtk_label_set(GTK_LABEL(netbios_lb), label_str);
+
+      sprintf(label_str, "IPX: %d (%.1f%%)", ld.counts.ipx,
+		pct(ld.counts.ipx, ld.counts.total));
+      gtk_label_set(GTK_LABEL(ipx_lb), label_str);
 
       sprintf(label_str, "Other: %d (%.1f%%)", ld.counts.other,
 		pct(ld.counts.other, ld.counts.total));

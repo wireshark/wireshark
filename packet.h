@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.153 1999/11/29 19:43:25 nneul Exp $
+ * $Id: packet.h,v 1.154 1999/11/30 23:56:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -102,6 +102,7 @@ typedef struct _packet_counts {
   gint           ospf;
   gint           gre;
   gint           netbios;
+  gint           ipx;
   gint           other;
   gint           total;
 } packet_counts;
@@ -286,6 +287,7 @@ void capture_tr(const u_char *, guint32, packet_counts *);
 void capture_netbios(const u_char *, int, guint32, packet_counts *);
 void capture_llc(const u_char *, int, guint32, packet_counts *);
 void capture_ip(const u_char *, int, guint32, packet_counts *);
+void capture_ipx(const u_char *, int, guint32, packet_counts *);
 
 /*
  * Routines in packet-*.c

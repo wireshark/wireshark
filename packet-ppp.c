@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.22 1999/11/16 11:42:47 guy Exp $
+ * $Id: packet-ppp.c,v 1.23 1999/11/30 23:56:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -524,6 +524,9 @@ capture_ppp( const u_char *pd, guint32 cap_len, packet_counts *ld ) {
   switch (pntohs(&pd[2])) {
     case PPP_IP:
       capture_ip(pd, 4, cap_len, ld);
+      break;
+    case PPP_IPX:
+      capture_ipx(pd, 4, cap_len, ld);
       break;
     default:
       ld->other++;

@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.38 1999/11/30 09:01:55 guy Exp $
+ * $Id: packet-ipx.c,v 1.39 1999/11/30 23:56:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -313,6 +313,12 @@ ipxnet_to_str_punct(const guint32 ad, char punct) {
     i--;
   }
   return p;
+}
+
+void
+capture_ipx(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld)
+{
+	ld->ipx++;
 }
 
 void

@@ -2,7 +2,7 @@
  * Routines for calling the right protocol for the ethertype.
  * This is called by both packet-eth.c (Ethernet II) and packet-llc.c (SNAP)
  *
- * $Id: ethertype.c,v 1.18 1999/11/26 04:52:36 gram Exp $
+ * $Id: ethertype.c,v 1.19 1999/11/30 23:56:35 gram Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -62,6 +62,9 @@ capture_ethertype(guint16 etype, int offset,
   switch (etype) {
     case ETHERTYPE_IP:
       capture_ip(pd, offset, cap_len, ld);
+      break;
+    case ETHERTYPE_IPX:
+      capture_ipx(pd, offset, cap_len, ld);
       break;
     default:
       ld->other++;
