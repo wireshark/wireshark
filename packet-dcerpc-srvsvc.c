@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.4 2002/05/24 07:09:56 guy Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.5 2002/05/24 10:45:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -398,6 +398,15 @@ static dcerpc_sub_dissector dcerpc_srvsvc_dissectors[] = {
         {0, NULL, NULL,  NULL },
 };
 
+static const value_string platform_id_vals[] = {
+	{ 300, "DOS" },
+	{ 400, "OS/2" },
+	{ 500, "Windows NT" },
+	{ 600, "OSF" },
+	{ 700, "VMS" },
+	{ 0,   NULL }
+};
+
 void 
 proto_register_dcerpc_srvsvc(void)
 {
@@ -416,8 +425,8 @@ proto_register_dcerpc_srvsvc(void)
 	      BASE_DEC, NULL, 0x0, "Return Code", HFILL}},
 
 	  { &hf_srvsvc_platform_id,
-	    { "Platform id", "srvsvc.info.platform_id", FT_UINT32,
-	      BASE_HEX, NULL, 0x0, "Platform ID", HFILL}},
+	    { "Platform ID", "srvsvc.info.platform_id", FT_UINT32,
+	      BASE_DEC, VALS(platform_id_vals), 0x0, "Platform ID", HFILL}},
 	  { &hf_srvsvc_ver_major,
 	    { "Major Version", "srvsvc.version.major", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Major Version", HFILL}},
