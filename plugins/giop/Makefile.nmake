@@ -11,12 +11,9 @@ CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
 
 LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 
-!IFDEF LINK_PLUGINS_WITH_LIBETHEREAL
+!IFDEF ENABLE_LIBETHEREAL
 LINK_PLUGIN_WITH=..\..\epan\libethereal.lib
 CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
-!ELSE
-LINK_PLUGIN_WITH=..\plugin_api.obj
-!ENDIF
 
 OBJECTS=packet-cosnaming.obj  packet-coseventcomm.obj
 
@@ -29,6 +26,8 @@ cosnaming.dll cosnaming.exp cosnaming.lib : packet-cosnaming.obj $(LINK_PLUGIN_W
 coseventcomm.dll coseventcomm.exp coseventcomm.lib : packet-coseventcomm.obj $(LINK_PLUGIN_WITH)
 	link -dll /out:coseventcomm.dll $(LDFLAGS) packet-coseventcomm.obj $(LINK_PLUGIN_WITH) \
 	$(GLIB_LIBS)
+
+!ENDIF
 
 clean:
 	rm -f $(OBJECTS) cosnaming.dll cosnaming.exp cosnaming.lib \

@@ -31,8 +31,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "plugins/plugin_api.h"
-#include "plugins/plugin_api_defs.h"
 #include "moduleinfo.h"
 
 #include <gmodule.h>

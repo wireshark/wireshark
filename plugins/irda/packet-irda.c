@@ -31,8 +31,6 @@
 # include "config.h"
 #endif
 
-#include "plugins/plugin_api.h"
-
 #include "moduleinfo.h"
 
 #include <stdio.h>
@@ -45,8 +43,6 @@
 #include <epan/proto.h>
 #include <epan/conversation.h>
 #include <epan/xdlc.h>
-
-#include "plugins/plugin_api_defs.h"
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
@@ -2343,13 +2339,8 @@ plugin_reg_handoff(void)
 }
 
 G_MODULE_EXPORT void
-plugin_init(plugin_address_table_t* pat
-#ifndef PLUGINS_NEED_ADDRESS_TABLE
-_U_
-#endif
-){
-    /* initialise the table of pointers needed in Win32 DLLs */
-    plugin_address_table_init(pat);
+new_plugin_init(void)
+{
     /* register the new protocol, protocol fields, and subtrees */
     if (proto_irlap == -1)
     {

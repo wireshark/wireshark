@@ -60,9 +60,7 @@
 #include <gmodule.h>
 #include <epan/packet.h>
 
-#include "plugins/plugin_api.h"
-#include "plugins/plugin_api_defs.h"
- /* Define version if we are not building ethereal statically */
+/* Define version if we are not building ethereal statically */
 
 #include "moduleinfo.h"
 
@@ -181,15 +179,8 @@ plugin_reg_handoff_sm(void)
 #ifndef ENABLE_STATIC
 
 G_MODULE_EXPORT void
-plugin_init(plugin_address_table_t *pat
-#ifndef PLUGINS_NEED_ADDRESS_TABLE
-_U_
-#endif
-)
+new_plugin_init(void)
 {
-	/* initialise the table of pointers needed in Win32 DLLs */
-	plugin_address_table_init(pat);
-
 	/* register the new protocol, protocol fields, and subtrees */
 	if (proto_sm == -1) { /* execute protocol initialization only once */
 		proto_register_sm();

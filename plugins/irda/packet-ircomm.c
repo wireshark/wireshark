@@ -28,8 +28,6 @@
 # include "config.h"
 #endif
 
-#include "plugins/plugin_api.h"
-
 #include "moduleinfo.h"
 
 #include <stdio.h>
@@ -40,8 +38,6 @@
 #include <gmodule.h>
 #include <epan/packet.h>
 #include <epan/proto.h>
-
-#include "plugins/plugin_api_defs.h"
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"

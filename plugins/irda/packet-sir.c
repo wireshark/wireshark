@@ -22,7 +22,6 @@
 # include "config.h"
 #endif
 #include "moduleinfo.h"
-#include "plugins/plugin_api.h"
 
 #include <gmodule.h>
 

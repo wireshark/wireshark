@@ -30,8 +30,6 @@
 #include "config.h"
 #endif
 
-#include "plugins/plugin_api.h"
-
 #include "moduleinfo.h"
 
 #include <stdio.h>
@@ -49,8 +47,6 @@
 #include <epan/strutil.h>
 
 #include "acn.h"
-
-#include "plugins/plugin_api_defs.h"
 
 /* Define version if we are not building ethereal statically */
 
@@ -1207,13 +1203,8 @@ plugin_reg_handoff(void){
 }
 
 G_MODULE_EXPORT void
-plugin_init(plugin_address_table_t *pat
-#ifndef PLUGINS_NEED_ADDRESS_TABLE
-_U_
-#endif
-){
-  /* initialise the table of pointers needed in Win32 DLLs */
-  plugin_address_table_init(pat);
+new_plugin_init(void)
+{
   /* register the new protocol, protocol fields, and subtrees */
   if (proto_acn == -1) { /* execute protocol initialization only once */
     proto_register_acn();

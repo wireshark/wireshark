@@ -45,9 +45,6 @@
 # include "config.h"
 #endif
 
-
-#include "plugins/plugin_api.h"
-#include "plugins/plugin_api_defs.h"
 #include "moduleinfo.h"
 
 #include <stdio.h>

@@ -171,6 +171,7 @@ plugins_scan_dir(const char *dirname)
     gchar         *version;
     gpointer       gp;
     void         (*init)(void *);
+    void         (*newinit)(void) = NULL;
     void         (*reg_handoff)(void);
     void         (*register_tap_listener)(void);
     gchar         *dot;
@@ -232,29 +233,49 @@ plugins_scan_dir(const char *dirname)
 #endif
 	    if ((handle = g_module_open(filename, 0)) == NULL)
 	    {
-		g_warning("Couldn't load module %s: %s", filename,
+		report_failure("Couldn't load module %s: %s", filename,
 			  g_module_error());
 		continue;
 	    }
 	    if (!g_module_symbol(handle, "version", &gp))
 	    {
-	        g_warning("The plugin %s has no version symbol", name);
+	        report_failure("The plugin %s has no version symbol", name);
 		g_module_close(handle);
 		continue;
 	    }
 	    version = gp;
-
+	    
 	    /*
 	     * We require the plugin to have a "plugin_init()" routine.
 	     */
-	    if (!g_module_symbol(handle, "plugin_init", &gp))
+	    if (g_module_symbol(handle, "new_plugin_init", &gp))
 	    {
-		g_warning("The plugin %s has no plugin_init routine",
-			  name);
-		g_module_close(handle);
-		continue;
+		    /* 
+		     * We have a new init routine which does not need the 
+		     * plugin api table.
+		     */
+		    newinit = gp;
+	    } else 
+	    {
+		    newinit = NULL;
+		    if (!g_module_symbol(handle, "plugin_init", &gp))
+		    {
+			    /*
+			     * We don't have an init routine. Close the plugin.
+			     */
+			    report_failure("The plugin %s has no plugin_init routine",
+			    	name);
+			    g_module_close(handle);
+			    continue;
+		    }
+		    /*
+		     * We have an old init routine. Throw a warning that 
+		     * support is going to be dropped.
+		     */
+		    report_failure("The plugin %s has an old plugin init routine.\nSupport is going to be dropped in the near future.",
+		    	name);
+		    init = gp;
 	    }
-	    init = gp;
 
 	    /*
 	     * Do we have a reg_handoff routine?
@@ -300,7 +321,7 @@ plugins_scan_dir(const char *dirname)
 		/*
 		 * No.
 		 */
-		g_warning("The plugin %s has neither a reg_handoff nor a register_tap_listener routine",
+		report_failure("The plugin %s has neither a reg_handoff nor a register_tap_listener routine",
 			  name);
 		g_module_close(handle);
 		continue;
@@ -326,11 +347,17 @@ plugins_scan_dir(const char *dirname)
 	    /*
 	     * Call its init routine.
 	     */
+	     if(newinit != NULL) {
+		     newinit();
+	     }
+	     else
+	     {
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
-	    init(&patable);
+		     init(&patable);
 #else
-	    init(NULL);
+		     init(NULL);
 #endif
+	     }
 	}
 #if GLIB_MAJOR_VERSION < 2
 	closedir(dir);
