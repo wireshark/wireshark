@@ -6,7 +6,7 @@
  * Magnus Hansson <mah@hms.se>
  * Joakim Wiberg <jow@hms.se>
  *
- * $Id: packet-enip.c,v 1.5 2003/09/02 21:17:31 guy Exp $
+ * $Id: packet-enip.c,v 1.6 2003/10/01 21:51:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2008,167 +2008,154 @@ classify_packet(packet_info *pinfo)
 
 
 /* Code to actually dissect the packets */
-static void
+static int
 dissect_cipencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-   int		packet_type;
-   int      temp_data;
-	int      encap_data_length, encap_cmd;
-	char		pkt_type_str[9] = "";
-	char		*cmd_string = "";
+   int	    packet_type;
+   guint16  encap_cmd, encap_data_length;
+   gchar    *cmd_string;
+   char     pkt_type_str[9] = "";
+   guint32  status;
 
    /* Set up structures needed to add the protocol subtree and manage it */
-	proto_item *ti, *encaph, *csf;
-	proto_tree *cipencap_tree, *headertree, *csftree;
+   proto_item *ti, *encaph, *csf;
+   proto_tree *cipencap_tree, *headertree, *csftree;
+
+   /* An ENIP packet is at least 4 bytes long - we need the command type. */
+   if (!tvb_bytes_exist(tvb, 0, 4))
+      return 0;
+
+   /* Get the command type and see if it's valid. */
+   encap_cmd = tvb_get_letohs( tvb, 0 );
+   cmd_string = match_strval(encap_cmd, encap_cmd_vals);
+   if (cmd_string == NULL)
+      return 0;	/* not a known command */
 
    /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENIP");
+   if (check_col(pinfo->cinfo, COL_PROTOCOL))
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENIP");
 
-	if(check_col(pinfo->cinfo, COL_INFO))
-	{
-	   col_clear(pinfo->cinfo, COL_INFO);
-
-		packet_type = classify_packet(pinfo);
+   if(check_col(pinfo->cinfo, COL_INFO))
+   {
+      packet_type = classify_packet(pinfo);
 
       switch ( packet_type )
-		{
-			case REQUEST_PACKET:
-			   strcpy(pkt_type_str, "Request");
+      {
+         case REQUEST_PACKET:
+            strcpy(pkt_type_str, "Request");
             break;
 
-			case RESPONSE_PACKET:
-			   strcpy(pkt_type_str, "Response");
+         case RESPONSE_PACKET:
+            strcpy(pkt_type_str, "Response");
             break;
 
-			default:
+         default:
             strcpy(pkt_type_str, "Unknown");
-		}
-
-		cmd_string = val_to_str(tvb_get_letohs( tvb, 0 ), encap_cmd_vals,
-	    "Unknown Command (%u)");
-
-		col_add_fstr(pinfo->cinfo, COL_INFO,
-				"%s: %s, Session=0x%08X",
-				pkt_type_str, cmd_string, tvb_get_letohl( tvb, 4 ) );
-
-		if( strstr( cmd_string, "Unknown Command" ) != NULL )
-		{
-         /* Unknown command, since we don't have any information about this command
-         just print the info column and the tree header. */
-
-         return;
       }
 
-	} /* end of if( col exists ) */
+      col_add_fstr(pinfo->cinfo, COL_INFO,
+                   "%s: %s, Session=0x%08X",
+		   pkt_type_str, cmd_string, tvb_get_letohl( tvb, 4 ) );
+   } /* end of if( col exists ) */
 
    /* In the interest of speed, if "tree" is NULL, don't do any work not
-   necessary to generate protocol tree items. */
-	if (tree) {
-
-      /* NOTE: The offset and length values in the call to
-      "proto_tree_add_item()" define what data bytes to highlight in the hex
-      display window when the line in the protocol tree display
-      corresponding to that item is selected.
-
-      Supplying a length of -1 is the way to highlight all data from the
-      offset to the end of the packet. */
+      necessary to generate protocol tree items. */
+   if (tree) {
 
       /* create display subtree for the protocol */
-		ti = proto_tree_add_item(tree, proto_cipencap, tvb, 0, -1, FALSE);
+      ti = proto_tree_add_item(tree, proto_cipencap, tvb, 0, -1, FALSE);
 
-		cipencap_tree = proto_item_add_subtree(ti, ett_cipencap);
+      cipencap_tree = proto_item_add_subtree(ti, ett_cipencap);
 
       /* Add encapsulation header tree */
-		encaph     = proto_tree_add_text( cipencap_tree, tvb, 0, 24, "Encapsulation Header");
-	   headertree = proto_item_add_subtree(encaph, ett_cipencaph);
+      encaph     = proto_tree_add_text( cipencap_tree, tvb, 0, 24, "Encapsulation Header");
+      headertree = proto_item_add_subtree(encaph, ett_cipencaph);
 
       /* CIP header information */
-		proto_tree_add_item(headertree,
-		    hf_enip_command, tvb, 0, 2, TRUE);
+      proto_tree_add_uint(headertree, hf_enip_command, tvb, 0, 2, encap_cmd);
 
       encap_data_length = tvb_get_letohs( tvb, 2 );
-      proto_tree_add_text( headertree, tvb, 2, 2, "Length: %d", encap_data_length );
+      proto_tree_add_text( headertree, tvb, 2, 2, "Length: %u", encap_data_length );
 
-      temp_data = tvb_get_letohl( tvb, 4 );
-      proto_tree_add_text( headertree, tvb, 4, 4, "Session Handle: 0x%08X", temp_data );
+      proto_tree_add_text( headertree, tvb, 4, 4, "Session Handle: 0x%08X",
+                          tvb_get_letohl( tvb, 4 ) );
 
-      temp_data = tvb_get_letohl( tvb, 8 );
-      proto_tree_add_text( headertree, tvb, 8, 4, "Status: %s (0x%08X)", val_to_str( temp_data, encap_status_vals , "Unknown Status Code" ), temp_data );
+      status = tvb_get_letohl( tvb, 8 );
+      proto_tree_add_text( headertree, tvb, 8, 4, "Status: %s (0x%08X)",
+                          val_to_str( status, encap_status_vals,
+                                     "Unknown Status Code" ),
+                          status);
 
       add_byte_array_text_to_proto_tree( headertree, tvb, 12, 8, "Sender context: " );
 
-      temp_data = tvb_get_letohl( tvb, 20 );
-      proto_tree_add_text( headertree, tvb, 20, 4, "Options: 0x%08X", temp_data );
+      proto_tree_add_text( headertree, tvb, 20, 4, "Options: 0x%08X",
+                          tvb_get_letohl( tvb, 20 ) );
 
       /* Command specific data - create tree */
-      encap_cmd         = tvb_get_letohs( tvb, 0 );
+      if( encap_data_length )
+      {
+         /* The packet have some command specific data, buid a sub tree for it */
 
-		if( encap_data_length )
-		{
-		   /* The packet have some command specific data, buid a sub tree for it */
+         csf = proto_tree_add_text( cipencap_tree, tvb, 24, encap_data_length,
+                                   "Command Specific Data");
 
-		   csf = proto_tree_add_text( cipencap_tree, tvb, 24,
-		         encap_data_length, "Command Specific Data");
+         csftree = proto_item_add_subtree(csf, ett_csf);
 
-		   csftree = proto_item_add_subtree(csf, ett_csf);
-
-		   switch( encap_cmd )
-			{
+         switch( encap_cmd )
+         {
             case NOP:
-				   show_cdf( encap_cmd, tvb, pinfo, csftree, 24 );
-					break;
+               show_cdf( encap_cmd, tvb, pinfo, csftree, 24 );
+               break;
 
-				case LIST_SERVICES:
-				   show_cdf( encap_cmd, tvb, pinfo, csftree, 24 );
-					break;
+            case LIST_SERVICES:
+               show_cdf( encap_cmd, tvb, pinfo, csftree, 24 );
+               break;
 
-				case LIST_IDENTITY:
-				   show_cdf( encap_cmd, tvb, pinfo, csftree, 24 );
-					break;
+            case LIST_IDENTITY:
+               show_cdf( encap_cmd, tvb, pinfo, csftree, 24 );
+               break;
 
-				case LIST_INTERFACES:
-				   show_cdf( encap_cmd, tvb, pinfo, csftree, 24 );
-					break;
+            case LIST_INTERFACES:
+               show_cdf( encap_cmd, tvb, pinfo, csftree, 24 );
+               break;
 
-				case REGISTER_SESSION:
-               temp_data = tvb_get_letohs( tvb, 24 );
-               proto_tree_add_text( csftree, tvb, 24, 2, "Protocol Version: 0x%04X", temp_data );
+            case REGISTER_SESSION:
+               proto_tree_add_text( csftree, tvb, 24, 2, "Protocol Version: 0x%04X",
+                                   tvb_get_letohs( tvb, 24 ) );
 
-               temp_data = tvb_get_letohs( tvb, 26 );
-               proto_tree_add_text( csftree, tvb, 26, 2, "Option Flags: 0x%04X", temp_data );
+               proto_tree_add_text( csftree, tvb, 26, 2, "Option Flags: 0x%04X",
+                                   tvb_get_letohs( tvb, 26 ) );
 
-					break;
+               break;
 
-				case UNREGISTER_SESSION:
-					break;
+            case UNREGISTER_SESSION:
+               break;
 
-				case SEND_RR_DATA:
-				case SEND_UNIT_DATA:
-				   proto_tree_add_item(csftree, hf_enip_ifacehnd, tvb, 24, 4, TRUE);
+            case SEND_RR_DATA:
+            case SEND_UNIT_DATA:
+               proto_tree_add_item(csftree, hf_enip_ifacehnd, tvb, 24, 4, TRUE);
 
-               temp_data = tvb_get_letohs( tvb, 28 );
-               proto_tree_add_text( csftree, tvb, 28, 2, "Timeout: %d", temp_data );
+               proto_tree_add_text( csftree, tvb, 28, 2, "Timeout: %u",
+                                   tvb_get_letohs( tvb, 28 ) );
 
-					show_cdf( encap_cmd, tvb, pinfo, csftree, 30 );
-					break;
+               show_cdf( encap_cmd, tvb, pinfo, csftree, 30 );
+               break;
 
-				case INDICATE_STATUS:
-				case CANCEL:
-			   default:
+            case INDICATE_STATUS:
+            case CANCEL:
+            default:
 
-				   /* Can not decode - Just show the data */
+               /* Can not decode - Just show the data */
                add_byte_array_text_to_proto_tree( headertree, tvb, 24, encap_data_length, "Encap Data: " );
                break;
 
-			} /* end of switch() */
+         } /* end of switch() */
 
-		} /* end of if( encapsulated data ) */
+      } /* end of if( encapsulated data ) */
 
-	}
+   }
 
-   /* If this protocol has a sub-dissector call it here, see section 1.8 */
-
+   return tvb_length(tvb);
 } /* end of dissect_cipencap() */
 
 
@@ -2419,9 +2406,8 @@ proto_reg_handoff_cipencap(void)
 	dissector_handle_t cipencap_handle;
 	dissector_handle_t enipio_handle;
 
-
 	/* Register for encapsulated CIP data, using both TCP/UDP */
-	cipencap_handle = create_dissector_handle(dissect_cipencap, proto_cipencap);
+	cipencap_handle = new_create_dissector_handle(dissect_cipencap, proto_cipencap);
 	dissector_add("tcp.port", ENIP_ENCAP_PORT, cipencap_handle);
 	dissector_add("udp.port", ENIP_ENCAP_PORT, cipencap_handle);
 
