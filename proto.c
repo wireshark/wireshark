@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.11 1999/08/04 23:43:42 guy Exp $
+ * $Id: proto.c,v 1.12 1999/08/07 01:34:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -250,6 +250,7 @@ proto_tree_free(proto_tree *tree)
 {
 	g_node_traverse((GNode*)tree, G_IN_ORDER, G_TRAVERSE_ALL, -1,
 		proto_tree_free_node, NULL);
+	g_node_destroy((GNode*)tree);
 }
 
 static gboolean
