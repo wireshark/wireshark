@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.43 2003/03/05 07:17:50 guy Exp $
+ * $Id: packet-wtp.c,v 1.44 2003/04/09 18:15:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -555,7 +555,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Iterate through missing packets */
 		for (i = 0; i < numMissing; i++)
 		{
-		    proto_tree_add_item(wtp_tree, hf_wtp_header_sequence_number, tvb, offCur + i, 1, bo_little_endian);
+		    proto_tree_add_item(wtp_tree, hf_wtp_header_sequence_number, tvb, offCur + 4 + i, 1, bo_little_endian);
 		}
 		break;
 
