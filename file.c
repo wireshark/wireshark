@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.146 2000/01/03 06:59:08 guy Exp $
+ * $Id: file.c,v 1.147 2000/01/03 22:53:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -548,7 +548,34 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
 	    proto_tree_free(protocol_tree);
 #endif
   }
+
   if (fdata->passed_dfilter) {
+    /* XXX - if a GtkCList's selection mode is GTK_SELECTION_BROWSE, when
+       the first entry is added to it by "real_insert_row()", that row
+       is selected (see "real_insert_row()", in "gtk/gtkclist.c", in both
+       our version and the vanilla GTK+ version).
+
+       This means that a "select-row" signal is emitted; this causes
+       "packet_list_select_cb()" to be called, which causes "select_packet()"
+       to be called.
+
+       "select_packet()" searches the list of frames for a frame with the
+       row number passed into it; however, as "gtk_clist_append()", which
+       called "real_insert_row()", hasn't yet returned, we don't know what
+       the row number is, so we can't correctly set "fd->row" for that frame
+       yet.
+
+       This means that we won't find the frame for that row.
+
+       We can't assume that there's only one frame in the frame list,
+       either, as we may be filtering the display.
+
+       Therefore, we set "fdata->row" to 0, under the assumption that
+       the row number passed to "select_packet()" will be 0 (as we're
+       adding the first row to the list; it gets set to the proper
+       value later. */
+    fdata->row = 0;
+
     /* If we don't have the time stamp of the previous displayed packet,
        it's because this is the first displayed packet.  Save the time
        stamp of this packet as the time stamp of the previous displayed
@@ -1172,37 +1199,13 @@ select_packet(capture_file *cf, int row)
   int i;
 
   /* Search through the list of frames to see which one is in
-     this row.
-
-     XXX - if a GtkCList's selection mode is GTK_SELECTION_BROWSE, when
-     the first entry is added to it by "real_insert_row()", that row
-     is selected (see "real_insert_row()", in "gtk/gtkclist.c", in both
-     our version and the vanilla GTK+ version).
-
-     This means that a "select-row" signal is emitted; this causes
-     "packet_list_select_cb()" to be called, which causes "select_packet()"
-     to be called.
-
-     As "gtk_clist_append()", which called "real_insert_row()", hasn't
-     yet returned, we don't know what the row number is, so we can't
-     set "fd->row" for that frame yet.
-
-     This means that we won't find this row in the list of frames.
-
-     For now, we handle that by, if "fd" is NULL when the loop terminates
-     (meaning we didn't find the frame), verifying that "i" is 1 (meaning
-     there's only one frame in the list, which we take as a sign that the
-     first and only frame *must* have been the one selected) and forcibly
-     setting "fd" to "cf->plist" (so that it points to the first and only
-     frame). */
+     this row. */
   for (fd = cf->plist, i = 0; fd != NULL; fd = fd->next, i++) {
     if (fd->row == row)
       break;
   }
-  if (fd == NULL) {
-    g_assert(i == 1);
-    fd = cf->plist;
-  }
+
+  g_assert(fd != NULL);
 
   /* Record that this frame is the current frame, and that it's selected. */
   cf->current_frame = fd;
