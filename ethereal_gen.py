@@ -1,9 +1,9 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.1 2001/06/18 05:27:16 guy Exp $
+# $Id: ethereal_gen.py,v 1.2 2001/06/18 19:31:50 guy Exp $
 #
 #                           
-# ethereal_gen.py           
+# ethereal_gen.py (part of idl2eth)           
 #
 # Author : Frank Singleton (frank.singleton@ericsson.com)
 #
@@ -78,13 +78,13 @@ import tempfile
 # 
 # 1. generate hf[] data for searchable fields (but what is searchable?)
 # 2. add item instead of add_text()
-# 3. sequence handling,
+# 3. sequence handling [started]
 # 4. Exceptions
-# 5. Fix arrays, and structs containing arrays.
+# 5. Fix arrays, and structs containing arrays [started]
 # 6. Handle pragmas.
 # 7. Exception can be common to many operations, so handle them outside the
 #    operation helper functions.
-# 8. Automatic variable declaration.
+# 8. Automatic variable declaration [done, improve]
 # 9. wchar and wstring handling  
 #
 
@@ -100,17 +100,43 @@ import tempfile
 #       output get_CDR_xxx
 #       output exception handling code
 #
-# Generate opereation-> helper delegation code (strcmp operation -> helper)
+# Generate operation-> helper delegation code (strcmp operation -> helper)
 #
 
 class ethereal_gen_C:
 
+
+    #
+    # Turn DEBUG stuff on/off
+    #
+
+    DEBUG = 0
+
+    #
+    # Some string constants for our templates
+    #
+
+    c_u_octet4    = "guint32   u_octet4;"
+    c_s_octet4    = "gint32    s_octet4;"
+    c_u_octet2    = "guint16   u_octet2;"
+    c_s_octet2    = "gint16    s_octet2;"
+    c_u_octet1    = "guint8    u_octet1;"
+    c_s_octet1    = "gint8     s_octet1;"
+    
+    c_float       = "gfloat    my_float;"
+    c_double      = "gdouble   my_double;"
+
+    c_seq         = "gchar   *seq;"     # pointer to buffer of gchars
+    c_i           = "guint32   i_";                 # loop index
+    c_i_lim       = "guint32   u_octet4_loop_";     # loop limit
+    
     #
     # Constructor
     #
 
     def __init__(self, st, protocol_name, dissector_name ,description):
         self.st = output.Stream(tempfile.TemporaryFile(),4) # for first pass only
+        
         self.st_save = st               # where 2nd pass should go
         self.protoname = protocol_name  # Protocol Name (eg: ECHO)
         self.dissname = dissector_name  # Dissector name (eg: echo)
@@ -133,7 +159,6 @@ class ethereal_gen_C:
         
     def genCode(self,oplist):
 
-        #self.st = output.Stream(,4)
         self.genHelpers(oplist)         # sneaky .. call it now, to populate the fn_hash
                                         # so when I come to that function later, I have the variables to
                                         # declare already.
@@ -180,8 +205,10 @@ class ethereal_gen_C:
     #
     #
 
-    def genGPL(self):    
-        #print "genGPL"
+    def genGPL(self):
+        if self.DEBUG:
+            print "XXX genGPL"
+            
         self.st.out(self.template_GPL)
 
     #
@@ -191,8 +218,10 @@ class ethereal_gen_C:
     #
     #
 
-    def genIncludes(self):    
-        #print "genIncludes"
+    def genIncludes(self):
+        if self.DEBUG:
+            print "XXX genIncludes"
+            
         self.st.out(self.template_Includes)
                                 
     #
@@ -202,7 +231,8 @@ class ethereal_gen_C:
     
     def genDeclares(self,oplist):
         t=0
-        #print "genDeclares"
+        if self.DEBUG:
+            print "XXX genDeclares"
 
 
                                 
@@ -366,7 +396,6 @@ class ethereal_gen_C:
         self.st.inc_indent()
         
         self.st.out(self.template_helper_switch_rep_status_start)
-#        self.st.inc_indent()
 
         
         self.st.out(self.template_helper_switch_msgtype_reply_no_exception_start)
@@ -395,30 +424,9 @@ class ethereal_gen_C:
         self.st.dec_indent()
 
 
-        
-        self.st.inc_indent()
-        #self.visitReturnVal(opnode)
-        #self.visitParameterList(opnode)
-        self.st.dec_indent()
-
         self.st.out(self.template_helper_function_end, sname=sname)
-        
 
-    def visitReturnVal(self,opnode):
-        t = opnode
-        ##print "opnode.returnType().kind() = " , opnode.returnType().kind()
-        ##print "opnode.returnType().unalias().kind() = " , opnode.returnType().unalias().kind()
-        
-        
-            
-    def visitParameterList(self,opnode):
-        for n in opnode.parameters():
-            self.visitParameter(n)
 
-    def visitParameter(self,node):
-        #print "Identifier : " + node.identifier() + " : "
-        #print node.paramType().unalias().kind()
-        t = node
 
 
     #
@@ -431,13 +439,13 @@ class ethereal_gen_C:
         #self.st.inc_indent()
         for p in opnode.parameters():
             if p.is_in():
-                #print "XXX parameter = " ,p
-                #print "XXX parameter type = " ,p.paramType()
-                #print "XXX parameter type kind = " ,p.paramType().kind()
+                if self.DEBUG:
+                    print "XXX parameter = " ,p
+                    print "XXX parameter type = " ,p.paramType()
+                    print "XXX parameter type kind = " ,p.paramType().kind()
 
                 self.getCDR3(p.paramType(),p.identifier())
                 
-        #self.st.dec_indent()
 
     #
     # Decode function parameters for a GIOP reply message
@@ -448,7 +456,19 @@ class ethereal_gen_C:
     def genOperationReply(self,opnode):
 
         rt = opnode.returnType()        # get return type
-        self.getCDR3(rt, "Operation return value")    # return value
+        if self.DEBUG:
+            print "XXX opnode  = " , opnode
+            print "XXX return type  = " , rt
+            print "XXX return type.unalias  = " , rt.unalias()        
+            print "XXX return type.kind()  = " , rt.kind();
+            
+
+        if (rt.kind() == idltype.tk_alias): # a typdef return val possibly ?
+            #self.getCDR3(rt.decl().alias().aliasType(),"dummy")    # return value maybe a typedef
+            self.get_CDR_alias(rt, "Operation Return Value" )
+                               
+        else:            
+            self.getCDR3(rt, "Operation return value")    # return value is NOT an alias
               
         for p in opnode.parameters():
             if p.is_out():              # out or inout
@@ -498,6 +518,8 @@ class ethereal_gen_C:
             for v in self.fn_hash[sname]:
                 self.st.out(v)
 
+
+            
                 
 
 ## tk_null               = 0
@@ -548,7 +570,8 @@ class ethereal_gen_C:
         pt = type.unalias().kind()      # param CDR type
         pn = name                       # param name
 
-        #print "XXX kind = " , pt
+        if self.DEBUG:
+            print "XXX kind = " , pt
             
         if pt == idltype.tk_ulong:
             self.get_CDR_ulong(pn)
@@ -588,10 +611,14 @@ class ethereal_gen_C:
         elif pt == idltype.tk_sequence:
             self.get_CDR_sequence(type,pn)
         elif pt == idltype.tk_objref:
-            self.get_CDR_objref(type,pn)            
+            self.get_CDR_objref(type,pn)
+        elif pt == idltype.tk_array:
+            self.get_CDR_array(type,pn)
+        elif pt == idltype.tk_alias:
+            self.get_CDR_alias(type,pn)            
         else:
-            t=0
-            print "XXXXX Unknown type XXXXX " , pt
+            if self.DEBUG:
+                print "XXXXX Unknown type XXXXX " , pt
 
 
     #
@@ -602,76 +629,119 @@ class ethereal_gen_C:
             
     def get_CDR_ulong(self,pn):
         self.st.out(self.template_get_CDR_ulong, varname=pn)
-        self.addvar("guint32   u_octet4;")
+        self.addvar(self.c_u_octet4)
 
     def get_CDR_short(self,pn):
         self.st.out(self.template_get_CDR_short, varname=pn)
-        self.addvar("gint16   s_octet2;")
+        self.addvar(self.c_s_octet2)
 
     def get_CDR_void(self,pn):
         self.st.out(self.template_get_CDR_void, varname=pn)
 
     def get_CDR_long(self,pn):
         self.st.out(self.template_get_CDR_long, varname=pn)
-        self.addvar("gint32   s_octet4;")
+        self.addvar(self.c_s_octet4)
 
     def get_CDR_ushort(self,pn):
         self.st.out(self.template_get_CDR_ushort, varname=pn)
-        self.addvar("guint16   u_octet2;")
+        self.addvar(self.c_u_octet2)
 
     def get_CDR_float(self,pn):
         self.st.out(self.template_get_CDR_float, varname=pn)
-        self.addvar("gfloat   my_float;")
+        self.addvar(self.c_float)
 
     def get_CDR_double(self,pn):
         self.st.out(self.template_get_CDR_double, varname=pn)
-        self.addvar("gdouble   my_double;")
+        self.addvar(self.c_double)
 
     def get_CDR_boolean(self,pn):
         self.st.out(self.template_get_CDR_boolean, varname=pn)
-        self.addvar("guint8   u_octet1;")
+        self.addvar(self.c_u_octet1)
         
     def get_CDR_char(self,pn):
         self.st.out(self.template_get_CDR_char, varname=pn)
-        self.addvar("guint8   u_octet1;")
-        
+        self.addvar(self.c_u_octet1)        
 
     def get_CDR_octet(self,pn):
         self.st.out(self.template_get_CDR_octet, varname=pn)
-        self.addvar("guint8   u_octet1;")
+        self.addvar(self.c_u_octet1)
 
     def get_CDR_any(self,pn):
         self.st.out(self.template_get_CDR_any, varname=pn)
 
     def get_CDR_enum(self,pn):
         self.st.out(self.template_get_CDR_enum, varname=pn)
-        self.addvar("guint32   u_octet4;")
+        self.addvar(self.c_u_octet4)
 
     def get_CDR_string(self,pn):
         self.st.out(self.template_get_CDR_string, varname=pn)
-        self.addvar("guint32   u_octet4;")
-        self.addvar("gchar   *seq;")
+        self.addvar(self.c_u_octet4)
+        self.addvar(self.c_seq)
 
     def get_CDR_wstring(self,pn):
         self.st.out(self.template_get_CDR_wstring, varname=pn)
-        self.addvar("guint32   u_octet4;")
-        self.addvar("gchar   *seq;")
+        self.addvar(self.c_u_octet4)
+        self.addvar(self.c_seq)
         
     def get_CDR_wchar(self,pn):
         self.st.out(self.template_get_CDR_wchar, varname=pn)
-        self.addvar("gint8   s_octet1;")
-        self.addvar("gchar   *seq;")
+        self.addvar(self.c_s_octet1)
+        self.addvar(self.c_seq)
                 
     def get_CDR_TypeCode(self,pn):
         self.st.out(self.template_get_CDR_TypeCode, varname=pn)
-        self.addvar("guint32   u_octet4;")
+        self.addvar(self.c_u_octet4)
 
     def get_CDR_objref(self,type,pn):
         self.st.out(self.template_get_CDR_object)
 
     def get_CDR_sequence_len(self,pn):
         self.st.out(self.template_get_CDR_sequence_length, seqname=pn)
-        self.addvar("guint32   u_octet4;")
+        self.addvar(self.c_u_octet4)
+
+
+    #
+    # Currently, get_CDR_alias is geared to finding typdef 
+    #
+
+    def get_CDR_alias(self,type,pn):
+        if self.DEBUG:
+            print "XXX type = " ,type , " pn = " , pn
+            print "XXX type.decl() = " ,type.decl()
+
+        decl = type.decl()              # get declarator object
+        
+        if (decl.sizes()):        # a typedef array 
+            indices = self.get_indices_from_sizes(decl.sizes())
+            string_indices = '%i ' % indices # convert int to string
+            #self.st.out(self.template_get_CDR_array_comment, aname=decl.identifier(), asize=string_indices)
+            self.st.out(self.template_get_CDR_array_comment, aname=pn, asize=string_indices)
+            
+            #self.st.out(self.template_get_CDR_array_start, aname=decl.identifier(), aval=string_indices)
+            self.st.out(self.template_get_CDR_array_start, aname=pn, aval=string_indices)
+            
+            #self.addvar(self.c_i + decl.identifier() + ";")
+            
+            self.addvar(self.c_i + pn + ";")
+            
+            self.st.inc_indent()       
+            #self.getCDR3(type.decl().alias().aliasType(), type.name() + "_" + decl.identifier() )
+            self.getCDR3(type.decl().alias().aliasType(),  pn )
+            
+            self.st.dec_indent()
+            self.st.out(self.template_get_CDR_array_end)
+            
+            
+        else:                           # a simple typdef 
+            self.getCDR3(type, decl.identifier() )
+            #self.getCDR3(type, type.name() + "_" + decl.identifier() )
+            
+        #self.st.out(self.template_structure_end, name=type.name())
+            
+        #self.getCDR3(type.decl().alias().aliasType() ) # and start all over with the type
+            
+        
+        
 
     def get_CDR_struct(self,type,pn):       
         self.st.out(self.template_structure_start, name=type.name() )
@@ -685,10 +755,22 @@ class ethereal_gen_C:
                         
         for m in ntype.members():
             for decl in m.declarators():
-                if decl.sizes():
-                    t=0                 # TODO - add array handling here.
-
-                self.getCDR3(m.memberType(), type.name() + "_" + decl.identifier() )
+                if decl.sizes():        # an array
+                    indices = self.get_indices_from_sizes(decl.sizes())
+                    string_indices = '%i ' % indices # convert int to string
+                    self.st.out(self.template_get_CDR_array_comment, aname=decl.identifier(), asize=string_indices)     
+                    self.st.out(self.template_get_CDR_array_start, aname=decl.identifier(), aval=string_indices)
+                    #self.addvar("guint32   i_" + decl.identifier() + ";")
+                    self.addvar(self.c_i + decl.identifier() + ";")
+                    
+                    self.st.inc_indent()       
+                    self.getCDR3(m.memberType(), type.name() + "_" + decl.identifier() )                    
+                    self.st.dec_indent()
+                    self.st.out(self.template_get_CDR_array_end)
+                    
+                    
+                else:    
+                    self.getCDR3(m.memberType(), type.name() + "_" + decl.identifier() )
 
         self.st.out(self.template_structure_end, name=type.name())
 
@@ -701,29 +783,32 @@ class ethereal_gen_C:
     def get_CDR_sequence(self,type, pn):
         self.st.out(self.template_get_CDR_sequence_length, seqname=pn )
         self.st.out(self.template_get_CDR_sequence_loop_start, seqname=pn )
-        self.addvar("guint32   u_octet4_loop_" + pn + ";" )
-        self.addvar("guint32   i_" + pn + ";")
+        #self.addvar("guint32   u_octet4_loop_" + pn + ";" )
+        #self.addvar("guint32   i_" + pn + ";")
+        self.addvar(self.c_i_lim + pn + ";" )
+        self.addvar(self.c_i + pn + ";")
 
         self.st.inc_indent()       
         self.getCDR3(type.unalias().seqType() ) # and start all over with the type
         self.st.dec_indent()     
         
         self.st.out(self.template_get_CDR_sequence_loop_end)
-        self.addvar("guint32   u_octet4_loop_" + pn + ";" )
+        #self.addvar("guint32   u_octet4_loop_" + pn + ";" ) # TODO - is this one an extra that can be removed ?
         
+    #
+    # Generate code to access arrays, 
+    #
+    # This is handled elsewhere. Arrays are either typedefs or in
+    # structs
+    #
+    # TODO - Remove this
+    #
+    
+    def get_CDR_array(self,type, decl):
+        if self.DEBUG:
+            print "XXX get_CDR_array called "
+            print "XXX array size = " ,decl.sizes()
         
-    #
-    # get_ret_in_inout
-    #
-    # in - opnode
-    #
-    # out - list of [operation return ]
-    #
-    #
-
-    def get_ret_in_inout(self,opnode):
-        t=0
-        #print "Unused"
 
    #
    # namespace()
@@ -739,11 +824,6 @@ class ethereal_gen_C:
     def namespace(self,node,sep):    
         sname = string.replace(idlutil.ccolonName(node.scopedName()), '::', sep)
         return sname
-
-
-    def param_decode(self,node):
-        t=0
-        #print "Identifier : " + node.identifier()
 
 
     #
@@ -782,25 +862,6 @@ class ethereal_gen_C:
     def gen_proto_register(self):
         self.st.out(self.template_proto_register, description=self.description, protocol_name=self.protoname, dissector_name=self.dissname)
     
-
-
-
-        
-
-        
-    #
-    # provide variable declarations for private helper functions.
-    #
-    # eg: u_octet32, s_octet8 etc..
-    #
-    #
-    #
-    
-    def helper_fn_vars(self,node):
-        t=0
-        #print "helper_fn_vars"
-
-
 
     #
     # in - oplist[]
@@ -843,8 +904,23 @@ class ethereal_gen_C:
 
 
 
+    #
+    # Simple function to take a list of array sizes and find the
+    # total number of elements
+    #
+    #
+    # eg: temp[4][3] = 12 elements
+    #
 
-    
+    def get_indices_from_sizes(self,sizelist):
+        val = 1;
+        for i in sizelist:
+            val = val * i
+            
+        return val
+
+
+
     
     #
     # Templates for C code
@@ -1306,12 +1382,27 @@ if (tree) {
 """
 
     template_get_CDR_sequence_loop_start = """\
-for (i_@seqname@=0; i_@seqname@< u_octet4_loop_@seqname@; i_@seqname@++) {
+for (i_@seqname@=0; i_@seqname@ < u_octet4_loop_@seqname@; i_@seqname@++) {
 """
     template_get_CDR_sequence_loop_end = """\
 }
 """
     
+
+
+    template_get_CDR_array_start = """\
+for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
+"""
+    template_get_CDR_array_end = """\
+}
+"""
+
+    template_get_CDR_array_comment = """\
+/* Array: @aname@[ @asize@]  */
+"""
+            
+
+
 
     template_structure_start = """\
 /*  Begin struct \"@name@\"  */
