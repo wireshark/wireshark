@@ -2,7 +2,7 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.3 2000/05/31 05:07:34 guy Exp $
+ * $Id: packet-rlogin.c,v 1.4 2000/08/06 05:19:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -93,16 +93,11 @@ static int hf_window_info_y_pixels = -1;
 
 #define RLOGIN_PORT 513
 
-#define row_pointer_t frame_data*
-#define compare_packet_ptr(X) (X == (fd))
-#define get_packet_ptr	(fd)
-
 #define NAME_LEN 32
 
 typedef struct {
 	int	state;
-	row_pointer_t info_row;
-	row_pointer_t last_row;
+	int	info_framenum;
 	char  	name[ NAME_LEN];
 	
 }rlogin_hash_entry_t;
@@ -179,14 +174,14 @@ rlogin_state_machine( rlogin_hash_entry_t *hash_info, const u_char *pd,
 				hash_info->state = USER_INFO_WAIT;
 			else {
 				hash_info->state = DONE;	
-				hash_info->info_row = get_packet_ptr;
+				hash_info->info_framenum = fd->num;
 			}	
 		}
 	}					/* expect user data here */
 /*$$$ may need to do more checking here */	
 	else if ( hash_info->state == USER_INFO_WAIT) {
 		hash_info->state = DONE;	
-		hash_info->info_row = get_packet_ptr;
+		hash_info->info_framenum = fd->num;
 							/* save name for later*/
 		strncpy( hash_info->name, &pd[ offset], NAME_LEN);
 
@@ -249,7 +244,7 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, const u_char *pd,
 		++offset;
 	}
 		
-	if ( compare_packet_ptr( hash_info->info_row)){		/* user info ?*/
+	if ( hash_info->info_framenum == fd->num){		/* user info ?*/
 
 		user_info_item = proto_tree_add_item( rlogin_tree, hf_user_info, NullTVB,
 			offset, END_OF_FRAME, FALSE);
@@ -359,7 +354,7 @@ dissect_rlogin(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	else {				
     		hash_info = g_mem_chunk_alloc(rlogin_vals);
     		hash_info->state = NONE;
-    		hash_info->info_row = 0;
+    		hash_info->info_framenum = -1;
 		hash_info->name[ 0] = 0;
 
 		conversation_new( &pi.src, &pi.dst, pi.ptype,
