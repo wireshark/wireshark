@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.57 2002/01/09 19:13:03 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.58 2002/01/10 09:49:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -381,7 +381,7 @@ again:
 		ND_OPT_MAP_FLAG_P, 8, "P", "No P"));
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_map_info, nd_opt_map_lifetime),
-	    4, "Lifetime: %d", pntohl(&map->nd_opt_map_lifetime));
+	    4, "Lifetime: %u", pntohl(&map->nd_opt_map_lifetime));
 
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_map_info, nd_opt_map_address), 16,
