@@ -456,7 +456,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             ospf_header_length = OSPF_VERSION_3_HEADER_LENGTH;
             break;
         default:
-	    ospf_header_length = 0;
+	    ospf_header_length = 14;
             break;
     }
 
@@ -490,20 +490,43 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	areaid=tvb_get_ntohl(tvb,8);
 	proto_tree_add_text(ospf_header_tree, tvb, 8, 4, "Area ID: %s%s",
 			       ip_to_str(tvb_get_ptr(tvb, 8, 4)), areaid == 0 ? " (Backbone)" : "");
+
+	/*
+	 * Quit at this point if it's an unknown OSPF version.
+	 */
+	switch (version) {
+
+	case OSPF_VERSION_2:
+	case OSPF_VERSION_3:
+	    break;
+
+	default:
+	    cksum = tvb_get_ntohs(tvb, 12);
+	    if (cksum == 0) {
+		/* No checksum supplied in the packet. */
+		proto_tree_add_text(ospf_header_tree, tvb, 12, 2,
+		    "Packet Checksum: 0x%04x (none)", cksum);
+	    } else {
+		proto_tree_add_text(ospf_header_tree, tvb, 12, 2,
+		    "Packet Checksum: 0x%04x", cksum);
+	    }
+	    proto_tree_add_text(ospf_tree, tvb, 14, -1,
+		"Unknown OSPF version %u", version);
+	    return;
+	}
+
 	cksum = tvb_get_ntohs(tvb, 12);
 	length = tvb_length(tvb);
 	/* XXX - include only the length from the OSPF header? */
 	reported_length = tvb_reported_length(tvb);
 	if (cksum == 0) {
-		/* No checksum supplied in the packet. */
-		proto_tree_add_text(ospf_header_tree, tvb, 12, 2,
-		    "Packet Checksum: 0x%04x (none)", cksum);
+	    /* No checksum supplied in the packet. */
+	    proto_tree_add_text(ospf_header_tree, tvb, 12, 2,
+		"Packet Checksum: 0x%04x (none)", cksum);
 	} else if (!pinfo->fragmented && length >= reported_length
-		&& length >= ospf_header_length
-		&& (version == OSPF_VERSION_2 || version == OSPF_VERSION_3)) {
+		&& length >= ospf_header_length) {
 	    /* The packet isn't part of a fragmented datagram and isn't
-	       truncated, and we know how to checksum this version of
-	       OSPF, so we can checksum it. */
+	       truncated, so we can checksum it. */
 
 	    switch (version) {
 
@@ -547,6 +570,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    default:
 		g_assert_not_reached();
 		cksum_vec_len = 0;
+		break;
 	    }
 	    computed_cksum = in_cksum(cksum_vec, cksum_vec_len);
 	    if (computed_cksum == 0) {
@@ -563,8 +587,10 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 
-	/* Authentication is only valid for OSPFv2 */
-        if ( version == OSPF_VERSION_2 ) {
+	switch (version) {
+
+	case OSPF_VERSION_2:
+	    /* Authentication is only valid for OSPFv2 */
             auth_type = tvb_get_ntohs(tvb, 14);
 	    proto_tree_add_text(ospf_header_tree, tvb, 14, 2, "Auth Type: %s",
 		    	    val_to_str(auth_type, auth_vals, "Unknown (%u)"));
@@ -603,18 +629,17 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	        proto_tree_add_text(ospf_header_tree, tvb, 16, 8, "Auth Data (unknown)");
 	        break;
 	    }
+	    break;
 
-        }
-
-	/* Instance ID and "reserved" is OSPFv3-only */
-        if ( version == OSPF_VERSION_3 ) {
+	case OSPF_VERSION_3:
+	    /* Instance ID and "reserved" is OSPFv3-only */
 	    instance_ID = tvb_get_guint8(tvb, 14);
  	    proto_tree_add_text(ospf_header_tree, tvb, 14, 1, "Instance ID: %u",
 			    instance_ID);
  	    reserved = tvb_get_guint8(tvb, 15);
 	    proto_tree_add_text(ospf_header_tree, tvb, 15, 1, (reserved == 0 ? "Reserved: %u" : "Reserved: %u (incorrect, should be 0)"),
 				reserved);
-
+	    break;
 	}
 
 	/* Adjust the length of the tvbuff to match the size of the OSPF
@@ -712,9 +737,6 @@ dissect_ospf_hello(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
             }
 
 	    break;
-
-        default:
-            break;
     }
 }
 
@@ -797,9 +819,6 @@ dissect_ospf_db_desc(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version
 
                 offset += 12;
                 break;
-
-            default:
-                break;
 	}
     }
 
@@ -845,10 +864,7 @@ dissect_ospf_ls_req(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
 	        proto_tree_add_text(ospf_lsr_tree, tvb, offset+2, 2, "LS Type: %s (0x%04x)",
 			    val_to_str(ls_type, v3_ls_type_vals, "Unknown"),
 			    ls_type);
-		  break;
-	    default:
-	         ls_type=0;
-                 break;
+		break;
         }
 
 
@@ -2244,9 +2260,6 @@ dissect_ospf_options(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version
 
             proto_tree_add_text(tree, tvb, offset, 3, "Options: 0x%x (%s)",
 			options_ospfv3, options_string);
-            break;
-
-        default:
             break;
     }
 
