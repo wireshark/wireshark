@@ -8,7 +8,6 @@
 #include "win32-checkbox.h"
 #include "win32-deck.h"
 #include "win32-description.h"
-#include "win32-file-dlg.h"
 #include "win32-grid.h"
 #include "win32-groupbox.h"
 #include "win32-listbox.h"

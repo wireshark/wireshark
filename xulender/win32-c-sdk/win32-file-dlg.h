@@ -48,7 +48,7 @@ void win32_export_file (HWND h_wnd);
  * @args Pointer to a print args struct.
  */
 /* XXX - This should be moved to win32-print.c, maybe? */
-static void print_update_dynamic(HWND dlg_hwnd, print_args_t *args); 
+void print_update_dynamic(HWND dlg_hwnd, print_args_t *args); 
 
 /* Open dialog defines */
 #define EWFD_FILTER_BTN    1000
@@ -98,6 +98,9 @@ static void print_update_dynamic(HWND dlg_hwnd, print_args_t *args);
 #define EWFD_MARKED_DISP     1016
 #define EWFD_FIRST_LAST_DISP 1017
 #define EWFD_RANGE_DISP      1018
+
+/* Export raw dialog defines. */
+#define EWFD_EXPORTRAW_ST 1000
 
 /* Merge dialog defines.  Overlays Open dialog defines above. */
 #define EWFD_MERGE_PREPEND_BTN 1050

@@ -29,5 +29,13 @@ To do:
   some reason.  The MS debugger doesn't give much helpful information
   when this happens.
 
+- The packet list occasionally hangs.  Apparently its wndproc isn't
+  returning the right value in some cases.  This could be related to
+  the previous issue.
+
 - Function names and parameters need to be normalized, e.g.
   win32_menulist_get_selection() vs win32_listbox_set_selected().
+
+- The byte view window takes too long to fill in.  It also flashes when
+  a new packet is selected.  Perhaps the richedit control is the wrong
+  thing to use in this case.

@@ -24,6 +24,7 @@
 #include <epan/epan.h>
 #include <epan/filesystem.h>
 #include <epan/epan_dissect.h>
+#include "menu.h"
 
 /* Structures */
 
@@ -97,6 +98,8 @@ ethereal_treeview_clear(win32_element_t *treeview) {
     win32_element_assert(treeview);
     td = (treeview_data_t *) win32_element_get_data(treeview, ETHEREAL_TREEVIEW_DATA);
 
+    /* We must first clear the current selection */
+    TreeView_SelectItem(td->tv_ctrl, NULL);
     SendMessage(td->tv_ctrl, WM_SETREDRAW, FALSE, 0);
     TreeView_DeleteAllItems(td->tv_ctrl);
     SendMessage(td->tv_ctrl, WM_SETREDRAW, TRUE, 0);
@@ -283,7 +286,7 @@ ethereal_treeview_notify(HWND hw_treeview, LPARAM l_param, capture_file *cfile) 
     treeview_data_t *td;
     LPNMHDR          lpnmh = (LPNMHDR) l_param;
     LPNMTREEVIEW     tv_sel;
-    field_info      *finfo;
+    field_info      *finfo = NULL;
     const guint8    *byte_data;
     guint            byte_len;
 
@@ -298,7 +301,16 @@ ethereal_treeview_notify(HWND hw_treeview, LPARAM l_param, capture_file *cfile) 
 	     */
 	    SetFocus(td->tv_ctrl);
 	    tv_sel = (LPNMTREEVIEW) l_param;
-	    finfo = (field_info *) tv_sel->itemNew.lParam;
+
+	    if (!TreeView_GetSelection(td->tv_ctrl)) {
+		// Clear the byte view
+		unselect_field(cfile);
+		packet_hex_print(td->byteview, byte_data, cfile->current_frame,
+			NULL, 0);
+		break;
+	    }
+	    if (tv_sel)
+		finfo = (field_info *) tv_sel->itemNew.lParam;
 	    if (! finfo) return 0;
 
 	    set_notebook_page(td->byteview, finfo->ds_tvb);
@@ -307,11 +319,11 @@ ethereal_treeview_notify(HWND hw_treeview, LPARAM l_param, capture_file *cfile) 
 	    g_assert(byte_data != NULL);
 
 	    cfile->finfo_selected = finfo;
+	    set_menus_for_selected_tree_row(cfile);
 
 	    packet_hex_print(td->byteview, byte_data, cfile->current_frame,
 		    finfo, byte_len);
 
-	    // XXX - Set menus
 	    // XXX - Push data to the statusbar
 	    // XXX - Get our bv HWND and data ptr info
 

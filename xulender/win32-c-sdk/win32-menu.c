@@ -179,7 +179,6 @@ void set_menus_for_capture_file(gboolean have_capture_file) {
     EnableMenuItem(file_menu, IDM_ETHEREAL_MAIN_CLOSE, enable | MF_BYCOMMAND);
     EnableMenuItem(file_menu, IDM_ETHEREAL_MAIN_SAVE_AS, enable | MF_BYCOMMAND);
     EnableMenuItem(file_menu, IDM_ETHEREAL_MAIN_EXPORT_FILE, enable | MF_BYCOMMAND);
-    EnableMenuItem(file_menu, IDM_ETHEREAL_MAIN_EXPORT_SELECTED, enable | MF_BYCOMMAND);
     EnableMenuItem(file_menu, IDM_ETHEREAL_MAIN_VIEW_RELOAD, enable | MF_BYCOMMAND);
 
 //    packets_bar_update();

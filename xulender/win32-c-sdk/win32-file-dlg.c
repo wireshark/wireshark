@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <io.h>
+#include <fcntl.h>
 
 #include "alert_box.h"
 #include "epan/filesystem.h"
@@ -64,6 +65,7 @@ static UINT CALLBACK open_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_par
 static UINT CALLBACK save_as_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT CALLBACK merge_file_hook_proc(HWND mf_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT CALLBACK export_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
+static UINT CALLBACK export_raw_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static void file_set_save_marked_sensitive(HWND sf_hwnd);
 static void range_update_dynamics(HWND sf_hwnd, packet_range_t *range);
 static void range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range);
@@ -444,6 +446,81 @@ win32_export_file(HWND h_wnd) {
 		write_failure_alert_box(print_args.file, errno);
 		break;
 	}
+	/* Save the directory name for future file dialogs. */
+	dirname = get_dirname(file_name);  /* Overwrites cf_name */
+	set_last_open_dir(dirname);
+    }
+}
+
+void
+win32_export_raw_file(HWND h_wnd) {
+    static        OPENFILENAME ofn;
+    gchar         file_name[MAX_PATH] = "";
+    gchar        *dirname;
+    const guint8 *data_p = NULL;
+    const char   *file = NULL;
+    int           fd;
+
+    if (!cfile.finfo_selected) {
+	/* This shouldn't happen */
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No bytes were selected.");
+	return;
+    }
+
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = h_wnd;
+    ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+    /* XXX - Grab the rest of the extension list from ethereal.nsi. */
+    ofn.lpstrFilter =
+	"Raw data (*.bin, *.dat, *.raw)\0"	"*.bin;*.dat;*.raw\0"
+	"All Files (*.*)\0"				"*.*\0"
+	"\0";
+    ofn.lpstrCustomFilter = NULL;
+    ofn.nMaxCustFilter = 0;
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFile = file_name;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
+	ofn.lpstrInitialDir = prefs.gui_fileopen_dir;
+    } else {
+	ofn.lpstrInitialDir = NULL;
+    }
+    ofn.lpstrTitle = "Ethereal: Export Raw Data";
+    ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
+	    OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST |
+	    OFN_ENABLEHOOK;
+    ofn.lpstrDefExt = NULL;
+    ofn.lCustData = cfile.finfo_selected->length;
+    ofn.lpfnHook = export_raw_file_hook_proc;
+    ofn.lpTemplateName = "ETHEREAL_EXPORTRAWFILENAME_TEMPLATE";
+
+    /*
+     * XXX - The GTK+ code uses get_byte_view_data_and_length().  We just
+     * grab the info from cfile.finfo_selected.  Which is more "correct"?
+     */
+
+    if (GetSaveFileName(&ofn)) {
+
+	data_p = tvb_get_ptr(cfile.finfo_selected->ds_tvb, 0, -1) +
+		cfile.finfo_selected->start;
+        fd = open(file_name, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
+        if (fd == -1) {
+	    open_failure_alert_box(file, errno, TRUE);
+	    return;
+        }
+        if (write(fd, data_p, cfile.finfo_selected->length) < 0) {
+	    write_failure_alert_box(file, errno);
+	    close(fd);
+	    return;
+        }
+        if (close(fd) < 0) {
+	    write_failure_alert_box(file, errno);
+	    return;
+        }
+
 	/* Save the directory name for future file dialogs. */
 	dirname = get_dirname(file_name);  /* Overwrites cf_name */
 	set_last_open_dir(dirname);
@@ -1195,6 +1272,25 @@ export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 		default:
 		    break;
 	    }
+	    break;
+	default:
+	    break;
+    }
+    return 0;
+}
+
+static UINT CALLBACK
+export_raw_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
+    HWND          cur_ctrl;
+    OPENFILENAME *ofnp = (OPENFILENAME *) l_param;
+    gchar         raw_msg[100];
+
+    switch(msg) {
+	case WM_INITDIALOG:
+	    g_snprintf(raw_msg, sizeof(raw_msg), "%d byte%s of raw binary data will be written",
+		    ofnp->lCustData, plurality(ofnp->lCustData, "", "s"));
+	    cur_ctrl = GetDlgItem(ef_hwnd, EWFD_EXPORTRAW_ST);
+	    SetWindowText(cur_ctrl, raw_msg);
 	    break;
 	default:
 	    break;

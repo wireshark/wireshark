@@ -87,6 +87,7 @@
 #include "capture-dialog.h"
 #include "capture-info-dialog.h"
 #include "preferences-dialog.h"
+#include "win32-file-dlg.h"
 
 #include "localelements/ethereal-elements.h"
 
@@ -1434,6 +1435,9 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 			break;
 		    case IDM_ETHEREAL_MAIN_EXPORT_FILE:
 			win32_export_file(hw_mainwin);
+			break;
+		    case IDM_ETHEREAL_MAIN_EXPORT_SELECTED:
+			win32_export_raw_file(hw_mainwin);
 			break;
 		    case IDM_ETHEREAL_MAIN_CLOSE:
 			/* XXX - Prompt the user if we have an unsaved file */

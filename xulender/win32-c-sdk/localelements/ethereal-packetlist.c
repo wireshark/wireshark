@@ -263,14 +263,12 @@ ethereal_packetlist_notify(HWND hw_packetlist, LPARAM l_param, capture_file *cfi
 	    g_assert (packet_list != NULL && cfile->count != 0);
 	    pli = g_list_nth_data(first, lpdi->item.iItem);
 	    lstrcpyn(lpdi->item.pszText, pli->text[col_num], lpdi->item.cchTextMax);
-	    return 0;
 	    break;
 	case LVN_ITEMCHANGED:
 	    sel_item = ListView_GetNextItem(hw_packetlist, -1, LVNI_SELECTED);
 	    if (sel_item >= 0) {
 		select_packet(cfile, sel_item);
 	    }
-	    return 0;
 	    break;
 	case LVN_DELETEALLITEMS:
 	    /*
@@ -278,7 +276,6 @@ ethereal_packetlist_notify(HWND hw_packetlist, LPARAM l_param, capture_file *cfi
 	     * ListView_DeleteAllItems() (in ethereal_packetlist_clear())
 	     * triggers this message.
 	     */
-	    return TRUE;
 	    break;
 	case NM_CUSTOMDRAW: /* Apply colors to each item */
 	    lvcdparam = (NMLVCUSTOMDRAW *) l_param;
