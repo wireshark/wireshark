@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.123 2000/06/27 04:36:01 guy Exp $
+ * $Id: main.c,v 1.124 2000/06/27 04:40:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1118,7 +1118,6 @@ file_quit_cmd_cb (GtkWidget *widget, gpointer data)
 	   we'd call elsewhere? */
 	close_cap_file(&cfile, info_bar);
 
-  fprintf( stderr, "file_quit_cmd_cb: About to call gtk_main_quit()\n");
 	/* Exit by leaving the main loop, so that any quit functions
 	   we registered get called. */
 	gtk_main_quit();
