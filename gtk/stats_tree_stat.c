@@ -67,7 +67,7 @@ struct _tree_pres {
 	GtkTreeStore*   store;
 	GtkWidget*		tree;
 #else
-	struct GtkText*		textbox;
+	GtkWidget*		textbox;
 #endif
 };
 
@@ -164,7 +164,7 @@ static void draw_gtk_tree( void *psp  ) {
 	
 	gtk_text_freeze(GTK_TEXT(st->pr->textbox));
 	gtk_text_set_point(GTK_TEXT(st->pr->textbox),0);
-	gtk_text_forward_delete(GTK_TEXT(st->pr->textbox),gtk_text_get_length(st->pr->textbox));
+	gtk_text_forward_delete(GTK_TEXT(st->pr->textbox),gtk_text_get_length(GTK_TEXT(st->pr->textbox)));
 	gtk_text_insert(GTK_TEXT(st->pr->textbox),NULL,
 					NULL,NULL,text->str,-1);
 	gtk_text_thaw(GTK_TEXT(st->pr->textbox));
@@ -317,8 +317,10 @@ static void init_gtk_tree(char* optarg) {
 	gtk_widget_show_all(st->pr->win);
 	window_present(st->pr->win);
 	
+#if GTK_MAJOR_VERSION >= 2
 	gtk_tree_view_set_model(GTK_TREE_VIEW(st->pr->tree),GTK_TREE_MODEL(st->pr->store));
-
+#endif
+	
 	if (st->filter) {
 		reinit_stats_tree(st);
 	} else {
