@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.40 2002/02/23 21:07:47 guy Exp $
+ * $Id: packet-q931.c,v 1.41 2002/03/05 03:10:52 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -68,7 +68,7 @@ static gint ett_q931_ie = -1;
 /* desegmentation of Q.931 over TPKT over TCP */
 static gboolean q931_desegment = TRUE;
 
-static dissector_handle_t h225_cs_handle;
+static dissector_handle_t h225_handle;
 static dissector_handle_t q931_tpkt_pdu_handle;
 
 /*
@@ -2274,10 +2274,10 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 			if (info_element_len > 1) {
 				/*
-				 * Do we have a handle for the H.225 Call
-				 * Setup dissector?
+				 * Do we have a handle for the H.225
+				 * dissector?
 				 */
-				if (h225_cs_handle != NULL) {
+				if (h225_handle != NULL) {
 					/*
 					 * Yes - call it, regardless of
 					 * whether we're building a
@@ -2286,7 +2286,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					h225_tvb = tvb_new_subset(tvb,
 					    offset + 4, info_element_len - 1,
 					    info_element_len - 1);
-					call_dissector(h225_cs_handle, h225_tvb,
+					call_dissector(h225_handle, h225_tvb,
 					    pinfo, ie_tree);
 				} else {
 					/*
@@ -2624,10 +2624,12 @@ void
 proto_reg_handoff_q931(void)
 {
 	/*
-	 * Attempt to get a handle for the H.225 Call Setup dissector.
-	 * If we can't, the handle we get is null.
+	 * Attempt to get a handle for the H.225 dissector.
+	 * If we can't, the handle we get is null, and we'll just
+	 * dissect putatively-H.255 Call Signaling stuff as User
+	 * Information.
 	 */
-	h225_cs_handle = find_dissector("h225_cs");
+	h225_handle = find_dissector("h225");
 
 	/*
 	 * For H.323.
