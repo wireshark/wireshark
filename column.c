@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.24 1999/09/12 06:11:34 guy Exp $
+ * $Id: column.c,v 1.25 1999/10/17 06:10:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -91,7 +91,7 @@ col_format_desc(gint fmt) {
                      "Source address", "Src addr (resolved)",
                      "Src addr (unresolved)", "Hardware src addr",
                      "Hw src addr (resolved)", "Hw src addr (unresolved)",
-                     "Network src addr", "Net scr addr (resolved)",
+                     "Network src addr", "Net src addr (resolved)",
                      "Net src addr (unresolved)", "Destination address",
                      "Dest addr (resolved)", "Dest addr (unresolved)",
                      "Hardware dest addr", "Hw dest addr (resolved)",
