@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection, SNAC Buddylist
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-buddylist.c,v 1.3 2004/04/26 18:21:09 obiot Exp $
+ * $Id: packet-aim-buddylist.c,v 1.4 2004/06/16 07:51:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -134,12 +134,14 @@ static int dissect_aim_snac_buddylist(tvbuff_t *tvb, packet_info *pinfo,
 
       if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Oncoming Buddy");
-	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", buddyname);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+	                format_text(buddyname, buddyname_length));
       }
       
       if (buddy_tree) {
 	proto_tree_add_text(buddy_tree, tvb, offset + 1, buddyname_length, 
-			    "Screen Name: %s", buddyname);
+			    "Screen Name: %s",
+			    format_text(buddyname, buddyname_length));
       }
       offset += buddyname_length + 1;
 
@@ -165,12 +167,14 @@ static int dissect_aim_snac_buddylist(tvbuff_t *tvb, packet_info *pinfo,
       
       if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Offgoing Buddy");
-	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", buddyname);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+	                format_text(buddyname, buddyname_length));
       }
       
       if (buddy_tree) {
 	proto_tree_add_text(buddy_tree, tvb, offset + 1, buddyname_length, 
-			    "Screen Name: %s", buddyname);
+			    "Screen Name: %s",
+			    format_text(buddyname, buddyname_length));
       }
       offset += buddyname_length + 1;
 

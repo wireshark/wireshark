@@ -4,7 +4,7 @@
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  * Copyright 2004, Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-aim.c,v 1.42 2004/06/03 04:19:38 guy Exp $
+ * $Id: packet-aim.c,v 1.43 2004/06/16 07:51:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -734,16 +734,18 @@ int dissect_aim_buddyname(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
   char *buddyname;
   proto_item *ti = NULL;
   proto_tree *buddy_tree = NULL;
-                                                                                                                              
+
   buddyname_length = tvb_get_guint8(tvb, offset);
   offset++;
   buddyname = tvb_get_string(tvb, offset, buddyname_length);
-                                                                                                                              
+
   if(tree) {
-      ti = proto_tree_add_text(tree, tvb, offset-1, 1+buddyname_length,"Buddy: %s", buddyname);
+      ti = proto_tree_add_text(tree, tvb, offset-1, 1+buddyname_length,
+                               "Buddy: %s",
+                               format_text(buddyname, buddyname_length));
       buddy_tree = proto_item_add_subtree(ti, ett_aim_buddyname);
   }
-                                                                                                                              
+
    proto_tree_add_item(buddy_tree, hf_aim_buddyname_len, tvb, offset-1, 1, FALSE);
    proto_tree_add_item(buddy_tree, hf_aim_buddyname, tvb, offset, buddyname_length, FALSE);
    return offset+buddyname_length;
@@ -804,10 +806,13 @@ static int dissect_aim_tlv_value_dcinfo(proto_item *ti _U_, guint16 valueid _U_,
 int dissect_aim_tlv_value_string (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb)
 {
    guint8 *buf;
-   buf = tvb_get_string(tvb, 0, tvb_length(tvb));
-   proto_item_set_text(ti, "Value: %s", buf);
+   gint string_len;
+
+   string_len = tvb_length(tvb);
+   buf = tvb_get_string(tvb, 0, string_len);
+   proto_item_set_text(ti, "Value: %s", format_text(buf, string_len));
    g_free(buf);
-   return tvb_length(tvb);
+   return string_len;
 }
 
 int dissect_aim_tlv_value_bytes (proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb _U_)
@@ -891,7 +896,8 @@ int dissect_aim_tlv_value_messageblock (proto_item *ti, guint16 valueid _U_, tvb
 
     /* The actual message */
     buf = tvb_get_string(tvb, offset, blocklen - 4 );
-    proto_item_set_text(ti, "Message: %s", buf);
+    proto_item_set_text(ti, "Message: %s",
+                        format_text(buf, blocklen - 4));
     proto_tree_add_item(entry, hf_aim_messageblock_message, tvb, offset, 
 			blocklen-4,
 			FALSE);
@@ -942,7 +948,7 @@ int dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_,
   if (tree) {
     offset = orig_offset;
     
-	ti1 = proto_tree_add_text(tree, tvb, offset, length + 4, "TLV: %s", tmp[i].desc);
+    ti1 = proto_tree_add_text(tree, tvb, offset, length + 4, "TLV: %s", tmp[i].desc);
 
     tlv_tree = proto_item_add_subtree(ti1, ett_aim_tlv);
 
@@ -957,9 +963,9 @@ int dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_,
     ti1 = proto_tree_add_text(tlv_tree, tvb, offset, length,
 			      "Value");
 	
-	if (tmp[i].dissector) {
-	   tmp[i].dissector(ti1, valueid, tvb_new_subset(tvb, offset, length, length));
-	} 
+    if (tmp[i].dissector) {
+      tmp[i].dissector(ti1, valueid, tvb_new_subset(tvb, offset, length, length));
+    } 
 
     offset += length;
   }
@@ -971,14 +977,15 @@ int dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_,
 int dissect_aim_tlv_list(tvbuff_t *tvb, packet_info *pinfo _U_, 
 			   int offset, proto_tree *tree, const aim_tlv *tlv_table)
 {
-	guint16 i, tlv_count = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_aim_tlvcount, tvb, offset, 2, FALSE);
-	offset += 2;
+    guint16 i, tlv_count = tvb_get_ntohs(tvb, offset);
 
-	for(i = 0; i < tlv_count; i++) {
-	    offset = dissect_aim_tlv(tvb, pinfo, offset, tree, tlv_table);
-	}
-	return offset;
+    proto_tree_add_item(tree, hf_aim_tlvcount, tvb, offset, 2, FALSE);
+    offset += 2;
+
+    for(i = 0; i < tlv_count; i++) {
+      offset = dissect_aim_tlv(tvb, pinfo, offset, tree, tlv_table);
+    }
+    return offset;
 }
 
 /* Register the protocol with Ethereal */

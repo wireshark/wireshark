@@ -3,7 +3,7 @@
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim-chat.c,v 1.4 2004/04/26 18:21:09 obiot Exp $
+ * $Id: packet-aim-chat.c,v 1.5 2004/06/16 07:51:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -115,45 +115,47 @@ static int dissect_aim_snac_chat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
   switch(aiminfo->subtype)
     {
-	case FAMILY_CHAT_ERROR:
+    case FAMILY_CHAT_ERROR:
       return dissect_aim_snac_error(tvb, pinfo, offset, chat_tree);
-	case FAMILY_CHAT_USERLEAVE:
-	case FAMILY_CHAT_USERJOIN:
-	  while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_userinfo(tvb, pinfo, offset, chat_tree);
-	  }
-	  return offset;
-	case FAMILY_CHAT_EVIL_REQ:
-	case FAMILY_CHAT_EVIL_REPLY:
-	case FAMILY_CHAT_ROOMINFOUPDATE:
-	  /* FIXME */
-	  return 0;
+    case FAMILY_CHAT_USERLEAVE:
+    case FAMILY_CHAT_USERJOIN:
+      while(tvb_length_remaining(tvb, offset) > 0) {
+        offset = dissect_aim_userinfo(tvb, pinfo, offset, chat_tree);
+      }
+      return offset;
+    case FAMILY_CHAT_EVIL_REQ:
+    case FAMILY_CHAT_EVIL_REPLY:
+    case FAMILY_CHAT_ROOMINFOUPDATE:
+      /* FIXME */
+      return 0;
     case FAMILY_CHAT_OUTGOINGMSG:
       /* channel message from client */
       aim_get_message( msg, tvb, 40 + buddyname_length, tvb_length(tvb) 
-		   - 40 - buddyname_length );
+           - 40 - buddyname_length );
       
       if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
-	  return tvb_length(tvb);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
+      return tvb_length(tvb);
       
     case FAMILY_CHAT_INCOMINGMSG:
       /* channel message to client */
       buddyname_length = aim_get_buddyname( buddyname, tvb, 30, 31 );
       aim_get_message( msg, tvb, 36 + buddyname_length, tvb_length(tvb) 
-		   - 36 - buddyname_length );
+           - 36 - buddyname_length );
       
       if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(pinfo->cinfo, COL_INFO, "from: %s", buddyname);
-	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "from: %s", buddyname);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
       }
       
       if(chat_tree) {
-	proto_tree_add_text(chat_tree, tvb, 31, buddyname_length, 
-			    "Screen Name: %s", buddyname);
+        proto_tree_add_text(chat_tree, tvb, 31, buddyname_length, 
+                            "Screen Name: %s",
+                            format_text(buddyname, buddyname_length));
       }
-	  return tvb_length(tvb);
-	default: return 0;
+      return tvb_length(tvb);
+    default:
+      return 0;
     }
 }
 

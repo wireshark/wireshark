@@ -3,7 +3,7 @@
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim-signon.c,v 1.3 2004/04/26 18:21:10 obiot Exp $
+ * $Id: packet-aim-signon.c,v 1.4 2004/06/16 07:51:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -158,12 +158,14 @@ static int dissect_aim_snac_signon_signon(tvbuff_t *tvb, packet_info *pinfo,
   buddyname_length = aim_get_buddyname( buddyname, tvb, offset, offset + 1 );
   
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_fstr(pinfo->cinfo, COL_INFO, " Username: %s", buddyname);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " Username: %s",
+                    format_text(buddyname, buddyname_length));
   }
   
   if(tree) {
     proto_tree_add_text(tree, tvb, offset + 1, buddyname_length, 
-			"Screen Name: %s", buddyname);
+			"Screen Name: %s",
+			format_text(buddyname, buddyname_length));
   }
   
   offset += buddyname_length + 1;

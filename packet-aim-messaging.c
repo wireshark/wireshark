@@ -4,7 +4,7 @@
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  * Copyright 2004, Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-aim-messaging.c,v 1.10 2004/06/04 03:58:25 gerald Exp $
+ * $Id: packet-aim-messaging.c,v 1.11 2004/06/16 07:51:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -176,7 +176,8 @@ static int dissect_aim_messaging(tvbuff_t *tvb, packet_info *pinfo,
       if (check_col(pinfo->cinfo, COL_INFO)) {
 	buddyname_length = aim_get_buddyname(buddyname, tvb, offset, 
 					     offset + 1);
-	col_append_fstr(pinfo->cinfo, COL_INFO, " to: %s", buddyname);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " to: %s",
+	                format_text(buddyname, buddyname_length));
       }
 
       offset = dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);
