@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.33 2000/01/22 06:22:17 guy Exp $
+ * $Id: packet-tr.c,v 1.34 2000/01/23 08:55:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -148,9 +148,7 @@ static void
 add_ring_bridge_pairs(int rcf_len, const u_char *pd, int offset, proto_tree *tree);
 
 void
-capture_tr(const u_char *pd, guint32 cap_len, packet_counts *ld) {
-
-	int			offset = 0;
+capture_tr(const u_char *pd, int offset, packet_counts *ld) {
 
 	int			source_routed = 0;
 	int			frame_type;
@@ -162,7 +160,7 @@ capture_tr(const u_char *pd, guint32 cap_len, packet_counts *ld) {
 	guint8			trn_fc;		/* field control field */
 	guint8			trn_shost[6];	/* source host */
 
-	if (cap_len < TR_MAX_HEADER_LEN) {
+	if (!BYTES_ARE_IN_FRAME(offset, TR_MIN_HEADER_LEN)) {
 		ld->other++;
 		return;
 	}
@@ -259,7 +257,7 @@ capture_tr(const u_char *pd, guint32 cap_len, packet_counts *ld) {
 			ld->other++;
 			break;
 		case 1:
-			capture_llc(pd, offset, cap_len, ld);
+			capture_llc(pd, offset, ld);
 			break;
 		default:
 			/* non-MAC, non-LLC, i.e., "Reserved" */
@@ -295,7 +293,7 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	/* Token-Ring Strings */
 	char *fc[] = { "MAC", "LLC", "Reserved", "Unknown" };
 
-	if (fd->cap_len < TR_MIN_HEADER_LEN) {
+	if (!BYTES_ARE_IN_FRAME(offset, TR_MIN_HEADER_LEN)) {
 		dissect_data(pd, offset, fd, tree);
 		return;
 	}

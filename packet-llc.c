@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.40 2000/01/22 21:49:50 gerald Exp $
+ * $Id: packet-llc.c,v 1.41 2000/01/23 08:55:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,7 +51,7 @@ static int hf_llc_pid = -1;
 static gint ett_llc = -1;
 static gint ett_llc_ctrl = -1;
 
-typedef void (capture_func_t)(const u_char *, int, guint32, packet_counts *);
+typedef void (capture_func_t)(const u_char *, int, packet_counts *);
 typedef void (dissect_func_t)(const u_char *, int, frame_data *, proto_tree *);
 
 /* The SAP info is split into two tables, one value_string table and one table of sap_info. This is
@@ -198,7 +198,7 @@ sap_dissect_func(u_char sap) {
 }
 
 void
-capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
+capture_llc(const u_char *pd, int offset, packet_counts *ld) {
 
 	int		is_snap;
 	guint16		control;
@@ -249,11 +249,11 @@ capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 				   OUI_ENCAP_ETHER and an Ethernet
 				   packet type for AARP packets. */
 				capture_ethertype(etype, offset+8, pd,
-				    cap_len, ld);
+				    ld);
 				break;
 			case OUI_CISCO:
 				capture_ethertype(etype,
-						offset + 8, pd, cap_len, ld);
+						offset + 8, pd, ld);
 				break;
 			default:
 				ld->other++;
@@ -272,7 +272,7 @@ capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 			offset += llc_header_len;
 
 			if (capture) {
-				capture(pd, offset, cap_len, ld);
+				capture(pd, offset, ld);
 			}
 			else {
 				ld->other++;

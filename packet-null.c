@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.17 1999/11/16 11:42:43 guy Exp $
+ * $Id: packet-null.c,v 1.18 2000/01/23 08:55:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -79,7 +79,7 @@ static const value_string family_vals[] = {
 };
 
 void
-capture_null( const u_char *pd, guint32 cap_len, packet_counts *ld )
+capture_null( const u_char *pd, packet_counts *ld )
 {
   guint32 null_header;
 
@@ -172,7 +172,7 @@ capture_null( const u_char *pd, guint32 cap_len, packet_counts *ld )
     /*
      * Hand it to PPP.
      */
-    capture_ppp(pd, cap_len, ld);
+    capture_ppp(pd, ld);
   } else {
     /*
      * Treat it as a normal DLT_NULL header.
@@ -195,12 +195,12 @@ capture_null( const u_char *pd, guint32 cap_len, packet_counts *ld )
      * BSD derivatives have different values?).
      */
     if (null_header > IEEE_802_3_MAX_LEN)
-      capture_ethertype(null_header, 4, pd, cap_len, ld);
+      capture_ethertype(null_header, 4, pd, ld);
     else {
       switch (null_header) {
 
       case BSD_AF_INET:
-        capture_ip(pd, 4, cap_len, ld);
+        capture_ip(pd, 4, ld);
         break;
 
       default:

@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.25 1999/11/16 11:42:30 guy Exp $
+ * $Id: packet-fddi.c,v 1.26 2000/01/23 08:55:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -137,10 +137,11 @@ swap_mac_addr(u_char *swapped_addr, const u_char *orig_addr)
 
 
 void
-capture_fddi(const u_char *pd, guint32 cap_len, packet_counts *ld) {
+capture_fddi(const u_char *pd, packet_counts *ld)
+{
   int        offset = 0, fc;
 
-  if (cap_len < FDDI_HEADER_SIZE) {
+  if (!BYTES_ARE_IN_FRAME(0, FDDI_HEADER_SIZE)) {
     ld->other++;
     return;
   }
@@ -168,7 +169,7 @@ capture_fddi(const u_char *pd, guint32 cap_len, packet_counts *ld) {
     case FDDI_FC_LLC_ASYNC + 13 :
     case FDDI_FC_LLC_ASYNC + 14 :
     case FDDI_FC_LLC_ASYNC + 15 :
-      capture_llc(pd, offset, cap_len, ld);
+      capture_llc(pd, offset, ld);
       return;
     default :
       ld->other++;
@@ -259,7 +260,7 @@ void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree,
   static u_char src[6], dst[6];
   u_char     src_swapped[6], dst_swapped[6];
 
-  if (fd->cap_len < FDDI_HEADER_SIZE) {
+  if (!BYTES_ARE_IN_FRAME(0, FDDI_HEADER_SIZE)) {
     dissect_data(pd, offset, fd, tree);
     return;
   }

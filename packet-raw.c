@@ -1,7 +1,7 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id: packet-raw.c,v 1.11 1999/11/16 11:42:50 guy Exp $
+ * $Id: packet-raw.c,v 1.12 2000/01/23 08:55:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,7 +38,7 @@
 static gint ett_raw = -1;
 
 void
-capture_raw( const u_char *pd, guint32 cap_len, packet_counts *ld ) {
+capture_raw( const u_char *pd, packet_counts *ld ) {
 
   /* So far, the only time we get raw connection types are with Linux and
    * Irix PPP connections.  We can't tell what type of data is coming down
@@ -49,9 +49,9 @@ capture_raw( const u_char *pd, guint32 cap_len, packet_counts *ld ) {
    * sometimes.  This check should be removed when 2.2 is out.
    */
   if (pd[0] == 0xff && pd[1] == 0x03)
-    capture_ip(pd, 4, cap_len, ld);
+    capture_ip(pd, 4, ld);
   else
-    capture_ip(pd, 0, cap_len, ld);
+    capture_ip(pd, 0, ld);
 }
 
 void

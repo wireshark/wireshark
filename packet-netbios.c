@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.13 2000/01/16 02:54:48 guy Exp $
+ * $Id: packet-netbios.c,v 1.14 2000/01/23 08:55:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -178,8 +178,7 @@ static char *CommandName[] = {
 	"Session Alive",	/* 0x1f */
 };
 
-void capture_netbios(const u_char *pd, int offset, guint32 cap_len,
-	packet_counts *ld)
+void capture_netbios(const u_char *pd, int offset, packet_counts *ld)
 {
 	ld->netbios++;
 }

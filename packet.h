@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.166 2000/01/20 21:34:14 guy Exp $
+ * $Id: packet.h,v 1.167 2000/01/23 08:55:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -270,29 +270,28 @@ void dissect_packet(const u_char *, frame_data *, proto_tree *);
 
 /*
  * Routines in packet-*.c
- * Routines should take three args: packet data *, cap_len, packet_counts *
+ * Routines should take two args: packet data *, packet_counts *
  * They should never modify the packet data.
  */
-void capture_clip(const u_char *, guint32, packet_counts *);
-void capture_eth(const u_char *, guint32, packet_counts *);
-void capture_fddi(const u_char *, guint32, packet_counts *);
-void capture_null(const u_char *, guint32, packet_counts *);
-void capture_ppp(const u_char *, guint32, packet_counts *);
-void capture_raw(const u_char *, guint32, packet_counts *);
-void capture_tr(const u_char *, guint32, packet_counts *);
+void capture_clip(const u_char *, packet_counts *);
+void capture_fddi(const u_char *, packet_counts *);
+void capture_null(const u_char *, packet_counts *);
+void capture_ppp(const u_char *, packet_counts *);
+void capture_raw(const u_char *, packet_counts *);
 
 /*
  * Routines in packet-*.c
- * Routines should take four args: packet data *, offset, cap_len,
- * packet_counts *
+ * Routines should take three args: packet data *, offset, packet_counts *
  * They should never modify the packet data.
  */
-void capture_netbios(const u_char *, int, guint32, packet_counts *);
-void capture_llc(const u_char *, int, guint32, packet_counts *);
-void capture_ip(const u_char *, int, guint32, packet_counts *);
-void capture_ipx(const u_char *, int, guint32, packet_counts *);
-void capture_vines(const u_char *, int, guint32, packet_counts *);
-void capture_vlan(const u_char *, int, guint32, packet_counts *);
+void capture_eth(const u_char *, int, packet_counts *);
+void capture_ip(const u_char *, int, packet_counts *);
+void capture_ipx(const u_char *, int, packet_counts *);
+void capture_llc(const u_char *, int, packet_counts *);
+void capture_netbios(const u_char *, int, packet_counts *);
+void capture_tr(const u_char *, int, packet_counts *);
+void capture_vines(const u_char *, int, packet_counts *);
+void capture_vlan(const u_char *, int, packet_counts *);
 
 /*
  * Routines in packet-*.c
@@ -440,7 +439,7 @@ void init_dissect_x25(void);
 
 /* These functions are in ethertype.c */
 void capture_ethertype(guint16 etype, int offset,
-		const u_char *pd, guint32 cap_len, packet_counts *ld);
+		const u_char *pd, packet_counts *ld);
 void ethertype(guint16 etype, int offset,
 		const u_char *pd, frame_data *fd, proto_tree *tree,
 		proto_tree *fh_tree, int item_id);

@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.25 1999/11/30 23:56:35 gram Exp $
+ * $Id: packet-eth.c,v 1.26 2000/01/23 08:55:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -65,46 +65,58 @@ static gint ett_ether2 = -1;
 #define ETHERNET_SNAP	3
 
 void
-capture_eth(const u_char *pd, guint32 cap_len, packet_counts *ld) {
-  guint16 etype;
-  int     offset = ETH_HEADER_SIZE;
+capture_eth(const u_char *pd, int offset, packet_counts *ld)
+{
+  guint16    etype, length;
   int     ethhdr_type;	/* the type of ethernet frame */
 
-  if (cap_len < ETH_HEADER_SIZE) {
+  if (!BYTES_ARE_IN_FRAME(offset, ETH_HEADER_SIZE)) {
     ld->other++;
     return;
   }
   
-  etype = (pd[12] << 8) | pd[13];
+  etype = pntohs(&pd[offset+12]);
 
 	/* either ethernet802.3 or ethernet802.2 */
   if (etype <= IEEE_802_3_MAX_LEN) {
+    length = etype;
 
-  /* Is there an 802.2 layer? I can tell by looking at the first 2
-     bytes after the 802.3 header. If they are 0xffff, then what
-     follows the 802.3 header is an IPX payload, meaning no 802.2.
-     (IPX/SPX is they only thing that can be contained inside a
-     straight 802.3 packet). A non-0xffff value means that there's an
-     802.2 layer inside the 802.3 layer */
-    if (pd[14] == 0xff && pd[15] == 0xff) {
+    /* Is there an 802.2 layer? I can tell by looking at the first 2
+       bytes after the 802.3 header. If they are 0xffff, then what
+       follows the 802.3 header is an IPX payload, meaning no 802.2.
+       (IPX/SPX is they only thing that can be contained inside a
+       straight 802.3 packet). A non-0xffff value means that there's an
+       802.2 layer inside the 802.3 layer */
+    if (pd[offset+14] == 0xff && pd[offset+15] == 0xff) {
       ethhdr_type = ETHERNET_802_3;
     }
     else {
       ethhdr_type = ETHERNET_802_2;
     }
+
+    /* Convert the LLC length from the 802.3 header to a total
+       length, by adding in the Ethernet header size, and set
+       the payload and captured-payload lengths to the minima
+       of the total length and the frame lengths. */
+    length += ETH_HEADER_SIZE;
+    if (pi.len > length)
+      pi.len = length;
+    if (pi.captured_len > length)
+      pi.captured_len = length;
   } else {
     ethhdr_type = ETHERNET_II;
   }
+  offset += ETH_HEADER_SIZE;
 
   switch (ethhdr_type) {
     case ETHERNET_802_3:
-      capture_ipx(pd, offset, cap_len, ld);
+      capture_ipx(pd, offset, ld);
       break;
     case ETHERNET_802_2:
-      capture_llc(pd, offset, cap_len, ld);
+      capture_llc(pd, offset, ld);
       break;
     case ETHERNET_II:
-      capture_ethertype(etype, offset, pd, cap_len, ld);
+      capture_ethertype(etype, offset, pd, ld);
       break;
   }
 }
@@ -115,8 +127,8 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_tree *fh_tree = NULL;
   proto_item *ti;
   int        ethhdr_type;	/* the type of ethernet frame */
-  
-  if (fd->cap_len < ETH_HEADER_SIZE) {
+
+  if (!BYTES_ARE_IN_FRAME(offset, ETH_HEADER_SIZE)) {
     dissect_data(pd, offset, fd, tree);
     return;
   }
@@ -162,18 +174,17 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	proto_tree_add_item(fh_tree, hf_eth_dst, offset+0, 6, &pd[offset+0]);
 	proto_tree_add_item(fh_tree, hf_eth_src, offset+6, 6, &pd[offset+6]);
 	proto_tree_add_item(fh_tree, hf_eth_len, offset+12, 2, length);
-
-	/* Convert the LLC length from the 802.3 header to a total
-	   length, by adding in the Ethernet header size, and set
-	   the payload and captured-payload lengths to the minima
-	   of the total length and the frame lengths. */
-	length += ETH_HEADER_SIZE;
-	if (pi.len > length)
-	  pi.len = length;
-	if (pi.captured_len > length)
-	  pi.captured_len = length;
     }
 
+    /* Convert the LLC length from the 802.3 header to a total
+       length, by adding in the Ethernet header size, and set
+       the payload and captured-payload lengths to the minima
+       of the total length and the frame lengths. */
+    length += ETH_HEADER_SIZE;
+    if (pi.len > length)
+      pi.len = length;
+    if (pi.captured_len > length)
+      pi.captured_len = length;
   } else {
     ethhdr_type = ETHERNET_II;
     if (check_col(fd, COL_INFO))

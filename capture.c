@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.90 2000/01/20 21:34:12 guy Exp $
+ * $Id: capture.c,v 1.91 2000/01/23 08:55:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -861,26 +861,32 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
      /* XXX - do something if this fails */
      wtap_dump(ld->pdh, &whdr, pd, &err);
   }
+
+  /* Set the initial payload to the packet length, and the initial
+     captured payload to the capture length (other protocols may
+     reduce them if their headers say they're less). */
+  pi.len = phdr->len;
+  pi.captured_len = phdr->caplen;
     
   switch (ld->linktype) {
     case WTAP_ENCAP_ETHERNET:
-      capture_eth(pd, phdr->caplen, &ld->counts);
+      capture_eth(pd, 0, &ld->counts);
       break;
     case WTAP_ENCAP_FDDI:
     case WTAP_ENCAP_FDDI_BITSWAPPED:
-      capture_fddi(pd, phdr->caplen, &ld->counts);
+      capture_fddi(pd, &ld->counts);
       break;
     case WTAP_ENCAP_TR:
-      capture_tr(pd, phdr->caplen, &ld->counts);
+      capture_tr(pd, 0, &ld->counts);
       break;
     case WTAP_ENCAP_NULL:
-      capture_null(pd, phdr->caplen, &ld->counts);
+      capture_null(pd, &ld->counts);
       break;
     case WTAP_ENCAP_PPP:
-      capture_ppp(pd, phdr->caplen, &ld->counts);
+      capture_ppp(pd, &ld->counts);
       break;
     case WTAP_ENCAP_RAW_IP:
-      capture_raw(pd, phdr->caplen, &ld->counts);
+      capture_raw(pd, &ld->counts);
       break;
     /* XXX - FreeBSD may append 4-byte ATM pseudo-header to DLT_ATM_RFC1483,
        with LLC header following; we should implement it at some

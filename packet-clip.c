@@ -1,7 +1,7 @@
 /* packet-clip.c
  * Routines for clip packet disassembly
  *
- * $Id: packet-clip.c,v 1.3 1999/11/16 11:42:28 guy Exp $
+ * $Id: packet-clip.c,v 1.4 2000/01/23 08:55:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,9 +39,9 @@
 static gint ett_clip = -1;
 
 void
-capture_clip( const u_char *pd, guint32 cap_len, packet_counts *ld ) {
+capture_clip( const u_char *pd, packet_counts *ld ) {
 
-    capture_ip(pd, 0, cap_len, ld);
+    capture_ip(pd, 0, ld);
 }
 
 void

@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.24 2000/01/20 21:34:15 guy Exp $
+ * $Id: packet-ppp.c,v 1.25 2000/01/23 08:55:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -520,16 +520,16 @@ static const ip_tcp_opt ipcp_opts[] = {
 #define N_IPCP_OPTS	(sizeof ipcp_opts / sizeof ipcp_opts[0])
 
 void
-capture_ppp( const u_char *pd, guint32 cap_len, packet_counts *ld ) {
+capture_ppp( const u_char *pd, packet_counts *ld ) {
   switch (pntohs(&pd[2])) {
     case PPP_IP:
-      capture_ip(pd, 4, cap_len, ld);
+      capture_ip(pd, 4, ld);
       break;
     case PPP_IPX:
-      capture_ipx(pd, 4, cap_len, ld);
+      capture_ipx(pd, 4, ld);
       break;
     case PPP_VINES:
-      capture_ipx(pd, 4, cap_len, ld);
+      capture_ipx(pd, 4, ld);
       break;
     default:
       ld->other++;

@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.11 2000/01/21 00:07:53 gram Exp $
+ * $Id: packet-vines.c,v 1.12 2000/01/23 08:55:37 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -45,7 +45,7 @@ static gint ett_vines_frp = -1;
 static gint ett_vines_spp = -1;
 
 void
-capture_vines(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld)
+capture_vines(const u_char *pd, int offset, packet_counts *ld)
 {
   ld->vines++;
 }
