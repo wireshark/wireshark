@@ -2,7 +2,7 @@
  * Routines for SSCOP (Q.2110, Q.SAAL) frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sscop.c,v 1.1 1999/11/19 07:28:15 guy Exp $
+ * $Id: packet-sscop.c,v 1.2 1999/11/19 09:10:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -133,7 +133,7 @@ void
 dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 {
   proto_item *ti;
-  proto_tree *sscop_tree;
+  proto_tree *sscop_tree = NULL;
   guint8 pdu_type;
   int pdu_len;
   int pad_len;
@@ -155,35 +155,35 @@ dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     col_add_str(fd, COL_INFO, val_to_str(pdu_type, sscop_type_vals,
 					"Unknown PDU type (0x%02x)"));
 
-  if (tree) {
-    /*
-     * Find the length of the PDU and, if there's any payload and
-     * padding, the length of the padding.
-     */
-    switch (pdu_type) {
+  /*
+   * Find the length of the PDU and, if there's any payload and
+   * padding, the length of the padding.
+   */
+  switch (pdu_type) {
 
-    case SSCOP_SD:
-      pad_len = (pd[SSCOP_PDU_TYPE] >> 6) & 0x03;
-      pdu_len = 4;
-      break;
+  case SSCOP_SD:
+    pad_len = (pd[SSCOP_PDU_TYPE] >> 6) & 0x03;
+    pdu_len = 4;
+    break;
 
 #if 0
-    case SSCOP_SDP:
-      pad_len = (pd[SSCOP_PDU_TYPE] >> 6) & 0x03;
-      pdu_len = 8;
-      break;
+  case SSCOP_SDP:
+    pad_len = (pd[SSCOP_PDU_TYPE] >> 6) & 0x03;
+    pdu_len = 8;
+    break;
 #endif
 
-    case SSCOP_UD:
-      pad_len = (pd[SSCOP_PDU_TYPE] >> 6) & 0x03;
-      pdu_len = 4;
-      break;
+  case SSCOP_UD:
+    pad_len = (pd[SSCOP_PDU_TYPE] >> 6) & 0x03;
+    pdu_len = 4;
+    break;
 
-    default:
-      pad_len = 0;
-      pdu_len = pi.len;	/* No payload, just SSCOP */
-      break;
-    }
+  default:
+    pad_len = 0;
+    pdu_len = pi.len;	/* No payload, just SSCOP */
+    break;
+  }
+  if (tree) {
     ti = proto_tree_add_item_format(tree, proto_sscop, pi.len - pdu_len,
     					pdu_len, NULL, "SSCOP");
     sscop_tree = proto_item_add_subtree(ti, ett_sscop);
@@ -251,27 +251,31 @@ dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			"PDU Type: %s",
 			val_to_str(pdu_type, sscop_type_vals,
 				"Unknown (0x%02x)"));
-    /*
-     * XXX - what about a Management Data PDU?
-     */
-    switch (pdu_type) {
+  }
 
-    case SSCOP_SD:
-    case SSCOP_UD:
-      pad_len = (pd[SSCOP_PDU_TYPE] >> 6) & 0x03;
+  /*
+   * Dissect the payload, if any.
+   *
+   * XXX - what about a Management Data PDU?
+   */
+  switch (pdu_type) {
+
+  case SSCOP_SD:
+  case SSCOP_UD:
+    if (tree) {
       proto_tree_add_text(sscop_tree, SSCOP_PDU_TYPE, 1,
 			"Pad length: %u", pad_len);
-
-      /*
-       * Compute length of data in PDU - subtract the trailer length
-       * and the pad length.
-       */
-      pi.len -= (pdu_len + pad_len);
-      if (pi.len < pi.captured_len)
-        pi.captured_len = pi.len;
-      dissect_data(pd, offset, fd, tree);
-      break;
     }
+
+    /*
+     * Compute length of data in PDU - subtract the trailer length
+     * and the pad length.
+     */
+    pi.len -= (pdu_len + pad_len);
+    if (pi.len < pi.captured_len)
+      pi.captured_len = pi.len;
+    dissect_data(pd, offset, fd, tree);
+    break;
   }
 }
 
