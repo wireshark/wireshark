@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.65 2004/01/16 18:28:09 guy Exp $
+ * $Id: packet-q931.c,v 1.66 2004/01/26 20:48:38 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -38,6 +38,7 @@
 #include "packet-q931.h"
 #include "prefs.h"
 
+#include "lapd_sapi.h"
 #include "packet-tpkt.h"
 
 /* Q.931 references:
@@ -2935,6 +2936,11 @@ proto_register_q931(void)
 void
 proto_reg_handoff_q931(void)
 {
+	dissector_handle_t q931_handle;
+
+	q931_handle = find_dissector("q931");
+	dissector_add("lapd.sapi", LAPD_SAPI_Q931, q931_handle);
+
 	/*
 	 * Attempt to get a handle for the H.225 dissector.
 	 * If we can't, the handle we get is null, and we'll just

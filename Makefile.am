@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.701 2004/01/25 17:51:53 gerald Exp $
+# $Id: Makefile.am,v 1.702 2004/01/26 20:48:38 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -417,6 +417,7 @@ DISSECTOR_SUPPORT_SRC = \
 	ip_opts.h      \
 	ipproto.c      \
 	ipproto.h      \
+	lapd_sapi.h    \
 	llcsaps.h      \
 	nlpid.h        \
 	oui.h          \

@@ -2081,6 +2081,7 @@ B<http://www.ethereal.com>.
   Tadaaki Nagao            <nagao [AT] iij.ad.jp>
   Aaron Woo                <woo [AT] itd.nrl.navy.mil>
   Chris Wilson             <chris [AT] mxtelecom.com>
+  Rolf Fiedler             <Rolf.Fiedler [AT] Innoventif.com>
   Pavel Roskin             <proski [AT] gnu.org>
   Georgi Guninski          <guninski [AT] guninski.com>
   Jason Copenhaver         <jcopenha [AT] typedef.org>

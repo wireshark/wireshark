@@ -1998,6 +1998,10 @@ Chris Wilson <chris [AT] mxtelecom.com> {
 	SMPP dissection of concatenated PDUs
 }
 
+Rolf Fiedler <Rolf.Fiedler [AT] Innoventif.com> {
+	ISDN TEI management frame support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>

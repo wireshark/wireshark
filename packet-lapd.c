@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-lapd.c,v 1.37 2004/01/18 08:32:45 guy Exp $
+ * $Id: packet-lapd.c,v 1.38 2004/01/26 20:48:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,8 @@
 #include <string.h>
 #include <epan/packet.h>
 #include "xdlc.h"
+
+#include "lapd_sapi.h"
 
 /* ISDN/LAPD references:
  *
@@ -65,8 +67,10 @@ static gint ett_lapd = -1;
 static gint ett_lapd_address = -1;
 static gint ett_lapd_control = -1;
 
-static dissector_handle_t q931_handle;
+static dissector_table_t lapd_sapi_dissector_table;
+
 static dissector_handle_t data_handle;
+static dissector_handle_t tei_handle;
 
 /*
  * Bits in the address field.
@@ -77,11 +81,6 @@ static dissector_handle_t data_handle;
 #define	LAPD_EA1	0x0100	/* First Address Extension bit */
 #define	LAPD_TEI	0x00fe	/* Terminal Endpoint Identifier */
 #define	LAPD_EA2	0x0001	/* Second Address Extension bit */
-
-#define	LAPD_SAPI_Q931		0	/* Q.931 call control procedure */
-#define	LAPD_SAPI_PM_Q931	1	/* Packet mode Q.931 call control procedure */
-#define	LAPD_SAPI_X25		16	/* X.25 Level 3 procedures */
-#define	LAPD_SAPI_L2		63	/* Layer 2 management procedures */
 
 static const value_string lapd_sapi_vals[] = {
 	{ LAPD_SAPI_Q931,	"Q.931 Call control procedure" },
@@ -185,20 +184,9 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	next_tvb = tvb_new_subset(tvb, lapd_header_len, -1, -1);
 	if (XDLC_IS_INFORMATION(control)) {
 		/* call next protocol */
-		switch (sapi) {
-
-		case LAPD_SAPI_Q931:
-			call_dissector(q931_handle, next_tvb, pinfo, tree);
-			break;
-
-		default:
-			/*
-			 * XXX - handle some of the others, such as
-			 * LAPD_SAPI_L2.
-			 */
-			call_dissector(data_handle, next_tvb, pinfo, tree);
-			break;
-		}
+		if (!dissector_try_port(lapd_sapi_dissector_table, sapi,
+		    next_tvb, pinfo, tree))
+			call_dissector(data_handle,next_tvb, pinfo, tree);
 	} else
 		call_dissector(data_handle,next_tvb, pinfo, tree);
 }
@@ -295,14 +283,14 @@ proto_register_lapd(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     register_dissector("lapd", dissect_lapd, proto_lapd);
+
+    lapd_sapi_dissector_table = register_dissector_table("lapd.sapi",
+	    "LAPD SAPI", FT_UINT16, BASE_DEC);
 }
 
 void
 proto_reg_handoff_lapd(void)
 {
-	/*
-	 * Get handle for the Q.931 dissector.
-	 */
-	q931_handle = find_dissector("q931");
 	data_handle = find_dissector("data");
+	tei_handle = find_dissector("tei");
 }
