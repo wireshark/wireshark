@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.33 2001/10/30 10:10:59 guy Exp $
+ * $Id: packet-pim.c,v 1.34 2001/10/30 10:15:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -717,6 +717,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		break;
 	    default:
 	    	/* PIM is available for IPv4 and IPv6 right now */
+	    	computed_cksum = 0;	/* squelch GCC complaints */
 		g_assert_not_reached();
 		break;
 	    }
