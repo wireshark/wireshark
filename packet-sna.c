@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-sna.c,v 1.44 2003/02/13 00:47:42 guy Exp $
+ * $Id: packet-sna.c,v 1.45 2003/03/02 21:47:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -226,8 +226,19 @@ static int hf_sna_xid_3_pucap = -1;
 static int hf_sna_xid_3_pbn = -1;
 static int hf_sna_xid_3_pacing = -1;
 static int hf_sna_xid_3_11 = -1;
+static int hf_sna_xid_3_tgshare = -1;
+static int hf_sna_xid_3_dedsvc = -1;
 static int hf_sna_xid_3_12 = -1;
+static int hf_sna_xid_3_negcsup = -1;
+static int hf_sna_xid_3_negcomp = -1;
 static int hf_sna_xid_3_15 = -1;
+static int hf_sna_xid_3_partg = -1;
+static int hf_sna_xid_3_dlur = -1;
+static int hf_sna_xid_3_dlus = -1;
+static int hf_sna_xid_3_exbn = -1;
+static int hf_sna_xid_3_genodai = -1;
+static int hf_sna_xid_3_branch = -1;
+static int hf_sna_xid_3_brnn = -1;
 static int hf_sna_xid_3_tg = -1;
 static int hf_sna_xid_3_dlc = -1;
 static int hf_sna_xid_3_dlen = -1;
@@ -555,6 +566,14 @@ static const value_string sna_xid_3_state_vals[] = {
 	{ 0x0, NULL }
 };
 
+static const value_string sna_xid_3_branch_vals[] = {
+	{ 0x00, "Sender does not support branch extender" },
+	{ 0x01, "TG is branch uplink" },
+	{ 0x02, "TG is branch downlink" },
+	{ 0x03, "TG is neither uplink nor downlink" },
+	{ 0x0, NULL }
+};
+
 static const value_string sna_xid_type_vals[] = {
 	{ 0x01, "T1 node" },
 	{ 0x02, "T2.0 or T2.1 node" },
@@ -831,7 +850,7 @@ dissect_optional_0d(tvbuff_t *tvb, proto_tree *tree)
 
 	offset = 8;
 
-	while (tvb_offset_exists(tvb, offset+1)) {
+	while (tvb_offset_exists(tvb, offset)) {
 		len = tvb_get_guint8(tvb, offset+0);
 		if (len) {
 			dissect_control(tvb_new_subset(tvb, offset, len, -1),
@@ -842,6 +861,7 @@ dissect_optional_0d(tvbuff_t *tvb, proto_tree *tree)
 				    pad-len, "Padding");
 			offset += pad;
 		} else {
+			/* Avoid endless loop */
 			return;
 		}
 	}
@@ -877,7 +897,7 @@ dissect_optional_0e(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    tvb, 8, 4, FALSE);
 		proto_tree_add_text(tree, tvb, 12, 8, "Reserved");
 
-		if (tvb_offset_exists(tvb, offset+1))
+		if (tvb_offset_exists(tvb, offset))
 			call_dissector(data_handle,
 			    tvb_new_subset(tvb, 4, -1, -1), pinfo, tree);
 	}
@@ -899,7 +919,7 @@ dissect_optional_0f(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 
 	proto_tree_add_item(tree, hf_sna_nlp_opti_0f_bits, tvb, 2, 2, FALSE);
-	if (tvb_offset_exists(tvb, 5))
+	if (tvb_offset_exists(tvb, 4))
 		call_dissector(data_handle,
 		    tvb_new_subset(tvb, 4, -1, -1), pinfo, tree);
 }
@@ -912,7 +932,7 @@ dissect_optional_10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	proto_tree_add_text(tree, tvb, 2, 2, "Reserved");
 	proto_tree_add_item(tree, hf_sna_nlp_opti_10_tcid, tvb, 4, 8, FALSE);
-	if (tvb_offset_exists(tvb, 13))
+	if (tvb_offset_exists(tvb, 12))
 		call_dissector(data_handle,
 		    tvb_new_subset(tvb, 12, -1, -1), pinfo, tree);
 }
@@ -1092,11 +1112,11 @@ dissect_optional_22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(tree, hf_sna_nlp_opti_22_field4,
 		    tvb, 16, 4, FALSE);
 
-		if (tvb_offset_exists(tvb, 21))
+		if (tvb_offset_exists(tvb, 20))
 			call_dissector(data_handle,
 			    tvb_new_subset(tvb, 20, -1, -1), pinfo, tree);
 	} else {
-		if (tvb_offset_exists(tvb, 13))
+		if (tvb_offset_exists(tvb, 12))
 			call_dissector(data_handle,
 			    tvb_new_subset(tvb, 12, -1, -1), pinfo, tree);
 	}
@@ -1114,7 +1134,7 @@ dissect_optional(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	offset = 0;
 
-	while (tvb_offset_exists(tvb, offset+1)) {
+	while (tvb_offset_exists(tvb, offset)) {
 		len = tvb_get_guint8(tvb, offset);
 		type = tvb_get_guint8(tvb, offset+1);
 
@@ -1263,7 +1283,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    tvb, index, 1, nhdr_x);
 			index ++;
 
-			if (tvb_offset_exists(tvb, index+1))
+			if (tvb_offset_exists(tvb, index))
 				call_dissector(data_handle,
 					tvb_new_subset(tvb, index, -1, -1),
 					pinfo, parent_tree);
@@ -1361,14 +1381,14 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (((thdr_8 & 0x20) == 0) && thdr_dlf) {
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_add_str(pinfo->cinfo, COL_INFO, "HPR Fragment");
-		if (tvb_offset_exists(tvb, index+1)) {
+		if (tvb_offset_exists(tvb, index)) {
 			call_dissector(data_handle,
 			    tvb_new_subset(tvb, index, -1, -1), pinfo,
 			    parent_tree);
 		}
 		return;
 	}
-	if (tvb_offset_exists(tvb, index+1)) {
+	if (tvb_offset_exists(tvb, index)) {
 		/* Transmission Header Format Identifier */
 		fid = hi_nibble(tvb_get_guint8(tvb, index));
 		if (fid == 5) /* Only FID5 allowed for HPR */
@@ -1417,7 +1437,7 @@ dissect_xid2(tvbuff_t *tvb, proto_tree *tree)
 
 	offset = dlen;
 
-	while (tvb_offset_exists(tvb, offset+1)) {
+	while (tvb_offset_exists(tvb, offset)) {
 		dlen = tvb_get_guint8(tvb, offset+1);
 		dissect_control(tvb_new_subset(tvb, offset, dlen+2, -1),
 		    tree, 0, KL);
@@ -1439,53 +1459,59 @@ dissect_xid3(tvbuff_t *tvb, proto_tree *tree)
 
 	val = tvb_get_ntohs(tvb, 2);
 
-	sub_ti = proto_tree_add_item(tree, hf_sna_xid_3_8, tvb,
-	    2, 2, FALSE);
+	sub_ti = proto_tree_add_uint(tree, hf_sna_xid_3_8, tvb,
+	    2, 2, val);
 	sub_tree = proto_item_add_subtree(sub_ti, ett_sna_xid_3_8);
 
-	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_init_self, tvb, 2, 1,
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_init_self, tvb, 2, 2,
 	    val);
-	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_stand_bind, tvb, 2, 1,
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_stand_bind, tvb, 2, 2,
 	    val);
-	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_gener_bind, tvb, 2, 1,
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_gener_bind, tvb, 2, 2,
 	    val);
-	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_recve_bind, tvb, 2, 1,
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_recve_bind, tvb, 2, 2,
 	    val);
-	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_actpu, tvb, 2, 1, val);
-	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_nwnode, tvb, 2, 1, val);
-	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_cp, tvb, 2, 1, val);
-	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_cpcp, tvb, 2, 1, val);
-	proto_tree_add_uint(sub_tree, hf_sna_xid_3_state, tvb, 2, 1, val);
-	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_nonact, tvb, 2, 1, val);
-	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_cpchange, tvb, 2, 1,
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_actpu, tvb, 2, 2, val);
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_nwnode, tvb, 2, 2, val);
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_cp, tvb, 2, 2, val);
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_cpcp, tvb, 2, 2, val);
+	proto_tree_add_uint(sub_tree, hf_sna_xid_3_state, tvb, 2, 2, val);
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_nonact, tvb, 2, 2, val);
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_cpchange, tvb, 2, 2,
 	    val);
 
 	val = tvb_get_guint8(tvb, 4);
 
-	sub_ti = proto_tree_add_item(tree, hf_sna_xid_3_10, tvb,
-	    4, 1, FALSE);
+	sub_ti = proto_tree_add_uint(tree, hf_sna_xid_3_10, tvb,
+	    4, 1, val);
 	sub_tree = proto_item_add_subtree(sub_ti, ett_sna_xid_3_10);
 
-	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_asend_bind, tvb, 2, 1,
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_asend_bind, tvb, 4, 1,
 	    val);
-	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_arecv_bind, tvb, 2, 1,
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_arecv_bind, tvb, 4, 1,
 	    val);
-	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_quiesce, tvb, 2, 1, val);
-	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_pucap, tvb, 2, 1, val);
-	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_pbn, tvb, 2, 1, val);
-	proto_tree_add_uint(sub_tree, hf_sna_xid_3_pacing, tvb, 2, 1, val);
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_quiesce, tvb, 4, 1, val);
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_pucap, tvb, 4, 1, val);
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_pbn, tvb, 4, 1, val);
+	proto_tree_add_uint(sub_tree, hf_sna_xid_3_pacing, tvb, 4, 1, val);
 
 	val = tvb_get_guint8(tvb, 5);
 
-	sub_ti = proto_tree_add_item(tree, hf_sna_xid_3_11, tvb,
-	    5, 1, FALSE);
+	sub_ti = proto_tree_add_uint(tree, hf_sna_xid_3_11, tvb,
+	    5, 1, val);
 	sub_tree = proto_item_add_subtree(sub_ti, ett_sna_xid_3_11);
+
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_tgshare, tvb, 5, 1, val);
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_dedsvc, tvb, 5, 1, val);
 
 	val = tvb_get_guint8(tvb, 6);
 
 	sub_ti = proto_tree_add_item(tree, hf_sna_xid_3_12, tvb,
 	    6, 1, FALSE);
 	sub_tree = proto_item_add_subtree(sub_ti, ett_sna_xid_3_12);
+
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_negcsup, tvb, 6, 1, val);
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_negcomp, tvb, 6, 1, val);
 
 	proto_tree_add_text(tree, tvb, 7, 2, "Reserved");
 
@@ -1495,18 +1521,26 @@ dissect_xid3(tvbuff_t *tvb, proto_tree *tree)
 	    9, 1, FALSE);
 	sub_tree = proto_item_add_subtree(sub_ti, ett_sna_xid_3_15);
 
-	proto_tree_add_item(sub_tree, hf_sna_xid_3_tg, tvb, 10, 1, FALSE);
-	proto_tree_add_item(sub_tree, hf_sna_xid_3_dlc, tvb, 11, 1, FALSE);
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_partg, tvb, 9, 1, val);
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_dlur, tvb, 9, 1, val);
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_dlus, tvb, 9, 1, val);
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_exbn, tvb, 9, 1, val);
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_genodai, tvb, 9, 1, val);
+	proto_tree_add_uint(sub_tree, hf_sna_xid_3_branch, tvb, 9, 1, val);
+	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_brnn, tvb, 9, 1, val);
+
+	proto_tree_add_item(tree, hf_sna_xid_3_tg, tvb, 10, 1, FALSE);
+	proto_tree_add_item(tree, hf_sna_xid_3_dlc, tvb, 11, 1, FALSE);
 
 	dlen = tvb_get_guint8(tvb, 12);
 
-	proto_tree_add_uint(sub_tree, hf_sna_xid_3_dlen, tvb, 12, 1, dlen);
+	proto_tree_add_uint(tree, hf_sna_xid_3_dlen, tvb, 12, 1, dlen);
 
 	/* FIXME: DLC Dependent Data Go Here */
 
 	offset = 12 + dlen;
 
-	while (tvb_offset_exists(tvb, offset+1)) {
+	while (tvb_offset_exists(tvb, offset)) {
 		dlen = tvb_get_guint8(tvb, offset+1);
 		dissect_control(tvb_new_subset(tvb, offset, dlen+2, -1),
 		    tree, 0, KL);
@@ -1582,7 +1616,7 @@ dissect_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (format == 0)
 		len = 6;
 
-	if (tvb_offset_exists(tvb, len+1))
+	if (tvb_offset_exists(tvb, len))
 		call_dissector(data_handle,
 		    tvb_new_subset(tvb, len, -1, -1), pinfo, parent_tree);
 }
@@ -2211,7 +2245,7 @@ dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	rh_offset += RH_LEN;
 
-	if (tvb_offset_exists(rh_tvb, rh_offset+1)) {
+	if (tvb_offset_exists(rh_tvb, rh_offset)) {
 		/* Short-circuit ? */
 		if (continue_dissecting == rh_only) {
 			if (tree)
@@ -2346,7 +2380,7 @@ dissect_control_05hpr(tvbuff_t *tvb, proto_tree *tree, int hpr,
 
 	offset = 4;
 
-	while (tvb_offset_exists(tvb, offset+1)) {
+	while (tvb_offset_exists(tvb, offset)) {
 		if (parse == LT) {
 			len = tvb_get_guint8(tvb, offset+0);
 		} else {
@@ -2519,7 +2553,7 @@ dissect_gds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 		offset += length;
 	}
-	if (tvb_offset_exists(tvb, offset+1))
+	if (tvb_offset_exists(tvb, offset))
 		call_dissector(data_handle,
 		    tvb_new_subset(tvb, offset, -1, -1), pinfo, parent_tree);
 };
@@ -3361,13 +3395,68 @@ proto_register_sna(void)
 		{ "XID Type 3 Byte 11", "sna.xid.type3.11", FT_UINT8, BASE_HEX,
 		    NULL, 0x0, "", HFILL }},
 
+		{ &hf_sna_xid_3_tgshare,
+		{ "TG Sharing Prohibited Indicator",
+		    "sna.xid.type3.tgshare", FT_BOOLEAN, 8, NULL, 0x40,
+		    "", HFILL }},
+
+		{ &hf_sna_xid_3_dedsvc,
+		{ "Dedicated SVC Idicator",
+		    "sna.xid.type3.dedsvc", FT_BOOLEAN, 8, NULL, 0x20,
+		    "", HFILL }},
+
 		{ &hf_sna_xid_3_12,
 		{ "XID Type 3 Byte 12", "sna.xid.type3.12", FT_UINT8, BASE_HEX,
 		    NULL, 0x0, "", HFILL }},
 
+		{ &hf_sna_xid_3_negcsup,
+		{ "Negotiation Complete Supported",
+		    "sna.xid.type3.negcsup", FT_BOOLEAN, 8, NULL, 0x80,
+		    "", HFILL }},
+
+		{ &hf_sna_xid_3_negcomp,
+		{ "Negotiation Complete",
+		    "sna.xid.type3.negcomp", FT_BOOLEAN, 8, NULL, 0x40,
+		    "", HFILL }},
+
 		{ &hf_sna_xid_3_15,
 		{ "XID Type 3 Byte 15", "sna.xid.type3.15", FT_UINT8, BASE_HEX,
 		    NULL, 0x0, "", HFILL }},
+
+		{ &hf_sna_xid_3_partg,
+		{ "Parallel TG Support",
+		    "sna.xid.type3.partg", FT_BOOLEAN, 8, NULL, 0x80,
+		    "", HFILL }},
+
+		{ &hf_sna_xid_3_dlur,
+		{ "Dependent LU Requester Indicator",
+		    "sna.xid.type3.dlur", FT_BOOLEAN, 8, NULL, 0x40,
+		    "", HFILL }},
+
+		{ &hf_sna_xid_3_dlus,
+		{ "DLUS Served LU Registration Indicator",
+		    "sna.xid.type3.dlus", FT_BOOLEAN, 8, NULL, 0x20,
+		    "", HFILL }},
+
+		{ &hf_sna_xid_3_exbn,
+		{ "Extended HPR Border Node",
+		    "sna.xid.type3.exbn", FT_BOOLEAN, 8, NULL, 0x10,
+		    "", HFILL }},
+
+		{ &hf_sna_xid_3_genodai,
+		{ "Generalized ODAI Usage Option",
+		    "sna.xid.type3.genodai", FT_BOOLEAN, 8, NULL, 0x08,
+		    "", HFILL }},
+
+		{ &hf_sna_xid_3_branch,
+		{ "Branch Indicator", "sna.xid.type3.branch",
+		    FT_UINT8, BASE_HEX, VALS(sna_xid_3_branch_vals),
+		    0x06, "", HFILL }},
+
+		{ &hf_sna_xid_3_brnn,
+		{ "Option Set 1123 Indicator",
+		    "sna.xid.type3.brnn", FT_BOOLEAN, 8, NULL, 0x01,
+		    "", HFILL }},
 
 		{ &hf_sna_xid_3_tg,
 		{ "XID TG", "sna.xid.type3.tg", FT_UINT8, BASE_HEX, NULL, 0x0,

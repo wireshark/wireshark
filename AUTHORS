@@ -342,17 +342,12 @@ Florian Lohoff <flo[AT]rfc822.org> {
 }
 
 Jochen Friedrich <jochen+ethereal[AT]scram.de> {
+	SNA improvements
 	Fix to IPv6 fragment handling
 	SMUX and SNMPv3 support
-	Zebra
-	SNA HPR-over-PPP and SNA-over-LLC-over-PPP (RFC 2043)
+	Zebra support
 	HPR/UDP (RFC 2353, Enterprise Extender)
-	RPL support.
-	Fixed handling of NLP header in SNA
-	XID handoff table for LLC, and XID dissection for SNA format 3
-	HPR optional segments in SNA
-	Most important control vectors in SNA
-	Route setup messages in SNA
+	RPL support
 }
 
 Paul Welchinski <paul.welchinski[AT]telusplanet.net> {
