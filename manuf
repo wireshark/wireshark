@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes, and well-known MAC addresses
 #
-# $Id: manuf,v 1.35 2003/12/21 02:54:48 jmayer Exp $
+# $Id: manuf,v 1.36 2004/01/23 09:24:38 jmayer Exp $
 #
 # Laurent Deniel <laurent.deniel [AT] free.fr>
 #
@@ -336,7 +336,7 @@
 00:01:1E	PrecidiaTe             # Precidia Technologies, Inc.
 00:01:1F	RcNetworks             # RC Networks, Inc.
 00:01:20	Oscilloqua             # OSCILLOQUARTZ S.A.
-00:01:21	Rapidstrea             # RapidStream Inc.
+00:01:21	Watchguard             # Watchguard Technologies, Inc.
 00:01:22	TrendCommu             # Trend Communications, Ltd.
 00:01:23	DigitalEle             # DIGITAL ELECTRONICS CORP.
 00:01:24	Acer                   # Acer Incorporated
@@ -1207,7 +1207,7 @@
 00:04:85	Picolight
 00:04:86	IttcUniver             # ITTC, University of Kansas
 00:04:87	CogencySem             # Cogency Semiconductor, Inc.
-00:04:88	EurothermA             # Eurotherm Action Incorporated.
+00:04:88	EurothermC             # Eurotherm Controls
 00:04:89	YafoNetwor             # YAFO Networks, Inc.
 00:04:8A	TemiaVertr             # Temia Vertriebs GmbH
 00:04:8B	Poscon                 # Poscon Corporation
@@ -2999,7 +2999,7 @@
 00:0B:AC	3comEurope             # 3Com Europe Ltd.
 00:0B:AD	Pc-Pos                 # PC-PoS Inc.
 00:0B:AE	VitalsSyst             # Vitals System Inc.
-00:0B:AF	Private
+00:0B:AF	WoojuCommu             # WOOJU COMMUNICATIONS Co,.Ltd
 00:0B:B0	SysnetTele             # Sysnet Telematica srl
 00:0B:B1	SuperStarT             # Super Star Technology Co., Ltd.
 00:0B:B2	SmallbigTe             # SMALLBIG TECHNOLOGY
@@ -3834,7 +3834,7 @@
 00:0E:EF	Private
 00:0E:F0	Festo                  # Festo AG & Co. KG
 00:0E:F1	Ezquest                # EZQUEST INC.
-00:0E:F2	Private
+00:0E:F2	WorldAxle              # World Axle Corporation
 00:0E:F3	Smarthome
 00:0E:F4	ShenzhenKa             # Shenzhen Kasda Digital Technology Co.,Ltd
 00:0E:F5	IpacTechno             # iPAC Technology Co., Ltd.
@@ -3863,6 +3863,80 @@
 00:0F:0C	Synchronic             # SYNCHRONIC ENGINEERING
 00:0F:0D	HuntElectr             # Hunt Electronic Co., Ltd.
 00:0F:0E	Wavesplitt             # WaveSplitter Technologies, Inc.
+00:0F:0F	RealIdTech             # Real ID Technology Co., Ltd.
+00:0F:10	Rdm                    # RDM Corporation
+00:0F:11	ProdriveBV             # Prodrive B.V.
+00:0F:12	PanasonicA             # Panasonic AVC Networks Germany GmbH
+00:0F:13	Nisca                  # Nisca corporation
+00:0F:14	Mindray                # Mindray Co., Ltd.
+00:0F:15	Kjaerulff1             # Kjaerulff1 A/S
+00:0F:16	JayHowTech             # JAY HOW TECHNOLOGY CO.,
+00:0F:17	InstaElekt             # Insta Elektro GmbH
+00:0F:18	Industrial             # Industrial Control Systems
+00:0F:19	Guidant                # Guidant Corporation
+00:0F:1A	GamingSupp             # Gaming Support B.V.
+00:0F:1B	Ego                    # Ego Systems Inc.
+00:0F:1C	DigitallWo             # DigitAll World Co., Ltd
+00:0F:1D	CosmoTechs             # Cosmo Techs Co., Ltd.
+00:0F:1E	ChengduKtE             # Chengdu KT Electric Co.of High & New Technology
+00:0F:1F	WwPcbaTest             # WW PCBA Test
+00:0F:20	WwOps                  # WW Ops
+00:0F:21	Scientific             # Scientific Atlanta, Inc
+00:0F:22	Helius                 # Helius, Inc.
+00:0F:23	Cisco                  # Cisco Systems
+00:0F:24	Cisco                  # Cisco Systems
+00:0F:25	AimvalleyB             # AimValley B.V.
+00:0F:26	Worldaccxx             # WorldAccxx  LLC
+00:0F:27	TealElectr             # TEAL Electronics, Inc.
+00:0F:28	Itronix                # Itronix Corporation
+00:0F:29	Augmentix              # Augmentix Corporation
+00:0F:2A	CablewareE             # Cableware Electronics
+00:0F:2B	Greenbell              # GREENBELL SYSTEMS
+00:0F:2C	Uplogix                # Uplogix, Inc.
+00:0F:2D	Chung-Hsin             # CHUNG-HSIN ELECTRIC & MACHINERY MFG.CORP.
+00:0F:2E	MegapowerI             # Megapower International Corp.
+00:0F:2F	W-LinxTech             # W-LINX TECHNOLOGY CO., LTD.
+00:0F:30	RazaMicroe             # Raza Microelectronics Inc
+00:0F:31	Prosilica
+00:0F:32	LutongElec             # LuTong Electronic Technology Co.,Ltd
+00:0F:33	Duali                  # DUALi Inc.
+00:0F:34	Cisco                  # Cisco Systems
+00:0F:35	Cisco                  # Cisco Systems
+00:0F:36	AccurateTe             # Accurate Techhnologies, Inc.
+00:0F:37	Xambala                # Xambala Incorporated
+00:0F:38	Netstar
+00:0F:39	IrisSensor             # IRIS SENSORS
+00:0F:3A	Hisharp
+00:0F:3B	FujiSystem             # Fuji System Machines Co., Ltd.
+00:0F:3C	Endeleo                # Endeleo Limited
+00:0F:3D	D-Link                 # D-Link Corporation
+00:0F:3E	Cardionet              # CardioNet, Inc
+00:0F:3F	BigBearNet             # Big Bear Networks
+00:0F:40	OpticalInt             # Optical Internetworking Forum
+00:0F:41	Zipher                 # Zipher Ltd
+00:0F:42	Xalyo                  # Xalyo Systems
+00:0F:43	Wasabi                 # Wasabi Systems Inc.
+00:0F:44	Tivella                # Tivella Inc.
+00:0F:45	Stretch                # Stretch, Inc.
+00:0F:46	Sinar                  # SINAR AG
+00:0F:47	RoboxSpa               # ROBOX SPA
+00:0F:48	Polypix                # Polypix Inc.
+00:0F:49	NorthoverS             # Northover Solutions Limited
+00:0F:4A	Kyushu-Kyo             # Kyushu-kyohan co.,ltd
+00:0F:4B	KatanaTech             # Katana Technology
+00:0F:4C	Elextech               # Elextech INC
+00:0F:4D	Centrepoin             # Centrepoint Technologies Inc.
+00:0F:4E	Cellink
+00:0F:4F	CadmusTech             # Cadmus Technology Ltd
+00:0F:50	Braddahead             # BraddaHead Limited
+00:0F:51	Private
+00:0F:52	YorkRefrig             # YORK Refrigeration, Marine & Controls
+00:0F:53	Level5Netw             # Level 5 Networks, Inc.
+00:0F:54	Entrelogic             # Entrelogic Corporation
+00:0F:55	DatawireCo             # Datawire Communication Networks Inc.
+00:0F:56	ContinuumP             # Continuum Photonics Inc
+00:0F:57	Cablelogic             # CABLELOGIC Co., Ltd.
+00:0F:58	AdderTechn             # Adder Technology Limited
 00:10:00	CableTelev             # CABLE TELEVISION LABORATORIES, INC.
 00:10:01	MckCommuni             # MCK COMMUNICATIONS
 00:10:02	Actia
@@ -3963,7 +4037,7 @@
 00:10:61	Hostlink               # HOSTLINK CORP.
 00:10:62	NxServerIl             # NX SERVER, ILNC.
 00:10:63	StarguideD             # STARGUIDE DIGITAL NETWORKS
-00:10:64	DigitalEqu             # DIGITAL EQUIPMENT CORP.
+00:10:64	DnpgLlc                # DNPG, LLC
 00:10:65	Radyne                 # RADYNE CORPORATION
 00:10:66	AdvancedCo             # ADVANCED CONTROL SYSTEMS, INC.
 00:10:67	RedbackNet             # REDBACK NETWORKS, INC.
@@ -4399,7 +4473,7 @@
 00:30:14	Divio                  # DIVIO, INC.
 00:30:15	CpClare                # CP CLARE CORP.
 00:30:16	Ishida                 # ISHIDA CO., LTD.
-00:30:17	Terastack              # TERASTACK LTD.
+00:30:17	BluearcUk              # BlueArc UK Ltd
 00:30:18	JetwayInfo             # Jetway Information Co., Ltd.
 00:30:19	Cisco                  # CISCO SYSTEMS, INC.
 00:30:1A	Smartbridg             # SMARTBRIDGES PTE. LTD.
@@ -7191,7 +7265,7 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 #
 # Well-known addresses.
 #
-# $Id: manuf,v 1.35 2003/12/21 02:54:48 jmayer Exp $
+# $Id: manuf,v 1.36 2004/01/23 09:24:38 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald [AT] ethereal.com>
