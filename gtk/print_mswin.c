@@ -27,6 +27,8 @@
  */
 
 
+#include <string.h>
+
 #include "windows.h"
 
 #ifdef __WIN32__

@@ -26,6 +26,7 @@
  *	 HOWTO: Print a Document
  */
 
+#include <string.h>
 
 #include "windows.h"
 
