@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.17 2001/09/14 07:10:10 guy Exp $
+ * $Id: proto.h,v 1.18 2001/10/31 05:59:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,13 +56,6 @@ struct value_string;
 #define TFS(x)	(struct true_false_string*)(x)
 
 /* check protocol activation */
-#define OLD_CHECK_DISPLAY_AS_DATA(index, pd, offset, fd, tree) {\
-	if (!proto_is_protocol_enabled(index)) {		\
-		old_dissect_data(pd, offset, fd, tree);		\
-		return;						\
-	}							\
-  }
-
 #define CHECK_DISPLAY_AS_DATA(index, tvb, pinfo, tree) {	\
 	if (!proto_is_protocol_enabled(index)) {		\
 		dissect_data(tvb, 0, pinfo, tree);		\

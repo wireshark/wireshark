@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.10 2001/08/21 07:03:50 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.11 2001/10/31 05:59:20 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -20,7 +20,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -112,9 +111,8 @@ enum srcdst_type {
  */
 #define E_CLIST_S_PROTO_NAME 0
 #define E_CLIST_S_TABLE	     1
-#define E_CLIST_S_ISOLD	     2
 /* The following is for debugging in decode_add_to_clist */
-#define E_CLIST_S_ISCONV     3
+#define E_CLIST_S_ISCONV     2
 #define E_CLIST_S_MAX	     E_CLIST_S_ISCONV
 #define E_CLIST_S_COLUMNS   (E_CLIST_S_MAX + 1)
 
@@ -482,21 +480,17 @@ static void
 decode_change_one_dissector (gchar *table_name, gint selector, GtkCList *clist)
 {
     dissector_t  dissector;
-    gboolean     old;
-    gchar       *abbrev, *oldstring;
+    gchar       *abbrev;
     gint         row, proto_num;
 
     if (!clist->selection) {
 	proto_num = -1;
 	abbrev = "(NULL)";
-	old = FALSE;
 	dissector = NULL;
     } else {
 	row = GPOINTER_TO_INT(clist->selection->data);
 	proto_num = GPOINTER_TO_INT(gtk_clist_get_row_data(clist, row));
 	gtk_clist_get_text(clist, row, E_CLIST_S_PROTO_NAME, &abbrev);
-	gtk_clist_get_text(clist, row, E_CLIST_S_ISOLD, &oldstring);
-	old = (strcmp(oldstring, "TRUE") == 0);
 	dissector = proto_get_protocol_dissector(proto_num);
 	if ((proto_num != -1) && (dissector == NULL)) {
 	    simple_dialog(ESD_TYPE_CRIT, NULL,
@@ -508,7 +502,7 @@ decode_change_one_dissector (gchar *table_name, gint selector, GtkCList *clist)
     if (strcmp(abbrev, "(default)") == 0) {
 	dissector_reset(table_name, selector);
     } else {
-	dissector_change(table_name, selector, dissector, old, proto_num);
+	dissector_change(table_name, selector, dissector, proto_num);
     }
 }
 
@@ -542,11 +536,10 @@ decode_debug (GtkCList *clist, gchar *leadin)
 	row = GPOINTER_TO_INT(clist->selection->data);
 	gtk_clist_get_text(clist, row, E_CLIST_S_PROTO_NAME, &text[E_CLIST_S_PROTO_NAME]);
 	gtk_clist_get_text(clist, row, E_CLIST_S_TABLE, &text[E_CLIST_S_TABLE]);
-	gtk_clist_get_text(clist, row, E_CLIST_S_ISOLD, &text[E_CLIST_S_ISOLD]);
 	proto_num = GPOINTER_TO_INT(gtk_clist_get_row_data(clist, row));
-	sprintf(string, "%s clist row %d: proto %d, name %s, table %s, old %s",
+	sprintf(string, "%s clist row %d: proto %d, name %s, table %s",
 		leadin, row, proto_num, text[E_CLIST_S_PROTO_NAME],
-		text[E_CLIST_S_TABLE], text[E_CLIST_S_ISOLD]);
+		text[E_CLIST_S_TABLE]);
     } else {
 	sprintf(string, "%s clist row (none), aka do not decode", leadin);
     }
@@ -1013,7 +1006,7 @@ decode_add_to_clist (gchar *table_name, gpointer key,
 		     gpointer value, gpointer user_data)
 {
     GtkCList  *clist;
-    gchar     *proto_name, *isold, *isconv;
+    gchar     *proto_name, *isconv;
     gchar     *text[E_CLIST_S_COLUMNS];
     gint proto, row;
     decode_build_clist_info_t *info;
@@ -1025,11 +1018,9 @@ decode_add_to_clist (gchar *table_name, gpointer key,
     clist = info->clist;
     if (info->conv) {
 	proto = conv_dissector_get_proto(value);
-	isold = "FALSE";
 	isconv = "TRUE";
     } else {
 	proto = dissector_get_proto(value);
-	isold = dissector_get_old_flag(value) ? "TRUE" : "FALSE";
 	isconv = "FALSE";
     }
     proto_name = proto_get_protocol_short_name(proto);
@@ -1041,7 +1032,6 @@ decode_add_to_clist (gchar *table_name, gpointer key,
 
     text[E_CLIST_S_PROTO_NAME] = proto_name;
     text[E_CLIST_S_TABLE] = table_name;
-    text[E_CLIST_S_ISOLD] = isold;
     text[E_CLIST_S_ISCONV] = isconv;
     row = gtk_clist_prepend(clist, text);
     gtk_clist_set_row_data(clist, row, GINT_TO_POINTER(proto));
@@ -1066,7 +1056,7 @@ decode_clist_menu_start (GtkWidget *page, GtkCList **clist_p,
 			 GtkWidget **scrolled_win_p)
 {
     gchar *titles[E_CLIST_S_COLUMNS] = {"Short Name", "Table Name",
-					"Is Old", "Is Conversation"};
+					"Is Conversation"};
     GtkCList  *clist;
     GtkWidget *window;
     gint column;
@@ -1107,7 +1097,6 @@ decode_clist_menu_finish (GtkCList *clist)
 
     text[E_CLIST_S_PROTO_NAME] = "(default)";
     text[E_CLIST_S_TABLE] = "(none)";
-    text[E_CLIST_S_ISOLD] = "(who cares)";
     text[E_CLIST_S_ISCONV] = "(who cares)";
     row = gtk_clist_prepend(clist, text);
     gtk_clist_set_row_data(clist, row, GINT_TO_POINTER(-1));

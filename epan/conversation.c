@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.13 2001/09/03 10:33:12 guy Exp $
+ * $Id: conversation.c,v 1.14 2001/10/31 05:59:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -463,7 +463,7 @@ conversation_new(address *addr1, address *addr2, port_type ptype,
 	conversation->data_list = NULL;
 
 /* clear dissector pointer */
-	conversation->dissector.new_d = NULL;
+	conversation->dissector = NULL;
 
 /* set the options and key pointer */
 	conversation->options = options;
@@ -900,23 +900,11 @@ conversation_delete_proto_data(conversation_t *conv, int proto)
 		conv->data_list = g_slist_remove(conv->data_list, item);
 }
 
-/*
- * Set the dissector for a conversation.
- */
-void
-old_conversation_set_dissector(conversation_t *conversation,
-    old_dissector_t dissector)
-{
-	conversation->is_old_dissector = TRUE;
-	conversation->dissector.old_d = dissector;
-}
-
 void
 conversation_set_dissector(conversation_t *conversation,
     dissector_t dissector)
 {
-	conversation->is_old_dissector = FALSE;
-	conversation->dissector.new_d = dissector;
+	conversation->dissector = dissector;
 }
 
 /*
@@ -937,25 +925,9 @@ try_conversation_dissector(address *addr_a, address *addr_b, port_type ptype,
 	    port_b, 0);
 	
 	if (conversation != NULL) {
-		if (conversation->is_old_dissector) {
-			if (conversation->dissector.old_d == NULL)
-				return FALSE;
-
-			/*
-			 * New dissector calling old dissector; use
-			 * "tvb_compat()" to remap.
-			 *
-			 * "is_old_dissector" won't be set unless
-			 * "dissector.old_d" is set.
-			 */
-			tvb_compat(tvb, &pd, &offset);
-			(*conversation->dissector.old_d)(pd, offset, pinfo->fd,
-			    tree);
-		} else {
-			if (conversation->dissector.new_d == NULL)
-				return FALSE;
-			(*conversation->dissector.new_d)(tvb, pinfo, tree);
-		}
+		if (conversation->dissector == NULL)
+			return FALSE;
+		(*conversation->dissector)(tvb, pinfo, tree);
 		return TRUE;
 	}
 	return FALSE;

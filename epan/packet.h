@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.35 2001/06/29 09:46:54 guy Exp $
+ * $Id: packet.h,v 1.36 2001/10/31 05:59:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -21,7 +21,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 
 #ifndef __PACKET_H__
 #define __PACKET_H__
@@ -46,7 +45,8 @@
 /* Useful when highlighting regions inside a dissect_*() function. With this
  * macro, you can highlight from an arbitrary offset to the end of the
  * packet (which may come before the end of the frame).
- * See old_dissect_data() for an example.
+ * See the SMB dissector for an example.
+ * XXX - this goes when the SMB dissector is fully tvbuffified.
  */
 #define END_OF_FRAME	(pi.captured_len - offset)
 
@@ -101,7 +101,6 @@ typedef void (*DATFunc) (gchar *table_name, gpointer key, gpointer value, gpoint
 /* Opaque structure - provides type checking but no access to components */
 typedef struct dtbl_entry dtbl_entry_t;
 
-gboolean dissector_get_old_flag (dtbl_entry_t *entry);
 gint dissector_get_proto (dtbl_entry_t * entry);
 gint dissector_get_initial_proto (dtbl_entry_t * entry);
 void dissector_table_foreach_changed (char *name, DATFunc func, gpointer user_data);
@@ -113,8 +112,6 @@ dissector_table_t register_dissector_table(const char *name);
 
 /* Add a sub-dissector to a dissector table.  Called by the protocol routine */
 /* that wants to register a sub-dissector.  */
-void old_dissector_add(const char *abbrev, guint32 pattern,
-    old_dissector_t dissector, int proto);
 void dissector_add(const char *abbrev, guint32 pattern,
     dissector_t dissector, int proto);
 
@@ -122,9 +119,10 @@ void dissector_add(const char *abbrev, guint32 pattern,
 /* that wants to de-register a sub-dissector.  */
 void dissector_delete(const char *name, guint32 pattern, dissector_t dissector);
 
-/* Reset a dissector in a sub-dissector table to its initial value. */
 void dissector_change(const char *abbrev, guint32 pattern,
-    dissector_t dissector, gboolean old, int proto);
+    dissector_t dissector, int proto);
+
+/* Reset a dissector in a sub-dissector table to its initial value. */
 void dissector_reset(const char *name, guint32 pattern);
 
 /* Look for a given port in a given dissector table and, if found, call
@@ -228,7 +226,6 @@ void init_all_protocols(void);
  */
 void dissect_packet(tvbuff_t **p_tvb, union wtap_pseudo_header *pseudo_header,
 		const u_char *pd, frame_data *fd, proto_tree *tree);
-void old_dissect_data(const u_char *, int, frame_data *, proto_tree *);
 void dissect_data(tvbuff_t *tvb, int, packet_info *pinfo, proto_tree *tree);
 
 

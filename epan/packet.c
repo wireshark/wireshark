@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.36 2001/06/29 09:46:54 guy Exp $
+ * $Id: packet.c,v 1.37 2001/10/31 05:59:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -216,22 +216,9 @@ dissect_packet(tvbuff_t **p_tvb, union wtap_pseudo_header *pseudo_header,
 
 static GHashTable *dissector_tables = NULL;
 
-/*
- * XXX - for now, we support having both "old" dissectors, with packet
- * data pointer, packet offset, frame_data pointer, and protocol tree
- * pointer arguments, and "new" dissectors, with tvbuff pointer,
- * packet_info pointer, and protocol tree pointer arguments.
- *
- * Nuke this and go back to storing a pointer to the dissector when
- * the last old-style dissector is gone.
- */
 typedef struct {
-	gboolean is_old_dissector;
-	union {
-		old_dissector_t	old;
-		dissector_t	new;
-	} dissector;
-	int	proto_index;
+	dissector_t	dissector;
+	int		proto_index;
 } dissector_entry_t;
 
 struct dtbl_entry {
@@ -252,30 +239,6 @@ find_dissector_table(const char *name)
 	return g_hash_table_lookup( dissector_tables, name );
 }
 
-/* add an entry, lookup the dissector table for the specified field name,  */
-/* if a valid table found, add the subdissector */
-void
-old_dissector_add(const char *name, guint32 pattern, old_dissector_t dissector,
-    int proto)
-{
-	dissector_table_t sub_dissectors = find_dissector_table( name);
-	dtbl_entry_t *dtbl_entry;
-
-/* sanity check */
-	g_assert( sub_dissectors);
-
-	dtbl_entry = g_malloc(sizeof (dtbl_entry_t));
-	dtbl_entry->current.is_old_dissector = TRUE;
-	dtbl_entry->current.dissector.old = dissector;
-	dtbl_entry->current.proto_index = proto;
-	dtbl_entry->initial = dtbl_entry->current;
-	proto_set_protocol_dissector(proto, dissector);
-
-/* do the table insertion */
-    	g_hash_table_insert( sub_dissectors, GUINT_TO_POINTER( pattern),
-    	 (gpointer)dtbl_entry);
-}
-
 void
 dissector_add(const char *name, guint32 pattern, dissector_t dissector,
     int proto)
@@ -287,8 +250,7 @@ dissector_add(const char *name, guint32 pattern, dissector_t dissector,
 	g_assert( sub_dissectors);
 
 	dtbl_entry = g_malloc(sizeof (dtbl_entry_t));
-	dtbl_entry->current.is_old_dissector = FALSE;
-	dtbl_entry->current.dissector.new = dissector;
+	dtbl_entry->current.dissector = dissector;
 	dtbl_entry->current.proto_index = proto;
 	dtbl_entry->initial = dtbl_entry->current;
 	proto_set_protocol_dissector(proto, dissector);
@@ -335,7 +297,7 @@ dissector_delete(const char *name, guint32 pattern, dissector_t dissector)
 
 void
 dissector_change(const char *name, guint32 pattern, dissector_t dissector,
-		 gboolean old, int proto)
+		 int proto)
 {
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	dtbl_entry_t *dtbl_entry;
@@ -349,8 +311,7 @@ dissector_change(const char *name, guint32 pattern, dissector_t dissector,
 	dtbl_entry = g_hash_table_lookup(sub_dissectors,
 	    GUINT_TO_POINTER(pattern));
 	if (dtbl_entry != NULL) {
-	  dtbl_entry->current.is_old_dissector = old;
-	  dtbl_entry->current.dissector.new = dissector ? dissector : dissect_null;
+	  dtbl_entry->current.dissector = dissector ? dissector : dissect_null;
 	  dtbl_entry->current.proto_index = proto;
 	  return;
 	}
@@ -364,11 +325,8 @@ dissector_change(const char *name, guint32 pattern, dissector_t dissector,
 	  return;
 
 	dtbl_entry = g_malloc(sizeof (dtbl_entry_t));
-	dtbl_entry->initial.is_old_dissector = FALSE;
-	dtbl_entry->initial.dissector.old = NULL;
 	dtbl_entry->initial.proto_index = -1;
-	dtbl_entry->current.is_old_dissector = old;
-	dtbl_entry->current.dissector.new = dissector;
+	dtbl_entry->current.dissector = dissector;
 	dtbl_entry->current.proto_index = proto;
 
 /* do the table insertion */
@@ -376,6 +334,7 @@ dissector_change(const char *name, guint32 pattern, dissector_t dissector,
     	 (gpointer)dtbl_entry);
 }
 
+/* Reset a dissector in a sub-dissector table to its initial value. */
 void
 dissector_reset(const char *name, guint32 pattern)
 {
@@ -397,7 +356,7 @@ dissector_reset(const char *name, guint32 pattern)
 	/*
 	 * Found - is there an initial value?
 	 */
-	if (dtbl_entry->initial.dissector.new != NULL) {
+	if (dtbl_entry->initial.dissector != NULL) {
 		dtbl_entry->current = dtbl_entry->initial;
 	} else {
 		g_hash_table_remove(sub_dissectors, GUINT_TO_POINTER(pattern));
@@ -443,33 +402,16 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 		saved_proto = pinfo->current_proto;
 		saved_match_port = pinfo->match_port;
 		pinfo->match_port = port;
-		if (dtbl_entry->current.is_old_dissector) {
-			/*
-			 * New dissector calling old dissector; use
-			 * "tvb_compat()" to remap.
-			 */
-			tvb_compat(tvb, &pd, &offset);
-			(*dtbl_entry->current.dissector.old)(pd, offset, pinfo->fd,
-			    tree);
-		} else {
-			if (dtbl_entry->current.proto_index != -1) {
-				pinfo->current_proto =
-				    proto_get_protocol_short_name(dtbl_entry->current.proto_index);
-			}
-			(*dtbl_entry->current.dissector.new)(tvb, pinfo, tree);
+		if (dtbl_entry->current.proto_index != -1) {
+			pinfo->current_proto =
+			    proto_get_protocol_short_name(dtbl_entry->current.proto_index);
 		}
+		(*dtbl_entry->current.dissector)(tvb, pinfo, tree);
 		pinfo->current_proto = saved_proto;
 		pinfo->match_port = saved_match_port;
 		return TRUE;
 	} else
 		return FALSE;
-}
-
-gboolean
-dissector_get_old_flag (dtbl_entry_t *dtbl_entry)
-{
-	g_assert(dtbl_entry);
-	return(dtbl_entry->current.is_old_dissector);
 }
 
 gint

@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.26 2001/10/30 10:40:38 guy Exp $
+ * $Id: packet-socks.c,v 1.27 2001/10/31 05:59:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -858,7 +858,8 @@ display_ping_and_tracert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 			col_append_str(pinfo->fd, COL_INFO, ", Results");
 
 		if ( tree){
-			proto_tree_add_text(tree, tvb, offset, END_OF_FRAME,
+			proto_tree_add_text(tree, tvb, offset,
+				tvb_length_remaining(tvb, offset),
    		 		(hash_info->command  == PING_COMMAND) ?
    		 		"Ping Results:" :
    	 			"Traceroute Results");

@@ -1,7 +1,7 @@
 /* conversation.h
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.h,v 1.6 2001/09/03 10:33:12 guy Exp $
+ * $Id: conversation.h,v 1.7 2001/10/31 05:59:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,13 +55,9 @@ typedef struct conversation_key {
 
 typedef struct conversation {
 	struct conversation *next;	/* pointer to next conversation on hash chain */
-	guint32	index;	/* unique ID for conversation */
-	GSList *data_list;	/* list of data associated with conversation */
-	gboolean is_old_dissector;	/* XXX - nuke when everybody tvbuffified */
-	union {
-		old_dissector_t	old_d;
-		dissector_t	new_d;
-	} dissector; 			/* protocol dissector client can associate with conversation */
+	guint32	index;			/* unique ID for conversation */
+	GSList *data_list;		/* list of data associated with conversation */
+	dissector_t dissector;		/* protocol dissector client can associate with conversation */
 	guint	options;		/* wildcard flags */
 	conversation_key *key_ptr;	/* pointer to the key for this conversation */
 } conversation_t;
@@ -79,8 +75,6 @@ void conversation_add_proto_data(conversation_t *conv, int proto,
 void *conversation_get_proto_data(conversation_t *conv, int proto);
 void conversation_delete_proto_data(conversation_t *conv, int proto);
 
-void old_conversation_set_dissector(conversation_t *conversation,
-    old_dissector_t dissector);
 void conversation_set_dissector(conversation_t *conversation,
     dissector_t dissector);
 gboolean
