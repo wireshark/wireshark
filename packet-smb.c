@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.268 2002/06/04 07:03:45 guy Exp $
+ * $Id: packet-smb.c,v 1.269 2002/06/05 11:21:47 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -575,6 +575,13 @@ static int hf_smb_user_quota_used = -1;
 static int hf_smb_user_quota_offset = -1;
 static int hf_smb_nt_rename_level = -1;
 static int hf_smb_cluster_count = -1;
+static int hf_smb_segments = -1;
+static int hf_smb_segment = -1;
+static int hf_smb_segment_overlap = -1;
+static int hf_smb_segment_overlap_conflict = -1;
+static int hf_smb_segment_multiple_tails = -1;
+static int hf_smb_segment_too_long_fragment = -1;
+static int hf_smb_segment_error = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_hdr = -1;
@@ -641,6 +648,7 @@ static gint ett_smb_ff2_data = -1;
 static gint ett_smb_device_characteristics = -1;
 static gint ett_smb_fs_attributes = -1;
 static gint ett_smb_segments = -1;
+static gint ett_smb_segment = -1;
 static gint ett_smb_sec_desc = -1;
 static gint ett_smb_sid = -1;
 static gint ett_smb_acl = -1;
@@ -648,6 +656,20 @@ static gint ett_smb_ace = -1;
 static gint ett_smb_ace_flags = -1;
 static gint ett_smb_sec_desc_type = -1;
 static gint ett_smb_quotaflags = -1;
+
+
+fragment_items smb_frag_items = {
+	&ett_smb_segment,
+	&ett_smb_segments,
+
+	&hf_smb_segments,
+	&hf_smb_segment,
+	&hf_smb_segment_overlap,
+	&hf_smb_segment_overlap_conflict,
+	&hf_smb_segment_multiple_tails,
+	&hf_smb_segment_too_long_fragment,
+	&hf_smb_segment_error,
+};
 
 proto_tree *top_tree=NULL;     /* ugly */
 
@@ -8297,24 +8319,12 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	   must create pd_tvb from it 
 	*/
 	if(r_fd){
-		proto_tree *tr;
-		proto_item *it;
-		fragment_data *fd;
-		
 		pd_tvb = tvb_new_real_data(r_fd->data, r_fd->datalen,
 					     r_fd->datalen);
 		tvb_set_child_real_data_tvbuff(tvb, pd_tvb);
 		add_new_data_source(pinfo, pd_tvb, "Reassembled SMB");
-		pinfo->fragmented = FALSE;
 
-		it = proto_tree_add_text(tree, pd_tvb, 0, -1, "Fragments");
-		tr = proto_item_add_subtree(it, ett_smb_segments);
-		for(fd=r_fd->next;fd;fd=fd->next){
-			proto_tree_add_text(tr, pd_tvb, fd->offset, fd->len,
-					    "Frame:%u Data:%u-%u",
-					    fd->frame, fd->offset,
-					    fd->offset+fd->len-1);
-		}
+		show_fragment_tree(r_fd, &smb_frag_items, tree, pinfo, pd_tvb);
 	}
 
 
@@ -12830,24 +12840,11 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	   create pd_tvb from it 
 	*/
 	if(r_fd){
-		proto_tree *tr;
-		proto_item *it;
-		fragment_data *fd;
-
 		pd_tvb = tvb_new_real_data(r_fd->data, r_fd->datalen,
 					     r_fd->datalen);
 		tvb_set_child_real_data_tvbuff(tvb, pd_tvb);
 		add_new_data_source(pinfo, pd_tvb, "Reassembled SMB");
-		pinfo->fragmented = FALSE;
-
-		it = proto_tree_add_text(tree, pd_tvb, 0, -1, "Fragments");
-		tr = proto_item_add_subtree(it, ett_smb_segments);
-		for(fd=r_fd->next;fd;fd=fd->next){
-			proto_tree_add_text(tr, pd_tvb, fd->offset, fd->len,
-					    "Frame:%u Data:%u-%u",
-					    fd->frame, fd->offset,
-					    fd->offset+fd->len-1);
-		}
+		show_fragment_tree(r_fd, &smb_frag_items, tree, pinfo, pd_tvb);
 	}
 
 
@@ -17550,6 +17547,33 @@ proto_register_smb(void)
 		{ "Enabled", "smb.quota.flags.enabled", FT_BOOLEAN, 8,
 		TFS(&tfs_quota_flags_enabled), 0x01, "Is quotas enabled of this FS?", HFILL }},
 
+	{ &hf_smb_segment_overlap,
+		{ "Fragment overlap",	"smb.segment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Fragment overlaps with other fragments", HFILL }},
+
+	{ &hf_smb_segment_overlap_conflict,
+		{ "Conflicting data in fragment overlap",	"smb.segment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Overlapping fragments contained conflicting data", HFILL }},
+
+	{ &hf_smb_segment_multiple_tails,
+		{ "Multiple tail fragments found",	"smb.segment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Several tails were found when defragmenting the packet", HFILL }},
+
+	{ &hf_smb_segment_too_long_fragment,
+		{ "Fragment too long",	"smb.segment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Fragment contained data past end of packet", HFILL }},
+
+	{ &hf_smb_segment_error,
+		{ "Defragmentation error", "smb.segment.error", FT_NONE, BASE_NONE, NULL, 0x0,
+			"Defragmentation error due to illegal fragments", HFILL }},
+
+	{ &hf_smb_segment,
+		{ "SMB Segment", "smb.segment", FT_NONE, BASE_NONE, NULL, 0x0,
+			"SMB Segment", HFILL }},
+
+	{ &hf_smb_segments,
+		{ "SMB Segments", "smb.segment.segments", FT_NONE, BASE_NONE, NULL, 0x0,
+			"SMB Segments", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_smb,
@@ -17617,6 +17641,7 @@ proto_register_smb(void)
 		&ett_smb_device_characteristics,
 		&ett_smb_fs_attributes,
 		&ett_smb_segments,
+		&ett_smb_segment,
 		&ett_smb_sec_desc,
 		&ett_smb_sid,
 		&ett_smb_acl,

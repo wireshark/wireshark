@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.53 2002/06/04 07:03:44 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.54 2002/06/05 11:21:47 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -221,6 +221,19 @@ static gint ett_dcerpc_dg_flags2 = -1;
 static gint ett_dcerpc_pointer_data = -1;
 static gint ett_dcerpc_fragments = -1;
 static gint ett_dcerpc_fragment = -1;
+
+fragment_items dcerpc_frag_items = {
+	&ett_dcerpc_fragments,
+	&ett_dcerpc_fragment,
+
+	&hf_dcerpc_fragments,
+	&hf_dcerpc_fragment,
+	&hf_dcerpc_fragment_overlap,
+	&hf_dcerpc_fragment_overlap_conflict,
+	&hf_dcerpc_fragment_multiple_tails,
+	&hf_dcerpc_fragment_too_long_fragment,
+	&hf_dcerpc_fragment_error
+};
 
 /* try to desegment big DCE/RPC packets over TCP? */
 static gboolean dcerpc_cn_desegment = TRUE;
@@ -1619,62 +1632,14 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 			     TRUE);
 
 			if(ipfd_head){
-			    fragment_data *ipfd;
-			    proto_tree *ft=NULL;
-			    proto_item *fi=NULL;
 			    tvbuff_t *next_tvb;
 
 			    next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen, ipfd_head->datalen);
 			    tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 			    add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
-			    pinfo->fragmented=FALSE;
-			    fi = proto_tree_add_item(dcerpc_tree, hf_dcerpc_fragments, next_tvb, 0, -1, FALSE);
-			    ft = proto_item_add_subtree(fi, ett_dcerpc_fragments);
-			    for (ipfd=ipfd_head->next; ipfd; ipfd=ipfd->next){
-				if (ipfd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-				    proto_tree *fet=NULL;
-				    proto_item *fei=NULL;
-				    int hf;
+			    show_fragment_tree(ipfd_head, &dcerpc_frag_items,
+				dcerpc_tree, pinfo, next_tvb);
 
-				    if (ipfd->flags & (FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-					hf = hf_dcerpc_fragment_error;
-				    } else {
-					hf = hf_dcerpc_fragment;
-				    }
-				    fei = proto_tree_add_none_format(ft, hf, 
-					next_tvb, ipfd->offset, ipfd->len,
-					"Frame:%u payload:%u-%u",
-					ipfd->frame,
-					ipfd->offset,
-					ipfd->offset+ipfd->len-1);
-				    fet = proto_item_add_subtree(fei, ett_dcerpc_fragment);
-				    if (ipfd->flags&FD_OVERLAP) {
-					proto_tree_add_boolean(fet, hf_dcerpc_fragment_overlap, next_tvb, 0, 0, TRUE);
-				    }
-				    if (ipfd->flags&FD_OVERLAPCONFLICT) {
-					proto_tree_add_boolean(fet, hf_dcerpc_fragment_overlap_conflict, next_tvb, 0, 0, TRUE);
-				    }
-				    if (ipfd->flags&FD_MULTIPLETAILS) {
-					proto_tree_add_boolean(fet, hf_dcerpc_fragment_multiple_tails, next_tvb, 0, 0, TRUE);
-				    }
-				    if (ipfd->flags&FD_TOOLONGFRAGMENT) {
-					proto_tree_add_boolean(fet, hf_dcerpc_fragment_too_long_fragment, next_tvb, 0, 0, TRUE);
-				    }
-				} else {
-				    proto_tree_add_none_format(ft, hf_dcerpc_fragment, 
-		                	   next_tvb, ipfd->offset, ipfd->len,
-                			   "Frame:%u payload:%u-%u",
-                   			   ipfd->frame,
-               				   ipfd->offset,
-               				   ipfd->offset+ipfd->len-1
-          			    );
-				}
-			    }
-			    if (ipfd_head->flags & (FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_set_str(pinfo->cinfo, COL_INFO, "[Illegal fragments]");
-				}
-			    }
 			    dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
                                 next_tvb,
                                 0, opnum, TRUE, hdr->drep, &di,
@@ -1842,62 +1807,14 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 			     TRUE);
 
 			if(ipfd_head){
-			    fragment_data *ipfd;
-			    proto_tree *ft=NULL;
-			    proto_item *fi=NULL;
 			    tvbuff_t *next_tvb;
 
 			    next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen, ipfd_head->datalen);
 			    tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 			    add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
-			    pinfo->fragmented=FALSE;
-			    fi = proto_tree_add_item(dcerpc_tree, hf_dcerpc_fragments, next_tvb, 0, -1, FALSE);
-			    ft = proto_item_add_subtree(fi, ett_dcerpc_fragments);
-			    for (ipfd=ipfd_head->next; ipfd; ipfd=ipfd->next){
-				if (ipfd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-				    proto_tree *fet=NULL;
-				    proto_item *fei=NULL;
-				    int hf;
+			    show_fragment_tree(ipfd_head, &dcerpc_frag_items,
+				dcerpc_tree, pinfo, next_tvb);
 
-				    if (ipfd->flags & (FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-					hf = hf_dcerpc_fragment_error;
-				    } else {
-					hf = hf_dcerpc_fragment;
-				    }
-				    fei = proto_tree_add_none_format(ft, hf, 
-					next_tvb, ipfd->offset, ipfd->len,
-					"Frame:%u payload:%u-%u",
-					ipfd->frame,
-					ipfd->offset,
-					ipfd->offset+ipfd->len-1);
-				    fet = proto_item_add_subtree(fei, ett_dcerpc_fragment);
-				    if (ipfd->flags&FD_OVERLAP) {
-					proto_tree_add_boolean(fet, hf_dcerpc_fragment_overlap, next_tvb, 0, 0, TRUE);
-				    }
-				    if (ipfd->flags&FD_OVERLAPCONFLICT) {
-					proto_tree_add_boolean(fet, hf_dcerpc_fragment_overlap_conflict, next_tvb, 0, 0, TRUE);
-				    }
-				    if (ipfd->flags&FD_MULTIPLETAILS) {
-					proto_tree_add_boolean(fet, hf_dcerpc_fragment_multiple_tails, next_tvb, 0, 0, TRUE);
-				    }
-				    if (ipfd->flags&FD_TOOLONGFRAGMENT) {
-					proto_tree_add_boolean(fet, hf_dcerpc_fragment_too_long_fragment, next_tvb, 0, 0, TRUE);
-				    }
-				} else {
-				    proto_tree_add_none_format(ft, hf_dcerpc_fragment, 
-		                	   next_tvb, ipfd->offset, ipfd->len,
-                			   "Frame:%u payload:%u-%u",
-                   			   ipfd->frame,
-               				   ipfd->offset,
-               				   ipfd->offset+ipfd->len-1
-          			    );
-				}
-			    }
-			    if (ipfd_head->flags & (FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_set_str(pinfo->cinfo, COL_INFO, "[Illegal fragments]");
-				}
-			    }
 			    dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
                                 next_tvb,
                                 0, value->opnum, FALSE, hdr->drep, &di,

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.167 2002/06/04 07:03:45 guy Exp $
+ * $Id: packet-ip.c,v 1.168 2002/06/05 11:21:47 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -112,6 +112,18 @@ static gint ett_ip_option_route = -1;
 static gint ett_ip_option_timestamp = -1;
 static gint ett_ip_fragments = -1;
 static gint ett_ip_fragment  = -1;
+
+fragment_items ip_frag_items = {
+	&ett_ip_fragment,
+	&ett_ip_fragments,
+	&hf_ip_fragments,
+	&hf_ip_fragment,
+	&hf_ip_fragment_overlap,
+	&hf_ip_fragment_overlap_conflict,
+	&hf_ip_fragment_multiple_tails,
+	&hf_ip_fragment_too_long_fragment,
+	&hf_ip_fragment_error
+};
 
 /* Used by IPv6 as well, so not static */
 dissector_table_t ip_dissector_table;
@@ -983,10 +995,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			     iph.ip_off & IP_MF);
 
     if (ipfd_head != NULL) {
-      fragment_data *ipfd;
-      proto_tree *ft=NULL;
-      proto_item *fi=NULL;
-
       /* OK, we have the complete reassembled payload.
          Allocate a new tvbuff, referring to the reassembled payload. */
       next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen,
@@ -1000,75 +1008,9 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Add the defragmented data to the data source list. */
       add_new_data_source(pinfo, next_tvb, "Reassembled IPv4");
 
-      /* It's not fragmented. */
-      pinfo->fragmented = FALSE;
-
       /* show all fragments */
-      fi = proto_tree_add_item(ip_tree, hf_ip_fragments, 
-                next_tvb, 0, -1, FALSE);
-      ft = proto_item_add_subtree(fi, ett_ip_fragments);
-      for (ipfd=ipfd_head->next; ipfd; ipfd=ipfd->next){
-        if (ipfd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT
-                          |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-          /* this fragment has some flags set, create a subtree 
-           * for it and display the flags.
-           */
-          proto_tree *fet=NULL;
-          proto_item *fei=NULL;
-          int hf;
+      update_col_info = !show_fragment_tree(ipfd_head, &ip_frag_items, ip_tree, pinfo, next_tvb);
 
-          if (ipfd->flags & (FD_OVERLAPCONFLICT
-                      |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-            hf = hf_ip_fragment_error;
-          } else {
-            hf = hf_ip_fragment;
-          }
-          fei = proto_tree_add_none_format(ft, hf, 
-                   next_tvb, ipfd->offset, ipfd->len,
-                   "Frame:%u payload:%u-%u",
-                   ipfd->frame,
-                   ipfd->offset,
-                   ipfd->offset+ipfd->len-1
-          );
-          fet = proto_item_add_subtree(fei, ett_ip_fragment);
-          if (ipfd->flags&FD_OVERLAP) {
-            proto_tree_add_boolean(fet, 
-                 hf_ip_fragment_overlap, next_tvb, 0, 0, 
-                 TRUE);
-          }
-          if (ipfd->flags&FD_OVERLAPCONFLICT) {
-            proto_tree_add_boolean(fet, 
-                 hf_ip_fragment_overlap_conflict, next_tvb, 0, 0, 
-                 TRUE);
-          }
-          if (ipfd->flags&FD_MULTIPLETAILS) {
-            proto_tree_add_boolean(fet, 
-                 hf_ip_fragment_multiple_tails, next_tvb, 0, 0, 
-                 TRUE);
-          }
-          if (ipfd->flags&FD_TOOLONGFRAGMENT) {
-            proto_tree_add_boolean(fet, 
-                 hf_ip_fragment_too_long_fragment, next_tvb, 0, 0, 
-                 TRUE);
-          }
-        } else {
-          /* nothing of interest for this fragment */
-          proto_tree_add_none_format(ft, hf_ip_fragment, 
-                   next_tvb, ipfd->offset, ipfd->len,
-                   "Frame:%u payload:%u-%u",
-                   ipfd->frame,
-                   ipfd->offset,
-                   ipfd->offset+ipfd->len-1
-          );
-        }
-      }
-      if (ipfd_head->flags & (FD_OVERLAPCONFLICT
-                        |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-          col_set_str(pinfo->cinfo, COL_INFO, "[Illegal fragments]");
-          update_col_info = FALSE;
-        }
-      }
     } else {
       /* We don't have the complete reassembled payload. */
       next_tvb = NULL;

@@ -1,7 +1,7 @@
 /* reassemble.h
  * Declarations of outines for {fragment,segment} reassembly
  *
- * $Id: reassemble.h,v 1.7 2002/05/24 11:51:14 sahlberg Exp $
+ * $Id: reassemble.h,v 1.8 2002/06/05 11:21:49 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -171,3 +171,19 @@ fragment_get(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
  */
 unsigned char *
 fragment_delete(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
+
+
+typedef struct _fragment_items {
+	gint	*ett_fragment;	
+	gint	*ett_fragments;
+
+	int	*hf_fragments;
+	int	*hf_fragment;
+	int	*hf_fragment_overlap;
+	int	*hf_fragment_overlap_conflict;
+	int	*hf_fragment_multiple_tails;
+	int	*hf_fragment_too_long_fragment;
+	int	*hf_fragment_error;
+} fragment_items;
+int
+show_fragment_tree(fragment_data *ipfd_head, fragment_items *fit, proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb);

@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.18 2002/05/24 11:51:14 sahlberg Exp $
+ * $Id: reassemble.c,v 1.19 2002/06/05 11:21:48 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 
 #include "reassemble.h"
+
 
 typedef struct _fragment_key {
 	address src;
@@ -248,6 +249,7 @@ reassemble_init(void)
 	    sizeof(fragment_data),
 	    fragment_init_count * sizeof(fragment_data),
 	    G_ALLOC_ONLY);
+
 }
 
 /* This function cleans up the stored state and removes the reassembly data and
@@ -1100,3 +1102,90 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		return NULL;
 	}
 }
+
+
+/* This function will build the fragment subtree
+   function will return TRUE if there were fragmentation errors
+   or FALSE if fragmentation was ok.
+*/
+int
+show_fragment_tree(fragment_data *ipfd_head, fragment_items *fit, proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
+{
+	fragment_data *ipfd;
+	proto_tree *ft=NULL;
+	proto_item *fi=NULL;
+
+	/* It's not fragmented. */
+	pinfo->fragmented = FALSE;
+
+	fi = proto_tree_add_item(tree, *(fit->hf_fragments), 
+		tvb, 0, -1, FALSE);
+	ft = proto_item_add_subtree(fi, *(fit->ett_fragments));
+	for (ipfd=ipfd_head->next; ipfd; ipfd=ipfd->next){
+		if (ipfd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT
+			|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+			/* this fragment has some flags set, create a subtree 
+			 * for it and display the flags.
+			 */
+			proto_tree *fet=NULL;
+			proto_item *fei=NULL;
+			int hf;
+
+			if (ipfd->flags & (FD_OVERLAPCONFLICT
+				|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+				hf = *(fit->hf_fragment_error);
+			} else {
+				hf = *(fit->hf_fragment);
+			}
+			fei = proto_tree_add_none_format(ft, hf, 
+				tvb, ipfd->offset, ipfd->len,
+				"Frame:%u payload:%u-%u",
+				ipfd->frame,
+				ipfd->offset,
+				ipfd->offset+ipfd->len-1);
+			fet = proto_item_add_subtree(fei, *(fit->ett_fragment));
+			if (ipfd->flags&FD_OVERLAP) {
+				proto_tree_add_boolean(fet, 
+					*(fit->hf_fragment_overlap), tvb, 0, 0, 
+					TRUE);
+			}
+			if (ipfd->flags&FD_OVERLAPCONFLICT) {
+				proto_tree_add_boolean(fet, 
+					*(fit->hf_fragment_overlap_conflict), 
+					tvb, 0, 0, 
+					TRUE);
+			}
+			if (ipfd->flags&FD_MULTIPLETAILS) {
+				proto_tree_add_boolean(fet, 
+					*(fit->hf_fragment_multiple_tails), tvb, 0, 0, 
+					TRUE);
+			}
+			if (ipfd->flags&FD_TOOLONGFRAGMENT) {
+				proto_tree_add_boolean(fet, 
+					*(fit->hf_fragment_too_long_fragment), 
+					tvb, 0, 0, 
+					TRUE);
+			}
+		} else {
+			/* nothing of interest for this fragment */
+			proto_tree_add_none_format(ft, *(fit->hf_fragment), 
+				tvb, ipfd->offset, ipfd->len,
+				"Frame:%u payload:%u-%u",
+				ipfd->frame,
+				ipfd->offset,
+				ipfd->offset+ipfd->len-1
+			);
+		}
+	}
+
+	if (ipfd_head->flags & (FD_OVERLAPCONFLICT
+		|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_set_str(pinfo->cinfo, COL_INFO, 
+				"[Illegal fragments]");
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}	
