@@ -1,7 +1,7 @@
 /* capture_stop_conditions.c
  * Implementation for 'stop condition handler'.
  *
- * $Id: capture_stop_conditions.c,v 1.2 2001/12/04 08:25:55 guy Exp $
+ * $Id: capture_stop_conditions.c,v 1.3 2002/05/04 09:20:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -114,7 +114,7 @@ static void _cnd_destr_timeout(condition* cnd){
  * returns:   TRUE  - Condition is true.
  *            FALSE - Condition is false.
  */
-static gboolean _cnd_eval_timeout(condition* cnd, va_list ap){
+static gboolean _cnd_eval_timeout(condition* cnd, va_list ap _U_){
   cnd_timeout_dat* data = (cnd_timeout_dat*)cnd_get_user_data(cnd);
   gint32 elapsed_time;
   /* check timeout here */
@@ -204,5 +204,5 @@ static gboolean _cnd_eval_capturesize(condition* cnd, va_list ap){
  *
  * parameter: cnd - Pointer to an initialized condition.
  */
-static void _cnd_reset_capturesize(condition *cnd){
+static void _cnd_reset_capturesize(condition *cnd _U_){
 } /* END _cnd_reset_capturesize() */ 
