@@ -1,8 +1,8 @@
-# $Id: configure.in,v 1.57 1999/10/28 03:33:19 guy Exp $
+# $Id: configure.in,v 1.58 1999/11/23 04:43:25 gram Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
-AM_INIT_AUTOMAKE(ethereal, 0.7.7)
+AM_INIT_AUTOMAKE(ethereal, 0.7.8)
 
 dnl Check for CPU / vendor / OS
 AC_CANONICAL_HOST

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.43 1999/11/23 03:50:40 gram Exp $
+ * $Id: main.c,v 1.44 1999/11/23 04:43:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -160,6 +160,7 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 		"Uwe Girlich              <Uwe.Girlich@philosys.de>\n"
 		"Warren Young             <tangent@mail.com>\n"
 		"Heikki Vatiainen         <hessu@cs.tut.fi>\n"
+		"Greg Hankins             <gregh@twoguys.org>\n"
 
 		"\nSee http://ethereal.zing.org for more information",
                 VERSION, comp_info_str);
