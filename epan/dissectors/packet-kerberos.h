@@ -32,7 +32,8 @@
    to future DCERPC decryption and other uses.
    The list is terminated by {0, NULL }
 */
-#define KRB_CBTAG_SAFE_USER_DATA	1
+#define KRB_CBTAG_SAFE_USER_DATA	        1
+#define KRB_CBTAG_PRIV_USER_DATA	        2
 typedef struct _kerberos_callbacks {
 	int tag;
 	int (*callback)(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree);

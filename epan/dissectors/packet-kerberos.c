@@ -144,6 +144,7 @@ static gint hf_krb_PA_DATA_type = -1;
 static gint hf_krb_PA_DATA_value = -1;
 static gint hf_krb_etype_info_salt = -1;
 static gint hf_krb_SAFE_BODY_user_data = -1;
+static gint hf_krb_PRIV_BODY_user_data = -1;
 static gint hf_krb_realm = -1;
 static gint hf_krb_crealm = -1;
 static gint hf_krb_sname = -1;
@@ -197,6 +198,7 @@ static gint hf_krb_subkey = -1;
 static gint hf_krb_seq_number = -1;
 static gint hf_krb_EncTicketPart = -1;
 static gint hf_krb_EncAPRepPart = -1;
+static gint hf_krb_EncKrbPrivPart = -1;
 static gint hf_krb_EncKDCRepPart = -1;
 static gint hf_krb_LastReq = -1;
 static gint hf_krb_Authenticator = -1;
@@ -253,6 +255,7 @@ static gint ett_krb_PAC_CLIENT_INFO_TYPE = -1;
 static gint ett_krb_KDC_REP_enc = -1;
 static gint ett_krb_EncTicketPart = -1;
 static gint ett_krb_EncAPRepPart = -1;
+static gint ett_krb_EncKrbPrivPart = -1;
 static gint ett_krb_EncKDCRepPart = -1;
 static gint ett_krb_LastReq = -1;
 static gint ett_krb_Authenticator = -1;
@@ -838,6 +841,7 @@ g_warning("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
 #define KRB5_MSG_ENC_AS_REP_PART	25	/* EncASRepPart */
 #define KRB5_MSG_ENC_TGS_REP_PART	26	/* EncTGSRepPart */
 #define KRB5_MSG_ENC_AP_REP_PART     	27	/* EncAPRepPart */
+#define KRB5_MSG_ENC_KRB_PRIV_PART     	28	/* EncAPRepPart */
 #define KRB5_MSG_ERROR    		30	/* KRB-ERROR type */
 
 /* address type constants */
@@ -1314,6 +1318,7 @@ static const value_string krb5_msg_types[] = {
 	{ KRB5_MSG_ENC_AS_REP_PART,	"EncASRepPart" },
 	{ KRB5_MSG_ENC_TGS_REP_PART,	"EncTGSRepPart" },
 	{ KRB5_MSG_ENC_AP_REP_PART,	"EncAPRepPart" },
+	{ KRB5_MSG_ENC_KRB_PRIV_PART,	"EncKrbPrivPart" },
 	{ KRB5_MSG_ERROR,		"KRB-ERROR" },
         { 0, NULL },
 };
@@ -1325,6 +1330,7 @@ static int dissect_krb5_application_choice(packet_info *pinfo, proto_tree *tree,
 static int dissect_krb5_Authenticator(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_EncTicketPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_EncAPRepPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
+static int dissect_krb5_EncKrbPrivPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_EncKDCRepPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_KDC_REQ(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_KDC_REP(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
@@ -1346,6 +1352,7 @@ static const ber_choice_t kerberos_applications_choice[] = {
 	{ KRB5_MSG_ENC_AS_REP_PART, BER_CLASS_APP, KRB5_MSG_ENC_AS_REP_PART, 0, dissect_krb5_EncKDCRepPart },
 	{ KRB5_MSG_ENC_TGS_REP_PART, BER_CLASS_APP, KRB5_MSG_ENC_TGS_REP_PART, 0, dissect_krb5_EncKDCRepPart },
 	{ KRB5_MSG_ENC_AP_REP_PART, BER_CLASS_APP, KRB5_MSG_ENC_AP_REP_PART, 0, dissect_krb5_EncAPRepPart },
+	{ KRB5_MSG_ENC_KRB_PRIV_PART, BER_CLASS_APP, KRB5_MSG_ENC_KRB_PRIV_PART, 0, dissect_krb5_EncKrbPrivPart },
 	{ KRB5_MSG_SAFE,	BER_CLASS_APP,	KRB5_MSG_SAFE,		0,	dissect_krb5_SAFE },
 	{ KRB5_MSG_PRIV,	BER_CLASS_APP,	KRB5_MSG_PRIV,		0,	dissect_krb5_PRIV },
 	{ KRB5_MSG_ERROR,	BER_CLASS_APP,	KRB5_MSG_ERROR,		0,	dissect_krb5_ERROR },
@@ -2864,6 +2871,83 @@ dissect_krb5_Authenticator(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 }
 
 
+static int
+dissect_krb5_PRIV_BODY_user_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	tvbuff_t *new_tvb;
+	offset=dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_krb_PRIV_BODY_user_data, &new_tvb);
+
+	call_kerberos_callbacks(pinfo, tree, new_tvb, KRB_CBTAG_PRIV_USER_DATA);
+
+	return offset;
+}
+
+static ber_sequence_t EncKrbPrivPart_sequence[] = {
+	{ BER_CLASS_CON, 0, 0,
+		dissect_krb5_PRIV_BODY_user_data },
+	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
+		dissect_krb5_patimestamp },
+	{ BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL,
+		dissect_krb5_cusec },
+	{ BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL,
+		dissect_krb5_seq_number },
+	{ BER_CLASS_CON, 4, 0,
+		dissect_krb5_s_address },
+	{ BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL,
+		dissect_krb5_HostAddresses },
+	{ 0, 0, 0, NULL }
+};
+static int
+dissect_krb5_EncKrbPrivPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, EncKrbPrivPart_sequence, hf_krb_EncKrbPrivPart, ett_krb_EncKrbPrivPart);
+
+	return offset;
+}
+
+static guint32 PRIV_etype;
+static int
+dissect_krb5_PRIV_etype(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_etype, &PRIV_etype);
+	if(tree){
+		proto_item_append_text(tree, " %s",
+			val_to_str(PRIV_etype, krb5_encryption_types,
+			"%#x"));
+	}
+	return offset;
+}
+
+#ifdef HAVE_KERBEROS
+static int
+dissect_krb5_decrypt_PRIV (packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	guint8 *plaintext=NULL;
+	int length;
+
+	length=tvb_length_remaining(tvb, offset);
+
+	if(!plaintext){
+		plaintext=decrypt_krb5_data(tree, pinfo, 13, length, tvb_get_ptr(tvb, offset, length), PRIV_etype);
+	}
+
+	if(plaintext){
+		tvbuff_t *next_tvb;
+		next_tvb = tvb_new_real_data (plaintext,
+                                          length,
+                                          length);
+		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+
+		/* Add the decrypted data to the data source list. */
+		add_new_data_source(pinfo, next_tvb, "Decrypted Krb5");
+
+		offset=dissect_ber_choice(pinfo, tree, next_tvb, 0, kerberos_applications_choice, -1, -1);
+
+	}
+	return offset;
+}
+#endif
+
 /*
  * PRIV-BODY ::=   SEQUENCE {
  *  KRB-PRIV ::=         [APPLICATION 21] SEQUENCE {
@@ -2875,12 +2959,16 @@ dissect_krb5_Authenticator(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 static int
 dissect_krb5_encrypted_PRIV(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_krb_encrypted_PRIV, NULL);
+#ifdef HAVE_KERBEROS
+	offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset, hf_krb_encrypted_PRIV, dissect_krb5_decrypt_PRIV);
+#else
+	offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset, hf_krb_encrypted_PRIV, NULL);
+#endif
 	return offset;
 }
 static ber_sequence_t ENC_PRIV_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
-		dissect_krb5_etype },
+		dissect_krb5_PRIV_etype },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
 		dissect_krb5_kvno },
 	{ BER_CLASS_CON, 2, 0,
@@ -4077,6 +4165,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_SAFE_BODY_user_data, {
 	    "User Data", "kerberos.SAFE_BODY.user_data", FT_BYTES, BASE_HEX,
 	    NULL, 0, "SAFE BODY userdata field", HFILL }},
+	{ &hf_krb_PRIV_BODY_user_data, {
+	    "User Data", "kerberos.PRIV_BODY.user_data", FT_BYTES, BASE_HEX,
+	    NULL, 0, "PRIV BODY userdata field", HFILL }},
 	{ &hf_krb_pac_signature_signature, {
 	    "Signature", "kerberos.pac.signature.signature", FT_BYTES, BASE_HEX,
 	    NULL, 0, "A PAC signature blob", HFILL }},
@@ -4113,6 +4204,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_EncAPRepPart, {
 	    "EncAPRepPart", "kerberos.EncAPRepPart", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is a decrypted Kerberos EncAPRepPart sequence", HFILL }},
+	{ &hf_krb_EncKrbPrivPart, {
+	    "EncKrbPrivPart", "kerberos.EncKrbPrivPart", FT_NONE, BASE_DEC,
+	    NULL, 0, "This is a decrypted Kerberos EncKrbPrivPart sequence", HFILL }},
 	{ &hf_krb_EncKDCRepPart, {
 	    "EncKDCRepPart", "kerberos.EncKDCRepPart", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is a decrypted Kerberos EncKDCRepPart sequence", HFILL }},
@@ -4222,6 +4316,7 @@ proto_register_kerberos(void)
         &ett_krb_PRIV_enc,
         &ett_krb_EncTicketPart,
         &ett_krb_EncAPRepPart,
+        &ett_krb_EncKrbPrivPart,
         &ett_krb_EncKDCRepPart,
         &ett_krb_LastReq,
         &ett_krb_Authenticator,
