@@ -3,7 +3,7 @@
  * Enterasys Networks Home: http://www.enterasys.com/
  * Copyright 2003, Joshua Craig Douglas <jdouglas@enterasys.com>
  *
- * $Id: packet-ismp.c,v 1.2 2003/12/30 19:11:30 jmayer Exp $
+ * $Id: packet-ismp.c,v 1.3 2004/01/03 03:37:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -500,6 +500,7 @@ dissect_ismp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int offset = 0;
 	guint16 message_type = 0;
 	guint8 code_length = 0;
+	guint8 weird_stuff[3] = { 0x42, 0x42, 0x03 };
 
 /* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
@@ -511,7 +512,15 @@ dissect_ismp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO)) 
 		col_clear(pinfo->cinfo, COL_INFO);
 
-
+	/*
+	 * XXX - I've seen captures with packets that have the ISMP
+	 * Ethernet frame type, but with the payload being 0x42 0x42 0x03
+	 * followed by what appears to be an ISMP frame.
+	 *
+	 * 0x4242 is not a valid ISMP version number.
+	 */
+	if (tvb_memeql(tvb, offset, weird_stuff, sizeof weird_stuff) == 0)
+		offset += 3;	/* skip the weird stuff, for now */
 	if (tree) {
 		/* create display subtree for ismp */
 		ti = proto_tree_add_item(tree, proto_ismp, tvb, offset, -1, FALSE);
