@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.271 2002/07/13 04:32:14 tpot Exp $
+ * $Id: packet-smb.c,v 1.272 2002/07/20 23:14:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -100,6 +100,7 @@ static int hf_smb_tid = -1;
 static int hf_smb_uid = -1;
 static int hf_smb_mid = -1;
 static int hf_smb_response_to = -1;
+static int hf_smb_time = -1;
 static int hf_smb_response_in = -1;
 static int hf_smb_continuation_to = -1;
 static int hf_smb_nt_status = -1;
@@ -15173,11 +15174,12 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	smb_saved_info_t *sip = NULL;
 	smb_saved_info_key_t key;
 	smb_saved_info_key_t *new_key;
-        guint32 nt_status = 0;
-        guint8 errclass = 0;
-        guint16 errcode = 0;
+	guint32 nt_status = 0;
+	guint8 errclass = 0;
+	guint16 errcode = 0;
 	guint32 pid_mid;
 	conversation_t *conversation;
+	nstime_t ns;
 
 	top_tree=parent_tree;
 
@@ -15438,6 +15440,8 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				sip = g_mem_chunk_alloc(smb_saved_info_chunk);
 				sip->frame_req = pinfo->fd->num;
 				sip->frame_res = 0;
+				sip->req_time.secs=pinfo->fd->abs_secs;         
+				sip->req_time.nsecs=pinfo->fd->abs_usecs*1000;
 				sip->flags = 0;
 				if(g_hash_table_lookup(si.ct->tid_service, (void *)si.tid)
 				    == (void *)TID_IPC) {
@@ -15481,8 +15485,17 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			if (sip->frame_res != 0)
 				proto_tree_add_uint(htree, hf_smb_response_in, tvb, 0, 0, sip->frame_res);
 		} else {
-			if (sip->frame_req != 0)
+			if (sip->frame_req != 0) {
 				proto_tree_add_uint(htree, hf_smb_response_to, tvb, 0, 0, sip->frame_req);
+				ns.secs = pinfo->fd->abs_secs - sip->req_time.secs;
+				ns.nsecs = pinfo->fd->abs_usecs*1000 - sip->req_time.nsecs;
+				if(ns.nsecs<0){
+					ns.nsecs+=1000000000;
+					ns.secs--;
+				}
+				proto_tree_add_time(htree, hf_smb_time, tvb,
+				    0, 0, &ns);
+			}
 		}
 	}
 
@@ -15634,6 +15647,10 @@ proto_register_smb(void)
 	{ &hf_smb_response_to,
 		{ "Response to", "smb.response_to", FT_UINT32, BASE_DEC,
 		NULL, 0, "This packet is a response to the packet in this frame", HFILL }},
+
+	{ &hf_smb_time,
+		{ "Time from request", "smb.time", FT_RELATIVE_TIME, BASE_NONE,
+		NULL, 0, "Time between Request and Response for SMB cmds", HFILL }},
 
 	{ &hf_smb_response_in,
 		{ "Response in", "smb.response_in", FT_UINT32, BASE_DEC,

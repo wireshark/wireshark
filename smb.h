@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.40 2002/05/26 01:30:05 guy Exp $
+ * $Id: smb.h,v 1.41 2002/07/20 23:14:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -233,6 +233,7 @@
 #define SMB_SIF_TID_IS_IPC	0x0001
 typedef struct {
 	guint32 frame_req, frame_res;
+	nstime_t req_time;              
 	guint16 flags;
 	int cmd;
 	void *extra_info;
