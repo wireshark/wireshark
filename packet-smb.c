@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.262 2002/05/26 01:30:05 guy Exp $
+ * $Id: packet-smb.c,v 1.263 2002/05/26 01:42:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12890,13 +12890,18 @@ dissect_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
 
 	WORD_COUNT;
  
-	if (wc != 0)
+	if (wc != 0) {
 		proto_tree_add_text(tree, tvb, offset, wc*2, "Word parameters");
+		offset += wc*2;
+	}
 
 	BYTE_COUNT;
 
-	if (bc != 0)
+	if (bc != 0) {
 		proto_tree_add_text(tree, tvb, offset, bc, "Byte parameters");
+		offset += bc;
+		bc = 0;
+	}
 
 	END_OF_SMB
 
