@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.111 2004/03/08 22:03:59 obiot Exp $
+ * $Id: packet-wsp.c,v 1.112 2004/03/18 15:53:22 gerald Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -7241,10 +7241,6 @@ proto_register_sir(void)
 		&ett_sir,			/* Session Initiation Request */
 	};
 
-	/* Register header fields and protocol subtrees */
-	proto_register_field_array(proto_sir, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
-
 	/* Register the dissector */
 	proto_sir = proto_register_protocol(
 		"WAP Session Initiation Request",  	/* protocol name for use by ethereal */
@@ -7254,6 +7250,10 @@ proto_register_sir(void)
 	    < URL:http://www.iana.org/assignments/port-numbers/ >
 										*/
 	);
+
+	/* Register header fields and protocol subtrees */
+	proto_register_field_array(proto_sir, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
