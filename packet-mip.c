@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-mip.c,v 1.19 2001/09/14 07:10:05 guy Exp $
+ * $Id: packet-mip.c,v 1.20 2001/10/31 07:58:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,7 @@
 /* Initialize the protocol and registered fields */
 static int proto_mip = -1;
 static int hf_mip_type = -1;
+static int hf_mip_flags = -1;
 static int hf_mip_s = -1;
 static int hf_mip_b = -1;
 static int hf_mip_d = -1;
@@ -65,22 +66,32 @@ static int hf_mip_haaddr = -1;
 static int hf_mip_coa = -1;
 static int hf_mip_ident = -1;
 static int hf_mip_ext_type = -1;
+static int hf_mip_ext_stype = -1;
 static int hf_mip_ext_len = -1;
+static int hf_mip_ext_len2 = -1;
+static int hf_mip_ext = -1;
 static int hf_mip_aext_spi = -1;
 static int hf_mip_aext_auth = -1;
 static int hf_mip_next_nai = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mip = -1;
+static gint ett_mip_flags = -1;
 static gint ett_mip_ext = -1;
+static gint ett_mip_exts = -1;
 
 /* Port used for Mobile IP */
 #define UDP_PORT_MIP    434
 #define NTP_BASETIME 2208988800ul
 
+typedef enum {
+    REGISTRATION_REQUEST = 1,
+    REGISTRATION_REPLY = 3
+} mipMessageTypes;
+
 static const value_string mip_types[] = {
-  {1, "Registration Request"},
-  {3, "Registration Reply"},
+  {REGISTRATION_REQUEST, "Registration Request"},
+  {REGISTRATION_REPLY,   "Registration Reply"},
   {0, NULL},
 };
 
@@ -124,153 +135,276 @@ static const value_string mip_reply_codes[]= {
   {0, NULL},
 };
 
+typedef enum {
+  MH_AUTH_EXT = 32,
+  MF_AUTH_EXT = 33,
+  FH_AUTH_EXT = 34,
+  GEN_AUTH_EXT = 36,      /* RFC 3012 */
+  OLD_CVSE_EXT = 37,      /* RFC 3115 */
+  CVSE_EXT = 38,          /* RFC 3115 */
+  MN_NAI_EXT = 131,
+  MF_CHALLENGE_EXT = 132, /* RFC 3012 */
+  OLD_NVSE_EXT = 133,/* RFC 3115 */
+  NVSE_EXT = 134,    /* RFC 3115 */
+} MIP_EXTS;
 static const value_string mip_ext_types[]= {
-  {32, "Mobile-Home Authentication Extension"},
-  {33, "Mobile-Foreign Authentication Extension"},
-  {34, "Foreign-Home Authentication Extension"},
-  {131, "Mobile Node NAI Extension"},
+  {MH_AUTH_EXT, "Mobile-Home Authentication Extension"},
+  {MF_AUTH_EXT, "Mobile-Foreign Authentication Extension"},
+  {FH_AUTH_EXT, "Foreign-Home Authentication Extension"},
+  {MN_NAI_EXT,  "Mobile Node NAI Extension"},
+  {GEN_AUTH_EXT, "Generalized Mobile-IP Authentication Extension"},
+  {MF_CHALLENGE_EXT, "MN-FA Challenge Extension"},
+  {CVSE_EXT, "Critical Vendor/Organization Specific Extension"},
+  {OLD_CVSE_EXT, "Critical Vendor/Organization Specific Extension"},
+  {NVSE_EXT, "Normal Vendor/Organization Specific Extension"},
+  {OLD_NVSE_EXT, "Normal Vendor/Organization Specific Extension"},
   {0, NULL},
 };
+
+static const value_string mip_ext_stypes[]= {
+  {1, "MN AAA Extension"},
+  {0, NULL},
+};
+/* Code to dissect extensions */
+static void
+dissect_mip_extensions( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_item   *ti;
+  proto_tree   *exts_tree=NULL;
+  proto_tree   *ext_tree;
+  size_t        ext_len;
+  guint8        ext_type;
+  guint8        ext_subtype=0;
+  size_t        offset = 0;
+  gchar         ext_data[256];
+  gchar        *eString;
+  size_t        dataLength;
+  size_t        hdrLen;
+
+  /* None of this really matters if we don't have a tree */
+  if (!tree) return;
+
+  /* Add our tree, if we have extensions */
+  ti = proto_tree_add_text(tree, tvb, offset,
+		tvb_length(tvb)-offset, "Extensions");
+  exts_tree = proto_item_add_subtree(ti, ett_mip_exts);
+
+  /* And, handle each extensions */
+  dataLength = tvb_length(tvb);
+  while (offset < dataLength) {
+
+	/* Get our extension info */
+	ext_type = tvb_get_guint8(tvb, offset);
+	if (ext_type == GEN_AUTH_EXT) {
+	  /*
+	   * Very nasty . . breaks normal extensions, since the length is
+	   * in the wrong place :(
+	   */
+	  ext_subtype = tvb_get_guint8(tvb, offset + 1);
+	  ext_len = tvb_get_ntohs(tvb, offset + 2);
+	  hdrLen = 4;
+	} else {
+	  ext_len = tvb_get_guint8(tvb, offset + 1);
+	  hdrLen = 2;
+	}
+	
+	/* If everything seems valid, make a tree for it, and update length */
+	if ((offset + ext_len + hdrLen) > dataLength) {
+	  /* Ut-Oh . . . we're done after this one */
+	  g_warning("Invalid MIP extension.  Length (%d) greater than remaining data (%d)",
+				ext_len, (dataLength - (offset + hdrLen)));
+	  ext_len = dataLength - (offset + hdrLen); /* Fudge it */
+	}
+
+	ti = proto_tree_add_text(exts_tree, tvb, offset, ext_len + hdrLen,
+				 "Extension: %s",
+				 val_to_str(ext_type, mip_ext_types,
+				            "Unknown Extension 0x%02x"));
+	ext_tree = proto_item_add_subtree(ti, ett_mip_ext);
+
+	proto_tree_add_item(ext_tree, hf_mip_ext_type, tvb, offset, 1, ext_type);
+	offset++;
+	if (ext_type != GEN_AUTH_EXT) {
+	  /* Another nasty hack since GEN_AUTH_EXT broke everything */
+	  proto_tree_add_uint(ext_tree, hf_mip_ext_len, tvb, offset, 1, ext_len);
+	  offset++;
+	}
+
+	switch(ext_type) {
+	case MH_AUTH_EXT:
+	case MF_AUTH_EXT:
+	case FH_AUTH_EXT:
+	  /* All these extensions look the same.  4 byte SPI followed by a key */
+	  proto_tree_add_item(ext_tree, hf_mip_aext_spi, tvb, offset, 4, FALSE);
+	  proto_tree_add_item(ext_tree, hf_mip_aext_auth, tvb, offset+4, ext_len-4,
+						  FALSE);
+	  break;
+	case MN_NAI_EXT:
+	  proto_tree_add_item(ext_tree, hf_mip_next_nai, tvb, offset, 
+						  ext_len, FALSE);
+	  break;
+
+	case GEN_AUTH_EXT:      /* RFC 3012 */
+	  /*
+	   * Very nasty . . breaks normal extensions, since the length is
+	   * in the wrong place :(
+	   */
+	  proto_tree_add_uint(ext_tree, hf_mip_ext_stype, tvb, offset, 1, ext_subtype);
+	  offset++;
+	  proto_tree_add_uint(ext_tree, hf_mip_ext_len2, tvb, offset, 2, ext_len);
+	  offset+=2;
+	  /* SPI */
+	  proto_tree_add_item(ext_tree, hf_mip_aext_spi, tvb, offset, 4, FALSE);
+	  /* Key */
+	  proto_tree_add_item(ext_tree, hf_mip_aext_auth, tvb, offset + 4,
+						  ext_len - 4, FALSE);
+	  
+	  break;
+	case OLD_CVSE_EXT:      /* RFC 3115 */
+	case CVSE_EXT:          /* RFC 3115 */
+	case OLD_NVSE_EXT:      /* RFC 3115 */
+	case NVSE_EXT:          /* RFC 3115 */
+	case MF_CHALLENGE_EXT:  /* RFC 3012 */
+	  /* The default dissector is good here.  The challenge is all hex anyway. */
+	default:
+	  tvb_memcpy(tvb, (guint8*)ext_data, offset, MIN(ext_len,
+		     (dataLength - (offset + 2))));
+	  proto_tree_add_bytes(ext_tree, hf_mip_ext, tvb, offset, ext_len,
+						   ext_data);
+	} /* ext type */
+
+	offset += ext_len;
+  } /* while data remaining */
+
+} /* dissect_mip_extensions */
 
 /* Code to actually dissect the packets */
 static void
 dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+  /* Set up structures we will need to add the protocol subtree and manage it */
+  proto_item	*ti;
+  proto_tree	*mip_tree=NULL;
+  proto_item    *tf;
+  proto_tree    *flags_tree;
+  guint8         type, code;
+  guint8         flags;
+  nstime_t       ident_time;
+  size_t         offset=0, eoffset;
+  tvbuff_t      *extensions_tvb;
+  size_t         dataRemaining;
+  
+  /* Make entries in Protocol column and Info column on summary display */
+  
+  if (check_col(pinfo->fd, COL_PROTOCOL)) 
+	col_set_str(pinfo->fd, COL_PROTOCOL, "MobileIP");
+  if (check_col(pinfo->fd, COL_INFO)) 
+	col_clear(pinfo->fd, COL_INFO);
 
-/* Set up structures we will need to add the protocol subtree and manage it */
-	proto_item	*ti;
-	proto_tree	*mip_tree=NULL, *ext_tree=NULL;
-	guint8		type, code;
-	nstime_t	ident_time;
-	int		eoffset, elen;
-	
-/* Make entries in Protocol column and Info column on summary display */
-
-	if (check_col(pinfo->fd, COL_PROTOCOL)) 
-		col_set_str(pinfo->fd, COL_PROTOCOL, "MobileIP");
+  type = tvb_get_guint8(tvb, offset);
+  switch (type) {
+  case REGISTRATION_REQUEST:
 	if (check_col(pinfo->fd, COL_INFO)) 
-		col_clear(pinfo->fd, COL_INFO);
-    
-	type = tvb_get_guint8(tvb, 0);
-
-	if (type==1) {
-
-	  if (check_col(pinfo->fd, COL_INFO)) 
-		 col_add_fstr(pinfo->fd, COL_INFO, "Reg Request: HAddr=%s COA=%s", 
-						  ip_to_str(tvb_get_ptr(tvb, 4, 4)), ip_to_str(tvb_get_ptr(tvb,12,4)));
+	  col_add_fstr(pinfo->fd, COL_INFO, "Reg Request: HAddr=%s COA=%s", 
+				   ip_to_str(tvb_get_ptr(tvb, 4, 4)),
+				   ip_to_str(tvb_get_ptr(tvb,12,4)));
 	
-	  if (tree) {
-		 ti = proto_tree_add_item(tree, proto_mip, tvb, 0, tvb_length(tvb), FALSE);
-	   	 mip_tree = proto_item_add_subtree(ti, ett_mip);
-		 proto_tree_add_int(mip_tree, hf_mip_type, tvb, 0, 1, type);
-
-		 code = tvb_get_guint8(tvb, 1);
-		 proto_tree_add_boolean(mip_tree, hf_mip_s, tvb, 1, 1, code);
-		 proto_tree_add_boolean(mip_tree, hf_mip_b, tvb, 1, 1, code);
-		 proto_tree_add_boolean(mip_tree, hf_mip_d, tvb, 1, 1, code);
-		 proto_tree_add_boolean(mip_tree, hf_mip_m, tvb, 1, 1, code);
-		 proto_tree_add_boolean(mip_tree, hf_mip_g, tvb, 1, 1, code);
-		 proto_tree_add_boolean(mip_tree, hf_mip_v, tvb, 1, 1, code);
-		 proto_tree_add_boolean(mip_tree, hf_mip_t, tvb, 1, 1, code);
-		 
-		 proto_tree_add_item(mip_tree, hf_mip_life, tvb, 2, 2, FALSE);
-		 proto_tree_add_item(mip_tree, hf_mip_homeaddr, tvb, 4, 4, FALSE);
-		 proto_tree_add_item(mip_tree, hf_mip_haaddr, tvb, 8, 4, FALSE);
-		 proto_tree_add_item(mip_tree, hf_mip_coa, tvb, 12, 4, FALSE);
-		 ident_time.secs =  tvb_get_ntohl(tvb,16)-(guint32) NTP_BASETIME;
-		 ident_time.nsecs = tvb_get_ntohl(tvb,20)*1000;
-		 proto_tree_add_time(mip_tree, hf_mip_ident, tvb, 16, 8, &ident_time);
-		 
-		 eoffset = 24;
-		 while (tvb_reported_length_remaining(tvb, eoffset) > 0) {
-			/* Registration Extensions */
-			if (eoffset ==24) {
-			  ti = proto_tree_add_text(mip_tree, tvb, 24, tvb_length(tvb)-24, "Extensions");
-			  ext_tree = proto_item_add_subtree(ti, ett_mip_ext);
-			}
-
-			proto_tree_add_item(ext_tree, hf_mip_ext_type, tvb, eoffset, 1, FALSE);
-			elen = tvb_get_guint8(tvb, eoffset+1);
-			proto_tree_add_int(ext_tree, hf_mip_ext_len, tvb, eoffset+1, 1, elen);
-
-			switch (tvb_get_guint8(tvb, eoffset)) {
-			case 32:
-			case 33:
-			case 34:
-			  proto_tree_add_item(ext_tree, hf_mip_aext_spi, tvb, eoffset+2, 4, FALSE);
-			  proto_tree_add_item(ext_tree, hf_mip_aext_auth, tvb, eoffset+6, elen-4, FALSE);
-			  break;
-			case 131:
-			  proto_tree_add_string(ext_tree, hf_mip_next_nai, tvb, eoffset+2, 
-											tvb_get_guint8(tvb, eoffset+1), 
-											tvb_get_ptr(tvb, eoffset+2,tvb_get_guint8(tvb, eoffset+1)));
-			  break;
-			default:
-			  proto_tree_add_text(ext_tree, tvb, eoffset + 2,  tvb_get_guint8(tvb, eoffset+1), 
-										 "Unknown Extension");
-			  break;
-			  
-			}
-			eoffset += tvb_get_guint8(tvb, eoffset+1) + 2;
-		 }
-	  }
-	}
-
-	
-	if (type==3){
-	  if (check_col(pinfo->fd, COL_INFO)) 
-		 col_add_fstr(pinfo->fd, COL_INFO, "Reg Reply: HAddr=%s, Code=%u", 
-						  ip_to_str(tvb_get_ptr(tvb,4,4)), tvb_get_guint8(tvb,1));
+	if (tree) {
+	  ti = proto_tree_add_item(tree, proto_mip, tvb, offset, tvb_length(tvb), FALSE);
+	  mip_tree = proto_item_add_subtree(ti, ett_mip);
 	  
-	  if (tree) {
-		 ti = proto_tree_add_item(tree, proto_mip, tvb, 0, tvb_length(tvb), FALSE);
-		 mip_tree = proto_item_add_subtree(ti, ett_mip);
-		 proto_tree_add_int(mip_tree, hf_mip_type, tvb, 0, 1, type);
-		 
-		 /*	 code = tvb_get_guint8(tvb, 1);
-				 proto_tree_add_uint(mip_tree, hf_mip_code, tvb, 1, 1, code);*/
-		 proto_tree_add_item(mip_tree, hf_mip_code, tvb, 1, 1, FALSE);
-		 proto_tree_add_item(mip_tree, hf_mip_life, tvb, 2, 2, FALSE);
-		 proto_tree_add_item(mip_tree, hf_mip_homeaddr, tvb, 4, 4, FALSE);
-  		 proto_tree_add_item(mip_tree, hf_mip_haaddr, tvb, 8, 4, FALSE);
-		 ident_time.secs =  tvb_get_ntohl(tvb,12)-(guint32) NTP_BASETIME;
-		 ident_time.nsecs = tvb_get_ntohl(tvb,16)*1000;
-		 proto_tree_add_time(mip_tree, hf_mip_ident, tvb, 12, 8, &ident_time);
-		 
-		 eoffset = 20;
-		 while (tvb_reported_length_remaining(tvb, eoffset) > 0) {
-			/* Registration Extensions */
-			if (eoffset==20) {
-			  ti = proto_tree_add_text(mip_tree, tvb, 20, tvb_length(tvb)-20, "Extensions");
-			  ext_tree = proto_item_add_subtree(ti, ett_mip_ext);
-			}
-			
-			proto_tree_add_int(ext_tree, hf_mip_ext_type, tvb, eoffset, 1, 
-									 tvb_get_guint8(tvb, eoffset));
-			elen = tvb_get_guint8(tvb, eoffset+1);
-			proto_tree_add_int(ext_tree, hf_mip_ext_len, tvb, eoffset+1, 1, elen);
-			
-			switch (tvb_get_guint8(tvb, eoffset)) {
-			case 32:
-			case 33:
-			case 34:                             
-			  proto_tree_add_item(ext_tree, hf_mip_aext_spi, tvb, eoffset+2, 4, FALSE);
-			  proto_tree_add_item(ext_tree, hf_mip_aext_auth, tvb, eoffset+6, elen-4, FALSE);
-			  break;
-			case 131:
-			  proto_tree_add_item(ext_tree, hf_mip_next_nai, tvb, eoffset+2, 
-											tvb_get_guint8(tvb, eoffset+1), FALSE);
-			  break;
-			default:
-			  proto_tree_add_text(ext_tree, tvb, eoffset + 2,  tvb_get_guint8(tvb, eoffset+1), 
-										 "Unknown Extension");
-			  break;
-			}
-			eoffset += tvb_get_guint8(tvb, eoffset+1) + 2;
-		 }
-	  }
+	  /* type */
+	  proto_tree_add_uint(mip_tree, hf_mip_type, tvb, offset, 1, type);
+	  offset++;
+	  
+	  /* flags */
+	  flags = tvb_get_guint8(tvb, offset);
+	  tf = proto_tree_add_uint(mip_tree, hf_mip_flags, tvb,
+							   offset, 1, flags);
+	  flags_tree = proto_item_add_subtree(tf, ett_mip_flags);
+	  proto_tree_add_boolean(flags_tree, hf_mip_s, tvb, offset, 1, flags);
+	  proto_tree_add_boolean(flags_tree, hf_mip_b, tvb, offset, 1, flags);
+	  proto_tree_add_boolean(flags_tree, hf_mip_d, tvb, offset, 1, flags);
+	  proto_tree_add_boolean(flags_tree, hf_mip_m, tvb, offset, 1, flags);
+	  proto_tree_add_boolean(flags_tree, hf_mip_g, tvb, offset, 1, flags);
+	  proto_tree_add_boolean(flags_tree, hf_mip_v, tvb, offset, 1, flags);
+	  proto_tree_add_boolean(flags_tree, hf_mip_t, tvb, offset, 1, flags);
+	  offset++;
+
+	  /* lifetime */
+	  proto_tree_add_item(mip_tree, hf_mip_life, tvb, offset, 2, FALSE);
+	  offset +=2;
+	  
+	  /* home address */
+	  proto_tree_add_item(mip_tree, hf_mip_homeaddr, tvb, offset, 4, FALSE);
+	  offset += 4;
+	  
+	  /* home agent address */
+	  proto_tree_add_item(mip_tree, hf_mip_haaddr, tvb, offset, 4, FALSE);
+	  offset += 4;
+	  
+	  /* Care of Address */
+	  proto_tree_add_item(mip_tree, hf_mip_coa, tvb, offset, 4, FALSE);
+	  offset += 4;
+
+	  /* Identifier */
+	  ident_time.secs =  tvb_get_ntohl(tvb,16)-(guint32) NTP_BASETIME;
+	  ident_time.nsecs = tvb_get_ntohl(tvb,20)*1000;
+	  proto_tree_add_time(mip_tree, hf_mip_ident, tvb, offset, 8, &ident_time);
+	  offset += 8;
+		
+	} /* if tree */
+	break;
+  case REGISTRATION_REPLY:
+	if (check_col(pinfo->fd, COL_INFO)) 
+	  col_add_fstr(pinfo->fd, COL_INFO, "Reg Reply: HAddr=%s, Code=%u", 
+				   ip_to_str(tvb_get_ptr(tvb,4,4)), tvb_get_guint8(tvb,1));
+	
+	if (tree) {
+	  /* Add Subtree */
+	  ti = proto_tree_add_item(tree, proto_mip, tvb, offset, tvb_length(tvb), FALSE);
+	  mip_tree = proto_item_add_subtree(ti, ett_mip);
+	  
+	  /* Type */
+  	  proto_tree_add_uint(mip_tree, hf_mip_type, tvb, offset, 1, type);
+	  offset++;
+	  
+	  /* Reply Code */
+	  proto_tree_add_item(mip_tree, hf_mip_code, tvb, offset, 1, FALSE);
+	  offset++;
+
+	  /* Registration Lifetime */
+	  proto_tree_add_item(mip_tree, hf_mip_life, tvb, offset, 2, FALSE);
+	  offset += 2;
+
+	  /* Home address */
+	  proto_tree_add_item(mip_tree, hf_mip_homeaddr, tvb, offset, 4, FALSE);
+	  offset += 4;
+
+	  /* Home Agent Address */
+	  proto_tree_add_item(mip_tree, hf_mip_haaddr, tvb, offset, 4, FALSE);
+	  offset += 4;
+
+	  /* Identifier */
+	  ident_time.secs =  tvb_get_ntohl(tvb,12)-(guint32) NTP_BASETIME;
+	  ident_time.nsecs = tvb_get_ntohl(tvb,16)*1000;
+	  proto_tree_add_time(mip_tree, hf_mip_ident, tvb, offset, 8, &ident_time);
+	  offset += 8;
+	} /* if tree */
+	
+	break;
+  } /* End switch */
+
+  if (tree) {
+	dataRemaining = tvb_length(tvb) - offset;
+	if (dataRemaining > 0) {
+	  extensions_tvb = tvb_new_subset(tvb, offset, dataRemaining,
+									  dataRemaining);
+	  
+	  dissect_mip_extensions(extensions_tvb, pinfo, mip_tree);
 	}
-}
+  }
+} /* dissect_mip */
 
 /* Register the protocol with Ethereal */
 void proto_register_mip(void)
@@ -280,8 +414,13 @@ void proto_register_mip(void)
 	static hf_register_info hf[] = {
 	  { &hf_mip_type,
 		 { "Message Type",           "mip.type",
-			FT_INT8, BASE_DEC, VALS(mip_types), 0,          
+			FT_UINT8, BASE_DEC, VALS(mip_types), 0,          
 			"Mobile IP Message type.", HFILL }
+	  },
+	  { &hf_mip_flags,
+		{"Flags", "mip.flags",
+		 FT_UINT8, BASE_HEX, NULL, 0x0,
+		 "", HFILL}
 	  },
 	  { &hf_mip_s,
 		 {"Simultaneous Bindings",           "mip.s",
@@ -352,17 +491,32 @@ void proto_register_mip(void)
 	  },
 	  { &hf_mip_ext_type,
 		 { "Extension Type",           "mip.ext.type",
-			FT_INT8, BASE_DEC, VALS(mip_ext_types), 0,          
+			FT_UINT8, BASE_DEC, VALS(mip_ext_types), 0,          
 			"Mobile IP Extension Type.", HFILL }
+	  },
+	  { &hf_mip_ext_stype,
+		 { "Gen Auth Ext SubType",           "mip.ext.auth.subtype",
+			FT_UINT8, BASE_DEC, VALS(mip_ext_stypes), 0,          
+			"Mobile IP Auth Extension Sub Type.", HFILL }
 	  },
 	  { &hf_mip_ext_len,
 		 { "Extension Length",         "mip.ext.len",
-			FT_INT8, BASE_DEC, NULL, 0,
+			FT_UINT8, BASE_DEC, NULL, 0,
 			"Mobile IP Extension Length.", HFILL }
+	  },
+	  { &hf_mip_ext_len2,
+		 { "Extension Length",         "mip.ext.len2",
+			FT_UINT16, BASE_DEC, NULL, 0,
+			"Mobile IP Extension Length.", HFILL }
+	  },
+	  { &hf_mip_ext,
+		 { "Extension",                      "mip.extension",
+			FT_BYTES, BASE_HEX, NULL, 0,
+			"Extension", HFILL }
 	  },
 	  { &hf_mip_aext_spi,
 		 { "SPI",                      "mip.auth.spi",
-			FT_INT32, BASE_HEX, NULL, 0,
+			FT_UINT32, BASE_HEX, NULL, 0,
 			"Authentication Header Security Parameter Index.", HFILL }
 	  },
 	  { &hf_mip_aext_auth,
@@ -377,16 +531,21 @@ void proto_register_mip(void)
 	  },
 	};
 
-/* Setup protocol subtree array */
+	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_mip,
+		&ett_mip_flags,
 		&ett_mip_ext,
+		&ett_mip_exts,
 	};
 
-/* Register the protocol name and description */
+	/* Register the protocol name and description */
 	proto_mip = proto_register_protocol("Mobile IP", "Mobile IP", "mip");
 
-/* Required function calls to register the header fields and subtrees used */
+	/* Register the dissector by name */
+	register_dissector("mip", dissect_mip, proto_mip);
+
+	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_mip, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 };
