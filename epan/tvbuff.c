@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.21 2001/11/02 21:39:34 gram Exp $
+ * $Id: tvbuff.c,v 1.22 2001/11/03 00:19:26 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -237,9 +237,9 @@ tvb_free(tvbuff_t* tvb)
 			g_slist_free(tvb->used_in);
 		}
 
-        if (tvb->ds_name) {
-            g_free(tvb->ds_name);
-        }
+		if (tvb->ds_name) {
+			g_free(tvb->ds_name);
+		}
 
 		g_chunk_free(tvb, tvbuff_mem_chunk);
 	}
