@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.30 2002/11/10 11:00:29 oabad Exp $
+ * $Id: follow_dlg.c,v 1.31 2003/03/06 04:23:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,7 +75,8 @@ typedef enum {
 typedef enum {
 	SHOW_ASCII,
 	SHOW_EBCDIC,
-	SHOW_HEXDUMP
+	SHOW_HEXDUMP,
+	SHOW_CARRAY
 } show_type_t;
 
 typedef struct {
@@ -86,6 +87,7 @@ typedef struct {
 	GtkWidget	*ascii_bt;
 	GtkWidget	*ebcdic_bt;
 	GtkWidget	*hexdump_bt;
+	GtkWidget	*carray_bt;
 	GtkWidget	*follow_save_as_w;
 	gboolean        is_ipv6;
 } follow_info_t;
@@ -346,6 +348,16 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
                        follow_info);
 	follow_info->hexdump_bt = radio_bt;
 
+	/* C Array radio button */
+	radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_group
+					    (GTK_RADIO_BUTTON(radio_bt)),
+					    "C Arrays");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), FALSE);
+	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
+	SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
+                       follow_info);
+	follow_info->carray_bt = radio_bt;
+
 	/* Create Close Button */
 #if GTK_MAJOR_VERSION < 2
 	button = gtk_button_new_with_label("Close");
@@ -446,6 +458,8 @@ follow_charset_toggle_cb(GtkWidget * w _U_, gpointer data)
 		follow_info->show_type = SHOW_EBCDIC;
 	else if (GTK_TOGGLE_BUTTON(follow_info->hexdump_bt)->active)
 		follow_info->show_type = SHOW_HEXDUMP;
+	else if (GTK_TOGGLE_BUTTON(follow_info->carray_bt)->active)
+		follow_info->show_type = SHOW_CARRAY;
 	else if (GTK_TOGGLE_BUTTON(follow_info->ascii_bt)->active)
 		follow_info->show_type = SHOW_ASCII;
 	else
@@ -468,6 +482,9 @@ follow_read_stream(follow_info_t *follow_info,
     guint16		current_pos, global_client_pos = 0, global_server_pos = 0;
     guint16		*global_pos;
     gboolean		skip;
+    gchar               initbuf[256];
+    guint32             server_packet_count = 0;
+    guint32             client_packet_count = 0;
 
     iplen = (follow_info->is_ipv6) ? 16 : 4;
 
@@ -567,6 +584,48 @@ follow_read_stream(follow_info_t *follow_info,
 					hexbuf[cur++] = ' ';
 				    }
 				}
+				current_pos += i;
+				(*global_pos) += i;
+				hexbuf[cur++] = '\n';
+				hexbuf[cur] = 0;
+				(*print_line) (hexbuf, strlen(hexbuf), is_server, arg);
+			    }
+			    break;
+			case SHOW_CARRAY:
+			    current_pos = 0;
+			    sprintf(initbuf, "char peer%d_%d[] = {\n", is_server ? 1 : 0,
+				    is_server ? server_packet_count++ : client_packet_count++);
+			    (*print_line) (initbuf, strlen(initbuf), is_server, arg);
+			    while (current_pos < nchars) {
+				gchar hexbuf[256];
+				gchar hexchars[] = "0123456789abcdef";
+				int i, cur;
+
+				cur = 0;
+				for (i = 0; i < 8 && current_pos + i < nchars;
+				     i++) {
+				  /* Prepend entries with "0x" */
+				  hexbuf[cur++] = '0';
+				  hexbuf[cur++] = 'x';
+				    hexbuf[cur++] =
+					hexchars[(buffer[current_pos + i] & 0xf0)
+						 >> 4];
+				    hexbuf[cur++] =
+					hexchars[buffer[current_pos + i] & 0x0f];
+
+				    /* Delimit array entries with a comma */
+				    if (current_pos + i + 1 < nchars)
+				      hexbuf[cur++] = ',';
+
+				    hexbuf[cur++] = ' ';
+				}
+
+				/* Terminate the array if we are at the end */
+				if (current_pos + i == nchars) {
+				  hexbuf[cur++] = '}';
+				  hexbuf[cur++] = ';';
+				}
+
 				current_pos += i;
 				(*global_pos) += i;
 				hexbuf[cur++] = '\n';

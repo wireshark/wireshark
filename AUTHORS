@@ -1263,6 +1263,7 @@ Devin Heitmueller <dheitmueller[AT]netilla.com> {
 	Support for decrypting DCERPC conversations using NTLMSSP
 	    version 1
 	AIM enhancements
+	Follow TCP Stream support for showing stream data as C byte arrays
 }
 
 Chenjiang Hu <chu[AT]chiaro.com> {
