@@ -878,7 +878,7 @@ proto_register_field_array(int parent, hf_register_info *hf, int num_records);
  @param indices array of ett indices
  @param num_indices the number of records in indices */
 extern void
-proto_register_subtree_array(gint **indices, int num_indices);
+proto_register_subtree_array(gint *const *indices, int num_indices);
 
 /** Returns number of items (protocols or header fields) registered.
  @return the number of items */

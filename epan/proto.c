@@ -2695,10 +2695,10 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 }
 
 void
-proto_register_subtree_array(gint **indices, int num_indices)
+proto_register_subtree_array(gint *const *indices, int num_indices)
 {
 	int	i;
-	gint	**ptr = indices;
+	gint	*const *ptr = indices;
 
 	/*
 	 * Make sure we haven't already allocated the array of "tree is
