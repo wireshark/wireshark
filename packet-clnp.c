@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.85 2004/05/24 02:25:18 guy Exp $
+ * $Id: packet-clnp.c,v 1.86 2004/06/20 01:05:07 guy Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -990,11 +990,19 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
      * segmented packet doesn't have a specific sequence number (e.g., 0
      * or 1), it has whatever the appropriate sequence number is for
      * it in the connection.
+     *
+     * For now, we assume segments arrive in order, and just supply
+     * the negation of the EOT flag as the "more flags" argument.
+     * We should probably handle out-of-order packets separately,
+     * so that we can deliver them in order even when *not*
+     * reassembling.
+     *
+     * Note also that TP0 has no sequence number, and relies on
+     * the protocol atop which it runs to guarantee in-order delivery.
      */
-    fd_head = fragment_add_seq_check(next_tvb, 0, pinfo, dst_ref,
-				     cotp_segment_table, 
+    fd_head = fragment_add_seq_next(next_tvb, 0, pinfo, dst_ref,
+				     cotp_segment_table,
 				     cotp_reassembled_table,
-				     tpdu_nr, 
 				     fragment_length, fragment);
     if (fd_head) {
       if (fd_head->next) {
