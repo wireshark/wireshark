@@ -365,6 +365,7 @@ Paul Ionescu <paul@acorp.ro> {
 	Frame Relay support
 	Frame-Relay-over-GRE support
 	IPX SAP over IPX EIGRP support
+	Fleshed out TACACS/XTACACS/TACACS+ dissector
 }
 
 Mark Burton <markb@ordern.com> {
