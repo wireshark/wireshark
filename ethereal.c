@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.37 1999/06/12 07:04:34 guy Exp $
+ * $Id: ethereal.c,v 1.38 1999/06/12 09:10:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -155,6 +155,10 @@ file_sel_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
    * cf_name, leaving only the path to the directory. */
   if ((err = load_cap_file(cf_name, &cf)) == 0)
     chdir(cf_name);
+  else {
+    simple_dialog(ESD_TYPE_WARN, NULL, file_open_error_message(err, FALSE),
+		cf_name);
+  }
   g_free(cf_name);
 #ifdef USE_ITEM
     set_menu_sensitivity("/File/Save", FALSE);
@@ -179,6 +183,7 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
   char filename1[128];
   GtkWidget *streamwindow, *box, *text, *vscrollbar, *table;
   GtkWidget *filter_te = NULL;
+  int err;
 
   if (w)
   	filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
@@ -204,7 +209,11 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
       fprintf( stderr, "Could not open tmp file %s\n", filename1 );
     }
     reset_tcp_reassembly();
-    load_cap_file( cf.filename, &cf );
+    err = load_cap_file( cf.filename, &cf );
+    if (err != 0) {
+      simple_dialog(ESD_TYPE_WARN, NULL, file_open_error_message(err, FALSE),
+		cf.filename);
+    }
     /* the data_out_file should now be full of the streams information */
     fclose( data_out_file );
     /* the filename1 file now has all the text that was in the session */
@@ -357,6 +366,7 @@ file_save_as_cmd_cb(GtkWidget *w, gpointer data) {
 static void
 file_save_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 	gchar	*cf_name;
+	int	err;
 
 	cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
 	gtk_widget_hide(GTK_WIDGET (fs));
@@ -367,7 +377,11 @@ file_save_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 	g_free(cf.save_file);
 	cf.save_file = g_strdup(cf_name);
 	cf.user_saved = 1;
-	load_cap_file(cf_name, &cf);
+	err = load_cap_file(cf_name, &cf);
+	if (err != 0) {
+		simple_dialog(ESD_TYPE_WARN, NULL,
+		    file_open_error_message(err, FALSE), cf_name);
+	}
 
 #ifdef USE_ITEM
 	set_menu_sensitivity("/File/Save", FALSE);
@@ -381,6 +395,7 @@ file_save_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 static void
 file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 	gchar	*cf_name;
+	int	err;
 
 	cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
 	gtk_widget_hide(GTK_WIDGET (fs));
@@ -391,7 +406,11 @@ file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 	g_free(cf.save_file);
 	cf.save_file = g_strdup(cf_name);
 	cf.user_saved = 1;
-	load_cap_file(cf_name, &cf);
+	err = load_cap_file(cf_name, &cf);
+	if (err != 0) {
+		simple_dialog(ESD_TYPE_WARN, NULL,
+		    file_open_error_message(err, FALSE), cf_name);
+	}
 
 #ifdef USE_ITEM
 	set_menu_sensitivity("/File/Save", FALSE);
@@ -407,12 +426,17 @@ void
 file_reload_cmd_cb(GtkWidget *w, gpointer data) {
   /*GtkWidget *filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);*/
   GtkWidget *filter_te;
+  int err;
 
   filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
 
   if (cf.dfilter) g_free(cf.dfilter);
   cf.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
-  load_cap_file(cf.filename, &cf);
+  err = load_cap_file(cf.filename, &cf);
+  if (err != 0) {
+    simple_dialog(ESD_TYPE_WARN, NULL, file_open_error_message(err, FALSE),
+		cf.filename);
+  }
 }
 
 /* Print a packet */
@@ -495,7 +519,7 @@ void blank_packetinfo() {
   pi.destport = 0;
 }
 
-/* Things to do when the OK button is pressed */
+/* Things to do when the main window is realized */
 void
 main_realize_cb(GtkWidget *w, gpointer data) {
   gchar  *cf_name = (gchar *) data;
@@ -503,6 +527,10 @@ main_realize_cb(GtkWidget *w, gpointer data) {
   
   if (cf_name) {
     err = load_cap_file(cf_name, &cf);
+    if (err != 0) {
+      simple_dialog(ESD_TYPE_WARN, NULL, file_open_error_message(err, FALSE),
+		cf_name);
+    }
     cf_name[0] = '\0';
 #ifdef USE_ITEM
     set_menu_sensitivity("/File/Save as", TRUE);
@@ -529,7 +557,7 @@ ethereal_proto_init(void) {
 
 }
 
-void 
+static void 
 print_usage(void) {
 
   fprintf(stderr, "This is GNU %s %s, compiled with %s\n", PACKAGE,

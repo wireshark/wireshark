@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.25 1999/06/11 15:30:34 gram Exp $
+ * $Id: capture.c,v 1.26 1999/06/12 09:10:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -368,6 +368,7 @@ capture_prep_ok_cb(GtkWidget *w, gpointer data) {
     int  fork_child;
     char ssnap[24];
     char scount[24];	/* need a constant for len of numbers */
+    int err;
 
     sprintf(ssnap,"%d",cf.snap); /* in liu of itoa */
     sprintf(scount,"%d",cf.count);
@@ -412,8 +413,13 @@ capture_prep_ok_cb(GtkWidget *w, gpointer data) {
 	   if (kill(fork_child, 0) == -1 && errno == ESRCH) 
 	     break;
 	 }
-	 if (sigusr2_received) 
-	   tail_cap_file(cf.save_file, &cf);
+	 if (sigusr2_received) {
+	   err = tail_cap_file(cf.save_file, &cf);
+	   if (err != 0) {
+	     simple_dialog(ESD_TYPE_WARN, NULL,
+			file_open_error_message(err, FALSE), cf.save_file);
+	   }
+	 }
 	 sigusr2_received = FALSE;
        }
     }
@@ -441,6 +447,7 @@ capture(void) {
   loop_data   ld;
   bpf_u_int32 netnum, netmask;
   time_t      upd_time, cur_time;
+  int         err;
   
   ld.go           = TRUE;
   ld.counts.total = 0;
@@ -586,13 +593,19 @@ capture(void) {
     gtk_exit(0);
   }
 
-  if (cf.save_file) load_cap_file(cf.save_file, &cf);
+  if (cf.save_file) {
+    err = load_cap_file(cf.save_file, &cf);
+    if (err != 0) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+			file_open_error_message(err, FALSE), cf.save_file);
+    }
+  }
 #ifdef USE_ITEM
-    set_menu_sensitivity("/File/Save", TRUE);
-    set_menu_sensitivity("/File/Save as", FALSE);
+  set_menu_sensitivity("/File/Save", TRUE);
+  set_menu_sensitivity("/File/Save as", FALSE);
 #else
-    set_menu_sensitivity("<Main>/File/Save", TRUE);
-    set_menu_sensitivity("<Main>/File/Save as", FALSE);
+  set_menu_sensitivity("<Main>/File/Save", TRUE);
+  set_menu_sensitivity("<Main>/File/Save as", FALSE);
 #endif
 }
 

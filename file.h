@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.13 1999/05/11 18:51:10 deniel Exp $
+ * $Id: file.h,v 1.14 1999/06/12 09:10:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -118,10 +118,32 @@ typedef struct _snoop_frame_hdr {
 } snoop_frame_hdr;
 #endif
 
+/*
+ * "open_cap_file()" can return:
+ *
+ * 0 on success;
+ *
+ * a positive "errno" value on an open failure;
+ *
+ * a negative number, indicating the type of error, on other failures.
+ */
+#define	OPEN_CAP_FILE_NOT_REGULAR	-1	/* not a plain file */
+#define	OPEN_CAP_FILE_UNKNOWN_FORMAT	-2	/* not a capture file in a known format */
+
 int  open_cap_file(char *, capture_file *);
 void close_cap_file(capture_file *, void *, guint);
 int  load_cap_file(char *, capture_file *);
 int  tail_cap_file(char *, capture_file *);
 /* size_t read_frame_header(capture_file *); */
+
+/* Moves or copies a file. Returns 0 on failure, 1 on success */
+int file_mv(char *from, char *to);
+
+/* Copies a file. Returns 0 on failure, 1 on success */
+int file_cp(char *from, char *to);
+
+char *file_open_error_message(int, int);
+char *file_read_error_message(int);
+char *file_write_error_message(int);
 
 #endif /* file.h */

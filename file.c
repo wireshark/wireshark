@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.25 1999/05/11 20:07:47 gram Exp $
+ * $Id: file.c,v 1.26 1999/06/12 09:10:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -96,14 +96,10 @@ open_cap_file(char *fname, capture_file *cf) {
   struct stat cf_stat;
 
   /* First, make sure the file is valid */
-  if (stat(fname, &cf_stat)) {
-    simple_dialog(ESD_TYPE_WARN, NULL, "File does not exist.");
-    return 1;
-  }
-  if (! S_ISREG(cf_stat.st_mode) && ! S_ISFIFO(cf_stat.st_mode)) {
-    simple_dialog(ESD_TYPE_WARN, NULL, "The file you have chosen is invalid.");
-    return 1;
-  }
+  if (stat(fname, &cf_stat))
+    return (errno);
+  if (! S_ISREG(cf_stat.st_mode) && ! S_ISFIFO(cf_stat.st_mode))
+    return (OPEN_CAP_FILE_NOT_REGULAR);
 
   /* Next, try to open the file */
   cf->fh = fopen(fname, "r");
@@ -156,8 +152,10 @@ open_cap_file(char *fname, capture_file *cf) {
 	if (cf->wth == NULL) {
 #endif
 
-      simple_dialog(ESD_TYPE_WARN, NULL, "Could not open file.");
-      return 1;
+      /* XXX - we assume that, because we were able to open it above,
+         this must have failed because it's not a capture file in
+	 a format we can read. */
+      return (OPEN_CAP_FILE_UNKNOWN_FORMAT);
     }
 
 #ifndef WITH_WIRETAP
@@ -184,14 +182,11 @@ open_cap_file(char *fname, capture_file *cf) {
     cf->snap  = pcap_snapshot(cf->pfh);
     cf->lnk_t = pcap_datalink(cf->pfh);
   } else if (ntohl(magic[0]) == SNOOP_MAGIC_1 && ntohl(magic[1]) == SNOOP_MAGIC_2) {
-    simple_dialog(ESD_TYPE_WARN, NULL, "The snoop format is not yet supported.");
-    return 1;
+    return (OPEN_CAP_FILE_UNKNOWN_FORMAT);
   }
   
-  if (cf->cd_t == CD_UNKNOWN) {
-    simple_dialog(ESD_TYPE_WARN, NULL, "Can't determine file type.");
-    return 1;
-  }
+  if (cf->cd_t == CD_UNKNOWN)
+    return (OPEN_CAP_FILE_UNKNOWN_FORMAT);
 #else
     if (cf->dfilter) {
       if (wtap_offline_filter(cf->wth, cf->dfilter) < 0) {
@@ -204,7 +199,7 @@ open_cap_file(char *fname, capture_file *cf) {
   cf->snap = wtap_snapshot_length(cf->wth);
 #endif
 
-  return 0;
+  return (0);
 }
 
 /* Reset everything to a pristine state */
@@ -250,7 +245,7 @@ load_cap_file(char *fname, capture_file *cf) {
 
   close_cap_file(cf, info_bar, file_ctx);
 
-  /* Initialize protocol-speficic variables */
+  /* Initialize protocol-specific variables */
   ncp_init_protocol();
 
   if ((name_ptr = (gchar *) strrchr(fname, '/')) == NULL)
@@ -562,3 +557,162 @@ pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
   cf->plist = cf->plist->next;
 
 }
+
+/* Tries to mv a file. If unsuccessful, tries to cp the file.
+ * Returns 0 on failure to do either, 1 on success of either
+ */
+int
+file_mv(char *from, char *to)
+{
+
+#define COPY_BUFFER_SIZE	8192
+
+	int retval;
+
+	/* try a hard link */
+	retval = link(from, to);
+
+	/* or try a copy */
+	if (retval < 0) {
+		retval = file_cp(from, to);
+		if (!retval) {
+			return 0;
+		}
+	}
+
+	unlink(from);
+	return 1;
+}
+
+/* Copies a file.
+ * Returns 0 on failure to do either, 1 on success of either
+ */
+int
+file_cp(char *from, char *to)
+{
+
+#define COPY_BUFFER_SIZE	8192
+
+	int from_fd, to_fd, nread, nwritten;
+	char *buffer;
+	gint dialogue_button = ESD_BTN_OK;
+
+	buffer = g_malloc(COPY_BUFFER_SIZE);
+
+	from_fd = open(from, O_RDONLY);
+	if (from_fd < 0) {
+		simple_dialog(ESD_TYPE_WARN, &dialogue_button,
+			file_open_error_message(errno, TRUE), from);
+		return 0;
+	}
+
+	to_fd = creat(to, 0644);
+	if (to_fd < 0) {
+		simple_dialog(ESD_TYPE_WARN, &dialogue_button,
+			file_open_error_message(errno, TRUE), to);
+		close(from_fd);
+		return 0;
+	}
+
+	while( (nread = read(from_fd, buffer, COPY_BUFFER_SIZE)) > 0) {
+		nwritten = write(to_fd, buffer, nread);
+		if (nwritten < nread) {
+			if (nwritten < 0) {
+				simple_dialog(ESD_TYPE_WARN, &dialogue_button,
+					file_write_error_message(errno), to);
+			} else {
+				simple_dialog(ESD_TYPE_WARN, &dialogue_button,
+"The file \"%s\" could not be saved: tried writing %d, wrote %d.\n",
+					to, nread, nwritten);
+			}
+			close(from_fd);
+			close(to_fd);
+			return 0;
+		}
+	}
+	if (nread < 0) {
+		simple_dialog(ESD_TYPE_WARN, &dialogue_button,
+			file_read_error_message(errno), from);
+		close(from_fd);
+		close(to_fd);
+		return 0;
+	}
+	close(from_fd);
+	close(to_fd);
+
+	return 1;
+}
+
+char *
+file_open_error_message(int err, int for_writing)
+{
+  char *errmsg;
+  static char errmsg_errno[1024+1];
+
+  switch (err) {
+
+  case OPEN_CAP_FILE_NOT_REGULAR:
+    errmsg = "The file \"%s\" is invalid.";
+    break;
+
+  case OPEN_CAP_FILE_UNKNOWN_FORMAT:
+    errmsg = "The file \"%s\" is not a capture file in a format Ethereal understands.";
+    break;
+
+  case ENOENT:
+    if (for_writing)
+      errmsg = "The path to the file \"%s\" does not exist.";
+    else
+      errmsg = "The file \"%s\" does not exist.";
+    break;
+
+  case EACCES:
+    if (for_writing)
+      errmsg = "You do not have permission to create or write to the file \"%s\".";
+    else
+      errmsg = "You do not have permission to open the file \"%s\".";
+    break;
+
+  default:
+    sprintf(errmsg_errno, "The file \"%%s\" could not be opened: %s.", strerror(err));
+    errmsg = errmsg_errno;
+    break;
+  }
+  return errmsg;
+}
+
+char *
+file_read_error_message(int err)
+{
+  static char errmsg_errno[1024+1];
+
+  sprintf(errmsg_errno, "An error occurred while reading from the file \"%%s\": %s.", strerror(err));
+  return errmsg_errno;
+}
+
+char *
+file_write_error_message(int err)
+{
+  char *errmsg;
+  static char errmsg_errno[1024+1];
+
+  switch (err) {
+
+  case ENOSPC:
+    errmsg = "The file \"%s\" could not be saved because there is no space left on the file system.";
+    break;
+
+#ifdef EDQUOT
+  case EDQUOT:
+    errmsg = "The file \"%s\" could not be saved because you are too close to, or over, your disk quota.";
+    break;
+#endif
+
+  default:
+    sprintf(errmsg_errno, "An error occurred while writing to the file \"%%s\": %s.", strerror(err));
+    errmsg = errmsg_errno;
+    break;
+  }
+  return errmsg;
+}
+
