@@ -1,7 +1,7 @@
 /* ipproto.c
  * Routines for converting IPv4 protocol/v6 nxthdr field into string
  *
- * $Id: ipproto.c,v 1.11 2001/04/13 18:51:32 guy Exp $
+ * $Id: ipproto.c,v 1.12 2001/04/15 03:37:13 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -45,6 +45,7 @@
 
 #include "globals.h"
 #include "packet.h"
+#include "prefs.h"
 #include "resolv.h"
 #include "packet-ip.h"
 #include "packet-ipv6.h"
@@ -105,7 +106,7 @@ const char *ipprotostr(int proto) {
 	goto ok;
 
 #ifdef HAVE_GETPROTOBYNUMBER
-    if (g_resolving_actif) {
+    if (prefs.name_resolve) {
 	pe = getprotobynumber(proto);
 	if (pe) {
 	    s = pe->p_name;

@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.51 2001/04/13 14:59:30 jfoster Exp $
+ * $Id: menu.c,v 1.52 2001/04/15 03:37:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -400,7 +400,7 @@ set_menus_for_selected_packet(gboolean have_selected_packet)
   set_menu_sensitivity("/Tools/Decode As...",
       have_selected_packet && decode_as_ok());
   set_menu_sensitivity("/Resolve Name", 
-      have_selected_packet && !prefs.capture_name_resolve);  
+      have_selected_packet && !prefs.name_resolve);  
 }
 
 /* Enable or disable menu items based on whether a tree row is selected. */

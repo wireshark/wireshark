@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.49 2001/04/13 14:59:28 jfoster Exp $
+ * $Id: prefs.c,v 1.50 2001/04/15 03:37:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -615,7 +615,7 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
     prefs.capture_prom_mode   =     0;
     prefs.capture_real_time   =     0;
     prefs.capture_auto_scroll =     0;
-    prefs.capture_name_resolve=     1;
+    prefs.name_resolve=     1;
 
   }
 
@@ -851,11 +851,20 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_MARKED_FG "gui.marked_frame.fg"
 #define PRS_GUI_MARKED_BG "gui.marked_frame.bg"
 
+/*
+ * This applies to more than just captures, so it's not "capture.name_resolve";
+ * "capture.name_resolve" is supported on input for backwards compatibility.
+ *
+ * It's not a preference for a particular part of Ethereal, it's used all
+ * over the place, so its name doesn't have two components.
+ */
+#define PRS_NAME_RESOLVE "name_resolve"
+#define PRS_CAP_NAME_RESOLVE "capture.name_resolve"
+
 /*  values for the capture dialog box */
 #define PRS_CAP_REAL_TIME "capture.real_time_update"
 #define PRS_CAP_PROM_MODE "capture.prom_mode"
 #define PRS_CAP_AUTO_SCROLL "capture.auto_scroll"
-#define PRS_CAP_NAME_RESOLVE "capture.name_resolve"
 
 #define RED_COMPONENT(x)   ((((x) >> 16) & 0xff) * 65535 / 255)
 #define GREEN_COMPONENT(x) ((((x) >>  8) & 0xff) * 65535 / 255)
@@ -1000,8 +1009,9 @@ set_pref(gchar *pref_name, gchar *value)
   } else if (strcmp(pref_name, PRS_CAP_AUTO_SCROLL) == 0) {
     prefs.capture_auto_scroll = ((strcmp(value, "TRUE") == 0)?TRUE:FALSE); 
  
-  } else if (strcmp(pref_name, PRS_CAP_NAME_RESOLVE) == 0) {
-    prefs.capture_name_resolve = ((strcmp(value, "TRUE") == 0)?TRUE:FALSE); 
+  } else if (strcmp(pref_name, PRS_NAME_RESOLVE) == 0 ||
+	     strcmp(pref_name, PRS_CAP_NAME_RESOLVE) == 0) {
+    prefs.name_resolve = ((strcmp(value, "TRUE") == 0)?TRUE:FALSE); 
 
   } else {
     /* To which module does this preference belong? */
@@ -1327,6 +1337,10 @@ write_prefs(char **pf_path_return)
     (prefs.gui_marked_bg.green * 255 / 65535),
     (prefs.gui_marked_bg.blue * 255 / 65535));
 
+  fprintf(pf, "\n# Resolve addresses to names? TRUE/FALSE\n");
+  fprintf(pf, PRS_NAME_RESOLVE ": %s\n",
+		  prefs.name_resolve == TRUE ? "TRUE" : "FALSE");
+
 /* write the capture options */
   fprintf(pf, "\n# Capture in promiscuous mode? TRUE/FALSE\n");
   fprintf(pf, PRS_CAP_PROM_MODE ": %s\n",
@@ -1339,10 +1353,6 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "\n# scroll packet list during capture? TRUE/FALSE\n");
   fprintf(pf, PRS_CAP_AUTO_SCROLL ": %s\n",
 		  prefs.capture_auto_scroll == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(pf, "\n# resolve names  during capture? TRUE/FALSE\n");
-  fprintf(pf, PRS_CAP_NAME_RESOLVE ": %s\n",
-		  prefs.capture_name_resolve == TRUE ? "TRUE" : "FALSE");
 
   g_list_foreach(modules, write_module_prefs, pf);
 
@@ -1392,7 +1402,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->capture_prom_mode = src->capture_prom_mode;
   dest->capture_real_time = src->capture_real_time;
   dest->capture_auto_scroll = src->capture_auto_scroll;
-  dest->capture_name_resolve = src->capture_name_resolve;
+  dest->name_resolve = src->name_resolve;
 
 }
 

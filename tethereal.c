@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.78 2001/04/11 05:24:08 guy Exp $
+ * $Id: tethereal.c,v 1.79 2001/04/15 03:37:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -391,7 +391,7 @@ main(int argc, char *argv[])
 	line_buffered = TRUE;
 	break;
       case 'n':        /* No name resolution */
-	g_resolving_actif = 0;
+	prefs->name_resolve = 0;
 	break;
       case 'o':        /* Override preference from command line */
         switch (prefs_set_pref(optarg)) {

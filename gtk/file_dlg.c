@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.37 2001/04/09 22:35:23 gram Exp $
+ * $Id: file_dlg.c,v 1.38 2001/04/15 03:37:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,6 +39,7 @@
 
 #include "globals.h"
 #include "gtkglobals.h"
+#include "prefs.h"
 #include "resolv.h"
 #include "keys.h"
 #include "filter_prefs.h"
@@ -97,7 +98,7 @@ file_open_cmd_cb(GtkWidget *w, gpointer data)
 
   resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
 		  "Enable name resolution", NULL);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(resolv_cb), g_resolving_actif);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(resolv_cb), prefs.name_resolve);
   gtk_box_pack_end(GTK_BOX(GTK_FILE_SELECTION(file_open_w)->main_vbox),
 		  resolv_cb, FALSE, FALSE, 5);
   gtk_widget_show(resolv_cb);
@@ -190,7 +191,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 
   /* Set the global resolving variable */
   resolv_cb = gtk_object_get_data(GTK_OBJECT(w), E_FILE_RESOLVE_KEY);
-  g_resolving_actif = GTK_TOGGLE_BUTTON (resolv_cb)->active;
+  prefs.name_resolve = GTK_TOGGLE_BUTTON (resolv_cb)->active;
 
   /* We've crossed the Rubicon; get rid of the file selection box. */
   gtk_widget_hide(GTK_WIDGET (fs));

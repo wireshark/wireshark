@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.8 2001/04/02 09:41:54 guy Exp $
+ * $Id: resolv.c,v 1.9 2001/04/15 03:37:15 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -82,6 +82,8 @@
 #include "resolv.h"
 #include "filesystem.h"
 
+#include "prefs.h"
+
 #define EPATH_ETHERS 		"/etc/ethers"
 #define EPATH_IPXNETS 		"/etc/ipxnets"
 #define EPATH_MANUF  		DATAFILE_DIR "/manuf"
@@ -154,8 +156,6 @@ static int 		ipxnet_resolution_initialized = 0;
  *  Global variables (can be changed in GUI sections)
  */
 
-int g_resolving_actif = 1; 		/* routines are active by default */
-
 gchar *g_ethers_path  = EPATH_ETHERS;
 gchar *g_pethers_path = NULL; 		/* "$HOME"/EPATH_PERSONAL_ETHERS    */
 gchar *g_ipxnets_path  = EPATH_IPXNETS;
@@ -220,7 +220,7 @@ static guchar *serv_name_lookup(guint port, port_type proto)
   tp->addr = port;
   tp->next = NULL;
 
-  if (!g_resolving_actif || 
+  if (!prefs.name_resolve || 
       (servp = getservbyport(htons(port), serv_proto)) == NULL) {
     /* unknown port */
     sprintf(tp->name, "%d", port);
@@ -279,7 +279,7 @@ static guchar *host_name_lookup(guint addr, gboolean *found)
   tp->addr = addr;
   tp->next = NULL;
 
-  if (g_resolving_actif) {
+  if (prefs.name_resolve) {
 #ifdef AVOID_DNS_TIMEOUT
     
     /* Quick hack to avoid DNS/YP timeout */
@@ -319,7 +319,7 @@ static guchar *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
 #ifdef INET6
   struct hostent *hostp;
 
-  if (g_resolving_actif) {
+  if (prefs.name_resolve) {
 #ifdef AVOID_DNS_TIMEOUT
     
     /* Quick hack to avoid DNS/YP timeout */
@@ -1036,7 +1036,7 @@ extern guchar *get_hostname(guint addr)
 {
   gboolean found;
 
-  if (!g_resolving_actif)
+  if (!prefs.name_resolve)
     return ip_to_str((guint8 *)&addr);
 
   return host_name_lookup(addr, &found);
@@ -1047,7 +1047,7 @@ extern const guchar *get_hostname6(struct e_in6_addr *addr)
   gboolean found;
 
 #ifdef INET6
-  if (!g_resolving_actif)
+  if (!prefs.name_resolve)
     return ip6_to_str(addr);
   if (IN6_IS_ADDR_LINKLOCAL(addr) || IN6_IS_ADDR_MULTICAST(addr))
     return ip6_to_str(addr);
@@ -1100,7 +1100,7 @@ extern guchar *get_udp_port(guint port)
   static gchar  str[3][MAXNAMELEN];
   static gchar *cur;
 
-  if (!g_resolving_actif) {
+  if (!prefs.name_resolve) {
     if (cur == &str[0][0]) {
       cur = &str[1][0];
     } else if (cur == &str[1][0]) {  
@@ -1121,7 +1121,7 @@ extern guchar *get_tcp_port(guint port)
   static gchar  str[3][MAXNAMELEN];
   static gchar *cur;
 
-  if (!g_resolving_actif) {
+  if (!prefs.name_resolve) {
     if (cur == &str[0][0]) {
       cur = &str[1][0];
     } else if (cur == &str[1][0]) {  
@@ -1142,7 +1142,7 @@ extern guchar *get_sctp_port(guint port)
   static gchar  str[3][MAXNAMELEN];
   static gchar *cur;
 
-  if (!g_resolving_actif) {
+  if (!prefs.name_resolve) {
     if (cur == &str[0][0]) {
       cur = &str[1][0];
     } else if (cur == &str[1][0]) {  
@@ -1160,7 +1160,7 @@ extern guchar *get_sctp_port(guint port)
 
 extern guchar *get_ether_name(const guint8 *addr)
 {
-  if (!g_resolving_actif)
+  if (!prefs.name_resolve)
     return ether_to_str((guint8 *)addr);
 
   if (!eth_resolution_initialized) {
@@ -1184,7 +1184,7 @@ guchar *get_ether_name_if_known(const guint8 *addr)
 
   /* Initialize ether structs if we're the first
    * ether-related function called */
-  if (!g_resolving_actif)
+  if (!prefs.name_resolve)
     return NULL;
   
   if (!eth_resolution_initialized) {
@@ -1236,7 +1236,7 @@ guchar *get_ether_name_if_known(const guint8 *addr)
 extern guint8 *get_ether_addr(const guchar *name)
 {
 
-  /* force resolution (do not check g_resolving_actif) */
+  /* force resolution (do not check prefs.name_resolve) */
 
   if (!eth_resolution_initialized) {
     initialize_ethers();
@@ -1268,7 +1268,7 @@ extern void add_ether_byip(guint ip, const guint8 *eth)
 extern const guchar *get_ipxnet_name(const guint32 addr)
 {
 
-  if (!g_resolving_actif) {
+  if (!prefs.name_resolve) {
 	  return ipxnet_to_str_punct(addr, '\0');
   }
 
@@ -1286,7 +1286,7 @@ extern guint32 get_ipxnet_addr(const guchar *name, gboolean *known)
   guint32 addr;
   gboolean success;
 
-  /* force resolution (do not check g_resolving_actif) */
+  /* force resolution (do not check prefs.name_resolve) */
 
   if (!ipxnet_resolution_initialized) {
     initialize_ipxnets();
@@ -1306,12 +1306,12 @@ extern const guchar *get_manuf_name(const guint8 *addr)
   static gchar *cur;
   hashmanuf_t  *manufp;
 
-  if (g_resolving_actif && !eth_resolution_initialized) {
+  if (prefs.name_resolve && !eth_resolution_initialized) {
     initialize_ethers();
     eth_resolution_initialized = 1;
   }
 
-  if (!g_resolving_actif || ((manufp = manuf_name_lookup(addr)) == NULL)) {
+  if (!prefs.name_resolve || ((manufp = manuf_name_lookup(addr)) == NULL)) {
     if (cur == &str[0][0]) {
       cur = &str[1][0];
     } else if (cur == &str[1][0]) {  

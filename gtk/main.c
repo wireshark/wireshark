@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.192 2001/04/13 14:59:30 jfoster Exp $
+ * $Id: main.c,v 1.193 2001/04/15 03:37:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -520,11 +520,11 @@ void expand_all_cb(GtkWidget *widget, gpointer data) {
 
 void resolve_name_cb(GtkWidget *widget, gpointer data) {
   if (cfile.protocol_tree) {
-    int tmp = prefs.capture_name_resolve;
-    prefs.capture_name_resolve = 1;
+    int tmp = prefs.name_resolve;
+    prefs.name_resolve = 1;
     gtk_clist_clear ( GTK_CLIST(tree_view) );
     proto_tree_draw(cfile.protocol_tree, tree_view);
-    prefs.capture_name_resolve = tmp;
+    prefs.name_resolve = tmp;
   }
 }
 
@@ -988,7 +988,7 @@ main(int argc, char *argv[])
 	prefs->gui_font_name = g_strdup(optarg);
 	break;
       case 'n':        /* No name resolution */
-	prefs->capture_name_resolve = 0;
+	prefs->name_resolve = 0;
 	break;
       case 'o':        /* Override preference from command line */
         switch (prefs_set_pref(optarg)) {

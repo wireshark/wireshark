@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.40 2001/04/13 14:59:30 jfoster Exp $
+ * $Id: capture_dlg.c,v 1.41 2001/04/15 03:37:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -278,7 +278,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
 
   resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
 		"Enable _name resolution", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(resolv_cb), prefs.capture_name_resolve);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(resolv_cb), prefs.name_resolve);
   gtk_container_add(GTK_CONTAINER(main_vb), resolv_cb);
   gtk_widget_show(resolv_cb);
   
@@ -502,7 +502,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
 
   prefs.capture_auto_scroll = GTK_TOGGLE_BUTTON (auto_scroll_cb)->active;
 
-  prefs.capture_name_resolve = GTK_TOGGLE_BUTTON (resolv_cb)->active;
+  prefs.name_resolve = GTK_TOGGLE_BUTTON (resolv_cb)->active;
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 
