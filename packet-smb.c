@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.167 2001/11/24 09:36:39 guy Exp $
+ * $Id: packet-smb.c,v 1.168 2001/11/26 09:58:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,6 +48,8 @@
 #include "smb.h"
 #include "alignment.h"
 #include "strutil.h"
+#include "prefs.h"
+#include "reassemble.h"
 
 #include "packet-smb-mailslot.h"
 #include "packet-smb-pipe.h"
@@ -569,6 +571,7 @@ static gint ett_smb_get_dfs_flags = -1;
 static gint ett_smb_ff2_data = -1;
 static gint ett_smb_device_characteristics = -1;
 static gint ett_smb_fs_attributes = -1;
+static gint ett_smb_segments = -1;
 
 proto_tree *top_tree=NULL;     /* ugly */
 
@@ -657,6 +660,81 @@ static const gchar *get_unicode_or_ascii_string(tvbuff_t *tvb,
 #define COUNT_BYTES_TRANS_SUBR(len)	\
 	offset += len;			\
 	*bcp -= len;
+
+
+/* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+   These are needed by the reassembly of SMB Transaction payload
+   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+/* Reassembly of SMB Transaction calls */
+static gboolean smb_trans_reassembly = FALSE;
+
+static GHashTable *smb_trans_fragment_table = NULL;
+
+static void
+smb_trans_reassembly_init(void)
+{
+	fragment_table_init(&smb_trans_fragment_table);
+}
+
+/*qqq*/
+static tvbuff_t *
+smb_trans_defragment(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
+		     int od, int dc, int dd, int td)
+{
+	fragment_data *fd_head=NULL;
+	smb_info_t *si;
+	tvbuff_t *next_tvb;
+
+	si = (smb_info_t *)pinfo->private_data;
+
+	if(!pinfo->fd->flags.visited){
+		/* we start a new reassembly if this is the first fragment */
+		if( (dd==0) && (td>dc) ){
+			fd_head = fragment_add(tvb, od, pinfo,
+					si->sip->frame_req, smb_trans_fragment_table,
+					dd, dc, TRUE);
+			fragment_set_tot_len(pinfo, si->sip->frame_req,
+					smb_trans_fragment_table, td);
+		}
+		/* this is a continuation to reassebly */
+		if(dd!=0){
+			fd_head = fragment_add(tvb, od, pinfo,
+					si->sip->frame_req, smb_trans_fragment_table,
+					dd, dc, TRUE);
+		}
+	} else {
+		fd_head = fragment_get(pinfo, si->sip->frame_req, smb_trans_fragment_table);
+	}
+
+	/* we only show the reassembled data in the first SMB containing the
+	   first block of data.
+	*/
+	if(dd==0 && fd_head && fd_head->flags&FD_DEFRAGMENTED){
+		proto_tree *tr;
+		proto_item *it;
+		fragment_data *fd;
+
+		it = proto_tree_add_text(tree, tvb, 0, 0, "Fragments");
+		tr = proto_item_add_subtree(it, ett_smb_segments);
+		for(fd=fd_head->next;fd;fd=fd->next){
+			proto_tree_add_text(tr, tvb, 0, 0, "Frame:%d Data:%d-%d",
+				fd->frame, fd->offset, fd->offset+fd->len-1);
+		}
+
+		next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen,
+				fd_head->datalen, "Reassembled  SMB");
+		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+		pinfo->fd->data_src = g_slist_append(pinfo->fd->data_src, next_tvb);
+		pinfo->fragmented = FALSE;
+		return next_tvb;
+	} else {
+		return NULL;
+	}
+}
+		
+
+
+
 
 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
    These variables and functions are used to match
@@ -9253,8 +9331,6 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return offset;
 }
 
-/*qqq*/
-
  
 
 static int
@@ -10166,7 +10242,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
  
 static int
 dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *parent_tree, int offset, guint16 dc)
+    proto_tree *parent_tree, guint16 dc)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -10174,6 +10250,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 	smb_transact2_info_t *t2i;
 	int count;
 	gboolean trunc;
+	int offset = 0;
 
 	si = (smb_info_t *)pinfo->private_data;
 	if (si->sip != NULL)
@@ -10485,16 +10562,18 @@ static int
 dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8 sc, wc;
-	guint16 od=0, po=0, pc=0, pd, dc=0, dd=0;
+	guint16 od=0, po=0, pc=0, pd, dc=0, dd=0, td=0;
 	int so=offset;
 	int sl=0;
 	int spo=offset;
 	int spc=0;
+	gboolean reassembled = FALSE;
 	smb_info_t *si;
 	smb_transact2_info_t *t2i = NULL;
 	guint16 bc;
 	int padcnt;
 	gboolean dissected_trans;
+	tvbuff_t *d_tvb=NULL;
 
 	si = (smb_info_t *)pinfo->private_data;
 
@@ -10546,7 +10625,8 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset += 2;
 
 	/* total data count, only a 16 bit integer here */
-	proto_tree_add_uint(tree, hf_smb_total_data_count, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+	td = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_total_data_count, tvb, offset, 2, td);
 	offset += 2;
 
 	/* 2 reserved bytes */
@@ -10640,6 +10720,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		}
 	}
 
+
 	/* data */
 	if(od>offset){
 		/* We have some initial padding bytes.
@@ -10652,26 +10733,69 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	}
 	if(dc){
 		CHECK_BYTE_COUNT(dc);
-		switch(si->cmd){
 
-		case SMB_COM_TRANSACTION2:
-			/* TRANSACTION2 data*/
-			offset = dissect_transaction2_response_data(tvb, pinfo, tree, offset, dc);
-			bc -= dc;
-			break;
-
-		case SMB_COM_TRANSACTION:
-			/* TRANSACTION information processed below */
-			COUNT_BYTES(dc);
-			break;
+/*qqq*/
+		/* reassembly of SMB Transaction data payload.
+		   In this section we only do reassembly of the data (and
+		   not parameters) block of the SMB transaction command.
+		   If someone ever finds an Transaction command which needs
+		   reassembly of parameters as well, then we will have to
+		   add that here.
+		*/
+		if(smb_trans_reassembly){
+			if( (dd>0 || (dd+dc)<td) ){
+				d_tvb = smb_trans_defragment(tree, pinfo, tvb, od, dc, dd, td);
+				reassembled = TRUE;
+			}
 		}
+
+		if(d_tvb==NULL){
+			/* Reassembly didn't give us a data tvb, so we just
+			   try to create a tvb with what we have in this
+			   fragment.
+			*/
+			if(dc>tvb_length_remaining(tvb, od)){
+				d_tvb = tvb_new_subset(tvb, od, tvb_length_remaining(tvb, od), dc);
+			} else {
+				d_tvb = tvb_new_subset(tvb, od, dc, dc);
+			}
+		}
+		COUNT_BYTES(dc);
+		if (reassembled) {
+			/*
+			 * XXX - the transaction data is in a reassembled
+			 * tvbuff, so we can't show any data past the data
+			 * count as "Extra byte parameters" - it's not
+			 * even present in the reassembled tvbuff.
+			 *
+			 * For now, just set "bc" to 0, so that we don't
+			 * attempt to show any "Extra byte parameters".
+			 */
+			bc = 0;
+
+			/* update the data count */
+			dc = tvb_length(d_tvb);
+		}
+	} else {
+		/*
+		 * No data for this response.
+		 */
+		d_tvb = NULL;
 	}
 
-	/* TRANSACTION response parameters */
-	if(si->cmd==SMB_COM_TRANSACTION){
+	switch(si->cmd) {
+
+	case SMB_COM_TRANSACTION2:
+		/* handle TRANSACTION2 data */
+		if (dc != 0)
+			dissect_transaction2_response_data(d_tvb, pinfo, tree, dc);
+		break;
+
+	case SMB_COM_TRANSACTION:
+		/* TRANSACTION response parameters */
 		/* only call subdissector for the first packet */
 		if(dd==0){
-			tvbuff_t *p_tvb, *d_tvb, *s_tvb;
+			tvbuff_t *p_tvb, *s_tvb;
 			tvbuff_t *sp_tvb, *pd_tvb;
 			smb_transact_info_t *tri;
 
@@ -10683,15 +10807,6 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				}
 			} else {
 				p_tvb = NULL;
-			}
-			if(dc>0){
-				if(dc>tvb_length_remaining(tvb, od)){
-					d_tvb = tvb_new_subset(tvb, od, tvb_length_remaining(tvb, od), dc);
-				} else {
-					d_tvb = tvb_new_subset(tvb, od, dc, dc);
-				}
-			} else {
-				d_tvb = NULL;
 			}
 			if(sl){
 				if(sl>tvb_length_remaining(tvb, so)){
@@ -14769,14 +14884,21 @@ proto_register_smb(void)
 		&ett_smb_ff2_data,
 		&ett_smb_device_characteristics,
 		&ett_smb_fs_attributes,
+		&ett_smb_segments,
 	};
+	module_t *smb_module;
 
 	proto_smb = proto_register_protocol("SMB (Server Message Block Protocol)",
 	    "SMB", "smb");
-
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_smb, hf, array_length(hf));
 	register_init_routine(&smb_init_protocol);
+	smb_module = prefs_register_protocol(proto_smb, NULL);
+	prefs_register_bool_preference(smb_module, "smb.trans.reassembly",
+		"Reassemble SMB Transaction payload",
+		"Whether the dissector should do reassembly the payload of SMB Transaction commands spanning multiple SMB PDUs",
+		&smb_trans_reassembly);
+	register_init_routine(smb_trans_reassembly_init);
 }
 
 void
