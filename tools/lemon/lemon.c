@@ -25,7 +25,7 @@
 **   drh@acm.org
 **   http://www.hwaci.com/drh/
 **
-** $Id: lemon.c,v 1.3 2001/02/15 06:01:23 guy Exp $
+** $Id: lemon.c,v 1.4 2001/02/15 06:08:23 guy Exp $
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -263,7 +263,12 @@ void Configlist_eat(struct config *);
 void Configlist_reset(void);
 
 /********* From the file "error.h" ***************************************/
+#if __GNUC__ == 2
+void ErrorMsg( char *, int, char *, ... )
+  __attribute__((format (printf, 3, 4)));
+#else
 void ErrorMsg( char *, int, char *, ... );
+#endif
 
 /****** From the file "option.h" ******************************************/
 struct s_options {
@@ -2025,7 +2030,7 @@ to follow the previous rule.");
     case WAITING_FOR_DESTRUCTOR_SYMBOL:
       if( !safe_isalpha(x[0]) ){
         ErrorMsg(psp->filename,psp->tokenlineno,
-          "Symbol name missing after %destructor keyword");
+          "Symbol name missing after %%destructor keyword");
         psp->errorcnt++;
         psp->state = RESYNC_AFTER_DECL_ERROR;
       }else{
@@ -2038,7 +2043,7 @@ to follow the previous rule.");
     case WAITING_FOR_DATATYPE_SYMBOL:
       if( !safe_isalpha(x[0]) ){
         ErrorMsg(psp->filename,psp->tokenlineno,
-          "Symbol name missing after %destructor keyword");
+          "Symbol name missing after %%destructor keyword");
         psp->errorcnt++;
         psp->state = RESYNC_AFTER_DECL_ERROR;
       }else{
