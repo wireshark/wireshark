@@ -7,7 +7,7 @@
 
 #define PACKAGE "ethereal"
 
-#define VERSION "0.3.15"
+#define VERSION "0.3.16"
 
 /* #undef HAVE_SOCKADDR_SA_LEN */
 
