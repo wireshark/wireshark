@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.45 2001/12/03 01:20:51 guy Exp $
+ * $Id: packet.c,v 1.46 2001/12/03 01:26:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -368,14 +368,6 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 	guint32 saved_match_port;
 	guint16 saved_can_desegment;
 
-	/* can_desegment is set to 2 by anyone which offers this api/service.
-	   then everytime a subdissector is called it is decremented by one.
-	   thus only the subdissector immediately ontop of whoever offers this
-	   serveice can use it.
-	*/
-	saved_can_desegment=pinfo->can_desegment;
-	pinfo->can_desegment = saved_can_desegment-(saved_can_desegment>0);
-
 	dtbl_entry = g_hash_table_lookup(sub_dissectors,
 	    GUINT_TO_POINTER(port));
 	if (dtbl_entry != NULL) {
@@ -389,15 +381,25 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 			 * so that other dissectors might have a chance
 			 * to dissect this packet.
 			 */
-			pinfo->can_desegment=saved_can_desegment;
 			return FALSE;
 		}
-			
+
 		/*
 		 * Yes, it's enabled.
 		 */
 		saved_proto = pinfo->current_proto;
 		saved_match_port = pinfo->match_port;
+		saved_can_desegment = pinfo->can_desegment;
+
+		/*
+		 * can_desegment is set to 2 by anyone which offers the
+		 * desegmentation api/service.
+		 * Then everytime a subdissector is called it is decremented
+		 * by one.
+		 * Thus only the subdissector immediately on top of whoever
+		 * offers this serveice can use it.
+		 */
+		pinfo->can_desegment = saved_can_desegment-(saved_can_desegment>0);
 		pinfo->match_port = port;
 		if (dtbl_entry->current.proto_index != -1) {
 			pinfo->current_proto =
@@ -406,10 +408,9 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 		(*dtbl_entry->current.dissector)(tvb, pinfo, tree);
 		pinfo->current_proto = saved_proto;
 		pinfo->match_port = saved_match_port;
-		pinfo->can_desegment=saved_can_desegment;
+		pinfo->can_desegment = saved_can_desegment;
 		return TRUE;
 	} 
-	pinfo->can_desegment=saved_can_desegment;
 	return FALSE;
 }
 
