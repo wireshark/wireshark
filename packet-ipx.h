@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.h,v 1.22 2003/03/31 08:10:08 guy Exp $
+ * $Id: packet-ipx.h,v 1.23 2003/04/06 02:32:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -128,7 +128,7 @@ struct ipx_rip_packet
 #define IPX_SOCKET_ADSM                 0x8522 /* www.tivoli.com */
 #define IPX_SOCKET_EIGRP                0x85be /* cisco ipx eigrp */
 #define IPX_SOCKET_NLSP			0x9001 /* NetWare Link Services Protocol */
-#define IPX_SOCKET_IPXWAN2              0x9004 /* IPX WAN 2 */
+#define IPX_SOCKET_IPXWAN               0x9004 /* IPX WAN (RFC 1362, NLSP spec) */
 #define IPX_SOCKET_SNMP_AGENT           0x900F /* RFC 1906 */
 #define IPX_SOCKET_SNMP_SINK            0x9010 /* RFC 1906 */
 #define IPX_SOCKET_PING_NOVELL          0x9086 /* In cisco this is set with: ipx ping-default novell */

@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.120 2003/03/31 08:10:08 guy Exp $
+ * $Id: packet-ipx.c,v 1.121 2003/04/06 02:32:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -144,7 +144,7 @@ const value_string ipx_socket_vals[] = {
 	{ IPX_SOCKET_ADSM,			"ADSM" },
 	{ IPX_SOCKET_EIGRP,			"Cisco EIGRP for IPX" },
 	{ IPX_SOCKET_NLSP,			"NetWare Link Services Protocol" },
-	{ IPX_SOCKET_IPXWAN2,			"IPX WAN 2" },
+	{ IPX_SOCKET_IPXWAN,			"IPX WAN" },
 	{ SPX_SOCKET_PA,			"NDPS Printer Agent/PSM" },
 	{ SPX_SOCKET_BROKER,			"NDPS Broker" },
 	{ SPX_SOCKET_SRS,			"NDPS Service Registry Service" },
