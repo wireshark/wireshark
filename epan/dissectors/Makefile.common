@@ -460,6 +460,7 @@ DISSECTOR_SRC =	\
 	packet-smb-sidsnooping.c	\
 	packet-smb.c	\
 	packet-smpp.c	\
+	packet-smrse.c	\
 	packet-smtp.c	\
 	packet-sna.c	\
 	packet-snaeth.c	\
@@ -705,6 +706,7 @@ DISSECTOR_INCLUDES =	\
 	packet-smb-mailslot.h	\
 	packet-smb-pipe.h	\
 	packet-smb-sidsnooping.h	\
+	packet-smrse.h	\
 	packet-sna.h	\
 	packet-snmp.h	\
 	packet-spray.h	\

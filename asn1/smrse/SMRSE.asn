@@ -1,0 +1,133 @@
+SMRS DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+SMR-Bind ::= SEQUENCE {
+	sc-address SMS-Address,
+	password Password,
+	... 
+}
+
+ub-password-length INTEGER ::= 20
+
+IMSI-Address ::= OCTET STRING
+
+SMS-Address ::= SEQUENCE {
+	address-type INTEGER {
+		unknown-type (0),
+		internat-number (1),
+		national-number (2),
+		net-spec-number (3),
+		short-number (4)
+	},
+
+	numbering-plan INTEGER {
+		unknown-numbering (0),
+		iSDN-numbering (1),
+		data-network-numbering (3),
+		telex-numbering (4),
+		national-numbering (8),
+		private-numbering (9)
+	},
+
+	address-value CHOICE {
+		octet-format SemiOctetString
+	}
+}
+
+
+SemiOctetString ::= OCTET STRING
+
+Password ::= PrintableString
+
+SMR-Bind-Confirm ::= SEQUENCE {
+	...
+}
+
+SMR-Bind-Failure ::= SEQUENCE {
+	connect-fail-reason Connect-fail,
+	...
+}
+
+Connect-fail ::= INTEGER {
+	not-entitled (0),
+	tmp-overload (1),
+	tmp-failure (2),
+	id-or-passwd (3),
+	not-supported (4),
+	inv-SC-addr (5)
+}
+
+SMR-Unbind ::= SEQUENCE {
+	...
+}
+
+RPDataMT ::= SEQUENCE {
+	mt-priority-request BOOLEAN,
+	mt-mms BOOLEAN,
+	mt-message-reference RP-MR,
+	mt-originating-address SMS-Address,
+	mt-destination-address SMS-Address,
+	mt-user-data RP-UD,
+	mt-origVMSCAddr [1] SMS-Address OPTIONAL,
+	mt-tariffClass [2] SM-TC OPTIONAL,
+	...
+}
+
+RPDataMO ::= SEQUENCE {
+	mo-message-reference RP-MR,
+	mo-originating-address SMS-Address,
+	mo-user-data RP-UD,
+	origVMSCAddr [1] SMS-Address OPTIONAL ,
+	moimsi [2] IMSI-Address OPTIONAL,
+	...
+}
+
+RP-MR ::= INTEGER (0..65535)
+
+RP-UD ::= OCTET STRING (SIZE (1..164))
+
+SM-TC ::= INTEGER (0..65535)
+
+RPAck ::= SEQUENCE {
+	message-reference RP-MR,
+	...
+}
+
+Error-reason ::= INTEGER {
+	unknown-subscriber (1),
+	illegal-subscriber (9),
+	teleservice-not-provisioned (11),
+	call-barred (13),
+	cug-reject (15),
+	sMS-ll-capabilities-not-prov (19),
+	error-in-MS (20),
+	facility-not-supported (21),
+	memory-capacity-exceeded (22),
+	absent-subscriber (29),
+	ms-busy-for-MT-sms (30),
+	system-failure (36),
+	illegal-equipment (44),
+	no-resp-to-paging (60),
+	gMSC-congestion (61),
+	dublicate-sm (70),
+	sC-congestion (101),
+	mS-not-SC-Subscriber (103),
+	invalid-sme-address (104)
+}
+
+RPError ::= SEQUENCE {
+	error-reason Error-reason,
+	msg-waiting-set BOOLEAN,
+	message-reference RP-MR,
+	alerting-MS-ISDN [1] SMS-Address OPTIONAL,
+	sm-diag-info [2] RP-UD OPTIONAL,
+	...
+}
+
+RPAlertSC ::= SEQUENCE {
+	ms-address SMS-Address,
+	message-reference RP-MR,
+	...
+}
+
+END

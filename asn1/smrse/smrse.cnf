@@ -1,0 +1,20 @@
+# smrse.cnf
+# SMRSE conformation file
+
+# $Id: smrse.cnf 12290 2004-10-13 00:21:00Z sahlberg $
+
+#.MODULE_IMPORT
+
+#.EXPORTS
+
+#.NO_EMIT
+
+#.PDU
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.END
+
+
