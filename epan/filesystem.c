@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.26 2003/11/03 02:41:07 gerald Exp $
+ * $Id: filesystem.c,v 1.27 2003/11/03 22:32:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -630,24 +630,15 @@ deletefile(const char *path)
 
 /*
  * Construct and return the path name of a file in the
- * $TMP/%TEMP% directory.
+ * appropriate temporary file directory.
  */
 char *get_tempfile_path(const char *filename)
 {
-	char *path, *dir, *def;
+	char *path;
 
-#ifdef WIN32
-	dir = getenv("TEMP");
-	def = "C:\\";
-#else
-	dir = getenv("TMP");
-	def = "/tmp";
-#endif
-	if (!dir || (dir = get_dirname(dir)) == NULL)
-		dir = def;
-
-	path = (gchar *) g_malloc(strlen(dir) + strlen(filename) + 2);
-	sprintf(path, "%s" G_DIR_SEPARATOR_S "%s", dir, filename);
+	path = (gchar *) g_malloc(strlen(g_get_tmp_dir()) +
+	    strlen(filename) + 2);
+	sprintf(path, "%s" G_DIR_SEPARATOR_S "%s", g_get_tmp_dir(), filename);
 
 	return path;
 }
