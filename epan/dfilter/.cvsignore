@@ -1,3 +1,8 @@
+*.lib
+*.la
+*.lo
+*.obj
+*.pdb
 .cvsignore
 .deps
 .libs
@@ -7,7 +12,3 @@ grammar.h
 grammar.out
 Makefile.in
 grammar.c
-*.lib
-*.lo
-*.obj
-*.pdb

@@ -1,9 +1,10 @@
+*.lib
+*.la
+*.lo
+*.obj
+*.pdb
 .cvsignore
 .deps
 .libs
 Makefile
 Makefile.in
-*.lib
-*.lo
-*.obj
-*.pdb
