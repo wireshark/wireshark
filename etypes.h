@@ -228,12 +228,12 @@
 #define ETHERTYPE_LOOP		0x9000 	/* used for layer 2 testing (do i see my own frames on the wire) */
 #endif
 
-#ifndef ETHERTYPE_RTNET
-#define ETHERTYPE_RTNET		0x9021 	/* RTNET protocol*/
+#ifndef ETHERTYPE_RTMAC
+#define ETHERTYPE_RTMAC		0x9021 	/* RTnet: Real-Time Media Access Control */
 #endif
 
 #ifndef ETHERTYPE_RTCFG
-#define ETHERTYPE_RTCFG		0x9022 	/* RTCFG protocol*/
+#define ETHERTYPE_RTCFG		0x9022 	/* RTnet: Real-Time Configuration Protocol */
 #endif
 
 #ifndef ETHERTYPE_FCFT

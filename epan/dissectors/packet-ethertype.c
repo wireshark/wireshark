@@ -86,8 +86,8 @@ const value_string etype_vals[] = {
     {ETHERTYPE_CGMP,		"Cisco Group Management Protocol" },
     {ETHERTYPE_MAC_CONTROL,	"MAC Control"			},
     {ETHERTYPE_SLOW_PROTOCOLS,	"Slow Protocols"		},
-    {ETHERTYPE_RTNET,		"RTNET Protocol"                },
-    {ETHERTYPE_RTCFG,		"RTCFG Protocol"                },
+    {ETHERTYPE_RTMAC,		"Real-Time Media Access Control" },
+    {ETHERTYPE_RTCFG,		"Real-Time Configuration Protocol" },
     {ETHERTYPE_PROFINET,	"PROFInet"			},
 
     /*

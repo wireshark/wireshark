@@ -4,6 +4,7 @@
  * $Id$
  *
  * Copyright (c) 2003 by Erwin Rol <erwin@erwinrol.com>
+ * Copyright (c) 2004 by Jan Kiszka <jan.kiszka@web.de>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,16 +60,17 @@ G_MODULE_EXPORT const gchar version[] = VERSION;
  *	http://www.rts.uni-hannover.de/rtnet/
  */
 
-#define RTNET_TYPE_TDMA     0x9031
-#define RTNET_TYPE_IP       ETHERTYPE_IP
-#define RTNET_TYPE_ARP      ETHERTYPE_ARP
+#define RTMAC_TYPE_TDMA     0x0001 /* since version 2    */
+#define RTMAC_TYPE_TDMA_V1  0x9031 /* first TDMA version */
 
-static const value_string rtnet_type_vals[] = {
-  { RTNET_TYPE_TDMA, "TDMA" },
-  { RTNET_TYPE_IP,   "IP" },
-  { RTNET_TYPE_ARP,  "ARP" },
+static const value_string rtmac_type_vals[] = {
+  { RTMAC_TYPE_TDMA,    "TDMA" },
+  { RTMAC_TYPE_TDMA_V1, "TDMA-V1" },
   { 0, NULL }
 };
+
+#define RTMAC_FLAG_TUNNEL   0x01
+#define RTMAC_FLAGS_RES     0xFE
 
 #define RTCFG_MSG_S1_CONFIG    0x0
 #define RTCFG_MSG_ANN_NEW      0x1
@@ -78,6 +80,7 @@ static const value_string rtnet_type_vals[] = {
 #define RTCFG_MSG_ACK          0x5
 #define RTCFG_MSG_READY        0x6
 #define RTCFG_MSG_HBEAT        0x7
+#define RTCFG_MSG_DEAD_STN     0x8
 
 static const value_string rtcfg_msg_vals[] = {
   { RTCFG_MSG_S1_CONFIG, "Stage 1 Config" },
@@ -88,6 +91,7 @@ static const value_string rtcfg_msg_vals[] = {
   { RTCFG_MSG_ACK,       "Acknowledge" },
   { RTCFG_MSG_READY,     "Ready" },
   { RTCFG_MSG_HBEAT,     "Heartbeat" },
+  { RTCFG_MSG_DEAD_STN,  "Dead Station" },
   { 0, NULL }
 };
 
@@ -100,39 +104,61 @@ static const value_string rtcfg_address_type_vals[] = {
   { 0, NULL }
 };
 
-#define RTNET_TDMA_MSG_NOTIFY_MASTER          0x10
-#define RTNET_TDMA_MSG_REQUEST_TEST           0x11
-#define RTNET_TDMA_MSG_ACK_TEST               0x12
-#define RTNET_TDMA_MSG_REQUEST_CONF           0x13
-#define RTNET_TDMA_MSG_ACK_CONF               0x14
-#define RTNET_TDMA_MSG_ACK_ACK_CONF           0x15
-#define RTNET_TDMA_MSG_STATION_LIST           0x16
-#define RTNET_TDMA_MSG_REQUEST_CHANGE_OFFSET  0x17
-#define RTNET_TDMA_MSG_START_OF_FRAME         0x18
+#define TDMA_V1_MSG_NOTIFY_MASTER          0x10
+#define TDMA_V1_MSG_REQUEST_TEST           0x11
+#define TDMA_V1_MSG_ACK_TEST               0x12
+#define TDMA_V1_MSG_REQUEST_CONF           0x13
+#define TDMA_V1_MSG_ACK_CONF               0x14
+#define TDMA_V1_MSG_ACK_ACK_CONF           0x15
+#define TDMA_V1_MSG_STATION_LIST           0x16
+#define TDMA_V1_MSG_REQUEST_CHANGE_OFFSET  0x17
+#define TDMA_V1_MSG_START_OF_FRAME         0x18
 
-static const value_string rtnet_tdma_msg_vals[] = {
-  { RTNET_TDMA_MSG_NOTIFY_MASTER,         "Notify Master" },
-  { RTNET_TDMA_MSG_REQUEST_TEST,          "Request Test" },
-  { RTNET_TDMA_MSG_ACK_TEST,              "Acknowledge Test" },
-  { RTNET_TDMA_MSG_REQUEST_CONF,          "Request Config" },
-  { RTNET_TDMA_MSG_ACK_CONF,              "Acknowledge Config" },
-  { RTNET_TDMA_MSG_ACK_ACK_CONF,          "Ack Ack Config" },
-  { RTNET_TDMA_MSG_STATION_LIST,          "Station List" },
-  { RTNET_TDMA_MSG_REQUEST_CHANGE_OFFSET, "Request Change Offset" },
-  { RTNET_TDMA_MSG_START_OF_FRAME,        "Start of Frame" },
+static const value_string tdma_v1_msg_vals[] = {
+  { TDMA_V1_MSG_NOTIFY_MASTER,         "Notify Master" },
+  { TDMA_V1_MSG_REQUEST_TEST,          "Request Test" },
+  { TDMA_V1_MSG_ACK_TEST,              "Acknowledge Test" },
+  { TDMA_V1_MSG_REQUEST_CONF,          "Request Config" },
+  { TDMA_V1_MSG_ACK_CONF,              "Acknowledge Config" },
+  { TDMA_V1_MSG_ACK_ACK_CONF,          "Ack Ack Config" },
+  { TDMA_V1_MSG_STATION_LIST,          "Station List" },
+  { TDMA_V1_MSG_REQUEST_CHANGE_OFFSET, "Request Change Offset" },
+  { TDMA_V1_MSG_START_OF_FRAME,        "Start of Frame" },
   { 0, NULL }
 };
 
-static dissector_handle_t ip_handle;
-static dissector_handle_t arp_handle;
+#define TDMA_MSG_SYNC           0x0000
+#define TDMA_MSG_CAL_REQUEST    0x0010
+#define TDMA_MSG_CAL_REPLY      0x0011
 
-void proto_reg_handoff_rtnet(void);
+static const value_string tdma_msg_vals[] = {
+  { TDMA_MSG_SYNC,              "Synchronisation" },
+  { TDMA_MSG_CAL_REQUEST,       "Request Calibration" },
+  { TDMA_MSG_CAL_REPLY,         "Reply Calibration" },
+  { 0, NULL }
+};
+
+static dissector_table_t ethertype_table;
+static dissector_handle_t data_handle;
+
+void proto_reg_handoff_rtmac(void);
 void proto_reg_handoff_rtcfg(void);
 
 /* Define the rtnet proto */
-static int proto_rtnet = -1;
+static int proto_rtmac = -1;
+static int proto_tdma = -1;
 static int proto_rtcfg = -1;
 
+/* RTmac Header */
+static int hf_rtmac_header_type = -1;
+static int hf_rtmac_header_ver = -1;
+static int hf_rtmac_header_flags = -1;
+static int hf_rtmac_header_flags_tunnel = -1;
+static int hf_rtmac_header_flags_res = -1;
+static int hf_rtmac_header_res_v1 = -1;
+
+
+/* RTcfg */
 static int hf_rtcfg_vers_id = -1;
 static int hf_rtcfg_vers = -1;
 static int hf_rtcfg_id = -1;
@@ -151,83 +177,95 @@ static int hf_rtcfg_server_flags = -1;
 static int hf_rtcfg_server_flags_res0 = -1;
 static int hf_rtcfg_server_flags_ready = -1;
 static int hf_rtcfg_server_flags_res2 = -1;
-
 static int hf_rtcfg_active_stations = -1;
 static int hf_rtcfg_heartbeat_period = -1;
 static int hf_rtcfg_s2_config_length = -1;
 static int hf_rtcfg_config_offset = -1;
 static int hf_rtcfg_ack_length = -1;
+static int hf_rtcfg_client_hw_address = -1;
 
-/* Header */
-static int hf_rtnet_header_type = -1;
-static int hf_rtnet_header_ver = -1;
-static int hf_rtnet_header_res = -1;
 
-/* TDMA */
-static int hf_rtnet_tdma = -1;
-static int hf_rtnet_tdma_msg = -1;
+/* TDMA-V1 */
+static int hf_tdma_v1_msg = -1;
 
 /* TDMA REQUEST_CONF */
-static int hf_rtnet_tdma_msg_request_conf_station = -1;
-static int hf_rtnet_tdma_msg_request_conf_padding = -1;
-static int hf_rtnet_tdma_msg_request_conf_mtu = -1;
-static int hf_rtnet_tdma_msg_request_conf_cycle = -1;
+static int hf_tdma_v1_msg_request_conf_station = -1;
+static int hf_tdma_v1_msg_request_conf_padding = -1;
+static int hf_tdma_v1_msg_request_conf_mtu = -1;
+static int hf_tdma_v1_msg_request_conf_cycle = -1;
 
 /* TDMA ACK_CONF */
-static int hf_rtnet_tdma_msg_ack_conf_station = -1;
-static int hf_rtnet_tdma_msg_ack_conf_padding = -1;
-static int hf_rtnet_tdma_msg_ack_conf_mtu = -1;
-static int hf_rtnet_tdma_msg_ack_conf_cycle = -1;
+static int hf_tdma_v1_msg_ack_conf_station = -1;
+static int hf_tdma_v1_msg_ack_conf_padding = -1;
+static int hf_tdma_v1_msg_ack_conf_mtu = -1;
+static int hf_tdma_v1_msg_ack_conf_cycle = -1;
 
 /* TDMA ACK_ACK_CONF */
-static int hf_rtnet_tdma_msg_ack_ack_conf_station = -1;
-static int hf_rtnet_tdma_msg_ack_ack_conf_padding = -1;
+static int hf_tdma_v1_msg_ack_ack_conf_station = -1;
+static int hf_tdma_v1_msg_ack_ack_conf_padding = -1;
 
 /* TDMA REQUEST_TEST */
-static int hf_rtnet_tdma_msg_request_test_counter = -1;
-static int hf_rtnet_tdma_msg_request_test_tx = -1;
+static int hf_tdma_v1_msg_request_test_counter = -1;
+static int hf_tdma_v1_msg_request_test_tx = -1;
 
 /* TDMA ACK_TEST */
-static int hf_rtnet_tdma_msg_ack_test_counter = -1;
-static int hf_rtnet_tdma_msg_ack_test_tx = -1;
+static int hf_tdma_v1_msg_ack_test_counter = -1;
+static int hf_tdma_v1_msg_ack_test_tx = -1;
 
 /* TDMA STATION_LIST */
-static int hf_rtnet_tdma_msg_station_list_nr_stations = -1;
-static int hf_rtnet_tdma_msg_station_list_padding = -1;
+static int hf_tdma_v1_msg_station_list_nr_stations = -1;
+static int hf_tdma_v1_msg_station_list_padding = -1;
 
-static int hf_rtnet_tdma_msg_station_list_ip = -1;
-static int hf_rtnet_tdma_msg_station_list_nr = -1;
+static int hf_tdma_v1_msg_station_list_ip = -1;
+static int hf_tdma_v1_msg_station_list_nr = -1;
 
 /* TDMA CHANGE_OFFSET */
-static int hf_rtnet_tdma_msg_request_change_offset_offset = -1;
+static int hf_tdma_v1_msg_request_change_offset_offset = -1;
 
 /* TDMA START_OF_FRAME */
-static int hf_rtnet_tdma_msg_start_of_frame_timestamp = -1;
+static int hf_tdma_v1_msg_start_of_frame_timestamp = -1;
 
-/* IP */
-static int hf_rtnet_ip = -1;
 
-/* ARP */
-static int hf_rtnet_arp = -1;
+/* TDMA since version 2 */
+static int hf_tdma_ver = -1;
+static int hf_tdma_id = -1;
+
+/* TDMA Sync */
+static int hf_tdma_sync_cycle = -1;
+static int hf_tdma_sync_xmit_stamp = -1;
+static int hf_tdma_sync_sched_xmit = -1;
+
+/* TDMA Request Calibration */
+static int hf_tdma_req_cal_xmit_stamp = -1;
+static int hf_tdma_req_cal_rpl_cycle = -1;
+static int hf_tdma_req_cal_rpl_slot = -1;
+
+/* TDMA Reply Calibration */
+static int hf_tdma_rpl_cal_req_stamp = -1;
+static int hf_tdma_rpl_cal_rcv_stamp = -1;
+static int hf_tdma_rpl_cal_xmit_stamp = -1;
+
 
 /* Define the tree for rtnet */
-static int ett_rtnet = -1;
+static int ett_rtmac = -1;
+static int ett_rtmac_flags = -1;
+static int ett_tdma = -1;
 static int ett_rtcfg = -1;
 
 static guint
-dissect_rtnet_tdma_notify_master(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_) 
+dissect_rtnet_tdma_notify_master(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
 {
   return offset;
 }
 
 static guint
-dissect_rtnet_tdma_request_test(tvbuff_t *tvb, guint offset, proto_tree *tree) 
+dissect_rtnet_tdma_request_test(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-  proto_tree_add_item(tree, hf_rtnet_tdma_msg_request_test_counter, tvb,
+  proto_tree_add_item(tree, hf_tdma_v1_msg_request_test_counter, tvb,
                        offset, 4, TRUE );
   offset += 4;
 
-  proto_tree_add_item(tree, hf_rtnet_tdma_msg_request_test_tx, tvb,
+  proto_tree_add_item(tree, hf_tdma_v1_msg_request_test_tx, tvb,
                        offset, 8, TRUE );
   offset += 8;
 
@@ -235,13 +273,13 @@ dissect_rtnet_tdma_request_test(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static guint
-dissect_rtnet_tdma_ack_test(tvbuff_t *tvb, guint offset, proto_tree *tree) 
+dissect_rtnet_tdma_ack_test(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-  proto_tree_add_item(tree, hf_rtnet_tdma_msg_ack_test_counter, tvb,
+  proto_tree_add_item(tree, hf_tdma_v1_msg_ack_test_counter, tvb,
                        offset, 4, TRUE );
   offset += 4;
 
-  proto_tree_add_item(tree, hf_rtnet_tdma_msg_ack_test_tx, tvb,
+  proto_tree_add_item(tree, hf_tdma_v1_msg_ack_test_tx, tvb,
                        offset, 8, TRUE );
   offset += 8;
 
@@ -249,21 +287,21 @@ dissect_rtnet_tdma_ack_test(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static guint
-dissect_rtnet_tdma_request_conf(tvbuff_t *tvb, guint offset, proto_tree *tree) 
+dissect_rtnet_tdma_request_conf(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-  proto_tree_add_item(tree, hf_rtnet_tdma_msg_request_conf_station, tvb,
+  proto_tree_add_item(tree, hf_tdma_v1_msg_request_conf_station, tvb,
                        offset, 1, FALSE );
   offset += 1;
 
-  proto_tree_add_item(tree, hf_rtnet_tdma_msg_request_conf_padding, tvb,
+  proto_tree_add_item(tree, hf_tdma_v1_msg_request_conf_padding, tvb,
                        offset, 1, FALSE );
   offset += 1;
 
-  proto_tree_add_item(tree, hf_rtnet_tdma_msg_request_conf_mtu, tvb,
+  proto_tree_add_item(tree, hf_tdma_v1_msg_request_conf_mtu, tvb,
                        offset, 2, FALSE );
   offset += 2;
 
-  proto_tree_add_item(tree, hf_rtnet_tdma_msg_request_conf_cycle, tvb,
+  proto_tree_add_item(tree, hf_tdma_v1_msg_request_conf_cycle, tvb,
                        offset, 4, FALSE );
   offset += 4;
 
@@ -272,21 +310,21 @@ dissect_rtnet_tdma_request_conf(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
 
 static guint
-dissect_rtnet_tdma_ack_conf(tvbuff_t *tvb, guint offset, proto_tree *tree) 
+dissect_rtnet_tdma_ack_conf(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-  proto_tree_add_item(tree, hf_rtnet_tdma_msg_ack_conf_station, tvb,
+  proto_tree_add_item(tree, hf_tdma_v1_msg_ack_conf_station, tvb,
                        offset, 1, FALSE );
   offset += 1;
 
-  proto_tree_add_item(tree, hf_rtnet_tdma_msg_ack_conf_padding, tvb,
+  proto_tree_add_item(tree, hf_tdma_v1_msg_ack_conf_padding, tvb,
                        offset, 1, FALSE );
   offset += 1;
 
-  proto_tree_add_item(tree, hf_rtnet_tdma_msg_ack_conf_mtu, tvb,
+  proto_tree_add_item(tree, hf_tdma_v1_msg_ack_conf_mtu, tvb,
                        offset, 2, FALSE );
   offset += 2;
 
-  proto_tree_add_item(tree, hf_rtnet_tdma_msg_ack_conf_cycle, tvb,
+  proto_tree_add_item(tree, hf_tdma_v1_msg_ack_conf_cycle, tvb,
                        offset, 4, FALSE );
   offset += 4;
 
@@ -296,12 +334,12 @@ dissect_rtnet_tdma_ack_conf(tvbuff_t *tvb, guint offset, proto_tree *tree)
 static guint
 dissect_rtnet_tdma_ack_ack_conf(tvbuff_t *tvb, guint offset, proto_tree *tree) {
 
-  proto_tree_add_item(tree, hf_rtnet_tdma_msg_ack_ack_conf_station, tvb,
+  proto_tree_add_item(tree, hf_tdma_v1_msg_ack_ack_conf_station, tvb,
                        offset, 1, FALSE );
 
   offset += 1;
 
-  proto_tree_add_item(tree, hf_rtnet_tdma_msg_ack_ack_conf_padding, tvb,
+  proto_tree_add_item(tree, hf_tdma_v1_msg_ack_ack_conf_padding, tvb,
                        offset, 3, FALSE );
   offset += 3;
 
@@ -315,40 +353,40 @@ dissect_rtnet_tdma_station_list(tvbuff_t *tvb, guint offset, proto_tree *tree)
   guint8 i;
     
   nr_stations = tvb_get_guint8(tvb, offset);
-  proto_tree_add_uint(tree, hf_rtnet_tdma_msg_station_list_nr_stations, tvb,
+  proto_tree_add_uint(tree, hf_tdma_v1_msg_station_list_nr_stations, tvb,
                       offset, 1, nr_stations);
                             
   offset += 1;
 
-  proto_tree_add_item(tree, hf_rtnet_tdma_msg_station_list_padding, tvb,
+  proto_tree_add_item(tree, hf_tdma_v1_msg_station_list_padding, tvb,
                        offset, 3, FALSE );
   offset += 3;
 
 
   for( i = 0; i < nr_stations; i++ )
   {
-    proto_tree_add_item(tree, hf_rtnet_tdma_msg_station_list_ip, tvb,
+    proto_tree_add_item(tree, hf_tdma_v1_msg_station_list_ip, tvb,
                         offset, 4, FALSE );
 
     offset += 4;  
     
-    proto_tree_add_item(tree, hf_rtnet_tdma_msg_station_list_nr, tvb,
+    proto_tree_add_item(tree, hf_tdma_v1_msg_station_list_nr, tvb,
                         offset, 1, FALSE );
 
     offset += 1;
 
-    proto_tree_add_item(tree, hf_rtnet_tdma_msg_station_list_padding, tvb,
+    proto_tree_add_item(tree, hf_tdma_v1_msg_station_list_padding, tvb,
                         offset, 3, FALSE );
     offset += 3;
   }
-  
+
   return offset;
 }
 
 static guint
-dissect_rtnet_tdma_request_change_offset(tvbuff_t *tvb, guint offset, proto_tree *tree) 
+dissect_rtnet_tdma_request_change_offset(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-  proto_tree_add_item(tree, hf_rtnet_tdma_msg_request_change_offset_offset, tvb,
+  proto_tree_add_item(tree, hf_tdma_v1_msg_request_change_offset_offset, tvb,
                        offset, 4, FALSE );
 
   offset += 4;
@@ -357,183 +395,312 @@ dissect_rtnet_tdma_request_change_offset(tvbuff_t *tvb, guint offset, proto_tree
 }
 
 static guint
-dissect_rtnet_tdma_start_of_frame(tvbuff_t *tvb, guint offset, proto_tree *tree) 
+dissect_rtnet_tdma_start_of_frame(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-  proto_tree_add_item(tree, hf_rtnet_tdma_msg_start_of_frame_timestamp, tvb,
+  proto_tree_add_item(tree, hf_tdma_v1_msg_start_of_frame_timestamp, tvb,
                        offset, 8, FALSE );
   offset += 8;
 
   return offset;
 }
 
-static guint
-dissect_rtnet_tdma(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, proto_tree* ti) {
+static void
+dissect_rtnet_tdma_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root) {
+  guint offset = 0;
   guint32 msg;
+  proto_tree *tree;
+  proto_item *ti;
 
   msg = tvb_get_ntohl(tvb, offset);
-  if( tree )
-  {
-    proto_tree_add_uint(tree, hf_rtnet_tdma_msg, tvb,
-                        offset, 4, msg);
-  }
-
-  offset += 4;
-
-  /* set the info column */
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-      val_to_str(msg, rtnet_tdma_msg_vals, "Unknown (0x%04x)"));
-  }
-
-  if( tree )
-  {  
-    proto_item_append_text(ti, ", %s",
-             val_to_str(msg, rtnet_tdma_msg_vals, "Unknown (0x%04x)"));
-    
-    switch( msg ) {
-      case RTNET_TDMA_MSG_NOTIFY_MASTER:
-        return dissect_rtnet_tdma_notify_master( tvb, offset, tree );
-    	
-      case RTNET_TDMA_MSG_REQUEST_TEST:
-        return dissect_rtnet_tdma_request_test( tvb, offset, tree );
-
-      case RTNET_TDMA_MSG_ACK_TEST:
-       return dissect_rtnet_tdma_ack_test( tvb, offset, tree );
-
-      case RTNET_TDMA_MSG_REQUEST_CONF:
-        return dissect_rtnet_tdma_request_conf( tvb, offset, tree );
-
-      case RTNET_TDMA_MSG_ACK_CONF:
-        return dissect_rtnet_tdma_ack_conf( tvb, offset, tree );
-
-      case RTNET_TDMA_MSG_ACK_ACK_CONF:
-        return dissect_rtnet_tdma_ack_ack_conf( tvb, offset, tree );
-
-      case RTNET_TDMA_MSG_STATION_LIST:
-        return dissect_rtnet_tdma_station_list( tvb, offset, tree );
-
-      case RTNET_TDMA_MSG_REQUEST_CHANGE_OFFSET:
-        return dissect_rtnet_tdma_request_change_offset( tvb, offset, tree );
-
-      case RTNET_TDMA_MSG_START_OF_FRAME:
-        return dissect_rtnet_tdma_start_of_frame( tvb, offset, tree );
-
-      default:
-        break;	  
-    }
-  }	
-
-  return offset;
-}
-
-static void
-dissect_rtnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-  gint offset = 0;
-  guint size;
-  guint8 ver,res;
-  guint16 type;
-  tvbuff_t *next_tvb = NULL;
-  proto_tree *ti=NULL,*hi=NULL,*si=NULL,*rtnet_tree=NULL;
 
   /* Set the protocol column */
-  if(check_col(pinfo->cinfo,COL_PROTOCOL)){
-    col_set_str(pinfo->cinfo,COL_PROTOCOL,"RTNET");
+  if (check_col(pinfo->cinfo,COL_PROTOCOL)){
+    col_set_str(pinfo->cinfo,COL_PROTOCOL,"TDMA-V1");
   }
 
-  /* Clear out stuff in the info column */
-  if(check_col(pinfo->cinfo,COL_INFO)){
-    col_clear(pinfo->cinfo,COL_INFO);
-  }
-
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_rtnet, tvb, offset, 4, FALSE);
-    rtnet_tree = proto_item_add_subtree(ti, ett_rtnet);
-  }
-
-  type = tvb_get_ntohs(tvb, offset);
   /* set the info column */
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
-      val_to_str(type, rtnet_type_vals, "Unknown (0x%04x)"));
+      val_to_str(msg, tdma_v1_msg_vals, "Unknown (0x%04x)"));
   }
 
-  if( rtnet_tree )
-  {
-    proto_tree_add_uint(rtnet_tree, hf_rtnet_header_type, tvb,
-                        offset, 2, type);
+  if (root) {
+    ti = proto_tree_add_item(root, proto_tdma, tvb, 0, -1, FALSE);
+    tree = proto_item_add_subtree(ti, ett_tdma);
+
+    proto_item_append_text(ti, ", Version 1, %s",
+      val_to_str(msg, tdma_v1_msg_vals, "Unknown (0x%04x)"));
+
+    proto_tree_add_item(tree, hf_tdma_v1_msg, tvb,
+                        offset, 4, FALSE);
+    offset += 4;
+
+    switch( msg ) {
+      case TDMA_V1_MSG_NOTIFY_MASTER:
+        dissect_rtnet_tdma_notify_master(tvb, offset, tree);
+        break;
+
+      case TDMA_V1_MSG_REQUEST_TEST:
+        dissect_rtnet_tdma_request_test(tvb, offset, tree);
+        break;
+
+      case TDMA_V1_MSG_ACK_TEST:
+        dissect_rtnet_tdma_ack_test(tvb, offset, tree);
+        break;
+
+      case TDMA_V1_MSG_REQUEST_CONF:
+        dissect_rtnet_tdma_request_conf(tvb, offset, tree);
+        break;
+
+      case TDMA_V1_MSG_ACK_CONF:
+        dissect_rtnet_tdma_ack_conf(tvb, offset, tree);
+        break;
+
+      case TDMA_V1_MSG_ACK_ACK_CONF:
+        dissect_rtnet_tdma_ack_ack_conf(tvb, offset, tree);
+        break;
+        
+      case TDMA_V1_MSG_STATION_LIST:
+        dissect_rtnet_tdma_station_list (tvb, offset, tree);
+        break;
+
+      case TDMA_V1_MSG_REQUEST_CHANGE_OFFSET:
+        dissect_rtnet_tdma_request_change_offset(tvb, offset, tree);
+        break;
+
+      case TDMA_V1_MSG_START_OF_FRAME:
+        dissect_rtnet_tdma_start_of_frame(tvb, offset, tree);
+        break;
+
+      default:
+        break;
+    }
   }
-  offset += 2;
+}
 
-  ver = tvb_get_guint8(tvb, offset);
-  if( rtnet_tree )
-  {
-    proto_tree_add_uint(rtnet_tree, hf_rtnet_header_ver, tvb,
-                        offset, 1, ver);
+static void
+dissect_tdma_sync(tvbuff_t *tvb, guint offset, proto_tree *tree) {
+#ifdef G_HAVE_GINT64
+  gint64 time;
+  proto_item *ti;
+#endif
 
+  proto_tree_add_item(tree, hf_tdma_sync_cycle, tvb, offset, 4, FALSE);
+  offset += 4;
 
-    proto_item_append_text(ti, ", Vers. %d", ver);
-  }
-  offset += 1;
+#ifdef G_HAVE_GINT64
+  ti = proto_tree_add_item(tree, hf_tdma_sync_xmit_stamp, tvb, offset, 8, FALSE);
+  time = tvb_get_ntoh64(tvb, offset) - tvb_get_ntoh64(tvb, offset+8);
+  proto_item_append_text(ti, " (%s%lld)", (time > 0) ? "+" : "", time);
+#else
+  proto_tree_add_item(tree, hf_tdma_sync_xmit_stamp, tvb, offset, 8, FALSE);
+#endif
+  offset += 8;
 
-  res = tvb_get_guint8(tvb, offset);
-  if( rtnet_tree )
-  {
-    proto_tree_add_uint(rtnet_tree, hf_rtnet_header_res, tvb,
-                        offset, 1, res);
-  }
+  proto_tree_add_item(tree, hf_tdma_sync_sched_xmit, tvb, offset, 8, FALSE);
+}
+
+static void
+dissect_tdma_request_cal(tvbuff_t *tvb, guint offset, proto_tree *tree) {
+
+  proto_tree_add_item(tree, hf_tdma_req_cal_xmit_stamp, tvb, offset, 8, FALSE);
+  offset += 8;
+
+  proto_tree_add_item(tree, hf_tdma_req_cal_rpl_cycle, tvb, offset, 4, FALSE);
+  offset += 4;
+
+  proto_tree_add_item(tree, hf_tdma_req_cal_rpl_slot, tvb, offset, 8, FALSE);
+}
+
+static void
+dissect_tdma_reply_cal(tvbuff_t *tvb, guint offset, proto_tree *tree) {
+#ifdef G_HAVE_GINT64
+  gint64 time;
+  proto_item *ti;
+#endif
+
+  proto_tree_add_item(tree, hf_tdma_rpl_cal_req_stamp, tvb, offset, 8, FALSE);
+  offset += 8;
+
+  proto_tree_add_item(tree, hf_tdma_rpl_cal_rcv_stamp, tvb, offset, 8, FALSE);
+
+#ifdef G_HAVE_GINT64
+  time = tvb_get_ntoh64(tvb, offset+8) - tvb_get_ntoh64(tvb, offset);
+  offset += 8;
+
+  ti = proto_tree_add_item(tree, hf_tdma_rpl_cal_xmit_stamp, tvb, offset, 8, FALSE);
+  proto_item_append_text(ti, " (%s%lld)", (time > 0) ? "+" : "", time);
+#else
+  offset += 8;
   
-  offset += 1;
+  proto_tree_add_item(tree, hf_tdma_rpl_cal_xmit_stamp, tvb, offset, 8, FALSE);
+#endif
+}
 
-  switch( type ) 
-  {
-    
-    case RTNET_TYPE_TDMA:
-      if( tree )
-      {
-        hi = proto_tree_add_item(tree,
-                                 hf_rtnet_tdma,
-                                 tvb,
-                                 offset,
-                                 -1,
-                                 FALSE);
+static void
+dissect_rtnet_tdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root) {
+  guint offset = 0;
+  guint16 msg;
+  proto_item *ti;
+  proto_tree *tree;
 
-        si = proto_item_add_subtree(hi, ett_rtnet);
-      }
+  msg = tvb_get_ntohs(tvb, 2);
 
-      size = dissect_rtnet_tdma( tvb, pinfo, offset, si, hi);
-      size -= offset;
-      
-      if( si )
-        proto_item_set_len(si, size);
-
-      break;
-
-    case RTNET_TYPE_IP:
-      if (!next_tvb)
-        next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-
-      if( tree )
-        call_dissector(ip_handle, next_tvb, pinfo, tree);
-      
-      break;
-
-    case RTNET_TYPE_ARP:
-      if (!next_tvb)
-        next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-
-      if( tree )
-        call_dissector(arp_handle, next_tvb, pinfo, tree);
-
-      break;
-
-    default:
-      if( tree )
-      {
-        proto_tree_add_text(tree, tvb, offset, -1,
-          "Data (%d bytes)", tvb_reported_length_remaining(tvb, offset));
-      }
-      break;
+  /* Set the protocol column */
+  if (check_col(pinfo->cinfo,COL_PROTOCOL)){
+    col_set_str(pinfo->cinfo,COL_PROTOCOL,"TDMA");
   }
+
+  /* Set the info column */
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+                 val_to_str(msg, tdma_msg_vals, "Unknown (0x%04x)"));
+  }
+
+  if (root) {
+    ti = proto_tree_add_item(root, proto_tdma, tvb, 0, -1, FALSE);
+    tree = proto_item_add_subtree(ti, ett_tdma);
+
+    proto_item_append_text(ti, ", %s", val_to_str(msg, tdma_msg_vals, "Unknown (0x%04x)"));
+
+    proto_tree_add_item(tree, hf_tdma_ver, tvb, offset, 2, FALSE);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_tdma_id, tvb, offset, 2, FALSE);
+    offset += 2;
+
+    switch (msg) {
+      case TDMA_MSG_SYNC:
+        dissect_tdma_sync(tvb, offset, tree);
+        break;
+
+      case TDMA_MSG_CAL_REQUEST:
+        dissect_tdma_request_cal(tvb, offset, tree);
+        break;
+
+      case TDMA_MSG_CAL_REPLY:
+        dissect_tdma_reply_cal(tvb, offset, tree);
+        break;
+
+      default:
+        break;
+    }
+  }
+}
+
+static void
+dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  gint offset = 0;
+  guint8 ver,flags;
+  guint16 type;
+  tvbuff_t *next_tvb;
+  proto_tree *ti=NULL, *rtmac_tree=NULL;
+  proto_item *item;
+  dissector_handle_t dissector=NULL;
+  gchar *type_str=NULL;
+
+  /* Read the header */
+  type = tvb_get_ntohs(tvb, offset);
+  ver = tvb_get_guint8(tvb, offset+2);
+  flags = tvb_get_guint8(tvb, offset+3);
+
+  if (ver == 1) {
+    type_str = match_strval(type, rtmac_type_vals);
+    if (!type_str) {
+      dissector = dissector_get_port_handle(ethertype_table, type);
+      if (!dissector)
+        dissector = data_handle;
+    }
+  } else {
+    if (flags & RTMAC_FLAG_TUNNEL) {
+      dissector = dissector_get_port_handle(ethertype_table, type);
+      if (!dissector)
+        dissector = data_handle;
+    }
+  }
+
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_rtmac, tvb, offset, 4, FALSE);
+    rtmac_tree = proto_item_add_subtree(ti, ett_rtmac);
+    proto_item_append_text(ti, ", Version %d", ver);
+  }
+
+  /* Set the protocol column */
+  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTmac");
+  }
+
+  /* set the info column */
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_clear(pinfo->cinfo,COL_INFO);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown (0x%04x)",type);
+  }
+
+  if (rtmac_tree) {
+    if (ver == 1) {
+      if (!type_str) {
+        if (dissector != data_handle)
+          type_str = dissector_handle_get_short_name(dissector);
+        else
+          type_str = "Unknown";
+      }
+    } else {
+      if (!(flags & RTMAC_FLAG_TUNNEL)) {
+        type_str = match_strval(type, rtmac_type_vals);
+        if (!type_str)
+          type_str = "Unknown";
+      } else {
+        if (dissector != data_handle)
+          type_str = dissector_handle_get_short_name(dissector);
+        else
+          type_str = "Unknown";
+      }
+    }
+    proto_tree_add_string_format(rtmac_tree, hf_rtmac_header_type, tvb, offset, 2,
+                                 type_str, "Type: %s (0x%04x)", type_str, type);
+    offset += 2;
+
+    proto_tree_add_item(rtmac_tree, hf_rtmac_header_ver, tvb, offset, 1, FALSE);
+    offset += 1;
+
+    if (ver == 1)
+      proto_tree_add_item(rtmac_tree, hf_rtmac_header_res_v1, tvb, offset, 1, FALSE);
+    else {
+      item = proto_tree_add_item(rtmac_tree, hf_rtmac_header_flags, tvb, offset, 1, FALSE);
+      ti = proto_item_add_subtree(item, ett_rtmac_flags);
+      proto_tree_add_item(ti, hf_rtmac_header_flags_res, tvb, offset, 1, FALSE);
+      proto_tree_add_item(ti, hf_rtmac_header_flags_tunnel, tvb, offset, 1, FALSE);
+    }
+    offset += 1;
+  }
+  else
+    offset += 4;
+
+  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+
+  if (ver == 1)
+    switch (type) {
+      case RTMAC_TYPE_TDMA_V1:
+        dissect_rtnet_tdma_v1(next_tvb, pinfo, tree);
+        break;
+
+      default:
+        call_dissector(dissector, next_tvb, pinfo, tree);
+        break;
+    }
+  else
+    if (flags & RTMAC_FLAG_TUNNEL)
+      call_dissector(dissector, next_tvb, pinfo, tree);
+    else
+      switch (type) {
+        case RTMAC_TYPE_TDMA:
+          dissect_rtnet_tdma(next_tvb, pinfo, tree);
+          break;
+
+        default:
+          call_dissector(data_handle, next_tvb, pinfo, tree);
+          break;
+      }
 }
 
 static void
@@ -544,6 +711,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   guint8 address_type;
   guint32 config_length,len;
   proto_tree *ti=NULL,*rtcfg_tree=NULL;
+  const guint8 *haddr;
 
   /* Set the protocol column */
   if(check_col(pinfo->cinfo,COL_PROTOCOL)){
@@ -577,7 +745,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree_add_item(vers_id_tree, hf_rtcfg_id, tvb, offset, 1, FALSE);
     offset += 1;
 
-    proto_item_append_text(ti, ", Vers. %d, %s",
+    proto_item_append_text(ti, ", Version %d, %s",
              (vers_id >> 5),
              val_to_str(vers_id, rtcfg_msg_vals, "Unknown (0x%04x)"));
 
@@ -729,233 +897,364 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
        case RTCFG_MSG_HBEAT:
          break;
 
+       case RTCFG_MSG_DEAD_STN:
+         address_type = tvb_get_guint8(tvb, offset);
+         proto_tree_add_item( rtcfg_tree, hf_rtcfg_address_type, tvb, offset, 1, FALSE );
+         offset += 1;
+
+         switch( address_type )
+         {
+           case RTCFG_ADDRESS_TYPE_MAC:
+             /* nothing */
+             break;
+
+           case RTCFG_ADDRESS_TYPE_IP:
+             proto_tree_add_item( rtcfg_tree, hf_rtcfg_client_ip_address, tvb, offset, 4, FALSE );
+             offset += 4;
+             break;
+         }
+
+         switch (pinfo->fd->lnk_t) {
+           case WTAP_ENCAP_ETHERNET:
+             haddr = tvb_get_ptr(tvb, offset, 6);
+             proto_tree_add_bytes_format( rtcfg_tree, hf_rtcfg_client_hw_address, tvb, offset, 32,
+                                          haddr, "Client Hardware Address: %02X:%02X:%02X:%02X:%02X:%02X",
+                                          *haddr, *(haddr+1), *(haddr+2),
+                                          *(haddr+3), *(haddr+4), *(haddr+5) );
+             break;
+
+           default:
+             proto_tree_add_item( rtcfg_tree, hf_rtcfg_client_hw_address, tvb, offset, 32, FALSE );
+             break;
+         }
+         offset += 32;
+
+         break;
+
     }
   }
 }
 
 void
-proto_register_rtnet(void) {
-  static hf_register_info hf[] = {
+proto_register_rtmac(void) {
+  static hf_register_info hf_array_rtmac[] = {
 
-    /* header */
-    { &hf_rtnet_header_type,
+    /* RTmac header */
+    { &hf_rtmac_header_type,
       { "Type",
-        "rtnet.header.type",
-        FT_UINT16, BASE_HEX, VALS(rtnet_type_vals), 0x0,
-        "RTNET Frame Type", HFILL }},
+        "rtmac.header.type",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "RTmac Type", HFILL }},
 
-    { &hf_rtnet_header_ver,
+    { &hf_rtmac_header_ver,
       { "Version",
-        "rtnet.header.ver",
+        "rtmac.header.ver",
         FT_UINT16, BASE_DEC, NULL, 0x0,
-        "RTNET Version", HFILL }},
+        "RTmac Version", HFILL }},
 
-    { &hf_rtnet_header_res,
-      { "Reserved",
-        "rtnet.header.res",
+    { &hf_rtmac_header_flags,
+      { "Flags",
+        "rtmac.header.flags",
         FT_UINT8, BASE_HEX, NULL, 0x0,
-        "RTNET Reserved", HFILL }},
+        "RTmac Flags", HFILL }},
 
-    /* TDMA */
-    { &hf_rtnet_tdma,
-      { "TDMA",
-        "rtnet.tdma",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "RTNET TDMA", HFILL }},
+    { &hf_rtmac_header_flags_tunnel,
+      { "Tunnelling Flag",
+        "rtmac.header.flags.tunnel",
+        FT_BOOLEAN, 8, TFS(&flags_set_truth), RTMAC_FLAG_TUNNEL,
+        "RTmac Tunnelling Flag", HFILL }},
 
-    /* IP */
-    { &hf_rtnet_ip,
-      { "IP",
-        "rtnet.ip",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "RTNET IP", HFILL }},
+    { &hf_rtmac_header_flags_res,
+      { "Reserved Flags",
+        "rtmac.header.flags.res",
+        FT_UINT8, BASE_HEX, NULL, RTMAC_FLAGS_RES,
+        "RTmac Reserved Flags", HFILL }},
 
-    /* ARP */
-    { &hf_rtnet_arp,
-      { "ARP",
-        "rtnet.arp",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "RTNET ARP", HFILL }},
+    { &hf_rtmac_header_res_v1,
+      { "Reserved",
+        "rtmac.header.res",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        "RTmac Reserved", HFILL }},
+  };
+
+  static hf_register_info hf_array_tdma[] = {
 
     /* TDMA msg */
-    { &hf_rtnet_tdma_msg,
+    { &hf_tdma_v1_msg,
       { "Message",
-        "rtnet.tdma.msg",
-        FT_UINT32, BASE_HEX, VALS(rtnet_tdma_msg_vals), 0x0,
-        "RTNET TDMA Message", HFILL }},
+        "tdma-v1.msg",
+        FT_UINT32, BASE_HEX, VALS(tdma_v1_msg_vals), 0x0,
+        "TDMA-V1 Message", HFILL }},
 
     /* TDMA request conf */
 
-    { &hf_rtnet_tdma_msg_request_conf_station,
+    { &hf_tdma_v1_msg_request_conf_station,
       { "Station",
-        "rtnet.tdma.msg.request_conf.station",
+        "tdma-v1.msg.request_conf.station",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "TDMA Station", HFILL }},
 
-    { &hf_rtnet_tdma_msg_request_conf_padding,
+    { &hf_tdma_v1_msg_request_conf_padding,
       { "Padding",
-        "rtnet.tdma.msg.request_conf.padding",
+        "tdma-v1.msg.request_conf.padding",
         FT_UINT8, BASE_HEX, NULL, 0x0,
-        "TDMA PAdding", HFILL }},
+        "TDMA Padding", HFILL }},
 
-    { &hf_rtnet_tdma_msg_request_conf_mtu,
+    { &hf_tdma_v1_msg_request_conf_mtu,
       { "MTU",
-        "rtnet.tdma.msg.request_conf.mtu",
+        "tdma-v1.msg.request_conf.mtu",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "TDMA MTU", HFILL }},
 
-    { &hf_rtnet_tdma_msg_request_conf_cycle,
+    { &hf_tdma_v1_msg_request_conf_cycle,
       { "Cycle",
-        "rtnet.tdma.msg.request_conf.cycle",
+        "tdma-v1.msg.request_conf.cycle",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "TDMA Cycle", HFILL }},
 
     /* TDMA ack conf */
 
-    { &hf_rtnet_tdma_msg_ack_conf_station,
+    { &hf_tdma_v1_msg_ack_conf_station,
       { "Station",
-        "rtnet.tdma.msg.ack_conf.station",
+        "tdma-v1.msg.ack_conf.station",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "TDMA Station", HFILL }},
 
-    { &hf_rtnet_tdma_msg_ack_conf_padding,
+    { &hf_tdma_v1_msg_ack_conf_padding,
       { "Padding",
-        "rtnet.tdma.msg.ack_conf.padding",
+        "tdma-v1.msg.ack_conf.padding",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "TDMA PAdding", HFILL }},
 
-    { &hf_rtnet_tdma_msg_ack_conf_mtu,
+    { &hf_tdma_v1_msg_ack_conf_mtu,
       { "MTU",
-        "rtnet.tdma.msg.ack_conf.mtu",
+        "tdma-v1.msg.ack_conf.mtu",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "TDMA MTU", HFILL }},
 
-    { &hf_rtnet_tdma_msg_ack_conf_cycle,
+    { &hf_tdma_v1_msg_ack_conf_cycle,
       { "Cycle",
-        "rtnet.tdma.msg.ack_conf.cycle",
+        "tdma-v1.msg.ack_conf.cycle",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "TDMA Cycle", HFILL }},
 
     /* TDMA ack ack conf */
 
-    { &hf_rtnet_tdma_msg_ack_ack_conf_station,
+    { &hf_tdma_v1_msg_ack_ack_conf_station,
       { "Station",
-        "rtnet.tdma.msg.ack_ack_conf.station",
+        "tdma-v1.msg.ack_ack_conf.station",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "TDMA Station", HFILL }},
 
-    { &hf_rtnet_tdma_msg_ack_ack_conf_padding,
+    { &hf_tdma_v1_msg_ack_ack_conf_padding,
       { "Padding",
-        "rtnet.tdma.msg.ack_ack_conf.padding",
+        "tdma-v1.msg.ack_ack_conf.padding",
         FT_BYTES, BASE_HEX, NULL, 0x0,
         "TDMA Padding", HFILL }},
 
     /* TDMA request test */
 
-    { &hf_rtnet_tdma_msg_request_test_counter,
+    { &hf_tdma_v1_msg_request_test_counter,
       { "Counter",
-        "rtnet.tdma.msg.request_test.counter",
+        "tdma-v1.msg.request_test.counter",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "TDMA Counter", HFILL }},
 
+    { &hf_tdma_v1_msg_request_test_tx,
+      { "TX",
+        "tdma-v1.msg.request_test.tx",
 #ifdef G_HAVE_GINT64
-    { &hf_rtnet_tdma_msg_request_test_tx,
-      { "TX",
-        "rtnet.tdma.msg.request_test.tx",
         FT_UINT64, BASE_DEC, NULL, 0x0,
-        "TDMA TX", HFILL }},
 #else
-    { &hf_rtnet_tdma_msg_request_test_tx,
-      { "TX",
-        "rtnet.tdma.msg.request_test.tx",
         FT_BYTES, BASE_HEX, NULL, 0x0,
-        "TDMA TX", HFILL }},
 #endif
+        "TDMA TX", HFILL }},
 
     /* TDMA ack test */
 
-    { &hf_rtnet_tdma_msg_ack_test_counter,
+    { &hf_tdma_v1_msg_ack_test_counter,
       { "Counter",
-        "rtnet.tdma.msg.ack_test.counter",
+        "tdma-v1.msg.ack_test.counter",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "TDMA Counter", HFILL }},
 
+    { &hf_tdma_v1_msg_ack_test_tx,
+      { "TX",
+        "tdma-v1.msg.ack_test.tx",
 #ifdef G_HAVE_GINT64
-    { &hf_rtnet_tdma_msg_ack_test_tx,
-      { "TX",
-        "rtnet.tdma.msg.ack_test.tx",
         FT_UINT64, BASE_DEC, NULL, 0x0,
-        "TDMA TX", HFILL }},
 #else
-    { &hf_rtnet_tdma_msg_ack_test_tx,
-      { "TX",
-        "rtnet.tdma.msg.ack_test.tx",
         FT_BYTES, BASE_HEX, NULL, 0x0,
-        "TDMA TX", HFILL }},
 #endif
+        "TDMA TX", HFILL }},
 
     /* TDMA ack test */
-    
-    { &hf_rtnet_tdma_msg_request_change_offset_offset,
+
+    { &hf_tdma_v1_msg_request_change_offset_offset,
       { "Offset",
-        "rtnet.tdma.msg.request_change_offset.offset",
+        "tdma-v1.msg.request_change_offset.offset",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "TDMA Offset", HFILL }},
 
     /* TDMA start of frame */
 
 
+    { &hf_tdma_v1_msg_start_of_frame_timestamp,
+      { "Timestamp",
+        "tdma-v1.msg.start_of_frame.timestamp",
 #ifdef G_HAVE_GINT64
-    { &hf_rtnet_tdma_msg_start_of_frame_timestamp,
-      { "Timestamp",
-        "rtnet.tdma.msg.start_of_frame.timestamp",
         FT_UINT64, BASE_DEC, NULL, 0x0,
-        "TDMA Timestamp", HFILL }},
 #else
-    { &hf_rtnet_tdma_msg_start_of_frame_timestamp,
-      { "Timestamp",
-        "rtnet.tdma.msg.start_of_frame.timestamp",
         FT_BYTES, BASE_HEX, NULL, 0x0,
-        "TDMA Timestamp", HFILL }},
 #endif
+        "TDMA Timestamp", HFILL }},
 
     /* TDMA station list */
 
-    { &hf_rtnet_tdma_msg_station_list_nr_stations,
+    { &hf_tdma_v1_msg_station_list_nr_stations,
       { "Nr. Stations",
-        "rtnet.tdma.msg.station_list.nr_stations",
+        "tdma-v1.msg.station_list.nr_stations",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "TDMA Nr. Stations", HFILL }},
 
-    { &hf_rtnet_tdma_msg_station_list_nr,
+    { &hf_tdma_v1_msg_station_list_nr,
       { "Nr.",
-        "rtnet.tdma.msg.station_list.nr",
+        "tdma-v1.msg.station_list.nr",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "TDMA Station Number", HFILL }},
 
-    { &hf_rtnet_tdma_msg_station_list_ip,
+    { &hf_tdma_v1_msg_station_list_ip,
       { "IP",
-        "rtnet.tdma.msg.station_list.ip",
+        "tdma-v1.msg.station_list.ip",
         FT_IPv4, BASE_DEC, NULL, 0x0,
         "TDMA Station IP", HFILL }},
 
-    { &hf_rtnet_tdma_msg_station_list_padding,
+    { &hf_tdma_v1_msg_station_list_padding,
       { "Padding",
-        "rtnet.tdma.msg.station_list.padding",
+        "tdma-v1.msg.station_list.padding",
         FT_BYTES, BASE_HEX, NULL, 0x0,
-        "TDMA Padding", HFILL }}
+        "TDMA Padding", HFILL }},
 
+
+    /* TDMA since version 2 */
+
+    { &hf_tdma_ver,
+      { "Version",
+        "tdma.ver",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        "TDMA Version", HFILL }},
+
+    { &hf_tdma_id,
+      { "Message ID",
+        "tdma.id",
+        FT_UINT16, BASE_HEX, VALS(tdma_msg_vals), 0x0,
+        "TDMA Message ID", HFILL }},
+
+    /* TDMA sync */
+
+    { &hf_tdma_sync_cycle,
+      { "Cycle Number",
+        "tdma.sync.cycle",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "TDMA Sync Cycle Number", HFILL }},
+
+    { &hf_tdma_sync_xmit_stamp,
+      { "Transmission Time Stamp",
+        "tdma.sync.xmit_stamp",
+#ifdef G_HAVE_GINT64
+        FT_UINT64, BASE_DEC, NULL, 0x0,
+#else
+        FT_BYTES, BASE_HEX, NULL, 0x0,
+#endif
+        "TDMA Sync Transmission Time Stamp", HFILL }},
+
+    { &hf_tdma_sync_sched_xmit,
+      { "Scheduled Transmission Time",
+        "tdma.sync.sched_xmit",
+#ifdef G_HAVE_GINT64
+        FT_UINT64, BASE_DEC, NULL, 0x0,
+#else
+        FT_BYTES, BASE_HEX, NULL, 0x0,
+#endif
+        "TDMA Sync Scheduled Transmission Time", HFILL }},
+
+    /* TDMA request calibration */
+
+    { &hf_tdma_req_cal_xmit_stamp,
+      { "Transmission Time Stamp",
+        "tdma.req_cal.xmit_stamp",
+#ifdef G_HAVE_GINT64
+        FT_UINT64, BASE_DEC, NULL, 0x0,
+#else
+        FT_BYTES, BASE_HEX, NULL, 0x0,
+#endif
+        "TDMA Request Calibration Transmission Time Stamp", HFILL }},
+
+    { &hf_tdma_req_cal_rpl_cycle,
+      { "Reply Cycle Number",
+        "tdma.req_cal.rpl_cycle",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "TDMA Request Calibration Reply Cycle Number", HFILL }},
+
+    { &hf_tdma_req_cal_rpl_slot,
+      { "Reply Slot Offset",
+        "tdma.req_cal.rpl_slot",
+#ifdef G_HAVE_GINT64
+        FT_UINT64, BASE_DEC, NULL, 0x0,
+#else
+        FT_BYTES, BASE_HEX, NULL, 0x0,
+#endif
+        "TDMA Request Calibration Reply Slot Offset", HFILL }},
+
+    /* TDMA reply calibration */
+
+    { &hf_tdma_rpl_cal_req_stamp,
+      { "Request Transmission Time",
+        "tdma.rpl_cal.req_stamp",
+#ifdef G_HAVE_GINT64
+        FT_UINT64, BASE_DEC, NULL, 0x0,
+#else
+        FT_BYTES, BASE_HEX, NULL, 0x0,
+#endif
+        "TDMA Reply Calibration Request Transmission Time", HFILL }},
+
+    { &hf_tdma_rpl_cal_rcv_stamp,
+      { "Reception Time Stamp",
+        "tdma.rpl_cal.rcv_stamp",
+#ifdef G_HAVE_GINT64
+        FT_UINT64, BASE_DEC, NULL, 0x0,
+#else
+        FT_BYTES, BASE_HEX, NULL, 0x0,
+#endif
+        "TDMA Reply Calibration Reception Time Stamp", HFILL }},
+
+    { &hf_tdma_rpl_cal_xmit_stamp,
+      { "Transmission Time Stamp",
+        "tdma.rpl_cal.xmit_stamp",
+#ifdef G_HAVE_GINT64
+        FT_UINT64, BASE_DEC, NULL, 0x0,
+#else
+        FT_BYTES, BASE_HEX, NULL, 0x0,
+#endif
+        "TDMA Reply Calibration Transmission Time Stamp", HFILL }},
   };
 
-  static gint *ett[] = {
-    &ett_rtnet,
+  static gint *ett_array_rtmac[] = {
+    &ett_rtmac,
+    &ett_rtmac_flags,
   };
 
-  proto_rtnet = proto_register_protocol("RTNET",
-				       "RTNET","rtnet");
-  proto_register_field_array(proto_rtnet,hf,array_length(hf));
-  proto_register_subtree_array(ett,array_length(ett));
+  static gint *ett_array_tdma[] = {
+    &ett_tdma,
+  };
 
+  proto_rtmac = proto_register_protocol("Real-Time Media Access Control", "RTmac", "rtmac");
+  proto_register_field_array(proto_rtmac, hf_array_rtmac, array_length(hf_array_rtmac));
+  proto_register_subtree_array(ett_array_rtmac, array_length(ett_array_rtmac));
+
+  proto_tdma = proto_register_protocol("TDMA RTmac Discipline", "TDMA", "tdma");
+  proto_register_field_array(proto_rtmac, hf_array_tdma, array_length(hf_array_tdma));
+  proto_register_subtree_array(ett_array_tdma, array_length(ett_array_tdma));
 }
 
 
@@ -1098,8 +1397,13 @@ proto_register_rtcfg(void) {
       { "Ack Length",
         "rtcfg.ack_length",
         FT_UINT32, BASE_DEC, NULL, 0x00,
-        "RTcfg Ack Length", HFILL }}
+        "RTcfg Ack Length", HFILL }},
 
+    { &hf_rtcfg_client_hw_address,
+      { "Client Hardware Address",
+        "rtcfg.client_ip_address",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        "RTcfg Client Hardware Address", HFILL }}
   };
 
   static gint *ett[] = {
@@ -1114,22 +1418,21 @@ proto_register_rtcfg(void) {
 /* The registration hand-off routing */
 
 void
-proto_reg_handoff_rtnet(void) {
-  static int rtnet_initialized = FALSE;
-  static dissector_handle_t rtnet_handle;
+proto_reg_handoff_rtmac(void) {
+  static int rtmac_initialized = FALSE;
+  static dissector_handle_t rtmac_handle;
 
-  if( !rtnet_initialized ){
-    rtnet_handle = create_dissector_handle(dissect_rtnet, proto_rtnet);
-    rtnet_initialized = TRUE;
+  if( !rtmac_initialized ){
+    rtmac_handle = create_dissector_handle(dissect_rtmac, proto_rtmac);
+    rtmac_initialized = TRUE;
   } else {
-    dissector_delete("ethertype",ETHERTYPE_RTNET, rtnet_handle);
+    dissector_delete("ethertype",ETHERTYPE_RTMAC, rtmac_handle);
   }
 
-  dissector_add("ethertype", ETHERTYPE_RTNET, rtnet_handle);
+  dissector_add("ethertype", ETHERTYPE_RTMAC, rtmac_handle);
 
 
-  ip_handle = find_dissector("ip");
-  arp_handle = find_dissector("arp");
+  ethertype_table = find_dissector_table("ethertype");
 }
 
 void
@@ -1153,8 +1456,9 @@ proto_reg_handoff_rtcfg(void) {
 
 G_MODULE_EXPORT void
 plugin_reg_handoff(void){
-  proto_reg_handoff_rtnet();
+  proto_reg_handoff_rtmac();
   proto_reg_handoff_rtcfg();
+  data_handle = find_dissector("data");
 }
 
 G_MODULE_EXPORT void
@@ -1166,8 +1470,8 @@ _U_
   /* initialise the table of pointers needed in Win32 DLLs */
   plugin_address_table_init(pat);
   /* register the new protocol, protocol fields, and subtrees */
-  if (proto_rtnet == -1) { /* execute protocol initialization only once */
-    proto_register_rtnet();
+  if (proto_rtmac == -1) { /* execute protocol initialization only once */
+    proto_register_rtmac();
   }
   if (proto_rtcfg == -1) { /* execute protocol initialization only once */
     proto_register_rtcfg();
