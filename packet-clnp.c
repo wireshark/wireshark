@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.60 2002/10/24 06:17:34 guy Exp $
+ * $Id: packet-clnp.c,v 1.61 2002/11/01 08:17:03 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -608,7 +608,7 @@ static gboolean osi_decode_tp_var_part(tvbuff_t *tvb, int offset,
       }
       if (c1 & 0x1)
 	proto_tree_add_text(tree, tvb, offset, 1,
-				"Use of transport expedited data transfer\n");
+				"Use of transport expedited data transfer");
       else
 	proto_tree_add_text(tree, tvb, offset, 1,
 				"Non-use of transport expedited data transfer");
