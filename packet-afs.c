@@ -6,7 +6,7 @@
  * Portions based on information retrieved from the RX definitions
  *   in Arla, the free AFS client at http://www.stacken.kth.se/project/arla/
  *
- * $Id: packet-afs.c,v 1.11 2000/05/31 05:06:48 guy Exp $
+ * $Id: packet-afs.c,v 1.12 2000/06/21 04:41:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1883,9 +1883,9 @@ dissect_vldb_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 						TRUNC(4);
 						j = GETINT();
 						strcpy(part, "/vicepa");
-						if ( i<nservers && j<=26 )
+						if ( i<nservers && j<=25 )
 						{
-							part[6] = (char) j;
+							part[6] = 'a' + (char) j;
 							proto_tree_add_string(tree, hf_afs_vldb_partition, NullTVB,
 								curoffset, 4, part);
 						}
@@ -1930,9 +1930,9 @@ dissect_vldb_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 						TRUNC(4);
 						j = GETINT();
 						strcpy(part, "/vicepa");
-						if ( i<nservers && j<=26 )
+						if ( i<nservers && j<=25 )
 						{
-							part[6] = (char) j;
+							part[6] = 'a' + (char) j;
 							proto_tree_add_string(tree, hf_afs_vldb_partition, NullTVB,
 								curoffset, 4, part);
 						}
@@ -1969,9 +1969,9 @@ dissect_vldb_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 						TRUNC(4);
 						j = GETINT();
 						strcpy(part, "/vicepa");
-						if ( i<nservers && j<=26 )
+						if ( i<nservers && j<=25 )
 						{
-							part[6] = (char) j;
+							part[6] = 'a' + (char) j;
 							proto_tree_add_string(tree, hf_afs_vldb_partition, NullTVB,
 								curoffset, 4, part);
 						}
