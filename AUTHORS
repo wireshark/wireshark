@@ -2087,7 +2087,6 @@ Love Hörnquist Åstrand <lha [AT] it.su.se> {
 	libraries to decrypt kerberos encrypted blobs.
 }
 
-
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
@@ -2132,8 +2131,8 @@ And assorted fixes and enhancements by the people listed above and by:
 	Nick Black <dank [AT] reflexsecurity.com>
 	Bill Guyton <guyton [AT] bguyton.com>
 	Chernishov Yury <Chernishov [AT] iskrauraltel.ru>
-    Thomas Palmer <Thomas.Palmer [AT] Gunter.AF.mil>
-
+	Thomas Palmer <Thomas.Palmer [AT] Gunter.AF.mil>
+	Jon Oberheide <jon [AT] focalhost.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.

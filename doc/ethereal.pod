@@ -2137,6 +2137,7 @@ B<http://www.ethereal.com>.
   Josh Bailey              <joshbailey [AT] lucent.com>
   Jelmer Vernooij          <jelmer [AT] samba.org>
   Duncan Sargeant          <dunc-ethereal-dev [AT] rcpt.to>
+  Love Hörnquist Åstrand   <lha [AT] it.su.se>
   Pavel Roskin             <proski [AT] gnu.org>
   Georgi Guninski          <guninski [AT] guninski.com>
   Jason Copenhaver         <jcopenha [AT] typedef.org>
@@ -2178,8 +2179,9 @@ B<http://www.ethereal.com>.
   Pavel Kankovsky          <kan [AT] dcit.cz>
   Nick Black               <dank [AT] reflexsecurity.com>
   Bill Guyton              <guyton [AT] bguyton.com>
-  Love Hörnquist Åstrand   <lha [AT] it.su.se>
+  Chernishov Yury          <Chernishov [AT] iskrauraltel.ru>
   Thomas Palmer            <Thomas.Palmer [AT] Gunter.AF.mil>
+  Jon Oberheide            <jon [AT] focalhost.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

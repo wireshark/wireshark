@@ -3,7 +3,7 @@
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim-signon.c,v 1.1 2004/03/23 06:21:17 guy Exp $
+ * $Id: packet-aim-signon.c,v 1.2 2004/04/11 20:47:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -188,6 +188,9 @@ proto_register_aim_signon(void)
 
 /* Setup list of header fields */
   static hf_register_info hf[] = {
+    { &hf_aim_infotype,
+      { "Infotype", "aim.infotype", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+    },
     { &hf_aim_signon_challenge_len,
       { "Signon challenge length", "aim.signon.challengelen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
     },
