@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.63 2003/12/06 16:35:18 gram Exp $
+dnl $Id: acinclude.m4,v 1.64 2003/12/16 22:55:28 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -379,7 +379,7 @@ AC_DEFUN(AC_ETHEREAL_ZLIB_CHECK,
 	  #
 	  ethereal_save_CFLAGS="$CFLAGS"
 	  CFLAGS="$CFLAGS -I$zlib_dir/include"
-	  ethereal_save_CPPLAGS="$CPPLAGS"
+	  ethereal_save_CPPFLAGS="$CPPFLAGS"
 	  CPPFLAGS="$CPPFLAGS -I$zlib_dir/include"
 	  ethereal_save_LIBS="$LIBS"
 	  AC_ETHEREAL_ADD_DASH_L(LIBS, $zlib_dir/lib)
@@ -472,7 +472,7 @@ AC_DEFUN(AC_ETHEREAL_ZLIB_CHECK,
 				# contains gzgets there.
 				#
 			        CFLAGS="$ethereal_save_CFLAGS"
-				CPPFLAGS="$ethereal_save_CPPLAGS"
+				CPPFLAGS="$ethereal_save_CPPFLAGS"
 				LIBS="$ethereal_save_LIBS"
 			fi
 			want_zlib=no
@@ -533,7 +533,7 @@ AC_DEFUN(AC_ETHEREAL_LIBPCRE_CHECK,
 	  #
 	  ethereal_save_CFLAGS="$CFLAGS"
 	  CFLAGS="$CFLAGS -I$pcre_dir/include"
-	  ethereal_save_CPPLAGS="$CPPLAGS"
+	  ethereal_save_CPPFLAGS="$CPPFLAGS"
 	  CPPFLAGS="$CPPFLAGS -I$pcre_dir/include"
 	  ethereal_save_LIBS="$LIBS"
 	  PCRE_LIBS="-L$pcre_dir/lib -lpcre"
@@ -605,7 +605,7 @@ AC_DEFUN(AC_ETHEREAL_LIBPCRE_CHECK,
 				# pcre there.
 				#
 				CFLAGS="$ethereal_save_CFLAGS"
-				CPPFLAGS="$ethereal_save_CPPLAGS"
+				CPPFLAGS="$ethereal_save_CPPFLAGS"
 				PCRE_LIBS=""
 			fi
 			want_pcre=no
