@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.42 2003/10/14 10:34:58 sahlberg Exp $
+ * $Id: io_stat.c,v 1.43 2003/10/15 08:25:29 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -119,7 +119,7 @@ typedef struct _io_item_t {
 typedef struct _io_stat_graph_t {
 	struct _io_stat_t *io;
 	io_item_t items[NUM_IO_ITEMS];
-	int plot_style;;
+	int plot_style;
 	int display;
 	GtkWidget *display_button;
 	GtkWidget *color_button;
