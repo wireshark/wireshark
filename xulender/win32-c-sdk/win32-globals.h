@@ -17,7 +17,6 @@ static COLORREF cust_colors[16];
 
 
 /* XXX - This needs to be moved to a better place. */
-#define ID_COMBOBOX 5003
 #define ID_GROUPBOX 5004
 /* This MUST match the resource ID of the toolbar in image/win32-toolbar.res */
 #define IDR_MAIN_TOOLBAR 5020

@@ -64,6 +64,7 @@ def get_element_attributes(node):
     sortdirection = get_attribute(node, 'sortdirection', 'natural')
     style         = get_attribute(node, 'style',         None)
 
+    onchange  = get_attribute(node, 'onchange',  None)
     oncommand = get_attribute(node, 'oncommand', None)
     oninput   = get_attribute(node, 'oninput',   None)
 
@@ -83,6 +84,11 @@ def get_element_attributes(node):
     if (minwidth):
 	cur_cf.write_body('    cur_el->minwidth = %s;\n' % (minwidth))
 
+    if (onchange):
+	if (id is None):
+	    raise CodeGenerationError
+	cur_cf.write_body('    cur_el->onchange = %s;' % (onchange))
+	add_callback(node.nodeName, el_id, onchange)
     if (oncommand):
 	if (id is None):
 	    raise CodeGenerationError
@@ -697,11 +703,15 @@ def win32_gen_menuitem(node):
 #
 
 def win32_gen_menulist(node):
+    editable = get_attribute(node, 'editable', 'FALSE')
+    if editable.lower() == 'true':
+	editable = 'TRUE'
+
     cur_cf.write_body('''
     /* Begin <menulist> */
-    cur_el = win32_menulist_new(cur_box->h_wnd);
+    cur_el = win32_menulist_new(cur_box->h_wnd, %(editable)s);
     win32_box_add(cur_box, cur_el, -1);
-''')
+''' % { 'editable': editable })
 
     get_element_attributes(node)
 

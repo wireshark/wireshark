@@ -1724,7 +1724,7 @@ create_preference_option_menu(win32_element_t *grid, const gchar *label_text,
     win32_description_apply_styles(label);
     win32_box_add(grid, label, -1);
 
-    menulist = win32_menulist_new(grid->h_wnd);
+    menulist = win32_menulist_new(grid->h_wnd, FALSE);
     win32_box_add(grid, menulist, -1);
 
     for (enum_valp = enumvals; enum_valp->name != NULL; enum_valp++) {

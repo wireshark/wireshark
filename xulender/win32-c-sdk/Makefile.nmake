@@ -46,7 +46,6 @@ GENERATED_OBJECTS = \
 
 LOCAL_OBJECTS = \
 	ethereal-byteview.obj \
-	ethereal-combobox.obj \
 	ethereal-packetlist.obj \
 	ethereal-spinner.obj \
 	ethereal-treeview.obj

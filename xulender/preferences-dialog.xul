@@ -262,7 +262,7 @@
 		  <description style="text-align: right;">Format:</description>
 		  <menulist
 		    id="prefs-dialog.cols.format"
-		    oncommand="prefs_dialog_set_column_format"
+		    onchange="prefs_dialog_set_column_format"
 		  >
 		    <menupopup>
 		    </menupopup>

@@ -5,7 +5,7 @@
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
- * Copyright 1998 Gerald Combs
+ * Copyright 2004 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -42,6 +42,8 @@
 
 #include "ringbuffer.h"
 #include "pcap-util.h"
+#include "prefs.h"
+#include "capture_combo_utils.h"
 
 #include "win32-globals.h"
 #include "win32-c-sdk.h"
@@ -78,15 +80,18 @@ static gchar *info_element_id[] = {
     /* We handle "total" elsewhere. */
 };
 
+static void set_link_type_list();
+
+
 /* Make sure we can perform a capture, and if so open the capture options dialog */
 /* XXX - Switch over to value struct iteration, like we're using in the prefs dialog. */
 void
 capture_start_prep() {
-    GList *if_list, *if_entry;
-    int   err;
-    char  err_str[PCAP_ERRBUF_SIZE];
     win32_element_t *if_el, *cb_el, *sp_el, *tb_el;
-    if_info_t *if_info;
+    GList           *if_list, *combo_list, *cl_node;
+    int              err;
+    char             err_str[PCAP_ERRBUF_SIZE];
+    gchar           *cant_get_if_list_errstr;
 
     /* Is WPcap loaded? */
     if (!has_wpcap) {
@@ -112,8 +117,10 @@ capture_start_prep() {
 
     if_list = get_interface_list(&err, err_str);
     if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
+	cant_get_if_list_errstr = cant_get_if_list_error_message(err_str);
 	simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "Can't get list of interfaces: %s",
-	      err_str);
+		cant_get_if_list_errstr);
+	g_free(cant_get_if_list_errstr);
     }
 
     if (! g_hw_capture_dlg) {
@@ -122,12 +129,28 @@ capture_start_prep() {
 	if_el = win32_identifier_get_str("capture-dialog.interface-combo");
 	win32_element_assert(if_el);
 
-	for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
-	    if_info = if_entry->data;
-	    SendMessage(if_el->h_wnd, CB_ADDSTRING, 0, (LPARAM) (LPCTSTR) if_info->name);
+	combo_list = build_capture_combo_list(if_list, TRUE);
+
+	if (combo_list != NULL) {
+	    for (cl_node = combo_list; cl_node != NULL; cl_node = g_list_next(cl_node)) {
+		SendMessage(if_el->h_wnd, CB_ADDSTRING, 0, (LPARAM) (LPCTSTR) cl_node->data);
+	    }
+
+	    if (cfile.iface == NULL && prefs.capture_device != NULL) {
+		/* No interface was specified on the command line or in a previous
+		   capture, but there is one specified in the preferences file;
+		   make the one from the preferences file the default */
+		cfile.iface = g_strdup(prefs.capture_device);
+	    }
+	    if (cfile.iface != NULL) {
+		if (SendMessage(if_el->h_wnd, CB_SELECTSTRING, (WPARAM) -1, (LPARAM) cfile.iface) == CB_ERR)
+		    SendMessage(if_el->h_wnd, CB_SETCURSEL, 0, 0);
+	    }
 	}
-	SendMessage(if_el->h_wnd, CB_SETCURSEL, 0, 0);
     }
+
+    /* Link type */
+    set_link_type_list();
 
     /* Buffer size */
     sp_el = win32_identifier_get_str("capture-dialog.buffer-size");
@@ -366,8 +389,10 @@ capture_info_destroy(capture_info *cinfo) {
 
 void
 capture_dialog_start_capture (win32_element_t *ok_el) {
-    gchar           *save_file = NULL, *g_save_file = NULL;
-    gchar           *if_name = NULL;
+    gchar           *save_file = NULL;
+    gchar           *entry_text;
+    gchar           *if_text;
+    gchar           *if_name;
     gchar           *filter_text = NULL;
     win32_element_t *if_el, *cd_el = win32_identifier_get_str("capture-dialog");
     win32_element_t *cb_el, *sp_el, *tb_el, *ml_el;
@@ -383,22 +408,24 @@ capture_dialog_start_capture (win32_element_t *ok_el) {
     len = SendMessage(if_el->h_wnd, WM_GETTEXTLENGTH, 0, 0);
     if (len > 0) {
 	len++;
-	if_name = g_malloc(len);
-	SendMessage(if_el->h_wnd, WM_GETTEXT, (WPARAM) len, (LPARAM) if_name);
+	entry_text = g_malloc(len);
+	SendMessage(if_el->h_wnd, WM_GETTEXT, (WPARAM) len, (LPARAM) entry_text);
     }
+    if_text = g_strstrip(entry_text);
+    if_name = get_if_name(if_text);
 
     if (*if_name == '\0' || if_name == NULL) {
 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 	    "You didn't specify an interface on which to capture packets.");
-	if (if_name)
-	    g_free(if_name);
+	if (entry_text)
+	    g_free(entry_text);
 	return;
     }
 
     if (cfile.iface)
 	g_free(cfile.iface);
     cfile.iface = g_strdup(if_name);
-    g_free(if_name);
+    g_free(entry_text);
 
     /* XXX - We haven't implemented linktype options yet. */
     capture_opts.linktype = -1;
@@ -443,19 +470,18 @@ capture_dialog_start_capture (win32_element_t *ok_el) {
 
     /* Fetch the save file */
     tb_el = win32_identifier_get_str("capture-dialog.save-file");
-    g_save_file = win32_textbox_get_text(tb_el);
-    if (g_save_file && g_save_file[0]) {
+    save_file = win32_textbox_get_text(tb_el);
+    if (save_file && save_file[0]) {
 	/* User specified a file to which the capture should be written. */
-	save_file = g_save_file;
 	/* Save the directory name for future file dialogs. */
-	cf_name = g_strdup(g_save_file);
+	cf_name = g_strdup(save_file);
 	dirname = get_dirname(cf_name);  /* Overwrites cf_name */
 	set_last_open_dir(dirname);
 	g_free(cf_name);
     } else {
 	/* User didn't specify a file; save to a temporary file. */
-	if (g_save_file)
-	    g_free(g_save_file);
+	if (save_file)
+	    g_free(save_file);
 	save_file = NULL;
     }
 
@@ -762,6 +788,64 @@ capture_dialog_adjust_sensitivity(win32_element_t *cb_el) {
 	win32_checkbox_get_state(stop_duration_cb));
 }
 
+/* Command sent by element type <button>, id "capture-help" */
+void
+capture_dialog_help (win32_element_t *help_el) {
+}
+
+/* Command sent by element type <menulist>, id "capture-dialog.interface-combo" */
+void
+capture_prep_interface_changed (win32_element_t *if_ml) {
+    set_link_type_list();
+}
+
+/* Command sent by element type <button>, id "None" */
+/* XXX - Should we move this to win32-file-dlg.c? */
+void capture_prep_file (win32_element_t *btn_el) {
+    win32_element_t *file_tb = win32_identifier_get_str("capture-dialog.save-file");
+    static OPENFILENAME ofn;
+    gchar  file_name[MAX_PATH] = "";
+
+    win32_element_assert(btn_el);
+    win32_element_assert(file_tb);
+
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = btn_el->h_wnd;
+    ofn.hInstance = NULL;
+    /* XXX - Grab the rest of the extension list from ethereal.nsi. */
+    ofn.lpstrFilter =
+	"Accellent 5Views (*.5vw)\0"			"*.5vw\0"
+	"Ethereal/tcpdump (*.cap, *.pcap)\0"		"*.cap;*.pcap\0"
+	"Novell LANalyzer (*.tr1)\0"			"*.tr1\0"
+	"NG/NAI Sniffer (*.cap, *.enc, *.trc)\0"	"*.cap;*.enc;*.trc\0"
+	"Sun snoop (*.snoop)\0"				"*.snoop\0"
+	"WildPackets EtherPeek (*.pkt)\0"		"*.pkt\0"
+	"All Files (*.*)\0"				"*.*\0"
+	"\0";
+    ofn.lpstrCustomFilter = NULL;
+    ofn.nMaxCustFilter = 0;
+    ofn.nFilterIndex = 2;
+    ofn.lpstrFile = file_name;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
+	ofn.lpstrInitialDir = prefs.gui_fileopen_dir;
+    } else {
+	ofn.lpstrInitialDir = NULL;
+    }
+    ofn.lpstrTitle = "Ethereal: Specify a Capture File";
+    ofn.Flags = OFN_ENABLESIZING | OFN_EXPLORER | OFN_OVERWRITEPROMPT
+	    | OFN_NOCHANGEDIR | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST;
+    ofn.lpstrDefExt = NULL;
+
+    /* GetSaveFileName has the gall to actually change directories on us. */
+    if (GetSaveFileName(&ofn)) {
+	win32_textbox_set_text(file_tb, file_name);
+    }
+}
+
 /*
  * Private
  */
@@ -841,4 +925,145 @@ size_unit_menulist_get_value(win32_element_t *ml_el, guint32 value) {
         g_assert_not_reached();
         return 0;
     }
+}
+
+static void
+set_link_type_list() {
+    win32_element_t *if_ml = win32_identifier_get_str("capture-dialog.interface-combo");
+    win32_element_t *ip_desc = win32_identifier_get_str("capture-dialog.ip-address");
+    win32_element_t *lt_desc = win32_identifier_get_str("capture-dialog.link-layer-desc");
+    win32_element_t *lt_ml = win32_identifier_get_str("capture-dialog.link-layer");
+    int len, cur_sel;
+    gchar *entry_text;
+    gchar *if_text;
+    gchar *if_name;
+    GList *if_list;
+    GList *if_entry;
+    if_info_t *if_info;
+    GList *lt_list;
+    int err;
+    char err_buf[PCAP_ERRBUF_SIZE];
+    GList *lt_entry;
+    data_link_info_t *data_link_info;
+    int item;
+    guint num_supported_link_types;
+    GString *ip_str = g_string_new("IP address: ");
+    int ips = 0;
+    GSList *curr_ip;
+    if_addr_t *ip_addr;
+
+    win32_element_assert(if_ml);
+    win32_element_assert(ip_desc);
+    win32_element_assert(lt_desc);
+    win32_element_assert(lt_ml);
+
+    SendMessage(lt_ml->h_wnd, CB_RESETCONTENT, 0, 0);
+
+    /* XXX - We should probably do this in win32-menulist.c */
+    cur_sel = SendMessage(if_ml->h_wnd, CB_GETCURSEL, 0, 0);
+    if (cur_sel == CB_ERR)  /* XXX - We should handle this more gracefully */
+	return;
+    len = SendMessage(if_ml->h_wnd, CB_GETLBTEXTLEN, (WPARAM) cur_sel, 0);
+    if (len > 0) {
+	len++;
+	entry_text = g_malloc(len);
+	SendMessage(if_ml->h_wnd, CB_GETLBTEXT, (WPARAM) cur_sel, (LPARAM) entry_text);
+    }
+    if_text = g_strstrip(entry_text);
+    if_name = get_if_name(if_text);
+
+    /*
+     * If the interface name is in the list of known interfaces, get
+     * its list of link-layer types and set the option menu to display it.
+     *
+     * If it's not, don't bother - the user might be in the middle of
+     * editing the list, or it might be a remote device in which case
+     * getting the list could take an arbitrarily-long period of time.
+     * The list currently won't contain any remote devices (as
+     * "pcap_findalldevs()" doesn't know about remote devices, and neither
+     * does the code we use if "pcap_findalldevs()" isn't available), but
+     * should contain all the local devices on which you can capture.
+     */
+    lt_list = NULL;
+    if (*if_name != '\0') {
+	/*
+	 * Try to get the list of known interfaces.
+	 */
+	if_list = get_interface_list(&err, err_buf);
+	if (if_list != NULL) {
+	    /*
+	     * We have the list - check it.
+	     */
+	    for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
+		if_info = if_entry->data;
+		if (strcmp(if_info->name, if_name) == 0) {
+		    /*
+		     * It's in the list.
+		     * Get the list of link-layer types for it.
+		     */
+		    lt_list = get_pcap_linktype_list(if_name, err_buf);
+
+		    /* create string of list of IP addresses of this interface */
+		    for (; (curr_ip = g_slist_nth(if_info->ip_addr, ips)) != NULL; ips++) {
+			if (ips != 0)
+			    g_string_append(ip_str, ", ");
+
+			ip_addr = (if_addr_t *)curr_ip->data;
+			switch (ip_addr->type) {
+			    case AT_IPv4:
+			      g_string_append(ip_str,
+				ip_to_str((guint8 *)&ip_addr->ip_addr.ip4_addr));
+			      break;
+
+			    case AT_IPv6:
+			      g_string_append(ip_str,
+				  ip6_to_str((struct e_in6_addr *)&ip_addr->ip_addr.ip6_addr));
+			      break;
+
+			    default:
+			      g_assert_not_reached();
+			}
+		    }
+
+		    if (if_info->loopback)
+			g_string_append(ip_str, " (loopback)");
+		}
+	    }
+	    free_interface_list(if_list);
+	}
+    }
+
+    g_free(entry_text);
+    num_supported_link_types = 0;
+    for (lt_entry = lt_list; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
+	data_link_info = lt_entry->data;
+	if (data_link_info->description != NULL) {
+	    item = win32_menulist_add(lt_ml, data_link_info->description, FALSE);
+	    win32_menulist_set_data(lt_ml, item, (gpointer) data_link_info->dlt);
+	    num_supported_link_types++;
+	} else {
+	    /* Not supported - tell them about it but don't let them select it. */
+	    /* XXX - The GTK+ code (from which this was copied) disables unsupported
+	     * items.  Regular Windows comboboxes (which are used to implement drop-down
+	     * menulists) don't allow this.  Until we use a different control or owner-draw
+	     * the combobox, just ignore these. */
+//	    item = win32_menulist_add(lt_ml, data_link_info->description, FALSE);
+//	    linktype_menu_label = g_strdup_printf("%s (not supported)",
+//		    data_link_info->name);
+//	    lt_menu_item = gtk_menu_item_new_with_label(linktype_menu_label);
+//	    g_free(linktype_menu_label);
+//	    gtk_widget_set_sensitive(lt_menu_item, FALSE);
+	}
+    }
+    if (lt_list != NULL)
+	free_pcap_linktype_list(lt_list);
+    win32_menulist_set_selection(lt_ml, 0);
+    win32_element_set_enabled(lt_ml, num_supported_link_types >= 2);
+    win32_element_set_enabled(lt_desc, num_supported_link_types >= 2);
+
+    if(ips == 0) {
+	g_string_append(ip_str, "unknown");
+    }
+    SendMessage(ip_desc->h_wnd, WM_SETTEXT, 0, (LPARAM) ip_str->str);
+    g_string_free(ip_str, TRUE);
 }

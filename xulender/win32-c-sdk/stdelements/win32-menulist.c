@@ -21,8 +21,9 @@ static void win32_menulist_size_adjust(win32_element_t *ml_el, gchar *text);
  */
 
 win32_element_t *
-win32_menulist_new(HWND hw_parent) {
+win32_menulist_new(HWND hw_parent, gboolean editable) {
     win32_element_t *menulist;
+    LONG style = editable ? CBS_DROPDOWN : CBS_DROPDOWNLIST;
 
     g_assert(hw_parent != NULL);
 
@@ -31,7 +32,7 @@ win32_menulist_new(HWND hw_parent) {
     menulist->h_wnd = CreateWindow(
 	"COMBOBOX",
 	"MenuList",
-	WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
+        WS_CHILD | WS_VISIBLE | WS_TABSTOP | CBS_AUTOHSCROLL | style,
 	0, 0, 0, 0,
 	hw_parent,
 	(HMENU) ID_MENULIST,
@@ -59,20 +60,26 @@ win32_menulist_new(HWND hw_parent) {
 /*
  * Add a menu item
  */
-void
+int
 win32_menulist_add(win32_element_t *ml_el, gchar *item, gboolean selected) {
-    int  sel;
+    LRESULT sel;
     SIZE sz;
 
     win32_element_assert(ml_el);
 
     sel = SendMessage(ml_el->h_wnd, CB_ADDSTRING, 0, (LPARAM) (LPCTSTR) item);
+    if (sel < 0) {
+	return -1;
+    }
+
     if (selected)
 	win32_menulist_set_selection(ml_el, sel);
 
     win32_get_text_size(ml_el->h_wnd, item, &sz);
     if (sz.cx > ml_el->minwidth)
 	win32_menulist_size_adjust(ml_el, item);
+
+    return sel;
 }
 
 /*
@@ -145,6 +152,34 @@ int win32_menulist_find_string(win32_element_t *ml_el, gchar *str) {
     }
     return res;
 }
+
+
+/*
+ * Set the data for a given item.
+ */
+void win32_menulist_set_data(win32_element_t *ml_el, int item, gpointer data) {
+
+    win32_element_assert(ml_el);
+
+    SendMessage(ml_el->h_wnd, CB_SETITEMDATA, (WPARAM) item, (LPARAM) data);
+}
+
+/*
+ * Get the data for a given item.  Returns NULL on failure.
+ */
+gpointer win32_menulist_get_data(win32_element_t *ml_el, int item) {
+    LRESULT ret;
+
+    win32_element_assert(ml_el);
+
+    ret = SendMessage(ml_el->h_wnd, CB_GETITEMDATA, (WPARAM) item, 0);
+
+    if (ret == CB_ERR)
+	return NULL;
+
+    return (gpointer) ret;
+}
+
 
 /*
  * Private functions

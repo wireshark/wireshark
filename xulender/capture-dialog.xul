@@ -9,10 +9,17 @@
       <caption>Capture</caption>
       <hbox>
         <description>Interface:</description>
-        <ethereal:combobox id="capture-dialog.interface-combo" flex="1" />
+        <menulist
+          editable="True"
+          id="capture-dialog.interface-combo"
+          flex="1"
+          onchange="capture_prep_interface_changed"
+        />
       </hbox>
+      <description id="capture-dialog.ip-address">IP address:</description>
       <hbox>
-        <description>Link-layer header type:</description>
+        <description id="capture-dialog.link-layer-desc">Link-layer header type:</description>
+	<menulist id="capture-dialog.link-layer" />
         <description>Buffer size:</description>
         <ethereal:spinner id="capture-dialog.buffer-size" />
         <description>megabyte(s)</description>
@@ -47,6 +54,7 @@
             <textbox id="capture-dialog.save-file" flex="1" />
             <button
               label="..."
+              oncommand="capture_prep_file"
              />
           </hbox>
           <checkbox
@@ -203,7 +211,11 @@
     </hbox>
 
     <hbox>
-
+      <button
+        id="capture-help"
+        label="Help"
+        oncommand="capture_dialog_help"
+       />
       <spacer flex="1" />
       <button
         id="capture-ok"
@@ -217,7 +229,6 @@
         label="Cancel"
         oncommand="capture_dialog_hide"
        />
-
     </hbox>
   </vbox>
 </dialog>

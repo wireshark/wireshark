@@ -182,23 +182,8 @@ static LRESULT CALLBACK
 ethereal_spinner_wnd_proc(HWND hw_spinner, UINT msg, WPARAM w_param, LPARAM l_param) {
     win32_element_t *el;
     spinner_data_t *sd;
-//    RECT dcrect;
 
     switch (msg) {
-//	case WM_COMMAND:
-//	    /* onCommand commands */
-//	    if (HIWORD(w_param) == BN_CLICKED && l_param != NULL) {
-//		el = (win32_element_t *) GetWindowLong((HWND) l_param, GWL_USERDATA);
-//		if (el->oncommand != NULL) el->oncommand(el);
-//	    /* Resize our combobox dropdown boxes */
-//	    /* XXX - Get the number of items in the list and size accordingly */
-//	    } else if (HIWORD(w_param) == CBN_DROPDOWN && (int) LOWORD(w_param) == ID_COMBOBOX) {
-//		GetWindowRect((HWND) l_param,  &dcrect);
-//		SetWindowPos((HWND) l_param, HWND_TOP, 0, 0, dcrect.right - dcrect.left, 150,
-//		    SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
-//	    }
-//	    break;
-
 	case WM_ENABLE:
 	    el = (win32_element_t *) GetWindowLong(hw_spinner, GWL_USERDATA);
 	    win32_element_assert(el);

@@ -445,9 +445,7 @@ void win32_element_handle_wm_command(UINT msg, WPARAM w_param, LPARAM l_param) {
 	if (el->oncommand != NULL) el->oncommand(el);
     /* Resize our combobox dropdown boxes */
     /* XXX - Get the number of items in the list and size accordingly */
-    } else if (HIWORD(w_param) == CBN_DROPDOWN && (
-	    (int) LOWORD(w_param) == ID_COMBOBOX ||
-	    (int) LOWORD(w_param) == ID_MENULIST )) {
+    } else if (HIWORD(w_param) == CBN_DROPDOWN && (int) LOWORD(w_param) == ID_MENULIST ) {
 	GetWindowRect((HWND) l_param,  &dcrect);
 	SetWindowPos((HWND) l_param, HWND_TOP, 0, 0, dcrect.right - dcrect.left, 150,
 	    SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
@@ -459,7 +457,7 @@ void win32_element_handle_wm_command(UINT msg, WPARAM w_param, LPARAM l_param) {
     } else if (HIWORD(w_param) == CBN_SELCHANGE && (int) LOWORD(w_param) == ID_MENULIST) {
 	el = (win32_element_t *) GetWindowLong((HWND) l_param, GWL_USERDATA);
 	win32_element_assert(el);
-	if (el->oncommand != NULL) el->oncommand(el);
+	if (el->onchange != NULL) el->onchange(el);
     }
 }
 

@@ -120,7 +120,8 @@ win32_open_file (HWND h_wnd) {
     }
     ofn.lpstrTitle = "Ethereal: Select a capture file";
     ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
-	    OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_ENABLEHOOK;
+	    OFN_NOCHANGEDIR | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY |
+	    OFN_ENABLEHOOK;
     ofn.lpstrDefExt = NULL;
     ofn.lpfnHook = open_file_hook_proc;
     ofn.lpTemplateName = "ETHEREAL_OPENFILENAME_TEMPLATE";
@@ -181,8 +182,8 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
     }
     ofn.lpstrTitle = "Ethereal: Save file as";
     ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
-	    OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST |
-	    OFN_ENABLEHOOK;
+	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
+	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
     ofn.lpstrDefExt = NULL;
     ofn.lpfnHook = save_as_file_hook_proc;
     ofn.lpTemplateName = "ETHEREAL_SAVEFILENAME_TEMPLATE";
@@ -281,7 +282,8 @@ win32_merge_file (HWND h_wnd) {
     }
     ofn.lpstrTitle = "Ethereal: Merge with capture file";
     ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
-	    OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_ENABLEHOOK;
+	    OFN_NOCHANGEDIR | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY |
+	    OFN_ENABLEHOOK;
     ofn.lpstrDefExt = NULL;
     ofn.lpfnHook = merge_file_hook_proc;
     ofn.lpTemplateName = "ETHEREAL_MERGEFILENAME_TEMPLATE";
@@ -400,8 +402,8 @@ win32_export_file(HWND h_wnd) {
     }
     ofn.lpstrTitle = "Ethereal: Export";
     ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
-	    OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST |
-	    OFN_ENABLEHOOK;
+	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
+	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
     ofn.lpstrDefExt = NULL;
     ofn.lpfnHook = export_file_hook_proc;
     ofn.lpTemplateName = "ETHEREAL_EXPORTFILENAME_TEMPLATE";
@@ -499,8 +501,8 @@ win32_export_raw_file(HWND h_wnd) {
     }
     ofn.lpstrTitle = "Ethereal: Export Raw Data";
     ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
-	    OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST |
-	    OFN_ENABLEHOOK;
+	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
+	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
     ofn.lpstrDefExt = NULL;
     ofn.lCustData = cfile.finfo_selected->length;
     ofn.lpfnHook = export_raw_file_hook_proc;
@@ -561,8 +563,8 @@ win32_export_color_file(HWND h_wnd) {
     ofn.lpstrInitialDir = NULL;
     ofn.lpstrTitle = "Ethereal: Export Color Filters";
     ofn.Flags = OFN_ENABLESIZING | OFN_EXPLORER |
-	    OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST |
-	    OFN_ENABLEHOOK;
+	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
+	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
     ofn.lpstrDefExt = NULL;
     ofn.lpfnHook = NULL;
     ofn.lpTemplateName = NULL;
@@ -605,8 +607,8 @@ win32_import_color_file(HWND h_wnd) {
     ofn.lpstrInitialDir = NULL;
     ofn.lpstrTitle = "Ethereal: Import Color Filters";
     ofn.Flags = OFN_ENABLESIZING | OFN_EXPLORER |
-	    OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST |
-	    OFN_ENABLEHOOK;
+	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
+	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
     ofn.lpstrDefExt = NULL;
     ofn.lpfnHook = NULL;
     ofn.lpTemplateName = NULL;

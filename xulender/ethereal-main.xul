@@ -274,6 +274,10 @@
           command="ethereal-main-capture-stop"
         />
         <menuitem
+          label="Interfaces"
+          command="ethereal-main-capture-interfaces"
+        />
+        <menuitem
           label="Capture Filters..."
           command="ethereal-main-capture-filters"
         />
@@ -522,7 +526,11 @@
     -->
     <hbox id="main-filter">
       <button label="Filter:" />
-      <ethereal:combobox id="dfilter-entry" flex="1"/>
+      <menulist
+        editable="True"
+        id="dfilter-entry"
+        flex="1"
+      />
       <button
         label="Clear"
         oncommand="filter_clear_cb"

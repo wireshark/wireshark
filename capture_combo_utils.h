@@ -31,8 +31,10 @@
 
 /** Build the GList of available capture interfaces.
  *
- * @param if_list the interface list from get_interface_list()
- * @param do_hide hide the "hidden" interfaces
+ * @param if_list An interface list from get_interface_list().
+ * @param do_hide Hide the "hidden" interfaces.
+ *
+ * @return A list of if_info_t structs.
  */
 GList *build_capture_combo_list(GList *if_list, gboolean do_hide);
 
@@ -41,5 +43,17 @@ GList *build_capture_combo_list(GList *if_list, gboolean do_hide);
  * @param combo_list the interface list from build_capture_combo_list()
  */
 void free_capture_combo_list(GList *combo_list);
+
+
+/** Given text that contains an interface name possibly prefixed by an
+ * interface description, extract the interface name.
+ *
+ * @param if_text A string containing the interface description + name.
+ * This is usually the data from one of the list elements returned by
+ * build_capture_combo_list().
+ *
+ * @return The raw interface name, sans description.
+ */
+char *get_if_name(char *if_text);
 
 #endif

@@ -3,12 +3,13 @@
 
 #define ID_MENULIST 5005
 
-win32_element_t * win32_menulist_new(HWND);
+win32_element_t * win32_menulist_new(HWND, gboolean editable);
 
 /*
- * Add an item to the menu.
+ * Add an item to the menu.  Returns the zero-based index of the item
+ * just added.
  */
-void win32_menulist_add(win32_element_t *ml_el, gchar *item, gboolean selected);
+int win32_menulist_add(win32_element_t *ml_el, gchar *item, gboolean selected);
 
 /*
  * Set the current selection (starting from zero).  Runs the element's
@@ -21,6 +22,16 @@ void win32_menulist_set_selection(win32_element_t *ml_el, int sel);
  * no selection.
  */
 int win32_menulist_get_selection(win32_element_t *ml_el);
+
+/*
+ * Set the data for a given item.
+ */
+void win32_menulist_set_data(win32_element_t *ml_el, int item, gpointer data);
+
+/*
+ * Get the data for a given item.  Returns NULL on failure.
+ */
+gpointer win32_menulist_get_data(win32_element_t *ml_el, int item);
 
 /*
  * Get the item string.  Returns NULL if the item is invalid.  Returned
