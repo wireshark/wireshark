@@ -1730,6 +1730,7 @@ Matthijs Melchior <mmelchior [AT] xs4all.nl> {
 	    definitions for plugin ABI from a single file
 	Support for registering fields after all the protocol
 	    registration routines are called
+	Generic ASN.1 dissection plugin
 }
 
 Garth Bushell <gbushell [AT] elipsan.com> {

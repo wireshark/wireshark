@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.646 2003/10/28 06:44:21 guy Exp $
+# $Id: Makefile.am,v 1.647 2003/10/28 07:02:35 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -465,6 +465,7 @@ if HAVE_PLUGINS
 plugin_libs = \
 	plugins/acn/acn.la \
 	plugins/artnet/artnet.la \
+        plugins/asn1/asn1.la \
 	plugins/docsis/docsis.la \
 	plugins/giop/cosnaming.la \
 	plugins/giop/coseventcomm.la \
@@ -479,6 +480,7 @@ if ENABLE_STATIC
 plugin_ldadd = \
 	plugins/acn/packet-acn.o \
 	plugins/artnet/packet-artnet.o \
+        plugins/asn1/packet-asn1.o \
 	plugins/docsis/packet-bpkmattr.o \
 	plugins/docsis/packet-bpkmreq.o \
 	plugins/docsis/packet-bpkmrsp.o \
@@ -514,6 +516,7 @@ plugin_ldadd = \
 plugin_src = \
 	plugins/acn/packet-acn.c \
 	plugins/artnet/packet-artnet.c \
+        plugins/asn1/packet-asn1.c \
 	plugins/docsis/packet-bpkmattr.c \
 	plugins/docsis/packet-bpkmreq.c \
 	plugins/docsis/packet-bpkmrsp.c \
@@ -551,6 +554,7 @@ plugin_ldadd = \
 	"-dlopen" self	\
 	"-dlopen" plugins/acn/acn.la \
 	"-dlopen" plugins/artnet/artnet.la \
+        "-dlopen" plugins/asn1/asn1.la \
 	"-dlopen" plugins/docsis/docsis.la \
 	"-dlopen" plugins/giop/cosnaming.la \
 	"-dlopen" plugins/giop/coseventcomm.la \

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.26 2003/10/14 01:18:10 guy Exp $
+# $Id: Makefile.nmake,v 1.27 2003/10/28 07:02:37 guy Exp $
 #
 
 include ..\config.nmake
@@ -11,7 +11,7 @@ CFLAGS=/DHAVE_CONFIG_H /I.. /I../wiretap /I. $(GLIB_CFLAGS) \
 
 OBJECTS=plugin_api.obj 
 
-all: $(OBJECTS) acn artnet docsis giop gryphon lwres megaco mgcp pcli rtnet
+all: $(OBJECTS) acn artnet asn1 docsis giop gryphon lwres megaco mgcp pcli rtnet
 
 Xplugin_api.c: plugin_gen.py plugin_api_list.c
 	@echo **** Plugin api may be out of date, please generate new files:
@@ -31,6 +31,11 @@ acn::
 
 artnet:: 
 	cd artnet
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+asn1:: 
+	cd asn1
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
@@ -79,6 +84,8 @@ clean:
 	cd acn
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../artnet
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../asn1
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../docsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
