@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.38 2003/01/31 03:17:46 guy Exp $
+ * $Id: packet-tns.c,v 1.39 2003/02/05 08:06:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -471,26 +471,33 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	offset += 1;
 
-	if ( connect_tree )
+	/*
+	 * XXX - sometimes it appears that this stuff isn't present
+	 * in the packet.
+	 */
+	if (offset + 16 <= tns_offset+cd_offset)
 	{
-		proto_tree_add_item(connect_tree, hf_tns_trace_cf1, tvb,
-			offset, 4, FALSE);
-	}
-	offset += 4;
+		if ( connect_tree )
+		{
+			proto_tree_add_item(connect_tree, hf_tns_trace_cf1, tvb,
+				offset, 4, FALSE);
+		}
+		offset += 4;
 
-	if ( connect_tree )
-	{
-		proto_tree_add_item(connect_tree, hf_tns_trace_cf2, tvb,
-			offset, 4, FALSE);
-	}
-	offset += 4;
+		if ( connect_tree )
+		{
+			proto_tree_add_item(connect_tree, hf_tns_trace_cf2, tvb,
+				offset, 4, FALSE);
+		}
+		offset += 4;
 
-	if ( connect_tree )
-	{
-		proto_tree_add_item(connect_tree, hf_tns_trace_cid, tvb,
-			offset, 8, FALSE);
+		if ( connect_tree )
+		{
+			proto_tree_add_item(connect_tree, hf_tns_trace_cid, tvb,
+				offset, 8, FALSE);
+		}
+		offset += 8;
 	}
-	offset += 8;
 
 	if ( connect_tree && cd_len > 0)
 	{
