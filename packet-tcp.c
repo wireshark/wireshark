@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.61 2000/04/03 09:24:07 guy Exp $
+ * $Id: packet-tcp.c,v 1.62 2000/04/03 09:37:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -517,16 +517,18 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     /* try to apply the plugins */
 #ifdef HAVE_PLUGINS
-    plugin *pt_plug = plugin_list;
+    {
+      plugin *pt_plug = plugin_list;
 
-    if (pt_plug) {
-      while (pt_plug) {
-	if (pt_plug->enabled && !strcmp(pt_plug->protocol, "tcp") &&
-	    tree && dfilter_apply(pt_plug->filter, tree, pd)) {
-	  pt_plug->dissector(pd, offset, fd, tree);
-	  goto reas;
+      if (pt_plug) {
+	while (pt_plug) {
+	  if (pt_plug->enabled && !strcmp(pt_plug->protocol, "tcp") &&
+	      tree && dfilter_apply(pt_plug->filter, tree, pd)) {
+	    pt_plug->dissector(pd, offset, fd, tree);
+	    goto reas;
+	  }
+	  pt_plug = pt_plug->next;
 	}
-	pt_plug = pt_plug->next;
       }
     }
 #endif
@@ -690,4 +692,3 @@ proto_register_tcp(void)
 	dissector_add( "tcp.port", TCP_PORT_SRVLOC, &dissect_srvloc);
 	dissector_add( "tcp.port", TCP_PORT_NCP, &dissect_ncp);
 }
-
