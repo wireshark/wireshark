@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.47 2001/01/09 06:31:41 guy Exp $
+ * $Id: packet-rpc.c,v 1.48 2001/01/18 00:13:18 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -304,10 +304,14 @@ char *rpc_prog_name(guint32 prog)
 /* end of Hash array with program names */
 /*--------------------------------------*/
 
-/* static array, first quick implementation, I'll switch over to GList soon */ 
-typedef struct _rpc_call_info {
+typedef struct _rpc_call_info_key {
 	guint32	xid;
 	conversation_t *conversation;
+} rpc_call_info_key;
+
+static GMemChunk *rpc_call_info_key_chunk;
+
+typedef struct _rpc_call_info_value {
 	guint32	req_num;	/* frame number of first request seen */
 	guint32	rep_num;	/* frame number of first reply seen */
 	guint32	prog;
@@ -317,58 +321,31 @@ typedef struct _rpc_call_info {
 	guint32 gss_proc;
 	guint32 gss_svc;
 	rpc_proc_info_value*	proc_info;
-} rpc_call_info;
+} rpc_call_info_value;
 
-#define RPC_CALL_TABLE_LENGTH 1000
+static GMemChunk *rpc_call_info_value_chunk;
 
-rpc_call_info rpc_call_table[RPC_CALL_TABLE_LENGTH];
-guint32 rpc_call_index = 0;
-guint32 rpc_call_firstfree = 0;
+static GHashTable *rpc_calls;
 
-static void
-rpc_call_insert(rpc_call_info *call)
+/* compare 2 keys */
+gint
+rpc_call_equal(gconstpointer k1, gconstpointer k2)
 {
-	/* some space left? */
-	if (rpc_call_firstfree<RPC_CALL_TABLE_LENGTH) {
-		/* some space left */
-		/* take the first free entry */
-		rpc_call_index = rpc_call_firstfree;
-		/* increase this limit */
-		rpc_call_firstfree++;
-		/* rpc_call_firstfree may now be RPC_CALL_TABLE_LENGTH */
-	}
-	else {
-		/* no space left */
-		/* the next entry, with wrap around */
-		rpc_call_index = (rpc_call_index+1) % rpc_call_firstfree;
-	}
-		
-	/* put the entry in */
-	memcpy(&rpc_call_table[rpc_call_index],call,sizeof(*call));
-	return;
+	rpc_call_info_key* key1 = (rpc_call_info_key*) k1;
+	rpc_call_info_key* key2 = (rpc_call_info_key*) k2;
+
+	return (key1->xid == key2->xid &&
+	    key1->conversation == key2->conversation);
 }
 
 
-static rpc_call_info*
-rpc_call_lookup(rpc_call_info *call)
+/* calculate a hash key */
+guint
+rpc_call_hash(gconstpointer k)
 {
-	int i;
+	rpc_call_info_key* key = (rpc_call_info_key*) k;
 
-	i = rpc_call_index;
-	do {
-		if (
-			rpc_call_table[i].xid == call->xid &&
-			rpc_call_table[i].conversation == call->conversation
-		) {
-			return &rpc_call_table[i];
-		}
-		if (rpc_call_firstfree) {
-			/* decrement by one, go to rpc_call_firstfree-1 
-			   at the start of the list */
-			i = (i-1+rpc_call_firstfree) % rpc_call_firstfree;
-		}
-	} while (i!=rpc_call_index);
-	return NULL;
+	return key->xid + (guint32)(key->conversation);
 }
 
 
@@ -1050,8 +1027,8 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
 	guint32	msg_type;
-	rpc_call_info rpc_key;
-	rpc_call_info *rpc_call = NULL;
+	rpc_call_info_key rpc_call_key;
+	rpc_call_info_value *rpc_call = NULL;
 	rpc_prog_info_value *rpc_prog = NULL;
 	rpc_prog_info_key rpc_prog_key;
 
@@ -1090,7 +1067,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int use_rm = 0;
 	guint32 rpc_rm = 0;
 
-	rpc_call_info	rpc_call_msg;
+	rpc_call_info_key	*new_rpc_call_key;
 	rpc_proc_info_key	key;
 	rpc_proc_info_value	*value = NULL;
 	conversation_t* conversation;
@@ -1106,7 +1083,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* TCP uses record marking */
 	use_rm = (pinfo->ptype == PT_TCP);
 
-	/* the first 4 bytes are special in "record marking  mode" */
+	/* the first 4 bytes are special in "record marking mode" */
 	if (use_rm) {
 		if (!tvb_bytes_exist(tvb, offset, 4))
 			return FALSE;
@@ -1167,9 +1144,10 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		/* The XIDs of the call and reply must match. */
-		rpc_key.xid = tvb_get_ntohl(tvb, offset + 0);
-		rpc_key.conversation = conversation;
-		if ((rpc_call = rpc_call_lookup(&rpc_key)) == NULL) {
+		rpc_call_key.xid = tvb_get_ntohl(tvb, offset + 0);
+		rpc_call_key.conversation = conversation;
+		rpc_call = g_hash_table_lookup(rpc_calls, &rpc_call_key);
+		if (rpc_call == NULL) {
 			/* The XID doesn't match a call from that
 			   conversation, so it's probably not an RPC reply. */
 			return FALSE;
@@ -1215,7 +1193,9 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	offset += 8;
 
-	if (msg_type==RPC_CALL) {
+	switch (msg_type) {
+
+	case RPC_CALL:
 		/* we know already the proto-entry, the ETT-const,
 		   and "rpc_prog" */
 		proto = rpc_prog->proto;
@@ -1310,11 +1290,12 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		/* prepare the key data */
-		rpc_call_msg.xid = xid;
-		rpc_call_msg.conversation = conversation;
+		rpc_call_key.xid = xid;
+		rpc_call_key.conversation = conversation;
 
 		/* look up the request */
-		if ((rpc_call = rpc_call_lookup(&rpc_call_msg)) != NULL) {
+		rpc_call = g_hash_table_lookup(rpc_calls, &rpc_call_key);
+		if (rpc_call != NULL) {
 			/* We've seen a request with this XID, with the same
 			   source and destination, before - but was it
 			   *this* request? */
@@ -1339,17 +1320,21 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			   frame numbers are 1-origin, so we use 0
 			   to mean "we don't yet know in which frame
 			   the reply for this call appears". */
-			rpc_call_msg.req_num = pinfo->fd->num;
-			rpc_call_msg.rep_num = 0;
-			rpc_call_msg.prog = prog;
-			rpc_call_msg.vers = vers;
-			rpc_call_msg.proc = proc;
-			rpc_call_msg.flavor = flavor;
-			rpc_call_msg.gss_proc = gss_proc;
-			rpc_call_msg.gss_svc = gss_svc;
-			rpc_call_msg.proc_info = value;
+			new_rpc_call_key = g_mem_chunk_alloc(rpc_call_info_key_chunk);
+			*new_rpc_call_key = rpc_call_key;
+			rpc_call = g_mem_chunk_alloc(rpc_call_info_value_chunk);
+			rpc_call->req_num = pinfo->fd->num;
+			rpc_call->rep_num = 0;
+			rpc_call->prog = prog;
+			rpc_call->vers = vers;
+			rpc_call->proc = proc;
+			rpc_call->flavor = flavor;
+			rpc_call->gss_proc = gss_proc;
+			rpc_call->gss_svc = gss_svc;
+			rpc_call->proc_info = value;
 			/* store it */
-			rpc_call_insert(&rpc_call_msg);
+			g_hash_table_insert(rpc_calls, new_rpc_call_key,
+			    rpc_call);
 		}
 
 		offset += 16;
@@ -1359,9 +1344,9 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* go to the next dissector */
 
-	} /* end of RPC call */
-	else if (msg_type == RPC_REPLY)
-	{
+		break;	/* end of RPC call */
+
+	case RPC_REPLY:
 		/* we know already the type from the calling routine,
 		   and we already have "rpc_call" set above. */
 		prog = rpc_call->prog;
@@ -1533,7 +1518,15 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset += 4;
 			}
 		} 
-	} /* end of RPC reply */
+		break; /* end of RPC reply */
+
+	default:
+		/*
+		 * The switch statement at the top returned if
+		 * this was neither an RPC call nor a reply.
+		 */
+		g_assert_not_reached();
+	}
 
 	/* now we know, that RPC was shorter */
 	if (rpc_item) {
@@ -1613,9 +1606,22 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 rpc_init_protocol(void)
 {
-	memset(rpc_call_table, '\0', sizeof rpc_call_table);
-	rpc_call_index = 0;
-	rpc_call_firstfree = 0;
+	if (rpc_calls != NULL)
+		g_hash_table_destroy(rpc_calls);
+	if (rpc_call_info_key_chunk != NULL)
+		g_mem_chunk_destroy(rpc_call_info_key_chunk);
+	if (rpc_call_info_value_chunk != NULL)
+		g_mem_chunk_destroy(rpc_call_info_value_chunk);
+
+	rpc_calls = g_hash_table_new(rpc_call_hash, rpc_call_equal);
+	rpc_call_info_key_chunk = g_mem_chunk_new("call_info_key_chunk",
+	    sizeof(rpc_call_info_key),
+	    200 * sizeof(rpc_call_info_key),
+	    G_ALLOC_ONLY);
+	rpc_call_info_value_chunk = g_mem_chunk_new("call_info_value_chunk",
+	    sizeof(rpc_call_info_value),
+	    200 * sizeof(rpc_call_info_value),
+	    G_ALLOC_ONLY);
 }
 
 
