@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.240 2002/04/08 20:30:53 gram Exp $
+ * $Id: packet-smb.c,v 1.241 2002/04/09 23:56:57 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3215,7 +3215,7 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	COUNT_BYTES(2);
 
 	if (bc != 0) {
-		if( (si->sip->flags&SMB_SIF_TID_IS_IPC) && (ofs==0) ){
+		if( (si->sip && si->sip->flags&SMB_SIF_TID_IS_IPC) && (ofs==0) ){
 			/* dcerpc call */
 			offset = dissect_file_data_dcerpc(tvb, pinfo, tree,
 			    top_tree, offset, bc, bc, fid);
@@ -5086,7 +5086,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* file data */
 	if (bc != 0) {
-		if( (si->sip->flags&SMB_SIF_TID_IS_IPC) && (ofs==0) ){
+		if( (si->sip && si->sip->flags&SMB_SIF_TID_IS_IPC) && (ofs==0) ){
 			/* dcerpc call */
 			offset = dissect_file_data_dcerpc(tvb, pinfo, tree,
 			    top_tree, offset, bc, datalen, fid);
