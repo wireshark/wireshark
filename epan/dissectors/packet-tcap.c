@@ -63,6 +63,7 @@
 #include <epan/prefs.h>
 #include "asn1.h"
 #include "packet-tcap.h"
+#include "packet-ber.h"
 
 Tcap_Standard_Type tcap_standard = ITU_TCAP_STANDARD;
 
@@ -90,6 +91,7 @@ static int hf_tcap_tid = -1;
 static int hf_tcap_ssn = -1; /* faked */
 static int hf_tcap_dlg_type = -1;
 static int hf_tcap_int = -1;
+static int hf_tcap_oid = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_tcap = -1;
@@ -107,6 +109,7 @@ static gint ett_problem = -1;
 static gint ett_error = -1;
 static gint ett_params = -1;
 static gint ett_param = -1;
+static gint ett_para_portion = -1;
 
 static dissector_handle_t data_handle;
 static dissector_table_t tcap_itu_ssn_dissector_table; /* map use ssn in sccp */
@@ -1638,7 +1641,7 @@ dissect_tcap_dlg_protocol_version(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_i
 }
 
 static int
-dissect_tcap_dlg_application_context_name(ASN1_SCK *asn1, proto_tree *tcap_tree)
+dissect_tcap_dlg_application_context_name(ASN1_SCK *asn1, proto_tree *tcap_tree,packet_info *pinfo)
 {
     guint saved_offset = 0;
     guint name_len, len, len2;
@@ -1656,7 +1659,11 @@ dissect_tcap_dlg_application_context_name(ASN1_SCK *asn1, proto_tree *tcap_tree)
 
     saved_offset = asn1->offset;
     ret = asn1_oid_decode (asn1, &oid, &len, &len2);
+	/*
+	 * TODO Probbably more can be removed here but I'm uncertain about the lengths 
     proto_tree_add_bytes(tcap_tree, hf_tcap_app_con_name, asn1->tvb, saved_offset, len2, tvb_get_ptr(asn1->tvb, saved_offset, len2));
+	*/
+	asn1->offset = dissect_ber_object_identifier(FALSE, pinfo, tcap_tree, asn1->tvb, saved_offset, hf_tcap_oid, NULL);
     if (ret == ASN1_ERR_NOERROR) g_free(oid);
 
     if (!def_len)
@@ -1800,12 +1807,17 @@ dissect_tcap_dlg_result_src_diag(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static int
-dissect_tcap_dlg_user_info(ASN1_SCK *asn1, proto_tree *tree)
+dissect_tcap_dlg_user_info(ASN1_SCK *asn1, proto_tree *tree, packet_info *pinfo)
 {
     guint tag, len;
     guint saved_offset = 0;
     gboolean def_len;
     gboolean user_info_def_len;
+	int ret;
+	proto_item *para_item;
+	proto_tree *sub_tree;
+	char oid_str[64]; /*64 chars should be long enough? */
+	tvbuff_t *next_tvb;
 
 #define TC_USR_INFO_TAG 0xbe
     if (tcap_check_tag(asn1, TC_USR_INFO_TAG))
@@ -1824,8 +1836,23 @@ dissect_tcap_dlg_user_info(ASN1_SCK *asn1, proto_tree *tree)
 
 	    dissect_tcap_len(asn1, tree, &def_len, &len);
 	}
+	para_item = proto_tree_add_text(tree, asn1->tvb, asn1->offset, len, "Parameter Data");
+	sub_tree = proto_item_add_subtree(para_item, ett_para_portion);
+	asn1->offset = dissect_ber_object_identifier(FALSE, pinfo, sub_tree, asn1->tvb, asn1->offset, hf_tcap_oid, oid_str);
 
-	proto_tree_add_text(tree, asn1->tvb, asn1->offset, len, "Parameter Data");
+    saved_offset = asn1->offset;
+    ret = asn1_id_decode1(asn1, &tag);
+
+    proto_tree_add_uint_format(sub_tree, hf_tcap_tag, asn1->tvb,
+	saved_offset, asn1->offset - saved_offset, tag,
+	"Single-ASN.1-type Tag");
+	dissect_tcap_len(asn1, sub_tree, &def_len, &len);
+
+	next_tvb = tvb_new_subset(asn1->tvb, asn1->offset, len, len);
+
+	call_ber_oid_callback(oid_str, next_tvb,0, pinfo, sub_tree);
+
+
 	asn1->offset += len;
 
 	if (!user_info_def_len)
@@ -1839,7 +1866,7 @@ dissect_tcap_dlg_user_info(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static int
-dissect_tcap_dlg_req(ASN1_SCK *asn1, proto_tree *tcap_tree)
+dissect_tcap_dlg_req(ASN1_SCK *asn1, proto_tree *tcap_tree,packet_info *pinfo)
 {
     proto_tree *subtree;
     guint saved_offset = 0;
@@ -1861,9 +1888,9 @@ dissect_tcap_dlg_req(ASN1_SCK *asn1, proto_tree *tcap_tree)
 
     dissect_tcap_dlg_protocol_version(asn1, subtree, NULL);
 
-    dissect_tcap_dlg_application_context_name(asn1, subtree);
+    dissect_tcap_dlg_application_context_name(asn1, subtree, pinfo);
 
-    dissect_tcap_dlg_user_info(asn1, subtree);
+    dissect_tcap_dlg_user_info(asn1, subtree, pinfo);
 
     /* decode end of sequence */
 
@@ -1879,7 +1906,7 @@ dissect_tcap_dlg_req(ASN1_SCK *asn1, proto_tree *tcap_tree)
 }
 
 static int
-dissect_tcap_dlg_rsp(ASN1_SCK *asn1, proto_tree *tcap_tree)
+dissect_tcap_dlg_rsp(ASN1_SCK *asn1, proto_tree *tcap_tree, packet_info *pinfo)
 {
     proto_tree *subtree;
     guint saved_offset = 0;
@@ -1901,7 +1928,7 @@ dissect_tcap_dlg_rsp(ASN1_SCK *asn1, proto_tree *tcap_tree)
 
     dissect_tcap_dlg_protocol_version(asn1, subtree, NULL);
 
-    dissect_tcap_dlg_application_context_name(asn1, subtree);
+    dissect_tcap_dlg_application_context_name(asn1, subtree, pinfo);
 
     /* result */
     dissect_tcap_dlg_result(asn1, subtree);
@@ -1909,7 +1936,7 @@ dissect_tcap_dlg_rsp(ASN1_SCK *asn1, proto_tree *tcap_tree)
     /* result source diag */
     dissect_tcap_dlg_result_src_diag(asn1, subtree);
 
-    dissect_tcap_dlg_user_info(asn1, subtree);
+    dissect_tcap_dlg_user_info(asn1, subtree, pinfo);
 
     if (!def_len)
     {
@@ -1923,7 +1950,7 @@ dissect_tcap_dlg_rsp(ASN1_SCK *asn1, proto_tree *tcap_tree)
 }
 
 static int
-dissect_tcap_dlg_abrt(ASN1_SCK *asn1, proto_tree *tree)
+dissect_tcap_dlg_abrt(ASN1_SCK *asn1, proto_tree *tree, packet_info *pinfo)
 {
     proto_tree *subtree;
     guint saved_offset = 0;
@@ -1961,7 +1988,7 @@ dissect_tcap_dlg_abrt(ASN1_SCK *asn1, proto_tree *tree)
     proto_tree_add_int_format(subtree, hf_tcap_int, asn1->tvb, saved_offset, asn1->offset - saved_offset,
 	value, "Abort Source: %s %d", str, value);
 
-    dissect_tcap_dlg_user_info(asn1, subtree);
+    dissect_tcap_dlg_user_info(asn1, subtree, pinfo);
 
     if (!abort_def_len)
     {
@@ -1973,7 +2000,7 @@ dissect_tcap_dlg_abrt(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static int
-dissect_tcap_dialog_portion(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti)
+dissect_tcap_dialog_portion(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti,packet_info *pinfo)
 {
     proto_tree *subtree;
     guint saved_offset = 0;
@@ -2044,7 +2071,9 @@ dissect_tcap_dialog_portion(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *t
 	proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb,
 	    saved_offset, asn1->offset - saved_offset, tag,
 	    "Object Identifier Tag");
-
+	
+	asn1->offset = dissect_ber_object_identifier(FALSE, pinfo, subtree, asn1->tvb, saved_offset, hf_tcap_oid, NULL);
+	/*
 	dissect_tcap_len(asn1, subtree, &def_len, &len);
 
 	saved_offset = asn1->offset;
@@ -2053,6 +2082,7 @@ dissect_tcap_dialog_portion(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *t
 		(guchar*)(tvb_get_ptr(asn1->tvb, saved_offset, len)));
 
 	asn1->offset += len;
+	*/
     }
 
     saved_offset = asn1->offset;
@@ -2074,13 +2104,13 @@ dissect_tcap_dialog_portion(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *t
     switch(tag)
     {
     case TC_DLG_REQ:
-	dissect_tcap_dlg_req(asn1, subtree);
+	dissect_tcap_dlg_req(asn1, subtree, pinfo);
 	break;
     case TC_DLG_RSP:
-	dissect_tcap_dlg_rsp(asn1, subtree);
+	dissect_tcap_dlg_rsp(asn1, subtree, pinfo);
 	break;
     case TC_DLG_ABRT:
-	dissect_tcap_dlg_abrt(asn1, subtree);
+	dissect_tcap_dlg_abrt(asn1, subtree, pinfo);
 	break;
     default:
 	break;
@@ -2162,59 +2192,59 @@ dissect_tcap_abort_reason(ASN1_SCK *asn1, proto_tree *tcap_tree)
 /* dissect each type of message */
 
 static void
-dissect_tcap_unidirectional(ASN1_SCK *asn1, proto_tree *tcap_tree)
+dissect_tcap_unidirectional(ASN1_SCK *asn1, proto_tree *tcap_tree, packet_info *pinfo)
 {
 
-    dissect_tcap_dialog_portion(asn1, tcap_tree, NULL);
+    dissect_tcap_dialog_portion(asn1, tcap_tree, NULL, pinfo);
 
     dissect_tcap_components(asn1, tcap_tree);
 }
 
 static void
-dissect_tcap_begin(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti)
+dissect_tcap_begin(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti, packet_info *pinfo)
 {
 
     dissect_tcap_tid(asn1, tcap_tree, ti, ST_TID_SOURCE);
 
-    dissect_tcap_dialog_portion(asn1, tcap_tree, NULL);
+    dissect_tcap_dialog_portion(asn1, tcap_tree, NULL,pinfo);
 
     dissect_tcap_components(asn1, tcap_tree);
 }
 
 static void
-dissect_tcap_continue(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti)
+dissect_tcap_continue(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti, packet_info *pinfo)
 {
 
     dissect_tcap_tid(asn1, tcap_tree, ti, ST_TID_SOURCE);
 
     dissect_tcap_tid(asn1, tcap_tree, ti, ST_TID_DEST);
 
-    dissect_tcap_dialog_portion(asn1, tcap_tree, NULL);
+    dissect_tcap_dialog_portion(asn1, tcap_tree, NULL, pinfo);
 
     dissect_tcap_components(asn1, tcap_tree);
 
 }
 
 static void
-dissect_tcap_end(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti)
+dissect_tcap_end(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti,packet_info *pinfo)
 {
 
     dissect_tcap_tid(asn1, tcap_tree, ti, ST_TID_DEST);
 
-    dissect_tcap_dialog_portion(asn1, tcap_tree, NULL);
+    dissect_tcap_dialog_portion(asn1, tcap_tree, NULL, pinfo);
 
     dissect_tcap_components(asn1, tcap_tree);
 }
 
 static void
-dissect_tcap_abort(ASN1_SCK *asn1, proto_tree *tree, proto_item *ti)
+dissect_tcap_abort(ASN1_SCK *asn1, proto_tree *tree, proto_item *ti, packet_info *pinfo)
 {
 
     dissect_tcap_tid(asn1, tree, ti, ST_TID_DEST);
 
     dissect_tcap_abort_reason(asn1, tree);
 
-    dissect_tcap_dialog_portion(asn1, tree, NULL);
+    dissect_tcap_dialog_portion(asn1, tree, NULL, pinfo);
 }
 
 /* Samuel */
@@ -2258,19 +2288,19 @@ dissect_tcap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tcap_tree)
     switch(msg_type_tag)
     {
     case ST_MSG_TYP_UNI:
-	dissect_tcap_unidirectional(&asn1, tcap_tree);
+	dissect_tcap_unidirectional(&asn1, tcap_tree, pinfo);
 	break;
     case ST_MSG_TYP_BGN:
-	dissect_tcap_begin(&asn1, tcap_tree, ti);
+	dissect_tcap_begin(&asn1, tcap_tree, ti, pinfo);
 	break;
     case ST_MSG_TYP_CNT:
-	dissect_tcap_continue(&asn1, tcap_tree, ti);
+	dissect_tcap_continue(&asn1, tcap_tree, ti, pinfo);
 	break;
     case ST_MSG_TYP_END:
-	dissect_tcap_end(&asn1, tcap_tree, ti);
+	dissect_tcap_end(&asn1, tcap_tree, ti, pinfo);
 	break;
     case ST_MSG_TYP_PABT:
-	dissect_tcap_abort(&asn1, tcap_tree, ti);
+	dissect_tcap_abort(&asn1, tcap_tree, ti, pinfo);
 	break;
     default:
 	proto_tree_add_text(tcap_tree, asn1.tvb, offset, -1,
@@ -2818,6 +2848,11 @@ proto_register_tcap(void)
 		FT_INT32, BASE_DEC, 0, 0,
 		"", HFILL }
 	},
+	{ &hf_tcap_oid,
+		{ "OID", "tcap.oid",
+		FT_STRING, BASE_NONE, 0, 0,
+		"", HFILL }
+	},
     };
 
 /* Setup protocol subtree array */
@@ -2836,6 +2871,7 @@ proto_register_tcap(void)
 	&ett_problem,
 	&ett_params,
 	&ett_param,
+	&ett_para_portion,
     };
 
     static enum_val_t tcap_options[] = {
@@ -2920,5 +2956,7 @@ proto_reg_handoff_tcap(void)
     ssn_range = range_copy(global_ssn_range);
 
     range_foreach(ssn_range, range_add_callback);
+	register_ber_oid_name("0.0.17.773.1.1.1",
+		"itu-t(0) recommendation(0) q(17) 773 as(1) dialogue-as(1) version1(1)");
 
 }
