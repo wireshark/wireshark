@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<dialog
+  id="find-packet-dialog"
+  title="Ethereal: Find Packet"
+  >
+
+  <vbox>
+    <groupbox>
+      <caption>Find</caption>
+      <vbox>
+        <hbox>
+          <description>By:</description>
+	  <radiogroup orient="horizontal">
+	    <radio 
+	      label="Display filter"
+	      id="find-packet.by.display-filter"
+	      oncommand="find_dlg_by_toggle"
+	    />
+	    <radio 
+	      label="Hex value"
+	      id="find-packet.by.hex-value"
+	      oncommand="find_dlg_by_toggle"
+	    />
+	    <radio 
+	      label="String"
+	      id="find-packet.by.string"
+	      oncommand="find_dlg_by_toggle"
+	    />
+	  </radiogroup>
+	</hbox>
+	<hbox>
+	  <button
+	    id="find-packet.filter"
+	    label="Filter:"
+	    oncommand="find_dlg_filter"
+	  />
+	  <textbox flex="1" id="find-packet.find-string" />
+	</hbox>
+      </vbox>
+    </groupbox>
+    <hbox>
+      <groupbox>
+	<caption>Search In</caption>
+	<radiogroup>
+	  <radio 
+	    label="Packet list"
+	    id="find-packet.search-in.packet-list"
+	  />
+	  <radio 
+	    label="Packet details"
+	    id="find-packet.search-in.packet-details"
+	  />
+	  <radio 
+	    label="Packet bytes"
+	    id="find-packet.search-in.packet-bytes"
+	  />
+	</radiogroup>
+      </groupbox>
+      <groupbox>
+	<caption>String Options</caption>
+	<checkbox
+	  label="Case sensitive"
+	  id="find-packet.string-options.case-sensitive"
+	  oncommand="win32_checkbox_toggle_attached_data"
+	/>
+	<description>Character set:</description>
+	<menulist id="find-packet.string-options.char-set">
+	  <menupopup>
+	    <menuitem label="ASCII Unicode &amp; Non-Unicode" />
+	    <menuitem label="ASCII Non-Unicode" />
+	    <menuitem label="ASCII Unicode" />
+	  </menupopup>
+	</menulist>
+      </groupbox>
+      <groupbox>
+	<caption>Direction</caption>
+	<radiogroup>
+	  <radio 
+	    label="Up"
+	    id="find-packet.direction.up"
+	  />
+	  <radio 
+	    label="Down"
+	    id="find-packet.direction.down"
+	  />
+	</radiogroup>
+      </groupbox>
+    </hbox>
+    <hbox>
+      <spacer flex="1" />
+      <button
+        id="find-packet.find"
+        label="Find"
+        default="True"
+        oncommand="find_dlg_find"
+       />
+      <button
+        id="find-packet.cancel"
+        label="Cancel"
+        oncommand="find_dlg_cancel"
+       />
+    </hbox>
+  </vbox>
+</dialog>
