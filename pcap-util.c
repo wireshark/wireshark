@@ -50,6 +50,11 @@
 #include "pcap-util.h"
 #include "pcap-util-int.h"
 
+#ifndef WIN32
+#include <netinet/in.h>
+#endif
+
+
 /*
  * Get the data-link type for a libpcap device.
  * This works around AIX 5.x's non-standard and incompatible-with-the-
@@ -184,8 +189,40 @@ if_info_new(char *name, char *description)
 		if_info->description = NULL;
 	else
 		if_info->description = g_strdup(description);
+    if_info->ip_addr = NULL;
+    if_info->loopback = FALSE;
 	return if_info;
 }
+
+
+/* get all ip address information from the given interface */
+static void if_info_ip(if_info_t *if_info, pcap_if_t *d)
+{
+  pcap_addr_t *a;
+  guint32       *ip_addr;
+
+  /* Loopback interface */
+  if_info->loopback = (d->flags & PCAP_IF_LOOPBACK) ? TRUE : FALSE;
+
+  /* All addresses */
+  for(a=d->addresses;a;a=a->next) {
+    switch(a->addr->sa_family)
+    {
+      /* IPv4 address */
+      case AF_INET:
+        if (a->addr) {
+	      struct sockaddr_in *ai = ((struct sockaddr_in *)(a->addr));
+          ip_addr = g_malloc(sizeof(*ip_addr));
+          *ip_addr = *((guint32 *)&(ai->sin_addr.s_addr));
+          if_info->ip_addr = g_slist_append(if_info->ip_addr, ip_addr);
+        }
+        break;
+      default:
+        break;
+    }
+  }
+}
+
 
 #ifdef HAVE_PCAP_FINDALLDEVS
 GList *
@@ -211,12 +248,19 @@ get_interface_list_findalldevs(int *err, char *err_str)
 	for (dev = alldevs; dev != NULL; dev = dev->next) {
 		if_info = if_info_new(dev->name, dev->description);
 		il = g_list_append(il, if_info);
+		if_info_ip(if_info, dev);
 	}
 	pcap_freealldevs(alldevs);
 
 	return il;
 }
 #endif /* HAVE_PCAP_FINDALLDEVS */
+
+static void
+free_if_info_addr_cb(gpointer addr, gpointer user_data _U_)
+{
+    g_free(addr);
+}
 
 static void
 free_if_cb(gpointer data, gpointer user_data _U_)
@@ -226,6 +270,9 @@ free_if_cb(gpointer data, gpointer user_data _U_)
 	g_free(if_info->name);
 	if (if_info->description != NULL)
 		g_free(if_info->description);
+
+    g_slist_foreach(if_info->ip_addr, free_if_info_addr_cb, NULL);
+    g_slist_free(if_info->ip_addr);
 }
 
 void

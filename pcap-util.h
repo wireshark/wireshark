@@ -50,6 +50,8 @@ extern "C" {
 typedef struct {
 	char	*name;
 	char	*description;
+    GSList  *ip_addr;       /* containing guint32 values */
+    gboolean loopback;
 } if_info_t;
 
 GList *get_interface_list(int *err, char *err_str);
