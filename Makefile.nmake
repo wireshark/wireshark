@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: nmake -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.55 2000/10/11 07:35:00 guy Exp $
+# $Id: Makefile.nmake,v 1.56 2000/10/14 03:20:55 gram Exp $
 
 include config.nmake
 
@@ -198,18 +198,18 @@ ethereal_LIBS= wiretap\libwtap.lib gtk\libui.lib epan\libepan.lib \
 	$(GTK_DIR)\gtk\gtk-$(GTK_VERSION).lib \
 	$(GTK_DIR)\gdk\gdk-$(GTK_VERSION).lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
-	$(GLIB_DIR)\gmodule-$(GLIB_VERSION).lib \
+	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib \
 	$(PCAP_DIR)\lib\libpcap.lib
 
 tethereal_LIBS= wiretap\libwtap.lib epan\libepan.lib \
 	wsock32.lib user32.lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
-	$(GLIB_DIR)\gmodule-$(GLIB_VERSION).lib \
+	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib \
 	$(PCAP_DIR)\lib\libpcap.lib
 
 editcap_LIBS= wiretap\libwtap.lib wsock32.lib user32.lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
-	$(GLIB_DIR)\gmodule-$(GLIB_VERSION).lib
+	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib
 
 EXECUTABLES=ethereal.exe tethereal.exe editcap.exe
 
