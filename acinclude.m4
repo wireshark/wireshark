@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.55 2003/08/21 07:13:54 guy Exp $
+dnl $Id: acinclude.m4,v 1.56 2003/08/31 22:08:57 sharpe Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -556,26 +556,30 @@ AC_DEFUN(AC_ETHEREAL_UCDSNMP_CHECK,
 		    # Throw away the cached "we didn't find it" answer.
 		    #
 		    unset ac_cv_lib_snmp_sprint_realloc_objid
-		    AC_CHECK_LIB(snmp, sprint_realloc_objid,
-		      [
-			#
-			# Throw away the cached "we found it" answer, so
-			# that if we rerun "configure", we don't just blow
-			# off this check and blithely assume that we don't
-			# need "-lkstat".
-			#
-			# XXX - autoconf really needs a way to test for
-			# a given routine in a given library *and* to test
-			# whether additional "-L"/"-R"/whatever flags are
-			# needed *before* the "-l" flag for the library
-			# and to test whether additional libraries are
-			# needed after the library *and* to cache all that
-			# information.
-			#
-			unset ac_cv_lib_snmp_sprint_realloc_objid
-			SNMP_LIBS="-lsnmp -lkstat"
-		      ],,$SOCKET_LIBS $NSL_LIBS $SSL_LIBS -lkstat
-		    )
+                    AC_CHECK_LIB(snmp, sprint_realloc_objid,
+                      SNMP_LIBS="-lsnmp -L/usr/kerberos/lib -ldes425",
+		      AC_CHECK_LIB(snmp, sprint_realloc_objid,
+		        [
+			  #
+			  # Throw away the cached "we found it" answer, so
+			  # that if we rerun "configure", we don't just blow
+			  # off this check and blithely assume that we don't
+			  # need "-lkstat".
+			  #
+			  # XXX - autoconf really needs a way to test for
+			  # a given routine in a given library *and* to test
+			  # whether additional "-L"/"-R"/whatever flags are
+			  # needed *before* the "-l" flag for the library
+			  # and to test whether additional libraries are
+			  # needed after the library *and* to cache all that
+			  # information.
+			  #
+			  unset ac_cv_lib_snmp_sprint_realloc_objid
+			  SNMP_LIBS="-lsnmp -lkstat"
+		        ],,$SOCKET_LIBS $NSL_LIBS $SSL_LIBS -lkstat
+		      ),
+                    $SOCKET_LIBS $NSL_LIBS $SSL_LIBS -L/usr/kerberos/lib -ldes425
+                    )
 		  ], $SOCKET_LIBS $NSL_LIBS $SSL_LIBS
 		)
 
