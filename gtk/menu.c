@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.84 2003/03/06 20:35:12 sahlberg Exp $
+ * $Id: menu.c,v 1.85 2003/03/06 21:21:43 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -219,8 +219,6 @@ static GtkItemFactoryEntry menu_items[] =
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Tools/_Decode As...", NULL, decode_as_cb,
                        0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Tools/_RTP analysis...", NULL, rtp_analyse_cb,
-                       0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Tools/_Go To Corresponding Frame", NULL, goto_framenum_cb,
                        0, NULL, NULL),
 /*  {"/Tools/Graph", NULL, NULL, 0, NULL}, future use */
@@ -255,6 +253,8 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Tools/Statistics/SMB", NULL, NULL, 0, "<Branch>",
                        NULL),
     ITEM_FACTORY_ENTRY("/Tools/Statistics/SMB/RTT", NULL, gtk_smbstat_cb,
+                       0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Tools/Statistics/RTP Analysis...", NULL, rtp_analyse_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<LastBranch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/_Help", NULL, help_cb, 0, GTK_STOCK_HELP),
