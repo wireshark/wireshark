@@ -18,7 +18,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.63 2004/04/03 22:33:45 etxrab Exp $
+ * $Id: packet-sip.c,v 1.64 2004/04/14 04:45:10 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -181,10 +181,10 @@ static const sip_header_t sip_headers[] = {
                 { "Path",                       NULL },  /*  RFC3327  */
                 { "Privacy",                    NULL },  /*  RFC3323  */
                 { "Reason",                     NULL },  /*  RFC3326  */
-                { "Refer-To",             	"r"  },  /*  RFC3515  */
-                { "Service-Route",              NULL },  /*  RFC3608  */
-                { "ETag",		        NULL },  /*  draft-ietf-sip-publish-01  */
-                { "If-Match",	                NULL },  /*  draft-ietf-sip-publish-01  */
+                { "Refer-To",					"r"  },  /*  RFC3515  */
+                { "Service-Route",				NULL },  /*  RFC3608  */
+                { "SIP-ETag",					NULL },  /*  draft-ietf-sip-publish-03  */
+                { "SIP-If-Match",				NULL },  /*  draft-ietf-sip-publish-03  */
 
 };
 
@@ -258,8 +258,8 @@ static const sip_header_t sip_headers[] = {
 #define POS_REASON                      66
 #define POS_REFER_TO                    67
 #define POS_SERVICE_ROUTE               68
-#define POS_ETAG		        69
-#define POS_IF_MATCH	                70
+#define POS_SIP_ETAG					69
+#define POS_SIP_IF_MATCH				70
 
 static gint hf_header_array[] = {
 		-1, /* "Unknown-header" - Pad so that the real headers start at index 1 */
@@ -535,6 +535,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
                 gint line_end_offset;
                 gint colon_offset;
+                gint semi_colon_offset;
                 gint parameter_offset;
 		gint content_type_len, content_type_parameter_str_len;
                 gint header_len;
@@ -744,19 +745,20 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						    tvb_format_text(tvb, offset, linelen));
 					}
 					content_type_len = value_len;
-					parameter_offset = tvb_find_guint8(tvb, value_offset,linelen, ';');
-					if ( parameter_offset != -1) {
-					/*
-					 * Skip whitespace after the semicolon.
-					 */
-					while (parameter_offset < line_end_offset
+					semi_colon_offset = tvb_find_guint8(tvb, value_offset,linelen, ';');
+					if ( semi_colon_offset != -1) {
+						parameter_offset = semi_colon_offset +1;
+						/*
+						 * Skip whitespace after the semicolon.
+						 */
+						while (parameter_offset < line_end_offset
 					    && ((c = tvb_get_guint8(tvb,
-						    value_offset)) == ' '
+						    parameter_offset)) == ' '
 					      || c == '\t'))
 						parameter_offset++;
-						content_type_len = parameter_offset - value_offset;
-						content_type_parameter_str_len = line_end_offset - (parameter_offset + 1);
-						content_type_parameter_str = tvb_get_string(tvb, parameter_offset + 1,
+						content_type_len = semi_colon_offset - value_offset;
+						content_type_parameter_str_len = line_end_offset - parameter_offset;
+						content_type_parameter_str = tvb_get_string(tvb, parameter_offset,
 								content_type_parameter_str_len);
 					}
 					media_type_str = tvb_get_string(tvb, value_offset, content_type_len);
@@ -1510,15 +1512,15 @@ void proto_register_sip(void)
 			"Service-Route Header", HFILL }
 		},
 
-		{ &hf_header_array[POS_ETAG],
+		{ &hf_header_array[POS_SIP_ETAG],
 		       { "ETag", 		"sip.ETag",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"ETag Header", HFILL }
+			"SIP-ETag Header", HFILL }
 		},
-		{ &hf_header_array[POS_IF_MATCH],
+		{ &hf_header_array[POS_SIP_IF_MATCH],
 		       { "If_Match", 		"sip.If_Match",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"If-Match Header", HFILL }
+			"SIP-If-Match Header", HFILL }
 		},
         };
 
