@@ -1,7 +1,7 @@
 /* gtkpacket.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.8 1999/12/12 05:11:57 gram Exp $
+ * $Id: proto_draw.c,v 1.9 1999/12/14 06:52:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,7 +50,6 @@
 #define BYTE_VIEW_WIDTH    16
 #define BYTE_VIEW_SEP      8
 
-extern GtkWidget    *byte_view;
 extern GdkFont      *m_r_font, *m_b_font;
 
 static void
@@ -62,7 +61,7 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
   gint     i = 0, j, k, cur;
   gchar    line[128], hexchars[] = "0123456789abcdef", c = '\0';
   GdkFont *cur_font, *new_font;
-  gint	   bend = bstart + blen;
+  gint	   bend = -1;
 
   /* Freeze the text for faster display */
   gtk_text_freeze(bv);
@@ -70,6 +69,10 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
   /* Clear out the text */
   gtk_text_set_point(bv, 0);
   gtk_text_forward_delete(bv, gtk_text_get_length(bv));
+
+  if (bstart >= 0 && blen >= 0) {
+	  bend = bstart + blen;
+  }
 
   while (i < len) {
     /* Print the line number */
@@ -141,7 +144,8 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
   /* scroll text into position */
   gtk_text_thaw(bv); /* must thaw before adjusting scroll bars */
   if ( bstart > 0 ) {
-    int lineheight,linenum,scrollval;
+    int lineheight, linenum;
+    float scrollval;
     linenum = bstart / BYTE_VIEW_WIDTH;
 
     /* need to change to some way of getting that offset instead of +4 */
