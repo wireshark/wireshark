@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.65 2002/11/09 08:37:00 guy Exp $
+$Id: README.developer,v 1.66 2002/12/09 03:09:35 gerald Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -158,7 +158,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.65 2002/11/09 08:37:00 guy Exp $"
+The "$Id: README.developer,v 1.66 2002/12/09 03:09:35 gerald Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -168,7 +168,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.65 2002/11/09 08:37:00 guy Exp $
+ * $Id: README.developer,v 1.66 2002/12/09 03:09:35 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1185,7 +1185,7 @@ The code to add the FID to the tree would be;
 
 The definition of the field already has the information about bitmasking
 and bitshifting, so it does the work of masking and shifting for us!
-This also means that you no longer have to crate value_string structs
+This also means that you no longer have to create value_string structs
 with the values bitshifted.  The value_string for FID looks like this,
 even though the FID value is actually contained in the high nibble. 
 (You'd expect the values to be 0x0, 0x10, 0x20, etc.)
