@@ -177,6 +177,12 @@ allows a filter to be specified; when the capture file is read, the
 filter is applied to all packets read from the file, and packets not
 matching the filter are discarded.
 
+=item File:Save, File:Save As
+
+Save the current capture, or the packets currently displayed from that
+capture, to a file.  A check box lets you select whether to save all
+packets, or just those that have passed the current display filter.
+
 =item File:Print
 
 Prints, for all the packets in the current capture, the packet number,
@@ -217,9 +223,12 @@ live capture is in progress.
 =item Display:Match Selected
 
 Creates and applies a display filter based on the data that is currently
-highlighted in the protocol tree. The display filter is based on absolute
-offset within the packet, so could be unreliable if the packet contains
-protocols with variable-length headers, like source-routed token-ring.
+highlighted in the protocol tree.  If that data is a field that can be
+tested in a display filter expression, the display filter will test that
+field; otherwise, the display filter will be based on absolute offset
+within the packet, and so could be unreliable if the packet contains
+protocols with variable-length headers, such as a source-routed
+token-ring packet.
 
 =item Display:Colorize Display
 

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.56 1999/11/30 05:33:05 guy Exp $
+ * $Id: main.c,v 1.57 1999/11/30 20:50:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -796,11 +796,10 @@ void expand_all_cb(GtkWidget *widget, gpointer data) {
 
 void
 file_quit_cmd_cb (GtkWidget *widget, gpointer data) {
-  /* If we have a save file, and it's a temporary file (i.e., the user
-     hasn't explicitly saved it), delete it. */
-  if (cf.save_file && !cf.user_saved) {
-	unlink(cf.save_file);
-  }
+  /* If we have a capture file open, and it's a temporary file,
+     unlink it. */
+  if (cf.filename != NULL && cf.is_tempfile)
+	unlink(cf.filename);
   gtk_exit(0);
 }
 
@@ -922,6 +921,9 @@ main(int argc, char *argv[])
   cf.plist_end		= NULL;
   cf.wth		= NULL;
   cf.fh			= NULL;
+  cf.filename		= NULL;
+  cf.user_saved		= FALSE;
+  cf.is_tempfile	= FALSE;
   cf.rfcode		= NULL;
   cf.dfilter		= NULL;
   cf.dfcode		= NULL;
@@ -931,7 +933,6 @@ main(int argc, char *argv[])
   cf.iface		= NULL;
   cf.save_file		= NULL;
   cf.save_file_fd	= -1;
-  cf.user_saved		= 0;
   cf.snap		= WTAP_MAX_PACKET_SIZE;
   cf.count		= 0;
   cf.cinfo.num_cols	= prefs->num_cols;
@@ -1029,7 +1030,7 @@ main(int argc, char *argv[])
         break;
 #endif
       case 'r':        /* Read capture file xxx */
-        cf_name = g_strdup(optarg);
+        cf_name = optarg;
         break;
       case 'R':        /* Read file filter */
         rfilter = optarg;
@@ -1326,7 +1327,7 @@ main(int argc, char *argv[])
         }
       }
       if (!rfilter_parse_failed) {
-        if ((err = open_cap_file(cf_name, &cf)) == 0) {
+        if ((err = open_cap_file(cf_name, FALSE, &cf)) == 0) {
           /* "open_cap_file()" succeeded, so it closed the previous
 	     capture file, and thus destroyed any previous read filter
 	     attached to "cf". */
@@ -1337,7 +1338,6 @@ main(int argc, char *argv[])
             last_open_dir = cf_name;
             *s = '\0';
           }
-          set_menu_sensitivity("/File/Save As...", TRUE);
         } else {
           dfilter_destroy(rfcode);
           cf.rfcode = NULL;

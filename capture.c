@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.83 1999/11/29 01:54:00 guy Exp $
+ * $Id: capture.c,v 1.84 1999/11/30 20:49:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -120,7 +120,7 @@ void
 do_capture(char *capfile_name)
 {
   char tmpname[128+1];
-  gboolean is_temp_file;
+  gboolean is_tempfile;
   u_char c;
   int i;
   guint byte_count;
@@ -131,12 +131,12 @@ do_capture(char *capfile_name)
   if (capfile_name != NULL) {
     /* Try to open/create the specified file for use as a capture buffer. */
     cf.save_file_fd = open(capfile_name, O_RDWR|O_TRUNC|O_CREAT, 0600);
-    is_temp_file = FALSE;
+    is_tempfile = FALSE;
   } else {
     /* Choose a random name for the capture buffer */
     cf.save_file_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
     capfile_name = g_strdup(tmpname);
-    is_temp_file = TRUE;
+    is_tempfile = TRUE;
   }
   if (cf.save_file_fd == -1) {
     simple_dialog(ESD_TYPE_WARN, NULL,
@@ -144,15 +144,9 @@ do_capture(char *capfile_name)
 	"could not be opened: %s.", capfile_name, strerror(errno));
     return;
   }
-  close_cap_file(&cf, info_bar, file_ctx);
-  if (cf.save_file != NULL) {
-    /* If the current file is a temporary capture file, remove it. */
-    if (!cf.user_saved)
-      unlink(cf.save_file); /* silently ignore error */
-    g_free(cf.save_file);
-  }
+  close_cap_file(&cf, info_bar);
+  g_assert(cf.save_file == NULL);
   cf.save_file = capfile_name;
-  cf.user_saved = !is_temp_file;
 
   if (sync_mode) {	/*  use fork() for capture */
     int  fork_child;
@@ -192,7 +186,6 @@ do_capture(char *capfile_name)
     } else {
       /* Parent process - read messages from the child process over the
          sync pipe. */
-      cf.filename = cf.save_file;
       close(sync_pipe[1]);
 
       /* Read a byte count from "sync_pipe[0]", terminated with a
@@ -210,6 +203,7 @@ do_capture(char *capfile_name)
 	     XXX - reap the child process and report the status in detail. */
 	  close(sync_pipe[0]);
 	  unlink(cf.save_file);
+	  g_free(cf.save_file);
 	  cf.save_file = NULL;
 	  simple_dialog(ESD_TYPE_WARN, NULL, "Capture child process died");
 	  return;
@@ -222,6 +216,7 @@ do_capture(char *capfile_name)
 	     and report the failure. */
 	  close(sync_pipe[0]);
 	  unlink(cf.save_file);
+	  g_free(cf.save_file);
 	  cf.save_file = NULL;
 	  simple_dialog(ESD_TYPE_WARN, NULL,
 	     "Capture child process sent us a bad message");
@@ -231,7 +226,7 @@ do_capture(char *capfile_name)
       }
       if (byte_count == 0) {
 	/* Success.  Open the capture file, and set up to read it. */
-	err = start_tail_cap_file(cf.save_file, &cf);
+	err = start_tail_cap_file(cf.save_file, is_tempfile, &cf);
 	if (err == 0) {
 	  /* We were able to open and set up to read the capture file;
 	     arrange that our callback be called whenever it's possible
@@ -254,6 +249,7 @@ do_capture(char *capfile_name)
 
 	  /* Don't unlink the save file - leave it around, for debugging
 	     purposes. */
+	  g_free(cf.save_file);
 	  cf.save_file = NULL;
 	}
       } else {
@@ -281,6 +277,7 @@ do_capture(char *capfile_name)
 
 	  /* Get rid of the save file - the capture never started. */
 	  unlink(cf.save_file);
+	  g_free(cf.save_file);
 	  cf.save_file = NULL;
 	}
       }
@@ -294,14 +291,16 @@ do_capture(char *capfile_name)
     }
     if (capture_succeeded) {
       /* Capture succeeded; read in the capture file. */
-      if ((err = open_cap_file(cf.save_file, &cf)) == 0) {
+      if ((err = open_cap_file(cf.save_file, is_tempfile, &cf)) == 0) {
         /* Set the read filter to NULL. */
         cf.rfcode = NULL;
         err = read_cap_file(&cf);
-        set_menu_sensitivity("/File/Save", TRUE);
-        set_menu_sensitivity("/File/Save As...", FALSE);
       }
     }
+    /* We're not doing a capture any more, so we don't have a save
+       file. */
+    g_free(cf.save_file);
+    cf.save_file = NULL;
   }
 }
 
@@ -432,6 +431,12 @@ cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
     /* Read what remains of the capture file, and finish the capture.
        XXX - do something if this fails? */
     err = finish_tail_cap_file(cf);
+
+    /* We're not doing a capture any more, so we don't have a save
+       file. */
+    g_free(cf->save_file);
+    cf->save_file = NULL;
+
     return;
   }
 
@@ -738,6 +743,8 @@ error:
   /* We couldn't even start the capture, so get rid of the capture
      file. */
   unlink(cf.save_file); /* silently ignore error */
+  g_free(cf.save_file);
+  cf.save_file = NULL;
   if (capture_child) {
     /* This is the child process for a sync mode capture.
        Send the error message to our parent, so they can display a

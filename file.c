@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.127 1999/11/30 07:27:36 guy Exp $
+ * $Id: file.c,v 1.128 1999/11/30 20:49:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -108,11 +108,15 @@ static void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, int,
 static void freeze_clist(capture_file *cf);
 static void thaw_clist(capture_file *cf);
 
+static char *file_rename_error_message(int err);
+static char *file_close_error_message(int err);
+
 /* Update the progress bar this many times when reading a file. */
 #define N_PROGBAR_UPDATES	100
 
 int
-open_cap_file(char *fname, capture_file *cf) {
+open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
+{
   wtap       *wth;
   int         err;
   FILE_T      fh;
@@ -134,7 +138,7 @@ open_cap_file(char *fname, capture_file *cf) {
 
   /* The open succeeded.  Close whatever capture file we had open,
      and fill in the information for this file. */
-  close_cap_file(cf, info_bar, file_ctx);
+  close_cap_file(cf, info_bar);
 
   /* Initialize the table of conversations. */
   conversation_init();
@@ -147,11 +151,20 @@ open_cap_file(char *fname, capture_file *cf) {
   cf->filed = fd;
   cf->f_len = cf_stat.st_size;
 
-  /* set the file name because we need it to set the follow stream filter */
+  /* Set the file name because we need it to set the follow stream filter.
+     XXX - is that still true?  We need it for other reasons, though,
+     in any case. */
   cf->filename = g_strdup(fname);
+
+  /* Indicate whether it's a permanent or temporary file. */
+  cf->is_tempfile = is_tempfile;
+
+  /* If it's a temporary capture buffer file, mark it as not saved. */
+  cf->user_saved = !is_tempfile;
 
   cf->cd_t      = wtap_file_type(cf->wth);
   cf->cd_t_desc = wtap_file_type_string(cf->wth);
+  cf->first_packet = TRUE;
   cf->count     = 0;
   cf->drops     = 0;
   cf->esec      = 0;
@@ -173,7 +186,8 @@ fail:
 
 /* Reset everything to a pristine state */
 void
-close_cap_file(capture_file *cf, void *w, guint context) {
+close_cap_file(capture_file *cf, void *w)
+{
   frame_data *fd, *fd_next;
 
   if (cf->fh) {
@@ -184,6 +198,17 @@ close_cap_file(capture_file *cf, void *w, guint context) {
     wtap_close(cf->wth);
     cf->wth = NULL;
   }
+  /* We have no file open... */
+  if (cf->filename != NULL) {
+    /* If it's a temporary file, remove it. */
+    if (cf->is_tempfile)
+      unlink(cf->filename);
+    g_free(cf->filename);
+    cf->filename = NULL;
+  }
+  /* ...which means we have nothing to save. */
+  cf->user_saved = FALSE;
+
   for (fd = cf->plist; fd != NULL; fd = fd_next) {
     fd_next = fd->next;
     g_free(fd);
@@ -196,10 +221,15 @@ close_cap_file(capture_file *cf, void *w, guint context) {
   cf->plist_end = NULL;
   unselect_packet(cf);	/* nothing to select */
 
+  /* Clear the packet list. */
   gtk_clist_freeze(GTK_CLIST(packet_list));
   gtk_clist_clear(GTK_CLIST(packet_list));
   gtk_clist_thaw(GTK_CLIST(packet_list));
-  gtk_statusbar_pop(GTK_STATUSBAR(w), context);
+
+  /* Clear any file-related status bar messages.
+     XXX - should be "clear *ALL* file-related status bar messages;
+     will there ever be more than one on the stack? */
+  gtk_statusbar_pop(GTK_STATUSBAR(w), file_ctx);
 
   /* Disable all menu items that make sense only if you have a capture. */
   set_menu_sensitivity("/File/Save", FALSE);
@@ -227,7 +257,7 @@ set_statusbar_filename(capture_file *cf)
   gchar  *done_fmt = " File: %s  Drops: %u";
   gchar  *done_msg;
 
-  if (cf->user_saved || !cf->save_file) {
+  if (!cf->is_tempfile) {
     /* Get the last component of the file name, and put that in the
        status bar. */
     if ((name_ptr = (gchar *) strrchr(cf->filename, '/')) == NULL)
@@ -248,7 +278,8 @@ set_statusbar_filename(capture_file *cf)
 }
 
 int
-read_cap_file(capture_file *cf) {
+read_cap_file(capture_file *cf)
+{
   gchar  *name_ptr, *load_msg, *load_fmt = " Loading: %s...";
   int     success;
   int     err;
@@ -292,13 +323,17 @@ read_cap_file(capture_file *cf) {
   gtk_progress_set_value(GTK_PROGRESS(prog_bar), 0);
 
   gtk_statusbar_pop(GTK_STATUSBAR(info_bar), file_ctx);
-
   set_statusbar_filename(cf);
 
-  /* Enable menu items that make sense if you have a capture. */
+  /* Enable menu items that make sense if you have a capture file you've
+     finished reading. */
+  set_menu_sensitivity("/File/Save", !cf->user_saved);
+  set_menu_sensitivity("/File/Save As...", TRUE);
   set_menu_sensitivity("/File/Close", TRUE);
   set_menu_sensitivity("/File/Reload", TRUE);
   set_menu_sensitivity("/File/Print...", TRUE);
+
+  /* Enable menu items that make sense if you have some captured packets. */
   set_menu_sensitivity("/Display/Options...", TRUE);
   set_menu_sensitivity("/Display/Match Selected", TRUE);
   set_menu_sensitivity("/Display/Colorize Display...", TRUE);
@@ -343,13 +378,23 @@ read_cap_file(capture_file *cf) {
 
 #ifdef HAVE_LIBPCAP
 int
-start_tail_cap_file(char *fname, capture_file *cf) {
+start_tail_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
+{
   int     err;
   int     i;
 
-  err = open_cap_file(fname, cf);
+  err = open_cap_file(fname, is_tempfile, cf);
   if (err == 0) {
+    /* Disable menu items that make sense only if you have a capture
+       file you've finished reading. */
     set_menu_sensitivity("/File/Open...", FALSE);
+
+    /* Disable menu items that make sense only if you're not currently
+       running a capture. */
+    set_menu_sensitivity("/Capture/Start...", FALSE);
+
+    /* Enable menu items that make sense if you have some captured
+       packets (yes, I know, we don't have any *yet*). */
     set_menu_sensitivity("/Display/Options...", TRUE);
     set_menu_sensitivity("/Display/Match Selected", TRUE);
     set_menu_sensitivity("/Display/Colorize Display...", TRUE);
@@ -358,7 +403,6 @@ start_tail_cap_file(char *fname, capture_file *cf) {
     set_menu_sensitivity("/Tools/Follow TCP Stream", TRUE);
     set_menu_sensitivity("/Tools/Graph", TRUE);
     set_menu_sensitivity("/Tools/Summary", TRUE);
-    set_menu_sensitivity("/Capture/Start...", FALSE);
 
     for (i = 0; i < cf->cinfo.num_cols; i++) {
       if (get_column_resize_type(cf->cinfo.col_fmt[i]) == RESIZE_LIVE)
@@ -417,6 +461,9 @@ finish_tail_cap_file(capture_file *cf)
   wtap_close(cf->wth);
   cf->wth = NULL;
 
+  /* Pop the "<live capture in progress>" message off the status bar. */
+  gtk_statusbar_pop(GTK_STATUSBAR(info_bar), file_ctx);
+
   set_statusbar_filename(cf);
 
   /* Restore the "File/Open" menu item. */
@@ -424,7 +471,8 @@ finish_tail_cap_file(capture_file *cf)
 
   /* Enable menu items that make sense if you have a capture file
      you've finished reading. */
-  set_menu_sensitivity("/File/Save", TRUE);
+  set_menu_sensitivity("/File/Save", !cf->user_saved);
+  set_menu_sensitivity("/File/Save As...", TRUE);
   set_menu_sensitivity("/File/Close", TRUE);
   set_menu_sensitivity("/File/Reload", TRUE);
   set_menu_sensitivity("/File/Print...", TRUE);
@@ -850,6 +898,19 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
       cf->progbar_nextstep += cf->progbar_quantum;
       while (gtk_events_pending())
       gtk_main_iteration();
+  }
+
+  if (cf->first_packet) {
+    /* Tentatively make the encapsulation type the type of the first
+       packet. */
+    cf->lnk_t = phdr->pkt_encap;
+  } else {
+    /* If this packet's encapsulation type isn't the same as the type
+       type we've chosen so far, make the type for this file
+       WTAP_ENCAP_PER_PACKET, because there is no single encapsulation
+       type for the entire file. */
+    if (cf->lnk_t != phdr->pkt_encap)
+      cf->lnk_t = WTAP_ENCAP_PER_PACKET;
   }
 
   /* Allocate the next list entry, and add it to the list. */
@@ -1509,92 +1570,201 @@ thaw_clist(capture_file *cf)
     gtk_clist_set_column_resizeable(GTK_CLIST(packet_list), i, TRUE);
 }
 
-/* Tries to mv a file. If unsuccessful, tries to cp the file.
- * Returns 0 on failure to do either, 1 on success of either
- */
 int
-file_mv(char *from, char *to)
+save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
+		guint save_format)
 {
+  gchar        *from_filename;
+  gchar        *name_ptr, *save_msg, *save_fmt = " Saving: %s...";
+  gchar        *err_fmt  = " Error: Could not save to '%s'";
+  size_t        msg_len;
+  int           err;
+  gboolean      do_copy;
+  int           from_fd, to_fd, nread, nwritten;
+  wtap_dumper  *pdh;
+  frame_data   *fd;
+  struct wtap_pkthdr hdr;
+  guint8        pd[65536];
 
-#define COPY_BUFFER_SIZE	8192
+  if ((name_ptr = (gchar *) strrchr(fname, '/')) == NULL)
+    name_ptr = fname;
+  else
+    name_ptr++;
+  msg_len = strlen(name_ptr) + strlen(save_fmt) + 2;
+  save_msg = g_malloc(msg_len);
+  snprintf(save_msg, msg_len, save_fmt, name_ptr);
+  gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, save_msg);
+  g_free(save_msg);
 
-	int retval;
+  if (!save_filtered && save_format == cf->cd_t) {
+    /* We're not filtering packets, and we're saving it in the format
+       it's already in, so we can just move or copy the raw data. */
 
-#ifndef WIN32
-	/* try a hard link */
-	retval = link(from, to);
-
-	/* or try a copy */
-	if (retval < 0) {
-#endif
-		retval = file_cp(from, to);
-		if (!retval) {
-			return 0;
-		}
-#ifndef WIN32
+    /* In this branch, we set "err" only if we get an error, so we
+       must first clear it. */
+    err = 0;
+    if (cf->is_tempfile) {
+      /* The file being saved is a temporary file from a live
+         capture, so it doesn't need to stay around under that name;
+	 first, try renaming the capture buffer file to the new name. */
+      if (rename(cf->filename, fname) == 0) {
+      	/* That succeeded - there's no need to copy the source file. */
+      	from_filename = NULL;
+	do_copy = FALSE;
+      } else {
+      	if (errno == EXDEV) {
+	  /* They're on different file systems, so we have to copy the
+	     file. */
+	  do_copy = TRUE;
+          from_filename = cf->filename;
+	} else {
+	  /* The rename failed, but not because they're on different
+	     file systems - put up an error message.  (Or should we
+	     just punt and try to copy?  The only reason why I'd
+	     expect the rename to fail and the copy to succeed would
+	     be if we didn't have permission to remove the file from
+	     the temporary directory, and that might be fixable - but
+	     is it worth requiring the user to go off and fix it?) */
+	  err = errno;
+	  simple_dialog(ESD_TYPE_WARN, NULL,
+				file_rename_error_message(err), fname);
+	  goto done;
 	}
-#endif
+      }
+    } else {
+      /* It's a permanent file, so we should copy it, and not remove the
+         original. */
+      do_copy = TRUE;
+      from_filename = cf->filename;
+    }
 
-	unlink(from);
-	return 1;
-}
+    /* Copy the file, if we haven't moved it. */
+    if (do_copy) {
+      /* Copy the raw bytes of the file. */
+      from_fd = open(from_filename, O_RDONLY);
+      if (from_fd < 0) {
+      	err = errno;
+	simple_dialog(ESD_TYPE_WARN, NULL,
+			file_open_error_message(err, TRUE), from_filename);
+	goto done;
+      }
 
-/* Copies a file.
- * Returns 0 on failure to do either, 1 on success of either
- */
-int
-file_cp(char *from, char *to)
-{
+      to_fd = creat(fname, 0644);
+      if (to_fd < 0) {
+      	err = errno;
+	simple_dialog(ESD_TYPE_WARN, NULL,
+			file_open_error_message(err, TRUE), fname);
+	close(from_fd);
+	goto done;
+      }
 
-#define COPY_BUFFER_SIZE	8192
-
-	int from_fd, to_fd, nread, nwritten;
-	char *buffer;
-
-	buffer = g_malloc(COPY_BUFFER_SIZE);
-
-	from_fd = open(from, O_RDONLY);
-	if (from_fd < 0) {
-		simple_dialog(ESD_TYPE_WARN, NULL,
-			file_open_error_message(errno, TRUE), from);
-		return 0;
+      while ((nread = read(from_fd, pd, sizeof pd)) > 0) {
+	nwritten = write(to_fd, pd, nread);
+	if (nwritten < nread) {
+	  if (nwritten < 0)
+	    err = errno;
+	  else
+	    err = WTAP_ERR_SHORT_WRITE;
+	  simple_dialog(ESD_TYPE_WARN, NULL,
+				file_write_error_message(err), fname);
+	  close(from_fd);
+	  close(to_fd);
+	  goto done;
 	}
-
-	to_fd = creat(to, 0644);
-	if (to_fd < 0) {
-		simple_dialog(ESD_TYPE_WARN, NULL,
-			file_open_error_message(errno, TRUE), to);
-		close(from_fd);
-		return 0;
-	}
-
-	while( (nread = read(from_fd, buffer, COPY_BUFFER_SIZE)) > 0) {
-		nwritten = write(to_fd, buffer, nread);
-		if (nwritten < nread) {
-			if (nwritten < 0) {
-				simple_dialog(ESD_TYPE_WARN, NULL,
-					file_write_error_message(errno), to);
-			} else {
-				simple_dialog(ESD_TYPE_WARN, NULL,
-"The file \"%s\" could not be saved: tried writing %d, wrote %d.\n",
-					to, nread, nwritten);
-			}
-			close(from_fd);
-			close(to_fd);
-			return 0;
-		}
-	}
-	if (nread < 0) {
-		simple_dialog(ESD_TYPE_WARN, NULL,
-			file_read_error_message(errno), from);
-		close(from_fd);
-		close(to_fd);
-		return 0;
-	}
+      }
+      if (nread < 0) {
+      	err = errno;
+	simple_dialog(ESD_TYPE_WARN, NULL,
+			file_read_error_message(err), from_filename);
 	close(from_fd);
 	close(to_fd);
+	goto done;
+      }
+      close(from_fd);
+      if (close(to_fd) < 0) {
+      	err = errno;
+	simple_dialog(ESD_TYPE_WARN, NULL,
+		file_close_error_message(err), fname);
+	goto done;
+      }
+    }
+  } else {
+    /* Either we're filtering packets, or we're saving in a different
+       format; we can't do that by copying or moving the capture file,
+       we have to do it by writing the packets out in Wiretap. */
+    pdh = wtap_dump_open(fname, save_format, cf->lnk_t, cf->snap, &err);
+    if (pdh == NULL) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+			file_open_error_message(err, TRUE), fname);
+      goto done;
+    }
 
-	return 1;
+    /* XXX - have a way to save only the packets currently selected by
+       the display filter.
+
+       If we do that, should we make that file the current file?  If so,
+       it means we can no longer get at the other packets.  What does
+       NetMon do? */
+    for (fd = cf->plist; fd != NULL; fd = fd->next) {
+      /* XXX - do a progress bar */
+      if (!save_filtered || fd->passed_dfilter) {
+      	/* Either we're saving all frames, or we're saving filtered frames
+	   and this one passed the display filter - save it. */
+        hdr.ts.tv_sec = fd->abs_secs;
+        hdr.ts.tv_usec = fd->abs_usecs;
+        hdr.caplen = fd->cap_len;
+        hdr.len = fd->pkt_len;
+        hdr.pkt_encap = fd->lnk_t;
+	wtap_seek_read(cf->cd_t, cf->fh, fd->file_off, pd, fd->cap_len);
+
+        if (!wtap_dump(pdh, &hdr, pd, &err)) {
+	    simple_dialog(ESD_TYPE_WARN, NULL,
+				file_write_error_message(err), fname);
+	    wtap_dump_close(pdh, &err);
+	    goto done;
+	}
+      }
+    }
+
+    if (!wtap_dump_close(pdh, &err)) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+		file_close_error_message(err), fname);
+      goto done;
+    }
+  }
+
+done:
+
+  /* Pop the "Saving:" message off the status bar. */
+  gtk_statusbar_pop(GTK_STATUSBAR(info_bar), file_ctx);
+  if (err == 0) {
+    if (!save_filtered) {
+      /* We saved the entire capture, not just some packets from it.
+         Open and read the file we saved it to.
+
+	 XXX - this is somewhat of a waste; we already have the
+	 packets, all this gets us is updated file type information
+	 (which we could just stuff into "cf"), and having the new
+	 file be the one we have opened and from which we're reading
+	 the data, and it means we have to spend time opening and
+	 reading the file, which could be a significant amount of
+	 time if the file is large. */
+      cf->user_saved = TRUE;
+
+      if ((err = open_cap_file(fname, FALSE, cf)) == 0) {
+	/* XXX - report errors if this fails? */
+	err = read_cap_file(cf);
+	set_menu_sensitivity("/File/Save", FALSE);
+      }
+    }
+  } else {
+    msg_len = strlen(name_ptr) + strlen(err_fmt) + 2;
+    save_msg = g_malloc(msg_len);
+    snprintf(save_msg, msg_len, err_fmt, name_ptr);
+    gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, save_msg);
+    g_free(save_msg);
+  }
+  return err;
 }
 
 char *
@@ -1611,7 +1781,19 @@ file_open_error_message(int err, int for_writing)
 
   case WTAP_ERR_FILE_UNKNOWN_FORMAT:
   case WTAP_ERR_UNSUPPORTED:
+    /* Seen only when opening a capture file for reading. */
     errmsg = "The file \"%s\" is not a capture file in a format Ethereal understands.";
+    break;
+
+  case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
+    /* Seen only when opening a capture file for writing. */
+    errmsg = "Ethereal does not support writing capture files in that format.";
+    break;
+
+  case WTAP_ERR_UNSUPPORTED_ENCAP:
+  case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
+    /* Seen only when opening a capture file for writing. */
+    errmsg = "Ethereal cannot save this capture in that format.";
     break;
 
   case WTAP_ERR_BAD_RECORD:
@@ -1630,6 +1812,10 @@ file_open_error_message(int err, int for_writing)
              " in the middle of a packet.";
     break;
 
+  case WTAP_ERR_SHORT_WRITE:
+    errmsg = "A full header couldn't be written to the file \"%s\".";
+    break;
+
   case ENOENT:
     if (for_writing)
       errmsg = "The path to the file \"%s\" does not exist.";
@@ -1646,6 +1832,31 @@ file_open_error_message(int err, int for_writing)
 
   default:
     sprintf(errmsg_errno, "The file \"%%s\" could not be opened: %s.",
+				wtap_strerror(err));
+    errmsg = errmsg_errno;
+    break;
+  }
+  return errmsg;
+}
+
+static char *
+file_rename_error_message(int err)
+{
+  char *errmsg;
+  static char errmsg_errno[1024+1];
+
+  switch (err) {
+
+  case ENOENT:
+    errmsg = "The path to the file \"%s\" does not exist.";
+    break;
+
+  case EACCES:
+    errmsg = "You do not have permission to move the capture file to \"%s\".";
+    break;
+
+  default:
+    sprintf(errmsg_errno, "The file \"%%s\" could not be moved: %s.",
 				wtap_strerror(err));
     errmsg = errmsg_errno;
     break;
@@ -1683,6 +1894,45 @@ file_write_error_message(int err)
 
   default:
     sprintf(errmsg_errno, "An error occurred while writing to the file \"%%s\": %s.",
+				wtap_strerror(err));
+    errmsg = errmsg_errno;
+    break;
+  }
+  return errmsg;
+}
+
+/* Check for write errors - if the file is being written to an NFS server,
+   a write error may not show up until the file is closed, as NFS clients
+   might not send writes to the server until the "write()" call finishes,
+   so that the write may fail on the server but the "write()" may succeed. */
+static char *
+file_close_error_message(int err)
+{
+  char *errmsg;
+  static char errmsg_errno[1024+1];
+
+  switch (err) {
+
+  case WTAP_ERR_CANT_CLOSE:
+    errmsg = "The file \"%s\" couldn't be closed for some unknown reason.";
+    break;
+
+  case WTAP_ERR_SHORT_WRITE:
+    errmsg = "Not all the data could be written to the file \"%s\".";
+    break;
+
+  case ENOSPC:
+    errmsg = "The file \"%s\" could not be saved because there is no space left on the file system.";
+    break;
+
+#ifdef EDQUOT
+  case EDQUOT:
+    errmsg = "The file \"%s\" could not be saved because you are too close to, or over, your disk quota.";
+    break;
+#endif
+
+  default:
+    sprintf(errmsg_errno, "An error occurred while closing the file \"%%s\": %s.",
 				wtap_strerror(err));
     errmsg = errmsg_errno;
     break;

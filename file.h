@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.57 1999/11/30 07:27:37 guy Exp $
+ * $Id: file.h,v 1.58 1999/11/30 20:49:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -77,9 +77,13 @@ typedef struct _capture_file {
   FILE_T       fh;        /* File handle for capture file */
   int          filed;     /* File descriptor of capture file */
   gchar       *filename;  /* Name of capture file */
+  gboolean     is_tempfile; /* Is capture file a temporary file? */
+  gboolean     user_saved;/* If capture file is temporary, has it been saved by user yet? */
   long         f_len;     /* Length of capture file */
   guint16      cd_t;      /* File type of capture file */
   const gchar *cd_t_desc; /* Description of that file type */
+  gboolean     first_packet; /* TRUE if we're looking at the first packet */
+  int          lnk_t;     /* Link-layer type with which to save capture */
   guint32      vers;      /* Version.  For tcpdump minor is appended to major */
   guint32      count;     /* Packet count */
   gfloat       unfiltered_count; /* used for dfilter progress bar */
@@ -93,7 +97,6 @@ typedef struct _capture_file {
   gchar       *iface;     /* Interface */
   gchar       *save_file; /* File that user saved capture to */
   int          save_file_fd; /* File descriptor for saved file */
-  gint         user_saved;/* Was capture file saved by user yet? */
   wtap        *wth;       /* Wiretap session */
   dfilter     *rfcode;    /* Compiled read filter program */ 
   gchar       *dfilter;   /* Display filter string */
@@ -118,13 +121,14 @@ typedef struct _capture_file {
   FILE        *print_fh;  /* File we're printing to */
 } capture_file;
 
-int  open_cap_file(char *, capture_file *);
-void close_cap_file(capture_file *, void *, guint);
+int  open_cap_file(char *, gboolean, capture_file *);
+void close_cap_file(capture_file *, void *);
 int  read_cap_file(capture_file *);
-int  start_tail_cap_file(char *, capture_file *);
+int  start_tail_cap_file(char *, gboolean, capture_file *);
 int  continue_tail_cap_file(capture_file *, int);
 int  finish_tail_cap_file(capture_file *);
 /* size_t read_frame_header(capture_file *); */
+int  save_cap_file(char *, capture_file *, gboolean, guint);
 
 int filter_packets(capture_file *cf, gchar *dfilter);
 void colorize_packets(capture_file *);

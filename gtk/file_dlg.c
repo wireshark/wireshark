@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.11 1999/10/20 22:36:05 gram Exp $
+ * $Id: file_dlg.c,v 1.12 1999/11/30 20:50:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -64,8 +64,9 @@
 #include "main.h"
 #endif
 
+#define FILTER_CB_KEY          "filter_check_button"
+
 static void file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs);
-static void file_save_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 static void file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 
 /* Open a file */
@@ -130,7 +131,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   }
 
   /* Try to open the capture file. */
-  if ((err = open_cap_file(cf_name, &cf)) != 0) {
+  if ((err = open_cap_file(cf_name, FALSE, &cf)) != 0) {
     /* We couldn't open it; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the open error,
@@ -166,44 +167,46 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   else {
 	  last_open_dir = NULL;
   }
-  set_menu_sensitivity("/File/Save", FALSE);
-  set_menu_sensitivity("/File/Save As...", TRUE);
   g_free(cf_name);
 }
 
 /* Close a file */
 void
 file_close_cmd_cb(GtkWidget *widget, gpointer data) {
-  close_cap_file(&cf, info_bar, file_ctx);
+  close_cap_file(&cf, info_bar);
 }
 
 void
 file_save_cmd_cb(GtkWidget *w, gpointer data) {
   file_sel = gtk_file_selection_new ("Ethereal: Save Capture File");
- 
-  /* Connect the ok_button to file_save_ok_cb function and pass along a
-     pointer to the file selection box widget */
-  gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (file_sel)->ok_button),
-    "clicked", (GtkSignalFunc) file_save_ok_cb, file_sel );
 
-  /* Connect the cancel_button to destroy the widget */
-  gtk_signal_connect_object(GTK_OBJECT (GTK_FILE_SELECTION
-    (file_sel)->cancel_button), "clicked", (GtkSignalFunc)
-    gtk_widget_destroy, GTK_OBJECT (file_sel));
+  /* If the file's already been saved, do nothing.  */
+  if (cf.user_saved)
+    return;
 
-  gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_sel), "");
-
-  gtk_widget_show(file_sel);
+  /* Do a "Save As". */
+  file_save_as_cmd_cb(w, data);
 }
 
 void
 file_save_as_cmd_cb(GtkWidget *w, gpointer data) {
+  GtkWidget *ok_bt, *filter_cb;
+
   file_sel = gtk_file_selection_new ("Ethereal: Save Capture File As");
 
   /* Connect the ok_button to file_save_as_ok_cb function and pass along a
      pointer to the file selection box widget */
-  gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (file_sel)->ok_button),
-    "clicked", (GtkSignalFunc) file_save_as_ok_cb, file_sel );
+  ok_bt = GTK_FILE_SELECTION (file_sel)->ok_button;
+  gtk_signal_connect (GTK_OBJECT (ok_bt), "clicked",
+    (GtkSignalFunc) file_save_as_ok_cb, file_sel );
+
+  filter_cb = gtk_check_button_new_with_label("Save only packets currently being displayed");
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
+  gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_sel)->action_area),
+    filter_cb, FALSE, FALSE, 0);
+  gtk_widget_show(filter_cb);
+
+  gtk_object_set_data(GTK_OBJECT(ok_bt), FILTER_CB_KEY, filter_cb);
 
   /* Connect the cancel_button to destroy the widget */
   gtk_signal_connect_object(GTK_OBJECT (GTK_FILE_SELECTION
@@ -215,45 +218,26 @@ file_save_as_cmd_cb(GtkWidget *w, gpointer data) {
 }
 
 static void
-file_save_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
-	gchar	*cf_name;
-	int	err;
-
-	cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
-	gtk_widget_hide(GTK_WIDGET (fs));
-	gtk_widget_destroy(GTK_WIDGET (fs));
-
-	if (!file_mv(cf.save_file, cf_name))
-		return;
-
-	g_free(cf.save_file);
-	cf.save_file = g_strdup(cf_name);
-	cf.user_saved = 1;
-        if ((err = open_cap_file(cf_name, &cf)) == 0) {
-		err = read_cap_file(&cf);
-		set_menu_sensitivity("/File/Save", FALSE);
-		set_menu_sensitivity("/File/Save As...", TRUE);
-	}
-}
-
-static void
 file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
-	gchar	*cf_name;
-	int	err;
+  gchar	*cf_name;
+  GtkWidget *button;
+  gboolean filtered;
 
-	cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
-	gtk_widget_hide(GTK_WIDGET (fs));
-	gtk_widget_destroy(GTK_WIDGET (fs));
-	if (!file_cp(cf.filename, cf_name))
-		return;
-	g_free(cf.filename);
-	cf.filename = g_strdup(cf_name);
-	cf.user_saved = 1;
-        if ((err = open_cap_file(cf.filename, &cf)) == 0) {
-		err = read_cap_file(&cf);
-		set_menu_sensitivity("/File/Save", FALSE);
-		set_menu_sensitivity("/File/Save As...", TRUE);
-	}
+  cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
+  gtk_widget_hide(GTK_WIDGET (fs));
+  gtk_widget_destroy(GTK_WIDGET (fs));
+
+  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(w),
+                                              FILTER_CB_KEY);
+  filtered = GTK_TOGGLE_BUTTON (button)->active;
+
+  /* Write out the packets (all, or only the ones that are currently
+     displayed) to the file with the specified name. */
+  save_cap_file(cf_name, &cf, filtered, WTAP_FILE_PCAP);
+
+  /* If "save_cap_file()" saved the file name we handed it, it saved
+     a copy, so we should free up our copy. */
+  g_free(cf_name);
 }
 
 /* Reload a file using the current read and display filters */
@@ -261,13 +245,40 @@ void
 file_reload_cmd_cb(GtkWidget *w, gpointer data) {
   /*GtkWidget *filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);*/
   GtkWidget *filter_te;
+  gchar *filename;
+  gboolean is_tempfile;
 
   filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
 
-  if (cf.dfilter) g_free(cf.dfilter);
+  if (cf.dfilter)
+    g_free(cf.dfilter);
   cf.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
-  if (open_cap_file(cf.filename, &cf) == 0)
-    read_cap_file(&cf);
-  /* XXX - change the menu if the open fails? */
-}
 
+  /* If the file could be opened, "open_cap_file()" calls "close_cap_file()"
+     to get rid of state for the old capture file before filling in state
+     for the new capture file.  "close_cap_file()" will remove the file if
+     it's a temporary file; we don't want that to happen (for one thing,
+     it'd prevent subsequent reopens from working).  Remember whether it's
+     a temporary file, mark it as not being a temporary file, and then
+     reopen it as the type of file it was.
+
+     Also, "close_cap_file()" will free "cf.filename", so we must make
+     a copy of it first. */
+  filename = strdup(cf.filename);
+  is_tempfile = cf.is_tempfile;
+  cf.is_tempfile = FALSE;
+  if (open_cap_file(filename, is_tempfile, &cf) == 0)
+    read_cap_file(&cf);
+  else {
+    /* The open failed, so "cf.is_tempfile" wasn't set to "is_tempfile".
+       Instead, the file was left open, so we should restore "cf.is_tempfile"
+       ourselves.
+
+       XXX - change the menu?  Presumably "open_cap_file()" will do that;
+       make sure it does! */
+    cf.is_tempfile = is_tempfile;
+  }
+  /* "open_cap_file()" made a copy of the file name we handed it, so
+     we should free up our copy. */
+  g_free(filename);
+}
