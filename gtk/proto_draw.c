@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.38 2001/08/31 19:47:10 guy Exp $
+ * $Id: proto_draw.c,v 1.39 2001/11/20 09:07:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -905,14 +905,22 @@ proto_tree_draw_node(GNode *node, gpointer data)
 	gchar		*label_ptr;
 	GtkCTreeNode	*parent;
 	gboolean	is_leaf, is_expanded;
-	int i;
+	int		i;
 
 	if (!fi->visible)
 		return;
-	i= find_notebook_page( byte_nb_ptr, fi->ds_name);
-	if ( i < 0)
-		return; 	/* no notebook pages ?? */
-	set_notebook_page( byte_nb_ptr, i);
+	/*
+	 * XXX - why are we doing this?  This is done when we consruct
+	 * the protocol tree display, but, as far as I can tell, it only
+	 * needs to be done when a particular field in the tree is
+	 * selected.
+	 */
+	if (fi->ds_name != NULL) {
+		i = find_notebook_page(byte_nb_ptr, fi->ds_name);
+		if (i < 0)
+			return; 	/* no notebook pages ?? */
+		set_notebook_page(byte_nb_ptr, i);
+	}
 
 	/* was a free format label produced? */
 	if (fi->representation) {

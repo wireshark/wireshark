@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.42 2001/11/15 10:58:51 guy Exp $
+ * $Id: proto.c,v 1.43 2001/11/20 09:07:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1504,6 +1504,12 @@ alloc_field_info(int hfindex, tvbuff_t *tvb, gint start, gint length)
 	fi = g_mem_chunk_alloc(gmc_field_info);
 
 	g_assert(hfindex >= 0 && (guint) hfindex < gpa_hfinfo->len);
+
+	/*
+	 * We only allow a null tvbuff if the item has a zero length,
+	 * i.e. if there's no data backing it.
+	 */
+	g_assert(tvb != NULL || length == 0);
 	fi->hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(fi->hfinfo != NULL);
 	fi->start = start;
@@ -1518,7 +1524,11 @@ alloc_field_info(int hfindex, tvbuff_t *tvb, gint start, gint length)
 	fi->value = fvalue_new(fi->hfinfo->type);
 
 	/* add the data source name */
-	fi->ds_name = tvb_get_name(tvb);
+	if (tvb) {
+		fi->ds_name = tvb_get_name(tvb);
+	} else {
+		fi->ds_name = NULL;
+	}
 
 	return fi;
 }
@@ -2780,7 +2790,8 @@ check_for_offset(GNode *node, gpointer data)
 	offset_search_t		*offsearch = data;
 
 	/* !fi == the top most container node which holds nothing */
-	if (fi && fi->visible && !strcmp( offsearch->name,fi->ds_name)) {
+	if (fi && fi->visible && fi->ds_name &&
+	    strcmp(offsearch->name, fi->ds_name) == 0) {
 		if (offsearch->offset >= (guint) fi->start &&
 				offsearch->offset < (guint) (fi->start + fi->length)) {
 

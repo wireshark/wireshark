@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.22 2001/08/21 06:39:18 guy Exp $
+ * $Id: packet_win.c,v 1.23 2001/11/20 09:07:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -234,9 +234,11 @@ new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column,
 	finfo = gtk_ctree_node_get_row_data( ctree, GTK_CTREE_NODE(node) );
 	if (!finfo) return;
 
-        i = find_notebook_page( DataPtr->bv_nb_ptr, finfo->ds_name);
-        set_notebook_page ( DataPtr->bv_nb_ptr, i);
-        len = get_byte_view_and_data( DataPtr->bv_nb_ptr, &byte_view, &data);
+	if (finfo->ds_name != NULL) {
+		i = find_notebook_page( DataPtr->bv_nb_ptr, finfo->ds_name);
+		set_notebook_page ( DataPtr->bv_nb_ptr, i);
+	}
+	len = get_byte_view_and_data( DataPtr->bv_nb_ptr, &byte_view, &data);
 
 	if ( !byte_view)	/* exit if no hex window to write in */
 		return;

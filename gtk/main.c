@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.210 2001/11/09 07:44:50 guy Exp $
+ * $Id: main.c,v 1.211 2001/11/20 09:07:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -475,7 +475,8 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user
 	finfo = gtk_ctree_node_get_row_data( ctree, GTK_CTREE_NODE(node) );
 	if (!finfo) return;
 
-	set_notebook_page(  byte_nb_ptr, find_notebook_page( byte_nb_ptr, finfo->ds_name));
+	if (finfo->ds_name != NULL)
+		set_notebook_page(  byte_nb_ptr, find_notebook_page( byte_nb_ptr, finfo->ds_name));
 
         byte_view = gtk_object_get_data(GTK_OBJECT(byte_nb_ptr), E_BYTE_VIEW_TEXT_INFO_KEY);
         byte_data = gtk_object_get_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_DATA_PTR_KEY);
