@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.225 2004/01/22 19:25:36 ulfl Exp $
+ * $Id: capture.c,v 1.226 2004/01/22 20:45:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -233,11 +233,6 @@ static int pipe_dispatch(int, loop_data *, struct pcap_hdr *, \
 #define O_BINARY	0
 #endif
 
-#ifdef _WIN32
-/* Win32 needs a handle to the child capture process */
-int child_process;
-#endif
-
 /* Add a string pointer to a NULL-terminated array of string pointers. */
 static char **
 add_arg(char **args, int *argc, char *arg)
@@ -446,8 +441,6 @@ do_capture(const char *save_file)
     if (filterstring) {
       g_free(filterstring);
     }
-    /* Keep a copy for later evaluation by _cwait() */
-    child_process = fork_child;
 #else
     if (pipe(sync_pipe) < 0) {
       /* Couldn't create the pipe between parent and child. */
@@ -617,7 +610,7 @@ do_capture(const char *save_file)
        arrange that our callback be called whenever it's possible
        to read from the sync pipe, so that it's called when
        the child process wants to tell us something. */
-    pipe_input_set_handler(sync_pipe[READ], (gpointer) &cfile, &child_process, cap_pipe_input_cb);
+    pipe_input_set_handler(sync_pipe[READ], (gpointer) &cfile, &fork_child, cap_pipe_input_cb);
   } else {
     /* Not sync mode. */
     capture_succeeded = capture(&stats_known, &stats);
@@ -844,8 +837,9 @@ wait_for_child(gboolean always_report)
 
 #ifdef _WIN32
   /* XXX - analyze the wait status and display more information
-     in the dialog box? */
-  if (_cwait(&wstatus, child_process, _WAIT_CHILD) == -1) {
+     in the dialog box?
+     XXX - set "fork_child" to -1 if we find it exited? */
+  if (_cwait(&wstatus, fork_child, _WAIT_CHILD) == -1) {
     simple_dialog(ESD_TYPE_WARN, NULL, "Child capture process stopped unexpectedly");
   }
 #else
@@ -2078,7 +2072,7 @@ capture_stop(void)
        * running in the same console, I don't know if that is true for our case.
        * And this also will require to have the process id
        */
-      TerminateProcess((HANDLE) child_process, 0);
+      TerminateProcess((HANDLE) fork_child, 0);
   }
 #endif
 }
