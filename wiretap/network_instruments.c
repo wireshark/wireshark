@@ -1,5 +1,5 @@
 /*
- * $Id: network_instruments.c,v 1.4 2003/11/06 22:45:28 guy Exp $
+ * $Id: network_instruments.c,v 1.5 2003/11/25 05:56:16 guy Exp $
  */
 
 /***************************************************************************
@@ -106,7 +106,6 @@ static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 int network_instruments_open(wtap *wth, int *err)
 {
 	int bytes_read;
-	long seek_value;
 
 	capture_file_header file_header;
 	packet_entry_header packet_header;
@@ -137,9 +136,8 @@ int network_instruments_open(wtap *wth, int *err)
 	/* get to the first packet */
 	file_header.offset_to_first_packet =
 	    GUINT16_FROM_LE(file_header.offset_to_first_packet);
-	seek_value = file_seek(wth->fh, file_header.offset_to_first_packet, SEEK_SET, err);
-	if (seek_value != file_header.offset_to_first_packet) {
-		*err = file_error(wth->fh);
+	if (file_seek(wth->fh, file_header.offset_to_first_packet, SEEK_SET,
+	    err) == -1) {
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -180,9 +178,8 @@ int network_instruments_open(wtap *wth, int *err)
 	wth->snapshot_length = 0;
 
 	/* reset the pointer to the first packet */
-	seek_value = file_seek(wth->fh, file_header.offset_to_first_packet, SEEK_SET, err);
-	if (seek_value != file_header.offset_to_first_packet) {
-		*err = file_error(wth->fh);
+	if (file_seek(wth->fh, file_header.offset_to_first_packet, SEEK_SET,
+	    err) == -1) {
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -198,7 +195,7 @@ int network_instruments_open(wtap *wth, int *err)
 static gboolean observer_read(wtap *wth, int *err, long *data_offset)
 {
 	int bytes_read;
-	long seek_value, seek_increment;
+	long seek_increment;
 	long seconds, useconds;
 
 	packet_entry_header packet_header;
@@ -255,13 +252,8 @@ static gboolean observer_read(wtap *wth, int *err, long *data_offset)
 	}
 	seek_increment = packet_header.offset_to_frame - sizeof(packet_header);
 	if(seek_increment>0) {
-		seek_value = file_seek(wth->fh, seek_increment, SEEK_CUR, err);
-		if (seek_value != seek_increment) {
-			*err = file_error(wth->fh);
-			g_message("Observer: bad record");
-			*err = WTAP_ERR_BAD_RECORD;
+		if (file_seek(wth->fh, seek_increment, SEEK_CUR, err) == -1)
 			return FALSE;
-		}
 	}
 	wth->data_offset += seek_increment;
 
