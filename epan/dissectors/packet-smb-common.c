@@ -227,12 +227,6 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
   }
   if (useunicode) {
     if ((!nopad) && (*offsetp % 2)) {
-      /*
-       * XXX - this should be an offset relative to the beginning of the SMB,
-       * not an offset relative to the beginning of the frame; if the stuff
-       * before the SMB has an odd number of bytes, an offset relative to
-       * the beginning of the frame will give the wrong answer.
-       */
       (*offsetp)++;   /* Looks like a pad byte there sometimes */
       (*bcp)--;
       if (*bcp == 0) {
