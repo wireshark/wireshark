@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.101 2004/05/26 03:49:24 ulfl Exp $
+ * $Id: proto_draw.c,v 1.102 2004/05/31 12:06:28 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -783,8 +783,9 @@ add_byte_views(epan_dissect_t *edt, GtkWidget *tree_view,
 	gtk_notebook_set_page(GTK_NOTEBOOK(byte_nb_ptr), 0);
 }
 
+
+
 static GtkWidget *savehex_dlg=NULL;
-static GtkWidget *file_entry=NULL;
 
 static void
 savehex_dlg_destroy_cb(void)
@@ -799,133 +800,20 @@ savehex_browse_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
         "Ethereal: Export Selected Packet Bytes", FILE_SELECTION_SAVE);
 }
 
-
-/* Forward declaration */
-static void
-savehex_save_clicked_cb(GtkWidget * w, gpointer data);
-
-/* Launch the dialog box to put up the file selection box etc */
-void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
-{
-	int start, end, len;
-	const guint8 *data_p = NULL;
-    gchar label[200];
-
-    GtkWidget   *bv;
-	GtkWidget   *dlg_box, *dlg_lb;
-	GtkWidget   *file_box, *file_bt = NULL;
-	GtkWidget   *bbox, *save_button, *cancel_button;
-	GtkTooltips *tooltips;
-
-
-    /* don't show up the dialog, if no data has to be saved */
-	bv = get_notebook_bv_ptr(byte_nb_ptr);
-	if (bv == NULL) {
-		/* shouldn't happen */
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
-		return;
-	}
-	end = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_START_KEY));
-	start = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_END_KEY));
-	data_p = get_byte_view_data_and_length(GTK_WIDGET(bv), &len);
-
-	if (data_p == NULL || start == -1 || start > end) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No data selected to save!");
-		return;
-	}
-
-    /* if the window is already open, bring it to front */
-	if(savehex_dlg){
-		gdk_window_raise(savehex_dlg->window);
-		return;
-	}
-
-	tooltips = gtk_tooltips_new();
-
-	/*
-	 * Build the dialog box we need ... a text entry field and a
-	 * browse button, along with OK and Cancel
-	 */
-
-	savehex_dlg=dlg_window_new("Ethereal: Export Selected Packet Bytes");
-
-	dlg_box=gtk_vbox_new(FALSE, 10);
-	gtk_container_border_width(GTK_CONTAINER(dlg_box), 10);
-	gtk_container_add(GTK_CONTAINER(savehex_dlg), dlg_box);
-	gtk_widget_show(dlg_box);
-
-    /* label */
-    g_snprintf(label, sizeof(label), "Will save %u %s of raw binary data to file:", 
-        end - start, plurality(end - start, "byte", "bytes"));
-    dlg_lb = gtk_label_new(label);
-	gtk_box_pack_start(GTK_BOX(dlg_box), dlg_lb, FALSE, FALSE, 0);
-	gtk_widget_show(dlg_lb);
-
-	/* File entry box */
-	file_box=gtk_hbox_new(FALSE, 3);
-
-	/* File entry */
-	file_entry=gtk_entry_new();
-	WIDGET_SET_SIZE(file_entry, 300, -1);
-	gtk_tooltips_set_tip(tooltips, file_entry, ("Enter Save Data filename"), NULL);
-	gtk_box_pack_start(GTK_BOX(file_box), file_entry, TRUE, TRUE, 0);
-	gtk_widget_show(file_entry);
-
-	/* File Browse button */
-	file_bt=BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_BROWSE);
-	SIGNAL_CONNECT(file_bt, "clicked", savehex_browse_file_cb, file_entry);
-
-	gtk_tooltips_set_tip (tooltips, file_bt, ("Browse output filename in filesystem"), NULL);
-	gtk_box_pack_start(GTK_BOX(file_box), file_bt, FALSE, TRUE, 0);
-	gtk_widget_show(file_bt);
-
-	gtk_box_pack_start(GTK_BOX(dlg_box), file_box, TRUE, TRUE, 0);
-	gtk_widget_show(file_box);
-
-	/* Now, the button box */
-    bbox = dlg_button_row_new(GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
-    gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
-    gtk_widget_show(bbox);
-
-	/* the save button */
-    save_button = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
-    SIGNAL_CONNECT_OBJECT(save_button, "clicked",
-                              savehex_save_clicked_cb, NULL);
-	gtk_tooltips_set_tip (tooltips, save_button, ("Save the data to the specified file"), NULL);
-
-	cancel_button = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-    window_set_cancel_button(savehex_dlg, cancel_button, window_cancel_button_cb);
-	gtk_tooltips_set_tip (tooltips, cancel_button, ("Cancel save and quit dialog"), NULL);
-
-	/* Catch the "activate" signal on the filter text entry, so that
-	   if the user types Return there, we act as if the "Create Stat"
-	   button had been selected, as happens if Return is typed if some
-	   widget that *doesn't* handle the Return key has the input
-	   focus. */
-	dlg_set_activate(file_entry, save_button);
-
-	gtk_widget_grab_default(save_button);
-
-    /* Give the initial focus to the "File" entry box. */
-	gtk_widget_grab_focus(file_entry);
-
-	SIGNAL_CONNECT(savehex_dlg, "delete_event", window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(savehex_dlg, "destroy", savehex_dlg_destroy_cb, NULL);
-
-    gtk_widget_show_all(savehex_dlg);
-    window_present(savehex_dlg);
-}
-
-/* save the current highlighted hex data as hex_raw.dat */
+/* save the current highlighted hex data */
 static void
 savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 {
         GtkWidget *bv;
 	int fd, start, end, len;
 	const guint8 *data_p = NULL;
-	char *file = NULL;
+	const char *file = NULL;
 
-	file = (char *)gtk_entry_get_text(GTK_ENTRY(file_entry));
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+    file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(savehex_dlg));
+#else
+    file = gtk_file_selection_get_filename(GTK_FILE_SELECTION(savehex_dlg));
+#endif
 
 	if (!file ||! *file) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Please enter a filename!");
@@ -971,6 +859,85 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 	/* Get rid of the dialog box */
 	window_destroy(GTK_WIDGET(savehex_dlg));
 }
+
+/* Launch the dialog box to put up the file selection box etc */
+void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
+{
+	int start, end, len;
+	const guint8 *data_p = NULL;
+    gchar *label;
+
+    GtkWidget   *bv;
+	GtkWidget   *dlg_lb;
+
+
+    /* don't show up the dialog, if no data has to be saved */
+	bv = get_notebook_bv_ptr(byte_nb_ptr);
+	if (bv == NULL) {
+		/* shouldn't happen */
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
+		return;
+	}
+	end = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_START_KEY));
+	start = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_END_KEY));
+	data_p = get_byte_view_data_and_length(GTK_WIDGET(bv), &len);
+
+	if (data_p == NULL || start == -1 || start > end) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No data selected to save!");
+		return;
+	}
+
+    /* if the window is already open, bring it to front */
+	if(savehex_dlg){
+		reactivate_window(savehex_dlg);
+		return;
+	}
+
+	/*
+	 * Build the dialog box we need.
+	 */
+    savehex_dlg = file_selection_new("Ethereal: Export Selected Packet Bytes", FILE_SELECTION_SAVE);
+
+    /* If we've opened a file, start out by showing the files in the directory
+       in which that file resided. */
+    if (last_open_dir)
+      file_selection_set_current_folder(savehex_dlg, last_open_dir);
+
+    /* label */
+    label = g_strdup_printf("Will save %u %s of raw binary data to specified file.", 
+        end - start, plurality(end - start, "byte", "bytes"));
+    dlg_lb = gtk_label_new(label);
+    g_free(label);
+    file_selection_set_extra_widget(savehex_dlg, dlg_lb);
+	gtk_widget_show(dlg_lb);
+
+    SIGNAL_CONNECT(savehex_dlg, "destroy", savehex_dlg_destroy_cb, NULL);
+
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+    if (gtk_dialog_run(GTK_DIALOG(savehex_dlg)) == GTK_RESPONSE_ACCEPT) {
+        savehex_save_clicked_cb(savehex_dlg, savehex_dlg);
+    } else {
+        window_destroy(savehex_dlg);
+    }
+#else
+    /* Connect the ok_button to file_save_as_ok_cb function and pass along a
+    pointer to the file selection box widget */
+    SIGNAL_CONNECT(GTK_FILE_SELECTION (savehex_dlg)->ok_button, "clicked",
+        savehex_save_clicked_cb, savehex_dlg);
+
+    window_set_cancel_button(savehex_dlg, 
+    GTK_FILE_SELECTION(savehex_dlg)->cancel_button, window_cancel_button_cb);
+
+    SIGNAL_CONNECT(savehex_dlg, "delete_event", window_delete_event_cb, NULL);
+
+    gtk_file_selection_set_filename(GTK_FILE_SELECTION(savehex_dlg), "");
+
+    gtk_widget_show_all(savehex_dlg);
+    window_present(savehex_dlg);
+#endif
+}
+
+
 
 /* Update the progress bar this many times when reading a file. */
 #define N_PROGBAR_UPDATES	100
