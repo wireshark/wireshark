@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.170 2002/06/09 01:03:17 gerald Exp $
+ * $Id: packet-ip.c,v 1.171 2002/07/15 20:54:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -441,7 +441,7 @@ dissect_ipopt_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   proto_item *tf;
   int ptr;
   int optoffset = 0;
-  struct in_addr addr;
+  guint32 addr;
 
   tf = proto_tree_add_text(opt_tree, tvb, offset,      optlen, "%s (%u bytes)",
 				optp->name, optlen);
@@ -471,7 +471,7 @@ dissect_ipopt_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
     proto_tree_add_text(field_tree, tvb, offset + optoffset, 4,
               "%s%s",
-              ((addr.s_addr == 0) ? "-" : (char *)get_hostname(addr.s_addr)),
+              ((addr == 0) ? "-" : (char *)get_hostname(addr)),
               ((optoffset == ptr) ? " <- (current)" : ""));
     optoffset += 4;
     optlen -= 4;
@@ -502,7 +502,7 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
     {IPOPT_TS_TSANDADDR, "Time stamp and address"                },
     {IPOPT_TS_PRESPEC,   "Time stamps for prespecified addresses"},
     {0,                  NULL                                    } };
-  struct in_addr addr;
+  guint32 addr;
   guint ts;
 
   tf = proto_tree_add_text(opt_tree, tvb, offset,      optlen, "%s:", optp->name);
@@ -541,7 +541,7 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
       optlen -= 8;
       proto_tree_add_text(field_tree, tvb, offset + optoffset,      8,
           "Address = %s, time stamp = %u",
-          ((addr.s_addr == 0) ? "-" :  (char *)get_hostname(addr.s_addr)),
+          ((addr == 0) ? "-" :  (char *)get_hostname(addr)),
           ts);
       optoffset += 8;
     } else {
@@ -848,10 +848,10 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Avoids alignment problems on many architectures. */
   tvb_memcpy(tvb, (guint8 *)&iph, offset, sizeof(e_ip));
-  iph.ip_len = ntohs(iph.ip_len);
-  iph.ip_id  = ntohs(iph.ip_id);
-  iph.ip_off = ntohs(iph.ip_off);
-  iph.ip_sum = ntohs(iph.ip_sum);
+  iph.ip_len = g_ntohs(iph.ip_len);
+  iph.ip_id  = g_ntohs(iph.ip_id);
+  iph.ip_off = g_ntohs(iph.ip_off);
+  iph.ip_sum = g_ntohs(iph.ip_sum);
 
   /* Length of IP datagram.
      XXX - what if this is greater than the reported length of the
