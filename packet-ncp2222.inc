@@ -11,7 +11,7 @@
  * Portions Copyright (c) Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp2222.inc,v 1.55 2003/04/25 20:36:29 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.56 2003/07/21 09:21:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4898,10 +4898,12 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 						pvalues[i].vstring = string_buffer[i];
 						pvalues[i].mvtype = 0;
 					}
+                                        verb_string = val_to_str(request_value->nds_request_verb,
+                                            ncp_nds_verb_vals,
+                                            "Continuation Fragment");
                                         switch (request_value->nds_request_verb)
                                         {
                                                 case 0x01:
-                                                        verb_string = "Resolve Name";
                                                         if(request_value->nds_version == 0)
                                                         { 
                                                                 pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
@@ -5156,7 +5158,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         }
                                                         break;
                                                 case 0x02:    
-                                                        verb_string = "Read Entry Information";
                                                         if(request_value->nds_version != 0x000000fe)
                                                         { 
                                                                 pvalues[0].vvalue = 1;
@@ -5188,7 +5189,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         }
                                                         break;
                                                 case 0x03:    
-                                                        verb_string = "Read";
                                                         if(request_value->nds_version != 0x000000fe)
                                                         { 
                                                                 pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
@@ -5260,7 +5260,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         }
                                                         break;
                                                 case 0x04:    
-                                                        verb_string = "Compare";
                                                         pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                         if (pvalues[0].vvalue == 0x00000000)
                                                         {
@@ -5279,7 +5278,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         nds_offset += pvalues[0].vlength;
                                                         break;
                                                 case 0x05:    
-                                                        verb_string = "List";
                                                         pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                         pvalues[0].vtype = VTYPE_UINT32;
                                                         pvalues[0].vdesc = "Iteration Handle: 0x%08x";
@@ -5297,34 +5295,24 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         pvalues[1].vflags = request_value->req_nds_flags;
                                                         break;
                                                 case 0x06:    
-                                                        verb_string = "Search Entries";
                                                         break;
                                                 case 0x07:    
-                                                        verb_string = "Add Entry";
                                                         break;
                                                 case 0x08:    
-                                                        verb_string = "Remove Entry";
                                                         break;
                                                 case 0x09:    
-                                                        verb_string = "Modify Entry";
                                                         break;
                                                 case 0x0a:    
-                                                        verb_string = "Modify RDN";
                                                         break;
                                                 case 0x0b:    
-                                                        verb_string = "Define Attribute";
                                                         break;
                                                 case 0x0c:    
-                                                        verb_string = "Read Attribute Definition";
                                                         break;
                                                 case 0x0d:    
-                                                        verb_string = "Remove Attribute Definition";
                                                         break;
                                                 case 0x0e:    
-                                                        verb_string = "Define Class";
                                                         break;
                                                 case 0x0f:    
-                                                        verb_string = "Read Class Definition";
                                                         pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                         pvalues[0].vtype = VTYPE_UINT32;
                                                         pvalues[0].vdesc = "Iteration Handle: 0x%08x";
@@ -5355,13 +5343,10 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         pvalues[2].vflags = request_value->req_nds_flags;
                                                         break;
                                                 case 0x10:    
-                                                        verb_string = "Modify Class Definition";
                                                         break;
                                                 case 0x11:    
-                                                        verb_string = "Remove Class Definition";
                                                         break;
                                                 case 0x12:    
-                                                        verb_string = "List Containable Classes";
                                                         pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                         pvalues[0].vtype = VTYPE_UINT32;
                                                         pvalues[0].vdesc = "Iteration Handle: 0x%08x";
@@ -5387,13 +5372,10 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         nds_offset = nds_offset+pvalues[0].vlength;
                                                         break;
                                                 case 0x14:    
-                                                        verb_string = "Add Partition";
                                                         break;
                                                 case 0x15:    
-                                                        verb_string = "Remove Partition";
                                                         break;
                                                 case 0x16:    
-                                                        verb_string = "List Partitions";
                                                         pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                         pvalues[0].vtype = VTYPE_UINT32;
                                                         pvalues[0].vdesc = "Iteration Handle: 0x%08x";
@@ -5438,19 +5420,14 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         pvalues[2].vflags = request_value->req_nds_flags;
                                                         break;
                                                 case 0x17:    
-                                                        verb_string = "Split Partition";
                                                         break;
                                                 case 0x18:    
-                                                        verb_string = "Join Partitions";
                                                         break;
                                                 case 0x19:    
-                                                        verb_string = "Add Replica";
                                                         break;
                                                 case 0x1a:    
-                                                        verb_string = "Remove Replica";
                                                         break;
                                                 case 0x1b:    
-                                                        verb_string = "Open Stream";
                                                         pvalues[0].vvalue = tvb_get_ntohl(tvb, nds_offset);
                                                         pvalues[0].vtype = VTYPE_UINT32;
                                                         pvalues[0].vdesc = "File Handle: 0x%08x";
@@ -5467,82 +5444,56 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         nds_offset = nds_offset+pvalues[1].vlength;
                                                         break;
                                                 case 0x1c:    
-                                                        verb_string = "Search Filter";
                                                         break;
                                                 case 0x1d:    
-                                                        verb_string = "Create Subordinate Reference";
                                                         break;
                                                 case 0x1e:    
-                                                        verb_string = "Link Replica";
                                                         break;
                                                 case 0x1f:    
-                                                        verb_string = "Change Replica Type";
                                                         break;
                                                 case 0x20:    
-                                                        verb_string = "Start Update Schema";
                                                         break;
                                                 case 0x21:    
-                                                        verb_string = "End Update Schema";
                                                         break;
                                                 case 0x22:    
-                                                        verb_string = "Update Schema";
                                                         break;
                                                 case 0x23:    
-                                                        verb_string = "Start Update Replica";
                                                         break;
                                                 case 0x24:    
-                                                        verb_string = "End Update Replica";
                                                         break;
                                                 case 0x25:    
-                                                        verb_string = "Update Replica";
                                                         break;
                                                 case 0x26:    
-                                                        verb_string = "Synchronize Partition";
                                                         break;
                                                 case 0x27:    
-                                                        verb_string = "Synchronize Schema";
                                                         break;
                                                 case 0x28:    
-                                                        verb_string = "Read Syntaxes";
                                                         break;
                                                 case 0x29:    
-                                                        verb_string = "Get Replica Root ID";
                                                         break;                  
                                                 case 0x2a:    
-                                                        verb_string = "Begin Move Entry";
                                                         break;
                                                 case 0x2b:    
-                                                        verb_string = "Finish Move Entry";
                                                         break;
                                                 case 0x2c:    
-                                                        verb_string = "Release Moved Entry";
                                                         break;
                                                 case 0x2d:    
-                                                        verb_string = "Backup Entry";
                                                         break;
                                                 case 0x2e:    
-                                                        verb_string = "Restore Entry";
                                                         break;
                                                 case 0x2f:    
-                                                        verb_string = "Save DIB";
                                                         break;
                                                 case 0x30:
-                                                        verb_string = "Control";
                                                         break;
                                                 case 0x31:
-                                                        verb_string = "Remove Backlink";
                                                         break;
                                                 case 0x32:    
-                                                        verb_string = "Close Iteration";
                                                         break;
                                                 case 0x33:    
-                                                        verb_string = "Mutate Entry";
                                                         break;
                                                 case 0x34:    
-                                                        verb_string = "Audit Skulking";
                                                         break;
                                                 case 0x35:    
-                                                        verb_string = "Get Server Address";
                                                         if(request_value->nds_version != 0x000000fe)
                                                         { 
                                                                 pvalues[0].vtype = VTYPE_STRING;
@@ -5606,79 +5557,54 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         }        
                                                         break;
                                                 case 0x36:    
-                                                        verb_string = "Set Keys";
                                                         break;
                                                 case 0x37:    
-                                                        verb_string = "Change Password";
                                                         break;
                                                 case 0x38:    
-                                                        verb_string = "Verify Password";
                                                         break;
                                                 case 0x39:    
-                                                        verb_string = "Begin Login";
                                                         break;
                                                 case 0x3a:    
-                                                        verb_string = "Finish Login";
                                                         break;
                                                 case 0x3b:    
-                                                        verb_string = "Begin Authentication";
                                                         break;
                                                 case 0x3c:    
-                                                        verb_string = "Finish Authentication";
                                                         break;
                                                 case 0x3d:    
-                                                        verb_string = "Logout";
                                                         break;
                                                 case 0x3e:    
-                                                        verb_string = "Repair Ring";
                                                         break;
                                                 case 0x3f:    
-                                                        verb_string = "Repair Timestamps";
                                                         break;
                                                 case 0x40:    
-                                                        verb_string = "Create Back Link";
                                                         break;
                                                 case 0x41:              
-                                                        verb_string = "Delete External Reference";
                                                         break;
                                                 case 0x42:    
-                                                        verb_string = "Rename External Reference";
                                                         break;
                                                 case 0x43:    
-                                                        verb_string = "Create Directory Entry";
                                                         break;
                                                 case 0x44:    
-                                                        verb_string = "Remove Directory Entry";
                                                         break;
                                                 case 0x45:    
-                                                        verb_string = "Designate New Master";
                                                         break;
                                                 case 0x46:    
-                                                        verb_string = "Change Tree Name";
                                                         break;
                                                 case 0x47:    
-                                                        verb_string = "Partition Entry Count";
                                                         break;
                                                 case 0x48:    
-                                                        verb_string = "Check Login Restrictions";
                                                         break;
                                                 case 0x49:    
-                                                        verb_string = "Start Join";
                                                         break;
                                                 case 0x4a:    
-                                                        verb_string = "Low Level Split";
                                                         break;
                                                 case 0x4b:    
-                                                        verb_string = "Low Level Join";
                                                         break;
                                                 case 0x4c:    
-                                                        verb_string = "Abort Low Level Join";
                                                         break;
                                                 case 0x4d:    
-                                                        verb_string = "Get All Servers";
                                                         break;
                		                        default:
-                       			                verb_string = "NDS Continuation Fragment";
                                                         break;
                                         }        
         			        if(request_value->nds_request_verb != 0)
@@ -5807,6 +5733,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         guint8                  nds_verb = 0;
         char *                  verb_string = "";
         guint32                 nds_frag = 0;
+        gboolean                added_arrow;
         nds_val			pvalues[9];
 	char			string_buffer[9][1024];
         guint8                  nds_version = 0;
@@ -5860,10 +5787,11 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree_add_uint(ncp_tree, hf_nds_buffer_size, tvb, foffset,
                         4, nds_reply_buffer);
                 foffset = foffset+4;        
+                verb_string = val_to_str(nds_verb, ncp_nds_verb_vals,
+                    "Continuation Fragment");
                 switch(nds_verb) {
                 
                         case 0x01:
-                                verb_string = "Resolve Name -> ";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 nds_version = pvalues[0].vvalue;
                                 pvalues[0].vtype = VTYPE_UINT32;
@@ -6017,7 +5945,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 }
                                 break;
                         case 0x02:    
-                                verb_string = "Read Entry Information";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
@@ -6267,7 +6194,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 
                                 break;
                         case 0x03:    
-                                verb_string = "Read -> ";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
@@ -6378,7 +6304,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 }
                                 break;
                         case 0x04:    
-                                verb_string = "Compare";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
@@ -6422,7 +6347,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                  ***************/
                                 break;
                         case 0x05:    
-                                verb_string = "List -> ";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
@@ -6604,7 +6528,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[8].voffset = foffset;
                                 break;
                         case 0x06:    
-                                verb_string = "Search Entries";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
@@ -6781,7 +6704,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 }
                                 break;
                         case 0x07:    
-                                verb_string = "Add Entry ->";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
@@ -6890,7 +6812,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 }
                                 break;
                         case 0x08:    
-                                verb_string = "Remove Entry";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
@@ -6909,7 +6830,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[1].vlength;
                                 break;
                         case 0x09:    
-                                verb_string = "Modify Entry";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
@@ -6985,7 +6905,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 }
                                 break;
                         case 0x0a:    
-                                verb_string = "Modify RDN";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
@@ -7024,7 +6943,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[3].vlength;
                                 break;
                         case 0x0b:    
-                                verb_string = "Define Attribute ->";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
@@ -7126,11 +7044,9 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[6].hfname = hf_nds_asn1;
                                 break;
                         case 0x0c:    
-                                verb_string = "Read Attribute Definition";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x0d:    
-                                verb_string = "Remove Attribute Definition";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
@@ -7157,11 +7073,9 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[1].hfname= hf_nds_attribute_dn;
                                 break;
                         case 0x0e:    
-                                verb_string = "Define Class";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x0f:    
-                                verb_string = "Read Class Definition ->";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
@@ -7217,7 +7131,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[4].hfname= hf_nds_classes;
                                 break;
                         case 0x10:    
-                                verb_string = "Modify Class Definition -> ";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
@@ -7253,7 +7166,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[2].hfname= hf_nds_att_add;
                                 break;
                         case 0x11:    
-                                verb_string = "Remove Class Definition";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
@@ -7280,7 +7192,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[1].hfname= hf_nds_base;
                                 break;
                         case 0x12:    
-                                verb_string = "List Containable Classes";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
@@ -7306,7 +7217,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[2].vlength;
                                 break;
                         case 0x13:    
-                                verb_string = "Get Effective Rights -> ";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
@@ -7380,15 +7290,12 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 }
                                 break;
                         case 0x14:    
-                                verb_string = "Add Partition";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x15:    
-                                verb_string = "Remove Partition";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x16:    
-                                verb_string = "List Partitions";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
@@ -7539,7 +7446,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[5].vlength;
                                 break;
                         case 0x17:    
-                                verb_string = "Split Partition";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 nds_version = pvalues[0].vvalue;
                                 pvalues[0].vtype = VTYPE_UINT32;
@@ -7565,7 +7471,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[2].vlength;
                                 break;
                         case 0x18:    
-                                verb_string = "Join Partitions";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 nds_version = pvalues[0].vvalue;
                                 pvalues[0].vtype = VTYPE_UINT32;
@@ -7591,7 +7496,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[2].vlength;
                                 break;
                         case 0x19:    
-                                verb_string = "Add Replica";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 nds_version = pvalues[0].vvalue;
                                 pvalues[0].vtype = VTYPE_UINT32;
@@ -7645,11 +7549,9 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[4].hfname= hf_nds_target_name;
                                 break;
                         case 0x1a:    
-                                verb_string = "Remove Replica";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x1b:    
-                                verb_string = "Open Stream -> ";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 nds_version = pvalues[0].vvalue;
                                 pvalues[0].vtype = VTYPE_UINT32;
@@ -7694,47 +7596,36 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[3].hfname= hf_nds_stream_name;
                                 break;
                         case 0x1c:    
-                                verb_string = "Search Filter";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x1d:    
-                                verb_string = "Create Subordinate Reference";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x1e:    
-                                verb_string = "Link Replica";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x1f:    
-                                verb_string = "Change Replica Type";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x20:    
-                                verb_string = "Start Update Schema";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x21:    
-                                verb_string = "End Update Schema";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x22:    
-                                verb_string = "Update Schema";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x23:    
-                                verb_string = "Start Update Replica";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x24:    
-                                verb_string = "End Update Replica";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x25:    
-                                verb_string = "Update Replica";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x26:    
-                                verb_string = "Synchronize Partition";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 nds_version = pvalues[0].vvalue;
                                 pvalues[0].vtype = VTYPE_UINT32;
@@ -7794,79 +7685,60 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 }
                                 break;
                         case 0x27:    
-                                verb_string = "Synchronize Schema";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x28:    
-                                verb_string = "Read Syntaxes";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x29:    
-                                verb_string = "Get Replica Root ID";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x2a:    
-                                verb_string = "Begin Move Entry";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x2b:    
-                                verb_string = "Finish Move Entry";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x2c:    
-                                verb_string = "Release Moved Entry";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x2d:    
-                                verb_string = "Backup Entry";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x2e:    
-                                verb_string = "Restore Entry";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x2f:    
-                                verb_string = "Save DIB";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x30:
-                                verb_string = "Control";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x31:
-                                verb_string = "Remove Backlink";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x32:    
-                                verb_string = "Close Iteration";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x33:    
-                                verb_string = "Mutate Entry";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x34:    
-                                verb_string = "Audit Skulking";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x35:    
-                                verb_string = "Get Server Address";
                                 pvalues[0].vvalue = 0;
                                 break;
                         case 0x36:    
-                                verb_string = "Set Keys";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x37:    
-                                verb_string = "Change Password";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x38:    
-                                verb_string = "Verify Password";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x39:    
-                                verb_string = "Begin Login";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
@@ -7885,7 +7757,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[1].vlength;
                                 break;
                         case 0x3a:    
-                                verb_string = "Finish Login";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Reply Buffer Size: %u";
@@ -7911,7 +7782,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[2].vlength;
                                 break;
                         case 0x3b:    
-                                verb_string = "Begin Authentication";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
@@ -7930,78 +7800,59 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[1].vlength;
                                 break;
                         case 0x3c:    
-                                verb_string = "Finish Authentication";
                                 break;
                         case 0x3d:    
-                                verb_string = "Logout";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x3e:    
-                                verb_string = "Repair Ring";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x3f:    
-                                verb_string = "Repair Timestamps";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x40:    
-                                verb_string = "Create Back Link";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x41:    
-                                verb_string = "Delete External Reference";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x42:    
-                                verb_string = "Rename External Reference";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x43:    
-                                verb_string = "Create Directory Entry";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x44:    
-                                verb_string = "Remove Directory Entry";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x45:    
-                                verb_string = "Designate New Master";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x46:    
-                                verb_string = "Change Tree Name";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x47:    
-                                verb_string = "Partition Entry Count";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x48:    
-                                verb_string = "Check Login Restrictions";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x49:    
-                                verb_string = "Start Join";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x4a:    
-                                verb_string = "Low Level Split";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x4b:    
-                                verb_string = "Low Level Join";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x4c:    
-                                verb_string = "Abort Low Level Join";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x4d:    
-                                verb_string = "Get All Servers";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                		default:
-               			verb_string = "Continuation Fragment";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                	}
         }
@@ -8118,6 +7969,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
        				        proto_tree_add_uint_format(ncp_tree, hf_ncp_nds_verb, tvb, 24, 4,
        					        nds_verb, "NDS Verb: %d, (0x%02x), %s",
        					        nds_verb, nds_verb, verb_string);
+                                        added_arrow = FALSE;
 					for (i = 0; i < 9; i++) {
 						switch (pvalues[i].vtype) {
 
@@ -8151,8 +8003,13 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 								 * for MVTYPE_PROC_ENTRY_SPECIFIERS,
 								 * to add string to columninfo
 								 */
-								if (check_col(pinfo->cinfo, COL_INFO))
+								if (check_col(pinfo->cinfo, COL_INFO)) {
+									if (!added_arrow) {
+										col_append_str(pinfo->cinfo, COL_INFO, " -> ");
+										added_arrow = TRUE;
+									}
 									col_append_str(pinfo->cinfo, COL_INFO, pvalues[i].vstring);
+								}
 							}
 							break;
 
@@ -8176,8 +8033,13 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 								 * and the last string for MVTYPE_ATTR_REQUEST,
 								 * by "process_multivalues()".
 								 */
-								if (check_col(pinfo->cinfo, COL_INFO))
+								if (check_col(pinfo->cinfo, COL_INFO)) {
+									if (!added_arrow) {
+										col_append_str(pinfo->cinfo, COL_INFO, " -> ");
+										added_arrow = TRUE;
+									}
 									col_append_str(pinfo->cinfo, COL_INFO, pvalues[i].vstring);
+								}
 							}
 							break;
 
