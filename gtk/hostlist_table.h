@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all host talkers taps.
  *
- * $Id: hostlist_table.h,v 1.5 2004/06/01 23:00:24 guy Exp $
+ * $Id: hostlist_table.h,v 1.6 2004/06/02 06:44:40 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,10 +37,10 @@ typedef enum {
 
 /** Hostlist information */
 typedef struct _hostlist_talker_t {
-	address address;        /**< source address */
+	address address;        /**< address */
 	SAT_E   sat;            /**< address type */
 	guint32 port_type;      /**< port_type (e.g. PT_TCP) */
-	guint32 port;           /**< source port */
+	guint32 port;           /**< port */
 
 	guint32 rx_frames;      /**< number of received packets */
 	guint32 tx_frames;      /**< number of transmitted packets */
