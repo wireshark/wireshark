@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.14 2003/11/15 11:44:10 ulfl Exp $
+ * $Id: toolbar.c,v 1.15 2003/11/18 00:46:40 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -150,7 +150,7 @@ void ethereal_stock_icons(void) {
         GdkPixbuf * pixbuf;
         GtkIconSet *icon_set;
 
-        pixbuf = gdk_pixbuf_new_from_xpm_data((pixmaps[i].xpm_data));
+        pixbuf = gdk_pixbuf_new_from_xpm_data((const char **) (pixmaps[i].xpm_data));
         g_assert(pixbuf);
         icon_set = gtk_icon_set_new_from_pixbuf (pixbuf);
         gtk_icon_factory_add (factory, pixmaps[i].name, icon_set);
@@ -302,9 +302,11 @@ static void toolbar_append_separator(GtkWidget *toolbar) {
 /* get the main toolbar (remember: call this only once!) */
 static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
 {
+#if GTK_MAJOR_VERSION < 2
     GdkPixmap *icon;
     GtkWidget *iconw;
     GdkBitmap * mask;
+#endif /* GTK_MAJOR_VERSION */
 
     /* this function should be only called once! */
     g_assert(!toolbar_init);
