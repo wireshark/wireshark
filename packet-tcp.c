@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.215 2003/11/08 05:47:12 guy Exp $
+ * $Id: packet-tcp.c,v 1.216 2003/11/11 19:24:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -161,7 +161,7 @@ static dissector_handle_t data_handle;
 /* TCP structs and definitions */
 
 static void
-process_tcp_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
+process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tcp_tree, int src_port, int dst_port,
 	guint32 nxtseq, gboolean is_tcp_segment);
 
