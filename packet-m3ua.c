@@ -3,11 +3,12 @@
  * It is hopefully (needs testing) compilant to
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m3ua-05.txt (expired)
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m3ua-06.txt (expired)
+ * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m3ua-07.txt (expired)
  * http://www.ietf.org/rfc/rfc3332.txt
  *
- * Copyright 2000, 2001, 2002, 2003 Michael Tuexen <tuexen [AT] fh-muenster.de>
+ * Copyright 2000, 2001, 2002, 2003, 2004 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m3ua.c,v 1.37 2003/12/21 05:51:33 jmayer Exp $
+ * $Id: packet-m3ua.c,v 1.38 2004/03/23 15:39:17 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -235,6 +236,7 @@ static int hf_message_type = -1;
 static int hf_message_length = -1;
 static int hf_v5_parameter_tag = -1;
 static int hf_v6_parameter_tag = -1;
+static int hf_v7_parameter_tag = -1;
 static int hf_parameter_tag = -1;
 static int hf_parameter_length = -1;
 static int hf_parameter_value = -1;
@@ -247,6 +249,7 @@ static int hf_diagnostic_information = -1;
 static int hf_heartbeat_data = -1;
 static int hf_v5_error_code = -1;
 static int hf_v6_error_code = -1;
+static int hf_v7_error_code = -1;
 static int hf_error_code = -1;
 static int hf_status_type = -1;
 static int hf_status_info = -1;
@@ -258,6 +261,7 @@ static int hf_user = -1;
 static int hf_reason = -1;
 static int hf_v5_traffic_mode_type = -1;
 static int hf_v6_traffic_mode_type = -1;
+static int hf_v7_traffic_mode_type = -1;
 static int hf_traffic_mode_type = -1;
 static int hf_congestion_reserved = -1;
 static int hf_congestion_level = -1;
@@ -302,6 +306,7 @@ static dissector_table_t si_dissector_table;
 typedef enum {
   M3UA_V5,
   M3UA_V6,
+  M3UA_V7,
   M3UA_RFC
 } Version_Type;
 
@@ -573,6 +578,18 @@ dissect_v6_traffic_mode_type_parameter(tvbuff_t *parameter_tvb, proto_tree *para
   proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET), v6_traffic_mode_type_values, "unknown"));
 }
 
+static const value_string v7_traffic_mode_type_values[] = {
+  { 1, "Over-ride"            },
+  { 2, "Load-share"           },
+  { 0, NULL                   } };
+
+static void
+dissect_v7_traffic_mode_type_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+  proto_tree_add_item(parameter_tree, hf_v7_traffic_mode_type, parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET, TRAFFIC_MODE_TYPE_LENGTH, NETWORK_BYTE_ORDER);
+  proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET), v7_traffic_mode_type_values, "unknown"));
+}
+
 static const value_string traffic_mode_type_values[] = {
   { 1, "Over-ride"  },
   { 2, "Load-share" },
@@ -628,6 +645,29 @@ dissect_v6_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
   proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, ERROR_CODE_OFFSET), v6_error_code_values, "unknown"));
 }
 
+static const value_string v7_error_code_values[] = {
+  {  1, "Invalid version"               },
+  {  2, "Invalid network appearance"    },
+  {  3, "Unsupported message class"     },
+  {  4, "Unsupported message type"      },
+  {  5, "Invalid traffic handling mode" },
+  {  6, "Unexpected message"            },
+  {  7, "Protocol error"                },
+  {  8, "Invalid routing context"       },
+  {  9, "Invalid stream identifier"     },
+  { 10, "Invalid parameter value"       },
+  { 11, "Refused - Management Blocking" },
+  { 12, "Unknown Routing Context"       },
+  {  0,  NULL                           } };
+
+
+static void
+dissect_v7_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+  proto_tree_add_item(parameter_tree, hf_v7_error_code, parameter_tvb, ERROR_CODE_OFFSET, ERROR_CODE_LENGTH, NETWORK_BYTE_ORDER);
+  proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, ERROR_CODE_OFFSET), v7_error_code_values, "unknown"));
+}
+
 static const value_string error_code_values[] = {
   { 0x01, "Invalid version"                   },
   { 0x03, "Unsupported message class"         },
@@ -673,7 +713,7 @@ static const value_string status_type_values[] = {
 #define ALTERNATE_ASP_ACTIVE_INFO  2
 #define ASP_FAILURE_INFO           3
 
-static const value_string v56_status_type_info_values[] = {
+static const value_string v567_status_type_info_values[] = {
   { AS_STATE_CHANGE_TYPE * 256 * 256 + RESERVED_INFO,             "Reserved" },
   { AS_STATE_CHANGE_TYPE * 256 * 256 + AS_INACTIVE_INFO,          "Application server inactive" },
   { AS_STATE_CHANGE_TYPE * 256 * 256 + AS_ACTIVE_INFO,            "Application server active" },
@@ -690,7 +730,7 @@ static const value_string v56_status_type_info_values[] = {
 #define STATUS_INFO_OFFSET (STATUS_TYPE_OFFSET + STATUS_TYPE_LENGTH)
 
 static void
-dissect_v56_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_v567_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 status_type, status_info;
 
@@ -699,9 +739,9 @@ dissect_v56_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree
 
   proto_tree_add_item(parameter_tree, hf_status_type, parameter_tvb, STATUS_TYPE_OFFSET, STATUS_TYPE_LENGTH, NETWORK_BYTE_ORDER);
   proto_tree_add_uint_format(parameter_tree, hf_status_info, parameter_tvb, STATUS_INFO_OFFSET, STATUS_INFO_LENGTH, status_info,
-                             "Status info: %s (%u)", val_to_str(status_type * 256 * 256 + status_info, v56_status_type_info_values, "unknown"), status_info);
+                             "Status info: %s (%u)", val_to_str(status_type * 256 * 256 + status_info, v567_status_type_info_values, "unknown"), status_info);
 
-  proto_item_append_text(parameter_item, " (%s)", val_to_str(status_type * 256 * 256 + status_info, v56_status_type_info_values, "unknown status information"));
+  proto_item_append_text(parameter_item, " (%s)", val_to_str(status_type * 256 * 256 + status_info, v567_status_type_info_values, "unknown status information"));
 }
 
 static const value_string status_type_info_values[] = {
@@ -844,7 +884,7 @@ static const value_string registration_result_status_values[] = {
 #define REG_RES_CONTEXT_OFFSET    (REG_RES_STATUS_OFFSET + REG_RES_STATUS_LENGTH)
 
 static void
-dissect_v6_registration_result_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+dissect_v67_registration_result_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
   proto_tree_add_item(parameter_tree, hf_registration_result_identifier, parameter_tvb, REG_RES_IDENTIFIER_OFFSET, REG_RES_IDENTIFIER_LENGTH, NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_registration_result_status,     parameter_tvb, REG_RES_STATUS_OFFSET,     REG_RES_STATUS_LENGTH,     NETWORK_BYTE_ORDER);
@@ -878,7 +918,7 @@ static const value_string v6_deregistration_result_status_values[] = {
 #define DEREG_RES_STATUS_OFFSET  (DEREG_RES_CONTEXT_OFFSET + DEREG_RES_CONTEXT_LENGTH)
 
 static void
-dissect_v6_deregistration_result_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+dissect_v67_deregistration_result_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
   proto_tree_add_item(parameter_tree, hf_v6_deregistration_result_context, parameter_tvb, DEREG_RES_CONTEXT_OFFSET, DEREG_RES_CONTEXT_LENGTH, NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_v6_deregistration_result_status,  parameter_tvb, DEREG_RES_STATUS_OFFSET,  DEREG_RES_STATUS_LENGTH,  NETWORK_BYTE_ORDER);
@@ -1232,7 +1272,7 @@ dissect_v5_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     dissect_v5_error_code_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case V5_STATUS_PARAMETER_TAG:
-    dissect_v56_status_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_v567_status_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case V5_CONGESTION_INDICATION_PARAMETER_TAG:
     dissect_congestion_indication_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1362,7 +1402,7 @@ dissect_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     dissect_v6_error_code_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case V6_STATUS_PARAMETER_TAG:
-    dissect_v56_status_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_v567_status_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case V6_CONGESTION_INDICATION_PARAMETER_TAG:
     dissect_congestion_indication_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1374,10 +1414,10 @@ dissect_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     dissect_routing_key_parameter(parameter_tvb, pinfo, tree, parameter_tree);
     break;
   case V6_REGISTRATION_RESULT_PARAMETER_TAG:
-    dissect_v6_registration_result_parameter(parameter_tvb, parameter_tree);
+    dissect_v67_registration_result_parameter(parameter_tvb, parameter_tree);
     break;
   case V6_DEREGISTRATION_RESULT_PARAMETER_TAG:
-    dissect_v6_deregistration_result_parameter(parameter_tvb, parameter_tree);
+    dissect_v67_deregistration_result_parameter(parameter_tvb, parameter_tree);
     break;
   case V6_LOCAL_ROUTING_KEY_IDENTIFIER_PARAMETER_TAG:
     dissect_local_routing_key_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1401,6 +1441,173 @@ dissect_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     dissect_registration_results_parameter(parameter_tvb, pinfo, tree, parameter_tree);
     break;
   case V6_DEREGISTRATION_RESULTS_PARAMETER_TAG:
+    dissect_deregistration_results_parameter(parameter_tvb, pinfo, tree, parameter_tree);
+    break;
+  default:
+    dissect_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  };
+
+  if (padding_length > 0)
+    proto_tree_add_item(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, NETWORK_BYTE_ORDER);
+}
+
+#define V7_NETWORK_APPEARANCE_PARAMETER_TAG            0x01
+#define V7_PROTOCOL_DATA_1_PARAMETER_TAG               0x80
+#define V7_PROTOCOL_DATA_2_PARAMETER_TAG               0x81
+#define V7_INFO_PARAMETER_TAG                          0x04
+#define V7_AFFECTED_DESTINATIONS_PARAMETER_TAG         0x83
+#define V7_ROUTING_CONTEXT_PARAMETER_TAG               0x06
+#define V7_DIAGNOSTIC_INFORMATION_PARAMETER_TAG        0x07
+#define V7_HEARTBEAT_DATA_PARAMETER_TAG                0x09
+#define V7_USER_CAUSE_PARAMETER_TAG                    0x84
+#define V7_REASON_PARAMETER_TAG                        0x0a
+#define V7_TRAFFIC_MODE_TYPE_PARAMETER_TAG             0x0b
+#define V7_ERROR_CODE_PARAMETER_TAG                    0x0c
+#define V7_STATUS_PARAMETER_TAG                        0x0d
+#define V7_CONGESTION_INDICATION_PARAMETER_TAG         0x85
+#define V7_CONCERNED_DESTINATION_PARAMETER_TAG         0x86
+#define V7_ROUTING_KEY_PARAMETER_TAG                   0x87
+#define V7_REGISTRATION_RESULT_PARAMETER_TAG           0x88
+#define V7_DEREGISTRATION_RESULT_PARAMETER_TAG         0x89
+#define V7_LOCAL_ROUTING_KEY_IDENTIFIER_PARAMETER_TAG  0x8a
+#define V7_DESTINATION_POINT_CODE_PARAMETER_TAG        0x8b
+#define V7_SERVICE_INDICATORS_PARAMETER_TAG            0x8c
+#define V7_SUBSYSTEM_NUMBERS_PARAMETER_TAG             0x8d
+#define V7_ORIGINATING_POINT_CODE_LIST_PARAMETER_TAG   0x8e
+#define V7_CIRCUIT_RANGE_PARAMETER_TAG                 0x8f
+#define V7_REGISTRATION_RESULTS_PARAMETER_TAG          0x90
+#define V7_DEREGISTRATION_RESULTS_PARAMETER_TAG        0x91
+
+static const value_string v7_parameter_tag_values[] = {
+  { V7_NETWORK_APPEARANCE_PARAMETER_TAG,           "Network appearance" },
+  { V7_PROTOCOL_DATA_1_PARAMETER_TAG,              "Protocol data 1" },
+  { V7_PROTOCOL_DATA_2_PARAMETER_TAG,              "Protocol data 2" },
+  { V7_INFO_PARAMETER_TAG,                         "Info" },
+  { V7_AFFECTED_DESTINATIONS_PARAMETER_TAG,        "Affected destinations" },
+  { V7_ROUTING_CONTEXT_PARAMETER_TAG,              "Routing context" },
+  { V7_DIAGNOSTIC_INFORMATION_PARAMETER_TAG,       "Diagnostic information" },
+  { V7_HEARTBEAT_DATA_PARAMETER_TAG,               "Heartbeat data" },
+  { V7_USER_CAUSE_PARAMETER_TAG,                   "User / Cause" },
+  { V7_REASON_PARAMETER_TAG,                       "Reason" },
+  { V7_TRAFFIC_MODE_TYPE_PARAMETER_TAG,            "Traffic mode type" },
+  { V7_ERROR_CODE_PARAMETER_TAG,                   "Error code" },
+  { V7_STATUS_PARAMETER_TAG,                       "Status" },
+  { V7_CONGESTION_INDICATION_PARAMETER_TAG,        "Congestion indication" },
+  { V7_CONCERNED_DESTINATION_PARAMETER_TAG,        "Concerned destination" },
+  { V7_ROUTING_KEY_PARAMETER_TAG,                  "Routing Key" },
+  { V7_REGISTRATION_RESULT_PARAMETER_TAG,          "Registration result" },
+  { V7_DEREGISTRATION_RESULT_PARAMETER_TAG,        "De-registration result" },
+  { V7_LOCAL_ROUTING_KEY_IDENTIFIER_PARAMETER_TAG, "Local routing key identifier" },
+  { V7_DESTINATION_POINT_CODE_PARAMETER_TAG,       "Destination point code" },
+  { V7_SERVICE_INDICATORS_PARAMETER_TAG,           "Service indicators" },
+  { V7_SUBSYSTEM_NUMBERS_PARAMETER_TAG,            "Subsystem numbers" },
+  { V7_ORIGINATING_POINT_CODE_LIST_PARAMETER_TAG,  "Originating point code list" },
+  { V7_CIRCUIT_RANGE_PARAMETER_TAG,                "Circuit range" },
+  { V7_REGISTRATION_RESULTS_PARAMETER_TAG,         "Registration results" },
+  { V7_DEREGISTRATION_RESULTS_PARAMETER_TAG,       "De-registration results" },
+  { 0,                           NULL } };
+  
+static void
+dissect_v7_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *m3ua_tree)
+{
+  guint16 tag, length, padding_length;
+  proto_item *parameter_item;
+  proto_tree *parameter_tree;
+
+  /* extract tag and length from the parameter */
+  tag            = tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET);
+  length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
+  padding_length = tvb_length(parameter_tvb) - length;
+
+  if (!tree && tag != V7_PROTOCOL_DATA_1_PARAMETER_TAG && tag != V7_PROTOCOL_DATA_2_PARAMETER_TAG)
+    return;	/* Nothing to do here */
+
+  /* create proto_tree stuff */
+  parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), val_to_str(tag, v7_parameter_tag_values, "Unknown parameter"));
+  parameter_tree   = proto_item_add_subtree(parameter_item, ett_parameter);
+
+  /* add tag and length to the parameter tree */
+  proto_tree_add_item(parameter_tree, hf_v7_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    NETWORK_BYTE_ORDER);
+  proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, NETWORK_BYTE_ORDER);
+
+  switch(tag) {
+  case V7_NETWORK_APPEARANCE_PARAMETER_TAG:
+    dissect_network_appearance_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V7_PROTOCOL_DATA_1_PARAMETER_TAG:
+    dissect_protocol_data_1_parameter(parameter_tvb, pinfo, tree, parameter_item);
+    break;
+  case V7_PROTOCOL_DATA_2_PARAMETER_TAG:
+    dissect_protocol_data_2_parameter(parameter_tvb, pinfo, tree, parameter_tree, parameter_item);
+    break;
+  case V7_INFO_PARAMETER_TAG:
+    dissect_info_string_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V7_AFFECTED_DESTINATIONS_PARAMETER_TAG:
+    dissect_affected_destinations_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V7_ROUTING_CONTEXT_PARAMETER_TAG:
+    dissect_routing_context_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V7_DIAGNOSTIC_INFORMATION_PARAMETER_TAG:
+    dissect_diagnostic_information_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V7_HEARTBEAT_DATA_PARAMETER_TAG:
+    dissect_heartbeat_data_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V7_USER_CAUSE_PARAMETER_TAG:
+    dissect_user_cause_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V7_REASON_PARAMETER_TAG:
+    dissect_reason_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V7_TRAFFIC_MODE_TYPE_PARAMETER_TAG:
+    dissect_v7_traffic_mode_type_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V7_ERROR_CODE_PARAMETER_TAG:
+    dissect_v7_error_code_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V7_STATUS_PARAMETER_TAG:
+    dissect_v567_status_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V7_CONGESTION_INDICATION_PARAMETER_TAG:
+    dissect_congestion_indication_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V7_CONCERNED_DESTINATION_PARAMETER_TAG:
+    dissect_concerned_destination_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V7_ROUTING_KEY_PARAMETER_TAG:
+    dissect_routing_key_parameter(parameter_tvb, pinfo, tree, parameter_tree);
+    break;
+  case V7_REGISTRATION_RESULT_PARAMETER_TAG:
+    dissect_v67_registration_result_parameter(parameter_tvb, parameter_tree);
+    break;
+  case V7_DEREGISTRATION_RESULT_PARAMETER_TAG:
+    dissect_v67_deregistration_result_parameter(parameter_tvb, parameter_tree);
+    break;
+  case V7_LOCAL_ROUTING_KEY_IDENTIFIER_PARAMETER_TAG:
+    dissect_local_routing_key_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V7_DESTINATION_POINT_CODE_PARAMETER_TAG:
+    dissect_destination_point_code_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V7_SERVICE_INDICATORS_PARAMETER_TAG:
+    dissect_service_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V7_SUBSYSTEM_NUMBERS_PARAMETER_TAG:
+    dissect_subsystem_numbers_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V7_ORIGINATING_POINT_CODE_LIST_PARAMETER_TAG:
+    dissect_originating_point_code_list_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V7_CIRCUIT_RANGE_PARAMETER_TAG:
+    dissect_circuit_range_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V7_REGISTRATION_RESULTS_PARAMETER_TAG:
+    dissect_registration_results_parameter(parameter_tvb, pinfo, tree, parameter_tree);
+    break;
+  case V7_DEREGISTRATION_RESULTS_PARAMETER_TAG:
     dissect_deregistration_results_parameter(parameter_tvb, pinfo, tree, parameter_tree);
     break;
   default:
@@ -1597,6 +1804,9 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
       case M3UA_V6:
         dissect_v6_parameter(parameter_tvb, pinfo, tree, m3ua_tree);
         break;
+      case M3UA_V7:
+        dissect_v7_parameter(parameter_tvb, pinfo, tree, m3ua_tree);
+        break;
       case M3UA_RFC:
         dissect_parameter(parameter_tvb, pinfo, tree, m3ua_tree);
         break;
@@ -1640,6 +1850,9 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
       case M3UA_V6:
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "M3UA (ID 06)");
         break;
+      case M3UA_V7:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "M3UA (ID 07)");
+        break;
       case M3UA_RFC:
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "M3UA (RFC 3332)");
         break;
@@ -1674,6 +1887,7 @@ proto_register_m3ua(void)
     { &hf_message_length,                   { "Message length",               "m3ua.message_length",                        FT_UINT32, BASE_DEC,  NULL,                                         0x0, "", HFILL } },
     { &hf_v5_parameter_tag,                 { "Parameter Tag",                "m3ua.parameter_tag",                         FT_UINT16, BASE_DEC,  VALS(v5_parameter_tag_values),                0x0, "", HFILL } },
     { &hf_v6_parameter_tag,                 { "Parameter Tag",                "m3ua.parameter_tag",                         FT_UINT16, BASE_DEC,  VALS(v6_parameter_tag_values),                0x0, "", HFILL } },
+    { &hf_v7_parameter_tag,                 { "Parameter Tag",                "m3ua.parameter_tag",                         FT_UINT16, BASE_DEC,  VALS(v7_parameter_tag_values),                0x0, "", HFILL } },
     { &hf_parameter_tag,                    { "Parameter Tag",                "m3ua.parameter_tag",                         FT_UINT16, BASE_DEC,  VALS(parameter_tag_values),                   0x0, "", HFILL } },
     { &hf_parameter_length,                 { "Parameter length",             "m3ua.parameter_length",                      FT_UINT16, BASE_DEC,  NULL,                                         0x0, "", HFILL } },
     { &hf_parameter_value,                  { "Parameter value",              "m3ua.parameter_value",                       FT_BYTES,  BASE_NONE, NULL,                                         0x0, "", HFILL } },
@@ -1686,6 +1900,7 @@ proto_register_m3ua(void)
     { &hf_heartbeat_data,                   { "Heartbeat data",               "m3ua.heartbeat_data",                        FT_BYTES,  BASE_NONE, NULL,                                         0x0, "", HFILL } },
     { &hf_v5_error_code,                    { "Error code",                   "m3ua.error_code",                            FT_UINT32, BASE_DEC,  VALS(v5_error_code_values),                   0x0, "", HFILL } },
     { &hf_v6_error_code,                    { "Error code",                   "m3ua.error_code",                            FT_UINT32, BASE_DEC,  VALS(v6_error_code_values),                   0x0, "", HFILL } },
+    { &hf_v7_error_code,                    { "Error code",                   "m3ua.error_code",                            FT_UINT32, BASE_DEC,  VALS(v7_error_code_values),                   0x0, "", HFILL } },
     { &hf_error_code,                       { "Error code",                   "m3ua.error_code",                            FT_UINT32, BASE_DEC,  VALS(error_code_values),                      0x0, "", HFILL } },
     { &hf_status_type,                      { "Status type",                  "m3ua.status_type",                           FT_UINT16, BASE_DEC,  VALS(status_type_values),                     0x0, "", HFILL } },
     { &hf_status_info,                      { "Status info",                  "m3ua.status_info",                           FT_UINT16, BASE_DEC,  NULL,                                         0x0, "", HFILL } },
@@ -1697,6 +1912,7 @@ proto_register_m3ua(void)
     { &hf_reason,                           { "Reason",                       "m3ua.reason",                                FT_UINT32, BASE_DEC,  VALS(reason_values),                          0x0, "", HFILL } },
     { &hf_v5_traffic_mode_type,             { "Traffic mode Type",            "m3ua.traffic_mode_type",                     FT_UINT32, BASE_DEC,  VALS(v5_traffic_mode_type_values),            0x0, "", HFILL } },
     { &hf_v6_traffic_mode_type,             { "Traffic mode Type",            "m3ua.traffic_mode_type",                     FT_UINT32, BASE_DEC,  VALS(v6_traffic_mode_type_values),            0x0, "", HFILL } },
+    { &hf_v7_traffic_mode_type,             { "Traffic mode Type",            "m3ua.traffic_mode_type",                     FT_UINT32, BASE_DEC,  VALS(v7_traffic_mode_type_values),            0x0, "", HFILL } },
     { &hf_traffic_mode_type,                { "Traffic mode Type",            "m3ua.traffic_mode_type",                     FT_UINT32, BASE_DEC,  VALS(traffic_mode_type_values),               0x0, "", HFILL } },
     { &hf_congestion_reserved,              { "Reserved",                     "m3ua.congestion_reserved",                   FT_BYTES,  BASE_NONE, NULL,                                         0x0, "", HFILL } },
     { &hf_congestion_level,                 { "Congestion level",             "m3ua.congestion_level",                      FT_UINT8,  BASE_DEC,  VALS(congestion_level_values),                0x0, "", HFILL } },
@@ -1739,6 +1955,7 @@ proto_register_m3ua(void)
   static enum_val_t options[] = {
     { "Internet Draft version 5",        M3UA_V5  },
     { "Internet Draft version 6",        M3UA_V6  },
+    { "Internet Draft version 7",        M3UA_V7  },
     { "RFC 3332",                        M3UA_RFC },
     { NULL, 0 }
   };
