@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.65 1999/12/08 17:54:41 gram Exp $
+ * $Id: packet-ip.c,v 1.66 1999/12/09 21:58:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -752,12 +752,14 @@ static const true_false_string flags_set_truth = {
 static char *ip_checksum_state(e_ip *iph)
 {
     unsigned long Sum;
-    unsigned short *Ptr, *PtrEnd;
+    unsigned char *Ptr, *PtrEnd;
+    unsigned short word;
 
     Sum    = 0;
-    PtrEnd = (unsigned short *) (lo_nibble(iph->ip_v_hl) * 4 + (char *)iph);
-    for (Ptr = (unsigned short *) iph; Ptr < PtrEnd; Ptr++) {
-        Sum += *Ptr;
+    PtrEnd = (lo_nibble(iph->ip_v_hl) * 4 + (char *)iph);
+    for (Ptr = (unsigned char *) iph; Ptr < PtrEnd; Ptr += 2) {
+	memcpy(&word, Ptr, sizeof word);
+        Sum += word;
     }
 
     Sum = (Sum & 0xFFFF) + (Sum >> 16);
