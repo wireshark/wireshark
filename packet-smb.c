@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.221 2002/03/16 22:01:27 guy Exp $
+ * $Id: packet-smb.c,v 1.222 2002/03/16 22:35:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3036,6 +3036,31 @@ dissect_file_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
 }
 
 static int
+dissect_file_data_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    proto_tree *top_tree, int offset, guint16 bc, guint16 datalen, guint16 fid)
+{
+	int tvblen;
+	tvbuff_t *dcerpc_tvb;
+
+	if(bc>datalen){
+		/* We have some initial padding bytes. */
+		/* XXX - use the data offset here instead? */
+		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, bc-datalen,
+			TRUE);
+		offset += bc-datalen;
+		bc = datalen;
+	}
+	tvblen = tvb_length_remaining(tvb, offset);
+	dcerpc_tvb = tvb_new_subset(tvb, offset, tvblen, bc);
+	dissect_pipe_dcerpc(dcerpc_tvb, pinfo, top_tree, tree, fid);
+	if(bc>tvblen)
+		offset += tvblen;
+	else
+		offset += bc;
+	return offset;
+}
+
+static int
 dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint16 cnt=0, bc;
@@ -3158,11 +3183,9 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	if (bc != 0) {
 		if( (si->sip->flags&SMB_SIF_TID_IS_IPC) && (ofs==0) ){
-			tvbuff_t *dcerpc_tvb;
 			/* dcerpc call */
-			dcerpc_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), bc);
-			dissect_pipe_dcerpc(dcerpc_tvb, pinfo, top_tree,
-				tree, fid);
+			offset = dissect_file_data_dcerpc(tvb, pinfo, tree,
+			    top_tree, offset, bc, bc, fid);
 		} else {
 			/* ordinary file data */
 			offset = dissect_file_data(tvb, pinfo, tree, offset, bc, bc);
@@ -4891,11 +4914,9 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	   read write */
 	if(bc){
 		if(si->sip != NULL && si->sip->flags&SMB_SIF_TID_IS_IPC){
-			tvbuff_t *dcerpc_tvb;
 			/* dcerpc call */
-			dcerpc_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), bc);
-			dissect_pipe_dcerpc(dcerpc_tvb, pinfo, top_tree,
-				tree, fid);
+			offset = dissect_file_data_dcerpc(tvb, pinfo, tree,
+			    top_tree, offset, bc, datalen, fid);
 		} else {
 			/* ordinary file data, or we didn't see the request,
 			   so we don't know whether this is a DCERPC call
@@ -5746,7 +5767,7 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		if(g_hash_table_lookup(si->ct->tid_service, (void *)si->tid)){
 			g_hash_table_remove(si->ct->tid_service, (void *)si->tid);
 		}
-		if(!strcmp(an,"IPC")){
+		if(strcmp(an,"IPC$") == 0){
 			g_hash_table_insert(si->ct->tid_service, (void *)si->tid, (void *)TID_IPC);
 		} else {
 			g_hash_table_insert(si->ct->tid_service, (void *)si->tid, (void *)TID_NORMAL);
@@ -14238,7 +14259,8 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				sip->frame_req = pinfo->fd->num;
 				sip->frame_res = 0;
 				sip->flags = 0;
-				if(g_hash_table_lookup(si.ct->tid_service, (void *)si.tid)){
+				if(g_hash_table_lookup(si.ct->tid_service, (void *)si.tid)
+				    == TID_IPC) {
 					sip->flags |= SMB_SIF_TID_IS_IPC;
 				}
 				sip->cmd = si.cmd;
