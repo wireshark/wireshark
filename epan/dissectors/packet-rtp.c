@@ -655,11 +655,13 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			struct _rtp_conversation_info *p_conv_packet_data;
 			p_conv_data = conversation_get_proto_data(p_conv, proto_rtp);
 
-			/* Save this conversation info into packet info */
-			p_conv_packet_data = g_mem_chunk_alloc(rtp_conversations);
-			strcpy(p_conv_packet_data->method, p_conv_data->method);
-			p_conv_packet_data->frame_number = p_conv_data->frame_number;
-			p_add_proto_data(pinfo->fd, proto_rtp, p_conv_packet_data);
+			if (p_conv_data) {
+				/* Save this conversation info into packet info */
+				p_conv_packet_data = g_mem_chunk_alloc(rtp_conversations);
+				strcpy(p_conv_packet_data->method, p_conv_data->method);
+				p_conv_packet_data->frame_number = p_conv_data->frame_number;
+				p_add_proto_data(pinfo->fd, proto_rtp, p_conv_packet_data);
+			}
 		}
 	}
 

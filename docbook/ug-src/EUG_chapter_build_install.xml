@@ -20,7 +20,7 @@
       </itemizedlist>
     </para>
     <para>
-      Currently, only two or three Linux Distributions ship ethereal, and 
+      Currently, only two or three Linux distributions ship Ethereal, and 
       they are commonly shipping an out-of-date version.  No other versions 
       of UNIX ship Ethereal so far, and Microsoft does not ship it with any 
       version of Windows.  For that reason, you will need to know where to 
@@ -35,7 +35,7 @@
       <orderedlist>
 	<listitem>
 	  <para>
-	    Download the relevant package for your needs, eg, source or 
+	    Download the relevant package for your needs, e.g. source or 
 	    binary distribution.
 	  </para>
 	</listitem>
@@ -119,7 +119,7 @@
 	</listitem>
       </itemizedlist>
       Depending on your system, you may be able to install these from 
-      binaries, eg RPMs, or you may need to obtain them in source code 
+      binaries, e.g. RPMs, or you may need to obtain them in source code 
       form and build them.
     </para>
     <para>
@@ -128,9 +128,9 @@
 	<example id="Ch02Ex1">
 	  <title>Building GTK+ from source</title>
 	  <programlisting>
-gzip -dc gtk+-1.2.8.tar.gz | tar xvf -
+gzip -dc gtk+-1.2.10.tar.gz | tar xvf -
 &lt;much output removed>
-cd gtk+-1.2.8
+cd gtk+-1.2.10
 ./configure
 &lt;much output removed>
 make
@@ -154,7 +154,7 @@ make install
 	  <title>Note!</title>
 	  <para>
 	    If you use Linux, or have GNU <command>tar</command> installed, 
-	    you can use <command>tar zxvf gtk+-1.2.8.tar.gz</command>. It 
+	    you can use <command>tar zxvf gtk+-1.2.10.tar.gz</command>. It 
 	    is also possible to use <command>gunzip -c</command> or 
 	    <command>gzcat</command> rather than <command>gzip -dc</command> 
 	    on many UNIX systems.
@@ -182,9 +182,9 @@ make install
 	<example id="Ch2Ex2">
 	  <title>Building and installing libpcap</title>
 	  <programlisting>
-gzip -dc libpcap-0.5.tar.Z | tar xvf -
+gzip -dc libpcap-0.8.3.tar.Z | tar xvf -
 &lt;much output removed>
-cd libpcap_0_5rel2
+cd libpcap_0_8_3
 ./configure
 &lt;much output removed>
 make
@@ -258,7 +258,7 @@ rpm -ivh libpcap-0.4-19.i386.rpm
       </para>
     </note>
     <para> 
-      Under Debian you can install ethereal using apt-get.  apt-get will
+      Under Debian you can install Ethereal using apt-get.  apt-get will
       handle any dependency issues for you. <xref linkend="Ch02Ex5"/> shows 
 	how to do this.
 	<example id="Ch02Ex5">
@@ -314,7 +314,7 @@ tar xvf ethereal-&EtherealCurrentVersionTarFile;-tar
 	</listitem>
 	<listitem>
 	  <para>
-	    Change directory to the ethereal source directory.
+	    Change directory to the Ethereal source directory.
 	  </para>
 	</listitem>
 	<listitem>
@@ -373,7 +373,7 @@ make install
       Use the following command to install the Ethereal RPM that you have 
       downloaded from the Ethereal web site:
       <programlisting>
-rpm -ivh ethereal-0.8.10-1.i386.rpm
+rpm -ivh ethereal-0.10.5-0.2.2.i386.rpm
       </programlisting>
       If the above step fails because of missing dependencies, install the 
       dependencies first, and then retry the step above.  See 
@@ -415,8 +415,8 @@ apt-get install ethereal
     <para>
       Another common problem is for the final compile and link stage to 
       terminate with a complaint of: <errorname>Output too long.</errorname>  
-      This is likely being caused by an antiquated <command>sed</command> 
-      ( like that shipped with Solaris ).  Since <command>sed</command> is 
+      This is likely to be caused by an antiquated <command>sed</command> 
+      (such as the one shipped with Solaris).  Since <command>sed</command> is 
       used by the <command>libtool</command> script to construct the final 
       link command, this leads to mysterious problems.  This can be 
       resolved by downloading a recent version of sed from 
@@ -456,7 +456,7 @@ apt-get install ethereal
 	  <para>
 	    Install WinPcap. You will find a single installer exe called something 
 		like "auto-installer", which can be installed under various Windows 
-		systems, including 9X/ME/NT/2000/XP. This installer is located at: 
+		systems, including 9x/Me/NT4.0/2000/XP. This installer is located at: 
 	    <ulink url="&WinPcapDownloadWebsite;">&WinPcapDownloadWebsite;</ulink>.
 	    You should download the latest released version (the latest one not 
 		marked "beta") and execute it. 

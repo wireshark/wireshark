@@ -121,12 +121,16 @@ static const value_string aim_snac_errors[] = {
 };
 
 #define AIM_CLIENT_TLV_SCREEN_NAME				0x0001
-#define AIM_CLIENT_TLV_ROASTED_PASSWORD        			0x0002
+#define AIM_CLIENT_TLV_NEW_ROASTED_PASSWORD        			0x0002
 #define AIM_CLIENT_TLV_CLIENT_ID_STRING       			0x0003
 #define AIM_CLIENT_TLV_ERRORURL                                 0x0004
 #define AIM_CLIENT_TLV_BOS_SERVER_STRING       0x0005
 #define AIM_CLIENT_TLV_AUTH_COOKIE             0x0006
 #define AIM_CLIENT_TLV_ERRORCODE			    0x0008
+#define AIM_CLIENT_TLV_DISCONNECT_REASON		0x0009
+#define AIM_CLIENT_TLV_RECONNECT_HOST		   0x000a
+#define AIM_CLIENT_TLV_URL					   0x000b
+#define AIM_CLIENT_TLV_DEBUG_DATA			   0x000c
 #define AIM_CLIENT_TLV_GENERIC_SERVICE_ID      0x000d
 #define AIM_CLIENT_TLV_CLIENT_COUNTRY          0x000e
 #define AIM_CLIENT_TLV_CLIENT_LANGUAGE         0x000f
@@ -149,12 +153,14 @@ static const value_string aim_snac_errors[] = {
 #define AIM_CLIENT_TLV_LATESTRELEASEURL    	0x0045
 #define AIM_CLIENT_TLV_LATESTRELEASEINFO   	0x0046
 #define AIM_CLIENT_TLV_LATESTRELEASENAME   	0x0047
+#define AIM_CLIENT_TLV_BETA_DIGEST_SIG		0x0048
+#define AIM_CLIENT_TLV_RELEASE_DIGEST_SIG   0x0049
 #define AIM_CLIENT_TLV_CLIENTUSESSI   			0x004a
 #define AIM_CLIENT_TLV_CHANGE_PASSWORD_URL		0x0054
 
 const aim_tlv client_tlvs[] = {
   {  AIM_CLIENT_TLV_SCREEN_NAME, "Screen name", dissect_aim_tlv_value_string },
-  {  AIM_CLIENT_TLV_ROASTED_PASSWORD, "Roasted password array", dissect_aim_tlv_value_bytes  },
+  {  AIM_CLIENT_TLV_NEW_ROASTED_PASSWORD, "Roasted password array", dissect_aim_tlv_value_bytes  },
   {  AIM_CLIENT_TLV_OLD_ROASTED_PASSWORD, "Old roasted password array", dissect_aim_tlv_value_bytes  },
   {  AIM_CLIENT_TLV_CLIENT_ID_STRING, "Client id string (name, version)", dissect_aim_tlv_value_string },
   {  AIM_CLIENT_TLV_CLIENT_ID, "Client id number", dissect_aim_tlv_value_uint16 },
@@ -168,7 +174,11 @@ const aim_tlv client_tlvs[] = {
   {  AIM_CLIENT_TLV_BOS_SERVER_STRING, "BOS server string", dissect_aim_tlv_value_string },
   {  AIM_CLIENT_TLV_AUTH_COOKIE, "Authorization cookie", dissect_aim_tlv_value_bytes },
   {  AIM_CLIENT_TLV_ERRORURL, "Error URL", dissect_aim_tlv_value_string },
-  {  AIM_CLIENT_TLV_ERRORCODE, "Error Code", dissect_aim_tlv_value_uint16 }, /* FIXME: Decode error codes too */
+  {  AIM_CLIENT_TLV_ERRORCODE, "Error Code", dissect_aim_tlv_value_uint16 }, 
+  {  AIM_CLIENT_TLV_DISCONNECT_REASON, "Disconnect Reason", dissect_aim_tlv_value_uint16 },
+  {  AIM_CLIENT_TLV_RECONNECT_HOST, "Reconnect Hostname", dissect_aim_tlv_value_string },
+  {  AIM_CLIENT_TLV_URL, "URL", dissect_aim_tlv_value_string },
+  {  AIM_CLIENT_TLV_DEBUG_DATA, "Debug Data", dissect_aim_tlv_value_uint16 },
   {  AIM_CLIENT_TLV_EMAILADDR, "Account Email address", dissect_aim_tlv_value_string },
   {  AIM_CLIENT_TLV_REGSTATUS, "Registration Status", dissect_aim_tlv_value_uint16 },
   {  AIM_CLIENT_TLV_LATESTBETABUILD, "Latest Beta Build", dissect_aim_tlv_value_uint32 },
@@ -179,6 +189,8 @@ const aim_tlv client_tlvs[] = {
   {  AIM_CLIENT_TLV_LATESTRELEASEURL, "Latest Release URL", dissect_aim_tlv_value_string },
   {  AIM_CLIENT_TLV_LATESTRELEASEINFO, "Latest Release Info", dissect_aim_tlv_value_string  },
   {  AIM_CLIENT_TLV_LATESTRELEASENAME, "Latest Release Name", dissect_aim_tlv_value_string },
+  {  AIM_CLIENT_TLV_BETA_DIGEST_SIG, "Beta Digest Signature (MD5)" , dissect_aim_tlv_value_bytes },
+  {  AIM_CLIENT_TLV_RELEASE_DIGEST_SIG, "Release Digest Signature (MD5)", dissect_aim_tlv_value_bytes },
   {  AIM_CLIENT_TLV_CLIENTUSESSI, "Use SSI", dissect_aim_tlv_value_uint8 },
   {  AIM_CLIENT_TLV_GENERIC_SERVICE_ID, "Service (Family) ID", dissect_aim_tlv_value_uint16 },
   { AIM_CLIENT_TLV_CHANGE_PASSWORD_URL, "Change password url", dissect_aim_tlv_value_string },

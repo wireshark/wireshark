@@ -34,7 +34,7 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
-#include "smb.h"
+#include "packet-windows-common.h"
 
 static int proto_dcerpc_trksvr = -1;
 static int hf_trksvr_opnum = -1;

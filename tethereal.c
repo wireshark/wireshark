@@ -1382,6 +1382,19 @@ main(int argc, char *argv[])
     exit(1);
   }
 
+  /* We don't support capture filters when reading from a capture file
+     (the BPF compiler doesn't support all link-layer types that we
+     support in capture files we read). */
+#ifdef HAVE_LIBPCAP
+  if (cf_name != NULL) {
+    if (capture_filter_specified) {
+      fprintf(stderr,
+"tethereal: Only read filters, not capture filters, can be specified when reading a capture file.\n");
+      exit(2);
+    }
+  }
+#endif
+
   if (print_hex) {
     if (output_action != WRITE_TEXT) {
       fprintf(stderr, "tethereal: Raw packet hex data can only be printed as text or PostScript\n");

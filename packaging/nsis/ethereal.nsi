@@ -357,6 +357,16 @@ File "..\..\mergecap.exe"
 File "..\..\doc\mergecap.html"
 SectionEnd
 
+Section "Capinfo" SecCapinfo
+;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 1 2
+!endif
+SetOutPath $INSTDIR
+File "..\..\capinfo.exe"
+File "..\..\doc\capinfo.html"
+SectionEnd
+
 
 Section "Plugins" SecPlugins
 ;-------------------------------------------
@@ -628,6 +638,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Editcap is a program that reads a capture file and writes some or all of the packets into another capture file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Text2pcap is a program that reads in an ASCII hex dump and writes the data into a libpcap-style capture file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Mergecap is a program that combines multiple saved capture files into a single output file."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfo} "Capinfo is a program that provides information on capture files."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Plugins with some extended dissections."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMIBs} "SNMP MIBs for better SNMP dissection."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecShortcuts} "Start menu shortcuts."

@@ -24,6 +24,9 @@
 #ifndef __PACKET_DATA_H__
 #define __PACKET_DATA_H__
 
-extern int proto_data;
+/* "proto_data" is exported from libethereal.dll. 
+ * Thus we need a special declaration. 
+ */
+ETH_VAR_IMPORT int proto_data;
 
 #endif /* __PACKET_DATA_H__ */

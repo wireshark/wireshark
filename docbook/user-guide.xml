@@ -60,7 +60,7 @@ DOCUMENT SECTION
   <!ENTITY DocumentCopyrightYear "2004">
 
   <!ENTITY DocumentEdition "Third ">
-  <!ENTITY DocumentVersion "V1.90">
+  <!ENTITY DocumentVersion "V1.92">
   <!ENTITY DocumentPubDate "2004">
 
 <!ENTITY DocumentLegalNotice "<para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.1 or any later version published by the Free Software Foundation; with no Invariant Sections, with no Front-Cover Texts, and with no Back-Cover Texts.</para><para>All logos and trademarks in this document are property of their respective owner.</para>">
@@ -75,6 +75,9 @@ Ethereal Info
   <!ENTITY EtherealBinariesPage "&EtherealWebSite;/download.html#binaries">
   <!ENTITY EtherealAuthorsPage "&EtherealWebSite;/introduction.html#authors">
   <!ENTITY EtherealProtocolsPage "&EtherealWebSite;/docs/dfref/">
+  <!ENTITY EtherealFAQPage "&EtherealWebSite;/faq.html">
+  <!ENTITY EtherealFAQPromiscPage "&EtherealWebSite;/faq#promiscsniff">
+  <!ENTITY EtherealMediaPage "&EtherealWebSite;/media.html">
   <!ENTITY EtherealCurrentVersionTarFile "0.10.5">
 
   <!ENTITY EtherealDevMailList "ethereal-dev[AT]ethereal.com">
@@ -84,8 +87,8 @@ Ethereal Info
 <!--
 Winpcap Info
 -->
-  <!ENTITY WinPcapWebsite "http://netgroup-serv.polito.it/winpcap/">
-  <!ENTITY WinPcapDownloadWebsite "http://netgroup-serv.polito.it/winpcap/install/Default.htm">
+  <!ENTITY WinPcapWebsite "http://winpcap.polito.it">
+  <!ENTITY WinPcapDownloadWebsite "http://winpcap.polito.it/install/Default.htm">
 
 <!--
 Gnu info

@@ -41,8 +41,7 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-spoolss.h"
 #include "packet-dcerpc-reg.h"
-#include "smb.h"
-#include "packet-smb-common.h"
+#include "packet-windows-common.h"
 
 /* GetPrinterDriver2 */
 

@@ -35,7 +35,7 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-tapi.h"
-#include "smb.h"
+#include "packet-windows-common.h"
 
 static int proto_dcerpc_tapi = -1;
 static int hf_tapi_opnum = -1;

@@ -118,62 +118,6 @@ ETH_VAR_IMPORT const value_string nt_cmd_vals[];
 #define SMB_ERRHRD  0x03  /* Hardware style error */
 #define SMB_ERRCMD  0x04  /* Not an SMB format command */
 
-/* SMB X/Open error codes for the ERRDOS error class */
-#define SMBE_badfunc 1             /* Invalid function (or system call) */
-#define SMBE_badfile 2             /* File not found (pathname error) */
-#define SMBE_badpath 3             /* Directory not found */
-#define SMBE_nofids 4              /* Too many open files */
-#define SMBE_noaccess 5            /* Access denied */
-#define SMBE_badfid 6              /* Invalid fid */
-#define SMBE_badmcb 7              /* Memory control blocks destroyed */
-#define SMBE_nomem 8               /* Out of memory */
-#define SMBE_badmem 9              /* Invalid memory block address */
-#define SMBE_badenv 10             /* Invalid environment */
-#define SMBE_badformat 11          /* Invalid format */
-#define SMBE_badaccess 12          /* Invalid open mode */
-#define SMBE_baddata 13            /* Invalid data (only from ioctl call) */
-#define SMBE_res 14
-#define SMBE_baddrive 15           /* Invalid drive */
-#define SMBE_remcd 16              /* Attempt to delete current directory */
-#define SMBE_diffdevice 17         /* rename/move across different filesystems */
-#define SMBE_nofiles 18            /* no more files found in file search */
-#define SMBE_badshare 32           /* Share mode on file conflict with open mode */
-#define SMBE_lock 33               /* Lock request conflicts with existing lock */
-#define SMBE_unsup 50              /* Request unsupported, returned by Win 95, RJS 20Jun98 */
-#define SMBE_nosuchshare 67        /* Share does not exits */
-#define SMBE_filexists 80          /* File in operation already exists */
-#define SMBE_invalidparam 87	   /* Invalid parameter */
-#define SMBE_cannotopen 110        /* Cannot open the file specified */
-#define SMBE_insufficientbuffer 122/* Insufficient buffer size */
-#define SMBE_invalidname 123       /* Invalid name */
-#define SMBE_unknownlevel 124      /* Unknown info level */
-#define SMBE_alreadyexists 183     /* File already exists */
-#define SMBE_badpipe 230           /* Named pipe invalid */
-#define SMBE_pipebusy 231          /* All instances of pipe are busy */
-#define SMBE_pipeclosing 232       /* named pipe close in progress */
-#define SMBE_notconnected 233      /* No process on other end of named pipe */
-#define SMBE_moredata 234          /* More data to be returned */
-#define SMBE_nomoreitems 259       /* No more items */
-#define SMBE_baddirectory 267      /* Invalid directory name in a path. */
-#define SMBE_eas_didnt_fit 275     /* Extended attributes didn't fit */
-#define SMBE_eas_nsup 282          /* Extended attributes not supported */
-#define SMBE_notify_buf_small 1022 /* Buffer too small to return change notify. */
-#define SMBE_serverunavailable 1722/* Server unavailable */
-#define SMBE_unknownipc 2142
-#define SMBE_noipc 66              /* don't support ipc */
-
-/* These errors seem to be only returned by the NT printer driver system */
-
-#define SMBE_invalidowner 1307	/* Invalid security descriptor owner */
-#define SMBE_invalidsecuritydescriptor 1338 /* Invalid security descriptor */
-#define SMBE_unknownprinterdriver 1797 /* Unknown printer driver */
-#define SMBE_invalidprintername 1801   /* Invalid printer name */
-#define SMBE_printeralreadyexists 1802 /* Printer already exists */
-#define SMBE_invaliddatatype 1804      /* Invalid datatype */
-#define SMBE_invalidenvironment 1805   /* Invalid environment */
-#define SMBE_invalidformsize    1903   /* Invalid form size */
-#define SMBE_printerdriverinuse 3001   /* Printer driver in use */
-
 /* Error codes for the ERRSRV class */
 
 #define SMBE_error 1               /* Non specific error code */
@@ -329,45 +273,5 @@ extern int dissect_ipc_state(tvbuff_t *tvb, proto_tree *parent_tree,
     int offset, gboolean setstate);
 
 extern gboolean smb_dcerpc_reassembly;
-
-/*
- * NT and DOS error codes used by other dissectors.
- */
-extern const value_string NT_errors[];
-extern const value_string DOS_errors[];
-extern const value_string ms_country_codes[];
-
-/*
- * Access mask values
- */
-
-/* Generic rights */
-
-#define GENERIC_RIGHTS_MASK    0xF0000000
-
-#define GENERIC_ALL_ACCESS     0x10000000
-#define GENERIC_EXECUTE_ACCESS 0x20000000
-#define GENERIC_WRITE_ACCESS   0x40000000
-#define GENERIC_READ_ACCESS    0x80000000
-
-/* Misc/reserved */
-
-#define ACCESS_SACL_ACCESS     0x00800000
-#define SYSTEM_SECURITY_ACCESS 0x01000000
-#define MAXIMUM_ALLOWED_ACCESS 0x02000000
-
-/* Standard rights */
-
-#define STANDARD_RIGHTS_MASK 0x00FF0000
-
-#define DELETE_ACCESS        0x00010000
-#define READ_CONTROL_ACCESS  0x00020000
-#define WRITE_DAC_ACCESS     0x00040000
-#define WRITE_OWNER_ACCESS   0x00080000
-#define SYNCHRONIZE_ACCESS   0x00100000
-
-/* Specific rights */
-
-#define SPECIFIC_RIGHTS_MASK 0x0000FFFF /* Specific rights defined per-object */
 
 #endif

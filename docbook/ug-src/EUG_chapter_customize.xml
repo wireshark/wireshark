@@ -500,7 +500,7 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 		dissected.
 	</para>
 	<para>
-		Each protocol has it's own dissector, so dissecting a packet will 
+		Each protocol has its own dissector, so dissecting a packet will 
 		typically involve several dissectors. As Ethereal tries to find the 
 		right dissector for each packet (using static "routes" and heuristics 
 		"guessing"), it might choose the wrong dissector in your specific 
@@ -751,6 +751,13 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 	      This page allows you to select which columns appear in the 
 	      "Packet List" Pane.
 	    </para>
+		<note><title>Note!</title>
+		<para>
+		Unlike all other preference changes, you will have to save the 
+		preferences and restart Ethereal in order to take column changes to 
+		take effect! 
+		</para>
+		</note>
 	</section>
 
 	<section><title>The "User Interface: Font" page</title>

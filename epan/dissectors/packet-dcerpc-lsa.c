@@ -35,8 +35,7 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-lsa.h"
-#include "packet-smb-common.h"
-#include "smb.h"
+#include "packet-windows-common.h"
 
 static int proto_dcerpc_lsa = -1;
 

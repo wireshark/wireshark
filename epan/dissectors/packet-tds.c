@@ -156,7 +156,6 @@
 #include <epan/conversation.h>
 #include <epan/strutil.h>
 
-#include "packet-smb-common.h"
 #include "packet-frame.h"
 #include "reassemble.h"
 #include "prefs.h"

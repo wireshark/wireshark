@@ -28,9 +28,13 @@
 # include "config.h"
 #endif
 
+#include <string.h>
+#include <ctype.h>
+
 #include <glib.h>
 #include <epan/packet.h>
 
+#include "packet-windows-common.h"
 #include "packet-smb-common.h"
 #include "asn1.h"		/* XXX - needed for subid_t */
 #include "packet-gssapi.h"
@@ -40,6 +44,8 @@
 #include "crypt-md4.h"
 #include "crypt-des.h"
 #include "packet-dcerpc.h"
+
+#include "packet-ntlmssp.h"
 
 /* Message types */
 
@@ -59,6 +65,21 @@ static const value_string ntlmssp_message_types[] = {
 /*
  * NTLMSSP negotiation flags
  * Taken from Samba
+ *
+ * See also
+ *
+ *	http://davenport.sourceforge.net/ntlm.html
+ *
+ * although that document says that:
+ *
+ *	0x00010000 is "Target Type Domain";
+ *	0x00020000 is "Target Type Server"
+ *	0x00040000 is "Target Type Share";
+ *
+ * and that 0x00100000, 0x00200000, and 0x00400000 are
+ * "Request Init Response", "Request Accept Response", and
+ * "Request Non-NT Session Key", rather than those values shifted
+ * right one having those interpretations.
  */
 #define NTLMSSP_NEGOTIATE_UNICODE          0x00000001
 #define NTLMSSP_NEGOTIATE_OEM              0x00000002
@@ -91,7 +112,7 @@ static const value_string ntlmssp_message_types[] = {
 #define NTLMSSP_NEGOTIATE_10000000         0x10000000
 #define NTLMSSP_NEGOTIATE_128              0x20000000
 #define NTLMSSP_NEGOTIATE_KEY_EXCH         0x40000000
-#define NTLMSSP_NEGOTIATE_80000000         0x80000000
+#define NTLMSSP_NEGOTIATE_56               0x80000000
 
 static int proto_ntlmssp = -1;
 static int hf_ntlmssp = -1;
@@ -172,6 +193,16 @@ static int hf_ntlmssp_verf_unknown1 = -1;
 static int hf_ntlmssp_verf_crc32 = -1;
 static int hf_ntlmssp_verf_sequence = -1;
 static int hf_ntlmssp_decrypted_payload = -1;
+static int hf_ntlmssp_ntlmv2_response = -1;
+static int hf_ntlmssp_ntlmv2_response_hmac = -1;
+static int hf_ntlmssp_ntlmv2_response_header = -1;
+static int hf_ntlmssp_ntlmv2_response_reserved = -1;
+static int hf_ntlmssp_ntlmv2_response_time = -1;
+static int hf_ntlmssp_ntlmv2_response_chal = -1;
+static int hf_ntlmssp_ntlmv2_response_unknown = -1;
+static int hf_ntlmssp_ntlmv2_response_name = -1;
+static int hf_ntlmssp_ntlmv2_response_name_type = -1;
+static int hf_ntlmssp_ntlmv2_response_name_len = -1;
 
 static gint ett_ntlmssp = -1;
 static gint ett_ntlmssp_negotiate_flags = -1;
@@ -179,6 +210,8 @@ static gint ett_ntlmssp_string = -1;
 static gint ett_ntlmssp_blob = -1;
 static gint ett_ntlmssp_address_list = -1;
 static gint ett_ntlmssp_address_list_item = -1;
+static gint ett_ntlmssp_ntlmv2_response = -1;
+static gint ett_ntlmssp_ntlmv2_response_name = -1;
 
 /* Configuration variables */
 static char *nt_password = NULL;
@@ -548,6 +581,147 @@ dissect_ntlmssp_negotiate_flags (tvbuff_t *tvb, int offset,
   return (offset + 4);
 }
 
+/* Dissect a NTLM response. This is documented at
+   http://ubiqx.org/cifs/SMB.html#8, para 2.8.5.3 */
+
+/* Name types */
+
+/*
+ * XXX - the davenport document says that a type of 5 has been seen,
+ * "apparently containing the 'parent' DNS domain for servers in
+ * subdomains".
+ */
+
+#define NTLM_NAME_END        0x0000
+#define NTLM_NAME_NB_HOST    0x0001
+#define NTLM_NAME_NB_DOMAIN  0x0002
+#define NTLM_NAME_DNS_HOST   0x0003
+#define NTLM_NAME_DNS_DOMAIN 0x0004
+
+static const value_string ntlm_name_types[] = {
+	{ NTLM_NAME_END, "End of list" },
+	{ NTLM_NAME_NB_HOST, "NetBIOS host name" },
+	{ NTLM_NAME_NB_DOMAIN, "NetBIOS domain name" },
+	{ NTLM_NAME_DNS_HOST, "DNS host name" },
+	{ NTLM_NAME_DNS_DOMAIN, "DNS domain name" },
+	{ 0, NULL }
+};
+
+int
+dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
+{
+	proto_item *ntlmv2_item = NULL;
+	proto_tree *ntlmv2_tree = NULL;
+
+	/* Dissect NTLMv2 bits&pieces */
+
+	if (tree) {
+		ntlmv2_item = proto_tree_add_item(
+			tree, hf_ntlmssp_ntlmv2_response, tvb, 
+			offset, len, TRUE);
+		ntlmv2_tree = proto_item_add_subtree(
+			ntlmv2_item, ett_ntlmssp_ntlmv2_response);
+	}
+
+	proto_tree_add_item(
+		ntlmv2_tree, hf_ntlmssp_ntlmv2_response_hmac, tvb,
+		offset, 16, TRUE);
+
+	offset += 16;
+
+	proto_tree_add_item(
+		ntlmv2_tree, hf_ntlmssp_ntlmv2_response_header, tvb,
+		offset, 4, TRUE);
+
+	offset += 4;
+
+	proto_tree_add_item(
+		ntlmv2_tree, hf_ntlmssp_ntlmv2_response_reserved, tvb,
+		offset, 4, TRUE);
+
+	offset += 4;
+
+	offset = dissect_nt_64bit_time(
+		tvb, ntlmv2_tree, offset, hf_ntlmssp_ntlmv2_response_time);
+
+	proto_tree_add_item(
+		ntlmv2_tree, hf_ntlmssp_ntlmv2_response_chal, tvb,
+		offset, 8, TRUE);
+
+	offset += 8;
+
+	proto_tree_add_item(
+		ntlmv2_tree, hf_ntlmssp_ntlmv2_response_unknown, tvb,
+		offset, 4, TRUE);
+
+	offset += 4;
+
+	/* Variable length list of names */
+
+	while(1) {
+		guint16 name_type = tvb_get_letohs(tvb, offset);
+		guint16 name_len = tvb_get_letohs(tvb, offset + 2);
+		proto_tree *name_tree = NULL;
+		proto_item *name_item = NULL;
+		char *name = NULL;
+
+		if (ntlmv2_tree) {
+			name_item = proto_tree_add_item(
+				ntlmv2_tree, hf_ntlmssp_ntlmv2_response_name, 
+				tvb, offset, 0, TRUE);
+			name_tree = proto_item_add_subtree(
+				name_item, ett_ntlmssp_ntlmv2_response_name);
+		}
+
+		/* Dissect name header */
+
+		proto_tree_add_item(
+			name_tree, hf_ntlmssp_ntlmv2_response_name_type, tvb,
+			offset, 2, TRUE);
+
+		offset += 2;
+
+		proto_tree_add_item(
+			name_tree, hf_ntlmssp_ntlmv2_response_name_len, tvb,
+			offset, 2, TRUE);
+
+		offset += 2;
+
+		/* Dissect name */
+
+		if (name_len > 0) {
+			name = tvb_fake_unicode(
+				tvb, offset, name_len / 2, TRUE);
+
+			proto_tree_add_text(
+				name_tree, tvb, offset, name_len, 
+				"Name: %s", name);
+		} else
+			name = g_strdup("NULL");
+
+		if (name_type == 0)
+			proto_item_append_text(
+				name_item, "%s", 
+				val_to_str(name_type, ntlm_name_types,
+					   "Unknown"));
+		else
+			proto_item_append_text(
+				name_item, "%s, %s",
+				val_to_str(name_type, ntlm_name_types,
+					   "Unknown"), name);
+
+		g_free(name);
+
+		offset += name_len;
+
+		proto_item_set_len(name_item, name_len + 4);
+
+		if (name_type == 0) /* End of list */
+			break;
+	};
+
+	return offset;
+}
 
 static int
 dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
@@ -562,6 +736,11 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
   offset = dissect_ntlmssp_negotiate_flags (tvb, offset, ntlmssp_tree,
 					    negotiate_flags);
 
+  /*
+   * XXX - the davenport document says that these might not be
+   * sent at all, presumably meaning the length of the message
+   * isn't enough to contain them.
+   */
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE, 
 				  hf_ntlmssp_negotiate_domain,
 				  &start, &workstation_end);
@@ -636,7 +815,7 @@ dissect_ntlmssp_address_list (tvbuff_t *tvb, int offset,
     content_offset = len_offset + 2;
     item_length = content_length + 4;
 
-    /* Strings are always in unicode regardless of the negotiated
+    /* Strings are always in Unicode regardless of the negotiated
        string type. */
     if (content_length > 0) {
       guint16 bc;
@@ -713,6 +892,10 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
     unicode_strings = TRUE;
 
   /* Domain name */
+  /*
+   * XXX - the davenport document calls this the "Target Name",
+   * presumably because non-domain targets are supported.
+   */
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, unicode_strings, 
 			 hf_ntlmssp_challenge_domain,
 			 &item_start, &item_end);
@@ -767,7 +950,18 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
   offset += 8;
 
   /* Reserved (function not completely known) */
-  /* XXX - SSP key? */
+  /*
+   * XXX - SSP key?  The davenport document says
+   *
+   *	The context field is typically populated when Negotiate Local
+   *	Call is set. It contains an SSPI context handle, which allows
+   *	the client to "short-circuit" authentication and effectively
+   *	circumvent responding to the challenge. Physically, the context
+   *	is two long values. This is covered in greater detail later,
+   *	in the "Local Authentication" section.
+   *
+   * It also says that that information may be omitted.
+   */
   proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_reserved,
 		       tvb, offset, 8, FALSE);
   offset += 8;
@@ -1338,17 +1532,13 @@ proto_register_ntlmssp(void)
   static hf_register_info hf[] = {
     { &hf_ntlmssp,
       { "NTLMSSP", "ntlmssp", FT_NONE, BASE_NONE, NULL, 0x0, "NTLMSSP", HFILL }},
-
     { &hf_ntlmssp_auth,
       { "NTLMSSP identifier", "ntlmssp.identifier", FT_STRING, BASE_NONE, NULL, 0x0, "NTLMSSP Identifier", HFILL }},
-
     { &hf_ntlmssp_message_type,
       { "NTLM Message Type", "ntlmssp.messagetype", FT_UINT32, BASE_HEX, VALS(ntlmssp_message_types), 0x0, "", HFILL }},
-
     { &hf_ntlmssp_negotiate_flags,
       { "Flags", "ntlmssp.negotiateflags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_01,
-
       { "Negotiate UNICODE", "ntlmssp.negotiateunicode", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_UNICODE, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_02,
       { "Negotiate OEM", "ntlmssp.negotiateoem", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_OEM, "", HFILL }},
@@ -1407,11 +1597,11 @@ proto_register_ntlmssp(void)
     { &hf_ntlmssp_negotiate_flags_10000000,
       { "Negotiate 0x10000000", "ntlmssp.negotiatent10000000", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_10000000, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_20000000,
-      { "Negotiate 128", "ntlmssp.negotiate128", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_128, "", HFILL }},
+      { "Negotiate 128", "ntlmssp.negotiate128", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_128, "128-bit encryption is supported", HFILL }},
     { &hf_ntlmssp_negotiate_flags_40000000,
       { "Negotiate Key Exchange", "ntlmssp.negotiatekeyexch", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_KEY_EXCH, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_80000000,
-      { "Negotiate 0x80000000", "ntlmssp.negotiatent80000000", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_80000000, "", HFILL }},
+      { "Negotiate 56", "ntlmssp.negotiate56", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_56, "56-bit encryption is supported", HFILL }},
     { &hf_ntlmssp_negotiate_workstation_strlen,
       { "Calling workstation name length", "ntlmssp.negotiate.callingworkstation.strlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_negotiate_workstation_maxlen,
@@ -1495,7 +1685,27 @@ proto_register_ntlmssp(void)
     { &hf_ntlmssp_verf_crc32,
       { "Verifier CRC32", "ntlmssp.verf.crc32", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_verf_sequence,
-      { "Verifier Sequence Number", "ntlmssp.verf.sequence", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }}
+      { "Verifier Sequence Number", "ntlmssp.verf.sequence", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_ntlmssp_ntlmv2_response,
+      { "NTLMv2 Response", "ntlmssp.ntlmv2response", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_hmac,
+      { "HMAC", "ntlmssp.ntlmv2response.hmac", FT_BYTES, BASE_HEX,  NULL, 0x0, "", HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_header,
+      { "Header", "ntlmssp.ntlmv2response.header", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_reserved,
+      { "Reserved", "ntlmssp.ntlmv2response.reserved", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_time,
+      { "Time", "ntlmssp.ntlmv2response.time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, "", HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_chal,
+      { "Client challenge", "ntlmssp.ntlmv2response.chal", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_unknown,
+      { "Unknown", "ntlmssp.ntlmv2response.unknown", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_name,
+      { "Name", "ntlmssp.ntlmv2response.name", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_name_type,
+      { "Name type", "ntlmssp.ntlmv2response.name.type", FT_UINT32, BASE_DEC, VALS(ntlm_name_types), 0x0, "", HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_name_len,
+      { "Name len", "ntlmssp.ntlmv2response.name.len", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }}
   };
 
 
@@ -1505,7 +1715,9 @@ proto_register_ntlmssp(void)
     &ett_ntlmssp_string,
     &ett_ntlmssp_blob,
     &ett_ntlmssp_address_list,
-    &ett_ntlmssp_address_list_item
+    &ett_ntlmssp_address_list_item,
+    &ett_ntlmssp_ntlmv2_response,
+    &ett_ntlmssp_ntlmv2_response_name
   };
   module_t *ntlmssp_module;
   

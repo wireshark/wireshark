@@ -3,9 +3,8 @@
 # $Id$
 #
 # Ethereal - Network traffic analyzer
-# By Gerald Combs <gerald@zing.org>
+# By Gerald Combs <gerald@ethereal.com>
 # Copyright 2004 Gerald Combs
-#
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -113,6 +112,5 @@ MAINTAINERCLEANFILES =	\
 CLEANFILES = \
 	libdissectors.a		\
 	libdissectors.la	\
-	x11-declarations.h	\
-	x11-register-info.h	\
+	$(GENERATED_HEADER_FILES)	\
 	*~

@@ -33,7 +33,7 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-wkssvc.h"
 #include "packet-dcerpc-nt.h"
-#include "smb.h"
+#include "packet-windows-common.h"
 
 static int proto_dcerpc_wkssvc = -1;
 static int hf_wkssvc_opnum = -1;

@@ -9,7 +9,7 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    How the Ethereal user interface work
+	    How the Ethereal user interface works
 	  </para>
 	</listitem>
 	<listitem>
@@ -41,8 +41,8 @@
 	You can start Ethereal from your shell or window manager.
 	<tip><title>Tip!</title>
 	<para>
-	When starting Ethereal it's possible to specify optional settings, using 
-	the	command line, see <xref linkend="ChCustCommandLine"/> for details.
+	When starting Ethereal it's possible to specify optional settings using 
+	the	command line. See <xref linkend="ChCustCommandLine"/> for details.
 	</para>
 	</tip>
 	<note><title>Note!</title>
@@ -50,9 +50,9 @@
 	In the following chapters, a lot of screenshots from Ethereal will be shown. 
 	As Ethereal runs on many different platforms and there are different 
 	versions of the underlying GUI toolkit (GTK 1.x / 2.x) used, your 
-	screen might look different than the provided screenshots. But as there 
-	are no real differences in functionality, this screenshots should still 
-	be well understandable.
+	screen might look different from the provided screenshots. But as there 
+	are no real differences in functionality, these screenshots should still 
+	be understandable.
 	</para>
 	</note>
 	</para>
@@ -121,8 +121,8 @@
       </orderedlist>
 	  <tip><title>Tip!</title>
 	  <para>
-	  The layout of the main window can be customized by changing preference settings, 
-	  see <xref linkend="ChCustGUILayoutPrefPage"/>!
+	  The layout of the main window can be customized by changing preference settings. 
+	  See <xref linkend="ChCustGUILayoutPrefPage"/> for details!
 	  </para>
 	  </tip>
     </para>
@@ -135,9 +135,9 @@
     </para>
 	<note><title>Note!</title>
 	<para>
-	Menu items will be greyed out, if the corresponding feature isn't 
+	Menu items will be greyed out if the corresponding feature isn't 
 	available. For example, you cannot save a capture file if you didn't 
-	captured/loaded any data before.
+	capture or load any data before.
 	</para>
 	</note>
     <para>
@@ -221,7 +221,7 @@
 	  </listitem>
 	  </varlistentry>
 	</variablelist>
-      Each of these menu items are described in more detail in the sections 
+      Each of these menu items is described in more detail in the sections 
 	  that follow. 
     </para>
 	<tip><title>Tip!</title>
@@ -229,7 +229,7 @@
 	You can access menu items directly or by pressing the corresponding 
 	accelerator keys, which are shown at the right side of the 
 	menu. For example, you can press the Control (or Strg in german) and the K 
-	keys together, to open the capture dialog. 
+	keys together to open the capture dialog. 
 	</para>
 	</tip>
   </section>
@@ -269,7 +269,7 @@
 		<entry></entry>
 		<entry><para>
 		    This menu item shows a submenu containing the recently opened 
-			capture files. Clicking on one of the submenu items, will open the 
+			capture files. Clicking on one of the submenu items will open the 
 			corresponding capture file directly.
 		  </para></entry>
 	      </row>
@@ -287,7 +287,8 @@
 		<entry>Ctrl+W</entry>
 		<entry><para>
 		    This menu item closes the current capture. If you 
-		    haven't saved the capture, you will be asked to do so first.
+		    haven't saved the capture, you will be asked to do so first
+			 (this can be disabled by a preference setting).
 		  </para></entry>
 	      </row>
 	      <row>
@@ -338,18 +339,18 @@
 		<entry><command>Export > as "Plain Text" file...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item allows you to export the (or some) of the packets in 
-		    the capture file to a plain ascii text file. 
+		    This menu item allows you to export all, or some, of the packets in 
+		    the capture file to a plain ASCII text file. 
 			It pops up the Ethereal Export dialog box (which is discussed further in 
 		    <xref linkend="ChIOExportPlainDialog"/>).
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><command>Export > as "Postscript" file...</command></entry>
+		<entry><command>Export > as "PostScript" file...</command></entry>
 		<entry></entry>
 		<entry><para>
 		    This menu item allows you to export the (or some) of the packets in 
-		    the capture file to a postscript file. 
+		    the capture file to a PostScript file. 
 			It pops up the Ethereal Export dialog box (which is discussed further in 
 		    <xref linkend="ChIOExportPSDialog"/>).
 		  </para></entry>
@@ -379,7 +380,7 @@
 		<entry>Ctrl+H</entry>
 		<entry><para>
 		    This menu item allows you to export the currently selected bytes 
-			in the packet bytes pane into a binary file. It pops up the 
+			in the packet bytes pane to a binary file. It pops up the 
 			Ethereal Export dialog box (which is discussed further in 
 		    <xref linkend="ChIOExportSelectedDialog"/>)
 		  </para></entry>
@@ -409,8 +410,8 @@
 		<entry>Ctrl+Q</entry>
 		<entry><para>
 		    This menu item allows you to quit from Ethereal.  
-			Ethereal will ask to save your capture file, if you haven't saved 
-			it before. 
+			Ethereal will ask to save your capture file if you haven't saved 
+			it before (this can be disabled by a preference setting). 
 		  </para></entry>
 	      </row>
 	    </tbody>
@@ -454,7 +455,7 @@
 		<entry><command>Find Next</command></entry>
 		<entry>Ctrl+N</entry>
 		<entry><para>
-		    This menu item tries to find the next packet, matching the 
+		    This menu item tries to find the next packet matching the 
 			settings from "Find Packet...".
 		  </para></entry>
 	      </row>
@@ -462,7 +463,7 @@
 		<entry><command>Find Previous</command></entry>
 		<entry>Ctrl+B</entry>
 		<entry><para>
-		    This menu item tries to find the previous packet, matching the 
+		    This menu item tries to find the previous packet matching the 
 			settings from "Find Packet...".
 		  </para></entry>
 	      </row>
@@ -498,8 +499,8 @@
 		<entry><command>Mark Packet</command></entry>
 		<entry>Ctrl+M</entry>
 		<entry><para>
-		    This menu item "marks" the currently selected packet, see
-			<xref linkend="ChWorkMarkPacketSection"/>.
+		    This menu item "marks" the currently selected packet. See
+			<xref linkend="ChWorkMarkPacketSection"/> for details.
 		  </para></entry>
 	      </row>
 	      <row>
@@ -774,7 +775,7 @@
 		<entry></entry>
 		<entry><para>
 		    This menu item brings up a dialog box that allows you 
-		    color packets in the packet list pane according to 
+		    to color packets in the packet list pane according to 
 		    filter expressions you choose. It can be very useful 
 		    for spotting certain types of packets, see
 		  <xref linkend="ChCustColorizationSection"/>.
@@ -834,8 +835,8 @@
 		<entry>Ctrl-G</entry>
 		<entry><para>
 		    This menu item brings up a dialog box that allows you 
-		    to specify a packet to go to the given packet number, see
-			<xref linkend="ChWorkGoToPacketSection"/>
+		    to specify a packet number, and then goes to that packet. See
+			<xref linkend="ChWorkGoToPacketSection"/> for details.
 		  </para></entry>
 	      </row>
 	      <row>
@@ -965,8 +966,8 @@
 		<entry><para>
 			These menu items will change the current display filter and apply 
 			the changed filter immediately. Depending on the chosen menu item,
-			the current display filter string will be replaced or appended by 
-			the selected protocol field in the packet details pane.
+			the current display filter string will be replaced or appended to 
+			by the selected protocol field in the packet details pane.
 		  </para></entry>
 	      </row>
 	      <row>
@@ -975,8 +976,8 @@
 		<entry><para>
 			These menu items will change the current display filter but won't 
 			apply the changed filter. Depending on the chosen menu item,
-			the current display filter string will be replaced or appended by 
-			the selected protocol field in the packet details pane.
+			the current display filter string will be replaced or appended to
+			by the selected protocol field in the packet details pane.
 		  </para></entry>
 	      </row>
 	      <row>
@@ -996,7 +997,7 @@
 		<entry><command>Decode As...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item allows the user to force ethereal to 
+		    This menu item allows the user to force Ethereal to 
 		    decode certain packets as a particular protocol, see 
 			<xref linkend="ChAdvDecodeAs"/>
 		  </para></entry>
@@ -1005,7 +1006,7 @@
 		<entry><command>User Specified Decodes...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item allows the user to force ethereal to 
+		    This menu item allows the user to force Ethereal to 
 		    decode certain packets as a particular protocol, see 
 			<xref linkend="ChAdvDecodeAsShow"/>
 		  </para></entry>
@@ -1105,7 +1106,7 @@
 		<entry><command>Conversation List</command></entry>
 		<entry></entry>
 		<entry><para>
-		    Display a list of conversations, obsoleted be the combined window 
+		    Display a list of conversations, obsoleted by the combined window 
 			of Conversations above, see 
 			<xref linkend="ChStatConversationListWindow"/>.
 		  </para></entry>
@@ -1114,7 +1115,7 @@
 		<entry><command>Endpoint List</command></entry>
 		<entry></entry>
 		<entry><para>
-		    Display a list of endpoints, obsoleted be the combined window 
+		    Display a list of endpoints, obsoleted by the combined window 
 			of Endpoints above, see 
 			<xref linkend="ChStatEndpointListWindow"/>.
 		  </para></entry>
@@ -1238,7 +1239,7 @@
 		<entry><command>Manual Pages > ...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item starts a webbrowser showing one of the locally 
+		    This menu item starts a Web browser showing one of the locally 
 			installed html manual pages.
 		  </para></entry>
 	      </row>
@@ -1246,7 +1247,7 @@
 		<entry><command>Ethereal Online > ...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item tries to start a webbrowser showing a specific 
+		    This menu item tries to start a Web browser showing a specific 
 			webpage from: 
 			<ulink url="&EtherealWebSite;">&EtherealWebSite;</ulink>.
 		  </para></entry>
@@ -1261,8 +1262,8 @@
 		<entry></entry>
 		<entry><para>
 		    This menu item brings up an information window that 
-		    provides some information on Ethereal, like the plugins, the used 
-			folders, ...
+		    provides some information on Ethereal, such as the plugins, the 
+			used folders, ...
 		  </para></entry>
 	      </row>
 	    </tbody>
@@ -1278,9 +1279,9 @@
 	  more packet data.
     </para>
     <para>
-	Like in the menu, only the items useful in the current program state will 
-	be available, the others will be greyed out (e.g. you cannot save a capture
-	file, if you haven't loaded one).
+	As in the menu, only the items useful in the current program state will 
+	be available. The others will be greyed out (e.g. you cannot save a capture
+	file if you haven't loaded one).
     <figure id="ChUseEtherealMainToolbar">
       <title>The "Main" toolbar</title>
       <graphic entityref="EtherealMainToolbar" format="PNG"/>
@@ -1330,7 +1331,7 @@
 		  </para>
 			<note><title>Note!</title>
 			<para>
-			This icon is shown, if a live capture is in progress, and you are 
+			This icon is shown if a live capture is in progress, and you are 
 			using "Update List of Packets in Realtime", otherwise the Start 
 			Capture icon 
 			<inlinegraphic entityref="EtherealToolbarCapture" format="PNG"/>
@@ -1568,17 +1569,18 @@
 	  <para>
 	    The left middle text box provides an area to enter or edit display
 	    filter strings, see <xref linkend="ChWorkBuildDisplayFilterSection"/>
-		. A syntax check of your filter string is done while 
-		you are typing. The background of an invalid string will become red, 
-		and for a valid one it will become green. You can click on the pull 
-		down arrow to select past filter string from a list. The entries in 
-		the pull down list will remain available even after a program restart.
+		. A syntax check of your filter string is done while you are typing. 
+		The background will turn red if you enter an incomplete or invalid 
+		string, and will become green when you enter a valid string. You can 
+		click on the pull down arrow to select a previously-entered filter 
+		string from a list. The entries in the pull down list will remain 
+		available even after a program restart.
 	  </para>
 	  <note><title>Note!</title>
 	  <para>
 	  	After you've changed something in this field, don't forget to press 
-		the Apply button (or the enter key), to apply this filter string to 
-		the display.
+		the Apply button (or the Enter/Return key), to apply this filter 
+		string to the display.
 	  </para>
 	  </note>
 	  <note><title>Note!</title>
@@ -1589,7 +1591,7 @@
 	</listitem>
 	<listitem>
 	  <para>
-	    The middle button labeled "Add Expression..." opens a dialog box that let's
+	    The middle button labeled "Add Expression..." opens a dialog box that lets
 		you edit a display filter from a list of protocol fields, described in 
 		 <xref linkend="ChWorkFilterAddExpressionSection"/>
 	  </para>
@@ -1628,17 +1630,17 @@
 	the "Packet Details" and "Packet Bytes" panes.
     </para>
     <para>
-	While dissecting a packet, Ethereal will place informations from the 
+	While dissecting a packet, Ethereal will place information from the 
 	protocol dissectors into the columns. As higher level protocols might
-	overwrite information from lower levels, you will see the information
-	from the highest possible level only. 
+	overwrite information from lower levels, you will typically see the 
+	information from the highest possible level only. 
     </para>
     <para>	
 	For example, let's look at a packet containing TCP inside IP inside
-	an Ethernet packet. The Ethernet dissector will write it's data (like the 
-	Ethernet addresses), the IP dissector will overwrite this by it's own 
+	an Ethernet packet. The Ethernet dissector will write its data (like the 
+	Ethernet addresses), the IP dissector will overwrite this by its own 
 	(like the IP addresses), the TCP dissector will overwrite the IP 
-	information and so on.
+	information, and so on.
     </para>
     <para>
 	There are a lot of different columns available. Which columns are 
@@ -1662,17 +1664,17 @@
 	</listitem>
 	<listitem>
 	  <para><command>Source</command>
-	  The source address where this packet is coming from. 
+	  The address where this packet is coming from. 
 	  </para>
 	</listitem>
 	<listitem>
 	  <para><command>Destination</command>
-	  The destination address where this packet is going to.
+	  The address where this packet is going to.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para><command>Protocol</command>
-	  The protocol name in a short (maybe abbreviated) version.
+	  The protocol name in a short (perhaps abbreviated) version.
 	  </para>
 	</listitem>
 	<listitem>
@@ -1691,7 +1693,7 @@
   <section id="ChUsePacketDetailsPaneSection"><title>The "Packet Details" pane</title>
     <para>
       The packet details pane shows the current packet (selected in the "Packet List" 
-	  pane) more detailed.
+	  pane) in a more detailed form.
     <figure id="ChUseEtherealDetailsPane">
       <title>The "Packet Details" pane</title>
       <graphic entityref="EtherealDetailsPane" format="PNG"/>
@@ -1714,7 +1716,7 @@
     <para>
 	<command>Generated fields</command>
 	Ethereal itself will generate additional protocol fields which are 
-	surrounded by brackets. The info of these fields are derived from the 
+	surrounded by brackets. The information in these fields is derived from the 
 	known context to other packets in the capture file. For example, Ethereal 
 	is doing a sequence/acknowledge analysis of each TCP stream, 
 	which is displayed in the [SEQ/ACK analysis] fields of the TCP protocol.
@@ -1725,7 +1727,7 @@
 	<command>Links</command>
 	If Ethereal detected a relationship to another packet in the capture file, 
 	it will generate a link to that packet. Links are underlined and displayed 
-	in blue. If clicked, Ethereal jumps to the corresponding packet. 
+	in blue. If double-clicked, Ethereal jumps to the corresponding packet. 
     </para>	
 	</listitem>
 	</itemizedlist>
@@ -1742,7 +1744,7 @@
     </para>
     <para>
 	As usual for a hexdump, the left side shows the offset in the packet data, 
-	in the middle the packet data in a hexadecimal representation is shown and 
+	in the middle the packet data is shown in a hexadecimal representation and 
 	on the right the corresponding ASCII characters (or . if not appropriate) 
 	are displayed.
     </para>
@@ -1754,7 +1756,7 @@
 	Depending on the packet data, sometimes more than one page is available,
 	e.g. when Ethereal has reassembled some packets into a single chunk of 
 	data, see <xref linkend="ChAdvReassemblySection"/>. In this case there are 
-	some additional tabs shown at the bottom of the pane, to let you select 
+	some additional tabs shown at the bottom of the pane to let you select 
 	the page you want to see.
     <figure id="ChUseEtherealBytesPaneTabs">
       <title>The "Packet Bytes" pane with tabs</title>
@@ -1768,7 +1770,7 @@
 	</note>
     <para>
 	The context menu (right mouse click) of the tab labels will show a list of 
-	all available pages. This can be helpful, if the size in the pane is too 
+	all available pages. This can be helpful if the size in the pane is too 
 	small for all the tab labels.
     </para>
   </section> 	  
@@ -1794,8 +1796,8 @@
 		  <title>The Statusbar with a loaded capture file</title>
 		  <graphic entityref="EtherealStatusbarLoaded" format="PNG"/>
 		</figure>
-		The left side shows information about the capture file, it's 
-		name, it's size and the elapsed time while it was captured.
+		The left side shows information about the capture file, its 
+		name, its size and the elapsed time while it was being captured.
 	</para>
 	<para>
 		The right side shows the current number of packets in the 

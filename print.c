@@ -24,6 +24,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/* With MSVC and a libethereal.dll this file needs to import some variables 
+   in a special way. Therefore _NEED_VAR_IMPORT_ is defined. */  
+#define _NEED_VAR_IMPORT_
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -777,40 +781,6 @@ void ps_clean_string(unsigned char *out, const unsigned char *in,
 		if (c == 0) {
 			break;
 		}
-	}
-}
-
-void
-print_packet_header(FILE *fh, print_format_e format, guint32 number, gchar *summary) {
-	char		psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
-
-	switch (format) {
-
-	case(PR_FMT_TEXT):
-		/* do nothing */
-		break;
-
-	case(PR_FMT_PS):
-		ps_clean_string(psbuffer, summary, MAX_PS_LINE_LENGTH);
-		/*
-		 * See the Adobe "pdfmark reference".  The pdfmark stuff
-		 * tells code that turns PostScript into PDF stuff that
-		 * it should do.
-		 *
-		 * The /OUT stuff creates a bookmark that goes to the
-		 * destination with the name "__frame{N}__", where N is
-		 * the "number" argument, and with "summary" as the title.
-		 *
-		 * The "/DEST" creates the destination.
-		 */
-		fprintf(fh, "[/Dest /__frame%u__ /Title (%s)   /OUT pdfmark\n", number, psbuffer);
-		fputs("[/View [/XYZ -4 currentpoint matrix currentmatrix matrix defaultmatrix\n", fh);
-		fputs("matrix invertmatrix matrix concatmatrix transform exch pop 20 add null]\n", fh);
-		fprintf(fh, "/Dest /__frame%u__ /DEST pdfmark\n", number);
-		break;
-
-	default:
-		g_assert_not_reached();
 	}
 }
 

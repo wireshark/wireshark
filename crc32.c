@@ -38,8 +38,8 @@
  *
  * Polynomial is
  *
- *	x^32 + x^26 + x^23 + x^22 + x^16 + x^12 + x^11 + x^8 + x^7 +
- *	    x^5 + x^4 + x^2 + x + 1
+ *  x^32 + x^26 + x^23 + x^22 + x^16 + x^12 + x^11 + x^8 + x^7 +
+ *      x^5 + x^4 + x^2 + x + 1
  */
 const guint32 crc32_ccitt_table[256] = {
         0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419,
@@ -96,17 +96,56 @@ const guint32 crc32_ccitt_table[256] = {
         0x2d02ef8d
 };
 
+#define CRC32_CCITT_SEED    0xFFFFFFFF
+
 guint32
-crc32_ccitt_tvb(tvbuff_t *tvb, unsigned int len)
+crc32_ccitt(const guint8 *buf, guint len)
 {
-  unsigned int i;
-  const unsigned char* buf = tvb_get_ptr(tvb, 0, len);
-  guint32 crc32 = 0xFFFFFFFF;
+  return ( crc32_ccitt_seed(buf, len, CRC32_CCITT_SEED) );
+}
+
+guint32
+crc32_ccitt_seed(const guint8 *buf, guint len, guint32 seed)
+{
+  guint i;
+  guint32 crc32 = seed;
 
   for (i = 0; i < len; i++)
     crc32 = crc32_ccitt_table[(crc32 ^ buf[i]) & 0xff] ^ (crc32 >> 8);
 
   return ( ~crc32 );
+}
+
+guint32
+crc32_ccitt_tvb(tvbuff_t *tvb, guint len)
+{
+  const guint8* buf = tvb_get_ptr(tvb, 0, len);
+
+  return ( crc32_ccitt_seed(buf, len, CRC32_CCITT_SEED) );
+}
+
+guint32
+crc32_ccitt_tvb_offset(tvbuff_t *tvb, guint offset, guint len)
+{
+  const guint8* buf = tvb_get_ptr(tvb, offset, len);
+
+  return ( crc32_ccitt(buf, len) );
+}
+
+guint32
+crc32_ccitt_tvb_seed(tvbuff_t *tvb, guint len, guint32 seed)
+{
+  const guint8* buf = tvb_get_ptr(tvb, 0, len);
+
+  return ( crc32_ccitt_seed(buf, len, seed) );
+}
+
+guint32
+crc32_ccitt_tvb_offset_seed(tvbuff_t *tvb, guint offset, guint len, guint32 seed)
+{
+  const guint8* buf = tvb_get_ptr(tvb, offset, len);
+
+  return ( crc32_ccitt_seed(buf, len, seed) );
 }
 
 /*
@@ -119,7 +158,7 @@ crc32_ccitt_tvb(tvbuff_t *tvb, unsigned int len)
  * to cope with 802.x sending stuff out in reverse bit order?
  */
 guint32
-crc32_802_tvb(tvbuff_t *tvb, unsigned int len)
+crc32_802_tvb(tvbuff_t *tvb, guint len)
 {
   guint32 c_crc;
 

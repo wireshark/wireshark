@@ -96,6 +96,7 @@
 
 #include <epan/conversation.h>
 #include "prefs.h"
+#include <epan/dissectors/packet-x509af.h>
 
 static gboolean ssl_desegment = TRUE;
 
@@ -170,6 +171,7 @@ static int hf_pct_handshake_cipher_spec	= -1;
 static int hf_pct_handshake_hash_spec	= -1;
 static int hf_pct_handshake_cert_spec	= -1;
 static int hf_pct_handshake_cert	= -1;
+static int hf_pct_handshake_server_cert	= -1;
 static int hf_pct_handshake_exch_spec	= -1;
 static int hf_pct_handshake_hash	= -1;
 static int hf_pct_handshake_cipher	= -1;
@@ -713,7 +715,7 @@ static void dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
                                        guint32 offset);
 
 static void dissect_ssl3_hnd_cert(tvbuff_t *tvb,
-                                  proto_tree *tree, guint32 offset);
+                                  proto_tree *tree, guint32 offset, packet_info *pinfo);
 
 static void dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
                                       proto_tree *tree,
@@ -756,10 +758,10 @@ static void dissect_pct_msg_client_master_key(tvbuff_t *tvb,
 /* server hello dissector */
 static void dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
                                           proto_tree *tree,
-                                          guint32 offset);
+                                          guint32 offset, packet_info *pinfo);
 static void dissect_pct_msg_server_hello(tvbuff_t *tvb,
 					 proto_tree *tree,
-					 guint32 offset);
+					 guint32 offset, packet_info *pinfo);
 
 
 static void dissect_pct_msg_server_verify(tvbuff_t *tvb,
@@ -1427,7 +1429,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_CERTIFICATE:
-                dissect_ssl3_hnd_cert(tvb, ssl_hand_tree, offset);
+                dissect_ssl3_hnd_cert(tvb, ssl_hand_tree, offset, pinfo);
                 break;
 
             case SSL_HND_SERVER_KEY_EXCHG:
@@ -1650,7 +1652,7 @@ dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
 
 static void
 dissect_ssl3_hnd_cert(tvbuff_t *tvb,
-                      proto_tree *tree, guint32 offset)
+                      proto_tree *tree, guint32 offset, packet_info *pinfo)
 {
 
     /* opaque ASN.1Cert<2^24-1>;
@@ -1698,15 +1700,8 @@ dissect_ssl3_hnd_cert(tvbuff_t *tvb,
                                     tvb, offset, 3, FALSE);
                 offset += 3;
 
-                proto_tree_add_bytes_format(subtree,
-                                            hf_ssl_handshake_certificate,
-                                            tvb, offset, cert_length,
-                                            tvb_get_ptr(tvb, offset, cert_length),
-                                            "Certificate (%u byte%s)",
-                                            cert_length,
-                                            plurality(cert_length, "", "s"));
-
-			   offset += cert_length;
+		dissect_x509af_Certificate(FALSE, tvb, offset, pinfo, subtree, hf_ssl_handshake_certificate);
+		offset += cert_length;
             }
         }
 
@@ -2075,7 +2070,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
 
         case SSL2_HND_SERVER_HELLO:
-            dissect_ssl2_hnd_server_hello(tvb, ssl_record_tree, offset);
+            dissect_ssl2_hnd_server_hello(tvb, ssl_record_tree, offset, pinfo);
             break;
 
         case SSL2_HND_ERROR:
@@ -2099,7 +2094,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			dissect_pct_msg_client_hello(tvb, ssl_record_tree, offset);
 			break;
         case PCT_MSG_SERVER_HELLO:
-			dissect_pct_msg_server_hello(tvb, ssl_record_tree, offset);
+			dissect_pct_msg_server_hello(tvb, ssl_record_tree, offset, pinfo);
 			break;
         case PCT_MSG_CLIENT_MASTER_KEY:
 			dissect_pct_msg_client_master_key(tvb, ssl_record_tree, offset);
@@ -2322,7 +2317,7 @@ dissect_pct_msg_client_hello(tvbuff_t *tvb,
 }
 
 static void
-dissect_pct_msg_server_hello(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+dissect_pct_msg_server_hello(tvbuff_t *tvb, proto_tree *tree, guint32 offset, packet_info *pinfo)
 {
 /* structure: 
 char SH_MSG_SERVER_HELLO
@@ -2405,7 +2400,7 @@ char SH_RESPONSE_DATA[MSB<<8|LSB]
 	offset += 2;
 	
 	if(SH_CERT_LENGTH) {
-		proto_tree_add_text(tree, tvb, offset, SH_CERT_LENGTH, "Server Certificate (%d bytes)", SH_CERT_LENGTH);
+		dissect_x509af_Certificate(FALSE, tvb, offset, pinfo, tree, hf_pct_handshake_server_cert);
 		offset += SH_CERT_LENGTH;
 	}
 
@@ -2622,7 +2617,7 @@ dissect_ssl2_hnd_client_master_key(tvbuff_t *tvb,
 
 static void
 dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
-                              proto_tree *tree, guint32 offset)
+                              proto_tree *tree, guint32 offset, packet_info *pinfo)
 {
     /* struct {
      *    uint8  msg_type;
@@ -2696,13 +2691,8 @@ dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
     /* now the variable length fields */
     if (certificate_length > 0)
     {
-        proto_tree_add_bytes_format(tree, hf_ssl_handshake_certificate,
-                                    tvb, offset, certificate_length,
-                                    tvb_get_ptr(tvb, offset, certificate_length),
-                                    "Certificate (%u byte%s)",
-                                    certificate_length,
-                                    plurality(certificate_length, "", "s"));
-        offset += certificate_length;
+	dissect_x509af_Certificate(FALSE, tvb, offset, pinfo, tree, hf_ssl_handshake_certificate);
+	offset += certificate_length;
     }
 
     if (cipher_spec_length > 0)
@@ -3386,7 +3376,7 @@ proto_register_ssl(void)
 			"PCT Certificate specification", HFILL }
 		},
 		{ &hf_pct_handshake_cert,
-		  { "Cert Spec", "pct.handshake.cert",
+		  { "Cert", "pct.handshake.cert",
 			FT_UINT16, BASE_HEX, VALS(pct_cert_type), 0x0,
 			"PCT Certificate", HFILL }
 		},
@@ -3409,6 +3399,11 @@ proto_register_ssl(void)
 		  { "PCT Error Code", "pct.msg_error_code",
 			FT_UINT16, BASE_HEX, VALS(pct_error_code), 0x0,
 			"PCT Error Code", HFILL }
+		},
+		{ &hf_pct_handshake_server_cert,
+		  { "Server Cert", "pct.handshake.server_cert",
+			FT_NONE, BASE_NONE, NULL , 0x0,
+			"PCT Server Certificate", HFILL }
 		},
     };
 

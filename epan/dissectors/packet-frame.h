@@ -42,8 +42,11 @@ show_reported_bounds_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
  */
 extern int proto_malformed;
 
-extern int proto_frame;
-extern int hf_frame_arrival_time;
-extern int hf_frame_number;
-extern int hf_frame_packet_len;
-extern int hf_frame_capture_len;
+/* following variables are exported from libethereal.dll. 
+ * Thus we need a special declaration. 
+ */
+ETH_VAR_IMPORT int proto_frame;
+ETH_VAR_IMPORT int hf_frame_arrival_time;
+ETH_VAR_IMPORT int hf_frame_number;
+ETH_VAR_IMPORT int hf_frame_packet_len;
+ETH_VAR_IMPORT int hf_frame_capture_len;

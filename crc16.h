@@ -27,13 +27,60 @@
 */
 
 /* Calculate the CCITT/ITU/CRC-16 16-bit CRC
-   
+
    (parameters for this CRC are:
        Polynomial: x^16 + x^12 + x^5 + 1  (0x1021);
        Start value 0xFFFF;
        XOR result with 0xFFFF;
        First bit is LSB)
 */
-extern guint16 crc16_ccitt(const unsigned char *buf, guint len);
-extern guint16 crc16_ccitt_tvb(tvbuff_t *tvb, unsigned int len);
+
+/** Compute CRC16 CCITT checksum of a buffer of data.
+ @param buf The buffer containing the data.
+ @param len The number of bytes to include in the computation.
+ @return The CRC16 CCITT checksum. */
+extern guint16 crc16_ccitt(const guint8 *buf, guint len);
+
+/** Compute CRC16 CCITT checksum of a buffer of data.  If computing the
+ *  checksum over multiple buffers and you want to feed the partial CRC16
+ *  back in, remember to take the 1's complement of the partial CRC16 first.
+ @param buf The buffer containing the data.
+ @param len The number of bytes to include in the computation.
+ @param seed The seed to use.
+ @return The CRC16 CCITT checksum (using the given seed). */
+extern guint16 crc16_ccitt_seed(const guint8 *buf, guint len, guint16 seed);
+
+/** Compute CRC16 CCITT checksum of a tv buffer.
+ @param tvb The tv buffer containing the data.
+ @param len The number of bytes to include in the computation.
+ @return The CRC16 CCITT checksum. */
+extern guint16 crc16_ccitt_tvb(tvbuff_t *tvb, guint len);
+
+/** Compute CRC16 CCITT checksum of a tv buffer.
+ @param tvb The tv buffer containing the data.
+ @param offset The offset into the tv buffer.
+ @param len The number of bytes to include in the computation.
+ @return The CRC16 CCITT checksum. */
+extern guint16 crc16_ccitt_tvb_offset(tvbuff_t *tvb, guint offset, guint len);
+
+/** Compute CRC16 CCITT checksum of a tv buffer.  If computing the
+ *  checksum over multiple tv buffers and you want to feed the partial CRC16
+ *  back in, remember to take the 1's complement of the partial CRC16 first.
+ @param tvb The tv buffer containing the data.
+ @param len The number of bytes to include in the computation.
+ @param seed The seed to use.
+ @return The CRC16 CCITT checksum (using the given seed). */
+extern guint16 crc16_ccitt_tvb_seed(tvbuff_t *tvb, guint len, guint16 seed);
+
+/** Compute CRC16 CCITT checksum of a tv buffer.  If computing the
+ *  checksum over multiple tv buffers and you want to feed the partial CRC16
+ *  back in, remember to take the 1's complement of the partial CRC16 first.
+ @param tvb The tv buffer containing the data.
+ @param offset The offset into the tv buffer.
+ @param len The number of bytes to include in the computation.
+ @param seed The seed to use.
+ @return The CRC16 CCITT checksum (using the given seed). */
+extern guint16 crc16_ccitt_tvb_offset_seed(tvbuff_t *tvb, guint offset,
+                                           guint len, guint16 seed);
+
 

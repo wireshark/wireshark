@@ -23,6 +23,8 @@
 
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
+include Makefile.common
+
 lib_LTLIBRARIES = libwiretap.la
 libwiretap_la_LDFLAGS = -version-info 0:1:0
 
@@ -31,85 +33,20 @@ CLEANFILES = \
 	libwiretap.la		\
 	*~
 
-MAINTAINERCLEANFILES = \
-	ascend-grammar.c \
-	ascend-grammar.h
+MAINTAINERCLEANFILES = $(GENERATED_FILES)
 
 libwiretap_la_SOURCES = \
-	airopeek9.c		\
-	airopeek9.h		\
-	ascend-grammar.y	\
-	ascend-scanner.l	\
-	ascend.c		\
-	ascend.h		\
-	ascend-int.h		\
-	atm.c			\
-	atm.h			\
-	buffer.c		\
-	buffer.h		\
-	cosine.h		\
-	cosine.c		\
-	csids.c			\
-	csids.h			\
-	dbs-etherwatch.c	\
-	dbs-etherwatch.h	\
-	erf.c			\
-	erf.h			\
-	etherpeek.c             \
-	etherpeek.h             \
-	file_access.c		\
-	file_wrappers.c		\
-	file_wrappers.h		\
-	hcidump.c		\
-	hcidump.h		\
-	i4btrace.c		\
-	i4btrace.h		\
-	i4b_trace.h		\
-	iptrace.c		\
-	iptrace.h		\
-	lanalyzer.c		\
-	lanalyzer.h		\
-	libpcap.c		\
-	libpcap.h		\
-	netmon.c		\
-	netmon.h		\
-	nettl.c			\
-	nettl.h			\
-	network_instruments.c	\
-	network_instruments.h	\
-	netxray.c		\
-	netxray.h		\
-	ngsniffer.c		\
-	ngsniffer.h		\
-	pppdump.c		\
-	pppdump.h		\
-	radcom.c		\
-	radcom.h		\
-	snoop.c			\
-	snoop.h			\
-	toshiba.c		\
-	toshiba.h		\
-	eyesdn.c		\
-	eyesdn.h		\
-	visual.c		\
-	visual.h		\
-	vms.c			\
-	vms.h			\
-	wtap.c			\
-	wtap.h			\
-	wtap-capture.h		\
-	wtap-int.h		\
-	5views.c		\
-	5views.h
+	$(NONGENERATED_C_FILES)	\
+	$(GENERATOR_SOURCES)	\
+	$(NONGENERATED_HEADER_FILES)
 
 EXTRA_DIST = \
 	README.developer	\
-	ascend-grammar.c	\
-	ascend-grammar.h	\
-	ascend-scanner.c	\
 	config.h.win32		\
+	Makefile.common		\
 	Makefile.nmake		\
-	wtap.def
+	wtap.def		\
+	$(GENERATED_FILES)
 
 # Any POSIX-compatible YACC should honor the -p flag
 AM_YFLAGS=-d -p ascend

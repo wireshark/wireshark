@@ -31,7 +31,7 @@
 #include "prefs.h"
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
-#include "smb.h"
+#include "packet-windows-common.h"
 
 
 static int proto_dcerpc_messenger = -1;

@@ -323,8 +323,9 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	tvbuff_t       			*next_tvb;
 	guint32				testvar = 0, ncp_burst_command, burst_len, burst_off, burst_file;
 	guint8				subfunction;
-    mncp_rhash_value    *request_value = NULL;
-    conversation_t      *conversation;
+	mncp_rhash_value		*request_value = NULL;
+	conversation_t			*conversation;
+	char				*burst_command_name;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NCP");
@@ -333,118 +334,129 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	hdr_offset = 0;
 
-	if (is_tcp) 
-    {
-       	if (tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RQST && tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RPLY) 
+	if (is_tcp) {
+		if (tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RQST && tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RPLY) 
 			hdr_offset += 1;
 		ncpiph.signature	= tvb_get_ntohl(tvb, hdr_offset);
 		ncpiph.length		= tvb_get_ntohl(tvb, hdr_offset+4);
 		hdr_offset += 8;
-		if (ncpiph.signature == NCPIP_RQST) 
-        {
+		if (ncpiph.signature == NCPIP_RQST) {
 			ncpiphrq.version	= tvb_get_ntohl(tvb, hdr_offset);
 			hdr_offset += 4;
 			ncpiphrq.rplybufsize	= tvb_get_ntohl(tvb, hdr_offset);
 			hdr_offset += 4;
 		}
-        /* Ok, we need to track the conversation so that we can determine
-         * if packet signature is occuring for this connection. We will
-         * store the conversation the first time and that state of packet 
-         * signature will be stored later in our logic. This way when we 
-         * dissect reply packets we will be able to determine if we need 
-         * to also dissect with a signature.
-         */
-        conversation = find_conversation(&pinfo->src, &pinfo->dst,
-            PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport, 0);
-		if (ncpiph.length & 0x80000000 || ncpiph.signature == NCPIP_RPLY) 
-        {
-            /* First time through we will store packet signature state */
-			if (!pinfo->fd->flags.visited) 
-            {
-                if (conversation != NULL) 
-                {
-                    /* find the record telling us the request made that caused
-                    this reply */
-                    request_value = mncp_hash_lookup(conversation);
-                    /* if for some reason we have no conversation in our hash, create one */
-                    if (request_value==NULL)
-                    {
-                        request_value = mncp_hash_insert(conversation);
-                    }
-                }
-                else
-                {
-                    /* It's not part of any conversation - create a new one. */
-                    conversation = conversation_new(&pinfo->src, &pinfo->dst,
-                        PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport, 0);
-                    request_value = mncp_hash_insert(conversation);
-                }
-                /* If this is a request packet then we know that we have a signature */
-				if (ncpiph.signature == NCPIP_RQST) 
-                {
+		/* Ok, we need to track the conversation so that we can
+		 * determine if packet signature is occuring for this
+		 * connection. We will store the conversation the first
+		 * time and that state of packet signature will be stored
+		 * later in our logic. This way when we dissect reply
+		 * packets we will be able to determine if we need 
+		 * to also dissect with a signature.
+		 */
+		conversation = find_conversation(&pinfo->src, &pinfo->dst,
+		    PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport,
+		    0);
+		if ((ncpiph.length & 0x80000000) ||
+		    ncpiph.signature == NCPIP_RPLY) {
+			/* First time through we will store packet signature
+			 * state
+			 */
+			if (!pinfo->fd->flags.visited) {
+				if (conversation != NULL) {
+					/* find the record telling us the
+					 * request made that caused this
+					 * reply
+					 */
+					request_value =
+					    mncp_hash_lookup(conversation);
+					/* if for some reason we have no
+					 * conversation in our hash, create
+					 * one */
+					if (request_value == NULL) {
+						request_value =
+						    mncp_hash_insert(conversation);
+					}
+				} else {
+					/* It's not part of any conversation
+					 * - create a new one.
+					 */
+					conversation = conversation_new(&pinfo->src,
+					    &pinfo->dst, PT_NCP,
+					    (guint32) pinfo->srcport,
+					    (guint32) pinfo->destport, 0);
+					request_value =
+					    mncp_hash_insert(conversation);
+				}
+				/* If this is a request packet then we know
+				 * that we have a signature
+				 */
+				if (ncpiph.signature == NCPIP_RQST) {
 					hdr_offset += 8;
 					ncpiph.length &= 0x7fffffff;
-                    request_value->packet_signature=TRUE;
-				}
-                else
-                {
-                    /* Now on reply packets we have to use the state of the original request packet */
-                    /* So look up the request value and check the state of packet signature */
-                    request_value = mncp_hash_lookup(conversation);
-					if (request_value->packet_signature==TRUE) 
-                    {
+					request_value->packet_signature=TRUE;
+				} else {
+					/* Now on reply packets we have to
+					 * use the state of the original
+					 * request packet, so look up the
+					 * request value and check the state
+					 * of packet signature
+					 */
+					request_value =
+					    mncp_hash_lookup(conversation);
+					if (request_value->packet_signature) {
 						hdr_offset += 8;
 						ncpiph.length &= 0x7fffffff;
-                        request_value->packet_signature=TRUE;
-                    }
-                    else
-                    {
-                        request_value->packet_signature=FALSE;
-                    }
+						/* XXX - it already *is* TRUE */
+						request_value->packet_signature=TRUE;
+					} else {
+						/* XXX - it already *is* FALSE */
+						request_value->packet_signature=FALSE;
+					}
 				}
-			}
-            else
-            {
-                /* Get request value data */
-                request_value = mncp_hash_lookup(conversation);
-				if (request_value->packet_signature==TRUE) 
-                {
+			} else {
+				/* Get request value data */
+				request_value = mncp_hash_lookup(conversation);
+				if (request_value->packet_signature) {
 					hdr_offset += 8;
 					ncpiph.length &= 0x7fffffff;
 				}
 			}
-		} 
-        else
-        {
-			if (!pinfo->fd->flags.visited) 
-            {
-                if (conversation != NULL) 
-                {
-                    /* find the record telling us the request made that caused
-                    this reply */
-                    request_value = mncp_hash_lookup(conversation);
-                    /* if for some reason we have no conversation in our hash, create one */
-                    if (request_value==NULL)
-                    {
-                        request_value = mncp_hash_insert(conversation);
-                    }
-                }
-                else
-                {
-                    /* It's not part of any conversation - create a new one. */
-                    conversation = conversation_new(&pinfo->src, &pinfo->dst,
-                        PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport, 0);
-                    request_value = mncp_hash_insert(conversation);
-                }
-                /* find the record telling us the request made that caused
-                   this reply */
-                request_value->packet_signature=FALSE;
-            }
-            else
-            {
-                request_value = mncp_hash_lookup(conversation);
-            }
-        }
+		} else {
+			if (!pinfo->fd->flags.visited) {
+				if (conversation != NULL) {
+					/* find the record telling us the
+					 * request made that caused this
+					 * reply
+					 */
+					request_value =
+					    mncp_hash_lookup(conversation);
+					/* if for some reason we have no
+					 * conversation in our hash, create
+					 * one */
+					if (request_value == NULL) {
+						request_value =
+						    mncp_hash_insert(conversation);
+					}
+				} else {
+					/* It's not part of any conversation
+					 * - create a new one.
+					 */
+					conversation = conversation_new(&pinfo->src,
+					    &pinfo->dst, PT_NCP,
+					    (guint32) pinfo->srcport,
+					    (guint32) pinfo->destport, 0);
+					request_value =
+					    mncp_hash_insert(conversation);
+				}
+				/* find the record telling us the request
+				 * made that caused this reply
+				 */
+				request_value->packet_signature=FALSE;
+			} else {
+				request_value = mncp_hash_lookup(conversation);
+			}
+		}
 	}
 
 	/* Record the offset where the NCP common header starts */
@@ -459,7 +471,6 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    col_add_fstr(pinfo->cinfo, COL_INFO,
 		    "%s",
 		    val_to_str(header.type, ncp_type_vals, "Unknown type (0x%04x)"));
-
 	}
 
 	nw_connection = (header.conn_high << 16) + header.conn_low;
@@ -595,10 +606,10 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    tvb, commhdr + 12, 4, FALSE);
 		proto_tree_add_item(ncp_tree, hf_ncp_delay_time,
 		    tvb, commhdr + 16, 4, FALSE);
-        ncp_burst_seqno = tvb_get_ntohs(tvb, commhdr+20);
+		ncp_burst_seqno = tvb_get_ntohs(tvb, commhdr+20);
 		proto_tree_add_item(ncp_tree, hf_ncp_burst_seqno,
 		    tvb, commhdr + 20, 2, FALSE);
-        ncp_ack_seqno = tvb_get_ntohs(tvb, commhdr+22);
+		ncp_ack_seqno = tvb_get_ntohs(tvb, commhdr+22);
 		proto_tree_add_item(ncp_tree, hf_ncp_ack_seqno,
 		    tvb, commhdr + 22, 2, FALSE);
 		proto_tree_add_item(ncp_tree, hf_ncp_burst_len,
@@ -611,28 +622,41 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		missing_fraglist_count = tvb_get_ntohs(tvb, commhdr + 34);
 		proto_tree_add_item(ncp_tree, hf_ncp_missing_fraglist_count,
 		    tvb, commhdr + 34, 2, FALSE);
-        if (ncp_burst_seqno==ncp_ack_seqno)
-        {
-            ncp_burst_command = tvb_get_ntohl(tvb, commhdr+36);
-            proto_tree_add_item(ncp_tree, hf_ncp_burst_command,
-                tvb, commhdr + 36, 4, FALSE);
-            burst_file = tvb_get_ntohl(tvb, commhdr+40);
-            proto_tree_add_item(ncp_tree, hf_ncp_burst_file_handle,
-                tvb, commhdr + 40, 4, FALSE);
-            proto_tree_add_item(ncp_tree, hf_ncp_burst_reserved,
-                tvb, commhdr + 44, 8, FALSE);
-            burst_off = tvb_get_ntohl(tvb, commhdr+52);
-            proto_tree_add_item(ncp_tree, hf_ncp_data_offset,
-                tvb, commhdr + 52, 4, FALSE);
-            burst_len = tvb_get_ntohl(tvb, commhdr+56);
-            proto_tree_add_item(ncp_tree, hf_ncp_burst_len,
-                tvb, commhdr + 56, 4, FALSE);
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_set_str(pinfo->cinfo, COL_INFO, match_strval(ncp_burst_command, burst_command));
-                col_append_fstr(pinfo->cinfo, COL_INFO, " %d bytes starting at offset %d in file 0x%08x", burst_len, burst_off, burst_file);
-            }
-            return;
-        }
+		if (ncp_burst_seqno == ncp_ack_seqno) {
+			ncp_burst_command = tvb_get_ntohl(tvb, commhdr+36);
+			proto_tree_add_item(ncp_tree, hf_ncp_burst_command,
+			    tvb, commhdr + 36, 4, FALSE);
+			burst_file = tvb_get_ntohl(tvb, commhdr+40);
+			proto_tree_add_item(ncp_tree, hf_ncp_burst_file_handle,
+			    tvb, commhdr + 40, 4, FALSE);
+			proto_tree_add_item(ncp_tree, hf_ncp_burst_reserved,
+			    tvb, commhdr + 44, 8, FALSE);
+			burst_off = tvb_get_ntohl(tvb, commhdr+52);
+			proto_tree_add_item(ncp_tree, hf_ncp_data_offset,
+			    tvb, commhdr + 52, 4, FALSE);
+			burst_len = tvb_get_ntohl(tvb, commhdr+56);
+			proto_tree_add_item(ncp_tree, hf_ncp_burst_len,
+			    tvb, commhdr + 56, 4, FALSE);
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				burst_command_name =
+				    match_strval(ncp_burst_command,
+				      burst_command);
+				if (burst_command_name != NULL) {
+					col_add_fstr(pinfo->cinfo, COL_INFO,
+					    "%s %d bytes starting at offset %d in file 0x%08x",
+					    burst_command_name, burst_len,
+					    burst_off, burst_file);
+				}
+			}
+			return;
+		} else {
+			if (tvb_get_guint8(tvb, commhdr + 2) & 0x10) {
+				if (check_col(pinfo->cinfo, COL_INFO)) {
+					col_set_str(pinfo->cinfo, COL_INFO,
+					    "End of Burst");
+				}
+			}
+		}
 		break;
 
 	case NCP_ALLOCATE_SLOT:		/* Allocate Slot Request */
@@ -1048,5 +1072,3 @@ proto_reg_handoff_ncp(void)
 
   data_handle = find_dissector("data");
 }
-
-

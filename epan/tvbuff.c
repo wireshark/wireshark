@@ -2342,7 +2342,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			/* Skip past the MTIME, XFL, and OS fields. */
 			c += 7;
 
-			if (flags & 0x2) {
+			if (flags & (1 << 2)) {
 				/* An Extra field is present. */
 				gint xsize = (gint)(*c |
 				    (*(c + 1) << 8));
@@ -2350,7 +2350,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 				c += xsize;
 			}
 
-			if (flags & 0x3) {
+			if (flags & (1 << 3)) {
 				/* A null terminated filename */
 
 				while (*c != '\0') {
@@ -2360,7 +2360,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 				c++;
 			}
 
-			if (flags & 0x4) {
+			if (flags & (1 << 4)) {
 				/* A null terminated comment */
 				
 				while (*c != '\0') {

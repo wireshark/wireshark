@@ -223,11 +223,15 @@ option, respectively, in which case the entire filter expression must be
 specified as a single argument (which means that if it contains spaces,
 it must be quoted), or can be specified with command-line arguments
 after the option arguments, in which case all the arguments after the
-filter arguments are treated as a filter expression.  If the filter is
-specified with command-line arguments after the option arguments, it's a
-capture filter if a capture is being done (i.e., if no B<-r> flag was
-specified) and a read filter if a capture file is being read (i.e., if a
-B<-r> flag was specified).
+filter arguments are treated as a filter expression.  Capture filters
+are supported only when doing a live capture; read filters are supported
+when doing a live capture and when reading a capture file, but require
+Tethereal to do more work when filtering, so you might be more likely to
+lose packets under heavy load if you're using a read filter.  If the
+filter is specified with command-line arguments after the option
+arguments, it's a capture filter if a capture is being done (i.e., if no
+B<-r> flag was specified) and a read filter if a capture file is being
+read (i.e., if a B<-r> flag was specified).
 
 =head1 OPTIONS
 

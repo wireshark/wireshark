@@ -52,6 +52,7 @@
 #define FAMILY_LOCATION_USERINFO      0x0006
 #define FAMILY_LOCATION_WATCHERSUBREQ 0x0007
 #define FAMILY_LOCATION_WATCHERNOT    0x0008
+#define FAMILY_LOCATION_USER_INFO_QUERY 0x0015
 #define FAMILY_LOCATION_DEFAULT       0xffff
 
 static const value_string aim_fnac_family_location[] = {
@@ -64,6 +65,7 @@ static const value_string aim_fnac_family_location[] = {
   { FAMILY_LOCATION_WATCHERSUBREQ, "Watcher Subrequest" },
   { FAMILY_LOCATION_WATCHERNOT, "Watcher Notification" },
   { FAMILY_LOCATION_DEFAULT, "Location Default" },
+  { FAMILY_LOCATION_USER_INFO_QUERY, "User Info Query" },
   { 0, NULL }
 };
 
@@ -158,6 +160,9 @@ static int dissect_aim_location(tvbuff_t *tvb, packet_info *pinfo,
 	  while(tvb_length_remaining(tvb, offset) > 0) {
 		  offset = dissect_aim_buddyname(tvb, pinfo, offset, loc_tree);
 	  }
+	  return offset;
+	case FAMILY_LOCATION_USER_INFO_QUERY:
+	  offset = dissect_aim_buddyname(tvb, pinfo, offset+4, loc_tree);
 	  return offset;
 	default:
 	  return 0;

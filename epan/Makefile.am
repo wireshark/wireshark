@@ -114,8 +114,6 @@ EXTRA_DIST = \
 CLEANFILES = \
 	libethereal.a		\
 	libethereal.la		\
-	x11-declarations.h	\
-	x11-register-info.h	\
 	*~
 
 MAINTAINERCLEANFILES =	\

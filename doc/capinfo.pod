@@ -1,0 +1,206 @@
+
+=head1 NAME
+
+capinfo - Prints information about binary capture files
+
+=head1 SYNOPSYS
+
+B<capinfo>
+S<[ B<-t> ]>
+S<[ B<-c> ]>
+S<[ B<-s> ]>
+S<[ B<-d> ]>
+S<[ B<-u> ]>
+S<[ B<-a> ]>
+S<[ B<-e> ]>
+S<[ B<-y> ]>
+S<[ B<-i> ]>
+S<[ B<-z> ]>
+S<[ B<-h> ]>
+I<capfile>
+
+=head1 DESCRIPTION
+
+B<Capinfo> is a program that reads a saved capture file and returns any
+or all of several statistics about that file.  B<Capinfo> is able to detect
+and read any capture supported by the B<Ethereal> package.
+
+B<Capinfo> can read the following file formats:
+
+=over 4
+
+=item *
+libpcap/WinPcap, tcpdump and various other tools using tcpdump's capture format
+
+=item *
+B<snoop> and B<atmsnoop>
+
+=item *
+Shomiti/Finisar B<Surveyor> captures
+
+=item *
+Novell B<LANalyzer> captures
+
+=item *
+Microsoft B<Network Monitor> captures
+
+=item *
+AIX's B<iptrace> captures
+
+=item *
+Cinco Networks B<NetXRay> captures
+
+=item *
+Network Associates Windows-based B<Sniffer> captures
+
+=item *
+Network General/Network Associates DOS-based B<Sniffer> (compressed or uncompressed) captures
+
+=item *
+AG Group/WildPackets B<EtherPeek>/B<TokenPeek>/B<AiroPeek>/B<EtherHelp>/B<PacketGrabber> captures
+
+=item *
+B<RADCOM>'s WAN/LAN analyzer captures
+
+=item *
+Network Instruments B<Observer> version 9 captures
+
+=item *
+B<Lucent/Ascend> router debug output
+
+=item *
+files from HP-UX's B<nettl>
+
+=item *
+B<Toshiba's> ISDN routers dump output
+
+=item *
+the output from B<i4btrace> from the ISDN4BSD project
+
+=item *
+traces from the B<EyeSDN> USB S0.
+
+=item *
+the output in B<IPLog> format from the Cisco Secure Intrusion Detection System
+
+=item *
+B<pppd logs> (pppdump format)
+
+=item *
+the output from VMS's B<TCPIPtrace>/B<TCPtrace>/B<UCX$TRACE> utilities
+
+=item *
+the text output from the B<DBS Etherwatch> VMS utility
+
+=item *
+Visual Networks' B<Visual UpTime> traffic capture
+
+=item *
+the output from B<CoSine> L2 debug
+
+=item *
+the output from Accellent's B<5Views> LAN agents
+
+=item *
+Endace Measurement Systems' ERF format captures 
+
+=item *
+Linux Bluez Bluetooth stack B<hcidump -w> traces
+
+=back
+
+There is no need to tell B<Capinfo> what type of
+file you are reading; it will determine the file type by itself. 
+B<Capinfo> is also capable of reading any of these file formats if they
+are compressed using gzip.  B<Capinfo> recognizes this directly from the
+file; the '.gz' extension is not required for this purpose.
+
+The user specifies which statistics to report by specifying flags 
+corresponding to the statistic.  If no flags are specified, B<Capinfo> will
+report all statistics available.
+
+=head1 OPTIONS
+
+=over 4
+
+=item -t
+
+Displays the capture type of the capture file.
+
+=item -c
+
+Counts the number of packets in the capture file.
+
+=item -s
+
+Displays the size of the file, in bytes.  This reports
+the size of the capture file itself.
+
+=item -d
+
+Displays the total length of all packets in the file, in
+bytes.  This counts the size of the packets as they appeared
+in their original form, not as they appear in this file.
+For example, if a packet was originally 1514 bytes and only
+256 of those bytes were saved to the capture file (if packets
+were captured with a snaplen or other slicing option),
+B<Capinfo> will consider the packet to have been 1514 bytes.
+
+=item -u
+
+Displays the capture duration, in seconds.  This is the
+difference in time between the earliest packet seen and
+latest packet seen.
+
+=item -a
+
+Displays the start time of the capture.  B<Capinfo> considers
+the earliest timestamp seen to be the start time, so the
+first packet in the capture is not necessarily the earliest -
+if packets exist "out-of-order", time-wise, in the capture,
+B<Capinfo> detects this.
+
+=item -e
+
+Displays the end time of the capture.  B<Capinfo> considers
+the latest timestamp seen to be the end time, so the
+last packet in the capture is not necessarily the latest -
+if packets exist "out-of-order", time-wise, in the capture,
+B<Capinfo> detects this.
+
+=item -y
+
+Displays the average data rate, in bytes
+
+=item -i
+
+Displays the average data rate, in bits
+
+=item -z
+
+displays the average packet size, in bytes
+
+=item -h
+
+Prints the help listing and exits.
+
+=back
+
+=head1 SEE ALSO
+
+I<tcpdump(8)>, I<pcap(3)>, I<ethereal(1)>, I<mergecap(1)>, I<editcap(1)>, I<tethereal(1)>
+
+=head1 NOTES
+
+B<Capinfo> is part of the B<Ethereal> distribution.  The latest version
+of B<Ethereal> can be found at B<http://www.ethereal.com>.
+
+=head1 AUTHORS
+
+  Original Author
+  -------- ------
+  Ian Schorr           <ian[AT]ianschorr.com>
+
+
+  Contributors
+  ------------

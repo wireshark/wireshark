@@ -1,0 +1,114 @@
+# Makefile.common
+#     Contains the stuff from Makefile.am and Makefile.nmake that is
+#     a) common to both files and
+#     b) portable between both files
+#
+# $Id$
+#
+# Ethereal - Network traffic analyzer
+# By Gerald Combs <gerald@ethereal.com>
+# Copyright 1998 Gerald Combs
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+# C source files that are part of the Wiretap source; this includes only
+# .c files, not YACC or Lex or... files (as Makefile.nmake maps this list
+# into a list of object files by replacing ".c" with ".obj") or files
+# generated from YACC or Lex files (as Automake doesn't want them in
+# _SOURCES variables).
+NONGENERATED_C_FILES = \
+	5views.c		\
+	airopeek9.c		\
+	ascend.c		\
+	atm.c			\
+	buffer.c		\
+	cosine.c		\
+	csids.c			\
+	dbs-etherwatch.c	\
+	erf.c			\
+	etherpeek.c             \
+	eyesdn.c		\
+	file_access.c		\
+	file_wrappers.c		\
+	hcidump.c		\
+	i4btrace.c		\
+	iptrace.c		\
+	lanalyzer.c		\
+	libpcap.c		\
+	netmon.c		\
+	nettl.c			\
+	network_instruments.c	\
+	netxray.c		\
+	ngsniffer.c		\
+	pppdump.c		\
+	radcom.c		\
+	snoop.c			\
+	toshiba.c		\
+	visual.c		\
+	vms.c			\
+	wtap.c
+
+# Header files that are not generated from other files
+NONGENERATED_HEADER_FILES = \
+	5views.h		\
+	airopeek9.h		\
+	ascend.h		\
+	ascend-int.h		\
+	atm.h			\
+	buffer.h		\
+	cosine.h		\
+	csids.h			\
+	dbs-etherwatch.h	\
+	erf.h			\
+	etherpeek.h             \
+	eyesdn.h		\
+	file_wrappers.h		\
+	hcidump.h		\
+	i4btrace.h		\
+	i4b_trace.h		\
+	iptrace.h		\
+	lanalyzer.h		\
+	libpcap.h		\
+	netmon.h		\
+	nettl.h			\
+	network_instruments.h	\
+	netxray.h		\
+	ngsniffer.h		\
+	pppdump.h		\
+	radcom.h		\
+	snoop.h			\
+	toshiba.h		\
+	visual.h		\
+	vms.h			\
+	wtap.h			\
+	wtap-capture.h		\
+	wtap-int.h
+
+# Files that generate compileable files
+GENERATOR_SOURCES = \
+	ascend-grammar.y	\
+	ascend-scanner.l
+
+# The C source files they generate.
+GENERATED_C_FILES = \
+	ascend-grammar.c	\
+	ascend-scanner.c
+
+# The header files that they generate.
+GENERATED_HEADER_FILES = \
+	ascend-grammar.h
+
+# All the generated files.
+GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)

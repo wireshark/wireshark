@@ -510,6 +510,22 @@ AC_SUBST(editcap_bin)
 AC_SUBST(editcap_man)
 
 
+# Enable/disable capinfo
+
+AC_ARG_ENABLE(capinfo,
+[  --enable-capinfo        build capinfo.  [default=yes]],enable_capinfo=$enableval,enable_capinfo=yes)
+
+if test "x$enable_capinfo" = "xyes" ; then
+	capinfo_bin="capinfo\$(EXEEXT)"
+	capinfo_man="capinfo.1"
+else
+	capinfo_bin=""
+	capinfo_man=""
+fi
+AC_SUBST(capinfo_bin)
+AC_SUBST(capinfo_man)
+
+
 # Enable/disable mergecap
 
 AC_ARG_ENABLE(mergecap,
@@ -1227,6 +1243,7 @@ echo ""
 echo "The Ethereal package has been configured with the following options."
 echo "                    Build ethereal : $enable_ethereal"
 echo "                   Build tethereal : $enable_tethereal"
+echo "                     Build capinfo : $enable_capinfo"
 echo "                     Build editcap : $enable_editcap"
 echo "                    Build mergecap : $enable_mergecap"
 echo "                   Build text2pcap : $enable_text2pcap"

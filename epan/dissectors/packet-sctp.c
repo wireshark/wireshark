@@ -3,10 +3,11 @@
  * It should be compilant to
  * - RFC 2960
  * - RFC 3309
+ * - RFC 3758
  * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctpimpguide-09.txt
- * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-08.txt for the add-IP extension
- * - http://www.ietf.org/internet-drafts/draft-stewart-tsvwg-prsctp-04.txt for the 'Partial Reliability' extension
- * - another upcoming ID on packetdrop stuff.
+ * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-09.txt
+* - http://www.ietf.org/internet-drafts/draft-stewart-sctp-pktdrprep-00.txt
+ *
  * Copyright 2000, 2001, 2002, 2003, 2004 Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Still to do (so stay tuned)
  * - support for reassembly
@@ -152,9 +153,6 @@ static int hf_correlation_id = -1;
 static int hf_adap_indication = -1;
 
 static int hf_pktdrop_chunk_m_bit = -1;
-/*
-static int hf_pktdrop_chunk_s_bit = -1;
-*/
 static int hf_pktdrop_chunk_b_bit = -1;
 static int hf_pktdrop_chunk_t_bit = -1;
 static int hf_pktdrop_chunk_bandwidth = -1;
@@ -1767,13 +1765,6 @@ static const true_false_string sctp_pktdropk_m_bit_value = {
   "Source is an endhost"
 };
 
-/*
-static const true_false_string sctp_pktdropk_s_bit_value = {
-  "This is a summary",
-  "This is not a summary"
-};
-*/
-
 static const true_false_string sctp_pktdropk_b_bit_value = {
   "SCTP checksum was incorrect",
   "SCTP checksum was correct"
@@ -1797,20 +1788,19 @@ dissect_pktdrop_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *chunk
   if (chunk_tree) {
     flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_pktdrop_chunk_flags);
 
-    proto_tree_add_item(flags_tree, hf_pktdrop_chunk_m_bit,            chunk_tvb, CHUNK_FLAGS_OFFSET,                  CHUNK_FLAGS_LENGTH,                    NETWORK_BYTE_ORDER);
-/*
-    proto_tree_add_item(flags_tree, hf_pktdrop_chunk_s_bit,            chunk_tvb, CHUNK_FLAGS_OFFSET,                  CHUNK_FLAGS_LENGTH,                    NETWORK_BYTE_ORDER);
-*/
-    proto_tree_add_item(flags_tree, hf_pktdrop_chunk_b_bit,            chunk_tvb, CHUNK_FLAGS_OFFSET,                  CHUNK_FLAGS_LENGTH,                    NETWORK_BYTE_ORDER);
-    proto_tree_add_item(flags_tree, hf_pktdrop_chunk_t_bit,            chunk_tvb, CHUNK_FLAGS_OFFSET,                  CHUNK_FLAGS_LENGTH,                    NETWORK_BYTE_ORDER);
-    proto_tree_add_item(chunk_tree, hf_pktdrop_chunk_bandwidth,        chunk_tvb, PKTDROP_CHUNK_BANDWIDTH_OFFSET,      PKTDROP_CHUNK_BANDWIDTH_LENGTH,        NETWORK_BYTE_ORDER);
-    proto_tree_add_item(chunk_tree, hf_pktdrop_chunk_queuesize,        chunk_tvb, PKTDROP_CHUNK_QUEUESIZE_OFFSET,      PKTDROP_CHUNK_QUEUESIZE_LENGTH,        NETWORK_BYTE_ORDER);
-    proto_tree_add_item(chunk_tree, hf_pktdrop_chunk_truncated_length, chunk_tvb, PKTDROP_CHUNK_TRUNCATED_SIZE_OFFSET, PKTDROP_CHUNK_TRUNCATED_SIZE_LENGTH,   NETWORK_BYTE_ORDER);
-    proto_tree_add_item(chunk_tree, hf_pktdrop_chunk_reserved,         chunk_tvb, PKTDROP_CHUNK_RESERVED_SIZE_OFFSET,  PKTDROP_CHUNK_RESERVED_SIZE_LENGTH,    NETWORK_BYTE_ORDER);
-    if (tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_PKTDROP_CHUNK_T_BIT)
-      proto_tree_add_item(chunk_tree, hf_pktdrop_chunk_data_field,       chunk_tvb, PKTDROP_CHUNK_DATA_FIELD_OFFSET,     data_field_length,                     NETWORK_BYTE_ORDER);
-    else
-      dissect_sctp_packet(data_field_tvb, pinfo, chunk_tree, TRUE);
+    proto_tree_add_item(flags_tree, hf_pktdrop_chunk_m_bit,            chunk_tvb, CHUNK_FLAGS_OFFSET,                  CHUNK_FLAGS_LENGTH,                  NETWORK_BYTE_ORDER);
+    proto_tree_add_item(flags_tree, hf_pktdrop_chunk_b_bit,            chunk_tvb, CHUNK_FLAGS_OFFSET,                  CHUNK_FLAGS_LENGTH,                  NETWORK_BYTE_ORDER);
+    proto_tree_add_item(flags_tree, hf_pktdrop_chunk_t_bit,            chunk_tvb, CHUNK_FLAGS_OFFSET,                  CHUNK_FLAGS_LENGTH,                  NETWORK_BYTE_ORDER);
+    proto_tree_add_item(chunk_tree, hf_pktdrop_chunk_bandwidth,        chunk_tvb, PKTDROP_CHUNK_BANDWIDTH_OFFSET,      PKTDROP_CHUNK_BANDWIDTH_LENGTH,      NETWORK_BYTE_ORDER);
+    proto_tree_add_item(chunk_tree, hf_pktdrop_chunk_queuesize,        chunk_tvb, PKTDROP_CHUNK_QUEUESIZE_OFFSET,      PKTDROP_CHUNK_QUEUESIZE_LENGTH,      NETWORK_BYTE_ORDER);
+    proto_tree_add_item(chunk_tree, hf_pktdrop_chunk_truncated_length, chunk_tvb, PKTDROP_CHUNK_TRUNCATED_SIZE_OFFSET, PKTDROP_CHUNK_TRUNCATED_SIZE_LENGTH, NETWORK_BYTE_ORDER);
+    proto_tree_add_item(chunk_tree, hf_pktdrop_chunk_reserved,         chunk_tvb, PKTDROP_CHUNK_RESERVED_SIZE_OFFSET,  PKTDROP_CHUNK_RESERVED_SIZE_LENGTH,  NETWORK_BYTE_ORDER);
+    if (data_field_length > 0) {
+      if (tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_PKTDROP_CHUNK_T_BIT)
+        proto_tree_add_item(chunk_tree, hf_pktdrop_chunk_data_field,   chunk_tvb, PKTDROP_CHUNK_DATA_FIELD_OFFSET,     data_field_length,                   NETWORK_BYTE_ORDER);
+      else
+        dissect_sctp_packet(data_field_tvb, pinfo, chunk_tree, TRUE);
+    }
   }
 }
 

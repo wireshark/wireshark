@@ -71,8 +71,9 @@ ethereal -i eth0 -k
 	  <varlistentry><term><command>Link-layer header type</command></term>
 	    <listitem>
 	      <para>
-		  Unless you are in the rare case that you will need this, just keep the default.
-		  XXX - insert a better explanation here.
+		  Unless you are in the rare case that you will need this, just keep 
+		  the default. For a detailed description, see 
+		  <xref linkend="ChCapLinkLayerHeader"/>
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -99,15 +100,23 @@ ethereal -i eth0 -k
 		This checkbox allows you to specify that Ethereal 
 		should set the interface in promiscuous mode when capturing. 
 		If you do not specify this, Ethereal will only capture the 
-		packets going to or from your computer ( not 
-		all packets going by your interface).
+		packets going to or from your computer (not 
+		all packets on your LAN segment).
 	      </para>
 	      <note>
 		<title>Note</title>
 		<para>
 		  If some other process has put the interface in 
-		  promiscuous mode you may be capturing in promiscous 
+		  promiscuous mode you may be capturing in promiscuous 
 		  mode even if you turn off this option
+		</para>
+	      </note>
+	      <note>
+		<title>Note</title>
+		<para>
+		Even in promiscuous mode you still won't necessarily see all packets 
+		on your LAN segment, see <ulink url="&EtherealFAQPromiscPage;"/> for 
+		some more explanations.
 		</para>
 	      </note>
 	    </listitem>
@@ -119,9 +128,32 @@ ethereal -i eth0 -k
 		data that will be captured for each packet, and is 
 		sometimes referred to as the <command>snaplen</command>. If disabled, 
 		the default is 65535, which will be sufficient for most 
-		protocols. The value should be at least the MTU for the interface 
-		you are capturing on.
+		protocols. Some rules of thumb:
 	      </para>
+		<itemizedlist>
+	    <listitem>
+	      <para>
+			If you are unsure, just keep the default value.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+			If you don't need all of the data in a packet - for example, if you
+			only need the link-layer, IP, and TCP headers - you might want to
+			choose a small snapshot length, as less CPU time is required for
+			copying packets, less buffer space is required for packets, and thus
+			perhaps fewer packets will be dropped if traffic is very heavy.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+			If you don't capture all of the data in a packet, you might find that
+			the packet data you want is in the part that's dropped, or that
+			reassembly isn't possible as the data required for reassembly is
+			missing.
+	      </para>
+	    </listitem>
+		</itemizedlist>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry><term><command>Capture Filter</command></term>
@@ -152,11 +184,14 @@ ethereal -i eth0 -k
 	    <listitem>
 	      <para>
 			This field allows you to specify the file name that will be 
-			used for the capture file. There is no default for this value. 
+			used for the capture file. This field is left blank by default.
+			If the field is left blank, the capture data will be stored in a 
+			temporary file, see <xref linkend="ChCapCaptureFiles"/> for 
+			details.
 	      </para>
 	      <para>
-			You can also click on the button right to this field to browse 
-			through the filesystem.
+			You can also click on the button to the right of this field to 
+			browse through the filesystem.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -172,7 +207,7 @@ ethereal -i eth0 -k
 	    <listitem>
 	      <para>
 			Multiple files only: Switch to the next file, after the given 
-			number of byte(s)/kilobyte(s)/megabyte(s)/gigabyte(s) were 
+			number of byte(s)/kilobyte(s)/megabyte(s)/gigabyte(s) have been
 			captured. 
 	      </para>
 	    </listitem>
@@ -181,14 +216,14 @@ ethereal -i eth0 -k
 	    <listitem>
 	      <para>
 			Multiple files only: Switch to the next file, after the given 
-			number of second(s)/minutes(s)/hours(s)/days(s) expired.
+			number of second(s)/minutes(s)/hours(s)/days(s) have elapsed.
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry><term><command>Ring buffer with n files</command></term>
 	    <listitem>
 	      <para>
-			Multiple files only: Form a ringbuffer of the capture files, with 
+			Multiple files only: Form a ring buffer of the capture files, with 
 			the given number of files.
 	      </para>
 	    </listitem>
@@ -208,7 +243,7 @@ ethereal -i eth0 -k
 	  <varlistentry><term><command>... after n packet(s)</command></term>
 	    <listitem>
 	      <para>
-			Stop capturing, after the given number of packets were 
+			Stop capturing, after the given number of packets have been
 			captured.
 	      </para>
 	    </listitem>
@@ -217,7 +252,7 @@ ethereal -i eth0 -k
 	    <listitem>
 	      <para>
 			Stop capturing, after the given number of 
-			byte(s)/kilobyte(s)/megabyte(s)/gigabyte(s) were captured.
+			byte(s)/kilobyte(s)/megabyte(s)/gigabyte(s) have been captured.
 			This option is greyed out, if "Use multiple files" is selected.
 	      </para>
 	    </listitem>
@@ -226,7 +261,7 @@ ethereal -i eth0 -k
 	    <listitem>
 	      <para>
 			Stop capturing, after the given number of 
-			second(s)/minutes(s)/hours(s)/days(s) expired.
+			second(s)/minutes(s)/hours(s)/days(s) have elapsed.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -364,10 +399,10 @@ ethereal -i eth0 -k
 	report context related problems (like a stream error) and keeps information
 	about context related protocols (e.g. where data is exchanged at the 
 	establishing phase and only referred to in later packets). 
-	As it keeps these informations only for the loaded file, using one of 
+	As it keeps these information only for the loaded file, using one of 
 	the multiple file modes may cut these contexts, If the establishing phase 
 	is saved in one file and the things you would like to see is in another, 
-	so you might not see some of the valuable context related information.
+	you might not see some of the valuable context related information.
 	</para>
 	</note>
 	<tip><title>Tip!</title>
@@ -414,7 +449,7 @@ ethereal -i eth0 -k
 		<entry>foo_00001_20040205110102.cap, foo_00002_20040205110102.cap, ...</entry>
 	      </row>
 	      <row>
-		<entry><command>Multiple files, ringbuffer</command></entry>
+		<entry><command>Multiple files, ring buffer</command></entry>
 		<entry>foo.cap</entry>
 		<entry>x</entry>
 		<entry>x</entry>
@@ -447,14 +482,14 @@ ethereal -i eth0 -k
 	    <term><command>Multiple files, continuous</command></term>
 	    <listitem>
 	<para>
-	Like the "Single file named" mode, but a new file is created and used, 
+	Like the "Single named file" mode, but a new file is created and used, 
 	after reaching one of the multiple file switch conditions (one of the 
 	"Next file every ..." values).
 	</para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term><command>Multiple files, ringbuffer</command></term>
+	    <term><command>Multiple files, ring buffer</command></term>
 	    <listitem>
 	<para>
 	Much like "Multiple files continuous", reaching one of the multiple files 
@@ -471,12 +506,48 @@ ethereal -i eth0 -k
 	  </varlistentry>
 	</variablelist>
 	</section>
-  
+
+  <section id="ChCapLinkLayerHeader"><title>Link-layer header type</title>
+	<para>
+	In the usual case, you won't have to choose this link-layer header type. 
+	The following paragraphs will describe the exceptional cases, where
+	selecting this type is possible, so you will have a guide what to do:
+	</para>
+    <para>
+    If you are capturing on an 802.11 device on some versions of BSD, this 
+	might offer a choice of "Ethernet" or "802.11".  "Ethernet" will cause 
+	the captured packets to have fake Ethernet headers; "802.11" will cause 
+	them to have IEEE 802.11 headers.  Unless the capture needs to be read by 
+	an application that doesn't support 802.11 headers, you should select 
+	"802.11".
+	</para>
+	<para>
+    If you are capturing on an Endace DAG card connected to a synchronous 
+	serial line, this might offer a choice of "PPP over serial" or 
+	"Cisco HDLC"; if the protocol on the serial line is PPP, select 
+	"PPP over serial", and if the protocol on the serial line is Cisco HDLC, 
+	select "Cisco HDLC".
+	</para>
+	<para>
+    If you are capturing on an Endace DAG card connected to an ATM network, 
+	this might offer a choide of "RFC 1483 IP-over-ATM" or "Sun raw ATM".  
+	If the only traffic being captured is RFC 1483 LLC-encapsulated IP, or if 
+	the capture needs to be read by an application that doesn't support SunATM 
+	headers, select "RFC 1483 IP-over-ATM", otherwise select "Sun raw ATM".
+	</para>
+	<para>
+    If you are capturing on an Ethernet device, this might offer a choice of 
+	"Ethernet" or "DOCSIS".  If you are capturing traffic from a Cisco Cable 
+	Modem Termination System that is putting DOCSIS traffic onto the Ethernet 
+	to be captured, select "DOCSIS", otherwise select "Ethernet".
+    </para>
+  </section>
+
   <section id="ChCapCaptureFilterSection"><title>Filtering while capturing</title>
     <para>
       Ethereal uses the libpcap filter language for capture filters. 
-      This is explained in the tcpdump man page. If you can understand 
-      it, you are a better man that I am, Gunga Din!
+      This is explained in the tcpdump man page, which can be hard to 
+	  understand, so it's explained here to some extent.
     </para>
     <para>
       You enter the capture filter into the Filter field of the Ethereal 

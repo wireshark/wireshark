@@ -25,6 +25,14 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include <glib.h>
+
+#include <epan/packet.h>
+#include "packet-windows-common.h"
 #include "packet-smb-common.h"
 
 static int proto_smb_logon = -1;
@@ -491,7 +499,7 @@ dissect_announce_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 			    TRUE);
 			offset += 8;
 
-			offset = dissect_smb_64bit_time(tvb, info_tree, offset,
+			offset = dissect_nt_64bit_time(tvb, info_tree, offset,
 			    hf_nt_date_time);
 
 			info_count--;
@@ -724,6 +732,16 @@ dissect_smb_sam_logon_resp(tvbuff_t *tvb, packet_info *pinfo _U_,
 	return offset;
 }
 
+static int
+dissect_smb_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	/* display data as unknown */
+
+	proto_tree_add_text(tree, tvb, offset, -1, "Data (%u bytes)",
+	    tvb_reported_length_remaining(tvb, offset));
+
+	return offset+tvb_length_remaining(tvb, offset);
+}
 
 #define LOGON_LM10_LOGON_REQUEST		0x00
 #define LOGON_LM10_LOGON_RESPONSE		0x01
@@ -782,7 +800,6 @@ static const value_string commands[] = {
 	{LOGON_SAM_AD_LOGON_RESPONSE,	"Active Directory Response to SAM LOGON request"},
 	{0,	NULL}
 };
-
 
 static int (*dissect_smb_logon_cmds[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset) = {
 	dissect_smb_logon_request,  /* 0x00 (LM1.0/LM2.0 LOGON Request) */

@@ -6,6 +6,7 @@
  * Routines for iSNS dissection
  * Copyright 2003, Elipsan, Gareth Bushell <gbushell@elipsan.com>
  * (c) 2004 Ronnie Sahlberg   updates
+ * (c) 2004 Ming Zhang   updates
  *
  * $Id$
  *
@@ -160,7 +161,7 @@ static int hf_isns_entity_identifier = -1;
 static int hf_isns_dd_id_next_id = -1;
 static int hf_isns_member_iscsi_index = -1;
 static int hf_isns_member_portal_index = -1;
-static int hf_isns_member_ifcp_node = -1;
+static int hf_isns_member_fc_port_name = -1;
 static int hf_isns_vendor_oui = -1;
 static int hf_isns_preferred_id = -1;
 static int hf_isns_assigned_id = -1;
@@ -187,8 +188,11 @@ static int hf_isns_permanent_port_name = -1;
 static int hf_isns_delimiter = -1;
 static int hf_isns_not_decoded_yet = -1;
 static int hf_isns_portal_group_tag = -1;
+static int hf_isns_pg_iscsi_name = -1;
 static int hf_isns_pg_portal_ip_addr = -1;
 static int hf_isns_pg_portal_port = -1;
+static int hf_isns_pg_index = -1;
+static int hf_isns_pg_next_index = -1;
 
 
 
@@ -210,6 +214,9 @@ static gboolean isns_desegment = TRUE;
 #define ISNS_FUNC_DDSDEREG       0x000c
 #define ISNS_FUNC_ESI            0x000d
 #define ISNS_FUNC_HEARTBEAT      0x000e
+#define ISNS_FUNC_RQSTDOMID      0x0011
+#define ISNS_FUNC_RLSEDOMID      0x0012
+#define ISNS_FUNC_GETDOMID       0x0013
 
 #define ISNS_FUNC_RSP_DEVATTRREG 0x8001
 #define ISNS_FUNC_RSP_DEVATTRQRY 0x8002
@@ -224,6 +231,9 @@ static gboolean isns_desegment = TRUE;
 #define ISNS_FUNC_RSP_DDSREG     0x800b
 #define ISNS_FUNC_RSP_DDSDEREG   0x800c
 #define ISNS_FUNC_RSP_ESI        0x800d
+#define ISNS_FUNC_RSP_RQSTDOMID  0x8011
+#define ISNS_FUNC_RSP_RLSEDOMID  0x8012
+#define ISNS_FUNC_RSP_GETDOMID   0x8013
 
 static const value_string isns_function_ids[] = {
 /* Requests*/
@@ -241,6 +251,9 @@ static const value_string isns_function_ids[] = {
     {ISNS_FUNC_DDSDEREG,       "DDSDereg"},
     {ISNS_FUNC_ESI,            "ESI"},
     {ISNS_FUNC_HEARTBEAT,      "Heartbeat"},
+    {ISNS_FUNC_RQSTDOMID,      "RqstDomId"},
+    {ISNS_FUNC_RLSEDOMID,      "RlseDomId"},
+    {ISNS_FUNC_GETDOMID,       "GetDomId"},
 
 /* Responses */
     {ISNS_FUNC_RSP_DEVATTRREG, "DevAttrRegRsp"},
@@ -256,6 +269,9 @@ static const value_string isns_function_ids[] = {
     {ISNS_FUNC_RSP_DDSREG,     "DDSRegRsp"},
     {ISNS_FUNC_RSP_DDSDEREG,   "DDSDeregRsp"},
     {ISNS_FUNC_RSP_ESI,        "ESIRsp"},
+    {ISNS_FUNC_RSP_RQSTDOMID,  "RqstDomIdRsp"},
+    {ISNS_FUNC_RSP_RLSEDOMID,  "RlseDomIdRsp"},
+    {ISNS_FUNC_RSP_GETDOMID,   "GetDomIdRsp"},
 
     {0x0,NULL},
 };
@@ -278,25 +294,27 @@ static const value_string isns_errorcode[] = {
     { 1,"Unknown Error"},
     { 2,"Message Format Error"},
     { 3,"Invalid Registration"},
-    { 4,"Requested ESI Period Too short"},
+    { 4,"RESERVED"},
     { 5,"Invalid Query"},
-    { 6,"Authentication Unknown"},
-    { 7,"Authentication Absent"},
-    { 8,"Authentication Failed"},
+    { 6,"Source Unknown"},
+    { 7,"Source Absent"},
+    { 8,"Source Unauthorized"},
     { 9,"No such Entry"},
     {10,"Version Not Supported"},
-    {11,"Internal Bus Error"},
-    {12,"Busy Now"},
+    {11,"Internal Error"},
+    {12,"Busy"},
     {13,"Option Not Understood"},
     {14,"Invalid Update"},
-    {15,"Message Not supported"},
+    {15,"Message (FUNCTION_ID) Not supported"},
     {16,"SCN Event Rejected"},
     {17,"SCN Registration Rejected"},
     {18,"Attribute Not Implemented"},
-    {19,"SWITCH_ID Not available"},
-    {20,"SWITCH_ID not allocated"},
+    {19,"FC_DOMAIN_ID Not available"},
+    {20,"FC_DOMAIN_ID not allocated"},
     {21,"ESI Not Available"},
-
+    {22,"Invalid Deregistration"},
+    {23,"Registration Feature Not Supported"},
+	
     {0x0,NULL}
 };
 
@@ -317,7 +335,6 @@ static const value_string isns_errorcode[] = {
 #define ISNS_ATTR_TAG_PORTAL_SYMBOLIC_NAME          18
 #define ISNS_ATTR_TAG_ESI_INTERVAL                  19
 #define ISNS_ATTR_TAG_ESI_PORT                      20
-#define ISNS_ATTR_TAG_PORTAL_GROUP                  21
 #define ISNS_ATTR_TAG_PORTAL_INDEX                  22
 #define ISNS_ATTR_TAG_SCN_PORT                      23
 #define ISNS_ATTR_TAG_PORTAL_NEXT_INDEX             24
@@ -333,10 +350,12 @@ static const value_string isns_errorcode[] = {
 #define ISNS_ATTR_TAG_WWNN_TOKEN                    37
 #define ISNS_ATTR_TAG_ISCSI_NODE_NEXT_INDEX         38
 #define ISNS_ATTR_TAG_ISCSI_AUTH_METHOD             42
-#define ISNS_ATTR_TAG_ISCSI_NODE_CERTIFICATE        43
+#define ISNS_ATTR_TAG_PG_ISCSI_NAME                 48
 #define ISNS_ATTR_TAG_PG_PORTAL_IP_ADDR             49
 #define ISNS_ATTR_TAG_PG_PORTAL_PORT                50
 #define ISNS_ATTR_TAG_PORTAL_GROUP_TAG              51
+#define ISNS_ATTR_TAG_PORTAL_GROUP_INDEX            52
+#define ISNS_ATTR_TAG_PORTAL_GROUP_NEXT_INDEX       53
 #define ISNS_ATTR_TAG_FC_PORT_NAME_WWPN             64
 #define ISNS_ATTR_TAG_PORT_ID                       65
 #define ISNS_ATTR_TAG_FC_PORT_TYPE                  66
@@ -351,13 +370,11 @@ static const value_string isns_errorcode[] = {
 #define ISNS_ATTR_TAG_IFCP_SCN_BITMAP               75
 #define ISNS_ATTR_TAG_PORT_ROLE                     76
 #define ISNS_ATTR_TAG_PERMANENT_PORT_NAME           77
-#define ISNS_ATTR_TAG_PORT_CERTIFICATE              83
 #define ISNS_ATTR_TAG_FC4_TYPE_CODE                 95
 #define ISNS_ATTR_TAG_FC_NODE_NAME_WWNN             96
 #define ISNS_ATTR_TAG_SYMBOLIC_NODE_NAME            97
 #define ISNS_ATTR_TAG_NODE_IP_ADDRESS               98
 #define ISNS_ATTR_TAG_NODE_IPA                      99
-#define ISNS_ATTR_TAG_NODE_CERTIFICATE              100
 #define ISNS_ATTR_TAG_PROXY_ISCSI_NAME              101
 #define ISNS_ATTR_TAG_SWITCH_NAME                   128
 #define ISNS_ATTR_TAG_PREFERRED_ID                  129
@@ -372,7 +389,7 @@ static const value_string isns_errorcode[] = {
 #define ISNS_ATTR_TAG_DD_SYMBOLIC_NAME              2066
 #define ISNS_ATTR_TAG_DD_MEMBER_ISCSI_INDEX         2067
 #define ISNS_ATTR_TAG_DD_MEMBER_ISCSI_NAME          2068
-#define ISNS_ATTR_TAG_DD_MEMBER_IFCP_NODE           2069
+#define ISNS_ATTR_TAG_DD_MEMBER_FC_PORT_NAME        2069
 #define ISNS_ATTR_TAG_DD_MEMBER_PORTAL_INDEX        2070
 #define ISNS_ATTR_TAG_DD_MEMBER_PORTAL_IP_ADDRESS   2071
 #define ISNS_ATTR_TAG_DD_MEMBER_PORTAL_PORT         2072
@@ -397,7 +414,6 @@ static const value_string isns_attribute_tags[] = {
     {ISNS_ATTR_TAG_PORTAL_SYMBOLIC_NAME,        "Portal Symbolic Name"},
     {ISNS_ATTR_TAG_ESI_INTERVAL,                "ESI Interval"},
     {ISNS_ATTR_TAG_ESI_PORT,                    "ESI Port"},
-    {ISNS_ATTR_TAG_PORTAL_GROUP,                "Portal Group Tag"},
     {ISNS_ATTR_TAG_PORTAL_INDEX,                "Portal Index"},
     {ISNS_ATTR_TAG_SCN_PORT,                    "SCN Port"},
     {ISNS_ATTR_TAG_PORTAL_NEXT_INDEX,           "Portal Next Index"},
@@ -413,10 +429,12 @@ static const value_string isns_attribute_tags[] = {
     {ISNS_ATTR_TAG_WWNN_TOKEN,                  "WWNN Token"},
     {ISNS_ATTR_TAG_ISCSI_NODE_NEXT_INDEX,       "iSCSI Node Next Index"},
     {ISNS_ATTR_TAG_ISCSI_AUTH_METHOD,           "iSCSI AuthMethod"},
-    {ISNS_ATTR_TAG_ISCSI_NODE_CERTIFICATE,      "iSCSI Node Certificate"},
+    {ISNS_ATTR_TAG_PG_ISCSI_NAME,               "PG iSCSI Name"},
     {ISNS_ATTR_TAG_PG_PORTAL_IP_ADDR,           "PG Portal IP Addr"},
     {ISNS_ATTR_TAG_PG_PORTAL_PORT,              "PG Portal Port"},
     {ISNS_ATTR_TAG_PORTAL_GROUP_TAG,            "Portal Group Tag"},
+    {ISNS_ATTR_TAG_PORTAL_GROUP_INDEX,          "PG Index"},
+    {ISNS_ATTR_TAG_PORTAL_GROUP_NEXT_INDEX,     "PG Next Index"},
     {ISNS_ATTR_TAG_FC_PORT_NAME_WWPN,           "FC Port Name WWPN"},
     {ISNS_ATTR_TAG_PORT_ID,                     "Port ID"},
     {ISNS_ATTR_TAG_FC_PORT_TYPE,                "FC Port Type"},
@@ -431,13 +449,11 @@ static const value_string isns_attribute_tags[] = {
     {ISNS_ATTR_TAG_IFCP_SCN_BITMAP,             "iFCP SCN bitmap"},
     {ISNS_ATTR_TAG_PORT_ROLE,                   "Port Role"},
     {ISNS_ATTR_TAG_PERMANENT_PORT_NAME,         "Permanent Port Name"},
-    {ISNS_ATTR_TAG_PORT_CERTIFICATE,            "Port Certificate"},
     {ISNS_ATTR_TAG_FC4_TYPE_CODE,               "FC-4 Type Code"},
     {ISNS_ATTR_TAG_FC_NODE_NAME_WWNN,           "FC Node Name WWNN"},
     {ISNS_ATTR_TAG_SYMBOLIC_NODE_NAME,          "Symbolic Node Name"},
     {ISNS_ATTR_TAG_NODE_IP_ADDRESS,             "Node IP-Address"},
     {ISNS_ATTR_TAG_NODE_IPA,                    "Node IPA"},
-    {ISNS_ATTR_TAG_NODE_CERTIFICATE,            "Node Certificate"},
     {ISNS_ATTR_TAG_PROXY_ISCSI_NAME,            "Proxy iSCSI Name"},
     {ISNS_ATTR_TAG_SWITCH_NAME,                 "Switch Name"},
     {ISNS_ATTR_TAG_PREFERRED_ID,                "Preferred ID"},
@@ -452,7 +468,7 @@ static const value_string isns_attribute_tags[] = {
     {ISNS_ATTR_TAG_DD_SYMBOLIC_NAME,            "DD_Symbolic Name"},
     {ISNS_ATTR_TAG_DD_MEMBER_ISCSI_INDEX,       "DD_Member iSCSI Index"},
     {ISNS_ATTR_TAG_DD_MEMBER_ISCSI_NAME,        "DD_Member iSCSI Name"},
-    {ISNS_ATTR_TAG_DD_MEMBER_IFCP_NODE,         "DD_Member iFCP Node"},
+    {ISNS_ATTR_TAG_DD_MEMBER_FC_PORT_NAME,      "DD_Member FC Port Name"},
     {ISNS_ATTR_TAG_DD_MEMBER_PORTAL_INDEX,      "DD Member Portal Index"},
     {ISNS_ATTR_TAG_DD_MEMBER_PORTAL_IP_ADDRESS, "DD_Member Portal IP Addr"},
     {ISNS_ATTR_TAG_DD_MEMBER_PORTAL_PORT,       "DD Member Portal TCP/UDP"},
@@ -600,7 +616,7 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti = NULL;
     proto_tree *isns_tree = NULL;
     
-    if( packet_len < 12 )
+    if( packet_len < ISNS_HEADER_SIZE )
 	return;
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -721,6 +737,9 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case ISNS_FUNC_RSP_DDSREG:
 	case ISNS_FUNC_RSP_DDSDEREG:
 	case ISNS_FUNC_RSP_ESI:
+	case ISNS_FUNC_RSP_RQSTDOMID:
+	case ISNS_FUNC_RSP_RLSEDOMID:
+	case ISNS_FUNC_RSP_GETDOMID:
 	{
 	    /* Get the Error message of the response */
 	    guint32 errorcode =  tvb_get_ntohl(tvb, offset);
@@ -741,6 +760,9 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case ISNS_FUNC_DDSREG:
 	case ISNS_FUNC_DDSDEREG:
 	case ISNS_FUNC_ESI:
+	case ISNS_FUNC_RQSTDOMID:
+	case ISNS_FUNC_RLSEDOMID:
+	case ISNS_FUNC_GETDOMID:
 	default:
 	    /* we can only look at the attributes for the first PDU */
 	    if(!(flags&ISNS_FLAGS_FIRST_PDU)){
@@ -764,7 +786,7 @@ get_isns_pdu_len(tvbuff_t *tvb, int offset)
     guint16 isns_len;
 
     isns_len = tvb_get_ntohs(tvb, offset+4);
-    return (isns_len+12);
+    return (isns_len+ISNS_HEADER_SIZE);
 }
 
 static void
@@ -778,8 +800,6 @@ dissect_isns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	tcp_dissect_pdus(tvb, pinfo, tree, isns_desegment, 12, get_isns_pdu_len,
 		dissect_isns_pdu);
-
-
 }
 
 static void
@@ -1120,9 +1140,6 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
     case ISNS_ATTR_TAG_ESI_PORT:
 	offset = dissect_isns_attr_port(tvb, offset, tree, hf_isns_esi_port, tag, len, ISNS_ESI_PORT, pinfo);
 	break;
-    case ISNS_ATTR_TAG_PORTAL_GROUP:
-	offset = dissect_isns_attr_not_decoded_yet(tvb, offset, tree, hf_isns_not_decoded_yet, tag, len);
-	break;
     case ISNS_ATTR_TAG_PORTAL_INDEX:
 	offset = dissect_isns_attr_integer(tvb, offset, tree, hf_isns_portal_index, tag, len, function_id);
 	break;
@@ -1168,8 +1185,8 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
     case ISNS_ATTR_TAG_ISCSI_AUTH_METHOD:
 	offset = dissect_isns_attr_string(tvb, offset, tree, hf_isns_iscsi_auth_method, tag, len);
 	break;
-    case ISNS_ATTR_TAG_ISCSI_NODE_CERTIFICATE:
-	offset = dissect_isns_attr_not_decoded_yet(tvb, offset, tree, hf_isns_not_decoded_yet, tag, len);
+    case ISNS_ATTR_TAG_PG_ISCSI_NAME:
+	offset = dissect_isns_attr_string(tvb, offset, tree, hf_isns_pg_iscsi_name, tag, len);
 	break;
     case ISNS_ATTR_TAG_PG_PORTAL_IP_ADDR:
 	offset = dissect_isns_attr_ip_address(tvb, offset, tree, hf_isns_pg_portal_ip_addr, tag, len);
@@ -1179,6 +1196,12 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
 	break;
     case ISNS_ATTR_TAG_PORTAL_GROUP_TAG:
 	offset = dissect_isns_attr_integer(tvb, offset, tree, hf_isns_portal_group_tag, tag, len, function_id);
+	break;
+    case ISNS_ATTR_TAG_PORTAL_GROUP_INDEX:
+	offset = dissect_isns_attr_integer(tvb, offset, tree, hf_isns_pg_index, tag, len, function_id);
+	break;
+    case ISNS_ATTR_TAG_PORTAL_GROUP_NEXT_INDEX:
+	offset = dissect_isns_attr_integer(tvb, offset, tree, hf_isns_pg_next_index, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_FC_PORT_NAME_WWPN:
 	offset = dissect_isns_attr_integer(tvb, offset, tree, hf_isns_fc_port_name_wwpn, tag, len, function_id);
@@ -1251,9 +1274,6 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
     case ISNS_ATTR_TAG_PERMANENT_PORT_NAME:
 	offset = dissect_isns_attr_integer(tvb, offset, tree, hf_isns_permanent_port_name, tag, len, function_id);
 	break;
-    case ISNS_ATTR_TAG_PORT_CERTIFICATE:
-	offset = dissect_isns_attr_not_decoded_yet(tvb, offset, tree, hf_isns_not_decoded_yet, tag, len);
-	break;
     case ISNS_ATTR_TAG_FC4_TYPE_CODE:
 	offset = dissect_isns_attr_not_decoded_yet(tvb, offset, tree, hf_isns_not_decoded_yet, tag, len);
 	break;
@@ -1269,9 +1289,6 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
 	break;
     case ISNS_ATTR_TAG_NODE_IPA:
 	offset = dissect_isns_attr_integer(tvb, offset, tree, hf_isns_node_ipa, tag, len, function_id);
-	break;
-    case ISNS_ATTR_TAG_NODE_CERTIFICATE:
-	offset = dissect_isns_attr_not_decoded_yet(tvb, offset, tree, hf_isns_not_decoded_yet, tag, len);
 	break;
     case ISNS_ATTR_TAG_PROXY_ISCSI_NAME:
 	offset = dissect_isns_attr_string(tvb, offset, tree, hf_isns_proxy_iscsi_name, tag, len);
@@ -1315,8 +1332,8 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
     case ISNS_ATTR_TAG_DD_MEMBER_ISCSI_NAME:
 	offset = dissect_isns_attr_string(tvb, offset, tree, hf_isns_dd_member_iscsi_name, tag, len);
 	break;
-    case ISNS_ATTR_TAG_DD_MEMBER_IFCP_NODE:
-	offset = dissect_isns_attr_integer(tvb, offset, tree, hf_isns_member_ifcp_node, tag, len, function_id);
+    case ISNS_ATTR_TAG_DD_MEMBER_FC_PORT_NAME:
+	offset = dissect_isns_attr_integer(tvb, offset, tree, hf_isns_member_fc_port_name, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_DD_MEMBER_PORTAL_INDEX:
 	offset = dissect_isns_attr_integer(tvb, offset, tree, hf_isns_member_portal_index, tag, len, function_id);
@@ -1723,10 +1740,25 @@ void proto_register_isns(void)
 	    FT_IPv6, BASE_NONE, NULL, 0x0,
 	    "DD Member Portal IPv4/IPv6 Address", HFILL }},
 
+	{ &hf_isns_pg_iscsi_name,
+	  { "PG iSCSI Name","isns.pg_iscsi_name",
+	    FT_STRING, BASE_NONE, NULL, 0x0,
+	    "PG iSCSI Name", HFILL }},
+
 	{ &hf_isns_pg_portal_ip_addr,
 	  { "PG Portal IP Address","isns.pg_portal.ip_address",
 	    FT_IPv6, BASE_NONE, NULL, 0x0,
 	    "PG Portal IPv4/IPv6 Address", HFILL }},
+
+	{ &hf_isns_pg_index,
+	  { "PG Index","isns.pg_index",
+	    FT_UINT32, BASE_DEC, NULL, 0x0,
+	    "PG Index", HFILL }},
+
+	{ &hf_isns_pg_next_index,
+	  { "PG Next Index","isns.pg_next_index",
+	    FT_UINT32, BASE_DEC, NULL, 0x0,
+	    "PG Next Index", HFILL }},
 
 	{ &hf_isns_dd_id_next_id,
 	  { "DD ID Next ID","isns.index",
@@ -1743,10 +1775,10 @@ void proto_register_isns(void)
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    "Member Portal Index", HFILL }},
 
-	{ &hf_isns_member_ifcp_node,
-	  { "Member iFCP Node","isns.member_ifcp_node",
+	{ &hf_isns_member_fc_port_name,
+	  { "Member FC Port Name","isns.member_fc_port_name",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "Member iFCP Node", HFILL }},
+	    "Member FC Port Name", HFILL }},
 
 	{ &hf_isns_vendor_oui,
 	  { "Vendor OUI","isns.index",

@@ -115,16 +115,22 @@ proto_item *get_ber_last_created_item(void) {
 }
 
 
+static GHashTable *oid_table=NULL;
+
 void
-register_ber_oid_dissector(char *oid, dissector_t dissector, int proto, char *name _U_)
+dissect_ber_oid_NULL_callback(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
 {
-	/* XXX we should sometime later add tracking of the name of the OID
-	 * so we can print that together with the OID.
-	 */
+	return;
+}
+
+void
+register_ber_oid_dissector(char *oid, dissector_t dissector, int proto, char *name)
+{
 	dissector_handle_t dissector_handle;
 
 	dissector_handle=create_dissector_handle(dissector, proto);
 	dissector_add_string("ber.oid", oid, dissector_handle);
+	g_hash_table_insert(oid_table, oid, name);
 }
 
 int
@@ -347,7 +353,16 @@ dissect_ber_integer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 
 	/* ok,  we cant handle >4 byte integers so lets fake them */
 	if(len>8){
-		proto_tree_add_text(tree, tvb, offset, len, "BER: Can not parse %d byte integers", len);
+		header_field_info *hfinfo;
+		proto_item *pi;
+
+		hfinfo = proto_registrar_get_nth(hf_id);
+		pi=proto_tree_add_text(tree, tvb, offset, len, "%s : 0x", hfinfo->name);
+		if(pi){
+			for(i=0;i<len;i++){
+				proto_item_append_text(pi,"%02x",tvb_get_guint8(tvb, offset+i));
+			}
+		}
 		return 0xdeadbeef;
 	}
 	if(len>4){
@@ -699,7 +714,8 @@ int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, pro
 	int eoffset;
 	guint8 byte;
 	guint32 value;
-	char str[256],*strp;
+	char str[256],*strp, *name;
+	proto_item *item;
 
 	offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 	offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
@@ -745,7 +761,14 @@ int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, pro
 	*strp = '\0';
 
 	if (hf_id != -1) {
-		proto_tree_add_string(tree, hf_id, tvb, offset - len, len, str);
+		item=proto_tree_add_string(tree, hf_id, tvb, offset - len, len, str);
+		/* see if we know the name of this oid */
+		if(item){
+			name=g_hash_table_lookup(oid_table, str);
+			if(name){
+				proto_item_append_text(item, " (%s)", name);
+			}
+		}
 	}
 
 	if (value_string) {
@@ -1080,6 +1103,7 @@ proto_register_ber(void)
 	" ASN.1 BER details such as Identifier and Length fields", &show_internal_ber_fields);
 
     ber_oid_dissector_table = register_dissector_table("ber.oid", "BER OID Dissectors", FT_STRING, BASE_NONE);
+    oid_table=g_hash_table_new(g_str_hash, g_str_equal);
 }
 
 void

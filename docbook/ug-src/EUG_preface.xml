@@ -8,7 +8,7 @@
     would like from Ethereal because of the lack of documentation.
   </para>
   <para>
-    This document is part of an effort of the Ethereal team to improve the 
+    This document is part of an effort by the Ethereal team to improve the 
 	usability of Ethereal.
   </para>
   <para>
@@ -23,7 +23,7 @@
   </para>
   <para>
   This book will explain all the basics and also some of the advanced features 
-  that Ethereal provides. As Ethereal is becoming a very complex program since 
+  that Ethereal provides. As Ethereal has become a very complex program since 
   the early days, not every feature of Ethereal might be explained in this 
   book. 
   </para>
@@ -35,7 +35,7 @@
   <para>
   By reading this book, you will learn how to install Ethereal, how to use the 
   basic elements of the graphical user interface (like the menu) and what's 
-  behind some of the advanced features that's maybe not that obvious at first 
+  behind some of the advanced features that are maybe not that obvious at first 
   sight. It will 
   hopefully guide you around some common problems that frequently appears for 
   new (and sometimes even advanced) users of Ethereal.
@@ -75,7 +75,7 @@
       <listitem>
 	<para>
 	  Pat Eyler, for his suggestions on improving the example on 
-	  generating a <command>backtrace</command>.
+	  generating a backtrace.
 	</para>
       </listitem>
     </itemizedlist>
@@ -87,19 +87,19 @@
       <listitem>
 	<para>
 	  Scott Renfro from whose <command>mergecap</command> man page 
-	  <xref linkend="AppToolsmergecap"/> derived.
+	  <xref linkend="AppToolsmergecap"/> is derived.
 	</para>
       </listitem>
       <listitem>
 	<para>
 	  Ashok Narayanan from whose <command>text2pcap</command> man page 
-	  <xref linkend="AppToolstext2pcap"/> derived.
+	  <xref linkend="AppToolstext2pcap"/> is derived.
 	</para>
       </listitem>
       <listitem>
 	<para>
 	  Frank Singleton from whose <filename>README.idl2eth</filename> 
-	  <xref linkend="AppToolsidl2eth"/> derived. 
+	  <xref linkend="AppToolsidl2eth"/> is derived. 
 	</para>
       </listitem>
     </itemizedlist>

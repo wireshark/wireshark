@@ -2173,6 +2173,13 @@ Roberto Morro		<Roberto.Morro [AT] TILAB.COM> {
 	    in RSVP and OSPF
 }
 
+Chris Maynard		<Christopher.Maynard [AT] GTECH.COM> {
+	Add versions of CRC-16 and CRC-32 routines with seed arguments
+	Add versions of those routines with an "offset in the tvbuff"
+	    argument
+	Add Doxygen comments to the CRC-16 and CRC-32 headers
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 
@@ -2235,6 +2242,8 @@ Dennis Lim              <Dennis.Lim [AT] motorola.com>
 			<postadal [AT] suse.cz>
 Martin van der Werff	<martin [AT] vanderwerff.org>
 Marco van den Bovenkamp	<marco [AT] linuxgoeroe.dhs.org>
+Ming Zhang		<mingz [AT] ele.uri.edu>
+Kelly Byrd		<kbyrd-ethereal [AT] memcpy.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.

@@ -827,8 +827,47 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
     status = write_pdml_packets(&cfile, args);
   else if (export_as_psml)
     status = write_psml_packets(&cfile, args);
-  else
+  else {
+    switch (args->format) {
+
+    case PR_FMT_TEXT:
+      if (args->to_file) {
+        args->stream = print_stream_text_new(TRUE, args->file);
+        if (args->stream == NULL) {
+          open_failure_alert_box(args->file, errno, TRUE);
+          return;
+        }
+      } else {
+        args->stream = print_stream_text_new(FALSE, args->cmd);
+        if (args->stream == NULL) {
+          simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                        "Couldn't run print command %s.", args->cmd);
+        }
+      }
+      break;
+
+    case PR_FMT_PS:
+      if (args->to_file) {
+        args->stream = print_stream_ps_new(TRUE, args->file);
+        if (args->stream == NULL) {
+          open_failure_alert_box(args->file, errno, TRUE);
+          return;
+        }
+      } else {
+        args->stream = print_stream_ps_new(FALSE, args->cmd);
+        if (args->stream == NULL) {
+          simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                        "Couldn't run print command %s.", args->cmd);
+        }
+      }
+      break;
+
+    default:
+      g_assert_not_reached();
+      return;
+    }
     status = print_packets(&cfile, args);
+  }
   switch (status) {
 
   case PP_OK:
