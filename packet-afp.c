@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.34 2003/12/11 21:23:36 ulfl Exp $
+ * $Id: packet-afp.c,v 1.35 2003/12/13 01:08:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,8 +49,14 @@
   AFP 2.1 & 2.2.pdf contained in AppleShare_IP_6.3_SDK
   available from http://www.apple.com
 
-  AFP3.0.pdf from http://www.apple.com
-  AFP3.1.pdf from http://www.apple.com
+  AFP3.0.pdf from http://www.apple.com (still available?)
+  AFP3.1.pdf from
+
+   http://developer.apple.com/documentation/Networking/Conceptual/AFP/AFP3_1.pdf
+
+  AFP 3.1 in HTML from
+
+http://developer.apple.com/documentation/Networking/Conceptual/AFP/index.html
 
   The netatalk source code by Wesley Craig & Adrian Sun
 	http://netatalk.sf.net
@@ -212,6 +218,8 @@ static int hf_afp_file_flag = -1;
 static int hf_afp_create_flag = -1;
 static int hf_afp_struct_size = -1;
 static int hf_afp_struct_size16 = -1;
+
+static int hf_afp_request_bitmap = -1;
 
 static int hf_afp_cat_count 		= -1;
 static int hf_afp_cat_req_matches   = -1;
@@ -581,6 +589,21 @@ static int hf_afp_map_name	= -1;
 static int hf_afp_map_id	= -1;
 static int hf_afp_map_id_type	= -1;
 
+static int hf_afp_request_bitmap_Attributes     = -1;
+static int hf_afp_request_bitmap_ParentDirID    = -1;
+static int hf_afp_request_bitmap_CreateDate     = -1;
+static int hf_afp_request_bitmap_ModDate        = -1;
+static int hf_afp_request_bitmap_BackupDate     = -1;
+static int hf_afp_request_bitmap_FinderInfo     = -1;
+static int hf_afp_request_bitmap_LongName       = -1;
+static int hf_afp_request_bitmap_DataForkLen    = -1;
+static int hf_afp_request_bitmap_OffspringCount = -1;
+static int hf_afp_request_bitmap_RsrcForkLen    = -1;
+static int hf_afp_request_bitmap_ExtDataForkLen = -1;
+static int hf_afp_request_bitmap_UTF8Name       = -1;
+static int hf_afp_request_bitmap_ExtRsrcForkLen = -1;
+static int hf_afp_request_bitmap_PartialNames   = -1;
+
 static const value_string flag_vals[] = {
   {0,	"Start" },
   {1,	"End" },
@@ -621,8 +644,8 @@ static const value_string map_id_type_vals[] = {
 #define kNoNetworkUserIDs 			(1 << 7)
 
 /*
-  directory bitmap from Apple AFP3.0.pdf
-  Table 1-4 p. 31
+  directory bitmap from Apple AFP3.1.pdf
+  Table 1-5 pp. 25-26
 */
 #define kFPAttributeBit 		(1 << 0)
 #define kFPParentDirIDBit 		(1 << 1)
@@ -644,8 +667,8 @@ static const value_string map_id_type_vals[] = {
 #define kFPUnixPrivsBit 		(1 << 15)
 
 /*
-	directory Access Rights parameter AFP3.0.pdf
-	table 1-6 p. 34
+	directory Access Rights parameter AFP3.1.pdf
+	table 1-7 p. 28
 */
 
 #define AR_O_SEARCH	(1 << 0)	/* owner has search access */
@@ -698,8 +721,8 @@ static const value_string user_flag_vals[] = {
   {0,	NULL } };
 
 /*
-  file bitmap AFP3.0.pdf
-  Table 1-7 p. 36
+  file bitmap AFP3.1.pdf
+  Table 1-8 p. 29
 same as dir
 kFPAttributeBit 		(bit 0)
 kFPParentDirIDBit 		(bit 1)
@@ -722,8 +745,8 @@ kFPUTF8NameBit 			(bit 13)
 #define kFPExtRsrcForkLenBit 		(1 << 14)
 
 /*
-  file attribute AFP3.0.pdf
-  Table 1-8 p. 37
+  file attribute AFP3.1.pdf
+  Table 1-9 pp. 29-31
 */
 #define kFPInvisibleBit 			(1 << 0)
 #define kFPMultiUserBit 			(1 << 1)
@@ -1990,7 +2013,7 @@ catsearch_spec(tvbuff_t *tvb, proto_tree *ptree, gint offset, int ext, guint32	b
 static gint
 query_catsearch(tvbuff_t *tvb, proto_tree *ptree, gint offset, int ext)
 {
-  	proto_tree *tree = NULL;
+  	proto_tree *tree = NULL, *sub_tree;
   	proto_item *item;
 	guint16 f_bitmap;
 	guint16 d_bitmap;
@@ -2018,10 +2041,38 @@ query_catsearch(tvbuff_t *tvb, proto_tree *ptree, gint offset, int ext)
 	d_bitmap = decode_dir_bitmap(ptree, tvb, offset);
 	offset += 2;
 
-	/* FIXME it's req bitmap and first bit is for partial match */
-	item = proto_tree_add_text(ptree, tvb, offset, 4, "Request bitmap");
-	tree = proto_item_add_subtree(item, ett_afp_cat_r_bitmap);
-	r_bitmap = decode_file_bitmap(tree, tvb, offset+2);
+	r_bitmap = tvb_get_ntohl(tvb, offset);
+	if (ptree) {
+		item = proto_tree_add_item(ptree, hf_afp_file_bitmap, tvb, offset, 4,FALSE);
+		sub_tree = proto_item_add_subtree(item, ett_afp_cat_r_bitmap);
+
+		proto_tree_add_item(sub_tree, hf_afp_request_bitmap_Attributes      , tvb, offset, 4,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_request_bitmap_ParentDirID    , tvb, offset, 4,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_request_bitmap_CreateDate     , tvb, offset, 4,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_request_bitmap_ModDate        , tvb, offset, 4,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_request_bitmap_BackupDate     , tvb, offset, 4,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_request_bitmap_FinderInfo     , tvb, offset, 4,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_request_bitmap_LongName       , tvb, offset, 4,FALSE);
+
+		if (d_bitmap == 0) {
+			/* Only for file-only searches */
+			proto_tree_add_item(sub_tree, hf_afp_request_bitmap_DataForkLen   	, tvb, offset, 4,FALSE);
+			proto_tree_add_item(sub_tree, hf_afp_request_bitmap_RsrcForkLen   	, tvb, offset, 4,FALSE);
+			proto_tree_add_item(sub_tree, hf_afp_request_bitmap_ExtDataForkLen	, tvb, offset, 4,FALSE);
+		}
+		if (f_bitmap == 0) {
+			/* Only for directory-only searches */
+			proto_tree_add_item(sub_tree, hf_afp_request_bitmap_OffspringCount   	, tvb, offset, 4,FALSE);
+		}
+
+		proto_tree_add_item(sub_tree, hf_afp_request_bitmap_UTF8Name	    , tvb, offset, 4,FALSE);
+
+		if (d_bitmap == 0) {
+			/* Only for file-only searches */
+			proto_tree_add_item(sub_tree, hf_afp_request_bitmap_ExtRsrcForkLen	, tvb, offset, 4,FALSE);
+		}
+		proto_tree_add_item(sub_tree, hf_afp_request_bitmap_PartialNames	, tvb, offset, 4,FALSE);
+	}
 	offset += 4;
 
 	/* spec 1 */
@@ -4180,6 +4231,81 @@ proto_register_afp(void)
       { "Hard create",         "afp.create_flag",
 		FT_BOOLEAN, 8, NULL, 0x80,
       	"Soft/hard create file", HFILL }},
+
+    { &hf_afp_request_bitmap_Attributes,
+      { "Attributes",         "afp.request_bitmap.attributes",
+	    FT_BOOLEAN, 32, NULL,  kFPAttributeBit,
+      	"Search attributes", HFILL }},
+
+    { &hf_afp_request_bitmap_ParentDirID,
+      { "DID",         "afp.request_bitmap.did",
+    	FT_BOOLEAN, 32, NULL,  kFPParentDirIDBit,
+      	"Search parent directory ID", HFILL }},
+
+    { &hf_afp_request_bitmap_CreateDate,
+      { "Creation date",         "afp.request_bitmap.create_date",
+	    FT_BOOLEAN, 32, NULL,  kFPCreateDateBit,
+      	"Search creation date", HFILL }},
+
+    { &hf_afp_request_bitmap_ModDate,
+      { "Modification date",         "afp.request_bitmap.mod_date",
+    	FT_BOOLEAN, 32, NULL,  kFPModDateBit,
+      	"Search modification date", HFILL }},
+
+    { &hf_afp_request_bitmap_BackupDate,
+      { "Backup date",         "afp.request_bitmap.backup_date",
+	    FT_BOOLEAN, 32, NULL,  kFPBackupDateBit,
+      	"Search backup date", HFILL }},
+
+    { &hf_afp_request_bitmap_FinderInfo,
+      { "Finder info",         "afp.request_bitmap.finder_info",
+    	FT_BOOLEAN, 32, NULL,  kFPFinderInfoBit,
+      	"Search finder info", HFILL }},
+
+    { &hf_afp_request_bitmap_LongName,
+      { "Long name",         "afp.request_bitmap.long_name",
+	    FT_BOOLEAN, 32, NULL,  kFPLongNameBit,
+      	"Search long name", HFILL }},
+
+    { &hf_afp_request_bitmap_DataForkLen,
+      { "Data fork size",         "afp.request_bitmap.data_fork_len",
+	    FT_BOOLEAN, 32, NULL,  kFPDataForkLenBit,
+      	"Search data fork size", HFILL }},
+
+    { &hf_afp_request_bitmap_OffspringCount,
+      { "Offspring count",         "afp.request_bitmap.offspring_count",
+    	FT_BOOLEAN, 32, NULL,  kFPOffspringCountBit,
+      	"Search offspring count", HFILL }},
+
+    { &hf_afp_request_bitmap_RsrcForkLen,
+      { "Resource fork size",         "afp.request_bitmap.resource_fork_len",
+	    FT_BOOLEAN, 32, NULL,  kFPRsrcForkLenBit,
+      	"Search resource fork size", HFILL }},
+
+    { &hf_afp_request_bitmap_ExtDataForkLen,
+      { "Extended data fork size",         "afp.request_bitmap.ex_data_fork_len",
+	    FT_BOOLEAN, 32, NULL,  kFPExtDataForkLenBit,
+      	"Search extended (>2GB) data fork size", HFILL }},
+
+    { &hf_afp_request_bitmap_UTF8Name,
+      { "UTF-8 name",         "afp.request_bitmap.UTF8_name",
+    	FT_BOOLEAN, 32, NULL,  kFPUTF8NameBit,
+      	"Search UTF-8 name", HFILL }},
+
+    { &hf_afp_request_bitmap_ExtRsrcForkLen,
+      	{ "Extended resource fork size",         "afp.request_bitmap.ex_resource_fork_len",
+	    FT_BOOLEAN, 32, NULL,  kFPExtRsrcForkLenBit,
+      	"Search extended (>2GB) resource fork size", HFILL }},
+
+    { &hf_afp_request_bitmap_PartialNames,
+      	{ "Match on partial names",         "afp.request_bitmap.partial_names",
+	    FT_BOOLEAN, 32, NULL,  0x80000000,
+      	"Match on partial names", HFILL }},
+
+    { &hf_afp_request_bitmap,
+      { "Request bitmap",         "afp.request_bitmap",
+		FT_UINT32, BASE_HEX, NULL, 0x0,
+      	"Request bitmap", HFILL }},
 
     { &hf_afp_struct_size,
       { "Struct size",         "afp.struct_size",
