@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.200 2000/07/20 09:39:19 guy Exp $
+ * $Id: file.c,v 1.201 2000/07/26 03:08:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -957,6 +957,10 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter)
     }
 
     count++;
+
+    /* Since all state for the frame was destroyed, mark the frame
+     * as not visited. */
+    fdata->flags.visited = 0;
 
     wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
     	cf->pd, fdata->cap_len);
