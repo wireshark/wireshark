@@ -84,6 +84,11 @@ static int hf_radius_class = -1;
 static int hf_radius_nasIp = -1;
 static int hf_radius_acctStatusType = -1;
 static int hf_radius_acctSessionId = -1;
+static int hf_radius_input_packets = -1;
+static int hf_radius_output_packets = -1;
+static int hf_radius_input_octets = -1;
+static int hf_radius_output_octets = -1;
+
 static int hf_radius_3gpp_SgsnIpAddr = -1;
 static int hf_radius_3gpp_GgsnIpAddr = -1;
 static int hf_radius_cisco_cai = -1;
@@ -607,13 +612,13 @@ static const radius_attr_info radius_attrib[] =
   {39,	RADIUS_STRING,		"Framed AppleTalk Zone", NULL, NULL},
   {40,	RADIUS_INTEGER4,	"Acct Status Type", radius_accounting_status_type_vals, &hf_radius_acctStatusType},
   {41,	RADIUS_INTEGER4,	"Acct Delay Time", NULL, NULL},
-  {42,	RADIUS_INTEGER4,	"Acct Input Octets", NULL, NULL},
-  {43,	RADIUS_INTEGER4,	"Acct Output Octets", NULL, NULL},
+  {42,	RADIUS_INTEGER4,	"Acct Input Octets", NULL, &hf_radius_input_octets},
+  {43,	RADIUS_INTEGER4,	"Acct Output Octets", NULL, &hf_radius_output_octets},
   {44,	RADIUS_STRING,		"Acct Session Id", NULL, &hf_radius_acctSessionId},
   {45,	RADIUS_INTEGER4,	"Acct Authentic", radius_accounting_authentication_vals, NULL},
   {46,	RADIUS_INTEGER4,	"Acct Session Time", NULL, NULL},
-  {47,	RADIUS_INTEGER4,	"Acct Input Packets", NULL, NULL},
-  {48,	RADIUS_INTEGER4,	"Acct Output Packets", NULL, NULL},
+  {47,	RADIUS_INTEGER4,	"Acct Input Packets", NULL, &hf_radius_input_packets},
+  {48,	RADIUS_INTEGER4,	"Acct Output Packets", NULL, &hf_radius_output_packets},
   {49,	RADIUS_INTEGER4,	"Acct Terminate Cause", radius_acct_terminate_cause_vals, NULL},
   {50,	RADIUS_STRING,		"Acct Multi Session Id", NULL, NULL},
   {51,	RADIUS_INTEGER4,	"Acct Link Count", NULL, NULL},
@@ -4408,6 +4413,23 @@ proto_register_radius(void)
 		{ "Accounting Status Type",	"radius.acct.status_type", FT_UINT32, BASE_DEC, VALS(radius_accounting_status_type_vals), 0x0,
 			"", HFILL }},
 
+		{ &hf_radius_input_packets,
+		{ "Input Packets",	"radius.acct.input_packets", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+		
+		{ &hf_radius_output_packets,
+		{ "Output Packets",	"radius.acct.output_packets", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+		
+		{ &hf_radius_input_octets,
+		{ "Input Octets",	"radius.acct.input_octets", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+		
+		{ &hf_radius_output_octets,
+		{ "Output Octets",	"radius.acct.output_octets", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+			
+		
 		{ &hf_radius_nasIp,
 		{ "Nas IP Address",	"radius.nas_ip", FT_IPv4, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
