@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.49 2001/06/18 02:17:54 guy Exp $
+ * $Id: packet-x25.c,v 1.50 2001/07/05 22:10:09 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1288,7 +1288,7 @@ x25_ntoa(proto_tree *tree, int *offset, tvbuff_t *tvb,
 static int
 get_x25_pkt_len(tvbuff_t *tvb)
 {
-    int length, called_len, calling_len, dte_len, dce_len;
+    guint length, called_len, calling_len, dte_len, dce_len;
     guint8 byte2, bytex;
 
     byte2 = tvb_get_guint8(tvb, 2);
@@ -1387,8 +1387,8 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *x25_tree=0, *gfi_tree=0;
     proto_item *ti;
-    int localoffset=0;
-    int x25_pkt_len;
+    guint localoffset=0;
+    guint x25_pkt_len;
     int modulo;
     guint16 vc;
     dissector_handle_t dissect;
