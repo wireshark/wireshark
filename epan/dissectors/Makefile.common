@@ -323,6 +323,7 @@ DISSECTOR_SRC =	\
 	packet-loop.c	\
 	packet-lpd.c	\
 	packet-lwapp.c	\
+	packet-MAP_DialoguePDU.c	\
 	packet-m2pa.c	\
 	packet-m2tp.c	\
 	packet-m2ua.c	\
@@ -644,6 +645,7 @@ DISSECTOR_INCLUDES =	\
 	packet-ldap.h	\
 	packet-ldp.h	\
 	packet-llc.h	\
+	packet-MAP_DialoguePDU.h	\
 	packet-mip6.h	\
 	packet-mount.h	\
 	packet-mq.h	\
