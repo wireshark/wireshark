@@ -43,6 +43,7 @@
 #include <string.h>
 #include <math.h>
 #include <glib.h>
+#include "strutil.h"
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
@@ -372,15 +373,57 @@ static const guint8 sip_sdp_static_dictionaty_for_sigcomp[0x12e4] =
    /* -12E0, */  0x46, 0x04, 0x0c, 0xe1
 
 }; 
+static GHashTable *state_buffer_table=NULL;
+
+void
+sigcomp_init_udvm(void){
+
+	gchar *partial_state_str;
+	guint i;
+	guint8 *sip_sdp_buff;
+	
+
+	state_buffer_table = g_hash_table_new(g_str_hash, g_str_equal);
+	/*
+	 * Store static dictionaries in hash table
+	 */
+	sip_sdp_buff = g_malloc(0x12e4+8);
+
+	partial_state_str = bytes_to_str(sip_sdp_state_identifier, 6);
+	
+	/*
+	 * Debug 	g_warning("Sigcomp init: Storing partial state =%s",partial_state_str);
+	 */
+	i = 0;
+	while ( i < sip_sdp_state_length ){
+		sip_sdp_buff[i+8] = sip_sdp_static_dictionaty_for_sigcomp[i];
+		/* Debug
+		 * g_warning(" Loading 0x%x at address %u",sip_sdp_buff[i] , i);
+		 */
+		i++;
+
+	}
+
+	g_hash_table_insert(state_buffer_table, g_strdup(partial_state_str), sip_sdp_buff);
+	/*	Debug
+	 *	g_warning("g_hash_table_insert = 0x%x",sip_sdp_buff);
+	 *  g_warning("g_hash_table_insert = 0x%x",sip_sdp_buff);
+	 */
+
+}
+
                           
-int udvm_state_access(guint8 buff[],guint16 p_id_start, guint16 p_id_length, guint16 state_begin, guint16 state_length, 
-					   guint16 state_address, guint16 state_instruction)
+int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 buff[],guint16 p_id_start, guint16 p_id_length, guint16 state_begin, guint16 *state_length, 
+					   guint16 *state_address, guint16 state_instruction, gboolean state_vars_valid)
 {
 	int			result_code = 0;
-	guint		n;
+	guint16		n;
 	guint16		k;
 	guint16		byte_copy_right;
 	guint16		byte_copy_left;
+	char		partial_state[20]; /* Size is 6 - 20 */
+	guint8		*state_buff;
+	gchar		*partial_state_str;
 
 	/* 
 	 * Perform initial checks on validity of data
@@ -400,14 +443,23 @@ int udvm_state_access(guint8 buff[],guint16 p_id_start, guint16 p_id_length, gui
 		result_code = 1;
 		return result_code;
 	}
-	/* 
-	 * Is this a static library known to us ?
-	 */
+
 	n = 0;
-	while (n < p_id_length ) {
-		if ( buff[p_id_start + n] != sip_sdp_state_identifier[n] )
-			goto not_static_dictionary;
+	while ( n < p_id_length ){
+		partial_state[n] = buff[p_id_start + n];
 		n++;
+	}
+	partial_state_str = bytes_to_str(partial_state, p_id_length);
+	proto_tree_add_text(tree,tvb, 0, -1,"Accessing state: %s",partial_state_str);
+	/*  Debug
+	 *	g_warning("State Access: partial state =%s",partial_state_str);
+	 *	g_warning("g_hash_table_lookup = 0x%x",state_buff);
+	 * g_warning("State Access: partial state =%s",partial_state_str);
+	 */
+	state_buff = g_hash_table_lookup(state_buffer_table, g_strdup(partial_state_str));
+	if ( state_buff == NULL ){
+		result_code = 2; /* No state match */
+		return result_code;
 	}
 	/* 
 	 * sip_sdp_static_dictionaty
@@ -423,20 +475,52 @@ int udvm_state_access(guint8 buff[],guint16 p_id_start, guint16 p_id_length, gui
 	 * If k = byte_copy_right then set n := byte_copy_left, else set n := k
 	 *
 	 */ 
+	/*
 	if ( ( state_begin + state_length ) > sip_sdp_state_length )
 		return 3;
+		*/
+	/*
+	 * buff					= Where "state" will be stored
+	 * p_id_start			= Partial state identifier start pos in the buffer(buff)
+	 * p-id_length			= Partial state identifier length
+	 * state_begin			= Where to start to read state from
+	 * state_length			= Lenght of state
+	 * state_adress			= Address where to store the state in the buffer(buff)
+	 * state_instruction	=
+	 * FALSE				= Indicates that state_* is in the stored state 
+	 */
 
-	n = state_begin;
-	k = state_address; 
+	/*
+	 * The value of
+	 * state_length MUST be taken from the returned item of state in the
+	 * case that the state_length operand is set to 0.
+	 */
+	if ( *state_length == 0 ){
+		*state_length = state_buff[0] << 8;
+		*state_length = *state_length ^ state_buff[1];
+	}
+	if ( state_vars_valid == FALSE ){
+		*state_length = state_buff[0] << 8;
+		*state_length = *state_length ^ state_buff[1];
+
+		*state_address = state_buff[2] << 8;
+		*state_address = *state_address ^ state_buff[3];
+
+		state_instruction = state_buff[4] << 8;
+		state_instruction = state_instruction ^ state_buff[5];
+	}
+
+	n = state_begin + 8;
+	k = *state_address; 
 	byte_copy_right = buff[66] << 8;
 	byte_copy_right = byte_copy_right ^ buff[67];
 	byte_copy_left = buff[64] << 8;
 	byte_copy_left = byte_copy_left ^ buff[65];
 	/* debug 
-	 *g_warning(" state_begin %u state_address %u",state_begin , state_address);
+	 *g_warning(" state_begin %u state_address %u",state_begin , *state_address);
 	 */
-	while ( n < state_length ){
-		buff[k] = sip_sdp_static_dictionaty_for_sigcomp[n];
+	while ( n < (*state_length + 8)){
+		buff[k] = state_buff[n];
 		/*  debug 
 		 *	g_warning(" Loading 0x%x at address %u",buff[k] , k);
 		 */
@@ -448,21 +532,116 @@ int udvm_state_access(guint8 buff[],guint16 p_id_start, guint16 p_id_length, gui
 		}
 		n++;
 	}
+	/* 
+	 * If a state item is successfully accessed then the state_value byte
+	 * string is copied into the UDVM memory beginning at state_address.
+	 * 
+	 * The first 32 bytes of UDVM memory are then initialized to special
+	 * values as illustrated in Figure 5.
+	 * 
+ 	 *                      0             7 8            15
+	 *               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 *               |       UDVM_memory_size        |  0 - 1
+	 *               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 *               |        cycles_per_bit         |  2 - 3
+	 *               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 *               |        SigComp_version        |  4 - 5
+	 *               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 *               |    partial_state_ID_length    |  6 - 7
+	 *               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 *               |         state_length          |  8 - 9
+ 	 *               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 *               |                               |
+	 *               :           reserved            :  10 - 31
+	 *               |                               |
+	 *               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 *
+	 *      Figure 5: Initializing Useful Values in UDVM memory
+	 *
+	 * The first five 2-byte words are initialized to contain some values
+	 * that might be useful to the UDVM bytecode (Useful Values).  Note that
+	 * these values are for information only and can be overwritten when
+	 * executing the UDVM bytecode without any effect on the endpoint.  The
+	 * MSBs of each 2-byte word are stored preceding the LSBs.
+	 */
+
+	/* state_length  */
+	buff[8] = state_buff[0];
+	buff[9] = state_buff[1];
+	/* UDVM_memory_size  */
+	buff[0] = 0;
+	buff[1] = 0;
+	/* cycles_per_bit */
+	buff[2] = 0;
+	buff[3] = 16;
+	/* SigComp_version */
+	buff[4] = 0;
+	buff[5] = 1;
+	/* partial_state_ID_length */
+	buff[6] = p_id_length >> 8;
+	buff[7] = p_id_length & 0xff;
 
 	return 0;
 	/*
 	 * End SIP
 	 */
-not_static_dictionary:
-	return 255;
+
 }
 
-void udvm_state_create(guint8 state_buff[],guint8 state_identifier[]){
+void udvm_state_create(guint8 *state_buff,guint8 *state_identifier,guint16 p_id_length){
+
+	char partial_state[20];
+	guint8 i;
+	gchar *partial_state_str;
+	gchar *dummy_buff;
 	/*
 	 * Debug
 	g_warning("Received items of state,state_length_buff[0]= %u, state_length_buff[1]= %u",
 		state_length_buff[0],state_length_buff[1]);
 
 	 */
+	i = 0;
+	while ( i < p_id_length ){
+		partial_state[i] = state_identifier[i];
+		i++;
+	}
+	partial_state_str = bytes_to_str(partial_state, p_id_length);
 
+	dummy_buff = g_hash_table_lookup(state_buffer_table, partial_state_str);
+	if ( dummy_buff == NULL ){
+		g_hash_table_insert(state_buffer_table, g_strdup(partial_state_str), state_buff);
+	}else{
+		/* The buffer allocated by sigcomp-udvm.c wasen't needed so free it
+		 */
+		g_free(partial_state_str);
+	}
+
+}
+
+void udvm_state_free(guint8 buff[],guint16 p_id_start,guint16 p_id_length){
+
+	char partial_state[20];
+	guint8 i;
+	gchar *partial_state_str;
+	/*
+	gchar *dummy_buff;
+	*/
+
+	i = 0;
+	while ( i < p_id_length ){
+		partial_state[i] = buff[p_id_start + i];
+		i++;
+	}
+	partial_state_str = bytes_to_str(partial_state, p_id_length);
+	/* TODO Implement a state create counter before actually freeing states 
+	 * Hmm is it a good idea to free the buffer at all?
+	g_warning("State-free on  %s ",partial_state_str);
+	dummy_buff = g_hash_table_lookup(state_buffer_table, partial_state_str);
+	if ( dummy_buff == NULL ){
+		g_warning("State-free, state not found  %s",partial_state_str);
+	}else{
+		g_hash_table_remove (state_buffer_table, partial_state_str);
+		g_free(dummy_buff);
+	}
+	*/
 }

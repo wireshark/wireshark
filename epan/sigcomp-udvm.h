@@ -36,6 +36,8 @@
 extern tvbuff_t* decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet_info *pinfo,
 						   proto_tree *tree, gint destination, gint print_flags);
 
+
+
 /* example: extern const value_string q931_cause_location_vals[]; */
 #endif 
 /* SIGCOMP_UDVM_H */

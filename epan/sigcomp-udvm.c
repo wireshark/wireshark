@@ -45,6 +45,7 @@
 #endif
 
 #include "packet.h"
+#include "strutil.h"
 #include "sigcomp-udvm.h"
 #include "sigcomp_state_hdlr.h"
 #include "sha1.h"
@@ -93,7 +94,7 @@ static gboolean print_level_2;
 static gboolean print_level_3;
 
 /* Internal result code values of decompression failures */
-static const value_string result_code_vals[] = {
+const value_string result_code_vals[] = {
 	{ 0,	"No decomprssion failure" },
 	{ 1,	"Partial state length less than 6 or greater than 20 bytes long" },
 	{ 2,	"No state match" },
@@ -170,8 +171,8 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 	guint16		state_minimum_access_length_buff[5];
 	guint16		state_state_retention_priority_buff[5];
 	guint32		used_udvm_cycles = 0;
-	guint16		cycles_per_bit;
-	guint16		maximum_UDVM_cycles;
+	guint		cycles_per_bit;
+	guint		maximum_UDVM_cycles;
 	guint8		*sha1buff;
 	unsigned char sha1_digest_buf[20];
 	sha1_context ctx;
@@ -216,6 +217,8 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 	print_level_1 = FALSE;
 	print_level_2 = FALSE;
 	print_level_3 = FALSE;
+
+
 	switch( print_flags ) {
 		case 0:
 			break;
@@ -287,20 +290,30 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 	buff[9] = 0;
 	code_length = tvb_reported_length_remaining(bytecode_tvb, 0);
 
-	/* Load bytecode into UDVM starting at "udvm_mem_dest" */
-	i = udvm_mem_dest;
-	while ( code_length > offset ) {
-		buff[i] = tvb_get_guint8(bytecode_tvb, offset);
-		i++;
-		offset++;
-
-	}
 	cycles_per_bit = buff[2] << 8;
 	cycles_per_bit = cycles_per_bit | buff[3];
 	/* 
 	 * maximum_UDVM_cycles = (8 * n + 1000) * cycles_per_bit
 	 */
 	maximum_UDVM_cycles = (( 8 * msg_end ) + 1000) * cycles_per_bit;
+
+	proto_tree_add_text(udvm_tree, bytecode_tvb, offset, 1,"maximum_UDVM_cycles(%u) = (( 8 * msg_end(%u) ) + 1000) * cycles_per_bit(%u)",maximum_UDVM_cycles,msg_end,cycles_per_bit);
+	proto_tree_add_text(udvm_tree, bytecode_tvb, offset, 1,"Message Length: %u,Byte code length: %u, Maximum UDVM cycles: %u",msg_end,code_length,maximum_UDVM_cycles);
+
+	/* Load bytecode into UDVM starting at "udvm_mem_dest" */
+	i = udvm_mem_dest;
+	if ( print_level_3 )
+		proto_tree_add_text(udvm_tree, bytecode_tvb, offset, 1,"Load bytecode into UDVM starting at %u",i);
+	while ( code_length > offset ) {
+		buff[i] = tvb_get_guint8(bytecode_tvb, offset);
+		if ( print_level_3 )
+			proto_tree_add_text(udvm_tree, bytecode_tvb, offset, 1,
+						"              Addr: %u Instruction code(0x%0x) ", i, buff[i]);
+
+		i++;
+		offset++;
+
+	}
 	/* Start executing code */
 	current_address = udvm_mem_dest;
 	input_address = 0;
@@ -316,18 +329,17 @@ execute_next_instruction:
 		goto decompression_failure;
 	}
 	current_instruction = buff[current_address];
+
 	switch ( current_instruction ) {
 	case SIGCOMP_INSTR_DECOMPRESSION_FAILURE:
 		used_udvm_cycles++;
 		if ( result_code == 0 )
 			result_code = 9;
-		if (print_level_1 ){
-			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-				"Addr: %u ## DECOMPRESSION-FAILURE(0)",
-				current_address);
-			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Ethereal UDVM diagnostic: %s.",
-					    val_to_str(result_code, result_code_vals,"Unknown (%u)"));
-		}
+		proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
+			"Addr: %u ## DECOMPRESSION-FAILURE(0)",
+			current_address);
+		proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Ethereal UDVM diagnostic: %s.",
+				    val_to_str(result_code, result_code_vals,"Unknown (%u)"));
 		if ( output_address > 0 ){
 			/* At least something got decompressed, show it */
 			decomp_tvb = tvb_new_real_data(out_buff,output_address,output_address);
@@ -1918,8 +1930,8 @@ execute_next_instruction:
 					"               byte_copy_right = %u, byte_copy_left = %u", byte_copy_right,byte_copy_left);
 		}
 
-		result_code = udvm_state_access(buff, p_id_start, p_id_length, state_begin, state_length, 
-			state_address, state_instruction);
+		result_code = udvm_state_access(message_tvb, udvm_tree, buff, p_id_start, p_id_length, state_begin, &state_length, 
+			&state_address, state_instruction, TRUE);
 		if ( result_code != 0 ){
 			goto decompression_failure; 
 		}
@@ -2074,11 +2086,15 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u       partial_identifier_length %u",
 				operand_address, p_id_length);
 		}
+		current_address = next_operand_address;
+
 		/* Execute the instruction:
 		 * TODO implement it
 		 */
+		udvm_state_free(buff,p_id_start,p_id_length);
 		used_udvm_cycles++;
-		proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Execution of this instruction is NOT implemented");
+
+		goto execute_next_instruction;
 		break;
 	case SIGCOMP_INSTR_OUTPUT: /* 34 OUTPUT (%output_start, %output_length) */
 		if (print_level_1 ){
@@ -2231,7 +2247,6 @@ execute_next_instruction:
 				operand_address, state_retention_priority);
 		}
 		current_address = next_operand_address;
-		proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Execution of this instruction is NOT FULLY implemented( STATES NOT SAVED)");
 		/* TODO: This isn't currently totaly correct as END_INSTRUCTION might not create state */
 		no_of_state_create++;
 		if ( no_of_state_create > 4 ){
@@ -2246,7 +2261,6 @@ execute_next_instruction:
 		state_state_retention_priority_buff[no_of_state_create] = state_retention_priority;
 		
 		/* Execute the instruction
-		 * TODO Implement the instruction
 		 */
 		proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"no_of_state_create %u",no_of_state_create);
 		if ( no_of_state_create != 0 ){
@@ -2293,7 +2307,7 @@ execute_next_instruction:
 							x,sha1_digest_buf[x]);
 					}
 				}
-				udvm_state_create(sha1buff, sha1_digest_buf);
+				udvm_state_create(sha1buff, sha1_digest_buf, state_minimum_access_length_buff[n]);
 				n++;
 
 			}
@@ -2315,15 +2329,15 @@ execute_next_instruction:
 		break;
 
 	default:
+	    proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1," ### Addr %u Invalid instruction: %u (0x%x)",
+			current_address,current_instruction,current_instruction);
 		break;
 		}
 	return NULL;
 decompression_failure:
 		
-	if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"DECOMPRESSION FAILURE: %s",
 					    val_to_str(result_code, result_code_vals,"Unknown (%u)"));
-		}
 	return NULL;
 
 

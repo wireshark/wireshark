@@ -33,10 +33,13 @@
 #ifndef SIGCOMP_STATE_HDLR_H
 #define SIGCOMP_STATE_HDLR_H
 
-extern int udvm_state_access(guint8 buff[],guint16 p_id_start, guint16 p_id_length, guint16 state_begin, guint16 state_length, 
-								guint16 state_address, guint16 state_instruction);
+extern const value_string result_code_vals[];
+extern int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 buff[],guint16 p_id_start, guint16 p_id_length, guint16 state_begin, guint16 *state_length, 
+								guint16 *state_address, guint16 state_instruction, gboolean state_vars_valid);
 
-extern void udvm_state_create(guint8 state_buff[],guint8 state_identifier_buff[]);
+extern void udvm_state_create(guint8 *state_buff,guint8 *state_identifier_buff,guint16 p_id_length);
+extern void udvm_state_free(guint8 buff[],guint16 p_id_start,guint16 p_id_length);
 
+extern void sigcomp_init_udvm(void);
 #endif 
 /* SIGCOMP_STATE_HDLR_H */
