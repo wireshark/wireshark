@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.4 2000/04/18 18:01:50 deniel Exp $
+ * $Id: packet-clnp.c,v 1.5 2000/04/28 19:35:39 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -428,8 +428,12 @@ static gboolean osi_decode_DT(const u_char *pd, int offset,
 
   offset += li + 1;
   if (uses_inactive_subset){
-	dissect_h1(pd, offset, fd, tree);
-	return TRUE;
+	if (dissect_h1(pd, offset, fd, tree)) {
+		return TRUE;
+		}
+	/* Fill in other Dissectors using inactive subset here */
+	dissect_data(pd, offset, fd, tree);
+	return FALSE;
 	}
   else {
 	dissect_data(pd, offset, fd, tree);

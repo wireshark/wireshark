@@ -2,7 +2,7 @@
  * Routines for Sinec H1 packet disassembly
  * Gerrit Gehnen <G.Gehnen@atrie.de>
  *
- * $Id: packet-h1.c,v 1.4 2000/04/13 06:26:31 guy Exp $
+ * $Id: packet-h1.c,v 1.5 2000/04/28 19:35:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -90,7 +90,7 @@ static const value_string returncode_vals[] = {
   {0x00, "No error"},
   {0x02, "Requested block does not exist"},
   {0x03, "Requested block too small"},
-  {0xFF, "Error, reason unkown"},
+  {0xFF, "Error, reason unknown"},
   {0, NULL}
 };
 
@@ -101,7 +101,7 @@ static gint ett_response = -1;
 static gint ett_empty = -1;
 
 
-void
+gboolean
 dissect_h1 (const u_char * pd, int offset, frame_data * fd, proto_tree * tree)
 {
   proto_tree *h1_tree = NULL;
@@ -113,8 +113,10 @@ dissect_h1 (const u_char * pd, int offset, frame_data * fd, proto_tree * tree)
 
   unsigned int position = 2;
 
-  if (pd[offset] == 'S' && pd[offset + 1] == '5')
-    {
+  if (!(pd[offset] == 'S' && pd[offset + 1] == '5')) {
+    return FALSE;
+    }
+
       if (check_col (fd, COL_PROTOCOL))
 	col_add_str (fd, COL_PROTOCOL, "H1");
       if (check_col (fd, COL_INFO))
@@ -151,8 +153,8 @@ dissect_h1 (const u_char * pd, int offset, frame_data * fd, proto_tree * tree)
 	      if (check_col (fd, COL_INFO))
 		{
 		  col_append_str (fd, COL_INFO,
-				  match_strval (pd[offset + position + 2],
-						opcode_vals));
+				  val_to_str (pd[offset + position + 2],
+						opcode_vals,"Unknown Opcode (0x%2.2x)"));
 		}
 	      break;
 	    case REQUEST_BLOCK:
@@ -184,8 +186,8 @@ dissect_h1 (const u_char * pd, int offset, frame_data * fd, proto_tree * tree)
 	      if (check_col (fd, COL_INFO))
 		{
 		  col_append_fstr (fd, COL_INFO, " %s %d",
-				   match_strval (pd[offset + position + 2],
-						 org_vals),
+				   val_to_str (pd[offset + position + 2],
+						 org_vals,"Unknown Type (0x%2.2x)"),
 				   pd[offset + position + 3]);
 		  col_append_fstr (fd, COL_INFO, " DW %d",
 				   pd[offset + position + 4] * 0x100 +
@@ -213,8 +215,8 @@ dissect_h1 (const u_char * pd, int offset, frame_data * fd, proto_tree * tree)
 	      if (check_col (fd, COL_INFO))
 		{
 		  col_append_fstr (fd, COL_INFO, " %s",
-				   match_strval (pd[offset + position + 2],
-						 returncode_vals));
+				   val_to_str (pd[offset + position + 2],
+						 returncode_vals,"Unknown Returcode (0x%2.2x"));
 		}
 	      break;
 	    case EMPTY_BLOCK:
@@ -239,11 +241,7 @@ dissect_h1 (const u_char * pd, int offset, frame_data * fd, proto_tree * tree)
 	}			/* ..while */
 
       dissect_data (pd, offset + pd[offset + 2], fd, tree);
-    }
-  else
-    {
-      dissect_data (pd, offset, fd, tree);
-    }
+      return TRUE;
 }
 
 

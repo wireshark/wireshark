@@ -2,7 +2,7 @@
  * Declarations of outines for Sinec H1 packet disassembly
  * Gerrit Gehnen <G.Gehnen@atrie.de>
  *
- * $Id: packet-h1.h,v 1.1 2000/03/02 07:27:05 guy Exp $
+ * $Id: packet-h1.h,v 1.2 2000/04/28 19:35:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -24,4 +24,4 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-void dissect_h1(const u_char *, int, frame_data *, proto_tree *);
+gboolean dissect_h1(const u_char *, int, frame_data *, proto_tree *);
