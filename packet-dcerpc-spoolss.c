@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.33 2002/06/05 07:15:47 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.34 2002/06/06 03:18:14 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -123,7 +123,7 @@ static int hf_spoolss_dependentfiles = -1;
 
 static int hf_spoolss_rffpcnex_flags = -1;
 static int hf_spoolss_rffpcnex_options = -1;
-static int hf_spoolss_rffpcnex_printerlocal = -1;
+static int hf_spoolss_printerlocal = -1;
 static int hf_spoolss_notify_options_version = -1;
 static int hf_spoolss_notify_options_flags = -1;
 static int hf_spoolss_notify_options_flags_refresh = -1;
@@ -153,6 +153,9 @@ static int hf_spoolss_rrpcn_changelow = -1;
 static int hf_spoolss_rrpcn_changehigh = -1;
 static int hf_spoolss_rrpcn_unk0 = -1;
 static int hf_spoolss_rrpcn_unk1 = -1;
+
+static int hf_spoolss_replyopenprinter_unk0 = -1;
+static int hf_spoolss_replyopenprinter_unk1 = -1;
 
 /* 
  * Routines to dissect a spoolss BUFFER 
@@ -1839,7 +1842,7 @@ static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 		"Server", hf_spoolss_servername, 0);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_rffpcnex_printerlocal, NULL);
+				    hf_spoolss_printerlocal, NULL);
 
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
@@ -1882,6 +1885,7 @@ static int SpoolssReplyOpenPrinter_q(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	guint32 printerlocal;
 
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -1889,17 +1893,22 @@ static int SpoolssReplyOpenPrinter_q(tvbuff_t *tvb, int offset,
 
 	/* Parse packet */
 
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
-					  prs_UNISTR2_dp, NULL, NULL);
+ 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
+ 					  prs_UNISTR2_dp, NULL, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Printerlocal");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_printerlocal, &printerlocal);
+
+	dcv->private_data = (void *)printerlocal;
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_printerdata_type, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Unknown");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_replyopenprinter_unk0, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Unknown");	
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_replyopenprinter_unk1, NULL);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -1912,7 +1921,8 @@ static int SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	const guint8 *policy_hnd;
+	guint32 printerlocal = (guint32)dcv->private_data;
+	e_ctx_hnd policy_hnd;
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -1920,9 +1930,13 @@ static int SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
 
 	/* Parse packet */
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_spoolss_hnd, &policy_hnd,
+				       TRUE, FALSE);
 
-	display_pol(tree, tvb, offset - 20, policy_hnd);
+	dcerpc_smb_store_pol(
+		(const guint8 *)&policy_hnd, "ReplyOpenPrinter handle",
+		pinfo->fd->num, 0);
 
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 				  hf_spoolss_rc, NULL);
@@ -4737,6 +4751,57 @@ static int SpoolssRRPCN_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }	
 
+/*
+ * ReplyClosePrinter
+ */
+
+static int SpoolssReplyClosePrinter_q(tvbuff_t *tvb, int offset, 
+				      packet_info *pinfo, proto_tree *tree, 
+				      char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+	if (dcv->rep_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Reply in frame %u", dcv->rep_frame);
+
+	/* Parse packet */
+
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_spoolss_hnd, NULL,
+				       FALSE, TRUE);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+static int SpoolssReplyClosePrinter_r(tvbuff_t *tvb, int offset, 
+				      packet_info *pinfo, proto_tree *tree, 
+				      char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+	if (dcv->req_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %u", dcv->req_frame);
+
+	/* Parse packet */
+
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_spoolss_hnd, NULL,
+				       FALSE, FALSE);
+
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+				  hf_spoolss_rc, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
 #if 0
 
 /* Templates for new subdissectors */
@@ -4913,7 +4978,7 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 	{ SPOOLSS_ROUTERREPLYPRINTER, "RouterREplyPrinter", 
 	  NULL, SpoolssGeneric_r },
         { SPOOLSS_REPLYCLOSEPRINTER, "ReplyClosePrinter", 
-	  NULL, SpoolssGeneric_r },
+	  SpoolssReplyClosePrinter_q, SpoolssReplyClosePrinter_r },
 	{ SPOOLSS_ADDPORTEX, "AddPortEx", 
 	  NULL, SpoolssGeneric_r },
 	{ SPOOLSS_REMOTEFINDFIRSTPRINTERCHANGENOTIFICATION, 
@@ -5167,8 +5232,8 @@ proto_register_dcerpc_spoolss(void)
 		  { "Options", "spoolss.rffpcnex.options", FT_UINT32, BASE_DEC,
 		    NULL, 0, "RFFPCNEX options", HFILL }},		
 
-		{ &hf_spoolss_rffpcnex_printerlocal,
-		  { "Printer local", "spoolss.rffpcnex.printer_local", FT_UINT32, BASE_DEC,
+		{ &hf_spoolss_printerlocal,
+		  { "Printer local", "spoolss.printer_local", FT_UINT32, BASE_DEC,
 		    NULL, 0, "Printer local", HFILL }},		
 
 		{ &hf_spoolss_rffpcnex_flags,
@@ -5283,6 +5348,12 @@ proto_register_dcerpc_spoolss(void)
 		    NULL, 0, "Unknown 0", HFILL }},		
 		{ &hf_spoolss_rrpcn_unk1,
 		  { "Unknown 1", "spoolss.rrpcn.unk1", FT_UINT32, BASE_DEC,
+		    NULL, 0, "Unknown 1", HFILL }},		
+		{ &hf_spoolss_replyopenprinter_unk0,
+		  { "Unknown 0", "spoolss.replyopenprinter.unk0", FT_UINT32, BASE_DEC,
+		    NULL, 0, "Unknown 0", HFILL }},		
+		{ &hf_spoolss_replyopenprinter_unk1,
+		  { "Unknown 1", "spoolss.replyopenprinter.unk1", FT_UINT32, BASE_DEC,
 		    NULL, 0, "Unknown 1", HFILL }},		
 	};
 
