@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.3 2000/03/02 07:47:20 guy Exp $
+$Id: README.developer,v 1.4 2000/03/03 06:13:23 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a protocol dissector and the use some of the important functions and variables 
@@ -46,7 +46,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.3 2000/03/02 07:47:20 guy Exp $" in the comment will be updated by CVS when the file is
+The "$Id: README.developer,v 1.4 2000/03/03 06:13:23 guy Exp $" in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
@@ -55,7 +55,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.3 2000/03/02 07:47:20 guy Exp $
+ * $Id: README.developer,v 1.4 2000/03/03 06:13:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -207,112 +207,517 @@ FIELDCONVERT	VALS(x), TFS(x), NULL
 BITMASK		Usually 0x0 unless using the TFS(x) field conversion.
 FIELDDESCR	A brief description of the field.
 
-1.3 Explanation of FIELDTYPE, FIELDBASE, FIELDCONVERT 
+1.3 The dissector and the data it receives.
 
-1.3.1 FIELDBASE
-
-The FIELDTYPE values are described as follows:
-
-FT_NONE			No field type. Used for protocol labels.
-FT_BOOLEAN		TRUE and FALSE from glib.h
-FT_UINT8		An 8 bit unsigned integer.
-FT_UINT16		A 16 bit unsigned integer.
-FT_UINT24		A 32 bit unsigned integer displayed as 3 hex-digits.
-FT_UINT32		A 32 bit unsigned integer.
-FT_INT8			An 8 bit signed integer.
-FT_INT16		A 16 bit signed integer.
-FT_INT24		A 32 bit signed integer displayed as 3 hex-digits.
-FT_INT32		A 32 bit signed integer.
-FT_DOUBLE		A floating point number.
-FT_ABSOLUTE_TIME	Seconds (4 bytes) and microseconds (4 bytes) of time 
-			displayed as month name, month day, year, hours,
-			minutes, and seconds with 4 digits after the decimal
-			point.
-FT_RELATIVE_TIME	Seconds (4 bytes) and microseconds (4 bytes) of time 
-			displayed as seconds and 6 digits after the decimal
-			point.
-FT_STRING		A string of characters.
-FT_ETHER		A six octet string of hexadecimal bytes displayed in
-			Ethernet address format.
-FT_BYTES		A string of bytes.
-FT_IPv4			A version 4 IP address (4 bytes)  displayed as 4 
-			dot seperated decimal numbers.
-FT_IPv6			A version 6 IP address (16 bytes).
-FT_IPXNET		An IPX address displayed in hex as a 6-byte network 
-			number followed by a 6 byte station address. 
-FT_TEXT_ONLY		A reserved, non-filterable type for converting old
-			style trees. You shouldn't be using this.
-
-1.3.2 FIELDCONVERT
-
-NULL is used when no value to string conversions are desired.
-
-The VALS (x) field conversion changes an integer to a string for display. In
-order to use it you must have defined a value_string array. The x in VALS(x) 
-is replaced with the name of the value_string you wish to use (i.e.
-VALS(valstringname)). The value string array is created as follows and an 
-integer corresponding to the descriptive string is substituted for INTVALy.
-
-static const value_string valstringname[] = {
-	{ INTVAL1, "Descriptive String 1" }, 
-	{ INTVAL2, "Descriptive String 2" }, 
-};
-
-The TFS(x) field conversion changes an FT_BOOLEAN field in conjunction with a
-BITMASK to a string for display. In order to use it you must create the
-structure shown below. The x in TFS(x) is replaced with the pointer name of
-the true_false_string you wish to use (i.e. TFS(&boolstringname)). The
-string corresponding to True or False is displayed according to the valuse
-of the bit selected by the bitmask.
-
-static const true_false_string boolstringname = {
-  "String for True",
-  "String for False"
-};
-
-1.4 The dissector and the data it receives.
-
-1.4.1 The dissector has the following header which must be placed into
+1.3.1 The dissector has the following header which must be placed into
 packet-PROTOABBREV.h.
 
 void
 dissect_PROTOABBREV(const u_char *pd, int offset, frame_data *fd, proto_tree *tree); 
 
-1.5 Functions to handle columns in the traffic summary window.
+1.4 Functions to handle columns in the traffic summary window.
 
 check_col
 col_add_str
 
-1.5.1 The check_col function.
+1.4.1 The check_col function.
 
-1.5.2 The col_add_str function.
+1.4.2 The col_add_str function.
 
-1.6 Functions to add to the protocol dissection window.
+1.5 Constructing the protocol tree.
 
-The functions shown below are necessary to add data to the protocol dissection
-tree and their use is detailed in the sections that follow.
+The middle pane of the main window, and the topmost pane of a packet
+popup window, are constructed from the "protocol tree" for a packet.
 
-proto_item_add_subtree
-proto_tree_add_item
-proto_tree_add_item_format
-proto_tree_add_text
-proto_tree_add_text_format
+The protocol tree, or proto_tree, is a GNode, the N-way tree structure
+available within GLIB. Of course the protocol dissectors don't care
+what a proto_tree really is; they just pass the proto_tree pointer as an
+argument to the routines which allow them to add items and new branches
+to the tree.
 
-1.5.1 The proto_item_add_subtree function.
+When a packet is selected in the packet-list pane, or a packet popup
+window is created, a new logical protocol tree (proto_tree) is created. 
+The pointer to the proto_tree (in this case, 'protocol tree'), is passed
+to the top-level protocol dissector, and then to all subsequent protocol
+dissectors for that packet, and then the GUI tree is drawn via
+proto_tree_draw().
+The logical proto_tree needs to know detailed information about the
+protocols and fields about which information will be collected from the
+dissection routines. By strictly defining (or "typing") the data that can
+be attached to a proto tree, searching and filtering becomes possible.
+This means that the for every protocol and field (which I also call
+"header fields", since they are fields in the protocol headers) which
+might be attached to a tree, some information is needed.
 
-1.6.2 The proto_tree_add_item function.
+Every dissector routine will need to register its protocols and fields
+with the central protocol routines (in proto.c). At first I thought I
+might keep all the protocol and field information about all the
+dissectors in one file, but decentralization seemed like a better idea.
+That one file would have gotten very large; one small change would have
+required a re-compilation of the entire file. Also, by allowing
+registration of protocols and fields at run-time, loadable modules of
+protocol dissectors (perhaps even user-supplied) is feasible.
 
-1.6.3 The proto_tree_add_item_format function.
+To do this, each protocol should have a register routine, which will be
+called when Ethereal starts.  The code to call the register routines is
+generated automatically; to arrange that a protocol's register routine
+be called at startup:
 
-1.6.4 The proto_tree_add_text function.
+	the file containing a dissector's "register" routine must be
+	added to "DISSECTOR_SOURCES" in "Makefile.am";
+ 
+	the "register" routine must have a name of the form
+	"proto_register_XXX";
+  
+	the "register" routine must take no argument, and return no
+	value;
+ 
+	the "register" routine's name must appear in the source file
+	either at the beginning of the line, or preceded only by "void "
+	at the beginning of the line (that'd typically be the
+	definition) - other white space shouldn't cause a problem, e.g.:
+ 
+void proto_register_XXX(void) {
+ 
+	...
+ 
+}
+ 
+and
+ 
+void
+proto_register_XXX( void )
+{
+ 
+	...
+ 
+}
+ 
+	and so on should work.
 
-1.6.5 The proto_tree_add_text_format function.
+For every protocol or field that a dissector wants to register, a variable of
+type int needs to be used to keep track of the protocol. The IDs are
+needed for establishing parent/child relationships between protocols and
+fields, as well as associating data with a particular field so that it
+can be stored in the logical tree and displayed in the GUI protocol
+tree.
 
-1.7 Editing Makefile.am to add your dissector.
+Some dissectors will need to create branches within their tree to help
+organize header fields. These branches should be registered as header
+fields. Only true protocols should be registered as protocols. This is
+so that a display filter user interface knows how to distinguish
+protocols from fields.
 
-1.8 Using the CVS source code tree.
+A protocol is registered with the name of the protocol and its
+abbreviation.
 
-1.9 Submitting code for your new dissector.
+Here is how the frame "protocol" is registered.
+
+	int proto_frame;
+
+        proto_frame = proto_register_protocol (
+                /* name */      "Frame",
+                /* abbrev */    "frame" );
+
+A header field is also registered with its name and abbreviation, but
+information about the its data type is needed. It helps to look at
+the header_field_info struct to see what information is expected:
+
+struct header_field_info {
+	char				*name;
+	char				*abbrev;
+	enum ftenum			type;
+	int				display;
+	void				*strings;
+	guint				bitmask;
+	char				*blurb;
+
+	int				id;	  /* calculated */
+	int				parent;
+	int				bitshift; /* calculated */
+};
+
+name
+----
+A string representing the name of the field. This is the name
+that will appear in the graphical protocol tree.
+
+abbrev
+------
+A string with an abbreviation of the field. We concatenate the
+abbreviation of the parent protocol with an abbreviation for the field,
+using a period as a separator. For example, the "src" field in an IP packet
+would have "ip.addr" as an abbreviation. It is acceptable to have
+multiple levels of periods if, for example, you have fields in your
+protocol that are then subdivided into subfields. For example, TRMAC
+has multiple error fields, so the abbreviations follow this pattern:
+"trmac.errors.iso", "trmac.errors.noniso", etc.
+
+The abbreviation is the identifier used in a display filter.
+
+type
+----
+The type of value this field holds. The current field types are:
+
+	FT_NONE			No field type. Used for protocol labels.
+	FT_BOOLEAN		0 means "false", any other value means
+				"true".
+	FT_UINT8		An 8-bit unsigned integer.
+	FT_UINT16		A 16-bit unsigned integer.
+	FT_UINT24		A 24-bit unsigned integer.
+	FT_UINT32		A 32-bit unsigned integer.
+	FT_INT8			An 8-bit signed integer.
+	FT_INT16		A 16-bit signed integer.
+	FT_INT24		A 24-bit signed integer.
+	FT_INT32		A 32-bit signed integer.
+	FT_DOUBLE		A floating point number.
+	FT_ABSOLUTE_TIME	Seconds (4 bytes) and microseconds (4 bytes)
+				of time displayed as month name, month day,
+				year, hours, minutes, and seconds with 4
+				digits after the decimal point.
+	FT_RELATIVE_TIME	Seconds (4 bytes) and microseconds (4 bytes)
+				of time displayed as seconds and 6 digits
+				after the decimal point.
+	FT_STRING		A string of characters.
+	FT_ETHER		A six octet string displayed in
+				Ethernet-address format.
+	FT_BYTES		A string of bytes.
+	FT_IPv4			A version 4 IP address (4 bytes) displayed
+				in dotted-quad IP address format (4
+				decimal numbers separated by dots).
+	FT_IPv6			A version 6 IP address (16 bytes) displayed
+				in standard IPv6 address format.
+	FT_IPXNET		An IPX address displayed in hex as a 6-byte
+				network number followed by a 6-byte station
+				address. 
+	FT_TEXT_ONLY		A reserved, non-filterable type for
+				converting old style trees. You shouldn't
+				be using this.
+
+Some of these field types are still not handled in the display filter
+routines, but the most common ones are. The FT_UINT* variables all
+represent unsigned integers, and the FT_INT* variables all represent
+signed integers; the number on the end represent how many bits are used
+to represent the number.
+
+display
+-------
+The display field has a couple of overloaded uses. This is unfortunate,
+but since we're C as an application programming language, this sometimes
+makes for cleaner programs. Right now I still think that overloading
+this variable was okay.
+
+For integer fields (FT_UINT* and FT_INT*), this variable represents the
+base in which you would like the value displayed.  The acceptable bases
+are:
+
+	BASE_DEC,
+	BASE_HEX,
+	BASE_OCT,
+	BASE_BIN
+
+For FT_BOOLEAN fields that are also bitfields, 'display' is used to tell
+the proto_tree how wide the parent bitfield is.  With integers this is
+not needed since the type of integer itself (FT_UINT8, FT_UINT16,
+FT_UINT24, FT_UINT32, etc.) tells the proto_tree how wide the parent
+bitfield is.
+
+Additionally, BASE_NONE is used for 'display' as a NULL-value. That is,
+for non-integers and non-bitfield FT_BOOLEANs, you'll want to use BASE_NONE
+in the 'display' field.
+
+It is possible that in the future we will record the endianness of
+integers. If so, it is likely that we'll use a bitmask on the display field
+so that integers would be represented as BEND|BASE_DEC or LEND|BASE_HEX.
+But that has not happened yet.
+
+strings
+-------
+Some integer fields, of type FT_UINT*, need labels to represent the true
+value of a field.  You could think of those fields as having an
+enumerated data type, rather than an integral data type.
+
+A 'value_string' structure is a way to map values to strings. 
+
+	typedef struct _value_string {
+		guint32  value;
+		gchar   *strptr;
+	} value_string;
+
+For fields of that type, yoou would declare an array of "value_string"s:
+
+	static const value_string valstringname[] = {
+		{ INTVAL1, "Descriptive String 1" }, 
+		{ INTVAL2, "Descriptive String 2" }, 
+		{ 0,       NULL },
+	};
+
+(the last entry in the array must have a NULL 'strptr' value, to
+indicate the end of the array).  The 'strings' field would be set to
+'VALS(valstringname)'.
+
+(Note: before Ethereal 0.7.6, we had separate field types like
+FT_VALS_UINT8 which denoted the use of value_strings.  Now, the
+non-NULLness of the pointer lets the proto_tree know that a value_string
+is meant for this field).
+
+If the field has a numeric rather than an enumerated type, the 'strings'
+field would be set to NULL.
+
+FT_BOOLEANS have a default map of 0 = "False", 1 (or anything else) = "True".
+Sometimes it is useful to change the labels for boolean values (e.g.,
+to "Yes"/"No", "Fast"/"Slow", etc.).  For these mappings, a struct called
+true_false_string is used. (This struct is new as of Ethereal 0.7.6).
+
+	typedef struct true_false_string {
+		char	*true_string;
+		char	*false_string;
+	} true_false_string;
+
+For Boolean fields for which "False" and "True" aren't the desired
+labels, you would declare a "true_false_string"s:
+
+	static const true_false_string boolstringname = {
+		"String for True",
+		"String for False"
+	};
+
+Its two fields are pointers to the string representing truth, and the
+string representing falsehood.  For FT_BOOLEAN fields that need a
+'true_false_string' struct, the 'strings' field would be set to
+'TFS(&boolstringname)'. 
+
+If the Boolean field is to be displayed as "False" or "True", the
+'strings' field would be set to NULL.
+
+bitmask
+-------
+If the field is not a bitfield, then bitmask should be set to 0.
+If it is a bitfield, then the bitmask is the mask which will
+leave only the bits needed to make the field when ANDed with a value.
+The proto_tree routines will calculate 'bitshift' automatically
+from 'bitmask', by finding the first set bit in the bitmask.
+
+blurb
+-----
+This is a string giving a sentence or two description of the field.
+It is meant to provide a more detailed description of the field than the
+name alone provides. This information will be used in the man page, and
+in a future GUI display-filter creation tool. We might also add tooltips
+to the labels in the GUI protocol tree, in which case the blurb would
+be used as the tooltip text.
+
+1.5.1 Field Registration.
+
+Protocol registration is handled by creating an instance of the
+header_field_info struct (or an array of such structs), and
+calling the registration function along with the registration ID of
+the protocol that is the parent of the fields. Here is a complete example:
+
+	static int proto_eg = -1;
+	static int hf_field_a = -1;
+	static int hf_field_b = -1;
+
+	static hf_register_info hf[] = {
+
+		{ &hf_field_a,
+		{ "Field A",	"proto.field_a", FT_UINT8, BASE_HEX, NULL,
+			0xf0, "Field A represents Apples" }},
+
+		{ &hf_field_b,
+		{ "Field B",	"proto.field_a", FT_UINT16, BASE_DEC, VALS(vs),
+			0x0, "Field B represents Bananas" }}
+	};
+
+	proto_eg = proto_register_protocol("Example Protocol", "proto");
+	proto_register_field_array(proto_eg, hf, array_length(hf));
+
+Be sure that your array of hf_register_info structs is declared 'static',
+since the proto_register_field_array() function does not create a copy
+of the information in the array... it uses that static copy of the
+information that the compiler created inside your array. Here's the
+layout of the hf_register_info struct:
+
+typedef struct hf_register_info {
+	int			*p_id;	/* pointer to parent variable */
+	header_field_info	hfinfo;
+} hf_register_info;
+
+Also be sure to use the handy array_length() macro found in packet.h
+to have the compiler compute the array length for you at compile time.
+
+1.5.2 Adding Items and Values to the Protocol Tree.
+A protocol item is added to an existing protocol tree with one of a
+handful of proto_tree_add_item*() funtions.
+
+Subtrees can be made with the proto_item_add_subtree() function:
+
+	item = proto_tree_add_item(....);
+	new_tree = proto_item_add_subtree(item, tree_type);
+
+Subtree types are integers, assigned by
+"proto_register_subtree_array()".  To register subtree types, pass an
+array of pointers to "gint" variables to hold the subtree type values to
+"proto_register_subtree_array()":
+
+	static gint ett_eg = -1;
+	static gint ett_field_a = -1;
+
+	static gint *ett[] = {
+		&ett_eg,
+		&ett_field_a,
+	};
+
+	proto_register_subtree_array(ett, array_length(ett));
+
+in your "register" routine, just as you register the protocol and the
+fields for that protocol.
+
+There are now 4 functions that the programmer can use to add either
+protocol or field labels to the proto_tree:
+
+	proto_item*
+	proto_tree_add_item(tree, id, start, length, value);
+
+	proto_item*
+	proto_tree_add_item_format(tree, id, start, length,
+		value, format, ...);
+
+	proto_item*
+	proto_tree_add_item_hidden(tree, id, start, length, value);
+
+	proto_item*
+	proto_tree_add_text(tree, start, length, format, ...);
+
+proto_tree_add_item()
+---------------------
+The first function, proto_tree_add_item, is used when you wish to do no
+special formatting. The item added to the GUI tree will contain the name
+(as passed in the proto_register_*() function) and any value. If your
+field does have a value, it is passed after the length variable (notice
+the ellipsis in the function prototype).
+
+Now that the proto_tree has detailed information about bitfield fields,
+you can use proto_tree_add_item() with no extra processing to add bitfield
+values to your tree.  Here's an example. Take the Format Identifer (FID)
+field in the Transmission Header (TH)  portion of the SNA protocol. The
+FID is the high nibble of the first byte of the TH. The FID would be
+registered like this:
+
+	name		= "Format Identifer"
+	abbrev		= "sna.th.fid"
+	type		= FT_UINT8
+	display		= BASE_HEX
+	strings		= sna_th_fid_vals
+	bitmask		= 0xf0
+
+The bitmask contains the value which would leave only the FID if bitwise-ANDed
+against the parent field, the first byte of the TH.
+
+The code to add the FID to the tree would be;
+
+	guint8 th_0 = pd[offset];
+	proto_tree_add_item(bf_tree, hf_sna_th_fid, offset, 1, th_0);
+
+Note: we do not do *any* manipulation of th_0 in order to ge the FID value.
+We just pass it to proto_tree_add_item(). The proto_tree already has
+the information about bitmasking and bitshifting, so it does the work
+of masking and shifting for us! This also means that you no longer
+have to crate value_string structs with the values bitshifted. The
+value_string for FID looks like this, even though the FID value is
+actually contained in the high nibble. (You'd expect the values to be
+0x0, 0x10, 0x20, etc.)
+
+/* Format Identifier */
+static const value_string sna_th_fid_vals[] = {
+	{ 0x0,	"SNA device <--> Non-SNA Device" },
+	{ 0x1,	"Subarea Node <--> Subarea Node" },
+	{ 0x2,	"Subarea Node <--> PU2" },
+	{ 0x3,	"Subarea Node or SNA host <--> Subarea Node" },
+	{ 0x4,	"?" },
+	{ 0x5,	"?" },
+	{ 0xf,	"Adjaced Subarea Nodes" },
+	{ 0,	NULL }
+};
+
+The final implication of this is that display filters work the way you'd
+naturally expect them to. You'd type "sna.th.fid == 0xf" to find Adjacent
+Subarea Nodes. The user does not have to shift the value of the FID to
+the high nibble of the byte ("sna.th.fid == 0xf0") as was necessary
+before Ethereal 0.7.6.
+
+proto_tree_add_item_format()
+----------------------------
+The second function, proto_tree_add_item_format(), is used when the
+dissector routines wants complete control over how the field and value
+will be represented on the GUI tree. The caller must pass include the
+name of the protocol or field; it is not added automatically as in
+proto_tree_add_item().
+
+proto_tree_add_item_hidden()
+----------------------------
+The third function is used to add fields and values to a tree, but not
+show them on a GUI tree. The caller may want a value to be included in a
+tree so that the packet can be filtered on this field, but the
+representation of that field in the tree is not appropriate. An example
+is the token-ring routing information field (RIF). The best way to show the
+RIF in a GUI is by a sequence of ring and bridge numbers. Rings are
+3-digit hex numbers, and bridges are single hex digits:
+
+	RIF: 001-A-013-9-C0F-B-555
+
+In the case of RIF, the programmer should use a field with no value and
+use proto_tree_add_item_format() to build the above representation. The
+programmer can then add the ring and bridge values, one-by-one, with
+proto_tree_add_item_hidden() so that the user can then filter on or
+search for a particular ring or bridge. Here's a skeleton of how the
+programmer might code this.
+
+	char *rif;
+	rif = create_rif_string(...);
+
+	proto_tree_add_item_format(tree, hf_tr_rif_label,..., "RIF: %s", rif);
+
+	for(i = 0; i < num_rings; i++) {
+		proto_tree_add_item_hidden(tree, hf_tr_rif_ring, ..., ring[i]);
+	}
+	for(i = 0; i < num_rings - 1; i++) {
+		proto_tree_add_item_hidden(tree, hf_tr_rif_ring, ..., bridge[i]);
+	}
+
+The logical tree has these items:
+
+	hf_tr_rif_label, text="RIF: 001-A-013-9-C0F-B-555", value = NONE
+	hf_tr_rif_ring,  hidden, value=0x001
+	hf_tr_rif_bridge, hidden, value=0xA
+	hf_tr_rif_ring,  hidden, value=0x013
+	hf_tr_rif_bridge, hidden, value=0x9
+	hf_tr_rif_ring,  hidden, value=0xC0F
+	hf_tr_rif_bridge, hidden, value=0xB
+	hf_tr_rif_ring,  hidden, value=0x555
+
+GUI or print code will not display the hidden fields, but a display
+filter or "packet grep" routine will still see the values. The possible
+filter is then possible:
+
+	tr.rif_ring eq 0x013
+
+proto_tree_add_text()
+---------------------
+The fourth function, proto_tree_add_text(), is used to add a label to
+the GUI tree.  It will contain no value, so it is not searchable in the
+display filter process.  This function was needed in the transition from
+the old-style proto_tree to this new-style proto_tree so that Ethereal
+would still decode all protocols w/o being able to filter on all
+protocols and fields.  Otherwise we would have had to cripple Ethereal's
+functionality while we converted all the old-style proto_tree calls to
+the new-style proto_tree calls.
+
+1.6 Editing Makefile.am and Makefile.nmake to add your dissector.
+
+1.7 Using the CVS source code tree.
+
+1.8 Submitting code for your new dissector.
 
 2. Advanced dissector topics.
 
@@ -340,3 +745,4 @@ In ethereal a conversation is ...
 
 
 James Coe <jammer@cin.net>
+Gilbert Ramirez <gram@xiexie.org>
