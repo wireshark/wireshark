@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.51 2001/12/15 20:40:18 guy Exp $
+ * $Id: packet-giop.c,v 1.52 2001/12/17 22:45:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1740,23 +1740,29 @@ static gboolean try_heuristic_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, 
   int i,len;
   gboolean res = FALSE;		/* result of calling a heuristic sub dissector */
   giop_sub_handle_t *subh = NULL; 
+  const char *saved_proto;
 
   len = g_slist_length(giop_sub_list); /* find length */
 
   if (len == 0)
     return FALSE;
 
+  saved_proto = pinfo->current_proto;
   for (i=0; i<len; i++) {
     subh = (giop_sub_handle_t *) g_slist_nth_data(giop_sub_list,i); /* grab dissector handle */
 
     if (proto_is_protocol_enabled(subh->sub_proto)) {
+      pinfo->current_proto =
+	proto_get_protocol_short_name(subh->sub_proto);
       res = (subh->sub_fn)(tvb,pinfo,tree,offset,header,operation,NULL); /* callit TODO - replace NULL */
       if (res) {
+      	pinfo->current_proto = saved_proto;
 	return TRUE;		/* found one, lets return */
       }  
     } /* protocol_is_enabled */
   } /* loop */
 
+  pinfo->current_proto = saved_proto;
   return res;			/* result */
 
 }
@@ -1782,6 +1788,7 @@ static gboolean try_explicit_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, p
   gchar *modname = NULL;
   struct giop_module_key module_key;
   struct giop_module_val *module_val = NULL;
+  const char *saved_proto;
 
 
   /*
@@ -1823,7 +1830,11 @@ static gboolean try_explicit_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, p
 
       if (proto_is_protocol_enabled(subdiss->sub_proto)) {
 
+	saved_proto = pinfo->current_proto;
+	pinfo->current_proto =
+	  proto_get_protocol_short_name(subdiss->sub_proto);
 	res = (subdiss->sub_fn)(tvb,pinfo,tree,offset,header,operation, modname); /* callit, TODO replace NULL with idlname */
+	pinfo->current_proto = saved_proto;
 
       }	/* protocol_is_enabled */
     } /* offset exists */
