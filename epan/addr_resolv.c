@@ -219,6 +219,8 @@ gchar *g_pipxnets_path = NULL;		/* personal ipxnets file */
 
 #ifdef HAVE_GNU_ADNS
 
+static gboolean gnu_adns_initialized = FALSE;
+
 adns_state ads;
 
 int adns_currently_queued = 0;
@@ -356,7 +358,8 @@ static gchar *host_name_lookup(guint addr, gboolean *found)
 
 #ifdef HAVE_GNU_ADNS
   if ((g_resolv_flags & RESOLV_CONCURRENT) && 
-      prefs.name_resolve_concurrency > 0) {
+      prefs.name_resolve_concurrency > 0 &&
+      gnu_adns_initialized) {
     qmsg = g_malloc(sizeof(adns_queue_msg_t));
     qmsg->type = AF_INET;
     qmsg->ip4_addr = addr;
@@ -1446,12 +1449,22 @@ static guint ipxnet_addr_lookup(const gchar *name, gboolean *success)
 
 #ifdef HAVE_GNU_ADNS
 
-void 
+void
 host_name_lookup_init(void) {
   /* XXX - Any flags we should be using? */
   /* XXX - We could provide config settings for DNS servers, and
            pass them to ADNS with adns_init_strcfg */
-  adns_init(&ads, 0, 0 /*0=>stderr*/);
+  if (adns_init(&ads, 0, 0 /*0=>stderr*/) != 0) {
+    /*
+     * XXX - should we report the error?  I'm assuming that some crashes
+     * reported on a Windows machine with TCP/IP not configured are due
+     * to "adns_init()" failing (due to the lack of TCP/IP) and leaving
+     * ADNS in a state where it crashes due to that.  We'll still try
+     * doing name resolution anyway.
+     */
+    return;
+  }
+  gnu_adns_initialized = TRUE;
   adns_currently_queued = 0;
 }
 
@@ -1477,6 +1490,7 @@ host_name_lookup_process(gpointer data _U_) {
       addr_bytes = (guint8 *) &almsg->ip4_addr;
       sprintf(addr_str, "%u.%u.%u.%u.in-addr.arpa.", addr_bytes[3],
           addr_bytes[2], addr_bytes[1], addr_bytes[0]);
+      /* XXX - what if it fails? */
       adns_submit (ads, addr_str, adns_r_ptr, 0, NULL, &almsg->query);
       almsg->submitted = TRUE;
       adns_currently_queued++;
