@@ -1,7 +1,7 @@
 /* reassemble.h
  * Declarations of outines for {fragment,segment} reassembly
  *
- * $Id: reassemble.h,v 1.13 2002/12/19 11:22:38 sahlberg Exp $
+ * $Id: reassemble.h,v 1.14 2003/04/09 09:04:08 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,6 +57,9 @@ typedef struct _fragment_data {
 	guint32	offset;
 	guint32	len;
 	guint32 datalen; /*Only valid in first item of list */
+	guint32 reassembled_in;	/* frame where this PDU was reassembled,
+				   only valid in the first item of the list
+				   and when FD_DEFRAGMENTED is set*/
 	guint32 flags;
 	unsigned char *data;
 } fragment_data;

@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.29 2003/03/04 06:47:10 guy Exp $
+ * $Id: reassemble.c,v 1.30 2003/04/09 09:04:08 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -465,6 +465,7 @@ fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 		fd_head->len=0;
 		fd_head->flags=0;
 		fd_head->data=NULL;
+		fd_head->reassembled_in=0;
 
 		/*
 		 * We're going to use the key to insert the fragment,
@@ -647,7 +648,8 @@ fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	/* mark this packet as defragmented.
            allows us to skip any trailing fragments */
 	fd_head->flags |= FD_DEFRAGMENTED;
-
+	fd_head->reassembled_in=pinfo->fd->num;
+	
 	return fd_head;
 }
 
@@ -837,6 +839,7 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 	/* mark this packet as defragmented.
            allows us to skip any trailing fragments */
 	fd_head->flags |= FD_DEFRAGMENTED;
+	fd_head->reassembled_in=pinfo->fd->num;
 
 	return TRUE;
 }
@@ -892,6 +895,7 @@ fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 		fd_head->len=0;
 		fd_head->flags=FD_BLOCKSEQUENCE;
 		fd_head->data=NULL;
+		fd_head->reassembled_in=0;
 
 		/*
 		 * We're going to use the key to insert the fragment,
@@ -1031,6 +1035,7 @@ fragment_add_seq_check_work(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		fd_head->len=0;
 		fd_head->flags=FD_BLOCKSEQUENCE;
 		fd_head->data=NULL;
+		fd_head->reassembled_in=0;
 
 		if (!more_frags) {
 			/*
