@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.173 2001/01/21 02:27:24 guy Exp $
+ * $Id: main.c,v 1.174 2001/01/28 04:52:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -103,6 +103,7 @@
 #include "capture.h"
 #include "summary.h"
 #include "file.h"
+#include "filters.h"
 #include "menu.h"
 #include "../menu.h"
 #include "color.h"
@@ -924,7 +925,11 @@ main(int argc, char *argv[])
   /* Let GTK get its args */
   gtk_init (&argc, &argv);
   
+  /* Read the preference files. */
   prefs = read_prefs(&gpf_open_errno, &gpf_path, &pf_open_errno, &pf_path);
+
+  /* Read the filter file. */
+  get_filter_list();
 
   /* Initialize the capture file struct */
   cfile.plist		= NULL;

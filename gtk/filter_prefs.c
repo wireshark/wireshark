@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.24 2001/01/28 04:43:26 guy Exp $
+ * $Id: filter_prefs.c,v 1.25 2001/01/28 04:52:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -296,7 +296,6 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 	gtk_widget_show(main_vb);
 
 	/* Make sure everything is set up */  
-	get_filter_list();
 	if (parent_filter_te)
 		filter_te_str = gtk_entry_get_text(GTK_ENTRY(parent_filter_te));
 

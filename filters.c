@@ -1,7 +1,7 @@
 /* filters.c
  * Code for reading and writing the filters file.
  *
- * $Id: filters.c,v 1.1 2001/01/28 04:43:24 guy Exp $
+ * $Id: filters.c,v 1.2 2001/01/28 04:52:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -56,14 +56,27 @@ GList       *fl = NULL;
 void
 get_filter_list(void)
 {
+  GList      *flp;
   filter_def *filt;
   FILE       *ff;
   gchar      *ff_path, *ff_name = PF_DIR "/filters", f_buf[FILTER_LINE_SIZE];
   gchar      *name_begin, *name_end, *filt_begin;
   int         len, line = 0;
 
-  if (fl) return;
-  
+  /* If we already have a list of filters, discard it. */
+  if (fl != NULL) {
+    flp = g_list_first(fl);
+    while (flp) {
+      filt = (filter_def *) flp->data;
+      g_free(filt->name);
+      g_free(filt->strval);
+      g_free(filt);
+      flp = flp->next;
+    }
+    g_list_free(fl);
+    fl = NULL;
+  }
+
   /* To do: generalize this */
   ff_path = (gchar *) g_malloc(strlen(get_home_dir()) + strlen(ff_name) +  4);
   sprintf(ff_path, "%s/%s", get_home_dir(), ff_name);
@@ -111,11 +124,11 @@ get_filter_list(void)
 void
 save_filter_list(void)
 {
-  GList       *flp;
-  filter_def  *filt;
-  gchar       *ff_path, *ff_dir = PF_DIR, *ff_name = "filters";
-  FILE        *ff;
-  struct stat  s_buf;
+  GList      *flp;
+  filter_def *filt;
+  gchar      *ff_path, *ff_dir = PF_DIR, *ff_name = "filters";
+  FILE       *ff;
+  struct stat s_buf;
   
   ff_path = (gchar *) g_malloc(strlen(get_home_dir()) + strlen(ff_dir) +  
     strlen(ff_name) + 4);
