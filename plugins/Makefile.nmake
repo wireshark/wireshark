@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.10 2001/07/19 21:30:16 guy Exp $
+# $Id: Makefile.nmake,v 1.11 2001/12/12 01:29:08 guy Exp $
 #
 
 include ..\config.nmake
@@ -32,7 +32,7 @@ giop::
 
 
 clean:
-	rm -f plugin_api.obj
+	rm -f plugin_api.obj $(PDB_FILE)
 	cd gryphon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../mgcp

@@ -11,8 +11,8 @@ CFLAGS=-DHAVE_CONFIG_H /I.. /I../epan /I../wiretap \
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
-{$S}.c{$O}.obj::
-   $(CC) $(CVARSDLL) $(CFLAGS) -Fd$O\ -c $<
+.c.obj::
+   $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
 # gtkclist.obj is not in here because it is gtk+-1.2 code,
 # while the DLL for GTK+ on windows is gtk+-1.3, and there's
@@ -57,4 +57,4 @@ libui.lib	: ..\config.h $(OBJECTS)
 
 
 clean:
-	rm -f $(OBJECTS) libui.lib
+	rm -f $(OBJECTS) libui.lib $(PDB_FILE)

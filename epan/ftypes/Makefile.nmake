@@ -9,8 +9,8 @@ CFLAGS=-DHAVE_CONFIG_H /I. /I.. /I../.. \
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL 
 
-{$S}.c{$O}.obj::
-   $(CC) $(CVARSDLL) $(CFLAGS) -Fd$O\ -c $<
+.c.obj::
+   $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
 
 OBJECTS = \
@@ -30,5 +30,5 @@ ftypes.lib	: $(OBJECTS)
 
 
 clean:
-	rm -f $(OBJECTS) ftypes.lib
+	rm -f $(OBJECTS) ftypes.lib $(PDB_FILE)
 

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.5 2000/10/11 07:35:02 guy Exp $
+# $Id: Makefile.nmake,v 1.6 2001/12/12 01:29:10 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -17,4 +17,4 @@ gryphon.dll gryphon.exp gryphon.lib : packet-gryphon.obj ..\plugin_api.obj
 	link -dll /out:gryphon.dll packet-gryphon.obj ..\plugin_api.obj
 
 clean:
-	rm -f $(OBJECTS) gryphon.dll gryphon.exp gryphon.lib
+	rm -f $(OBJECTS) gryphon.dll gryphon.exp gryphon.lib $(PDB_FILE)

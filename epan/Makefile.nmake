@@ -15,8 +15,8 @@ libethereal_LIBS = \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib
 
-{$S}.c{$O}.obj::
-   $(CC) $(CVARSDLL) $(CFLAGS) -Fd$O\ -c $<
+.c.obj::
+   $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
 OBJECTS=atalk-utils.obj	\
 	bitswap.obj	\
@@ -56,7 +56,7 @@ config.h	: config.h.win32
 	sed -e s/@VERSION@/$(VERSION)/ < config.h.win32 > $@
 
 clean:
-	rm -f $(OBJECTS) ethereal.lib config.h
+	rm -f $(OBJECTS) ethereal.lib config.h $(PDB_FILE)
 	cd ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../dfilter

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.23 2001/12/04 22:28:19 guy Exp $
+# $Id: Makefile.nmake,v 1.24 2001/12/12 01:29:13 guy Exp $
 #
 
 include ..\config.nmake
@@ -9,8 +9,8 @@ include <win32.mak>
 
 CFLAGS=-DHAVE_CONFIG_H /I$(GLIB_DIR) /I$(ZLIB_DIR) $(LOCAL_CFLAGS)
 
-{$S}.c{$O}.obj::
-   $(CC) $(cvarsdll) $(CFLAGS) -Fd$O\ -c $<
+.c.obj::
+   $(CC) $(cvarsdll) $(CFLAGS) -Fd.\ -c $<
 
 OBJECTS=ascend-grammar.obj \
 	ascend-scanner.obj \
@@ -73,4 +73,4 @@ clean :
 		wiretap-$(WTAP_VERSION).lib \
 		wiretap-$(WTAP_VERSION).exp \
 		wiretap-$(WTAP_VERSION).dll \
-		config.h
+		config.h $(PDB_FILE)

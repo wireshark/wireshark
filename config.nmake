@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.17 2001/10/12 17:17:04 gerald Exp $
+# $Id: config.nmake,v 1.18 2001/12/12 01:29:01 guy Exp $
 
 VERSION=0.8.20
 RC_VERSION=0,8,20
@@ -14,6 +14,7 @@ PCAP_DIR=F:\gram\win32tools\WPdpack
 
 LOCAL_CFLAGS=-Zi
 LOCAL_LDFLAGS=/DEBUG
+PDB_FILE=vc60.pdb
 
 # Set path if you need to find some binary
 #PATH=t:\w32-ix86\cygnus\cygwin-b20\H-i586-cygwin32\bin;$(PATH)

@@ -798,6 +798,9 @@ Motonori Shindo <mshindo[AT]mshindo.net> {
 	   trace reading code's Flex scanner
 	BACP and BAP support in PPP dissector
 	Add necessary cast in TCP graph code
+	Fix up the generation of PDB files, clean them up on a "nmake -f
+	    makefile.nmake clean", and put all the PDB files into the
+	    Windows binary distribution
 }
 
 Terje Krogdahl <tekr[AT]nextra.com> {

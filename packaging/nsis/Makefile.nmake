@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.7 2001/07/12 22:45:23 gram Exp $
+# $Id: Makefile.nmake,v 1.8 2001/12/12 01:29:07 guy Exp $
 #
 #
 # NSIS is a free packager/installer/uninstaller program for Win32.
@@ -12,7 +12,8 @@ include ../../config.nmake
 
 EXE=../../ethereal.exe ../../tethereal.exe ../../editcap.exe \
 	../../text2pcap.exe ../../mergecap.exe
-PDB=../../ethereal.pdb ../../tethereal.pdb ../../editcap.pdb
+PDB=../../ethereal.pdb ../../tethereal.pdb ../../editcap.pdb \
+	../../text2pcap.pdb ../../mergecap.pdb
 DLL=../../wiretap/wiretap-$(WTAP_VERSION).dll
 DOC=../../doc/ethereal.html		\
 	../../doc/tethereal.html	\

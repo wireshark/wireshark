@@ -3,10 +3,10 @@ include ..\..\config.nmake
 
 CFLAGS=$(LOCAL_CFLAGS)
 
-{$S}.c{$O}.obj::
-   $(CC) $(CFLAGS) -Fd$O\ -c $<
+.c.obj::
+   $(CC) $(CFLAGS) -Fd.\ -c $<
 
 all : lemon.exe
 
 clean:
-	rm -f lemon.obj lemon.exe
+	rm -f lemon.obj lemon.exe $(PDB_FILE) lemon.pdb
