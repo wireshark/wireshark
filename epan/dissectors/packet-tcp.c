@@ -2250,7 +2250,7 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
   proto_tree *field_tree = NULL;
-  proto_item *tf;
+  proto_item *tf=NULL;
   guint32 leftedge, rightedge;
   struct tcp_analysis *tcpd=NULL;
   int direction;
@@ -2288,16 +2288,10 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
         "(suboption would go past end of option)");
       break;
     }
-    leftedge = tvb_get_ntohl(tvb, offset);
-    if(tcp_relative_seq){
-      proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_sle, tvb, 
-			       offset, 4, leftedge-base_ack, 
-			       "left edge = %u (relative)", leftedge-base_ack);
-    } else {
-      proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_sle, tvb, 
+    leftedge = tvb_get_ntohl(tvb, offset)-base_ack;
+    proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_sle, tvb, 
 			       offset, 4, leftedge, 
-			       "left edge = %u", leftedge);
-    }
+			       "left edge = %u %s", leftedge, tcp_relative_seq?"(relative)":"");
 
     optlen -= 4;
     if (optlen < 4) {
@@ -2306,19 +2300,14 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
       break;
     }
     /* XXX - check whether it goes past end of packet */
-    rightedge = tvb_get_ntohl(tvb, offset + 4);
+    rightedge = tvb_get_ntohl(tvb, offset + 4)-base_ack;
     optlen -= 4;
-    if(tcp_relative_seq){
-      proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_sre, tvb, 
-			       offset+4, 4, rightedge-base_ack, 
-			       "right edge = %u (relative)", rightedge-base_ack);
-    } else {
-      proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_sre, tvb, 
+    proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_sre, tvb, 
 			       offset+4, 4, rightedge, 
-			       "right edge = %u", rightedge);
-    }
-    tcp_info_append_uint(pinfo, "SLE", leftedge-base_ack);
-    tcp_info_append_uint(pinfo, "SRE", rightedge-base_ack);
+			       "right edge = %u %s", rightedge, tcp_relative_seq?"(relative)":"");
+    tcp_info_append_uint(pinfo, "SLE", leftedge);
+    tcp_info_append_uint(pinfo, "SRE", rightedge);
+    proto_item_append_text(field_tree, " %u-%u", leftedge, rightedge);
     offset += 8;
   }
 }
