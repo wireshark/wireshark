@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.411 2004/04/08 20:36:09 gerald Exp $
+# $Id: Makefile.nmake,v 1.412 2004/04/09 07:38:38 ulfl Exp $
 
 include config.nmake
 include <win32.mak>
@@ -352,17 +352,20 @@ help::
 	cd ..
 
 REQUIRED_APPS=\
-	bison	\
-	flex	\
+	$(SH)	\
+	$(YACC)	\
+	$(LEX)	\
 	grep	\
-	perl	\
-	python	\
+	$(PERL)	\
+	$(PYTHON)	\
 	sed	\
 	unzip	\
 	wget
 
-setup:
+verify_apps:
 	@$(SH) tools\win32-setup.sh --appverify $(REQUIRED_APPS)
+
+setup: verify_apps
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		glib glib-2.2.3-20040116.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
