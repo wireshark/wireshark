@@ -1,4 +1,4 @@
-$Id: NEWS,v 1.144 2004/05/13 03:34:14 gerald Exp $
+$Id: NEWS,v 1.145 2004/05/13 09:04:14 ulfl Exp $
 
 == May ??, 2004
 
@@ -17,11 +17,13 @@ New and updated features
   When built with GTK+ 2.4, Ethereal uses the new, greatly improved, file
   selection dialog.
 
-  The print dialog now supports PDML and PSML output.
+  Export dialogs for Plain text, PostScript(R), PDML and PSML have been added.
 
   PostScript(R) output has been improved.
 
-  Many parts of the user interface have received improvements.
+  The screen layout of the main window can be changed by Preferences now.
+  
+  Many other parts of the user interface have received improvements.
 
   Compressed and chunked transfer-coded HTTP bodies are now decoded.
 
