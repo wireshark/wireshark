@@ -9,8 +9,7 @@
  * 2002, some share information levels implemented based on samba
  * sources.
  *
- *
- * $Id: packet-dcerpc-srvsvc.c,v 1.46 2003/01/28 06:39:40 tpot Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.47 2003/01/30 05:35:10 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -279,28 +278,6 @@ srvsvc_dissect_ENUM_HANDLE(tvbuff_t *tvb, int offset,
 
 }
 
-static int
-srvsvc_dissect_pointer_UNICODE_STRING(tvbuff_t *tvb, int offset,
-				      packet_info *pinfo, proto_tree *tree,
-				      char *drep)
-{
-	dcerpc_info *di;
-
-	di=pinfo->private_data;
-	if(di->conformant_run){
-		/*just a run to handle conformant arrays, nothing to dissect */
-		return offset;
-	}
-
-	offset = dissect_ndr_nt_UNICODE_STRING_str(tvb, offset, pinfo, tree,
-						   drep);
-	return offset;
-}
-
-
-
-
-
 /*
  * IDL typedef struct {
  * IDL   [string] [unique] wchar_t *dev;
@@ -311,13 +288,13 @@ srvsvc_dissect_CHARDEV_INFO_0(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Char Device",
-		hf_srvsvc_chrdev);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Char Device", 
+			hf_srvsvc_chrdev);
 
 	return offset;
 }
+
 static int
 srvsvc_dissect_CHARDEV_INFO_0_array(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
@@ -363,18 +340,15 @@ srvsvc_dissect_CHARDEV_INFO_1(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Char Device",
-		hf_srvsvc_chrdev);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Char Device", 
+			hf_srvsvc_chrdev);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_chrdev_status, 0);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "User",
-		hf_srvsvc_user);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "User", hf_srvsvc_user);
 
 	/* XXX dont know how to decode this time field */
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -513,9 +487,8 @@ srvsvc_dissect_netrchardevenum_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		srvsvc_dissect_CHARDEV_ENUM_STRUCT,
@@ -566,13 +539,11 @@ srvsvc_dissect_netrchardevgetinfo_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_REF, "Char Device", hf_srvsvc_chrdev);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "Char Device", hf_srvsvc_chrdev);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_info_level, 0);
@@ -606,13 +577,11 @@ srvsvc_dissect_netrchardevcontrol_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_REF, "Char Device", hf_srvsvc_chrdev);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "Char Device", hf_srvsvc_chrdev);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_chrdev_opcode, 0);
@@ -642,12 +611,12 @@ srvsvc_dissect_CHARDEVQ_INFO_0(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Char QDevice", hf_srvsvc_chrdev);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Char QDevice", hf_srvsvc_chrdev);
 
 	return offset;
 }
+
 static int
 srvsvc_dissect_CHARDEVQ_INFO_0_array(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
@@ -694,16 +663,14 @@ srvsvc_dissect_CHARDEVQ_INFO_1(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Char Device", hf_srvsvc_chrdev);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Char Device", hf_srvsvc_chrdev);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_chrqpri, 0);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Char Devices", hf_srvsvc_chrdevq);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Char Devices", hf_srvsvc_chrdevq);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_chrqnumusers, 0);
@@ -846,13 +813,11 @@ srvsvc_dissect_netrchardevqenum_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "User", hf_srvsvc_user);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "User", hf_srvsvc_user);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		srvsvc_dissect_CHARDEVQ_ENUM_STRUCT,
@@ -903,17 +868,14 @@ srvsvc_dissect_netrchardevqgetinfo_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_REF, "Device Queue", hf_srvsvc_chrdevq);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "Device Queue", hf_srvsvc_chrdevq);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_REF, "User", hf_srvsvc_user);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "User", hf_srvsvc_user);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_info_level, NULL);
@@ -949,13 +911,11 @@ srvsvc_dissect_netrchardevqsetinfo_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_REF, "Device Queue", hf_srvsvc_chrdevq);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "Device Queue", hf_srvsvc_chrdevq);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_info_level, NULL);
@@ -996,13 +956,11 @@ srvsvc_dissect_netrchardevqpurge_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_REF, "Device Queue", hf_srvsvc_chrdevq);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "Device Queue", hf_srvsvc_chrdevq);
 
 	return offset;
 }
@@ -1029,17 +987,14 @@ srvsvc_dissect_netrchardevqpurgeself_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_REF, "Device Queue", hf_srvsvc_chrdevq);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "Device Queue", hf_srvsvc_chrdevq);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_REF, "Computer", hf_srvsvc_computer);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "Computer", hf_srvsvc_computer);
 
 	return offset;
 }
@@ -1135,13 +1090,11 @@ srvsvc_dissect_CONNECT_INFO_1(tvbuff_t *tvb, int offset,
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_srvsvc_con_time, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "User", hf_srvsvc_user);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "User", hf_srvsvc_user);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Share", hf_srvsvc_share);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Share", hf_srvsvc_share);
 
 	return offset;
 }
@@ -1247,13 +1200,11 @@ srvsvc_dissect_netrconnectionenum_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Qualifier", hf_srvsvc_qualifier);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Qualifier", hf_srvsvc_qualifier);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		srvsvc_dissect_CONNECT_ENUM_STRUCT,
@@ -1361,13 +1312,11 @@ srvsvc_dissect_FILE_INFO_3(tvbuff_t *tvb, int offset,
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_srvsvc_file_num_locks, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Path", hf_srvsvc_path);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Path", hf_srvsvc_path);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "User", hf_srvsvc_user);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "User", hf_srvsvc_user);
 
 	return offset;
 }
@@ -1507,17 +1456,14 @@ srvsvc_dissect_netrfileenum_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Path", hf_srvsvc_path);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Path", hf_srvsvc_path);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "User", hf_srvsvc_user);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "User", hf_srvsvc_user);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		srvsvc_dissect_FILE_ENUM_STRUCT,
@@ -1568,9 +1514,8 @@ srvsvc_dissect_netrfilegetinfo_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_srvsvc_file_id, NULL);
@@ -1607,9 +1552,8 @@ srvsvc_dissect_netrfileclose_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_srvsvc_file_id, NULL);
@@ -1637,9 +1581,8 @@ srvsvc_dissect_SESSION_INFO_0(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Session", hf_srvsvc_session);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Session", hf_srvsvc_session);
 
 	return offset;
 }
@@ -1690,13 +1633,11 @@ srvsvc_dissect_SESSION_INFO_1(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Session", hf_srvsvc_session);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Session", hf_srvsvc_session);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "User", hf_srvsvc_user);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "User", hf_srvsvc_user);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_srvsvc_session_num_opens, NULL);
@@ -1760,13 +1701,11 @@ srvsvc_dissect_SESSION_INFO_2(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Session", hf_srvsvc_session);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Session", hf_srvsvc_session);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "User", hf_srvsvc_user);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "User", hf_srvsvc_user);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_srvsvc_session_num_opens, NULL);
@@ -1780,9 +1719,9 @@ srvsvc_dissect_SESSION_INFO_2(tvbuff_t *tvb, int offset,
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_srvsvc_session_user_flags, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Client Type:", hf_srvsvc_client_type);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Client Type", 
+			hf_srvsvc_client_type);
 
 	return offset;
 }
@@ -1831,14 +1770,11 @@ srvsvc_dissect_SESSION_INFO_10(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Session", hf_srvsvc_session);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Session", hf_srvsvc_session);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "User",
-		hf_srvsvc_user);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "User", hf_srvsvc_user);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_srvsvc_session_time, NULL);
@@ -1897,13 +1833,11 @@ srvsvc_dissect_SESSION_INFO_502(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Session", hf_srvsvc_session);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Session", hf_srvsvc_session);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "User", hf_srvsvc_user);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "User", hf_srvsvc_user);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_srvsvc_session_num_opens, NULL);
@@ -1917,13 +1851,12 @@ srvsvc_dissect_SESSION_INFO_502(tvbuff_t *tvb, int offset,
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_srvsvc_session_user_flags, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Client Type:", hf_srvsvc_client_type);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Client Type", 
+			hf_srvsvc_client_type);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Transport:", hf_srvsvc_transport);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Transport", hf_srvsvc_transport);
 
 	return offset;
 }
@@ -2046,17 +1979,14 @@ srvsvc_dissect_netrsessionenum_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Computer", hf_srvsvc_computer);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Computer", hf_srvsvc_computer);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "User", hf_srvsvc_user);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "User", hf_srvsvc_user);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		srvsvc_dissect_SESSION_ENUM_STRUCT,
@@ -2106,17 +2036,14 @@ srvsvc_dissect_netrsessiondel_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_REF, "Computer", hf_srvsvc_computer);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "Computer", hf_srvsvc_computer);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_REF, "User", hf_srvsvc_user);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "User", hf_srvsvc_user);
 
 	return offset;
 }
@@ -2142,9 +2069,8 @@ srvsvc_dissect_SHARE_INFO_0(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Share", hf_srvsvc_share);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Share", hf_srvsvc_share);
 
 	return offset;
 }
@@ -2201,16 +2127,14 @@ srvsvc_dissect_SHARE_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 		tree = proto_item_add_subtree(item, ett_srvsvc_share_info_1);
 	}
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
-		"Share", hf_srvsvc_share);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Share", hf_srvsvc_share);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_share_type, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
-		"Comment", hf_srvsvc_comment);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Comment", hf_srvsvc_comment);
 
 	return offset;
 }
@@ -2272,16 +2196,14 @@ srvsvc_dissect_SHARE_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 		tree = proto_item_add_subtree(item, ett_srvsvc_share_info_2);
 	}
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
-		"Share", hf_srvsvc_share);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Share", hf_srvsvc_share);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_share_type, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
-		"Comment", hf_srvsvc_comment);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Comment", hf_srvsvc_comment);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_srvsvc_perm, NULL);
@@ -2292,13 +2214,12 @@ srvsvc_dissect_SHARE_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_srvsvc_cur_uses, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Path", hf_srvsvc_path);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Path", hf_srvsvc_path);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Passwd", hf_srvsvc_share_passwd);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Password", 
+			hf_srvsvc_share_passwd);
 
 	return offset;
 }
@@ -2356,16 +2277,14 @@ srvsvc_dissect_SHARE_INFO_501(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 		tree = proto_item_add_subtree(item, ett_srvsvc_share_info_501);
 	}
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
-		"Share", hf_srvsvc_share);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Share", hf_srvsvc_share);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_share_type, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
-		"Comment", hf_srvsvc_comment);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Comment", hf_srvsvc_comment);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_policy, NULL);
@@ -2433,16 +2352,14 @@ srvsvc_dissect_SHARE_INFO_502(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 		tree = proto_item_add_subtree(item, ett_srvsvc_share_info_502);
 	}
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
-		"Share", hf_srvsvc_share);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Share", hf_srvsvc_share);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_share_type, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
-		"Comment", hf_srvsvc_comment);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Comment", hf_srvsvc_comment);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_srvsvc_perm, NULL);
@@ -2453,13 +2370,12 @@ srvsvc_dissect_SHARE_INFO_502(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_srvsvc_cur_uses, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Path", hf_srvsvc_path);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Path", hf_srvsvc_path);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Passwd", hf_srvsvc_share_passwd);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Password", 
+			hf_srvsvc_share_passwd);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_srvsvc_reserved, NULL);
@@ -2510,9 +2426,8 @@ srvsvc_dissect_SHARE_INFO_502_CONTAINER(tvbuff_t *tvb, int offset,
 static int
 srvsvc_dissect_SHARE_INFO_1004(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
-		"Comment", hf_srvsvc_comment);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Comment", hf_srvsvc_comment);
 
 	return offset;
 }
@@ -2652,10 +2567,9 @@ srvsvc_dissect_SHARE_INFO_1007(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_srvsvc_share_flags, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Alternate Name",
-		hf_srvsvc_share_alternate_name);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Alternate Name", 
+			hf_srvsvc_share_alternate_name);
 
 	return offset;
 }
@@ -2833,9 +2747,8 @@ srvsvc_dissect_netrshareadd_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_info_level, 0);
@@ -2980,10 +2893,8 @@ srvsvc_dissect_netrshareenum_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_UNIQUE, "Server",
-			hf_srvsvc_server);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_ENUM_STRUCT,
@@ -3034,15 +2945,11 @@ srvsvc_dissect_netrsharegetinfo_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_UNIQUE, "Server",
-			hf_srvsvc_server);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_REF, "Share",
-			hf_srvsvc_share);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "Share", hf_srvsvc_share);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_info_level, 0);
@@ -3079,12 +2986,10 @@ srvsvc_dissect_netrsharesetinfo_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_REF, "Share", hf_srvsvc_share);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -3127,14 +3032,11 @@ srvsvc_dissect_netrsharedel_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_REF, "Share",
-			hf_srvsvc_share);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "Share", hf_srvsvc_share);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_srvsvc_reserved, NULL);
@@ -3164,14 +3066,11 @@ srvsvc_dissect_netrsharedelsticky_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_REF, "Share",
-			hf_srvsvc_share);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "Share", hf_srvsvc_share);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_srvsvc_reserved, NULL);
@@ -3201,14 +3100,11 @@ srvsvc_dissect_netrsharecheck_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_UNIQUE, "Server",
-			hf_srvsvc_server); 
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Char Device", hf_srvsvc_chrdev);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Char Device", hf_srvsvc_chrdev);
 
 	return offset;
 }
@@ -3240,10 +3136,8 @@ srvsvc_dissect_SERVER_INFO_100(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_platform_id, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_UNIQUE, "Server",
-			hf_srvsvc_server);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
 	return offset;
 }
@@ -3266,10 +3160,8 @@ srvsvc_dissect_SERVER_INFO_101(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_platform_id, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_UNIQUE, "Server",
-			hf_srvsvc_server);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_ver_major, NULL);
@@ -3280,8 +3172,7 @@ srvsvc_dissect_SERVER_INFO_101(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_server_type, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Comment", hf_srvsvc_comment);
 
 	return offset;
@@ -3312,8 +3203,7 @@ srvsvc_dissect_SERVER_INFO_102(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_platform_id, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -3325,8 +3215,7 @@ srvsvc_dissect_SERVER_INFO_102(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_server_type, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Comment", hf_srvsvc_comment);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -3347,8 +3236,7 @@ srvsvc_dissect_SERVER_INFO_102(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_licences, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "User Path", hf_srvsvc_user_path);
 
 	return offset;
@@ -3402,8 +3290,7 @@ srvsvc_dissect_SERVER_INFO_402(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_alist_mtime, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Alerts", hf_srvsvc_alerts);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -3415,8 +3302,7 @@ srvsvc_dissect_SERVER_INFO_402(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_lanmask, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Guest", hf_srvsvc_guest);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -3482,9 +3368,8 @@ srvsvc_dissect_SERVER_INFO_402(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_maxauditsz, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_UNIQUE, "Server Heuristics",
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server Heuristics", 
 			hf_srvsvc_srvheuristics);
 
 	return offset;
@@ -3541,8 +3426,7 @@ srvsvc_dissect_SERVER_INFO_403(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_alist_mtime, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Alerts", hf_srvsvc_alerts);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -3554,8 +3438,7 @@ srvsvc_dissect_SERVER_INFO_403(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_lanmask, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Guest", hf_srvsvc_guest);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -3621,9 +3504,8 @@ srvsvc_dissect_SERVER_INFO_403(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_maxauditsz, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_UNIQUE, "Server Heuristics",
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server Heuristics", 
 			hf_srvsvc_srvheuristics);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -3632,8 +3514,7 @@ srvsvc_dissect_SERVER_INFO_403(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_auditprofile, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Autopath", hf_srvsvc_autopath);
 
 	return offset;
@@ -3828,8 +3709,7 @@ srvsvc_dissect_SERVER_INFO_503(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_lmannounce, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Domain", hf_srvsvc_domain);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -4024,8 +3904,7 @@ srvsvc_dissect_SERVER_INFO_599(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_lmannounce, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Domain", hf_srvsvc_domain);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -4155,10 +4034,8 @@ srvsvc_dissect_SERVER_INFO_1005(tvbuff_t *tvb, int offset,
 				   packet_info *pinfo, proto_tree *tree,
 				   char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
-		"Comment", hf_srvsvc_comment);
-
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Comment", hf_srvsvc_comment);
 
 	return offset;
 }
@@ -5409,9 +5286,11 @@ srvsvc_dissect_netrservergetinfo_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
+	offset = dissect_ndr_pointer_cb(
+		tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+		"Server", hf_srvsvc_server, cb_str_postprocess,
+		GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_ITEM));
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_info_level, 0);
@@ -5446,10 +5325,8 @@ srvsvc_dissect_netrserversetinfo_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_UNIQUE, "Server",
-			hf_srvsvc_server);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_info_level, 0);
@@ -5556,8 +5433,7 @@ srvsvc_dissect_netrserverdiskenum_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -5684,12 +5560,10 @@ srvsvc_dissect_netrserverstatisticsget_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Service", hf_srvsvc_service);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -5761,9 +5635,9 @@ srvsvc_dissect_TRANSPORT_INFO_0(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_transport_numberofvcs, 0);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_UNIQUE, "Name", hf_srvsvc_transport_name);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Name", 
+			hf_srvsvc_transport_name);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_TRANSPORT_ADDRESS,
@@ -5772,9 +5646,8 @@ srvsvc_dissect_TRANSPORT_INFO_0(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_transport_address_len, 0);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_UNIQUE, "Network Address",
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Network Address", 
 			hf_srvsvc_transport_networkaddress);
 
 	return offset;
@@ -5828,9 +5701,9 @@ srvsvc_dissect_TRANSPORT_INFO_1(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_transport_numberofvcs, 0);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Name", hf_srvsvc_transport_name);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Name", 
+			hf_srvsvc_transport_name);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_TRANSPORT_ADDRESS,
@@ -5839,13 +5712,11 @@ srvsvc_dissect_TRANSPORT_INFO_1(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_transport_address_len, 0);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Network Address",
-		hf_srvsvc_transport_networkaddress);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Network Address", 
+			hf_srvsvc_transport_networkaddress);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Domain", hf_srvsvc_domain);
 
 	return offset;
@@ -5951,8 +5822,7 @@ srvsvc_dissect_netrservertransportadd_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -5989,8 +5859,7 @@ srvsvc_dissect_netrservertransportenum_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -6041,8 +5910,7 @@ srvsvc_dissect_netrservertransportdel_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -6137,8 +6005,7 @@ srvsvc_dissect_netrremotetod_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
 	return offset;
@@ -6171,13 +6038,11 @@ srvsvc_dissect_netrsetserverservicebits_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_pointer_UNICODE_STRING,
-		NDR_POINTER_UNIQUE, "Transport:", hf_srvsvc_transport);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Transport", hf_srvsvc_transport);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_service_bits, NULL);
@@ -6211,13 +6076,11 @@ srvsvc_dissect_netrpathtype_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_REF, "Path:", hf_srvsvc_path);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "Path", hf_srvsvc_path);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_path_flags, NULL);
@@ -6253,20 +6116,17 @@ srvsvc_dissect_netrpathcanonicalize_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_REF, "Path:", hf_srvsvc_path);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "Path", hf_srvsvc_path);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_outbuflen, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_REF, "Prefix:", hf_srvsvc_prefix);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "Prefix", hf_srvsvc_prefix);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_path_type, NULL);
@@ -6321,17 +6181,14 @@ srvsvc_dissect_netrpathcompare_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_REF, "Path 1:", hf_srvsvc_path);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "Path 1", hf_srvsvc_path);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_REF, "Path 2:", hf_srvsvc_path);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "Path 2", hf_srvsvc_path);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_path_type, NULL);
@@ -6366,13 +6223,11 @@ srvsvc_dissect_netrnamevalidate_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_REF, "Path:", hf_srvsvc_path);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "Path", hf_srvsvc_path);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_path_type, NULL);
@@ -6408,13 +6263,11 @@ srvsvc_dissect_netrnamecanonicalize_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_REF, "Path:", hf_srvsvc_path);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "Path", hf_srvsvc_path);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_outbuflen, NULL);
@@ -6469,17 +6322,14 @@ srvsvc_dissect_netrnamecompare_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_REF, "Path 1:", hf_srvsvc_path);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "Path 1", hf_srvsvc_path);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_REF, "Path 2:", hf_srvsvc_path);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "Path 2", hf_srvsvc_path);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_path_type, NULL);
@@ -6515,8 +6365,7 @@ srvsvc_dissect_netrshareenumsticky_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -6568,12 +6417,10 @@ srvsvc_dissect_netrsharedelstart_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_REF, "Share", hf_srvsvc_share);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
@@ -6640,18 +6487,14 @@ srvsvc_dissect_netrgetfilesecurity_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Share", hf_srvsvc_share);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_REF, "Path", hf_srvsvc_path);
-
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_info_level, 0);
@@ -6688,18 +6531,14 @@ srvsvc_dissect_netrsetfilesecurity_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Share", hf_srvsvc_share);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_REF, "Path", hf_srvsvc_path);
-
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_info_level, 0);
@@ -6734,8 +6573,7 @@ srvsvc_dissect_netrservertransportaddex_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -6774,18 +6612,15 @@ srvsvc_dissect_netrserversetservicebits2_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_UNIQUE, "Emulated Server",
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Emulated Server", 
 			hf_srvsvc_emulated_server);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_UNIQUE, "Transport:", hf_srvsvc_transport);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Transport", hf_srvsvc_transport);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_service_bits_of_interest, NULL);
