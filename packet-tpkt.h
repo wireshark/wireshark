@@ -35,8 +35,8 @@ gboolean is_tpkt( tvbuff_t *tvb, unsigned int* offset );
  * Dissect the TPKT header; called from the TPKT dissector, as well as
  * from dissectors such as the dissector for Q.931-over-TCP.
  *
- * Returns -1 if we didn't dissect it as a TPKT header, otherwise returns
- * the PDU length from the TPKT header.
+ * Returns -1 if TPKT isn't enabled, otherwise returns the PDU length
+ * from the TPKT header.
  *
  * Sets "*offset" to the offset following the TPKT header.
  */

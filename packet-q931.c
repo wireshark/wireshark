@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.26 2001/03/28 07:49:39 guy Exp $
+ * $Id: packet-q931.c,v 1.27 2001/03/28 08:06:06 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -2197,6 +2197,12 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			return FALSE;
 
 		lv_tpkt_len = dissect_tpkt_header( tvb, &offset, pinfo, tree );
+		if (lv_tpkt_len == -1) {
+			/*
+			 * TPKT isn't enabled.
+			 */
+			return FALSE;
+		}
 
 		/*
 		 * Check if it's an empty TPKT message (the next one might be a 
