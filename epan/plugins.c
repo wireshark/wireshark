@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.83 2004/05/21 00:39:33 guy Exp $
+ * $Id: plugins.c,v 1.84 2004/06/19 10:13:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,6 +65,7 @@
 #include "packet-giop.h"
 #include "packet-tpkt.h"
 #include "packet-tcp.h"
+#include "packet-rpc.h"
 #include "tap.h"
 #include "asn1.h"
 #include "packet-per.h"

@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.34 2004/04/16 23:16:29 guy Exp $
+ * $Id: plugin_api_list.c,v 1.35 2004/06/19 10:13:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,7 @@
 #include "packet-ber.h"
 #include "packet-tpkt.h"
 #include "packet-tcp.h"
+#include "packet-rpc.h"
 #include "tap.h"
 #include "asn1.h"
 #include "xdlc.h"
@@ -437,3 +438,43 @@ proto_item *get_ber_last_created_item(void);
 
 void report_failure(const char *msg_format, ...);
 
+void rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table,
+    int procedure_hf);
+void rpc_init_prog(int proto, guint32 prog, int ett);
+char *rpc_prog_name(guint32 prog);
+char *rpc_proc_name(guint32 prog, guint32 vers, guint32 proc);
+int rpc_prog_hf(guint32 prog, guint32 vers);
+
+unsigned int rpc_roundup(unsigned int a);
+int dissect_rpc_bool(tvbuff_t *tvb,
+ proto_tree *tree, int hfindex, int offset);
+int dissect_rpc_string(tvbuff_t *tvb,
+ proto_tree *tree, int hfindex, int offset, char **string_buffer_ret);
+int dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
+    proto_tree *tree,
+    packet_info *pinfo,
+    int hfindex,
+    gboolean fixed_length, guint32 length,
+    gboolean string_data, char **string_buffer_ret,
+    dissect_function_t *dissect_it);
+int dissect_rpc_data(tvbuff_t *tvb,
+ proto_tree *tree, int hfindex, int offset);
+int dissect_rpc_bytes(tvbuff_t *tvb,
+ proto_tree *tree, int hfindex, int offset, guint32 length,
+ gboolean string_data, char **string_buffer_ret);
+int dissect_rpc_list(tvbuff_t *tvb, packet_info *pinfo,
+ proto_tree *tree, int offset, dissect_function_t *rpc_list_dissector);
+int dissect_rpc_array(tvbuff_t *tvb, packet_info *pinfo,
+ proto_tree *tree, int offset, dissect_function_t *rpc_array_dissector,
+ int hfindex);
+int dissect_rpc_uint32(tvbuff_t *tvb,
+ proto_tree *tree, int hfindex, int offset);
+int dissect_rpc_uint64(tvbuff_t *tvb,
+ proto_tree *tree, int hfindex, int offset);
+
+int dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo,
+ proto_tree *tree, int offset, int args_id, guint32 prog, guint32 vers,
+ guint32 proc);
+int dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo,
+ proto_tree *tree, int offset, int result_id, int prog_id, int vers_id,
+ int proc_id);

@@ -143,6 +143,17 @@ dissect_per_restricted_character_string
 dissect_per_sequence
 dissect_per_sequence_of
 dissect_per_set_of
+dissect_rpc_array
+dissect_rpc_bool
+dissect_rpc_bytes
+dissect_rpc_data
+dissect_rpc_indir_call
+dissect_rpc_indir_reply
+dissect_rpc_list
+dissect_rpc_opaque_data
+dissect_rpc_string
+dissect_rpc_uint32
+dissect_rpc_uint64
 dissect_tpkt_encap
 dissect_xdlc_control
 draw_tap_listeners
@@ -420,11 +431,15 @@ report_open_failure
 report_read_failure
 reset_tap_listeners
 reset_tcp_reassembly
+rpc_init_proc_table
+rpc_init_prog
 rpc_procs                       DATA
 rpc_proc_name
+rpc_prog_hf
 rpc_progs                       DATA
 rpc_prog_hf
 rpc_prog_name
+rpc_roundup
 rtp_payload_type_vals           DATA
 set_actual_length
 set_timestamp_setting
