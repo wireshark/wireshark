@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.52 2002/04/30 08:48:27 guy Exp $
+ * $Id: netmon.c,v 1.53 2002/04/30 09:21:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -400,7 +400,7 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
 			 */
-			g_message("netmon: atmsnoop file has a %u-byte packet, too small to have even an ATM pseudo-header\n",
+			g_message("netmon: ATM file has a %u-byte packet, too small to have even an ATM pseudo-header\n",
 			    packet_size);
 			*err = WTAP_ERR_BAD_RECORD;
 			return FALSE;
@@ -623,7 +623,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	}
 	
 	if (wdh->encap == WTAP_ENCAP_ATM_SNIFFER)
-		atm_hdrsize = 6+6+2+2;
+		atm_hdrsize = sizeof (struct netmon_atm_hdr);
 	else
 		atm_hdrsize = 0;
 	switch (wdh->file_type) {
