@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.22 1999/05/12 20:44:59 deniel Exp $
+ * $Id: packet-tcp.c,v 1.23 1999/06/02 01:28:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -454,48 +454,32 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   /* Check the packet length to see if there's more data
      (it could be an ACK-only packet) */
   if (packet_max > offset) {
-    switch(MIN(th.th_sport, th.th_dport)) {
-
-    case TCP_PORT_PRINTER:
+    /* XXX - this should be handled the way UDP handles this, with a table
+       of port numbers to which stuff can be added */
+#define PORT_IS(port)	(th.th_sport == port || th.th_dport == port)
+    if (PORT_IS(TCP_PORT_PRINTER))
       dissect_lpd(pd, offset, fd, tree);
-      break;
-
-    case TCP_PORT_TELNET:
+    else if (PORT_IS(TCP_PORT_TELNET)) {
       pi.match_port = TCP_PORT_TELNET;
       dissect_telnet(pd, offset, fd, tree, payload);
-      break;
-
-    case TCP_PORT_FTPDATA:
+    } else if (PORT_IS(TCP_PORT_FTPDATA)) {
       pi.match_port = TCP_PORT_FTPDATA;
       dissect_ftpdata(pd, offset, fd, tree, payload);
-      break;
-
-    case TCP_PORT_FTP:
+    } else if (PORT_IS(TCP_PORT_FTP)) {
       pi.match_port = TCP_PORT_FTP;
       dissect_ftp(pd, offset, fd, tree, payload);
-      break;
-
-    case TCP_PORT_POP:
+    } else if (PORT_IS(TCP_PORT_POP)) {
       pi.match_port = TCP_PORT_POP;
       dissect_pop(pd, offset, fd, tree, payload);
-      break;
-	
-    case TCP_PORT_NNTP:
+    } else if (PORT_IS(TCP_PORT_NNTP)) {
       pi.match_port = TCP_PORT_NNTP;
       dissect_nntp(pd, offset, fd, tree, payload);
-      break;
-
-    case TCP_PORT_HTTP:
-    case TCP_ALT_PORT_HTTP:
-        dissect_http(pd, offset, fd, tree);
-        break;
-	
-    case TCP_PORT_NBSS:
+    } else if (PORT_IS(TCP_PORT_HTTP) || PORT_IS(TCP_ALT_PORT_HTTP))
+      dissect_http(pd, offset, fd, tree);
+    else if (PORT_IS(TCP_PORT_NBSS)) {
       pi.match_port = TCP_PORT_NBSS;
       dissect_nbss(pd, offset, fd, tree, payload);
-      break;
-
-    default:
+    } else {
         /* check existence of high level protocols */
 
         if (memcmp(&pd[offset], "GIOP",  4) == 0) {
