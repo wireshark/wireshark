@@ -1,0 +1,21 @@
+# x509if.cnf
+# X509IF conformation file
+
+# $Id: x509if.cnf,v 1.2 2004/06/03 08:35:44 guy Exp $
+
+#.MODULE_IMPORT
+
+#.EXPORTS
+
+AttributeType
+Name
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.END
+
+
