@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.16 2004/02/06 19:19:12 ulfl Exp $
+ * $Id: packet-asn1.c,v 1.17 2004/02/20 02:57:08 guy Exp $
  *
  * A plugin for:
  *
@@ -139,6 +139,10 @@ static gboolean asn1_desegment = TRUE;
 static char *asn1_filename = 0;
 static char *default_asn1_filename = 0;
 #define ASN1FILE "asn1" G_DIR_SEPARATOR_S "default.tt"
+#ifdef WIN32
+#define OLD_ASN1FILE "asn1/default.tt"
+static char *old_default_asn1_filename = 0;
+#endif
 static char *current_asn1 = 0;
 static char *asn1_pduname = 0;
 static char *current_pduname = 0;
@@ -2585,8 +2589,11 @@ read_asn1_type_table(char *filename)
 
 	f = fopen(filename, "rb");
 	if (f == 0) {
-		if (strcmp(filename, default_asn1_filename) != 0 ||
-		    errno != ENOENT)
+		if ((strcmp(filename, default_asn1_filename) != 0
+#ifdef WIN32
+		    && strcmp(filename, old_default_asn1_filename) != 0
+#endif
+		    ) || errno != ENOENT)
 			g_warning("error opening %s, %s", filename, strerror(errno));
 		return;
 	}
@@ -4679,6 +4686,9 @@ proto_register_asn1(void) {
 
   default_asn1_filename = get_datafile_path(ASN1FILE);
   asn1_filename = default_asn1_filename;
+#ifdef WIN32
+  old_default_asn1_filename = get_datafile_path(OLDASN1FILE);
+#endif
 
   prefs_register_string_preference(asn1_module, "file",
 				   "ASN.1 type table file",
