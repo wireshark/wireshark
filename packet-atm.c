@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.64 2003/03/07 03:19:50 guy Exp $
+ * $Id: packet-atm.c,v 1.65 2003/09/06 01:21:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -695,7 +695,7 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ilmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_snmp_pdu(tvb, 0, pinfo, tree, "ILMI", proto_ilmi, ett_ilmi);
+  dissect_snmp_pdu(tvb, 0, pinfo, tree, proto_ilmi, ett_ilmi, FALSE);
 }
 
 /* AAL types */

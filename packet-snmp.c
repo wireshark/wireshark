@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.112 2003/09/04 05:16:18 guy Exp $
+ * $Id: packet-snmp.c,v 1.113 2003/09/06 01:21:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,6 +54,7 @@
 #include "prefs.h"
 #include "packet-ipx.h"
 #include "packet-hpext.h"
+#include "packet-frame.h"
 
 #ifdef HAVE_SOME_SNMP
 
@@ -147,6 +148,9 @@ static gint ett_smux = -1;
 static int hf_smux_version = -1;
 static int hf_smux_pdutype = -1;
 
+/* desegmentation of SNMP-over-TCP */
+static gboolean snmp_desegment = TRUE;
+
 static dissector_handle_t snmp_handle;
 static dissector_handle_t data_handle;
 
@@ -156,6 +160,8 @@ static dissector_handle_t data_handle;
 
 #define UDP_PORT_SNMP		161
 #define UDP_PORT_SNMP_TRAP	162
+#define TCP_PORT_SNMP		161
+#define TCP_PORT_SNMP_TRAP	162
 #define TCP_PORT_SMUX		199
 
 /* Protocol version numbers */
@@ -1445,10 +1451,11 @@ dissect_snmp2u_parameters(proto_tree *tree, tvbuff_t *tvb, int offset, int lengt
 	    "contextSelector: %s", bytes_to_str(parameters, parameters_length));
 }
 
-void
+guint
 dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, char *proto_name, int proto, gint ett)
+    proto_tree *tree, int proto, gint ett, gboolean is_tcp)
 {
+	guint length_remaining;
 	ASN1_SCK asn1;
 	int start;
 	gboolean def;
@@ -1497,25 +1504,130 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int ret;
 	guint cls, con, tag;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_add_str(pinfo->cinfo, COL_PROTOCOL, proto_name);
-
-	if (tree) {
-		item = proto_tree_add_item(tree, proto, tvb, offset, -1, FALSE);
-		snmp_tree = proto_item_add_subtree(item, ett);
-	}
+	/*
+	 * This will throw an exception if we don't have any data left.
+	 * That's what we want.  (See "tcp_dissect_pdus()", which is
+	 * similar, but doesn't have to deal with ASN.1.
+	 * XXX - can we make "tcp_dissect_pdus()" provide enough
+	 * information to the "get_pdu_len" routine so that we could
+	 * have that routine deal with ASN.1, and just use
+	 * "tcp_dissect_pdus()"?)
+	 */
+	length_remaining = tvb_ensure_length_remaining(tvb, offset);
 
 	/* NOTE: we have to parse the message piece by piece, since the
 	 * capture length may be less than the message length: a 'global'
 	 * parsing is likely to fail.
 	 */
-	/* parse the SNMP header */
+
+	/*
+	 * If this is SNMP-over-TCP, we might have to do reassembly
+	 * in order to read the "Sequence Of" header.
+	 */
+	if (is_tcp && snmp_desegment && pinfo->can_desegment) {
+		/*
+		 * This is TCP, and we should, and can, do reassembly.
+		 *
+		 * Is the "Sequence Of" header split across segment
+		 * boundaries?  We requre at least 6 bytes for the
+		 * header, which allows for a 4-byte length (ASN.1
+		 * BER).
+		 */
+		if (length_remaining < 6) {
+			pinfo->desegment_offset = offset;
+			pinfo->desegment_len = 6 - length_remaining;
+
+			/*
+			 * Return 0, which means "I didn't dissect anything
+			 * because I don't have enough data - we need
+			 * to desegment".
+			 */
+			return 0;
+		}
+	}
+
+	/*
+	 * OK, try to read the "Sequence Of" header; this gets the total
+	 * length of the SNMP message.
+	 */
 	asn1_open(&asn1, tvb, offset);
 	ret = asn1_sequence_decode(&asn1, &message_length, &length);
 	if (ret != ASN1_ERR_NOERROR) {
+		if (tree) {
+			item = proto_tree_add_item(tree, proto, tvb, offset,
+			    -1, FALSE);
+			snmp_tree = proto_item_add_subtree(item, ett);
+		}
 		dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 			"message header", ret);
-		return;
+
+		/*
+		 * Return the length remaining in the tvbuff, so
+		 * if this is SNMP-over-TCP, our caller thinks there's
+		 * nothing left to dissect.
+		 */
+		return length_remaining;
+	}
+
+	/*
+	 * Add the length of the "Sequence Of" header to the message
+	 * length.
+	 */
+	message_length += length;
+	if (message_length < length) {
+		/*
+		 * The message length was probably so large that the
+		 * total length overflowed.
+		 *
+		 * Report this as an error.
+		 */
+		show_reported_bounds_error(tvb, pinfo, tree);
+
+		/*
+		 * Return the length remaining in the tvbuff, so
+		 * if this is SNMP-over-TCP, our caller thinks there's
+		 * nothing left to dissect.
+		 */
+		return length_remaining;
+	}
+
+	/*
+	 * If this is SNMP-over-TCP, we might have to do reassembly
+	 * to get all of this message.
+	 */
+	if (is_tcp && snmp_desegment && pinfo->can_desegment) {
+		/*
+		 * Yes - is the message split across segment boundaries?
+		 */
+		if (length_remaining < message_length) {
+			/*
+			 * Yes.  Tell the TCP dissector where the data
+			 * for this message starts in the data it handed
+			 * us, and how many more bytes we need, and
+			 * return.
+			 */
+			pinfo->desegment_offset = offset;
+			pinfo->desegment_len =
+			    message_length - length_remaining;
+
+			/*
+			 * Return 0, which means "I didn't dissect anything
+			 * because I don't have enough data - we need
+			 * to desegment".
+			 */
+			return 0;
+		}
+	}
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+		col_set_str(pinfo->cinfo, COL_PROTOCOL,
+		    proto_get_protocol_short_name(proto));
+	}
+
+	if (tree) {
+		item = proto_tree_add_item(tree, proto, tvb, offset,
+		    message_length, FALSE);
+		snmp_tree = proto_item_add_subtree(item, ett);
 	}
 	offset += length;
 
@@ -1523,7 +1635,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (ret != ASN1_ERR_NOERROR) {
 		dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 		    "version number", ret);
-		return;
+		return message_length;
 	}
 	if (snmp_tree) {
 		proto_tree_add_uint(snmp_tree, hf_snmp_version, tvb, offset,
@@ -1540,7 +1652,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 			    "community", ret);
-			return;
+			return message_length;
 		}
 		if (tree) {
 			commustr = g_malloc(community_length+1);
@@ -1569,7 +1681,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 				"message global header", ret);
-			return;
+			return message_length;
 		}
 		if (snmp_tree) {
 			item = proto_tree_add_text(snmp_tree, tvb, offset,
@@ -1584,7 +1696,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 			    "message id", ret);
-			return;
+			return message_length;
 		}
 		if (global_tree) {
 			proto_tree_add_text(global_tree, tvb, offset,
@@ -1595,7 +1707,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 			    "message max size", ret);
-			return;
+			return message_length;
 		}
 		if (global_tree) {
 			proto_tree_add_text(global_tree, tvb, offset,
@@ -1607,13 +1719,13 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 			    "message flags", ret);
-			return;
+			return message_length;
 		}
 		if (msgflags_length != 1) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 			    "message flags wrong length", ret);
 			g_free(msgflags);
-			return;
+			return message_length;
 		}
 		if (global_tree) {
 			item = proto_tree_add_uint_format(global_tree,
@@ -1634,7 +1746,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 			    "message security model", ret);
-			return;
+			return message_length;
 		}
 		if (global_tree) {
 			proto_tree_add_text(global_tree, tvb, offset,
@@ -1654,7 +1766,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				dissect_snmp_parse_error(tvb, offset, pinfo,
 				    snmp_tree, "Message Security Parameters",
 				    ASN1_ERR_WRONG_TYPE);
-				return;
+				return message_length;
 			}
 			if (snmp_tree) {
 				item = proto_tree_add_text(snmp_tree, tvb,
@@ -1673,7 +1785,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			if (ret != ASN1_ERR_NOERROR) {
 				dissect_snmp_parse_error(tvb, offset, pinfo,
 				    snmp_tree, "USM sequence header", ret);
-				return;
+				return message_length;
 			}
 			offset += length;
 			ret = asn1_octet_string_decode (&asn1, &aengineid,
@@ -1681,7 +1793,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			if (ret != ASN1_ERR_NOERROR) {
 				dissect_snmp_parse_error(tvb, offset, pinfo,
 				    snmp_tree, "authoritative engine id", ret);
-				return;
+				return message_length;
 			}
 			if (secur_tree) {
 				proto_tree_add_text(secur_tree, tvb, offset,
@@ -1694,7 +1806,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			if (ret != ASN1_ERR_NOERROR) {
 				dissect_snmp_parse_error(tvb, offset, pinfo,
 				    snmp_tree, "engine boots", ret);
-				return;
+				return message_length;
 			}
 			if (secur_tree) {
 				proto_tree_add_text(secur_tree, tvb,
@@ -1706,7 +1818,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			if (ret != ASN1_ERR_NOERROR) {
 				dissect_snmp_parse_error(tvb, offset, pinfo,
 				    snmp_tree,  "engine time", ret);
-				return;
+				return message_length;
 			}
 			if (secur_tree) {
 				proto_tree_add_text(secur_tree, tvb,
@@ -1719,7 +1831,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			if (ret != ASN1_ERR_NOERROR) {
 				dissect_snmp_parse_error(tvb, offset, pinfo,
 				    snmp_tree, "user name", ret);
-				return;
+				return message_length;
 			}
 			if (secur_tree) {
 				proto_tree_add_text(secur_tree, tvb, offset,
@@ -1733,7 +1845,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			if (ret != ASN1_ERR_NOERROR) {
 				dissect_snmp_parse_error(tvb, offset, pinfo,
 				    snmp_tree, "authentication parameter", ret);
-				return;
+				return message_length;
 			}
 			if (secur_tree) {
 				proto_tree_add_text(secur_tree, tvb, offset,
@@ -1747,7 +1859,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			if (ret != ASN1_ERR_NOERROR) {
 				dissect_snmp_parse_error(tvb, offset, pinfo,
 				    snmp_tree, "privacy parameter", ret);
-				return;
+				return message_length;
 			}
 			if (secur_tree) {
 				proto_tree_add_text(secur_tree, tvb, offset,
@@ -1764,7 +1876,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				dissect_snmp_parse_error(tvb, offset, pinfo,
 				    snmp_tree, "Message Security Parameters",
 				    ret);
-				return;
+				return message_length;
 			}
 			if (snmp_tree) {
 				proto_tree_add_text(snmp_tree, tvb, offset,
@@ -1783,20 +1895,20 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			if (ret != ASN1_ERR_NOERROR) {
 				dissect_snmp_parse_error(tvb, offset, pinfo,
 				    snmp_tree, "encrypted PDU header", ret);
-				return;
+				return message_length;
 			}
 			proto_tree_add_text(snmp_tree, tvb, offset, length,
 			    "Encrypted PDU (%d bytes)", length);
 			g_free(cryptpdu);
 			if (check_col(pinfo->cinfo, COL_INFO))
 				col_set_str(pinfo->cinfo, COL_INFO, "Encrypted PDU");
-			return;
+			return message_length;
 		}
 		ret = asn1_sequence_decode(&asn1, &global_length, &length);
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 				"PDU header", ret);
-			return;
+			return message_length;
 		}
 		offset += length;
 		ret = asn1_octet_string_decode (&asn1, &cengineid,
@@ -1804,7 +1916,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 			    "context engine id", ret);
-			return;
+			return message_length;
 		}
 		if (snmp_tree) {
 			proto_tree_add_text(snmp_tree, tvb, offset, length,
@@ -1818,7 +1930,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 			    "context name", ret);
-			return;
+			return message_length;
 		}
 		if (snmp_tree) {
 			proto_tree_add_text(snmp_tree, tvb, offset, length,
@@ -1831,7 +1943,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	default:
 		dissect_snmp_error(tvb, offset, pinfo, snmp_tree,
 		    "PDU for unknown version of SNMP");
-		return;
+		return message_length;
 	}
 
 	start = asn1.offset;
@@ -1840,14 +1952,15 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (ret != ASN1_ERR_NOERROR) {
 		dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 		    "PDU type", ret);
-		return;
+		return message_length;
 	}
 	if (cls != ASN1_CTX || con != ASN1_CON) {
 		dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 		    "PDU type", ASN1_ERR_WRONG_TYPE);
-		return;
+		return message_length;
 	}
 	dissect_common_pdu(tvb, offset, pinfo, snmp_tree, asn1, pdu_type, start);
+	return message_length;
 }
 
 static void
@@ -2150,7 +2263,28 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  }
 	}
 
-	dissect_snmp_pdu(tvb, 0, pinfo, tree, "SNMP", proto_snmp, ett_snmp);
+	dissect_snmp_pdu(tvb, 0, pinfo, tree, proto_snmp, ett_snmp, FALSE);
+}
+
+static void
+dissect_snmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	int offset = 0;
+	guint message_len;
+
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
+		message_len = dissect_snmp_pdu(tvb, 0, pinfo, tree,
+		    proto_snmp, ett_snmp, TRUE);
+		if (message_len == 0) {
+			/*
+			 * We don't have all the data for that message,
+			 * so we need to do desegmentation;
+			 * "dissect_snmp_pdu()" has set that up.
+			 */
+			break;
+		}
+		offset += message_len;
+	}
 }
 
 static void
@@ -2268,17 +2402,29 @@ proto_register_snmp(void)
 		"Show SNMP OID in info column",
 		"Whether the SNMP OID should be shown in the info column",
 		&display_oid);
+	prefs_register_bool_preference(snmp_module, "desegment",
+	    "Desegment all SNMP-over-TCP messages spanning multiple TCP segments",
+	    "Whether the SNMP dissector should desegment all messages "
+	    "spanning multiple TCP segments",
+	    &snmp_desegment);
 }
 
 void
 proto_reg_handoff_snmp(void)
 {
+	dissector_handle_t snmp_tcp_handle;
+
 	dissector_add("udp.port", UDP_PORT_SNMP, snmp_handle);
 	dissector_add("udp.port", UDP_PORT_SNMP_TRAP, snmp_handle);
 	dissector_add("ethertype", ETHERTYPE_SNMP, snmp_handle);
 	dissector_add("ipx.socket", IPX_SOCKET_SNMP_AGENT, snmp_handle);
 	dissector_add("ipx.socket", IPX_SOCKET_SNMP_SINK, snmp_handle);
 	dissector_add("hpext.dxsap", HPEXT_SNMP, snmp_handle);
+
+	snmp_tcp_handle = create_dissector_handle(dissect_snmp_tcp, proto_snmp);
+	dissector_add("tcp.port", TCP_PORT_SNMP, snmp_tcp_handle);
+	dissector_add("tcp.port", TCP_PORT_SNMP_TRAP, snmp_tcp_handle);
+
 	data_handle = find_dissector("data");
 }
 
