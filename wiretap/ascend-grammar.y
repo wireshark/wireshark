@@ -1,7 +1,7 @@
 %{
 /* ascend-grammar.y
  *
- * $Id: ascend-grammar.y,v 1.19 2001/07/13 00:55:57 guy Exp $
+ * $Id: ascend-grammar.y,v 1.20 2001/08/20 15:23:34 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -67,12 +67,13 @@ RECV-187:(task: B0292CA0, time: 18042251.92) 16 octets @ 800018E8
 
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "wtap-int.h"
 #include "buffer.h"
 #include "ascend.h"
