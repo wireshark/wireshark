@@ -860,7 +860,7 @@ proto_register_kink(void) {
     { &hf_kink_next_payload,
       { "Next Payload",       "kink.nextPayload", 
 	FT_UINT8,	BASE_DEC,	VALS(kink_next_payload),	0x0,
-      	"the checkSum of kink", HFILL }}
+      	"the next payload of kink", HFILL }}
 
   };
 
