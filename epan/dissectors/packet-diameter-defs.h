@@ -10,10 +10,10 @@
  * References:
  * http://www.ietf.org/rfc/rfc3588.txt
  * http://www.iana.org/assignments/radius-types
- * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-cc-03.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-nasreq-14.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-mobileip-16.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-sip-app-01.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-cc-06.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-nasreq-17.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-mobileip-20.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-sip-app-03.txt
  * http://www.ietf.org/html.charters/aaa-charter.html
  * http://www.iana.org/assignments/aaa-parameters
  */
@@ -350,9 +350,10 @@ static const value_string diameter_application_id_vals[] = {
 	{1, "Diameter NASREQ Application"},
 	{2, "Diameter Mobile IPv4 Application"},
 	{3, "Diameter Base Accounting"},
-	{16777216, "3GPP Cx"},
-	{16777217, "3GPP Sh"},
-	{16777218, "3GPP Rf/Ro"},
+	{4, "Diameter Credit-Control Application"},	/* draft-ietf-aaa-diameter-cc-06 */
+	{16777216, "3GPP Cx"},		/* 3GPP TS 29.228 and 29.229 */
+	{16777217, "3GPP Sh"},		/* 3GPP TS 29.328 and 29.329 */
+	{16777218, "3GPP Rf/Ro"},	/* 3GPP TS 32.225 */
 	{4294967295U, "Relay Application"},
 	
 	{0, NULL}
