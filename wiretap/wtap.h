@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.65 2000/03/22 07:06:59 guy Exp $
+ * $Id: wtap.h,v 1.66 2000/04/08 01:16:52 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -402,6 +402,7 @@ typedef struct wtap_dumper {
  */
 wtap* wtap_open_offline(const char *filename, int *err);
 int wtap_loop(wtap *wth, int, wtap_handler, u_char*, int*);
+int wtap_read(wtap *wth, int *err);
 
 FILE* wtap_file(wtap *wth);
 int wtap_fd(wtap *wth);
