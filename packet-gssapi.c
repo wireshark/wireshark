@@ -2,7 +2,7 @@
  * Dissector for GSS-API tokens as described in rfc2078, section 3.1
  * Copyright 2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-gssapi.c,v 1.1 2002/08/21 20:52:40 tpot Exp $
+ * $Id: packet-gssapi.c,v 1.2 2002/08/24 00:40:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -204,7 +204,7 @@ proto_register_gssapi(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_gssapi,
-		  { "GSS-API", "GSS-API", FT_NONE, BASE_NONE, NULL, 0x0, 
+		  { "GSS-API", "gss-api", FT_NONE, BASE_NONE, NULL, 0x0, 
 		    "GSS-API", HFILL }},
 	};
   
