@@ -70,6 +70,7 @@ ethereal_SOURCES = \
 	packet-ppp.c   \
 	packet-pppoe.c \
 	packet-pptp.c  \
+	packet-radius.c\
 	packet-raw.c   \
 	packet-rip.c   \
 	packet-rip.h   \
@@ -106,6 +107,8 @@ ethereal_SOURCES = \
 	util.h
 
 EXTRA_ethereal_SOURCES = \
+	dfilter-grammar.c \
+	dfilter-grammar.h \
 	packet-snmp.c	\
 	snprintf.c	\
 	snprintf.h	\

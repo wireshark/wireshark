@@ -1,3 +1,7 @@
+Overview of changes in Ethereal 0.7.0:
+* Addition of RTSP and SDP dissectors (Jason)
+* New proto_tree and display filter system (Gilbert)
+
 Overview of changes in Ethereal 0.6.3:
 * Capture dialogue window data bug-fix (Guy)
 * PPPoE (PPP over Ethernet) added (Jeff Jahr)

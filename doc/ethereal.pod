@@ -378,6 +378,8 @@ B<http://ethereal.zing.org>.
   Brad Robel-Forrest       <bradr@watchguard.com>
   Ashok Narayanan          <ashokn@cisco.com>
   Aaron Hillegass          <aaron@classmax.com>
+  Jason Lango              <jal@netapp.com>
+  Johan Feyaerts           <Johan.Feyaerts@siemens.atea.be>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

@@ -109,6 +109,10 @@ Jason Lango <jal@netapp.com> {
 	RTSP, SDP
 }
 
+Johan Feyaerts <Johan.Feyaerts@siemens.atea.be> {
+	RADIUS
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

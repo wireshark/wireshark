@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.27 1999/07/07 22:51:44 gram Exp $
+ * $Id: packet-ip.c,v 1.28 1999/07/08 04:23:03 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1066,49 +1066,16 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 void
 proto_register_ip(void)
 {
-	proto_ip = proto_register_protocol (
-		/* name */	"Internet Protocol",
-		/* abbrev */	"ip" );
+	const hf_register_info hf[] = {
+		{ "Version",		"ip.version", &hf_ip_version, FT_UINT8, NULL },
+		{ "Header Length",	"ip.hdr_len", &hf_ip_hdr_len, FT_UINT8, NULL },
+		{ "Type of Service",	"ip.tos", &hf_ip_tos, FT_UINT8, NULL },
+		{ "Precedence",		"ip.tos_precedence",
+					&hf_ip_tos_precedence, FT_VALS_UINT8, VALS(precedence_vals) },
+		{ "Destination",	"ip.dst", &hf_ip_dst, FT_IPv4, NULL },
+		{ "Source",		"ip.src", &hf_ip_src, FT_IPv4, NULL }
+	};
 
-	hf_ip_version = proto_register_field (
-		/* name */	"Version",
-		/* abbrev */	"ip.version",
-		/* ftype */	FT_UINT8,
-		/* parent */	proto_ip,
-		/* vals[] */	NULL );
-
-	hf_ip_hdr_len = proto_register_field (
-		/* name */	"Header Length",
-		/* abbrev */	"ip.hdr_len",
-		/* ftype */	FT_UINT8,
-		/* parent */	proto_ip,
-		/* vals[] */	NULL );
-
-	hf_ip_tos = proto_register_field (
-		/* name */	"Type of Service",
-		/* abbrev */	"ip.tos",
-		/* ftype */	FT_UINT8,
-		/* parent */	proto_ip,
-		/* vals[] */	NULL );
-
-	hf_ip_tos_precedence = proto_register_field (
-		/* name */	"Precedence",
-		/* abbrev */	"ip.tos_precedence",
-		/* ftype */	FT_VALS_UINT8,
-		/* parent */	proto_ip,
-		/* vals[] */	VALS(precedence_vals) );
-
-	hf_ip_dst = proto_register_field (
-		/* name */	"Destination",
-		/* abbrev */	"ip.dst",
-		/* ftype */	FT_IPv4,
-		/* parent */	proto_ip,
-		/* vals[] */	NULL );
-
-	hf_ip_src = proto_register_field (
-		/* name */	"Source",
-		/* abbrev */	"ip.src",
-		/* ftype */	FT_IPv4,
-		/* parent */	proto_ip,
-		/* vals[] */	NULL );
+	proto_ip = proto_register_protocol ("Internet Protocol", "ip");
+	proto_register_field_array(proto_ip, hf, array_length(hf));
 }

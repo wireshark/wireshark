@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.65 1999/07/07 22:51:58 gram Exp $
+ * $Id: packet.h,v 1.66 1999/07/08 04:23:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -285,6 +285,8 @@ enum {
         ETT_RSVP_ADSPEC_SUBTREE3,
 	ETT_RTSP,
 	ETT_SDP,
+	ETT_RADIUS,
+	ETT_RADIUS_AVP,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
