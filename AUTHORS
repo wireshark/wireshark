@@ -2055,6 +2055,10 @@ metatech <metatech [AT] flashmail.com> {
 	IBM WebSphere MQ protocol support
 }
 
+Brian Wheeler <Brian.Wheeler [AT] arrisi.com> {
+	DOCSIS 2.0 support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>

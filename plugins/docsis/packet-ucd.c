@@ -2,7 +2,7 @@
  * Routines for UCD Message dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-ucd.c,v 1.7 2003/12/13 03:18:38 guy Exp $
+ * $Id: packet-ucd.c,v 1.8 2004/03/17 06:55:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,7 @@
 #define UCD_FREQUENCY 2
 #define UCD_PREAMBLE 3
 #define UCD_BURST_DESCR 4
+#define UCD_BURST_DESCR5 5
 
 #define UCD_MODULATION 1
 #define UCD_DIFF_ENCODING 2
@@ -56,6 +57,13 @@
 #define UCD_GUARD_TIME 9
 #define UCD_LAST_CW_LEN 10
 #define UCD_SCRAMBLER_ONOFF 11
+#define UCD_RS_INT_DEPTH 12
+#define UCD_RS_INT_BLOCK 13
+#define UCD_PREAMBLE_TYPE 14
+#define UCD_SCMDA_SCRAMBLER_ONOFF 15
+#define UCD_SCDMA_CODES_PER_SUBFRAME 16
+#define UCD_SCDMA_FRAMER_INT_STEP_SIZE 17
+#define UCD_TCM_ENABLED 18
 
 #define IUC_REQUEST 1
 #define IUC_REQ_DATA 2
@@ -65,9 +73,9 @@
 #define IUC_LONG_DATA_GRANT 6
 #define IUC_NULL_IE 7
 #define IUC_DATA_ACK 8
-#define IUC_RESERVED9 9
-#define IUC_RESERVED10 10
-#define IUC_RESERVED11 11
+#define IUC_ADV_PHY_SHORT_DATA_GRANT 9
+#define IUC_ADV_PHY_LONG_DATA_GRANT 10
+#define IUC_ADV_PHY_UGS 11
 #define IUC_RESERVED12 12
 #define IUC_RESERVED13 13
 #define IUC_RESERVED14 14
@@ -98,58 +106,67 @@ static int hf_docsis_burst_max_burst = -1;
 static int hf_docsis_burst_guard_time = -1;
 static int hf_docsis_burst_last_cw_len = -1;
 static int hf_docsis_burst_scrambler_onoff = -1;
+static int hf_docsis_rs_int_depth = -1;
+static int hf_docsis_rs_int_block = -1;
+static int hf_docsis_preamble_type = -1;
+static int hf_docsis_scdma_scrambler_onoff = -1;
+static int hf_docsis_scdma_codes_per_subframe = -1;
+static int hf_docsis_scdma_framer_int_step_size = -1;
+static int hf_docsis_tcm_enabled = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_docsis_ucd = -1;
 static gint ett_tlv = -1;
 
 static const value_string channel_tlv_vals[] = {
-  {UCD_SYMBOL_RATE, "Symbol Rate"},
-  {UCD_FREQUENCY, "Frequency"},
-  {UCD_PREAMBLE, "Preamble Pattern"},
-  {UCD_BURST_DESCR, "Burst Descriptor"},
-  {0, NULL}
+     {UCD_SYMBOL_RATE, "Symbol Rate"},
+     {UCD_FREQUENCY, "Frequency"},
+     {UCD_PREAMBLE, "Preamble Pattern"},
+     {UCD_BURST_DESCR, "Burst Descriptor"},
+     {UCD_BURST_DESCR5, "Burst Descriptor DOCSIS 2.0"},
+     {0, NULL}
 };
 
 static const value_string on_off_vals[] = {
-  {1, "On"},
-  {2, "Off"},
-  {0, NULL}
+     {1, "On"},
+     {2, "Off"},
+     {0, NULL}
 };
 
 static const value_string mod_vals[] = {
-  {1, "QPSK"},
-  {2, "QAM16"},
-  {0, NULL}
+     {1, "QPSK"},
+     {2, "QAM16"},
+     {0, NULL}
 };
 
 value_string iuc_vals[] = {
-  {IUC_REQUEST, "Request"},
-  {IUC_REQ_DATA, "REQ/Data"},
-  {IUC_INIT_MAINT, "Initial Maintenance"},
-  {IUC_STATION_MAINT, "Station Maintenance"},
-  {IUC_SHORT_DATA_GRANT, "Short Data Grant"},
-  {IUC_LONG_DATA_GRANT, "Long Data Grant"},
-  {IUC_NULL_IE, "NULL IE"},
-  {IUC_DATA_ACK, "Data Ack"},
-  {IUC_RESERVED9, "Reserved"},
-  {IUC_RESERVED10, "Reserved"},
-  {IUC_RESERVED11, "Reserved"},
-  {IUC_RESERVED12, "Reserved"},
-  {IUC_RESERVED13, "Reserved"},
-  {IUC_RESERVED14, "Reserved"},
-  {IUC_EXPANSION, "Expanded IUC"},
-  {0, NULL}
+     {IUC_REQUEST, "Request"},
+     {IUC_REQ_DATA, "REQ/Data"},
+     {IUC_INIT_MAINT, "Initial Maintenance"},
+     {IUC_STATION_MAINT, "Station Maintenance"},
+     {IUC_SHORT_DATA_GRANT, "Short Data Grant"},
+     {IUC_LONG_DATA_GRANT, "Long Data Grant"},
+     {IUC_NULL_IE, "NULL IE"},
+     {IUC_DATA_ACK, "Data Ack"},
+     {IUC_ADV_PHY_SHORT_DATA_GRANT, "Advanced Phy Short Data Grant"},
+     {IUC_ADV_PHY_LONG_DATA_GRANT, "Advanced Phy Long Data Grant"},
+     {IUC_ADV_PHY_UGS, "Advanced Phy UGS"},
+     {IUC_RESERVED12, "Reserved"},
+     {IUC_RESERVED13, "Reserved"},
+     {IUC_RESERVED14, "Reserved"},
+     {IUC_EXPANSION, "Expanded IUC"},
+     {0, NULL}
+   
 };
 
 static const value_string last_cw_len_vals[] = {
-  {1, "Fixed"},
-  {2, "Shortened"},
-  {0, NULL}
+     {1, "Fixed"},
+     {2, "Shortened"},
+     {0, NULL}
 };
 /* Code to actually dissect the packets */
 static void
-dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+  dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   int pos, endtlvpos;
   guint8 type, length;
@@ -160,42 +177,42 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   proto_item *tlv_item;
   gint len;
   guint8 upchid, symrate;
-
+   
   len = tvb_reported_length_remaining (tvb, 0);
-  upchid = tvb_get_guint8 (tvb, 0);
-
-  /* if the upstream Channel ID is 0 then this is for Telephony Return) */
-  if (check_col (pinfo->cinfo, COL_INFO))
-    {
-      col_clear (pinfo->cinfo, COL_INFO);
-      if (upchid > 0)
-	col_add_fstr (pinfo->cinfo, COL_INFO,
-		      "UCD Message:  Channel ID = %u (U%u)", upchid,
-		      upchid - 1);
-      else
-	col_add_fstr (pinfo->cinfo, COL_INFO,
-		      "UCD Message:  Channel ID = %u (Telephony Return)",
-		      upchid);
-    }
-
-  if (tree)
-    {
-      ucd_item =
+   upchid = tvb_get_guint8 (tvb, 0);
+   
+   /* if the upstream Channel ID is 0 then this is for Telephony Return) */
+   if (check_col (pinfo->cinfo, COL_INFO))
+     {
+	col_clear (pinfo->cinfo, COL_INFO);
+	if (upchid > 0)
+	  col_add_fstr (pinfo->cinfo, COL_INFO,
+			"UCD Message:  Channel ID = %u (U%u)", upchid,
+			upchid - 1);
+	else
+	  col_add_fstr (pinfo->cinfo, COL_INFO,
+			"UCD Message:  Channel ID = %u (Telephony Return)",
+			upchid);
+     }
+   
+   if (tree)
+     {
+	ucd_item =
 	proto_tree_add_protocol_format (tree, proto_docsis_ucd, tvb, 0, -1,
 					"UCD Message");
-      ucd_tree = proto_item_add_subtree (ucd_item, ett_docsis_ucd);
-      proto_tree_add_item (ucd_tree, hf_docsis_ucd_upstream_chid, tvb, 0, 1,
-			   FALSE);
-      proto_tree_add_item (ucd_tree, hf_docsis_ucd_config_ch_cnt, tvb, 1, 1,
-			   FALSE);
-      proto_tree_add_item (ucd_tree, hf_docsis_ucd_mini_slot_size, tvb, 2, 1,
-			   FALSE);
-      proto_tree_add_item (ucd_tree, hf_docsis_ucd_down_chid, tvb, 3, 1,
-			   FALSE);
-
-      pos = 4;
-      while (pos < len)
-	{
+	ucd_tree = proto_item_add_subtree (ucd_item, ett_docsis_ucd);
+	proto_tree_add_item (ucd_tree, hf_docsis_ucd_upstream_chid, tvb, 0, 1,
+			     FALSE);
+	proto_tree_add_item (ucd_tree, hf_docsis_ucd_config_ch_cnt, tvb, 1, 1,
+			     FALSE);
+	proto_tree_add_item (ucd_tree, hf_docsis_ucd_mini_slot_size, tvb, 2, 1,
+			     FALSE);
+	proto_tree_add_item (ucd_tree, hf_docsis_ucd_down_chid, tvb, 3, 1,
+			     FALSE);
+	
+	pos = 4;
+	while (pos < len)
+	  {
 	  type = tvb_get_guint8 (tvb, pos);
 	  tlv_item = proto_tree_add_text (ucd_tree, tvb, pos, -1,
 					  "%s",
@@ -210,203 +227,443 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			       tvb, pos, 1, length);
 	  pos++;
 	  proto_item_set_len(tlv_item, length + 2);
-	  switch (type)
-	    {
-	    case UCD_SYMBOL_RATE:
-	      if (length == 1)
-		{
-		  symrate = tvb_get_guint8 (tvb, pos);
-		  proto_tree_add_uint (tlv_tree, hf_docsis_ucd_symbol_rate,
-				       tvb, pos, length, symrate * 160);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      pos = pos + length;
-	      break;
-	    case UCD_FREQUENCY:
-	      if (length == 4)
-		{
-		  proto_tree_add_item (tlv_tree, hf_docsis_ucd_frequency, tvb,
+	     switch (type)
+	       {
+		case UCD_SYMBOL_RATE:
+		  if (length == 1)
+		    {
+		       symrate = tvb_get_guint8 (tvb, pos);
+		       proto_tree_add_uint (tlv_tree, hf_docsis_ucd_symbol_rate,
+					    tvb, pos, length, symrate * 160);
+		    }
+		  else
+		    {
+		       THROW (ReportedBoundsError);
+		    }
+		  pos = pos + length;
+		  break;
+		case UCD_FREQUENCY:
+		  if (length == 4)
+		    {
+		       proto_tree_add_item (tlv_tree, hf_docsis_ucd_frequency, tvb,
+					    pos, length, FALSE);
+		       pos = pos + length;
+		    }
+		  else
+		    {
+		       THROW (ReportedBoundsError);
+		    }
+		  break;
+		case UCD_PREAMBLE:
+		  proto_tree_add_item (tlv_tree, hf_docsis_ucd_preamble_pat, tvb,
 				       pos, length, FALSE);
 		  pos = pos + length;
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case UCD_PREAMBLE:
-	      proto_tree_add_item (tlv_tree, hf_docsis_ucd_preamble_pat, tvb,
-				   pos, length, FALSE);
-	      pos = pos + length;
-	      break;
-	    case UCD_BURST_DESCR:
-	      proto_tree_add_item (tlv_tree, hf_docsis_ucd_iuc, tvb,
-				   pos++, 1, FALSE);
-	      endtlvpos = pos + length - 1;
-	      while (pos < endtlvpos)
-		{
-		  tlvtype = tvb_get_guint8 (tvb, pos++);
-		  tlvlen = tvb_get_guint8 (tvb, pos++);
-		  switch (tlvtype)
+		  break;
+		case UCD_BURST_DESCR:
+		  proto_tree_add_item (tlv_tree, hf_docsis_ucd_iuc, tvb,
+				       pos++, 1, FALSE);
+		  endtlvpos = pos + length - 1;
+		  while (pos < endtlvpos)
 		    {
-		    case UCD_MODULATION:
-		      if (tlvlen == 1)
-			{
-			  proto_tree_add_item (tlv_tree,
-					       hf_docsis_burst_mod_type, tvb,
-					       pos, tlvlen, FALSE);
-			}
-		      else
-			{
-			  THROW (ReportedBoundsError);
-			}
-		      break;
-		    case UCD_DIFF_ENCODING:
-		      if (tlvlen == 1)
-			{
-			  proto_tree_add_item (tlv_tree,
-					       hf_docsis_burst_diff_encoding,
-					       tvb, pos, tlvlen, FALSE);
-			}
-		      else
-			{
-			  THROW (ReportedBoundsError);
-			}
-		      break;
-		    case UCD_PREAMBLE_LEN:
-		      if (tlvlen == 2)
-			{
-			  proto_tree_add_item (tlv_tree,
-					       hf_docsis_burst_preamble_len,
-					       tvb, pos, tlvlen, FALSE);
-			}
-		      else
-			{
-			  THROW (ReportedBoundsError);
-			}
-		      break;
-		    case UCD_PREAMBLE_VAL_OFF:
-		      if (tlvlen == 2)
-			{
-			  proto_tree_add_item (tlv_tree,
-					       hf_docsis_burst_preamble_val_off,
-					       tvb, pos, tlvlen, FALSE);
-			}
-		      else
-			{
-			  THROW (ReportedBoundsError);
-			}
-		      break;
-		    case UCD_FEC:
-		      if (tlvlen == 1)
-			{
-			  proto_tree_add_item (tlv_tree,
-					       hf_docsis_burst_fec, tvb, pos,
-					       tlvlen, FALSE);
-			}
-		      else
-			{
-			  THROW (ReportedBoundsError);
-			}
-		      break;
-		    case UCD_FEC_CODEWORD:
-		      if (tlvlen == 1)
-			{
-			  proto_tree_add_item (tlv_tree,
-					       hf_docsis_burst_fec_codeword,
-					       tvb, pos, tlvlen, FALSE);
-			}
-		      else
-			{
-			  THROW (ReportedBoundsError);
-			}
-		      break;
-		    case UCD_SCRAMBLER_SEED:
-		      if (tlvlen == 2)
-			{
-			  proto_tree_add_item (tlv_tree,
-					       hf_docsis_burst_scrambler_seed,
-					       tvb, pos, tlvlen, FALSE);
-			}
-		      else
-			{
-			  THROW (ReportedBoundsError);
-			}
-		      break;
-		    case UCD_MAX_BURST:
-		      if (tlvlen == 1)
-			{
-			  proto_tree_add_item (tlv_tree,
-					       hf_docsis_burst_max_burst, tvb,
-					       pos, tlvlen, FALSE);
-			}
-		      else
-			{
-			  THROW (ReportedBoundsError);
-			}
-		      break;
-		    case UCD_GUARD_TIME:
-		      if (tlvlen == 1)
-			{
-			  proto_tree_add_item (tlv_tree,
-					       hf_docsis_burst_guard_time,
-					       tvb, pos, tlvlen, FALSE);
-			}
-		      else
-			{
-			  THROW (ReportedBoundsError);
-			}
-		      break;
-		    case UCD_LAST_CW_LEN:
-		      if (tlvlen == 1)
-			{
-			  proto_tree_add_item (tlv_tree,
-					       hf_docsis_burst_last_cw_len,
-					       tvb, pos, tlvlen, FALSE);
-			}
-		      else
-			{
-			  THROW (ReportedBoundsError);
-			}
-		      break;
-		    case UCD_SCRAMBLER_ONOFF:
-		      if (tlvlen == 1)
-			{
-			  proto_tree_add_item (tlv_tree,
-					       hf_docsis_burst_scrambler_onoff,
-					       tvb, pos, tlvlen, FALSE);
-			}
-		      else
-			{
-			  THROW (ReportedBoundsError);
-			}
-		      break;
-		    }		/* switch(tlvtype) */
-		  pos = pos + tlvlen;
-		}		/* while (pos < endtlvpos) */
-	      break;
-	    }			/* switch(type) */
-	}			/* while (pos < len) */
-    }				/* if (tree) */
-
+		       tlvtype = tvb_get_guint8 (tvb, pos++);
+		       tlvlen = tvb_get_guint8 (tvb, pos++);
+		       switch (tlvtype)
+			 {
+			  case UCD_MODULATION:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_mod_type, tvb,
+						      pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_DIFF_ENCODING:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_diff_encoding,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_PREAMBLE_LEN:
+			    if (tlvlen == 2)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_preamble_len,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_PREAMBLE_VAL_OFF:
+			    if (tlvlen == 2)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_preamble_val_off,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_FEC:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_fec, tvb, pos,
+						      tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_FEC_CODEWORD:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_fec_codeword,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_SCRAMBLER_SEED:
+			    if (tlvlen == 2)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_scrambler_seed,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_MAX_BURST:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_max_burst, tvb,
+						      pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_GUARD_TIME:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_guard_time,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_LAST_CW_LEN:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_last_cw_len,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_SCRAMBLER_ONOFF:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_scrambler_onoff,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			 }		/* switch(tlvtype) */
+		       pos = pos + tlvlen;
+		    }		/* while (pos < endtlvpos) */
+		  break;
+		case UCD_BURST_DESCR5:
+		  /* DOCSIS 2.0 Upstream Channel Descriptor */
+		  proto_tree_add_item (tlv_tree, hf_docsis_ucd_iuc, tvb,
+				       pos++, 1, FALSE);
+		  endtlvpos = pos + length - 1;
+		  while (pos < endtlvpos)
+		    {
+		       tlvtype = tvb_get_guint8 (tvb, pos++);
+		       tlvlen = tvb_get_guint8 (tvb, pos++);
+		       switch (tlvtype)
+			 {
+			  case UCD_MODULATION:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_mod_type, tvb,
+						      pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_DIFF_ENCODING:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_diff_encoding,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_PREAMBLE_LEN:
+			    if (tlvlen == 2)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_preamble_len,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_PREAMBLE_VAL_OFF:
+			    if (tlvlen == 2)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_preamble_val_off,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_FEC:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_fec, tvb, pos,
+						      tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_FEC_CODEWORD:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_fec_codeword,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_SCRAMBLER_SEED:
+			    if (tlvlen == 2)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_scrambler_seed,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_MAX_BURST:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_max_burst, tvb,
+						      pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_GUARD_TIME:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_guard_time,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_LAST_CW_LEN:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_last_cw_len,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_SCRAMBLER_ONOFF:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_burst_scrambler_onoff,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			    /* New cases added for DOCSIS 2.0 US Physical Burst Descriptor TLV */
+			    /* #define UCD_RS_INT_DEPTH 12
+			     *  * #define UCD_RS_INT_BLOCK 13
+			     *  * #define UCD_PREAMBLE_TYPE 14
+			     *  * #define UCD_SCMDA_SCRAMBLER_ONOFF 15
+			     *  * #define UCD_SCDMA_CODES_PER_SUBFRAME 16
+			     *  * #define UCD_SCDMA_FRAMER_INT_STEP_SIZE 17
+			     *  * #define UCD_TCM_ENABLED 18
+			     *  */
+			  case UCD_RS_INT_DEPTH:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_rs_int_depth,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_RS_INT_BLOCK:
+			    if (tlvlen == 2)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_rs_int_block,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_PREAMBLE_TYPE:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_preamble_type,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_SCMDA_SCRAMBLER_ONOFF:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_scdma_scrambler_onoff,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_SCDMA_CODES_PER_SUBFRAME:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_scdma_codes_per_subframe,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_SCDMA_FRAMER_INT_STEP_SIZE:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_scdma_framer_int_step_size,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			  case UCD_TCM_ENABLED:
+			    if (tlvlen == 1)
+			      {
+				 proto_tree_add_item (tlv_tree,
+						      hf_docsis_tcm_enabled,
+						      tvb, pos, tlvlen, FALSE);
+			      }
+			    else
+			      {
+				 THROW (ReportedBoundsError);
+			      }
+			    break;
+			 }           /* switch(tlvtype) */
+		       pos = pos + tlvlen;
+		    }               /* while (pos < endtlvpos) */
+		  break;
+	       }                   /* switch(type) */
+	  }                       /* while (pos < len) */
+     }                           /* if (tree) */
+   
 }
 
 /* Register the protocol with Ethereal */
 
 /* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
+ that calls all the protocol registration.
+ */
 
 
 void
-proto_register_docsis_ucd (void)
+  proto_register_docsis_ucd (void)
 {
-
-/* Setup list of header fields  See Section 1.6.1 for details*/
-  static hf_register_info hf[] = {
+   
+   /* Setup list of header fields  See Section 1.6.1 for details*/
+   static hf_register_info hf[] = {
     {&hf_docsis_ucd_upstream_chid,
      {"Upstream Channel ID", "docsis.ucd.upchid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -512,37 +769,72 @@ proto_register_docsis_ucd (void)
       FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x0,
       "Scrambler On/Off", HFILL}
      },
-  };
-
-/* Setup protocol subtree array */
-  static gint *ett[] = {
-    &ett_docsis_ucd,
-    &ett_tlv,
-  };
-
-/* Register the protocol name and description */
-  proto_docsis_ucd =
-    proto_register_protocol ("DOCSIS Upstream Channel Descriptor",
-			     "DOCSIS UCD", "docsis_ucd");
-
-/* Required function calls to register the header fields and subtrees used */
-  proto_register_field_array (proto_docsis_ucd, hf, array_length (hf));
-  proto_register_subtree_array (ett, array_length (ett));
-
-  register_dissector ("docsis_ucd", dissect_ucd, proto_docsis_ucd);
+    {&hf_docsis_rs_int_depth,
+     {"12 RS Interleaver Depth", "docsis.ucd.burst.rsintdepth",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "R-S Interleaver Depth", HFILL}
+    },
+    {&hf_docsis_rs_int_block,
+     {"13 RS Interleaver Block Size", "docsis.ucd.burst.rsintblock",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "R-S Interleaver Block", HFILL}
+    },
+    {&hf_docsis_preamble_type,
+     {"14 Preamble Type", "docsis.ucd.burst.preambletype",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Preamble Type", HFILL}
+    },
+    {&hf_docsis_scdma_scrambler_onoff,
+     {"15 SCDMA Scrambler On/Off", "docsis.ucd.burst.scdmascrambleronoff",
+      FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x0,
+      "SCDMA Scrambler On/Off", HFILL}
+    },
+    {&hf_docsis_scdma_codes_per_subframe,
+     {"16 SCDMA Codes per Subframe", "docsis.ucd.burst.scdmacodespersubframe",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "SCDMA Codes per Subframe", HFILL}
+    },
+    {&hf_docsis_scdma_framer_int_step_size,
+     {"17 SDMA Framer Int Step Size", "docsis.ucd.burst.scdmaframerintstepsize",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "SCDMA Framer Interleaving Step Size", HFILL}
+    },
+    {&hf_docsis_tcm_enabled,
+     {"18 TCM Enable", "docsis.ucd.burst.tcmenabled",
+      FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x0,
+      "TCM Enabled", HFILL}
+    },
+   };
+   
+   /* Setup protocol subtree array */
+   static gint *ett[] = {
+      &ett_docsis_ucd,
+	&ett_tlv,
+   };
+   
+   /* Register the protocol name and description */
+   proto_docsis_ucd =
+     proto_register_protocol ("DOCSIS Upstream Channel Descriptor",
+			      "DOCSIS UCD", "docsis_ucd");
+   
+   /* Required function calls to register the header fields and subtrees used */
+   proto_register_field_array (proto_docsis_ucd, hf, array_length (hf));
+   proto_register_subtree_array (ett, array_length (ett));
+   
+   register_dissector ("docsis_ucd", dissect_ucd, proto_docsis_ucd);
 }
 
 
 /* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
+ This format is required because a script is used to find these routines and
+ create the code that calls these routines.
+ */
 void
-proto_reg_handoff_docsis_ucd (void)
+  proto_reg_handoff_docsis_ucd (void)
 {
-  dissector_handle_t docsis_ucd_handle;
-
-  docsis_ucd_handle = find_dissector ("docsis_ucd");
-  dissector_add ("docsis_mgmt", 0x02, docsis_ucd_handle);
-
+   dissector_handle_t docsis_ucd_handle;
+   
+   docsis_ucd_handle = find_dissector ("docsis_ucd");
+   dissector_add ("docsis_mgmt", 0x02, docsis_ucd_handle);
+   
 }

@@ -2,7 +2,7 @@
  * Routines for docsis dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-docsis.c,v 1.18 2004/02/05 08:16:01 guy Exp $
+ * $Id: packet-docsis.c,v 1.19 2004/03/17 06:55:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -796,9 +796,12 @@ plugin_reg_handoff (void)
   proto_reg_handoff_docsis_dsdreq ();
   proto_reg_handoff_docsis_regrsp ();
   proto_reg_handoff_docsis_ucd ();
+  proto_reg_handoff_docsis_type29ucd ();
   proto_reg_handoff_docsis_dsareq ();
   proto_reg_handoff_docsis_dsdrsp ();
   proto_reg_handoff_docsis_vsif ();
+  proto_reg_handoff_docsis_intrngreq ();
+
 }
 
 G_MODULE_EXPORT void
@@ -833,10 +836,12 @@ plugin_init (plugin_address_table_t * pat
       proto_register_docsis_dsdreq ();
       proto_register_docsis_regrsp ();
       proto_register_docsis_ucd ();
+      proto_register_docsis_type29ucd ();
       proto_register_docsis_dsareq ();
       proto_register_docsis_dsdrsp ();
       proto_register_docsis_rngreq ();
       proto_register_docsis_vsif ();
+      proto_register_docsis_intrngreq (); 
 
     }
 }

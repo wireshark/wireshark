@@ -1,8 +1,8 @@
-/* packet-rngreq.c
- * Routines for Ranging Request Message dissection
- * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
+/* packet-intrngreq.c
+ * Routines for Intial Ranging Request Message dissection
+ * Copyright 2003, Brian Wheeler <brian.wheeler[AT]arrisi.com>
  *
- * $Id: packet-rngreq.c,v 1.7 2004/03/17 06:55:03 guy Exp $
+ * $Id: packet-intrngreq.c,v 1.1 2004/03/17 06:55:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,22 +42,22 @@
 
 
 /* Initialize the protocol and registered fields */
-static int proto_docsis_rngreq = -1;
-static int hf_docsis_rngreq = -1;
-static int hf_docsis_rngreq_down_chid = -1;
-static int hf_docsis_rngreq_sid = -1;
-static int hf_docsis_rngreq_pend_compl = -1;
+static int proto_docsis_intrngreq = -1;
+static int hf_docsis_intrngreq = -1;
+static int hf_docsis_intrngreq_down_chid = -1;
+static int hf_docsis_intrngreq_sid = -1;
+static int hf_docsis_intrngreq_up_chid = -1;
 
 
 /* Initialize the subtree pointers */
-static gint ett_docsis_rngreq = -1;
+static gint ett_docsis_intrngreq = -1;
 
 /* Code to actually dissect the packets */
 static void
-dissect_rngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+dissect_intrngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  proto_item *it;
-  proto_tree *rngreq_tree;
+  proto_item *intrngreq_item;
+  proto_tree *intrngreq_tree;
   guint16 sid;
 
   sid = tvb_get_ntohs (tvb, 0);
@@ -65,25 +65,21 @@ dissect_rngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   if (check_col (pinfo->cinfo, COL_INFO))
     {
       col_clear (pinfo->cinfo, COL_INFO);
-      if (sid > 0)
-	col_add_fstr (pinfo->cinfo, COL_INFO, "Ranging Request: SID = %u",
-		      sid);
-      else
-	col_add_str (pinfo->cinfo, COL_INFO,
-		     "Initial Ranging Request SID = 0");
+      col_add_fstr (pinfo->cinfo, COL_INFO, "Ranging Request: SID = %u",sid);
     }
 
   if (tree)
     {
-      it =
-	proto_tree_add_protocol_format (tree, proto_docsis_rngreq, tvb, 0, -1,
-					"Ranging Request");
-      rngreq_tree = proto_item_add_subtree (it, ett_docsis_rngreq);
-      proto_tree_add_item (rngreq_tree, hf_docsis_rngreq_sid, tvb, 0, 2,
+      intrngreq_item =
+	proto_tree_add_protocol_format (tree, proto_docsis_intrngreq, tvb, 0,
+					tvb_length_remaining (tvb, 0),
+					"Initial Ranging Request");
+      intrngreq_tree = proto_item_add_subtree (intrngreq_item, ett_docsis_intrngreq);
+      proto_tree_add_item (intrngreq_tree, hf_docsis_intrngreq_sid, tvb, 0, 2,
 			   FALSE);
-      proto_tree_add_item (rngreq_tree, hf_docsis_rngreq_down_chid, tvb, 2, 1,
+      proto_tree_add_item (intrngreq_tree, hf_docsis_intrngreq_down_chid, tvb, 2, 1,
 			   FALSE);
-      proto_tree_add_item (rngreq_tree, hf_docsis_rngreq_pend_compl, tvb, 3,
+      proto_tree_add_item (intrngreq_tree, hf_docsis_intrngreq_up_chid, tvb, 3,
 			   1, FALSE);
     }
 
@@ -101,28 +97,28 @@ dissect_rngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
 void
-proto_register_docsis_rngreq (void)
+proto_register_docsis_intrngreq (void)
 {
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
-    {&hf_docsis_rngreq,
-     {"RNG-REQ Message", "docsis.rngreq",
+    {&hf_docsis_intrngreq,
+     {"RNG-REQ Message", "docsis.intrngreq",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "Ranging Request Message", HFILL}
      },
-    {&hf_docsis_rngreq_sid,
-     {"Service Identifier", "docsis.rngreq.sid",
+    {&hf_docsis_intrngreq_sid,
+     {"Service Identifier", "docsis.intrngreq.sid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Service Identifier", HFILL}
      },
-    {&hf_docsis_rngreq_down_chid,
-     {"Downstream Channel ID", "docsis.rngreq.downchid",
+    {&hf_docsis_intrngreq_down_chid,
+     {"Downstream Channel ID", "docsis.intrngreq.downchid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Downstream Channel ID", HFILL}
      },
-    {&hf_docsis_rngreq_pend_compl,
-     {"Pending Till Complete", "docsis.rngreq.pendcomp",
+    {&hf_docsis_intrngreq_up_chid,
+     {"Upstream Channel ID", "docsis.intrngreq.upchid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Upstream Channel ID", HFILL}
      },
@@ -131,19 +127,19 @@ proto_register_docsis_rngreq (void)
 
 /* Setup protocol subtree array */
   static gint *ett[] = {
-    &ett_docsis_rngreq,
+    &ett_docsis_intrngreq,
   };
 
 /* Register the protocol name and description */
-  proto_docsis_rngreq = proto_register_protocol ("DOCSIS Range Request Message",
-						 "DOCSIS RNG-REQ",
-						 "docsis_rngreq");
+  proto_docsis_intrngreq = proto_register_protocol ("DOCSIS Initial Ranging Message",
+						 "DOCSIS INT-RNG-REQ",
+						 "docsis_intrngreq");
 
 /* Required function calls to register the header fields and subtrees used */
-  proto_register_field_array (proto_docsis_rngreq, hf, array_length (hf));
+  proto_register_field_array (proto_docsis_intrngreq, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_rngreq", dissect_rngreq, proto_docsis_rngreq);
+  register_dissector ("docsis_intrngreq", dissect_intrngreq, proto_docsis_intrngreq);
 }
 
 
@@ -152,11 +148,11 @@ proto_register_docsis_rngreq (void)
    create the code that calls these routines.
 */
 void
-proto_reg_handoff_docsis_rngreq (void)
+proto_reg_handoff_docsis_intrngreq (void)
 {
-  dissector_handle_t docsis_rngreq_handle;
+  dissector_handle_t docsis_intrngreq_handle;
 
-  docsis_rngreq_handle = find_dissector ("docsis_rngreq");
-  dissector_add ("docsis_mgmt", 0x04, docsis_rngreq_handle);
+  docsis_intrngreq_handle = find_dissector ("docsis_intrngreq");
+  dissector_add ("docsis_mgmt", 0x1E, docsis_intrngreq_handle);
 
 }

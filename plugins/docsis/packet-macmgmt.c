@@ -2,7 +2,7 @@
  * Routines for docsis Mac Management Header dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-macmgmt.c,v 1.5 2003/05/28 14:52:52 gerald Exp $
+ * $Id: packet-macmgmt.c,v 1.6 2004/03/17 06:55:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,6 +68,7 @@
 #define MGT_DCI_REQ 26
 #define MGT_DCI_RSP 27
 #define MGT_UP_DIS 28
+#define MGT_TYPE29UCD 29
 
 
 /* Initialize the protocol and registered fields */
@@ -94,6 +95,7 @@ static gint ett_mgmt_pay = -1;
 static const value_string mgmt_type_vals[] = {
   {MGT_SYNC, "Timing Synchronisation"},
   {MGT_UCD, "Upstream Channel Descriptor"},
+  {MGT_TYPE29UCD, "Upstream Channel Descriptor Type 29"},
   {MGT_MAP, "Upstream Bandwidth Allocation"},
   {MGT_RNG_REQ, "Ranging Request"},
   {MGT_RNG_RSP, "Ranging Response"},

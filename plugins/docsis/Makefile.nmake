@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.7 2003/11/06 09:05:12 guy Exp $
+# $Id: Makefile.nmake,v 1.8 2004/03/17 06:55:02 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -9,7 +9,8 @@ include ..\..\config.nmake
 CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
-OBJECTS=packet-docsis.obj packet-bpkmattr.obj \
+OBJECTS=packet-intrngreq.obj packet-type29ucd.obj \
+	packet-docsis.obj packet-bpkmattr.obj \
 	packet-dsarsp.obj packet-macmgmt.obj \
 	packet-rngrsp.obj packet-bpkmreq.obj \
 	packet-dscack.obj packet-map.obj \
