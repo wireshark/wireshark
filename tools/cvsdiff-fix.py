@@ -6,7 +6,7 @@
 # recursive diff, and unflattens it so that it can be
 # applied correctly with "patch".
 #
-# $Id: cvsdiff-fix.py,v 1.2 2001/11/13 23:55:41 gram Exp $
+# $Id: cvsdiff-fix.py,v 1.3 2003/06/11 14:48:27 gram Exp $
 #
 # Copyright (C) 2001 by Gilbert Ramirez <gram@alumni.rice.edu>
 #  
@@ -90,6 +90,10 @@ for line in input.readlines():
 			state = 2
 	
 	elif state == 2:
+		if line.find("Binary files") == 0:
+			state = 0
+			continue
+
 		match = re_from.search(line)
 		if match:
 			new_line = "--- %s\\g<after>" % (pathname)
