@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.78 2004/01/19 20:10:35 jmayer Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.79 2004/05/15 10:05:09 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1009,6 +1009,355 @@ int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset,
 		cb_wstr_postprocess, GINT_TO_POINTER(levels + 1));
 }
 
+/* SID dissection routines */
+
+static int hf_nt_count= -1;
+
+int
+dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+		   proto_tree *tree, guint8 *drep, int hf_sid)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	char *sid_str;
+	char *name;
+
+	if(di->hf_index!=-1){
+		name=proto_registrar_get_name(di->hf_index);
+	} else {
+		name="Domain";
+	}
+	if(di->conformant_run){
+		/* just a run to handle conformant arrays, no scalars to dissect */
+		return offset;
+	}
+
+	/* the SID contains a conformant array, first we must eat
+	   the 4-byte max_count before we can hand it off */
+
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+			hf_nt_count, NULL);
+
+	offset = dissect_nt_sid(tvb, offset, tree, name, &sid_str, hf_sid);
+
+	/* dcv can be null, for example when this ndr structure is embedded
+	 * inside non-dcerpc pdus, i.e. kerberos PAC structure
+	 */
+	if(dcv){
+		dcv->private_data = sid_str;
+	}
+
+	return offset;
+}
+
+static int
+dissect_ndr_nt_SID_hf_through_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+		   proto_tree *tree, guint8 *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+
+	offset = dissect_ndr_nt_SID(tvb, offset, pinfo, tree, drep, di->hf_index);
+	return offset;
+}
+
+static gint ett_nt_sid_pointer = -1;
+
+int
+dissect_ndr_nt_PSID(tvbuff_t *tvb, int offset,
+		    packet_info *pinfo, proto_tree *parent_tree,
+		    guint8 *drep, int hf_sid)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"SID pointer:");
+		tree = proto_item_add_subtree(item, ett_nt_sid_pointer);
+	}
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			dissect_ndr_nt_SID_hf_through_ptr, NDR_POINTER_UNIQUE,
+			"SID pointer", hf_sid);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static const true_false_string tfs_nt_acb_disabled = {
+	"Account is DISABLED",
+	"Account is NOT disabled"
+};
+static const true_false_string tfs_nt_acb_homedirreq = {
+	"Homedir is REQUIRED",
+	"Homedir is NOT required"
+};
+static const true_false_string tfs_nt_acb_pwnotreq = {
+	"Password is NOT required",
+	"Password is REQUIRED"
+};
+static const true_false_string tfs_nt_acb_tempdup = {
+	"This is a TEMPORARY DUPLICATE account",
+	"This is NOT a temporary duplicate account"
+};
+static const true_false_string tfs_nt_acb_normal = {
+	"This is a NORMAL USER account",
+	"This is NOT a normal user account"
+};
+static const true_false_string tfs_nt_acb_mns = {
+	"This is a MNS account",
+	"This is NOT a mns account"
+};
+static const true_false_string tfs_nt_acb_domtrust = {
+	"This is a DOMAIN TRUST account",
+	"This is NOT a domain trust account"
+};
+static const true_false_string tfs_nt_acb_wstrust = {
+	"This is a WORKSTATION TRUST account",
+	"This is NOT a workstation trust account"
+};
+static const true_false_string tfs_nt_acb_svrtrust = {
+	"This is a SERVER TRUST account",
+	"This is NOT a server trust account"
+};
+static const true_false_string tfs_nt_acb_pwnoexp = {
+	"Passwords does NOT expire",
+	"Password will EXPIRE"
+};
+static const true_false_string tfs_nt_acb_autolock = {
+	"This account has been AUTO LOCKED",
+	"This account has NOT been auto locked"
+};
+
+static gint ett_nt_acct_ctrl = -1;
+
+static int hf_nt_acct_ctrl = -1;
+static int hf_nt_acb_disabled = -1;
+static int hf_nt_acb_homedirreq = -1;
+static int hf_nt_acb_pwnotreq = -1;
+static int hf_nt_acb_tempdup = -1;
+static int hf_nt_acb_normal = -1;
+static int hf_nt_acb_mns = -1;
+static int hf_nt_acb_domtrust = -1;
+static int hf_nt_acb_wstrust = -1;
+static int hf_nt_acb_svrtrust = -1;
+static int hf_nt_acb_pwnoexp = -1;
+static int hf_nt_acb_autolock = -1;
+
+int
+dissect_ndr_nt_acct_ctrl(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			proto_tree *parent_tree, guint8 *drep)
+{
+	guint32 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
+			hf_nt_acct_ctrl, &mask);
+
+	if(parent_tree){
+		item = proto_tree_add_uint(parent_tree, hf_nt_acct_ctrl,
+			tvb, offset-4, 4, mask);
+		tree = proto_item_add_subtree(item, ett_nt_acct_ctrl);
+	}
+
+	proto_tree_add_boolean(tree, hf_nt_acb_autolock,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_nt_acb_pwnoexp,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_nt_acb_svrtrust,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_nt_acb_wstrust,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_nt_acb_domtrust,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_nt_acb_mns,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_nt_acb_normal,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_nt_acb_tempdup,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_nt_acb_pwnotreq,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_nt_acb_homedirreq,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_nt_acb_disabled,
+		tvb, offset-4, 4, mask);
+
+	return offset;
+}
+
+static int hf_logonhours_unknown_char;
+
+static int
+dissect_LOGON_HOURS_entry(tvbuff_t *tvb, int offset,
+			  packet_info *pinfo, proto_tree *tree,
+			  guint8 *drep)
+{
+	offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep,
+			hf_logonhours_unknown_char, NULL);
+	return offset;
+}
+
+static gint ett_nt_logon_hours_hours = -1;
+
+static int
+dissect_LOGON_HOURS_hours(tvbuff_t *tvb, int offset,
+			  packet_info *pinfo, proto_tree *parent_tree,
+			  guint8 *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"LOGON_HOURS:");
+		tree = proto_item_add_subtree(item, ett_nt_logon_hours_hours);
+	}
+
+	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, drep,
+			dissect_LOGON_HOURS_entry);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+
+	return offset;
+}
+
+static gint ett_nt_logon_hours = -1;
+static int hf_logonhours_divisions = -1;
+
+int
+dissect_ndr_nt_LOGON_HOURS(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *parent_tree,
+			guint8 *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	ALIGN_TO_4_BYTES;  /* strcture starts with short, but is aligned for longs */
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"LOGON_HOURS:");
+		tree = proto_item_add_subtree(item, ett_nt_logon_hours);
+	}
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+				hf_logonhours_divisions, NULL);
+	/* XXX - is this a bitmask like the "logon hours" field in the
+	   Remote API call "NetUserGetInfo()" with an information level
+	   of 11? */
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			dissect_LOGON_HOURS_hours, NDR_POINTER_UNIQUE,
+			"LOGON_HOURS", -1);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+dissect_ndr_nt_PSID_no_hf(tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *parent_tree,
+                             guint8 *drep)
+{
+	offset=dissect_ndr_nt_PSID(tvb, offset, pinfo, parent_tree, drep, -1);
+	return offset;
+}
+
+static int
+dissect_ndr_nt_PSID_ARRAY_sids (tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
+                             guint8 *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			dissect_ndr_nt_PSID_no_hf);
+
+	return offset;
+}
+
+static gint ett_nt_sid_array = -1;
+
+int
+dissect_ndr_nt_PSID_ARRAY(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *parent_tree,
+			guint8 *drep)
+{
+	guint32 count;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"SID array:");
+		tree = proto_item_add_subtree(item, ett_nt_sid_array);
+	}
+
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+			hf_nt_count, &count);
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			dissect_ndr_nt_PSID_ARRAY_sids, NDR_POINTER_UNIQUE,
+			"PSID_ARRAY", -1);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static gint ett_nt_sid_and_attributes = -1;
+static int hf_nt_attrib = -1;
+
+int
+dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *parent_tree,
+			guint8 *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+			"SID_AND_ATTRIBUTES:");
+		tree = proto_item_add_subtree(item, ett_nt_sid_and_attributes);
+	}
+
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep, -1);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_nt_attrib, NULL);
+
+	return offset;
+}
+
+static gint ett_nt_sid_and_attributes_array = -1;
+
+int
+dissect_ndr_nt_SID_AND_ATTRIBUTES_ARRAY(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *parent_tree,
+			guint8 *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+			"SID_AND_ATTRIBUTES array:");
+		tree = proto_item_add_subtree(item, ett_nt_sid_and_attributes_array);
+	}
+
+	/*offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	  hf_samr_count, &count); */
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			dissect_ndr_nt_SID_AND_ATTRIBUTES);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
 /*
  * Register ett/hf values and perform DCERPC over SMB specific
  * initialisation.
@@ -1040,6 +1389,93 @@ void dcerpc_smb_init(int proto_dcerpc)
 		  { "Frame handle closed", "dcerpc.nt.close_frame",
 		    FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		    "Frame handle closed", HFILL }},
+
+		/* ACBs */
+
+		{ &hf_nt_acct_ctrl,
+		  { "Acct Ctrl", "nt.acct_ctrl", FT_UINT32, BASE_HEX,
+		    NULL, 0x0, "Acct CTRL", HFILL }},
+
+		{ &hf_nt_acb_disabled, 
+		  { "", "nt.acb.disabled", FT_BOOLEAN, 32, 
+		    TFS(&tfs_nt_acb_disabled), 0x0001, 
+		    "If this account is enabled or disabled", HFILL }},
+
+		{ &hf_nt_acb_homedirreq, 
+		  { "", "nt.acb.homedirreq", FT_BOOLEAN, 32,
+		    TFS(&tfs_nt_acb_homedirreq), 0x0002, 
+		    "Is hom,edirs required for this account?", HFILL }},
+
+		{ &hf_nt_acb_pwnotreq, 
+		  { "", "nt.acb.pwnotreq", FT_BOOLEAN, 32, 
+		    TFS(&tfs_nt_acb_pwnotreq), 0x0004, 
+		    "If a password is required for this account?", HFILL }},
+
+		{ &hf_nt_acb_tempdup, 
+		  { "", "nt.acb.tempdup", FT_BOOLEAN, 32, 
+		    TFS(&tfs_nt_acb_tempdup), 0x0008, 
+		    "If this is a temporary duplicate account", HFILL }},
+
+		{ &hf_nt_acb_normal, 
+		  { "", "nt.acb.normal", FT_BOOLEAN, 32, 
+		    TFS(&tfs_nt_acb_normal), 0x0010, 
+		    "If this is a normal user account", HFILL }},
+
+		{ &hf_nt_acb_mns, 
+		  { "", "nt.acb.mns", FT_BOOLEAN, 32,
+		    TFS(&tfs_nt_acb_mns), 0x0020, 
+		    "MNS logon user account", HFILL }},
+
+		{ &hf_nt_acb_domtrust, 
+		  { "", "nt.acb.domtrust", FT_BOOLEAN, 32,
+		    TFS(&tfs_nt_acb_domtrust), 0x0040, 
+		    "Interdomain trust account", HFILL }},
+		
+		{ &hf_nt_acb_wstrust, 
+		  { "", "nt.acb.wstrust", FT_BOOLEAN, 32,
+		    TFS(&tfs_nt_acb_wstrust), 0x0080, 
+		    "Workstation trust account", HFILL }},
+		
+		{ &hf_nt_acb_svrtrust, 
+		  { "", "nt.acb.svrtrust", FT_BOOLEAN, 32,
+		    TFS(&tfs_nt_acb_svrtrust), 0x0100, 
+		    "Server trust account", HFILL }},
+
+		{ &hf_nt_acb_pwnoexp, 
+		  { "", "nt.acb.pwnoexp", FT_BOOLEAN, 32,
+		    TFS(&tfs_nt_acb_pwnoexp), 0x0200, 
+		    "If this account expires or not", HFILL }},
+
+		{ &hf_nt_acb_autolock, 
+		  { "", "nt.acb.autolock", FT_BOOLEAN, 32,
+		    TFS(&tfs_nt_acb_autolock), 0x0400, 
+		    "If this account has been autolocked", HFILL }},
+
+		/* SIDs */
+
+		{ &hf_nt_count,
+		  { "Count", "nt.count", 
+		    FT_UINT32, BASE_DEC, NULL, 0x0, 
+		    "Number of elements in following array", HFILL }},
+
+		/* Logon hours */
+
+		{ &hf_logonhours_divisions, 
+		  { "Divisions", "logonhours.divisions", 
+		    FT_UINT16, BASE_DEC, NULL, 0, 
+		    "Number of divisions for LOGON_HOURS", HFILL }},
+
+		{ &hf_logonhours_unknown_char, 
+		  { "Unknown char", "nt.unknown.char", 
+		    FT_UINT8, BASE_HEX, NULL, 0x0, 
+		    "Unknown char. If you know what this is, contact "
+		    "ethereal developers.", HFILL }},
+
+		/* Misc */
+
+                { &hf_nt_attrib, 
+		  { "Attributes", "nt.attr", 
+		    FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -1047,6 +1483,13 @@ void dcerpc_smb_init(int proto_dcerpc)
 		&ett_nt_counted_string,
 		&ett_nt_counted_byte_array,
 		&ett_nt_policy_hnd,
+                &ett_nt_sid_pointer,
+                &ett_nt_acct_ctrl,
+                &ett_nt_logon_hours,
+                &ett_nt_logon_hours_hours,
+                &ett_nt_sid_array,
+                &ett_nt_sid_and_attributes_array,
+                &ett_nt_sid_and_attributes,
 	};
 
 	/* Register ett's and hf's */
