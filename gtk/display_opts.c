@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.3 2000/05/08 01:11:46 guy Exp $
+ * $Id: display_opts.c,v 1.4 2000/05/08 01:23:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,6 +62,7 @@
 #include "packet.h"
 #include "file.h"
 #include "display_opts.h"
+#include "dlg_utils.h"
 
 extern capture_file  cf;
 extern GtkWidget *packet_list;
@@ -188,6 +189,11 @@ display_opt_cb(GtkWidget *w, gpointer d) {
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);
+
+  /* Catch the "key_press_event" signal in the window, so that we can catch
+     the ESC key being pressed and act as if the "Cancel" button had
+     been selected. */
+  dlg_set_cancel(display_opt_w, cancel_bt);
 
   display_opt_window_active = TRUE;
   gtk_widget_show(display_opt_w);
