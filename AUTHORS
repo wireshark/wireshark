@@ -500,4 +500,4 @@ display routine.
 We use the exception module from Kazlib, a C library written by
 Kaz Kylheku <kaz@ashi.footprints.net>. Thanks goes to him for his
 well-written library. The Kazlib home page can be found at
-http://users.footprint.net/~kaz/kazlib.html
+http://users.footprints.net/~kaz/kazlib.html
