@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.17 2002/03/15 08:59:52 sahlberg Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.18 2002/03/15 20:46:04 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -382,7 +382,8 @@ int prs_policy_hnd(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = prs_align(offset, 4);
 
-	proto_tree_add_text(tree, tvb, offset, 20, "Policy Handle");
+	proto_tree_add_text(tree, tvb, offset, 20, "Policy Handle: %s", 
+                tvb_bytes_to_str(tvb, offset, 20));
 
 	data8 = tvb_get_ptr(tvb, offset, 20);
 	
