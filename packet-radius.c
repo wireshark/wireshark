@@ -5,7 +5,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.75 2003/02/12 00:44:02 guy Exp $
+ * $Id: packet-radius.c,v 1.76 2003/02/13 02:47:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2728,7 +2728,7 @@ static gchar *rd_value_to_str_2(gchar *dest, const e_avphdr *avph, tvbuff_t *tvb
 
         case( RADIUS_TIMESTAMP ):
 		timeval=tvb_get_ntohl(tvb,offset+2);
-		sprintf(cont,"%d (%s)", timeval, abs_time_secs_to_str(timeval));
+		sprintf(cont,"%ld (%s)", (long)timeval, abs_time_secs_to_str(timeval));
 		break;
         case( RADIUS_INTEGER4_TAGGED ):
 		intval = tvb_get_ntohl(tvb,offset+2);
