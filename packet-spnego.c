@@ -5,7 +5,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-spnego.c,v 1.47 2003/05/25 00:36:30 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.48 2003/05/25 00:59:15 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -93,6 +93,7 @@ static gint ett_spnego_mechlistmic = -1;
 static gint ett_spnego_responsetoken = -1;
 static gint ett_spnego_wraptoken = -1;
 static gint ett_spnego_krb5 = -1;
+static gint ett_spnego_reqflags = -1;
 
 static const value_string spnego_negResult_vals[] = {
   { SPNEGO_negResult_accept_completed,   "Accept Completed" },
@@ -661,8 +662,10 @@ dissect_spnego_reqFlags(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			proto_tree *tree, ASN1_SCK *hnd)
 {
 	gboolean def;
-	guint len1, cls, con, tag;
+	guint len1, cls, con, tag, flags;
 	int ret;
+        proto_item *item;
+        proto_tree *subtree;
 
  	ret = asn1_header_decode(hnd, &cls, &con, &tag, &def, &len1);
 
@@ -684,8 +687,24 @@ dissect_spnego_reqFlags(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	offset = hnd->offset;
 
-	proto_tree_add_item(tree, hf_spnego_reqflags, tvb, offset, len1,
-			    FALSE);
+        flags = tvb_get_guint8(tvb, offset);
+
+	item = proto_tree_add_item(tree, hf_spnego_reqflags, tvb, offset, len1,
+            FALSE);
+
+        subtree = proto_item_add_subtree(item, ett_spnego_reqflags);
+
+        /*
+         * Now, the bits. XXX: Assume 8 bits. FIXME.
+         */
+
+        proto_tree_add_boolean(subtree, hf_gssapi_reqflags_deleg, tvb, offset, len1, flags);
+        proto_tree_add_boolean(subtree, hf_gssapi_reqflags_mutual, tvb, offset, len1, flags);
+        proto_tree_add_boolean(subtree, hf_gssapi_reqflags_replay, tvb, offset, len1, flags);
+        proto_tree_add_boolean(subtree, hf_gssapi_reqflags_sequence, tvb, offset, len1, flags);
+        proto_tree_add_boolean(subtree, hf_gssapi_reqflags_anon, tvb, offset, len1, flags);
+        proto_tree_add_boolean(subtree, hf_gssapi_reqflags_conf, tvb, offset, len1, flags);
+        proto_tree_add_boolean(subtree, hf_gssapi_reqflags_integ, tvb, offset, len1, flags);
 
 	hnd->offset += len1;
 
