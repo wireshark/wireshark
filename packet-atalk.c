@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.28 1999/12/09 07:37:13 guy Exp $
+ * $Id: packet-atalk.c,v 1.29 1999/12/09 15:31:24 nneul Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -57,9 +57,10 @@ static int hf_nbp_tid = -1;
 static int hf_nbp_node_net;
 static int hf_nbp_node_port;
 static int hf_nbp_node_node;
+static int hf_nbp_node_enum;
+static int hf_nbp_node_object;
 static int hf_nbp_node_type;
-static int hf_nbp_node_name;
-static int hf_nbp_node_label;
+static int hf_nbp_node_zone;
 
 static gint ett_nbp = -1;
 static gint ett_nbp_info = -1;
@@ -245,12 +246,12 @@ dissect_nbp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		offset++;
 		proto_tree_add_item(node_tree, hf_nbp_node_port, offset, 1, addr.port);
 		offset++;
+		proto_tree_add_item(node_tree, hf_nbp_node_enum, offset, 1, pd[offset]);
+		offset++;
 
-		offset++; /* skip a null */
-
+		offset = dissect_pascal_string(pd,offset,fd,node_tree,hf_nbp_node_object);
 		offset = dissect_pascal_string(pd,offset,fd,node_tree,hf_nbp_node_type);
-		offset = dissect_pascal_string(pd,offset,fd,node_tree,hf_nbp_node_name);
-		offset = dissect_pascal_string(pd,offset,fd,node_tree,hf_nbp_node_label);
+		offset = dissect_pascal_string(pd,offset,fd,node_tree,hf_nbp_node_zone);
 	}
   }
 
@@ -390,15 +391,18 @@ proto_register_atalk(void)
     { &hf_nbp_node_port,
       { "Port",		"nbp.port",	FT_UINT8,  BASE_DEC, 
 		NULL, 0x0, "Port" }},
-    { &hf_nbp_node_name,
-      { "Name",		"nbp.name",	FT_STRING,  BASE_DEC, 
-		NULL, 0x0, "Name" }},
+    { &hf_nbp_node_enum,
+      { "Enumerator",		"nbp.enum",	FT_UINT8,  BASE_DEC, 
+		NULL, 0x0, "Enumerator" }},
+    { &hf_nbp_node_object,
+      { "Object",		"nbp.object",	FT_STRING,  BASE_DEC, 
+		NULL, 0x0, "Object" }},
     { &hf_nbp_node_type,
       { "Type",		"nbp.type",	FT_STRING,  BASE_DEC, 
 		NULL, 0x0, "Type" }},
-    { &hf_nbp_node_label,
-      { "Label",		"nbp.label",	FT_STRING,  BASE_DEC, 
-		NULL, 0x0, "Label" }},
+    { &hf_nbp_node_zone,
+      { "Zone",		"nbp.zone",	FT_STRING,  BASE_DEC, 
+		NULL, 0x0, "Zone" }},
     { &hf_nbp_tid,
       { "Transaction ID",		"nbp.tid",	FT_UINT8,  BASE_DEC, 
 		NULL, 0x0, "Transaction ID" }}
