@@ -1,8 +1,9 @@
 /* packet-rip.c
  * Routines for RIPv1 and RIPv2 packet disassembly
+ * RFC1058, RFC2453
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.30 2002/01/24 09:20:51 guy Exp $
+ * $Id: packet-rip.c,v 1.31 2002/04/04 23:20:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,9 +58,13 @@ static const value_string command_vals[] = {
 	{ 0, NULL }
 };
 
+#define AFVAL_UNSPEC	0
+#define AFVAL_IP	2
+
 static const value_string family_vals[] = {
-	{ 2,	"IP" },
-	{ 0,	NULL }
+	{ AFVAL_UNSPEC,	"Unspecified" },
+	{ AFVAL_IP,	"IP" },
+	{ 0,		NULL }
 };
 
 #define RIP_HEADER_LENGTH 4
@@ -81,6 +86,8 @@ static int hf_rip_route_tag = -1;
 static gint ett_rip = -1;
 static gint ett_rip_vec = -1;
 
+static void dissect_unspec_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
+    proto_tree *tree);
 static void dissect_ip_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
     proto_tree *tree);
 static void dissect_rip_authentication(tvbuff_t *tvb, int offset,
@@ -128,7 +135,14 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 	    family = tvb_get_ntohs(tvb, offset);
 	    switch (family) {
-	    case 2: /* IP */
+	    case AFVAL_UNSPEC: /* Unspecified */
+	        /*
+	         * There should be one entry in the request, and a metric
+	         * of infinity, meaning "show the entire routing table".
+	         */
+		dissect_unspec_rip_vektor(tvb, offset, version, rip_tree);
+		break;
+	    case AFVAL_IP: /* IP */
 		dissect_ip_rip_vektor(tvb, offset, version, rip_tree);
 		break;
 	    case 0xFFFF:
@@ -147,6 +161,33 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
+dissect_unspec_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
+		      proto_tree *tree)
+{
+    proto_item *ti;
+    proto_tree *rip_vektor_tree;
+    guint32 metric;
+
+    metric = tvb_get_ntohl(tvb, offset+16);
+    ti = proto_tree_add_text(tree, tvb, offset,
+			     RIP_ENTRY_LENGTH, "Address not specified, Metric: %u",
+			     metric);
+    rip_vektor_tree = proto_item_add_subtree(ti, ett_rip_vec);
+
+    proto_tree_add_item(rip_vektor_tree, hf_rip_family, tvb, offset, 2, FALSE);
+    if (version == RIPv2) {
+	proto_tree_add_item(rip_vektor_tree, hf_rip_route_tag, tvb, offset+2, 2,
+			FALSE);
+	proto_tree_add_item(rip_vektor_tree, hf_rip_netmask, tvb, offset+8, 4,
+			    FALSE);
+	proto_tree_add_item(rip_vektor_tree, hf_rip_next_hop, tvb, offset+12, 4,
+			    FALSE);
+    }
+    proto_tree_add_uint(rip_vektor_tree, hf_rip_metric, tvb, 
+			offset+16, 4, metric);
+}
+
+static void
 dissect_ip_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
 		      proto_tree *tree)
 {
@@ -159,13 +200,11 @@ dissect_ip_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
 			     RIP_ENTRY_LENGTH, "IP Address: %s, Metric: %u",
 			     ip_to_str(tvb_get_ptr(tvb, offset+4, 4)), metric);
     rip_vektor_tree = proto_item_add_subtree(ti, ett_rip_vec);
-	   
 
-    proto_tree_add_uint(rip_vektor_tree, hf_rip_family, tvb, offset, 2, 
-			tvb_get_ntohs(tvb, offset));
+    proto_tree_add_item(rip_vektor_tree, hf_rip_family, tvb, offset, 2, FALSE);
     if (version == RIPv2) {
-	proto_tree_add_uint(rip_vektor_tree, hf_rip_route_tag, tvb, offset+2, 2,
-			tvb_get_ntohs(tvb, offset+2));
+	proto_tree_add_item(rip_vektor_tree, hf_rip_route_tag, tvb, offset+2, 2,
+			FALSE);
     }
 
     proto_tree_add_item(rip_vektor_tree, hf_rip_ip, tvb, offset+4, 4, FALSE);
@@ -196,7 +235,7 @@ dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
 		authtype);
     if (authtype == 2) {
 	proto_tree_add_item(rip_authentication_tree, hf_rip_auth_passwd,
-			tvb, offset+4, 16, TRUE);
+			tvb, offset+4, 16, FALSE);
     }
 }
 
