@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.18 2001/11/21 01:00:37 guy Exp $
+ * $Id: resolv.c,v 1.19 2001/12/20 19:19:41 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -289,7 +289,13 @@ static guchar *host_name_lookup(guint addr, gboolean *found)
   tp->addr = addr;
   tp->next = NULL;
 
-  if (prefs.name_resolve & PREFS_RESOLV_NETWORK) {
+  /*
+   * The Windows "gethostbyaddr()" insists on translating 0.0.0.0 to
+   * the name of the host on which it's running; to work around that
+   * botch, we don't try to translate an all-zero IP address to a host
+   * name.
+   */
+  if (addr != 0 && (prefs.name_resolve & PREFS_RESOLV_NETWORK)) {
 #ifdef AVOID_DNS_TIMEOUT
     
     /* Quick hack to avoid DNS/YP timeout */
