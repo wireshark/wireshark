@@ -2,7 +2,7 @@
  * Routines for opening etherpeek files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.6 2001/11/13 23:55:43 gram Exp $
+ * $Id: etherpeek.c,v 1.7 2001/12/05 07:19:11 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -20,7 +20,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -68,19 +67,30 @@ typedef struct etherpeek_header {
 	} secondary;
 } etherpeek_header_t;
 
-/* packet header (Mac V5, V6) */
-typedef struct etherpeek_m56_packet {
-	guint16 length;
-	guint16 sliceLength;
-	guint8  flags;
-	guint8  status;
-	guint32 timestamp;
-	guint16 destNum;
-	guint16 srcNum;
-	guint16 protoNum;
-	char    protoStr[8];
-} etherpeek_m56_packet_t;
-#define ETHERPEEK_M56_PKT_SIZE 24
+/*
+ * Packet header (Mac V5, V6).
+ *
+ * NOTE: the time stamp, although it's a 32-bit number, is only aligned
+ * on a 16-bit boundary.  (Does this date back to 68K Macs?  The 68000
+ * only required 16-bit alignment of 32-bit quantities, as did the 68010,
+ * and the 68020/68030/68040 required no alignment.)
+ *
+ * As such, we cannot declare this as a C structure, as compilers on
+ * most platforms will put 2 bytes of padding before the time stamp to
+ * align it on a 32-bit boundary.
+ *
+ * So, instead, we #define numbers as the offsets of the fields.
+ */
+#define ETHERPEEK_M56_LENGTH_OFFSET		0
+#define ETHERPEEK_M56_SLICE_LENGTH_OFFSET	2
+#define ETHERPEEK_M56_FLAGS_OFFSET		4
+#define ETHERPEEK_M56_STATUS_OFFSET		5
+#define ETHERPEEK_M56_TIMESTAMP_OFFSET		6
+#define ETHERPEEK_M56_DESTNUM_OFFSET		10
+#define ETHERPEEK_M56_SRCNUM_OFFSET		12
+#define ETHERPEEK_M56_PROTONUM_OFFSET		14
+#define ETHERPEEK_M56_PROTOSTR_OFFSET		16
+#define ETHERPEEK_M56_PKT_SIZE			24
 
 /* 64-bit time in micro seconds from the (Mac) epoch */
 typedef struct etherpeek_utime {
@@ -88,17 +98,20 @@ typedef struct etherpeek_utime {
 	guint32 lower;
 } etherpeek_utime;
 
-/* packet header (Mac V7) */
-typedef struct etherpeek_m7_packet {
-	guint16 protoNum;
-	guint16 length;
-	guint16 sliceLength;
-	guint8  flags;
-	guint8  status;
-	etherpeek_utime
-	        timestamp;
-} etherpeek_m7_packet_t;
-#define ETHERPEEK_M7_PKT_SIZE 16
+/*
+ * Packet header (Mac V7).
+ *
+ * This doesn't have the same alignment problem, but we do it with
+ * #defines anyway.
+ */
+#define ETHERPEEK_M7_PROTONUM_OFFSET		0
+#define ETHERPEEK_M7_LENGTH_OFFSET		2
+#define ETHERPEEK_M7_SLICE_LENGTH_OFFSET	4
+#define ETHERPEEK_M7_FLAGS_OFFSET		6
+#define ETHERPEEK_M7_STATUS_OFFSET		7
+#define ETHERPEEK_M7_TIMESTAMP_UPPER_OFFSET	8
+#define ETHERPEEK_M7_TIMESTAMP_LOWER_OFFSET	12
+#define ETHERPEEK_M7_PKT_SIZE			16
 
 typedef struct etherpeek_encap_lookup {
 	guint16 protoNum;
@@ -208,28 +221,35 @@ int etherpeek_open(wtap *wth, int *err)
 
 static gboolean etherpeek_read_m7(wtap *wth, int *err, long *data_offset)
 {
-	etherpeek_m7_packet_t ep_pkt;
+	guchar ep_pkt[ETHERPEEK_M7_PKT_SIZE];
+	guint16 protoNum;
+	guint16 length;
+	guint16 sliceLength;
+	guint8  flags;
+	guint8  status;
+	etherpeek_utime timestamp;
 	double  t;
 	unsigned int i;
 
-	g_assert(sizeof(ep_pkt) == ETHERPEEK_M7_PKT_SIZE);
-	wtap_file_read_expected_bytes(&ep_pkt, sizeof(ep_pkt), wth->fh, err);
+	wtap_file_read_expected_bytes(ep_pkt, sizeof(ep_pkt), wth->fh, err);
 	wth->data_offset += sizeof(ep_pkt);
 
-	/* byte swaps */
-	ep_pkt.protoNum = ntohs(ep_pkt.protoNum);
-	ep_pkt.length = ntohs(ep_pkt.length);
-	ep_pkt.sliceLength = ntohs(ep_pkt.sliceLength);
-	ep_pkt.timestamp.upper = ntohl(ep_pkt.timestamp.upper);
-	ep_pkt.timestamp.lower = ntohl(ep_pkt.timestamp.lower);
+	/* Extract the fields from the packet */
+	protoNum = pntohs(&ep_pkt[ETHERPEEK_M7_PROTONUM_OFFSET]);
+	length = pntohs(&ep_pkt[ETHERPEEK_M7_LENGTH_OFFSET]);
+	sliceLength = pntohs(&ep_pkt[ETHERPEEK_M7_SLICE_LENGTH_OFFSET]);
+	flags = ep_pkt[ETHERPEEK_M7_FLAGS_OFFSET];
+	status = ep_pkt[ETHERPEEK_M7_STATUS_OFFSET];
+	timestamp.upper = pntohl(&ep_pkt[ETHERPEEK_M7_TIMESTAMP_UPPER_OFFSET]);
+	timestamp.lower = pntohl(&ep_pkt[ETHERPEEK_M7_TIMESTAMP_LOWER_OFFSET]);
 
 	/* force sliceLength to be the actual length of the packet */
-	if (0 == ep_pkt.sliceLength) {
-		ep_pkt.sliceLength = ep_pkt.length;
+	if (0 == sliceLength) {
+		sliceLength = length;
 	}
 
 	/* test for corrupt data */
-	if (ep_pkt.sliceLength > WTAP_MAX_PACKET_SIZE) {
+	if (sliceLength > WTAP_MAX_PACKET_SIZE) {
 		*err = WTAP_ERR_BAD_RECORD;
 		return FALSE;
 	}
@@ -237,24 +257,24 @@ static gboolean etherpeek_read_m7(wtap *wth, int *err, long *data_offset)
 	*data_offset = wth->data_offset;
 
 	/* read the frame data */
-	buffer_assure_space(wth->frame_buffer, ep_pkt.sliceLength);
+	buffer_assure_space(wth->frame_buffer, sliceLength);
 	wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
-	                              ep_pkt.sliceLength, wth->fh, err);
-	wth->data_offset += ep_pkt.sliceLength;
+	                              sliceLength, wth->fh, err);
+	wth->data_offset += sliceLength;
 	
 	/* fill in packet header values */
-	wth->phdr.len    = ep_pkt.length;
-	wth->phdr.caplen = ep_pkt.sliceLength;
+	wth->phdr.len    = length;
+	wth->phdr.caplen = sliceLength;
 	
-	t =  (double) ep_pkt.timestamp.lower +
-	     (double) ep_pkt.timestamp.upper * 4294967296.0;
+	t =  (double) timestamp.lower +
+	     (double) timestamp.upper * 4294967296.0;
 	t -= (double) mac2unix * 1000000.0;
 	wth->phdr.ts.tv_sec  = (time_t)  (t/1000000.0);
 	wth->phdr.ts.tv_usec = (guint32) (t - (double) wth->phdr.ts.tv_sec *
 	                                               1000000.0);
 	wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
 	for (i=0; i<NUM_ETHERPEEK_ENCAPS; i++) {
-		if (etherpeek_encap[i].protoNum == ep_pkt.protoNum) {
+		if (etherpeek_encap[i].protoNum == protoNum) {
 			wth->phdr.pkt_encap = etherpeek_encap[i].encap;
 		}
 	}
@@ -264,28 +284,40 @@ static gboolean etherpeek_read_m7(wtap *wth, int *err, long *data_offset)
 
 static gboolean etherpeek_read_m56(wtap *wth, int *err, long *data_offset)
 {
-	etherpeek_m56_packet_t ep_pkt;
+	guchar ep_pkt[ETHERPEEK_M56_PKT_SIZE];
+	guint16 length;
+	guint16 sliceLength;
+	guint8  flags;
+	guint8  status;
+	guint32 timestamp;
+	guint16 destNum;
+	guint16 srcNum;
+	guint16 protoNum;
+	char    protoStr[8];
 	unsigned int i;
 
-	g_assert(sizeof(ep_pkt) == ETHERPEEK_M56_PKT_SIZE);
-	wtap_file_read_expected_bytes(&ep_pkt, sizeof(ep_pkt), wth->fh, err);
+	wtap_file_read_expected_bytes(ep_pkt, sizeof(ep_pkt), wth->fh, err);
 	wth->data_offset += sizeof(ep_pkt);
 
-	/* byte swaps */
-	ep_pkt.length = ntohs(ep_pkt.length);
-	ep_pkt.sliceLength = ntohs(ep_pkt.sliceLength);
-	ep_pkt.timestamp = ntohl(ep_pkt.timestamp);
-	ep_pkt.destNum = ntohs(ep_pkt.destNum);
-	ep_pkt.srcNum = ntohs(ep_pkt.srcNum);
-	ep_pkt.protoNum = ntohs(ep_pkt.protoNum);
+	/* Extract the fields from the packet */
+	length = pntohs(&ep_pkt[ETHERPEEK_M56_LENGTH_OFFSET]);
+	sliceLength = pntohs(&ep_pkt[ETHERPEEK_M56_SLICE_LENGTH_OFFSET]);
+	flags = ep_pkt[ETHERPEEK_M56_FLAGS_OFFSET];
+	status = ep_pkt[ETHERPEEK_M56_STATUS_OFFSET];
+	timestamp = pntohl(&ep_pkt[ETHERPEEK_M56_TIMESTAMP_OFFSET]);
+	destNum = pntohs(&ep_pkt[ETHERPEEK_M56_DESTNUM_OFFSET]);
+	srcNum = pntohs(&ep_pkt[ETHERPEEK_M56_SRCNUM_OFFSET]);
+	protoNum = pntohs(&ep_pkt[ETHERPEEK_M56_PROTONUM_OFFSET]);
+	memcpy(protoStr, &ep_pkt[ETHERPEEK_M56_PROTOSTR_OFFSET],
+	    sizeof protoStr);
 
 	/* force sliceLength to be the actual length of the packet */
-	if (0 == ep_pkt.sliceLength) {
-		ep_pkt.sliceLength = ep_pkt.length;
+	if (0 == sliceLength) {
+		sliceLength = length;
 	}
 
 	/* test for corrupt data */
-	if (ep_pkt.sliceLength > WTAP_MAX_PACKET_SIZE) {
+	if (sliceLength > WTAP_MAX_PACKET_SIZE) {
 		*err = WTAP_ERR_BAD_RECORD;
 		return FALSE;
 	}
@@ -293,16 +325,16 @@ static gboolean etherpeek_read_m56(wtap *wth, int *err, long *data_offset)
 	*data_offset = wth->data_offset;
 
 	/* fill in packet header values */
-	wth->phdr.len        = ep_pkt.length;
-	wth->phdr.caplen     = ep_pkt.sliceLength;
+	wth->phdr.len        = length;
+	wth->phdr.caplen     = sliceLength;
 	/* timestamp is in milliseconds since reference_time */
 	wth->phdr.ts.tv_sec  = wth->pseudo_header.etherpeek.
-		reference_time.tv_sec + (ep_pkt.timestamp / 1000);
-	wth->phdr.ts.tv_usec = 1000 * (ep_pkt.timestamp % 1000);
+		reference_time.tv_sec + (timestamp / 1000);
+	wth->phdr.ts.tv_usec = 1000 * (timestamp % 1000);
 	
 	wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
 	for (i=0; i<NUM_ETHERPEEK_ENCAPS; i++) {
-		if (etherpeek_encap[i].protoNum == ep_pkt.protoNum) {
+		if (etherpeek_encap[i].protoNum == protoNum) {
 			wth->phdr.pkt_encap = etherpeek_encap[i].encap;
 		}
 	}
