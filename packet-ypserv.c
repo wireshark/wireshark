@@ -1,7 +1,7 @@
 /* packet-ypserv.c
  * Routines for ypserv dissection
  *
- * $Id: packet-ypserv.c,v 1.19 2002/02/02 03:02:06 guy Exp $
+ * $Id: packet-ypserv.c,v 1.20 2002/02/20 21:02:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -150,11 +150,28 @@ dissect_match_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 static int
 dissect_first_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
+	/*
+	 * XXX - does Sun's "yp.x" lie, and claim that the argument to a
+	 * FIRST call is a "ypreq_key" rather than a "ypreq_nokey"?
+	 * You presumably need the key for NEXT, as "next" is "next
+	 * after some entry", and the key tells you which entry, but
+	 * you don't need a key for FIRST, as there's only one entry that
+	 * is the first entry.
+	 *
+	 * The NIS server originally used DBM, which has a "firstkey()"
+	 * call, with no argument, and a "nextkey()" argument, with
+	 * a key argument.  (Heck, it might *still* use DBM.)
+	 *
+	 * Given that, and given that at least one FIRST call from a Sun
+	 * running Solaris 8 (the Sun on which I'm typing this, in fact)
+	 * had a "ypreq_nokey" as the argument, I'm assuming that "yp.x"
+	 * is buggy.
+	 */
+	
 	if ( tree )
 	{
 		offset = dissect_rpc_string(tvb, pinfo, tree, hf_ypserv_domain, offset, NULL);
 		offset = dissect_rpc_string(tvb, pinfo, tree, hf_ypserv_map, offset, NULL);
-		offset = dissect_rpc_string(tvb, pinfo, tree, hf_ypserv_key, offset, NULL);
 	}
 	
 	return offset;
@@ -256,12 +273,14 @@ dissect_ypreq_nokey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 static int
 dissect_ypresp_all(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	gint32	more;
+	guint32	more;
 
-	more = tvb_get_ntohl(tvb, offset);
+	for (;;) {
+		more = tvb_get_ntohl(tvb, offset);
 
-	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_ypserv_more, offset);
-	if (more) {
+		offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_ypserv_more, offset);
+		if (!more)
+			break;
 		offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_ypserv_status, offset);
 		offset = dissect_rpc_string(tvb, pinfo, tree, hf_ypserv_value, offset, NULL);
 		offset = dissect_rpc_string(tvb, pinfo, tree, hf_ypserv_key, offset, NULL);
