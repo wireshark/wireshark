@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.2 1999/10/18 03:14:26 gram Exp $
+ * $Id: packet-sna.c,v 1.3 1999/10/18 12:41:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -235,7 +235,7 @@ void
 dissect_sna(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	proto_tree	*sna_tree = NULL, *th_tree = NULL, *rh_tree = NULL;
-	proto_item	*sna_ti, *th_ti, *rh_ti;
+	proto_item	*sna_ti = NULL, *th_ti = NULL, *rh_ti = NULL;
 	guint8		th_fid;
 	int		sna_header_len = 0, th_header_len = 0;
 
@@ -266,28 +266,31 @@ dissect_sna(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		 * the length of TH */
 		th_ti = proto_tree_add_item(sna_tree, hf_sna_th,  offset, 0, NULL);
 		th_tree = proto_item_add_subtree(th_ti, ETT_SNA_TH);
+	}
 
-		switch(th_fid) {
-			case 0x0:
-			case 0x1:
-				th_header_len = dissect_fid0_1(pd, offset, fd, th_tree);
-				break;
-			case 0x2:
-				th_header_len = dissect_fid2(pd, offset, fd, th_tree);
-				break;
-			case 0x3:
-				th_header_len = dissect_fid3(pd, offset, fd, th_tree);
-				break;
-			case 0x4:
-				th_header_len = dissect_fid4(pd, offset, fd, th_tree);
-				break;
-			default:
-				dissect_data(pd, offset+1, fd, tree);
-		}
+	/* Get size of TH */
+	switch(th_fid) {
+		case 0x0:
+		case 0x1:
+			th_header_len = dissect_fid0_1(pd, offset, fd, th_tree);
+			break;
+		case 0x2:
+			th_header_len = dissect_fid2(pd, offset, fd, th_tree);
+			break;
+		case 0x3:
+			th_header_len = dissect_fid3(pd, offset, fd, th_tree);
+			break;
+		case 0x4:
+			th_header_len = dissect_fid4(pd, offset, fd, th_tree);
+			break;
+		default:
+			dissect_data(pd, offset+1, fd, tree);
+	}
 
-		sna_header_len += th_header_len;
-		offset += th_header_len;
+	sna_header_len += th_header_len;
+	offset += th_header_len;
 
+	if (tree) {
 		proto_item_set_len(th_ti, th_header_len);
 
 		/* --- RH --- */
@@ -304,8 +307,15 @@ dissect_sna(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		}
 
 		proto_item_set_len(sna_ti, sna_header_len);
+	}
+	else {
+		if (BYTES_ARE_IN_FRAME(offset, 3)) {
+			sna_header_len += 3;
+			offset += 3;
+		}
 
 	}
+
 	if (IS_DATA_IN_FRAME(offset+1)) {
 		dissect_data(pd, offset, fd, tree);
 	}
@@ -332,6 +342,19 @@ dissect_fid0_1 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 	snf = pntohs(&pd[offset+6]);
 	dcf = pntohs(&pd[offset+8]);
 
+	if (check_col(fd, COL_RES_NET_DST))
+		col_add_fstr(fd, COL_RES_NET_DST, "%04X", daf);
+	if (check_col(fd, COL_UNRES_NET_DST))
+		col_add_fstr(fd, COL_UNRES_NET_DST, "%04X", daf);
+	if (check_col(fd, COL_RES_NET_SRC))
+		col_add_fstr(fd, COL_RES_NET_SRC, "%04X", oaf);
+	if (check_col(fd, COL_UNRES_NET_SRC))
+		col_add_fstr(fd, COL_UNRES_NET_SRC, "%04X", oaf);
+
+	if (!tree) {
+		return bytes_in_header;
+	}
+
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_item(tree, hf_sna_th_0, offset, 1, th_0);
 	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
@@ -345,11 +368,6 @@ dissect_fid0_1 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 	proto_tree_add_item(tree, hf_sna_th_oaf ,offset+4, 1, oaf);
 	proto_tree_add_item(tree, hf_sna_th_snf ,offset+6, 2, snf);
 	proto_tree_add_item(tree, hf_sna_th_dcf ,offset+8, 2, dcf);
-
-	if (check_col(fd, COL_RES_DL_DST))
-		col_add_fstr(fd, COL_RES_DL_DST, "%02X", daf);
-	if (check_col(fd, COL_RES_DL_SRC))
-		col_add_fstr(fd, COL_RES_DL_SRC, "%02X", oaf);
 
 	return bytes_in_header;
 
@@ -375,6 +393,20 @@ dissect_fid2 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	daf = pd[offset+2];
 	oaf = pd[offset+3];
 
+	/* Addresses in FID 2 are FT_UINT8 */
+	if (check_col(fd, COL_RES_NET_DST))
+		col_add_fstr(fd, COL_RES_NET_DST, "%02X", daf);
+	if (check_col(fd, COL_UNRES_NET_DST))
+		col_add_fstr(fd, COL_UNRES_NET_DST, "%02X", daf);
+	if (check_col(fd, COL_RES_NET_SRC))
+		col_add_fstr(fd, COL_RES_NET_SRC, "%02X", oaf);
+	if (check_col(fd, COL_RES_NET_SRC))
+		col_add_fstr(fd, COL_UNRES_NET_SRC, "%02X", oaf);
+
+	if (!tree) {
+		return bytes_in_header;
+	}
+
 	snf = pntohs(&pd[offset+4]);
 
 	/* Create the bitfield tree */
@@ -386,15 +418,13 @@ dissect_fid2 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	proto_tree_add_item(bf_tree, hf_sna_th_odai ,offset, 1, th_0);
 	proto_tree_add_item(bf_tree, hf_sna_th_efi ,offset, 1, th_0);
 
+	/* Addresses in FID 2 are FT_UINT8 */
 	proto_tree_add_text(tree, offset+1, 1, "Reserved");
-	proto_tree_add_item(tree, hf_sna_th_daf ,offset+2, 1, daf);
-	proto_tree_add_item(tree, hf_sna_th_oaf ,offset+3, 1, oaf);
+	proto_tree_add_item_format(tree, hf_sna_th_daf ,offset+2, 1, daf,
+			"Destination Address Field: 0x%02x", daf);
+	proto_tree_add_item_format(tree, hf_sna_th_oaf ,offset+3, 1, oaf,
+			"Origin Address Field: 0x%02x", oaf);
 	proto_tree_add_item(tree, hf_sna_th_snf ,offset+4, 2, snf);
-
-	if (check_col(fd, COL_RES_DL_DST))
-		col_add_fstr(fd, COL_RES_DL_DST, "%02X", daf);
-	if (check_col(fd, COL_RES_DL_SRC))
-		col_add_fstr(fd, COL_RES_DL_SRC, "%02X", oaf);
 
 	return bytes_in_header;
 }
@@ -412,6 +442,10 @@ dissect_fid3 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	if (!BYTES_ARE_IN_FRAME(offset, bytes_in_header)) {
 		return 0;
+	}
+
+	if (!tree) {
+		return bytes_in_header;
 	}
 
 	th_0 = pd[offset+0];
@@ -443,6 +477,10 @@ dissect_fid4 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	if (!BYTES_ARE_IN_FRAME(offset, bytes_in_header)) {
 		return 0;
+	}
+
+	if (!tree) {
+		return bytes_in_header;
 	}
 
 	th_byte = pd[offset+0];
