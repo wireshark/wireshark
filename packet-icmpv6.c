@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly 
  *
- * $Id: packet-icmpv6.c,v 1.24 2000/08/22 15:07:33 gram Exp $
+ * $Id: packet-icmpv6.c,v 1.25 2000/08/29 14:17:12 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -512,16 +512,17 @@ dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    break;
 	case NI_QTYPE_NODEADDR:
 	    n = pi.captured_len - (offset + sizeof(*ni));
-	    n /= sizeof(struct e_in6_addr);
+	    n /= sizeof(struct e_in6_addr) + sizeof(gint32);;
 	    tf = proto_tree_add_text(tree, NullTVB,
 		offset + sizeof(*ni), END_OF_FRAME, "IPv6 node addresses");
 	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_node6);
 	    p = (u_char *)(ni + 1);
 	    for (i = 0; i < n; i++) {
 		proto_tree_add_text(field_tree, NullTVB,
-		    p - pd, sizeof(struct e_in6_addr),
-		    "%s", ip6_to_str((struct e_in6_addr *)p));
-		p += sizeof(struct e_in6_addr);
+		    p - pd, sizeof(struct e_in6_addr) + sizeof(gint32),
+		    "%s (TTL %d)", ip6_to_str((struct e_in6_addr *)p),
+		    (gint32)pntohl(p + sizeof(struct e_in6_addr)));
+		p += sizeof(struct e_in6_addr) + sizeof(gint32);
 	    }
 	    off = pi.captured_len - offset;
 	    break;
