@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.38 2003/12/09 23:45:34 obiot Exp $
+ * $Id: tcp_graph.c,v 1.39 2003/12/17 22:11:43 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2221,7 +2221,7 @@ static void v_axis_pixmap_draw (struct axis *axis)
 					axis->p.width, axis->p.height);
 	/* axis */
 	gdk_draw_line (axis->pixmap[not_disp], g->fg_gc, axis->p.width - 1,
-			(axis->p.height-axis->s.height)/2.0, axis->s.width - 1,
+			(gint) ((axis->p.height-axis->s.height)/2.0), axis->s.width - 1,
 			axis->p.height);
 
 	offset = g->wp.y + (-g->geom.y);
@@ -2328,7 +2328,7 @@ static void h_axis_pixmap_draw (struct axis *axis)
 					axis->p.width, axis->p.height);
 	/* axis */
 	gdk_draw_line (axis->pixmap[not_disp], g->fg_gc, 0, 0,
-						axis->s.width + (axis->p.width-axis->s.width)/2.0, 0);
+						(gint) (axis->s.width + (axis->p.width-axis->s.width)/2.0), 0);
 	offset = g->wp.x - g->geom.x;
 
 	fl = floor (axis->min / axis->major) * axis->major;
@@ -3003,7 +3003,7 @@ static gint button_press_event (GtkWidget *widget, GdkEventButton *event)
 		axis_display (g->x_axis);
 		update_zoom_spins (g);
 		if (g->cross.draw)
-			cross_draw (g, event->x, event->y);
+			cross_draw (g, (int) event->x, (int) event->y);
 #ifndef WIN32
 	} else if (event->button == 1) {
 		graph_select_segment (g, (int )event->x, (int )event->y);
