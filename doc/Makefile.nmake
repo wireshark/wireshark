@@ -1,0 +1,39 @@
+#
+# $Id: Makefile.nmake,v 1.1 2001/03/09 03:43:58 gram Exp $
+
+include ../config.nmake
+
+doc: ethereal.html tethereal.html editcap.html
+
+ethereal.html : ethereal.1
+	man2html ethereal.1 > $@
+
+tethereal.html : tethereal.1
+	man2html tethereal.1 > $@
+
+editcap.html : editcap.1
+	man2html editcap.1 > $@
+
+ethereal.1: ethereal.pod ../config.h
+	$(POD2MAN) ethereal.pod                     \
+	--center="The Ethereal Network Analyzer" \
+	--release=$(VERSION)			 \
+	> ethereal.1
+
+ethereal.pod: ethereal.pod.template  ../tethereal.exe
+	..\\tethereal.exe -G | $(PERL) dfilter2pod.pl ethereal.pod.template > ethereal.pod
+
+tethereal.1: tethereal.pod ../config.h
+	$(POD2MAN) tethereal.pod                     \
+	--center="The Ethereal Network Analyzer" \
+	--release=$(VERSION)			 \
+	> tethereal.1
+
+tethereal.pod: tethereal.pod.template  ../tethereal.exe
+	..\\tethereal.exe -G | $(PERL) dfilter2pod.pl tethereal.pod.template > tethereal.pod
+
+editcap.1: editcap.pod ../config.h
+	$(POD2MAN) editcap.pod                     \
+	--center="The Ethereal Network Analyzer" \
+	--release=$(VERSION)			 \
+	> editcap.1
