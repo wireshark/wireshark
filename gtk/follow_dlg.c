@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.55 2004/03/29 22:40:58 guy Exp $
+ * $Id: follow_dlg.c,v 1.56 2004/04/09 19:44:27 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -280,7 +280,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	/* create a scrolled window for the text */
 	txt_scrollw = scrolled_window_new(NULL, NULL);
 #if GTK_MAJOR_VERSION >= 2
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw),
                                    GTK_SHADOW_IN);
 #endif
 	gtk_box_pack_start(GTK_BOX(stream_vb), txt_scrollw, TRUE, TRUE, 0);
@@ -372,7 +372,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	gtk_option_menu_set_menu(GTK_OPTION_MENU(stream_om), stream_menu);
 	/* Set history to 0th item, i.e., the first item. */
 	gtk_option_menu_set_history(GTK_OPTION_MENU(stream_om), 0);
-    gtk_tooltips_set_tip (tooltips, stream_om, 
+    gtk_tooltips_set_tip (tooltips, stream_om,
         "Select the stream direction to display", NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), stream_om, FALSE, FALSE, 0);
 
@@ -424,7 +424,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	/* Create exclude stream button */
 	button = gtk_button_new_with_label("Filter out this stream");
 	SIGNAL_CONNECT(button, "clicked", follow_filter_out_stream, follow_info);
-    gtk_tooltips_set_tip (tooltips, button, 
+    gtk_tooltips_set_tip (tooltips, button,
         "Build a display filter which cuts this stream from the capture", NULL);
 	gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
 
@@ -432,7 +432,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
     button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	SIGNAL_CONNECT_OBJECT(button, "clicked", gtk_widget_destroy,
                               streamwindow);
-    gtk_tooltips_set_tip (tooltips, button, 
+    gtk_tooltips_set_tip (tooltips, button,
         "Close the dialog and keep the current display filter", NULL);
 	gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
 
@@ -539,14 +539,14 @@ follow_read_stream(follow_info_t *follow_info,
     guint8		client_addr[MAX_IPADDR_LEN];
     guint16		client_port = 0;
     gboolean		is_server;
-    guint16		current_pos, global_client_pos = 0, global_server_pos = 0;
-    guint16		*global_pos;
+    guint32		current_pos, global_client_pos = 0, global_server_pos = 0;
+    guint32		*global_pos;
     gboolean		skip;
     gchar               initbuf[256];
     guint32             server_packet_count = 0;
     guint32             client_packet_count = 0;
     char                buffer[FLT_BUF_SIZE];
-    int                 nchars;
+    size_t              nchars;
 
     iplen = (follow_info->is_ipv6) ? 16 : 4;
 
@@ -745,7 +745,7 @@ follow_print_text(char *buffer, int nchars, gboolean is_server _U_, void *arg)
 }
 
 static void
-follow_filter_out_stream(GtkWidget * w _U_, gpointer data) 
+follow_filter_out_stream(GtkWidget * w _U_, gpointer data)
 {
     follow_info_t	*follow_info = data;
 
@@ -760,7 +760,7 @@ follow_filter_out_stream(GtkWidget * w _U_, gpointer data)
 
     /* we force a subsequent close */
     gtk_widget_destroy(follow_info->streamwindow);
-  
+
     return;
 }
 
@@ -901,7 +901,7 @@ follow_load_text(follow_info_t *follow_info)
     int bytes_already;
 #else
     GtkTextBuffer *buf;
-    
+
     buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(follow_info->text));
 #endif
 
