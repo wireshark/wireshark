@@ -1,3 +1,5 @@
+$Id: README.tapping,v 1.4 2002/11/28 20:29:46 guy Exp $
+
 The TAP system in ethereal is a powerful and flexible mechanism to get event 
 driven notification on packets matching certain protocols and/or filters.
 In order to use the tapping system, very little knowledge of ethereal
@@ -22,7 +24,7 @@ So you want to hack together a tap application?
 TAP
 ===
 First you must decide which protocol you are interested in writing a tap
-application for and check if that protocol has already has got a tap installed
+application for and check if that protocol has already got a tap installed
 in it.
 If it already has a tap device installed then you dont have to do anything.
 If not, then you have to add a tap but dont worry, this is extremely easy to 
@@ -68,7 +70,7 @@ remove_tap_listener(void *tapdata);
 remove_tap_listener(void *tapdata)
 This function is used to deregister and stop a tap listener.
 
-register_tap_listeners() is used to register an instance of a tap application
+register_tap_listener() is used to register an instance of a tap application
 to the tap system.
 
 *tapname 
