@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.20 2002/12/08 02:32:36 gerald Exp $
+ * $Id: to_str.c,v 1.21 2002/12/09 21:34:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,29 +63,29 @@
 #include <stdio.h>
 #include <time.h>
 
-
-/* Wrapper for the most common case of asking
- * for a string using a colon as the hex-digit separator.
- */
-
-gchar *
-ether_to_str(const guint8 *ad)
-{
-	return ether_to_str_punct(ad, ':', 5);
-}
-
-/* Places char punct in the string as the hex-digit separator.
+/* Routine to convert a sequence of bytes to a hex string, one byte/two hex
+ * digits at at a time, with a specified punctuation character between
+ * the bytes.
+ *
  * If punct is '\0', no punctuation is applied (and thus
  * the resulting string is 5 bytes shorter)
  */
-gchar *
-ether_to_str_punct(const guint8 *ad, char punct, guint32 len) {
+static gchar *
+bytestring_to_str(const guint8 *ad, char punct, guint32 len) {
   static gchar  str[3][18];
   static gchar *cur;
   gchar        *p;
   int          i;
   guint32      octet;
-  static const gchar hex_digits[16] = "0123456789abcdef";
+  /* At least one version of Apple's C compiler/linker is buggy, causing
+     a complaint from the linker about the "literal C string section"
+     not ending with '\0' if we initialize a 16-element "char" array with
+     a 16-character string, the fact that initializing such an array with
+     such a string is perfectly legitimate ANSI C nonwithstanding, the 17th
+     '\0' byte in the string nonwithstanding. */
+  static const gchar hex_digits[16] =
+      { '0', '1', '2', '3', '4', '5', '6', '7',
+        '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
   if (cur == &str[0][0]) {
     cur = &str[1][0];
@@ -109,6 +109,16 @@ ether_to_str_punct(const guint8 *ad, char punct, guint32 len) {
     i--;
   }
   return p;
+}
+
+/* Wrapper for the most common case of asking
+ * for a string using a colon as the hex-digit separator.
+ */
+
+gchar *
+ether_to_str(const guint8 *ad)
+{
+	return bytestring_to_str(ad, 5, ':');
 }
 
 gchar *
@@ -194,7 +204,8 @@ ipx_addr_to_str(guint32 net, const guint8 *ad)
 		sprintf(cur, "%s.%s", get_ipxnet_name(net), name);
 	}
 	else {
-		sprintf(cur, "%s.%s", get_ipxnet_name(net), ether_to_str_punct(ad, '\0', 5));
+		sprintf(cur, "%s.%s", get_ipxnet_name(net),
+		    bytestring_to_str(ad, 5, '\0'));
 	}
 	return cur;
 }
@@ -214,7 +225,15 @@ ipxnet_to_str_punct(const guint32 ad, char punct)
   gchar        *p;
   int          i;
   guint32      octet;
-  static const gchar hex_digits[16] = "0123456789ABCDEF";
+  /* At least one version of Apple's C compiler/linker is buggy, causing
+     a complaint from the linker about the "literal C string section"
+     not ending with '\0' if we initialize a 16-element "char" array with
+     a 16-character string, the fact that initializing such an array with
+     such a string is perfectly legitimate ANSI C nonwithstanding, the 17th
+     '\0' byte in the string nonwithstanding. */
+  static const gchar hex_digits[16] =
+      { '0', '1', '2', '3', '4', '5', '6', '7',
+        '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
   static const guint32  octet_mask[4] =
 	  { 0xff000000 , 0x00ff0000, 0x0000ff00, 0x000000ff };
 
@@ -523,8 +542,9 @@ rel_time_to_secs_str(nstime_t *rel_time)
 }
 
 gchar *
-fc_to_str(const guint8 *ad) {
-    return ether_to_str_punct (ad, '.', 2);
+fc_to_str(const guint8 *ad)
+{
+    return bytestring_to_str (ad, 2, '.');
 }
 
 gchar *
@@ -561,69 +581,6 @@ fcwwn_to_str (const guint8 *ad)
                  ad[1], ad[2], ad[3], ad[4], ad[5], ad[6], ad[7]);
     }
     return (ethstr);
-}
-
-gchar *
-fc_to_str_buf(const guint8 *ad)
-{
-  static gchar  str[3][18];
-  static gchar *cur;
-  gchar        *p;
-  int          i;
-  guint32      octet;
-  static const gchar hex_digits[16] = "0123456789abcdef";
-
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {  
-    cur = &str[2][0];
-  } else {  
-    cur = &str[0][0];
-  }
-  p = &cur[18];
-  *--p = '\0';
-  i = 0;
-  for (;;) {
-    octet = ad[i];
-    *--p = hex_digits[octet&0xF];
-    octet >>= 4;
-    *--p = hex_digits[octet&0xF];
-    if (i == 2)
-      break;
-      *--p = '.';
-    i++;
-  }
-  return p;
-/*
-  gchar        *p;
-  int           i;
-  guint32       octet;
-  guint32       digit;
-  gboolean      saw_nonzero;
-
-  p = buf;
-  i = 0;
-  for (;;) {
-    saw_nonzero = FALSE;
-    octet = ad[i];
-    digit = octet/100;
-    if (digit != 0) {
-      *p++ = digit + '0';
-      saw_nonzero = TRUE;
-    }
-    octet %= 100;
-    digit = octet/10;
-    if (saw_nonzero || digit != 0)
-      *p++ = digit + '0';
-    digit = octet%10;
-    *p++ = digit + '0';
-    if (i == 2)
-      break;
-    *p++ = '.';
-    i++;
-  }
-  *p = '\0';
-  */
 }
 
 /* Generate, into "buf", a string showing the bits of a bitfield.
@@ -697,6 +654,3 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
   sprintf(p, fmt, (val & mask) >> shift);
   return buf;
 }
-
-
-
