@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.34 2002/01/21 07:36:32 guy Exp $
+ * $Id: packet-aarp.c,v 1.35 2002/02/10 23:48:14 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -44,10 +44,14 @@ static int hf_aarp_proto_type = -1;
 static int hf_aarp_hard_size = -1;
 static int hf_aarp_proto_size = -1;
 static int hf_aarp_opcode = -1;
-static int hf_aarp_src_ether = -1;
-static int hf_aarp_src_id = -1;
-static int hf_aarp_dst_ether = -1;
-static int hf_aarp_dst_id = -1;
+static int hf_aarp_src_hw = -1;
+static int hf_aarp_src_hw_mac = -1;
+static int hf_aarp_src_proto = -1;
+static int hf_aarp_src_proto_id = -1;
+static int hf_aarp_dst_hw = -1;
+static int hf_aarp_dst_hw_mac = -1;
+static int hf_aarp_dst_proto = -1;
+static int hf_aarp_dst_proto_id = -1;
 
 static gint ett_aarp = -1;
 
@@ -85,6 +89,23 @@ static const value_string hrd_vals[] = {
   {AARPHRD_TR,      "Token Ring"     },
   {0,               NULL             } };
 
+/*
+ * Given the hardware address type and length, check whether an address
+ * is an Ethernet address - the address must be of type "Ethernet" or
+ * "Token Ring", and the length must be 6 bytes.
+ */
+#define AARP_HW_IS_ETHER(ar_hrd, ar_hln) \
+	(((ar_hrd) == AARPHRD_ETHER || (ar_hrd) == AARPHRD_TR) \
+  				&& (ar_hln) == 6)
+
+/*
+ * Given the protocol address type and length, check whether an address
+ * is an Appletalk address - the address must be of type "Appletalk",
+ * and the length must be 4 bytes.
+ */
+#define AARP_PRO_IS_ATALK(ar_pro, ar_pln) \
+	((ar_pro) == ETHERTYPE_ATALK && (ar_pln) == 4)
+
 static gchar *
 atalkid_to_str(const guint8 *ad) {
   gint node;
@@ -106,7 +127,7 @@ atalkid_to_str(const guint8 *ad) {
 
 static gchar *
 aarphrdaddr_to_str(const guint8 *ad, int ad_len, guint16 type) {
-  if ((type == AARPHRD_ETHER || type == AARPHRD_TR) && ad_len == 6) {
+  if (AARP_HW_IS_ETHER(type, ad_len)) {
     /* Ethernet address (or Token Ring address, which is the same type
        of address). */
     return ether_to_str(ad);
@@ -116,8 +137,8 @@ aarphrdaddr_to_str(const guint8 *ad, int ad_len, guint16 type) {
 
 static gchar *
 aarpproaddr_to_str(const guint8 *ad, int ad_len, guint16 type) {
-  if (type == ETHERTYPE_ATALK && ad_len == 4) {
-    /* IP address.  */
+  if (AARP_PRO_IS_ATALK(type, ad_len)) {
+    /* Appletalk address.  */
     return atalkid_to_str(ad);
   }
   return bytes_to_str(ad, ad_len);
@@ -156,23 +177,25 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   ar_pln = tvb_get_guint8(tvb, AR_PLN);
   ar_op  = tvb_get_ntohs(tvb, AR_OP);
 
-  /* Extract the addresses.  */
+  /* Get the offsets of the addresses. */
   sha_offset = MIN_AARP_HEADER_SIZE;
+  spa_offset = sha_offset + ar_hln;
+  tha_offset = spa_offset + ar_pln;
+  tpa_offset = tha_offset + ar_hln;
+
+  /* Extract the addresses.  */
   sha_val = tvb_get_ptr(tvb, sha_offset, ar_hln);
   sha_str = aarphrdaddr_to_str(sha_val, ar_hln, ar_hrd);
 
-  spa_offset = sha_offset + ar_hln;
   spa_val = tvb_get_ptr(tvb, spa_offset, ar_pln);
   spa_str = aarpproaddr_to_str(spa_val, ar_pln, ar_pro);
 
-  tha_offset = spa_offset + ar_pln;
   tha_val = tvb_get_ptr(tvb, tha_offset, ar_hln);
   tha_str = aarphrdaddr_to_str(tha_val, ar_hln, ar_hrd);
 
-  tpa_offset = tha_offset + ar_hln;
   tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_pln);
   tpa_str = aarpproaddr_to_str(tpa_val, ar_pln, ar_pro);
-  
+
   if (check_col(pinfo->cinfo, COL_INFO)) {
     switch (ar_op) {
       case AARP_REQUEST:
@@ -214,18 +237,41 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			       ar_pln);
     proto_tree_add_uint(aarp_tree, hf_aarp_opcode, tvb, AR_OP, 2,
 			       ar_op);
-    proto_tree_add_bytes_format(aarp_tree, hf_aarp_src_ether, tvb, sha_offset, ar_hln,
-			       sha_val,
-			       "Sender hardware address: %s", sha_str);
-    proto_tree_add_bytes_format(aarp_tree, hf_aarp_src_id, tvb, spa_offset, ar_pln,
+    if (ar_hln != 0) {
+      proto_tree_add_item(aarp_tree,
+	AARP_HW_IS_ETHER(ar_hrd, ar_hln) ? hf_aarp_src_hw_mac : hf_aarp_src_hw,
+	tvb, sha_offset, ar_hln, FALSE);
+    }
+
+    if (ar_pln != 0) {
+      if (AARP_PRO_IS_ATALK(ar_pro, ar_pln)) {
+        proto_tree_add_bytes_format(aarp_tree, hf_aarp_src_proto_id, tvb, spa_offset, ar_pln,
 			       spa_val,
 			       "Sender ID: %s", spa_str);
-    proto_tree_add_bytes_format(aarp_tree, hf_aarp_dst_ether, tvb, tha_offset, ar_hln,
-			       tha_val,
-			       "Target hardware address: %s", tha_str);
-    proto_tree_add_bytes_format(aarp_tree, hf_aarp_dst_id, tvb, tpa_offset, ar_pln,
+      } else { 
+        proto_tree_add_bytes_format(aarp_tree, hf_aarp_src_proto, tvb, spa_offset, ar_pln,
+			       spa_val,
+			       "Sender protocol address: %s", spa_str);
+      }
+    }
+
+    if (ar_hln != 0) {
+      proto_tree_add_item(aarp_tree,
+	AARP_HW_IS_ETHER(ar_hrd, ar_hln) ? hf_aarp_dst_hw_mac : hf_aarp_dst_hw,
+	tvb, tha_offset, ar_hln, FALSE);
+    }
+
+    if (ar_pln != 0) {
+      if (AARP_PRO_IS_ATALK(ar_pro, ar_pln)) {
+        proto_tree_add_bytes_format(aarp_tree, hf_aarp_dst_proto_id, tvb, tpa_offset, ar_pln,
 			       tpa_val,
 			       "Target ID: %s", tpa_str);
+      } else {
+        proto_tree_add_bytes_format(aarp_tree, hf_aarp_dst_proto, tvb, tpa_offset, ar_pln,
+			       tpa_val,
+			       "Target protocol address: %s", tpa_str);
+      }
+    }
   }
 }
 
@@ -234,47 +280,67 @@ proto_register_aarp(void)
 {
   static hf_register_info hf[] = {
     { &hf_aarp_hard_type,
-      { "Hardware type",	"aarp.hard.type",	
+      { "Hardware type",		"aarp.hard.type",	
 	FT_UINT16,	BASE_HEX,	VALS(hrd_vals),	0x0,
       	"", HFILL }},
 
     { &hf_aarp_proto_type,
-      { "Protocol type",	"aarp.proto.type",	
+      { "Protocol type",		"aarp.proto.type",	
 	FT_UINT16,	BASE_HEX, 	VALS(etype_vals),	0x0,
       	"", HFILL }},    
 
     { &hf_aarp_hard_size,
-      { "Hardware size",	"aarp.hard.size",	
+      { "Hardware size",		"aarp.hard.size",	
 	FT_UINT8,	BASE_DEC, 	NULL,	0x0,
       	"", HFILL }},
 
     { &hf_aarp_proto_size,
-      { "Protocol size",	"aarp.proto.size",	
+      { "Protocol size",		"aarp.proto.size",	
 	FT_UINT8,	BASE_DEC, 	NULL,	0x0,
       	"", HFILL }},
 
     { &hf_aarp_opcode,
-      { "Opcode",		"aarp.opcode",
+      { "Opcode",			"aarp.opcode",
 	FT_UINT16,	BASE_DEC,	VALS(op_vals),	0x0,
       	"", HFILL }},
 
-    { &hf_aarp_src_ether,
-      { "Sender ether",		"aarp.src.ether",
+    { &hf_aarp_src_hw,
+      { "Sender hardware address",	"aarp.src.hw",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
       	"", HFILL }},
 
-    { &hf_aarp_src_id,
-      { "Sender ID",		"aarp.src.id",
+    { &hf_aarp_src_hw_mac,
+      { "Sender MAC address",		"aarp.src.hw_mac",
+	FT_ETHER,	BASE_NONE,	NULL,	0x0,
+      	"", HFILL }},
+
+    { &hf_aarp_src_proto,
+      { "Sender protocol address",	"aarp.src.proto",
+	FT_BYTES,	BASE_NONE,	NULL,	0x0,
+      	"", HFILL }},
+
+    { &hf_aarp_src_proto_id,
+      { "Sender ID",			"aarp.src.proto_id",
 	FT_BYTES,	BASE_HEX,	NULL,	0x0,
       	"", HFILL }},
 
-    { &hf_aarp_dst_ether,
-      { "Target ether",		"aarp.dst.ether",
+    { &hf_aarp_dst_hw,
+      { "Target hardware address",	"aarp.dst.hw",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
       	"", HFILL }},
 
-    { &hf_aarp_dst_id,
-      { "Target ID",		"aarp.dst.id",		
+    { &hf_aarp_dst_hw_mac,
+      { "Target MAC address",		"aarp.dst.hw_mac",
+	FT_ETHER,	BASE_NONE,	NULL,	0x0,
+      	"", HFILL }},
+
+    { &hf_aarp_dst_proto,
+      { "Target protocol address",	"aarp.dst.proto",
+	FT_BYTES,	BASE_NONE,	NULL,	0x0,
+      "", HFILL }},
+
+    { &hf_aarp_dst_proto_id,
+      { "Target ID",			"aarp.dst.proto_id",
 	FT_BYTES,	BASE_HEX,	NULL,	0x0,
       	"", HFILL }},
   };
