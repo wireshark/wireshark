@@ -126,26 +126,43 @@
 
 
 typedef struct _loop_data {
-  gboolean       go;           /* TRUE as long as we're supposed to keep capturing */
-  gint           max;          /* Number of packets we're supposed to capture - 0 means infinite */
-  int            err;          /* if non-zero, error seen while capturing */
-  gint           linktype;
-  gint           sync_packets;
-  gboolean       pcap_err;     /* TRUE if error from pcap */
-  gboolean       from_cap_pipe;/* TRUE if we are capturing data from a pipe */
-  packet_counts  counts;
-  wtap_dumper   *pdh;
+  /* common */
+  gboolean       go;                    /* TRUE as long as we're supposed to keep capturing */
+  int            err;                   /* if non-zero, error seen while capturing */
+  gint           packets_max;           /* Number of packets we're supposed to capture - 0 means infinite */
+  gint           packets_sync_pipe;     /* packets not already send out to the sync_pipe */
+  packet_counts  counts;                /* several packet type counters */
+
+  /* pcap "input file" */
+  pcap_t        *pcap_h;                /* pcap handle */
+  gboolean       pcap_err;              /* TRUE if error from pcap */
+#ifdef MUST_DO_SELECT
+  int            pcap_fd;               /* pcap file descriptor */
+#endif
+
+  /* capture pipe (unix only "input file") */
+  gboolean       from_cap_pipe;         /* TRUE if we are capturing data from a capture pipe */
 #ifndef _WIN32
-  gboolean       modified;     /* TRUE if data in the pipe uses modified pcap headers */
-  gboolean       byte_swapped; /* TRUE if data in the pipe is byte swapped */
-  unsigned int   bytes_to_read, bytes_read; /* Used by cap_pipe_dispatch */
+  struct pcap_hdr cap_pipe_hdr;
+  int            cap_pipe_fd;           /* the file descriptor of the capture pipe */
+  gboolean       cap_pipe_modified;     /* TRUE if data in the pipe uses modified pcap headers */
+  gboolean       cap_pipe_byte_swapped; /* TRUE if data in the pipe is byte swapped */
+  unsigned int   cap_pipe_bytes_to_read;/* Used by cap_pipe_dispatch */
+  unsigned int   cap_pipe_bytes_read;   /* Used by cap_pipe_dispatch */
   enum {
-         STATE_EXPECT_REC_HDR, STATE_READ_REC_HDR,
-         STATE_EXPECT_DATA,     STATE_READ_DATA
+         STATE_EXPECT_REC_HDR,
+         STATE_READ_REC_HDR,
+         STATE_EXPECT_DATA,
+         STATE_READ_DATA
        } cap_pipe_state;
 
   enum { PIPOK, PIPEOF, PIPERR, PIPNEXIST } cap_pipe_err;
 #endif
+
+  /* wiretap (output file) */
+  wtap_dumper   *wtap_pdh;
+  gint           wtap_linktype;
+
 } loop_data;
 
 
@@ -154,10 +171,10 @@ typedef struct _loop_data {
  */
 #define	CAP_READ_TIMEOUT	250
 
-static void capture_pcap_cb(guchar *, const struct pcap_pkthdr *,
-  const guchar *);
-static void popup_errmsg(const char *);
-static void get_capture_file_io_error(char *, int, const char *, int, gboolean);
+static void capture_loop_packet_cb(guchar *user, const struct pcap_pkthdr *phdr,
+  const guchar *pd);
+static void capture_loop_popup_errmsg(const char *);
+static void capture_loop_get_errmsg(char *, int, const char *, int, gboolean);
 
 
 
@@ -167,7 +184,7 @@ static void get_capture_file_io_error(char *, int, const char *, int, gboolean);
 static void
 cap_pipe_adjust_header(loop_data *ld, struct pcap_hdr *hdr, struct pcaprec_hdr *rechdr)
 {
-  if (ld->byte_swapped) {
+  if (ld->cap_pipe_byte_swapped) {
     /* Byte-swap the record header fields. */
     rechdr->ts_sec = BSWAP32(rechdr->ts_sec);
     rechdr->ts_usec = BSWAP32(rechdr->ts_usec);
@@ -284,28 +301,28 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
   case PCAP_MAGIC:
     /* Host that wrote it has our byte order, and was running
        a program using either standard or ss990417 libpcap. */
-    ld->byte_swapped = FALSE;
-    ld->modified = FALSE;
+    ld->cap_pipe_byte_swapped = FALSE;
+    ld->cap_pipe_modified = FALSE;
     break;
   case PCAP_MODIFIED_MAGIC:
     /* Host that wrote it has our byte order, but was running
        a program using either ss990915 or ss991029 libpcap. */
-    ld->byte_swapped = FALSE;
-    ld->modified = TRUE;
+    ld->cap_pipe_byte_swapped = FALSE;
+    ld->cap_pipe_modified = TRUE;
     break;
   case PCAP_SWAPPED_MAGIC:
     /* Host that wrote it has a byte order opposite to ours,
        and was running a program using either standard or
        ss990417 libpcap. */
-    ld->byte_swapped = TRUE;
-    ld->modified = FALSE;
+    ld->cap_pipe_byte_swapped = TRUE;
+    ld->cap_pipe_modified = FALSE;
     break;
   case PCAP_SWAPPED_MODIFIED_MAGIC:
     /* Host that wrote it out has a byte order opposite to
        ours, and was running a program using either ss990915
        or ss991029 libpcap. */
-    ld->byte_swapped = TRUE;
-    ld->modified = TRUE;
+    ld->cap_pipe_byte_swapped = TRUE;
+    ld->cap_pipe_modified = TRUE;
     break;
   default:
     /* Not a "libpcap" type we know about. */
@@ -339,7 +356,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
     }
   }
 
-  if (ld->byte_swapped) {
+  if (ld->cap_pipe_byte_swapped) {
     /* Byte-swap the header fields about which we care. */
     hdr->version_major = BSWAP16(hdr->version_major);
     hdr->version_minor = BSWAP16(hdr->version_minor);
@@ -363,9 +380,9 @@ error:
 
 }
 
-/* We read one record from the pipe, take care of byte order in the record
- * header, write the record in the capture file, and update capture statistics. */
 
+/* We read one record from the pipe, take care of byte order in the record
+ * header, write the record to the capture file, and update capture statistics. */
 static int
 cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
 		struct pcaprec_modified_hdr *rechdr, guchar *data,
@@ -379,15 +396,15 @@ cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
   switch (ld->cap_pipe_state) {
 
   case STATE_EXPECT_REC_HDR:
-    ld->bytes_to_read = ld->modified ?
+    ld->cap_pipe_bytes_to_read = ld->cap_pipe_modified ?
       sizeof(struct pcaprec_modified_hdr) : sizeof(struct pcaprec_hdr);
-    ld->bytes_read = 0;
+    ld->cap_pipe_bytes_read = 0;
     ld->cap_pipe_state = STATE_READ_REC_HDR;
     /* Fall through */
 
   case STATE_READ_REC_HDR:
-    b = read(fd, ((char *)rechdr)+ld->bytes_read,
-      ld->bytes_to_read - ld->bytes_read);
+    b = read(fd, ((char *)rechdr)+ld->cap_pipe_bytes_read,
+      ld->cap_pipe_bytes_to_read - ld->cap_pipe_bytes_read);
     if (b <= 0) {
       if (b == 0)
         result = PD_PIPE_EOF;
@@ -395,18 +412,18 @@ cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
         result = PD_PIPE_ERR;
       break;
     }
-    if ((ld->bytes_read += b) < ld->bytes_to_read)
+    if ((ld->cap_pipe_bytes_read += b) < ld->cap_pipe_bytes_to_read)
         return 0;
     result = PD_REC_HDR_READ;
     break;
 
   case STATE_EXPECT_DATA:
-    ld->bytes_read = 0;
+    ld->cap_pipe_bytes_read = 0;
     ld->cap_pipe_state = STATE_READ_DATA;
     /* Fall through */
 
   case STATE_READ_DATA:
-    b = read(fd, data+ld->bytes_read, rechdr->hdr.incl_len - ld->bytes_read);
+    b = read(fd, data+ld->cap_pipe_bytes_read, rechdr->hdr.incl_len - ld->cap_pipe_bytes_read);
     if (b <= 0) {
       if (b == 0)
         result = PD_PIPE_EOF;
@@ -414,7 +431,7 @@ cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
         result = PD_PIPE_ERR;
       break;
     }
-    if ((ld->bytes_read += b) < rechdr->hdr.incl_len)
+    if ((ld->cap_pipe_bytes_read += b) < rechdr->hdr.incl_len)
       return 0;
     result = PD_DATA_READ;
     break;
@@ -448,7 +465,7 @@ cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
     phdr.caplen = rechdr->hdr.incl_len;
     phdr.len = rechdr->hdr.orig_len;
 
-    capture_pcap_cb((guchar *)ld, &phdr, data);
+    capture_loop_packet_cb((guchar *)ld, &phdr, data);
 
     ld->cap_pipe_state = STATE_EXPECT_REC_HDR;
     return 1;
@@ -471,56 +488,19 @@ cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
 }
 #endif /* not _WIN32 */
 
-/*
- * This needs to be static, so that the SIGUSR1 handler can clear the "go"
- * flag.
- */
-static loop_data   ld;
 
-/* Do the low-level work of a capture.
-   Returns TRUE if it succeeds, FALSE otherwise. */
-int
-capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
-{
-  pcap_t     *pch;
-  int         pcap_encap;
-  int         file_snaplen;
+/* open the capture input file (pcap or capture pipe) */
+static int capture_loop_open_input(loop_data *ld, char *errmsg, int errmsg_len) {
   gchar       open_err_str[PCAP_ERRBUF_SIZE];
-  gchar       lookup_net_err_str[PCAP_ERRBUF_SIZE];
-  bpf_u_int32 netnum, netmask;
-  struct bpf_program fcode;
   const char *set_linktype_err_str;
-  time_t      upd_time, cur_time;
-  time_t      start_time;
-  int         err, inpkts;
-  condition  *cnd_file_duration = NULL;
-  condition  *cnd_autostop_files = NULL;
-  condition  *cnd_autostop_size = NULL;
-  condition  *cnd_autostop_duration = NULL;
-  guint32     autostop_files = 0;
-  char        errmsg[4096+1];
-  gboolean    write_ok;
-  gboolean    close_ok;
-  capture_info   capture_ui;
-
 #ifdef _WIN32
+  int         err;
   WORD        wVersionRequested;
   WSADATA     wsaData;
 #else
-  fd_set      set1;
-  struct timeval timeout;
   static const char ppamsg[] = "can't find PPA for ";
   char       *libpcap_warn;
-  int         sel_ret;
-  int         pipe_fd = -1;
-  struct pcap_hdr hdr;
-  struct pcaprec_modified_hdr rechdr;
-  guchar pcap_data[WTAP_MAX_PACKET_SIZE];
 #endif
-#ifdef MUST_DO_SELECT
-  int         pcap_fd = 0;
-#endif
-  gboolean    show_info = capture_opts.show_info || !capture_opts.sync_mode;
 
   /* Initialize Windows Socket if we are in a WIN32 OS
      This needs to be done before querying the interface for network/netmask */
@@ -533,83 +513,56 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
     switch (err) {
 
     case WSASYSNOTREADY:
-      g_snprintf(errmsg, sizeof errmsg,
+      g_snprintf(errmsg, errmsg_len,
         "Couldn't initialize Windows Sockets: Network system not ready for network communication");
       break;
 
     case WSAVERNOTSUPPORTED:
-      g_snprintf(errmsg, sizeof errmsg,
+      g_snprintf(errmsg, errmsg_len,
         "Couldn't initialize Windows Sockets: Windows Sockets version %u.%u not supported",
         LOBYTE(wVersionRequested), HIBYTE(wVersionRequested));
       break;
 
     case WSAEINPROGRESS:
-      g_snprintf(errmsg, sizeof errmsg,
+      g_snprintf(errmsg, errmsg_len,
         "Couldn't initialize Windows Sockets: Blocking operation is in progress");
       break;
 
     case WSAEPROCLIM:
-      g_snprintf(errmsg, sizeof errmsg,
+      g_snprintf(errmsg, errmsg_len,
         "Couldn't initialize Windows Sockets: Limit on the number of tasks supported by this WinSock implementation has been reached");
       break;
 
     case WSAEFAULT:
-      g_snprintf(errmsg, sizeof errmsg,
+      g_snprintf(errmsg, errmsg_len,
         "Couldn't initialize Windows Sockets: Bad pointer passed to WSAStartup");
       break;
 
     default:
-      g_snprintf(errmsg, sizeof errmsg,
+      g_snprintf(errmsg, errmsg_len,
         "Couldn't initialize Windows Sockets: error %d", err);
       break;
     }
-    pch = NULL;
-    goto error;
+    return FALSE;
   }
 #endif
-
-  ld.go             = TRUE;
-  ld.counts.total   = 0;
-  if (capture_opts.has_autostop_packets)
-    ld.max          = capture_opts.autostop_packets;
-  else
-    ld.max          = 0;	/* no limit */
-  ld.err            = 0;	/* no error seen yet */
-  ld.linktype       = WTAP_ENCAP_UNKNOWN;
-  ld.pcap_err       = FALSE;
-  ld.from_cap_pipe  = FALSE;
-  ld.sync_packets   = 0;
-  ld.counts.sctp    = 0;
-  ld.counts.tcp     = 0;
-  ld.counts.udp     = 0;
-  ld.counts.icmp    = 0;
-  ld.counts.ospf    = 0;
-  ld.counts.gre     = 0;
-  ld.counts.ipx     = 0;
-  ld.counts.netbios = 0;
-  ld.counts.vines   = 0;
-  ld.counts.other   = 0;
-  ld.counts.arp     = 0;
-  ld.pdh            = NULL;
-
-  /* We haven't yet gotten the capture statistics. */
-  *stats_known      = FALSE;
 
   /* Open the network interface to capture from it.
      Some versions of libpcap may put warnings into the error buffer
      if they succeed; to tell if that's happened, we have to clear
      the error buffer, and check if it's still a null string.  */
   open_err_str[0] = '\0';
-  pch = pcap_open_live(cfile.iface,
+  ld->pcap_h = pcap_open_live(cfile.iface,
 		       capture_opts.has_snaplen ? capture_opts.snaplen :
 						  WTAP_MAX_PACKET_SIZE,
 		       capture_opts.promisc_mode, CAP_READ_TIMEOUT,
 		       open_err_str);
 
-  if (pch != NULL) {
+  if (ld->pcap_h != NULL) {
+    /* we've opened "cfile.iface" as a network device */
 #ifdef _WIN32
     /* try to set the capture buffer size */
-    if (pcap_setbuff(pch, capture_opts.buffer_size * 1024 * 1024) != 0) {
+    if (pcap_setbuff(ld->pcap_h, capture_opts.buffer_size * 1024 * 1024) != 0) {
         simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
           "%sCouldn't set the capture buffer size!%s\n"
           "\n"
@@ -623,12 +576,12 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
 
     /* setting the data link type only works on real interfaces */
     if (capture_opts.linktype != -1) {
-      set_linktype_err_str = set_pcap_linktype(pch, cfile.iface,
+      set_linktype_err_str = set_pcap_linktype(ld->pcap_h, cfile.iface,
 	capture_opts.linktype);
       if (set_linktype_err_str != NULL) {
-	g_snprintf(errmsg, sizeof errmsg, "Unable to set data link type (%s).",
+	g_snprintf(errmsg, errmsg_len, "Unable to set data link type (%s).",
 	  set_linktype_err_str);
-	goto error;
+	return FALSE;
       }
     }
   } else {
@@ -647,7 +600,7 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
        users; don't warn about permissions problems.
 
        Do, however, warn that WAN devices aren't supported. */
-    g_snprintf(errmsg, sizeof errmsg,
+    g_snprintf(errmsg, errmsg_len,
 	"The capture session could not be initiated (%s).\n"
 	"Please check that you have the proper interface specified.\n"
 	"\n"
@@ -656,12 +609,12 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
 	"Windows NT/2000/XP/2003 Server, and that the WinPcap 3.0 and later versions\n"
 	"don't support capturing on PPP/WAN interfaces at all.",
 	open_err_str);
-    goto error;
+    return FALSE;
 #else
     /* try to open cfile.iface as a pipe */
-    pipe_fd = cap_pipe_open_live(cfile.iface, &hdr, &ld, errmsg, sizeof errmsg);
+    ld->cap_pipe_fd = cap_pipe_open_live(cfile.iface, &ld->cap_pipe_hdr, ld, errmsg, errmsg_len);
 
-    if (pipe_fd == -1) {
+    if (ld->cap_pipe_fd == -1) {
 
       /* If this is a child process that does the capturing in sync
        * mode or fork mode, it shouldn't do any UI stuff until we pop up the
@@ -672,7 +625,7 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
           main_window_update();
       }
 
-      if (ld.cap_pipe_err == PIPNEXIST) {
+      if (ld->cap_pipe_err == PIPNEXIST) {
 	/* Pipe doesn't exist, so output message for interface */
 
 	/* If we got a "can't find PPA for XXX" message, warn the user (who
@@ -704,7 +657,7 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
        * Else pipe (or file) does exist and cap_pipe_open_live() has
        * filled in errmsg
        */
-      goto error;
+      return FALSE;
     } else
       /* cap_pipe_open_live() succeeded; don't want
          error message from pcap_open_live() */
@@ -712,8 +665,50 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
 #endif
   }
 
+#ifdef MUST_DO_SELECT
+  if (!ld->from_cap_pipe) ld->pcap_fd = pcap_fileno(ld->pcap_h);
+#endif
+
+  /* Does "open_err_str" contain a non-empty string?  If so, "pcap_open_live()"
+     returned a warning; print it, but keep capturing. */
+  if (open_err_str[0] != '\0')
+    g_warning("%s.", open_err_str);
+
+  return TRUE;
+}
+
+
+/* open the capture input file (pcap or capture pipe) */
+static void capture_loop_close_input(loop_data *ld) {
+#ifndef _WIN32
+  /* if open, close the capture pipe "input file" */
+  if (ld->cap_pipe_fd >= 0) {
+    g_assert(ld->from_cap_pipe);
+    close(ld->cap_pipe_fd);
+  }
+#endif
+
+  /* if open, close the pcap "input file" */
+  if(ld->pcap_h != NULL) {
+    g_assert(!ld->from_cap_pipe);
+    pcap_close(ld->pcap_h);
+  }
+
+#ifdef _WIN32
+  /* Shut down windows sockets */
+  WSACleanup();
+#endif
+}
+
+
+/* init the capture filter */
+static int capture_loop_init_filter(loop_data *ld, char *errmsg, int errmsg_len) {
+  bpf_u_int32 netnum, netmask;
+  gchar       lookup_net_err_str[PCAP_ERRBUF_SIZE];
+  struct bpf_program fcode;
+
   /* capture filters only work on real interfaces */
-  if (cfile.cfilter && !ld.from_cap_pipe) {
+  if (cfile.cfilter && !ld->from_cap_pipe) {
     /* A capture filter was specified; set it up. */
     if (pcap_lookupnet(cfile.iface, &netnum, &netmask, lookup_net_err_str) < 0) {
       /*
@@ -727,11 +722,11 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
        */
       netmask = 0;
     }
-    if (pcap_compile(pch, &fcode, cfile.cfilter, 1, netmask) < 0) {
+    if (pcap_compile(ld->pcap_h, &fcode, cfile.cfilter, 1, netmask) < 0) {
       dfilter_t   *rfcode = NULL;
       /* filter string invalid, did the user tried a display filter? */
       if (dfilter_compile(cfile.cfilter, &rfcode) && rfcode != NULL) {
-        g_snprintf(errmsg, sizeof errmsg,
+        g_snprintf(errmsg, errmsg_len,
           "%sInvalid capture filter: \"%s\"!%s\n"
           "\n"
           "That string looks like a valid display filter; however, it is not a valid\n"
@@ -742,53 +737,65 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
           "\n"
           "See the help for a description of the capture filter syntax.",
           simple_dialog_primary_start(), cfile.cfilter, simple_dialog_primary_end(),
-          pcap_geterr(pch));
+          pcap_geterr(ld->pcap_h));
 	dfilter_free(rfcode);
       } else {
-        g_snprintf(errmsg, sizeof errmsg,
+        g_snprintf(errmsg, errmsg_len,
           "%sInvalid capture filter: \"%s\"!%s\n"
           "\n"
           "That string is not a valid capture filter (%s).\n"
           "See the help for a description of the capture filter syntax.",
           simple_dialog_primary_start(), cfile.cfilter, simple_dialog_primary_end(),
-          pcap_geterr(pch));
+          pcap_geterr(ld->pcap_h));
       }
-      goto error;
+      return FALSE;
     }
-    if (pcap_setfilter(pch, &fcode) < 0) {
-      g_snprintf(errmsg, sizeof errmsg, "Can't install filter (%s).",
-	pcap_geterr(pch));
-      goto error;
+    if (pcap_setfilter(ld->pcap_h, &fcode) < 0) {
+      g_snprintf(errmsg, errmsg_len, "Can't install filter (%s).",
+	pcap_geterr(ld->pcap_h));
+      return FALSE;
     }
   }
+
+  return TRUE;
+}
+
+
+/* open the capture output file (wiretap) */
+static int capture_loop_open_output(loop_data *ld, char *errmsg, int errmsg_len) {
+  int         pcap_encap;
+  int         file_snaplen;
+  int         err;
+
 
   /* Set up to write to the capture file. */
 #ifndef _WIN32
-  if (ld.from_cap_pipe) {
-    pcap_encap = hdr.network;
-    file_snaplen = hdr.snaplen;
+  if (ld->from_cap_pipe) {
+    pcap_encap = ld->cap_pipe_hdr.network;
+    file_snaplen = ld->cap_pipe_hdr.snaplen;
   } else
 #endif
   {
-    pcap_encap = get_pcap_linktype(pch, cfile.iface);
-    file_snaplen = pcap_snapshot(pch);
+    pcap_encap = get_pcap_linktype(ld->pcap_h, cfile.iface);
+    file_snaplen = pcap_snapshot(ld->pcap_h);
   }
-  ld.linktype = wtap_pcap_encap_to_wtap_encap(pcap_encap);
-  if (ld.linktype == WTAP_ENCAP_UNKNOWN) {
+
+  ld->wtap_linktype = wtap_pcap_encap_to_wtap_encap(pcap_encap);
+  if (ld->wtap_linktype == WTAP_ENCAP_UNKNOWN) {
     g_snprintf(errmsg, sizeof errmsg,
 	"The network you're capturing from is of a type"
 	" that Ethereal doesn't support (data link type %d).", pcap_encap);
-    goto error;
+    return FALSE;
   }
   if (capture_opts.multi_files_on) {
-    ld.pdh = ringbuf_init_wtap_dump_fdopen(WTAP_FILE_PCAP, ld.linktype,
+    ld->wtap_pdh = ringbuf_init_wtap_dump_fdopen(WTAP_FILE_PCAP, ld->wtap_linktype,
       file_snaplen, &err);
   } else {
-    ld.pdh = wtap_dump_fdopen(cfile.save_file_fd, WTAP_FILE_PCAP,
-      ld.linktype, file_snaplen, &err);
+    ld->wtap_pdh = wtap_dump_fdopen(cfile.save_file_fd, WTAP_FILE_PCAP,
+      ld->wtap_linktype, file_snaplen, &err);
   }
 
-  if (ld.pdh == NULL) {
+  if (ld->wtap_pdh == NULL) {
     /* We couldn't set up to write to the capture file. */
     switch (err) {
 
@@ -816,100 +823,65 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
       }
       break;
     }
-    goto error;
+
+    return FALSE;
   }
 
-  /* Does "open_err_str" contain a non-empty string?  If so, "pcap_open_live()"
-     returned a warning; print it, but keep capturing. */
-  if (open_err_str[0] != '\0')
-    g_warning("%s.", open_err_str);
+  return TRUE;
+}
 
-  /* XXX - capture SIGTERM and close the capture, in case we're on a
-     Linux 2.0[.x] system and you have to explicitly close the capture
-     stream in order to turn promiscuous mode off?  We need to do that
-     in other places as well - and I don't think that works all the
-     time in any case, due to libpcap bugs. */
-
-  if (capture_child) {
-    /* Well, we should be able to start capturing.
-
-       This is the child process for a sync mode capture, so sync out
-       the capture file, so the header makes it to the file system,
-       and send a "capture started successfully and capture file created"
-       message to our parent so that they'll open the capture file and
-       update its windows to indicate that we have a live capture in
-       progress. */
-    fflush(wtap_dump_file(ld.pdh));
-    sync_pipe_capstart_to_parent();
+static gboolean capture_loop_close_output(loop_data *ld, int *err_close) {
+  if (capture_opts.multi_files_on) {
+    return ringbuf_wtap_dump_close(&cfile, err_close);
+  } else {
+    return wtap_dump_close(ld->wtap_pdh, err_close);
   }
+}
 
-  /* start capture info dialog */
-  if(show_info) {
-      capture_ui.callback_data  = &ld;
-      capture_ui.counts         = &ld.counts;
-      capture_info_create(&capture_ui, cfile.iface);
-  }
-
-  start_time = time(NULL);
-  upd_time = time(NULL);
-#ifdef MUST_DO_SELECT
-  if (!ld.from_cap_pipe) pcap_fd = pcap_fileno(pch);
+/* dispatch incoming packets (pcap or capture pipe) */
+static int
+capture_loop_dispatch(loop_data *ld, char *errmsg, int errmsg_len) {
+  int       inpkts;
+#ifndef _WIN32
+  fd_set    set1;
+  struct timeval timeout;
+  int         sel_ret;
+  struct pcaprec_modified_hdr rechdr;
+  guchar pcap_data[WTAP_MAX_PACKET_SIZE];
 #endif
 
-  /* initialize capture stop conditions */
-  init_capture_stop_conditions();
-  /* create stop conditions */
-  if (capture_opts.has_autostop_filesize)
-    cnd_autostop_size =
-        cnd_new(CND_CLASS_CAPTURESIZE,(long)capture_opts.autostop_filesize);
-  if (capture_opts.has_autostop_duration)
-    cnd_autostop_duration =
-        cnd_new(CND_CLASS_TIMEOUT,(gint32)capture_opts.autostop_duration);
-
-  if (capture_opts.multi_files_on) {
-      if (capture_opts.has_file_duration)
-        cnd_file_duration =
-	    cnd_new(CND_CLASS_TIMEOUT, capture_opts.file_duration);
-
-      if (capture_opts.has_autostop_files)
-        cnd_autostop_files =
-	    cnd_new(CND_CLASS_CAPTURESIZE, capture_opts.autostop_files);
-  }
-
-  /* WOW, everything is prepared! */
-  /* please fasten your seat belts, we will enter now the actual capture loop */
-  while (ld.go) {
-    main_window_update();
 
 #ifndef _WIN32
-    if (ld.from_cap_pipe) {
+    /* dispatch from capture pipe */
+    if (ld->from_cap_pipe) {
       FD_ZERO(&set1);
-      FD_SET(pipe_fd, &set1);
+      FD_SET(ld->cap_pipe_fd, &set1);
       timeout.tv_sec = 0;
       timeout.tv_usec = CAP_READ_TIMEOUT*1000;
-      sel_ret = select(pipe_fd+1, &set1, NULL, NULL, &timeout);
+      sel_ret = select(ld->cap_pipe_fd+1, &set1, NULL, NULL, &timeout);
       if (sel_ret <= 0) {
 	inpkts = 0;
         if (sel_ret < 0 && errno != EINTR) {
-          g_snprintf(errmsg, sizeof(errmsg),
+          g_snprintf(errmsg, errmsg_len,
             "Unexpected error from select: %s", strerror(errno));
-          popup_errmsg(errmsg);
-          ld.go = FALSE;
+          capture_loop_popup_errmsg(errmsg);
+          ld->go = FALSE;
         }
       } else {
 	/*
 	 * "select()" says we can read from the pipe without blocking
 	 */
-	inpkts = cap_pipe_dispatch(pipe_fd, &ld, &hdr, &rechdr, pcap_data,
-          errmsg, sizeof errmsg);
+	inpkts = cap_pipe_dispatch(ld->cap_pipe_fd, ld, &ld->cap_pipe_hdr, &rechdr, pcap_data,
+          errmsg, errmsg_len);
 	if (inpkts < 0) {
-	  ld.go = FALSE;
+	  ld->go = FALSE;
         }
       }
     }
     else
 #endif /* _WIN32 */
     {
+    /* dispatch from pcap using select */
 #ifdef MUST_DO_SELECT
       /*
        * Sigh.  The semantics of the read timeout argument to
@@ -939,44 +911,184 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
        * only a "select()" or "poll()" is posted.
        */
       FD_ZERO(&set1);
-      FD_SET(pcap_fd, &set1);
+      FD_SET(ld->pcap_fd, &set1);
       timeout.tv_sec = 0;
       timeout.tv_usec = CAP_READ_TIMEOUT*1000;
-      sel_ret = select(pcap_fd+1, &set1, NULL, NULL, &timeout);
+      sel_ret = select(ld->pcap_fd+1, &set1, NULL, NULL, &timeout);
       if (sel_ret > 0) {
 	/*
 	 * "select()" says we can read from it without blocking; go for
 	 * it.
 	 */
-	inpkts = pcap_dispatch(pch, 1, capture_pcap_cb, (guchar *) &ld);
+	inpkts = pcap_dispatch(ld->pcap_h, 1, capture_loop_packet_cb, (gchar *)ld);
 	if (inpkts < 0) {
-	  ld.pcap_err = TRUE;
-	  ld.go = FALSE;
+	  ld->pcap_err = TRUE;
+	  ld->go = FALSE;
 	}
       } else {
         inpkts = 0;
         if (sel_ret < 0 && errno != EINTR) {
-          g_snprintf(errmsg, sizeof(errmsg),
+          g_snprintf(errmsg, errmsg_len,
             "Unexpected error from select: %s", strerror(errno));
-          popup_errmsg(errmsg);
-          ld.go = FALSE;
+          capture_loop_popup_errmsg(errmsg);
+          ld->go = FALSE;
         }
       }
 #else
-      inpkts = pcap_dispatch(pch, 1, capture_pcap_cb, (guchar *) &ld);
+      /* dispatch from pcap without select */
+      inpkts = pcap_dispatch(ld->pcap_h, 1, capture_loop_packet_cb, (gchar *) ld);
       if (inpkts < 0) {
-        ld.pcap_err = TRUE;
-        ld.go = FALSE;
+        ld->pcap_err = TRUE;
+        ld->go = FALSE;
       }
 #endif /* MUST_DO_SELECT */
     }
 
+    return inpkts;
+}
+
+
+/*
+ * This needs to be static, so that the SIGUSR1 handler can clear the "go"
+ * flag.
+ */
+static loop_data   ld;
+
+/* Do the low-level work of a capture.
+   Returns TRUE if it succeeds, FALSE otherwise. */
+int
+capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
+{
+  time_t      upd_time, cur_time;
+  time_t      start_time;
+  int         err_close, inpkts;
+  condition  *cnd_file_duration = NULL;
+  condition  *cnd_autostop_files = NULL;
+  condition  *cnd_autostop_size = NULL;
+  condition  *cnd_autostop_duration = NULL;
+  guint32     autostop_files = 0;
+  gboolean    write_ok;
+  gboolean    close_ok;
+  capture_info   capture_ui;
+  char        errmsg[4096+1];
+
+  gboolean    show_info = capture_opts.show_info || !capture_opts.sync_mode;
+
+
+  /* init the loop data */
+  ld.go                 = TRUE;
+  if (capture_opts.has_autostop_packets)
+    ld.packets_max      = capture_opts.autostop_packets;
+  else
+    ld.packets_max      = 0;	/* no limit */
+  ld.err                = 0;	/* no error seen yet */
+  ld.wtap_linktype      = WTAP_ENCAP_UNKNOWN;
+  ld.pcap_err           = FALSE;
+  ld.from_cap_pipe      = FALSE;
+  ld.packets_sync_pipe  = 0;
+  ld.counts.total       = 0;
+  ld.counts.sctp        = 0;
+  ld.counts.tcp         = 0;
+  ld.counts.udp         = 0;
+  ld.counts.icmp        = 0;
+  ld.counts.ospf        = 0;
+  ld.counts.gre         = 0;
+  ld.counts.ipx         = 0;
+  ld.counts.netbios     = 0;
+  ld.counts.vines       = 0;
+  ld.counts.other       = 0;
+  ld.counts.arp         = 0;
+  ld.wtap_pdh           = NULL;
+#ifndef _WIN32
+  ld.cap_pipe_fd        = -1;
+#endif
+#ifdef MUST_DO_SELECT
+  ld.pcap_fd            = 0;
+#endif
+
+  /* We haven't yet gotten the capture statistics. */
+  *stats_known      = FALSE;
+
+
+  /* open the "input file" from network interface or capture pipe */
+  if (!capture_loop_open_input(&ld, errmsg, sizeof(errmsg))) {
+    goto error;
+  }
+
+  /* init the input filter from the network interface (capture pipe will do nothing) */
+  if (!capture_loop_init_filter(&ld, errmsg, sizeof(errmsg))) {
+    goto error;
+  }
+
+  /* open the (wiretap) output file */
+  if (!capture_loop_open_output(&ld, errmsg, sizeof(errmsg))) {
+    goto error;
+  }
+
+  /* XXX - capture SIGTERM and close the capture, in case we're on a
+     Linux 2.0[.x] system and you have to explicitly close the capture
+     stream in order to turn promiscuous mode off?  We need to do that
+     in other places as well - and I don't think that works all the
+     time in any case, due to libpcap bugs. */
+
+  if (capture_child) {
+    /* Well, we should be able to start capturing.
+
+       This is the child process for a sync mode capture, so sync out
+       the capture file, so the header makes it to the file system,
+       and send a "capture started successfully and capture file created"
+       message to our parent so that they'll open the capture file and
+       update its windows to indicate that we have a live capture in
+       progress. */
+    fflush(wtap_dump_file(ld.wtap_pdh));
+    sync_pipe_capstart_to_parent();
+  }
+
+  /* initialize capture stop (and alike) conditions */
+  init_capture_stop_conditions();
+  /* create stop conditions */
+  if (capture_opts.has_autostop_filesize)
+    cnd_autostop_size =
+        cnd_new(CND_CLASS_CAPTURESIZE,(long)capture_opts.autostop_filesize);
+  if (capture_opts.has_autostop_duration)
+    cnd_autostop_duration =
+        cnd_new(CND_CLASS_TIMEOUT,(gint32)capture_opts.autostop_duration);
+
+  if (capture_opts.multi_files_on) {
+      if (capture_opts.has_file_duration)
+        cnd_file_duration =
+	    cnd_new(CND_CLASS_TIMEOUT, capture_opts.file_duration);
+
+      if (capture_opts.has_autostop_files)
+        cnd_autostop_files =
+	    cnd_new(CND_CLASS_CAPTURESIZE, capture_opts.autostop_files);
+  }
+
+  /* start capture info dialog */
+  if(show_info) {
+      capture_ui.callback_data  = &ld;
+      capture_ui.counts         = &ld.counts;
+      capture_info_create(&capture_ui, cfile.iface);
+  }
+
+  /* init the time values */
+  start_time = time(NULL);
+  upd_time = time(NULL);
+
+  /* WOW, everything is prepared! */
+  /* please fasten your seat belts, we will enter now the actual capture loop */
+  while (ld.go) {
+    main_window_update();
+
+    /* dispatch incoming packets */
+    inpkts = capture_loop_dispatch(&ld, errmsg, sizeof(errmsg));
+
     if (inpkts > 0) {
-      ld.sync_packets += inpkts;
+      ld.packets_sync_pipe += inpkts;
 
       /* check capture size condition */
       if (cnd_autostop_size != NULL && cnd_eval(cnd_autostop_size,
-                    (guint32)wtap_get_bytes_dumped(ld.pdh))){
+                    (guint32)wtap_get_bytes_dumped(ld.wtap_pdh))){
         /* Capture size limit reached, do we have another file? */
         if (capture_opts.multi_files_on) {
           if (cnd_autostop_files != NULL && cnd_eval(cnd_autostop_files, ++autostop_files)) {
@@ -986,7 +1098,7 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
           }
 
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&cfile, &ld.pdh, &ld.err)) {
+          if (ringbuf_switch_file(&cfile, &ld.wtap_pdh, &ld.err)) {
             /* File switch succeeded: reset the conditions */
             cnd_reset(cnd_autostop_size);
             if (cnd_file_duration) {
@@ -1003,7 +1115,7 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
           continue;
         }
       } /* cnd_autostop_size */
-    }
+    } /* inpkts */
 
     /* Only update once a second so as not to overload slow displays */
     cur_time = time(NULL);
@@ -1014,27 +1126,27 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
         *stats_known = TRUE;
       }*/
 
-      	/* Let the parent process know. */
       /* calculate and display running time */
       if(show_info) {
           cur_time -= start_time;
           capture_ui.running_time   = cur_time;
-          capture_ui.new_packets    = ld.sync_packets;
+          capture_ui.new_packets    = ld.packets_sync_pipe;
           capture_info_update(&capture_ui);
       }
 
-      if (ld.sync_packets) {
+      /* Let the parent process know. */
+      if (ld.packets_sync_pipe) {
         /* do sync here */
-        fflush(wtap_dump_file(ld.pdh));
+        fflush(wtap_dump_file(ld.wtap_pdh));
 
         if (capture_child) {
 	  /* This is the child process for a sync mode capture, so send
 	     our parent a message saying we've written out "ld.sync_packets"
 	     packets to the capture file. */
-        sync_pipe_packet_count_to_parent(ld.sync_packets);
+        sync_pipe_packet_count_to_parent(ld.packets_sync_pipe);
         }
 
-        ld.sync_packets = 0;
+        ld.packets_sync_pipe = 0;
       }
 
       /* check capture duration condition */
@@ -1055,7 +1167,7 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
           }
 
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&cfile, &ld.pdh, &ld.err)) {
+          if (ringbuf_switch_file(&cfile, &ld.wtap_pdh, &ld.err)) {
             /* file switch succeeded: reset the conditions */
             cnd_reset(cnd_file_duration);
             if(cnd_autostop_size)
@@ -1075,6 +1187,11 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
 
   } /* while (ld.go) */
 
+  /* close capture info dialog */
+  if(show_info) {
+    capture_info_destroy(&capture_ui);
+  }
+
   /* delete stop conditions */
   if (cnd_file_duration != NULL)
     cnd_delete(cnd_file_duration);
@@ -1085,42 +1202,38 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
   if (cnd_autostop_duration != NULL)
     cnd_delete(cnd_autostop_duration);
 
+  /* did we had a pcap (input) error? */
   if (ld.pcap_err) {
     g_snprintf(errmsg, sizeof(errmsg), "Error while capturing packets: %s",
-      pcap_geterr(pch));
-    popup_errmsg(errmsg);
-#ifdef _WIN32
+      pcap_geterr(ld.pcap_h));
+    capture_loop_popup_errmsg(errmsg);
   }
-#else
-  } else if (ld.from_cap_pipe && ld.cap_pipe_err == PIPERR)
-      popup_errmsg(errmsg);
+#ifndef _WIN32
+    else if (ld.from_cap_pipe && ld.cap_pipe_err == PIPERR)
+      capture_loop_popup_errmsg(errmsg);
 #endif
 
-  if (ld.err == 0)
+  /* did we had an error while capturing? */
+  if (ld.err == 0) {
     write_ok = TRUE;
-  else {
-    get_capture_file_io_error(errmsg, sizeof(errmsg), cfile.save_file, ld.err,
+  } else {
+    capture_loop_get_errmsg(errmsg, sizeof(errmsg), cfile.save_file, ld.err,
 			      FALSE);
-    popup_errmsg(errmsg);
+    capture_loop_popup_errmsg(errmsg);
     write_ok = FALSE;
   }
 
-  if (capture_opts.multi_files_on) {
-    close_ok = ringbuf_wtap_dump_close(&cfile, &err);
-  } else {
-    close_ok = wtap_dump_close(ld.pdh, &err);
-  }
+  /* close the wiretap (output) file */
+  close_ok = capture_loop_close_output(&ld, &err_close);
+
   /* If we've displayed a message about a write error, there's no point
      in displaying another message about an error on close. */
   if (!close_ok && write_ok) {
-    get_capture_file_io_error(errmsg, sizeof(errmsg), cfile.save_file, err,
+    capture_loop_get_errmsg(errmsg, sizeof(errmsg), cfile.save_file, err_close,
 		TRUE);
-    popup_errmsg(errmsg);
+    capture_loop_popup_errmsg(errmsg);
   }
-  /* Set write_ok to mean the write and the close were successful. */
-  write_ok = (write_ok && close_ok);
 
-#ifndef _WIN32
   /*
    * XXX We exhibit different behaviour between normal mode and sync mode
    * when the pipe is stdin and not already at EOF.  If we're a child, the
@@ -1129,14 +1242,13 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
    * will say "Unrecognized libpcap format".  On the other hand, in normal
    * mode, cap_pipe_open_live() will say "End of file on pipe during open".
    */
-  if (ld.from_cap_pipe && pipe_fd >= 0)
-    close(pipe_fd);
-  else
-#endif
-  {
+
+  /* get packet drop statistics from pcap */
+  if(ld.pcap_h != NULL) {
+    g_assert(!ld.from_cap_pipe);
     /* Get the capture statistics, so we know how many packets were
        dropped. */
-    if (pcap_stats(pch, stats) >= 0) {
+    if (pcap_stats(ld.pcap_h, stats) >= 0) {
       *stats_known = TRUE;
       if (capture_child) {
       	/* Let the parent process know. */
@@ -1145,22 +1257,16 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
     } else {
       g_snprintf(errmsg, sizeof(errmsg),
 		"Can't get packet-drop statistics: %s",
-		pcap_geterr(pch));
-      popup_errmsg(errmsg);
+		pcap_geterr(ld.pcap_h));
+      capture_loop_popup_errmsg(errmsg);
     }
-    pcap_close(pch);
   }
 
-#ifdef _WIN32
-  /* Shut down windows sockets */
-  WSACleanup();
-#endif
+  /* close the input file (pcap or capture pipe) */
+  capture_loop_close_input(&ld);
 
-  if(show_info) {
-    capture_info_destroy(&capture_ui);
-  }
-
-  return write_ok;
+  /* ok, if the write and the close were successful. */
+  return write_ok && close_ok;
 
 error:
   if (capture_opts.multi_files_on) {
@@ -1177,18 +1283,10 @@ error:
     g_free(cfile.save_file);
   }
   cfile.save_file = NULL;
-  popup_errmsg(errmsg);
+  capture_loop_popup_errmsg(errmsg);
 
-#ifndef _WIN32
-  if (ld.from_cap_pipe) {
-    if (pipe_fd >= 0)
-      close(pipe_fd);
-  } else
-#endif
-  {
-    if (pch != NULL)
-      pcap_close(pch);
-  }
+  /* close the input file (pcap or cap_pipe) */
+  capture_loop_close_input(&ld);
 
   return FALSE;
 }
@@ -1201,7 +1299,7 @@ void capture_loop_stop(void)
  
 
 static void
-get_capture_file_io_error(char *errmsg, int errmsglen, const char *fname,
+capture_loop_get_errmsg(char *errmsg, int errmsglen, const char *fname,
 			  int err, gboolean is_close)
 {
   switch (err) {
@@ -1259,7 +1357,7 @@ get_capture_file_io_error(char *errmsg, int errmsglen, const char *fname,
 }
 
 static void
-popup_errmsg(const char *errmsg)
+capture_loop_popup_errmsg(const char *errmsg)
 {
   if (capture_child) {
     /* This is the child process for a sync mode capture.
@@ -1275,7 +1373,7 @@ popup_errmsg(const char *errmsg)
 
 /* one packet was captured, process it */
 static void
-capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
+capture_loop_packet_cb(guchar *user, const struct pcap_pkthdr *phdr,
   const guchar *pd)
 {
   struct wtap_pkthdr whdr;
@@ -1283,8 +1381,8 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
   loop_data *ld = (loop_data *) user;
   int err;
 
-  /* user told us to stop after x packets, do we have enough? */
-  if ((++ld->counts.total >= ld->max) && (ld->max > 0))
+  /* if the user told us to stop after x packets, do we have enough? */
+  if ((ld->packets_max > 0) && (++ld->counts.total >= ld->packets_max))
   {
      ld->go = FALSE;
   }
@@ -1292,7 +1390,7 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
   /* Convert from libpcap to Wiretap format.
      If that fails, set "ld->go" to FALSE, to stop the capture, and set
      "ld->err" to the error. */
-  pd = wtap_process_pcap_packet(ld->linktype, phdr, pd, &pseudo_header,
+  pd = wtap_process_pcap_packet(ld->wtap_linktype, phdr, pd, &pseudo_header,
 				&whdr, &err);
   if (pd == NULL) {
     ld->go = FALSE;
@@ -1300,17 +1398,17 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
     return;
   }
 
-  if (ld->pdh) {
+  if (ld->wtap_pdh) {
     /* We're supposed to write the packet to a file; do so.
        If this fails, set "ld->go" to FALSE, to stop the capture, and set
        "ld->err" to the error. */
-    if (!wtap_dump(ld->pdh, &whdr, &pseudo_header, pd, &err)) {
+    if (!wtap_dump(ld->wtap_pdh, &whdr, &pseudo_header, pd, &err)) {
       ld->go = FALSE;
       ld->err = err;
     }
   }
 
-  switch (ld->linktype) {
+  switch (ld->wtap_linktype) {
     case WTAP_ENCAP_ETHERNET:
       capture_eth(pd, 0, whdr.caplen, &ld->counts);
       break;
