@@ -9,7 +9,7 @@
  * Modified 2004-01-10 by Anders Broman to add abillity to dissect
  * Content type application/ISUP RFC 3204 used in SIP-T
  *
- * $Id: packet-isup.c,v 1.60 2004/04/02 05:19:42 guy Exp $
+ * $Id: packet-isup.c,v 1.61 2004/04/03 22:13:38 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5531,7 +5531,7 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* application/ISUP has no  CIC  */
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(message_type, isup_message_type_value_acro, "reserved"));
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "ISUP:%s", val_to_str(message_type, isup_message_type_value_acro, "reserved"));
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */

@@ -2125,6 +2125,8 @@ And assorted fixes and enhancements by the people listed above and by:
 	Pavel Kankovsky <kan [AT] dcit.cz>
 	Nick Black <dank [AT] reflexsecurity.com>
 	Bill Guyton <guyton [AT] bguyton.com>
+	Chernishov Yury <Chernishov [AT] iskrauraltel.ru>
+
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
