@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.46 2001/01/22 08:03:44 guy Exp $
+ * $Id: packet-bootp.c,v 1.47 2001/02/13 00:01:07 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -10,6 +10,7 @@
  * RFC 2131: Dynamic Host Configuration Protocol
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
  * RFC 2489: Procedure for Defining New DHCP Options
+ * RFC 3046: DHCP Relay Agent Information Option
  * BOOTP and DHCP Parameters
  *     http://www.isi.edu/in-notes/iana/assignments/bootp-dhcp-parameters
  *
@@ -83,6 +84,8 @@ struct opt_info {
 #define NUM_O63_SUBOPTS 11
 
 static int dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
+    int optp);
+static int bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb,
     int optp);
 
 static const char *
@@ -212,9 +215,9 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff)
 		/*  79 */ { "Service Location Agent Scope",			opaque },
 		/*  80 */ { "Naming Authority",						opaque },
 		/*  81 */ { "Client Fully Qualified Domain Name",	opaque },
-		/*  82 */ { "Agent Circuit ID",						opaque },
-		/*  83 */ { "Agent Remote ID",						opaque },
-		/*  84 */ { "Agent Subnet Mask",					opaque },
+		/*  82 */ { "Agent Information Option",                 special },
+		/*  83 */ { "Unassigned",				opaque },
+		/*  84 */ { "Unassigned",				opaque },
 		/*  85 */ { "Novell Directory Services Servers",	opaque },
 		/*  86 */ { "Novell Directory Services Tree Name",	opaque },
 		/*  87 */ { "Novell Directory Services Context",	opaque },
@@ -411,6 +414,17 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff)
 			optp = dissect_netware_ip_suboption(v_tree, tvb, optp);
 		break;
 
+	case 82:        /* Relay Agent Information Option */
+		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
+					  "Option %d: %s (%d bytes)",
+					  code, text, vlen);
+		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+		optp = voff+2;
+		while (optp < voff+consumed) {
+			optp = bootp_dhcp_decode_agent_info(v_tree, tvb, optp);
+		}
+		break;
+
 	default:	/* not special */
 		break;
 	}
@@ -533,6 +547,32 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff)
 	}
 
 	return consumed;
+}
+
+static int
+bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optp)
+{
+	guint8 subopt;
+	guint8 subopt_len;
+	
+	subopt = tvb_get_guint8(tvb, optp);
+	subopt_len = tvb_get_guint8(tvb, optp+1);
+	switch (subopt) {
+	case 1:
+		proto_tree_add_text(v_tree, tvb, optp, subopt_len + 2,
+				    "Agent Circuit ID (%d bytes)", subopt_len);
+		break;
+	case 2:
+		proto_tree_add_text(v_tree, tvb, optp, subopt_len + 2,
+				    "Agent Remote ID (%d bytes)", subopt_len);
+		break;
+	default:
+		proto_tree_add_text(v_tree, tvb, optp, subopt_len + 2,
+				    "Unknown agent option: %d", subopt);
+		break;
+	}
+	optp += (subopt_len + 2);
+	return optp;
 }
 
 static int
