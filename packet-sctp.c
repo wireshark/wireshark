@@ -12,7 +12,7 @@
  * - support for reassembly
  * - error checking mode 
  *
- * $Id: packet-sctp.c,v 1.57 2003/06/08 00:38:38 guy Exp $
+ * $Id: packet-sctp.c,v 1.58 2003/06/08 15:59:26 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -716,7 +716,7 @@ static const value_string parameter_identifier_values[] = {
   { IPV4ADDRESS_PARAMETER_ID,             "IPv4 address"                },
   { IPV6ADDRESS_PARAMETER_ID,             "IPv6 address"                },
   { STATE_COOKIE_PARAMETER_ID,            "State cookie"                },
-  { UNREC_PARA_PARAMETER_ID,              "Unrecognized parameters"     },
+  { UNREC_PARA_PARAMETER_ID,              "Unrecognized parameter"      },
   { COOKIE_PRESERVATIVE_PARAMETER_ID,     "Cookie preservative"         },
   { HOSTNAME_ADDRESS_PARAMETER_ID,        "Hostname address"            },
   { SUPPORTED_ADDRESS_TYPES_PARAMETER_ID, "Supported address types"     },
