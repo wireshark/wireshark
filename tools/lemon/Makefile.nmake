@@ -1,7 +1,11 @@
+## Makefile for building ethereal.exe with Microsoft C and nmake
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+#
+# $Id: Makefile.nmake,v 1.8 2002/02/27 09:42:51 guy Exp $
 
 include ..\..\config.nmake
 
-CFLAGS=$(LOCAL_CFLAGS)
+CFLAGS=-D_U_="" $(LOCAL_CFLAGS)
 
 .c.obj::
    $(CC) $(CFLAGS) -Fd.\ -c $<

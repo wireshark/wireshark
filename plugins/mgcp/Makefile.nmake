@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.4 2002/01/21 07:37:49 guy Exp $
+# $Id: Makefile.nmake,v 1.5 2002/02/27 09:42:48 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -9,7 +9,7 @@ include ..\..\config.nmake
 CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap \
 	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
 	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
-	/I$(PCAP_DIR)\include $(LOCAL_CFLAGS)
+	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
 OBJECTS=packet-mgcp.obj 
 

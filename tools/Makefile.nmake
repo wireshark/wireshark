@@ -1,3 +1,7 @@
+## Makefile for building ethereal.exe with Microsoft C and nmake
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+#
+# $Id: Makefile.nmake,v 1.3 2002/02/27 09:42:49 guy Exp $
 
 all: lemon
 

@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.35 2002/02/06 09:58:30 guy Exp $
+# $Id: configure.in,v 1.36 2002/02/27 09:42:52 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -28,12 +28,20 @@ AC_PATH_PROG(LEX, flex)
 
 AC_SUBST(FLEX_PATH)
 
-# If we're running gcc, add '-Wall' to CFLAGS.
-AC_MSG_CHECKING(to see if we can add '-Wall' to CFLAGS)
+#
+# If we're running gcc, add '-Wall -W -Wno-unused' to CFLAGS, and add
+# '-D_U_="__attribute__((unused))"' as well, for future use when we
+# remove '-Wno-unused'.
+#
+# Otherwise, add '-D_U_=""', so that _U_ used to flag an unused function
+# argument will compile with non-GCC compilers.
+#
+AC_MSG_CHECKING(to see if we can add '-Wall -W -Wno-unused' to CFLAGS)
 if test x$GCC != x ; then
-  CFLAGS="-Wall -W -Wno-unused $CFLAGS"
+  CFLAGS="-D_U_=\"__attribute__((unused))\" -Wall -W -Wno-unused $CFLAGS"
   AC_MSG_RESULT(yes)
 else
+  CFLAGS="-D_U_=\"\" $CFLAGS"
   AC_MSG_RESULT(no)
 fi
 

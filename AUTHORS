@@ -84,6 +84,9 @@ Joerg Mayer      <jmayer[AT]loplof.de> {
 	Remove trailing blanks from hex dump in print/Tethereal
 	Remove unused variables and declarations of non-existent
 	    functions
+	In configure scripts, if the compiler is GCC, add to CFLAGS a -D
+	    flag to define _U_ as something that marks an argument
+	    unused in GCC, and as nothing for other compilers
 }
 
 Martin Maciaszek <fastjack[AT]i-s-o.net> {
