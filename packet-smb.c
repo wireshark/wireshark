@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.357 2003/08/04 22:28:57 sharpe Exp $
+ * $Id: packet-smb.c,v 1.358 2003/08/13 00:05:00 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -559,6 +559,7 @@ static int hf_smb_file_index = -1;
 static int hf_smb_short_file_name = -1;
 static int hf_smb_short_file_name_len = -1;
 static int hf_smb_fs_id = -1;
+static int hf_smb_fs_guid = -1;
 static int hf_smb_sector_unit = -1;
 static int hf_smb_fs_units = -1;
 static int hf_smb_fs_sector = -1;
@@ -13100,7 +13101,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 		break;
 	case 0x0101:	/* SMB_QUERY_FS_LABEL_INFO */
-	case 1001:	/* SMB_FS_LABEL_INFORMATION */
+	case 1002:	/* SMB_FS_LABEL_INFORMATION */
 		/* volume label length */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
 		vll = tvb_get_letohl(tvb, offset);
@@ -13117,7 +13118,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 		break;
 	case 0x0102:	/* SMB_QUERY_FS_VOLUME_INFO */
-	case 1002:	/* SMB_FS_VOLUME_INFORMATION */
+	case 1001:	/* SMB_FS_VOLUME_INFORMATION */
 		/* create time */
 		CHECK_BYTE_COUNT_TRANS_SUBR(8);
 		offset = dissect_smb_64bit_time(tvb, tree, offset,
@@ -13358,9 +13359,32 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		proto_tree_add_item(tree, hf_smb_fs_sector, tvb, offset, 4, TRUE);
 		COUNT_BYTES_TRANS_SUBR(4);
 		break;
-	case 1008: /* Query Object ID Information - unknown data */
-		/* XXX: TODO */
+	case 1008: /* Query Object ID is GUID plus unknown data */ {
+		e_uuid_t fs_id;
+		char uuid_str[DCERPC_UUID_STR_LEN]; 
+		int uuid_str_len;
+		char drep = 0x10;
+		
+		CHECK_BYTE_COUNT_TRANS_SUBR(16);
+
+		dcerpc_tvb_get_uuid (tvb, offset, &drep, &fs_id);
+
+		uuid_str_len = snprintf(
+			uuid_str, DCERPC_UUID_STR_LEN, 
+			"%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+			fs_id.Data1, fs_id.Data2, fs_id.Data3,
+			fs_id.Data4[0], fs_id.Data4[1],
+			fs_id.Data4[2], fs_id.Data4[3],
+			fs_id.Data4[4], fs_id.Data4[5],
+			fs_id.Data4[6], fs_id.Data4[7]);
+
+		proto_tree_add_string_format(
+			tree, hf_smb_fs_guid, tvb,
+			offset, 16, uuid_str, "GUID: %s", uuid_str);
+
+		COUNT_BYTES_TRANS_SUBR(16);
 		break;
+	    }
 	}
 
 	return offset;
@@ -18434,6 +18458,10 @@ proto_register_smb(void)
 	{ &hf_smb_fs_id,
 		{ "FS Id", "smb.fs_id", FT_UINT32, BASE_DEC,
 		NULL, 0, "File System ID (NT Server always returns 0)", HFILL }},
+
+	{ &hf_smb_fs_guid,
+		{ "FS GUID", "smb.fs_guid", FT_STRING, BASE_NONE,
+		NULL, 0, "File System GUID", HFILL }},
 
 	{ &hf_smb_sector_unit,
 		{ "Sectors/Unit", "smb.fs_sector_per_unit", FT_UINT32, BASE_DEC,
