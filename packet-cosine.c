@@ -1,7 +1,7 @@
 /* packet-cosine.c
  * Routines for decoding CoSine IPNOS L2 debug output
  *
- * $Id: packet-cosine.c,v 1.2 2002/08/02 23:35:48 jmayer Exp $
+ * $Id: packet-cosine.c,v 1.3 2002/08/16 00:41:37 guy Exp $
  *
  * Motonori Shindo <mshindo@mshindo.net>
  *
@@ -43,8 +43,6 @@ static int hf_off = -1;
 static int hf_pri = -1;
 static int hf_rm = -1;
 static int hf_err = -1;
-static int hf_code1 = -1;
-static int hf_code2 = -1;
 
 static gint ett_raw = -1;
 
@@ -85,10 +83,6 @@ dissect_cosine(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(fh_tree, hf_pri, tvb, 0, 0, pseudo_header->cosine.pri);
     proto_tree_add_uint(fh_tree, hf_rm,  tvb, 0, 0, pseudo_header->cosine.rm);
     proto_tree_add_uint(fh_tree, hf_err, tvb, 0, 0, pseudo_header->cosine.err);
-    proto_tree_add_uint(fh_tree, hf_code1, tvb, 0, 0, 
-			pseudo_header->cosine.code1);
-    proto_tree_add_uint(fh_tree, hf_code2, tvb, 0, 0, 
-			pseudo_header->cosine.code2);
     
     switch (pseudo_header->cosine.encap) {
     case COSINE_ENCAP_ETH:
@@ -158,19 +152,15 @@ proto_register_cosine(void)
 {
   static hf_register_info hf[] = {
     { &hf_pro, 
-      { "Pro",	"cosine.pro", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+      { "Protocol", "cosine.pro", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}},
     { &hf_off, 
-      { "Pro",	"cosine.off", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+      { "Offset", "cosine.off", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}},
     { &hf_pri, 
-      { "Pri",	"cosine.pri", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+      { "Priority", "cosine.pri", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}},
     { &hf_rm, 
-      { "RM",	"cosine.rm",  FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+      { "Rate Marking",	"cosine.rm",  FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}},
     { &hf_err, 
-      { "Err",	"cosine.err", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
-    { &hf_code1, 
-      { "Code1", "cosine.code1", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
-    { &hf_code2, 
-      { "Code2", "cosine.code2", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
+      { "Error Code", "cosine.err", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}},
   };
 
   static gint *ett[] = {

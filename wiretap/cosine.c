@@ -1,6 +1,6 @@
 /* cosine.c
  *
- * $Id: cosine.c,v 1.3 2002/08/06 01:00:07 guy Exp $
+ * $Id: cosine.c,v 1.4 2002/08/16 00:41:39 guy Exp $
  *
  * CoSine IPNOS L2 debug output parsing
  * Copyright (c) 2002 by Motonori Shindo <mshindo@mshindo.net>
@@ -164,10 +164,7 @@
 #define COSINE_HEADER_LINES_TO_CHECK	200
 #define COSINE_LINE_LENGTH        	240	
 
-/*
- * XXX - is this the biggest packet we can get?
- */
-#define COSINE_MAX_PACKET_LEN	16384
+#define COSINE_MAX_PACKET_LEN	65536
 
 static gboolean empty_line(const guchar *line);
 static long cosine_seek_next_packet(wtap *wth, int *err, char *hdr);
@@ -442,8 +439,6 @@ parse_cosine_rec_hdr(wtap *wth, const char *line, union wtap_pseudo_header *pseu
 		pseudo_header->cosine.encap = COSINE_ENCAP_HDLC;
 	} else if (strncmp(if_name, "PPP:", 4) == 0) {
 		pseudo_header->cosine.encap = COSINE_ENCAP_PPP;
-	} else if (strncmp(if_name, "HDLC:", 5) == 0) {
-		pseudo_header->cosine.encap = COSINE_ENCAP_HDLC;
 	} else if (strncmp(if_name, "ETH:", 4) == 0) {
 		pseudo_header->cosine.encap = COSINE_ENCAP_ETH;
 	} else {
@@ -461,8 +456,6 @@ parse_cosine_rec_hdr(wtap *wth, const char *line, union wtap_pseudo_header *pseu
 	pseudo_header->cosine.pri = pri;
 	pseudo_header->cosine.rm = rm;
 	pseudo_header->cosine.err = error;
-	pseudo_header->cosine.code1 = code1;
-	pseudo_header->cosine.code2 = code2;
 
 	return pkt_len;
 }

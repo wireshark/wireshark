@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.120 2002/07/31 22:41:34 jmayer Exp $
+ * $Id: wtap.h,v 1.121 2002/08/16 00:41:39 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -299,7 +299,6 @@ struct ieee_802_11_phdr {
 
 /* Packet "pseudo-header" for the output from CoSine L2 debug output. */
 
-/* XXX */
 #define COSINE_MAX_IF_NAME_LEN	128
 
 #define COSINE_ENCAP_TEST	1
@@ -315,18 +314,15 @@ struct ieee_802_11_phdr {
 #define COSINE_DIR_TX 1
 #define COSINE_DIR_RX 2
 
-/* XXX */
 struct cosine_phdr {
 	guint8 encap;		/* COSINE_ENCAP_* as defined above */
 	guint8 direction;	/* COSINE_DIR_*, as defined above */
-	char if_name[COSINE_MAX_IF_NAME_LEN];
-	guint16 pro;		/*   */
-	guint16 off;		/*   */
-	guint16 pri;		/*   */
-	guint16 rm;		/*   */
-	guint16 err;		/*   */
-	guint16 code1;		/*   */
-	guint16 code2;		/*   */
+        char if_name[COSINE_MAX_IF_NAME_LEN];  /* Encap & Logical I/F name */
+	guint16 pro;		/* Protocol */
+	guint16 off;		/* Offset */
+	guint16 pri;		/* Priority */
+	guint16 rm;		/* Rate Marking */
+	guint16 err;		/* Error Code */
 };
 
 union wtap_pseudo_header {
