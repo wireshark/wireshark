@@ -1,7 +1,7 @@
 /* packet-bxxp.c
  * Routines for BXXP packet disassembly
  *
- * $Id: packet-bxxp.c,v 1.2 2000/09/08 06:19:37 sharpe Exp $
+ * $Id: packet-bxxp.c,v 1.3 2000/09/12 02:24:19 sharpe Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -81,9 +81,15 @@ static int tcp_port = 0;
 
 /*
  * Per-frame data
+ *
+ * pl_left is the amount of data in this packet that belongs to another
+ * frame ...
+ * 
+ * It relies on TCP segments not being re-ordered too much ...
  */
 struct bxxp_proto_data {
-  guint32 size;
+  int pl_left;   /* Payload at beginning of frame */
+  int pl_size;   /* Payload in current message ...*/
 };
 
 /*
@@ -97,7 +103,7 @@ struct bxxp_request_key {
 
 struct bxxp_request_val {
   guint16 processed;     /* Have we processed this conversation? */
-  guint32 size;          /* Size of the message                  */
+  int size;              /* Size of the message                  */
 };
 
 GHashTable *bxxp_request_hash = NULL;
@@ -144,7 +150,7 @@ static void
 bxxp_init_protocol(void)
 {
 #if defined(DEBUG_BXXP_HASH)
-  printf("Initializing BXXP hashtable area\n");
+  fprintf(stderr, "Initializing BXXP hashtable area\n");
 #endif
 
   if (bxxp_request_hash)
@@ -163,7 +169,9 @@ bxxp_init_protocol(void)
   bxxp_request_vals = g_mem_chunk_new("bxxp_request_vals", 
 				      sizeof(struct bxxp_request_val),
 				      bxxp_packet_init_count * sizeof(struct bxxp_request_val), G_ALLOC_AND_FREE);
-
+  bxxp_packet_infos = g_mem_chunk_new("bxxp_packet_infos",
+				      sizeof(struct bxxp_proto_data),
+				      bxxp_packet_init_count * sizeof(struct bxxp_proto_data), G_ALLOC_AND_FREE);
 }
 
 /*
@@ -374,7 +382,12 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset += 1;
 
     offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_size, &size);
-    request_val -> size = size;  /* Stash this away */
+    if (request_val)
+      request_val -> size = size;  /* Stash this away */
+    else {
+      frame_data->pl_size = size;
+      if (frame_data->pl_size < 0) frame_data->pl_size = 0;
+    }
 
     /* Check the space */
 
@@ -409,10 +422,23 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
       /* Except, check the payload length, and only dissect that much */
 
+      /* We need to keep track, in the conversation, of how much is left 
+       * so in the next packet, we can figure out what is part of the payload
+       * and what is the next message
+       */
+
       proto_tree_add_text(tree, tvb, offset, pl_size, "Payload: %s", tvb_format_text(tvb, offset, pl_size));
 
       offset += pl_size;
 
+      if (request_val) {
+	request_val->size -= pl_size;
+	if (request_val->size < 0) request_val->size = 0;
+      }
+      else {
+	frame_data->pl_size -= pl_size;
+	if (frame_data->pl_size < 0) frame_data->pl_size = 0;
+      }
     }
       
     /* If anything else left, dissect it ... As what? */
@@ -460,7 +486,10 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset += 1;
 
     offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_size, &size);
-    request_val -> size = size;
+    if (request_val)
+      request_val->size = size;
+    else
+      frame_data->pl_size = size;
 
     /* Check the space ... */
 
@@ -499,6 +528,14 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
       offset += pl_size;
 
+      if (request_val) {
+	request_val->size -= pl_size;
+	if (request_val->size < 0) request_val->size = 0;
+      }
+      else {
+	frame_data->pl_size -= pl_size;
+	if (frame_data->pl_size < 0) frame_data->pl_size = 0;
+      }
     }
 
     /* If anything else left, dissect it ... As what? */
@@ -572,53 +609,93 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
   }
 
-  if (tvb_length_remaining(tvb, offset) > 0) { /* Dissect anything left over as payload */
+  if (tvb_length_remaining(tvb, offset) > 0) { /* Dissect anything left over */
 
-    proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Payload: %s",
-			tvb_format_text(tvb, offset, tvb_length_remaining(tvb, offset)));
+    int pl_size = 0;
 
+    if (request_val) {
+
+      pl_size = MIN(request_val->size, tvb_length_remaining(tvb, offset));
+
+      if (pl_size == 0) { /* The whole of the rest must be payload */
+      
+	pl_size = tvb_length_remaining(tvb, offset); /* Right place ? */
+      
+      }
+
+    } else if (frame_data) {
+      pl_size = MIN(frame_data->pl_size, tvb_length_remaining(tvb, offset));
+    } else { /* Just in case */
+      pl_size = tvb_length_remaining(tvb, offset);
+    }
+
+    /* Take care here to handle the payload correctly, and if there is 
+     * another message here, then handle it correctly as well.
+     */
+
+    /* If the pl_size == 0 and the offset == 0, then we have not processed
+     * anything in this frame above, so we better treat all this data as 
+     * payload to avoid recursion loops
+     */
+
+    if (pl_size == 0 && offset == 0)
+      pl_size = tvb_length_remaining(tvb, offset);
+
+    if (pl_size > 0) {
+
+      proto_tree_add_text(tree, tvb, offset, pl_size, "Payload: %s",
+			  tvb_format_text(tvb, offset, pl_size));
+
+      offset += pl_size;            /* Advance past the payload */
+
+      if (request_val){
+	request_val->size -= pl_size; /* Reduce payload by what we added */
+	if (request_val->size < 0) request_val->size = 0;
+      }
+      else {
+	frame_data->pl_size -= pl_size;
+	if (frame_data->pl_size < 0) frame_data->pl_size = 0;
+      }
+    }
+
+    if (tvb_length_remaining(tvb, offset) > 0) {
+      offset += dissect_bxxp_tree(tvb, offset, pinfo, tree, request_val, frame_data);
+    }
   }
 
   return offset - st_offset;
 
 }
 
-#if 1
 static void
 dissect_bxxp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int offset;
-#else
-static void
-dissect_bxxp(const u_char *pd, int offset, frame_data *fd,
-		  proto_tree *tree)
-
-{
-  tvbuff_t                *tvb = tvb_create_from_top(offset);
-  packet_info             *pinfo = &pi;
-#endif
-  struct bxxp_proto_data  *frame_data;
+  struct bxxp_proto_data  *frame_data = NULL;
   proto_tree              *bxxp_tree, *ti;
   conversation_t          *conversation = NULL;
   struct bxxp_request_key request_key, *new_request_key;
   struct bxxp_request_val *request_val = NULL;
 
-#if 1
   CHECK_DISPLAY_AS_DATA(proto_bxxp, tvb, pinfo, tree);
-#else
-  OLD_CHECK_DISPLAY_AS_DATA(proto_bxxp, pd, offset, fd, tree);
-#endif
 
   offset = 0;
 
-  /* If we have per frame data, use that, else, we must be on the first 
-   * pass, so we figure it out on the first pass.
+  /* If we have per frame data, use that, else, we must have lost the per-
+   * frame data, and we have to do a full dissect pass again.
+   *
+   * The per-frame data tells us how much of this frame is left over from a
+   * previous frame, so we dissect it as payload and then try to dissect the
+   * rest.
    * 
-   * Since we can't stash info away in a conversation (as they are 
-   * removed during a filter operation, and we can't rely on the visited
-   * flag, as that is set to 0 during a filter, we must save per-frame
-   * data for each frame. However, we only need it for requests. Responses
-   * are easy to manage.
+   * We use the conversation to build up info on the first pass over the
+   * packets of type BXXP, and record anything that is needed if the user
+   * does random dissects of packets in per packet data.
+   *
+   * Once we have per-packet data, we don't need the conversation stuff 
+   * anymore, but if per-packet data and conversation stuff gets deleted, as 
+   * it does under some circumstances when a rescan is done, it all gets 
+   * rebuilt.
    */
 
   /* Find out what conversation this packet is part of ... but only
@@ -670,11 +747,66 @@ dissect_bxxp(const u_char *pd, int offset, frame_data *fd,
 
   if (tree) {  /* Build the tree info ... */
 
+    /* Check the per-frame data and the conversation for any left-over 
+     * payload from the previous frame 
+     */
+
     ti = proto_tree_add_item(tree, proto_bxxp, tvb, offset, tvb_length(tvb), FALSE);
 
     bxxp_tree = proto_item_add_subtree(ti, ett_bxxp);
 
-    dissect_bxxp_tree(tvb, offset, pinfo, bxxp_tree, request_val, frame_data);
+    /* FIXME: This conditional is not correct */
+    if ((frame_data && frame_data->pl_left > 0) ||
+	(request_val && request_val->size > 0)) {
+      int pl_left = 0;
+
+      if (frame_data) {
+	pl_left = frame_data->pl_left;
+      }
+      else {
+	pl_left = request_val->size;
+
+	request_val->size = 0;
+
+	/* We create the frame data here for this case, and 
+	 * elsewhere for other frames
+	 */
+
+	frame_data = g_mem_chunk_alloc(bxxp_packet_infos);
+
+	frame_data->pl_left = pl_left;
+	frame_data->pl_size = 0;
+
+	p_add_proto_data(pinfo->fd, proto_bxxp, frame_data);
+
+      }
+
+      pl_left = MIN(pl_left, tvb_length_remaining(tvb, offset));
+
+      /* Add the payload bit */
+      proto_tree_add_text(bxxp_tree, tvb, offset, pl_left, "Payload: %s",
+			  tvb_format_text(tvb, offset, pl_left));
+      offset += pl_left;
+    }
+
+    if (tvb_length_remaining(tvb, offset) > 0) {
+
+      offset += dissect_bxxp_tree(tvb, offset, pinfo, bxxp_tree, request_val, frame_data);
+
+    }
+
+    /* Set up the per-frame data here if not already done so */
+
+    if (frame_data == NULL) { 
+
+      frame_data = g_mem_chunk_alloc(bxxp_packet_infos);
+
+      frame_data->pl_left = 0;
+      frame_data->pl_size = 0;
+
+      p_add_proto_data(pinfo->fd, proto_bxxp, frame_data);
+	
+    }
 
   }
 
