@@ -20,11 +20,15 @@
 #endif
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$Id: inet_pton.c,v 1.3 2002/08/02 21:29:39 jmayer Exp $";
+static char rcsid[] = "$Id: inet_pton.c,v 1.4 2002/08/03 19:37:48 guy Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
+#endif
+
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
 #endif
 
 #ifdef HAVE_WINSOCK2_H
@@ -34,6 +38,10 @@ static char rcsid[] = "$Id: inet_pton.c,v 1.3 2002/08/02 21:29:39 jmayer Exp $";
 
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
+
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
 #endif
 
 #ifdef HAVE_ARPA_INET_H
@@ -65,10 +73,10 @@ static char rcsid[] = "$Id: inet_pton.c,v 1.3 2002/08/02 21:29:39 jmayer Exp $";
  */
 
 #ifdef AF_INET
-static int	inet_pton4 __P((const char *src, guchar *dst));
+static int	inet_pton4 __P((const char *src, u_char *dst));
 #endif
 #ifdef AF_INET6
-static int	inet_pton6 __P((const char *src, guchar *dst));
+static int	inet_pton6 __P((const char *src, u_char *dst));
 #endif
 
 /* int
@@ -118,11 +126,11 @@ inet_pton(af, src, dst)
 static int
 inet_pton4(src, dst)
 	const char *src;
-	guchar *dst;
+	u_char *dst;
 {
 	static const char digits[] = "0123456789";
 	int saw_digit, octets, ch;
-	guchar tmp[NS_INADDRSZ], *tp;
+	u_char tmp[NS_INADDRSZ], *tp;
 
 	saw_digit = 0;
 	octets = 0;
@@ -131,7 +139,7 @@ inet_pton4(src, dst)
 		const char *pch;
 
 		if ((pch = strchr(digits, ch)) != NULL) {
-			guint new = *tp * 10 + (pch - digits);
+			u_int new = *tp * 10 + (pch - digits);
 
 			if (new > 255)
 				return (0);
@@ -173,14 +181,14 @@ inet_pton4(src, dst)
 static int
 inet_pton6(src, dst)
 	const char *src;
-	guchar *dst;
+	u_char *dst;
 {
 	static const char xdigits_l[] = "0123456789abcdef",
 			  xdigits_u[] = "0123456789ABCDEF";
-	guchar tmp[NS_IN6ADDRSZ], *tp, *endp, *colonp;
+	u_char tmp[NS_IN6ADDRSZ], *tp, *endp, *colonp;
 	const char *xdigits, *curtok;
 	int ch, saw_xdigit;
-	guint val;
+	u_int val;
 
 	memset((tp = tmp), '\0', NS_IN6ADDRSZ);
 	endp = tp + NS_IN6ADDRSZ;
@@ -217,8 +225,8 @@ inet_pton6(src, dst)
 			}
 			if (tp + NS_INT16SZ > endp)
 				return (0);
-			*tp++ = (guchar) (val >> 8) & 0xff;
-			*tp++ = (guchar) val & 0xff;
+			*tp++ = (u_char) (val >> 8) & 0xff;
+			*tp++ = (u_char) val & 0xff;
 			saw_xdigit = 0;
 			val = 0;
 			continue;
@@ -234,8 +242,8 @@ inet_pton6(src, dst)
 	if (saw_xdigit) {
 		if (tp + NS_INT16SZ > endp)
 			return (0);
-		*tp++ = (guchar) (val >> 8) & 0xff;
-		*tp++ = (guchar) val & 0xff;
+		*tp++ = (u_char) (val >> 8) & 0xff;
+		*tp++ = (u_char) val & 0xff;
 	}
 	if (colonp != NULL) {
 		/*
