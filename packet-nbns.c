@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.20 1999/05/27 05:35:08 guy Exp $
+ * $Id: packet-nbns.c,v 1.21 1999/06/01 20:40:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1017,7 +1017,7 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 
 	char *yesno[] = { "No", "Yes" };
 
-	char name[32];
+	char name[MAXDNAME+4];
 	int len;
 
 	header.msg_type = pd[offset];
@@ -1183,7 +1183,7 @@ dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 	guint8		flags;
 	guint16		length;
 	int		len;
-	char		name[32];
+	char		name[MAXDNAME+4];
 
 	msg_type = pd[offset];
 	flags = pd[offset + 1];
