@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.61 2004/05/01 20:15:56 obiot Exp $
+ * $Id: proto.h,v 1.62 2004/05/09 09:26:31 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,11 +49,10 @@ struct _value_string;
  * need this macro */
 #define VALS(x)	(const struct _value_string*)(x)
 
-/* ... and similarly, */
+/* ... and similarly for bitfield strings */
 #define TFS(x)	(const struct true_false_string*)(x)
 
 struct _protocol;
-
 typedef struct _protocol protocol_t;
  
 /* check protocol activation */
@@ -77,15 +76,15 @@ typedef struct _header_field_info header_field_info;
 /* information describing a header field */
 struct _header_field_info {
 	/* ---------- set by dissector --------- */
-	char				*name;
-	char				*abbrev;
-	enum ftenum			type;
-	int				display;	/* for integers only, so far. Base */
-	const void			*strings;	/* val_string or true_false_string */
-	guint32				bitmask;
+	char				*name;      /* full name of this field */
+	char				*abbrev;    /* abbreviated name of this field */
+	enum ftenum			type;       /* field type, one of FT_ (from ftypes.h) */
+	int					display;	/* one of BASE_, or number of field bits for FT_BOOLEAN */
+	const void			*strings;	/* val_string or true_false_string for FT_BOOLEAN, typically VALS() or TFS() */
+	guint32				bitmask;    /* FT_BOOLEAN: bitmask of interesting bits */
 	char				*blurb;		/* Brief description of field. */
 
-	/* ---------- set by proto routines --------- */
+	/* ------- set by proto routines (prefilled by HFILL macro, see below) ------ */
 	int				id;		/* Field ID */
 	int				parent;		/* parent protocol */
 	int				bitshift;	/* bits to shift */
@@ -107,28 +106,30 @@ typedef struct hf_register_info {
 } hf_register_info;
 
 
+/* string representation, if one of the proto_tree_add_..._format() functions used */
 typedef struct _item_label_t {
 	char representation[ITEM_LABEL_LENGTH];
 } item_label_t;
 
 
-
 /* Contains the field information for the proto_item. */
 typedef struct field_info {
-	header_field_info	*hfinfo;
-	gint				start;
-	gint				length;
-	gint				tree_type; /* ETT_* */
-	item_label_t		*rep; /* string for GUI tree */
-	int					flags;
-	tvbuff_t			*ds_tvb;  /* data source tvbuff */
+	header_field_info	*hfinfo;    /* pointer to registered field information */
+	gint				start;      /* current start of data */
+	gint				length;     /* current data length of item */
+	gint				tree_type;  /* ETT_ */
+	item_label_t		*rep;       /* string for GUI tree */
+	int					flags;      /* one of FI_ */
+	tvbuff_t			*ds_tvb;    /* data source tvbuff */
 	fvalue_t			value;
 } field_info;
 
 
+/* flags for field_info.flags (must be or'ed together) */
 #define FI_HIDDEN       0x0001
 #define FI_GENERATED    0x0002
 
+/* convenience macros to manipulate flags field */
 #define FI_GET_FLAG(fi, flag) (fi->flags & flag)
 #define FI_SET_FLAG(fi, flag) (fi->flags = fi->flags | flag)
 
