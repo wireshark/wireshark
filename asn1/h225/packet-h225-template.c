@@ -1,8 +1,8 @@
-/* packet-h225_asn1.c
+/* packet-h225.c
  * Routines for h225 packet dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id: packet-h225_asn1-template.c 12203 2004-10-05 09:18:55Z guy $
+ * $Id: packet-h225-template.c 12203 2004-10-05 09:18:55Z guy $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
