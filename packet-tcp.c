@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.142 2002/05/05 22:25:14 guy Exp $
+ * $Id: packet-tcp.c,v 1.143 2002/06/04 07:03:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -401,8 +401,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 			/* add desegmented data to the data source list */
-			add_new_data_source(pinfo->fd, next_tvb,
-					"Desegmented");
+			add_new_data_source(pinfo, next_tvb, "Desegmented");
 
 			/*
 			 * Supply the sequence number of the first of the

@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.52 2002/05/27 09:50:58 sahlberg Exp $
+ * $Id: packet-dcerpc.c,v 1.53 2002/06/04 07:03:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1626,7 +1626,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 
 			    next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen, ipfd_head->datalen);
 			    tvb_set_child_real_data_tvbuff(tvb, next_tvb);
-			    add_new_data_source(pinfo->fd, next_tvb, "Reassembled DCE/RPC");
+			    add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
 			    pinfo->fragmented=FALSE;
 			    fi = proto_tree_add_item(dcerpc_tree, hf_dcerpc_fragments, next_tvb, 0, -1, FALSE);
 			    ft = proto_item_add_subtree(fi, ett_dcerpc_fragments);
@@ -1849,7 +1849,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 
 			    next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen, ipfd_head->datalen);
 			    tvb_set_child_real_data_tvbuff(tvb, next_tvb);
-			    add_new_data_source(pinfo->fd, next_tvb, "Reassembled DCE/RPC");
+			    add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
 			    pinfo->fragmented=FALSE;
 			    fi = proto_tree_add_item(dcerpc_tree, hf_dcerpc_fragments, next_tvb, 0, -1, FALSE);
 			    ft = proto_item_add_subtree(fi, ett_dcerpc_fragments);

@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.43 2002/05/02 10:53:03 guy Exp $
+ * $Id: packet-icq.c,v 1.44 2002/06/04 07:03:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1837,7 +1837,7 @@ dissect_icqv5Client(tvbuff_t *tvb,
     tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
 
     /* Add the decrypted data to the data source list. */
-    add_new_data_source(pinfo->fd, decr_tvb, "Decrypted");
+    add_new_data_source(pinfo, decr_tvb, "Decrypted");
 
     cmd = tvb_get_letohs(decr_tvb, ICQ5_CL_CMD);
 

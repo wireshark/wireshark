@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.55 2002/05/30 01:56:54 guy Exp $
+ * $Id: packet-clnp.c,v 1.56 2002/06/04 07:03:44 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1842,7 +1842,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
       /* Add the defragmented data to the data source list. */
-      add_new_data_source(pinfo->fd, next_tvb, "Reassembled CLNP");
+      add_new_data_source(pinfo, next_tvb, "Reassembled CLNP");
 
       /* It's not fragmented. */
       pinfo->fragmented = FALSE;

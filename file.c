@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.275 2002/05/23 10:27:12 guy Exp $
+ * $Id: file.c,v 1.276 2002/06/04 07:03:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -798,7 +798,6 @@ read_packet(capture_file *cf, long offset)
   fdata->next = NULL;
   fdata->prev = NULL;
   fdata->pfd  = NULL;
-  fdata->data_src  = NULL;
   fdata->pkt_len  = phdr->len;
   fdata->cap_len  = phdr->caplen;
   fdata->file_off = offset;
@@ -1017,7 +1016,6 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
 	g_slist_free(fdata->pfd);
         fdata->pfd = NULL;
       }
-      free_data_sources(fdata);	/* release data source list */
     }
 
     /* XXX - do something with "err" */
@@ -1046,7 +1044,6 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
 	g_slist_free(fdata->pfd);
         fdata->pfd = NULL;
       }
-      free_data_sources(fdata);	/* release data source list */
     }
   }
 
@@ -1243,12 +1240,11 @@ print_packets(capture_file *cf, print_args_t *print_args)
         epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, NULL);
 
         /* Print the information in that tree. */
-        proto_tree_print(print_args, (GNode *)edt->tree,
-			fdata, cf->print_fh);
+        proto_tree_print(print_args, edt, cf->print_fh);
 
 	if (print_args->print_hex) {
 	  /* Print the full packet data as hex. */
-	  print_hex_data(cf->print_fh, print_args->format, fdata);
+	  print_hex_data(cf->print_fh, print_args->format, edt);
 	}
 
         /* Print a blank line if we print anything after this. */
@@ -1597,8 +1593,7 @@ select_packet(capture_file *cf, int row)
   /* Display the GUI protocol tree and hex dump.
      XXX - why do we dump core if we call "proto_tree_draw()"
      before calling "add_byte_views()"? */
-  add_byte_views(cf->current_frame, cf->edt->tree, tree_view,
-      byte_nb_ptr);
+  add_byte_views(cf->edt, tree_view, byte_nb_ptr);
   proto_tree_draw(cf->edt->tree, tree_view);
 
   /* A packet is selected. */

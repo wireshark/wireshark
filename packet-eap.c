@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.24 2002/03/28 09:51:17 guy Exp $
+ * $Id: packet-eap.c,v 1.25 2002/06/04 07:03:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -612,8 +612,7 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					     fd_head->len,
 					     fd_head->len);
 		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
-		add_new_data_source(pinfo->fd, next_tvb,
-				    "Reassembled EAP-TLS");
+		add_new_data_source(pinfo, next_tvb, "Reassembled EAP-TLS");
 		pinfo->fragmented = FALSE;
 		
 		fi = proto_tree_add_item(eap_tree, hf_eaptls_fragments,

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.56 2002/05/09 23:50:28 gram Exp $
+ * $Id: packet.h,v 1.57 2002/06/04 07:03:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -266,12 +266,13 @@ final_registration_all_protocols(void);
  * Add a new data source to the list of data sources for a frame, given
  * the tvbuff for the data source and its name.
  */
-extern void add_new_data_source(frame_data *fd, tvbuff_t *tvb, char *name);
+extern void add_new_data_source(packet_info *pinfo, tvbuff_t *tvb,
+    char *name);
 
 /*
  * Free up a frame's list of data sources.
  */
-extern void free_data_sources(frame_data *fd);
+extern void free_data_sources(packet_info *pinfo);
 
 /*
  * Dissectors should never modify the packet data.

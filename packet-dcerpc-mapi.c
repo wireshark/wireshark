@@ -2,7 +2,7 @@
  * Routines for MS Exchange MAPI
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-mapi.c,v 1.9 2002/05/31 00:31:13 tpot Exp $
+ * $Id: packet-dcerpc-mapi.c,v 1.10 2002/06/04 07:03:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -177,7 +177,7 @@ mapi_decrypt_pdu(tvbuff_t *tvb, int offset,
 		mmd=g_hash_table_lookup(mapi_decrypted_table, &mmd_key);
 	}
 
-	add_new_data_source(pinfo->fd, mmd->tvb, "Decrypted MAPI");
+	add_new_data_source(pinfo, mmd->tvb, "Decrypted MAPI");
 
 
 	/* decrypted PDU */

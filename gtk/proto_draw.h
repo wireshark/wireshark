@@ -1,7 +1,7 @@
 /* proto_draw.h
  * Definitions for GTK+ packet display structures and routines
  *
- * $Id: proto_draw.h,v 1.17 2002/03/31 23:11:04 guy Exp $
+ * $Id: proto_draw.h,v 1.18 2002/06/04 07:03:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,8 +49,8 @@ extern void redraw_hex_dump_all(void);
 
 extern GtkWidget *create_byte_view(gint bv_size, GtkWidget *pane);
 
-extern void add_byte_views(frame_data *frame, proto_tree *tree,
-    GtkWidget *tree_view, GtkWidget *byte_nb_ptr);
+extern void add_byte_views(epan_dissect_t *edt, GtkWidget *tree_view,
+    GtkWidget *byte_nb_ptr);
 
 void packet_hex_print(GtkText *, const guint8 *, frame_data *, field_info *,
 		      guint);

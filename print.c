@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.46 2002/05/10 23:20:38 guy Exp $
+ * $Id: print.c,v 1.47 2002/06/04 07:03:47 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -35,11 +35,14 @@
 # include <sys/types.h>
 #endif
 
+#include <epan/epan.h>
+#include <epan/epan_dissect.h>
+#include <epan/tvbuff.h>
 #include <epan/packet.h>
+
 #include "print.h"
 #include "ps.h"
 #include "util.h"
-#include <epan/tvbuff.h>
 #include "packet-data.h"
 
 static void proto_tree_print_node_text(GNode *node, gpointer data);
@@ -94,26 +97,26 @@ void print_finale(FILE *fh, gint format)
 		print_ps_finale(fh);
 }
 
-void proto_tree_print(print_args_t *print_args,
-    GNode *protocol_tree, frame_data *fd, FILE *fh)
+void proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
+    FILE *fh)
 {
 	print_data data;
 
 	/* Create the output */
 	data.level = 0;
 	data.fh = fh;
-	data.src_list = fd->data_src;
-	data.encoding = fd->flags.encoding;
+	data.src_list = edt->pi.data_src;
+	data.encoding = edt->pi.fd->flags.encoding;
 	data.print_all_levels = print_args->expand_all;
 	data.print_hex_for_data = !print_args->print_hex;
 	    /* If we're printing the entire packet in hex, don't
 	       print uninterpreted data fields in hex as well. */
 
 	if (print_args->format == PR_FMT_TEXT) {
-		g_node_children_foreach((GNode*) protocol_tree, G_TRAVERSE_ALL,
+		g_node_children_foreach((GNode*) edt->tree, G_TRAVERSE_ALL,
 			proto_tree_print_node_text, &data);
 	} else {
-		g_node_children_foreach((GNode*) protocol_tree, G_TRAVERSE_ALL,
+		g_node_children_foreach((GNode*) edt->tree, G_TRAVERSE_ALL,
 			proto_tree_print_node_ps, &data);
 	}
 }
@@ -210,7 +213,7 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 	}
 }
 
-void print_hex_data(FILE *fh, gint format, frame_data *fd)
+void print_hex_data(FILE *fh, gint format, epan_dissect_t *edt)
 {
 	gboolean multiple_sources;
 	GSList *src_le;
@@ -227,9 +230,10 @@ void print_hex_data(FILE *fh, gint format, frame_data *fd)
 	 * the data source before printing the data from the
 	 * data source.
 	 */
-	multiple_sources = (fd->data_src->next != NULL);
+	multiple_sources = (edt->pi.data_src->next != NULL);
 
-	for (src_le = fd->data_src; src_le != NULL; src_le = src_le->next) {
+	for (src_le = edt->pi.data_src; src_le != NULL;
+	    src_le = src_le->next) {
 		src = src_le->data;
 		tvb = src->tvb;
 		if (multiple_sources) {
@@ -243,10 +247,13 @@ void print_hex_data(FILE *fh, gint format, frame_data *fd)
 		}
 		length = tvb_length(tvb);
 		cp = tvb_get_ptr(tvb, 0, length);
-		if (format == PR_FMT_PS)
-			print_hex_data_ps(fh, cp, length, fd->flags.encoding);
-		else
-			print_hex_data_text(fh, cp, length, fd->flags.encoding);
+		if (format == PR_FMT_PS) {
+			print_hex_data_ps(fh, cp, length,
+			    edt->pi.fd->flags.encoding);
+		} else {
+			print_hex_data_text(fh, cp, length,
+			    edt->pi.fd->flags.encoding);
+		}
 	}
 }
 

@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.94 2002/05/21 10:17:30 sahlberg Exp $
+ * $Id: packet-rpc.c,v 1.95 2002/06/04 07:03:45 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2675,7 +2675,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/*
 		 * Add defragmented data to the data source list.
 		 */
-		add_new_data_source(pinfo->fd, rec_tvb, "Defragmented");
+		add_new_data_source(pinfo, rec_tvb, "Defragmented");
 	}
 
 	/*

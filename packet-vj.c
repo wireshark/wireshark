@@ -1,7 +1,7 @@
 /* packet-vj.c
  * Routines for Van Jacobson header decompression. 
  *
- * $Id: packet-vj.c,v 1.11 2002/05/22 10:15:28 guy Exp $
+ * $Id: packet-vj.c,v 1.12 2002/06/04 07:03:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -383,7 +383,7 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
    */
   next_tvb = tvb_new_real_data(buffer, isize, pntohs(&buffer[IP_FIELD_TOT_LEN]));
   tvb_set_child_real_data_tvbuff(tvb, next_tvb);
-  add_new_data_source(pinfo->fd, next_tvb, "VJ Uncompressed");
+  add_new_data_source(pinfo, next_tvb, "VJ Uncompressed");
 
   /*
    * Call IP dissector.
@@ -598,7 +598,7 @@ vjc_tvb_setup(tvbuff_t *src_tvb,
   tvb_memcpy(src_tvb, pbuf + hdr_len, offset, buf_len - hdr_len);
   *dst_tvb = tvb_new_real_data(pbuf, buf_len, ntohs(ip->tot_len));
   tvb_set_child_real_data_tvbuff(src_tvb, *dst_tvb);
-  add_new_data_source(pinfo->fd, *dst_tvb, "VJ Decompressed");
+  add_new_data_source(pinfo, *dst_tvb, "VJ Decompressed");
   return VJ_OK;
 } 
 

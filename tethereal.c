@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.138 2002/05/22 23:22:55 guy Exp $
+ * $Id: tethereal.c,v 1.139 2002/06/04 07:03:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1251,7 +1251,6 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
   fdata->next = NULL;
   fdata->prev = NULL;
   fdata->pfd = NULL;
-  fdata->data_src	 = NULL;
   fdata->num = cf->count;
   fdata->pkt_len = phdr->len;
   fdata->cap_len = phdr->caplen;
@@ -1308,7 +1307,6 @@ clear_fdata(frame_data *fdata)
 {
   if (fdata->pfd)
     g_slist_free(fdata->pfd);
-  free_data_sources(fdata);	/* release data source list */
 }
 
 static void
@@ -1450,8 +1448,7 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
       print_args.print_hex = print_hex;
       print_args.expand_all = TRUE;
       print_args.suppress_unmarked = FALSE;
-      proto_tree_print(&print_args, (GNode *)edt->tree,
-			&fdata, stdout);
+      proto_tree_print(&print_args, edt, stdout);
       if (!print_hex) {
         /* "print_hex_data()" will put out a leading blank line, as well
 	   as a trailing one; print one here, to separate the packets,
@@ -1642,7 +1639,7 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
       putchar('\n');
     }
     if (print_hex) {
-      print_hex_data(stdout, print_args.format, &fdata);
+      print_hex_data(stdout, print_args.format, edt);
       putchar('\n');
     }
   }

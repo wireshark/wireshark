@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.36 2002/03/31 23:11:04 guy Exp $
+ * $Id: packet_win.c,v 1.37 2002/06/04 07:03:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,52 +87,45 @@ static void new_tree_view_select_row_cb( GtkCTree *ctree, GList *node,
 static void new_tree_view_unselect_row_cb( GtkCTree *ctree, GList *node,
 	gint column, gpointer user_data);
 
-static void create_new_window( char *Title, gint tv_size, gint bv_size);
 static void destroy_new_window(GtkObject *object, gpointer user_data);
 
-void new_window_cb(GtkWidget *w _U_){
-
-	#define NewWinTitleLen 1000
-	
-        int row;
-  	gint	tv_size = 95, bv_size = 75;
-	int i;
-	char Title[ NewWinTitleLen] = "";
-	char *TextPtr;
-
-					/* build title of window by getting */
-					/* data from the packet_list GtkCList */
-        /* Find what row this packet is in. */
-        row = gtk_clist_find_row_from_data(GTK_CLIST(packet_list),
-	    cfile.current_frame);
-	g_assert(row != -1);
-	for( i = 0; i < cfile.cinfo.num_cols; ++i){
-					
-		if ( gtk_clist_get_text(GTK_CLIST( packet_list), 
-				row, i, &TextPtr)){
-		
-			if (( strlen( Title) + strlen( TextPtr))
-					< ( NewWinTitleLen - 1)){
-
-				strcat( Title, TextPtr);
-				strcat( Title, " ");
-			}
-		}		
-	}	
-	
-	create_new_window ( Title, tv_size, bv_size);
-}
-
-
-static void
-create_new_window(char *Title, gint tv_size, gint bv_size)
+void new_window_cb(GtkWidget *w _U_)
 {
+  #define NewWinTitleLen 1000
+  char Title[NewWinTitleLen] = "";
+  char *TextPtr;
+  gint tv_size = 95, bv_size = 75;
   GtkWidget *main_w, *main_vbox, *pane,
                       *tree_view, *tv_scrollw,
                       *bv_nb_ptr;
   struct PacketWinData *DataPtr;
-	
+  int i;
+
+  /* Allocate data structure to represent this window. */
+  DataPtr = (struct PacketWinData *) g_malloc(sizeof(struct PacketWinData));
+
+  DataPtr->frame = cfile.current_frame;
+  memcpy(&DataPtr->pseudo_header, &cfile.pseudo_header, sizeof DataPtr->pseudo_header);
+  DataPtr->pd = g_malloc(DataPtr->frame->cap_len);
+  memcpy(DataPtr->pd, cfile.pd, DataPtr->frame->cap_len);
+  DataPtr->edt = epan_dissect_new(TRUE, TRUE);
+  epan_dissect_run(DataPtr->edt, &DataPtr->pseudo_header, DataPtr->pd,
+          DataPtr->frame, &cfile.cinfo);
+  epan_dissect_fill_in_columns(DataPtr->edt);
+
   main_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
+  /*
+   * Build title of window by getting column data constructed when the
+   * frame was dissected.
+   */
+  for (i = 0; i < cfile.cinfo.num_cols; ++i) {
+    TextPtr = cfile.cinfo.col_data[i];					
+    if ((strlen(Title) + strlen(TextPtr)) < NewWinTitleLen - 1) {
+      strcat(Title, TextPtr);
+      strcat(Title, " ");
+    }
+  }
 
   gtk_window_set_title(GTK_WINDOW(main_w), Title);
   gtk_window_set_default_size(GTK_WINDOW(main_w), DEF_WIDTH, -1);
@@ -156,16 +149,6 @@ create_new_window(char *Title, gint tv_size, gint bv_size)
   /* Byte view */
   bv_nb_ptr = create_byte_view(bv_size, pane);
 
-  /* Allocate data structure to represent this window. */
-  DataPtr = (struct PacketWinData *) g_malloc(sizeof(struct PacketWinData));
-
-  DataPtr->frame = cfile.current_frame;
-  memcpy(&DataPtr->pseudo_header, &cfile.pseudo_header, sizeof DataPtr->pseudo_header);
-  DataPtr->pd = g_malloc(DataPtr->frame->cap_len);
-  memcpy(DataPtr->pd, cfile.pd, DataPtr->frame->cap_len);
-  DataPtr->edt = epan_dissect_new(TRUE, TRUE);
-  epan_dissect_run(DataPtr->edt, &DataPtr->pseudo_header, DataPtr->pd,
-          DataPtr->frame, &cfile.cinfo);
   DataPtr->main = main_w;
   DataPtr->tv_scrollw = tv_scrollw;
   DataPtr->tree_view = tree_view;
@@ -183,8 +166,7 @@ create_new_window(char *Title, gint tv_size, gint bv_size)
 			GTK_SIGNAL_FUNC(destroy_new_window), DataPtr);
 
   /* draw the protocol tree & print hex data */
-  add_byte_views(DataPtr->frame, DataPtr->edt->tree, tree_view,
-		 DataPtr->bv_nb_ptr);
+  add_byte_views(DataPtr->edt, tree_view, DataPtr->bv_nb_ptr);
   proto_tree_draw(DataPtr->edt->tree, tree_view);
 
   DataPtr->finfo_selected = NULL;

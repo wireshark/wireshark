@@ -4,7 +4,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.62 2002/05/24 03:21:23 guy Exp $
+ * $Id: packet-radius.c,v 1.63 2002/06/04 07:03:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2611,7 +2611,7 @@ dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
             tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
             /* Add the defragmented data to the data source list. */
-            add_new_data_source(pinfo->fd, next_tvb, "Reassembled EAP");
+            add_new_data_source(pinfo, next_tvb, "Reassembled EAP");
 
             /* Now dissect it. */
 	    call_dissector(eap_fragment_handle, next_tvb, pinfo, eap_tree);

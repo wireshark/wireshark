@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.77 2002/05/24 10:57:37 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.78 2002/06/04 07:03:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3170,7 +3170,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 			new_tvb = tvb_new_real_data(fd_head->data,
 				  fd_head->datalen, fd_head->datalen);
 			tvb_set_child_real_data_tvbuff(d_tvb, new_tvb);
-			add_new_data_source(pinfo->fd, new_tvb,
+			add_new_data_source(pinfo, new_tvb,
 				  "DCERPC over SMB");
 			pinfo->fragmented=FALSE;
 

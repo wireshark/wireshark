@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.52 2002/04/23 06:42:05 guy Exp $
+ * $Id: proto_draw.c,v 1.53 2002/06/04 07:03:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,8 @@
 
 #include <stdio.h>
 #include <string.h>
+
+#include <epan/epan_dissect.h>
 
 #include "main.h"
 #include <epan/packet.h>
@@ -444,7 +446,7 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
 }
 
 void
-add_byte_views(frame_data *frame, proto_tree *tree, GtkWidget *tree_view,
+add_byte_views(epan_dissect_t *edt, GtkWidget *tree_view,
     GtkWidget *byte_nb_ptr)
 {
 	GSList *src_le;
@@ -460,9 +462,9 @@ add_byte_views(frame_data *frame, proto_tree *tree, GtkWidget *tree_view,
 	 * Add to the specified byte view notebook tabs for hex dumps
 	 * of all the data sources for the specified frame.
 	 */
-	for (src_le = frame->data_src; src_le != NULL; src_le = src_le->next) {
+	for (src_le = edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
 		src = src_le->data;
-		add_byte_tab(byte_nb_ptr, src->name, src->tvb, tree,
+		add_byte_tab(byte_nb_ptr, src->name, src->tvb, edt->tree,
 		    tree_view);
 	}
 

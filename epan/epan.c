@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.c,v 1.18 2002/05/09 23:50:28 gram Exp $
+ * $Id: epan.c,v 1.19 2002/06/04 07:03:54 guy Exp $
  *
  * Ethereal Protocol Analyzer Library
  *
@@ -95,9 +95,6 @@ void
 epan_dissect_run(epan_dissect_t *edt, void* pseudo_header,
         const guint8* data, frame_data *fd, column_info *cinfo)
 {
-	/* start with empty data source list */
-	free_data_sources(fd);
-
 	dissect_packet(edt, pseudo_header, data, fd, cinfo);
 }
 
@@ -105,6 +102,9 @@ epan_dissect_run(epan_dissect_t *edt, void* pseudo_header,
 void
 epan_dissect_free(epan_dissect_t* edt)
 {
+	/* Free the data sources list. */
+	free_data_sources(&edt->pi);
+
 	/* Free all tvb's created from this tvb, unless dissector
 	 * wanted to store the pointer (in which case, the dissector
 	 * would have incremented the usage count on that tvbuff_t*) */

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.166 2002/05/30 01:56:55 guy Exp $
+ * $Id: packet-ip.c,v 1.167 2002/06/04 07:03:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -998,7 +998,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
       /* Add the defragmented data to the data source list. */
-      add_new_data_source(pinfo->fd, next_tvb, "Reassembled IPv4");
+      add_new_data_source(pinfo, next_tvb, "Reassembled IPv4");
 
       /* It's not fragmented. */
       pinfo->fragmented = FALSE;

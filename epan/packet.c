@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.71 2002/05/15 21:18:19 guy Exp $
+ * $Id: packet.c,v 1.72 2002/06/04 07:03:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -193,7 +193,7 @@ static GMemChunk *data_source_chunk = NULL;
  * the tvbuff for the data source and its name.
  */
 void
-add_new_data_source(frame_data *fd, tvbuff_t *tvb, char *name)
+add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, char *name)
 {
 	data_source *src;
 
@@ -210,25 +210,25 @@ add_new_data_source(frame_data *fd, tvbuff_t *tvb, char *name)
 	 * copy, and wouldn't need to free the buffer, either.
 	 */
 	src->name = g_strdup(name);
-	fd->data_src = g_slist_append(fd->data_src, src);
+	pinfo->data_src = g_slist_append(pinfo->data_src, src);
 }
 
 /*
  * Free up a frame's list of data sources.
  */
 void
-free_data_sources(frame_data *fd)
+free_data_sources(packet_info *pinfo)
 {
 	GSList *src_le;
 	data_source *src;
 
-	for (src_le = fd->data_src; src_le != NULL; src_le = src_le->next) {
+	for (src_le = pinfo->data_src; src_le != NULL; src_le = src_le->next) {
 	    	src = src_le->data;
 	    	g_free(src->name);
 	    	g_mem_chunk_free(data_source_chunk, src);
 	}
-	g_slist_free(fd->data_src);
-	fd->data_src = NULL;
+	g_slist_free(pinfo->data_src);
+	pinfo->data_src = NULL;
 }
 
 /* Allow dissectors to register a "final_registration" routine
@@ -283,6 +283,7 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.cinfo = cinfo;
 	edt->pi.fd = fd;
 	edt->pi.pseudo_header = pseudo_header;
+	edt->pi.data_src = NULL;
 	edt->pi.dl_src.type = AT_NONE;
 	edt->pi.dl_dst.type = AT_NONE;
 	edt->pi.net_src.type = AT_NONE;
@@ -305,7 +306,7 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	TRY {
 		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
 		/* Add this tvbuffer into the data_src list */
-		add_new_data_source(fd, edt->tvb, "Frame");
+		add_new_data_source(&edt->pi, edt->tvb, "Frame");
 
 		/* Even though dissect_frame() catches all the exceptions a
 		 * sub-dissector can throw, dissect_frame() itself may throw

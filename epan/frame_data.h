@@ -1,7 +1,7 @@
 /* frame_data.h
  * Definitions for frame_data structures and routines
  *
- * $Id: frame_data.h,v 1.4 2002/02/18 01:08:41 guy Exp $
+ * $Id: frame_data.h,v 1.5 2002/06/04 07:03:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,7 +35,6 @@ typedef struct _frame_data {
   struct _frame_data *next; /* Next element in list */
   struct _frame_data *prev; /* Previous element in list */
   GSList      *pfd;         /* Per frame proto data */
-  GSList      *data_src;    /* Frame data sources */
   guint32      num;         /* Frame number */
   guint32      pkt_len;     /* Packet length */
   guint32      cap_len;     /* Amount actually captured */

@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.62 2002/05/30 01:56:54 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.63 2002/06/04 07:03:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1665,7 +1665,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       if (fd_head->next != NULL) {
         next_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
         tvb_set_child_real_data_tvbuff(tvb, next_tvb);
-        add_new_data_source(pinfo->fd, next_tvb, "Reassembled 802.11");
+        add_new_data_source(pinfo, next_tvb, "Reassembled 802.11");
 
 	/* Show all fragments. */
 	show_fragments(next_tvb, pinfo, hdr_tree, fd_head);
