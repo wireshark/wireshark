@@ -3,7 +3,7 @@
  * 
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-mpls.c,v 1.11 2000/11/19 08:54:00 guy Exp $
+ * $Id: packet-mpls.c,v 1.12 2000/12/14 08:20:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,6 +45,9 @@
 #include <glib.h>
 #include "etypes.h"
 #include "packet.h"
+#include "packet-ip.h"
+#include "ppptypes.h"
+#include "packet-ppp.h"
 
 static gint proto_mpls = -1;
 
@@ -197,6 +200,7 @@ void
 proto_reg_handoff_mpls(void)
 {
 	old_dissector_add("ethertype", ETHERTYPE_MPLS, dissect_mpls);
+	old_dissector_add("ppp.protocol", PPP_MPLS_UNI, dissect_mpls);
 
 	/*
 	 * Get a handle for the IP dissector.

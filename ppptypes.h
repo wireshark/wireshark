@@ -1,7 +1,7 @@
 /* ppptypes.h
  * Defines PPP packet types.
  *
- * $Id: ppptypes.h,v 1.1 2000/04/16 21:37:07 guy Exp $
+ * $Id: ppptypes.h,v 1.2 2000/12/14 08:20:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,8 @@
 #define PPP_MP		0x3d	/* Multilink PPP */
 #define PPP_IPV6	0x57	/* Internet Protocol Version 6 */
 #define PPP_COMP	0xfd	/* compressed packet */
+#define PPP_MPLS_UNI   0x281 /* MPLS Unicast */
+#define PPP_MPLS_MULTI 0x281 /* MPLS Multicast */
 #define PPP_IPCP	0x8021	/* IP Control Protocol */
 #define PPP_ATCP	0x8029	/* AppleTalk Control Protocol */
 #define PPP_IPXCP	0x802b	/* IPX Control Protocol */
@@ -49,5 +51,13 @@
 #define PPP_LQR		0xc025	/* Link Quality Report protocol */
 #define PPP_CHAP	0xc223	/* Cryptographic Handshake Auth. Protocol */
 #define PPP_CBCP	0xc029	/* Callback Control Protocol */
+
+/* Protocol types for the CISCO HDLC Format */
+#define CISCO_IP	0x0800	/* Internet Protocol */
+#define CISCO_SLARP	0x8035	/* CISCO SLARP protocol */
+
+/* Address and control field for CISCO HDLC */
+#define CISCO_HDLC_ADDR_CTRL	0x0F00	/* Internet Protocol */
+
 
 #endif /* ppptypes.h */

@@ -452,6 +452,12 @@ Mike Frisch <mfrisch@saturn.tlug.org> {
 	NFSv4 support
 }
 
+Burke Lau <burke_lau@agilent.com> {
+	PPP FCS checking
+	Cisco HDLC support in PPP dissector
+	MPLS-over-PPP support
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
