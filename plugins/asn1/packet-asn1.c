@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.14 2004/01/13 02:36:51 guy Exp $
+ * $Id: packet-asn1.c,v 1.15 2004/01/18 15:57:47 jmayer Exp $
  *
  * A plugin for:
  *
@@ -1728,7 +1728,7 @@ myLeaf(GNode *node, gpointer data)
 }
 
 void
-list_modules()
+list_modules(void)
 {
 	if (asn1_verbose) g_message("build GNode tree:");
 	showGNodes(g_node_first_child(asn1_nodes), 0);
@@ -1743,7 +1743,7 @@ list_modules()
 }
 
 void
-tt_build_tree()			/* build a GNode tree with all offset's to ASN.1 entities */
+tt_build_tree(void)		/* build a GNode tree with all offset's to ASN.1 entities */
 {
 	if (asn1_nodes)
 		g_node_destroy(asn1_nodes);
@@ -2337,7 +2337,7 @@ TypeRef *typeDef_names = 0;
 guint numTypedefs = 0;
 
 void
-get_values()			/* collect values from ASN.1 tree */
+get_values(void)		/* collect values from ASN.1 tree */
 				/* coded according to the tbl.asn1 description of snacc output */ 
 {				/* This routine does not leave references to the tvbuff or */
 				/* to the asn1_nodes, both can be freed by the caller of this.*/
@@ -2541,7 +2541,7 @@ void showGenv(GNode *p, int n, int m)
 }
 
 void
-debug_dump_TT()			/* dump contents of TT struct, for debugging */
+debug_dump_TT(void)		/* dump contents of TT struct, for debugging */
 {
 	if (asn1_verbose)
 		g_message("modules=%d, defs=%d, types=%d, tags=%d, strings=%d, lenstrings=%d",
