@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes, and well-known MAC addresses
 #
-# $Id: manuf,v 1.37 2004/02/01 02:26:30 jmayer Exp $
+# $Id: manuf,v 1.38 2004/02/18 00:33:12 jmayer Exp $
 #
 # Laurent Deniel <laurent.deniel [AT] free.fr>
 #
@@ -3644,7 +3644,7 @@
 00:0E:31	OlympusBio             # Olympus BioSystems GmbH
 00:0E:32	KontronMed             # Kontron Medical
 00:0E:33	ShukoElect             # Shuko Electronics Co.,Ltd
-00:0E:34	Nexxgencit             # NexxGenCity
+00:0E:34	NexgenCity             # NexGen City, LP
 00:0E:35	Intel                  # Intel Corp
 00:0E:36	Heinesys               # HEINESYS, Inc.
 00:0E:37	HarmsWende             # Harms & Wende GmbH & Co.KG
@@ -3951,6 +3951,40 @@
 00:0F:64	D&RElectro             # D&R Electronica Weesp BV
 00:0F:65	Icube                  # icube Corp.
 00:0F:66	Cisco-Link             # Cisco-Linksys
+00:0F:67	WestInstru             # West Instruments
+00:0F:68	VavicNetwo             # Vavic Network Technology, Inc.
+00:0F:69	SewEurodri             # SEW Eurodrive GmbH & Co. KG
+00:0F:6A	NortelNetw             # Nortel Networks
+00:0F:6B	GatewareCo             # GateWare Communications GmbH
+00:0F:6C	Addi-Data              # ADDI-DATA GmbH
+00:0F:6D	MidasEngin             # Midas Engineering
+00:0F:6E	Bbox
+00:0F:6F	FtaCommuni             # FTA Communication Technologies
+00:0F:70	WintecIndu             # Wintec Industries, inc.
+00:0F:71	SanmeiElec             # Sanmei Electronics Co.,Ltd
+00:0F:72	Sandburst
+00:0F:73	RockwellSa             # Rockwell Samsung Automation
+00:0F:74	QamcomTech             # Qamcom Technology AB
+00:0F:75	FirstSilic             # First Silicon Solutions
+00:0F:76	DigitalKey             # Digital Keystone, Inc.
+00:0F:77	Dentum                 # DENTUM CO.,LTD
+00:0F:78	Datacap                # Datacap Systems Inc
+00:0F:79	BluetoothI             # Bluetooth Interest Group Inc.
+00:0F:7A	BeijingNuq             # BeiJing NuQX Technology CO.,LTD
+00:0F:7B	ArceSistem             # Arce Sistemas, S.A.
+00:0F:7C	Acti                   # ACTi Corporation
+00:0F:7D	Xirrus
+00:0F:7E	UisAblerEl             # UIS Abler Electronics Co.,Ltd.
+00:0F:7F	Ubstorage              # UBSTORAGE Co.,Ltd.
+00:0F:80	TrinitySec             # Trinity Security Systems,Inc.
+00:0F:81	SecureInfo             # Secure Info Imaging
+00:0F:82	MortaraIns             # Mortara Instrument, Inc.
+00:0F:83	BrainiumTe             # Brainium Technologies Inc.
+00:0F:84	AstuteNetw             # Astute Networks, Inc.
+00:0F:85	Addo-Japan             # ADDO-Japan Corporation
+00:0F:86	Private
+00:0F:87	MaxcessInt             # Maxcess International
+00:0F:88	Ametek                 # AMETEK, Inc.
 00:10:00	CableTelev             # CABLE TELEVISION LABORATORIES, INC.
 00:10:01	MckCommuni             # MCK COMMUNICATIONS
 00:10:02	Actia
@@ -4299,7 +4333,7 @@
 00:20:58	AlliedSign             # ALLIED SIGNAL INC.
 00:20:59	MiroComput             # MIRO COMPUTER PRODUCTS AG
 00:20:5A	ComputerId             # COMPUTER IDENTICS
-00:20:5B	SkylineTec             # SKYLINE TECHNOLOGY
+00:20:5B	KentroxLlc             # Kentrox, LLC
 00:20:5C	InternetOf             # InterNet Systems of Florida, Inc.
 00:20:5D	NanomaticO             # NANOMATIC OY
 00:20:5E	CastleRock             # CASTLE ROCK, INC.
@@ -4432,7 +4466,7 @@
 00:20:DD	CybertecPt             # Cybertec Pty Ltd
 00:20:DE	JapanDigit             # JAPAN DIGITAL LABORAT'Y CO.LTD
 00:20:DF	KyosanElec             # KYOSAN ELECTRIC MFG. CO., LTD.
-00:20:E0	PremaxElec             # PREMAX ELECTRONICS, INC.
+00:20:E0	ActiontecE             # Actiontec Electronics, Inc.
 00:20:E1	AlamarElec             # ALAMAR ELECTRONICS
 00:20:E2	Informatio             # INFORMATION RESOURCE ENGINEERING
 00:20:E3	McdKencom              # MCD KENCOM CORPORATION
@@ -4641,7 +4675,7 @@
 00:30:AE	TimesNSyst             # Times N System, Inc.
 00:30:AF	Honeywell              # Honeywell GmbH
 00:30:B0	Convergene             # Convergenet Technologies
-00:30:B1	GocGesells             # GOC GESELLSCHAFT FUR OPTISCHE
+00:30:B1	Axess-ProN             # aXess-pro networks GmbH
 00:30:B2	Wescam-Hea             # WESCAM - HEALDSBURG
 00:30:B3	SanValley              # San Valley Systems, Inc.
 00:30:B4	Intersil               # INTERSIL CORP.
@@ -7279,7 +7313,7 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 #
 # Well-known addresses.
 #
-# $Id: manuf,v 1.37 2004/02/01 02:26:30 jmayer Exp $
+# $Id: manuf,v 1.38 2004/02/18 00:33:12 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald [AT] ethereal.com>
