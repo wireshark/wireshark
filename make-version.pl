@@ -2,7 +2,7 @@
 #
 # Copyright 2004 Jörg Mayer (see AUTHORS file)
 #
-# $Id: make-version.pl,v 1.4 2004/01/18 05:17:23 jmayer Exp $
+# $Id: make-version.pl,v 1.5 2004/02/01 11:32:23 obiot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -26,39 +26,57 @@
 
 use strict;
 
-my ($d1,$d2,$d3,$date,$drest);
-my ($wdayascii, $monthascii, $day, $time, $year);
-
+my $version_file = 'cvsversion.h';
 my %asctonum = ( "Jan" => "01", "Feb" => "02", "Mar" => "03", "Apr" => "04",
 		"May" => "05", "Jun" => "06", "Jul" => "07", "Aug" => "08",
 		"Sep" => "09", "Oct" => "10", "Nov" => "11", "Dec" => "12" );
-
-my $current;
 my $last = "";
+my $last_modified = 0;
+my $last_file = undef;
 
 
-# Recursively find all files named Entries and call lastentry on them.
-# Args: Startdirectory
-sub findentries {
-	my $currentdir = shift;
+# Recursively find all CVS Entries files starting from the given directory,
+# and compute the modification time of the most recently modified Entries file.
+sub find_last_CVS_Entries {
+	my $dir = shift;
+	my $d;
 
-	opendir(DIR, "$currentdir") || print STDERR "Opendir $currentdir failed ($!)\n" && next;
-	grep { (-d "$currentdir/$_" && $_ !~ /^\.(|.)$/ && &findentries("$currentdir/$_")) ||
-	       (-f "$currentdir/$_" && $_ =~ /^Entries$/ && &lastentry("$currentdir/$_")) } readdir(DIR);
+	opendir(DIR, "$dir") || print STDERR "Can't open directory $dir ($!)\n" && next;
+	foreach $d (readdir(DIR)) {
+		if (-d "$dir/$d" && $d !~ /^\.(|.)$/) {
+			if ($d =~ /^CVS$/) {
+				my @stat = stat("$dir/CVS/Entries");
+
+				if (@stat) {
+					if ($last_modified < $stat[9]) {
+						$last_modified = $stat[9];
+						$last_file = "$dir/CVS/Entries"
+					}
+				}
+			} else { # Recurse in directory
+				&find_last_CVS_Entries("$dir/$d");
+			}
+		}
+	}
 	closedir DIR;
 }
+
 
 # Check all entries in $file. In case they are newer, update $last accordingly
 # Args: Entries file
 sub lastentry {
+	my $date;
+	my ($wdayascii, $monthascii, $day, $time, $year);
 	my $file = shift;
+	my $current;
 
 	open(FILE, "<$file") || print STDERR "Open $file for reading failed ($!)\n" && return 1;
+
 	while (<FILE>) {
 		chomp;
 		# Regular lines look like this: /ethereal_be.py/1.6/Fri Aug  2 22:55:19 2002//
 		next if (/^D/);
-		($d1,$d2,$d2,$date,$drest) = split(/\//, $_, 5);
+		$date = (split(/\//, $_, 5))[3];
 		next if ($date !~ /\d:\d\d:\d\d/);
 		($wdayascii, $monthascii, $day, $time, $year) = split(/\s+/, $date);
 		$day = substr("0".$day, -2, 2);
@@ -72,39 +90,62 @@ sub lastentry {
 	return 1;
 }
 
-&findentries(".");
 
-# In case that there are no Entries files but the sources are based on a cvs snapshot,
-# it is possible to add a file cvsversion to the toplevel directory containing the
-# cvs version string YYYYMMDDhhmmss
-if ($last eq "" && -f "cvsversion") {
-	$last = `cat cvsversion`;
-}
-if ( $last ne "" ) {
-	$last = "#define CVSVERSION \"$last\"\n";
-} else {
-	$last = "/* #define CVSVERSION \"\" */\n";
-}
+# Print the CVS version to $version_file.
+# Don't change the file if it is not needed.
+sub print_cvs_version
+{
+	my $cvs_version;
+	my $needs_update = 1;
 
-# Only write to cvsversion.h, if this changes its contents: This avoids needless
-# rebuilds of tethereal, mergecap etc.
-my $needsupdate=0;
-
-if (! open(OLDVER, "<cvsversion.h")) {
-	$needsupdate = 1;
-} else {
-	if (<OLDVER> ne $last) {
-		$needsupdate = 1;
+	if ($last ne "") {
+		$cvs_version = "#define CVSVERSION \"$last\"\n";
+	} else {
+		$cvs_version = "/* #define CVSVERSION \"\" */\n";
 	}
-	close OLDVER;
+	if (open(OLDVER, "<$version_file")) {
+		if (<OLDVER> eq $cvs_version) {
+			print "$version_file is up-to-date.\n";
+			$needs_update = 0;
+		}
+		close OLDVER;
+	}
+
+	if ($needs_update == 1) {
+		# print "Updating $version_file so it contains:\n$cvs_version";
+		open(VER, ">$version_file") || die ("Cannot write to $version_file ($!)\n");
+		print VER "$cvs_version";
+		close VER;
+		print "$version_file has been updated.\n";
+	}
 }
 
-if ($needsupdate == 1) {
-	open(VER, ">cvsversion.h") || die ("Cannot write to cvsversion.h ($!)\n");
-	print VER "$last";
-	close VER;
+##
+## Start of code
+##
+
+if (-d "./CVS") {
+	print "This is a build from CVS (or a CVS snapshot), "
+	. "CVS version tag will be computed.\n";
+	&find_last_CVS_Entries(".");
+} else {
+	print "This is not a CVS build.\n";
 }
+
+# Now $last_modified and $last_file are set if we found one CVS/Entries file.
+# We need to invoke lastentry on the most recent entries file.
+
+if (defined $last_file) {
+	my @version_stat = stat($version_file);
+	my $version_mtime = 0;
+	if (@version_stat) {
+		$version_mtime = $version_stat[9];
+	}
+	&lastentry($last_file);
+	# print "Last: $last_file\t($last)\n";
+}
+
+# Now that we've computed everything, print the CVS version to $version_file
+&print_cvs_version;
 
 __END__
-
-
