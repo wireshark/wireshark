@@ -21,6 +21,7 @@ config.log
 config.status
 config.sub
 configure
+cvsversion.h
 dfilter-grammar.c
 dfilter-grammar.h
 dfilter-scanner.c
