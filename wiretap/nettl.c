@@ -311,10 +311,12 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	     || (encap[3] == NETTL_SUBSYS_NS_LS_LOOPBACK)
 	     || (encap[3] == NETTL_SUBSYS_NS_LS_UDP)
 	     || (encap[3] == NETTL_SUBSYS_NS_LS_TCP)
-	     || (encap[3] == NETTL_SUBSYS_NS_LS_ICMP)
-	     || (encap[3] == NETTL_SUBSYS_NS_LS_IPV6)
-	     || (encap[3] == NETTL_SUBSYS_NS_LS_ICMPV6) ) {
+	     || (encap[3] == NETTL_SUBSYS_NS_LS_IPV6)) {
 		phdr->pkt_encap = WTAP_ENCAP_RAW_IP;
+	    } else if (encap[3] == NETTL_SUBSYS_NS_LS_ICMP) {
+		phdr->pkt_encap = WTAP_ENCAP_RAW_ICMP;
+	    } else if (encap[3] == NETTL_SUBSYS_NS_LS_ICMPV6) {
+		phdr->pkt_encap = WTAP_ENCAP_RAW_ICMPV6;
 	    } else if (encap[3] == NETTL_SUBSYS_PCI_FDDI) {
 		phdr->pkt_encap = WTAP_ENCAP_FDDI;
 	    } else if( (encap[3] == NETTL_SUBSYS_PCI_TR)
