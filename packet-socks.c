@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.39 2002/06/07 11:27:54 guy Exp $
+ * $Id: packet-socks.c,v 1.40 2002/06/07 11:37:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -691,12 +691,22 @@ state_machine_v4( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 
 		offset += 8;
 		
-		if ( !tvb_offset_exists(tvb, offset)) 	/* if no user name */
+		if ( !tvb_offset_exists(tvb, offset)) {	/* if no user name */
 							/* change state */
 			hash_info->state = V4UserNameWait;
-		
-			
-		hash_info->connect_offset += tvb_strsize(tvb, offset) + 1;
+			/*
+			 * XXX - add 1, or leave it alone?
+			 * We were adding "strlen(...) + 1".
+			 */
+			hash_info->connect_offset += 1;
+		} else {
+			/*
+			 * Add in the length of the user name.
+			 * XXX - what if the user name is split between
+			 * TCP segments?
+			 */
+			hash_info->connect_offset += tvb_strsize(tvb, offset);
+		}
 		
 		if ( !hash_info->dst_addr){ 		/* if no dest address */
 							/* if more data */
@@ -1180,4 +1190,3 @@ proto_reg_handoff_socks(void) {
  
  	dissector_add("tcp.port", TCP_PORT_SOCKS, socks_handle);
 }
-
