@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.124 2004/02/01 20:28:10 ulfl Exp $
+ * $Id: prefs.c,v 1.125 2004/02/21 07:59:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2157,7 +2157,7 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_GEOMETRY_SAVE_SIZE ": %s\n",
 		  prefs.gui_geometry_save_size == TRUE ? "TRUE" : "FALSE");
                   
-  fprintf(pf, "\n# Save window maximized state at exit (GKT2 only)?\n");
+  fprintf(pf, "\n# Save window maximized state at exit (GTK2 only)?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_GEOMETRY_SAVE_MAXIMIZED ": %s\n",
 		  prefs.gui_geometry_save_maximized == TRUE ? "TRUE" : "FALSE");
