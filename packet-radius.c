@@ -4,7 +4,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.64 2002/07/10 20:55:45 guy Exp $
+ * $Id: packet-radius.c,v 1.65 2002/07/17 01:02:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -218,7 +218,9 @@ enum {
 
     COSINE_VPI_VCI,
 
-    SHASTA_USER_PRIVILEGE
+    SHASTA_USER_PRIVILEGE,
+
+    COLUMBIA_UNIVERSITY_SIP_METHOD
 };
 
 static value_string radius_vals[] =
@@ -263,43 +265,51 @@ static value_string radius_vals[] =
  *
  *	VENDOR          Cisco           9
  */
-#define VENDOR_ACC		5
-#define VENDOR_CISCO		9
-#define VENDOR_SHIVA		166
-#define VENDOR_LIVINGSTON	307
-#define VENDOR_MICROSOFT	311
-#define VENDOR_3COM		429
-#define VENDOR_ASCEND		529
-#define VENDOR_BAY		1584
-#define VENDOR_VERSANET		2180
-#define VENDOR_REDBACK		2352
-#define VENDOR_JUNIPER		2636
-#define VENDOR_COSINE		3085
-#define VENDOR_SHASTA		3199
-#define VENDOR_NOMADIX		3309
-#define VENDOR_UNISPHERE	4874
-#define VENDOR_ISSANNI		5948
-#define VENDOR_QUINTUM		6618
+#define VENDOR_ACC			5
+#define VENDOR_CISCO			9
+#define VENDOR_SHIVA			166
+#define VENDOR_LIVINGSTON		307
+#define VENDOR_MICROSOFT		311
+#define VENDOR_3COM			429
+#define VENDOR_ASCEND			529
+#define VENDOR_BAY			1584
+#define VENDOR_FOUNDRY			1991
+#define VENDOR_VERSANET			2180
+#define VENDOR_REDBACK			2352
+#define VENDOR_JUNIPER			2636
+#define VENDOR_APTIS			2637
+#define VENDOR_COSINE			3085
+#define VENDOR_SHASTA			3199
+#define VENDOR_NOMADIX			3309
+#define VENDOR_UNISPHERE		4874
+#define VENDOR_ISSANNI			5948
+#define VENDOR_QUINTUM			6618
+#define VENDOR_COLUBRIS			8744
+#define VENDOR_COLUMBIA_UNIVERSITY	11862
 
 static value_string radius_vendor_specific_vendors[] =
 {
-  {VENDOR_ACC,		"ACC"},
-  {VENDOR_CISCO,	"Cisco"},
-  {VENDOR_SHIVA,	"Shiva"},
-  {VENDOR_MICROSOFT,	"Microsoft"},
-  {VENDOR_LIVINGSTON,	"Livingston"},
-  {VENDOR_3COM,		"3Com"},
-  {VENDOR_ASCEND,	"Ascend"},
-  {VENDOR_BAY,		"Bay Networks"},
-  {VENDOR_VERSANET,	"Versanet"},
-  {VENDOR_REDBACK,	"Redback"},
-  {VENDOR_JUNIPER,	"Juniper Networks"},
-  {VENDOR_COSINE,	"CoSine Communications"},
-  {VENDOR_SHASTA,	"Shasta"},
-  {VENDOR_NOMADIX,	"Nomadix"},
-  {VENDOR_UNISPHERE,	"Unisphere Networks"},
-  {VENDOR_ISSANNI,	"Issanni Communications"},
-  {VENDOR_QUINTUM,	"Quintum"},
+  {VENDOR_ACC,			"ACC"},
+  {VENDOR_CISCO,		"Cisco"},
+  {VENDOR_SHIVA,		"Shiva"},
+  {VENDOR_MICROSOFT,		"Microsoft"},
+  {VENDOR_LIVINGSTON,		"Livingston"},
+  {VENDOR_3COM,			"3Com"},
+  {VENDOR_ASCEND,		"Ascend"},
+  {VENDOR_BAY,			"Bay Networks"},
+  {VENDOR_FOUNDRY,		"Foundry"},
+  {VENDOR_VERSANET,		"Versanet"},
+  {VENDOR_REDBACK,		"Redback"},
+  {VENDOR_JUNIPER,		"Juniper Networks"},
+  {VENDOR_APTIS,		"Aptis"},
+  {VENDOR_COSINE,		"CoSine Communications"},
+  {VENDOR_SHASTA,		"Shasta"},
+  {VENDOR_NOMADIX,		"Nomadix"},
+  {VENDOR_UNISPHERE,		"Unisphere Networks"},
+  {VENDOR_ISSANNI,		"Issanni Communications"},
+  {VENDOR_QUINTUM,		"Quintum"},
+  {VENDOR_COLUBRIS,		"Colubris"},
+  {VENDOR_COLUMBIA_UNIVERSITY,	"Columbia University"},
   {0, NULL}
 };
 
@@ -1682,6 +1692,19 @@ static value_string radius_vendor_bay_audit_level_vals[] =
 
 /*
 reference:
+	'dictionary.foundry' file from FreeRADIUS 
+		http://www.freeradius.org/radiusd/raddb/dictionary.foundry
+*/
+static value_value_string radius_vendor_foundry_attrib[] =
+{
+  {1,	RADIUS_INTEGER4,	"Foundry Privilege Level"},
+  {2,	RADIUS_STRING,		"Foundry Command String"},
+  {3,	RADIUS_INTEGER4,	"Foundry Command Exception Flag"},
+  {0, 0, NULL},
+};
+
+/*
+reference:
 	'dictionary.versanet' file from FreeRADIUS 
 		http://www.freeradius.org/radiusd/raddb/dictionary.versanet
 */
@@ -1964,6 +1987,38 @@ static value_value_string radius_vendor_juniper_attrib[] =
   {0, 0, NULL}
 };
 
+/*
+reference:
+	'dictionary.aptis' file from FreeRADIUS 
+		http://www.freeradius.org/radiusd/raddb/dictionary.aptis
+*/
+static value_value_string radius_vendor_aptis_attrib[] =
+{
+  {1,	RADIUS_STRING,		"CVX Identification"},
+  {2,	RADIUS_INTEGER4,	"CVX VPOP ID"},
+  {3,	RADIUS_INTEGER4,	"CVX SS7 Session ID Type"},
+  {4,	RADIUS_INTEGER4,	"CVX Radius Redirect"},
+  {5,	RADIUS_INTEGER4,	"CVX IPSVC AZNLVL"},
+  {6,	RADIUS_INTEGER4,	"CVX IPSVC Mask"},
+  {7,	RADIUS_INTEGER4,	"CVX Multilink Match Info"},
+  {8,	RADIUS_INTEGER4,	"CVX Multilink Group Number"},
+  {9,	RADIUS_INTEGER4,	"CVX PPP Log Mask"},
+  {10,	RADIUS_STRING,		"CVX Modem Begin Modulation"},
+  {11,	RADIUS_STRING,		"CVX Modem End Modulation"},
+  {12,	RADIUS_STRING,		"CVX Modem Error Correction"},
+  {13,	RADIUS_STRING,		"CVX Modem Data Compression"},
+  {14,	RADIUS_INTEGER4,	"CVX Modem Tx Packets"},
+  {15,	RADIUS_INTEGER4,	"CVX Modem ReTx Packets"},
+  {16,	RADIUS_INTEGER4,	"CVX Modem SNR"},
+  {17,	RADIUS_INTEGER4,	"CVX Modem Local Retrains"},
+  {18,	RADIUS_INTEGER4,	"CVX Modem Remote Retrains"},
+  {19,	RADIUS_INTEGER4,	"CVX Modem Local Rate Negs"},
+  {20,	RADIUS_INTEGER4,	"CVX Modem Remote Rate Negs"},
+  {21,	RADIUS_INTEGER4,	"CVX Modem Begin Recv Line Lvl"},
+  {22,	RADIUS_INTEGER4,	"CVX Modem End Recv Line Lvl"},
+  {0, 0, NULL},
+};
+
 static value_value_string radius_vendor_cosine_attrib[] =
 {
   {1,	RADIUS_STRING,		"Connection Profile Name"},
@@ -2098,24 +2153,61 @@ static value_value_string radius_vendor_quintum_attrib[] =
   {0, 0, NULL},
 };
 
+/*
+reference:
+	http://download.colubris.com/library/product_doc/CN3500_AdminGuide.pdf
+*/
+static value_value_string radius_vendor_colubris_attrib[] =
+{
+  {0,	RADIUS_STRING,		"Colubris AV Pair"},
+  {0, 0, NULL},
+};
+
+/*
+reference:
+	'dictionary.columbia_university' file from FreeRADIUS 
+		http://www.freeradius.org/radiusd/raddb/dictionary.columbia_university
+*/
+static value_value_string radius_vendor_columbia_university_attrib[] =
+{
+  {0,	COLUMBIA_UNIVERSITY_SIP_METHOD,	"SIP Method"},
+  {1,	RADIUS_STRING,			"SIP From"},
+  {2,	RADIUS_STRING,			"SIP To"},
+  {4,	RADIUS_STRING,			"SIP Translated Request URI"},
+  {0, 0, NULL},
+};
+
+static value_string radius_vendor_columbia_university_sip_method_vals[] =
+{
+  {0,	"INVITE"},
+  {1,	"BYE"},
+  {2,	"REGISTER"},
+  {3,	"OTHER"},
+  {0, NULL}
+};
+
 static rd_vsa_table radius_vsa_table[] =
 {
-  {VENDOR_ACC,		radius_vendor_acc_attrib},
-  {VENDOR_CISCO,	radius_vendor_cisco_attrib},
-  {VENDOR_SHIVA,	radius_vendor_shiva_attrib},
-  {VENDOR_LIVINGSTON,	radius_vendor_livingston_attrib},
-  {VENDOR_MICROSOFT,	radius_vendor_microsoft_attrib},
-  {VENDOR_ASCEND,	radius_vendor_ascend_attrib},
-  {VENDOR_BAY,		radius_vendor_bay_attrib},
-  {VENDOR_VERSANET,	radius_vendor_versanet_attrib},
-  {VENDOR_REDBACK,	radius_vendor_redback_attrib},
-  {VENDOR_JUNIPER,	radius_vendor_juniper_attrib},
-  {VENDOR_COSINE,	radius_vendor_cosine_attrib},
-  {VENDOR_SHASTA,	radius_vendor_shasta_attrib},
-  {VENDOR_NOMADIX,	radius_vendor_nomadix_attrib},
-  {VENDOR_UNISPHERE,	radius_vendor_unisphere_attrib},
-  {VENDOR_ISSANNI,	radius_vendor_issanni_attrib},
-  {VENDOR_QUINTUM,	radius_vendor_quintum_attrib},
+  {VENDOR_ACC,			radius_vendor_acc_attrib},
+  {VENDOR_CISCO,		radius_vendor_cisco_attrib},
+  {VENDOR_SHIVA,		radius_vendor_shiva_attrib},
+  {VENDOR_LIVINGSTON,		radius_vendor_livingston_attrib},
+  {VENDOR_MICROSOFT,		radius_vendor_microsoft_attrib},
+  {VENDOR_ASCEND,		radius_vendor_ascend_attrib},
+  {VENDOR_BAY,			radius_vendor_bay_attrib},
+  {VENDOR_FOUNDRY,		radius_vendor_foundry_attrib},
+  {VENDOR_VERSANET,		radius_vendor_versanet_attrib},
+  {VENDOR_REDBACK,		radius_vendor_redback_attrib},
+  {VENDOR_JUNIPER,		radius_vendor_juniper_attrib},
+  {VENDOR_APTIS,		radius_vendor_aptis_attrib},
+  {VENDOR_COSINE,		radius_vendor_cosine_attrib},
+  {VENDOR_SHASTA,		radius_vendor_shasta_attrib},
+  {VENDOR_NOMADIX,		radius_vendor_nomadix_attrib},
+  {VENDOR_UNISPHERE,		radius_vendor_unisphere_attrib},
+  {VENDOR_ISSANNI,		radius_vendor_issanni_attrib},
+  {VENDOR_QUINTUM,		radius_vendor_quintum_attrib},
+  {VENDOR_COLUBRIS,		radius_vendor_colubris_attrib},
+  {VENDOR_COLUMBIA_UNIVERSITY,	radius_vendor_columbia_university_attrib},
   {0, NULL},
 };
 
@@ -2205,6 +2297,8 @@ static rd_valstr_table valstr_table[] =
 
   {SHASTA_USER_PRIVILEGE,		radius_vendor_shasta_user_privilege_vals},
 
+  {COLUMBIA_UNIVERSITY_SIP_METHOD,	radius_vendor_columbia_university_sip_method_vals},
+
   {0, NULL}
 };
 
@@ -2223,7 +2317,7 @@ static guint32 match_numval(guint32 val, const value_value_string *vvs)
 {
     guint32 i;
 
-    for (i = 0; vvs && vvs[i].val1; i++)
+    for (i = 0; vvs && vvs[i].str; i++)
 	if (vvs[i].val1 == val)
 	    return(vvs[i].val2);
 
@@ -2289,7 +2383,7 @@ static gchar *rd_match_strval_attrib(guint32 val, const value_value_string *vvs)
 {
     guint32 i;
 
-    for (i = 0; vvs[i].val1; i++)
+    for (i = 0; vvs[i].str; i++)
 	if (vvs[i].val1 == val)
 	    return(vvs[i].str);
 
@@ -2421,20 +2515,72 @@ static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
 		    vsa_index++;
 		} while (vsa_length > vsa_len && vsa_index < VSABUFFER);
 		break;
-        case( RADIUS_SERVICE_TYPE ):
-        case( RADIUS_FRAMED_PROTOCOL ):
-        case( RADIUS_FRAMED_ROUTING ):
-        case( RADIUS_FRAMED_COMPRESSION ):
-        case( RADIUS_LOGIN_SERVICE ):
-        case( RADIUS_TERMINATING_ACTION ):
-        case( RADIUS_ACCOUNTING_STATUS_TYPE ):
-        case( RADIUS_ACCT_AUTHENTIC ):
-        case( RADIUS_ACCT_TERMINATE_CAUSE ):
-        case( RADIUS_NAS_PORT_TYPE ):
+	case( RADIUS_SERVICE_TYPE ):
+	case( RADIUS_FRAMED_PROTOCOL ):
+	case( RADIUS_FRAMED_ROUTING ):
+	case( RADIUS_FRAMED_COMPRESSION ):
+	case( RADIUS_LOGIN_SERVICE ):
+	case( RADIUS_TERMINATING_ACTION ):
+	case( RADIUS_ACCOUNTING_STATUS_TYPE ):
+	case( RADIUS_ACCT_AUTHENTIC ):
+	case( RADIUS_ACCT_TERMINATE_CAUSE ):
+	case( RADIUS_NAS_PORT_TYPE ):
+	case( ACC_REASON_CODE ):
+	case( ACC_CCP_OPTION ):
+	case( ACC_ROUTE_POLICY ):
+	case( ACC_ML_MLX_ADMIN_STATE ):
+	case( ACC_CLEARING_CAUSE ):
+	case( ACC_CLEARING_LOCATION ):
+	case( ACC_REQUEST_TYPE ):
+	case( ACC_BRIDGING_SUPPORT ):
+	case( ACC_APSM_OVERSUBSCRIBED ):
+	case( ACC_ACCT_ON_OFF_REASON ):
+	case( ACC_IP_COMPRESSION ):
+	case( ACC_IPX_COMPRESSION ):
+	case( ACC_CALLBACK_MODE ):
+	case( ACC_CALLBACK_CBCP_TYPE ):
+	case( ACC_DIALOUT_AUTH_MODE ):
+	case( ACC_ACCESS_COMMUNITY ):
+	case( CISCO_DISCONNECT_CAUSE ):
+	case( SHIVA_TYPE_OF_SERVICE ):
+	case( SHIVA_LINK_PROTOCOL ):
+	case( SHIVA_DISCONNECT_REASON ):
+	case( SHIVA_FUNCTION ):
+	case( SHIVA_CONNECT_REASON ):
+	case( LIVINGSTON_IPSEC_LOG_OPTIONS ):
+	case( LIVINGSTON_IPSEC_DENY_ACTION ):
+	case( LIVINGSTON_NAT_LOG_OPTIONS ):
+	case( LIVINGSTON_NAT_SESS_DIR_FAIL_ACTION ):
+	case( LIVINGSTON_MULTICAST_CLIENT ):
+	case( MICROSOFT_BAP_USAGE ):
+	case( MICROSOFT_ARAP_PW_CHANGE_REASON ):
+	case( MICROSOFT_ACCT_AUTH_TYPE ):
+	case( MICROSOFT_ACCT_EAP_TYPE ):
 	case( ASCEND_CALLING_ID_TYPE_OF_NUMBER ):
 	case( ASCEND_CALLING_ID_NUMBERING_PLAN ):
 	case( ASCEND_CALLING_ID_PRESENTATION ):
 	case( ASCEND_CALLING_ID_SCREENING ):
+	case( BAY_TUNNEL_AUTHEN_TYPE ):
+	case( BAY_TUNNEL_AUTHEN_MODE ):
+	case( BAY_USER_SERVER_LOCATION ):
+	case( BAY_SYSTEM_DISC_REASON ):
+	case( BAY_MODEM_DISC_REASON ):
+	case( BAY_ADDR_RESOLUTION_PROTOCOL ):
+	case( BAY_USER_LEVEL ):
+	case( BAY_AUDIT_LEVEL ):
+	case( VERSANET_TERMINATION_CAUSE ):
+	case( REDBACK_TUNNEL_FUNCTION ):
+	case( REDBACK_MCAST_SEND ):
+	case( REDBACK_MCAST_RECEIVE ):
+	case( REDBACK_TUNNEL_DNIS ):
+	case( REDBACK_PVC_ENCAPSULATION_TYPE ):
+	case( REDBACK_PVC_CIRCUIT_PADDING ):
+	case( REDBACK_BIND_TYPE ):
+	case( REDBACK_BIND_AUTH_PROTOCOL ):
+	case( REDBACK_LAC_PORT_TYPE ):
+	case( REDBACK_LAC_REAL_PORT_TYPE ):
+	case( SHASTA_USER_PRIVILEGE ):
+	case( COLUMBIA_UNIVERSITY_SIP_METHOD ):
 		rdconvertinttostr(cont, print_type,tvb_get_ntohl(tvb,offset+2));
 		break;
 	case( COSINE_VPI_VCI ):
