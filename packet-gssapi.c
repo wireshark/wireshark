@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@samba.org> Added a few 
  *		   bits and pieces ...
  *
- * $Id: packet-gssapi.c,v 1.19 2002/09/08 01:43:44 guy Exp $
+ * $Id: packet-gssapi.c,v 1.20 2002/09/29 18:58:56 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,8 @@
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
+
+#include <string.h>
 
 #include <glib.h>
 #include <epan/packet.h>
