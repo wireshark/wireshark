@@ -44,7 +44,6 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 	nlpid.h	\
 	oui.h	\
 	ppptypes.h	\
-	prefs-int.h	\
 	ptvcursor.h	\
 	reassemble.h	\
 	rpc_defrag.h	\

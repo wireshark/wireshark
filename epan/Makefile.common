@@ -107,6 +107,7 @@ LIBETHEREAL_INCLUDES = 		\
 	pint.h			\
 	plugins.h		\
 	prefs.h			\
+	prefs-int.h		\
 	proto.h			\
 	range.h			\
 	report_err.h		\

@@ -50,7 +50,7 @@
 #include "simple_dialog.h"
 #include "compat_macros.h"
 
-#include "prefs-int.h"
+#include <epan/prefs-int.h>
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32

@@ -93,7 +93,7 @@
 #include "print.h"
 #include "simple_dialog.h"
 #include "register.h"
-#include "prefs-int.h"
+#include <epan/prefs-int.h>
 #include "ringbuffer.h"
 #include "../ui_util.h"     /* beware: ui_util.h exists twice! */
 #include <epan/tap.h>

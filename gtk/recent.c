@@ -37,7 +37,7 @@
 #include "menu.h"
 #include "main.h"
 #include <epan/prefs.h>
-#include "prefs-int.h"
+#include <epan/prefs-int.h>
 #include "ui_util.h"
 #include "dlg_utils.h"
 #include "cfilter_combo_utils.h"

@@ -45,7 +45,7 @@
 #include <epan/column.h>
 #include "print.h"
 
-#include "prefs-int.h"
+#include <epan/prefs-int.h>
 
 /* Internal functions */
 static module_t *find_module(const char *name);
