@@ -3,7 +3,9 @@
  * Copyright Lucent Technologies 2004
  * Josh Bailey <joshbailey@lucent.com> and Ruud Linders <ruud@lucent.com>
  *
- * $Id: packet-ipdc.h,v 1.4 2004/03/21 19:57:13 jmayer Exp $
+ * Using IPDC spec 0.20.2
+ *
+ * $Id: packet-ipdc.h,v 1.5 2004/04/09 08:39:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +31,8 @@
 
 #define	TEXT_UNDEFINED	"UNDEFINED"
 
+#define	IPDC_STR_LEN	255
+
 typedef enum {
 	IPDC_UNKNOWN,
 	IPDC_UINT,
@@ -38,8 +42,18 @@ typedef enum {
 	IPDC_IPA,
 	IPDC_LINESTATUS,
 	IPDC_CHANNELSTATUS,
-	IPDC_Q931
+	IPDC_Q931,
+	IPDC_ENCTYPE,
 } ipdc_tag_type; 
+
+static const value_string encoding_type_vals[] = {
+	{ 0x00, "PCMU (G.711 mu-law)" },
+	{ 0x04, "G.723.1" },
+	{ 0x08, "PCMA (G.711 A-law)" },
+	{ 0x12, "G.729A" },
+	{ 0x60, "Transparent data encoding" },
+	{ 0x61, "T.38 fax over UPD" },
+};
 
 static const value_string line_status_vals[] = {
 	{ 0x00, "Not present" },
@@ -298,8 +312,8 @@ static const ipdc_tag_type_val ipdc_tag_types[] = {
 	{ 0x68, IPDC_UINT },
 	{ 0x69, IPDC_IPA },
 	{ 0x6A, IPDC_BYTE },
-	{ 0x6F, IPDC_BYTE },
-	{ 0x70, IPDC_BYTE },
+	{ 0x6F, IPDC_ENCTYPE },
+	{ 0x70, IPDC_ENCTYPE },
 	{ 0x71, IPDC_UINT },
 	{ 0x72, IPDC_BYTE },
 	{ 0x73, IPDC_UINT },

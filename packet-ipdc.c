@@ -3,7 +3,9 @@
  * Copyright Lucent Technologies 2004
  * Josh Bailey <joshbailey@lucent.com> and Ruud Linders <ruud@lucent.com>
  *
- * $Id: packet-ipdc.c,v 1.4 2004/03/21 19:57:14 jmayer Exp $
+ * Using IPDC spec 0.20.2
+ *
+ * $Id: packet-ipdc.c,v 1.5 2004/04/09 08:39:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,6 +62,7 @@ static gint ett_ipdc_tag = -1;
 
 static gboolean ipdc_desegment = TRUE;
 static gint ipdc_port_pref = TCP_PORT_IPDC;
+static gboolean new_packet = FALSE;
 
 static dissector_handle_t q931_handle;
 
@@ -84,7 +87,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	char *des;
 	char *enum_val;
 	char *tmp_str;
-	char tmp_tag_text[255+1];
+	char tmp_tag_text[IPDC_STR_LEN + 1];
 	const value_string *val_ptr;
 	guint32	type;
 	guint len;
@@ -113,8 +116,11 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* clear info column and display send/receive sequence numbers */
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_set_str(pinfo->cinfo, COL_INFO, "");
-		col_append_fstr(pinfo->cinfo, COL_INFO, "N(r)=%u N(s)=%u ",
+		if (new_packet == TRUE) {
+			col_clear(pinfo->cinfo, COL_INFO);
+			new_packet = FALSE;
+		}
+		col_append_fstr(pinfo->cinfo, COL_INFO, "r=%u s=%u ",
 		nr, ns);
 	}
 
@@ -141,7 +147,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO))
        		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"TransID=%x %s ",
+			"TID=%x %s ",
                         trans_id,
                         val_to_str(message_code, message_code_vals,
                         TEXT_UNDEFINED));
@@ -220,7 +226,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				if (len == 1)
 					enum_val =
-						val_to_str( IPDC_TAG(tag) +
+						val_to_str(IPDC_TAG(tag) +
 						tmp_tag,
 						tag_enum_type, TEXT_UNDEFINED);
 
@@ -240,22 +246,34 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			/* IP addresses */
 			case IPDC_IPA:
-				if (len == 4) {
-					sprintf(tmp_tag_text, "%u.%u.%u.%u",
-					tvb_get_guint8(tvb, offset + 2),
-					tvb_get_guint8(tvb, offset + 3),
-					tvb_get_guint8(tvb, offset + 4),
-					tvb_get_guint8(tvb, offset + 5));
-				} else if (len == 6) {
-					sprintf(tmp_tag_text, "%u.%u.%u.%u:%u",
-					tvb_get_guint8(tvb, offset + 2),
-					tvb_get_guint8(tvb, offset + 3),
-					tvb_get_guint8(tvb, offset + 4),
-					tvb_get_guint8(tvb, offset + 5),
-					tvb_get_ntohs(tvb, offset + 6));
-				} else {
-					sprintf(tmp_tag_text,
-					"Invalid IP address length %u", len);
+				switch (len) {
+					case 4:
+						g_snprintf(tmp_tag_text,
+						IPDC_STR_LEN,
+						"%u.%u.%u.%u",
+						tvb_get_guint8(tvb, offset + 2),
+						tvb_get_guint8(tvb, offset + 3),
+						tvb_get_guint8(tvb, offset + 4),
+						tvb_get_guint8(tvb, offset + 5)
+						);
+					break;
+
+					case 6:
+						g_snprintf(tmp_tag_text,
+						IPDC_STR_LEN,
+						"%u.%u.%u.%u:%u",
+						tvb_get_guint8(tvb, offset + 2),
+						tvb_get_guint8(tvb, offset + 3),
+						tvb_get_guint8(tvb, offset + 4),
+						tvb_get_guint8(tvb, offset + 5),
+						tvb_get_ntohs(tvb, offset + 6));
+					break;
+
+					default:
+						g_snprintf(tmp_tag_text,
+						IPDC_STR_LEN,
+						"Invalid IP address length %u",
+                                       		 len);
 				}
 
 				proto_tree_add_text(tag_tree, tvb,
@@ -291,11 +309,28 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				call_dissector(q931_handle,q931_tvb,pinfo,tree);
 			break;
 
+			case IPDC_ENCTYPE:
+				proto_tree_add_text(tag_tree, tvb,
+					offset, len + 2,
+					"0x%2.2x: %s: %s",
+					tag, des, val_to_str(
+					tvb_get_guint8(tvb,offset+2),
+					encoding_type_vals,
+					TEXT_UNDEFINED));
+
+				if (len == 2) {
+					proto_tree_add_text(tag_tree, tvb,
+						offset, len + 2,
+						"0x%2.2x: %s: %u",
+						tag, des,
+						tvb_get_guint8(tvb,offset+3));
+				}
+			break;
+					
 			/* default */
 			default:
 				proto_tree_add_text(tag_tree, tvb, offset,
 				len + 2, "0x%2.2x: %s", tag, des);
-			break;
 		} /* switch */
 
 		offset += len + 2;
@@ -311,6 +346,7 @@ dissect_ipdc_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ipdc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	new_packet = TRUE;
 	tcp_dissect_pdus(tvb, pinfo, tree, ipdc_desegment, 4,
 		get_ipdc_pdu_len, dissect_ipdc_tcp_pdu);
 }
