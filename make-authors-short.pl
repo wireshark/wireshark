@@ -10,6 +10,13 @@ use strict;
 my $subinfo=0;
 my $nextline;
 
+print "=for html <pre>\n\n";
+print "=for man .nf\n\n";
+
+$_ = <>;
+s/\xef\xbb\xbf//;		# Skip UTF-8 byte order mark
+print unless /^\n/;
+
 while (<>) {
 	if (/(.*){/) {
 		$subinfo = 1;
@@ -22,7 +29,9 @@ while (<>) {
 	} elsif ($subinfo == 1) {
 		next;
 	} else {
-		s/^$/ /;	# Make it a verbatim paragraph
 		print;
 	}
 }
+
+print "\n=for html </pre>\n";
+print "\n=for man .fi\n";
