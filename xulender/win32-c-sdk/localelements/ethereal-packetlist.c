@@ -76,6 +76,7 @@ ethereal_packetlist_new(HWND hw_parent) {
 
     /* XXX - Is this really needed?  We're just using the enclosing pane
      * to draw an inset. */
+    ZeroMemory(&wc, sizeof(wc));
     wc.lpszClassName = EWC_LIST_PANE;
     wc.lpfnWndProc = ethereal_packetlist_wnd_proc;
     wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
@@ -122,6 +123,7 @@ ethereal_packetlist_wnd_proc(HWND hw_packetlist_pane, UINT msg,
 	WPARAM w_param, LPARAM l_param) {
     LV_COLUMN col;
     int i;
+    LRESULT ret;
 
     switch (msg) {
 	case WM_CREATE:
@@ -187,10 +189,12 @@ ethereal_packetlist_wnd_proc(HWND hw_packetlist_pane, UINT msg,
 	    ethereal_packetlist_resize (g_hw_packetlist, g_hw_packetlist_pane);
 	    break;
 	case WM_NOTIFY:
-	    return ethereal_packetlist_notify(g_hw_packetlist, l_param, &cfile);
+	    ret = ethereal_packetlist_notify(g_hw_packetlist, l_param, &cfile);
+	    if (ret)
+		return ret;
 	    break;
 	default:
-	    return(DefWindowProc(hw_packetlist_pane, msg, w_param, l_param));
+	    break;
     }
     return(DefWindowProc(hw_packetlist_pane, msg, w_param, l_param));
 }
@@ -252,13 +256,11 @@ ethereal_packetlist_notify(HWND hw_packetlist, LPARAM l_param, capture_file *cfi
 	case LVN_GETDISPINFO:
 	    lpdi = (LV_DISPINFO *)l_param;
 
+	    if (! lpdi->item.mask & LVIF_TEXT)
+		break;
+
 	    if (lpdi->item.iSubItem) {	/* Our column number isn't zero. */
-		/* This probably isn't needed, but we may want
-		 * to add icons at a later date.
-		 */
-		if (lpdi->item.mask & LVIF_TEXT) {
-		    col_num = lpdi->item.iSubItem;
-		}
+		col_num = lpdi->item.iSubItem;
 	    }
 	    g_assert (packet_list != NULL && cfile->count != 0);
 	    pli = g_list_nth_data(first, lpdi->item.iItem);
