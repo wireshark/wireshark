@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.34 2002/08/24 10:12:42 guy Exp $
+ * $Id: packet-gtp.c,v 1.35 2002/08/26 20:22:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,9 +36,11 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include "packet-gtp.h"
 #include "packet-ipv6.h"
 #include "ppptypes.h"
 #include "prefs.h"
+
 /* 
  * All data related to GTP v0 (GPRS) uses "gtpv0" or "GTPv0",
  * all data related to GTP v1 (UMTS) uses "gtpv1" or "GTPv1",
@@ -3330,10 +3332,42 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	return 3+length;
 }
 
+/* Function to extract the value of an hexadecimal octet. Only the lower
+ * nybble will be non-zero in the output.
+ * */
+static guint8 hex2dec (guint8 x)
+{
+	if ((x >= 'a') && (x <= 'f'))
+		x = x - 'a' + 10;
+	else if ((x >= 'A') && (x <= 'F'))
+		x = x - 'A' + 10;
+	else if ((x >= '0') && (x <= '9'))
+		x = x - '0';
+	else
+		x = 0;
+	return x;
+}
+
+/* Wrapper function to add UTF-8 decoding for QoS attributes in 
+ * RADIUS messages.
+ * */
+static guint8 wrapped_tvb_get_guint8(
+					 tvbuff_t *tvb, int offset, int type)
+{
+	if (type == 2)
+		return (hex2dec(tvb_get_guint8(tvb, offset)) << 4 
+					| hex2dec(tvb_get_guint8(tvb, offset + 1))); 
+	else
+		return tvb_get_guint8(tvb, offset);
+}
+
  /* WARNING : actually length is coded on 2 octets for QoS profile but on 1 octet for PDP Context!
   * so type means length of length :-)
+  *
+  * WARNING :) type does not mean length of length any more... see below for
+  * type = 3!
  */
-static int
+int
 decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, guint8 type) {
 
 	guint8		length;
@@ -3347,6 +3381,18 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 	proto_tree	*ext_tree_qos;
 	proto_item	*te;
 	int		mss, mu, md, gu, gd;
+
+	/* Will keep if the input is UTF-8 encoded (as in RADIUS messages).
+	 * If 1, input is *not* UTF-8 encoded (i.e. each input octet corresponds 
+	 * to one byte to be dissected).
+	 * If 2, input is UTF-8 encoded (i.e. each *couple* of input octets
+	 * corresponds to one byte to be dissected)
+	 * */
+	guint8      utf8_type = 1;
+	
+	/* In RADIUS messages the QoS has a version field of two octets prepended.
+	 * */
+	guint8		version_buffer[2];
 
 	switch (type) {
 		case 1:
@@ -3362,6 +3408,23 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 			proto_tree_add_text (ext_tree_qos, tvb, offset + 1, 2, "Length: %u", length);
 			type++;		/* +1 because of first 0x86 byte for UMTS QoS */
 			break;
+		case 3: 
+			/* For QoS inside RADIUS Client messages from GGSN */
+			utf8_type = 2;
+			
+			/* The field in the RADIUS message starts one byte before :) */
+			length = tvb_get_guint8 (tvb, offset);
+			te = proto_tree_add_text (tree, tvb, offset - 1, length, "%s", qos_str);
+			
+			ext_tree_qos = proto_item_add_subtree (te, ett_gtp_qos);
+			version_buffer[0] = tvb_get_guint8(tvb, offset + 1);
+			version_buffer[1] = tvb_get_guint8(tvb, offset + 2);
+			proto_tree_add_text (ext_tree_qos, tvb, offset + 1, 2, "Version: %c%c", version_buffer[0], version_buffer[1]);
+
+			/* Now, we modify offset here and in order to use type later
+			 * effectively.*/
+			offset--;
+			break;
 		default:
 			/* XXX - what should we do with the length here? */
 			length = 0;
@@ -3371,108 +3434,129 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 	
 	offset += type;
 	
+	/* In RADIUS messages there is no allocation-retention priority
+	 * so I don't need to wrap the following call to tvb_get_guint8
+	 * */
 	al_ret_priority = tvb_get_guint8 (tvb, offset);
 
-	spare1 = tvb_get_guint8(tvb, offset+1) & 0xC0;
-	delay = tvb_get_guint8(tvb, offset+1) & 0x38;
-	reliability = tvb_get_guint8(tvb, offset+1) & 0x07;
-	peak = tvb_get_guint8(tvb, offset+2) & 0xF0;
-	spare2 = tvb_get_guint8(tvb, offset+2) & 0x08;
-	precedence = tvb_get_guint8(tvb, offset+2) & 0x07;
-	spare3 = tvb_get_guint8(tvb, offset+3) & 0xE0;
-	mean = tvb_get_guint8(tvb, offset+3) & 0x1F;
+	/* All calls are wrapped to take into account the possibility that the
+	 * input is UTF-8 encoded. If utf8_type is equal to 1, the final value
+	 * of the offset will be the same as in the previous version of this
+	 * dissector, and the wrapped function will serve as a dumb wrapper;
+	 * otherwise, if utf_8_type is 2, the offset is correctly shifted by
+	 * two bytes for needed shift, and the wrapped function will unencode
+	 * two values from the input.
+	 * */
+	spare1 = wrapped_tvb_get_guint8(tvb, offset+(1 - 1) * utf8_type + 1, utf8_type) & 0xC0;
+	delay = wrapped_tvb_get_guint8(tvb, offset+(1 - 1) * utf8_type + 1, utf8_type) & 0x38;
+	reliability = wrapped_tvb_get_guint8(tvb, offset+(1 - 1) * utf8_type + 1, utf8_type) & 0x07;
+	peak = wrapped_tvb_get_guint8(tvb, offset+(2 - 1) * utf8_type + 1, utf8_type) & 0xF0;
+	spare2 = wrapped_tvb_get_guint8(tvb, offset+(2 - 1) * utf8_type + 1, utf8_type) & 0x08;
+	precedence = wrapped_tvb_get_guint8(tvb, offset+(2 - 1) * utf8_type + 1, utf8_type) & 0x07;
+	spare3 = wrapped_tvb_get_guint8(tvb, offset+(3 - 1) * utf8_type + 1, utf8_type) & 0xE0;
+	mean = wrapped_tvb_get_guint8(tvb, offset+(3 - 1) * utf8_type + 1, utf8_type) & 0x1F;
 
-	proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_al_ret_priority, tvb, offset, 1, al_ret_priority);
-	proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_spare1, tvb, offset+1, 1, spare1);
-	proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_delay, tvb, offset+1, 1, delay);
-	proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_reliability, tvb, offset+1, 1, reliability);
-	proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_peak, tvb, offset+2, 1, peak);
-	proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_spare2, tvb, offset+2, 1, spare2);
-	proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_precedence, tvb, offset+2, 1, precedence);
-	proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_spare3, tvb, offset+3, 1, spare3);
-	proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_mean, tvb, offset+3, 1, mean);
+	/* In RADIUS messages there is no allocation-retention priority */
+	if (type != 3)
+		proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_al_ret_priority, tvb, offset, 1, al_ret_priority);
+	
+	/* All additions must take care of the fact that QoS fields in RADIUS
+	 * messages are UTF-8 encoded, so we have to use the same trick as above.
+	 * */
+	proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_spare1, tvb, offset+(1 - 1) * utf8_type + 1, utf8_type, spare1);
+	proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_delay, tvb, offset+(1 - 1) * utf8_type + 1, utf8_type, delay);
+	proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_reliability, tvb, offset+(1 - 1) * utf8_type + 1, utf8_type, reliability);
+	proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_peak, tvb, offset+(2 - 1) * utf8_type + 1, utf8_type, peak);
+	proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_spare2, tvb, offset+(2 - 1) * utf8_type + 1, utf8_type, spare2);
+	proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_precedence, tvb, offset+(2 - 1) * utf8_type + 1, utf8_type, precedence);
+	proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_spare3, tvb, offset+(3 - 1) * utf8_type + 1, utf8_type, spare3);
+	proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_mean, tvb, offset+(3 - 1) * utf8_type + 1, utf8_type, mean);
 
 	if (length > 4) {
 		
-		traf_class = tvb_get_guint8(tvb, offset+4) & 0xE0;
-		del_order = tvb_get_guint8(tvb, offset+4) & 0x18;
-		del_err_sdu = tvb_get_guint8(tvb, offset+4) & 0x07;
-		max_sdu_size = tvb_get_guint8(tvb, offset+5);
-		max_ul = tvb_get_guint8(tvb, offset+6);
-		max_dl = tvb_get_guint8(tvb, offset+7);
-		res_ber = tvb_get_guint8(tvb, offset+8) & 0xF0;
-		sdu_err_ratio = tvb_get_guint8(tvb, offset+8) & 0x0F;
-		trans_delay = tvb_get_guint8(tvb, offset+9) & 0xFC;
-		traf_handl_prio = tvb_get_guint8(tvb, offset+9) & 0x03;
-		guar_ul = tvb_get_guint8(tvb, offset+10);
-		guar_dl = tvb_get_guint8(tvb, offset+11);
+		/* See above for the need of wrapping
+		 * */
+		traf_class = wrapped_tvb_get_guint8(tvb, offset+(4 - 1) * utf8_type + 1, utf8_type) & 0xE0;
+		del_order = wrapped_tvb_get_guint8(tvb, offset+(4 - 1) * utf8_type + 1, utf8_type) & 0x18;
+		del_err_sdu = wrapped_tvb_get_guint8(tvb, offset+(4 - 1) * utf8_type + 1, utf8_type) & 0x07;
+		max_sdu_size = wrapped_tvb_get_guint8(tvb, offset+(5 - 1) * utf8_type + 1, utf8_type);
+		max_ul = wrapped_tvb_get_guint8(tvb, offset+(6 - 1) * utf8_type + 1, utf8_type);
+		max_dl = wrapped_tvb_get_guint8(tvb, offset+(7 - 1) * utf8_type + 1, utf8_type);
+		res_ber = wrapped_tvb_get_guint8(tvb, offset+(8 - 1) * utf8_type + 1, utf8_type) & 0xF0;
+		sdu_err_ratio = wrapped_tvb_get_guint8(tvb, offset+(8 - 1) * utf8_type + 1, utf8_type) & 0x0F;
+		trans_delay = wrapped_tvb_get_guint8(tvb, offset+(9 - 1) * utf8_type + 1, utf8_type) & 0xFC;
+		traf_handl_prio = wrapped_tvb_get_guint8(tvb, offset+(9 - 1) * utf8_type + 1, utf8_type) & 0x03;
+		guar_ul = wrapped_tvb_get_guint8(tvb, offset+(10 - 1) * utf8_type + 1, utf8_type);
+		guar_dl = wrapped_tvb_get_guint8(tvb, offset+(11 - 1) * utf8_type + 1, utf8_type);
 		
-		proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_traf_class, tvb, offset+4, 1, traf_class);
-		proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_del_order, tvb, offset+4, 1, del_order);
-		proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_del_err_sdu, tvb, offset+4, 1, del_err_sdu);
+		/* See above comments for the changes
+		 * */
+		proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_traf_class, tvb, offset+(4 - 1) * utf8_type + 1, utf8_type, traf_class);
+		proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_del_order, tvb, offset+(4 - 1) * utf8_type + 1, utf8_type, del_order);
+		proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_del_err_sdu, tvb, offset+(4 - 1) * utf8_type + 1, utf8_type, del_err_sdu);
 		if (max_sdu_size == 0 || max_sdu_size > 150)
-			proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_max_sdu_size, tvb, offset+5, 1, max_sdu_size);
+			proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_max_sdu_size, tvb, offset+(5 - 1) * utf8_type + 1, utf8_type, max_sdu_size);
 		if (max_sdu_size > 0 && max_sdu_size <= 150) {
 			mss = max_sdu_size*10;
-			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_max_sdu_size, tvb, offset+5, 1, mss, "Maximum SDU size : %u octets", mss);
+			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_max_sdu_size, tvb, offset+(5 - 1) * utf8_type + 1, utf8_type, mss, "Maximum SDU size : %u octets", mss);
 		}
 
 		if(max_ul == 0 || max_ul == 255)
-			proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_max_ul, tvb, offset+6, 1, max_ul);
+			proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_max_ul, tvb, offset+(6 - 1) * utf8_type + 1, utf8_type, max_ul);
 		if(max_ul > 0 && max_ul <= 63)
-			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_max_ul, tvb, offset+6, 1, max_ul, "Maximum bit rate for uplink : %u kbps", max_ul);
+			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_max_ul, tvb, offset+(6 - 1) * utf8_type + 1, utf8_type, max_ul, "Maximum bit rate for uplink : %u kbps", max_ul);
 		if(max_ul > 63 && max_ul <=127) {
 			mu = 64 + ( max_ul - 64 ) * 8;
-			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_max_ul, tvb, offset+6, 1, mu, "Maximum bit rate for uplink : %u kbps", mu);
+			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_max_ul, tvb, offset+(6 - 1) * utf8_type + 1, utf8_type, mu, "Maximum bit rate for uplink : %u kbps", mu);
 		}
 	
 		if(max_ul > 127 && max_ul <=254) {
 			mu = 576 + ( max_ul - 128 ) * 64;
-			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_max_ul, tvb, offset+6, 1, mu, "Maximum bit rate for uplink : %u kbps", mu);
+			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_max_ul, tvb, offset+(6 - 1) * utf8_type + 1, utf8_type, mu, "Maximum bit rate for uplink : %u kbps", mu);
 		}
 
 		if(max_dl == 0 || max_dl == 255)
-			proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_max_dl, tvb, offset+7, 1, max_dl);
+			proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_max_dl, tvb, offset+(7 - 1) * utf8_type + 1, utf8_type, max_dl);
 		if(max_dl > 0 && max_dl <= 63)
-			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_max_dl, tvb, offset+7, 1, max_dl, "Maximum bit rate for downlink : %u kbps", max_dl);
+			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_max_dl, tvb, offset+(7 - 1) * utf8_type + 1, utf8_type, max_dl, "Maximum bit rate for downlink : %u kbps", max_dl);
 		if(max_dl > 63 && max_dl <=127) {
 			md = 64 + ( max_dl - 64 ) * 8;
-			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_max_dl, tvb, offset+7, 1, md, "Maximum bit rate for downlink : %u kbps", md);
+			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_max_dl, tvb, offset+(7 - 1) * utf8_type + 1, utf8_type, md, "Maximum bit rate for downlink : %u kbps", md);
 		}
 		if(max_dl > 127 && max_dl <=254) {
 			md = 576 + ( max_dl - 128 ) * 64;
-			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_max_dl, tvb, offset+7, 1, md, "Maximum bit rate for downlink : %u kbps", md);
+			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_max_dl, tvb, offset+(7 - 1) * utf8_type + 1, utf8_type, md, "Maximum bit rate for downlink : %u kbps", md);
 		}
 
-		proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_res_ber, tvb, offset+8, 1, res_ber);
-		proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_sdu_err_ratio, tvb, offset+8, 1, sdu_err_ratio);
-		proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_trans_delay, tvb, offset+9, 1, trans_delay);
-		proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_traf_handl_prio, tvb, offset+9, 1, traf_handl_prio);
+		proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_res_ber, tvb, offset+(8 - 1) * utf8_type + 1, utf8_type, res_ber);
+		proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_sdu_err_ratio, tvb, offset+(8 - 1) * utf8_type + 1, utf8_type, sdu_err_ratio);
+		proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_trans_delay, tvb, offset+(9 - 1) * utf8_type + 1, utf8_type, trans_delay);
+		proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_traf_handl_prio, tvb, offset+(9 - 1) * utf8_type + 1, utf8_type, traf_handl_prio);
 
 		if(guar_ul == 0 || guar_ul == 255)
-			proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_guar_ul, tvb, offset+10, 1, guar_ul);
+			proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_guar_ul, tvb, offset+(10 - 1) * utf8_type + 1, utf8_type, guar_ul);
 		if(guar_ul > 0 && guar_ul <= 63)
-			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_guar_ul, tvb, offset+10, 1, guar_ul, "Guaranteed bit rate for uplink : %u kbps", guar_ul);
+			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_guar_ul, tvb, offset+(10 - 1) * utf8_type + 1, utf8_type, guar_ul, "Guaranteed bit rate for uplink : %u kbps", guar_ul);
 		if(guar_ul > 63 && guar_ul <=127) {
 			gu = 64 + ( guar_ul - 64 ) * 8;
-			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_guar_ul, tvb, offset+10, 1, gu, "Guaranteed bit rate for uplink : %u kbps", gu);
+			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_guar_ul, tvb, offset+(10 - 1) * utf8_type + 1, utf8_type, gu, "Guaranteed bit rate for uplink : %u kbps", gu);
 		}
 		if(guar_ul > 127 && guar_ul <=254) {
 			gu = 576 + ( guar_ul - 128 ) * 64;
-			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_guar_ul, tvb, offset+10, 1, gu, "Guaranteed bit rate for uplink : %u kbps", gu);
+			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_guar_ul, tvb, offset+(10 - 1) * utf8_type + 1, utf8_type, gu, "Guaranteed bit rate for uplink : %u kbps", gu);
 		}
 
 		if(guar_dl == 0 || guar_dl == 255)
-			proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_guar_dl, tvb, offset+11, 1, guar_dl);
+			proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_guar_dl, tvb, offset+(11 - 1) * utf8_type + 1, utf8_type, guar_dl);
 		if(guar_dl > 0 && guar_dl <= 63)
-			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_guar_dl, tvb, offset+11, 1, guar_dl, "Guaranteed bit rate for downlink : %u kbps", guar_dl);
+			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_guar_dl, tvb, offset+(11 - 1) * utf8_type + 1, utf8_type, guar_dl, "Guaranteed bit rate for downlink : %u kbps", guar_dl);
 		if(guar_dl > 63 && guar_dl <=127) {
 			gd = 64 + ( guar_dl - 64 ) * 8;
-			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_guar_dl, tvb, offset+11, 1, gd, "Guaranteed bit rate for downlink : %u kbps", gd);
+			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_guar_dl, tvb, offset+(11 - 1) * utf8_type + 1, utf8_type, gd, "Guaranteed bit rate for downlink : %u kbps", gd);
 		}
 		if(guar_dl > 127 && guar_dl <=254) {
 			gd = 576 + ( guar_dl - 128 ) * 64;
-			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_guar_dl, tvb, offset+11, 1, gd, "Guaranteed bit rate for downlink : %u kbps", gd);
+			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_guar_dl, tvb, offset+(11 - 1) * utf8_type + 1, utf8_type, gd, "Guaranteed bit rate for downlink : %u kbps", gd);
 		}
 	
 	}

@@ -1386,6 +1386,7 @@ Brian Bruns <camber[AT]ais.org> {
 Flavio Poletti <Flavio.Poletti[AT]tei.ericsson.se> {
 	Fix bug in decoding of maximum uplink and downlink rate in GTP
 	    v1
+	Handle 3GPP QoS in RADIUS messages
 }
 
 Marcus Haebler <haeblerm[AT]yahoo.com> {

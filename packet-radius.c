@@ -4,7 +4,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.66 2002/08/02 23:35:57 jmayer Exp $
+ * $Id: packet-radius.c,v 1.67 2002/08/26 20:22:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include <epan/resolv.h>
 
 #include "packet-q931.h"
+#include "packet-gtp.h"
 
 static int proto_radius = -1;
 static int hf_radius_length = -1;
@@ -212,7 +213,9 @@ enum {
 
     SHASTA_USER_PRIVILEGE,
 
-    COLUMBIA_UNIVERSITY_SIP_METHOD
+    COLUMBIA_UNIVERSITY_SIP_METHOD,
+
+    THE3GPP_QOS
 };
 
 static value_string radius_vals[] =
@@ -278,6 +281,7 @@ static value_string radius_vals[] =
 #define VENDOR_QUINTUM			6618
 #define VENDOR_COLUBRIS			8744
 #define VENDOR_COLUMBIA_UNIVERSITY	11862
+#define VENDOR_THE3GPP			10415
 
 static value_string radius_vendor_specific_vendors[] =
 {
@@ -302,6 +306,7 @@ static value_string radius_vendor_specific_vendors[] =
   {VENDOR_QUINTUM,		"Quintum"},
   {VENDOR_COLUBRIS,		"Colubris"},
   {VENDOR_COLUMBIA_UNIVERSITY,	"Columbia University"},
+  {VENDOR_THE3GPP,		"3GPP"},
   {0, NULL}
 };
 
@@ -2178,6 +2183,12 @@ static value_string radius_vendor_columbia_university_sip_method_vals[] =
   {0, NULL}
 };
 
+static value_value_string radius_vendor_3gpp_attrib[] =
+{
+   {5,	THE3GPP_QOS,	"QoS Profile"},
+   {0, 0, NULL},
+};
+
 static rd_vsa_table radius_vsa_table[] =
 {
   {VENDOR_ACC,			radius_vendor_acc_attrib},
@@ -2200,6 +2211,7 @@ static rd_vsa_table radius_vsa_table[] =
   {VENDOR_QUINTUM,		radius_vendor_quintum_attrib},
   {VENDOR_COLUBRIS,		radius_vendor_colubris_attrib},
   {VENDOR_COLUMBIA_UNIVERSITY,	radius_vendor_columbia_university_attrib},
+  {VENDOR_THE3GPP,		radius_vendor_3gpp_attrib},
   {0, NULL},
 };
 
@@ -2400,10 +2412,34 @@ static gchar *rdconvertinttostr(gchar *dest, int print_type, guint32 val)
     return dest;
 }
 
+/* NOTE: This function's signature has been changed with the addition of the
+ * tree parameter at the end.
+ *
+ * The function behaves EXACTLY AS BEFORE for parameters which do not
+ * imply THE3GPP_QOS; I had to change the signature because the function
+ * decode_qos_umts() wants to write on the protocol tree :)
+ *
+ * If you think it is better to DUPLICATE the code copying decode_qos_umts
+ * here, and adapting it, feel free; only keep in mind that changes will have
+ * to be doubled if any bug is found.
+ *
+ * At last, forgive me if I've messed up some indentation...
+ * */
 static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
-				int offset, const value_value_string *vvs)
+				int offset, const value_value_string *vvs, proto_tree *tree)
 {
   int print_type;
+  
+  /* Variable to peek which will be the next print_type for VENDOR-SPECIFIC
+   * RADIUS attributes
+   * */
+  int next_print_type;
+
+  /* Temporary variable to perform some trick on the cont variable; again, this
+   * is needed only when THE3GPP_QOS in involved.
+   * */
+  gchar *tmp_punt;
+  
   gchar *cont;
   value_string *valstrarr;
   guint32 intval;
@@ -2492,19 +2528,34 @@ static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
 		vsa_rvt = get_vsa_table(intval);
 		do
 		{
-		    vsa_avph = (e_avphdr*)tvb_get_ptr(tvb, offset+vsa_len, avph->avp_length-vsa_len);
-		    cont = &cont[strlen(cont)+1];
-		    vsabuffer[vsa_index].str = cont;
-		    vsabuffer[vsa_index].offset = offset+vsa_len;
-		    vsabuffer[vsa_index].length = vsa_avph->avp_length;
-		    sprintf(cont, "t:%s(%u) l:%u, ",
-			    (vsa_rvt ? rd_match_strval_attrib(vsa_avph->avp_type, vsa_rvt->attrib) : "Unknown Type"),
-			    vsa_avph->avp_type, vsa_avph->avp_length);
-		    cont = &cont[strlen(cont)];
-		    rd_value_to_str_2(cont, vsa_avph, tvb, offset+vsa_len,
-				      (vsa_rvt ? vsa_rvt->attrib : NULL));
-		    vsa_len += vsa_avph->avp_length;
-		    vsa_index++;
+			vsa_avph = (e_avphdr*)tvb_get_ptr(tvb, offset+vsa_len,
+				avph->avp_length-vsa_len);
+			if (vsa_rvt)
+				next_print_type = match_numval(vsa_avph->avp_type,
+					vsa_rvt->attrib);
+			else
+				next_print_type = 0;
+			cont = &cont[strlen(cont)+1];
+			tmp_punt = cont;
+			vsabuffer[vsa_index].str = cont;
+			vsabuffer[vsa_index].offset = offset+vsa_len;
+			vsabuffer[vsa_index].length = vsa_avph->avp_length;
+			sprintf(cont, "t:%s(%u) l:%u, ", 
+				(vsa_rvt
+					? rd_match_strval_attrib(vsa_avph->avp_type,vsa_rvt->attrib)
+					: "Unknown Type"),
+				vsa_avph->avp_type, vsa_avph->avp_length);
+			cont = &cont[strlen(cont)];
+			rd_value_to_str_2(cont, vsa_avph, tvb, offset+vsa_len,
+				(vsa_rvt ? vsa_rvt->attrib : NULL), tree);
+			vsa_index++;
+			vsa_len += vsa_avph->avp_length;
+			if (next_print_type == THE3GPP_QOS ) 
+			{
+				cont = tmp_punt;
+				vsa_index--;
+				vsabuffer[vsa_index].str = 0;
+			}
 		} while (vsa_length > vsa_len && vsa_index < VSABUFFER);
 		break;
 	case( RADIUS_SERVICE_TYPE ):
@@ -2580,6 +2631,20 @@ static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
 			tvb_get_ntohs(tvb,offset+2),
 			tvb_get_ntohs(tvb,offset+4));
  		break;
+
+	case( THE3GPP_QOS ):
+		/* Find the ponter to the already-built label
+		 * */
+		tmp_punt = dest - 2;
+		while (*tmp_punt)
+			tmp_punt--;
+		tmp_punt++;
+		
+		/* Call decode_qos_umts from packet-gtp package
+		 * */
+		decode_qos_umts(tvb, offset + 1, tree, tmp_punt, 3);
+		break;
+			
         case( RADIUS_TIMESTAMP ):
 		intval=tvb_get_ntohl(tvb,offset+2);
 		rtimestamp=ctime((time_t*)&intval);
@@ -2609,13 +2674,18 @@ static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
   return dest;
 }
 
-static gchar *rd_value_to_str(e_avphdr *avph, tvbuff_t *tvb, int offset)
+/* NOTE: This function's signature has been changed with the addition of the
+ * tree parameter at the end. This is needed for 3GPP QoS handling; previous
+ * behaviour has not been changed.
+ * */
+static gchar *rd_value_to_str(
+   e_avphdr *avph, tvbuff_t *tvb, int offset, proto_tree *tree)
 {
     int i;
 
     for (i = 0; i < VSABUFFER; i++)
 	vsabuffer[i].str = NULL;
-    rd_value_to_str_2(textbuffer, avph, tvb, offset, radius_attrib);
+    rd_value_to_str_2(textbuffer, avph, tvb, offset, radius_attrib, tree);
     return textbuffer;
 }
 
@@ -2777,15 +2847,18 @@ dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
         proto_item *ti;
         proto_tree *vsa_tree = NULL;
         int i;
-        valstr = rd_value_to_str(&avph, tvb, offset);
+        /* We pre-add a text and a subtree to allow 3GPP QoS decoding
+         * to access the protocol tree.
+         * */
         ti = proto_tree_add_text(tree, tvb, offset, avph.avp_length,
-			    "t:%s(%u) l:%u, %s",
-			    avptpstrval, avph.avp_type, avph.avp_length,
-			    valstr);
+			    "t:%s(%u) l:%u",
+			    avptpstrval, avph.avp_type, avph.avp_length);
         vsa_tree = proto_item_add_subtree(ti, ett_radius_vsa);
+        valstr = rd_value_to_str(&avph, tvb, offset, vsa_tree);
+        proto_item_append_text(ti, ", %s", valstr);
 	for (i = 0; vsabuffer[i].str && i < VSABUFFER; i++)
-	    proto_tree_add_text(vsa_tree, tvb, vsabuffer[i].offset, vsabuffer[i].length,
-				"%s", vsabuffer[i].str);
+	    proto_tree_add_text(vsa_tree, tvb, vsabuffer[i].offset, 
+				vsabuffer[i].length, "%s", vsabuffer[i].str);
       }
     }
 
