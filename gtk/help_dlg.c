@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.34 2003/03/03 21:59:42 deniel Exp $
+ * $Id: help_dlg.c,v 1.35 2003/08/25 21:42:33 guy Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -362,7 +362,7 @@ static void insert_text(GtkWidget *w, const char *buffer, int nchars)
 }
 
 static const char *proto_help =
-"The following protocols (and packet types) are currently\n"
+"The following %d protocols (and packet types) are currently\n"
 "supported by Ethereal:\n\n";
 
 static const char *dfilter_help =
@@ -413,15 +413,16 @@ static void set_help_text(GtkWidget *w, help_type_t type)
 #define B_LEN    256
   char buffer[BUFF_LEN];
   header_field_info *hfinfo;
-  int i, len, maxlen = 0, maxlen2 = 0;
+  int i, len, maxlen = 0, maxlen2 = 0, maxlen4 = 0;
 #if GTK_MAJOR_VERSION < 2
   int maxlen3 = 0, nb_lines = 0;
   int width, height;
 #endif
   const char *type_name;
-  char blanks[B_LEN];
-  int blks;
-  void *cookie;
+  void *cookie, *cookie2;
+  char *name, *short_name, *filter_name;
+  int namel = 0, short_namel = 0, filter_namel = 0;
+  int count, fcount;
 
   /*
    * XXX quick hack:
@@ -431,8 +432,6 @@ static void set_help_text(GtkWidget *w, help_type_t type)
    * not have any horizontal scrollbar (line wrapping enabled).
    */
 
-  memset(blanks, ' ', B_LEN - 1);
-  blanks[B_LEN-1] = '\0';
 
 #if GTK_MAJOR_VERSION < 2
   gtk_text_freeze(GTK_TEXT(w));
@@ -446,46 +445,58 @@ static void set_help_text(GtkWidget *w, help_type_t type)
 
   case PROTOCOL_HELP :
     /* first pass to know the maximum length of first field */
+    count = 0;
     for (i = proto_get_first_protocol(&cookie); i != -1;
          i = proto_get_next_protocol(&cookie)) {
-      hfinfo = proto_registrar_get_nth(i);
-      if ((len = strlen(hfinfo->abbrev)) > maxlen)
-	maxlen = len;
+	    count++;
+	    name = proto_get_protocol_name(i);
+	    short_name = proto_get_protocol_short_name(i);
+	    filter_name = proto_get_protocol_filter_name(i);
+	    if ((len = strlen(name)) > namel)
+		    namel = len;
+	    if ((len = strlen(short_name)) > short_namel)
+		    short_namel = len;
+	    if ((len = strlen(filter_name)) > filter_namel)
+		    filter_namel = len;
     }
-    maxlen++;
+    maxlen = namel + short_namel + filter_namel;
 
+    len = snprintf(buffer, BUFF_LEN, proto_help, count);
 #if GTK_MAJOR_VERSION < 2
-    maxlen2 = strlen(proto_help);
-    width = gdk_string_width(m_r_font, proto_help);
-    insert_text(w, proto_help, maxlen2);
+    maxlen2 = len;
+    width = gdk_string_width(m_r_font, buffer);
+    insert_text(w, buffer, maxlen2);
 #else
-    insert_text(w, proto_help, strlen(proto_help));
+    insert_text(w, buffer, len);
 #endif
 
     /* ok, display the correctly aligned strings */
     for (i = proto_get_first_protocol(&cookie); i != -1;
          i = proto_get_next_protocol(&cookie)) {
-      hfinfo = proto_registrar_get_nth(i);
-      blks = maxlen - strlen(hfinfo->abbrev);
-      snprintf(buffer, BUFF_LEN, "%s%s%s\n",
-	       hfinfo->abbrev,
-	       &blanks[B_LEN - blks - 2],
-	       hfinfo->name);
+	    name = proto_get_protocol_name(i);
+	    short_name = proto_get_protocol_short_name(i);
+	    filter_name = proto_get_protocol_filter_name(i);
+ 
+	    /* the name used for sorting in the left column */
+	    len = snprintf(buffer, BUFF_LEN, "%*s %*s %*s\n",
+			   -short_namel,  short_name,
+			   -namel,	  name,
+			   -filter_namel, filter_name);
 #if GTK_MAJOR_VERSION < 2
-      if ((len = strlen(buffer)) > maxlen2) {
-	maxlen2 = len;
-	if ((len = gdk_string_width(m_r_font, buffer)) > width)
-	  width = len;
-      }
-      insert_text(w, buffer, strlen(buffer));
-      nb_lines++;
+	    if (len > maxlen2) {
+		    maxlen2 = len;
+		    if ((len = gdk_string_width(m_r_font, buffer)) > width)
+			    width = len;
+	    }
+	    insert_text(w, buffer, strlen(buffer));
+	    nb_lines++;
 #else
-      insert_text(w, buffer, strlen(buffer));
+	    insert_text(w, buffer, strlen(buffer));
 #endif
     }
 
 #if GTK_MAJOR_VERSION < 2
-    height = (2 + nb_lines) * m_font_height;
+    height = (3 + nb_lines) * m_font_height;
     WIDGET_SET_SIZE(w, 20 + width, 20 + height);
 #endif
     break;
@@ -495,17 +506,23 @@ static void set_help_text(GtkWidget *w, help_type_t type)
     /* XXX we should display hinfo->blurb instead of name (if not empty) */
 
     /* first pass to know the maximum length of first and second fields */
-    for (i = 0; i < proto_registrar_n() ; i++) {
-      if (!proto_registrar_is_protocol(i)) {
-	hfinfo = proto_registrar_get_nth(i);
-	if ((len = strlen(hfinfo->abbrev)) > maxlen)
-	  maxlen = len;
-	if ((len = strlen(hfinfo->name)) > maxlen2)
-	  maxlen2 = len;
-      }
+    for (i = proto_get_first_protocol(&cookie); i != -1;
+         i = proto_get_next_protocol(&cookie)) {
+
+	    for (hfinfo = proto_get_first_protocol_field(i, &cookie2); hfinfo != NULL;
+		 hfinfo = proto_get_next_protocol_field(&cookie2)) {
+
+		    if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
+			    continue;
+
+		    if ((len = strlen(hfinfo->abbrev)) > maxlen)
+			    maxlen = len;
+		    if ((len = strlen(hfinfo->name)) > maxlen2)
+			    maxlen2 = len;
+		    if ((len = strlen(hfinfo->blurb)) > maxlen4)
+			    maxlen4 = len;
+	    }
     }
-    maxlen++;
-    maxlen2++;
 
 #if GTK_MAJOR_VERSION < 2
     maxlen3 = strlen(dfilter_help);
@@ -515,38 +532,57 @@ static void set_help_text(GtkWidget *w, help_type_t type)
     insert_text(w, dfilter_help, strlen(dfilter_help));
 #endif
 
-    for (i = 0; i < proto_registrar_n() ; i++) {
-      hfinfo = proto_registrar_get_nth(i);
-      if (proto_registrar_is_protocol(i)) {
-	snprintf(buffer, BUFF_LEN, "\n%s:\n", hfinfo->name);
-	insert_text(w, buffer, strlen(buffer));
-#if GTK_MAJOR_VERSION < 2
-	nb_lines += 2;
-#endif
-      } else {
+    fcount = 0;
+    for (i = proto_get_first_protocol(&cookie); i != -1;
+         i = proto_get_next_protocol(&cookie)) {
+	    name = proto_get_protocol_name(i);
+	    short_name = proto_get_protocol_short_name(i);
+	    filter_name = proto_get_protocol_filter_name(i);
 
-	type_name = ftype_pretty_name(hfinfo->type);
-	snprintf(buffer, BUFF_LEN, "%s%s%s%s(%s)\n",
-		 hfinfo->abbrev,
-		 &blanks[B_LEN - (maxlen - strlen(hfinfo->abbrev)) - 2],
-		 hfinfo->name,
-		 &blanks[B_LEN - (maxlen2 - strlen(hfinfo->name)) - 2],
-		 type_name);
+	    count = 0;
+	    for (hfinfo = proto_get_first_protocol_field(i, &cookie2); hfinfo != NULL;
+		 hfinfo = proto_get_next_protocol_field(&cookie2)) {
+
+		    if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
+			    continue;
+		    count++;
+	    }
+	    fcount += count;
+
+	    len = snprintf(buffer, BUFF_LEN, "\n%s - %s (%s) [%d fields]:\n",
+			   short_name, name, filter_name, count);
+	    insert_text(w, buffer, len);
+
+	    for (hfinfo = proto_get_first_protocol_field(i, &cookie2); hfinfo != NULL;
+		 hfinfo = proto_get_next_protocol_field(&cookie2)) {
+
+		    if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
+			    continue;
+
+		    type_name = ftype_pretty_name(hfinfo->type);
+		    len = snprintf(buffer, BUFF_LEN, "%*s %*s %*s (%s)\n",
+				   -maxlen,  hfinfo->abbrev,
+				   -maxlen2, hfinfo->name,
+				   -maxlen4, hfinfo->blurb,
+				   type_name);
 #if GTK_MAJOR_VERSION < 2
-	if ((len = strlen(buffer)) > maxlen3) {
-	  maxlen3 = len;
-	  if ((len = gdk_string_width(m_r_font, buffer)) > width)
-	    width = len;
-	}
-	insert_text(w, buffer, strlen(buffer));
-	nb_lines ++;
+		    if (len > maxlen3) {
+			    maxlen3 = len;
+			    if ((len = gdk_string_width(m_r_font, buffer)) > width)
+				    width = len;
+		    }
+		    insert_text(w, buffer, strlen(buffer));
+		    nb_lines ++;
 #else
-        insert_text(w, buffer, strlen(buffer));
+		    insert_text(w, buffer, strlen(buffer));
 #endif
-      }
+	    }
     }
+    len = snprintf(buffer, BUFF_LEN, "\n-- Total %d fields\n", fcount);
+    insert_text(w, buffer, len);
+
 #if GTK_MAJOR_VERSION < 2
-    height = (1 + nb_lines) * m_font_height;
+    height = (5 + nb_lines) * m_font_height;
     WIDGET_SET_SIZE(w, 20 + width, 20 + height);
 #endif
     break;
