@@ -1,12 +1,11 @@
 # Makefile.am
 # Automake file for Ethereal documentation
 #
-# $Id: Makefile.am,v 1.13 2002/02/05 18:39:06 gram Exp $
+# $Id: Makefile.am,v 1.14 2002/05/14 18:27:27 guy Exp $
 #
 # Ethereal - Network traffic analyzer
-# By Gerald Combs <gerald@zing.org>
+# By Gerald Combs <gerald@ethereal.com>
 # Copyright 1998 Gerald Combs
-#
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -32,7 +31,7 @@
 	> ../ethereal.1
 
 ethereal.pod: ethereal.pod.template  ../ethereal
-	../ethereal -G | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/ethereal.pod.template > ethereal.pod
+	../ethereal -G fields | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/ethereal.pod.template > ethereal.pod
 
 ../tethereal.1: tethereal.pod ../config.h
 	$(POD2MAN) tethereal.pod                     \
@@ -41,7 +40,7 @@ ethereal.pod: ethereal.pod.template  ../ethereal
 	> ../tethereal.1
 
 tethereal.pod: tethereal.pod.template  ../tethereal
-	../tethereal -G | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/tethereal.pod.template > tethereal.pod
+	../tethereal -G fields | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/tethereal.pod.template > tethereal.pod
 
 ../editcap.1: editcap.pod ../config.h
 	$(POD2MAN) $(srcdir)/editcap.pod                     \
