@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.47 2004/06/17 21:53:24 ulfl Exp $
+# $Id: Makefile.common,v 1.48 2004/06/18 10:01:59 ulfl Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -348,6 +348,7 @@ ethereal_INCLUDES =	\
 	g711.h	\
 	globals.h	\
 	menu.h	\
+	merge.h	\
 	progress_dlg.h	\
 	proto_hier_stats.h	\
 	simple_dialog.h	\
@@ -371,6 +372,7 @@ text2pcap_SOURCES = \
 # mergecap specifics
 mergecap_SOURCES = \
 	mergecap.c \
+	merge.c \
 	cvsversion.h
 
 # editcap specifics
