@@ -502,7 +502,13 @@ cf_read(capture_file *cf)
 cf_status_t
 cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 {
-  return cf_open(cf, fname, is_tempfile, err);
+  cf_status_t cf_status;
+
+  cf_status = cf_open(cf, fname, is_tempfile, err);
+  if (cf_status == CF_OK) {
+    cf_callback_invoke(cf_cb_live_capture_started, cf);
+  }
+  return cf_status;
 }
 
 cf_read_status_t
