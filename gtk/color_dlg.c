@@ -74,9 +74,11 @@ static void color_apply_cb(GtkButton *button, gpointer user_data);
 static void color_clear_cb(GtkWidget *button, gpointer user_data);
 static void color_import_cb(GtkButton *button, gpointer user_data );
 
-static void edit_color_filter_dialog_new(GtkWidget *color_filters,
-                                         GtkWidget **colorize_filter_name,
-                                         GtkWidget **colorize_filter_text);
+static void edit_color_filter_dialog(GtkWidget *color_filters,
+                                     GtkWidget **colorize_filter_name,
+                                     GtkWidget **colorize_filter_text,
+                                     guchar is_new_filter);
+
 #if GTK_MAJOR_VERSION < 2
 static void edit_color_filter_destroy_cb(GtkObject *object, gpointer user_data);
 #else
@@ -85,6 +87,7 @@ static void edit_color_filter_destroy_cb(GObject *object, gpointer user_data);
 static void edit_color_filter_fg_cb(GtkButton *button, gpointer user_data);
 static void edit_color_filter_bg_cb(GtkButton *button, gpointer user_data);
 static void edit_color_filter_ok_cb(GtkButton *button, gpointer user_data);
+static void edit_new_color_filter_cancel_cb(GtkButton *button, gpointer user_data);
 
 static GtkWidget* color_sel_win_new(color_filter_t *colorf, gboolean);
 static void color_sel_ok_cb(GtkButton *button, gpointer user_data);
@@ -914,11 +917,12 @@ create_new_color_filter(GtkButton *button, char *filter)
 
   color_add_colorf(color_filters, colorf);
 
-  edit_color_filter_dialog_new(color_filters, &filt_name_entry,
-                               &filt_text_entry);
+  edit_color_filter_dialog(color_filters, &filt_name_entry, &filt_text_entry, TRUE);
   
   /* Show the (in)validity of the default filter string */
   filter_te_syntax_check_cb(filt_text_entry);
+
+
 
 #if GTK_MAJOR_VERSION >= 2
   gtk_widget_grab_focus(color_filters);
@@ -941,8 +945,7 @@ color_props_cb(GtkButton *button, gpointer user_data _U_)
 
   color_filters = (GtkWidget *)OBJECT_GET_DATA(button, COLOR_FILTERS_CL);
   g_assert(row_selected != -1);
-  edit_color_filter_dialog_new(color_filters, &filt_name_entry,
-                               &filt_text_entry);
+  edit_color_filter_dialog(color_filters, &filt_name_entry, &filt_text_entry, FALSE);
 }
 
 /* Delete a color from the list. */
@@ -1122,9 +1125,10 @@ color_apply_cb(GtkButton *button _U_, gpointer user_data _U_)
 /* Create an "Edit Color Filter" dialog for a given color filter, and
    associate it with that color filter. */
 static void
-edit_color_filter_dialog_new(GtkWidget *color_filters,
-                             GtkWidget **colorize_filter_name,
-                             GtkWidget **colorize_filter_text)
+edit_color_filter_dialog(GtkWidget *color_filters,
+                         GtkWidget **colorize_filter_name,
+                         GtkWidget **colorize_filter_text,
+                         guchar is_new_filter)
 {
     color_filter_t *colorf;
     GtkWidget      *edit_dialog;
@@ -1266,7 +1270,6 @@ edit_color_filter_dialog_new(GtkWidget *color_filters,
     gtk_tooltips_set_tip (tooltips, edit_color_filter_ok, ("Accept filter color change"), NULL);
 
     edit_color_filter_cancel = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-    window_set_cancel_button(edit_dialog, edit_color_filter_cancel, window_cancel_button_cb);
     gtk_tooltips_set_tip (tooltips, edit_color_filter_cancel, ("Reject filter color change"), NULL);
 
     gtk_widget_grab_default(edit_color_filter_ok);
@@ -1281,6 +1284,16 @@ edit_color_filter_dialog_new(GtkWidget *color_filters,
     OBJECT_SET_DATA(edit_color_filter_ok, COLOR_FILTERS_CL, color_filters);
     OBJECT_SET_DATA(edit_color_filter_ok, COLOR_FILTER, colorf);
     SIGNAL_CONNECT(edit_color_filter_ok, "clicked", edit_color_filter_ok_cb, edit_dialog);
+
+    /* set callback to delete new filters if cancel chosen */
+    if (is_new_filter)
+    {
+        OBJECT_SET_DATA(edit_color_filter_cancel, COLOR_FILTERS_CL, color_filters);
+        SIGNAL_CONNECT(edit_color_filter_cancel, "clicked",
+                       edit_new_color_filter_cancel_cb, edit_dialog);
+    }
+    /* escape will select cancel */
+    window_set_cancel_button(edit_dialog, edit_color_filter_cancel, window_cancel_button_cb);
 
     SIGNAL_CONNECT(edit_dialog, "delete_event", window_delete_event_cb, NULL);
 
@@ -1447,6 +1460,14 @@ edit_color_filter_ok_cb                (GtkButton       *button,
         /* Destroy the dialog box. */
         window_destroy(dialog);
     }
+}
+
+/* reject new color filter addition */
+static void
+edit_new_color_filter_cancel_cb(GtkButton *button, gpointer user_data _U_)
+{
+    /* Delete the entry.  N.B. this already destroys the edit_dialog window. */
+    color_delete(num_of_filters-1, (GtkWidget*)OBJECT_GET_DATA(button, COLOR_FILTERS_CL));
 }
 
 static GtkWidget*
