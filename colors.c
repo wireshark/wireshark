@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.11 1999/10/05 18:10:33 guy Exp $
+ * $Id: colors.c,v 1.12 1999/10/07 22:50:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,6 +50,7 @@ static GtkWidget* create_color_sel_win(cap_file  *cf, GdkColor *);
 
 GdkColor 	proto_colors[MAXCOLORS];
 GdkColormap*	sys_cmap;
+GdkColormap*	our_cmap = NULL;
 
 static gchar *titles[2] = { "Name", "Filter String" };
 GdkColor	WHITE = { 0, 65535, 65535, 65535 };
@@ -72,11 +73,12 @@ struct _default_colors {
 void
 colors_init(capture_file *cf)
 {
-
+  gboolean got_white, got_black;
 #ifdef READ_DEFAULT_COLOR_LIST
   gint i;
   GdkColor color;
 #endif
+
   cf->colors = (colfilter *)g_malloc(sizeof(colfilter));
   cf->colors->num_of_filters = 0;
   cf->colors->color_filters = gtk_clist_new_with_titles(2, titles);
@@ -86,14 +88,18 @@ colors_init(capture_file *cf)
   sys_cmap = gdk_colormap_get_system();
 
   /* Allocate "constant" colors. */
-  if( !gdk_colormap_alloc_color(sys_cmap, &WHITE, TRUE, TRUE)){
-	/* oops */
-	simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate color white.");
-  }
+  got_white = get_color(&WHITE);
+  got_black = get_color(&BLACK);
 
-  if( !gdk_colormap_alloc_color(sys_cmap, &BLACK, TRUE, TRUE)){
-	/* oops */
-	simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate color black.");
+  /* Got milk? */
+  if (!got_white) {
+    if (!got_black)
+      simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate colors black or white.");
+    else
+      simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate color white.");
+  } else {
+    if (!got_black)
+      simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate color black.");
   }
 
 #ifdef READ_DEFAULT_COLOR_LIST
@@ -101,7 +107,7 @@ colors_init(capture_file *cf)
   for (i = 0 ; i < sizeof default_colors/sizeof (struct _default_colors); i++){
 	gdk_color_parse(default_colors[i].color, &color);
 	
-	if( !gdk_colormap_alloc_color(sys_cmap, &color, TRUE, TRUE)){
+	if( !get_color(&color)){
 		/* oops */
 		simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate color %s.",
 		    default_colors[i].color);
@@ -257,32 +263,32 @@ read_filters(capture_file *cf)
 	    bg_color.red = bg_r;
 	    bg_color.green = bg_g;
 	    bg_color.blue = bg_b;
-	    if( !gdk_colormap_alloc_color(sys_cmap, &fg_color, TRUE, TRUE)){
-			/* oops */
-			simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate fg color specified"
-			    "in input file for %s.", name);
+	    if( !get_color(&fg_color)){
+		/* oops */
+		simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate fg color specified"
+		  "in input file for %s.", name);
 
-			i++;
-			continue;
+		i++;
+		continue;
 	    }
-	    	if( !gdk_colormap_alloc_color(sys_cmap, &bg_color, TRUE, TRUE)){
-			/* oops */
-			simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate bg color specified"
-			    "in input file for %s.", name);
-			i++;
-			continue;
+	    if( !get_color(&bg_color)){
+		/* oops */
+		simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate bg color specified"
+		  "in input file for %s.", name);
+		i++;
+		continue;
 	    }
 
-        color_filter(cf,i)->bg_color = bg_color;
-        color_filter(cf,i)->fg_color = fg_color;
-        gtk_clist_set_foreground(GTK_CLIST(cf->colors->color_filters),
+            color_filter(cf,i)->bg_color = bg_color;
+            color_filter(cf,i)->fg_color = fg_color;
+            gtk_clist_set_foreground(GTK_CLIST(cf->colors->color_filters),
 			i,&fg_color);
-        gtk_clist_set_background(GTK_CLIST(cf->colors->color_filters),
+            gtk_clist_set_background(GTK_CLIST(cf->colors->color_filters),
 			i,&bg_color);
 
 	    i++;
 	  }    /* if sscanf */
-	}   while( !feof(f));
+	} while( !feof(f));
 	return TRUE;
 }
 
@@ -639,7 +645,7 @@ color_sel_ok_cb                        (GtkButton       *button,
   new_color.green = (guint16)(new_colors[1]*65535.0);
   new_color.blue  = (guint16)(new_colors[2]*65535.0);
 
-  if ( ! gdk_colormap_alloc_color(sys_cmap, &new_color, TRUE, TRUE) ){
+  if ( ! get_color(&new_color) ){
 	simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate color.  Try again.");
   } else {
 	gtk_widget_destroy(color_dialog);
@@ -1110,3 +1116,18 @@ create_color_sel_win (capture_file *cf, GdkColor * color)
   return color_sel_win;
 }
 
+gboolean
+get_color ( GdkColor *new_color) {
+
+    GdkVisual *pv;
+
+    if (!our_cmap) {
+	if ( !gdk_colormap_alloc_color (sys_cmap, new_color, FALSE, TRUE)) {
+	    pv = gdk_visual_get_best();
+	    if ( !(our_cmap = gdk_colormap_new(pv, TRUE)))
+		simple_dialog(ESD_TYPE_WARN, NULL, "Could not create new colormap");
+	} else
+	    return (TRUE);
+    }
+    return ( gdk_colormap_alloc_color ( our_cmap, new_color, FALSE, TRUE) );
+}

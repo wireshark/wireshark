@@ -1,7 +1,7 @@
 /* colors.h
  * Definitions for color structures and routines
  *
- * $Id: colors.h,v 1.4 1999/10/05 18:10:34 guy Exp $
+ * $Id: colors.h,v 1.5 1999/10/07 22:50:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -148,6 +148,9 @@ color_cel_cancel_cb                    (GtkObject       *object,
 void
 color_sel_ok_cb                        (GtkButton       *button,
                                         gpointer         user_data);
+
+gboolean
+get_color				(GdkColor	*new_color);
 
 GtkWidget* create_color_win (cap_file *cf);
 GtkWidget* create_colorize_win (cap_file *cf,
