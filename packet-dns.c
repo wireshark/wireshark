@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.46 2000/07/18 16:53:51 gerald Exp $
+ * $Id: packet-dns.c,v 1.47 2000/07/21 01:29:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -113,6 +113,8 @@ static gint ett_t_key_flags = -1;
 #define T_NAPTR         35              /* naming authority pointer (RFC 2168) */
 #define T_A6		38              /* IPv6 address with indirection (draft-ietf-ipngwg-dns-lookups-07) */
 #define T_OPT		41		/* OPT pseudo-RR (RFC 2671) */
+#define T_WINS		65281		/* Microsoft's WINS RR */
+#define T_WINS_R	65282		/* Microsoft's WINS-R RR */
 
 /* Bit fields in the flags */
 #define F_RESPONSE      (1<<15)         /* packet is response */
@@ -138,7 +140,17 @@ static gint ett_t_key_flags = -1;
 #define RCODE_NOTIMPL   (4<<0)
 #define RCODE_REFUSED   (5<<0)
 
-/* See RFC 1035 for all RR types for which no RFC is listed. */
+/* See RFC 1035 for all RR types for which no RFC is listed, except for
+   the ones with "???", and for the Microsoft WINS and WINS-R RRs, for
+   which one should look at
+
+http://www.windows.com/windows2000/en/server/help/default.asp?url=/windows2000/en/server/help/sag_DNS_imp_UsingWinsLookup.htm
+   
+   and
+   
+http://www.microsoft.com/windows2000/library/resources/reskit/samplechapters/cncf/cncf_imp_wwaw.asp
+
+   which discuss them to some extent. */
 static char *
 dns_type_name (u_int type)
 {
@@ -202,7 +214,11 @@ dns_type_name (u_int type)
       return "GID";
     case 103:
       return "UNSPEC";
-      
+    case T_WINS:
+      return "WINS";
+    case T_WINS_R:
+      return "WINS-R";
+
       /* queries  */
     case 251:
       return "IXFR";	/* RFC 1995 */
@@ -214,6 +230,7 @@ dns_type_name (u_int type)
       return "MAILA";
     case 255:
       return "ANY";
+
     }
 
   return "unknown";
@@ -284,7 +301,11 @@ dns_long_type_name (u_int type)
       return "GID";
     case 103:
       return "UNSPEC";
-      
+    case T_WINS:
+      return "WINS";
+    case T_WINS_R:
+      return "WINS-R";
+
       /* queries  */
     case 251:
       return "Request for incremental zone transfer";	/* RFC 1995 */
@@ -1440,6 +1461,163 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
     if (dns_tree != NULL) {
       proto_item_set_text(trr, "%s: type %s", name, type_name);
       proto_tree_add_text(rr_tree, NullTVB, cur_offset, data_len, "Data");
+    }
+    break;
+
+  case T_WINS:
+    {
+      int rr_len = data_len;
+      guint32 local_flag;
+      guint32 lookup_timeout;
+      guint32 cache_timeout;
+      guint32 nservers;
+
+      if (dns_tree != NULL) {
+	proto_item_set_text(trr, "%s: type %s, class %s", name, type_name,
+				class_name);
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+	local_flag = pntohl(&pd[cur_offset]);
+	if (dns_tree != NULL) {
+	  proto_tree_add_text(rr_tree, NullTVB, cur_offset, 4, "Local flag: %s",
+		       local_flag ? "true" : "false");
+	}
+	cur_offset += 4;
+	rr_len -= 4;
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+	lookup_timeout = pntohl(&pd[cur_offset]);
+	if (dns_tree != NULL) {
+	  proto_tree_add_text(rr_tree, NullTVB, cur_offset, 4, "Lookup timeout: %u seconds",
+		       lookup_timeout);
+	}
+	cur_offset += 4;
+	rr_len -= 4;
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+	cache_timeout = pntohl(&pd[cur_offset]);
+	if (dns_tree != NULL) {
+	  proto_tree_add_text(rr_tree, NullTVB, cur_offset, 4, "Cache timeout: %u seconds",
+		       cache_timeout);
+	}
+	cur_offset += 4;
+	rr_len -= 4;
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+	nservers = pntohl(&pd[cur_offset]);
+	if (dns_tree != NULL) {
+	  proto_tree_add_text(rr_tree, NullTVB, cur_offset, 4, "Number of WINS servers: %u",
+		       nservers);
+	}
+	cur_offset += 4;
+	rr_len -= 4;
+
+	while (rr_len != 0 && nservers != 0) {
+	  if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
+	    /* We ran past the end of the captured data in the packet. */
+	    return 0;
+	  }
+	  if (dns_tree != NULL) {
+	    proto_tree_add_text(rr_tree, NullTVB, cur_offset, 4, "WINS server address: %s",
+		     ip_to_str((guint8 *)&pd[cur_offset]));
+	  }
+	  cur_offset += 4;
+	  rr_len -= 4;
+	  nservers--;
+	}
+      }
+    }
+    break;
+
+  case T_WINS_R:
+    {
+      int rr_len = data_len;
+      guint32 local_flag;
+      guint32 lookup_timeout;
+      guint32 cache_timeout;
+      char dname[MAXDNAME];
+      int dname_len;
+
+      if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
+	/* We ran past the end of the captured data in the packet. */
+	if (dns_tree != NULL) {
+	  proto_item_set_text(trr,
+		"%s: type %s, class %s, <Local flag goes past end of captured data in packet>",
+		       name, type_name, class_name);
+	}
+	return 0;
+      }
+      local_flag = pntohl(&pd[cur_offset]);
+      if (dns_tree != NULL) {
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, 4, "Local flag: %s",
+		       local_flag ? "true" : "false");
+      }
+      cur_offset += 4;
+      rr_len -= 4;
+
+      if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
+	/* We ran past the end of the captured data in the packet. */
+	if (dns_tree != NULL) {
+	  proto_item_set_text(trr,
+		"%s: type %s, class %s, <Lookup timeout goes past end of captured data in packet>",
+		       name, type_name, class_name);
+	}
+	return 0;
+      }
+      lookup_timeout = pntohl(&pd[cur_offset]);
+      if (dns_tree != NULL) {
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, 4, "Lookup timeout: %u seconds",
+		       lookup_timeout);
+      }
+      cur_offset += 4;
+      rr_len -= 4;
+
+      if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
+	/* We ran past the end of the captured data in the packet. */
+	if (dns_tree != NULL) {
+	  proto_item_set_text(trr,
+		"%s: type %s, class %s, <Cache timeout goes past end of captured data in packet>",
+		       name, type_name, class_name);
+	}
+	return 0;
+      }
+      cache_timeout = pntohl(&pd[cur_offset]);
+      if (dns_tree != NULL) {
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, 4, "Cache timeout: %u seconds",
+		       cache_timeout);
+      }
+      cur_offset += 4;
+      rr_len -= 4;
+
+      dname_len = get_dns_name(pd, cur_offset, dns_data_offset, dname, sizeof(dname));
+      if (dname_len < 0) {
+	/* We ran past the end of the captured data in the packet. */
+	if (dns_tree != NULL) {
+	  proto_item_set_text(trr,
+		"%s: type %s, class %s, <Name result domain goes past end of captured data in packet>",
+		       name, type_name, class_name);
+	}
+	return 0;
+      }
+      if (fd != NULL)
+	col_append_fstr(fd, COL_INFO, " %s", dname);
+      if (dns_tree != NULL) {
+	proto_item_set_text(trr, "%s: type %s, class %s, name result domain %s",
+		     name, type_name, class_name, dname);
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, dname_len, "Name result domain: %s",
+			dname);
+      }
     }
     break;
 
