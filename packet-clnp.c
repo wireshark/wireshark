@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.65 2003/01/26 19:35:24 deniel Exp $
+ * $Id: packet-clnp.c,v 1.66 2003/02/04 21:43:56 deniel Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -27,7 +27,7 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
+#include <signal.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -276,6 +276,8 @@ static const value_string tp_vpart_type_vals[] = {
 /* List of dissectors to call for COTP packets put atop the Inactive
    Subset of CLNP. */
 static heur_dissector_list_t cotp_is_heur_subdissector_list;
+/* List of dissectors to call for COTP packets put atop CLNP */
+static heur_dissector_list_t cotp_heur_subdissector_list;
 
 /*
  * Reassembly of CLNP.
@@ -871,8 +873,14 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 	  /* Fill in other Dissectors using inactive subset here */
 	  call_dissector(data_handle,next_tvb, pinfo, tree);
 	}
-  } else
-	call_dissector(data_handle,next_tvb, pinfo, tree);
+  } else {
+        if (dissector_try_heuristic(cotp_heur_subdissector_list, next_tvb,
+				    pinfo, tree)) {
+		*subdissector_found = TRUE;
+	} else {
+		call_dissector(data_handle,next_tvb, pinfo, tree);
+	}
+  }
   offset += tvb_length_remaining(tvb, offset);
      /* we dissected all of the containing PDU */
 
@@ -1624,6 +1632,8 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean    update_col_info = TRUE;
   gboolean    save_fragmented;
 
+  signal(SIGSEGV, SIG_DFL);
+
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CLNP");
   if (check_col(pinfo->cinfo, COL_INFO))
@@ -2085,8 +2095,11 @@ void proto_register_cotp(void)
  /*       proto_register_field_array(proto_cotp, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
 
-/* subdissector code */
+	/* subdissector code in inactive subset */
 	register_heur_dissector_list("cotp_is", &cotp_is_heur_subdissector_list);
+
+	/* other COTP/ISO 8473 subdissectors */
+	register_heur_dissector_list("cotp", &cotp_heur_subdissector_list);
 
 	/* XXX - what about CLTP and proto_cltp? */
 	register_dissector("ositp", dissect_ositp, proto_cotp);
