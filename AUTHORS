@@ -1506,6 +1506,10 @@ Brian Ginsbach <ginsbach [AT] cray.com> {
 	Support for additional snoop file encapsulations in UNICOS/mp
 }
 
+Dave Richards <d_m_richards [AT] attbi.com> {
+	BACNET over 802.2
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

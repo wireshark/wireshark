@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.101 2002/11/05 22:50:42 guy Exp $
+ * $Id: packet-llc.c,v 1.102 2002/11/16 08:55:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,6 +120,7 @@ const value_string sap_vals[] = {
 	 */
 	{ 0x7F,               "ISO 802.2" },
 	{ SAP_XNS,            "XNS" },
+	{ SAP_BACNET,         "BACnet" },
 	{ SAP_NESTAR,         "Nestar" },
 	{ SAP_PROWAY_ASLM,    "PROWAY (IEC955) Active Station List Maintenance" },
 	{ SAP_ARP,            "ARP" },	/* XXX - hand to "dissect_arp()"? */
