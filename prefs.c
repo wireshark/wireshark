@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.42 2000/09/28 03:16:05 gram Exp $
+ * $Id: prefs.c,v 1.43 2000/10/15 08:46:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -534,7 +534,52 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
 #ifdef WIN32
     prefs.gui_font_name = g_strdup("-*-lucida console-medium-r-*-*-*-100-*-*-*-*-*-*");
 #else
-    prefs.gui_font_name = g_strdup("-*-fixed-medium-r-semicondensed-*-*-120-*-*-*-*-*-*");
+    /*
+     * XXX - for now, we make the initial font name a pattern that matches
+     * only ISO 8859/1 fonts, so that we don't match 2-byte fonts such
+     * as ISO 10646 fonts.
+     *
+     * Users in locales using other one-byte fonts will have to choose
+     * a different font from the preferences dialog - or put the font
+     * selection in the global preferences file to make that font the
+     * default for all users who don't explicitly specify a different
+     * font.
+     *
+     * Making this a font set rather than a font has two problems:
+     *
+     *	1) as far as I know, you can't select font sets with the
+     *	   font selection dialog;
+     *
+     *  2) if you use a font set, the text to be drawn must be a
+     *	   multi-byte string in the appropriate locale, but
+     *	   Ethereal does *NOT* guarantee that's the case - in
+     *	   the hex-dump window, each character in the text portion
+     *	   of the display must be a *single* byte, and in the
+     *	   packet-list and protocol-tree windows, text extracted
+     *	   from the packet is not necessarily in the right format.
+     *
+     * "Doing this right" may, for the packet-list and protocol-tree
+     * windows, require that dissectors know what the locale is
+     * *AND* know what locale and text representation is used in
+     * the packets they're dissecting, and may be impossible in
+     * the hex-dump window (except by punting and displaying only
+     * ASCII characters).
+     *
+     * GTK+ 2.0 may simplify part of the problem, as it will, as I
+     * understand it, use UTF-8-encoded Unicode as its internal
+     * character set; however, we'd still have to know whatever
+     * character set and encoding is used in the packet (which
+     * may differ for different protocols, e.g. SMB might use
+     * PC code pages for some strings and Unicode for others, whilst
+     * NFS might use some UNIX character set encoding, e.g. ISO 8859/x,
+     * or one of the EUC character sets for Asian languages, or one
+     * of the other multi-byte character sets, or UTF-8, or...).
+     *
+     * I.e., as far as I can tell, "internationalizing" the packet-list,
+     * protocol-tree, and hex-dump windows involves a lot more than, say,
+     * just using font sets rather than fonts.
+     */
+    prefs.gui_font_name = g_strdup("-*-fixed-medium-r-semicondensed-*-*-120-*-*-*-*-iso8859-1");
 #endif
     prefs.gui_marked_fg.pixel = 65535;
     prefs.gui_marked_fg.red   = 65535;
