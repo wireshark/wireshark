@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.59 2003/01/30 08:19:38 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.60 2003/01/30 22:42:57 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1002,7 +1002,7 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	}
 
 	/* Append string to upper-level proto_items */
-	if (levels > 0) {
+	if (levels > 0 && item) {
 		proto_item_append_text(item, ": %s", s);
 		item = item->parent;
 		levels--;
