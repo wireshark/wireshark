@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.284 2002/08/28 21:00:31 jmayer Exp $
+ * $Id: packet-smb.c,v 1.285 2002/08/29 00:35:54 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1550,34 +1550,55 @@ static const true_false_string tfs_file_attribute_encrypted = {
 	"This is NOT an encrypted file"
 };
 
+/*
+ * In some places in the CIFS_TR_1p00.pdf, from SNIA, file attributes are 
+ * listed as USHORT, and seem to be in packets in the wild, while in other
+ * places they are listed as ULONG, and also seem to be.
+ *
+ * So, I (Richard Sharpe), added a parameter to allow us to specify how many
+ * bytes to consume.
+ */
+
 static int
-dissect_file_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
+dissect_file_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
+			int bytes)
 {
 	guint16 mask;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 
+	if (bytes != 2 && bytes != 4) {
+
+		fprintf(stderr, "Incorrect number of bytes passed to dissect_file_attributes.\nMust be 2 or 4, was %d\n", bytes);
+		exit(1);
+
+	}
+
+	/*
+	 * The actual bits of interest appear to only be a USHORT
+	 */
+	/* FIXME if this ever changes! */
 	mask = tvb_get_letohs(tvb, offset);
 
 	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-			"File Attributes: 0x%04x", mask);
+		item = proto_tree_add_text(parent_tree, tvb, offset, bytes,
+			"File Attributes: 0x%08x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_file_attributes);
 	}
-	proto_tree_add_boolean(tree, hf_smb_file_attr_read_only_16bit,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_hidden_16bit,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_system_16bit,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_volume_16bit,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_directory_16bit,
-		tvb, offset, 2, mask);
 	proto_tree_add_boolean(tree, hf_smb_file_attr_archive_16bit,
-		tvb, offset, 2, mask);
+		tvb, offset, bytes, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_attr_directory_16bit,
+		tvb, offset, bytes, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_attr_volume_16bit,
+		tvb, offset, bytes, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_attr_system_16bit,
+		tvb, offset, bytes, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_attr_hidden_16bit,
+		tvb, offset, bytes, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_attr_read_only_16bit,
+		tvb, offset, bytes, mask);
 
-	offset += 2;
+	offset += bytes;
 
 	return offset;
 }
@@ -2905,7 +2926,7 @@ dissect_open_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	offset += 2;
 
 	/* File Attributes */
-	offset = dissect_file_attributes(tvb, tree, offset);
+	offset = dissect_file_attributes(tvb, tree, offset, 2);
 
 	/* last write time */
 	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_last_write_time);
@@ -2957,7 +2978,7 @@ dissect_create_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	WORD_COUNT;
 
 	/* file attributes */
-	offset = dissect_file_attributes(tvb, tree, offset);
+	offset = dissect_file_attributes(tvb, tree, offset, 2);
 
 	/* creation time */
 	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_create_time);
@@ -3215,7 +3236,7 @@ dissect_query_information_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	WORD_COUNT;
 
 	/* File Attributes */
-	offset = dissect_file_attributes(tvb, tree, offset);
+	offset = dissect_file_attributes(tvb, tree, offset, 2);
 
 	/* Last Write Time */
 	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_last_write_time);
@@ -3247,7 +3268,7 @@ dissect_set_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	WORD_COUNT;
 
 	/* file attributes */
-	offset = dissect_file_attributes(tvb, tree, offset);
+	offset = dissect_file_attributes(tvb, tree, offset, 2);
 
 	/* last write time */
 	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_last_write_time);
@@ -3779,7 +3800,7 @@ dissect_query_information2_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 	offset += 4;
 
 	/* File Attributes */
-	offset = dissect_file_attributes(tvb, tree, offset);
+	offset = dissect_file_attributes(tvb, tree, offset, 2);
 
 	BYTE_COUNT;
 
@@ -4980,7 +5001,7 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset = dissect_search_attributes(tvb, tree, offset);
 
 	/* File Attributes */
-	offset = dissect_file_attributes(tvb, tree, offset);
+	offset = dissect_file_attributes(tvb, tree, offset, 2);
 
 	/* creation time */
 	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_create_time);
@@ -5108,7 +5129,7 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 2;
 
 	/* File Attributes */
-	offset = dissect_file_attributes(tvb, tree, offset);
+	offset = dissect_file_attributes(tvb, tree, offset, 2);
 
 	/* last write time */
 	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_last_write_time);
@@ -9478,7 +9499,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		/* File Attributes */
 		CHECK_BYTE_COUNT_TRANS(2);
-		offset = dissect_file_attributes(tvb, tree, offset);
+		offset = dissect_file_attributes(tvb, tree, offset, 2);
 		bc -= 2;
 
 		/* create time */
@@ -10260,7 +10281,7 @@ dissect_4_2_14_1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	/* File Attributes */
 	CHECK_BYTE_COUNT_SUBR(2);
-	offset = dissect_file_attributes(tvb, tree, offset);
+	offset = dissect_file_attributes(tvb, tree, offset, 2);
 	*bcp -= 2;
 
 	/* ea size */
@@ -10340,8 +10361,8 @@ dissect_4_2_14_4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	/* File Attributes */
 	CHECK_BYTE_COUNT_SUBR(2);
-	offset = dissect_file_attributes(tvb, tree, offset);
-	*bcp -= 2;
+	offset = dissect_file_attributes(tvb, tree, offset, 4);
+	*bcp -= 4;
 
 	*trunc = FALSE;
 	return offset;
@@ -11436,7 +11457,7 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* File Attributes */
 	CHECK_BYTE_COUNT_SUBR(2);
-	offset = dissect_file_attributes(tvb, tree, offset);
+	offset = dissect_file_attributes(tvb, tree, offset, 2);
 	*bcp -= 2;
 
 	/* file name len */
@@ -11534,7 +11555,7 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* File Attributes */
 	CHECK_BYTE_COUNT_SUBR(2);
-	offset = dissect_file_attributes(tvb, tree, offset);
+	offset = dissect_file_attributes(tvb, tree, offset, 2);
 	*bcp -= 2;
 
 	/* ea size */
@@ -12690,7 +12711,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		 */
 
 		/* File Attributes */
-		offset = dissect_file_attributes(tvb, tree, offset);
+		offset = dissect_file_attributes(tvb, tree, offset, 2);
 
 		/* create time */
 		offset = dissect_smb_datetime(tvb, tree, offset,

@@ -4,7 +4,11 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.7 2002/08/28 21:00:35 jmayer Exp $
+<<<<<<< packet-spnego.c
+ * $Id: packet-spnego.c,v 1.8 2002/08/29 00:35:55 sharpe Exp $
+=======
+ * $Id: packet-spnego.c,v 1.8 2002/08/29 00:35:55 sharpe Exp $
+>>>>>>> 1.7
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,11 +130,11 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	  goto done;
 	}
 
-	item = proto_tree_add_item( tree, hf_spnego_mechtype, tvb, offset,
-				    length, FALSE);
-	subtree = proto_item_add_subtree(item, ett_spnego_mechtype);
-
 	offset = hnd->offset;
+
+	item = proto_tree_add_item( tree, hf_spnego_mechtype, tvb, offset, 
+				    len1, FALSE);
+	subtree = proto_item_add_subtree(item, ett_spnego_mechtype);
 
 	/*
 	 * Now, the object IDs ... We should translate them: FIXME
@@ -242,7 +246,7 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	gchar *oid_string;
 	proto_item *sub_item;
 	proto_tree *oid_subtree;
-	int ret, offset = 0;
+	int ret;
 	int length = tvb_length_remaining(tvb, offset);
 
 	item = proto_tree_add_item( tree, hf_spnego_negtokeninit, tvb, offset,
