@@ -279,14 +279,14 @@ print_usage(gboolean print_ver)
   fprintf(output, "\t[ -f <capture filter> ] [ -F <output file type> ] [ -i <interface> ]\n");
   fprintf(output, "\t[ -N <resolving> ] [ -o <preference setting> ] ... [ -r <infile> ]\n");
   fprintf(output, "\t[ -R <read filter> ] [ -s <snaplen> ] [ -t <time stamp format> ]\n");
-  fprintf(output, "\t[ -T pdml|ps|text ] [ -w <savefile> ] [ -y <link type> ]\n");
+  fprintf(output, "\t[ -T pdml|ps|psml|text ] [ -w <savefile> ] [ -y <link type> ]\n");
   fprintf(output, "\t[ -z <statistics string> ]\n");
 #else
   fprintf(output, "\nt%s [ -vh ] [ -lnVx ]\n", PACKAGE);
   fprintf(output, "\t[ -d %s ] ...\n", decode_as_arg_template);
   fprintf(output, "\t[ -F <output file type> ] [ -N <resolving> ]\n");
   fprintf(output, "\t[ -o <preference setting> ] ... [ -r <infile> ] [ -R <read filter> ]\n");
-  fprintf(output, "\t[ -t <time stamp format> ] [ -T pdml|ps|text ] [ -w <savefile> ]\n");
+  fprintf(output, "\t[ -t <time stamp format> ] [ -T pdml|ps|psml|text ] [ -w <savefile> ]\n");
   fprintf(output, "\t[ -z <statistics string> ]\n");
 #endif
   fprintf(output, "Valid file type arguments to the \"-F\" flag:\n");
