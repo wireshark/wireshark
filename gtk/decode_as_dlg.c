@@ -614,7 +614,7 @@ decode_change_one_dissector(gchar *table_name, guint selector, GtkWidget *list)
 #if GTK_MAJOR_VERSION < 2
     if (!GTK_CLIST(list)->selection)
     {
-	abbrev = "(NULL)";
+	abbrev = NULL;
 	handle = NULL;
     } else {
 	row = GPOINTER_TO_INT(GTK_CLIST(list)->selection->data);
@@ -625,7 +625,7 @@ decode_change_one_dissector(gchar *table_name, guint selector, GtkWidget *list)
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
     if (gtk_tree_selection_get_selected(selection, &model, &iter) == FALSE)
     {
-	abbrev = "(NULL)";
+	abbrev = NULL;
 	handle = NULL;
     } else {
         gtk_tree_model_get(model, &iter, E_LIST_S_PROTO_NAME, &abbrev,
@@ -633,13 +633,14 @@ decode_change_one_dissector(gchar *table_name, guint selector, GtkWidget *list)
     }
 #endif
 
-    if (strcmp(abbrev, "(default)") == 0) {
+    if (abbrev != NULL && strcmp(abbrev, "(default)") == 0) {
 	dissector_reset(table_name, selector);
     } else {
 	dissector_change(table_name, selector, handle);
     }
 #if GTK_MAJOR_VERSION >= 2
-    g_free(abbrev);
+    if (abbrev != NULL)
+	g_free(abbrev);
 #endif
 }
 
