@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.20 1999/12/10 04:25:59 gram Exp $
+ * $Id: follow.c,v 1.21 2000/03/12 04:26:34 guy Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -85,15 +85,15 @@ build_follow_filter( packet_info *pi ) {
    session. We will try and handle duplicates, TCP fragments, and out 
    of order packets in a smart way. */
 
-static tcp_frag *frags[2] = { 0, 0};
+static tcp_frag *frags[2] = { 0, 0 };
 static u_long seq[2];
-static guint32 src[2] = { 0, 0 };
+static guint32 src_addr[2] = { 0, 0 };
+static u_int src_port[2] = { 0, 0 };
 
 void 
 reassemble_tcp( u_long sequence, u_long length, const char* data,
 		u_long data_length, int synflag, address *net_src,
-		address *net_dst, u_int srcport, u_int dstport,
-                guint32 secs, guint32 usecs) {
+		address *net_dst, u_int srcport, u_int dstport) {
   guint32 srcx, dstx;
   int src_index, j, first = 0;
   u_long newseq;
@@ -102,9 +102,14 @@ reassemble_tcp( u_long sequence, u_long length, const char* data,
   
   src_index = -1;
   
-  /* first check if this packet should be processed */
+  /* First, check if this packet should be processed. */
+
+  /* We only process IPv4 packets.
+     XXX - need to make this handle IPv6 as well. */
   if (net_src->type != AT_IPv4 || net_dst->type != AT_IPv4)
     return;
+
+  /* Now check if the packet is for this connection. */
   memcpy(&srcx, net_src->data, sizeof srcx);
   memcpy(&dstx, net_dst->data, sizeof dstx);
   if ((srcx != ip_address[0] && srcx != ip_address[1]) ||
@@ -116,13 +121,13 @@ reassemble_tcp( u_long sequence, u_long length, const char* data,
   /* Initialize our stream chunk.  This data gets written to disk. */
   sc.src_addr = srcx;
   sc.src_port = srcport;
-  sc.secs     = secs;
-  sc.usecs    = usecs;
   sc.dlen     = data_length;
 
-  /* first we check to see if we have seen this src ip before. */
+  /* Check to see if we have seen this source IP and port before.
+     (Yes, we have to check both source IP and port; the connection
+     might be between two different ports on the same machine.) */
   for( j=0; j<2; j++ ) {
-    if( src[j] == srcx ) {
+    if( src_addr[j] == srcx && src_port[j] == srcport ) {
       src_index = j;
     }
   }
@@ -130,8 +135,9 @@ reassemble_tcp( u_long sequence, u_long length, const char* data,
   if( src_index < 0 ) {
     /* assign it to a src_index and get going */
     for( j=0; j<2; j++ ) {
-      if( src[j] == 0 ) {
-	src[j] = srcx;
+      if( src_addr[j] == 0 ) {
+	src_addr[j] = srcx;
+	src_port[j] = srcport;
 	src_index = j;
 	first = 1;
 	break;
@@ -256,7 +262,8 @@ reset_tcp_reassembly() {
   incomplete_tcp_stream = FALSE;
   for( i=0; i<2; i++ ) {
     seq[i] = 0;
-    src[i] = 0;
+    src_addr[i] = 0;
+    src_port[i] = 0;
     ip_address[i] = 0;
     tcp_port[i] = 0;
     current = frags[i];

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.58 2000/02/28 08:17:31 guy Exp $
+ * $Id: packet-tcp.c,v 1.59 2000/03/12 04:26:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -618,9 +618,7 @@ reas:
         &pi.net_src,
 	&pi.net_dst,
 	pi.srcport,
-	pi.destport,
-	fd->rel_secs,
-	fd->rel_usecs);
+	pi.destport);
   }
 }
 
