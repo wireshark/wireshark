@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.47 2000/12/14 08:35:07 guy Exp $
+ * $Id: packet-ipv6.c,v 1.48 2000/12/14 18:56:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -410,6 +410,9 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   offset += sizeof(struct ip6_hdr);
   frag = 0;
 
+  /* Start out assuming this isn't fragmented. */
+  pi.fragmented = FALSE;
+
 again:
     switch (nxt) {
     case IP_PROTO_HOPOPTS:
@@ -423,6 +426,7 @@ again:
 	offset += advance;
 	goto again;
     case IP_PROTO_FRAGMENT:
+        pi.fragmented = TRUE;
 	advance = dissect_frag6(pd, offset, fd, tree, &frag);
 	nxt = pd[poffset = offset];
 	offset += advance;
