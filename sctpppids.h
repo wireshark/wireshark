@@ -1,7 +1,7 @@
 /* sctpppids.h
  * Declarations of SCTP payload protocol IDs.
  *
- * $Id: sctpppids.h,v 1.1 2003/01/14 23:53:33 guy Exp $
+ * $Id: sctpppids.h,v 1.2 2003/01/20 22:44:58 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,11 +43,5 @@
 #define ENRP_PAYLOAD_PROTOCOL_ID  12
 #define H323_PAYLOAD_PROTOCOL_ID  13
 #define M2TP_PAYLOAD_PROTOCOL_ID  99    /* s-link */
-
-/*
- * XXX - this came from "packet-asap.c"; is this some PPID value used
- * before 11 was assigned?
- */
-#define ASAP_OLD_PAYLOAD_PROTOCOL_ID  0xFAEEB5D1
 
 #endif /* sctpppids.h */
