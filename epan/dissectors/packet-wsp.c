@@ -3734,11 +3734,13 @@ static guint32 wkh_te (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packe
 			}
 		} else { /* TE in Token-text format */
 			get_token_text(val_str, tvb, off, len, ok);
-			ti = proto_tree_add_string(tree, hf_hdr_te,
-					tvb, hdr_start, off - hdr_start, val_str);
-			g_free(val_str);
-			off += len;
-			ok = TRUE;
+            if(ok) {
+			    ti = proto_tree_add_string(tree, hf_hdr_te,
+					    tvb, hdr_start, off - hdr_start, val_str);
+			    g_free(val_str);
+			    off += len;
+			    ok = TRUE;
+            }
 		}
 		if ((ok) && (off < offset)) { /* Q-token Q-value */
 			/* TODO */
