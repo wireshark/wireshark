@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.142 2002/06/23 21:33:08 guy Exp $
+ * $Id: tethereal.c,v 1.143 2002/06/23 21:58:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,11 +124,12 @@ typedef struct _loop_data {
   wtap_dumper   *pdh;
   jmp_buf        stopenv;
   gboolean       output_to_pipe;
+  int            packet_count;
 } loop_data;
 
 static loop_data ld;
 
-static int capture(volatile int, int);
+static int capture(int);
 static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
   const u_char *);
 static void capture_cleanup(int);
@@ -839,7 +840,7 @@ main(int argc, char *argv[])
             free_interface_list(if_list);
         }
     }
-    capture(capture_opts.autostop_count, out_file_type);
+    capture(out_file_type);
 
     if (capture_opts.ringbuffer_on) {
       ringbuf_free();
@@ -860,7 +861,7 @@ main(int argc, char *argv[])
 /* Do the low-level work of a capture.
    Returns TRUE if it succeeds, FALSE otherwise. */
 static int
-capture(volatile int packet_count, int out_file_type)
+capture(int out_file_type)
 {
   gchar       open_err_str[PCAP_ERRBUF_SIZE];
   gchar       lookup_net_err_str[PCAP_ERRBUF_SIZE];
@@ -1020,17 +1021,21 @@ capture(volatile int packet_count, int out_file_type)
     cnd_stop_timeout = cnd_new((char*)CND_CLASS_TIMEOUT,
                                (gint32)capture_opts.autostop_duration);
 
-  if (packet_count == 0)
-    packet_count = -1; /* infinite capturng */
   if (!setjmp(ld.stopenv))
     ld.go = TRUE;
   else
     ld.go = FALSE;
+  ld.packet_count = 0;
   while (ld.go) {
-    if (packet_count > 0)
-      packet_count--;
     inpkts = pcap_dispatch(ld.pch, 1, capture_pcap_cb, (u_char *) &ld);
-    if (packet_count == 0 || inpkts < 0) {
+    if (inpkts < 0) {
+      /* Error from "pcap_dispatch()". */
+      ld.go = FALSE;
+    } else if (capture_opts.autostop_count != 0 &&
+               ld.packet_count >= capture_opts.autostop_count) {
+      /* The specified number of packets have been captured and have
+         passed both any capture filter in effect and any read filter
+         in effect. */
       ld.go = FALSE;
     } else if (cnd_stop_timeout != NULL && cnd_eval(cnd_stop_timeout)) {
       /* The specified capture time has elapsed; stop the capture. */
@@ -1102,10 +1107,10 @@ capture(volatile int packet_count, int out_file_type)
     fprintf(stderr, "tethereal: Can't get packet-drop statistics: %s\n",
 	pcap_geterr(ld.pch));
   }
-/* Report the number of captured packets if not reported during capture and
-   we are saving to a file. */
+  /* Report the number of captured packets if not reported during capture
+     and we are saving to a file. */
   if (quiet && (cfile.save_file != NULL)) {
-    fprintf(stderr, "%u packets captured\n", cfile.count);
+    fprintf(stderr, "%u packets captured\n", ld.packet_count);
   }
 
   pcap_close(ld.pch);
@@ -1150,9 +1155,11 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
     wtap_dispatch_cb_write((u_char *)&args, &whdr, 0, &pseudo_header, pd);
     /* Report packet capture count if not quiet */
     if (!quiet) {
-      fprintf(stderr, "\r%u ", cfile.count);
-      /* stderr could be line buffered */
-      fflush(stderr);
+      if (ld->packet_count != 0) {
+        fprintf(stderr, "\r%u ", ld->packet_count);
+        /* stderr could be line buffered */
+        fflush(stderr);
+      }
     }
   } else {
     wtap_dispatch_cb_print((u_char *)&args, &whdr, 0, &pseudo_header, pd);
@@ -1380,6 +1387,8 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr,
     edt = NULL;
   }
   if (passed) {
+    /* The packet passed the read filter. */
+    ld.packet_count++;
     io_ok = wtap_dump(pdh, phdr, pseudo_header, buf, &err);
     if (io_ok && ld.output_to_pipe) {
       io_ok = ! fflush(wtap_dump_file(ld.pdh));
@@ -1493,6 +1502,7 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
   }
   if (passed) {
     /* The packet passed the read filter. */
+    ld.packet_count++;
     if (verbose) {
       /* Print the information in the protocol tree. */
       print_args.to_file = TRUE;
