@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.34 2001/01/11 05:36:09 guy Exp $
+ * $Id: packet-http.c,v 1.35 2001/01/11 05:41:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,8 +61,14 @@ static gint ett_http = -1;
 #define TCP_PORT_PROXY_ADMIN_HTTP	3132
 #define TCP_ALT_PORT_HTTP		8080
 
+/*
+ * IPP is encapsulated in HTTP.
+ */
 #define TCP_PORT_IPP			631
 
+/*
+ * So is SSDP (yes, it really *does* run over UDP).
+ */
 #define TCP_PORT_SSDP			1900
 #define UDP_PORT_SSDP			1900
 
@@ -79,7 +85,7 @@ static int is_http_request_or_reply(const u_char *data, int linelen, http_type_t
 
 static dissector_handle_t ipp_handle;
 
-void
+static void
 dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	http_proto_t	proto;
