@@ -771,39 +771,7 @@ proto_reg_handoff_docsis (void)
 #ifndef ENABLE_STATIC
 
 G_MODULE_EXPORT void
-plugin_reg_handoff (void)
-{
-  proto_reg_handoff_docsis ();
-  proto_reg_handoff_docsis_bpkmattr ();
-  proto_reg_handoff_docsis_dsarsp ();
-  proto_reg_handoff_docsis_mgmt ();
-  proto_reg_handoff_docsis_rngreq ();
-  proto_reg_handoff_docsis_rngrsp ();
-  proto_reg_handoff_docsis_bpkmreq ();
-  proto_reg_handoff_docsis_dscack ();
-  proto_reg_handoff_docsis_map ();
-  proto_reg_handoff_docsis_tlv ();
-  proto_reg_handoff_docsis_bpkmrsp ();
-  proto_reg_handoff_docsis_dscreq ();
-  proto_reg_handoff_docsis_regack ();
-  proto_reg_handoff_docsis_uccreq ();
-  proto_reg_handoff_docsis_dscrsp ();
-  proto_reg_handoff_docsis_regreq ();
-  proto_reg_handoff_docsis_uccrsp ();
-  proto_reg_handoff_docsis_dsaack ();
-  proto_reg_handoff_docsis_dsdreq ();
-  proto_reg_handoff_docsis_regrsp ();
-  proto_reg_handoff_docsis_ucd ();
-  proto_reg_handoff_docsis_type29ucd ();
-  proto_reg_handoff_docsis_dsareq ();
-  proto_reg_handoff_docsis_dsdrsp ();
-  proto_reg_handoff_docsis_vsif ();
-  proto_reg_handoff_docsis_intrngreq ();
-
-}
-
-G_MODULE_EXPORT void
-new_plugin_init (void)
+plugin_register (void)
 {
   /* register the new protocol, protocol fields, and subtrees */
   if (proto_docsis == -1)
@@ -836,6 +804,38 @@ new_plugin_init (void)
       proto_register_docsis_intrngreq (); 
 
     }
+}
+
+G_MODULE_EXPORT void
+plugin_reg_handoff (void)
+{
+  proto_reg_handoff_docsis ();
+  proto_reg_handoff_docsis_bpkmattr ();
+  proto_reg_handoff_docsis_dsarsp ();
+  proto_reg_handoff_docsis_mgmt ();
+  proto_reg_handoff_docsis_rngreq ();
+  proto_reg_handoff_docsis_rngrsp ();
+  proto_reg_handoff_docsis_bpkmreq ();
+  proto_reg_handoff_docsis_dscack ();
+  proto_reg_handoff_docsis_map ();
+  proto_reg_handoff_docsis_tlv ();
+  proto_reg_handoff_docsis_bpkmrsp ();
+  proto_reg_handoff_docsis_dscreq ();
+  proto_reg_handoff_docsis_regack ();
+  proto_reg_handoff_docsis_uccreq ();
+  proto_reg_handoff_docsis_dscrsp ();
+  proto_reg_handoff_docsis_regreq ();
+  proto_reg_handoff_docsis_uccrsp ();
+  proto_reg_handoff_docsis_dsaack ();
+  proto_reg_handoff_docsis_dsdreq ();
+  proto_reg_handoff_docsis_regrsp ();
+  proto_reg_handoff_docsis_ucd ();
+  proto_reg_handoff_docsis_type29ucd ();
+  proto_reg_handoff_docsis_dsareq ();
+  proto_reg_handoff_docsis_dsdrsp ();
+  proto_reg_handoff_docsis_vsif ();
+  proto_reg_handoff_docsis_intrngreq ();
+
 }
 
 #endif

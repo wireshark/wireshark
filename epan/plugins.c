@@ -98,7 +98,8 @@ plugin *plugin_list;
  */
 static int
 add_plugin(void *handle, gchar *name, gchar *version,
-	   void (*reg_handoff)(void), void (*register_tap_listener)(void))
+	   void (*register_protoinfo)(void), void (*reg_handoff)(void),
+	   void (*register_tap_listener)(void))
 {
     plugin *new_plug, *pt_plug;
 
@@ -133,6 +134,7 @@ add_plugin(void *handle, gchar *name, gchar *version,
     new_plug->handle = handle;
     new_plug->name = name;
     new_plug->version = version;
+    new_plug->register_protoinfo = register_protoinfo;
     new_plug->reg_handoff = reg_handoff;
     new_plug->register_tap_listener = register_tap_listener;
     new_plug->next = NULL;
@@ -171,10 +173,10 @@ plugins_scan_dir(const char *dirname)
     GModule       *handle;          /* handle returned by dlopen */
     gchar         *version;
     gpointer       gp;
-    void         (*init)(void *);
-    void         (*newinit)(void) = NULL;
+    void         (*register_protoinfo)(void);
     void         (*reg_handoff)(void);
     void         (*register_tap_listener)(void);
+    void         (*init)(void *);
     gchar         *dot;
     int            cr;
 
@@ -247,37 +249,21 @@ plugins_scan_dir(const char *dirname)
 	    version = gp;
 	    
 	    /*
-	     * We require the plugin to have a "plugin_init()" routine.
+	     * Do we have a register routine?
 	     */
-	    if (g_module_symbol(handle, "new_plugin_init", &gp))
+	    if (g_module_symbol(handle, "plugin_register", &gp))
 	    {
-		    /* 
-		     * We have a new init routine which does not need the 
-		     * plugin api table.
-		     */
-		    newinit = gp;
-		    init = NULL;
+		/*
+		 * Yes - this plugin includes one or more dissectors.
+		 */
+		register_protoinfo = gp;
 	    }
-	    else 
+	    else
 	    {
-		    newinit = NULL;
-		    if (!g_module_symbol(handle, "plugin_init", &gp))
-		    {
-			    /*
-			     * We don't have an init routine. Close the plugin.
-			     */
-			    report_failure("The plugin %s has no plugin_init routine",
-			    	name);
-			    g_module_close(handle);
-			    continue;
-		    }
-		    /*
-		     * We have an old init routine. Throw a warning that 
-		     * support is going to be dropped.
-		     */
-		    report_failure("The plugin %s has an old plugin init routine.\nSupport is going to be dropped in the near future.",
-		    	name);
-		    init = gp;
+		/*
+		 * No - no dissectors.
+		 */
+		register_protoinfo = NULL;
 	    }
 
 	    /*
@@ -286,14 +272,16 @@ plugins_scan_dir(const char *dirname)
 	    if (g_module_symbol(handle, "plugin_reg_handoff", &gp))
 	    {
 		/*
-		 * Yes - this plugin includes one or more dissectors.
+		 * Yes.
 		 */
 		reg_handoff = gp;
 	    }
 	    else
 	    {
 		/*
-		 * No - no dissectors here.
+		 * No - that's OK even if we have dissectors, as long
+		 * as the plugin registers by name *and* there's
+		 * a caller looking for that name.
 		 */
 		reg_handoff = NULL;
 	    }
@@ -317,15 +305,50 @@ plugins_scan_dir(const char *dirname)
 	    }
 
 	    /*
-	     * Does this dissector do anything useful?
+	     * Do we have an init routine?
 	     */
-	    if (reg_handoff == NULL && register_tap_listener == NULL)
+	    if (g_module_symbol(handle, "plugin_init", &gp))
+	    {
+		/*
+		 * Yes - do we also have a register routine or a
+		 * register_tap_listener routine?  If so, this is a bogus
+		 * hybrid of an old-style and new-style plugin.
+		 */
+		if (register_protoinfo != NULL || register_tap_listener != NULL)
+		{
+		    report_failure("The plugin %s has an old plugin init routine\nand a new register or register_tap_listener routine.",
+			name);
+		    g_module_close(handle);
+		    continue;
+		}
+
+		/*
+		 * No - it's an old-style plugin; warn that support for
+		 * old-style plugins will soon be dropped.
+		 */
+		report_failure("The plugin %s has an old plugin init routine.\nSupport is going to be dropped in the near future.",
+		    name);
+		init = gp;
+	    }
+	    else
 	    {
 		/*
 		 * No.
 		 */
-		report_failure("The plugin %s has neither a reg_handoff nor a register_tap_listener routine",
-			  name);
+		init = NULL;
+	    }
+
+	    /*
+	     * Does this dissector do anything useful?
+	     */
+	    if (init == NULL && register_protoinfo == NULL &&
+		register_tap_listener == NULL)
+	    {
+		/*
+		 * No.
+		 */
+		report_failure("The plugin %s has neither an init routine, a register routine, or a register_tap_listener routine",
+		    name);
 		g_module_close(handle);
 		continue;
 	    }
@@ -334,7 +357,8 @@ plugins_scan_dir(const char *dirname)
 	     * OK, attempt to add it to the list of plugins.
 	     */
 	    if ((cr = add_plugin(handle, g_strdup(name), version,
-				 reg_handoff, register_tap_listener)))
+				 register_protoinfo, reg_handoff,
+				 register_tap_listener)))
 	    {
 		if (cr == EEXIST)
 		    fprintf(stderr, "The plugin %s, version %s\n"
@@ -348,17 +372,22 @@ plugins_scan_dir(const char *dirname)
 	    }
 
 	    /*
-	     * Call its init routine.
+	     * Call its register routine if it has one.
+	     * XXX - just save this and call it with the built-in
+	     * dissector register routines?
 	     */
-	     if(newinit != NULL) {
-		     newinit();
-	     }
-	     else
-	     {
+	    if (register_protoinfo != NULL)
+		    register_protoinfo();
+
+	    /*
+	     * Call its init routine, if it has one.
+	     */
+	    if (init != NULL)
+	    {
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
-		     init(&patable);
+		    init(&patable);
 #else
-		     init(NULL);
+		    init(NULL);
 #endif
 	     }
 	}

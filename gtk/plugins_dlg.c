@@ -63,7 +63,7 @@ plugins_scan(GtkWidget *list)
     {
         type = g_string_new("");
         sep = "";
-        if (pt_plug->reg_handoff)
+        if (pt_plug->register_protoinfo)
         {
             type = g_string_append(type, sep);
             type = g_string_append(type, "dissector");

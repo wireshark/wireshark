@@ -1737,18 +1737,16 @@ void proto_register_handoff_giop_cosnaming(void) {
 #ifndef ENABLE_STATIC
 
 G_MODULE_EXPORT void
-plugin_reg_handoff(void){
-   proto_register_handoff_giop_cosnaming();
-}
-
-G_MODULE_EXPORT void
-new_plugin_init(void)
+plugin_register(void)
 {
    if (proto_cosnaming == -1) {
      proto_register_giop_cosnaming();
    }
 }
 
+G_MODULE_EXPORT void
+plugin_reg_handoff(void){
+   proto_register_handoff_giop_cosnaming();
+}
+
 #endif
-
-

@@ -2333,13 +2333,7 @@ static void proto_reg_handoff_irda(void)
 #ifndef ENABLE_STATIC
 
 G_MODULE_EXPORT void
-plugin_reg_handoff(void)
-{
-    proto_reg_handoff_irda();
-}
-
-G_MODULE_EXPORT void
-new_plugin_init(void)
+plugin_register(void)
 {
     /* register the new protocol, protocol fields, and subtrees */
     if (proto_irlap == -1)
@@ -2349,6 +2343,12 @@ new_plugin_init(void)
 
         REGISTER_SUB_PROTOCOLS();
     }
+}
+
+G_MODULE_EXPORT void
+plugin_reg_handoff(void)
+{
+    proto_reg_handoff_irda();
 }
 
 #endif

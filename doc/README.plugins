@@ -47,7 +47,7 @@ The following two functions need to be exported by the plugin:
 
 #ifndef ENABLE_STATIC
 G_MODULE_EXPORT void
-new_plugin_init(void)
+plugin_register(void)
 #endif
 
 This function is called by Ethereal when the plugin is initialized; it's

@@ -2735,17 +2735,17 @@ static gint tvb_skip_wsp_return(tvbuff_t* tvb, gint offset){
 #ifndef ENABLE_STATIC
 
 G_MODULE_EXPORT void
-plugin_reg_handoff(void){
-	proto_reg_handoff_megaco();
-}
-
-G_MODULE_EXPORT void
-new_plugin_init(void)
+plugin_register(void)
 {
 	/* register the new protocol, protocol fields, and subtrees */
 	if (proto_megaco == -1) { /* execute protocol initialization only once */
 		proto_register_megaco();
 	}
+}
+
+G_MODULE_EXPORT void
+plugin_reg_handoff(void){
+	proto_reg_handoff_megaco();
 }
 
 #endif

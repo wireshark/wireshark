@@ -1198,17 +1198,17 @@ proto_reg_handoff_acn(void) {
 #ifndef ENABLE_STATIC
 
 G_MODULE_EXPORT void
-plugin_reg_handoff(void){
-  proto_reg_handoff_acn();
-}
-
-G_MODULE_EXPORT void
-new_plugin_init(void)
+plugin_register(void)
 {
   /* register the new protocol, protocol fields, and subtrees */
   if (proto_acn == -1) { /* execute protocol initialization only once */
     proto_register_acn();
   }
+}
+
+G_MODULE_EXPORT void
+plugin_reg_handoff(void){
+  proto_reg_handoff_acn();
 }
 
 #endif

@@ -1402,14 +1402,7 @@ proto_reg_handoff_rtcfg(void) {
 #ifndef ENABLE_STATIC
 
 G_MODULE_EXPORT void
-plugin_reg_handoff(void){
-  proto_reg_handoff_rtmac();
-  proto_reg_handoff_rtcfg();
-  data_handle = find_dissector("data");
-}
-
-G_MODULE_EXPORT void
-new_plugin_init(void)
+plugin_register(void)
 {
   /* register the new protocol, protocol fields, and subtrees */
   if (proto_rtmac == -1) { /* execute protocol initialization only once */
@@ -1418,6 +1411,13 @@ new_plugin_init(void)
   if (proto_rtcfg == -1) { /* execute protocol initialization only once */
     proto_register_rtcfg();
   }
+}
+
+G_MODULE_EXPORT void
+plugin_reg_handoff(void){
+  proto_reg_handoff_rtmac();
+  proto_reg_handoff_rtcfg();
+  data_handle = find_dissector("data");
 }
 
 #endif

@@ -34,6 +34,7 @@ typedef struct _plugin {
     GModule	*handle;          /* handle returned by dlopen */
     gchar       *name;            /* plugin name */
     gchar       *version;         /* plugin version */
+    void (*register_protoinfo)(void); /* routine to call to register protocol information */
     void (*reg_handoff)(void);    /* routine to call to register dissector handoff */
     void (*register_tap_listener)(void);   /* routine to call to register tap listener */
     struct _plugin *next;         /* forward link */

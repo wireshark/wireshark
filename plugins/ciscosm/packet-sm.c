@@ -179,7 +179,7 @@ plugin_reg_handoff_sm(void)
 #ifndef ENABLE_STATIC
 
 G_MODULE_EXPORT void
-new_plugin_init(void)
+plugin_register(void)
 {
 	/* register the new protocol, protocol fields, and subtrees */
 	if (proto_sm == -1) { /* execute protocol initialization only once */

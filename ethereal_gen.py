@@ -1713,12 +1713,7 @@ static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */
 #ifndef __ETHEREAL_STATIC__
 
 G_MODULE_EXPORT void
-plugin_reg_handoff(void){
-   proto_register_handoff_giop_@dissector_name@();
-}
-
-G_MODULE_EXPORT void
-plugin_init(plugin_address_table_t *pat
+plugin_register(plugin_address_table_t *pat
 #ifndef PLUGINS_NEED_ADDRESS_TABLE
 _U_
 #endif
@@ -1728,6 +1723,11 @@ _U_
    if (proto_@dissector_name@ == -1) {
      proto_register_giop_@dissector_name@();
    }
+}
+
+G_MODULE_EXPORT void
+plugin_reg_handoff(void){
+   proto_register_handoff_giop_@dissector_name@();
 }
 
 #endif
