@@ -1,4 +1,4 @@
-$Id: proto_tree,v 1.6 1999/10/20 06:40:44 guy Exp $
+$Id: proto_tree,v 1.7 1999/11/30 05:49:14 guy Exp $
 
 The Ethereal Protocol Tree
 ==========================
@@ -266,13 +266,13 @@ be used as the tooltip text.
 Field Registration
 ------------------
 Protocol registration is handled by creating an instance of the
-header_field_info struct (or an arry of such structs), and
+header_field_info struct (or an array of such structs), and
 calling the registration function along with the registration ID of
 the protocol that is the parent of the fields. Here is a complete example:
 
-	int proto_eg = -1;
-	int hf_field_a = -1;
-	int hf_field_b = -1;
+	static int proto_eg = -1;
+	static int hf_field_a = -1;
+	static int hf_field_b = -1;
 
 	static hf_register_info hf[] = {
 
@@ -305,11 +305,30 @@ to have the compiler compute the array length for you at compile time.
 Adding Items and Values to the Protocol Tree
 --------------------------------------------
 A protocol item is added to an existing protocol tree with one of a
-handful of proto_tree_add_item*() funtions. Subtrees can be made
-with the proto_item_add_subtree() function:
+handful of proto_tree_add_item*() funtions.
+
+Subtrees can be made with the proto_item_add_subtree() function:
 
 	item = proto_tree_add_item(....);
 	new_tree = proto_item_add_subtree(item, tree_type);
+
+Subtree types are integers, assigned by
+"proto_register_subtree_array()".  To register subtree types, pass an
+array of pointers to "gint" variables to hold the subtree type values to
+"proto_register_subtree_array()":
+
+	static gint ett_eg = -1;
+	static gint ett_field_a = -1;
+
+	static gint *ett[] = {
+		&ett_eg,
+		&ett_field_a,
+	};
+
+	proto_register_subtree_array(ett, array_length(ett));
+
+in your "register" routine, just as you register the protocol and the
+fields for that protocol.
 
 There are now 4 functions that the programmer can use to add either
 protocol or field labels to the proto_tree:
