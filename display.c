@@ -1,7 +1,7 @@
 /* display.c
  * Routines for packet display windows
  *
- * $Id: display.c,v 1.6 1999/06/22 22:43:56 gram Exp $
+ * $Id: display.c,v 1.7 1999/06/24 05:37:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,9 +76,29 @@ static void display_opt_ok_cb(GtkWidget *, gpointer);
 static void display_opt_apply_cb(GtkWidget *, gpointer);
 static void display_opt_close_cb(GtkWidget *, gpointer);
 
+/*
+ * Keep track of whether the "Display Options" window is active, so that,
+ * if it is, selecting "Display/Options" doesn't pop up another such
+ * window.
+ */
+static int display_opt_window_active;
+static ts_type prev_timestamp_type;
+
 void
 display_opt_cb(GtkWidget *w, gpointer d) {
   GtkWidget     *display_opt_w, *button, *main_vb, *bbox, *ok_bt, *apply_bt, *cancel_bt;
+
+  /* If there's already a "Display Options" window active, don't pop
+     up another one.
+
+     XXX - this should arguably give the input focus to the active
+     "Display Options" window, if possible. */
+  if (display_opt_window_active)
+    return;
+
+  /* Save the current timestamp type, so that "Cancel" can put it back
+     if we've changed it with "Apply". */
+  prev_timestamp_type = timestamp_type;
 
   display_opt_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(display_opt_w), "Ethereal: Display Options");
@@ -146,6 +166,7 @@ display_opt_cb(GtkWidget *w, gpointer d) {
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);
 
+  display_opt_window_active = TRUE;
   gtk_widget_show(display_opt_w);
 }
 
@@ -169,6 +190,7 @@ display_opt_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
     timestamp_type = DELTA;
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
+  display_opt_window_active = FALSE;
 
   change_time_formats(&cf);
 }
@@ -198,6 +220,12 @@ display_opt_apply_cb(GtkWidget *ok_bt, gpointer parent_w) {
 static void
 display_opt_close_cb(GtkWidget *close_bt, gpointer parent_w) {
 
+  if (timestamp_type != prev_timestamp_type) {
+    timestamp_type = prev_timestamp_type;
+    change_time_formats(&cf);
+  }
+
   gtk_grab_remove(GTK_WIDGET(parent_w));
   gtk_widget_destroy(GTK_WIDGET(parent_w));
+  display_opt_window_active = FALSE;
 }
