@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.37 2003/07/29 20:41:19 guy Exp $
+ * $Id: wtap-int.h,v 1.38 2003/07/29 20:49:32 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -218,8 +218,8 @@ struct wtap_dumper {
 	  (((x)&0x00FF)<<8))
 
 /* Turn host-byte-order values into little-endian values. */
-#define htoles(ll) GUINT16_TO_LE(ll)
-#define htolel(ll) GUINT32_TO_LE(ll)
+#define htoles(s) GUINT16_TO_LE(s)
+#define htolel(l) GUINT32_TO_LE(l)
 #ifdef G_HAVE_GINT64
 #define htolell(ll) GUINT64_TO_LE(ll)
 #endif /* G_HAVE_GINT64 */
