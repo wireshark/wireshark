@@ -1942,6 +1942,12 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 	 */
 	tnode = tree;
 	tfi = tnode->finfo;
+	if (tfi != NULL && (tfi->tree_type < 0 || tfi->tree_type >= num_tree_types)) {
+		REPORT_DISSECTOR_BUG(g_strdup_printf("\"%s\" - \"%s\" tfi->tree_type: %u invalid (%s:%u)",
+			fi->hfinfo->name, fi->hfinfo->abbrev, tfi->tree_type, __FILE__, __LINE__));
+        /* XXX - is it safe to continue here? */
+    }
+
 	g_assert(tfi == NULL ||
 	    (tfi->tree_type >= 0 && tfi->tree_type < num_tree_types));
 
