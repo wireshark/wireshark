@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.27 2003/01/19 21:21:32 guy Exp $
+ * $Id: packet-afp.c,v 1.28 2003/02/12 21:50:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -293,6 +293,7 @@ static int hf_afp_rw_count64		= -1;
 
 static int hf_afp_last_written64	= -1;
 
+static int hf_afp_ofork_len64           = -1;
 static int hf_afp_session_token_type	= -1;
 static int hf_afp_session_token_len	= -1;
 static int hf_afp_session_token		= -1;
@@ -2561,17 +2562,24 @@ dissect_reply_afp_get_fork_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 static gint
 dissect_query_afp_set_fork_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
+	guint16 bitmap;
 
 	PAD(1);
         add_info_fork(tvb, pinfo, offset);
 	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
 	offset += 2;
 
-	decode_file_bitmap(tree, tvb, offset);
+	bitmap = decode_file_bitmap(tree, tvb, offset);
 	offset += 2;
 
-	proto_tree_add_item(tree, hf_afp_ofork_len, tvb, offset, 4,FALSE);
-	offset += 4;
+	if ((bitmap & kFPExtDataForkLenBit) || (bitmap & kFPExtRsrcForkLenBit)) {
+		proto_tree_add_item(tree, hf_afp_ofork_len64, tvb, offset, 8, FALSE);
+		offset += 8;
+	}
+	else {
+		proto_tree_add_item(tree, hf_afp_ofork_len, tvb, offset, 4,FALSE);
+		offset += 4;
+	}
 	return offset;
 }
 
@@ -4393,6 +4401,10 @@ proto_register_afp(void)
 		FT_UINT64, BASE_DEC, NULL, 0x0,
       	"Offset of the last byte written (64 bits)", HFILL }},
 
+    { &hf_afp_ofork_len64,
+      { "New length",         "afp.ofork_len64",
+		FT_INT64, BASE_DEC, NULL, 0x0,
+      	"New length (64 bits)", HFILL }},
     { &hf_afp_session_token_type,
       { "Type",         "afp.session_token_type",
 		FT_UINT16, BASE_HEX, NULL, 0x0,
