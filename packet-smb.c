@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.313 2003/03/17 08:28:56 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.314 2003/03/17 09:02:49 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -435,6 +435,7 @@ static int hf_smb_sec_desc_type_sacl_auto_inherited = -1;
 static int hf_smb_sec_desc_type_dacl_protected = -1;
 static int hf_smb_sec_desc_type_sacl_protected = -1;
 static int hf_smb_sec_desc_type_self_relative = -1;
+static int hf_smb_sid = -1;
 static int hf_smb_sid_revision = -1;
 static int hf_smb_sid_num_auth = -1;
 static int hf_smb_acl_revision = -1;
@@ -7033,22 +7034,22 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, char *name,
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset = offset, sa_offset = offset;
-	guint rid;
+	gboolean rid_present;
+	guint rid=0;
+	int rid_offset=0;
 	guint8 revision;
+	int rev_offset;
 	guint8 num_auth;
+	int na_offset;
         guint auth = 0;   /* FIXME: What if it is larger than 32-bits */
 	int i;
 	GString *gstr;
+	char sid_string[245];
 
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-					   "NT %s SID", name);
-		tree = proto_item_add_subtree(item, ett_smb_sid);
-	}
 
 	/* revision of sid */
 	revision = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_smb_sid_revision, tvb, offset, 1, TRUE);
+	rev_offset = offset;
 	offset += 1;
 
 	switch(revision){
@@ -7056,7 +7057,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, char *name,
 	case 2:  /* Not sure what the different revision numbers mean */
 	  /* number of authorities*/
 	  num_auth = tvb_get_guint8(tvb, offset);
-	  proto_tree_add_item(tree, hf_smb_sid_num_auth, tvb, offset, 1, TRUE);
+          na_offset = offset;
 	  offset += 1;
 
 	  /* XXX perhaps we should have these thing searchable?
@@ -7068,8 +7069,6 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, char *name,
 
 	    offset++;
 	  }
-
-	  proto_tree_add_text(tree, tvb, offset - 6, 6, "Authority: %u", auth);
 
           sa_offset = offset;
 
@@ -7093,27 +7092,40 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, char *name,
              offset+=4;
 	  }
 
-          proto_tree_add_text(tree, tvb, sa_offset, num_auth * 4, "Sub-authorities: %s", gstr->str);
 
 	  if (num_auth > 4) {
 	    rid = tvb_get_letohl(tvb, offset);
-	    proto_tree_add_text(tree, tvb, offset, 4, "RID: %u", rid);
-	    proto_item_append_text(item, ": S-1-%u-%s-%u", auth, gstr->str, rid);
+            rid_present=TRUE;
+            rid_offset=offset;
 	    offset+=4;
-	    if (sid_str)
-		    *sid_str = g_strdup_printf(
-			    "S-1-%u-%s-%u", auth, gstr->str, rid);
-	  }
-	  else {
-	    proto_item_append_text(item, ": S-1-%u-%s", auth, gstr->str);
-	    if (sid_str)
-		    *sid_str = g_strdup_printf("S-1-%u-%s", auth, gstr->str);
-	  }
+            sprintf(sid_string, "S-1-%u-%s-%u", auth, gstr->str, rid);
+	  } else {
+            rid_present=FALSE;
+            sprintf(sid_string, "S-1-%u-%s", auth, gstr->str);
+          }
+
+          if(parent_tree){
+            item = proto_tree_add_string_format(parent_tree, hf_smb_sid, tvb, old_offset, offset-old_offset, sid_string, "%s: %s", name, sid_string);
+            tree = proto_item_add_subtree(item, ett_smb_sid);
+          }
+
+          proto_tree_add_item(tree, hf_smb_sid_revision, tvb, rev_offset, 1, TRUE);
+          proto_tree_add_item(tree, hf_smb_sid_num_auth, tvb, na_offset, 1, TRUE);
+          proto_tree_add_text(tree, tvb, na_offset+1, 6, "Authority: %u", auth);
+          proto_tree_add_text(tree, tvb, sa_offset, num_auth * 4, "Sub-authorities: %s", gstr->str);
+
+          if(rid_present){
+            proto_tree_add_text(tree, tvb, rid_offset, 4, "RID: %u", rid);
+          }
+
+          if(sid_str){
+            *sid_str = g_strdup(sid_string);
+          }
 
 	  CLEANUP_CALL_AND_POP;
 	}
 
-	proto_item_set_len(item, offset-old_offset);
+
 	return offset;
 }
 
@@ -17860,6 +17872,10 @@ proto_register_smb(void)
 	{ &hf_smb_sec_desc_revision,
 		{ "Revision", "smb.sec_desc.revision", FT_UINT16, BASE_DEC,
 		NULL, 0, "Version of NT Security Descriptor structure", HFILL }},
+
+	{ &hf_smb_sid,
+		{ "SID", "smb.sid", FT_STRING, BASE_DEC,
+		NULL, 0, "SID: Security Identifier", HFILL }},
 
 	{ &hf_smb_sid_revision,
 		{ "Revision", "smb.sid.revision", FT_UINT8, BASE_DEC,
