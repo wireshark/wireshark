@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (h323@ramdyne.nl)
  *
- * $Id: packet-h225.c,v 1.44 2004/06/24 04:51:12 sahlberg Exp $
+ * $Id: packet-h225.c,v 1.45 2004/06/24 05:05:42 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -10210,11 +10210,11 @@ proto_register_h225(void)
         "GatekeeperRequest/authenticationCapability", HFILL }},
     { &hf_h225_authenticationCapability_item,
       { "authenticationCapability", "h225.authenticationCapability_item",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "GatekeeperRequest/authenticationCapability/_item", HFILL }},
     { &hf_h225_authenticationMode,
       { "authenticationMode", "h225.authenticationMode",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "GatekeeperConfirm/authenticationMode", HFILL }},
     { &hf_h225_alertingTime,
       { "alertingTime", "h225.alertingTime",
