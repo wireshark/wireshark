@@ -1,7 +1,7 @@
 /* packet-vj.c
  * Routines for Van Jacobson header decompression. 
  *
- * $Id: packet-vj.c,v 1.10 2002/05/22 09:49:28 guy Exp $
+ * $Id: packet-vj.c,v 1.11 2002/05/22 10:15:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -240,7 +240,7 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
     /* Direction of the traffic unknown - can't update state */
     comp = NULL;
   } else {
-    /* Get state for that direction, if any */
+    /* Get state for that direction */
     comp = rx_tx_state[pinfo->p2p_dir];
   }
 
@@ -410,31 +410,22 @@ dissect_vjc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     vj_tree = proto_item_add_subtree(ti, ett_vj);
   }
 
-  if(!ppp_vj_decomp) {
-    /* VJ decompression turned off */
-    if(check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (decompression disabled)");
-    if(tree != NULL)
-      call_dissector(data_handle, tvb, pinfo, vj_tree);
-    return;
+  if(!ppp_vj_decomp || pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
+    /*
+     * VJ decompression turned off, so we shouldn't decompress, or
+     * direction of the traffic unknown, so we can't decompress.
+     */
+    comp = NULL;
+  } else {
+    /* Get state for that direction */
+    comp = rx_tx_state[pinfo->p2p_dir];
   }
-
-  if(pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
-    /* Direction of the traffic unknown - can't decompress */
-    if(check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (direction unknown)");
-    if(tree != NULL)
-      call_dissector(data_handle, tvb, pinfo, vj_tree);
-    return;
-  }
-
-  comp = rx_tx_state[pinfo->p2p_dir];
 
   /* Process the compressed data header */
   if(vjc_process(tvb, pinfo, vj_tree, comp) == VJ_ERROR)
     return;
 
-  /* Not malformed - set up tvb containing decompressed packet */
+  /* Decompression possible - set up tvb containing decompressed packet */
   err = vjc_tvb_setup(tvb, &next_tvb, pinfo);
   if(err == VJ_ERROR) {
     if(tree != NULL)
@@ -649,8 +640,10 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
       col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (not enough data available)");
     if(tree != NULL)
       call_dissector(data_handle, src_tvb, pinfo, tree);
-    for(i = 0; i < TCP_SIMUL_CONV_MAX; i++)
-      comp->rstate[i].flags |= SLF_TOSS;
+    if(comp != NULL) {
+      for(i = 0; i < TCP_SIMUL_CONV_MAX; i++)
+        comp->rstate[i].flags |= SLF_TOSS;
+    }
     return VJ_ERROR;
   }
 
@@ -706,7 +699,8 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
       proto_tree_add_uint(tree, hf_vj_connection_number, src_tvb, offset, 1,
                           conn_index);
     offset++;
-    comp->recv_current = conn_index;
+    if(comp != NULL)
+      comp->recv_current = conn_index;
   } 
 
   if(!pinfo->fd->flags.visited) {
@@ -716,7 +710,7 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
      * available, don't use the state information, and don't update it,
      * either.
      */
-    if(!(comp->rstate[comp->recv_current].flags & SLF_TOSS)) {
+    if(comp != NULL && !(comp->rstate[comp->recv_current].flags & SLF_TOSS)) {
       cs = &comp->rstate[comp->recv_current];
       thp = &cs->cs_tcp;
       ip = &cs->cs_ip;
@@ -796,7 +790,20 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
      */
     if(check_col(pinfo->cinfo, COL_INFO))
       col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (not enough data available)");
-    comp->rstate[comp->recv_current].flags |= SLF_TOSS;
+    if(cs != NULL)
+      cs->flags |= SLF_TOSS;
+    return VJ_ERROR;
+  }
+
+  /* Show the TCP payload */
+  if(tree != NULL && tvb_offset_exists(src_tvb, offset))
+    proto_tree_add_text(tree, src_tvb, offset, -1, "TCP payload");
+
+  /* Nothing more to do if we don't have any compression state */
+  if(comp == NULL) {
+    /* Direction of the traffic unknown - can't decompress */
+    if(check_col(pinfo->cinfo, COL_INFO))
+      col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (direction unknown)");
     return VJ_ERROR;
   }
 
@@ -823,9 +830,6 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
       memcpy(data_ptr, cs->cs_tcpopt, (TCP_OFFSET(thp) - 5) * 4);
     p_add_proto_data(pinfo->fd, proto_vj, buf_hdr);
   }
-
-  if(tree != NULL && tvb_offset_exists(src_tvb, offset))
-    proto_tree_add_text(tree, src_tvb, offset, -1, "TCP payload");
 
   return VJ_OK;
 } 
