@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.3 2002/05/24 02:32:50 sharpe Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.4 2002/05/24 07:09:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,7 +138,10 @@ srvsvc_dissect_SRV_INFO_100_struct(tvbuff_t *tvb, int offset,
 			       NDR_POINTER_UNIQUE, "Server",
 			       hf_srvsvc_server, 0);
 
+  return offset;
+
 }
+
 static int
 srvsvc_dissect_pointer_comment_UNICODE_STRING(tvbuff_t *tvb, int offset, 
 					      packet_info *pinfo, 
@@ -149,6 +152,7 @@ srvsvc_dissect_pointer_comment_UNICODE_STRING(tvbuff_t *tvb, int offset,
 			       srvsvc_dissect_pointer_UNICODE_STRING,
 			       NDR_POINTER_UNIQUE, "Comment",
 			       hf_srvsvc_server_comment, 0);
+
   return offset;
 
 }
@@ -362,7 +366,7 @@ srvsvc_dissect_net_share_get_info_reply(tvbuff_t *tvb, int offset,
   offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			       srvsvc_dissect_SHARE_INFO_struct, 
 			       NDR_POINTER_REF, "Info", 
-			       hf_srvsvc_share_info, NULL);
+			       hf_srvsvc_share_info, 0);
 
   offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			      hf_srvsvc_rc, NULL);
