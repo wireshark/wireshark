@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.32 1999/10/08 20:50:37 guy Exp $
+ * $Id: proto.c,v 1.33 1999/10/11 17:02:06 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,6 +60,8 @@
 #ifndef __RESOLV_H__
 #include "resolv.h"
 #endif
+
+#include "packet-ipv6.h"
 
 #define cVALS(x) (const value_string*)(x)
 
@@ -432,6 +434,10 @@ NOTES
 			fi->value.numeric = va_arg(ap, unsigned int);
 			break;
 
+		case FT_IPv6:
+			memcpy(fi->value.ipv6, va_arg(ap, guint8*), 16);
+			break;
+
 		case FT_DOUBLE:
 			fi->value.floating = va_arg(ap, double);
 			break;
@@ -645,6 +651,13 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 				"%s: %s (%s)", fi->hfinfo->name,
 				get_hostname(fi->value.numeric),
 				ip_to_str((guint8*)&fi->value.numeric));
+			break;
+
+		case FT_IPv6:
+			snprintf(label_str, ITEM_LABEL_LENGTH,
+				"%s: %s (%s)", fi->hfinfo->name,
+				get_hostname6((struct e_in6_addr *)fi->value.ipv6),
+				ip6_to_str((struct e_in6_addr*)fi->value.ipv6));
 			break;
 	
 		case FT_STRING:

@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.27 1999/10/11 14:58:00 gram Exp $
+ * $Id: dfilter.c,v 1.28 1999/10/11 17:04:34 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -333,6 +333,7 @@ dfilter_apply_node(GNode *gnode, proto_tree *ptree, const guint8* pd, guint len)
 	
 	case numeric:
 	case ipv4:
+	case ipv6:
 	case boolean:
 	case ether:
 	case string:
@@ -493,6 +494,18 @@ gboolean fill_array_ether_variable(GNode *gnode, gpointer data)
 	return FALSE; /* FALSE = do not end traversal of GNode tree */
 }
 
+gboolean fill_array_ipv6_variable(GNode *gnode, gpointer data)
+{
+	proto_tree_search_info	*sinfo = (proto_tree_search_info*)data;
+	field_info		*fi = (field_info*) (gnode->data);
+
+	if (fi->hfinfo->id == sinfo->target) {
+		g_array_append_val(sinfo->result.array, fi->value.ipv6);
+	}
+
+	return FALSE; /* FALSE = do not end traversal of GNode tree */
+}
+
 gboolean fill_array_bytes_variable(GNode *gnode, gpointer data)
 {
 	proto_tree_search_info	*sinfo = (proto_tree_search_info*)data;
@@ -526,6 +539,16 @@ gboolean fill_array_ether_value(GNode *gnode, gpointer data)
 	dfilter_node	*dnode = (dfilter_node*) (gnode->data);
 
 	g_array_append_val(array, dnode->value.ether);
+
+	return FALSE; /* FALSE = do not end traversal of GNode tree */
+}
+
+gboolean fill_array_ipv6_value(GNode *gnode, gpointer data)
+{
+	GArray		*array = (GArray*)data;
+	dfilter_node	*dnode = (dfilter_node*) (gnode->data);
+
+	g_array_append_val(array, dnode->value.ipv6);
 
 	return FALSE; /* FALSE = do not end traversal of GNode tree */
 }
@@ -619,6 +642,42 @@ gboolean check_relation_numeric(gint operand, GArray *a, GArray *b)
 	return FALSE;
 }
 
+gboolean check_relation_ipv6(gint operand, GArray *a, GArray *b)
+{
+	int	i, j, len_a, len_b;
+	guint8	*ptr_a, *ptr_b;
+
+	len_a = a->len;
+	len_b = b->len;
+
+
+	switch(operand) {
+	case TOK_EQ:
+		for(i = 0; i < len_a; i++) {
+			ptr_a = g_array_index_ptr(a, 16, i);
+			for (j = 0; j < len_b; j++) {
+				ptr_b = g_array_index_ptr(b, 16, j);
+				if (memcmp(ptr_a, ptr_b, 16) == 0)
+					return TRUE;
+			}
+		}
+		return FALSE;
+
+	case TOK_NE:
+		for(i = 0; i < len_a; i++) {
+			ptr_a = g_array_index_ptr(a, 16, i);
+			for (j = 0; j < len_b; j++) {
+				ptr_b = g_array_index_ptr(b, 16, j);
+				if (memcmp(ptr_a, ptr_b, 16) != 0)
+					return TRUE;
+			}
+		}
+		return FALSE;
+	}
+
+	g_assert_not_reached();
+	return FALSE;
+}
 
 gboolean check_relation_ether(gint operand, GArray *a, GArray *b)
 {

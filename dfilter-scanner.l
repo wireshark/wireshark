@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.17 1999/10/11 03:03:10 guy Exp $
+ * $Id: dfilter-scanner.l,v 1.18 1999/10/11 17:04:33 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -200,9 +200,7 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 			retval = T_FT_IPv4;
 			break;
 		case FT_IPv6:
-			dfilter_fail("Sorry, you can't filter on field \"%s\", as we don't yet support filtering on IPv6 addresses.",
-			    yytext);
-			retval = 0;
+			retval = T_FT_IPv6;
 			break;
 		case FT_IPXNET:
 			retval = T_FT_IPXNET;

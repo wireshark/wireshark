@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.23 1999/10/11 07:06:43 guy Exp $
+ * $Id: dfilter-grammar.y,v 1.24 1999/10/11 17:04:31 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,12 +84,15 @@ static GNode* dfilter_mknode_ipxnet_value(guint32);
 static GNode* dfilter_mknode_ipxnet_variable(gint id);
 static GNode* dfilter_mknode_ipv4_value(char *host);
 static GNode* dfilter_mknode_ipv4_variable(gint id);
+static GNode* dfilter_mknode_ipv6_value(char *host);
+static GNode* dfilter_mknode_ipv6_variable(gint id);
 static GNode* dfilter_mknode_existence(gint id);
 static GNode* dfilter_mknode_bytes_value(GByteArray *barray);
 static GNode* dfilter_mknode_bytes_variable(gint id, gint offset, guint length);
 
 static guint32 string_to_value(char *s);
 static int ether_str_to_guint8_array(const char *s, guint8 *mac);
+static int ipv6_str_to_guint8_array(const char *s, guint8 *ipv6);
 
 /* This is the dfilter we're currently processing. It's how
  * dfilter_compile communicates with us.
@@ -117,6 +120,7 @@ dfilter *global_df = NULL;
 %type <node>	ether_value ether_variable
 %type <node>	ipxnet_value ipxnet_variable
 %type <node>	ipv4_value ipv4_variable
+%type <node>	ipv6_value ipv6_variable
 %type <node>	variable_name
 %type <node>	bytes_value bytes_variable
 
@@ -131,6 +135,7 @@ dfilter *global_df = NULL;
 %token <variable>	T_FT_UINT32
 %token <variable>	T_FT_ETHER
 %token <variable>	T_FT_IPv4
+%token <variable>	T_FT_IPv6
 %token <variable>	T_FT_NONE
 %token <variable>	T_FT_BYTES
 %token <variable>	T_FT_BOOLEAN
@@ -207,6 +212,15 @@ relation:	numeric_variable numeric_relation numeric_value
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
 		}
 
+	|	ipv6_variable equality_relation ipv6_value
+		{
+			$$ = dfilter_mknode_join($1, relation, $2, $3);
+		}
+	|	ipv6_variable equality_relation ipv6_variable
+		{
+			$$ = dfilter_mknode_join($1, relation, $2, $3);
+		}
+
 	|	bytes_variable bytes_relation bytes_value
 		{
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
@@ -256,6 +270,19 @@ ipv4_value:	T_VAL_UNQUOTED_STRING
 		}
 	;
 
+ipv6_value:	T_VAL_UNQUOTED_STRING
+		{
+			$$ = dfilter_mknode_ipv6_value($1);
+			g_free($1);
+		}
+
+	|	T_VAL_BYTE_STRING
+		{
+			$$ = dfilter_mknode_ipv6_value($1);
+			g_free($1);
+		}
+	;
+
 bytes_value:	T_VAL_BYTE_STRING
 	{
 		GByteArray	*barray;
@@ -280,6 +307,9 @@ ipxnet_variable:	T_FT_IPXNET	{ $$ = dfilter_mknode_ipxnet_variable($1.id); }
 	;
 
 ipv4_variable:		T_FT_IPv4	{ $$ = dfilter_mknode_ipv4_variable($1.id); }
+	;
+
+ipv6_variable:		T_FT_IPv6	{ $$ = dfilter_mknode_ipv6_variable($1.id); }
 	;
 
 variable_name:		any_variable_type
@@ -310,6 +340,7 @@ any_variable_type:	T_FT_UINT8 { $$ = $1; }
 	|		T_FT_UINT32 { $$ = $1; }
 	|		T_FT_ETHER { $$ = $1; }
 	|		T_FT_IPv4 { $$ = $1; }
+	|		T_FT_IPv6 { $$ = $1; }
 	|		T_FT_IPXNET { $$ = $1; }
 	|		T_FT_NONE { $$ = $1; }
 	|		T_FT_BYTES { $$ = $1; }
@@ -454,6 +485,23 @@ dfilter_mknode_ipv4_variable(gint id)
 }
 
 static GNode*
+dfilter_mknode_ipv6_variable(gint id)
+{
+	dfilter_node	*node;
+	GNode		*gnode;
+
+	node = g_mem_chunk_alloc(global_df->node_memchunk);
+	node->ntype = variable;
+	node->elem_size = 128;
+	node->fill_array_func = fill_array_ipv6_variable;
+	node->check_relation_func = check_relation_ipv6; 
+	node->value.variable = id;
+	gnode = g_node_new(node);
+
+	return gnode;
+}
+
+static GNode*
 dfilter_mknode_bytes_variable(gint id, gint offset, guint length)
 {
 	dfilter_node	*node;
@@ -560,6 +608,28 @@ dfilter_mknode_ipv4_value(char *host)
 }
 
 static GNode*
+dfilter_mknode_ipv6_value(char *host)
+{
+	dfilter_node	*node;
+	GNode		*gnode;
+
+	node = g_mem_chunk_alloc(global_df->node_memchunk);
+	node->ntype = ipv6;
+	node->elem_size = 128;
+	node->fill_array_func = fill_array_ipv6_value;
+	node->check_relation_func = check_relation_ipv6;
+
+	/* XXX should use get_host_ipaddr6 */
+	if (!ipv6_str_to_guint8_array(host, &node->value.ipv6[0])) {
+	  dfilter_fail("\"%s\" isn't a valid IPv6 address.",
+		       host);
+	}
+
+	gnode = g_node_new(node);
+	return gnode;
+}
+
+static GNode*
 dfilter_mknode_bytes_value(GByteArray *barray)
 {
 	dfilter_node	*node;
@@ -639,5 +709,42 @@ ether_str_to_guint8_array(const char *s, guint8 *mac)
 		return 0;	/* failed to read 6 hex pairs */
 	else
 		return 1;	/* read exactly 6 hex pairs */
+}
+
+/* converts a string representing an IPV6 address
+ * to a guint8 array.
+ *
+ * Returns 0 on failure, 1 on success.
+ */
+static int
+ipv6_str_to_guint8_array(const char *s, guint8 *ipv6)
+{
+
+  /* XXX should be deleted as soon as get_host_ipaddr6 
+     is implemented in resolv.c */
+
+	char	ipv6_str[48];
+	char	*p, *str;
+	int	i = 0;
+
+	if (strlen(s) > 47) {
+		return 0;
+	}
+	strcpy(ipv6_str, s); /* local copy of string */
+	str = ipv6_str;
+	while ((p = strtok(str, "-:."))) {
+		/* catch short strings with too many hex bytes */
+		if (i > 15) {
+			return 0;
+		}
+		ipv6[i] = (guint8) strtoul(p, NULL, 16);
+		i++;
+		/* subsequent calls to strtok() require NULL as arg 1 */
+		str = NULL;
+	}
+	if (i != 16)
+		return 0;	/* failed to read 16 hex pairs */
+	else
+		return 1;	/* read exactly 16 hex pairs */
 }
 

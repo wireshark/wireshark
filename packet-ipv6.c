@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.13 1999/08/24 17:26:12 gram Exp $
+ * $Id: packet-ipv6.c,v 1.14 1999/10/11 17:05:49 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,6 +48,8 @@
 #include "resolv.h"
 
 static int proto_ipv6 = -1;
+static int hf_ipv6_src = -1;
+static int hf_ipv6_dst = -1;
 
 #ifndef offsetof
 #define	offsetof(type, member)	((size_t)(&((type *)0)->member))
@@ -160,8 +162,9 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		offset + offsetof(struct ip6_hdr, ip6_hlim), 1,
 		"Hop limit: %d", ipv6.ip6_hlim);
 
-    proto_tree_add_text(ipv6_tree,
+    proto_tree_add_item_format(ipv6_tree, hf_ipv6_src,
 		offset + offsetof(struct ip6_hdr, ip6_src), 16,
+		&ipv6.ip6_src,
 #ifdef INET6
 		"Source address: %s (%s)",
 		get_hostname6(&ipv6.ip6_src),
@@ -170,8 +173,9 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 #endif
 		ip6_to_str(&ipv6.ip6_src));
 
-	proto_tree_add_text(ipv6_tree,
+    proto_tree_add_item_format(ipv6_tree, hf_ipv6_dst,
 		offset + offsetof(struct ip6_hdr, ip6_dst), 16,
+		&ipv6.ip6_dst,
 #ifdef INET6
 		"Destination address: %s (%s)",
 		get_hostname6(&ipv6.ip6_dst),
@@ -408,11 +412,13 @@ inet_ntop6(src, dst, size)
 void
 proto_register_ipv6(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "ipv6.abbreviation", TYPE, VALS_POINTER }},
-        };*/
+  static hf_register_info hf[] = {
+    { &hf_ipv6_src,
+      { "Source",		"ipv6.src",	FT_IPv6,	NULL }},
+    { &hf_ipv6_dst,
+      { "Destination",		"ipv6.dst",	FT_IPv6,	NULL }}
+  };
 
-        proto_ipv6 = proto_register_protocol("Internet Protocol Version 6", "ipv6");
- /*       proto_register_field_array(proto_ipv6, hf, array_length(hf));*/
+  proto_ipv6 = proto_register_protocol("Internet Protocol Version 6", "ipv6");
+  proto_register_field_array(proto_ipv6, hf, array_length(hf));
 }

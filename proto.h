@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.14 1999/10/11 14:58:04 gram Exp $
+ * $Id: proto.h,v 1.15 1999/10/11 17:02:08 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -110,6 +110,7 @@ typedef struct field_info {
 		gchar		*string;
 		guint8		*bytes;
 		guint8		ether[6];
+		guint8		ipv6[16];
 	}				value;
 } field_info;
 
