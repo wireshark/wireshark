@@ -1,7 +1,7 @@
 /* packet-dvmrp.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP/DVMRP packet disassembly
  *
- * $Id: packet-dvmrp.c,v 1.8 2002/02/01 11:01:56 guy Exp $
+ * $Id: packet-dvmrp.c,v 1.9 2002/04/02 05:12:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -97,7 +97,6 @@ static int hf_cap_netmask = -1;
 static int hf_min_ver = -1;
 static int hf_maj_ver = -1;
 static int hf_genid = -1;
-static int hf_naddr = -1;
 static int hf_route = -1;
 static int hf_saddr = -1;
 static int hf_life = -1;
@@ -127,18 +126,26 @@ static const value_string code_v1[] = {
 	{0,					NULL}
 };
 
-#define DVMRP_V3_PROBE				1
-#define DVMRP_V3_REPORT				2
-#define DVMRP_V3_PRUNE				7
-#define DVMRP_V3_GRAFT				8
-#define DVMRP_V3_GRAFT_ACK			9
+#define DVMRP_V3_PROBE				0x1
+#define DVMRP_V3_REPORT				0x2
+#define DVMRP_V3_ASK_NEIGHBORS			0x3
+#define DVMRP_V3_NEIGHBORS			0x4
+#define DVMRP_V3_ASK_NEIGHBORS_2		0x5
+#define DVMRP_V3_NEIGHBORS_2			0x6
+#define DVMRP_V3_PRUNE				0x7
+#define DVMRP_V3_GRAFT				0x8
+#define DVMRP_V3_GRAFT_ACK			0x9
 static const value_string code_v3[] = {
-	{DVMRP_V3_PROBE,	"Probe"},
-	{DVMRP_V3_REPORT,	"Report"},
-	{DVMRP_V3_PRUNE,	"Prune"},
-	{DVMRP_V3_GRAFT,	"Graft"},
-	{DVMRP_V3_GRAFT_ACK,	"Graft ACK"},
-	{0,			NULL}
+	{DVMRP_V3_PROBE,		"Probe"},
+	{DVMRP_V3_REPORT,		"Report"},
+	{DVMRP_V3_ASK_NEIGHBORS,	"Ask Neighbors"},
+	{DVMRP_V3_NEIGHBORS,		"Neighbors"},
+	{DVMRP_V3_ASK_NEIGHBORS_2,	"Ask Neighbors 2"},
+	{DVMRP_V3_NEIGHBORS_2,		"Neighbors 2"},
+	{DVMRP_V3_PRUNE,		"Prune"},
+	{DVMRP_V3_GRAFT,		"Graft"},
+	{DVMRP_V3_GRAFT_ACK,		"Graft ACK"},
+	{0,				NULL}
 };
 
 #define DVMRP_V3_CAP_LEAF	0x01
@@ -328,8 +335,9 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	/* skip unused byte */
 	offset += 1;
 
-	/* PROBE packets have capabilities flags, unused for other packets */
-	if (code==DVMRP_V3_PROBE) {
+	/* PROBE and NEIGHBORS 2 packets have capabilities flags, unused
+	   for other packets */
+	if (code==DVMRP_V3_PROBE || code==DVMRP_V3_NEIGHBORS_2) {
 		proto_tree *tree;
 		proto_item *item;
 
@@ -421,6 +429,16 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 				tvb, offset, 4, FALSE);
 			offset += 4;
 		}
+		break;
+	case DVMRP_V3_ASK_NEIGHBORS:
+	case DVMRP_V3_NEIGHBORS:
+		/* XXX - obsolete, and the draft doesn't describe them */
+		break;
+	case DVMRP_V3_ASK_NEIGHBORS_2:
+		/* No data */
+		break;
+	case DVMRP_V3_NEIGHBORS_2:
+		/* XXX - fill this in */
 		break;
 	}
 
@@ -755,10 +773,6 @@ proto_register_dvmrp(void)
 		{ &hf_genid,
 			{ "Generation ID", "dvmrp.genid", FT_UINT32, BASE_DEC,
 			  NULL, 0, "DVMRP Generation ID", HFILL }},
-
-		{ &hf_naddr,
-			{ "Neighbor Addr", "igmp.naddr", FT_IPv4, BASE_NONE,
-			  NULL, 0, "DVMRP Neighbor Address", HFILL }},
 
 		{ &hf_route,
 			{ "Route", "dvmrp.route", FT_NONE, BASE_NONE,
