@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.40 2004/01/19 18:23:01 jmayer Exp $
+ * $Id: dcerpc_stat.c,v 1.41 2004/01/19 23:00:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -104,16 +104,21 @@ dcerpcstat_set_title(rpcstat_t *rs)
 }
 
 static void
-dcerpcstat_reset(rpcstat_t *rs)
+dcerpcstat_reset(void *rs_arg)
 {
+	rpcstat_t *rs = rs_arg;
+
 	reset_srt_table_data(&rs->srt_table);
 	dcerpcstat_set_title(rs);
 }
 
 
 static int
-dcerpcstat_packet(rpcstat_t *rs, packet_info *pinfo, epan_dissect_t *edt _U_, dcerpc_info *ri)
+dcerpcstat_packet(void *rs_arg, packet_info *pinfo, epan_dissect_t *edt _U_, void *ri_arg)
 {
+	rpcstat_t *rs = rs_arg;
+	dcerpc_info *ri = ri_arg;
+
 	if(!ri->call_data){
 		return 0;
 	}
@@ -145,8 +150,10 @@ dcerpcstat_packet(rpcstat_t *rs, packet_info *pinfo, epan_dissect_t *edt _U_, dc
 }
 
 static void
-dcerpcstat_draw(rpcstat_t *rs)
+dcerpcstat_draw(void *rs_arg)
 {
+	rpcstat_t *rs = rs_arg;
+
 	draw_srt_table_data(&rs->srt_table);
 }
 
