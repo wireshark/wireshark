@@ -1,12 +1,11 @@
 /* ui_util.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h,v 1.12 2002/09/23 19:09:47 oabad Exp $
+ * $Id: ui_util.h,v 1.13 2003/12/06 04:05:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -49,6 +48,7 @@ void packet_list_set_text(gint, gint, const gchar *);
 void packet_list_set_cls_time_width(gint);
 gpointer packet_list_get_row_data(gint);
 void packet_list_set_selected_row(gint);
+gint packet_list_get_sort_column(void);
 
 /* create byte views in the main window */
 void add_main_byte_views(epan_dissect_t *edt);

@@ -1,7 +1,7 @@
 /* packet_list.c
  * packet list related functions   2002 Olivier Abad
  *
- * $Id: packet_list.c,v 1.5 2002/11/15 22:21:15 oabad Exp $
+ * $Id: packet_list.c,v 1.6 2003/12/06 04:05:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -172,4 +172,11 @@ packet_list_set_selected_row(gint row)
     GTK_CLIST(packet_list)->focus_row = row;
 
     gtk_clist_select_row(GTK_CLIST(packet_list), row, -1);
+}
+
+/* Return the column number that the clist is currently sorted by */
+gint
+packet_list_get_sort_column(void)
+{
+    return GTK_CLIST(packet_list)->sort_column;
 }

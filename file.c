@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.326 2003/12/04 10:59:33 guy Exp $
+ * $Id: file.c,v 1.327 2003/12/06 04:05:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1483,6 +1483,7 @@ change_time_formats(capture_file *cf)
   GTimeVal    start_time;
   gchar       status_str[100];
   int         first, last;
+  gboolean    sorted_by_frame_column;
 
   /* Are there any columns with time stamps in the "command-line-specified"
      format?
@@ -1511,6 +1512,27 @@ change_time_formats(capture_file *cf)
   /* Count of packets at which we've looked. */
   count = 0;
 
+  /*  If the rows are currently sorted by the frame column then we know
+   *  the row number of each packet: it's the row number of the previously
+   *  displayed packet + 1.
+   *
+   *  Otherwise, if the display is sorted by a different column then we have
+   *  to use the O(N) packet_list_find_row_from_data() (thus making the job
+   *  of changing the time display format O(N**2)).
+   *
+   *  (XXX - In fact it's still O(N**2) because gtk_clist_set_text() takes
+   *  the row number and walks that many elements down the clist to find
+   *  the appropriate element.)
+   */
+  sorted_by_frame_column = FALSE;
+  for (i = 0; i < cf->cinfo.num_cols; i++) {
+    if (cf->cinfo.col_fmt[i] == COL_NUMBER)
+    {
+      sorted_by_frame_column = (i == packet_list_get_sort_column());
+      break;
+    }
+  }
+
   stop_flag = FALSE;
   g_get_current_time(&start_time);
 
@@ -1518,7 +1540,7 @@ change_time_formats(capture_file *cf)
      is in a row of the summary list and, if so, whether there are
      any columns that show the time in the "command-line-specified"
      format and, if so, update that row. */
-  for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
+  for (fdata = cf->plist, row = -1; fdata != NULL; fdata = fdata->next) {
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
        when we update it, we have to run the GTK+ main loop to get it
        to repaint what's pending, and doing so may involve an "ioctl()"
@@ -1558,7 +1580,20 @@ change_time_formats(capture_file *cf)
     count++;
 
     /* Find what row this packet is in. */
-    row = packet_list_find_row_from_data(fdata);
+    if (!sorted_by_frame_column) {
+      /* This function is O(N), so we try to avoid using it... */
+      row = packet_list_find_row_from_data(fdata);
+    } else {
+      /* ...which we do by maintaining a count of packets that are
+         being displayed (i.e., that have passed the display filter),
+         and using the current value of that count as the row number
+         (which is why we can only do it when the display is sorted
+         by the frame number). */
+      if (fdata->flags.passed_dfilter)
+	row++;
+      else
+	continue;
+    }
 
     if (row != -1) {
       /* This packet is in the summary list, on row "row". */
