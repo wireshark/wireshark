@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.51 2002/12/02 23:43:26 guy Exp $
+ * $Id: packet-diameter.c,v 1.52 2003/04/10 01:30:34 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -208,7 +208,6 @@ static gint ett_diameter_avp = -1;
 static gint ett_diameter_avp_flags = -1;
 static gint ett_diameter_avpinfo = -1;
 
-static char gbl_diameterString[200];
 static int gbl_diameterTcpPort=TCP_PORT_DIAMETER;
 static int gbl_diameterSctpPort=SCTP_PORT_DIAMETER;
 
@@ -1742,8 +1741,6 @@ proto_reg_handoff_diameter(void)
   TcpPort=gbl_diameterTcpPort;
   SctpPort=gbl_diameterSctpPort;
 
-  strcpy(gbl_diameterString, "Diameter Protocol");
-
   /* g_warning ("Diameter: Adding tcp dissector to port %d",
 	 gbl_diameterTcpPort); */
   dissector_add("tcp.port", gbl_diameterTcpPort, diameter_tcp_handle);
@@ -1879,8 +1876,7 @@ proto_register_diameter(void)
 	};
 	module_t *diameter_module;
 
-	proto_diameter = proto_register_protocol (gbl_diameterString,
-											  "Diameter", "diameter");
+	proto_diameter = proto_register_protocol ("Diameter Procotol", "Diameter", "diameter");
 	proto_register_field_array(proto_diameter, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
