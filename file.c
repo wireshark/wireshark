@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.29 1999/06/19 01:14:50 guy Exp $
+ * $Id: file.c,v 1.30 1999/06/19 03:14:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,6 +62,7 @@
 #endif
 
 #include "ethereal.h"
+#include "column.h"
 #include "menu.h"
 #include "packet.h"
 #include "file.h"
@@ -72,6 +73,7 @@
 #define TAIL_TIMEOUT	2000  /* msec */
 
 extern GtkWidget *packet_list, *prog_bar, *info_bar, *byte_view, *tree_view;
+extern GtkStyle  *pl_style;
 extern guint      file_ctx;
 extern int	  sync_mode;
 extern int        sync_pipe[];
@@ -88,6 +90,9 @@ static void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, int,
 static void pcap_dispatch_cb(u_char *, const struct pcap_pkthdr *,
     const u_char *);
 #endif
+
+static void init_col_widths(capture_file *);
+static void set_col_widths(capture_file *);
 
 static gint tail_timeout_cb(gpointer);
 
@@ -273,6 +278,7 @@ load_cap_file(char *fname, capture_file *cf) {
   if ((err == 0) && (cf->cd_t != CD_UNKNOWN)) {
 #endif
     gtk_clist_freeze(GTK_CLIST(packet_list));
+    init_col_widths(cf);
 #ifdef WITH_WIRETAP
     wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);
     wtap_close(cf->wth);
@@ -283,6 +289,8 @@ load_cap_file(char *fname, capture_file *cf) {
     cf->pfh = NULL;
 #endif
     cf->fh = fopen(fname, "r");
+
+    set_col_widths(cf);
     gtk_clist_thaw(GTK_CLIST(packet_list));
   }
   
@@ -346,11 +354,14 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
 
     /* process data until end of file and stop capture (restore menu items) */
     gtk_clist_freeze(GTK_CLIST(packet_list));
+    init_col_widths(cf);
 #ifdef WITH_WIRETAP
     wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);      
 #else
     pcap_loop(cf->pfh, 0, pcap_dispatch_cb, (u_char *) cf);
 #endif
+
+    set_col_widths(cf);
     gtk_clist_thaw(GTK_CLIST(packet_list));
 
 #ifdef WITH_WIRETAP
@@ -380,11 +391,14 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
   }
 
   gtk_clist_freeze(GTK_CLIST(packet_list));
+  init_col_widths(cf);
 #ifdef WITH_WIRETAP
   wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);      
 #else
   pcap_loop(cf->pfh, 0, pcap_dispatch_cb, (u_char *) cf);
 #endif
+
+  set_col_widths(cf);
   gtk_clist_thaw(GTK_CLIST(packet_list));
 
   /* restore pipe handler */
@@ -409,11 +423,14 @@ tail_timeout_cb(gpointer data) {
   gtk_input_remove(cap_input_id);
 
   gtk_clist_freeze(GTK_CLIST(packet_list));
+  init_col_widths(cf);
 #ifdef WITH_WIRETAP
   wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);      
 #else
   pcap_loop(cf->pfh, 0, pcap_dispatch_cb, (u_char *) cf);
 #endif
+
+  set_col_widths(cf);
   gtk_clist_thaw(GTK_CLIST(packet_list));
 
   cap_input_id = gtk_input_add_full (sync_pipe[0],
@@ -486,7 +503,7 @@ tail_cap_file(char *fname, capture_file *cf) {
 static void
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf)
 {
-  gint          i, row;
+  gint          i, row, col_width;
 
   /* If we don't have the time stamp of the first packet, it's because this
      is the first packet.  Save the time stamp of this packet as the time
@@ -531,6 +548,11 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
   if (check_col(fdata, COL_NUMBER))
     col_add_fstr(fdata, COL_NUMBER, "%d", cf->count);
   dissect_packet(buf, fdata, NULL);
+  for (i = 0; i < fdata->cinfo->num_cols; i++) {
+    col_width = gdk_string_width(pl_style->font, fdata->cinfo->col_data[i]);
+    if (col_width > fdata->cinfo->col_width[i])
+      fdata->cinfo->col_width[i] = col_width;
+  }
   row = gtk_clist_append(GTK_CLIST(packet_list), fdata->cinfo->col_data);
   fdata->cinfo = NULL;
 }
@@ -594,6 +616,9 @@ redisplay_packets(capture_file *cf)
   /* Clear it out. */
   gtk_clist_clear(GTK_CLIST(packet_list));
 
+  /* Zero out the column widths. */
+  init_col_widths(cf);
+
   /*
    * Iterate through the list of packets, calling a routine
    * to run the filter on the packet, see if it matches, and
@@ -606,8 +631,42 @@ redisplay_packets(capture_file *cf)
   cf->count = 0;
   g_list_foreach(cf->plist, redisplay_packets_cb, cf);
 
+  /* Set the column widths. */
+  set_col_widths(cf);
+
   /* Unfreeze the packet list. */
   gtk_clist_thaw(GTK_CLIST(packet_list));
+}
+
+/* Initialize the maximum widths of the columns to the widths of their
+   titles. */
+static void
+init_col_widths(capture_file *cf)
+{
+  int i;
+
+  /* XXX - this should use the column *title* font, not the font for
+     the items in the list.
+     But how do you get that font?  We set the font for the packet list
+     in "main()", but why does that affect only the list entries, not
+     the title?  Is it because it's not supposed to affect the title,
+     or is it because we did a "gtk_clist_new_with_titles()" and
+     that put the titles in *before* we changed the font? */
+  for (i = 0; i < cf->cinfo.num_cols; i++)
+    cf->cinfo.col_width[i] = gdk_string_width(pl_style->font,
+                                               cf->cinfo.col_title[i]);
+}
+
+/* Set the widths of the columns to the maximum widths we found. */
+static void
+set_col_widths(capture_file *cf)
+{
+  int i;
+
+  for (i = 0; i < cf->cinfo.num_cols; i++) {
+    gtk_clist_set_column_width(GTK_CLIST(packet_list), i,
+      cf->cinfo.col_width[i]);
+  }
 }
 
 /* Tries to mv a file. If unsuccessful, tries to cp the file.
@@ -767,4 +826,3 @@ file_write_error_message(int err)
   }
   return errmsg;
 }
-

@@ -1,7 +1,7 @@
 /* display.c
  * Routines for packet display windows
  *
- * $Id: display.c,v 1.2 1999/06/19 01:47:43 guy Exp $
+ * $Id: display.c,v 1.3 1999/06/19 03:14:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,7 +60,6 @@
 #endif
 
 #include "timestamp.h"
-#include "column.h"
 #include "packet.h"
 #include "file.h"
 #include "display.h"
@@ -90,7 +89,7 @@ display_opt_cb(GtkWidget *w, gpointer d) {
   gtk_widget_show(main_vb);
   
   button = gtk_radio_button_new_with_label(NULL, "Time of day");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
                (timestamp_type == ABSOLUTE));
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_TIME_ABS_KEY,
                button);
@@ -100,7 +99,7 @@ display_opt_cb(GtkWidget *w, gpointer d) {
   button = gtk_radio_button_new_with_label(
                gtk_radio_button_group(GTK_RADIO_BUTTON(button)),
                "Seconds since beginning of capture");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
                (timestamp_type == RELATIVE));
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_TIME_REL_KEY,
                button);
@@ -110,7 +109,7 @@ display_opt_cb(GtkWidget *w, gpointer d) {
   button = gtk_radio_button_new_with_label(
                gtk_radio_button_group(GTK_RADIO_BUTTON(button)),
                "Seconds since previous frame");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
                (timestamp_type == DELTA));
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_TIME_DELTA_KEY,
 		button);
@@ -145,9 +144,6 @@ display_opt_cb(GtkWidget *w, gpointer d) {
 static void
 display_opt_ok_cb(GtkWidget *w, gpointer data) {
   GtkWidget *button;
-  GtkStyle  *pl_style;
-  int i;
-  gint col_fmt;
 
 #ifdef GTK_HAVE_FEATURES_1_1_0
   data = w;
@@ -169,18 +165,6 @@ display_opt_ok_cb(GtkWidget *w, gpointer data) {
     timestamp_type = DELTA;
 
   gtk_widget_destroy(GTK_WIDGET(data));
-
-  /* Recompute the column widths; we may have changed the format of the
-     time stamp column. */
-  pl_style = gtk_widget_get_style(packet_list);
-  for (i = 0; i < cf.cinfo.num_cols; i++) {
-    col_fmt = get_column_format(i);
-    gtk_clist_set_column_width(GTK_CLIST(packet_list), i,
-      get_column_width(col_fmt, pl_style->font));
-    if (col_fmt == COL_NUMBER)
-      gtk_clist_set_column_justification(GTK_CLIST(packet_list), i, 
-        GTK_JUSTIFY_RIGHT);
-  }
 
   redisplay_packets(&cf);
 }

@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.12 1999/06/19 01:47:43 guy Exp $
+ * $Id: column.c,v 1.13 1999/06/19 03:14:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -163,68 +163,6 @@ get_column_format_matches(gboolean *fmt_list, gint format) {
       default:
         break;
     }
-  }
-}
-
-/* Returns the longest possible width for a particular column type */
-/* XXX - this is somewhat fragile; we should probably generate */
-/* the summary lines for all the packets first, and compute the */
-/* maximum column width as the maximum string width of all the */
-/* values in that column. */
-gint
-get_column_width(gint format, GdkFont *font) {
-  switch (format) {
-    case COL_NUMBER:
-      return (gdk_string_width(font, "0") * 7);
-      break;
-    case COL_CLS_TIME:
-      if (timestamp_type == ABSOLUTE)
-        return (gdk_string_width(font, "00:00:00.000000"));
-      else
-        return (gdk_string_width(font, "0000.000000"));
-      break;
-    case COL_ABS_TIME:
-      return (gdk_string_width(font, "00:00:00.000000"));
-      break;
-    case COL_REL_TIME:
-    case COL_DELTA_TIME:
-      return (gdk_string_width(font, "0000.000000"));
-      break;
-    case COL_DEF_SRC:
-    case COL_RES_SRC:
-    case COL_UNRES_SRC:
-    case COL_DEF_DL_SRC:
-    case COL_RES_DL_SRC:
-    case COL_UNRES_DL_SRC:
-    case COL_DEF_NET_SRC:
-    case COL_RES_NET_SRC:
-    case COL_UNRES_NET_SRC:
-    case COL_DEF_DST:
-    case COL_RES_DST:
-    case COL_UNRES_DST:
-    case COL_DEF_DL_DST:
-    case COL_RES_DL_DST:
-    case COL_UNRES_DL_DST:
-    case COL_DEF_NET_DST:
-    case COL_RES_NET_DST:
-    case COL_UNRES_NET_DST:
-      return (gdk_string_width(font, "00000000.000000000000")); /* IPX-style */
-      break;
-    case COL_DEF_SRC_PORT:
-    case COL_RES_SRC_PORT:
-    case COL_UNRES_SRC_PORT:
-    case COL_DEF_DST_PORT:
-    case COL_RES_DST_PORT:
-    case COL_UNRES_DST_PORT:
-      return (gdk_string_width(font, "0") * 6);
-      break;
-    case COL_PROTOCOL:
-      return (gdk_string_width(font, "NBNS (UDP)"));
-      break;
-    default: /* COL_INFO */
-      return (gdk_string_width(font, "Source port: kerberos-master  "
-        "Destination port: kerberos-master"));
-      break;
   }
 }
 
