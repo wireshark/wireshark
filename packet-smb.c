@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.28 1999/10/10 11:50:40 sharpe Exp $
+ * $Id: packet-smb.c,v 1.29 1999/10/16 16:02:46 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -47,15 +47,34 @@
 
 static int proto_smb = -1;
 
+#define DEBUG_SMB_HASH
+
+/*
+ * Struct passed to each SMB decode routine of info it may need
+ */
+
+struct smb_info {
+  int tid, uid, mid, pid;   /* Any more?  */
+};
+
 char *decode_smb_name(unsigned char);
 
-GHashTable *smb_request_hash = NULL;
+int smb_packet_init_count = 200;
 
 struct smb_request_key {
-  guint32 src_ip, dst_ip;
-  guint16 src_port, dst_port;
+  guint32 ip_src, ip_dst;
+  guint16 port_src, port_dst;
   guint16 mid;
 };
+
+struct smb_request_val {
+  guint16 last_transact2_command;
+  guint16 mid;
+};
+
+GHashTable *smb_request_hash = NULL;
+GMemChunk *smb_request_keys = NULL;
+GMemChunk *smb_request_vals = NULL;
 
 /* Hash Functions */
 gint
@@ -66,14 +85,14 @@ smb_equal(gconstpointer v, gconstpointer w)
 
   #if defined(DEBUG_SMB_HASH)
   printf("Comparing %08X:%08X:%d:%d:%d\n      and %08X:%08X:%d:%d:%d\n",
-	 v1 -> src_ip, v1 -> dst_ip, v1 -> src_port, v1 -> dst_port, v1 -> mid,
-	 v2 -> src_ip, v2 -> dst_ip, v2 -> src_port, v2 -> dst_port, v2 -> mid);
+	 v1 -> ip_src, v1 -> ip_dst, v1 -> port_src, v1 -> port_dst, v1 -> mid,
+	 v2 -> ip_src, v2 -> ip_dst, v2 -> port_src, v2 -> port_dst, v2 -> mid);
   #endif
 
-  if (v1 -> src_ip   == v2 -> src_ip &&
-      v1 -> dst_ip   == v2 -> dst_ip &&
-      v1 -> src_port == v2 -> src_port &&
-      v1 -> dst_port == v2 -> dst_port &&
+  if (v1 -> ip_src   == v2 -> ip_src &&
+      v1 -> ip_dst   == v2 -> ip_dst &&
+      v1 -> port_src == v2 -> port_src &&
+      v1 -> port_dst == v2 -> port_dst &&
       v1 -> mid      == v2 -> mid) {
 
     return 1;
@@ -89,7 +108,7 @@ smb_hash (gconstpointer v)
   struct smb_request_key *key = (struct smb_request_key *)v;
   guint val;
 
-  val = key -> src_ip + key -> dst_ip + key -> src_port + key -> dst_port +
+  val = key -> ip_src + key -> ip_dst + key -> port_src + key -> port_dst +
     key -> mid;
 
   #if defined(DEBUG_SMB_HASH)
@@ -113,12 +132,21 @@ smb_init_protocol(void)
 
   if (smb_request_hash)
     g_hash_table_destroy(smb_request_hash);
+  if (smb_request_keys)
+    g_mem_chunk_destroy(smb_request_keys);
+  if (smb_request_vals)
+    g_mem_chunk_destroy(smb_request_vals);
 
   smb_request_hash = g_hash_table_new(smb_hash, smb_equal);
-
+  smb_request_keys = g_mem_chunk_new("smb_request_keys",
+				     sizeof(struct smb_request_key),
+				     smb_packet_init_count * sizeof(struct smb_request_key), G_ALLOC_AND_FREE);
+  smb_request_vals = g_mem_chunk_new("smb_request_vals",
+				     sizeof(struct smb_request_val),
+				     smb_packet_init_count * sizeof(struct smb_request_val), G_ALLOC_AND_FREE);
 }
 
-void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, int, int, int, int);
+void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, struct smb_info si, int, int, int, int);
 
 char *SMB_names[256] = {
   "SMBcreatedirectory",
@@ -380,7 +408,7 @@ char *SMB_names[256] = {
 };
 
 void 
-dissect_unknown_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_unknown_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 {
 
   if (tree) {
@@ -505,7 +533,7 @@ unicode_to_str(const guint8 *us, int *us_lenp) {
  */
 
 void
-dissect_flush_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_flush_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -583,7 +611,7 @@ dissect_flush_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
 }
 
 void
-dissect_get_disk_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_get_disk_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -717,7 +745,7 @@ dissect_get_disk_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 }
 
 void
-dissect_set_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_set_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   proto_tree    *Attributes_tree;
@@ -931,7 +959,7 @@ dissect_set_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 }
 
 void
-dissect_write_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_write_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -1086,7 +1114,7 @@ dissect_write_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
 }
 
 void
-dissect_read_mpx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_read_mpx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -1335,7 +1363,7 @@ dissect_read_mpx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *t
 }
 
 void
-dissect_delete_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_delete_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -1426,7 +1454,7 @@ dissect_delete_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 }
 
 void
-dissect_query_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_query_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   proto_tree    *Attributes_tree;
@@ -1640,7 +1668,7 @@ dissect_query_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 }
 
 void
-dissect_treecon_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_treecon_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -1812,7 +1840,7 @@ dissect_treecon_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
 /* Generated by build-dissect.pl Vesion 0.6 27-Jun-1999, ACT */
 void
-dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   proto_tree    *Capabilities_tree;
@@ -2298,7 +2326,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, SMB_offset, errcode, dirn);
+      (dissect[AndXCommand])(pd, offset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -2428,7 +2456,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, SMB_offset, errcode, dirn);
+      (dissect[AndXCommand])(pd, offset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -2437,7 +2465,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 }
 
 void
-dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8      wct, andxcmd;
@@ -2662,12 +2690,12 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
   if (andxcmd != 0xFF) /* Process that next command ... ??? */
 
-    (dissect[andxcmd])(pd, offset, fd, tree, max_data - offset, SMB_offset, errcode, dirn);
+    (dissect[andxcmd])(pd, offset, fd, tree, si, max_data - offset, SMB_offset, errcode, dirn);
 
 }
 
 void 
-dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 {
   guint8        wct, enckeylen;
   guint16       bcc, mode, rawmode, dialect;
@@ -3176,7 +3204,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 }
 
 void
-dissect_deletedir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_deletedir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -3267,7 +3295,7 @@ dissect_deletedir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_createdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_createdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -3358,7 +3386,7 @@ dissect_createdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_checkdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_checkdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -3449,7 +3477,7 @@ dissect_checkdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *t
 }
 
 void
-dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   static const value_string OpenFunction_0x10[] = {
@@ -3799,7 +3827,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, SMB_offset, errcode, dirn);
+      (dissect[AndXCommand])(pd, offset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -4028,7 +4056,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, SMB_offset, errcode, dirn);
+      (dissect[AndXCommand])(pd, offset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -4037,7 +4065,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_write_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_write_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   proto_tree    *WriteMode_tree;
@@ -4407,7 +4435,7 @@ dissect_write_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_tdis_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_tdis_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -4472,7 +4500,7 @@ dissect_tdis_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 }
 
 void
-dissect_move_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_move_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   static const value_string Flags_0x03[] = {
@@ -4620,7 +4648,7 @@ dissect_move_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 }
 
 void
-dissect_rename_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_rename_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -4750,7 +4778,7 @@ dissect_rename_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 }
 
 void
-dissect_open_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_open_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   static const value_string Mode_0x03[] = {
@@ -4890,7 +4918,7 @@ dissect_open_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_
 }
 
 void
-dissect_close_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_close_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -4968,7 +4996,7 @@ dissect_close_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto
 }
 
 void
-dissect_read_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_read_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -5210,7 +5238,7 @@ dissect_read_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *t
 }
 
 void
-dissect_logoff_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_logoff_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -5284,7 +5312,7 @@ dissect_logoff_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, SMB_offset, errcode, dirn);
+      (dissect[AndXCommand])(pd, offset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -5355,7 +5383,7 @@ dissect_logoff_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, SMB_offset, errcode, dirn);
+      (dissect[AndXCommand])(pd, offset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -5364,7 +5392,7 @@ dissect_logoff_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 }
 
 void
-dissect_seek_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_seek_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   static const value_string Mode_0x03[] = {
@@ -5491,7 +5519,7 @@ dissect_seek_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_write_and_unlock_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_write_and_unlock_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -5646,7 +5674,7 @@ dissect_write_and_unlock_smb(const u_char *pd, int offset, frame_data *fd, proto
 }
 
 void
-dissect_set_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_set_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -5802,7 +5830,7 @@ dissect_set_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_lock_bytes_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_lock_bytes_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -5906,7 +5934,7 @@ dissect_lock_bytes_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
 }
 
 void
-dissect_get_print_queue_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_get_print_queue_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -6053,7 +6081,7 @@ dissect_get_print_queue_smb(const u_char *pd, int offset, frame_data *fd, proto_
 }
 
 void
-dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   proto_tree    *LockType_tree;
@@ -6219,7 +6247,7 @@ dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, SMB_offset, errcode, dirn);
+      (dissect[AndXCommand])(pd, offset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -6295,7 +6323,7 @@ dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, SMB_offset, errcode, dirn);
+      (dissect[AndXCommand])(pd, offset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -6304,7 +6332,7 @@ dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
 }
 
 void
-dissect_unlock_bytes_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_unlock_bytes_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -6408,7 +6436,7 @@ dissect_unlock_bytes_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
 }
 
 void
-dissect_create_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_create_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   proto_tree    *Attributes_tree;
@@ -6557,7 +6585,7 @@ dissect_create_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 }
 
 void
-dissect_search_dir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_search_dir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -6743,7 +6771,7 @@ dissect_search_dir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
 }
 
 void
-dissect_create_temporary_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_create_temporary_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -6915,7 +6943,7 @@ dissect_create_temporary_file_smb(const u_char *pd, int offset, frame_data *fd, 
 }
 
 void
-dissect_close_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_close_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -7019,7 +7047,7 @@ dissect_close_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 }
 
 void
-dissect_write_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_write_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -7123,7 +7151,7 @@ dissect_write_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto
 }
 
 void
-dissect_lock_and_read_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_lock_and_read_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -7334,7 +7362,7 @@ dissect_lock_and_read_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 }
 
 void
-dissect_process_exit_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_process_exit_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -7399,7 +7427,7 @@ dissect_process_exit_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
 }
 
 void
-dissect_get_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_get_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   proto_tree    *Attributes_tree;
@@ -7626,7 +7654,7 @@ dissect_get_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 }
 
 void
-dissect_read_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_read_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -7837,7 +7865,7 @@ dissect_read_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_write_mpx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_write_mpx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   proto_tree    *WriteMode_tree;
@@ -8045,7 +8073,7 @@ dissect_write_mpx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_find_close2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_find_close2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -8154,7 +8182,629 @@ char *decode_trans2_name(int code)
 
 }
 void
-dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
+dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
+
+{
+  proto_tree    *Flags_tree;
+  proto_item    *ti;
+  guint8        WordCount;
+  guint8        SetupCount;
+  guint8        Reserved3;
+  guint8        Reserved1;
+  guint8        Parameters;
+  guint8        Parameter;
+  guint8        Pad2;
+  guint8        Pad1;
+  guint8        MaxSetupCount;
+  guint8        Data;
+  guint32       Timeout;
+  guint16       TotalParameterCount;
+  guint16       TotalDataCount;
+  guint16       Setup;
+  guint16       Reserved2;
+  guint16       ParameterOffset;
+  guint16       ParameterDisplacement;
+  guint16       ParameterCount;
+  guint16       MaxParameterCount;
+  guint16       MaxDataCount;
+  guint16       Flags;
+  guint16       DataOffset;
+  guint16       DataDisplacement;
+  guint16       DataCount;
+  guint16       ByteCount;
+  const char    *TransactName;
+  struct smb_request_key      request_key, *new_request_key;
+  struct smb_request_val      *request_val;
+
+  /*
+   * Check for and insert entry in hash table if does not exist
+   * Since we want request and response to hash to the same, we make
+   * sure that src and dst swapped for response
+   */
+
+  request_key.ip_src   = ((dirn == 0) ? pi.ip_src : pi.ip_dst);
+  request_key.ip_dst   = ((dirn == 0) ? pi.ip_dst : pi.ip_src);
+  request_key.port_src = ((dirn == 0) ? pi.srcport : pi.destport);
+  request_key.port_dst = ((dirn == 0) ? pi.destport : pi.srcport);
+  request_key.mid      = si.mid;
+
+  request_val = (struct smb_request_val *) g_hash_table_lookup(smb_request_hash, &request_key);
+
+  if (!request_val) { /* Create one */
+
+    new_request_key = g_mem_chunk_alloc(smb_request_keys);
+    new_request_key -> ip_src   = ((dirn == 0) ? pi.ip_src : pi.ip_dst);
+    new_request_key -> ip_dst   = ((dirn == 0) ? pi.ip_dst : pi.ip_src);
+    new_request_key -> port_src = ((dirn == 0) ? pi.srcport : pi.destport);
+    new_request_key -> port_dst = ((dirn == 0) ? pi.destport : pi.srcport);
+    new_request_key -> mid      = si.mid;
+
+    request_val = g_mem_chunk_alloc(smb_request_vals);
+    request_val -> mid = si.mid;
+    request_val -> last_transact2_command = 0xFFFF;
+
+    g_hash_table_insert(smb_request_hash, new_request_key, request_val);
+    
+  }
+  else { /* Update the transact request */
+
+    request_val -> mid = si.mid;
+
+  }
+
+
+  if (dirn == 1) { /* Request(s) dissect code */
+  
+    /* Build display for: Word Count (WCT) */
+
+    WordCount = GBYTE(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 1, "Word Count (WCT): %u", WordCount);
+
+    }
+
+    offset += 1; /* Skip Word Count (WCT) */
+
+    /* Build display for: Total Parameter Count */
+
+    TotalParameterCount = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Total Parameter Count: %u", TotalParameterCount);
+
+    }
+
+    offset += 2; /* Skip Total Parameter Count */
+
+    /* Build display for: Total Data Count */
+
+    TotalDataCount = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Total Data Count: %u", TotalDataCount);
+
+    }
+
+    offset += 2; /* Skip Total Data Count */
+
+    /* Build display for: Max Parameter Count */
+
+    MaxParameterCount = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Max Parameter Count: %u", MaxParameterCount);
+
+    }
+
+    offset += 2; /* Skip Max Parameter Count */
+
+    /* Build display for: Max Data Count */
+
+    MaxDataCount = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Max Data Count: %u", MaxDataCount);
+
+    }
+
+    offset += 2; /* Skip Max Data Count */
+
+    /* Build display for: Max Setup Count */
+
+    MaxSetupCount = GBYTE(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 1, "Max Setup Count: %u", MaxSetupCount);
+
+    }
+
+    offset += 1; /* Skip Max Setup Count */
+
+    /* Build display for: Reserved1 */
+
+    Reserved1 = GBYTE(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 1, "Reserved1: %u", Reserved1);
+
+    }
+
+    offset += 1; /* Skip Reserved1 */
+
+    /* Build display for: Flags */
+
+    Flags = GSHORT(pd, offset);
+
+    if (tree) {
+
+      ti = proto_tree_add_text(tree, offset, 2, "Flags: 0x%02x", Flags);
+      Flags_tree = proto_item_add_subtree(ti, ETT_SMB_FLAGS);
+      proto_tree_add_text(Flags_tree, offset, 2, "%s",
+                          decode_boolean_bitfield(Flags, 0x01, 16, "Also disconnect TID", "Dont disconnect TID"));
+      proto_tree_add_text(Flags_tree, offset, 2, "%s",
+                          decode_boolean_bitfield(Flags, 0x02, 16, "One way transaction", "Two way transaction"));
+    
+}
+
+    offset += 2; /* Skip Flags */
+
+    /* Build display for: Timeout */
+
+    Timeout = GWORD(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 4, "Timeout: %u", Timeout);
+
+    }
+
+    offset += 4; /* Skip Timeout */
+
+    /* Build display for: Reserved2 */
+
+    Reserved2 = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Reserved2: %u", Reserved2);
+
+    }
+
+    offset += 2; /* Skip Reserved2 */
+
+    /* Build display for: Parameter Count */
+
+    ParameterCount = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Parameter Count: %u", ParameterCount);
+
+    }
+
+    offset += 2; /* Skip Parameter Count */
+
+    /* Build display for: Parameter Offset */
+
+    ParameterOffset = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Parameter Offset: %u", ParameterOffset);
+
+    }
+
+    offset += 2; /* Skip Parameter Offset */
+
+    /* Build display for: Data Count */
+
+    DataCount = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Data Count: %u", DataCount);
+
+    }
+
+    offset += 2; /* Skip Data Count */
+
+    /* Build display for: Data Offset */
+
+    DataOffset = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Data Offset: %u", DataOffset);
+
+    }
+
+    offset += 2; /* Skip Data Offset */
+
+    /* Build display for: Setup Count */
+
+    SetupCount = GBYTE(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 1, "Setup Count: %u", SetupCount);
+
+    }
+
+    offset += 1; /* Skip Setup Count */
+
+    /* Build display for: Reserved3 */
+
+    Reserved3 = GBYTE(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 1, "Reserved3: %u", Reserved3);
+
+    }
+
+    offset += 1; /* Skip Reserved3 */
+
+    /* Build display for: Setup */
+
+    if (SetupCount > 0) {
+
+      int i = SetupCount;
+
+      Setup = GSHORT(pd, offset);
+
+      request_val -> last_transact2_command = Setup;  /* Save for later */
+
+      if (check_col(fd, COL_INFO)) {
+
+	col_add_fstr(fd, COL_INFO, "%s %s", decode_trans2_name(Setup), (dirn ? "Request" : "Response"));
+
+      }
+
+      for (i = 1; i <= SetupCount; i++) {
+	int Setup1;
+
+	Setup1 = GSHORT(pd, offset);
+
+	if (tree) {
+
+	  proto_tree_add_text(tree, offset, 2, "Setup%i: %u", i, Setup1);
+
+	}
+
+	offset += 2; /* Skip Setup */
+
+      }
+
+    }
+
+    /* Build display for: Byte Count (BCC) */
+
+    ByteCount = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Byte Count (BCC): %u", ByteCount);
+
+    }
+
+    offset += 2; /* Skip Byte Count (BCC) */
+
+    /* Build display for: Transact Name */
+
+    TransactName = pd + offset;
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, strlen(TransactName) + 1, "Transact Name: %s", decode_trans2_name(Setup));
+
+    }
+
+    offset += strlen(TransactName) + 1; /* Skip Transact Name */
+
+    if (offset % 2) {
+
+      /* Build display for: Pad1 */
+
+      Pad1 = GBYTE(pd, offset);
+
+      if (tree) {
+
+	proto_tree_add_text(tree, offset, 1, "Pad1: %u", Pad1);
+
+      }
+    
+      offset += 1; /* Skip Pad1 */
+
+    }
+
+    if (ParameterCount > 0) {
+
+      /* Build display for: Parameters */
+
+      if (tree) {
+
+	proto_tree_add_text(tree, SMB_offset + ParameterOffset, ParameterCount, "Parameters: %S: %d", format_text(&pd[SMB_offset + ParameterOffset], ParameterCount), SMB_offset + ParameterOffset);
+
+      }
+
+      offset += ParameterCount; /* Skip Parameters */
+
+    }
+
+    if (offset % 2) {
+	
+      /* Build display for: Pad2 */
+
+      Pad2 = GBYTE(pd, offset);
+
+      if (tree) {
+
+	proto_tree_add_text(tree, offset, 1, "Pad2: %u", Pad2);
+
+      }
+
+      offset += 1; /* Skip Pad2 */
+
+    }
+
+    if (DataCount > 0) {
+
+      /* Build display for: Data */
+
+      Data = GBYTE(pd, offset);
+
+      if (tree) {
+
+	proto_tree_add_text(tree, SMB_offset + DataOffset, DataCount, "Data: %s", format_text(&pd[offset], DataCount));
+
+      }
+
+      offset += DataCount; /* Skip Data */
+
+    }
+      
+  }
+
+  if (dirn == 0) { /* Response(s) dissect code */
+
+    /* Pick up the last transact2 command and put it in the right places */
+
+    if (check_col(fd, COL_INFO)) {
+
+      col_add_fstr(fd, COL_INFO, "%s %s", decode_trans2_name(request_val -> last_transact2_command), "response");
+
+    }
+
+    /* Build display for: Word Count (WCT) */
+
+    WordCount = GBYTE(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 1, "Word Count (WCT): %u", WordCount);
+
+    }
+
+    offset += 1; /* Skip Word Count (WCT) */
+
+    /* Build display for: Total Parameter Count */
+
+    TotalParameterCount = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Total Parameter Count: %u", TotalParameterCount);
+
+    }
+
+    offset += 2; /* Skip Total Parameter Count */
+
+    /* Build display for: Total Data Count */
+
+    TotalDataCount = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Total Data Count: %u", TotalDataCount);
+
+    }
+
+    offset += 2; /* Skip Total Data Count */
+
+    /* Build display for: Reserved2 */
+
+    Reserved2 = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Reserved2: %u", Reserved2);
+
+    }
+
+    offset += 2; /* Skip Reserved2 */
+
+    /* Build display for: Parameter Count */
+
+    ParameterCount = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Parameter Count: %u", ParameterCount);
+
+    }
+
+    offset += 2; /* Skip Parameter Count */
+
+    /* Build display for: Parameter Offset */
+
+    ParameterOffset = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Parameter Offset: %u", ParameterOffset);
+
+    }
+
+    offset += 2; /* Skip Parameter Offset */
+
+    /* Build display for: Parameter Displacement */
+
+    ParameterDisplacement = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Parameter Displacement: %u", ParameterDisplacement);
+
+    }
+
+    offset += 2; /* Skip Parameter Displacement */
+
+    /* Build display for: Data Count */
+
+    DataCount = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Data Count: %u", DataCount);
+
+    }
+
+    offset += 2; /* Skip Data Count */
+
+    /* Build display for: Data Offset */
+
+    DataOffset = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Data Offset: %u", DataOffset);
+
+    }
+
+    offset += 2; /* Skip Data Offset */
+
+    /* Build display for: Data Displacement */
+
+    DataDisplacement = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Data Displacement: %u", DataDisplacement);
+
+    }
+
+    offset += 2; /* Skip Data Displacement */
+
+    /* Build display for: Setup Count */
+
+    SetupCount = GBYTE(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 1, "Setup Count: %u", SetupCount);
+
+    }
+
+    offset += 1; /* Skip Setup Count */
+
+    /* Build display for: Reserved3 */
+
+    Reserved3 = GBYTE(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 1, "Reserved3: %u", Reserved3);
+
+    }
+
+    offset += 1; /* Skip Reserved3 */
+
+    /* Build display for: Setup */
+
+    Setup = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Setup: %u", Setup);
+
+    }
+
+    offset += 2; /* Skip Setup */
+
+    /* Build display for: Byte Count (BCC) */
+
+    ByteCount = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 2, "Byte Count (BCC): %u", ByteCount);
+
+    }
+
+    offset += 2; /* Skip Byte Count (BCC) */
+
+    /* Build display for: Pad1 */
+
+    Pad1 = GBYTE(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 1, "Pad1: %u", Pad1);
+
+    }
+
+    offset += 1; /* Skip Pad1 */
+
+    /* Build display for: Parameter */
+
+    Parameter = GBYTE(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 1, "Parameter: %u", Parameter);
+
+    }
+
+    offset += 1; /* Skip Parameter */
+
+    /* Build display for: Pad2 */
+
+    Pad2 = GBYTE(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 1, "Pad2: %u", Pad2);
+
+    }
+
+    offset += 1; /* Skip Pad2 */
+
+    /* Build display for: Data */
+
+    Data = GBYTE(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, offset, 1, "Data: %u", Data);
+
+    }
+
+    offset += 1; /* Skip Data */
+
+  }
+
+}
+
+void
+dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   proto_tree    *Flags_tree;
@@ -8392,12 +9042,6 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
       int i = SetupCount;
 
       Setup = GSHORT(pd, offset);
-
-      if (check_col(fd, COL_INFO)) {
-
-	col_add_fstr(fd, COL_INFO, "%s %s", decode_trans2_name(Setup), (dirn ? "Request" : "Response"));
-
-      }
 
       for (i = 1; i <= SetupCount; i++) {
 	
@@ -8725,7 +9369,7 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
 }
 
-void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, int, int, int, int) = {
+void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, struct smb_info, int, int, int, int) = {
 
   dissect_unknown_smb,      /* unknown SMB 0x00 */
   dissect_unknown_smb,      /* unknown SMB 0x01 */
@@ -8764,7 +9408,7 @@ void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, int, int, 
   dissect_set_info2_smb,    /* SMBsetattrE set file attributes expanded */
   dissect_query_info2_smb,  /* SMBgetattrE get file attributes expanded */
   dissect_locking_andx_smb, /* SMBlockingX lock/unlock byte ranges and X */
-  dissect_unknown_smb,      /* SMBtrans transaction - name, bytes in/out */
+  dissect_transact_smb,      /* SMBtrans transaction - name, bytes in/out */
   dissect_unknown_smb,      /* SMBtranss transaction (secondary request/response) */
   dissect_unknown_smb,      /* SMBioctl IOCTL */
   dissect_unknown_smb,      /* SMBioctls IOCTL (secondary request/response) */
@@ -9145,6 +9789,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	guint8          cmd, errcls, errcode1, flags;
 	guint16         flags2, errcode, tid, pid, uid, mid;
 	int             SMB_offset = offset;
+	struct smb_info si;
 
 	cmd = pd[offset + SMB_hdr_com_offset];
 
@@ -9315,6 +9960,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	/* Now the TID, tree ID */
 
 	tid = GSHORT(pd, offset);
+	si.tid = tid;
 
 	if (tree) {
 
@@ -9327,6 +9973,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	/* Now the PID, Process ID */
 
 	pid = GSHORT(pd, offset);
+	si.pid = pid;
 
 	if (tree) {
 
@@ -9339,6 +9986,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
         /* Now the UID, User ID */
 
 	uid = GSHORT(pd, offset);
+	si.uid = uid;
 
 	if (tree) {
 
@@ -9351,6 +9999,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
         /* Now the MID, Multiplex ID */
 
 	mid = GSHORT(pd, offset);
+	si.mid = mid;
 
 	if (tree) {
 
@@ -9362,7 +10011,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	/* Now vector through the table to dissect them */
 
-	(dissect[cmd])(pd, offset, fd, smb_tree, max_data, SMB_offset, errcode,
+	(dissect[cmd])(pd, offset, fd, smb_tree, si, max_data, SMB_offset, errcode,
 		       ((flags & 0x80) == 0));
 
 
