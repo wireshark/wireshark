@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.33 2002/02/20 21:46:42 guy Exp $
+ * $Id: smb.h,v 1.34 2002/03/15 04:46:43 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -139,7 +139,8 @@
 #define SMBE_invalidparam 87	   /* Invalid parameter */
 #define SMBE_cannotopen 110        /* Cannot open the file specified */
 #define SMBE_insufficientbuffer 122/* Insufficient buffer size */
-#define SMBE_unknownlevel 124
+#define SMBE_invalidname 123       /* Invalid name */
+#define SMBE_unknownlevel 124      /* Unknown info level */
 #define SMBE_alreadyexists 183     /* File already exists */
 #define SMBE_badpipe 230           /* Named pipe invalid */
 #define SMBE_pipebusy 231          /* All instances of pipe are busy */
@@ -160,6 +161,7 @@
 #define SMBE_printeralreadyexists 1802 /* Printer already exists */
 #define SMBE_invaliddatatype 1804      /* Invalid datatype */
 #define SMBE_invalidenvironment 1805   /* Invalid environment */
+#define SMBE_invalidformsize    1903   /* Invalid form size */
 #define SMBE_printerdriverinuse 3001   /* Printer driver in use */
 
 /* Error codes for the ERRSRV class */

@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.216 2002/03/14 05:45:16 guy Exp $
+ * $Id: packet-smb.c,v 1.217 2002/03/15 04:46:42 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12668,6 +12668,7 @@ const value_string DOS_errors[] = {
   {SMBE_filexists, "File in operation already exists"},
   {SMBE_cannotopen, "Cannot open the file specified"},
   {SMBE_unknownlevel, "Unknown info level"},
+  {SMBE_invalidname, "Invalid name"},
   {SMBE_badpipe, "Named pipe invalid"},
   {SMBE_pipebusy, "All instances of pipe are busy"},
   {SMBE_pipeclosing, "Named pipe close in progress"},
@@ -12687,6 +12688,7 @@ const value_string DOS_errors[] = {
   {SMBE_invalidenvironment, "Invalid environment"},
   {SMBE_printerdriverinuse, "Printer driver in use"},
   {SMBE_invalidparam, "Invalid parameter"},
+  {SMBE_invalidformsize, "Invalid form size"},
   {0, NULL}
   };
 
