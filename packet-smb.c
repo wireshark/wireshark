@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.328 2003/04/17 00:13:26 guy Exp $
+ * $Id: packet-smb.c,v 1.329 2003/04/17 07:55:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,7 +60,7 @@
  * and a CIFS specification from the Storage Networking Industry Association
  * can be found on a link from the page at
  *
- *	http://www.snia.org/English/Collaterals/Work_Group_Docs/NAS/CIFS/CIFS_Technical_Reference.pdf
+ *	http://www.snia.org/tech_activities/CIFS
  *
  * (it supercedes the document at
  *
@@ -68,8 +68,8 @@
  *
  * ).
  *
- * There are also some Open Group publications documenting CIFS for sale;
- * catalog entries for them are at:
+ * There are also some Open Group publications documenting CIFS available
+ * for download; catalog entries for them are at:
  *
  *	http://www.opengroup.org/products/publications/catalog/c209.htm
  *
