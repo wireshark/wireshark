@@ -1,6 +1,6 @@
 /* file_wrappers.c
  *
- * $Id: file_wrappers.c,v 1.7 2000/05/19 23:06:50 gram Exp $
+ * $Id: file_wrappers.c,v 1.8 2001/09/20 16:36:45 ashokn Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -153,3 +153,27 @@ file_error(FILE *fh)
 		return 0;
 }
 #endif /* HAVE_LIBZ */
+
+#ifdef HAVE_LIBZ
+/*
+ * On some platforms, an older version of zlib is compiled into X. This causes 
+ * gzgets() to be unavailable. So here is an implementation of gzgets()
+ */
+
+char * 
+internal_gzgets(gzFile file, char *buf, int len)
+{
+    char *b = buf;
+    if (buf == NULL || len <= 0) 
+	return NULL;     
+    while (--len > 0 && gzread(file, buf, 1) == 1 && *buf++ != '\n') ;
+    *buf = '\0';
+    return b == buf && len > 0 ? NULL : b;
+}
+
+int internal_gzgetc(gzFile file)
+{
+    unsigned char c;     
+    return gzread(file, &c, 1) == 1 ? c : -1;
+}
+#endif
