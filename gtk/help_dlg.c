@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.40 2003/12/22 21:52:41 guy Exp $
+ * $Id: help_dlg.c,v 1.41 2004/01/10 16:27:41 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -186,16 +186,12 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
 
   gtk_widget_show(help_nb);
 
-  /* Buttons (only "Close" for now) */
+  /* Buttons (only "Ok" for now) */
   bbox = gtk_hbutton_box_new();
   /*bbox = gtk_hbox_new(FALSE, 1);*/
   gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
-#if GTK_MAJOR_VERSION < 2
-  close_bt = gtk_button_new_with_label("OK");
-#else
-  close_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-#endif
+  close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
   SIGNAL_CONNECT(close_bt, "clicked", help_close_cb, help_w);
   GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
   gtk_container_add(GTK_CONTAINER(bbox), close_bt);

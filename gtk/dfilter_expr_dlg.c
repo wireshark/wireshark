@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.44 2003/11/25 13:20:36 sahlberg Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.45 2004/01/10 16:27:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1420,11 +1420,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_container_add(GTK_CONTAINER(main_vb), list_bb);
     gtk_widget_show(list_bb);
 
-#if GTK_MAJOR_VERSION < 2
-    accept_bt = gtk_button_new_with_label("Accept");
-#else
-    accept_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-#endif
+    accept_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
     gtk_widget_set_sensitive(accept_bt, FALSE);
     SIGNAL_CONNECT(accept_bt, "clicked", dfilter_expr_dlg_accept_cb, filter_te);
     GTK_WIDGET_SET_FLAGS(accept_bt, GTK_CAN_DEFAULT);
@@ -1435,11 +1431,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_widget_show(accept_bt);
     gtk_widget_show(alignment);
 
-#if GTK_MAJOR_VERSION < 2
-    close_bt = gtk_button_new_with_label("Close");
-#else
-    close_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-#endif
+    close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
     SIGNAL_CONNECT(close_bt, "clicked", dfilter_expr_dlg_cancel_cb, window);
     alignment = gtk_alignment_new(0.0, 0.5, 1.0, 0.0);
     gtk_container_add(GTK_CONTAINER(alignment), close_bt);

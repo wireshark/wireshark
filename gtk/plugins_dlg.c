@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.31 2003/11/28 00:08:35 ulfl Exp $
+ * $Id: plugins_dlg.c,v 1.32 2004/01/10 16:27:42 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -129,11 +129,7 @@ tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
                               GTK_BUTTONBOX_SPREAD);
     gtk_widget_show(main_hbnbox);
 
-#if GTK_MAJOR_VERSION < 2
-    close_bn = gtk_button_new_with_label("OK");
-#else
-    close_bn = gtk_button_new_from_stock(GTK_STOCK_OK);
-#endif
+    close_bn = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
     gtk_container_add(GTK_CONTAINER(main_hbnbox), close_bn);
     GTK_WIDGET_SET_FLAGS(close_bn, GTK_CAN_DEFAULT);
 	gtk_widget_grab_default(close_bn);

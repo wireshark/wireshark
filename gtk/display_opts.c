@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.33 2004/01/01 13:41:09 ulfl Exp $
+ * $Id: display_opts.c,v 1.34 2004/01/10 16:27:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,12 +111,8 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
   gtk_container_add(GTK_CONTAINER(display_opt_w), main_vb);
   gtk_widget_show(main_vb);
 
-#if GTK_MAJOR_VERSION < 2
-  button = dlg_radio_button_new_with_label_with_mnemonic(NULL, "_Time of day",
+  button = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "_Time of day",
 							accel_group);
-#else
-  button = gtk_radio_button_new_with_mnemonic(NULL, "_Time of day");
-#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
                (timestamp_type == ABSOLUTE));
   OBJECT_SET_DATA(display_opt_w, E_DISPLAY_TIME_ABS_KEY, button);
@@ -124,42 +120,24 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
 
   gtk_widget_show(button);
 
-#if GTK_MAJOR_VERSION < 2
-  button = dlg_radio_button_new_with_label_with_mnemonic(
-               gtk_radio_button_group(GTK_RADIO_BUTTON(button)),
-               "_Date and time of day", accel_group);
-#else
-  button = gtk_radio_button_new_with_mnemonic_from_widget(
-               GTK_RADIO_BUTTON(button), "_Date and time of day");
-#endif
+  button = RADIO_BUTTON_NEW_WITH_MNEMONIC(
+               button, "_Date and time of day", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
                (timestamp_type == ABSOLUTE_WITH_DATE));
   OBJECT_SET_DATA(display_opt_w, E_DISPLAY_DATE_TIME_ABS_KEY, button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
-#if GTK_MAJOR_VERSION < 2
-  button = dlg_radio_button_new_with_label_with_mnemonic(
-               gtk_radio_button_group(GTK_RADIO_BUTTON(button)),
-               "Seconds since _beginning of capture", accel_group);
-#else
-  button = gtk_radio_button_new_with_mnemonic_from_widget(
-               GTK_RADIO_BUTTON(button), "Seconds since _beginning of capture");
-#endif
+  button = RADIO_BUTTON_NEW_WITH_MNEMONIC(
+               button, "Seconds since _beginning of capture", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
                (timestamp_type == RELATIVE));
   OBJECT_SET_DATA(display_opt_w, E_DISPLAY_TIME_REL_KEY, button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
-#if GTK_MAJOR_VERSION < 2
-  button = dlg_radio_button_new_with_label_with_mnemonic(
-               gtk_radio_button_group(GTK_RADIO_BUTTON(button)),
-               "Seconds since _previous packet", accel_group);
-#else
-  button = gtk_radio_button_new_with_mnemonic_from_widget(
-               GTK_RADIO_BUTTON(button), "Seconds since _previous packet");
-#endif
+  button = RADIO_BUTTON_NEW_WITH_MNEMONIC(
+               button, "Seconds since _previous packet", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
                (timestamp_type == DELTA));
   OBJECT_SET_DATA(display_opt_w, E_DISPLAY_TIME_DELTA_KEY, button);
@@ -167,52 +145,32 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
   gtk_widget_show(button);
 
 #ifdef HAVE_LIBPCAP
-#if GTK_MAJOR_VERSION < 2
-  button = dlg_check_button_new_with_label_with_mnemonic(
+  button = CHECK_BUTTON_NEW_WITH_MNEMONIC(
 		"_Automatic scrolling in live capture", accel_group);
-#else
-  button = gtk_check_button_new_with_mnemonic(
-		"_Automatic scrolling in live capture");
-#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), auto_scroll_live);
   OBJECT_SET_DATA(display_opt_w, E_DISPLAY_AUTO_SCROLL_KEY, button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 #endif
 
-#if GTK_MAJOR_VERSION < 2
-  button = dlg_check_button_new_with_label_with_mnemonic(
+  button = CHECK_BUTTON_NEW_WITH_MNEMONIC(
   		"Enable _MAC name resolution", accel_group);
-#else
-  button = gtk_check_button_new_with_mnemonic(
-  		"Enable _MAC name resolution");
-#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
 		g_resolv_flags & RESOLV_MAC);
   OBJECT_SET_DATA(display_opt_w, E_DISPLAY_M_NAME_RESOLUTION_KEY, button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
-#if GTK_MAJOR_VERSION < 2
-  button = dlg_check_button_new_with_label_with_mnemonic(
+  button = CHECK_BUTTON_NEW_WITH_MNEMONIC(
   		"Enable _network name resolution", accel_group);
-#else
-  button = gtk_check_button_new_with_mnemonic(
-  		"Enable _network name resolution");
-#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
 		g_resolv_flags & RESOLV_NETWORK);
   OBJECT_SET_DATA(display_opt_w, E_DISPLAY_N_NAME_RESOLUTION_KEY, button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
-#if GTK_MAJOR_VERSION < 2
-  button = dlg_check_button_new_with_label_with_mnemonic(
+  button = CHECK_BUTTON_NEW_WITH_MNEMONIC(
   		"Enable _transport name resolution", accel_group);
-#else
-  button = gtk_check_button_new_with_mnemonic(
-  		"Enable _transport name resolution");
-#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
 		g_resolv_flags & RESOLV_TRANSPORT);
   OBJECT_SET_DATA(display_opt_w, E_DISPLAY_T_NAME_RESOLUTION_KEY, button);
@@ -226,32 +184,20 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
-#if GTK_MAJOR_VERSION < 2
-  ok_bt = gtk_button_new_with_label ("OK");
-#else
-  ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-#endif
+  ok_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
   SIGNAL_CONNECT(ok_bt, "clicked", display_opt_ok_cb, display_opt_w);
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
   gtk_widget_show(ok_bt);
 
-#if GTK_MAJOR_VERSION < 2
-  apply_bt = gtk_button_new_with_label ("Apply");
-#else
-  apply_bt = gtk_button_new_from_stock(GTK_STOCK_APPLY);
-#endif
+  apply_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_APPLY);
   SIGNAL_CONNECT(apply_bt, "clicked", display_opt_apply_cb, display_opt_w);
   GTK_WIDGET_SET_FLAGS(apply_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), apply_bt, TRUE, TRUE, 0);
   gtk_widget_show(apply_bt);
 
-#if GTK_MAJOR_VERSION < 2
-  cancel_bt = gtk_button_new_with_label ("Cancel");
-#else
-  cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-#endif
+  cancel_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
   SIGNAL_CONNECT(cancel_bt, "clicked", display_opt_close_cb, display_opt_w);
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);

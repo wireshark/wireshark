@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.40 2003/12/04 00:45:38 guy Exp $
+ * $Id: find_dlg.c,v 1.41 2004/01/10 16:27:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -165,25 +165,15 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(direction_frame), direction_hb);
   gtk_widget_show(direction_hb);
 
-#if GTK_MAJOR_VERSION < 2
-  forward_rb = dlg_radio_button_new_with_label_with_mnemonic(NULL, "_Forward",
-                                                             accel_group);
-#else
-  forward_rb = gtk_radio_button_new_with_mnemonic(NULL, "_Forward");
-#endif
+  forward_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL,
+      "_Forward", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(forward_rb), !cfile.sbackward);
   gtk_box_pack_start(GTK_BOX(direction_hb), forward_rb, TRUE, TRUE, 0);
   gtk_widget_show(forward_rb);
 
 
-#if GTK_MAJOR_VERSION < 2
-  backward_rb = dlg_radio_button_new_with_label_with_mnemonic(
-               gtk_radio_button_group(GTK_RADIO_BUTTON(forward_rb)),
+  backward_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(forward_rb,
                "_Backward", accel_group);
-#else
-  backward_rb = gtk_radio_button_new_with_mnemonic_from_widget(
-               GTK_RADIO_BUTTON(forward_rb), "_Backward");
-#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(backward_rb), cfile.sbackward);
   gtk_box_pack_start(GTK_BOX(direction_hb), backward_rb, TRUE, TRUE, 0);
   gtk_widget_show(backward_rb);
@@ -201,26 +191,16 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(find_type_frame), hex_hb);
   gtk_widget_show(hex_hb);
 
-#if GTK_MAJOR_VERSION < 2
-  filter_rb = dlg_radio_button_new_with_label_with_mnemonic(NULL, "_Display Filter",
+  filter_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "_Display Filter",
                                                              accel_group);
-#else
-  filter_rb = gtk_radio_button_new_with_mnemonic(NULL, "_Display Filter");
-#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filter_rb), !cfile.hex && !cfile.ascii);
   gtk_box_pack_start(GTK_BOX(hex_hb), filter_rb, TRUE, TRUE, 0);
   gtk_tooltips_set_tip (tooltips, filter_rb, ("Search for data by display filter syntax.\ne.g. ip.addr==10.1.1.1"), NULL);
   gtk_widget_show(filter_rb);
 
   /* Hex */
-#if GTK_MAJOR_VERSION < 2
-  hex_rb = dlg_radio_button_new_with_label_with_mnemonic(
-               gtk_radio_button_group(GTK_RADIO_BUTTON(filter_rb)),
+  hex_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(filter_rb,
                "_Hex", accel_group);
-#else
-  hex_rb = gtk_radio_button_new_with_mnemonic_from_widget(
-               GTK_RADIO_BUTTON(filter_rb), "_Hex");
-#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(hex_rb), cfile.hex);
   gtk_box_pack_start(GTK_BOX(hex_hb), hex_rb, TRUE, TRUE, 0);
   gtk_tooltips_set_tip (tooltips, hex_rb, ("Search for data by hex string.\ne.g. fffffda5"), NULL);
@@ -228,14 +208,8 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* ASCII Search */
 
-#if GTK_MAJOR_VERSION < 2
-  ascii_rb = dlg_radio_button_new_with_label_with_mnemonic(
-               gtk_radio_button_group(GTK_RADIO_BUTTON(filter_rb)),
+  ascii_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(filter_rb,
                "_String", accel_group);
-#else
-  ascii_rb = gtk_radio_button_new_with_mnemonic_from_widget(
-               GTK_RADIO_BUTTON(filter_rb), "_String");
-#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ascii_rb), cfile.ascii);
   gtk_box_pack_start(GTK_BOX(hex_hb), ascii_rb, TRUE, TRUE, 0);
   gtk_tooltips_set_tip (tooltips, ascii_rb, ("Search for data by string value.\ne.g. My String"), NULL);
@@ -253,26 +227,16 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(string_window_frame), data_hb);
   gtk_widget_show(data_hb);
 
-#if GTK_MAJOR_VERSION < 2
-  hex_data_rb = dlg_radio_button_new_with_label_with_mnemonic(NULL, "Packet data",
-                                                             accel_group);
-#else
-  hex_data_rb = gtk_radio_button_new_with_mnemonic(NULL, "Packet data");
-#endif
+  hex_data_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, 
+                "Packet data", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(hex_data_rb), !decode_data && !summary_data);
   gtk_box_pack_start(GTK_BOX(data_hb), hex_data_rb, TRUE, TRUE, 0);
   gtk_tooltips_set_tip (tooltips, hex_data_rb, ("Search for string in the packet data"), NULL);
   gtk_widget_show(hex_data_rb);
 
   /* Search Decode Window */
-#if GTK_MAJOR_VERSION < 2
-  decode_data_rb = dlg_radio_button_new_with_label_with_mnemonic(
-               gtk_radio_button_group(GTK_RADIO_BUTTON(hex_data_rb)),
+  decode_data_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(hex_data_rb,
                "Decoded packet", accel_group);
-#else
-  decode_data_rb = gtk_radio_button_new_with_mnemonic_from_widget(
-               GTK_RADIO_BUTTON(hex_data_rb), "Decoded packet");
-#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(decode_data_rb), decode_data);
   gtk_box_pack_start(GTK_BOX(data_hb), decode_data_rb, TRUE, TRUE, 0);
   gtk_tooltips_set_tip (tooltips, decode_data_rb, ("Search for string in the decoded packet display (middle pane)"), NULL);
@@ -280,14 +244,8 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Search Summary Window */
 
-#if GTK_MAJOR_VERSION < 2
-  summary_data_rb = dlg_radio_button_new_with_label_with_mnemonic(
-               gtk_radio_button_group(GTK_RADIO_BUTTON(hex_data_rb)),
+  summary_data_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(hex_data_rb,
                "Packet summary", accel_group);
-#else
-  summary_data_rb = gtk_radio_button_new_with_mnemonic_from_widget(
-               GTK_RADIO_BUTTON(hex_data_rb), "Packet summary");
-#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(summary_data_rb), summary_data);
   gtk_box_pack_start(GTK_BOX(data_hb), summary_data_rb, TRUE, TRUE, 0);
   gtk_tooltips_set_tip (tooltips, summary_data_rb, ("Search for string in the Info column of the packet summary (top pane)"), NULL);
@@ -320,13 +278,8 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_border_width(GTK_CONTAINER(string_opt_frame), 5);
   gtk_widget_show(string_opt_frame);
 
-#if GTK_MAJOR_VERSION < 2
-  case_cb = dlg_check_button_new_with_label_with_mnemonic(
+  case_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
 		"Case Insensitive Search", accel_group);
-#else
-  case_cb = gtk_check_button_new_with_mnemonic(
-		"Case Insensitive Search");
-#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(case_cb),
 		case_type);
   gtk_container_border_width(GTK_CONTAINER(case_cb), 1);
@@ -341,11 +294,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
-#if GTK_MAJOR_VERSION < 2
-  ok_bt = gtk_button_new_with_label ("OK");
-#else
-  ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-#endif
+  ok_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
   SIGNAL_CONNECT(ok_bt, "clicked", find_frame_ok_cb, find_frame_w);
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
@@ -353,11 +302,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_grab_default(ok_bt);
   gtk_widget_show(ok_bt);
 
-#if GTK_MAJOR_VERSION < 2
-  cancel_bt = gtk_button_new_with_label ("Cancel");
-#else
-  cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-#endif
+  cancel_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
   SIGNAL_CONNECT(cancel_bt, "clicked", find_frame_close_cb, find_frame_w);
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);

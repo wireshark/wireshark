@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.33 2003/12/24 01:21:32 guy Exp $
+ * $Id: follow_dlg.c,v 1.34 2004/01/10 16:27:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -388,11 +388,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	follow_info->carray_bt = radio_bt;
 
 	/* Create Close Button */
-#if GTK_MAJOR_VERSION < 2
-	button = gtk_button_new_with_label("Close");
-#else
-        button = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
-#endif
+    button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	SIGNAL_CONNECT_OBJECT(button, "clicked", gtk_widget_destroy,
                               streamwindow);
 	gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 0);
@@ -409,20 +405,12 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 
 	/* Create Save As Button */
-#if GTK_MAJOR_VERSION < 2
-	button = gtk_button_new_with_label("Save As");
-#else
-        button = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
-#endif
+    button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE_AS);
 	SIGNAL_CONNECT(button, "clicked", follow_save_as_cmd_cb, follow_info);
 	gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 
 	/* Create Print Button */
-#if GTK_MAJOR_VERSION < 2
-	button = gtk_button_new_with_label("Print");
-#else
-        button = gtk_button_new_from_stock(GTK_STOCK_PRINT);
-#endif
+    button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_PRINT);
 	SIGNAL_CONNECT(button, "clicked", follow_print_stream, follow_info);
 	gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 

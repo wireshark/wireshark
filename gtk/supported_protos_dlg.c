@@ -224,11 +224,7 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
   /*bbox = gtk_hbox_new(FALSE, 1);*/
   gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
-#if GTK_MAJOR_VERSION < 2
-  close_bt = gtk_button_new_with_label("OK");
-#else
-  close_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-#endif
+  close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
   SIGNAL_CONNECT(close_bt, "clicked", supported_close_cb, supported_w);
   GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
   gtk_container_add(GTK_CONTAINER(bbox), close_bt);

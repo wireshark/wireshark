@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.37 2004/01/03 18:05:55 sharpe Exp $
+ * $Id: dcerpc_stat.c,v 1.38 2004/01/10 16:27:40 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -640,11 +640,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_widget_grab_default(start_button);
 	gtk_widget_show(start_button);
 
-#if GTK_MAJOR_VERSION < 2
-	cancel_button=gtk_button_new_with_label("Cancel");
-#else
-	cancel_button=gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-#endif
+	cancel_button=BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
 	SIGNAL_CONNECT(cancel_button, "clicked", dlg_cancel_cb, dlg);
 	GTK_WIDGET_SET_FLAGS(cancel_button, GTK_CAN_DEFAULT);
 	gtk_box_pack_start(GTK_BOX(bbox), cancel_button, TRUE, TRUE, 0);

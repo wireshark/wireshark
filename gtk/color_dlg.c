@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.31 2004/01/10 14:11:58 ulfl Exp $
+ * $Id: color_dlg.c,v 1.32 2004/01/10 16:27:40 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -240,7 +240,7 @@ colorize_dialog_new (char *filter)
   gtk_widget_show (order_vbox);
   gtk_container_add(GTK_CONTAINER(order_fr), order_vbox);
 
-  color_filter_up = BUTTON_NEW_FROM_STOCK(STOCK_GO_UP);
+  color_filter_up = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_UP);
   gtk_widget_ref (color_filter_up);
   OBJECT_SET_DATA_FULL(color_win, "color_filter_up", color_filter_up, gtk_widget_unref);
   WIDGET_SET_SIZE (color_filter_up, -1, 20);
@@ -255,7 +255,7 @@ colorize_dialog_new (char *filter)
   gtk_widget_show (order_move_label);
   gtk_box_pack_start (GTK_BOX (order_vbox), order_move_label, FALSE, FALSE, 0);
 
-  color_filter_down = BUTTON_NEW_FROM_STOCK(STOCK_GO_DOWN);
+  color_filter_down = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_DOWN);
   gtk_widget_ref (color_filter_down);
   OBJECT_SET_DATA_FULL(color_win, "color_filter_down", color_filter_down,
                        gtk_widget_unref);
@@ -353,7 +353,7 @@ colorize_dialog_new (char *filter)
   gtk_widget_show (button_edit_vbox);
   gtk_container_add(GTK_CONTAINER(edit_fr), button_edit_vbox);
 
-  color_new = BUTTON_NEW_FROM_STOCK(STOCK_NEW);
+  color_new = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
   gtk_widget_ref (color_new);
   OBJECT_SET_DATA_FULL(color_win, "color_new", color_new, gtk_widget_unref);
   gtk_widget_show (color_new);
@@ -374,7 +374,7 @@ colorize_dialog_new (char *filter)
   gtk_tooltips_set_tip (tooltips, color_edit, ("Edit the selected filter"), NULL);
   gtk_widget_set_sensitive (color_edit, FALSE);
 
-  color_delete = BUTTON_NEW_FROM_STOCK(STOCK_DELETE);
+  color_delete = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
   gtk_widget_ref (color_delete);
   OBJECT_SET_DATA_FULL(color_win, "color_delete", color_delete, gtk_widget_unref);
   gtk_widget_show (color_delete);
@@ -397,14 +397,14 @@ colorize_dialog_new (char *filter)
   gtk_widget_show (okapply_vbox);
   gtk_box_pack_start (GTK_BOX (button_ok_hbox), okapply_vbox, TRUE, TRUE, 0);
 
-  color_ok = BUTTON_NEW_FROM_STOCK(STOCK_OK);
+  color_ok = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
   gtk_widget_ref (color_ok);
   OBJECT_SET_DATA_FULL(color_win, "color_ok", color_ok, gtk_widget_unref);
   gtk_widget_show (color_ok);
   gtk_box_pack_start (GTK_BOX (okapply_vbox), color_ok, FALSE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, color_ok, ("Accept filter list; apply changes"), NULL);
 
-  color_apply = BUTTON_NEW_FROM_STOCK(STOCK_APPLY);
+  color_apply = BUTTON_NEW_FROM_STOCK(GTK_STOCK_APPLY);
   gtk_widget_ref (color_apply);
   OBJECT_SET_DATA_FULL(color_win, "color_apply", color_apply, gtk_widget_unref);
   gtk_widget_show (color_apply);
@@ -417,14 +417,14 @@ colorize_dialog_new (char *filter)
   gtk_widget_show (saverevert_vbox);
   gtk_box_pack_start (GTK_BOX (button_ok_hbox), saverevert_vbox, TRUE, TRUE, 0);
 
-  color_save = BUTTON_NEW_FROM_STOCK(STOCK_SAVE);
+  color_save = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE);
   gtk_widget_ref(color_save);
   OBJECT_SET_DATA_FULL(color_win, "color_save", color_save, gtk_widget_unref);
   gtk_widget_show(color_save);
   gtk_box_pack_start(GTK_BOX (saverevert_vbox), color_save, FALSE, FALSE, 0);
   gtk_tooltips_set_tip(tooltips, color_save, ("Save all filters to disk"), NULL);
 
-  color_revert = BUTTON_NEW_FROM_STOCK(STOCK_REVERT_TO_SAVED);
+  color_revert = BUTTON_NEW_FROM_STOCK(GTK_STOCK_REVERT_TO_SAVED);
   gtk_widget_ref(color_revert);
   OBJECT_SET_DATA_FULL(color_win, "color_revert", color_revert, gtk_widget_unref);
   gtk_widget_show(color_revert);
@@ -449,7 +449,7 @@ colorize_dialog_new (char *filter)
   gtk_box_pack_start(GTK_BOX (importexport_vbox), color_import, FALSE, FALSE, 0);
   gtk_tooltips_set_tip(tooltips, color_import, ("Include filters from specified file"), NULL);
 
-  color_cancel = BUTTON_NEW_FROM_STOCK(STOCK_CANCEL);
+  color_cancel = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
   gtk_widget_ref (color_cancel);
   OBJECT_SET_DATA_FULL(color_win, "color_cancel", color_cancel, gtk_widget_unref);
   gtk_widget_show (color_cancel);

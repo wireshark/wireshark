@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.33 2003/09/07 00:59:07 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.34 2004/01/10 16:27:40 ulfl Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -548,14 +548,11 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
     gtk_box_pack_start(GTK_BOX(bbox), button, FALSE, FALSE, 0);
 #if GTK_MAJOR_VERSION < 2
     gtk_widget_set_sensitive(button, (list->rows != 0));
-
-    ok_bt = gtk_button_new_with_label("OK");
 #else
     gtk_widget_set_sensitive(button,
                              gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter));
-
-    ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
 #endif
+    ok_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
     SIGNAL_CONNECT(ok_bt, "clicked", decode_show_ok_cb, decode_show_w);
     GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(bbox), ok_bt, FALSE, FALSE, 0);
@@ -1489,21 +1486,13 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 10);
 
-#if GTK_MAJOR_VERSION < 2
-    ok_bt = gtk_button_new_with_label("OK");
-#else
-    ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-#endif
+    ok_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
     SIGNAL_CONNECT(ok_bt, "clicked", decode_ok_cb, decode_w);
     GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(bbox), ok_bt, FALSE, FALSE, 0);
     gtk_widget_grab_default(ok_bt);
 
-#if GTK_MAJOR_VERSION < 2
-    apply_bt = gtk_button_new_with_label("Apply");
-#else
-    apply_bt = gtk_button_new_from_stock(GTK_STOCK_APPLY);
-#endif
+    apply_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_APPLY);
     SIGNAL_CONNECT(apply_bt, "clicked", decode_apply_cb, decode_w);
     GTK_WIDGET_SET_FLAGS(apply_bt, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(bbox), apply_bt, FALSE, FALSE, 0);
@@ -1513,11 +1502,7 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(bbox), button, FALSE, FALSE, 0);
 
-#if GTK_MAJOR_VERSION < 2
-    cancel_bt = gtk_button_new_with_label("Cancel");
-#else
-    cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-#endif
+    cancel_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
     SIGNAL_CONNECT(cancel_bt, "clicked", decode_cancel_cb, decode_w);
     GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(bbox), cancel_bt, FALSE, FALSE, 0);

@@ -1,7 +1,7 @@
 /* column_prefs.c
  * Dialog box for column preferences
  *
- * $Id: column_prefs.c,v 1.16 2003/03/10 02:06:33 jmayer Exp $
+ * $Id: column_prefs.c,v 1.17 2004/01/10 16:27:40 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -100,20 +100,12 @@ column_prefs_show() {
   gtk_container_add(GTK_CONTAINER(top_hb), list_bb);
   gtk_widget_show(list_bb);
 
-#if GTK_MAJOR_VERSION < 2
-  new_bt = gtk_button_new_with_label ("Add New");
-#else
-  new_bt = gtk_button_new_from_stock(GTK_STOCK_NEW);
-#endif
+  new_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
   SIGNAL_CONNECT(new_bt, "clicked", column_list_new_cb, NULL);
   gtk_container_add(GTK_CONTAINER(list_bb), new_bt);
   gtk_widget_show(new_bt);
 
-#if GTK_MAJOR_VERSION < 2
-  del_bt = gtk_button_new_with_label ("Delete");
-#else
-  del_bt = gtk_button_new_from_stock(GTK_STOCK_DELETE);
-#endif
+  del_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
   gtk_widget_set_sensitive(del_bt, FALSE);
   SIGNAL_CONNECT(del_bt, "clicked", column_list_delete_cb, NULL);
   gtk_container_add(GTK_CONTAINER(list_bb), del_bt);
@@ -123,21 +115,13 @@ column_prefs_show() {
   gtk_container_add(GTK_CONTAINER(list_bb), arrow_hb);
   gtk_widget_show(arrow_hb);
 
-#if GTK_MAJOR_VERSION < 2
-  up_bt = gtk_button_new_with_label("Up");
-#else
-  up_bt = gtk_button_new_from_stock(GTK_STOCK_GO_UP);
-#endif
+  up_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_UP);
   gtk_widget_set_sensitive(up_bt, FALSE);
   SIGNAL_CONNECT(up_bt, "clicked", column_arrow_cb, NULL);
   gtk_box_pack_start(GTK_BOX(arrow_hb), up_bt, TRUE, TRUE, 0);
   gtk_widget_show(up_bt);
 
-#if GTK_MAJOR_VERSION < 2
-  dn_bt = gtk_button_new_with_label("Down");
-#else
-  dn_bt = gtk_button_new_from_stock(GTK_STOCK_GO_DOWN);
-#endif
+  dn_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_DOWN);
   gtk_widget_set_sensitive(dn_bt, FALSE);
   SIGNAL_CONNECT(dn_bt, "clicked", column_arrow_cb, NULL);
   gtk_box_pack_start(GTK_BOX(arrow_hb), dn_bt, TRUE, TRUE, 0);

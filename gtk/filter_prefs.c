@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.46 2003/12/04 00:45:38 guy Exp $
+ * $Id: filter_prefs.c,v 1.47 2004/01/10 16:27:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -420,11 +420,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_container_add(GTK_CONTAINER(top_hb), list_bb);
     gtk_widget_show(list_bb);
 
-#if GTK_MAJOR_VERSION < 2
-    new_bt = gtk_button_new_with_label ("New");
-#else
-    new_bt = gtk_button_new_from_stock(GTK_STOCK_NEW);
-#endif
+    new_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
     SIGNAL_CONNECT(new_bt, "clicked", filter_new_bt_clicked_cb, filter_list_p);
     gtk_container_add(GTK_CONTAINER(list_bb), new_bt);
     gtk_widget_show(new_bt);
@@ -437,11 +433,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_container_add(GTK_CONTAINER(list_bb), chg_bt);
     gtk_widget_show(chg_bt);
 
-#if GTK_MAJOR_VERSION < 2
-    copy_bt = gtk_button_new_with_label ("Copy");
-#else
-    copy_bt = gtk_button_new_from_stock(GTK_STOCK_COPY);
-#endif
+    copy_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_COPY);
     gtk_widget_set_sensitive(copy_bt, FALSE);
     SIGNAL_CONNECT(copy_bt, "clicked", filter_copy_bt_clicked_cb,
                    filter_list_p);
@@ -450,11 +442,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_container_add(GTK_CONTAINER(list_bb), copy_bt);
     gtk_widget_show(copy_bt);
 
-#if GTK_MAJOR_VERSION < 2
-    del_bt = gtk_button_new_with_label ("Delete");
-#else
-    del_bt = gtk_button_new_from_stock(GTK_STOCK_DELETE);
-#endif
+    del_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
     gtk_widget_set_sensitive(del_bt, FALSE);
     SIGNAL_CONNECT(del_bt, "clicked", filter_del_bt_clicked_cb, filter_list_p);
     OBJECT_SET_DATA(main_w, E_FILT_DEL_BT_KEY, del_bt);
@@ -613,11 +601,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
          * We have a filter text entry that we can fill in if
          * the "OK" button is clicked, so put in an "OK" button.
          */
-#if GTK_MAJOR_VERSION < 2
-        ok_bt = gtk_button_new_with_label ("OK");
-#else
-        ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-#endif
+        ok_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
         SIGNAL_CONNECT(ok_bt, "clicked", filter_dlg_ok_cb, NULL);
         GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
         gtk_box_pack_start(GTK_BOX(bbox), ok_bt, TRUE, TRUE, 0);
@@ -634,32 +618,20 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     }
 
     if (construct_args->wants_apply_button) {
-#if GTK_MAJOR_VERSION < 2
-        apply_bt = gtk_button_new_with_label ("Apply");
-#else
-        apply_bt = gtk_button_new_from_stock(GTK_STOCK_APPLY);
-#endif
+        apply_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_APPLY);
         SIGNAL_CONNECT(apply_bt, "clicked", filter_dlg_apply_cb, NULL);
         GTK_WIDGET_SET_FLAGS(apply_bt, GTK_CAN_DEFAULT);
         gtk_box_pack_start(GTK_BOX(bbox), apply_bt, TRUE, TRUE, 0);
         gtk_widget_show(apply_bt);
     }
 
-#if GTK_MAJOR_VERSION < 2
-    save_bt = gtk_button_new_with_label ("Save");
-#else
-    save_bt = gtk_button_new_from_stock(GTK_STOCK_SAVE);
-#endif
+    save_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE);
     SIGNAL_CONNECT(save_bt, "clicked", filter_dlg_save_cb, filter_list_p);
     GTK_WIDGET_SET_FLAGS(save_bt, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(bbox), save_bt, TRUE, TRUE, 0);
     gtk_widget_show(save_bt);
 
-#if GTK_MAJOR_VERSION < 2
-    close_bt = gtk_button_new_with_label ("Close");
-#else
-    close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
-#endif
+    close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
     SIGNAL_CONNECT(close_bt, "clicked", filter_dlg_close_cb, main_w);
     GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(bbox), close_bt, TRUE, TRUE, 0);

@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.24 2003/12/21 12:17:59 ulfl Exp $
+ * $Id: capture_prefs.c,v 1.25 2004/01/10 16:27:39 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -348,11 +348,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 			TRUE, FALSE, 0);
 	gtk_widget_show(bbox);
 
-#if GTK_MAJOR_VERSION < 2
-	ok_bt = gtk_button_new_with_label ("OK");
-#else
-	ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-#endif
+	ok_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
 
 	/* Connect the OK button callback */
 	SIGNAL_CONNECT(ok_bt, "clicked", ifopts_edit_ok_cb, ifopts_edit_dlg);
@@ -361,11 +357,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_grab_default(ok_bt);
 	gtk_widget_show(ok_bt);
 
-#if GTK_MAJOR_VERSION < 2
-	cancel_bt = gtk_button_new_with_label ("Cancel");
-#else
-	cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-#endif
+	cancel_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
 
 	/* Connect the Cancel button callback to destroy the widget */
 	SIGNAL_CONNECT(cancel_bt, "clicked", ifopts_edit_close_cb, ifopts_edit_dlg);

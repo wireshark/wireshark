@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.53 2004/01/10 14:11:58 ulfl Exp $
+ * $Id: print_dlg.c,v 1.54 2004/01/10 16:27:42 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -654,7 +654,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
-  ok_bt = BUTTON_NEW_FROM_STOCK(STOCK_OK);
+  ok_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
   OBJECT_SET_DATA(ok_bt, PRINT_FORMAT_RB_KEY, format_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_DEST_CB_KEY, dest_cb);
 #ifndef _WIN32
@@ -673,7 +673,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_widget_grab_default(ok_bt);
   gtk_widget_show(ok_bt);
 
-  cancel_bt = BUTTON_NEW_FROM_STOCK(STOCK_CANCEL);
+  cancel_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
   SIGNAL_CONNECT(cancel_bt, "clicked", print_close_cb, print_w);
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_tooltips_set_tip (tooltips, cancel_bt, ("Cancel print and exit dialog"), NULL);

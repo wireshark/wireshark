@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.14 2002/11/11 15:39:06 oabad Exp $
+ * $Id: simple_dialog.c,v 1.15 2004/01/10 16:27:42 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -133,11 +133,7 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
-#if GTK_MAJOR_VERSION < 2
-  ok_btn = gtk_button_new_with_label ("OK");
-#else
-  ok_btn = gtk_button_new_from_stock(GTK_STOCK_OK);
-#endif
+  ok_btn = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
   SIGNAL_CONNECT_OBJECT(ok_btn, "clicked", gtk_widget_destroy, win);
   gtk_container_add(GTK_CONTAINER(bbox), ok_btn);
   GTK_WIDGET_SET_FLAGS(ok_btn, GTK_CAN_DEFAULT);
@@ -145,11 +141,7 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
   gtk_widget_show(ok_btn);
 
   if (btn_mask && *btn_mask == ESD_BTN_CANCEL) {
-#if GTK_MAJOR_VERSION < 2
-    cancel_btn = gtk_button_new_with_label("Cancel");
-#else
-    cancel_btn = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-#endif
+    cancel_btn = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
     SIGNAL_CONNECT(cancel_btn, "clicked", simple_dialog_cancel_cb, win);
     gtk_container_add(GTK_CONTAINER(bbox), cancel_btn);
     GTK_WIDGET_SET_FLAGS(cancel_btn, GTK_CAN_DEFAULT);

@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.28 2004/01/04 02:24:58 guy Exp $
+ * $Id: proto_dlg.c,v 1.29 2004/01/10 16:27:42 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -226,42 +226,26 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
-#if GTK_MAJOR_VERSION < 2
-  button = gtk_button_new_with_label ("OK");
-#else
-  button = gtk_button_new_from_stock(GTK_STOCK_OK);
-#endif
+  button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
   SIGNAL_CONNECT(button, "clicked", proto_ok_cb, proto_w);
   GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
   gtk_box_pack_start(GTK_BOX (bbox), button, TRUE, TRUE, 0);
   gtk_widget_grab_default(button);
   gtk_widget_show(button);
 
-#if GTK_MAJOR_VERSION < 2
-  button = gtk_button_new_with_label ("Apply");
-#else
-  button = gtk_button_new_from_stock(GTK_STOCK_APPLY);
-#endif
+  button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_APPLY);
   SIGNAL_CONNECT(button, "clicked", proto_apply_cb, proto_w);
   GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
   gtk_box_pack_start(GTK_BOX (bbox), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
-#if GTK_MAJOR_VERSION < 2
-  button = gtk_button_new_with_label ("Save");
-#else
-  button = gtk_button_new_from_stock(GTK_STOCK_SAVE);
-#endif
+  button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE);
   SIGNAL_CONNECT(button, "clicked", proto_save_cb, proto_w);
   GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
   gtk_box_pack_start(GTK_BOX (bbox), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
-#if GTK_MAJOR_VERSION < 2
-  button = gtk_button_new_with_label ("Cancel");
-#else
-  button = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-#endif
+  button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
   SIGNAL_CONNECT(button, "clicked", proto_cancel_cb, proto_w);
   GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
   gtk_box_pack_start(GTK_BOX (bbox), button, TRUE, TRUE, 0);

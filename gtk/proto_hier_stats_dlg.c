@@ -1,6 +1,6 @@
 /* proto_hier_stats_dlg.c
  *
- * $Id: proto_hier_stats_dlg.c,v 1.12 2002/11/11 15:39:06 oabad Exp $
+ * $Id: proto_hier_stats_dlg.c,v 1.13 2004/01/10 16:27:42 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -310,11 +310,7 @@ proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
 	/* Close button */
-#if GTK_MAJOR_VERSION < 2
-	bt = gtk_button_new_with_label("Close");
-#else
-        bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
-#endif
+    bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	SIGNAL_CONNECT_OBJECT(bt, "clicked", gtk_widget_destroy, dlg);
 	gtk_container_add(GTK_CONTAINER(bbox), bt);
 	GTK_WIDGET_SET_FLAGS(bt, GTK_CAN_DEFAULT);

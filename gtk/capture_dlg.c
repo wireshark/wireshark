@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.92 2004/01/10 14:11:57 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.93 2004/01/10 16:27:39 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -645,14 +645,14 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
-  ok_bt = BUTTON_NEW_FROM_STOCK(STOCK_OK);
+  ok_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
   SIGNAL_CONNECT(ok_bt, "clicked", capture_prep_ok_cb, cap_open_w);
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
   gtk_widget_show(ok_bt);
 
-  cancel_bt = BUTTON_NEW_FROM_STOCK(STOCK_CANCEL);
+  cancel_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
   SIGNAL_CONNECT(cancel_bt, "clicked", capture_prep_close_cb, cap_open_w);
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);

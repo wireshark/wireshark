@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.69 2004/01/01 13:29:16 ulfl Exp $
+ * $Id: prefs_dlg.c,v 1.70 2004/01/10 16:27:42 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -569,42 +569,26 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_container_add(GTK_CONTAINER(cts.main_vb), bbox);
   gtk_widget_show(bbox);
 
-#if GTK_MAJOR_VERSION < 2
-  ok_bt = gtk_button_new_with_label ("OK");
-#else
-  ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-#endif
+  ok_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
   SIGNAL_CONNECT(ok_bt, "clicked", prefs_main_ok_cb, prefs_w);
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
   gtk_widget_show(ok_bt);
 
-#if GTK_MAJOR_VERSION < 2
-  apply_bt = gtk_button_new_with_label ("Apply");
-#else
-  apply_bt = gtk_button_new_from_stock(GTK_STOCK_APPLY);
-#endif
+  apply_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_APPLY);
   SIGNAL_CONNECT(apply_bt, "clicked", prefs_main_apply_cb, prefs_w);
   GTK_WIDGET_SET_FLAGS(apply_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start(GTK_BOX (bbox), apply_bt, TRUE, TRUE, 0);
   gtk_widget_show(apply_bt);
 
-#if GTK_MAJOR_VERSION < 2
-  save_bt = gtk_button_new_with_label ("Save");
-#else
-  save_bt = gtk_button_new_from_stock(GTK_STOCK_SAVE);
-#endif
+  save_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE);
   SIGNAL_CONNECT(save_bt, "clicked", prefs_main_save_cb, prefs_w);
   GTK_WIDGET_SET_FLAGS(save_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), save_bt, TRUE, TRUE, 0);
   gtk_widget_show(save_bt);
 
-#if GTK_MAJOR_VERSION < 2
-  cancel_bt = gtk_button_new_with_label ("Cancel");
-#else
-  cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-#endif
+  cancel_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
   SIGNAL_CONNECT(cancel_bt, "clicked", prefs_main_cancel_cb, prefs_w);
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);

@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.50 2004/01/09 08:36:23 guy Exp $
+ * $Id: gui_prefs.c,v 1.51 2004/01/10 16:27:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -294,20 +294,12 @@ gui_prefs_show(void)
 	SIGNAL_CONNECT(recent_files_count_max_te, "focus_out_event", recent_files_count_changed_cb, main_vb);
 
 	/* "Font..." button - click to open a font selection dialog box. */
-#if GTK_MAJOR_VERSION < 2
-	font_bt = gtk_button_new_with_label("Font...");
-#else
-        font_bt = gtk_button_new_from_stock(GTK_STOCK_SELECT_FONT);
-#endif
+    font_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SELECT_FONT);
 	SIGNAL_CONNECT(font_bt, "clicked", font_browse_cb, NULL);
 	gtk_table_attach_defaults( GTK_TABLE(main_tb), font_bt, 2, 3, 0, 1 );
 
 	/* "Colors..." button - click to open a color selection dialog box. */
-#if GTK_MAJOR_VERSION < 2
-	color_bt = gtk_button_new_with_label("Colors...");
-#else
-        color_bt = gtk_button_new_from_stock(GTK_STOCK_SELECT_COLOR);
-#endif
+    color_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SELECT_COLOR);
 	SIGNAL_CONNECT(color_bt, "clicked", color_browse_cb, NULL);
 	gtk_table_attach_defaults( GTK_TABLE(main_tb), color_bt, 2, 3, 1, 2 );
 
@@ -860,21 +852,14 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
   gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
   gtk_widget_show(bbox);
 
-#if GTK_MAJOR_VERSION < 2
-  ok_bt = gtk_button_new_with_label ("OK");
-#else
-  ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-#endif
+  ok_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
   SIGNAL_CONNECT(ok_bt, "clicked", color_ok_cb, color_w);
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start(GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
   gtk_widget_show(ok_bt);
-#if GTK_MAJOR_VERSION < 2
-  cancel_bt = gtk_button_new_with_label ("Cancel");
-#else
-  cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-#endif
+
+  cancel_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
   SIGNAL_CONNECT_OBJECT(cancel_bt, "clicked", gtk_widget_destroy, color_w);
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start(GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);

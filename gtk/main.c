@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.351 2004/01/09 08:36:23 guy Exp $
+ * $Id: main.c,v 1.352 2004/01/10 16:27:42 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -230,11 +230,7 @@ about_ethereal( GtkWidget *w _U_, gpointer data _U_ ) {
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
-#if GTK_MAJOR_VERSION < 2
-  ok_btn = gtk_button_new_with_label ("OK");
-#else
-  ok_btn = gtk_button_new_from_stock(GTK_STOCK_OK);
-#endif
+  ok_btn = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
   SIGNAL_CONNECT_OBJECT(ok_btn, "clicked", gtk_widget_destroy, win);
   gtk_container_add(GTK_CONTAINER(bbox), ok_btn);
   GTK_WIDGET_SET_FLAGS(ok_btn, GTK_CAN_DEFAULT);
@@ -2889,21 +2885,13 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     SIGNAL_CONNECT(filter_te, "activate", filter_activate_cb, filter_te);
     gtk_widget_show(filter_cm);
 
-#if GTK_MAJOR_VERSION < 2
-    filter_reset = gtk_button_new_with_label("Reset");
-#else
-    filter_reset = gtk_button_new_from_stock(GTK_STOCK_CLEAR);
-#endif    
+    filter_reset = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLEAR);
     OBJECT_SET_DATA(filter_reset, E_DFILTER_TE_KEY, filter_te);
     SIGNAL_CONNECT(filter_reset, "clicked", filter_reset_cb, NULL);
     gtk_box_pack_start(GTK_BOX(stat_hbox), filter_reset, FALSE, TRUE, 1);
     gtk_widget_show(filter_reset);
 
-#if GTK_MAJOR_VERSION < 2
-    filter_apply = gtk_button_new_with_label("Apply");
-#else
-    filter_apply = gtk_button_new_from_stock(GTK_STOCK_APPLY);
-#endif
+    filter_apply = BUTTON_NEW_FROM_STOCK(GTK_STOCK_APPLY);
     OBJECT_SET_DATA(filter_apply, E_DFILTER_CM_KEY, filter_cm);
     SIGNAL_CONNECT(filter_apply, "clicked", filter_activate_cb, filter_te);
     gtk_box_pack_start(GTK_BOX(stat_hbox), filter_apply, FALSE, TRUE, 1);

@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.42 2004/01/10 12:43:04 ulfl Exp $
+ * $Id: tcp_graph.c,v 1.43 2004/01/10 16:27:42 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -867,13 +867,8 @@ static void control_panel_create (struct graph *g)
 	control_panel_add_graph_type_page (g, notebook);
 
 	/* bottom buttons group */
-#if GTK_MAJOR_VERSION < 2
-	help = gtk_button_new_with_label ("Help");
-	close = gtk_button_new_with_label ("Close");
-#else
-        help = gtk_button_new_from_stock(GTK_STOCK_HELP);
-	close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
-#endif
+    help = BUTTON_NEW_FROM_STOCK(GTK_STOCK_HELP);
+	close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	button_box = gtk_hbox_new (TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (button_box), help, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (button_box), close, TRUE, TRUE, 0);
