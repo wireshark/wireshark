@@ -633,19 +633,6 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 		start_offset = offset;
 
 		ssrc = tvb_get_ntohl( tvb, offset );
-		if (ssrc == 0) {
-		    /* According to RFC1889 section 6.4:
-		     * "The list of items in each chunk is terminated by one or more
-		     * null octets, the first of which is interpreted as an item type
-		     * of zero to denote the end of the list, and the remainder as
-		     * needed to pad until the next 32-bit boundary.
-		     *
-		     * A chunk with zero items (four null octets) is valid but useless."
-		     */
-		    proto_tree_add_text(tree, tvb, offset, 4, "Padding");
-		    offset += 4;
-		    continue;
-		}
 		sdes_item = proto_tree_add_text(tree, tvb, offset, -1,
 		    "Chunk %u, SSRC/CSRC %u", chunk, ssrc);
 		sdes_tree = proto_item_add_subtree( sdes_item, ett_sdes );
@@ -663,14 +650,18 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 
 		/*
 		 * Not every message is ended with "null" bytes, so check for
-		 * end of frame instead.
+		 * end of frame as well.
 		 */
-		while ( ( tvb_reported_length_remaining( tvb, offset ) > 0 )
-		    && ( tvb_get_guint8( tvb, offset ) != RTCP_SDES_END ) ) {
+		while ( tvb_reported_length_remaining( tvb, offset ) > 0 ) {
 			/* ID, 8 bits */
 			sdes_type = tvb_get_guint8( tvb, offset );
 			proto_tree_add_item( sdes_item_tree, hf_rtcp_ssrc_type, tvb, offset, 1, FALSE );
 			offset++;
+
+			if ( sdes_type == RTCP_SDES_END ) {
+				/* End of list */
+				break;
+			}
 
 			/* Item length, 8 bits */
 			item_len = tvb_get_guint8( tvb, offset );
