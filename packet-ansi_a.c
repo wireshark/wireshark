@@ -10,7 +10,7 @@
  *   2000 Access Network Interfaces
  *			3GPP2 A.S0001-1		TIA/EIA-2001
  *
- * $Id: packet-ansi_a.c,v 1.4 2003/11/05 20:19:39 guy Exp $
+ * $Id: packet-ansi_a.c,v 1.5 2003/11/09 22:30:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,13 +51,6 @@ void proto_reg_handoff_ansi_a(void);
 #define ANSI_A_MAX(x,y)	(((x) < (y)) ? (y) : (x))
 
 #define ANSI_A_MIN(x,y)	(((x) < (y)) ? (x) : (y))
-
-/*
- * taken from packet-bssap.h
- * I wasn't sure if I wanted to #include from ../bssap !
-#define PDU_TYPE_BSMAP	0x00
-#define PDU_TYPE_DTAP	0x01
- */
 
 static const value_string ansi_bsmap_strings[] = {
     { 0x69,	"Additional Service Notification" },
@@ -562,12 +555,12 @@ elem_chan_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 2,
-	"Channel Number: %d",
+	"Channel Number: %u",
 	value);
 
     curr_offset += 2;
 
-    sprintf(add_string, " - (%d)", value);
+    sprintf(add_string, " - (%u)", value);
 
     /* no length check possible */
 
@@ -747,7 +740,7 @@ elem_rf_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     my_decode_bitfield_value(a_bigbuf, value >> 8, 0x07, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  ARFCN (MSB): %d",
+	"%s :  ARFCN (MSB): %u",
 	a_bigbuf,
 	value & 0x07ff);
 
@@ -756,7 +749,7 @@ elem_rf_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 	"%s :  ARFCN (LSB)",
 	a_bigbuf);
 
-    sprintf(add_string, " - (ARFCN: %d)", value & 0x07ff);
+    sprintf(add_string, " - (ARFCN: %u)", value & 0x07ff);
 
     curr_offset += 2;
 
@@ -786,7 +779,7 @@ elem_sid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
     my_decode_bitfield_value(a_bigbuf, value >> 8, 0x7f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  SID (MSB), %d",
+	"%s :  SID (MSB), %u",
 	a_bigbuf,
 	value & 0x7fff);
 
@@ -795,7 +788,7 @@ elem_sid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 	"%s :  SID (LSB)",
 	a_bigbuf);
 
-    sprintf(add_string, " - (SID: %d)", value & 0x7fff);
+    sprintf(add_string, " - (SID: %u)", value & 0x7fff);
 
     curr_offset += 2;
 
@@ -825,13 +818,13 @@ elem_is95_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
     my_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Number of Channels to Add: %d",
+	"%s :  Number of Channels to Add: %u",
 	a_bigbuf,
 	(oct & 0x70) >> 4);
 
     my_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Frame Offset: (%d), %.2f ms",
+	"%s :  Frame Offset: (%u), %.2f ms",
 	a_bigbuf,
 	oct & 0x0f,
 	(oct & 0x0f) * 1.25);
@@ -847,7 +840,7 @@ elem_is95_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "Walsh Code Channel Index: %d",
+	    "Walsh Code Channel Index: %u",
 	    oct);
 
 	curr_offset++;
@@ -867,7 +860,7 @@ elem_is95_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
 	my_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
 	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Pilot PN Code (MSB): %d",
+	    "%s :  Pilot PN Code (MSB): %u",
 	    a_bigbuf,
 	    value);
 
@@ -890,7 +883,7 @@ elem_is95_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
 	my_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
 	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  ARFCN (MSB): %d",
+	    "%s :  ARFCN (MSB): %u",
 	    a_bigbuf,
 	    value);
 
@@ -903,7 +896,7 @@ elem_is95_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
 	if (add_string[0] == '\0')
 	{
-	    sprintf(add_string, " - (ARFCN: %d)", value);
+	    sprintf(add_string, " - (ARFCN: %u)", value);
 	}
 
 	curr_offset++;
@@ -961,7 +954,7 @@ elem_enc_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 	item =
 	    proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"Encryption Info - %d: (%d) %s",
+		"Encryption Info - %u: (%u) %s",
 		num_recs,
 		(oct & 0x7c) >> 2,
 		str);
@@ -975,7 +968,7 @@ elem_enc_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 
 	my_decode_bitfield_value(a_bigbuf, oct, 0x7c, 8);
 	proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	    "%s :  Encryption Parameter Identifier: (%d) %s",
+	    "%s :  Encryption Parameter Identifier: (%u) %s",
 	    a_bigbuf,
 	    (oct & 0x7c) >> 2,
 	    str);
@@ -1012,7 +1005,7 @@ elem_enc_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 	}
     }
 
-    sprintf(add_string, " - %d record%s",
+    sprintf(add_string, " - %u record%s",
 	num_recs, plurality(num_recs, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -1048,11 +1041,11 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     my_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Mobile P_REV: %d",
+	"%s :  Mobile P_REV: %u",
 	a_bigbuf,
 	(oct & 0xe0) >> 5);
 
-    sprintf(add_string, " - P_REV (%d)", (oct & 0xe0) >> 5);
+    sprintf(add_string, " - P_REV (%u)", (oct & 0xe0) >> 5);
 
     my_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
@@ -1170,7 +1163,7 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     oct = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"SCM Length: %d",
+	"SCM Length: %u",
 	oct);
 
     curr_offset++;
@@ -1178,7 +1171,7 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     oct = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"Station Class Mark: %d",
+	"Station Class Mark: %u",
 	oct);
 
     curr_offset++;
@@ -1186,7 +1179,7 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     oct = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"Count of Band Class Entries: %d",
+	"Count of Band Class Entries: %u",
 	oct);
 
     curr_offset++;
@@ -1196,7 +1189,7 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     oct = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"Band Class Entry Length: %d",
+	"Band Class Entry Length: %u",
 	oct);
 
     curr_offset++;
@@ -1246,7 +1239,7 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 	my_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
 	proto_tree_add_text(tree,
 	    tvb, curr_offset, 1,
-	    "%s :  Band Class %d Air Interfaces Supported: %d",
+	    "%s :  Band Class %u Air Interfaces Supported: %u",
 	    a_bigbuf,
 	    num_bands,
 	    oct & 0x1f);
@@ -1257,7 +1250,7 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
 	proto_tree_add_text(tree,
 	    tvb, curr_offset, 1,
-	    "Band Class %d MS Protocol Level: %d",
+	    "Band Class %u MS Protocol Level: %u",
 	    num_bands,
 	    oct);
 
@@ -1327,7 +1320,7 @@ elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 	my_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
 	proto_tree_add_text(tree,
 	    tvb, curr_offset, 1,
-	    "%s :  Message ID: %d",
+	    "%s :  Message ID: %u",
 	    a_bigbuf,
 	    oct & 0x3f);
 
@@ -1337,10 +1330,10 @@ elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
 	proto_tree_add_text(tree,
 	    tvb, curr_offset, 1,
-	    "Zone ID: %d",
+	    "Zone ID: %u",
 	    oct);
 
-	sprintf(add_string, " - Broadcast (Zone ID: %d)", oct);
+	sprintf(add_string, " - Broadcast (Zone ID: %u)", oct);
 
 	curr_offset++;
 
@@ -1388,7 +1381,7 @@ elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
 	proto_tree_add_text(tree,
 	    tvb, curr_offset, 2,
-	    "Service: (%d) %s",
+	    "Service: (%u) %s",
 	    value,
 	    str);
 
@@ -1413,7 +1406,7 @@ elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
 	proto_tree_add_text(tree,
 	    tvb, curr_offset, 1,
-	    "Language: (%d) %s",
+	    "Language: (%u) %s",
 	    oct,
 	    str);
 
@@ -1641,11 +1634,11 @@ elem_sci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
     my_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"%s :  Slot Cycle Index: %d",
+	"%s :  Slot Cycle Index: %u",
 	a_bigbuf,
 	oct & 0x07);
 
-    sprintf(add_string, " - (%d)", oct & 0x07);
+    sprintf(add_string, " - (%u)", oct & 0x07);
 
     curr_offset++;
 
@@ -1676,7 +1669,7 @@ elem_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
     my_decode_bitfield_value(a_bigbuf, oct, 0x3c, 8);
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"%s :  Call Priority Level: %d",
+	"%s :  Call Priority Level: %u",
 	a_bigbuf,
 	(oct & 0x3c) >> 2);
 
@@ -1694,7 +1687,7 @@ elem_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	a_bigbuf,
 	(oct & 0x01) ? "" : "not ");
 
-    sprintf(add_string, " - (%d)", (oct & 0x3c) >> 2);
+    sprintf(add_string, " - (%u)", (oct & 0x3c) >> 2);
 
     curr_offset++;
 
@@ -1774,7 +1767,7 @@ elem_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	    my_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
 	    proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  Cause (MSB): %d",
+		"%s :  Cause (MSB): %u",
 		a_bigbuf,
 		((oct & 0x7f) << 8) | value);
 
@@ -1855,14 +1848,14 @@ elem_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	my_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
 	proto_tree_add_text(tree,
 	    tvb, curr_offset, 1,
-	    "%s :  Cause: (%d) %s",
+	    "%s :  Cause: (%u) %s",
 	    a_bigbuf,
 	    oct & 0x7f,
 	    str);
 
 	curr_offset++;
 
-	sprintf(add_string, " - (%d) %s", oct & 0x7f, str);
+	sprintf(add_string, " - (%u) %s", oct & 0x7f, str);
     }
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -1894,7 +1887,7 @@ elem_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 
 	curr_offset += 2;
 
-	sprintf(add_string, " - CI (%d)", value);
+	sprintf(add_string, " - CI (%u)", value);
 	break;
 
     case 0x05:
@@ -1905,7 +1898,7 @@ elem_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 
 	curr_offset += 2;
 
-	sprintf(add_string, " - LAC (%d)", value);
+	sprintf(add_string, " - LAC (%u)", value);
 	break;
 
     case 0x07:
@@ -1918,7 +1911,7 @@ elem_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 	    curr_offset, 3, value);
 
 	proto_tree_add_text(tree, tvb, curr_offset, 3,
-	    "Market ID %d  Switch Number %d",
+	    "Market ID %u  Switch Number %u",
 	    market_id, switch_num);
 
 	curr_offset += 3;
@@ -1930,7 +1923,7 @@ elem_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 
 	curr_offset += 2;
 
-	sprintf(add_string, " - Market ID (%d) Switch Number (%d) CI (%d)",
+	sprintf(add_string, " - Market ID (%u) Switch Number (%u) CI (%u)",
 	    market_id,
 	    switch_num,
 	    value);
@@ -1971,7 +1964,7 @@ elem_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"Cell Identification Discriminator: (%d) %s",
+	"Cell Identification Discriminator: (%u) %s",
 	oct,
 	str);
 
@@ -2014,7 +2007,7 @@ elem_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"Cell Identification Discriminator: (%d) %s",
+	"Cell Identification Discriminator: (%u) %s",
 	oct,
 	str);
 
@@ -2028,7 +2021,7 @@ elem_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	item =
 	    proto_tree_add_text(tree,
 		tvb, curr_offset, -1,
-		"Cell %d",
+		"Cell %u",
 		num_cells + 1);
 
 	subtree = proto_item_add_subtree(item, ett_cell_list);
@@ -2050,7 +2043,7 @@ elem_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
     }
     while ((len - (curr_offset - offset)) > 0);
 
-    sprintf(add_string, " - %d cell%s",
+    sprintf(add_string, " - %u cell%s",
 	num_cells, plurality(num_cells, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -2075,20 +2068,20 @@ elem_cic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
     my_decode_bitfield_value(a_bigbuf, value, 0xffe0, 16);
     proto_tree_add_text(tree,
 	tvb, curr_offset, 2,
-	"%s :  PCM Multiplexer: %d",
+	"%s :  PCM Multiplexer: %u",
 	a_bigbuf,
 	(value & 0xffe0) >> 5);
 
     my_decode_bitfield_value(a_bigbuf, value, 0x001f, 16);
     proto_tree_add_text(tree,
 	tvb, curr_offset, 2,
-	"%s :  Timeslot: %d",
+	"%s :  Timeslot: %u",
 	a_bigbuf,
 	value & 0x001f);
 
     curr_offset += 2;
 
-    sprintf(add_string, " - (%1$d) (0x%1$04x)", value);
+r    sprintf(add_string, " - (%u) (0x%04x)", value, value);
 
     /* no length check possible */
 
@@ -2114,20 +2107,20 @@ elem_cic_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
     my_decode_bitfield_value(a_bigbuf, value, 0xffe0, 16);
     proto_tree_add_text(tree,
 	tvb, curr_offset, 2,
-	"%s :  PCM Multiplexer: %d",
+	"%s :  PCM Multiplexer: %u",
 	a_bigbuf,
 	(value & 0xffe0) >> 5);
 
     my_decode_bitfield_value(a_bigbuf, value, 0x001f, 16);
     proto_tree_add_text(tree,
 	tvb, curr_offset, 2,
-	"%s :  Timeslot: %d",
+	"%s :  Timeslot: %u",
 	a_bigbuf,
 	value & 0x001f);
 
     curr_offset += 2;
 
-    sprintf(add_string, " - (%1$d) (0x%1$04x)", value);
+    sprintf(add_string, " - (%u) (0x%04x)", value, value);
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -2187,7 +2180,7 @@ elem_downlink_re(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
     oct = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"Number of Cells: %d",
+	"Number of Cells: %u",
 	oct);
 
     curr_offset++;
@@ -2207,7 +2200,7 @@ elem_downlink_re(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"Cell Identification Discriminator: (%d) %s",
+	"Cell Identification Discriminator: (%u) %s",
 	disc,
 	str);
 
@@ -2224,7 +2217,7 @@ elem_downlink_re(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 	item =
 	    proto_tree_add_text(tree,
 		tvb, curr_offset, -1,
-		"Cell %d",
+		"Cell %u",
 		num_cells + 1);
 
 	subtree = proto_item_add_subtree(item, ett_cell_list);
@@ -2252,7 +2245,7 @@ elem_downlink_re(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 
 	my_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
 	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Downlink Signal Strength Raw: %d",
+	    "%s :  Downlink Signal Strength Raw: %u",
 	    a_bigbuf,
 	    oct & 0x3f);
 
@@ -2262,7 +2255,7 @@ elem_downlink_re(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 
 	proto_tree_add_text(tree,
 	    tvb, curr_offset, 2,
-	    "CDMA Target One Way Delay: %d",
+	    "CDMA Target One Way Delay: %u",
 	    value);
 
 	curr_offset += 2;
@@ -2271,7 +2264,7 @@ elem_downlink_re(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
     }
     while ((len - (curr_offset - offset)) >= (guint32) (3 + ANSI_A_CELL_ID_LEN(disc)));
 
-    sprintf(add_string, " - %d cell%s",
+    sprintf(add_string, " - %u cell%s",
 	num_cells, plurality(num_cells, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -2342,7 +2335,7 @@ elem_ho_pow_lev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     oct = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"Number of Cells: %d",
+	"Number of Cells: %u",
 	oct);
 
     curr_offset++;
@@ -2358,13 +2351,13 @@ elem_ho_pow_lev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     my_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  ID Type: %d",
+	"%s :  ID Type: %u",
 	a_bigbuf,
 	(oct & 0x60) >> 5);
 
     my_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Handoff Power Level: %d",
+	"%s :  Handoff Power Level: %u",
 	a_bigbuf,
 	oct & 0x1f);
 
@@ -2406,7 +2399,7 @@ elem_ho_pow_lev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
 	my_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
 	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Handoff Power Level: %d",
+	    "%s :  Handoff Power Level: %u",
 	    a_bigbuf,
 	    oct & 0x1f);
 
@@ -2415,7 +2408,7 @@ elem_ho_pow_lev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 	item =
 	    proto_tree_add_text(tree,
 		tvb, curr_offset, -1,
-		"Cell %d",
+		"Cell %u",
 		num_cells);
 
 	subtree = proto_item_add_subtree(item, ett_cell_list);
@@ -2435,7 +2428,7 @@ elem_ho_pow_lev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 	curr_offset += consumed;
     }
 
-    sprintf(add_string, " - %d cell%s",
+    sprintf(add_string, " - %u cell%s",
 	num_cells, plurality(num_cells, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -2457,12 +2450,12 @@ elem_uz_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
     value = tvb_get_ntohs(tvb, curr_offset);
 
     proto_tree_add_text(tree, tvb, curr_offset, 2,
-	"UZID: %d",
+	"UZID: %u",
 	value);
 
     curr_offset += 2;
 
-    sprintf(add_string, " - (%d)", value);
+    sprintf(add_string, " - (%u)", value);
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -2501,13 +2494,13 @@ elem_is2000_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     my_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Channel Count: %d",
+	"%s :  Channel Count: %u",
 	a_bigbuf,
 	num_chan);
 
     my_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Frame Offset: (%d), %.2f ms",
+	"%s :  Frame Offset: (%u), %.2f ms",
 	a_bigbuf,
 	oct & 0x0f,
 	(oct & 0x0f) * 1.25);
@@ -2571,7 +2564,7 @@ elem_is2000_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
 	my_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
 	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Walsh Code Channel Index (MSB): %d",
+	    "%s :  Walsh Code Channel Index (MSB): %u",
 	    a_bigbuf,
 	    ((guint32) (oct & 0x07) << 8) | value);
 
@@ -2599,7 +2592,7 @@ elem_is2000_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
 	my_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
 	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Pilot PN Code (MSB): %d",
+	    "%s :  Pilot PN Code (MSB): %u",
 	    a_bigbuf,
 	    value);
 
@@ -2617,7 +2610,7 @@ elem_is2000_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
 	my_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
 	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  ARFCN (MSB): %d",
+	    "%s :  ARFCN (MSB): %u",
 	    a_bigbuf,
 	    value);
 
@@ -2679,7 +2672,7 @@ elem_is95_ms_meas_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 
     my_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  ARFCN (MSB): %d",
+	"%s :  ARFCN (MSB): %u",
 	a_bigbuf,
 	value);
 
@@ -2690,7 +2683,7 @@ elem_is95_ms_meas_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	"%s :  ARFCN (LSB)",
 	a_bigbuf);
 
-    sprintf(add_string, " - (ARFCN: %d)", value);
+    sprintf(add_string, " - (ARFCN: %u)", value);
 
     curr_offset++;
 
@@ -2926,7 +2919,7 @@ elem_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 2,
-	"Location Area Code (LAC): 0x%04x (%d)",
+	"Location Area Code (LAC): 0x%04x (%u)",
 	value,
 	value);
 
@@ -2981,7 +2974,7 @@ elem_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"Reject Cause Value: (%d) %s",
+	"Reject Cause Value: (%u) %s",
 	oct,
 	str);
 
@@ -3028,7 +3021,7 @@ elem_auth_chlg_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
     my_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"%s :  Random Number Type: (%d) %s",
+	"%s :  Random Number Type: (%u) %s",
 	a_bigbuf,
 	oct & 0x0f,
 	str);
@@ -3081,7 +3074,7 @@ elem_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
     my_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"%s :  Auth Signature Type: (%d) %s",
+	"%s :  Auth Signature Type: (%u) %s",
 	a_bigbuf,
 	oct & 0x0f,
 	str);
@@ -3124,13 +3117,13 @@ elem_auth_param_count(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
     my_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"%s :  Count: %d",
+	"%s :  Count: %u",
 	a_bigbuf,
 	oct & 0x3f);
 
     curr_offset++;
 
-    sprintf(add_string, " - (%d)", oct & 0x3f);
+    sprintf(add_string, " - (%u)", oct & 0x3f);
 
     /* no length check possible */
 
@@ -3153,12 +3146,12 @@ elem_mwi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"Number of Messages: %d",
+	"Number of Messages: %u",
 	oct);
 
     curr_offset++;
 
-    sprintf(add_string, " - (%d)", oct);
+    sprintf(add_string, " - (%u)", oct);
 
     /* no length check possible */
 
@@ -3216,7 +3209,7 @@ elem_signal(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"Signal Value: (%d) %s",
+	"Signal Value: (%u) %s",
 	oct,
 	str);
 
@@ -3506,11 +3499,11 @@ elem_qos_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     my_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"%s :  Packet Priority: %d",
+	"%s :  Packet Priority: %u",
 	a_bigbuf,
 	oct & 0x0f);
 
-    sprintf(add_string, " - (%d)", oct & 0x0f);
+    sprintf(add_string, " - (%u)", oct & 0x0f);
 
     curr_offset++;
 
@@ -3611,7 +3604,7 @@ elem_cause_l3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
     my_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"%s :  Class: (%d) %s",
+	"%s :  Class: (%u) %s",
 	a_bigbuf,
 	(oct & 0x70) >> 4,
 	str);
@@ -3670,11 +3663,11 @@ elem_cause_l3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
     my_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"%s :  Value: (%d)",
+	"%s :  Value: (%u)",
 	a_bigbuf,
 	oct & 0x0f);
 
-    sprintf(add_string, " - (%d) %s", oct & 0x7f, str);
+    sprintf(add_string, " - (%u) %s", oct & 0x7f, str);
 
     curr_offset++;
 
@@ -3798,10 +3791,10 @@ elem_tag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 4,
-	"Tag Value: %d",
+	"Tag Value: %u",
 	value);
 
-    sprintf(add_string, " - (%d)", value);
+    sprintf(add_string, " - (%u)", value);
 
     curr_offset += 4;
 
@@ -3858,7 +3851,7 @@ elem_hho_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     my_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"%s :  Number of Preamble Frames: %d",
+	"%s :  Number of Preamble Frames: %u",
 	a_bigbuf,
 	(oct & 0xe0) >> 5);
 
@@ -3918,7 +3911,7 @@ elem_hho_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     my_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"%s :  Nom_Pwr: %d",
+	"%s :  Nom_Pwr: %u",
 	a_bigbuf,
 	oct & 0x0f);
 
@@ -3935,7 +3928,7 @@ elem_hho_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     my_decode_bitfield_value(a_bigbuf, oct, 0x3e, 8);
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"%s :  FPC Subchannel Information: %d",
+	"%s :  FPC Subchannel Information: %u",
 	a_bigbuf,
 	(oct & 0x3e) >> 1);
 
@@ -3958,7 +3951,7 @@ elem_hho_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     my_decode_bitfield_value(a_bigbuf, oct, 0x0e, 8);
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"%s :  Power Control Step: %d",
+	"%s :  Power Control Step: %u",
 	a_bigbuf,
 	(oct & 0x0e) >> 1);
 
@@ -3995,7 +3988,7 @@ elem_sw_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"IOS Major Revision Level: %d",
+	"IOS Major Revision Level: %u",
 	major);
 
     curr_offset++;
@@ -4004,7 +3997,7 @@ elem_sw_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"IOS Minor Revision Level: %d",
+	"IOS Minor Revision Level: %u",
 	minor);
 
     curr_offset++;
@@ -4013,12 +4006,12 @@ elem_sw_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"IOS Point Revision Level: %d",
+	"IOS Point Revision Level: %u",
 	point);
 
     curr_offset++;
 
-    sprintf(add_string, " - (IOS %d.%d.%d)", major, minor, point);
+    sprintf(add_string, " - (IOS %u.%u.%u)", major, minor, point);
 
     if (len > 3)
     {
@@ -4157,7 +4150,7 @@ elem_so(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
 	break;
     }
 
-    sprintf(add_string, " - (%1$d) (0x%1$04x)", value);
+    sprintf(add_string, " - (%u) (0x%04x)", value, value);
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 2,
@@ -4265,7 +4258,7 @@ elem_is2000_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"Bit-Exact Length Octet Count: %d",
+	"Bit-Exact Length Octet Count: %u",
 	oct_len);
 
     curr_offset++;
@@ -4281,7 +4274,7 @@ elem_is2000_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     my_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Bit-Exact Length Fill Bits: %d",
+	"%s :  Bit-Exact Length Fill Bits: %u",
 	a_bigbuf,
 	oct & 0x07);
 
@@ -4321,7 +4314,7 @@ elem_is2000_nn_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"Bit-Exact Length Octet Count: %d",
+	"Bit-Exact Length Octet Count: %u",
 	oct_len);
 
     curr_offset++;
@@ -4337,7 +4330,7 @@ elem_is2000_nn_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 
     my_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Bit-Exact Length Fill Bits: %d",
+	"%s :  Bit-Exact Length Fill Bits: %u",
 	a_bigbuf,
 	oct & 0x07);
 
@@ -4419,7 +4412,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"FCH Information: Bit-Exact Length Octet Count: %d",
+	"FCH Information: Bit-Exact Length Octet Count: %u",
 	oct_len);
 
     curr_offset++;
@@ -4457,7 +4450,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     my_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  FCH Information: Bit-Exact Length Fill Bits: %d",
+	"%s :  FCH Information: Bit-Exact Length Fill Bits: %u",
 	a_bigbuf,
 	oct & 0x07);
 
@@ -4481,7 +4474,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"DCCH Information: Bit-Exact Length Octet Count: %d",
+	"DCCH Information: Bit-Exact Length Octet Count: %u",
 	oct_len);
 
     curr_offset++;
@@ -4497,7 +4490,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     my_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  DCCH Information: Bit-Exact Length Fill Bits: %d",
+	"%s :  DCCH Information: Bit-Exact Length Fill Bits: %u",
 	a_bigbuf,
 	oct & 0x07);
 
@@ -4545,7 +4538,7 @@ elem_ptype(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 2,
-	"(%d) %s",
+	"(%u) %s",
 	value,
 	str);
 
@@ -4600,7 +4593,7 @@ elem_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	item =
 	    proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"Information Record Type - %d: (%d) %s",
+		"Information Record Type - %u: (%u) %s",
 		num_recs,
 		rec_type,
 		str);
@@ -4823,7 +4816,7 @@ elem_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 		oct = tvb_get_guint8(tvb, curr_offset);
 
 		proto_tree_add_text(subtree, tvb, curr_offset, 1,
-		    "Number of messages waiting: %d",
+		    "Number of messages waiting: %u",
 		    oct);
 
 		curr_offset++;
@@ -4840,7 +4833,7 @@ elem_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	}
     }
 
-    sprintf(add_string, " - %d record%s",
+    sprintf(add_string, " - %u record%s",
 	num_recs, plurality(num_recs, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -4865,13 +4858,13 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     my_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Search Window A Size (Srch_Win_A): %d",
+	"%s :  Search Window A Size (Srch_Win_A): %u",
 	a_bigbuf,
-	(oct & 0xf0) << 4);
+	(oct & 0xf0) >> 4);
 
     my_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Search Window N Size (Srch_Win_N): %d",
+	"%s :  Search Window N Size (Srch_Win_N): %u",
 	a_bigbuf,
 	oct & 0x0f);
 
@@ -4883,15 +4876,15 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     my_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Search Window R Size (Srch_Win_R): %d",
+	"%s :  Search Window R Size (Srch_Win_R): %u",
 	a_bigbuf,
-	(oct & 0xf0) << 4);
+	(oct & 0xf0) >> 4);
 
     value = tvb_get_guint8(tvb, curr_offset + 1);
 
     my_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Add Pilot Threshold (T_Add) (MSB): %d",
+	"%s :  Add Pilot Threshold (T_Add) (MSB): %u",
 	a_bigbuf,
 	(oct & 0x0f) << 2 | (value & 0xc0) >> 6);
 
@@ -4906,7 +4899,7 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     my_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Drop Pilot Threshold (T_Drop): %d",
+	"%s :  Drop Pilot Threshold (T_Drop): %u",
 	a_bigbuf,
 	oct & 0x3f);
 
@@ -4918,13 +4911,13 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     my_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Compare Threshold (T_Comp): %d",
+	"%s :  Compare Threshold (T_Comp): %u",
 	a_bigbuf,
-	(oct & 0xf0) << 4);
+	(oct & 0xf0) >> 4);
 
     my_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Drop Timer Value (T_TDrop): %d",
+	"%s :  Drop Timer Value (T_TDrop): %u",
 	a_bigbuf,
 	oct & 0x0f);
 
@@ -4936,9 +4929,9 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     my_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Neighbor Max Age (Nghbor_Max_AGE): %d",
+	"%s :  Neighbor Max Age (Nghbor_Max_AGE): %u",
 	a_bigbuf,
-	(oct & 0xf0) << 4);
+	(oct & 0xf0) >> 4);
 
     my_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
@@ -4958,7 +4951,7 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     my_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  SOFT_SLOPE: %d",
+	"%s :  SOFT_SLOPE: %u",
 	a_bigbuf,
 	oct & 0x3f);
 
@@ -4975,7 +4968,7 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     my_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  ADD_INTERCEPT: %d",
+	"%s :  ADD_INTERCEPT: %u",
 	a_bigbuf,
 	oct & 0x3f);
 
@@ -4992,7 +4985,7 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     my_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  DROP_INTERCEPT: %d",
+	"%s :  DROP_INTERCEPT: %u",
 	a_bigbuf,
 	oct & 0x3f);
 
@@ -5003,7 +4996,7 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
     oct = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"Target BS P_REV: %d",
+	"Target BS P_REV: %u",
 	oct);
 
     curr_offset++;
@@ -5058,7 +5051,7 @@ elem_cdma_sowd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 2,
-	"CDMA Serving One Way Delay: %d",
+	"CDMA Serving One Way Delay: %u",
 	value);
 
     curr_offset += 2;
@@ -5720,10 +5713,10 @@ elem_cct_group(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"Count: %d circuit%s",
+	"Count: %u circuit%s",
 	oct, plurality(oct, "", "s"));
 
-    sprintf(add_string, " - %d circuit%s",
+    sprintf(add_string, " - %u circuit%s",
 	oct, plurality(oct, "", "s"));
 
     curr_offset++;
@@ -5733,14 +5726,14 @@ elem_cct_group(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
     my_decode_bitfield_value(a_bigbuf, value, 0xffe0, 16);
     proto_tree_add_text(tree,
 	tvb, curr_offset, 2,
-	"%s :  PCM Multiplexer: %d",
+	"%s :  PCM Multiplexer: %u",
 	a_bigbuf,
 	(value & 0xffe0) >> 5);
 
     my_decode_bitfield_value(a_bigbuf, value, 0x001f, 16);
     proto_tree_add_text(tree,
 	tvb, curr_offset, 2,
-	"%s :  Timeslot: %d",
+	"%s :  Timeslot: %u",
 	a_bigbuf,
 	value & 0x001f);
 
@@ -6474,7 +6467,7 @@ dtap_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     my_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(subtree,
 	tvb, curr_offset, 1,
-	"%s :  Service Type: (%d) %s",
+	"%s :  Service Type: (%u) %s",
 	a_bigbuf,
 	oct & 0x0f,
 	str);
@@ -7320,7 +7313,7 @@ bsmap_ho_reqd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_MAND_TLV(P_CAUSE, "");
 
-    ELEM_MAND_TLV(P_CELL_ID_LIST, " (Target)");	/* XXX target list */
+    ELEM_MAND_TLV(P_CELL_ID_LIST, " (Target)");
 
     ELEM_OPT_TLV(P_CM_INFO_TYPE_2, "");
 
@@ -7374,7 +7367,7 @@ bsmap_ho_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_MAND_TLV(P_CM_INFO_TYPE_2, "");
 
-    ELEM_MAND_TLV(P_CELL_ID_LIST, "(Target)");	/* XXX target list */
+    ELEM_MAND_TLV(P_CELL_ID_LIST, "(Target)");
 
     ELEM_OPT_TLV(P_CIC_EXT, "");
 
@@ -8045,7 +8038,7 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
 	bsmap_item =
 	    proto_tree_add_protocol_format(tree, proto_a_bsmap, tvb, 0, len,
-		"ANSI A-I/F BSMAP - Unknown BSMAP Message Type (%d)",
+		"ANSI A-I/F BSMAP - Unknown BSMAP Message Type (%u)",
 		oct);
 
 	bsmap_tree = proto_item_add_subtree(bsmap_item, ett_bsmap);
@@ -8163,7 +8156,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
 	dtap_item =
 	    proto_tree_add_protocol_format(tree, proto_a_dtap, tvb, 0, len,
-		"ANSI A-I/F DTAP - Unknown DTAP Message Type (%d)",
+		"ANSI A-I/F DTAP - Unknown DTAP Message Type (%u)",
 		oct);
 
 	dtap_tree = proto_item_add_subtree(dtap_item, ett_dtap);
@@ -8216,7 +8209,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     my_decode_bitfield_value(a_bigbuf, oct_1, 0x0f, 8);
     proto_tree_add_text(oct_1_tree,
 	tvb, 0, 1,
-	"%s :  Protocol Discriminator: %d",
+	"%s :  Protocol Discriminator: %u",
 	a_bigbuf,
 	oct_1 & 0x0f);
 
@@ -8236,7 +8229,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	my_decode_bitfield_value(a_bigbuf, oct_2, 0x70, 8);
 	proto_tree_add_text(dtap_tree,
 	    tvb, 1, 1,
-	    "%s :  Transaction Identifier (TI): %d",
+	    "%s :  Transaction Identifier (TI): %u",
 	    a_bigbuf,
 	    (oct_2 & 0x70) >> 4);
 
