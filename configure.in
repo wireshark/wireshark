@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.162 2002/04/08 01:34:38 guy Exp $
+# $Id: configure.in,v 1.163 2002/04/08 01:39:02 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -711,13 +711,17 @@ else
 	setuid_message="no"
 fi
 
+if test "x$want_libz" = "no" ; then
+	zlib_message="no"
+else
+	zlib_message="yes"
+fi
+
 if test "x$SNMP_LIBS" = "x" ; then
 	snmp_libs_message="no"
 else
 	snmp_libs_message="yes"
 fi
-
-
 
 echo ""
 echo "The Ethereal package has been configured with the following options."
@@ -733,6 +737,6 @@ echo ""
 echo "                    Install setuid : $setuid_message"
 echo "                       Use plugins : $have_plugins"
 echo "                  Use pcap library : $want_pcap"
-echo "                  Use zlib library : $want_zlib"
+echo "                  Use zlib library : $zlib_message"
 echo "          Use IPv6 name resolution : $enable_ipv6"
 echo "              Use UCD SNMP library : $snmp_libs_message"
