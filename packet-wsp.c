@@ -3,7 +3,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.12 2001/01/22 08:03:46 guy Exp $
+ * $Id: packet-wsp.c,v 1.13 2001/01/28 04:21:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -314,15 +314,15 @@ enum {
 	PUT				= 0x61,			/* No sample data */
 };
 
-void add_uri (proto_tree *, tvbuff_t *, guint, guint);
-void add_headers (proto_tree *, tvbuff_t *);
-void add_header (proto_tree *, tvbuff_t *, tvbuff_t *);
-guint get_value_length (tvbuff_t *, guint, guint *);
-guint add_content_type (proto_tree *, tvbuff_t *, guint, guint *);
-guint add_parameter (proto_tree *, tvbuff_t *, guint);
-guint add_parameter_charset (proto_tree *, tvbuff_t *, guint, guint);
-void add_post_data (proto_tree *, tvbuff_t *, guint);
-void add_post_variable (proto_tree *, tvbuff_t *, guint, guint, guint, guint);
+static void add_uri (proto_tree *, tvbuff_t *, guint, guint);
+static void add_headers (proto_tree *, tvbuff_t *);
+static void add_header (proto_tree *, tvbuff_t *, tvbuff_t *);
+static guint get_value_length (tvbuff_t *, guint, guint *);
+static guint add_content_type (proto_tree *, tvbuff_t *, guint, guint *);
+static guint add_parameter (proto_tree *, tvbuff_t *, guint);
+static guint add_parameter_charset (proto_tree *, tvbuff_t *, guint, guint);
+static void add_post_data (proto_tree *, tvbuff_t *, guint);
+static void add_post_variable (proto_tree *, tvbuff_t *, guint, guint, guint, guint);
 
 /* 
  * Accessor to retrieve variable length int as used in WAP protocol.
@@ -331,7 +331,7 @@ void add_post_variable (proto_tree *, tvbuff_t *, guint, guint, guint, guint);
  * The octetCount parameter holds the number of bytes read in order to return
  * the final value. Can be pre-initialised to start at offset+count.
 */
-guint
+static guint
 tvb_get_guintvar (tvbuff_t *tvb, guint offset, guint *octetCount)
 {
 	guint value = 0;
@@ -606,7 +606,7 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
-void
+static void
 add_uri (proto_tree *tree, tvbuff_t *tvb, guint URILenOffset, guint URIOffset)
 {
 	proto_item *ti;
@@ -634,7 +634,7 @@ add_uri (proto_tree *tree, tvbuff_t *tvb, guint URILenOffset, guint URIOffset)
 	}
 }
 
-void
+static void
 add_headers (proto_tree *tree, tvbuff_t *tvb)
 {
 	proto_item *ti;
@@ -748,7 +748,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb)
 	}
 }
 
-void
+static void
 add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 {
 	guint offset = 0;
@@ -1003,7 +1003,7 @@ add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 
 }
 
-guint
+static guint
 get_value_length (tvbuff_t *tvb, guint offset, guint *nextOffset)
 {
 	guint value = 0;
@@ -1028,7 +1028,7 @@ get_value_length (tvbuff_t *tvb, guint offset, guint *nextOffset)
 	return (value);
 }
 
-guint
+static guint
 add_content_type (proto_tree *tree, tvbuff_t *tvb, guint offset, guint *contentType)
 {
 	proto_tree *contentTypeTree;
@@ -1064,7 +1064,7 @@ add_content_type (proto_tree *tree, tvbuff_t *tvb, guint offset, guint *contentT
 	return (offset+totalSizeOfField);
 }
 
-guint
+static guint
 add_parameter (proto_tree *tree, tvbuff_t *tvb, guint offset)
 {
 	guint octet = tvb_get_guint8 (tvb, offset);
@@ -1090,7 +1090,7 @@ add_parameter (proto_tree *tree, tvbuff_t *tvb, guint offset)
 	return (offset);
 }
 
-guint
+static guint
 add_parameter_charset (proto_tree *tree, tvbuff_t *tvb, guint offset, guint startOffset)
 {
 	guint octet = tvb_get_guint8 (tvb, offset);
@@ -1108,7 +1108,7 @@ add_parameter_charset (proto_tree *tree, tvbuff_t *tvb, guint offset, guint star
 	return offset;
 }
 
-void
+static void
 add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType)
 {
 	guint offset = 0;
@@ -1153,7 +1153,7 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType)
 	}
 }
 
-void
+static void
 add_post_variable (proto_tree *tree, tvbuff_t *tvb, guint variableStart, guint variableEnd, guint valueStart, guint valueEnd)
 {
 	int variableLength = variableEnd-variableStart;
