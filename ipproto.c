@@ -1,7 +1,7 @@
 /* ipproto.c
  * Routines for converting IPv4 protocol/v6 nxthdr field into string
  *
- * $Id: ipproto.c,v 1.2 1999/10/15 05:30:35 itojun Exp $
+ * $Id: ipproto.c,v 1.3 1999/10/22 08:02:21 guy Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -98,7 +98,7 @@ const char *ipprotostr(int proto) {
     struct protoent *pe;
 #endif
 
-    if ((s = val_to_str(proto, ipproto_val, NULL)) != NULL)
+    if ((s = match_strval(proto, ipproto_val)) != NULL)
 	goto ok;
 
 #ifdef HAVE_GETPROTOBYNUMBER
