@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.148 2002/08/02 23:36:03 jmayer Exp $
+ * $Id: packet-tcp.c,v 1.149 2002/08/03 22:28:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1635,7 +1635,25 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s > %s",
       get_tcp_port(th_sport), get_tcp_port(th_dport));
   }
-  
+  if (tree) {
+    if (tcp_summary_in_tree) {
+	    ti = proto_tree_add_protocol_format(tree, proto_tcp, tvb, 0, -1,
+		"Transmission Control Protocol, Src Port: %s (%u), Dst Port: %s (%u)",
+		get_tcp_port(th_sport), th_sport,
+		get_tcp_port(th_dport), th_dport);
+    }
+    else {
+	    ti = proto_tree_add_item(tree, proto_tcp, tvb, 0, -1, FALSE);
+    }
+    tcp_tree = proto_item_add_subtree(ti, ett_tcp);
+    proto_tree_add_uint_format(tcp_tree, hf_tcp_srcport, tvb, offset, 2, th_sport,
+	"Source port: %s (%u)", get_tcp_port(th_sport), th_sport);
+    proto_tree_add_uint_format(tcp_tree, hf_tcp_dstport, tvb, offset + 2, 2, th_dport,
+	"Destination port: %s (%u)", get_tcp_port(th_dport), th_dport);
+    proto_tree_add_uint_hidden(tcp_tree, hf_tcp_port, tvb, offset, 2, th_sport);
+    proto_tree_add_uint_hidden(tcp_tree, hf_tcp_port, tvb, offset + 2, 2, th_dport);
+  }
+
   /* Set the source and destination port numbers as soon as we get them,
      so that they're available to the "Follow TCP Stream" code even if
      we throw an exception dissecting the rest of the TCP header. */
@@ -1675,25 +1693,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Compute the sequence number of next octet after this segment. */
   nxtseq = th_seq + seglen;
-
-  if (tree) {
-    if (tcp_summary_in_tree) {
-	    ti = proto_tree_add_protocol_format(tree, proto_tcp, tvb, 0, -1,
-		"Transmission Control Protocol, Src Port: %s (%u), Dst Port: %s (%u)",
-		get_tcp_port(th_sport), th_sport,
-		get_tcp_port(th_dport), th_dport);
-    }
-    else {
-	    ti = proto_tree_add_item(tree, proto_tcp, tvb, 0, -1, FALSE);
-    }
-    tcp_tree = proto_item_add_subtree(ti, ett_tcp);
-    proto_tree_add_uint_format(tcp_tree, hf_tcp_srcport, tvb, offset, 2, th_sport,
-	"Source port: %s (%u)", get_tcp_port(th_sport), th_sport);
-    proto_tree_add_uint_format(tcp_tree, hf_tcp_dstport, tvb, offset + 2, 2, th_dport,
-	"Destination port: %s (%u)", get_tcp_port(th_dport), th_dport);
-    proto_tree_add_uint_hidden(tcp_tree, hf_tcp_port, tvb, offset, 2, th_sport);
-    proto_tree_add_uint_hidden(tcp_tree, hf_tcp_port, tvb, offset + 2, 2, th_dport);
-  }
 
   if (check_col(pinfo->cinfo, COL_INFO) || tree) {  
     for (i = 0; i < 8; i++) {
