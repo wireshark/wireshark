@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.56 1999/11/20 05:35:14 gram Exp $
+ * $Id: packet.c,v 1.57 1999/11/27 04:01:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -225,22 +225,21 @@ time_secs_to_str(guint32 time)
 #define	MAX_BYTE_STR_LEN	20
 
 /* Turn an array of bytes into a string showing the bytes in hex. */
+#define	N_BYTES_TO_STR_STRINGS	6
 gchar *
 bytes_to_str(const guint8 *bd, int bd_len) {
-  static gchar  str[3][MAX_BYTE_STR_LEN+3+1];
-  static gchar *cur;
+  static gchar  str[N_BYTES_TO_STR_STRINGS][MAX_BYTE_STR_LEN+3+1];
+  static int    cur_idx;
+  gchar        *cur;
   gchar        *p;
   int           len;
   static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
                                 '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {  
-    cur = &str[2][0];
-  } else {  
-    cur = &str[0][0];
-  }
+  cur_idx++;
+  if (cur_idx >= N_BYTES_TO_STR_STRINGS)
+    cur_idx = 0;
+  cur = &str[cur_idx][0];
   p = cur;
   len = MAX_BYTE_STR_LEN;
   while (bd_len > 0 && len > 0) {

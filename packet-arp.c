@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.22 1999/11/16 11:42:24 guy Exp $
+ * $Id: packet-arp.c,v 1.23 1999/11/27 04:01:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,12 +39,22 @@ static int proto_arp = -1;
 static int hf_arp_hard_type = -1;
 static int hf_arp_proto_type = -1;
 static int hf_arp_hard_size = -1;
+static int hf_atmarp_shtl = -1;
+static int hf_atmarp_ssl = -1;
 static int hf_arp_proto_size = -1;
 static int hf_arp_opcode = -1;
+static int hf_atmarp_spln = -1;
+static int hf_atmarp_thtl = -1;
+static int hf_atmarp_tsl = -1;
+static int hf_atmarp_tpln = -1;
 static int hf_arp_src_ether = -1;
 static int hf_arp_src_proto = -1;
 static int hf_arp_dst_ether = -1;
 static int hf_arp_dst_proto = -1;
+static int hf_atmarp_src_atm_num = -1;
+static int hf_atmarp_src_atm_subaddr = -1;
+static int hf_atmarp_dst_atm_num = -1;
+static int hf_atmarp_dst_atm_subaddr = -1;
 
 static gint ett_arp = -1;
 
@@ -98,16 +108,41 @@ static gint ett_arp = -1;
 #ifndef ARPOP_RREPLY
 #define ARPOP_RREPLY   4       /* RARP reply.  */
 #endif
+#ifndef ARPOP_IREQUEST
+#define ARPOP_IREQUEST 8       /* Inverse ARP (RFC 1293) request.  */
+#endif
+#ifndef ARPOP_IREPLY
+#define ARPOP_IREPLY   9       /* Inverse ARP reply.  */
+#endif
+#ifndef ATMARPOP_NAK
+#define ATMARPOP_NAK   10      /* ATMARP NAK.  */
+#endif
 
 static const value_string op_vals[] = {
   {ARPOP_REQUEST,  "ARP request" },
   {ARPOP_REPLY,    "ARP reply"   },
   {ARPOP_RREQUEST, "RARP request"},
   {ARPOP_RREPLY,   "RARP reply"  },
+  {ARPOP_IREQUEST, "Inverse ARP request"},
+  {ARPOP_IREPLY,   "Inverse ARP reply"  },
   {0,              NULL          } };
 
+static const value_string atmop_vals[] = {
+  {ARPOP_REQUEST,  "ATMARP request" },
+  {ARPOP_REPLY,    "ATMARP reply"   },
+  {ARPOP_IREQUEST, "Inverse ATMARP request"},
+  {ARPOP_IREPLY,   "Inverse ATMARP reply"  },
+  {ATMARPOP_NAK,   "ATMARP NAK"  },
+  {0,              NULL          } };
+
+#define	ATMARP_IS_E164	0x40	/* bit in shtl/thtl for E.164 format */
+#define	ATMARP_LEN_MASK	0x3F	/* length of address in shtl/thtl */
+
 gchar *
-arphrdaddr_to_str(guint8 *ad, int ad_len, guint16 type) {
+arphrdaddr_to_str(guint8 *ad, int ad_len, guint16 type)
+{
+  if (ad_len == 0)
+    return "<No address>";
   if ((type == ARPHRD_ETHER || type == ARPHRD_EETHER || type == ARPHRD_IEEE802)
   				&& ad_len == 6) {
     /* Ethernet address (or Experimental 3Mb Ethernet, or IEEE 802.x
@@ -118,11 +153,40 @@ arphrdaddr_to_str(guint8 *ad, int ad_len, guint16 type) {
 }
 
 static gchar *
-arpproaddr_to_str(guint8 *ad, int ad_len, guint16 type) {
+arpproaddr_to_str(guint8 *ad, int ad_len, guint16 type)
+{
+  if (ad_len == 0)
+    return "<No address>";
   if (type == ETHERTYPE_IP && ad_len == 4) {
-    /* IP address.  */
+    /* IPv4 address.  */
     return ip_to_str(ad);
   }
+  return bytes_to_str(ad, ad_len);
+}
+
+static gchar *
+atmarpnum_to_str(guint8 *ad, int ad_tl)
+{
+  int ad_len = ad_tl & ATMARP_LEN_MASK;
+
+  if (ad_len == 0)
+    return "<No address>";
+
+  /*
+   * XXX - break down into subcomponents.
+   */
+  return bytes_to_str(ad, ad_len);
+}
+
+static gchar *
+atmarpsubaddr_to_str(guint8 *ad, int ad_len)
+{
+  if (ad_len == 0)
+    return "<No address>";
+
+  /*
+   * XXX - break down into subcomponents?
+   */
   return bytes_to_str(ad, ad_len);
 }
 
@@ -170,13 +234,220 @@ arphrdtype_to_str(guint16 hwtype, const char *fmt) {
 #define	AR_OP		6
 #define MIN_ARP_HEADER_SIZE	8
 
+/* Offsets of fields within an ATMARP packet. */
+#define	ATM_AR_HRD	0
+#define	ATM_AR_PRO	2
+#define	ATM_AR_SHTL	4
+#define	ATM_AR_SSL	5
+#define	ATM_AR_OP	6
+#define	ATM_AR_SPLN	8
+#define	ATM_AR_THTL	9
+#define	ATM_AR_TSL	10
+#define	ATM_AR_TPLN	11
+#define MIN_ATMARP_HEADER_SIZE	12
+
+/*
+ * RFC 2225 ATMARP - it's just like ARP, except where it isn't.
+ */
+static void
+dissect_atmarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+  guint16     ar_hrd;
+  guint16     ar_pro;
+  guint8      ar_shtl;
+  guint8      ar_sht;
+  guint8      ar_shl;
+  guint8      ar_ssl;
+  guint16     ar_op;
+  guint8      ar_spln;
+  guint8      ar_thtl;
+  guint8      ar_tht;
+  guint8      ar_thl;
+  guint8      ar_tsl;
+  guint8      ar_tpln;
+  int         tot_len;
+  proto_tree  *arp_tree;
+  proto_item  *ti;
+  gchar       *op_str;
+  int         sha_offset, ssa_offset, spa_offset;
+  int         tha_offset, tsa_offset, tpa_offset;
+  gchar       *sha_str, *ssa_str, *spa_str;
+  gchar       *tha_str, *tsa_str, *tpa_str;
+
+  if (!BYTES_ARE_IN_FRAME(offset, MIN_ATMARP_HEADER_SIZE)) {
+    dissect_data(pd, offset, fd, tree);
+    return;
+  }
+
+  ar_hrd = pntohs(&pd[offset + ATM_AR_HRD]);
+  ar_pro = pntohs(&pd[offset + ATM_AR_PRO]);
+  ar_shtl = (guint8) pd[offset + ATM_AR_SHTL];
+  ar_sht = ar_shtl & ATMARP_IS_E164;
+  ar_shl = ar_shtl & ATMARP_LEN_MASK;
+  ar_ssl = (guint8) pd[offset + ATM_AR_SSL];
+  ar_op  = pntohs(&pd[offset + AR_OP]);
+  ar_spln = (guint8) pd[offset + ATM_AR_SPLN];
+  ar_thtl = (guint8) pd[offset + ATM_AR_THTL];
+  ar_tht = ar_thtl & ATMARP_IS_E164;
+  ar_thl = ar_thtl & ATMARP_LEN_MASK;
+  ar_tsl = (guint8) pd[offset + ATM_AR_TSL];
+  ar_tpln = (guint8) pd[offset + ATM_AR_TPLN];
+
+  tot_len = MIN_ATMARP_HEADER_SIZE + ar_shtl + ar_ssl + ar_spln +
+				ar_thtl + ar_tsl + ar_tpln;
+  if (!BYTES_ARE_IN_FRAME(offset, tot_len)) {
+    dissect_data(pd, offset, fd, tree);
+    return;
+  }
+
+  /* Extract the addresses.  */
+  sha_offset = offset + MIN_ATMARP_HEADER_SIZE;
+  if (ar_shl != 0)
+    sha_str = atmarpnum_to_str((guint8 *) &pd[sha_offset], ar_shtl);
+  else
+    sha_str = "<No address>";
+  ssa_offset = sha_offset + ar_shl;
+  if (ar_ssl != 0)
+    ssa_str = atmarpsubaddr_to_str((guint8 *) &pd[ssa_offset], ar_ssl);
+  else
+    ssa_str = NULL;
+  spa_offset = ssa_offset + ar_ssl;
+  spa_str = arpproaddr_to_str((guint8 *) &pd[spa_offset], ar_spln, ar_pro);
+  tha_offset = spa_offset + ar_spln;
+  if (ar_thl != 0)
+    tha_str = atmarpnum_to_str((guint8 *) &pd[tha_offset], ar_thtl);
+  else
+    tha_str = "<No address>";
+  tsa_offset = tha_offset + ar_thl;
+  if (ar_tsl != 0)
+    tsa_str = atmarpsubaddr_to_str((guint8 *) &pd[tsa_offset], ar_tsl);
+  else
+    tsa_str = NULL;
+  tpa_offset = tsa_offset + ar_tsl;
+  tpa_str = arpproaddr_to_str((guint8 *) &pd[tpa_offset], ar_tpln, ar_pro);
+  
+  if (check_col(fd, COL_PROTOCOL)) {
+    switch (ar_op) {
+
+    case ARPOP_REQUEST:
+    case ARPOP_REPLY:
+    case ATMARPOP_NAK:
+    default:
+      col_add_str(fd, COL_PROTOCOL, "ATMARP");
+      break;
+
+    case ARPOP_RREQUEST:
+    case ARPOP_RREPLY:
+      col_add_str(fd, COL_PROTOCOL, "ATMRARP");
+      break;
+
+    case ARPOP_IREQUEST:
+    case ARPOP_IREPLY:
+      col_add_str(fd, COL_PROTOCOL, "Inverse ATMARP");
+      break;
+    }
+  }
+
+  if (check_col(fd, COL_INFO)) {
+    switch (ar_op) {
+      case ARPOP_REQUEST:
+        col_add_fstr(fd, COL_INFO, "Who has %s?  Tell %s", tpa_str, spa_str);
+        break;
+      case ARPOP_REPLY:
+        col_add_fstr(fd, COL_INFO, "%s is at %s%s%s", spa_str, sha_str,
+		((ssa_str != NULL) ? "," : ""),
+		((ssa_str != NULL) ? ssa_str : ""));
+        break;
+      case ARPOP_IREQUEST:
+        col_add_fstr(fd, COL_INFO, "Who is %s%s%s?  Tell %s%s%s", tha_str,
+		((tsa_str != NULL) ? "," : ""),
+		((tsa_str != NULL) ? tsa_str : ""),
+		sha_str,
+		((ssa_str != NULL) ? "," : ""),
+		((ssa_str != NULL) ? ssa_str : ""));
+        break;
+      case ARPOP_IREPLY:
+        col_add_fstr(fd, COL_INFO, "%s%s%s is at %s", sha_str,
+		((ssa_str != NULL) ? "," : ""),
+		((ssa_str != NULL) ? ssa_str : ""),
+		spa_str);
+        break;
+      case ATMARPOP_NAK:
+        col_add_fstr(fd, COL_INFO, "I don't know where %s is", spa_str);
+        break;
+      default:
+        col_add_fstr(fd, COL_INFO, "Unknown ATMARP opcode 0x%04x", ar_op);
+        break;
+    }
+  }
+
+  if (tree) {
+    if ((op_str = match_strval(ar_op, atmop_vals)))
+      ti = proto_tree_add_item_format(tree, proto_arp, offset, tot_len,
+				      NULL, op_str);
+    else
+      ti = proto_tree_add_item_format(tree, proto_arp, offset, tot_len,
+				      NULL,
+				      "Unknown ATMARP (opcode 0x%04x)", ar_op);
+    arp_tree = proto_item_add_subtree(ti, ett_arp);
+    proto_tree_add_item(arp_tree, hf_arp_hard_type, offset + ATM_AR_HRD, 2,
+			       ar_hrd);
+    proto_tree_add_item(arp_tree, hf_arp_proto_type, offset + ATM_AR_PRO, 2,
+			       ar_pro);
+    proto_tree_add_item(arp_tree, hf_atmarp_shtl, offset + ATM_AR_SHTL, 1,
+			       ar_shtl);
+    proto_tree_add_item(arp_tree, hf_atmarp_ssl, offset + ATM_AR_SSL, 1,
+			       ar_ssl);
+    proto_tree_add_item(arp_tree, hf_arp_opcode, offset + AR_OP,  2,
+			       ar_op);
+    proto_tree_add_item(arp_tree, hf_atmarp_spln, offset + ATM_AR_SPLN, 1,
+			       ar_spln);
+    proto_tree_add_item(arp_tree, hf_atmarp_thtl, offset + ATM_AR_THTL, 1,
+			       ar_thtl);
+    proto_tree_add_item(arp_tree, hf_atmarp_tsl, offset + ATM_AR_TSL, 1,
+			       ar_tsl);
+    proto_tree_add_item(arp_tree, hf_atmarp_tpln, offset + ATM_AR_TPLN, 1,
+			       ar_tpln);
+    if (ar_shl != 0)
+      proto_tree_add_item_format(arp_tree, hf_atmarp_src_atm_num, sha_offset,
+			       ar_shl,
+			       &pd[sha_offset],
+			       "Sender ATM number: %s", sha_str);
+    if (ar_ssl != 0)
+      proto_tree_add_item_format(arp_tree, hf_atmarp_src_atm_subaddr, ssa_offset,
+			       ar_ssl,
+			       &pd[ssa_offset],
+			       "Sender ATM subaddress: %s", ssa_str);
+    if (ar_spln != 0)
+      proto_tree_add_item_format(arp_tree, hf_arp_src_proto, spa_offset, ar_spln,
+			       &pd[spa_offset],
+			       "Sender protocol address: %s", spa_str);
+    if (ar_thl != 0)
+      proto_tree_add_item_format(arp_tree, hf_atmarp_dst_atm_num, tha_offset,
+			       ar_thl,
+			       &pd[tha_offset],
+			       "Target ATM number: %s", tha_str);
+    if (ar_tsl != 0)
+      proto_tree_add_item_format(arp_tree, hf_atmarp_dst_atm_subaddr, tsa_offset,
+			       ar_tsl,
+			       &pd[tsa_offset],
+			       "Target ATM subaddress: %s", tsa_str);
+    if (ar_tpln != 0)
+      proto_tree_add_item_format(arp_tree, hf_arp_dst_proto, tpa_offset, ar_tpln,
+			       &pd[tpa_offset],
+			       "Target protocol address: %s", tpa_str);
+  }
+}
+
 void
-dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
   guint16     ar_hrd;
   guint16     ar_pro;
   guint8      ar_hln;
   guint8      ar_pln;
   guint16     ar_op;
+  int         tot_len;
   proto_tree  *arp_tree;
   proto_item  *ti;
   gchar       *op_str;
@@ -189,13 +460,17 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
 
   ar_hrd = pntohs(&pd[offset + AR_HRD]);
+  if (ar_hrd == ARPHRD_ATM2225) {
+    dissect_atmarp(pd, offset, fd, tree);
+    return;
+  }
   ar_pro = pntohs(&pd[offset + AR_PRO]);
   ar_hln = (guint8) pd[offset + AR_HLN];
   ar_pln = (guint8) pd[offset + AR_PLN];
   ar_op  = pntohs(&pd[offset + AR_OP]);
 
-  if (!BYTES_ARE_IN_FRAME(offset, 
-			  MIN_ARP_HEADER_SIZE + ar_hln*2 + ar_pln*2)) {
+  tot_len = MIN_ARP_HEADER_SIZE + ar_hln*2 + ar_pln*2;
+  if (!BYTES_ARE_IN_FRAME(offset, tot_len)) {
     dissect_data(pd, offset, fd, tree);
     return;
   }
@@ -223,6 +498,11 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     case ARPOP_RREPLY:
       col_add_str(fd, COL_PROTOCOL, "RARP");
       break;
+
+    case ARPOP_IREQUEST:
+    case ARPOP_IREPLY:
+      col_add_str(fd, COL_PROTOCOL, "Inverse ARP");
+      break;
     }
   }
 
@@ -235,9 +515,11 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
         col_add_fstr(fd, COL_INFO, "%s is at %s", spa_str, sha_str);
         break;
       case ARPOP_RREQUEST:
+      case ARPOP_IREQUEST:
         col_add_fstr(fd, COL_INFO, "Who is %s?  Tell %s", tha_str, sha_str);
         break;
       case ARPOP_RREPLY:
+      case ARPOP_IREPLY:
         col_add_fstr(fd, COL_INFO, "%s is at %s", sha_str, spa_str);
         break;
       default:
@@ -248,13 +530,11 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   if (tree) {
     if ((op_str = match_strval(ar_op, op_vals)))
-      ti = proto_tree_add_item_format(tree, proto_arp, offset,
-				      MIN_ARP_HEADER_SIZE + 2*ar_hln + 
-				      2*ar_pln, NULL, op_str);
+      ti = proto_tree_add_item_format(tree, proto_arp, offset, tot_len,
+				      NULL, op_str);
     else
-      ti = proto_tree_add_item_format(tree, proto_arp, offset,
-				      MIN_ARP_HEADER_SIZE + 2*ar_hln + 
-				      2*ar_pln, NULL,
+      ti = proto_tree_add_item_format(tree, proto_arp, offset, tot_len,
+				      NULL,
 				      "Unknown ARP (opcode 0x%04x)", ar_op);
     arp_tree = proto_item_add_subtree(ti, ett_arp);
     proto_tree_add_item(arp_tree, hf_arp_hard_type, offset + AR_HRD, 2,
@@ -267,16 +547,20 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			       ar_pln);
     proto_tree_add_item(arp_tree, hf_arp_opcode, offset + AR_OP,  2,
 			       ar_op);
-    proto_tree_add_item_format(arp_tree, hf_arp_src_ether, sha_offset, ar_hln,
+    if (ar_hln != 0)
+      proto_tree_add_item_format(arp_tree, hf_arp_src_ether, sha_offset, ar_hln,
 			       &pd[sha_offset],
 			       "Sender hardware address: %s", sha_str);
-    proto_tree_add_item_format(arp_tree, hf_arp_src_proto, spa_offset, ar_pln,
+    if (ar_pln != 0)
+      proto_tree_add_item_format(arp_tree, hf_arp_src_proto, spa_offset, ar_pln,
 			       &pd[spa_offset],
 			       "Sender protocol address: %s", spa_str);
-    proto_tree_add_item_format(arp_tree, hf_arp_dst_ether, tha_offset, ar_hln,
+    if (ar_hln != 0)
+      proto_tree_add_item_format(arp_tree, hf_arp_dst_ether, tha_offset, ar_hln,
 			       &pd[tha_offset],
 			       "Target hardware address: %s", tha_str);
-    proto_tree_add_item_format(arp_tree, hf_arp_dst_proto, tpa_offset, ar_pln,
+    if (ar_pln != 0)
+      proto_tree_add_item_format(arp_tree, hf_arp_dst_proto, tpa_offset, ar_pln,
 			       &pd[tpa_offset],
 			       "Target protocol address: %s", tpa_str);
   }
@@ -297,7 +581,17 @@ proto_register_arp(void)
       	"" }},
 
     { &hf_arp_hard_size,
-      { "Hardware size",		"arp.hw.size",	 
+      { "Hardware size",		"arp.hw.size",
+	FT_UINT8,	BASE_DEC,	NULL,	0x0,
+      	"" }},
+
+    { &hf_atmarp_shtl,
+      { "Sender ATM number type and length",	"arp.src.htl",	
+	FT_UINT8,	BASE_DEC,	NULL,	0x0,
+      	"" }},
+
+    { &hf_atmarp_ssl,
+      { "Sender ATM subaddress length",	"arp.src.slen",
 	FT_UINT8,	BASE_DEC,	NULL,	0x0,
       	"" }},
 
@@ -311,8 +605,38 @@ proto_register_arp(void)
 	FT_UINT16,	BASE_HEX,	VALS(op_vals),	0x0,
       	"" }},
 
+    { &hf_atmarp_spln,
+      { "Sender protocol size",		"arp.src.pln",
+	FT_UINT8,	BASE_DEC,	NULL,	0x0,
+      	"" }},
+
+    { &hf_atmarp_thtl,
+      { "Target ATM number type and length",	"arp.dst.htl",
+	FT_UINT8,	BASE_DEC,	NULL,	0x0,
+      	"" }},
+
+    { &hf_atmarp_tsl,
+      { "Target ATM subaddress length",	"arp.dst.slen",
+	FT_UINT8,	BASE_DEC,	NULL,	0x0,
+      	"" }},
+
+    { &hf_atmarp_tpln,
+      { "Target protocol size",		"arp.dst.pln",
+	FT_UINT8,	BASE_DEC,	NULL,	0x0,
+      	"" }},
+
     { &hf_arp_src_ether,
       { "Sender hardware address",	"arp.src.hw",
+	FT_BYTES,	BASE_NONE,	NULL,	0x0,
+      	"" }},
+
+    { &hf_atmarp_src_atm_num,
+      { "Sender ATM number",	"arp.src.atm_num",
+	FT_BYTES,	BASE_NONE,	NULL,	0x0,
+      	"" }},
+
+    { &hf_atmarp_src_atm_subaddr,
+      { "Sender ATM subaddress",	"arp.src.atm_subaddr",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
       	"" }},
 
@@ -323,6 +647,16 @@ proto_register_arp(void)
 
     { &hf_arp_dst_ether,
       { "Target hardware address",	"arp.dst.hw",
+	FT_BYTES,	BASE_NONE,	NULL,	0x0,
+      	"" }},
+
+    { &hf_atmarp_dst_atm_num,
+      { "Target ATM number",	"arp.dst.atm_num",
+	FT_BYTES,	BASE_NONE,	NULL,	0x0,
+      	"" }},
+
+    { &hf_atmarp_dst_atm_subaddr,
+      { "Target ATM subaddress",	"arp.dst.atm_subaddr",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
       	"" }},
 
