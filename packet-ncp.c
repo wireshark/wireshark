@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.62 2002/05/24 03:03:49 guy Exp $
+ * $Id: packet-ncp.c,v 1.63 2002/05/25 01:05:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,7 @@
 #include <epan/conversation.h>
 #include "prefs.h"
 #include "packet-ipx.h"
+#include "packet-tcp.h"
 #include "packet-ncp-int.h"
 
 int proto_ncp = -1;
@@ -78,6 +79,9 @@ static int hf_ncp_control_code = -1;
 
 gint ett_ncp = -1;
 static gint ett_ncp_system_flags = -1;
+
+/* desegmentation of NCP over TCP */
+static gboolean ncp_desegment = TRUE;
 
 static dissector_handle_t data_handle;
 
@@ -162,7 +166,8 @@ static value_string ncp_type_vals[] = {
 #define SYS	0x80		/* System packet */
 
 static void
-dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    gboolean is_tcp)
 {
 	proto_tree			*ncp_tree = NULL;
 	proto_item			*ti;
@@ -188,7 +193,7 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
-	if (pinfo->ptype == PT_TCP) {
+	if (is_tcp) {
 		ncpiph.signature	= tvb_get_ntohl(tvb, 0);
 		ncpiph.length		= tvb_get_ntohl(tvb, 4);
 		hdr_offset += 8;
@@ -238,7 +243,7 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_ncp, tvb, 0, -1, FALSE);
 		ncp_tree = proto_item_add_subtree(ti, ett_ncp);
 
-		if (pinfo->ptype == PT_TCP) {
+		if (is_tcp) {
 			proto_tree_add_uint(ncp_tree, hf_ncp_ip_sig, tvb, 0, 4, ncpiph.signature);
 			proto_tree_add_uint(ncp_tree, hf_ncp_ip_length, tvb, 4, 4, ncpiph.length);
 			if (ncpiph.signature == NCPIP_RQST) {
@@ -455,7 +460,34 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  	}
 }
 
+static void
+dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_ncp_common(tvb, pinfo, tree, FALSE);
+}
 
+static guint
+get_ncp_pdu_len(tvbuff_t *tvb, int offset)
+{
+  /*
+   * Get the length of the NCP-over-TCP packet.  Strip off the "has
+   * signature" flag.
+   */
+  return tvb_get_ntohl(tvb, offset + 4) & 0x7fffffff;
+}
+
+static void
+dissect_ncp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_ncp_common(tvb, pinfo, tree, TRUE);
+}
+
+static void
+dissect_ncp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  tcp_dissect_pdus(tvb, pinfo, tree, ncp_desegment, 8, get_ncp_pdu_len,
+	dissect_ncp_tcp_pdu);
+}
 
 void
 proto_register_ncp(void)
@@ -593,19 +625,23 @@ proto_register_ncp(void)
   proto_register_field_array(proto_ncp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  /* Register an obsolete configuration option for what used to be the
-     initial size of the NCP hash. */
-  ncp_module = prefs_register_protocol_obsolete(proto_ncp);
+  ncp_module = prefs_register_protocol(proto_ncp, NULL);
   prefs_register_obsolete_preference(ncp_module, "initial_hash_size");
+  prefs_register_bool_preference(ncp_module, "desegment",
+    "Desegment all NCP-over-TCP messages spanning multiple segments",
+    "Whether the NCP dissector should desegment all messages spanning multiple TCP segments",
+    &ncp_desegment);
 }
 
 void
 proto_reg_handoff_ncp(void)
 {
   dissector_handle_t ncp_handle;
+  dissector_handle_t ncp_tcp_handle;
 
   ncp_handle = create_dissector_handle(dissect_ncp, proto_ncp);
-  dissector_add("tcp.port", TCP_PORT_NCP, ncp_handle);
+  ncp_tcp_handle = create_dissector_handle(dissect_ncp_tcp, proto_ncp);
+  dissector_add("tcp.port", TCP_PORT_NCP, ncp_tcp_handle);
   dissector_add("udp.port", UDP_PORT_NCP, ncp_handle);
   dissector_add("ipx.packet_type", IPX_PACKET_TYPE_NCP, ncp_handle);
   dissector_add("ipx.socket", IPX_SOCKET_NCP, ncp_handle);
