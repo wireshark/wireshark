@@ -23,7 +23,7 @@
  *
  * Some structures from RFC2630
  *
- * $Id: packet-kerberos.c,v 1.63 2004/05/18 08:22:26 sahlberg Exp $
+ * $Id: packet-kerberos.c,v 1.64 2004/05/25 02:59:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1148,8 +1148,8 @@ static int dissect_krb5_address(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 	/* push it up two levels in the decode pane */
 	if(it){
-		proto_item_append_text(proto_item_get_parent(it), "  %s",address_str);
-		proto_item_append_text(proto_item_get_parent_nth(it, 2), "  %s",address_str);
+		proto_item_append_text(proto_item_get_parent(it), " %s",address_str);
+		proto_item_append_text(proto_item_get_parent_nth(it, 2), " %s",address_str);
 	}
 
 	offset+=len;
@@ -1229,7 +1229,7 @@ dissect_krb5_name_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 {
 	offset=dissect_ber_integer(pinfo, tree, tvb, offset, hf_krb_name_type, &name_type);
 	if(tree){
-		proto_item_append_text(tree, "  (%s):", 
+		proto_item_append_text(tree, " (%s):", 
 			val_to_str(name_type, krb5_princ_types,
 			"Unknown:%d"));
 	}
