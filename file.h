@@ -56,7 +56,7 @@ typedef enum {
  * @param is_tempfile is this a temporary file?
  * @return TRUE on success, FALSE on failure
  */
-gboolean cf_open(capture_file *cf, char *fname, gboolean is_tempfile, int *err);
+gboolean cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err);
 
 /**
  * Close a capture file.
@@ -90,7 +90,7 @@ cf_read_status_t cf_read(capture_file *cf);
  * @param err the error code, if an error had occured
  * @return TRUE on success, FALSE on failure
  */
-gboolean cf_start_tail(capture_file *cf, char *fname, gboolean is_tempfile, int *err);
+gboolean cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *err);
 
 /**
  * Read packets from the "end" of a capture file.
@@ -120,7 +120,7 @@ cf_read_status_t cf_finish_tail(capture_file *cf, int *err);
  * @param save_format the format of the file to save (libpcap, ...)
  * @return TRUE on success, FALSE on failure
  */
-gboolean cf_save(capture_file * cf, char *fname, packet_range_t *range, guint save_format);
+gboolean cf_save(capture_file * cf, const char *fname, packet_range_t *range, guint save_format);
 
 /**
  * Get a displayable name of the capture file.
@@ -380,7 +380,7 @@ void cf_unmark_frame(capture_file *cf, frame_data *frame);
  * @param err_info the additional info about this error (e.g. filename)
  * @return statically allocated error message
  */
-char *cf_read_error_message(int err, gchar *err_info);
+char *cf_read_error_message(int err, const gchar *err_info);
 
 /**
  * Merge two (or more) capture files into one.

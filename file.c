@@ -132,7 +132,7 @@ static void cf_open_failure_alert_box(const char *filename, int err,
 static char *file_rename_error_message(int err);
 static void cf_write_failure_alert_box(const char *filename, int err);
 static void cf_close_failure_alert_box(const char *filename, int err);
-static   gboolean copy_binary_file(char *from_filename, char *to_filename);
+static   gboolean copy_binary_file(const char *from_filename, const char *to_filename);
 
 /* Update the progress bar this many times when reading a file. */
 #define N_PROGBAR_UPDATES	100
@@ -143,7 +143,7 @@ static   gboolean copy_binary_file(char *from_filename, char *to_filename);
 
 
 gboolean
-cf_open(capture_file *cf, char *fname, gboolean is_tempfile, int *err)
+cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 {
   wtap       *wth;
   gchar       *err_info;
@@ -530,7 +530,7 @@ cf_read(capture_file *cf)
 
 #ifdef HAVE_LIBPCAP
 gboolean
-cf_start_tail(capture_file *cf, char *fname, gboolean is_tempfile, int *err)
+cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 {
   gchar *capture_msg;
   gboolean status;
@@ -3085,7 +3085,7 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
 }
 
 gboolean
-cf_save(capture_file *cf, char *fname, packet_range_t *range, guint save_format)
+cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_format)
 {
   gchar        *from_filename;
   const gchar  *name_ptr;
@@ -3429,7 +3429,7 @@ file_rename_error_message(int err)
 }
 
 char *
-cf_read_error_message(int err, gchar *err_info)
+cf_read_error_message(int err, const gchar *err_info)
 {
   static char errmsg_errno[1024+1];
 
@@ -3564,7 +3564,7 @@ cf_reload(capture_file *cf) {
  * displays a simple dialog window with the error message.
  */
 static gboolean
-copy_binary_file(char *from_filename, char *to_filename)
+copy_binary_file(const char *from_filename, const char *to_filename)
 {
   int           from_fd, to_fd, nread, nwritten, err;
   guint8        pd[65536];
