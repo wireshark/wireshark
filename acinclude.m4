@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.15 1999/11/30 22:45:09 gram Exp $
+dnl $Id: acinclude.m4,v 1.16 2000/01/15 08:08:20 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ dnl Roland McGrath, Noah Friedman, david d zuhn, and many others.
 #
 # AC_ETHEREAL_STRUCT_SA_LEN
 #
-dnl AC_STRUCT_ST_BLKSIZE extracted from the file in qustion,
+dnl AC_STRUCT_ST_BLKSIZE extracted from the file in question,
 dnl "acspecific.m4" in GNU Autoconf 2.12, and turned into
 dnl AC_ETHEREAL_STRUCT_SA_LEN, which checks if "struct sockaddr"
 dnl has the 4.4BSD "sa_len" member, and defines HAVE_SA_LEN; that's
@@ -72,12 +72,11 @@ if test $ac_cv_ethereal_struct_sa_len = yes; then
 fi
 ])
 
-
 #
 # AC_ETHEREAL_IPV6_STACK
 #
 # By Jun-ichiro "itojun" Hagino, <itojun@iijlab.net>
-
+#
 AC_DEFUN(AC_ETHEREAL_IPV6_STACK,
 [
 	v6type=unknown
@@ -163,6 +162,62 @@ yes
 ])
 
 #
+# AC_ETHEREAL_GETHOSTBY_LIB_CHECK
+#
+# Checks whether we need "-lnsl" to get "gethostby*()", which we use
+# in "resolv.c".
+#
+# Adapted from stuff in the AC_PATH_XTRA macro in "acspecific.m4" in
+# GNU Autoconf 2.13; the comment came from there.
+# Done by Guy Harris <guy@alum.mit.edu> on 2000-01-14. 
+#
+AC_DEFUN(AC_ETHEREAL_GETHOSTBY_LIB_CHECK,
+[
+    # msh@cis.ufl.edu says -lnsl (and -lsocket) are needed for his 386/AT,
+    # to get the SysV transport functions.
+    # chad@anasazi.com says the Pyramid MIS-ES running DC/OSx (SVR4)
+    # needs -lnsl.
+    # The nsl library prevents programs from opening the X display
+    # on Irix 5.2, according to dickey@clark.net.
+    AC_CHECK_FUNC(gethostbyname)
+    if test $ac_cv_func_gethostbyname = no; then
+      AC_CHECK_LIB(nsl, gethostbyname, NSL_LIBS="-lnsl")
+    fi
+    AC_SUBST(NSL_LIBS)
+])
+
+#
+# AC_ETHEREAL_SOCKET_LIB_CHECK
+#
+# Checks whether we need "-lsocket" to get "socket()", which is used
+# by libpcap on some platforms - and, in effect, "gethostby*()" on
+# most if not all platforms (so that it can use NIS or DNS or...
+# to look up host names).
+#
+# Adapted from stuff in the AC_PATH_XTRA macro in "acspecific.m4" in
+# GNU Autoconf 2.13; the comment came from there.
+# Done by Guy Harris <guy@alum.mit.edu> on 2000-01-14. 
+#
+# We use "connect" because that's what AC_PATH_XTRA did.
+#
+AC_DEFUN(AC_ETHEREAL_SOCKET_LIB_CHECK,
+[
+    # lieder@skyler.mavd.honeywell.com says without -lsocket,
+    # socket/setsockopt and other routines are undefined under SCO ODT
+    # 2.0.  But -lsocket is broken on IRIX 5.2 (and is not necessary
+    # on later versions), says simon@lia.di.epfl.ch: it contains
+    # gethostby* variants that don't use the nameserver (or something).
+    # -lsocket must be given before -lnsl if both are needed.
+    # We assume that if connect needs -lnsl, so does gethostbyname.
+    AC_CHECK_FUNC(connect)
+    if test $ac_cv_func_connect = no; then
+      AC_CHECK_LIB(socket, connect, SOCKET_LIBS="-lsocket",
+		AC_MSG_ERROR(Function 'socket' not found.), $NSL_LIBS)
+    fi
+    AC_SUBST(SOCKET_LIBS)
+])
+
+#
 # AC_ETHEREAL_PCAP_CHECK
 #
 AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
@@ -190,7 +245,8 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 	AC_CHECK_HEADER(net/bpf.h,,
 	    AC_MSG_ERROR([[Header file net/bpf.h not found; if you installed libpcap from source, did you also do \"make install-incl\"?]]))
 	AC_CHECK_HEADER(pcap.h,, AC_MSG_ERROR(Header file pcap.h not found.))
-	AC_CHECK_LIB(pcap, pcap_open_offline,, AC_MSG_ERROR(Library libpcap not found.))
+	AC_CHECK_LIB(pcap, pcap_open_live,, AC_MSG_ERROR(Library libpcap not found.),
+		$SOCKET_LIBS $NSL_LIBS)
 ])
 
 #

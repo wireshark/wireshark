@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.152 2000/01/15 00:22:28 gram Exp $
+# $Id: Makefile.am,v 1.153 2000/01/15 08:08:19 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -259,6 +259,12 @@ EXTRA_ethereal_SOURCES = \
 
 # Optional objects that I know how to build. These will be
 # linked into the ethereal executable.
+# They will also be linked into the tethereal executable; if this
+# list ever grows to include something that can't be linked with
+# tethereal, or if tethereal needs something that ethereal doesn't,
+# we should probably split this into stuff needed both
+# by ethereal and tethereal and stuff needed only by one or the
+# other.
 ethereal_optional_objects = @SNPRINTF_O@ @STRERROR_O@  @STRNCASECMP_O@ @MKSTEMP_O@ \
 	@INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ 
 
@@ -273,7 +279,13 @@ ethereal_DEPENDENCIES = \
 	@LIBLTDL@
 	plugins/gryphon/gryphon.la
 
-# This automake variable adds to the link-line for the executable
+# This automake variable adds to the link-line for the executable.
+#
+# Note that Ethereal doesn't have to be linked with @GLIB_LIBS@, as
+# they are included in @GTK_LIBS@, and doesn't have to be linked with
+# @SOCKET_LIBS@ or @NSL_LIBS@, as those should also be included in
+# @GTK_LIBS@ (as those are also needed for X applications, and GTK+
+# applications are X applications).
 ethereal_LDADD = \
 	$(ethereal_optional_objects)	\
 	$(ethereal_additional_libs)	\
@@ -287,14 +299,35 @@ tethereal_SOURCES = \
 	$(DISSECTOR_SOURCES) \
 	$(ETHEREAL_COMMON_SOURCES) \
 	tethereal.c
-tethereal_DEPENDENCIES = wiretap/libwiretap.a
+
+# Additional libs that I know how to build. These will be
+# linked into the tethereal executable.
+tethereal_additional_libs = wiretap/libwiretap.a
+
+# This is the automake dependency variable for the executable
+tethereal_DEPENDENCIES = \
+	$(ethereal_optional_objects)	\
+	$(tethereal_additional_libs)	\
+	@LIBLTDL@
+	plugins/gryphon/gryphon.la
+
+# This automake variable adds to the link-line for the executable
 tethereal_LDADD = wiretap/libwiretap.a	\
+	$(ethereal_optional_objects)	\
+	$(tethereal_additional_libs)	\
 	@SNMP_A@			\
 	@LIBLTDL@ "-dlopen" self	\
-	"-dlopen" plugins/gryphon/gryphon.la @GLIB_LIBS@ -lm
+	"-dlopen" plugins/gryphon/gryphon.la @GLIB_LIBS@ -lm \
+	@SOCKET_LIBS@ @NSL_LIBS@
+
+tethereal_LDFLAGS = -export-dynamic
 
 editcap_SOURCES = editcap.c
+
+# This is the automake dependency variable for the executable
 editcap_DEPENDENCIES = wiretap/libwiretap.a
+
+# This automake variable adds to the link-line for the executable
 editcap_LDADD = wiretap/libwiretap.a @GLIB_LIBS@
 
 #

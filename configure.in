@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.74 2000/01/15 05:30:52 guy Exp $
+# $Id: configure.in,v 1.75 2000/01/15 08:08:20 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -106,6 +106,14 @@ AM_PATH_GLIB(1.2.0, , AC_MSG_ERROR(GLib distribution not found.), gmodule)
 AM_PATH_GTK(1.2.0, CFLAGS="$CFLAGS $GTK_CFLAGS",
                    AC_MSG_ERROR(GTK+ distribution not found.))
 
+dnl Checks for "gethostbyname()" - and "-lnsl", if we need it to get
+dnl "gethostbyname()".
+AC_ETHEREAL_GETHOSTBY_LIB_CHECK
+
+dnl Checks for "connect()", used as a proxy for "socket()" - and
+dnl "-lsocket", if we need it to get "connect()".
+AC_ETHEREAL_SOCKET_LIB_CHECK
+
 dnl pcap check
 AC_ARG_ENABLE(pcap,
 [  --enable-pcap           use libpcap for packet capturing.  [default=yes]],,enable_pcap=yes)
@@ -191,9 +199,9 @@ AC_ETHEREAL_STRUCT_SA_LEN
 # We must know our byte order
 AC_C_BIGENDIAN
 
-dnl Checks for library functions.
+# Checks whether "-traditional" is needed when using "ioctl".
+# XXX - do we need this?
 AC_PROG_GCC_TRADITIONAL
-AC_CHECK_FUNC(socket,, AC_MSG_ERROR(Function 'socket' not found.))
 
 # If there's a system out there that has snprintf and _doesn't_ have vsnprintf,
 # then this won't work.
