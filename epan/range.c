@@ -38,8 +38,6 @@
 
 #include <epan/range.h>
 
-#include "globals.h"
-
 /* init the range struct */
 void range_init(range_t *range) {
 
