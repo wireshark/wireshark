@@ -3,7 +3,7 @@
  * Copyright 2003, Tim Potter <tpot@samba.org>
  * Copyright 2003, Ronnie Sahlberg,  added function dissectors
  *
- * $Id: packet-dcerpc-svcctl.c,v 1.3 2003/04/27 02:33:02 sahlberg Exp $
+ * $Id: packet-dcerpc-svcctl.c,v 1.4 2003/04/27 04:38:10 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,6 +50,11 @@ static int hf_svcctl_scm_rights_modify_boot_config = -1;
 static int hf_svcctl_hnd = -1;
 static int hf_svcctl_lock = -1;
 static int hf_svcctl_rc = -1;
+static int hf_svcctl_size = -1;
+static int hf_svcctl_required_size = -1;
+static int hf_svcctl_is_locked = -1;
+static int hf_svcctl_lock_duration = -1;
+static int hf_svcctl_lock_owner = -1;
 
 static gint ett_dcerpc_svcctl = -1;
 
@@ -107,8 +112,6 @@ svcctl_dissect_OpenSCManager_rqst(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_svcctl_access_mask,
 		svcctl_scm_specific_rights, "SVCCTL");
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -164,8 +167,6 @@ svcctl_dissect_OpenSCManager_reply(tvbuff_t *tvb, int offset,
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, &status);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -196,8 +197,6 @@ svcctl_dissect_CloseServiceHandle_rqst(tvbuff_t *tvb, int offset,
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				pol_name);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -212,8 +211,6 @@ svcctl_dissect_CloseServiceHandle_reply(tvbuff_t *tvb, int offset,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -235,8 +232,6 @@ svcctl_dissect_LockServiceDatabase_rqst(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_svcctl_hnd, NULL,
 		FALSE, TRUE);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 static int
@@ -250,8 +245,6 @@ svcctl_dissect_LockServiceDatabase_reply(tvbuff_t *tvb, int offset,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -272,8 +265,6 @@ svcctl_dissect_UnlockServiceDatabase_rqst(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_svcctl_lock, NULL,
 		FALSE, TRUE);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 static int
@@ -288,11 +279,75 @@ svcctl_dissect_UnlockServiceDatabase_reply(tvbuff_t *tvb, int offset,
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, NULL);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+	return offset;
+}
+
+
+/*
+ * IDL typedef struct {
+ * IDL     long is_locked,
+ * IDL     [unique][string] char *lock_owner,
+ * IDL     long lock_duration,
+ * IDL };
+ */ 
+static int
+svcctl_dissect_QUERY_SERVICE_LOCK_STATUS(tvbuff_t *tvb, int offset, 
+				  packet_info *pinfo, proto_tree *tree,
+				  char *drep)
+{
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_svcctl_is_locked, NULL);
+
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_ndr_char_cvstring, NDR_POINTER_UNIQUE,
+		"Owner", hf_svcctl_lock_owner);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_svcctl_lock_duration, NULL);
 
 	return offset;
 }
 
+/*
+ * IDL long QueryServiceLockStatus(
+ * IDL      [in] SC_HANDLE db_handle,
+ * IDL      [in] long buf_size,
+ * IDL      [out][ref] QUERY_SERVICE_LOCK_STATUS *status,
+ * IDL      [out][ref] long *required_buf_size
+ * IDL );
+ */
+static int
+svcctl_dissect_QueryServiceLockStatus_rqst(tvbuff_t *tvb, int offset, 
+				  packet_info *pinfo, proto_tree *tree,
+				  char *drep)
+{
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_svcctl_hnd, NULL,
+		FALSE, TRUE);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_svcctl_size, NULL);
+
+	return offset;
+}
+static int
+svcctl_dissect_QueryServiceLockStatus_reply(tvbuff_t *tvb, int offset, 
+				  packet_info *pinfo, proto_tree *tree,
+				  char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		svcctl_dissect_QUERY_SERVICE_LOCK_STATUS, NDR_POINTER_REF,
+		"LOCK_STATUS", -1);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_svcctl_required_size, NULL);
+
+	offset = dissect_doserror(
+		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, NULL);
+
+	return offset;
+}
 
 
 
@@ -320,6 +375,9 @@ static dcerpc_sub_dissector dcerpc_svcctl_dissectors[] = {
 		svcctl_dissect_OpenSCManager_rqst,
 		svcctl_dissect_OpenSCManager_reply },
 	{ SVC_OPEN_SERVICE_A, "Open Service A", NULL, NULL },
+	{ SVC_QUERY_SERVICE_LOCK_STATUS, "QueryServiceLockStatus",
+		svcctl_dissect_QueryServiceLockStatus_rqst,
+		svcctl_dissect_QueryServiceLockStatus_reply },
 	{0, NULL, NULL, NULL}
 };
 
@@ -339,6 +397,7 @@ static const value_string svcctl_opnum_vals[] = {
 	{ SVC_QUERY_DISP_NAME, "Query display name" },
 	{ SVC_OPEN_SC_MANAGER, "OpenSCManager" },
 	{ SVC_OPEN_SERVICE_A, "Open Service A" },
+	{ SVC_QUERY_SERVICE_LOCK_STATUS, "QueryServiceLockStatus" },
 	{ 0, NULL }
 };
 
@@ -385,6 +444,21 @@ proto_register_dcerpc_svcctl(void)
 	  { &hf_svcctl_rc,
 	    { "Return code", "svcctl.rc", FT_UINT32, BASE_HEX,
 	      VALS(DOS_errors), 0x0, "SVCCTL return code", HFILL }},
+	  { &hf_svcctl_size,
+	    { "Size", "svcctl.size", FT_UINT32, BASE_DEC,
+	      NULL, 0x0, "SVCCTL size of buffer", HFILL }},
+	  { &hf_svcctl_required_size,
+	    { "Required Size", "svcctl.required_size", FT_UINT32, BASE_DEC,
+	      NULL, 0x0, "SVCCTL required size of buffer for data to fit", HFILL }},
+	  { &hf_svcctl_is_locked,
+	    { "IsLocked", "svcctl.is_locked", FT_UINT32, BASE_DEC,
+	      NULL, 0x0, "SVCCTL whether the database is locked or not", HFILL }},
+	  { &hf_svcctl_lock_duration,
+	    { "Duration", "svcctl.lock_duration", FT_UINT32, BASE_DEC,
+	      NULL, 0x0, "SVCCTL number of seconds the database has been locked", HFILL }},
+	  { &hf_svcctl_lock_owner,
+	    { "Owner", "svcctl.lock_owner", FT_STRING, BASE_NONE,
+	      NULL, 0x0, "SVCCTL the user that holds the database lock", HFILL }},
 	};
 
         static gint *ett[] = {
