@@ -1,7 +1,7 @@
 /* packet-acn.c
  * Routines for ACN packet disassembly
  *
- * $Id: packet-acn.c,v 1.3 2003/11/05 20:10:54 guy Exp $
+ * $Id: packet-acn.c,v 1.4 2003/11/06 09:32:46 guy Exp $
  *
  * Copyright (c) 2003 by Erwin Rol <erwin@erwinrol.com>
  *
@@ -299,24 +299,25 @@ dissect_sdt(tvbuff_t *tvb, guint offset, proto_tree *tree, acn_pdu_history_t* pa
 					break;
 					
 				case ACN_SDT_ADDR_IPV4:
+					proto_tree_add_item(tree, hf_acn_sdt_upstream_port, tvb,
+								offset, 2, FALSE);
+					offset += 2;
+				
 					proto_tree_add_item(tree, hf_acn_sdt_upstream_ipv4_address, tvb,
 								offset, 4, FALSE);
 					offset += 4;
 				
-					proto_tree_add_item(tree, hf_acn_sdt_upstream_port, tvb,
-								offset, 2, FALSE);
-					offset += 2;
-				
 					break;
 					
 				case ACN_SDT_ADDR_IPV6:
+					proto_tree_add_item(tree, hf_acn_sdt_upstream_port, tvb,
+								offset, 2, FALSE);
+					offset += 2;
+
 					proto_tree_add_item(tree, hf_acn_sdt_upstream_ipv6_address, tvb,
 								offset, 16, FALSE);
 					offset += 16;
 				
-					proto_tree_add_item(tree, hf_acn_sdt_upstream_port, tvb,
-								offset, 2, FALSE);
-					offset += 2;
 					break;		
 			}
 			
@@ -339,24 +340,26 @@ dissect_sdt(tvbuff_t *tvb, guint offset, proto_tree *tree, acn_pdu_history_t* pa
 					break;
 					
 				case ACN_SDT_ADDR_IPV4:
+					proto_tree_add_item(tree, hf_acn_sdt_downstream_port, tvb,
+								offset, 2, FALSE);
+					offset += 2;
+
 					proto_tree_add_item(tree, hf_acn_sdt_downstream_ipv4_address, tvb,
 								offset, 4, FALSE);
 					offset += 4;
 				
-					proto_tree_add_item(tree, hf_acn_sdt_downstream_port, tvb,
-								offset, 2, FALSE);
-					offset += 2;
 				
 					break;
 					
 				case ACN_SDT_ADDR_IPV6:
+					proto_tree_add_item(tree, hf_acn_sdt_downstream_port, tvb,
+								offset, 2, FALSE);
+					offset += 2;
+
 					proto_tree_add_item(tree, hf_acn_sdt_downstream_ipv6_address, tvb,
 								offset, 16, FALSE);
 					offset += 16;
 				
-					proto_tree_add_item(tree, hf_acn_sdt_downstream_port, tvb,
-								offset, 2, FALSE);
-					offset += 2;
 					break;		
 			}
 			
