@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.66 2003/03/27 19:15:28 guy Exp $
+ * $Id: packet-wsp.c,v 1.67 2003/05/08 08:36:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -121,6 +121,16 @@ static int hf_wsp_header_location			= HF_EMPTY;
 static int hf_wsp_header_if_modified_since		= HF_EMPTY;
 static int hf_wsp_header_profile			= HF_EMPTY;
 static int hf_wsp_header_pragma				= HF_EMPTY;
+static int hf_wsp_header_proxy_authenticate				= HF_EMPTY;
+static int hf_wsp_header_www_authenticate				= HF_EMPTY;
+static int hf_wsp_header_proxy_authorization			= HF_EMPTY;
+static int hf_wsp_header_proxy_authorization_scheme		= HF_EMPTY;
+static int hf_wsp_header_proxy_authorization_user_id	= HF_EMPTY;
+static int hf_wsp_header_proxy_authorization_password	= HF_EMPTY;
+static int hf_wsp_header_authorization					= HF_EMPTY;
+static int hf_wsp_header_authorization_scheme			= HF_EMPTY;
+static int hf_wsp_header_authorization_user_id			= HF_EMPTY;
+static int hf_wsp_header_authorization_password			= HF_EMPTY;
 static int hf_wsp_header_server				= HF_EMPTY;
 static int hf_wsp_header_user_agent			= HF_EMPTY;
 static int hf_wsp_header_warning			= HF_EMPTY;
@@ -200,6 +210,7 @@ static gint ett_redirect_flags				= ETT_EMPTY;
 static gint ett_redirect_afl				= ETT_EMPTY;
 static gint ett_multiparts				= ETT_EMPTY;
 static gint ett_mpartlist				= ETT_EMPTY;
+static gint ett_header_credentials			= ETT_EMPTY;
 
 /* Handle for WSP-over-UDP dissector */
 static dissector_handle_t wsp_fromudp_handle;
@@ -895,6 +906,28 @@ static const value_string vals_wsp_parameter_sec[] = {
 	{ 0x00, NULL }
 };
 
+/* Warning codes and mappings */
+static const value_string vals_wsp_warning_code[] = {
+	{ 10, "110 Response is stale" },
+	{ 11, "111 Revalidation failed" },
+	{ 12, "112 Disconnected operation" },
+	{ 13, "113 Heuristic expiration" },
+	{ 14, "214 Transformation applied" },
+	{ 99, "199/299 Miscellaneous warning" },
+
+	{ 0, NULL }
+};
+
+static const value_string vals_wsp_warning_code_short[] = {
+	{ 10, "110" },
+	{ 11, "111" },
+	{ 12, "112" },
+	{ 13, "113" },
+	{ 14, "214" },
+	{ 99, "199/299" },
+
+	{ 0, NULL }
+};
 
 
 /*
@@ -1002,6 +1035,10 @@ static void add_warning_header (proto_tree *, tvbuff_t *, int, tvbuff_t *,
     value_type_t, int);
 static void add_accept_application_header (proto_tree *, tvbuff_t *, int,
     tvbuff_t *, value_type_t, int);
+static void add_credentials_value_header (proto_tree *tree,
+		tvbuff_t *header_buff, int headerLen, tvbuff_t *value_buff,
+		value_type_t valueType, int valueLen,
+		int hf_main, int hf_scheme, int hf_basic_user_id, int hf_basic_password);
 static void add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type);
 static void add_capability_vals(tvbuff_t *, gboolean, int, guint, guint, char *, size_t);
 static value_type_t get_value_type_len (tvbuff_t *, int, guint *, int *, int *);
@@ -1871,6 +1908,28 @@ add_well_known_header (proto_tree *tree, tvbuff_t *tvb, int offset,
 		    value_buff, valueType, valueLen,
 		    hf_wsp_header_content_ID, headerType);
 		break;
+	
+	case FN_AUTHORIZATION: /* Authorization */
+		add_credentials_value_header (tree, header_buff, headerLen,
+				value_buff, valueType, valueLen,
+				hf_wsp_header_authorization,
+				hf_wsp_header_authorization_scheme,
+				hf_wsp_header_authorization_user_id,
+				hf_wsp_header_authorization_password);
+		break;
+
+	case FN_PROXY_AUTHORIZATION: /* Proxy-Authorization */
+		add_credentials_value_header (tree, header_buff, headerLen,
+				value_buff, valueType, valueLen,
+				hf_wsp_header_proxy_authorization,
+				hf_wsp_header_proxy_authorization_scheme,
+				hf_wsp_header_proxy_authorization_user_id,
+				hf_wsp_header_proxy_authorization_password);
+		break;
+
+	case FN_WWW_AUTHENTICATE: /* WWW-Authenticate */
+	case FN_PROXY_AUTHENTICATE: /* Proxy-Authenticate */
+
 
 	default:
 		proto_tree_add_text (tree, header_buff, 0, headerLen,
@@ -2752,6 +2811,7 @@ add_warning_header (proto_tree *tree, tvbuff_t *header_buff,
 	proto_tree *warning_tree;
 	int subvalueLen;
 	int subvalueOffset;
+	guint8 code;
 
 	/*
 	 * Put the items under a header.
@@ -2769,6 +2829,7 @@ add_warning_header (proto_tree *tree, tvbuff_t *header_buff,
 		proto_tree_add_uint (warning_tree, hf_wsp_header_warning_code,
 		    header_buff, 0, headerLen,
 		    valueLen);	/* valueLen is the value */
+		proto_item_append_text (ti, ": %s", match_strval(valueLen, vals_wsp_warning_code));
 		return;
 	}
 	if (valueType == VALUE_IS_TEXT_STRING)
@@ -2799,6 +2860,7 @@ add_warning_header (proto_tree *tree, tvbuff_t *header_buff,
 		    subvalueLen, "Invalid Warn-code (not a Short-integer)");
 		return;
 	}
+	code = subvalueLen;
 	proto_tree_add_uint (warning_tree, hf_wsp_header_warning_code,
 	    value_buff, subvalueOffset, 1,
 	    subvalueLen);	/* subvalueLen is the value */
@@ -2838,6 +2900,10 @@ add_warning_header (proto_tree *tree, tvbuff_t *header_buff,
 	proto_tree_add_item (warning_tree,
 		hf_wsp_header_warning_text,
 		value_buff, subvalueOffset, subvalueLen, bo_little_endian);
+	/* Now create the summary warning header */
+	proto_item_append_text (ti, ": %s %s",
+			val_to_str (code, vals_wsp_warning_code_short, "%u"),
+			tvb_get_ptr (value_buff, subvalueOffset, subvalueLen));
 }
 
 static void
@@ -2926,6 +2992,61 @@ add_wap_application_id_header (proto_tree *tree, tvbuff_t *header_buff,
 	 * Not valid.
 	 */
 	fprintf(stderr, "dissect_wsp: Suprising format of X-Wap-Application-Id\n");
+	return;
+}
+
+static void
+add_credentials_value_header (proto_tree *tree, tvbuff_t *header_buff,
+		int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+		int valueLen _U_ ,
+		int hf_main, int hf_scheme,
+		int hf_basic_user_id, int hf_basic_password)
+{
+	char *s;
+	guint32 i, sLen;
+	proto_item *ti;
+	proto_tree *basic_tree;
+
+	ti = proto_tree_add_item (tree, hf_main, header_buff, 0, headerLen,
+			bo_little_endian);
+	if (valueType == VALUE_LEN_SUPPLIED)
+	{
+		if (tvb_get_guint8 (value_buff, 0) == 0x80)
+		{ /* Basic */
+			basic_tree = proto_item_add_subtree(ti, ett_header_credentials);
+			proto_tree_add_string (basic_tree, hf_scheme,
+					value_buff, 0, 1, "Basic" );
+			proto_item_append_text (ti, ": Basic");
+			/* Now process the Basic Cookie consisting of User-Id and Password */
+			i = 1;
+			while (tvb_get_guint8(value_buff, i))
+				i++; /* Count length of 1st string */
+			/* We reached End of String at offset = i.
+			 * Get the user id including trailing '\0' (end - start + 1) */
+			s = (char *) tvb_get_ptr(value_buff, 1, i - 1 + 1);
+			proto_tree_add_string (basic_tree, hf_basic_user_id,
+					value_buff, 1, i - 1 + 1, s );
+			proto_item_append_text (ti, "; user-id='%s'", s);
+			sLen = ++i; /* Move to 1st byte of password string */
+
+			while (tvb_get_guint8(value_buff, i))
+				i++; /* Count length of 2nd string */
+			/* We reached End of String at offset = i.
+			 * Get the password including trailing '\0' (end - start + 1) */
+			s = (char *) tvb_get_ptr(value_buff, sLen, i - sLen + 1);
+			proto_tree_add_string (basic_tree, hf_basic_password,
+					value_buff, sLen, i - sLen + 1, s );
+			proto_item_append_text (ti, "; password='%s'", s);
+		}
+		else
+		{ /* TODO: Authentication-scheme *Auth-param */
+			proto_item_append_text (ti, ": (General format not yet decoded)");
+		}
+	}
+	else
+	{
+		proto_item_append_text (ti, ": (Invalid header value format)");
+	}
 	return;
 }
 
@@ -4675,6 +4796,76 @@ proto_register_wsp(void)
 				"pragma", HFILL
 			}
 		},
+		{ &hf_wsp_header_authorization,
+			{ 	"Authorization",
+				"wsp.header.authorization",
+				 FT_NONE, BASE_NONE, NULL, 0x00,
+				"Authorization", HFILL
+			}
+		},
+		{ &hf_wsp_header_authorization_scheme,
+			{ 	"Authentication scheme",
+				"wsp.header.authorization.scheme",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Authorization: Authentication Scheme", HFILL
+			}
+		},
+		{ &hf_wsp_header_authorization_user_id,
+			{ 	"User-ID",
+				"wsp.header.authorization.user_id",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Authorization: Basic: User-ID", HFILL
+			}
+		},
+		{ &hf_wsp_header_authorization_password,
+			{ 	"Password",
+				"wsp.header.authorization.password",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Authorization: Basic: Password", HFILL
+			}
+		},
+		{ &hf_wsp_header_proxy_authorization,
+			{ 	"Proxy-Authorization",
+				"wsp.header.proxy_authorization",
+				 FT_NONE, BASE_NONE, NULL, 0x00,
+				"Proxy-Authorization", HFILL
+			}
+		},
+		{ &hf_wsp_header_proxy_authorization_scheme,
+			{ 	"Authentication scheme",
+				"wsp.header.proxy_authorization.scheme",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Proxy-Authorization: Authentication Scheme", HFILL
+			}
+		},
+		{ &hf_wsp_header_proxy_authorization_user_id,
+			{ 	"User-Id",
+				"wsp.header.proxy_authorization.user_id",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Proxy-Authorization: Basic: User-ID", HFILL
+			}
+		},
+		{ &hf_wsp_header_proxy_authorization_password,
+			{ 	"Password",
+				"wsp.header.proxy_authorization.password",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Proxy-Authorization: Basic: Password", HFILL
+			}
+		},
+		{ &hf_wsp_header_www_authenticate,
+			{ 	"WWW-Authenticate",
+				"wsp.header.www-authenticate",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Authenticate", HFILL
+			}
+		},
+		{ &hf_wsp_header_proxy_authenticate,
+			{ 	"Proxy-Authenticate",
+				"wsp.header.proxy_authenticate",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Proxy-Authenticate", HFILL
+			}
+		},
 		{ &hf_wsp_header_profile,
 			{ 	"Profile",
 				"wsp.header.profile",
@@ -4745,7 +4936,7 @@ proto_register_wsp(void)
 		{ &hf_wsp_header_warning_code,
 			{ 	"Warning Code",
 				"wsp.header.warning.code",
-				 FT_UINT32, BASE_DEC, NULL, 0x00,
+				 FT_UINT8, BASE_DEC, VALS (vals_wsp_warning_code), 0x00,
 				"Warning Code", HFILL
 			}
 		},
@@ -4977,6 +5168,7 @@ proto_register_wsp(void)
 		&ett_redirect_afl,
 		&ett_multiparts,
 		&ett_mpartlist,
+		&ett_header_credentials,
 	};
 
 /* Register the protocol name and description */
