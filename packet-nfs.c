@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.9 1999/11/29 11:52:40 girlich Exp $
+ * $Id: packet-nfs.c,v 1.10 1999/11/29 13:16:57 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -68,6 +68,7 @@ static gint ett_nfs_pre_op_attr = -1;
 static gint ett_nfs_post_op_attr = -1;
 static gint ett_nfs_wcc_attr = -1;
 static gint ett_nfs_wcc_data = -1;
+static gint ett_nfs_access = -1;
 
 
 /***************************/
@@ -1490,6 +1491,44 @@ dissect_diropargs3(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 }
 
 
+/* RFC 1813, Page 40 */
+int
+dissect_access(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+{
+	guint32 access;
+	proto_item* access_item = NULL;
+	proto_tree* access_tree = NULL;
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	access = EXTRACT_UINT(pd, offset+0);
+	
+	if (tree) {
+		access_item = proto_tree_add_text(tree, offset, 4,
+			"%s: 0x%02x", name, access);
+		if (access_item)
+			access_tree = proto_item_add_subtree(access_item, ett_nfs_access);
+	}
+
+	if (access_tree) {
+		proto_tree_add_text(access_tree, offset, 4, "%s READ",
+		decode_boolean_bitfield(access,  0x001, 6, "allow", "not allow"));
+		proto_tree_add_text(access_tree, offset, 4, "%s LOOKUP",
+		decode_boolean_bitfield(access,  0x002, 6, "allow", "not allow"));
+		proto_tree_add_text(access_tree, offset, 4, "%s MODIFY",
+		decode_boolean_bitfield(access,  0x004, 6, "allowed", "not allow"));
+		proto_tree_add_text(access_tree, offset, 4, "%s EXTEND",
+		decode_boolean_bitfield(access,  0x008, 6, "allow", "not allow"));
+		proto_tree_add_text(access_tree, offset, 4, "%s DELETE",
+		decode_boolean_bitfield(access,  0x010, 6, "allow", "not allow"));
+		proto_tree_add_text(access_tree, offset, 4, "%s EXECUTE",
+		decode_boolean_bitfield(access,  0x020, 6, "allow", "not allow"));
+	}
+
+	offset += 4;
+	return offset;
+}
+
+
 /* generic NFS3 call dissector */
 int
 dissect_nfs3_any_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
@@ -1512,7 +1551,7 @@ dissect_nfs3_any_reply(const u_char* pd, int offset, frame_data* fd, proto_tree*
 }
 
 
-/* RFC 1813, Page 32 */
+/* RFC 1813, Page 32,33 */
 int
 dissect_nfs3_getattr_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
@@ -1521,7 +1560,7 @@ dissect_nfs3_getattr_call(const u_char* pd, int offset, frame_data* fd, proto_tr
 }
 
 
-/* RFC 1813, Page 32 */
+/* RFC 1813, Page 32,33 */
 int
 dissect_nfs3_getattr_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
@@ -1587,7 +1626,7 @@ dissect_sattrguard3(const u_char* pd, int offset, frame_data* fd, proto_tree* tr
 }
 
 
-/* RFC 1813, Page 33 */
+/* RFC 1813, Page 33..36 */
 int
 dissect_nfs3_setattr_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
@@ -1598,7 +1637,7 @@ dissect_nfs3_setattr_call(const u_char* pd, int offset, frame_data* fd, proto_tr
 }
 
 
-/* RFC 1813, Page 33 */
+/* RFC 1813, Page 33..36 */
 int
 dissect_nfs3_setattr_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
@@ -1618,7 +1657,7 @@ dissect_nfs3_setattr_reply(const u_char* pd, int offset, frame_data* fd, proto_t
 }
 
 
-/* RFC 1813, Page 37 */
+/* RFC 1813, Page 37..39 */
 int
 dissect_nfs3_lookup_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
@@ -1627,7 +1666,7 @@ dissect_nfs3_lookup_call(const u_char* pd, int offset, frame_data* fd, proto_tre
 }
 
 
-/* RFC 1813, Page 37 */
+/* RFC 1813, Page 37..39 */
 int
 dissect_nfs3_lookup_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
@@ -1648,6 +1687,39 @@ dissect_nfs3_lookup_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 	return offset;
 }
 
+
+/* RFC 1813, Page 40..43 */
+int
+dissect_nfs3_access_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	offset = dissect_nfs_fh3(pd, offset, fd, tree, "object");
+	offset = dissect_access (pd, offset, fd, tree, "access");
+
+	return offset;
+}
+
+
+/* RFC 1813, Page 40..43 */
+int
+dissect_nfs3_access_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	guint32 status;
+
+	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	switch (status) {
+		case 0:
+			offset = dissect_post_op_attr(pd, offset, fd, tree, "obj_attributes");
+			offset = dissect_access      (pd, offset, fd, tree, "access");
+		break;
+		default:
+			offset = dissect_post_op_attr(pd, offset, fd, tree, "obj_attributes");
+		break;
+	}
+		
+	return offset;
+}
+
+
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: take the generic one. */
 const vsff nfs3_proc[] = {
@@ -1655,7 +1727,7 @@ const vsff nfs3_proc[] = {
 	{ 1,	"GETATTR",	dissect_nfs3_getattr_call,	dissect_nfs3_getattr_reply },
 	{ 2,	"SETATTR",	dissect_nfs3_setattr_call,	dissect_nfs3_setattr_reply },
 	{ 3,	"LOOKUP",	dissect_nfs3_lookup_call,	dissect_nfs3_lookup_reply },
-	{ 4,	"ACCESS",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
+	{ 4,	"ACCESS",	dissect_nfs3_access_call,	dissect_nfs3_access_reply },
 	{ 5,	"READLINK",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
 	{ 6,	"READ",		dissect_nfs3_any_call,		dissect_nfs3_any_reply },
 	{ 7,	"WRITE",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
@@ -1712,6 +1784,7 @@ proto_register_nfs(void)
 		&ett_nfs_post_op_attr,
 		&ett_nfs_wcc_attr,
 		&ett_nfs_wcc_data,
+		&ett_nfs_access
 	};
 	proto_nfs = proto_register_protocol("Network File System", "nfs");
 	proto_register_field_array(proto_nfs, hf, array_length(hf));
