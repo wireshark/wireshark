@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.40 2002/05/05 23:48:19 tpot Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.41 2002/05/07 11:26:46 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,7 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-samr.h"
+#include "packet-dcerpc-lsa.h"
 #include "smb.h"	/* for "NT_errors[]" */
 #include "packet-smb-common.h"
 
@@ -930,12 +931,15 @@ samr_dissect_connect_anon_rqst(tvbuff_t *tvb, int offset,
 			       packet_info *pinfo, proto_tree *tree, 
 			       char *drep)
 {
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_connect2_server, NDR_POINTER_UNIQUE,
-			"Server", hf_samr_server, 1);
+	char str[2];
+	guint16 server;
 
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_access, NULL);
+	offset=dissect_ndr_uint16(tvb, offset, pinfo, NULL, drep,
+			hf_samr_server, &server);
+	str[0]=server&0xff;
+	str[1]=0;
+	proto_tree_add_string_format(tree, hf_samr_server, tvb, offset-2, 2,
+		str, "Server: %s", str);
 
 	return offset;
 }
@@ -1990,17 +1994,6 @@ samr_dissect_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 }
 
 static int
-samr_dissect_DOMAIN_INFO_ptr(tvbuff_t *tvb, int offset, 
-			packet_info *pinfo, proto_tree *tree,
-			char *drep)
-{
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_DOMAIN_INFO, NDR_POINTER_UNIQUE,
-			"DOMAIN_INFO pointer", hf_samr_domain, 0);
-	return offset;
-}
-
-static int
 samr_dissect_set_information_domain_rqst(tvbuff_t *tvb, int offset, 
 					 packet_info *pinfo, proto_tree *tree,
 					 char *drep)
@@ -2046,9 +2039,6 @@ samr_dissect_lookup_domain_reply(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "QueryDomainInfo reponse");
-
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_SID_ptr, NDR_POINTER_REF,
 			"", -1, 0);
@@ -2501,9 +2491,6 @@ samr_dissect_get_members_in_alias_rqst(tvbuff_t *tvb, int offset,
 				       packet_info *pinfo, proto_tree *tree, 
 				       char *drep)
 {
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "GetAliasMem request");
-
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, NULL);
 
@@ -2894,17 +2881,6 @@ samr_dissect_BUFFER(tvbuff_t *tvb, int offset,
 			"BUFFER", -1, 0);
 
 	proto_item_set_len(item, offset-old_offset);
-	return offset;
-}
-
-static int
-samr_dissect_BUFFER_ptr(tvbuff_t *tvb, int offset, 
-			packet_info *pinfo, proto_tree *tree,
-			char *drep)
-{
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_BUFFER, NDR_POINTER_UNIQUE,
-			"BUFFER", -1, 0);
 	return offset;
 }
 
@@ -3394,8 +3370,8 @@ samr_dissect_set_sec_object_rqst(tvbuff_t *tvb, int offset,
 			hf_samr_info_type, NULL);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_BUFFER, NDR_POINTER_REF,
-			"", -1, 0);
+		lsa_dissect_LSA_SECURITY_DESCRIPTOR, NDR_POINTER_REF,
+		"LSA_SECURITY_DESCRIPTOR pointer: ", -1, 0);
 
 	return offset;
 }
@@ -3431,8 +3407,8 @@ samr_dissect_query_sec_object_reply(tvbuff_t *tvb, int offset,
 			char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_BUFFER_ptr, NDR_POINTER_REF,
-			"", -1, 0);
+		lsa_dissect_LSA_SECURITY_DESCRIPTOR, NDR_POINTER_UNIQUE,
+		"LSA_SECURITY_DESCRIPTOR pointer: ", -1, 0);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_samr_rc, NULL);
@@ -4077,7 +4053,7 @@ samr_dissect_query_information_domain_reply(tvbuff_t *tvb, int offset,
                         char *drep)
 {
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-                        samr_dissect_DOMAIN_INFO_ptr, NDR_POINTER_REF,
+                        samr_dissect_DOMAIN_INFO, NDR_POINTER_REF,
                         "", hf_samr_domain, 0);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
