@@ -1,7 +1,7 @@
 /* print_prefs.c
  * Dialog boxes for preferences for printing
  *
- * $Id: print_prefs.c,v 1.21 2004/05/26 03:49:23 ulfl Exp $
+ * $Id: print_prefs.c,v 1.22 2004/05/26 04:21:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,7 +42,7 @@
 #include "compat_macros.h"
 #include "gtkglobals.h"
 
-static void printer_browse_file_cb(GtkWidget *w, gpointer te);
+static void printer_browse_file_cb(GtkWidget *file_bt, GtkWidget *file_te);
 
 #define E_PRINT_FORMAT_KEY        "print_format"
 #define E_PRINT_DESTINATION_KEY   "print_destination"

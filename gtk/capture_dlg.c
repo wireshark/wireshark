@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.131 2004/05/26 03:49:21 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.132 2004/05/26 04:21:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -99,18 +99,10 @@
 #define E_CAP_OM_LT_VALUE_KEY       "cap_om_lt_value"
 
 static void
-capture_prep_file_cb(GtkWidget *w, gpointer te);
+capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te);
 
 static void
 select_link_type_cb(GtkWidget *w, gpointer data);
-
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4) || GTK_MAJOR_VERSION < 2
-static void
-cap_prep_fs_ok_cb(GtkWidget *w, gpointer data);
-#endif
-
-static void
-cap_prep_fs_destroy_cb(GtkWidget *win, GtkWidget* file_te);
 
 static void
 capture_prep_adjust_sensitivity(GtkWidget *tb, gpointer parent_w);
