@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.10 2002/03/10 21:30:10 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.11 2002/03/10 22:04:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -441,7 +441,6 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
 	guint16 *data16;
 	char *text;
 	int old_offset;
-	char *name;
 	dcerpc_info *di;
 
 	di=pinfo->private_data;
@@ -461,10 +460,8 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
 	offset = prs_uint16s(tvb, offset, pinfo, tree, max_len, &data16, NULL);
 	text = fake_unicode(data16, max_len);
 
-	name = proto_registrar_get_name(di->hf_index);
-	proto_tree_add_string_format(tree, di->hf_index, 
-		tvb, old_offset, offset-old_offset,
-		text, "%s: %s", name, text);
+	proto_tree_add_string(tree, di->hf_index, tvb, old_offset,
+		offset-old_offset, text);
 
 	if(tree){
 		proto_item_append_text(tree, ": %s", text);
