@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.39 2002/04/15 00:10:26 guy Exp $
+ * $Id: packet-x11.c,v 1.40 2002/04/16 09:42:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,16 +27,21 @@
 
 /* TODO (in no particular order):
  *
- * - keep track of Atom creation by server to be able to display non predefined atoms
+ * - keep track of Atom creation by server to be able to display
+ *   non-predefined atoms
  * - Idem for keysym <-> keycode ???
  * - Idem for fonts 
- * - Subtree the request ids (that is x11.create-window.window and x11.change-window.window should be 
- *   distinct), and add hidden fields (so we still have x11.window).
- * - add hidden fields so we can have x11.circulate-window in addition to x11.opcode == 13
+ * - Subtree the request ids (that is x11.create-window.window and
+ *   x11.change-window.window should be  distinct), and add hidden fields
+ *   (so we still have x11.window).
+ * - add hidden fields so we can have x11.circulate-window in addition to
+ *   x11.opcode == 13 (but you could match on x11.opcode == "CirculateWindow"
+ *   now)
  * - add hidden fields so we have x11.listOfStuff.length
  * - use a faster scheme that linear list searching for the opcode.
- * - correct display of unicode chars.
- * - Not everything is homogeneous, in particular the handling of items in list is a total mess.
+ * - correct display of Unicode chars.
+ * - Not everything is homogeneous, in particular the handling of items in
+ *   list is a total mess.
  */
 
 /* By the way, I wrote a program to generate every request and test
@@ -60,6 +65,10 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/conversation.h>
+
+#include "prefs.h"
+#include "packet-frame.h"
 
 #define cVALS(x) (const value_string*)(x)
 
@@ -70,7 +79,6 @@ static int proto_x11 = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_x11 = -1;
-static gint ett_x11_request = -1;
 static gint ett_x11_color_flags = -1;
 static gint ett_x11_list_of_arc = -1;
 static gint ett_x11_arc = -1;
@@ -99,17 +107,31 @@ static gint ett_x11_window_value_mask = -1;
 static gint ett_x11_configure_window_mask = -1;
 static gint ett_x11_keyboard_value_mask = -1;
 
+/* desegmentation of X11 messages */
+static gboolean x11_desegment = TRUE;
+
 static dissector_handle_t data_handle;
 
 #define TCP_PORT_X11			6000
 #define TCP_PORT_X11_2			6001
 #define TCP_PORT_X11_3			6002
 
+/*
+ * Round a length to a multiple of 4 bytes.
+ */
+#define ROUND_LENGTH(n)	((((n) + 3)/4) * 4)
+
 /************************************************************************
  ***                                                                  ***
  ***         E N U M   T A B L E S   D E F I N I T I O N S            ***
  ***                                                                  ***
  ************************************************************************/
+
+static const value_string byte_order_vals[] = {
+     { 'B', "Big-endian" },
+     { 'l', "Little-endian" },
+     { 0,   NULL }
+};
 
 static const value_string access_mode_vals[] = {
       { 0, "Disable" },
@@ -604,7 +626,6 @@ static const value_string zero_is_none_vals[] = {
  ***                                                                  ***
  ************************************************************************/
 
-static int next_offset = 0; /* Offset of the next request in the frame */    
 static gboolean little_endian = TRUE;
 
 /************************************************************************
@@ -692,8 +713,8 @@ static gboolean little_endian = TRUE;
 #define LISTofRECTANGLE(name) { listOfRectangle(tvb, offsetp, t, hf_x11_##name, (next_offset - *offsetp) / 8); }
 #define LISTofSEGMENT(name) { listOfSegment(tvb, offsetp, t, hf_x11_##name, (next_offset - *offsetp) / 8); }
 #define LISTofSTRING8(name, length) { listOfString8(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_string, (length)); }
-#define LISTofTEXTITEM8(name) { listOfTextItem(tvb, offsetp, t, hf_x11_##name, FALSE); }
-#define LISTofTEXTITEM16(name) { listOfTextItem(tvb, offsetp, t, hf_x11_##name, TRUE); }
+#define LISTofTEXTITEM8(name) { listOfTextItem(tvb, offsetp, t, hf_x11_##name, FALSE, next_offset); }
+#define LISTofTEXTITEM16(name) { listOfTextItem(tvb, offsetp, t, hf_x11_##name, TRUE, next_offset); }
 #define OPCODE()       { opcode = FIELD8(opcode); }
 #define PIXMAP(name)   { FIELD32(name); }
 #define REQUEST_LENGTH() (requestLength(tvb, offsetp, t))
@@ -852,22 +873,13 @@ static void listOfAtom(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 {
       proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 4, little_endian);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_atom);
-      while(length--) {
-	    if (*offsetp + 4 > next_offset) {
-		/* List runs past end of message. */
-		return;
-	    }
+      while(length--)
 	    atom(tvb, offsetp, tt, hf_x11_properties_item);
-      }
 }
 
 static void listOfByte(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
     int length)
 {
-      if (*offsetp + length > next_offset) {
-	    /* List runs past end of message. */
-	    length = next_offset -  *offsetp;
-      }
       if (length <= 0) length = 1;
       proto_tree_add_item(t, hf, tvb, *offsetp, length, little_endian);
       *offsetp += length;
@@ -879,10 +891,6 @@ static void listOfCard32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 4, little_endian);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_card32);
       while(length--) {
-	    if (*offsetp + 4 > next_offset) {
-		/* List runs past end of message. */
-		return;
-	    }
 	    proto_tree_add_uint(tt, hf_item, tvb, *offsetp, 4, VALUE32(tvb, *offsetp));
 	    *offsetp += 4;
       }
@@ -902,10 +910,6 @@ static void listOfColorItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 	    char *bp;
 	    const char *sep;
 
-	    if (*offsetp + 12 > next_offset) {
-		/* List runs past end of message. */
-		return;
-	    }
 	    red = VALUE16(tvb, *offsetp + 4);
 	    green = VALUE16(tvb, *offsetp + 6);
 	    blue = VALUE16(tvb, *offsetp + 8);
@@ -977,10 +981,6 @@ static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 	    const char **m;
 	    int i;
 
-	    if (*offsetp + 8 > next_offset) {
-		/* List runs past end of message. */
-		return;
-	    }
 	    for(i = 8, m = modifiers; i; i--, m++) {
 		u_char c = tvb_get_guint8(tvb, *offsetp);
 		*offsetp += 1;
@@ -1000,17 +1000,26 @@ static void listOfKeysyms(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       proto_item *tti;
       proto_tree *ttt;
       int i;
-      char buffer[128];
+      char buffer[128+3+1];
+      int buflen = 128;
+      int nchars;
       char *bp;
 
       while(keycode_count--) {
-	    if (*offsetp + keysyms_per_keycode * 4 > next_offset) {
-		/* List runs past end of message. */
-		return;
-	    }
 	    bp = buffer + sprintf(buffer, "keysyms:");
 	    for(i = 0; i < keysyms_per_keycode; i++) {
-		  bp += sprintf(bp, " %s", keysymString(VALUE32(tvb, *offsetp + i * 4)));
+		  nchars = snprintf(bp, buflen, " %s", keysymString(VALUE32(tvb, *offsetp + i * 4)));
+		  if (nchars == -1 || nchars > buflen) {
+			/*
+			 * Some versions of snprintf return -1 if they'd
+			 * truncate the output.
+			 */
+			strcpy(bp, "...");
+			bp += 3;
+			break;
+		  }
+		  bp += nchars;
+		  buflen -= nchars;
 	    }
 	    *bp = '\0';
 	    tti = proto_tree_add_none_format(tt, hf_item, tvb, *offsetp, keysyms_per_keycode * 4,
@@ -1034,10 +1043,6 @@ static void listOfPoint(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf, int 
 	    proto_item *tti;
 	    proto_tree *ttt;
 
-	    if (*offsetp + 4 > next_offset) {
-		/* List runs past end of message. */
-		return;
-	    }
 	    x = VALUE16(tvb, *offsetp);
 	    y = VALUE16(tvb, *offsetp + 2);
 
@@ -1061,10 +1066,6 @@ static void listOfRectangle(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 	    proto_item *tti;
 	    proto_tree *ttt;
 
-	    if (*offsetp + 8 > next_offset) {
-		/* List runs past end of message. */
-		return;
-	    }
 	    x = VALUE16(tvb, *offsetp);
 	    y = VALUE16(tvb, *offsetp + 2);
 	    width = VALUE16(tvb, *offsetp + 4);
@@ -1094,10 +1095,6 @@ static void listOfSegment(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 	    proto_item *tti;
 	    proto_tree *ttt;
 
-	    if (*offsetp + 8 > next_offset) {
-		/* List runs past end of message. */
-		return;
-	    }
 	    x1 = VALUE16(tvb, *offsetp);
 	    y1 = VALUE16(tvb, *offsetp + 2);
 	    x2 = VALUE16(tvb, *offsetp + 4);
@@ -1234,7 +1231,7 @@ static void string16_with_buffer_preallocated(tvbuff_t *tvb, proto_tree *t,
 }
 
 static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
-    int sizeIs16)
+    int sizeIs16, int next_offset)
 {
       int allocated = 0;
       char *s = NULL;
@@ -1316,7 +1313,9 @@ static guint32 field8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf)
       if (hfi -> strings)
 	    enumValue = match_strval(v, cVALS(hfi -> strings));
       if (enumValue)
-	    proto_tree_add_uint_format(t, hf, tvb, *offsetp, 1, v, "%s: %u (%s)", nameAsChar, v, enumValue);
+	    proto_tree_add_uint_format(t, hf, tvb, *offsetp, 1, v,
+				       hfi -> display == BASE_DEC ? "%s: %u (%s)" : "%s: 0x%02x (%s)",
+				       nameAsChar, v, enumValue);
       else
 	    proto_tree_add_item(t, hf, tvb, *offsetp, 1, little_endian);
       *offsetp += 1;
@@ -1341,7 +1340,9 @@ static guint32 field32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf)
       if (hfi -> strings)
 	    enumValue = match_strval(v, cVALS(hfi -> strings));
       if (enumValue)
-	    proto_tree_add_uint_format(t, hf, tvb, *offsetp, 4, v, "%s: 0x%08x (%s)", nameAsChar, v, enumValue);
+	    proto_tree_add_uint_format(t, hf, tvb, *offsetp, 4, v,
+				       hfi -> display == BASE_DEC ? "%s: %u (%s)" : "%s: 0x%08x (%s)",
+				       nameAsChar, v, enumValue);
       else
 	    proto_tree_add_uint_format(t, hf, tvb, *offsetp, 4, v, 
 				       hfi -> display == BASE_DEC ? "%s: %u" : "%s: 0x%08x",
@@ -1596,1019 +1597,46 @@ static void windowAttributes(tvbuff_t *tvb, int *offsetp, proto_tree *t)
       ENDBITMASK;
 }
 
-/************************************************************************
- ***                                                                  ***
- ***              D E C O D I N G   O N E   P A C K E T               ***
- ***                                                                  ***
- ************************************************************************/
+/*
+ * Data structure associated with a conversation; keeps track of the
+ * request for which we're expecting a reply, the frame number of
+ * the initial connection request, and the byte order of the connection.
+ *
+ * An opcode of -3 means we haven't yet seen any requests yet.
+ * An opcode of -2 means we're not expecting a reply.
+ * An opcode of -1 means means we're waiting for a reply to the initial
+ * connection request.
+ * Other values are the opcode of the request for which we're expecting
+ * a reply.
+ *
+ * XXX - assumes only one outstanding request is awaiting a reply,
+ * which should always be the case.
+ */
+#define NOTHING_SEEN		-3
+#define NOTHING_EXPECTED	-2
+#define INITIAL_CONN		-1
 
-static int dissect_x11_requests_loop(tvbuff_t *tvb, int *offsetp, proto_tree *root)
+#define BYTE_ORDER_BE		0
+#define BYTE_ORDER_LE		1
+#define BYTE_ORDER_UNKNOWN	-1
+
+typedef struct {
+      int	opcode;		/* opcode for which we're awaiting a reply */
+      guint32	iconn_frame;	/* frame # of initial connection request */
+      int	byte_order;	/* byte order of connection */
+} x11_conv_data_t;
+
+static GMemChunk *x11_state_chunk = NULL;
+
+static void x11_init_protocol(void)
 {
-      int left = tvb_reported_length(tvb), nextLeft;
-      proto_item *ti;
-      proto_tree *t;
-      guint8 v8, v8_2;
-      guint16 v16;
-      guint32 v32;
-
-      /* The X11 data stream to the server is just a sequence of requests,
-         each of which contains a length; for now, we dissect all the
-	 requests in this frame until we run out of data in the frame.
-	 Eventually, we should handle requests that cross frame
-	 boundaries.
-
-	 Note that "in this frame" refers to everything in the frame
-	 as it appeared in the wire, not as it was captured; we want
-	 an exception to be thrown if we go past the end of the
-	 captured data in the frame without going past the end of the
-	 data in the frame. */
-      for(;;) {
-	    int length, opcode;
-	    
-	    /* fprintf(stderr, "Starting loop, left = %d, *offsetp = %d\n", left, *offsetp); */
-	    if (left < 4) {
-		/* We ran out of data - we don't have enough data in
-		   the frame to get the length of this request. */
-		break;
-	    }
-	    length = VALUE16(tvb, *offsetp + 2) * 4;
-	    /*	    fprintf(stderr, "length = %d\n", length);*/
-	    if (left < length) {
-		/* We ran out of data - we don't have enough data in
-		   the frame for the full request. */
-		break;
-	    }
-	    if (length < 4) {
-	    	/* Bogus message length? */
-		break;
-	    }
-
-	    next_offset = *offsetp + length;
-	    nextLeft = left - length;
-
-	    ti = proto_tree_add_uint(root, hf_x11_request, tvb, *offsetp, length, tvb_get_guint8(tvb, *offsetp));
-	    t = proto_item_add_subtree(ti, ett_x11_request);
-
-	    OPCODE();
-
-	    switch(opcode) {
-		case 1: /* CreateWindow */
-		  CARD8(depth);
-		  REQUEST_LENGTH();
-		  WINDOW(wid);
-		  WINDOW(parent);
-		  INT16(x);
-		  INT16(y);
-		  CARD16(width);
-		  CARD16(height);
-		  CARD16(border_width);
-		  ENUM16(window_class);
-		  VISUALID(visual);
-		  windowAttributes(tvb, offsetp, t);
-		  break;
-
-		case 2: /* ChangeWindowAttributes */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  WINDOW(window);
-		  windowAttributes(tvb, offsetp, t);
-		  break;
-
-		case 3: /* GetWindowAttributes */
-		case 4: /* DestroyWindow */
-		case 5: /* DestroySubwindows */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  WINDOW(window);
-		  break;
-
-		case 6: /* ChangeSaveSet */
-		  ENUM8(save_set_mode);
-		  REQUEST_LENGTH();
-		  WINDOW(window);
-		  break;
-
-		case 7: /* ReparentWindow */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  WINDOW(window);
-		  WINDOW(parent);
-		  INT16(x);
-		  INT16(y);
-		  break;
-
-		case 8: /* MapWindow */
-		case 9: /* MapSubWindow */
-		case 10: /* UnmapWindow */
-		case 11: /* UnmapSubwindows */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  WINDOW(window);
-		  break;
-
-		case 12: /* ConfigureWindow */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  WINDOW(window);
-		  BITMASK16(configure_window);
-		  UNUSED(2); 
-		  BITFIELD(INT16,  configure_window_mask, x);
-		  BITFIELD(INT16,  configure_window_mask, y);
-		  BITFIELD(CARD16, configure_window_mask, width);
-		  BITFIELD(CARD16, configure_window_mask, height);
-		  BITFIELD(CARD16, configure_window_mask, border_width);
-		  BITFIELD(WINDOW, configure_window_mask, sibling);
-		  BITFIELD(ENUM8,  configure_window_mask, stack_mode);
-		  ENDBITMASK;
-		  PAD();
-		  break;
-
-		case 13: /* CirculateWindow */
-		  ENUM8(direction);
-		  REQUEST_LENGTH();
-		  WINDOW(window);
-		  break;
-
-		case 14: /* GetGeometry */
-		case 15: /* QueryTree */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  DRAWABLE(drawable);
-		  break;
-
-		case 16: /* InternAtom */
-		  BOOL(only_if_exists);
-		  REQUEST_LENGTH();
-		  v16 = FIELD16(name_length);
-		  UNUSED(2);
-		  STRING8(name, v16);
-		  PAD();
-		  break;
-
-		case 17: /* GetAtomName */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  ATOM(atom);
-		  break;
-
-		case 18: /* ChangeProperty */
-		  ENUM8(mode);
-		  REQUEST_LENGTH();
-		  WINDOW(window);
-		  ATOM(property);
-		  ATOM(type);
-		  CARD8(format);
-		  UNUSED(3);
-		  v32 = CARD32(data_length);
-		  LISTofBYTE(data, v32);
-		  PAD();
-		  break;
-
-		case 19: /* DeleteProperty */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  WINDOW(window);
-		  ATOM(property);
-		  break;
-
-		case 20: /* GetProperty */
-		  BOOL(delete);
-		  REQUEST_LENGTH();
-		  WINDOW(window);
-		  ATOM(property);
-		  ATOM(get_property_type);
-		  CARD32(long_offset);
-		  CARD32(long_length);
-		  break;
-
-		case 21: /* ListProperties */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  WINDOW(window);
-		  break;
-
-		case 22: /* SetSelectionOwner */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  WINDOW(owner);
-		  ATOM(selection);
-		  TIMESTAMP(time);
-		  break;
-
-		case 23: /* GetSelectionOwner */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  ATOM(selection);
-		  break;
-
-		case 24: /* ConvertSelection */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  WINDOW(requestor);
-		  ATOM(selection);
-		  ATOM(target);
-		  ATOM(property);
-		  TIMESTAMP(time);
-		  break;
-
-		case 26: /* GrabPointer */
-		  BOOL(owner_events);
-		  REQUEST_LENGTH();
-		  WINDOW(grab_window);
-		  SETofPOINTEREVENT(pointer_event_mask);
-		  ENUM8(pointer_mode);
-		  ENUM8(keyboard_mode);
-		  WINDOW(confine_to);
-		  CURSOR(cursor);
-		  TIMESTAMP(time);
-		  break;
-
-		case 27: /* UngrabPointer */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  TIMESTAMP(time);
-		  break;
-
-		case 28: /* GrabButton */
-		  BOOL(owner_events);
-		  REQUEST_LENGTH();
-		  WINDOW(grab_window);
-		  SETofPOINTEREVENT(event_mask);
-		  ENUM8(pointer_mode);
-		  ENUM8(keyboard_mode);
-		  WINDOW(confine_to);
-		  CURSOR(cursor);
-		  BUTTON(button);
-		  UNUSED(1);
-		  SETofKEYMASK(modifiers);
-		  break;
-
-		case 29: /* UngrabButton */
-		  BUTTON(button);
-		  REQUEST_LENGTH();
-		  WINDOW(grab_window);
-		  SETofKEYMASK(modifiers);
-		  UNUSED(2);
-		  break;
-
-		case 30: /* ChangeActivePointerGrab */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  CURSOR(cursor);
-		  TIMESTAMP(time);
-		  SETofPOINTEREVENT(event_mask);
-		  UNUSED(2);
-		  break;
-
-		case 31: /* GrabKeyboard */
-		  BOOL(owner_events);
-		  REQUEST_LENGTH();
-		  WINDOW(grab_window);
-		  TIMESTAMP(time);
-		  ENUM8(pointer_mode);
-		  ENUM8(keyboard_mode);
-		  UNUSED(2);
-		  break;
-
-		case 32: /* UngrabKeyboard */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  TIMESTAMP(time);
-		  break;
-
-		case 33: /* GrabKey */
-		  BOOL(owner_events);
-		  REQUEST_LENGTH();
-		  WINDOW(grab_window);
-		  SETofKEYMASK(modifiers);
-		  KEYCODE(key);
-		  ENUM8(pointer_mode);
-		  ENUM8(keyboard_mode);
-		  UNUSED(3);
-		  break;
-
-		case 34: /* UngrabKey */
-		  KEYCODE(key);
-		  REQUEST_LENGTH();
-		  WINDOW(grab_window);
-		  SETofKEYMASK(modifiers);
-		  UNUSED(2);
-		  break;
-
-		case 35: /* AllowEvents */
-		  ENUM8(allow_events_mode);
-		  REQUEST_LENGTH();
-		  TIMESTAMP(time);
-		  break;
-
-		case 36: /* GrabServer */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  break;
-
-		case 37: /* UngrabServer */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  break;
-
-		case 38: /* QueryPointer */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  WINDOW(window);
-		  break;
-
-		case 39: /* GetMotionEvents */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  WINDOW(window);
-		  TIMESTAMP(start);
-		  TIMESTAMP(stop);
-		  break;
-
-		case 40: /* TranslateCoordinates */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  WINDOW(src_window);
-		  WINDOW(dst_window);
-		  INT16(src_x);
-		  INT16(src_y);
-		  break;
-
-		case 41: /* WarpPointer */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  WINDOW(warp_pointer_src_window);
-		  WINDOW(warp_pointer_dst_window);
-		  INT16(src_x);
-		  INT16(src_y);
-		  CARD16(src_width);
-		  CARD16(src_height);
-		  INT16(dst_x);
-		  INT16(dst_y);
-		  break;
-
-		case 42: /* SetInputFocus */
-		  ENUM8(revert_to);
-		  REQUEST_LENGTH();
-		  WINDOW(focus);
-		  TIMESTAMP(time);
-		  break;
-
-		case 43: /* GetInputFocus */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  break;
-
-		case 44: /* QueryKeymap */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  break;
-
-		case 45: /* OpenFont */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  FONT(fid);
-		  v16 = FIELD16(name_length);
-		  UNUSED(2);
-		  STRING8(name, v16);
-		  PAD();
-		  break;
-
-		case 46: /* CloseFont */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  FONT(font);
-		  break;
-
-		case 47: /* QueryFont */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  FONTABLE(font);
-		  break;
-
-		case 48: /* QueryTextExtents */
-		  v8 = BOOL(odd_length);
-		  REQUEST_LENGTH();
-		  FONTABLE(font);
-		  STRING16(string16, (next_offset - *offsetp - (v8 ? 2 : 0)) / 2);
-		  PAD();
-		  break;
-
-		case 49: /* ListFonts */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  CARD16(max_names);
-		  v16 = FIELD16(pattern_length);
-		  STRING8(pattern, v16);
-		  PAD();
-		  break;
-
-		case 50: /* ListFontsWithInfo */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  CARD16(max_names);
-		  v16 = FIELD16(pattern_length);
-		  STRING8(pattern, v16);
-		  PAD();
-		  break;
-
-		case 51: /* SetFontPath */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  v16 = CARD16(str_number_in_path);
-		  UNUSED(2);
-		  LISTofSTRING8(path, v16);
-		  PAD();
-		  break;
-
-		case 52: /* GetFontPath */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  break;
-
-		case 53: /* CreatePixmap */
-		  CARD8(depth);
-		  REQUEST_LENGTH();
-		  PIXMAP(pid);
-		  DRAWABLE(drawable);
-		  CARD16(width);
-		  CARD16(height);
-		  break;
-
-		case 54: /* FreePixmap */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  PIXMAP(pixmap);
-		  break;
-
-		case 55: /* CreateGC */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  GCONTEXT(cid);
-		  DRAWABLE(drawable);
-		  gcAttributes(tvb, offsetp, t);
-		  break;
-
-		case 56: /* ChangeGC */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  GCONTEXT(gc);
-		  gcAttributes(tvb, offsetp, t);
-		  break;
-
-		case 57: /* CopyGC */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  GCONTEXT(src_gc);
-		  GCONTEXT(dst_gc);
-		  gcMask(tvb, offsetp, t);
-		  break;
-
-		case 58: /* SetDashes */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  GCONTEXT(gc);
-		  CARD16(dash_offset);
-		  v16 = FIELD16(dashes_length);
-		  LISTofCARD8(dashes, v16);
-		  PAD();
-		  break;
-
-		case 59: /* SetClipRectangles */
-		  ENUM8(ordering);
-		  REQUEST_LENGTH();
-		  GCONTEXT(gc);
-		  INT16(clip_x_origin);
-		  INT16(clip_y_origin);
-		  LISTofRECTANGLE(rectangles);
-		  break;
-
-		case 60: /* FreeGC */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  GCONTEXT(gc);
-		  break;
-
-		case 61: /* ClearArea */
-		  BOOL(exposures);
-		  REQUEST_LENGTH();
-		  WINDOW(window);
-		  INT16(x);
-		  INT16(y);
-		  CARD16(width);
-		  CARD16(height);
-		  break;
-
-		case 62: /* CopyArea */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  DRAWABLE(src_drawable);
-		  DRAWABLE(dst_drawable);
-		  GCONTEXT(gc);
-		  INT16(src_x);
-		  INT16(src_y);
-		  INT16(dst_x);
-		  INT16(dst_y);
-		  CARD16(width);
-		  CARD16(height);
-		  break;
-
-		case 63: /* CopyPlane */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  DRAWABLE(src_drawable);
-		  DRAWABLE(dst_drawable);
-		  GCONTEXT(gc);
-		  INT16(src_x);
-		  INT16(src_y);
-		  INT16(dst_x);
-		  INT16(dst_y);
-		  CARD16(width);
-		  CARD16(height);
-		  CARD32(bit_plane);
-		  break;
-
-		case 64: /* PolyPoint */
-		  ENUM8(coordinate_mode);
-		  v16 = REQUEST_LENGTH();
-		  DRAWABLE(drawable);
-		  GCONTEXT(gc);
-		  LISTofPOINT(points, v16 - 12);
-		  break;
-
-		case 65: /* PolyLine */
-		  ENUM8(coordinate_mode);
-		  v16 = REQUEST_LENGTH();
-		  DRAWABLE(drawable);
-		  GCONTEXT(gc);
-		  LISTofPOINT(points, v16 - 12);
-		  break;
-
-		case 66: /* PolySegment */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  DRAWABLE(drawable);
-		  GCONTEXT(gc);
-		  LISTofSEGMENT(segments);
-		  break;
-
-		case 67: /* PolyRectangle */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  DRAWABLE(drawable);
-		  GCONTEXT(gc);
-		  LISTofRECTANGLE(rectangles);
-		  break;
-
-		case 68: /* PolyArc */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  DRAWABLE(drawable);
-		  GCONTEXT(gc);
-		  LISTofARC(arcs);
-		  break;
-
-		case 69: /* FillPoly */
-		  UNUSED(1);
-		  v16 = REQUEST_LENGTH();
-		  DRAWABLE(drawable);
-		  GCONTEXT(gc);
-		  ENUM8(shape);
-		  ENUM8(coordinate_mode);
-		  UNUSED(2);
-		  LISTofPOINT(points, v16 - 16);
-		  break;
-
-		case 70: /* PolyFillRectangle */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  DRAWABLE(drawable);
-		  GCONTEXT(gc);
-		  LISTofRECTANGLE(rectangles);
-		  break;
-
-		case 71: /* PolyFillArc */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  DRAWABLE(drawable);
-		  GCONTEXT(gc);
-		  LISTofARC(arcs);
-		  break;
-
-		case 72: /* PutImage */
-		  ENUM8(image_format);
-		  v16 = REQUEST_LENGTH();
-		  DRAWABLE(drawable);
-		  GCONTEXT(gc);
-		  CARD16(width);
-		  CARD16(height);
-		  INT16(dst_x);
-		  INT16(dst_y);
-		  CARD8(left_pad);
-		  CARD8(depth);
-		  UNUSED(2);
-		  LISTofBYTE(data, v16 - 24);
-		  PAD();
-		  break;
-
-		case 73: /* GetImage */
-		  ENUM8(image_pixmap_format);
-		  REQUEST_LENGTH();
-		  DRAWABLE(drawable);
-		  INT16(x);
-		  INT16(y);
-		  CARD16(width);
-		  CARD16(height);
-		  CARD32(plane_mask);
-		  break;
-
-		case 74: /* PolyText8 */
-		  UNUSED(1);
-		  v16 = REQUEST_LENGTH();
-		  DRAWABLE(drawable);
-		  GCONTEXT(gc);
-		  INT16(x);
-		  INT16(y);
-		  LISTofTEXTITEM8(items);
-		  PAD();
-		  break;
-
-		case 75: /* PolyText16 */
-		  UNUSED(1);
-		  v16 = REQUEST_LENGTH();
-		  DRAWABLE(drawable);
-		  GCONTEXT(gc);
-		  INT16(x);
-		  INT16(y);
-		  LISTofTEXTITEM16(items);
-		  PAD();
-		  break;
-
-		case 76: /* ImageText8 */
-		  v8 = FIELD8(string_length);
-		  REQUEST_LENGTH();
-		  DRAWABLE(drawable);
-		  GCONTEXT(gc);
-		  INT16(x);
-		  INT16(y);
-		  STRING8(string, v8);
-		  PAD();
-		  break;
-
-		case 77: /* ImageText16 */
-		  v8 = FIELD8(string_length);
-		  REQUEST_LENGTH();
-		  DRAWABLE(drawable);
-		  GCONTEXT(gc);
-		  INT16(x);
-		  INT16(y);
-		  STRING16(string16, v8);
-		  PAD();
-		  break;
-
-		case 78: /* CreateColormap */
-		  ENUM8(alloc);
-		  REQUEST_LENGTH();
-		  COLORMAP(mid);
-		  WINDOW(window);
-		  VISUALID(visual);
-		  break;
-
-		case 79: /* FreeColormap */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  COLORMAP(cmap);
-		  break;
-
-		case 80: /* CopyColormapAndFree */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  COLORMAP(mid);
-		  COLORMAP(src_cmap);
-		  break;
-
-		case 81: /* InstallColormap */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  COLORMAP(cmap);
-		  break;
-
-		case 82: /* UninstallColormap */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  COLORMAP(cmap);
-		  break;
-
-		case 83: /* ListInstalledColormaps */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  WINDOW(window);
-		  break;
-
-		case 84: /* AllocColor */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  COLORMAP(cmap);
-		  CARD16(red);
-		  CARD16(green);
-		  CARD16(blue);
-		  UNUSED(2);
-		  break;
-
-		case 85: /* AllocNamedColor */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  COLORMAP(cmap);
-		  v16 = FIELD16(name_length);
-		  UNUSED(2);
-		  STRING8(name, v16);
-		  PAD();
-		  break;
-
-		case 86: /* AllocColorCells */
-		  BOOL(contiguous);
-		  REQUEST_LENGTH();
-		  COLORMAP(cmap);
-		  CARD16(colors);
-		  CARD16(planes);
-		  break;
-
-		case 87: /* AllocColorPlanes */
-		  BOOL(contiguous);
-		  REQUEST_LENGTH();
-		  COLORMAP(cmap);
-		  CARD16(colors);
-		  CARD16(reds);
-		  CARD16(greens);
-		  CARD16(blues);
-		  break;
-
-		case 88: /* FreeColors */
-		  UNUSED(1);
-		  v16 = REQUEST_LENGTH();
-		  COLORMAP(cmap);
-		  CARD32(plane_mask);
-		  LISTofCARD32(pixels, v16 - 12);
-		  break;
-
-		case 89: /* StoreColors */
-		  UNUSED(1);
-		  v16 = REQUEST_LENGTH();
-		  COLORMAP(cmap);
-		  LISTofCOLORITEM(color_items, v16 - 8);
-		  break;
-
-		case 90: /* StoreNamedColor */
-		  COLOR_FLAGS(color);
-		  REQUEST_LENGTH();
-		  COLORMAP(cmap);
-		  CARD32(pixel);	
-		  v16 = FIELD16(name_length);
-		  UNUSED(2);
-		  STRING8(name, v16);
-		  PAD();
-		  break;
-
-		case 91: /* QueryColors */
-		  UNUSED(1);
-		  v16 = REQUEST_LENGTH();
-		  COLORMAP(cmap);
-		  LISTofCARD32(pixels, v16 - 8);
-		  break;
-
-		case 92: /* LookupColor */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  COLORMAP(cmap);
-		  v16 = FIELD16(name_length);
-		  UNUSED(2);
-		  STRING8(name, v16);
-		  PAD();
-		  break;
-
-		case 93: /* CreateCursor */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  CURSOR(cid);
-		  PIXMAP(source_pixmap);
-		  PIXMAP(mask);
-		  CARD16(fore_red);
-		  CARD16(fore_green);
-		  CARD16(fore_blue);
-		  CARD16(back_red);
-		  CARD16(back_green);
-		  CARD16(back_blue);
-		  CARD16(x);
-		  CARD16(y);
-		  break;
-
-		case 94: /* CreateGlyphCursor */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  CURSOR(cid);
-		  FONT(source_font);
-		  FONT(mask_font);
-		  CARD16(source_char);
-		  CARD16(mask_char);
-		  CARD16(fore_red);
-		  CARD16(fore_green);
-		  CARD16(fore_blue);
-		  CARD16(back_red);
-		  CARD16(back_green);
-		  CARD16(back_blue);
-		  break;
-
-		case 95: /* FreeCursor */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  CURSOR(cursor);
-		  break;
-
-		case 96: /* RecolorCursor */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  CURSOR(cursor);
-		  CARD16(fore_red);
-		  CARD16(fore_green);
-		  CARD16(fore_blue);
-		  CARD16(back_red);
-		  CARD16(back_green);
-		  CARD16(back_blue);
-		  break;
-
-		case 97: /* QueryBestSize */
-		  ENUM8(class);
-		  REQUEST_LENGTH();
-		  DRAWABLE(drawable);
-		  CARD16(width);
-		  CARD16(height);
-		  break;
-
-		case 98: /* QueryExtension */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  v16 = FIELD16(name_length);
-		  UNUSED(2);
-		  STRING8(name, v16);
-		  PAD();
-		  break;
-
-		case 99: /* ListExtensions */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  break;
-
-		case 100: /* ChangeKeyboardMapping */
-		  v8 = FIELD8(keycode_count);
-		  REQUEST_LENGTH();
-		  KEYCODE(first_keycode);
-		  v8_2 = FIELD8(keysyms_per_keycode);
-		  UNUSED(2);
-		  LISTofKEYSYM(keysyms, v8, v8_2);
-		  break;
-
-		case 101: /* GetKeyboardMapping */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  KEYCODE(first_keycode);
-		  FIELD8(count);
-		  UNUSED(2);
-		  break;
-
-		case 102: /* ChangeKeyboardControl */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  BITMASK32(keyboard_value);
-		  BITFIELD(INT8, keyboard_value_mask, key_click_percent);
-		  BITFIELD(INT8, keyboard_value_mask, bell_percent);
-		  BITFIELD(INT16, keyboard_value_mask, bell_pitch);
-		  BITFIELD(INT16, keyboard_value_mask, bell_duration);
-		  BITFIELD(INT16, keyboard_value_mask, led);
-		  BITFIELD(ENUM8, keyboard_value_mask, led_mode);
-		  BITFIELD(KEYCODE, keyboard_value_mask, keyboard_key);
-		  BITFIELD(ENUM8, keyboard_value_mask, auto_repeat_mode);
-		  ENDBITMASK;
-		  break;
-
-		case 103: /* GetKeyboardControl */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  break;
-
-		case 104: /* Bell */
-		  INT8(percent);
-		  REQUEST_LENGTH();
-		  break;
-
-		case 105: /* ChangePointerControl */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  INT16(acceleration_numerator);
-		  INT16(acceleration_denominator);
-		  INT16(threshold);
-		  BOOL(do_acceleration);
-		  BOOL(do_threshold);
-		  break;
-
-		case 106: /* GetPointerControl */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  break;
-
-		case 107: /* SetScreenSaver */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  INT16(timeout);
-		  INT16(interval);
-		  ENUM8(prefer_blanking);
-		  ENUM8(allow_exposures);
-		  UNUSED(2);
-		  break;
-
-		case 108: /* GetScreenSaver */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  break;
-
-		case 109: /* ChangeHosts */
-		  ENUM8(change_host_mode);
-		  REQUEST_LENGTH();
-		  ENUM8(family);
-		  UNUSED(1);
-		  v16 = CARD16(address_length);
-		  LISTofCARD8(address, v16);
-		  break;
-
-		case 110: /* ListHosts */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  break;
-
-		case 111: /* SetAccessControl */
-		  ENUM8(access_mode);
-		  REQUEST_LENGTH();
-		  break;
-
-		case 112: /* SetCloseDownMode */
-		  ENUM8(close_down_mode);
-		  REQUEST_LENGTH();
-		  break;
-
-		case 113: /* KillClient */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  CARD32(resource);
-		  break;
-
-		case 114: /* RotateProperties */
-		  UNUSED(1);
-		  v16 = REQUEST_LENGTH();
-		  WINDOW(window);
-		  CARD16(property_number);
-		  INT16(delta);
-		  LISTofATOM(properties, (v16 - 12));
-		  break;
-
-		case 115: /* ForceScreenSaver */
-		  ENUM8(screen_saver_mode);
-		  REQUEST_LENGTH();
-		  break;
-
-		case 116: /* SetPointerMapping */
-		  v8 = FIELD8(map_length);
-		  REQUEST_LENGTH();
-		  LISTofCARD8(map, v8);
-		  PAD();
-		  break;
-
-		case 117: /* GetPointerMapping */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  break;
-
-		case 118: /* SetModifierMapping */
-		  v8 = FIELD8(keycodes_per_modifier);
-		  REQUEST_LENGTH();
-		  LISTofKEYCODE(keycodes, v8);
-		  break;
-
-		case 119: /* GetModifierMapping */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  break;
-		  
-		case 127: /* NoOperation */
-		  UNUSED(1);
-		  REQUEST_LENGTH();
-		  break;
-	    }
-	    if (*offsetp < next_offset)
-		  proto_tree_add_item(t, hf_x11_undecoded, tvb, *offsetp, next_offset - *offsetp, little_endian);
-	    *offsetp = next_offset;
-	    left = nextLeft;
-      }
-
-      return left;
+      if (x11_state_chunk != NULL)
+	    g_mem_chunk_destroy(x11_state_chunk);
+
+      x11_state_chunk = g_mem_chunk_new("x11_state_chunk",
+					sizeof (x11_conv_data_t),
+					128 * sizeof (x11_conv_data_t),
+					G_ALLOC_ONLY);
 }
 
 /************************************************************************
@@ -2616,22 +1644,6 @@ static int dissect_x11_requests_loop(tvbuff_t *tvb, int *offsetp, proto_tree *ro
  ***         G U E S S I N G   T H E   B Y T E   O R D E R I N G      ***
  ***                                                                  ***
  ************************************************************************/
-
-static GTree *byte_ordering_cache = NULL;
-static GMemChunk *address_chunk = NULL;
-static GMemChunk *ipv4_chunk = NULL;
-static GMemChunk *ipv6_chunk = NULL;
-
-static gint compareAddresses(gconstpointer aa, gconstpointer bb)
-{
-      const address *a = (const address *)aa;
-      const address *b = (const address *)bb;
-      int c = b -> type - a -> type;
-      if (c) return c;
-      c = b -> len - a -> len;
-      if (c) return c;
-      return memcmp(b -> data, a -> data, a -> len);
-}
 
 /* If we can't guess, we return TRUE (that is little_endian), cause
    I'm developing on a Linux box :-). The (non-)guess isn't cached
@@ -2915,18 +1927,26 @@ static int x_endian_match(tvbuff_t *tvb, guint16 (*v16)(tvbuff_t *, gint))
 }
 
 static gboolean
-guess_byte_ordering(tvbuff_t *tvb, packet_info *pinfo)
+guess_byte_ordering(tvbuff_t *tvb, packet_info *pinfo,
+		    x11_conv_data_t *state_info)
 {
       /* With X the client gives the byte ordering for the protocol,
 	 and the port on the server tells us we're speaking X. */
 
       int le, be, decision, decisionToCache;
 
-      gboolean is_reply = (pinfo->srcport == pinfo->match_port);
-      address *addr = is_reply ? &pinfo->net_dst : &pinfo->net_src;
-      gint32 cache = GPOINTER_TO_INT(g_tree_lookup(byte_ordering_cache, addr));
-      if (cache) return cache > 0 ? TRUE : FALSE;
-      if (is_reply) return TRUE; /* We don't try to guess on a reply / event for now */
+      if (state_info->byte_order == BYTE_ORDER_BE)
+	    return FALSE;	/* known to be big-endian */
+      else if (state_info->byte_order == BYTE_ORDER_LE)
+	    return TRUE;	/* known to be little-endian */
+
+      if (pinfo->srcport == pinfo->match_port) {
+      	    /*
+      	     * This is a reply or event; we don't try to guess the
+      	     * byte order on it for now.
+      	     */
+	    return TRUE;
+      }
 
       le = x_endian_match(tvb, tvb_get_letohs);
       be = x_endian_match(tvb, tvb_get_ntohs);
@@ -2951,27 +1971,10 @@ guess_byte_ordering(tvbuff_t *tvb, packet_info *pinfo)
 
       decisionToCache = (le < 0 && be > 0) || (le > 0 && be < 0);
       if (decisionToCache) {
-	    /* We encode the decision as 1 for TRUE and -1 for FALSE
-	       to be able to distinguish between FALSE and no value in
-	       the cache when recalling the value.
-	    */
-	    int address_length;
-	    char *address_data;
-	    address *cached;
-	    if (addr -> type == AT_IPv4) {
-		  address_length = 4;
-		  address_data = g_mem_chunk_alloc(ipv4_chunk);
-	    } else if (addr -> type == AT_IPv6) {
-		  address_length = 16;
-		  address_data = g_mem_chunk_alloc(ipv6_chunk);
-	    } else {
-		  address_length = addr -> len;
-		  address_data = g_malloc(address_length);
-	    }
-	    cached = g_mem_chunk_alloc(address_chunk);
-	    memcpy(address_data, addr -> data, address_length);
-	    SET_ADDRESS(cached, addr -> type, addr -> len, address_data);
-	    g_tree_insert(byte_ordering_cache, cached, GINT_TO_POINTER(decision ? 1 : -1));
+	    /*
+	     * Remember the decision.
+	     */
+	    state_info->byte_order = decision ? BYTE_ORDER_LE : BYTE_ORDER_BE;
       }
 	    
       /*
@@ -2983,36 +1986,1386 @@ guess_byte_ordering(tvbuff_t *tvb, packet_info *pinfo)
 
 /************************************************************************
  ***                                                                  ***
- ***         I N I T I A L I Z A T I O N   A N D   M A I N            ***
+ ***              D E C O D I N G   O N E   P A C K E T               ***
  ***                                                                  ***
  ************************************************************************/
 
-static void
-dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+/*
+ * Decode an initial connection request.
+ */
+static void dissect_x11_initial_conn(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree, x11_conv_data_t *state_info)
 {
-/* Set up structures we will need to add the protocol subtree and manage it */
+      int offset = 0;
+      int *offsetp = &offset;
       proto_item *ti;
-      proto_tree *x11_tree;
-      int offset;
-      int left;
-	
-/* This field shows up as the "Info" column in the display; you should make
-   it, if possible, summarize what's in the packet, so that a user looking
-   at the list of packets can tell what type of packet it is. */
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	    col_set_str(pinfo->cinfo, COL_INFO, "Requests");
+      proto_tree *t;
+      guint16 auth_proto_name_length, auth_proto_data_length;
+      gint left;
 
-/* In the interest of speed, if "tree" is NULL, don't do any work not
-   necessary to generate protocol tree items. */
-      if (!tree) return;
       ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
-      x11_tree = proto_item_add_subtree(ti, ett_x11);
+      t = proto_item_add_subtree(ti, ett_x11);
 
-      offset = 0;
-      little_endian = guess_byte_ordering(tvb, pinfo);
-      left = dissect_x11_requests_loop(tvb, &offset, x11_tree);
+      CARD8(byte_order);
+      UNUSED(1);
+      CARD16(protocol_major_version);
+      CARD16(protocol_minor_version);
+      auth_proto_name_length = CARD16(authorization_protocol_name_length);
+      auth_proto_data_length = CARD16(authorization_protocol_data_length);
+      UNUSED(2);
+      if (auth_proto_name_length != 0) {
+	    STRING8(authorization_protocol_name, auth_proto_name_length);
+	    offset = ROUND_LENGTH(offset);
+      }
+      if (auth_proto_data_length != 0) {
+	    STRING8(authorization_protocol_data, auth_proto_data_length);
+	    offset = ROUND_LENGTH(offset);
+      }
+      left = tvb_length_remaining(tvb, offset);
       if (left)
-	    call_dissector(data_handle, tvb_new_subset(tvb, offset,-1, tvb_reported_length_remaining(tvb, offset)), pinfo, x11_tree);
+	    proto_tree_add_item(t, hf_x11_undecoded, tvb, offset, left, little_endian);
+
+      /*
+       * This is the initial connection request...
+       */
+      state_info->iconn_frame = pinfo->fd->num;
+
+      /*
+       * ...and we're expecting a reply to it.
+       */
+      state_info->opcode = INITIAL_CONN;
+}
+
+static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree, const char *sep, x11_conv_data_t *state_info)
+{
+      int offset = 0;
+      int *offsetp = &offset;
+      int next_offset;
+      proto_item *ti;
+      proto_tree *t;
+      int length, opcode;
+      guint8 v8, v8_2;
+      guint16 v16;
+      guint32 v32;
+      gint left;
+
+      length = VALUE16(tvb, 2) * 4;
+
+      if (length < 4) {
+	    /* Bogus message length? */
+	    return;
+      }
+
+      next_offset = offset + length;
+
+      ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
+      t = proto_item_add_subtree(ti, ett_x11);
+
+      OPCODE();
+
+      if (check_col(pinfo->cinfo, COL_INFO)) 
+	  col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s", sep,
+			  val_to_str(opcode, opcode_vals, "Unknown (%u)"));
+
+      /*
+       * Does this request expect a reply?
+       */
+      switch(opcode) {
+
+      case 3: /* GetWindowAttributes */
+      case 14: /* GetGeometry */
+      case 15: /* QueryTree */
+      case 16: /* InternAtom */
+      case 17: /* GetAtomName */
+      case 20: /* GetProperty */
+      case 21: /* ListProperties */
+      case 23: /* GetSelectionOwner */
+      case 26: /* GrabPointer */
+      case 31: /* GrabKeyboard */
+      case 38: /* QueryPointer */
+      case 39: /* GetMotionEvents */
+      case 40: /* TranslateCoordinates */
+      case 44: /* QueryKeymap */
+      case 47: /* QueryFont */
+      case 48: /* QueryTextExtents */
+      case 49: /* ListFonts */
+      case 73: /* GetImage */
+      case 83: /* ListInstalledColormaps */
+      case 84: /* AllocColor */
+      case 91: /* QueryColors */
+      case 92: /* LookupColor */
+      case 97: /* QueryBestSize */
+      case 98: /* QueryExtension */
+      case 99: /* ListExtensions */
+      case 101: /* GetKeyboardMapping */
+      case 103: /* GetKeyboardControl */
+      case 106: /* GetPointerControl */
+      case 108: /* GetScreenSaver */
+      case 110: /* ListHosts */
+      case 116: /* SetPointerMapping */
+      case 117: /* GetPointerMapping */
+      case 118: /* SetModifierMapping */
+      case 119: /* GetModifierMapping */
+	    /*
+	     * Those requests expect a reply.
+	     */
+	    state_info->opcode = opcode;
+	    break;
+
+      default:
+	    /*
+	     * No reply is expected from any other request.
+	     */
+	    state_info->opcode = NOTHING_EXPECTED;
+	    break;
+      }
+
+      if (!tree) return;
+
+      switch(opcode) {
+
+      case 1: /* CreateWindow */
+	    CARD8(depth);
+	    REQUEST_LENGTH();
+	    WINDOW(wid);
+	    WINDOW(parent);
+	    INT16(x);
+	    INT16(y);
+	    CARD16(width);
+	    CARD16(height);
+	    CARD16(border_width);
+	    ENUM16(window_class);
+	    VISUALID(visual);
+	    windowAttributes(tvb, offsetp, t);
+	    break;
+
+      case 2: /* ChangeWindowAttributes */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    WINDOW(window);
+	    windowAttributes(tvb, offsetp, t);
+	    break;
+
+      case 3: /* GetWindowAttributes */
+      case 4: /* DestroyWindow */
+      case 5: /* DestroySubwindows */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    WINDOW(window);
+	    break;
+
+      case 6: /* ChangeSaveSet */
+	    ENUM8(save_set_mode);
+	    REQUEST_LENGTH();
+	    WINDOW(window);
+	    break;
+
+      case 7: /* ReparentWindow */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    WINDOW(window);
+	    WINDOW(parent);
+	    INT16(x);
+	    INT16(y);
+	    break;
+
+      case 8: /* MapWindow */
+      case 9: /* MapSubWindow */
+      case 10: /* UnmapWindow */
+      case 11: /* UnmapSubwindows */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    WINDOW(window);
+	    break;
+
+      case 12: /* ConfigureWindow */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    WINDOW(window);
+	    BITMASK16(configure_window);
+	    UNUSED(2); 
+	    BITFIELD(INT16,  configure_window_mask, x);
+	    BITFIELD(INT16,  configure_window_mask, y);
+	    BITFIELD(CARD16, configure_window_mask, width);
+	    BITFIELD(CARD16, configure_window_mask, height);
+	    BITFIELD(CARD16, configure_window_mask, border_width);
+	    BITFIELD(WINDOW, configure_window_mask, sibling);
+	    BITFIELD(ENUM8,  configure_window_mask, stack_mode);
+	    ENDBITMASK;
+	    PAD();
+	    break;
+
+      case 13: /* CirculateWindow */
+	    ENUM8(direction);
+	    REQUEST_LENGTH();
+	    WINDOW(window);
+	    break;
+
+      case 14: /* GetGeometry */
+      case 15: /* QueryTree */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    DRAWABLE(drawable);
+	    break;
+
+      case 16: /* InternAtom */
+	    BOOL(only_if_exists);
+	    REQUEST_LENGTH();
+	    v16 = FIELD16(name_length);
+	    UNUSED(2);
+	    STRING8(name, v16);
+	    PAD();
+	    break;
+
+      case 17: /* GetAtomName */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    ATOM(atom);
+	    break;
+
+      case 18: /* ChangeProperty */
+	    ENUM8(mode);
+	    REQUEST_LENGTH();
+	    WINDOW(window);
+	    ATOM(property);
+	    ATOM(type);
+	    CARD8(format);
+	    UNUSED(3);
+	    v32 = CARD32(data_length);
+	    LISTofBYTE(data, v32);
+	    PAD();
+	    break;
+
+      case 19: /* DeleteProperty */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    WINDOW(window);
+	    ATOM(property);
+	    break;
+
+      case 20: /* GetProperty */
+	    BOOL(delete);
+	    REQUEST_LENGTH();
+	    WINDOW(window);
+	    ATOM(property);
+	    ATOM(get_property_type);
+	    CARD32(long_offset);
+	    CARD32(long_length);
+	    break;
+
+      case 21: /* ListProperties */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    WINDOW(window);
+	    break;
+
+      case 22: /* SetSelectionOwner */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    WINDOW(owner);
+	    ATOM(selection);
+	    TIMESTAMP(time);
+	    break;
+
+      case 23: /* GetSelectionOwner */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    ATOM(selection);
+	    break;
+
+      case 24: /* ConvertSelection */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    WINDOW(requestor);
+	    ATOM(selection);
+	    ATOM(target);
+	    ATOM(property);
+	    TIMESTAMP(time);
+	    break;
+
+      case 26: /* GrabPointer */
+	    BOOL(owner_events);
+	    REQUEST_LENGTH();
+	    WINDOW(grab_window);
+	    SETofPOINTEREVENT(pointer_event_mask);
+	    ENUM8(pointer_mode);
+	    ENUM8(keyboard_mode);
+	    WINDOW(confine_to);
+	    CURSOR(cursor);
+	    TIMESTAMP(time);
+	    break;
+
+      case 27: /* UngrabPointer */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    TIMESTAMP(time);
+	    break;
+
+      case 28: /* GrabButton */
+	    BOOL(owner_events);
+	    REQUEST_LENGTH();
+	    WINDOW(grab_window);
+	    SETofPOINTEREVENT(event_mask);
+	    ENUM8(pointer_mode);
+	    ENUM8(keyboard_mode);
+	    WINDOW(confine_to);
+	    CURSOR(cursor);
+	    BUTTON(button);
+	    UNUSED(1);
+	    SETofKEYMASK(modifiers);
+	    break;
+
+      case 29: /* UngrabButton */
+	    BUTTON(button);
+	    REQUEST_LENGTH();
+	    WINDOW(grab_window);
+	    SETofKEYMASK(modifiers);
+	    UNUSED(2);
+	    break;
+
+      case 30: /* ChangeActivePointerGrab */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    CURSOR(cursor);
+	    TIMESTAMP(time);
+	    SETofPOINTEREVENT(event_mask);
+	    UNUSED(2);
+	    break;
+
+      case 31: /* GrabKeyboard */
+	    BOOL(owner_events);
+	    REQUEST_LENGTH();
+	    WINDOW(grab_window);
+	    TIMESTAMP(time);
+	    ENUM8(pointer_mode);
+	    ENUM8(keyboard_mode);
+	    UNUSED(2);
+	    break;
+
+      case 32: /* UngrabKeyboard */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    TIMESTAMP(time);
+	    break;
+
+      case 33: /* GrabKey */
+	    BOOL(owner_events);
+	    REQUEST_LENGTH();
+	    WINDOW(grab_window);
+	    SETofKEYMASK(modifiers);
+	    KEYCODE(key);
+	    ENUM8(pointer_mode);
+	    ENUM8(keyboard_mode);
+	    UNUSED(3);
+	    break;
+
+      case 34: /* UngrabKey */
+	    KEYCODE(key);
+	    REQUEST_LENGTH();
+	    WINDOW(grab_window);
+	    SETofKEYMASK(modifiers);
+	    UNUSED(2);
+	    break;
+
+      case 35: /* AllowEvents */
+	    ENUM8(allow_events_mode);
+	    REQUEST_LENGTH();
+	    TIMESTAMP(time);
+	    break;
+
+      case 36: /* GrabServer */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    break;
+
+      case 37: /* UngrabServer */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    break;
+
+      case 38: /* QueryPointer */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    WINDOW(window);
+	    break;
+
+      case 39: /* GetMotionEvents */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    WINDOW(window);
+	    TIMESTAMP(start);
+	    TIMESTAMP(stop);
+	    break;
+
+      case 40: /* TranslateCoordinates */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    WINDOW(src_window);
+	    WINDOW(dst_window);
+	    INT16(src_x);
+	    INT16(src_y);
+	    break;
+
+      case 41: /* WarpPointer */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    WINDOW(warp_pointer_src_window);
+	    WINDOW(warp_pointer_dst_window);
+	    INT16(src_x);
+	    INT16(src_y);
+	    CARD16(src_width);
+	    CARD16(src_height);
+	    INT16(dst_x);
+	    INT16(dst_y);
+	    break;
+
+      case 42: /* SetInputFocus */
+	    ENUM8(revert_to);
+	    REQUEST_LENGTH();
+	    WINDOW(focus);
+	    TIMESTAMP(time);
+	    break;
+
+      case 43: /* GetInputFocus */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    break;
+
+      case 44: /* QueryKeymap */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    break;
+
+      case 45: /* OpenFont */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    FONT(fid);
+	    v16 = FIELD16(name_length);
+	    UNUSED(2);
+	    STRING8(name, v16);
+	    PAD();
+	    break;
+
+      case 46: /* CloseFont */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    FONT(font);
+	    break;
+
+      case 47: /* QueryFont */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    FONTABLE(font);
+	    break;
+
+      case 48: /* QueryTextExtents */
+	    v8 = BOOL(odd_length);
+	    REQUEST_LENGTH();
+	    FONTABLE(font);
+	    STRING16(string16, (next_offset - offset - (v8 ? 2 : 0)) / 2);
+	    PAD();
+	    break;
+
+      case 49: /* ListFonts */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    CARD16(max_names);
+	    v16 = FIELD16(pattern_length);
+	    STRING8(pattern, v16);
+	    PAD();
+	    break;
+
+      case 50: /* ListFontsWithInfo */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    CARD16(max_names);
+	    v16 = FIELD16(pattern_length);
+	    STRING8(pattern, v16);
+	    PAD();
+	    break;
+
+      case 51: /* SetFontPath */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    v16 = CARD16(str_number_in_path);
+	    UNUSED(2);
+	    LISTofSTRING8(path, v16);
+	    PAD();
+	    break;
+
+      case 52: /* GetFontPath */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    break;
+
+      case 53: /* CreatePixmap */
+	    CARD8(depth);
+	    REQUEST_LENGTH();
+	    PIXMAP(pid);
+	    DRAWABLE(drawable);
+	    CARD16(width);
+	    CARD16(height);
+	    break;
+
+      case 54: /* FreePixmap */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    PIXMAP(pixmap);
+	    break;
+
+      case 55: /* CreateGC */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    GCONTEXT(cid);
+	    DRAWABLE(drawable);
+	    gcAttributes(tvb, offsetp, t);
+	    break;
+
+      case 56: /* ChangeGC */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    GCONTEXT(gc);
+	    gcAttributes(tvb, offsetp, t);
+	    break;
+
+      case 57: /* CopyGC */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    GCONTEXT(src_gc);
+	    GCONTEXT(dst_gc);
+	    gcMask(tvb, offsetp, t);
+	    break;
+
+      case 58: /* SetDashes */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    GCONTEXT(gc);
+	    CARD16(dash_offset);
+	    v16 = FIELD16(dashes_length);
+	    LISTofCARD8(dashes, v16);
+	    PAD();
+	    break;
+
+      case 59: /* SetClipRectangles */
+	    ENUM8(ordering);
+	    REQUEST_LENGTH();
+	    GCONTEXT(gc);
+	    INT16(clip_x_origin);
+	    INT16(clip_y_origin);
+	    LISTofRECTANGLE(rectangles);
+	    break;
+
+      case 60: /* FreeGC */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    GCONTEXT(gc);
+	    break;
+
+      case 61: /* ClearArea */
+	    BOOL(exposures);
+	    REQUEST_LENGTH();
+	    WINDOW(window);
+	    INT16(x);
+	    INT16(y);
+	    CARD16(width);
+	    CARD16(height);
+	    break;
+
+      case 62: /* CopyArea */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    DRAWABLE(src_drawable);
+	    DRAWABLE(dst_drawable);
+	    GCONTEXT(gc);
+	    INT16(src_x);
+	    INT16(src_y);
+	    INT16(dst_x);
+	    INT16(dst_y);
+	    CARD16(width);
+	    CARD16(height);
+	    break;
+
+      case 63: /* CopyPlane */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    DRAWABLE(src_drawable);
+	    DRAWABLE(dst_drawable);
+	    GCONTEXT(gc);
+	    INT16(src_x);
+	    INT16(src_y);
+	    INT16(dst_x);
+	    INT16(dst_y);
+	    CARD16(width);
+	    CARD16(height);
+	    CARD32(bit_plane);
+	    break;
+
+      case 64: /* PolyPoint */
+	    ENUM8(coordinate_mode);
+	    v16 = REQUEST_LENGTH();
+	    DRAWABLE(drawable);
+	    GCONTEXT(gc);
+	    LISTofPOINT(points, v16 - 12);
+	    break;
+
+      case 65: /* PolyLine */
+	    ENUM8(coordinate_mode);
+	    v16 = REQUEST_LENGTH();
+	    DRAWABLE(drawable);
+	    GCONTEXT(gc);
+	    LISTofPOINT(points, v16 - 12);
+	    break;
+
+      case 66: /* PolySegment */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    DRAWABLE(drawable);
+	    GCONTEXT(gc);
+	    LISTofSEGMENT(segments);
+	    break;
+
+      case 67: /* PolyRectangle */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    DRAWABLE(drawable);
+	    GCONTEXT(gc);
+	    LISTofRECTANGLE(rectangles);
+	    break;
+
+      case 68: /* PolyArc */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    DRAWABLE(drawable);
+	    GCONTEXT(gc);
+	    LISTofARC(arcs);
+	    break;
+
+      case 69: /* FillPoly */
+	    UNUSED(1);
+	    v16 = REQUEST_LENGTH();
+	    DRAWABLE(drawable);
+	    GCONTEXT(gc);
+	    ENUM8(shape);
+	    ENUM8(coordinate_mode);
+	    UNUSED(2);
+	    LISTofPOINT(points, v16 - 16);
+	    break;
+
+      case 70: /* PolyFillRectangle */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    DRAWABLE(drawable);
+	    GCONTEXT(gc);
+	    LISTofRECTANGLE(rectangles);
+	    break;
+
+      case 71: /* PolyFillArc */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    DRAWABLE(drawable);
+	    GCONTEXT(gc);
+	    LISTofARC(arcs);
+	    break;
+
+      case 72: /* PutImage */
+	    ENUM8(image_format);
+	    v16 = REQUEST_LENGTH();
+	    DRAWABLE(drawable);
+	    GCONTEXT(gc);
+	    CARD16(width);
+	    CARD16(height);
+	    INT16(dst_x);
+	    INT16(dst_y);
+	    CARD8(left_pad);
+	    CARD8(depth);
+	    UNUSED(2);
+	    LISTofBYTE(data, v16 - 24);
+	    PAD();
+	    break;
+
+      case 73: /* GetImage */
+	    ENUM8(image_pixmap_format);
+	    REQUEST_LENGTH();
+	    DRAWABLE(drawable);
+	    INT16(x);
+	    INT16(y);
+	    CARD16(width);
+	    CARD16(height);
+	    CARD32(plane_mask);
+	    break;
+
+      case 74: /* PolyText8 */
+	    UNUSED(1);
+	    v16 = REQUEST_LENGTH();
+	    DRAWABLE(drawable);
+	    GCONTEXT(gc);
+	    INT16(x);
+	    INT16(y);
+	    LISTofTEXTITEM8(items);
+	    PAD();
+	    break;
+
+      case 75: /* PolyText16 */
+	    UNUSED(1);
+	    v16 = REQUEST_LENGTH();
+	    DRAWABLE(drawable);
+	    GCONTEXT(gc);
+	    INT16(x);
+	    INT16(y);
+	    LISTofTEXTITEM16(items);
+	    PAD();
+	    break;
+
+      case 76: /* ImageText8 */
+	    v8 = FIELD8(string_length);
+	    REQUEST_LENGTH();
+	    DRAWABLE(drawable);
+	    GCONTEXT(gc);
+	    INT16(x);
+	    INT16(y);
+	    STRING8(string, v8);
+	    PAD();
+	    break;
+
+      case 77: /* ImageText16 */
+	    v8 = FIELD8(string_length);
+	    REQUEST_LENGTH();
+	    DRAWABLE(drawable);
+	    GCONTEXT(gc);
+	    INT16(x);
+	    INT16(y);
+	    STRING16(string16, v8);
+	    PAD();
+	    break;
+
+      case 78: /* CreateColormap */
+	    ENUM8(alloc);
+	    REQUEST_LENGTH();
+	    COLORMAP(mid);
+	    WINDOW(window);
+	    VISUALID(visual);
+	    break;
+
+      case 79: /* FreeColormap */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    COLORMAP(cmap);
+	    break;
+
+      case 80: /* CopyColormapAndFree */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    COLORMAP(mid);
+	    COLORMAP(src_cmap);
+	    break;
+
+      case 81: /* InstallColormap */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    COLORMAP(cmap);
+	    break;
+
+      case 82: /* UninstallColormap */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    COLORMAP(cmap);
+	    break;
+
+      case 83: /* ListInstalledColormaps */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    WINDOW(window);
+	    break;
+
+      case 84: /* AllocColor */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    COLORMAP(cmap);
+	    CARD16(red);
+	    CARD16(green);
+	    CARD16(blue);
+	    UNUSED(2);
+	    break;
+
+      case 85: /* AllocNamedColor */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    COLORMAP(cmap);
+	    v16 = FIELD16(name_length);
+	    UNUSED(2);
+	    STRING8(name, v16);
+	    PAD();
+	    break;
+
+      case 86: /* AllocColorCells */
+	    BOOL(contiguous);
+	    REQUEST_LENGTH();
+	    COLORMAP(cmap);
+	    CARD16(colors);
+	    CARD16(planes);
+	    break;
+
+      case 87: /* AllocColorPlanes */
+	    BOOL(contiguous);
+	    REQUEST_LENGTH();
+	    COLORMAP(cmap);
+	    CARD16(colors);
+	    CARD16(reds);
+	    CARD16(greens);
+	    CARD16(blues);
+	    break;
+
+      case 88: /* FreeColors */
+	    UNUSED(1);
+	    v16 = REQUEST_LENGTH();
+	    COLORMAP(cmap);
+	    CARD32(plane_mask);
+	    LISTofCARD32(pixels, v16 - 12);
+	    break;
+
+      case 89: /* StoreColors */
+	    UNUSED(1);
+	    v16 = REQUEST_LENGTH();
+	    COLORMAP(cmap);
+	    LISTofCOLORITEM(color_items, v16 - 8);
+	    break;
+
+      case 90: /* StoreNamedColor */
+	    COLOR_FLAGS(color);
+	    REQUEST_LENGTH();
+	    COLORMAP(cmap);
+	    CARD32(pixel);	
+	    v16 = FIELD16(name_length);
+	    UNUSED(2);
+	    STRING8(name, v16);
+	    PAD();
+	    break;
+
+      case 91: /* QueryColors */
+	    UNUSED(1);
+	    v16 = REQUEST_LENGTH();
+	    COLORMAP(cmap);
+	    LISTofCARD32(pixels, v16 - 8);
+	    break;
+
+      case 92: /* LookupColor */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    COLORMAP(cmap);
+	    v16 = FIELD16(name_length);
+	    UNUSED(2);
+	    STRING8(name, v16);
+	    PAD();
+	    break;
+
+      case 93: /* CreateCursor */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    CURSOR(cid);
+	    PIXMAP(source_pixmap);
+	    PIXMAP(mask);
+	    CARD16(fore_red);
+	    CARD16(fore_green);
+	    CARD16(fore_blue);
+	    CARD16(back_red);
+	    CARD16(back_green);
+	    CARD16(back_blue);
+	    CARD16(x);
+	    CARD16(y);
+	    break;
+
+      case 94: /* CreateGlyphCursor */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    CURSOR(cid);
+	    FONT(source_font);
+	    FONT(mask_font);
+	    CARD16(source_char);
+	    CARD16(mask_char);
+	    CARD16(fore_red);
+	    CARD16(fore_green);
+	    CARD16(fore_blue);
+	    CARD16(back_red);
+	    CARD16(back_green);
+	    CARD16(back_blue);
+	    break;
+
+      case 95: /* FreeCursor */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    CURSOR(cursor);
+	    break;
+
+      case 96: /* RecolorCursor */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    CURSOR(cursor);
+	    CARD16(fore_red);
+	    CARD16(fore_green);
+	    CARD16(fore_blue);
+	    CARD16(back_red);
+	    CARD16(back_green);
+	    CARD16(back_blue);
+	    break;
+
+      case 97: /* QueryBestSize */
+	    ENUM8(class);
+	    REQUEST_LENGTH();
+	    DRAWABLE(drawable);
+	    CARD16(width);
+	    CARD16(height);
+	    break;
+
+      case 98: /* QueryExtension */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    v16 = FIELD16(name_length);
+	    UNUSED(2);
+	    STRING8(name, v16);
+	    PAD();
+	    break;
+
+      case 99: /* ListExtensions */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    break;
+
+      case 100: /* ChangeKeyboardMapping */
+	    v8 = FIELD8(keycode_count);
+	    REQUEST_LENGTH();
+	    KEYCODE(first_keycode);
+	    v8_2 = FIELD8(keysyms_per_keycode);
+	    UNUSED(2);
+	    LISTofKEYSYM(keysyms, v8, v8_2);
+	    break;
+
+      case 101: /* GetKeyboardMapping */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    KEYCODE(first_keycode);
+	    FIELD8(count);
+	    UNUSED(2);
+	    break;
+
+      case 102: /* ChangeKeyboardControl */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    BITMASK32(keyboard_value);
+	    BITFIELD(INT8, keyboard_value_mask, key_click_percent);
+	    BITFIELD(INT8, keyboard_value_mask, bell_percent);
+	    BITFIELD(INT16, keyboard_value_mask, bell_pitch);
+	    BITFIELD(INT16, keyboard_value_mask, bell_duration);
+	    BITFIELD(INT16, keyboard_value_mask, led);
+	    BITFIELD(ENUM8, keyboard_value_mask, led_mode);
+	    BITFIELD(KEYCODE, keyboard_value_mask, keyboard_key);
+	    BITFIELD(ENUM8, keyboard_value_mask, auto_repeat_mode);
+	    ENDBITMASK;
+	    break;
+
+      case 103: /* GetKeyboardControl */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    break;
+
+      case 104: /* Bell */
+	    INT8(percent);
+	    REQUEST_LENGTH();
+	    break;
+
+      case 105: /* ChangePointerControl */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    INT16(acceleration_numerator);
+	    INT16(acceleration_denominator);
+	    INT16(threshold);
+	    BOOL(do_acceleration);
+	    BOOL(do_threshold);
+	    break;
+
+      case 106: /* GetPointerControl */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    break;
+
+      case 107: /* SetScreenSaver */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    INT16(timeout);
+	    INT16(interval);
+	    ENUM8(prefer_blanking);
+	    ENUM8(allow_exposures);
+	    UNUSED(2);
+	    break;
+
+      case 108: /* GetScreenSaver */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    break;
+
+      case 109: /* ChangeHosts */
+	    ENUM8(change_host_mode);
+	    REQUEST_LENGTH();
+	    ENUM8(family);
+	    UNUSED(1);
+	    v16 = CARD16(address_length);
+	    LISTofCARD8(address, v16);
+	    break;
+
+      case 110: /* ListHosts */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    break;
+
+      case 111: /* SetAccessControl */
+	    ENUM8(access_mode);
+	    REQUEST_LENGTH();
+	    break;
+
+      case 112: /* SetCloseDownMode */
+	    ENUM8(close_down_mode);
+	    REQUEST_LENGTH();
+	    break;
+
+      case 113: /* KillClient */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    CARD32(resource);
+	    break;
+
+      case 114: /* RotateProperties */
+	    UNUSED(1);
+	    v16 = REQUEST_LENGTH();
+	    WINDOW(window);
+	    CARD16(property_number);
+	    INT16(delta);
+	    LISTofATOM(properties, (v16 - 12));
+	    break;
+
+      case 115: /* ForceScreenSaver */
+	    ENUM8(screen_saver_mode);
+	    REQUEST_LENGTH();
+	    break;
+
+      case 116: /* SetPointerMapping */
+	    v8 = FIELD8(map_length);
+	    REQUEST_LENGTH();
+	    LISTofCARD8(map, v8);
+	    PAD();
+	    break;
+
+      case 117: /* GetPointerMapping */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    break;
+
+      case 118: /* SetModifierMapping */
+	    v8 = FIELD8(keycodes_per_modifier);
+	    REQUEST_LENGTH();
+	    LISTofKEYCODE(keycodes, v8);
+	    break;
+
+      case 119: /* GetModifierMapping */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    break;
+	    
+      case 127: /* NoOperation */
+	    UNUSED(1);
+	    REQUEST_LENGTH();
+	    break;
+      }
+      left = tvb_length_remaining(tvb, offset);
+      if (left)
+	    proto_tree_add_item(t, hf_x11_undecoded, tvb, offset, left, little_endian);
+}
+
+static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree)
+{
+      volatile int offset = 0;
+      int length_remaining;
+      guint8 opcode;
+      volatile int plen;
+      proto_item *ti;
+      proto_tree *t;
+      volatile gboolean is_initial_creq;
+      guint16 auth_proto_len, auth_data_len;
+      const char *volatile sep = NULL;
+      conversation_t *conversation;
+      x11_conv_data_t *volatile state_info;
+      int byte_order;
+      int length;
+      tvbuff_t *next_tvb;
+
+      while (tvb_reported_length_remaining(tvb, offset) != 0) {
+	    length_remaining = tvb_length_remaining(tvb, offset);
+
+	    /*
+	     * Can we do reassembly?
+	     */
+	    if (x11_desegment && pinfo->can_desegment) {
+		  /*
+		   * Yes - is the X11 request header split across
+		   * segment boundaries?
+		   */
+		  if (length_remaining < 4) {
+			/*
+			 * Yes.  Tell the TCP dissector where the data
+			 * for this message starts in the data it handed
+			 * us, and how many more bytes we need, and return.
+			 */
+			pinfo->desegment_offset = offset;
+			pinfo->desegment_len = 4 - length_remaining;
+			return;
+		  }
+	    }
+
+	    /*
+	     * Get the state for this conversation; create the conversation
+	     * if we don't have one, and create the state if we don't have
+	     * any.
+	     */
+	    conversation = find_conversation(&pinfo->src, &pinfo->dst,
+		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	    if (conversation == NULL) {
+		  /*
+		   * No - create one.
+		   */
+		  conversation = conversation_new(&pinfo->src,
+			&pinfo->dst, pinfo->ptype, pinfo->srcport,
+			pinfo->destport, 0);
+	    }
+
+	    /*
+	     * Is there state attached to this conversation?
+	     */
+	    state_info = conversation_get_proto_data(conversation, proto_x11);
+	    if (state_info == NULL) {
+		  /*
+		   * No - create a state structure and attach it.
+		   */
+		  state_info = g_mem_chunk_alloc(x11_state_chunk);
+		  state_info->opcode = NOTHING_SEEN;	/* nothing seen yet */
+		  state_info->iconn_frame = 0;	/* don't know it yet */
+		  state_info->byte_order = BYTE_ORDER_UNKNOWN;	/* don't know it yet */
+		  conversation_add_proto_data(conversation, proto_x11,
+			state_info);
+	    }
+
+	    /*
+	     * Guess the byte order if we don't already know it.
+	     */
+	    little_endian = guess_byte_ordering(tvb, pinfo, state_info);
+
+	    /*
+	     * Get the opcode and length of the putative X11 request.
+	     */
+	    opcode = VALUE8(tvb, 0);
+	    plen = VALUE16(tvb, offset + 2);
+
+	    if (plen == 0) {
+		  /*
+		   * This can't be 0, as it includes the header length.
+		   * A different choice of byte order wouldn't have
+		   * helped.
+		   * Give up.
+		   */
+		  ti = proto_tree_add_item(tree, proto_x11, tvb, offset, -1, FALSE);
+		  t = proto_item_add_subtree(ti, ett_x11);
+		  proto_tree_add_text(t, tvb, offset, -1, "Bogus request length (0)");
+		  return;
+	    }
+
+	    if (state_info->iconn_frame == pinfo->fd->num ||
+		(state_info->opcode == NOTHING_SEEN &&
+	         (opcode == 'B' || opcode == 'l') &&
+	         (plen == 11 || plen == 2816))) {
+		  /*
+		   * Either
+		   *
+		   *	we saw this on the first pass and this is
+		   *    it again
+		   *
+		   * or
+		   *    we haven't already seen any requests, the first
+		   *    byte of the message is 'B' or 'l', and the 16-bit
+		   *    integer 2 bytes into the data stream is either 11
+		   *    or a byte-swapped 11.
+		   *
+		   * This means it's probably an initial connection
+		   * request, not a message.
+		   *
+		   * 'B' is decimal 66, which is the opcode for a
+		   * PolySegment request; unfortunately, 11 is a valid
+		   * length for a PolySegment request request, so we
+		   * might mis-identify that request.  (Are there any
+		   * other checks we can do?)
+		   *
+		   * 'l' is decimal 108, which is the opcode for a
+		   * GetScreenSaver request; the only valid length
+		   * for that request is 1.
+		   */
+		  is_initial_creq = TRUE;
+
+		  /*
+		   * We now know the byte order.  Override the guess.
+		   */
+		  if (state_info->byte_order == BYTE_ORDER_UNKNOWN) {
+		  	if (opcode == 'B') {
+			      /*
+			       * Big-endian.
+			       */
+			      state_info->byte_order = BYTE_ORDER_BE;
+			      little_endian = FALSE;
+			} else {
+			      /*
+			       * Little-endian.
+			       */
+			      state_info->byte_order = BYTE_ORDER_LE;
+			      little_endian = TRUE;
+			}
+		  }
+
+		  /*
+		   * Can we do reassembly?
+		   */
+		  if (x11_desegment && pinfo->can_desegment) {
+			/*
+			 * Yes - is the fixed-length portion of the
+			 * initial connection header split across
+			 * segment boundaries?
+			 */
+			if (length_remaining < 10) {
+			      /*
+			       * Yes.  Tell the TCP dissector where the
+			       * data for this message starts in the data
+			       * it handed us, and how many more bytes we
+			       * need, and return.
+			       */
+			      pinfo->desegment_offset = offset;
+			      pinfo->desegment_len = 10 - length_remaining;
+			      return;
+			}
+		  }
+
+		  /*
+		   * Get the lengths of the authorization protocol and
+		   * the authorization data.
+		   */
+		  auth_proto_len = VALUE16(tvb, offset + 6);
+		  auth_data_len = VALUE16(tvb, offset + 8);
+		  plen = 12 + ROUND_LENGTH(auth_proto_len) +
+			ROUND_LENGTH(auth_data_len);
+	    } else {
+		  /*
+		   * This is probably an ordinary request.
+		   */
+		  is_initial_creq = FALSE;
+
+		  /*
+		   * The length of a request is in 4-byte words.
+		   */
+		  plen *= 4;
+	    }
+
+	    /*
+	     * Can we do reassembly?
+	     */
+	    if (x11_desegment && pinfo->can_desegment) {
+		  /*
+		   * Yes - is the X11 request split across segment
+		   * boundaries?
+		   */
+		  if (length_remaining < plen) {
+			/*
+			 * Yes.  Tell the TCP dissector where the data
+			 * for this message starts in the data it handed
+			 * us, and how many more bytes we need, and return.
+			 */
+			pinfo->desegment_offset = offset;
+			pinfo->desegment_len = plen - length_remaining;
+			return;
+		  }
+	    }
+
+	    /*
+	     * Construct a tvbuff containing the amount of the payload
+	     * we have available.  Make its reported length the
+	     * amount of data in the X11 request.
+	     *
+	     * XXX - if reassembly isn't enabled. the subdissector
+	     * will throw a BoundsError exception, rather than a
+	     * ReportedBoundsError exception.  We really want a tvbuff
+	     * where the length is "length", the reported length is "plen",
+	     * and the "if the snapshot length were infinite" length is the
+	     * minimum of the reported length of the tvbuff handed to us
+	     * and "plen", with a new type of exception thrown if the offset
+	     * is within the reported length but beyond that third length,
+	     * with that exception getting the "Unreassembled Packet" error.
+	     */
+	    length = length_remaining;
+	    if (length > plen)
+		  length = plen;
+	    next_tvb = tvb_new_subset(tvb, offset, length, plen);
+
+	    /*
+	     * Set the column appropriately.
+	     */
+	    if (is_initial_creq) {
+		  if (check_col(pinfo->cinfo, COL_INFO)) 
+			col_set_str(pinfo->cinfo, COL_INFO, "Initial connection request");
+	    } else {
+		  if (sep == NULL) {
+			/*
+			 * We haven't set the column yet; set it.
+			 */
+			if (check_col(pinfo->cinfo, COL_INFO)) 
+			      col_add_str(pinfo->cinfo, COL_INFO, "Requests");
+
+			/*
+			 * Initialize the separator.
+			 */
+			sep = ":";
+		  }
+	    }
+
+	    /*
+	     * Dissect the X11 request.
+	     *
+	     * Catch the ReportedBoundsError exception; if this
+	     * particular message happens to get a ReportedBoundsError
+	     * exception, that doesn't mean that we should stop
+	     * dissecting X11 requests within this frame or chunk of
+	     * reassembled data.
+	     *
+	     * If it gets a BoundsError, we can stop, as there's nothing
+	     * more to see, so we just re-throw it.
+	     */
+	    TRY {
+		  if (is_initial_creq) {
+			dissect_x11_initial_conn(next_tvb, pinfo, tree,
+			    state_info);
+		  } else {
+			dissect_x11_request(next_tvb, pinfo, tree, sep,
+			    state_info);
+		  }
+	    }
+	    CATCH(BoundsError) {
+		  RETHROW;
+	    }
+	    CATCH(ReportedBoundsError) {
+		  show_reported_bounds_error(tvb, pinfo, tree);
+	    }
+	    ENDTRY;
+
+	    /*
+	     * Skip the X11 message.
+	     */
+	    offset += plen;
+
+	    sep = ",";
+      }
 }
 
 static void
@@ -3039,6 +3392,12 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        */
       call_dissector(data_handle,tvb, pinfo, x11_tree);
 }
+
+/************************************************************************
+ ***                                                                  ***
+ ***         I N I T I A L I Z A T I O N   A N D   M A I N            ***
+ ***                                                                  ***
+ ************************************************************************/
 
 static void
 dissect_x11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -3071,7 +3430,6 @@ void proto_register_x11(void)
 /* Setup protocol subtree array */
       static gint *ett[] = {
 	    &ett_x11,
-	    &ett_x11_request,
 	    &ett_x11_color_flags,
 	    &ett_x11_list_of_arc,
 	    &ett_x11_arc,
@@ -3100,6 +3458,7 @@ void proto_register_x11(void)
 	    &ett_x11_configure_window_mask,
 	    &ett_x11_keyboard_value_mask,
       };
+      module_t *x11_module;
 
 /* Register the protocol name and description */
       proto_x11 = proto_register_protocol("X11", "X11", "x11");
@@ -3108,13 +3467,14 @@ void proto_register_x11(void)
       proto_register_field_array(proto_x11, hf, array_length(hf));
       proto_register_subtree_array(ett, array_length(ett));
 
-      byte_ordering_cache = g_tree_new(compareAddresses);
-      address_chunk = g_mem_chunk_new("x11 byte ordering address cache", sizeof(address), 
-				      sizeof(address) * 128, G_ALLOC_ONLY);
-      ipv4_chunk = g_mem_chunk_new("x11 byte ordering ipv4 address cache", 4, 4 * 128, G_ALLOC_ONLY);
-      ipv6_chunk = g_mem_chunk_new("x11 byte ordering ipv6 address cache", 16, 16 * 128, G_ALLOC_ONLY);
-};
+      register_init_routine(x11_init_protocol);
 
+      x11_module = prefs_register_protocol(proto_x11, NULL);
+      prefs_register_bool_preference(x11_module, "desegment",
+	    "Desegment all X11 messages spanning multiple TCP segments",
+	    "Whether the X11 dissector should desegment all messages spanning multiple TCP segments",
+	    &x11_desegment);
+}
 
 void
 proto_reg_handoff_x11(void)

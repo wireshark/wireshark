@@ -3,7 +3,7 @@
 #
 # Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
 #
-# $Id: x11-fields,v 1.4 2001/04/21 08:04:43 guy Exp $
+# $Id: x11-fields,v 1.5 2002/04/16 09:42:31 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,10 @@ arc		NONE	NONE
 	mode	UINT8	DEC	VALS	Tell us if we're drawing an arc or a pie
 
 atom		UINT32	HEX
+authorization-protocol-name-length	UINT16	DEC
+authorization-protocol-name	STRING	HEX
+authorization-protocol-data-length	UINT16	DEC
+authorization-protocol-data	STRING	HEX
 auto-repeat-mode	UINT8	DEC	VALS
 back-blue	UINT16	DEC		Background blue value for a cursor
 back-green	UINT16	DEC		Background green value for a cursor
@@ -65,6 +69,7 @@ border-pixel	UINT32	HEX
 border-pixmap	UINT32	HEX	VALS
 border-width	UINT16	DEC
 button		UINT8	DEC	VALS
+byte-order	UINT8	HEX	VALS
 cap-style	UINT8	DEC	VALS
 change-host-mode	UINT8	DEC	VALS(insert_delete)
 cid		UINT32	HEX
@@ -328,6 +333,8 @@ properties	NONE	NONE
 
 property	UINT32	HEX
 property-number	UINT16	DEC
+protocol-major-version	UINT16	DEC
+protocol-minor-version	UINT16	DEC
 rectangle-height	UINT16	DEC
 rectangles	NONE	NONE
 rectangle	NONE	NONE
