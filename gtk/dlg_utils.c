@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.18 2004/01/25 21:27:15 ulfl Exp $
+ * $Id: dlg_utils.c,v 1.19 2004/01/29 22:37:45 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -93,6 +93,8 @@ dlg_button_row_new(gchar *stock_id_first, ...)
     gchar *print        = NULL;
     gchar *find         = NULL;
     gchar *jump         = NULL;
+    gchar *yes          = NULL;
+    gchar *no           = NULL;
 
 
     va_start(stock_id_list, stock_id_first);
@@ -123,6 +125,10 @@ dlg_button_row_new(gchar *stock_id_first, ...)
             find = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_JUMP_TO) == 0) {
             jump = stock_id;
+        } else if (strcmp(stock_id, GTK_STOCK_YES) == 0) {
+            yes = stock_id;
+        } else if (strcmp(stock_id, GTK_STOCK_NO) == 0) {
+            no = stock_id;
         } else {
             /* we don't know that button! */
             g_assert_not_reached();
@@ -233,6 +239,12 @@ dlg_button_row_new(gchar *stock_id_first, ...)
             dlg_button_new(hbox, button_hbox, apply);
             return hbox;
         }
+        if (yes && no && cancel) {
+            dlg_button_new(hbox, button_hbox, yes);
+            dlg_button_new(hbox, button_hbox, no);
+            dlg_button_new(hbox, button_hbox, cancel);
+            return hbox;
+        }
     }
     if (buttons == 4) {
         if (ok && apply && save && cancel) {
@@ -259,6 +271,8 @@ dlg_button_row_new(gchar *stock_id_first, ...)
     if (print   != NULL) dlg_button_new(hbox, button_hbox, print);
     if (create_stat != NULL) dlg_button_new(hbox, button_hbox, create_stat);
     if (apply   != NULL) dlg_button_new(hbox, button_hbox, apply);
+    if (yes     != NULL) dlg_button_new(hbox, button_hbox, yes);
+    if (no      != NULL) dlg_button_new(hbox, button_hbox, no);
     if (save    != NULL) dlg_button_new(hbox, button_hbox, save);
     if (stop    != NULL) dlg_button_new(hbox, button_hbox, stop);
     if (close   != NULL) dlg_button_new(hbox, button_hbox, close);

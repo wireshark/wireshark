@@ -1,7 +1,7 @@
 /* compat_macros.h
  * GTK-related Global defines, etc.
  *
- * $Id: compat_macros.h,v 1.11 2004/01/21 03:54:29 ulfl Exp $
+ * $Id: compat_macros.h,v 1.12 2004/01/29 22:37:45 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,6 +90,7 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #define GTK_STOCK_HELP              "Help"
 #define GTK_STOCK_JUMP_TO           "GoTo"
 #define GTK_STOCK_NEW               "New"
+#define GTK_STOCK_NO                "No"
 #define GTK_STOCK_OK                "OK"
 #define GTK_STOCK_OPEN              "Open"
 #define GTK_STOCK_PRINT             "Print"
@@ -101,6 +102,7 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #define GTK_STOCK_SELECT_COLOR      "Color"
 #define GTK_STOCK_SELECT_FONT       "Font"
 #define GTK_STOCK_STOP              "Stop"
+#define GTK_STOCK_YES               "Yes"
 #define GTK_STOCK_ZOOM_IN           "Zoom In"
 #define GTK_STOCK_ZOOM_OUT          "Zoom Out"
 #define GTK_STOCK_ZOOM_100          "Zoom 100%"
