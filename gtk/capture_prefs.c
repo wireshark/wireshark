@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.11 2002/05/24 07:05:44 guy Exp $
+ * $Id: capture_prefs.c,v 1.12 2002/06/28 01:59:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,8 +138,17 @@ capture_prefs_fetch(GtkWidget *w)
 		prefs.capture_device = NULL;
 	}
 
-	if_text = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry));
-	prefs.capture_device = g_strdup(if_text);
+	if_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
+	/* Strip out white space */
+	g_strstrip(if_text);
+	/* If there was nothing but white space, treat that as an
+	   indication that the user doesn't want to wire in a default
+	   device, and just wants the first device in the list chosen. */
+	if (*if_text == '\0') {
+		g_free(if_text);
+		if_text = NULL;
+	}
+	prefs.capture_device = if_text;
 
 	prefs.capture_prom_mode = GTK_TOGGLE_BUTTON (promisc_cb)->active;
 
