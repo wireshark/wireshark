@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.51 2003/06/24 18:51:21 gerald Exp $
+# $Id: config.nmake,v 1.52 2003/06/25 06:49:59 guy Exp $
 
 VERSION=0.9.13
 #
@@ -114,7 +114,7 @@ ADNS_LIBS=$(ADNS_DIR)\adns_win32\lib\adns_dll.lib
 # Nmake uses carets to escape special characters
 ADNS_CONFIG=^#define HAVE_GNU_ADNS 1
 !else
-ADNS_CFLAGS=
+ADNS_CFLAGS=/* ^#undef HAVE_GNU_ADNS */
 ADNS_LIBS=
 ADNS_CONFIG=
 !ENDIF
