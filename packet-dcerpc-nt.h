@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.32 2002/11/28 21:03:36 guy Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.33 2002/12/02 21:20:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,9 +35,6 @@ extern gint ett_nt_unicode_string;
 
 int prs_align(int offset, int n);
 
-int prs_uint8(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	      proto_tree *tree, guint8 *data, char *name);
-
 int prs_uint8s(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       proto_tree *tree, int count, int *data_offset, char *name);
 
@@ -50,32 +47,11 @@ int prs_uint16s(tvbuff_t *tvb, int offset, packet_info *pinfo,
 int prs_uint32(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       proto_tree *tree, guint32 *data, char *name);
 
-int prs_uint32s(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		proto_tree *tree, int count, int *data_offset, char *name);
-
-/* Parse NT status code */
-
-int prs_ntstatus(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		 proto_tree *tree);
-
 /* Parse some common RPC structures */
 
 char *fake_unicode(tvbuff_t *tvb, int offset, int len);
 
-int prs_UNISTR2(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		proto_tree *tree, int flags, char **data, char *name);
-
 /* Routines for handling deferral of referants in NDR */
-
-#define PARSE_SCALARS 1
-#define PARSE_BUFFERS 2
-
-int prs_push_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		 proto_tree *tree, GList **ptr_list, char *name);
-
-guint32 prs_pop_ptr(GList **ptr_list, char *name);
-
-
 
 #define ALIGN_TO_4_BYTES \
 	{ dcerpc_info *xzdi; \
