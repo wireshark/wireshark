@@ -179,11 +179,11 @@ proto_register_tali(void)
 {
   static hf_register_info hf[] = {
     { &hf_tali_sync_indicator,
-      { "Sync", "tali.sync", FT_STRING, BASE_NONE, NULL, 0x00, "Tali SYNC", HFILL }},
+      { "Sync", "tali.sync", FT_STRING, BASE_NONE, NULL, 0x00, "TALI SYNC", HFILL }},
     { &hf_tali_opcode_indicator,
-      { "Opcode", "tali.opcode", FT_STRING, BASE_NONE, NULL, 0x00, "Tali Operation Code", HFILL }},
+      { "Opcode", "tali.opcode", FT_STRING, BASE_NONE, NULL, 0x00, "TALI Operation Code", HFILL }},
     { &hf_tali_length_indicator,
-      { "Length", "tali.msu_length", FT_UINT16, BASE_DEC, NULL, 0x00, "Tali MSU Length", HFILL }}
+      { "Length", "tali.msu_length", FT_UINT16, BASE_DEC, NULL, 0x00, "TALI MSU Length", HFILL }}
   };
 
   /* Setup protocol subtree array */
