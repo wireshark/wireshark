@@ -2,7 +2,7 @@
  * Routines for Logical Link Control GPRS dissection ETSI 4.64
  * Copyright 2000, Josef Korelus <jkor@quick.cz>
  *
- * $Id: packet-gprs-llc.c,v 1.1 2004/04/13 04:21:30 guy Exp $
+ * $Id: packet-gprs-llc.c,v 1.2 2004/04/13 17:48:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,7 +71,6 @@ static int hf_llcgprs_NU       = -1; /*Transmited unconfirmed sequence number*/
 static int hf_llcgprs_E_bit    = -1;/* Encryption mode bit*/
 static int hf_llcgprs_PM_bit   = -1;
 static int hf_llcgprs_Un       = -1;
-static int hf_llcgprs_Ai       = -1;
 static int hf_llcgprs_As      = -1;
 static int hf_llcgprs_ucom     = -1;
 static int hf_llcgprs_PF	= -1;
@@ -180,7 +179,6 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
  guint8 addr_fld=0, sapi=0, ctrl_fld_fb=0, frame_format, tmp=0 ;
  guint16 offset=0 , epm = 0, nu=0,ctrl_fld_ui_s=0,crc_start=0 ;
- gchar *info_mess;
  proto_item *ti, *addres_field_item, *ctrl_field_item, *ui_ti;
  proto_tree *llcgprs_tree=NULL , *ad_f_tree =NULL, *ctrl_f_tree=NULL, *ui_tree=NULL;
  tvbuff_t *next_tvb;
