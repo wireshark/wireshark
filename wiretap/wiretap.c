@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <glib.h>
+#include "config.h"
 #include "wtap.h"
 #include "bpf-engine.h"
 
