@@ -97,7 +97,6 @@ static int hf_h225_ras_rsp_frame = -1;
 static int hf_h225_ras_dup = -1;
 static int hf_h225_ras_deltatime = -1;
 static int hf_h225_fastStart_item_length = -1; 
-static int hf_h225_nsp_data = -1;
 
 #include "packet-h225-hf.c"
 
@@ -108,11 +107,20 @@ static gint ett_h225 = -1;
 /* Global variables */
 static guint32  ipv4_address;
 static guint32  ipv4_port;
-static char object[256];
 guint32 T38_manufacturer_code;
-static char tpID[256];
 static gboolean h225_reassembly = TRUE;
+guint32 value;
 static gboolean contains_faststart = FALSE;
+
+/* NonStandardParameter */
+static char nsiOID[256];
+static guint32 h221NonStandard;
+static guint32 t35CountryCode;
+static guint32 t35Extension;
+static guint32 manufacturerCode;
+
+/* TunnelledProtocol */
+static char tpOID[256];
 
 #include "packet-h225-fn.c"
 
@@ -169,25 +177,6 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	return offset;
 }
-
-static int
-dissect_h225_nsp_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	guint32 value_offset, value_len;
-	tvbuff_t *next_tvb;
-
-	offset = dissect_per_octet_string(tvb, offset, pinfo, tree,
-				hf_h225_nsp_data, -1, -1,
-				&value_offset, &value_len);
-
-	if (value_len > 0) {
-		next_tvb = tvb_new_subset(tvb, value_offset, value_len, value_len);
-		call_dissector((nsp_handle)?nsp_handle:data_handle, next_tvb, pinfo, tree);
-	}
-
-	return offset;
-}
-
 /*--- proto_register_h225 -------------------------------------------*/
 void proto_register_h225(void) {
 
@@ -217,9 +206,6 @@ void proto_register_h225(void) {
 	{ &hf_h225_fastStart_item_length,
 		{ "fastStart item length", "h225.fastStart_item_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "fastStart item length", HFILL }},
-	{ &hf_h225_nsp_data,
-		{ "data", "h225.nsp_data", FT_BYTES, BASE_HEX,
-		NULL, 0, "OCTET STRING", HFILL }},
 
 #include "packet-h225-hfarr.c"
   };
