@@ -1,7 +1,7 @@
 /* packet-mapi.c
  * Routines for MSX mapi packet dissection
  *
- * $Id: packet-mapi.c,v 1.14 2001/01/25 06:14:14 guy Exp $
+ * $Id: packet-mapi.c,v 1.15 2001/04/09 02:15:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -64,6 +64,24 @@ dissect_mapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			(pinfo->match_port == pinfo->destport) ? "Request" : "Response");	  
 	}
 
+	/*
+	 * XXX - MAPI is based on MS RPC, i.e. on DCE RPC.
+	 * Unfortunately, at least as I read the DCE RPC 1.1 spec's
+	 * description of RPC PDUs, not all PDUs necessarily have
+	 * an interface UUID for connection-oriented RPC, and MAPI
+	 * runs over TCP - i.e., it uses connection-oriented RPC - so if
+	 * somebody ever does a dissector for the MAPI RPC calls,
+	 * it's not clear how we'd arrange to call that dissector for
+	 * MAPI calls if we haven't seen a bind operation.
+	 *
+	 * Currently, the DCE RPC dissector doesn't dissect enough
+	 * to determine what service is being called, so without
+	 * a dissector for the TCP port TCP_PORT_MAPI, MAPI traffic
+	 * would just be identified as DCE RPC traffic, and, as per
+	 * the above, even if the DCE RPC dissector did dissect enough
+	 * to determine what service is being called, we might still
+	 * need to check the port number to recognize MAPI traffic.
+	 */
 	if (tree) 
 	{
 		ti = proto_tree_add_item(tree, proto_mapi, tvb, 0,
