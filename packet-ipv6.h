@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.h,v 1.30 2003/02/04 20:16:57 guy Exp $
+ * $Id: packet-ipv6.h,v 1.31 2003/11/22 08:35:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -213,10 +213,10 @@ struct icmp6_hdr {
 #define MLD6_MTRACE_RESP		141	/* mtrace response(to sender) */
 #define MLD6_MTRACE			142	/* mtrace messages */
 
-#define ICMP6_MIP6_DHAAD_REQUEST	150	/* Mobile IPv6 DHAAD */
-#define ICMP6_MIP6_DHAAD_REPLY		151	/* Mobile IPv6 DHAAD */
-#define ICMP6_MIP6_MPS			152	/* Mobile IPv6 MPS */
-#define ICMP6_MIP6_MPA			153	/* Mobile IPv6 MPA */
+#define ICMP6_MIP6_DHAAD_REQUEST	144	/* Mobile IPv6 DHAAD */
+#define ICMP6_MIP6_DHAAD_REPLY		145	/* Mobile IPv6 DHAAD */
+#define ICMP6_MIP6_MPS			146	/* Mobile IPv6 MPS */
+#define ICMP6_MIP6_MPA			147	/* Mobile IPv6 MPA */
 
 #define ICMP6_MAXTYPE			153
 

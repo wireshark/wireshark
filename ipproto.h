@@ -2,7 +2,7 @@
  * Declarations of IP protocol numbers, and of routines for converting
  * IP protocol numbers into strings.
  *
- * $Id: ipproto.h,v 1.10 2003/11/02 22:12:35 gerald Exp $
+ * $Id: ipproto.h,v 1.11 2003/11/22 08:35:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,7 +95,6 @@
 #define IP_PROTO_NONE		59		/* IP6 no next header - RFC1883 */
 #define IP_PROTO_DSTOPTS	60		/* IP6 destination options - RFC1883 */
 /* 61 is reserved by IANA for any host internal protocol */
-#define IP_PROTO_MIPV6		62		/* Mobile IPv6  - To be verified */
 /* 63 is reserved by IANA for any local network */
 #define IP_PROTO_SATEXPAK       64
 #define IP_PROTO_KRYPTOLAN      65
@@ -168,6 +167,7 @@
 #define IP_PROTO_SCTP		132		/* Stream Control Transmission Protocol */
 #define IP_PROTO_FC             133             /* Fibre Channel */
 #define IP_PROTO_RSVPE2EI       134             /* RSVP E2E Ignore - RFC3175 */
+#define IP_PROTO_MIPV6          135             /* Mobile IPv6  */
 #define IP_PROTO_NCS_HEARTBEAT  224             /* Novell NCS Heartbeat - http://support.novell.com/cgi-bin/search/searchtid.cgi?/10071158.htm */
 
 extern const char *ipprotostr(int proto);
