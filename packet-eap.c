@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.13 2002/02/25 23:55:21 guy Exp $
+ * $Id: packet-eap.c,v 1.14 2002/02/26 00:51:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,8 +80,7 @@ static const value_string eap_type_vals[] = {
 };
 
 static void
-dissect_eap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		gboolean top_level)
+dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint8      eap_code;
   guint8      eap_id;
@@ -91,19 +90,15 @@ dissect_eap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree *ti;
   proto_tree *eap_tree = NULL;
 
-  if (top_level) {
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAP");
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_clear(pinfo->cinfo, COL_INFO);
-  }
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   eap_code = tvb_get_guint8(tvb, 0);
-  if (top_level) {
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_str(pinfo->cinfo, COL_INFO,
-		  val_to_str(eap_code, eap_code_vals, "Unknown code (0x%02X)"));
-  }
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_str(pinfo->cinfo, COL_INFO,
+		val_to_str(eap_code, eap_code_vals, "Unknown code (0x%02X)"));
 
   eap_len = tvb_get_ntohs(tvb, 2);
   len = eap_len;
@@ -113,11 +108,8 @@ dissect_eap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     len=tvb_length(tvb);
 
   if (tree) {
-    if (top_level) {
-      ti = proto_tree_add_item(tree, proto_eap, tvb, 0, len, FALSE);
-      eap_tree = proto_item_add_subtree(ti, ett_eap);
-    } else
-      eap_tree = tree;
+    ti = proto_tree_add_item(tree, proto_eap, tvb, 0, len, FALSE);
+    eap_tree = proto_item_add_subtree(ti, ett_eap);
 
     proto_tree_add_uint(eap_tree, hf_eap_code, tvb, 0, 1, eap_code);
   }
@@ -133,12 +125,10 @@ dissect_eap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case EAP_REQUEST:
   case EAP_RESPONSE:
     eap_type = tvb_get_guint8(tvb, 4);
-    if (top_level) {
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-			val_to_str(eap_type, eap_type_vals,
-				   "Unknown type (0x%02X)"));
-    }
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+		      val_to_str(eap_type, eap_type_vals,
+				 "Unknown type (0x%02X)"));
     if (tree) {
       proto_tree_add_uint(eap_tree, hf_eap_type, tvb, 4, 1, eap_type);
 
@@ -169,8 +159,13 @@ dissect_eap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  }
 
 	  if (size>0) {
-	    tvbuff_t   *next_tvb;
-	    next_tvb = tvb_new_subset(tvb, offset, size, size);
+	    tvbuff_t *next_tvb;
+	    gint tvb_len; 
+
+	    tvb_len = tvb_length_remaining(tvb, offset);
+	    if (size < tvb_len)
+		tvb_len = size;
+	    next_tvb = tvb_new_subset(tvb, offset, tvb_len, size);
 	    call_dissector(ssl_handle, next_tvb, pinfo, eap_tree);
 	  }
 	  }
@@ -186,18 +181,6 @@ dissect_eap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       }
     }
   }
-}
-
-static void
-dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  dissect_eap_pdu(tvb, pinfo, tree, TRUE);
-}
-
-static void
-dissect_encapsulated_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  dissect_eap_pdu(tvb, pinfo, tree, FALSE);
 }
 
 void
@@ -227,7 +210,6 @@ proto_register_eap(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   register_dissector("eap", dissect_eap, proto_eap);
-  register_dissector("eap_encap", dissect_encapsulated_eap, proto_eap);
 }
 
 void

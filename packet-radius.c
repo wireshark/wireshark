@@ -2,7 +2,7 @@
  * Routines for RADIUS packet disassembly
  * Copyright 1999 Johan Feyaerts
  *
- * $Id: packet-radius.c,v 1.47 2002/02/25 23:28:32 guy Exp $
+ * $Id: packet-radius.c,v 1.48 2002/02/26 00:51:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,7 +53,7 @@ static gint ett_radius = -1;
 static gint ett_radius_avp = -1;
 static gint ett_radius_eap = -1;
 
-static dissector_handle_t eap_encap_handle;
+static dissector_handle_t eap_handle;
 
 #define UDP_PORT_RADIUS		1645
 #define UDP_PORT_RADIUS_NEW	1812
@@ -879,8 +879,6 @@ void dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
   e_avphdr avph;
   gchar *avptpstrval;
   gchar *valstr;
-  proto_tree *ti;
-  proto_tree *eap_tree = NULL;
 
   if (avplength==0)
   {
@@ -906,23 +904,31 @@ void dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
      }
 
      if (avph.avp_type == RD_TP_EAP_MESSAGE) {
-       tvbuff_t   *next_tvb;
+       proto_item *ti;
+       proto_tree *eap_tree;
+       gint tvb_len;
+       tvbuff_t *next_tvb;
        ti = proto_tree_add_text(tree, tvb,offset,avph.avp_length,"t:%s(%u) l:%u",
-			   avptpstrval,avph.avp_type,avph.avp_length);
+				avptpstrval,avph.avp_type,avph.avp_length);
        eap_tree = proto_item_add_subtree(ti, ett_radius_eap);
-       next_tvb = tvb_new_subset(tvb, offset+2,avph.avp_length-2,
-                                 avph.avp_length-2);
+       tvb_len = tvb_length_remaining(tvb, offset+2);
+       if (avph.avp_length-2 < tvb_len)
+         tvb_len = avph.avp_length-2;
+       next_tvb = tvb_new_subset(tvb, offset+2, tvb_len, avph.avp_length-2);
 
        /*
-        * XXX - we'll call the encapsulated-EAP dissector only if we're
-        * building a protocol tree.  The encapsulated-EAP dissector
-        * currently saves no state, and won't be modifying the columns,
-        * so that's OK right now, but it might call the SSL dissector -
-        * if that maintains state needed for dissection, we'll have to
-        * arrange that AVPs be dissected even if we're not building a
-        * protocol tree.
+        * Set the columns non-writable, so that the packet list
+        * shows this as an RADIUS packet, not as an EAP packet.
+        *
+        * XXX - we'll call the EAP dissector only if we're building
+        * a protocol tree.  The EAP dissector currently saves no state,
+        * and won't be modifying the columns, so that's OK right now,
+        * but it might call the SSL dissector - if that maintains state
+        * needed for dissection, we'll have to arrange that AVPs be
+        * dissected even if we're not building a protocol tree.
         */
-       call_dissector(eap_encap_handle, next_tvb, pinfo, eap_tree);
+       col_set_writable(pinfo->cinfo, FALSE);
+       call_dissector(eap_handle, next_tvb, pinfo, eap_tree);
      } else {
        valstr=rd_value_to_str(&avph, tvb, offset);
        proto_tree_add_text(tree, tvb,offset,avph.avp_length,
@@ -1040,9 +1046,9 @@ proto_reg_handoff_radius(void)
 	dissector_handle_t radius_handle;
 
 	/*
-	 * Get a handle for the dissector for EAP inside AVPs.
+	 * Get a handle for the EAP dissector.
 	 */
-	eap_encap_handle = find_dissector("eap_encap");
+	eap_handle = find_dissector("eap");
 
 	radius_handle = create_dissector_handle(dissect_radius, proto_radius);
 	dissector_add("udp.port", UDP_PORT_RADIUS, radius_handle);
