@@ -57,17 +57,17 @@ closetag_start "</"
 tag_start "<"
 tag_end ">"
 closedtag_end "/>"
-name [A-Za-z][_A-Za-z0-9:]*
+name [A-Za-z][-_A-Za-z0-9:]*
 whitespace [ \t\r\n]+
 text [^<]*
 %START COMMENT TAG CLOSE_TAG META_TAG OUT
 %%
-<OUT>{comment_start}		{ add_xml_item(XML_COMMENT_START, XML_CTX_COMMENT, yyleng, yytext); BEGIN COMMENT;}
+{comment_start}		{ add_xml_item(XML_COMMENT_START, XML_CTX_COMMENT, yyleng, yytext); BEGIN COMMENT;}
 <COMMENT>{comment_end}		{ add_xml_item(XML_COMMENT_END, XML_CTX_COMMENT, yyleng, yytext); BEGIN OUT; }
 <COMMENT>{text}				add_xml_item(XML_TEXT, XML_CTX_COMMENT, yyleng, yytext);
 <COMMENT>{tag_start}		add_xml_item(XML_TEXT, XML_CTX_COMMENT, yyleng, yytext);
 
-<OUT>{closetag_start}		{ add_xml_item(XML_CLOSE_TAG_START, XML_CTX_CLOSETAG, yyleng, yytext); BEGIN CLOSE_TAG; }
+{closetag_start}		{ add_xml_item(XML_CLOSE_TAG_START, XML_CTX_CLOSETAG, yyleng, yytext); BEGIN CLOSE_TAG; }
 <CLOSE_TAG>{name}			add_xml_item(XML_NAME, XML_CTX_CLOSETAG, yyleng, yytext);
 <CLOSE_TAG>{whitespace}		add_xml_item(XML_WHITESPACE, XML_CTX_CLOSETAG, yyleng,yytext);
 <CLOSE_TAG>{tag_end}		{ add_xml_item(XML_TAG_END, XML_CTX_CLOSETAG, yyleng, yytext); BEGIN OUT; }
@@ -80,7 +80,7 @@ text [^<]*
 <META_TAG>{name}			add_xml_item(XML_NAME,  XML_CTX_METATAG, yyleng, yytext);
 <META_TAG>{metatag_end}		{ add_xml_item(XML_METATAG_END,  XML_CTX_METATAG, yyleng,yytext); BEGIN OUT; }
 
-<OUT>{tag_start}			{ add_xml_item(XML_TAG_START, XML_CTX_TAG, yyleng, yytext); BEGIN TAG; }
+{tag_start}			{ add_xml_item(XML_TAG_START, XML_CTX_TAG, yyleng, yytext); BEGIN TAG; }
 <TAG>{property_dq}			add_xml_item(XML_PROPERTY, XML_CTX_TAG, yyleng, yytext);
 <TAG>{property_sq}			add_xml_item(XML_PROPERTY, XML_CTX_TAG, yyleng, yytext);
 <TAG>{property_nq}			add_xml_item(XML_PROPERTY, XML_CTX_TAG, yyleng, yytext);

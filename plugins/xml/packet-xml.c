@@ -119,6 +119,7 @@ static void dissect_xml(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree)
 	GPtrArray* stack;
 #ifdef DEBUG_XML
 	proto_tree* tree2 = NULL;
+	proto_tree* pt = NULL;
 #endif
 	
 	is_soap = FALSE;
@@ -258,4 +259,9 @@ proto_reg_handoff_xml(void)
 	xml_handle = find_dissector("xml");
 
 	dissector_add_string("media_type", "text/xml", xml_handle);
+	dissector_add_string("media_type", "application/smil", xml_handle);
+	dissector_add_string("media_type", "text/xml", xml_handle);
+	dissector_add_string("media_type", "application/xml", xml_handle);
+	dissector_add_string("media_type", "application/soap+xml", xml_handle);
+	
 }
