@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.4 2003/10/16 20:56:07 oabad Exp $
+ * $Id: toolbar.c,v 1.5 2003/10/16 21:04:20 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -413,14 +413,14 @@ void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
     print_button = gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar),
                                            "Print", "Print frame(s)",
                                            "Private", iconw,
-                                           GTK_SIGNAL_FUNC(file_print_packet_cmd_cb),
+                                           GTK_SIGNAL_FUNC(file_print_cmd_cb),
                                            NULL);
     gtk_toolbar_append_space (GTK_TOOLBAR(*toolbar));
 #else
     print_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
                                             GTK_STOCK_PRINT, "Print frame(s)",
                                             "Private",
-                                            G_CALLBACK(file_print_packet_cmd_cb),
+                                            G_CALLBACK(file_print_cmd_cb),
                                             NULL, -1);
 #endif
 
@@ -432,14 +432,14 @@ void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
     iconw = gtk_pixmap_new(icon, mask);
 
     find_button = gtk_toolbar_append_item(GTK_TOOLBAR (*toolbar), "Find",
-                                          "Find frame by display filter...",
+                                          "Find frame...",
                                           "Private", iconw,
                                           GTK_SIGNAL_FUNC(find_frame_cb), NULL);
     gtk_toolbar_append_space (GTK_TOOLBAR(*toolbar));
 #else
     find_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
                                            GTK_STOCK_FIND,
-                                           "Find frame by display filter...",
+                                           "Find frame...",
                                            "Private", G_CALLBACK(find_frame_cb),
                                            NULL, -1);
 #endif
