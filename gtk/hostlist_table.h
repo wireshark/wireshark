@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all host talkers taps.
  *
- * $Id: hostlist_table.h,v 1.4 2004/06/01 21:56:04 ulfl Exp $
+ * $Id: hostlist_table.h,v 1.5 2004/06/01 23:00:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,10 +37,10 @@ typedef enum {
 
 /** Hostlist information */
 typedef struct _hostlist_talker_t {
-	address src_address;    /**< source address */
+	address address;        /**< source address */
 	SAT_E   sat;            /**< address type */
 	guint32 port_type;      /**< port_type (e.g. PT_TCP) */
-	guint32 src_port;       /**< source port */
+	guint32 port;           /**< source port */
 
 	guint32 rx_frames;      /**< number of received packets */
 	guint32 tx_frames;      /**< number of transmitted packets */
@@ -53,7 +53,7 @@ typedef struct _hostlist_table {
 	char                *name;              /**< the name of the table */
 	GtkWidget           *win;               /**< GTK window */
 	GtkWidget           *page_lb;           /**< label */
-    GtkWidget           *scrolled_window;   /**< the scrolled window */
+	GtkWidget           *scrolled_window;   /**< the scrolled window */
 	GtkCList            *table;             /**< the GTK table */
 	GtkWidget           *menu;              /**< context menu */
 	gboolean            has_ports;          /**< table has ports */
@@ -86,13 +86,13 @@ extern void init_hostlist_table(gboolean hide_ports, char *table_name, char *tap
 /** Add some data to the table.
  *
  * @param hl the table to add the data to
- * @param src source address
- * @param src_port source port
+ * @param addr address
+ * @param port port
  * @param sender TRUE, if this is a sender
  * @param num_frames number of packets
  * @param num_bytes number of bytes
  * @param sat address type
  * @param port_type the port type (e.g. PT_TCP)
  */
-void add_hostlist_table_data(hostlist_table *hl, address *src, 
-                             guint32 src_port, gboolean sender, int num_frames, int num_bytes, SAT_E sat, int port_type);
+void add_hostlist_table_data(hostlist_table *hl, address *addr,
+                             guint32 port, gboolean sender, int num_frames, int num_bytes, SAT_E sat, int port_type);
