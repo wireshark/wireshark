@@ -381,6 +381,7 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
 		state->offset++;
 		switch (c) {
 			case EOF:
+				*err = file_error(fh);
 				if (*err == 0) {
 					*err = WTAP_ERR_SHORT_READ;
 				}
@@ -531,6 +532,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 {
 	int		id;
 	pkt_t		*pkt = NULL;
+	int		byte0, byte1;
 	int		n, num_written = 0;
 	guint32		time_long;
 	guint8		time_short;
@@ -583,8 +585,21 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 				/*
 				 * Get the length of the record.
 				 */
-				n = file_getc(fh);
-				n = (n << 8) + file_getc(fh);
+				byte0 = file_getc(fh);
+				if (byte0 == EOF) {
+					*err = file_error(fh);
+					if (*err == 0)
+						*err = WTAP_ERR_SHORT_READ;
+					return FALSE;
+				}
+				byte1 = file_getc(fh);
+				if (byte1 == EOF) {
+					*err = file_error(fh);
+					if (*err == 0)
+						*err = WTAP_ERR_SHORT_READ;
+					return FALSE;
+				}
+				n = (byte0 << 8) | byte1;
 				state->offset += 2;
 
 				if (pkt->id_offset == 0) {
@@ -606,7 +621,12 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 
 				g_assert(num_bytes_to_skip < n);
 				while (num_bytes_to_skip) {
-					file_getc(fh);
+					if (file_getc(fh) == EOF) {
+						*err = file_error(fh);
+						if (*err == 0)
+							*err = WTAP_ERR_SHORT_READ;
+						return FALSE;
+					}
 					state->offset++;
 					num_bytes_to_skip--;
 					n--;
@@ -672,6 +692,8 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 	}
 
 	*err = file_error(fh);
+	if (*err == 0)
+		*err = WTAP_ERR_SHORT_READ;
 	return FALSE;
 }
 
