@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-lpd.c,v 1.8 1999/07/07 22:51:47 gram Exp $
+ * $Id: packet-lpd.c,v 1.9 1999/08/25 17:38:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -93,7 +93,7 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_text(tree, offset, fd->cap_len - offset,
+		ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
 		  "Line Printer Daemon Protocol");
 		lpd_tree = proto_item_add_subtree(ti, ETT_LPD);
 
@@ -109,10 +109,11 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			printer = g_strdup(&pd[offset+1]);
 
 			/* get rid of the new-line so that the tree prints out nicely */
-			if (printer[fd->cap_len - offset - 2] == 0x0a) {
-				printer[fd->cap_len - offset - 2] = 0;
+			if (printer[END_OF_FRAME - 2] == 0x0a) {
+				printer[END_OF_FRAME - 2] = 0;
 			}
-			proto_tree_add_text(lpd_tree, offset+1, fd->cap_len - (offset+1),
+			proto_tree_add_text(lpd_tree, offset+1,
+					END_OF_FRAME - 1,
 					/*"Printer/options: %s", &pd[offset+1]);*/
 					"Printer/options: %s", printer);
 			g_free(printer);
@@ -126,11 +127,11 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				printer = strdup(&pd[offset]);
 				line_pos = printer;
 				curr_offset = offset;
-				while (fd->cap_len > curr_offset) {
+				while (pi.captured_len > curr_offset) {
 					newline = strchr(line_pos, '\n');
 					if (!newline) {
 						proto_tree_add_text(lpd_tree, curr_offset,
-							fd->cap_len - offset, "Text: %s", line_pos);
+							END_OF_FRAME, "Text: %s", line_pos);
 						break;
 					}
 					*newline = 0;
