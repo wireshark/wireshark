@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.42 1999/12/05 02:32:40 guy Exp $
+ * $Id: packet-ipx.c,v 1.43 1999/12/08 21:59:12 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -90,6 +90,11 @@ static int hf_sap_response = -1;
 static gint ett_ipxsap = -1;
 static gint ett_ipxsap_server = -1;
 
+static gint ett_ipxmsg = -1;
+static int proto_ipxmsg = -1;
+static int hf_msg_conn = -1;
+static int hf_msg_sigchar = -1;
+
 static void
 dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 
@@ -98,6 +103,9 @@ dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 
 static void
 dissect_ipxsap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
+
+static void
+dissect_ipxmsg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 
 typedef	void	(dissect_func_t)(const u_char *, int, frame_data *, proto_tree *);
 
@@ -161,13 +169,10 @@ static struct port_info	ports[] = {
 	{ IPX_SOCKET_NWLINK_SMB_NAMEQUERY,	NULL,
 				"NWLink SMB Name Query" },
 	{ IPX_SOCKET_NWLINK_SMB_DGRAM,		dissect_nwlink_dg,
-				"NWLink SMB Datagram" },
-	{ IPX_SOCKET_NWLINK_SMB_BROWSE,	NULL,
-				"NWLink SMB Browse" },
-	{ IPX_SOCKET_ATTACHMATE_GW,		NULL,
-				"Attachmate Gateway" },
-	{ IPX_SOCKET_IPX_MESSAGE,		NULL,
-				"IPX Message" },
+                "NWLink SMB Datagram" },
+	{ IPX_SOCKET_NWLINK_SMB_BROWSE,	NULL, "NWLink SMB Browse" },
+	{ IPX_SOCKET_ATTACHMATE_GW,		NULL, "Attachmate Gateway" },
+	{ IPX_SOCKET_IPX_MESSAGE, dissect_ipxmsg, "IPX Message" },
 	{ IPX_SOCKET_SNMP_AGENT, dissect_snmp, "SNMP Agent" },
 	{ IPX_SOCKET_SNMP_SINK,	dissect_snmp, "SNMP Sink" },
 
@@ -250,6 +255,11 @@ static const value_string ipx_packet_type_vals[] = {
 	{ 30,				"Experimental Protocol" },
 	{ 31,				"Experimental Protocol" },
 	{ 0,				NULL }
+};
+
+static const value_string ipxmsg_sigchar_vals[] = {
+	{ '?', "Poll inactive station" },
+	{ 0, NULL }
 };
 
 gchar*
@@ -543,6 +553,40 @@ dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		dissect_data(pd, offset, fd, tree);
 	}
 }
+
+/* ================================================================= */
+/* IPX Message                                                           */
+/* ================================================================= */
+static void
+dissect_ipxmsg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+	proto_tree	*msg_tree;
+	proto_item	*ti;
+	u_char conn_number, sig_char;
+
+	if ( ! BYTES_ARE_IN_FRAME(offset,2) )
+	{
+		return;
+	}
+
+	conn_number = pd[offset];
+	sig_char = pd[offset+1];
+
+	if (check_col(fd, COL_PROTOCOL))
+	 col_add_str(fd, COL_PROTOCOL, "IPX MSG");
+	if (check_col(fd, COL_PROTOCOL)) {
+		col_add_fstr(fd, COL_INFO, "Connection %d, Signature Char '%c'", conn_number,
+			sig_char);
+	}
+
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_ipxmsg, offset, END_OF_FRAME, NULL);
+		msg_tree = proto_item_add_subtree(ti, ett_ipxmsg);
+
+		proto_tree_add_item(msg_tree, hf_msg_conn, offset, 1, conn_number);
+		proto_tree_add_item(msg_tree, hf_msg_sigchar, offset+1, 1, sig_char);
+	}
+}
+
 
 /* ================================================================= */
 /* IPX RIP                                                           */
@@ -881,9 +925,23 @@ proto_register_ipx(void)
 		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
 		  "TRUE if SAP response" }}
 	};
+
+	static hf_register_info hf_ipxmsg[] = {
+		{ &hf_msg_conn,
+		{ "Connection Number",			"ipxmsg.conn", 
+		  FT_UINT8,	BASE_NONE,	NULL,	0x0,
+		  "Connection Number" }},
+
+		{ &hf_msg_sigchar,
+		{ "Signature Char",			"ipxmsg.sigchar", 
+		  FT_UINT8,	BASE_NONE,	VALS(ipxmsg_sigchar_vals),	0x0,
+		  "Signature Char" }}
+	};
+
 	static gint *ett[] = {
 		&ett_ipx,
 		&ett_spx,
+		&ett_ipxmsg,
 		&ett_ipxrip,
 		&ett_ipxsap,
 		&ett_ipxsap_server,
@@ -897,6 +955,9 @@ proto_register_ipx(void)
 
 	proto_ipxrip = proto_register_protocol ("IPX Routing Information Protocol", "ipxrip");
 	proto_register_field_array(proto_ipxrip, hf_ipxrip, array_length(hf_ipxrip));
+
+	proto_ipxmsg = proto_register_protocol ("IPX Message", "ipxmsg");
+	proto_register_field_array(proto_ipxmsg, hf_ipxmsg, array_length(hf_ipxmsg));
 
 	proto_sap = proto_register_protocol ("Service Advertisement Protocol", "sap");
 	proto_register_field_array(proto_sap, hf_sap, array_length(hf_sap));
