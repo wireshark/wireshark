@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.4 1999/10/20 05:19:50 gram Exp $
+ * $Id: packet-sna.c,v 1.5 1999/10/21 04:35:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -79,6 +79,10 @@ static int hf_sna_th_osaf = -1;
 static int hf_sna_th_snai = -1;
 static int hf_sna_th_def = -1;
 static int hf_sna_th_oef = -1;
+static int hf_sna_th_sa = -1;
+static int hf_sna_th_cmd_fmt = -1;
+static int hf_sna_th_cmd_type = -1;
+static int hf_sna_th_cmd_sn = -1;
 
 static int hf_sna_rh = -1;
 static int hf_sna_rh_0 = -1;
@@ -110,12 +114,12 @@ static int hf_sna_ru = -1;
 /* Format Identifier */
 static const value_string sna_th_fid_vals[] = {
 	{ 0x0,	"SNA device <--> Non-SNA Device" },
-	{ 0x1,	"Subarea Node <--> Subarea Node" },
+	{ 0x1,	"Subarea Nodes, without ER or VR" },
 	{ 0x2,	"Subarea Node <--> PU2" },
 	{ 0x3,	"Subarea Node or SNA host <--> Subarea Node" },
-	{ 0x4,	"?" },
-	{ 0x5,	"?" },
-	{ 0xf,	"Adjaced Subarea Nodes" },
+	{ 0x4,	"Subarea Nodes, supporting ER and VR" },
+	{ 0x5,	"HPR RTP endpoint nodes" },
+	{ 0xf,	"Adjaced Subarea Nodes, supporting ER and VR" },
 	{ 0x0,	NULL }
 };
 
@@ -284,6 +288,8 @@ static int  dissect_fid0_1 (const u_char*, int, frame_data*, proto_tree*);
 static int  dissect_fid2 (const u_char*, int, frame_data*, proto_tree*);
 static int  dissect_fid3 (const u_char*, int, frame_data*, proto_tree*);
 static int  dissect_fid4 (const u_char*, int, frame_data*, proto_tree*);
+static int  dissect_fid5 (const u_char*, int, frame_data*, proto_tree*);
+static int  dissect_fidf (const u_char*, int, frame_data*, proto_tree*);
 static void dissect_rh (const u_char*, int, frame_data*, proto_tree*);
 
 void
@@ -337,6 +343,12 @@ dissect_sna(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			break;
 		case 0x4:
 			th_header_len = dissect_fid4(pd, offset, fd, th_tree);
+			break;
+		case 0x5:
+			th_header_len = dissect_fid5(pd, offset, fd, th_tree);
+			break;
+		case 0xf:
+			th_header_len = dissect_fidf(pd, offset, fd, th_tree);
 			break;
 		default:
 			dissect_data(pd, offset+1, fd, tree);
@@ -682,6 +694,91 @@ dissect_fid4 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	return bytes_in_header;
 }
 
+/* FID Type 5 */
+static int
+dissect_fid5 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+
+	proto_tree	*bf_tree;
+	proto_item	*bf_item;
+	guint8		th_0;
+	guint16		snf;
+
+	static int bytes_in_header = 12;
+
+	if (!BYTES_ARE_IN_FRAME(offset, bytes_in_header)) {
+		return 0;
+	}
+
+	th_0 = pd[offset+0];
+	snf = pntohs(&pd[offset+2]);
+
+	if (!tree) {
+		return bytes_in_header;
+	}
+
+	/* Create the bitfield tree */
+	bf_item = proto_tree_add_item(tree, hf_sna_th_0, offset, 1, th_0);
+	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
+
+	proto_tree_add_item(bf_tree, hf_sna_th_fid, offset, 1, th_0);
+	proto_tree_add_item(bf_tree, hf_sna_th_mpf, offset, 1, th_0);
+	proto_tree_add_item(bf_tree, hf_sna_th_efi, offset, 1, th_0);
+
+	proto_tree_add_text(tree, offset+1, 1, "Reserved");
+	proto_tree_add_item(tree, hf_sna_th_snf, offset+2, 2, snf);
+
+	proto_tree_add_item(tree, hf_sna_th_sa, offset+4, 8, &pd[offset+4]);
+
+	return bytes_in_header;
+
+}
+
+/* FID Type f */
+static int
+dissect_fidf (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+
+	proto_tree	*bf_tree;
+	proto_item	*bf_item;
+	guint8		th_0, cmd_fmt, cmd_type;
+	guint16		cmd_sn, dcf;
+	
+	static int bytes_in_header = 26;
+
+	if (!BYTES_ARE_IN_FRAME(offset, bytes_in_header)) {
+		return 0;
+	}
+
+	th_0 = pd[offset+0];
+	cmd_fmt = pd[offset+2];
+	cmd_type = pd[offset+3];
+	cmd_sn = pntohs(&pd[offset+4]);
+
+	/* Yup, bytes 6-23 are reserved! */
+	dcf = pntohs(&pd[offset+24]);
+
+	if (!tree) {
+		return bytes_in_header;
+	}
+
+	/* Create the bitfield tree */
+	bf_item = proto_tree_add_item(tree, hf_sna_th_0, offset, 1, th_0);
+	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
+
+	proto_tree_add_item(bf_tree, hf_sna_th_fid, offset, 1, th_0);
+	proto_tree_add_text(tree, offset+1, 1, "Reserved");
+
+	proto_tree_add_item(tree, hf_sna_th_cmd_fmt,  offset+2, 1, cmd_fmt);
+	proto_tree_add_item(tree, hf_sna_th_cmd_type, offset+3, 1, cmd_type);
+	proto_tree_add_item(tree, hf_sna_th_cmd_sn,   offset+4, 2, cmd_sn);
+
+	proto_tree_add_text(tree, offset+6, 18, "Reserved");
+
+	proto_tree_add_item(tree, hf_sna_th_dcf, offset+24, 8, dcf);
+
+	return bytes_in_header;
+}
+
+
 /* RH */
 static void
 dissect_rh (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
@@ -936,6 +1033,23 @@ proto_register_sna(void)
                 { &hf_sna_th_oef,
                 { "Origin Element Field",	"sna.th.oef", FT_UINT16, BASE_HEX, NULL, 0x0,
 			"" }},
+
+                { &hf_sna_th_sa,
+                { "Session Address",	"sna.th.sa", FT_BYTES, BASE_HEX, NULL, 0x0,
+			"" }},
+
+                { &hf_sna_th_cmd_fmt,
+                { "Command Format",	"sna.th.cmd_fmt", FT_UINT8, BASE_HEX, NULL, 0x0,
+			"" }},
+
+                { &hf_sna_th_cmd_type,
+                { "Command Type",	"sna.th.cmd_type", FT_UINT8, BASE_HEX, NULL, 0x0,
+			"" }},
+
+                { &hf_sna_th_cmd_sn,
+                { "Command Sequence Number",	"sna.th.cmd_sn", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
+
 
                 { &hf_sna_rh,
                 { "Request/Response Header",	"sna.rh", FT_NONE, BASE_NONE, NULL, 0x0,
