@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.6 2000/11/19 08:53:58 guy Exp $
+ * $Id: packet-kerberos.c,v 1.7 2000/12/22 21:43:53 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -63,6 +63,12 @@ static gint proto_kerberos = -1;
 #define KRB5_MSG_AS_RESP  0x0b
 #define KRB5_MSG_TGS_REQ  0x0c
 #define KRB5_MSG_TGS_RESP 0x0d
+#define KRB5_MSG_AP_REQ 0x0e
+#define KRB5_MSG_AP_RESP 0x0f
+#define KRB5_MSG_SAFE 0x14
+#define KRB5_MSG_PRIV 0x15
+#define KRB5_MSG_CRED 0x16
+#define KRB5_MSG_ERROR 0x1e
 
 #define KRB5_KDC_REQ_PVNO     0x01
 #define KRB5_KDC_REQ_MSG_TYPE 0x02
@@ -132,7 +138,13 @@ static const value_string krb5_msg_types[] = {
 	{ KRB5_MSG_TGS_REQ,	"TGS-REQ" },
 	{ KRB5_MSG_TGS_RESP,    "TGS-RESP" },
 	{ KRB5_MSG_AS_REQ,	"AS-REQ" },
-	{ KRB5_MSG_AS_RESP,	"AS-RESP" }
+	{ KRB5_MSG_AS_RESP,	"AS-RESP" },
+	{ KRB5_MSG_AP_REQ,	"AP-REQ" },
+	{ KRB5_MSG_AP_RESP,	"AP-RESP" },
+	{ KRB5_MSG_SAFE,	"SAFE" },
+	{ KRB5_MSG_PRIV,	"PRIV" },
+	{ KRB5_MSG_CRED,	"CRED" },
+	{ KRB5_MSG_ERROR,	"ERROR" }
 };
 
 const char *
