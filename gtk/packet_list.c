@@ -168,6 +168,7 @@ packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
     return 0;
 
   case COL_ABS_TIME:
+  case COL_ABS_DATE_TIME:
     return COMPARE_TS(abs_secs, abs_usecs);
 
   case COL_REL_TIME:
