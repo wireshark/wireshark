@@ -8,7 +8,7 @@
  * IAX2 is a VoIP protocol for the open source PBX Asterisk. Please see
  * http://www.asterisk.org for more information.
  *
- * $Id: packet-iax2.c,v 1.7 2004/06/25 06:31:46 sahlberg Exp $
+ * $Id: packet-iax2.c,v 1.8 2004/06/30 18:47:27 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1249,7 +1249,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
   case AST_FRAME_VIDEO:
     /* bit 6 of the csub is used to represent the rtp 'marker' bit */
     rtp_marker = csub & 0x40 ? TRUE:FALSE;
-    iax_packet -> codec = codec = uncompress_subclass(csub & ~40);
+    iax_packet -> codec = codec = uncompress_subclass((guint8) (csub & ~40));
 
     if( packet_type_tree ) {
       proto_tree_add_item (packet_type_tree, hf_iax2_video_csub, tvb, offset+9, 1, FALSE);
