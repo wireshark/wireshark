@@ -7,7 +7,7 @@
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp2222.inc,v 1.8.2.6 2002/03/02 03:38:27 gram Exp $
+ * $Id: packet-ncp2222.inc,v 1.8.2.7 2002/03/04 05:29:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -651,17 +651,18 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		 * display filters can't possibly work. If we already have
 		 * a proto_tree, then wonderful. If we don't, we need to build
 		 * one. */
-		if (ncp_rec->req_cond_indexes) {
-			run_req_cond = TRUE;
-		}
+		if (ncp_rec) {
+			if (ncp_rec->req_cond_indexes) {
+				run_req_cond = TRUE;
+			}
+			if (ncp_rec->req_cond_indexes && !ncp_tree) {
+				proto_item *ti;
 
-		if (ncp_rec->req_cond_indexes && !ncp_tree) {
-			proto_item *ti;
-
-			temp_tree = proto_tree_create_root();
-			proto_tree_set_visible(temp_tree, FALSE);
-			ti = proto_tree_add_item(temp_tree, proto_ncp, tvb, 0, -1, FALSE);
-			ncp_tree = proto_item_add_subtree(ti, ett_ncp);
+				temp_tree = proto_tree_create_root();
+				proto_tree_set_visible(temp_tree, FALSE);
+				ti = proto_tree_add_item(temp_tree, proto_ncp, tvb, 0, -1, FALSE);
+				ncp_tree = proto_item_add_subtree(ti, ett_ncp);
+			}
 		}
 	}
 
