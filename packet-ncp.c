@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.58 2002/05/15 06:50:33 guy Exp $
+ * $Id: packet-ncp.c,v 1.59 2002/05/15 21:17:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,9 +70,15 @@ static int hf_ncp_data_bytes = -1;
 static int hf_ncp_missing_fraglist_count = -1;
 static int hf_ncp_missing_data_offset = -1;
 static int hf_ncp_missing_data_count = -1;
+static int hf_ncp_completion_code = -1;
+static int hf_ncp_connection_status = -1;
+static int hf_ncp_slot = -1;
+static int hf_ncp_control_code = -1;
 
 gint ett_ncp = -1;
 static gint ett_ncp_system_flags = -1;
+
+static dissector_handle_t data_handle;
 
 #define TCP_PORT_NCP		524
 #define UDP_PORT_NCP		524
@@ -135,14 +141,23 @@ struct ncp_common_header {
 };
 
 
+#define NCP_ALLOCATE_SLOT	0x1111
+#define NCP_SERVICE_REQUEST	0x2222
+#define NCP_SERVICE_REPLY	0x3333
+#define NCP_WATCHDOG		0x3e3e
+#define NCP_DEALLOCATE_SLOT	0x5555
+#define NCP_BURST_MODE_XFER	0x7777
+#define NCP_POSITIVE_ACK	0x9999
+
 static value_string ncp_type_vals[] = {
-	{ 0x1111, "Create a service connection" },
-	{ 0x2222, "Service request" },
-	{ 0x3333, "Service reply" },
-	{ 0x5555, "Destroy service connection" },
-	{ 0x7777, "Burst mode transfer" },
-	{ 0x9999, "Request being processed" },
-	{ 0x0000, NULL }
+	{ NCP_ALLOCATE_SLOT,	"Create a service connection" },
+	{ NCP_SERVICE_REQUEST,	"Service request" },
+	{ NCP_SERVICE_REPLY,	"Service reply" },
+	{ NCP_WATCHDOG,		"Watchdog" },
+	{ NCP_DEALLOCATE_SLOT,	"Destroy service connection" },
+	{ NCP_BURST_MODE_XFER,	"Burst mode transfer" },
+	{ NCP_POSITIVE_ACK,	"Request being processed" },
+	{ 0,			NULL }
 };
 
 
@@ -162,15 +177,16 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	struct ncp_ip_rqhdr		ncpiphrq;
 	struct ncp_common_header	header;
 	guint16				nw_connection;
-	guint16				flags;
+	guint16				flags = 0;
 	char				flags_str[1+3+1+3+1+3+1+1];
 	char				*sep;
 	proto_tree			*flags_tree = NULL;
-	guint16				data_len;
-	guint16				missing_fraglist_count;
+	guint16				data_len = 0;
+	guint16				missing_fraglist_count = 0;
 	int				hdr_offset = 0;
 	int				commhdr;
 	int				offset;
+	gint				length_remaining;
 	tvbuff_t       			*next_tvb;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -178,7 +194,7 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
-	if ( pinfo->ptype == PT_TCP || pinfo->ptype == PT_UDP ) {
+	if (pinfo->ptype == PT_TCP) {
 		ncpiph.signature	= tvb_get_ntohl(tvb, 0);
 		ncpiph.length		= tvb_get_ntohl(tvb, 4);
 		hdr_offset += 8;
@@ -210,51 +226,38 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_ncp, tvb, 0, -1, FALSE);
 		ncp_tree = proto_item_add_subtree(ti, ett_ncp);
 
-		if ( pinfo->ptype == PT_TCP || pinfo->ptype == PT_UDP ) {
+		if (pinfo->ptype == PT_TCP) {
 			proto_tree_add_uint(ncp_tree, hf_ncp_ip_sig, tvb, 0, 4, ncpiph.signature);
 			proto_tree_add_uint(ncp_tree, hf_ncp_ip_length, tvb, 4, 4, ncpiph.length);
-			if ( ncpiph.signature == NCPIP_RQST ) {
+			if (ncpiph.signature == NCPIP_RQST) {
 				proto_tree_add_uint(ncp_tree, hf_ncp_ip_ver, tvb, 8, 4, ncpiphrq.version);
 				proto_tree_add_uint(ncp_tree, hf_ncp_ip_rplybufsize, tvb, 12, 4, ncpiphrq.rplybufsize);
-			};
-		};
+			}
+		}
 		proto_tree_add_uint(ncp_tree, hf_ncp_type,	tvb, commhdr + 0, 2, header.type);
 	}
 
 
+	/*
+	 * Process the packet-type-specific header.
+	 */
 	switch (header.type) {
 
-	case 0x1111:	/* "Allocate Slot Request"? */
-	case 0x2222:	/* Server NCP Request */
+	case NCP_ALLOCATE_SLOT:		/* "Allocate Slot Request"? */
+	case NCP_SERVICE_REQUEST:	/* Server NCP Request */
+	case NCP_SERVICE_REPLY:		/* Server NCP Reply */
+	case NCP_WATCHDOG:		/* Watchdog Packet */
+	case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
+	case NCP_POSITIVE_ACK:		/* Positive Acknowledgement */
+	default:
 		proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
 		proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
 		proto_tree_add_item(ncp_tree, hf_ncp_task,	tvb, commhdr + 4, 1, FALSE);
-		next_tvb = tvb_new_subset( tvb, hdr_offset, -1, -1 );
-		dissect_ncp_request(next_tvb, pinfo, nw_connection,
-			header.sequence, header.type, ncp_tree);
+		proto_tree_add_text(ncp_tree, tvb, commhdr + 5, 1,
+		    "Connection Number High: %u", header.conn_high);
 		break;
 
-	case 0x3333:	/* Server NCP Reply */
-		proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
-		proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
-		proto_tree_add_item(ncp_tree, hf_ncp_task,	tvb, commhdr + 4, 1, FALSE);
-		next_tvb = tvb_new_subset( tvb, hdr_offset, -1, -1 );
-		dissect_ncp_reply(next_tvb, pinfo, nw_connection,
-			header.sequence, ncp_tree);
-		break;
-
-	case 0x5555:	/* Deallocate Slot Request */
-	case 0x9999:	/* Positive Acknowledgement */
-		proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
-		proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
-		proto_tree_add_item(ncp_tree, hf_ncp_task,	tvb, commhdr + 4, 1, FALSE);
-		if (tree) {
-			proto_tree_add_text(ncp_tree, tvb, commhdr + 0, 2, "Type 0x%04x not supported yet", header.type);
-		}
-		break;
-
-
-	case 0x7777:	/* Packet Burst Packet */
+	case NCP_BURST_MODE_XFER:	/* Packet Burst Packet */
 		/*
 		 * XXX - we should keep track of whether there's a burst
 		 * outstanding on a connection and, if not, treat the
@@ -347,6 +350,47 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		missing_fraglist_count = tvb_get_ntohs(tvb, commhdr + 34);
 		proto_tree_add_item(ncp_tree, hf_ncp_missing_fraglist_count,
 		    tvb, commhdr + 34, 2, FALSE);
+		break;
+	}
+
+	/*
+	 * Process the packet body.
+	 */
+	switch (header.type) {
+
+	case NCP_ALLOCATE_SLOT:		/* "Allocate Slot Request"? */
+	case NCP_SERVICE_REQUEST:	/* Server NCP Request */
+		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
+		dissect_ncp_request(next_tvb, pinfo, nw_connection,
+			header.sequence, header.type, ncp_tree);
+		break;
+
+	case NCP_SERVICE_REPLY:		/* Server NCP Reply */
+		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
+		dissect_ncp_reply(next_tvb, pinfo, nw_connection,
+			header.sequence, ncp_tree);
+		break;
+
+	case NCP_WATCHDOG:		/* Watchdog Packet */
+		proto_tree_add_item(ncp_tree, hf_ncp_completion_code,
+		    tvb, commhdr + 6, 1, TRUE);
+		proto_tree_add_item(ncp_tree, hf_ncp_connection_status,
+		    tvb, commhdr + 7, 1, TRUE);
+		proto_tree_add_item(ncp_tree, hf_ncp_slot,
+		    tvb, commhdr + 8, 1, TRUE);
+		proto_tree_add_item(ncp_tree, hf_ncp_control_code,
+		    tvb, commhdr + 9, 1, TRUE);
+		/*
+		 * Display the rest of the packet as data.
+		 */
+		if (tvb_offset_exists(tvb, commhdr + 10)) {
+			call_dissector(data_handle,
+			    tvb_new_subset(tvb, commhdr + 10, -1, -1),
+			    pinfo, ncp_tree);
+		}
+		break;
+
+	case NCP_BURST_MODE_XFER:	/* Packet Burst Packet */
 		if (flags & SYS) {
 			/*
 			 * System packet; show missing fragments if there
@@ -361,19 +405,35 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				missing_fraglist_count--;
 			}
 		} else {
+			/*
+			 * XXX - do this by using -1 and -1 as the length
+			 * arguments to "tvb_new_subset()" and then calling
+			 * "tvb_set_reported_length()"?  That'll throw an
+			 * exception if "data_len" goes past the reported
+			 * length of the packet, but that's arguably a
+			 * feature in this case.
+			 */
+			length_remaining = tvb_length_remaining(tvb, commhdr + 36);
+			if (length_remaining > data_len)
+				length_remaining = data_len;
 			if (data_len != 0) {
-				proto_tree_add_text(ncp_tree, tvb, commhdr + 36,
-				    data_len, "Data");
+				call_dissector(data_handle,
+				    tvb_new_subset(tvb, commhdr + 36,
+					length_remaining, data_len),
+				    pinfo, ncp_tree);
 			}
 		}
 		break;
 
+	case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
+	case NCP_POSITIVE_ACK:		/* Positive Acknowledgement */
 	default:
-		/* The value_string for hf_ncp_type already indicates that this type is unknown.
-		 * Just return and do no more parsing. */
-		proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
-		proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
-		proto_tree_add_item(ncp_tree, hf_ncp_task,	tvb, commhdr + 4, 1, FALSE);
+		if (tree) {
+			proto_tree_add_text(ncp_tree, tvb, commhdr + 6, -1,
+			    "%s packets not supported yet",
+			    val_to_str(header.type, ncp_type_vals,
+				"Unknown type (0x%04x)"));
+		}
 		break;
  	}
 }
@@ -485,6 +545,22 @@ proto_register_ncp(void)
       { "Missing Data Count",    "ncp.missing_data_count",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"Number of bytes of missing data", HFILL }},
+    { &hf_ncp_completion_code,
+      { "Completion Code",    "ncp.completion_code",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+	"", HFILL }},
+    { &hf_ncp_connection_status,
+      { "Connection Status",    "ncp.connection_status",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+	"", HFILL }},
+    { &hf_ncp_slot,
+      { "Slot",    "ncp.slot",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+	"", HFILL }},
+    { &hf_ncp_control_code,
+      { "Control Code",    "ncp.control_code",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+	"", HFILL }},
   };
   static gint *ett[] = {
     &ett_ncp,
@@ -512,4 +588,6 @@ proto_reg_handoff_ncp(void)
   dissector_add("udp.port", UDP_PORT_NCP, ncp_handle);
   dissector_add("ipx.packet_type", IPX_PACKET_TYPE_NCP, ncp_handle);
   dissector_add("ipx.socket", IPX_SOCKET_NCP, ncp_handle);
+
+  data_handle = find_dissector("data");
 }
