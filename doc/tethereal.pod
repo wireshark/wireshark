@@ -199,6 +199,9 @@ Specify that if the layer type in question (for example, B<tcp.port> or
 B<udp.port> for a TCP or UDP port number) has the specified selector
 value, packets should be dissected as the specified protocol.
 
+Example: B<-d tcp.port==8888,http> will decode any traffic running over
+TCP port8888 as HTTP.
+
 =item -D
 
 Print a list of the interfaces on which B<Tethereal> can capture, and
