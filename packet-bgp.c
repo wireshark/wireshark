@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.69 2002/10/15 02:29:54 gerald Exp $
+ * $Id: packet-bgp.c,v 1.70 2002/10/15 03:47:47 gerald Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -291,7 +291,7 @@ decode_prefix4(tvbuff_t *tvb, gint offset, char *buf, int buflen)
 
     /* snarf length */
     plen = tvb_get_guint8(tvb, offset);
-    if (plen < 0 || 32 < plen)
+    if (plen > 32)
 	return -1;
     length = (plen + 7) / 8;
 
@@ -504,7 +504,7 @@ decode_prefix_MP(guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf
 
                                 offset += (1 + labnum * 3);
                                 plen -= (labnum * 3*8);
-                                if (plen < 0 || 32 < plen) {
+                                if (plen > 32) {
                                         length = 0 ;
                                         break ;
                                 }
@@ -537,7 +537,7 @@ decode_prefix_MP(guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf
 
                                 switch (rd_type) {
                                         case FORMAT_AS2_LOC: /* Code borrowed from the decode_prefix4 function */
-                                                if (plen < 0 || 32 < plen) {
+                                                if (plen > 32) {
                                                         length = 0 ;
                                                         break ;
                                                 }
@@ -559,7 +559,7 @@ decode_prefix_MP(guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf
                                         case FORMAT_IP_LOC: /* Code borrowed from the decode_prefix4 function */
                                                 tvb_memcpy(tvb, ip4addr, offset + 2, 4);
 
-                                                if (plen < 0 || 32 < plen) {
+                                                if (plen > 32) {
                                                         length = 0 ;
                                                         break ;
                                                 }
@@ -1099,7 +1099,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 		if (tlen != 4)
 		    goto default_attribute_top;
 		ti = proto_tree_add_text(subtree, tvb, o + i, tlen + aoff,
-			"%s: %u (%lu %s)",
+			"%s: %u (%u %s)",
 			val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
 			tvb_get_ntohl(tvb, o + i + aoff), tlen + aoff,
                         (tlen + aoff == 1) ? "byte" : "bytes");
@@ -1108,7 +1108,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 		if (tlen != 4)
 		    goto default_attribute_top;
 		ti = proto_tree_add_text(subtree, tvb, o + i, tlen + aoff,
-			"%s: %u (%lu %s)",
+			"%s: %u (%u %s)",
 			val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
 			tvb_get_ntohl(tvb, o + i + aoff), tlen + aoff,
                         (tlen + aoff == 1) ? "byte" : "bytes");
@@ -1416,7 +1416,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 			    tlen, (tlen == 1) ? "byte" : "bytes");
 		} else {
 		    proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
-			    "Multiple exit discriminator: %lu",
+			    "Multiple exit discriminator: %u",
 			    tvb_get_ntohl(tvb, o + i + aoff));
 		}
 		break;
@@ -1427,7 +1427,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                              (tlen == 1) ? "byte" : "bytes");
 		} else {
 		    proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
-			    "Local preference: %lu", tvb_get_ntohl(tvb, o + i + aoff));
+			    "Local preference: %u", tvb_get_ntohl(tvb, o + i + aoff));
 		}
 		break;
 	    case BGPTYPE_ATOMIC_AGGREGATE:
@@ -1967,9 +1967,11 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
     };
-    struct bgp    bgp;           /* BGP header                       */
-    int           hlen;          /* BGP header length                */
-    char          *typ;          /* BGP message type                 */
+    guint8        bgp_marker[BGP_MARKER_SIZE];    /* Marker (should be all ones */
+    guint16       bgp_len;                        /* Message length             */
+    guint8        bgp_type;                       /* Message type               */
+
+    char          *typ;                           /* Message type (string)      */
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BGP");
@@ -1981,22 +1983,23 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     found = -1;
     /* run through the TCP packet looking for BGP headers         */
     while (i + BGP_HEADER_SIZE <= l) {
-	tvb_memcpy(tvb, bgp.bgp_marker, i, BGP_HEADER_SIZE);
+	tvb_memcpy(tvb, bgp_marker, i, BGP_MARKER_SIZE);
+	bgp_len = tvb_get_ntohs(tvb, i + BGP_MARKER_SIZE);
+	bgp_type = tvb_get_guint8(tvb, i + BGP_MARKER_SIZE + 2);
 
 	/* look for bgp header */
-	if (memcmp(bgp.bgp_marker, marker, sizeof(marker)) != 0) {
+	if (memcmp(bgp_marker, marker, sizeof(marker)) != 0) {
 	    i++;
 	    continue;
 	}
 
 	found++;
-	hlen = g_ntohs(bgp.bgp_len);
 
 	/*
 	 * Desegmentation check.
 	 */
 	if (bgp_desegment) {
-	    if (hlen > tvb_length_remaining(tvb, i) && pinfo->can_desegment) {
+	    if (bgp_len > tvb_length_remaining(tvb, i) && pinfo->can_desegment) {
 		/*
 		 * Not all of this packet is in the data we've been
 		 * handed, but we can do reassembly on it.
@@ -2007,12 +2010,12 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * return.
 		 */
 		pinfo->desegment_offset = i;
-		pinfo->desegment_len = hlen - tvb_length_remaining(tvb, i);
+		pinfo->desegment_len = bgp_len - tvb_length_remaining(tvb, i);
 		return;
 	    }
 	}
 
-	typ = val_to_str(bgp.bgp_type, bgptypevals, "Unknown Message");
+	typ = val_to_str(bgp_type, bgptypevals, "Unknown Message");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    if (found == 0)
@@ -2022,13 +2025,13 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-	    ti = proto_tree_add_item(tree, proto_bgp, tvb, i, hlen, FALSE);
+	    ti = proto_tree_add_item(tree, proto_bgp, tvb, i, bgp_len, FALSE);
 	    bgp_tree = proto_item_add_subtree(ti, ett_bgp);
 
-	    ti = proto_tree_add_text(bgp_tree, tvb, i, hlen, "%s", typ);
+	    ti = proto_tree_add_text(bgp_tree, tvb, i, bgp_len, "%s", typ);
 
 	    /* add a different tree for each message type */
-	    switch (bgp.bgp_type) {
+	    switch (bgp_type) {
 	    case BGP_OPEN:
 	        bgp1_tree = proto_item_add_subtree(ti, ett_bgp_open);
 		break;
@@ -2053,24 +2056,25 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_text(bgp1_tree, tvb, i, BGP_MARKER_SIZE,
 		"Marker: 16 bytes");
 
-	    if (hlen < BGP_HEADER_SIZE || hlen > BGP_MAX_PACKET_SIZE) {
+	    if (bgp_len < BGP_HEADER_SIZE || bgp_len > BGP_MAX_PACKET_SIZE) {
 		proto_tree_add_text(bgp1_tree, tvb,
-		    i + offsetof(struct bgp, bgp_len), 2,
-		    "Length (invalid): %u %s", hlen,
-		    (hlen == 1) ? "byte" : "bytes");
+		    i + BGP_MARKER_SIZE, 2,
+		    "Length (invalid): %u %s", bgp_len,
+		    (bgp_len == 1) ? "byte" : "bytes");
+		return;
 	    } else {
 		proto_tree_add_text(bgp1_tree, tvb,
-		    i + offsetof(struct bgp, bgp_len), 2,
-		    "Length: %u %s", hlen,
-		    (hlen == 1) ? "byte" : "bytes");
+		    i + BGP_MARKER_SIZE, 2,
+		    "Length: %u %s", bgp_len,
+		    (bgp_len == 1) ? "byte" : "bytes");
 	    }
 
 	    proto_tree_add_uint_format(bgp1_tree, hf_bgp_type, tvb,
-				       i + offsetof(struct bgp, bgp_type), 1,
-				       bgp.bgp_type,
-				       "Type: %s (%u)", typ, bgp.bgp_type);
+				       i + BGP_MARKER_SIZE + 2, 1,
+				       bgp_type,
+				       "Type: %s (%u)", typ, bgp_type);
 
-	    switch (bgp.bgp_type) {
+	    switch (bgp_type) {
 	    case BGP_OPEN:
 		dissect_bgp_open(tvb, i, bgp1_tree);
 		break;
@@ -2092,7 +2096,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    }
 	}
 
-	i += hlen;
+	i += bgp_len;
     }
 }
 

@@ -1,7 +1,7 @@
 /* packet-bgp.c
  * Definitions for BGP packet disassembly structures and routine
  *
- * $Id: packet-bgp.h,v 1.20 2002/08/28 21:00:08 jmayer Exp $
+ * $Id: packet-bgp.h,v 1.21 2002/10/15 03:47:47 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,13 +42,6 @@
 #define BGP_KEEPALIVE		4
 #define BGP_ROUTE_REFRESH       5
 #define BGP_ROUTE_REFRESH_CISCO 0x80
-
-/* BGP header */
-struct bgp {
-    guint8 bgp_marker[BGP_MARKER_SIZE];
-    guint16 bgp_len;
-    guint8 bgp_type;
-};
 
 /* BGP OPEN message */
 struct bgp_open {
