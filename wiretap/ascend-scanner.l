@@ -1,7 +1,7 @@
 %{
 /* ascend-scanner.l
  *
- * $Id: ascend-scanner.l,v 1.18 2001/04/09 03:32:34 gerald Exp $
+ * $Id: ascend-scanner.l,v 1.19 2001/04/18 03:03:42 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -45,6 +45,8 @@ extern char *ascend_ra_ptr;
 extern char *ascend_ra_last;
 #define YY_INPUT(buf,result,max_size) { int c = file_getc(yy_fh);  \
 result = (c==EOF) ? YY_NULL : (buf[0] = c, 1); } 
+
+#define YY_NEVER_INTERACTIVE 1
 
 int at_eof;
 int mul, scratch;
