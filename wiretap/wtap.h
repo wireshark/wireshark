@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.7 1998/12/13 05:08:05 gram Exp $
+ * $Id: wtap.h,v 1.8 1998/12/17 06:39:13 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -21,7 +21,8 @@
  *
  */
 
-/* Encapsulation types */
+/* Encapsulation types. Choose names that truly reflect
+ * what is contained in the packet trace file. */
 #define WTAP_ENCAP_NONE				0
 #define WTAP_ENCAP_ETHERNET			1
 #define WTAP_ENCAP_TR				2
@@ -30,6 +31,7 @@
 #define WTAP_ENCAP_FDDI				5
 #define WTAP_ENCAP_RAW_IP			6
 #define WTAP_ENCAP_ARCNET			7
+#define WTAP_ENCAP_ATM_RFC1483			8
 
 /* File types that can be read by wiretap */
 #define WTAP_FILE_UNKNOWN			0
@@ -47,9 +49,13 @@
 #include <buffer.h>
 
 typedef struct {
-	guint16	pkt_len;
 	double	timeunit;
 	time_t	start;
+	guint16	pkt_len;
+	guint16	size;
+	guint16	true_size;
+	double	t;
+	int	is_atm;
 } ngsniffer_t;
 
 typedef struct {

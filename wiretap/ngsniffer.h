@@ -1,6 +1,6 @@
 /* ngsniffer.h
  *
- * $Id: ngsniffer.h,v 1.3 1998/11/13 05:57:39 gram Exp $
+ * $Id: ngsniffer.h,v 1.4 1998/12/17 06:39:13 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -20,10 +20,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
-
-#define REC_VERS	1	/* Version record (f_vers) */
-#define REC_FRAME2	4	/* Frame data (f_frame2) */
-#define REC_EOF		3	/* End-of-file record (no data follows) */
 
 int ngsniffer_open(wtap *wth);
 int ngsniffer_read(wtap *wth);
