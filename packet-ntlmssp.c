@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.5 2002/08/10 21:15:37 guy Exp $
+ * $Id: packet-ntlmssp.c,v 1.6 2002/08/10 23:16:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,7 +43,8 @@ static const value_string ntlmssp_message_types[] = {
   { NTLMSSP_NEGOTIATE, "NTLMSSP_NEGOTIATE" },
   { NTLMSSP_CHALLENGE, "NTLMSSP_CHALLENGE" },
   { NTLMSSP_AUTH, "NTLMSSP_AUTH" },
-  { NTLMSSP_UNKNOWN, "NTLMSSP_UNKNOWN" }
+  { NTLMSSP_UNKNOWN, "NTLMSSP_UNKNOWN" },
+  { 0, NULL }
 };
 
 static const true_false_string flags_set_truth = {
