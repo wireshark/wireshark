@@ -1,66 +1,61 @@
-$Id: NEWS,v 1.122 2003/03/05 03:51:23 gerald Exp $
+$Id: NEWS,v 1.123 2003/03/08 03:12:32 gerald Exp $
 
-== March ?, 2003
+== March 7, 2003
 
 Ethereal 0.9.10 has been released.
 
-  This release fixes a security hole discovered by Georgi Guninski in
-  the SOCKS dissector.  All users of previous versions are encouraged
-  to upgrade.  See
+  This release fixes a security hole discovered by Georgi Guninski in the
+  SOCKS dissector as well as problems with the NTLMSSP and Rsync code. 
+  All users of previous versions are encouraged to upgrade.  See
 
     http://www.ethereal.com/appnotes/enpa-sa-00008.html
 
   for more details.
 
+
 New and Updated Features
 
+  Many small updates were made to the user interface.
+  
+  The "Help" menu now includes the FAQ.
+  
+  The TCP dissector was enhanced.  Many more fields are filterable.
+
+  Tethereal received more IO stats: TCP and UDP top talkers.
+  
+  Packet reassembly has been improved.
+  
+  The "Follow TCP Stream" feature can now export C byte arrays.
+  
+  RTP streams can now be saved to a file.
+    
 
 Bug Fixes
 
   A missing comma in a string array could cause Ethereal to crash when
   opening the preferences dialog.
 
+
 New Protocols
 
-MSN Messenger,
-SSH,
+  MSN Messenger, Rsync, SSH, Yahoo! Messenger
 
 
 Updated Protocols
 
-AFS,
-Apache JServ,
-BACNET,
-BGP,
-DCCP,
-DCERPC,
-DCERPC NT,
-DNS,
-Frame Relay,
-GTP,
-IPP,
-IPX,
-LSA,
-M3UA,
-MDSHDR,
-MPLS,
-NCP2222,
-NETLOGON,
-RADIUS,
-SAMR,
-SMB,
-SNMP,
-SPOOLSS,
-SRVSVC,
-SSL,
-Token Ring,
-X11,
-
+  AFP, AFS, AIM, ATM, Apache JServ, BACNET, BGP, BOOTP, CLNP, COPS, DCCP,
+  DCERPC NT, DCERPC, DNS, ESIS, Ethernet, Frame Relay, GIOP, GTP, HP
+  extended 802.2 LLC, HP-UX remote management, HTTP, IPP, IPX, LLC, LSA,
+  M3UA, MDSHDR, MIP6, MPLS, MySQL, NCP2222, NETLOGON, NLPID, NetFlow,
+  OpenBSD enc(4), OSI, PPP, RADIUS, RMP, RPL, SAMR, SCSI, SMB, SNA, SNMP,
+  SOCKS, SPOOLSS, SRVLOC, SRVSVC, SSL, SliMP3, TCP, Token Ring, WBXML,
+  Wellfleet BofL X.25, X11
 
 
 Updated Capture File Support
   
-NetXRay
+  NetXRay, NGSniffer, Snoop
+
 
 == January 23, 2003
 
