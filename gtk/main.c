@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.307 2003/08/28 20:33:14 oabad Exp $
+ * $Id: main.c,v 1.308 2003/09/03 10:49:03 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -660,7 +660,7 @@ packet_list_compare(GtkCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
       (col_fmt == COL_UNRES_SRC_PORT) || (col_fmt == COL_UNRES_DST_PORT) ||
       ((num1 != 0) && (num2 != 0) && ((col_fmt == COL_DEF_SRC_PORT) || (col_fmt == COL_RES_SRC_PORT) ||
                                       (col_fmt == COL_DEF_DST_PORT) || (col_fmt == COL_RES_DST_PORT))) ||
-      (col_fmt == COL_PACKET_LENGTH)) {
+      (col_fmt == COL_PACKET_LENGTH) || (col_fmt == COL_CULMULATIVE_BYTES)) {
 
     /* Compare numeric column */
 

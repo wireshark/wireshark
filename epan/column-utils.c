@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.37 2003/08/26 06:40:25 guy Exp $
+ * $Id: column-utils.c,v 1.38 2003/09/03 10:49:02 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -829,6 +829,10 @@ fill_in_columns(packet_info *pinfo)
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       strcpy(pinfo->cinfo->col_expr[i], "frame.pkt_len");
       strcpy(pinfo->cinfo->col_expr_val[i], pinfo->cinfo->col_buf[i]);
+      break;
+    case COL_CULMULATIVE_BYTES:
+      snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%u", pinfo->fd->cul_bytes);
+      pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       break;
 
     case COL_OXID:

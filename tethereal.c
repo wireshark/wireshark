@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.191 2003/08/07 00:41:27 guy Exp $
+ * $Id: tethereal.c,v 1.192 2003/09/03 10:49:02 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,6 +116,7 @@ static gboolean decode;
 static gboolean verbose;
 static gboolean print_hex;
 static gboolean line_buffered;
+static guint32 cul_bytes = 0;
 
 #ifdef HAVE_LIBPCAP
 typedef struct _loop_data {
@@ -2031,6 +2032,8 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
   fdata->pfd = NULL;
   fdata->num = cf->count;
   fdata->pkt_len = phdr->len;
+  cul_bytes += phdr->len;
+  fdata->cul_bytes  = cul_bytes;
   fdata->cap_len = phdr->caplen;
   fdata->file_off = offset;
   fdata->lnk_t = phdr->pkt_encap;

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.304 2003/08/29 04:03:45 guy Exp $
+ * $Id: file.c,v 1.305 2003/09/03 10:49:01 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -92,6 +92,7 @@ gboolean auto_scroll_live;
 
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
+static guint32 cul_bytes = 0;
 
 static void read_packet(capture_file *cf, long offset);
 
@@ -351,6 +352,7 @@ read_cap_file(capture_file *cf, int *err)
   GTimeVal    start_time;
   gchar       status_str[100];
 
+  cul_bytes=0;
   reset_tap_listeners();
   name_ptr = get_basename(cf->filename);
 
@@ -838,6 +840,8 @@ read_packet(capture_file *cf, long offset)
   fdata->prev = NULL;
   fdata->pfd  = NULL;
   fdata->pkt_len  = phdr->len;
+  cul_bytes += phdr->len;
+  fdata->cul_bytes  = cul_bytes;
   fdata->cap_len  = phdr->caplen;
   fdata->file_off = offset;
   fdata->lnk_t = phdr->pkt_encap;
@@ -968,6 +972,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   GTimeVal    start_time;
   gchar       status_str[100];
 
+  cul_bytes=0;
   reset_tap_listeners();
   /* Which frame, if any, is the currently selected frame?
      XXX - should the selected frame or the focus frame be the "current"

@@ -1,7 +1,7 @@
 /* frame_data.h
  * Definitions for frame_data structures and routines
  *
- * $Id: frame_data.h,v 1.8 2003/07/08 05:29:42 tpot Exp $
+ * $Id: frame_data.h,v 1.9 2003/09/03 10:49:02 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,7 @@ typedef struct _frame_data {
   guint32      num;         /* Frame number */
   guint32      pkt_len;     /* Packet length */
   guint32      cap_len;     /* Amount actually captured */
+  guint32      cul_bytes;   /* Culmulative bytes into the capture */
   gint32       rel_secs;    /* Relative seconds (yes, it can be negative) */
   gint32       rel_usecs;   /* Relative microseconds (yes, it can be negative) */
   guint32      abs_secs;    /* Absolute seconds */

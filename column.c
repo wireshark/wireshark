@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.42 2003/01/27 20:45:42 guy Exp $
+ * $Id: column.c,v 1.43 2003/09/03 10:49:01 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,7 +52,8 @@ col_format_to_string(gint fmt) {
                      "%us","%hs", "%rhs", "%uhs", "%ns", "%rns", "%uns", "%d",
                      "%rd", "%ud", "%hd", "%rhd", "%uhd", "%nd", "%rnd",
                      "%und", "%S", "%rS", "%uS", "%D", "%rD", "%uD", "%p",
-                     "%i", "%L", "%XO", "%XR", "%I", "%c", "%Xs", "%Xd", "%V" };
+                     "%i", "%L", "%B", "%XO", "%XR", "%I", "%c", "%Xs", 
+                     "%Xd", "%V" };
                      
   if (fmt < 0 || fmt > NUM_COL_FMTS)
     return NULL;
@@ -96,6 +97,7 @@ static gchar *dlist[NUM_COL_FMTS] = {
 	"Protocol",
 	"Information",
 	"Packet length (bytes)" ,
+	"Culmulative Bytes" ,
 	"OXID",
 	"RXID",
 	"FW-1 monitor if/direction",
@@ -261,6 +263,9 @@ get_column_longest_string(gint format)
     case COL_PACKET_LENGTH:
       return "000000";
       break;
+    case COL_CULMULATIVE_BYTES:
+      return "00000000";
+      break;
     case COL_RXID:
     case COL_OXID:
       return "000000";
@@ -309,6 +314,7 @@ get_column_resize_type(gint format) {
     case COL_UNRES_DST_PORT:
     case COL_PROTOCOL:
     case COL_PACKET_LENGTH:
+    case COL_CULMULATIVE_BYTES:
     case COL_IF_DIR:
     case COL_CIRCUIT_ID:
       /* We don't want these to resize during a live capture, as that
@@ -452,6 +458,9 @@ get_column_format_from_str(gchar *str) {
         break;
       case 'L':
         return COL_PACKET_LENGTH;
+        break;
+      case 'B':
+        return COL_CULMULATIVE_BYTES;
         break;
       case 'X':
         prev_code = COL_OXID;
