@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.21 2000/10/09 06:38:36 guy Exp $
+ * $Id: gui_prefs.c,v 1.22 2000/10/20 04:26:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,7 @@
 #endif
 
 #include <errno.h>
+#include <gtk/gtk.h>
 
 #include "globals.h"
 #include "gui_prefs.h"

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.160 2000/10/16 23:18:05 guy Exp $
+ * $Id: main.c,v 1.161 2000/10/20 04:26:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -118,6 +118,7 @@
 #include "packet_win.h"
 #include "gtkglobals.h"
 #include "plugins.h"
+#include "colors.h"
 
 packet_info  pi;
 capture_file cfile;
