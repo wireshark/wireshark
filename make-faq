@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: make-faq,v 1.6 2003/12/21 03:16:48 jmayer Exp $
+# $Id: make-faq,v 1.7 2004/02/01 02:10:34 jmayer Exp $
 #
 # Make-faq - Creates a plain text version of the Ethereal FAQ
 #	from http://www.ethereal.com/faq
@@ -22,7 +22,7 @@ EOF
 lynx -dump -nolist "http://www.ethereal.com/faq" | sed -e '1,/INDEX/d' >>FAQ
 
 echo
-echo "Now verfiy everything is OK and move FAQ to help/faq.txt"
+echo "Now verfiy everything is OK and copy FAQ to help/faq.txt"
 echo
 
 exit 0
