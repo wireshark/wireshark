@@ -2,12 +2,11 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.44 2001/06/18 02:17:46 guy Exp $
+ * $Id: packet-gre.c,v 1.45 2001/10/23 19:02:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -42,6 +41,14 @@
 #include "etypes.h"
 #include "greproto.h"
 #include "ipproto.h"
+
+/*
+ * See RFC 1701 "Generic Routing Encapsulation (GRE)", RFC 1702
+ * "Generic Routing Encapsulation over IPv4 networks", RFC 2637
+ * "Point-to-Point Tunneling Protocol (PPTP)", RFC 2784 "Generic
+ * Routing Encapsulation (GRE)", and RFC 2890 "Key and Sequence
+ * Number Extensions to GRE".
+ */
 
 static int proto_gre = -1;
 static int hf_gre_proto = -1;
@@ -252,6 +259,18 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dissect_gre_wccp2_redirect_header(tvb, offset, gre_tree);
       offset += 4;
     }
+  }
+
+  /* If the S bit is not set, this packet might not have a payload, so
+     check whether there's any data left, first.
+
+     XXX - the S bit isn't in RFC 2784, which deprecates that bit
+     and some other bits in RFC 1701 and says that they should be
+     zero for RFC 2784-compliant GRE; as such, the absence of the
+     S bit doesn't necessarily mean there's no payload.  */
+  if (!(flags_and_ver & GH_B_S)) {
+    if (tvb_reported_length_remaining(tvb, offset) <= 0)
+      return;	/* no payload */
   }
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
   if (!dissector_try_port(gre_dissector_table, type, next_tvb, pinfo, tree))
