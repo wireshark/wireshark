@@ -1,5 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: nmake -f makefile.nmake
+#
+# $Id: Makefile.nmake,v 1.24 2000/04/12 21:51:27 gram Exp $
 
 include config.nmake
 
@@ -9,7 +11,7 @@ CC = cl
 LINK= link
 
 LDFLAGS = /NOLOGO /SUBSYSTEM:console /INCREMENTAL:no /MACHINE:I386 \
-	$(LOCAL_LDFLAGS) /OUT:ethereal.exe
+	$(LOCAL_LDFLAGS)
 
 CFLAGS=/MT -DHAVE_CONFIG_H $(LOCAL_CFLAGS) /I$(GLIB_DIR) /I$(GLIB_DIR)\gmodule \
 	/I$(GTK_DIR) /Iwiretap /I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
@@ -90,6 +92,7 @@ DISSECTOR_OBJECTS = \
 	packet-raw.obj   \
 	packet-rip.obj   \
 	packet-ripng.obj \
+	packet-rlogin.obj \
 	packet-rpc.obj   \
 	packet-rsvp.obj  \
 	packet-rtsp.obj  \
@@ -159,7 +162,12 @@ ethereal_OBJECTS = \
 	file.obj         \
 	summary.obj      \
 
-EXTRA_ethereal_OBJECTS = \
+tethereal_OBJECTS = \
+	$(DISSECTOR_OBJECTS) \
+	$(ETHEREAL_COMMON_OBJECTS) \
+	tethereal.obj
+
+EXTRA_OBJECTS = \
 	snprintf.obj	\
 	strerror.obj	\
 	mkstemp.obj	\
@@ -167,18 +175,39 @@ EXTRA_ethereal_OBJECTS = \
 	inet_pton.obj     \
 	inet_ntop.obj
 
-LIBS= wiretap\libwtap.lib gtk\libui.lib wsock32.lib user32.lib \
+ethereal_LIBS= wiretap\libwtap.lib gtk\libui.lib wsock32.lib user32.lib \
 	$(GTK_DIR)\gtk\gtk-$(GTK_VERSION).lib \
 	$(GTK_DIR)\gdk\win32\gdk-$(GTK_VERSION).lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\gmodule-$(GLIB_VERSION).lib \
 	$(PCAP_DIR)\lib\libpcap.lib
 
-all: ethereal.exe
+tethereal_LIBS= wiretap\libwtap.lib wsock32.lib user32.lib \
+	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
+	$(GLIB_DIR)\gmodule-$(GLIB_VERSION).lib \
+	$(PCAP_DIR)\lib\libpcap.lib
 
-ethereal.exe	: config.h $(ethereal_OBJECTS) $(EXTRA_ethereal_OBJECTS) wiretap gtk plugins
+editcap_LIBS= wiretap\libwtap.lib wsock32.lib user32.lib \
+	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
+	$(GLIB_DIR)\gmodule-$(GLIB_VERSION).lib
+
+EXECUTABLES=ethereal.exe tethereal.exe editcap.exe
+
+all: $(EXECUTABLES)
+
+ethereal.exe	: config.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) wiretap gtk plugins
 	$(LINK) @<<
-		$(LDFLAGS) $(LIBS) $(ethereal_OBJECTS) $(EXTRA_ethereal_OBJECTS)
+		/OUT:ethereal.exe $(LDFLAGS) $(ethereal_LIBS) $(ethereal_OBJECTS) $(EXTRA_OBJECTS)
+<<
+
+tethereal.exe	: config.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) wiretap plugins
+	$(LINK) @<<
+		/OUT:tethereal.exe $(LDFLAGS) $(tethereal_LIBS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS)
+<<
+
+editcap.exe	: config.h editcap.obj getopt.obj wiretap
+	$(LINK) @<<
+		/OUT:editcap.exe $(LDFLAGS) editcap.obj getopt.obj $(editcap_LIBS)
 <<
 
 config.h	: config.h.win32
@@ -195,8 +224,12 @@ dfilter-scanner.c : dfilter-scanner.l
 dfilter-grammar.c dfilter-grammar.h : dfilter-grammar.y
 	$(YACC) $(YACC_OPTS) -d -p dfilter_ dfilter-grammar.y -o dfilter-grammar.c
 
+#
+# TODO: Create register.c
+#
+
 clean:
-	rm -f $(ethereal_OBJECTS) $(EXTRA_ethereal_OBJECTS) ethereal.exe
+	rm -f $(ethereal_OBJECTS) $(EXTRA_OBJECTS) $(EXECUTABLES) tethereal.obj editcap.obj
 	cd wiretap
 	nmake -f Makefile.nmake clean
 	cd ../gtk

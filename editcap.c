@@ -1,20 +1,39 @@
 /* Edit capture files.  We can delete records, or simply convert from one 
  * format to another format.
  *
- * $Id: editcap.c,v 1.6 2000/01/17 20:21:40 guy Exp $
+ * $Id: editcap.c,v 1.7 2000/04/12 21:51:27 gram Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
  * Further improved by Richard Sharpe.
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <glib.h>
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
+#endif
+
+#ifdef HAVE_WINSOCK_H
+#include <winsock.h>
+#endif
+
 #include <string.h>
 #include "wtap.h"
+
+#ifdef NEED_GETOPT_H
+#include "getopt.h"
+#endif
 
 /*
  * Some globals so we can pass things to various routines

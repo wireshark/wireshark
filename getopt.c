@@ -1,4 +1,7 @@
 /* Getopt for GNU.
+
+   $Id: getopt.c,v 1.2 2000/04/12 21:51:28 gram Exp $
+
    NOTE: getopt is now part of the C library, so if you don't know what
    "Keep this file name-space clean" means, talk to roland@gnu.ai.mit.edu
    before changing it!
@@ -19,12 +22,10 @@
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.  */
-
+
+
 #ifdef HAVE_CONFIG_H
-/* We use <config.h> instead of "config.h" so that a compilation
-   using -I. -I$srcdir will use ./config.h rather than $srcdir/config.h
-   (which it would do because getopt.c was found in $srcdir).  */
-#include <config.h>
+#include "config.h"
 #endif
 
 #ifndef __STDC__
