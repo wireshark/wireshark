@@ -2,7 +2,7 @@
  * Routines for Fibre Channel Decoding (FC Header, Link Ctl & Basic Link Svc) 
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fc.c,v 1.6 2003/06/23 08:45:08 sahlberg Exp $
+ * $Id: packet-fc.c,v 1.7 2003/06/23 09:15:08 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -454,7 +454,10 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16 seqcnt;
     guint8 ftype;
     gboolean is_ack;
-    
+
+    guint32 s_id;
+    guint32 d_id;
+
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC");
@@ -524,22 +527,20 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         
         proto_tree_add_uint_hidden (fc_tree, hf_fc_ftype, tvb, offset, 1,
                                     ftype); 
+
+	d_id=tvb_get_letoh24(tvb, offset+1);
         proto_tree_add_string (fc_tree, hf_fc_did, tvb, offset+1, 3,
-                               fc_to_str ((guint8 *)tvb_get_ptr (tvb,
-                                                                 offset+1, 3)));
+				fc32_to_str (d_id));
         proto_tree_add_string_hidden (fc_tree, hf_fc_id, tvb, offset+1, 3,
-                               fc_to_str ((guint8 *)tvb_get_ptr (tvb,
-                                                                 offset+1, 3)));
+				fc32_to_str (d_id));
 
         proto_tree_add_item (fc_tree, hf_fc_csctl, tvb, offset+4, 1, FALSE);
 
+	s_id=tvb_get_letoh24(tvb, offset+5);
         proto_tree_add_string (fc_tree, hf_fc_sid, tvb, offset+5, 3,
-                               fc_to_str ((guint8 *)tvb_get_ptr (tvb,
-                                                                 offset+5, 3)));
+                               fc32_to_str (s_id));
         proto_tree_add_string_hidden (fc_tree, hf_fc_id, tvb, offset+5, 3,
-                               fc_to_str ((guint8 *)tvb_get_ptr (tvb,
-                                                                 offset+5, 3)));
-
+                               fc32_to_str (s_id));
         
         if (ftype == FC_FTYPE_LINKCTL) {
             if (((r_ctl & 0x0F) == FC_LCTL_FBSYB) ||

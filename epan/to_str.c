@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.25 2003/02/12 00:44:04 guy Exp $
+ * $Id: to_str.c,v 1.26 2003/06/23 09:15:08 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -575,9 +575,19 @@ rel_time_to_secs_str(nstime_t *rel_time)
         return cur;
 }
 
+
 gchar *
 fc_to_str(const guint8 *ad)
 {
+    return bytestring_to_str (ad, 3, '.');
+}
+
+/* convert the fc id stored in the three high order bytes of a guint32 into a 
+   fc id string*/
+gchar *
+fc32_to_str(const guint32 ad32)
+{
+    const guint8 *ad=(guint8 *)&ad32;
     return bytestring_to_str (ad, 3, '.');
 }
 
