@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.150 2002/08/03 23:20:06 jmayer Exp $
+ * $Id: packet-tcp.c,v 1.151 2002/08/16 20:59:18 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -289,6 +289,13 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 
 	/* if we get past here we know that ual1 points to a segment */
 
+	/* To handle FIN, just pretend they have a length of 1. 
+	   else the ACK following the FIN-ACK will look like it was
+	   outside the window. */
+	if( (!seglen) && (flags&TH_FIN) ){
+		seglen=1;
+	}
+
 	/* if seq is beyond ual1->nextseq we have lost a segment */
 	if (GT_SEQ(seq, ual1->nextseq)) {
 		struct tcp_acked *ta;
@@ -460,7 +467,7 @@ ack_finished:
 	if( (!ual2) && (flags&TH_ACK) ){
 		ual2=g_mem_chunk_alloc(tcp_unacked_chunk);
 		ual2->next=NULL;
-		ual2->frame=0;
+		ual2->frame=pinfo->fd->num;
 		ual2->seq=ack;
 		ual2->nextseq=ack;
 		ual2->ts.secs=0;
