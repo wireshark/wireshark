@@ -56,6 +56,9 @@ noinst_HEADERS = \
 	gtkglobals.h	\
 	gtk_stat_util.h \
 	gui_prefs.h	\
+	h323_analysis.h	\
+	h323_conversations.h	\
+	h323_conversations_dlg.h \
 	help_dlg.h	\
 	hostlist_table.h \
 	isprint.h	\
