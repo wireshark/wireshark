@@ -2,7 +2,7 @@
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.c,v 1.8 2003/04/16 18:29:38 guy Exp $
+ * $Id: packet-wbxml.c,v 1.9 2003/05/01 18:18:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,13 +55,16 @@
  *
  * NOTES:
  *
- *  - Although Code Page processing is already foreseen in the tag and
- *    attribute parsing code, there is no mechanism available yet to
- *    properly deal with multiple code pages (see, e.g., the wbxml_map[]
- *    array). As a consequence, the same token rendering will occur,
- *    irrespective of the code pages in use.
- *    As there currently is no registered WBXML type with support of more
- *    than one tag or attribute code page, this is a safe assumption.
+ *  - Code page switches only apply to the following token. In the WBXML/1.x
+ *    ABNF notation, it can be proven that the switch_page can only precede
+ *    the following tokens:
+ *      o  stag      : TAG | LITERAL | LITERAL_A | LITERAL_C | LITERAL_AC
+ *      o  attr      : ATTRSTART | ATTRVALUE
+ *      o  extension : EXT_I | EXT_T | EXT
+ *    Code page switches are displayed in a separate column. The only allowed
+ *    code page switches are from code page 0 to another codepage (by means of
+ *    a SWITCH_PAGE token), and from this other code page back to code page 0
+ *    (this happens automatically).
  *
  *  - In order to render the XML content, recursion is inevitable at some
  *    point (when a tag with content occurs in the content of a tag with
@@ -74,10 +77,45 @@
  *    is defined for the parsed WBXML content, then the XML rendering is
  *    displayed with appropriate indentation (maximum nesting level = 255,
  *    after which the nesting and level will safely roll-over to 0).
+ *
+ *  - The WAP Forum defines the order of precedence for finding out the
+ *    WBXML content type (same rules for charset) as follows:
+ *      1. Look in the Content-Type WSP header
+ *      2. Look in the WBXML header
+ *    Currently there is no means of using content type parameters:
+ *      o  Type=<some_type>
+ *      o  Charset=<charset_of_the_content>
+ *    So it is possible some WBXML content types are incorrectly parsed.
+ *    This would only be the case when the content type declaration in the
+ *    WSP Content-Type header would be different (or would have parameters
+ *    which are relevant to the WBXML decoding) from the content type
+ *    identifier specified in the WBXML header.
+ *    TODO: investigate this and provide correct decoding at all times.
  */
 
+typedef struct _value_valuestring {
+  guint32 value;
+  const value_string *valstrptr;
+} value_valuestring;
 
-/************************* Variable declarations *************************/
+/* Tries to match val against each element in the value_value_string array vvs.
+ * Returns the associated value_string ptr on a match, or NULL on failure. */
+static const value_string *
+val_to_valstr(guint32 val, const value_valuestring *vvs)
+{
+  gint i = 0;
+
+  while (vvs[i].valstrptr) {
+   	if (vvs[i].value == val)
+      return(vvs[i].valstrptr);
+      i++;
+  }
+
+  return(NULL);
+}
+
+
+/************************** Variable declarations **************************/
 
 
 /* Initialize the protocol and registered fields */
@@ -93,25 +131,11 @@ static gint ett_wbxml_str_tbl = -1;
 static gint ett_wbxml_content = -1;
 
 
+/**************** WBXML related declarations and definitions ****************/
 
-/********** WBXML related declarations and definitions **********/
 
-/* See http://www.wapforum.org/wina/ for an up-to-date list. */
-#define WBXML_WML_10		0x02
-#define WBXML_WTA_10		0x03
-#define WBXML_WML_11		0x04
-#define WBXML_SI_10			0x05
-#define WBXML_SL_10			0x06
-#define WBXML_CO_10			0x07
-#define WBXML_CHANNEL_10	0x08
-#define WBXML_WML_12		0x09
-#define WBXML_WML_13		0x0a
-#define WBXML_PROV_10		0x0b
-#define WBXML_WTAWML_12		0x0c
-#define WBXML_EMN_10		0x0d
-#define WBXML_DRMREL_10		0x0e
-
-	/* http://www.wapforum.org/wina/wbxml-public-docid.htm */
+/* WBXML public ID mappings. For an up-to-date list, see
+ * http://www.wapforum.org/wina/wbxml-public-docid.htm */
 static const value_string vals_wbxml_public_ids[] = {
 	/* 0x00 = literal public identifier */
 	{ 0x01, "Unknown / missing Public Identifier" },
@@ -129,7 +153,11 @@ static const value_string vals_wbxml_public_ids[] = {
 	{ 0x0d, "-//WAPFORUM//DTD EMN 1.0//EN (Email Notification 1.0)" },
 	{ 0x0e, "-//WAPFORUM//DTD DRMREL 1.0//EN (DRMREL 1.0)" },
 	
-	/* Registered values */
+	/* Registered values - www.syncml.org */
+	{ 0x0fd1, "-//SYNCML//DTD SyncML 1.0//EN (SyncML 1.0)" },
+	{ 0x0fd3, "-//SYNCML//DTD SyncML 1.1//EN (SyncML 1.1)" },
+
+	/* Registered values - www.wapforum.org/wina/ */
 	{ 0x1100, "-//PHONE.COM//DTD ALERT 1.0//EN" },
 	{ 0x1101, "-//PHONE.COM//DTD CACHE-OPERATION 1.0//EN" },
 	{ 0x1102, "-//PHONE.COM//DTD SIGNAL 1.0//EN" },
@@ -149,13 +177,11 @@ static const value_string vals_wbxml_public_ids[] = {
 	{ 0x00, NULL }
 };
 
-
-
 static const value_string vals_wbxml_versions[] = {
-	{ 0x00, "1.0" },
-	{ 0x01, "1.1" },
-	{ 0x02, "1.2" },
-	{ 0x03, "1.3" },
+	{ 0x00, "1.0" },	/* WAP-104-WBXML */
+	{ 0x01, "1.1" },	/* WAP-135-WBXML */
+	{ 0x02, "1.2" },	/* WAP-154-WBXML */
+	{ 0x03, "1.3" },	/* WAP-192-WBXML */
 	
 	{ 0x00, NULL }
 };
@@ -219,12 +245,16 @@ static const value_string vals_wbxml1x_global_tokens[] = {
 };
 
 
-/****************************************************************************/
+/********************** WBXML token mapping definition **********************/
 
-/*******************************************
- *      WML 1.0 - Global tokens (EXT)      *
- *******************************************/
-static const value_string vals_wmlc10_global[] = {
+
+/* WML 1.0
+ * 
+ * Wireless Markup Language
+ ***************************************/
+
+/*****   Global extension tokens   *****/
+static const value_string wbxml_wmlc10_global_cp0[] = {
 	{ 0x40, "Variable substitution - escaped" },
 	{ 0x41, "Variable substitution - unescaped" },
 	{ 0x42, "Variable substitution - no transformation" },
@@ -238,10 +268,8 @@ static const value_string vals_wmlc10_global[] = {
 	{ 0x00, NULL }
 };
 
-/*******************************************
- *              WML 1.0 - Tags             *
- *******************************************/
-static const value_string vals_wmlc10_tags[] = {
+/*****         Tag tokens          *****/
+static const value_string wbxml_wmlc10_tags_cp0[] = {
 	/* 0x00 -- 0x04 GLOBAL */
 	/* 0x05 -- 0xE1 */
 	{ 0xE2, "A" },
@@ -278,10 +306,8 @@ static const value_string vals_wmlc10_tags[] = {
 	{ 0x00, NULL }
 };
 
-/*******************************************
- *       WML 1.0 - Attribute Start         *
- *******************************************/
-static const value_string vals_wmlc10_attrStart[] = {
+/*****    Attribute Start tokens   *****/
+static const value_string wbxml_wmlc10_attrStart_cp0[] = {
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "ACCEPT-CHARSET=" },
 	{ 0x06, "ALIGN='BOTTOM'" },
@@ -360,10 +386,8 @@ static const value_string vals_wmlc10_attrStart[] = {
 	{ 0x00, NULL }
 };
 
-/*******************************************
- *       WML 1.0 - Attribute Value         *
- *******************************************/
-static const value_string vals_wmlc10_attrValue[] = {
+/*****    Attribute Value tokens   *****/
+static const value_string wbxml_wmlc10_attrValue_cp0[] = {
 	/* 0x80 -- 0x84 GLOBAL */
 	{ 0x85, "'.com/'" },
 	{ 0x86, "'.edu/'" },
@@ -398,17 +422,41 @@ static const value_string vals_wmlc10_attrValue[] = {
 	{ 0x00, NULL }
 };
 
-/****************************************************************************/
+/***** Token code page aggregation *****/
+static const value_valuestring wbxml_wmlc10_global[] = {
+	{ 0, wbxml_wmlc10_global_cp0 },
+	{ 0, NULL }
+};
 
-/*******************************************
- *      WML 1.1 - Global tokens (EXT)      *
- *******************************************/
-#define vals_wmlc11_global  vals_wmlc10_global
+static const value_valuestring wbxml_wmlc10_tags[] = {
+	{ 0, wbxml_wmlc10_tags_cp0 },
+	{ 0, NULL }
+};
 
-/*******************************************
- *              WML 1.1 - Tags             *
- *******************************************/
-static const value_string vals_wmlc11_tags[] = {
+static const value_valuestring wbxml_wmlc10_attrStart[] = {
+	{ 0, wbxml_wmlc10_attrStart_cp0 },
+	{ 0, NULL }
+};
+
+static const value_valuestring wbxml_wmlc10_attrValue[] = {
+	{ 0, wbxml_wmlc10_attrValue_cp0 },
+	{ 0, NULL }
+};
+
+
+
+
+
+/* WML 1.1
+ * 
+ * Wireless Markup Language
+ ***************************************/
+
+/*****   Global extension tokens   *****/
+/* Same as in WML 1.0 */
+
+/*****         Tag tokens          *****/
+static const value_string wbxml_wmlc11_tags_cp0[] = {
 	/* 0x00 -- 0x04 GLOBAL */
 	/* 0x05 -- 0x1B */
 	{ 0x1C, "a" },
@@ -451,10 +499,8 @@ static const value_string vals_wmlc11_tags[] = {
 	{ 0x00, NULL }
 };
 
-/*******************************************
- *       WML 1.1 - Attribute Start         *
- *******************************************/
-static const value_string vals_wmlc11_attrStart[] = {
+/*****    Attribute Start tokens   *****/
+static const value_string wbxml_wmlc11_attrStart_cp0[] = {
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "accept-charset=" },
 	{ 0x06, "align='bottom'" },
@@ -543,10 +589,8 @@ static const value_string vals_wmlc11_attrStart[] = {
 	{ 0x00, NULL }
 };
 
-/*******************************************
- *       WML 1.1 - Attribute Value         *
- *******************************************/
-static const value_string vals_wmlc11_attrValue[] = {
+/*****    Attribute Value tokens   *****/
+static const value_string wbxml_wmlc11_attrValue_cp0[] = {
 	/* 0x80 -- 0x84 GLOBAL */
 	{ 0x85, "'.com/'" },
 	{ 0x86, "'.edu/'" },
@@ -581,17 +625,41 @@ static const value_string vals_wmlc11_attrValue[] = {
 	{ 0x00, NULL }
 };
 
-/****************************************************************************/
+/***** Token code page aggregation *****/
+static const value_valuestring wbxml_wmlc11_global[] = {
+	{ 0, wbxml_wmlc10_global_cp0 }, /* Same as WML 1.0 */
+	{ 0, NULL }
+};
 
-/*******************************************
- *      WML 1.2 - Global tokens (EXT)      *
- *******************************************/
-#define vals_wmlc12_global vals_wmlc11_global
-	
-/*******************************************
- *              WML 1.2 - Tags             *
- *******************************************/
-static const value_string vals_wmlc12_tags[] = {
+static const value_valuestring wbxml_wmlc11_tags[] = {
+	{ 0, wbxml_wmlc11_tags_cp0 },
+	{ 0, NULL }
+};
+
+static const value_valuestring wbxml_wmlc11_attrStart[] = {
+	{ 0, wbxml_wmlc11_attrStart_cp0 },
+	{ 0, NULL }
+};
+
+static const value_valuestring wbxml_wmlc11_attrValue[] = {
+	{ 0, wbxml_wmlc11_attrValue_cp0 },
+	{ 0, NULL }
+};
+
+
+
+
+
+/* WML 1.2
+ * 
+ * Wireless Markup Language
+ ***************************************/
+
+/*****   Global extension tokens   *****/
+/* Same as in WML 1.0 */
+
+/*****         Tag tokens          *****/
+static const value_string wbxml_wmlc12_tags_cp0[] = {
 	/* 0x00 -- 0x04 GLOBAL */
 	/* 0x05 -- 0x1A */
 	{ 0x1B, "pre" },
@@ -635,10 +703,8 @@ static const value_string vals_wmlc12_tags[] = {
 	{ 0x00, NULL }
 };
 
-/*******************************************
- *       WML 1.2 - Attribute Start         *
- *******************************************/
-static const value_string vals_wmlc12_attrStart[] = {
+/*****    Attribute Start tokens   *****/
+static const value_string wbxml_wmlc12_attrStart_cp0[] = {
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "accept-charset=" },
 	{ 0x06, "align='bottom'" },
@@ -731,30 +797,47 @@ static const value_string vals_wmlc12_attrStart[] = {
 	{ 0x00, NULL }
 };
 
-/*******************************************
- *       WML 1.2 - Attribute Value         *
- *******************************************/
-#define vals_wmlc12_attrValue vals_wmlc11_attrValue
-/* Same as WML 1.1 */
+/*****    Attribute Value tokens   *****/
+/* Same as in WML 1.1 */
+
+/***** Token code page aggregation *****/
+static const value_valuestring wbxml_wmlc12_global[] = {
+	{ 0, wbxml_wmlc10_global_cp0 }, /* Same as WML 1.0 */
+	{ 0, NULL }
+};
+
+static const value_valuestring wbxml_wmlc12_tags[] = {
+	{ 0, wbxml_wmlc12_tags_cp0 },
+	{ 0, NULL }
+};
+
+static const value_valuestring wbxml_wmlc12_attrStart[] = {
+	{ 0, wbxml_wmlc12_attrStart_cp0 },
+	{ 0, NULL }
+};
+
+static const value_valuestring wbxml_wmlc12_attrValue[] = {
+	{ 0, wbxml_wmlc11_attrValue_cp0 }, /* Same as WML 1.1 */
+	{ 0, NULL }
+};
 
 
-/****************************************************************************/
 
-/*******************************************
- *      WML 1.3 - Global tokens (EXT)      *
- *******************************************/
-#define vals_wmlc13_global vals_wmlc11_global
 
-/*******************************************
- *              WML 1.3 - Tags             *
- *******************************************/
-#define vals_wmlc13_tags vals_wmlc12_tags
-/* Same as WML 1.1 */
 
-/*******************************************
- *       WML 1.3 - Attribute Start         *
- *******************************************/
-static const value_string vals_wmlc13_attrStart[] = {
+/* WML 1.3
+ * 
+ * Wireless Markup Language
+ ***************************************/
+
+/*****   Global extension tokens   *****/
+/* Same as in WML 1.0 */
+
+/*****         Tag tokens          *****/
+/* Same as in WML 1.2 */
+
+/*****    Attribute Start tokens   *****/
+static const value_string wbxml_wmlc13_attrStart_cp0[] = {
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "accept-charset=" },
 	{ 0x06, "align='bottom'" },
@@ -850,27 +933,43 @@ static const value_string vals_wmlc13_attrStart[] = {
 	{ 0x00, NULL }
 };
 
-/*******************************************
- *       WML 1.3 - Attribute Value         *
- *******************************************/
-#define vals_wmlc13_attrValue vals_wmlc11_attrValue
-/* Same as WML 1.1 */
+/*****    Attribute Value tokens   *****/
+/* Same as in WML 1.1 */
 
+/***** Token code page aggregation *****/
+static const value_valuestring wbxml_wmlc13_global[] = {
+	{ 0, wbxml_wmlc10_global_cp0 }, /* Same as WML 1.0 */
+	{ 0, NULL }
+};
 
-/****************************************************************************/
+static const value_valuestring wbxml_wmlc13_tags[] = {
+	{ 0, wbxml_wmlc12_tags_cp0 },
+	{ 0, NULL }
+};
 
-/*******************************************
- *      SI 1.0 - Global tokens (EXT)       *
- *******************************************/
-static const value_string vals_sic10_global[] = {
-	{ 0x00, NULL }
+static const value_valuestring wbxml_wmlc13_attrStart[] = {
+	{ 0, wbxml_wmlc13_attrStart_cp0 },
+	{ 0, NULL }
+};
+
+static const value_valuestring wbxml_wmlc13_attrValue[] = {
+	{ 0, wbxml_wmlc11_attrValue_cp0 }, /* Same as WML 1.1 */
+	{ 0, NULL }
 };
 
 
-/*******************************************
- *           SI 1.0 - Tags                 *
- *******************************************/
-static const value_string vals_sic10_tags[] = {
+
+
+
+/* SI 1.0
+ * 
+ * Service Indication
+ ***************************************/
+
+/*****   Global extension tokens   *****/
+
+/*****         Tag tokens          *****/
+static const value_string wbxml_sic10_tags_cp0[] = {
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "si" },
 	{ 0x06, "indication" },
@@ -880,10 +979,8 @@ static const value_string vals_sic10_tags[] = {
 	{ 0x00, NULL }
 };
 
-/*******************************************
- *        SI 1.0 - Attribute Start         *
- *******************************************/
-static const value_string vals_sic10_attrStart[] = {
+/*****    Attribute Start tokens   *****/
+static const value_string wbxml_sic10_attrStart_cp0[] = {
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "action='signal-none'" },
 	{ 0x06, "action='signal-low'" },
@@ -903,10 +1000,8 @@ static const value_string vals_sic10_attrStart[] = {
 	{ 0x00, NULL }
 };
 
-/*******************************************
- *        SI 1.0 - Attribute Value         *
- *******************************************/
-static const value_string vals_sic10_attrValue[] = {
+/*****    Attribute Value tokens   *****/
+static const value_string wbxml_sic10_attrValue_cp0[] = {
 	/* 0x80 -- 0x84 GLOBAL */
 	{ 0x85, "'.com/'" },
 	{ 0x86, "'.edu/'" },
@@ -916,31 +1011,43 @@ static const value_string vals_sic10_attrValue[] = {
 	{ 0x00, NULL }
 };
 
-/****************************************************************************/
+/***** Token code page aggregation *****/
+static const value_valuestring wbxml_sic10_tags[] = {
+	{ 0, wbxml_sic10_tags_cp0 },
+	{ 0, NULL }
+};
 
+static const value_valuestring wbxml_sic10_attrStart[] = {
+	{ 0, wbxml_sic10_attrStart_cp0 },
+	{ 0, NULL }
+};
 
-/*******************************************
- *      SL 1.0 - Global tokens (EXT)       *
- *******************************************/
-static const value_string vals_slc10_global[] = {
-	{ 0x00, NULL }
+static const value_valuestring wbxml_sic10_attrValue[] = {
+	{ 0, wbxml_sic10_attrValue_cp0 },
+	{ 0, NULL }
 };
 
 
-/*******************************************
- *           SL 1.0 - Tags                 *
- *******************************************/
-static const value_string vals_slc10_tags[] = {
+
+
+
+/* SL 1.0
+ * 
+ * Service Loading
+ ***************************************/
+
+/*****   Global extension tokens   *****/
+
+/*****         Tag tokens          *****/
+static const value_string wbxml_slc10_tags_cp0[] = {
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "sl" },
 
 	{ 0x00, NULL }
 };
 
-/*******************************************
- *        SL 1.0 - Attribute Start         *
- *******************************************/
-static const value_string vals_slc10_attrStart[] = {
+/*****    Attribute Start tokens   *****/
+static const value_string wbxml_slc10_attrStart_cp0[] = {
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "action='execute-low'" },
 	{ 0x06, "action='execute-high'" },
@@ -954,34 +1061,38 @@ static const value_string vals_slc10_attrStart[] = {
 	{ 0x00, NULL }
 };
 
-/*******************************************
- *        SL 1.0 - Attribute Value         *
- *******************************************/
-static const value_string vals_slc10_attrValue[] = {
-	/* 0x80 -- 0x84 GLOBAL */
-	{ 0x85, "'.com/'" },
-	{ 0x86, "'.edu/'" },
-	{ 0x87, "'.net/'" },
-	{ 0x88, "'.org/'" },
+/*****    Attribute Value tokens   *****/
+/* Same as in SI 1.0 */
 
-	{ 0x00, NULL }
+/***** Token code page aggregation *****/
+static const value_valuestring wbxml_slc10_tags[] = {
+	{ 0, wbxml_slc10_tags_cp0 },
+	{ 0, NULL }
 };
 
-/****************************************************************************/
+static const value_valuestring wbxml_slc10_attrStart[] = {
+	{ 0, wbxml_slc10_attrStart_cp0 },
+	{ 0, NULL }
+};
 
-
-/*******************************************
- *      CO 1.0 - Global tokens (EXT)       *
- *******************************************/
-static const value_string vals_coc10_global[] = {
-	{ 0x00, NULL }
+static const value_valuestring wbxml_slc10_attrValue[] = {
+	{ 0, wbxml_sic10_attrValue_cp0 }, /* Same as SI 1.0 */
+	{ 0, NULL }
 };
 
 
-/*******************************************
- *           CO 1.0 - Tags                 *
- *******************************************/
-static const value_string vals_coc10_tags[] = {
+
+
+
+/* CO 1.0
+ * 
+ * Cache Operation
+ ***************************************/
+
+/*****   Global extension tokens   *****/
+
+/*****         Tag tokens          *****/
+static const value_string wbxml_coc10_tags_cp0[] = {
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "co" },
 	{ 0x06, "invalidate-object" },
@@ -990,10 +1101,8 @@ static const value_string vals_coc10_tags[] = {
 	{ 0x00, NULL }
 };
 
-/*******************************************
- *        CO 1.0 - Attribute Start         *
- *******************************************/
-static const value_string vals_coc10_attrStart[] = {
+/*****    Attribute Start tokens   *****/
+static const value_string wbxml_coc10_attrStart_cp0[] = {
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "uri=" },
 	{ 0x06, "uri='http://'" },
@@ -1004,35 +1113,38 @@ static const value_string vals_coc10_attrStart[] = {
 	{ 0x00, NULL }
 };
 
-/*******************************************
- *        CO 1.0 - Attribute Value         *
- *******************************************/
-static const value_string vals_coc10_attrValue[] = {
-	/* 0x80 -- 0x84 GLOBAL */
-	{ 0x85, "'.com/'" },
-	{ 0x86, "'.edu/'" },
-	{ 0x87, "'.net/'" },
-	{ 0x88, "'.org/'" },
+/*****    Attribute Value tokens   *****/
+/* Same as in SI 1.0 */
 
-	{ 0x00, NULL }
+/***** Token code page aggregation *****/
+static const value_valuestring wbxml_coc10_tags[] = {
+	{ 0, wbxml_coc10_tags_cp0 },
+	{ 0, NULL }
+};
+
+static const value_valuestring wbxml_coc10_attrStart[] = {
+	{ 0, wbxml_coc10_attrStart_cp0 },
+	{ 0, NULL }
+};
+
+static const value_valuestring wbxml_coc10_attrValue[] = {
+	{ 0, wbxml_sic10_attrValue_cp0 }, /* Same as SI 1.0 */
+	{ 0, NULL }
 };
 
 
-/****************************************************************************/
 
 
-/*******************************************
- *      PROV 1.0 - Global tokens (EXT)       *
- *******************************************/
-static const value_string vals_provc10_global[] = {
-	{ 0x00, NULL }
-};
 
+/* PROV 1.0
+ *
+ * Client Provisioning
+ ***************************************/
 
-/*******************************************
- *           PROV 1.0 - Tags                 *
- *******************************************/
-static const value_string vals_provc10_tags[] = {
+/*****   Global extension tokens   *****/
+
+/*****         Tag tokens          *****/
+static const value_string wbxml_provc10_tags_cp0[] = {
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "wap-provisioningdoc" },
 	{ 0x06, "characteristic" },
@@ -1041,10 +1153,8 @@ static const value_string vals_provc10_tags[] = {
 	{ 0x00, NULL }
 };
 
-/*******************************************
- *        PROV 1.0 - Attribute Start         *
- *******************************************/
-static const value_string vals_provc10_attrStart[] = {
+/*****    Attribute Start tokens   *****/
+static const value_string wbxml_provc10_attrStart_cp0[] = {
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "name=" },
 	{ 0x06, "value=" },
@@ -1122,10 +1232,8 @@ static const value_string vals_provc10_attrStart[] = {
 	{ 0x00, NULL }
 };
 
-/*******************************************
- *        PROV 1.0 - Attribute Value         *
- *******************************************/
-static const value_string vals_provc10_attrValue[] = {
+/*****    Attribute Start tokens   *****/
+static const value_string wbxml_provc10_attrValue_cp0[] = {
 	/* 0x80 -- 0x84 GLOBAL */
 	{ 0x85, "'IPV4'" },
 	{ 0x86, "'IPV6'" },
@@ -1186,160 +1294,572 @@ static const value_string vals_provc10_attrValue[] = {
 	{ 0x00, NULL }
 };
 
-
-/****************************************************************************/
-
-
-
-/* The struct object contains references to objects defined above!
- */
-
-typedef struct {
-	const guint8 defined;
-	const value_string *global;
-	const value_string *tags;
-	const value_string *attrStart;
-	const value_string *attrValue;
-} wbxml_mapping_table;
-
-/* BEWARE: values 0 and 1 are not defined, so we start from 2
- */
-static const wbxml_mapping_table wbxml_map[] = {
-	{ /* 0x00 = literal public identifier */
-		FALSE, NULL, NULL, NULL, NULL
-	},
-	{ /* 0x01 = Unknown or missing public identifier */
-		FALSE, NULL, NULL, NULL, NULL
-	},
-	{ /* 0x02 = WML 1.0 */
-		TRUE, vals_wmlc10_global, vals_wmlc10_tags,
-		vals_wmlc10_attrStart, vals_wmlc10_attrValue
-	},
-	{ /* 0x03 = WTA 1.0 - Deprecated */
-		FALSE, NULL, NULL, NULL, NULL
-	},
-	{ /* 0x04 = WML 1.1 */
-		TRUE, vals_wmlc11_global, vals_wmlc11_tags,
-		vals_wmlc11_attrStart, vals_wmlc11_attrValue
-	},
-	{ /* 0x05 = SI 1.0 */
-		TRUE, vals_sic10_global, vals_sic10_tags,
-		vals_sic10_attrStart, vals_sic10_attrValue
-	},
-	{ /* 0x06 = SL 1.0 */
-		TRUE, vals_slc10_global, vals_slc10_tags,
-		vals_slc10_attrStart, vals_slc10_attrValue
-	},
-	{ /* 0x07 = CO 1.0 */
-		TRUE, vals_coc10_global, vals_coc10_tags,
-		vals_coc10_attrStart, vals_coc10_attrValue
-	},
-	{ /* 0x08 = CHANNEL 1.0 */
-		FALSE, NULL, NULL, NULL, NULL
-	},
-	{ /* 0x09 = WML 1.2 */
-		TRUE, vals_wmlc12_global, vals_wmlc12_tags,
-		vals_wmlc12_attrStart, vals_wmlc12_attrValue
-	},
-	{ /* 0x0A = WML 1.3 */
-		TRUE, vals_wmlc13_global, vals_wmlc13_tags,
-		vals_wmlc13_attrStart, vals_wmlc13_attrValue
-	},
-	{ /* 0x0B = PROV 1.0 */
-		TRUE, vals_provc10_global, vals_provc10_tags,
-		vals_provc10_attrStart, vals_provc10_attrValue
-	},
-	{ /* 0x0C = WTA-WML 1.2 */
-		FALSE, NULL, NULL, NULL, NULL
-	},
-	{ /* 0x0D = EMN 1.0 */
-		FALSE, NULL, NULL, NULL, NULL
-	},
-	{ /* 0x0E = DRMREL 1.0 */
-		FALSE, NULL, NULL, NULL, NULL
-	},
+/***** Token code page aggregation *****/
+static const value_valuestring wbxml_provc10_tags[] = {
+	{ 0, wbxml_provc10_tags_cp0 },
+	{ 0, NULL }
 };
-/* Update the entry below when the table above is appended */
-#define WBXML_MAP_MAX_ID 0x0E
+
+static const value_valuestring wbxml_provc10_attrStart[] = {
+	{ 0, wbxml_provc10_attrStart_cp0 },
+	{ 0, NULL }
+};
+
+static const value_valuestring wbxml_provc10_attrValue[] = {
+	{ 0, wbxml_provc10_attrValue_cp0 },
+	{ 0, NULL }
+};
 
 
+
+
+
+/* EMN 1.0
+ * 
+ * Email Notification
+ ***************************************/
+
+/*****   Global extension tokens   *****/
+
+/*****         Tag tokens          *****/
+static const value_string wbxml_emnc10_tags_cp0[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "emn" },
+
+	{ 0x00, NULL }
+};
+
+/*****    Attribute Start tokens   *****/
+static const value_string wbxml_emnc10_attrStart_cp0[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "timestamp=" },
+	{ 0x06, "mailbox=" },
+	{ 0x07, "mailbox='mailat:'" },
+	{ 0x08, "mailbox='pop://'" },
+	{ 0x09, "mailbox='imap://'" },
+	{ 0x0a, "mailbox='http://'" },
+	{ 0x0b, "mailbox='http://www.'" },
+	{ 0x0c, "mailbox='https://'" },
+	{ 0x0D, "mailbox='https://www.'" },
+
+	{ 0x00, NULL }
+};
+
+/*****    Attribute Value tokens   *****/
+/* Same as in SI 1.0 */
+
+/***** Token code page aggregation *****/
+static const value_valuestring wbxml_emnc10_tags[] = {
+	{ 0, wbxml_emnc10_tags_cp0 },
+	{ 0, NULL }
+};
+
+static const value_valuestring wbxml_emnc10_attrStart[] = {
+	{ 0, wbxml_emnc10_attrStart_cp0 },
+	{ 0, NULL }
+};
+
+static const value_valuestring wbxml_emnc10_attrValue[] = {
+	{ 0, wbxml_sic10_attrValue_cp0 }, /* Same as SI 1.0 */
+	{ 0, NULL }
+};
+
+
+
+
+
+/* SyncML 1.0
+ * 
+ * SyncML Representation Protocol
+ ***************************************/
+
+/*****   Global extension tokens   *****/
+
+/*****         Tag tokens          *****/
+static const value_string wbxml_syncmlc10_tags_cp0[] = { /* SyncML 1.0 */
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "Add" },
+	{ 0x06, "Alert" },
+	{ 0x07, "Archive" },
+	{ 0x08, "Atomic" },
+	{ 0x09, "Chal" },
+	{ 0x0A, "Cmd" },
+	{ 0x0B, "CmdID" },
+	{ 0x0C, "CmdRef" },
+	{ 0x0D, "Copy" },
+	{ 0x0E, "Cred" },
+	{ 0x0F, "Data" },
+	{ 0x10, "Delete" },
+	{ 0x11, "Exec" },
+	{ 0x12, "Final" },
+	{ 0x13, "Get" },
+	{ 0x14, "Item" },
+	{ 0x15, "Lang" },
+	{ 0x16, "LocName" },
+	{ 0x17, "LocURI" },
+	{ 0x18, "Map" },
+	{ 0x19, "MapItem" },
+	{ 0x1A, "Meta" },
+	{ 0x1B, "MsgID" },
+	{ 0x1C, "MsgRef" },
+	{ 0x1D, "NoResp" },
+	{ 0x1E, "NoResults" },
+	{ 0x1F, "Put" },
+	{ 0x20, "Replace" },
+	{ 0x21, "RespURI" },
+	{ 0x22, "Results" },
+	{ 0x23, "Search" },
+	{ 0x24, "Sequence" },
+	{ 0x25, "SessionID" },
+	{ 0x26, "SftDel" },
+	{ 0x27, "Source" },
+	{ 0x28, "SourceRef" },
+	{ 0x29, "Status" },
+	{ 0x2A, "Sync" },
+	{ 0x2B, "SyncBody" },
+	{ 0x2C, "SyncHdr" },
+	{ 0x2D, "SyncML" },
+	{ 0x2E, "Target" },
+	{ 0x2F, "TargetRef" },
+	/* 0x30 - Reserved */
+	{ 0x31, "VerDTD" },
+	{ 0x32, "VerProto" },
+
+	{ 0x00, NULL }
+};
+
+static const value_string wbxml_syncmlc10_tags_cp1[] = { /* MetInf 1.0 */
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "Anchor" },
+	{ 0x06, "EMI" },
+	{ 0x07, "Format" },
+	{ 0x08, "FreeID" },
+	{ 0x09, "FreeMem" },
+	{ 0x0A, "Last" },
+	{ 0x0B, "Mark" },
+	{ 0x0C, "MaxMsgSize" },
+	{ 0x0D, "Mem" },
+	{ 0x0E, "MetInf" },
+	{ 0x0F, "Next" },
+	{ 0x10, "NextNonce" },
+	{ 0x11, "SharedMem" },
+	{ 0x12, "Size" },
+	{ 0x13, "Type" },
+	{ 0x14, "Version" },
+
+	{ 0x00, NULL }
+};
+
+/*****    Attribute Start tokens   *****/
+
+/*****    Attribute Value tokens   *****/
+
+/***** Token code page aggregation *****/
+static const value_valuestring wbxml_syncmlc10_tags[] = {
+	{ 0, wbxml_syncmlc10_tags_cp0 }, /* -//SYNCML//DTD SyncML 1.0//EN */
+	{ 0, wbxml_syncmlc10_tags_cp1 }, /* -//SYNCML//DTD MetInf 1.0//EN */
+	{ 0, NULL }
+};
+
+
+
+
+
+/* SyncML 1.1
+ * 
+ * SyncML Representation Protocol
+ ***************************************/
+
+/*****   Global extension tokens   *****/
+
+/*****         Tag tokens          *****/
+static const value_string wbxml_syncmlc11_tags_cp0[] = { /* SyncML 1.1 */
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "Add" },
+	{ 0x06, "Alert" },
+	{ 0x07, "Archive" },
+	{ 0x08, "Atomic" },
+	{ 0x09, "Chal" },
+	{ 0x0a, "Cmd" },
+	{ 0x0b, "CmdID" },
+	{ 0x0c, "CmdRef" },
+	{ 0x0d, "Copy" },
+	{ 0x0e, "Cred" },
+	{ 0x0f, "Data" },
+	{ 0x10, "Delete" },
+	{ 0x11, "Exec" },
+	{ 0x12, "Final" },
+	{ 0x13, "Get" },
+	{ 0x14, "Item" },
+	{ 0x15, "Lang" },
+	{ 0x16, "LocName" },
+	{ 0x17, "LocURI" },
+	{ 0x18, "Map" },
+	{ 0x19, "MapItem" },
+	{ 0x1a, "Meta" },
+	{ 0x1b, "MsgID" },
+	{ 0x1c, "MsgRef" },
+	{ 0x1d, "NoResp" },
+	{ 0x1e, "NoResults" },
+	{ 0x1f, "Put" },
+	{ 0x20, "Replace" },
+	{ 0x21, "RespURI" },
+	{ 0x22, "Results" },
+	{ 0x23, "Search" },
+	{ 0x24, "Sequence" },
+	{ 0x25, "SessionID" },
+	{ 0x26, "SftDel" },
+	{ 0x27, "Source" },
+	{ 0x28, "SourceRef" },
+	{ 0x29, "Status" },
+	{ 0x2a, "Sync" },
+	{ 0x2b, "SyncBody" },
+	{ 0x2c, "SyncHdr" },
+	{ 0x2d, "SyncML" },
+	{ 0x2e, "Target" },
+	{ 0x2f, "TargetRef" },
+	/* 0x30 - Reserved */
+	{ 0x31, "VerDTD" },
+	{ 0x32, "VerProto" },
+	{ 0x33, "NumberOfChanges" },
+	{ 0x34, "MoreData" },
+
+	{ 0x00, NULL }
+};
+
+static const value_string wbxml_syncmlc11_tags_cp1[] = { /* MetInf 1.1 */
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "Anchor" },
+	{ 0x06, "EMI" },
+	{ 0x07, "Format" },
+	{ 0x08, "FreeID" },
+	{ 0x09, "FreeMem" },
+	{ 0x0A, "Last" },
+	{ 0x0B, "Mark" },
+	{ 0x0C, "MaxMsgSize" },
+	{ 0x0D, "Mem" },
+	{ 0x0E, "MetInf" },
+	{ 0x0F, "Next" },
+	{ 0x10, "NextNonce" },
+	{ 0x11, "SharedMem" },
+	{ 0x12, "Size" },
+	{ 0x13, "Type" },
+	{ 0x14, "Version" },
+	{ 0x15, "MaxObjSize" },
+
+	{ 0x00, NULL }
+};
+
+/*****    Attribute Start tokens   *****/
+
+/*****    Attribute Value tokens   *****/
+
+/***** Token code page aggregation *****/
+static const value_valuestring wbxml_syncmlc11_tags[] = {
+	{ 0, wbxml_syncmlc11_tags_cp0 }, /* -//SYNCML//DTD SyncML 1.1//EN */
+	{ 0, wbxml_syncmlc11_tags_cp1 }, /* -//SYNCML//DTD MetInf 1.1//EN */
+	{ 0, NULL }
+};
+
+
+
+
+
+/* CHANNEL 1.0
+ * 
+ * WTA Channel
+ ***************************************/
+
+/*****   Global extension tokens   *****/
+
+/*****         Tag tokens          *****/
+static const value_string wbxml_channelc10_tags_cp0[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "channel" },
+	{ 0x06, "title" },
+	{ 0x07, "abstract" },
+	{ 0x08, "resource" },
+
+	{ 0x00, NULL }
+};
+
+/*****    Attribute Start tokens   *****/
+static const value_string wbxml_channelc10_attrStart_cp0[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "maxspace" },
+	{ 0x06, "base" },
+	{ 0x07, "href" },
+	{ 0x08, "href='http://'" },
+	{ 0x09, "href='https://'" },
+	{ 0x0A, "lastmod" },
+	{ 0x0B, "etag" },
+	{ 0x0C, "md5" },
+	{ 0x0D, "success" },
+	{ 0x0E, "success='http://'" },
+	{ 0x0F, "success='https://'" },
+	{ 0x10, "failure" },
+	{ 0x11, "failure='http://'" },
+	{ 0x12, "failure='https://'" },
+	{ 0x13, "EventId" },
+
+	{ 0x00, NULL }
+};
+
+/*****    Attribute Value tokens   *****/
+
+/***** Token code page aggregation *****/
+static const value_valuestring wbxml_channelc10_tags[] = {
+	{ 0, wbxml_channelc10_tags_cp0 },
+	{ 0, NULL }
+};
+
+static const value_valuestring wbxml_channelc10_attrStart[] = {
+	{ 0, wbxml_channelc10_attrStart_cp0 },
+	{ 0, NULL }
+};
+
+
+
+
+
+/********************** WBXML token mapping aggregation **********************/
+
+
+/* The following structure links content types to their token mapping and
+ * contains arrays of pointers to value_string arrays (one per code page).
+ */
+typedef struct _wbxml_token_map {
+	const guint32 publicid;  /* WBXML DTD number - see WINA */
+	const guint8 defined;    /* Are there mapping tables defined */
+	const value_valuestring *global;     /* Global token map */
+	const value_valuestring *tags;       /* Tag token map */
+	const value_valuestring *attrStart;  /* Attribute Start token map */
+	const value_valuestring *attrValue;  /* Attribute Value token map */
+} wbxml_token_map;
+
+static const wbxml_token_map *wbxml_content_map (guint32 publicid);
+
+/**
+ ** Aggregation of content type and aggregated code pages
+ ** Content type map lookup will stop at the 1st entry with 2nd member = FALSE
+ **/
+static const wbxml_token_map map[] = {
+#ifdef Test_the_parsers_without_token_mappings
+	{ 0, FALSE, NULL, NULL, NULL, NULL },
+#endif
+	{ 0x02, TRUE, /* WML 1.0 */
+		wbxml_wmlc10_global,
+		wbxml_wmlc10_tags,
+		wbxml_wmlc10_attrStart,
+		wbxml_wmlc10_attrValue
+	},
+#ifdef remove_directive_and_set_TRUE_if_mapping_available
+	{ 0x03, FALSE, /* WTA 1.0 (deprecated) */
+		NULL, NULL, NULL, NULL
+	},
+#endif
+	{ 0x04, TRUE, /* WML 1.1 */
+		wbxml_wmlc11_global,
+		wbxml_wmlc11_tags,
+		wbxml_wmlc11_attrStart,
+		wbxml_wmlc11_attrValue
+	},
+	{ 0x05, TRUE, /* SI 1.0 */
+		NULL, /* wbxml_sic10_global - does not exist */
+		wbxml_sic10_tags,
+		wbxml_sic10_attrStart,
+		wbxml_sic10_attrValue
+	},
+	{ 0x06, TRUE, /* SL 1.0 */
+		NULL, /* wbxml_slc10_global - does not exist */
+		wbxml_slc10_tags,
+		wbxml_slc10_attrStart,
+		wbxml_slc10_attrValue
+	},
+	{ 0x07, TRUE, /* CO 1.0 */
+		NULL, /* wbxml_coc10_global - does not exist */
+		wbxml_coc10_tags,
+		wbxml_coc10_attrStart,
+		wbxml_coc10_attrValue
+	},
+	{ 0x08, TRUE, /* CHANNEL 1.0 (deprecated) */
+		NULL, /* wbxml_channelc10_global - does not exist */
+		wbxml_channelc10_tags,
+		wbxml_channelc10_attrStart,
+		NULL, /* wbxml_channelc10_attrValue - does not exist */
+	},
+	{ 0x09, TRUE, /* WML 1.2 */
+		wbxml_wmlc12_global,
+		wbxml_wmlc12_tags,
+		wbxml_wmlc12_attrStart,
+		wbxml_wmlc12_attrValue
+	},
+	{ 0x0A, TRUE, /* WML 1.3 */
+		wbxml_wmlc13_global,
+		wbxml_wmlc13_tags,
+		wbxml_wmlc13_attrStart,
+		wbxml_wmlc13_attrValue
+	},
+	{ 0x0B, TRUE, /* PROV 1.0 */
+		NULL, /* wbxml_provc10_global - does not exist */
+		wbxml_provc10_tags,
+		wbxml_provc10_attrStart,
+		wbxml_provc10_attrValue
+	},
+#ifdef remove_directive_and_set_TRUE_if_mapping_available
+	{ 0x0C, FALSE, /* WTA-WML 1.2 */
+		NULL, NULL, NULL, NULL
+	},
+#endif
+	{ 0x0D, TRUE, /* EMN 1.0 */
+		NULL, /* wbxml_emnc10_global - does not exist */
+		wbxml_emnc10_tags,
+		wbxml_emnc10_attrStart,
+		wbxml_emnc10_attrValue
+	},
+#ifdef remove_directive_and_set_TRUE_if_mapping_available
+	{ 0x0E, FALSE, /* DRMREL 1.0 */
+		NULL, NULL, NULL, NULL
+	},
+#endif
+	{ 0x0FD1, TRUE, /* SyncML 1.0 */
+		NULL, /* wbxml_syncmlc10_global - does not exist */
+		wbxml_syncmlc10_tags,
+		NULL, /* wbxml_syncmlc10_attrStart - does not exist */
+		NULL, /* wbxml_syncmlc10_attrValue - does not exist */
+	},
+	{ 0x0FD3, TRUE, /* SyncML 1.1 */
+		NULL, /* wbxml_syncmlc11_global - does not exist */
+		wbxml_syncmlc11_tags,
+		NULL, /* wbxml_syncmlc11_attrStart - does not exist */
+		NULL, /* wbxml_syncmlc11_attrValue - does not exist */
+	},
+	{ 0x1108, TRUE, /* Phone.com - WML+ 1.1 */
+		/* Note: I assumed WML+ 1.1 would be not that different from WML 1.1,
+		 *       the real mapping should come from Phone.com (OpenWave)! */
+		wbxml_wmlc11_global, /* Not 100% true */
+		wbxml_wmlc11_tags, /* Not 100% true */
+		wbxml_wmlc11_attrStart, /* Not 100% true */
+		wbxml_wmlc11_attrValue /* Not 100% true */
+	},
+	{ 0x110D, TRUE, /* Phone.com - WML+ 1.3 */
+		/* Note: I assumed WML+ 1.3 would be not that different from WML 1.3,
+		 *       the real mapping should come from Phone.com (OpenWave)! */
+		wbxml_wmlc13_global, /* Not 100% true */
+		wbxml_wmlc13_tags, /* Not 100% true */
+		wbxml_wmlc13_attrStart, /* Not 100% true */
+		wbxml_wmlc13_attrValue /* Not 100% true */
+	},
+	
+	{ 0, FALSE, NULL, NULL, NULL, NULL }
+};
+
+
+/* WBXML content token mapping depends on the following parameters:
+ *   - Content type (guint32)
+ *   - Token type (global, tags, attrStart, attrValue)
+ *   - Code page for tag and attribute
+ *
+ * This results in the following steps:
+ *   1. Retrieve content type mapping
+ *   2. If exists, retrieve token type mapping
+ *   3. If exists, retrieve required code page
+ *   4. If exists, retrieve token mapping
+ */
+
+/* Return token mapping for a given content mapping entry. */
+static const char *
+map_token (const value_valuestring *token_map, guint8 codepage, guint8 token) {
+	const value_string *vs;
+	const char *s;
+
+	if (token_map) { /* Found map */
+		if ((vs = val_to_valstr (codepage, token_map))) {
+			/* Found codepage map */
+			s = match_strval (token, vs);
+			if (s) /* Found valid token */
+					return s;
+			/* No valid token mapping in specified code page of token map */
+			return "(Requested token not defined for this content type)";
+		}
+		/* There is no token map entry for the requested code page */
+		return "(Requested token code page not defined for this content type)";
+	}
+	/* The token map does not exist */
+	return "(Requested token map not defined for this content type)";
+}
+
+
+/* Returns a pointer to the WBXML token map for the given WBXML public
+ * identifier value (see WINA for a table with defined identifiers). */
+static const wbxml_token_map *wbxml_content_map (guint32 publicid) {
+	gint i = 0;
+
+	while (map[i].defined) {
+		if (map[i].publicid == publicid)
+			return &(map[i]);
+		i++;
+	}
+	return NULL;
+}
 
 
 /************************** Function prototypes **************************/
 
 
-
 static void
 dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 
 void
 proto_register_wbxml(void);
 
-
-/* Parse and display the WBXML string table
- */
+/* Parse and display the WBXML string table */
 static void
 show_wbxml_string_table (proto_tree *tree, tvbuff_t *tvb, guint32 str_tbl,
 		guint32 str_tbl_len);
 
-
 /* Return a pointer to the string in the string table.
- * Can also be hacked for inline string retrieval.
- */
+ * Can also be hacked for inline string retrieval.  */
 static const char*
 strtbl_lookup (tvbuff_t *tvb, guint32 str_tbl, guint32 offset, guint32 *len);
 
-
-/* Parse data while in STAG state
- */
+/* Parse data while in STAG state */
 static void
 parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		guint32 str_tbl, guint8 *level,
-		guint8 *codepage_stag, guint8 *codepage_attr, guint32 *parsed_length);
-
+		guint32 *parsed_length);
 
 /* Parse data while in STAG state;
- * interpret tokens as defined by content type
- */
+ * interpret tokens as defined by content type */
 static void
 parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		guint32 str_tbl, guint8 *level,
-		guint8 *codepage_stag, guint8 *codepage_attr, guint32 *parsed_length,
-		const wbxml_mapping_table *map);
+		guint32 *parsed_length,
+		const wbxml_token_map *map);
 
-
-/* Parse data while in ATTR state
- */
+/* Parse data while in ATTR state */
 static void
 parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 		guint32 offset, guint32 str_tbl, guint8 level,
-		guint8 *codepage_attr, guint32 *parsed_length);
-
+		guint32 *parsed_length);
 
 /* Parse data while in ATTR state;
- * interpret tokens as defined by content type
- */
+ * interpret tokens as defined by content type */
 static void
 parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 		guint32 offset, guint32 str_tbl, guint8 level,
-		guint8 *codepage_attr, guint32 *parsed_length,
-		const wbxml_mapping_table *map);
-
-
+		guint32 *parsed_length,
+		const wbxml_token_map *map);
 
 
 /****************** WBXML protocol dissection functions ******************/
-
-
 
 
 /* Code to actually dissect the packets */
 static void
 dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-
-/* Set up structures needed to add the protocol subtree and manage it */
+	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
 	proto_tree *wbxml_tree; /* Main WBXML tree */
 	proto_tree *wbxml_str_tbl_tree; /* String table subtree */
@@ -1356,8 +1876,7 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 str_tbl;
 	guint32 str_tbl_len;
 	guint8 level = 0; /* WBXML recursion level */
-	guint8 codepage_stag = 0; /* Initial codepage in state = STAG */
-	guint8 codepage_attr = 0; /* Initial codepage in state = ATTR */
+	const wbxml_token_map *content_map = NULL;
 
 	/* WBXML format
 	 * 
@@ -1430,7 +1949,6 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		str_tbl_len = tvb_get_guintvar (tvb, offset, &len);
 		str_tbl = offset + len; /* Start of 1st string in string table */
 
-
 		/* Now we can add public ID, charset (if available),
 		 * and string table */
 		if ( ! publicid ) { /* Read Public ID from string table */
@@ -1468,56 +1986,49 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* The parse_wbxml_X() functions will process the content correctly,
 		 * irrespective of the WBXML version used. For the WBXML body, this
 		 * means that there is a different processing for the global token
-		 * RESERVED_2 (WBXML 1.0) or OPAQUE (WBXML 1.x with x > 0).
-		 */
+		 * RESERVED_2 (WBXML 1.0) or OPAQUE (WBXML 1.x with x > 0).  */
 		if (wbxml_tree) { /* Show only if visible */
 			if (publicid) {
-#ifdef DEBUG
-				printf ("WBXML - Content Type : \"%s\"\n",
-						match_strval (publicid, vals_wbxml_public_ids));
-#endif
-				/* Look in wbxml_map[] table for defined mapping */
-				if (publicid < WBXML_MAP_MAX_ID) {
-					if (wbxml_map[publicid].defined) {
+				/* Retrieve the content token mapping if available */
+				content_map = wbxml_content_map (publicid);
+				if (content_map) {
+					/* Is there a defined token mapping for publicid? */
+					if (content_map->defined) {
 						proto_tree_add_text (wbxml_content_tree, tvb,
 								offset, -1,
-								"Level | State "
+								"Level | State | Codepage "
 								"| WBXML Token Description         "
 								"| Rendering");
 						parse_wbxml_tag_defined (wbxml_content_tree,
 								tvb, offset, str_tbl, &level,
-								&codepage_stag, &codepage_attr, &len,
-								wbxml_map + publicid);
+								&len, content_map);
 						return;
 					}
-					proto_tree_add_text (wbxml_content_tree, tvb,
-							offset, -1,
-							"Rendering of this content type"
-							" not (yet) supported");
 				}
+				proto_tree_add_text (wbxml_content_tree, tvb,
+						offset, -1,
+						"[Rendering of this content type"
+						" not (yet) supported]");
 			}
 			/* Default: WBXML only, no interpretation of the content */
 			proto_tree_add_text (wbxml_content_tree, tvb, offset, -1,
-					"Level | State | WBXML Token Description         "
+					"Level | State | Codepage "
+					"| WBXML Token Description         "
 					"| Rendering");
 			parse_wbxml_tag (wbxml_content_tree, tvb, offset,
-					str_tbl, &level,
-					&codepage_stag, &codepage_attr, &len);
+					str_tbl, &level, &len);
 			return;
 		} else {
 			proto_tree_add_text (wbxml_content_tree, tvb, offset, -1,
-					"WBXML 1.0 decoding not yet supported");
+					"WBXML 1.0 decoding not (yet) supported");
 		}
 		return;
 	}
 }
 
 
-
-
 /* Return a pointer to the string in the string table.
- * Can also be hacked for inline string retrieval.
- */
+ * Can also be hacked for inline string retrieval.  */
 static const char*
 strtbl_lookup (tvbuff_t *tvb, guint32 str_tbl, guint32 offset, guint32 *len)
 {
@@ -1529,8 +2040,6 @@ strtbl_lookup (tvbuff_t *tvb, guint32 str_tbl, guint32 offset, guint32 *len)
 				tvb_strsize (tvb, str_tbl+offset));
 	}
 }
-
-
 
 
 /* Parse and display the WBXML string table (in a 3-column table format).
@@ -1561,8 +2070,6 @@ show_wbxml_string_table (proto_tree *tree, tvbuff_t *tvb, guint32 str_tbl,
 }
 
 
-
-
 /* Indentation code is based on a static const array of space characters.
  * At least one single space is returned */
 static const char indent_buffer[514] = " "
@@ -1579,8 +2086,6 @@ static const char indent_buffer[514] = " "
 static const char * Indent (guint8 level) {
 	return indent_buffer + (512 - 2 * (level));
 }
-
-
 
 
 /********************
@@ -1607,10 +2112,10 @@ static const char * Indent (guint8 level) {
  *               CONTENT
  *             </tag>
  *
- * NOTE: an XML PI is parsed as an attribute list (same syntax).
+ * NOTES
+ *   - An XML PI is parsed as an attribute list (same syntax).
+ *   - A code page switch only applies to the single token that follows.
  */
-
-
 
 
 /* This function parses the WBXML and maps known token interpretations
@@ -1619,7 +2124,7 @@ static const char * Indent (guint8 level) {
  *
  * Attribute parsing is done in parse_wbxml_attribute_list_defined().
  *
- * The wbxml_mapping_table entry *map contains the actual token mapping.
+ * The wbxml_token_map entry *map contains the actual token mapping.
  *
  * NOTE: In order to parse the content, some recursion is required.
  *       However, for performance reasons, recursion has been avoided
@@ -1627,15 +2132,20 @@ static const char * Indent (guint8 level) {
  *       This is achieved by means of the parsing_tag_content and tag_save*
  *       variables.
  *
- * NOTE: Code page switches not yet processed in the code!
- *
  * NOTE: See above for known token mappings.
+ *
+ * NOTE: As tags can be opened and closed, a tag representation lookup
+ *       may happen once or twice for a given tag. For efficiency reasons,
+ *       the literal tag value is stored and used throughout the code.
+ *       With the introduction of code page support, this solution is robust
+ *       as the lookup only occurs once, removing the need for storage of
+ *       the used code page.
  */
 static void
 parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		guint32 str_tbl, guint8 *level,
-		guint8 *codepage_stag, guint8 *codepage_attr, guint32 *parsed_length,
-		const wbxml_mapping_table *map)
+		guint32 *parsed_length,
+		const wbxml_token_map *map)
 {
 	guint32 tvb_len = tvb_reported_length (tvb);
 	guint32 off = offset;
@@ -1649,6 +2159,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	guint8 tag_new_known = 0; /* Will contain peek & 0x3F (tag identity) */
 	const char *tag_save_literal; /* Will contain the LITERAL tag identity */
 	const char *tag_new_literal; /* Will contain the LITERAL tag identity */
+	guint8 codepage_stag = 0; /* Initial codepage in state = STAG */
 	guint8 parsing_tag_content = FALSE; /* Are we parsing content from a
 										   tag with content: <x>Content</x>
 										   
@@ -1670,36 +2181,41 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		if ((peek & 0x3F) < 4) switch (peek) { /* Global tokens in state = STAG
 												  but not the LITERAL tokens */
 			case 0x00: /* SWITCH_PAGE */
-				peek = tvb_get_guint8 (tvb, off+1);
+				codepage_stag = tvb_get_guint8 (tvb, off+1);
 				proto_tree_add_text (tree, tvb, off, 2,
-						"        Tag   | SWITCH_PAGE (Tag code page)     "
-						"| Code page switch (was: %d, is: %d)",
-						*codepage_stag, peek);
-				*codepage_stag = peek;
+						"      | Tag   | T 0->%3d "
+						"| SWITCH_PAGE (Tag code page)     "
+						"|",
+						codepage_stag);
 				off += 2;
 				break;
 			case 0x01: /* END: only possible for Tag with Content */
-				if (tag_save_known) {
+				if (tag_save_known) { /* Known TAG */
 					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d | Tag   | END (Known Tag 0x%02X)            "
+							"  %3d | Tag   |          "
+							"| END (Known Tag 0x%02X)            "
 							"| %s</%s>",
 							*level, tag_save_known, Indent (*level),
-							match_strval (tag_save_known, map->tags));
+							tag_save_literal); /* We already looked it up! */
 				} else { /* Literal TAG */
 					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d | Tag   | END (Literal Tag)               "
+							"  %3d | Tag   |          "
+							"| END (Literal Tag)               "
 							"| %s</%s>",
-							*level, Indent (*level), tag_save_literal);
+							*level, Indent (*level),
+							tag_save_literal);
 				}
 				(*level)--;
 				off++;
 				*parsed_length = off - offset;
+				/* Reset code page: not needed as return from recursion */
 				return;
 				break;
 			case 0x02: /* ENTITY */
 				ent = tvb_get_guintvar (tvb, off+1, &len);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | ENTITY                          "
+						"  %3d | Tag   |          "
+						"| ENTITY                          "
 						"| %s'&#%u;'",
 						*level, Indent (*level), ent);
 				off += 1+len;
@@ -1708,7 +2224,8 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				/* Hack the string table lookup function */
 				str = strtbl_lookup (tvb, off+1, 0, &len);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | STR_I (Inline string)           "
+						"  %3d | Tag   |          "
+						"| STR_I (Inline string)           "
 						"| %s\'%s\'",
 						*level, Indent(*level), str);
 				off += 1+len;
@@ -1719,23 +2236,37 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				/* Extension tokens */
 				/* Hack the string table lookup function */
 				str = strtbl_lookup (tvb, off+1, 0, &len);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | EXT_I_%1x    (Extension Token)    "
-						"| %s(%s: \'%s\')",
-						*level, peek & 0x0f, Indent (*level),
-						match_strval (peek, map->global), str);
+				if (codepage_stag) { /* Not default code page */
+					proto_tree_add_text (tree, tvb, off, 1+len,
+							"  %3d | Tag   | T %3d->0 "
+							"| EXT_I_%1x    (Extension Token)    "
+							"| %s(%s: \'%s\')",
+							*level, codepage_stag, peek & 0x0f, Indent (*level),
+							map_token (map->global, codepage_stag, peek), str);
+					/* Reset code page */
+					codepage_stag = 0;
+				} else { /* Code page 0 */
+					proto_tree_add_text (tree, tvb, off, 1+len,
+							"  %3d | Tag   |          "
+							"| EXT_I_%1x    (Extension Token)    "
+							"| %s(%s: \'%s\')",
+							*level, peek & 0x0f, Indent (*level),
+							map_token (map->global, codepage_stag, peek), str);
+				}
 				off += 1+len;
 				break;
 			case 0x43: /* PI */
 				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d | Tag   | PI (XML Processing Instruction) "
+						"  %3d | Tag   |          "
+						"| PI (XML Processing Instruction) "
 						"| %s<?xml",
 						*level, Indent (*level));
-				parse_wbxml_attribute_list (tree, tvb, off, str_tbl,
-						*level, codepage_attr, &len);
+				parse_wbxml_attribute_list_defined (tree, tvb, off, str_tbl,
+						*level, &len, map);
 				off += len;
 				proto_tree_add_text (tree, tvb, off-1, 1,
-						"  %3d | Tag   | END (PI)                        "
+						"  %3d | Tag   |          "
+						"| END (PI)                        "
 						"| %s?>",
 						*level, Indent (*level));
 				break;
@@ -1745,18 +2276,31 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				/* Extension tokens */
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str = strtbl_lookup (tvb, str_tbl, index, NULL);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | EXT_T_%1x    (Extension Token)    "
-						"| %s(%s: \'%s\')",
-						*level, peek & 0x0f, Indent (*level),
-						match_strval (peek, map->global), str);
+				if (codepage_stag) { /* Not default code page */
+					proto_tree_add_text (tree, tvb, off, 1+len,
+							"  %3d | Tag   | T %3d->0 "
+							"| EXT_T_%1x    (Extension Token)    "
+							"| %s(%s: \'%s\')",
+							*level, codepage_stag, peek & 0x0f, Indent (*level),
+							map_token (map->global, codepage_stag, peek), str);
+					/* Reset code page */
+					codepage_stag = 0;
+				} else { /* Code page 0 */
+					proto_tree_add_text (tree, tvb, off, 1+len,
+							"  %3d | Tag   |          "
+							"| EXT_T_%1x    (Extension Token)    "
+							"| %s(%s: \'%s\')",
+							*level, peek & 0x0f, Indent (*level),
+							map_token (map->global, codepage_stag, peek), str);
+				}
 				off += 1+len;
 				break;
 			case 0x83: /* STR_T */
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str = strtbl_lookup (tvb, str_tbl, index, NULL);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | STR_T (Tableref string)         "
+						"  %3d | Tag   |          "
+						"| STR_T (Tableref string)         "
 						"| %s\'%s\'",
 						*level, Indent (*level), str);
 				off += 1+len;
@@ -1765,24 +2309,38 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			case 0xC1: /* EXT_1 */
 			case 0xC2: /* EXT_2 */
 				/* Extension tokens */
-				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d | Tag   | EXT_%1x      (Extension Token)    "
-						"| %s(%s)",
-						*level, peek & 0x0f, Indent (*level),
-						match_strval (peek, map->global));
+				if (codepage_stag) { /* Not default code page */
+					proto_tree_add_text (tree, tvb, off, 1,
+							"  %3d | Tag   | T %3d->0 "
+							"| EXT_%1x      (Extension Token)    "
+							"| %s(%s)",
+							*level, codepage_stag, peek & 0x0f, Indent (*level),
+							map_token (map->global, codepage_stag, peek));
+					/* Reset code page */
+					codepage_stag = 0;
+				} else { /* Code page 0 */
+					proto_tree_add_text (tree, tvb, off, 1,
+							"  %3d | Tag   |          "
+							"| EXT_%1x      (Extension Token)    "
+							"| %s(%s)",
+							*level, peek & 0x0f, Indent (*level),
+							map_token (map->global, codepage_stag, peek));
+				}
 				off++;
 				break;
 			case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
 				if (tvb_get_guint8 (tvb, 0)) { /* WBXML 1.x (x > 0) */
 					index = tvb_get_guintvar (tvb, off+1, &len);
 					proto_tree_add_text (tree, tvb, off, 1 + len + index,
-							"  %3d | Tag   | OPAQUE (Opaque data)            "
+							"  %3d | Tag   |          "
+							"| OPAQUE (Opaque data)            "
 							"| %s(%d bytes of opaque data)",
 							*level, Indent (*level), index);
 					off += 1+len+index;
 				} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
 					proto_tree_add_text (tree, tvb, off, 1,
-							"        Tag   | RESERVED_2     (Invalid Token!) "
+							"        Tag   |          "
+							"| RESERVED_2     (Invalid Token!) "
 							"| WBXML 1.0 parsing stops here.");
 					/* Stop processing as it is impossible to parse now */
 					off = tvb_len;
@@ -1793,8 +2351,10 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 
 				/* No default clause, as all cases have been treated */
 		} else { /* LITERAL or Known TAG */
-			/*
-			 * We must store the initial tag, and also retrieve the new tag.
+			/* We must store the initial tag, and also retrieve the new tag.
+			 * For efficiency reasons, we store the literal tag representation
+			 * for known tags too, so we can easily close the tag without the
+			 * need of a new lookup and avoiding storage of token codepage.
 			 * 
 			 * There are 4 possibilities:
 			 *
@@ -1810,14 +2370,14 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				index = tvb_get_guintvar (tvb, off+1, &tag_len);
 				tag_new_literal = strtbl_lookup (tvb, str_tbl, index, NULL);
 				tag_new_known = 0; /* invalidate known tag_new */
-			} else {
+			} else { /* Known tag */
 				tag_new_known = peek & 0x3F;
-				tag_new_literal = NULL; /* invalidate LITERAL tag_new */
+				tag_new_literal = map_token (map->tags, codepage_stag,
+										tag_new_known);
+				/* Stored looked up tag name string */
 			}
 
-			/*
-			 * Parsing of TAG starts HERE
-			 */
+			/* Parsing of TAG starts HERE */
 			if (peek & 0x40) { /* Content present */
 				/* Content follows
 				 * [!] An explicit END token is expected in these cases!
@@ -1832,56 +2392,84 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					 * recursion will take care of it */
 					(*level)++;
 					parse_wbxml_tag_defined (tree, tvb, off, str_tbl, level,
-							codepage_stag, codepage_attr, &len, map);
+							&len, map);
 					off += len;
 				} else { /* Now we will have content to parse */
 					/* Save the start tag so we can properly close it later. */
-					if ((peek & 0x3F) == 4) {
+					if ((peek & 0x3F) == 4) { /* Literal tag */
 						tag_save_literal = tag_new_literal;
 						tag_save_known = 0;
-					} else {
+					} else { /* Known tag */
 						tag_save_known = tag_new_known;
-						tag_save_literal = NULL;
+						tag_save_literal = tag_new_literal;
+						/* The last statement avoids needless lookups */
 					}
 					/* Process the attribute list if present */
 					if (peek & 0x80) { /* Content and Attribute list present */
 						if (tag_new_known) { /* Known tag */
-							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   "
-									"|   Known Tag 0x%02X           (AC) "
-									"| %s<%s",
-									*level, tag_new_known, Indent (*level),
-									match_strval (tag_new_known, map->tags));
+							if (codepage_stag) { /* Not default code page */
+								proto_tree_add_text (tree, tvb, off, 1,
+										"  %3d | Tag   | T %3d->0 "
+										"|   Known Tag 0x%02X           (AC) "
+										"| %s<%s",
+										*level, codepage_stag, tag_new_known,
+										Indent (*level), tag_new_literal);
+								/* Tag string already looked up earlier! */
+								/* Reset code page */
+								codepage_stag = 0;
+							} else { /* Code page 0 */
+								proto_tree_add_text (tree, tvb, off, 1,
+										"  %3d | Tag   |          "
+										"|   Known Tag 0x%02X           (AC) "
+										"| %s<%s",
+										*level, tag_new_known,
+										Indent (*level), tag_new_literal);
+								/* Tag string already looked up earlier! */
+							}
 							off++;
 						} else { /* LITERAL tag */
 							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   "
+									"  %3d | Tag   |          "
 									"| LITERAL_AC (Literal tag)   (AC) "
 									"| %s<%s",
 									*level, Indent (*level), tag_new_literal);
 							off += 1 + tag_len;
 						}
 						parse_wbxml_attribute_list_defined (tree, tvb,
-								off, str_tbl,
-								*level, codepage_attr, &len, map);
+								off, str_tbl, *level, &len, map);
 						off += len;
 						proto_tree_add_text (tree, tvb, off-1, 1,
-								"  %3d | Tag   "
+								"  %3d | Tag   |          "
 								"| END (attribute list)            "
 								"| %s>",
 								*level, Indent (*level));
 					} else { /* Content, no Attribute list */
 						if (tag_new_known) { /* Known tag */
-							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   "
-									"|   Known Tag 0x%02X           (.C) "
-									"| %s<%s>",
-									*level, tag_new_known, Indent (*level),
-									match_strval (tag_new_known, map->tags));
+							if (codepage_stag) { /* Not default code page */
+								proto_tree_add_text (tree, tvb, off, 1,
+										"  %3d | Tag   | T %3d->0 "
+										"|   Known Tag 0x%02X           (.C) "
+										"| %s<%s>",
+										*level, codepage_stag, tag_new_known,
+										Indent (*level),
+										tag_new_literal);
+								/* Tag string already looked up earlier! */
+								/* Reset code page */
+								codepage_stag = 0;
+							} else { /* Code page 0 */
+								proto_tree_add_text (tree, tvb, off, 1,
+										"  %3d | Tag   |          "
+										"|   Known Tag 0x%02X           (.C) "
+										"| %s<%s>",
+										*level, tag_new_known,
+										Indent (*level),
+										tag_new_literal);
+								/* Tag string already looked up earlier! */
+							}
 							off++;
 						} else { /* LITERAL tag */
 							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   "
+									"  %3d | Tag   |          "
 									"| LITERAL_C  (Literal Tag)   (.C) "
 									"| %s<%s>",
 									*level, Indent (*level), tag_new_literal);
@@ -1907,51 +2495,75 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				(*level)++;
 				if (peek & 0x80) { /* No Content, Attribute list present */
 					if (tag_new_known) { /* Known tag */
-						proto_tree_add_text (tree, tvb, off, 1,
-								"  %3d | Tag   "
-								"|   Known Tag 0x%02X           (A.) "
-								"| %s<%s",
-								*level, tag_new_known, Indent (*level),
-								match_strval (tag_new_known, map->tags));
+						if (codepage_stag) { /* Not default code page */
+							proto_tree_add_text (tree, tvb, off, 1,
+									"  %3d | Tag   | T %3d->0 "
+									"|   Known Tag 0x%02X           (A.) "
+									"| %s<%s",
+									*level, codepage_stag, tag_new_known,
+									Indent (*level), tag_new_literal);
+							/* Tag string already looked up earlier! */
+							/* Reset code page */
+							codepage_stag = 0;
+						} else { /* Code page 0 */
+							proto_tree_add_text (tree, tvb, off, 1,
+									"  %3d | Tag   |          "
+									"|   Known Tag 0x%02X           (A.) "
+									"| %s<%s",
+									*level, tag_new_known,
+									Indent (*level), tag_new_literal);
+							/* Tag string already looked up earlier! */
+						}
 						off++;
 						parse_wbxml_attribute_list_defined (tree, tvb,
-								off, str_tbl,
-								*level, codepage_attr, &len, map);
+								off, str_tbl, *level, &len, map);
 						off += len;
 						proto_tree_add_text (tree, tvb, off-1, 1,
-								"  %3d | Tag   "
+								"  %3d | Tag   |          "
 								"| END (Known Tag)                 "
 								"| %s/>",
 								*level, Indent (*level));
 					} else { /* LITERAL tag */
 						proto_tree_add_text (tree, tvb, off, 1,
-								"  %3d | Tag   "
+								"  %3d | Tag   |          "
 								"| LITERAL_A  (Literal Tag)   (A.) "
 								"| %s<%s",
 								*level, Indent (*level), tag_new_literal);
 						off += 1 + tag_len;
 						parse_wbxml_attribute_list_defined (tree, tvb,
-								off, str_tbl,
-								*level, codepage_attr, &len, map);
+								off, str_tbl, *level, &len, map);
 						off += len;
 						proto_tree_add_text (tree, tvb, off-1, 1,
-								"  %3d | Tag   "
+								"  %3d | Tag   |          "
 								"| END (Literal Tag)               "
 								"| %s/>",
 								*level, Indent (*level));
 					}
 				} else { /* No Content, No Attribute list */
 					if (tag_new_known) { /* Known tag */
-						proto_tree_add_text (tree, tvb, off, 1,
-								"  %3d | Tag   "
-								"|   Known Tag 0x%02x           (..) "
-								"| %s<%s />",
-								*level, tag_new_known, Indent (*level),
-								match_strval (tag_new_known, map->tags));
+						if (codepage_stag) { /* Not default code page */
+							proto_tree_add_text (tree, tvb, off, 1,
+									"  %3d | Tag   | T %3d->0 "
+									"|   Known Tag 0x%02x           (..) "
+									"| %s<%s />",
+									*level, codepage_stag, tag_new_known,
+									Indent (*level), tag_new_literal);
+							/* Tag string already looked up earlier! */
+							/* Reset code page */
+							codepage_stag = 0;
+						} else { /* Code page 0 */
+							proto_tree_add_text (tree, tvb, off, 1,
+									"  %3d | Tag   |          "
+									"|   Known Tag 0x%02x           (..) "
+									"| %s<%s />",
+									*level, tag_new_known,
+									Indent (*level), tag_new_literal);
+							/* Tag string already looked up earlier! */
+						}
 						off++;
 					} else { /* LITERAL tag */
 						proto_tree_add_text (tree, tvb, off, 1,
-								"  %3d | Tag   "
+								"  %3d | Tag   |          "
 								"| LITERAL    (Literal Tag)   (..) "
 								"| %s<%s />",
 								*level, Indent (*level), tag_new_literal);
@@ -1959,25 +2571,22 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					}
 				}
 				(*level)--;
+				/* TODO: Do I have to reset code page here? */
 			}
 		} /* if (tag & 0x3F) >= 5 */
 	} /* while */
 }
 
 
-
-
 /* This function performs the WBXML decoding as in parse_wbxml_tag_defined()
  * but this time no WBXML mapping is performed.
  *
  * Attribute parsing is done in parse_wbxml_attribute_list().
- *
- * NOTE: Code page switches not yet processed in the code!
  */
 static void
 parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		guint32 str_tbl, guint8 *level,
-		guint8 *codepage_stag, guint8 *codepage_attr, guint32 *parsed_length)
+		guint32 *parsed_length)
 {
 	guint32 tvb_len = tvb_reported_length (tvb);
 	guint32 off = offset;
@@ -1991,6 +2600,9 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	guint8 tag_new_known = 0; /* Will contain peek & 0x3F (tag identity) */
 	const char *tag_save_literal; /* Will contain the LITERAL tag identity */
 	const char *tag_new_literal; /* Will contain the LITERAL tag identity */
+	char tag_save_buf[10]; /* Will contain "tag_0x%02X" */
+	char tag_new_buf[10]; /* Will contain "tag_0x%02X" */
+	guint8 codepage_stag = 0; /* Initial codepage in state = STAG */
 	guint8 parsing_tag_content = FALSE; /* Are we parsing content from a
 										   tag with content: <x>Content</x>
 										   
@@ -2012,36 +2624,41 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		if ((peek & 0x3F) < 4) switch (peek) { /* Global tokens in state = STAG
 												  but not the LITERAL tokens */
 			case 0x00: /* SWITCH_PAGE */
-				peek = tvb_get_guint8 (tvb, off+1);
+				codepage_stag = tvb_get_guint8 (tvb, off+1);
 				proto_tree_add_text (tree, tvb, off, 2,
-						"        Tag   | SWITCH_PAGE (Tag code page)     "
-						"| Code page switch (was: %d, is: %d)",
-						*codepage_stag, peek);
-				*codepage_stag = peek;
+						"      | Tag   | T 0->%3d "
+						"| SWITCH_PAGE (Tag code page)     "
+						"|",
+						codepage_stag);
 				off += 2;
 				break;
 			case 0x01: /* END: only possible for Tag with Content */
-				if (tag_save_known) {
+				if (tag_save_known) { /* Known TAG */
 					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d | Tag   | END (Known Tag 0x%02X)            "
-							"| %s</Tag_0x%02X>",
+							"  %3d | Tag   |          "
+							"| END (Known Tag 0x%02X)            "
+							"| %s</%s>",
 							*level, tag_save_known, Indent (*level),
-							tag_save_known);
+							tag_save_literal); /* We already looked it up! */
 				} else { /* Literal TAG */
 					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d | Tag   | END (Literal Tag)               "
+							"  %3d | Tag   |          "
+							"| END (Literal Tag)               "
 							"| %s</%s>",
-							*level, Indent (*level), tag_save_literal);
+							*level, Indent (*level),
+							tag_save_literal);
 				}
 				(*level)--;
 				off++;
 				*parsed_length = off - offset;
+				/* Reset code page: not needed as return from recursion */
 				return;
 				break;
 			case 0x02: /* ENTITY */
 				ent = tvb_get_guintvar (tvb, off+1, &len);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | ENTITY                          "
+						"  %3d | Tag   |          "
+						"| ENTITY                          "
 						"| %s'&#%u;'",
 						*level, Indent (*level), ent);
 				off += 1+len;
@@ -2050,7 +2667,8 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				/* Hack the string table lookup function */
 				str = strtbl_lookup (tvb, off+1, 0, &len);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | STR_I (Inline string)           "
+						"  %3d | Tag   |          "
+						"| STR_I (Inline string)           "
 						"| %s\'%s\'",
 						*level, Indent(*level), str);
 				off += 1+len;
@@ -2061,22 +2679,37 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				/* Extension tokens */
 				/* Hack the string table lookup function */
 				str = strtbl_lookup (tvb, off+1, 0, &len);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | EXT_I_%1x    (Extension Token)    "
-						"| %s(Inline string extension: \'%s\')",
-						*level, peek & 0x0f, Indent (*level), str);
+				if (codepage_stag) { /* Not default code page */
+					proto_tree_add_text (tree, tvb, off, 1+len,
+							"  %3d | Tag   | T %3d->0 "
+							"| EXT_I_%1x    (Extension Token)    "
+							"| %s(Inline string extension: \'%s\')",
+							*level, codepage_stag, peek & 0x0f, Indent (*level),
+							str);
+					/* Reset code page */
+					codepage_stag = 0;
+				} else { /* Code page 0 */
+					proto_tree_add_text (tree, tvb, off, 1+len,
+							"  %3d | Tag   |          "
+							"| EXT_I_%1x    (Extension Token)    "
+							"| %s(Inline string extension: \'%s\')",
+							*level, peek & 0x0f, Indent (*level),
+							str);
+				}
 				off += 1+len;
 				break;
 			case 0x43: /* PI */
 				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d | Tag   | PI (XML Processing Instruction) "
+						"  %3d | Tag   |          "
+						"| PI (XML Processing Instruction) "
 						"| %s<?xml",
 						*level, Indent (*level));
 				parse_wbxml_attribute_list (tree, tvb, off, str_tbl,
-						*level, codepage_attr, &len);
+						*level, &len);
 				off += len;
 				proto_tree_add_text (tree, tvb, off-1, 1,
-						"  %3d | Tag   | END (PI)                        "
+						"  %3d | Tag   |          "
+						"| END (PI)                        "
 						"| %s?>",
 						*level, Indent (*level));
 				break;
@@ -2086,17 +2719,31 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				/* Extension tokens */
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str = strtbl_lookup (tvb, str_tbl, index, NULL);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | EXT_T_%1x    (Extension Token)    "
-						"| %s(Tableref string extension: \'%s\')",
-						*level, peek & 0x0f, Indent (*level), str);
+				if (codepage_stag) { /* Not default code page */
+					proto_tree_add_text (tree, tvb, off, 1+len,
+							"  %3d | Tag   | T %3d->0 "
+							"| EXT_T_%1x    (Extension Token)    "
+							"| %s(Tableref string extension: \'%s\')",
+							*level, codepage_stag, peek & 0x0f, Indent (*level),
+							str);
+					/* Reset code page */
+					codepage_stag = 0;
+				} else { /* Code page 0 */
+					proto_tree_add_text (tree, tvb, off, 1+len,
+							"  %3d | Tag   |          "
+							"| EXT_T_%1x    (Extension Token)    "
+							"| %s(Tableref string extension: \'%s\')",
+							*level, peek & 0x0f, Indent (*level),
+							str);
+				}
 				off += 1+len;
 				break;
 			case 0x83: /* STR_T */
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str = strtbl_lookup (tvb, str_tbl, index, NULL);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | STR_T (Tableref string)         "
+						"  %3d | Tag   |          "
+						"| STR_T (Tableref string)         "
 						"| %s\'%s\'",
 						*level, Indent (*level), str);
 				off += 1+len;
@@ -2105,23 +2752,37 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			case 0xC1: /* EXT_1 */
 			case 0xC2: /* EXT_2 */
 				/* Extension tokens */
-				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d | Tag   | EXT_%1x      (Extension Token)    "
-						"| %s(Single-byte extension)",
-						*level, peek & 0x0f, Indent (*level));
+				if (codepage_stag) { /* Not default code page */
+					proto_tree_add_text (tree, tvb, off, 1,
+							"  %3d | Tag   | T %3d->0 "
+							"| EXT_%1x      (Extension Token)    "
+							"| %s(Single-byte extension)",
+							*level, codepage_stag, peek & 0x0f,
+							Indent (*level));
+					/* Reset code page */
+					codepage_stag = 0;
+				} else { /* Code page 0 */
+					proto_tree_add_text (tree, tvb, off, 1,
+							"  %3d | Tag   |          "
+							"| EXT_%1x      (Extension Token)    "
+							"| %s(Single-byte extension)",
+							*level, peek & 0x0f, Indent (*level));
+				}
 				off++;
 				break;
 			case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
 				if (tvb_get_guint8 (tvb, 0)) { /* WBXML 1.x (x > 0) */
 					index = tvb_get_guintvar (tvb, off+1, &len);
 					proto_tree_add_text (tree, tvb, off, 1 + len + index,
-							"  %3d | Tag   | OPAQUE (Opaque data)            "
+							"  %3d | Tag   |          "
+							"| OPAQUE (Opaque data)            "
 							"| %s(%d bytes of opaque data)",
 							*level, Indent (*level), index);
 					off += 1+len+index;
 				} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
 					proto_tree_add_text (tree, tvb, off, 1,
-							"        Tag   | RESERVED_2     (Invalid Token!) "
+							"        Tag   |          "
+							"| RESERVED_2     (Invalid Token!) "
 							"| WBXML 1.0 parsing stops here.");
 					/* Stop processing as it is impossible to parse now */
 					off = tvb_len;
@@ -2132,8 +2793,10 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 
 				/* No default clause, as all cases have been treated */
 		} else { /* LITERAL or Known TAG */
-			/*
-			 * We must store the initial tag, and also retrieve the new tag.
+			/* We must store the initial tag, and also retrieve the new tag.
+			 * For efficiency reasons, we store the literal tag representation
+			 * for known tags too, so we can easily close the tag without the
+			 * need of a new lookup and avoiding storage of token codepage.
 			 * 
 			 * There are 4 possibilities:
 			 *
@@ -2149,14 +2812,15 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				index = tvb_get_guintvar (tvb, off+1, &tag_len);
 				tag_new_literal = strtbl_lookup (tvb, str_tbl, index, NULL);
 				tag_new_known = 0; /* invalidate known tag_new */
-			} else {
+			} else { /* Known tag */
 				tag_new_known = peek & 0x3F;
-				tag_new_literal = NULL; /* invalidate LITERAL tag_new */
+				sprintf (tag_new_buf, "Tag_0x%02X",
+						tag_new_known);
+				tag_new_literal = tag_new_buf;
+				/* Stored looked up tag name string */
 			}
 
-			/*
-			 * Parsing of TAG starts HERE
-			 */
+			/* Parsing of TAG starts HERE */
 			if (peek & 0x40) { /* Content present */
 				/* Content follows
 				 * [!] An explicit END token is expected in these cases!
@@ -2171,55 +2835,86 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					 * recursion will take care of it */
 					(*level)++;
 					parse_wbxml_tag (tree, tvb, off, str_tbl, level,
-							codepage_stag, codepage_attr, &len);
+							&len);
 					off += len;
 				} else { /* Now we will have content to parse */
 					/* Save the start tag so we can properly close it later. */
-					if ((peek & 0x3F) == 4) {
+					if ((peek & 0x3F) == 4) { /* Literal tag */
 						tag_save_literal = tag_new_literal;
 						tag_save_known = 0;
-					} else {
+					} else { /* Known tag */
 						tag_save_known = tag_new_known;
-						tag_save_literal = NULL;
+						sprintf (tag_save_buf, "Tag_0x%02X",
+								tag_new_known);
+						tag_save_literal = tag_save_buf;
+						/* The last statement avoids needless lookups */
 					}
 					/* Process the attribute list if present */
 					if (peek & 0x80) { /* Content and Attribute list present */
 						if (tag_new_known) { /* Known tag */
-							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   "
-									"|   Known Tag 0x%02X           (AC) "
-									"| %s<Tag_0x%02X",
-									*level, tag_new_known, Indent (*level),
-									tag_new_known);
+							if (codepage_stag) { /* Not default code page */
+								proto_tree_add_text (tree, tvb, off, 1,
+										"  %3d | Tag   | T %3d->0 "
+										"|   Known Tag 0x%02X           (AC) "
+										"| %s<%s",
+										*level, codepage_stag, tag_new_known,
+										Indent (*level), tag_new_literal);
+								/* Tag string already looked up earlier! */
+								/* Reset code page */
+								codepage_stag = 0;
+							} else { /* Code page 0 */
+								proto_tree_add_text (tree, tvb, off, 1,
+										"  %3d | Tag   |          "
+										"|   Known Tag 0x%02X           (AC) "
+										"| %s<%s",
+										*level, tag_new_known,
+										Indent (*level), tag_new_literal);
+								/* Tag string already looked up earlier! */
+							}
 							off++;
 						} else { /* LITERAL tag */
 							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   "
+									"  %3d | Tag   |          "
 									"| LITERAL_AC (Literal tag)   (AC) "
 									"| %s<%s",
 									*level, Indent (*level), tag_new_literal);
 							off += 1 + tag_len;
 						}
-						parse_wbxml_attribute_list (tree, tvb, off, str_tbl,
-								*level, codepage_attr, &len);
+						parse_wbxml_attribute_list (tree, tvb,
+								off, str_tbl, *level, &len);
 						off += len;
 						proto_tree_add_text (tree, tvb, off-1, 1,
-								"  %3d | Tag   "
+								"  %3d | Tag   |          "
 								"| END (attribute list)            "
 								"| %s>",
 								*level, Indent (*level));
 					} else { /* Content, no Attribute list */
 						if (tag_new_known) { /* Known tag */
-							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   "
-									"|   Known Tag 0x%02X           (.C) "
-									"| %s<Tag_0x%02X>",
-									*level, tag_new_known, Indent (*level),
-									tag_new_known);
+							if (codepage_stag) { /* Not default code page */
+								proto_tree_add_text (tree, tvb, off, 1,
+										"  %3d | Tag   | T %3d->0 "
+										"|   Known Tag 0x%02X           (.C) "
+										"| %s<%s>",
+										*level, codepage_stag, tag_new_known,
+										Indent (*level),
+										tag_new_literal);
+								/* Tag string already looked up earlier! */
+								/* Reset code page */
+								codepage_stag = 0;
+							} else { /* Code page 0 */
+								proto_tree_add_text (tree, tvb, off, 1,
+										"  %3d | Tag   |          "
+										"|   Known Tag 0x%02X           (.C) "
+										"| %s<%s>",
+										*level, tag_new_known,
+										Indent (*level),
+										tag_new_literal);
+								/* Tag string already looked up earlier! */
+							}
 							off++;
 						} else { /* LITERAL tag */
 							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   "
+									"  %3d | Tag   |          "
 									"| LITERAL_C  (Literal Tag)   (.C) "
 									"| %s<%s>",
 									*level, Indent (*level), tag_new_literal);
@@ -2245,49 +2940,75 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				(*level)++;
 				if (peek & 0x80) { /* No Content, Attribute list present */
 					if (tag_new_known) { /* Known tag */
-						proto_tree_add_text (tree, tvb, off, 1,
-								"  %3d | Tag   "
-								"|   Known Tag 0x%02X           (A.) "
-								"| %s<Tag 0x%02X",
-								*level, tag_new_known, Indent (*level),
-								tag_new_known);
+						if (codepage_stag) { /* Not default code page */
+							proto_tree_add_text (tree, tvb, off, 1,
+									"  %3d | Tag   | T %3d->0 "
+									"|   Known Tag 0x%02X           (A.) "
+									"| %s<%s",
+									*level, codepage_stag, tag_new_known,
+									Indent (*level), tag_new_literal);
+							/* Tag string already looked up earlier! */
+							/* Reset code page */
+							codepage_stag = 0;
+						} else { /* Code page 0 */
+							proto_tree_add_text (tree, tvb, off, 1,
+									"  %3d | Tag   |          "
+									"|   Known Tag 0x%02X           (A.) "
+									"| %s<%s",
+									*level, tag_new_known,
+									Indent (*level), tag_new_literal);
+							/* Tag string already looked up earlier! */
+						}
 						off++;
-						parse_wbxml_attribute_list (tree, tvb, off, str_tbl,
-								*level, codepage_attr, &len);
+						parse_wbxml_attribute_list (tree, tvb,
+								off, str_tbl, *level, &len);
 						off += len;
 						proto_tree_add_text (tree, tvb, off-1, 1,
-								"  %3d | Tag   "
+								"  %3d | Tag   |          "
 								"| END (Known Tag)                 "
 								"| %s/>",
 								*level, Indent (*level));
 					} else { /* LITERAL tag */
 						proto_tree_add_text (tree, tvb, off, 1,
-								"  %3d | Tag   "
+								"  %3d | Tag   |          "
 								"| LITERAL_A  (Literal Tag)   (A.) "
 								"| %s<%s",
 								*level, Indent (*level), tag_new_literal);
 						off += 1 + tag_len;
-						parse_wbxml_attribute_list (tree, tvb, off, str_tbl,
-								*level, codepage_attr, &len);
+						parse_wbxml_attribute_list (tree, tvb,
+								off, str_tbl, *level, &len);
 						off += len;
 						proto_tree_add_text (tree, tvb, off-1, 1,
-								"  %3d | Tag   "
+								"  %3d | Tag   |          "
 								"| END (Literal Tag)               "
 								"| %s/>",
 								*level, Indent (*level));
 					}
 				} else { /* No Content, No Attribute list */
 					if (tag_new_known) { /* Known tag */
-						proto_tree_add_text (tree, tvb, off, 1,
-								"  %3d | Tag   "
-								"|   Known Tag 0x%02x           (..) "
-								"| %s<Tag_0x%02X />",
-								*level, tag_new_known, Indent (*level),
-								tag_new_known);
+						if (codepage_stag) { /* Not default code page */
+							proto_tree_add_text (tree, tvb, off, 1,
+									"  %3d | Tag   | T %3d->0 "
+									"|   Known Tag 0x%02x           (..) "
+									"| %s<%s />",
+									*level, codepage_stag, tag_new_known,
+									Indent (*level), tag_new_literal);
+							/* Tag string already looked up earlier! */
+							/* Reset code page */
+							codepage_stag = 0;
+						} else { /* Code page 0 */
+							proto_tree_add_text (tree, tvb, off, 1,
+									"  %3d | Tag   |          "
+									"|   Known Tag 0x%02x           (..) "
+									"| %s<%s />",
+									*level, tag_new_known,
+									Indent (*level), tag_new_literal);
+							/* Tag string already looked up earlier! */
+						}
 						off++;
 					} else { /* LITERAL tag */
 						proto_tree_add_text (tree, tvb, off, 1,
-								"  %3d | Tag   "
+								"  %3d | Tag   |          "
 								"| LITERAL    (Literal Tag)   (..) "
 								"| %s<%s />",
 								*level, Indent (*level), tag_new_literal);
@@ -2295,12 +3016,11 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					}
 				}
 				(*level)--;
+				/* TODO: Do I have to reset code page here? */
 			}
 		} /* if (tag & 0x3F) >= 5 */
 	} /* while */
 }
-
-
 
 
 /**************************
@@ -2309,12 +3029,10 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
  * Bit Mask  : Example
  * -------------------
  * 0... .... : attr=             (attribute name)
- *             href="http://"    (attribute name with start of attribute value)
- * 1... .... : "www."            (attribute value, or part of it)
+ *             href='http://'    (attribute name with start of attribute value)
+ * 1... .... : 'www.'            (attribute value, or part of it)
  * 
  */
-
-
 
 
 /* This function parses the WBXML and maps known token interpretations
@@ -2323,17 +3041,15 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
  *
  * This function performs attribute list parsing.
  * 
- * The wbxml_mapping_table entry *map contains the actual token mapping.
+ * The wbxml_token_map entry *map contains the actual token mapping.
  *
  * NOTE: See above for known token mappings.
- *
- * NOTE: Code page switches not yet processed in the code!
  */
 static void
 parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 		guint32 offset, guint32 str_tbl, guint8 level,
-		guint8 *codepage_attr, guint32 *parsed_length,
-		const wbxml_mapping_table *map)
+		guint32 *parsed_length,
+		const wbxml_token_map *map)
 {
 	guint32 tvb_len = tvb_reported_length (tvb);
 	guint32 off = offset;
@@ -2342,6 +3058,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 	guint32 index;
 	const char* str;
 	guint8 peek;
+	guint8 codepage_attr = 0; /* Initial codepage in state = ATTR */
 
 #ifdef DEBUG
 	printf ("WBXML - parse_wbxml_attr_defined (level = %d, offset = %d)\n",
@@ -2358,18 +3075,17 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 		if ((peek & 0x3F) < 5) switch (peek) { /* Global tokens
 												  in state = ATTR */
 			case 0x00: /* SWITCH_PAGE */
-				peek = tvb_get_guint8 (tvb, off+1);
+				codepage_attr = tvb_get_guint8 (tvb, off+1);
 				proto_tree_add_text (tree, tvb, off, 2,
-						"         Attr | SWITCH_PAGE (Attr code page)    "
-						"| Code page switch (was: %d, is: %d)",
-						*codepage_attr, peek);
-				*codepage_attr = peek;
+						"      |  Attr | A 0->%3d "
+						"| SWITCH_PAGE (Attr code page)    |",
+						codepage_attr);
 				off += 2;
 				break;
 			case 0x01: /* END */
 				/* BEWARE
 				 *   The Attribute END token means either ">" or "/>"
-				 *   and as a consequence both must be trated separately.
+				 *   and as a consequence both must be treated separately.
 				 *   This is done in the TAG state parser.
 				 */
 				off++;
@@ -2378,7 +3094,8 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 			case 0x02: /* ENTITY */
 				ent = tvb_get_guintvar (tvb, off+1, &len);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | ENTITY                          "
+						"  %3d |  Attr |          "
+						"| ENTITY                          "
 						"|     %s'&#%u;'",
 						level, Indent (level), ent);
 				off += 1+len;
@@ -2387,7 +3104,8 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 				/* Hack the string table lookup function */
 				str = strtbl_lookup (tvb, off+1, 0, &len);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | STR_I (Inline string)           "
+						"  %3d |  Attr |          "
+						"| STR_I (Inline string)           "
 						"|     %s\'%s\'",
 						level, Indent (level), str);
 				off += 1+len;
@@ -2396,7 +3114,8 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str = strtbl_lookup (tvb, str_tbl, index, NULL);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | LITERAL (Literal Attribute)     "
+						"  %3d |  Attr |          "
+						"| LITERAL (Literal Attribute)     "
 						"|   %s<%s />",
 						level, Indent (level), str);
 				off += 1+len;
@@ -2407,11 +3126,23 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 				/* Extension tokens */
 				/* Hack the string table lookup function */
 				str = strtbl_lookup (tvb, off+1, 0, &len);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | EXT_I_%1x    (Extension Token)    "
-						"|     %s(%s: \'%s\')",
-						level, peek & 0x0f, Indent (level),
-						match_strval (peek, map->global), str);
+				if (codepage_attr) { /* Not default code page */
+					proto_tree_add_text (tree, tvb, off, 1+len,
+							"  %3d |  Attr | A %3d->0 "
+							"| EXT_I_%1x    (Extension Token)    "
+							"|     %s(%s: \'%s\')",
+							level, codepage_attr, peek & 0x0f, Indent (level),
+							map_token (map->global, codepage_attr, peek), str);
+					/* Reset code page */
+					codepage_attr = 0;
+				} else { /* Code page 0 */
+					proto_tree_add_text (tree, tvb, off, 1+len,
+							"  %3d |  Attr |          "
+							"| EXT_I_%1x    (Extension Token)    "
+							"|     %s(%s: \'%s\')",
+							level, peek & 0x0f, Indent (level),
+							map_token (map->global, codepage_attr, peek), str);
+				}
 				off += 1+len;
 				break;
 			/* 0x43 impossible in ATTR state */
@@ -2422,18 +3153,31 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 				/* Extension tokens */
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str = strtbl_lookup (tvb, str_tbl, index, NULL);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | EXT_T_%1x    (Extension Token)    "
-						"|     %s(%s: \'%s\')",
-						level, peek & 0x0f, Indent (level),
-						match_strval (peek, map->global), str);
+				if (codepage_attr) { /* Not default code page */
+					proto_tree_add_text (tree, tvb, off, 1+len,
+							"  %3d |  Attr | A %3d->0 "
+							"| EXT_T_%1x    (Extension Token)    "
+							"|     %s(%s: \'%s\')",
+							level, codepage_attr, peek & 0x0f, Indent (level),
+							map_token (map->global, codepage_attr, peek), str);
+					/* Reset code page */
+					codepage_attr = 0;
+				} else { /* Code page 0 */
+					proto_tree_add_text (tree, tvb, off, 1+len,
+							"  %3d |  Attr |          "
+							"| EXT_T_%1x    (Extension Token)    "
+							"|     %s(%s: \'%s\')",
+							level, peek & 0x0f, Indent (level),
+							map_token (map->global, codepage_attr, peek), str);
+				}
 				off += 1+len;
 				break;
-			case 0x83: /* EXT_T */
+			case 0x83: /* STR_T */
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str = strtbl_lookup (tvb, str_tbl, index, NULL);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | STR_T (Tableref string)         "
+						"  %3d |  Attr |          "
+						"| STR_T (Tableref string)         "
 						"|     %s\'%s\'",
 						level, Indent (level), str);
 				off += 1+len;
@@ -2443,24 +3187,38 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 			case 0xC1: /* EXT_1 */
 			case 0xC2: /* EXT_2 */
 				/* Extension tokens */
-				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d |  Attr | EXT_%1x      (Extension Token)    "
-						"|     %s(%s)",
-						level, peek & 0x0f, Indent (level),
-						match_strval (peek, map->global));
+				if (codepage_attr) { /* Not default code page */
+					proto_tree_add_text (tree, tvb, off, 1,
+							"  %3d |  Attr | A %3d->0 "
+							"| EXT_%1x      (Extension Token)    "
+							"|     %s(%s)",
+							level, codepage_attr, peek & 0x0f, Indent (level),
+							map_token (map->global, codepage_attr, peek));
+					/* Reset code page */
+					codepage_attr = 0;
+				} else { /* Code page 0 */
+					proto_tree_add_text (tree, tvb, off, 1,
+							"  %3d |  Attr |          "
+							"| EXT_%1x      (Extension Token)    "
+							"|     %s(%s)",
+							level, peek & 0x0f, Indent (level),
+							map_token (map->global, codepage_attr, peek));
+				}
 				off++;
 				break;
 			case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
 				if (tvb_get_guint8 (tvb, 0)) { /* WBXML 1.x (x > 0) */
 					index = tvb_get_guintvar (tvb, off+1, &len);
 					proto_tree_add_text (tree, tvb, off, 1 + len + index,
-							"  %3d |  Attr | OPAQUE (Opaque data)            "
+							"  %3d |  Attr |          "
+							"| OPAQUE (Opaque data)            "
 							"|       %s(%d bytes of opaque data)",
 							level, Indent (level), index);
 					off += 1+len+index;
 				} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
 					proto_tree_add_text (tree, tvb, off, 1,
-							"         Attr | RESERVED_2     (Invalid Token!) "
+							"         Attr |          "
+							"| RESERVED_2     (Invalid Token!) "
 							"| WBXML 1.0 parsing stops here.");
 					/* Stop processing as it is impossible to parse now */
 					off = tvb_len;
@@ -2471,7 +3229,8 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 			/* 0xC4 impossible in ATTR state */
 			default:
 				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d |  Attr | %-10s     (Invalid Token!) "
+						"  %3d |  Attr |          "
+						"| %-10s     (Invalid Token!) "
 						"| WBXML parsing stops here.",
 						level, match_strval (peek, vals_wbxml1x_global_tokens));
 				/* Move to end of buffer */
@@ -2479,25 +3238,47 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 				break;
 		} else { /* Known atribute token */
 			if (peek & 0x80) { /* attrValue */
-				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d |  Attr |   Known attrValue 0x%02X          "
-						"|       %s%s",
-						level, peek & 0x7f, Indent (level),
-						match_strval (peek, map->attrValue));
+				if (codepage_attr) { /* Not default code page */
+					proto_tree_add_text (tree, tvb, off, 1,
+							"  %3d |  Attr | A %3d->0 "
+							"|   Known attrValue 0x%02X          "
+							"|       %s%s",
+							level, codepage_attr, peek & 0x7f, Indent (level),
+							map_token (map->attrValue, codepage_attr, peek));
+					/* Reset code page */
+					codepage_attr = 0;
+				} else { /* Code page 0 */
+					proto_tree_add_text (tree, tvb, off, 1,
+							"  %3d |  Attr |          "
+							"|   Known attrValue 0x%02X          "
+							"|       %s%s",
+							level, peek & 0x7f, Indent (level),
+							map_token (map->attrValue, codepage_attr, peek));
+				}
 				off++;
 			} else { /* attrStart */
-				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d |  Attr |   Known attrStart 0x%02X          "
-						"|   %s%s",
-						level, peek & 0x7f, Indent (level),
-						match_strval (peek, map->attrStart));
+				if (codepage_attr) { /* Not default code page */
+					proto_tree_add_text (tree, tvb, off, 1,
+							"  %3d |  Attr | A %3d->0 "
+							"|   Known attrStart 0x%02X          "
+							"|   %s%s",
+							level, codepage_attr, peek & 0x7f, Indent (level),
+							map_token (map->attrStart, codepage_attr, peek));
+					/* Reset code page */
+					codepage_attr = 0;
+				} else { /* Code page 0 */
+					proto_tree_add_text (tree, tvb, off, 1,
+							"  %3d |  Attr |          "
+							"|   Known attrStart 0x%02X          "
+							"|   %s%s",
+							level, peek & 0x7f, Indent (level),
+							map_token (map->attrStart, codepage_attr, peek));
+				}
 				off++;
 			}
 		}
 	} /* End WHILE */
 }
-
-
 
 
 /* This function performs the WBXML attribute decoding as in
@@ -2511,7 +3292,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 static void
 parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 		guint32 offset, guint32 str_tbl, guint8 level,
-		guint8 *codepage_attr, guint32 *parsed_length)
+		guint32 *parsed_length)
 {
 	guint32 tvb_len = tvb_reported_length (tvb);
 	guint32 off = offset;
@@ -2520,9 +3301,10 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 	guint32 index;
 	const char* str;
 	guint8 peek;
+	guint8 codepage_attr = 0; /* Initial codepage in state = ATTR */
 
 #ifdef DEBUG
-	printf ("WBXML - parse_wbxml_attr_defined (level = %d, offset = %d)\n",
+	printf ("WBXML - parse_wbxml_attr (level = %d, offset = %d)\n",
 			level, offset);
 #endif
 	/* Parse attributes */
@@ -2536,18 +3318,17 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 		if ((peek & 0x3F) < 5) switch (peek) { /* Global tokens
 												  in state = ATTR */
 			case 0x00: /* SWITCH_PAGE */
-				peek = tvb_get_guint8 (tvb, off+1);
+				codepage_attr = tvb_get_guint8 (tvb, off+1);
 				proto_tree_add_text (tree, tvb, off, 2,
-						"         Attr | SWITCH_PAGE (Attr code page)    "
-						"| Code page switch (was: %d, is: %d)",
-						*codepage_attr, peek);
-				*codepage_attr = peek;
+						"      |  Attr | A 0->%3d "
+						"| SWITCH_PAGE (Attr code page)    |",
+						codepage_attr);
 				off += 2;
 				break;
 			case 0x01: /* END */
 				/* BEWARE
 				 *   The Attribute END token means either ">" or "/>"
-				 *   and as a consequence both must be trated separately.
+				 *   and as a consequence both must be treated separately.
 				 *   This is done in the TAG state parser.
 				 */
 				off++;
@@ -2556,7 +3337,8 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 			case 0x02: /* ENTITY */
 				ent = tvb_get_guintvar (tvb, off+1, &len);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | ENTITY                          "
+						"  %3d |  Attr |          "
+						"| ENTITY                          "
 						"|     %s'&#%u;'",
 						level, Indent (level), ent);
 				off += 1+len;
@@ -2565,7 +3347,8 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 				/* Hack the string table lookup function */
 				str = strtbl_lookup (tvb, off+1, 0, &len);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | STR_I (Inline string)           "
+						"  %3d |  Attr |          "
+						"| STR_I (Inline string)           "
 						"|     %s\'%s\'",
 						level, Indent (level), str);
 				off += 1+len;
@@ -2574,7 +3357,8 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str = strtbl_lookup (tvb, str_tbl, index, NULL);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | LITERAL (Literal Attribute)     "
+						"  %3d |  Attr |          "
+						"| LITERAL (Literal Attribute)     "
 						"|   %s<%s />",
 						level, Indent (level), str);
 				off += 1+len;
@@ -2585,10 +3369,23 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 				/* Extension tokens */
 				/* Hack the string table lookup function */
 				str = strtbl_lookup (tvb, off+1, 0, &len);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | EXT_I_%1x    (Extension Token)    "
-						"|     %s(Inline string extension: \'%s\')",
-						level, peek & 0x0f, Indent (level), str);
+				if (codepage_attr) { /* Not default code page */
+					proto_tree_add_text (tree, tvb, off, 1+len,
+							"  %3d |  Attr | A %3d->0 "
+							"| EXT_I_%1x    (Extension Token)    "
+							"|     %s(Inline string extension: \'%s\')",
+							level, codepage_attr, peek & 0x0f, Indent (level),
+							str);
+					/* Reset code page */
+					codepage_attr = 0;
+				} else { /* Code page 0 */
+					proto_tree_add_text (tree, tvb, off, 1+len,
+							"  %3d |  Attr |          "
+							"| EXT_I_%1x    (Extension Token)    "
+							"|     %s(Inline string extension: \'%s\')",
+							level, peek & 0x0f, Indent (level),
+							str);
+				}
 				off += 1+len;
 				break;
 			/* 0x43 impossible in ATTR state */
@@ -2599,17 +3396,31 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 				/* Extension tokens */
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str = strtbl_lookup (tvb, str_tbl, index, NULL);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | EXT_T_%1x    (Extension Token)    "
-						"|     %s(Tableref string extension: \'%s\')",
-						level, peek & 0x0f, Indent (level), str);
+				if (codepage_attr) { /* Not default code page */
+					proto_tree_add_text (tree, tvb, off, 1+len,
+							"  %3d |  Attr | A %3d->0 "
+							"| EXT_T_%1x    (Extension Token)    "
+							"|     %s(Tableref string extension: \'%s\')",
+							level, codepage_attr, peek & 0x0f, Indent (level),
+							str);
+					/* Reset code page */
+					codepage_attr = 0;
+				} else { /* Code page 0 */
+					proto_tree_add_text (tree, tvb, off, 1+len,
+							"  %3d |  Attr |          "
+							"| EXT_T_%1x    (Extension Token)    "
+							"|     %s(Tableref string extension: \'%s\')",
+							level, peek & 0x0f, Indent (level),
+							str);
+				}
 				off += 1+len;
 				break;
-			case 0x83: /* EXT_T */
+			case 0x83: /* STR_T */
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str = strtbl_lookup (tvb, str_tbl, index, NULL);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | STR_T (Tableref string)         "
+						"  %3d |  Attr |          "
+						"| STR_T (Tableref string)         "
 						"|     %s\'%s\'",
 						level, Indent (level), str);
 				off += 1+len;
@@ -2619,23 +3430,36 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 			case 0xC1: /* EXT_1 */
 			case 0xC2: /* EXT_2 */
 				/* Extension tokens */
-				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d |  Attr | EXT_%1x      (Extension Token)    "
-						"|     %s(Single-byte extension)",
-						level, peek & 0x0f, Indent (level));
+				if (codepage_attr) { /* Not default code page */
+					proto_tree_add_text (tree, tvb, off, 1,
+							"  %3d |  Attr | A %3d->0 "
+							"| EXT_%1x      (Extension Token)    "
+							"|     %s(Single-byte extension)",
+							level, codepage_attr, peek & 0x0f, Indent (level));
+					/* Reset code page */
+					codepage_attr = 0;
+				} else { /* Code page 0 */
+					proto_tree_add_text (tree, tvb, off, 1,
+							"  %3d |  Attr |          "
+							"| EXT_%1x      (Extension Token)    "
+							"|     %s(Single-byte extension)",
+							level, peek & 0x0f, Indent (level));
+				}
 				off++;
 				break;
 			case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
 				if (tvb_get_guint8 (tvb, 0)) { /* WBXML 1.x (x > 0) */
 					index = tvb_get_guintvar (tvb, off+1, &len);
 					proto_tree_add_text (tree, tvb, off, 1 + len + index,
-							"  %3d |  Attr | OPAQUE (Opaque data)            "
+							"  %3d |  Attr |          "
+							"| OPAQUE (Opaque data)            "
 							"|       %s(%d bytes of opaque data)",
 							level, Indent (level), index);
 					off += 1+len+index;
 				} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
 					proto_tree_add_text (tree, tvb, off, 1,
-							"         Attr | RESERVED_2     (Invalid Token!) "
+							"         Attr |          "
+							"| RESERVED_2     (Invalid Token!) "
 							"| WBXML 1.0 parsing stops here.");
 					/* Stop processing as it is impossible to parse now */
 					off = tvb_len;
@@ -2646,7 +3470,8 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 			/* 0xC4 impossible in ATTR state */
 			default:
 				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d |  Attr | %-10s     (Invalid Token!) "
+						"  %3d |  Attr |          "
+						"| %-10s     (Invalid Token!) "
 						"| WBXML parsing stops here.",
 						level, match_strval (peek, vals_wbxml1x_global_tokens));
 				/* Move to end of buffer */
@@ -2654,16 +3479,42 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 				break;
 		} else { /* Known atribute token */
 			if (peek & 0x80) { /* attrValue */
-				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d |  Attr |   Known attrValue 0x%02X          "
-						"|       %sattrValue_0x%02X",
-						level, peek & 0x7f, Indent (level), peek);
+				if (codepage_attr) { /* Not default code page */
+					proto_tree_add_text (tree, tvb, off, 1,
+							"  %3d |  Attr | A %3d->0 "
+							"|   Known attrValue 0x%02X          "
+							"|       %sattrValue_0x%02X",
+							level, codepage_attr, peek & 0x7f, Indent (level),
+							peek);
+					/* Reset code page */
+					codepage_attr = 0;
+				} else { /* Code page 0 */
+					proto_tree_add_text (tree, tvb, off, 1,
+							"  %3d |  Attr |          "
+							"|   Known attrValue 0x%02X          "
+							"|       %sattrValue_0x%02X",
+							level, peek & 0x7f, Indent (level),
+							peek);
+				}
 				off++;
 			} else { /* attrStart */
-				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d |  Attr |   Known attrStart 0x%02X          "
-						"|   %sattrStart_0x%02X",
-						level, peek & 0x7f, Indent (level), peek);
+				if (codepage_attr) { /* Not default code page */
+					proto_tree_add_text (tree, tvb, off, 1,
+							"  %3d |  Attr | A %3d->0 "
+							"|   Known attrStart 0x%02X          "
+							"|   %sattrStart_0x%02X",
+							level, codepage_attr, peek & 0x7f, Indent (level),
+							peek);
+					/* Reset code page */
+					codepage_attr = 0;
+				} else { /* Code page 0 */
+					proto_tree_add_text (tree, tvb, off, 1,
+							"  %3d |  Attr |          "
+							"|   Known attrStart 0x%02X          "
+							"|   %sattrStart_0x%02X",
+							level, peek & 0x7f, Indent (level),
+							peek);
+				}
 				off++;
 			}
 		}
@@ -2671,19 +3522,15 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 }
 
 
-
-
 /****************** Register the protocol with Ethereal ******************/
 
+
 /* This format is required because a script is used to build the C function
- * that calls the protocol registration.
- */
+ * that calls the protocol registration. */
 
 void
 proto_register_wbxml(void)
-{                 
-
-/* Setup list of header fields  See Section 1.6.1 for details*/
+{ /* Setup list of header fields. See Section 1.6.1 for details. */
 	static hf_register_info hf[] = {
 		{ &hf_wbxml_version,
 			{ "Version",
@@ -2692,25 +3539,20 @@ proto_register_wbxml(void)
 			  VALS ( vals_wbxml_versions ), 0x00,
 			  "WBXML Version", HFILL }
 		},
-
 		{ &hf_wbxml_public_id_known,
 			{ "Public Identifier (known)",
 			  "wbxml.public_id.known",
 			  FT_UINT32, BASE_HEX,
 			  VALS ( vals_wbxml_public_ids ), 0x00,
-			  "WBXML Known Public Identifier (integer)",
-			  HFILL }
+			  "WBXML Known Public Identifier (integer)", HFILL }
 		},
-
 		{ &hf_wbxml_public_id_literal,
 			{ "Public Identifier (literal)",
 			  "wbxml.public_id.literal",
 			  FT_STRING, BASE_NONE,
 			  NULL, 0x00,
-			  "WBXML Literal Public Identifier (text string)",
-			  HFILL }
+			  "WBXML Literal Public Identifier (text string)", HFILL }
 		},
-
 		{ &hf_wbxml_charset,
 			{ "Character Set",
 			  "wbxml.charset",
@@ -2718,30 +3560,28 @@ proto_register_wbxml(void)
 			  VALS ( vals_character_sets ), 0x00,
 			  "WBXML Character Set", HFILL }
 		},
-
 	};
 
-/* Setup protocol subtree array */
+	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_wbxml,
 		&ett_wbxml_str_tbl,
 		&ett_wbxml_content,
 	};
 
-/* Register the protocol name and description */
+	/* Register the protocol name and description */
 	proto_wbxml = proto_register_protocol(
 			"WAP Binary XML",
 			"WBXML",
 			"wbxml"
 	);
 
-/* Required function calls to register the header fields and subtrees used */
+	/* Required function calls to register the header fields
+	 * and subtrees used */
 	proto_register_field_array(proto_wbxml, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("wbxml", dissect_wbxml, proto_wbxml);
-/*	register_init_routine(dissect_wbxml); */
-	/* wbxml_handle = find_dissector("wsp-co"); */
 };
 
 
