@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.40 1999/06/15 03:46:46 guy Exp $
+ * $Id: ethereal.c,v 1.41 1999/06/15 04:48:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -166,10 +166,10 @@ file_sel_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   g_free(cf_name);
 #ifdef USE_ITEM
     set_menu_sensitivity("/File/Save", FALSE);
-    set_menu_sensitivity("/File/Save as", TRUE);
+    set_menu_sensitivity("/File/Save As...", TRUE);
 #else
     set_menu_sensitivity("<Main>/File/Save", FALSE);
-    set_menu_sensitivity("<Main>/File/Save as", TRUE);
+    set_menu_sensitivity("<Main>/File/Save As...", TRUE);
 #endif
 }
 
@@ -389,10 +389,10 @@ file_save_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 
 #ifdef USE_ITEM
 	set_menu_sensitivity("/File/Save", FALSE);
-	set_menu_sensitivity("/File/Save as", TRUE);
+	set_menu_sensitivity("/File/Save As...", TRUE);
 #else
 	set_menu_sensitivity("<Main>/File/Save", FALSE);
-	set_menu_sensitivity("<Main>/File/Save as", TRUE);
+	set_menu_sensitivity("<Main>/File/Save As...", TRUE);
 #endif
 }
 
@@ -418,10 +418,10 @@ file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 
 #ifdef USE_ITEM
 	set_menu_sensitivity("/File/Save", FALSE);
-	set_menu_sensitivity("/File/Save as", TRUE);
+	set_menu_sensitivity("/File/Save As...", TRUE);
 #else
 	set_menu_sensitivity("<Main>/File/Save", FALSE);
-	set_menu_sensitivity("<Main>/File/Save as", TRUE);
+	set_menu_sensitivity("<Main>/File/Save As...", TRUE);
 #endif
 }
 
@@ -900,12 +900,12 @@ main(int argc, char *argv[])
   gtk_widget_show(filter_te);
 
 #ifdef USE_ITEM
-  set_menu_object_data("/File/Open", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("/File/Open...", E_DFILTER_TE_KEY, filter_te);
   set_menu_object_data("/File/Reload", E_DFILTER_TE_KEY, filter_te);
   set_menu_object_data("/Tools/Follow TCP Stream", E_DFILTER_TE_KEY,
     filter_te);
 #else
-  set_menu_object_data("<Main>/File/Open", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("<Main>/File/Open...", E_DFILTER_TE_KEY, filter_te);
   set_menu_object_data("<Main>/File/Reload", E_DFILTER_TE_KEY, filter_te);
   set_menu_object_data("<Main>/Tools/Follow TCP Stream", E_DFILTER_TE_KEY,
     filter_te);
@@ -939,9 +939,9 @@ main(int argc, char *argv[])
     }
     cf_name[0] = '\0';
 #ifdef USE_ITEM
-    set_menu_sensitivity("/File/Save as", TRUE);
+    set_menu_sensitivity("/File/Save As...", TRUE);
 #else
-    set_menu_sensitivity("<Main>/File/Save as", TRUE);
+    set_menu_sensitivity("<Main>/File/Save As...", TRUE);
 #endif
   }
 

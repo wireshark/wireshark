@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.18 1999/06/12 06:22:47 guy Exp $
+ * $Id: menu.c,v 1.19 1999/06/15 04:48:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,10 +76,10 @@ GtkAccelGroup *grp;
 static GtkItemFactoryEntry menu_items[] =
 {
   {"/_File", NULL, NULL, 0, "<Branch>" },
-  {"/File/_Open", "<control>O", GTK_MENU_FUNC(file_open_cmd_cb), 0, NULL},
+  {"/File/_Open...", "<control>O", GTK_MENU_FUNC(file_open_cmd_cb), 0, NULL},
   {"/File/_Close", "<control>W", GTK_MENU_FUNC(file_close_cmd_cb), 0, NULL},
   {"/File/_Save", "<control>S", GTK_MENU_FUNC(file_save_cmd_cb), 0, NULL},
-  {"/File/Save as", NULL, GTK_MENU_FUNC(file_save_as_cmd_cb), 0, NULL},
+  {"/File/Save _As...", NULL, GTK_MENU_FUNC(file_save_as_cmd_cb), 0, NULL},
   {"/File/_Reload", "<control>R", GTK_MENU_FUNC(file_reload_cmd_cb), 0, NULL},
   {"/File/<separator>", NULL, NULL, 0, "<Separator>"},
   {"/File/_Print Packet", "<control>P", GTK_MENU_FUNC(file_print_cmd_cb), 0, NULL},
@@ -92,13 +92,13 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Edit/<separator>", NULL, NULL, 0, "<Separator>"},
   {"/Edit/Find", "<control>F", NULL, 0, NULL},
   {"/Edit/<separator>", NULL, NULL, 0, "<Separator>"},
-  {"/Edit/_Preferences", NULL, GTK_MENU_FUNC(prefs_cb), E_PR_PG_NONE, NULL},
+  {"/Edit/_Preferences...", NULL, GTK_MENU_FUNC(prefs_cb), E_PR_PG_NONE, NULL},
   {"/_Tools", NULL, NULL, 0, "<Branch>" },
-  {"/Tools/_Capture", "<control>K", GTK_MENU_FUNC(capture_prep_cb), 0, NULL},
+  {"/Tools/_Capture...", "<control>K", GTK_MENU_FUNC(capture_prep_cb), 0, NULL},
   {"/Tools/_Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
   {"/Tools/Graph", NULL, NULL, 0, NULL},
   {"/_Help", NULL, NULL, 0, "<LastBranch>" },
-  {"/Help/_About Ethereal", NULL, GTK_MENU_FUNC(about_ethereal), 0, NULL}
+  {"/Help/_About Ethereal...", NULL, GTK_MENU_FUNC(about_ethereal), 0, NULL}
 };
 #else
 /* this is the GtkMenuEntry structure used to create new menus.  The
@@ -110,10 +110,10 @@ static GtkItemFactoryEntry menu_items[] =
  */
 static GtkMenuEntry menu_items[] =
 {
-  {"<Main>/File/Open", "<control>O", file_open_cmd_cb, NULL},
+  {"<Main>/File/Open...", "<control>O", file_open_cmd_cb, NULL},
   {"<Main>/File/Close", "<control>W", file_close_cmd_cb, NULL},
   {"<Main>/File/Save", "<control>S", file_save_cmd_cb, NULL},
-  {"<Main>/File/Save as", NULL, file_save_as_cmd_cb, NULL},
+  {"<Main>/File/Save As...", NULL, file_save_as_cmd_cb, NULL},
   {"<Main>/File/Reload", "<control>R", file_reload_cmd_cb, NULL},
   {"<Main>/File/<separator>", NULL, NULL, NULL},
   {"<Main>/File/Print Packet", "<control>P", file_print_cmd_cb, NULL},
@@ -125,11 +125,11 @@ static GtkMenuEntry menu_items[] =
   {"<Main>/Edit/<separator>", NULL, NULL, NULL},
   {"<Main>/Edit/Find", "<control>F", NULL, NULL},
   {"<Main>/Edit/<separator>", NULL, NULL, NULL},
-  {"<Main>/Edit/Preferences", NULL, prefs_cb, (gpointer) E_PR_PG_NONE},
-  {"<Main>/Tools/Capture", "<control>K", capture_prep_cb, NULL},
+  {"<Main>/Edit/Preferences...", NULL, prefs_cb, (gpointer) E_PR_PG_NONE},
+  {"<Main>/Tools/Capture...", "<control>K", capture_prep_cb, NULL},
   {"<Main>/Tools/Follow TCP Stream", NULL, follow_stream_cb, NULL},
   {"<Main>/Tools/Graph", NULL, NULL, NULL},
-  {"<Main>/Help/About Ethereal", NULL, about_ethereal, NULL}
+  {"<Main>/Help/About Ethereal...", NULL, about_ethereal, NULL}
 };
 #endif
 
@@ -193,7 +193,7 @@ menus_init(void) {
     gtk_item_factory_create_items_ac(factory, nmenu_items, menu_items, NULL,2);
     set_menu_sensitivity("/File/Close", FALSE);
     set_menu_sensitivity("/File/Save", FALSE);
-    set_menu_sensitivity("/File/Save as", FALSE);
+    set_menu_sensitivity("/File/Save As...", FALSE);
     set_menu_sensitivity("/File/Reload", FALSE);
     set_menu_sensitivity("/Edit/Cut", FALSE);
     set_menu_sensitivity("/Edit/Copy", FALSE);
@@ -201,7 +201,7 @@ menus_init(void) {
     set_menu_sensitivity("/Edit/Find", FALSE);
     set_menu_sensitivity("/Tools/Graph", FALSE);
 #ifdef WITH_WIRETAP
-	set_menu_sensitivity("/Tools/Follow TCP Stream", FALSE);
+    set_menu_sensitivity("/Tools/Follow TCP Stream", FALSE);
 #endif
     
 #else
@@ -213,7 +213,7 @@ menus_init(void) {
 
     set_menu_sensitivity("<Main>/File/Close", FALSE);
     set_menu_sensitivity("<Main>/File/Save", FALSE);
-    set_menu_sensitivity("<Main>/File/Save as", FALSE);
+    set_menu_sensitivity("<Main>/File/Save As...", FALSE);
     set_menu_sensitivity("<Main>/File/Reload", FALSE);
     set_menu_sensitivity("<Main>/Edit/Cut", FALSE);
     set_menu_sensitivity("<Main>/Edit/Copy", FALSE);
@@ -221,7 +221,7 @@ menus_init(void) {
     set_menu_sensitivity("<Main>/Edit/Find", FALSE);
     set_menu_sensitivity("<Main>/Tools/Graph", FALSE);
 #ifdef WITH_WIRETAP
-	set_menu_sensitivity("<Main>/Tools/Follow TCP Stream", FALSE);
+    set_menu_sensitivity("<Main>/Tools/Follow TCP Stream", FALSE);
 #endif
     if ((mp = gtk_menu_factory_find(factory, "<Main>/Help")) != NULL) {
       gtk_menu_item_right_justify((GtkMenuItem *) mp->widget);
