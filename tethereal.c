@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.14 2000/01/24 04:53:54 guy Exp $
+ * $Id: tethereal.c,v 1.15 2000/01/24 05:13:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -143,11 +143,16 @@ print_usage(void)
 
   fprintf(stderr, "This is GNU t%s %s, compiled with %s\n", PACKAGE,
 	  VERSION, comp_info_str);
-
+#ifdef HAVE_LIBPCAP
   fprintf(stderr, "t%s [ -vVh ] [ -c count ] [ -D ] [ -f <filter expression> ]\n", PACKAGE);
-  fprintf(stderr, "\t[ -F <capture type> ] [ -i iface ] [ -n ] [ -r infile ]\n");
+  fprintf(stderr, "\t[ -F <capture file type> ] [ -i iface ] [ -n ] [ -r infile ]\n");
   fprintf(stderr, "\t[ -R <filter expression> ] [ -s snaplen ] [ -t <time stamp format> ]\n");
   fprintf(stderr, "\t[ -w savefile ] [ -x ]\n");
+#else
+  fprintf(stderr, "t%s [ -vVh ] [ -D ] [ -F <capture file type> ] [ -n ] [ -r infile ]\n", PACKAGE);
+  fprintf(stderr, "\t[ -R <filter expression> ] [ -t <time stamp format> ] [ -w savefile ]\n");
+  fprintf(stderr, "\t[ -x ]\n");
+#endif
   fprintf(stderr, "Valid file type arguments to the \"-F\" flag:\n");
   for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
     if (wtap_dump_can_open(i))
