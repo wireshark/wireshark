@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.85 2004/01/05 17:33:28 ulfl Exp $
+ * $Id: netxray.c,v 1.86 2004/01/19 02:23:18 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -489,6 +489,7 @@ int netxray_open(wtap *wth, int *err)
 
 	case WTAP_ENCAP_ETHERNET:
 	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
+	case WTAP_ENCAP_ISDN:
 		/*
 		 * It appears that, in at least some version 2 Ethernet
 		 * captures, for frames that have 0xff in hdr_2_x.xxx[2]
@@ -503,6 +504,15 @@ int netxray_open(wtap *wth, int *err)
 		 * For now, we assume that to be true for 802.11 captures
 		 * as well; it appears to be the case for at least one
 		 * such capture.
+		 *
+		 * For ISDN captures, it appears, at least in some
+		 * captures, to be similar, although I haven't yet
+		 * checked whether it's a valid FCS.
+		 *
+		 * XXX - should we do this for all encapsulation types?
+		 *
+		 * XXX - is that actually a 2-byte little-endian 0x1234?
+		 * What does that field signify?
 		 */
 		if (version_major == 2) {
 			if (hdr.xxb[13] == 0x34 && hdr.xxb[14] == 0x12)
@@ -851,12 +861,6 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 					pseudo_header->isdn.channel = 0;
 				else if (pseudo_header->isdn.channel > 16)
 					pseudo_header->isdn.channel -= 1;
-
-				/*
-				 * PRI captures appear to have 4 bytes of
-				 * stuff at the end - FCS, or padding?
-				 */
-				padding = 4;
 				break;
 
 			case 2:
@@ -869,13 +873,29 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 					pseudo_header->isdn.channel = 0;
 				else if (pseudo_header->isdn.channel > 24)
 					pseudo_header->isdn.channel -= 1;
+				break;
+			}
 
+			/*
+			 * It appears, at least with version 2 captures,
+			 * that we have 4 bytes of stuff (which might be
+			 * a valid FCS or might be junk) at the end of
+			 * the packet if hdr->hdr_2_x.xxx[2] and
+			 * hdr->hdr_2_x.xxx[3] are 0xff, and we don't if
+			 * they don't.
+			 *
+			 * XXX - does the low-order bit of hdr->hdr_2_x.xxx[8]
+			 * indicate a bad FCS, as is the case with
+			 * Ethernet?
+			 */
+			if (hdr->hdr_2_x.xxx[2] == 0xff &&
+			    hdr->hdr_2_x.xxx[3] == 0xff) {
 				/*
-				 * PRI captures appear to have 4 bytes of
-				 * stuff at the end - FCS, or padding?
+				 * FCS, or junk, at the end.
+				 * XXX - is it an FCS if "fcs_valid" is
+				 * true?
 				 */
 				padding = 4;
-				break;
 			}
 			break;
 
