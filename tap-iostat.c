@@ -67,7 +67,7 @@ typedef struct _io_stat_item_t {
 
 
 static int
-iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, void *dummy _U_)
+iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *dummy _U_)
 {
 	io_stat_item_t *mit = arg;
 	io_stat_item_t *it;
