@@ -2272,7 +2272,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
       offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, NULL, hdr->drep,
                                       hf_dcerpc_cn_ctx_id, &ctx_id);
 
-      /* save context ID for use with add_conv_to_dcerpc_bind_table() */
+      /* save context ID for use with dcerpc_add_conv_to_bind_table() */
       /* (if we have multiple contexts, this might cause "decode as"
        *  to behave unpredictably) */
       pinfo->dcectxid = ctx_id;
@@ -2337,6 +2337,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
             conv = conversation_new (&pinfo->src, &pinfo->dst, pinfo->ptype,
                                      pinfo->srcport, pinfo->destport, 0);
         }
+
 
 	/* if this is the first time we see this packet, we need to
 	   update the dcerpc_binds table so that any later calls can
@@ -2822,9 +2823,9 @@ end_cn_stub:
  *  @return Pointer to newly-added UUID/conversation binding.
  */
 struct _dcerpc_bind_value *
-add_conv_to_dcerpc_bind_table(conversation_t *conv,
+dcerpc_add_conv_to_bind_table(conversation_t *conv,
                               guint16 ctx_id,
-                              packet_info *pinfo,
+                              guint16 smb_fid,
                               e_uuid_t uuid,
                               guint16 ver)
 {
@@ -2843,7 +2844,7 @@ add_conv_to_dcerpc_bind_table(conversation_t *conv,
     key = g_mem_chunk_alloc(dcerpc_bind_key_chunk);
     key->conv = conv;
     key->ctx_id = ctx_id;
-    key->smb_fid = get_transport_salt(pinfo, pinfo->dcetransporttype);
+    key->smb_fid = smb_fid;
  
     /* add this entry to the bind table, first removing any
        previous ones that are identical
@@ -2881,7 +2882,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_opnum, &opnum);
 
-    /* save context ID for use with add_conv_to_dcerpc_bind_table() */
+    /* save context ID for use with dcerpc_add_conv_to_bind_table() */
     pinfo->dcectxid = ctx_id;
     pinfo->dcetransporttype = transport_type;
 
@@ -3042,7 +3043,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_ctx_id, &ctx_id);
 
-    /* save context ID for use with add_conv_to_dcerpc_bind_table() */
+    /* save context ID for use with dcerpc_add_conv_to_bind_table() */
     pinfo->dcectxid = ctx_id;
     pinfo->dcetransporttype = transport_type;
 
@@ -3160,7 +3161,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_status, &status);
 
-    /* save context ID for use with add_conv_to_dcerpc_bind_table() */
+    /* save context ID for use with dcerpc_add_conv_to_bind_table() */
     pinfo->dcectxid = ctx_id;
     pinfo->dcetransporttype = transport_type;
 

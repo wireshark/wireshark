@@ -79,6 +79,7 @@ create_dissector_handle
 create_persconffile_dir
 create_tempfile
 data_out_file                   DATA
+dcerpc_add_conv_to_bind_table
 dcerpc_get_proto_hf_opnum
 dcerpc_get_proto_name
 dcerpc_get_proto_sub_dissector
