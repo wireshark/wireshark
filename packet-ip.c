@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.135 2001/06/08 06:27:15 guy Exp $
+ * $Id: packet-ip.c,v 1.136 2001/06/08 08:29:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1564,7 +1564,7 @@ proto_register_ip(void)
 	/* subdissector code */
 	ip_dissector_table = register_dissector_table("ip.proto");
 
-	/* Register a configuration option for decoding TOS as DSCP */
+	/* Register configuration options */
 	ip_module = prefs_register_protocol(proto_ip, NULL);
 	prefs_register_bool_preference(ip_module, "decode_tos_as_diffserv",
 	    "Decode IPv4 TOS field as DiffServ field",
