@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.9 1999/09/23 07:57:23 guy Exp $
+ * $Id: main.c,v 1.10 1999/09/30 06:11:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -432,21 +432,6 @@ void blank_packetinfo() {
   pi.destport = 0;
 }
 
-/* Things to do when the main window is realized */
-void
-main_realize_cb(GtkWidget *w, gpointer data) {
-#ifdef HAVE_LIBPCAP
-  if (start_capture) {
-    /* XXX - "capture()" used to do this, but we now do it in
-       "do_capture()", before calling "capture()"; will we ever
-       have a capture file open here? */
-    close_cap_file(&cf, info_bar, file_ctx);
-    capture();
-    start_capture = 0;
-  }
-#endif
-}
-
 /* call initialization routines at program startup time */
 static void
 ethereal_proto_init(void) {
@@ -720,8 +705,6 @@ main(int argc, char *argv[])
     GTK_SIGNAL_FUNC(file_quit_cmd_cb), "WM destroy");
   gtk_signal_connect(GTK_OBJECT(window), "destroy", 
     GTK_SIGNAL_FUNC(file_quit_cmd_cb), "WM destroy");
-  gtk_signal_connect(GTK_OBJECT (window), "realize",
-    GTK_SIGNAL_FUNC(main_realize_cb), NULL);
   gtk_window_set_title(GTK_WINDOW(window), "The Ethereal Network Analyzer");
   gtk_widget_set_usize(GTK_WIDGET(window), DEF_WIDTH, -1);
   gtk_window_set_policy(GTK_WINDOW(window), TRUE, TRUE, FALSE);
@@ -873,35 +856,43 @@ main(int argc, char *argv[])
 
   ethereal_proto_init();   /* Init anything that needs initializing */
 
-  gtk_widget_show(window);
+  /* Is this a "child" ethereal, which is only supposed to pop up a
+     capture box to let us stop the capture, and run a capture
+     to a file that our parent will read? */
+  if (strcmp(command_name, CHILD_NAME) != 0) {
+    /* No.  Pop up the main window, and read in a capture file if
+       we were told to. */
 
-  colors_init(&cf);
+    gtk_widget_show(window);
 
-  /* If we were given the name of a capture file, read it in now;
-     we defer it until now, so that, if we can't open it, and pop
-     up an alert box, the alert box is more likely to come up on
-     top of the main window - but before the preference-file-error
-     alert box, so, if we get one of those, it's more likely to come
-     up on top of us. */
-  if (cf_name) {
-    if (rfilter != NULL) {
-      rfcode = dfilter_new();
-      if (dfilter_compile(rfcode, rfilter) != 0) {
-        simple_dialog(ESD_TYPE_WARN, NULL, dfilter_error_msg);
-        dfilter_destroy(rfcode);
-        rfilter_parse_failed = TRUE;
-      }
-    }
-    if (!rfilter_parse_failed) {
-      if ((err = open_cap_file(cf_name, &cf)) == 0) {
-        cf.rfcode = rfcode;
-        err = read_cap_file(&cf);
-        s = strrchr(cf_name, '/');
-        if (s) {
-          last_open_dir = cf_name;
-          *s = '\0';
+    colors_init(&cf);
+
+    /* If we were given the name of a capture file, read it in now;
+       we defer it until now, so that, if we can't open it, and pop
+       up an alert box, the alert box is more likely to come up on
+       top of the main window - but before the preference-file-error
+       alert box, so, if we get one of those, it's more likely to come
+       up on top of us. */
+    if (cf_name) {
+      if (rfilter != NULL) {
+        rfcode = dfilter_new();
+        if (dfilter_compile(rfcode, rfilter) != 0) {
+          simple_dialog(ESD_TYPE_WARN, NULL, dfilter_error_msg);
+          dfilter_destroy(rfcode);
+          rfilter_parse_failed = TRUE;
         }
-        set_menu_sensitivity("/File/Save As...", TRUE);
+      }
+      if (!rfilter_parse_failed) {
+        if ((err = open_cap_file(cf_name, &cf)) == 0) {
+          cf.rfcode = rfcode;
+          err = read_cap_file(&cf);
+          s = strrchr(cf_name, '/');
+          if (s) {
+            last_open_dir = cf_name;
+            *s = '\0';
+          }
+          set_menu_sensitivity("/File/Save As...", TRUE);
+        }
       }
     }
   }
@@ -914,6 +905,32 @@ main(int argc, char *argv[])
         "Could not open preferences file\n\"%s\": %s.", pf_path,
         strerror(pf_open_errno));
   }
+
+#ifdef HAVE_LIBPCAP
+  if (start_capture) {
+    /* "-k" was specified; start a capture. */
+
+    /* Try to open/create the file specified on the command line with
+       the "-w" flag.  (We already checked in "main()" that "-w" was
+       specified. */
+    cf.save_file_fd = open(cf.save_file, O_RDWR|O_TRUNC|O_CREAT, 0600);
+    if (cf.save_file_fd == -1) {
+      /* XXX - display the error in a message box, or on the command line? */
+      simple_dialog(ESD_TYPE_WARN, NULL,
+	"The file to which the capture would be saved (\"%s\")"
+	"could not be opened: %s.", cf.save_file, strerror(errno));
+    } else {
+      /* XXX - "capture()" used to do this, but we now do it in
+         "do_capture()", before calling "capture()"; will we ever
+         have a capture file open here?
+	 Yes, if "-r" was specified - but that's arguably silly, so
+	 perhaps we should treate that as an error. */
+      close_cap_file(&cf, info_bar, file_ctx);
+      capture();
+    }
+    start_capture = 0;
+  }
+#endif
 
   gtk_main();
 

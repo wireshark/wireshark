@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.15 1999/09/23 06:27:19 guy Exp $
+ * $Id: capture.h,v 1.16 1999/09/30 06:11:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,9 @@
 #ifndef DLT_PPP_BSDOS
 #define DLT_PPP_BSDOS 14
 #endif
+
+/* Name we give to the child process when doing a "-S" or "-F" capture. */
+#define	CHILD_NAME	"ethereal-capture"
 
 void   do_capture(void);
 void   capture(void);

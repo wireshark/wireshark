@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.72 1999/09/25 02:02:11 guy Exp $
+ * $Id: capture.c,v 1.73 1999/09/30 06:11:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -153,7 +153,7 @@ do_capture(void)
 	 close(1);
 	 dup(sync_pipe[1]);
 	 close(sync_pipe[0]);
-	 execlp(ethereal_path, "ethereal", "-k", "-Q", "-i", cf.iface,
+	 execlp(ethereal_path, CHILD_NAME, "-k", "-Q", "-i", cf.iface,
 		"-w", cf.save_file, "-W", save_file_fd,
 		"-c", scount, "-s", ssnap, "-S", 
 		"-m", medium_font, "-b", bold_font,
@@ -162,7 +162,7 @@ do_capture(void)
 		(const char *)NULL);	
        }
        else {
-	 execlp(ethereal_path, "ethereal", "-k", "-Q", "-i", cf.iface,
+	 execlp(ethereal_path, CHILD_NAME, "-k", "-Q", "-i", cf.iface,
 		"-w", cf.save_file, "-W", save_file_fd,
 		"-c", scount, "-s", ssnap,
 		"-m", medium_font, "-b", bold_font,
