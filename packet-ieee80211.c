@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.100 2003/09/23 02:35:59 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.101 2003/09/24 23:35:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1242,7 +1242,8 @@ set_dst_addr_cols(packet_info *pinfo, const guint8 *addr, char *type)
 static void
 dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 			  proto_tree * tree, gboolean fixed_length_header,
-			  gboolean has_radio_information, gboolean has_no_fcs)
+			  gboolean has_radio_information, gboolean has_no_fcs,
+			  gboolean wlan_broken_fc)
 {
   guint16 fcf, flags, frame_type_subtype;
   guint16 seq_control;
@@ -1268,6 +1269,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     col_clear (pinfo->cinfo, COL_INFO);
 
   fcf = tvb_get_letohs (tvb, 0);
+  if (wlan_broken_fc) {
+    /* Swap bytes */
+    fcf = ((fcf & 0xff) << 8) | (((fcf & 0xff00) >> 8) & 0xff);
+  }
   if (fixed_length_header)
     hdr_len = DATA_LONG_HDR_LEN;
   else
@@ -1308,53 +1313,66 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       }
 
       proto_tree_add_uint (hdr_tree, hf_fc_frame_type_subtype,
-			   tvb, 0, 1,
+			   tvb, 
+	  	    	   wlan_broken_fc?1:0, 1,
 			   frame_type_subtype);
 
-      fc_item = proto_tree_add_uint_format (hdr_tree, hf_fc_field, tvb, 0, 2,
+      fc_item = proto_tree_add_uint_format (hdr_tree, hf_fc_field, tvb, 
+		      			    0, 2,
 					    fcf,
-					    "Frame Control: 0x%04X",
-					    fcf);
+					    "Frame Control: 0x%04X (%s)",
+					    fcf, wlan_broken_fc?"Swapped":"Normal");
 
       fc_tree = proto_item_add_subtree (fc_item, ett_fc_tree);
 
 
-      proto_tree_add_uint (fc_tree, hf_fc_proto_version, tvb, 0, 1,
+      proto_tree_add_uint (fc_tree, hf_fc_proto_version, tvb, 
+		           wlan_broken_fc?1:0, 1,
 			   COOK_PROT_VERSION (fcf));
 
-      proto_tree_add_uint (fc_tree, hf_fc_frame_type, tvb, 0, 1,
+      proto_tree_add_uint (fc_tree, hf_fc_frame_type, tvb, 
+		           wlan_broken_fc?1:0, 1,
 			   COOK_FRAME_TYPE (fcf));
 
       proto_tree_add_uint (fc_tree, hf_fc_frame_subtype,
-			   tvb, 0, 1,
+			   tvb, 
+			   wlan_broken_fc?1:0, 1,
 			   COOK_FRAME_SUBTYPE (fcf));
 
       flag_item =
-	proto_tree_add_uint_format (fc_tree, hf_fc_flags, tvb, 1, 1,
+	proto_tree_add_uint_format (fc_tree, hf_fc_flags, tvb, 
+			            wlan_broken_fc?0:1, 1,
 				    flags, "Flags: 0x%X", flags);
 
       flag_tree = proto_item_add_subtree (flag_item, ett_proto_flags);
 
-      proto_tree_add_uint (flag_tree, hf_fc_data_ds, tvb, 1, 1,
+      proto_tree_add_uint (flag_tree, hf_fc_data_ds, tvb, 
+		           wlan_broken_fc?0:1, 1,
 			   COOK_DS_STATUS (flags));
       proto_tree_add_boolean_hidden (flag_tree, hf_fc_to_ds, tvb, 1, 1, 
 				     flags);
       proto_tree_add_boolean_hidden (flag_tree, hf_fc_from_ds, tvb, 1, 1, 
 				     flags);
 
-      proto_tree_add_boolean (flag_tree, hf_fc_more_frag, tvb, 1, 1,
+      proto_tree_add_boolean (flag_tree, hf_fc_more_frag, tvb, 
+		              wlan_broken_fc?0:1, 1,
 			      flags);
 
-      proto_tree_add_boolean (flag_tree, hf_fc_retry, tvb, 1, 1, flags);
+      proto_tree_add_boolean (flag_tree, hf_fc_retry, tvb, 
+		              wlan_broken_fc?0:1, 1, flags);
 
-      proto_tree_add_boolean (flag_tree, hf_fc_pwr_mgt, tvb, 1, 1, flags);
+      proto_tree_add_boolean (flag_tree, hf_fc_pwr_mgt, tvb, 
+		              wlan_broken_fc?0:1, 1, flags);
 
-      proto_tree_add_boolean (flag_tree, hf_fc_more_data, tvb, 1, 1,
+      proto_tree_add_boolean (flag_tree, hf_fc_more_data, tvb, 
+		              wlan_broken_fc?0:1, 1,
 			      flags);
 
-      proto_tree_add_boolean (flag_tree, hf_fc_wep, tvb, 1, 1, flags);
+      proto_tree_add_boolean (flag_tree, hf_fc_wep, tvb,
+		              wlan_broken_fc?0:1, 1, flags);
 
-      proto_tree_add_boolean (flag_tree, hf_fc_order, tvb, 1, 1, flags);
+      proto_tree_add_boolean (flag_tree, hf_fc_order, tvb, 
+		              wlan_broken_fc?0:1, 1, flags);
 
       if (frame_type_subtype == CTRL_PS_POLL)
 	proto_tree_add_uint(hdr_tree, hf_assoc_id,tvb,2,2,
@@ -1954,7 +1972,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 static void
 dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, FALSE, FALSE);
 }
 
 /*
@@ -1965,7 +1983,18 @@ static void
 dissect_ieee80211_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   /* These packets do NOT have a FCS present */
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, TRUE, TRUE);
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, TRUE, TRUE, FALSE);
+}
+
+/*
+ * Dissect 802.11 with a variable-length link-layer header and a byte-swapped
+ * control field (some hardware sends out LWAPP-encapsulated 802.11
+ * packets with the control field byte swapped).
+ */
+static void
+dissect_ieee80211_bsfc (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+{
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, FALSE, TRUE);
 }
 
 /*
@@ -1975,7 +2004,7 @@ dissect_ieee80211_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 static void
 dissect_ieee80211_fixed (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, TRUE, FALSE, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree, TRUE, FALSE, FALSE, FALSE);
 }
 
 static void
@@ -2472,6 +2501,7 @@ proto_register_ieee80211 (void)
 
   register_dissector("wlan", dissect_ieee80211, proto_wlan);
   register_dissector("wlan_fixed", dissect_ieee80211_fixed, proto_wlan);
+  register_dissector("wlan_bsfc", dissect_ieee80211_bsfc, proto_wlan);
   register_init_routine(wlan_defragment_init);
 
   /* Register configuration options */

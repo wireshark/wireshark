@@ -3,7 +3,7 @@
  * Routines for LWAPP encapsulated packet disassembly
  * draft-calhoun-seamoby-lwapp-N (the current draft is 3)
  *
- * $Id: packet-lwapp.c,v 1.3 2003/09/10 20:07:10 guy Exp $
+ * $Id: packet-lwapp.c,v 1.4 2003/09/24 23:35:39 guy Exp $
  *
  * Copyright (c) 2003 by David Frascone <dave@frascone.com>
  *
@@ -75,7 +75,11 @@ static gint hf_lwapp_control_length = -1;
 
 static dissector_handle_t eth_handle;
 static dissector_handle_t wlan_handle;
+static dissector_handle_t wlan_bsfc_handle;
 static dissector_handle_t data_handle;
+
+/* Set by preferences */
+static gboolean swap_frame_control;
 
 typedef struct {
     guint8 flags;
@@ -421,11 +425,11 @@ static void dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
 
     }  /* tree */
 
+    next_client = tvb_new_subset(tvb, sizeof(LWAPP_Header), -1, -1);
     if ((header.flags & LWAPP_FLAGS_T) == 0) {
-        next_client	= tvb_new_subset(tvb, sizeof(LWAPP_Header), -1, -1);
-        call_dissector(wlan_handle, next_client, pinfo, tree);
+	call_dissector(swap_frame_control ? wlan_bsfc_handle : wlan_handle,
+			next_client, pinfo, tree);
     } else {
-        next_client	= tvb_new_subset(tvb, sizeof(LWAPP_Header), -1, -1);
         dissect_control(next_client, pinfo, tree);
     }
     return;
@@ -485,6 +489,7 @@ proto_register_lwapp(void)
         &ett_lwapp_control,
         &ett_lwapp_flags
     };
+    module_t *lwapp_module;
 
     proto_lwapp = proto_register_protocol ("LWAPP Encapsulated Packet", 
                                          "LWAPP", "lwapp");
@@ -497,6 +502,12 @@ proto_register_lwapp(void)
     proto_register_field_array(proto_lwapp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    lwapp_module = prefs_register_protocol(proto_lwapp, NULL);
+
+    prefs_register_bool_preference(lwapp_module,"swap_fc","Swap Frame Control",
+			           "Swap frame control bytes (needed for some APs",
+				    &swap_frame_control);
+
 } /* proto_register_diameter */
 
 void
@@ -506,12 +517,12 @@ proto_reg_handoff_lwapp(void)
     dissector_handle_t lwapp_handle;
 
     /*
-     * Get handles for the Ethernet, and wireless dissectors.
+     * Get handles for the Ethernet and wireless dissectors.
      */
     eth_handle = find_dissector("eth");
     wlan_handle = find_dissector("wlan");
+    wlan_bsfc_handle = find_dissector("wlan_bsfc");
     data_handle = find_dissector("data");
-
 
     /* This dissector assumes lwapp packets in an 802.3 frame */
     lwapp_l3_handle = create_dissector_handle(dissect_lwapp_l3, proto_lwapp_l3);
