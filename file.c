@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.53 1999/08/02 02:04:25 guy Exp $
+ * $Id: file.c,v 1.54 1999/08/04 23:43:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -431,6 +431,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
 	protocol_tree = proto_tree_create_root();
 	dissect_packet(buf, fdata, protocol_tree);
 	fdata->passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, cf->pd);
+	proto_tree_free(protocol_tree);
   }
   else {
 	dissect_packet(buf, fdata, NULL);

@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.10 1999/08/03 14:59:16 gram Exp $
+ * $Id: proto.c,v 1.11 1999/08/04 23:43:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -69,7 +69,7 @@
   #define WITH_SNMP_CMU 1
 #endif
 
-static void
+static gboolean
 proto_tree_free_node(GNode *node, gpointer data);
 
 static struct header_field_info*
@@ -249,18 +249,22 @@ void
 proto_tree_free(proto_tree *tree)
 {
 	g_node_traverse((GNode*)tree, G_IN_ORDER, G_TRAVERSE_ALL, -1,
-		(GNodeTraverseFunc)proto_tree_free_node, NULL);
+		proto_tree_free_node, NULL);
 }
 
-static void
+static gboolean
 proto_tree_free_node(GNode *node, gpointer data)
 {
 	field_info *fi = (field_info*) (node->data);
-	if (fi->representation)
-		g_mem_chunk_free(gmc_item_labels, fi->representation);
-	if (fi->hfinfo->type == FT_STRING)
-		g_free(fi->value.string);
-	g_mem_chunk_free(gmc_field_info, fi);
+
+	if (fi != NULL) {
+		if (fi->representation)
+			g_mem_chunk_free(gmc_item_labels, fi->representation);
+		if (fi->hfinfo->type == FT_STRING)
+			g_free(fi->value.string);
+		g_mem_chunk_free(gmc_field_info, fi);
+	}
+	return FALSE; /* FALSE = do not end traversal of GNode tree */
 }	
 
 /* Finds a record in the hf_info_records array. */
