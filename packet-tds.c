@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.8 2002/12/03 08:36:48 guy Exp $
+ * $Id: packet-tds.c,v 1.9 2002/12/07 03:45:34 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -459,10 +459,11 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				len *= 2;
 			val = get_unicode_or_ascii_string(tvb, &offset2,
 				is_unicode, &len, TRUE, TRUE, &bc);
-			proto_tree_add_text(login_tree, tvb, offset2, len,
-				"%s: %s",
-				val_to_str(i, login_field_names, "Unknown"),
-				val);
+			if (val != NULL)
+				proto_tree_add_text(login_tree, tvb, offset2, len,
+					"%s: %s",
+					val_to_str(i, login_field_names, "Unknown"),
+					val);
 		}
 	}
 
