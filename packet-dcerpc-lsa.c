@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.44 2002/05/02 08:18:53 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.45 2002/05/02 08:38:24 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3584,6 +3584,117 @@ lsa_dissect_lsagetusername_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+lsa_dissect_lsacreatetrusteddomainex_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in, ref] TRUSTED_DOMAIN_INFORMATION_EX *info */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRUST_INFORMATION_EX, NDR_POINTER_REF,
+		"TRUSTED_DOMAIN_INFORMATION_EX pointer: info", -1, 0);
+
+	/* [in, ref] TRUSTED_DOMAIN_AUTH_INFORMATION *auth */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRUSTED_DOMAIN_AUTH_INFORMATION, NDR_POINTER_REF,
+		"TRUSTED_DOMAIN_AUTH_INFORMATION pointer: auth", -1, 0);
+
+	/* [in] ACCESS_MASK mask */
+	offset = lsa_dissect_ACCESS_MASK(tvb, offset,
+		pinfo, tree, drep);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsacreatetrusteddomainex_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [out] LSA_HANDLE *tdHnd) */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsaenumeratetrusteddomainsex_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in, out, ref] LSA_ENUMERATION_HANDLE *resume_hnd */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_resume_handle, NULL);
+
+	/* [in] ULONG pref_maxlen */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_max_count, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_LSA_TRUSTED_DOMAIN_INFORMATION_EX_array(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRUST_INFORMATION_EX);
+
+	return offset;
+}
+
+static int
+lsa_dissect_LSA_TRUSTED_DOMAIN_INFORMATION_LIST_EX(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* count */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_count, NULL);
+
+	/* trust information */
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRUSTED_DOMAIN_INFORMATION_EX_array, NDR_POINTER_UNIQUE,
+		"TRUST INFORMATION array:", -1, 0);
+
+	/* max count */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_max_count, NULL);
+
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsaenumeratetrusteddomainsex_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in, out, ref] LSA_ENUMERATION_HANDLE *resume_hnd */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_resume_handle, NULL);
+
+	/* [out, ref] TRUSTED_DOMAIN_INFORMATION_LIST_EX *domains */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRUSTED_DOMAIN_INFORMATION_LIST_EX, NDR_POINTER_REF,
+		"TRUSTED_DOMAIN_INFORMATION_LIST_EX pointer: domains", -1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+
 
 
 static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
@@ -3738,17 +3849,11 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 		lsa_dissect_lsasettrusteddomaininfobyname_rqst,
 		lsa_dissect_lsasettrusteddomaininfobyname_reply },
 	{ LSA_LSAENUMERATETRUSTEDDOMAINSEX, "LSAENUMERATETRUSTEDDOMAINSEX",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsaenumeratetrusteddomainsex_rqst,
 		lsa_dissect_lsaenumeratetrusteddomainsex_reply },
-#endif
 	{ LSA_LSACREATETRUSTEDDOMAINEX, "LSACREATETRUSTEDDOMAINEX",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsacreatetrusteddomainex_rqst,
 		lsa_dissect_lsacreatetrusteddomainex_reply },
-#endif
 	{ LSA_LSACLOSETRUSTEDDOMAINEX, "LSACLOSETRUSTEDDOMAINEX",
 		lsa_dissect_lsaclosetrusteddomainex_rqst,
 		lsa_dissect_lsaclosetrusteddomainex_reply },
