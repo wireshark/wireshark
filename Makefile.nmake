@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.365 2003/11/24 00:34:12 guy Exp $
+# $Id: Makefile.nmake,v 1.366 2003/11/24 17:41:33 ulfl Exp $
 
 include config.nmake
 include <win32.mak>
@@ -707,9 +707,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../doc
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../packaging/nsis
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../help
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../packaging/nsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../..
 
@@ -732,9 +732,9 @@ distclean: clean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../doc
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../packaging/nsis
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../help
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../packaging/nsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../..
 
