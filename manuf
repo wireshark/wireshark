@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes 
 #
-# $Id: manuf,v 1.3 1999/12/09 20:52:54 guy Exp $
+# $Id: manuf,v 1.4 1999/12/23 21:13:32 guy Exp $
 #
 # Laurent Deniel <deniel@worldnet.fr>
 #
@@ -104,7 +104,9 @@
 00:10:1f	Cisco
 00:10:2f	Cisco
 00:10:4b	3Com
+00:10:67	Redback
 00:10:79	Cisco
+00:10:7b	Cisco
 00:10:f6	Cisco
 00:20:00	Lexmark
 00:20:35	IBM
@@ -128,14 +130,19 @@
 00:80:1c	Cisco
 00:80:24	Kalpana
 00:80:45	Matshta
+00:80:50	Ziatech
 00:80:5a	Tulip
 00:80:5f	Compaq
 00:80:90	Microtek
 00:80:96	HDS
 00:80:9f	Alcatel
+00:90:27	Intel
+00:90:b1	Cisco
 00:a0:24	3Com
 00:aa:00	Intel
 00:c0:4f	Dell
+00:c0:95	Znyx            # Network Appliance
+00:c0:7b	Ascend
 00:e0:14	Cisco
 00:e0:1e	Cisco
 00:e0:34	Cisco
