@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.9 1998/12/29 04:05:37 gerald Exp $
+ * $Id: util.c,v 1.10 1999/01/01 07:40:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,6 +25,10 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
+#endif
+
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
 #endif
 
 #include <glib.h>
