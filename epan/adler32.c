@@ -45,7 +45,7 @@ unsigned long update_adler32(unsigned long adler, const unsigned char *buf, int 
 }
 
 /*--- adler32 ---------------------------------------------------------------*/
-unsigned long adler32_bytes(unsigned char *buf, int len)
+unsigned long adler32_bytes(const unsigned char *buf, int len)
 {
   return update_adler32(1L, buf, len);
 }
@@ -53,7 +53,7 @@ unsigned long adler32_bytes(unsigned char *buf, int len)
 /*--- adler32_str -----------------------------------------------------------*/
 unsigned long adler32_str(const char *buf)
 {
-  return update_adler32(1L, (unsigned char*)buf, strlen(buf));
+  return update_adler32(1L, (const unsigned char*)buf, strlen(buf));
 }
 
 /*---------------------------------------------------------------------------*/
