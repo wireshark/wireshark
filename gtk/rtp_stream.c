@@ -1,7 +1,7 @@
 /* rtp_stream.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream.c,v 1.13 2004/02/11 01:37:13 guy Exp $
+ * $Id: rtp_stream.c,v 1.14 2004/02/12 22:24:28 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -390,8 +390,8 @@ register_tap_listener_rtp_stream(void)
 			(void*)rtpstream_reset, (void*)rtpstream_packet, (void*)rtpstream_draw);
 
 		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL,
-				      ESD_BTN_OK, error_string->str);
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+				      error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}

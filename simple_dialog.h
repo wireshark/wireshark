@@ -2,7 +2,7 @@
  * Definitions for alert box routines with toolkit-independent APIs but
  * toolkit-dependent implementations.
  *
- * $Id: simple_dialog.h,v 1.10 2004/02/11 03:55:47 guy Exp $
+ * $Id: simple_dialog.h,v 1.11 2004/02/12 22:24:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,10 +46,6 @@ extern "C" {
 #define ESD_TYPE_WARN	      0x01
 #define ESD_TYPE_CONFIRMATION 0x02
 #define ESD_TYPE_ERROR	      0x03
-
-/* Flag to be ORed with the dialog type, to specify that the dialog is
-   to be modal. */
-#define ESD_TYPE_MODAL	0x10
 
 /* Which buttons to display. */
 #define ESD_BTN_OK     0x01

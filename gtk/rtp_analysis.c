@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.35 2004/02/11 04:17:04 guy Exp $
+ * $Id: rtp_analysis.c,v 1.36 2004/02/12 22:24:28 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -875,7 +875,7 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	/* try to compile the filter. */
 	strcpy(filter_text,"rtp && ip");
 	if (!dfilter_compile(filter_text, &sfcode)) {
-		simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK, dfilter_error_msg);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, dfilter_error_msg);
 		return;
 	}
 
@@ -894,7 +894,7 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	error_string = register_tap_listener("rtp", user_data, filter_text,
 		rtp_reset, rtp_packet, rtp_draw);
 	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK, error_string->str);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
 			g_string_free(error_string, TRUE);
 		return;
 	}
@@ -1427,22 +1427,22 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 		/* there are many combinations here, we just exit when first matches */
 		if ((user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_CODEC) || 
 			(user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_CODEC))
-			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: Unsupported codec!");
 		else if ((user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_LENGTH) || 
 			(user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_LENGTH))
-			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: Wrong length of captured packets!");
 		else if ((user_data->forward.saveinfo.error_type == TAP_RTP_PADDING_ERROR) || 
 			(user_data->reversed.saveinfo.error_type == TAP_RTP_PADDING_ERROR))
-			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: RTP data with padding!");
 		else if ((user_data->forward.saveinfo.error_type == TAP_RTP_SHORT_FRAME) || 
 			(user_data->reversed.saveinfo.error_type == TAP_RTP_SHORT_FRAME))
-			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: Not all data in all packets was captured!");
 		else  
-			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: File I/O problem!");
 		return;
 	}
@@ -1450,19 +1450,19 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 	else if ((user_data->forward.saveinfo.saved == FALSE) && ((GTK_TOGGLE_BUTTON (forw)->active) ||
 		(GTK_TOGGLE_BUTTON (both)->active))) {	
 		if (user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_CODEC)
-			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save forward direction in a file: Unsupported codec!");
 		else if (user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_LENGTH)
-			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save forward direction in a file: Wrong length of captured packets!");
 		else if (user_data->forward.saveinfo.error_type == TAP_RTP_PADDING_ERROR)
-			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save forward direction in a file: RTP data with padding!");
 		else if (user_data->forward.saveinfo.error_type == TAP_RTP_SHORT_FRAME)
-			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save forward direction in a file: Not all data in all packets was captured!");
 		else
-			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save forward direction in a file: File I/O problem!");
 		return;
 	}
@@ -1470,22 +1470,22 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 	else if ((user_data->reversed.saveinfo.saved == FALSE) && ((GTK_TOGGLE_BUTTON (rev)->active) ||
 		(GTK_TOGGLE_BUTTON (both)->active))) {	
 		if (user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_CODEC)
-			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save reversed direction in a file: Unsupported codec!");
 		else if (user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_LENGTH)
-			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save reversed direction in a file: Wrong length of captured packets!");
 		else if (user_data->reversed.saveinfo.error_type == TAP_RTP_PADDING_ERROR)
-			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save reversed direction in a file: RTP data with padding!");
 		else if (user_data->forward.saveinfo.error_type == TAP_RTP_SHORT_FRAME)
-			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save reversed direction in a file: Not all data in all packets was captured!");
 		else if (user_data->reversed.saveinfo.error_type == TAP_RTP_NO_DATA)
-			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save reversed direction in a file: No RTP data!");
 		else
-			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save reversed direction in a file: File I/O problem!");
 		return;
 	}
@@ -1506,7 +1506,7 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 	
 	if(!copy_file(g_dest, channels/*, format*/, user_data)) {
 		/* XXX - report the error type! */
-		simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"An error occured while saving voice in a file!");
 		return;
 	}
@@ -2232,8 +2232,7 @@ void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	/* Try to compile the filter. */
 	strcpy(filter_text,"rtp && ip");
 	if (!dfilter_compile(filter_text, &sfcode)) {
-		simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
-		    dfilter_error_msg);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, dfilter_error_msg);
 		return;
 	}
 	/* we load the current file into cf variable */
@@ -2247,7 +2246,7 @@ void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	/* dissect the current frame */
 	if (!wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
 	    cf->pd, fdata->cap_len, &err, &err_info)) {
-		simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			cf_read_error_message(err, err_info), cf->filename);
 		return;
 	}
@@ -2260,7 +2259,7 @@ void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	frame_matched = dfilter_apply_edt(sfcode, edt);
 	if (frame_matched != 1) {
 		epan_dissect_free(edt);
-		simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "You didn't choose a RTP packet!");
 		return;
 	}
@@ -2279,7 +2278,7 @@ void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	
 	/* now we need the SSRC value of the current frame */
 	if (!get_int_value_from_proto_tree(edt->tree, "rtp", "rtp.ssrc", &ssrc_fwd)) {
-		simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "SSRC value couldn't be found!");
 		return;
 	}

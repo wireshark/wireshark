@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.63 2004/02/01 20:28:11 ulfl Exp $
+ * $Id: gui_prefs.c,v 1.64 2004/02/12 22:24:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -341,7 +341,7 @@ font_fetch(void)
 		/* No font was selected; let the user know, but don't
 		   tear down the font selection dialog, so they can
 		   try again. */
-		simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		   "You have not selected a font.");
 		return FALSE;
 	}
@@ -359,7 +359,7 @@ font_fetch(void)
 		/* Oops, that font didn't work.
 		   Tell the user, but don't tear down the font selection
 		   dialog, so that they can try again. */
-		simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		   "The font you selected cannot be loaded.");
 
 		g_free(font_name);
@@ -379,7 +379,7 @@ font_fetch(void)
 		/* Oops, that font didn't work.
 		   Tell the user, but don't tear down the font selection
 		   dialog, so that they can try again. */
-		simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		   "The font you selected doesn't have a boldface version.");
 
 		g_free(font_name);

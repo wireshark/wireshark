@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.394 2004/02/11 09:19:54 guy Exp $
+ * $Id: main.c,v 1.395 2004/02/12 22:24:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1211,8 +1211,7 @@ main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer
 
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
     /* user didn't saved his current file, ask him */
-    dialog = simple_dialog(ESD_TYPE_CONFIRMATION | ESD_TYPE_MODAL, 
-                ESD_BTNS_YES_NO_CANCEL,
+    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO_CANCEL,
                 PRIMARY_TEXT_START "Save capture file before program quit?" PRIMARY_TEXT_END "\n\n"
                 "If you quit the program without saving, your capture data will be discarded.");
     simple_dialog_set_cb(dialog, file_quit_answered_cb, NULL);
@@ -1333,8 +1332,7 @@ file_quit_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
     /* user didn't saved his current file, ask him */
-    dialog = simple_dialog(ESD_TYPE_CONFIRMATION | ESD_TYPE_MODAL, 
-                ESD_BTNS_YES_NO_CANCEL,
+    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO_CANCEL,
                 PRIMARY_TEXT_START "Save capture file before program quit?" PRIMARY_TEXT_END "\n\n"
                 "If you quit the program without saving, your capture data will be discarded.");
     simple_dialog_set_cb(dialog, file_quit_answered_cb, NULL);
@@ -1765,7 +1763,7 @@ GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
         /* ask the user to save it's current capture file first */
         if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
             /* user didn't saved his current file, ask him */
-            dialog = simple_dialog(ESD_TYPE_CONFIRMATION | ESD_TYPE_MODAL, 
+            dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
                         ESD_BTNS_YES_NO_CANCEL,
                         PRIMARY_TEXT_START "Save capture file before opening a new one?" PRIMARY_TEXT_END "\n\n"
                         "If you open a new capture file without saving, your current capture data will be discarded.");
