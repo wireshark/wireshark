@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.77 2004/02/25 09:31:06 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.78 2004/04/22 08:22:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -935,7 +935,7 @@ dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 }
 
 /*
- * See I-D draft-vida-mld-v2-03
+ * See I-D draft-vida-mld-v2-08
  */
 static const value_string mldrv2ModesNames[] = {
   { 1, "Include" },
@@ -994,6 +994,18 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, guint16 count, proto_tree *tree )
 			   "Source Address: %s", ip6_to_str(&addr) );
 #endif
     }
+  }
+}
+
+static void
+dissect_mldqv2(tvbuff_t *tvb, guint32 offset, guint16 count, proto_tree *tree)
+{
+  struct e_in6_addr addr;
+
+  for ( ; count; count--, offset += 16) {
+      tvb_memcpy(tvb, (guint8 *)&addr, offset, sizeof(addr));
+      proto_tree_add_text(tree, tvb, offset, 16, 
+			  "Source Address: %s (%s)", get_hostname6(&addr), ip6_to_str(&addr));
   }
 }
 
@@ -1316,6 +1328,55 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case ICMP6_MEMBERSHIP_QUERY:
 	case ICMP6_MEMBERSHIP_REPORT:
 	case ICMP6_MEMBERSHIP_REDUCTION:
+#define MLDV2_MINLEN 28
+#define MLDV1_MINLEN 24
+	    if (dp->icmp6_type == ICMP6_MEMBERSHIP_QUERY) {
+	    	if (length >= MLDV2_MINLEN) {
+		    guint32 mrc;
+		    guint16 qqi;
+		    guint8 flag;
+		    guint16 nsrcs;
+		    
+		    mrc = g_ntohs(dp->icmp6_maxdelay);
+		    flag = tvb_get_guint8(tvb, offset + sizeof(*dp) + 16);
+		    qqi = tvb_get_guint8(tvb, offset + sizeof(*dp) + 16 + 1);
+		    nsrcs = tvb_get_ntohs(tvb, offset + sizeof(*dp) + 16 + 2);
+
+		    if (mrc >= 32768)
+		    	mrc = ((mrc & 0x0fff) | 0x1000) << 
+				(((mrc & 0x7000) >> 12) + 3);
+		    proto_tree_add_text(icmp6_tree, tvb,
+		        offset + offsetof(struct icmp6_hdr, icmp6_maxdelay), 2,
+			"Maximum response delay[ms]: %u", mrc);
+
+		    proto_tree_add_text(icmp6_tree, tvb, offset + sizeof(*dp),
+		    	16, "Multicast Address: %s",
+			ip6_to_str((const struct e_in6_addr *)(tvb_get_ptr(tvb,
+			    offset + sizeof *dp, sizeof (struct e_in6_addr)))));
+
+		    proto_tree_add_text(icmp6_tree, tvb,
+		    	offset + sizeof(*dp) + 16, 1, "S Flag: %s",
+			flag & 0x08 ? "ON" : "OFF");
+		    proto_tree_add_text(icmp6_tree, tvb,
+		    	offset + sizeof(*dp) + 16, 1, "Robustness: %d",
+			flag & 0x07);
+		    if (qqi >= 128)
+		    	qqi = ((qqi & 0x0f) | 0x10) << (((qqi & 0x70) >> 4) + 3);
+		    proto_tree_add_text(icmp6_tree, tvb,
+		    	offset + sizeof(*dp) + 17, 1, "QQI: %d", qqi);
+
+		    dissect_mldqv2(tvb, offset + sizeof(*dp) + 20, nsrcs,
+		    	icmp6_tree);
+		    break;
+		} else if (length > MLDV1_MINLEN) {
+		    next_tvb = tvb_new_subset(tvb, offset + sizeof(*dp), -1, -1);
+		    call_dissector(data_handle,next_tvb, pinfo, tree);
+		    break;
+		}
+		/* MLDv1 Query -> FALLTHOUGH */
+	    }
+#undef MLDV2_MINLEN
+#undef MLDV1_MINLEN
 	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct icmp6_hdr, icmp6_maxdelay), 2,
 		"Maximum response delay: %u",
