@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.167 2000/12/03 22:12:21 guy Exp $
+ * $Id: main.c,v 1.168 2000/12/15 13:53:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -251,15 +251,20 @@ match_selected_cb(GtkWidget *w, gpointer data)
 				sizeof(struct timeval));
 			break;
 
-		case FT_STRING:
-			/* This g_strdup'ed memory is freed in proto_tree_free_node() */
-			fi->value.string = g_strdup(va_arg(ap, char*));
-			break;
-
 		case FT_TEXT_ONLY:
 			; /* nothing */
 			break;
 #endif
+
+		case FT_STRING:
+		        dfilter_len = abbrev_len + 
+			  strlen(finfo_selected->value.string) + 7;
+			buf = g_malloc0(dfilter_len);
+			snprintf(buf, dfilter_len, "%s == \"%s\"",
+				 hfinfo->abbrev,
+				 finfo_selected->value.string);
+			break;
+
 		default:
 		    c = cfile.pd + finfo_selected->start;
 		    buf = g_malloc0(32 + finfo_selected->length * 3);
