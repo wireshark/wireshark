@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.62 2002/10/31 07:12:41 guy Exp $
+ * $Id: netxray.c,v 1.63 2003/01/03 02:24:56 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -77,6 +77,10 @@ static const char vers_1_0[] = {
 
 static const char vers_1_1[] = {
 	'0', '0', '1', '.', '1', '0', '0', '\0'
+};
+
+static const char vers_2_000[] = {
+	'0', '0', '2', '.', '0', '0', '0', '\0'
 };
 
 static const char vers_2_001[] = {
@@ -173,6 +177,11 @@ int netxray_open(wtap *wth, int *err)
 		WTAP_ENCAP_UNKNOWN,	/* "DIX" - should not occur */
 		WTAP_ENCAP_UNKNOWN,	/* ARCNET raw */
 		WTAP_ENCAP_UNKNOWN,	/* ARCNET 878.2 */
+		/*
+		 * XXX - not all ATM captures have LLC-encapsulated frames
+		 * in them; there's probably something hidden in the
+		 * per-packet header giving the traffic type.
+		 */
 		WTAP_ENCAP_ATM_RFC1483,	/* ATM */
 		WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
 					/* Wireless WAN with radio information */
@@ -221,9 +230,8 @@ int netxray_open(wtap *wth, int *err)
 		 * rather than the milliseconds version 1.0 files appear to
 		 * have.
 		 *
-		 * It also appears that version 2.001 files (as produced by
-		 * Windows(?) Sniffer Pro 2.50.05) have per-packet headers with
-		 * some extra fields. */
+		 * It also appears that version 2.00x files have per-packet
+		 * headers with some extra fields. */
 		if (memcmp(hdr.version, vers_1_0, sizeof vers_1_0) == 0) {
 			timeunit = 1000.0;
 			version_major = 1;
@@ -232,7 +240,8 @@ int netxray_open(wtap *wth, int *err)
 			timeunit = 1000000.0;
 			version_major = 1;
 			file_type = WTAP_FILE_NETXRAY_1_1;
-		} else if (memcmp(hdr.version, vers_2_001, sizeof vers_2_001) == 0
+		} else if (memcmp(hdr.version, vers_2_000, sizeof vers_2_000) == 0
+		    || memcmp(hdr.version, vers_2_001, sizeof vers_2_001) == 0
 		    || memcmp(hdr.version, vers_2_002, sizeof vers_2_002) == 0) {
 			if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS) {
 				g_message("netxray: Unknown timeunit %u",
