@@ -477,6 +477,10 @@ David Hampton <dhampton@mac.com> {
 	Support for the HTTP-based SSDP protocol
 }
 
+Kent Engström <kent@unit.liu.se> {
+	CDP VTP Management Domain item support
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

@@ -1017,6 +1017,7 @@ B<http://www.ethereal.com>.
   Burke Lau                <burke_lau@agilent.com>
   Martti Kuparinen         <martti.kuparinen@nomadiclab.com>
   David Hampton            <dhampton@mac.com>
+  Kent Engström            <kent@unit.liu.se>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.32 2001/01/10 09:07:35 guy Exp $
+ * $Id: packet-cdp.c,v 1.33 2001/01/13 02:40:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -78,15 +78,18 @@ add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
 #define TYPE_PLATFORM		0x0006
 #define TYPE_IP_PREFIX		0x0007
 
+#define TYPE_VTP_MGMT_DOMAIN    0x0009 /* Guessed, from tcpdump */
+
 static const value_string type_vals[] = {
-	{ TYPE_DEVICE_ID,    "Device ID" },
-	{ TYPE_ADDRESS,      "Addresses" },
-	{ TYPE_PORT_ID,      "Port ID" },
-	{ TYPE_CAPABILITIES, "Capabilities" },
-	{ TYPE_IOS_VERSION,  "Software version" },
-	{ TYPE_PLATFORM,     "Platform" },
-	{ TYPE_IP_PREFIX,    "IP Prefix (used for ODR)" },
-	{ 0,                 NULL },
+	{ TYPE_DEVICE_ID,    	"Device ID" },
+	{ TYPE_ADDRESS,      	"Addresses" },
+	{ TYPE_PORT_ID,      	"Port ID" },
+	{ TYPE_CAPABILITIES, 	"Capabilities" },
+	{ TYPE_IOS_VERSION,  	"Software version" },
+	{ TYPE_PLATFORM,        "Platform" },
+	{ TYPE_IP_PREFIX,       "IP Prefix (used for ODR)" },
+	{ TYPE_VTP_MGMT_DOMAIN, "VTP Management Domain" },
+	{ 0,                    NULL },
 };
 	
 static void 
@@ -276,6 +279,20 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += 5;
 			length -= 5;
 		}
+		break;
+	    case TYPE_VTP_MGMT_DOMAIN:
+		tlvi = proto_tree_add_text(cdp_tree, tvb,
+			    offset, length, "VTP Management Domain: %.*s",
+			    length - 4,
+			    tvb_get_ptr(tvb, offset + 4, length - 4));
+		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+			    offset + TLV_TYPE, 2, type);
+		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+			    offset + TLV_LENGTH, 2, length);
+		add_multi_line_string_to_tree(tlv_tree, tvb, offset + 4,
+				length - 4, "VTP Management Domain: ");
+		offset += length;
 		break;
 	    default:
 		tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
