@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.60 2004/02/19 05:19:10 guy Exp $
+ * $Id: tvbuff.c,v 1.61 2004/03/23 18:06:29 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -1650,6 +1650,30 @@ tvb_format_text(tvbuff_t *tvb, gint offset, gint size)
   }
 
   return format_text(ptr, len);
+
+}
+
+/*
+ * Like "tvb_format_text()", but for null-padded strings; don't show
+ * the null padding characters as "\000".
+ */
+gchar *
+tvb_format_stringzpad(tvbuff_t *tvb, gint offset, gint size)
+{
+  const guint8 *ptr, *p;
+  gint len = size;
+  gint stringlen;
+
+  if ((ptr = ensure_contiguous(tvb, offset, size)) == NULL) {
+
+    len = tvb_length_remaining(tvb, offset);
+    ptr = ensure_contiguous(tvb, offset, len);
+
+  }
+
+  for (p = ptr, stringlen = 0; stringlen < len && *p != '\0'; p++, stringlen++)
+    ;
+  return format_text(ptr, stringlen);
 
 }
 

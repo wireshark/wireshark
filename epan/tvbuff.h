@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.40 2004/02/19 05:19:10 guy Exp $
+ * $Id: tvbuff.h,v 1.41 2004/03/23 18:06:29 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -381,6 +381,12 @@ extern char *tvb_fake_unicode(tvbuff_t *tvb, int offset, int len,
  * Format the data in the tvb from offset for size ...
  */
 extern gchar * tvb_format_text(tvbuff_t *tvb, gint offset, gint size);
+
+/*
+ * Like "tvb_format_text()", but for null-padded strings; don't show
+ * the null padding characters as "\000".
+ */
+extern gchar *tvb_format_stringzpad(tvbuff_t *tvb, gint offset, gint size);
 
 /*
  * Given a tvbuff, an offset, and a length, allocate a buffer big enough

@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.54 2004/03/22 01:18:35 guy Exp $
+ * $Id: packet-cdp.c,v 1.55 2004/03/23 18:06:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -188,18 +188,16 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    case TYPE_DEVICE_ID:
 		/* Device ID */
 		tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
-			    length, "Device ID: %.*s",
-			    length - 4,
-			    tvb_get_ptr(tvb, offset + 4, length - 4));
+			    length, "Device ID: %s",
+			    tvb_format_stringzpad(tvb, offset + 4, length - 4));
 		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
 		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
 			    offset + TLV_TYPE, 2, type);
 		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
 			    offset + TLV_LENGTH, 2, length);
 		proto_tree_add_text(tlv_tree, tvb, offset + 4,
-			    length - 4, "Device ID: %.*s",
-			    length - 4,
-			    tvb_get_ptr(tvb, offset + 4, length - 4));
+			    length - 4, "Device ID: %s",
+			    tvb_format_stringzpad(tvb, offset + 4, length - 4));
 		offset += length;
 		break;
 
@@ -244,9 +242,8 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    real_length = length + 3;
 		}
 		tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
-			    real_length, "Port ID: %.*s",
-			    real_length - 4,
-			    tvb_get_ptr(tvb, offset + 4, real_length - 4));
+			    real_length, "Port ID: %s",
+			    tvb_format_text(tvb, offset + 4, real_length - 4));
 		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
 		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
 			    offset + TLV_TYPE, 2, type);
@@ -254,9 +251,8 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    offset + TLV_LENGTH, 2, length);
 		proto_tree_add_text(tlv_tree, tvb, offset + 4,
 			    real_length - 4,
-			    "Sent through Interface: %.*s",
-			    real_length - 4,
-			    tvb_get_ptr(tvb, offset + 4, real_length - 4));
+			    "Sent through Interface: %s",
+			    tvb_format_text(tvb, offset + 4, real_length - 4));
 		offset += real_length;
 		break;
 
@@ -290,18 +286,16 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    case TYPE_PLATFORM:
 		/* ??? platform */
 		tlvi = proto_tree_add_text(cdp_tree, tvb,
-			    offset, length, "Platform: %.*s",
-			    length - 4,
-			    tvb_get_ptr(tvb, offset + 4, length - 4));
+			    offset, length, "Platform: %s",
+			    tvb_format_text(tvb, offset + 4, length - 4));
 		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
 		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
 			    offset + TLV_TYPE, 2, type);
 		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
 			    offset + TLV_LENGTH, 2, length);
 		proto_tree_add_text(tlv_tree, tvb, offset + 4,
-			    length - 4, "Platform: %.*s",
-			    length - 4,
-			    tvb_get_ptr(tvb, offset + 4, length - 4));
+			    length - 4, "Platform: %s",
+			    tvb_format_text(tvb, offset + 4, length - 4));
 		offset += length;
 		break;
             case TYPE_IP_PREFIX:
@@ -407,18 +401,16 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      break;
 	    case TYPE_VTP_MGMT_DOMAIN:
 		tlvi = proto_tree_add_text(cdp_tree, tvb,
-			    offset, length, "VTP Management Domain: %.*s",
-			    length - 4,
-			    tvb_get_ptr(tvb, offset + 4, length - 4));
+			    offset, length, "VTP Management Domain: %s",
+			    tvb_format_text(tvb, offset + 4, length - 4));
 		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
 		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
 			    offset + TLV_TYPE, 2, type);
 		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
 			    offset + TLV_LENGTH, 2, length);
 		proto_tree_add_text(tlv_tree, tvb, offset + 4,
-			    length - 4, "VTP Management Domain: %.*s",
-			    length - 4,
-			    tvb_get_ptr(tvb, offset + 4, length - 4));
+			    length - 4, "VTP Management Domain: %s",
+			    tvb_format_text(tvb, offset + 4, length - 4));
 		offset += length;
 		break;
 	    case TYPE_NATIVE_VLAN:
@@ -519,18 +511,16 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      break;
 	    case TYPE_SYSTEM_NAME:
 	      tlvi = proto_tree_add_text(cdp_tree, tvb,
-					 offset, length, "System Name: %.*s",
-					 length - 4,
-					 tvb_get_ptr(tvb, offset + 4, length - 4));
+					 offset, length, "System Name: %s",
+					 tvb_format_text(tvb, offset + 4, length - 4));
 	      tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
 	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
 				  offset + TLV_TYPE, 2, type);
 	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
 				  offset + TLV_LENGTH, 2, length);
 	      proto_tree_add_text(tlv_tree, tvb, offset + 4,
-				  length - 4, "System Name: %.*s",
-				  length - 4,
-				  tvb_get_ptr(tvb, offset + 4, length - 4));
+				  length - 4, "System Name: %s",
+				  tvb_format_text(tvb, offset + 4, length - 4));
 	      offset += length;
 	      break;
 	    case TYPE_SYSTEM_OID:
@@ -575,9 +565,8 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      break;
 	    case TYPE_LOCATION:
 	      tlvi = proto_tree_add_text(cdp_tree, tvb,
-					 offset, length, "Location: %.*s",
-					 length - 5,
-					 tvb_get_ptr(tvb, offset + 5, length - 5));
+					 offset, length, "Location: %s",
+					 tvb_format_text(tvb, offset + 5, length - 5));
 	      tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
 	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
 				  offset + TLV_TYPE, 2, type);
@@ -587,9 +576,8 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				  1 , "UNKNOWN: 0x%02X",
 				  tvb_get_guint8(tvb, offset + 4));
 	      proto_tree_add_text(tlv_tree, tvb, offset + 5,
-				  length - 5, "Location: %.*s",
-				  length - 5,
-				  tvb_get_ptr(tvb, offset + 5, length - 5));
+				  length - 5, "Location: %s",
+				  tvb_format_text(tvb, offset + 5, length - 5));
 	      offset += length;
 	      break;
 	    default:
@@ -786,8 +774,8 @@ add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
     while (len > 0) {
 	line_len = tvb_find_line_end(tvb, start, len, &next, FALSE);
 	data_len = next - start;
-	proto_tree_add_text(tree, tvb, start, data_len, "%s%.*s", prefix,
-	   line_len, tvb_get_ptr(tvb, start, line_len));
+	proto_tree_add_text(tree, tvb, start, data_len, "%s%s", prefix,
+	   tvb_format_stringzpad(tvb, start, line_len));
 	start += data_len;
 	len -= data_len;
 	prefix = blanks;
