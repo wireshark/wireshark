@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-register-info.h,v 1.6 2001/03/23 21:42:37 nneul Exp $
+ * $Id: packet-afs-register-info.h,v 1.7 2001/03/26 15:27:55 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -234,35 +234,27 @@
 
 { &hf_afs_fs_acl_count_positive, {
 	"ACL Count (Positive)", "afs.fs.acl.count.positive", 
-	FT_UINT32, BASE_DEC,
-	0, 0, "Number of Positive ACLs" }},
+	FT_UINT32, BASE_DEC, 0, 0, "Number of Positive ACLs" }},
 { &hf_afs_fs_acl_count_negative, {
 	"ACL Count (Negative)", "afs.fs.acl.count.negative", 
-	FT_UINT32, BASE_DEC,
-	0, 0, "Number of Negative ACLs" }},
+	FT_UINT32, BASE_DEC, 0, 0, "Number of Negative ACLs" }},
 { &hf_afs_fs_acl_datasize, {
 	"ACL Size", "afs.fs.acl.datasize", 
-	FT_UINT32, BASE_DEC,
-	0, 0, "ACL Data Size" }},
+	FT_UINT32, BASE_DEC, 0, 0, "ACL Data Size" }},
 { &hf_afs_fs_acl_entity, {
 	"Entity (User/Group)", "afs.fs.acl.entity", 
-	FT_STRING, BASE_HEX,
-	0, 0, "ACL Entity (User/Group)" }},
+	FT_STRING, BASE_HEX, 0, 0, "ACL Entity (User/Group)" }},
 { &hf_afs_fs_acl_r, {
 	"_R_ead", "afs.fs.acl.r", 
-	FT_UINT8, BASE_BIN,
-	0, PRSFS_READ, "Read" }},
+	FT_UINT8, BASE_BIN, 0, PRSFS_READ, "Read" }},
 { &hf_afs_fs_acl_l, {
 	"_L_ookup", "afs.fs.acl.l", 
-	FT_UINT8, BASE_BIN,
-	0, PRSFS_LOOKUP, "Lookup" }},
+	FT_UINT8, BASE_BIN, 0, PRSFS_LOOKUP, "Lookup" }},
 { &hf_afs_fs_acl_i, {
 	"_I_nsert", "afs.fs.acl.i", 
-	FT_UINT8, BASE_BIN,
-	0, PRSFS_INSERT, "Insert" }},
+	FT_UINT8, BASE_BIN, 0, PRSFS_INSERT, "Insert" }},
 { &hf_afs_fs_acl_d, { "_D_elete", "afs.fs.acl.d", 
-	FT_UINT8, BASE_BIN,
-	0, PRSFS_DELETE, "Delete" }},
+	FT_UINT8, BASE_BIN, 0, PRSFS_DELETE, "Delete" }},
 { &hf_afs_fs_acl_w, { "_W_rite", "afs.fs.acl.w", 
 	FT_UINT8, BASE_BIN, 0, PRSFS_WRITE, "Write" }},
 { &hf_afs_fs_acl_k, { "_L_ock", "afs.fs.acl.k", 
@@ -469,3 +461,73 @@
 	FT_UINT32, BASE_HEX, 0, 0, "Vote Type" }},
 { &hf_afs_ubik_site, { "Site", "afs.ubik.site", 
 	FT_IPv4, BASE_HEX, 0, 0, "Site" }},
+{ &hf_afs_ubik_interface, { "Interface Address", "afs.ubik.interface", 
+	FT_IPv4, BASE_HEX, 0, 0, "Interface Address" }},
+
+{ &hf_afs_ubik_now, { "Now", "afs.ubik.now", 
+	FT_ABSOLUTE_TIME, BASE_HEX, 0, 0, "Now" }},
+{ &hf_afs_ubik_lastyestime, { "Last Yes Time", "afs.ubik.lastyesttime", 
+	FT_ABSOLUTE_TIME, BASE_HEX, 0, 0, "Last Yes Time" }},
+{ &hf_afs_ubik_lastyeshost, { "Last Yes Host", "afs.ubik.lastyeshost", 
+	FT_IPv4, BASE_HEX, 0, 0, "Last Yes Host" }},
+{ &hf_afs_ubik_lastyesstate, { "Last Yes State", "afs.ubik.lastyesstate", 
+	FT_UINT32, BASE_HEX, 0, 0, "Last Yes State" }},
+{ &hf_afs_ubik_lastyesclaim, { "Last Yes Claim", "afs.ubik.lastyesclaim", 
+	FT_ABSOLUTE_TIME, BASE_HEX, 0, 0, "Last Yes Claim" }},
+{ &hf_afs_ubik_lowesthost, { "Lowest Host", "afs.ubik.lowesthost", 
+	FT_IPv4, BASE_HEX, 0, 0, "Lowest Host" }},
+{ &hf_afs_ubik_lowesttime, { "Lowest Time", "afs.ubik.lowesttime", 
+	FT_ABSOLUTE_TIME, BASE_HEX, 0, 0, "Lowest Time" }},
+{ &hf_afs_ubik_synchost, { "Sync Host", "afs.ubik.synchost", 
+	FT_IPv4, BASE_HEX, 0, 0, "Sync Host" }},
+{ &hf_afs_ubik_addr, { "Address", "afs.ubik.addr", 
+	FT_IPv4, BASE_HEX, 0, 0, "Address" }},
+{ &hf_afs_ubik_synctime, { "Sync Time", "afs.ubik.synctime", 
+	FT_ABSOLUTE_TIME, BASE_HEX, 0, 0, "Sync Time" }},
+{ &hf_afs_ubik_lastvotetime, { "Last Vote Time", "afs.ubik.lastvotetime", 
+	FT_ABSOLUTE_TIME, BASE_HEX, 0, 0, "Last Vote Time" }},
+{ &hf_afs_ubik_lastbeaconsent, { "Last Beacon Sent", "afs.ubik.lastbeaconsent", 
+	FT_ABSOLUTE_TIME, BASE_HEX, 0, 0, "Last Beacon Sent" }},
+{ &hf_afs_ubik_lastvote, { "Last Vote", "afs.ubik.lastvote", 
+	FT_UINT32, BASE_HEX, 0, 0, "Last Vote" }},
+{ &hf_afs_ubik_currentdb, { "Current DB", "afs.ubik.currentdb", 
+	FT_UINT32, BASE_HEX, 0, 0, "Current DB" }},
+{ &hf_afs_ubik_up, { "Up", "afs.ubik.up", 
+	FT_UINT32, BASE_HEX, 0, 0, "Up" }},
+{ &hf_afs_ubik_beaconsincedown, { "Beacon Since Down", "afs.ubik.beaconsincedown", 
+	FT_UINT32, BASE_HEX, 0, 0, "Beacon Since Down" }},
+{ &hf_afs_ubik_amsyncsite, { "Am Sync Site", "afs.ubik.amsyncsite", 
+	FT_UINT32, BASE_HEX, 0, 0, "Am Sync Site" }},
+{ &hf_afs_ubik_syncsiteuntil, { "Sync Site Until", "afs.ubik.syncsiteuntil", 
+	FT_ABSOLUTE_TIME, BASE_HEX, 0, 0, "Sync Site Until" }},
+{ &hf_afs_ubik_nservers, { "Number of Servers", "afs.ubik.nservers", 
+	FT_UINT32, BASE_HEX, 0, 0, "Number of Servers" }},
+{ &hf_afs_ubik_lockedpages, { "Locked Pages", "afs.ubik.lockedpages", 
+	FT_UINT32, BASE_HEX, 0, 0, "Locked Pages" }},
+{ &hf_afs_ubik_writelockedpages, { "Write Locked Pages", "afs.ubik.writelockedpages", 
+	FT_UINT32, BASE_HEX, 0, 0, "Write Locked Pages" }},
+{ &hf_afs_ubik_activewrite, { "Active Write", "afs.ubik.activewrite", 
+	FT_UINT32, BASE_HEX, 0, 0, "Active Write" }},
+{ &hf_afs_ubik_tidcounter, { "TID Counter", "afs.ubik.tidcounter", 
+	FT_UINT32, BASE_HEX, 0, 0, "TID Counter" }},
+{ &hf_afs_ubik_anyreadlocks, { "Any Read Locks", "afs.ubik.anyreadlocks", 
+	FT_UINT32, BASE_HEX, 0, 0, "Any Read Locks" }},
+{ &hf_afs_ubik_anywritelocks, { "Any Write Locks", "afs.ubik.anywritelocks", 
+	FT_UINT32, BASE_HEX, 0, 0, "Any Write Locks" }},
+{ &hf_afs_ubik_recoverystate, { "Recovery State", "afs.ubik.recoverystate", 
+	FT_UINT32, BASE_HEX, 0, 0, "Recovery State" }},
+{ &hf_afs_ubik_currenttrans, { "Current Transaction", "afs.ubik.currenttran", 
+	FT_UINT32, BASE_HEX, 0, 0, "Current Transaction" }},
+{ &hf_afs_ubik_writetrans, { "Write Transaction", "afs.ubik.writetran", 
+	FT_UINT32, BASE_HEX, 0, 0, "Write Transaction" }},
+{ &hf_afs_ubik_epochtime, { "Epoch Time", "afs.ubik.epochtime", 
+	FT_ABSOLUTE_TIME, BASE_HEX, 0, 0, "Epoch Time" }},
+{ &hf_afs_ubik_isclone, { "Is Clone", "afs.ubik.isclone", 
+	FT_UINT32, BASE_HEX, 0, 0, "Is Clone" }},
+
+
+
+
+
+
+

@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-macros.h,v 1.6 2001/03/23 21:42:37 nneul Exp $
+ * $Id: packet-afs-macros.h,v 1.7 2001/03/26 15:27:55 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -376,6 +376,68 @@
 #define OUT_BOS_STATUS() \
 	SKIP(10 * 4);
 
+/* output a ubik interface addr array */
+#define OUT_UBIK_InterfaceAddrs() \
+    { \
+        unsigned int i,j,seen_null=0; \
+        for (i=0; i<255; i++) { \
+			j = GETINT(); \
+			if ( j != 0 ) { \
+				OUT_IP(hf_afs_ubik_interface); \
+				seen_null = 0; \
+			} else { \
+				if ( ! seen_null ) { \
+				TRUNC(4); \
+				proto_tree_add_text(tree, NullTVB,curoffset,END_OF_FRAME, \
+					"Null Interface Addresses"); \
+					seen_null = 1; \
+				} \
+				curoffset += 4; \
+			}\
+        } \
+    }
+
+#define OUT_UBIK_DebugOld() \
+	{ \
+		OUT_DATE(hf_afs_ubik_now); \
+		OUT_DATE(hf_afs_ubik_lastyestime); \
+		OUT_IP(hf_afs_ubik_lastyeshost); \
+		OUT_UINT(hf_afs_ubik_lastyesstate); \
+		OUT_DATE(hf_afs_ubik_lastyesclaim); \
+		OUT_IP(hf_afs_ubik_lowesthost); \
+		OUT_DATE(hf_afs_ubik_lowesttime); \
+		OUT_IP(hf_afs_ubik_synchost); \
+		OUT_DATE(hf_afs_ubik_synctime); \
+		OUT_UBIKVERSION("Sync Version"); \
+		OUT_UBIKVERSION("Sync TID"); \
+		OUT_UINT(hf_afs_ubik_amsyncsite); \
+		OUT_DATE(hf_afs_ubik_syncsiteuntil); \
+		OUT_UINT(hf_afs_ubik_nservers); \
+		OUT_UINT(hf_afs_ubik_lockedpages); \
+		OUT_UINT(hf_afs_ubik_writelockedpages); \
+		OUT_UBIKVERSION("Local Version"); \
+		OUT_UINT(hf_afs_ubik_activewrite); \
+		OUT_UINT(hf_afs_ubik_tidcounter); \
+		OUT_UINT(hf_afs_ubik_anyreadlocks); \
+		OUT_UINT(hf_afs_ubik_anywritelocks); \
+		OUT_UINT(hf_afs_ubik_recoverystate); \
+		OUT_UINT(hf_afs_ubik_currenttrans); \
+		OUT_UINT(hf_afs_ubik_writetrans); \
+		OUT_DATE(hf_afs_ubik_epochtime); \
+	}
+
+#define OUT_UBIK_SDebugOld() \
+	{ \
+		OUT_IP(hf_afs_ubik_addr); \
+		OUT_DATE(hf_afs_ubik_lastvotetime); \
+		OUT_DATE(hf_afs_ubik_lastbeaconsent); \
+		OUT_UINT(hf_afs_ubik_lastvote); \
+		OUT_UBIKVERSION("Remote Version"); \
+		OUT_UINT(hf_afs_ubik_currentdb); \
+		OUT_UINT(hf_afs_ubik_beaconsincedown); \
+		OUT_UINT(hf_afs_ubik_up); \
+	}
+
 /* Skip a certain number of bytes */
 #define SKIP(bytes) \
 	TRUNC(bytes) \
@@ -447,7 +509,7 @@
 		curoffset += 4; \
 		tv.tv_sec = epoch; \
 		tv.tv_usec = 0; \
-		ti = proto_tree_add_text(tree, NullTVB, curoffset, 3*4, \
+		ti = proto_tree_add_text(tree, NullTVB, curoffset-8, 8, \
 			"UBIK Version (%s): %u.%u", label, epoch, counter ); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_ubikver); \

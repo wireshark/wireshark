@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-defs.h,v 1.6 2001/03/23 21:42:37 nneul Exp $
+ * $Id: packet-afs-defs.h,v 1.7 2001/03/26 15:27:55 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -691,12 +691,44 @@ static int hf_afs_ubik_version_counter = -1;
 static int hf_afs_ubik_votestart = -1;
 static int hf_afs_ubik_state = -1;
 static int hf_afs_ubik_site = -1;
+static int hf_afs_ubik_interface = -1;
 static int hf_afs_ubik_file = -1;
 static int hf_afs_ubik_pos = -1;
 static int hf_afs_ubik_length = -1;
 static int hf_afs_ubik_locktype = -1;
 static int hf_afs_ubik_voteend = -1;
 static int hf_afs_ubik_votetype = -1;
+
+static int hf_afs_ubik_now = -1;
+static int hf_afs_ubik_lastyestime = -1;
+static int hf_afs_ubik_lastyeshost = -1;
+static int hf_afs_ubik_lastyesstate = -1;
+static int hf_afs_ubik_lastyesclaim = -1;
+static int hf_afs_ubik_lowesthost = -1;
+static int hf_afs_ubik_lowesttime = -1;
+static int hf_afs_ubik_synchost = -1;
+static int hf_afs_ubik_synctime = -1;
+static int hf_afs_ubik_amsyncsite = -1;
+static int hf_afs_ubik_syncsiteuntil = -1;
+static int hf_afs_ubik_nservers = -1;
+static int hf_afs_ubik_lockedpages = -1;
+static int hf_afs_ubik_writelockedpages = -1;
+static int hf_afs_ubik_activewrite = -1;
+static int hf_afs_ubik_tidcounter = -1;
+static int hf_afs_ubik_anyreadlocks = -1;
+static int hf_afs_ubik_anywritelocks = -1;
+static int hf_afs_ubik_recoverystate = -1;
+static int hf_afs_ubik_currenttrans = -1;
+static int hf_afs_ubik_writetrans = -1;
+static int hf_afs_ubik_epochtime = -1;
+static int hf_afs_ubik_isclone = -1;
+static int hf_afs_ubik_addr = -1;
+static int hf_afs_ubik_lastvotetime = -1;
+static int hf_afs_ubik_lastbeaconsent = -1;
+static int hf_afs_ubik_lastvote = -1;
+static int hf_afs_ubik_currentdb = -1;
+static int hf_afs_ubik_beaconsincedown = -1;
+static int hf_afs_ubik_up = -1;
 
 static gint ett_afs = -1;
 static gint ett_afs_op = -1;

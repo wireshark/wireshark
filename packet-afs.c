@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.27 2001/03/23 21:42:37 nneul Exp $
+ * $Id: packet-afs.c,v 1.28 2001/03/26 15:27:55 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -338,7 +338,8 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if ( vals )
 	{
 		if (check_col(fd, COL_INFO))
-			col_add_fstr(fd, COL_INFO, "%s %s: %s (%d)",
+			col_add_fstr(fd, COL_INFO, "%s%s %s: %s (%d)",
+			typenode == hf_afs_ubik ? "UBIK-" : "",
 			val_to_str(port, port_types_short, "Unknown(%d)"),
 			reply ? "Reply" : "Request",
 			val_to_str(opcode, vals, "Unknown(%d)"), opcode);
@@ -346,7 +347,8 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	else
 	{
 		if (check_col(fd, COL_INFO))
-			col_add_fstr(fd, COL_INFO, "%s %s: Unknown(%d)",
+			col_add_fstr(fd, COL_INFO, "%s%s %s: Unknown(%d)",
+			typenode == hf_afs_ubik ? "UBIK-" : "",
 			val_to_str(port, port_types_short, "Unknown(%d)"),
 			reply ? "Reply" : "Request",
 			opcode);
@@ -361,7 +363,8 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			typenode != hf_afs_ubik )
 		{
 			proto_tree_add_text(afs_tree, NullTVB, doffset, END_OF_FRAME,
-				"Service: %s %s (Truncated)",
+				"Service: %s%s %s (Truncated)",
+				typenode == hf_afs_ubik ? "UBIK - " : "",
 				val_to_str(port, port_types, "Unknown(%d)"),
 				reply ? "Reply" : "Request");
 				return;
@@ -369,7 +372,8 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		else
 		{
 			proto_tree_add_text(afs_tree, NullTVB, doffset, END_OF_FRAME,
-				"Service: %s %s",
+				"Service: %s%s %s",
+				typenode == hf_afs_ubik ? "UBIK - " : "",
 				val_to_str(port, port_types, "Unknown(%d)"),
 				reply ? "Reply" : "Request");
 		}
@@ -1655,28 +1659,31 @@ dissect_ubik_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 		case 10000: /* vote-beacon */
 			break;
 		case 10001: /* vote-debug-old */
-			/* ubik_debug_old */
+			OUT_UBIK_DebugOld();
 			break;
 		case 10002: /* vote-sdebug-old */
-			/* ubik_sdebug_old */
+			OUT_UBIK_SDebugOld();
 			break;
 		case 10003: /* vote-get syncsite */
 			break;
 		case 10004: /* vote-debug */
-			/* ubik_debug */
+			OUT_UBIK_DebugOld();
+			OUT_UBIK_InterfaceAddrs();
 			break;
 		case 10005: /* vote-sdebug */
-			/* ubik_sdebug */
+			OUT_UBIK_SDebugOld();
+			OUT_UBIK_InterfaceAddrs();
 			break;
 		case 10006: /* vote-xdebug */
-			/* ubik_debug */
-			/* isClone */
+			OUT_UBIK_DebugOld();
+			OUT_UBIK_InterfaceAddrs();
+			OUT_UINT(hf_afs_ubik_isclone);
 			break;
 		case 10007: /* vote-xsdebug */
-			/* ubik_sdebug */
-			/* isClone */
+			OUT_UBIK_SDebugOld();
+			OUT_UBIK_InterfaceAddrs();
+			OUT_UINT(hf_afs_ubik_isclone);
 			break;
-
 		case 20000: /* disk-begin */
 			break;
 		case 20004: /* get version */
@@ -1684,7 +1691,9 @@ dissect_ubik_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 			break;
 		case 20010: /* disk-probe */
 			break;
-
+		case 20012: /* disk-interfaceaddr */
+			OUT_UBIK_InterfaceAddrs();
+			break;
 	}
 }
 
@@ -1762,7 +1771,10 @@ dissect_ubik_request(const u_char *pd, int offset, frame_data *fd, proto_tree *t
 		case 20011: /* disk-writev */
 			OUT_UBIKVERSION("TID");
 			break;
-		case 20012: /* disk-set version */
+		case 20012: /* disk-interfaceaddr */
+			OUT_UBIK_InterfaceAddrs();
+			break;
+		case 20013: /* disk-set version */
 			OUT_UBIKVERSION("TID");
 			OUT_UBIKVERSION("Old DB Version");
 			OUT_UBIKVERSION("New DB Version");

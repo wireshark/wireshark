@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.18 2001/01/09 06:31:41 guy Exp $
+ * $Id: packet-rx.c,v 1.19 2001/03/26 15:27:55 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -118,12 +118,18 @@ dissect_rx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_protocol_format(tree, proto_rx, NullTVB, offset,
-			sizeof(struct rx_header), "RX Protocol (%s)", 
-			val_to_str(rxh->type,rx_types,"unknown (%d)"));
+			sizeof(struct rx_header), "RX Protocol");
 		rx_tree = proto_item_add_subtree(ti, ett_rx);
 
-		proto_tree_add_uint(rx_tree, hf_rx_epoch, NullTVB,
-			offset, 4, pntohl(&rxh->epoch));
+		{
+			struct timeval tv;
+			tv.tv_sec = pntohl(&rxh->epoch);
+			tv.tv_usec = 0;
+		
+			proto_tree_add_time(rx_tree,hf_rx_epoch, NullTVB,
+				offset,sizeof(guint32),&tv);
+		}
+
 		proto_tree_add_uint(rx_tree, hf_rx_cid, NullTVB,
 			offset+4, 4, pntohl(&rxh->cid));
 		proto_tree_add_uint(rx_tree, hf_rx_callnumber, NullTVB,
@@ -187,7 +193,7 @@ proto_register_rx(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_rx_epoch, {
-			"Epoch", "rx.epoch", FT_UINT32, BASE_DEC,
+			"Epoch", "rx.epoch", FT_ABSOLUTE_TIME, BASE_DEC,
 			NULL, 0, "Epoch" }},
 		{ &hf_rx_cid, {
 			"CID", "rx.cid", FT_UINT32, BASE_DEC,
