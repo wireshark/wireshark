@@ -151,9 +151,9 @@ void except_deinit(void)
 
 static int match(const volatile except_id_t *thrown, const except_id_t *caught)
 {
-    int group_match = (caught->except_group == XCEPT_GROUP_ANY || \
+    int group_match = (caught->except_group == XCEPT_GROUP_ANY || 
 	caught->except_group == thrown->except_group);
-    int code_match = (caught->except_code == XCEPT_CODE_ANY || \
+    int code_match = (caught->except_code == XCEPT_CODE_ANY || 
 	caught->except_code == thrown->except_code);
 
     return group_match && code_match;
@@ -163,7 +163,7 @@ static void do_throw(except_t *except)
 {
     struct except_stacknode *top;
 
-    assert (except->except_id.except_group != 0 && \
+    assert (except->except_id.except_group != 0 && 
 	except->except_id.except_code != 0);
 
     for (top = get_top(); top != 0; top = top->except_down) {
