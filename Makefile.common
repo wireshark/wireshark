@@ -152,6 +152,7 @@ ethereal_SOURCES =	\
 	$(ETHEREAL_COMMON_SRC)	\
 	alert_box.c	\
 	capture.c	\
+    capture_opts.c \
 	capture_sync.c	\
 	capture_loop.c	\
 	color_filters.c	\
@@ -186,6 +187,7 @@ ethereal_INCLUDES =	\
 tethereal_SOURCES =	\
 	$(ETHEREAL_COMMON_SRC)	\
 	$(TETHEREAL_TAP_SRC)	\
+    capture_opts.c \
 	tethereal-tap-register.c	\
 	tethereal.c
 

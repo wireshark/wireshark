@@ -1620,6 +1620,9 @@ main(int argc, char *argv[])
      by preference settings and then again by the command line parameters. */
   capture_opts_init(capture_opts, &cfile);
 
+  capture_opts->snaplen             = MIN_PACKET_SIZE;
+  capture_opts->has_ring_num_files  = TRUE;
+
   command_name = get_basename(ethereal_path);
   /* Set "capture_child" to indicate whether this is going to be a child
      process for a "-S" capture. */

@@ -103,11 +103,12 @@
 #ifdef HAVE_LIBPCAP
 #include <wiretap/wtap-capture.h>
 #include <wiretap/libpcap.h>
-#endif
-
 #ifdef _WIN32
 #include "capture-wpcap.h"
 #endif
+#include "capture.h"
+#endif
+
 
 /*
  * This is the template for the decode as option; it is shared between the
@@ -168,22 +169,23 @@ typedef struct _loop_data {
 static loop_data ld;
 
 #ifdef HAVE_LIBPCAP
+#if 0
 typedef struct {
     gchar    *cfilter;              /* Capture filter string */
     gchar    *iface;                /* the network interface to capture from */
     int      snaplen;               /* Maximum captured packet length */
     int      promisc_mode;          /* Capture in promiscuous mode */
-    int      autostop_count;        /* Maximum packet count */
+    int      autostop_packets;        /* Maximum packet count */
     gboolean has_autostop_duration; /* TRUE if maximum capture duration
                                        is specified */
     gint32   autostop_duration;     /* Maximum capture duration */
     gboolean has_autostop_filesize; /* TRUE if maximum capture file size
                                        is specified */
     gint32   autostop_filesize;     /* Maximum capture file size */
-    gboolean ringbuffer_on;         /* TRUE if ring buffer in use */
-    guint32  ringbuffer_num_files;  /* Number of ring buffer files */
-    gboolean has_ring_duration;     /* TRUE if ring duration specified */
-    gint32   ringbuffer_duration;   /* Switch file after n seconds */
+    gboolean multi_files_on;        /* TRUE if ring buffer in use */
+    guint32  ring_num_files;        /* Number of ring buffer files */
+    gboolean has_file_duration;     /* TRUE if ring duration specified */
+    gint32   file_duration;         /* Switch file after n seconds */
     int      linktype;              /* Data link type to use, or -1 for
                                        "use default" */
 } capture_options;
@@ -208,6 +210,8 @@ static capture_options capture_opts = {
     0,                              /* specified time is off by default */
     -1                              /* Default to not change link type */
 };
+#endif /* 0 */
+static capture_options capture_opts;
 
 static gboolean list_link_layer_types;
 
@@ -305,145 +309,6 @@ print_usage(gboolean print_ver)
   }
   fprintf(output, "\tdefault is libpcap\n");
 }
-
-#ifdef HAVE_LIBPCAP
-static int
-get_natural_int(const char *string, const char *name)
-{
-  long number;
-  char *p;
-
-  number = strtol(string, &p, 10);
-  if (p == string || *p != '\0') {
-    fprintf(stderr, "tethereal: The specified %s \"%s\" isn't a decimal number\n",
-	    name, string);
-    exit(1);
-  }
-  if (number < 0) {
-    fprintf(stderr, "tethereal: The specified %s is a negative number\n",
-	    name);
-    exit(1);
-  }
-  if (number > INT_MAX) {
-    fprintf(stderr, "tethereal: The specified %s is too large (greater than %d)\n",
-	    name, INT_MAX);
-    exit(1);
-  }
-  return number;
-}
-
-static int
-get_positive_int(const char *string, const char *name)
-{
-  long number;
-
-  number = get_natural_int(string, name);
-
-  if (number == 0) {
-    fprintf(stderr, "tethereal: The specified %s is zero\n",
-	    name);
-    exit(1);
-  }
-
-  return number;
-}
-
-/*
- * Given a string of the form "<autostop criterion>:<value>", as might appear
- * as an argument to a "-a" option, parse it and set the criterion in
- * question.  Return an indication of whether it succeeded or failed
- * in some fashion.
- */
-static gboolean
-set_autostop_criterion(const char *autostoparg)
-{
-  guchar *p, *colonp;
-
-  colonp = strchr(autostoparg, ':');
-  if (colonp == NULL)
-    return FALSE;
-
-  p = colonp;
-  *p++ = '\0';
-
-  /*
-   * Skip over any white space (there probably won't be any, but
-   * as we allow it in the preferences file, we might as well
-   * allow it here).
-   */
-  while (isspace(*p))
-    p++;
-  if (*p == '\0') {
-    /*
-     * Put the colon back, so if our caller uses, in an
-     * error message, the string they passed us, the message
-     * looks correct.
-     */
-    *colonp = ':';
-    return FALSE;
-  }
-  if (strcmp(autostoparg,"duration") == 0) {
-    capture_opts.has_autostop_duration = TRUE;
-    capture_opts.autostop_duration = get_positive_int(p,"autostop duration");
-  } else if (strcmp(autostoparg,"filesize") == 0) {
-    capture_opts.has_autostop_filesize = TRUE;
-    capture_opts.autostop_filesize = get_positive_int(p,"autostop filesize");
-  } else {
-    return FALSE;
-  }
-  *colonp = ':';	/* put the colon back */
-  return TRUE;
-}
-
-/*
- * Given a string of the form "<ring buffer file>:<duration>", as might appear
- * as an argument to a "-b" option, parse it and set the arguments in
- * question.  Return an indication of whether it succeeded or failed
- * in some fashion.
- */
-static gboolean
-get_ring_arguments(const char *arg)
-{
-  guchar *p = NULL, *colonp;
-
-  colonp = strchr(arg, ':');
-
-  if (colonp != NULL) {
-    p = colonp;
-    *p++ = '\0';
-  }
-
-  capture_opts.ringbuffer_num_files = 
-    get_natural_int(arg, "number of ring buffer files");
-
-  if (colonp == NULL)
-    return TRUE;
-
-  /*
-   * Skip over any white space (there probably won't be any, but
-   * as we allow it in the preferences file, we might as well
-   * allow it here).
-   */
-  while (isspace(*p))
-    p++;
-  if (*p == '\0') {
-    /*
-     * Put the colon back, so if our caller uses, in an
-     * error message, the string they passed us, the message
-     * looks correct.
-     */
-    *colonp = ':';
-    return FALSE;
-  }
-
-  capture_opts.has_ring_duration = TRUE;
-  capture_opts.ringbuffer_duration = get_positive_int(p,
-						      "ring buffer duration");
-
-  *colonp = ':';	/* put the colon back */
-  return TRUE;
-}
-#endif
 
 /* structure to keep track of what tap listeners have been registered.
  */
@@ -847,6 +712,7 @@ main(int argc, char *argv[])
   int                  out_file_type = WTAP_FILE_PCAP;
   gchar               *cf_name = NULL, *rfilter = NULL;
 #ifdef HAVE_LIBPCAP
+  gboolean             start_capture = FALSE;
   gchar               *if_text;
   GList               *lt_list, *lt_entry;
   data_link_info_t    *data_link_info;
@@ -861,8 +727,7 @@ main(int argc, char *argv[])
   gboolean got_tap = FALSE;
   
 #ifdef HAVE_LIBPCAP
-  /* XXX - better use capture_opts_init instead */
-  capture_opts.cfilter = g_strdup("");
+  capture_opts_init(&capture_opts, NULL /* cfile */);
 #endif
 
   set_timestamp_setting(TS_RELATIVE);
@@ -974,32 +839,14 @@ main(int argc, char *argv[])
   while ((opt = getopt(argc, argv, "a:b:c:d:Df:F:hi:lLnN:o:pqr:R:s:St:T:vw:Vxy:z:")) != -1) {
     switch (opt) {
       case 'a':        /* autostop criteria */
-#ifdef HAVE_LIBPCAP
-        if (set_autostop_criterion(optarg) == FALSE) {
-          fprintf(stderr, "tethereal: Invalid or unknown -a flag \"%s\"\n", optarg);
-          exit(1);
-        }
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
-        break;
       case 'b':        /* Ringbuffer option */
-#ifdef HAVE_LIBPCAP
-        capture_opts.ringbuffer_on = TRUE;
-	if (get_ring_arguments(optarg) == FALSE) {
-          fprintf(stderr, "tethereal: Invalid or unknown -b arg \"%s\"\n", optarg);
-          exit(1);
-	}
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
-        break;
       case 'c':        /* Capture xxx packets */
+      case 'f':        /* capture filter */
+      case 'p':        /* Don't capture in promiscuous mode */
+      case 's':        /* Set the snapshot (capture) length */
+      case 'y':        /* Set the pcap data link type */
 #ifdef HAVE_LIBPCAP
-        capture_opts.autostop_count =
-            get_positive_int(optarg, "packet count");
+        capture_opt_add(&capture_opts, opt, optarg, &start_capture);
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1044,17 +891,6 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
         break;
-      case 'f':
-#ifdef HAVE_LIBPCAP
-        capture_filter_specified = TRUE;
-	if (capture_opts.cfilter)
-		g_free(capture_opts.cfilter);
-	capture_opts.cfilter = g_strdup(optarg);
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
-	break;
       case 'F':
         out_file_type = wtap_short_string_to_file_type(optarg);
         if (out_file_type < 0) {
@@ -1178,14 +1014,6 @@ main(int argc, char *argv[])
           break;
         }
         break;
-      case 'p':        /* Don't capture in promiscuous mode */
-#ifdef HAVE_LIBPCAP
-	capture_opts.promisc_mode = FALSE;
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
-	break;
       case 'q':        /* Quiet */
         quiet = TRUE;
         break;
@@ -1194,14 +1022,6 @@ main(int argc, char *argv[])
         break;
       case 'R':        /* Read file filter */
         rfilter = optarg;
-        break;
-      case 's':        /* Set the snapshot (capture) length */
-#ifdef HAVE_LIBPCAP
-        capture_opts.snaplen = get_positive_int(optarg, "snapshot length");
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
         break;
       case 'S':        /* show packets in real time */
         print_packet_info = TRUE;
@@ -1259,24 +1079,6 @@ main(int argc, char *argv[])
         break;
       case 'x':        /* Print packet data in hex (and ASCII) */
         print_hex = TRUE;
-        break;
-      case 'y':        /* Set the pcap data link type */
-#ifdef HAVE_LIBPCAP
-#ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
-        capture_opts.linktype = pcap_datalink_name_to_val(optarg);
-        if (capture_opts.linktype == -1) {
-          fprintf(stderr, "tethereal: The specified data link type \"%s\" isn't valid\n",
-                  optarg);
-          exit(1);
-        }
-#else /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
-        /* XXX - just treat it as a number */
-        capture_opts.linktype = get_natural_int(optarg, "data link type");
-#endif /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
         break;
       case 'z':
         for(tli=tap_list;tli;tli=tli->next){
@@ -1417,7 +1219,7 @@ main(int argc, char *argv[])
       exit(1);
     }
     /* No - did they specify a ring buffer option? */
-    if (capture_opts.ringbuffer_on) {
+    if (capture_opts.multi_files_on) {
       fprintf(stderr, "tethereal: Ring buffer requested, but a capture isn't being done.\n");
       exit(1);
     }
@@ -1430,7 +1232,7 @@ main(int argc, char *argv[])
       exit(1);
     }
 
-    if (capture_opts.ringbuffer_on) {
+    if (capture_opts.multi_files_on) {
       /* Ring buffer works only under certain conditions:
 	 a) ring buffer does not work if you're not saving the capture to
 	    a file;
@@ -1520,12 +1322,12 @@ main(int argc, char *argv[])
   else if (capture_opts.snaplen < MIN_PACKET_SIZE)
     capture_opts.snaplen = MIN_PACKET_SIZE;
 
-  /* Check the value range of the ringbuffer_num_files parameter */
-  if (capture_opts.ringbuffer_num_files > RINGBUFFER_MAX_NUM_FILES)
-    capture_opts.ringbuffer_num_files = RINGBUFFER_MAX_NUM_FILES;
+  /* Check the value range of the ring_num_files parameter */
+  if (capture_opts.ring_num_files > RINGBUFFER_MAX_NUM_FILES)
+    capture_opts.ring_num_files = RINGBUFFER_MAX_NUM_FILES;
 #if RINGBUFFER_MIN_NUM_FILES > 0
-  else if (capture_opts.ringbuffer_num_files < RINGBUFFER_MIN_NUM_FILES)
-    capture_opts.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
+  else if (capture_opts.ring_num_files < RINGBUFFER_MIN_NUM_FILES)
+    capture_opts.ring_num_files = RINGBUFFER_MIN_NUM_FILES;
 #endif
 #endif
 
@@ -1694,7 +1496,7 @@ main(int argc, char *argv[])
 
     capture(save_file, out_file_type);
 
-    if (capture_opts.ringbuffer_on) {
+    if (capture_opts.multi_files_on) {
       ringbuf_free();
     }
 #else
@@ -1909,9 +1711,9 @@ capture(char *save_file, int out_file_type)
       goto error;
     }
     ld.save_file = save_file;
-    if (capture_opts.ringbuffer_on) {
+    if (capture_opts.multi_files_on) {
       save_file_fd = ringbuf_init(save_file,
-        capture_opts.ringbuffer_num_files);
+        capture_opts.ring_num_files);
       if (save_file_fd != -1) {
         ld.pdh = ringbuf_init_wtap_dump_fdopen(out_file_type, ld.linktype,
           file_snaplen, &err);
@@ -1972,9 +1774,9 @@ capture(char *save_file, int out_file_type)
     cnd_stop_timeout = cnd_new((const char*)CND_CLASS_TIMEOUT,
                                (gint32)capture_opts.autostop_duration);
 
-  if (capture_opts.ringbuffer_on && capture_opts.has_ring_duration)
+  if (capture_opts.multi_files_on && capture_opts.has_file_duration)
     cnd_ring_timeout = cnd_new(CND_CLASS_TIMEOUT, 
-			       capture_opts.ringbuffer_duration);
+			       capture_opts.file_duration);
 
   if (!setjmp(ld.stopenv)) {
     ld.go = TRUE;
@@ -2025,15 +1827,15 @@ capture(char *save_file, int out_file_type)
          reading the FIFO sees the packets immediately and doesn't get
          any partial packet, forcing it to block in the middle of reading
          that packet. */
-      if (capture_opts.autostop_count == 0)
+      if (capture_opts.autostop_packets == 0)
         pcap_cnt = -1;
       else {
-        if (ld.packet_count >= capture_opts.autostop_count) {
+        if (ld.packet_count >= capture_opts.autostop_packets) {
           /* XXX do we need this test here? */
           /* It appears there's nothing more to capture. */
           break;
         }
-        pcap_cnt = capture_opts.autostop_count - ld.packet_count;
+        pcap_cnt = capture_opts.autostop_packets - ld.packet_count;
       }
     } else {
       /* We need to check the capture file size or the timeout after
@@ -2055,8 +1857,8 @@ capture(char *save_file, int out_file_type)
       /* The specified capture time has elapsed; stop the capture. */
       ld.go = FALSE;
     } else if (inpkts > 0) {
-      if (capture_opts.autostop_count != 0 &&
-                 ld.packet_count >= capture_opts.autostop_count) {
+      if (capture_opts.autostop_packets != 0 &&
+                 ld.packet_count >= capture_opts.autostop_packets) {
         /* The specified number of packets have been captured and have
            passed both any capture filter in effect and any read filter
            in effect. */
@@ -2066,7 +1868,7 @@ capture(char *save_file, int out_file_type)
                               (guint32)wtap_get_bytes_dumped(ld.pdh))) {
         /* We're saving the capture to a file, and the capture file reached
            its maximum size. */
-        if (capture_opts.ringbuffer_on) {
+        if (capture_opts.multi_files_on) {
           /* Switch to the next ringbuffer file */
           if (ringbuf_switch_file(&ld.pdh, &save_file, &save_file_fd, &loop_err)) {
             /* File switch succeeded: reset the condition */
@@ -2135,7 +1937,7 @@ capture(char *save_file, int out_file_type)
 
   if (save_file != NULL) {
     /* We're saving to a file or files; close all files. */
-    if (capture_opts.ringbuffer_on) {
+    if (capture_opts.multi_files_on) {
       dump_ok = ringbuf_wtap_dump_close(&save_file, &err);
     } else {
       dump_ok = wtap_dump_close(ld.pdh, &err);
@@ -2172,7 +1974,7 @@ capture(char *save_file, int out_file_type)
   return TRUE;
 
 error:
-  if (capture_opts.ringbuffer_on) {
+  if (capture_opts.multi_files_on) {
     ringbuf_error_cleanup();
   }
   g_free(save_file);
