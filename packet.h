@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.197 2000/08/21 15:45:21 deniel Exp $
+ * $Id: packet.h,v 1.198 2000/08/22 08:19:40 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,47 +41,47 @@
  */
 
 #define pntohs(p)   ((guint16)                       \
-                     ((guint16)*((guint8 *)p+0)<<8|  \
-                      (guint16)*((guint8 *)p+1)<<0))
+                     ((guint16)*((guint8 *)(p)+0)<<8|  \
+                      (guint16)*((guint8 *)(p)+1)<<0))
 
-#define pntohl(p)   ((guint32)*((guint8 *)p+0)<<24|  \
-                     (guint32)*((guint8 *)p+1)<<16|  \
-                     (guint32)*((guint8 *)p+2)<<8|   \
-                     (guint32)*((guint8 *)p+3)<<0)
+#define pntohl(p)   ((guint32)*((guint8 *)(p)+0)<<24|  \
+                     (guint32)*((guint8 *)(p)+1)<<16|  \
+                     (guint32)*((guint8 *)(p)+2)<<8|   \
+                     (guint32)*((guint8 *)(p)+3)<<0)
 
 #ifdef G_HAVE_GINT64
-#define pntohll(p)  ((guint64)*((guint8 *)p+0)<<56|  \
-                     (guint64)*((guint8 *)p+1)<<48|  \
-                     (guint64)*((guint8 *)p+2)<<40|  \
-                     (guint64)*((guint8 *)p+3)<<32|  \
-                     (guint64)*((guint8 *)p+4)<<24|  \
-                     (guint64)*((guint8 *)p+5)<<16|  \
-                     (guint64)*((guint8 *)p+6)<<8|   \
-                     (guint64)*((guint8 *)p+7)<<0)
+#define pntohll(p)  ((guint64)*((guint8 *)(p)+0)<<56|  \
+                     (guint64)*((guint8 *)(p)+1)<<48|  \
+                     (guint64)*((guint8 *)(p)+2)<<40|  \
+                     (guint64)*((guint8 *)(p)+3)<<32|  \
+                     (guint64)*((guint8 *)(p)+4)<<24|  \
+                     (guint64)*((guint8 *)(p)+5)<<16|  \
+                     (guint64)*((guint8 *)(p)+6)<<8|   \
+                     (guint64)*((guint8 *)(p)+7)<<0)
 #endif
 
 #define pletohs(p)  ((guint16)                       \
-                     ((guint16)*((guint8 *)p+1)<<8|  \
-                      (guint16)*((guint8 *)p+0)<<0))
+                     ((guint16)*((guint8 *)(p)+1)<<8|  \
+                      (guint16)*((guint8 *)(p)+0)<<0))
 
-#define pletohl(p)  ((guint32)*((guint8 *)p+3)<<24|  \
-                     (guint32)*((guint8 *)p+2)<<16|  \
-                     (guint32)*((guint8 *)p+1)<<8|   \
-                     (guint32)*((guint8 *)p+0)<<0)
+#define pletohl(p)  ((guint32)*((guint8 *)(p)+3)<<24|  \
+                     (guint32)*((guint8 *)(p)+2)<<16|  \
+                     (guint32)*((guint8 *)(p)+1)<<8|   \
+                     (guint32)*((guint8 *)(p)+0)<<0)
 
 #ifdef G_HAVE_GINT64
-#define pletohll(p) ((guint64)*((guint8 *)p+7)<<56|  \
-                     (guint64)*((guint8 *)p+6)<<48|  \
-                     (guint64)*((guint8 *)p+5)<<40|  \
-                     (guint64)*((guint8 *)p+4)<<32|  \
-                     (guint64)*((guint8 *)p+3)<<24|  \
-                     (guint64)*((guint8 *)p+2)<<16|  \
-                     (guint64)*((guint8 *)p+1)<<8|   \
-                     (guint64)*((guint8 *)p+0)<<0)
+#define pletohll(p) ((guint64)*((guint8 *)(p)+7)<<56|  \
+                     (guint64)*((guint8 *)(p)+6)<<48|  \
+                     (guint64)*((guint8 *)(p)+5)<<40|  \
+                     (guint64)*((guint8 *)(p)+4)<<32|  \
+                     (guint64)*((guint8 *)(p)+3)<<24|  \
+                     (guint64)*((guint8 *)(p)+2)<<16|  \
+                     (guint64)*((guint8 *)(p)+1)<<8|   \
+                     (guint64)*((guint8 *)(p)+0)<<0)
 #endif
 
-#define hi_nibble(b) ((b & 0xf0) >> 4)
-#define lo_nibble(b) (b & 0x0f)
+#define hi_nibble(b) (((b) & 0xf0) >> 4)
+#define lo_nibble(b) ((b) & 0x0f)
 
 /* Useful when you have an array whose size you can tell at compile-time */
 #define array_length(x)	(sizeof x / sizeof x[0])
