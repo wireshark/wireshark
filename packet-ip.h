@@ -1,7 +1,7 @@
 /* packet-ip.h
  * Definitions for IP packet disassembly structures and routines
  *
- * $Id: packet-ip.h,v 1.4 1999/06/11 16:44:51 gram Exp $
+ * $Id: packet-ip.h,v 1.5 1999/08/28 08:31:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -68,17 +68,18 @@ typedef enum {
 } opt_len_type;
 
 /* Member of table of IP or TCP options. */
-typedef struct {
+typedef struct ip_tcp_opt {
   int   optcode;	/* code for option */
   char *name;		/* name of option */
+  int   subtree_index;	/* ETT_ value for option */
   opt_len_type len_type; /* type of option length field */
   int	optlen;		/* value length should be (minimum if VARIABLE) */
-  void	(*dissect)(proto_tree *, const char *, const u_char *, int, guint);
+  void	(*dissect)(const struct ip_tcp_opt *, const u_char *, int, guint, proto_tree *);
 			/* routine to dissect option */
 } ip_tcp_opt;
 
 /* Routine to dissect IP or TCP options. */
-void       dissect_ip_tcp_options(proto_tree *, const u_char *, int, guint,
-    ip_tcp_opt *, int, int);
+void       dissect_ip_tcp_options(const u_char *, int, guint,
+    const ip_tcp_opt *, int, int, proto_tree *);
 
 #endif

@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.17 1999/08/25 07:32:46 guy Exp $
+ * $Id: packet-ppp.c,v 1.18 1999/08/28 08:31:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,6 +34,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "packet-ip.h"
 
 static int proto_ppp = -1;
 
@@ -140,18 +141,6 @@ static const value_string lcp_vals[] = {
 	{0,          NULL }
 };
 
-/* Member of table of PPP (LCP, IPCP) options. */
-typedef struct cp_opt cp_opt;
-struct cp_opt {
-	int	optcode;	/* code for option */
-	char	*name;		/* name of option */
-	int	subtree_index;	/* ETT_ value for option */
-	gboolean fixed_length;	/* TRUE if option is always the same length */
-	int	optlen;		/* value length should be (minimum if VARIABLE) */
-	void	(*dissect)(const u_char *, const cp_opt *, int, int, proto_tree *);
-			/* routine to dissect option */
-};
-
 /*
  * Options.  (LCP)
  */
@@ -162,10 +151,11 @@ struct cp_opt {
 #define CI_MAGICNUMBER		5	/* Magic Number */
 #define CI_PCOMPRESSION		7	/* Protocol Field Compression */
 #define CI_ACCOMPRESSION	8	/* Address/Control Field Compression */
-#define CI_FCSALTERNATIVES	9	/* FCS Alternatives (RFC 1570) */
+#define CI_FCS_ALTERNATIVES	9	/* FCS Alternatives (RFC 1570) */
 #define CI_SELF_DESCRIBING_PAD	10	/* Self-Describing Pad (RFC 1570) */
 #define CI_NUMBERED_MODE	11	/* Numbered Mode (RFC 1663) */
 #define CI_CALLBACK		13	/* Callback (RFC 1570) */
+#define CI_COMPOUND_FRAMES	15	/* Compound frames (RFC 1570) */
 #define CI_MULTILINK_MRRU	17	/* Multilink MRRU (RFC 1717) */
 #define CI_MULTILINK_SSNH	18	/* Multilink Short Sequence Number
 					   Header (RFC 1717) */
@@ -183,57 +173,232 @@ struct cp_opt {
 #define CI_INTERNATIONALIZATION	28	/* Internationalization (RFC 2484) */
 #define	CI_SDL_ON_SONET_SDH	29	/* Simple Data Link on SONET/SDH */
 
-static const value_string lcp_opt_vals[] = {
-	{CI_MRU,                  "Maximum Receive Unit" },
-	{CI_ASYNCMAP,             "Async Control Character Map" },
-	{CI_AUTHTYPE,             "Authentication Type" },
-	{CI_QUALITY,              "Quality Protocol" },
-	{CI_MAGICNUMBER,          "Magic Number" },
-	{CI_PCOMPRESSION,         "Protocol Field Compression" },
-	{CI_ACCOMPRESSION,        "Address/Control Field Compression" },
-	{CI_FCSALTERNATIVES,      "FCS Alternatives" },
-	{CI_SELF_DESCRIBING_PAD,  "Self-Describing Pad" },
-	{CI_NUMBERED_MODE,        "Numbered Mode" },
-	{CI_CALLBACK,             "Callback" },
-	{CI_MULTILINK_MRRU,       "Multilink MRRU" },
-	{CI_MULTILINK_SSNH,       "Multilink Short Sequence Number Header" },
-	{CI_MULTILINK_EP_DISC,    "Multilink Endpoint Discriminator" },
-	{CI_DCE_IDENTIFIER,       "DCE Identifier" },
-	{CI_MULTILINK_PLUS_PROC,  "Multilink Plus Procedure" },
-	{CI_LINK_DISC_FOR_BACP,   "Link Discriminator for BACP" },
-	{CI_LCP_AUTHENTICATION,   "LCP Authentication" },
-	{CI_COBS,                 "Consistent Overhead Byte Stuffing" },
-	{CI_PREFIX_ELISION,       "Prefix elision" },
-	{CI_MULTILINK_HDR_FMT,    "Multilink header format" },
-	{CI_INTERNATIONALIZATION, "Internationalization" },
-	{CI_SDL_ON_SONET_SDH,     "Simple Data Link on SONET/SDH" },
-	{0,                       NULL }
-};
+static void dissect_lcp_mru_opt(const ip_tcp_opt *optp, const u_char *opd,
+			int offset, guint length, proto_tree *tree);
+static void dissect_lcp_async_map_opt(const ip_tcp_opt *optp, const u_char *opd,
+			int offset, guint length, proto_tree *tree);
+static void dissect_lcp_protocol_opt(const ip_tcp_opt *optp, const u_char *opd,
+			int offset, guint length, proto_tree *tree);
+static void dissect_lcp_magicnumber_opt(const ip_tcp_opt *optp,
+			const u_char *opd, int offset, guint length,
+			proto_tree *tree);
+static void dissect_lcp_fcs_alternatives_opt(const ip_tcp_opt *optp,
+			const u_char *opd, int offset, guint length,
+			proto_tree *tree);
+static void dissect_lcp_numbered_mode_opt(const ip_tcp_opt *optp,
+			const u_char *opd, int offset, guint length,
+			proto_tree *tree);
+static void dissect_lcp_self_describing_pad_opt(const ip_tcp_opt *optp,
+			const u_char *opd, int offset, guint length,
+			proto_tree *tree);
+static void dissect_lcp_callback_opt(const ip_tcp_opt *optp, const u_char *opd,
+			int offset, guint length, proto_tree *tree);
+static void dissect_lcp_multilink_mrru_opt(const ip_tcp_opt *optp,
+			const u_char *opd, int offset, guint length,
+			proto_tree *tree);
+static void dissect_lcp_multilink_ep_disc_opt(const ip_tcp_opt *optp,
+			const u_char *opd, int offset, guint length,
+			proto_tree *tree);
+static void dissect_lcp_bap_link_discriminator_opt(const ip_tcp_opt *optp,
+			const u_char *opd, int offset, guint length,
+			proto_tree *tree);
+static void dissect_lcp_internationalization_opt(const ip_tcp_opt *optp,
+			const u_char *opd, int offset, guint length,
+			proto_tree *tree);
 
-static void dissect_lcp_mru_opt(const u_char *pd, const cp_opt *optp,
-			int offset, int length, proto_tree *tree);
-static void dissect_lcp_async_map_opt(const u_char *pd, const cp_opt *optp,
-			int offset, int length, proto_tree *tree);
-static void dissect_lcp_protocol_opt(const u_char *pd, const cp_opt *optp,
-			int offset, int length, proto_tree *tree);
-static void dissect_lcp_magicnumber_opt(const u_char *pd, const cp_opt *optp,
-			int offset, int length, proto_tree *tree);
-
-static const cp_opt lcp_opts[] = {
-	{CI_MRU,           NULL,                      ETT_LCP_MRU_OPT,
-			TRUE,  4, dissect_lcp_mru_opt},
-	{CI_ASYNCMAP,      NULL,                      ETT_LCP_ASYNC_MAP_OPT,
-			TRUE,  6, dissect_lcp_async_map_opt},
-	{CI_AUTHTYPE,      "Authentication protocol", ETT_LCP_AUTHPROT_OPT,
-			FALSE, 4, dissect_lcp_protocol_opt},
-	{CI_QUALITY,       "Quality protocol",        ETT_LCP_QUALPROT_OPT,
-			FALSE, 4, dissect_lcp_protocol_opt},
-	{CI_MAGICNUMBER,   NULL,                      ETT_LCP_MAGICNUM_OPT,
-			TRUE,  6, dissect_lcp_magicnumber_opt},
-	{CI_PCOMPRESSION,  NULL,                      -1,
-			TRUE,  2, NULL},
-	{CI_ACCOMPRESSION, NULL,                      -1,
-			TRUE,  2, NULL}
+static const ip_tcp_opt lcp_opts[] = {
+	{
+		CI_MRU,
+		"Maximum Receive Unit",
+		ETT_LCP_MRU_OPT,
+		FIXED_LENGTH,
+		4,
+		dissect_lcp_mru_opt
+	},
+	{
+		CI_ASYNCMAP,
+		"Async Control Character Map",
+		ETT_LCP_ASYNC_MAP_OPT,
+		FIXED_LENGTH,
+		6,
+		dissect_lcp_async_map_opt
+	},
+	{
+		CI_AUTHTYPE,
+		"Authentication protocol",
+		ETT_LCP_AUTHPROT_OPT,
+		VARIABLE_LENGTH,
+		4,
+		dissect_lcp_protocol_opt
+	},
+	{
+		CI_QUALITY,
+		"Quality protocol",
+		ETT_LCP_QUALPROT_OPT,
+		VARIABLE_LENGTH,
+		4,
+		dissect_lcp_protocol_opt
+	},
+	{
+		CI_MAGICNUMBER,
+		NULL,
+		ETT_LCP_MAGICNUM_OPT,
+		FIXED_LENGTH,
+		6,
+		dissect_lcp_magicnumber_opt
+	},
+	{
+		CI_PCOMPRESSION,
+		"Protocol field compression",
+		-1,
+		FIXED_LENGTH,
+		2,
+		NULL
+	},
+	{
+		CI_ACCOMPRESSION,
+		"Address/control field compression",
+		-1,
+		FIXED_LENGTH,
+		2,
+		NULL
+	},
+	{
+		CI_FCS_ALTERNATIVES,
+		NULL,
+		ETT_LCP_FCS_ALTERNATIVES_OPT,
+		FIXED_LENGTH,
+		3,
+		dissect_lcp_fcs_alternatives_opt
+	},
+	{
+		CI_SELF_DESCRIBING_PAD,
+		NULL,
+		-1,
+		FIXED_LENGTH,
+		3,
+		dissect_lcp_self_describing_pad_opt
+	},
+	{
+		CI_NUMBERED_MODE,
+		"Numbered mode",
+		ETT_LCP_NUMBERED_MODE_OPT,
+		VARIABLE_LENGTH,
+		4,
+		dissect_lcp_numbered_mode_opt
+	},
+	{
+		CI_CALLBACK,
+		"Callback",
+		ETT_LCP_CALLBACK_OPT,
+		VARIABLE_LENGTH,
+		3,
+		dissect_lcp_callback_opt,
+	},
+	{
+		CI_COMPOUND_FRAMES,
+		"Compound frames",
+		-1,
+		FIXED_LENGTH,
+		2,
+		NULL
+	},
+	{
+		CI_MULTILINK_MRRU,
+		NULL,
+		-1,
+		FIXED_LENGTH,
+		4,
+		dissect_lcp_multilink_mrru_opt
+	},
+	{
+		CI_MULTILINK_SSNH,
+		"Use short sequence number headers",
+		-1,
+		FIXED_LENGTH,
+		2,
+		NULL
+	},
+	{
+		CI_MULTILINK_EP_DISC,
+		"Multilink endpoint discriminator",
+		ETT_LCP_MULTILINK_EP_DISC_OPT,
+		VARIABLE_LENGTH,
+		3,
+		dissect_lcp_multilink_ep_disc_opt,
+	},
+	{
+		CI_DCE_IDENTIFIER,
+		"DCE identifier",
+		-1,
+		VARIABLE_LENGTH,
+		2,
+		NULL
+	},
+	{
+		CI_MULTILINK_PLUS_PROC,
+		"Multilink Plus Procedure",
+		-1,
+		VARIABLE_LENGTH,
+		2,
+		NULL
+	},
+	{
+		CI_LINK_DISC_FOR_BACP,
+		NULL,
+		-1,
+		FIXED_LENGTH,
+		4,
+		dissect_lcp_bap_link_discriminator_opt
+	},
+	{
+		CI_LCP_AUTHENTICATION,
+		"LCP authentication",
+		-1,
+		VARIABLE_LENGTH,
+		2,
+		NULL
+	},
+	{
+		CI_COBS,
+		"Consistent Overhead Byte Stuffing",
+		-1,
+		VARIABLE_LENGTH,
+		2,
+		NULL
+	},
+	{
+		CI_PREFIX_ELISION,
+		"Prefix elision",
+		-1,
+		VARIABLE_LENGTH,
+		2,
+		NULL
+	},
+	{
+		CI_MULTILINK_HDR_FMT,
+		"Multilink header format",
+		-1,
+		VARIABLE_LENGTH,
+		2,
+		NULL
+	},
+	{
+		CI_INTERNATIONALIZATION,
+		"Internationalization",
+		ETT_LCP_INTERNATIONALIZATION_OPT,
+		VARIABLE_LENGTH,
+		7,
+		dissect_lcp_internationalization_opt
+	},
+	{
+		CI_SDL_ON_SONET_SDH,
+		"Simple data link on SONET/SDH",
+		-1,
+		VARIABLE_LENGTH,
+		2,
+		NULL
+	}
 };
 
 #define N_LCP_OPTS	(sizeof lcp_opts / sizeof lcp_opts[0])
@@ -241,7 +406,7 @@ static const cp_opt lcp_opts[] = {
 /*
  * Options.  (IPCP)
  */
-#define CI_ADDRS	1	/* IP Addresses (deprecated) (RFC 1332) */
+#define CI_ADDRS	1	/* IP Addresses (deprecated) (RFC 1172) */
 #define CI_COMPRESSTYPE	2	/* Compression Type (RFC 1332) */
 #define CI_ADDR		3	/* IP Address (RFC 1332) */
 #define CI_MOBILE_IPv4	4	/* Mobile IPv4 (RFC 2290) */
@@ -250,26 +415,76 @@ static const cp_opt lcp_opts[] = {
 #define CI_MS_DNS2	131	/* Secondary DNS value (RFC 1877) */
 #define CI_MS_WINS2	132	/* Secondary WINS value (RFC 1877) */
 
-static const value_string ipcp_opt_vals[] = {
-	{CI_ADDRS,        "IP Addresses" },
-	{CI_COMPRESSTYPE, "Compression Type" },
-	{CI_ADDR,         "IP Address" }, 
-	{CI_MOBILE_IPv4,  "Mobile IPv4" }, 
-	{CI_MS_DNS1,      "Primary DNS value" },
-	{CI_MS_WINS1,     "Primary WINS value" },
-	{CI_MS_DNS2,      "Secondary DNS value" },
-	{CI_MS_WINS2,     "Secondary WINS value" },
-	{0,               NULL }
-};
+static void dissect_ipcp_addrs_opt(const ip_tcp_opt *optp, const u_char *opd,
+			int offset, guint length, proto_tree *tree);
+static void dissect_ipcp_addr_opt(const ip_tcp_opt *optp, const u_char *opd,
+			int offset, guint length, proto_tree *tree);
 
-static void dissect_ipcp_addr_opt(const u_char *pd, const cp_opt *optp,
-			int offset, int length, proto_tree *tree);
-
-static const cp_opt ipcp_opts[] = {
-	{CI_COMPRESSTYPE, "IP compression protocol", ETT_IPCP_COMPRESSPROT_OPT,
-			FALSE, 4, dissect_lcp_protocol_opt},
-	{CI_ADDR,         NULL,                      ETT_IPCP_ADDR_OPT,
-			TRUE,  6, dissect_ipcp_addr_opt},
+static const ip_tcp_opt ipcp_opts[] = {
+	{
+		CI_ADDRS,
+		"IP addresses (deprecated)",
+		ETT_IPCP_IPADDRS_OPT,
+		FIXED_LENGTH,
+		10,
+		dissect_ipcp_addrs_opt
+	},
+	{
+		CI_COMPRESSTYPE,
+		"IP compression protocol",
+		ETT_IPCP_COMPRESSPROT_OPT,
+		VARIABLE_LENGTH,
+		4,
+		dissect_lcp_protocol_opt
+	},
+	{
+		CI_ADDR,
+		"IP address",
+		-1,
+		FIXED_LENGTH,
+		6,
+		dissect_ipcp_addr_opt
+	},
+	{
+		CI_MOBILE_IPv4,
+		"Mobile node's home IP address",
+		-1,
+		FIXED_LENGTH,
+		6,
+		dissect_ipcp_addr_opt
+	},
+	{
+		CI_MS_DNS1,
+		"Primary DNS server IP address",
+		-1,
+		FIXED_LENGTH,
+		6,
+		dissect_ipcp_addr_opt
+	},
+	{
+		CI_MS_WINS1,
+		"Primary WINS server IP address",
+		-1,
+		FIXED_LENGTH,
+		6,
+		dissect_ipcp_addr_opt
+	},
+	{
+		CI_MS_DNS2,
+		"Secondary DNS server IP address",
+		-1,
+		FIXED_LENGTH,
+		6,
+		dissect_ipcp_addr_opt
+	},
+	{
+		CI_MS_WINS2,
+		"Secondary WINS server IP address",
+		-1,
+		FIXED_LENGTH,
+		6,
+		dissect_ipcp_addr_opt
+	}
 };
 
 #define N_IPCP_OPTS	(sizeof ipcp_opts / sizeof ipcp_opts[0])
@@ -287,23 +502,23 @@ capture_ppp( const u_char *pd, guint32 cap_len, packet_counts *ld ) {
 }
 
 static void
-dissect_lcp_mru_opt(const u_char *pd, const cp_opt *optp, int offset,
-			int length, proto_tree *tree)
+dissect_lcp_mru_opt(const ip_tcp_opt *optp, const u_char *opd, int offset,
+			guint length, proto_tree *tree)
 {
-  proto_tree_add_text(tree, offset, length, "MRU: %u", pntohs(&pd[offset]));
+  proto_tree_add_text(tree, offset, length, "MRU: %u", pntohs(opd));
 }
 
 static void
-dissect_lcp_async_map_opt(const u_char *pd, const cp_opt *optp, int offset,
-			int length, proto_tree *tree)
+dissect_lcp_async_map_opt(const ip_tcp_opt *optp, const u_char *opd, int offset,
+			guint length, proto_tree *tree)
 {
   proto_tree_add_text(tree, offset, length, "Async characters to map: 0x%08x",
-			pntohl(&pd[offset]));
+			pntohl(opd));
 }
 
 static void
-dissect_lcp_protocol_opt(const u_char *pd, const cp_opt *optp, int offset,
-			int length, proto_tree *tree)
+dissect_lcp_protocol_opt(const ip_tcp_opt *optp, const u_char *opd, int offset,
+			guint length, proto_tree *tree)
 {
   guint16 protocol;
   proto_item *tf;
@@ -314,10 +529,11 @@ dissect_lcp_protocol_opt(const u_char *pd, const cp_opt *optp, int offset,
   field_tree = proto_item_add_subtree(tf, optp->subtree_index);
   offset += 2;
   length -= 2;
-  protocol = pntohs(&pd[offset]);
+  protocol = pntohs(opd);
   proto_tree_add_text(field_tree, offset, 2, "%s: %s (0x%02x)", optp->name,
 		val_to_str(protocol, ppp_vals, "Unknown"), protocol);
   offset += 2;
+  opd += 2;
   length -= 2;
   if (length > 0)
     proto_tree_add_text(field_tree, offset, length, "Data (%d byte%s)", length,
@@ -325,91 +541,294 @@ dissect_lcp_protocol_opt(const u_char *pd, const cp_opt *optp, int offset,
 }
 
 static void
-dissect_lcp_magicnumber_opt(const u_char *pd, const cp_opt *optp, int offset,
-			int length, proto_tree *tree)
+dissect_lcp_magicnumber_opt(const ip_tcp_opt *optp, const u_char *opd,
+			int offset, guint length, proto_tree *tree)
 {
   proto_tree_add_text(tree, offset, length, "Magic number: 0x%08x",
-			pntohl(&pd[offset]));
-}
-
-static void dissect_ipcp_addr_opt(const u_char *pd, const cp_opt *optp,
-			int offset, int length, proto_tree *tree)
-{
-  proto_tree_add_text(tree, offset, length, "IP address: %s",
-			ip_to_str((guint8 *)&pd[offset]));
+			pntohl(opd));
 }
 
 static void
-dissect_cp_opts(const u_char *pd, int offset, int length,
-		const value_string *opt_vals, const cp_opt *opts,
-		int nopts, proto_tree *tree)
+dissect_lcp_fcs_alternatives_opt(const ip_tcp_opt *optp, const u_char *opd,
+			int offset, guint length, proto_tree *tree)
 {
-  guint8 opt;
-  guint16 opt_len;
-  const cp_opt *optp;
-  void (*dissect)(const u_char *, const cp_opt *, int, int, proto_tree *);
-  gboolean error;
+  proto_item *tf;
+  proto_tree *field_tree = NULL;
+  guint8 alternatives;
+  
+  alternatives = *opd;
+  tf = proto_tree_add_text(tree, offset, length, "%s: 0x%02x",
+	  optp->name, alternatives);
+  field_tree = proto_item_add_subtree(tf, optp->subtree_index);
+  offset += 2;
+  if (alternatives & 0x1)
+    proto_tree_add_text(field_tree, offset + 2, 1, "%s",
+       decode_boolean_bitfield(alternatives, 0x1, 8, "Null FCS", NULL));
+  if (alternatives & 0x2)
+    proto_tree_add_text(field_tree, offset + 2, 1, "%s",
+       decode_boolean_bitfield(alternatives, 0x2, 8, "CCITT 16-bit FCS", NULL));
+  if (alternatives & 0x4)
+    proto_tree_add_text(field_tree, offset + 2, 1, "%s",
+       decode_boolean_bitfield(alternatives, 0x4, 8, "CCITT 32-bit FCS", NULL));
+}
 
-  while (length > 0) {
-    opt = pd[offset];
-    if (length == 1) {
-      proto_tree_add_text(tree, offset, 1, "%s: Length byte past end of options",
-        val_to_str(opt, opt_vals, "Unknown (0x%02x)"));
-      return;
-    }
-    opt_len = pd[offset+1];
-    if (length < opt_len) {
-      proto_tree_add_text(tree, offset, 1, "%s: Option length %u says option goes past end of options",
-        val_to_str(opt, opt_vals, "Unknown (0x%02x)"), opt_len);
-      return;
-    }
-    for (optp = &lcp_opts[0]; optp < &lcp_opts[nopts]; optp++) {
-      if (optp->optcode == opt)
-        break;
-    }
-    dissect = NULL;
-    error = FALSE;
-    if (optp != &lcp_opts[nopts]) {
-      if (optp->fixed_length) {
-        /* Option has a fixed length - complain if the length we got
-           doesn't match. */
-        if (opt_len != optp->optlen) {
-          proto_tree_add_text(tree, offset, 1, "%s: Option length is %u, should be %u",
-            val_to_str(opt, opt_vals, "Unknown (0x%02x)"), opt_len, optp->optlen);
-          error = TRUE;
-        } else
-          dissect = optp->dissect;
+static void
+dissect_lcp_self_describing_pad_opt(const ip_tcp_opt *optp, const u_char *opd,
+			int offset, guint length, proto_tree *tree)
+{
+  proto_tree_add_text(tree, offset, length,
+			"Maximum octets of self-describing padding: %u",
+			*opd);
+}
+
+static void
+dissect_lcp_numbered_mode_opt(const ip_tcp_opt *optp, const u_char *opd,
+			int offset, guint length, proto_tree *tree)
+{
+  proto_item *tf;
+  proto_tree *field_tree = NULL;
+  
+  tf = proto_tree_add_text(tree, offset, length, "%s: %u byte%s",
+	  optp->name, length, plurality(length, "", "s"));
+  field_tree = proto_item_add_subtree(tf, optp->subtree_index);
+  offset += 2;
+  length -= 2;
+  proto_tree_add_text(field_tree, offset, 1, "Window: %u", *opd);
+  offset += 1;
+  opd += 1;
+  length -= 1;
+  if (length > 0)
+    proto_tree_add_text(field_tree, offset, length, "Address (%d byte%s)",
+			length, plurality(length, "", "s"));
+}
+
+static const value_string callback_op_vals[] = {
+	{0, "Location is determined by user authentication" },
+	{1, "Message is dialing string" },
+	{2, "Message is location identifier" },
+	{3, "Message is E.164" },
+	{4, "Message is distinguished name" },
+	{0, NULL }
+};
+
+static void
+dissect_lcp_callback_opt(const ip_tcp_opt *optp, const u_char *opd, int offset,
+			guint length, proto_tree *tree)
+{
+  proto_item *tf;
+  proto_tree *field_tree = NULL;
+  
+  tf = proto_tree_add_text(tree, offset, length, "%s: %u byte%s",
+	  optp->name, length, plurality(length, "", "s"));
+  field_tree = proto_item_add_subtree(tf, optp->subtree_index);
+  offset += 2;
+  length -= 2;
+  proto_tree_add_text(field_tree, offset, 1, "Operation: %s (0x%02x)",
+		val_to_str(*opd, callback_op_vals, "Unknown"),
+		*opd);
+  offset += 1;
+  opd += 1;
+  length -= 1;
+  if (length > 0)
+    proto_tree_add_text(field_tree, offset, length, "Message (%d byte%s)",
+			length, plurality(length, "", "s"));
+}
+
+static void
+dissect_lcp_multilink_mrru_opt(const ip_tcp_opt *optp, const u_char *opd,
+			int offset, guint length, proto_tree *tree)
+{
+  proto_tree_add_text(tree, offset, length, "Multilink MRRU: %u",
+			pntohs(opd));
+}
+
+#define CLASS_NULL			0
+#define CLASS_LOCAL			1
+#define CLASS_IP			2
+#define CLASS_IEEE_802_1		3
+#define CLASS_PPP_MAGIC_NUMBER		4
+#define CLASS_PSDN_DIRECTORY_NUMBER	5
+
+static const value_string multilink_ep_disc_class_vals[] = {
+	{CLASS_NULL,                  "Null" },
+	{CLASS_LOCAL,                 "Locally assigned address" },
+	{CLASS_IP,                    "IP address" },
+	{CLASS_IEEE_802_1,            "IEEE 802.1 globally assigned MAC address" },
+	{CLASS_PPP_MAGIC_NUMBER,      "PPP magic-number block" },
+	{CLASS_PSDN_DIRECTORY_NUMBER, "Public switched network directory number" },
+	{0,                           NULL }
+};
+
+static void
+dissect_lcp_multilink_ep_disc_opt(const ip_tcp_opt *optp, const u_char *opd,
+			int offset, guint length, proto_tree *tree)
+{
+  proto_item *tf;
+  proto_tree *field_tree = NULL;
+  guint8 ep_disc_class;
+
+  tf = proto_tree_add_text(tree, offset, length, "%s: %u byte%s",
+	  optp->name, length, plurality(length, "", "s"));
+  field_tree = proto_item_add_subtree(tf, optp->subtree_index);
+  offset += 2;
+  length -= 2;
+  ep_disc_class = *opd;
+  proto_tree_add_text(field_tree, offset, 1, "Class: %s (%u)",
+		val_to_str(ep_disc_class, multilink_ep_disc_class_vals, "Unknown"),
+		ep_disc_class);
+  offset += 1;
+  opd += 1;
+  length -= 1;
+  if (length > 0) {
+    switch (ep_disc_class) {
+
+    case CLASS_NULL:
+      proto_tree_add_text(field_tree, offset, length,
+			"Address (%d byte%s), should have been empty",
+			length, plurality(length, "", "s"));
+      break;
+
+    case CLASS_LOCAL:
+      if (length > 20) {
+        proto_tree_add_text(field_tree, offset, length,
+			"Address (%d byte%s), should have been <20",
+			length, plurality(length, "", "s"));
       } else {
-        /* Option has a variable length - complain if the length we got
-           isn't at least as much as the minimum length. */
-        if (opt_len < optp->optlen) {
-          proto_tree_add_text(tree, offset, 1, "%s: Option length is %u, should be at least %u",
-            val_to_str(opt, opt_vals, "Unknown (0x%02x)"), opt_len, optp->optlen);
-          error = TRUE;
-        } else
-          dissect = optp->dissect;
+        proto_tree_add_text(field_tree, offset, length,
+			"Address (%d byte%s)",
+			length, plurality(length, "", "s"));
       }
-    }
-    if (dissect != NULL)
-      (*dissect)(pd, optp, offset, opt_len, tree);
-    else {
-      if (!error) {
-        proto_tree_add_text(tree, offset, opt_len, "%s: %u byte%s",
-          val_to_str(opt, opt_vals, "Unknown (0x%02x)"), opt_len,
-          plurality(opt_len, "", "s"));
+      break;
+
+    case CLASS_IP:
+      if (length != 4) {
+        proto_tree_add_text(field_tree, offset, length,
+			"Address (%d byte%s), should have been 4",
+			length, plurality(length, "", "s"));
+      } else {
+        proto_tree_add_text(field_tree, offset, length,
+			"Address: %s", ip_to_str(opd));
       }
+      break;
+
+    case CLASS_IEEE_802_1:
+      if (length != 6) {
+        proto_tree_add_text(field_tree, offset, length,
+			"Address (%d byte%s), should have been 6",
+			length, plurality(length, "", "s"));
+      } else {
+        proto_tree_add_text(field_tree, offset, length,
+			"Address: %s", ether_to_str(opd));
+      }
+      break;
+
+    case CLASS_PPP_MAGIC_NUMBER:
+      /* XXX - dissect as 32-bit magic numbers */
+      if (length > 20) {
+        proto_tree_add_text(field_tree, offset, length,
+			"Address (%d byte%s), should have been <20",
+			length, plurality(length, "", "s"));
+      } else {
+        proto_tree_add_text(field_tree, offset, length,
+			"Address (%d byte%s)",
+			length, plurality(length, "", "s"));
+      }
+      break;
+
+    case CLASS_PSDN_DIRECTORY_NUMBER:
+      if (length > 15) {
+        proto_tree_add_text(field_tree, offset, length,
+			"Address (%d byte%s), should have been <20",
+			length, plurality(length, "", "s"));
+      } else {
+        proto_tree_add_text(field_tree, offset, length,
+			"Address (%d byte%s)",
+			length, plurality(length, "", "s"));
+      }
+      break;
+
+    default:
+      proto_tree_add_text(field_tree, offset, length,
+			"Address (%d byte%s)",
+			length, plurality(length, "", "s"));
+      break;
     }
-    offset += opt_len;
-    length -= opt_len;
   }
+}
+
+static void
+dissect_lcp_bap_link_discriminator_opt(const ip_tcp_opt *optp, const u_char *opd,
+			int offset, guint length, proto_tree *tree)
+{
+  proto_tree_add_text(tree, offset, length,
+			"Link discriminator for BAP: 0x%04x",
+			pntohs(opd));
+}
+
+/* Character set numbers from the IANA charset registry. */
+static const value_string charset_num_vals[] = {
+	{105, "UTF-8" },
+	{0,   NULL }
+};
+
+static void
+dissect_lcp_internationalization_opt(const ip_tcp_opt *optp, const u_char *opd,
+			int offset, guint length, proto_tree *tree)
+{
+  proto_item *tf;
+  proto_tree *field_tree = NULL;
+  
+  tf = proto_tree_add_text(tree, offset, length, "%s: %u byte%s",
+	  optp->name, length, plurality(length, "", "s"));
+  field_tree = proto_item_add_subtree(tf, optp->subtree_index);
+  offset += 2;
+  length -= 2;
+  proto_tree_add_text(field_tree, offset, 4, "Character set: %s (0x%04x)",
+		val_to_str(pntohl(opd), charset_num_vals, "Unknown"),
+		pntohl(opd));
+  offset += 4;
+  opd += 4;
+  length -= 4;
+  if (length > 0) {
+    /* XXX - should be displayed as an ASCII string */
+    proto_tree_add_text(field_tree, offset, length, "Language tag (%d byte%s)",
+			length, plurality(length, "", "s"));
+  }
+}
+
+static void
+dissect_ipcp_addrs_opt(const ip_tcp_opt *optp, const u_char *opd,
+			int offset, guint length, proto_tree *tree)
+{
+  proto_item *tf;
+  proto_tree *field_tree = NULL;
+  
+  tf = proto_tree_add_text(tree, offset, length, "%s: %u byte%s",
+	  optp->name, length, plurality(length, "", "s"));
+  field_tree = proto_item_add_subtree(tf, optp->subtree_index);
+  offset += 2;
+  length -= 2;
+  proto_tree_add_text(field_tree, offset, 4,
+			"Source IP address: %s", ip_to_str(opd));
+  offset += 4;
+  opd += 4;
+  length -= 4;
+  proto_tree_add_text(field_tree, offset, 4,
+			"Destination IP address: %s", ip_to_str(opd));
+}
+
+static void dissect_ipcp_addr_opt(const ip_tcp_opt *optp, const u_char *opd,
+			int offset, guint length, proto_tree *tree)
+{
+  proto_tree_add_text(tree, offset, length, "%s: %s", optp->name,
+			ip_to_str((guint8 *)opd));
 }
 
 static void
 dissect_cp( const u_char *pd, int offset, const char *proto_short_name,
 	const char *proto_long_name, int proto_subtree_index,
 	const value_string *proto_vals, int options_subtree_index,
-	const value_string *opt_vals, const cp_opt *opts, int nopts,
-	frame_data *fd, proto_tree *tree ) {
+	const ip_tcp_opt *opts, int nopts, frame_data *fd, proto_tree *tree ) {
   proto_item *ti;
   proto_tree *fh_tree = NULL;
   proto_item *tf;
@@ -452,8 +871,8 @@ dissect_cp( const u_char *pd, int offset, const char *proto_short_name,
           tf = proto_tree_add_text(fh_tree, offset, length,
             "Options: (%d byte%s)", length, plurality(length, "", "s"));
           field_tree = proto_item_add_subtree(tf, options_subtree_index);
-          dissect_cp_opts(pd, offset, length, opt_vals,
-          		opts, nopts, field_tree);
+          dissect_ip_tcp_options(&pd[offset], offset, length, opts, nopts,
+				-1, field_tree);
         }
       }
       break;
@@ -556,11 +975,11 @@ dissect_ppp_stuff( const u_char *pd, int offset, frame_data *fd,
       return TRUE;
     case PPP_LCP:
       dissect_cp(pd, offset, "L", "Link", ETT_LCP, lcp_vals, ETT_LCP_OPTIONS,
-		lcp_opt_vals, lcp_opts, N_LCP_OPTS, fd, tree);
+		lcp_opts, N_LCP_OPTS, fd, tree);
       return TRUE;
     case PPP_IPCP:
       dissect_cp(pd, offset, "IP", "IP", ETT_IPCP, cp_vals, ETT_IPCP_OPTIONS,
-		ipcp_opt_vals, ipcp_opts, N_IPCP_OPTS, fd, tree);
+		ipcp_opts, N_IPCP_OPTS, fd, tree);
       return TRUE;
     default:
       if (check_col(fd, COL_INFO))

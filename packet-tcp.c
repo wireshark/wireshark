@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.31 1999/08/18 03:11:14 guy Exp $
+ * $Id: packet-tcp.c,v 1.32 1999/08/28 08:31:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -147,38 +147,38 @@ tcp_info_append_uint(const char *abbrev, guint32 val) {
 }
 
 static void
-dissect_tcpopt_maxseg(proto_tree *opt_tree, const char *name, const u_char *opd,
-    int offset, guint optlen)
+dissect_tcpopt_maxseg(const ip_tcp_opt *optp, const u_char *opd,
+    int offset, guint optlen, proto_tree *opt_tree)
 {
   proto_tree_add_text(opt_tree, offset,      optlen,
-    "%s: %u bytes", name, pntohs(opd));
+			"%s: %u bytes", optp->name, pntohs(opd));
   tcp_info_append_uint("MSS", pntohs(opd));
 }
 
 static void
-dissect_tcpopt_wscale(proto_tree *opt_tree, const char *name, const u_char *opd,
-    int offset, guint optlen)
+dissect_tcpopt_wscale(const ip_tcp_opt *optp, const u_char *opd,
+    int offset, guint optlen, proto_tree *opt_tree)
 {
   proto_tree_add_text(opt_tree, offset,      optlen,
-    "%s: %u bytes", name, *opd);
+			"%s: %u bytes", optp->name, *opd);
   tcp_info_append_uint("WS", *opd);
 }
 
 static void
-dissect_tcpopt_sack(proto_tree *opt_tree, const char *name, const u_char *opd,
-    int offset, guint optlen)
+dissect_tcpopt_sack(const ip_tcp_opt *optp, const u_char *opd,
+    int offset, guint optlen, proto_tree *opt_tree)
 {
   proto_tree *field_tree = NULL;
   proto_item *tf;
   guint leftedge, rightedge;
 
-  tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s:", name);
+  tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s:", optp->name);
   offset += 2;	/* skip past type and length */
   optlen -= 2;	/* subtract size of type and length */
   while (optlen > 0) {
     if (field_tree == NULL) {
       /* Haven't yet made a subtree out of this option.  Do so. */
-      field_tree = proto_item_add_subtree(tf, ETT_TCP_OPTION_SACK);
+      field_tree = proto_item_add_subtree(tf, optp->subtree_index);
     }
     if (optlen < 4) {
       proto_tree_add_text(field_tree, offset,      optlen,
@@ -207,37 +207,38 @@ dissect_tcpopt_sack(proto_tree *opt_tree, const char *name, const u_char *opd,
 }
 
 static void
-dissect_tcpopt_echo(proto_tree *opt_tree, const char *name, const u_char *opd,
-    int offset, guint optlen)
+dissect_tcpopt_echo(const ip_tcp_opt *optp, const u_char *opd,
+    int offset, guint optlen, proto_tree *opt_tree)
 {
   proto_tree_add_text(opt_tree, offset,      optlen,
-    "%s: %u", name, pntohl(opd));
+			"%s: %u", optp->name, pntohl(opd));
   tcp_info_append_uint("ECHO", pntohl(opd));
 }
 
 static void
-dissect_tcpopt_timestamp(proto_tree *opt_tree, const char *name,
-    const u_char *opd, int offset, guint optlen)
+dissect_tcpopt_timestamp(const ip_tcp_opt *optp, const u_char *opd,
+    int offset, guint optlen, proto_tree *opt_tree)
 {
   proto_tree_add_text(opt_tree, offset,      optlen,
-    "%s: tsval %u, tsecr %u", name, pntohl(opd), pntohl(opd + 4));
+    "%s: tsval %u, tsecr %u", optp->name, pntohl(opd), pntohl(opd + 4));
   tcp_info_append_uint("TSV", pntohl(opd));
   tcp_info_append_uint("TSER", pntohl(opd + 4));
 }
 
 static void
-dissect_tcpopt_cc(proto_tree *opt_tree, const char *name, const u_char *opd,
-    int offset, guint optlen)
+dissect_tcpopt_cc(const ip_tcp_opt *optp, const u_char *opd,
+    int offset, guint optlen, proto_tree *opt_tree)
 {
   proto_tree_add_text(opt_tree, offset,      optlen,
-    "%s: %u", name, pntohl(opd));
+			"%s: %u", optp->name, pntohl(opd));
   tcp_info_append_uint("CC", pntohl(opd));
 }
 
-static ip_tcp_opt tcpopts[] = {
+static const ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_EOL,
     "EOL",
+    -1,
     NO_LENGTH,
     0,
     NULL,
@@ -245,6 +246,7 @@ static ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_NOP,
     "NOP",
+    -1,
     NO_LENGTH,
     0,
     NULL,
@@ -252,6 +254,7 @@ static ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_MSS,
     "Maximum segment size",
+    -1,
     FIXED_LENGTH,
     TCPOLEN_MSS,
     dissect_tcpopt_maxseg
@@ -259,6 +262,7 @@ static ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_WINDOW,
     "Window scale",
+    -1,
     FIXED_LENGTH,
     TCPOLEN_WINDOW,
     dissect_tcpopt_wscale
@@ -266,6 +270,7 @@ static ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_SACK_PERM,
     "SACK permitted",
+    -1,
     FIXED_LENGTH,
     TCPOLEN_SACK_PERM,
     NULL,
@@ -273,6 +278,7 @@ static ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_SACK,
     "SACK",
+    ETT_TCP_OPTION_SACK,
     VARIABLE_LENGTH,
     TCPOLEN_SACK_MIN,
     dissect_tcpopt_sack
@@ -280,6 +286,7 @@ static ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_ECHO,
     "Echo",
+    -1,
     FIXED_LENGTH,
     TCPOLEN_ECHO,
     dissect_tcpopt_echo
@@ -287,6 +294,7 @@ static ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_ECHOREPLY,
     "Echo reply",
+    -1,
     FIXED_LENGTH,
     TCPOLEN_ECHOREPLY,
     dissect_tcpopt_echo
@@ -294,6 +302,7 @@ static ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_TIMESTAMP,
     "Time stamp",
+    -1,
     FIXED_LENGTH,
     TCPOLEN_TIMESTAMP,
     dissect_tcpopt_timestamp
@@ -301,6 +310,7 @@ static ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_CC,
     "CC",
+    -1,
     FIXED_LENGTH,
     TCPOLEN_CC,
     dissect_tcpopt_cc
@@ -308,6 +318,7 @@ static ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_CCNEW,
     "CC.NEW",
+    -1,
     FIXED_LENGTH,
     TCPOPT_CCNEW,
     dissect_tcpopt_cc
@@ -315,6 +326,7 @@ static ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_CCECHO,
     "CC.ECHO",
+    -1,
     FIXED_LENGTH,
     TCPOLEN_CCECHO,
     dissect_tcpopt_cc
@@ -438,8 +450,8 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     tf = proto_tree_add_text(tcp_tree, offset +  20, optlen,
       "Options: (%d bytes)", optlen);
     field_tree = proto_item_add_subtree(tf, ETT_TCP_OPTIONS);
-    dissect_ip_tcp_options(field_tree, &pd[offset + 20], offset + 20, optlen,
-      tcpopts, N_TCP_OPTS, TCPOPT_EOL);
+    dissect_ip_tcp_options(&pd[offset + 20], offset + 20, optlen,
+      tcpopts, N_TCP_OPTS, TCPOPT_EOL, field_tree);
   }
 
   if (check_col(fd, COL_INFO))

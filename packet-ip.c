@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.42 1999/08/28 03:56:03 gram Exp $
+ * $Id: packet-ip.c,v 1.43 1999/08/28 08:31:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -259,8 +259,8 @@ capture_ip(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 }
 
 static void
-dissect_ipopt_security(proto_tree *opt_tree, const char *name,
-    const u_char *opd, int offset, guint optlen)
+dissect_ipopt_security(const ip_tcp_opt *optp, const u_char *opd, int offset,
+			guint optlen, proto_tree *opt_tree)
 {
   proto_tree *field_tree = NULL;
   proto_item *tf;
@@ -283,8 +283,8 @@ dissect_ipopt_security(proto_tree *opt_tree, const char *name,
     {IPSEC_RESERVED8,    "Reserved"    },
     {0,                  NULL          } };
 
-  tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s:", name);
-  field_tree = proto_item_add_subtree(tf, ETT_IP_OPTION_SEC);
+  tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s:", optp->name);
+  field_tree = proto_item_add_subtree(tf, optp->subtree_index);
   offset += 2;
 
   val = pntohs(opd);
@@ -309,8 +309,8 @@ dissect_ipopt_security(proto_tree *opt_tree, const char *name,
 }
 
 static void
-dissect_ipopt_route(proto_tree *opt_tree, const char *name,
-    const u_char *opd, int offset, guint optlen)
+dissect_ipopt_route(const ip_tcp_opt *optp, const u_char *opd, int offset,
+			guint optlen, proto_tree *opt_tree)
 {
   proto_tree *field_tree = NULL;
   proto_item *tf;
@@ -318,9 +318,9 @@ dissect_ipopt_route(proto_tree *opt_tree, const char *name,
   int optoffset = 0;
   struct in_addr addr;
 
-  tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s (%d bytes)", name,
-              optlen);
-  field_tree = proto_item_add_subtree(tf, ETT_IP_OPTION_ROUTE);
+  tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s (%d bytes)",
+				optp->name, optlen);
+  field_tree = proto_item_add_subtree(tf, optp->subtree_index);
 
   optoffset += 2;	/* skip past type and length */
   optlen -= 2;		/* subtract size of type and length */
@@ -356,17 +356,17 @@ dissect_ipopt_route(proto_tree *opt_tree, const char *name,
 }
 
 static void
-dissect_ipopt_sid(proto_tree *opt_tree, const char *name, const u_char *opd,
-    int offset, guint optlen)
+dissect_ipopt_sid(const ip_tcp_opt *optp, const u_char *opd, int offset,
+			guint optlen, proto_tree *opt_tree)
 {
   proto_tree_add_text(opt_tree, offset,      optlen,
-    "%s: %d", name, pntohs(opd));
+    "%s: %d", optp->name, pntohs(opd));
   return;
 }
 
 static void
-dissect_ipopt_timestamp(proto_tree *opt_tree, const char *name, const u_char *opd,
-    int offset, guint optlen)
+dissect_ipopt_timestamp(const ip_tcp_opt *optp, const u_char *opd,
+    int offset, guint optlen, proto_tree *opt_tree)
 {
   proto_tree *field_tree = NULL;
   proto_item *tf;
@@ -382,8 +382,8 @@ dissect_ipopt_timestamp(proto_tree *opt_tree, const char *name, const u_char *op
   struct in_addr addr;
   guint ts;
 
-  tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s:", name);
-  field_tree = proto_item_add_subtree(tf, ETT_IP_OPTION_TIMESTAMP);
+  tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s:", optp->name);
+  field_tree = proto_item_add_subtree(tf, optp->subtree_index);
 
   optoffset += 2;	/* skip past type and length */
   optlen -= 2;		/* subtract size of type and length */
@@ -450,10 +450,11 @@ dissect_ipopt_timestamp(proto_tree *opt_tree, const char *name, const u_char *op
   }
 }
 
-static ip_tcp_opt ipopts[] = {
+static const ip_tcp_opt ipopts[] = {
   {
     IPOPT_END,
     "EOL",
+    -1,
     NO_LENGTH,
     0,
     NULL,
@@ -461,6 +462,7 @@ static ip_tcp_opt ipopts[] = {
   {
     IPOPT_NOOP,
     "NOP",
+    -1,
     NO_LENGTH,
     0,
     NULL,
@@ -468,6 +470,7 @@ static ip_tcp_opt ipopts[] = {
   {
     IPOPT_SEC,
     "Security",
+    ETT_IP_OPTION_SEC,
     FIXED_LENGTH,
     IPOLEN_SEC,
     dissect_ipopt_security
@@ -475,6 +478,7 @@ static ip_tcp_opt ipopts[] = {
   {
     IPOPT_SSRR,
     "Strict source route",
+    ETT_IP_OPTION_ROUTE,
     VARIABLE_LENGTH,
     IPOLEN_SSRR_MIN,
     dissect_ipopt_route
@@ -482,6 +486,7 @@ static ip_tcp_opt ipopts[] = {
   {
     IPOPT_LSRR,
     "Loose source route",
+    ETT_IP_OPTION_ROUTE,
     VARIABLE_LENGTH,
     IPOLEN_LSRR_MIN,
     dissect_ipopt_route
@@ -489,6 +494,7 @@ static ip_tcp_opt ipopts[] = {
   {
     IPOPT_RR,
     "Record route",
+    ETT_IP_OPTION_ROUTE,
     VARIABLE_LENGTH,
     IPOLEN_RR_MIN,
     dissect_ipopt_route
@@ -496,6 +502,7 @@ static ip_tcp_opt ipopts[] = {
   {
     IPOPT_SID,
     "Stream identifier",
+    -1,
     FIXED_LENGTH,
     IPOLEN_SID,
     dissect_ipopt_sid
@@ -503,6 +510,7 @@ static ip_tcp_opt ipopts[] = {
   {
     IPOPT_TIMESTAMP,
     "Time stamp",
+    ETT_IP_OPTION_TIMESTAMP,
     VARIABLE_LENGTH,
     IPOLEN_TIMESTAMP_MIN,
     dissect_ipopt_timestamp
@@ -513,12 +521,13 @@ static ip_tcp_opt ipopts[] = {
 
 /* Dissect the IP or TCP options in a packet. */
 void
-dissect_ip_tcp_options(proto_tree *opt_tree, const u_char *opd, int offset,
-    guint length, ip_tcp_opt *opttab, int nopts, int eol)
+dissect_ip_tcp_options(const u_char *opd, int offset, guint length,
+			const ip_tcp_opt *opttab, int nopts, int eol,
+			proto_tree *opt_tree)
 {
-  u_char      opt;
-  ip_tcp_opt *optp;
-  guint       len;
+  u_char            opt;
+  const ip_tcp_opt *optp;
+  guint             len;
 
   while (length > 0) {
     opt = *opd++;
@@ -527,7 +536,7 @@ dissect_ip_tcp_options(proto_tree *opt_tree, const u_char *opd, int offset,
         break;
     }
     if (optp == &opttab[nopts]) {
-      proto_tree_add_text(opt_tree, offset,      1, "Unknown");
+      proto_tree_add_text(opt_tree, offset,      1, "Unknown (0x%02x)", opt);
       /* We don't know how long this option is, so we don't know how much
          of it to skip, so we just bail. */
       return;
@@ -539,7 +548,7 @@ dissect_ip_tcp_options(proto_tree *opt_tree, const u_char *opd, int offset,
         /* Bogus - packet must at least include option code byte and
            length byte! */
         proto_tree_add_text(opt_tree, offset,      1,
-              "%s (length byte past end of header)", optp->name);
+              "%s (length byte past end of options)", optp->name);
         return;
       }
       len = *opd++;  /* total including type, len */
@@ -548,34 +557,36 @@ dissect_ip_tcp_options(proto_tree *opt_tree, const u_char *opd, int offset,
         /* Bogus - option length is too short to include option code and
            option length. */
         proto_tree_add_text(opt_tree, offset,      2,
-              "%s (with too-short option length = %u bytes)", optp->name, 2);
+              "%s (with too-short option length = %u byte%s)", optp->name,
+              plurality(len, "", "s"));
         return;
       } else if (len - 2 > length) {
         /* Bogus - option goes past the end of the header. */
         proto_tree_add_text(opt_tree, offset,      length,
-              "%s (option goes past end of header)", optp->name);
+              "%s (option length = %u byte%s says option goes past end of options)",
+	      optp->name, len, plurality(len, "", "s"));
         return;
       } else if (optp->len_type == FIXED_LENGTH && len != optp->optlen) {
         /* Bogus - option length isn't what it's supposed to be for this
            option. */
         proto_tree_add_text(opt_tree, offset,      len,
-              "%s (with option length = %u bytes; should be %u)", optp->name,
-              len, optp->optlen);
+              "%s (with option length = %u byte%s; should be %u)", optp->name,
+              len, plurality(len, "", "s"), optp->optlen);
         return;
       } else if (optp->len_type == VARIABLE_LENGTH && len < optp->optlen) {
         /* Bogus - option length is less than what it's supposed to be for
            this option. */
         proto_tree_add_text(opt_tree, offset,      len,
-              "%s (with option length = %u bytes; should be >= %u)", optp->name,
-              len, optp->optlen);
+              "%s (with option length = %u byte%s; should be >= %u)", optp->name,
+              len, plurality(len, "", "s"), optp->optlen);
         return;
       } else {
         if (optp->dissect != NULL) {
           /* Option has a dissector. */
-          (*optp->dissect)(opt_tree, optp->name, opd, offset, len);
+          (*optp->dissect)(optp, opd, offset,      len, opt_tree);
         } else {
           /* Option has no data, hence no dissector. */
-          proto_tree_add_text(opt_tree, offset,      len, "%s", optp->name);
+          proto_tree_add_text(opt_tree, offset,    len, "%s", optp->name);
         }
         len -= 2;	/* subtract size of type and length */
         offset += 2 + len;
@@ -767,8 +778,8 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       tf = proto_tree_add_text(ip_tree, offset +  20, optlen,
         "Options: (%d bytes)", optlen);
       field_tree = proto_item_add_subtree(tf, ETT_IP_OPTIONS);
-      dissect_ip_tcp_options(field_tree, &pd[offset + 20], offset + 20, optlen,
-         ipopts, N_IP_OPTS, IPOPT_END);
+      dissect_ip_tcp_options(&pd[offset + 20], offset + 20, optlen,
+         ipopts, N_IP_OPTS, IPOPT_END, field_tree);
     }
   }
 

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.90 1999/08/25 07:32:46 guy Exp $
+ * $Id: packet.h,v 1.91 1999/08/28 08:31:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -291,10 +291,15 @@ enum {
  	ETT_LCP_AUTHPROT_OPT,
  	ETT_LCP_QUALPROT_OPT,
  	ETT_LCP_MAGICNUM_OPT,
+ 	ETT_LCP_FCS_ALTERNATIVES_OPT,
+ 	ETT_LCP_NUMBERED_MODE_OPT,
+ 	ETT_LCP_CALLBACK_OPT,
+ 	ETT_LCP_MULTILINK_EP_DISC_OPT,
+ 	ETT_LCP_INTERNATIONALIZATION_OPT,
  	ETT_IPCP,
  	ETT_IPCP_OPTIONS,
+ 	ETT_IPCP_IPADDRS_OPT,
  	ETT_IPCP_COMPRESSPROT_OPT,
- 	ETT_IPCP_ADDR_OPT,
         ETT_RSVP,
         ETT_RSVP_UNKNOWN_CLASS,
         ETT_RSVP_HDR,
