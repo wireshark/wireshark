@@ -2,7 +2,7 @@
 * Routines for megaco packet disassembly
 * RFC 3015
 *
-* $Id: packet-megaco.c,v 1.11 2003/09/03 06:48:45 guy Exp $
+* $Id: packet-megaco.c,v 1.12 2003/09/05 07:44:48 jmayer Exp $
 *
 * Christian Falckenberg, 2002/10/17
 * Copyright (c) 2002 by Christian Falckenberg
@@ -52,7 +52,7 @@
 
 #include "plugins/plugin_api_defs.h"
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 G_MODULE_EXPORT const gchar version[] = VERSION;
 #endif
 
@@ -2652,7 +2652,7 @@ static gint tvb_skip_wsp_return(tvbuff_t* tvb, gint offset){
 
 /* Start the functions we need for the plugin stuff */
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 
 G_MODULE_EXPORT void
 plugin_reg_handoff(void){

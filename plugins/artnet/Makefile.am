@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/ArtNET
 #
-# $Id: Makefile.am,v 1.1 2003/04/21 21:28:39 guy Exp $
+# $Id: Makefile.am,v 1.2 2003/09/05 07:44:44 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Steve Limkemann <stevelim@dgtech.com>
@@ -35,11 +35,6 @@ artnet_la_LDFLAGS = -module -avoid-version
 # If your module needs to be linked against any particular libraries,
 # add them here.
 LIBS =
-
-artnet_la_DEPENDENCIES = packet-artnet-static.o
-
-packet-artnet-static.o:	packet-artnet.c moduleinfo.h
-	$(LTCOMPILE) -c -o packet-artnet-static.o -D__ETHEREAL_STATIC__ $(srcdir)/packet-artnet.c 
 
 CLEANFILES = \
 	artnet \

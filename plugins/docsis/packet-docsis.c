@@ -2,7 +2,7 @@
  * Routines for docsis dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-docsis.c,v 1.12 2003/05/28 14:52:51 gerald Exp $
+ * $Id: packet-docsis.c,v 1.13 2003/09/05 07:44:45 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,7 +55,7 @@
 #include <epan/packet.h>
 
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 G_MODULE_EXPORT const gchar version[] = VERSION;
 #endif
 
@@ -771,7 +771,7 @@ proto_reg_handoff_docsis (void)
 
 /* Start the functions we need for the plugin stuff */
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 
 G_MODULE_EXPORT void
 plugin_reg_handoff (void)

@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.218 2003/08/29 04:20:22 sharpe Exp $
+# $Id: configure.in,v 1.219 2003/09/05 07:44:44 jmayer Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -777,7 +777,13 @@ dnl libtool defs
 AM_PROG_LIBTOOL
 AC_SUBST(LIBTOOL_DEPS)
 
-AM_CONDITIONAL(ENABLE_STATIC, test x$enable_shared = xno)
+AM_CONDITIONAL(ENABLE_STATIC, test x$enable_static = xyes)
+if test x$enable_static = xyes -a x$have_plugins = xyes
+then
+  AC_DEFINE(ENABLE_STATIC, 1, [Link plugins statically into Ethereal])
+fi
+AC_SUBST(ENABLE_STATIC)
+
 AM_CONFIG_HEADER(config.h)
 AC_CONFIG_SUBDIRS(epan wiretap)
 AC_OUTPUT(

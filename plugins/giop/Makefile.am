@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/GIOP subdissectors 
 #
-# $Id: Makefile.am,v 1.3 2002/07/06 20:40:46 guy Exp $
+# $Id: Makefile.am,v 1.4 2003/09/05 07:44:45 jmayer Exp $
 #
 # Copyright 2001, Ericsson Inc.
 # Frank Singleton <frank.singleton@ericsson.com>
@@ -41,16 +41,6 @@ coseventcomm_la_LDFLAGS = -module -avoid-version
 # If your module needs to be linked against any particular libraries,
 # add them here.
 LIBS =
-
-cosnaming_la_DEPENDENCIES = packet-cosnaming-static.o
-coseventcomm_la_DEPENDENCIES = packet-coseventcomm-static.o
-
-packet-cosnaming-static.o:	packet-cosnaming.c moduleinfo.h
-	$(LTCOMPILE) -c -o packet-cosnaming-static.o -D__ETHEREAL_STATIC__ $(srcdir)/packet-cosnaming.c 
-
-packet-coseventcomm-static.o:	packet-coseventcomm.c moduleinfo.h
-	$(LTCOMPILE) -c -o packet-coseventcomm-static.o -D__ETHEREAL_STATIC__ $(srcdir)/packet-coseventcomm.c 
-
 
 CLEANFILES = \
 	cosnaming \

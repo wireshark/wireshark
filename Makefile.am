@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.621 2003/09/03 22:26:37 guy Exp $
+# $Id: Makefile.am,v 1.622 2003/09/05 07:44:44 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -458,38 +458,38 @@ plugin_libs = \
 
 if ENABLE_STATIC
 plugin_ldadd = \
-	plugins/artnet/packet-artnet-static.o \
-	plugins/docsis/packet-bpkmattr-static.o \
-	plugins/docsis/packet-bpkmreq-static.o \
-	plugins/docsis/packet-bpkmrsp-static.o \
-	plugins/docsis/packet-docsis-static.o \
-	plugins/docsis/packet-dsaack-static.o \
-	plugins/docsis/packet-dsareq-static.o \
-	plugins/docsis/packet-dsarsp-static.o \
-	plugins/docsis/packet-dscack-static.o \
-	plugins/docsis/packet-dscreq-static.o \
-	plugins/docsis/packet-dscrsp-static.o \
-	plugins/docsis/packet-dsdreq-static.o \
-	plugins/docsis/packet-dsdrsp-static.o \
-	plugins/docsis/packet-macmgmt-static.o \
-	plugins/docsis/packet-map-static.o \
-	plugins/docsis/packet-regack-static.o \
-	plugins/docsis/packet-regreq-static.o \
-	plugins/docsis/packet-regrsp-static.o \
-	plugins/docsis/packet-rngreq-static.o \
-	plugins/docsis/packet-rngrsp-static.o \
-	plugins/docsis/packet-tlv-static.o \
-	plugins/docsis/packet-uccreq-static.o \
-	plugins/docsis/packet-uccrsp-static.o \
-	plugins/docsis/packet-ucd-static.o \
-	plugins/giop/packet-cosnaming-static.o \
-	plugins/giop/packet-coseventcomm-static.o \
-	plugins/gryphon/packet-gryphon-static.o \
-	plugins/lwres/packet-lwres-static.o \
-	plugins/megaco/packet-megaco-static.o \
-	plugins/mgcp/packet-mgcp-static.o \
-	plugins/pcli/packet-pcli-static.o \
-	plugins/rtnet/packet-rtnet-static.o 
+	plugins/artnet/packet-artnet.o \
+	plugins/docsis/packet-bpkmattr.o \
+	plugins/docsis/packet-bpkmreq.o \
+	plugins/docsis/packet-bpkmrsp.o \
+	plugins/docsis/packet-docsis.o \
+	plugins/docsis/packet-dsaack.o \
+	plugins/docsis/packet-dsareq.o \
+	plugins/docsis/packet-dsarsp.o \
+	plugins/docsis/packet-dscack.o \
+	plugins/docsis/packet-dscreq.o \
+	plugins/docsis/packet-dscrsp.o \
+	plugins/docsis/packet-dsdreq.o \
+	plugins/docsis/packet-dsdrsp.o \
+	plugins/docsis/packet-macmgmt.o \
+	plugins/docsis/packet-map.o \
+	plugins/docsis/packet-regack.o \
+	plugins/docsis/packet-regreq.o \
+	plugins/docsis/packet-regrsp.o \
+	plugins/docsis/packet-rngreq.o \
+	plugins/docsis/packet-rngrsp.o \
+	plugins/docsis/packet-tlv.o \
+	plugins/docsis/packet-uccreq.o \
+	plugins/docsis/packet-uccrsp.o \
+	plugins/docsis/packet-ucd.o \
+	plugins/giop/packet-cosnaming.o \
+	plugins/giop/packet-coseventcomm.o \
+	plugins/gryphon/packet-gryphon.o \
+	plugins/lwres/packet-lwres.o \
+	plugins/megaco/packet-megaco.o \
+	plugins/mgcp/packet-mgcp.o \
+	plugins/pcli/packet-pcli.o \
+	plugins/rtnet/packet-rtnet.o 
 
 plugin_src = \
 	plugins/artnet/packet-artnet.c \

@@ -1,7 +1,7 @@
 /* packet-artnet.c
  * Routines for Art-Net packet disassembly
  *
- * $Id: packet-artnet.c,v 1.3 2003/08/24 01:44:00 sahlberg Exp $
+ * $Id: packet-artnet.c,v 1.4 2003/09/05 07:44:45 jmayer Exp $
  *
  * Copyright (c) 2003 by Erwin Rol <erwin@erwinrol.com>
  *
@@ -49,7 +49,7 @@
 
 /* Define version if we are not building ethereal statically */
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 G_MODULE_EXPORT const gchar version[] = VERSION;
 #endif
 
@@ -2591,7 +2591,7 @@ proto_reg_handoff_artnet(void) {
 
 /* Start the functions we need for the plugin stuff */
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 
 G_MODULE_EXPORT void
 plugin_reg_handoff(void){

@@ -49,7 +49,7 @@
 
 #include "plugins/plugin_api_defs.h"
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 G_MODULE_EXPORT const gchar version[] = "0.0.1";
 #endif
 
@@ -1738,7 +1738,7 @@ void proto_register_handoff_giop_cosnaming(void) {
 
 
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 
 G_MODULE_EXPORT void
 plugin_reg_handoff(void){

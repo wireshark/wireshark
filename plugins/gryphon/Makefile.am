@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/Gryphon
 #
-# $Id: Makefile.am,v 1.10 2002/07/06 20:40:47 guy Exp $
+# $Id: Makefile.am,v 1.11 2003/09/05 07:44:46 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Steve Limkemann <stevelim@dgtech.com>
@@ -35,11 +35,6 @@ gryphon_la_LDFLAGS = -module -avoid-version
 # If your module needs to be linked against any particular libraries,
 # add them here.
 LIBS =
-
-gryphon_la_DEPENDENCIES = packet-gryphon-static.o
-
-packet-gryphon-static.o:	packet-gryphon.c moduleinfo.h
-	$(LTCOMPILE) -c -o packet-gryphon-static.o -D__ETHEREAL_STATIC__ $(srcdir)/packet-gryphon.c
 
 CLEANFILES = \
 	gryphon \

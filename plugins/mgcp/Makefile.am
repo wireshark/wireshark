@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/MGCP
 #
-# $Id: Makefile.am,v 1.6 2003/03/07 04:13:26 gerald Exp $
+# $Id: Makefile.am,v 1.7 2003/09/05 07:44:49 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Steve Limkemann <stevelim@dgtech.com>
@@ -35,11 +35,6 @@ mgcp_la_LDFLAGS = -module -avoid-version
 # If your module needs to be linked against any particular libraries,
 # add them here.
 LIBS =
-
-mgcp_la_DEPENDENCIES = packet-mgcp-static.o
-
-packet-mgcp-static.o:	packet-mgcp.c moduleinfo.h
-	$(LTCOMPILE) -c -o packet-mgcp-static.o -D__ETHEREAL_STATIC__ $(srcdir)/packet-mgcp.c 
 
 CLEANFILES = \
 	mgcp \

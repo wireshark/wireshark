@@ -1,7 +1,7 @@
 /* packet-lwres.c
  * Routines for light weight reslover (lwres, part of BIND9) packet disassembly
  *
- * $Id: packet-lwres.c,v 1.2 2003/08/05 17:12:07 guy Exp $
+ * $Id: packet-lwres.c,v 1.3 2003/09/05 07:44:47 jmayer Exp $
  *
  * Copyright (c) 2003 by Oleg Terletsky <oleg.terletsky@comverse.com>
  *
@@ -184,7 +184,7 @@ static int ett_ns_rec_item = -1;
 
 
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 G_MODULE_EXPORT const gchar version[] = VERSION;
 #endif
 
@@ -211,42 +211,8 @@ static const value_string message_types_values[] = {
 
 
 
-void
-ip_to_str_buf(const guint8 *ad, gchar *buf)
-{
-  gchar        *p;
-  int           i;
-  guint32       octet;
-  guint32       digit;
-  gboolean      saw_nonzero;
-
-  p = buf;
-  i = 0;
-  for (;;) {
-    saw_nonzero = FALSE;
-    octet = ad[i];
-    digit = octet/100;
-    if (digit != 0) {
-      *p++ = digit + '0';
-      saw_nonzero = TRUE;
-    }
-    octet %= 100;
-    digit = octet/10;
-    if (saw_nonzero || digit != 0)
-      *p++ = digit + '0';
-    digit = octet%10;
-    *p++ = digit + '0';
-    if (i == 3)
-      break;
-    *p++ = '.';
-    i++;
-  }
-  *p = '\0';
-}
-
-
-int
-get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
+static int
+lwres_get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
     char *name, int maxname)
 {
   int start_offset = offset;
@@ -827,7 +793,7 @@ static void dissect_srv_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int
 		namelen = len - 8;
 		cmpname  = tvb_get_ptr(tvb, curr + 8, namelen);
 
-		dlen = get_dns_name(tvb, curr + 8, curr, dname, sizeof(dname));
+		dlen = lwres_get_dns_name(tvb, curr + 8, curr, dname, sizeof(dname));
 
 		if(srv_rec_tree)
 		{
@@ -903,7 +869,7 @@ static void dissect_mx_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
 		priority =  tvb_get_ntohs(tvb, curr + 2);
 		namelen  =  len - 4;
 		cname = tvb_get_ptr(tvb, curr + 4, 4);
-		dlen  = get_dns_name(tvb, curr + 4, curr, dname, sizeof(dname));
+		dlen  = lwres_get_dns_name(tvb, curr + 4, curr, dname, sizeof(dname));
 		if(mx_rec_tree)
 		{
 			rec_item = proto_tree_add_text(mx_rec_tree, tvb, curr,6,"MX record: pri=%d,dname=%s",
@@ -956,7 +922,7 @@ static void dissect_ns_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
 	{
 		len = tvb_get_ntohs(tvb, curr);
 		namelen = len - 2;
-		dlen = get_dns_name(tvb, curr + 2, curr, dname, sizeof(dname));
+		dlen = lwres_get_dns_name(tvb, curr + 2, curr, dname, sizeof(dname));
 		if(ns_rec_tree)
 		{
 			rec_item = proto_tree_add_text(ns_rec_tree, tvb, curr,4, "NS record: dname=%s",dname);
@@ -1553,7 +1519,7 @@ proto_reg_handoff_lwres(void)
 
 /* Start the functions we need for the plugin stuff */
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 
 G_MODULE_EXPORT void
 plugin_reg_handoff(void){

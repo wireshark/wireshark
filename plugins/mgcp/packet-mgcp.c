@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.41 2003/09/02 21:26:22 guy Exp $
+ * $Id: packet-mgcp.c,v 1.42 2003/09/05 07:44:49 jmayer Exp $
  *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -48,7 +48,7 @@
 
 #include "plugins/plugin_api_defs.h"
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 G_MODULE_EXPORT const gchar version[] = VERSION;
 #endif
 
@@ -1531,7 +1531,7 @@ static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset,
 
 /* Start the functions we need for the plugin stuff */
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 
 G_MODULE_EXPORT void
 plugin_reg_handoff(void){

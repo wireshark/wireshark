@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/lwres
 #
-# $Id: Makefile.am,v 1.2 2003/08/06 03:04:24 gerald Exp $
+# $Id: Makefile.am,v 1.3 2003/09/05 07:44:47 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer / light waight resolver (part of Bind9)
 # By Steve Oleg Terletsky <oleg.terletsky@comverse.com>
@@ -34,11 +34,6 @@ lwres_la_LDFLAGS = -module -avoid-version
 # If your module needs to be linked against any particular libraries,
 # add them here.
 LIBS =
-
-lwres_la_DEPENDENCIES = packet-lwres-static.o
-
-packet-lwres-static.o:	packet-lwres.c moduleinfo.h
-	$(LTCOMPILE) -c -o packet-lwres-static.o -D__ETHEREAL_STATIC__ $(srcdir)/packet-lwres.c 
 
 CLEANFILES = \
 	lwres \

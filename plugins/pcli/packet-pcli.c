@@ -4,7 +4,7 @@
  * http://www.packetcable.com/downloads/specs/pkt-sp-esp-I01-991229.pdf
  * Chapter 4 ( Call Content Connection Interface )
  *
- * $Id: packet-pcli.c,v 1.7 2003/02/25 18:43:38 guy Exp $
+ * $Id: packet-pcli.c,v 1.8 2003/09/05 07:44:50 jmayer Exp $
  *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -52,7 +52,7 @@
 
 /* Define version if we are not building ethereal statically */
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 G_MODULE_EXPORT const gchar version[] = VERSION;
 #endif
 
@@ -177,7 +177,7 @@ proto_reg_handoff_pcli(void) {
 
 /* Start the functions we need for the plugin stuff */
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 
 G_MODULE_EXPORT void
 plugin_reg_handoff(void){

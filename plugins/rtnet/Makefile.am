@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/RTNET
 #
-# $Id: Makefile.am,v 1.1 2003/06/11 09:17:03 guy Exp $
+# $Id: Makefile.am,v 1.2 2003/09/05 07:44:50 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Steve Limkemann <stevelim@dgtech.com>
@@ -35,11 +35,6 @@ rtnet_la_LDFLAGS = -module -avoid-version
 # If your module needs to be linked against any particular libraries,
 # add them here.
 LIBS =
-
-rtnet_la_DEPENDENCIES = packet-rtnet-static.o
-
-packet-rtnet-static.o:	packet-rtnet.c moduleinfo.h
-	$(LTCOMPILE) -c -o packet-rtnet-static.o -D__ETHEREAL_STATIC__ $(srcdir)/packet-rtnet.c 
 
 CLEANFILES = \
 	rtnet \

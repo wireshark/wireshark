@@ -3,7 +3,7 @@
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
  *
- * $Id: packet-gryphon.c,v 1.37 2003/06/12 08:33:32 guy Exp $
+ * $Id: packet-gryphon.c,v 1.38 2003/09/05 07:44:46 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,7 +44,7 @@
 
 #include "plugins/plugin_api_defs.h"
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 G_MODULE_EXPORT const gchar version[] = VERSION;
 #endif
 
