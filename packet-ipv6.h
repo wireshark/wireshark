@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.h,v 1.5 1999/09/10 07:19:40 guy Exp $
+ * $Id: packet-ipv6.h,v 1.6 1999/10/14 05:41:30 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -516,8 +516,5 @@ struct rr_result {		/* router renumbering result message */
 	struct e_in6_addr rrr_prefix;
 };
 #endif /* BYTE_ORDER */
-
-struct e_in6_addr;
-gchar*     ip6_to_str(struct e_in6_addr *);
 
 #endif /* __PACKET_IPV6_H_DEFINED__ */

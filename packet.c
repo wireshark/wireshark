@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.46 1999/10/12 06:20:21 gram Exp $
+ * $Id: packet.c,v 1.47 1999/10/14 05:41:30 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -138,6 +138,18 @@ ip_to_str(const guint8 *ad) {
   }
   return p;
 }
+
+gchar *
+ip6_to_str(struct e_in6_addr *ad) {
+#ifndef INET6_ADDRSTRLEN
+#define INET6_ADDRSTRLEN 46
+#endif
+  static gchar buf[INET6_ADDRSTRLEN];
+
+  inet_ntop(AF_INET6, (u_char*)ad, (gchar*)buf, sizeof(buf));
+  return buf;
+}
+
 
 #define	PLURALIZE(n)	(((n) > 1) ? "s" : "")
 #define	COMMA(do_it)	((do_it) ? ", " : "")

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.85 1999/10/14 05:10:31 guy Exp $
+# $Id: Makefile.am,v 1.86 1999/10/14 05:41:28 itojun Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -160,12 +160,16 @@ EXTRA_ethereal_SOURCES = \
 	strerror.h	\
 	strncasecmp.c	\
 	mkstemp.c	\
-	inet_aton.c
+	inet_aton.c     \
+	inet_pton.c     \
+	inet_ntop.c
 
 ethereal_DEPENDENCIES = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ \
-@STRNCASECMP_O@ @MKSTEMP_O@ @INET_ATON_O@ wiretap/libwiretap.a gtk/libui.a
+@STRNCASECMP_O@ @MKSTEMP_O@ @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@\
+wiretap/libwiretap.a gtk/libui.a
 ethereal_LDADD = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ \
-@STRNCASECMP_O@ @MKSTEMP_O@ @INET_ATON_O@ wiretap/libwiretap.a gtk/libui.a \
+@STRNCASECMP_O@ @MKSTEMP_O@ @INET_ATON_O@ @INET_ATON_O@ @INET_NTOP_O@\
+wiretap/libwiretap.a gtk/libui.a \
 @SNMP_A@
 
 ps.c: print.ps rdps

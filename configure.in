@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.50 1999/10/14 03:50:27 itojun Exp $
+# $Id: configure.in,v 1.51 1999/10/14 05:41:28 itojun Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -187,7 +187,7 @@ fi
 AC_SUBST(MKSTEMP_C)
 AC_SUBST(MKSTEMP_O)
 
-AC_CHECK_FUNC(inet_aton, INET_ADDR_O="",
+AC_CHECK_FUNC(inet_aton, INET_ATON_O="",
   INET_ATON_O="inet_aton.o")
 if test "$ac_cv_func_inet_aton" = no ; then
   INET_ATON_C="inet_aton.c"
@@ -196,7 +196,47 @@ fi
 AC_SUBST(INET_ATON_C)
 AC_SUBST(INET_ATON_O)
 
-AC_CHECK_FUNCS(getprotobynumber)
+AC_CHECK_FUNC(inet_pton, [
+  dnl check for pre-BIND82 inet_pton() bug.
+  AC_MSG_CHECKING(for broken inet_pton)
+  AC_TRY_RUN([#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+int main()
+{
+#ifdef AF_INET6
+  char buf[16];
+  /* this should return 0 (error) */
+  return inet_pton(AF_INET6, "0:1:2:3:4:5:6:7:", buf);
+#else
+  return 1;
+#endif
+}], [AC_MSG_RESULT(ok);
+have_inet_pton=yes], [AC_MSG_RESULT(broken);
+have_inet_pton=no], [AC_MSG_RESULT(cross compiling, assume it is broken);
+have_inet_pton=no])],
+have_inet_pton=no)
+if test "$have_inet_pton" = no; then
+  INET_PTON_C="inet_pton.c"
+  INET_PTON_O="inet_pton.o"
+else
+  INET_PTON_C=""
+  INET_PTON_O=""
+fi
+AC_SUBST(INET_PTON_C)
+AC_SUBST(INET_PTON_O)
+
+AC_CHECK_FUNC(inet_ntop, INET_NTOP_O="",
+  INET_ATON_O="inet_ntop.o")
+if test "$ac_cv_func_inet_ntop" = no ; then
+  INET_ATON_C="inet_ntop.c"
+  INET_ATON_O="inet_ntop.o"
+fi
+AC_SUBST(INET_NTOP_C)
+AC_SUBST(INET_NTOP_O)
+
+AC_CHECK_FUNCS(getprotobynumber gethostbyname2)
 
 dnl blank for now, but will be used in future
 AC_SUBST(ethereal_SUBDIRS)

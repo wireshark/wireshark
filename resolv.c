@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.13 1999/10/11 03:03:11 guy Exp $
+ * $Id: resolv.c,v 1.14 1999/10/14 05:41:33 itojun Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -858,6 +858,11 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp)
 	struct in_addr		ipaddr;
 	struct hostent		*hp;
 
+	/*
+	 * don't change it to inet_pton(AF_INET), they are not 100% compatible.
+	 * inet_pton(AF_INET) does not support hexadecimal notation nor
+	 * less-than-4 octet notation.
+	 */
 	if (!inet_aton(host, &ipaddr)) {
 		/* It's not a valid dotted-quad IP address; is it a valid
 		 * host name? */
@@ -874,4 +879,30 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp)
 
 	*addrp = ntohl(ipaddr.s_addr);
 	return TRUE;
+}
+
+/*
+ * Translate IPv6 numeric address or FQDN hostname, into binary IPv6 address.
+ * Return TRUE if we succeed and set "*addrp" to that numeric IP address;
+ * return FALSE if we fail.
+ */
+gboolean get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
+{
+	struct hostent *hp;
+
+	if (inet_pton(AF_INET6, host, addrp) == 1)
+		return TRUE;
+
+	/* try FQDN */
+#ifdef HAVE_GETHOSTBYNAME2
+	hp = gethostbyname2(host, AF_INET6);
+#else
+	hp = NULL;
+#endif
+	if (hp != NULL && hp->h_length == sizeof(struct e_in6_addr)) {
+		memcpy(addrp, hp->h_addr, hp->h_length);
+		return TRUE;
+	}
+
+	return FALSE;
 }

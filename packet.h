@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.109 1999/10/14 05:10:33 guy Exp $
+ * $Id: packet.h,v 1.110 1999/10/14 05:41:31 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -372,6 +372,8 @@ extern gboolean	     tree_is_expanded[NUM_TREE_TYPES];
 /* Utility routines used by packet*.c */
 gchar*     ether_to_str(const guint8 *);
 gchar*     ip_to_str(const guint8 *);
+struct e_in6_addr;
+gchar*     ip6_to_str(struct e_in6_addr *);
 gchar*	   abs_time_to_str(struct timeval*);
 gchar*	   rel_time_to_str(struct timeval*);
 gchar*     time_secs_to_str(guint32);
