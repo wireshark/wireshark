@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.70 2002/10/15 03:47:47 gerald Exp $
+ * $Id: packet-bgp.c,v 1.71 2002/10/15 17:19:06 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -202,7 +202,7 @@ static const value_string bgpattr_nlri_safi[] = {
     { SAFNUM_UNICAST, "Unicast" },
     { SAFNUM_MULCAST, "Multicast" },
     { SAFNUM_UNIMULC, "Unicast+Multicast" },
-    { SAFNUM_MPLS_LABEL, "MPLS Labeled Prefix"},
+    { SAFNUM_MPLS_LABEL, "Labeled Unicast"},
     { SAFNUM_LAB_VPNUNICAST, "Labeled VPN Unicast" },        /* draft-rosen-rfc2547bis-03 */
     { SAFNUM_LAB_VPNMULCAST, "Labeled VPN Multicast" },
     { SAFNUM_LAB_VPNUNIMULC, "Labeled VPN Unicast+Multicast" },
@@ -674,7 +674,7 @@ dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
     int             ptype;     /* parameter type        */
     int             plen;      /* parameter length      */
     int             ctype;     /* capability type       */
-    int             clen;      /* capability length     */
+    int             clen,tclen;/* capability length     */
     int             cend;      /* capabilities end      */
     int             ostart;    /* options start         */
     int             oend;      /* options end           */
@@ -813,6 +813,62 @@ dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
                                     i >= 128 ? "Vendor specific" : "Unknown"), i);
 			    p++;
 			}
+			break;
+		    case BGP_CAPABILITY_GRACEFUL_RESTART:
+			ti = proto_tree_add_text(subtree1, tvb, p - 2,
+                             2 + clen, "Graceful Restart capability (%u %s)", 2 + clen,
+                             (clen == 1) ? "byte" : "bytes");
+			subtree2 = proto_item_add_subtree(ti, ett_bgp_option);
+			proto_tree_add_text(subtree2, tvb, p - 2,
+                             1, "Capability code: Graceful Restart (%d)", ctype);
+			if (clen < 6) {
+			    proto_tree_add_text(subtree2, tvb, p,
+                                 clen, "Capability value: Invalid");
+			}
+			else {
+			    proto_tree_add_text(subtree2, tvb, p - 1,
+                                 1, "Capability length: %u %s", clen,
+                                 (clen == 1) ? "byte" : "bytes");
+			    ti = proto_tree_add_text(subtree2, tvb, p,
+                                 clen, "Capability value");
+			    subtree3 = proto_item_add_subtree(ti,
+                                       ett_bgp_option);
+                            /* Timers */
+                            i = tvb_get_ntohs(tvb, p);
+                            proto_tree_add_text(subtree3, tvb, p,
+                                 2, "Restart Flags: [%s], Restart Time %us",
+                                                (i&0x8000) ? "R" : "none",
+                                                i&0xfff);
+                            p += 2;
+                            tclen=clen-2;
+                            /*
+                             * what follows is alist of AFI/SAFI/flag triplets
+                             * read it until the TLV ends
+                             */
+                            while(tclen >=4) {
+                                /* AFI */
+                                i = tvb_get_ntohs(tvb, p);
+                                proto_tree_add_text(subtree3, tvb, p,
+                                    2, "Address family identifier: %s (%u)",
+                                    val_to_str(i, afn_vals, "Unknown"), i);
+                                p += 2;
+                                /* SAFI */
+                                i = tvb_get_guint8(tvb, p);
+                                proto_tree_add_text(subtree3, tvb, p,
+                                    1, "Subsequent address family identifier: %s (%u)",
+                                    val_to_str(i, bgpattr_nlri_safi,
+                                        i >= 128 ? "Vendor specific" : "Unknown"), i);
+                                p++;
+                                /* flags */
+                                i = tvb_get_guint8(tvb, p);
+                                proto_tree_add_text(subtree3, tvb, p,
+                                    1, "Preserve forwarding state: %s",
+                                        (i&0x80) ? "yes" : "no");
+                                p++;
+                                tclen-=4;
+                            }
+                        }
+			p += clen;
 			break;
 		    case BGP_CAPABILITY_ROUTE_REFRESH_CISCO:
 		    case BGP_CAPABILITY_ROUTE_REFRESH:
