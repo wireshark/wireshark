@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.211 2002/02/22 00:05:02 guy Exp $
+ * $Id: packet-smb.c,v 1.212 2002/02/22 21:29:02 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12659,7 +12659,7 @@ const value_string DOS_errors[] = {
   {SMBE_nosuchshare, "Requested share does not exist"},
   {SMBE_filexists, "File in operation already exists"},
   {SMBE_cannotopen, "Cannot open the file specified"},
-  {SMBE_unknownlevel, "Unknown level??"},
+  {SMBE_unknownlevel, "Unknown info level"},
   {SMBE_badpipe, "Named pipe invalid"},
   {SMBE_pipebusy, "All instances of pipe are busy"},
   {SMBE_pipeclosing, "Named pipe close in progress"},
