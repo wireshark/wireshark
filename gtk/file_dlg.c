@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.103 2004/04/22 21:29:33 ulfl Exp $
+ * $Id: file_dlg.c,v 1.104 2004/04/22 21:40:48 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -730,7 +730,11 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   gtk_widget_show(range_fr);
   
   /* range table */
-  range_tb = range_new(&range);
+  range_tb = range_new(&range
+#if GTK_MAJOR_VERSION < 2
+  , accel_group
+#endif
+  );
   gtk_container_add(GTK_CONTAINER(range_fr), range_tb);
   gtk_widget_show(range_tb);
 

@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.69 2004/04/22 21:31:09 ulfl Exp $
+ * $Id: print_dlg.c,v 1.70 2004/04/22 21:40:48 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -304,7 +304,11 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_box_pack_start(GTK_BOX(packet_hb), range_fr, FALSE, FALSE, 0);
   gtk_widget_show(range_fr);
 
-  range_tb = range_new(&range);
+  range_tb = range_new(&range
+#if GTK_MAJOR_VERSION < 2
+  , accel_group
+#endif
+  );
   gtk_container_add(GTK_CONTAINER(range_fr), range_tb);
   gtk_widget_show(range_tb);
 
