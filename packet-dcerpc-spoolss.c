@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.64 2002/12/04 05:41:47 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.65 2002/12/12 08:05:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3469,8 +3469,8 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	case 3:
 	case 7:
 		item = proto_tree_add_text(
-			buffer.tree, buffer.tvb, 0, 
-			tvb_length(buffer.tvb), "PRINTER_INFO_%d", level);
+			buffer.tree, buffer.tvb, 0, -1,
+			"PRINTER_INFO_%d", level);
 
 		/* XXX: is the ett value correct here? */
 		
@@ -3500,7 +3500,7 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			buffer.tvb, 0, pinfo, subtree, drep);
 		break;
 	default:
-		proto_tree_add_text(buffer.tree, buffer.tvb, 0, 0,
+		proto_tree_add_text(buffer.tree, buffer.tvb, 0, -1,
 				    "[Unknown info level %d]", level);
 		break;
 	}
@@ -3814,7 +3814,7 @@ static int SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		int struct_start = buffer_offset;
 
 		buffer_offset = dissect_FORM_REL(
-			tvb, buffer_offset, pinfo, buffer.tree, drep,
+			buffer.tvb, buffer_offset, pinfo, buffer.tree, drep,
 			struct_start);
 	}
 
@@ -4614,15 +4614,15 @@ static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		int struct_start = buffer_offset;
 
 		buffer_offset = dissect_FORM_REL(
-			tvb, buffer_offset, pinfo, tree, drep, struct_start);
+			buffer.tvb, buffer_offset, pinfo, tree, drep,
+			struct_start);
 		break;
 	}
 
 	default:
 		proto_tree_add_text(
-			buffer.tree, tvb, buffer_offset, 
-			tvb_length(buffer.tvb), "[Unknown info level %d]", 
-			level);
+			buffer.tree, buffer.tvb, buffer_offset, -1,
+			"[Unknown info level %d]", level);
 		goto done;
 	}
 
@@ -4890,13 +4890,13 @@ static int SpoolssEnumJobs_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		switch(level) {
 		case 1:
 			buffer_offset = dissect_spoolss_JOB_INFO_1(
-				tvb, buffer_offset, pinfo, buffer.tree, drep);
+				buffer.tvb, buffer_offset, pinfo,
+				buffer.tree, drep);
 			break;
 		case 2:
 		default:
 			proto_tree_add_text(
-				buffer.tree, tvb, buffer_offset, 
-				tvb_length(buffer.tvb),
+				buffer.tree, buffer.tvb, buffer_offset, -1,
 				"[Unknown info level %d]", level);
 			goto done;
 		}
@@ -5060,14 +5060,13 @@ static int SpoolssGetJob_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	switch(level) {
 	case 1:
 		buffer_offset = dissect_spoolss_JOB_INFO_1(
-			tvb, buffer_offset, pinfo, buffer.tree, drep);
+			buffer.tvb, buffer_offset, pinfo, buffer.tree, drep);
 		break;
 	case 2:
 	default:
 		proto_tree_add_text(
-			buffer.tree, tvb, buffer_offset, 
-			tvb_length(buffer.tvb), "[Unknown info level %d]", 
-			level);
+			buffer.tree, buffer.tvb, buffer_offset, -1,
+			"[Unknown info level %d]", level);
 		goto done;
 	}
 
@@ -5726,16 +5725,17 @@ static int SpoolssEnumPrinterDrivers_r(tvbuff_t *tvb, int offset,
 		switch(level) {
 		case 1:
 			buffer_offset = dissect_DRIVER_INFO_1(
-				tvb, buffer_offset, pinfo, buffer.tree, drep);
+				buffer.tvb, buffer_offset, pinfo,
+				buffer.tree, drep);
 			break;
 		case 3:
 			buffer_offset = dissect_DRIVER_INFO_3(
-				tvb, buffer_offset, pinfo, buffer.tree, drep);
+				buffer.tvb, buffer_offset, pinfo,
+				buffer.tree, drep);
 			break;
 		default:
 			proto_tree_add_text(
-				buffer.tree, tvb, buffer_offset, 
-				tvb_length(buffer.tvb),
+				buffer.tree, buffer.tvb, buffer_offset, -1,
 				"[Unknown info level %d]", level);
 			goto done;
 		}
@@ -5839,7 +5839,7 @@ static int SpoolssGetPrinterDriver2_r(tvbuff_t *tvb, int offset,
 		break;
 	default:
 		proto_tree_add_text(
-			buffer.tree, buffer.tvb, 0, tvb_length(buffer.tvb),
+			buffer.tree, buffer.tvb, 0, -1,
 			"[Unknown info level %d]", level);
 		break;
 	}
@@ -7060,7 +7060,7 @@ proto_register_dcerpc_spoolss(void)
 		    NULL, 0x0, "Job total pages", HFILL }},
 		{ &hf_spoolss_jobpagesprinted,
 		  { "Job pages printed", "spoolss.job.pagesprinted", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Job identification number", HFILL }},
+		    NULL, 0x0, "Job pages printed", HFILL }},
 
 		/* SYSTEM_TIME */
 
