@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.40 2003/07/31 21:55:22 guy Exp $
+ * $Id: reassemble.c,v 1.41 2003/08/28 04:19:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1434,44 +1434,59 @@ fragment_add_seq_next(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * just put a "reassembled in" item into the protocol tree.
  */
 tvbuff_t *
-process_reassembled_data(tvbuff_t *tvb, packet_info *pinfo, char *name,
-    fragment_data *fd_head, const fragment_items *fit,
+process_reassembled_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    char *name, fragment_data *fd_head, const fragment_items *fit,
     gboolean *update_col_infop, proto_tree *tree)
 {
 	tvbuff_t *next_tvb;
 	gboolean update_col_info;
 
-	if (pinfo->fd->num == fd_head->reassembled_in) {
+	if (fd_head != NULL && pinfo->fd->num == fd_head->reassembled_in) {
 		/*
-		 * OK, we have the complete reassembled payload.
-		 * Allocate a new tvbuff, referring to the reassembled
-		 * payload.
+		 * OK, we've reassembled this.
+		 * Is this something that's been reassembled from more
+		 * than one fragment?
 		 */
-		if (fd_head->flags & FD_BLOCKSEQUENCE) {
-			next_tvb = tvb_new_real_data(fd_head->data,
-			      fd_head->len, fd_head->len);
+		if (fd_head->next != NULL) {
+			/*
+			 * Yes.
+			 * Allocate a new tvbuff, referring to the
+			 * reassembled payload.
+			 */
+			if (fd_head->flags & FD_BLOCKSEQUENCE) {
+				next_tvb = tvb_new_real_data(fd_head->data,
+				      fd_head->len, fd_head->len);
+			} else {
+				next_tvb = tvb_new_real_data(fd_head->data,
+				      fd_head->datalen, fd_head->datalen);
+			}
+
+			/*
+			 * Add the tvbuff to the list of tvbuffs to which
+			 * the tvbuff we were handed refers, so it'll get
+			 * cleaned up when that tvbuff is cleaned up.
+			 */
+			tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+
+			/* Add the defragmented data to the data source list. */
+			add_new_data_source(pinfo, next_tvb, name);
+
+			/* show all fragments */
+			if (fd_head->flags & FD_BLOCKSEQUENCE) {
+				update_col_info = !show_fragment_seq_tree(
+				    fd_head, fit,  tree, pinfo, next_tvb);
+			} else {
+				update_col_info = !show_fragment_tree(fd_head,
+				    fit, tree, pinfo, next_tvb);
+			}
 		} else {
-			next_tvb = tvb_new_real_data(fd_head->data,
-			      fd_head->datalen, fd_head->datalen);
-		}
-
-		/*
-		 * Add the tvbuff to the list of tvbuffs to which
-		 * the tvbuff we were handed refers, so it'll get
-		 * cleaned up when that tvbuff is cleaned up.
-		 */
-		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
-
-		/* Add the defragmented data to the data source list. */
-		add_new_data_source(pinfo, next_tvb, name);
-
-		/* show all fragments */
-		if (fd_head->flags & FD_BLOCKSEQUENCE) {
-			update_col_info = !show_fragment_seq_tree(fd_head,
-			    fit,  tree, pinfo, next_tvb);
-		} else {
-			update_col_info = !show_fragment_tree(fd_head,
-			    fit, tree, pinfo, next_tvb);
+			/*
+			 * No.
+			 * Return a tvbuff with the payload.
+			 */
+			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+			pinfo->fragmented = FALSE;	/* one-fragment packet */
+			update_col_info = TRUE;
 		}
 		if (update_col_infop != NULL)
 			*update_col_infop = update_col_info;
@@ -1480,11 +1495,12 @@ process_reassembled_data(tvbuff_t *tvb, packet_info *pinfo, char *name,
 		next_tvb = NULL;
 
 		/*
-		 * If there's a field to use for the number of
+		 * If we know what frame this was reassembled in,
+		 * and if there's a field to use for the number of
 		 * the frame in which the packet was reassembled,
 		 * add it to the protocol tree.
 		 */
-		if (fit->hf_reassembled_in != NULL) {
+		if (fd_head != NULL && fit->hf_reassembled_in != NULL) {
 			proto_tree_add_uint(tree,
 			    *(fit->hf_reassembled_in), tvb,
 			    0, 0, fd_head->reassembled_in);

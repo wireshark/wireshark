@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.88 2003/04/20 11:36:11 guy Exp $
+ * $Id: packet-atalk.c,v 1.89 2003/08/28 04:19:28 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -857,17 +857,9 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 				     frag_number,
 				     len,
 				     more_fragment);
-     if (fd_head != NULL) {
-	if (fd_head->next != NULL) {
-            new_tvb = process_reassembled_data(tvb, pinfo, "Reassembled ATP",
-                fd_head, &atp_frag_items, NULL, atp_tree);
-        }
-        else
-      	    new_tvb = tvb_new_subset(tvb, ATP_HDRSIZE -1, -1, -1);
-     }
-     else {
-	new_tvb = NULL;
-     }
+     new_tvb = process_reassembled_data(tvb, ATP_HDRSIZE -1, pinfo,
+				"Reassembled ATP", fd_head, &atp_frag_items,
+				NULL, atp_tree);
   }
   else {
       /* full packet */

@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.95 2003/08/26 06:18:17 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.96 2003/08/28 04:19:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1893,35 +1893,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 				     frag_number,
 				     reported_len,
 				     more_frags);
-    if (fd_head != NULL) {
-      /*
-       * Either this is reassembled or it wasn't fragmented
-       * (see comment above about some networking interfaces).
-       * In either case, it's now in the table of reassembled
-       * packets.
-       *
-       * If the "fragment_data" structure doesn't have a list of
-       * fragments, we assume it's a placeholder to mark those
-       * not-really-fragmented packets, and just treat this as
-       * a non-fragmented frame.
-       */
-      if (fd_head->next != NULL) {
-        next_tvb = process_reassembled_data(tvb, pinfo, "Reassembled 802.11",
-                fd_head, &frag_items, NULL, hdr_tree);
-      } else {
-      	/*
-      	 * Not fragmented, really.
-      	 * Show it as a regular frame.
-      	 */
-	next_tvb = tvb_new_subset (next_tvb, hdr_len, len, reported_len);
-      }
-
-      /* It's not fragmented. */
-      pinfo->fragmented = FALSE;
-    } else {
-      /* We don't have the complete reassembled payload. */
-      next_tvb = NULL;
-    }
+    next_tvb = process_reassembled_data(tvb, hdr_len, pinfo,
+					"Reassembled 802.11", fd_head,
+					&frag_items, NULL, hdr_tree);
   } else {
     /*
      * If this is the first fragment, dissect its contents, otherwise

@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.18 2003/08/28 02:19:00 guy Exp $
+ * $Id: packet-tds.c,v 1.19 2003/08/28 04:19:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,7 +120,7 @@
  * opposed to more than one server response item) per NETLIB packet?  Or is
  * all the data in a NETLIB packet put into a single TDS PDU?  If so, then
  * we can reassemble NETLIB packets using the standard TCP desegmentation
- * code, and can reassemble TDS PDUs using "fragment_add_seq_next()",
+ * code, and can reassemble TDS PDUs using "fragment_add_seq_check()",
  * and more cleanly separate the NETLIB and TDS dissectors (although the
  * "is this NETLIB" heuristic would have to look at TDS information past
  * the NETLIB header, in order to make the heuristic strong enough not
@@ -265,6 +265,7 @@ static int hf_tds_size = -1;
 static int hf_tds_channel = -1;
 static int hf_tds_packet_number = -1;
 static int hf_tds_window = -1;
+static int hf_tds_reassembled_in = -1;
 static int hf_tds_fragments = -1;
 static int hf_tds_fragment = -1;
 static int hf_tds_fragment_overlap = -1;
@@ -307,7 +308,7 @@ static const fragment_items tds_frag_items = {
 	&hf_tds_fragment_multiple_tails,
 	&hf_tds_fragment_too_long_fragment,
 	&hf_tds_fragment_error,
-	NULL,
+	&hf_tds_reassembled_in,
 	"fragments"
 };
 
@@ -1002,17 +1003,9 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		fd_head = fragment_add_seq_check(tvb, offset, pinfo, channel,
 		    tds_fragment_table, tds_reassembled_table,
 		    packet_number - 1, len, status == STATUS_NOT_LAST_BUFFER);
-		if (fd_head != NULL) {
-			if (fd_head->next != NULL) {
-				next_tvb = process_reassembled_data(tvb,
-				    pinfo, "Reassembled TDS", fd_head,
-				    &tds_frag_items, NULL, tds_tree);
-			} else {
-				next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-			}
-		} else {
-			next_tvb = NULL;
-		}
+		next_tvb = process_reassembled_data(tvb, offset, pinfo,
+		    "Reassembled TDS", fd_head, &tds_frag_items, NULL,
+		    tds_tree);
 	} else {
 		/*
 		 * If this isn't the last buffer, just show it as a fragment.
@@ -1399,6 +1392,11 @@ proto_register_netlib(void)
 			{ "TDS Fragments",	"tds.fragments",
 			FT_NONE, BASE_NONE, NULL, 0x0,
 			"TDS Fragments", HFILL }
+		},
+		{ &hf_tds_reassembled_in,
+			{ "Reassembled TDS in frame", "tds.reassembled_in",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"This TDS packet is reassembled in this frame", HFILL }
 		},
 		{ &hf_tds7_login_total_size,
 			{ "Total Packet Length", "tds7login.total_len",

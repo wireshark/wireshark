@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.99 2003/07/11 09:30:48 guy Exp $
+ * $Id: packet-ipv6.c,v 1.100 2003/08/28 04:19:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -746,13 +746,8 @@ again:
 			     plen,
 			     offlg & IP6F_MORE_FRAG);
 
-    if (ipfd_head != NULL) {
-      next_tvb = process_reassembled_data(tvb, pinfo, "Reassembled IPv6",
+    next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled IPv6",
           ipfd_head, &ipv6_frag_items, &update_col_info, ipv6_tree);
-    } else {
-      /* We don't have the complete reassembled payload. */
-      next_tvb = NULL;
-    }
   } else {
     /* If this is the first fragment, dissect its contents, otherwise
        just show it as a fragment.
