@@ -8,7 +8,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-3g-a11.c,v 1.6 2004/03/21 23:46:39 guy Exp $
+ * $Id: packet-3g-a11.c,v 1.7 2004/03/23 19:31:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,6 +70,7 @@ static int hf_a11_next_nai = -1;
 
 static int hf_a11_ses_key = -1;
 static int hf_a11_ses_mnsrid = -1;
+static int hf_a11_ses_sidver = -1;
 static int hf_a11_ses_msid_type = -1;
 static int hf_a11_ses_msid_len = -1;
 static int hf_a11_ses_msid = -1;
@@ -79,7 +80,6 @@ static int hf_a11_vse_vid = -1;
 static int hf_a11_vse_apptype = -1;
 static int hf_a11_vse_canid = -1;
 static int hf_a11_vse_panid = -1;
-static int hf_a11_vse_mnsrid = -1;
 static int hf_a11_vse_srvopt = -1;
 static int hf_a11_vse_pdit = -1;
 static int hf_a11_vse_code = -1;
@@ -148,24 +148,16 @@ static const value_string a11_reply_codes[]= {
   {128, "Reg Deny (HA)- Unspecified"},
   {129, "Reg Deny (HA)- Administratively Prohibited"},
   {130, "Reg Deny (HA)- Insufficient Resources"},
-  {131, "Reg Deny (HA)- MN Failed Authentication"},
+  {131, "Reg Deny (HA)- PCF Failed Authentication"},
   /* {132, "Reg Deny (HA)- FA Failed Authentication"}, */
-  {133, "Reg Deny (HA)- Registration ID Mismatch"},
+  {133, "Reg Deny (HA)- Identification Mismatch"},
   {134, "Reg Deny (HA)- Poorly Formed Request"},
   /* {135, "Reg Deny (HA)- Too Many Simultaneous Bindings"}, */
-  {136, "Reg Deny (HA)- Unknown HA Address"},
+  {136, "Reg Deny (HA)- Unknown PDSN Address"},
   {137, "Reg Deny (HA)- Requested Reverse Tunnel Unavailable"},
   {138, "Reg Deny (HA)- Reverse Tunnel is Mandatory and 'T' Bit Not Set"},
   {139, "Reg Deny (HA)- Requested Encapsulation Unavailable"},
   {141, "Reg Deny (HA)- unsupported Vendor ID / Application Type in CVSE"},
-  {193, "Connection Release - Reason Unspecified"},
-  {194, "Connection Release - PPP Timeout"},
-  {195, "Connection Release - Registration Timeout"},
-  {196, "Connection Release - PDSN Error"},
-  {197, "Connection Release - inter-PCF handoff"},
-  {198, "Connection Release - inter-PDSN handoff"},
-  {199, "Connection Release - PDSN OAM&P Intervention"},
-  {200, "Connection Release - Accounting Error"},
 };
 
 
@@ -175,7 +167,7 @@ static const value_string a11_ack_status[]= {
   {131, "Update Deny - Sending Node Failed Authentication"},
   {133, "Update Deny - Registration ID Mismatch"},
   {134, "Update Deny - Poorly Formed Request"},
-  {193, "Update Deny - Session Parameter Not Updated"},
+  {201, "Update Deny - Session Parameter Not Updated"},
 };
 
 typedef enum {
@@ -512,6 +504,7 @@ dissect_a11_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	case SS_EXT:
 	  proto_tree_add_item(ext_tree, hf_a11_ses_ptype, tvb, offset, 2, FALSE);
 	  proto_tree_add_item(ext_tree, hf_a11_ses_key, tvb, offset+2, 4, FALSE);
+	  proto_tree_add_item(ext_tree, hf_a11_ses_sidver, tvb, offset+7, 1, FALSE);
 	  proto_tree_add_item(ext_tree, hf_a11_ses_mnsrid, tvb, offset+8, 2, FALSE);
 	  proto_tree_add_item(ext_tree, hf_a11_ses_msid_type, tvb, offset+10, 2, FALSE);
 	  proto_tree_add_item(ext_tree, hf_a11_ses_msid_len, tvb, offset+12, 1, FALSE);
@@ -580,9 +573,11 @@ dissect_a11_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
         case 0x0801:
           proto_tree_add_item(ext_tree, hf_a11_vse_pdit, tvb, offset+8, 1, FALSE);
           break;
+        case 0x0802:
+          proto_tree_add_text(ext_tree, tvb, offset+8, -1, "Session Parameter - Always On");
+          break;
         case 0x0901:
           proto_tree_add_item(ext_tree, hf_a11_vse_srvopt, tvb, offset+8, 2, FALSE);
-          proto_tree_add_item(ext_tree, hf_a11_vse_mnsrid, tvb, offset+10, 2, FALSE);
           break;
       }
 
@@ -630,8 +625,8 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   switch (type) {
   case REGISTRATION_REQUEST:
 	if (check_col(pinfo->cinfo, COL_INFO)) 
-	  col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Request: HAddr=%s COA=%s", 
-				   ip_to_str(tvb_get_ptr(tvb, 4, 4)),
+	  col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Request: PDSN=%s PCF=%s", 
+				   ip_to_str(tvb_get_ptr(tvb, 8, 4)),
 				   ip_to_str(tvb_get_ptr(tvb,12,4)));
 	
 	if (tree) {
@@ -682,8 +677,8 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
   case REGISTRATION_REPLY:
 	if (check_col(pinfo->cinfo, COL_INFO)) 
-	  col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Reply: HAddr=%s, Code=%u", 
-				   ip_to_str(tvb_get_ptr(tvb,4,4)), tvb_get_guint8(tvb,1));
+	  col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Reply:   PDSN=%s, Code=%u", 
+				   ip_to_str(tvb_get_ptr(tvb,8,4)), tvb_get_guint8(tvb,1));
 	
 	if (tree) {
 	  /* Add Subtree */
@@ -720,8 +715,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
   case REGISTRATION_UPDATE:
 	if (check_col(pinfo->cinfo, COL_INFO)) 
-	  col_add_fstr(pinfo->cinfo, COL_INFO,"Reg Update: HAddr=%s HAAddr=%s", 
-				   ip_to_str(tvb_get_ptr(tvb, 4, 4)),
+	  col_add_fstr(pinfo->cinfo, COL_INFO,"Reg Update:  PDSN=%s", 
 				   ip_to_str(tvb_get_ptr(tvb,8,4)));
 	if (tree) {
 	  /* Add Subtree */
@@ -753,8 +747,8 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
   case REGISTRATION_ACK:
 	if (check_col(pinfo->cinfo, COL_INFO)) 
-	  col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Ack: HAddr=%s Status=%u", 
-				   ip_to_str(tvb_get_ptr(tvb, 4, 4)),
+	  col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Ack:     PDSN=%s Status=%u", 
+				   ip_to_str(tvb_get_ptr(tvb, 8, 4)),
 				   tvb_get_guint8(tvb,3));
 	if (tree) {
 	  /* Add Subtree */
@@ -790,8 +784,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
   case SESSION_UPDATE: /* IOS4.3 */
 	if (check_col(pinfo->cinfo, COL_INFO)) 
-	  col_add_fstr(pinfo->cinfo, COL_INFO,"Ses Update: HAddr=%s HAAddr=%s", 
-				   ip_to_str(tvb_get_ptr(tvb, 4, 4)),
+	  col_add_fstr(pinfo->cinfo, COL_INFO,"Ses Update:  PDSN=%s", 
 				   ip_to_str(tvb_get_ptr(tvb,8,4)));
 	if (tree) {
 	  /* Add Subtree */
@@ -823,8 +816,8 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
   case SESSION_ACK: /* IOS4.3 */
 	if (check_col(pinfo->cinfo, COL_INFO)) 
-	  col_add_fstr(pinfo->cinfo, COL_INFO, "Ses Upd Ack: HAddr=%s Status=%u", 
-				   ip_to_str(tvb_get_ptr(tvb, 4, 4)),
+	  col_add_fstr(pinfo->cinfo, COL_INFO, "Ses Upd Ack: PCF=%s, Status=%u", 
+				   ip_to_str(tvb_get_ptr(tvb, 8, 4)),
 				   tvb_get_guint8(tvb,3));
 	if (tree) {
 	  /* Add Subtree */
@@ -995,6 +988,11 @@ void proto_register_a11(void)
 			FT_UINT32, BASE_HEX, NULL, 0,
 			"Session Key.", HFILL }
 	  },
+	  { &hf_a11_ses_sidver,
+		{ "Session ID Version",         "a11.ext.sidver",
+			FT_UINT8, BASE_DEC, NULL, 3,
+			"Session ID Version", HFILL}
+	  },
 	  { &hf_a11_ses_mnsrid,
 		 { "MNSR-ID",                      "a11.ext.mnsrid",
 			FT_UINT16, BASE_HEX, NULL, 0,
@@ -1054,11 +1052,6 @@ void proto_register_a11(void)
 		 { "Service Option",                      "a11.ext.srvopt",
 			FT_UINT16, BASE_HEX, VALS(a11_ext_nvose_srvopt), 0,
 			"Servie Option.", HFILL }
-	  },
-	  { &hf_a11_vse_mnsrid,
-		 { "MNSRID",                      "a11.ext.mnsrid",
-			FT_UINT16, BASE_HEX, NULL, 0,
-			"MNSRID", HFILL }
 	  },
 	  { &hf_a11_vse_panid,
 		 { "PANID",                      "a11.ext.panid",
