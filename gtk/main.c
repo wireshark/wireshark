@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.71 1999/12/13 04:20:33 gram Exp $
+ * $Id: main.c,v 1.72 1999/12/15 04:34:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -176,6 +176,7 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 		"Dave Chapeskie           <dchapes@ddm.on.ca>\n"
 		"James Coe                <jammer@cin.net>\n"
 		"Bert Driehuis            <driehuis@playbeing.org>\n"
+		"Stuart Stanley           <stuarts@mxmail.net>\n"
 
 		"\nSee http://ethereal.zing.org for more information",
                 VERSION, comp_info_str);

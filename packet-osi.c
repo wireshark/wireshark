@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.12 1999/11/16 11:42:44 guy Exp $
+ * $Id: packet-osi.c,v 1.13 1999/12/15 04:34:19 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -1618,7 +1618,7 @@ void dissect_osi(const u_char *pd, int offset, frame_data *fd,
       if (check_col(fd, COL_PROTOCOL)) {
 	col_add_str(fd, COL_PROTOCOL, "ISIS");
       }
-      dissect_data(pd, offset, fd, tree);
+      dissect_isis(pd, offset, fd, tree);
       break;
     default:
       if (check_col(fd, COL_PROTOCOL)) {

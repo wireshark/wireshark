@@ -211,6 +211,9 @@ Bert Driehuis <driehuis@playbeing.org> {
 	V.120
 }
 
+Stuart Stanley <stuarts@mxmail.net> {
+	ISIS on CLNP support
+}
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.162 1999/12/12 22:39:30 gram Exp $
+ * $Id: packet.h,v 1.163 1999/12/15 04:34:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -351,6 +351,7 @@ void dissect_ipp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ipv6(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ipx(const u_char *, int, frame_data *, proto_tree *);
 void dissect_irc(const u_char *, int, frame_data *, proto_tree *);
+void dissect_isis(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ldap(const u_char *, int, frame_data *, proto_tree *);
 void dissect_llc(const u_char *, int, frame_data *, proto_tree *);
 void dissect_lpd(const u_char *, int, frame_data *, proto_tree *);
