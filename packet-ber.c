@@ -2,7 +2,7 @@
  * Helpers for ASN.1/BER dissection
  * Ronnie Sahlberg (C) 2004
  *
- * $Id: packet-ber.c,v 1.8 2004/05/11 07:26:45 guy Exp $
+ * $Id: packet-ber.c,v 1.9 2004/05/11 10:57:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -726,9 +726,10 @@ static int dissect_ber_sq_of(gboolean implicit_tag, guint32 type, packet_info *p
 	if (hf_id != -1) {
 		hfi = proto_registrar_get_nth(hf_id);
 		if(parent_tree){
-			if (hfi->type == FT_NONE)
+			if (hfi->type == FT_NONE) {
 				item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, FALSE);
-			else {
+				proto_item_append_text(item, ":");
+			} else {
 				item = proto_tree_add_uint(parent_tree, hf_id, tvb, offset, len, cnt);
 				proto_item_append_text(item, (cnt==1)?" item":" items");
 			}
