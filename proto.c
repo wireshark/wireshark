@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.60 2000/04/04 17:07:07 gram Exp $
+ * $Id: proto.c,v 1.61 2000/04/11 16:07:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -738,7 +738,7 @@ proto_tree_add_boolean_format(proto_tree *tree, int hfindex, gint start, gint le
 static void
 proto_tree_set_boolean(field_info *fi, guint32  value)
 {
-	fi->value.numeric = value;
+	proto_tree_set_uint(fi, value);
 }
 
 /* Add a FT_DOUBLE to a proto_tree */
