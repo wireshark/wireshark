@@ -316,9 +316,9 @@ CriteriaItem ::= CHOICE {
 --   SUBSTRINGS MATCHING RULE  telephoneNumberSubstringsMatch
 --   ID                        id-at-telephoneNumber
 -- }
--- 
--- TelephoneNumber ::= PrintableString(SIZE (1..ub-telephone-number))
--- 
+
+TelephoneNumber ::= PrintableString
+
 -- String complying with CCITT Rec. E.123 only
 -- collectiveTelephoneNumber ATTRIBUTE ::= {
 --   SUBTYPE OF  telephoneNumber
@@ -330,13 +330,13 @@ CriteriaItem ::= CHOICE {
 --   WITH SYNTAX  TelexNumber
 --   ID           id-at-telexNumber
 -- }
--- 
--- TelexNumber ::= SEQUENCE {
---   telexNumber  PrintableString(SIZE (1..ub-telex-number)),
---   countryCode  PrintableString(SIZE (1..ub-country-code)),
---   answerback   PrintableString(SIZE (1..ub-answerback))
--- }
--- 
+
+TelexNumber ::= SEQUENCE {
+  telexNumber  PrintableString,
+  countryCode  PrintableString,
+  answerback   PrintableString
+}
+
 -- collectiveTelexNumber ATTRIBUTE ::= {
 --   SUBTYPE OF  telexNumber
 --   COLLECTIVE  TRUE
@@ -1061,21 +1061,21 @@ id-at-collectivePhysicalDeliveryOfficeName OBJECT IDENTIFIER ::= {id-at 19 1}
 
 -- id-at-encryptedCollectivePhysicalDeliveryOfficeName OBJECT IDENTIFIER ::=
 --   {id-at 19 1 2}
--- 
--- id-at-telephoneNumber OBJECT IDENTIFIER ::= {id-at 20}
--- 
+
+id-at-telephoneNumber OBJECT IDENTIFIER ::= {id-at 20}
+
 -- id-at-encryptedTelephoneNumber OBJECT IDENTIFIER ::= {id-at 20 2}
--- 
--- id-at-collectiveTelephoneNumber OBJECT IDENTIFIER ::= {id-at 20 1}
--- 
+
+id-at-collectiveTelephoneNumber OBJECT IDENTIFIER ::= {id-at 20 1}
+
 -- id-at-encryptedCollectiveTelephoneNumber OBJECT IDENTIFIER ::= {id-at 20 1 2}
--- 
--- id-at-telexNumber OBJECT IDENTIFIER ::= {id-at 21}
--- 
+
+id-at-telexNumber OBJECT IDENTIFIER ::= {id-at 21}
+
 -- id-at-encryptedTelexNumber OBJECT IDENTIFIER ::= {id-at 21 2}
--- 
--- id-at-collectiveTelexNumber OBJECT IDENTIFIER ::= {id-at 21 1}
--- 
+
+id-at-collectiveTelexNumber OBJECT IDENTIFIER ::= {id-at 21 1}
+
 -- id-at-encryptedCollectiveTelexNumber OBJECT IDENTIFIER ::= {id-at 21 1 2}
 -- 
 -- id-at-teletexTerminalIdentifier  			OBJECT IDENTIFIER	::=	{id-at 22}

@@ -73,6 +73,10 @@ int hf_x509sat_collectivePostOfficeBox = -1;
 int hf_x509sat_physicalDeliveryOfficeName = -1;
 int hf_x509sat_collectivePhysicalDeliveryOfficeName = -1;
 int hf_x509sat_dmdName = -1;
+int hf_x509sat_id_at_telexNumber = -1;
+int hf_x509sat_id_at_collectiveTelexNumber = -1;
+int hf_x509sat_id_at_telephoneNumber = -1;
+int hf_x509sat_id_at_collectiveTelephoneNumber = -1;
 /*aaa*/
 #include "packet-x509sat-hf.c"
 
@@ -316,6 +320,31 @@ dissect_x509sat_dmdName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
 	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_dmdName);
 }
+
+
+static void
+dissect_x509sat_telexNumber_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_x509sat_TelexNumber(FALSE, tvb, 0, pinfo, tree, hf_x509sat_id_at_telexNumber);
+}
+
+static void
+dissect_x509sat_collectiveTelexNumber_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_x509sat_TelexNumber(FALSE, tvb, 0, pinfo, tree, hf_x509sat_id_at_collectiveTelexNumber);
+}
+
+static void
+dissect_x509sat_telephoneNumber_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_x509sat_TelephoneNumber(FALSE, tvb, 0, pinfo, tree, hf_x509sat_id_at_telephoneNumber);
+}
+
+static void
+dissect_x509sat_collectiveTelephoneNumber_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_x509sat_TelephoneNumber(FALSE, tvb, 0, pinfo, tree, hf_x509sat_id_at_collectiveTelephoneNumber);
+}
 /*bbb*/
 
 /*--- proto_register_x509sat ----------------------------------------------*/
@@ -443,6 +472,22 @@ void proto_register_x509sat(void) {
       { "dmdName", "x509sat.dmdName",
         FT_STRING, BASE_NONE, NULL, 0,
         "dmdName", HFILL }},
+    { &hf_x509sat_id_at_telexNumber,
+      { "telexNumber", "x509sat.id_at_telexNumber",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "telexNumber", HFILL }},
+    { &hf_x509sat_id_at_collectiveTelexNumber,
+      { "collectiveTelexNumber", "x509sat.id_at_collectiveTelexNumber",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "collectiveTelexNumber", HFILL }},
+    { &hf_x509sat_id_at_telephoneNumber,
+      { "telephoneNumber", "x509sat.id_at_telephoneNumber",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "telephoneNumber", HFILL }},
+    { &hf_x509sat_id_at_collectiveTelephoneNumber,
+      { "collectiveTelephoneNumber", "x509sat.id_at_collectiveTelephoneNumber",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "collectiveTelephoneNumber", HFILL }},
 /*ccc*/
 #include "packet-x509sat-hfarr.c"
   };
@@ -488,6 +533,10 @@ void proto_reg_handoff_x509sat(void) {
 	register_ber_oid_dissector("2.5.4.18.1", dissect_x509sat_collectivePostOfficeBox_callback, proto_x509sat, "id-at-collectivePostOfficeBox");
 	register_ber_oid_dissector("2.5.4.19", dissect_x509sat_physicalDeliveryOfficeName_callback, proto_x509sat, "id-at-physicalDeliveryOfficeName");
 	register_ber_oid_dissector("2.5.4.19.1", dissect_x509sat_collectivePhysicalDeliveryOfficeName_callback, proto_x509sat, "id-at-collectivePhysicalDeliveryOfficeName");
+	register_ber_oid_dissector("2.5.4.20", dissect_x509sat_telephoneNumber_callback, proto_x509sat, "id-at-telephoneNumber");
+	register_ber_oid_dissector("2.5.4.20.1", dissect_x509sat_collectiveTelephoneNumber_callback, proto_x509sat, "id-at-collectiveTelephoneNumber");
+	register_ber_oid_dissector("2.5.4.21", dissect_x509sat_telexNumber_callback, proto_x509sat, "id-at-telexNumber");
+	register_ber_oid_dissector("2.5.4.21.1", dissect_x509sat_collectiveTelexNumber_callback, proto_x509sat, "id-at-collectiveTelexNumber");
 	register_ber_oid_dissector("2.5.4.41", dissect_x509sat_name_callback, proto_x509sat, "id-at-name");
 	register_ber_oid_dissector("2.5.4.42", dissect_x509sat_givenName_callback, proto_x509sat, "id-at-givenName");
 	register_ber_oid_dissector("2.5.4.43", dissect_x509sat_initials_callback, proto_x509sat, "id-at-initials");

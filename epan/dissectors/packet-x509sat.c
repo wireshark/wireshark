@@ -81,6 +81,10 @@ int hf_x509sat_collectivePostOfficeBox = -1;
 int hf_x509sat_physicalDeliveryOfficeName = -1;
 int hf_x509sat_collectivePhysicalDeliveryOfficeName = -1;
 int hf_x509sat_dmdName = -1;
+int hf_x509sat_id_at_telexNumber = -1;
+int hf_x509sat_id_at_collectiveTelexNumber = -1;
+int hf_x509sat_id_at_telephoneNumber = -1;
+int hf_x509sat_id_at_collectiveTelephoneNumber = -1;
 /*aaa*/
 
 /*--- Included file: packet-x509sat-hf.c ---*/
@@ -95,6 +99,9 @@ static int hf_x509sat_substrings = -1;            /* AttributeType */
 static int hf_x509sat_greaterOrEqual = -1;        /* AttributeType */
 static int hf_x509sat_lessOrEqual = -1;           /* AttributeType */
 static int hf_x509sat_approximateMatch = -1;      /* AttributeType */
+static int hf_x509sat_telexNumber = -1;           /* PrintableString */
+static int hf_x509sat_countryCode = -1;           /* PrintableString */
+static int hf_x509sat_answerback = -1;            /* PrintableString */
 
 /*--- End of included file: packet-x509sat-hf.c ---*/
 
@@ -110,6 +117,7 @@ static gint ett_x509sat_DirectoryString = -1;
 /* ../../tools/asn2eth.py -X -b -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
 
 static gint ett_x509sat_CriteriaItem = -1;
+static gint ett_x509sat_TelexNumber = -1;
 
 /*--- End of included file: packet-x509sat-ett.c ---*/
 
@@ -180,6 +188,50 @@ static int
 dissect_x509sat_CriteriaItem(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               CriteriaItem_choice, hf_index, ett_x509sat_CriteriaItem);
+
+  return offset;
+}
+
+
+static int
+dissect_x509sat_TelephoneNumber(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
+                                         pinfo, tree, tvb, offset, hf_index,
+                                         NULL);
+
+  return offset;
+}
+
+
+static int
+dissect_x509sat_PrintableString(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
+                                         pinfo, tree, tvb, offset, hf_index,
+                                         NULL);
+
+  return offset;
+}
+static int dissect_telexNumber(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_PrintableString(FALSE, tvb, offset, pinfo, tree, hf_x509sat_telexNumber);
+}
+static int dissect_countryCode(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_PrintableString(FALSE, tvb, offset, pinfo, tree, hf_x509sat_countryCode);
+}
+static int dissect_answerback(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_PrintableString(FALSE, tvb, offset, pinfo, tree, hf_x509sat_answerback);
+}
+
+static ber_sequence TelexNumber_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_telexNumber },
+  { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_countryCode },
+  { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_answerback },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509sat_TelexNumber(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                TelexNumber_sequence, hf_index, ett_x509sat_TelexNumber);
 
   return offset;
 }
@@ -422,6 +474,31 @@ dissect_x509sat_dmdName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
 	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_dmdName);
 }
+
+
+static void
+dissect_x509sat_telexNumber_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_x509sat_TelexNumber(FALSE, tvb, 0, pinfo, tree, hf_x509sat_id_at_telexNumber);
+}
+
+static void
+dissect_x509sat_collectiveTelexNumber_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_x509sat_TelexNumber(FALSE, tvb, 0, pinfo, tree, hf_x509sat_id_at_collectiveTelexNumber);
+}
+
+static void
+dissect_x509sat_telephoneNumber_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_x509sat_TelephoneNumber(FALSE, tvb, 0, pinfo, tree, hf_x509sat_id_at_telephoneNumber);
+}
+
+static void
+dissect_x509sat_collectiveTelephoneNumber_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_x509sat_TelephoneNumber(FALSE, tvb, 0, pinfo, tree, hf_x509sat_id_at_collectiveTelephoneNumber);
+}
 /*bbb*/
 
 /*--- proto_register_x509sat ----------------------------------------------*/
@@ -549,6 +626,22 @@ void proto_register_x509sat(void) {
       { "dmdName", "x509sat.dmdName",
         FT_STRING, BASE_NONE, NULL, 0,
         "dmdName", HFILL }},
+    { &hf_x509sat_id_at_telexNumber,
+      { "telexNumber", "x509sat.id_at_telexNumber",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "telexNumber", HFILL }},
+    { &hf_x509sat_id_at_collectiveTelexNumber,
+      { "collectiveTelexNumber", "x509sat.id_at_collectiveTelexNumber",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "collectiveTelexNumber", HFILL }},
+    { &hf_x509sat_id_at_telephoneNumber,
+      { "telephoneNumber", "x509sat.id_at_telephoneNumber",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "telephoneNumber", HFILL }},
+    { &hf_x509sat_id_at_collectiveTelephoneNumber,
+      { "collectiveTelephoneNumber", "x509sat.id_at_collectiveTelephoneNumber",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "collectiveTelephoneNumber", HFILL }},
 /*ccc*/
 
 /*--- Included file: packet-x509sat-hfarr.c ---*/
@@ -578,6 +671,18 @@ void proto_register_x509sat(void) {
       { "approximateMatch", "x509sat.approximateMatch",
         FT_NONE, BASE_NONE, NULL, 0,
         "CriteriaItem/approximateMatch", HFILL }},
+    { &hf_x509sat_telexNumber,
+      { "telexNumber", "x509sat.telexNumber",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "TelexNumber/telexNumber", HFILL }},
+    { &hf_x509sat_countryCode,
+      { "countryCode", "x509sat.countryCode",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "TelexNumber/countryCode", HFILL }},
+    { &hf_x509sat_answerback,
+      { "answerback", "x509sat.answerback",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "TelexNumber/answerback", HFILL }},
 
 /*--- End of included file: packet-x509sat-hfarr.c ---*/
 
@@ -595,6 +700,7 @@ void proto_register_x509sat(void) {
 /* ../../tools/asn2eth.py -X -b -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
 
     &ett_x509sat_CriteriaItem,
+    &ett_x509sat_TelexNumber,
 
 /*--- End of included file: packet-x509sat-ettarr.c ---*/
 
@@ -635,6 +741,10 @@ void proto_reg_handoff_x509sat(void) {
 	register_ber_oid_dissector("2.5.4.18.1", dissect_x509sat_collectivePostOfficeBox_callback, proto_x509sat, "id-at-collectivePostOfficeBox");
 	register_ber_oid_dissector("2.5.4.19", dissect_x509sat_physicalDeliveryOfficeName_callback, proto_x509sat, "id-at-physicalDeliveryOfficeName");
 	register_ber_oid_dissector("2.5.4.19.1", dissect_x509sat_collectivePhysicalDeliveryOfficeName_callback, proto_x509sat, "id-at-collectivePhysicalDeliveryOfficeName");
+	register_ber_oid_dissector("2.5.4.20", dissect_x509sat_telephoneNumber_callback, proto_x509sat, "id-at-telephoneNumber");
+	register_ber_oid_dissector("2.5.4.20.1", dissect_x509sat_collectiveTelephoneNumber_callback, proto_x509sat, "id-at-collectiveTelephoneNumber");
+	register_ber_oid_dissector("2.5.4.21", dissect_x509sat_telexNumber_callback, proto_x509sat, "id-at-telexNumber");
+	register_ber_oid_dissector("2.5.4.21.1", dissect_x509sat_collectiveTelexNumber_callback, proto_x509sat, "id-at-collectiveTelexNumber");
 	register_ber_oid_dissector("2.5.4.41", dissect_x509sat_name_callback, proto_x509sat, "id-at-name");
 	register_ber_oid_dissector("2.5.4.42", dissect_x509sat_givenName_callback, proto_x509sat, "id-at-givenName");
 	register_ber_oid_dissector("2.5.4.43", dissect_x509sat_initials_callback, proto_x509sat, "id-at-initials");
