@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.229 2004/02/20 20:36:13 gerald Exp $
+ * $Id: tethereal.c,v 1.230 2004/02/21 02:15:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,6 +96,7 @@
 #include "ringbuffer.h"
 #include <epan/epan_dissect.h>
 #include "tap.h"
+#include "report_err.h"
 
 #ifdef HAVE_LIBPCAP
 #include <wiretap/wtap-capture.h>
@@ -2964,6 +2965,19 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
   return errmsg;
 }
 
+/*
+ * Open/create errors are reported with an console message in Tethereal.
+ */
+void
+report_open_failure(const char *filename, int err, gboolean for_writing)
+{
+  char *errmsg;
+
+  errmsg = g_strdup_printf(file_open_error_message(err, for_writing), filename);
+  fprintf(stderr, "tethereal: %s\n", errmsg);
+  g_free(errmsg);
+}
+
 int
 cf_open(char *fname, gboolean is_tempfile, capture_file *cf)
 {
@@ -3308,3 +3322,13 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
 }
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
+
+/*
+ * Read errors are reported with an console message in Tethereal.
+ */
+void
+report_read_failure(const char *filename, int err)
+{
+  fprintf(stderr, "tethereal: An error occurred while reading from the file \"%s\": %s.",
+          filename, strerror(err));
+}

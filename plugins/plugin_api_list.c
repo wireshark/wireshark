@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.27 2004/02/16 18:31:40 sahlberg Exp $
+ * $Id: plugin_api_list.c,v 1.28 2004/02/21 02:15:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include "asn1.h"
 #include "xdlc.h"
 #include "epan/except.h"
+#include "report_err.h"
 
 gint check_col(column_info*, gint);
 void col_clear(column_info*, gint);
@@ -407,3 +408,7 @@ int dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 protocol_t *find_protocol_by_id(int n);
 
 guint tvb_strsize(tvbuff_t *tvb, gint offset);
+
+void report_open_failure(const char *filename, int err, gboolean for_writing);
+
+void report_read_failure(const char *filename, int err);

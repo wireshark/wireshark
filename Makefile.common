@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.17 2004/02/20 21:25:15 gerald Exp $
+# $Id: Makefile.common,v 1.18 2004/02/21 02:15:05 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -752,6 +752,7 @@ ethereal_SOURCES =	\
 	progress_dlg.h	\
 	proto_hier_stats.h	\
 	proto_hier_stats.c	\
+	report_err.h	\
 	simple_dialog.h	\
 	statusbar.h	\
 	summary.c	\

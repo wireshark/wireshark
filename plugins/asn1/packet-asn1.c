@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.18 2004/02/20 22:14:12 guy Exp $
+ * $Id: packet-asn1.c,v 1.19 2004/02/21 02:15:07 guy Exp $
  *
  * A plugin for:
  *
@@ -83,6 +83,7 @@
 #include <epan/strutil.h>
 #include <epan/filesystem.h>
 #include "asn1.h"
+#include "report_err.h"
 #include "simple_dialog.h"
 
 #include "plugins/plugin_api_defs.h"
@@ -2594,7 +2595,7 @@ read_asn1_type_table(char *filename)
 		    && strcmp(filename, old_default_asn1_filename) != 0
 #endif
 		    ) || errno != ENOENT)
-			g_warning("error opening %s, %s", filename, strerror(errno));
+			report_open_failure(filename, errno, FALSE);
 		return;
 	}
 	fstat(fileno(f), &stat);
@@ -2608,7 +2609,7 @@ read_asn1_type_table(char *filename)
 	
 	data = g_malloc(size);
 	if (fread(data, size, 1, f) < 1) {
-		g_warning("error reading %s, %s", filename, strerror(errno));
+		report_read_failure(filename, errno);
 	}
 	fclose(f);
 

@@ -2,7 +2,7 @@
  * Routines to put up various "standard" alert boxes used in multiple
  * places
  *
- * $Id: alert_box.c,v 1.3 2004/02/11 01:37:11 guy Exp $
+ * $Id: alert_box.c,v 1.4 2004/02/21 02:15:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,12 +27,15 @@
 # include "config.h"
 #endif
 
+#include <string.h>
+
 #include <glib.h>
 
 #include <epan/filesystem.h>
 #include <epan/dfilter/dfilter.h>
 
 #include "alert_box.h"
+#include "report_err.h"
 
 #include "simple_dialog.h"
 
@@ -53,6 +56,26 @@ open_failure_alert_box(const char *filename, int err, gboolean for_writing)
 {
   simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 file_open_error_message(err, for_writing), filename);
+}
+
+/*
+ * Open/create errors are reported with an alert box in Ethereal.
+ */
+void
+report_open_failure(const char *filename, int err, gboolean for_writing)
+{
+  open_failure_alert_box(filename, err, for_writing);
+}
+
+/*
+ * Read errors are reported with an alert box in Ethereal.
+ */
+void
+report_read_failure(const char *filename, int err)
+{
+  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		"An error occurred while reading from the file \"%s\": %s.",
+                filename, strerror(err));
 }
 
 /*

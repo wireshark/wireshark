@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.362 2004/02/17 17:48:44 ulfl Exp $
+ * $Id: file.c,v 1.363 2004/02/21 02:15:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,6 +70,7 @@
 #include "file.h"
 #include "menu.h"
 #include "util.h"
+#include "report_err.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
 #include "progress_dlg.h"
@@ -3026,10 +3027,7 @@ copy_binary_file(char *from_filename, char *to_filename)
     }
   }
   if (nread < 0) {
-    err = errno;
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		  "An error occurred while reading from the file \"%s\": %s.",
-		  from_filename, strerror(err));
+    report_read_failure(from_filename, errno);
     close(from_fd);
     close(to_fd);
     goto done;
