@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.67 2000/03/26 06:57:40 sharpe Exp $
+ * $Id: packet.c,v 1.68 2000/03/26 07:59:47 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,7 @@
 #include <glib.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
@@ -1188,8 +1189,17 @@ p_add_proto_data(frame_data *fd, int proto, void *proto_data)
 void *
 p_get_proto_data(frame_data *fd, int proto)
 {
+  frame_proto_data temp;
+  GSList *item;
 
-  return(NULL);
+  temp.proto = proto;
+  temp.proto_data = NULL;
+
+  item = g_slist_find_custom(fd->pfd, (gpointer *)&temp, p_compare);
+
+  if (item) return (void *)item->data;
+
+  return NULL;
 
 }
 
