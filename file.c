@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.83 1999/08/26 07:01:42 gram Exp $
+ * $Id: file.c,v 1.84 1999/08/28 01:51:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -97,7 +97,8 @@ static void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, int,
 static void freeze_clist(capture_file *cf);
 static void thaw_clist(capture_file *cf);
 
-static gint dfilter_progress_cb(gpointer p);
+/* Update the progress bar this many times when reading a file. */
+#define N_PROGBAR_UPDATES	100
 
 int
 open_cap_file(char *fname, capture_file *cf) {
@@ -139,6 +140,9 @@ open_cap_file(char *fname, capture_file *cf) {
   cf->esec      = 0;
   cf->eusec     = 0;
   cf->snap      = wtap_snapshot_length(cf->wth);
+  cf->update_progbar = FALSE;
+  cf->progbar_quantum = 0;
+  cf->progbar_nextstep = 0;
   firstsec = 0, firstusec = 0;
   prevsec = 0, prevusec = 0;
  
@@ -196,7 +200,6 @@ read_cap_file(capture_file *cf) {
   gchar  *done_fmt = " File: %s  Drops: %d";
   int     success;
   int     err;
-  gint    timeout;
   size_t  msg_len;
   char   *errmsg;
   char    errmsg_errno[1024+1];
@@ -210,8 +213,13 @@ read_cap_file(capture_file *cf) {
   load_msg = g_malloc(strlen(name_ptr) + strlen(load_fmt) + 2);
   sprintf(load_msg, load_fmt, name_ptr);
   gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
-  
-  timeout = gtk_timeout_add(250, file_progress_cb, (gpointer) cf);
+
+  cf->update_progbar = TRUE;
+  /* Update the progress bar when it gets to this value. */
+  cf->progbar_nextstep = 0;
+  /* When we reach the value that triggers a progress bar update,
+     bump that value by this amount. */
+  cf->progbar_quantum = cf->f_len/N_PROGBAR_UPDATES;
 
   freeze_clist(cf);
   proto_tree_is_visible = FALSE;
@@ -221,7 +229,6 @@ read_cap_file(capture_file *cf) {
   cf->fh = fopen(cf->filename, "r");
   thaw_clist(cf);
   
-  gtk_timeout_remove(timeout);
   gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), 0);
 
   gtk_statusbar_pop(GTK_STATUSBAR(info_bar), file_ctx);
@@ -599,8 +606,23 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   proto_tree   *protocol_tree;
   frame_data   *plist_end;
 
-  while (gtk_events_pending())
-    gtk_main_iteration();
+  /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
+     when we update it, we have to run the GTK+ main loop to get it
+     to repaint what's pending, and doing so may involve an "ioctl()"
+     to see if there's any pending input from an X server, and doing
+     that for every packet can be costly, especially on a big file.
+     
+     Do so only if we were told to do so; when reading a capture file
+     being updated by a live capture, we don't do so (as we're not
+     "done" until the capture stops, so we don't know how close to
+     "done" we are. */
+  if (cf->update_progbar && offset >= cf->progbar_nextstep) {
+    gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar),
+      (gfloat) ftell(cf->fh) / (gfloat) cf->f_len);
+    cf->progbar_nextstep += cf->progbar_quantum;
+    while (gtk_events_pending())
+      gtk_main_iteration();
+  }
 
   /* Allocate the next list entry, and add it to the list. */
   fdata = (frame_data *) g_malloc(sizeof(frame_data));
@@ -641,8 +663,9 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
 void
 filter_packets(capture_file *cf)
 {
-/*  gint timeout;*/
   frame_data *fd;
+  guint32 progbar_quantum;
+  guint32 progbar_nextstep;
 
   if (cf->dfilter == NULL) {
 	dfilter_clear_filter(cf->dfcode);
@@ -680,20 +703,38 @@ filter_packets(capture_file *cf)
 
   proto_tree_is_visible = FALSE;
 
-/*  timeout = gtk_timeout_add(250, dfilter_progress_cb, cf);*/
+  /* Update the progress bar when it gets to this value. */
+  progbar_nextstep = 0;
+  /* When we reach the value that triggers a progress bar update,
+     bump that value by this amount. */
+  progbar_quantum = cf->unfiltered_count/N_PROGBAR_UPDATES;
+
   for (fd = cf->plist; fd != NULL; fd = fd->next) {
+    /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
+       when we update it, we have to run the GTK+ main loop to get it
+       to repaint what's pending, and doing so may involve an "ioctl()"
+       to see if there's any pending input from an X server, and doing
+       that for every packet can be costly, especially on a big file. */
+    if (cf->count >= progbar_nextstep) {
+      /* let's not divide by zero. I should never be started
+       * with unfiltered_count == 0, so let's assert that
+       */
+      g_assert(cf->unfiltered_count > 0);
+
+      gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar),
+        (gfloat) cf->count / cf->unfiltered_count);
+      progbar_nextstep += progbar_quantum;
+      while (gtk_events_pending())
+        gtk_main_iteration();
+    }
+
     cf->count++;
 
     fseek(cf->fh, fd->file_off, SEEK_SET);
     fread(cf->pd, sizeof(guint8), fd->cap_len, cf->fh);
 
     add_packet_to_packet_list(fd, cf, cf->pd);
-
-    if (cf->count % 20 == 0) {
-      dfilter_progress_cb(cf);
-    }
   }
-/*  gtk_timeout_remove(timeout);*/
  
   gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), 0);
 
@@ -708,27 +749,6 @@ filter_packets(capture_file *cf)
   /* Unfreeze the packet list. */
   gtk_clist_thaw(GTK_CLIST(packet_list));
 }
-
-/* Update the progress bar */
-static gint
-dfilter_progress_cb(gpointer p) {
-  capture_file *cf = (capture_file*)p;
-
-  /* let's not divide by zero. I should never be started
-   * with unfiltered_count == 0, so let's assert that
-   */
-  g_assert(cf->unfiltered_count > 0);
-
-  gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar),
-    (gfloat) cf->count / cf->unfiltered_count);
-
-  /* Have GTK+ repaint what is pending */
-  while (gtk_events_pending ()) {
-	  gtk_main_iteration();
-  }
-  return TRUE;
-}
-
 
 int
 print_packets(capture_file *cf, int to_file, const char *dest)

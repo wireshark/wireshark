@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.108 1999/08/26 06:20:49 gram Exp $
+ * $Id: ethereal.c,v 1.109 1999/08/28 01:51:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -174,15 +174,6 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 
 		"\nSee http://ethereal.zing.org for more information",
                 VERSION, comp_info_str);
-}
-
-/* Update the progress bar */
-gint
-file_progress_cb(gpointer p) {
-  capture_file *cf = (capture_file*) p;
-  gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar),
-    (gfloat) ftell(cf->fh) / (gfloat) cf->f_len);
-  return TRUE;
 }
 
 /* Follow the TCP stream, if any, to which the last packet that we called
