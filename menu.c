@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.17 1999/04/06 16:24:49 gram Exp $
+ * $Id: menu.c,v 1.18 1999/06/12 06:22:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,15 +48,31 @@ static void menus_remove_accel (GtkWidget *, gchar *, gchar *);
 static gint menus_install_accel (GtkWidget *, gchar *, gchar, gchar, gchar *);
 #endif
 
-/* this is the GtkMenuEntry structure used to create new menus.  The
- * first member is the menu definition string.  The second, the
- * default accelerator key used to access this menu function with
- * the keyboard.  The third is the callback function to call when
- * this menu item is selected (by the accelerator key, or with the
- * mouse.) The last member is the data to pass to your callback function.
- */
 #ifdef USE_ITEM
 GtkAccelGroup *grp;
+/* This is the GtkItemFactoryEntry structure used to generate new menus.
+       Item 1: The menu path. The letter after the underscore indicates an
+               accelerator key once the menu is open.
+       Item 2: The accelerator key for the entry
+       Item 3: The callback function.
+       Item 4: The callback action.  This changes the parameters with
+               which the function is called.  The default is 0.
+       Item 5: The item type, used to define what kind of an item it is.
+               Here are the possible values:
+
+               NULL               -> "<Item>"
+               ""                 -> "<Item>"
+               "<Title>"          -> create a title item
+               "<Item>"           -> create a simple item
+               "<CheckItem>"      -> create a check item
+               "<ToggleItem>"     -> create a toggle item
+               "<RadioItem>"      -> create a radio item
+               <path>             -> path of a radio item to link against
+               "<Separator>"      -> create a separator
+               "<Branch>"         -> create an item to hold sub items (optional)
+               "<LastBranch>"     -> create a right justified branch 
+    */
+
 static GtkItemFactoryEntry menu_items[] =
 {
   {"/_File", NULL, NULL, 0, "<Branch>" },
@@ -85,6 +101,13 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Help/_About Ethereal", NULL, GTK_MENU_FUNC(about_ethereal), 0, NULL}
 };
 #else
+/* this is the GtkMenuEntry structure used to create new menus.  The
+ * first member is the menu definition string.  The second, the
+ * default accelerator key used to access this menu function with
+ * the keyboard.  The third is the callback function to call when
+ * this menu item is selected (by the accelerator key, or with the
+ * mouse.) The last member is the data to pass to your callback function.
+ */
 static GtkMenuEntry menu_items[] =
 {
   {"<Main>/File/Open", "<control>O", file_open_cmd_cb, NULL},
