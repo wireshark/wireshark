@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.12 2003/12/21 04:38:41 jmayer Exp $
+ * $Id: packet-asn1.c,v 1.13 2003/12/21 05:29:26 jmayer Exp $
  *
  * A plugin for:
  *
@@ -1553,7 +1553,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 /*  search throug the ASN.1 description for appropriate names 					*/
 /************************************************************************************************/
 
-guint lev_limit = G_MAXINT;;
+guint lev_limit = G_MAXINT;
 
 int icount = 0;			/* item counter */
 
