@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.54 2004/03/27 11:16:58 oabad Exp $
+ * $Id: follow_dlg.c,v 1.55 2004/03/29 22:40:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -934,7 +934,10 @@ follow_load_text(follow_info_t *follow_info)
 static void
 follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 {
-    GtkWidget		*ok_bt, *new_win;
+#if GTK_MAJOR_VERSION < 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4)
+    GtkWidget		*ok_bt;
+#endif
+    GtkWidget		*new_win;
     follow_info_t	*follow_info = data;
 
     if (follow_info->follow_save_as_w != NULL) {
@@ -943,36 +946,26 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 	return;
     }
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
     new_win = file_selection_new("Ethereal: Save TCP Follow Stream As",
-                                 GTK_FILE_CHOOSER_ACTION_SAVE);
-#else
-    new_win = gtk_file_selection_new("Ethereal: Save TCP Follow Stream As");
-#endif
+                                 FILE_SELECTION_SAVE);
     follow_info->follow_save_as_w = new_win;
     SIGNAL_CONNECT(new_win, "destroy", follow_save_as_destroy_cb, follow_info);
 
     /* Tuck away the follow_info object into the window */
     OBJECT_SET_DATA(new_win, E_FOLLOW_INFO_KEY, follow_info);
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
     /* If we've opened a file, start out by showing the files in the directory
        in which that file resided. */
     if (last_open_dir)
-	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(new_win),
-                                            last_open_dir);
+	file_selection_set_current_folder(new_win, last_open_dir);
+
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
     if (gtk_dialog_run(GTK_DIALOG(new_win)) == GTK_RESPONSE_ACCEPT)
     {
         follow_save_as_ok_cb(new_win, new_win);
     }
     else gtk_widget_destroy(new_win);
 #else
-    /* If we've opened a file, start out by showing the files in the directory
-       in which that file resided. */
-    if (last_open_dir)
-	gtk_file_selection_set_filename(GTK_FILE_SELECTION(new_win),
-				    last_open_dir);
-
     /* Connect the ok_button to file_save_as_ok_cb function and pass along a
        pointer to the file selection box widget */
     ok_bt = GTK_FILE_SELECTION(new_win)->ok_button;
@@ -1015,13 +1008,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
            directory, and leave the selection box displayed. */
         set_last_open_dir(to_name);
         g_free(to_name);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fs),
-                                            last_open_dir);
-#else
-        gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs),
-                                        last_open_dir);
-#endif
+	file_selection_set_current_folder(fs, last_open_dir);
         return;
     }
 

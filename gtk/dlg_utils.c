@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.22 2004/03/27 11:16:58 oabad Exp $
+ * $Id: dlg_utils.c,v 1.23 2004/03/29 22:40:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,7 @@
 
 #include "gtkglobals.h"
 #include "ui_util.h"
+#include "dlg_utils.h"
 #include "compat_macros.h"
 
 #include <string.h>
@@ -323,28 +324,58 @@ dlg_window_new(const gchar *title)
    main window. */
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
 GtkWidget *
-file_selection_new(const gchar *title, GtkFileChooserAction action)
-#else
-GtkWidget *
-file_selection_new(const gchar *title)
-#endif
+file_selection_new(const gchar *title, file_selection_action_t action)
 {
   GtkWidget *win;
+  GtkFileChooserAction gtk_action;
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-  win = gtk_file_chooser_dialog_new(title, GTK_WINDOW(top_level), action,
+  switch (action) {
+
+  case FILE_SELECTION_OPEN:
+    gtk_action = GTK_FILE_CHOOSER_ACTION_OPEN;
+    break;
+
+  case FILE_SELECTION_SAVE:
+    gtk_action = GTK_FILE_CHOOSER_ACTION_SAVE;
+    break;
+
+  default:
+    g_assert_not_reached();
+    gtk_action = -1;
+    break;
+  }
+  win = gtk_file_chooser_dialog_new(title, GTK_WINDOW(top_level), gtk_action,
                                     GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
                                     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                                     NULL);
   gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
+  return win;
+}
 #else
+GtkWidget *
+file_selection_new(const gchar *title, file_selection_action_t action _U_)
+{
+  GtkWidget *win;
+
   win = gtk_file_selection_new(title);
 #if GTK_MAJOR_VERSION >= 2
   gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
 #endif
   gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
-#endif
   return win;
+}
+#endif
+
+/* Set the current folder for a file selection dialog. */
+gboolean
+file_selection_set_current_folder(GtkWidget *fs, const gchar *filename)
+{
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  return gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fs), filename);
+#else
+  gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), filename);
+  return TRUE;
+#endif
 }
 
 /* Set the "activate" signal for a widget to call a routine to

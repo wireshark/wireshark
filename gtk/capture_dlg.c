@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.123 2004/03/27 12:18:40 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.124 2004/03/29 22:40:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1043,25 +1043,12 @@ capture_prep_file_cb(GtkWidget *w, gpointer file_te)
     return;
   }
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-  fs = gtk_file_chooser_dialog_new("Ethereal: Capture File",
-                                   GTK_WINDOW(top_level),
-                                   GTK_FILE_CHOOSER_ACTION_SAVE,
-                                   GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
-                                   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                   NULL);
-#else
-  fs = file_selection_new ("Ethereal: Capture File");
-#endif
+  fs = file_selection_new("Ethereal: Capture File", FILE_SELECTION_SAVE);
 
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
   if (last_open_dir)
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fs), last_open_dir);
-#else
-    gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
-#endif
+    file_selection_set_current_folder(fs, last_open_dir);
 
   OBJECT_SET_DATA(fs, E_CAP_FILE_TE_KEY, file_te);
 

@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.100 2004/03/27 12:18:40 ulfl Exp $
+ * $Id: file_dlg.c,v 1.101 2004/03/29 22:40:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -112,20 +112,12 @@ select_file_cb(GtkWidget *file_bt, const char *label)
     return;
   }
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-  fs = file_selection_new(label, GTK_FILE_CHOOSER_ACTION_SAVE);
-#else
-  fs = file_selection_new(label);
-#endif
+  fs = file_selection_new(label, FILE_SELECTION_SAVE);
 
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
   if (last_open_dir)
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fs), last_open_dir);
-#else
-    gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
-#endif
+    file_selection_set_current_folder(fs, last_open_dir);
 
   OBJECT_SET_DATA(fs, PRINT_FILE_TE_KEY, file_te);
 
@@ -251,12 +243,8 @@ file_open_cmd(GtkWidget *w)
     return;
   }
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   file_open_w = file_selection_new("Ethereal: Open Capture File",
-                                   GTK_FILE_CHOOSER_ACTION_OPEN);
-#else
-  file_open_w = file_selection_new("Ethereal: Open Capture File");
-#endif
+                                   FILE_SELECTION_OPEN);
   SIGNAL_CONNECT(file_open_w, "destroy", file_open_destroy_cb, NULL);
 
 #if GTK_MAJOR_VERSION < 2
@@ -275,30 +263,16 @@ file_open_cmd(GtkWidget *w)
        directory, if we could determine it, as the directory, otherwise
        use the "last opened" directory saved in the preferences file if
        there was one. */
-    if (last_open_dir) {
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-      gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(file_open_w),
-                                          last_open_dir);
-#else
-      gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_open_w),
-				      last_open_dir);
-#endif
-    }
+    if (last_open_dir)
+      file_selection_set_current_folder(file_open_w, last_open_dir);
     break;
 
   case FO_STYLE_SPECIFIED:
     /* The user has specified that we should always start out in a
        specified directory; if they've specified that directory,
        start out by showing the files in that dir. */
-    if (prefs.gui_fileopen_dir[0] != '\0') {
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-      gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(file_open_w),
-                                          prefs.gui_fileopen_dir);
-#else
-      gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_open_w),
-				      prefs.gui_fileopen_dir);
-#endif
-    }
+    if (prefs.gui_fileopen_dir[0] != '\0')
+      file_selection_set_current_folder(file_open_w, prefs.gui_fileopen_dir);
     break;
   }
     
@@ -907,12 +881,8 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   tooltips = gtk_tooltips_new();
 	  
   /* build the file selection */
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   file_save_as_w = file_selection_new ("Ethereal: Save Capture File As",
-                                       GTK_FILE_CHOOSER_ACTION_SAVE);
-#else
-  file_save_as_w = file_selection_new ("Ethereal: Save Capture File As");
-#endif
+                                       FILE_SELECTION_SAVE);
   SIGNAL_CONNECT(file_save_as_w, "destroy", file_save_as_destroy_cb, NULL);
 
   /* as the dialog might already be gone, when using this values, we cannot
@@ -928,13 +898,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
   if (last_open_dir)
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(file_save_as_w),
-                                        last_open_dir);
-#else
-    gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_save_as_w),
-                                    last_open_dir);
-#endif
+    file_selection_set_current_folder(file_save_as_w, last_open_dir);
 
   /* Container for each row of widgets */
        
@@ -1313,12 +1277,8 @@ file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
     return;
   }
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   file_color_import_w = file_selection_new("Ethereal: Import Color Filters",
-                                           GTK_FILE_CHOOSER_ACTION_OPEN);
-#else
-  file_color_import_w = gtk_file_selection_new("Ethereal: Import Color Filters");
-#endif
+                                           FILE_SELECTION_OPEN);
   SIGNAL_CONNECT(file_color_import_w, "destroy", file_color_import_destroy_cb, NULL);
 
 #if GTK_MAJOR_VERSION < 2
@@ -1332,13 +1292,7 @@ file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
   if (last_open_dir)
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(file_color_import_w),
-                                        last_open_dir);
-#else
-    gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_color_import_w),
-                                    last_open_dir);
-#endif
+    file_selection_set_current_folder(file_color_import_w, last_open_dir);
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
@@ -1494,25 +1448,15 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   color_marked   = FALSE;
   filetype = cfile.cd_t;
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   file_color_export_w = file_selection_new("Ethereal: Export Color Filters",
-                                           GTK_FILE_CHOOSER_ACTION_SAVE);
-#else
-  file_color_export_w = gtk_file_selection_new("Ethereal: Export Color Filters");
-#endif
+                                           FILE_SELECTION_SAVE);
   SIGNAL_CONNECT(file_color_export_w, "destroy", file_color_export_destroy_cb, NULL);
 
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
   if (last_open_dir)
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(file_color_export_w),
-                                        last_open_dir);
-#else
-    gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_color_export_w),
-                                    last_open_dir);
+    file_selection_set_current_folder(file_color_export_w, last_open_dir);
 
-#endif
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);

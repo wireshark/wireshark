@@ -1,7 +1,7 @@
 /* print_prefs.c
  * Dialog boxes for preferences for printing
  *
- * $Id: print_prefs.c,v 1.18 2004/03/27 11:16:58 oabad Exp $
+ * $Id: print_prefs.c,v 1.19 2004/03/29 22:40:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -152,12 +152,10 @@ printer_opts_file_cb(GtkWidget *file_bt, gpointer file_te) {
     return;
   }
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   fs = file_selection_new("Ethereal: Print to a File",
-                          GTK_FILE_CHOOSER_ACTION_SAVE);
-#else
-  fs = gtk_file_selection_new ("Ethereal: Print to a File");
-	OBJECT_SET_DATA(fs, PRINT_FILE_TE_KEY, file_te);
+                          FILE_SELECTION_SAVE);
+#if GTK_MAJOR_VERSION < 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4)
+  OBJECT_SET_DATA(fs, PRINT_FILE_TE_KEY, file_te);
 #endif
 
   /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
