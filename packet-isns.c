@@ -7,7 +7,7 @@
  * Copyright 2003, Elipsan, Gareth Bushell <gbushell@elipsan.com>
  * (c) 2004 Ronnie Sahlberg   updates
  *
- * $Id: packet-isns.c,v 1.7 2004/05/13 13:49:32 sahlberg Exp $
+ * $Id: packet-isns.c,v 1.8 2004/05/27 08:33:22 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1813,7 +1813,7 @@ void proto_register_isns(void)
 
 	{ &hf_isns_timestamp,
 	  { "Timestamp","isns.timestamp",
-	    FT_UINT32, BASE_DEC, NULL, 0x0,
+	    FT_UINT64, BASE_DEC, NULL, 0x0,
 	    "Timestamp in Seconds", HFILL }},
 
 	{ &hf_isns_esi_interval,
