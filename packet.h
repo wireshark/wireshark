@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.120 1999/10/24 00:55:48 guy Exp $
+ * $Id: packet.h,v 1.121 1999/10/25 20:28:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -252,6 +252,7 @@ enum {
 	ETT_DNS_RR,
 	ETT_CL_ICQ,
 	ETT_CL_ICQ_DECODE,
+	ETT_ICQ_SUBTREE,
 	ETT_SRV_ICQ,
 	ETT_ISAKMP,
 	ETT_ISAKMP_FLAGS,

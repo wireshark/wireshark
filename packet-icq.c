@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.1 1999/10/24 00:55:49 guy Exp $
+ * $Id: packet-icq.c,v 1.2 1999/10/25 20:28:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -44,11 +44,26 @@
 #include <stddef.h>
 #endif
 
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <ctype.h>
+#include <string.h>
 #include <glib.h>
+
+#ifdef NEED_SNPRINTF_H
+# ifdef HAVE_STDARG_H
+#  include <stdarg.h>
+# else
+#  include <varargs.h>
+# endif
+# include "snprintf.h"
+#endif
+
 #include "packet.h"
 #include "resolv.h"
 
@@ -121,10 +136,71 @@ cmdcode serverCmdCode[] = {
     { NULL, 0 }
 };
 
+#define MSG_TEXT		0x0001
+#define MSG_URL			0x0004
+#define MSG_AUTH_REQ		0x0006
+#define MSG_AUTH		0x0008
+#define MSG_USER_ADDED		0x000c
+#define MSG_CONTACTS		0x0013
+
+#define STATUS_ONLINE		0x00000000
+#define STATUS_AWAY		0x00000001
+#define STATUS_DND		0x00000013
+#define STATUS_INVISIBLE	0x00000100
+#define STATUS_OCCUPIED		0x00000010
+#define STATUS_NA		0x00000004
+#define STATUS_CHAT		0x00000020
+
+/* Offsets for all packets measured from the start of the payload; i.e.
+ * with the ICQ header removed
+ */
+#define CMD_ACK			0x000a
+#define CMD_ACK_RANDOM		0x0000
+
+#define CMD_SEND_MSG		0x010E
+#define CMD_SEND_MSG_RECV_UIN	0x0000
+#define CMD_SEND_MSG_MSG_TYPE	0x0004
+#define CMD_SEND_MSG_MSG_LEN	0x0006
+#define CMD_SEND_MSG_MSG_TEXT	0x0008
+/* The rest of the packet should be a null-term string */
+
+#define CMD_LOGIN		0x03E8
+#define CMD_LOGIN_TIME		0x0000
+#define CMD_LOGIN_PORT		0x0004
+#define CMD_LOGIN_PASSLEN	0x0008
+#define CMD_LOGIN_PASSWD	0x000A
+/* The password is variable length; so when we've decoded the passwd,
+ * the structure starts counting at 0 again.
+ */
+#define CMD_LOGIN_IP		0x0004
+#define CMD_LOGIN_STATUS	0x0009
+
+
+cmdcode msgTypeCode[] = {
+    { "MSG_TEXT", MSG_TEXT },
+    { "MSG_URL", MSG_URL },
+    { "MSG_AUTH_REQ", MSG_AUTH_REQ },
+    { "MSG_AUTH", MSG_AUTH },
+    { "MSG_USER_ADDED", MSG_USER_ADDED},
+    { "MSG_CONTACTS", MSG_CONTACTS},
+    { NULL, 0}
+};
+
+cmdcode statusCode[] = {
+    { "ONLINE", STATUS_ONLINE },
+    { "AWAY", STATUS_AWAY },
+    { "DND", STATUS_DND },
+    { "INVISIBLE", STATUS_INVISIBLE },
+    { "OCCUPIED", STATUS_OCCUPIED },
+    { "NA", STATUS_NA },
+    { "Free for Chat", STATUS_CHAT },
+    { NULL, 0}
+};
+
 cmdcode clientCmdCode[] = {
-    { "CMD_ACK", 10 },
-    { "CMD_SEND_MESSAGE", 270 },
-    { "CMD_LOGIN", 1000 },
+    { "CMD_ACK", CMD_ACK },
+    { "CMD_SEND_MESSAGE", CMD_SEND_MSG },
+    { "CMD_LOGIN", CMD_LOGIN },
     { "CMD_REG_NEW_USER", 1020 },
     { "CMD_CONTACT_LIST", 1030 },
     { "CMD_SEARCH_UIN", 1050 },
@@ -157,25 +233,6 @@ cmdcode clientCmdCode[] = {
     { NULL, 0 }
 };
 
-typedef struct {
-    u_int32_t random;
-} cl_cmd_ack;
-
-typedef struct _cl_cmd_send_msg {
-#define MSG_TEXT	0x0100
-#define MSG_URL		0x0400
-#define MSG_AUTH_REQ	0x0600
-#define MSG_AUTH	0x0800
-#define MSG_USER_ADDED	0x0c00
-#define MSG_CONTACTS	0x1300
-    u_int32_t receiverUIN;
-    u_int16_t msgType;
-    u_int16_t msgLen;
-    /*
-     * Followed by char[msgLen]
-     */
-} cl_cmd_send_msg;
-
 /*
  * All ICQv5 decryption code thanx to Sebastien Dault (daus01@gel.usherb.ca)
  */
@@ -203,7 +260,7 @@ findcmd(cmdcode* c, int num)
 {
     static char buf[16];
     cmdcode* p = c;
-    while (p->code != 0) {
+    while (p->descr != NULL) {
 	if (p->code == num) {
 	    return p->descr;
 	}
@@ -213,9 +270,33 @@ findcmd(cmdcode* c, int num)
     return buf;
 }
 
-void
+static char*
+findMsgType(int num)
+{
+    return findcmd(msgTypeCode, num);
+}
+
+static char*
+findClientCmd(int num)
+{
+    return findcmd(clientCmdCode, num);
+}
+
+static char*
+findServerCmd(int num)
+{
+    return findcmd(serverCmdCode, num);
+}
+
+static char*
+findStatus(int num)
+{
+    return findcmd(statusCode, num);
+}
+
+static void
 proto_tree_add_hexdump(proto_tree* t,
-		       u_int32_t offset,
+		       guint32 offset,
 		       const u_char *data,
 		       int size)
 {
@@ -290,11 +371,11 @@ proto_tree_add_hexdump(proto_tree* t,
     }
 }
 
-static u_int32_t
+static guint32
 get_v5key(const u_char* pd, int len)
 {
-    u_int32_t a1, a2, a3, a4, a5;
-    u_int32_t code, check, key;
+    guint32 a1, a2, a3, a4, a5;
+    guint32 code, check, key;
 
     code = pletohl(&pd[ICQ5_CL_CHECKCODE]);
 
@@ -317,10 +398,10 @@ get_v5key(const u_char* pd, int len)
 }
 
 static void
-decrypt_v5(u_char *bfr, u_int32_t size,u_int32_t key)
+decrypt_v5(u_char *bfr, guint32 size,guint32 key)
 {
-    u_int32_t i;
-    u_int32_t k;
+    guint32 i;
+    guint32 k;
     for (i=0x0a; i < size+3; i+=4 ) {
 	k = key+table_v5[i&0xff];
 	if ( i != 0x16 ) {
@@ -350,6 +431,331 @@ dissect_icqv2(const u_char *pd,
 }
 
 /*
+ * Find first occurrence of ch in buf
+ * Buf is max size big.
+ */
+static char*
+strnchr(const u_char* buf, u_char ch, int size)
+{
+    int i;
+    u_char* p = (u_char*) buf;
+    for (i=0;(*p) && (*p!=ch) && (i<size); p++, i++)
+	;
+    if ((*p == '\0') || (i>=size))
+	return NULL;
+    return p;
+}
+
+static void
+icqv5_cmd_ack(proto_tree* tree,/* Tree to put the data in */
+		     const u_char* pd, /* Packet content */
+		     int offset, /* Offset from the start of the packet to the content */
+		     int size)	/* Number of chars left to do */
+{
+    guint32 random = pletohl(pd + CMD_ACK_RANDOM);
+    proto_tree* subtree;
+    proto_item* ti;
+
+    if (tree){
+	ti = proto_tree_add_item_format(tree,
+					hf_icq_cmd,
+					offset,
+					4,
+					CMD_ACK,
+					"%s : %d",
+					findClientCmd(CMD_ACK),
+					CMD_ACK);
+	subtree = proto_item_add_subtree(ti, ETT_ICQ_SUBTREE);
+	proto_tree_add_text(subtree,
+			    offset + CMD_ACK_RANDOM,
+			    4,
+			    "Random: 0x%08lx", random);
+    }
+}
+
+static void
+icqv5_cmd_send_msg(proto_tree* tree,
+		   const u_char* pd,
+		   int offset,
+		   int size)
+{
+    proto_tree* subtree;
+    proto_item* ti;
+    guint32 receiverUIN = 0xffffffff;
+    guint16 msgType = 0xffff;
+    guint16 msgLen = 0xffff;
+    u_char* msgText = NULL;
+    int left = size;		/* left chars to do */
+    int i,n,j;
+    static char* auth_req_field_descr[] = {
+	"Nickname",
+	"First name",
+	"Last name",
+	"Email address",
+	"Reason"};
+    
+    if (left >= 4) {
+	receiverUIN = pletohl(pd + CMD_SEND_MSG_RECV_UIN);
+	left -= 4;
+    }
+    if (left >= 2) {
+	msgType = pletohs(pd + CMD_SEND_MSG_MSG_TYPE);
+	left -= 2;
+    }
+    if (left >= 2) {
+	msgLen = pletohs(pd + CMD_SEND_MSG_MSG_LEN);
+	left -= 2;
+    }
+    if (tree) {
+	ti = proto_tree_add_item_format(tree,
+					hf_icq_cmd,
+					offset,
+					size,
+					CMD_SEND_MSG,
+					"Body");
+	subtree = proto_item_add_subtree(ti, ETT_ICQ_SUBTREE);
+	proto_tree_add_text(subtree,
+			    offset + CMD_SEND_MSG_RECV_UIN,
+			    4,
+			    "Receiver UIN: %ld", receiverUIN);
+	ti = proto_tree_add_text(subtree,
+				 offset + CMD_SEND_MSG_MSG_TYPE,
+				 2,
+				 "Type: %d (%s)", msgType, findMsgType(msgType));
+	proto_tree_add_text(subtree,
+			    offset + CMD_SEND_MSG_MSG_LEN,
+			    2,
+			    "Length: %d", msgLen);
+
+	/* It's silly to do anything if there's nothing left */
+	if (left==0)
+	    return;
+	if (msgLen == 0)
+	    return;
+	/* Create a subtree for every message type */
+	switch(msgType) {
+	case 0xffff:		/* Field unknown */
+	    break;
+	case MSG_TEXT:
+	    msgText = g_malloc(left + 1);
+	    strncpy(msgText, pd + CMD_SEND_MSG_MSG_TEXT, left);
+	    msgText[left] = '\0';
+	    proto_tree_add_text(subtree,
+				offset + CMD_SEND_MSG_MSG_TEXT,
+				left,
+				"Msg: %s", msgText);
+	    g_free(msgText);
+	    break;
+	case MSG_URL:
+	    /* Two parts, a description and the URL. Separeted by FE */
+	    for (i=0;i<left;i++) {
+		if (pd[CMD_SEND_MSG_MSG_TEXT + i] == 0xfe)
+		    break;
+	    }
+	    msgText = g_malloc(i + 1);
+	    strncpy(msgText, pd + CMD_SEND_MSG_MSG_TEXT, i);
+	    if (i==left)
+		msgText[i] = '\0';
+	    else
+		msgText[i-1] = '\0';
+	    proto_tree_add_text(subtree,
+				offset + CMD_SEND_MSG_MSG_TEXT,
+				i,
+				"Description: %s", msgText);
+	    if (i==left)
+		break;
+	    msgText = g_realloc(msgText, left - i);
+	    strncpy(msgText, pd + CMD_SEND_MSG_MSG_TEXT + i + 1, left - i - 1);
+	    msgText[left - i] = '\0';
+	    proto_tree_add_text(subtree,
+				offset + CMD_SEND_MSG_MSG_TEXT,
+				i,
+				"URL: %s", msgText);
+	    g_free(msgText);
+	    break;
+	case MSG_AUTH_REQ:
+	    /* Five parts, separated by FE */
+	    i = 0;
+	    j = 0;
+	    msgText = NULL;
+	    for (n = 0; n < 5; n++) {
+		for (;
+		     (i<left) && (pd[CMD_SEND_MSG_MSG_TEXT+i]!=0xfe);
+		     i++)
+		    ;
+		msgText = g_realloc(msgText, i-j);
+		strncpy(msgText, pd + CMD_SEND_MSG_MSG_TEXT + j, i - j - 1);
+		msgText[i-j-1] = '\0';
+		proto_tree_add_text(subtree,
+				    offset + CMD_SEND_MSG_MSG_TEXT + j,
+				    i - j - 1,
+				    "%s: %s", auth_req_field_descr[n], msgText);
+		j = ++i;
+	    }
+	    if (msgText != NULL)
+		g_free(msgText);
+	    break;
+	case MSG_USER_ADDED:
+	    /* Create a new subtree */
+	    subtree = proto_item_add_subtree(ti, ETT_ICQ_SUBTREE);
+	    /* Four parts, separated by FE */
+	    i = 0;
+	    j = 0;
+            /* This is necessary, because g_realloc does not behave like
+	     * g_malloc if the first parameter == NULL */
+	    msgText = g_malloc(64);
+	    for (n = 0; n < 4; n++) {
+		for (;
+		     (i<left) && (pd[CMD_SEND_MSG_MSG_TEXT+i]!=0xfe);
+		     i++)
+		    ;
+		msgText = g_realloc(msgText, i-j+1);
+		strncpy(msgText, pd + CMD_SEND_MSG_MSG_TEXT + j, i - j);
+		msgText[i-j] = '\0';
+		proto_tree_add_text(subtree,
+				    offset + CMD_SEND_MSG_MSG_TEXT + j,
+				    i - j,
+				    "%s: %s", auth_req_field_descr[n], msgText);
+		j = ++i;
+	    }
+	    if (msgText != NULL)
+		g_free(msgText);
+	    break;
+	case MSG_CONTACTS:
+	{
+	    u_char* p = (u_char*) &pd[CMD_SEND_MSG_MSG_TEXT];
+	    u_char* pprev = p;
+	    int sz = 0;		/* Size of the current element */
+	    int n = 0;		/* The nth element */
+	    int done = 0;	/* Number of chars processed */
+	    u_char* msgText2 = NULL;
+	    msgText = NULL;
+	    /* Create a new subtree */
+	    subtree = proto_item_add_subtree(ti, ETT_ICQ_SUBTREE);
+	    while (p!=NULL) {
+		p = strnchr(pprev, 0xfe, left);
+		
+		if (p!=NULL)
+		    sz = (int)(p - pprev);
+		else
+		    sz = left;
+		msgText = g_realloc(msgText, sz+1);
+		strncpy(msgText, pprev, sz);
+		msgText[sz] = '\0';
+
+		if (n == 0) {
+		    /* The first element is the number of Nick/UIN pairs follow */
+		    proto_tree_add_text(subtree,
+					offset + CMD_SEND_MSG_MSG_TEXT + done,
+					sz,
+					"Number of pairs: %s", msgText);
+		    n++;
+		} else if (p!=NULL) {
+		    int svsz = sz;
+		    left -= (sz+1);
+		    pprev = p + 1;
+		    p = strnchr(pprev, 0xfe, left);
+		    if (p!=NULL)
+			sz = (int)(p - pprev);
+		    else
+			sz = left;
+		    msgText2 = g_malloc(sz+1);
+		    strncpy(msgText2, pprev, sz);
+		    msgText2[sz] = '\0';
+
+		    proto_tree_add_text(subtree,
+					offset + CMD_SEND_MSG_MSG_TEXT + done,
+					sz + svsz + 2,
+					"%s:%s", msgText, msgText2);
+		    n+=2;
+		    g_free(msgText2);
+		}
+		
+		left -= (sz+1);
+		pprev = p+1;
+	    }
+	    if (msgText != NULL)
+		g_free(msgText);
+	    break;
+	}}
+    }
+}
+
+static void
+icqv5_cmd_login(proto_tree* tree,
+		const u_char* pd,
+		int offset,
+		int size)
+{
+    proto_item* ti;
+    proto_tree* subtree;
+    time_t theTime = -1;
+    guint32 port = -1;
+    guint32 passwdLen = -1;
+    char* password = NULL;
+    const u_char *ipAddrp = NULL;
+    guint32 status = -1;
+    guint32 left = size;
+
+    if (left>=4) {
+	theTime = pletohl(pd + CMD_LOGIN_TIME);
+    }
+    if (left>=8) {
+	port = pletohl(pd + CMD_LOGIN_PORT);
+    }
+    if (left>=10) {
+	passwdLen = pletohs(pd + CMD_LOGIN_PASSLEN);
+    }
+    if (left>=10+passwdLen) {
+	password = g_malloc(passwdLen);
+	strncpy(password, pd + CMD_LOGIN_PASSWD, passwdLen);
+    }
+
+    if (left>=10+passwdLen+CMD_LOGIN_IP+4) {
+	ipAddrp = pd + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_IP;
+    }
+    if (left>=10+passwdLen+CMD_LOGIN_STATUS+4) {
+	status = pletohs(pd + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_STATUS);
+    }
+    if (tree) {
+	ti = proto_tree_add_item_format(tree,
+					hf_icq_cmd,
+					offset,
+					size,
+					CMD_SEND_MSG,
+					"Body");
+	subtree = proto_item_add_subtree(ti, ETT_ICQ_SUBTREE);
+	if (theTime!=-1)
+	    proto_tree_add_text(subtree,
+				offset + CMD_LOGIN_TIME,
+				4,
+				"Time: %d = %s", theTime, ctime(&theTime));
+	if (port!=-1)
+	    proto_tree_add_text(subtree,
+				offset + CMD_LOGIN_PORT,
+				4,
+				"Port: %d", port);
+	if ((passwdLen!=-1) && (password!=NULL))
+	    proto_tree_add_text(subtree,
+				offset + CMD_LOGIN_PASSLEN,
+				2 + passwdLen,
+				"Passwd: %s", password);
+	if (ipAddrp!=NULL)
+	    proto_tree_add_text(subtree,
+				offset + CMD_LOGIN_PASSWD + CMD_LOGIN_IP,
+				4,
+				"IP: %s", ip_to_str(ipAddrp));
+	if (status!=-1)
+	    proto_tree_add_text(subtree,
+				offset + CMD_LOGIN_PASSWD + CMD_LOGIN_IP,
+				4,
+				"Status: %s", findStatus(status));
+    }
+    if (password!=NULL)
+	g_free(password);
+}
+
+/*
  * Dissect all the v5 client traffic. This is encrypted, so be careful.
  */
 static void
@@ -359,14 +765,15 @@ dissect_icqv5Client(const u_char *pd,
 		    proto_tree *tree)
 {
     proto_tree *icq_tree = NULL;
+    proto_tree *icq_header_tree = NULL;
     proto_tree *icq_decode_tree = NULL;
     proto_item *ti = NULL;
 
-    u_int16_t version = -1, cmd = -1;
-    u_int16_t seqnum1 = 0 , seqnum2 = 0;
-    u_int32_t uin = -1, sessionid = -1;
-    u_int32_t key = -1;
-    u_int16_t pktsize = -1;	/* The size of the ICQ content */
+    guint16 version = -1, cmd = -1;
+    guint16 seqnum1 = 0 , seqnum2 = 0;
+    guint32 uin = -1, sessionid = -1;
+    guint32 key = -1;
+    guint16 pktsize = -1;	/* The size of the ICQ content */
     u_char decr_pd[1600];	/* Decrypted content, size should be dynamic */
     
     pktsize = fd->pkt_len - offset;
@@ -386,6 +793,9 @@ dissect_icqv5Client(const u_char *pd,
 	version = pletohs(&decr_pd[ICQ_VERSION]);
 	seqnum1 = pletohs(&decr_pd[ICQ5_CL_SEQNUM1]);
 	seqnum2 = pletohs(&decr_pd[ICQ5_CL_SEQNUM2]);
+
+	if (check_col(fd, COL_INFO))
+	    col_add_fstr(fd, COL_INFO, "ICQv5 %s", findClientCmd(cmd));
     }
     
     if (tree) {
@@ -393,43 +803,73 @@ dissect_icqv5Client(const u_char *pd,
 				 proto_icq,
 				 offset,
 				 pktsize, NULL,
-				 "ICQv5 Client: len %d", pktsize);
+				 "ICQv5 %s (len %d)",
+				 findClientCmd(cmd),
+				 pktsize);
         icq_tree = proto_item_add_subtree(ti, ETT_CL_ICQ);
-	proto_tree_add_item_format(icq_tree,
-				   hf_icq_cmd,
-				   offset+ICQ5_CL_CMD,
-				   2,
-				   cmd,
-				   "Command: %d (%s)", cmd, findcmd(clientCmdCode, cmd));
-	proto_tree_add_item_format(icq_tree,
+	ti = proto_tree_add_text(icq_tree,
+				 offset,
+				 ICQ5_CL_HDRSIZE,
+				 "Header");
+	icq_header_tree = proto_item_add_subtree(ti, ETT_ICQ_SUBTREE);
+					
+	proto_tree_add_item_format(icq_header_tree,
 				   hf_icq_sessionid,
 				   offset+ICQ5_CL_SESSIONID,
 				   4,
 				   sessionid,
 				   "Session ID: 0x%08x",
 				   sessionid);
-	proto_tree_add_item_format(icq_tree,
+	proto_tree_add_item_format(icq_header_tree,
 				   hf_icq_checkcode,
 				   offset+ICQ5_CL_CHECKCODE,
 				   4,
 				   key,
 				   "Key: 0x%08x",
 				   key);
-	proto_tree_add_item_format(icq_tree,
+	proto_tree_add_item_format(icq_header_tree,
 				   hf_icq_uin,
 				   offset+ICQ5_CL_UIN,
 				   4,
 				   uin,
 				   "UIN: %ld (0x%08X)",
 				   uin, uin);
-	proto_tree_add_text(icq_tree,
+	proto_tree_add_text(icq_header_tree,
 			    offset + ICQ5_CL_SEQNUM1,
 			    2,
 			    "Seqnum1: 0x%04x", seqnum1);
-	proto_tree_add_text(icq_tree,
+	proto_tree_add_text(icq_header_tree,
 			    offset + ICQ5_CL_SEQNUM1,
 			    2,
 			    "Seqnum2: 0x%04x", seqnum2);
+	switch(cmd) {
+	case CMD_ACK:
+	    icqv5_cmd_ack(icq_tree,
+			  decr_pd + ICQ5_CL_HDRSIZE,
+			  offset + ICQ5_CL_HDRSIZE,
+			  pktsize - ICQ5_CL_HDRSIZE);
+	    break;
+	case CMD_SEND_MSG:
+	    icqv5_cmd_send_msg(icq_tree,
+			       decr_pd + ICQ5_CL_HDRSIZE,
+			       offset + ICQ5_CL_HDRSIZE,
+			       pktsize - ICQ5_CL_HDRSIZE);
+	    break;
+	case CMD_LOGIN:
+	    icqv5_cmd_login(icq_tree,
+			    decr_pd + ICQ5_CL_HDRSIZE,
+			    offset + ICQ5_CL_HDRSIZE,
+			    pktsize - ICQ5_CL_HDRSIZE);
+	    break;
+	default:
+	    proto_tree_add_item_format(icq_tree,
+				       hf_icq_cmd,
+				       offset+ICQ5_CL_CMD,
+				       2,
+				       cmd,
+				       "Command: %d (%s)", cmd, findcmd(clientCmdCode, cmd));
+	    break;
+	}
 	ti = proto_tree_add_text(icq_tree,
 				 offset,
 				 pktsize,
@@ -437,6 +877,7 @@ dissect_icqv5Client(const u_char *pd,
         icq_decode_tree = proto_item_add_subtree(ti,
 						 ETT_CL_ICQ_DECODE);
 	proto_tree_add_hexdump(icq_decode_tree, offset, decr_pd, pktsize);
+
     }
 }
 
@@ -451,9 +892,9 @@ dissect_icqv5Server(const u_char *pd,
     proto_tree *icq_decode_tree = NULL;
     proto_item *ti = NULL;
 
-    u_int16_t version, cmd;
-    u_int32_t uin, sessionid;
-    u_int32_t pktsize;
+    guint16 version, cmd;
+    guint32 uin, sessionid;
+    guint32 pktsize;
     
     uin = pletohl(&pd[offset + ICQ5_SRV_UIN]);
     cmd = pletohs(&pd[offset + ICQ5_SRV_CMD]);
@@ -461,6 +902,9 @@ dissect_icqv5Server(const u_char *pd,
     version = pletohs(&pd[offset + ICQ_VERSION]);
     pktsize = fd->pkt_len - offset;
     
+    if (check_col(fd, COL_INFO))
+	col_add_fstr(fd, COL_INFO, "ICQv5 %s", findServerCmd(cmd));
+
     if (tree) {
         ti = proto_tree_add_item_format(tree,
 					proto_icq,
@@ -476,7 +920,7 @@ dissect_icqv5Server(const u_char *pd,
 				   2,
 				   cmd,
 				   "Command: %d (%s)",
-				   cmd, findcmd(serverCmdCode, cmd));
+				   cmd, findServerCmd(cmd));
 	proto_tree_add_item_format(icq_tree,
 				   hf_icq_uin,
 				   offset+ICQ5_SRV_UIN,
@@ -506,7 +950,7 @@ void dissect_icqv5(const u_char *pd,
 		   frame_data *fd, 
 		   proto_tree *tree)
 {
-  u_int32_t unknown = pletohl(&pd[offset + ICQ5_UNKNOWN]);
+  guint32 unknown = pletohl(&pd[offset + ICQ5_UNKNOWN]);
   
   if (check_col(fd, COL_PROTOCOL))
       col_add_str(fd, COL_PROTOCOL, "ICQv5 (UDP)");
@@ -535,7 +979,7 @@ void dissect_icq(const u_char *pd,
       dissect_icqv2(pd, offset, fd, tree);
       break;
   default:
-      fprintf(stderr, "ICQ: Unknown version\n");
+      fprintf(stderr, "ICQ: Unknown version (%d)\n", version);
       break;
   }
 }
