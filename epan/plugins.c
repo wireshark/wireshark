@@ -167,6 +167,7 @@ plugins_scan_dir(const char *dirname)
     gchar          filename[FILENAME_LEN];   /* current file name */
     GModule       *handle;          /* handle returned by dlopen */
     gchar         *version;
+    gpointer       gp;
     void         (*init)(void *);
     void         (*reg_handoff)(void);
     gchar         *dot;
@@ -232,12 +233,13 @@ plugins_scan_dir(const char *dirname)
 			  g_module_error());
 		continue;
 	    }
-	    if (g_module_symbol(handle, "version", (gpointer*)&version) == FALSE)
+	    if (!g_module_symbol(handle, "version", &gp))
 	    {
 	        g_warning("The plugin %s has no version symbol", name);
 		g_module_close(handle);
 		continue;
 	    }
+	    version = gp;
 
 	    /*
 	     * Old-style dissectors don't have a "plugin_reg_handoff()"
@@ -246,19 +248,21 @@ plugins_scan_dir(const char *dirname)
 	     * New-style dissectors have one, because, otherwise, there's
 	     * no way for them to arrange that they ever be called.
 	     */
-	    if (g_module_symbol(handle, "plugin_reg_handoff",
-					 (gpointer*)&reg_handoff))
+	    if (g_module_symbol(handle, "plugin_reg_handoff", &gp))
 	    {
+		reg_handoff = gp;
+
 		/*
 		 * We require it to have a "plugin_init()" routine.
 		 */
-		if (!g_module_symbol(handle, "plugin_init", (gpointer*)&init))
+		if (!g_module_symbol(handle, "plugin_init", &gp))
 		{
 		    g_warning("The plugin %s has a plugin_reg_handoff symbol but no plugin_init routine",
 			      name);
 		    g_module_close(handle);
 		    continue;
 		}
+		init = gp;
 
 		/*
 		 * We have a "plugin_reg_handoff()" routine, so we don't
