@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.7 1999/11/20 06:17:00 guy Exp $
+ * $Id: packet-mount.c,v 1.8 1999/11/29 11:52:40 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -66,6 +66,33 @@ static int hf_mount_flavor = -1;
 static gint ett_mount = -1;
 static gint ett_mount_pathconf_mask = -1;
 
+
+/* RFC 1094, Page 24 */
+static int
+dissect_fhstatus(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	guint32 status;
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	status = EXTRACT_UINT(pd, offset+0);
+	if (tree) {
+		proto_tree_add_item(tree, hf_mount_status, offset, 4, status);
+	}
+	offset += 4;
+
+	switch (status) {
+		case 0:
+			offset = dissect_fhandle(pd,offset,fd,tree,"fhandle");
+		break;
+		default:
+			/* void */
+		break;
+	}
+
+	return offset;
+}
+
+
 static int
 dissect_mount_dirpath_call(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
@@ -77,6 +104,18 @@ dissect_mount_dirpath_call(const u_char *pd, int offset, frame_data *fd,
 	
 	return offset;
 }
+
+
+/* RFC 1094, Page 25,26 */
+static int
+dissect_mount_mnt_reply(const u_char *pd, int offset, frame_data *fd,
+	proto_tree *tree)
+{
+	offset = dissect_fhstatus(pd, offset, fd, tree);
+
+	return offset;
+}
+
 
 #define	OFFS_MASK	32	/* offset of the "pc_mask" field */
 
@@ -273,7 +312,7 @@ dissect_mount_pathconf_reply(const u_char *pd, int offset, frame_data *fd,
 static const vsff mount1_proc[] = {
     { 0, "NULL", NULL, NULL },
     { MOUNTPROC_MNT,        "MNT",      
-		dissect_mount_dirpath_call, NULL },
+		dissect_mount_dirpath_call, dissect_mount_mnt_reply },
     { MOUNTPROC_DUMP,       "DUMP",
 		NULL, NULL },
     { MOUNTPROC_UMNT,      "UMNT",        
@@ -295,7 +334,7 @@ static const vsff mount1_proc[] = {
 static const vsff mount2_proc[] = {
     { 0, "NULL", NULL, NULL },
     { MOUNTPROC_MNT,        "MNT",      
-		dissect_mount_dirpath_call, NULL },
+		dissect_mount_dirpath_call, dissect_mount_mnt_reply },
     { MOUNTPROC_DUMP,       "DUMP",
 		NULL, NULL },
     { MOUNTPROC_UMNT,      "UMNT",        

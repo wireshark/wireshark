@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.8 1999/11/26 13:32:58 girlich Exp $
+ * $Id: packet-nfs.c,v 1.9 1999/11/29 11:52:40 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -41,18 +41,22 @@
 
 static int proto_nfs = -1;
 
+static int hf_nfs_name = -1;
+
 static gint ett_nfs = -1;
 static gint ett_nfs_fhandle = -1;
 static gint ett_nfs_timeval = -1;
 static gint ett_nfs_mode = -1;
 static gint ett_nfs_fattr = -1;
 static gint ett_nfs_sattr = -1;
+static gint ett_nfs_diropargs = -1;
 static gint ett_nfs_mode3 = -1;
 static gint ett_nfs_specdata3 = -1;
 static gint ett_nfs_fh3 = -1;
 static gint ett_nfs_nfstime3 = -1;
 static gint ett_nfs_fattr3 = -1;
 static gint ett_nfs_sattr3 = -1;
+static gint ett_nfs_diropargs3 = -1;
 static gint ett_nfs_sattrguard3 = -1;
 static gint ett_nfs_set_mode3 = -1;
 static gint ett_nfs_set_uid3 = -1;
@@ -390,6 +394,82 @@ dissect_sattr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, ch
 }
 
 
+/* RFC 1094, Page 17 */
+int
+dissect_filename(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hf)
+{
+	offset = dissect_rpc_string(pd,offset,fd,tree,hf);
+	return offset;
+}
+
+
+/* RFC 1094, Page 17 */
+int
+dissect_attrstat(const u_char *pd, int offset, frame_data *fd, proto_tree *tree){
+	guint32 status;
+
+	offset = dissect_stat(pd, offset, fd, tree, "status", &status);
+	switch (status) {
+		case 0:
+			offset = dissect_fattr(pd, offset, fd, tree, "attributes");
+		break;
+		default:
+			/* do nothing */
+		break;
+	}
+
+	return offset;
+}
+
+
+/* RFC 1094, Page 18 */
+int
+dissect_diropargs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+{
+	proto_item* diropargs_item = NULL;
+	proto_tree* diropargs_tree = NULL;
+	int old_offset = offset;
+
+	if (tree) {
+		diropargs_item = proto_tree_add_text(tree, offset,
+			END_OF_FRAME, "%s", name);
+		if (diropargs_item)
+			diropargs_tree = proto_item_add_subtree(diropargs_item, ett_nfs_diropargs);
+	}
+
+	offset = dissect_fhandle (pd,offset,fd,diropargs_tree,"dir");
+	offset = dissect_filename(pd,offset,fd,diropargs_tree,hf_nfs_name);
+
+	/* now we know, that diropargs is shorter */
+	if (diropargs_item) {
+		proto_item_set_len(diropargs_item, offset - old_offset);
+	}
+
+	return offset;
+}
+
+
+/* RFC 1094, Page 18 */
+int
+dissect_diropres(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	guint32	status;
+
+	offset = dissect_stat(pd, offset, fd, tree, "status", &status);
+	switch (status) {
+		case 0:
+			offset = dissect_fhandle(pd, offset, fd, tree, "file");
+			offset = dissect_fattr  (pd, offset, fd, tree, "attributes");
+		break;
+		default:
+			/* do nothing */
+		break;
+	}
+
+	return offset;
+}
+
+
 /* generic NFS2 call dissector */
 int
 dissect_nfs2_any_call(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
@@ -426,18 +506,7 @@ dissect_nfs2_getattr_call(const u_char *pd, int offset, frame_data *fd, proto_tr
 int
 dissect_nfs2_getattr_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
-	guint32 status;
-
-	/* attrstat: RFC 1094, Page 17 */
-	offset = dissect_stat(pd, offset, fd, tree, "status", &status);
-	switch (status) {
-		case 0:
-			offset = dissect_fattr(pd, offset, fd, tree, "attributes");
-		break;
-		default:
-			/* do nothing */
-		break;
-	}
+	offset = dissect_attrstat(pd, offset, fd, tree);
 
 	return offset;
 }
@@ -458,18 +527,68 @@ dissect_nfs2_setattr_call(const u_char *pd, int offset, frame_data *fd, proto_tr
 int
 dissect_nfs2_setattr_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
-	guint32 status;
+	offset = dissect_attrstat(pd, offset, fd, tree);
 
-	/* attrstat: RFC 1094, Page 17 */
-	offset = dissect_stat(pd, offset, fd, tree, "status", &status);
-	switch (status) {
-		case 0:
-			offset = dissect_fattr(pd, offset, fd, tree, "attributes");
-		break;
-		default:
-			/* do nothing */
-		break;
-	}
+	return offset;
+}
+
+
+/* RFC 1094, Page 6 */
+int
+dissect_nfs2_lookup_call(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	offset = dissect_diropargs(pd, offset, fd, tree, "what");
+
+	return offset;
+}
+
+
+/* RFC 1094, Page 6 */
+int
+dissect_nfs2_lookup_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	offset = dissect_diropres(pd, offset, fd, tree);
+
+	return offset;
+}
+
+
+/* RFC 1094, Page 8 */
+int
+dissect_nfs2_write_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	offset = dissect_attrstat(pd, offset, fd, tree);
+
+	return offset;
+}
+
+
+/* RFC 1094, Page 8 */
+int
+dissect_nfs2_create_call(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	offset = dissect_diropargs(pd, offset, fd, tree, "where");
+	offset = dissect_sattr    (pd, offset, fd, tree, "attributes");
+
+	return offset;
+}
+
+
+/* RFC 1094, Page 8 */
+int
+dissect_nfs2_create_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	offset = dissect_diropres(pd, offset, fd, tree);
+
+	return offset;
+}
+
+
+/* RFC 1094, Page 8 */
+int
+dissect_nfs2_remove_call(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	offset = dissect_diropargs(pd, offset, fd, tree, "where");
 
 	return offset;
 }
@@ -485,13 +604,13 @@ const vsff nfs2_proc[] = {
 	{ 1,	"GETATTR",	dissect_nfs2_getattr_call,	dissect_nfs2_getattr_reply },
 	{ 2,	"SETATTR",	dissect_nfs2_setattr_call,	dissect_nfs2_setattr_reply },
 	{ 3,	"ROOT",		NULL,				NULL },
-	{ 4,	"LOOKUP",	dissect_nfs2_any_call,		dissect_nfs2_any_reply },
+	{ 4,	"LOOKUP",	dissect_nfs2_lookup_call,	dissect_nfs2_lookup_reply },
 	{ 5,	"READLINK",	dissect_nfs2_any_call,		dissect_nfs2_any_reply },
 	{ 6,	"READ",		dissect_nfs2_any_call,		dissect_nfs2_any_reply },
 	{ 7,	"WRITECACHE",	NULL,				NULL },
-	{ 8,	"WRITE",	dissect_nfs2_any_call,		dissect_nfs2_any_reply },
-	{ 9,	"CREATE",	dissect_nfs2_any_call,		dissect_nfs2_any_reply },
-	{ 10,	"REMOVE",	dissect_nfs2_any_call,		dissect_nfs2_any_reply },
+	{ 8,	"WRITE",	dissect_nfs2_any_call,		dissect_nfs2_write_reply },
+	{ 9,	"CREATE",	dissect_nfs2_create_call,	dissect_nfs2_create_reply },
+	{ 10,	"REMOVE",	dissect_nfs2_remove_call,	dissect_nfs2_any_reply },
 	{ 11,	"RENAME",	dissect_nfs2_any_call,		dissect_nfs2_any_reply },
 	{ 12,	"LINK",		dissect_nfs2_any_call,		dissect_nfs2_any_reply },
 	{ 13,	"SYMLINK",	dissect_nfs2_any_call,		dissect_nfs2_any_reply },
@@ -525,6 +644,15 @@ dissect_uint32(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 char* name)
 {
 	offset = dissect_rpc_uint32(pd,offset,fd,tree,name,"uint32");
+	return offset;
+}
+
+
+/* RFC 1813, Page 15 */
+int
+dissect_filename3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hf)
+{
+	offset = dissect_rpc_string(pd,offset,fd,tree,hf);
 	return offset;
 }
 
@@ -1335,6 +1463,33 @@ dissect_sattr3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, c
 }
 
 
+/* RFC 1813, Page 27 */
+int
+dissect_diropargs3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+{
+	proto_item* diropargs3_item = NULL;
+	proto_tree* diropargs3_tree = NULL;
+	int old_offset = offset;
+
+	if (tree) {
+		diropargs3_item = proto_tree_add_text(tree, offset,
+			END_OF_FRAME, "%s", name);
+		if (diropargs3_item)
+			diropargs3_tree = proto_item_add_subtree(diropargs3_item, ett_nfs_diropargs3);
+	}
+
+	offset = dissect_nfs_fh3  (pd, offset, fd, diropargs3_tree, "dir");
+	offset = dissect_filename3(pd, offset, fd, diropargs3_tree, hf_nfs_name);
+
+	/* now we know, that diropargs3 is shorter */
+	if (diropargs3_item) {
+		proto_item_set_len(diropargs3_item, offset - old_offset);
+	}
+
+	return offset;
+}
+
+
 /* generic NFS3 call dissector */
 int
 dissect_nfs3_any_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
@@ -1463,13 +1618,43 @@ dissect_nfs3_setattr_reply(const u_char* pd, int offset, frame_data* fd, proto_t
 }
 
 
+/* RFC 1813, Page 37 */
+int
+dissect_nfs3_lookup_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	offset = dissect_diropargs3 (pd, offset, fd, tree, "what");
+	return offset;
+}
+
+
+/* RFC 1813, Page 37 */
+int
+dissect_nfs3_lookup_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	guint32 status;
+
+	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	switch (status) {
+		case 0:
+			offset = dissect_nfs_fh3     (pd, offset, fd, tree, "object");
+			offset = dissect_post_op_attr(pd, offset, fd, tree, "obj_attributes");
+			offset = dissect_post_op_attr(pd, offset, fd, tree, "dir_attributes");
+		break;
+		default:
+			offset = dissect_post_op_attr(pd, offset, fd, tree, "dir_attributes");
+		break;
+	}
+		
+	return offset;
+}
+
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: take the generic one. */
 const vsff nfs3_proc[] = {
 	{ 0,	"NULL",		NULL,				NULL },
 	{ 1,	"GETATTR",	dissect_nfs3_getattr_call,	dissect_nfs3_getattr_reply },
 	{ 2,	"SETATTR",	dissect_nfs3_setattr_call,	dissect_nfs3_setattr_reply },
-	{ 3,	"LOOKUP",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
+	{ 3,	"LOOKUP",	dissect_nfs3_lookup_call,	dissect_nfs3_lookup_reply },
 	{ 4,	"ACCESS",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
 	{ 5,	"READLINK",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
 	{ 6,	"READ",		dissect_nfs3_any_call,		dissect_nfs3_any_reply },
@@ -1496,6 +1681,11 @@ const vsff nfs3_proc[] = {
 void
 proto_register_nfs(void)
 {
+	static hf_register_info hf[] = {
+		{ &hf_nfs_name, {
+			"Name", "nfs.name", FT_STRING, BASE_DEC,
+			NULL, 0, "Name" }}
+	};
 	static gint *ett[] = {
 		&ett_nfs,
 		&ett_nfs_fhandle,
@@ -1503,12 +1693,14 @@ proto_register_nfs(void)
 		&ett_nfs_mode,
 		&ett_nfs_fattr,
 		&ett_nfs_sattr,
+		&ett_nfs_diropargs,
 		&ett_nfs_mode3,
 		&ett_nfs_specdata3,
 		&ett_nfs_fh3,
 		&ett_nfs_nfstime3,
 		&ett_nfs_fattr3,
 		&ett_nfs_sattr3,
+		&ett_nfs_diropargs3,
 		&ett_nfs_sattrguard3,
 		&ett_nfs_set_mode3,
 		&ett_nfs_set_uid3,
@@ -1522,6 +1714,7 @@ proto_register_nfs(void)
 		&ett_nfs_wcc_data,
 	};
 	proto_nfs = proto_register_protocol("Network File System", "nfs");
+	proto_register_field_array(proto_nfs, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* Register the protocol as RPC */
