@@ -7,7 +7,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h245.c,v 1.37 2003/09/26 22:20:07 guy Exp $
+ * $Id: packet-h245.c,v 1.38 2003/10/09 20:52:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1519,7 +1519,7 @@ dissect_h245_MasterSlaveDeterminationAck_decision(tvbuff_t *tvb, int offset, pac
 
 
 static per_sequence_t MasterSlaveDeterminationAck_sequence[] = {
-	{ "decision", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "decision", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_MasterSlaveDeterminationAck_decision },
 	{ NULL, 0, 0, NULL }
 };
@@ -1552,7 +1552,7 @@ dissect_h245_MasterSlaveDeterminationReject_cause(tvbuff_t *tvb, int offset, pac
 
 
 static per_sequence_t MasterSlaveDeterminationReject_sequence[] = {
-	{ "cause", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "cause", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_MasterSlaveDeterminationReject_cause },
 	{ NULL, 0, 0, NULL }
 };
@@ -2854,7 +2854,7 @@ dissect_h245_MiscellaneousCommand_type_progressiveRefinementStart_repeatCount(tv
 
 
 static per_sequence_t MiscellaneousCommand_type_progressiveRefinementStart_sequence[] = {
-	{ "repeatCount", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "repeatCount", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_MiscellaneousCommand_type_progressiveRefinementStart_repeatCount },
 	{ NULL, 0, 0, NULL }
 };
@@ -3315,9 +3315,9 @@ dissect_h245_MaintenanceLoopReject_type(tvbuff_t *tvb, int offset, packet_info *
 
 
 static per_sequence_t OpenLogicalChannelReject_sequence[] = {
-	{ "forwardLogicalChannelNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "forwardLogicalChannelNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
-	{ "cause", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "cause", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_OpenLogicalChannelReject_cause },
 	{ NULL, 0, 0, NULL }
 };
@@ -3333,11 +3333,11 @@ dissect_h245_OpenLogicalChannelReject(tvbuff_t *tvb, int offset, packet_info *pi
 
 
 static per_sequence_t CloseLogicalChannel_sequence[] = {
-	{ "forwardLogicalChannelNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "forwardLogicalChannelNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
-	{ "source", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "source", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_CloseLogicalChannel_source },
-	{ "reason", NOT_EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "reason", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_CloseLogicalChannel_reason },
 	{ NULL, 0, 0, NULL }
 };
@@ -3353,7 +3353,7 @@ dissect_h245_CloseLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static per_sequence_t CloseLogicalChannelAck_sequence[] = {
-	{ "forwardLogicalChannelNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "forwardLogicalChannelNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -3369,7 +3369,7 @@ dissect_h245_CloseLogicalChannelAck(tvbuff_t *tvb, int offset, packet_info *pinf
 
 
 static per_sequence_t RequestChannelCloseAck_sequence[] = {
-	{ "forwardLogiclChannelNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "forwardLogiclChannelNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -3385,9 +3385,9 @@ dissect_h245_RequestChannelCloseAck(tvbuff_t *tvb, int offset, packet_info *pinf
 
 
 static per_sequence_t RequestChannelCloseReject_sequence[] = {
-	{ "forwardLogicalChannelNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "forwardLogicalChannelNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
-	{ "cause", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "cause", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_RequestChannelCloseReject_cause },
 	{ NULL, 0, 0, NULL }
 };
@@ -3403,7 +3403,7 @@ dissect_h245_RequestChannelCloseReject(tvbuff_t *tvb, int offset, packet_info *p
 
 
 static per_sequence_t RequestChannelCloseRelease_sequence[] = {
-	{ "forwardLogicalChannelNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "forwardLogicalChannelNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -3420,7 +3420,7 @@ dissect_h245_RequestChannelCloseRelease(tvbuff_t *tvb, int offset, packet_info *
 
 
 static per_sequence_t MultiplexedStreamModeParameters_sequence[] = {
-	{ "logicalChannelNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "logicalChannelNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -3436,7 +3436,7 @@ dissect_h245_MultiplexedStreamModeParameters(tvbuff_t *tvb, int offset, packet_i
 
 
 static per_sequence_t MaintenanceLoopRequest_sequence[] = {
-	{ "type", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "type", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_MaintenanceLoopRequest_type },
 	{ NULL, 0, 0, NULL }
 };
@@ -3452,7 +3452,7 @@ dissect_h245_MaintenanceLoopRequest(tvbuff_t *tvb, int offset, packet_info *pinf
 
 
 static per_sequence_t MaintenanceLoopAck_sequence[] = {
-	{ "type", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "type", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_MaintenanceLoopAck_type },
 	{ NULL, 0, 0, NULL }
 };
@@ -3467,9 +3467,9 @@ dissect_h245_MaintenanceLoopAck(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static per_sequence_t MaintenanceLoopReject_sequence[] = {
-	{ "type", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "type", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_MaintenanceLoopReject_type },
-	{ "cause", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "cause", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_MaintenanceLoopReject_cause },
 	{ NULL, 0, 0, NULL }
 };
@@ -3484,7 +3484,7 @@ dissect_h245_MaintenanceLoopReject(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 static per_sequence_t UserInputIndication_signalUpdate_rtp_sequence[] = {
-	{ "logicalChannelNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "logicalChannelNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_LogicalChannelNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -3499,7 +3499,7 @@ dissect_h245_UserInputIndication_signalUpdate_rtp(tvbuff_t *tvb, int offset, pac
 
 
 static per_sequence_t OpenLogicalChannelConfirm_sequence[] = {
-	{ "forwardLogicalChannelNumber",	EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "forwardLogicalChannelNumber",	EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_LogicalChannelNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -3514,7 +3514,7 @@ dissect_h245_OpenLogicalChannelConfirm(tvbuff_t *tvb, int offset, packet_info *p
 
 
 static per_sequence_t TerminalCapabilitySetAck_sequence[] = {
-	{ "sequenceNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "sequenceNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_SequenceNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -3529,9 +3529,9 @@ dissect_h245_TerminalCapabilitySetAck(tvbuff_t *tvb, int offset, packet_info *pi
 
 
 static per_sequence_t RequestModeReject_sequence[] = {
-	{ "sequenceNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "sequenceNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_SequenceNumber },
-	{ "cause", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "cause", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_RequestModeReject_cause },
 	{ NULL, 0, 0, NULL }
 };
@@ -3547,7 +3547,7 @@ dissect_h245_RequestModeReject(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 
 static per_sequence_t RoundTripDelayRequest_sequence[] = {
-	{ "sequenceNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "sequenceNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_SequenceNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -3563,7 +3563,7 @@ dissect_h245_RoundTripDelayRequest(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 static per_sequence_t RoundTripDelayResponse_sequence[] = {
-	{ "sequenceNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "sequenceNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_SequenceNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -3578,9 +3578,9 @@ dissect_h245_RoundTripDelayResponse(tvbuff_t *tvb, int offset, packet_info *pinf
 
 
 static per_sequence_t MultilinkResponse_addConnection_sequence[] = {
-	{ "sequenceNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "sequenceNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_SequenceNumber },
-	{ "responseCode", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "responseCode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_MultilinkResponse_addConnection_responseCode },
 	{ NULL, 0, 0, NULL }
 };
@@ -3740,23 +3740,23 @@ dissect_h245_partiallyFilledCells(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static per_sequence_t VCCapability_aal1_sequence[] = {
-	{ "nullClockRecovery", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "nullClockRecovery", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_nullClockRecovery },
-	{ "srtsClockRecovery", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "srtsClockRecovery", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_srtsClockRecovery },
-	{ "adaptiveClockRecovery", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "adaptiveClockRecovery", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_adaptiveClockRecovery },
-	{ "nullErrorCorrection", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "nullErrorCorrection", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_nullErrorCorrection },
-	{ "longInterleaver", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "longInterleaver", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_longInterleaver },
-	{ "shortInterleaver", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "shortInterleaver", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_shortInterleaver },
-	{ "errorCorrectionOnly", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "errorCorrectionOnly", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_errorCorrectionOnly },
-	{ "structuredDataTransfer", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "structuredDataTransfer", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_structuredDataTransfer },
-	{ "partiallyFilledCells", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "partiallyFilledCells", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_partiallyFilledCells },
 	{ NULL, 0, 0, NULL }
 };
@@ -3773,13 +3773,13 @@ dissect_h245_VCCapability_aal1(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 
 static per_sequence_t NewATMVCCommand_aal_aal1_sequence[] = {
-	{ "clockRecovery", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "clockRecovery", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_NewATMVCCommand_aal_aal1_clockRecovery },
-	{ "errorCorrection", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "errorCorrection", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_NewATMVCCommand_aal_aal1_errorCorrection },
-	{ "structuredDataTransfer", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "structuredDataTransfer", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_structuredDataTransfer },
-	{ "partiallyFilledCells", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "partiallyFilledCells", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_partiallyFilledCells },
 	{ NULL, 0, 0, NULL }
 };
@@ -3794,13 +3794,13 @@ dissect_h245_NewATMVCCommand_aal_aal1(tvbuff_t *tvb, int offset, packet_info *pi
 
 
 static per_sequence_t NewATMVCIndication_aal_aal1_sequence[] = {
-	{ "clockRecovery", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "clockRecovery", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_NewATMVCIndication_aal_aal1_clockRecovery },
-	{ "errorCorrection", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "errorCorrection", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_NewATMVCIndication_aal_aal1_errorCorrection },
-	{ "structuredDataTransfer", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "structuredDataTransfer", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_structuredDataTransfer },
-	{ "partiallyFilledCells", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "partiallyFilledCells", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_partiallyFilledCells },
 	{ NULL, 0, 0, NULL }
 };
@@ -4103,15 +4103,15 @@ dissect_h245_h223AnnexBwithHeader(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static per_sequence_t H223Capability_mobileOperationTransmitCapability_sequence[] = {
-	{ "modeChangeCapability", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "modeChangeCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_modeChangeCapability },
-	{ "h223AnnexA", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "h223AnnexA", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_h223AnnexA },
-	{ "h223AnnexADoubleFlag", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "h223AnnexADoubleFlag", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_h223AnnexADoubleFlag_bool },
-	{ "h223AnnexB", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "h223AnnexB", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_h223AnnexB },
-	{ "h223AnnexBwithHeader", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "h223AnnexBwithHeader", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_h223AnnexBwithHeader },
 	{ NULL, 0, 0, NULL }
 };
@@ -4285,9 +4285,9 @@ dissect_h245_alpduInterleaving(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 
 static per_sequence_t H223AL2MParameters_sequence[] = {
-	{ "headerFEC", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "headerFEC", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_H223AL2MParameters_headerFEC },
-	{ "alpduInterleaving", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "alpduInterleaving", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_alpduInterleaving },
 	{ NULL, 0, 0, NULL }
 };
@@ -4514,7 +4514,7 @@ dissect_h245_audioHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 
 static per_sequence_t V75Capability_sequence[] = {
-	{ "audioHeader", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "audioHeader", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_audioHeader },
 	{ NULL, 0, 0, NULL }
 };
@@ -4562,9 +4562,9 @@ dissect_h245_decentralizedConferenceMC(tvbuff_t *tvb, int offset, packet_info *p
 
 
 static per_sequence_t H2250Capability_mcCapability_sequence[] = {
-	{ "centralizedConferenceMC", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "centralizedConferenceMC", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_centralizedConferenceMC },
-	{ "decentralizedConferenceMC", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "decentralizedConferenceMC", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_decentralizedConferenceMC },
 	{ NULL, 0, 0, NULL }
 };
@@ -4740,7 +4740,7 @@ dissect_h245_variableDelta(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 
 static per_sequence_t MediaTransportType_AtmAAL5Compressed_sequence[] = {
-	{ "variable-delta", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "variable-delta", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_variableDelta },
 	{ NULL, 0, 0, NULL }
 };
@@ -4787,7 +4787,7 @@ dissect_h245_MediaTransportType(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static per_sequence_t MediaChannelCapability_sequence[] = {
-	{ "mediaTransport", EXTENSION_ROOT, OPTIONAL, 
+	{ "mediaTransport", EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_MediaTransportType },
 	{ NULL, 0, 0, NULL }
 };
@@ -5821,21 +5821,21 @@ dissect_h245_spareReferencePictures(tvbuff_t *tvb, int offset, packet_info *pinf
 
 
 static per_sequence_t H263Version3Options_sequence[] = {
-	{ "dataPartitionedSlices", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "dataPartitionedSlices", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_dataPartitionedSlices },
-	{ "fixedPointIDCTO", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "fixedPointIDCTO", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_fixedPointIDCT0 },
-	{ "interlacedFields", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "interlacedFields", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_interlacedFields},
-	{ "currentPictureHeaderRepetition", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "currentPictureHeaderRepetition", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_currentPictureHeaderRepetition },
-	{ "previousPictureHeaderRepetition", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "previousPictureHeaderRepetition", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_previousPictureHeaderRepetition },
-	{ "nextPictureHeaderRepetition", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "nextPictureHeaderRepetition", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_nextPictureHeaderRepetition },
-	{ "pictureNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "pictureNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_pictureNumber_bool },
-	{ "spareReferencePictures", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "spareReferencePictures", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_spareReferencePictures },
 	{ NULL, 0, 0, NULL }
 };
@@ -5852,51 +5852,51 @@ dissect_h245_H263Version3Options(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static per_sequence_t H263ModeComboFlags_sequence[] = {
-	{ "unrestrictedVector", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "unrestrictedVector", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_unrestrictedVector },
-	{ "arithmeticCoding", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "arithmeticCoding", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_arithmeticCoding },
-	{ "advancedPrediction", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "advancedPrediction", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_advancedPrediction },
-	{ "pbFrames", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "pbFrames", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_pbFrames },
-	{ "advancedIntraCodingMode", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "advancedIntraCodingMode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_advancedIntraCodingMode },
-	{ "deblockingFilterMode", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "deblockingFilterMode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_deblockingFilterMode },
-	{ "unlimitedMotionVectors", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "unlimitedMotionVectors", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_unlimitedMotionVectors },
-	{ "slicesInOrder-NonRect", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "slicesInOrder-NonRect", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_slicesInOrderNonRect },
-	{ "slicesInOrder-Rect", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "slicesInOrder-Rect", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_slicesInOrderRect },
-	{ "slicesNoOrder-NonRect", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "slicesNoOrder-NonRect", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_slicesNoOrderNonRect },
-	{ "slicesNoOrder-Rect", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "slicesNoOrder-Rect", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_slicesNoOrderRect },
-	{ "improvedPBFramesMode", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "improvedPBFramesMode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_improvedPBFramesMode },
-	{ "referencePicSelect", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "referencePicSelect", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_referencePicSelect },
-	{ "dynamicPictureResizingByFour", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "dynamicPictureResizingByFour", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_dynamicPictureResizingByFour },
-	{ "dynamicPictureResizingSixteenthPel", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "dynamicPictureResizingSixteenthPel", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_dynamicPictureResizingSixteenthPel },
-	{ "dynamicWarpingHalfPel", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "dynamicWarpingHalfPel", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_dynamicWarpingHalfPel },
-	{ "dynamicWarpingSixteenthPel", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "dynamicWarpingSixteenthPel", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_dynamicWarpingSixteenthPel },
-	{ "reducedResolutionUpdate", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "reducedResolutionUpdate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_reducedResolutionUpdate },
-	{ "independentSegmentDecoding", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "independentSegmentDecoding", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_independentSegmentDecoding },
-	{ "alternateInterVLCMode", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "alternateInterVLCMode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_alternateInterVLCMode },
-	{ "modifiedQuantizationMode", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "modifiedQuantizationMode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_modifiedQuantizationMode },
-	{ "enhancedReferencePicSelect", NOT_EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "enhancedReferencePicSelect", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_enhancedReferencePicSelect_bool },
-	{ "h263Version3Options", NOT_EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "h263Version3Options", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_H263Version3Options },
 	{ NULL, 0, 0, NULL }
 };
@@ -6714,43 +6714,43 @@ dissect_h245_digPhotoHighProg(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 static per_sequence_t T84Profile_t84Restricted_sequence[] = {
-	{ "qcif", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "qcif", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_qcif_bool },
-	{ "cif", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "cif", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_cif_bool },
-	{ "ccir601Seq", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "ccir601Seq", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_ccir601Seq },
-	{ "ccir601Prog", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "ccir601Prog", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_ccir601Prog },
-	{ "hdtvSeq", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "hdtvSeq", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_hdtvSeq },
-	{ "hdtvProg", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "hdtvProg", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_hdtvProg },
-	{ "g3FacsMH200x100", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "g3FacsMH200x100", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_g3FacsMH200x100 },
-	{ "g3FacsMH200x200", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "g3FacsMH200x200", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_g3FacsMH200x200 },
-	{ "g4FacsMMR200x100", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "g4FacsMMR200x100", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_g4FacsMMR200x100 },
-	{ "g4FacsMMR200x200", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "g4FacsMMR200x200", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_g4FacsMMR200x200 },
-	{ "jbig200x200Seq", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "jbig200x200Seq", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_jbig200x200Seq },
-	{ "jbig200x200Prog", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "jbig200x200Prog", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_jbig200x200Prog },
-	{ "jbig300x300Seq", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "jbig300x300Seq", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_jbig300x300Seq },
-	{ "jbig300x300Prog", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "jbig300x300Prog", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_jbig300x300Prog },
-	{ "digPhotoLow", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "digPhotoLow", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_digPhotoLow },
-	{ "digPhotoMedSeq", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "digPhotoMedSeq", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_digPhotoMedSeq },
-	{ "digPhotoMedProg", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "digPhotoMedProg", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_digPhotoMedProg },
-	{ "digPhotoHighSeq", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "digPhotoHighSeq", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_digPhotoHighSeq },
-	{ "digPhotoHighProg", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "digPhotoHighProg", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_digPhotoHighProg },
 	{ NULL, 0, 0, NULL }
 };
@@ -6852,7 +6852,7 @@ dissect_h245_t38TCPBidirectionalMode(tvbuff_t *tvb, int offset, packet_info *pin
 
 
 static per_sequence_t T38FaxTcpOptions_sequence[] = {
-	{ "t38TCPBidirectionalMode", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "t38TCPBidirectionalMode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_t38TCPBidirectionalMode },
 	{ NULL, 0, 0, NULL }
 };
@@ -6981,9 +6981,9 @@ dissect_h245_samePort_bool(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 
 static per_sequence_t FECCapability_rfc2733_separateStream_sequence[] = {
-	{ "separatePort", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "separatePort", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_separatePort },
-	{ "samePort", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "samePort", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_samePort_bool },
 	{ NULL, 0, 0, NULL }
 };
@@ -6998,9 +6998,9 @@ dissect_h245_FECCapability_rfc2733_separateStream(tvbuff_t *tvb, int offset, pac
 
 
 static per_sequence_t FECCapability_rfc2733_sequence[] = {
-	{ "redundancyEncoding", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "redundancyEncoding", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_redundancyEncoding_bool },
-	{ "separateStream", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "separateStream", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_FECCapability_rfc2733_separateStream },
 	{ NULL, 0, 0, NULL }
 };
@@ -7067,7 +7067,7 @@ dissect_h245_audioHeaderPresent(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static per_sequence_t V75Parameters_sequence[] = {
-	{ "audioHeaderPresent", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "audioHeaderPresent", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_audioHeaderPresent },
 	{ NULL, 0, 0, NULL }
 };
@@ -7264,11 +7264,11 @@ dissect_h245_certProtectedKey(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 static per_sequence_t KeyProtectionMethod_sequence[] = {
-	{ "secureChannel", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "secureChannel", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_secureChannel },
-	{ "sharedSecret", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "sharedSecret", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_sharedSecret },
-	{ "certProtectedKey", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "certProtectedKey", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_certProtectedKey },
 	{ NULL, 0, 0, NULL }
 };
@@ -7283,7 +7283,7 @@ dissect_h245_KeyProtectionMethod(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static per_sequence_t EncryptionUpdateRequest_sequence[] = {
-	{ "keyProtectionMethod", EXTENSION_ROOT, OPTIONAL,
+	{ "keyProtectionMethod", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_KeyProtectionMethod },
 	{ NULL, 0, 0, NULL }
 };
@@ -7356,23 +7356,23 @@ dissect_h245_IS13818_BitRate(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 
 static per_sequence_t IS11172AudioCapability_sequence[] = {
-	{ "audioLayer1", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "audioLayer1", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_audioLayer1 },
-	{ "audioLayer2", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "audioLayer2", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_audioLayer2 },
-	{ "audioLayer3", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "audioLayer3", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_audioLayer3 },
-	{ "audioSampling32k", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "audioSampling32k", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_audioSampling32k },
-	{ "audioSampling44k1", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "audioSampling44k1", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_audioSampling44k1 },
-	{ "audioSampling48k", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "audioSampling48k", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_audioSampling48k },
-	{ "singleChannel", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "singleChannel", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_singleChannel },
-	{ "twoChannels", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "twoChannels", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_twoChannels },
-	{ "bitRate", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "bitRate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_IS11172_BitRate },
 	{ NULL, 0, 0, NULL }
 };
@@ -7387,13 +7387,13 @@ dissect_h245_IS11172AudioCapability(tvbuff_t *tvb, int offset, packet_info *pinf
 
 
 static per_sequence_t IS11172AudioMode_sequence[] = {
-	{ "audioLayer", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "audioLayer", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_IS11172AudioMode_audioLayer },
-	{ "audioSampling", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "audioSampling", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_IS11172AudioMode_audioSampling },
-	{ "multichannelType", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "multichannelType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_IS11172AudioMode_multichannelType },
-	{ "bitRate", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "bitRate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_IS11172_BitRate },
 	{ NULL, 0, 0, NULL }
 };
@@ -7408,17 +7408,17 @@ dissect_h245_IS11172AudioMode(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 static per_sequence_t IS13818AudioMode_sequence[] = {
-	{ "audioLayer", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "audioLayer", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_IS13818AudioMode_audioLayer },
-	{ "audioSampling", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "audioSampling", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_IS13818AudioMode_audioSampling },
-	{ "multiChannelType", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "multiChannelType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_IS13818AudioMode_multiChannelType },
-	{ "lowFrequencyEnhancement", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "lowFrequencyEnhancement", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_lowFrequencyEnhancement },
-	{ "multilingual", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "multilingual", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 			dissect_h245_multilingual },
-	{ "bitRate", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "bitRate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_IS13818_BitRate },
 	{ NULL, 0, 0, NULL }
 };
@@ -7434,47 +7434,47 @@ dissect_h245_IS13818AudioMode(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 static per_sequence_t IS13818AudioCapability_sequence[] = {
-	{ "audioLayer1", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "audioLayer1", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_audioLayer1 },
-	{ "audioLayer2", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "audioLayer2", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_audioLayer2 },
-	{ "audioLayer3", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "audioLayer3", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_audioLayer3 },
-	{ "audioSampling16k", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "audioSampling16k", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_audioSampling16k },
-	{ "audioSampling22k05", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "audioSampling22k05", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_audioSampling22k05 },
-	{ "audioSampling24k", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "audioSampling24k", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_audioSampling24k },
-	{ "audioSampling32k", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "audioSampling32k", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_audioSampling32k },
-	{ "audioSampling44k1", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "audioSampling44k1", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_audioSampling44k1 },
-	{ "audioSampling48k", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "audioSampling48k", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_audioSampling48k },
-	{ "singleChannel", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "singleChannel", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_singleChannel },
-	{ "twoChannels", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "twoChannels", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_twoChannels },
-	{ "threeChannels2-1", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "threeChannels2-1", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_threeChannels21 },
-	{ "threeChannels3-0", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "threeChannels3-0", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_threeChannels30 },
-	{ "fourChannels2-0-2-0", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "fourChannels2-0-2-0", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_fourChannels2020 },
-	{ "fourChannels2-2", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "fourChannels2-2", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_fourChannels22 },
-	{ "fourChannels3-1", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "fourChannels3-1", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_fourChannels31 },
-	{ "fiveChannels3-0-2-0", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "fiveChannels3-0-2-0", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_fiveChannels3020 },
-	{ "fiveChannels3-2", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "fiveChannels3-2", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_fiveChannels32 },
-	{ "lowFrequencyEnhancement", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "lowFrequencyEnhancement", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_lowFrequencyEnhancement },
-	{ "multilingual", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "multilingual", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_multilingual },
-	{ "bitRate", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "bitRate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_IS13818_BitRate },
 	{ NULL, 0, 0, NULL }
 };
@@ -7503,13 +7503,13 @@ dissect_h245_ATM_BitRate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 
 static per_sequence_t NewATMVCIndication_reverseParameters_sequence[] = {
-	{ "bitRate", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "bitRate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_ATM_BitRate },
-	{ "bitRateLockedToPCRClock", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "bitRateLockedToPCRClock", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_bitRateLockedToPCRClock },
-	{ "bitRateLockedToNetworkClock", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "bitRateLockedToNetworkClock", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_bitRateLockedToNetworkClock },
-	{ "multiplex", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "multiplex", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_NewATMVCIndication_reverseParameters_multiplex },
 	{ NULL, 0, 0, NULL }
 };
@@ -7524,13 +7524,13 @@ dissect_h245_NewATMVCIndication_reverseParameters(tvbuff_t *tvb, int offset, pac
 
 
 static per_sequence_t NewATMVCCommand_reverseParameters_sequence[] = {
-	{ "bitRate", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "bitRate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_ATM_BitRate },
-	{ "bitRateLockedToPCRClock", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "bitRateLockedToPCRClock", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_bitRateLockedToPCRClock },
-	{ "bitRateLockedToNetworkClock", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "bitRateLockedToNetworkClock", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_bitRateLockedToNetworkClock },
-	{ "multiplex", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "multiplex", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_NewATMVCCommand_reverseParameters_multiplex },
 	{ NULL, 0, 0, NULL }
 };
@@ -7579,11 +7579,11 @@ dissect_h245_manufacturerCode(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 /* dissect_h245_h221NonStandard is used for H.245 */
 
 static per_sequence_t h221NonStandard_sequence[] = {
-	{ "t35CountryCode", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "t35CountryCode", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_t35CountryCode },
-	{ "t35Extension", NO_EXTENSIONS, NOT_OPTIONAL, 
+	{ "t35Extension", NO_EXTENSIONS, ASN1_NOT_OPTIONAL, 
 		dissect_h245_t35Extension },
-	{ "manufacturerCode", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "manufacturerCode", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_manufacturerCode },
 	{ NULL, 0, 0, NULL }
 };
@@ -7626,9 +7626,9 @@ dissect_h245_statusDeterminationNumber(tvbuff_t *tvb, int offset, packet_info *p
 
 
 static per_sequence_t MasterSlaveDetermination_sequence[] = {
-	{ "terminalType", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "terminalType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_terminalType },
-	{ "statusDeterminationNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "statusDeterminationNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_statusDeterminationNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -7708,9 +7708,9 @@ dissect_h245_TerminalCapabilitySetReject_cause(tvbuff_t *tvb, int offset, packet
 
 
 static per_sequence_t TerminalCapabilitySetReject_sequence[] = {
-	{ "sequenceNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "sequenceNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_SequenceNumber },
-	{ "cause", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "cause", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_TerminalCapabilitySetReject_cause },
 	{ NULL, 0, 0, NULL }
 };
@@ -7753,7 +7753,7 @@ dissect_h245_h233IVResponseTime(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static per_sequence_t Capability_h233EncryptionReceiveCapability_sequence[] = {
-	{ "h233IVResponseTime", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "h233IVResponseTime", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_h233IVResponseTime },
 	{ NULL, 0, 0, NULL }
 };
@@ -7824,9 +7824,9 @@ dissect_h245_backwardMaximumSDUSize(tvbuff_t *tvb, int offset, packet_info *pinf
 
 
 static per_sequence_t VCCapability_aal5_sequence[] = {
-	{ "forwardMaximumSDUSize", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "forwardMaximumSDUSize", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_forwardMaximumSDUSize },
-	{ "backwardMaximumSDUSize", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "backwardMaximumSDUSize", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_backwardMaximumSDUSize },
 	{ NULL, 0, 0, NULL }
 };
@@ -7841,9 +7841,9 @@ dissect_h245_VCCapability_aal5(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 
 static per_sequence_t NewATMVCCommand_aal_aal5_sequence[] = {
-	{ "forwardMaximumSDUSize", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "forwardMaximumSDUSize", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_forwardMaximumSDUSize},
-	{ "backwardMaximumSDUSize", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "backwardMaximumSDUSize", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_backwardMaximumSDUSize },
 	{ NULL, 0, 0, NULL }
 };
@@ -7883,9 +7883,9 @@ dissect_h245_NewATMVCCommand_aal(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static per_sequence_t NewATMVCIndication_aal_aal5_sequence[] = {
-	{ "forwardMaximumSDUSize", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "forwardMaximumSDUSize", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_forwardMaximumSDUSize },
-	{ "backwardMaximumSDUSize", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "backwardMaximumSDUSize", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_backwardMaximumSDUSize },
 	{ NULL, 0, 0, NULL }
 };
@@ -7963,9 +7963,9 @@ dissect_h245_higherBitRate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 
 static per_sequence_t VCCapability_availableBitRates_rangeOfBitRates_sequence[] = {
-	{ "lowerBitRate", NO_EXTENSIONS, NOT_OPTIONAL, 
+	{ "lowerBitRate", NO_EXTENSIONS, ASN1_NOT_OPTIONAL, 
 			dissect_h245_lowerBitRate },
-	{ "higherBitRate", NO_EXTENSIONS, NOT_OPTIONAL, 
+	{ "higherBitRate", NO_EXTENSIONS, ASN1_NOT_OPTIONAL, 
 			dissect_h245_higherBitRate },
 	{ NULL, 0, 0, NULL }
 };
@@ -8077,11 +8077,11 @@ dissect_h245_maximumSubElementListSize(tvbuff_t *tvb, int offset, packet_info *p
 
 
 static per_sequence_t H223Capability_h223MultiplexTableCapability_enhanced_sequence[] = {
-	{ "maximumNestingDepth", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "maximumNestingDepth", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 			dissect_h245_maximumNestingDepth },
-	{ "maximumElementListSize", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "maximumElementListSize", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 			dissect_h245_maximumElementListSize },
-	{ "maximumSubElementListSize", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "maximumSubElementListSize", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 			dissect_h245_maximumSubElementListSize },
 	{ NULL, 0, 0, NULL }
 };
@@ -8159,9 +8159,9 @@ dissect_h245_maximumPayloadLength(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static per_sequence_t H223Capability_mobileMultilinkFrameCapability_sequence[] = {
-	{ "maximumSampleSize", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "maximumSampleSize", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_maximumSampleSize },
-	{ "maximumPayloadLength", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "maximumPayloadLength", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_maximumPayloadLength },
 	{ NULL, 0, 0, NULL }
 };
@@ -8217,33 +8217,33 @@ dissect_h245_maximumAL3MSDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static per_sequence_t H223AnnexCCapability_sequence[] = {
-	{ "videoWithAL1M", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "videoWithAL1M", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_videoWithAL1M },
-	{ "videoWithAL2M", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "videoWithAL2M", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_videoWithAL2M },
-	{ "videoWithAL3M", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "videoWithAL3M", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_videoWithAL3M },
-	{ "audioWithAL1M", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "audioWithAL1M", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_audioWithAL1M },
-	{ "audioWithAL2M", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "audioWithAL2M", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_audioWithAL2M },
-	{ "audioWithAL3M", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "audioWithAL3M", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_audioWithAL3M },
-	{ "dataWithAL1M", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "dataWithAL1M", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_dataWithAL1M },
-	{ "dataWithAL2M", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "dataWithAL2M", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_dataWithAL2M },
-	{ "dataWithAL3M", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "dataWithAL3M", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_dataWithAL3M },
-	{ "alpduInterleaving", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "alpduInterleaving", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_alpduInterleaving },
-	{ "maximumAL1MPDUSize", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "maximumAL1MPDUSize", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_maximumAL1MPDUSize },
-	{ "maximumAL2MSDUSize", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "maximumAL2MSDUSize", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_maximumAL2MSDUSize },
-	{ "maximumAL3MSDUSize", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "maximumAL3MSDUSize", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_maximumAL3MSDUSize },
-	{ "rsCodeCapability", NOT_EXTENSION_ROOT, OPTIONAL, 
+	{ "rsCodeCapability", NOT_EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_rsCodeCapability },
 	{ NULL, 0, 0, NULL }
 };
@@ -8271,45 +8271,45 @@ dissect_h245_transportWithIframes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static per_sequence_t H223Capability_sequence[] = {
-	{ "transportWithIframes", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "transportWithIframes", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_transportWithIframes },
-	{ "videoWithAL1", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "videoWithAL1", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_videoWithAL1 },
-	{ "videoWithAL2", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "videoWithAL2", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_videoWithAL2 },
-	{ "videoWithAL3", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "videoWithAL3", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_videoWithAL3 },
-	{ "audioWithAL1", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "audioWithAL1", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_audioWithAL1 },
-	{ "audioWithAL2", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "audioWithAL2", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_audioWithAL2 },
-	{ "audioWithAL3", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "audioWithAL3", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_audioWithAL3 },
-	{ "dataWithAL1", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "dataWithAL1", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_dataWithAL1 },
-	{ "dataWithAL2", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "dataWithAL2", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_dataWithAL2 },
-	{ "dataWithAL3", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "dataWithAL3", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_dataWithAL3 },
-	{ "maximumAL2SDUSize", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "maximumAL2SDUSize", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_maximumAl2SDUSize },
-	{ "maximumAL3SDUSize", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "maximumAL3SDUSize", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_maximumAl3SDUSize },
-	{ "maximumDelayJitter", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "maximumDelayJitter", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_maximumDelayJitter },
-	{ "h223MultiplexTableCapability", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "h223MultiplexTableCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_H223Capability_h223MultiplexTableCapability },
-	{ "maxMUXPDUSizeCapability", NOT_EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "maxMUXPDUSizeCapability", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_maxMUXPDUSizeCapability },
-	{ "nsrpSupport", NOT_EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "nsrpSupport", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_nsrpSupport },
-	{ "mobileOperationTransmitCapability", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "mobileOperationTransmitCapability", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_H223Capability_mobileOperationTransmitCapability },
-	{ "h223AnnexCCapability", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "h223AnnexCCapability", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_H223AnnexCCapability },
-	{ "bitRate", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "bitRate", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_h223bitRate },
-	{ "mobileMultilinkFrameCapability", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "mobileMultilinkFrameCapability", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_H223Capability_mobileMultilinkFrameCapability },
 	{ NULL, 0, 0, NULL }
 };
@@ -8364,35 +8364,35 @@ dissect_h245_maxWindowSizeCapability(tvbuff_t *tvb, int offset, packet_info *pin
 
 
 static per_sequence_t V76Capability_sequence[] = {
-	{ "suspendResumeCapabilitywAddress", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "suspendResumeCapabilitywAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_suspendResumeCapabilitywAddress },
-	{ "suspendResumeCapabilitywoAddress", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "suspendResumeCapabilitywoAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_suspendResumeCapabilitywoAddress },
-	{ "rejCapability", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "rejCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_rejCapability },
-	{ "sREJCapability", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "sREJCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_sREJCapability },
-	{ "mREJCapability", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "mREJCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_mREJCapability },
-	{ "crc8bitCapability", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "crc8bitCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_crc8bitCapability },
-	{ "crc16bitCapability", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "crc16bitCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_crc16bitCapability },
-	{ "crc32bitCapability", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "crc32bitCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_crc32bitCapability },
-	{ "uihCapability", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "uihCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_uihCapability },
-	{ "numOfDLCS", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "numOfDLCS", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_numOfDLCS },
-	{ "twoOctetAddressFieldCapability", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "twoOctetAddressFieldCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_twoOctetAddressFieldCapability },
-	{ "loopBackTestCapability", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "loopBackTestCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_loopBackTestCapability },
-	{ "n401Capability", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "n401Capability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_n401Capability },
-	{ "maxWindowSizeCapability", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "maxWindowSizeCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_maxWindowSizeCapability },
-	{ "v75Capability", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "v75Capability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_V75Capability },
 	{ NULL, 0, 0, NULL }
 };
@@ -8484,17 +8484,17 @@ dissect_h245_maxPktSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 
 static per_sequence_t RSVPParameters_sequence[] = {
-	{ "qosMode", EXTENSION_ROOT, OPTIONAL, 
+	{ "qosMode", EXTENSION_ROOT, ASN1_OPTIONAL, 
 			dissect_h245_QOSMode },
-	{ "tokenRate", EXTENSION_ROOT, OPTIONAL, 
+	{ "tokenRate", EXTENSION_ROOT, ASN1_OPTIONAL, 
 			dissect_h245_tokenRate },
-	{ "bucketSize", EXTENSION_ROOT, OPTIONAL, 
+	{ "bucketSize", EXTENSION_ROOT, ASN1_OPTIONAL, 
 			dissect_h245_bucketSize },
-	{ "peakRate", EXTENSION_ROOT, OPTIONAL,
+	{ "peakRate", EXTENSION_ROOT, ASN1_OPTIONAL,
 			dissect_h245_peakRate },
-	{ "minPoliced", EXTENSION_ROOT, OPTIONAL,
+	{ "minPoliced", EXTENSION_ROOT, ASN1_OPTIONAL,
 			dissect_h245_minPoliced },
-	{ "maxPktSize", EXTENSION_ROOT, OPTIONAL,
+	{ "maxPktSize", EXTENSION_ROOT, ASN1_OPTIONAL,
 			dissect_h245_maxPktSize },
 	{ NULL, 0, 0, NULL }
 };
@@ -8522,17 +8522,17 @@ dissect_h245_maxNTUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 
 static per_sequence_t ATMParameters_sequence[] = {
-	{ "maxNTUSize", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "maxNTUSize", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_maxNTUSize },
-	{ "atmUBR", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "atmUBR", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_atmUBR },
-	{ "atmrtVBR", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "atmrtVBR", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_atmrtVBR },
-	{ "atmnrtVBR", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "atmnrtVBR", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_atmnrtVBR },
-	{ "atmABR", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "atmABR", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_atmABR },
-	{ "atmCBR", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "atmCBR", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_atmCBR },
 	{ NULL, 0, 0, NULL }
 };
@@ -8664,17 +8664,17 @@ dissect_h245_cifMPI_1_2048(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 
 static per_sequence_t H261VideoCapability_sequence[] = {
-	{ "qcifMPI", EXTENSION_ROOT, OPTIONAL,
+	{ "qcifMPI", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_qcifMPI_1_4 },
-	{ "cifMPI", EXTENSION_ROOT, OPTIONAL,
+	{ "cifMPI", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_cifMPI_1_4 },
-	{ "temporalSpatialTradeOffCapability", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "temporalSpatialTradeOffCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_temporalSpatialTradeOffCapability },
-	{ "maxBitRate", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "maxBitRate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_h223bitRate },
-	{ "stillImageTransmission", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "stillImageTransmission", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_stillImageTransmission },
-	{ "videoBadMBsCap", NOT_EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "videoBadMBsCap", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_videoBadMBsCap },
 	{ NULL, 0, 0, NULL }
 };
@@ -8771,41 +8771,41 @@ dissect_h245_luminanceSampleRate(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static per_sequence_t H262VideoCapability_sequence[] = {
-	{ "profileAndLevel-SPatML", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "profileAndLevel-SPatML", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_profileAndLevelSPatML },
-	{ "profileAndLevel-MPatLL", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "profileAndLevel-MPatLL", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_profileAndLevelMPatLL },
-	{ "profileAndLevel-MPatML", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "profileAndLevel-MPatML", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_profileAndLevelMPatML },
-	{ "profileAndLevel-MPatH-14", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "profileAndLevel-MPatH-14", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_profileAndLevelMPatH14 },
-	{ "profileAndLevel-MPatHL", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "profileAndLevel-MPatHL", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_profileAndLevelMPatHL },
-	{ "profileAndLevel-SNRatLL", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "profileAndLevel-SNRatLL", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_profileAndLevelSNRatLL },
-	{ "profileAndLevel-SNRatML", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "profileAndLevel-SNRatML", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_profileAndLevelSNRatML },
-	{ "profileAndLevel-SpatialatH-14", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "profileAndLevel-SpatialatH-14", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_profileAndLevelSpatialatH14 },
-	{ "profileAndLevel-HPatML", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "profileAndLevel-HPatML", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_profileAndLevelHPatML },
-	{ "profileAndLevel-HPatH-14", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "profileAndLevel-HPatH-14", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_profileAndLevelHPatH14 },
-	{ "profileAndLevel-HPatHL", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "profileAndLevel-HPatHL", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_profileAndLevelHPatHL },
-	{ "videoBitRate", EXTENSION_ROOT, OPTIONAL,
+	{ "videoBitRate", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_videoBitRate },
-	{ "vbvBufferSize", EXTENSION_ROOT, OPTIONAL, 
+	{ "vbvBufferSize", EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_vbvBufferSize },
-	{ "samplesPerLine", EXTENSION_ROOT, OPTIONAL,
+	{ "samplesPerLine", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_samplesPerLine },
-	{ "linesPerFrame", EXTENSION_ROOT, OPTIONAL,
+	{ "linesPerFrame", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_linesPerFrame },
-	{ "framesPerSecond", EXTENSION_ROOT, OPTIONAL,
+	{ "framesPerSecond", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_framesPerSecond },
-	{ "luminanceSampleRate", EXTENSION_ROOT, OPTIONAL,
+	{ "luminanceSampleRate", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_luminanceSampleRate },
-	{ "videoBadMBsCap", NOT_EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "videoBadMBsCap", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_videoBadMBsCap },
 	{ NULL, 0, 0, NULL }
 };
@@ -8822,19 +8822,19 @@ dissect_h245_H262VideoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static per_sequence_t H262VideoMode_sequence[] = {
-	{ "profileAndLevel", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "profileAndLevel", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_H262VideoMode_profileAndLevel },
-	{ "videoBitRate", EXTENSION_ROOT, OPTIONAL,
+	{ "videoBitRate", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_videoBitRate },
-	{ "vbvBufferSize", EXTENSION_ROOT, OPTIONAL, 
+	{ "vbvBufferSize", EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_vbvBufferSize },
-	{ "samplesPerLine", EXTENSION_ROOT, OPTIONAL,
+	{ "samplesPerLine", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_samplesPerLine },
-	{ "linesPerFrame", EXTENSION_ROOT, OPTIONAL,
+	{ "linesPerFrame", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_linesPerFrame },
-	{ "framesPerSecond", EXTENSION_ROOT, OPTIONAL,
+	{ "framesPerSecond", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_framesPerSecond },
-	{ "luminanceSampleRate", EXTENSION_ROOT, OPTIONAL,
+	{ "luminanceSampleRate", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_luminanceSampleRate },
 	{ NULL, 0, 0, NULL }
 };
@@ -9110,15 +9110,15 @@ dissect_h245_scale_y(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 
 
 static per_sequence_t TransperencyParameters_sequence[] = {
-	{ "presentationOrder", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "presentationOrder", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_presentationOrder },
-	{ "offset-x", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "offset-x", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_offset_x },
-	{ "offset-y", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "offset-y", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_offset_y },
-	{ "scale-x", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "scale-x", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_scale_x },
-	{ "scale-y", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "scale-y", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_scale_y },
 	{ NULL, 0, 0, NULL }
 };
@@ -9210,17 +9210,17 @@ dissect_h245_bigCpfAdditionalPictureMemory(tvbuff_t *tvb, int offset, packet_inf
 
 
 static per_sequence_t RefPictureSelection_additionalPictureMemory_sequence[] = {
-	{ "sqcifAdditionalPictureMemory", EXTENSION_ROOT, OPTIONAL,
+	{ "sqcifAdditionalPictureMemory", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_sqcifAdditionalPictureMemory },
-	{ "qcifAdditionalPictureMemory", EXTENSION_ROOT, OPTIONAL,
+	{ "qcifAdditionalPictureMemory", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_qcifAdditionalPictureMemory },
-	{ "cifAdditionalPictureMemory", EXTENSION_ROOT, OPTIONAL,
+	{ "cifAdditionalPictureMemory", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_cifAdditionalPictureMemory },
-	{ "cif4AdditionalPictureMemory", EXTENSION_ROOT, OPTIONAL,
+	{ "cif4AdditionalPictureMemory", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_cif4AdditionalPictureMemory },
-	{ "cif16AdditionalPictureMemory", EXTENSION_ROOT, OPTIONAL,
+	{ "cif16AdditionalPictureMemory", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_cif16AdditionalPictureMemory },
-	{ "bigCpfAdditionalPictureMemory", EXTENSION_ROOT, OPTIONAL,
+	{ "bigCpfAdditionalPictureMemory", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_bigCpfAdditionalPictureMemory},
 	{ NULL, 0, 0, NULL }
 };
@@ -9274,11 +9274,11 @@ dissect_h245_mpuTotalNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 
 static per_sequence_t RefPictureSelection_enhancedReferencePicSelect_subPictureRemovalParameters_sequence[] = {
-	{ "mpuHorizMBs", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "mpuHorizMBs", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_mpuHorizMBs },
-	{ "mpuVertMBs", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "mpuVertMBs", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_mpuVertMBs},
-	{ "mpuTotalNumber", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "mpuTotalNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_mpuTotalNumber},
 	{ NULL, 0, 0, NULL }
 };
@@ -9296,7 +9296,7 @@ dissect_h245_RefPictureSelection_enhancedReferencePicSelect_subPictureRemovalPar
 
 
 static per_sequence_t RefPictureSelection_enhancedReferencePicSelect_sequence[] = {
-	{ "subPictureRemovalParameters", EXTENSION_ROOT, OPTIONAL,
+	{ "subPictureRemovalParameters", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_RefPictureSelection_enhancedReferencePicSelect_subPictureRemovalParameters },
 	{ NULL, 0, 0, NULL }
 };
@@ -9313,13 +9313,13 @@ dissect_h245_RefPictureSelection_enhancedReferencePicSelect(tvbuff_t *tvb, int o
 
 
 static per_sequence_t RefPictureSelection_sequence[] = {
-	{ "additionalPictureMemory", EXTENSION_ROOT, OPTIONAL,
+	{ "additionalPictureMemory", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_RefPictureSelection_additionalPictureMemory },
-	{ "videoMux", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "videoMux", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_videoMux },
-	{ "videoBackChannelSend", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "videoBackChannelSend", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_RefPictureSelection_videoBackChannelSend },
-	{ "enhancedReferencePicSelect", NOT_EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "enhancedReferencePicSelect", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_RefPictureSelection_enhancedReferencePicSelect },
 	{ NULL, 0, 0, NULL }
 };
@@ -9360,19 +9360,19 @@ dissect_h245_clockDivisor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 
 static per_sequence_t CustomPictureClockFrequency_sequence[] = {
-	{ "clockConversionCode", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "clockConversionCode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_clockConversionCode },
-	{ "clockDivisor", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "clockDivisor", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_clockDivisor },
-	{ "sqcifMPI", EXTENSION_ROOT, OPTIONAL,
+	{ "sqcifMPI", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_sqcifMPI_1_2048 },
-	{ "qcifMPI", EXTENSION_ROOT, OPTIONAL,
+	{ "qcifMPI", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_qcifMPI_1_2048 },
-	{ "cifMPI", EXTENSION_ROOT, OPTIONAL,
+	{ "cifMPI", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_cifMPI_1_2048 },
-	{ "cif4MPI", EXTENSION_ROOT, OPTIONAL,
+	{ "cif4MPI", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_cif4MPI_1_2048 },
-	{ "cif16MPI", EXTENSION_ROOT, OPTIONAL,
+	{ "cif16MPI", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_cif16MPI_1_2048 },
 	{ NULL, 0, 0, NULL }
 };
@@ -9463,11 +9463,11 @@ dissect_h245_customMPI(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 
 static per_sequence_t CustomPictureFormat_mPI_customPCF_sequence[] = {
-	{ "clockConversionCode", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "clockConversionCode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_clockConversionCode },
-	{ "clockDivisor", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "clockDivisor", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_clockDivisor },
-	{ "customMPI", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "customMPI", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_customMPI },
 	{ NULL, 0, 0, NULL }
 };
@@ -9484,9 +9484,9 @@ dissect_h245_CustomPictureFormat_mPI_customPCF(tvbuff_t *tvb, int offset, packet
 static int dissect_h245_customPCF(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
 static per_sequence_t CustomPictureFormat_mPI_sequence[] = {
-	{ "standardMPI", EXTENSION_ROOT, OPTIONAL, 
+	{ "standardMPI", EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_standardMPI},
-	{ "customPCF", EXTENSION_ROOT, OPTIONAL,
+	{ "customPCF", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_customPCF },
 	{ NULL, 0, 0, NULL }
 };
@@ -9527,9 +9527,9 @@ dissect_h245_height(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
 
 static per_sequence_t CustomPictureFormat_pixelAspectInformation_extendedPAR_sequence[] = {
-	{ "width", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "width", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_width },
-	{ "height", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "height", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_height},
 	{ NULL, 0, 0, NULL }
 };
@@ -9558,19 +9558,19 @@ dissect_h245_pictureRate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 
 static per_sequence_t IS11172VideoMode_sequence[] = {
-	{ "constrainedBitstream", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "constrainedBitstream", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_constrainedBitstream },
-	{ "videoBitRate", EXTENSION_ROOT, OPTIONAL,
+	{ "videoBitRate", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_videoBitRate },
-	{ "vbvBufferSize", EXTENSION_ROOT, OPTIONAL, 
+	{ "vbvBufferSize", EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_vbvBufferSize },
-	{ "samplesPerLine", EXTENSION_ROOT, OPTIONAL,
+	{ "samplesPerLine", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_samplesPerLine },
-	{ "linesPerFrame", EXTENSION_ROOT, OPTIONAL,
+	{ "linesPerFrame", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_linesPerFrame },
-	{ "pictureRate", EXTENSION_ROOT, OPTIONAL, 
+	{ "pictureRate", EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_pictureRate},
-	{ "luminanceSampleRate", EXTENSION_ROOT, OPTIONAL,
+	{ "luminanceSampleRate", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_luminanceSampleRate },
 	{ NULL, 0, 0, NULL }
 };
@@ -9585,21 +9585,21 @@ dissect_h245_IS11172VideoMode(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 static per_sequence_t IS11172VideoCapability_sequence[] = {
-	{ "constrainedBitstream", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "constrainedBitstream", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_constrainedBitstream },
-	{ "videoBitRate", EXTENSION_ROOT, OPTIONAL, 
+	{ "videoBitRate", EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_videoBitRate },
-	{ "vbvBufferSize", EXTENSION_ROOT, OPTIONAL, 
+	{ "vbvBufferSize", EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_vbvBufferSize },
-	{ "samplesPerLine", EXTENSION_ROOT, OPTIONAL,
+	{ "samplesPerLine", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_samplesPerLine },
-	{ "linesPerFrame", EXTENSION_ROOT, OPTIONAL,
+	{ "linesPerFrame", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_linesPerFrame },
-	{ "pictureRate", EXTENSION_ROOT, OPTIONAL, 
+	{ "pictureRate", EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_pictureRate },
-	{ "luminanceSampleRate", EXTENSION_ROOT, OPTIONAL,
+	{ "luminanceSampleRate", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_luminanceSampleRate },
-	{ "videoBadMBsCap", NOT_EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "videoBadMBsCap", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_videoBadMBsCap },
 	{ NULL, 0, 0, NULL }
 };
@@ -9715,9 +9715,9 @@ dissect_h245_maxAl_sduAudioFrames(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static per_sequence_t AudioCapability_g7231_sequence[] = {
-	{ "maxAl-sduAudioFrames", NO_EXTENSIONS, NOT_OPTIONAL, 
+	{ "maxAl-sduAudioFrames", NO_EXTENSIONS, ASN1_NOT_OPTIONAL, 
 		dissect_h245_maxAl_sduAudioFrames },
-	{ "silenceSuppression", NO_EXTENSIONS, NOT_OPTIONAL, 
+	{ "silenceSuppression", NO_EXTENSIONS, ASN1_NOT_OPTIONAL, 
 		dissect_h245_silenceSuppression },
 	{ NULL, 0, 0, NULL }
 };
@@ -9809,21 +9809,21 @@ dissect_h245_audioUnit(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 
 static per_sequence_t G729Extensions_sequence[] = {
-	{ "audioUnit", EXTENSION_ROOT, OPTIONAL,
+	{ "audioUnit", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_audioUnit },
-	{ "annexA", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "annexA", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_annexA },
-	{ "annexB", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "annexB", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_annexB },
-	{ "annexD", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "annexD", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_annexD },
-	{ "annexE", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "annexE", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_annexE },
-	{ "annexF", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "annexF", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_annexF },
-	{ "annexG", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "annexG", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_annexG },
-	{ "annexH", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "annexH", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_annexH },
 	{ NULL, 0, 0, NULL }
 };
@@ -9912,17 +9912,17 @@ dissect_h245_sidMode1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 
 static per_sequence_t G7231AnnexCCapability_g723AnnexCAudioMode_sequence[] = {
-	{ "highRateMode0", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "highRateMode0", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_highRateMode0 },
-	{ "highRateMode1", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "highRateMode1", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_highRateMode1 },
-	{ "lowRateMode0", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "lowRateMode0", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_lowRateMode0 },
-	{ "lowRateMode1", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "lowRateMode1", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_lowRateMode1 },
-	{ "sidMode0", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "sidMode0", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_sidMode0 },
-	{ "sidMode1", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "sidMode1", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_sidMode1 },
 	{ NULL, 0, 0, NULL }
 };
@@ -9938,11 +9938,11 @@ dissect_h245_G7231AnnexCCapability_g723AnnexCAudioMode(tvbuff_t *tvb, int offset
 
 
 static per_sequence_t G7231AnnexCCapability_sequence[] = {
-	{ "maxAl-sduAudioFrames", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "maxAl-sduAudioFrames", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_maxAl_sduAudioFrames },
-	{ "silenceSuppression", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "silenceSuppression", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_silenceSuppression },
-	{ "g723AnnexCAudioMode", EXTENSION_ROOT, OPTIONAL,
+	{ "g723AnnexCAudioMode", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_G7231AnnexCCapability_g723AnnexCAudioMode },
 	{ NULL, 0, 0, NULL }
 };
@@ -9957,17 +9957,17 @@ dissect_h245_G7231AnnexCCapability(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 static per_sequence_t G7231AnnexCMode_g723AnnexCAudioMode_sequence[] = {
-	{ "highRateMode0", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "highRateMode0", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 			dissect_h245_highRateMode0 },
-	{ "highRateMode1", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "highRateMode1", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 			dissect_h245_highRateMode1 },
-	{ "lowRateMode0", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "lowRateMode0", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 			dissect_h245_lowRateMode0 },
-	{ "lowRateMode1", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "lowRateMode1", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 			dissect_h245_lowRateMode0 },
-	{ "sidMode0", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "sidMode0", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 			dissect_h245_sidMode0 },
-	{ "sidMode1", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "sidMode1", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 			dissect_h245_sidMode1 },
 	{ NULL, 0, 0, NULL }
 };
@@ -9983,11 +9983,11 @@ dissect_h245_G7231AnnexCMode_g723AnnexCAudioMode(tvbuff_t *tvb, int offset, pack
 
 
 static per_sequence_t G7231AnnexCMode_sequence[] = {
-	{ "maxAl-sduAudioFrames", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "maxAl-sduAudioFrames", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_maxAl_sduAudioFrames },
-	{ "silenceSupression", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "silenceSupression", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_silenceSuppression },
-	{ "g723AnnexCAudioMode", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "g723AnnexCAudioMode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_G7231AnnexCMode_g723AnnexCAudioMode },
 	{ NULL, 0, 0, NULL }
 };
@@ -10017,11 +10017,11 @@ dissect_h245_audioUnitSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 
 static per_sequence_t GSMAudioCapability_sequence[] = {
-	{ "audioUnitSize", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "audioUnitSize", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_audioUnitSize },
-	{ "comfortNoice", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "comfortNoice", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_comfortNoise },
-	{ "scrambled", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "scrambled", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_scrambled },
 	{ NULL, 0, 0, NULL }
 };
@@ -10080,9 +10080,9 @@ dissect_h245_maximumStringLength(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static per_sequence_t V42bis_sequence[] = {
-	{ "numberOfCodewords", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "numberOfCodewords", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_numberOfCodewords },
-	{ "maximumStringLength", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "maximumStringLength", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_maximumStringLength },
 	{ NULL, 0, 0, NULL }
 };
@@ -10158,19 +10158,19 @@ dissect_h245_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 
 static int dissect_h245_T38FaxUdpOptions(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static per_sequence_t T38FaxProfile_sequence[] = {
-	{ "fillBitRemoval", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "fillBitRemoval", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_fillBitRemoval },
-	{ "transcodingJBIG", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "transcodingJBIG", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_transcodingJBIG },
-	{ "transcodingMMR", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "transcodingMMR", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_transcodingMMR },
-	{ "version", NOT_EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "version", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_version },
-	{ "t38FaxRateManagement", NOT_EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "t38FaxRateManagement", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_T38FaxRateManagement },
-	{ "t38FaxUdpOptions", NOT_EXTENSION_ROOT, OPTIONAL, 
+	{ "t38FaxUdpOptions", NOT_EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_T38FaxUdpOptions },
-	{ "t38FaxTcpOptions", NOT_EXTENSION_ROOT, OPTIONAL, 
+	{ "t38FaxTcpOptions", NOT_EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_T38FaxTcpOptions },
 	{ NULL, 0, 0, NULL }
 };
@@ -10273,7 +10273,7 @@ dissect_h245_dynamicRTPPayloadType(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 static per_sequence_t AudioToneCapability_sequence[] = {
-	{ "dynamicRTPPayloadType", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "dynamicRTPPayloadType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_dynamicRTPPayloadType },
 	{ NULL, 0, 0, NULL }
 };
@@ -10411,19 +10411,19 @@ dissect_h245_FlowControlIndication_scope(tvbuff_t *tvb, int offset, packet_info 
 
 
 static per_sequence_t NewATMVCIndication_sequence[] = {
-	{ "resourceID", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "resourceID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_resourceID },
-	{ "bitRate", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "bitRate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_ATM_BitRate },
-	{ "bitRateLockedToPCRClock", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "bitRateLockedToPCRClock", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_bitRateLockedToPCRClock },
-	{ "bitRateLockedToNetworkClock", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "bitRateLockedToNetworkClock", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_bitRateLockedToNetworkClock },
-	{ "aal", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "aal", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_NewATMVCIndication_aal },
-	{ "multiplex", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "multiplex", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_NewATMVCIndication_multiplex },
-	{ "reverseParameters", NOT_EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "reverseParameters", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_NewATMVCIndication_reverseParameters },
 	{ NULL, 0, 0, NULL }
 };
@@ -10491,9 +10491,9 @@ dissect_h245_sendBufferSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 
 static per_sequence_t H223LogicalChannelParameters_adaptionLayerType_al3_sequence[] = {
-	{ "controlFieldOctets", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "controlFieldOctets", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_controlFieldOctets },
-	{ "sendBufferSize", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "sendBufferSize", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_sendBufferSize },
 	{ NULL, 0, 0, NULL }
 };
@@ -10508,9 +10508,9 @@ dissect_h245_H223LogicalChannelParameters_adaptionLayerType_al3(tvbuff_t *tvb, i
 
 
 static per_sequence_t H223ModeParameters_adaptationLayerType_al3_sequence[] = {
-	{ "controlFieldOctets", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "controlFieldOctets", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_controlFieldOctets },
-	{ "sendBufferSize", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "sendBufferSize", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_sendBufferSize },
 	{ NULL, 0, 0, NULL }
 };
@@ -10589,9 +10589,9 @@ dissect_h245_H223AnnexCArqParameters_numberOfRetransmissions(tvbuff_t *tvb, int 
 
 
 static per_sequence_t H223AnnexCArqParameters_sequence[] = {
-	{ "numberOfRetransmissions", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "numberOfRetransmissions", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_H223AnnexCArqParameters_numberOfRetransmissions },
-	{ "sendBufferSize", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "sendBufferSize", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_sendBufferSize },
 	{ NULL, 0, 0, NULL }
 };
@@ -10661,21 +10661,21 @@ dissect_h245_H223AL3MParameters_arqType(tvbuff_t *tvb, int offset, packet_info *
 
 
 static per_sequence_t H223AL1MParameters_sequence[] = {
-	{ "transferMode", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "transferMode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_H223AL1MParameters_transferMode },
-	{ "headerFEC", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "headerFEC", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_H223AL1MParameters_headerFEC },
-	{ "crcLength", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "crcLength", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_H223AL1MParameters_crcLength },
-	{ "rcpcCodeRate", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "rcpcCodeRate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_rcpcCodeRate },
-	{ "arqType", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "arqType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_H223AL1MParameters_arqType },
-	{ "alpduInterleaving", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "alpduInterleaving", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_alpduInterleaving },
-	{ "alsduSplitting", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "alsduSplitting", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_alsduSplitting },
-	{ "rsCodeCorrection", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "rsCodeCorrection", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_rsCodeCorrection },
 	{ NULL, 0, 0, NULL }
 };
@@ -10691,17 +10691,17 @@ dissect_h245_H223AL1MParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static per_sequence_t H223AL3MParameters_sequence[] = {
-	{ "headerFormat", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "headerFormat", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_H223AL3MParameters_headerFormat },
-	{ "crcLength", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "crcLength", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_H223AL3MParameters_crcLength },
-	{ "rcpcCodeRate", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "rcpcCodeRate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_rcpcCodeRate },
-	{ "arqType", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "arqType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_H223AL3MParameters_arqType },
-	{ "alpduInterleaving", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "alpduInterleaving", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_alpduInterleaving },
-	{ "rsCodeCorrection", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "rsCodeCorrection", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_rsCodeCorrection },
 	{ NULL, 0, 0, NULL }
 };
@@ -10731,9 +10731,9 @@ dissect_h245_windowSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 
 static per_sequence_t V76LogicalChannelParameters_mode_eRM_sequence[] = {
-	{ "windowSize", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "windowSize", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_windowSize },
-	{ "recovery", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "recovery", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_V76LogicalChannelParameters_mode_eRM_recovery },
 	{ NULL, 0, 0, NULL }
 };
@@ -10785,11 +10785,11 @@ dissect_h245_n401(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 
 
 static per_sequence_t V76HDLCParameters_sequence[] = {
-	{ "crcLength", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "crcLength", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_CRCLength },
-	{ "n401", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "n401", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_n401 },
-	{ "loopbackTestProcedure", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "loopbackTestProcedure", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_loopbackTestProcedure },
 	{ NULL, 0, 0, NULL }
 };
@@ -10805,15 +10805,15 @@ dissect_h245_V76HDLCParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 
 static per_sequence_t V76LogicalChannelParameters_sequence[] = {
-	{ "hdlcParameters", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "hdlcParameters", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_V76HDLCParameters },
-	{ "suspendResume", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "suspendResume", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_V76LogicalChannelParameters_suspendResume },
-	{ "uIH", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "uIH", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_uIH },
-	{ "mode", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "mode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_V76LogicalChannelParameters_mode },
-	{ "v75Parameters", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "v75Parameters", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_V75Parameters },
 	{ NULL, 0, 0, NULL }
 };
@@ -10904,9 +10904,9 @@ dissect_h245_protectedPayloadType(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static per_sequence_t FECData_rfc2733_mode_separateStream_differentPort_sequence[] = {
-	{ "protectedSessionID", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "protectedSessionID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_protectedSessionID },
-	{ "protectedPayloadType", EXTENSION_ROOT, OPTIONAL,
+	{ "protectedPayloadType", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_protectedPayloadType },
 	{ NULL, 0, 0, NULL }
 };
@@ -10922,7 +10922,7 @@ dissect_h245_FECData_rfc2733_mode_separateStream_differentPort(tvbuff_t *tvb, in
 
 
 static per_sequence_t FECData_rfc2733_mode_separateStream_samePort_sequence[] = {
-	{ "protectedPayloadType", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "protectedPayloadType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_protectedPayloadType },
 	{ NULL, 0, 0, NULL }
 };
@@ -10983,7 +10983,7 @@ dissect_h245_FECData_rfc2733_mode(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static per_sequence_t FECData_rfc2733_sequence[] = {
-	{ "mode", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "mode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_FECData_rfc2733_mode },
 	{ NULL, 0, 0, NULL }
 };
@@ -11019,9 +11019,9 @@ dissect_h245_FECData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 
 
 static per_sequence_t FECMode_rfc2733Mode_mode_separateStream_differentPort_sequence[] = {
-	{ "protectedSessionID", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "protectedSessionID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_protectedSessionID },
-	{ "protectedPayloadType", EXTENSION_ROOT, OPTIONAL,
+	{ "protectedPayloadType", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_protectedPayloadType },
 	{ NULL, 0, 0, NULL }
 };
@@ -11111,9 +11111,9 @@ dissect_h245_MultiplexTableEntryNumber(tvbuff_t *tvb, int offset, packet_info *p
 
 
 static per_sequence_t MultiplexEntryRejectionDescriptions_sequence[] = {
-	{ "multiplexTableEntryNumber", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "multiplexTableEntryNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_MultiplexTableEntryNumber },
-	{ "cause", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "cause", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_MultiplexEntryRejectionDescriptions_cause },
 	{ NULL, 0, 0, NULL }
 };
@@ -11129,9 +11129,9 @@ dissect_h245_MultiplexEntryRejectionDescriptions(tvbuff_t *tvb, int offset, pack
 
 
 static per_sequence_t RequestMultiplexEntryRejectionDescriptions_sequence[] = {
-	{ "multiplexTableEntryNumber", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "multiplexTableEntryNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_MultiplexTableEntryNumber },
-	{ "cause", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "cause", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_RequestMultiplexEntryRejectionDescriptions_cause},
 	{ NULL, 0, 0, NULL }
 };
@@ -11209,9 +11209,9 @@ dissect_h245_TerminalNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 
 static per_sequence_t TerminalLabel_sequence[] = {
-	{ "mcuNumber", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "mcuNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_McuNumber },
-	{ "terminalNumber", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "terminalNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_TerminalNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -11241,7 +11241,7 @@ dissect_h245_maxNumberOfAdditionalConnections(tvbuff_t *tvb, int offset, packet_
 
 
 static per_sequence_t MultilinkRequest_callInformation_sequence[] = {
-	{ "maxNumberOfAdditionalConnections", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "maxNumberOfAdditionalConnections", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_maxNumberOfAdditionalConnections },
 	{ NULL, 0, 0, NULL }
 };
@@ -11294,7 +11294,7 @@ dissect_h245_MultilinkRequest_maximumHeaderInterval_requestType(tvbuff_t *tvb, i
 
 
 static per_sequence_t MultilinkRequest_maximumHeaderInterval_sequence[] = {
-	{ "requestType", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "requestType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_MultilinkRequest_maximumHeaderInterval_requestType },
 	{ NULL, 0, 0, NULL }
 };
@@ -11335,7 +11335,7 @@ dissect_h245_currentInterval(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 
 static per_sequence_t MultilinkResponse_maximumHeaderInterval_sequence[] = {
-	{ "currentInterval", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "currentInterval", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_currentInterval },
 	{ NULL, 0, 0, NULL }
 };
@@ -11391,9 +11391,9 @@ dissect_h245_ConnectionIDsequenceNumber(tvbuff_t *tvb, int offset, packet_info *
 
 
 static per_sequence_t ConnectionIdentifier_sequence[] = {
-	{ "channelTag", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "channelTag", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_channelTag },
-	{ "sequenceNumber", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "sequenceNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_ConnectionIDsequenceNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -11409,7 +11409,7 @@ dissect_h245_ConnectionIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static per_sequence_t MultilinkRequest_removeConnection_sequence[] = {
-	{ "connectionIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "connectionIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_ConnectionIdentifier },
 	{ NULL, 0, 0, NULL }
 };
@@ -11425,7 +11425,7 @@ dissect_h245_MultilinkRequest_removeConnection(tvbuff_t *tvb, int offset, packet
 
 
 static per_sequence_t MultilinkResponse_removeConnection_sequence[] = {
-	{ "connectionIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "connectionIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_ConnectionIdentifier },
 	{ NULL, 0, 0, NULL }
 };
@@ -11441,7 +11441,7 @@ dissect_h245_MultilinkResponse_removeConnection(tvbuff_t *tvb, int offset, packe
 
 
 static per_sequence_t MultilinkIndication_excessiveError_sequence[] = {
-	{ "connectionIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "connectionIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_ConnectionIdentifier },
 	{ NULL, 0, 0, NULL }
 };
@@ -11469,11 +11469,11 @@ dissect_h245_MaximumBitRate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 
 static per_sequence_t LogicalChannelRateRequest_sequence[] = {
-	{ "sequenceNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "sequenceNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_SequenceNumber },
-	{ "logicalChannelNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "logicalChannelNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
-	{ "maximumBitRate", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "maximumBitRate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_MaximumBitRate },
 	{ NULL, 0, 0, NULL }
 };
@@ -11488,11 +11488,11 @@ dissect_h245_LogicalChannelRateRequest(tvbuff_t *tvb, int offset, packet_info *p
 
 
 static per_sequence_t LogicalChannelRateAck_sequence[] = {
-	{ "sequenceNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "sequenceNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_SequenceNumber },
-	{ "logicalChannelNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "logicalChannelNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
-	{ "maximumBitRate", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "maximumBitRate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_MaximumBitRate },
 	{ NULL, 0, 0, NULL }
 };
@@ -11508,13 +11508,13 @@ dissect_h245_LogicalChannelRateAck(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 static per_sequence_t LogicalChannelRateReject_sequence[] = {
-	{ "sequenceNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "sequenceNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_SequenceNumber },
-	{ "logicalChannelNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "logicalChannelNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_LogicalChannelNumber },
-	{ "rejectReason", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "rejectReason", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_LogicalChannelRateRejectReason },
-	{ "currentMaximumBitRate", EXTENSION_ROOT, OPTIONAL,
+	{ "currentMaximumBitRate", EXTENSION_ROOT, ASN1_OPTIONAL,
 			dissect_h245_MaximumBitRate },
 	{ NULL, 0, 0, NULL }
 };
@@ -11603,9 +11603,9 @@ dissect_h245_FlowControlIndication_restriction(tvbuff_t *tvb, int offset, packet
 
 
 static per_sequence_t FlowControlCommand_sequence[] = {
-	{ "scope", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "scope", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_FlowControlCommand_scope },
-	{ "restriction", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "restriction", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_FlowControlCommand_restriction },
 	{ NULL, 0, 0, NULL }
 };
@@ -11620,9 +11620,9 @@ dissect_h245_FlowControlCommand(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static per_sequence_t FlowControlIndication_sequence[] = {
-	{ "scope", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "scope", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_FlowControlIndication_scope },
-	{ "restriction", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "restriction", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_FlowControlIndication_restriction },
 	{ NULL, 0, 0, NULL }
 };
@@ -11663,9 +11663,9 @@ dissect_h245_numberOfGOBs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 
 static per_sequence_t MiscellaneousCommand_type_videoFastUpdateGOB_sequence[] = {
-	{ "firstGOB", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "firstGOB", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_firstGOB_0_17 },
-	{ "numberOfGOBs", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "numberOfGOBs", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_numberOfGOBs },
 	{ NULL, 0, 0, NULL }
 };
@@ -11756,11 +11756,11 @@ dissect_h245_numberOfMBs_1_9216(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static per_sequence_t MiscellaneousCommand_type_videoFastUpdateMB_sequence[] = {
-	{ "firstGOB", EXTENSION_ROOT, OPTIONAL,
+	{ "firstGOB", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_firstGOB_0_255 },
-	{ "firstMB", EXTENSION_ROOT, OPTIONAL,
+	{ "firstMB", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_firstMB_1_8192 },
-	{ "numberOfMBs", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "numberOfMBs", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_numberOfMBs_1_8192 },
 	{ NULL, 0, 0, NULL }
 };
@@ -11817,11 +11817,11 @@ dissect_h245_temporalReference_0_255(tvbuff_t *tvb, int offset, packet_info *pin
 
 
 static per_sequence_t MiscellaneousIndication_type_videoNotDecodedMBs_sequence[] = {
-	{ "firstMB", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "firstMB", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_firstMB_1_8192 },
-	{ "numberOfMBs", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "numberOfMBs", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_numberOfMBs_1_8192 },
-	{ "temporalReference", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "temporalReference", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_temporalReference_0_255 },
 	{ NULL, 0, 0, NULL }
 };
@@ -11838,11 +11838,11 @@ dissect_h245_MiscellaneousIndication_type_videoNotDecodedMBs(tvbuff_t *tvb, int 
 
 
 static per_sequence_t MiscellaneousCommand_type_videoBadMBs_sequence[] = {
-	{ "firstMB", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "firstMB", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_firstMB_1_9216 },
-	{ "numberOfMBs", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "numberOfMBs", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_numberOfMBs_1_9216 },
-	{ "temporalReference", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "temporalReference", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_temporalReference_0_1023 },
 	{ NULL, 0, 0, NULL }
 };
@@ -11907,11 +11907,11 @@ dissect_h245_PictureReference(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 static per_sequence_t MiscellaneousCommand_type_lostPartialPicture_sequence[] = {
-	{ "pictureReference", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "pictureReference", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_PictureReference },
-	{ "firstMB", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "firstMB", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_firstMB_1_9216 },
-	{ "numberOfMBs", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "numberOfMBs", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_numberOfMBs_1_9216 },
 	{ NULL, 0, 0, NULL }
 };
@@ -11951,9 +11951,9 @@ dissect_h245_samplesPerFrame(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 
 static per_sequence_t MobileMultilinkReconfigurationIndication_sequence[] = {
-	{ "sampleSize", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "sampleSize", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_sampleSize },
-	{ "samplesPerFrame", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "samplesPerFrame", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_samplesPerFrame },
 	{ NULL, 0, 0, NULL }
 };
@@ -11969,11 +11969,11 @@ dissect_h245_MobileMultilinkReconfigurationIndication(tvbuff_t *tvb, int offset,
 
 
 static per_sequence_t MobileMultilinkReconfigurationCommand_sequence[] = {
-	{ "sampleSize", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "sampleSize", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_sampleSize },
-	{ "samplesPerFrame", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "samplesPerFrame", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_samplesPerFrame },
-	{ "status", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "status", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_MobileMultilinkReconfigurationCommand_status },
 	{ NULL, 0, 0, NULL }
 };
@@ -12018,9 +12018,9 @@ dissect_h245_subPictureNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 static per_sequence_t TerminalYouAreSeeingInSubPictureNumber_sequence[] = {
-	{ "terminalNumber", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "terminalNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_TerminalNumber },
-	{ "subPictureNumber", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "subPictureNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_subPictureNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -12048,7 +12048,7 @@ dissect_h245_compositionNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 
 static per_sequence_t VideoIndicateCompose_sequence[] = {
-	{ "compositionNumber", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "compositionNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_compositionNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -12174,15 +12174,15 @@ dissect_h245_additionalDecoderBuffer(tvbuff_t *tvb, int offset, packet_info *pin
 
 
 static per_sequence_t JitterIndication_sequence[] = {
-	{ "scope", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "scope", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_JitterIndication_scope },
-	{ "estimatedReceivedJitterMantissa", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "estimatedReceivedJitterMantissa", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_estimatedReceivedJitterMantissa },
-	{ "estimatedReceivedJitterExponent", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "estimatedReceivedJitterExponent", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_estimatedReceivedJitterExponent },
-	{ "skippedFrameCount", EXTENSION_ROOT, OPTIONAL,
+	{ "skippedFrameCount", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_skippedFrameCount },
-	{ "additionalDecoderBuffer", EXTENSION_ROOT, OPTIONAL,
+	{ "additionalDecoderBuffer", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_additionalDecoderBuffer },
 	{ NULL, 0, 0, NULL }
 };
@@ -12210,11 +12210,11 @@ dissect_h245_skew(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 
 
 static per_sequence_t H223SkewIndication_sequence[] = {
-	{ "logicalChannelNumber1", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "logicalChannelNumber1", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_LogicalChannelNumber },
-	{ "logicalChannelNumber2", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "logicalChannelNumber2", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_LogicalChannelNumber },
-	{ "skew", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "skew", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 			dissect_h245_skew },
 	{ NULL, 0, 0, NULL }
 };
@@ -12243,11 +12243,11 @@ dissect_h245_maximumSkew(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 
 static per_sequence_t H2250MaximumSkewIndication_sequence[] = {
-	{ "logicalChannelNumber1", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "logicalChannelNumber1", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_LogicalChannelNumber },
-	{ "logicalChannelNumber2", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "logicalChannelNumber2", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 			dissect_h245_LogicalChannelNumber },
-	{ "maximumSkew", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "maximumSkew", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 			dissect_h245_maximumSkew },
 	{ NULL, 0, 0, NULL }
 };
@@ -12275,9 +12275,9 @@ dissect_h245_duration(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 
 static per_sequence_t UserInputIndication_signalUpdate_sequence[] = {
-	{ "duration", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "duration", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_duration },
-	{ "rtp", EXTENSION_ROOT, OPTIONAL, 
+	{ "rtp", EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_UserInputIndication_signalUpdate_rtp },
 	{ NULL, 0, 0, NULL }
 };
@@ -12318,11 +12318,11 @@ dissect_h245_expirationTime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 
 static per_sequence_t UserInputIndication_signal_rtp_sequence[] = {
-	{ "timestamp", EXTENSION_ROOT, OPTIONAL,
+	{ "timestamp", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_timestamp },
-	{ "expirationTime", EXTENSION_ROOT, OPTIONAL,
+	{ "expirationTime", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_expirationTime },
-	{ "logicalChannelNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "logicalChannelNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -12764,15 +12764,15 @@ dissect_h245_versionNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 
 static per_sequence_t H222LogicalChannelParameters_sequence[] = {
-	{ "resourceID", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "resourceID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_resourceID },
-	{ "subChannelID", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "subChannelID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_subChannelID },
-	{ "pcr-pid", EXTENSION_ROOT, OPTIONAL,
+	{ "pcr-pid", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_pcr_pid },
-	{ "programDescriptors", EXTENSION_ROOT, OPTIONAL,
+	{ "programDescriptors", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_programDescriptors },
-	{ "streamDescriptors", EXTENSION_ROOT, OPTIONAL,
+	{ "streamDescriptors", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_streamDescriptors },
 	{ NULL, 0, 0, NULL }
 };
@@ -12789,9 +12789,9 @@ dissect_h245_H222LogicalChannelParameters(tvbuff_t *tvb, int offset, packet_info
 
 
 static per_sequence_t UnicastAddress_iPAddress_sequence[] = {
-	{ "network", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "network", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_ipv4network },
-	{ "tsapIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "tsapIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_tsapIdentifier },
 	{ NULL, 0, 0, NULL }
 };
@@ -12806,11 +12806,11 @@ dissect_h245_UnicastAddress_iPAddress(tvbuff_t *tvb, int offset, packet_info *pi
 
 
 static per_sequence_t UnicastAddress_iPXAddress_sequence[] = {
-	{ "node", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "node", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_ipxNode },
-	{ "netnum", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "netnum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_ipxNetnum },
-	{ "tsapIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "tsapIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_tsapIdentifier },
 	{ NULL, 0, 0, NULL }
 };
@@ -12826,9 +12826,9 @@ dissect_h245_UnicastAddress_iPXAddress(tvbuff_t *tvb, int offset, packet_info *p
 
 
 static per_sequence_t UnicastAddress_iP6Address_sequence[] = {
-	{ "network", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "network", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_ipv6network },
-	{ "tsapIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "tsapIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_tsapIdentifier },
 	{ NULL, 0, 0, NULL }
 };
@@ -12845,11 +12845,11 @@ dissect_h245_UnicastAddress_iP6Address(tvbuff_t *tvb, int offset, packet_info *p
 
 
 static per_sequence_t VendorIdentification_sequence[] = {
-	{ "vendor", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "vendor", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_NonStandardIdentifier },
-	{ "productNumber", EXTENSION_ROOT, OPTIONAL,
+	{ "productNumber", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_productNumber },
-	{ "versionNumber", EXTENSION_ROOT, OPTIONAL,
+	{ "versionNumber", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_versionNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -12865,9 +12865,9 @@ dissect_h245_VendorIdentification(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static per_sequence_t MulticastAddress_iPAddress_sequence[] = {
-	{ "network", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "network", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_ipv4network },
-	{ "tsapIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "tsapIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_tsapIdentifier },
 	{ NULL, 0, 0, NULL }
 };
@@ -12883,9 +12883,9 @@ dissect_h245_MulticastAddress_iPAddress(tvbuff_t *tvb, int offset, packet_info *
 
 
 static per_sequence_t MulticastAddress_iP6Address_sequence[] = {
-	{ "network", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "network", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_ipv6network },
-	{ "tsapIdentifier", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "tsapIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_tsapIdentifier },
 	{ NULL, 0, 0, NULL }
 };
@@ -12902,9 +12902,9 @@ dissect_h245_MulticastAddress_iP6Address(tvbuff_t *tvb, int offset, packet_info 
 
 
 static per_sequence_t Criteria_sequence[] = {
-	{ "field", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "field", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_field },
-	{ "value", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "value", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_value },
 	{ NULL, 0, 0, NULL }
 };
@@ -12920,9 +12920,9 @@ dissect_h245_Criteria(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 
 static per_sequence_t ConferenceResponse_mCterminalIDResponse_sequence[] = {
-	{ "terminalLabel", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "terminalLabel", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_TerminalLabel },
-	{ "terminalID", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "terminalID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_TerminalID },
 	{ NULL, 0, 0, NULL }
 };
@@ -12938,9 +12938,9 @@ dissect_h245_ConferenceResponse_mCterminalIDResponse(tvbuff_t *tvb, int offset, 
 
 
 static per_sequence_t ConferenceResponse_conferenceIDResponse_sequence[] = {
-	{ "terminalLabel", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "terminalLabel", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_TerminalLabel },
-	{ "conferenceID", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "conferenceID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_ConferenceID },
 	{ NULL, 0, 0, NULL }
 };
@@ -12956,9 +12956,9 @@ dissect_h245_ConferenceResponse_conferenceIDResponse(tvbuff_t *tvb, int offset, 
 
 
 static per_sequence_t ConferenceResponse_passwordResponse_sequence[] = {
-	{ "terminalLabel", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "terminalLabel", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_TerminalLabel },
-	{ "password", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "password", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_Password },
 	{ NULL, 0, 0, NULL }
 };
@@ -12975,7 +12975,7 @@ dissect_h245_ConferenceResponse_passwordResponse(tvbuff_t *tvb, int offset, pack
 
 
 static per_sequence_t ConferenceResponse_extensionAddressResponse_sequence[] = {
-	{ "extensionAddress", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "extensionAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_TerminalID },
 	{ NULL, 0, 0, NULL }
 };
@@ -12991,9 +12991,9 @@ dissect_h245_ConferenceResponse_extensionAddressResponse(tvbuff_t *tvb, int offs
 
 
 static per_sequence_t ConferenceResponse_chairTokenOwnerResponse_sequence[] = {
-	{ "terminalLabel", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "terminalLabel", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_TerminalLabel },
-	{ "terminalID", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "terminalID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_TerminalID },
 	{ NULL, 0, 0, NULL }
 };
@@ -13009,9 +13009,9 @@ dissect_h245_ConferenceResponse_chairTokenOwnerResponse(tvbuff_t *tvb, int offse
 
 
 static per_sequence_t ConferenceResponse_terminalCertificateResponse_sequence[] = {
-	{ "terminalLabel", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "terminalLabel", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_TerminalLabel },
-	{ "certificateResponse", EXTENSION_ROOT, OPTIONAL,
+	{ "certificateResponse", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_certificateResponse },
 	{ NULL, 0, 0, NULL }
 };
@@ -13027,9 +13027,9 @@ dissect_h245_ConferenceResponse_terminalCertificateResponse(tvbuff_t *tvb, int o
 
 
 static per_sequence_t TerminalInformation_sequence[] = {
-	{ "terminalLabel", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "terminalLabel", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_TerminalLabel },
-	{ "terminalID", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "terminalID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_TerminalID },
 	{ NULL, 0, 0, NULL }
 };
@@ -13044,7 +13044,7 @@ dissect_h245_TerminalInformation(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static per_sequence_t SubstituteConferenceIDCommand_sequence[] = {
-	{ "conferenceIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "conferenceIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_conferenceIdentifier },
 	{ NULL, 0, 0, NULL }
 };
@@ -13101,9 +13101,9 @@ dissect_h245_ConferenceCommand(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 
 static per_sequence_t FunctionNotSupported_sequence[] = {
-	{ "cause", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "cause", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_FunctionNotSupported_cause },
-	{ "returnedFunction", EXTENSION_ROOT, OPTIONAL,
+	{ "returnedFunction", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_returnedFunction },
 	{ NULL, 0, 0, NULL }
 };
@@ -13121,9 +13121,9 @@ dissect_h245_FunctionNotSupported(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* dissect_h245_NonStandardParameter is used for H.245 */
 
 static per_sequence_t NonStandardParameter_sequence[] = {
-	{ "nonStandardIdentifier", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "nonStandardIdentifier", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_NonStandardIdentifier },
-	{ "data", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "data", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_NonStandardParameterData },
 	{ NULL, 0, 0, NULL }
 };
@@ -13465,7 +13465,7 @@ dissect_h245_EncryptionMode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 
 static per_sequence_t NonStandardMessage_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "nonStandardData", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_NonStandardParameter },
 	{ NULL, 0, 0, NULL }
 };
@@ -13537,11 +13537,11 @@ dissect_h245_DialingInformationNetworkType(tvbuff_t *tvb, int offset, packet_inf
 
 
 static per_sequence_t QOSCapability_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
+	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_NonStandardParameter },
-	{ "rsvpParameters", EXTENSION_ROOT, OPTIONAL,
+	{ "rsvpParameters", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_RSVPParameters },
-	{ "atmParameters", EXTENSION_ROOT, OPTIONAL,
+	{ "atmParameters", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_ATMParameters },
 	{ NULL, 0, 0, NULL }
 };
@@ -13557,9 +13557,9 @@ dissect_h245_QOSCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 
 static per_sequence_t DataApplicationCapability_application_t84_sequence[] = {
-	{ "t84Protocol", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "t84Protocol", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_DataProtocolCapability },
-	{ "t84Profile", NO_EXTENSIONS, NOT_OPTIONAL, 
+	{ "t84Profile", NO_EXTENSIONS, ASN1_NOT_OPTIONAL, 
 		dissect_h245_T84Profile },
 	{ NULL, 0, 0, NULL }
 };
@@ -13576,9 +13576,9 @@ dissect_h245_DataApplicationCapability_application_t84(tvbuff_t *tvb, int offset
 
 
 static per_sequence_t DataApplicationCapability_application_nlpid_sequence[] = {
-	{ "nlpidProtocol", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "nlpidProtocol", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_DataProtocolCapability },
-	{ "nlpidData", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "nlpidData", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_nlpidData },
 	{ NULL, 0, 0, NULL }
 };
@@ -13594,9 +13594,9 @@ dissect_h245_DataApplicationCapability_application_nlpid(tvbuff_t *tvb, int offs
 
 
 static per_sequence_t DataApplicationCapability_application_t38fax_sequence[] = {
-	{ "t38FaxProtocol", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "t38FaxProtocol", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_DataProtocolCapability },
-	{ "t38FaxProfile", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "t38FaxProfile", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_T38FaxProfile },
 	{ NULL, 0, 0, NULL }
 };
@@ -13612,9 +13612,9 @@ dissect_h245_DataApplicationCapability_application_t38fax(tvbuff_t *tvb, int off
 
 
 static per_sequence_t AuthenticationCapability_sequence[] = {
-	{ "nonStandard", EXTENSION_ROOT, OPTIONAL,
+	{ "nonStandard", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_NonStandardParameter },
-	{ "antiSpamAlgorithm", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "antiSpamAlgorithm", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_antiSpamAlgorithm },
 	{ NULL, 0, 0, NULL }
 };
@@ -13629,7 +13629,7 @@ dissect_h245_AuthenticationCapability(tvbuff_t *tvb, int offset, packet_info *pi
 
 
 static per_sequence_t IntegrityCapability_sequence[] = {
-	{ "nonStandard", EXTENSION_ROOT, OPTIONAL,
+	{ "nonStandard", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_NonStandardParameter },
 	{ NULL, 0, 0, NULL }
 };
@@ -13645,9 +13645,9 @@ dissect_h245_IntegrityCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static per_sequence_t H223LogicalChannelParameters_sequence[] = {
-	{ "adaptationLayerType", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "adaptationLayerType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_H223LogicalChannelParameters_adaptationLayerType },
-	{ "segmentableFlag", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "segmentableFlag", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_segmentableFlag },
 	{ NULL, 0, 0, NULL }
 };
@@ -13663,11 +13663,11 @@ dissect_h245_H223LogicalChannelParameters(tvbuff_t *tvb, int offset, packet_info
 
 
 static per_sequence_t RequestChannelClose_sequence[] = {
-	{ "forwardLogicalChannelNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "forwardLogicalChannelNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
-	{ "qosCapability", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "qosCapability", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_QOSCapability },
-	{ "reason", NOT_EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "reason", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_RequestChannelClose_reason },
 	{ NULL, 0, 0, NULL }
 };
@@ -13683,9 +13683,9 @@ dissect_h245_RequestChannelClose(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static per_sequence_t DataMode_application_nlpid_sequence[] = {
-	{ "nlpidProtocol", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "nlpidProtocol", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_DataProtocolCapability },
-	{ "nlpidData", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "nlpidData", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_nlpidData },
 	{ NULL, 0, 0, NULL }
 };
@@ -13702,9 +13702,9 @@ dissect_h245_DataMode_application_nlpid(tvbuff_t *tvb, int offset, packet_info *
 
 
 static per_sequence_t DataMode_application_t38fax_sequence[] = {
-	{ "t38FaxProtocol", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "t38FaxProtocol", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_DataProtocolCapability },
-	{ "t38FaxProfile", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "t38FaxProfile", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_T38FaxProfile },
 	{ NULL, 0, 0, NULL }
 };
@@ -13720,9 +13720,9 @@ dissect_h245_DataMode_application_t38fax(tvbuff_t *tvb, int offset, packet_info 
 
 
 static per_sequence_t EncryptionCommand_encryptionAlgorithmID_sequence[] = {
-	{ "h233AlgorithmIdentifier", NO_EXTENSIONS, NOT_OPTIONAL, 
+	{ "h233AlgorithmIdentifier", NO_EXTENSIONS, ASN1_NOT_OPTIONAL, 
 		dissect_h245_SequenceNumber },
-	{ "associatedAlgorithm", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "associatedAlgorithm", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_NonStandardParameter },
 	{ NULL, 0, 0, NULL }
 };
@@ -13798,7 +13798,7 @@ dissect_h245_EndSessionCommand(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 static int
 dissect_h245_AudioCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static per_sequence_t VBDCapability_sequence[] = {
-	{ "type", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "type", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_AudioCapability },
 	{ NULL, 0, 0, NULL }
 };
@@ -13880,11 +13880,11 @@ dissect_h245_ParameterValue(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 
 static per_sequence_t GenericParameter_sequence[] = {
-	{ "parameterIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "parameterIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_ParameterIdentifier },
-	{ "parameterValue", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "parameterValue", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_ParameterValue },
-	{ "supersedes", EXTENSION_ROOT, OPTIONAL,
+	{ "supersedes", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_supersedes_sequence_of },
 	{ NULL, 0, 0, NULL }
 };
@@ -14011,13 +14011,13 @@ dissect_h245_recoveryReferencePicture_sequence_of(tvbuff_t *tvb, int offset, pac
 
 
 static per_sequence_t ConferenceCapability_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
+	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_nonStandardData_sequence_of },
-	{ "chairControlCapability", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "chairControlCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_chairControlCapability },
-	{ "videoIndicateMixingCapability", NOT_EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "videoIndicateMixingCapability", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_videoIndicateMixingCapability },
-	{ "multipointVisualizationCapability", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "multipointVisualizationCapability", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_multipointVisualizationCapability },
 	{ NULL, 0, 0, NULL }
 };
@@ -14033,17 +14033,17 @@ dissect_h245_ConferenceCapability(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static per_sequence_t GenericCapability_sequence[] = {
-	{ "capabilityIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "capabilityIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_CapabilityIdentifier },
-	{ "maxBitRate", EXTENSION_ROOT, OPTIONAL,
+	{ "maxBitRate", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_maxBitRate_4294967295UL },
-	{ "collapsing", EXTENSION_ROOT, OPTIONAL,
+	{ "collapsing", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_collapsing_sequence_of },
-	{ "nonCollapsing", EXTENSION_ROOT, OPTIONAL,
+	{ "nonCollapsing", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_nonCollapsing_sequence_of },
-	{ "nonCollapsingRaw", EXTENSION_ROOT, OPTIONAL,
+	{ "nonCollapsingRaw", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_nonCollapsingRaw },
-	{ "transport", EXTENSION_ROOT, OPTIONAL,
+	{ "transport", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_DataProtocolCapability },
 	{ NULL, 0, 0, NULL }
 };
@@ -14183,7 +14183,7 @@ dissect_h245_DataMode_application(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static per_sequence_t MultiplePayloadStream_sequence[] = {
-	{ "elements", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "elements", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_elements_MPSE_sequence_of },
 	{ NULL, 0, 0, NULL }
 };
@@ -14200,7 +14200,7 @@ dissect_h245_MultiplePayloadStream(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 static per_sequence_t MultiplePayloadStreamMode_sequence[] = {
-	{ "elements", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "elements", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_elements_MPSEM_sequence_of },
 	{ NULL, 0, 0, NULL }
 };
@@ -14217,9 +14217,9 @@ dissect_h245_MultiplePayloadStreamMode(tvbuff_t *tvb, int offset, packet_info *p
 
 
 static per_sequence_t DataMode_sequence[] = {
-	{ "application", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "application", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_DataMode_application },
-	{ "bitRate", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "bitRate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_dataModeBitRate },
 	{ NULL, 0, 0, NULL }
 };
@@ -14236,7 +14236,7 @@ dissect_h245_DataMode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 
 static per_sequence_t RequestAllTerminalIDsResponse_sequence[] = {
-	{ "terminalInformation", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "terminalInformation", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_TerminalInformationSO_sequence_of },
 	{ NULL, 0, 0, NULL }
 };
@@ -14253,9 +14253,9 @@ dissect_h245_RequestAllTerminalIDsResponse(tvbuff_t *tvb, int offset, packet_inf
 
 
 static per_sequence_t DataApplicationCapability_sequence[] = {
-	{ "application", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "application", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_DataApplicationCapability_application },
-	{ "maxBitRate", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "maxBitRate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_maxBitRate_4294967295UL },
 	{ NULL, 0, 0, NULL }
 };
@@ -14281,13 +14281,13 @@ NOT_DECODED_YET("iPSourceRouteAddress");
 
 
 static per_sequence_t UnicastAddress_iPSourceRouteAddress_sequence[] = {
-	{ "routing", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "routing", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_UnicastAddress_iPSourceRouteAddress_routing },
-	{ "network", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "network", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_ipv4network },
-	{ "tsapIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "tsapIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_tsapIdentifier },
-	{ "route", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "route", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_iPSourceRouteAddress_route },
 	{ NULL, 0, 0, NULL }
 };
@@ -14417,7 +14417,7 @@ dissect_h245_signalAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 
 static per_sequence_t MCLocationIndication_sequence[] = {
-	{ "signalAddress", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "signalAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_signalAddress },
 	{ NULL, 0, 0, NULL }
 };
@@ -14432,19 +14432,19 @@ dissect_h245_MCLocationIndication(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static per_sequence_t H2250LogicalChannelAckParameters_sequence[] = {
-	{ "nonStandard", EXTENSION_ROOT, OPTIONAL,
+	{ "nonStandard", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_nonStandardData_sequence_of },
-	{ "sessionID", EXTENSION_ROOT, OPTIONAL,
+	{ "sessionID", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_sessionID_1_255 },
-	{ "mediaChannel", EXTENSION_ROOT, OPTIONAL,
+	{ "mediaChannel", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_mediaChannel },
-	{ "mediaControlChannel", EXTENSION_ROOT, OPTIONAL,
+	{ "mediaControlChannel", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_mediaControlChannel },
-	{ "dynamicRTPPayloadType", EXTENSION_ROOT, OPTIONAL,
+	{ "dynamicRTPPayloadType", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_dynamicRTPPayloadType },
-	{ "flowControlToZero", NOT_EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "flowControlToZero", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_flowControlToZero },
-	{ "portNumber", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "portNumber", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_portNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -14493,9 +14493,9 @@ dissect_h245_AlternativeCapabilitySet(tvbuff_t *tvb, int offset, packet_info *pi
 static int dissect_h245_rtpPayloadType_sequence_of(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
 static per_sequence_t MediaPacketizationCapability_sequence[] = {
-	{ "h261aVideoPacketization", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "h261aVideoPacketization", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_h261aVideoPacketization },
-	{ "rtpPayloadType", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "rtpPayloadType", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_rtpPayloadType_sequence_of },
 	{ NULL, 0, 0, NULL }
 };
@@ -14528,11 +14528,11 @@ dissect_h245_mediaChannelCapabilities(tvbuff_t *tvb, int offset, packet_info *pi
 
 
 static per_sequence_t TransportCapability_sequence[] = {
-	{ "nonStandard", EXTENSION_ROOT, OPTIONAL,
+	{ "nonStandard", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_NonStandardParameter },
-	{ "qOSCapabilities", EXTENSION_ROOT, OPTIONAL,
+	{ "qOSCapabilities", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_qOSCapabilities },
-	{ "mediaChannelCapabilities", EXTENSION_ROOT, OPTIONAL, 
+	{ "mediaChannelCapabilities", EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_mediaChannelCapabilities },
 	{ NULL, 0, 0, NULL }
 };
@@ -14603,9 +14603,9 @@ dissect_h245_MiscellaneousIndication_type(tvbuff_t *tvb, int offset, packet_info
 
 
 static per_sequence_t MiscellaneousIndication_sequence[] = {
-	{ "logicalChannelNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "logicalChannelNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
-	{ "type", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "type", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_MiscellaneousIndication_type },
 	{ NULL, 0, 0, NULL }
 };
@@ -14691,13 +14691,13 @@ dissect_h245_containedThreads(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 static per_sequence_t RTPH263VideoRedundancyEncoding_sequence[] = {
-	{ "numberOfThreads", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "numberOfThreads", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_numberOfThreads },
-	{ "framesBetweenSyncPoints", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "framesBetweenSyncPoints", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_framesBetweenSyncPoints },
-	{ "frameToThreadMapping", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "frameToThreadMapping", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_RTPH263VideoRedundancyEncoding_frameToThreadMapping },
-	{ "containedThreads", EXTENSION_ROOT, OPTIONAL,
+	{ "containedThreads", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_containedThreads },
 	{ NULL, 0, 0, NULL }
 };
@@ -14739,11 +14739,11 @@ dissect_h245_RedundancyEncodingMethod(tvbuff_t *tvb, int offset, packet_info *pi
 
 
 static per_sequence_t RedundancyEncodingCapability_sequence[] = {
-	{ "redundancyEncodingMethod", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "redundancyEncodingMethod", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_RedundancyEncodingMethod },
-	{ "primaryEncoding", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "primaryEncoding", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_CapabilityTableEntryNumber },
-	{ "secondaryEncoding", EXTENSION_ROOT, OPTIONAL,
+	{ "secondaryEncoding", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_CapabilityTableEntryNumber_sequence_of },
 	{ NULL, 0, 0, NULL }
 };
@@ -14790,9 +14790,9 @@ dissect_h245_frameSequence(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 
 static per_sequence_t RTPH263VideoRedundancyFrameMapping_sequence[] = {
-	{ "threadNumber", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "threadNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_threadNumber },
-	{ "frameSequence", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "frameSequence", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_frameSequence },
 	{ NULL, 0, 0, NULL }
 };
@@ -14819,11 +14819,11 @@ dissect_h245_EncryptionCapability(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static per_sequence_t EncryptionAuthenticationAndIntegrity_sequence[] = {
-	{ "encryptionCapability", EXTENSION_ROOT, OPTIONAL,
+	{ "encryptionCapability", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_EncryptionCapability },
-	{ "authenticationCapability", EXTENSION_ROOT, OPTIONAL,
+	{ "authenticationCapability", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_AuthenticationCapability },
-	{ "integrityCapability", EXTENSION_ROOT, OPTIONAL,
+	{ "integrityCapability", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_IntegrityCapability },
 	{ NULL, 0, 0, NULL }
 };
@@ -14838,9 +14838,9 @@ dissect_h245_EncryptionAuthenticationAndIntegrity(tvbuff_t *tvb, int offset, pac
 
 
 static per_sequence_t H235SecurityCapability_sequence[] = {
-	{ "encryptionAuthenticationAndIntegrity", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "encryptionAuthenticationAndIntegrity", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_EncryptionAuthenticationAndIntegrity },
-	{ "mediaCapability", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "mediaCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_CapabilityTableEntryNumber},
 	{ NULL, 0, 0, NULL }
 };
@@ -14866,13 +14866,13 @@ dissect_h245_escrowentry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 
 static per_sequence_t EncryptionSync_sequence[] = {
-	{ "nonStandard", EXTENSION_ROOT, OPTIONAL,
+	{ "nonStandard", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_NonStandardParameter },
-	{ "synchFlag", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "synchFlag", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_synchFlag },
-	{ "h235Key", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "h235Key", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_h235Key },
-	{ "escrowentry", EXTENSION_ROOT, OPTIONAL,
+	{ "escrowentry", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_escrowentry },
 	{ NULL, 0, 0, NULL }
 };
@@ -14973,9 +14973,9 @@ dissect_h245_MiscellaneousCommand_type(tvbuff_t *tvb, int offset, packet_info *p
 
 
 static per_sequence_t MiscellaneousCommand_sequence[] = {
-	{ "logicalChannelNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "logicalChannelNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
-	{ "type", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "type", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_MiscellaneousCommand_type },
 	{ NULL, 0, 0, NULL }
 };
@@ -15001,9 +15001,9 @@ dissect_h245_elementList(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 
 static per_sequence_t MultiplexEntryDescriptor_sequence[] = {
-	{ "multiplexTableEntryNumber", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "multiplexTableEntryNumber", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_MultiplexTableEntryNumber },
-	{ "elementList", NO_EXTENSIONS, OPTIONAL,
+	{ "elementList", NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_h245_elementList },
 	{ NULL, 0, 0, NULL }
 };
@@ -15050,9 +15050,9 @@ dissect_h245_MultiplexElement_type(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 static per_sequence_t MultiplexElement_sequence[] = {
-	{ "type", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "type", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_MultiplexElement_type },
-	{ "repeatCount", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "repeatCount", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_MultiplexElement_repeatCount },
 	{ NULL, 0, 0, NULL }
 };
@@ -15080,9 +15080,9 @@ dissect_h245_requestedModes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 
 static per_sequence_t RequestMode_sequence[] = {
-	{ "sequenceNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "sequenceNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_SequenceNumber },
-	{ "requestedModes", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "requestedModes", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_requestedModes },
 	{ NULL, 0, 0, NULL }
 };
@@ -15106,11 +15106,11 @@ dissect_h245_CertSelectionCriteria(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 static per_sequence_t ConferenceRequest_requestTerminalCertificate_sequence[] = {
-	{ "terminalLabel", EXTENSION_ROOT, OPTIONAL,
+	{ "terminalLabel", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_TerminalLabel },
-	{ "certSelectionCriteria", EXTENSION_ROOT, OPTIONAL,
+	{ "certSelectionCriteria", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_CertSelectionCriteria },
-	{ "sRandom", EXTENSION_ROOT, OPTIONAL,
+	{ "sRandom", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_sRandom },
 	{ NULL, 0, 0, NULL }
 };
@@ -15211,9 +15211,9 @@ dissect_h245_simultaneousCapabilities(tvbuff_t *tvb, int offset, packet_info *pi
 
 
 static per_sequence_t CapabilityDescriptor_sequence[] = {
-	{ "capabilityDescriptorNumber", NO_EXTENSIONS, NOT_OPTIONAL, 
+	{ "capabilityDescriptorNumber", NO_EXTENSIONS, ASN1_NOT_OPTIONAL, 
 		dissect_h245_CapabilityDescriptorNumber },
-	{ "simultaneousCapabilities", NO_EXTENSIONS, OPTIONAL,
+	{ "simultaneousCapabilities", NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_h245_simultaneousCapabilities },
 	{ NULL, 0, 0, NULL }
 };
@@ -15249,25 +15249,25 @@ dissect_h245_gatewayAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 
 static per_sequence_t VCCapability_aal1ViaGateway_sequence[] = {
-	{ "gatewayAddress", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "gatewayAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_gatewayAddress },
-	{ "nullClockRecovery", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "nullClockRecovery", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_nullClockRecovery },
-	{ "srtsClockRecovery", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "srtsClockRecovery", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_srtsClockRecovery },
-	{ "adaptiveClockRecovery", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "adaptiveClockRecovery", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_adaptiveClockRecovery },
-	{ "nullErrorCorrection", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "nullErrorCorrection", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_nullErrorCorrection },
-	{ "longInterleaver", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "longInterleaver", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_longInterleaver },
-	{ "shortInterleaver", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "shortInterleaver", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_shortInterleaver },
-	{ "errorCorrectionOnly", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "errorCorrectionOnly", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_errorCorrectionOnly },
-	{ "structuredDataTransfer", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "structuredDataTransfer", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_structuredDataTransfer },
-	{ "partiallyFilledCells", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "partiallyFilledCells", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_partiallyFilledCells },
 	{ NULL, 0, 0, NULL }
 };
@@ -15282,7 +15282,7 @@ dissect_h245_VCCapability_aal1ViaGateway(tvbuff_t *tvb, int offset, packet_info 
 
 
 static per_sequence_t VCCapability_availableBitRates_sequence[] = {
-	{ "type", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "type", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_VCCapability_availableBitRates_type },
 	{ NULL, 0, 0, NULL }
 };
@@ -15299,17 +15299,17 @@ dissect_h245_VCCapability_availableBitRates(tvbuff_t *tvb, int offset, packet_in
 
 
 static per_sequence_t VCCapability_sequence[] = {
-	{ "aal1", EXTENSION_ROOT, OPTIONAL, 
+	{ "aal1", EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_VCCapability_aal1 },
-	{ "aal5", EXTENSION_ROOT, OPTIONAL,
+	{ "aal5", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_VCCapability_aal5 },
-	{ "transportStream", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "transportStream", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_transportStream },
-	{ "programStream", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "programStream", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_programStream },
-	{ "availableBitRates", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "availableBitRates", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_VCCapability_availableBitRates },
-	{ "aal1ViaGateway", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "aal1ViaGateway", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_VCCapability_aal1ViaGateway },
 	{ NULL, 0, 0, NULL }
 };
@@ -15360,13 +15360,13 @@ dissect_h245_bPictureEnhancement(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static per_sequence_t EnhancementLayerInfo_sequence[] = {
-	{ "baseBitRateConstrained", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "baseBitRateConstrained", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_baseBitRateConstrained },
-	{ "snrEnhancement", EXTENSION_ROOT, OPTIONAL,
+	{ "snrEnhancement", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_snrEnhancement },
-	{ "spatialEnhancement", EXTENSION_ROOT, OPTIONAL,
+	{ "spatialEnhancement", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_spatialEnhancement },
-	{ "bPictureEnhancement", EXTENSION_ROOT, OPTIONAL,
+	{ "bPictureEnhancement", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_bPictureEnhancement },
 	{ NULL, 0, 0, NULL }
 };
@@ -15417,67 +15417,67 @@ dissect_h245_modeCombos(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 
 static per_sequence_t H263Options_sequence[] = {
-	{ "advancedIntraCodingMode", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "advancedIntraCodingMode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_advancedIntraCodingMode },
-	{ "deblockingFilterMode", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "deblockingFilterMode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_deblockingFilterMode },
-	{ "improvedPBFramesMode", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "improvedPBFramesMode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_improvedPBFramesMode },
-	{ "unlimitedMotionVectors", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "unlimitedMotionVectors", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_unlimitedMotionVectors },
-	{ "fullPictureFreeze", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "fullPictureFreeze", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_fullPictureFreeze },
-	{ "partialPictureFreezeAndRelease", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "partialPictureFreezeAndRelease", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_partialPictureFreezeAndRelease },
-	{ "resizingPartPicFreezeAndRelease", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "resizingPartPicFreezeAndRelease", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_resizingPartPicFreezeAndRelease },
-	{ "fullPictureSnapshot", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "fullPictureSnapshot", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_fullPictureSnapshot },
-	{ "partialPictureSnapshot", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "partialPictureSnapshot", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_partialPictureSnapshot },
-	{ "videoSegmentTagging", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "videoSegmentTagging", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_videoSegmentTagging },
-	{ "progressiveRefinement", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "progressiveRefinement", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_progressiveRefinement },
-	{ "dynamicPictureResizingByFour", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "dynamicPictureResizingByFour", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_dynamicPictureResizingByFour },
-	{ "dynamicPictureResizingSixteenthPel", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "dynamicPictureResizingSixteenthPel", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_dynamicPictureResizingSixteenthPel },
-	{ "dynamicWarpingHalfPel", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "dynamicWarpingHalfPel", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_dynamicWarpingHalfPel },
-	{ "dynamicWarpingSixteenthPel", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "dynamicWarpingSixteenthPel", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_dynamicWarpingSixteenthPel },
-	{ "independentSegmentDecoding", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "independentSegmentDecoding", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_independentSegmentDecoding },
-	{ "slicesInOrder-NonRect", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "slicesInOrder-NonRect", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_slicesInOrderNonRect },
-	{ "slicesInOrder-Rect", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "slicesInOrder-Rect", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_slicesInOrderRect },
-	{ "slicesNoOrder-NonRect", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "slicesNoOrder-NonRect", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_slicesNoOrderNonRect },
-	{ "slicesNoOrder-Rect", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "slicesNoOrder-Rect", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_slicesNoOrderRect },
-	{ "alternateInterVLCMode", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "alternateInterVLCMode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_alternateInterVLCMode },
-	{ "modifiedQuantizationMode", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "modifiedQuantizationMode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_modifiedQuantizationMode },
-	{ "reducedResolutionUpdate", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "reducedResolutionUpdate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_reducedResolutionUpdate },
-	{ "transparencyParameters", EXTENSION_ROOT, OPTIONAL,
+	{ "transparencyParameters", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_TransperencyParameters },
-	{ "separateVideoBackChannel", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "separateVideoBackChannel", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_separateVideoBackChannel },
-	{ "refPictureSelection", EXTENSION_ROOT, OPTIONAL,
+	{ "refPictureSelection", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_RefPictureSelection },
-	{ "customPictureClockFrequence", EXTENSION_ROOT, OPTIONAL,
+	{ "customPictureClockFrequence", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_customPictureClockFrequency },
-	{ "customPictureFormat", EXTENSION_ROOT, OPTIONAL,
+	{ "customPictureFormat", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_customPictureFormat },
-	{ "modeCombos", EXTENSION_ROOT, OPTIONAL, 
+	{ "modeCombos", EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_modeCombos },
-	{ "videoBadMBsCap", NOT_EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "videoBadMBsCap", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_videoBadMBsCap },
-	{ "h263Version3Options", NOT_EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "h263Version3Options", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_H263Version3Options },
 	{ NULL, 0, 0, NULL }
 };
@@ -15493,23 +15493,23 @@ dissect_h245_H263Options(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 
 static per_sequence_t H263VideoMode_sequence[] = {
-	{ "resolution", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "resolution", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_H263VideoMode_resolution },
-	{ "bitRate", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "bitRate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_h223bitRate },
-	{ "unrestrictedVector", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "unrestrictedVector", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_unrestrictedVector },
-	{ "arithmeticCoding", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "arithmeticCoding", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_arithmeticCoding },
-	{ "advancedPrediction", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "advancedPrediction", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_advancedPrediction },
-	{ "pbFrames", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "pbFrames", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_pbFrames },
-	{ "errorCompensation", NOT_EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "errorCompensation", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_errorCompensation },
-	{ "enhancementLayerInfo", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "enhancementLayerInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_EnhancementLayerInfo },
-	{ "h263Options", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "h263Options", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_H263Options },
 	{ NULL, 0, 0, NULL }
 };
@@ -15526,47 +15526,47 @@ dissect_h245_H263VideoMode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 
 static per_sequence_t H263VideoCapability_sequence[] = {
-	{ "sqcifMPI", EXTENSION_ROOT, OPTIONAL, 
+	{ "sqcifMPI", EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_sqcifMPI_1_32 },
-	{ "qcifMPI", EXTENSION_ROOT, OPTIONAL,
+	{ "qcifMPI", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_qcifMPI_1_32 },
-	{ "cifMPI", EXTENSION_ROOT, OPTIONAL,
+	{ "cifMPI", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_cifMPI_1_32 },
-	{ "cif4MPI", EXTENSION_ROOT, OPTIONAL,
+	{ "cif4MPI", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_cif4MPI_1_32 },
-	{ "cif16MPI", EXTENSION_ROOT, OPTIONAL,
+	{ "cif16MPI", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_cif16MPI_1_32 },
-	{ "maxBitRate", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "maxBitRate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_maxBitRate_192400 },
-	{ "unrestrictedVector", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "unrestrictedVector", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_unrestrictedVector },
-	{ "arithmeticCoding", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "arithmeticCoding", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_arithmeticCoding },
-	{ "advancedPrediction", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "advancedPrediction", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_advancedPrediction },
-	{ "pbFrames", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "pbFrames", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_pbFrames },
-	{ "temporalSpatialTradeOffCapability", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "temporalSpatialTradeOffCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_temporalSpatialTradeOffCapability },
-	{ "hrd-B", EXTENSION_ROOT, OPTIONAL,
+	{ "hrd-B", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_hrd_B },
-	{ "bppMaxKb", EXTENSION_ROOT, OPTIONAL,
+	{ "bppMaxKb", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_bppMaxKb },
-	{ "slowSqcifMPI", NOT_EXTENSION_ROOT, OPTIONAL, 
+	{ "slowSqcifMPI", NOT_EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_slowSqcifMPI },
-	{ "slowQcifMPI", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "slowQcifMPI", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_slowQcifMPI },
-	{ "slowCifMPI", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "slowCifMPI", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_slowCifMPI },
-	{ "slowCif4MPI", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "slowCif4MPI", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_slowCif4MPI },
-	{ "slowCif16MPI", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "slowCif16MPI", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_slowCif16MPI },
-	{ "errorCompensation", NOT_EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "errorCompensation", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_errorCompensation },
-	{ "enhancementLayerInfo", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "enhancementLayerInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_EnhancementLayerInfo },
-	{ "h263Options", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "h263Options", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_H263Options },
 	{ NULL, 0, 0, NULL }
 };
@@ -15623,37 +15623,37 @@ dissect_h245_VideoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 
 static per_sequence_t EnhancementOptions_sequence[] = {
-	{ "sqcifMPI", EXTENSION_ROOT, OPTIONAL,
+	{ "sqcifMPI", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_sqcifMPI_1_32 },
-	{ "qcifMPI", EXTENSION_ROOT, OPTIONAL,
+	{ "qcifMPI", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_qcifMPI_1_32 },
-	{ "cifMPI", EXTENSION_ROOT, OPTIONAL,
+	{ "cifMPI", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_cifMPI_1_32 },
-	{ "cif4MPI", EXTENSION_ROOT, OPTIONAL,
+	{ "cif4MPI", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_cif4MPI_1_32 },
-	{ "cif16MPI", EXTENSION_ROOT, OPTIONAL,
+	{ "cif16MPI", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_cif16MPI_1_32 },
-	{ "maxBitRate", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "maxBitRate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_maxBitRate_192400 },
-	{ "unrestrictedVector", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "unrestrictedVector", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_unrestrictedVector },
-	{ "arithmeticCoding", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "arithmeticCoding", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_arithmeticCoding },
-	{ "temporalSpatialTradeOffCapability", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "temporalSpatialTradeOffCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_temporalSpatialTradeOffCapability },
-	{ "slowSqcifMPI", EXTENSION_ROOT, OPTIONAL, 
+	{ "slowSqcifMPI", EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_slowSqcifMPI },
-	{ "slowQcifMPI", EXTENSION_ROOT, OPTIONAL,
+	{ "slowQcifMPI", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_slowQcifMPI },
-	{ "slowCifMPI", EXTENSION_ROOT, OPTIONAL,
+	{ "slowCifMPI", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_slowCifMPI },
-	{ "slowCif4MPI", EXTENSION_ROOT, OPTIONAL,
+	{ "slowCif4MPI", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_slowCif4MPI },
-	{ "slowCif16MPI", EXTENSION_ROOT, OPTIONAL,
+	{ "slowCif16MPI", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_slowCif16MPI },
-	{ "errorCompensation", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "errorCompensation", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_errorCompensation },
-	{ "h263Options", EXTENSION_ROOT, OPTIONAL,
+	{ "h263Options", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_H263Options },
 	{ NULL, 0, 0, NULL }
 };
@@ -15669,9 +15669,9 @@ dissect_h245_EnhancementOptions(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static per_sequence_t BEnhancementParameters_sequence[] = {
-	{ "enhancementOptions", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "enhancementOptions", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_EnhancementOptions },
-	{ "numberOfBPictures", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "numberOfBPictures", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_numberOfBPictures },
 	{ NULL, 0, 0, NULL }
 };
@@ -15744,17 +15744,17 @@ dissect_h245_CustomPictureFormat_pixelAspectInformation(tvbuff_t *tvb, int offse
 
 
 static per_sequence_t CustomPictureFormat_sequence[] = {
-	{ "maxCustomPictureWidth", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "maxCustomPictureWidth", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_maxCustomPictureWidth },
-	{ "maxCustomPictureHeight", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "maxCustomPictureHeight", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_maxCustomPictureHeight},
-	{ "minCustomPictureWidth", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "minCustomPictureWidth", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_minCustomPictureWidth },
-	{ "minCustomPictureHeight", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "minCustomPictureHeight", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_minCustomPictureHeight },
-	{ "mPI", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "mPI", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_CustomPictureFormat_mPI },
-	{ "pixelAspectInformation", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "pixelAspectInformation", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_CustomPictureFormat_pixelAspectInformation },
 	{ NULL, 0, 0, NULL }
 };
@@ -15791,9 +15791,9 @@ dissect_h245_h263VideoCoupledModes(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 static per_sequence_t H263VideoModeCombos_sequence[] = {
-	{ "h263VideoUncoupledModes", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "h263VideoUncoupledModes", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_H263ModeComboFlags },
-	{ "h263VideoCoupledModes", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "h263VideoCoupledModes", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_h263VideoCoupledModes },
 	{ NULL, 0, 0, NULL }
 };
@@ -15827,7 +15827,7 @@ dissect_h245_capabilities(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 
 static per_sequence_t MultiplePayloadStreamCapability_sequence[] = {
-	{ "capabilities", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "capabilities", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_capabilities },
 	{ NULL, 0, 0, NULL }
 };
@@ -15853,9 +15853,9 @@ dissect_h245_multiplexEntryDescriptors(tvbuff_t *tvb, int offset, packet_info *p
 
 
 static per_sequence_t MultiplexEntrySend_sequence[] = {
-	{ "sequenceNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "sequenceNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_SequenceNumber },
-	{ "multiplexEntryDescriptors", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "multiplexEntryDescriptors", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_multiplexEntryDescriptors },
 	{ NULL, 0, 0, NULL }
 };
@@ -15880,7 +15880,7 @@ dissect_h245_multiplexTableEntryNumber_set_of(tvbuff_t *tvb, int offset, packet_
 
 
 static per_sequence_t MultiplexEntrySendRelease_sequence[] = {
-	{ "multiplexTableEntryNumber", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "multiplexTableEntryNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_multiplexTableEntryNumber_set_of },
 	{ NULL, 0, 0, NULL }
 };
@@ -15896,9 +15896,9 @@ dissect_h245_MultiplexEntrySendRelease(tvbuff_t *tvb, int offset, packet_info *p
 
 
 static per_sequence_t MultiplexEntrySendAck_sequence[] = {
-	{ "sequenceNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "sequenceNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_SequenceNumber },
-	{ "multiplexTableEntryNumber", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "multiplexTableEntryNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_multiplexTableEntryNumber_set_of },
 	{ NULL, 0, 0, NULL }
 };
@@ -15935,9 +15935,9 @@ dissect_h245_rejectionDescriptions(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 static per_sequence_t MultiplexEntrySendReject_sequence[] = {
-	{ "sequenceNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "sequenceNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_SequenceNumber },
-	{ "rejectionDescriptions", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "rejectionDescriptions", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_rejectionDescriptions },
 	{ NULL, 0, 0, NULL }
 };
@@ -15963,7 +15963,7 @@ dissect_h245_entryNumbers(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 
 static per_sequence_t RequestMultiplexEntry_sequence[] = {
-	{ "entryNumbers", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "entryNumbers", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_entryNumbers },
 	{ NULL, 0, 0, NULL }
 };
@@ -15978,7 +15978,7 @@ dissect_h245_RequestMultiplexEntry(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 static per_sequence_t RequestMultiplexEntryAck_sequence[] = {
-	{ "entryNumbers", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "entryNumbers", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_entryNumbers },
 	{ NULL, 0, 0, NULL }
 };
@@ -15994,9 +15994,9 @@ dissect_h245_RequestMultiplexEntryAck(tvbuff_t *tvb, int offset, packet_info *pi
 
 
 static per_sequence_t RequestMultiplexEntryReject_sequence[] = {
-	{ "entryNumbers", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "entryNumbers", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_entryNumbers },
-	{ "rejectionDescriptions", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "rejectionDescriptions", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_RMErejectionDescriptions },
 	{ NULL, 0, 0, NULL }
 };
@@ -16013,7 +16013,7 @@ dissect_h245_RequestMultiplexEntryReject(tvbuff_t *tvb, int offset, packet_info 
 
 
 static per_sequence_t RequestMultiplexEntryRelease_sequence[] = {
-	{ "entryNumbers", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "entryNumbers", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_entryNumbers },
 	{ NULL, 0, 0, NULL }
 };
@@ -16053,7 +16053,7 @@ dissect_h245_communicationModeTable(tvbuff_t *tvb, int offset, packet_info *pinf
 
 
 static per_sequence_t CommunicationModeCommand_sequence[] = {
-	{ "communicationModeTable", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "communicationModeTable", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_communicationModeTable },
 	{ NULL, 0, 0, NULL }
 };
@@ -16141,9 +16141,9 @@ dissect_h245_DialingInformation(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static per_sequence_t MultilinkResponse_callInformation_sequence[] = {
-	{ "dialingInformation", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "dialingInformation", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_DialingInformation },
-	{ "callAssociationNumber", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "callAssociationNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_callAssociationNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -16193,9 +16193,9 @@ dissect_h245_MultilinkResponse(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 
 static per_sequence_t MultilinkRequest_addConnection_sequence[] = {
-	{ "sequenceNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "sequenceNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_SequenceNumber },
-	{ "dialingInformation", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "dialingInformation", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_DialingInformation },
 	{ NULL, 0, 0, NULL }
 };
@@ -16276,11 +16276,11 @@ dissect_h245_capabilityDescriptorNumbers(tvbuff_t *tvb, int offset, packet_info 
 
 
 static per_sequence_t SendTerminalCapabilitySet_specificRequest_sequence[] = {
-	{ "multiplexCapability", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "multiplexCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_multiplexCapability_bool },
-	{ "capabilityTableEntryNumbers", EXTENSION_ROOT, OPTIONAL,
+	{ "capabilityTableEntryNumbers", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_capabilityTableEntryNumbers },
-	{ "capabilityDescriptorNumbers", EXTENSION_ROOT, OPTIONAL,
+	{ "capabilityDescriptorNumbers", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_capabilityDescriptorNumbers },
 	{ NULL, 0, 0, NULL }
 };
@@ -16333,9 +16333,9 @@ dissect_h245_audioTelephoneEvent(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static per_sequence_t AudioTelephonyEventCapability_sequence[] = {
-	{ "dynamicRTPPayloadType", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "dynamicRTPPayloadType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_dynamicRTPPayloadType },
-	{ "audioTelephoneEvent", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "audioTelephoneEvent", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_audioTelephoneEvent },
 	{ NULL, 0, 0, NULL }
 };
@@ -16353,7 +16353,7 @@ dissect_h245_AudioTelephonyEventCapability(tvbuff_t *tvb, int offset, packet_inf
 
 
 static per_sequence_t NoPTAudioTelephonyEventCapability_sequence[] = {
-	{ "audioTelephoneEvent", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "audioTelephoneEvent", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_audioTelephoneEvent },
 	{ NULL, 0, 0, NULL }
 };
@@ -16524,9 +16524,9 @@ dissect_h245_CommunicationModeTableEntry_dataType(tvbuff_t *tvb, int offset, pac
 
 
 static per_sequence_t H235Media_sequence[] = {
-	{ "encryptionAuthenticationAndIntegrity", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "encryptionAuthenticationAndIntegrity", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_EncryptionAuthenticationAndIntegrity },
-	{ "mediaType", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "mediaType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_H235Media_mediaType },
 	{ NULL, 0, 0, NULL }
 };
@@ -16584,9 +16584,9 @@ dissect_h245_UserInputIndication_userInputSupportIndication(tvbuff_t *tvb, int o
 
 
 static per_sequence_t UserInputIndication_extendedAlphanumeric_sequence[] = {
-	{ "alphanumeric", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "alphanumeric", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_alphanumeric },
-	{ "rtpPayloadIndication", EXTENSION_ROOT, OPTIONAL, 
+	{ "rtpPayloadIndication", EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_NULL },
 	{ NULL, 0, 0, NULL }
 };
@@ -16639,9 +16639,9 @@ dissect_h245_RTPPayloadType_payloadDescriptor(tvbuff_t *tvb, int offset, packet_
 
 
 static per_sequence_t RTPPayloadType_sequence[] = {
-	{ "payloadDescriptor", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "payloadDescriptor", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_RTPPayloadType_payloadDescriptor },
-	{ "payloadType", EXTENSION_ROOT, OPTIONAL,
+	{ "payloadType", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_payloadType },
 	{ NULL, 0, 0, NULL }
 };
@@ -16684,11 +16684,11 @@ dissect_h245_H2250LogicalChannelParameters_mediaPacketization(tvbuff_t *tvb, int
 
 static int dissect_h245_mediaDistributionCapability_sequence_of(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static per_sequence_t MultipointCapability_sequence[] = {
-	{ "multicastCapability", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "multicastCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_multicastCapability },
-	{ "multiUniCastConference", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "multiUniCastConference", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_multiUniCastConference },
-	{ "mediaDistributionCapability", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "mediaDistributionCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_mediaDistributionCapability_sequence_of },
 	{ NULL, 0, 0, NULL }
 };
@@ -16718,27 +16718,27 @@ dissect_h245_receiveAndTransmitMultipointCapability(tvbuff_t *tvb, int offset, p
 
 
 static per_sequence_t H2250Capability_sequence[] = {
-	{ "maximumAudioDelayJitter", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "maximumAudioDelayJitter", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_maximumAudioDelayJitter },
-	{ "receiveMultipointCapability", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "receiveMultipointCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_receiveMultipointCapability },
-	{ "transmitMultipointCapability", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "transmitMultipointCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_transmitMultipointCapability },
-	{ "receiveAndTransmitMultipointCapability", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "receiveAndTransmitMultipointCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_receiveAndTransmitMultipointCapability },
-	{ "mcCapability", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "mcCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_H2250Capability_mcCapability },
-	{ "rtcpVideoControlCapability", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "rtcpVideoControlCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_rtcpVideoControlCapability },
-	{ "mediaPacketizationCapability", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "mediaPacketizationCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_MediaPacketizationCapability },
-	{ "transportCapability", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "transportCapability", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_TransportCapability },
-	{ "redundancyEncodingCapability", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "redundancyEncodingCapability", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_RedundancyEncodingCapability_sequence_of },
-	{ "logicalChannelSwitchingCapability", NOT_EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "logicalChannelSwitchingCapability", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_logicalChannelSwitchingCapability },
-	{ "t120DynamicPortCapability", NOT_EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "t120DynamicPortCapability", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_t120DynamicPortCapability },
 	{ NULL, 0, 0, NULL }
 };
@@ -16757,9 +16757,9 @@ dissect_h245_H2250Capability(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 static int dissect_h245_DataType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static per_sequence_t RedundancyEncodingElement_sequence[] = {
-	{ "dataType", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "dataType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_DataType },
-	{ "payloadType", EXTENSION_ROOT, OPTIONAL,
+	{ "payloadType", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_payloadType },
 	{ NULL, 0, 0, NULL }
 };
@@ -16776,9 +16776,9 @@ dissect_h245_RedundancyEncodingElement(tvbuff_t *tvb, int offset, packet_info *p
 
 
 static per_sequence_t RedundancyEncoding_rtpRedundancyEncoding_sequence[] = {
-	{ "primary", EXTENSION_ROOT, OPTIONAL,
+	{ "primary", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_RedundancyEncodingElement },
-	{ "secondary", EXTENSION_ROOT, OPTIONAL,
+	{ "secondary", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_secondary_REE_sequence_of },
 	{ NULL, 0, 0, NULL }
 };
@@ -16795,11 +16795,11 @@ dissect_h245_RedundancyEncoding_rtpRedundancyEncoding(tvbuff_t *tvb, int offset,
 
 
 static per_sequence_t RedundancyEncoding_sequence[] = {
-	{ "redundancyEncodingMethod", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "redundancyEncodingMethod", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_RedundancyEncodingMethod },
-	{ "secondaryEncoding", EXTENSION_ROOT, OPTIONAL,
+	{ "secondaryEncoding", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_DataType },
-	{ "rtpRedundancyEncoding", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "rtpRedundancyEncoding", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_RedundancyEncoding_rtpRedundancyEncoding },
 	{ NULL, 0, 0, NULL }
 };
@@ -16815,33 +16815,33 @@ dissect_h245_RedundancyEncoding(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static per_sequence_t H2250LogicalChannelParameters_sequence[] = {
-	{ "nonStandard", EXTENSION_ROOT, OPTIONAL,
+	{ "nonStandard", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_nonStandardData_sequence_of },
-	{ "sessionID", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "sessionID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_sessionID_0_255 },
-	{ "associatedSessionID", EXTENSION_ROOT, OPTIONAL,
+	{ "associatedSessionID", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_associatedSessionID },
-	{ "mediaChannel", EXTENSION_ROOT, OPTIONAL,
+	{ "mediaChannel", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_mediaChannel },
-	{ "mediaGuaranteedDelivery", EXTENSION_ROOT, OPTIONAL,
+	{ "mediaGuaranteedDelivery", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_mediaGuaranteedDelivery },
-	{ "mediaControlChannel", EXTENSION_ROOT, OPTIONAL,
+	{ "mediaControlChannel", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_mediaControlChannel },
-	{ "mediaControlGuaranteedDelivery", EXTENSION_ROOT, OPTIONAL,
+	{ "mediaControlGuaranteedDelivery", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_mediaControlGuaranteedDelivery },
-	{ "silenceSuppression", EXTENSION_ROOT, OPTIONAL, 
+	{ "silenceSuppression", EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_silenceSuppression },
-	{ "destination", EXTENSION_ROOT, OPTIONAL,
+	{ "destination", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_TerminalLabel },
-	{ "dynamicRTPPayloadType", EXTENSION_ROOT, OPTIONAL,
+	{ "dynamicRTPPayloadType", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_dynamicRTPPayloadType },
-	{ "mediaPacketization", EXTENSION_ROOT, OPTIONAL,
+	{ "mediaPacketization", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_H2250LogicalChannelParameters_mediaPacketization },
-	{ "transportCapability", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "transportCapability", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_TransportCapability },
-	{ "redundancyEncoding", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "redundancyEncoding", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_RedundancyEncoding },
-	{ "source", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "source", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_TerminalLabel },
 	{ NULL, 0, 0, NULL }
 };
@@ -16890,9 +16890,9 @@ dissect_h245_forwardLogicalChannelParameters_multiplexParameters(tvbuff_t *tvb, 
 
 
 static per_sequence_t MultiplePayloadStreamElement_sequence[] = {
-	{ "dataType", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "dataType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_DataType },
-	{ "payloadType", EXTENSION_ROOT, OPTIONAL,
+	{ "payloadType", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_payloadType },
 	{ NULL, 0, 0, NULL }
 };
@@ -16957,15 +16957,15 @@ dissect_h245_OpenLogicalChannelAck_reverseLogicalChannelParameters_multiplexPara
 
 
 static per_sequence_t forwardLogicalChannelParameters_sequence[] = {
-	{ "portNumber", EXTENSION_ROOT, OPTIONAL,
+	{ "portNumber", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_portNumber },
-	{ "dataType", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "dataType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_DataType },
-	{ "multiplexParameters", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "multiplexParameters", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_forwardLogicalChannelParameters_multiplexParameters },
-	{ "forwardLogicalChannelDependency", NOT_EXTENSION_ROOT, OPTIONAL, 
+	{ "forwardLogicalChannelDependency", NOT_EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
-	{ "replacementFor", NOT_EXTENSION_ROOT, OPTIONAL, 
+	{ "replacementFor", NOT_EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -16981,13 +16981,13 @@ dissect_h245_forwardLogicalChannelParameters(tvbuff_t *tvb, int offset, packet_i
 
 
 static per_sequence_t reverseLogicalChannelParameters_sequence[] = {
-	{ "dataType", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "dataType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_DataType },
-	{ "multiplexParameters", EXTENSION_ROOT, OPTIONAL,
+	{ "multiplexParameters", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_reverseLogicalChannelParameters_multiplexParameters },
-	{ "reverseLogicalChannelDependency", NOT_EXTENSION_ROOT, OPTIONAL, 
+	{ "reverseLogicalChannelDependency", NOT_EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
-	{ "replacementFor", NOT_EXTENSION_ROOT, OPTIONAL, 
+	{ "replacementFor", NOT_EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -17004,13 +17004,13 @@ dissect_h245_reverseLogicalChannelParameters(tvbuff_t *tvb, int offset, packet_i
 
 
 static per_sequence_t OpenLogicalChannelAck_reverseLogicalChannelParameters_sequence[] = {
-	{ "reverseLogicalChannelNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "reverseLogicalChannelNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
-	{ "portNumber", EXTENSION_ROOT, OPTIONAL,
+	{ "portNumber", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_portNumber },
-	{ "multiplexParameters", EXTENSION_ROOT, OPTIONAL,
+	{ "multiplexParameters", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_OpenLogicalChannelAck_reverseLogicalChannelParameters_multiplexParameters },
-	{ "replacementFor", NOT_EXTENSION_ROOT, OPTIONAL, 
+	{ "replacementFor", NOT_EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -17036,9 +17036,9 @@ dissect_h245_VCCapability_set_of(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static per_sequence_t H222Capability_sequence[] = {
-	{ "numberOfVCs", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "numberOfVCs", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_numberOfVCs },
-	{ "vcCapability", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "vcCapability", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_VCCapability_set_of },
 	{ NULL, 0, 0, NULL }
 };
@@ -17080,11 +17080,11 @@ dissect_h245_MultiplexFormat(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 
 static per_sequence_t MultiplexedStreamCapability_sequence[] = {
-	{ "multiplexFormat", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "multiplexFormat", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_MultiplexFormat },
-	{ "controlOnMuxStream", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "controlOnMuxStream", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_controlOnMuxStream },
-	{ "capabilityOnMuxStream", EXTENSION_ROOT, OPTIONAL,
+	{ "capabilityOnMuxStream", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_capabilityOnMuxStream },
 	{ NULL, 0, 0, NULL }
 };
@@ -17195,9 +17195,9 @@ dissect_h245_Capability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 
 static per_sequence_t CapabilityTableEntry_sequence[] = {
-	{ "capabilityTableEntryNumber", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "capabilityTableEntryNumber", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_CapabilityTableEntryNumber },
-	{ "capability", NO_EXTENSIONS, OPTIONAL,
+	{ "capability", NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_h245_Capability },
 	{ NULL, 0, 0, NULL }
 };
@@ -17213,9 +17213,9 @@ dissect_h245_CapabilityTableEntry(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static per_sequence_t MultiplexedStreamParameter_sequence[] = {
-	{ "multiplexFormat", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "multiplexFormat", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_MultiplexFormat },
-	{ "controlOnMuxStream", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "controlOnMuxStream", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_controlOnMuxStream },
 	{ NULL, 0, 0, NULL }
 };
@@ -17394,9 +17394,9 @@ dissect_h245_RedundancyEncodingMode_secondaryEncoding(tvbuff_t *tvb, int offset,
 
 
 static per_sequence_t RedundancyEncodingMode_sequence[] = {
-	{ "redundancyEncodingMethod", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "redundancyEncodingMethod", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_RedundancyEncodingMethod },
-	{ "secondaryEncoding", EXTENSION_ROOT, OPTIONAL,
+	{ "secondaryEncoding", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_RedundancyEncodingMode_secondaryEncoding },
 	{ NULL, 0, 0, NULL }
 };
@@ -17411,7 +17411,7 @@ dissect_h245_RedundancyEncodingMode(tvbuff_t *tvb, int offset, packet_info *pinf
 
 
 static per_sequence_t H2250ModeParameters_sequence[] = {
-	{ "redundancyEncodingMode", EXTENSION_ROOT, OPTIONAL,
+	{ "redundancyEncodingMode", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_RedundancyEncodingMode },
 	{ NULL, 0, 0, NULL }
 };
@@ -17428,7 +17428,7 @@ dissect_h245_H2250ModeParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static per_sequence_t VBDMode_sequence[] = {
-	{ "type", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "type", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_AudioMode },
 	{ NULL, 0, 0, NULL }
 };
@@ -17479,15 +17479,15 @@ dissect_h245_MultiplexCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static per_sequence_t TerminalCapabilitySet_sequence[] = {
-	{ "sequenceNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "sequenceNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_SequenceNumber },
-	{ "protocolIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_protocolIdentifier },
-	{ "multiplexCapability", EXTENSION_ROOT, OPTIONAL,
+	{ "multiplexCapability", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_MultiplexCapability },
-	{ "capabilityTable", EXTENSION_ROOT, OPTIONAL,
+	{ "capabilityTable", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_capabilityTable },
-	{ "capabilityDescriptors", EXTENSION_ROOT, OPTIONAL,
+	{ "capabilityDescriptors", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_capabilityDescriptors },
 	{ NULL, 0, 0, NULL }
 };
@@ -17505,9 +17505,9 @@ dissect_h245_TerminalCapabilitySet(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 static per_sequence_t ConferenceResponse_terminalIDResponse_sequence[] = {
-	{ "terminalLabel", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "terminalLabel", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_TerminalLabel },
-	{ "terminalID", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "terminalID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_TerminalID },
 	{ NULL, 0, 0, NULL }
 };
@@ -17613,11 +17613,11 @@ dissect_h245_H261VideoMode_resolution(tvbuff_t *tvb, int offset, packet_info *pi
 
 
 static per_sequence_t H261VideoMode_sequence[] = {
-	{ "resolution", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "resolution", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_H261VideoMode_resolution },
-	{ "bitRate", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "bitRate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_h223bitRate },
-	{ "stillImageTransmission", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "stillImageTransmission", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_stillImageTransmission },
 	{ NULL, 0, 0, NULL }
 };
@@ -17697,9 +17697,9 @@ dissect_h245_H235Mode_mediaMode(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static per_sequence_t H235Mode_sequence[] = {
-	{ "encryptionAuthenticationAndIntegrity", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "encryptionAuthenticationAndIntegrity", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_EncryptionAuthenticationAndIntegrity },
-	{ "mediaMode", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "mediaMode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_H235Mode_mediaMode },
 	{ NULL, 0, 0, NULL }
 };
@@ -17751,7 +17751,7 @@ dissect_h245_RedundancyEncodingDTModeElement_type(tvbuff_t *tvb, int offset, pac
 
 
 static per_sequence_t RedundancyEncodingDTModeElement_sequence[] = {
-	{ "type", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "type", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_RedundancyEncodingDTModeElement_type },
 	{ NULL, 0, 0, NULL }
 };
@@ -17768,11 +17768,11 @@ dissect_h245_RedundancyEncodingDTModeElement(tvbuff_t *tvb, int offset, packet_i
 
 
 static per_sequence_t RedundancyEncodingDTMode_sequence[] = {
-	{ "redundancyEncodingMethod", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "redundancyEncodingMethod", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_RedundancyEncodingMethod },
-	{ "primary", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "primary", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_RedundancyEncodingDTModeElement },
-	{ "secondary", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "secondary", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_secondary_REDTME_sequence_of },
 	{ NULL, 0, 0, NULL }
 };
@@ -17836,7 +17836,7 @@ dissect_h245_ModeElementType(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 
 static per_sequence_t MultiplePayloadStreamElementMode_sequence[] = {
-	{ "type", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "type", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_ModeElementType },
 	{ NULL, 0, 0, NULL }
 };
@@ -17853,7 +17853,7 @@ dissect_h245_MultiplePayloadStreamElementMode(tvbuff_t *tvb, int offset, packet_
 
 
 static per_sequence_t FECMode_rfc2733Mode_mode_separateStream_samePort_sequence[] = {
-	{ "protectedType", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "protectedType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_ModeElementType },
 	{ NULL, 0, 0, NULL }
 };
@@ -17914,7 +17914,7 @@ dissect_h245_FECMode_rfc2733Mode_mode(tvbuff_t *tvb, int offset, packet_info *pi
 
 
 static per_sequence_t FECMode_rfc2733Mode_sequence[] = {
-	{ "mode", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "mode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_FECMode_rfc2733Mode_mode },
 	{ NULL, 0, 0, NULL }
 };
@@ -17992,13 +17992,13 @@ dissect_h245_signalType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 
 static per_sequence_t UserInputIndication_signal_sequence[] = {
-	{ "signalType", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "signalType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_signalType },
-	{ "duration", EXTENSION_ROOT, OPTIONAL,
+	{ "duration", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_duration },
-	{ "rtp", EXTENSION_ROOT, OPTIONAL,
+	{ "rtp", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_UserInputIndication_signal_rtp },
-	{ "rtpPayloadIndication", NOT_EXTENSION_ROOT, OPTIONAL, 
+	{ "rtpPayloadIndication", NOT_EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_NULL },
 	{ NULL, 0, 0, NULL }
 };
@@ -18050,7 +18050,7 @@ dissect_h245_UserInputIndication(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static per_sequence_t TerminalCapabilitySetRelease_sequence[] = {
-	{ NULL, EXTENSION_ROOT, NOT_OPTIONAL, NULL }
+	{ NULL, EXTENSION_ROOT, ASN1_NOT_OPTIONAL, NULL }
 };
 static int
 dissect_h245_TerminalCapabilitySetRelease(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
@@ -18098,9 +18098,9 @@ dissect_h245_Q2931Address_address(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static per_sequence_t Q2931Address_sequence[] = {
-	{ "address", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "address", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_Q2931Address_address },
-	{ "subaddress", EXTENSION_ROOT, OPTIONAL,
+	{ "subaddress", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_subaddress_1_20 },
 	{ NULL, 0, 0, NULL }
 };
@@ -18154,15 +18154,15 @@ dissect_h245_NetworkAccessParameters_networkAddress(tvbuff_t *tvb, int offset, p
 
 
 static per_sequence_t NetworkAccessParameters_sequence[] = {
-	{ "distribution", EXTENSION_ROOT, OPTIONAL, 
+	{ "distribution", EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_NetworkAccessParameters_distribution },
-	{ "networkAddress", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "networkAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_NetworkAccessParameters_networkAddress },
-	{ "associateConference", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "associateConference", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_associateConference},
-	{ "externalReference", EXTENSION_ROOT, OPTIONAL,
+	{ "externalReference", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_externalReference },
-	{ "t120SetupProcedure", NOT_EXTENSION_ROOT, OPTIONAL, 
+	{ "t120SetupProcedure", NOT_EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_NetworkAccessParameters_t120SetupProcedure },
 	{ NULL, 0, 0, NULL }
 };
@@ -18179,15 +18179,15 @@ dissect_h245_NetworkAccessParameters(tvbuff_t *tvb, int offset, packet_info *pin
 
 
 static per_sequence_t OpenLogicalChannel_sequence[] = {
-	{ "forwardLogicalChannelNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "forwardLogicalChannelNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
-	{ "forwardLogicalChannelParameters", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "forwardLogicalChannelParameters", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_forwardLogicalChannelParameters },
-	{ "reverseLogicalChannelParameters", EXTENSION_ROOT, OPTIONAL,
+	{ "reverseLogicalChannelParameters", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_reverseLogicalChannelParameters },
-	{ "separateStack", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "separateStack", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_NetworkAccessParameters },
-	{ "encryptionSync", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "encryptionSync", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_EncryptionSync },
 	{ NULL, 0, 0, NULL }
 };
@@ -18203,15 +18203,15 @@ dissect_h245_OpenLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static per_sequence_t OpenLogicalChannelAck_sequence[] = {
-	{ "forwardLogicalChannelNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "forwardLogicalChannelNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
-	{ "reverseLogicalChannelParameters", EXTENSION_ROOT, OPTIONAL,
+	{ "reverseLogicalChannelParameters", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_OpenLogicalChannelAck_reverseLogicalChannelParameters },
-	{ "separateStack", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "separateStack", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_NetworkAccessParameters },
-	{ "forwardMultiplexAckParameters", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "forwardMultiplexAckParameters", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_forwardMultiplexAckParameters},
-	{ "encryptionSync", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "encryptionSync", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_EncryptionSync},
 	{ NULL, 0, 0, NULL }
 };
@@ -18238,9 +18238,9 @@ NOT_DECODED_YET("escrowValue");
 
 
 static per_sequence_t EscrowData_sequence[] = {
-	{ "escrowID", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "escrowID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_escrowID },
-	{ "escrowValue", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "escrowValue", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_escrowValue },
 	{ NULL, 0, 0, NULL }
 };
@@ -18285,9 +18285,9 @@ dissect_h245_RequestModeAck_response_decision(tvbuff_t *tvb, int offset, packet_
 
 
 static per_sequence_t RequestModeAck_sequence[] = {
-	{ "sequenceNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "sequenceNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_SequenceNumber },
-	{ "response", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "response", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_RequestModeAck_response_decision },
 	{ NULL, 0, 0, NULL }
 };
@@ -18597,21 +18597,21 @@ dissect_h245_distributedData_sequence_of(tvbuff_t *tvb, int offset, packet_info 
 
 
 static per_sequence_t MediaDistributionCapability_sequence[] = {
-	{ "centralizedControl", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "centralizedControl", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_centralizedControl },
-	{ "distributedControl", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "distributedControl", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_distributedControl },
-	{ "centralizedAudio", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "centralizedAudio", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_centralizedAudio },
-	{ "distributedAudio", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "distributedAudio", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_distributedAudio },
-	{ "centralizedVideo", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "centralizedVideo", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_centralizedVideo },
-	{ "distributedVideo", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "distributedVideo", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_distributedVideo },
-	{ "centralizedData", EXTENSION_ROOT, OPTIONAL,
+	{ "centralizedData", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_centralizedData_sequence_of },
-	{ "distributedData", EXTENSION_ROOT, OPTIONAL,
+	{ "distributedData", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_distributedData_sequence_of },
 	{ NULL, 0, 0, NULL }
 };
@@ -18647,9 +18647,9 @@ dissect_h245_rtpPayloadType_sequence_of(tvbuff_t *tvb, int offset, packet_info *
 
 
 static per_sequence_t H223ModeParameters_sequence[] = {
-	{ "adaptationLayerType", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "adaptationLayerType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_H223ModeParameters_adaptationLayerType },
-	{ "segmentableFlag", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "segmentableFlag", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_segmentableFlag },
 	{ NULL, 0, 0, NULL }
 };
@@ -18666,17 +18666,17 @@ dissect_h245_H223ModeParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static per_sequence_t ModeElement_sequence[] = {
-	{ "type", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "type", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_ModeElementType },
-	{ "h223ModeParameters", EXTENSION_ROOT, OPTIONAL,
+	{ "h223ModeParameters", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_H223ModeParameters },
-	{ "v76ModeParameters", NOT_EXTENSION_ROOT, OPTIONAL, 
+	{ "v76ModeParameters", NOT_EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_V76ModeParameters },
-	{ "h2250ModeParameters", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "h2250ModeParameters", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_H2250ModeParameters },
-	{ "genericModeParameters", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "genericModeParameters", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_GenericCapability },
-	{ "multiplexedStreamModeParameters", NOT_EXTENSION_ROOT, OPTIONAL, 
+	{ "multiplexedStreamModeParameters", NOT_EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_MultiplexedStreamModeParameters },
 	{ NULL, 0, 0, NULL }
 };
@@ -18719,11 +18719,11 @@ dissect_h245_t38FaxMaxDatagram(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 
 static per_sequence_t T38FaxUdpOptions_sequence[] = {
-	{ "t38FaxMaxBuffer", NO_EXTENSIONS, OPTIONAL,
+	{ "t38FaxMaxBuffer", NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_h245_t38FaxMaxBuffer },
-	{ "t38FaxMaxDatagram", NO_EXTENSIONS, OPTIONAL,
+	{ "t38FaxMaxDatagram", NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_h245_t38FaxMaxDatagram },
-	{ "t38FaxUdpEC", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "t38FaxUdpEC", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h245_T38FaxUdpOptions_t38FaxUdpEC },
 	{ NULL, 0, 0, NULL }
 };
@@ -18750,31 +18750,31 @@ NOT_DECODED_YET("sessionDescription");
 
 
 static per_sequence_t CommunicationModeTableEntry_sequence[] = {
-	{ "nonStandard", EXTENSION_ROOT, OPTIONAL,
+	{ "nonStandard", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_nonStandardData_sequence_of },
-	{ "sessionID", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "sessionID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_sessionID_1_255 },
-	{ "associatedSessionID", EXTENSION_ROOT, OPTIONAL,
+	{ "associatedSessionID", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_associatedSessionID },
-	{ "terminalLabel", EXTENSION_ROOT, OPTIONAL,
+	{ "terminalLabel", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_TerminalLabel },
-	{ "sessionDescription", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "sessionDescription", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_sessionDescription },
-	{ "dataType", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "dataType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_CommunicationModeTableEntry_dataType },
-	{ "mediaChannel", EXTENSION_ROOT, OPTIONAL,
+	{ "mediaChannel", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_mediaChannel },
-	{ "mediaGuaranteedDelivery", EXTENSION_ROOT, OPTIONAL, 
+	{ "mediaGuaranteedDelivery", EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_mediaGuaranteedDelivery },
-	{ "mediaControlChannel", EXTENSION_ROOT, OPTIONAL,
+	{ "mediaControlChannel", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_mediaControlChannel },
-	{ "mediaControlGuaranteedDelivery", EXTENSION_ROOT, OPTIONAL, 
+	{ "mediaControlGuaranteedDelivery", EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h245_mediaControlGuaranteedDelivery },
-	{ "redundancyEncoding", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "redundancyEncoding", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_RedundancyEncoding },
-	{ "sessionDependency", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "sessionDependency", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_sessionDependency },
-	{ "destination", NOT_EXTENSION_ROOT, OPTIONAL,
+	{ "destination", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_TerminalLabel },
 	{ NULL, 0, 0, NULL }
 };
@@ -18790,19 +18790,19 @@ dissect_h245_CommunicationModeTableEntry(tvbuff_t *tvb, int offset, packet_info 
 
 
 static per_sequence_t NewATMVCCommand_sequence[] = {
-	{ "resouceID", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "resouceID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_resourceID },
-	{ "bitRate", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "bitRate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_ATM_BitRate },
-	{ "bitRateLockedToPCRClock", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "bitRateLockedToPCRClock", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_bitRateLockedToPCRClock },
-	{ "bitRateLockedToNetworkClock", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "bitRateLockedToNetworkClock", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_bitRateLockedToNetworkClock },
-	{ "aal", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "aal", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h245_NewATMVCCommand_aal },
-	{ "multiplex", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "multiplex", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_NewATMVCCommand_multiplex },
-	{ "reverseParameters", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "reverseParameters", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_NewATMVCCommand_reverseParameters },
 	{ NULL, 0, 0, NULL }
 };
@@ -19061,11 +19061,11 @@ dissect_h245_DialingInformationNumber_subAddress(tvbuff_t *tvb, int offset, pack
 
 
 static per_sequence_t DialingInformationNumber_sequence[] = {
-	{ "networkAddress", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "networkAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_DialingInformationNumber_networkAddress },
-	{ "subAddress", EXTENSION_ROOT, OPTIONAL,
+	{ "subAddress", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h245_DialingInformationNumber_subAddress },
-	{ "networkType", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "networkType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_networkType },
 	{ NULL, 0, 0, NULL }
 };

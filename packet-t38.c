@@ -2,7 +2,7 @@
  * Routines for T.38 packet dissection
  * 2003  Hans Viens
  *
- * $Id: packet-t38.c,v 1.1 2003/09/11 13:36:04 sahlberg Exp $
+ * $Id: packet-t38.c,v 1.2 2003/10/09 20:52:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -310,9 +310,9 @@ dissect_t38_Data_Field_field_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static per_sequence_t Data_Field_item_sequence[] = {
-	{ "field-type", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "field-type", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_Data_Field_field_type },
-	{ "field-data", NO_EXTENSIONS, OPTIONAL,
+	{ "field-data", NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_t38_Data_Field_field_data },
 	{ NULL, 0, 0, NULL }
 };
@@ -336,9 +336,9 @@ dissect_t38_Data_Field(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 }
 
 static per_sequence_t IFPPacket_sequence[] = {
-	{ "type-of-msg", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "type-of-msg", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_Type_of_msg },
-	{ "data-field", NO_EXTENSIONS, OPTIONAL,
+	{ "data-field", NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_t38_Data_Field },
 	{ NULL, 0, 0, NULL }
 };
@@ -427,9 +427,9 @@ dissect_t38_fec_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 }
 
 static per_sequence_t fec_info_sequence[] = {
-	{ "fec-npackets", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "fec-npackets", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_fec_npackets },
-	{ "fec-data", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "fec-data", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_fec_data },
 	{ NULL, 0, 0, NULL }
 };
@@ -467,11 +467,11 @@ dissect_t38_error_recovery(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 static per_sequence_t UDPTLPacket_sequence[] = {
-	{ "seq-number", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "seq-number", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_seq_number },
-	{ "primary-ifp-packet", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "primary-ifp-packet", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_primary_ifp_packet },
-	{ "error-recovery", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "error-recovery", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_error_recovery },
 	{ NULL, 0, 0, NULL }
 };

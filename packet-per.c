@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.17 2003/09/23 18:36:49 guy Exp $
+ * $Id: packet-per.c,v 1.18 2003/10/09 20:52:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1064,7 +1064,7 @@ index_get_optional_name(per_sequence_t *sequence, int index)
 	int i;
 
 	for(i=0;sequence[i].name;i++){
-		if((sequence[i].extension!=NOT_EXTENSION_ROOT)&&(sequence[i].optional==OPTIONAL)){
+		if((sequence[i].extension!=NOT_EXTENSION_ROOT)&&(sequence[i].optional==ASN1_OPTIONAL)){
 			if(index==0){
 				return sequence[i].name;
 			}
@@ -1138,7 +1138,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 	/* 18.2 */
 	num_opts=0;
 	for(i=0;sequence[i].name;i++){
-		if((sequence[i].extension!=NOT_EXTENSION_ROOT)&&(sequence[i].optional==OPTIONAL)){
+		if((sequence[i].extension!=NOT_EXTENSION_ROOT)&&(sequence[i].optional==ASN1_OPTIONAL)){
 			num_opts++;
 		}
 	}
@@ -1168,7 +1168,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 	for(i=0;sequence[i].name;i++){
 		if( (sequence[i].extension==NO_EXTENSIONS)
 		||  (sequence[i].extension==EXTENSION_ROOT) ){
-			if(sequence[i].optional==OPTIONAL){
+			if(sequence[i].optional==ASN1_OPTIONAL){
 				gboolean is_present;
 				is_present=(1<<(num_opts-1))&optional_mask;
 				num_opts--;

@@ -4,7 +4,7 @@
  *
  * Copied from packet-h225.c and packet-h245.c
  *
- * $Id: packet-h450.c,v 1.3 2003/10/02 22:44:19 guy Exp $
+ * $Id: packet-h450.c,v 1.4 2003/10/09 20:52:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -206,13 +206,13 @@ dissect_h4501_EntityType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 
 static per_sequence_t NetworkFacilityExtension_sequence[] = {
-	{ "sourceEntity", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "sourceEntity", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4501_EntityType },
-	{ "sourceEntityAddress", EXTENSION_ROOT, OPTIONAL,
+	{ "sourceEntityAddress", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_AliasAddress },
-	{ "destinationEntity", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "destinationEntity", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4501_EntityType },
-	{ "destinationEntityAddress", EXTENSION_ROOT, OPTIONAL,
+	{ "destinationEntityAddress", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_AliasAddress },
 	{ NULL, 0, 0, NULL }
 };
@@ -399,9 +399,9 @@ dissect_h4501_destinationAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static per_sequence_t EndpointAddress_sequence[] = {
-	{ "destinationAddress", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "destinationAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4501_destinationAddress },
-	{ "remoteExtensionAddress", EXTENSION_ROOT, OPTIONAL,
+	{ "remoteExtensionAddress", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_AliasAddress },
 	{ NULL, 0, 0, NULL }
 };
@@ -422,11 +422,11 @@ dissect_h4501_argumentExtension(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static per_sequence_t CTInitiateArg_sequence[] = {
-	{ "callIdentity", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "callIdentity", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4502_CallIdentity },
-	{ "reroutingNumber", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "reroutingNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4501_EndpointAddress },
-	{ "argumentExtension", EXTENSION_ROOT, OPTIONAL,
+	{ "argumentExtension", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h4501_argumentExtension },
 	{ NULL, 0, 0, NULL }
 };
@@ -439,11 +439,11 @@ dissect_h4502_CTInitiateArg(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 
 static per_sequence_t CTSetupArg_sequence[] = {
-	{ "callIdentity", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "callIdentity", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4502_CallIdentity },
-	{ "transferringNumber", EXTENSION_ROOT, OPTIONAL,
+	{ "transferringNumber", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h4501_EndpointAddress },
-	{ "argumentExtension", EXTENSION_ROOT, OPTIONAL,
+	{ "argumentExtension", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h4501_argumentExtension },
 	{ NULL, 0, 0, NULL }
 };
@@ -472,13 +472,13 @@ dissect_h4501_H225InformationElement(tvbuff_t *tvb, int offset, packet_info *pin
 
 
 static per_sequence_t CTUpdateArg_sequence[] = {
-	{ "redirectionNumber", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "redirectionNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4501_EndpointAddress },
-	{ "redirectionInfo", EXTENSION_ROOT, OPTIONAL,
+	{ "redirectionInfo", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h4502_redirectionInfo },
-	{ "basicCallInfoElements", EXTENSION_ROOT, OPTIONAL,
+	{ "basicCallInfoElements", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h4501_H225InformationElement },
-	{ "argumentExtension", EXTENSION_ROOT, OPTIONAL,
+	{ "argumentExtension", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h4501_argumentExtension },
 	{ NULL, 0, 0, NULL }
 };
@@ -511,9 +511,9 @@ dissect_h4501_oddCountIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static per_sequence_t UserSpecifiedSubaddress_sequence[] = {
-	{ "subaddressInformation", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "subaddressInformation", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4501_SubaddressInformation },
-	{ "oddCountIndicator", EXTENSION_ROOT, OPTIONAL,
+	{ "oddCountIndicator", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h4501_oddCountIndicator },
 	{ NULL, 0, 0, NULL }
 };
@@ -554,9 +554,9 @@ dissect_h4501_PartySubaddress(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 static per_sequence_t SubaddressTransferArg_sequence[] = {
-	{ "redirectionSubaddress", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "redirectionSubaddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4501_PartySubaddress },
-	{ "argumentExtension", EXTENSION_ROOT, OPTIONAL,
+	{ "argumentExtension", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h4501_argumentExtension },
 	{ NULL, 0, 0, NULL }
 };
@@ -595,17 +595,17 @@ dissect_h4502_CallStatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 
 static per_sequence_t CTCompleteArg_sequence[] = {
-	{ "endDesignation", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "endDesignation", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4502_EndDesignation },
-	{ "redirectionNumber", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "redirectionNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4501_EndpointAddress },
-	{ "basicCallInfoElements", EXTENSION_ROOT, OPTIONAL,
+	{ "basicCallInfoElements", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h4501_H225InformationElement },
-	{ "redirectionInfo", EXTENSION_ROOT, OPTIONAL,
+	{ "redirectionInfo", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h4502_redirectionInfo },
-	{ "callStatus", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "callStatus", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4502_CallStatus },
-	{ "argumentExtension", EXTENSION_ROOT, OPTIONAL,
+	{ "argumentExtension", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h4501_argumentExtension },
 	{ NULL, 0, 0, NULL }
 };
@@ -626,13 +626,13 @@ dissect_h4502_connectedInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 
 static per_sequence_t CTActiveArg_sequence[] = {
-	{ "connectedAddress", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "connectedAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4501_EndpointAddress },
-	{ "basicCallInfoElements", EXTENSION_ROOT, OPTIONAL,
+	{ "basicCallInfoElements", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h4501_H225InformationElement },
-	{ "connectedInfo", EXTENSION_ROOT, OPTIONAL,
+	{ "connectedInfo", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h4502_connectedInfo },
-	{ "argumentExtension", EXTENSION_ROOT, OPTIONAL,
+	{ "argumentExtension", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h4501_argumentExtension },
 	{ NULL, 0, 0, NULL }
 };
@@ -698,13 +698,13 @@ NOT_DECODED_YET("Unrecognized H.450.x operation");
 
 
 static per_sequence_t Invoke_sequence[] = {
-	{ "invokeID", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "invokeID", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h4501_constrained_invokeId },
-	{ "linkedId", NO_EXTENSIONS, OPTIONAL,
+	{ "linkedId", NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_h4501_invokeId },
-	{ "opcode", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "opcode", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h4501_opcode },
-	{ "argument", NO_EXTENSIONS, OPTIONAL,
+	{ "argument", NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_h4501_argument },
 	{ NULL, 0, 0, NULL }
 };
@@ -725,11 +725,11 @@ dissect_h4501_resultExtension(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 static per_sequence_t CTIdentifyRes_sequence[] = {
-	{ "callIdentity", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "callIdentity", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4502_CallIdentity },
-	{ "reroutingNumber", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "reroutingNumber", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4501_EndpointAddress },
-	{ "resultExtension", EXTENSION_ROOT, OPTIONAL,
+	{ "resultExtension", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h4501_resultExtension },
 	{ NULL, 0, 0, NULL }
 };
@@ -782,9 +782,9 @@ NOT_DECODED_YET("Unrecognized H.450.x return result");
 
 
 static per_sequence_t result_sequence[] = {
-	{ "opcode", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "opcode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4501_opcode },
-	{ "result", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "result", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4501_ReturnResult_result },
 	{ NULL, 0, 0, NULL }
 };
@@ -797,9 +797,9 @@ dissect_h4501_result(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 
 
 static per_sequence_t ReturnResult_sequence[] = {
-	{ "invokeID", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "invokeID", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h4501_invokeId },
-	{ "result", NO_EXTENSIONS, OPTIONAL,
+	{ "result", NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_h4501_result },
 	{ NULL, 0, 0, NULL }
 };
@@ -882,11 +882,11 @@ dissect_h4501_parameter(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 
 static per_sequence_t ReturnError_sequence[] = {
-	{ "invokeID", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "invokeID", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h4501_invokeId },
-	{ "errorCode", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "errorCode", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h4501_errorCode },
-	{ "parameter", NO_EXTENSIONS, OPTIONAL,
+	{ "parameter", NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_h4501_parameter },
 	{ NULL, 0, 0, NULL }
 };
@@ -988,9 +988,9 @@ dissect_h4501_problem(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 
 static per_sequence_t Reject_sequence[] = {
-	{ "invokeID", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "invokeID", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h4501_invokeId },
-	{ "problem", NO_EXTENSIONS, NOT_OPTIONAL,
+	{ "problem", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h4501_problem },
 	{ NULL, 0, 0, NULL }
 };
@@ -1054,11 +1054,11 @@ dissect_h4501_ServiceApdus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 
 static per_sequence_t H4501_SupplementaryService_sequence[] = {
-	{ "networkFacilityExtension", EXTENSION_ROOT, OPTIONAL,
+	{ "networkFacilityExtension", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h4501_NetworkFacilityExtension },
-	{ "interpretationApdu", EXTENSION_ROOT, OPTIONAL,
+	{ "interpretationApdu", EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h4501_InterpretationApdu },
-	{ "serviceApdu", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "serviceApdu", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h4501_ServiceApdus },
 	{ NULL, 0, 0, NULL }
 };
