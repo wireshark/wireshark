@@ -33,7 +33,7 @@ ascend-grammar.c ascend-grammar.h : ascend-grammar.y
 ascend-scanner.obj : ascend-scanner.c ascend-grammar.h
 
 ascend-scanner.c : ascend-scanner.l
-	$(LEX) -Pascend -t ascend-scanner.l > ascend-scanner.c 
+	$(LEX) -Pascend -oascend-scanner.c ascend-scanner.l
 
 
 config.h	: config.h.win32
