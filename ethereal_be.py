@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_be.py,v 1.4 2001/08/30 19:31:53 oabad Exp $
+# $Id: ethereal_be.py,v 1.5 2001/10/12 17:14:41 guy Exp $
 #
 #    File      : ethereal_be.py
 #
@@ -72,7 +72,7 @@ class EtherealVisitor:
     def __init__(self, st):
         self.st = st
         self.oplist = []                # list of operation nodes
-        self.enumlist = []              # list of enum nodes
+        self.enlist = []                # list of enum nodes
         self.atlist = []                # list of attribute nodes
 
         
@@ -86,6 +86,9 @@ class EtherealVisitor:
                 self.visitOperation(n)
             if isinstance(n, idlast.Attribute):
                 self.visitAttribute(n)
+            if isinstance(n, idlast.Enum):
+                self.visitEnum(n)
+                                
 
     def visitModule(self, node):
         for n in node.definitions():
@@ -97,7 +100,9 @@ class EtherealVisitor:
                 self.visitOperation(n)   
             if isinstance(n, idlast.Attribute):
                 self.visitAttribute(n)
-
+            if isinstance(n, idlast.Enum):
+                self.visitEnum(n)
+                
     def visitInterface(self, node):
         #if node.mainFile():
         for c in node.callables():
@@ -106,6 +111,9 @@ class EtherealVisitor:
             if isinstance(c, idlast.Attribute):
                 self.visitAttribute(c)
                 
+        for d in node.contents():
+            if isinstance(d, idlast.Enum):
+                self.visitEnum(d)                
     #
     # visitOperation
     #
@@ -125,6 +133,18 @@ class EtherealVisitor:
     
     def visitAttribute(self,atnode):
         self.atlist.append(atnode)      # store attribute node
+
+    #
+    # visitEnum
+    #
+    # populates the enum node list "enumlist"
+    #
+    #
+    
+    def visitEnum(self,enode):
+        #print "XXX - enum found" , enode
+        self.enlist.append(enode)      # store enum node
+
 
         
 def run(tree, args):
@@ -148,7 +168,7 @@ def run(tree, args):
     # and generate some C code
     
     eg = ethereal_gen_C(ev.st, string.upper(nl), string.lower(nl), string.capitalize(nl) + " Dissector Using GIOP API") 
-    eg.genCode(ev.oplist, ev.atlist)    # pass them onto the C generator
+    eg.genCode(ev.oplist, ev.atlist, ev.enlist)    # pass them onto the C generator
     
 
 

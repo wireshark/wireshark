@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.11 2001/08/11 04:37:31 guy Exp $
+# $Id: ethereal_gen.py,v 1.12 2001/10/12 17:14:41 guy Exp $
 #                           
 # ethereal_gen.py (part of idl2eth)           
 #
@@ -94,6 +94,8 @@ import tempfile
 # 12. Implement IDL "union" code [done]
 # 13. Implement support for plugins [done]
 # 14. Dont generate code for empty operations (cf: exceptions without members)
+# 15. Generate code to display Enums numerically ans symbolically [done]
+# 16. Place structs in subtrees
 #
 # Also test, Test, TEST
 #
@@ -102,12 +104,12 @@ import tempfile
 
 #
 #   Strategy:
-#
-#    For return val and all parameters do
+#    For every operation and attribute do
+#       For return val and all parameters do
 #       find basic IDL type for each parameter
 #       output get_CDR_xxx
-#    output exception handling code
-#    output attribute handling code
+#       output exception handling code
+#       output attribute handling code
 #
 #
 
@@ -167,7 +169,7 @@ class ethereal_gen_C:
     #
     #
         
-    def genCode(self,oplist, atlist):   # operation and attribute lists
+    def genCode(self,oplist, atlist, enlist):   # operation and attribute lists
 
         self.genHelpers(oplist)         # sneaky .. call it now, to populate the fn_hash
                                         # so when I come to that operation later, I have the variables to
@@ -195,6 +197,7 @@ class ethereal_gen_C:
         self.genOpList(oplist)          # string constant declares for operation names
         self.genExList(oplist)          # string constant declares for user exceptions
         self.genAtList(atlist)          # string constant declares for Attributes
+        self.genEnList(enlist)          # string constant declares for Enums
         
         
         self.genExceptionHelpers(oplist)   # helper function to decode user exceptions that have members
@@ -427,6 +430,43 @@ class ethereal_gen_C:
                     self.st.out(self.template_attributes_declare_Java_set, sname=sname, atname=atname)
     
         self.st.out(self.template_comment_attributes_end)
+
+
+    #
+    # genEnList
+    #
+    # in: enlist
+    #
+    # out: C code for IDL Enum decalarations using "static const value_string" template
+    #
+
+    
+
+    def genEnList(self,enlist):
+        
+        self.st.out(self.template_comment_enums_start)        
+
+        for enum in enlist:
+            sname = self.namespace(enum, "_")
+            
+            self.st.out(self.template_comment_enum_comment, ename=enum.repoId())
+            self.st.out(self.template_value_string_start, valstringname=sname)
+            for enumerator in enum.enumerators():
+                self.st.out(self.template_value_string_entry, intval=str(self.valFromEnum(enum,enumerator)), description=enumerator.identifier())
+                
+                
+            #atname = n.identifier()
+            self.st.out(self.template_value_string_end, valstringname=sname)
+    
+        self.st.out(self.template_comment_enums_end)
+
+
+
+
+
+
+
+
 
 
     #
@@ -920,7 +960,9 @@ class ethereal_gen_C:
             self.get_CDR_wchar(pn)            
         elif pt ==  idltype.tk_enum:
             #print type.decl()
-            self.get_CDR_enum(pn)
+            self.get_CDR_enum(pn,type)
+            #self.get_CDR_enum(pn)
+            
         elif pt ==  idltype.tk_struct:
             self.get_CDR_struct(type,pn)
         elif pt ==  idltype.tk_TypeCode: # will I ever get here ?
@@ -1003,8 +1045,12 @@ class ethereal_gen_C:
     def get_CDR_any(self,pn):
         self.st.out(self.template_get_CDR_any, varname=pn)
 
-    def get_CDR_enum(self,pn):
-        self.st.out(self.template_get_CDR_enum, varname=pn)
+    def get_CDR_enum(self,pn,type):
+        #self.st.out(self.template_get_CDR_enum, varname=pn)
+        sname = self.namespace(type, "_")
+        self.st.out(self.template_get_CDR_enum_symbolic, valstringarray=sname)
+
+
         self.addvar(self.c_u_octet4)
 
     def get_CDR_string(self,pn):
@@ -1821,17 +1867,17 @@ g_free(seq);          /*  free buffer  */
 seq = NULL;
 
 """
-    
-    
-    template_get_CDR_enum = """\
 
-/* TODO - translate Enum val into symbolic value */
+            
+    template_get_CDR_enum_symbolic = """\
     
 u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
 if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u ",u_octet4);
+   proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,@valstringarray@,"Unknown Enum Value"));
 }
 """
+
+
 
     template_get_CDR_string = """\
 u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
@@ -2262,6 +2308,49 @@ stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 }
 """
 
+#-------------------------------------------------------------#
+#             Value string  templates                         #
+#-------------------------------------------------------------#
+
+    template_value_string_start = """\
+static const value_string @valstringname@[] = {
+"""
+
+    template_value_string_entry = """\
+   { @intval@, \"@description@\" }, """    
+    
+    template_value_string_end = """\
+   { 0,       NULL },
+};
+    
+"""
+
+    
+
+#-------------------------------------------------------------#
+#             Enum   handling templates                       #
+#-------------------------------------------------------------#
+
+    template_comment_enums_start = """\
+/*
+ * IDL Enums Start
+ */
+ 
+ """
+    
+    template_comment_enums_end = """\
+/*
+ * IDL Enums End
+ */
+ 
+ """
+    
+    template_comment_enum_comment = """\
+/*
+ * Enum = @ename@
+ */
+ 
+ """
 
 
 
