@@ -1,7 +1,7 @@
 /* tap-iousers.c
  * iostat   2003 Ronnie Sahlberg
  *
- * $Id: tap-iousers.c,v 1.14 2003/09/04 23:37:43 sahlberg Exp $
+ * $Id: tap-iousers.c,v 1.15 2003/09/05 01:33:40 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,7 +75,16 @@ iousers_udpip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_
 	io_users_item_t *iui;
 	int direction=0;
 
-	if(CMP_ADDRESS(&udph->ip_src, &udph->ip_dst)>0){
+	if(udph->uh_sport>udph->uh_dport){
+		direction=0;
+		snprintf(name1,256,"%s:%s",address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
+		snprintf(name2,256,"%s:%s",address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
+	} else if(udph->uh_sport<udph->uh_dport){
+		direction=1;
+		snprintf(name2,256,"%s:%s",address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
+		snprintf(name1,256,"%s:%s",address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
+	} else if(CMP_ADDRESS(&udph->ip_src, &udph->ip_dst)>0){
+		direction=0;
 		snprintf(name1,256,"%s:%s",address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
 		snprintf(name2,256,"%s:%s",address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
 	} else {
@@ -125,7 +134,16 @@ iousers_tcpip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_
 	io_users_item_t *iui;
 	int direction=0;
 
-	if(CMP_ADDRESS(&tcph->ip_src, &tcph->ip_dst)>0){
+	if(tcph->th_sport>tcph->th_dport){
+		direction=0;
+		snprintf(name1,256,"%s:%s",address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
+		snprintf(name2,256,"%s:%s",address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
+	} else if(tcph->th_sport<tcph->th_dport){
+		direction=1;
+		snprintf(name2,256,"%s:%s",address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
+		snprintf(name1,256,"%s:%s",address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
+	} else if(CMP_ADDRESS(&tcph->ip_src, &tcph->ip_dst)>0){
+		direction=0;
 		snprintf(name1,256,"%s:%s",address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
 		snprintf(name2,256,"%s:%s",address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
 	} else {
