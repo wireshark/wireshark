@@ -3773,6 +3773,12 @@ proto_reg_handoff_lcp(void)
    * table.
    */
   dissector_add("ethertype", PPP_LCP, lcp_handle);
+
+  /*
+   * for GSM-A / MobileL3 / GPRS SM / PCO
+   */
+  dissector_add("sm_pco.protocol", PPP_LCP, lcp_handle);
+
 }
 
 void
@@ -3803,6 +3809,12 @@ proto_reg_handoff_ipcp(void)
    * registering with the "ethertype" dissector table.
    */
   dissector_add("ethertype", PPP_IPCP, ipcp_handle);
+
+  /*
+   * for GSM-A / MobileL3 / GPRS SM / PCO
+   */
+  dissector_add("sm_pco.protocol", PPP_IPCP, ipcp_handle);
+
 }
 
 void
@@ -4016,6 +4028,11 @@ proto_reg_handoff_pap(void)
    * registering with the "ethertype" dissector table.
    */
   dissector_add("ethertype", PPP_PAP, pap_handle);
+
+  /*
+   * for GSM-A / MobileL3 / GPRS SM / PCO
+   */
+  dissector_add("sm_pco.protocol", PPP_PAP, pap_handle);
 }
 
 void
@@ -4047,6 +4064,11 @@ proto_reg_handoff_chap(void)
    * registering with the "ethertype" dissector table.
    */
   dissector_add("ethertype", PPP_CHAP, chap_handle);
+  
+  /*
+   * for GSM-A / MobileL3 / GPRS SM / PCO
+   */
+  dissector_add("sm_pco.protocol", PPP_CHAP, chap_handle);
 }
 
 void

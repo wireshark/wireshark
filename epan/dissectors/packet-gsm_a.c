@@ -4,6 +4,12 @@
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
+ * Added the GPRS Mobility Managment Protocol and 
+ * the GPRS Session Managment Protocol
+ *   Copyright 2004, Rene Pilz <rene.pilz [AT] ftw.com>
+ *   In association with Telecommunications Research Center 
+ *   Vienna (ftw.)Betriebs-GmbH within the Project Metawin.
+ *
  * Title		3GPP			Other
  *
  *   Reference [1]
@@ -746,7 +752,6 @@ static gint ett_gmm_context_stat = -1;
 static gint ett_gmm_update_type = -1;
 static gint ett_gmm_radio_cap = -1;
 
-static gint ett_sm_pfi = -1;
 static gint ett_sm_tft = -1;
 
 static char a_bigbuf[1024];
@@ -757,6 +762,7 @@ static dissector_handle_t bssmap_handle;
 static dissector_handle_t dtap_handle;
 static dissector_handle_t rp_handle;
 static dissector_table_t sms_dissector_table;	/* SMS TPDU */
+static dissector_table_t gprs_sm_pco_subdissector_table; /* GPRS SM PCO PPP Protocols */
 
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
@@ -7555,6 +7561,33 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 /*
  * [7] 10.5.5.12a
  */
+#define GET_DATA				/* check if we have enough bits left */ \
+		if ( curr_bits_length < bits_needed ) \
+			continue; \
+		/* check if oct has enougth bits */ \
+		if ( bits_in_oct < bits_needed ) \
+		{ \
+			guint32 tmp_oct; \
+			if ( curr_len == 0 ) \
+			{ \
+				proto_tree_add_text(tf_tree, \
+				tvb, curr_offset, 1, \
+				"Not enough data available"); \
+			} \
+			tmp_oct = tvb_get_guint8(tvb, curr_offset); \
+			oct |= tmp_oct<<(32-8-bits_in_oct); \
+			curr_len--; \
+			curr_offset++; \
+			if ( bits_in_oct != 0 ) \
+				add_ocetets = 1; \
+			else \
+				add_ocetets = 0; \
+			bits_in_oct += 8; \
+		} \
+		else \
+			add_ocetets = 0;
+
+
 static guint8
 de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
 {
@@ -7562,20 +7595,1326 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
     guint	curr_len;
     proto_item  *tf = NULL;
     proto_tree      *tf_tree = NULL;
+    guint32     oct;
+    guchar      bits_in_oct;
+    guchar      bits_needed;
+    guint       bits_length;
+    guint       add_ocetets;	/* octets which are covered by one element -1 */
+    guint       curr_bits_length;
+    guchar	acc_type;
+    gchar       *str;
+    gchar       multi_slot_str[64][230] = {
+    	"Not specified", /* 00 */
+    	"Max Rx-Slot/TDMA:1 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:2 Tta:3 Ttb:2 Tra:4 Trb:2 Type:1", /* 01 */
+    	"Max Rx-Slot/TDMA:2 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:3 Tta:3 Ttb:2 Tra:3 Trb:1 Type:1", /* 02 */
+    	"Max Rx-Slot/TDMA:2 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:3 Tta:3 Ttb:2 Tra:3 Trb:1 Type:1", /* 03 */
+    	"Max Rx-Slot/TDMA:3 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:4 Tta:3 Ttb:1 Tra:3 Trb:1 Type:1", /* 04 */
+    	"Max Rx-Slot/TDMA:2 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:4 Tta:3 Ttb:1 Tra:3 Trb:1 Type:1", /* 05 */
+    	"Max Rx-Slot/TDMA:3 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:4 Tta:3 Ttb:1 Tra:3 Trb:1 Type:1", /* 06 */
+    	"Max Rx-Slot/TDMA:3 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:4 Tta:3 Ttb:1 Tra:3 Trb:1 Type:1", /* 07 */
+    	"Max Rx-Slot/TDMA:4 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:5 Tta:3 Ttb:1 Tra:2 Trb:1 Type:1", /* 08 */
+    	"Max Rx-Slot/TDMA:3 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:5 Tta:3 Ttb:1 Tra:2 Trb:1 Type:1", /* 09 */
+    	"Max Rx-Slot/TDMA:4 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:5 Tta:3 Ttb:1 Tra:2 Trb:1 Type:1", /* 10 */
+    	"Max Rx-Slot/TDMA:4 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:5 Tta:3 Ttb:1 Tra:2 Trb:1 Type:1", /* 11 */
+    	"Max Rx-Slot/TDMA:4 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:5 Tta:2 Ttb:1 Tra:2 Trb:1 Type:1", /* 12 */
+    	"Max Rx-Slot/TDMA:3 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:a) Tra:3 Trb:a) Type:2 (a: 1 with frequency hopping, 0 otherwise)", /* 13 */
+    	"Max Rx-Slot/TDMA:4 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:a) Tra:3 Trb:a) Type:2 (a: 1 with frequency hopping, 0 otherwise)", /* 14 */
+    	"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:5 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:a) Tra:3 Trb:a) Type:2 (a: 1 with frequency hopping, 0 otherwise)", /* 15 */
+    	"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:6 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:a) Tra:2 Trb:a) Type:2 (a: 1 with frequency hopping, 0 otherwise)", /* 16 */
+    	"Max Rx-Slot/TDMA:7 Max Tx-Slot/TDMA:7 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:a) Tra:1 Trb:0 Type:2 (a: 1 with frequency hopping, 0 otherwise)", /* 17 */
+    	"Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:8 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:0 Tra:0 Trb:0 Type:2", /* 18 */
+    	"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 19 */   	
+    	"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 20 */
+    	"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 21 */
+    	"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 22 */
+    	"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:6 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 23 */
+    	"Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 24 */
+    	"Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 25 */
+    	"Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 26 */
+    	"Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 27 */
+    	"Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:6 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 28 */
+    	"Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:8 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 29 */
+    	"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1 Trb:1 Type:1", /* 30 */
+    	"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1 Trb:1 Type:1", /* 31 */
+    	"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1 Trb:1 Type:1", /* 32 */
+    	"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1 Trb:1 Type:1", /* 33 */
+    	"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:5 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1 Trb:1 Type:1", /* 34 */
+       	"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1+to Trb:1 Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 35 */
+    	"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1+to Trb:1 Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 36 */
+    	"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1+to Trb:1 Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 37 */
+    	"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1+to Trb:1 Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 38 */
+    	"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:5 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1+to Trb:1 Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 39 */
+    	"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:7 Tta:1 Ttb:1 Tra:1 Trb:to Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 40 */
+    	"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:7 Tta:1 Ttb:1 Tra:1 Trb:to Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 41 */
+    	"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:7 Tta:1 Ttb:1 Tra:1 Trb:to Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 42 */
+    	"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:7 Tta:1 Ttb:1 Tra:1 Trb:to Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 43 */
+    	"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:5 Max-Sum-Slot/TDMA:7 Tta:1 Ttb:1 Tra:1 Trb:to Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 44 */
+    	"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:6 Max-Sum-Slot/TDMA:7 Tta:1 Ttb:1 Tra:1 Trb:to Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 45 */
+    	"Not specified", /* 46 */
+    	"Not specified", /* 47 */
+    	"Not specified", /* 48 */
+    	"Not specified", /* 49 */
+    	"Not specified", /* 50 */
+    	"Not specified", /* 51 */
+    	"Not specified", /* 52 */
+    	"Not specified", /* 53 */
+    	"Not specified", /* 54 */
+    	"Not specified", /* 55 */
+    	"Not specified", /* 56 */
+    	"Not specified", /* 57 */
+    	"Not specified", /* 58 */
+    	"Not specified", /* 59 */
+    	"Not specified", /* 60 */
+    	"Not specified", /* 61 */
+    	"Not specified", /* 62 */
+    	"Not specified", /* 63 */
+	};
+    guint index = 0;
+    guchar dtm_gprs_mslot = 0;
+    guchar dtm_egprs_mslot = 4;
     
     curr_len = len;
     add_string = add_string;
     curr_offset = offset;
 
-    tf = proto_tree_add_text(tree,
-    	tvb, curr_offset, 1,
-    	"Mobile Station Radio Access Capability");
+    bits_in_oct = 0;
+    oct = 0;
 
-    tf_tree = proto_item_add_subtree(tf, ett_gmm_radio_cap );
+    do
+    {
+	/* check for a new round */
+	if (( curr_len*8 + bits_in_oct ) < 11 )
+		break;
+
+	/* now read the first 11 bits */
+    	curr_bits_length = 11;	
+	/*
+	 *
+	 */
+	if ( curr_len != len )
+	{
+		bits_needed = 1;
+		GET_DATA;
+
+		if (( oct>>(32-bits_needed) ) == 1 )
+		{
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+	    		bits_in_oct -= bits_needed;
+	    		
+	    		if (( curr_len*8 + bits_in_oct ) < 11 )
+	    			break;
+	    		curr_bits_length = 11;
+		}
+		else
+		{
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+	    		bits_in_oct -= bits_needed;
+	    		break;
+		}
+	}
+
+	index++;
+	tf = proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+	    	"MS RA capability %d",index);
+
+	tf_tree = proto_item_add_subtree(tf, ett_gmm_radio_cap );
+
+	/*
+	 * Access Technology
+	 */
+	bits_needed = 4;
+	GET_DATA;
+	
+	acc_type = oct>>(32-bits_needed);
+	switch ( acc_type )
+	{
+	    	case 0x00: str="GSM P"; break;
+    		case 0x01: str="GSM E --note that GSM E covers GSM P"; break;
+   	 	case 0x02: str="GSM R --note that GSM R covers GSM E and GSM P"; break;
+    		case 0x03: str="GSM 1800"; break;
+    		case 0x04: str="GSM 1900"; break;
+    		case 0x05: str="GSM 450"; break;
+    		case 0x06: str="GSM 480"; break;
+    		case 0x07: str="GSM 850"; break;
+    		case 0x08: str="GSM 700"; break;
+    		case 0x0f: str="Indicates the presence of a list of Additional access technologies"; break;
+   	 	default: str="unknown";
+   	 }
+
+	proto_tree_add_text(tf_tree,
+	    	tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+    		"Access Technology Type: (%u) %s",acc_type,str);
+    	curr_bits_length -= bits_needed;
+    	oct <<= bits_needed;
+    	bits_in_oct -= bits_needed;
+	
+	/*
+	 * get bits_length
+	 */
+	bits_needed = 7;
+	GET_DATA;
+	
+	bits_length = curr_bits_length = oct>>(32-bits_needed);
+	proto_tree_add_text(tf_tree,
+		tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+		"Length: 0x%02x bits (%u)",bits_length,bits_length);
+    	/* This is already done - length doesn't contain this field
+    	 curr_bits_length -= bits_needed;
+    	*/
+    	oct <<= bits_needed;
+    	bits_in_oct -= bits_needed;
+
+	if ( acc_type == 0x0f )
+	{
+		/*
+		 * Additional access technologies:
+		 */
+
+		/*
+		 * Access Technology
+		 */
+		bits_needed = 4;
+		GET_DATA;
+	
+		acc_type = oct>>(32-bits_needed);
+		switch ( acc_type )
+		{
+		    	case 0x00: str="GSM P"; break;
+    			case 0x01: str="GSM E --note that GSM E covers GSM P"; break;
+	   	 	case 0x02: str="GSM R --note that GSM R covers GSM E and GSM P"; break;
+    			case 0x03: str="GSM 1800"; break;
+    			case 0x04: str="GSM 1900"; break;
+	    		case 0x05: str="GSM 450"; break;
+    			case 0x06: str="GSM 480"; break;
+    			case 0x07: str="GSM 850"; break;
+	    		case 0x08: str="GSM 700"; break;
+    			case 0x0f: str="Indicates the presence of a list of Additional access technologies"; break;
+   	 		default: str="unknown";
+	   	 }
+
+		proto_tree_add_text(tf_tree,
+	    		tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+	    		"Access Technology Type: (%u) %s",acc_type,str);
+    		curr_bits_length -= bits_needed;
+	    	oct <<= bits_needed;
+    		bits_in_oct -= bits_needed;
+
+	    	/*
+    		 * RF Power
+	    	 */
+	    	bits_needed = 3;
+		GET_DATA;
+
+		/* analyse bits */
+		if ( acc_type == 0x04 )	/* GSM 1900 */
+		{
+    			switch ( oct>>(32-bits_needed) )
+	    		{
+    				case 0x01: str="1 W (30 dBm)"; break;
+	    			case 0x02: str="0,25 W (24 dBm)"; break;
+		    		case 0x03: str="2 W (33 dBm)"; break;
+    				default: str="Not specified";
+	    		}
+    		}
+	    	else if ( acc_type == 0x03 )
+    		{
+    			switch ( oct>>(32-bits_needed) )
+	 	   	{
+    				case 0x01: str="1 W (30 dBm)"; break;
+    				case 0x02: str="0,25 W (24 dBm)"; break;
+    				case 0x03: str="4 W (36 dBm)"; break;
+	    			default: str="Not specified";
+    			}
+	    	}
+		else if ( acc_type <= 0x08 )
+	    	{
+    			switch ( oct>>(32-bits_needed) )
+    			{
+    				case 0x02: str="8 W (39 dBm)"; break;
+	    			case 0x03: str="5 W (37 dBm)"; break;
+    				case 0x04: str="2 W (33 dBm)"; break;
+    				case 0x05: str="0,8 W (29 dBm)"; break;
+    				default: str="Not specified";
+	    		}
+    		}
+	    	else
+    			str="Not specified??";
     
-    proto_tree_add_text(tf_tree,
-	tvb, curr_offset, curr_len,
-	"Not Implemented" );
+	    	proto_tree_add_text(tf_tree,
+			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+			"RF Power Capability, GMSK Power Class: (%u) %s",oct>>(32-bits_needed),str);
+	    	curr_bits_length -= bits_needed;
+    		oct <<= bits_needed;
+	    	bits_in_oct -= bits_needed;
+
+	    	/*
+    		 * 8PSK Power Class
+	    	 */
+    		bits_needed = 2;
+		GET_DATA;
+
+		/* analyse bits */
+		switch ( oct>>(32-bits_needed) )
+    		{
+			case 0x00: str="8PSK modulation not supported for uplink"; break;
+			case 0x01: str="Power class E1"; break;
+			case 0x02: str="Power class E2"; break;
+			case 0x03: str="Power class E3"; break;
+			default: str="This should not happen";
+	    	}
+    
+    		proto_tree_add_text(tf_tree,
+			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+			"8PSK Power Class: (%u) %s",oct>>(32-bits_needed),str);
+	    	curr_bits_length -= bits_needed;
+    		oct <<= bits_needed;
+    		bits_in_oct -= bits_needed;
+
+		/*
+		 * we are too long ... so jump over it
+		 */
+		while ( curr_bits_length > 0 )
+		{
+			if ( curr_bits_length > 8 )
+				bits_needed = 8;
+			else
+				bits_needed = curr_bits_length;
+			GET_DATA;
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+			bits_in_oct -= bits_needed;
+		}
+		
+		/* goto next one */
+		continue;
+	}
+    	/*
+    	 * RF Power
+    	 */
+    	bits_needed = 3;
+	GET_DATA;
+
+	/* analyse bits */
+	if ( acc_type == 0x04 )	/* GSM 1900 */
+	{
+    		switch ( oct>>(32-bits_needed) )
+	    	{
+    			case 0x01: str="1 W (30 dBm)"; break;
+    			case 0x02: str="0,25 W (24 dBm)"; break;
+	    		case 0x03: str="2 W (33 dBm)"; break;
+    			default: str="Not specified";
+    		}
+    	}
+    	else if ( acc_type == 0x03 )
+    	{
+    		switch ( oct>>(32-bits_needed) )
+ 	   	{
+    			case 0x01: str="1 W (30 dBm)"; break;
+    			case 0x02: str="0,25 W (24 dBm)"; break;
+    			case 0x03: str="4 W (36 dBm)"; break;
+    			default: str="Not specified";
+    		}
+    	}
+	else if ( acc_type <= 0x08 )
+    	{
+    		switch ( oct>>(32-bits_needed) )
+    		{
+    			case 0x02: str="8 W (39 dBm)"; break;
+    			case 0x03: str="5 W (37 dBm)"; break;
+    			case 0x04: str="2 W (33 dBm)"; break;
+    			case 0x05: str="0,8 W (29 dBm)"; break;
+    			default: str="Not specified";
+    		}
+    	}
+    	else
+    		str="Not specified??";
+    
+    	proto_tree_add_text(tf_tree,
+		tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+		"RF Power Capability, GMSK Power Class: (%u) %s",oct>>(32-bits_needed),str);
+    	curr_bits_length -= bits_needed;
+    	oct <<= bits_needed;
+    	bits_in_oct -= bits_needed;
+
+    	/*
+    	 * A5 Bits?
+    	 */
+    	bits_needed = 1;
+	GET_DATA;
+
+	/* analyse bits */
+        if ((oct>>(32-bits_needed))==0)
+        {
+	    	proto_tree_add_text(tf_tree,
+			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+			"A5 Bits: (%u) same values apply for parameters as in the immediately preceding Access capabilities field within this IE",oct>>(32-bits_needed));
+	    	curr_bits_length -= bits_needed;
+    		oct <<= bits_needed;
+   	 	bits_in_oct -= bits_needed;
+    	}
+    	else
+    	{
+    		int i;
+
+	    	proto_tree_add_text(tf_tree,
+			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+			"A5 Bits: (%u) A5 bits follows",oct>>(32-bits_needed));
+
+	    	curr_bits_length -= bits_needed;
+    		oct <<= bits_needed;
+    		bits_in_oct -= bits_needed;
+    		
+    		for (i=1; i<= 7 ; i++ )
+    		{
+		    	/*
+		    	 * A5 Bits decoding
+		    	 */
+		    	bits_needed = 1;
+			GET_DATA;
+
+			/* analyse bits */
+			switch ( oct>>(32-bits_needed) )
+		    	{
+				case 0x00: str="encryption algorithm not available"; break;
+				case 0x01: str="encryption algorithm available"; break;
+				default: str="This should not happen";
+		    	}
+    
+		    	proto_tree_add_text(tf_tree,
+				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				"A5/%d: (%u) %s",i,oct>>(32-bits_needed),str);
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+   	 		bits_in_oct -= bits_needed;
+    		}
+	}
+    
+    	/*
+    	 * ES IND
+    	 */
+    	bits_needed = 1;
+	GET_DATA;
+
+	/* analyse bits */
+	switch ( oct>>(32-bits_needed) )
+    	{
+		case 0x00: str="controlled early Classmark Sending option is not implemented"; break;
+		case 0x01: str="controlled early Classmark Sending option is implemented"; break;
+		default: str="This should not happen";
+    	}
+    
+    	proto_tree_add_text(tf_tree,
+		tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+		"Controlled early Classmark Sending: (%u) %s",oct>>(32-bits_needed),str);
+    	curr_bits_length -= bits_needed;
+    	oct <<= bits_needed;
+    	bits_in_oct -= bits_needed;
+
+    	/*
+    	 * PS
+    	 */
+    	bits_needed = 1;
+	GET_DATA;
+
+	/* analyse bits */
+	switch ( oct>>(32-bits_needed) )
+    	{
+		case 0x00: str="PS capability not present"; break;
+		case 0x01: str="PS capability present"; break;
+		default: str="This should not happen";
+    	}
+    
+    	proto_tree_add_text(tf_tree,
+		tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+		"Pseudo Synchronisation: (%u) %s",oct>>(32-bits_needed),str);
+    	curr_bits_length -= bits_needed;
+    	oct <<= bits_needed;
+    	bits_in_oct -= bits_needed;
+
+    	/*
+    	 * VGCS
+    	 */
+    	bits_needed = 1;
+	GET_DATA;
+
+	/* analyse bits */
+	switch ( oct>>(32-bits_needed) )
+    	{
+		case 0x00: str="no VGCS capability or no notifications wanted"; break;
+		case 0x01: str="VGCS capability and notifications wanted"; break;
+		default: str="This should not happen";
+    	}
+    
+    	proto_tree_add_text(tf_tree,
+		tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+		"Voice Group Call Service: (%u) %s",oct>>(32-bits_needed),str);
+    	curr_bits_length -= bits_needed;
+    	oct <<= bits_needed;
+    	bits_in_oct -= bits_needed;
+
+    	/*
+    	 * VBS
+    	 */
+    	bits_needed = 1;
+	GET_DATA;
+
+	/* analyse bits */
+	switch ( oct>>(32-bits_needed) )
+    	{
+		case 0x00: str="no VBS capability or no notifications wanted"; break;
+		case 0x01: str="VBS capability and notifications wanted"; break;
+		default: str="This should not happen";
+    	}
+    
+    	proto_tree_add_text(tf_tree,
+		tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+		"Voice Broadcast Service: (%u) %s",oct>>(32-bits_needed),str);
+    	curr_bits_length -= bits_needed;
+    	oct <<= bits_needed;
+    	bits_in_oct -= bits_needed;
+
+    	/*
+    	 * Multislot capability?
+    	 */
+    	bits_needed = 1;
+	GET_DATA;
+
+	/* analyse bits */
+        if ((oct>>(32-bits_needed))==0)
+        {
+	    	proto_tree_add_text(tf_tree,
+			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+			"Multislot capability: (%u) same values apply for parameters as in the immediately preceding Access capabilities field within this IE",oct>>(32-bits_needed));
+	    	curr_bits_length -= bits_needed;
+    		oct <<= bits_needed;
+   	 	bits_in_oct -= bits_needed;
+    	}
+    	else
+    	{
+	    	proto_tree_add_text(tf_tree,
+			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+			"Multislot capability: (%u) Multislot capability struct available",oct>>(32-bits_needed));
+
+	    	curr_bits_length -= bits_needed;
+    		oct <<= bits_needed;
+   	 	bits_in_oct -= bits_needed;
+
+	    	/*
+    		 * HSCSD multislot class?
+	    	 */
+	    	bits_needed = 1;
+		GET_DATA;
+
+		/* analyse bits */
+        	if ((oct>>(32-bits_needed))==0)
+	        {
+		    	proto_tree_add_text(tf_tree,
+				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				"HSCSD multislot class: (%u) Bits are not available",oct>>(32-bits_needed));
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+   	 		bits_in_oct -= bits_needed;
+	    	}
+    		else
+	    	{
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+   	 		bits_in_oct -= bits_needed;
+
+		    	/*
+		    	 * HSCSD multislot class
+    			 */
+		    	bits_needed = 5;
+			GET_DATA;
+
+			/* analyse bits */
+		    	proto_tree_add_text(tf_tree,
+				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				"HSCSD multislot class: (%u) %s",oct>>(32-bits_needed),multi_slot_str[oct>>(32-bits_needed)]);
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+	    		bits_in_oct -= bits_needed;
+		}
+
+	    	/*
+    		 * GPRS multislot class?
+	    	 */
+	    	bits_needed = 1;
+		GET_DATA;
+
+		/* analyse bits */
+        	if ((oct>>(32-bits_needed))==0)
+	        {
+		    	proto_tree_add_text(tf_tree,
+				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				"GPRS multislot class: (%u) Bits are not available",oct>>(32-bits_needed));
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+   	 		bits_in_oct -= bits_needed;
+	    	}
+    		else
+	    	{
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+   	 		bits_in_oct -= bits_needed;
+
+		    	/*
+		    	 * GPRS multislot class
+    			 */
+		    	bits_needed = 5;
+			GET_DATA;
+
+			/* analyse bits */
+		    	proto_tree_add_text(tf_tree,
+				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				"GPRS multislot class: (%u) %s",oct>>(32-bits_needed),multi_slot_str[oct>>(32-bits_needed)]);
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+	    		bits_in_oct -= bits_needed;
+
+		    	/*
+		    	 * GPRS Extended Dynamic Allocation Capability
+    			 */
+		    	bits_needed = 1;
+			GET_DATA;
+
+			/* analyse bits */
+			switch ( oct>>(32-bits_needed) )
+			{
+				case 0x00: str="Extended Dynamic Allocation Capability for GPRS is not implemented"; break;
+				case 0x01: str="Extended Dynamic Allocation Capability for GPRS is implemented"; break;
+				default: str="This should not happen";
+			}
+		    	proto_tree_add_text(tf_tree,
+				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				"GPRS Extended Dynamic Allocation Capability: (%u) %s",oct>>(32-bits_needed),str);
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+	    		bits_in_oct -= bits_needed;
+		}
+
+		/*
+		 * SMS/SM values
+		 */
+	    	bits_needed = 1;
+		GET_DATA;
+
+		/* analyse bits */
+        	if ((oct>>(32-bits_needed))==0)
+	        {
+		    	proto_tree_add_text(tf_tree,
+				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				"SMS/SM values: (%u) Bits are not available",oct>>(32-bits_needed));
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+   	 		bits_in_oct -= bits_needed;
+	    	}
+    		else
+	    	{
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+   	 		bits_in_oct -= bits_needed;
+
+		    	/*
+		    	 * Switch-Measure-Switch value
+    			 */
+		    	bits_needed = 4;
+			GET_DATA;
+
+			/* analyse bits */
+		    	proto_tree_add_text(tf_tree,
+				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				"Switch-Measure-Switch value: (%u) %d/4 timeslot (~%d microseconds)",
+				oct>>(32-bits_needed),oct>>(32-bits_needed),(oct>>(32-bits_needed))*144);
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+	    		bits_in_oct -= bits_needed;
+
+		    	/*
+		    	 * Switch-Measure value
+    			 */
+		    	bits_needed = 4;
+			GET_DATA;
+
+			/* analyse bits */
+		    	proto_tree_add_text(tf_tree,
+				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				"Switch-Measure value: (%u) %d/4 timeslot (~%d microseconds)",
+				oct>>(32-bits_needed),oct>>(32-bits_needed),(oct>>(32-bits_needed))*144);
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+	    		bits_in_oct -= bits_needed;
+		}
+
+	    	/*
+    		 * ECSD multislot class?
+	    	 */
+	    	bits_needed = 1;
+		GET_DATA;
+
+		/* analyse bits */
+        	if ((oct>>(32-bits_needed))==0)
+	        {
+		    	proto_tree_add_text(tf_tree,
+				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				"ECSD multislot class: (%u) Bits are not available",oct>>(32-bits_needed));
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+   	 		bits_in_oct -= bits_needed;
+	    	}
+    		else
+	    	{
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+   	 		bits_in_oct -= bits_needed;
+
+		    	/*
+		    	 * ECSD multislot class
+    			 */
+		    	bits_needed = 5;
+			GET_DATA;
+
+			/* analyse bits */
+		    	proto_tree_add_text(tf_tree,
+				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				"ECSD multislot class: (%u) %s",oct>>(32-bits_needed),multi_slot_str[oct>>(32-bits_needed)]);
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+	    		bits_in_oct -= bits_needed;
+		}
+
+	    	/*
+    		 * EGPRS multislot class?
+	    	 */
+	    	bits_needed = 1;
+		GET_DATA;
+
+		/* analyse bits */
+        	if ((oct>>(32-bits_needed))==0)
+	        {
+		    	proto_tree_add_text(tf_tree,
+				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				"EGPRS multislot class: (%u) Bits are not available",oct>>(32-bits_needed));
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+   	 		bits_in_oct -= bits_needed;
+	    	}
+    		else
+	    	{
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+   	 		bits_in_oct -= bits_needed;
+
+		    	/*
+		    	 * EGPRS multislot class
+    			 */
+		    	bits_needed = 5;
+			GET_DATA;
+
+			/* analyse bits */
+		    	proto_tree_add_text(tf_tree,
+				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				"EGPRS multislot class: (%u) %s",oct>>(32-bits_needed),multi_slot_str[oct>>(32-bits_needed)]);
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+	    		bits_in_oct -= bits_needed;
+
+		    	/*
+		    	 * EGPRS Extended Dynamic Allocation Capability
+    			 */
+		    	bits_needed = 1;
+			GET_DATA;
+
+			/* analyse bits */
+			switch ( oct>>(32-bits_needed) )
+			{
+				case 0x00: str="Extended Dynamic Allocation Capability for EGPRS is not implemented"; break;
+				case 0x01: str="Extended Dynamic Allocation Capability for EGPRS is implemented"; break;
+				default: str="This should not happen";
+			}
+		    	proto_tree_add_text(tf_tree,
+				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				"EGPRS Extended Dynamic Allocation Capability: (%u) %s",oct>>(32-bits_needed),str);
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+	    		bits_in_oct -= bits_needed;
+		}
+
+		/*
+		 * DTM GPRS Multi Slot Class ?
+		*/
+	    	bits_needed = 1;
+		GET_DATA;
+
+		/* analyse bits */
+        	if ((oct>>(32-bits_needed))==0)
+	        {
+		    	proto_tree_add_text(tf_tree,
+				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				"DTM GPRS Multi Slot Class: (%u) Bits are not available",oct>>(32-bits_needed));
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+   	 		bits_in_oct -= bits_needed;
+	    	}
+    		else
+	    	{
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+   	 		bits_in_oct -= bits_needed;
+
+		    	/*
+		    	 * DTM GPRS Multi Slot Class
+    			 */
+		    	bits_needed = 2;
+			GET_DATA;
+
+			/* analyse bits */
+			dtm_gprs_mslot = oct>>(32-bits_needed);
+
+			switch ( oct>>(32-bits_needed) )
+			{
+				case 0: str="Unused. If received, the network shall interpret this as Multislot class 5"; break;
+				case 1: str="Multislot class 5 supported"; break;
+				case 2: str="Multislot class 9 supported"; break;
+				case 3: str="Multislot class 11 supported"; break;
+				default: str="This should not happen";
+			}
+			
+		    	proto_tree_add_text(tf_tree,
+				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				"DTM GPRS Multi Slot Class: (%u) %s",oct>>(32-bits_needed),str);
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+	    		bits_in_oct -= bits_needed;
+
+		    	/*
+		    	 * Single Slot DTM
+    			 */
+		    	bits_needed = 1;
+			GET_DATA;
+
+			/* analyse bits */
+			switch ( oct>>(32-bits_needed) )
+			{
+				case 0x00: str="Single Slot DTM not supported"; break;
+				case 0x01: str="Single Slot DTM supported"; break;
+				default: str="This should not happen";
+			}
+		    	proto_tree_add_text(tf_tree,
+				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				"Single Slot DTM: (%u) %s",oct>>(32-bits_needed),str);
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+	    		bits_in_oct -= bits_needed;
+
+			/*
+			 * DTM EGPRS Multi Slot Class ?
+			*/
+		    	bits_needed = 1;
+			GET_DATA;
+
+			/* analyse bits */
+			dtm_egprs_mslot = oct>>(32-bits_needed);
+
+        		if ((oct>>(32-bits_needed))==0)
+	        	{
+		    		proto_tree_add_text(tf_tree,
+					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+					"DTM EGPRS Multi Slot Class: (%u) Bits are not available",oct>>(32-bits_needed));
+			    	curr_bits_length -= bits_needed;
+    				oct <<= bits_needed;
+   	 			bits_in_oct -= bits_needed;
+	    		}
+	    		else
+		    	{
+			    	curr_bits_length -= bits_needed;
+    				oct <<= bits_needed;
+  	 	 		bits_in_oct -= bits_needed;
+
+			    	/*
+			    	 * DTM EGPRS Multi Slot Class
+	    			 */
+			    	bits_needed = 2;
+				GET_DATA;
+
+				/* analyse bits */
+				switch ( oct>>(32-bits_needed) )
+				{
+					case 0: str="Unused. If received, the network shall interpret this as Multislot class 5"; break;
+					case 1: str="Multislot class 5 supported"; break;
+					case 2: str="Multislot class 9 supported"; break;
+					case 3: str="Multislot class 11 supported"; break;
+					default: str="This should not happen";
+				}
+			
+		    		proto_tree_add_text(tf_tree,
+					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+					"DTM EGPRS Multi Slot Class: (%u) %s",oct>>(32-bits_needed),str);
+			    	curr_bits_length -= bits_needed;
+    				oct <<= bits_needed;
+	    			bits_in_oct -= bits_needed;
+			}
+		}
+	}
+
+    	/*
+    	 * 8PSK Power Capability?
+    	 */
+    	bits_needed = 1;
+	GET_DATA;
+
+	/* analyse bits */
+        if ((oct>>(32-bits_needed))==0)
+        {
+	    	proto_tree_add_text(tf_tree,
+			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+			"8PSK Power Capability: (%u) Bits are not available",oct>>(32-bits_needed));
+	    	curr_bits_length -= bits_needed;
+    		oct <<= bits_needed;
+   	 	bits_in_oct -= bits_needed;
+    	}
+    	else
+    	{
+	    	curr_bits_length -= bits_needed;
+    		oct <<= bits_needed;
+   	 	bits_in_oct -= bits_needed;
+
+	    	/*
+    		 * 8PSK Power Capability
+	    	 */
+    		bits_needed = 2;
+		GET_DATA;
+
+		/* analyse bits */
+		switch ( oct>>(32-bits_needed) )
+    		{
+			case 0x00: str="Reserved"; break;
+			case 0x01: str="Power class E1"; break;
+			case 0x02: str="Power class E2"; break;
+			case 0x03: str="Power class E3"; break;
+			default: str="This should not happen";
+	    	}
+    
+    		proto_tree_add_text(tf_tree,
+			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+			"8PSK Power Capability: (%u) %s",oct>>(32-bits_needed),str);
+	    	curr_bits_length -= bits_needed;
+    		oct <<= bits_needed;
+    		bits_in_oct -= bits_needed;
+	}
+
+    	/*
+    	 * COMPACT Interference Measurement Capability
+    	 */
+    	bits_needed = 1;
+	GET_DATA;
+
+	/* analyse bits */
+	switch ( oct>>(32-bits_needed) )
+    	{
+		case 0x00: str="COMPACT Interference Measurement Capability is not implemented"; break;
+		case 0x01: str="COMPACT Interference Measurement Capability is implemented"; break;
+		default: str="This should not happen";
+    	}
+    
+    	proto_tree_add_text(tf_tree,
+		tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+		"COMPACT Interference Measurement Capability: (%u) %s",oct>>(32-bits_needed),str);
+    	curr_bits_length -= bits_needed;
+    	oct <<= bits_needed;
+    	bits_in_oct -= bits_needed;
+
+    	/*
+    	 * Revision Level Indicator
+    	 */
+    	bits_needed = 1;
+	GET_DATA;
+
+	/* analyse bits */
+	switch ( oct>>(32-bits_needed) )
+    	{
+		case 0x00: str="The ME is Release 98 or older"; break;
+		case 0x01: str="The ME is Release 99 onwards"; break;
+		default: str="This should not happen";
+    	}
+    
+    	proto_tree_add_text(tf_tree,
+		tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+		"Revision Level Indicator: (%u) %s",oct>>(32-bits_needed),str);
+    	curr_bits_length -= bits_needed;
+    	oct <<= bits_needed;
+    	bits_in_oct -= bits_needed;
+
+    	/*
+    	 * UMTS FDD Radio Access Technology Capability
+    	 */
+    	bits_needed = 1;
+	GET_DATA;
+
+	/* analyse bits */
+	switch ( oct>>(32-bits_needed) )
+    	{
+		case 0x00: str="UMTS FDD not supported"; break;
+		case 0x01: str="UMTS FDD supported"; break;
+		default: str="This should not happen";
+    	}
+    
+    	proto_tree_add_text(tf_tree,
+		tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+		"UMTS FDD Radio Access Technology Capability: (%u) %s",oct>>(32-bits_needed),str);
+    	curr_bits_length -= bits_needed;
+    	oct <<= bits_needed;
+    	bits_in_oct -= bits_needed;
+
+    	/*
+    	 * UMTS 3.84 Mcps TDD Radio Access Technology Capability
+    	 */
+    	bits_needed = 1;
+	GET_DATA;
+
+	/* analyse bits */
+	switch ( oct>>(32-bits_needed) )
+    	{
+		case 0x00: str="UMTS 3.84 Mcps TDD not supported"; break;
+		case 0x01: str="UMTS 3.84 Mcps TDD supported"; break;
+		default: str="This should not happen";
+    	}
+    
+    	proto_tree_add_text(tf_tree,
+		tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+		"UMTS 3.84 Mcps TDD Radio Access Technology Capability: (%u) %s",oct>>(32-bits_needed),str);
+    	curr_bits_length -= bits_needed;
+    	oct <<= bits_needed;
+    	bits_in_oct -= bits_needed;
+
+    	/*
+    	 * CDMA 2000 Radio Access Technology Capability
+    	 */
+    	bits_needed = 1;
+	GET_DATA;
+
+	/* analyse bits */
+	switch ( oct>>(32-bits_needed) )
+    	{
+		case 0x00: str="CDMA 2000 not supported"; break;
+		case 0x01: str="CDMA 2000 supported"; break;
+		default: str="This should not happen";
+    	}
+    
+    	proto_tree_add_text(tf_tree,
+		tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+		"CDMA 2000 Radio Access Technology Capability: (%u) %s",oct>>(32-bits_needed),str);
+    	curr_bits_length -= bits_needed;
+    	oct <<= bits_needed;
+    	bits_in_oct -= bits_needed;
+
+    	/*
+    	 * UMTS 1.28 Mcps TDD Radio Access Technology Capability
+    	 */
+    	bits_needed = 1;
+	GET_DATA;
+
+	/* analyse bits */
+	switch ( oct>>(32-bits_needed) )
+    	{
+		case 0x00: str="UMTS 1.28 Mcps TDD not supported"; break;
+		case 0x01: str="UMTS 1.28 Mcps TDD supported"; break;
+		default: str="This should not happen";
+    	}
+    
+    	proto_tree_add_text(tf_tree,
+		tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+		"UMTS 1.28 Mcps TDD Radio Access Technology Capability: (%u) %s",oct>>(32-bits_needed),str);
+    	curr_bits_length -= bits_needed;
+    	oct <<= bits_needed;
+    	bits_in_oct -= bits_needed;
+
+    	/*
+    	 * GERAN Feature Package 1
+    	 */
+    	bits_needed = 1;
+	GET_DATA;
+
+	/* analyse bits */
+	switch ( oct>>(32-bits_needed) )
+    	{
+		case 0x00: str="GERAN feature package 1 not supported"; break;
+		case 0x01: str="GERAN feature package 1 supported"; break;
+		default: str="This should not happen";
+    	}
+    
+    	proto_tree_add_text(tf_tree,
+		tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+		"GERAN Feature Package 1: (%u) %s",oct>>(32-bits_needed),str);
+    	curr_bits_length -= bits_needed;
+    	oct <<= bits_needed;
+    	bits_in_oct -= bits_needed;
+
+    	/*
+    	 * Extended DTM (E)GPRS Multi Slot Class
+    	 */
+    	bits_needed = 1;
+	GET_DATA;
+
+	/* analyse bits */
+        if ((oct>>(32-bits_needed))==0)
+        {
+	    	proto_tree_add_text(tf_tree,
+			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+			"Extended DTM (E)GPRS Multi Slot Class: (%u) Bits are not available",oct>>(32-bits_needed));
+	    	curr_bits_length -= bits_needed;
+    		oct <<= bits_needed;
+   	 	bits_in_oct -= bits_needed;
+    	}
+    	else
+    	{
+	    	curr_bits_length -= bits_needed;
+    		oct <<= bits_needed;
+   	 	bits_in_oct -= bits_needed;
+
+	    	/*
+    		 * Extended DTM GPRS Multi Slot Class
+	    	 */
+    		bits_needed = 2;
+		GET_DATA;
+
+		/* analyse bits */
+		switch ( (oct>>(32-bits_needed))|(dtm_gprs_mslot<<4) )
+    		{
+    			case 0x00: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
+    			case 0x01: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
+    			case 0x02: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
+    			case 0x03: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
+    			case 0x10: str="Multislot class 5 supported"; break;
+    			case 0x11: str="Multislot class 6 supported"; break;
+    			case 0x12: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
+    			case 0x13: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
+    			case 0x20: str="Multislot class 9 supported"; break;
+    			case 0x21: str="Multislot class 10 supported"; break;
+    			case 0x22: str="Unused. If received, it shall be interpreted as Multislot class 9 supported"; break;
+    			case 0x23: str="Unused. If received, it shall be interpreted as Multislot class 9 supported"; break;
+    			case 0x30: str="Multislot class 11 supported"; break;
+    			case 0x31: str="Unused. If received, it shall be interpreted as Multislot class 11 supported"; break;
+    			case 0x32: str="Unused. If received, it shall be interpreted as Multislot class 11 supported"; break;
+    			case 0x33: str="Unused. If received, it shall be interpreted as Multislot class 11 supported"; break;
+    			default: str="This should not happen";
+	    	}
+    
+    		proto_tree_add_text(tf_tree,
+			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+			"Extended DTM GPRS Multi Slot Class: (%u) %s",oct>>(32-bits_needed),str);
+	    	curr_bits_length -= bits_needed;
+    		oct <<= bits_needed;
+    		bits_in_oct -= bits_needed;
+
+		if ( dtm_egprs_mslot <= 3 )
+		{
+		    	/*
+    			 * Extended DTM EGPRS Multi Slot Class
+	    		 */
+	    		bits_needed = 2;
+			GET_DATA;
+
+			/* analyse bits */
+			switch ( (oct>>(32-bits_needed))|(dtm_egprs_mslot<<4) )
+    			{
+    				case 0x00: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
+    				case 0x01: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
+   	 			case 0x02: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
+    				case 0x03: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
+    				case 0x10: str="Multislot class 5 supported"; break;
+    				case 0x11: str="Multislot class 6 supported"; break;
+    				case 0x12: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
+    				case 0x13: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
+    				case 0x20: str="Multislot class 9 supported"; break;
+    				case 0x21: str="Multislot class 10 supported"; break;
+    				case 0x22: str="Unused. If received, it shall be interpreted as Multislot class 9 supported"; break;
+    				case 0x23: str="Unused. If received, it shall be interpreted as Multislot class 9 supported"; break;
+    				case 0x30: str="Multislot class 11 supported"; break;
+    				case 0x31: str="Unused. If received, it shall be interpreted as Multislot class 11 supported"; break;
+   	 			case 0x32: str="Unused. If received, it shall be interpreted as Multislot class 11 supported"; break;
+    				case 0x33: str="Unused. If received, it shall be interpreted as Multislot class 11 supported"; break;
+    				default: str="This should not happen";
+	    		}
+    
+	    		proto_tree_add_text(tf_tree,
+				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				"Extended DTM EGPRS Multi Slot Class: (%u) %s",oct>>(32-bits_needed),str);
+		    	curr_bits_length -= bits_needed;
+    			oct <<= bits_needed;
+    			bits_in_oct -= bits_needed;
+		}
+	}
+
+    	/*
+    	 * Modulation based multislot class support
+    	 */
+    	bits_needed = 1;
+	GET_DATA;
+
+	/* analyse bits */
+	switch ( oct>>(32-bits_needed) )
+    	{
+		case 0x00: str="Modulation based multislot class not supported"; break;
+		case 0x01: str="Modulation based multislot class supported"; break;
+		default: str="This should not happen";
+    	}
+    
+    	proto_tree_add_text(tf_tree,
+		tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+		"Modulation based multislot class support: (%u) %s",oct>>(32-bits_needed),str);
+    	curr_bits_length -= bits_needed;
+    	oct <<= bits_needed;
+    	bits_in_oct -= bits_needed;
+
+    	/*
+    	 * High Multislot Capability
+    	 */
+    	bits_needed = 1;
+	GET_DATA;
+
+	/* analyse bits */
+        if ((oct>>(32-bits_needed))==0)
+        {
+	    	proto_tree_add_text(tf_tree,
+			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+			"High Multislot Capability: (%u) Bits are not available",oct>>(32-bits_needed));
+	    	curr_bits_length -= bits_needed;
+    		oct <<= bits_needed;
+   	 	bits_in_oct -= bits_needed;
+    	}
+    	else
+    	{
+	    	curr_bits_length -= bits_needed;
+    		oct <<= bits_needed;
+   	 	bits_in_oct -= bits_needed;
+
+	    	/*
+    		 * High Multislot Capability
+	    	 */
+    		bits_needed = 2;
+		GET_DATA;
+
+		/* analyse bits */
+    		proto_tree_add_text(tf_tree,
+			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+			"High Multislot Capability: 0x%02x (%u) - This field effect all other multislot fields. To understand the value please read TS 24.008 5.6.0 Release 5 Chap 10.5.5.12 Page 406",oct>>(32-bits_needed),oct>>(32-bits_needed));
+	    	curr_bits_length -= bits_needed;
+    		oct <<= bits_needed;
+    		bits_in_oct -= bits_needed;
+
+	}
+
+    	/*
+    	 * GERAN Iu Mode Capability
+    	 */
+    	bits_needed = 1;
+	GET_DATA;
+
+	/* analyse bits */
+	switch ( oct>>(32-bits_needed) )
+    	{
+		case 0x00: str="GERAN Iu mode not supported"; break;
+		case 0x01: str="GERAN Iu mode supported"; break;
+		default: str="This should not happen";
+    	}
+    
+    	proto_tree_add_text(tf_tree,
+		tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+		"GERAN Iu Mode Capability: (%u) %s",oct>>(32-bits_needed),str);
+    	curr_bits_length -= bits_needed;
+    	oct <<= bits_needed;
+    	bits_in_oct -= bits_needed;
+
+    	/*
+    	 * GMSK/8-PSK Multislot Power Profile
+    	 */
+    	bits_needed = 1;
+	GET_DATA;
+
+	/* analyse bits */
+        if ((oct>>(32-bits_needed))==0)
+        {
+	    	proto_tree_add_text(tf_tree,
+			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+			"GMSK/8-PSK Multislot Power Profile: (%u) Bits are not available",oct>>(32-bits_needed));
+	    	curr_bits_length -= bits_needed;
+    		oct <<= bits_needed;
+   	 	bits_in_oct -= bits_needed;
+    	}
+    	else
+    	{
+	    	curr_bits_length -= bits_needed;
+    		oct <<= bits_needed;
+   	 	bits_in_oct -= bits_needed;
+
+	    	/*
+    		 * GMSK Multislot Power Profile
+	    	 */
+    		bits_needed = 2;
+		GET_DATA;
+
+		/* analyse bits */
+		switch ( oct>>(32-bits_needed) )
+		{
+			case 0x00: str="GMSK_MULTISLOT_POWER_PROFILE 0"; break;
+			case 0x01: str="GMSK_MULTISLOT_POWER_PROFILE 1"; break;
+			case 0x02: str="GMSK_MULTISLOT_POWER_PROFILE 2"; break;
+			case 0x03: str="GMSK_MULTISLOT_POWER_PROFILE 3"; break;
+			default: str="This should not happen";
+		}
+		
+    		proto_tree_add_text(tf_tree,
+			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+			"GMSK Multislot Power Profile: (%u) %s",oct>>(32-bits_needed),str);
+	    	curr_bits_length -= bits_needed;
+    		oct <<= bits_needed;
+    		bits_in_oct -= bits_needed;
+
+	    	/*
+    		 * 8-PSK Multislot Power Profile
+	    	 */
+    		bits_needed = 2;
+		GET_DATA;
+
+		/* analyse bits */
+		switch ( oct>>(32-bits_needed) )
+		{
+			case 0x00: str="8-PSK_MULTISLOT_POWER_PROFILE 0"; break;
+			case 0x01: str="8-PSK_MULTISLOT_POWER_PROFILE 1"; break;
+			case 0x02: str="8-PSK_MULTISLOT_POWER_PROFILE 2"; break;
+			case 0x03: str="8-PSK_MULTISLOT_POWER_PROFILE 3"; break;
+			default: str="This should not happen";
+		}
+		
+    		proto_tree_add_text(tf_tree,
+			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+			"8-PSK Multislot Power Profile: (%u) %s",oct>>(32-bits_needed),str);
+	    	curr_bits_length -= bits_needed;
+    		oct <<= bits_needed;
+    		bits_in_oct -= bits_needed;
+
+	}
+
+	/*
+	 * we are too long ... so jump over it
+	 */
+	while ( curr_bits_length > 0 )
+	{
+		if ( curr_bits_length > 8 )
+			bits_needed = 8;
+		else
+			bits_needed = curr_bits_length;
+		GET_DATA;
+	    	curr_bits_length -= bits_needed;
+    		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+	}	 
+	
+    } while ( 1 );
     
     curr_offset+= curr_len;	   
 	   	   
@@ -7625,6 +8964,7 @@ de_gmm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 
     switch ( oct )
     {
+    	/* additional causes can be found in annex g */
     	case 0x02: str="IMSI unknown in HLR"; break;
     	case 0x03: str="Illegal MS"; break;
     	case 0x04: str="IMSI unknown in VLR"; break;
@@ -7645,26 +8985,35 @@ de_gmm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
     	case 0x15: str="Synch failure"; break;
     	case 0x16: str="Congestion"; break;
     	case 0x17: str="GSM authentication unacceptable"; break;
-    	case 0x18: str="No PDP context activated"; break;
-    	case 0x19: str="retry upon entry into a new cell"; break;
-    	case 0x1a: str="retry upon entry into a new cell"; break;
-    	case 0x1b: str="retry upon entry into a new cell"; break;
-    	case 0x1c: str="retry upon entry into a new cell"; break;
-    	case 0x1d: str="retry upon entry into a new cell"; break;
-    	case 0x1e: str="retry upon entry into a new cell"; break;
-    	case 0x1f: str="retry upon entry into a new cell"; break;
     	case 0x20: str="Service option not supported"; break;
     	case 0x21: str="Requested service option not subscribed"; break;
     	case 0x22: str="Service option temporarily out of order"; break;
     	case 0x26: str="Call cannot be identified"; break;
-    	case 0x2f: str="Semantically incorrect message"; break;
-    	case 0x30: str="Invalid mandatory information"; break;
-    	case 0x31: str="Message type non-existent or not implemented"; break;
-        case 0x32: str="Message type not compatible with the protocol state"; break;
-        case 0x33: str="Information element non-existent or not implemented"; break;
-        case 0x34: str="Conditional IE error"; break;
-        case 0x35: str="Message not compatible with the protocol state"; break;
-        case 0x36: str="Protocol error, unspecified"; break;
+    	case 0x28: str="No PDP context activated"; break;
+    	case 0x30: str="retry upon entry into a new cell"; break;
+    	case 0x31: str="retry upon entry into a new cell"; break;
+    	case 0x32: str="retry upon entry into a new cell"; break;
+    	case 0x33: str="retry upon entry into a new cell"; break;
+    	case 0x34: str="retry upon entry into a new cell"; break;
+    	case 0x35: str="retry upon entry into a new cell"; break;
+    	case 0x36: str="retry upon entry into a new cell"; break;
+    	case 0x37: str="retry upon entry into a new cell"; break;
+    	case 0x38: str="retry upon entry into a new cell"; break;
+    	case 0x39: str="retry upon entry into a new cell"; break;
+    	case 0x3a: str="retry upon entry into a new cell"; break;
+    	case 0x3b: str="retry upon entry into a new cell"; break;
+    	case 0x3c: str="retry upon entry into a new cell"; break;
+    	case 0x3d: str="retry upon entry into a new cell"; break;
+    	case 0x3e: str="retry upon entry into a new cell"; break;
+    	case 0x3f: str="retry upon entry into a new cell"; break;
+    	case 0x5f: str="Semantically incorrect message"; break;
+    	case 0x60: str="Invalid mandatory information"; break;
+    	case 0x61: str="Message type non-existent or not implemented"; break;
+        case 0x62: str="Message type not compatible with the protocol state"; break;
+        case 0x63: str="Information element non-existent or not implemented"; break;
+        case 0x64: str="Conditional IE error"; break;
+        case 0x65: str="Message not compatible with the protocol state"; break;
+        case 0x6f: str="Protocol error, unspecified"; break;
 	default: str="Protocol error, unspecified";
     }
     
@@ -8356,6 +9705,9 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
     {
     	guchar e_len;
     	guint16 prot;
+	tvbuff_t *l3_tvb;
+	static packet_info pco_pinfo;
+	
 	prot = tvb_get_guint8(tvb, curr_offset);
 	prot <<= 8;
 	prot |= tvb_get_guint8(tvb, curr_offset+1);
@@ -8366,40 +9718,96 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
     	switch ( prot )
     	{
     		case 0x0001:
+		{
+		    guchar *addr;
 	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) P-CSCF Address" , prot );
 	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
+	            addr = (guchar*)tvb_get_ptr(tvb, curr_offset, 16);
+  
+        	    proto_tree_add_text(tree,
+	    		tvb, curr_offset, 16,
+    			"IPv6: %4x:%4x:%4x:%4x:%4x:%4x:%4x:%4x",
+			(addr[0]<<8)| addr[1], (addr[2]<<8)| addr[3],
+			(addr[4]<<8)| addr[5], (addr[6]<<8)| addr[7],
+			(addr[8]<<8)| addr[9], (addr[10]<<8)| addr[11],
+			(addr[12]<<8)| addr[13], (addr[14]<<8)| addr[15] );				
 	    	    break;
+	    	}
     		case 0x0002:
 	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) IM CN Subsystem Signaling Flag" , prot );
 	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
 	    	    break;
     		case 0x0003:
+    		{
+    		    guchar *addr;
 	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) DNS Server Address" , prot );
 	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
+
+	            addr = (guchar*)tvb_get_ptr(tvb, curr_offset, 16);
+  
+        	    proto_tree_add_text(tree,
+	    		tvb, curr_offset, 16,
+    			"IPv6: %4x:%4x:%4x:%4x:%4x:%4x:%4x:%4x",
+			(addr[0]<<8)| addr[1], (addr[2]<<8)| addr[3],
+			(addr[4]<<8)| addr[5], (addr[6]<<8)| addr[7],
+			(addr[8]<<8)| addr[9], (addr[10]<<8)| addr[11],
+			(addr[12]<<8)| addr[13], (addr[14]<<8)| addr[15] );				
 	    	    break;
+	    	}
     		case 0x0004:
 	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) Policy Control rejection code" , prot );
 	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
+	    	    oct = tvb_get_guint8(tvb, curr_offset);
+	    	    proto_tree_add_text(tree,tvb, curr_offset, 1, "Reject Code: 0x%02x (%u)", e_len , e_len);
 	    	    break;
     		case 0xC021:
 	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol: (%u) LCP" , prot );
 	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
+		    /*
+		     * dissect the embedded LCP message
+		     */
+		    l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
+		    if (!dissector_try_port(gprs_sm_pco_subdissector_table, prot, l3_tvb, &pco_pinfo, tree))
+			call_dissector(data_handle, l3_tvb, &pco_pinfo, tree);
 	    	    break;
     		case 0xC023:
 	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol: (%u) PAP" , prot );
 	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
+		    /*
+		     * dissect the embedded PAP message
+		     */
+		    l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
+		    if (!dissector_try_port(gprs_sm_pco_subdissector_table, prot, l3_tvb, &pco_pinfo, tree))
+			call_dissector(data_handle, l3_tvb, &pco_pinfo, tree);
 	    	    break;
     		case 0xC223:
 	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol: (%u) CHAP" , prot );
 	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
+		    /*
+		     * dissect the embedded CHAP message
+		     */
+		    l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
+		    if (!dissector_try_port(gprs_sm_pco_subdissector_table, prot, l3_tvb, &pco_pinfo, tree))
+			call_dissector(data_handle, l3_tvb, &pco_pinfo, tree);
 	    	    break;
     		case 0x8021:
 	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol: (%u) IPCP" , prot );
 	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
+		    /*
+		     * dissect the embedded IPCP message
+		     */
+		    l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
+		    if (!dissector_try_port(gprs_sm_pco_subdissector_table, prot, l3_tvb, &pco_pinfo, tree))
+			call_dissector(data_handle, l3_tvb, &pco_pinfo, tree);
 	    	    break;
     		default:
 	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol/Parameter: (%u) unknwown" , prot );
 	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
+		    /*
+		     * dissect the embedded DATA message
+		     */
+		    l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
+		    call_dissector(data_handle, l3_tvb, &pco_pinfo, tree);
     	}
 
 	curr_len-= e_len;
@@ -9286,23 +10694,32 @@ de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 {
     guint32	curr_offset;
     guint	curr_len;
-    proto_item  *tf = NULL;
-    proto_tree      *tf_tree = NULL;
+    guchar	oct;
+    gchar	*str;
     
     curr_len = len;
     add_string = add_string;
     curr_offset = offset;
 
-    tf = proto_tree_add_text(tree,
-    	tvb, curr_offset, 1,
-    	"Packet Flow Identifier");
+    oct = tvb_get_guint8(tvb, curr_offset);
 
-    tf_tree = proto_item_add_subtree(tf, ett_sm_pfi );
-    
-    proto_tree_add_text(tf_tree,
-	tvb, curr_offset, curr_len,
-	"Not Implemented" );
-    
+    switch ( oct&0x7f )
+    {
+    	case 0x00: str="Best Effort"; break;
+    	case 0x01: str="Signaling"; break;
+    	case 0x02: str="SMS"; break;
+    	case 0x03: str="TOM8"; break;
+    	case 0x04: str="reserved"; break;
+    	case 0x05: str="reserved"; break;
+    	case 0x06: str="reserved"; break;
+    	case 0x07: str="reserved"; break;
+	default: str="dynamically assigned"; break;
+    }
+
+    proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"Packet Flow Identifier: (%u) %s",oct&0x7f,str);
+
     curr_offset+= curr_len;	   
 	   	   
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -9320,20 +10737,314 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
     guint	curr_len;
     proto_item  *tf = NULL;
     proto_tree      *tf_tree = NULL;
+    guchar	op_code;
+    guchar	pkt_fil_count;
+    guchar      e_bit;
+    gchar	*str;
+    guchar      count;
+    guchar	oct;
     
     curr_len = len;
     add_string = add_string;
     curr_offset = offset;
 
-    tf = proto_tree_add_text(tree,
-    	tvb, curr_offset, 1,
-    	"Traffic Flow Template");
+    /*
+     * parse first byte
+     */
+    oct = tvb_get_guint8(tvb, curr_offset);
+    curr_offset++;
+    curr_len--;
 
-    tf_tree = proto_item_add_subtree(tf, ett_sm_tft );
+    op_code = oct>>5;
+    pkt_fil_count = oct&0x0f;
+    e_bit = (oct>>4)&1;
+
+    switch ( op_code )
+    {
+    	case 0x00: str="Spare"; break;
+    	case 0x01: str="Create new TFT"; break;
+    	case 0x02: str="Delete existing TFT"; break;
+    	case 0x03: str="Add packet filters to existing TFT"; break;
+    	case 0x04: str="Replace packet filters in existing TFT"; break;
+    	case 0x05: str="Delete packet filters from existing TFT"; break;
+    	case 0x06: str="No TFT operation"; break;
+    	case 0x07: str="Reserved"; break;
+    	default: str="dissector bug";
+    }
+    proto_tree_add_text(tree,
+    	tvb, curr_offset-1, 1,
+    	"Operation code: (%u) %s",op_code,str);
+
+    switch ( e_bit )
+    {
+    	case 0x00: str="parameters list is not included"; break;
+    	case 0x01: str="parameters list is included"; break;
+    	default: str="dissector bug";
+    }
+    proto_tree_add_text(tree,
+    	tvb, curr_offset-1, 1,
+    	"E bit: (%u) %s",e_bit,str);
+
+    proto_tree_add_text(tree,
+    	tvb, curr_offset-1, 1,
+    	"Number of packet filters: 0x%02x (%u)",pkt_fil_count,pkt_fil_count);
+
+    count = 0;
+    if ( op_code == 2 )			/* delete TFT contains no packet filters. so we will jump over it */
+	count = pkt_fil_count;
+    while ( count < pkt_fil_count )
+    {
+	tf = proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+    		"Packet filter %d",count+1);
+
+    	tf_tree = proto_item_add_subtree(tf, ett_sm_tft );
+
+	if ( op_code == 5 )
+	{
+		if ((curr_offset-offset)<1) { proto_tree_add_text(tf_tree,tvb, curr_offset-1, 1,"Not enough data"); return(curr_offset-offset);}
+		oct = tvb_get_guint8(tvb, curr_offset);
+		curr_offset++;
+		curr_len--;
+
+		proto_tree_add_text(tf_tree,
+			tvb, curr_offset-1, 1,
+			"Packet filter identifier: 0x%02x (%u)",oct,oct );		
+	}
+	else
+	{
+		gint pf_length;
+		gint pf_identifier;
+		guchar *pchar;
+		
+		if ((curr_offset-offset)<1) { proto_tree_add_text(tf_tree,tvb, curr_offset-1, 1,"Not enough data"); return(curr_offset-offset);}
+		pf_identifier = tvb_get_guint8(tvb, curr_offset);
+		curr_offset++;
+		curr_len--;
+
+		switch ( pf_identifier )
+		{
+			case 0x10: str="IPv4 source address type"; break;
+			case 0x20: str="IPv6 source address type"; break;
+			case 0x30: str="Protocol identifier/Next header type"; break;
+			case 0x40: str="Single destination port type"; break;
+			case 0x41: str="Destination port range type"; break;
+			case 0x50: str="Single source port type"; break;
+			case 0x51: str="Source port range type"; break;
+			case 0x60: str="Security parameter index type"; break;
+			case 0x70: str="Type of service/Traffic class type"; break;
+			case 0x80: str="Flow label type"; break;
+			default: str="not specified";
+		}
+
+		proto_tree_add_text(tf_tree,
+			tvb, curr_offset-1, 1,
+			"Packet filter identifier: (%u) %s",pf_identifier,str );		
+
+		if ((curr_offset-offset)<1) { proto_tree_add_text(tf_tree,tvb, curr_offset-1, 1,"Not enough data"); return(curr_offset-offset);}
+		oct = tvb_get_guint8(tvb, curr_offset);
+		curr_offset++;
+		curr_len--;
+
+		proto_tree_add_text(tf_tree,
+			tvb, curr_offset-1, 1,
+			"Packet evaluation precedence: 0x%02x (%u)",oct,oct );		
+
+		if ((curr_offset-offset)<1) { proto_tree_add_text(tf_tree,tvb, curr_offset-1, 1,"Not enough data"); return(curr_offset-offset);}
+		pf_length = tvb_get_guint8(tvb, curr_offset);
+		curr_offset++;
+		curr_len--;
+
+		proto_tree_add_text(tf_tree,
+			tvb, curr_offset-1, 1,
+			"Packet filter length: 0x%02x (%u)",pf_length,pf_length );		
+
+		if (( pf_identifier == 0x10 ) && ( pf_length == 4 ))
+		{
+			pchar = (guchar*)tvb_get_ptr(tvb, offset, pf_length);
+			
+			proto_tree_add_text(tf_tree,
+				tvb, curr_offset, pf_length ,
+				"Packet filter content: IPv4 %u.%u.%u.%u", 
+				pchar[0], pchar[1], pchar[2], pchar[3] );
+		}
+		else if (( pf_identifier == 0x20 ) && ( pf_length == 16 ))
+		{
+			pchar = (guchar*)tvb_get_ptr(tvb, offset, pf_length);
+			
+			proto_tree_add_text(tf_tree,
+				tvb, curr_offset, pf_length ,
+				"Packet filter content: IPv6 %4x:%4x:%4x:%4x:%4x:%4x:%4x:%4x",
+				(pchar[0]<<8)| pchar[1], (pchar[2]<<8)| pchar[3],
+				(pchar[4]<<8)| pchar[5], (pchar[6]<<8)| pchar[7],
+				(pchar[8]<<8)| pchar[9], (pchar[10]<<8)| pchar[11],
+				(pchar[12]<<8)| pchar[13], (pchar[14]<<8)| pchar[15] );				
+		}
+		else if (( pf_identifier == 0x30 ) && ( pf_length == 1 ))
+		{
+			oct = tvb_get_guint8(tvb, curr_offset);
+			
+			proto_tree_add_text(tf_tree,
+				tvb, curr_offset, pf_length ,
+				"Packet filter content: Protocol identifier/Next header %u",
+				oct );
+		}
+		else if (( pf_identifier == 0x40 ) && ( pf_length == 2 ))
+		{
+			pchar = (guchar*)tvb_get_ptr(tvb, offset, pf_length);
+			
+			proto_tree_add_text(tf_tree,
+				tvb, curr_offset, pf_length ,
+				"Packet filter content: Single destination port %u",
+				(pchar[0]<<8)|pchar[1] );
+		}
+		else if (( pf_identifier == 0x50 ) && ( pf_length == 2 ))
+		{
+			pchar = (guchar*)tvb_get_ptr(tvb, offset, pf_length);
+			
+			proto_tree_add_text(tf_tree,
+				tvb, curr_offset, pf_length ,
+				"Packet filter content: Single source port %u",
+				(pchar[0]<<8)|pchar[1] );
+		}
+		else if (( pf_identifier == 0x41 ) && ( pf_length == 4 ))
+		{
+			pchar =  (guchar*)tvb_get_ptr(tvb, offset, pf_length);
+			
+			proto_tree_add_text(tf_tree,
+				tvb, curr_offset, pf_length ,
+				"Packet filter content:  Destination port range %u - %u", 
+				(pchar[0]<<8)|pchar[1] , (pchar[2]<<8)|pchar[3] );
+		}
+		else if (( pf_identifier == 0x51 ) && ( pf_length == 4 ))
+		{
+			pchar = (guchar*)tvb_get_ptr(tvb, offset, pf_length);
+			
+			proto_tree_add_text(tf_tree,
+				tvb, curr_offset, pf_length ,
+				"Packet filter content:  Source port range %u - %u", 
+				(pchar[0]<<8)|pchar[1] , (pchar[2]<<8)|pchar[3] );
+		}
+		else if (( pf_identifier == 0x70 ) && ( pf_length == 1 ))
+		{
+			oct = tvb_get_guint8(tvb, curr_offset);
+			
+			proto_tree_add_text(tf_tree,
+				tvb, curr_offset, pf_length ,
+				"Packet filter content: Type of service/Traffic class %u",
+				oct );
+		}
+		else if (( pf_identifier == 0x80 ) && ( pf_length == 3 ))
+		{
+			guint32 fl;
+			oct = tvb_get_guint8(tvb, curr_offset);
+			fl = oct;
+			fl <<=8;
+			oct = tvb_get_guint8(tvb, curr_offset+1);
+			fl |= oct;
+			fl <<=8;
+			oct = tvb_get_guint8(tvb, curr_offset+2);
+			fl |= oct;
+			
+			proto_tree_add_text(tf_tree,
+				tvb, curr_offset, pf_length ,
+				"Packet filter content: Flow label type %u",
+				fl );
+		}
+		else if (( pf_identifier == 0x60 ) && ( pf_length == 4 ))
+		{
+			pchar =  (guchar*)tvb_get_ptr(tvb, offset, pf_length);
+			
+			proto_tree_add_text(tf_tree,
+				tvb, curr_offset, pf_length ,
+				"Packet filter content:  Security parameter index 0x%08x", 
+				(pchar[0]<<24)|(pchar[1]<<16)|(pchar[2]<<8)|pchar[3] );
+		}
+		else
+		{
+			proto_tree_add_text(tf_tree,
+				tvb, curr_offset, pf_length ,
+				"Packet filter content" );		
+		}
+		curr_offset+= pf_length;
+	}
+    }
+
+    if ( e_bit == 0 )
+    {
+	proto_tree_add_text(tf_tree,
+		tvb, curr_offset, curr_len ,
+		"Too much data" );		
+	curr_offset+= curr_len;	   
+	   	   
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	return(curr_offset - offset);
+
+    }
     
-    proto_tree_add_text(tf_tree,
-	tvb, curr_offset, curr_len,
-	"Not Implemented" );
+    count = 0;
+    while ((curr_offset-offset)>=2)
+    {
+	gint p_length;
+	gint p_identifier;
+	guchar *pchar;
+
+	tf = proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+    		"Parameters list %d",count+1);
+
+    	tf_tree = proto_item_add_subtree(tf, ett_sm_tft );
+
+	if ((curr_offset-offset)<1) { proto_tree_add_text(tf_tree,tvb, curr_offset-1, 1,"Not enough data"); return(curr_offset-offset);}
+	p_identifier = tvb_get_guint8(tvb, curr_offset);
+	curr_offset++;
+	curr_len--;
+
+	switch ( p_identifier )
+	{
+		case 0x01: str="Authorization Token";
+		case 0x02: str="Flow Identifier";
+		default: str="not specified";
+	}
+
+	proto_tree_add_text(tf_tree,
+		tvb, curr_offset-1, 1,
+		"Parameter identifier: (%u) %s",p_identifier,str );		
+
+	if ((curr_offset-offset)<1) { proto_tree_add_text(tf_tree,tvb, curr_offset-1, 1,"Not enough data"); return(curr_offset-offset);}
+	p_length = tvb_get_guint8(tvb, curr_offset);
+	curr_offset++;
+	curr_len--;
+
+	proto_tree_add_text(tf_tree,
+		tvb, curr_offset-1, 1,
+		"Parameter length: 0x%02x (%u)",p_length,p_length );		
+
+	if (( p_identifier == 0x01 ) && ( p_length == 4 ))
+	{
+		pchar =  (guchar*)tvb_get_ptr(tvb, offset, p_length);
+		
+		proto_tree_add_text(tf_tree,
+			tvb, curr_offset, p_length ,
+			"Parameter content: Media component %u IP Flow %u",
+			(pchar[0]<<8)|pchar[1] , (pchar[2]<<8)|pchar[3] );
+	}
+	else if ( p_identifier == 0x02 )
+	{
+		proto_tree_add_text(tf_tree,
+			tvb, curr_offset, p_length ,
+			"Parameter content: Authentication Token" );		
+	}
+	else
+	{
+		proto_tree_add_text(tf_tree,
+			tvb, curr_offset, p_length ,
+			"Parameter content" );		
+	}
+	curr_offset+= p_length;
+    
+    }
     
     curr_offset+= curr_len;	   
 	   	   
@@ -13422,7 +15133,7 @@ dtap_gmm_rau_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset--;
     curr_len++;
     
-    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_FORCE_TO_STAND_H );
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_FORCE_TO_STAND );
     
     ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_GPRS_TIMER );
     
@@ -14339,6 +16050,15 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_append_str(pinfo->cinfo, COL_INFO, "(RP) ");
     }
 
+    /*
+     * In the interest of speed, if "tree" is NULL, don't do any work
+     * not necessary to generate protocol tree items.
+     */
+    if (!tree)
+    {
+	return;
+    }
+
     offset = 0;
     saved_offset = offset;
 
@@ -14952,7 +16672,7 @@ proto_register_gsm_a(void)
     };
 
     /* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	39
+#define	NUM_INDIVIDUAL_ELEMS	38
     static gint *ett[NUM_INDIVIDUAL_ELEMS + NUM_GSM_BSSMAP_MSG +
 			NUM_GSM_DTAP_MSG_MM + NUM_GSM_DTAP_MSG_RR + NUM_GSM_DTAP_MSG_CC +
 			NUM_GSM_DTAP_MSG_GMM + NUM_GSM_DTAP_MSG_SMS +
@@ -15000,8 +16720,7 @@ proto_register_gsm_a(void)
     ett[35] = &ett_gmm_update_type;
     ett[36] = &ett_gmm_radio_cap;
 
-    ett[37] = &ett_sm_pfi;
-    ett[38] = &ett_sm_tft;
+    ett[37] = &ett_sm_tft;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
@@ -15096,6 +16815,10 @@ proto_register_gsm_a(void)
 
     proto_register_subtree_array(ett, array_length(ett));
 
+    /* subdissector code */
+    gprs_sm_pco_subdissector_table = register_dissector_table("sm_pco.protocol",
+    	"GPRS SM PCO PPP protocol", FT_UINT16, BASE_HEX);
+
     gsm_a_tap = register_tap("gsm_a");
 }
 
@@ -15111,7 +16834,6 @@ proto_reg_handoff_gsm_a(void)
     dissector_add("bssap.pdu_type",  BSSAP_PDU_TYPE_BSSMAP, bssmap_handle);
     dissector_add("bssap.pdu_type",  BSSAP_PDU_TYPE_DTAP, dtap_handle);
     dissector_add("ranap.nas_pdu",  BSSAP_PDU_TYPE_DTAP, dtap_handle);
-    dissector_add("llcgprs.sapi", 1, dtap_handle);
-
+    dissector_add("llcgprs.sapi", 1 , dtap_handle);
     data_handle = find_dissector("data");
 }
