@@ -1,7 +1,7 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id: print.h,v 1.36 2004/01/25 00:58:12 guy Exp $
+ * $Id: print.h,v 1.37 2004/02/20 17:27:16 ulfl Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -49,7 +49,7 @@ typedef enum {
 } print_dissections_e;
 
 typedef struct {
-  gint		format;		/* text or PostScript */
+  gint		format;		/* plain text, PostScript or PDML */
   gboolean	to_file;	/* TRUE if we're printing to a file */
   char		*dest;		/* if printing to file, pathname;
 				   if not, command string */
