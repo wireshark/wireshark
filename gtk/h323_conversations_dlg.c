@@ -578,6 +578,6 @@ register_tap_listener_h323_conversations_dlg(void)
 {
 	register_ethereal_tap("h323,conv",h323conversations_init_tap);
 	
-	register_tap_menu_item("H.323/Show All H323 Conversations...", REGISTER_TAP_GROUP_NONE,
+	register_tap_menu_item("H.323 Conversations...", REGISTER_TAP_GROUP_NONE,
 	    h323conversations_launch, NULL, NULL, NULL);
 }
