@@ -1,4 +1,15 @@
-$Id: README.aix,v 1.4 2000/10/08 17:16:29 gerald Exp $
+$Id: README.aix,v 1.5 2002/05/31 10:22:51 guy Exp $
+
+libpcap 0.7.1 and later appear to work on AIX when using AIX's native
+BPF; that appears to work better than DLPI does.  Note that you may have
+to run AIX's tcpdump, as root, before configuring, building, and
+installing libpcap, in order to create the "/dev/bpf" devices and load
+the BPF driver.
+
+Some earlier notes: the notes about libpcap may not apply, with libpcap
+0.7.1, but they're preserved here for historical reasons.
+
+The glib, gtk+, and Ethereal notes still apply.
 
 After much work and toil, Craig Rodrigues was able to compile libpcap
 and Ethereal on AIX 4.3.2.  His odyssey is document in various e-mails
