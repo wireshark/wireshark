@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.28 2004/03/05 10:29:35 guy Exp $
+# $Id: Makefile.common,v 1.29 2004/03/18 08:25:09 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -107,6 +107,7 @@ DISSECTOR_INCLUDES =	\
 	packet-igap.h	\
 	packet-igmp.h	\
 	packet-ip.h	\
+	packet-ipdc.h	\
 	packet-ipfc.h	\
 	packet-ipsec.h	\
 	packet-ipv6.h	\

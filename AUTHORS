@@ -2059,6 +2059,10 @@ Brian Wheeler <Brian.Wheeler [AT] arrisi.com> {
 	DOCSIS 2.0 support
 }
 
+Josh Bailey <joshbailey [AT] lucent.com> {
+	IPDC support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
