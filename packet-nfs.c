@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.30 2000/07/13 05:48:50 girlich Exp $
+ * $Id: packet-nfs.c,v 1.31 2000/07/13 13:09:25 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,6 +58,8 @@ static int hf_nfs_fh_dentry = -1;
 static int hf_nfs_fh_dev = -1;
 static int hf_nfs_fh_xdev = -1;
 static int hf_nfs_fh_dirinode = -1;
+static int hf_nfs_fh_pinode = -1;
+static int hf_nfs_fh_hp_len = -1;
 static int hf_nfs_stat = -1;
 static int hf_nfs_name = -1;
 static int hf_nfs_readlink_data = -1;
@@ -110,6 +112,7 @@ static gint ett_nfs_fh_fsid = -1;
 static gint ett_nfs_fh_xfsid = -1;
 static gint ett_nfs_fh_fn = -1;
 static gint ett_nfs_fh_xfn = -1;
+static gint ett_nfs_fh_hp = -1;
 static gint ett_nfs_fhandle = -1;
 static gint ett_nfs_timeval = -1;
 static gint ett_nfs_mode = -1;
@@ -149,8 +152,10 @@ const value_string names_fhtype[] =
 	{	FHT_UNKNOWN,	"unknown"	},
 #define FHT_SVR4	1
 	{	FHT_SVR4,	"System V R4"	},
-#define FHT_LINUXLE	2
-	{	FHT_LINUXLE,	"Linux knfsd (little-endian)"	},
+#define FHT_LINUX_KNFSD_LE	2
+	{	FHT_LINUX_KNFSD_LE,	"Linux knfsd (little-endian)"	},
+#define FHT_LINUX_NFSD_LE	3
+	{	FHT_LINUX_NFSD_LE,	"Linux user-land nfsd (little-endian)"	},
 	{		0,	NULL		}
 };
 
@@ -308,7 +313,7 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, proto_tree *tree, int fhlen)
 /* Checked with RedHat Linux 6.2 (kernel 2.2.14 knfsd) */
 
 void
-dissect_fhandle_data_LINUXLE(tvbuff_t* tvb, proto_tree *tree, int fhlen)
+dissect_fhandle_data_LINUX_KNFSD_LE(tvbuff_t* tvb, proto_tree *tree, int fhlen)
 {
 	guint32 dentry;
 	guint32 inode;
@@ -385,6 +390,49 @@ dissect_fhandle_data_LINUXLE(tvbuff_t* tvb, proto_tree *tree, int fhlen)
 }
 
 
+/* Checked with RedHat Linux 5.2 (nfs-server 2.2beta47 user-land nfsd) */
+
+void
+dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, proto_tree *tree, int fhlen)
+{
+	/* pseudo inode */
+	{
+	guint32 pinode;
+	pinode   = tvb_get_letohl(tvb, 0);
+	if (tree) {
+		proto_tree_add_uint(tree, hf_nfs_fh_pinode,
+			tvb, 0, 4, pinode);
+	}
+	}
+
+	/* hash path */
+	{
+	guint32 hashlen;
+
+	hashlen  = tvb_get_guint8(tvb, 4);
+	if (tree) {
+		proto_item* hash_item = NULL;
+		proto_tree* hash_tree = NULL;
+
+		hash_item = proto_tree_add_text(tree, tvb, 4, hashlen + 1,
+				"hash path: %s",
+				bytes_to_str(tvb_get_ptr(tvb,5,hashlen),hashlen));
+		if (hash_item) {
+			hash_tree = proto_item_add_subtree(hash_item, 
+					ett_nfs_fh_hp);
+			if (hash_tree) {
+		 		proto_tree_add_uint(hash_tree,
+					hf_nfs_fh_hp_len, tvb, 4, 1, hashlen);
+				proto_tree_add_text(hash_tree, tvb, 5, hashlen,
+					"key: %s",
+					bytes_to_str(tvb_get_ptr(tvb,5,hashlen),hashlen));
+			}
+		}
+	}
+	}
+}
+
+
 static void
 dissect_fhandle_data_unknown(tvbuff_t *tvb, proto_tree *tree, int fhlen)
 {
@@ -450,10 +498,24 @@ dissect_fhandle_data(const u_char *pd, int offset, frame_data* fd, proto_tree *t
 						}
 				}
 			}
+			len1 = tvb_get_guint8(tvb,4);
+			if (len1<28 && tvb_bytes_exist(tvb,5,len1)) {
+				int wrong=0;
+				for (len2=5+len1;len2<32;len2++) {
+					if (tvb_get_guint8(tvb,len2)) {
+						wrong=1;	
+						break;
+					}
+				}
+				if (!wrong) {
+					fhtype=FHT_LINUX_NFSD_LE;
+					goto type_ready;
+				}
+			}
 			if (tvb_get_ntohl(tvb,28) == 0) {
 				if (tvb_get_ntohs(tvb,14) == 0) {
 					if (tvb_get_ntohs(tvb,18) == 0) {
-						fhtype=FHT_LINUXLE;
+						fhtype=FHT_LINUX_KNFSD_LE;
 						goto type_ready;
 					}
 				}
@@ -468,10 +530,13 @@ type_ready:
 
 	switch (fhtype) {
 		case FHT_SVR4:
-			dissect_fhandle_data_SVR4   (tvb, tree, fhlen);
+			dissect_fhandle_data_SVR4          (tvb, tree, fhlen);
 		break;
-		case FHT_LINUXLE:
-			dissect_fhandle_data_LINUXLE(tvb, tree, fhlen);
+		case FHT_LINUX_KNFSD_LE:
+			dissect_fhandle_data_LINUX_KNFSD_LE(tvb, tree, fhlen);
+		break;
+		case FHT_LINUX_NFSD_LE:
+			dissect_fhandle_data_LINUX_NFSD_LE (tvb, tree, fhlen);
 		break;
 		case FHT_UNKNOWN:
 		default:
@@ -3325,6 +3390,12 @@ proto_register_nfs(void)
 		{ &hf_nfs_fh_dirinode, {
 			"directory inode", "nfs.fh.dirinode", FT_UINT32, BASE_DEC,
 			NULL, 0, "directory inode" }},
+		{ &hf_nfs_fh_pinode, {
+			"pseudo inode", "nfs.fh.pinode", FT_UINT32, BASE_HEX,
+			NULL, 0, "pseudo inode" }},
+		{ &hf_nfs_fh_hp_len, {
+			"length", "nfs.fh.hp.len", FT_UINT32, BASE_DEC,
+			NULL, 0, "hash path length" }},
 		{ &hf_nfs_stat, {
 			"Status", "nfs.status2", FT_UINT32, BASE_DEC,
 			VALS(names_nfs_stat), 0, "Reply status" }},
@@ -3468,6 +3539,7 @@ proto_register_nfs(void)
 		&ett_nfs_fh_xfsid,
 		&ett_nfs_fh_fn,
 		&ett_nfs_fh_xfn,
+		&ett_nfs_fh_hp,
 		&ett_nfs_fhandle,
 		&ett_nfs_timeval,
 		&ett_nfs_mode,
