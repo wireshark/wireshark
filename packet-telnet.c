@@ -2,7 +2,7 @@
  * Routines for Telnet packet dissection; see RFC 854 and RFC 855
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.43 2004/02/03 11:40:41 sahlberg Exp $
+ * $Id: packet-telnet.c,v 1.44 2004/02/03 18:41:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -692,18 +692,24 @@ dissect_authentication_type_pair(packet_info *pinfo _U_, tvbuff_t *tvb, int offs
 	proto_tree_add_boolean(tree, hf_telnet_auth_mod_who, tvb, offset+1, 1, mod);
 }
 
+/* no kerberos blobs are ever >10kb ? (arbitrary limit) */
+#define MAX_KRB5_BLOB_LEN	10240
+
 static tvbuff_t *
 unescape_and_tvbuffify_telnet_option(packet_info *pinfo, tvbuff_t *tvb, int offset, int len)
 {
 	tvbuff_t *krb5_tvb;
-	guint8 *buf, *spos, *dpos;
+	guint8 *buf;
+	const guint8 *spos;
+	guint8 *dpos;
 	int skip, l;
 
-	/* no kerberos blobs are ever >10kb ? (arbitrary limit) */
+	if(len>=MAX_KRB5_BLOB_LEN)
+		return NULL;
+
 	/* XXX we never g_free() this one.  This is done automagically
 	   when the parent tvb is destroyed?
         */
-	g_assert(len<10240);
 	buf=g_malloc(len);
 	spos=tvb_get_ptr(tvb, offset, len);
 	dpos=buf;
@@ -749,7 +755,11 @@ dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, 
 	/* IAC SB AUTHENTICATION IS <authentication-type-pair> AUTH <Kerberos V5 KRB_AP_REQ message> IAC SE */
 	if((acmd==TN_AC_IS)&&(krb5_cmd==TN_KRB5_TYPE_AUTH)){
 		krb5_tvb=unescape_and_tvbuffify_telnet_option(pinfo, tvb, offset, len);
-		dissect_kerberos_main(krb5_tvb, pinfo, tree, FALSE);
+		if(krb5_tvb)
+			dissect_kerberos_main(krb5_tvb, pinfo, tree, FALSE);
+		else
+			proto_tree_add_text(tree, tvb, offset, len, "Kerberos blob (too long to dissect - length %u > %u",
+			    len, MAX_KRB5_BLOB_LEN);
 	}
 
 
