@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.21 2002/06/07 10:17:21 guy Exp $
+ * $Id: reassemble.c,v 1.22 2002/06/17 01:12:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -984,7 +984,6 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	fragment_key key, *new_key, *old_key;
 	gpointer orig_key, value;
 	fragment_data *fd_head;
-	gboolean short_frame;
 
 	/*
 	 * Have we already seen this frame?
@@ -992,8 +991,6 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 */
 	if (pinfo->fd->flags.visited)
 		return g_hash_table_lookup(reassembled_table, pinfo->fd);
-
-	short_frame = (tvb_reported_length(tvb) > tvb_length(tvb));
 
 	/* create key to search hash with */
 	key.src = pinfo->src;
@@ -1061,7 +1058,7 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * If "more_frags" isn't set, we get rid of the entry in the
 	 * hash table for this reassembly, as we don't need it any more.
 	 */
-	if (short_frame) {
+	if (tvb_reported_length(tvb) > tvb_length(tvb)) {
 		if (!more_frags) {
 			/*
 			 * Remove this from the table of in-progress
