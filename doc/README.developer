@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.60 2002/08/02 23:46:25 jmayer Exp $
+$Id: README.developer,v 1.61 2002/08/26 09:36:22 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -139,7 +139,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.60 2002/08/02 23:46:25 jmayer Exp $"
+The "$Id: README.developer,v 1.61 2002/08/26 09:36:22 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -149,7 +149,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.60 2002/08/02 23:46:25 jmayer Exp $
+ * $Id: README.developer,v 1.61 2002/08/26 09:36:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -347,9 +347,9 @@ FIELDNAME	The displayed name for the header field.
 FIELDABBREV	The abbreviated name for the header field. (NO SPACES)
 FIELDTYPE	FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
 		FT_UINT32, FT_UINT64, FT_INT8, FT_INT16, FT_INT24, FT_INT32,
-		FT_INT64, FT_DOUBLE, FT_ABSOLUTE_TIME, FT_RELATIVE_TIME,
-		FT_STRING, FT_STRINGZ, FT_UINT_STRING, FT_ETHER, FT_BYTES,
-		FT_IPv4, FT_IPv6, FT_IPXNET
+		FT_INT64, FT_FLOAT, FT_DOUBLE, FT_ABSOLUTE_TIME,
+		FT_RELATIVE_TIME, FT_STRING, FT_STRINGZ, FT_UINT_STRING,
+		FT_ETHER, FT_BYTES, FT_IPv4, FT_IPv6, FT_IPXNET
 FIELDBASE	BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT, BASE_BIN
 FIELDCONVERT	VALS(x), TFS(x), NULL
 BITMASK		Usually 0x0 unless using the TFS(x) field conversion.
@@ -747,7 +747,8 @@ The type of value this field holds. The current field types are:
 	FT_INT24		A 24-bit signed integer.
 	FT_INT32		A 32-bit signed integer.
 	FT_INT64		A 64-bit signed integer.
-	FT_DOUBLE		A floating point number.
+	FT_FLOAT		A single-precision floating point number.
+	FT_DOUBLE		A double-precision floating point number.
 	FT_ABSOLUTE_TIME	Seconds (4 bytes) and nanoseconds (4 bytes)
 				of time displayed as month name, month day,
 				year, hours, minutes, and seconds with 9
@@ -1071,6 +1072,16 @@ protocol or field labels to the proto_tree:
 	    format, ...);
 
 	proto_item *
+	proto_tree_add_float(tree, id, tvb, start, length, value);
+
+	proto_item *
+	proto_tree_add_float_hidden(tree, id, tvb, start, length, value);
+
+	proto_item *
+	proto_tree_add_float_format(tree, id, tvb, start, length, value,
+	    format, ...);
+
+	proto_item *
 	proto_tree_add_double(tree, id, tvb, start, length, value);
 
 	proto_item *
@@ -1250,6 +1261,7 @@ proto_tree_add_ipv6()
 proto_tree_add_ether()
 proto_tree_add_string()
 proto_tree_add_boolean()
+proto_tree_add_float()
 proto_tree_add_double()
 proto_tree_add_uint()
 proto_tree_add_int()
@@ -1291,6 +1303,9 @@ text string.
 For proto_tree_add_boolean(), the 'value' argument is a 32-bit integer;
 zero means "false", and non-zero means "true".
 
+For proto_tree_add_float(), the 'value' argument is a 'float' in the
+host's floating-point format.
+
 For proto_tree_add_double(), the 'value' argument is a 'double' in the
 host's floating-point format.
 
@@ -1310,6 +1325,7 @@ proto_tree_add_ipv6_hidden()
 proto_tree_add_ether_hidden()
 proto_tree_add_string_hidden()
 proto_tree_add_boolean_hidden()
+proto_tree_add_float_hidden()
 proto_tree_add_double_hidden()
 proto_tree_add_uint_hidden()
 proto_tree_add_int_hidden()
@@ -1326,6 +1342,7 @@ proto_tree_add_ipv6_format()
 proto_tree_add_ether_format()
 proto_tree_add_string_format()
 proto_tree_add_boolean_format()
+proto_tree_add_float_format()
 proto_tree_add_double_format()
 proto_tree_add_uint_format()
 proto_tree_add_int_format()
