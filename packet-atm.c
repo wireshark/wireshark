@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.62 2003/03/04 03:08:42 guy Exp $
+ * $Id: packet-atm.c,v 1.63 2003/03/04 08:20:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1012,17 +1012,21 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        * to the trailer?
        */
       aal5_length = tvb_get_ntohs(tvb, length - 6);
-      pad_length = length - aal5_length - 8;
+
       /*
-       * Check for sanity in the AAL5 length; if it's not sane (i.e.,
-       * if the amount of padding would be negative, or if we'd have more
-       * than one cell's worth of padding plus trailer), assume we don't
-       * padding and a trailer.
+       * Check for sanity in the AAL5 length.  It must be > 0
+       * and must be less than the amount of space left after
+       * we remove the trailer.
+       *
+       * If it's not same, assume we don't have a trailer.
        */
-      if (pad_length > 0 && pad_length < 40) {
+      if (aal5_length > 0 && aal5_length <= length - 8) {
         if (tree) {
-          proto_tree_add_text(atm_tree, tvb, aal5_length, pad_length,
+          pad_length = length - aal5_length - 8;
+          if (pad_length > 0) {
+            proto_tree_add_text(atm_tree, tvb, aal5_length, pad_length,
 		"Padding");
+	  }
           proto_tree_add_text(atm_tree, tvb, length - 8, 1, "AAL5 UU: 0x%02x",
 		tvb_get_guint8(tvb, length - 8));
           proto_tree_add_text(atm_tree, tvb, length - 7, 1, "AAL5 CPI: 0x%02x",
