@@ -11,6 +11,7 @@ S<[ B<-f> filter expression ]>
 S<[ B<-F> file format ]>
 S<[ B<-h> ]>
 S<[ B<-i> interface ]> 
+S<[ B<-l> ]>
 S<[ B<-n> ]>
 S<[ B<-o> preference setting ] ...>
 S<[ B<-p> ]>
@@ -124,6 +125,14 @@ the list of interfaces, choosing the first non-loopback interface if
 there are any non-loopback interfaces, and choosing the first loopback
 interface if there are no non-loopback interfaces; if there are no
 interfaces, B<Tethereal> reports an error and doesn't start the capture.
+
+=item -l
+
+Make the standard output line buffered.  This may be useful when piping
+the output of B<Tethereal> to another program, as it means that the
+program to which the output is piped will see lines of output as soon as
+B<Tethereal> generates those lines, rather than seeing them only when
+the standard output buffer containing those lines fills up.
 
 =item -n
 

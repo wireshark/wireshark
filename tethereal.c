@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.46 2000/09/15 05:32:19 guy Exp $
+ * $Id: tethereal.c,v 1.47 2000/09/20 08:28:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -136,12 +136,12 @@ print_usage(void)
   fprintf(stderr, "This is GNU t%s %s, compiled with %s\n", PACKAGE,
 	  VERSION, comp_info_str);
 #ifdef HAVE_LIBPCAP
-  fprintf(stderr, "t%s [ -vVhp ] [ -c count ] [ -f <capture filter> ]\n", PACKAGE);
+  fprintf(stderr, "t%s [ -vVhlp ] [ -c count ] [ -f <capture filter> ]\n", PACKAGE);
   fprintf(stderr, "\t[ -F <capture file type> ] [ -i interface ] [ -n ]\n");
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r infile ] [ -R <read filter> ]\n");
   fprintf(stderr, "\t[ -s snaplen ] [ -t <time stamp format> ] [ -w savefile ] [ -x ]\n");
 #else
-  fprintf(stderr, "t%s [ -vVh ] [ -F <capture file type> ] [ -n ]\n", PACKAGE);
+  fprintf(stderr, "t%s [ -vVhl ] [ -F <capture file type> ] [ -n ]\n", PACKAGE);
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r infile ] [ -R <read filter> ]\n");
   fprintf(stderr, "\t[ -t <time stamp format> ] [ -w savefile ] [ -x ]\n");
 #endif
@@ -285,7 +285,7 @@ main(int argc, char *argv[])
    );
     
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "c:Df:F:hi:no:pr:R:s:t:vw:Vx")) != EOF) {
+  while ((opt = getopt(argc, argv, "c:Df:F:hi:lno:pr:R:s:t:vw:Vx")) != EOF) {
     switch (opt) {
       case 'c':        /* Capture xxx packets */
 #ifdef HAVE_LIBPCAP
@@ -324,6 +324,9 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
         break;
+      case 'l':        /* Line-buffer standard output */
+	setvbuf(stdout, NULL, _IOLBF, 0);
+	break;
       case 'n':        /* No name resolution */
 	g_resolving_actif = 0;
 	break;
