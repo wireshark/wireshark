@@ -1,10 +1,10 @@
 /* packet-rtsp.c
- * Routines for RTSP packet disassembly
+ * Routines for RTSP packet disassembly (RFC 2326)
  *
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-rtsp.c,v 1.5 2000/01/13 03:07:26 guy Exp $
+ * $Id: packet-rtsp.c,v 1.6 2000/01/13 03:12:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
