@@ -1,0 +1,590 @@
+<!-- EDG Chapter Tools -->
+<!-- $Id: EDG_chapter_tools.xml 11772 2004-08-18 23:24:05Z jmayer $ -->
+
+<chapter id="ChapterTools">
+  <title>Tools</title>
+  <section id="ChToolsInstall">
+    <title>Tool installation</title>
+	<para>
+	This chapter will describe the tool installation of the various tools
+	used to build Ethereal. The next chapters will explain the tool
+	usage for some of the specific development tasks.
+	</para>
+	<para>
+	Several different tools are needed to build Ethereal. These tools have
+	their roots in the unix environment, but win32 ports are also
+	available. Therefore the tools are available in three different 
+	"flavours":
+	<itemizedlist>
+  	<listitem>
+	<para>
+	Unix: as described above, the tools should be commonly available on the
+	supported unix platforms
+	</para>
+  	</listitem>
+  	<listitem>
+	<para>
+	Win32 cygwin: cygwin provides a unix emulation layer with a lot
+	of unix based tools on the win32 platform
+	</para>
+	</listitem>
+  	<listitem>
+	<para>
+	Win32 native: native Win32 tools, no emulation required
+	</para>
+  	</listitem>
+	</itemizedlist>
+	Don't expect a lot of documentation regarding these tools in this
+	document. If you need further documentation of a specific tool, you
+	should find lot's of useful information elsewhere, as these tools are
+	commonly used. The following will only do a very brief description of 
+	what the particular tool is doing, how it is used in the Ethereal project 
+	and how it can be installed and (rudimentary) tested.
+	</para>
+	<para>
+	At the end of this chapter, some recommendations are given, for the
+	easiest way to get your development platform up and running.
+	</para>
+  </section>
+  
+	
+	<section id="ChToolsCygwin">
+	<title>Win32: Cygwin</title>
+	<para>
+	Cygwin provides a unix emulation layer with a lot of unix based tools
+	on the win32 platform. Although cygwin consists of several
+	seperate packages, the installation and update is done through only a
+	single
+	setup.exe, which acts similar like other unix package managers (like
+	the RedHat Package Manager for example).
+	</para>
+	<para>
+	You will find this network based setup.exe at: <ulink 
+	url="http://www.cygwin.com/"/> click on one
+	of the "Install Cygwin now" appearances, this will start the download
+	of the setup.exe.
+	</para>
+	<para>
+	After the download completed, start this setup.exe on your machine. It
+	will ask you for some
+	settings, the defaults should usually work well. The setup will
+	then download and install a basic set of packages.
+	</para>
+	<para>
+	Under: "Start -&gt; Programs -&gt; Cygwin -&gt; Cygwin Bash Shell" you
+	should now be able to start a new cygwin bash shell (similar to the
+	command line in win32, but more powerful).
+	</para>
+	<para>
+	If you want to add additional cygwin packages, you should start the
+	setup.exe again, and select them in the packages window.
+	</para>	
+	</section>
+
+	<section id="ChToolsCompiler">
+	<title>C compiler</title>
+
+	<section>
+	<title>Unix: GCC (GNU compiler collection)</title>
+	<para>
+	The gcc C compiler is used for all unix-like platforms.
+	</para>
+	<para>
+	XXX: is this true?
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 cygwin: GCC (GNU compiler collection)</title>
+	<para>
+	Although some effort is currently made to use gcc from the cygwin
+	environment, the
+	mainline is still using Microsoft Visual Studio's compiler.
+	</para>
+	</section>
+	 
+	<section>
+	<title>Win32 native: Microsoft Visual C compiler</title>
+	<para>
+	<note><title>Note!</title>
+	<para>
+	The Microsoft Visual Studio is not free software.
+	This is a tool you have to buy before you use it!
+	</para>
+	</note>
+	</para>
+	<para>
+	The mainline for generating Ethereal on the windows platform, is using
+	the Microsoft Visual Studio version 6 compiler cl.exe (and it's nmake,
+	as described below).
+	</para>
+	<para>
+	<warning><title>Warning!</title>
+	<para>
+	There are problems reported with the more recent "Visual
+	Studio .net" version, as it requires to ship a XXX.dll together with the
+	compiled exe, which might make it incompatible with the GPL.
+	</para>
+	</warning>
+	</para>
+	</section>
+
+	</section>
+
+	<section id="ChToolsMake">
+	<title>make</title>
+
+	<section>
+	<title>Unix: GNU make</title>
+	<para>
+	XXX
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 cygwin: GNU make</title>
+	<para>
+	Although some effort is made to use make from the cygwin environment,
+	the mainline is still using Microsoft Visual Studio's nmake.
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 native: nmake</title>
+	<para>
+	nmake is part of the Microsoft Visual Studio suite, see comment above.
+	</para>
+	<para>
+	Instead of using the the workspace (.dsw) and projects (.dsp) files,
+	the	traditional nmake makefiles are used. This has one main reason: it
+	makes it much easier to maintain changes simultaneous with the gcc
+	toolchain makefile.am files as both filetypes are similar. However, as
+	no Visual Studio workspace/project files are available, this makes it
+	hard to use the Visual Studio IDE e.g. for using the integrated
+	debugging feature.
+	</para>
+	</section>
+
+	</section>
+
+
+	<section id="ChToolsPython">
+	<title>python</title>
+	<para>
+	Python is an interpreter based programming language. The homepage of
+	the python project is: <ulink url="http://python.org/"/>.
+	Python is used to XXX. Python version 2.2 and above should be working
+	fine.
+	</para>
+
+	<section>
+	<title>Unix: python</title>
+	<para>
+	XXX
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 cygwin: python</title>
+	<para>
+	Python is available as the <application>python</application>
+	package from the cygwin setup.
+	</para>
+	<para>
+	After correct installation, typing inside the cygwin bash:
+	</para>
+	<para>
+	<userinput>$ python -V</userinput>
+	</para>
+	<para>
+	should result in something like:
+	</para>
+	<para>
+	<computeroutput>Python 2.3.3</computeroutput>
+	</para>
+	<para>
+	However, the version string may vary.
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 native: python</title>
+	<para>
+	Have a look at <ulink url="http://python.org/download/"/>
+	to download the latest stable release. You can download a setup there,
+	which will install the python system typically into:
+	C:\python23 or similiar.
+	</para>
+	</section>
+
+	</section>
+
+
+	<section id="ChToolsPerl">
+	<title>perl</title>
+	<para>
+	Perl is an interpreter based programming language. The homepage of the
+	perl project is: <ulink url="http://www.perl.com"/>.
+	Perl is used to XXX. Perl version XXX and above should be working fine.
+	</para>
+
+	<section>
+	<title>Unix: perl</title>
+	<para>
+	XXX
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 cygwin: perl</title>
+	<para>
+	Perl is available as the <application>perl</application>
+	package from the cygwin setup.
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 native: perl</title>
+	<para>
+	A native Win32 perl package can be obtained from 
+	<ulink url="http://www.ActiveState.com"/>. The
+	installation should be straightforward.
+	</para>
+	<para>
+	After correct installation, typing inside the command line (cmd.exe):
+	</para>
+	<para>
+	<prompt>&gt;</prompt> <userinput>perl -v</userinput>
+	</para>
+	<para>
+	should result in something like:
+	<programlisting>
+<![CDATA[This is perl, v5.8.0 built for MSWin32-x86-multi-thread
+(with 1 registered patch, see perl -V for more detail)
+
+Copyright 1987-2002, Larry Wall
+
+Binary build 805 provided by ActiveState Corp. http://www.ActiveState.com
+Built 18:08:02 Feb  4 2003
+
+...]]>
+	</programlisting>
+	However, the version string may vary.
+	</para>
+	</section>
+
+	</section>
+
+	<section id="ChToolsSed">
+	<title>sed</title>
+	<para>
+	Sed it the streaming editor. It makes it easy for example to replace
+	specially marked texts inside a source code file. The Ethereal build
+	process uses this to stamp version strings into various places.
+	</para>
+
+	<section>
+	<title>Unix: sed</title>
+	<para>
+	XXX
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 cygwin: sed</title>
+	<para>
+	Sed is available as the <application>sed</application>
+	package from the cygwin setup.
+	</para>
+	<para>
+	After correct installation, typing inside the cygwin bash:
+	</para>
+	<para>
+	<prompt>$</prompt> <userinput>sed --version</userinput>
+	should result in something like:
+	<programlisting>
+<![CDATA[GNU sed version 4.0.9
+Copyright (C) 2003 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE,
+to the extent permitted by law.]]>
+	</programlisting>
+	However, the version string may vary.
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 native: sed</title>
+	<para>
+	The authors don't know of any working win32 native sed implementation.
+	</para>
+	</section>
+
+	</section>
+
+	<section id="ChToolsDiff">
+	<title>diff (optional)</title>
+	<para>
+	Diff is used to get a file of all differences between two source
+	files/trees. The diff tool isn't needed for building ethereal, but it's
+	needed if you are going to commit your changes back to the ethereal
+	community.
+	</para>
+
+	<section>
+	<title>Unix: diff</title>
+	<para>
+	XXX
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 cygwin: GNU diff</title>
+	<para>
+	Diff is available as the <application>diff</application>
+	package from the cygwin setup.
+	</para>
+	<para>
+	After correct installation, typing inside the cygwin bash:
+	<prompt>$</prompt> <userinput>diff --version</userinput>
+	</para>
+	<para>
+	should result in something like:
+	<programlisting>
+<![CDATA[diff (GNU diffutils) 2.8.4
+Copyright (C) 2002 Free Software Foundation, Inc.
+
+This program comes with NO WARRANTY, to the extent permitted by law.
+You may redistribute copies of this program
+under the terms of the GNU General Public License.
+For more information about these matters, see the files named COPYING.
+
+Written by Paul Eggert, Mike Haertel, David Hayes,
+Richard Stallman, and Len Tower.]]>
+	</programlisting>
+	However, the version string may vary.
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 native: diff</title>
+	<para>
+	The authors don't know of any working win32 native diff implementation.
+	</para>
+	</section>
+
+	</section>
+
+
+	<section id="ChToolsPatch">
+	<title>patch (optional)</title>
+	<para>
+	The patch utility is used to merge a diff file into your own source
+	tree. This tool is only needed, if you want to apply a diff file from
+	someone else (probably from the developer mailing list) to your own
+	source tree.
+	</para>
+
+	<section>
+	<title>Unix: patch</title>
+	<para>
+	XXX
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 cygwin: patch</title>
+	<para>
+	Patch is available as the <application>patch</application>
+	package from the cygwin setup.
+	</para>
+	<para>
+	After correct installation, typing inside the cygwin bash:
+	</para>
+	<para>
+	<prompt>$</prompt> <userinput>patch --version</userinput>
+	</para>
+	<para>
+	should result in something like:
+	<programlisting>
+<![CDATA[patch 2.5.8
+Copyright (C) 1988 Larry Wall
+Copyright (C) 2002 Free Software Foundation, Inc.
+
+This program comes with NO WARRANTY, to the extent permitted by law.
+You may redistribute copies of this program
+under the terms of the GNU General Public License.
+For more information about these matters, see the file named COPYING.
+
+written by Larry Wall and Paul Eggert]]>
+	</programlisting>
+	However, the version string may vary.
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 native: patch</title>
+	<para>
+	I don't know of any working win32 native patch implementation.
+	</para>
+	</section>
+
+	</section>
+
+
+	<section id="ChToolsYacc">
+	<title>yacc (bison)</title>
+	<para>
+	XXX
+	</para>
+	</section>
+
+
+	<section id="ChToolsLexx">
+	<title>lexx (flex)</title>
+	<para>
+	XXX
+	</para>
+	</section>
+
+
+	<section id="ChToolsWget">
+	<title>Win32: wget</title>
+	<para>
+	XXX http_proxy
+	</para>
+	</section>
+
+
+	<section id="ChToolsNSIS">
+	<title>Win32: NSIS</title>
+	<para>
+	The NSIS (Nullsoft Scriptable Install System) is used to generate a
+	setup.exe from all the files needed to be installed, including all
+	required DLL's and such.
+	</para>
+	<para>
+	To install it, simply download the latest final version (currently: 2.0
+	final) from <ulink url="http://nsis.sourceforge.net"/>
+	and start the downloaded installer.
+	</para>
+	<para>
+	You will need NSIS version 2 or higher, to build an installer with the
+	modern user interface, and for a much smaller installer (using the lzma
+	compression).	
+	</para>
+	</section>
+
+
+	<section id="ChToolsSubversion">
+	<title>Subversion (SVN) client (optional)</title>
+	<para>
+	The Ethereal project uses subversion (or short SVN) to keep track of
+	all the changes done in the source code. The project has switched from
+	CVS to SVN some time ago. XXX add link to "Obtaining the sources" If
+	you want to work with the source code and planning to commit your
+	changes back Ethereal, it is recommended to use a SVN client to get the
+	latest source files.
+	</para>
+	<para>
+	There is a book on subversion available:
+	<ulink url="http://svnbook.red-bean.com/"/>
+	</para>
+	<para>
+	A good subversion client for Win32 can be found at: 
+	<ulink url="http://tortoisesvn.tigris.org/"/>
+	</para>
+	<para>
+	XXX add more text here.
+	</para>
+	</section>
+
+	<section id="ChToolsWin32">
+	<title>Tool summary for win32 platforms</title>
+	<para>
+	The recommended tools are highlighted in bold face.
+	
+	<table frame='all'><title>The mandatory tools</title>
+	<tgroup cols='3' align='left' colsep='1' rowsep='1'>
+	<colspec colname='c1'/>
+	<colspec colname='c2'/>
+	<colspec colname='c3'/>
+	<thead>
+	<row>
+	  <entry>Tool</entry>
+	  <entry>Cygwin packet</entry>
+	  <entry>Win32 native</entry>
+	</row>
+	</thead>
+	<tbody>
+	<row>
+	  <entry>C compiler</entry>
+	  <entry>gcc</entry>
+	  <entry><command>MSVC</command></entry>
+	</row>
+	<row>
+	  <entry>make</entry>
+	  <entry>make</entry>
+	  <entry><command>MSVC nmake</command></entry>
+	</row>
+	<row>
+	  <entry>python interpreter (XXX: which one is recommended?)</entry>
+	  <entry>python</entry>
+	  <entry><ulink url="http://python.org/download/"/></entry>
+	</row>
+	<row>
+	  <entry>perl interpreter (XXX: which one is recommended?)</entry>
+	  <entry>perl</entry>
+	  <entry><ulink url="http://www.ActiveState.com"/></entry>
+	</row>
+	<row>
+	  <entry>sed</entry>
+	  <entry><command>sed</command></entry>
+	  <entry>-</entry>
+	</row>
+	<row>
+	  <entry>bash</entry>
+	  <entry><command>bash</command></entry>
+	  <entry>-</entry>
+	</row>
+	</tbody>
+	</tgroup>
+	</table>	
+	
+	<table frame='all'><title>The optional tools</title>
+	<tgroup cols='3' align='left' colsep='1' rowsep='1'>
+	<colspec colname='c1'/>
+	<colspec colname='c2'/>
+	<colspec colname='c3'/>
+	<thead>
+	<row>
+	  <entry>Tool</entry>
+	  <entry>Cygwin packet</entry>
+	  <entry>Win32 native</entry>
+	</row>
+	</thead>
+	<tbody>
+	<row>
+	  <entry>diff</entry>
+	  <entry><command>diff</command></entry>
+	  <entry>-</entry>
+	</row>
+	<row>
+	  <entry>patch</entry>
+	  <entry><command>patch</command></entry>
+	  <entry>-</entry>
+	</row>
+	<row>
+	  <entry>nsis</entry>
+	  <entry>-</entry>
+	  <entry><command><ulink url="http://tortoisesvn.tigris.org/"/></command></entry>
+	</row>
+	</tbody>
+	</tgroup>
+	</table>	
+	
+	</para>
+	</section>
+	
+</chapter>
+<!-- End of EUG Chapter Tools -->

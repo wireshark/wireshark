@@ -63,6 +63,10 @@ FILE SECTION
   <!ENTITY BookMetaInformation SYSTEM "dg-src/EDG_meta_info.xml">
   <!ENTITY Preface SYSTEM "dg-src/EDG_preface.xml">
   <!ENTITY Introduction SYSTEM "dg-src/EDG_chapter_introduction.xml">
+  <!ENTITY Tools SYSTEM "dg-src/EDG_chapter_tools.xml">
+  <!ENTITY Libraries SYSTEM "dg-src/EDG_chapter_libraries.xml">
+  <!ENTITY Sources SYSTEM "dg-src/EDG_chapter_sources.xml">
+  <!ENTITY UserInterface SYSTEM "dg-src/EDG_chapter_userinterface.xml">
 
 <!-- These refer to graphics files and figures contained in the document -->
   <!-- 1st Chapter -->
@@ -73,7 +77,17 @@ FILE SECTION
 <subtitle>&DocumentSubTitle;</subtitle>
 &BookMetaInformation;
 &Preface;
+<part id="PartEnvironment" label="I">
+<title>Ethereal Build Environment</title>
 &Introduction;
+&Tools;
+&Libraries;
+&Sources;
+</part>
+<part id="PartDevelopment" label="II">
+<title>Ethereal Development</title>
+&UserInterface;
+</part>
 <!--
 
 &Glossary;

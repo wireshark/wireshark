@@ -1,0 +1,410 @@
+<!-- EDG Chapter Sources -->
+<!-- $Id: EDG_chapter_sources.xml 11772 2004-08-18 23:24:05Z jmayer $ -->
+
+<chapter id="ChapterSources">
+  <title>Sources</title>
+
+  <section id="ChSrcObtaining">
+	<title>Obtaining the sources</title>
+	<para>
+	The source code is stored inside the Subversion (SVN) server at
+	svn.ethereal.com.
+	SVN is used to keep track of the
+	changes made to the source code. There are
+	several ways to obtain the sources from the SVN server.
+	</para>
+	
+	<section id="ChSrcReleased">
+	<title>Released sources</title>
+	<para>
+	Recommended for productive purposes.
+	</para>
+	<para>
+	The officially released source files can be found at: <ulink
+	url="http://www.ethereal.com/download.html"/>.
+	You should use these sources if you want to build Ethereal on your
+	platform for productive use.
+	</para>
+	<para>
+	The differences between the released sources and the sources stored at
+	the SVN server are keep on growing until the next release is done (at
+	the release time, the released and latest SVN versions are then
+	identical again :-).
+	</para>
+	</section>
+
+	<section id="ChSrcAnon">
+	<title>Anonymous (latest) SVN access</title>
+	<para>
+	Recommended for development purposes.
+	</para>
+	<para>
+	Even
+	"Read-Only" SVN access can make your life extremely easier, compared to
+	merge sources by hand everytime you do an update using a zip file. SVN
+	handles merging
+	of changes into your personal sourcetree in a very comfortable way. So
+	you can update your sourcetree several times a day without much
+	effort.
+	</para>
+	<para>
+	XXX: include SVN usage description from www.ethereal.com
+	</para>
+	</section>
+
+
+	<section id="ChSrcNightly">
+	<title>Nightly snapshots</title>
+	<para>
+	The SVN server will automatically generate a snapshot of the SVN
+	sourcetree every night. These snapshots can be found at: <ulink
+	url="http://www.ethereal.com/distribution/nightly-builds/"/>.
+	</para>
+	<para>
+	If anonymous SVN isn't possible, e.g. if the connection to the server
+	isn't possible because of a corporate firewall, the sources can be
+	obtained by downloading this nightly snapshots. However, if you are
+	going to maintain your sources in parallel to the "official" sources
+	for some time, it's recommended to use the latest SVN access if
+	possible (believe it, it will save you a lot of time).
+	</para>
+	</section>
+
+  </section>
+
+  <section id="ChSrcBuildFirstTime">
+	<title>Build Ethereal for the first time</title>
+	<para>
+	The sources contains several documentation files, it's a good idea to
+	look at these files first.
+	</para>
+	<para>
+	So after obtaining the sources, tools and libraries, the
+	first place to look at is <filename>doc/README.developer</filename>,
+	here you will get the latest infos for Ethereal development for all
+	supported platforms.
+	</para>
+	<para>
+	The following steps for the first time generation differs on the two
+	major platforms.
+	</para>
+	
+	<section>
+	<title>Win32 platforms</title>
+	<para>
+	The next place to look at is <filename>doc/README.win32</filename>, 
+	you will get the latest infos for generation on the win32
+	platforms. The next thing to do will be editing the file 
+	<filename>config.nmake</filename> to reflect your configuration.
+	</para>
+	<para>
+	After doing this, you should open a cygwin bash "Start -&gt; Programs
+	-&gt; Cygwin -&gt; Cygwin Bash Shell" and navigate to the root of your
+	source tree. With:
+	<userinput>nmake -f Makefile.nmake all</userinput>
+	the whole Ethereal build process is started.
+	</para>
+	<para>
+	After the build process successfully finished, you should find an 
+	<filename>ethereal.exe</filename> and some other files
+	in the root directory.
+	</para>
+	</section>
+	
+	<section>
+	<title>Unix platforms</title>
+	<para>
+	XXX
+	</para>
+	</section>
+	
+  </section>
+
+  <section id="ChSrcChange">
+	<title>Make changes to the Ethereal sources</title>
+	<para>
+	There are several reasons why you might want to change the Ethereal
+	sources:
+	<itemizedlist>
+	  <listitem><para>add your own new dissector</para></listitem>
+	  <listitem><para>change/extend an existing dissector</para></listitem>
+	  <listitem><para>fix a bug</para></listitem>
+	  <listitem><para>implement a new glorious feature :-)</para></listitem>
+	</itemizedlist>
+	The internal structure of the Ethereal sources will be described in one
+	of the following chapters.
+	</para>
+	<para>
+	If you have an idea what and how you want to add/change something, it
+	might be a good idea to ask the developer mailing list before
+	you really start implementing it. Someone else might already working on
+	the same topic,
+	or can give you some tips what should be thought about too (like side
+	effects that are sometimes very hard to see).
+	</para>
+  </section>
+
+  <section id="ChSrcCommit">
+	<title>Committing changed sources</title>
+	<para>
+	If you have finished changing the Ethereal sources to suit your needs,
+	you might want to contribute your changes back to the Ethereal SVN
+	server.
+	</para>
+	<para>
+	You gain two benefits by contributing your improvements back to the
+	community:
+	<itemizedlist>
+	<listitem><para>
+	Other people who find your contributions useful will appreciate
+	them, and you will know that you have helped people in the same way
+	that the developers of Ethereal have helped people
+	</para></listitem>
+	<listitem><para>
+	The maintainers and developers of Ethereal will maintain your
+	code as well, fixing it when API changes or other changes are made, and
+	generally keeping it in tune with what is happening with Ethereal.
+	</para></listitem>
+	</itemizedlist>
+	There's no direct way to commit changes to the SVN server. Only a few
+	people are authorised to
+	actually
+	make changes to the source code (check-in changed files). If you want
+	to submit your changes, you should make a diff file (a patch) and send
+	it to
+	the developer mailing list.	
+	</para>
+	
+
+
+	<section id="ChSrcDiff">
+	<title>Using the diff tool to generate a diff file (a patch)</title>
+	<para>
+	A diff file is generated, by comparing two files or directories between
+	your own working copy and the "official" source tree. So to be able to
+	do a diff, you should
+	have two source trees on your computer, one with your working copy
+	(containing your changes), and one with the "official" source tree
+	(hopefully the latest SVN files) from www.ethereal.com.
+	</para>
+	<para>
+	If you have only changed a single file, you could type something like
+	this:
+	</para>
+	<para>
+	<userinput>diff -r -u --strip-trailing-cr svn-file.c work-file.c &gt; foo.diff</userinput>
+	</para>
+	<para>
+	To get a diff file for your complete directory (including
+	subdirectories), you could type something like this:
+	</para>
+	<para>
+	<userinput>diff -r -u --strip-trailing-cr ./svn-dir ./working-dir &gt; foo.diff</userinput>
+	</para>
+	<para>
+	It's a good idea to do a <userinput>make distclean</userinput> before the 
+	actual diff call, as this will remove a lot
+	of temporary files which might be otherwise included in the diff. After
+	doing the diff, you should edit the <filename>foo.diff</filename>
+	file and remove unnecessary things, like your private changes to the
+	config.nmake file.
+	</para>
+	<para>
+	The diff tool has several options, you will get a complete list with:
+	</para>
+	<para>
+	<userinput>diff --help</userinput>
+
+	<table frame='all'><title>Some useful diff options</title>
+	<tgroup cols='2' align='left' colsep='1' rowsep='1'>
+	<colspec colname='c1'/>
+	<colspec colname='c2'/>
+	<thead>
+	<row>
+	  <entry>Option</entry>
+	  <entry>Purpose</entry>
+	</row>
+	</thead>
+	<tbody>
+	<row>
+	  <entry>-r</entry>
+	  <entry>Recursively compare any subdirectories found.</entry>
+	</row>
+	<row>
+	  <entry>-u</entry>
+	  <entry>Output unified context.</entry>
+	</row>
+	<row>
+	  <entry>--strip-trailing-cr</entry>
+	  <entry>Strip trailing carriage return on input. This is useful for Win32
+	  </entry>
+	</row>
+	<row>
+	  <entry>-x PAT</entry>
+	  <entry>Exclude files that match PAT.
+	  This could be something like -x *.obj to exclude all win32 object files.
+	  </entry>
+	</row>
+	</tbody>
+	</tgroup>
+	</table>
+	
+	<tip><title>Tip!</title>
+	<para>The resulting diff file is often also called a patch.
+	</para>
+	</tip>
+
+	</para>
+	</section>
+
+
+	<section id="ChSrcSend">
+	<title>Sending your patch to the developer mailing list</title>
+	<para>
+	After generating a patch of your changes, you might want to have your
+	changes included into the SVN server.
+	</para>
+	<para>
+	Think a moment to find a proper name for your patch file. Often a
+	filename
+	like <filename>ethereal.diff</filename> is used,
+	which isn't really helpful if keeping
+	several of these files and find the right one later. For example:
+	If you
+	want to commit changes to the datatypes of dissector foo, a good
+	filename could be: <filename>packet-foo-datatypes.diff</filename>.
+	</para>
+	<para>
+	You should send an email to <ulink
+	url="mailto:ethereal-dev[AT]ethereal.com"/>
+	with a description of your changes and the reasons for it and with your
+	diff file as an attachment. Don't include your diff file into the mail
+	text, as this often changes the text formatting and makes it much
+	harder to apply your patch.
+	</para>
+	<para>
+	When someone from the Ethereal core maintainers finds the time to look
+	at your patch, it will be merged into the SVN server sources, so
+	the latest SVN versions and
+	the new releases will include it :-)
+	</para>
+	<para>
+	You might get one of the following responses from your mail:
+	<orderedlist>
+	  <listitem><para>
+	  your patch is checked into the SVN :-)
+	  </para></listitem>
+	  <listitem><para>
+	  your patch is rejected (and you get a response mail like: please
+	  change xy because of ...)
+	  </para></listitem>
+	  <listitem><para>
+	  you don't get any reponse to your patch (even after a week or so)
+	  </para></listitem>
+	</orderedlist>
+	2) Possible reasons: you didn't followed the style guides, your code
+	was buggy or insecure, your code does not compile on all of the
+	supported platforms, ... So please fix the mentioned things and send a
+	newly generated patch.
+	3) Possible reason: your patch might simply get lost, as all core
+	maintainers
+	were busy at that time and forgot to look at your patch. Simply try to
+	resend your patch.
+	</para>
+	<para>
+	Some tips that will make the merging of your changes into the SVN tree
+	much more likely (and you want exactly that, don't you :-):
+	<itemizedlist>
+	  <listitem><para>
+	  ask the developer mailing list before starting a new task, as
+	  someone might already be working on your desired topic (this might
+	  reduce double effort)
+	  </para></listitem>
+	  <listitem><para>
+	  explain why your change is needed (don't worry if your change
+	  seems to be needed only by yourself, other's might find it helpful too)
+	  </para></listitem>
+	  <listitem><para>
+	  keep your own sources up to date (use the latest SVN sources)
+	  before making a patch, as this makes it usually much easier to apply
+	  your patch
+	  </para></listitem>
+	  <listitem><para>
+	  find a good descriptive filename for your diff file as described
+	  above
+	  </para></listitem>
+	  <listitem><para>
+	  follow the source code style guide and other documented tips
+	  </para></listitem>
+	  <listitem><para>
+	  keep your patch as small as possible, don't include several smaller 
+	  changes into one large (unrelated) patch
+	  </para></listitem>
+	</itemizedlist>
+	In general: making it easier to understand and apply your patch by one
+	of the maintainers will make it much more likely (and faster) that it 
+	will actually be applied.
+	</para>
+	<para>
+	Please remember: you don't pay the person "on the
+	other side of the mail" for his/her effort applying your patch!
+	</para>
+	</section>
+
+  </section>
+
+  <section id="ChSrcBinary">
+	<title>Binary packaging</title>
+	<para>
+	Delivering binary packages, makes it much easier for the end-users to
+	install Ethereal on their target system. This section will explain how
+	the binary packages are made.
+	</para>
+
+	<section id="ChSrcNSIS">
+	<title>Win32: NSIS .exe installer</title>
+	<para>
+	The "Nullsoft Install System" is a free installer generator for win32
+	based systems. It is script based, you will find the Ethereal installer
+	generation script at <filename>packaging/nsis/ethereal.nsi</filename>.
+	</para>
+	<para>
+	You will probably have to
+	modify the config.nmake file to specify where the NSIS binaries are
+	installed and wether to use the modern UI (which is recommended) or not.
+	</para>
+	<para>
+	In the ethereal directory, type:
+	</para>
+	<para>
+	<prompt>&gt;</prompt> <userinput>nmake -f makefile.nmake packaging</userinput>
+	</para>
+	<para>
+	to build the installer. Please be patient while the compression is
+	done, it will take some time (a few minutes!) even on fast machines.
+	</para>
+	<para>
+	You will hopefully now see something like:
+	<filename>ethereal-setup-0.10.2.exe</filename> in
+	the <filename>packaging/nsis</filename> directory.
+	</para>
+	</section>
+
+	<section id="ChSrcDeb">
+	<title>Debian: .deb packages</title>
+	<para>
+	XXX
+	</para>
+	</section>
+
+	<section id="ChSrcRpm">
+	<title>Red Hat: .rpm packages</title>
+	<para>
+	XXX
+	</para>
+	</section>
+	
+  </section>
+
+</chapter>
+<!-- End of EUG Chapter Sources -->

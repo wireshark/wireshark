@@ -438,7 +438,7 @@ $
   </section>
   </section>
 
-  <section><title>Other sources of information</title>
+  <section id="ChIntroOtherSources"><title>Other sources of information</title>
     <para>
 	There are various other sources of information for Ethereal developers:
 	<itemizedlist>
