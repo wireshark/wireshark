@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.77 2004/05/26 03:49:23 ulfl Exp $
+ * $Id: print_dlg.c,v 1.78 2004/05/27 21:52:07 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -740,7 +740,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   gchar         *f_name;
   gchar         *dirname;
 #ifdef _WIN32
-  int win_printer_flag = FALSE;
+  gboolean win_printer = FALSE;
 #endif
 
   args = (print_args_t *)OBJECT_GET_DATA(ok_bt, PRINT_ARGS_KEY);
@@ -765,7 +765,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
     g_free(f_name);
   } else {
 #ifdef _WIN32
-    win_printer_flag = TRUE;
+    win_printer = TRUE;
     /*XXX should use temp file stuff in util routines */
     g_free(args->file);
     args->file = g_strdup(tmpnam(NULL));
@@ -843,7 +843,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   }
 
 #ifdef _WIN32
-  if (win_printer_flag) {
+  if (win_printer) {
     print_mswin(args->file);
 
     /* trash temp file */
