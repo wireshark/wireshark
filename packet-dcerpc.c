@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.148 2003/10/23 05:23:41 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.149 2003/10/23 05:58:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1896,10 +1896,8 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
             if (stub_tvb != NULL) {
                 /*
                  * Catch all exceptions other than BoundsError, so that even
-                 * if the stub data is bad, we don't abort the full DCE RPC
-                 * dissection - this might be running over a byte-stream
-                 * protocol, and there might be more than one DCE RPC PDU
-                 * in the data being dissected.
+                 * if the stub data is bad, we still show the authentication
+                 * padding, if any.
                  *
                  * If we get BoundsError, it means the frame was cut short
                  * by a snapshot length, so there's nothing more to
@@ -3164,9 +3162,9 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 /*
  * DCERPC dissector for connection oriented calls
  */
-static int
+static gboolean
 dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
-                   proto_tree *tree, gboolean can_desegment)
+                   proto_tree *tree, gboolean can_desegment, int *pkt_len)
 {
     static char nulls[4] = { 0 };
     int start_offset;
@@ -3201,18 +3199,18 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
      * Check if this looks like a C/O DCERPC call
      */
     if (!tvb_bytes_exist (tvb, offset, sizeof (hdr))) {
-        return -1;
+        return FALSE;	/* not enough information to check */
     }
     start_offset = offset;
     hdr.rpc_ver = tvb_get_guint8 (tvb, offset++);
     if (hdr.rpc_ver != 5)
-        return -1;
+        return FALSE;
     hdr.rpc_ver_minor = tvb_get_guint8 (tvb, offset++);
     if (hdr.rpc_ver_minor != 0 && hdr.rpc_ver_minor != 1)
-        return -1;
+        return FALSE;
     hdr.ptype = tvb_get_guint8 (tvb, offset++);
     if (hdr.ptype > 19)
-        return -1;
+        return FALSE;
 
     hdr.flags = tvb_get_guint8 (tvb, offset++);
     tvb_memcpy (tvb, (guint8 *)hdr.drep, offset, sizeof (hdr.drep));
@@ -3229,7 +3227,8 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
         && !tvb_bytes_exist(tvb, start_offset, hdr.frag_len)) {
         pinfo->desegment_offset = start_offset;
         pinfo->desegment_len = hdr.frag_len - tvb_length_remaining (tvb, start_offset);
-        return 0;	/* desegmentation required */
+        *pkt_len = 0;	/* desegmentation required */
+        return TRUE;
     }
 
     if (check_col (pinfo->cinfo, COL_PROTOCOL))
@@ -3239,7 +3238,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    pckt_vals[hdr.ptype].strptr, hdr.call_id);
 
     if (tree) {
-      offset = start_offset;
+        offset = start_offset;
         ti = proto_tree_add_item (tree, proto_dcerpc, tvb, offset, hdr.frag_len, FALSE);
         if (ti) {
             dcerpc_tree = proto_item_add_subtree (ti, ett_dcerpc);
@@ -3279,6 +3278,23 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_cn_call_id, tvb, offset, 4, hdr.call_id);
         offset += 4;
     }
+
+    /*
+     * None of the stuff done above should throw an exception, because
+     * we would have rejected this as "not DCE RPC" if we didn't have all
+     * of it.  (XXX - perhaps we should request reassembly if we have
+     * enough of the header to consider it DCE RPC but not enough to
+     * get the fragment length; in that case the stuff still wouldn't
+     * throw an exception.)
+     *
+     * The rest of the stuff might, so return the PDU length to our caller.
+     * XXX - should we construct a tvbuff containing only the PDU and
+     * use that?  Or should we have separate "is this a DCE RPC PDU",
+     * "how long is it", and "dissect it" routines - which might let us
+     * do most of the work in "tcp_dissect_pdus()"?
+     */
+    if (pkt_len != NULL)
+        *pkt_len = hdr.frag_len + padding;
 
     /*
      * Packet type specific stuff is next.
@@ -3341,7 +3357,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
 				&auth_info);
         break;
     }
-    return hdr.frag_len + padding;
+    return TRUE;
 }
 
 /*
@@ -3355,7 +3371,7 @@ dissect_dcerpc_cn_pk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * Only one PDU per transport packet, and only one transport
      * packet per PDU.
      */
-    if (dissect_dcerpc_cn (tvb, 0, pinfo, tree, FALSE) == -1) {
+    if (dissect_dcerpc_cn (tvb, 0, pinfo, tree, FALSE, NULL) == -1) {
         /*
          * It wasn't a DCERPC PDU.
          */
@@ -3375,18 +3391,36 @@ dissect_dcerpc_cn_pk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 dissect_dcerpc_cn_bs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int offset = 0;
+    volatile int offset = 0;
     int pdu_len;
-    gboolean ret = FALSE;
+    volatile gboolean is_dcerpc_pdu;
+    volatile gboolean ret = FALSE;
 
     /*
      * There may be multiple PDUs per transport packet; keep
      * processing them.
      */
     while (tvb_reported_length_remaining(tvb, offset) != 0) {
-        pdu_len = dissect_dcerpc_cn (tvb, offset, pinfo, tree,
-                                     dcerpc_cn_desegment);
-        if (pdu_len == -1) {
+        /*
+         * Catch ReportedBoundsError, so that even if the stub data is bad,
+         * we don't abort the full DCE RPC dissection - there might be more
+         * than one DCE RPC PDU in the data being dissected.
+         *
+         * If we get BoundsError, it means the frame was cut short by a
+         * snapshot length, so there's nothing more to dissect; just
+         * re-throw that exception.
+         */
+        is_dcerpc_pdu = FALSE;
+        TRY {
+            is_dcerpc_pdu = dissect_dcerpc_cn (tvb, offset, pinfo, tree,
+                                               dcerpc_cn_desegment, &pdu_len);
+        } CATCH(BoundsError) {
+            RETHROW;
+        } CATCH(ReportedBoundsError) {
+            show_reported_bounds_error(tvb, pinfo, tree);
+        } ENDTRY;
+
+        if (!is_dcerpc_pdu) {
             /*
              * Not a DCERPC PDU.
              */
