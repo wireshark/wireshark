@@ -1,7 +1,7 @@
 /* filters.c
  * Code for reading and writing the filters file.
  *
- * $Id: filters.c,v 1.4 2001/01/28 22:28:31 guy Exp $
+ * $Id: filters.c,v 1.5 2001/02/03 06:03:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,8 +66,6 @@
  */
 #define DFILTER_FILE_NAME	"dfilters"
 
-#define	FILTER_LINE_SIZE	2048
-
 /*
  * List of capture filters.
  */
@@ -86,6 +84,9 @@ static GList *display_filters = NULL;
  * the file we tried to read - it should be freed by our caller -
  * and "*errno_return" is set to the error.
  */
+
+#define INIT_BUF_SIZE	128
+
 void
 read_filter_list(filter_list_type_t list, char **pref_path_return,
     int *errno_return)
@@ -95,9 +96,11 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
   GList      **flp;
   GList      *fl_ent;
   filter_def *filt;
-  char       f_buf[FILTER_LINE_SIZE];
-  char       *name_begin, *name_end, *filt_begin;
-  int         len, line = 0;
+  int         c;
+  char       *filt_name, *filt_expr;
+  int         filt_name_len, filt_expr_len;
+  int         filt_name_index, filt_expr_index;
+  int         line = 1;
 
   *pref_path_return = NULL;	/* assume no error */
 
@@ -172,35 +175,154 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
     *flp = NULL;
   }
 
-  while (fgets(f_buf, FILTER_LINE_SIZE, ff)) {
-    line++;
-    len = strlen(f_buf);
-    if (f_buf[len - 1] == '\n') {
-      len--;
-      f_buf[len] = '\0';
+  /* Allocate the filter name buffer. */
+  filt_name_len = INIT_BUF_SIZE;
+  filt_name = g_malloc(filt_name_len + 1);
+  filt_expr_len = INIT_BUF_SIZE;
+  filt_expr = g_malloc(filt_expr_len + 1);
+
+  for (;;) {
+    /* Lines in a filter file are of the form
+
+	"name" expression
+
+       where "name" is a name, in quotes - backslashes in the name
+       escape the next character, so quotes and backslashes can appear
+       in the name - and "expression" is a filter expression, not in
+       quotes, running to the end of the line. */
+
+    /* Skip over leading white space, if any. */
+    while ((c = getc(ff)) != EOF && isspace(c)) {
+      if (c == '\n') {
+	/* Blank line. */
+	line++;	/* next line */
+	continue;
+      }
     }
-    name_begin = strchr(f_buf, '"');
-    /* Empty line */
-    if (name_begin == NULL)
-      continue;
-    name_end = strchr(name_begin + 1, '"');
-    /* No terminating quote */
-    if (name_end == NULL) {
-      g_warning("Malformed filter in '%s' line %d.", ff_path, line);
-      continue;
-    }
-    name_begin++;
-    name_end[0] = '\0';
-    filt_begin  = name_end + 1;
-    while(isspace((guchar)filt_begin[0])) filt_begin++;
-    /* No filter string */
-    if (filt_begin[0] == '\0') {
-      g_warning("Malformed filter in '%s' line %d.", ff_path, line);
+
+    if (c == EOF)
+      break;	/* Nothing more to read */
+
+    /* "c" is the first non-white-space character.
+       If it's not a quote, it's an error. */
+    if (c != '"') {
+      g_warning("'%s' line %d doesn't have a quoted filter name.", ff_path,
+		line);
+      while (c != '\n')
+	c = getc(ff);	/* skip to the end of the line */
+      line++;	/* next line */
       continue;
     }
+
+    /* Get the name of the filter. */
+    filt_name_index = 0;
+    for (;;) {
+      c = getc(ff);
+      if (c == EOF || c == '\n')
+	break;	/* End of line - or end of file */
+      if (c == '"') {
+	/* Closing quote. */
+	if (filt_name_index >= filt_name_len) {
+	  /* Filter name buffer isn't long enough; double its length. */
+	  filt_name_len *= 2;
+	  filt_name = g_realloc(filt_name, filt_name_len + 1);
+	}
+	filt_name[filt_name_index] = '\0';
+	break;
+      }
+      if (c == '\\') {
+	/* Next character is escaped */
+	c = getc(ff);
+	if (c == EOF || c == '\n')
+	  break;	/* End of line - or end of file */
+      }
+      /* Add this character to the filter name string. */
+      if (filt_name_index >= filt_name_len) {
+	/* Filter name buffer isn't long enough; double its length. */
+	filt_name_len *= 2;
+	filt_name = g_realloc(filt_name, filt_name_len + 1);
+      }
+      filt_name[filt_name_index] = c;
+      filt_name_index++;
+    }
+
+    if (c == EOF) {
+      if (!ferror(ff)) {
+	/* EOF, not error; no newline seen before EOF */
+	g_warning("'%s' line %d doesn't have a newline.", ff_path,
+		  line);
+      }
+      break;	/* nothing more to read */
+    }
+
+    if (c != '"') {
+      /* No newline seen before end-of-line */
+      g_warning("'%s' line %d doesn't have a closing quote.", ff_path,
+		line);
+      line++;	/* next line */
+      continue;
+    }
+	  
+    /* Skip over separating white space, if any. */
+    while ((c = getc(ff)) != EOF && isspace(c)) {
+      if (c == '\n') {
+	/* No filter expression */
+	g_warning("'%s' line %d doesn't have a filter expression.", ff_path,
+		  line);
+	line++;	/* next line */
+	continue;
+      }
+    }
+
+    if (c == EOF) {
+      if (!ferror(ff)) {
+	/* EOF, not error; no newline seen before EOF */
+	g_warning("'%s' line %d doesn't have a newline.", ff_path,
+		  line);
+      }
+      break;	/* nothing more to read */
+    }
+
+    /* "c" is the first non-white-space character; it's the first
+       character of the filter expression. */
+    filt_expr_index = 0;
+    for (;;) {
+      /* Add this character to the filter expression string. */
+      if (filt_expr_index >= filt_expr_len) {
+	/* Filter expressioin buffer isn't long enough; double its length. */
+	filt_expr_len *= 2;
+	filt_expr = g_realloc(filt_expr, filt_expr_len + 1);
+      }
+      filt_expr[filt_expr_index] = c;
+      filt_expr_index++;
+
+      /* Get the next character. */
+      c = getc(ff);
+      if (c == EOF || c == '\n')
+	break;
+    }
+
+    if (c == EOF) {
+      if (!ferror(ff)) {
+	/* EOF, not error; no newline seen before EOF */
+	g_warning("'%s' line %d doesn't have a newline.", ff_path,
+		  line);
+      }
+      break;	/* nothing more to read */
+    }
+
+    /* We saw the ending newline; terminate the filter expression string */
+    if (filt_expr_index >= filt_expr_len) {
+      /* Filter expressioin buffer isn't long enough; double its length. */
+      filt_expr_len *= 2;
+      filt_expr = g_realloc(filt_expr, filt_expr_len + 1);
+    }
+    filt_expr[filt_expr_index] = '\0';
+
+    /* Add the new filter to the list of filters */
     filt         = (filter_def *) g_malloc(sizeof(filter_def));
-    filt->name   = g_strdup(name_begin);
-    filt->strval = g_strdup(filt_begin);
+    filt->name   = g_strdup(filt_name);
+    filt->strval = g_strdup(filt_expr);
     *flp = g_list_append(*flp, filt);
   }
   if (ferror(ff)) {
@@ -209,6 +331,8 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
   } else
     g_free(ff_path);
   fclose(ff);
+  g_free(filt_name);
+  g_free(filt_expr);
 }
 
 /*
@@ -302,6 +426,7 @@ save_filter_list(filter_list_type_t list, char **pref_path_return,
   filter_def *filt;
   FILE       *ff;
   struct stat s_buf;
+  guchar     *p, c;
   
   *pref_path_return = NULL;	/* assume no error */
 
@@ -351,7 +476,22 @@ save_filter_list(filter_list_type_t list, char **pref_path_return,
   flp = g_list_first(fl);
   while (flp) {
     filt = (filter_def *) flp->data;
-    fprintf(ff, "\"%s\" %s\n", filt->name, filt->strval);
+
+    /* Write out the filter name as a quoted string; escape any quotes
+       or backslashes. */
+    putc('"', ff);
+    for (p = (guchar *)filt->name; (c = *p) != '\0'; p++) {
+      if (c == '"' || c == '\\')
+        putc('\\', ff);
+      putc(c, ff);
+    }
+    putc('"', ff);
+
+    /* Separate the filter name and value with a space. */
+    putc(' ', ff);
+
+    /* Write out the filter expression and a newline. */
+    fprintf(ff, "%s\n", filt->strval);
     if (ferror(ff)) {
       *pref_path_return = ff_path;
       *errno_return = errno;
