@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.145 2001/11/12 08:46:12 guy Exp $
+ * $Id: packet-smb.c,v 1.146 2001/11/12 21:43:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6159,6 +6159,10 @@ dissect_nt_create_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_
 	proto_tree_add_boolean(tree, hf_smb_nt_create_options_write_through,
 		tvb, offset, 4, mask);
 	proto_tree_add_boolean(tree, hf_smb_nt_create_options_sequential_only,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_sync_io_alert,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_sync_io_nonalert,
 		tvb, offset, 4, mask);
 	proto_tree_add_boolean(tree, hf_smb_nt_create_options_non_directory_file,
 		tvb, offset, 4, mask);
@@ -15154,6 +15158,15 @@ proto_register_smb(void)
 		{ "Non-Directory", "smb.nt.create_options.non_directory", FT_BOOLEAN, 32,
 		TFS(&tfs_nt_create_options_non_directory), 0x00000040, "Should file being opened/created be a non-directory?", HFILL }},
 
+	/* 0x00000080 is "tree connect", at least in "NtCreateFile()"
+	   and "NtOpenFile()"; is that sent over the wire?  Network
+	   Monitor thinks so, but its author may just have grabbed
+	   the flag bits from a system header file. */
+
+	/* 0x00000100 is "complete if oplocked", at least in "NtCreateFile()"
+	   and "NtOpenFile()"; is that sent over the wire?  NetMon
+	   thinks so, but see previous comment. */
+
 	{ &hf_smb_nt_create_options_no_ea_knowledge,
 		{ "No EA Knowledge", "smb.nt.create_options.no_ea_knowledge", FT_BOOLEAN, 32,
 		TFS(&tfs_nt_create_options_no_ea_knowledge), 0x00000200, "Does the client not understand extended attributes?", HFILL }},
@@ -15169,6 +15182,15 @@ proto_register_smb(void)
 	{ &hf_smb_nt_create_options_delete_on_close,
 		{ "Delete On Close", "smb.nt.create_options.delete_on_close", FT_BOOLEAN, 32,
 		TFS(&tfs_nt_create_options_delete_on_close), 0x00001000, "Should the file be deleted when closed?", HFILL }},
+
+	/* 0x00002000 is "open by FID", or something such as that (which
+	   I suspect is like "open by inumber" on UNIX), at least in
+	   "NtCreateFile()" and "NtOpenFile()"; is that sent over the
+	   wire?  NetMon thinks so, but see previous comment. */
+
+	/* 0x00004000 is "open for backup", at least in "NtCreateFile()"
+	   and "NtOpenFile()"; is that sent over the wire?  NetMon
+	   thinks so, but see previous comment. */
 
 	{ &hf_smb_nt_share_access_read,
 		{ "Read", "smb.share.access.read", FT_BOOLEAN, 32,
