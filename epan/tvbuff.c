@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.62 2004/05/05 06:55:09 obiot Exp $
+ * $Id: tvbuff.c,v 1.63 2004/05/06 17:40:52 obiot Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -2308,7 +2308,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			if (flags & 0x3) {
 				/* A null terminated filename */
 
-				while (*c != NULL) {
+				while (*c != '\0') {
 					c++;
 				}
 
@@ -2318,7 +2318,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			if (flags & 0x4) {
 				/* A null terminated comment */
 				
-				while (*c != NULL) {
+				while (*c != '\0') {
 					c++;
 				}
 
