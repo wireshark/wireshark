@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.7 2000/08/23 06:55:21 guy Exp $
+ * $Id: color_dlg.c,v 1.8 2000/08/24 13:21:29 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -209,7 +209,7 @@ colorize_dialog_new (colfilter *filter)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (hbox2);
   gtk_box_pack_start (GTK_BOX (vbox1), hbox2, TRUE, FALSE, 5);
-  gtk_widget_set_usize (hbox2, -2, 40);
+  gtk_widget_set_usize (hbox2, -2, 30);
 
   color_new = gtk_button_new_with_label (("New"));
   gtk_widget_ref (color_new);
@@ -217,7 +217,7 @@ colorize_dialog_new (colfilter *filter)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (color_new);
   gtk_box_pack_start (GTK_BOX (hbox2), color_new, TRUE, FALSE, 5);
-  gtk_widget_set_usize (color_new, 50, 30);
+  gtk_widget_set_usize (color_new, 50, 20);
   gtk_tooltips_set_tip (tooltips, color_new, ("Create a new colorization filter after selected filter"), NULL);
 
   color_edit = gtk_button_new_with_label (("Edit"));
@@ -225,7 +225,7 @@ colorize_dialog_new (colfilter *filter)
   gtk_object_set_data_full (GTK_OBJECT (color_win), "color_edit", color_edit,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (color_edit);
-  gtk_widget_set_usize(color_edit, 50, 30);
+  gtk_widget_set_usize(color_edit, 50, 20);
   gtk_box_pack_start (GTK_BOX (hbox2), color_edit, TRUE, FALSE, 5);
   gtk_tooltips_set_tip (tooltips, color_edit, ("Change color of selected filter"), NULL);
   gtk_widget_set_sensitive (color_edit,
@@ -237,7 +237,7 @@ colorize_dialog_new (colfilter *filter)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (color_delete);
   gtk_box_pack_start (GTK_BOX (hbox2), color_delete, TRUE, FALSE, 5);
-  gtk_widget_set_usize (color_delete, 50, 30);
+  gtk_widget_set_usize (color_delete, 50, 20);
   gtk_tooltips_set_tip (tooltips, color_delete, ("Delete selected colorization filter"), NULL);
 
   color_save = gtk_button_new_with_label (("Save"));
@@ -246,7 +246,7 @@ colorize_dialog_new (colfilter *filter)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (color_save);
   gtk_box_pack_start (GTK_BOX (hbox2), color_save, TRUE, FALSE, 5);
-  gtk_widget_set_usize (color_save, 50, 30);
+  gtk_widget_set_usize (color_save, 50, 20);
   gtk_tooltips_set_tip (tooltips, color_save, ("Save all filters to disk"), NULL);
 
   hbox3 = gtk_hbox_new (FALSE, 0);
@@ -255,7 +255,7 @@ colorize_dialog_new (colfilter *filter)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (hbox3);
   gtk_box_pack_start (GTK_BOX (vbox1), hbox3, TRUE, FALSE, 5);
-  gtk_widget_set_usize (hbox3, 177, 40);
+  gtk_widget_set_usize (hbox3, 177, 30);
 
   color_ok = gtk_button_new_with_label (("OK"));
   gtk_widget_ref (color_ok);
@@ -263,7 +263,7 @@ colorize_dialog_new (colfilter *filter)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (color_ok);
   gtk_box_pack_start (GTK_BOX (hbox3), color_ok, TRUE, FALSE, 0);
-  gtk_widget_set_usize (color_ok, 50, 30);
+  gtk_widget_set_usize (color_ok, 50, 20);
   gtk_tooltips_set_tip (tooltips, color_ok, ("Accept filter list; apply changes"), NULL);
 
   color_apply = gtk_button_new_with_label (("Apply"));
@@ -272,7 +272,7 @@ colorize_dialog_new (colfilter *filter)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (color_apply);
   gtk_box_pack_start (GTK_BOX (hbox3), color_apply, TRUE, FALSE, 0);
-  gtk_widget_set_usize (color_apply, 50, 30);
+  gtk_widget_set_usize (color_apply, 50, 20);
   gtk_tooltips_set_tip (tooltips, color_apply, ("Apply filters in list"), NULL);
 
   color_cancel = gtk_button_new_with_label (("Cancel"));
@@ -281,7 +281,7 @@ colorize_dialog_new (colfilter *filter)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (color_cancel);
   gtk_box_pack_start (GTK_BOX (hbox3), color_cancel, TRUE, FALSE, 0);
-  gtk_widget_set_usize (color_cancel, 50, 30);
+  gtk_widget_set_usize (color_cancel, 50, 20);
   gtk_tooltips_set_tip (tooltips, color_cancel, ("No more filter changes; don't apply"), NULL);
 
   gtk_signal_connect (GTK_OBJECT (color_win), "destroy",
@@ -335,6 +335,8 @@ colorize_dialog_new (colfilter *filter)
   gtk_widget_grab_focus (color_filters);
   gtk_object_set_data (GTK_OBJECT (color_win), "tooltips", tooltips);
   gtk_widget_show (color_win);
+
+  dlg_set_cancel(color_win, color_cancel);
 
   return color_win;
 }
@@ -735,13 +737,13 @@ edit_color_filter_dialog_new (colfilter *filter,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (hbox4);
   gtk_box_pack_start (GTK_BOX (vbox3), hbox4, TRUE, FALSE, 5);
-  gtk_widget_set_usize (hbox4, -2, 40);
+  gtk_widget_set_usize (hbox4, -2, 30);
 
   edit_color_filter_ok = gtk_button_new_with_label (("OK"));
   gtk_widget_ref (edit_color_filter_ok);
   gtk_object_set_data_full (GTK_OBJECT (edit_dialog), "edit_color_filter_ok", edit_color_filter_ok,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_set_usize (edit_color_filter_ok, 50, 30);
+  gtk_widget_set_usize (edit_color_filter_ok, 50, 20);
   gtk_widget_show (edit_color_filter_ok);
   gtk_box_pack_start (GTK_BOX (hbox4), edit_color_filter_ok, TRUE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, edit_color_filter_ok, ("Accept filter color change"), NULL);
@@ -750,7 +752,7 @@ edit_color_filter_dialog_new (colfilter *filter,
   gtk_widget_ref (edit_color_filter_cancel);
   gtk_object_set_data_full (GTK_OBJECT (edit_dialog), "edit_color_filter_cancel", edit_color_filter_cancel,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_set_usize (edit_color_filter_cancel, 50, 30);
+  gtk_widget_set_usize (edit_color_filter_cancel, 50, 20);
   gtk_widget_show (edit_color_filter_cancel);
   gtk_box_pack_start (GTK_BOX (hbox4), edit_color_filter_cancel, TRUE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, edit_color_filter_cancel, ("Reject filter color change"), NULL);
@@ -781,6 +783,9 @@ edit_color_filter_dialog_new (colfilter *filter,
                       edit_dialog);
 
   gtk_object_set_data (GTK_OBJECT (edit_dialog), "tooltips", tooltips);
+
+  dlg_set_cancel(edit_dialog, edit_color_filter_cancel);
+
   gtk_widget_show (edit_dialog);
 }
 
