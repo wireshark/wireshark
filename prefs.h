@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.52 2003/12/28 21:10:26 sharpe Exp $
+ * $Id: prefs.h,v 1.53 2003/12/29 19:56:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,8 +85,8 @@ typedef struct _e_prefs {
   gint     gui_geometry_main_y;
   gint     gui_geometry_main_width;
   gint     gui_geometry_main_height;
-  guint     gui_fileopen_style;
-  gint     gui_recent_files_count_max;
+  guint    gui_fileopen_style;
+  guint    gui_recent_files_count_max;
   gchar	   *gui_fileopen_dir;
   gchar    *gui_fileopen_remembered_dir;
   guint32  name_resolve;

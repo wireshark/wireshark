@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.129 2003/12/28 21:10:26 sharpe Exp $
+ * $Id: menu.c,v 1.130 2003/12/29 19:59:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -669,9 +669,6 @@ set_menu_object_data (gchar *path, gchar *key, gpointer data) {
  * of the current path. 
  * They are only stored inside the labels of the submenu (no separate list). */
 
-/* the maximum number of entries in the recent capture files list */
-static guint recent_files_count_max = 10;
-
 #define MENU_RECENT_FILES_PATH "/File/Open Recent"
 
 /* remove the capture filename from the "Recent Files" menu */
@@ -703,12 +700,12 @@ menu_open_recent_file_cmd_cb(GtkWidget *w, gpointer data _U_)
 	gtk_label_get(GTK_LABEL(menu_item_child), &cf_name);
 
 	/* open and read the capture file (this will close an existing file) */
-    if ((err = cf_open(cf_name, FALSE, &cfile)) == 0) {
+	if ((err = cf_open(cf_name, FALSE, &cfile)) == 0) {
 		cf_read(&cfile, &err);
-    } else {
-        /* the capture file isn't existing any longer, remove menu item */
-        /* XXX: ask user to remove item, it's maybe only a temporary problem */
-        remove_menu_recent_capture_file(w);
+	} else {
+		/* the capture file isn't existing any longer, remove menu item */
+		/* XXX: ask user to remove item, it's maybe only a temporary problem */
+		remove_menu_recent_capture_file(w);
 	}
 }
 
@@ -733,7 +730,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 	/* iterate through list items of menu_item_list, 
 	 * removing a maybe duplicate entry and every item above count_max */
 	li = g_list_first(menu_item_list);
-    for (cnt = 1; li; li = li->next, cnt++) {
+	for (cnt = 1; li; li = li->next, cnt++) {
 		/* get capture filename from the menu item label */
 		menu_item = (GtkWidget *) li->data;
 		gtk_label_get(GTK_LABEL(GTK_BIN(menu_item)->child), &widget_cf_name);
@@ -742,7 +739,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 		 * this element is above maximum count (too old), remove it */
 		if (strncmp(widget_cf_name, cf_name, 1000) == 0 ||
 				cnt >= prefs.gui_recent_files_count_max) {
-            remove_menu_recent_capture_file(li->data);
+			remove_menu_recent_capture_file(li->data);
 			cnt--;
 		}
 	}

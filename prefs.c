@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.117 2003/12/28 23:20:08 sharpe Exp $
+ * $Id: prefs.c,v 1.118 2003/12/29 19:56:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1580,8 +1580,8 @@ set_pref(gchar *pref_name, gchar *value)
 	find_index_from_string_array(value, gui_fileopen_style_text,
 				     FO_STYLE_LAST_OPENED);
   } else if (strcmp(pref_name, PRS_GUI_RECENT_COUNT_MAX) == 0) {
-    prefs.gui_recent_files_count_max = strtol(value, NULL, 10);
-    if (prefs.gui_recent_files_count_max <= 0) {
+    prefs.gui_recent_files_count_max = strtoul(value, NULL, 10);
+    if (prefs.gui_recent_files_count_max == 0) {
       /* We really should put up a dialog box here ... */
       prefs.gui_recent_files_count_max = 10;
     }
