@@ -1490,6 +1490,11 @@ Andreas Trauer <andreas.trauer [AT] siemens.com> {
 	GTP enhancements
 }
 
+Ronald Henderson <Ronald.Henderson [AT] CognicaseUSA.com> {
+	In LDAP dissector, handle Sequence Of header being split across
+	    TCP segments
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

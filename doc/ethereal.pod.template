@@ -1571,6 +1571,7 @@ B<http://www.ethereal.com>.
   Fritz Budiyanto          <fritzb88 [AT] yahoo.com>
   Jean-Baptiste Marchand   <Jean-Baptiste.Marchand [AT] hsc.fr>
   Andreas Trauer           <andreas.trauer [AT] siemens.com>
+  Ronald Henderson         <Ronald.Henderson [AT] CognicaseUSA.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

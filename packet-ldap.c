@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.47 2002/09/09 23:41:12 guy Exp $
+ * $Id: packet-ldap.c,v 1.48 2002/11/12 21:37:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,14 @@
  * nazard@dragoninc.on.ca
  */
 
+/*
+ * 11/11/2002 - Fixed problem when decoding LDAP with desegmentation enabled and the
+ *              ASN.1 BER Universal Class Tag: "Sequence Of" header is encapsulated across 2
+ *              TCP segments.
+ *
+ * Ronald W. Henderson
+ * ronald.henderson@cognicaseusa.com
+ */
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -1417,7 +1425,24 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * segment boundaries.
      */
     message_start = a.offset;
-    ret = read_sequence(&a, &messageLength);
+    /*
+     * If TCP and LDAP desegmentation is enabled:
+     * Force the the TCP dissector to read into the next LDAP packet
+     * if the initial Universal Class Tag: "Sequence Of" header is not
+     * complete within this TCP packet. I required at least 6 bytes
+     * for the header which allows for a 4 byte length (ASN.1 BER)
+     */
+    if (ldap_desegment && pinfo->can_desegment) {
+      if (tvb_reported_length_remaining(tvb, a.offset) >= 6)
+        ret = read_sequence(&a, &messageLength);
+      else {
+        pinfo->desegment_offset = message_start;
+        pinfo->desegment_len = 6;
+        return;
+      }
+    } else {
+      ret = read_sequence(&a, &messageLength);
+    }
     if (ret != ASN1_ERR_NOERROR)
     {
       if (first_time)
