@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.137 2004/06/20 15:57:07 ulfl Exp $
+ * $Id: prefs.c,v 1.138 2004/06/29 05:47:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1649,7 +1649,12 @@ set_pref(gchar *pref_name, gchar *value)
     }
   } else if (strcmp(pref_name, PRS_GUI_LAYOUT_TYPE) == 0) {
     prefs.gui_layout_type = strtoul(value, NULL, 10);
-
+    if (prefs.gui_layout_type == layout_unused ||
+        prefs.gui_layout_type >= layout_type_max) {
+      /* XXX - report an error?  It's not a syntax error - we'd need to
+         add a way of reporting a *semantic* error. */
+      prefs.gui_layout_type = layout_type_5;
+    }
   } else if (strcmp(pref_name, PRS_GUI_LAYOUT_CONTENT_1) == 0) {
     prefs.gui_layout_content_1 =
 	find_index_from_string_array(value, gui_layout_content_text, 0);
