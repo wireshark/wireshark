@@ -2,8 +2,9 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection, SNAC Messaging
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
+ * Copyright 2004, Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-aim-messaging.c,v 1.2 2004/03/23 18:36:05 guy Exp $
+ * $Id: packet-aim-messaging.c,v 1.3 2004/04/02 07:59:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,6 +65,7 @@ static const value_string aim_fnac_family_messaging[] = {
   { FAMILY_MESSAGING_REQPARAMINFO, "Request Parameter Info" },
   { FAMILY_MESSAGING_PARAMINFO, "Parameter Info" },
   { FAMILY_MESSAGING_INCOMING, "Incoming" },
+  { FAMILY_MESSAGING_OUTGOING, "Outgoing" },
   { FAMILY_MESSAGING_EVIL, "Evil" },
   { FAMILY_MESSAGING_MISSEDCALL, "Missed Call" },
   { FAMILY_MESSAGING_CLIENTAUTORESP, "Client Auto Response" },
@@ -73,8 +75,32 @@ static const value_string aim_fnac_family_messaging[] = {
   { 0, NULL }
 };
 
+
+#define INCOMING_CH1_MESSAGE_BLOCK     0x0002
+#define INCOMING_CH1_SERVER_ACK_REQ    0x0003
+#define INCOMING_CH1_MESSAGE_AUTH_RESP 0x0004
+#define INCOMING_CH1_MESSAGE_OFFLINE   0x0006
+#define INCOMING_CH1_ICON_PRESENT      0x0008
+#define INCOMING_CH1_BUDDY_REQ         0x0009
+#define INCOMING_CH1_TYPING            0x000b
+
+static const aim_tlv messaging_incoming_ch1_tlvs[] = {
+  { INCOMING_CH1_MESSAGE_BLOCK, "Message Block", FT_BYTES },
+  { INCOMING_CH1_SERVER_ACK_REQ, "Server Ack Requested", FT_BYTES },
+  { INCOMING_CH1_MESSAGE_AUTH_RESP, "Message is Auto Response", FT_BYTES },
+  { INCOMING_CH1_MESSAGE_OFFLINE, "Message was received offline", FT_BYTES },
+  { INCOMING_CH1_ICON_PRESENT, "Icon present", FT_BYTES },
+  { INCOMING_CH1_BUDDY_REQ, "Buddy Req", FT_BYTES },
+  { INCOMING_CH1_TYPING, "Non-direct connect typing notification", FT_BYTES },
+  { 0, "Unknown", 0 }
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_aim_messaging = -1;
+static int hf_aim_icbm_cookie = -1;
+static int hf_aim_message_channel_id = -1;
+static int hf_aim_userinfo_warninglevel = -1;
+static int hf_aim_userinfo_tlvcount = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_aim_messaging = -1;
@@ -87,6 +113,7 @@ static int dissect_aim_messaging(tvbuff_t *tvb, packet_info *pinfo,
   guchar msg[1000];
   int offset = 0;
   struct aiminfo *aiminfo = pinfo->private_data;
+  guint16 tlv_count = 0;
 
   switch(aiminfo->subtype)
     {    
@@ -99,6 +126,9 @@ static int dissect_aim_messaging(tvbuff_t *tvb, packet_info *pinfo,
 
       buddyname_length = aim_get_buddyname( buddyname, tvb, offset, offset + 1 );
 
+      /* Buddyname length */
+      offset += 1;
+
       /* djh - My test suggest that this is broken.  Need to give this a
 	 closer look @@@@@@@@@ */
       aim_get_message( msg, tvb, 36 + buddyname_length, tvb_length(tvb) - 36
@@ -110,34 +140,57 @@ static int dissect_aim_messaging(tvbuff_t *tvb, packet_info *pinfo,
       }
       
       if(tree) {
-	proto_tree_add_text(tree, tvb, 27, buddyname_length, 
+	proto_tree_add_text(tree, tvb, offset, buddyname_length, 
 			    "Screen Name: %s", buddyname);
       }
       
-	  return offset;
+      return offset;
       
     case FAMILY_MESSAGING_INCOMING:
 
-      /* Unknown */
-      offset += 10;
+      /* ICBM Cookie */
+      proto_tree_add_item(tree, hf_aim_icbm_cookie, tvb, offset, 8, FALSE);
+      offset += 8;
+
+      /* Message Channel ID */
+      proto_tree_add_item(tree, hf_aim_message_channel_id, tvb, offset, 2,
+			  FALSE);
+      offset += 2;
 
       buddyname_length = aim_get_buddyname( buddyname, tvb, offset, offset + 1 );
 
-      /* djh - My test suggest that this is broken.  Need to give this a
-	 closer look @@@@@@@@@ */      
-      aim_get_message( msg, tvb, 36 + buddyname_length,  tvb_length(tvb) - 36
-		   - buddyname_length);
-      
+      /* Buddyname length */
+      offset += 1;
+
       if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_append_fstr(pinfo->cinfo, COL_INFO, " from: %s", buddyname);
 	
 	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
       }
-      
+
       if(tree) {
-	proto_tree_add_text(tree, tvb, 27, buddyname_length, 
+	proto_tree_add_text(tree, tvb, offset, buddyname_length, 
 			    "Screen Name: %s", buddyname);
       }
+
+      offset += buddyname_length;
+
+      /* Warning level */
+      proto_tree_add_item(tree, hf_aim_userinfo_warninglevel, tvb, offset, 2, FALSE);
+      offset += 2;
+      
+      /* TLV Count */
+      tlv_count = tvb_get_ntohs(tvb, offset);
+      proto_tree_add_item(tree, hf_aim_userinfo_tlvcount, tvb, offset, 2, FALSE);
+      offset += 2;
+
+      offset += 9;
+
+      while(tvb_length_remaining(tvb, offset) > 0) {
+	offset = dissect_aim_tlv_specific(tvb, pinfo, offset, tree, 
+					  messaging_incoming_ch1_tlvs);
+      }
+      
       return offset;
 	case FAMILY_MESSAGING_SETICBMPARAM:
 	case FAMILY_MESSAGING_RESETICBMPARAM:
@@ -162,9 +215,20 @@ proto_register_aim_messaging(void)
 {
 
 /* Setup list of header fields */
-/*FIXME
   static hf_register_info hf[] = {
-  };*/
+    { &hf_aim_icbm_cookie,
+      { "ICBM Cookie", "aim.messaging.icbmcookie", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+    },
+    { &hf_aim_message_channel_id,
+      { "Message Channel ID", "aim.messaging.channelid", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+    },
+    { &hf_aim_userinfo_warninglevel,
+      { "Warning Level", "aim.userinfo.warninglevel", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+    },
+    { &hf_aim_userinfo_tlvcount,
+      { "TLV Count", "aim.userinfo.tlvcount", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+    },
+  };
 
 /* Setup protocol subtree array */
   static gint *ett[] = {
@@ -174,9 +238,8 @@ proto_register_aim_messaging(void)
 /* Register the protocol name and description */
   proto_aim_messaging = proto_register_protocol("AIM Messaging", "AIM Messaging", "aim_messaging");
 
-/* Required function calls to register the header fields and subtrees used */
-/*FIXME
-  proto_register_field_array(proto_aim_messaging, hf, array_length(hf));*/
+  /* Required function calls to register the header fields and subtrees used */
+  proto_register_field_array(proto_aim_messaging, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
 
