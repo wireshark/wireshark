@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.60 2002/12/02 23:43:26 guy Exp $
+ * $Id: packet-http.c,v 1.61 2003/02/24 01:17:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -282,8 +282,26 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		linep = line;
 		while (linep < lineend) {
 			c = *linep++;
+
+			/*
+			 * This must be a CHAR to be part of a token; that
+			 * means it must be ASCII.
+			 */
+			if (!isascii(c))
+				break;	/* not ASCII, thus not a CHAR */
+
+			/*
+			 * This mustn't be a CTL to be part of a token;
+			 * that means it must be printable.
+			 */
 			if (!isprint(c))
 				break;	/* not printable, not a MIME header */
+
+			/*
+			 * This mustn't be a SEP to be part of a token;
+			 * a ':' ends the token, everything else is an
+			 * indication that this isn't a header.
+			 */
 			switch (c) {
 
 			case '(':
@@ -302,10 +320,14 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case '=':
 			case '{':
 			case '}':
+			case ' ':
 				/*
-				 * It's a tspecial, so it's not part of a
+				 * It's a separator, so it's not part of a
 				 * token, so it's not a field name for the
 				 * beginning of a MIME header.
+				 *
+				 * (We don't have to check for HT; that's
+				 * already been ruled out by "isprint()".)
 				 */
 				goto not_http;
 
