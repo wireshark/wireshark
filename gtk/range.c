@@ -1,7 +1,7 @@
 /* range.c
  * Packet range routines (save, print, ...)
  *
- * $Id: range.c,v 1.2 2003/12/29 20:40:02 guy Exp $
+ * $Id: range.c,v 1.3 2003/12/29 21:04:47 ulfl Exp $
  *
  * Dick Gooris <gooris@lucent.com>
  * Ulf Lamping <ulf.lamping@web.de>
@@ -199,7 +199,7 @@ range_process_e packet_range_process(packet_range_t *range, frame_data *fdata) {
  * determines whether the value is with the range or not.
  */
 
-void packet_range_convert_str(gchar *es)
+void packet_range_convert_str(const gchar *es)
 {
     gchar     EntryStr[255], OrgStr[255], value[255], p;
     guint     i, j=0; 

@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.68 2003/12/29 20:41:37 guy Exp $
+ * $Id: file_dlg.c,v 1.69 2003/12/29 21:04:47 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -644,7 +644,7 @@ toggle_select_manual_range(GtkWidget *widget, gpointer data _U_)
 static void
 range_entry(GtkWidget *entry)
 {
-  gchar *entry_text;
+  const gchar *entry_text;
   entry_text = gtk_entry_get_text (GTK_ENTRY (entry));
   packet_range_convert_str(entry_text);
 }
