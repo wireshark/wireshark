@@ -131,7 +131,7 @@ static const value_string aim_snac_errors[] = {
 #define AIM_CLIENT_TLV_RECONNECT_HOST		   0x000a
 #define AIM_CLIENT_TLV_URL					   0x000b
 #define AIM_CLIENT_TLV_DEBUG_DATA			   0x000c
-#define AIM_CLIENT_TLV_GENERIC_SERVICE_ID      0x000d
+#define AIM_CLIENT_TLV_FAMILY_ID		       0x000d
 #define AIM_CLIENT_TLV_CLIENT_COUNTRY          0x000e
 #define AIM_CLIENT_TLV_CLIENT_LANGUAGE         0x000f
 #define AIM_CLIENT_TLV_EMAILADDR			    0x0011
@@ -209,7 +209,7 @@ const aim_tlv client_tlvs[] = {
   {  AIM_CLIENT_TLV_BETA_DIGEST_SIG, "Beta Digest Signature (MD5)" , dissect_aim_tlv_value_bytes },
   {  AIM_CLIENT_TLV_RELEASE_DIGEST_SIG, "Release Digest Signature (MD5)", dissect_aim_tlv_value_bytes },
   {  AIM_CLIENT_TLV_CLIENTUSESSI, "Use SSI", dissect_aim_tlv_value_uint8 },
-  {  AIM_CLIENT_TLV_GENERIC_SERVICE_ID, "Service (Family) ID", dissect_aim_tlv_value_uint16 },
+  {  AIM_CLIENT_TLV_FAMILY_ID, "Service (SNAC Family) ID", dissect_aim_tlv_value_uint16 },
   { AIM_CLIENT_TLV_CHANGE_PASSWORD_URL, "Change password url", dissect_aim_tlv_value_string },
   { AIM_CLIENT_TLV_AWAITING_AUTH, "Awaiting Authorization", dissect_aim_tlv_value_bytes },
   { AIM_CLIENT_TLV_MEMBERS, "Members of this Group", dissect_aim_tlv_value_bytes },
@@ -276,32 +276,6 @@ static GList *families = NULL;
 const aim_tlv motd_tlvs[] = {
   { AIM_MOTD_TLV_MOTD, "Message of the day message", dissect_aim_tlv_value_string },
   { 0, "Unknown", NULL }
-};
-
-#define FAMILY_GENERIC_REDIRECT_SERVER_ADDRESS		   0x0005
-#define FAMILY_GENERIC_REDIRECT_AUTH_COOKIE			   0x0006
-#define FAMILY_GENERIC_REDIRECT_FAMILY_ID              0x000D
-
-static const aim_tlv aim_fnac_family_generic_redirect_tlv[] = {
-  { FAMILY_GENERIC_REDIRECT_SERVER_ADDRESS, "Server address and (optional) port", dissect_aim_tlv_value_string },
-  { FAMILY_GENERIC_REDIRECT_AUTH_COOKIE, "Authorization cookie", dissect_aim_tlv_value_string },
-  { FAMILY_GENERIC_REDIRECT_FAMILY_ID, "Family ID", dissect_aim_tlv_value_uint16 },
-  { 0, "Unknown", NULL }
-};
-
-#define FAMILY_GENERIC_MOTD_MOTDTYPE_MDT_UPGRADE       0x0001
-#define FAMILY_GENERIC_MOTD_MOTDTYPE_ADV_UPGRADE       0x0002
-#define FAMILY_GENERIC_MOTD_MOTDTYPE_SYS_BULLETIN      0x0003
-#define FAMILY_GENERIC_MOTD_MOTDTYPE_NORMAL            0x0004
-#define FAMILY_GENERIC_MOTD_MOTDTYPE_NEWS              0x0006
-
-static const value_string aim_snac_generic_motd_motdtypes[] = {
-  { FAMILY_GENERIC_MOTD_MOTDTYPE_MDT_UPGRADE, "Mandatory Upgrade Needed Notice" },
-  { FAMILY_GENERIC_MOTD_MOTDTYPE_ADV_UPGRADE, "Advisable Upgrade Notice" },
-  { FAMILY_GENERIC_MOTD_MOTDTYPE_SYS_BULLETIN, "AIM/ICQ Service System Announcements" },
-  { FAMILY_GENERIC_MOTD_MOTDTYPE_NORMAL, "Standard Notice" },
-  { FAMILY_GENERIC_MOTD_MOTDTYPE_NEWS, "News from AOL service" },
-  { 0, NULL }
 };
 
 #define CLASS_UNCONFIRMED            0x0001
