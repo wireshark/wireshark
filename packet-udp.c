@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.40 1999/12/05 02:32:39 guy Exp $
+ * $Id: packet-udp.c,v 1.41 1999/12/07 06:10:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -73,10 +73,12 @@ typedef struct _e_udphdr {
 #define UDP_PORT_NBNS	137
 #define UDP_PORT_NBDGM	138
 #define UDP_PORT_SNMP   161
+#define UDP_PORT_SRVLOC 427
 #define UDP_PORT_PIM_RP_DISC 496
 #define UDP_PORT_ISAKMP	500
 #define UDP_PORT_RIP    520
 #define UDP_PORT_RIPNG  521
+#define UDP_PORT_NCP    524
 #define UDP_PORT_VINES	573
 #define UDP_PORT_RADIUS 1645
 #define UDP_PORT_RADIUS_NEW 1812
@@ -243,6 +245,8 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       dissect_bootp(pd, offset, fd, tree);
   else if (PORT_IS(UDP_PORT_DNS))
       dissect_dns(pd, offset, fd, tree);
+  else if (PORT_IS(UDP_PORT_SRVLOC))
+      dissect_srvloc(pd, offset, fd, tree);
   else if (PORT_IS(UDP_PORT_ISAKMP))
       dissect_isakmp(pd, offset, fd, tree);
   else if (PORT_IS(UDP_PORT_RIP)) {
@@ -250,6 +254,8 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       dissect_rip(pd, offset, fd, tree);
   } else if (PORT_IS(UDP_PORT_RIPNG))
       dissect_ripng(pd, offset, fd, tree);
+  else if (PORT_IS(UDP_PORT_NCP))
+      dissect_ncp(pd, offset, fd, tree);
   else if (PORT_IS(UDP_PORT_NBNS))
       dissect_nbns(pd, offset, fd, tree);
   else if (PORT_IS(UDP_PORT_NBDGM))

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.50 1999/12/06 23:57:51 nneul Exp $
+ * $Id: packet-tcp.c,v 1.51 1999/12/07 06:10:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -97,7 +97,9 @@ static gint ett_tcp_option_sack = -1;
 #define TCP_PORT_NBSS     139
 #define TCP_PORT_IMAP     143
 #define TCP_PORT_BGP      179
+#define TCP_PORT_SRVLOC   427
 #define TCP_PORT_PRINTER  515
+#define TCP_PORT_NCP      524
 #define TCP_ALT_PORT_HTTP 8080
 #define TCP_PORT_PPTP     1723
 #define TCP_PORT_RTSP     554
@@ -537,6 +539,12 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     } else if (PORT_IS(TCP_PORT_IRC)) {
       pi.match_port = TCP_PORT_IRC;
       dissect_irc(pd, offset, fd, tree);
+    } else if (PORT_IS(TCP_PORT_SRVLOC)) {
+      pi.match_port = TCP_PORT_SRVLOC;
+      dissect_srvloc(pd, offset, fd, tree);
+    } else if (PORT_IS(TCP_PORT_NCP)) {
+      pi.match_port = TCP_PORT_NCP;
+      dissect_ncp(pd, offset, fd, tree);
     } else {
         /* check existence of high level protocols */
 

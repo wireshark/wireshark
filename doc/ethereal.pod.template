@@ -714,10 +714,10 @@ B<http://ethereal.zing.org>.
   Heikki Vatiainen         <hessu@cs.tut.fi>
   Greg Hankins             <gregh@twoguys.org>
   Jerry Talkington         <jerryt@netapp.com>
+  James Coe"               <jammer@cin.net>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
 
 Dan Lasley <dlasley@promus.com> gave permission for his dumpit() hex-dump
 routine to be used.
-

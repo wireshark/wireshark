@@ -1,8 +1,9 @@
 /* packet-ncp.c
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
+ * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.23 1999/11/18 01:45:02 guy Exp $
+ * $Id: packet-ncp.c,v 1.24 1999/12/07 06:09:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -44,6 +45,8 @@
 #include "packet-ncp.h"
 
 static int proto_ncp = -1;
+static int hf_ncp_ip_ver = -1;
+static int hf_ncp_ip_sig = -1;
 static int hf_ncp_type = -1;
 static int hf_ncp_seq = -1;
 static int hf_ncp_connection = -1;
@@ -74,6 +77,26 @@ gint  ncp_equal (gconstpointer v, gconstpointer v2);
 guint ncp_hash  (gconstpointer v);
 
 int ncp_packet_init_count = 200;
+
+/* These are the header structures to handle NCP over IP */
+#define	NCPIP_RQST	0x446d6454	// "DmdT"
+#define NCPIP_RPLY	0x744e6350	// "tNcP"
+
+struct ncp_ip_header {
+	guint32	signature;
+	guint32 length;
+};
+
+/* This header only appears on NCP over IP request packets */
+struct ncp_ip_rqhdr {
+	guint32 version;
+	guint32 rplybufsize;
+};
+
+static const value_string ncp_ip_signature[] = {
+	{ NCPIP_RQST, "Demand Transport (Request)" },
+	{ NCPIP_RPLY, "Transport is NCP (Reply)" },
+};
 
 /* The information in this module comes from:
 	NetWare LAN Analysis, Second Edition
@@ -435,8 +458,21 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	proto_tree	*ncp_tree = NULL;
 	proto_item	*ti;
 	int		ncp_hdr_length = 0;
+	struct ncp_ip_header		ncpiph;
+	struct ncp_ip_rqhdr		ncpiphrq;
 	struct ncp_common_header	header;
 
+	if ( pi.ptype == PT_TCP || pi.ptype == PT_UDP ) {
+		memcpy(&ncpiph, &pd[offset], sizeof(ncpiph));
+		ncpiph.signature = ntohl(ncpiph.signature);
+		ncpiph.length = ntohl(ncpiph.length);
+		offset += 8;
+		if ( ncpiph.signature == NCPIP_RQST ) {
+			memcpy(&ncpiphrq, &pd[offset], sizeof(ncpiphrq));
+			ncpiphrq.rplybufsize = ntohl(ncpiphrq.rplybufsize);
+			offset += 8;
+		};
+	};
 	memcpy(&header, &pd[offset], sizeof(header));
 	header.type = ntohs(header.type);
 
@@ -461,6 +497,14 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		ti = proto_tree_add_item(tree, proto_ncp, offset, END_OF_FRAME, NULL);
 		ncp_tree = proto_item_add_subtree(ti, ett_ncp);
 
+		if ( pi.ptype == PT_TCP || pi.ptype == PT_UDP ) {
+			proto_tree_add_item(ncp_tree, hf_ncp_ip_sig, offset - 16, 4, ncpiph.signature);
+			proto_tree_add_text(ncp_tree, offset - 12, 4, "Length: %d", ncpiph.length);
+			if ( ncpiph.signature == NCPIP_RQST ) {
+				proto_tree_add_item(ncp_tree, hf_ncp_ip_ver, offset - 8, 4, ncpiphrq.version);
+				proto_tree_add_text(ncp_tree, offset - 4, 4, "Reply buffer size: %d", ncpiphrq.rplybufsize);
+			};
+		};
 		proto_tree_add_item_format(ncp_tree, hf_ncp_type, 
 					   offset,      2,
 					   header.type,
@@ -865,6 +909,14 @@ proto_register_ncp(void)
 {
 
   static hf_register_info hf[] = {
+    { &hf_ncp_ip_sig,
+      { "NCP over IP signature",		"ncp.ip.signature",
+        FT_UINT32, BASE_HEX, VALS(ncp_ip_signature), 0x0,
+        "NCP over IP transport signature"}},
+    { &hf_ncp_ip_ver,
+      { "Version",		"ncp.ip.version",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "NCP over IP verion"}},
     { &hf_ncp_type,
       { "Type",			"ncp.type",
 	FT_UINT16, BASE_HEX, NULL, 0x0,
