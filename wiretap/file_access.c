@@ -1,6 +1,6 @@
 /* file_access.c
  *
- * $Id: file_access.c,v 1.9 2004/01/25 21:55:13 guy Exp $
+ * $Id: file_access.c,v 1.10 2004/02/06 02:11:52 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -452,7 +452,7 @@ static const struct file_type_info {
 	  network_instruments_dump_can_write_encap, network_instruments_dump_open },
 
 	/* WTAP_FILE_AIROPEEK_V9 */
-	{ "AiroPeek trace (V9 file format)", NULL,
+	{ "EtherPeek/AiroPeek trace (V9 file format)", NULL,
 	  NULL, NULL },
 };
 
