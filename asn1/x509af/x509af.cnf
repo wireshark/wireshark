@@ -22,6 +22,7 @@ Certificates
 CertificateList
 CertificateSerialNumber
 CertificationPath
+SubjectPublicKeyInfo
 
 #.PDU
 AttributeCertificate
