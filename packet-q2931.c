@@ -2,10 +2,10 @@
  * Routines for Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q2931.c,v 1.15 2001/04/17 06:43:19 guy Exp $
+ * $Id: packet-q2931.c,v 1.16 2001/05/27 07:15:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998
  *
  * 
@@ -1970,7 +1970,7 @@ dissect_q2931_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree,
 	}
 }
 
-void
+static void
 dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int		offset = 0;
@@ -2132,4 +2132,6 @@ proto_register_q2931(void)
 	proto_q2931 = proto_register_protocol("Q.2931", "Q.2931", "q2931");
 	proto_register_field_array (proto_q2931, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	register_dissector("q2931", dissect_q2931, proto_q2931);
 }

@@ -2,10 +2,10 @@
  * Routines for SSCOP (Q.2110, Q.SAAL) frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sscop.c,v 1.14 2001/05/27 04:50:51 guy Exp $
+ * $Id: packet-sscop.c,v 1.15 2001/05/27 07:15:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998
  *
  * 
@@ -36,11 +36,12 @@
 #include <glib.h>
 #include <string.h>
 #include "packet.h"
-#include "packet-q2931.h"
 
 static int proto_sscop = -1;
 
 static gint ett_sscop = -1;
+
+static dissector_handle_t q2931_handle;
 
 /*
  * See
@@ -304,7 +305,7 @@ dissect_sscop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        */
       next_tvb = tvb_new_subset(tvb, 0, reported_length, reported_length);
       if (pdu_type == SSCOP_SD)
-        dissect_q2931(next_tvb, pinfo, tree);
+        call_dissector(q2931_handle, next_tvb, pinfo, tree);
       else
         dissect_data(next_tvb, 0, pinfo, tree);
     }
@@ -315,10 +316,19 @@ dissect_sscop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_sscop(void)
 {
-	static gint *ett[] = {
-		&ett_sscop,
-	};
-	proto_sscop = proto_register_protocol("SSCOP", "SSCOP", "sscop");
-	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("sscop", dissect_sscop, proto_sscop);
+  static gint *ett[] = {
+    &ett_sscop,
+  };
+  proto_sscop = proto_register_protocol("SSCOP", "SSCOP", "sscop");
+  proto_register_subtree_array(ett, array_length(ett));
+  register_dissector("sscop", dissect_sscop, proto_sscop);
+}
+
+void
+proto_reg_handoff_sscop(void)
+{
+  /*
+   * Get handle for the Q.2931 dissector.
+   */
+  q2931_handle = find_dissector("q2931");
 }
