@@ -2776,9 +2776,11 @@ unselect_field(capture_file *cf)
 void
 mark_frame(capture_file *cf, frame_data *frame)
 {
-  frame->flags.marked = TRUE;
-  if (cf->count > cf->marked_count)
-    cf->marked_count++;
+  if (! frame->flags.marked) {
+    frame->flags.marked = TRUE;
+    if (cf->count > cf->marked_count)
+      cf->marked_count++;
+  }
 }
 
 /*
@@ -2787,9 +2789,11 @@ mark_frame(capture_file *cf, frame_data *frame)
 void
 unmark_frame(capture_file *cf, frame_data *frame)
 {
-  frame->flags.marked = FALSE;
-  if (cf->marked_count > 0)
-    cf->marked_count--;
+  if (frame->flags.marked) {
+    frame->flags.marked = FALSE;
+    if (cf->marked_count > 0)
+      cf->marked_count--;
+  }
 }
 
 typedef struct {

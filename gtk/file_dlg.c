@@ -1205,7 +1205,7 @@ file_set_save_marked_sensitive(void)
 	
   /* We can request that only the marked packets be saved only if we
      can use Wiretap to save the file and if there *are* marked packets. */
-  if (can_save_with_wiretap(filetype) && cfile.marked_count != 0) {
+  if (can_save_with_wiretap(filetype) && cfile.marked_count > 0) {
     range_set_marked_sensitive(range_tb, TRUE);
   }
   else {
