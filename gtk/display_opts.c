@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.2 2000/01/24 04:44:58 guy Exp $
+ * $Id: display_opts.c,v 1.3 2000/05/08 01:11:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,26 +43,6 @@
 #endif
 
 #include <time.h>
-#if 0
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-
-#ifdef HAVE_WINSOCK_H
-#include <winsock.h>
-#endif
-
-#ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
-
-#ifdef HAVE_NET_IF_H
-#include <net/if.h>
-#endif
-
-#include <signal.h>
-#include <errno.h>
-#endif
 
 #ifdef NEED_SNPRINTF_H
 # ifdef HAVE_STDARG_H
