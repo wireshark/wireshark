@@ -7,7 +7,7 @@
  *       In particular I have not had an opportunity to see how it
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.35 2003/01/23 10:25:32 guy Exp $
+ * $Id: packet-srvloc.c,v 1.36 2003/02/14 07:20:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -703,7 +703,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    next_ext_off = tvb_get_ntoh24(tvb, offset + 7);
 	    proto_tree_add_uint(srvloc_tree, hf_srvloc_nextextoff, tvb, offset + 7, 3,
 				next_ext_off);
-	    proto_tree_add_uint(srvloc_tree, hf_srvloc_xid, tvb, offset + 10, 3,
+	    proto_tree_add_uint(srvloc_tree, hf_srvloc_xid, tvb, offset + 10, 2,
 				tvb_get_ntohs(tvb, offset + 10));
 	    lang_tag_len = tvb_get_ntohs(tvb, offset + 12);
 	    proto_tree_add_uint(srvloc_tree, hf_srvloc_langtaglen, tvb, offset + 12, 2,	lang_tag_len);
@@ -1199,7 +1199,7 @@ proto_register_srvloc(void)
 	    "", HFILL}
 	},
 	{ &hf_srvloc_attrreq_slpspilen,
-	  { "SLP SPI Length", "svrloc.attrreq.slpspilen", FT_UINT16, BASE_DEC, NULL, 0x0,
+	  { "SLP SPI Length", "srvloc.attrreq.slpspilen", FT_UINT16, BASE_DEC, NULL, 0x0,
 	    "Length of the SLP SPI", HFILL}
 	},
 	{ &hf_srvloc_attrreq_slpspi,
@@ -1251,7 +1251,7 @@ proto_register_srvloc(void)
 	    "", HFILL}
 	},
 	{ &hf_srvloc_daadvert_slpspilen,
-	  { "SLP SPI Length", "svrloc.daadvert.slpspilen", FT_UINT16, BASE_DEC, NULL, 0x0,
+	  { "SLP SPI Length", "srvloc.daadvert.slpspilen", FT_UINT16, BASE_DEC, NULL, 0x0,
 	    "Length of the SLP SPI", HFILL}
 	},
 	{ &hf_srvloc_daadvert_slpspi,
