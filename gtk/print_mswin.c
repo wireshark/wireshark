@@ -1,7 +1,7 @@
 /* print_mswin.c
  * Printing support for MSWindows
  *
- * $Id: print_mswin.c,v 1.6 2003/10/07 03:09:50 guy Exp $
+ * $Id: print_mswin.c,v 1.7 2003/11/11 13:59:53 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -94,7 +94,15 @@ void print_mswin(char *file_name)
        memset( &pdlg, 0, sizeof( PRINTDLG ) );
        pdlg.lStructSize = sizeof( PRINTDLG );
        /* Set the flag to return printer DC. */
-       pdlg.Flags =  PD_RETURNDC;
+       pdlg.Flags =  
+           /* return the device context we need */
+           PD_RETURNDC |        
+           /* disable the "Pages" radio button */
+           PD_NOPAGENUMS |      
+           /* disable the "Selection" radio button */
+           PD_NOSELECTION |     
+           /* let device print multiple pages (if requested) */
+           PD_USEDEVMODECOPIESANDCOLLATE; 
 
        /* Invoke the printer dialog box. */
        PrintDlg( &pdlg );
