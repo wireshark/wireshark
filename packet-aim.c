@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.21 2003/01/20 07:39:25 guy Exp $
+ * $Id: packet-aim.c,v 1.22 2003/02/20 04:42:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,12 @@
 #define MAX_BUDDYNAME_LENGTH 30
 
 #define STRIP_TAGS 1
+
+typedef struct _aim_tlv {
+  guint16 valueid;
+  char *desc;
+  int datatype;
+} aim_tlv;
 
 /* channels */
 #define CHANNEL_NEW_CONN    0x01
@@ -405,6 +411,59 @@ static const value_string aim_fnac_family_icq[] = {
   { 0, NULL }
 };
 
+#define SIGNON_SCREENNAME     0x0001
+#define SIGNON_PASSWORD       0x0025
+#define SIGNON_CLIENTSTRING   0x0003
+#define SIGNON_CLIENTMAJOR    0x0017
+#define SIGNON_CLIENTMINOR    0x0018
+#define SIGNON_CLIENTPOINT    0x0019
+#define SIGNON_CLIENTBUILD    0x001a
+#define SIGNON_CLIENTCOUNTRY  0x000e
+#define SIGNON_CLIENTLANGUAGE 0x000f
+#define SIGNON_CLIENTUSESSI   0x004a
+
+static const aim_tlv aim_signon_signon_tlv[] = {
+  { SIGNON_SCREENNAME, "Screen Name", FT_STRING },
+  { SIGNON_PASSWORD, "Signon Challenge Response", FT_BYTES },
+  { SIGNON_CLIENTSTRING, "Login Request", FT_STRING },
+  { SIGNON_CLIENTMAJOR, "Client Major Version", FT_UINT16 },
+  { SIGNON_CLIENTMINOR, "Client Minor Version", FT_UINT16 },
+  { SIGNON_CLIENTPOINT, "Client Point", FT_UINT16 },
+  { SIGNON_CLIENTBUILD, "Client Build", FT_UINT16 },
+  { SIGNON_CLIENTCOUNTRY, "Client Country", FT_STRING },
+  { SIGNON_CLIENTLANGUAGE, "Client Language", FT_STRING },
+  { SIGNON_CLIENTUSESSI, "Use SSI", FT_UINT8 },
+  { 0, "Unknown", 0 }
+};
+
+#define FAMILY_BUDDYLIST_USERFLAGS      0x0001
+#define FAMILY_BUDDYLIST_MEMBERSINCE    0x0002
+#define FAMILY_BUDDYLIST_ONSINCE        0x0003
+#define FAMILY_BUDDYLIST_IDLETIME       0x0004
+#define FAMILY_BUDDYLIST_ICQSTATUS      0x0006
+#define FAMILY_BUDDYLIST_ICQIPADDR      0x000a
+#define FAMILY_BUDDYLIST_ICQSTUFF       0x000c
+#define FAMILY_BUDDYLIST_CAPINFO        0x000d
+#define FAMILY_BUDDYLIST_UNKNOWN        0x000e
+#define FAMILY_BUDDYLIST_SESSIONLEN     0x000f
+#define FAMILY_BUDDYLIST_ICQSESSIONLEN  0x0010
+
+static const aim_tlv aim_fnac_family_buddylist_oncoming_tlv[] = {
+  { FAMILY_BUDDYLIST_USERFLAGS, "User flags", FT_UINT16 },
+  { FAMILY_BUDDYLIST_MEMBERSINCE, "Member since date", FT_UINT32 },
+  { FAMILY_BUDDYLIST_ONSINCE, "Online since", FT_UINT32 },
+  { FAMILY_BUDDYLIST_IDLETIME, "Idle time (sec)", FT_UINT16 },
+  { FAMILY_BUDDYLIST_ICQSTATUS, "ICQ Online status", FT_UINT16 },
+  { FAMILY_BUDDYLIST_ICQIPADDR, "ICQ User IP Address", FT_UINT16 },
+  { FAMILY_BUDDYLIST_ICQSTUFF, "ICQ Info", FT_BYTES },
+  { FAMILY_BUDDYLIST_CAPINFO, "Capability Info", FT_BYTES },
+  { FAMILY_BUDDYLIST_UNKNOWN, "Unknown", FT_UINT16 },
+  { FAMILY_BUDDYLIST_SESSIONLEN, "Session Length (sec)", FT_UINT32 },
+  { FAMILY_BUDDYLIST_SESSIONLEN, "ICQ Session Length (sec)", FT_UINT32 },
+  { 0, "Unknown", 0 }
+};
+
+
 static int dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static guint get_aim_pdu_len(tvbuff_t *tvb, int offset);
 static void dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -455,6 +514,8 @@ static void dissect_aim_close_conn(tvbuff_t *tvb, packet_info *pinfo,
 				   int offset, proto_tree *tree);
 static void dissect_aim_unknown_channel(tvbuff_t *tvb, packet_info *pinfo, 
 					int offset, proto_tree *tree);
+static int dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo, 
+			   int offset, proto_tree *tree, const aim_tlv *tlv);
 
 /* Initialize the protocol and registered fields */
 static int proto_aim = -1;
@@ -495,6 +556,7 @@ static int hf_aim_userinfo_tlvcount = -1;
 /* Initialize the subtree pointers */
 static gint ett_aim          = -1;
 static gint ett_aim_fnac     = -1;
+static gint ett_aim_tlv      = -1;
 
 /* desegmentation of AIM over TCP */
 static gboolean aim_desegment = TRUE;
@@ -804,29 +866,9 @@ static void dissect_aim_snac_signon(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_aim_snac_signon_logon(tvbuff_t *tvb, packet_info *pinfo, 
 					  int offset, proto_tree *tree)
 {
-  guint8 buddyname_length = 0;
-  char buddyname[MAX_BUDDYNAME_LENGTH];
-
-  /* Info Type */
-  proto_tree_add_item(tree, hf_aim_infotype, tvb, offset, 2, FALSE);
-  offset += 2;
-
-  /* Unknown */
-  offset += 1;
-
-  /* Buddy Name */
-  buddyname_length = get_buddyname( buddyname, tvb, offset, offset + 1 );
-  
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", Logon, Username: %s", 
-		    buddyname);
+  while (tvb_length_remaining(tvb, offset) > 0) {
+    offset = dissect_aim_tlv(tvb, pinfo, offset, tree, aim_signon_signon_tlv);
   }
-  
-  if(tree) {
-    proto_tree_add_text(tree, tvb, offset + 1, buddyname_length, 
-			"Screen Name: %s", buddyname);
-  }
-  offset += buddyname_length + 1;
 }
 
 static void dissect_aim_snac_signon_logon_reply(tvbuff_t *tvb, 
@@ -1047,6 +1089,11 @@ static void dissect_aim_snac_buddylist(tvbuff_t *tvb, packet_info *pinfo,
       proto_tree_add_item(tree, hf_aim_userinfo_tlvcount, tvb, offset, 
 			  2, FALSE);
       offset += 2;
+
+      while (tvb_length_remaining(tvb, offset) > 0) {
+	offset = dissect_aim_tlv(tvb, pinfo, offset, tree, 
+				 aim_fnac_family_buddylist_oncoming_tlv);
+      }
 
       break;
       
@@ -1470,6 +1517,93 @@ static void dissect_aim_unknown_channel(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
 }
 
+/* Dissect a TLV value */
+static int dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, 
+			   int offset, proto_tree *tree, const aim_tlv *tlv)
+{
+  guint16 valueid;
+  guint16 length;
+  int i = 0;
+  const aim_tlv *tmp;
+  proto_item *ti1;
+  proto_tree *tlv_tree;
+  int orig_offset;
+  guint16 value16;
+  guint32 value32;
+
+  /* Record the starting offset so we can reuse it at the second pass */
+  orig_offset = offset;
+
+  /* Get the value ID */
+  valueid = tvb_get_ntohs(tvb, offset);
+  offset += 2;
+
+  /* Figure out which entry applies from the tlv list */
+  tmp = tlv;
+  while (tmp[i].valueid) {
+    if (tmp[i].valueid == valueid) {
+      /* We found a match */
+      break;
+    }
+    i++;
+  }
+
+  /* At this point, we are either pointing at the correct record, or 
+     we didn't find the record, and are pointing at the last item in the 
+     list */
+
+  length = tvb_get_ntohs(tvb, offset);
+  offset += 2;
+  offset += length;
+
+  if (tree) {
+    offset = orig_offset;
+    
+    /* Show the info in the top of the tree if it's one of the standard
+       data types */
+    if (tmp[i].datatype == FT_STRING) {
+      guint8 *buf;      
+      buf = g_malloc(length + 1);
+      tvb_get_nstringz0(tvb, offset + 4, length, buf);
+      ti1 = proto_tree_add_text(tree, tvb, offset, length + 4, 
+				"%s: %s", tmp[i].desc, buf);
+      g_free(buf);
+    }
+    else if (tmp[i].datatype == FT_UINT16) {
+      value16 = tvb_get_ntohs(tvb, offset + 4);
+      ti1 = proto_tree_add_text(tree, tvb, offset, length + 4, 
+				"%s: %d", tmp[i].desc, value16);
+    }
+    else if (tmp[i].datatype == FT_UINT32) {
+      value32 = tvb_get_ntohl(tvb, offset + 4);
+      ti1 = proto_tree_add_text(tree, tvb, offset, length + 4, 
+				"%s: %d", tmp[i].desc, value32);
+    }
+    else {
+      ti1 = proto_tree_add_text(tree, tvb, offset, length + 4, 
+				"%s", tmp[i].desc);
+    }
+
+    tlv_tree = proto_item_add_subtree(ti1, ett_aim_tlv);
+
+    proto_tree_add_text(tlv_tree, tvb, offset, 2,
+			"Value ID: %s (0x%04x)", tmp[i].desc, valueid);
+    offset += 2;
+    
+    proto_tree_add_text(tlv_tree, tvb, offset, 2,
+			"Length: %d", length);
+    offset += 2;
+
+    ti1 = proto_tree_add_text(tlv_tree, tvb, offset, length,
+			      "Value");
+    offset += length;
+  }
+
+  /* Return the new length */
+  return offset;
+}
+
+
 /* Register the protocol with Ethereal */
 void
 proto_register_aim(void)
@@ -1582,6 +1716,7 @@ proto_register_aim(void)
   static gint *ett[] = {
     &ett_aim,
     &ett_aim_fnac,
+    &ett_aim_tlv,
   };
   module_t *aim_module;
 
