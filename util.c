@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.29 2000/01/25 05:48:38 guy Exp $
+ * $Id: util.c,v 1.30 2000/01/26 04:56:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -99,16 +99,24 @@ find_last_pathname_separator(char *path)
 	char *separator;
 
 #ifdef WIN32
+	char c;
+
 	/*
-	 * XXX - do we need to search for '/' as well?
+	 * We have to scan for '\' or '/'.
+	 * Get to the end of the string.
 	 */
-	if ((separator = strrchr(path, '\\')) == NULL) {
-		/*
-		 * OK, no directories - but there might be a drive
-		 * letter....
-		 */
-		separator = strchr(path, ':');
+	separator = path + strlen(path);	/* points to ending '\0' */
+	while (separator > path) {
+		c = *--separator;
+		if (c == '\\' || c == '/')
+			return separator;	/* found it */
 	}
+
+	/*
+	 * OK, we didn't find any, so no directories - but there might
+	 * be a drive letter....
+	 */
+	return strchr(path, ':');
 #else
 	separator = strrchr(path, '/');
 #endif
