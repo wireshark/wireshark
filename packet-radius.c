@@ -6,7 +6,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.101 2004/03/30 18:23:54 guy Exp $
+ * $Id: packet-radius.c,v 1.102 2004/03/31 20:25:40 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -488,11 +488,32 @@ static const value_string radius_nas_port_type_vals[] =
   {19,	"Wireless IEEE 802.11"},
   {0, NULL}
 };
+/*
+ *Values for RADIUS Attribute 101, Error-Cause Attribute [RFC3576]:
+ */
+static const value_string radius_error_cause_attribute_vals[]= {
+	{201,"Residual Session Context Removed"},
+	{202,"Invalid EAP Packet (Ignored)"},
+	{401,"Unsupported Attribute"},
+	{402,"Missing Attribute"},
+	{403,"NAS Identification Mismatch"},
+	{404,"Invalid Request"},
+	{405,"Unsupported Service"},
+	{406,"Unsupported Extension"},
+	{501,"Administratively Prohibited"},
+	{502,"Request Not Routable (Proxy)"},
+	{503,"Session Context Not Found"},
+	{504,"Session Context Not Removable"},
+	{505,"Other Proxy Processing Error"},
+	{506,"Resources Unavailable"},
+	{507,"Request Initiated"},
+		{0,NULL}
+};
 
 static const radius_attr_info radius_attrib[] =
 {
   {1,	RADIUS_STRING,		"User Name", NULL},
-  {2,	RADIUS_USERPASSWORD,	"User Password", NULL},
+  {2,	RADIUS_USERPASSWORD,"User Password", NULL},
   {3,	RADIUS_BINSTRING,	"CHAP Password", NULL},
   {4,	RADIUS_IP_ADDRESS,	"NAS IP Address", NULL},
   {5,	RADIUS_INTEGER4,	"NAS Port", NULL},
@@ -584,6 +605,7 @@ static const radius_attr_info radius_attrib[] =
   {98,	RADIUS_IP6_ADDRESS,	"Login IPv6 Host", NULL},
   {99,	RADIUS_STRING,		"Framed IPV6 Route", NULL},
   {100,	RADIUS_STRING,		"Framed IPV6 Pool", NULL},
+  {101,	RADIUS_INTEGER4,	"Error-Cause Attribute",radius_error_cause_attribute_vals},/*[RFC3576]*/ 
   {120,	RADIUS_INTEGER4,	"Ascend Modem Port No", NULL},
   {121,	RADIUS_INTEGER4,	"Ascend Modem Slot No", NULL},
   {187,	RADIUS_INTEGER4,	"Ascend Multilink ID", NULL},
@@ -818,6 +840,14 @@ static const radius_attr_info radius_vendor_acc_attrib[] =
   {39,	RADIUS_STRING,		"Acc Dialout Auth Password", NULL},
   {40,	RADIUS_STRING,		"Acc Dialout Auth Username", NULL},
   {42,	RADIUS_INTEGER4,	"Acc Access Community", radius_vendor_acc_access_community_vals},
+  {43,	RADIUS_INTEGER4,	"Acc Vpsm Reject Cause", NULL},
+  {44,	RADIUS_STRING,		"Acc Ace Token", NULL},
+  {45,	RADIUS_INTEGER4,	"Acc Ace Token-Ttl", NULL},
+  {46,	RADIUS_STRING,		"Acc Ip Pool Name", NULL},
+  {47,	RADIUS_INTEGER4,	"Acc Igmp Admin State", NULL},
+  {48,	RADIUS_INTEGER4,	"Acc Igmp Version", NULL},
+
+
   {0, 0, NULL, NULL},
 };
 
