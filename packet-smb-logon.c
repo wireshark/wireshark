@@ -2,7 +2,7 @@
  * Routines for SMB net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.30 2003/04/03 02:22:30 tpot Exp $
+ * $Id: packet-smb-logon.c,v 1.31 2003/04/03 02:57:48 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -310,10 +310,18 @@ dissect_smb_logon_LM20_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 static int
 dissect_smb_pdc_query(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
+	char *name = NULL;
+
 	/*** 0x07 Query for Primary PDC  ***/
 
 	/* computer name */
-	offset = display_ms_string(tvb, tree, offset, hf_computer_name, NULL);
+	offset = display_ms_string(tvb, tree, offset, hf_computer_name, &name);
+
+	if (name && check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", name);
+		g_free(name);
+		name = NULL;
+	}
 
 	/* mailslot name */
 	offset = display_ms_string(tvb, tree, offset, hf_mailslot_name, NULL);
@@ -331,7 +339,7 @@ dissect_smb_pdc_query(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, i
 		if (offset % 2) offset++;      /* word align ... */
 
 		/* Unicode computer name */
-		offset = display_unicode_string(tvb, tree, offset, hf_unicode_computer_name);
+		offset = display_unicode_string(tvb, tree, offset, hf_unicode_computer_name, NULL);
 
 		/* NT version */
 	  	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, TRUE);
@@ -360,16 +368,29 @@ dissect_smb_pdc_startup(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	/* A short Announce will not have the rest */
 
 	if (tvb_reported_length_remaining(tvb, offset) != 0) {
+	  char *name = NULL;
 
 	  if (offset % 2) offset++;      /* word align ... */
 
 	  /* pdc name */
-	  offset = display_unicode_string(tvb, tree, offset, hf_unicode_pdc_name);
+	  offset = display_unicode_string(tvb, tree, offset, hf_unicode_pdc_name, &name);
+
+	  if (name && check_col(pinfo->cinfo, COL_INFO)) {
+		  col_append_fstr(pinfo->cinfo, COL_INFO, ": host %s", name);
+		  g_free(name);
+		  name = NULL;
+	  }
 
 	  if (offset % 2) offset++;
 
 	  /* domain name */
-	  offset = display_unicode_string(tvb, tree, offset, hf_domain_name);
+	  offset = display_unicode_string(tvb, tree, offset, hf_domain_name, &name);
+
+	  if (name && check_col(pinfo->cinfo, COL_INFO)) {
+		  col_append_fstr(pinfo->cinfo, COL_INFO, ", domain %s", name);
+		  g_free(name);
+		  name = NULL;
+	  }
 
 	  /* NT version */
   	  proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, TRUE);
@@ -446,10 +467,10 @@ dissect_announce_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		 * XXX - older protocol versions don't have this stuff?
 		 */
 		/* pdc name */
-		offset = display_unicode_string(tvb, tree, offset, hf_unicode_pdc_name);
+		offset = display_unicode_string(tvb, tree, offset, hf_unicode_pdc_name, NULL);
 
 		/* domain name */
-		offset = display_unicode_string(tvb, tree, offset, hf_domain_name);
+		offset = display_unicode_string(tvb, tree, offset, hf_domain_name, NULL);
 
 		/* DB count */
 		info_count = tvb_get_letohl(tvb, offset);
@@ -521,10 +542,10 @@ dissect_smb_sam_logon_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	offset += 2;
 
 	/* computer name */
-	offset = display_unicode_string(tvb, tree, offset, hf_unicode_computer_name);
+	offset = display_unicode_string(tvb, tree, offset, hf_unicode_computer_name, NULL);
 
 	/* user name */
-	offset = display_unicode_string(tvb, tree, offset, hf_user_name);
+	offset = display_unicode_string(tvb, tree, offset, hf_user_name, NULL);
 
 	/* mailslot name */
 	offset = display_ms_string(tvb, tree, offset, hf_mailslot_name, NULL);
@@ -684,13 +705,13 @@ dissect_smb_sam_logon_resp(tvbuff_t *tvb, packet_info *pinfo _U_,
 	/* Netlogon command 0x13 - decode the SAM logon response from server */
 
 	/* server name */
-	offset = display_unicode_string(tvb, tree, offset, hf_server_name);
+	offset = display_unicode_string(tvb, tree, offset, hf_server_name, NULL);
 
 	/* user name */
-	offset = display_unicode_string(tvb, tree, offset, hf_user_name);
+	offset = display_unicode_string(tvb, tree, offset, hf_user_name, NULL);
 
 	/* domain name */
-	offset = display_unicode_string(tvb, tree, offset, hf_domain_name);
+	offset = display_unicode_string(tvb, tree, offset, hf_domain_name, NULL);
 
 	/* NT version */
 	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, TRUE);

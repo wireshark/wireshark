@@ -2,7 +2,7 @@
  * Common routines for smb packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-common.c,v 1.15 2003/04/03 02:22:30 tpot Exp $
+ * $Id: packet-smb-common.c,v 1.16 2003/04/03 02:57:48 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,7 +80,7 @@ int display_ms_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index,
 }
 
 
-int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index)
+int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index, char **data)
 {
 	char *str, *p;
 	int len;
@@ -121,7 +121,10 @@ int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_i
 
 	proto_tree_add_string(tree, hf_index, tvb, offset, len, str);
 
-	g_free(str);
+	if (data)
+		*data = str;
+	else
+		g_free(str);
 
 	return 	offset+len;
 }
