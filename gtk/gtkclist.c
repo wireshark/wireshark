@@ -134,6 +134,7 @@ LIST_WIDTH (GtkCList * clist)
 				 (clist)->row_list_end : \
 				 g_list_nth ((clist)->row_list, (row)))
 
+
 #define GTK_CLIST_CLASS_FW(_widget_) GTK_CLIST_CLASS (((GtkObject*) (_widget_))->klass)
 
 /* redraw the list if it's not frozen */
@@ -2741,7 +2742,7 @@ real_remove_row (GtkCList *clist,
   was_selected = 0;
 
   /* get the row we're going to delete */
-  list = g_list_nth (clist->row_list, row);
+  list = ROW_ELEMENT (clist, row);
   g_assert (list != NULL);
   clist_row = list->data;
 
@@ -2868,7 +2869,7 @@ real_row_move (GtkCList *clist,
   gtk_clist_freeze (clist);
 
   /* unlink source row */
-  clist_row = g_list_nth_data (clist->row_list, source_row);
+  clist_row = ROW_ELEMENT (clist, source_row)->data;
   if (source_row == clist->rows - 1)
     clist->row_list_end = clist->row_list_end->prev;
   clist->row_list = g_list_remove (clist->row_list, clist_row);
@@ -3029,7 +3030,7 @@ gtk_clist_set_row_data_full (GtkCList         *clist,
 
   if (clist_row->destroy)
     clist_row->destroy (clist_row->data);
-
+  
   clist_row->data = data;
   clist_row->destroy = destroy;
 }
@@ -3526,7 +3527,7 @@ toggle_row (GtkCList *clist,
     case GTK_SELECTION_EXTENDED:
     case GTK_SELECTION_MULTIPLE:
     case GTK_SELECTION_SINGLE:
-      clist_row = g_list_nth (clist->row_list, row)->data;
+      clist_row = ROW_ELEMENT (clist, row)->data;
 
       if (!clist_row)
 	return;
@@ -3550,7 +3551,7 @@ fake_toggle_row (GtkCList *clist,
 {
   GList *work;
 
-  work = g_list_nth (clist->row_list, row);
+  work = ROW_ELEMENT (clist, row);
 
   if (!work || !GTK_CLIST_ROW (work)->selectable)
     return;
@@ -3832,7 +3833,7 @@ fake_unselect_all (GtkCList *clist,
   GList *work;
   gint i;
 
-  if (row >= 0 && (work = g_list_nth (clist->row_list, row)))
+  if (row >= 0 && (work = ROW_ELEMENT (clist, row)))
     {
       if (GTK_CLIST_ROW (work)->state == GTK_STATE_NORMAL &&
 	  GTK_CLIST_ROW (work)->selectable)
@@ -3849,7 +3850,7 @@ fake_unselect_all (GtkCList *clist,
   clist->undo_selection = clist->selection;
   clist->selection = NULL;
   clist->selection_end = NULL;
-  
+
   for (list = clist->undo_selection; list; list = list->next)
     {
       if ((i = GPOINTER_TO_INT (list->data)) == row ||
@@ -4241,7 +4242,7 @@ end_selection (GtkCList *clist)
 
   if (gdk_pointer_is_grabbed () && GTK_WIDGET_HAS_FOCUS(clist))
     return;
-  
+
   GTK_CLIST_CLASS_FW (clist)->resync_selection (clist, NULL);
 }
 
@@ -5003,12 +5004,12 @@ gtk_clist_button_press (GtkWidget      *widget,
 		case GTK_SELECTION_SINGLE:
 		case GTK_SELECTION_MULTIPLE:
 		  if (event->type != GDK_BUTTON_PRESS)
-                   {
-                     gtk_signal_emit (GTK_OBJECT (clist),
-                                      clist_signals[SELECT_ROW],
-                                      row, column, event);
-                     clist->anchor = -1;
-                   }
+		    {
+		      gtk_signal_emit (GTK_OBJECT (clist),
+				       clist_signals[SELECT_ROW],
+				       row, column, event);
+		      clist->anchor = -1;
+		    }
 		  else
 		    clist->anchor = row;
 		  break;
@@ -5692,7 +5693,7 @@ draw_row (GtkCList     *clist,
   cell_rectangle.width = row_rectangle.width;
   cell_rectangle.height = CELL_SPACING;
 
-  /* rectangle used to clip drawing operations, it's y and height
+  /* rectangle used to clip drawing operations, its y and height
    * positions only need to be set once, so we set them once here. 
    * the x and width are set withing the drawing loop below once per
    * column */
@@ -5723,7 +5724,7 @@ draw_row (GtkCList     *clist,
 			    intersect_rectangle.width,
 			    intersect_rectangle.height);
 
-      /* the last row has to clear it's bottom cell spacing too */
+      /* the last row has to clear its bottom cell spacing too */
       if (clist_row == clist->row_list_end->data)
 	{
 	  cell_rectangle.y += clist->row_height + CELL_SPACING;
@@ -5754,7 +5755,7 @@ draw_row (GtkCList     *clist,
 			  cell_rectangle.width,
 			  cell_rectangle.height);
 
-      /* the last row has to clear it's bottom cell spacing too */
+      /* the last row has to clear its bottom cell spacing too */
       if (clist_row == clist->row_list_end->data)
 	{
 	  cell_rectangle.y += clist->row_height + CELL_SPACING;
@@ -5955,7 +5956,7 @@ draw_rows (GtkCList     *clist,
   if (clist->rows == first_row)
     first_row--;
 
-  list = g_list_nth (clist->row_list, first_row);
+  list = ROW_ELEMENT (clist, first_row);
   i = first_row;
   while (list)
     {
