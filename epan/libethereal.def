@@ -214,7 +214,7 @@ ftype_can_matches
 ftype_can_ne
 ftype_can_slice
 ftype_pretty_name
-fvalue_free_list                DATA
+fvalue_t_free_list              DATA
 fvalue_from_unparsed
 fvalue_get
 fvalue_get_integer
@@ -407,6 +407,8 @@ proto_tree_add_uint_hidden
 proto_tree_children_foreach
 proto_tree_get_parent
 proto_tree_print
+proto_tree_write_pdml
+proto_tree_write_psml
 p_add_proto_data
 p_get_proto_data
 RasMessage_vals                 DATA
@@ -500,6 +502,10 @@ vals_pdu_type                   DATA
 vals_status                     DATA
 val_to_str
 write_prefs
+write_pdml_finale
+write_pdml_preamble
+write_psml_finale
+write_psml_preamble
 xml_escape
 
 
