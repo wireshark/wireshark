@@ -7,7 +7,7 @@
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp2222.inc,v 1.8.2.9 2002/03/30 17:08:14 gram Exp $
+ * $Id: packet-ncp2222.inc,v 1.8.2.10 2002/05/09 04:24:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -578,7 +578,7 @@ ncp_error_string(const error_equivalency *errors, guint8 completion_code)
 
 static const ncp_record ncp1111_request =
 	{ 0x01, 0x00, NO_SUBFUNC, "Create Connection Service", NCP_GROUP_CONNECTION,
-		NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE };
+		NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL };
 
 /* Wrapper around proto_tree_free() */
 void free_proto_tree(void *tree)
@@ -602,6 +602,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 	ptvcursor_t		*ptvc = NULL;
 	proto_tree		*temp_tree = NULL;
 	gboolean		run_req_cond = FALSE;
+	gboolean		run_info_str = FALSE;
 
 	func = tvb_get_guint8(tvb, 6);
 
@@ -677,7 +678,12 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 			if (ncp_rec->req_cond_indexes) {
 				run_req_cond = TRUE;
 			}
-			if (ncp_rec->req_cond_indexes && !ncp_tree) {
+			/* Only create info string if COL_INFO is available. */
+			if (ncp_rec->req_info_str && check_col(pinfo->cinfo, COL_INFO)) {
+				run_info_str = TRUE;
+			}
+			/* We also have to use a tree if we have to construct an info_str */
+			if ((run_info_str || run_req_cond) && !ncp_tree) {
 				proto_item *ti;
 
 				temp_tree = proto_tree_create_root();
@@ -713,6 +719,12 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 				dfilter_prime_proto_tree(dfilter, ncp_tree);
 				needed++;
 			}
+		}
+
+		/* Before the dissection, if we need a field for the info_str,
+		 * prime the tree. */
+		if (run_info_str) {
+			proto_tree_prime_hfid(ncp_tree, *ncp_rec->req_info_str->hf_ptr);
 		}
 
 		conversation = find_conversation(&pinfo->src, &pinfo->dst,
@@ -790,6 +802,36 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 			 * get to them. */
 			request_value->req_cond_results = results;
 		}
+
+		/* Construct the info string if necessary */
+		if (run_info_str) {
+			GPtrArray *parray;
+			int i, len;
+			field_info *finfo;
+
+			parray = proto_get_finfo_ptr_array(ncp_tree,
+				*ncp_rec->req_info_str->hf_ptr);
+			len = g_ptr_array_len(parray);
+			if (len > 0) {
+				col_set_str(pinfo->cinfo, COL_INFO, "C ");
+
+				finfo = g_ptr_array_index(parray, 0);
+				col_append_fstr(pinfo->cinfo, COL_INFO,
+					(gchar*) ncp_rec->req_info_str->first_string,
+					/* XXX - this only works for certain ftypes */
+					fvalue_get(finfo->value));
+			}
+			if (len > 1) {
+				for (i = 1; i < len; i++) {
+					finfo = g_ptr_array_index(parray, i);
+					col_append_fstr(pinfo->cinfo, COL_INFO,
+						(gchar*) ncp_rec->req_info_str->repeat_string,
+						/* XXX - this only works for certain ftypes */
+						fvalue_get(finfo->value));
+				}
+			}
+		}
+
 
 		/* Free the temporary proto_tree */
 		CLEANUP_CALL_AND_POP;

@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.c,v 1.7.2.1 2002/02/24 20:42:47 gram Exp $
+ * $Id: dfilter.c,v 1.7.2.2 2002/05/09 04:24:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -395,7 +395,7 @@ dfilter_prime_proto_tree(dfilter_t *df, proto_tree *tree)
     int i;
 
     for (i = 0; i < df->num_interesting_fields; i++) {
-        proto_tree_prime_hfid(GINT_TO_POINTER(df->interesting_fields[i]), tree);
+        proto_tree_prime_hfid(tree, df->interesting_fields[i]);
     }
 }
                 

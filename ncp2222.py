@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.25 2002/03/30 17:08:08 gram Exp $
+$Id: ncp2222.py,v 1.14.2.26 2002/05/09 04:24:30 gram Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -421,6 +421,7 @@ class NCP:
 		self.reply_records	= None
 		self.has_length		= has_length
 		self.req_cond_size	= None
+		self.req_info_str	= None
 
 		if not groups.has_key(group):
 			msg.write("NCP 0x%x has invalid group '%s'\n" % \
@@ -483,7 +484,7 @@ class NCP:
 	def PTVCReply(self):
 		return self.ptvc_reply
 
-	def Request(self, size, records=[]):
+	def Request(self, size, records=[], **kwargs):
 		self.request_size = size
 		self.request_records = records
 		if self.HasSubFunction():
@@ -494,6 +495,9 @@ class NCP:
 		else:
 			self.CheckRecords(size, records, "Request", 7)
 		self.ptvc_request = self.MakePTVC(records, "request")
+
+		if kwargs.has_key("info_str"):
+			self.req_info_str = kwargs["info_str"]
 
 	def Reply(self, size, records=[]):
 		self.reply_size = size
@@ -551,6 +555,10 @@ class NCP:
 	def CName(self):
 		"Returns a C symbol based on the NCP function code"
 		return "ncp_0x%x" % (self.func_code)
+
+	def InfoStrName(self):
+		"Returns a C symbol based on the NCP function code, for the info_str"
+		return "info_str_0x%x" % (self.func_code)
 
 	def Variables(self):
 		"""Returns a list of variables used in the request and reply records.
@@ -5449,6 +5457,19 @@ static int hf_ncp_connection_status = -1;
 	# Functions without length parameter
 	funcs_without_length = {}
 
+	# Print info string structures
+	print "/* Info Strings */"
+	for pkt in packets:
+		if pkt.req_info_str:
+			name = pkt.InfoStrName() + "_req"
+			var = pkt.req_info_str[0]
+			print "static const info_string_t %s = {" % (name,)
+			print "\t&%s," % (var.HFName(),)
+			print '\t"%s",' % (pkt.req_info_str[1],)
+			print '\t"%s"' % (pkt.req_info_str[2],)
+			print "};\n"
+
+
 
 	# Print ncp_record packet records
 	print "#define SUBFUNC_WITH_LENGTH	0x02"
@@ -5504,13 +5525,17 @@ static int hf_ncp_connection_status = -1;
 				msg.write("NCP packet %s nees a ReqCondSize*() call\n" \
 					% (pkt.CName(),))
 				sys.exit(1)
-				
+		
+		if pkt.req_info_str:
+			req_info_str = "&" + pkt.InfoStrName() + "_req"
+		else:
+			req_info_str = "NULL"
 
-		print '\t\t%s, %s, %s, %s, %s },\n' % \
+		print '\t\t%s, %s, %s, %s, %s, %s },\n' % \
 			(ptvc_request, ptvc_reply, errors.Name(), req_conds,
-			req_cond_size)
+			req_cond_size, req_info_str)
 
-	print '\t{ 0, 0, 0, NULL, 0, NULL, NULL, NULL, NULL, NO_REQ_COND_SIZE }'
+	print '\t{ 0, 0, 0, NULL, 0, NULL, NULL, NULL, NULL, NO_REQ_COND_SIZE, NULL }'
 	print "};\n"
 
 	print "/* ncp funcs that require a subfunc */"
@@ -9652,8 +9677,8 @@ def define_ncp2222():
 		rec( 19, 4, DirectoryBase ),
 		rec( 23, 1, HandleFlag ),
 		rec( 24, 1, PathCount, var="x" ),
-		rec( 25, (1,255), Path, repeat="x" ),
-	])
+		rec( 25, (1,255), Path, repeat="x",),
+	], info_str=(Path, "Obtain File Info: %s", ", %s"))
 	pkt.Reply(NO_LENGTH_CHECK, [
             srec( DSSpaceAllocateStruct, req_cond="ncp.ret_info_mask_alloc == TRUE" ),
             srec( AttributesStruct, req_cond="ncp.ret_info_mask_attr == TRUE" ),
