@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.175 2000/03/09 18:31:49 ashokn Exp $
+# $Id: Makefile.am,v 1.176 2000/03/29 19:55:42 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -549,7 +549,7 @@ editcap.1: doc/editcap.pod
 	$(MAKE) ../editcap.1 )
 
 dfilter-scanner.c : dfilter-scanner.l
-	$(LEX) -Pdfilter_ -t $(srcdir)/dfilter-scanner.l > dfilter-scanner.c
+	$(LEX) -Pdfilter_ -odfilter-scanner.c $(srcdir)/dfilter-scanner.l
 
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status --recheck

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Wiretap
 #
-# $Id: Makefile.am,v 1.26 2000/01/13 07:09:15 guy Exp $
+# $Id: Makefile.am,v 1.27 2000/03/29 19:55:51 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -78,4 +78,4 @@ EXTRA_DIST = \
 YFLAGS=-d -p ascend
 
 ascend-scanner.c : ascend-scanner.l
-	$(LEX) -Pascend -t $(srcdir)/ascend-scanner.l > ascend-scanner.c
+	$(LEX) -Pascend -oascend-scanner.c $(srcdir)/ascend-scanner.l
