@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.180 2001/02/20 04:09:37 guy Exp $
+ * $Id: main.c,v 1.181 2001/03/02 17:44:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1162,7 +1162,6 @@ main(int argc, char *argv[])
     prefs->gui_font_name = g_strdup("6x13");
   }
 
-  create_main_window(pl_size, tv_size, bv_size, prefs);
 
 #ifdef HAVE_LIBPCAP
   /* Is this a "child" ethereal, which is only supposed to pop up a
@@ -1173,7 +1172,7 @@ main(int argc, char *argv[])
     /* No.  Pop up the main window, and read in a capture file if
        we were told to. */
 
-    gtk_widget_show(top_level);
+    create_main_window(pl_size, tv_size, bv_size, prefs);
     set_menus_for_capture_file(FALSE);
 
     cfile.colors = colfilter_new();
@@ -1613,4 +1612,6 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, DEF_READY_MESSAGE);
   gtk_box_pack_start(GTK_BOX(stat_hbox), info_bar, TRUE, TRUE, 0);
   gtk_widget_show(info_bar);
+
+  gtk_widget_show(top_level);
 }
