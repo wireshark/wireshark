@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.5 1998/10/12 01:40:52 gerald Exp $
+ * $Id: packet-arp.c,v 1.6 1998/10/13 05:20:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,10 +49,11 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   e_ether_arp  ea;
   GtkWidget   *arp_tree, *ti;
   gchar       *op_str;
-  value_string op_vals[] = { {ARPOP_REQUEST,  "ARP request" },
-                             {ARPOP_REPLY,    "ARP reply"   },
-                             {ARPOP_RREQUEST, "RARP request"},
-                             {ARPOP_RREPLY,   "RARP reply"  } };
+  static value_string op_vals[] = { {ARPOP_REQUEST,  "ARP request" },
+                                    {ARPOP_REPLY,    "ARP reply"   },
+                                    {ARPOP_RREQUEST, "RARP request"},
+                                    {ARPOP_RREPLY,   "RARP reply"  } };
+#define N_OP_VALS	(sizeof op_vals / sizeof op_vals[0])
 
   /* To do: Check for {cap len,pkt len} < struct len */
   ea.ar_hrd = pntohs(&pd[offset]);
@@ -68,11 +69,11 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   if (fd->win_info[COL_NUM]) { strcpy(fd->win_info[COL_PROTOCOL], "ARP"); }
   
   if (tree) {
-    if ((op_str = match_strval(ea.ar_op, op_vals, 4)))
+    if ((op_str = match_strval(ea.ar_op, op_vals, N_OP_VALS)))
       ti = add_item_to_tree(GTK_WIDGET(tree), offset, 28, op_str);
     else
       ti = add_item_to_tree(GTK_WIDGET(tree), offset, 28,
-        "Unkown ARP (opcode 0x%04x)", ea.ar_op);
+        "Unknown ARP (opcode 0x%04x)", ea.ar_op);
     arp_tree = gtk_tree_new();
     add_subtree(ti, arp_tree, ETT_ARP);
     add_item_to_tree(arp_tree, offset,      2,
