@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.29 2001/12/10 00:26:21 guy Exp $
+ * $Id: packet-mgcp.c,v 1.30 2002/01/20 23:25:55 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -557,6 +557,7 @@ proto_register_mgcp(void)
 
   prefs_register_bool_preference(mgcp_module, "display_mgcp_message_count", 
                                  "Display the number of MGCP messages", 
+                                 "Display the number of MGCP messages "
                                  "found in a packet in the protocol column.",
                                  &global_mgcp_message_count);
 }

@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.24 2002/01/20 22:12:26 guy Exp $
+ * $Id: packet-ldp.c,v 1.25 2002/01/20 23:25:54 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -867,12 +867,12 @@ proto_register_ldp(void)
   ldp_module = prefs_register_protocol(proto_ldp, proto_reg_handoff_ldp);
 
   prefs_register_uint_preference(ldp_module, "tcp.port", "LDP TCP Port",
-				 "Set the port for  messages (if other"
+				 "Set the TCP port for messages (if other"
 				 " than the default of 646)",
 				 10, &global_ldp_tcp_port);
 
   prefs_register_uint_preference(ldp_module, "udp.port", "LDP UDP Port",
-				 "Set the port for  messages (if other"
+				 "Set the UDP port for messages (if other"
 				 " than the default of 646)",
 				 10, &global_ldp_udp_port);
 

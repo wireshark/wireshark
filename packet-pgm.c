@@ -1,7 +1,7 @@
 /* packet-pgm.c
  * Routines for pgm packet disassembly
  *
- * $Id: packet-pgm.c,v 1.12 2001/12/10 00:25:31 guy Exp $
+ * $Id: packet-pgm.c,v 1.13 2002/01/20 23:25:54 guy Exp $
  * 
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -1089,16 +1089,16 @@ proto_register_pgm(void)
    pgm_module = prefs_register_protocol(proto_pgm, proto_rereg_pgm);
 
    prefs_register_uint_preference(pgm_module, "udp.encap_ucast_port",
-		"PGM Encap Unicast Port (Default 3055)", 
+		"PGM Encap Unicast Port (standard is 3055)", 
 		"PGM Encap is PGM packets encapsulated in UDP packets"
-		" (Note: This is option is off by default", 
+		" (Note: This option is off, i.e. port is 0, by default)", 
 		10, &udp_encap_ucast_port);
    old_encap_ucast_port = udp_encap_ucast_port;
 
    prefs_register_uint_preference(pgm_module, "udp.encap_mcast_port",
-		"PGM Encap Multicast Port (Default 3056)", 
+		"PGM Encap Multicast Port (standard is 3056)", 
 		"PGM Encap is PGM packets encapsulated in UDP packets"
-		" (Note: This is option is off by default", 
+		" (Note: This option is off, i.e. port is 0, by default)", 
 		10, &udp_encap_mcast_port);
 
    old_encap_mcast_port = udp_encap_mcast_port;
