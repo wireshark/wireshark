@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.61 2003/01/11 06:17:22 guy Exp $
+ * $Id: packet-atm.c,v 1.62 2003/03/04 03:08:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1012,26 +1012,32 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        * to the trailer?
        */
       aal5_length = tvb_get_ntohs(tvb, length - 6);
-      if (tree) {
-        pad_length = length - aal5_length - 8;
-        if (pad_length > 0) {
+      pad_length = length - aal5_length - 8;
+      /*
+       * Check for sanity in the AAL5 length; if it's not sane (i.e.,
+       * if the amount of padding would be negative, or if we'd have more
+       * than one cell's worth of padding plus trailer), assume we don't
+       * padding and a trailer.
+       */
+      if (pad_length > 0 && pad_length < 40) {
+        if (tree) {
           proto_tree_add_text(atm_tree, tvb, aal5_length, pad_length,
 		"Padding");
-        }
-        proto_tree_add_text(atm_tree, tvb, length - 8, 1, "AAL5 UU: 0x%02x",
+          proto_tree_add_text(atm_tree, tvb, length - 8, 1, "AAL5 UU: 0x%02x",
 		tvb_get_guint8(tvb, length - 8));
-        proto_tree_add_text(atm_tree, tvb, length - 7, 1, "AAL5 CPI: 0x%02x",
+          proto_tree_add_text(atm_tree, tvb, length - 7, 1, "AAL5 CPI: 0x%02x",
 		tvb_get_guint8(tvb, length - 7));
-        proto_tree_add_text(atm_tree, tvb, length - 6, 2, "AAL5 len: %u",
+          proto_tree_add_text(atm_tree, tvb, length - 6, 2, "AAL5 len: %u",
 		aal5_length);
-        crc = tvb_get_ntohl(tvb, length - 4);
-        calc_crc = update_crc(0xFFFFFFFF, tvb_get_ptr(tvb, 0, length),
+          crc = tvb_get_ntohl(tvb, length - 4);
+          calc_crc = update_crc(0xFFFFFFFF, tvb_get_ptr(tvb, 0, length),
 		length);
-        proto_tree_add_text(atm_tree, tvb, length - 4, 4,
+          proto_tree_add_text(atm_tree, tvb, length - 4, 4,
 		"AAL5 CRC: 0x%08X (%s)", crc,
 		(calc_crc == 0xC704DD7B) ? "correct" : "incorrect");
+	}
+        next_tvb = tvb_new_subset(tvb, 0, aal5_length, aal5_length);
       }
-      next_tvb = tvb_new_subset(tvb, 0, aal5_length, aal5_length);
     }
   }
 
