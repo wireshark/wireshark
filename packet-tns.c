@@ -1,7 +1,7 @@
 /* packet-tns.c
- * Routines for MSX tns packet dissection
+ * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.12 2001/01/09 06:31:44 guy Exp $
+ * $Id: packet-tns.c,v 1.13 2001/02/03 08:21:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,221 +74,211 @@ static const value_string tns_type_vals[] = {
 };
 
 
-/* Handy macro for checking for truncated packet */
-#define TRUNC(length) if ( ! BYTES_ARE_IN_FRAME(offset, length)) { \
-			old_dissect_data(pd,offset,fd,tree); return; }
-
-static void dissect_tns_sns(const u_char *pd, int offset, frame_data *fd, 
+static void dissect_tns_sns(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tns_tree)
 {
 	proto_tree *sns_tree = NULL, *ti;
 
 	if ( tree )
 	{
-		ti = proto_tree_add_text(tns_tree, NullTVB, offset, END_OF_FRAME, "Secure Network Services");
+		ti = proto_tree_add_text(tns_tree, tvb, offset,
+		    tvb_length_remaining(tvb, offset), "Secure Network Services");
 		sns_tree = proto_item_add_subtree(ti, ett_tns_sns);
 
-		proto_tree_add_boolean_hidden(tns_tree, hf_tns_sns, NullTVB, 0, 0, TRUE);
+		proto_tree_add_boolean_hidden(tns_tree, hf_tns_sns, tvb, 0, 0,
+		    TRUE);
 	}
-		
-	if ( check_col(fd, COL_INFO) )
+
+	if ( check_col(pinfo->fd, COL_INFO) )
 	{
-		col_append_fstr(fd, COL_INFO, ", SNS");
+		col_append_fstr(pinfo->fd, COL_INFO, ", SNS");
 	}
 
 	if ( sns_tree )
 	{
-		old_dissect_data(pd,offset,fd,sns_tree);
+		dissect_data(tvb,offset,pinfo,sns_tree);
 	}
 }
 
-static void dissect_tns_data(const u_char *pd, int offset, frame_data *fd, 
+static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tns_tree)
 {
 
-	TRUNC(2);
 	if ( tree )
 	{
-		proto_tree_add_uint(tns_tree, hf_tns_data_flag, NullTVB,
-			offset, 2, pntohs(&pd[offset]));
+		proto_tree_add_uint(tns_tree, hf_tns_data_flag, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 
-	if ( BYTES_ARE_IN_FRAME(offset, 4) )
+	if ( tvb_bytes_exist(tvb, offset, 4) )
 	{
-		if ( pd[offset] == 0xDE && pd[offset+1] == 0xAD &&
-			pd[offset+2] == 0xBE && pd[offset+3] == 0xEF )
+		if ( tvb_get_guint8(tvb, offset) == 0xDE &&
+		     tvb_get_guint8(tvb, offset+1) == 0xAD &&
+		     tvb_get_guint8(tvb, offset+2) == 0xBE &&
+		     tvb_get_guint8(tvb, offset+3) == 0xEF )
 		{
-			dissect_tns_sns(pd,offset,fd,tree,tns_tree);
+			dissect_tns_sns(tvb,offset,pinfo,tree,tns_tree);
 			return;
 		}
 	}
 	
-	old_dissect_data(pd,offset,fd,tree);
+	dissect_data(tvb,offset,pinfo,tree);
 	return;
 }
 
-static void dissect_tns_connect(const u_char *pd, int offset, frame_data *fd, 
+static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tns_tree)
 {
 	proto_tree *connect_tree = NULL, *ti;
 
 	if ( tree )
 	{
-		ti = proto_tree_add_text(tns_tree, NullTVB, offset, END_OF_FRAME, "Connect");
+		ti = proto_tree_add_text(tns_tree, tvb, offset,
+		    tvb_length_remaining(tvb, offset), "Connect");
 		connect_tree = proto_item_add_subtree(ti, ett_tns_connect);
 
-		proto_tree_add_boolean_hidden(tns_tree, hf_tns_connect, NullTVB, 0, 0, TRUE);
+		proto_tree_add_boolean_hidden(tns_tree, hf_tns_connect, tvb,
+		    0, 0, TRUE);
 	}
 		
-	if ( check_col(fd, COL_INFO) )
+	if ( check_col(pinfo->fd, COL_INFO) )
 	{
-		col_append_fstr(fd, COL_INFO, ", Connect");
+		col_append_str(pinfo->fd, COL_INFO, ", Connect");
 	}
 
-	TRUNC(2);
 	if ( connect_tree )
 	{
-		proto_tree_add_uint(connect_tree, hf_tns_version, NullTVB,
-			offset, 2, pntohs(&pd[offset]));
+		proto_tree_add_item(connect_tree, hf_tns_version, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 	
-	TRUNC(2);
 	if ( connect_tree )
 	{
-		proto_tree_add_uint(connect_tree, hf_tns_compat_version, NullTVB,
-			offset, 2, pntohs(&pd[offset]));
+		proto_tree_add_item(connect_tree, hf_tns_compat_version, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 
-	TRUNC(2);
 	if ( connect_tree )
 	{
 		/* need to break down w/ bitfield */
-		proto_tree_add_uint(connect_tree, hf_tns_service_options, NullTVB,
-			offset, 2, pntohs(&pd[offset]));
+		proto_tree_add_uint(connect_tree, hf_tns_service_options, tvb,
+			offset, 2, tvb_get_ntohs(tvb, offset));
 	}
 	offset += 2;
 
 	if ( connect_tree )
 	{
-		old_dissect_data(pd,offset,fd,connect_tree);
+		dissect_data(tvb,offset,pinfo,connect_tree);
 	}
 	return;
 }
 
-static void dissect_tns_accept(const u_char *pd, int offset, frame_data *fd, 
+static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tns_tree)
 {
-	old_dissect_data(pd,offset,fd,tns_tree);
+	dissect_data(tvb,offset,pinfo,tns_tree);
 	return;
 }
 
 
 static void
-dissect_tns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree      *tns_tree = NULL, *ti;
+	int offset = 0;
 	guint16 length;
 	guint16 type;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_tns, pd, offset, fd, tree);
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "TNS");
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "TNS");
-
-	if (check_col(fd, COL_INFO))
+	if (check_col(pinfo->fd, COL_INFO))
 	{
-		col_add_fstr(fd, COL_INFO, "%s", 
-			(pi.match_port == pi.destport) ? "Request" : "Response");	  
+		col_add_str(pinfo->fd, COL_INFO,
+			(pinfo->match_port == pinfo->destport) ? "Request" : "Response");	  
 	}
 
 	if (tree) 
 	{
-		ti = proto_tree_add_item(tree, proto_tns, NullTVB, offset, END_OF_FRAME, FALSE);
+		ti = proto_tree_add_item(tree, proto_tns, tvb, 0,
+		    tvb_length(tvb), FALSE);
 		tns_tree = proto_item_add_subtree(ti, ett_tns);
 
-		if (pi.match_port == pi.destport)
+		if (pinfo->match_port == pinfo->destport)
 		{
-			proto_tree_add_boolean_hidden(tns_tree, hf_tns_request, NullTVB,
-			   offset, END_OF_FRAME, TRUE);
-			proto_tree_add_text(tns_tree, NullTVB, offset, 
-				END_OF_FRAME, "Request: <opaque data>" );
+			proto_tree_add_boolean_hidden(tns_tree, hf_tns_request,
+			   tvb, offset, tvb_length(tvb), TRUE);
+			proto_tree_add_text(tns_tree, tvb, offset, 
+			    tvb_length(tvb), "Request: <opaque data>");
 		}
 		else
 		{
-			proto_tree_add_boolean_hidden(tns_tree, hf_tns_response, NullTVB,
-				offset, END_OF_FRAME, TRUE);
-			proto_tree_add_text(tns_tree, NullTVB, offset, 
-				END_OF_FRAME, "Response: <opaque data>");
+			proto_tree_add_boolean_hidden(tns_tree, hf_tns_response,
+			    tvb, offset, tvb_length(tvb), TRUE);
+			proto_tree_add_text(tns_tree, tvb, offset,
+			    tvb_length(tvb), "Response: <opaque data>");
 		}
 	}
 
-		/* check to make sure length is present */
-	if ( ! BYTES_ARE_IN_FRAME(offset, 2)) return;
-
-	length = pntohs(&pd[offset]);
+	length = tvb_get_ntohs(tvb, offset);
 	if (tree)
 	{
-		proto_tree_add_uint(tns_tree, hf_tns_length, NullTVB,
+		proto_tree_add_uint(tns_tree, hf_tns_length, tvb,
 			offset, 2, length);
 	}
-	TRUNC(length);
 	offset += 2;
 
-	TRUNC(2);
 	if ( tree )
 	{
-		proto_tree_add_uint(tns_tree, hf_tns_packet_checksum, NullTVB,
-			offset, 2, pntohs(&pd[offset]));
+		proto_tree_add_item(tns_tree, hf_tns_packet_checksum, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 
-	TRUNC(2);
-	type = pd[offset];
+	type = tvb_get_guint8(tvb, offset);
 	if ( tree )
 	{
-		proto_tree_add_uint(tns_tree, hf_tns_packet_type, NullTVB,
+		proto_tree_add_uint(tns_tree, hf_tns_packet_type, tvb,
 			offset, 1, type);
 	}
 	offset += 1;
 
-	if ( check_col(fd, COL_INFO))
+	if ( check_col(pinfo->fd, COL_INFO))
 	{
-		col_append_fstr(fd, COL_INFO, ", %s (%d)",
+		col_append_fstr(pinfo->fd, COL_INFO, ", %s (%u)",
 			val_to_str(type, tns_type_vals, "Unknown"), type);
 	}
 
-	TRUNC(1);
 	if ( tree )
 	{
-		proto_tree_add_bytes(tns_tree, hf_tns_reserved_byte, NullTVB,
-			offset, 1, &pd[offset]);
+		proto_tree_add_item(tns_tree, hf_tns_reserved_byte, tvb,
+			offset, 1, FALSE);
 	}
 	offset += 1;
 
-	TRUNC(2);
 	if ( tree )
 	{
-		proto_tree_add_uint(tns_tree, hf_tns_header_checksum, NullTVB,
-			offset, 2, pntohs(&pd[offset]));
+		proto_tree_add_item(tns_tree, hf_tns_header_checksum, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 
 	switch (type)
 	{
 		case TNS_TYPE_CONNECT:
-			dissect_tns_connect(pd,offset,fd,tree,tns_tree);
+			dissect_tns_connect(tvb,offset,pinfo,tree,tns_tree);
 			break;
 		case TNS_TYPE_ACCEPT:
-			dissect_tns_accept(pd,offset,fd,tree,tns_tree);
+			dissect_tns_accept(tvb,offset,pinfo,tree,tns_tree);
 			break;
 		case TNS_TYPE_DATA:
-			dissect_tns_data(pd,offset,fd,tree,tns_tree);
+			dissect_tns_data(tvb,offset,pinfo,tree,tns_tree);
 			break;
 		default:
-			old_dissect_data(pd,offset,fd,tns_tree);
+			dissect_data(tvb,offset,pinfo,tns_tree);
 	}
 }
 
@@ -351,5 +341,5 @@ void proto_register_tns(void)
 void
 proto_reg_handoff_tns(void)
 {
-	old_dissector_add("tcp.port", TCP_PORT_TNS, dissect_tns, proto_tns);
+	dissector_add("tcp.port", TCP_PORT_TNS, dissect_tns, proto_tns);
 }
