@@ -1,17 +1,8 @@
-# $Id: configure.in,v 1.63 2004/03/03 21:35:56 jmayer Exp $
-dnl
-dnl Process this file with autoconf 2.13 or later to produce a
-dnl configure script; 2.12 doesn't generate a "configure" script that
-dnl defines SHELL, and "Makefile.in" has
-dnl
-dnl	SHELL = @SHELL@
-dnl
-dnl which requires it to be defined - and there may be other problems
-dnl with pre-2.13 "autoconf" as well.
-dnl
+# $Id: configure.in,v 1.64 2004/03/04 06:29:42 guy Exp $
+#
 AC_INIT(epan.c)
 
-AC_PREREQ(2.53)
+AC_PREREQ(2.52)
 
 dnl Check for CPU / vendor / OS
 AC_CANONICAL_HOST
