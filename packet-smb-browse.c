@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.1 2000/02/14 04:02:04 guy Exp $
+ * $Id: packet-smb-browse.c,v 1.2 2000/04/08 01:28:13 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -449,7 +449,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(browse_tree, loc_offset, 4, "Server Up Time: %u Sec", ServerUpTime/1000);
+      proto_tree_add_text(browse_tree, loc_offset, 4, "Server Up Time: %u Sec (%ums)", ServerUpTime/1000, ServerUpTime);
 
     }
 
