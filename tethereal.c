@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.66 2001/02/11 09:28:15 guy Exp $
+ * $Id: tethereal.c,v 1.67 2001/02/11 21:29:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -658,7 +658,8 @@ capture(int packet_count, int out_file_type)
 #endif
 
   /* Let the user know what interface was chosen. */
-  printf("Capturing on %s\n", cfile.iface);
+  fprintf(stderr, "Capturing on %s\n", cfile.iface);
+  fflush(stderr);
 
   inpkts = pcap_loop(ld.pch, packet_count, capture_pcap_cb, (u_char *) &ld);
 
@@ -666,13 +667,25 @@ capture(int packet_count, int out_file_type)
     /* We're saving to a file, which means we're printing packet counts
        to the standard output.  Send a newline so that we move to the
        line after the packet count. */
-    printf("\n");
+    fprintf(stderr, "\n");
+  }
+
+  /* If we got an error while capturing, report it. */
+  if (inpkts < 0) {
+    fprintf(stderr, "tethereal: Error while capturing packets: %s\n",
+	pcap_geterr(ld.pch));
   }
 
   /* Get the capture statistics, and, if any packets were dropped, report
      that. */
-  if (pcap_stats(ld.pch, &stats) >= 0)
-    printf("%u packets dropped\n", stats.ps_drop);
+  if (pcap_stats(ld.pch, &stats) >= 0) {
+    if (stats.ps_drop != 0) {
+      fprintf(stderr, "%u packets dropped\n", stats.ps_drop);
+    }
+  } else {
+    fprintf(stderr, "tethereal: Can't get packet-drop statistics: %s\n",
+	pcap_geterr(ld.pch));
+  }
   pcap_close(ld.pch);
 
   return TRUE;
@@ -705,7 +718,7 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   args.pdh = ld->pdh;
   if (ld->pdh) {
     wtap_dispatch_cb_write((u_char *)&args, &whdr, 0, NULL, pd);
-    printf("\r%u ", cfile.count);
+    fprintf(stderr, "\r%u ", cfile.count);
     fflush(stdout);
   } else {
     wtap_dispatch_cb_print((u_char *)&args, &whdr, 0, NULL, pd);
@@ -717,7 +730,7 @@ capture_cleanup(int signum)
 {
   int err;
 
-  printf("\n");
+  fprintf(stderr, "\n");
   pcap_close(ld.pch);
   if (ld.pdh != NULL) {
     if (!wtap_dump_close(ld.pdh, &err)) {
@@ -936,7 +949,7 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr, int offset,
       if (ld.pch != NULL) {
       	/* We're capturing packets, so we're printing a count of packets
 	   captured; move to the line after the count. */
-        printf("\n");
+        fprintf(stderr, "\n");
       }
 #endif
       show_capture_file_io_error(cf->save_file, err, FALSE);

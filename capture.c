@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.139 2001/02/11 09:28:15 guy Exp $
+ * $Id: capture.c,v 1.140 2001/02/11 21:29:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1604,6 +1604,11 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
        dropped. */
     if (pcap_stats(pch, stats) >= 0)
       *stats_known = TRUE;
+    else {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+		"Can't get packet-drop statistics: %s",
+		pcap_geterr(pch));
+    }
     pcap_close(pch);
   }
 
