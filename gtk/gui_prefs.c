@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.13 2000/08/23 10:38:43 deniel Exp $
+ * $Id: gui_prefs.c,v 1.14 2000/08/23 16:15:13 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -103,13 +103,20 @@ static const enum_val expander_style_vals[] = {
    any marked packets. */
 static gboolean colors_changed;
 
+/* Set to FALSE initially; set to TRUE if the user ever hits "OK" on
+   the "Font..." dialog, so that we know that they (probably) changed
+   the font, and therefore that the "apply" function needs to take care
+   of that */
+static gboolean font_changed;
+
 GtkWidget*
 gui_prefs_show(void)
 {
 	GtkWidget	*main_tb, *main_vb, *font_bt, *color_bt;
 
-	/* The colors haven't been changed yet. */
+	/* The colors or font haven't been changed yet. */
 	colors_changed = FALSE;
+	font_changed = FALSE;
 
 	/* Main vertical box */
 	main_vb = gtk_vbox_new(FALSE, 5);
@@ -282,6 +289,7 @@ font_browse_cb(GtkWidget *w, gpointer data)
 static void
 font_browse_ok_cb(GtkWidget *w, GtkFontSelectionDialog *fs)
 {
+	font_changed = TRUE;
 	if (prefs.gui_font_name != NULL)
 		g_free(prefs.gui_font_name);
 	prefs.gui_font_name =
@@ -359,13 +367,15 @@ gui_prefs_fetch(GtkWidget *w)
 void
 gui_prefs_apply(GtkWidget *w)
 {
-	GdkFont *font;
+	GdkFont *font = NULL;
 
-	font = gdk_font_load(prefs.gui_font_name);
-	if (font == NULL) {
-		/* XXX - make this a dialog box, and don't let them
-		   continue! */
-		fprintf(stderr, "Can't open font %s\n", prefs.gui_font_name);
+	if (font_changed) {
+		font = gdk_font_load(prefs.gui_font_name);
+		if (font == NULL) {
+			/* XXX - make this a dialog box, and don't let them
+			continue! */
+			fprintf(stderr, "Can't open font %s\n", prefs.gui_font_name);
+		}
 	}
 
 	set_scrollbar_placement_all(prefs.gui_scrollbar_on_right);
