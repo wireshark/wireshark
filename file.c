@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.388 2004/07/08 10:36:26 guy Exp $
+ * $Id: file.c,v 1.389 2004/07/08 11:07:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1519,16 +1519,20 @@ print_packet(capture_file *cf, frame_data *fdata,
   int             cp_off;
   gboolean        proto_tree_needed;
 
-  /* Create the protocol tree if we're printing the dissection or the hex
-     data. */
+  /* Create the protocol tree, and make it visible, if we're printing
+     the dissection or the hex data.
+     XXX - do we need it if we're just printing the hex data? */
   proto_tree_needed = 
       args->print_args->print_dissections != print_dissections_none || args->print_args->print_hex;
-
-  /* Fill in the column information.
-     XXX - do we need to do so if we're not printing it? */
   edt = epan_dissect_new(proto_tree_needed, proto_tree_needed);
-  epan_dissect_run(edt, pseudo_header, pd, fdata, &cf->cinfo);
-  epan_dissect_fill_in_columns(edt);
+
+  /* Fill in the column information if we're printing the summary
+     information. */
+  if (args->print_args->print_summary) {
+    epan_dissect_run(edt, pseudo_header, pd, fdata, &cf->cinfo);
+    epan_dissect_fill_in_columns(edt);
+  } else
+    epan_dissect_run(edt, pseudo_header, pd, fdata, NULL);
 
   if (args->print_formfeed) {
     print_formfeed(args->print_fh, args->print_args->format);
@@ -1537,7 +1541,7 @@ print_packet(capture_file *cf, frame_data *fdata,
         print_line(args->print_fh, 0, args->print_args->format, "");
   }
 
-  if (args->print_args->print_summary || args->print_args->format == PR_FMT_PS) {
+  if (args->print_args->print_summary) {
     if (args->print_header_line) {
       print_line(args->print_fh, 0, args->print_args->format,
                  args->header_line_buf);
@@ -1574,9 +1578,7 @@ print_packet(capture_file *cf, frame_data *fdata,
 
     print_packet_header(args->print_fh, args->print_args->format, fdata->num, args->line_buf);
 
-    if (args->print_args->print_summary) {
-        print_line(args->print_fh, 0, args->print_args->format, args->line_buf);
-    }
+    print_line(args->print_fh, 0, args->print_args->format, args->line_buf);
   } /* if (print_summary) */
   
   if (args->print_args->print_dissections != print_dissections_none) {
@@ -1653,7 +1655,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
   callback_args.line_buf = NULL;
   callback_args.line_buf_len = 256;
   callback_args.col_widths = NULL;
-  if (print_args->print_summary || print_args->format == PR_FMT_PS) {
+  if (print_args->print_summary) {
     /* We're printing packet summaries.  Allocate the header line buffer
        and get the column widths. */
     callback_args.header_line_buf = g_malloc(callback_args.header_line_buf_len + 1);
