@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.10 1998/11/12 00:06:22 gram Exp $
+ * $Id: menu.c,v 1.11 1998/12/17 05:42:26 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,8 +34,8 @@
 
 #include <strings.h>
 
-#include "menu.h"
 #include "ethereal.h"
+#include "menu.h"
 #include "capture.h"
 #include "packet.h"
 #include "prefs.h"
@@ -43,9 +43,10 @@
 #include "follow.h"
 
 /* Much of this was take from the GTK+ tuturial at http://www.gtk.org */
-
+#ifndef USE_ITEM
 static void menus_remove_accel (GtkWidget *, gchar *, gchar *);
 static gint menus_install_accel (GtkWidget *, gchar *, gchar, gchar, gchar *);
+#endif
 
 /* this is the GtkMenuEntry structure used to create new menus.  The
  * first member is the menu definition string.  The second, the
@@ -54,7 +55,36 @@ static gint menus_install_accel (GtkWidget *, gchar *, gchar, gchar, gchar *);
  * this menu item is selected (by the accelerator key, or with the
  * mouse.) The last member is the data to pass to your callback function.
  */
-
+#ifdef USE_ITEM
+GtkAccelGroup *grp;
+static GtkItemFactoryEntry menu_items[] =
+{
+  {"/_File", NULL, NULL, 0, "<Branch>" },
+  {"/File/_Open", "<control>O", GTK_MENU_FUNC(file_open_cmd_cb), 0, NULL},
+  {"/File/_Close", "<control>W", GTK_MENU_FUNC(file_close_cmd_cb), 0, NULL},
+  {"/File/_Save", "<control>S", NULL, 0, NULL},
+  {"/File/Save _as", NULL, NULL, 0, NULL},
+  {"/File/_Reload", "<control>R", GTK_MENU_FUNC(file_reload_cmd_cb), 0, NULL},
+  {"/File/<separator>", NULL, NULL, 0, "<Separator>"},
+  {"/File/_Print Packet", "<control>P", GTK_MENU_FUNC(file_print_cmd_cb), 0, NULL},
+  {"/File/<separator>", NULL, NULL, 0, "<Separator>"},
+  {"/File/_Quit", "<control>Q", GTK_MENU_FUNC(file_quit_cmd_cb), 0, NULL},
+  {"/_Edit", NULL, NULL, 0, "<Branch>" },
+  {"/Edit/Cut", "<control>X", NULL, 0, NULL},
+  {"/Edit/Copy", "<control>C", NULL, 0, NULL},
+  {"/Edit/Paste", "<control>V", NULL, 0, NULL},
+  {"/Edit/<separator>", NULL, NULL, 0, "<Separator>"},
+  {"/Edit/Find", "<control>F", NULL, 0, NULL},
+  {"/Edit/<separator>", NULL, NULL, 0, "<Separator>"},
+  {"/Edit/_Preferences", NULL, GTK_MENU_FUNC(prefs_cb), E_PR_PG_NONE, NULL},
+  {"/_Tools", NULL, NULL, 0, "<Branch>" },
+  {"/Tools/_Capture", "<control>K", GTK_MENU_FUNC(capture_prep_cb), 0, NULL},
+  {"/Tools/_Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
+  {"/Tools/Graph", NULL, NULL, 0, NULL},
+  {"/_Help", NULL, NULL, 0, "<Branch>" },
+  {"/Help/_About Ethereal", NULL, GTK_MENU_FUNC(about_ethereal), 0, NULL}
+};
+#else
 static GtkMenuEntry menu_items[] =
 {
   {"<Main>/File/Open", "<control>O", file_open_cmd_cb, NULL},
@@ -78,33 +108,77 @@ static GtkMenuEntry menu_items[] =
   {"<Main>/Tools/Graph", NULL, NULL, NULL},
   {"<Main>/Help/About Ethereal", NULL, about_ethereal, NULL}
 };
+#endif
 
 /* calculate the number of menu_items */
 static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
 
 static int initialize = TRUE;
+#ifdef USE_ITEM
+static GtkItemFactory *factory = NULL;
+#else
 static GtkMenuFactory *factory = NULL;
 static GtkMenuFactory *subfactory[1];
 static GHashTable *entry_ht = NULL;
+#endif
 
 void
+#ifdef GTK_HAVE_FEATURES_1_1_0
+get_main_menu(GtkWidget ** menubar, GtkAccelGroup ** table) {
+#else
 get_main_menu(GtkWidget ** menubar, GtkAcceleratorTable ** table) {
+#endif
+
+#ifdef USE_ITEM
+  grp = gtk_accel_group_new();
+#endif
+
   if (initialize)
     menus_init();
 
+#ifdef USE_ITEM
+  if (menubar)
+    *menubar = factory->widget;
+#else
   if (menubar)
     *menubar = subfactory[0]->widget;
+#endif
+
   if (table)
+#ifdef USE_ITEM
+    *table = grp;
+#else
+#ifdef GTK_HAVE_FEATURES_1_1_0
+    *table = subfactory[0]->accel_group;
+#else
     *table = subfactory[0]->table;
+#endif /* GTK 1.1.0 */
+#endif /* USE_ITEM */
 }
 
 void
 menus_init(void) {
+#ifndef USE_ITEM
   GtkMenuPath *mp;
+#endif
 
   if (initialize) {
     initialize = FALSE;
 
+#ifdef USE_ITEM
+    factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
+    gtk_item_factory_create_items(factory, nmenu_items, menu_items, NULL);
+    set_menu_sensitivity("/File/Close", FALSE);
+    set_menu_sensitivity("/File/Save", FALSE);
+    set_menu_sensitivity("/File/Save as", FALSE);
+    set_menu_sensitivity("/File/Reload", FALSE);
+    set_menu_sensitivity("/Edit/Cut", FALSE);
+    set_menu_sensitivity("/Edit/Copy", FALSE);
+    set_menu_sensitivity("/Edit/Paste", FALSE);
+    set_menu_sensitivity("/Edit/Find", FALSE);
+    set_menu_sensitivity("/Tools/Graph", FALSE);
+    
+#else
     factory = gtk_menu_factory_new(GTK_MENU_FACTORY_MENU_BAR);
     subfactory[0] = gtk_menu_factory_new(GTK_MENU_FACTORY_MENU_BAR);
 
@@ -123,25 +197,45 @@ menus_init(void) {
     if ((mp = gtk_menu_factory_find(factory, "<Main>/Help")) != NULL) {
       gtk_menu_item_right_justify((GtkMenuItem *) mp->widget);
     }
+#endif
   }
 }
 
 void
 set_menu_sensitivity (gchar *path, gint val) {
+#ifdef USE_ITEM
+  GtkWidget *menu;
+#else
   GtkMenuPath *mp;
-  
+#endif
+
+#ifdef USE_ITEM 
+  if ((menu = gtk_item_factory_get_widget(factory, path)) != NULL)
+    gtk_widget_set_sensitive(menu, val);
+#else
   if ((mp = gtk_menu_factory_find(factory, path)) != NULL)
     gtk_widget_set_sensitive(mp->widget, val);
+#endif
 }
 
 void
 set_menu_object_data (gchar *path, gchar *key, gpointer data) {
+#ifdef USE_ITEM
+  GtkWidget *menu;
+#else
   GtkMenuPath *mp;
+#endif
   
+#ifdef USE_ITEM 
+  if ((menu = gtk_item_factory_get_widget(factory, path)) != NULL)
+    gtk_object_set_data(GTK_OBJECT(menu), key, data);
+#else
   if ((mp = gtk_menu_factory_find(factory, path)) != NULL)
     gtk_object_set_data(GTK_OBJECT(mp->widget), key, data);
+#endif
 }
 
+#ifndef USE_ITEM
 void
 menus_create(GtkMenuEntry * entries, int nmenu_entries) {
   char *accelerator;
@@ -164,8 +258,13 @@ menus_create(GtkMenuEntry * entries, int nmenu_entries) {
 
   for (i = 0; i < nmenu_entries; i++)
     if (entries[i].widget) {
+#ifdef GTK_HAVE_FEATURES_1_1_0
+      gtk_signal_connect(GTK_OBJECT(entries[i].widget), "add_accelerator",
+         (GtkSignalFunc) menus_install_accel, entries[i].path);
+#else
       gtk_signal_connect(GTK_OBJECT(entries[i].widget), "install_accelerator",
          (GtkSignalFunc) menus_install_accel, entries[i].path);
+#endif
       gtk_signal_connect(GTK_OBJECT(entries[i].widget), "remove_accelerator",
         (GtkSignalFunc) menus_remove_accel, entries[i].path);
   }
@@ -210,17 +309,5 @@ menus_remove_accel(GtkWidget * widget, gchar * signal_name, gchar * path) {
     g_hash_table_insert(entry_ht, path, g_strdup(""));
   }
 }
+#endif
 
-void
-menus_set_sensitive(char *path, int sensitive) {
-  GtkMenuPath *menu_path;
-
-  if (initialize)
-    menus_init();
-
-  menu_path = gtk_menu_factory_find(factory, path);
-  if (menu_path)
-    gtk_widget_set_sensitive(menu_path->widget, sensitive);
-  else
-    g_warning("Unable to set sensitivity for menu which doesn't exist: %s", path);
-}

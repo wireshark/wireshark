@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.4 1998/12/16 09:05:51 guy Exp $
+ * $Id: column.c,v 1.5 1998/12/17 05:42:20 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,7 @@
 
 #include <gtk/gtk.h>
 
+#include <stdio.h>
 #include <ctype.h>
 #include <errno.h>
 #include <unistd.h>

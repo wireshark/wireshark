@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.13 1998/11/17 04:28:46 gerald Exp $
+ * $Id: file.c,v 1.14 1998/12/17 05:42:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -56,8 +56,8 @@
 # include <netinet/in.h>
 #endif
 
-#include "menu.h"
 #include "ethereal.h"
+#include "menu.h"
 #include "packet.h"
 #include "file.h"
 #include "util.h"
@@ -294,16 +294,26 @@ load_cap_file(char *fname, capture_file *cf) {
     g_free(load_msg);
 
     name_ptr[-1] = '\0';
+#ifdef USE_ITEM
+    set_menu_sensitivity("/File/Close", TRUE);
+    set_menu_sensitivity("/File/Reload", TRUE);
+#else
     set_menu_sensitivity("<Main>/File/Close", TRUE);
     set_menu_sensitivity("<Main>/File/Reload", TRUE);
+#endif
   } else {
     msg_len = strlen(name_ptr) + strlen(err_fmt) + 2;
     load_msg = g_realloc(load_msg, msg_len);
     snprintf(load_msg, msg_len, err_fmt, name_ptr);
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
     g_free(load_msg);
+#ifdef USE_ITEM
     set_menu_sensitivity("<Main>/File/Close", FALSE);
     set_menu_sensitivity("<Main>/File/Reload", FALSE);
+#else
+    set_menu_sensitivity("<Main>/File/Close", FALSE);
+    set_menu_sensitivity("<Main>/File/Reload", FALSE);
+#endif
   }
 
   return err;

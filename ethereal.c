@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.14 1998/11/18 03:17:16 gerald Exp $
+ * $Id: ethereal.c,v 1.15 1998/12/17 05:42:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,6 +46,7 @@
 #include <gtk/gtk.h>
 #include <pcap.h> /* needed for capture.h */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -104,14 +105,20 @@ void
 file_sel_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   gchar     *cf_name;
   int        err;
-  GtkWidget *filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
+  GtkWidget *filter_te = NULL;
+
+  /* Gilbert --- I added this if statement. Is this right? */
+  if (w)
+	filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
 
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
   gtk_widget_hide(GTK_WIDGET (fs));
   gtk_widget_destroy(GTK_WIDGET (fs));
 
-  if (cf.dfilter) g_free(cf.dfilter);
-  cf.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
+  if (w && cf.dfilter) {
+	  g_free(cf.dfilter);
+	  cf.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
+  }
   if ((err = load_cap_file(cf_name, &cf)) == 0)
     chdir(cf_name);
   g_free(cf_name);
@@ -227,6 +234,9 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
      pointer to the filter entry */
   gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (file_sel)->ok_button),
     "clicked", (GtkSignalFunc) file_sel_ok_cb, file_sel );
+
+  /* Gilbert --- I added this if statement. Is this right? */
+  if (w)
   gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_sel)->ok_button),
     E_DFILTER_TE_KEY, gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY));
 
@@ -244,8 +254,13 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
 void
 file_close_cmd_cb(GtkWidget *widget, gpointer data) {
   close_cap_file(&cf, info_bar, file_ctx);
+#ifdef USE_ITEM
+  set_menu_sensitivity("/File/Close", FALSE);
+  set_menu_sensitivity("/File/Reload", FALSE);
+#else
   set_menu_sensitivity("<Main>/File/Close", FALSE);
   set_menu_sensitivity("<Main>/File/Reload", FALSE);
+#endif
 }
 
 /* Reload a file using the current display filter */
@@ -373,7 +388,15 @@ main(int argc, char *argv[])
                       *bv_table, *bv_hscroll, *bv_vscroll, *stat_hbox, 
                       *tv_scrollw, *filter_bt, *filter_te;
   GtkStyle            *pl_style;
+#ifdef GTK_HAVE_FEATURES_1_1_0
+  GtkAccelGroup *accel;
+#else
   GtkAcceleratorTable *accel;
+#endif
+
+#ifdef GTK_HAVE_FEATURES_1_1_4
+  GtkWidget	*packet_sw;
+#endif
   gint                 pl_size = 280, tv_size = 95, bv_size = 75;
   gchar               *rc_file, *cf_name = NULL;
   gchar               *medium_font = MONO_MEDIUM_FONT;
@@ -523,7 +546,11 @@ main(int argc, char *argv[])
 
   /* Menu bar */
   get_main_menu(&menubar, &accel);
+#ifdef GTK_HAVE_FEATURES_1_1_0
+  gtk_window_add_accel_group(GTK_WINDOW(window), accel);
+#else
   gtk_window_add_accelerator_table(GTK_WINDOW(window), accel);
+#endif
   gtk_box_pack_start(GTK_BOX(main_vbox), menubar, FALSE, TRUE, 0);
   gtk_widget_show(menubar);
 
@@ -540,6 +567,11 @@ main(int argc, char *argv[])
   /* Packet list */
   packet_list = gtk_clist_new_with_titles(cf.cinfo.num_cols, col_title);
   gtk_clist_column_titles_passive(GTK_CLIST(packet_list));
+#ifdef GTK_HAVE_FEATURES_1_1_4
+  packet_sw = gtk_scrolled_window_new(NULL, NULL);
+  gtk_widget_show(packet_sw);
+  gtk_container_add(GTK_CONTAINER(packet_sw), packet_list);
+#endif
   pl_style = gtk_style_new();
   gdk_font_unref(pl_style->font);
   pl_style->font = m_r_font;
@@ -557,7 +589,11 @@ main(int argc, char *argv[])
         GTK_JUSTIFY_RIGHT);
   }
   gtk_widget_set_usize(packet_list, -1, pl_size);
+#ifdef GTK_HAVE_FEATURES_1_1_4
+  gtk_paned_add1(GTK_PANED(u_pane), packet_sw);
+#else
   gtk_paned_add1(GTK_PANED(u_pane), packet_list);
+#endif
   gtk_widget_show(packet_list);
   
   /* Tree view */
@@ -569,7 +605,12 @@ main(int argc, char *argv[])
   gtk_widget_show(tv_scrollw);
   
   tree_view = gtk_tree_new();
+#ifdef GTK_HAVE_FEATURES_1_1_0
+  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(tv_scrollw),
+		  tree_view);
+#else
   gtk_container_add(GTK_CONTAINER(tv_scrollw), tree_view);
+#endif
   gtk_tree_set_selection_mode(GTK_TREE(tree_view), GTK_SELECTION_SINGLE);
   gtk_tree_set_view_lines(GTK_TREE(tree_view), FALSE);
   gtk_tree_set_view_mode(GTK_TREE(tree_view), TRUE);

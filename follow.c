@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.4 1998/10/28 01:29:16 guy Exp $
+ * $Id: follow.c,v 1.5 1998/12/17 05:42:25 gram Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -30,6 +30,8 @@
 #endif
 
 #include <gtk/gtk.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 

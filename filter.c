@@ -1,7 +1,7 @@
 /* filter.c
  * Routines for managing filter sets
  *
- * $Id: filter.c,v 1.9 1998/11/17 04:28:48 gerald Exp $
+ * $Id: filter.c,v 1.10 1998/12/17 05:42:24 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,6 +29,7 @@
 
 #include <gtk/gtk.h>
 
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>

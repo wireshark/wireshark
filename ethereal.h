@@ -1,7 +1,7 @@
 /* ethereal.h
  * Global defines, etc.
  *
- * $Id: ethereal.h,v 1.8 1998/11/17 04:28:45 gerald Exp $
+ * $Id: ethereal.h,v 1.9 1998/12/17 05:42:22 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,6 +66,20 @@
 #ifndef MIN
   #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #endif
+
+/* Determine whether we use menu factories or item factories. This
+ * code snippet is taken from cheops.h of cheops-0.57, a GPL'ed
+ * network utility program Copyright (C) 1998, Mark Spencer
+ */
+#if (GTK_MINOR_VERSION > 1) || ((GTK_MICRO_VERSION > 1) &&  (GTK_MINOR_VERSION > 0))
+	#define USE_ITEM
+	#define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
+#else
+	#undef USE_ITEM
+	typedef void (*_GTK_MENU_FUNC_T)(GtkWidget *, void *);
+	#define GTK_MENU_FUNC(a) ((_GTK_MENU_FUNC_T)(a))
+#endif
+
     
 typedef struct _selection_info {
   GtkWidget *tree;

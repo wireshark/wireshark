@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.4 1998/09/27 22:12:45 gerald Exp $
+ * $Id: resolv.c,v 1.5 1998/12/17 05:42:32 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -35,6 +35,7 @@
 
 #include <gtk/gtk.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
