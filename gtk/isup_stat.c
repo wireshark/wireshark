@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: isup_stat.c,v 1.16 2004/02/11 04:28:48 guy Exp $
+ * $Id: isup_stat.c,v 1.17 2004/02/18 04:11:42 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -211,8 +211,8 @@ isup_stat_gtk_sort_column(
     gconstpointer	ptr1,
     gconstpointer	ptr2)
 {
-    GtkCListRow		*row1 = (GtkCListRow *) ptr1;
-    GtkCListRow		*row2 = (GtkCListRow *) ptr2;
+    const GtkCListRow		*row1 = (const GtkCListRow *) ptr1;
+    const GtkCListRow		*row2 = (const GtkCListRow *) ptr2;
     char		*text1 = NULL;
     char		*text2 = NULL;
     int			i1, i2;

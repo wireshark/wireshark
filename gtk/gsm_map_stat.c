@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: gsm_map_stat.c,v 1.1 2004/02/11 04:19:03 guy Exp $
+ * $Id: gsm_map_stat.c,v 1.2 2004/02/18 04:11:42 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,6 +98,7 @@ gsm_map_stat_packet(
     tapdata = tapdata;
     pinfo = pinfo;
 
+#if 0   /* always false because message_type is 8 bit value */
     if (data_p->opr_code_idx > sizeof(stat.opr_code))
     {
 	/*
@@ -105,6 +106,7 @@ gsm_map_stat_packet(
 	 */
 	return(0);
     }
+#endif
 
     stat.opr_code[data_p->opr_code_idx]++;
 
@@ -205,8 +207,8 @@ gsm_map_stat_gtk_sort_column(
     gconstpointer	ptr1,
     gconstpointer	ptr2)
 {
-    GtkCListRow		*row1 = (GtkCListRow *) ptr1;
-    GtkCListRow		*row2 = (GtkCListRow *) ptr2;
+    const GtkCListRow		*row1 = (const GtkCListRow *) ptr1;
+    const GtkCListRow		*row2 = (const GtkCListRow *) ptr2;
     char		*text1 = NULL;
     char		*text2 = NULL;
     int			i1, i2;
