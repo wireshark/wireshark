@@ -1,7 +1,7 @@
 /* packet-stat.c
  * Routines for stat dissection
  *
- * $Id: packet-stat.c,v 1.2 1999/11/16 11:42:58 guy Exp $
+ * $Id: packet-stat.c,v 1.3 1999/11/18 19:59:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -65,19 +65,21 @@ const vsff stat_proc[] = {
 void
 proto_register_stat(void)
 {
-	static hf_register_info hf[] = {
 #if 0
+	static hf_register_info hf[] = {
 		{ &hf_stat_path, {
 			"Path", "stat.path", FT_STRING, BASE_DEC,
 			NULL, 0, "Path" }},
-#endif
 	};
+#endif
 	static gint *ett[] = {
 		&ett_stat,
 	};
 
 	proto_stat = proto_register_protocol("Status Service", "stat");
+#if 0
 	proto_register_field_array(proto_stat, hf, array_length(hf));
+#endif
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* Register the protocol as RPC */
