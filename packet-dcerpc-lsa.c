@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.25 2002/04/28 07:06:30 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.26 2002/04/28 10:09:25 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,11 +43,13 @@ static int proto_dcerpc_lsa = -1;
 static int hf_lsa_rc = -1;
 static int hf_lsa_hnd = -1;
 static int hf_lsa_server = -1;
+static int hf_lsa_controller = -1;
 static int hf_lsa_obj_attr = -1;
 static int hf_lsa_obj_attr_len = -1;
 static int hf_lsa_obj_attr_name = -1;
 static int hf_lsa_access_mask = -1;
 static int hf_lsa_info_level = -1;
+static int hf_lsa_trusted_info_level = -1;
 static int hf_lsa_sd_size = -1;
 static int hf_lsa_qos_len = -1;
 static int hf_lsa_qos_impersonation_level = -1;
@@ -77,12 +79,14 @@ static int hf_lsa_quota_pagefile = -1;
 static int hf_lsa_mod_seq_no = -1;
 static int hf_lsa_mod_mtime = -1;
 static int hf_lsa_name = -1;
+static int hf_lsa_flat_name = -1;
 static int hf_lsa_forest = -1;
 static int hf_lsa_info_type = -1;
 static int hf_lsa_old_pwd = -1;
 static int hf_lsa_new_pwd = -1;
 static int hf_lsa_sid_type = -1;
 static int hf_lsa_rid = -1;
+static int hf_lsa_rid_offset = -1;
 static int hf_lsa_num_mapped = -1;
 static int hf_lsa_policy_information_class = -1;
 static int hf_lsa_secret = -1;
@@ -91,6 +95,17 @@ static int hf_nt_luid_low = -1;
 static int hf_lsa_privilege_name = -1;
 static int hf_lsa_attr = -1;
 static int hf_lsa_resume_handle = -1;
+static int hf_lsa_trust_direction = -1;
+static int hf_lsa_trust_type = -1;
+static int hf_lsa_trust_attr = -1;
+static int hf_lsa_trust_attr_non_trans = -1;
+static int hf_lsa_trust_attr_uplevel_only = -1;
+static int hf_lsa_trust_attr_tree_parent = -1;
+static int hf_lsa_trust_attr_tree_root = -1;
+static int hf_lsa_auth_update = -1;
+static int hf_lsa_auth_type = -1;
+static int hf_lsa_auth_len = -1;
+static int hf_lsa_auth_blob = -1;
 
 static int hf_lsa_unknown_hyper = -1;
 static int hf_lsa_unknown_long = -1;
@@ -119,6 +134,7 @@ static gint ett_lsa_translated_names = -1;
 static gint ett_lsa_translated_name = -1;
 static gint ett_lsa_referenced_domain_list = -1;
 static gint ett_lsa_trust_information = -1;
+static gint ett_lsa_trust_information_ex = -1;
 static gint ett_LUID = -1;
 static gint ett_LSA_PRIVILEGES = -1;
 static gint ett_LSA_PRIVILEGE = -1;
@@ -127,6 +143,10 @@ static gint ett_LSA_LUID_AND_ATTRIBUTES = -1;
 static gint ett_LSA_TRUSTED_DOMAIN_LIST = -1;
 static gint ett_LSA_TRUSTED_DOMAIN = -1;
 static gint ett_LSA_TRANSLATED_SIDS = -1;
+static gint ett_lsa_trusted_domain_info = -1;
+static gint ett_lsa_trust_attr = -1;
+static gint ett_lsa_trusted_domain_auth_information = -1;
+static gint ett_lsa_auth_information = -1;
 
 
 static int
@@ -1193,6 +1213,204 @@ lsa_dissect_LSA_TRUST_INFORMATION(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static const value_string trusted_direction_vals[] = {
+	{0,	"Trust disabled"},
+	{1,	"Inbound trust"},
+	{2,	"Outbound trust"},
+	{0,	NULL}
+};
+
+static const value_string trusted_type_vals[] = {
+	{1,	"Downlevel"},
+	{2,	"Uplevel"},
+	{3,	"MIT"},
+	{4,	"DCE"},
+	{0,	NULL}
+};
+
+static const true_false_string tfs_trust_attr_non_trans = {
+	"NON TRANSITIVE is set",
+	"Non transitive is NOT set"
+};
+static const true_false_string tfs_trust_attr_uplevel_only = {
+	"UPLEVEL ONLY is set",
+	"Uplevel only is NOT set"
+};
+static const true_false_string tfs_trust_attr_tree_parent = {
+	"TREE PARENT is set",
+	"Tree parent is NOT set"
+};
+static const true_false_string tfs_trust_attr_tree_root = {
+	"TREE ROOT is set",
+	"Tree root is NOT set"
+};
+static int
+lsa_dissect_trust_attr(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+			proto_tree *parent_tree, char *drep)
+{
+	guint32 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
+			hf_lsa_trust_attr, &mask);
+
+	if(parent_tree){
+		item = proto_tree_add_uint(parent_tree, hf_lsa_trust_attr,
+			tvb, offset-4, 4, mask);
+		tree = proto_item_add_subtree(item, ett_lsa_trust_attr);
+	}
+
+	proto_tree_add_boolean(tree, hf_lsa_trust_attr_tree_root,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_lsa_trust_attr_tree_parent,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_lsa_trust_attr_uplevel_only,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_lsa_trust_attr_non_trans,
+		tvb, offset-4, 4, mask);
+
+	return offset;
+}
+
+static int
+lsa_dissect_LSA_TRUST_INFORMATION_EX(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"TRUST INFORMATION EX:");
+		tree = proto_item_add_subtree(item, ett_lsa_trust_information_ex);
+	}
+
+	/* name */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_name, 0);
+
+	/* flat name */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_flat_name, 0);
+
+	/* sid */
+	offset = dissect_ndr_nt_PSID(tvb, offset,
+		pinfo, tree, drep);
+
+	/* direction */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_trust_direction, NULL);
+
+	/* type */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_trust_type, NULL);
+	
+	/* attributes */
+	offset = lsa_dissect_trust_attr(tvb, offset, pinfo, tree, drep);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+lsa_dissect_auth_info_blob(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	dcerpc_info *di;
+	guint32 len;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	/* len */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_auth_len, &len);
+
+	proto_tree_add_item(tree, hf_lsa_auth_blob, tvb, offset, len, FALSE);
+	offset += len;
+
+	return offset;
+}
+
+static int
+lsa_dissect_auth_info(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"AUTH INFORMATION:");
+		tree = proto_item_add_subtree(item, ett_lsa_auth_information);
+	}
+
+	/* update */
+        offset = dissect_ndr_uint64 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_auth_update, NULL);
+
+	/* type */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_auth_type, NULL);
+
+	/* len */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_auth_len, NULL);
+
+	/* auth info blob */
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			lsa_dissect_auth_info_blob, NDR_POINTER_UNIQUE,
+			"AUTH INFO blob:", -1, 0);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+lsa_dissect_LSA_TRUSTED_DOMAIN_AUTH_INFORMATION(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"TRUSTED DOMAIN AUTH INFORMATION:");
+		tree = proto_item_add_subtree(item, ett_lsa_trusted_domain_auth_information);
+	}
+
+	/* unknown */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_unknown_long, NULL);
+
+	/* unknown */
+	offset = lsa_dissect_auth_info(tvb, offset, pinfo, tree, drep);
+
+	/* unknown */
+	offset = lsa_dissect_auth_info(tvb, offset, pinfo, tree, drep);
+
+	/* unknown */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_unknown_long, NULL);
+
+	/* unknown */
+	offset = lsa_dissect_auth_info(tvb, offset, pinfo, tree, drep);
+
+	/* unknown */
+	offset = lsa_dissect_auth_info(tvb, offset, pinfo, tree, drep);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+
 static int
 lsa_dissect_LSA_TRUST_INFORMATION_array(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
@@ -2181,6 +2399,155 @@ lsa_dissect_lsaopenaccount_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static const value_string trusted_info_level_vals[] = {
+	{1,	"Domain Name Information"},
+	{2,	"Controllers Information"},
+	{3,	"Posix Offset Information"},
+	{4,	"Password Information"},
+	{5,	"Domain Information Basic"},
+	{6,	"Domain Information Ex"},
+	{7,	"Domain Auth Information"},
+	{8,	"Domain Full Information"},
+	{9,	"Domain Security Descriptor"},
+	{10,	"Domain Private Information"},
+	{0,	NULL}
+};
+
+static int
+lsa_dissect_TRUSTED_DOMAIN_INFORMATION(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+	guint16 level;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"TRUSTED_DOMAIN_INFO:");
+		tree = proto_item_add_subtree(item, ett_lsa_trusted_domain_info);
+	}
+
+        offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_trusted_info_level, &level);
+
+	ALIGN_TO_4_BYTES;  /* all union arms aligned to 4 bytes, case 7 and 9 need this  */
+	switch(level){
+	case 1:	
+		offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+			hf_lsa_domain, 0);
+		break;
+	case 2:
+		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_lsa_count, NULL);
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			lsa_dissect_LSA_UNICODE_STRING_array, NDR_POINTER_UNIQUE,
+			"Controllers pointer: ", hf_lsa_controller, 0);
+		break;
+	case 3:
+	        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+			hf_lsa_rid_offset, NULL);
+		break;
+	case 4:
+		offset = lsa_dissect_LSA_SECRET(tvb, offset, pinfo, tree, drep);
+		offset = lsa_dissect_LSA_SECRET(tvb, offset, pinfo, tree, drep);
+		break;
+	case 5:
+		offset = lsa_dissect_LSA_TRUST_INFORMATION(tvb, offset,
+			pinfo, tree, drep);
+		break;
+	case 6:
+		offset = lsa_dissect_LSA_TRUST_INFORMATION_EX(tvb, offset,
+			pinfo, tree, drep);
+		break;
+	case 7:
+		offset = lsa_dissect_LSA_TRUSTED_DOMAIN_AUTH_INFORMATION(tvb, offset, pinfo, tree, drep);
+		break;
+	case 8:
+		offset = lsa_dissect_LSA_TRUST_INFORMATION_EX(tvb, offset,
+			pinfo, tree, drep);
+	        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+			hf_lsa_rid_offset, NULL);
+		offset = lsa_dissect_LSA_TRUSTED_DOMAIN_AUTH_INFORMATION(tvb, offset, pinfo, tree, drep);
+		break;
+	case 9:
+		offset = lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvb, offset, pinfo, tree, drep);
+		break;
+	case 10:
+		offset = lsa_dissect_LSA_TRUST_INFORMATION_EX(tvb, offset,
+			pinfo, tree, drep);
+	        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+			hf_lsa_rid_offset, NULL);
+		offset = lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvb, offset, pinfo, tree, drep);
+		break;
+	}
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+lsa_dissect_lsaqueryinfotrusteddomain_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in] TRUSTED_INFORMATION_CLASS level */
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_lsa_trusted_info_level, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsaqueryinfotrusteddomain_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [out, ref] TRUSTED_DOMAIN_INFORMATION *info */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_TRUSTED_DOMAIN_INFORMATION, NDR_POINTER_REF,
+		"TRUSTED_DOMAIN_INFORMATION pointer: info", -1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsasetinformationtrusteddomain_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in] TRUSTED_INFORMATION_CLASS level */
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_lsa_trusted_info_level, NULL);
+
+	/* [in, ref] TRUSTED_DOMAIN_INFORMATION *info */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_TRUSTED_DOMAIN_INFORMATION, NDR_POINTER_REF,
+		"TRUSTED_DOMAIN_INFORMATION pointer: info", -1, 0);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsasetinformationtrusteddomain_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
 
 
 static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
@@ -2266,17 +2633,11 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 		lsa_dissect_lsaopentrusteddomain_rqst,
 		lsa_dissect_lsaopentrusteddomain_reply },
 	{ LSA_LSAQUERYINFOTRUSTEDDOMAIN, "LSAQUERYINFOTRUSTEDDOMAIN",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsaqueryinfotrusteddomain_rqst,
 		lsa_dissect_lsaqueryinfotrusteddomain_reply },
-#endif
 	{ LSA_LSASETINFORMATIONTRUSTEDDOMAIN, "LSASETINFORMATIONTRUSTEDDOMAIN",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsasetinformationtrusteddomain_rqst,
 		lsa_dissect_lsasetinformationtrusteddomain_reply },
-#endif
 	{ LSA_LSAOPENSECRET, "LSAOPENSECRET",
 		NULL, NULL },
 #ifdef REMOVED
@@ -2476,6 +2837,10 @@ proto_register_dcerpc_lsa(void)
 		{ "Server", "lsa.server", FT_STRING, BASE_NONE,
 		NULL, 0, "Name of Server", HFILL }},
 
+	{ &hf_lsa_controller,
+		{ "Controller", "lsa.controller", FT_STRING, BASE_NONE,
+		NULL, 0, "Name of Domain Controller", HFILL }},
+
 	{ &hf_lsa_unknown_hyper,
 		{ "Unknown hyper", "lsa.unknown.hyper", FT_UINT64, BASE_HEX, 
 		NULL, 0x0, "Unknown hyper. If you know what this is, contact ethereal developers.", HFILL }},
@@ -2515,6 +2880,10 @@ proto_register_dcerpc_lsa(void)
 	{ &hf_lsa_info_level,
 		{ "Level", "lsa.info.level", FT_UINT16, BASE_DEC, 
 		NULL, 0x0, "Information level of requested data", HFILL }},
+
+	{ &hf_lsa_trusted_info_level,
+		{ "Info Level", "lsa.trusted.info_level", FT_UINT16, BASE_DEC, 
+		VALS(trusted_info_level_vals), 0x0, "Information level of requested Trusted Domain Information", HFILL }},
 
 	{ &hf_lsa_sd_size,
 		{ "Size", "lsa.sd_size", FT_UINT32, BASE_DEC, 
@@ -2624,6 +2993,10 @@ proto_register_dcerpc_lsa(void)
 		{ "Name", "lsa.name", FT_STRING, BASE_NONE, 
 		NULL, 0x0, "", HFILL }},
 
+	{ &hf_lsa_flat_name,
+		{ "Flat Name", "lsa.flat_name", FT_STRING, BASE_NONE, 
+		NULL, 0x0, "", HFILL }},
+
 	{ &hf_lsa_forest,
 		{ "Forest", "lsa.forest", FT_STRING, BASE_NONE, 
 		NULL, 0x0, "", HFILL }},
@@ -2648,6 +3021,10 @@ proto_register_dcerpc_lsa(void)
 		{ "RID", "lsa.rid", FT_UINT32, BASE_HEX, 
 		NULL, 0x0, "RID", HFILL }},
 
+	{ &hf_lsa_rid_offset,
+		{ "RID Offset", "lsa.rid.offset", FT_UINT32, BASE_HEX, 
+		NULL, 0x0, "RID Offset", HFILL }},
+
 	{ &hf_lsa_index,
 		{ "Index", "lsa.index", FT_UINT32, BASE_DEC, 
 		NULL, 0x0, "", HFILL }},
@@ -2662,6 +3039,10 @@ proto_register_dcerpc_lsa(void)
 
 	{ &hf_lsa_secret,
 		{ "LSA Secret", "lsa.secret", FT_BYTES, BASE_HEX,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_lsa_auth_blob,
+		{ "Auth blob", "lsa.auth.blob", FT_BYTES, BASE_HEX,
 		NULL, 0, "", HFILL }},
 
 	{ &hf_nt_luid_high,
@@ -2684,11 +3065,51 @@ proto_register_dcerpc_lsa(void)
 		{ "Attr", "lsa.attr", FT_UINT64, BASE_HEX, 
 		NULL, 0x0, "LSA Attributes", HFILL }},
 
+	{ &hf_lsa_auth_update,
+		{ "Update", "lsa.auth.update", FT_UINT64, BASE_HEX, 
+		NULL, 0x0, "LSA Auth Info update", HFILL }},
+
 	{ &hf_lsa_resume_handle,
 		{ "Resume Handle", "lsa.resume_handle", FT_UINT32, BASE_DEC, 
 		NULL, 0x0, "Resume Handle", HFILL }},
 
-	
+	{ &hf_lsa_trust_direction,
+		{ "Trust Direction", "lsa.trust.direction", FT_UINT32, BASE_DEC, 
+		VALS(trusted_direction_vals), 0x0, "Trust direction", HFILL }},
+
+	{ &hf_lsa_trust_type,
+		{ "Trust Type", "lsa.trust.type", FT_UINT32, BASE_DEC, 
+		VALS(trusted_type_vals), 0x0, "Trust type", HFILL }},
+
+	{ &hf_lsa_trust_attr,
+		{ "Trust Attr", "lsa.trust.attr", FT_UINT32, BASE_HEX, 
+		NULL, 0x0, "Trust attributes", HFILL }},
+
+	{ &hf_lsa_trust_attr_non_trans,
+		{ "Non Transitive", "lsa.trust.attr.non_trans", FT_BOOLEAN, 32,
+		TFS(&tfs_trust_attr_non_trans), 0x00000001, "Non Transitive trust", HFILL }},
+
+	{ &hf_lsa_trust_attr_uplevel_only,
+		{ "Upleve only", "lsa.trust.attr.uplevel_only", FT_BOOLEAN, 32,
+		TFS(&tfs_trust_attr_uplevel_only), 0x00000002, "Uplevel only trust", HFILL }},
+
+	{ &hf_lsa_trust_attr_tree_parent,
+		{ "Tree Parent", "lsa.trust.attr.tree_parent", FT_BOOLEAN, 32,
+		TFS(&tfs_trust_attr_tree_parent), 0x00400000, "Tree Parent trust", HFILL }},
+
+	{ &hf_lsa_trust_attr_tree_root,
+		{ "Tree Root", "lsa.trust.attr.tree_root", FT_BOOLEAN, 32,
+		TFS(&tfs_trust_attr_tree_root), 0x00800000, "Tree Root trust", HFILL }},
+
+	{ &hf_lsa_auth_type,
+		{ "Auth Type", "lsa.auth.type", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "Auth Info type", HFILL }},
+
+	{ &hf_lsa_auth_len,
+		{ "Auth Len", "lsa.auth.len", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "Auth Info len", HFILL }},
+
+
 	};
 
         static gint *ett[] = {
@@ -2711,6 +3132,7 @@ proto_register_dcerpc_lsa(void)
 		&ett_lsa_translated_name,
 		&ett_lsa_referenced_domain_list,
 		&ett_lsa_trust_information,
+		&ett_lsa_trust_information_ex,
 		&ett_LUID,
 		&ett_LSA_PRIVILEGES,
 		&ett_LSA_PRIVILEGE,
@@ -2719,6 +3141,10 @@ proto_register_dcerpc_lsa(void)
 		&ett_LSA_TRUSTED_DOMAIN_LIST,
 		&ett_LSA_TRUSTED_DOMAIN,
 		&ett_LSA_TRANSLATED_SIDS,
+		&ett_lsa_trusted_domain_info,
+		&ett_lsa_trust_attr,
+		&ett_lsa_trusted_domain_auth_information,
+		&ett_lsa_auth_information,
         };
 
         proto_dcerpc_lsa = proto_register_protocol(
