@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.16 1999/03/09 01:45:06 guy Exp $
+ * $Id: packet-ip.c,v 1.17 1999/03/09 02:52:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -698,6 +698,72 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       ih.icmp_code, code_str);
     add_item_to_tree(icmp_tree, offset +  2, 2, "Checksum: 0x%04x",
       ih.icmp_cksum);
+
+    /* Decode the second 4 byte of the packet. */
+    switch (ih.icmp_type) {
+      case ICMP_ECHOREPLY:
+      case ICMP_ECHO:
+      case ICMP_TSTAMP:
+      case ICMP_TSTAMPREPLY:
+      case ICMP_IREQ:
+      case ICMP_IREQREPLY:
+      case ICMP_MASKREQ:
+      case ICMP_MASKREPLY:
+	add_item_to_tree(icmp_tree, offset +  4, 2, "Identifier: 0x%04x",
+	  pntohs(&pd[offset +  4]));
+	add_item_to_tree(icmp_tree, offset +  6, 2, "Sequence number: %u",
+	  pntohs(&pd[offset +  6]));
+	break;
+
+      case ICMP_PARAMPROB:
+	add_item_to_tree(icmp_tree, offset +  4, 1, "Pointer: %u",
+	  pd[offset +  4]);
+	break;
+
+      case ICMP_REDIRECT:
+	add_item_to_tree(icmp_tree, offset +  4, 4, "Gateway address: %s",
+	  ip_to_str((guint8 *)&pd[offset +  4]));
+	break;
+    }
+
+    /* Decode the additional information in the packet.  */
+    switch (ih.icmp_type) {
+      case ICMP_UNREACH:
+      case ICMP_TIMXCEED:
+      case ICMP_PARAMPROB:
+      case ICMP_SOURCEQUENCH:
+      case ICMP_REDIRECT:
+	/* Decode the IP header and first 64 bits of data from the
+	   original datagram.
+
+	   XXX - for now, just display it as data; not all dissection
+	   routines can handle a short packet without exploding. */
+	dissect_data(pd, offset + 8, fd, (GtkTree *)icmp_tree);
+	break;
+
+      case ICMP_ECHOREPLY:
+      case ICMP_ECHO:
+	dissect_data(pd, offset + 8, fd, (GtkTree *)icmp_tree);
+	break;
+
+      case ICMP_TSTAMP:
+      case ICMP_TSTAMPREPLY:
+	add_item_to_tree(icmp_tree, offset +  8, 4, "Originate timestamp: %u",
+	  pntohl(&pd[offset +  8]));
+	add_item_to_tree(icmp_tree, offset + 12, 4, "Originate timestamp: %u",
+	  pntohl(&pd[offset + 12]));
+	add_item_to_tree(icmp_tree, offset + 16, 4, "Receive timestamp: %u",
+	  pntohl(&pd[offset + 16]));
+	add_item_to_tree(icmp_tree, offset + 20, 4, "Transmit timestamp: %u",
+	  pntohl(&pd[offset + 20]));
+	break;
+
+    case ICMP_MASKREQ:
+    case ICMP_MASKREPLY:
+	add_item_to_tree(icmp_tree, offset +  8, 4, "Address mask: %s (0x%8x)",
+	  ip_to_str((guint8 *)&pd[offset +  8]), pntohl(&pd[offset +  8]));
+	break;
+    }
   }
 }
 
