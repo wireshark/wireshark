@@ -342,7 +342,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	stream_om = gtk_option_menu_new();
 	stream_menu = gtk_menu_new();
 
-	/* Both Hosts */
+	/* Both Stream Directions */
 	g_snprintf(string, sizeof(string),
 		 "Entire conversation (%u bytes)",
 		 stats.bytes_written[0] + stats.bytes_written[1]);
@@ -382,6 +382,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 
 	/* ASCII radio button */
 	radio_bt = gtk_radio_button_new_with_label(NULL, "ASCII");
+	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"ASCII\" format", NULL);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), TRUE);
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
 	SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
@@ -393,6 +394,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_group
 					    (GTK_RADIO_BUTTON(radio_bt)),
 					    "EBCDIC");
+	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"EBCDIC\" format", NULL);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), FALSE);
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
 	SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
@@ -403,6 +405,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_group
 					    (GTK_RADIO_BUTTON(radio_bt)),
 					    "Hex Dump");
+	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"Hexdump\" format", NULL);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), FALSE);
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
 	SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
@@ -413,6 +416,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_group
 					    (GTK_RADIO_BUTTON(radio_bt)),
 					    "C Arrays");
+	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"C Array\" format", NULL);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), FALSE);
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
 	SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
@@ -423,6 +427,8 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_group
 					    (GTK_RADIO_BUTTON(radio_bt)),
 					    "Raw");
+	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"Raw\" (binary) format. "
+        "As this contains non printable characters, the screen output will be in ASCII format", NULL);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), FALSE);
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
 	SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
