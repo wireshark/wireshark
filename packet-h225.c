@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (h323@ramdyne.nl)
  *
- * $Id: packet-h225.c,v 1.43 2004/05/25 21:27:02 guy Exp $
+ * $Id: packet-h225.c,v 1.44 2004/06/24 04:51:12 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -822,7 +822,7 @@ static gint ett_h225_NonStandardParameter = -1;
 static gint ett_h225_aliasAddress_sequence = -1;
 static gint ett_h225_T_cryptoEPPwdHash = -1;
 static gint ett_h225_T_cryptoGKPwdHash = -1;
-static gint ett_h225_SEQUNCE_OF_AuthenticationMechanism = -1;
+static gint ett_h225_AuthenticationMechanism_sequence_of = -1;
 /*bbb*/
 
 /* Subdissector tables */
@@ -3031,7 +3031,7 @@ dissect_h225_authenticationCapability(tvbuff_t *tvb, int offset, packet_info *pi
 {
 	offset = dissect_per_sequence_of(tvb, offset, pinfo, tree,
 				hf_h225_authenticationCapability,
-				ett_h225_SEQUNCE_OF_AuthenticationMechanism, dissect_h225_authenticationCapability_item);
+				ett_h225_AuthenticationMechanism_sequence_of, dissect_h225_authenticationCapability_item);
 	return offset;
 }
 
@@ -10206,7 +10206,7 @@ proto_register_h225(void)
         "", HFILL }},
     { &hf_h225_authenticationCapability,
       { "authenticationCapability", "h225.authenticationCapability",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_DEC, NULL, 0,
         "GatekeeperRequest/authenticationCapability", HFILL }},
     { &hf_h225_authenticationCapability_item,
       { "authenticationCapability", "h225.authenticationCapability_item",
@@ -10502,6 +10502,7 @@ proto_register_h225(void)
 		&ett_h225_T_cryptoEPPwdHash,
 		&ett_h225_T_cryptoGKPwdHash,
 		&ett_h225_aliasAddress_sequence,
+		&ett_h225_AuthenticationMechanism_sequence_of,
 /*eee*/
 	};
 	module_t *h225_module;
