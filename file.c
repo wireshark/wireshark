@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.269 2002/04/22 19:10:33 sharpe Exp $
+ * $Id: file.c,v 1.270 2002/04/24 05:48:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -311,16 +311,18 @@ set_display_filename(capture_file *cf)
 read_status_t
 read_cap_file(capture_file *cf, int *err)
 {
-  gchar    *name_ptr, *load_msg, *load_fmt = " Loading: %s...";
-  size_t    msg_len;
-  char     *errmsg;
-  char      errmsg_errno[1024+1];
-  gchar     err_str[2048+1];
-  long      data_offset;
-  progdlg_t *progbar;
-  gboolean  stop_flag;
-  int       file_pos;
-  float     prog_val;
+  gchar      *name_ptr, *load_msg, *load_fmt = " Loading: %s...";
+  size_t      msg_len;
+  char       *errmsg;
+  char        errmsg_errno[1024+1];
+  gchar       err_str[2048+1];
+  long        data_offset;
+  progdlg_t  *progbar;
+  gboolean    stop_flag;
+  int         file_pos;
+  float       prog_val;
+  int         fd;
+  struct stat cf_stat;
 
   name_ptr = get_basename(cf->filename);
 
@@ -354,6 +356,21 @@ read_cap_file(capture_file *cf, int *err)
     if (data_offset >= cf->progbar_nextstep) {
         file_pos = lseek(cf->filed, 0, SEEK_CUR);
         prog_val = (gfloat) file_pos / (gfloat) cf->f_len;
+        if (prog_val > 1.0) {
+          /* The file probably grew while we were reading it.
+             Update "cf->f_len", and try again. */
+          fd = wtap_fd(cf->wth);
+          if (fstat(fd, &cf_stat) >= 0) {
+            cf->f_len = cf_stat.st_size;
+            prog_val = (gfloat) file_pos / (gfloat) cf->f_len;
+          }
+          /* If it's still > 1, either the "fstat()" failed (in which
+             case there's not much we can do about it), or the file
+             *shrank* (in which case there's not much we can do about
+             it); just clip the progress value at 1.0. */
+          if (prog_val > 1.0)
+            prog_val = 1.0;
+        }
         update_progress_dlg(progbar, prog_val);
         cf->progbar_nextstep += cf->progbar_quantum;
     }
