@@ -1,7 +1,7 @@
 /* layout_prefs.c
  * Dialog box for layout preferences
  *
- * $Id: layout_prefs.c,v 1.7 2004/05/02 08:54:32 ulfl Exp $
+ * $Id: layout_prefs.c,v 1.8 2004/05/05 07:31:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,7 +46,7 @@
 #include "../image/icon_layout_5.xpm"
 #include "../image/icon_layout_6.xpm"
 
-#define LAYOUT_QTY 6
+#define LAYOUT_QTY (layout_type_max - 1)
 
 
 static void layout_validate_cb(GtkWidget *w _U_, gpointer data);

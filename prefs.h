@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.59 2004/04/30 00:40:44 guy Exp $
+ * $Id: prefs.h,v 1.60 2004/05/05 07:31:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,7 +76,8 @@ typedef enum {
     layout_type_1,
     layout_type_4,
     layout_type_3,
-    layout_type_6
+    layout_type_6,
+    layout_type_max
 } layout_type_e;
 
 /*
