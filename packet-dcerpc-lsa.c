@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.19 2002/04/18 10:40:30 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.20 2002/04/22 01:07:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -212,6 +212,28 @@ lsa_dissect_LSA_SECRET(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+lsa_dissect_LSA_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *tree,
+                             char *drep)
+{
+	guint32 len;
+	dcerpc_info *di;
+	
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+				     hf_lsa_sd_size, &len);
+
+	dissect_nt_sec_desc(tvb, pinfo, offset, tree, len);
+	offset += len;
+
+	return offset;
+}
 int
 lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
@@ -227,7 +249,12 @@ lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvbuff_t *tvb, int offset,
 		tree = proto_item_add_subtree(item, ett_LSA_SECURITY_DESCRIPTOR);
 	}
 
-	offset = dissect_nt_sec_desc(tvb, pinfo, offset, tree, 0);
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+				    hf_lsa_sd_size, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			lsa_dissect_LSA_SECURITY_DESCRIPTOR_data, NDR_POINTER_UNIQUE,
+			"LSA SECURITY DESCRIPTOR data:", -1, 0);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
