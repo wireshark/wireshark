@@ -28,7 +28,17 @@
 #define __XML_H_
 #include <epan/tvbuff.h>
 
-typedef struct _xml_token_t xml_token_t;
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+
+#include <glib.h>
+
+#include <epan/packet.h>
+#include <epan/strutil.h>
+#include <epan/prefs.h>
+#include <epan/report_err.h>
+
 
 typedef enum _xml_token_type_t {
 	XML_WHITESPACE,
@@ -43,14 +53,16 @@ typedef enum _xml_token_type_t {
 	XML_DOCTYPE_STOP
 } xml_token_type_t;
 
-struct _xml_token_t {
-	xml_token_type_t type;
-	int offset;
-	int len;
-	xml_token_t* next;
-	xml_token_t* prev;
-};
+extern proto_item* proto_tree_add_xml_item(proto_tree* tree,
+										   tvbuff_t* tvb,
+										   xml_token_type_t type,
+										   guint offset,
+										   guint len);
 
-extern xml_token_t* scan_tvb_for_xml_items(tvbuff_t*, gint, gint);
+extern void xml_lexer_init(int proto_hfid, int ett);
+
+extern void dissect_xml(tvbuff_t* tvb,
+						packet_info* pinfo,
+						proto_tree* tree);
 
 #endif

@@ -28,32 +28,24 @@
 # include "config.h"
 #endif
 
-#include <string.h>
-#include <ctype.h>
-#include <stdlib.h>
-
-#include <glib.h>
-
-#include <epan/packet.h>
-#include <epan/strutil.h>
-#include <epan/prefs.h>
-#include <epan/report_err.h>
-
 #include "packet-xml.h"
 
 static int proto_xml = -1;
+
 static int ett_xml = -1;
+
 static int hf_xml_pi = -1;
 static int hf_xml_markup_decl = -1;
 static int hf_xml_tag = -1;
 static int hf_xml_text = -1;
 
-static proto_item* proto_tree_add_xml_item(proto_tree* tree, tvbuff_t* tvb, xml_token_t* xi) {
+extern proto_item* proto_tree_add_xml_item(proto_tree* tree, tvbuff_t* tvb,
+										   xml_token_type_t type, guint offset, guint len) {
 	proto_item* pi;
 	gchar* txt;
 	int hfid;
 	
-	switch (xi->type) {
+	switch (type) {
 		case XML_TAG:   hfid = hf_xml_tag; break;
 		case XML_MARKUPDECL:	hfid = hf_xml_markup_decl; break;
 		case XML_XMLPI: hfid = hf_xml_pi; break;
@@ -61,67 +53,17 @@ static proto_item* proto_tree_add_xml_item(proto_tree* tree, tvbuff_t* tvb, xml_
 		default: hfid = 0; break;
 	}
 
-	txt = tvb_get_string(tvb,xi->offset,xi->len);
+	txt = tvb_get_string(tvb,offset,len);
 
 	if ( hfid ) {
-		pi = proto_tree_add_string_format(tree,hfid,tvb,xi->offset,xi->len,txt,format_text(txt, xi->len));
+		pi = proto_tree_add_string_format(tree,hfid,tvb,offset,len,txt,format_text(txt, len));
 	} else {
-		pi = proto_tree_add_text(tree,tvb,xi->offset,xi->len,"%s",format_text(txt, xi->len));
+		pi = proto_tree_add_text(tree,tvb,offset,len,"%s",format_text(txt, len));
 	}
 	
 	g_free(txt);
 
 	return pi;
-}
-
-
-static void dissect_xml(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree) {
-	xml_token_t* xml_items ;
-	xml_token_t* xi;
-	xml_token_t* next_xi;
-	proto_item* pi = NULL;
-	GPtrArray* stack = g_ptr_array_new();
-
-	if (tree) {
-		pi = proto_tree_add_item(tree, proto_xml, tvb, 0, tvb->length, FALSE);
-		
-		tree = proto_item_add_subtree(pi, ett_xml);
-
-		xml_items = scan_tvb_for_xml_items(tvb, 0, tvb->length);
-				
-		for (xi = xml_items; xi; xi = next_xi) {
-			next_xi = xi->next;
-						
-			switch (xi->type) {
-				case XML_WHITESPACE:
-					break;
-				case XML_CLOSEDTAG:
-				case XML_TEXT:
-				case XML_MARKUPDECL:
-				case XML_XMLPI:
-				case XML_COMMENT:
-					proto_tree_add_xml_item(tree,tvb,xi);
-					break;
-				case XML_DOCTYPE_START:
-				case XML_TAG:  
-					pi = proto_tree_add_xml_item(tree,tvb,xi);
-					g_ptr_array_add(stack,tree);
-					tree = proto_item_add_subtree(pi, ett_xml);
-					break;
-				case XML_CLOSE_TAG:
-				case XML_DOCTYPE_STOP: 
-					pi = proto_tree_add_xml_item(tree,tvb,xi); 
-					if ( stack->len ) 
-						tree = g_ptr_array_remove_index(stack,stack->len - 1);
-					break;						
-			}
-			
-			g_free(xi);
-		}
-		
-		g_ptr_array_free(stack,FALSE);
-	}
-	
 }
 
 void
@@ -150,20 +92,20 @@ proto_register_xml(void)
 		&ett_xml
 	};
 
-
-	
 	proto_xml = proto_register_protocol("eXtensible Markup Language", "XML", "xml");
 	proto_register_field_array(proto_xml, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("xml", dissect_xml, proto_xml);
 
+	
 }
 
 void
 proto_reg_handoff_xml(void)
 {
+
 	dissector_handle_t xml_handle;
-	
+
 	xml_handle = find_dissector("xml");
 
 	dissector_add_string("media_type", "text/xml", xml_handle);
@@ -184,4 +126,6 @@ proto_reg_handoff_xml(void)
 	dissector_add_string("media_type", "application/xslt+xml", xml_handle);
 	dissector_add_string("media_type", "application/mathml+xml", xml_handle);
 	dissector_add_string("media_type", "image/svg+xml", xml_handle);
+
+	xml_lexer_init(proto_xml,ett_xml);
 }
