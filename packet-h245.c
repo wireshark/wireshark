@@ -6,7 +6,7 @@
  *
  * Maintained by Andreas Sikkema (h323@ramdyne.nl)
  *
- * $Id: packet-h245.c,v 1.46 2004/02/14 22:48:52 guy Exp $
+ * $Id: packet-h245.c,v 1.47 2004/05/17 20:03:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -14270,7 +14270,7 @@ dissect_h245_DataApplicationCapability(tvbuff_t *tvb, int offset, packet_info *p
 static int
 dissect_h245_iPSourceRouteAddress_route(tvbuff_t *tvb _U_, int offset, packet_info *pinfo _U_, proto_tree *tree _U_)
 {
-NOT_DECODED_YET("iPSourceRouteAddress");
+PER_NOT_DECODED_YET("iPSourceRouteAddress");
 /* XXX
 	offset=dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_h245_iPSourceRouteAddress_route, ett_h245_iPSourceRouteAddress_route, dissect_h245_ );
 */
@@ -18245,7 +18245,7 @@ dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb, int offset, packet_info *pinfo
 static int
 dissect_h245_escrowValue(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("escrowValue");
+PER_NOT_DECODED_YET("escrowValue");
 	return offset;
 }
 
@@ -18759,7 +18759,7 @@ dissect_h245_T38FaxUdpOptions(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 static int
 dissect_h245_sessionDescription(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("sessionDescription");
+PER_NOT_DECODED_YET("sessionDescription");
 	return offset;
 }
 

@@ -4,7 +4,7 @@
  *
  * Copied from packet-h225.c and packet-h245.c
  *
- * $Id: packet-h450.c,v 1.8 2004/02/16 18:23:25 sahlberg Exp $
+ * $Id: packet-h450.c,v 1.9 2004/05/17 20:03:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -349,7 +349,7 @@ dissect_h4501_opcode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 static int
 dissect_h4501_ExtensionSeq(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("H.450.1 ExtensionSeq");
+PER_NOT_DECODED_YET("H.450.1 ExtensionSeq");
    return offset;
 }
 
@@ -689,7 +689,7 @@ dissect_h4501_argument(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
       /* TODO - decode other H.450.x invoke arguments here */
 
       default:
-NOT_DECODED_YET("Unrecognized H.450.x operation");
+PER_NOT_DECODED_YET("Unrecognized H.450.x operation");
          break;
       }
    }
@@ -772,7 +772,7 @@ dissect_h4501_ReturnResult_result(tvbuff_t *tvb, int offset, packet_info *pinfo,
          break;
 
       default:
-NOT_DECODED_YET("Unrecognized H.450.x return result");
+PER_NOT_DECODED_YET("Unrecognized H.450.x return result");
          break;
       }
    }

@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (h323@ramdyne.nl)
  *
- * $Id: packet-h225.c,v 1.38 2004/04/09 03:51:30 sahlberg Exp $
+ * $Id: packet-h225.c,v 1.39 2004/05/17 20:03:35 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3059,31 +3059,31 @@ dissect_h235_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 static int
 dissect_h235_DHSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("DHSet");
+PER_NOT_DECODED_YET("DHSet");
 	return offset;
 }
 static int
 dissect_h235_ChallengeString(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("ChallengeString");
+PER_NOT_DECODED_YET("ChallengeString");
 	return offset;
 }
 static int
 dissect_h235_RandomVal(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("RandomVal");
+PER_NOT_DECODED_YET("RandomVal");
 	return offset;
 }
 static int
 dissect_h235_TypedCertificate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("TypedCertificate");
+PER_NOT_DECODED_YET("TypedCertificate");
 	return offset;
 }
 static int
 dissect_h235_Identifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("Identifier");
+PER_NOT_DECODED_YET("Identifier");
 	return offset;
 }
 static int
@@ -3123,13 +3123,13 @@ dissect_h235_nonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_h235_ECKASDH(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("ECKASDH");
+PER_NOT_DECODED_YET("ECKASDH");
 	return offset;
 }
 static int
 dissect_h235_H235Key(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("H235Key");
+PER_NOT_DECODED_YET("H235Key");
 	return offset;
 }
 static per_sequence_t H235ClearToken_sequence[] = {
@@ -3164,7 +3164,7 @@ static per_sequence_t H235ClearToken_sequence[] = {
 static int
 dissect_h235_AuthenticationBES(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("AuthenticationBES");
+PER_NOT_DECODED_YET("AuthenticationBES");
 	return offset;
 }
 
@@ -3241,19 +3241,19 @@ dissect_h235_cryptoEncryptedToken(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_h235_cryptoSignedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("cryptoSignedToken");
+PER_NOT_DECODED_YET("cryptoSignedToken");
 	return offset;
 }
 static int
 dissect_h235_cryptoHashedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("cryptoHashedToken");
+PER_NOT_DECODED_YET("cryptoHashedToken");
 	return offset;
 }
 static int
 dissect_h235_cryptoPwdEncr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("cryptoPwdEncr");
+PER_NOT_DECODED_YET("cryptoPwdEncr");
 	return offset;
 }
 static const value_string CryptoToken_vals[] = {
@@ -3309,25 +3309,25 @@ dissect_h235_ranInt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 static int
 dissect_h235_iv8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("iv8");
+PER_NOT_DECODED_YET("iv8");
 	return offset;
 }
 static int
 dissect_h235_iv16(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("iv16");
+PER_NOT_DECODED_YET("iv16");
 	return offset;
 }
 static int
 dissect_h235_iv(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("iv");
+PER_NOT_DECODED_YET("iv");
 	return offset;
 }
 static int
 dissect_h235_clearSalt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("clearSalt");
+PER_NOT_DECODED_YET("clearSalt");
 	return offset;
 }
 
@@ -3443,37 +3443,37 @@ dissect_h225_cryptoEPPwdHash(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 static int
 dissect_h225_cryptoGKPwdHash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("cryptoGKPwdHash");
+PER_NOT_DECODED_YET("cryptoGKPwdHash");
 	return offset;
 }
 static int
 dissect_h225_cryptoEPPwdEncr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("cryptoEPPwdEncr");
+PER_NOT_DECODED_YET("cryptoEPPwdEncr");
 	return offset;
 }
 static int
 dissect_h225_cryptoGKPwdEncr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("cryptoGKPwdEncr");
+PER_NOT_DECODED_YET("cryptoGKPwdEncr");
 	return offset;
 }
 static int
 dissect_h225_cryptoEPCert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("cryptoEPCert");
+PER_NOT_DECODED_YET("cryptoEPCert");
 	return offset;
 }
 static int
 dissect_h225_cryptoGKCert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("cryptoGKCert");
+PER_NOT_DECODED_YET("cryptoGKCert");
 	return offset;
 }
 static int
 dissect_h225_cryptoFastStart(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("cryptoFastStart");
+PER_NOT_DECODED_YET("cryptoFastStart");
 	return offset;
 }
 static const value_string CryptoH323Token_vals[] = {
@@ -5867,7 +5867,7 @@ dissect_h225_LocationRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_h225_EndpointType_set(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("EndpointType_set");
+PER_NOT_DECODED_YET("EndpointType_set");
 	return offset;
 }
 
@@ -6122,7 +6122,7 @@ dissect_h225_EndPoint(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 static int
 dissect_h225_icv(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("icv");
+PER_NOT_DECODED_YET("icv");
 	return offset;
 }
 
@@ -6771,7 +6771,7 @@ dissect_h225_ResourcesAvailableIndicate(tvbuff_t *tvb, int offset, packet_info *
 static int
 dissect_h225_amountString(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("amountString");
+PER_NOT_DECODED_YET("amountString");
 	return offset;
 }
 
@@ -7880,19 +7880,19 @@ dissect_h225_ServiceControlIndication(tvbuff_t *tvb, int offset, packet_info *pi
 static int
 dissect_h225_alertingTime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("alertingTime");
+PER_NOT_DECODED_YET("alertingTime");
 	return offset;
 }
 static int
 dissect_h225_connectTime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("connectTime");
+PER_NOT_DECODED_YET("connectTime");
 	return offset;
 }
 static int
 dissect_h225_endTime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("endTime");
+PER_NOT_DECODED_YET("endTime");
 	return offset;
 }
 

@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.27 2004/04/26 07:34:12 sahlberg Exp $
+ * $Id: packet-per.c,v 1.28 2004/05/17 20:03:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -130,7 +130,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, packet_info *pinfo
 		}
 		return offset;
 	}
-	NOT_DECODED_YET("10.9.3.8.1");
+	PER_NOT_DECODED_YET("10.9.3.8.1");
 	return offset;
 }
 
@@ -325,7 +325,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 
 
 	if(length>=1024){
-		NOT_DECODED_YET("restricted char string too long");
+		PER_NOT_DECODED_YET("restricted char string too long");
 		length=1024;
 	}
 
@@ -431,7 +431,7 @@ dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_t
 	}
 
 	if(length>=1024){
-		NOT_DECODED_YET("BMPString too long");
+		PER_NOT_DECODED_YET("BMPString too long");
 		length=1024;
 	}
 
@@ -551,7 +551,7 @@ DEBUG_ENTRY("dissect_per_object_identifier");
 		offset+=8;
 
 		if((strp-str)>200){
-NOT_DECODED_YET("too long octet_string");
+PER_NOT_DECODED_YET("too long octet_string");
 			/*XXX assert here */
 			return offset;
 		}
@@ -650,7 +650,7 @@ dissect_per_integer(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tre
 	offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, -1, &length);
 	/* gassert here? */
 	if(length>4){
-NOT_DECODED_YET("too long integer");
+PER_NOT_DECODED_YET("too long integer");
 		length=4;
 	}
 
@@ -898,7 +898,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		return offset;
 	}
 
-	NOT_DECODED_YET("10.5");
+	PER_NOT_DECODED_YET("10.5");
 	return offset;
 }
 
@@ -995,7 +995,7 @@ DEBUG_ENTRY("dissect_per_choice");
 					offset=choice[i].func(tvb, offset, pinfo, choicetree);
 					break;
 				} else {
-					NOT_DECODED_YET(choice[i].name);
+					PER_NOT_DECODED_YET(choice[i].name);
 					break;
 				}
 			}
@@ -1042,7 +1042,7 @@ DEBUG_ENTRY("dissect_per_choice");
 		if(index==-1){
 			/* if we dont know how to decode this one, just step offset to the next structure */
 			offset+=length*8;
-			NOT_DECODED_YET("unknown choice extension");
+			PER_NOT_DECODED_YET("unknown choice extension");
 		} else {
 			guint32 new_offset;
 
@@ -1185,7 +1185,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 			if(sequence[i].func){
 				offset=sequence[i].func(tvb, offset, pinfo, tree);
 			} else {
-				NOT_DECODED_YET(sequence[i].name);
+				PER_NOT_DECODED_YET(sequence[i].name);
 			}
 		}
 	}
@@ -1260,7 +1260,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 			if(i>=num_known_extensions){
 				/* we dont know how to decode this extension */
 				offset+=length*8;
-				NOT_DECODED_YET("unknown sequence extension");
+				PER_NOT_DECODED_YET("unknown sequence extension");
 				continue;
 			}
 
@@ -1278,7 +1278,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 			if(sequence[extension_index].func){
 				new_offset=sequence[extension_index].func(tvb, offset, pinfo, tree);
 			} else {
-				NOT_DECODED_YET(sequence[extension_index].name);
+				PER_NOT_DECODED_YET(sequence[extension_index].name);
 			}
 			offset+=length*8;
 

@@ -23,7 +23,7 @@
  *
  * Some structures from RFC2630
  *
- * $Id: packet-kerberos.c,v 1.61 2004/05/14 23:38:39 sahlberg Exp $
+ * $Id: packet-kerberos.c,v 1.62 2004/05/17 20:03:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1368,21 +1368,21 @@ dissect_krb5_PA_PK_AS_REQ_signedAuthPack(packet_info *pinfo, proto_tree *tree, t
 static int
 dissect_krb5_PA_PK_AS_REQ_trustedCertifiers(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	NOT_DECODED_YET("trustedCertifiers");
+	BER_NOT_DECODED_YET("trustedCertifiers");
 
 	return offset;
 }
 static int
 dissect_krb5_PA_PK_AS_REQ_kdcCert(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	NOT_DECODED_YET("kdcCert");
+	BER_NOT_DECODED_YET("kdcCert");
 
 	return offset;
 }
 static int
 dissect_krb5_PA_PK_AS_REQ_encryptionCert(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	NOT_DECODED_YET("encryptionCert");
+	BER_NOT_DECODED_YET("encryptionCert");
 
 	return offset;
 }
