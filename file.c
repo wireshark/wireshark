@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.372 2004/04/14 05:46:34 ulfl Exp $
+ * $Id: file.c,v 1.373 2004/04/15 23:28:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2019,7 +2019,7 @@ find_packet_data(capture_file *cf, const guint8 *string, size_t string_size)
   info.data_len = string_size;
 
   /* String or hex search? */
-  if (cf->ascii) {
+  if (cf->string) {
     /* String search - what type of string? */
     switch (cf->scs_type) {
 

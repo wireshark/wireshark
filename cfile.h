@@ -1,7 +1,7 @@
 /* cfile.h
  * capture_file definition & GUI-independent manipulation
  *
- * $Id: cfile.h,v 1.9 2004/02/03 00:16:58 ulfl Exp $
+ * $Id: cfile.h,v 1.10 2004/04/15 23:28:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,7 +73,7 @@ typedef struct _capture_file {
   gchar       *sfilter;   /* Search filter string */
   gboolean     sbackward; /* TRUE if search is backward, FALSE if forward */
   gboolean     hex;       /* TRUE is raw data search is being performed */
-  gboolean     ascii;     /* TRUE is text search is being performed */
+  gboolean     string;    /* TRUE is text search is being performed */
   search_charset_t scs_type; /* Character set for text search */
   gboolean     case_type; /* TRUE if case-insensitive text search */
   gboolean     decode_data; /* TRUE if searching protocol tree text */

@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.50 2004/02/29 10:41:03 ulfl Exp $
+ * $Id: find_dlg.c,v 1.51 2004/04/15 23:28:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,7 +50,7 @@
 #define E_FIND_FILT_KEY       "find_filter_te"
 #define E_FIND_BACKWARD_KEY   "find_backward"
 #define E_FIND_HEXDATA_KEY    "find_hex"
-#define E_FIND_ASCIIDATA_KEY  "find_ascii"
+#define E_FIND_STRINGDATA_KEY "find_string"
 #define E_FIND_FILTERDATA_KEY "find_filter"
 #define E_FIND_STRINGTYPE_KEY "find_string_type"
 #define E_FIND_STRINGTYPE_LABEL_KEY "find_string_type_label"
@@ -80,7 +80,7 @@ static void
 hex_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w);
 
 static void
-ascii_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w);
+string_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w);
 
 static void
 filter_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w);
@@ -103,7 +103,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkWidget     *main_vb, *main_find_hb, *main_options_hb,
       
                 *find_type_frame, *find_type_vb,
-                *find_type_hb, *find_type_lb, *hex_rb, *ascii_rb, *filter_rb,
+                *find_type_hb, *find_type_lb, *hex_rb, *string_rb, *filter_rb,
                 *filter_hb, *filter_bt,
 
                 *direction_frame, *direction_vb,
@@ -183,7 +183,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Filter */
   filter_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL,
                "_Display Filter", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filter_rb), !cfile.hex && !cfile.ascii);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(filter_rb), !cfile.hex && !cfile.string);
   gtk_box_pack_start(GTK_BOX(find_type_hb), filter_rb, FALSE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, filter_rb, ("Search for data by display filter syntax.\ne.g. ip.addr==10.1.1.1"), NULL);
   gtk_widget_show(filter_rb);
@@ -191,18 +191,18 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Hex */
   hex_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(filter_rb,
                "_Hex value", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(hex_rb), cfile.hex);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hex_rb), cfile.hex);
   gtk_box_pack_start(GTK_BOX(find_type_hb), hex_rb, FALSE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, hex_rb, ("Search for data by hex string.\ne.g. fffffda5"), NULL);
   gtk_widget_show(hex_rb);
 
   /* ASCII Search */
-  ascii_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(filter_rb,
+  string_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(filter_rb,
                "_String", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ascii_rb), cfile.ascii);
-  gtk_box_pack_start(GTK_BOX(find_type_hb), ascii_rb, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, ascii_rb, ("Search for data by string value.\ne.g. My String"), NULL);
-  gtk_widget_show(ascii_rb);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(string_rb), cfile.string);
+  gtk_box_pack_start(GTK_BOX(find_type_hb), string_rb, FALSE, FALSE, 0);
+  gtk_tooltips_set_tip (tooltips, string_rb, ("Search for data by string value.\ne.g. My String"), NULL);
+  gtk_widget_show(string_rb);
 
   /* Filter row */
   filter_hb = gtk_hbox_new(FALSE, 3);
@@ -246,7 +246,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Packet list */
   summary_data_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL,
                "Packet list", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(summary_data_rb), summary_data);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(summary_data_rb), summary_data);
   gtk_box_pack_start(GTK_BOX(data_vb), summary_data_rb, TRUE, TRUE, 0);
   gtk_tooltips_set_tip (tooltips, summary_data_rb, ("Search for string in the Info column of the packet summary (top pane)"), NULL);
   gtk_widget_show(summary_data_rb);
@@ -254,7 +254,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Packet details */
   decode_data_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(summary_data_rb,
                "Packet details", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(decode_data_rb), decode_data);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(decode_data_rb), decode_data);
   gtk_box_pack_start(GTK_BOX(data_vb), decode_data_rb, TRUE, TRUE, 0);
   gtk_tooltips_set_tip (tooltips, decode_data_rb, ("Search for string in the decoded packet display (middle pane)"), NULL);
   gtk_widget_show(decode_data_rb);
@@ -262,11 +262,10 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Packet bytes */
   hex_data_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(summary_data_rb, 
                 "Packet bytes", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(hex_data_rb), !decode_data && !summary_data);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hex_data_rb), !decode_data && !summary_data);
   gtk_box_pack_start(GTK_BOX(data_vb), hex_data_rb, TRUE, TRUE, 0);
   gtk_tooltips_set_tip (tooltips, hex_data_rb, ("Search for string in the packet data"), NULL);
   gtk_widget_show(hex_data_rb);
-
 
   /* string options frame */
   string_opt_frame = gtk_frame_new("String Options");
@@ -280,7 +279,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   case_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
 		"Case sensitive", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(case_cb), !case_type);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(case_cb), !case_type);
   gtk_container_add(GTK_CONTAINER(string_opt_vb), case_cb);
   gtk_tooltips_set_tip (tooltips, case_cb, ("Search by mixed upper/lower case?"), NULL);
   gtk_widget_show(case_cb);
@@ -318,12 +317,12 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(direction_vb);
 
   up_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "_Up", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(up_rb), cfile.sbackward);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(up_rb), cfile.sbackward);
   gtk_box_pack_start(GTK_BOX(direction_vb), up_rb, FALSE, FALSE, 0);
   gtk_widget_show(up_rb);
 
   down_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(up_rb, "_Down", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(down_rb), !cfile.sbackward);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(down_rb), !cfile.sbackward);
   gtk_box_pack_start(GTK_BOX(direction_vb), down_rb, FALSE, FALSE, 0);
   gtk_widget_show(down_rb);
 
@@ -345,7 +344,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   OBJECT_SET_DATA(find_frame_w, E_FIND_BACKWARD_KEY, up_rb);
   OBJECT_SET_DATA(find_frame_w, E_FIND_FILTERDATA_KEY, filter_rb);
   OBJECT_SET_DATA(find_frame_w, E_FIND_HEXDATA_KEY, hex_rb);
-  OBJECT_SET_DATA(find_frame_w, E_FIND_ASCIIDATA_KEY, ascii_rb);
+  OBJECT_SET_DATA(find_frame_w, E_FIND_STRINGDATA_KEY, string_rb);
   OBJECT_SET_DATA(find_frame_w, E_FIND_STRINGTYPE_LABEL_KEY, combo_lb);
   OBJECT_SET_DATA(find_frame_w, E_FIND_STRINGTYPE_KEY, combo_cb);
   OBJECT_SET_DATA(find_frame_w, E_CASE_SEARCH_KEY, case_cb);
@@ -361,10 +360,10 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
    * handlers expect the pointers to be attached, and won't be happy.
    */
   SIGNAL_CONNECT(hex_rb, "clicked", hex_selected_cb, find_frame_w);
-  SIGNAL_CONNECT(ascii_rb, "clicked", ascii_selected_cb, find_frame_w);
+  SIGNAL_CONNECT(string_rb, "clicked", string_selected_cb, find_frame_w);
   SIGNAL_CONNECT(filter_rb, "clicked", filter_selected_cb, find_frame_w);
 
-  ascii_selected_cb(NULL, find_frame_w);
+  string_selected_cb(NULL, find_frame_w);
   filter_selected_cb(NULL, find_frame_w);
   /* Catch the "activate" signal on the filter text entry, so that
      if the user types Return there, we act as if the "OK" button
@@ -398,12 +397,12 @@ static void
 find_filter_te_syntax_check_cb(GtkWidget *w, gpointer parent_w)
 {
   const gchar     *strval;
-  GtkWidget       *hex_rb, *ascii_rb;
+  GtkWidget       *hex_rb, *string_rb;
   guint8          *bytes = NULL;
   size_t           nbytes;
 
   hex_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_HEXDATA_KEY);
-  ascii_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_ASCIIDATA_KEY);
+  string_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_STRINGDATA_KEY);
 
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (hex_rb))) {
     /*
@@ -422,7 +421,7 @@ find_filter_te_syntax_check_cb(GtkWidget *w, gpointer parent_w)
         colorize_filter_te_as_valid(w);
       }
     }
-  } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (ascii_rb))) {
+  } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (string_rb))) {
     /*
      * String search.  Make sure the string isn't empty.
      */
@@ -450,18 +449,9 @@ find_filter_te_syntax_check_cb(GtkWidget *w, gpointer parent_w)
 static void
 hex_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 {
-    GtkWidget   *hex_rb, *filter_text_box;
-    GtkWidget   *hex_data_rb, *decode_data_rb, *summary_data_rb;
+    GtkWidget   *filter_text_box;
 
     filter_text_box = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_FILT_TE_PTR_KEY);
-    hex_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_HEXDATA_KEY);
-    hex_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_HEX_KEY);
-    decode_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_DECODE_KEY);
-    summary_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_SUMMARY_KEY);
-
-    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hex_rb))) {
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hex_data_rb), TRUE);
-    }
 
     /* Re-check the display filter. */
     find_filter_te_syntax_check_cb(filter_text_box, parent_w);
@@ -473,12 +463,12 @@ hex_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
  *  the string search is selected.
  */  
 static void
-ascii_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
+string_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 {
-    GtkWidget   *ascii_rb, *hex_data_rb, *decode_data_rb, *summary_data_rb,
+    GtkWidget   *string_rb, *hex_data_rb, *decode_data_rb, *summary_data_rb,
                 *data_combo_lb, *data_combo_cb, *data_case_cb, *filter_text_box;
 
-    ascii_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_ASCIIDATA_KEY);
+    string_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_STRINGDATA_KEY);
     hex_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_HEX_KEY);
     decode_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_DECODE_KEY);
     summary_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_SUMMARY_KEY);
@@ -488,14 +478,13 @@ ascii_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
     data_case_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CASE_SEARCH_KEY);
     filter_text_box = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_FILT_TE_PTR_KEY);
 
-    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ascii_rb))) {
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(string_rb))) {
         gtk_widget_set_sensitive(GTK_WIDGET(hex_data_rb), TRUE);
         gtk_widget_set_sensitive(GTK_WIDGET(decode_data_rb), TRUE);
         gtk_widget_set_sensitive(GTK_WIDGET(summary_data_rb), TRUE);
         gtk_widget_set_sensitive(GTK_WIDGET(data_combo_lb), TRUE);
         gtk_widget_set_sensitive(GTK_WIDGET(data_combo_cb), TRUE);
         gtk_widget_set_sensitive(GTK_WIDGET(data_case_cb), TRUE);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hex_data_rb), TRUE);
     } else {
         gtk_widget_set_sensitive(GTK_WIDGET(hex_data_rb), FALSE);
         gtk_widget_set_sensitive(GTK_WIDGET(decode_data_rb), FALSE);
@@ -517,18 +506,12 @@ static void
 filter_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 {
     GtkWidget   *filter_bt, *filter_rb;
-    GtkWidget   *hex_data_rb, *decode_data_rb, *summary_data_rb;
 
     filter_bt = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FILT_TE_BUTTON_KEY);
     filter_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_FILTERDATA_KEY);
-    hex_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_HEX_KEY);
-    decode_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_DECODE_KEY);
-    summary_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_SUMMARY_KEY);
-
     
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(filter_rb)))
     {
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(decode_data_rb), TRUE);
         gtk_widget_set_sensitive(GTK_WIDGET(filter_bt), TRUE);
     }
     else
@@ -645,7 +628,7 @@ convert_string_case(const char *string, gboolean case_insensitive)
 static void
 find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 {
-  GtkWidget       *filter_te, *up_rb, *hex_rb, *ascii_rb, *combo_cb,
+  GtkWidget       *filter_te, *up_rb, *hex_rb, *string_rb, *combo_cb,
                   *case_cb, *decode_data_rb, *summary_data_rb;
   const gchar     *filter_text, *string_type;
   search_charset_t scs_type = SCS_ASCII_AND_UNICODE;
@@ -658,7 +641,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   filter_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_FILT_KEY);
   up_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_BACKWARD_KEY);
   hex_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_HEXDATA_KEY);
-  ascii_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_ASCIIDATA_KEY);
+  string_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_STRINGDATA_KEY);
   combo_cb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_STRINGTYPE_KEY);
   case_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CASE_SEARCH_KEY);
   decode_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_DECODE_KEY);
@@ -685,7 +668,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
            "You didn't specify a valid hex string.");
       return;
     }
-  } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (ascii_rb))) {
+  } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (string_rb))) {
     /*
      * String search.
      * Make sure we're searching for something, first.
@@ -737,7 +720,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   cfile.sfilter = g_strdup(filter_text);
   cfile.sbackward = GTK_TOGGLE_BUTTON (up_rb)->active;
   cfile.hex = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (hex_rb));
-  cfile.ascii = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (ascii_rb));
+  cfile.string = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (string_rb));
   cfile.scs_type = scs_type;
   cfile.case_type = case_type;
   cfile.decode_data = decode_data;
@@ -755,7 +738,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
       g_free(bytes);
       return;
     }
-  } else if (cfile.ascii) {
+  } else if (cfile.string) {
     /* OK, what are we searching? */
     if (cfile.decode_data) {
       /* The text in the protocol tree */
@@ -845,7 +828,7 @@ find_previous_next(GtkWidget *w, gpointer d, gboolean sens)
       }
       find_packet_data(&cfile, bytes, nbytes);
       g_free(bytes);
-    } else if (cfile.ascii) {
+    } else if (cfile.string) {
       string = convert_string_case(cfile.sfilter, cfile.case_type);
       /* OK, what are we searching? */
       if (cfile.decode_data) {
