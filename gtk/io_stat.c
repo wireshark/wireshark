@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.37 2003/10/14 09:03:03 sahlberg Exp $
+ * $Id: io_stat.c,v 1.38 2003/10/14 09:15:51 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -148,11 +148,6 @@ typedef struct _io_stat_count_type_t {
 	int count_type;
 } io_stat_count_type_t;
 
-typedef struct _io_stat_tick_interval_t {
-	struct _io_stat_t *io;
-	int interval;
-} io_stat_tick_interval_t;
-
 typedef struct _io_stat_t {
 	gboolean needs_redraw;
 	gint32 interval;    /* measurement interval in ms */
@@ -164,7 +159,6 @@ typedef struct _io_stat_t {
 	struct _io_stat_yscale_t yscale[MAX_YSCALE];
 	struct _io_stat_pixels_per_tick_t pixelspertick[MAX_PIXELS_PER_TICK];
 	struct _io_stat_count_type_t counttype[MAX_COUNT_TYPES];
-	struct _io_stat_tick_interval_t tick_val[MAX_TICK_VALUES];
 	GtkWidget *window;
 	GtkWidget *draw_area;
 	GdkPixmap *pixmap;
@@ -1129,14 +1123,18 @@ create_draw_area(io_stat_t *io, GtkWidget *box)
 
 
 static void
-tick_interval_select(GtkWidget *item _U_, gpointer key)
+tick_interval_select(GtkWidget *item, gpointer key)
 {
-	io_stat_tick_interval_t *tiv =(io_stat_tick_interval_t *)key;
+	int val;
+	io_stat_t *io;
 
-	tiv->io->interval=tiv->interval;
+	io=(io_stat_t *)key;
+	val=(int)gtk_object_get_data(GTK_OBJECT(item), "tick_interval");
+
+	io->interval=val;
 	redissect_packets(&cfile);
-	tiv->io->needs_redraw=TRUE;
-	gtk_iostat_draw(&tiv->io->graphs[0]);
+	io->needs_redraw=TRUE;
+	gtk_iostat_draw(&io->graphs[0]);
 }
 
 static void
@@ -1214,9 +1212,8 @@ create_tick_interval_menu_items(io_stat_t *io, GtkWidget *menu)
 		}
 
 		menu_item=gtk_menu_item_new_with_label(str);
-		io->tick_val[i].io=io;
-		io->tick_val[i].interval=tick_interval_values[i];
-		SIGNAL_CONNECT(menu_item, "activate", tick_interval_select, &io->tick_val[i]);
+		gtk_object_set_data(GTK_OBJECT(menu_item), "tick_interval", (gpointer)tick_interval_values[i]);
+		SIGNAL_CONNECT(menu_item, "activate", tick_interval_select, (gpointer)io);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
