@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.103 2002/12/11 19:59:08 guy Exp $
+ * $Id: packet-ppp.c,v 1.104 2003/01/03 19:40:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2853,6 +2853,7 @@ dissect_ppp_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   if (byte0 == CHDLC_ADDR_UNICAST || byte0 == CHDLC_ADDR_MULTICAST) {
     /* Cisco HDLC encapsulation */
     call_dissector(chdlc_handle, tvb, pinfo, tree);
+    return;
   }
 
   /*
