@@ -2,13 +2,12 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.42 2001/07/03 02:38:27 guy Exp $
+ * $Id: packet-bgp.c,v 1.43 2001/07/03 02:49:38 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
  * RFC1965 Autonomous System Confederations for BGP
  * RFC1997 BGP Communities Attribute
- * RFC2545 BGP-4 Multiprotocol Extensions for IPv6 IDR
  * RFC2796 BGP Route Reflection An alternative to full mesh IBGP
  * RFC2842 Capabilities Advertisement with BGP-4
  * RFC2858 Multiprotocol Extensions for BGP-4
@@ -1290,6 +1289,13 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 		 * RFC 2545 specifies that there may be more than one
 		 * address in the MP_REACH_NLRI attribute in section
 		 * 3, "Constructing the Next Hop field".
+		 *
+		 * Yes, RFC 2858 says you can't do that, and, yes, RFC
+		 * 2858 obsoletes RFC 2283, which says you can do that,
+		 * but that doesn't mean we shouldn't dissect packets
+		 * that conform to RFC 2283 but not RFC 2858, as some
+		 * device on the network might implement the 2283-style
+		 * BGP extensions rather than RFC 2858-style extensions.
 		 */
 		af = tvb_get_ntohs(tvb, o + i + aoff);
 		proto_tree_add_text(subtree2, tvb, o + i + aoff, 2,
