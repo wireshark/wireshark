@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.110 2000/04/01 10:23:01 guy Exp $
+ * $Id: main.c,v 1.111 2000/04/01 11:30:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -216,8 +216,6 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
     streamwindow = gtk_window_new( GTK_WINDOW_TOPLEVEL);
     gtk_widget_set_name( streamwindow, "TCP stream window" );
 
-    gtk_signal_connect( GTK_OBJECT(streamwindow), "delete_event",
-			GTK_SIGNAL_FUNC(follow_destroy_cb), NULL);
     gtk_signal_connect( GTK_OBJECT(streamwindow), "destroy",
 			GTK_SIGNAL_FUNC(follow_destroy_cb), NULL);
 			
@@ -1021,9 +1019,50 @@ set_ptree_expander_style_all(gint style)
 	set_ptree_expander_style_packet_wins(style);
 }
 
+static gboolean
+main_window_delete_event_cb(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+	file_quit_cmd_cb(widget, data);
+
+	/* Say that the window should be deleted. */
+	return FALSE;
+}
+
 void
 file_quit_cmd_cb (GtkWidget *widget, gpointer data)
 {
+	/* XXX - should we check whether the capture file is an
+	   unsaved temporary file for a live capture and, if so,
+	   pop up a "do you want to exit without saving the capture
+	   file?" dialog, and then just return, leaving said dialog
+	   box to forcibly quit if the user clicks "OK"?
+
+	   If so, note that this should be done in a subroutine that
+	   returns TRUE if we do so, and FALSE otherwise, and that
+	   "main_window_delete_event_cb()" should return its
+	   return value. */
+
+	/* Close any capture file we have open; on some OSes, you can't
+	   unlink a temporary capture file if you have it open.
+	   "close_cap_file()" will unlink it after closing it if
+	   it's a temporary file.
+
+	   We do this here, rather than after the main loop returns,
+	   as, after the main loop returns, the main window may have
+	   been destroyed (if this is called due to a "destroy"
+	   even on the main window rather than due to the user
+	   selecting a menu item), and there may be a crash
+	   or other problem when "close_cap_file()" tries to
+	   clean up stuff in the main window.
+
+	   XXX - is there a better place to put this?
+	   Or should we have a routine that *just* closes the
+	   capture file, and doesn't do anything with the UI,
+	   which we'd call here, and another routine that
+	   calls that routine and also cleans up the UI, which
+	   we'd call elsewhere? */
+	close_cap_file(&cf, info_bar);
+
 	/* Exit by leaving the main loop, so that any quit functions
 	   we registered get called. */
 	gtk_main_quit();
@@ -1523,12 +1562,6 @@ main(int argc, char *argv[])
 
   gtk_main();
 
-  /* Close any capture file we have open; on some OSes, you can't
-     unlink a temporary capture file if you have it open.
-     "close_cap_file()" will unlink it after closing it if
-     it's a temporary file. */
-  close_cap_file(&cf, info_bar);
-
   ethereal_proto_cleanup();
   g_free(rc_file);
 
@@ -1557,10 +1590,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   /* Main window */  
   top_level = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_widget_set_name(top_level, "main window");
-  gtk_signal_connect(GTK_OBJECT(top_level), "delete_event",
-    GTK_SIGNAL_FUNC(file_quit_cmd_cb), "WM destroy");
-  gtk_signal_connect(GTK_OBJECT(top_level), "destroy", 
-    GTK_SIGNAL_FUNC(file_quit_cmd_cb), "WM destroy");
+  gtk_signal_connect(GTK_OBJECT(top_level), "delete_event", 
+    GTK_SIGNAL_FUNC(main_window_delete_event_cb), NULL);
   gtk_window_set_title(GTK_WINDOW(top_level), "The Ethereal Network Analyzer");
   gtk_widget_set_usize(GTK_WIDGET(top_level), DEF_WIDTH, -1);
   gtk_window_set_policy(GTK_WINDOW(top_level), TRUE, TRUE, FALSE);
