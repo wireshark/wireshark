@@ -2,7 +2,7 @@
  * Definitions for routines common to multiple modules in the Lucent/Ascend
  * capture file reading code code, but not used outside that code.
  *
- * $Id: ascend-int.h,v 1.7 2000/11/11 03:15:07 guy Exp $
+ * $Id: ascend-int.h,v 1.8 2001/12/06 08:25:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,7 +44,7 @@ extern struct ascend_phdr *pseudo_header;
 int ascendlex(void);
 
 void init_parse_ascend(void);
-void ascend_init_lexer(FILE_T fh, FILE *nfh);
+void ascend_init_lexer(FILE_T fh);
 int parse_ascend(FILE_T fh, void *pd, struct ascend_phdr *phdr,
 		ascend_pkthdr *hdr, int len);
 

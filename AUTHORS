@@ -793,6 +793,8 @@ Motonori Shindo <mshindo[AT]mshindo.net> {
 	CBCP support in PPP
 	Fix Ascend/Lucent trace reading code to handle later trace
 	    formats that have an ASCII dump at the end of the line
+	Get rid of "send output to /dev/null" hack in Ascend/Lucent
+	   trace reading code's Flex scanner
 }
 
 Terje Krogdahl <tekr[AT]nextra.com> {

@@ -1,7 +1,7 @@
 %{
 /* ascend-grammar.y
  *
- * $Id: ascend-grammar.y,v 1.22 2001/12/04 10:07:30 guy Exp $
+ * $Id: ascend-grammar.y,v 1.23 2001/12/06 08:25:51 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -115,7 +115,6 @@ XMIT-Max7:20: (task "_brouterControlTask" at 0xb094ac20, time: 1481.51) 20 octet
 #include "ascend.h"
 #include "ascend-int.h"
 
-#define NFH_PATH "/dev/null"
 #define NO_USER "<none>"
 
 extern int at_eof;
@@ -128,7 +127,6 @@ guint32 start_time, secs, usecs, caplen, wirelen;
 ascend_pkthdr *header;
 struct ascend_phdr *pseudo_header;
 char *pkt_data;
-FILE *nfh = NULL;
 
 %}
  
@@ -375,13 +373,6 @@ init_parse_ascend()
   bcur = 0;
   at_eof = 0;
   start_time = 0;	/* we haven't see a date/time yet */
-  
-  /* In order to keep flex from printing a lot of newlines while reading
-     the capture data, we open up /dev/null and point yyout at the null
-     file handle. */
-  if (! nfh) {
-    nfh = fopen(NFH_PATH, "r");
-  }
 }
 
 /* Parse the capture file.  Return the offset of the next packet, or zero
@@ -392,7 +383,7 @@ parse_ascend(FILE_T fh, void *pd, struct ascend_phdr *phdr,
 {
   /* yydebug = 1; */
  
-  ascend_init_lexer(fh, nfh);
+  ascend_init_lexer(fh);
   pkt_data = pd;
   pseudo_header = phdr;
   header = hdr;
