@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.77 2003/12/11 21:23:36 ulfl Exp $
+ * $Id: packet-isakmp.c,v 1.78 2003/12/13 02:24:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -246,7 +246,7 @@ static const char *exchtype2str(guint8);
 static const char *doitype2str(guint32);
 static const char *msgtype2str(guint16);
 static const char *situation2str(guint32);
-static const char *value2str(int, guint16, guint16);
+static const char *value2str(int, guint16, guint32);
 static const char *attrtype2str(guint8);
 static const char *cfgattrident2str(guint16);
 static const char *certtype2str(guint8);
@@ -751,7 +751,7 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
       proto_tree_add_text(tree, tvb, offset, 4,
 			  "%s (%u): %s (%u)",
 			  str, type,
-			  value2str(ike_phase1, type, (guint16) val), val);
+			  value2str(ike_phase1, type, val), val);
       offset += 4;
       length -= 4;
     }
@@ -766,7 +766,7 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
         proto_tree_add_text(tree, tvb, offset, pack_len,
 			    "%s (%u): %s (%u)",
 			    str, type,
-			    value2str(ike_phase1, type, (guint16) val), val);
+			    value2str(ike_phase1, type, val), val);
       }
       offset += pack_len;
       length -= pack_len;
@@ -1457,57 +1457,57 @@ situation2str(guint32 type) {
 }
 
 static const char *
-value2str(int ike_p1, guint16 att_type, guint16 value) {
+value2str(int ike_p1, guint16 att_type, guint32 value) {
 
   if (value == 0) return "RESERVED";
 
   if (!ike_p1) {
-  switch (att_type) {
-    case 1:
-      switch (value) {
-	case 0: return "RESERVED";
-        case 1:  return "Seconds";
-        case 2:  return "Kilobytes";
-        default: return "UNKNOWN-SA-VALUE";
-      }
-    case 2:
-      return "Duration-Value";
-    case 3:
-      return "Group-Value";
-    case 4:
-      switch (value) {
-	case 0:  return "RESERVED";
-        case 1:  return "Tunnel";
-        case 2:  return "Transport";
-	case 3:  return "UDP-Encapsulated-Tunnel"; /* http://www.ietf.org/internet-drafts/draft-ietf-ipsec-nat-t-ike-05.txt */
-	case 4:  return "UDP-Encapsulated-Transport"; /* http://www.ietf.org/internet-drafts/draft-ietf-ipsec-nat-t-ike-05.txt */
-	case 61440: return "Check Point IPSec UDP Encapsulation";
-	case 61443: return "UDP-Encapsulated-Tunnel (draft)";
-	case 61444: return "UDP-Encapsulated-Transport (draft)";
-        default: return "UNKNOWN-ENCAPSULATION-VALUE";
-      }
-    case 5:
-      switch (value) {
-	case 0:  return "RESERVED";
-        case 1:  return "HMAC-MD5";
-        case 2:  return "HMAC-SHA";
-        case 3:  return "DES-MAC";
-        case 4:  return "KPDK";
-	case 5:  return "HMAC-SHA2-256";
-	case 6:  return "HMAC-SHA2-384";
-	case 7:  return "HMAC-SHA2-512";
-        default: return "UNKNOWN-AUTHENTICATION-VALUE";
-      }
-    case 6:
-      return "Key-Length";
-    case 7:
-      return "Key-Rounds";
-    case 8:
-      return "Compress-Dictionary-size";
-    case 9:
-      return "Compress Private Algorithm";
-    default: return "UNKNOWN-ATTRIBUTE-TYPE";
-  }
+    switch (att_type) {
+      case 1:
+        switch (value) {
+          case 0: return "RESERVED";
+          case 1:  return "Seconds";
+          case 2:  return "Kilobytes";
+          default: return "UNKNOWN-SA-VALUE";
+        }
+      case 2:
+        return "Duration-Value";
+      case 3:
+        return "Group-Value";
+      case 4:
+        switch (value) {
+          case 0:  return "RESERVED";
+          case 1:  return "Tunnel";
+          case 2:  return "Transport";
+          case 3:  return "UDP-Encapsulated-Tunnel"; /* http://www.ietf.org/internet-drafts/draft-ietf-ipsec-nat-t-ike-05.txt */
+          case 4:  return "UDP-Encapsulated-Transport"; /* http://www.ietf.org/internet-drafts/draft-ietf-ipsec-nat-t-ike-05.txt */
+          case 61440: return "Check Point IPSec UDP Encapsulation";
+          case 61443: return "UDP-Encapsulated-Tunnel (draft)";
+          case 61444: return "UDP-Encapsulated-Transport (draft)";
+          default: return "UNKNOWN-ENCAPSULATION-VALUE";
+        }
+      case 5:
+        switch (value) {
+          case 0:  return "RESERVED";
+          case 1:  return "HMAC-MD5";
+          case 2:  return "HMAC-SHA";
+          case 3:  return "DES-MAC";
+          case 4:  return "KPDK";
+          case 5:  return "HMAC-SHA2-256";
+          case 6:  return "HMAC-SHA2-384";
+          case 7:  return "HMAC-SHA2-512";
+            default: return "UNKNOWN-AUTHENTICATION-VALUE";
+        }
+      case 6:
+        return "Key-Length";
+      case 7:
+        return "Key-Rounds";
+      case 8:
+        return "Compress-Dictionary-size";
+      case 9:
+        return "Compress Private Algorithm";
+      default: return "UNKNOWN-ATTRIBUTE-TYPE";
+    }
   }
   else {
     switch (att_type) {
