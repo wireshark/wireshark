@@ -2,7 +2,7 @@
 * Routines for Transparent Proxy Cache Protocol packet disassembly
 * (c) Copyright Giles Scott <gscott2@nortelnetworks.com> 
 *
-* $Id: packet-nt-tpcp.c,v 1.1 2003/10/28 06:44:21 guy Exp $
+* $Id: packet-nt-tpcp.c,v 1.2 2003/12/21 12:21:37 jmayer Exp $
 *
 * Ethereal - Network traffic analyzer
 * By Gerald Combs <gerald@ethereal.com>
@@ -77,11 +77,6 @@ static const value_string type_vals[] = {
 #define TF_TPCP_DONTREDIRECT 0x0002
 #define TF_TPCP_XON 0x0004
 #define TF_TPCP_XOFF 0x0008
-
-static const true_false_string flags_set_truth = {
-	"Set",
-	"Not set"
-};
 
 
 /* Version info */

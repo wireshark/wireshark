@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.27 2003/12/20 09:09:10 guy Exp $
+ * $Id: packet-mmse.c,v 1.28 2003/12/21 12:21:37 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -216,7 +216,7 @@ static const value_string vals_sender_visibility[] = {
     { 0x00, NULL },
 };
 
-static const value_string vals_status[] = {
+static const value_string vals_message_status[] = {
     { 0x80, "Expired" },
     { 0x81, "Retrieved" },
     { 0x82, "Rejected" },
@@ -888,7 +888,7 @@ proto_register_mmse(void)
 	},
 	{   &hf_mmse_status,
 	    {   "Status", "mmse.status",
-		FT_UINT8, BASE_HEX, VALS(vals_status), 0x00,
+		FT_UINT8, BASE_HEX, VALS(vals_message_status), 0x00,
 		"Current status of the message.",
 		HFILL
 	    }

@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.55 2003/12/21 05:51:34 jmayer Exp $
+ * $Id: packet-wtp.c,v 1.56 2003/12/21 12:21:37 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,7 +76,7 @@ static const true_false_string TVETOK_truth = {
     "False"
 };
 
-static const value_string vals_pdu_type[] = {
+static const value_string vals_wtp_pdu_type[] = {
     { 0, "Not Allowed" },
     { 1, "Invoke" },
     { 2, "Result" },
@@ -380,7 +380,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Develop the string to put in the Info column */
     g_string_sprintf(szInfo, "WTP %s",
-		    val_to_str(pdut, vals_pdu_type, "Unknown PDU type 0x%x"));
+		    val_to_str(pdut, vals_wtp_pdu_type, "Unknown PDU type 0x%x"));
 
     switch (pdut) {
 	case INVOKE:
@@ -733,7 +733,7 @@ proto_register_wtp(void)
 	{ &hf_wtp_header_pdu_type,
 	    { 	"PDU Type",
 		"wtp.pdu_type",
-		FT_UINT8, BASE_HEX, VALS( vals_pdu_type ), 0x78,
+		FT_UINT8, BASE_HEX, VALS( vals_wtp_pdu_type ), 0x78,
 		"PDU Type", HFILL
 	    }
 	},
