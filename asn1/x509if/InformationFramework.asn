@@ -15,7 +15,7 @@ IMPORTS
       usefulDefinitions(0) 3}
   commonName, generalizedTimeMatch, generalizedTimeOrderingMatch, booleanMatch,
     integerMatch, integerOrderingMatch, objectIdentifierFirstComponentMatch,
-    integerFirstComponentMatch, DirectoryString{}
+    integerFirstComponentMatch, DirectoryString
     FROM SelectedAttributeTypes selectedAttributeTypes
   TypeAndContextAssertion, ServiceControlOptions, SearchControlOptions,
     HierarchySelections, FamilyGrouping, FamilyReturn
@@ -27,48 +27,49 @@ AttributeId ::= OBJECT IDENTIFIER
 
 AttributeValue ::= ANY
 
+ValuesWithContextValue ::= ANY
+
 -- attribute data types 
 Attribute ::= SEQUENCE {
-  type               AttributeId,
-  values
-     SET SIZE (0..MAX) OF AttributeValue
---   valuesWithContext
---     SET SIZE (1..MAX) OF
---       SEQUENCE {value        ANY,
---                 contextList  SET SIZE (1..MAX) OF Context} OPTIONAL
+  type              AttributeId,
+  values            SET OF AttributeValue,
+  valuesWithContext SET OF SEQUENCE {
+    value        ValuesWithContextValue,
+    contextList  SET OF Context
+  } OPTIONAL
 }
 
 AttributeType ::= AttributeId
 
--- 
--- Context ::= SEQUENCE {
---   contextType    AttributeId,
---   contextValues
---     SET SIZE (1..MAX) OF ANY,
---   fallback       BOOLEAN DEFAULT FALSE
--- }
--- 
--- AttributeValueAssertion ::= SEQUENCE {
---   type              AttributeId,
---   assertion
---     ATTRIBUTE.&equality-match.&AssertionType({SupportedAttributes}{@type}),
---   assertedContexts
---     CHOICE {allContexts       [0]  NULL,
---             selectedContexts  [1]  SET SIZE (1..MAX) OF ContextAssertion
---   } OPTIONAL
--- }
--- 
--- ContextAssertion ::= SEQUENCE {
---   contextType    CONTEXT.&id({SupportedContexts}),
---   contextValues
---     SET SIZE (1..MAX) OF CONTEXT.&Assertion({SupportedContexts}{@contextType})
--- }
--- 
--- AttributeTypeAssertion ::= SEQUENCE {
---   type              AttributeId,
---   assertedContexts  SEQUENCE SIZE (1..MAX) OF ContextAssertion OPTIONAL
--- }
--- 
+Context ::= SEQUENCE {
+  contextType    AttributeId,
+  contextValues  SET OF AttributeValue,
+  fallback       BOOLEAN OPTIONAL
+}
+
+AttributeValueAssertion ::= SEQUENCE {
+  type              AttributeId,
+  assertion         AttributeValue,
+  assertedContexts  CHOICE {
+    allContexts       [0]  NULL,
+    selectedContexts  [1]  SET OF ContextAssertion
+  } OPTIONAL
+}
+
+ContextId ::= OBJECT IDENTIFIER
+
+ContextValue ::= ANY
+
+ContextAssertion ::= SEQUENCE {
+  contextType    ContextId,
+  contextValues  SET OF ContextValue 
+}
+ 
+AttributeTypeAssertion ::= SEQUENCE {
+  type              AttributeId,
+  assertedContexts  SEQUENCE OF ContextAssertion OPTIONAL
+}
+
 -- Definition of the following information object set is deferred, perhaps to standardized
 -- profiles or to protocol implementation conformance statements. The set is required to
 -- specify a table constraint on the values component of Attribute, the value component 
@@ -83,6 +84,7 @@ AttributeType ::= AttributeId
 --   {...}
 -- 
 -- naming data types 
+
 Name ::= CHOICE {
    rdnSequence  RDNSequence
 }
@@ -97,42 +99,46 @@ RelativeDistinguishedName ::=
 AttributeTypeAndDistinguishedValue ::= SEQUENCE {
   type                  AttributeId,
   value                 AttributeValue,
-  primaryDistinguished  BOOLEAN OPTIONAL
---   valuesWithContext
---     SET SIZE (1..MAX) OF
---       SEQUENCE {distingAttrValue
---                   [0]  ANY OPTIONAL,
---                 contextList       SET SIZE (1..MAX) OF Context} OPTIONAL
+  primaryDistinguished  BOOLEAN OPTIONAL,
+  valuesWithContext     SET OF SEQUENCE {
+    distingAttrValue [0]  ValuesWithContextValue OPTIONAL,
+    contextList       SET OF Context
+  } OPTIONAL
 }
  
 -- subtree data types 
--- SubtreeSpecification ::= SEQUENCE {
---   base                 [0]  LocalName DEFAULT {},
---   COMPONENTS OF ChopSpecification,
---   specificationFilter  [4]  Refinement OPTIONAL
--- }
--- 
+SubtreeSpecification ::= SEQUENCE {
+  base                 [0]  LocalName OPTIONAL,
+  specificExclusions
+    [1]  SET SIZE (1..MAX) OF
+           CHOICE {chopBefore  [0]  LocalName,
+                   chopAfter   [1]  LocalName} OPTIONAL,
+  minimum             [2]  BaseDistance OPTIONAL,
+  maximum             [3]  BaseDistance OPTIONAL,
+  specificationFilter [4]  Refinement OPTIONAL
+}
+
 -- empty sequence specifies whole administrative area
--- LocalName ::= RDNSequence
--- 
--- ChopSpecification ::= SEQUENCE {
---   specificExclusions
---     [1]  SET SIZE (1..MAX) OF
---            CHOICE {chopBefore  [0]  LocalName,
---                    chopAfter   [1]  LocalName} OPTIONAL,
---   minimum             [2]  BaseDistance DEFAULT 0,
---   maximum             [3]  BaseDistance OPTIONAL
--- }
--- 
--- BaseDistance ::= INTEGER(0..MAX)
--- 
--- Refinement ::= CHOICE {
---   item  [0]  OBJECT-CLASS.&id,
---   and   [1]  SET OF Refinement,
---   or    [2]  SET OF Refinement,
---   not   [3]  Refinement
--- }
--- 
+LocalName ::= RDNSequence
+
+ChopSpecification ::= SEQUENCE {
+  specificExclusions
+    [1]  SET SIZE (1..MAX) OF
+           CHOICE {chopBefore  [0]  LocalName,
+                   chopAfter   [1]  LocalName} OPTIONAL,
+  minimum             [2]  BaseDistance OPTIONAL,
+  maximum             [3]  BaseDistance OPTIONAL
+}
+
+BaseDistance ::= INTEGER
+
+Refinement ::= CHOICE {
+  item  [0]  OBJECT IDENTIFIER,
+  and   [1]  SET OF Refinement,
+  or    [2]  SET OF Refinement,
+  not   [3]  Refinement
+}
+ 
 -- OBJECT-CLASS information object class specification 
 -- OBJECT-CLASS ::= CLASS {
 --   &Superclasses         OBJECT-CLASS OPTIONAL,
@@ -199,11 +205,11 @@ ObjectClassKind ::= ENUMERATED {abstract(0), structural(1), auxiliary(2)}
 --   [USAGE &usage]
 --   ID &id
 -- }
--- 
--- AttributeUsage ::= ENUMERATED {
---   userApplications(0), directoryOperation(1), distributedOperation(2),
---   dSAOperation(3)}
--- 
+
+AttributeUsage ::= ENUMERATED {
+  userApplications(0), directoryOperation(1), distributedOperation(2),
+  dSAOperation(3)}
+
 -- attributes 
 -- objectClass ATTRIBUTE ::= {
 --   WITH SYNTAX             OBJECT IDENTIFIER
@@ -292,16 +298,16 @@ ObjectClassKind ::= ENUMERATED {abstract(0), structural(1), auxiliary(2)}
 --   [SUPERIOR RULES &SuperiorStructureRules]
 --   ID &id
 -- }
--- 
--- DITStructureRule ::= SEQUENCE {
---   ruleIdentifier          RuleIdentifier,
---      must be unique within the scope of the subschema
---   nameForm                NAME-FORM.&id,
---   superiorStructureRules  SET SIZE (1..MAX) OF RuleIdentifier OPTIONAL
--- }
--- 
--- RuleIdentifier ::= INTEGER
--- 
+
+DITStructureRule ::= SEQUENCE {
+  ruleIdentifier          RuleIdentifier,
+--     must be unique within the scope of the subschema
+  nameForm                OBJECT IDENTIFIER,
+  superiorStructureRules  SET OF RuleIdentifier OPTIONAL
+}
+
+RuleIdentifier ::= INTEGER
+
 -- CONTENT-RULE class and DIT content rule data types 
 -- CONTENT-RULE ::= CLASS {
 --   &structuralClass  OBJECT-CLASS.&id UNIQUE,
@@ -317,15 +323,15 @@ ObjectClassKind ::= ENUMERATED {abstract(0), structural(1), auxiliary(2)}
 --   [MAY CONTAIN &Optional]
 --   [MUST-NOT CONTAIN &Precluded]
 -- }
--- 
--- DITContentRule ::= SEQUENCE {
---   structuralObjectClass  OBJECT-CLASS.&id,
---   auxiliaries            SET SIZE (1..MAX) OF OBJECT-CLASS.&id OPTIONAL,
---   mandatory              [1]  SET SIZE (1..MAX) OF AttributeId OPTIONAL,
---   optional               [2]  SET SIZE (1..MAX) OF AttributeId OPTIONAL,
---   precluded              [3]  SET SIZE (1..MAX) OF AttributeId OPTIONAL
--- }
--- 
+
+DITContentRule ::= SEQUENCE {
+  structuralObjectClass  OBJECT IDENTIFIER,
+  auxiliaries            SET OF OBJECT IDENTIFIER OPTIONAL,
+  mandatory              [1]  SET SIZE (1..MAX) OF AttributeId OPTIONAL,
+  optional               [2]  SET SIZE (1..MAX) OF AttributeId OPTIONAL,
+  precluded              [3]  SET SIZE (1..MAX) OF AttributeId OPTIONAL
+}
+
 -- CONTEXT ::= CLASS {
 --   &Type       ,
 --   &Assertion  OPTIONAL,
@@ -334,13 +340,13 @@ ObjectClassKind ::= ENUMERATED {abstract(0), structural(1), auxiliary(2)}
 --               [ASSERTED AS &Assertion]
 --               ID &id
 -- }
--- 
--- DITContextUse ::= SEQUENCE {
---   attributeType      AttributeId,
---   mandatoryContexts  [1]  SET SIZE (1..MAX) OF CONTEXT.&id OPTIONAL,
---   optionalContexts   [2]  SET SIZE (1..MAX) OF CONTEXT.&id OPTIONAL
--- }
--- 
+
+DITContextUse ::= SEQUENCE {
+  attributeType      AttributeId,
+  mandatoryContexts  [1]  SET OF OBJECT IDENTIFIER OPTIONAL,
+  optionalContexts   [2]  SET OF OBJECT IDENTIFIER OPTIONAL
+}
+
 -- DIT-CONTEXT-USE-RULE ::= CLASS {
 --   &attributeType  AttributeId UNIQUE,
 --   &Mandatory      CONTEXT OPTIONAL,
@@ -524,14 +530,30 @@ ObjectClassKind ::= ENUMERATED {abstract(0), structural(1), auxiliary(2)}
 --   USAGE                   directoryOperation
 --   ID                      id-oa-searchRules
 -- }
--- 
--- SearchRuleDescription ::= SEQUENCE {
---   COMPONENTS OF SearchRule,
---   name         [28]  SET SIZE (1..MAX) OF DirectoryString{ub-search} OPTIONAL,
---   description  [29]  DirectoryString{ub-search} OPTIONAL,
---   obsolete     [30]  BOOLEAN DEFAULT FALSE
--- }
--- 
+
+SearchRuleDescription ::= SEQUENCE {
+  id     INTEGER,
+  dmdId  [0]  OBJECT IDENTIFIER,
+  serviceType           [1]  OBJECT IDENTIFIER OPTIONAL,
+  userClass             [2]  INTEGER OPTIONAL,
+  inputAttributeTypes   [3]  SEQUENCE OF RequestAttribute OPTIONAL,
+  attributeCombination  [4]  AttributeCombination OPTIONAL,
+  outputAttributeTypes  [5]  SEQUENCE OF ResultAttribute OPTIONAL,
+  defaultControls       [6]  ControlOptions OPTIONAL,
+  mandatoryControls     [7]  ControlOptions OPTIONAL,
+  searchRuleControls    [8]  ControlOptions OPTIONAL,
+--  familyGrouping        [9]  FamilyGrouping OPTIONAL,
+--  familyReturn          [10]  FamilyReturn OPTIONAL,
+  relaxation            [11]  RelaxationPolicy OPTIONAL,
+  additionalControl     [12]  SEQUENCE OF AttributeType OPTIONAL,
+  allowedSubset         [13]  AllowedSubset OPTIONAL,
+  imposedSubset         [14]  ImposedSubset OPTIONAL,
+  entryLimit            [15]  EntryLimit OPTIONAL,
+  name         [28]  SET OF DirectoryString OPTIONAL,
+  description  [29]  DirectoryString OPTIONAL,
+  obsolete     [30]  BOOLEAN OPTIONAL
+}
+
 -- hierarchyLevel ATTRIBUTE ::= {
 --   WITH SYNTAX             INTEGER
 --   EQUALITY MATCHING RULE  integerMatch
@@ -559,141 +581,133 @@ ObjectClassKind ::= ENUMERATED {abstract(0), structural(1), auxiliary(2)}
 --   ID                      id-oa-hierarchyParent
 -- }
 -- 
--- SearchRule ::= SEQUENCE {
---   COMPONENTS OF SearchRuleId,
---   serviceType           [1]  OBJECT IDENTIFIER OPTIONAL,
---   userClass             [2]  INTEGER OPTIONAL,
---   inputAttributeTypes
---     [3]  SEQUENCE SIZE (1..MAX) OF RequestAttribute OPTIONAL,
---   attributeCombination  [4]  AttributeCombination DEFAULT and:{},
---   outputAttributeTypes  [5]  SEQUENCE SIZE (1..MAX) OF ResultAttribute OPTIONAL,
---   defaultControls       [6]  ControlOptions OPTIONAL,
---   mandatoryControls     [7]  ControlOptions OPTIONAL,
---   searchRuleControls    [8]  ControlOptions OPTIONAL,
---   familyGrouping        [9]  FamilyGrouping OPTIONAL,
---   familyReturn          [10]  FamilyReturn OPTIONAL,
---   relaxation            [11]  RelaxationPolicy OPTIONAL,
---   additionalControl     [12]  SEQUENCE SIZE (1..MAX) OF AttributeType OPTIONAL,
---   allowedSubset         [13]  AllowedSubset DEFAULT '111'B,
---   imposedSubset         [14]  ImposedSubset OPTIONAL,
---   entryLimit            [15]  EntryLimit OPTIONAL
--- }
--- 
--- SearchRuleId ::= SEQUENCE {id     INTEGER,
---                            dmdId  [0]  OBJECT IDENTIFIER
--- }
+SearchRule ::= SEQUENCE {
+  id     INTEGER,
+  dmdId  [0]  OBJECT IDENTIFIER,
+  serviceType           [1]  OBJECT IDENTIFIER OPTIONAL,
+  userClass             [2]  INTEGER OPTIONAL,
+  inputAttributeTypes   [3]  SEQUENCE OF RequestAttribute OPTIONAL,
+  attributeCombination  [4]  AttributeCombination OPTIONAL,
+  outputAttributeTypes  [5]  SEQUENCE OF ResultAttribute OPTIONAL,
+  defaultControls       [6]  ControlOptions OPTIONAL,
+  mandatoryControls     [7]  ControlOptions OPTIONAL,
+  searchRuleControls    [8]  ControlOptions OPTIONAL,
+--  familyGrouping        [9]  FamilyGrouping OPTIONAL,
+--  familyReturn          [10]  FamilyReturn OPTIONAL,
+  relaxation            [11]  RelaxationPolicy OPTIONAL,
+  additionalControl     [12]  SEQUENCE OF AttributeType OPTIONAL,
+  allowedSubset         [13]  AllowedSubset OPTIONAL,
+  imposedSubset         [14]  ImposedSubset OPTIONAL,
+  entryLimit            [15]  EntryLimit OPTIONAL
+}
+
+SearchRuleId ::= SEQUENCE {
+   id     INTEGER,
+   dmdId  [0]  OBJECT IDENTIFIER
+}
 
 AllowedSubset ::= BIT STRING {baseObject(0), oneLevel(1), wholeSubtree(2)}
 
 ImposedSubset ::= ENUMERATED {baseObject(0), oneLevel(1), wholeSubtree(2)}
 
--- RequestAttribute ::= SEQUENCE {
---   attributeType       AttributeId,
---   includeSubtypes     [0]  BOOLEAN DEFAULT FALSE,
---   selectedValues
---     [1]  SEQUENCE SIZE (0..MAX) OF
---            ANY OPTIONAL,
---   defaultValues
---     [2]  SEQUENCE SIZE (0..MAX) OF
---            SEQUENCE {entryType  OBJECT-CLASS.&id OPTIONAL,
---                      values
---                        SEQUENCE OF
---                          ANY
---            } OPTIONAL,
---   contexts            [3]  SEQUENCE SIZE (0..MAX) OF ContextProfile OPTIONAL,
---   contextCombination  [4]  ContextCombination DEFAULT and:{},
---   matchingUse         [5]  SEQUENCE SIZE (1..MAX) OF MatchingUse OPTIONAL
--- }
--- 
--- ContextProfile ::= SEQUENCE {
---   contextType   CONTEXT.&id({SupportedContexts}),
---   contextValue
---     SEQUENCE SIZE (1..MAX) OF
---       CONTEXT.&Assertion({SupportedContexts}{@contextType}) OPTIONAL
--- }
--- 
--- ContextCombination ::= CHOICE {
---   context  [0]  CONTEXT.&id,
---   and      [1]  SEQUENCE OF ContextCombination,
---   or       [2]  SEQUENCE OF ContextCombination,
---   not      [3]  ContextCombination
--- }
--- 
--- MatchingUse ::= SEQUENCE {
---   restrictionType   MATCHING-RESTRICTION.&id({SupportedMatchingRestrictions}),
---   restrictionValue
---     MATCHING-RESTRICTION.&Restriction
---       ({SupportedMatchingRestrictions}{@restrictionType})
--- }
--- 
+SelectedValues ::= ANY
+
+DefaultValueType ::= OBJECT IDENTIFIER
+
+DefaultValueValues ::= ANY
+
+RequestAttribute ::= SEQUENCE {
+  attributeType       AttributeId,
+  includeSubtypes     [0]  BOOLEAN OPTIONAL,
+  selectedValues      [1]  SEQUENCE OF SelectedValues OPTIONAL,
+  defaultValues       [2]  SEQUENCE OF SEQUENCE {
+    entryType  DefaultValueType OPTIONAL,
+    values     SEQUENCE OF DefaultValueValues
+  } OPTIONAL,
+  contexts            [3]  SEQUENCE OF ContextProfile OPTIONAL,
+  contextCombination  [4]  ContextCombination OPTIONAL,
+  matchingUse         [5]  SEQUENCE OF MatchingUse OPTIONAL
+}
+
+ContextProfile ::= SEQUENCE {
+  contextType   AttributeId,
+  contextValue  SEQUENCE OF AttributeValue OPTIONAL
+}
+
+ContextCombination ::= CHOICE {
+  context  [0]  OBJECT IDENTIFIER,
+  and      [1]  SEQUENCE OF ContextCombination,
+  or       [2]  SEQUENCE OF ContextCombination,
+  not      [3]  ContextCombination
+}
+
+MatchingUse ::= SEQUENCE {
+  restrictionType   AttributeId,
+  restrictionValue  AttributeValue
+}
+
 -- Definition of the following information object set is deferred, perhaps to standardized
 -- profiles or to protocol implementation conformance statements. The set is required to
 -- specify a table constraint on the components of SupportedMatchingRestrictions
 -- SupportedMatchingRestrictions MATCHING-RESTRICTION ::=
 --   {...}
--- 
--- AttributeCombination ::= CHOICE {
---   attribute  [0]  AttributeType,
---   and        [1]  SEQUENCE OF AttributeCombination,
---   or         [2]  SEQUENCE OF AttributeCombination,
---   not        [3]  AttributeCombination
--- }
--- 
--- ResultAttribute ::= SEQUENCE {
---   attributeType  AttributeId,
---   outputValues
---     CHOICE {selectedValues
---               SEQUENCE SIZE (1..MAX) OF
---                 ANY,
---             matchedValuesOnly  NULL} OPTIONAL,
---   contexts       [0]  SEQUENCE SIZE (1..MAX) OF ContextProfile OPTIONAL
--- }
--- 
--- OutputValues ::= CHOICE {
---   selectedValues
---     SEQUENCE SIZE (1..MAX) OF ANY,
---   matchedValuesOnly  NULL
--- }
--- 
--- ControlOptions ::= SEQUENCE {
---   serviceControls   [0]  ServiceControlOptions DEFAULT {},
---   searchOptions     [1]  SearchControlOptions DEFAULT {searchAliases},
---   hierarchyOptions  [2]  HierarchySelections OPTIONAL
--- }
--- 
--- EntryLimit ::= SEQUENCE {default  INTEGER,
---                          max      INTEGER
--- }
--- 
--- RelaxationPolicy ::= SEQUENCE {
---   basic        [0]  MRMapping DEFAULT {},
---   tightenings  [1]  SEQUENCE SIZE (1..MAX) OF MRMapping OPTIONAL,
---   relaxations  [2]  SEQUENCE SIZE (1..MAX) OF MRMapping OPTIONAL,
---   maximum      [3]  INTEGER OPTIONAL,
+
+AttributeCombination ::= CHOICE {
+  attribute  [0]  AttributeType,
+  and        [1]  SEQUENCE OF AttributeCombination,
+  or         [2]  SEQUENCE OF AttributeCombination,
+  not        [3]  AttributeCombination
+}
+
+ResultAttribute ::= SEQUENCE {
+  attributeType  AttributeId,
+  outputValues CHOICE {
+    selectedValues     SEQUENCE OF AttributeValue,
+    matchedValuesOnly  NULL
+  } OPTIONAL,
+  contexts       [0]  SEQUENCE OF ContextProfile OPTIONAL
+}
+
+OutputValues ::= CHOICE {
+  selectedValues SEQUENCE OF AttributeValue,
+  matchedValuesOnly  NULL
+}
+
+ControlOptions ::= SEQUENCE {
+--  serviceControls   [0]  ServiceControlOptions OPTIONAL,
+--  searchOptions     [1]  SearchControlOptions OPTIONAL,
+--  hierarchyOptions  [2]  HierarchySelections OPTIONAL
+}
+
+EntryLimit ::= SEQUENCE {default  INTEGER,
+                         max      INTEGER
+}
+
+RelaxationPolicy ::= SEQUENCE {
+  basic        [0]  MRMapping OPTIONAL,
+  tightenings  [1]  SEQUENCE OF MRMapping OPTIONAL,
+  relaxations  [2]  SEQUENCE OF MRMapping OPTIONAL,
+  maximum      [3]  INTEGER OPTIONAL,
 --                       mandatory if tightenings is present
---   minimum      [4]  INTEGER DEFAULT 1
--- }
--- 
--- MRMapping ::= SEQUENCE {
---   mapping       [0]  SEQUENCE SIZE (1..MAX) OF Mapping OPTIONAL,
---   substitution  [1]  SEQUENCE SIZE (1..MAX) OF MRSubstitution OPTIONAL
--- }
--- 
--- Mapping ::= SEQUENCE {
---   mappingFunction
---     OBJECT IDENTIFIER
---       (CONSTRAINED BY { shall be an
---          
---             object identifier of a mapping-based matching algorithm  }),
---   level            INTEGER DEFAULT 0
--- }
--- 
--- MRSubstitution ::= SEQUENCE {
---   attribute        AttributeType,
---   oldMatchingRule  [0]  MATCHING-RULE.&id OPTIONAL,
---   newMatchingRule  [1]  MATCHING-RULE.&id OPTIONAL
--- }
--- 
+  minimum      [4]  INTEGER OPTIONAL
+}
+
+MRMapping ::= SEQUENCE {
+  mapping       [0]  SEQUENCE OF Mapping OPTIONAL,
+  substitution  [1]  SEQUENCE OF MRSubstitution OPTIONAL
+}
+
+Mapping ::= SEQUENCE {
+  mappingFunction  OBJECT IDENTIFIER,
+  level            INTEGER OPTIONAL
+}
+
+MRSubstitution ::= SEQUENCE {
+  attribute        AttributeType,
+  oldMatchingRule  [0]  OBJECT IDENTIFIER OPTIONAL,
+  newMatchingRule  [1]  OBJECT IDENTIFIER OPTIONAL
+}
+
 -- SEARCH-RULE ::= CLASS {
 --   &dmdId                 OBJECT IDENTIFIER,
 --   &serviceType           OBJECT IDENTIFIER OPTIONAL,
