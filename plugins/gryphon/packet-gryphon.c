@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Routines for Gryphon protocol packet disassembly
  *
- * $Id: packet-gryphon.c,v 1.13 2000/11/05 09:05:00 guy Exp $
+ * $Id: packet-gryphon.c,v 1.14 2000/11/05 09:09:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -50,7 +50,6 @@
 #include "packet-gryphon.h"
 
 DLLEXPORT const gchar version[] = VERSION;
-DLLEXPORT const gchar desc[] = "DG Gryphon Protocol";
 
 #ifndef G_HAVE_GINT64
 #error "Sorry, this won't compile without 64-bit integer support"
