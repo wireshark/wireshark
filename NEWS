@@ -6,14 +6,14 @@ Ethereal 0.10.10 has been released.
 
 This release fixes three security and stability-related issues:
 
-    The Etheric dissector was susceptible to a buffer
-    overflow. (CAN-2005-0704)
+  Matevz Pustisek discovered a buffer overflow in the Etheric dissector.
+  (CAN-2005-0704)
 
-    The GPRS-LLC dissector could crash if the "ignore cipher bit" option
-    was enabled. (CAN-2005-0705)
+  The GPRS-LLC dissector could crash if the "ignore cipher bit" option
+  was enabled. (CAN-2005-0705)
 
-    The 3GPP2 A11 dissector was susceptible to a buffer
-    overflow. (CAN-2005-0699)
+  Diego Giago discovered a buffer overflow in the 3GPP2 A11 dissector.
+  This flaw was later reported by LSS Security. (CAN-2005-0699)
 
 Please see the following advisory for more information:
   
@@ -24,90 +24,37 @@ Everyone is encouraged to upgrade.
 
 New and updated features
 
-    Tree view item context menus now let you browse to the display filter
-    reference and wiki pages for a particular protocol.
+  Tree view item context menus now let you browse to the display filter
+  reference and wiki pages for a particular protocol.
 
-    Online help has been expanded.
+  Online help has been expanded.
 
-    VoIP call analysis (including nifty connection diagrams) has been
-    added.
+  VoIP call analysis (including nifty connection diagrams) has been
+  added.
+
+  GSS-API decryption has been greatly enhanced.
 
 
 New protocol support
 
-  AgentX, BUDB, DTP, G.723, IDP, INAP, KINK, Realplayer Data Protocol, Retix Spanning Tree Protocol, RTCP-XR, XML, XNS, SPP
+  AgentX, BUDB, DTP, G.723, IDP, INAP, KINK, Realplayer Data Protocol,
+  Retix Spanning Tree Protocol, RTCP-XR, XML, XNS, SPP
+
 
 Updated protocol support
 
-
-3GPP2 A11,
-ACSE,
-AMR,
-ATM,
-BER,
-BSSGP,
-BUTC,
-CDP,
-CLNP,
-CoSine L2,
-DAAP,
-DCE/RPC,
-DCOM,
-DIAMETER,
-DNP,
-DNS,
-Etheric,
-FCP,
-FW-1,
-Gnutella,
-GPRS,
-GSM A,
-GSM MAP,
-H.225,
-H.245,
-H.248,
-H.450,
-HTTP,
-IAX2,
-ICQ,
-IEEE 802.3 Slow Protocols, 
-IEEE 802.11,
-IP,
-iSCSI,
-ISUP,
-Juniper,
-JXTA,
-Kerberos,
-L2TP,
-LDAP,
-MIP,
-MPLS,
-NDMP,
-NSIP,
-NTP,
-OSPF,
-OXID,
-PostgreSQL,
-RADIUS,
-RDT,
-Redback,
-RMCP,
-RTP,
-RTSP,
-SCSI,
-SCTP,
-SDP,
-SPNEGO,
-SSL,
-STUN,
-TCAP,
-TCP,
-TZSP,
+  3GPP2 A11, ACSE, AMR, ATM, BER, BSSGP, BUTC, CDP, CLNP, CoSine L2,
+  DAAP, DCE/RPC, DCOM, DIAMETER, DNP, DNS, Etheric, FCP, FW-1, Gnutella,
+  GPRS, GSM A, GSM MAP, H.225, H.245, H.248, H.450, HTTP, IAX2, ICQ,
+  IEEE 802.11, IEEE 802.3 Slow Protocols, IP, iSCSI, ISUP, Juniper,
+  JXTA, Kerberos, L2TP, LDAP, MIP, MPLS, NDMP, NSIP, NTP, OSPF, OXID,
+  PostgreSQL, RADIUS, RDT, Redback, RMCP, RTP, RTSP, SCSI, SCTP, SDP,
+  SPNEGO, SSL, STUN, TCAP, TCP, TZSP
 
 
 New and updated capture file support
 
-    DBS Etherwatch, Lucent/Ascend, Nettl, Tcpdump (Redback),
+    DBS Etherwatch, Lucent/Ascend, Nettl, Tcpdump (Redback)
 
 
 == January 19, 2005
