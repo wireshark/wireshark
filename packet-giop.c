@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.35 2001/06/18 05:27:16 guy Exp $
+ * $Id: packet-giop.c,v 1.36 2001/06/19 18:50:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -762,7 +762,6 @@ typedef enum collection_data collection_data_t;
 
 
 
-
 static int giop_objkey_init_count = 100; /* storage size for our permanent data */
                                          /* ie: 100 entries -- needs tweaking -- FS */
 
@@ -1100,7 +1099,7 @@ static gint giop_hash_objkey_equal(gconstpointer v, gconstpointer w) {
 static guint32 giop_hash_objkey_hash(gconstpointer v) {
   struct giop_object_key *key = (struct giop_object_key *)v;
 
-  int i;
+  guint32 i;
   guint32 val = 0;		/* init hash value */
 
 
@@ -1215,7 +1214,7 @@ static guint32 string_to_IOR(guchar *in, guint32 in_len, guint8 **out){
   gint8 tmpval_lsb;
   gint8 tmpval_msb;
   gint8 tmpval;		/* complete value */
-  int i;
+  guint32 i;
 
   *out = g_new0(guint8, in_len); /* allocate buffer */
 
@@ -1819,7 +1818,7 @@ static void  try_explicit_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, prot
  */
 
 static gchar * make_printable_string (gchar *in, guint32 len) {
-  int i = 0;
+  guint32 i = 0;
   gchar *print_string = NULL;
 
   print_string = (gchar * )g_malloc0(len + 1); /* make some space and zero it */
@@ -3894,17 +3893,17 @@ proto_register_giop (void)
 
     { &hf_giop_type_boolean,
       { "TypeCode boolean data", "giop.tcboolean",
-	FT_BOOLEAN, BASE_DEC,  NULL, 0x0, "" }
+	FT_BOOLEAN, BASE_DEC,  NULL, 0x0, "", HFILL }
     },
 
     { &hf_giop_type_char,
       { "TypeCode char data", "giop.tcchar",
-	FT_UINT8, BASE_DEC,  NULL, 0x0, "" }
+	FT_UINT8, BASE_DEC,  NULL, 0x0, "", HFILL }
     },
 
     { &hf_giop_type_double,
       { "TypeCode double data", "giop.tcdouble",
-	FT_DOUBLE, BASE_DEC,  NULL, 0x0, "" }
+	FT_DOUBLE, BASE_DEC,  NULL, 0x0, "", HFILL }
     },
 
     { &hf_giop_type_enum,
@@ -3918,7 +3917,7 @@ proto_register_giop (void)
 
     { &hf_giop_type_float,
       { "TypeCode float data", "giop.tcfloat",
-	FT_DOUBLE, BASE_DEC,  NULL, 0x0, "" }
+	FT_DOUBLE, BASE_DEC,  NULL, 0x0, "", HFILL }
     },
 
     { &hf_giop_type_long,
@@ -3928,7 +3927,7 @@ proto_register_giop (void)
 
     { &hf_giop_type_octet,
       { "TypeCode octet data", "giop.tcoctet",
-	FT_UINT8, BASE_DEC,  NULL, 0x0, "" }
+	FT_UINT8, BASE_DEC,  NULL, 0x0, "", HFILL }
     },
 
     { &hf_giop_type_short,
@@ -3938,7 +3937,7 @@ proto_register_giop (void)
 
     { &hf_giop_type_string,
       { "TypeCode string data", "giop.tcstring",
-	FT_STRING, BASE_DEC,  NULL, 0x0, "" }
+	FT_STRING, BASE_DEC,  NULL, 0x0, "", HFILL }
     },
 
     { &hf_giop_type_ulong,
@@ -4082,7 +4081,7 @@ void decode_IOR(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset
 
   gchar *repobuf = NULL;	/* for repository ID */
 
-  int i;
+  guint32 i;
 
   /* Get type_id  == Repository ID */
 
@@ -4204,7 +4203,7 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 				    guint32 boundary, gboolean stream_is_big_endian, gchar *repo_id_buf,
 				    gboolean store_flag) {
 
-  int i;			/* loop index */
+  guint32 i;			/* loop index */
 
   guint8 v_major,v_minor;	/* IIOP sersion */
   gchar *buf = NULL;
@@ -4439,7 +4438,7 @@ void decode_ServiceContextList(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   gchar *context_data = NULL;
   gchar *p_context_data = NULL;
 
-  int i;
+  guint32 i;
   guint32 vscid;		/* Vendor Service context id */
   guint32 scid;
 
@@ -4602,7 +4601,7 @@ static void dissect_tk_struct_params(tvbuff_t *tvb, proto_tree *tree, gint *offs
 
   guint32 count;    /* parameter count (of tuples)  */
   guint32 seqlen;   /* sequence length */
-  int i;	    /* loop index */
+  guint32 i;	    /* loop index */
 
   /* get sequence lengt,h new endianness and boundary for encapsulation */
   seqlen = get_CDR_encap_info(tvb, tree, offset, 
@@ -4649,7 +4648,7 @@ static void dissect_tk_union_params(tvbuff_t *tvb, proto_tree *tree, gint *offse
 
   guint32 count;    /* parameter count (of tuples)  */
   guint32 seqlen;   /* sequence length */
-  int i;	    /* loop index */
+  guint32 i;	    /* loop index */
 
   /* get sequence legnth, new endianness and boundary for encapsulation */
   seqlen = get_CDR_encap_info(tvb, tree, offset, 
@@ -4705,7 +4704,7 @@ static void dissect_tk_enum_params(tvbuff_t *tvb, proto_tree *tree, gint *offset
 
   guint32 count;    /* parameter count (of tuples)  */
   guint32 seqlen;   /* sequence length */
-  int i;	    /* loop index */
+  guint32 i;	    /* loop index */
 
   /* get sequence length, new endianness and boundary for encapsulation */
   seqlen = get_CDR_encap_info(tvb, tree, offset, 
@@ -4830,7 +4829,7 @@ static void dissect_tk_except_params(tvbuff_t *tvb, proto_tree *tree, gint *offs
 
   guint32 count;    /* parameter count (of tuples)  */
   guint32 seqlen;   /* sequence length */
-  int i;	    /* loop index */
+  guint32 i;	    /* loop index */
 
   /* get sequence length, new endianness and boundary for encapsulation */
   seqlen = get_CDR_encap_info(tvb, tree, offset, 
@@ -4876,7 +4875,7 @@ static void dissect_tk_value_params(tvbuff_t *tvb, proto_tree *tree, gint *offse
 
   guint32 count;    /* parameter count (of tuples)  */
   guint32 seqlen;   /* sequence length */
-  int i;	    /* loop index */
+  guint32 i;	    /* loop index */
 
   /* get sequence length, new endianness and boundary for encapsulation */
   seqlen = get_CDR_encap_info(tvb, tree, offset, 
