@@ -92,7 +92,7 @@ proper helper routines
  * Routines for H.245 packet dissection
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-h245.c,v 1.7 2003/07/08 10:22:20 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.8 2003/07/08 10:35:17 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1599,8 +1599,8 @@ typedef struct _per_sequence_t {
 
 
 static const true_false_string tfs_extension_present_bit = {
-	"Extension is present",
-	"Extension is NOT present"
+	"",
+	""
 };
 static const true_false_string tfs_extension_bit = {
 	"Extension bit is set",
@@ -2335,6 +2335,22 @@ index_get_optional_name(per_sequence_t *sequence, int index)
 	return "<unknown type>";
 }
 
+static char *
+index_get_extension_name(per_sequence_t *sequence, int index)
+{
+	int i;
+
+	for(i=0;sequence[i].name;i++){
+		if(sequence[i].extension==NOT_EXTENSION_ROOT){
+			if(index==0){
+				return sequence[i].name;
+			}
+			index--;
+		}
+	}
+	return "<unknown type>";
+}
+
 /* this functions decodes a SEQUENCE
    it can only handle SEQUENCES with at most 32 DEFAULT or OPTIONAL fields
 18.1 extension bit
@@ -2435,6 +2451,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 		guint32 num_extensions;
 		guint32 extension_mask;
 		proto_tree *etr=NULL;
+		proto_item *it=NULL;
 
 		if(display_internal_per_fields){
 			etr=tree;
@@ -2443,8 +2460,15 @@ DEBUG_ENTRY("dissect_per_sequence");
 		offset=dissect_per_normally_small_nonnegative_whole_number(tvb, offset, pinfo, etr, hf_h245_num_sequence_extensions, &num_extensions);
 		extension_mask=0;
 		for(i=0;i<(int)num_extensions;i++){
-			offset=dissect_per_boolean(tvb, offset, pinfo, etr, hf_h245_extension_present_bit, &extension_bit, NULL);
+			offset=dissect_per_boolean(tvb, offset, pinfo, etr, hf_h245_extension_present_bit, &extension_bit, &it);
 			extension_mask=(extension_mask<<1)|extension_bit;
+			if(it){
+				proto_item_append_text(it, " (%s %s present)",
+					index_get_extension_name(sequence, i),
+					extension_bit?"is":"is NOT"
+					);
+			}
+			
 		}
 
 		/* find how many extensions we know about */
