@@ -7,7 +7,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h245.c,v 1.44 2004/01/10 13:49:52 jmayer Exp $
+ * $Id: packet-h245.c,v 1.45 2004/02/13 19:33:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7598,7 +7598,7 @@ dissect_h245_h221NonStandard(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 	h221NonStandard = ((t35CountryCode * 256) + t35Extension) * 65536 + manufacturerCode;
 
-	proto_tree_add_uint(tree, hf_h245_h221Manufacturer, tvb, (offset-3)>>3,4,h221NonStandard);
+	proto_tree_add_uint(tree, hf_h245_h221Manufacturer, tvb, (offset>>3)-4 ,4,h221NonStandard);
 
 	return offset;
 }

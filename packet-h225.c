@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h225.c,v 1.30 2004/02/11 20:55:02 guy Exp $
+ * $Id: packet-h225.c,v 1.31 2004/02/13 19:33:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1940,7 +1940,7 @@ dissect_h225_h221NonStandard(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 	h221NonStandard = ((t35CountryCode * 256) + t35Extension) * 65536 + manufacturerCode;
 
-	proto_tree_add_uint(tree, hf_h221Manufacturer, tvb, (offset-3)>>3,4,h221NonStandard);
+	proto_tree_add_uint(tree, hf_h221Manufacturer, tvb, (offset>>3)-4,4,h221NonStandard);
 
    	return offset;
 }
