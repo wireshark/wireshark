@@ -18,7 +18,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.68 2004/05/15 21:08:04 guy Exp $
+ * $Id: packet-sip.c,v 1.69 2004/06/16 18:20:49 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,26 +67,27 @@ static gint sip_tap = -1;
 #define SIP_INIT_HASH_TABLE_SIZE 50
 
 /* Initialize the protocol and registered fields */
-static gint proto_sip = -1;
-static gint proto_raw_sip = -1;
-static gint hf_msg_hdr = -1;
-static gint hf_Method = -1;
-static gint hf_Request_Line = -1;
-static gint hf_Status_Code = -1;
-static gint hf_Status_Line = -1;
-static gint hf_sip_to_addr = -1;
-static gint hf_sip_from_addr = -1;
-static gint hf_sip_tag = -1;
-static gint hf_sip_resend = -1;
-static gint hf_sip_original_frame = -1;
+static gint proto_sip				= -1;
+static gint proto_raw_sip			= -1;
+static gint hf_msg_hdr				= -1;
+static gint hf_Method				= -1;
+static gint hf_Request_Line			= -1;
+static gint hf_Status_Code			= -1;
+static gint hf_Status_Line			= -1;
+static gint hf_sip_display			= -1;
+static gint hf_sip_to_addr			= -1;
+static gint hf_sip_from_addr		= -1;
+static gint hf_sip_tag				= -1;
+static gint hf_sip_resend			= -1;
+static gint hf_sip_original_frame	= -1;
 
 /* Initialize the subtree pointers */
-static gint ett_sip 		= -1;
-static gint ett_sip_reqresp 	= -1;
-static gint ett_sip_hdr 	= -1;
-static gint ett_raw_text 	= -1;
-static gint ett_sip_element 	= -1;
-static gint ett_sip_message_body = -1;
+static gint ett_sip 				= -1;
+static gint ett_sip_reqresp 		= -1;
+static gint ett_sip_hdr 			= -1;
+static gint ett_raw_text 			= -1;
+static gint ett_sip_element 		= -1;
+static gint ett_sip_message_body	= -1;
 
 /* PUBLISH method added as per http://www.ietf.org/internet-drafts/draft-ietf-sip-publish-01.txt */
 static const char *sip_methods[] = {
@@ -119,57 +120,57 @@ typedef struct {
         char *compact_name;
 } sip_header_t;
 static const sip_header_t sip_headers[] = {
-                { "Unknown-header", 		NULL }, /* Pad so that the real headers start at index 1 */
-                { "Accept", 			NULL },
-                { "Accept-Encoding", 		NULL },
-                { "Accept-Language", 		NULL },
-                { "Alert-Info", 		NULL },
-                { "Allow", 			NULL },
-                { "Allow-Events", 		NULL },
-                { "Authentication-Info", 	NULL },
-                { "Authorization", 		NULL },
-                { "Call-ID", 			"i"  },
-                { "Call-Info", 			NULL },
-                { "Contact", 			"m"  },
-                { "Content-Disposition", 	NULL },
-                { "Content-Encoding", 		"e"  },
-                { "Content-Language", 		NULL },
-                { "Content-Length", 		"l"  },
-                { "Content-Type", 		"c"  },
-                { "CSeq", 			NULL },
-                { "Date", 			NULL },
-                { "Error-Info", 		NULL },
-                { "Event", 			"o"  },
-                { "Expires", 			NULL },
-                { "From", 			"f"  },
-                { "In-Reply-To", 		NULL },
-                { "Max-Forwards", 		NULL },
-                { "MIME-Version", 		NULL },
-                { "Min-Expires", 		NULL },
-                { "Organization", 		NULL },
-                { "Priority", 			NULL },
-                { "Proxy-Authenticate", 	NULL },
-                { "Proxy-Authorization", 	NULL },
-                { "Proxy-Require", 		NULL },
-                { "RAck", 			NULL },
-                { "RSeq", 			NULL },
-                { "Record-Route", 		NULL },
-                { "Reply-To", 			NULL },
-                { "Require", 			NULL },
-                { "Retry-After", 		NULL },
-                { "Route", 			NULL },
-                { "Server", 			NULL },
-                { "Subject", 			"s"  },
-                { "Subscription-State", 	NULL },
-                { "Supported", 			"k" },
-                { "Timestamp", 			NULL },
-                { "To", 			"t"  },
-                { "Unsupported", 		NULL },
-                { "User-Agent", 		NULL },
-                { "Via", 			"v" },
-                { "Warning", 			NULL },
-                { "WWW-Authenticate", 		NULL },
-                { "P-Access-Network-Info",	NULL },  /*  RFC3455  */
+                { "Unknown-header", 			NULL }, /* Pad so that the real headers start at index 1 */
+                { "Accept", 					NULL },
+                { "Accept-Encoding", 			NULL },
+                { "Accept-Language", 			NULL },
+                { "Alert-Info", 				NULL },
+                { "Allow", 						NULL },
+                { "Allow-Events", 				NULL },
+                { "Authentication-Info",	 	NULL },
+                { "Authorization", 				NULL },
+                { "Call-ID", 					"i"  },
+                { "Call-Info", 					NULL },
+                { "Contact", 					"m"  },
+                { "Content-Disposition", 		NULL },
+                { "Content-Encoding", 			"e"  },
+                { "Content-Language", 			NULL },
+                { "Content-Length", 			"l"  },
+                { "Content-Type", 				"c"  },
+                { "CSeq", 						NULL },
+                { "Date", 						NULL },
+                { "Error-Info", 				NULL },
+                { "Event", 						"o"  },
+                { "Expires", 					NULL },
+                { "From", 						"f"  },
+                { "In-Reply-To", 				NULL },
+                { "Max-Forwards", 				NULL },
+                { "MIME-Version", 				NULL },
+                { "Min-Expires", 				NULL },
+                { "Organization", 				NULL },
+                { "Priority", 					NULL },
+                { "Proxy-Authenticate", 		NULL },
+                { "Proxy-Authorization", 		NULL },
+                { "Proxy-Require", 				NULL },
+                { "RAck", 						NULL },
+                { "RSeq", 						NULL },
+                { "Record-Route", 				NULL },
+                { "Reply-To", 					NULL },
+                { "Require", 					NULL },
+                { "Retry-After", 				NULL },
+                { "Route", 						NULL },
+                { "Server",			 			NULL },
+                { "Subject",					"s"  },
+                { "Subscription-State", 		NULL },
+                { "Supported",					"k"	 },
+                { "Timestamp",					NULL },
+                { "To",							"t"  },
+                { "Unsupported",				NULL },
+                { "User-Agent", 				NULL },
+                { "Via",			 			"v" },
+                { "Warning",		 			NULL },
+                { "WWW-Authenticate",			NULL },
+                { "P-Access-Network-Info",		NULL },  /*  RFC3455  */
                 { "P-Asserted-Identity",        NULL },  /*  RFC3325  */
                 { "P-Associated-URI",           NULL },  /*  RFC3455  */
                 { "P-Called-Party-ID",          NULL },  /*  RFC3455  */
@@ -194,86 +195,86 @@ static const sip_header_t sip_headers[] = {
 };
 
 
-#define POS_ACCEPT 			1
+#define POS_ACCEPT				1
 #define POS_ACCEPT_ENCODING		2
 #define POS_ACCEPT_LANGUAGE		3
 #define POS_ALERT_INFO			4
-#define POS_ALLOW			5
+#define POS_ALLOW				5
 #define POS_ALLOW_EVENTS		6
-#define POS_AUTHENTICATION_INFO		7
+#define POS_AUTHENTICATION_INFO	7
 #define POS_AUTHORIZATION		8
-#define POS_CALL_ID			9
+#define POS_CALL_ID				9
 #define POS_CALL_INFO			10
-#define POS_CONTACT			11
-#define POS_CONTENT_DISPOSITION		12
-#define POS_CONTENT_ENCODING		13
-#define POS_CONTENT_LANGUAGE		14
+#define POS_CONTACT				11
+#define POS_CONTENT_DISPOSITION	12
+#define POS_CONTENT_ENCODING	13
+#define POS_CONTENT_LANGUAGE	14
 #define POS_CONTENT_LENGTH		15
 #define POS_CONTENT_TYPE		16
-#define POS_CSEQ			17
-#define POS_DATE			18
+#define POS_CSEQ				17
+#define POS_DATE				18
 #define POS_ERROR_INFO			19
-#define POS_EVENT			20
-#define POS_EXPIRES			21
-#define POS_FROM			22
+#define POS_EVENT				20
+#define POS_EXPIRES				21
+#define POS_FROM				22
 #define POS_IN_REPLY_TO			23
 #define POS_MAX_FORWARDS		24
 #define POS_MIME_VERSION		25
 #define POS_MIN_EXPIRES			26
 #define POS_ORGANIZATION		27
 #define POS_PRIORITY			28
-#define POS_PROXY_AUTHENTICATE		29
-#define POS_PROXY_AUTHORIZATION		30
+#define POS_PROXY_AUTHENTICATE	29
+#define POS_PROXY_AUTHORIZATION	30
 #define POS_PROXY_REQUIRE		31
-#define POS_RACK			32
-#define POS_RSEQ			33
+#define POS_RACK				32
+#define POS_RSEQ				33
 #define POS_RECORD_ROUTE		34
 #define POS_REPLY_TO			35
-#define POS_REQUIRE			36
+#define POS_REQUIRE				36
 #define POS_RETRY_AFTER			37
-#define POS_ROUTE			38
-#define POS_SERVER			39
-#define POS_SUBJECT			40
-#define POS_SUBSCRIPTION_STATE		41
+#define POS_ROUTE				38
+#define POS_SERVER				39
+#define POS_SUBJECT				40
+#define POS_SUBSCRIPTION_STATE	41
 #define POS_SUPPORTED			42
 #define POS_TIMESTAMP			43
-#define POS_TO				44
+#define POS_TO					44
 #define POS_UNSUPPORTED			45
 #define POS_USER_AGENT			46
-#define POS_VIA				47
-#define POS_WARNING			48
-#define POS_WWW_AUTHENTICATE		49
+#define POS_VIA					47
+#define POS_WARNING				48
+#define POS_WWW_AUTHENTICATE	49
 
-#define POS_P_ACCESS_NETWORK_INFO	50
-#define POS_P_ASSERTED_IDENTITY         51
-#define POS_P_ASSOCIATED_URI            52
-#define POS_P_CALLED_PARTY_ID           53
-#define POS_P_CHARGING_FUNCTION_ADDRESSES 54
-#define POS_P_CHARGING_VECTOR           55
-#define POS_P_DCS_TRACE_PARTY_ID        56
-#define POS_P_DCS_OSPS                  57
-#define POS_P_DCS_BILLING_INFO          58
-#define POS_P_DCS_LAES                  59
-#define POS_P_DCS_REDIRECT              60
-#define POS_P_MEDIA_AUTHORIZATION       61
-#define POS_P_PREFERRED_IDENTITY        62
-#define POS_P_VISITED_NETWORK_ID        63
-#define POS_PATH                        64
-#define POS_PRIVACY                     65
-#define POS_REASON                      66
-#define POS_REFER_TO                    67
-#define POS_SERVICE_ROUTE               68
-#define POS_SIP_ETAG					69
-#define POS_SIP_IF_MATCH				70
+#define POS_P_ACCESS_NETWORK_INFO			50
+#define POS_P_ASSERTED_IDENTITY				51
+#define POS_P_ASSOCIATED_URI				52
+#define POS_P_CALLED_PARTY_ID				53
+#define POS_P_CHARGING_FUNCTION_ADDRESSES	54
+#define POS_P_CHARGING_VECTOR				55
+#define POS_P_DCS_TRACE_PARTY_ID			56
+#define POS_P_DCS_OSPS						57
+#define POS_P_DCS_BILLING_INFO				58
+#define POS_P_DCS_LAES						59
+#define POS_P_DCS_REDIRECT					60
+#define POS_P_MEDIA_AUTHORIZATION			61
+#define POS_P_PREFERRED_IDENTITY			62
+#define POS_P_VISITED_NETWORK_ID			63
+#define POS_PATH							64
+#define POS_PRIVACY							65
+#define POS_REASON							66
+#define POS_REFER_TO						67
+#define POS_SERVICE_ROUTE					68
+#define POS_SIP_ETAG						69
+#define POS_SIP_IF_MATCH					70
 
 static gint hf_header_array[] = {
-		-1, /* "Unknown-header" - Pad so that the real headers start at index 1 */
-                -1, /* "Accept" */
-                -1, /* "Accept-Encoding" */
+				-1, /* "Unknown-header" - Pad so that the real headers start at index 1 */
+				-1, /* "Accept" */
+				-1, /* "Accept-Encoding" */
                 -1, /* "Accept-Language" */
                 -1, /* "Alert-Info" */
                 -1, /* "Allow" */
-		-1, /* "Allow-Events" - RFC 3265 */
+				-1, /* "Allow-Events" - RFC 3265 */
                 -1, /* "Authentication-Info" */
                 -1, /* "Authorization" */
                 -1, /* "Call-ID" */
@@ -288,7 +289,7 @@ static gint hf_header_array[] = {
                 -1, /* "Date" */
                 -1, /* "Error-Info" */
                 -1, /* "Expires" */
-		-1, /* "Event" - RFC 3265 */
+				-1, /* "Event" - RFC 3265 */
                 -1, /* "From" */
                 -1, /* "In-Reply-To" */
                 -1, /* "Max-Forwards" */
@@ -299,8 +300,8 @@ static gint hf_header_array[] = {
                 -1, /* "Proxy-Authenticate" */
                 -1, /* "Proxy-Authorization" */
                 -1, /* "Proxy-Require" */
-		-1, /* "RAck" - RFC 3262 */
-		-1, /* "RSeq" - RFC 3261 */
+				-1, /* "RAck" - RFC 3262 */
+				-1, /* "RSeq" - RFC 3261 */
                 -1, /* "Record-Route" */
                 -1, /* "Reply-To" */
                 -1, /* "Require" */
@@ -308,7 +309,7 @@ static gint hf_header_array[] = {
                 -1, /* "Route" */
                 -1, /* "Server" */
                 -1, /* "Subject" */
-		-1, /* "Subscription-State" - RFC 3265 */
+				-1, /* "Subscription-State" - RFC 3265 */
                 -1, /* "Supported" */
                 -1, /* "Timestamp" */
                 -1, /* "To" */
@@ -319,22 +320,22 @@ static gint hf_header_array[] = {
                 -1,  /* "WWW-Authenticate" */
                 -1,  /* "P-Access-Network-Info"	-   RFC3455  */
                 -1,  /* "P-Asserted-Identity" 	-   RFC3325  */
-                -1,  /* "P-Associated-URI" 	-   RFC3455  */
-                -1,  /* "P-Called-Party-ID" 	-   RFC3455  */
+                -1,  /* "P-Associated-URI" 	    -   RFC3455  */
+                -1,  /* "P-Called-Party-ID"		-   RFC3455  */
                 -1,  /* "P-Charging-Function-Addresses" -   RFC3455  */
-                -1,  /* "P-Charging-Vector" 	-   RFC3455  */
-                -1,  /* "P-DCS-Trace-Party-ID" 	-   RFC3603  */
-                -1,  /* "P-DCS-OSPS" 		-   RFC3603  */
-                -1,  /* "P-DCS-Billing-Info" 	-   RFC3603  */
-                -1,  /* "P-DCS-LAES" 		-   RFC3603  */
-                -1,  /* "P-DCS-Redirect" 	-   RFC3603  */
-                -1,  /* "P-Media-Authorization" 	-   RFC3313  */
+                -1,  /* "P-Charging-Vector"		-   RFC3455  */
+                -1,  /* "P-DCS-Trace-Party-ID"	-   RFC3603  */
+                -1,  /* "P-DCS-OSPS"			-   RFC3603  */
+                -1,  /* "P-DCS-Billing-Info"	-   RFC3603  */
+                -1,  /* "P-DCS-LAES"			-   RFC3603  */
+                -1,  /* "P-DCS-Redirect" 		-   RFC3603  */
+                -1,  /* "P-Media-Authorization"	-   RFC3313  */
                 -1,  /* "P-Preferred-Identity" 	-   RFC3325  */
                 -1,  /* "P-Visited-Network-ID" 	-   RFC3455  */
-                -1,  /* "Path" 			-   RFC3327  */
-                -1,  /* "Privacy" 		-   RFC3323  */
-                -1,  /* "Reason" 		-   RFC3326  */
-                -1,  /* "Refer-To" 		-   RFC3515  */
+                -1,  /* "Path"					-   RFC3327  */
+                -1,  /* "Privacy" 				-   RFC3323  */
+                -1,  /* "Reason" 				-   RFC3326  */
+                -1,  /* "Refer-To" 				-   RFC3515  */
                 -1,  /* "Service-Route" 		-   RFC3608  */
                 -1,  /* "ETag"     draft-ietf-sip-publish-01  */
                 -1,  /* "If-Match  draft-ietf-sip-publish-01  */
@@ -665,11 +666,14 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 gint line_end_offset;
                 gint colon_offset;
                 gint semi_colon_offset;
+				gint len;
                 gint parameter_offset;
+				gint parameter_end_offset;
+				gint parameter_len;
 		gint content_type_len, content_type_parameter_str_len;
                 gint header_len;
                 gint hf_index;
-                gint value_offset,tag_offset;
+                gint value_offset;
                 guchar c;
 		size_t value_len;
                 char *value;
@@ -738,37 +742,100 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						sip_element_tree = proto_item_add_subtree( sip_element_item,
 							 ett_sip_element);
 					}
-					tag_offset = tvb_find_guint8(tvb, offset,linelen, ';');
-					if ( tag_offset != -1){
-						tag_offset = tag_offset + 1;
-						c = tvb_get_guint8(tvb,tag_offset);
-						if ( c == 't' ){/* tag found */
-							if(sip_element_tree) {
-								proto_tree_add_string(sip_element_tree,
-								    hf_sip_to_addr, tvb,
-								    value_offset, (tag_offset - value_offset - 1),
-				    				    tvb_format_text(tvb, value_offset,
-								    ( tag_offset - value_offset - 1)));
-							}
-							tag_offset = tvb_find_guint8(tvb, tag_offset,linelen, '=') + 1;
-							if(sip_element_tree) {
-								proto_tree_add_string(sip_element_tree,
-								    hf_sip_tag, tvb,
-								    tag_offset, (line_end_offset - tag_offset),
-				    				    tvb_format_text(tvb, tag_offset, (line_end_offset - tag_offset)));
-				    			}
-
+					/* See if we have a SIP/SIPS uri enclosed in <>, if so anything in front is
+					 * display info.
+					 */
+					parameter_offset = tvb_find_guint8(tvb, value_offset,value_len, '<');
+					if ( parameter_offset != -1){
+						len = parameter_offset - value_offset;
+						if ( len > 1){
+							/* Something in front, must be display info 
+							 * TODO: Get rid of trailing space(s)
+							 */
+							proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, value_offset,
+								len, FALSE);
 						}
-						else {
-							if(sip_element_tree) {
-								proto_tree_add_string_format(sip_element_tree,
-								    hf_sip_to_addr, tvb,
-								    offset, line_end_offset - offset,
-								    value, "%s",
-								    tvb_format_text(tvb, offset, linelen));
+						parameter_offset ++;
+						parameter_end_offset = parameter_offset;
+						/* RFC3261 paragraph 20
+						 * The Contact, From, and To header fields contain a URI.  If the URI
+						 * contains a comma, question mark or semicolon, the URI MUST be
+						 * enclosed in angle brackets (< and >).  Any URI parameters are
+						 * contained within these brackets.  If the URI is not enclosed in angle
+						 * brackets, any semicolon-delimited parameters are header-parameters,
+						 * not URI parameters.
+						 */
+						while (parameter_end_offset < line_end_offset){
+							parameter_end_offset++;
+							c = tvb_get_guint8(tvb, parameter_end_offset);
+							switch (c) {
+								case '>':
+								case ',':
+								case ';':
+								case '?':
+									goto separator_found;
+								default :
+									break;
 							}
-						}/* if c= t */
-					} /* if tag offset */
+						}
+	separator_found:
+						parameter_len = parameter_end_offset - parameter_offset;
+						proto_tree_add_item(sip_element_tree, hf_sip_to_addr, tvb, parameter_offset,
+							parameter_len, FALSE);
+						parameter_offset = parameter_end_offset + 1;
+						/*  
+						 * URI parameters ?
+						 */
+						parameter_end_offset = tvb_find_guint8(tvb, parameter_offset,( line_end_offset - parameter_offset), ';');
+						if ( parameter_end_offset == -1)
+							parameter_end_offset = line_end_offset;
+
+						offset = parameter_end_offset;
+					}
+					else
+					{
+					/* Extract SIP/SIPS URI */
+					parameter_offset = value_offset;
+					while (parameter_offset < line_end_offset
+						&& (tvb_strneql(tvb, parameter_offset, "sip", 3) != 0))
+						parameter_offset++;
+					len = parameter_offset - value_offset;
+					if ( len > 1){
+						/* Something in front, must be display info 
+						 * TODO: Get rid of trailing space(s)
+						 */
+						proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, value_offset,
+							len, FALSE);
+					}
+					parameter_end_offset = tvb_find_guint8(tvb, parameter_offset,
+						( line_end_offset - parameter_offset), ';');
+					if ( parameter_end_offset == -1)
+						parameter_end_offset = line_end_offset;
+					parameter_len = parameter_end_offset - parameter_offset;
+					proto_tree_add_item(sip_element_tree, hf_sip_to_addr, tvb, parameter_offset,
+						parameter_len, FALSE);
+					offset = parameter_end_offset;
+					}
+					/* Find parameter tag if present.
+					 * TODO make this generic to find any interesting parameter
+					 * use the same method as for SIP headers ? 
+					 */
+
+					parameter_offset = offset;
+					while (parameter_offset < line_end_offset
+						&& (tvb_strneql(tvb, parameter_offset, "tag=", 4) != 0))
+						parameter_offset++;
+					if ( parameter_offset < line_end_offset ){ /* Tag found */
+						parameter_offset = parameter_offset + 4;
+						parameter_end_offset = tvb_find_guint8(tvb, parameter_offset,
+							( line_end_offset - parameter_offset), ';');
+						if ( parameter_end_offset == -1)
+							parameter_end_offset = line_end_offset;
+						parameter_len = parameter_end_offset - parameter_offset;
+						proto_tree_add_item(sip_element_tree, hf_sip_tag, tvb, parameter_offset,
+							parameter_len, FALSE);
+
+					}
 					break;
 
 				case POS_FROM :
@@ -780,48 +847,100 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						    tvb_format_text(tvb, offset, linelen));
 						sip_element_tree = proto_item_add_subtree( sip_element_item, ett_sip_element);
 					}
-					tag_offset = tvb_find_guint8(tvb, offset,linelen, ';');
-					if ( tag_offset != -1){
-						tag_offset = tag_offset + 1;
-						c = tvb_get_guint8(tvb,tag_offset);
-						if ( c == 't' ){/* tag found */
-							if(sip_element_tree) {
-								proto_tree_add_string(sip_element_tree,
-								    hf_sip_from_addr, tvb,
-								    value_offset, (tag_offset - value_offset - 1),
-								    tvb_format_text(tvb, value_offset, ( tag_offset - value_offset - 1)));
-							}
-							tag_offset = tvb_find_guint8(tvb, offset,linelen, '=') + 1;
-							if(sip_element_tree) {
-								proto_tree_add_string(sip_element_tree,
-								    hf_sip_tag, tvb,
-								    tag_offset, (line_end_offset - tag_offset),
-								    tvb_format_text(tvb, tag_offset, (line_end_offset - tag_offset)));
+					/* See if we have a SIP/SIPS uri enclosed in <>, if so anything in front is
+					 * display info.
+					 */
+					parameter_offset = tvb_find_guint8(tvb, value_offset,value_len, '<');
+					if ( parameter_offset != -1){
+						len = parameter_offset - value_offset;
+						if ( len > 1){
+							/* Something in front, must be display info 
+							 * TODO: Get rid of trailing space(s)
+							 */
+							proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, value_offset,
+								len, FALSE);
+						}
+						parameter_offset ++;
+						parameter_end_offset = parameter_offset;
+						/* RFC3261 paragraph 20
+						 * The Contact, From, and To header fields contain a URI.  If the URI
+						 * contains a comma, question mark or semicolon, the URI MUST be
+						 * enclosed in angle brackets (< and >).  Any URI parameters are
+						 * contained within these brackets.  If the URI is not enclosed in angle
+						 * brackets, any semicolon-delimited parameters are header-parameters,
+						 * not URI parameters.
+						 */
+						while (parameter_end_offset < line_end_offset){
+							parameter_end_offset++;
+							c = tvb_get_guint8(tvb, parameter_end_offset);
+							switch (c) {
+								case '>':
+								case ',':
+								case ';':
+								case '?':
+									goto separator_found2;
+								default :
+									break;
 							}
 						}
-						else {
-							tag_offset = tvb_find_guint8(tvb, tag_offset,linelen, ';');
-							if ( tag_offset != -1){
-								tag_offset = tag_offset + 1;
-								c = tvb_get_guint8(tvb,tag_offset);
-								if ( c == 't' ){/* tag found */
-									if(sip_element_tree) {
-										proto_tree_add_string(sip_element_tree,
-							 			    hf_sip_from_addr, tvb,
-							   			    value_offset, (tag_offset - value_offset - 1),
-				    						    tvb_format_text(tvb, value_offset, ( tag_offset - value_offset - 1)));
-									}
-									tag_offset = tvb_find_guint8(tvb, tag_offset,linelen, '=') + 1;
-									if(sip_element_tree) {
-										proto_tree_add_string(sip_element_tree,
-										    hf_sip_tag, tvb,
-										    tag_offset, (line_end_offset - tag_offset),
-										    tvb_format_text(tvb, tag_offset, (line_end_offset - tag_offset)));
-									}
-								}
-							}
-						}/* if c= t */
-					} /* if tag offset */
+	separator_found2:
+						parameter_len = parameter_end_offset - parameter_offset;
+						dfilter_store_sip_from_addr(tvb, sip_element_tree, 
+							parameter_offset, parameter_len);
+						parameter_offset = parameter_end_offset + 1;
+						/*  
+						 * URI parameters ?
+						 */
+						parameter_end_offset = tvb_find_guint8(tvb, parameter_offset,( line_end_offset - parameter_offset), ';');
+						if ( parameter_end_offset == -1)
+							parameter_end_offset = line_end_offset;
+
+						offset = parameter_end_offset;
+					}
+					else
+					{
+					/* Extract SIP/SIPS URI */
+					parameter_offset = value_offset;
+					while (parameter_offset < line_end_offset
+						&& (tvb_strneql(tvb, parameter_offset, "sip", 3) != 0))
+						parameter_offset++;
+					len = parameter_offset - value_offset;
+					if ( len > 1){
+						/* Something in front, must be display info 
+						 * TODO: Get rid of trailing space(s)
+						 */
+						proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, value_offset,
+							len, FALSE);
+					}
+					parameter_end_offset = tvb_find_guint8(tvb, parameter_offset,
+						( line_end_offset - parameter_offset), ';');
+					if ( parameter_end_offset == -1)
+						parameter_end_offset = line_end_offset;
+					parameter_len = parameter_end_offset - parameter_offset;
+					proto_tree_add_item(sip_element_tree, hf_sip_from_addr, tvb, parameter_offset,
+						parameter_len, FALSE);
+					offset = parameter_end_offset;
+					}
+					/* Find parameter tag if present.
+					 * TODO make this generic to find any interesting parameter
+					 * use the same method as for SIP headers ? 
+					 */
+
+					parameter_offset = offset;
+					while (parameter_offset < line_end_offset
+						&& (tvb_strneql(tvb, parameter_offset, "tag=", 4) != 0))
+						parameter_offset++;
+					if ( parameter_offset < line_end_offset ){ /* Tag found */
+						parameter_offset = parameter_offset + 4;
+						parameter_end_offset = tvb_find_guint8(tvb, parameter_offset,
+							( line_end_offset - parameter_offset), ';');
+						if ( parameter_end_offset == -1)
+							parameter_end_offset = line_end_offset;
+						parameter_len = parameter_end_offset - parameter_offset;
+						proto_tree_add_item(sip_element_tree, hf_sip_tag, tvb, parameter_offset,
+							parameter_len, FALSE);
+
+					}
 					break;
 
 				case POS_CSEQ :
@@ -1097,6 +1216,13 @@ dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree)
         stat_info->response_code = response_code;
 }
 
+void dfilter_store_sip_from_addr(tvbuff_t *tvb,proto_tree *tree,guint parameter_offset, 
+					  guint parameter_len)
+{
+	proto_tree_add_item(tree, hf_sip_from_addr, tvb, parameter_offset,
+							parameter_len, FALSE);
+
+}
 /* From section 4.1 of RFC 2543:
  *
  * Request-Line  =  Method SP Request-URI SP SIP-Version CRLF
@@ -1468,15 +1594,20 @@ void proto_register_sip(void)
 		       FT_STRING, BASE_NONE,NULL,0x0,
                        "SIP Status-Line", HFILL }
                 },
-                { &hf_sip_to_addr,
-		       { "SIP to address", 		"sip.to_addr",
+                { &hf_sip_display,
+		       { "SIP Display info", 		"sip.display.info",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"RFC 3261: from addr", HFILL }
+			"RFC 3261: Display info", HFILL }
 		},
-                { &hf_sip_from_addr,
-		       { "SIP from address", 		"sip.from_addr",
+                { &hf_sip_to_addr,
+		       { "SIP to address", 		"sip.to.addr",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: to addr", HFILL }
+		},
+                { &hf_sip_from_addr,
+		       { "SIP from address", 		"sip.from.addr",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: from addr", HFILL }
 		},
                 { &hf_sip_tag,
 		       { "SIP tag", 		"sip.tag",
