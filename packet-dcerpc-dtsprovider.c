@@ -4,7 +4,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/time.tar.gz time/service/dtsprovider.idl
  *
- * $Id: packet-dcerpc-dtsprovider.c,v 1.3 2002/09/18 12:12:50 sahlberg Exp $
+ * $Id: packet-dcerpc-dtsprovider.c,v 1.4 2002/10/15 05:21:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,7 +80,7 @@ proto_register_dtsprovider (void)
 	static gint *ett[] = {
 		&ett_dtsprovider,
 	};
-	proto_dtsprovider = proto_register_protocol ("Time Service Provider Interfacer", "DTSPROVIDER", "dtsprovider");
+	proto_dtsprovider = proto_register_protocol ("DCE Distributed Time Service Provider", "DTSPROVIDER", "dtsprovider");
 	proto_register_field_array (proto_dtsprovider, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
 }

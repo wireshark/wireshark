@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.74 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: proto.c,v 1.75 2002/10/15 05:21:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1992,6 +1992,33 @@ proto_item_add_subtree(proto_item *pi,  gint idx) {
 }
 
 static gint
+proto_match_short_name(gconstpointer p_arg, gconstpointer name_arg)
+{
+	const protocol_t *p = p_arg;
+	const char *name = name_arg;
+
+	return g_strcasecmp(p->short_name, name_arg);
+}
+
+static gint
+proto_match_name(gconstpointer p_arg, gconstpointer name_arg)
+{
+	const protocol_t *p = p_arg;
+	const char *name = name_arg;
+
+	return g_strcasecmp(p->name, name_arg);
+}
+
+static gint
+proto_match_filter_name(gconstpointer p_arg, gconstpointer name_arg)
+{
+	const protocol_t *p = p_arg;
+	const char *name = name_arg;
+
+	return g_strcasecmp(p->filter_name, name_arg);
+}
+
+static gint
 proto_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
 {
 	const protocol_t *p1 = p1_arg;
@@ -2006,6 +2033,16 @@ proto_register_protocol(char *name, char *short_name, char *filter_name)
 	protocol_t *protocol;
 	header_field_info *hfinfo;
 	int proto_id;
+
+	/*
+	 * Make sure there's not already a protocol with any of those
+	 * names.  Crash if there is, as that's an error in the code,
+	 * and the code has to be fixed not to register more than one
+	 * protocol with the same name.
+	 */
+	g_assert(g_list_find_custom(protocols, name, proto_match_name) == NULL);
+	g_assert(g_list_find_custom(protocols, short_name, proto_match_short_name) == NULL);
+	g_assert(g_list_find_custom(protocols, filter_name, proto_match_filter_name) == NULL);
 
 	/* Add this protocol to the list of known protocols; the list
 	   is sorted by protocol short name. */

@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.57 2002/09/29 10:28:27 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.58 2002/10/15 05:21:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6341,7 +6341,7 @@ static hf_register_info hf[] = {
         };
 
         proto_dcerpc_netlogon = proto_register_protocol(
-                "Microsoft Network Logon", "NETLOGON", "rpc_netlogon");
+                "Microsoft Network Logon", "RPC_NETLOGON", "rpc_netlogon");
 
         proto_register_field_array(proto_dcerpc_netlogon, hf,
 				   array_length(hf));

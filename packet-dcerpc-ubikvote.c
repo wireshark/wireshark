@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/ncsubik/ubikvote_proc.idl
  *
- * $Id: packet-dcerpc-ubikvote.c,v 1.1 2002/09/12 09:06:23 sahlberg Exp $
+ * $Id: packet-dcerpc-ubikvote.c,v 1.2 2002/10/15 05:21:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,7 +89,7 @@ proto_register_ubikvote (void)
 	static gint *ett[] = {
 		&ett_ubikvote,
 	};
-	proto_ubikvote = proto_register_protocol ("DCE/RPC FLDB", "UBIKVOTE", "ubikvote");
+	proto_ubikvote = proto_register_protocol ("DCE/RPC FLDB UBIKVOTE", "UBIKVOTE", "ubikvote");
 	proto_register_field_array (proto_ubikvote, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
 }

@@ -2,7 +2,7 @@
  * Routines for Registration Response Message dissection
  * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
  *
- * $Id: packet-regrsp.c,v 1.4 2002/09/10 19:07:39 guy Exp $
+ * $Id: packet-regrsp.c,v 1.5 2002/10/15 05:21:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -109,7 +109,7 @@ proto_register_docsis_regrsp (void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_regrsp,
-     {"Registration Request", "docsis.regrsp",
+     {"Registration Response", "docsis.regrsp",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "Registration Request", HFILL}
      },
@@ -132,7 +132,7 @@ proto_register_docsis_regrsp (void)
 
 /* Register the protocol name and description */
   proto_docsis_regrsp =
-    proto_register_protocol ("DOCSIS Registration Requests", "DOCSIS REG-RSP",
+    proto_register_protocol ("DOCSIS Registration Responses", "DOCSIS REG-RSP",
 			     "docsis_regrsp");
 
 /* Required function calls to register the header fields and subtrees used */

@@ -4,7 +4,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/time.tar.gz time/service/dtsstime_req.idl
  *           
- * $Id: packet-dcerpc-dtsstime_req.c,v 1.2 2002/09/11 09:42:02 sahlberg Exp $
+ * $Id: packet-dcerpc-dtsstime_req.c,v 1.3 2002/10/15 05:21:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,7 +75,7 @@ proto_register_dtsstime_req (void)
 	static gint *ett[] = {
 		&ett_dtsstime_req,
 	};
-	proto_dtsstime_req = proto_register_protocol ("Time Service Provider Interfacer", "DTSSTIME_REQ", "dtsstime_req");
+	proto_dtsstime_req = proto_register_protocol ("DCE Distributed Time Service Local Server", "DTSSTIME_REQ", "dtsstime_req");
 	proto_register_field_array (proto_dtsstime_req, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
 }
