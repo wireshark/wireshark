@@ -3,7 +3,7 @@
  * dissection
  * Copyright 2003, Josef Korelus <jkor@quick.cz>
  *
- * $Id: packet-gprs-ns.c,v 1.6 2003/09/10 19:27:14 guy Exp $
+ * $Id: packet-gprs-ns.c,v 1.7 2003/11/14 18:59:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -246,6 +246,7 @@ process_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 			}
 			break;
 		}
+		offset += length;	
 	}
 }
 
