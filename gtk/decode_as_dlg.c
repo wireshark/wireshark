@@ -68,7 +68,9 @@ enum srcdst_type {
     /* The "destination port" menu item is currently selected. */
     E_DECODE_DPORT,
     /* The "source/destination port" menu item is currently selected. */
-    E_DECODE_BPORT
+    E_DECODE_BPORT,
+    /* For SCTP only: PPID 0 is chosen. */
+    E_DECODE_PPID
 };
 
 #define E_DECODE_MIN_HEIGHT 300
@@ -461,7 +463,7 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
 {
     GtkWidget         *main_vb, *bbox, *ok_bt, *clear_bt, *scrolled_window;
     gchar             *titles[E_LIST_D_COLUMNS] = {
-        "Table", "Port", "Initial", "Current"
+        "Table", "Value", "Initial", "Current"
     };
     gint               column;
 #if GTK_MAJOR_VERSION < 2
@@ -758,6 +760,10 @@ decode_transport(GtkWidget *notebook_pg)
 #endif
 
     table_name = OBJECT_GET_DATA(notebook_pg, E_PAGE_TABLE);
+    if (requested_srcdst == E_DECODE_PPID) {
+    	decode_change_one_dissector(table_name, 0, list);
+	return;
+    }
     if (requested_srcdst != E_DECODE_DPORT)
 	decode_change_one_dissector(table_name, cfile.edt->pi.srcport, list);
     if (requested_srcdst != E_DECODE_SPORT)
@@ -1006,6 +1012,28 @@ decode_add_srcdst_menu (GtkWidget *page)
 
     menuitem = gtk_menu_item_new_with_label("both");
     OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_BPORT));
+    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
+
+    OBJECT_SET_DATA(page, E_MENU_SRCDST, menu);
+    gtk_option_menu_set_menu(GTK_OPTION_MENU(optmenu), menu);
+
+    alignment = decode_add_pack_menu(optmenu);
+
+    return(alignment);
+}
+
+static GtkWidget *
+decode_add_ppid_menu (GtkWidget *page)
+{
+    GtkWidget *optmenu, *menu, *menuitem, *alignment;
+    gchar      tmp[100];
+
+    optmenu = gtk_option_menu_new();
+    menu = gtk_menu_new();
+    g_snprintf(tmp, 100, "PPID (%u)", 0);
+    menuitem = gtk_menu_item_new_with_label(tmp);
+    OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_PPID));
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
@@ -1365,6 +1393,33 @@ decode_add_tcpudp_page (gchar *prompt, gchar *table_name)
     return(page);
 }
 
+static GtkWidget *
+decode_add_sctp_page (gchar *prompt, gchar *table_name)
+{
+    GtkWidget	*page, *label, *scrolled_window, *optmenu;
+
+    page = gtk_hbox_new(FALSE, 5);
+    OBJECT_SET_DATA(page, E_PAGE_ACTION, decode_transport);
+    OBJECT_SET_DATA(page, E_PAGE_TABLE, table_name);
+    OBJECT_SET_DATA(page, E_PAGE_TITLE, "Transport");
+
+    /* Always enabled */
+    label = gtk_label_new(prompt);
+    gtk_box_pack_start(GTK_BOX(page), label, TRUE, TRUE, 0);
+    optmenu = decode_add_ppid_menu(page);
+    gtk_box_pack_start(GTK_BOX(page), optmenu, TRUE, TRUE, 0);
+
+    /* Conditionally enabled - only when decoding packets */
+    label = gtk_label_new("as");
+    gtk_box_pack_start(GTK_BOX(page), label, TRUE, TRUE, 0);
+    decode_dimmable = g_slist_prepend(decode_dimmable, label);
+    scrolled_window = decode_add_simple_menu(page, table_name);
+    gtk_box_pack_start(GTK_BOX(page), scrolled_window, TRUE, TRUE, 0);
+    decode_dimmable = g_slist_prepend(decode_dimmable, scrolled_window);
+
+    return(page);
+}
+
 /*
  * This routine indicates whether we'd actually have any pages in the
  * notebook in a "Decode As" dialog box; if there wouldn't be, we
@@ -1426,6 +1481,10 @@ decode_add_notebook (GtkWidget *format_hb)
 
     case PT_UDP:
 	page = decode_add_tcpudp_page("UDP", "udp.port");
+	break;
+
+    case PT_SCTP:
+	page = decode_add_sctp_page("SCTP", "sctp.ppi");
 	break;
 
     default:
