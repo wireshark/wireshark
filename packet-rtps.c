@@ -1195,6 +1195,7 @@ get_parameter_sequence(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
           ++i;
           offset +=4;
           sep = ',';
+          param_length -= 4; /* decrement count */       
         }
         offset += param_length;
         break;
@@ -1213,6 +1214,7 @@ get_parameter_sequence(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
           ++i;
           offset +=4;
           sep = ',';
+          param_length -= 4; /* decrement count */       
         }
         offset += param_length;
         break;
@@ -1287,6 +1289,7 @@ get_parameter_sequence(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
                               "Address[%d]: %s", i, ip_string);
           ++i;
           offset +=4;
+          param_length -= 4; /* decrement count */       
         }
         offset += param_length;
         break;
@@ -1305,6 +1308,7 @@ get_parameter_sequence(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
           ++i;
           offset +=4;
           sep = ',';
+          param_length -= 4; /* decrement count */       
         }
         offset += param_length;
         break;
