@@ -1399,12 +1399,17 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gchar *name;
 
     for (i = proto_get_first_protocol(&cookie); i != -1;
-         i = proto_get_next_protocol(&cookie)) {
+	 i = proto_get_next_protocol(&cookie)) {
 	char *strp, str[TAG_STRING_LEN+1];
 
-	hfinfo = proto_registrar_get_nth(i);
         protocol = find_protocol_by_id(i);
+
+	if (!proto_is_protocol_enabled(protocol)) {
+	    continue;
+	}
+
 	name = proto_get_protocol_short_name(protocol); /* name, short_name or filter name ? */
+	hfinfo = proto_registrar_get_nth(i);
 
 	gtk_tree_store_append(store, &iter, NULL);
 	gtk_tree_store_set(store, &iter, 0, name, 1, hfinfo, -1);
