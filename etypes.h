@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.34 2003/06/11 09:17:00 guy Exp $
+ * $Id: etypes.h,v 1.35 2003/10/08 06:44:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -149,6 +149,14 @@
 
 #ifndef ETHERTYPE_WCP
 #define ETHERTYPE_WCP		0x80ff	/* Wellfleet Compression Protocol */
+#endif
+
+#ifndef ETHERTYPE_ISMP
+#define ETHERTYPE_ISMP		0x81fd	/* Cabletron Interswitch Message Protocol */
+#endif
+
+#ifndef ETHERTYPE_ISMP_TBFLOOD
+#define ETHERTYPE_ISMP_TBFLOOD	0x81ff	/* Cabletron Interswitch Message Protocol */
 #endif
 
 #ifndef ETHERTYPE_IPv6

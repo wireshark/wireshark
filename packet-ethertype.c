@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.38 2003/10/01 07:11:44 guy Exp $
+ * $Id: packet-ethertype.c,v 1.39 2003/10/08 06:44:15 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -59,6 +59,9 @@ const value_string etype_vals[] = {
     {ETHERTYPE_TRAIN,		"Netmon Train"			},
     {ETHERTYPE_LOOP,		"Loopback"			}, /* Ethernet Loopback */
     {ETHERTYPE_WCP,		"Wellfleet Compression Protocol" },
+    {ETHERTYPE_ISMP,		"Cabletron Interswitch Message Protocol" },
+    {ETHERTYPE_ISMP_TBFLOOD,	"Cabletron SFVLAN 1.8 Tag-Based Flood" },
+    				/* for ISMP, see RFC 2641, RFC 2642, RFC 2643 */
     {ETHERTYPE_PPPOED,		"PPPoE Discovery"		},
     {ETHERTYPE_PPPOES,		"PPPoE Session"			},
     {ETHERTYPE_INTEL_ANS,	"Intel ANS probe"		},
