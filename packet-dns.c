@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.118 2004/01/20 00:11:59 guy Exp $
+ * $Id: packet-dns.c,v 1.119 2004/01/23 00:51:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,6 +138,9 @@ static dissector_handle_t gssapi_handle;
 #define T_DNAME         39              /* Non-terminal DNS name redirection (RFC 2672) */
 #define T_OPT		41		/* OPT pseudo-RR (RFC 2671) */
 #define T_DS            43		/* Delegation Signature(RFC 3658) */
+#define T_RRSIG         46              /* future RFC 2535bis */
+#define T_NSEC          47              /* future RFC 2535bis */
+#define T_DNSKEY        48              /* future RFC 2535bis */
 #define T_TKEY		249		/* Transaction Key (RFC 2930) */
 #define T_TSIG		250		/* Transaction Signature (RFC 2845) */
 #define T_WINS		65281		/* Microsoft's WINS RR */
@@ -331,7 +334,12 @@ dns_type_name (guint type)
     NULL,
     "OPT",				/* RFC 2671 */
     NULL,
-    "DS"				/* RFC 3658 */
+    "DS",				/* RFC 3658 */
+    NULL,
+    NULL,
+    "RRSIG",                            /* future RFC 2535bis */
+    "NSEC",                             /* future RFC 2535bis */
+    "DNSKEY"                            /* future RFC 2535bis */
   };
 
   if (type < sizeof(type_names)/sizeof(type_names[0]))
@@ -425,7 +433,12 @@ dns_long_type_name (guint type)
     NULL,
     "EDNS0 option",			/* RFC 2671 */
     NULL,
-    "Delegation Signer"                 /* RFC 3658 */
+    "Delegation Signer",                /* RFC 3658 */
+    NULL,
+    NULL,
+    "RR signature",                     /* future RFC 2535bis */
+    "Next secured",                     /* future RFC 2535bis */
+    "DNS public key"                    /* future RFC 2535bis */
   };
   static char unkbuf[7+1+2+1+4+1+1+10+1+1];	/* "Unknown RR type (%u)" */
 
@@ -1243,6 +1256,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
     }
     break;
 
+  case T_RRSIG:
   case T_SIG:
     {
       int rr_len = data_len;
@@ -1320,6 +1334,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
     }
     break;
 
+  case T_DNSKEY:  
   case T_KEY:
     {
       int rr_len = data_len;
@@ -1369,9 +1384,14 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 		decode_boolean_bitfield(flags, 0x0040,
 		  2*8, "Key is valid for use with MIME security multiparts",
 		       "Key is not valid for use with MIME security multiparts"));
-	  proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
-		decode_numeric_bitfield(flags, 0x000F,
-		  2*8, "Signatory = %u"));
+	  if( type != T_DNSKEY )
+	        proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
+		    decode_numeric_bitfield(flags, 0x000F,
+		       2*8, "Signatory = %u"));
+	    else proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
+ 	            decode_boolean_bitfield(flags, 0x0001, 
+		       2*8, "Key is a Key Signing Key",
+		            "Key is a Zone Signing Key") );
 	}
 	cur_offset += 2;
 	rr_len -= 2;
@@ -1536,6 +1556,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
     }
     break;
 
+  case T_NSEC:
   case T_NXT:
     {
       int rr_len = data_len;
