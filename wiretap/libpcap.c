@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.71 2002/03/09 23:07:26 guy Exp $
+ * $Id: libpcap.c,v 1.72 2002/06/06 09:18:28 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -30,6 +30,15 @@
 #include "buffer.h"
 #include "libpcap.h"
 
+/*
+ * The link-layer header on ATM packets.
+ */
+struct sunatm_hdr {
+	guint8	flags;		/* destination and traffic type */
+	guint8	vpi;		/* VPI */
+	guint16	vci;		/* VCI */
+};
+
 /* See source to the "libpcap" library for information on the "libpcap"
    file format. */
 
@@ -47,9 +56,15 @@ typedef enum {
 static libpcap_try_t libpcap_try(wtap *wth, int *err);
 
 static gboolean libpcap_read(wtap *wth, int *err, long *data_offset);
+static gboolean libpcap_seek_read(wtap *wth, long seek_off,
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err);
 static int libpcap_read_header(wtap *wth, int *err,
     struct pcaprec_ss990915_hdr *hdr, gboolean silent);
 static void adjust_header(wtap *wth, struct pcaprec_hdr *hdr);
+static gboolean libpcap_read_atm_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err);
+static gboolean libpcap_read_rec_data(FILE_T fh, u_char *pd, int length,
+    int *err);
 static void libpcap_close(wtap *wth);
 static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
@@ -381,6 +396,7 @@ static const struct {
 	{ 118,		WTAP_ENCAP_CISCO_IOS },
 	{ 119,		WTAP_ENCAP_PRISM_HEADER }, /* Prism monitor mode hdr */
 	{ 121,		WTAP_ENCAP_HHDLC },	/* HiPath HDLC */
+	{ 123,		WTAP_ENCAP_ATM_SNIFFER }, /* SunATM */
 };
 #define NUM_PCAP_ENCAPS (sizeof pcap_to_wtap_map / sizeof pcap_to_wtap_map[0])
 
@@ -529,7 +545,7 @@ int libpcap_open(wtap *wth, int *err)
 	wth->capture.pcap->version_major = hdr.version_major;
 	wth->capture.pcap->version_minor = hdr.version_minor;
 	wth->subtype_read = libpcap_read;
-	wth->subtype_seek_read = wtap_def_seek_read;
+	wth->subtype_seek_read = libpcap_seek_read;
 	wth->subtype_close = libpcap_close;
 	wth->file_encap = file_encap;
 	wth->snapshot_length = hdr.snaplen;
@@ -817,6 +833,7 @@ static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
 {
 	struct pcaprec_ss990915_hdr hdr;
 	guint packet_size;
+	guint orig_size;
 	int bytes_read;
 
 	bytes_read = libpcap_read_header(wth, err, &hdr, FALSE);
@@ -829,28 +846,75 @@ static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
 
 	wth->data_offset += bytes_read;
 	packet_size = hdr.hdr.incl_len;
+	orig_size = hdr.hdr.orig_len;
+
+	*data_offset = wth->data_offset;
+
+	/*
+	 * If this is an ATM packet, the first four bytes are the
+	 * direction of the packet (transmit/receive), the VPI, and
+	 * the VCI; read them and generate the pseudo-header from
+	 * them.
+	 */
+	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER) {
+		if (packet_size < sizeof (struct sunatm_hdr)) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			g_message("libpcap: SunATM file has a %u-byte packet, too small to have even an ATM pseudo-header\n",
+			    packet_size);
+			*err = WTAP_ERR_BAD_RECORD;
+			return FALSE;
+		}
+		if (!libpcap_read_atm_pseudoheader(wth->fh, &wth->pseudo_header,
+		    err))
+			return FALSE;	/* Read error */
+
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		orig_size -= sizeof (struct sunatm_hdr);
+		packet_size -= sizeof (struct sunatm_hdr);
+		wth->data_offset += sizeof (struct sunatm_hdr);
+	}
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
-	*data_offset = wth->data_offset;
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
-			packet_size, wth->fh);
-
-	if ((guint)bytes_read != packet_size) {
-		*err = file_error(wth->fh);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
+	if (!libpcap_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
+	    packet_size, err))
+		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
 	wth->phdr.ts.tv_sec = hdr.hdr.ts_sec;
 	wth->phdr.ts.tv_usec = hdr.hdr.ts_usec;
 	wth->phdr.caplen = packet_size;
-	wth->phdr.len = hdr.hdr.orig_len;
+	wth->phdr.len = orig_size;
 	wth->phdr.pkt_encap = wth->file_encap;
 
 	return TRUE;
+}
+
+static gboolean
+libpcap_seek_read(wtap *wth, long seek_off,
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err)
+{
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
+		*err = file_error(wth->random_fh);
+		return FALSE;
+	}
+
+	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER) {
+		if (!libpcap_read_atm_pseudoheader(wth->random_fh, pseudo_header,
+		    err)) {
+			/* Read error */
+			return FALSE;
+		}
+	}
+
+	/*
+	 * Read the packet data.
+	 */
+	return libpcap_read_rec_data(wth->random_fh, pd, length, err);
 }
 
 /* Read the header of the next packet; if "silent" is TRUE, don't complain
@@ -971,6 +1035,115 @@ adjust_header(wtap *wth, struct pcaprec_hdr *hdr)
 		hdr->orig_len = hdr->incl_len;
 		hdr->incl_len = temp;
 	}
+}
+
+static gboolean
+libpcap_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
+    int *err)
+{
+	struct sunatm_hdr atm_phdr;
+	int	bytes_read;
+	guint8	vpi;
+	guint16	vci;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(&atm_phdr, 1, sizeof (struct sunatm_hdr), fh);
+	if (bytes_read != sizeof (struct sunatm_hdr)) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	vpi = atm_phdr.vpi;
+	vci = pntohs(&atm_phdr.vci);
+
+	/*
+	 * The lower 4 bits of the first byte of the header indicate
+	 * the type of traffic, as per the "atmioctl.h" header in
+	 * SunATM.
+	 */
+	switch (atm_phdr.flags & 0x0F) {
+
+	case 0x01:	/* LANE */
+		pseudo_header->atm.aal = AAL_5;
+		pseudo_header->atm.type = TRAF_LANE;
+		break;
+
+	case 0x02:	/* RFC 1483 LLC multiplexed traffic */
+		pseudo_header->atm.aal = AAL_5;
+		pseudo_header->atm.type = TRAF_LLCMX;
+		break;
+
+	case 0x05:	/* ILMI */
+		pseudo_header->atm.aal = AAL_5;
+		pseudo_header->atm.type = TRAF_ILMI;
+		break;
+
+	case 0x06:	/* Q.2931 */
+		pseudo_header->atm.aal = AAL_SIGNALLING;
+		pseudo_header->atm.type = TRAF_UNKNOWN;
+		break;
+
+	case 0x03:	/* MARS (RFC 2022) */
+		pseudo_header->atm.aal = AAL_5;
+		pseudo_header->atm.type = TRAF_UNKNOWN;
+		break;
+
+	case 0x04:	/* IFMP (Ipsilon Flow Management Protocol; see RFC 1954) */
+		pseudo_header->atm.aal = AAL_5;
+		pseudo_header->atm.type = TRAF_UNKNOWN;	/* XXX - TRAF_IPSILON? */
+		break;
+
+	default:
+		/*
+		 * Assume it's AAL5, unless it's VPI 0 and VCI 5, in which
+		 * case assume it's AAL_SIGNALLING; we know nothing more
+		 * about it.
+		 *
+		 * XXX - is this necessary?  Or are we guaranteed that
+		 * all signalling traffic has a type of 0x06?
+		 *
+		 * XXX - is this guaranteed to be AAL5?  Or, if the type is
+		 * 0x00 ("raw"), might it be non-AAL5 traffic?
+		 */
+		if (vpi == 0 && vci == 5)
+			pseudo_header->atm.aal = AAL_SIGNALLING;
+		else
+			pseudo_header->atm.aal = AAL_5;
+		pseudo_header->atm.type = TRAF_UNKNOWN;
+		break;
+	}
+	pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+
+	pseudo_header->atm.vpi = vpi;
+	pseudo_header->atm.vci = vci;
+	pseudo_header->atm.channel = (atm_phdr.flags & 0x80) ? 1 : 0;
+
+	/* We don't have this information */
+	pseudo_header->atm.cells = 0;
+	pseudo_header->atm.aal5t_u2u = 0;
+	pseudo_header->atm.aal5t_len = 0;
+	pseudo_header->atm.aal5t_chksum = 0;
+
+	return TRUE;
+}
+
+static gboolean
+libpcap_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
+{
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(pd, 1, length, fh);
+
+	if (bytes_read != length) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+	return TRUE;
 }
 
 static void
@@ -1109,11 +1282,18 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 	struct pcaprec_ss990915_hdr rec_hdr;
 	size_t hdr_size;
 	size_t nwritten;
+	struct sunatm_hdr atm_hdr;
+	int atm_hdrsize;
+
+	if (wdh->encap == WTAP_ENCAP_ATM_SNIFFER)
+		atm_hdrsize = sizeof (struct sunatm_hdr);
+	else
+		atm_hdrsize = 0;
 
 	rec_hdr.hdr.ts_sec = phdr->ts.tv_sec;
 	rec_hdr.hdr.ts_usec = phdr->ts.tv_usec;
-	rec_hdr.hdr.incl_len = phdr->caplen;
-	rec_hdr.hdr.orig_len = phdr->len;
+	rec_hdr.hdr.incl_len = phdr->caplen + atm_hdrsize;
+	rec_hdr.hdr.orig_len = phdr->len + atm_hdrsize;
 	switch (wdh->file_type) {
 
 	case WTAP_FILE_PCAP:
@@ -1182,6 +1362,53 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		return FALSE;
 	}
 	wdh->bytes_dumped += hdr_size;
+
+	if (wdh->encap == WTAP_ENCAP_ATM_SNIFFER) {
+		/*
+		 * Write the ATM header.
+		 */
+		atm_hdr.flags =
+		    (pseudo_header->atm.channel != 0) ? 0x80 : 0x00;
+		switch (pseudo_header->atm.aal) {
+
+		case AAL_SIGNALLING:
+			/* Q.2931 */
+			atm_hdr.flags |= 0x06;
+			break;
+
+		case AAL_5:
+			switch (pseudo_header->atm.type) {
+
+			case TRAF_LANE:
+				/* LANE */
+				atm_hdr.flags |= 0x01;
+				break;
+
+			case TRAF_LLCMX:
+				/* RFC 1483 LLC multiplexed traffic */
+				atm_hdr.flags |= 0x02;
+				break;
+
+			case TRAF_ILMI:
+				/* ILMI */
+				atm_hdr.flags |= 0x05;
+				break;
+			}
+			break;
+		}
+		atm_hdr.vpi = pseudo_header->atm.vpi;
+		atm_hdr.vci = htons(pseudo_header->atm.vci);
+		nwritten = fwrite(&atm_hdr, 1, sizeof atm_hdr, wdh->fh);
+		if (nwritten != sizeof atm_hdr) {
+			if (nwritten == 0 && ferror(wdh->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
+		wdh->bytes_dumped += sizeof atm_hdr;
+	}
+
 	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
 	if (nwritten != phdr->caplen) {
 		if (nwritten == 0 && ferror(wdh->fh))
