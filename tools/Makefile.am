@@ -30,4 +30,5 @@ EXTRA_DIST = \
 	dfilter-test.py 	\
 	msnchat			\
 	pkt-from-core.py	\
+	unix2dos.pl		\
 	win32-setup.sh
