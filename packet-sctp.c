@@ -2,7 +2,7 @@
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sctp.c,v 1.9 2001/01/09 06:31:41 guy Exp $
+ * $Id: packet-sctp.c,v 1.10 2001/01/11 16:46:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -146,20 +146,20 @@ static gint ett_sctp_unrecognized_parameter_parameter = -1;
 static const value_string sctp_chunk_type_values[] = {
   { SCTP_DATA_CHUNK_ID,              "DATA" },
   { SCTP_INIT_CHUNK_ID,              "INIT" },
-  { SCTP_INIT_ACK_CHUNK_ID,          "INIT ACK" },
+  { SCTP_INIT_ACK_CHUNK_ID,          "INIT_ACK" },
   { SCTP_SACK_CHUNK_ID,              "SACK" },
   { SCTP_HEARTBEAT_CHUNK_ID,         "HEARTBEAT" },
-  { SCTP_HEARTBEAT_ACK_CHUNK_ID,     "HEARTBEAT ACK" },
+  { SCTP_HEARTBEAT_ACK_CHUNK_ID,     "HEARTBEAT_ACK" },
   { SCTP_ABORT_CHUNK_ID,             "ABORT" },
   { SCTP_SHUTDOWN_CHUNK_ID,          "SHUTDOWN" },
-  { SCTP_SHUTDOWN_ACK_CHUNK_ID,      "SHUTDOWN ACK" },
+  { SCTP_SHUTDOWN_ACK_CHUNK_ID,      "SHUTDOWN_ACK" },
   { SCTP_ERROR_CHUNK_ID,             "ERROR" },
-  { SCTP_COOKIE_ECHO_CHUNK_ID,       "COOKIE ECHO" },
-  { SCTP_COOKIE_ACK_CHUNK_ID,        "COOKIE ACK" },
+  { SCTP_COOKIE_ECHO_CHUNK_ID,       "COOKIE_ECHO" },
+  { SCTP_COOKIE_ACK_CHUNK_ID,        "COOKIE_ACK" },
   { SCTP_ECNE_CHUNK_ID,              "ECNE" },
   { SCTP_CWR_CHUNK_ID,               "CWR" },
-  { SCTP_SHUTDOWN_COMPLETE_CHUNK_ID, "SHUTDOWN COMPLETE" },
-  { SCTP_IETF_EXT,                   "IETF EXTENSION" },
+  { SCTP_SHUTDOWN_COMPLETE_CHUNK_ID, "SHUTDOWN_COMPLETE" },
+  { SCTP_IETF_EXT,                   "IETF_EXTENSION" },
   { 0,                               NULL } };
 
 #define HEARTBEAT_INFO_PARAMETER_ID          0x0001
@@ -256,6 +256,24 @@ static const value_string sctp_cause_code_values[] = {
   { NO_USER_DATA,                        "No user data" },
   { COOKIE_RECEIVED_WHILE_SHUTTING_DOWN, "Cookie received while shutting down" },
   { 0,                           NULL } };
+
+#define NOT_SPECIFIED_PROTOCOL_ID  0
+#define IUA_PAYLOAD_PROTOCOL_ID    1
+#define M2UA_PAYLOAD_PROTOCOL_ID   2
+#define M3UA_PAYLOAD_PROTOCOL_ID   3
+#define SUA_PAYLOAD_PROTOCOL_ID    4
+#define M2PA_PAYLOAD_PROTOCOL_ID   5
+#define V5UA_PAYLOAD_PROTOCOL_ID   6
+
+static const value_string sctp_payload_proto_id_values[] = {
+  { NOT_SPECIFIED_PROTOCOL_ID,           "not specified" },
+  { IUA_PAYLOAD_PROTOCOL_ID,             "IUA" },
+  { M2UA_PAYLOAD_PROTOCOL_ID,            "M2UA" },
+  { M3UA_PAYLOAD_PROTOCOL_ID,            "M3UA" },
+  { SUA_PAYLOAD_PROTOCOL_ID,             "SUA" },
+  { M2PA_PAYLOAD_PROTOCOL_ID,            "M2PA" },
+  { V5UA_PAYLOAD_PROTOCOL_ID,            "V5UA" },
+  { 0,                                   NULL } };
 
 /* The structure of the common header is described by the following constants */
 #define SOURCE_PORT_LENGTH      2
@@ -403,8 +421,9 @@ static const true_false_string sctp_shutdown_complete_chunk_t_bit_value = {
 #define DO8(buf,i)  DO4(buf,i); DO4(buf,i+4);
 #define DO16(buf)   DO8(buf,0); DO8(buf,8);
 
-unsigned int sctp_adler_32(const unsigned char* buf,
-			         unsigned int len)
+static unsigned int
+sctp_adler_32(const unsigned char* buf,
+	      unsigned int len)
 {
     unsigned int s1 = 1L;
     unsigned int s2 = 0L;
@@ -442,7 +461,8 @@ unsigned int sctp_adler_32(const unsigned char* buf,
     return (s2 << 16) | s1;
 }
 
-static char *sctp_checksum_state(tvbuff_t *tvb, guint orig_checksum)
+static char 
+*sctp_checksum_state(tvbuff_t *tvb, guint orig_checksum)
 {
   guint length;
   
@@ -453,7 +473,7 @@ static char *sctp_checksum_state(tvbuff_t *tvb, guint orig_checksum)
     return "incorrect";
 }
 
-guint 
+static guint 
 nr_of_padding_bytes (guint length)
 {
   guint remainder;
@@ -470,13 +490,14 @@ nr_of_padding_bytes (guint length)
  * TLV parameter stuff for INIT and INIT-ACK chunks
  */
 
-void
+static void
 dissect_parameter(tvbuff_t *, proto_tree *);
 
-void
+static void
 dissect_sctp_chunk(tvbuff_t *, packet_info *, proto_tree *, proto_tree *);
 
-void dissect_tlv_parameter_list(tvbuff_t *parameter_list_tvb, proto_tree *tree)
+static void 
+dissect_tlv_parameter_list(tvbuff_t *parameter_list_tvb, proto_tree *tree)
 {
   guint offset, length, padding_length, total_length;
   tvbuff_t *parameter_tvb;
@@ -494,7 +515,7 @@ void dissect_tlv_parameter_list(tvbuff_t *parameter_list_tvb, proto_tree *tree)
   }
 }
 
-void
+static void
 dissect_heartbeat_info_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 length, heartbeat_info_length;
@@ -511,7 +532,7 @@ dissect_heartbeat_info_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
 		      heartbeat_info_length, plurality(heartbeat_info_length, "", "s"));
 }
 
-void
+static void
 dissect_ipv4_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint32 ipv4_address;
@@ -523,7 +544,7 @@ dissect_ipv4_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
   proto_item_set_text(parameter_item, "IPV4 address parameter");
 }
 
-void
+static void
 dissect_ipv6_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_ipv6(parameter_tree, hf_sctp_parameter_ipv6_address,
@@ -533,7 +554,7 @@ dissect_ipv6_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
   proto_item_set_text(parameter_item, "IPV6 address parameter");
 }
 
-void
+static void
 dissect_state_cookie_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 length, state_cookie_length;
@@ -550,7 +571,7 @@ dissect_state_cookie_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
 		      state_cookie_length, plurality(state_cookie_length, "", "s"));
 }
 
-void
+static void
 dissect_unrecognized_parameters_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 length, parameter_value_length;
@@ -567,7 +588,7 @@ dissect_unrecognized_parameters_parameter(tvbuff_t *parameter_tvb, proto_tree *p
   proto_item_set_text(parameter_item, "Unrecognized parameter of type");
 }
 
-void
+static void
 dissect_cookie_preservative_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint32 increment;
@@ -583,7 +604,7 @@ dissect_cookie_preservative_parameter(tvbuff_t *parameter_tvb, proto_tree *param
 		      increment);
 }
 
-void
+static void
 dissect_hostname_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16  length, hostname_length;
@@ -600,7 +621,7 @@ dissect_hostname_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, 
   proto_item_set_text(parameter_item, "Hostname parameter");
 }
 
-void
+static void
 dissect_supported_address_types_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 length, address_type, number_of_address_types, address_type_number, list_of_address_types_length ;
@@ -631,13 +652,13 @@ dissect_supported_address_types_parameter(tvbuff_t *parameter_tvb, proto_tree *p
 		      number_of_address_types, plurality(number_of_address_types, "", "s"));
 }
 
-void
+static void
 dissect_ecn_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
    proto_item_set_text(parameter_item, "ECN parameter");
 }
 
-void
+static void
 dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 type, length, parameter_value_length;
@@ -655,7 +676,7 @@ dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
 		      type, parameter_value_length, plurality(parameter_value_length, "", "s"));
 }
 
-void
+static void
 dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *chunk_tree)
 {
   guint16 type, length, padding_length, total_length;
@@ -719,7 +740,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *chunk_tree)
 /*
  * Code to handle error causes for ABORT and ERROR chunks
  */
-void
+static void
 dissect_invalid_stream_identifier_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
 {
   guint16 stream_identifier;
@@ -735,7 +756,7 @@ dissect_invalid_stream_identifier_cause(tvbuff_t *cause_tvb, proto_tree *cause_t
 		      stream_identifier);
 }
 
-void
+static void
 dissect_missing_mandatory_parameters_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
 {
   guint32 number_of_missing_parameters, missing_parameter_number;
@@ -761,7 +782,7 @@ dissect_missing_mandatory_parameters_cause(tvbuff_t *cause_tvb, proto_tree *caus
 		      number_of_missing_parameters, plurality(number_of_missing_parameters, "", "s") );
 }
 
-void
+static void
 dissect_stale_cookie_error_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
 {
   guint32 measure_of_staleness;
@@ -777,13 +798,13 @@ dissect_stale_cookie_error_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, pr
 		      measure_of_staleness);
 }
 
-void
+static void
 dissect_out_of_resource_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
 {
   proto_item_set_text(cause_item, "Error cause reporting lack of resources");
 }
 
-void
+static void
 dissect_unresolvable_address_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
 {
   guint16 code, length, parameter_length, parameter_type;
@@ -803,7 +824,7 @@ dissect_unresolvable_address_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, 
 		      parameter_type, val_to_str(parameter_type, sctp_parameter_identifier_values, "unknown") );
 }
 
-void
+static void
 dissect_unrecognized_chunk_type_cause(tvbuff_t *cause_tvb,  packet_info *pinfo, 
 				      proto_tree *cause_tree, proto_item *cause_item)
 {
@@ -826,13 +847,13 @@ dissect_unrecognized_chunk_type_cause(tvbuff_t *cause_tvb,  packet_info *pinfo,
 		      val_to_str(unrecognized_type, sctp_chunk_type_values, "unknown"));
 }
 
-void
+static void
 dissect_invalid_mandatory_parameter_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
 {
   proto_item_set_text(cause_item, "Error cause reporting an invalid mandatory parameter");
 }
 
-void
+static void
 dissect_unrecognized_parameters_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
 {
   guint16 length, cause_info_length;
@@ -849,7 +870,7 @@ dissect_unrecognized_parameters_cause(tvbuff_t *cause_tvb, proto_tree *cause_tre
   proto_item_set_text(cause_item, "Error cause reporting unrecognized parameters");
 }
 
-void
+static void
 dissect_no_user_data_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
 {
   guint32 tsn;
@@ -864,13 +885,13 @@ dissect_no_user_data_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_it
 		      tsn);
 }
 
-void
+static void
 dissect_cookie_received_while_shutting_down_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
 {
   proto_item_set_text(cause_item, "Error cause reporting cookie reception while shutting down");
 }
 
-void
+static void
 dissect_unknown_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
 {
   guint16 code, length, cause_info_length;
@@ -888,7 +909,7 @@ dissect_unknown_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *c
 		      code, cause_info_length, plurality(cause_info_length, "", "s"));
 }
 
-void
+static void
 dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_tree)
 {
   guint16 code, length, padding_length, total_length;
@@ -964,8 +985,11 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree,
   /* do lookup with the subdissector table */
   if (dissector_try_port(sctp_dissector_table, pi.srcport,  payload_tvb, pinfo, tree) ||
       dissector_try_port(sctp_dissector_table, pi.destport, payload_tvb, pinfo, tree))
+    
     return;
   else {
+    if (check_col(pinfo->fd, COL_INFO))
+      col_append_str(pinfo->fd, COL_INFO, "DATA ");
     proto_tree_add_text(chunk_tree, payload_tvb, 0, payload_length,
 			"Payload (%u byte%s)",
 			payload_length, plurality(payload_length, "", "s")); 
@@ -976,10 +1000,6 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree,
   }
 }
 
-
-
-
-
 static void
 dissect_data_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 		   proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
@@ -989,53 +1009,54 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
   guint32 tsn, payload_proto_id;
   proto_tree *flag_tree;
   tvbuff_t *payload_tvb;
-
-  flags             = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET);
-  length            = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET);
    
-  flag_tree = proto_item_add_subtree(flags_item, ett_sctp_data_chunk_flags);
-  proto_tree_add_boolean(flag_tree, hf_sctp_data_chunk_e_bit, chunk_tvb,
-			 CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH, flags);
-  proto_tree_add_boolean(flag_tree, hf_sctp_data_chunk_b_bit, chunk_tvb,
-			 CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH, flags);
-  proto_tree_add_boolean(flag_tree, hf_sctp_data_chunk_u_bit, chunk_tvb,
-			 CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH, flags);
-
-  tsn               = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_TSN_OFFSET);
-  stream_id         = tvb_get_ntohs(chunk_tvb, DATA_CHUNK_STREAM_ID_OFFSET);
-  stream_seq_number = tvb_get_ntohs(chunk_tvb, DATA_CHUNK_STREAM_SEQ_NUMBER_OFFSET);
-  payload_proto_id  = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET);
-  
+  length            = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET);
   payload_length       = length - DATA_CHUNK_HEADER_LENGTH;
   padding_length       = nr_of_padding_bytes(length);
   total_payload_length = payload_length + padding_length;
   payload_tvb          = tvb_new_subset(chunk_tvb, DATA_CHUNK_PAYLOAD_OFFSET,
-				  total_payload_length, total_payload_length);
-   
-  proto_tree_add_uint(chunk_tree, hf_sctp_data_chunk_tsn, 
-		      chunk_tvb,
-		      DATA_CHUNK_TSN_OFFSET, DATA_CHUNK_TSN_LENGTH,
-		      tsn);
-  proto_tree_add_uint(chunk_tree, hf_sctp_data_chunk_stream_id, 
-		      chunk_tvb, 
-		      DATA_CHUNK_STREAM_ID_OFFSET, DATA_CHUNK_STREAM_ID_LENGTH,
-		      stream_id);
-  proto_tree_add_uint(chunk_tree, hf_sctp_data_chunk_stream_seq_number, 
-		      chunk_tvb, 
-		      DATA_CHUNK_STREAM_SEQ_NUMBER_OFFSET, DATA_CHUNK_STREAM_SEQ_NUMBER_LENGTH,
-		      stream_seq_number);
-  proto_tree_add_uint(chunk_tree, hf_sctp_data_chunk_payload_proto_id, 
-		      chunk_tvb,
-		      DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH,
-		      payload_proto_id);
-  proto_item_set_text(chunk_item, "DATA chunk with TSN %u (%u:%u) containing %u byte%s of payload",
-		      tsn, stream_id, stream_seq_number, 
-		      payload_length, plurality(payload_length, "", "s"));
+					  total_payload_length, total_payload_length);
 
-  dissect_payload(payload_tvb, pinfo, tree, chunk_tree, payload_length, padding_length);
-} 
+  if (chunk_tree) {
+    flags             = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET);
+     
+    flag_tree = proto_item_add_subtree(flags_item, ett_sctp_data_chunk_flags);
+    proto_tree_add_boolean(flag_tree, hf_sctp_data_chunk_e_bit, chunk_tvb,
+			   CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH, flags);
+    proto_tree_add_boolean(flag_tree, hf_sctp_data_chunk_b_bit, chunk_tvb,
+			   CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH, flags);
+    proto_tree_add_boolean(flag_tree, hf_sctp_data_chunk_u_bit, chunk_tvb,
+			   CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH, flags);
+    
+    tsn               = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_TSN_OFFSET);
+    stream_id         = tvb_get_ntohs(chunk_tvb, DATA_CHUNK_STREAM_ID_OFFSET);
+    stream_seq_number = tvb_get_ntohs(chunk_tvb, DATA_CHUNK_STREAM_SEQ_NUMBER_OFFSET);
+    payload_proto_id  = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET);
+        
+    proto_tree_add_uint(chunk_tree, hf_sctp_data_chunk_tsn, 
+			chunk_tvb,
+			DATA_CHUNK_TSN_OFFSET, DATA_CHUNK_TSN_LENGTH,
+			tsn);
+    proto_tree_add_uint(chunk_tree, hf_sctp_data_chunk_stream_id, 
+			chunk_tvb, 
+			DATA_CHUNK_STREAM_ID_OFFSET, DATA_CHUNK_STREAM_ID_LENGTH,
+			stream_id);
+    proto_tree_add_uint(chunk_tree, hf_sctp_data_chunk_stream_seq_number, 
+			chunk_tvb, 
+			DATA_CHUNK_STREAM_SEQ_NUMBER_OFFSET, DATA_CHUNK_STREAM_SEQ_NUMBER_LENGTH,
+			stream_seq_number);
+    proto_tree_add_uint_format(chunk_tree, hf_sctp_data_chunk_payload_proto_id, 
+			       chunk_tvb, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH,
+			       payload_proto_id, "Payload protocol identifier: %u (%s)",
+			       payload_proto_id, val_to_str(payload_proto_id, sctp_payload_proto_id_values, "unknown"));
+    proto_item_set_text(chunk_item, "DATA chunk with TSN %u (%u:%u) containing %u byte%s of payload",
+			tsn, stream_id, stream_seq_number, 
+			payload_length, plurality(payload_length, "", "s"));
+  };   
+  dissect_payload(payload_tvb, pinfo, tree, chunk_tree, payload_length, padding_length); 
+}
 
-void
+static void
 dissect_init_chunk(tvbuff_t *chunk_tvb,  packet_info *pinfo, proto_tree *tree,
 		   proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 { 
@@ -1045,54 +1066,64 @@ dissect_init_chunk(tvbuff_t *chunk_tvb,  packet_info *pinfo, proto_tree *tree,
   tvbuff_t *parameter_list_tvb;
 
   type                       = tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET);
- 
-  initiate_tag               = tvb_get_ntohl(chunk_tvb, INIT_CHUNK_INITIATE_TAG_OFFSET);
-  adv_rec_window_credit      = tvb_get_ntohl(chunk_tvb, INIT_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
-  number_of_inbound_streams  = tvb_get_ntohs(chunk_tvb, INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET);
-  number_of_outbound_streams = tvb_get_ntohs(chunk_tvb, INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET);
-  initial_tsn                = tvb_get_ntohl(chunk_tvb, INIT_CHUNK_INITIAL_TSN_OFFSET);
-
-  /* handle fixed parameters */
-  proto_tree_add_uint(chunk_tree, hf_sctp_init_chunk_initiate_tag, 
-		      chunk_tvb,
-		      INIT_CHUNK_INITIATE_TAG_OFFSET, INIT_CHUNK_INITIATE_TAG_LENGTH,
-		      initiate_tag);
-  proto_tree_add_uint(chunk_tree, hf_sctp_init_chunk_adv_rec_window_credit, 
-		      chunk_tvb,
-		      INIT_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET, INIT_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH,
-		      adv_rec_window_credit);
-  proto_tree_add_uint(chunk_tree, hf_sctp_init_chunk_number_of_outbound_streams, 
-		      chunk_tvb,
-		      INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET, INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_LENGTH,
-		      number_of_outbound_streams);
-  proto_tree_add_uint(chunk_tree, hf_sctp_init_chunk_number_of_inbound_streams, 
-		      chunk_tvb,
-		      INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET, INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_LENGTH,
-		      number_of_inbound_streams);
-  proto_tree_add_uint(chunk_tree, hf_sctp_init_chunk_initial_tsn, 
-		      chunk_tvb,
-		      INIT_CHUNK_INITIAL_TSN_OFFSET, INIT_CHUNK_INITIAL_TSN_LENGTH,
-		      initial_tsn);
   
-  /* handle variable paramters */
-  parameter_list_tvb = tvb_new_subset(chunk_tvb, INIT_CHUNK_VARIABLE_LENGTH_PARAMETER_OFFSET, -1, -1);
-  dissect_tlv_parameter_list(parameter_list_tvb, chunk_tree);
-
-  proto_item_set_text(chunk_item, 
-		      "%s chunk requesting for %u outbound stream%s and accepting up to %u inbound stream%s",
-		      val_to_str(type, sctp_chunk_type_values, "unknown"),
-		      number_of_outbound_streams, plurality(number_of_outbound_streams, "", "s"),
-		      number_of_inbound_streams, plurality(number_of_inbound_streams, "", "s"));
+  if (check_col(pinfo->fd, COL_INFO)) {
+    if (type == SCTP_INIT_CHUNK_ID) {
+      col_append_str(pinfo->fd, COL_INFO, "INIT ");
+    } else {
+      col_append_str(pinfo->fd, COL_INFO, "INIT_ACK ");
+    };
+  };
+  
+  if (chunk_tree) {
+    initiate_tag               = tvb_get_ntohl(chunk_tvb, INIT_CHUNK_INITIATE_TAG_OFFSET);
+    adv_rec_window_credit      = tvb_get_ntohl(chunk_tvb, INIT_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
+    number_of_inbound_streams  = tvb_get_ntohs(chunk_tvb, INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET);
+    number_of_outbound_streams = tvb_get_ntohs(chunk_tvb, INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET);
+    initial_tsn                = tvb_get_ntohl(chunk_tvb, INIT_CHUNK_INITIAL_TSN_OFFSET);
+    
+    /* handle fixed parameters */
+    proto_tree_add_uint(chunk_tree, hf_sctp_init_chunk_initiate_tag, 
+			chunk_tvb,
+			INIT_CHUNK_INITIATE_TAG_OFFSET, INIT_CHUNK_INITIATE_TAG_LENGTH,
+			initiate_tag);
+    proto_tree_add_uint(chunk_tree, hf_sctp_init_chunk_adv_rec_window_credit, 
+			chunk_tvb,
+			INIT_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET, INIT_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH,
+			adv_rec_window_credit);
+    proto_tree_add_uint(chunk_tree, hf_sctp_init_chunk_number_of_outbound_streams, 
+			chunk_tvb,
+			INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET, INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_LENGTH,
+			number_of_outbound_streams);
+    proto_tree_add_uint(chunk_tree, hf_sctp_init_chunk_number_of_inbound_streams, 
+			chunk_tvb,
+			INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET, INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_LENGTH,
+			number_of_inbound_streams);
+    proto_tree_add_uint(chunk_tree, hf_sctp_init_chunk_initial_tsn, 
+			chunk_tvb,
+			INIT_CHUNK_INITIAL_TSN_OFFSET, INIT_CHUNK_INITIAL_TSN_LENGTH,
+			initial_tsn);
+    
+    /* handle variable paramters */
+    parameter_list_tvb = tvb_new_subset(chunk_tvb, INIT_CHUNK_VARIABLE_LENGTH_PARAMETER_OFFSET, -1, -1);
+    dissect_tlv_parameter_list(parameter_list_tvb, chunk_tree);
+    
+    proto_item_set_text(chunk_item, 
+			"%s chunk requesting for %u outbound stream%s and accepting up to %u inbound stream%s",
+			val_to_str(type, sctp_chunk_type_values, "unknown"),
+			number_of_outbound_streams, plurality(number_of_outbound_streams, "", "s"),
+			number_of_inbound_streams, plurality(number_of_inbound_streams, "", "s"));
+  }
 } 
 
-void
+static void
 dissect_init_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 		       proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 { 
   dissect_init_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
 } 
 
-void
+static void
 dissect_sack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 		   proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 { 
@@ -1102,117 +1133,136 @@ dissect_sack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
   gint gap_block_offset, dup_tsn_offset;
   proto_item *block_item;
   proto_tree *block_tree;
-
-  cumulative_tsn_ack    = tvb_get_ntohl(chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET);
-  adv_rec_window_credit = tvb_get_ntohl(chunk_tvb, SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
-  number_of_gap_blocks  = tvb_get_ntohs(chunk_tvb, SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_OFFSET);
-  number_of_dup_tsns    = tvb_get_ntohs(chunk_tvb, SACK_CHUNK_NUMBER_OF_DUP_TSNS_OFFSET);
   
-  proto_tree_add_uint(chunk_tree, hf_sctp_sack_chunk_cumulative_tsn_ack, 
-		      chunk_tvb,
-		      SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET, SACK_CHUNK_CUMULATIVE_TSN_ACK_LENGTH,
-		      cumulative_tsn_ack);
-  proto_tree_add_uint(chunk_tree, hf_sctp_sack_chunk_adv_rec_window_credit, 
-		      chunk_tvb,
-		      SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET, SACK_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH,
-		      adv_rec_window_credit);
-  proto_tree_add_uint(chunk_tree, hf_sctp_sack_chunk_number_of_gap_blocks, 
-		      chunk_tvb,
-		      SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_OFFSET, SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_LENGTH,
-		      number_of_gap_blocks);
-  proto_tree_add_uint(chunk_tree, hf_sctp_sack_chunk_number_of_dup_tsns, 
-		      chunk_tvb,
-		      SACK_CHUNK_NUMBER_OF_DUP_TSNS_OFFSET, SACK_CHUNK_NUMBER_OF_DUP_TSNS_LENGTH,
-		      number_of_dup_tsns);
-  
-  /* handle the gap acknowledgement blocks */
-  gap_block_offset = SACK_CHUNK_GAP_BLOCK_OFFSET;
-  for(gap_block_number = 1; gap_block_number <= number_of_gap_blocks; gap_block_number++) {
-    start = tvb_get_ntohs(chunk_tvb, gap_block_offset);
-    end   = tvb_get_ntohs(chunk_tvb, gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH);
-    block_item = proto_tree_add_text(chunk_tree, chunk_tvb,
-				     gap_block_offset, SACK_CHUNK_GAP_BLOCK_LENGTH,
-				     "Gap Acknowledgement for %u TSN%s",
-				     1 + end - start, plurality(1 + end - start, "", "s"));
-    block_tree = proto_item_add_subtree(block_item, ett_sctp_sack_chunk_gap_block);
-    proto_tree_add_uint(block_tree, hf_sctp_sack_chunk_gap_block_start, 
-			chunk_tvb,
-			gap_block_offset, SACK_CHUNK_GAP_BLOCK_START_LENGTH,
-			start);
-    proto_tree_add_uint(block_tree, hf_sctp_sack_chunk_gap_block_end, 
-			chunk_tvb,
-			gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH,
-			SACK_CHUNK_GAP_BLOCK_END_LENGTH,
-			end);
-    gap_block_offset += SACK_CHUNK_GAP_BLOCK_LENGTH;
-  };
-  
-  /* handle the duplicate TSNs */
-  dup_tsn_offset = SACK_CHUNK_GAP_BLOCK_OFFSET + number_of_gap_blocks * SACK_CHUNK_GAP_BLOCK_LENGTH;
-  for(dup_tsn_number = 1; dup_tsn_number <= number_of_dup_tsns; dup_tsn_number++) {
-    dup_tsn = tvb_get_ntohl(chunk_tvb, dup_tsn_offset);
-    proto_tree_add_uint(chunk_tree, hf_sctp_sack_chunk_duplicate_tsn, 
-			chunk_tvb,
-			dup_tsn, SACK_CHUNK_DUP_TSN_LENGTH,
-			dup_tsn);
-    dup_tsn_offset += SACK_CHUNK_DUP_TSN_LENGTH;
-  };
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_str(pinfo->fd, COL_INFO, "SACK ");
 
-  proto_item_set_text(chunk_item, 
-		      "SACK chunk acknowledging TSN %u and reporting %u gap%s and %u duplicate TSN%s",
-		      cumulative_tsn_ack,
-		      number_of_gap_blocks, plurality(number_of_gap_blocks, "", "s"),
-		      number_of_dup_tsns, plurality(number_of_dup_tsns, "", "s"));
-} 
+  if (chunk_tree) {
+    cumulative_tsn_ack    = tvb_get_ntohl(chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET);
+    adv_rec_window_credit = tvb_get_ntohl(chunk_tvb, SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
+    number_of_gap_blocks  = tvb_get_ntohs(chunk_tvb, SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_OFFSET);
+    number_of_dup_tsns    = tvb_get_ntohs(chunk_tvb, SACK_CHUNK_NUMBER_OF_DUP_TSNS_OFFSET);
+    
+    proto_tree_add_uint(chunk_tree, hf_sctp_sack_chunk_cumulative_tsn_ack, 
+			chunk_tvb,
+			SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET, SACK_CHUNK_CUMULATIVE_TSN_ACK_LENGTH,
+			cumulative_tsn_ack);
+    proto_tree_add_uint(chunk_tree, hf_sctp_sack_chunk_adv_rec_window_credit, 
+			chunk_tvb,
+			SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET, SACK_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH,
+			adv_rec_window_credit);
+    proto_tree_add_uint(chunk_tree, hf_sctp_sack_chunk_number_of_gap_blocks, 
+			chunk_tvb,
+			SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_OFFSET, SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_LENGTH,
+			number_of_gap_blocks);
+    proto_tree_add_uint(chunk_tree, hf_sctp_sack_chunk_number_of_dup_tsns, 
+			chunk_tvb,
+			SACK_CHUNK_NUMBER_OF_DUP_TSNS_OFFSET, SACK_CHUNK_NUMBER_OF_DUP_TSNS_LENGTH,
+			number_of_dup_tsns);
+    
+    /* handle the gap acknowledgement blocks */
+    gap_block_offset = SACK_CHUNK_GAP_BLOCK_OFFSET;
+    for(gap_block_number = 1; gap_block_number <= number_of_gap_blocks; gap_block_number++) {
+      start = tvb_get_ntohs(chunk_tvb, gap_block_offset);
+      end   = tvb_get_ntohs(chunk_tvb, gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH);
+      block_item = proto_tree_add_text(chunk_tree, chunk_tvb,
+				       gap_block_offset, SACK_CHUNK_GAP_BLOCK_LENGTH,
+				       "Gap Acknowledgement for %u TSN%s",
+				       1 + end - start, plurality(1 + end - start, "", "s"));
+      block_tree = proto_item_add_subtree(block_item, ett_sctp_sack_chunk_gap_block);
+      proto_tree_add_uint(block_tree, hf_sctp_sack_chunk_gap_block_start, 
+			  chunk_tvb,
+			  gap_block_offset, SACK_CHUNK_GAP_BLOCK_START_LENGTH,
+			  start);
+      proto_tree_add_uint(block_tree, hf_sctp_sack_chunk_gap_block_end, 
+			  chunk_tvb,
+			  gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH,
+			  SACK_CHUNK_GAP_BLOCK_END_LENGTH,
+			  end);
+      gap_block_offset += SACK_CHUNK_GAP_BLOCK_LENGTH;
+    };
+    
+    /* handle the duplicate TSNs */
+    dup_tsn_offset = SACK_CHUNK_GAP_BLOCK_OFFSET + number_of_gap_blocks * SACK_CHUNK_GAP_BLOCK_LENGTH;
+    for(dup_tsn_number = 1; dup_tsn_number <= number_of_dup_tsns; dup_tsn_number++) {
+      dup_tsn = tvb_get_ntohl(chunk_tvb, dup_tsn_offset);
+      proto_tree_add_uint(chunk_tree, hf_sctp_sack_chunk_duplicate_tsn, 
+			  chunk_tvb,
+			  dup_tsn, SACK_CHUNK_DUP_TSN_LENGTH,
+			  dup_tsn);
+      dup_tsn_offset += SACK_CHUNK_DUP_TSN_LENGTH;
+    }
+    
+    proto_item_set_text(chunk_item, 
+			"SACK chunk acknowledging TSN %u and reporting %u gap%s and %u duplicate TSN%s",
+			cumulative_tsn_ack,
+			number_of_gap_blocks, plurality(number_of_gap_blocks, "", "s"),
+			number_of_dup_tsns, plurality(number_of_dup_tsns, "", "s"));
+  } 
+}
 
-void
+static void
 dissect_heartbeat_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 			proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 {
   tvbuff_t   *parameter_tvb;
   guint chunk_length, info_length, padding_length, total_length;
-
-  chunk_length   = tvb_get_ntohs(chunk_tvb,  CHUNK_LENGTH_OFFSET);
-  info_length    = chunk_length - CHUNK_HEADER_LENGTH;
-  padding_length = nr_of_padding_bytes(info_length);
-  total_length   = info_length + padding_length;
-  parameter_tvb  = tvb_new_subset(chunk_tvb, HEARTBEAT_CHUNK_INFO_OFFSET, total_length, total_length);
     
-  dissect_parameter(parameter_tvb, chunk_tree);
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_str(pinfo->fd, COL_INFO, "HEARTBEAT ");
 
-  proto_item_set_text(chunk_item, "HEARTBEAT chunk");
+  if (chunk_tree) {
+    chunk_length   = tvb_get_ntohs(chunk_tvb,  CHUNK_LENGTH_OFFSET);
+    info_length    = chunk_length - CHUNK_HEADER_LENGTH;
+    padding_length = nr_of_padding_bytes(info_length);
+    total_length   = info_length + padding_length;
+    parameter_tvb  = tvb_new_subset(chunk_tvb, HEARTBEAT_CHUNK_INFO_OFFSET, total_length, total_length);
+    
+    dissect_parameter(parameter_tvb, chunk_tree);
+    
+    proto_item_set_text(chunk_item, "HEARTBEAT chunk");
+  }
 }
  
-void
+static void
 dissect_heartbeat_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 			    proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 {  
   tvbuff_t   *parameter_tvb;
   guint chunk_length, info_length, padding_length, total_length;
+  
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_str(pinfo->fd, COL_INFO, "HEARTBEAT_ACK ");
 
-  chunk_length   = tvb_get_ntohs(chunk_tvb,  CHUNK_LENGTH_OFFSET);
-  info_length    = chunk_length - CHUNK_HEADER_LENGTH;
-  padding_length = nr_of_padding_bytes(info_length);
-  total_length   = info_length + padding_length;
+  if (chunk_tree) {
+    chunk_length   = tvb_get_ntohs(chunk_tvb,  CHUNK_LENGTH_OFFSET);
+    info_length    = chunk_length - CHUNK_HEADER_LENGTH;
+    padding_length = nr_of_padding_bytes(info_length);
+    total_length   = info_length + padding_length;
 
-  parameter_tvb  = tvb_new_subset(chunk_tvb, HEARTBEAT_CHUNK_INFO_OFFSET, total_length, total_length);
+    parameter_tvb  = tvb_new_subset(chunk_tvb, HEARTBEAT_CHUNK_INFO_OFFSET, total_length, total_length);
     
-  dissect_parameter(parameter_tvb, chunk_tree);
+    dissect_parameter(parameter_tvb, chunk_tree);
+    
+    proto_item_set_text(chunk_item, "HEARTBEAT ACK chunk");
+  } 
+}
 
-  proto_item_set_text(chunk_item, "HEARTBEAT ACK chunk");
-} 
-
-void
+static void
 dissect_abort_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 		    proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 {
   guint offset, number_of_causes;
   guint16 length, padding_length, total_length;
   tvbuff_t *cause_tvb;
+  
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_str(pinfo->fd, COL_INFO, "ABORT ");
 
-  number_of_causes = 0;
-  offset = ABORT_CHUNK_FIRST_ERROR_CAUSE_OFFSET;
-  while(tvb_length_remaining(chunk_tvb, offset)) {
+  if (chunk_tree) {
+    number_of_causes = 0;
+    offset = ABORT_CHUNK_FIRST_ERROR_CAUSE_OFFSET;
+    while(tvb_length_remaining(chunk_tvb, offset)) {
     length         = tvb_get_ntohs(chunk_tvb, offset + CAUSE_LENGTH_OFFSET);
     padding_length = nr_of_padding_bytes(length);
     total_length   = length + padding_length;
@@ -1222,37 +1272,48 @@ dissect_abort_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
     /* get rid of the handled parameter */
     offset += total_length;
     number_of_causes++;
-  };
+    };
+    
+    proto_item_set_text(chunk_item, "Abort chunk with %u cause%s",
+			number_of_causes, plurality(number_of_causes, "", "s"));
+  } 
+}
 
-  proto_item_set_text(chunk_item, "Abort chunk with %u cause%s",
-		      number_of_causes, plurality(number_of_causes, "", "s"));
-} 
-
-void
+static void
 dissect_shutdown_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 		       proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 { 
   guint32 cumulative_tsn_ack;
+ 
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_str(pinfo->fd, COL_INFO, "SHUTDOWN ");
 
-  cumulative_tsn_ack = tvb_get_ntohl(chunk_tvb, SHUTDOWN_CHUNK_CUMULATIVE_TSN_ACK_OFFSET);
-  proto_tree_add_uint(chunk_tree, hf_sctp_shutdown_chunk_cumulative_tsn_ack, 
-		      chunk_tvb,
-		      SHUTDOWN_CHUNK_CUMULATIVE_TSN_ACK_OFFSET,
-		      SHUTDOWN_CHUNK_CUMULATIVE_TSN_ACK_LENGTH,
-		      cumulative_tsn_ack);
+  if (chunk_tree) {
+    cumulative_tsn_ack = tvb_get_ntohl(chunk_tvb, SHUTDOWN_CHUNK_CUMULATIVE_TSN_ACK_OFFSET);
+    proto_tree_add_uint(chunk_tree, hf_sctp_shutdown_chunk_cumulative_tsn_ack, 
+			chunk_tvb,
+			SHUTDOWN_CHUNK_CUMULATIVE_TSN_ACK_OFFSET,
+			SHUTDOWN_CHUNK_CUMULATIVE_TSN_ACK_LENGTH,
+			cumulative_tsn_ack);
+    
+    proto_item_set_text(chunk_item, "SHUTDOWN chunk acknowledging up to TSN %u",
+			cumulative_tsn_ack);
+  } 
+}
 
-  proto_item_set_text(chunk_item, "SHUTDOWN chunk acknowledging up to TSN %u",
-		      cumulative_tsn_ack);
-} 
-
-void
+static void
 dissect_shutdown_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 			   proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 { 
-  proto_item_set_text(chunk_item, "SHUTDOWN ACK chunk");
-} 
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_str(pinfo->fd, COL_INFO, "SHUTDOWN_ACK ");
 
-void
+  if (chunk_tree) {
+    proto_item_set_text(chunk_item, "SHUTDOWN ACK chunk");
+  } 
+}
+
+static void
 dissect_error_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 		    proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 { 
@@ -1260,25 +1321,30 @@ dissect_error_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
   guint16 length, padding_length, total_length;
   tvbuff_t *cause_tvb;
   
-  number_of_causes = 0;
-  offset = ERROR_CHUNK_FIRST_ERROR_CAUSE_OFFSET;
-  do {
-    length         = tvb_get_ntohs(chunk_tvb, offset + CAUSE_LENGTH_OFFSET);
-    padding_length = nr_of_padding_bytes(length);
-    total_length   = length + padding_length;
-    /* create a tvb for the chunk including the padding bytes */
-    cause_tvb      = tvb_new_subset(chunk_tvb, offset, total_length, total_length);
-    dissect_error_cause(cause_tvb, pinfo, chunk_tree); 
-    /* get rid of the handled parameter */
-    offset += total_length;
-    number_of_causes++;
-  } while(tvb_length_remaining(chunk_tvb, offset));
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_str(pinfo->fd, COL_INFO, "ERROR ");
 
-  proto_item_set_text(chunk_item, "Error chunk with %u cause%s",
-		      number_of_causes, plurality(number_of_causes, "", "s"));
-} 
+  if (chunk_tree) {
+    number_of_causes = 0;
+    offset = ERROR_CHUNK_FIRST_ERROR_CAUSE_OFFSET;
+    do {
+      length         = tvb_get_ntohs(chunk_tvb, offset + CAUSE_LENGTH_OFFSET);
+      padding_length = nr_of_padding_bytes(length);
+      total_length   = length + padding_length;
+      /* create a tvb for the chunk including the padding bytes */
+      cause_tvb      = tvb_new_subset(chunk_tvb, offset, total_length, total_length);
+      dissect_error_cause(cause_tvb, pinfo, chunk_tree); 
+      /* get rid of the handled parameter */
+      offset += total_length;
+      number_of_causes++;
+    } while(tvb_length_remaining(chunk_tvb, offset));
+    
+    proto_item_set_text(chunk_item, "Error chunk with %u cause%s",
+			number_of_causes, plurality(number_of_causes, "", "s"));
+  } 
+}
 
-void
+static void
 dissect_cookie_echo_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 			  proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 { 
@@ -1287,104 +1353,132 @@ dissect_cookie_echo_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *t
   length         = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET);
   padding_length = nr_of_padding_bytes(length);
   cookie_length  = length - CHUNK_HEADER_LENGTH;
-  
-  proto_tree_add_text(chunk_tree, chunk_tvb, COOKIE_ECHO_CHUNK_COOKIE_OFFSET, cookie_length,
-		      "Cookie (%u byte%s)",
-		      cookie_length, plurality(cookie_length, "", "s"));
-  proto_item_set_text(chunk_item, "COOKIE ECHO chunk containing a cookie of %u byte%s",
-		      cookie_length, plurality(cookie_length, "", "s"));
+ 
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_str(pinfo->fd, COL_INFO, "COOKIE_ECHO ");
 
-  if (padding_length > 0)
-    proto_tree_add_text(chunk_tree, chunk_tvb, CHUNK_HEADER_OFFSET + length, padding_length,
-			"Padding: %u byte%s",
-			padding_length, plurality(padding_length, "", "s"));
-} 
+  if (chunk_tree) {  
+    proto_tree_add_text(chunk_tree, chunk_tvb, COOKIE_ECHO_CHUNK_COOKIE_OFFSET, cookie_length,
+			"Cookie (%u byte%s)",
+			cookie_length, plurality(cookie_length, "", "s"));
+    proto_item_set_text(chunk_item, "COOKIE ECHO chunk containing a cookie of %u byte%s",
+			cookie_length, plurality(cookie_length, "", "s"));
+    
+    if (padding_length > 0)
+      proto_tree_add_text(chunk_tree, chunk_tvb, CHUNK_HEADER_OFFSET + length, padding_length,
+			  "Padding: %u byte%s",
+			  padding_length, plurality(padding_length, "", "s"));
+  } 
+}
 
-void
+static void
 dissect_cookie_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 			 proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
-{ 
-  proto_item_set_text(chunk_item, "COOKIE ACK chunk");
-} 
+{  
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_str(pinfo->fd, COL_INFO, "COOKIE_ACK ");
 
-void
+  if (chunk_tree) {
+    proto_item_set_text(chunk_item, "COOKIE ACK chunk");
+  } 
+}
+
+static void
 dissect_ecne_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 		   proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 { 
   guint32 lowest_tsn;
+ 
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_str(pinfo->fd, COL_INFO, "ECNE ");
 
-  lowest_tsn = tvb_get_ntohl(chunk_tvb, ECNE_CHUNK_LOWEST_TSN_OFFSET);
-  proto_tree_add_uint(chunk_tree, hf_sctp_ecne_chunk_lowest_tsn, 
-		      chunk_tvb,
-		      ECNE_CHUNK_LOWEST_TSN_OFFSET, ECNE_CHUNK_LOWEST_TSN_LENGTH,
-		      lowest_tsn);
+  if (chunk_tree) {
+    lowest_tsn = tvb_get_ntohl(chunk_tvb, ECNE_CHUNK_LOWEST_TSN_OFFSET);
+    proto_tree_add_uint(chunk_tree, hf_sctp_ecne_chunk_lowest_tsn, 
+			chunk_tvb,
+			ECNE_CHUNK_LOWEST_TSN_OFFSET, ECNE_CHUNK_LOWEST_TSN_LENGTH,
+			lowest_tsn);
+    
+    proto_item_set_text(chunk_item, "ECNE chunk");
+  } 
+}
 
-  proto_item_set_text(chunk_item, "ECNE chunk");
-} 
-
-void
+static void
 dissect_cwr_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 		  proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 { 
   guint32 lowest_tsn;
+  
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_str(pinfo->fd, COL_INFO, "CWR ");
 
-  lowest_tsn = tvb_get_ntohl(chunk_tvb, CWR_CHUNK_LOWEST_TSN_OFFSET);
-  proto_tree_add_uint(chunk_tree, hf_sctp_cwr_chunk_lowest_tsn, 
-		      chunk_tvb,
-		      CWR_CHUNK_LOWEST_TSN_OFFSET, CWR_CHUNK_LOWEST_TSN_LENGTH,
-		      lowest_tsn);
+  if (chunk_tree) {
+    lowest_tsn = tvb_get_ntohl(chunk_tvb, CWR_CHUNK_LOWEST_TSN_OFFSET);
+    proto_tree_add_uint(chunk_tree, hf_sctp_cwr_chunk_lowest_tsn, 
+			chunk_tvb,
+			CWR_CHUNK_LOWEST_TSN_OFFSET, CWR_CHUNK_LOWEST_TSN_LENGTH,
+			lowest_tsn);
+    
+    proto_item_set_text(chunk_item, "CWR chunk");
+  } 
+}
 
-  proto_item_set_text(chunk_item, "CWR chunk");
-} 
-
-void
+static void
 dissect_shutdown_complete_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 				proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 { 
   guint8  flags;
   guint16 length;
   proto_tree *flag_tree;
+ 
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_str(pinfo->fd, COL_INFO, "SHUTDOWN_COMPLETE ");
 
-  flags             = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET);
-  length            = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET);
+  if (chunk_tree) {
+    flags             = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET);
+    length            = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET);
+    
+    flag_tree = proto_item_add_subtree(flags_item, ett_sctp_data_chunk_flags);
+    proto_tree_add_boolean(flag_tree, hf_sctp_shutdown_complete_chunk_t_bit, chunk_tvb,
+			   CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH, flags);
+    
+    proto_item_set_text(chunk_item, "SHUTDOWN COMPLETE chunk");
+  } 
+}
 
-  flag_tree = proto_item_add_subtree(flags_item, ett_sctp_data_chunk_flags);
-  proto_tree_add_boolean(flag_tree, hf_sctp_shutdown_complete_chunk_t_bit, chunk_tvb,
-			 CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH, flags);
-
-  proto_item_set_text(chunk_item, "SHUTDOWN COMPLETE chunk");
-} 
-
-void
+static void
 dissect_unknown_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 		      proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 { 
   guint length, chunk_value_length, padding_length;
   guint8 type;
-
-  length         = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET);
-  padding_length = nr_of_padding_bytes(length);
-  type           = tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET);
- 
-  chunk_value_length = length - CHUNK_HEADER_LENGTH;
   
-  proto_tree_add_text(chunk_tree, chunk_tvb, CHUNK_VALUE_OFFSET, chunk_value_length,
-		      "Chunk value (%u byte%s)",
-		      chunk_value_length, plurality(chunk_value_length, "", "s"));
-  
-  if (padding_length > 0)
-    proto_tree_add_text(chunk_tree, chunk_tvb, CHUNK_HEADER_OFFSET + length, padding_length,
-			"Padding: %u byte%s",
-			padding_length, plurality(padding_length, "", "s"));
-   
-  proto_item_set_text(chunk_item, "Chunk of type %u and %u byte%s value",
-		      type, chunk_value_length, plurality(chunk_value_length, "", "s"));
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_str(pinfo->fd, COL_INFO, "UNKNOWN ");
 
- 
+  if (chunk_tree) {
+    length         = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET);
+    padding_length = nr_of_padding_bytes(length);
+    type           = tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET);
+    
+    chunk_value_length = length - CHUNK_HEADER_LENGTH;
+    
+    proto_tree_add_text(chunk_tree, chunk_tvb, CHUNK_VALUE_OFFSET, chunk_value_length,
+			"Chunk value (%u byte%s)",
+			chunk_value_length, plurality(chunk_value_length, "", "s"));
+    
+    if (padding_length > 0)
+      proto_tree_add_text(chunk_tree, chunk_tvb, CHUNK_HEADER_OFFSET + length, padding_length,
+			  "Padding: %u byte%s",
+			  padding_length, plurality(padding_length, "", "s"));
+    
+    proto_item_set_text(chunk_item, "Chunk of type %u and %u byte%s value",
+			type, chunk_value_length, plurality(chunk_value_length, "", "s"));
+  }
 } 
 
 
-void
+static void
 dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *sctp_tree)
 {  
   guint8 type, flags;
@@ -1397,25 +1491,32 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
   type   = tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET);
   flags  = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET);
   length = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET);
-
-  /* create proto_tree stuff */
-  chunk_item   = proto_tree_add_text(sctp_tree, chunk_tvb,
-				     CHUNK_HEADER_OFFSET, tvb_length(chunk_tvb), "Incomplete chunk");
-  chunk_tree   = proto_item_add_subtree(chunk_item, ett_sctp_chunk);
-  
-  /* then insert the chunk header components into the protocol tree */
-  proto_tree_add_uint_format(chunk_tree, hf_sctp_chunk_type, 
-			     chunk_tvb, CHUNK_TYPE_OFFSET, CHUNK_TYPE_LENGTH,
-			     type, "Identifier: %u (%s)",
-			     type, val_to_str(type, sctp_chunk_type_values, "unknown"));
-  flags_item = proto_tree_add_uint(chunk_tree, hf_sctp_chunk_flags, 
-		      chunk_tvb, CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH,
-		      flags);
-  proto_tree_add_uint(chunk_tree, hf_sctp_chunk_length, 
-		      chunk_tvb, CHUNK_LENGTH_OFFSET, CHUNK_LENGTH_LENGTH,
-		      length);
+ 
+  if (tree) {
+    /* create proto_tree stuff */
+    chunk_item   = proto_tree_add_text(sctp_tree, chunk_tvb,
+				       CHUNK_HEADER_OFFSET, tvb_length(chunk_tvb), "Incomplete chunk");
+    chunk_tree   = proto_item_add_subtree(chunk_item, ett_sctp_chunk);
+    
+    /* then insert the chunk header components into the protocol tree */
+    proto_tree_add_uint_format(chunk_tree, hf_sctp_chunk_type, 
+			       chunk_tvb, CHUNK_TYPE_OFFSET, CHUNK_TYPE_LENGTH,
+			       type, "Identifier: %u (%s)",
+			       type, val_to_str(type, sctp_chunk_type_values, "unknown"));
+    flags_item = proto_tree_add_uint(chunk_tree, hf_sctp_chunk_flags, 
+				     chunk_tvb, CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH,
+				     flags);
+    proto_tree_add_uint(chunk_tree, hf_sctp_chunk_length, 
+			chunk_tvb, CHUNK_LENGTH_OFFSET, CHUNK_LENGTH_LENGTH,
+			length);
+  } else {
+    chunk_tree = NULL;
+    chunk_item = NULL;
+    flags_item = NULL;
+  };
   
   /* now dissect the chunk value */
+
   switch(type) {
   case SCTP_DATA_CHUNK_ID:
     dissect_data_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
@@ -1461,14 +1562,14 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
     break;
   case SCTP_SHUTDOWN_COMPLETE_CHUNK_ID:
     dissect_shutdown_complete_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
-    break;
+      break;
   default:
     dissect_unknown_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
     break;
-  }  
+  }
 }
 
-void
+static void
 dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *sctp_tree)
 { 
   tvbuff_t *chunk_tvb;
@@ -1517,18 +1618,17 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   checksum         = tvb_get_ntohl(tvb, CHECKSUM_OFFSET);
 
   /* update pi structure */
-  pi.ptype = PT_SCTP;
-  pi.srcport = source_port;
+  pi.ptype    = PT_SCTP;
+  pi.srcport  = source_port;
   pi.destport = destination_port;
 
   /* make entry in the Protocol column on summary display */
   if (check_col(pinfo->fd, COL_PROTOCOL)) 
     col_set_str(pinfo->fd, COL_PROTOCOL, "SCTP");
 
-  /* Make entries in Info column on summary display */
-  if (check_col(pinfo->fd, COL_INFO)) 
-    col_add_fstr(pinfo->fd, COL_INFO, "%u > %u: tag 0x%x",
-		 source_port, destination_port, verification_tag);
+  /* Clear entries in Info column on summary display */
+  if (check_col(pinfo->fd, COL_INFO))
+    col_add_str(pinfo->fd, COL_INFO, "");
   
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
@@ -1552,10 +1652,11 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			       tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
 			       "Adler-32 checksum: 0x%08x (%s)",
 			       checksum, sctp_checksum_state(tvb, checksum));
-    
-    /* add all chunks of the sctp datagram to the protocol tree */
-    dissect_sctp_chunks(tvb, pinfo, tree, sctp_tree);
+  } else {
+    sctp_tree = NULL;
   };
+  /* add all chunks of the sctp datagram to the protocol tree */
+  dissect_sctp_chunks(tvb, pinfo, tree, sctp_tree);
 }
 
 /* Register the protocol with Ethereal */
@@ -1820,5 +1921,5 @@ proto_register_sctp(void)
 void
 proto_reg_handoff_sctp(void)
 {
-  dissector_add("ip.proto", IP_PROTO_SCTP, dissect_sctp, proto_sctp);
+	dissector_add("ip.proto", IP_PROTO_SCTP, dissect_sctp, proto_sctp);
 }
