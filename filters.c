@@ -1,7 +1,7 @@
 /* filters.c
  * Code for reading and writing the filters file.
  *
- * $Id: filters.c,v 1.8 2001/03/15 09:50:39 guy Exp $
+ * $Id: filters.c,v 1.9 2001/04/02 09:53:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,9 +47,9 @@
 #include <glib.h>
 
 #include <epan.h>
+#include <filesystem.h>
 
 #include "filters.h"
-#include "util.h"
 
 /*
  * Old filter file name.

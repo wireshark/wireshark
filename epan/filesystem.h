@@ -1,7 +1,7 @@
 /* filesystem.h
  * Filesystem utility definitions
  *
- * $Id: filesystem.h,v 1.2 2000/12/22 22:26:19 nneul Exp $
+ * $Id: filesystem.h,v 1.3 2001/04/02 09:53:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,6 +25,25 @@
 
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
+
+/*
+ * Given a pathname, return a pointer to the last pathname separator
+ * character in the pathname, or NULL if the pathname contains no
+ * separators.
+ */
+char *find_last_pathname_separator(char *);
+
+/*
+ * Given a pathname, return the last component.
+ */
+char *get_basename(char *);
+
+/*
+ * Given a pathname, return a string containing everything but the
+ * last component.  NOTE: this overwrites the pathname handed into
+ * it....
+ */
+char *get_dirname(char *);
 
 /* Returns the user's home directory, via the HOME environment
  * variable, or a default directory if HOME is not set */

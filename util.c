@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.50 2001/03/22 06:14:27 guy Exp $
+ * $Id: util.c,v 1.51 2001/04/02 09:53:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -132,97 +132,6 @@ test_for_directory(const char *path)
 		return EISDIR;
 	else
 		return 0;
-}
-
-/*
- * Given a pathname, return a pointer to the last pathname separator
- * character in the pathname, or NULL if the pathname contains no
- * separators.
- */
-char *
-find_last_pathname_separator(char *path)
-{
-	char *separator;
-
-#ifdef WIN32
-	char c;
-
-	/*
-	 * We have to scan for '\' or '/'.
-	 * Get to the end of the string.
-	 */
-	separator = path + strlen(path);	/* points to ending '\0' */
-	while (separator > path) {
-		c = *--separator;
-		if (c == '\\' || c == '/')
-			return separator;	/* found it */
-	}
-
-	/*
-	 * OK, we didn't find any, so no directories - but there might
-	 * be a drive letter....
-	 */
-	return strchr(path, ':');
-#else
-	separator = strrchr(path, '/');
-#endif
-	return separator;
-}
-
-/*
- * Given a pathname, return the last component.
- */
-char *
-get_basename(char *path)
-{
-	char *filename;
-
-	filename = find_last_pathname_separator(path);
-	if (filename == NULL) {
-		/*
-		 * There're no directories, drive letters, etc. in the
-		 * name; the pathname *is* the file name.
-		 */
-		filename = path;
-	} else {
-		/*
-		 * Skip past the pathname or drive letter separator.
-		 */
-		filename++;
-	}
-	return filename;
-}
-
-/*
- * Given a pathname, return a string containing everything but the
- * last component.  NOTE: this overwrites the pathname handed into
- * it....
- */
-char *
-get_dirname(char *path)
-{
-	char *separator;
-
-	separator = find_last_pathname_separator(path);
-	if (separator == NULL) {
-		/*
-		 * There're no directories, drive letters, etc. in the
-		 * name; there is no directory path to return.
-		 */
-		return NULL;
-	}
-
-	/*
-	 * Get rid of the last pathname separator and the final file
-	 * name following it.
-	 */
-	*separator = '\0';
-
-	/*
-	 * "path" now contains the pathname of the directory containing
-	 * the file/directory to which it referred.
-	 */
-	return path;
 }
 
 /*

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.186 2001/04/02 00:38:36 hagbard Exp $
+ * $Id: main.c,v 1.187 2001/04/02 09:53:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,6 +107,7 @@
 #endif
 
 #include <epan.h>
+#include <epan/filesystem.h>
 
 #include "main.h"
 #include "timestamp.h"
