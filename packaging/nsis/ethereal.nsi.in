@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi.in,v 1.7 2001/10/11 01:04:19 guy Exp $
+; $Id: ethereal.nsi.in,v 1.8 2001/11/01 21:55:08 guy Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -64,6 +64,11 @@ File "c:\program files\common files\GNU\gnu-intl.dll"
 File "..\..\README"
 File "..\..\README.win32"
 File "..\..\manuf"
+File "..\..\dictionary.dtd"
+File "..\..\dictionary.xml"
+File "..\..\mobileipv4.xml"
+File "..\..\nasreq.xml"
+File "..\..\sunping.xml"
 
 ; Write the uninstall keys for Windows
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "DisplayName" "Ethereal"
