@@ -2459,6 +2459,11 @@ dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 		"Sub-Option (%d byte%s)",
 		subopt_len, plurality(subopt_len, "", "s"));
     suboption_tree = proto_item_add_subtree(ti, ett_bap_phone_delta_subopt);
+    if (subopt_len < 1) {
+      proto_tree_add_text(suboption_tree, tvb, offset + 1, 1,
+	  "Invalid suboption length: %u", subopt_len);
+      return;
+    }
 
     proto_tree_add_text(suboption_tree, tvb, offset, 1,
 	"Sub-Option Type: %s (%u)",
@@ -2488,11 +2493,19 @@ dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
         proto_tree_add_text(suboption_tree, tvb, offset + 2, subopt_len - 2,
 			  "Phone Number Sub Address: %s",
 			  tvb_format_text(tvb, offset + 2, subopt_len - 2));
+      } else {
+        proto_tree_add_text(suboption_tree, tvb, offset + 1, 1,
+			  "Invalid suboption length: %u", subopt_len);
       }
       break;
     default:
-      proto_tree_add_text(suboption_tree, tvb, offset + 2, subopt_len - 2,
+      if (subopt_len > 2) {
+        proto_tree_add_text(suboption_tree, tvb, offset + 2, subopt_len - 2,
 			  "Unknown");
+      } else {
+        proto_tree_add_text(suboption_tree, tvb, offset + 1, 1,
+			  "Invalid suboption length: %u", subopt_len);
+      }
       break;
     }
     offset += subopt_len;
