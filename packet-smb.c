@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.13 1999/06/28 10:57:57 sharpe Exp $
+ * $Id: packet-smb.c,v 1.14 1999/07/01 04:04:36 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -1750,7 +1750,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
       ti = proto_tree_add_item(tree, offset, 4, "Capabilities: 0x%04x", caps);
       caps_tree = proto_tree_new();
-      proto_item_add_subtree(ti, caps_tree, ETT_SMB_CAPS);
+      proto_item_add_subtree(ti, caps_tree, ETT_SMB_CAPABILITIES);
       proto_tree_add_item(caps_tree, offset, 4, "%s",
 			  decode_boolean_bitfield(caps, 0x0001, 32,
 						  "Raw Mode supported",

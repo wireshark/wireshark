@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.62 1999/06/22 03:39:07 guy Exp $
+ * $Id: packet.h,v 1.63 1999/07/01 04:04:38 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -241,7 +241,7 @@ enum {
 	ETT_SMB_FLAGS2,
 	ETT_SMB_DIALECTS,
 	ETT_SMB_MODE,
-	ETT_SMB_CAPS,
+	ETT_SMB_CAPABILITIES,
 	ETT_SMB_RAWMODE,
 	ETT_SMB_AFLAGS,
 	ETT_PPTP,
