@@ -25,7 +25,7 @@
 **   drh@acm.org
 **   http://www.hwaci.com/drh/
 **
-** $Id: lemon.c,v 1.14 2002/08/28 21:04:11 jmayer Exp $
+** $Id: lemon.c,v 1.15 2003/12/21 00:16:54 ulfl Exp $
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -3536,10 +3536,13 @@ The arguments are pointers to "const void", and should be cast to
 pointers to "const struct symbol *"; however, at least as I read the
 spec, "const struct symbol **" is "pointer to pointer to const struct
 symbol", not "pointer to const pointer to struct symbol".
+
+To avoid MSVC warnings here, some pointer casts were added.
+So this should be ok for any compiler.
 */
 
-  struct symbol *const *a = a_arg;
-  struct symbol *const *b = b_arg;
+  struct symbol *const *a = (struct symbol *const *) a_arg;
+  struct symbol *const *b = (struct symbol *const *) b_arg;
 
   return strcmp((**a).name,(**b).name);
 }
