@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.16 2001/03/31 10:35:54 guy Exp $
+ * $Id: packet-fr.c,v 1.17 2001/04/17 06:43:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,6 +53,7 @@
 #include "packet-llc.h"
 #include "packet-chdlc.h"
 #include "xdlc.h"
+#include "etypes.h"
 #include "oui.h"
 #include "nlpid.h"
 #include "greproto.h"

@@ -2,7 +2,7 @@
  * Routines for Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q2931.c,v 1.14 2001/01/03 06:55:31 guy Exp $
+ * $Id: packet-q2931.c,v 1.15 2001/04/17 06:43:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,6 +38,7 @@
 #include "packet.h"
 #include "oui.h"
 #include "nlpid.h"
+#include "etypes.h"
 #include "packet-q931.h"
 #include "packet-arp.h"
 

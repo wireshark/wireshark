@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.28 2001/04/17 00:46:03 guy Exp $
+ * $Id: packet-vines.c,v 1.29 2001/04/17 06:43:19 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -40,11 +40,11 @@
 
 #include <string.h>
 #include <glib.h>
-#include "etypes.h"
-#include "ppptypes.h"
 #include "packet.h"
 #include "packet-vines.h"
 #include "packet-ip.h"
+#include "etypes.h"
+#include "ppptypes.h"
 
 #define UDP_PORT_VINES	573
 

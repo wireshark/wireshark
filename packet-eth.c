@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.63 2001/04/03 05:42:11 guy Exp $
+ * $Id: packet-eth.c,v 1.64 2001/04/17 06:43:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,8 +40,6 @@
 #include "packet-ipx.h"
 #include "packet-isl.h"
 #include "packet-llc.h"
-
-extern const value_string etype_vals[];
 
 /* protocols and header fields */
 static int proto_eth = -1;

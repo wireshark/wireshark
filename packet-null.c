@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.43 2001/03/30 06:15:47 guy Exp $
+ * $Id: packet-null.c,v 1.44 2001/04/17 06:43:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,8 +51,6 @@
 #include "aftypes.h"
 
 static dissector_table_t null_dissector_table;
-
-extern const value_string etype_vals[];
 
 /* protocols and header fields */
 static int proto_null = -1;

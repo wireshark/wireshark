@@ -3,7 +3,7 @@
  * 
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-mpls.c,v 1.17 2001/01/25 06:14:14 guy Exp $
+ * $Id: packet-mpls.c,v 1.18 2001/04/17 06:43:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,11 +43,10 @@
 #endif
 
 #include <glib.h>
-#include "etypes.h"
 #include "packet.h"
 #include "packet-ip.h"
 #include "ppptypes.h"
-#include "packet-ppp.h"
+#include "etypes.h"
 
 static gint proto_mpls = -1;
 

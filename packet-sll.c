@@ -1,7 +1,7 @@
 /* packet-sll.c
  * Routines for disassembly of packets from Linux "cooked mode" captures
  *
- * $Id: packet-sll.c,v 1.8 2001/03/13 21:34:23 gram Exp $
+ * $Id: packet-sll.c,v 1.9 2001/04/17 06:43:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,6 +38,7 @@
 #include "packet-ipx.h"
 #include "packet-llc.h"
 #include "resolv.h"
+#include "etypes.h"
 
 static int proto_sll = -1;
 static int hf_sll_pkttype = -1;

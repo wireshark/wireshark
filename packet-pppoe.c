@@ -1,7 +1,7 @@
 /* packet-pppoe.c
  * Routines for PPP Over Ethernet (PPPoE) packet disassembly (RFC2516)
  *
- * $Id: packet-pppoe.c,v 1.17 2001/03/30 06:10:54 guy Exp $
+ * $Id: packet-pppoe.c,v 1.18 2001/04/17 06:43:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,9 +32,9 @@
 #endif
 
 #include <glib.h>
-#include "etypes.h"
 #include "packet.h"
 #include "strutil.h"
+#include "etypes.h"
 
 static int proto_pppoed = -1;
 
