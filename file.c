@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.78 1999/08/22 00:47:43 guy Exp $
+ * $Id: file.c,v 1.79 1999/08/22 02:52:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -262,13 +262,8 @@ read_cap_file(capture_file *cf) {
       break;
 
     default:
-      if (err < 0) {
-        sprintf(errmsg_errno, "An error occurred while reading the"
-                              " capture file: Error %d.", err);
-      } else {
-        sprintf(errmsg_errno, "An error occurred while reading the"
-                              " capture file: %s.", strerror(err));
-      }
+      sprintf(errmsg_errno, "An error occurred while reading the"
+                              " capture file: %s.", wtap_strerror(err));
       errmsg = errmsg_errno;
       break;
     }
@@ -1056,7 +1051,8 @@ file_open_error_message(int err, int for_writing)
     break;
 
   default:
-    sprintf(errmsg_errno, "The file \"%%s\" could not be opened: %s.", strerror(err));
+    sprintf(errmsg_errno, "The file \"%%s\" could not be opened: %s.",
+				wtap_strerror(err));
     errmsg = errmsg_errno;
     break;
   }
@@ -1068,7 +1064,8 @@ file_read_error_message(int err)
 {
   static char errmsg_errno[1024+1];
 
-  sprintf(errmsg_errno, "An error occurred while reading from the file \"%%s\": %s.", strerror(err));
+  sprintf(errmsg_errno, "An error occurred while reading from the file \"%%s\": %s.",
+				wtap_strerror(err));
   return errmsg_errno;
 }
 
@@ -1091,7 +1088,8 @@ file_write_error_message(int err)
 #endif
 
   default:
-    sprintf(errmsg_errno, "An error occurred while writing to the file \"%%s\": %s.", strerror(err));
+    sprintf(errmsg_errno, "An error occurred while writing to the file \"%%s\": %s.",
+				wtap_strerror(err));
     errmsg = errmsg_errno;
     break;
   }

@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.15 1999/08/19 05:31:33 guy Exp $
+ * $Id: wtap.c,v 1.16 1999/08/22 02:52:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -20,6 +20,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
+#include <string.h>
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -84,6 +86,39 @@ const char *wtap_file_type_string(wtap *wth)
 			g_error("Unknown capture file type %d", wth->file_type);
 			return NULL;
 	}
+}
+
+static const char *wtap_errlist[] = {
+	"The file isn't a plain file",
+	"The file isn't a capture file in a known format",
+	"File contains record data we don't support",
+	NULL,
+	"Files can't be saved in that format",
+	"That format doesn't support per-packet encapsulations",
+	NULL,
+	NULL,
+	"Less data was read than was expected",
+	"File contains a record that's not valid",
+	"Less data was written than was requested"
+};
+#define	WTAP_ERRLIST_SIZE	(sizeof wtap_errlist / sizeof wtap_errlist[0])
+
+const char *wtap_strerror(int err)
+{
+	static char errbuf[6+11+1];	/* "Error %d" */
+	int wtap_errlist_index;
+
+	if (err < 0) {
+		wtap_errlist_index = -1 - err;
+		if (wtap_errlist_index >= WTAP_ERRLIST_SIZE) {
+			sprintf(errbuf, "Error %d", err);
+			return errbuf;
+		}
+		if (wtap_errlist[wtap_errlist_index] == NULL)
+			return "Unknown reason";
+		return wtap_errlist[wtap_errlist_index];
+	} else
+		return strerror(err);
 }
 
 void wtap_close(wtap *wth)
