@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.43 1999/08/28 08:31:26 guy Exp $
+ * $Id: packet-ip.c,v 1.44 1999/08/28 19:17:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -527,6 +527,12 @@ dissect_ip_tcp_options(const u_char *opd, int offset, guint length,
 {
   u_char            opt;
   const ip_tcp_opt *optp;
+  opt_len_type      len_type;
+  int               optlen;
+  char             *name;
+  char              name_str[7+1+1+2+2+1+1];	/* "Unknown (0x%02x)" */
+  void            (*dissect)(const struct ip_tcp_opt *, const u_char *,
+				int, guint, proto_tree *);
   guint             len;
 
   while (length > 0) {
@@ -536,19 +542,29 @@ dissect_ip_tcp_options(const u_char *opd, int offset, guint length,
         break;
     }
     if (optp == &opttab[nopts]) {
-      proto_tree_add_text(opt_tree, offset,      1, "Unknown (0x%02x)", opt);
-      /* We don't know how long this option is, so we don't know how much
-         of it to skip, so we just bail. */
-      return;
+      /* We assume that the only NO_LENGTH options are EOL and NOP options,
+         so that we can treat unknown options as VARIABLE_LENGTH with a
+	 minimum of 2, and at least be able to move on to the next option
+	 by using the length in the option. */
+      len_type = VARIABLE_LENGTH;
+      optlen = 2;
+       snprintf(name_str, sizeof name_str, "Unknown (0x%02x)", opt);
+      name = name_str;
+      dissect = NULL;
+    } else {
+      len_type = optp->len_type;
+      optlen = optp->optlen;
+      name = optp->name;
+      dissect = optp->dissect;
     }
     --length;      /* account for type byte */
-    if (optp->len_type != NO_LENGTH) {
+    if (len_type != NO_LENGTH) {
       /* Option has a length. Is it in the packet? */
       if (length == 0) {
         /* Bogus - packet must at least include option code byte and
            length byte! */
         proto_tree_add_text(opt_tree, offset,      1,
-              "%s (length byte past end of options)", optp->name);
+              "%s (length byte past end of options)", name);
         return;
       }
       len = *opd++;  /* total including type, len */
@@ -557,36 +573,36 @@ dissect_ip_tcp_options(const u_char *opd, int offset, guint length,
         /* Bogus - option length is too short to include option code and
            option length. */
         proto_tree_add_text(opt_tree, offset,      2,
-              "%s (with too-short option length = %u byte%s)", optp->name,
+              "%s (with too-short option length = %u byte%s)", name,
               plurality(len, "", "s"));
         return;
       } else if (len - 2 > length) {
         /* Bogus - option goes past the end of the header. */
         proto_tree_add_text(opt_tree, offset,      length,
               "%s (option length = %u byte%s says option goes past end of options)",
-	      optp->name, len, plurality(len, "", "s"));
+	      name, len, plurality(len, "", "s"));
         return;
-      } else if (optp->len_type == FIXED_LENGTH && len != optp->optlen) {
+      } else if (len_type == FIXED_LENGTH && len != optlen) {
         /* Bogus - option length isn't what it's supposed to be for this
            option. */
         proto_tree_add_text(opt_tree, offset,      len,
-              "%s (with option length = %u byte%s; should be %u)", optp->name,
-              len, plurality(len, "", "s"), optp->optlen);
+              "%s (with option length = %u byte%s; should be %u)", name,
+              len, plurality(len, "", "s"), optlen);
         return;
-      } else if (optp->len_type == VARIABLE_LENGTH && len < optp->optlen) {
+      } else if (len_type == VARIABLE_LENGTH && len < optlen) {
         /* Bogus - option length is less than what it's supposed to be for
            this option. */
         proto_tree_add_text(opt_tree, offset,      len,
-              "%s (with option length = %u byte%s; should be >= %u)", optp->name,
-              len, plurality(len, "", "s"), optp->optlen);
+              "%s (with option length = %u byte%s; should be >= %u)", name,
+              len, plurality(len, "", "s"), optlen);
         return;
       } else {
-        if (optp->dissect != NULL) {
+        if (dissect != NULL) {
           /* Option has a dissector. */
-          (*optp->dissect)(optp, opd, offset,      len, opt_tree);
+          (*dissect)(optp, opd, offset,      len, opt_tree);
         } else {
           /* Option has no data, hence no dissector. */
-          proto_tree_add_text(opt_tree, offset,    len, "%s", optp->name);
+          proto_tree_add_text(opt_tree, offset,    len, "%s", name);
         }
         len -= 2;	/* subtract size of type and length */
         offset += 2 + len;
@@ -594,7 +610,7 @@ dissect_ip_tcp_options(const u_char *opd, int offset, guint length,
       opd += len;
       length -= len;
     } else {
-      proto_tree_add_text(opt_tree, offset,      1, "%s", optp->name);
+      proto_tree_add_text(opt_tree, offset,      1, "%s", name);
       offset += 1;
     }
     if (opt == eol)
