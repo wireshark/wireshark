@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.62 2004/02/11 01:37:12 guy Exp $
+ * $Id: print_dlg.c,v 1.63 2004/04/15 19:07:13 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,7 +81,8 @@ static gint	print_format;
 static gchar * print_file;
 static gchar * print_cmd;
 
-#define PRINT_FORMAT_RB_KEY       "printer_format_radio_button"
+#define PRINT_PS_RB_KEY           "printer_ps_radio_button"
+#define PRINT_PDML_RB_KEY         "printer_pdml_radio_button"
 #define PRINT_DEST_CB_KEY         "printer_destination_check_button"
 
 #define PRINT_DETAILS_CB_KEY      "printer_details_check_button"
@@ -317,7 +318,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   GtkWidget     *main_vb;
 
   GtkWidget     *printer_fr, *printer_vb;
-  GtkWidget     *text_rb, *format_rb;
+  GtkWidget     *text_rb, *ps_rb, *pdml_rb;
   GtkWidget     *printer_tb, *dest_cb;
 #ifndef _WIN32
   GtkWidget     *cmd_lb, *cmd_te;
@@ -388,21 +389,30 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_container_add(GTK_CONTAINER(printer_fr), printer_vb);
   gtk_widget_show(printer_vb);
 
-  /* "Plain text" / "Postscript" radio buttons */
+  /* "Plain text" / "Postscript" / "PDML" radio buttons */
   text_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "Plain _text", accel_group);
   if (print_format == PR_FMT_TEXT)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(text_rb), TRUE);
-  gtk_tooltips_set_tip (tooltips, text_rb, ("Print output in ascii \"plain text\" format"), NULL);
+  gtk_tooltips_set_tip (tooltips, text_rb, ("Print output in ascii \"plain text\" format. If you're unsure, use this format."), NULL);
   gtk_box_pack_start(GTK_BOX(printer_vb), text_rb, FALSE, FALSE, 0);
   gtk_widget_show(text_rb);
 
-  format_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(text_rb, "_PostScript", accel_group);
+  ps_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(text_rb, "_PostScript", accel_group);
   if (print_format == PR_FMT_PS)
-    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(format_rb), TRUE);
-  gtk_tooltips_set_tip (tooltips, format_rb, ("Print output in \"postscript\" format"), NULL);
-  gtk_box_pack_start(GTK_BOX(printer_vb), format_rb, FALSE, FALSE, 0);
-  gtk_widget_show(format_rb);
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ps_rb), TRUE);
+  gtk_tooltips_set_tip (tooltips, ps_rb, ("Print output in \"postscript\" format, for postscript capable printers or print servers."), NULL);
+  gtk_box_pack_start(GTK_BOX(printer_vb), ps_rb, FALSE, FALSE, 0);
+  gtk_widget_show(ps_rb);
 
+  pdml_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(text_rb, "PDM_L (XML)", accel_group);
+  if (print_format == PR_FMT_PDML)
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(pdml_rb), TRUE);
+  gtk_tooltips_set_tip (tooltips, pdml_rb, (
+      "Print output in \"PDML\" (Packet Details Markup Language), "
+      "an XML based packet data interchange format. "
+      "Usually used in combination with the \"Output to file\" option to export packet data into an XML file."), NULL);
+  gtk_box_pack_start(GTK_BOX(printer_vb), pdml_rb, FALSE, FALSE, 0);
+  gtk_widget_show(pdml_rb);
 
   /* printer table */
 #ifndef _WIN32
@@ -417,7 +427,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
 
   /* Output to file button */
-  dest_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Output to _File:", accel_group);
+  dest_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Output to _file:", accel_group);
   if (print_to_file)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(dest_cb), TRUE);
   gtk_tooltips_set_tip (tooltips, dest_cb, ("Output to file instead of printer"), NULL);
@@ -662,7 +672,8 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_widget_show(bbox);
 
   ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_PRINT);
-  OBJECT_SET_DATA(ok_bt, PRINT_FORMAT_RB_KEY, format_rb);
+  OBJECT_SET_DATA(ok_bt, PRINT_PS_RB_KEY, ps_rb);
+  OBJECT_SET_DATA(ok_bt, PRINT_PDML_RB_KEY, pdml_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_DEST_CB_KEY, dest_cb);
 #ifndef _WIN32
   OBJECT_SET_DATA(ok_bt, PRINT_CMD_TE_KEY, cmd_te);
@@ -811,11 +822,13 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 #endif
   }
 
-  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_FORMAT_RB_KEY);
+  print_format = PR_FMT_TEXT;
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_PS_RB_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button)))
     print_format = PR_FMT_PS;
-  else
-    print_format = PR_FMT_TEXT;
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_PDML_RB_KEY);
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button)))
+    print_format = PR_FMT_PDML;
   print_args.format = print_format;
 
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_DETAILS_CB_KEY);

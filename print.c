@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.71 2004/01/25 00:58:12 guy Exp $
+ * $Id: print.c,v 1.72 2004/04/15 19:05:42 ulfl Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -681,11 +681,8 @@ print_line(FILE *fh, int indent, gint format, char *line)
 	int		num_spaces;
 	char		psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
 
-	if (format == PR_FMT_PS) {
-		ps_clean_string(psbuffer, line, MAX_PS_LINE_LENGTH);
-		fprintf(fh, "%d (%s) putline\n", indent, psbuffer);
-	}
-	else if (format == PR_FMT_TEXT) {
+    switch(format) {
+    case(PR_FMT_TEXT):
 		/* Prepare the tabs for printing, depending on tree level */
 		num_spaces = indent * 4;
 		if (num_spaces > MAX_INDENT) {
@@ -700,8 +697,15 @@ print_line(FILE *fh, int indent, gint format, char *line)
 		fputs(space, fh);
 		fputs(line, fh);
 		putc('\n', fh);
-	}
-	else {
+        break;
+    case(PR_FMT_PS):
+		ps_clean_string(psbuffer, line, MAX_PS_LINE_LENGTH);
+		fprintf(fh, "%d (%s) putline\n", indent, psbuffer);
+        break;
+    case(PR_FMT_PDML):
+        /* do nothing */
+        break;
+    default:
 		g_assert_not_reached();
-	}
+    }
 }
