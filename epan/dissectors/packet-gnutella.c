@@ -36,6 +36,7 @@
 
 #include <epan/packet.h>
 #include "packet-gnutella.h"
+#include "packet-tcp.h"
 
 static int proto_gnutella = -1;
 
@@ -358,35 +359,35 @@ static void dissect_gnutella_push(tvbuff_t *tvb, guint offset, proto_tree *tree,
 
 }
 
-static void dissect_gnutella(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static guint
+get_gnutella_pdu_len(tvbuff_t *tvb, int offset) {
+	guint32 size;
+
+	size = tvb_get_letohl(
+		tvb,
+		offset + GNUTELLA_HEADER_SIZE_OFFSET);
+	if (size > 0x00FFFFFF) {
+		/*
+		 * XXX - arbitrary limit, preventing overflows and
+		 * attempts to reassemble 4GB of data.
+		 */
+		size = 0x00FFFFFF;
+	}
+
+	/* The size doesn't include the header */
+	return GNUTELLA_HEADER_LENGTH + size;
+}
+
+static void dissect_gnutella_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	proto_item *ti, *hi, *pi;
-	proto_tree *gnutella_tree, *gnutella_header_tree, *gnutella_pong_tree;
+	proto_tree *gnutella_tree = NULL;
+	proto_tree *gnutella_header_tree, *gnutella_pong_tree;
 	proto_tree *gnutella_queryhit_tree, *gnutella_push_tree;
 	proto_tree *gnutella_query_tree;
-	int snap_len, payload_descriptor, offset;
-	unsigned int size;
+	guint8 payload_descriptor;
+	guint32 size = 0;
 	char *payload_descriptor_text;
-
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Gnutella");
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Gnutella");
-
-	snap_len = tvb_length(tvb);
-
-	if(snap_len < GNUTELLA_HEADER_LENGTH) {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO,
-					", %i bytes [INCOMPLETE]", snap_len);
-		return;
-	}
-	else {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO,
-					", %i bytes", snap_len);
-	}
 
 	if (tree) {
 		ti = proto_tree_add_item(tree,
@@ -397,202 +398,175 @@ static void dissect_gnutella(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			FALSE);
 		gnutella_tree = proto_item_add_subtree(ti, ett_gnutella);
 
-		offset = 0;
-
 		size = tvb_get_letohl(
 			tvb,
-			offset + GNUTELLA_HEADER_SIZE_OFFSET);
-		if(size > GNUTELLA_MAX_SNAP_SIZE) {
-			proto_tree_add_item(gnutella_tree,
-				hf_gnutella_stream,
-				tvb,
-				offset,
-				snap_len,
-				FALSE);
-			return;
-		}
+			GNUTELLA_HEADER_SIZE_OFFSET);
+	}
 
-		while(snap_len - offset >= GNUTELLA_HEADER_LENGTH) {
-			payload_descriptor = tvb_get_guint8(
-				tvb,
-				offset +
-				GNUTELLA_HEADER_PAYLOAD_OFFSET);
-			size = tvb_get_letohl(
-				tvb,
-				offset + GNUTELLA_HEADER_SIZE_OFFSET);
+	payload_descriptor = tvb_get_guint8(
+		tvb,
+		GNUTELLA_HEADER_PAYLOAD_OFFSET);
 
+	switch(payload_descriptor) {
+		case GNUTELLA_PING:
+			payload_descriptor_text = GNUTELLA_PING_NAME;
+			break;
+		case GNUTELLA_PONG:
+			payload_descriptor_text = GNUTELLA_PONG_NAME;
+			break;
+		case GNUTELLA_PUSH:
+			payload_descriptor_text = GNUTELLA_PUSH_NAME;
+			break;
+		case GNUTELLA_QUERY:
+			payload_descriptor_text = GNUTELLA_QUERY_NAME;
+			break;
+		case GNUTELLA_QUERYHIT:
+			payload_descriptor_text = GNUTELLA_QUERYHIT_NAME;
+			break;
+		default:
+			payload_descriptor_text = GNUTELLA_UNKNOWN_NAME;
+			break;
+	}
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+		    payload_descriptor_text);
+
+	if (tree) {
+		hi = proto_tree_add_item(gnutella_tree,
+			hf_gnutella_header,
+			tvb,
+			0,
+			GNUTELLA_HEADER_LENGTH,
+			FALSE);
+		gnutella_header_tree = proto_item_add_subtree(hi, ett_gnutella);
+
+		proto_tree_add_item(gnutella_header_tree,
+			hf_gnutella_header_id,
+			tvb,
+			GNUTELLA_HEADER_ID_OFFSET,
+			GNUTELLA_SERVENT_ID_LENGTH,
+			FALSE);
+
+		proto_tree_add_uint_format(gnutella_header_tree,
+			hf_gnutella_header_payload,
+			tvb,
+			GNUTELLA_HEADER_PAYLOAD_OFFSET,
+			GNUTELLA_BYTE_LENGTH,
+			payload_descriptor,
+			"Payload: %i (%s)",
+			payload_descriptor,
+			payload_descriptor_text);
+
+		proto_tree_add_item(gnutella_header_tree,
+			hf_gnutella_header_ttl,
+			tvb,
+			GNUTELLA_HEADER_TTL_OFFSET,
+			GNUTELLA_BYTE_LENGTH,
+			FALSE);
+
+		proto_tree_add_item(gnutella_header_tree,
+			hf_gnutella_header_hops,
+			tvb,
+			GNUTELLA_HEADER_HOPS_OFFSET,
+			GNUTELLA_BYTE_LENGTH,
+			FALSE);
+
+		proto_tree_add_uint(gnutella_header_tree,
+			hf_gnutella_header_size,
+			tvb,
+			GNUTELLA_HEADER_SIZE_OFFSET,
+			GNUTELLA_LONG_LENGTH,
+			size);
+
+		if (size > 0) {
 			switch(payload_descriptor) {
-				case GNUTELLA_PING:
-					payload_descriptor_text = GNUTELLA_PING_NAME;
-					break;
-				case GNUTELLA_PONG:
-					payload_descriptor_text = GNUTELLA_PONG_NAME;
-					break;
-				case GNUTELLA_PUSH:
-					payload_descriptor_text = GNUTELLA_PUSH_NAME;
-					break;
-				case GNUTELLA_QUERY:
-					payload_descriptor_text = GNUTELLA_QUERY_NAME;
-					break;
-				case GNUTELLA_QUERYHIT:
-					payload_descriptor_text = GNUTELLA_QUERYHIT_NAME;
-					break;
-				default:
-					payload_descriptor_text = GNUTELLA_UNKNOWN_NAME;
-					break;
+			case GNUTELLA_PONG:
+				pi = proto_tree_add_item(
+					gnutella_header_tree,
+					hf_gnutella_pong_payload,
+					tvb,
+					GNUTELLA_HEADER_LENGTH,
+					size,
+					FALSE);
+				gnutella_pong_tree = proto_item_add_subtree(
+					pi,
+					ett_gnutella);
+				dissect_gnutella_pong(
+					tvb,
+					GNUTELLA_HEADER_LENGTH,
+					gnutella_pong_tree,
+					size);
+				break;
+			case GNUTELLA_PUSH:
+				pi = proto_tree_add_item(
+					gnutella_header_tree,
+					hf_gnutella_push_payload,
+					tvb,
+					GNUTELLA_HEADER_LENGTH,
+					size,
+					FALSE);
+				gnutella_push_tree = proto_item_add_subtree(
+					pi,
+					ett_gnutella);
+				dissect_gnutella_push(
+					tvb,
+					GNUTELLA_HEADER_LENGTH,
+					gnutella_push_tree,
+					size);
+				break;
+			case GNUTELLA_QUERY:
+				pi = proto_tree_add_item(
+					gnutella_header_tree,
+					hf_gnutella_query_payload,
+					tvb,
+					GNUTELLA_HEADER_LENGTH,
+					size,
+					FALSE);
+				gnutella_query_tree = proto_item_add_subtree(
+					pi,
+					ett_gnutella);
+				dissect_gnutella_query(
+					tvb,
+					GNUTELLA_HEADER_LENGTH,
+					gnutella_query_tree,
+					size);
+				break;
+			case GNUTELLA_QUERYHIT:
+				pi = proto_tree_add_item(
+					gnutella_header_tree,
+					hf_gnutella_queryhit_payload,
+					tvb,
+					GNUTELLA_HEADER_LENGTH,
+					size,
+					FALSE);
+				gnutella_queryhit_tree = proto_item_add_subtree(
+					pi,
+					ett_gnutella);
+				dissect_gnutella_queryhit(
+					tvb,
+					GNUTELLA_HEADER_LENGTH,
+					gnutella_queryhit_tree,
+					size);
+				break;
 			}
-
-			hi = proto_tree_add_item(gnutella_tree,
-				hf_gnutella_header,
-				tvb,
-				offset,
-				GNUTELLA_HEADER_LENGTH,
-				FALSE);
-			gnutella_header_tree = proto_item_add_subtree(hi, ett_gnutella);
-
-			proto_tree_add_item(gnutella_header_tree,
-				hf_gnutella_header_id,
-				tvb,
-				offset + GNUTELLA_HEADER_ID_OFFSET,
-				GNUTELLA_SERVENT_ID_LENGTH,
-				FALSE);
-
-			proto_tree_add_uint_format(gnutella_header_tree,
-				hf_gnutella_header_payload,
-				tvb,
-				offset + GNUTELLA_HEADER_PAYLOAD_OFFSET,
-				GNUTELLA_BYTE_LENGTH,
-				payload_descriptor,
-				"Payload: %i (%s)",
-				payload_descriptor,
-				payload_descriptor_text);
-
-			proto_tree_add_item(gnutella_header_tree,
-				hf_gnutella_header_ttl,
-				tvb,
-				offset + GNUTELLA_HEADER_TTL_OFFSET,
-				GNUTELLA_BYTE_LENGTH,
-				FALSE);
-
-			proto_tree_add_item(gnutella_header_tree,
-				hf_gnutella_header_hops,
-				tvb,
-				offset + GNUTELLA_HEADER_HOPS_OFFSET,
-				GNUTELLA_BYTE_LENGTH,
-				FALSE);
-
-			proto_tree_add_uint(gnutella_header_tree,
-				hf_gnutella_header_size,
-				tvb,
-				offset + GNUTELLA_HEADER_SIZE_OFFSET,
-				GNUTELLA_LONG_LENGTH,
-				size);
-
-			if (size > 0) {
-				/*
-				 * XXX - the size argument to
-				 * "proto_tree_add_item()" is signed,
-				 * to allow -1 to be used to mean
-				 * "to the end of the packet.
-				 *
-				 * Unfortunately, this means that
-				 * an unsigned 32-bit value could
-				 * be interpreted as a negative
-				 * number, which causes an
-				 * assertion error if it's not 0xFFFFFFFF
-				 * (-1).
-				 *
-				 * So we use "tvb_ensure_bytes_exist()"
-				 * so that we throw an exception if
-				 * not all the data is available - or if
-				 * it's >= 0x80000000, i.e. if it looks
-				 * like a negative number, as if it's
-				 * >= 0x80000000 it's *definitely past
-				 * the end of the tvbuff, because we
-				 * don't have tvbuffs with >2GB of
-				 * data.
-				 */
-				tvb_ensure_bytes_exist(tvb,
-						offset + GNUTELLA_HEADER_LENGTH,
-						size);
-				switch(payload_descriptor) {
-				case GNUTELLA_PONG:
-					pi = proto_tree_add_item(
-						gnutella_header_tree,
-						hf_gnutella_pong_payload,
-						tvb,
-						offset + GNUTELLA_HEADER_LENGTH,
-						size,
-						FALSE);
-					gnutella_pong_tree = proto_item_add_subtree(
-						pi,
-						ett_gnutella);
-					dissect_gnutella_pong(
-						tvb,
-						offset + GNUTELLA_HEADER_LENGTH,
-						gnutella_pong_tree,
-						size);
-					break;
-				case GNUTELLA_PUSH:
-					pi = proto_tree_add_item(
-						gnutella_header_tree,
-						hf_gnutella_push_payload,
-						tvb,
-						offset + GNUTELLA_HEADER_LENGTH,
-						size,
-						FALSE);
-					gnutella_push_tree = proto_item_add_subtree(
-						pi,
-						ett_gnutella);
-					dissect_gnutella_push(
-						tvb,
-						offset + GNUTELLA_HEADER_LENGTH,
-						gnutella_push_tree,
-						size);
-					break;
-				case GNUTELLA_QUERY:
-					pi = proto_tree_add_item(
-						gnutella_header_tree,
-						hf_gnutella_query_payload,
-						tvb,
-						offset + GNUTELLA_HEADER_LENGTH,
-						size,
-						FALSE);
-					gnutella_query_tree = proto_item_add_subtree(
-						pi,
-						ett_gnutella);
-					dissect_gnutella_query(
-						tvb,
-						offset + GNUTELLA_HEADER_LENGTH,
-						gnutella_query_tree,
-						size);
-					break;
-				case GNUTELLA_QUERYHIT:
-					pi = proto_tree_add_item(
-						gnutella_header_tree,
-						hf_gnutella_queryhit_payload,
-						tvb,
-						offset + GNUTELLA_HEADER_LENGTH,
-						size,
-						FALSE);
-					gnutella_queryhit_tree = proto_item_add_subtree(
-						pi,
-						ett_gnutella);
-					dissect_gnutella_queryhit(
-						tvb,
-						offset + GNUTELLA_HEADER_LENGTH,
-						gnutella_queryhit_tree,
-						size);
-					break;
-				}
-			}
-
-			offset = offset + GNUTELLA_HEADER_LENGTH + size;
 		}
 	}
 
 }
 
+
+static void dissect_gnutella(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Gnutella");
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
+
+	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 2, get_gnutella_pdu_len,
+	    dissect_gnutella_pdu);
+}
 
 void proto_register_gnutella(void) {
 
