@@ -2861,7 +2861,7 @@ static const radius_attr_info radius_vendor_cablelabs_attrib[] =
   {45, PACKETCABLE_RJ_STRING,                  "Redirected_From_Party_Number", NULL, NULL},
   {46, PACKETCABLE_RJ_STRING,                  "Redirected_To_Party_Number", NULL, NULL},
   {47, PACKETCABLE_ELECTRONIC_SURVEILLANCE_DF_SECURITY,        "Electronic_Surveillance_DF_Security", NULL, NULL},
-  {48, RADIUS_INTEGER4,                        "CCC_ID"},
+  {48, RADIUS_INTEGER4,                        "CCC_ID", NULL, NULL},
   {49, RADIUS_STRING,                          "Financial Entity ID", NULL, NULL},
   {50, RADIUS_INTEGER2,                        "Flow Direction", radius_vendor_packetcable_flow_direction_vals, NULL},
   {51, RADIUS_INTEGER2,                        "Signal_Type", radius_vendor_packetcable_signal_type_vals, NULL},
@@ -3338,18 +3338,41 @@ static void rd_add_field_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
     {
         case( RADIUS_STRING ):
         case( RADIUS_BINSTRING ):
-		proto_tree_add_item(tree, *attr_info->hf, tvb, offset, length, FALSE);
+                proto_tree_add_item(tree, *attr_info->hf, tvb, offset, length, FALSE);
                 break;
 
         case( RADIUS_INTEGER4 ):
-        	/* XXX - error if length isn't 4? */
-		proto_tree_add_item(tree, *attr_info->hf, tvb,offset, 4, FALSE);
+                if (length != 4) {
+                        proto_tree_add_text(tree, tvb, offset, length,
+                            "%s: Length is %u, should be 4",
+                            proto_registrar_get_name(*attr_info->hf),
+                            length);
+                        break;
+                }
+                proto_tree_add_item(tree, *attr_info->hf, tvb, offset, 4, FALSE);
+                break;
+
+        case( RADIUS_INTEGER8 ):
+                if (length != 8) {
+                        proto_tree_add_text(tree, tvb, offset, length,
+                            "%s: Length is %u, should be 8",
+                            proto_registrar_get_name(*attr_info->hf),
+                            length);
+                        break;
+                }
+                proto_tree_add_item(tree, *attr_info->hf, tvb, offset, 8, FALSE);
                 break;
 
         case( RADIUS_IP_ADDRESS ):
-        	/* XXX - error if length isn't 4? */
-		proto_tree_add_item(tree, *attr_info->hf, tvb,offset, 4, FALSE);
-		break;
+                if (length != 4) {
+                        proto_tree_add_text(tree, tvb, offset, length,
+                            "%s: Length is %u, should be 4",
+                            proto_registrar_get_name(*attr_info->hf),
+                            length);
+                        break;
+                }
+                proto_tree_add_item(tree, *attr_info->hf, tvb, offset, 4, FALSE);
+                break;
     }
   }
 }
@@ -3446,7 +3469,6 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 		sprintf(cont, "%" PRIx64, tvb_get_ntoh64(tvb, offset+2));
 		rd_add_field_to_tree(tree, tvb, offset+2, 8, attr_info);
 		break;
-
 
         case( RADIUS_IP_ADDRESS ):
                 ip_to_str_buf(tvb_get_ptr(tvb,offset+2,4),cont);
