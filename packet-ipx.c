@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.118 2003/01/23 09:54:54 guy Exp $
+ * $Id: packet-ipx.c,v 1.119 2003/01/30 05:21:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -561,258 +561,241 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 
-/* ================================================================= */
-/* SAP	        							 */
-/* ================================================================= */
-static const char*
-server_type(guint16 type)
-{
-	const char *p;
-
-	/*
-	 * Some of these are from ncpfs, others are from the book,
-	 * others are from the page at
-	 *
-	 *	http://www.iana.org/assignments/novell-sap-numbers
-	 *
-	 * and some from the page at
-	 *
-	 *	http://www.rware.demon.co.uk/ipxsap.htm
-	 *
-	 * (see also the page at
-	 *
-	 *	http://developer.novell.com/research/appnotes/1998/february/03/06.htm
-	 *
-	 * which has a huge list - but many of the entries list only the
-	 * organization owning the SAP type, not what the type is for).
-	 */
-	static const value_string server_vals[] = {
-		{ 0x0000,	"Unknown" },
-		{ 0x0001,	"User" },
-		{ 0x0002,	"User Group" },
-		{ 0x0003,	"Print Queue or Print Group" },
-		{ 0x0004,	"File Server (SLIST source)" },
-		{ 0x0005,	"Job Server" },
-		{ 0x0006,	"Gateway" },
-		{ 0x0007,	"Print Server or Silent Print Server" },
-		{ 0x0008,	"Archive Queue" },
-		{ 0x0009,	"Archive Server" },
-		{ 0x000a,	"Job Queue" },
-		{ 0x000b,	"Administration" },
-		{ 0x000F,	"Novell TI-RPC" },
-		{ 0x0017,	"Diagnostics" },
-		{ 0x0020,	"NetBIOS" },
-		{ 0x0021,	"NAS SNA Gateway" },
-		{ 0x0023,	"NACS Async Gateway or Asynchronous Gateway" },
-		{ 0x0024,	"Remote Bridge or Routing Service" },
-		{ 0x0026,	"Bridge Server or Asynchronous Bridge Server" },
-		{ 0x0027,	"TCP/IP Gateway Server" },
-		{ 0x0028,	"Point to Point (Eicon) X.25 Bridge Server" },
-		{ 0x0029,	"Eicon 3270 Gateway" },
-		{ 0x002a,	"CHI Corp" },
-		{ 0x002c,	"PC Chalkboard" },
-		{ 0x002d,	"Time Synchronization Server or Asynchronous Timer" },
-		{ 0x002e,	"ARCserve 5.0 / Palindrome Backup Director 4.x (PDB4)" },
-		{ 0x0045,	"DI3270 Gateway" },
-		{ 0x0047,	"Advertising Print Server" },
-		{ 0x004a,	"NetBlazer Modems" },
-		{ 0x004b,	"Btrieve VAP/NLM 5.0" },
-		{ 0x004c,	"NetWare SQL VAP/NLM Server" },
-		{ 0x004d,	"Xtree Network Version/NetWare XTree" },
-		{ 0x0050,	"Btrieve VAP 4.11" },
-		{ 0x0052,	"QuickLink (Cubix)" },
-		{ 0x0053,	"Print Queue User" },
-		{ 0x0058,	"Multipoint X.25 Eicon Router" },
-		{ 0x0060,	"STLB/NLM" },
-		{ 0x0064,	"ARCserve" },
-		{ 0x0066,	"ARCserve 3.0" },
-		{ 0x0072,	"WAN Copy Utility" },
-		{ 0x007a,	"TES-NetWare for VMS" },
-		{ 0x0092,	"WATCOM Debugger or Emerald Tape Backup Server" },
-		{ 0x0095,	"DDA OBGYN" },
-		{ 0x0098,	"NetWare Access Server (Asynchronous gateway)" },
-		{ 0x009a,	"NetWare for VMS II or Named Pipe Server" },
-		{ 0x009b,	"NetWare Access Server" },
-		{ 0x009e,	"Portable NetWare Server or SunLink NVT" },
-		{ 0x00a1,	"Powerchute APC UPS NLM" },
-		{ 0x00aa,	"LAWserve" },
-		{ 0x00ac,	"Compaq IDA Status Monitor" },
-		{ 0x0100,	"PIPE STAIL" },
-		{ 0x0102,	"LAN Protect Bindery" },
-		{ 0x0103,	"Oracle DataBase Server" },
-		{ 0x0107,	"NetWare 386 or RSPX Remote Console" },
-		{ 0x010f,	"Novell SNA Gateway" },
-		{ 0x0111,	"Test Server" },
-		{ 0x0112,	"Print Server (HP)" },
-		{ 0x0114,	"CSA MUX (f/Communications Executive)" },
-		{ 0x0115,	"CSA LCA (f/Communications Executive)" },
-		{ 0x0116,	"CSA CM (f/Communications Executive)" },
-		{ 0x0117,	"CSA SMA (f/Communications Executive)" },
-		{ 0x0118,	"CSA DBA (f/Communications Executive)" },
-		{ 0x0119,	"CSA NMA (f/Communications Executive)" },
-		{ 0x011a,	"CSA SSA (f/Communications Executive)" },
-		{ 0x011b,	"CSA STATUS (f/Communications Executive)" },
-		{ 0x011e,	"CSA APPC (f/Communications Executive)" },
-		{ 0x0126,	"SNA TEST SSA Profile" },
-		{ 0x012a,	"CSA TRACE (f/Communications Executive)" },
-		{ 0x012b,	"NetWare for SAA" },
-		{ 0x012e,	"IKARUS virus scan utility" },
-		{ 0x0130,	"Communications Executive" },
-		{ 0x0133,	"NNS Domain Server or NetWare Naming Services Domain" },
-		{ 0x0135,	"NetWare Naming Services Profile" },
-		{ 0x0137,	"NetWare 386 Print Queue or NNS Print Queue" },
-		{ 0x0141,	"LAN Spool Server (Vap, Intel)" },
-		{ 0x0152,	"IRMALAN Gateway" },
-		{ 0x0154,	"Named Pipe Server" },
-		{ 0x0166,	"NetWare Management" },
-		{ 0x0168,	"Intel PICKIT Comm Server or Intel CAS Talk Server" },
-		{ 0x0173,	"Compaq" },
-		{ 0x0174,	"Compaq SNMP Agent" },
-		{ 0x0175,	"Compaq" },
-		{ 0x0180,	"XTree Server or XTree Tools" },
-		{ 0x018A,	"NASI services broadcast server (Novell)" },
-		{ 0x01b0,	"GARP Gateway (net research)" },
-		{ 0x01b1,	"Binfview (Lan Support Group)" },
-		{ 0x01bf,	"Intel LanDesk Manager" },
-		{ 0x01ca,	"AXTEC" },
-		{ 0x01cb,	"Shiva NetModem/E" },
-		{ 0x01cc,	"Shiva LanRover/E" },
-		{ 0x01cd,	"Shiva LanRover/T" },
-		{ 0x01ce,	"Shiva Universal" },
-		{ 0x01d8,	"Castelle FAXPress Server" },
-		{ 0x01da,	"Castelle LANPress Print Server" },
-		{ 0x01dc,	"Castelle FAX/Xerox 7033 Fax Server/Excel Lan Fax" },
-		{ 0x01f0,	"LEGATO" },
-		{ 0x01f5,	"LEGATO" },
-		{ 0x0233,	"NMS Agent or NetWare Management Agent" },
-		{ 0x0237,	"NMS IPX Discovery or LANtern Read/Write Channel" },
-		{ 0x0238,	"NMS IP Discovery or LANtern Trap/Alarm Channel" },
-		{ 0x023a,	"LANtern" },
-		{ 0x023c,	"MAVERICK" },
-		{ 0x023f,	"SMS Testing and Development" },
-		{ 0x024e,	"NetWare Connect" },
-		{ 0x024f,	"NASI server broadcast (Cisco)" },
-		{ 0x026a,	"Network Management (NMS) Service Console" },
-		{ 0x026b,	"Time Synchronization Server (NetWare 4.x)" },
-		{ 0x0278,	"Directory Server (NetWare 4.x)" },
-		{ 0x027b,	"NetWare Management Agent" },
-		{ 0x0280,	"Novell File and Printer Sharing Service for PC" },
-		{ 0x0304,	"Novell SAA Gateway" },
-		{ 0x0308,	"COM or VERMED 1" },
-		{ 0x030a,	"Galacticomm's Worldgroup Server" },
-		{ 0x030c,	"Intel Netport 2 or HP JetDirect or HP Quicksilver" },
-		{ 0x0320,	"Attachmate Gateway" },
-		{ 0x0327,	"Microsoft Diagnostics" },
-		{ 0x0328,	"WATCOM SQL server" },
-		{ 0x0335,	"MultiTech Systems Multisynch Comm Server" },
-		{ 0x0343,	"Xylogics Remote Access Server or LAN Modem" },
-		{ 0x0355,	"Arcada Backup Exec" },
-		{ 0x0358,	"MSLCD1" },
-		{ 0x0361,	"NETINELO" },
-		{ 0x037e,	"Powerchute UPS Monitoring" },
-		{ 0x037f,	"ViruSafe Notify" },
-		{ 0x0386,	"HP Bridge" },
-		{ 0x0387,	"HP Hub" },
-		{ 0x0394,	"NetWare SAA Gateway" },
-		{ 0x039b,	"Lotus Notes" },
-		{ 0x03b7,	"Certus Anti Virus NLM" },
-		{ 0x03c4,	"ARCserve 4.0 (Cheyenne)" },
-		{ 0x03c7,	"LANspool 3.5 (Intel)" },
-		{ 0x03d7,	"Lexmark printer server (type 4033-011)" },
-		{ 0x03d8,	"Lexmark XLE printer server (type 4033-301)" },
-		{ 0x03dd,	"Banyan ENS for NetWare Client NLM" },
-		{ 0x03de,	"Gupta Sequel Base Server or NetWare SQL" },
-		{ 0x03e1,	"Univel Unixware" },
-		{ 0x03e4,	"Univel Unixware" },
-		{ 0x03fc,	"Intel Netport" },
-		{ 0x03fd,	"Intel Print Server Queue" },
-		{ 0x040A,	"ipnServer" },
-		{ 0x040D,	"LVERRMAN" },
-		{ 0x040E,	"LVLIC" },
-		{ 0x0414,	"NET Silicon (DPI)/Kyocera" },
-		{ 0x0429,	"Site Lock Virus (Brightworks)" },
-		{ 0x0432,	"UFHELP R" },
-		{ 0x0433,	"Synoptics 281x Advanced SNMP Agent" },
-		{ 0x0444,	"Microsoft NT SNA Server" },
-		{ 0x0448,	"Oracle" },
-		{ 0x044c,	"ARCserve 5.01" },
-		{ 0x0457,	"Canon GP55 Running on a Canon GP55 network printer" },
-		{ 0x045a,	"QMS Printers" },
-		{ 0x045b,	"Dell SCSI Array (DSA) Monitor" },
-		{ 0x0491,	"NetBlazer Modems" },
-		{ 0x04ac,	"On-Time Scheduler NLM" },
-		{ 0x04b0,	"CD-Net (Meridian)" },
-		{ 0x0513,	"Emulex NQA" },
-		{ 0x0520,	"Site Lock Checks" },
-		{ 0x0529,	"Site Lock Checks (Brightworks)" },
-		{ 0x052d,	"Citrix OS/2 App Server" },
-		{ 0x0535,	"Tektronix" },
-		{ 0x0536,	"Milan" },
-		{ 0x055d,	"Attachmate SNA gateway" },
-		{ 0x056b,	"IBM 8235 modem server" },
-		{ 0x056c,	"Shiva LanRover/E PLUS" },
-		{ 0x056d,	"Shiva LanRover/T PLUS" },
-		{ 0x0580,	"McAfee's NetShield anti-virus" },
-		{ 0x05B8,	"NLM to workstation communication (Revelation Software)" },
-		{ 0x05BA,	"Compatible Systems Routers" },
-		{ 0x05BE,	"Cheyenne Hierarchical Storage Manager" },
-		{ 0x0606,	"JCWatermark Imaging" },
-		{ 0x060c,	"AXIS Network Printer" },
-		{ 0x0610,	"Adaptec SCSI Management" },
-		{ 0x0621,	"IBM AntiVirus NLM" },
-		{ 0x0640,	"Microsoft Gateway Services for NetWare" },
-/*		{ 0x0640,	"NT Server-RPC/GW for NW/Win95 User Level Sec" }, */
-		{ 0x064e,	"Microsoft Internet Information Server" },
-		{ 0x067b,	"Microsoft Win95/98 File and Print Sharing for NetWare" },
-		{ 0x067c,	"Microsoft Win95/98 File and Print Sharing for NetWare" },
-		{ 0x076C,	"Xerox" },
-		{ 0x079b,	"Shiva LanRover/E 115" },
-		{ 0x079c,	"Shiva LanRover/T 115" },
-		{ 0x07B4,	"Cubix WorldDesk" },
-		{ 0x07c2,	"Quarterdeck IWare Connect V2.x NLM" },
-		{ 0x07c1,	"Quarterdeck IWare Connect V3.x NLM" },
-		{ 0x0810,	"ELAN License Server Demo" },
-		{ 0x0824,	"Shiva LanRover Access Switch/E" },
-		{ 0x086a,	"ISSC collector NLMs" },
-		{ 0x087f,	"ISSC DAS agent for AIX" },
-		{ 0x0880,	"Intel Netport PRO" },
-		{ 0x0881,	"Intel Netport PRO" },
-		{ 0x0b29,	"Site Lock" },
-		{ 0x0c29,	"Site Lock Applications" },
-		{ 0x0c2c,	"Licensing Server" },
-		{ 0x2101,	"Performance Technology Instant Internet" },
-		{ 0x2380,	"LAI Site Lock" },
-		{ 0x238c,	"Meeting Maker" },
-		{ 0x4808,	"Site Lock Server or Site Lock Metering VAP/NLM" },
-		{ 0x5555,	"Site Lock User" },
-		{ 0x6312,	"Tapeware" },
-		{ 0x6f00,	"Rabbit Gateway (3270)" },
-		{ 0x7703,	"MODEM" },
-		{ 0x8002,	"NetPort Printers (Intel) or LANport" },
-		{ 0x8003,	"SEH InterCon Printserver" },
-		{ 0x8008,	"WordPerfect Network Version" },
-		{ 0x85BE,	"Cisco Enhanced Interior Routing Protocol (EIGRP)" },
-		{ 0x8888,	"WordPerfect Network Version or Quick Network Management" },
-		{ 0x9000,	"McAfee's NetShield anti-virus" },
-		{ 0x9604,	"CSA-NT_MON" },
-		{ 0xb6a8,	"Ocean Isle Reachout Remote Control" },
-		{ 0xf11f,	"Site Lock Metering VAP/NLM" },
-		{ 0xf1ff,	"Site Lock" },
-		{ 0xf503,	"Microsoft SQL Server" },
-		{ 0xf905,	"IBM Time and Place/2 application" },
-		{ 0xfbfb,	"TopCall III fax server" },
-		{ 0xffff,	"Any Service or Wildcard" },
-		{ 0x0000,	NULL }
-	};
-
-	p = match_strval(type, server_vals);
-	if (p) {
-		return p;
-	}
-	else {
-		return "Unknown";
-	}
-}
+/*
+ * Some of these are from ncpfs, others are from the book,
+ * others are from the page at
+ *
+ *	http://www.iana.org/assignments/novell-sap-numbers
+ *
+ * and some from the page at
+ *
+ *	http://www.rware.demon.co.uk/ipxsap.htm
+ *
+ * (see also the page at
+ *
+ *	http://developer.novell.com/research/appnotes/1998/february/03/06.htm
+ *
+ * which has a huge list - but many of the entries list only the
+ * organization owning the SAP type, not what the type is for).
+ */
+static const value_string server_vals[] = {
+	{ 0x0000,	"Unknown" },
+	{ 0x0001,	"User" },
+	{ 0x0002,	"User Group" },
+	{ 0x0003,	"Print Queue or Print Group" },
+	{ 0x0004,	"File Server (SLIST source)" },
+	{ 0x0005,	"Job Server" },
+	{ 0x0006,	"Gateway" },
+	{ 0x0007,	"Print Server or Silent Print Server" },
+	{ 0x0008,	"Archive Queue" },
+	{ 0x0009,	"Archive Server" },
+	{ 0x000a,	"Job Queue" },
+	{ 0x000b,	"Administration" },
+	{ 0x000F,	"Novell TI-RPC" },
+	{ 0x0017,	"Diagnostics" },
+	{ 0x0020,	"NetBIOS" },
+	{ 0x0021,	"NAS SNA Gateway" },
+	{ 0x0023,	"NACS Async Gateway or Asynchronous Gateway" },
+	{ 0x0024,	"Remote Bridge or Routing Service" },
+	{ 0x0026,	"Bridge Server or Asynchronous Bridge Server" },
+	{ 0x0027,	"TCP/IP Gateway Server" },
+	{ 0x0028,	"Point to Point (Eicon) X.25 Bridge Server" },
+	{ 0x0029,	"Eicon 3270 Gateway" },
+	{ 0x002a,	"CHI Corp" },
+	{ 0x002c,	"PC Chalkboard" },
+	{ 0x002d,	"Time Synchronization Server or Asynchronous Timer" },
+	{ 0x002e,	"ARCserve 5.0 / Palindrome Backup Director 4.x (PDB4)" },
+	{ 0x0045,	"DI3270 Gateway" },
+	{ 0x0047,	"Advertising Print Server" },
+	{ 0x004a,	"NetBlazer Modems" },
+	{ 0x004b,	"Btrieve VAP/NLM 5.0" },
+	{ 0x004c,	"NetWare SQL VAP/NLM Server" },
+	{ 0x004d,	"Xtree Network Version/NetWare XTree" },
+	{ 0x0050,	"Btrieve VAP 4.11" },
+	{ 0x0052,	"QuickLink (Cubix)" },
+	{ 0x0053,	"Print Queue User" },
+	{ 0x0058,	"Multipoint X.25 Eicon Router" },
+	{ 0x0060,	"STLB/NLM" },
+	{ 0x0064,	"ARCserve" },
+	{ 0x0066,	"ARCserve 3.0" },
+	{ 0x0072,	"WAN Copy Utility" },
+	{ 0x007a,	"TES-NetWare for VMS" },
+	{ 0x0092,	"WATCOM Debugger or Emerald Tape Backup Server" },
+	{ 0x0095,	"DDA OBGYN" },
+	{ 0x0098,	"NetWare Access Server (Asynchronous gateway)" },
+	{ 0x009a,	"NetWare for VMS II or Named Pipe Server" },
+	{ 0x009b,	"NetWare Access Server" },
+	{ 0x009e,	"Portable NetWare Server or SunLink NVT" },
+	{ 0x00a1,	"Powerchute APC UPS NLM" },
+	{ 0x00aa,	"LAWserve" },
+	{ 0x00ac,	"Compaq IDA Status Monitor" },
+	{ 0x0100,	"PIPE STAIL" },
+	{ 0x0102,	"LAN Protect Bindery" },
+	{ 0x0103,	"Oracle DataBase Server" },
+	{ 0x0107,	"NetWare 386 or RSPX Remote Console" },
+	{ 0x010f,	"Novell SNA Gateway" },
+	{ 0x0111,	"Test Server" },
+	{ 0x0112,	"Print Server (HP)" },
+	{ 0x0114,	"CSA MUX (f/Communications Executive)" },
+	{ 0x0115,	"CSA LCA (f/Communications Executive)" },
+	{ 0x0116,	"CSA CM (f/Communications Executive)" },
+	{ 0x0117,	"CSA SMA (f/Communications Executive)" },
+	{ 0x0118,	"CSA DBA (f/Communications Executive)" },
+	{ 0x0119,	"CSA NMA (f/Communications Executive)" },
+	{ 0x011a,	"CSA SSA (f/Communications Executive)" },
+	{ 0x011b,	"CSA STATUS (f/Communications Executive)" },
+	{ 0x011e,	"CSA APPC (f/Communications Executive)" },
+	{ 0x0126,	"SNA TEST SSA Profile" },
+	{ 0x012a,	"CSA TRACE (f/Communications Executive)" },
+	{ 0x012b,	"NetWare for SAA" },
+	{ 0x012e,	"IKARUS virus scan utility" },
+	{ 0x0130,	"Communications Executive" },
+	{ 0x0133,	"NNS Domain Server or NetWare Naming Services Domain" },
+	{ 0x0135,	"NetWare Naming Services Profile" },
+	{ 0x0137,	"NetWare 386 Print Queue or NNS Print Queue" },
+	{ 0x0141,	"LAN Spool Server (Vap, Intel)" },
+	{ 0x0152,	"IRMALAN Gateway" },
+	{ 0x0154,	"Named Pipe Server" },
+	{ 0x0166,	"NetWare Management" },
+	{ 0x0168,	"Intel PICKIT Comm Server or Intel CAS Talk Server" },
+	{ 0x0173,	"Compaq" },
+	{ 0x0174,	"Compaq SNMP Agent" },
+	{ 0x0175,	"Compaq" },
+	{ 0x0180,	"XTree Server or XTree Tools" },
+	{ 0x018A,	"NASI services broadcast server (Novell)" },
+	{ 0x01b0,	"GARP Gateway (net research)" },
+	{ 0x01b1,	"Binfview (Lan Support Group)" },
+	{ 0x01bf,	"Intel LanDesk Manager" },
+	{ 0x01ca,	"AXTEC" },
+	{ 0x01cb,	"Shiva NetModem/E" },
+	{ 0x01cc,	"Shiva LanRover/E" },
+	{ 0x01cd,	"Shiva LanRover/T" },
+	{ 0x01ce,	"Shiva Universal" },
+	{ 0x01d8,	"Castelle FAXPress Server" },
+	{ 0x01da,	"Castelle LANPress Print Server" },
+	{ 0x01dc,	"Castelle FAX/Xerox 7033 Fax Server/Excel Lan Fax" },
+	{ 0x01f0,	"LEGATO" },
+	{ 0x01f5,	"LEGATO" },
+	{ 0x0233,	"NMS Agent or NetWare Management Agent" },
+	{ 0x0237,	"NMS IPX Discovery or LANtern Read/Write Channel" },
+	{ 0x0238,	"NMS IP Discovery or LANtern Trap/Alarm Channel" },
+	{ 0x023a,	"LANtern" },
+	{ 0x023c,	"MAVERICK" },
+	{ 0x023f,	"SMS Testing and Development" },
+	{ 0x024e,	"NetWare Connect" },
+	{ 0x024f,	"NASI server broadcast (Cisco)" },
+	{ 0x026a,	"Network Management (NMS) Service Console" },
+	{ 0x026b,	"Time Synchronization Server (NetWare 4.x)" },
+	{ 0x0278,	"Directory Server (NetWare 4.x)" },
+	{ 0x027b,	"NetWare Management Agent" },
+	{ 0x0280,	"Novell File and Printer Sharing Service for PC" },
+	{ 0x0304,	"Novell SAA Gateway" },
+	{ 0x0308,	"COM or VERMED 1" },
+	{ 0x030a,	"Galacticomm's Worldgroup Server" },
+	{ 0x030c,	"Intel Netport 2 or HP JetDirect or HP Quicksilver" },
+	{ 0x0320,	"Attachmate Gateway" },
+	{ 0x0327,	"Microsoft Diagnostics" },
+	{ 0x0328,	"WATCOM SQL server" },
+	{ 0x0335,	"MultiTech Systems Multisynch Comm Server" },
+	{ 0x0343,	"Xylogics Remote Access Server or LAN Modem" },
+	{ 0x0355,	"Arcada Backup Exec" },
+	{ 0x0358,	"MSLCD1" },
+	{ 0x0361,	"NETINELO" },
+	{ 0x037e,	"Powerchute UPS Monitoring" },
+	{ 0x037f,	"ViruSafe Notify" },
+	{ 0x0386,	"HP Bridge" },
+	{ 0x0387,	"HP Hub" },
+	{ 0x0394,	"NetWare SAA Gateway" },
+	{ 0x039b,	"Lotus Notes" },
+	{ 0x03b7,	"Certus Anti Virus NLM" },
+	{ 0x03c4,	"ARCserve 4.0 (Cheyenne)" },
+	{ 0x03c7,	"LANspool 3.5 (Intel)" },
+	{ 0x03d7,	"Lexmark printer server (type 4033-011)" },
+	{ 0x03d8,	"Lexmark XLE printer server (type 4033-301)" },
+	{ 0x03dd,	"Banyan ENS for NetWare Client NLM" },
+	{ 0x03de,	"Gupta Sequel Base Server or NetWare SQL" },
+	{ 0x03e1,	"Univel Unixware" },
+	{ 0x03e4,	"Univel Unixware" },
+	{ 0x03fc,	"Intel Netport" },
+	{ 0x03fd,	"Intel Print Server Queue" },
+	{ 0x040A,	"ipnServer" },
+	{ 0x040D,	"LVERRMAN" },
+	{ 0x040E,	"LVLIC" },
+	{ 0x0414,	"NET Silicon (DPI)/Kyocera" },
+	{ 0x0429,	"Site Lock Virus (Brightworks)" },
+	{ 0x0432,	"UFHELP R" },
+	{ 0x0433,	"Synoptics 281x Advanced SNMP Agent" },
+	{ 0x0444,	"Microsoft NT SNA Server" },
+	{ 0x0448,	"Oracle" },
+	{ 0x044c,	"ARCserve 5.01" },
+	{ 0x0457,	"Canon GP55 Running on a Canon GP55 network printer" },
+	{ 0x045a,	"QMS Printers" },
+	{ 0x045b,	"Dell SCSI Array (DSA) Monitor" },
+	{ 0x0491,	"NetBlazer Modems" },
+	{ 0x04ac,	"On-Time Scheduler NLM" },
+	{ 0x04b0,	"CD-Net (Meridian)" },
+	{ 0x0513,	"Emulex NQA" },
+	{ 0x0520,	"Site Lock Checks" },
+	{ 0x0529,	"Site Lock Checks (Brightworks)" },
+	{ 0x052d,	"Citrix OS/2 App Server" },
+	{ 0x0535,	"Tektronix" },
+	{ 0x0536,	"Milan" },
+	{ 0x055d,	"Attachmate SNA gateway" },
+	{ 0x056b,	"IBM 8235 modem server" },
+	{ 0x056c,	"Shiva LanRover/E PLUS" },
+	{ 0x056d,	"Shiva LanRover/T PLUS" },
+	{ 0x0580,	"McAfee's NetShield anti-virus" },
+	{ 0x05B8,	"NLM to workstation communication (Revelation Software)" },
+	{ 0x05BA,	"Compatible Systems Routers" },
+	{ 0x05BE,	"Cheyenne Hierarchical Storage Manager" },
+	{ 0x0606,	"JCWatermark Imaging" },
+	{ 0x060c,	"AXIS Network Printer" },
+	{ 0x0610,	"Adaptec SCSI Management" },
+	{ 0x0621,	"IBM AntiVirus NLM" },
+	{ 0x0640,	"Microsoft Gateway Services for NetWare" },
+/*	{ 0x0640,	"NT Server-RPC/GW for NW/Win95 User Level Sec" }, */
+	{ 0x064e,	"Microsoft Internet Information Server" },
+	{ 0x067b,	"Microsoft Win95/98 File and Print Sharing for NetWare" },
+	{ 0x067c,	"Microsoft Win95/98 File and Print Sharing for NetWare" },
+	{ 0x076C,	"Xerox" },
+	{ 0x079b,	"Shiva LanRover/E 115" },
+	{ 0x079c,	"Shiva LanRover/T 115" },
+	{ 0x07B4,	"Cubix WorldDesk" },
+	{ 0x07c2,	"Quarterdeck IWare Connect V2.x NLM" },
+	{ 0x07c1,	"Quarterdeck IWare Connect V3.x NLM" },
+	{ 0x0810,	"ELAN License Server Demo" },
+	{ 0x0824,	"Shiva LanRover Access Switch/E" },
+	{ 0x086a,	"ISSC collector NLMs" },
+	{ 0x087f,	"ISSC DAS agent for AIX" },
+	{ 0x0880,	"Intel Netport PRO" },
+	{ 0x0881,	"Intel Netport PRO" },
+	{ 0x0b29,	"Site Lock" },
+	{ 0x0c29,	"Site Lock Applications" },
+	{ 0x0c2c,	"Licensing Server" },
+	{ 0x2101,	"Performance Technology Instant Internet" },
+	{ 0x2380,	"LAI Site Lock" },
+	{ 0x238c,	"Meeting Maker" },
+	{ 0x4808,	"Site Lock Server or Site Lock Metering VAP/NLM" },
+	{ 0x5555,	"Site Lock User" },
+	{ 0x6312,	"Tapeware" },
+	{ 0x6f00,	"Rabbit Gateway (3270)" },
+	{ 0x7703,	"MODEM" },
+	{ 0x8002,	"NetPort Printers (Intel) or LANport" },
+	{ 0x8003,	"SEH InterCon Printserver" },
+	{ 0x8008,	"WordPerfect Network Version" },
+	{ 0x85BE,	"Cisco Enhanced Interior Routing Protocol (EIGRP)" },
+	{ 0x8888,	"WordPerfect Network Version or Quick Network Management" },
+	{ 0x9000,	"McAfee's NetShield anti-virus" },
+	{ 0x9604,	"CSA-NT_MON" },
+	{ 0xb6a8,	"Ocean Isle Reachout Remote Control" },
+	{ 0xf11f,	"Site Lock Metering VAP/NLM" },
+	{ 0xf1ff,	"Site Lock" },
+	{ 0xf503,	"Microsoft SQL Server" },
+	{ 0xf905,	"IBM Time and Place/2 application" },
+	{ 0xfbfb,	"TopCall III fax server" },
+	{ 0xffff,	"Any Service or Wildcard" },
+	{ 0x0000,	NULL }
+};
 
 static void
 dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -821,7 +804,10 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti;
 	int		cursor;
 	struct sap_query query;
-	struct sap_server_ident server;
+	guint16		server_type;
+	char		server_name[48];
+	guint16		server_port;
+	guint16		intermediate_network;
 
 	static char	*sap_type[4] = { "General Query", "General Response",
 		"Nearest Query", "Nearest Response" };
@@ -869,36 +855,35 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			int available_length = tvb_reported_length(tvb);
 			for (cursor =  2; (cursor + 64) <= available_length; cursor += 64) {
-				server.server_type = tvb_get_ntohs(tvb, cursor);
-				tvb_memcpy(tvb, (guint8 *)server.server_name,
+				server_type = tvb_get_ntohs(tvb, cursor);
+				tvb_memcpy(tvb, (guint8 *)server_name,
 				    cursor+2, 48);
-				tvb_memcpy(tvb, (guint8 *)&server.server_network,
-				    cursor+50, 4);
-				tvb_memcpy(tvb, (guint8 *)&server.server_node,
-				    cursor+54, 6);
-				server.server_port = tvb_get_ntohs(tvb, cursor+60);
-				server.intermediate_network = tvb_get_ntohs(tvb, cursor+62);
 
 				ti = proto_tree_add_text(sap_tree, tvb, cursor+2, 48,
-					"Server Name: %s", server.server_name);
+					"Server Name: %.48s", server_name);
 				s_tree = proto_item_add_subtree(ti, ett_ipxsap_server);
 
 				proto_tree_add_text(s_tree, tvb, cursor, 2, "Server Type: %s (0x%04X)",
-						server_type(server.server_type), server.server_type);
+				    val_to_str(server_type, server_vals, "Unknown"),
+				    server_type);
 				proto_tree_add_text(s_tree, tvb, cursor+50, 4, "Network: %s",
 						ipxnet_to_string(tvb_get_ptr(tvb, cursor+50, 4)));
 				proto_tree_add_text(s_tree, tvb, cursor+54, 6, "Node: %s",
 						ether_to_str(tvb_get_ptr(tvb, cursor+54, 6)));
+				server_port = tvb_get_ntohs(tvb, cursor+60);
 				proto_tree_add_text(s_tree, tvb, cursor+60, 2, "Socket: %s (0x%04x)",
-						socket_text(server.server_port), server.server_port);
+						socket_text(server_port),
+						server_port);
+				intermediate_network = tvb_get_ntohs(tvb, cursor+62);
 				proto_tree_add_text(s_tree, tvb, cursor+62, 2,
 						"Intermediate Networks: %d",
-						server.intermediate_network);
+						intermediate_network);
 			}
 		}
 		else {  /* queries */
 			proto_tree_add_text(sap_tree, tvb, 2, 2, "Server Type: %s (0x%04X)",
-					server_type(query.server_type), query.server_type);
+				val_to_str(query.server_type, server_vals, "Unknown"),
+				query.server_type);
 		}
 	}
 }

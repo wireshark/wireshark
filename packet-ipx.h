@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.h,v 1.20 2002/10/15 04:25:42 guy Exp $
+ * $Id: packet-ipx.h,v 1.21 2003/01/30 05:21:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,16 +58,6 @@ struct sap_query
 {
 	guint16	query_type;	/* net order */
 	guint16	server_type;	/* net order */
-};
-
-struct sap_server_ident
-{
-	guint16	server_type ;
-	char		server_name[48] ;
-	IPXNet		server_network ;
-	IPXNode		server_node ;
-	IPXPort		server_port ;
-	guint16	intermediate_network ;
 };
 
 #define IPX_RIP_REQUEST (0x1)
