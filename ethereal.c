@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.70 1999/07/31 13:55:15 deniel Exp $
+ * $Id: ethereal.c,v 1.71 1999/07/31 18:26:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -210,7 +210,6 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
   char filename1[128];
   GtkWidget *streamwindow, *box, *text, *vscrollbar, *table;
   GtkWidget *filter_te = NULL;
-  int err;
 
   if (w)
   	filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
@@ -228,24 +227,14 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
     cf.dfilter = build_follow_filter( &pi );
     if (filter_te)
 	    gtk_entry_set_text(GTK_ENTRY(filter_te), cf.dfilter);
-    /* reload so it goes in effect. Also we set data_out_file which 
-       tells the tcp code to output the data */
+    /* Run the display filter so it goes in effect. Also we set
+       data_out_file which tells the tcp code to output the data */
     strcpy( filename1, tmpnam(NULL) );
     data_out_file = fopen( filename1, "a" );
     if( data_out_file == NULL ) {
       fprintf( stderr, "Could not open tmp file %s\n", filename1 );
     }
-    /* Compile the filter */
-    if (dfilter_compile(cf.dfilter, &cf.dfcode) != 0) {
-      simple_dialog(ESD_TYPE_WARN, NULL,
-		    "Unable to parse filter string \"%s\".", cf.dfilter);
-      return;
-    }
-    err = load_cap_file( cf.filename, &cf );
-    if (err != 0) {
-      simple_dialog(ESD_TYPE_WARN, NULL, file_open_error_message(err, FALSE),
-		cf.filename);
-    }
+    filter_packets(&cf);
     /* the data_out_file should now be full of the streams information */
     fclose( data_out_file );
     /* the filename1 file now has all the text that was in the session */
@@ -384,9 +373,8 @@ match_selected_cb(GtkWidget *w, gpointer data)
     cf.dfilter = buf;
     if (filter_te)
 	gtk_entry_set_text(GTK_ENTRY(filter_te), cf.dfilter);
-    /* reload so it goes in effect. */
-    close_cap_file( &cf, info_bar, file_ctx);
-    load_cap_file( cf.filename, &cf );
+    /* Run the display filter so it goes in effect. */
+    filter_packets(&cf);
     if( cf.dfilter != NULL ) {
       g_free( cf.dfilter );
       cf.dfilter = NULL;
