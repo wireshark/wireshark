@@ -7,7 +7,7 @@
  *	http://www.dgs.monash.edu.au/~timf/bottim/
  *	http://www.opt-sci.Arizona.EDU/Pandora/default.asp
  *
- * $Id: packet-quake2.c,v 1.16 2003/09/21 20:06:00 gerald Exp $
+ * $Id: packet-quake2.c,v 1.17 2004/02/25 23:11:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,9 +117,7 @@ dissect_quake2_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 
         len = tvb_length_remaining(tvb, offset);
         if (cl_tree) {
-                text = g_malloc(len + 1);
-                tvb_memcpy(tvb, text, offset, len);
-                text[len] = '\0';
+                text = tvb_get_string(tvb, offset, len);
                 proto_tree_add_string(cl_tree, hf_quake2_connectionless_text,
                         tvb, offset, len, text);
                 g_free(text);
@@ -348,17 +346,14 @@ static int
 dissect_quake2_client_commands_uinfo(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree)
 {
-	guint8 *message;
 	guint len;
 	proto_item *userinfo_item;
 
 	len = tvb_strsize(tvb, 0);
 
 	if (tree) {
-		message = g_malloc(len);
-		tvb_memcpy(tvb, message, 0, len);
-		userinfo_item = proto_tree_add_text(tree, tvb, 0, len, "Userinfo: %s", 				message);
-		g_free(message);
+		userinfo_item = proto_tree_add_text(tree, tvb, 0, len, "Userinfo: %s",
+			tvb_get_ptr(tvb, 0, len));
 	}
 
 	return len;
@@ -369,17 +364,13 @@ dissect_quake2_client_commands_stringcmd(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree)
 {
 	guint len;
-	guint8 *message;
 	proto_item *stringcmd_item;
 
 	len = tvb_strsize(tvb, 0);
 
 	if (tree) {
-		message = g_malloc(len);
-		tvb_memcpy(tvb, message, 0, len);
 		stringcmd_item = proto_tree_add_text(tree, tvb, 0, len, "Command: %s",
-			message);
-		g_free(message);
+			tvb_get_ptr(tvb, 0, len));
 	}
 
 	return len;
