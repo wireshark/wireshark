@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.21 2002/02/22 21:52:09 guy Exp $
+ * $Id: packet-cops.c,v 1.22 2002/02/26 12:26:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,147 @@
 #include <epan/packet.h>
 #include "packet-ipv6.h"
 #include "packet-frame.h"
+
+#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+ /*
+  * UCD or CMU SNMP?
+  */
+
+#define MAX_STRING_LEN 2048	/* TBC */
+
+# if defined(HAVE_UCD_SNMP_SNMP_H)
+   /*
+    * UCD SNMP.
+    */
+#  include <ucd-snmp/asn1.h>
+#  include <ucd-snmp/snmp_api.h>
+#  include <ucd-snmp/snmp_impl.h>
+#  include <ucd-snmp/mib.h>
+
+   /*
+    * Sigh.  UCD SNMP 4.1.1 makes "snmp_set_suffix_only()" a macro
+    * that calls "ds_set_int()" with the first two arguments
+    * being DS_LIBRARY_ID and DS_LIB_PRINT_SUFFIX_ONLY; this means that,
+    * when building with 4.1.1, we need to arrange that
+    * <ucd-snmp/default_store.h> is included, to define those two values
+    * and to declare "ds_int()".
+    *
+    * However:
+    *
+    *	1) we can't include it on earlier versions (at least not 3.6.2),
+    *	   as it doesn't exist in those versions;
+    *
+    *	2) we don't want to include <ucd-snmp/ucd-snmp-includes.h>,
+    *	   as that includes <ucd-snmp/snmp.h>, and that defines a whole
+    *	   bunch of values that we also define ourselves.
+    *
+    * So we only include it if "snmp_set_suffix_only" is defined as
+    * a macro.
+    */
+#  ifdef snmp_set_suffix_only
+#   include <ucd-snmp/default_store.h>
+#  endif
+
+   /*
+    * XXX - for now, we assume all versions of UCD SNMP have it.
+    */
+#  define HAVE_SPRINT_VALUE
+
+   /*
+    * Define values "sprint_value()" expects.
+    */
+#  define VALTYPE_INTEGER	ASN_INTEGER
+#  define VALTYPE_COUNTER	ASN_COUNTER
+#  define VALTYPE_GAUGE		ASN_GAUGE
+#  define VALTYPE_TIMETICKS	ASN_TIMETICKS
+#  define VALTYPE_STRING	ASN_OCTET_STR
+#  define VALTYPE_IPADDR	ASN_IPADDRESS
+#  define VALTYPE_OPAQUE	ASN_OPAQUE
+#  define VALTYPE_NSAP		ASN_NSAP
+#  define VALTYPE_OBJECTID	ASN_OBJECT_ID
+#  define VALTYPE_BITSTR	ASN_BIT_STR
+#  define VALTYPE_COUNTER64	ASN_COUNTER64
+
+#  ifdef RED_HAT_MODIFIED_UCD_SNMP
+#    include <ucd-snmp/parse.h>
+#  endif
+
+
+# elif defined(HAVE_SNMP_SNMP_H)
+   /*
+    * CMU SNMP.
+    */
+#  include <snmp/snmp.h>
+
+   /*
+    * Some older versions of CMU SNMP may lack these values (e.g., the
+    * "libsnmp3.6" package for Debian, which is based on some old
+    * CMU SNMP, perhaps 1.0); for now, we assume they also lack
+    * "sprint_value()".
+    */
+#  ifdef SMI_INTEGER
+#   define HAVE_SPRINT_VALUE
+    /*
+     * Define values "sprint_value()" expects.
+     */
+#   define VALTYPE_INTEGER	SMI_INTEGER
+#   define VALTYPE_COUNTER	SMI_COUNTER32
+#   define VALTYPE_GAUGE	SMI_GAUGE32
+#   define VALTYPE_TIMETICKS	SMI_TIMETICKS
+#   define VALTYPE_STRING	SMI_STRING
+#   define VALTYPE_IPADDR	SMI_IPADDRESS
+#   define VALTYPE_OPAQUE	SMI_OPAQUE
+#   define VALTYPE_NSAP		SMI_STRING
+#   define VALTYPE_OBJECTID	SMI_OBJID
+#   define VALTYPE_BITSTR	ASN_BIT_STR
+#   define VALTYPE_COUNTER64	SMI_COUNTER64
+#  endif
+  /*
+   * Now undo all the definitions they "helpfully" gave us, so we don't get
+   * complaints about redefining them.
+   *
+   * Why, oh why, is there no library that provides code to
+   *
+   *	1) read MIB files;
+   *
+   *	2) translate object IDs into names;
+   *
+   *	3) let you find out, for a given object ID, what the type, enum
+   *	   values, display hint, etc. are;
+   *
+   * in a *simple* fashion, without assuming that your code is part of an
+   * SNMP agent or client that wants a pile of definitions of PDU types,
+   * etc.?  Is it just that 99 44/100% of the code that uses an SNMP library
+   * *is* part of an agent or client, and really *does* need that stuff,
+   * and *doesn't* need the interfaces we want?
+   */
+#  undef SNMP_ERR_NOERROR
+#  undef SNMP_ERR_TOOBIG
+#  undef SNMP_ERR_NOSUCHNAME
+#  undef SNMP_ERR_BADVALUE
+#  undef SNMP_ERR_READONLY
+#  undef SNMP_ERR_NOACCESS
+#  undef SNMP_ERR_WRONGTYPE
+#  undef SNMP_ERR_WRONGLENGTH
+#  undef SNMP_ERR_WRONGENCODING
+#  undef SNMP_ERR_WRONGVALUE
+#  undef SNMP_ERR_NOCREATION
+#  undef SNMP_ERR_INCONSISTENTVALUE
+#  undef SNMP_ERR_RESOURCEUNAVAILABLE
+#  undef SNMP_ERR_COMMITFAILED
+#  undef SNMP_ERR_UNDOFAILED
+#  undef SNMP_ERR_AUTHORIZATIONERROR
+#  undef SNMP_ERR_NOTWRITABLE
+#  undef SNMP_ERR_INCONSISTENTNAME
+#  undef SNMP_TRAP_COLDSTART
+#  undef SNMP_TRAP_WARMSTART
+#  undef SNMP_TRAP_LINKDOWN
+#  undef SNMP_TRAP_LINKUP
+#  undef SNMP_TRAP_EGPNEIGHBORLOSS
+#  undef SNMP_TRAP_ENTERPRISESPECIFIC
+# endif
+#endif
+
 #include "asn1.h"
 #include "prefs.h"
 
@@ -1017,6 +1158,12 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset, proto_tree *t
 
 	gchar *vb_display_string;
 
+	guint variable_length;
+
+#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+	gchar vb_oid_string[MAX_STRING_LEN]; /* TBC */
+#endif
+
 	unsigned int i;
 	gchar *buf;
 	int len;
@@ -1058,24 +1205,6 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset, proto_tree *t
 			return ret;
 		length = asn1.offset - start;
 		if (tree) {
-#ifdef HAVE_SPRINT_VALUE
-			if (!unsafe) {
-#if defined(HAVE_UCD_SNMP_SNMP_H)
-				value = vb_integer_value;
-				variable.val.integer = &value;
-#elif defined(HAVE_SNMP_SNMP_H)
-				variable.val.integer = &vb_integer_value;
-#endif
-				vb_display_string = format_var(&variable,
-				    variable_oid, variable_oid_length, vb_type,
-				    vb_length);
-				proto_tree_add_text(tree, asn1.tvb, offset,
-				    length,
-				    "Value: %s", vb_display_string);
-				g_free(vb_display_string);
-				break;	/* we added formatted version to the tree */
-			}
-#endif /* HAVE_SPRINT_VALUE */
 			proto_tree_add_text(tree, asn1.tvb, offset, length,
 			    "Value: %s: %d (%#x)", vb_type_name,
 			    vb_integer_value, vb_integer_value);
@@ -1091,24 +1220,6 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset, proto_tree *t
 			return ret;
 		length = asn1.offset - start;
 		if (tree) {
-#ifdef HAVE_SPRINT_VALUE
-			if (!unsafe) {
-#if defined(HAVE_UCD_SNMP_SNMP_H)
-				value = vb_uinteger_value;
-				variable.val.integer = &value;
-#elif defined(HAVE_SNMP_SNMP_H)
-				variable.val.integer = &vb_uinteger_value;
-#endif
-				vb_display_string = format_var(&variable,
-				    variable_oid, variable_oid_length, vb_type,
-				    vb_length);
-				proto_tree_add_text(tree, asn1->tvb, offset,
-				    length,
-				    "Value: %s", vb_display_string);
-				g_free(vb_display_string);
-				break;	/* we added formatted version to the tree */
-			}
-#endif /* HAVE_SPRINT_VALUE */
 			proto_tree_add_text(tree, asn1.tvb, offset, length,
 			    "Value: %s: %u (%#x)", vb_type_name,
 			    vb_uinteger_value, vb_uinteger_value);
@@ -1126,19 +1237,6 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset, proto_tree *t
 			return ret;
 		length = asn1.offset - start;
 		if (tree) {
-#ifdef HAVE_SPRINT_VALUE
-			if (!unsafe) {
-				variable.val.string = vb_octet_string;
-				vb_display_string = format_var(&variable,
-				    variable_oid, variable_oid_length, vb_type,
-				    vb_length);
-				proto_tree_add_text(tree, asn1.tvb, offset,
-				    length,
-				    "Value: %s", vb_display_string);
-				g_free(vb_display_string);
-				break;	/* we added formatted version to the tree */
-			}
-#endif /* HAVE_SPRINT_VALUE */
 			/*
 			 * If some characters are not printable, display
 			 * the string as bytes.
@@ -1194,9 +1292,46 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset, proto_tree *t
 		if (ret != ASN1_ERR_NOERROR)
 			return ret;
 		length = asn1.offset - start;
+
+		if (tree) {
+			vb_display_string = format_oid(vb_oid,
+			    vb_oid_length);
+			
+#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+# ifdef RED_HAT_MODIFIED_UCD_SNMP
+			sprint_objid(binit(NULL, vb_oid_string, sizeof(vb_oid_string)), 
+			    vb_oid, vb_oid_length);
+# else
+			sprint_objid(vb_oid_string, vb_oid,
+			    vb_oid_length);
+# endif
+			proto_tree_add_text(tree, asn1.tvb, offset, length,
+			    "Value: %s: %s (%s)",  vb_type_name,
+			    vb_display_string, vb_oid_string);
+
+			break;
+
+#else /* defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H) */
+			proto_tree_add_text(tree, asn1.tvb, offset, length,
+			    "Value: : %s: %s",vb_type_name, vb_display_string);
+			break;
+
+#endif /* defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H) */
+
+			proto_tree_add_text(tree, asn1.tvb, offset, length,
+			    "Value: %s: %s", vb_type_name, vb_display_string);
+			g_free(vb_display_string);
+		}
+
+
+
+#ifdef OLD
+
 		if (tree) {
 #ifdef HAVE_SPRINT_VALUE
 			if (!unsafe) {
+
+		   
 				variable.val.objid = vb_oid;
 				vb_display_string = format_var(&variable,
 				    variable_oid, variable_oid_length, vb_type,
@@ -1207,11 +1342,15 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset, proto_tree *t
 				break;	/* we added formatted version to the tree */
 			}
 #endif /* HAVE_SPRINT_VALUE */
+
 			vb_display_string = format_oid(vb_oid, vb_oid_length);
 			proto_tree_add_text(tree, asn1.tvb, offset, length,
 			    "Value: %s: %s", vb_type_name, vb_display_string);
 			g_free(vb_display_string);
 		}
+#endif
+
+
 		g_free(vb_oid);
 		break;
 
