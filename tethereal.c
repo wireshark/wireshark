@@ -3197,7 +3197,7 @@ open_failure_message(const char *filename, int err, gboolean for_writing)
 }
 
 gboolean
-cf_open(capture_file *cf, char *fname, gboolean is_tempfile, int *err)
+cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 {
   wtap       *wth;
   gchar       *err_info;
