@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.34 2004/03/27 11:52:51 jmayer Exp $
+# $Id: autogen.sh,v 1.35 2004/05/02 00:43:43 guy Exp $
 
 DIE=true
 PROJECT="Ethereal"
@@ -63,11 +63,11 @@ esac
 # Check for "glibtool" first.
 #
 LTVER=`glibtool --version 2>/dev/null | grep ' libtool)' | \
-    sed 's/.*) \([0-9][0-9.]*\) .*/\1/'`
+    sed 's/.*libtool) \([0-9][0-9.]*\)[^ ]* .*/\1/'`
 if test -z "$LTVER"
 then
 	LTVER=`libtool --version | grep ' libtool)' | \
-	    sed 's/.*) \([0-9][0-9.]*\) .*/\1/' `
+	    sed 's/.*) \([0-9][0-9.]*\)[^ ]* .*/\1/' `
 	LIBTOOLIZE=libtoolize
 else
 	LIBTOOLIZE=glibtoolize
