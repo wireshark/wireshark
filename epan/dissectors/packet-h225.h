@@ -1,6 +1,13 @@
+/* Do not modify this file.                                                   */
+/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
+/* .\packet-h225.h                                                            */
+/* ../../tools/asn2eth.py -X -e -p h225 -c h225.cnf -s packet-h225-template h225.asn */
+
+/* Input file: packet-h225-template.h */
+
 /* packet-h225.h
- * Routines for H.225 packet dissection
- * 2003  Tomas Kukosa
+ * Routines for h225 packet dissection
+ * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -23,12 +30,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PACKET_H225_H__
-#define __PACKET_H225_H__
-
-extern int dissect_h225_NonStandardParameter(tvbuff_t*, int, packet_info*, proto_tree*, int);
-
-extern int dissect_h225_AliasAddress(tvbuff_t*, int, packet_info*, proto_tree*);
+#ifndef PACKET_H323_H
+#define PACKET_H225_H
 
 typedef enum _h225_msg_type {
 	H225_RAS,
@@ -67,19 +70,33 @@ typedef struct _h225_packet_info {
  * without having to duplicate it. With MSVC and a 
  * libethereal.dll, we need a special declaration.
  */
-ETH_VAR_IMPORT const value_string RasMessage_vals[];
+
+
+
+/*--- Included file: packet-H225-exp.h ---*/
+
 ETH_VAR_IMPORT const value_string T_h323_message_body_vals[];
+ETH_VAR_IMPORT const value_string ReleaseCompleteReason_vals[];
 ETH_VAR_IMPORT const value_string FacilityReason_vals[];
+extern const value_string AliasAddress_vals[];
+ETH_VAR_IMPORT const value_string RasMessage_vals[];
 ETH_VAR_IMPORT const value_string GatekeeperRejectReason_vals[];
+ETH_VAR_IMPORT const value_string RegistrationRejectReason_vals[];
 ETH_VAR_IMPORT const value_string UnregRequestReason_vals[];
 ETH_VAR_IMPORT const value_string UnregRejectReason_vals[];
+ETH_VAR_IMPORT const value_string AdmissionRejectReason_vals[];
 ETH_VAR_IMPORT const value_string BandRejectReason_vals[];
+ETH_VAR_IMPORT const value_string LocationRejectReason_vals[];
 ETH_VAR_IMPORT const value_string DisengageReason_vals[];
 ETH_VAR_IMPORT const value_string DisengageRejectReason_vals[];
 ETH_VAR_IMPORT const value_string InfoRequestNakReason_vals[];
-ETH_VAR_IMPORT const value_string ReleaseCompleteReason_vals[];
-ETH_VAR_IMPORT const value_string AdmissionRejectReason_vals[];
-ETH_VAR_IMPORT const value_string LocationRejectReason_vals[];
-ETH_VAR_IMPORT const value_string RegistrationRejectReason_vals[];
+int dissect_h225_NonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_h225_AliasAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_h225_RasMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
-#endif  /* __PACKET_H225_H__ */
+/*--- End of included file: packet-H225-exp.h ---*/
+
+
+#endif  /* PACKET_H225_H */
+
+

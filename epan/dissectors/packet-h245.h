@@ -1,6 +1,13 @@
+/* Do not modify this file.                                                   */
+/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
+/* .\packet-h245.h                                                            */
+/* ../../tools/asn2eth.py -X -e -p h245 -c h245.cnf -s packet-h245-template h245.asn */
+
+/* Input file: packet-h245-template.h */
+
 /* packet-h245.h
- * Routines for H.245 packet dissection
- * 2003  Ronnie Sahlberg
+ * Routines for h245 packet dissection
+ * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -23,6 +30,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef PACKET_H245_H
+#define PACKET_H245_H
 typedef enum _h245_msg_type {
 	H245_TermCapSet,
 	H245_TermCapSetAck,
@@ -46,14 +55,17 @@ typedef struct _h245_packet_info {
 } h245_packet_info;
 
 
-extern void dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-extern int dissect_h245_OpenLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+/*--- Included file: packet-h245-exp.h ---*/
 
-extern int dissect_h245_h221NonStandard(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+extern const value_string DataProtocolCapability_vals[];
+int dissect_h245_DataProtocolCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_h245_T38FaxProfile(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_h245_OpenLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
-extern int dissect_h245_NonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+/*--- End of included file: packet-h245-exp.h ---*/
 
-extern int dissect_h245_T38FaxProfile(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
-extern int dissect_h245_DataProtocolCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+#endif  /* PACKET_H245_H */
+
+
