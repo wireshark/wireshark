@@ -196,6 +196,10 @@ set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
   } else if (strcmp(autostoparg,"filesize") == 0) {
     capture_opts->has_autostop_filesize = TRUE;
     capture_opts->autostop_filesize = get_positive_int(p,"autostop filesize");
+  } else if (strcmp(autostoparg,"files") == 0) {
+    capture_opts->multi_files_on = TRUE;
+    capture_opts->has_autostop_files = TRUE;
+    capture_opts->autostop_files = get_positive_int(p,"autostop files");
   } else {
     return FALSE;
   }

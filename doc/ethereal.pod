@@ -183,7 +183,13 @@ Stop writing to a capture file after I<value> seconds have elapsed.
 =item filesize
 
 Stop writing to a capture file after it reaches a size of I<value>
-kilobytes (where a kilobyte is 1000 bytes, not 1024 bytes).
+kilobytes (where a kilobyte is 1000 bytes, not 1024 bytes). If this option 
+is used together with the -b option, Ethereal will stop writing to the 
+current capture file and switch to the next one if filesize is reached.
+
+=item files
+
+Stop writing to capture files after I<value> number of files were written.
 
 =for man .RE
 
