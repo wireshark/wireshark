@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.70 2002/07/15 21:19:56 ashokn Exp $
+ * $Id: packet-rsvp.c,v 1.71 2002/07/31 10:10:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -921,13 +921,18 @@ find_rsvp_session_tempfilt(tvbuff_t *tvb, int hdr_offset, int *session_offp, int
 {
     int s_off = 0, t_off = 0;
     int len, off;
+    guint16 obj_length;
 
-    if (!tvb)
+    if (!tvb_bytes_exist(tvb, hdr_offset+6, 2))
 	goto done;
 
     len = tvb_get_ntohs(tvb, hdr_offset+6) + hdr_offset;
     off = hdr_offset + 8;
-    for (off = hdr_offset + 8; off < len; off += tvb_get_ntohs(tvb, off)) {
+    for (off = hdr_offset + 8; off < len && tvb_bytes_exist(tvb, off, 3);
+    	 off += obj_length) {
+	obj_length = tvb_get_ntohs(tvb, off);
+	if (obj_length == 0)
+	    break;
 	switch(tvb_get_guint8(tvb, off+2)) {
 	case RSVP_CLASS_SESSION:
 	    s_off = off;
@@ -3835,6 +3840,8 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    break;
 	}  
 	    
+	if (obj_length == 0)
+	    break;
 	offset += obj_length;
 	len += obj_length;
     }
