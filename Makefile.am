@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.363 2001/08/30 19:25:37 oabad Exp $
+# $Id: Makefile.am,v 1.364 2001/08/31 19:46:14 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -272,25 +272,29 @@ DISSECTOR_SRC = \
 
 if HAVE_PLUGINS
 plugin_src = \
-	plugins/mgcp/packet-mgcp.c	\
-	plugins/giop/packet-cosnaming.c	\
-	plugins/gryphon/packet-gryphon.c 
+	plugins/gryphon/packet-gryphon.c \
+	plugins/mgcp/packet-mgcp.c \
+	plugins/giop/packet-cosnaming.c \
+	plugins/giop/packet-coseventcomm.c
 
 plugin_static_ldadd = \
-	plugins/mgcp/packet-mgcp-static.o		\
 	plugins/gryphon/packet-gryphon-static.o		\
-	plugins/giop/packet-cosnaming-static.o		
+	plugins/mgcp/packet-mgcp-static.o		\
+	plugins/giop/packet-cosnaming-static.o		\
+	plugins/giop/packet-coseventcomm-static.o
 
 plugin_libs = \
 	plugins/gryphon/gryphon.la \
+	plugins/mgcp/mgcp.la \
 	plugins/giop/cosnaming.la \
-	plugins/mgcp/mgcp.la	
+	plugins/giop/coseventcomm.la
 
 plugin_ldadd = \
 	"-dlopen" self	\
 	"-dlopen" plugins/gryphon/gryphon.la \
 	"-dlopen" plugins/mgcp/mgcp.la \
-	"-dlopen" plugins/giop/cosnaming.la 
+	"-dlopen" plugins/giop/cosnaming.la \
+	"-dlopen" plugins/giop/coseventcomm.la
 else
 plugin_src =
 
