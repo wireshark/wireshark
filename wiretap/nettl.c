@@ -665,6 +665,8 @@ int nettl_dump_can_write_encap(int encap)
 		case WTAP_ENCAP_FDDI:
 		case WTAP_ENCAP_TOKEN_RING:
 		case WTAP_ENCAP_RAW_IP:
+		case WTAP_ENCAP_RAW_ICMP:
+		case WTAP_ENCAP_RAW_ICMPV6:
 		case WTAP_ENCAP_PER_PACKET:
 		case WTAP_ENCAP_UNKNOWN:
 			return 0;
@@ -746,6 +748,14 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 
 		case WTAP_ENCAP_TOKEN_RING:
 			rec_hdr.subsys = g_htons(NETTL_SUBSYS_PCI_TR);
+			break;
+	
+		case WTAP_ENCAP_RAW_ICMP:
+			rec_hdr.subsys = g_htons(NETTL_SUBSYS_NS_LS_ICMP);
+			break;
+	
+		case WTAP_ENCAP_RAW_ICMPV6:
+			rec_hdr.subsys = g_htons(NETTL_SUBSYS_NS_LS_ICMPV6);
 			break;
 	
 		default:
