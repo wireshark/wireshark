@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.94 2003/03/04 06:47:10 guy Exp $
+ * $Id: packet-ipv6.c,v 1.95 2003/04/20 00:21:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,6 +106,7 @@ static gboolean ipv6_reassemble = FALSE;
  * defragmentation of IPv6
  */
 static GHashTable *ipv6_fragment_table = NULL;
+static GHashTable *ipv6_reassembled_table = NULL;
 
 void
 capture_ipv6(const guchar *pd, int offset, int len, packet_counts *ld)
@@ -201,6 +202,7 @@ static void
 ipv6_reassemble_init(void)
 {
   fragment_table_init(&ipv6_fragment_table);
+  reassembled_table_init(&ipv6_reassembled_table);
 }
 
 static int
@@ -636,8 +638,9 @@ again:
    */
   save_fragmented = pinfo->fragmented;
   if (ipv6_reassemble && frag && tvb_bytes_exist(tvb, offset, plen)) {
-    ipfd_head = fragment_add(tvb, offset, pinfo, ident,
+    ipfd_head = fragment_add_check(tvb, offset, pinfo, ident,
 			     ipv6_fragment_table,
+			     ipv6_reassembled_table,
 			     offlg & IP6F_OFF_MASK,
 			     plen,
 			     offlg & IP6F_MORE_FRAG);

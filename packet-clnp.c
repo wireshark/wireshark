@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.70 2003/04/15 21:33:26 guy Exp $
+ * $Id: packet-clnp.c,v 1.71 2003/04/20 00:21:17 guy Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -312,6 +312,7 @@ static heur_dissector_list_t clnp_heur_subdissector_list;
  * Reassembly of CLNP.
  */
 static GHashTable *clnp_segment_table = NULL;
+static GHashTable *clnp_reassembled_table = NULL;
 
 /* options */
 static guint tp_nsap_selector = NSEL_TP;
@@ -1879,8 +1880,9 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	((cnf_type & CNF_MORE_SEGS) || segment_offset != 0) &&
 	tvb_bytes_exist(tvb, offset, segment_length - cnf_hdr_len) &&
 	cksum_status != CKSUM_NOT_OK) {
-    fd_head = fragment_add(tvb, offset, pinfo, du_id, clnp_segment_table,
-			   segment_offset, segment_length - cnf_hdr_len,
+    fd_head = fragment_add_check(tvb, offset, pinfo, du_id, clnp_segment_table,
+			   clnp_reassembled_table, segment_offset,
+			   segment_length - cnf_hdr_len,
 			   cnf_type & CNF_MORE_SEGS);
 
     if (fd_head != NULL) {
@@ -2012,6 +2014,7 @@ static void
 clnp_reassemble_init(void)
 {
   fragment_table_init(&clnp_segment_table);
+  reassembled_table_init(&clnp_reassembled_table);
 }
 
 void proto_register_clnp(void)
