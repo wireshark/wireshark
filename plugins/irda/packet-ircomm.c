@@ -3,7 +3,7 @@
  * By Jan Kiszka <jan.kiszka@web.de>
  * Copyright 2003 Jan Kiszka
  *
- * $Id: packet-ircomm.c,v 1.2 2004/03/07 22:46:04 guy Exp $
+ * $Id: packet-ircomm.c,v 1.3 2004/03/08 19:41:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -276,7 +276,6 @@ static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, unsigned offset, packet
     proto_item* ti;
     proto_tree* p_tree;
     char        buf[256];
-    char        *str;
     guint8      pv;
 
 
@@ -337,9 +336,8 @@ static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, unsigned offset, packet
                 case IRCOMM_PORT_NAME:
                     /* XXX - the IrCOMM V1.0 spec says this "Normally
                        human readable text, but not required". */
-                    str = tvb_get_string(tvb, offset+2, p_len);
-                    proto_item_append_text(ti, ": Port Name (\"%s\")", str);
-                    g_free(str);
+                    proto_item_append_text(ti, ": Port Name (\"%s\")",
+                        tvb_format_text(tvb, offset+2, p_len));
 
                     break;
 
