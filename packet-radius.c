@@ -2,7 +2,7 @@
  * Routines for RADIUS packet disassembly
  * Copyright 1999 Johan Feyaerts
  *
- * $Id: packet-radius.c,v 1.32 2001/06/18 09:31:15 guy Exp $
+ * $Id: packet-radius.c,v 1.33 2001/08/21 18:56:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <glib.h>
+#include <time.h>
 #include "packet.h"
 #include "resolv.h"
 
@@ -133,6 +134,9 @@ typedef struct _value_value_pair {
 #define RD_TP_ACCT_TERMINATE_CAUSE 49
 #define RD_TP_ACCT_MULTI_SESSION_ID 50
 #define RD_TP_ACCT_LINK_COUNT 51
+#define RD_TP_ACCT_INPUT_GIGAWORDS 52
+#define RD_TP_ACCT_OUTPUT_GIGAWORDS 53
+#define RD_TP_EVENT_TIMESTAMP 55
 #define RD_TP_CHAP_CHALLENGE 60
 #define RD_TP_NAS_PORT_TYPE 61
 #define RD_TP_PORT_LIMIT 62
@@ -142,7 +146,23 @@ typedef struct _value_value_pair {
 #define RD_TP_TUNNEL_CLIENT_ENDPOINT 66
 #define RD_TP_TUNNEL_SERVER_ENDPOINT 67
 #define RD_TP_TUNNEL_PASSWORD 69
+#define RD_TP_CONNECT_INFO 77
 #define RD_TP_TUNNEL_ASSIGNMENT_ID 82
+#define RD_TP_NAS_PORT_ID 87
+#define RD_TP_ASCEND_PRE_INPUT_OCTETS 190
+#define RD_TP_ASCEND_PRE_OUTPUT_OCTETS 191
+#define RD_TP_ASCEND_PRE_INPUT_PACKETS 192
+#define RD_TP_ASCEND_PRE_OUTPUT_PACKETS 193
+#define RD_TP_ASCEND_MAXIMUM_TIME 194
+#define RD_TP_ASCEND_DISCONNECT_CAUSE 195
+#define RD_TP_ASCEND_CONNECT_PROGRESS 196
+#define RD_TP_ASCEND_DATA_RATE 197
+#define RD_TP_ASCEND_PRESESSION_TIME 198
+#define RD_TP_ASCEND_XMIT_RATE 255
+
+
+
+
 
 #define AUTHENTICATOR_LENGTH 16
 #define RD_HDR_LENGTH 4
@@ -168,6 +188,7 @@ typedef struct _value_value_pair {
 #define RADIUS_TUNNEL_MEDIUM_TYPE 18
 #define RADIUS_STRING_TAGGED 19
 #define RADIUS_VENDOR_SPECIFIC 20
+#define RADIUS_TIMESTAMP 21
 
 static value_string radius_vals[] = {
  {RADIUS_ACCESS_REQUEST, "Access Request"},
@@ -211,6 +232,7 @@ static value_string radius_vendor_specific_vendors[]=
 {529,"Ascend"},
 {1584,"Bay Networks"},
 {2636,"Juniper Networks"},
+{4874,"Unisphere Networks"},
 {0,NULL}};
 
 static value_string radius_framed_protocol_vals[]=
@@ -336,6 +358,11 @@ static value_string radius_nas_port_type_vals[]=
 {12, "ADSL-CAP"},
 {13, "ADSL-DMT"},
 {14,"IDSL - ISDN"},
+{15,"Ethernet"},
+{16,"xDSL"},
+{17,"Cable"},
+{18,"Wireless Other"},
+{19,"Wireless IEEE 802.11"},
 {0,NULL}};
 
 static value_value_pair radius_printinfo[] = {
@@ -390,6 +417,9 @@ static value_value_pair radius_printinfo[] = {
 { RD_TP_ACCT_TERMINATE_CAUSE, RADIUS_ACCT_TERMINATE_CAUSE},
 { RD_TP_ACCT_MULTI_SESSION_ID, RADIUS_STRING},
 { RD_TP_ACCT_LINK_COUNT, RADIUS_INTEGER4},
+{ RD_TP_ACCT_INPUT_GIGAWORDS, RADIUS_INTEGER4},
+{ RD_TP_ACCT_OUTPUT_GIGAWORDS, RADIUS_INTEGER4},
+{ RD_TP_EVENT_TIMESTAMP, RADIUS_TIMESTAMP},
 { RD_TP_CHAP_CHALLENGE, RADIUS_BINSTRING},
 { RD_TP_NAS_PORT_TYPE, RADIUS_NAS_PORT_TYPE},
 { RD_TP_PORT_LIMIT, RADIUS_INTEGER4},
@@ -399,7 +429,19 @@ static value_value_pair radius_printinfo[] = {
 { RD_TP_TUNNEL_CLIENT_ENDPOINT, RADIUS_STRING_TAGGED},
 { RD_TP_TUNNEL_SERVER_ENDPOINT, RADIUS_STRING_TAGGED},
 { RD_TP_TUNNEL_PASSWORD, RADIUS_STRING_TAGGED},
+{ RD_TP_CONNECT_INFO, RADIUS_STRING_TAGGED},
 { RD_TP_TUNNEL_ASSIGNMENT_ID, RADIUS_STRING_TAGGED},
+{ RD_TP_NAS_PORT_ID, RADIUS_STRING},
+{ RD_TP_ASCEND_PRE_INPUT_OCTETS, RADIUS_INTEGER4},
+{ RD_TP_ASCEND_PRE_OUTPUT_OCTETS, RADIUS_INTEGER4},
+{ RD_TP_ASCEND_PRE_INPUT_PACKETS, RADIUS_INTEGER4},
+{ RD_TP_ASCEND_PRE_OUTPUT_PACKETS, RADIUS_INTEGER4},
+{ RD_TP_ASCEND_MAXIMUM_TIME, RADIUS_INTEGER4},
+{ RD_TP_ASCEND_DISCONNECT_CAUSE, RADIUS_INTEGER4},
+{ RD_TP_ASCEND_CONNECT_PROGRESS, RADIUS_INTEGER4},
+{ RD_TP_ASCEND_DATA_RATE, RADIUS_INTEGER4},
+{ RD_TP_ASCEND_PRESESSION_TIME, RADIUS_INTEGER4},
+{ RD_TP_ASCEND_XMIT_RATE, RADIUS_INTEGER4},
 {0,0},
 };
 
@@ -455,6 +497,9 @@ static value_string radius_attrib_type_vals[] = {
 { RD_TP_ACCT_TERMINATE_CAUSE, "Acct Terminate Cause"},
 { RD_TP_ACCT_MULTI_SESSION_ID, "Acct Multi Session Id"},
 { RD_TP_ACCT_LINK_COUNT, "Acct Link Count"},
+{ RD_TP_ACCT_INPUT_GIGAWORDS, "Acct Input Gigawords"},
+{ RD_TP_ACCT_OUTPUT_GIGAWORDS, "Acct Output Gigawords"},
+{ RD_TP_EVENT_TIMESTAMP, "Event Timestamp"},
 { RD_TP_CHAP_CHALLENGE, "Chap Challenge"},
 { RD_TP_NAS_PORT_TYPE, "NAS Port Type"},
 { RD_TP_PORT_LIMIT, "Port Limit"},
@@ -464,7 +509,19 @@ static value_string radius_attrib_type_vals[] = {
 { RD_TP_TUNNEL_CLIENT_ENDPOINT, "Tunnel Client Endpoint"},
 { RD_TP_TUNNEL_SERVER_ENDPOINT, "Tunnel Server Endpoint"},
 { RD_TP_TUNNEL_PASSWORD, "Tunnel Password"},
+{ RD_TP_CONNECT_INFO, "Connect-Info"},
 { RD_TP_TUNNEL_ASSIGNMENT_ID, "Tunnel Assignment ID"},
+{ RD_TP_NAS_PORT_ID, "NAS Port ID"},
+{ RD_TP_ASCEND_PRE_INPUT_OCTETS, "Ascend Pre Input Octets"},
+{ RD_TP_ASCEND_PRE_OUTPUT_OCTETS, "Ascend Pre Output Octets"},
+{ RD_TP_ASCEND_PRE_INPUT_PACKETS, "Ascend Pre Input Packets"},
+{ RD_TP_ASCEND_PRE_OUTPUT_PACKETS, "Ascend Pre Output Packets"},
+{ RD_TP_ASCEND_MAXIMUM_TIME, "Ascend Maximum Time"},
+{ RD_TP_ASCEND_DISCONNECT_CAUSE, "Ascend Disconnect Cause"},
+{ RD_TP_ASCEND_CONNECT_PROGRESS, "Ascend Connect Progress"},
+{ RD_TP_ASCEND_DATA_RATE, "Ascend Data Rate"},
+{ RD_TP_ASCEND_PRESESSION_TIME, "Ascend PreSession Time"},
+{ RD_TP_ASCEND_XMIT_RATE, "Ascend Xmit Rate"},
 {0,NULL},
 };
 
@@ -523,6 +580,8 @@ gchar *rd_value_to_str(e_avphdr *avph, tvbuff_t *tvb, int offset)
   guint32 intval;
   const guint8 *pd;
   guint8 tag;
+  char *rtimestamp;
+  extern char *tzname[2];
 
 /* prints the values of the attribute value pairs into a text buffer */
   print_type=match_numval(avph->avp_type,radius_printinfo);
@@ -629,6 +688,12 @@ gchar *rd_value_to_str(e_avphdr *avph, tvbuff_t *tvb, int offset)
 				rd_match_strval(tvb_get_ntohl(tvb,offset+2),valstrarr));
 		cont=&textbuffer[strlen(textbuffer)];
 		rdconvertbufftostr(cont,tvb,offset+6,avph->avp_length-6);
+		break;
+        case( RADIUS_TIMESTAMP ):
+		intval=tvb_get_ntohl(tvb,offset+2);
+		rtimestamp=ctime((time_t*)&intval);
+		rtimestamp[strlen(rtimestamp)-1]=0;
+		sprintf(cont,"%d (%s %s)", tvb_get_ntohl(tvb,offset+2), rtimestamp, *tzname);
 		break;
         case( RADIUS_UNKNOWN ):
         default:
