@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.45 2003/01/11 10:16:22 guy Exp $
+ * $Id: packet-bpdu.c,v 1.46 2003/04/30 18:55:30 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  *
@@ -481,7 +481,6 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			BPDU_VERSION_3_LENGTH, 2, version_3_length);
 		mstp_tree = proto_item_add_subtree(mstp_item, ett_mstp);
 
-
 		mst_config_format_selector = tvb_get_guint8(tvb, BPDU_MST_CONFIG_FORMAT_SELECTOR);
 		proto_tree_add_uint(mstp_tree, hf_bpdu_mst_config_format_selector, tvb,
 			BPDU_MST_CONFIG_FORMAT_SELECTOR, 1, mst_config_format_selector);
@@ -532,23 +531,39 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    msti_tree = proto_item_add_subtree(msti_item, ett_msti);
 
 		    /* flags */
+		    flags = tvb_get_guint8(tvb, offset+MSTI_FLAGS);
 		    flags_item = proto_tree_add_uint(msti_tree, hf_bpdu_msti_flags, tvb,
 			offset+MSTI_FLAGS, 1, flags);
+		    flags_tree = proto_item_add_subtree(flags_item, ett_bpdu_flags);
 
 		    sep = initial_sep;
 		    APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TCACK, flags_item, "%sMaster");
+		    proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tcack, tvb,
+			offset+MSTI_FLAGS, 1, flags);
 		    APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_AGREEMENT, flags_item, "%sAgreement");
+		    proto_tree_add_boolean(flags_tree, hf_bpdu_flags_agreement, tvb,
+			offset+MSTI_FLAGS, 1, flags);
 		    APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_FORWARDING, flags_item, "%sForwarding");
+		    proto_tree_add_boolean(flags_tree, hf_bpdu_flags_forwarding, tvb,
+			offset+MSTI_FLAGS, 1, flags);
 		    APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_LEARNING, flags_item, "%sLearning");
+		    proto_tree_add_boolean(flags_tree, hf_bpdu_flags_learning, tvb,
+			offset+MSTI_FLAGS, 1, flags);
 		    if (flags_item) {
 			guint8 port_role;
 			port_role = (flags & BPDU_FLAGS_PORT_ROLE_MASK) >> BPDU_FLAGS_PORT_ROLE_SHIFT;
 			proto_item_append_text(flags_item, "%sPort Role: %s", sep,
 				       val_to_str(port_role, role_vals, "Unknown (%u)"));
 		    }
+		    proto_tree_add_uint(flags_tree, hf_bpdu_flags_port_role, tvb,
+			offset+MSTI_FLAGS, 1, flags);
 		    sep = cont_sep;
 		    APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_PROPOSAL, flags_item, "%sProposal");
+		    proto_tree_add_boolean(flags_tree, hf_bpdu_flags_proposal, tvb,
+			offset+MSTI_FLAGS, 1, flags);
 		    APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TC, flags_item, "%sTopology Change");
+		    proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tc, tvb,
+			offset+MSTI_FLAGS, 1, flags);
 		    if (sep != initial_sep) { 	      /* We put something in; put in the terminating ")" */
 			proto_item_append_text(flags_item, ")");
 		    }

@@ -1766,6 +1766,7 @@ B<http://www.ethereal.com>.
   Eric Perie               <eric.perie [AT] colubris.com>
   David Yon                <yon [AT] tacticalsoftware.com>
   Marcio Franco            <franco.marcio [AT] rd.francetelecom.fr>
+  Kaloian Stoilov          <kalkata [AT] yahoo.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
