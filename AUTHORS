@@ -1178,6 +1178,7 @@ Didier Gautheron <dgautheron[AT]magic.fr> {
 	Move port number from AppleTalk addresses to separate column
 	Put in hidden fields for AppleTalk source and destination
 	    addresses
+	AppleTalk Zone Information Protocol support
 }
 
 Phil Williams <csypbw[AT]comp.leeds.ac.uk> {

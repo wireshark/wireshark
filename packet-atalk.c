@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.77 2002/06/28 20:13:01 guy Exp $
+ * $Id: packet-atalk.c,v 1.78 2002/06/29 21:27:38 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -134,6 +134,57 @@ static int hf_atp_segment_overlap_conflict = -1;
 static int hf_atp_segment_multiple_tails = -1;
 static int hf_atp_segment_too_long_segment = -1;
 static int hf_atp_segment_error = -1;
+
+/* ------------------------- */    
+static int proto_zip = -1;
+static dissector_handle_t zip_atp_handle;
+
+static int hf_zip_function = -1;
+static int hf_zip_atp_function = -1;
+static int hf_zip_start_index = -1;
+static int hf_zip_count = -1;
+static int hf_zip_zero_value	= -1;
+
+static int hf_zip_network_count = -1;
+static int hf_zip_network = -1;
+static int hf_zip_network_start = -1;
+static int hf_zip_network_end = -1;
+
+static int hf_zip_flags = -1;
+
+static int hf_zip_flags_zone_invalid  = -1;
+static int hf_zip_flags_use_broadcast = -1;
+static int hf_zip_flags_only_one_zone = -1;
+
+static int hf_zip_last_flag = -1;
+
+static int hf_zip_zone_name    = -1;
+static int hf_zip_default_zone = -1;
+
+static int hf_zip_multicast_length  = -1;
+static int hf_zip_multicast_address = -1;
+
+static const value_string zip_function_vals[] = {
+  {1, "Query"},
+  {2, "Reply"},
+  {5, "GetNetInfo request"},
+  {6, "GetNetInfo reply"},
+  {7, "notify"},
+  {8, "Extended reply"},
+  {0, NULL}
+};
+
+static const value_string zip_atp_function_vals[] = {
+  {7, "GetMyZone"},
+  {8, "GetZoneList"},
+  {9, "GetLocalZones"},
+  {0, NULL}
+};
+
+static gint ett_zip              = -1;
+static gint ett_zip_flags        = -1;
+static gint ett_zip_zones_list   = -1;
+static gint ett_zip_network_list = -1;
 
 /* --------------------------------
  * from netatalk/include/atalk/ats.h
@@ -390,7 +441,7 @@ static const value_string asp_func_vals[] = {
   {0,			NULL } };
 
 const value_string asp_error_vals[] = {
-  {AFP_OK			, "success"},
+  {AFP_OK		, "success"},
   {AFPERR_ACCESS	, "permission denied" },
   {AFPERR_AUTHCONT	, "logincont" },
   {AFPERR_BADUAM	, "uam doesn't exist" },
@@ -833,7 +884,11 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   
   if (new_tvb) {
      pinfo->private_data = &aspinfo;
-     call_dissector(asp_handle, new_tvb, pinfo, tree);
+     /* if port == 6 it's not an ASP packet but a ZIP packet */
+     if (pinfo->srcport == 6 || pinfo->destport == 6 )
+    	call_dissector(zip_atp_handle, new_tvb, pinfo, tree);
+     else
+     	call_dissector(asp_handle, new_tvb, pinfo, tree);
   }
   else {
     /* Just show this as a fragment. */
@@ -845,7 +900,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 }
 
 /*
-	copy and past from dsi 
+	copy and paste from dsi 
 */
 static gint 
 dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
@@ -1038,23 +1093,14 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 /* ----------------------------- 
    ASP protocol cf. inside appletalk chap. 11
 */
-static void
-dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
+static struct aspinfo *
+get_transaction(tvbuff_t *tvb, packet_info *pinfo)
 {
   struct aspinfo *aspinfo = pinfo->private_data;
-  int offset = 0;
-  proto_tree *asp_tree = NULL;
-  proto_item *ti;
-  guint8 fn;
-  int len;
   conversation_t	*conversation;
   asp_request_key request_key, *new_request_key;
   asp_request_val *request_val;
-    
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ASP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  guint8 fn;
 
   conversation = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype,
 		pinfo->srcport, pinfo->destport, 0);
@@ -1071,9 +1117,8 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   request_val = (asp_request_val *) g_hash_table_lookup(
 								asp_request_hash, &request_key);
-
   if (!request_val && !aspinfo->reply )  {
-	 fn = tvb_get_guint8(tvb, offset);
+	 fn = tvb_get_guint8(tvb, 0);
 	 new_request_key = g_mem_chunk_alloc(asp_request_keys);
 	 *new_request_key = request_key;
 
@@ -1084,12 +1129,34 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								request_val);
   }
 
-  if (!request_val) { 
-	return;
-  }
+  if (!request_val) 
+	return NULL;
 
-  fn = request_val->value;
-  aspinfo->command = fn;
+  aspinfo->command = request_val->value;
+  return aspinfo;
+}
+
+
+static void 
+dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
+{
+  struct aspinfo *aspinfo;
+  int offset = 0;
+  proto_tree *asp_tree = NULL;
+  proto_item *ti;
+  guint8 fn;
+  int len;
+    
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ASP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
+
+  aspinfo = get_transaction(tvb, pinfo);
+  if (!aspinfo)
+     return;
+
+  fn = aspinfo->command;
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
 	if (aspinfo->reply)
@@ -1213,6 +1280,216 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
+/* ----------------------------- 
+   ZIP protocol cf. inside appletalk chap. 8
+*/
+static void
+dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
+{
+  struct aspinfo *aspinfo;
+  int offset = 0;
+  proto_tree *zip_tree;
+  proto_tree *sub_tree;
+  proto_item *ti;
+  guint8 fn;
+  guint16 count;
+  guint8 len;
+    
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZIP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
+
+  aspinfo = get_transaction(tvb, pinfo);
+  if (!aspinfo)
+     return;
+
+  fn = aspinfo->command;
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+	if (aspinfo->reply)
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %d",aspinfo->seq);
+	else
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %d",
+      				val_to_str(fn, zip_atp_function_vals, "Unknown (0x%01x)"), aspinfo->seq);
+  }
+
+  if (!tree) 
+     return;
+     
+  ti = proto_tree_add_item(tree, proto_zip, tvb, offset, -1, FALSE);
+  zip_tree = proto_item_add_subtree(ti, ett_zip);
+
+  if (!aspinfo->reply) {
+     proto_tree_add_item(zip_tree, hf_zip_atp_function, tvb, offset, 1, FALSE);
+     offset++;
+     switch(fn) {
+     case 7:	/* start_index = 0 */
+     case 8:
+     case 9:
+         proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, FALSE);
+         offset++;
+         proto_tree_add_item(zip_tree, hf_zip_start_index, tvb, offset, 2, FALSE);
+         break;
+     }
+  }
+  else {
+  guint8 i;
+  
+     proto_tree_add_uint(zip_tree, hf_zip_atp_function, tvb, 0, 0, fn);
+     switch(fn) {
+     case 7:
+     case 8:
+     case 9:
+         proto_tree_add_item(zip_tree, hf_zip_last_flag, tvb, offset, 1, FALSE);
+         offset++;
+     
+         proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, FALSE);
+         offset++;
+	 count = tvb_get_ntohs(tvb, offset);
+         ti = proto_tree_add_item(zip_tree, hf_zip_count, tvb, offset, 2, FALSE);
+         offset += 2;
+      	 sub_tree = proto_item_add_subtree(ti, ett_zip_zones_list);
+	 for (i= 1; i <= count; i++) {
+	     len = tvb_get_guint8(tvb, offset);
+             proto_tree_add_item(sub_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
+	     offset += len +1;
+	 }
+         break;
+     }
+  }
+}
+
+static void
+dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
+{
+  proto_tree *zip_tree = NULL;
+  proto_item *ti;
+  guint8  fn;
+  guint8  len;
+  gint    offset = 0;
+  proto_tree *flag_tree;
+  proto_tree *sub_tree;
+  proto_tree *net_tree;
+  guint8 flag;
+  guint16  net;
+  guint8 i;
+  guint8 count;
+  
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZIP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
+
+  fn = tvb_get_guint8(tvb, 0);
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_add_str(pinfo->cinfo, COL_INFO,
+      val_to_str(fn, zip_function_vals, "Unknown ZIP function (%02x)"));
+  }
+
+  if (!tree) 
+     return;
+     
+  ti = proto_tree_add_item(tree, proto_zip, tvb, 0, -1, FALSE);
+  zip_tree = proto_item_add_subtree(ti, ett_zip);
+
+  proto_tree_add_item(zip_tree, hf_zip_function, tvb, offset, 1,FALSE);
+  offset++;
+  /* fn 1,7,2,8 are not tested */
+  switch (fn) {
+  case 1: /* Query */
+      count = tvb_get_guint8(tvb, offset);
+      ti = proto_tree_add_item(zip_tree, hf_zip_network_count, tvb, offset, 1, FALSE);
+      offset++;
+      sub_tree = proto_item_add_subtree(ti, ett_zip_network_list);
+      for (i= 1; i <= count; i++) {
+          proto_tree_add_item(sub_tree, hf_zip_network, tvb, offset, 2, FALSE);
+          offset += 2;
+      }
+      break;
+  case 7: /* Notify */
+      flag = tvb_get_guint8(tvb, offset);
+      ti = proto_tree_add_text(zip_tree, tvb, offset , 1,"Flags : 0x%02x", flag);
+      flag_tree = proto_item_add_subtree(ti, ett_zip_flags);
+      proto_tree_add_item(flag_tree, hf_zip_flags_zone_invalid, tvb, offset, 1,FALSE);
+      proto_tree_add_item(flag_tree, hf_zip_flags_use_broadcast,tvb, offset, 1,FALSE);
+      proto_tree_add_item(flag_tree, hf_zip_flags_only_one_zone,tvb, offset, 1,FALSE);
+      offset++;
+
+      proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 4, FALSE);
+      offset += 4;
+
+      len = tvb_get_guint8(tvb, offset);
+      proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
+      offset += len +1;
+
+      len = tvb_get_guint8(tvb, offset);
+      proto_tree_add_item(zip_tree, hf_zip_multicast_length,tvb, offset, 1,FALSE);
+      offset++;
+      proto_tree_add_item(zip_tree, hf_zip_multicast_address,tvb, offset, len,FALSE);
+      offset += len;
+
+      proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
+      break;
+
+  case 2: /* Reply */
+  case 8: /* Extended Reply */
+      count = tvb_get_guint8(tvb, offset);
+      ti = proto_tree_add_item(zip_tree, hf_zip_network_count, tvb, offset, 1, FALSE);
+      offset++;
+      sub_tree = proto_item_add_subtree(ti, ett_zip_network_list);
+      for (i= 1; i <= count; i++) {
+          net = tvb_get_ntohs(tvb, offset);
+          ti = proto_tree_add_text(zip_tree, tvb, offset , 2, "Zone for network : %d", net);
+          net_tree = proto_item_add_subtree(ti, ett_zip_network_list);
+          proto_tree_add_item(net_tree, hf_zip_network, tvb, offset, 2, FALSE);
+          offset += 2;
+          len = tvb_get_guint8(tvb, offset);
+          proto_tree_add_item(net_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
+          offset += len +1;
+      }
+      break;
+      
+  case 5 :  /* GetNetInfo request */
+      proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, FALSE);
+      offset++;
+      proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 4, FALSE);
+      offset += 4;
+      proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
+      break;
+
+  case 6 :  /* GetNetInfo reply */
+      flag = tvb_get_guint8(tvb, offset);
+      ti = proto_tree_add_text(zip_tree, tvb, offset , 1,"Flags : 0x%02x", flag);
+      flag_tree = proto_item_add_subtree(ti, ett_zip_flags);
+      proto_tree_add_item(flag_tree, hf_zip_flags_zone_invalid, tvb, offset, 1,FALSE);
+      proto_tree_add_item(flag_tree, hf_zip_flags_use_broadcast,tvb, offset, 1,FALSE);
+      proto_tree_add_item(flag_tree, hf_zip_flags_only_one_zone,tvb, offset, 1,FALSE);
+      offset++;
+
+      proto_tree_add_item(zip_tree, hf_zip_network_start, tvb, offset, 2, FALSE);
+      offset += 2;
+
+      proto_tree_add_item(zip_tree, hf_zip_network_end, tvb, offset, 2, FALSE);
+      offset += 2;
+
+      len = tvb_get_guint8(tvb, offset);
+      proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
+      offset += len +1;
+      
+      len = tvb_get_guint8(tvb, offset);
+      proto_tree_add_item(zip_tree, hf_zip_multicast_length,tvb, offset, 1,FALSE);
+      offset++;
+      proto_tree_add_item(zip_tree, hf_zip_multicast_address,tvb, offset, len,FALSE);
+      offset += len;
+      if ((flag & 0x80) != 0)
+         proto_tree_add_item(zip_tree, hf_zip_default_zone, tvb, offset, 1,FALSE);
+      break;
+
+  default:
+      break;
+  }
+}
 
 static void
 dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
@@ -1527,11 +1804,11 @@ proto_register_atalk(void)
       	"", HFILL }},
 
     { &hf_ddp_dst_socket,
-      { "Destination Socket",	"ddp.dst.socket", FT_UINT8,  BASE_DEC, NULL, 0x0,
+      { "Destination Socket",	"ddp.dst_socket", FT_UINT8,  BASE_DEC, NULL, 0x0,
       	"", HFILL }},
 
     { &hf_ddp_src_socket,
-      { "Source Socket",       	"ddp.src.socket", FT_UINT8,  BASE_DEC, NULL, 0x0,
+      { "Source Socket",       	"ddp.src_socket", FT_UINT8,  BASE_DEC, NULL, 0x0,
       	"", HFILL }},
 
     { &hf_ddp_type,
@@ -1810,6 +2087,78 @@ proto_register_atalk(void)
 
   };
   
+  static hf_register_info hf_zip[] = {
+    { &hf_zip_function,
+      { "Function",	"zip.function",	FT_UINT8,  BASE_DEC, VALS(zip_function_vals), 0x0,
+      	"ZIP function", HFILL }},
+
+    { &hf_zip_zero_value,
+      { "Pad (0)",      "zip.zero_value",FT_BYTES, BASE_HEX, NULL, 0x0,
+      	"Pad", HFILL }},
+
+    { &hf_zip_atp_function,
+      { "Function",	"zip.atp_function", FT_UINT8,  BASE_DEC, VALS(zip_atp_function_vals), 0x0,
+      	"", HFILL }},
+
+    { &hf_zip_start_index,
+      { "Start index",	"zip.start_index", FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"", HFILL }},
+
+    { &hf_zip_count,
+      { "Count",	"zip.count", FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"", HFILL }},
+
+    { &hf_zip_network_count,
+      { "Count",	"zip.network_count", FT_UINT8, BASE_DEC, NULL, 0x0,
+      	"", HFILL }},
+    { &hf_zip_network,
+      { "Network","zip.network", FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"", HFILL }},
+    { &hf_zip_network_start,
+      { "Network start","zip.network_start", FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"", HFILL }},
+    { &hf_zip_network_end,
+      { "Network end",	"zip.network_end", FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"", HFILL }},
+
+    { &hf_zip_flags,
+      { "Flags",	"zip.flags", FT_BOOLEAN, 8, NULL, 0xC0,
+      	"", HFILL }},
+
+    { &hf_zip_last_flag,
+      { "Last Flag",	"zip.last_flag", FT_BOOLEAN, 8, NULL, 0,
+      	"Non zero if contains last zone name in the zone list", HFILL }},
+
+    { &hf_zip_flags_zone_invalid,
+      { "Zone invalid",	"zip.flags.zone_invalid", FT_BOOLEAN, 8, NULL, 0x80,
+      	"", HFILL }},
+
+    { &hf_zip_flags_use_broadcast,
+      { "Use broadcast","zip.flags.use_broadcast", FT_BOOLEAN, 8, NULL, 0x40,
+      	"", HFILL }},
+
+    { &hf_zip_flags_only_one_zone,
+      { "Only one zone","zip.flags.only_one_zone", FT_BOOLEAN, 8, NULL, 0x20,
+      	"", HFILL }},
+
+    { &hf_zip_zone_name,
+      { "Zone",         "zip.zone_name", FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+      	"", HFILL }},
+
+    { &hf_zip_default_zone,
+      { "Default zone", "zip.default_zone",FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+      	"", HFILL }},
+
+    { &hf_zip_multicast_length,
+      { "Multicast length",	"zip.multicast_length", FT_UINT8,  BASE_DEC, NULL, 0x0,
+      	"Multicast address length", HFILL }},
+
+    { &hf_zip_multicast_address,
+      { "Multicast address", "zip.multicast_address",FT_BYTES, BASE_HEX, NULL, 0x0,
+      	"Multicast address", HFILL }},
+
+  };
+  
   static gint *ett[] = {
   	&ett_llap,
 	&ett_ddp,
@@ -1834,6 +2183,11 @@ proto_register_atalk(void)
 	&ett_pstring,
 	&ett_rtmp,
 	&ett_rtmp_tuple,
+
+	&ett_zip,
+	&ett_zip_flags,
+        &ett_zip_zones_list, 
+        &ett_zip_network_list, 
   };
   module_t *atp_module;
 
@@ -1851,6 +2205,9 @@ proto_register_atalk(void)
 
   proto_asp = proto_register_protocol("AppleTalk Session Protocol", "ASP", "asp");
   proto_register_field_array(proto_asp, hf_asp, array_length(hf_asp));
+
+  proto_zip = proto_register_protocol("Zone Information Protocol", "ZIP", "zip");
+  proto_register_field_array(proto_zip, hf_zip, array_length(hf_zip));
 
   atp_module = prefs_register_protocol(proto_atp, NULL);
   prefs_register_bool_preference(atp_module, "desegment",
@@ -1874,6 +2231,7 @@ proto_reg_handoff_atalk(void)
 {
   dissector_handle_t ddp_handle, nbp_handle, rtmp_request_handle;
   dissector_handle_t atp_handle;
+  dissector_handle_t zip_ddp_handle;
   dissector_handle_t rtmp_data_handle, llap_handle;
 
   ddp_handle = create_dissector_handle(dissect_ddp, proto_ddp);
@@ -1894,6 +2252,11 @@ proto_reg_handoff_atalk(void)
   rtmp_data_handle = create_dissector_handle(dissect_rtmp_data, proto_rtmp);
   dissector_add("ddp.type", DDP_RTMPREQ, rtmp_request_handle);
   dissector_add("ddp.type", DDP_RTMPDATA, rtmp_data_handle);
+
+  zip_ddp_handle = create_dissector_handle(dissect_ddp_zip, proto_zip);
+  dissector_add("ddp.type", DDP_ZIP, zip_ddp_handle);
+
+  zip_atp_handle = create_dissector_handle(dissect_atp_zip, proto_zip);
 
   llap_handle = create_dissector_handle(dissect_llap, proto_llap);
   dissector_add("wtap_encap", WTAP_ENCAP_LOCALTALK, llap_handle);
