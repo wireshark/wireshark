@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.51 2003/01/28 23:56:39 guy Exp $
+ * $Id: packet-gtp.c,v 1.52 2003/01/31 18:45:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5166,8 +5166,8 @@ proto_register_gtp(void)
 	{ &hf_gtpv0_ms_valid,		{ "MS validated",	"gtpv0.ms_valid", 		FT_BOOLEAN,	BASE_NONE,NULL, 0, "MS validated", HFILL }},
 	{ &hf_gtpv0_recovery,		{ "Recovery",		"gtpv0.recovery", 		FT_UINT8, 	BASE_DEC, NULL, 0, "Restart counter", HFILL }},
 	{ &hf_gtpv0_sel_mode,		{ "Selection mode", 	"gtpv0.sel_mode", 		FT_UINT8, 	BASE_DEC, VALS(sel_mode_type), 0, "Selection Mode", HFILL }},
-	{ &hf_gtpv0_ext_flow_label,	{ "Flow Label Data I",	"gtpv0.ext_flow_label",		FT_UINT16, 	BASE_DEC, NULL, 0, "Flow label data", HFILL }},
-	{ &hf_gtpv0_flow_sig,		{ "Flow label Signalling",	"gtpv0.flow_sig", 	FT_UINT16, 	BASE_DEC, NULL, 0, "Flow label signalling", HFILL }},
+	{ &hf_gtpv0_ext_flow_label,	{ "Flow Label Data I",	"gtpv0.ext_flow_label",		FT_UINT16, 	BASE_HEX, NULL, 0, "Flow label data", HFILL }},
+	{ &hf_gtpv0_flow_sig,		{ "Flow label Signalling",	"gtpv0.flow_sig", 	FT_UINT16, 	BASE_HEX, NULL, 0, "Flow label signalling", HFILL }},
 	{ &hf_gtpv0_nsapi,		{ "NSAPI ", 		"gtpv0.nsapi",			FT_UINT8, 	BASE_DEC, NULL, 0, "Network layer Service Access Point Identifier", HFILL }},
 	{ &hf_gtpv0_flow_ii,		{ "Flow Label Data II ","gtpv0.flow_ii", 		FT_UINT16, 	BASE_DEC, NULL, 0, "Downlink flow label data", HFILL }},
 	{ &hf_gtpv0_ms_reason,		{ "MS not reachable reason",	"gtpv0.ms_reason",	FT_UINT8,	BASE_DEC, VALS(ms_not_reachable_type), 0, "MS Not Reachable Reason", HFILL }},
