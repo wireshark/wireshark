@@ -68,7 +68,7 @@
 
 #include "color.h"
 #include "color_filters.h"
-#include "column.h"
+#include <epan/column.h>
 #include <epan/packet.h>
 #include "packet-range.h"
 #include "print.h"

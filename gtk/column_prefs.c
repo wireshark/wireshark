@@ -32,7 +32,7 @@
 #include "column_prefs.h"
 #include "gtkglobals.h"
 #include <epan/prefs.h>
-#include "column.h"
+#include <epan/column.h>
 #include "compat_macros.h"
 #include "ui_util.h"
 

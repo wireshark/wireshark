@@ -84,7 +84,7 @@
 #include "file.h"
 #include "disabled_protos.h"
 #include <epan/prefs.h>
-#include "column.h"
+#include <epan/column.h>
 #include "print.h"
 #include <epan/addr_resolv.h>
 #include "util.h"

@@ -42,7 +42,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/proto.h>
-#include "column.h"
+#include <epan/column.h>
 #include "print.h"
 
 #include "prefs-int.h"

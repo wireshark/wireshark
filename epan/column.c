@@ -41,7 +41,7 @@
 
 #include <epan/timestamp.h>
 #include <epan/prefs.h>
-#include "column.h"
+#include <epan/column.h>
 #include <epan/packet.h>
 
 /* Given a format number (as defined in packet.h), returns its equivalent

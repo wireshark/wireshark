@@ -39,7 +39,7 @@
 #include "main.h"
 #include "menu.h"
 #include "colors.h"
-#include "column.h"
+#include <epan/column.h>
 #include "epan/column_info.h"
 #include "compat_macros.h"
 #include <epan/prefs.h>

@@ -33,6 +33,7 @@ LIBETHEREAL_SRC = 		\
 	bitswap.c		\
 	charsets.c		\
 	circuit.c		\
+	column.c		\
 	column-utils.c		\
 	conversation.c		\
 	crc16.c			\
@@ -77,9 +78,10 @@ LIBETHEREAL_INCLUDES = 		\
 	bitswap.h		\
 	charsets.h		\
 	circuit.h		\
+	column.h		\
 	column_info.h		\
-	conversation.h		\
 	column-utils.h		\
+	conversation.h		\
 	crc16.h			\
 	crc32.h			\
 	crypt-des.h		\
@@ -123,7 +125,6 @@ LIBETHEREAL_INCLUDES = 		\
 # dissector helpers (needed from the dissectors, but not a dissector itself)
 DISSECTOR_SUPPORT_SRC =	\
 	../asn1.c	\
-	../column.c	\
 	../follow.c	\
 	../h225-persistentdata.c	\
 	../ptvcursor.c	\

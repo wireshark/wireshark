@@ -31,7 +31,6 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 	asn1.h	\
 	bridged_pids.h	\
 	chdlctypes.h	\
-	column.h	\
 	etypes.h	\
 	follow.h	\
 	format-oid.h	\
