@@ -742,6 +742,7 @@ Olivier Biot <Olivier.Biot[AT]siemens.com> {
 	Compuserve GIF image dissector
 	JPEG File Interchange Format (JFIF) dissector
 	Dissector for message/http media type
+	Generic line-based textual data dissector
 }
 
 Patrick Wolfe <pjw[AT]zocalo.cellular.ameritech.com> {
