@@ -374,22 +374,26 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	newtvb = tvb_new_subset( tvb, offset, data_len, data_reported_len );
 
-	/* if this is part of a conv set by a SDP, we know the payload type for dynamic payloads */
+	/*
+	 * If this is part of a conversation set up by SDP,
+	 * we know the dynamically-assigned payload type for telephone
+	 * events (such as keypad button presses).
+	 */
 	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
 	if (p_conv_data && (strcmp(p_conv_data->method, "SDP") == 0) ) {
 		if ( (p_conv_data->rtp_event_pt != 0) && (p_conv_data->rtp_event_pt == (guint32)payload_type) )
 		{
 			call_dissector(rtpevent_handle, newtvb, pinfo, tree);
-		} else 
-		{	
-			if (!dissector_try_port(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
-				proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
+			return;
 		}
-	} else {
-    /* is not part of a conv, use the preference saved value do decode the payload type */
-		if (!dissector_try_port(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
-				proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
 	}
+
+	/*
+	 * It's not a telephone event; try dissecting it based on the
+	 * payload type.
+	 */
+	if (!dissector_try_port(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
+		proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
 }
 
 static struct _rtp_info rtp_info;
