@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.37 2002/08/29 19:05:41 guy Exp $
+ * $Id: packet-gtp.c,v 1.38 2002/08/30 10:14:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3394,19 +3394,26 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 	 * */
 	guint8		version_buffer[2];
 
+	/* Will keep the value that will be returned
+	 * */
+	int		retval = 0;
+	
 	switch (type) {
 		case 1:
 			length = tvb_get_guint8 (tvb, offset);
 			te = proto_tree_add_text (tree, tvb, offset, length + 1, "%s", qos_str);
 			ext_tree_qos = proto_item_add_subtree (te, ett_gtp_qos);
 			proto_tree_add_text (ext_tree_qos, tvb, offset, 1, "Length: %u", length);
+			offset++;
+			retval = length + 1;
 			break;
 		case 2:
 			length = tvb_get_ntohs (tvb, offset + 1);
 			te = proto_tree_add_text(tree, tvb, offset, length + 3, "%s", qos_str);
 			ext_tree_qos = proto_item_add_subtree (te, ett_gtp_qos);
 			proto_tree_add_text (ext_tree_qos, tvb, offset + 1, 2, "Length: %u", length);
-			type++;		/* +1 because of first 0x86 byte for UMTS QoS */
+			offset += 3;		/* +1 because of first 0x86 byte for UMTS QoS */
+			retval = length + 3;
 			break;
 		case 3:
 			/* For QoS inside RADIUS Client messages from GGSN */
@@ -3423,16 +3430,16 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 
 			/* Now, we modify offset here and in order to use type later
 			 * effectively.*/
-			offset--;
+			offset += 2;
+			retval = length + 3;      /* Actually, will be ignored. */
 			break;
 		default:
 			/* XXX - what should we do with the length here? */
 			length = 0;
+			retval = 0;
 			ext_tree_qos = NULL;
 			break;
 	}
-
-	offset += type;
 
 	/* In RADIUS messages there is no allocation-retention priority
 	 * so I don't need to wrap the following call to tvb_get_guint8
@@ -3561,8 +3568,7 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 
 	}
 
-	return length + type;
-
+	return retval;
 }
 
 static void
