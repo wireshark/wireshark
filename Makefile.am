@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.670 2003/12/16 05:07:48 guy Exp $
+# $Id: Makefile.am,v 1.671 2003/12/16 22:21:00 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -1353,7 +1353,7 @@ host_cpu=@host_cpu@
 host_os=@host_os@
 
 svr4-package: $(bin_SCRIPTS) $(lib_LTLIBRARIES)
-	if test x$(HAVE_SVR4_PACKAGING) = xyes ; then \
+	@if test x$(HAVE_SVR4_PACKAGING) = xyes ; then \
 		rm -rf $(stagedir) ; \
 		$(MAKE) DESTDIR=$(stagedir) install; \
 		$(srcdir)/packaging/svr4/mkpkg \
