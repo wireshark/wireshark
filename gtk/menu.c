@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.48 2001/02/01 07:34:33 guy Exp $
+ * $Id: menu.c,v 1.49 2001/02/11 23:02:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -394,7 +394,8 @@ set_menus_for_selected_packet(gboolean have_selected_packet)
   set_menu_sensitivity("/Display/Show Packet In New Window", have_selected_packet);
   set_menu_sensitivity("/Tools/Follow TCP Stream",
       have_selected_packet ? (pi.ipproto == 6) : FALSE);
-  set_menu_sensitivity("/Tools/Decode As...", have_selected_packet);
+  set_menu_sensitivity("/Tools/Decode As...",
+      have_selected_packet && decode_as_ok());
   set_menu_sensitivity("/Resolve Name", 
       have_selected_packet && !g_resolving_actif);  
 }

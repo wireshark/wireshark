@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.h,v 1.1 2001/02/01 07:34:33 guy Exp $
+ * $Id: decode_as_dlg.h,v 1.2 2001/02/11 23:02:05 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -28,6 +28,6 @@
 
 void decode_as_cb(GtkWidget *, gpointer);
 void decode_show_cb(GtkWidget *, gpointer);
-void decode_as_register_tcpudp(gint);
+gboolean decode_as_ok(void);
 
 #endif
