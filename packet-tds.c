@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.22 2004/01/05 00:55:42 guy Exp $
+ * $Id: packet-tds.c,v 1.23 2004/01/05 01:18:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -828,13 +828,13 @@ dissect_tds_env_chg(tvbuff_t *tvb, guint offset, guint token_sz,
 		else { /* parse collation info structure. From http://www.freetds.org/tds.html#collate */
 			offset +=2;
 			collate_codepage = tvb_get_letohs(tvb, offset);
-			proto_tree_add_text(tree, tvb, offset, 2, "Codepage: %d" , collate_codepage);
+			proto_tree_add_text(tree, tvb, offset, 2, "Codepage: %u" , collate_codepage);
 			offset += 2;
 			collate_flags = tvb_get_letohs(tvb, offset);
 			proto_tree_add_text(tree, tvb, offset, 2, "Flags: 0x%x", collate_flags);
 			offset += 2;
 			collate_charset_id = tvb_get_guint8(tvb, offset);
-			proto_tree_add_text(tree, tvb, offset, 1, "Charset ID: %d", collate_charset_id);
+			proto_tree_add_text(tree, tvb, offset, 1, "Charset ID: %u", collate_charset_id);
 			offset +=1;
 		}
 	}
@@ -889,7 +889,6 @@ dissect_tds_msg_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tree *t
 	g_free(msg);
 	offset += msg_len;
 
-	srvr_len = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(tree, tvb, offset, 1, "Server name length: %u characters", srvr_len);
 	offset +=1;
 	
@@ -904,21 +903,49 @@ dissect_tds_msg_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tree *t
 }
 
 static void
-dissect_tds_err_token(tvbuff_t *tvb, guint offset, proto_tree *tree)
+dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tree *tree)
 {
 	guint16 msg_len;
+	guint8 srvr_len;
 	char *msg;
+	gboolean is_unicode = FALSE;
+
 	proto_tree_add_text(tree, tvb, offset, 4, "SQL Error Number: %d", tvb_get_letohl(tvb, offset));
 	offset += 4;
-	proto_tree_add_text(tree, tvb, offset, 1, "State: %d", tvb_get_guint8(tvb, offset));
+	proto_tree_add_text(tree, tvb, offset, 1, "State: %u", tvb_get_guint8(tvb, offset));
 	offset +=1;
-	proto_tree_add_text(tree, tvb, offset, 1, "Level: %d", tvb_get_guint8(tvb, offset));
+	proto_tree_add_text(tree, tvb, offset, 1, "Level: %u", tvb_get_guint8(tvb, offset));
 	offset +=1;
+
 	msg_len = tvb_get_letohs(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 1, "Error length: %d characters", msg_len);
+	proto_tree_add_text(tree, tvb, offset, 1, "Error length: %u characters", msg_len);
 	offset +=2;
-	msg = tvb_fake_unicode(tvb, offset, msg_len, TRUE);
-	proto_tree_add_text(tree, tvb, offset, msg_len*2, "Error: %s", format_text(msg, strlen(msg)));
+
+	srvr_len = tvb_get_guint8(tvb, offset + msg_len);
+	
+	if(msg_len + srvr_len + 9U + 3U != token_sz) /* 9 is the length of message number (4), state (1), level (1), msg_len (2), srvr_len (1) fields */
+		is_unicode = TRUE;
+
+	if(is_unicode) {
+		msg = tvb_fake_unicode(tvb, offset, msg_len, TRUE);
+		msg_len *= 2;
+	} else {
+		msg = tvb_get_string(tvb, offset, msg_len);
+	}
+	proto_tree_add_text(tree, tvb, offset, msg_len, "Error: %s", format_text(msg, strlen(msg)));
+	g_free(msg);
+	offset += msg_len;
+
+	proto_tree_add_text(tree, tvb, offset, 1, "Server name length: %u characters", srvr_len);
+	offset +=1;
+	
+	if (is_unicode) {
+		msg = tvb_fake_unicode(tvb, offset, srvr_len, TRUE);
+		srvr_len *=2;
+	} else {
+		msg = tvb_get_string(tvb, offset, srvr_len);
+	}
+	proto_tree_add_text(tree, tvb, offset, srvr_len, "Server name: %s", msg);
 	g_free(msg);
 }
 
@@ -1031,7 +1058,7 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dissect_tds_msg_token(tvb, pos + 3, token_sz - 3, token_tree);
 			break;
 		case TDS_ERR_TOKEN:
-			dissect_tds_err_token(tvb, pos + 3, token_tree);
+			dissect_tds_err_token(tvb, pos + 3, token_sz - 3, token_tree);
 			break;
 		case TDS_DONE_TOKEN:
 			dissect_tds_done_token(tvb, pos + 1, token_tree);
