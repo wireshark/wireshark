@@ -62,6 +62,11 @@
 
 #include <epan/to_str.h>
 
+#include <string.h>
+#include <ctype.h>
+#include <epan/address.h>
+#include <epan/addr_resolv.h>
+ 
 static const gchar FWD_LABEL_TEXT[] = "Select one call.";
 
 /****************************************************************************/
@@ -109,7 +114,7 @@ static void add_to_clist(voip_calls_info_t* strinfo)
 	g_snprintf(field[1], 15, "%i.%2i", strinfo->stop_sec, strinfo->stop_usec/10000);
 /*	xxx display_signed_time(data[0], sizeof(field[0]), strinfo->start_sec, strinfo->start_usec, USECS); */
 /*	display_signed_time(data[1], sizeof(field[0]), strinfo->stop_sec, strinfo->stop_usec, USECS); */
-	g_snprintf(field[2], 30, "%s", ip_to_str((const guint8*)&(strinfo->initial_speaker)));
+	g_snprintf(field[2], 30, "%s", get_addr_name(&(strinfo->initial_speaker)));
 	g_snprintf(field[3], 50, "%s", strinfo->from_identity);
 	g_snprintf(field[4], 50, "%s", strinfo->to_identity);
 	g_snprintf(field[5], 15, "%s", voip_protocol_name[strinfo->protocol]);

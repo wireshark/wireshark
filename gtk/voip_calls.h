@@ -91,7 +91,7 @@ typedef struct _isup_calls_info {
 
 /* defines specific H245 data */
 typedef struct _h245_address {
-	guint32 h245_address;
+	address h245_address;
 	guint16 h245_port;
 } h245_address_t;
 
@@ -99,7 +99,7 @@ typedef struct _h245_address {
 typedef struct _h323_calls_info {
 	guint8 *guid;	/* Call ID to identify a H225 */
 	GList*  h245_list;   /* list of H245 Address and ports for tunneling off calls*/
-	guint32 h225SetupAddr; /* we use the SETUP H225 IP to determine if packets are forward or reverse */					
+	address h225SetupAddr; /* we use the SETUP H225 IP to determine if packets are forward or reverse */					
 	gboolean is_h245;
 	gboolean is_faststart_Setup;	/* if faststart field is included in Setup*/
 	gboolean is_faststart_Proc;		/* if faststart field is included in Proce, Alerting, Progress or Connect*/
@@ -123,7 +123,7 @@ typedef struct _voip_calls_info {
 	gchar *from_identity;
 	gchar *to_identity;
 	gpointer prot_info;
-	guint32 initial_speaker;
+	address initial_speaker;
 	guint32 npackets;
 	guint32 first_frame_num; /* frame number of first frame */
 	guint32 last_frame_num; 

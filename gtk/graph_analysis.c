@@ -36,6 +36,12 @@
 
 #include <epan/epan_dissect.h>
 
+#include "util.h"
+#include <epan/tap.h>
+#include "register.h"
+#include <epan/dissectors/packet-rtp.h>
+#include <epan/addr_resolv.h>
+
 /* in /gtk ... */
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
@@ -74,7 +80,9 @@ static void graph_analysis_reset(graph_analysis_data_t* user_data)
 	user_data->num_nodes = 0;
 	user_data->num_items = 0;
 	for (i=0; i<MAX_NUM_NODES; i++){
-		user_data->nodes[i] = 0;
+		user_data->nodes[i].type = AT_NONE;
+		user_data->nodes[i].len = 0;
+		g_free((void *)user_data->nodes[i].data);
 	}
 	
 	user_data->dlg.first_node=0;
@@ -112,7 +120,12 @@ static void graph_analysis_init_dlg(graph_analysis_data_t* user_data)
 /* close the dialog window and remove the tap listener */
 static void on_destroy(GtkWidget *win _U_, graph_analysis_data_t *user_data _U_)
 {
-
+	int i;
+	for (i=0; i<MAX_NUM_NODES; i++){
+		user_data->nodes[i].type = AT_NONE;
+		user_data->nodes[i].len = 0;
+		g_free((void *)user_data->nodes[i].data);
+	}
 	g_free(user_data);
 }
 
@@ -212,7 +225,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
                            user_data->dlg.draw_area->allocation.height);
 
 		/* Calculate the y border */
-        top_y_border=TOP_Y_BORDER;	/* to display the node IP address */
+        top_y_border=TOP_Y_BORDER;	/* to display the node address */
         bottom_y_border=BOTTOM_Y_BORDER;
 
         draw_height=user_data->dlg.pixmap_height-top_y_border-bottom_y_border;
@@ -327,9 +340,10 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 
 		/* Draw the node names on top and the division lines */
 		for (i=0; i<display_nodes; i++){
-			/* draw the node IPs */
-			g_snprintf(label_string, MAX_LABEL, "%s",
-				ip_to_str((guint8 *)&(user_data->nodes[i+first_node])));
+			/* print the node identifiers */
+			/* XXX we assign 5 pixels per character in the node identity */
+			g_snprintf(label_string, NODE_WIDTH/5, "%s",
+				get_addr_name(&(user_data->nodes[i+first_node])));
 #if GTK_MAJOR_VERSION < 2
 	        label_width=gdk_string_width(font, label_string);
 	        label_height=gdk_string_height(font, label_string);
@@ -939,18 +953,18 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
  * and Return -2 if the array is full
  */
 /****************************************************************************/
-gint is_node_array(graph_analysis_data_t* user_data, guint32 node)
+gint is_node_array(graph_analysis_data_t* user_data, address* node)
 {
 	int i;
 	for (i=0; i<MAX_NUM_NODES; i++){
-		if (user_data->nodes[i] == 0)	return -1;	/* it is not in the array */
-		if (user_data->nodes[i] == node) return i;	/* it is in the array */
+		if (user_data->nodes[i].type == AT_NONE)	return -1;	/* it is not in the array */
+		if (ADDRESSES_EQUAL((&user_data->nodes[i]),node)) return i;	/* it is in the array */
 	}
 	return -2;		/* array full */
 }
 
 
-/* Get the nodes (IPs) from the list */
+/* Get the nodes from the list */
 /****************************************************************************/
 void get_nodes(graph_analysis_data_t* user_data)
 {
@@ -965,14 +979,14 @@ void get_nodes(graph_analysis_data_t* user_data)
 		gai = list->data;
 		if (gai->display){
 			user_data->num_items++;
-			/* check source IP node */
-			index = is_node_array(user_data, gai->ip_src);
+			/* check source node address */
+			index = is_node_array(user_data, &(gai->src_addr));
 			switch(index){
 				case -2: /* array full */
 					gai->src_node = NODE_OVERFLOW;
 					break;
 				case -1: /* not in array */
-					user_data->nodes[user_data->num_nodes] = gai->ip_src;
+					COPY_ADDRESS(&(user_data->nodes[user_data->num_nodes]),&(gai->src_addr));
 					gai->src_node = user_data->num_nodes;
 					user_data->num_nodes++;
 					break;
@@ -980,14 +994,14 @@ void get_nodes(graph_analysis_data_t* user_data)
 					gai->src_node = (guint16)index;
 			}
 
-			/* check destination  IP node */
-			index = is_node_array(user_data, gai->ip_dst);
+			/* check destination node address*/
+			index = is_node_array(user_data, &(gai->dst_addr));
 			switch(index){
 				case -2: /* array full */
 					gai->dst_node = NODE_OVERFLOW;
 					break;
 				case -1: /* not in array */
-					user_data->nodes[user_data->num_nodes] = gai->ip_dst;
+					COPY_ADDRESS(&(user_data->nodes[user_data->num_nodes]),&(gai->dst_addr));
 					gai->dst_node = user_data->num_nodes;
 					user_data->num_nodes++;
 					break;
@@ -1001,7 +1015,6 @@ void get_nodes(graph_analysis_data_t* user_data)
 }
 
 /****************************************************************************/
-/* XXX only handles IPv4, should add IPv6 support */
 graph_analysis_data_t* graph_analysis_init(void)
 {
 	graph_analysis_data_t* user_data;
@@ -1020,7 +1033,7 @@ void graph_analysis_create(graph_analysis_data_t* user_data)
 	/* reset the data */
 	graph_analysis_reset(user_data);
 
-	/* get nodes (each node is an IP address) */
+	/* get nodes (each node is an address) */
 	get_nodes(user_data);
 
 	/* create the graph windows */
@@ -1038,7 +1051,7 @@ void graph_analysis_update(graph_analysis_data_t* user_data)
 	/* reset the data */
 	graph_analysis_reset(user_data);
 
-	/* get nodes (each node is an IP address) */
+	/* get nodes (each node is an address) */
 	get_nodes(user_data);
 
 	/* redraw the graph */

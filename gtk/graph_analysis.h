@@ -34,6 +34,7 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 #include "gtkglobals.h"
+#include <epan/address.h>
 
 #define MAX_NUM_NODES 10
 
@@ -41,9 +42,9 @@
 typedef struct _graph_analysis_item {
 	guint32 frame_num;			/* frame number used to "go to" that frame */
 	double time;				/* frame time */
-	guint32 ip_src;				/* XXX we currently support only IP v4 */
+	address src_addr;
 	guint16 port_src;
-	guint32 ip_dst;				
+	address dst_addr;
 	guint16 port_dst;
 	gchar *frame_label;			/* the label on top of the arrow */
 	gchar *comment;				/* a comment that appears at the left of the graph */
@@ -108,7 +109,7 @@ typedef struct _graph_analysis_data_t {
 
 	/* dialog associated data */
 	dialog_data_t dlg;
-	guint32 nodes[MAX_NUM_NODES];
+	address nodes[MAX_NUM_NODES];
 	guint32 num_nodes;
 	guint32 num_items;
 } graph_analysis_data_t;

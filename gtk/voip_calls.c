@@ -96,6 +96,7 @@ void voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
 	voip_calls_info_t *strinfo;
 	sip_calls_info_t *tmp_sipinfo;
 	h323_calls_info_t *tmp_h323info;
+	h245_address_t *h245_add;
 
 	graph_analysis_item_t *graph_item;
 
@@ -109,6 +110,7 @@ void voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
 		strinfo = list->data;
 		g_free(strinfo->from_identity);
 		g_free(strinfo->to_identity);
+		g_free((void *)(strinfo->initial_speaker.data));
 		if (strinfo->protocol == VOIP_SIP){
 			tmp_sipinfo = strinfo->prot_info;
 			g_free(tmp_sipinfo->call_identifier);
@@ -120,6 +122,8 @@ void voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
 			list2 = g_list_first(tmp_h323info->h245_list);
 			while (list2)
 			{
+				h245_add=list2->data;
+				g_free((void *)h245_add->h245_address.data);
 				g_free(list2->data);
 				list2 = g_list_next(list2);
 			}
@@ -175,8 +179,8 @@ int add_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, gchar *f
 	gai = g_malloc(sizeof(graph_analysis_item_t));
 	gai->frame_num = pinfo->fd->num;
 	gai->time= (double)pinfo->fd->rel_secs + (double) pinfo->fd->rel_usecs/1000000;
-	g_memmove(&gai->ip_src, pinfo->src.data, 4);
-	g_memmove(&gai->ip_dst, pinfo->dst.data, 4);
+	COPY_ADDRESS(&(gai->src_addr),&(pinfo->src));
+	COPY_ADDRESS(&(gai->dst_addr),&(pinfo->dst));
 	gai->port_src=pinfo->srcport;
 	gai->port_dst=pinfo->destport;
 	if (frame_label != NULL)
@@ -377,8 +381,8 @@ void RTP_packet_draw(void *prs _U_)
 						new_gai = g_malloc(sizeof(graph_analysis_item_t));
 						new_gai->frame_num = rtp_listinfo->first_frame_num;
 						new_gai->time = (double)rtp_listinfo->start_rel_sec + (double)rtp_listinfo->start_rel_usec/1000000;
-						g_memmove(&new_gai->ip_src, rtp_listinfo->src_addr.data, 4);
-						g_memmove(&new_gai->ip_dst, rtp_listinfo->dest_addr.data, 4);
+						COPY_ADDRESS(&(new_gai->src_addr),&(rtp_listinfo->src_addr));
+						COPY_ADDRESS(&(new_gai->dst_addr),&(rtp_listinfo->dest_addr));
 						new_gai->port_src = rtp_listinfo->src_port;
 						new_gai->port_dst = rtp_listinfo->dest_port;
 						duration = (rtp_listinfo->stop_rel_sec*1000000 + rtp_listinfo->stop_rel_usec) - (rtp_listinfo->start_rel_sec*1000000 + rtp_listinfo->start_rel_usec);
@@ -462,7 +466,7 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	voip_calls_info_t *strinfo = NULL;
 	sip_calls_info_t *tmp_sipinfo = NULL;
 	GList* list;
-	guint32 tmp_src, tmp_dst;
+	address tmp_src, tmp_dst;
 	gchar *frame_label = NULL;
 	gchar *comment = NULL;
 
@@ -496,7 +500,7 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			strinfo->call_state = VOIP_CALL_SETUP;
 			strinfo->from_identity=g_strdup(pi->tap_from_addr);
 			strinfo->to_identity=g_strdup(pi->tap_to_addr);
-			g_memmove(&(strinfo->initial_speaker), pinfo->src.data, 4);
+			COPY_ADDRESS(&(strinfo->initial_speaker),&(pinfo->src));
 			strinfo->first_frame_num=pinfo->fd->num;
 			strinfo->selected=FALSE;
 			strinfo->start_sec=pinfo->fd->rel_secs;
@@ -521,14 +525,14 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
 		/* let's analyze the call state */
 
-		g_memmove(&(tmp_src), pinfo->src.data, 4);
-		g_memmove(&(tmp_dst), pinfo->dst.data, 4);
+		COPY_ADDRESS(&(tmp_src), &(pinfo->src));
+		COPY_ADDRESS(&(tmp_dst), &(pinfo->dst));
 		
 		if (pi->request_method == NULL){
 			frame_label = g_strdup_printf("%d %s", pi->response_code, pi->reason_phrase );
 			comment = g_strdup_printf("SIP Status");
 
-			if ((tmp_sipinfo && pi->tap_cseq_number == tmp_sipinfo->invite_cseq)&&(tmp_dst==strinfo->initial_speaker)){
+			if ((tmp_sipinfo && pi->tap_cseq_number == tmp_sipinfo->invite_cseq)&&(ADDRESSES_EQUAL(&tmp_dst,&(strinfo->initial_speaker)))){
 				if ((pi->response_code > 199) && (pi->response_code<300) && (tmp_sipinfo->sip_state == SIP_INVITE_SENT)){
 					tmp_sipinfo->sip_state = SIP_200_REC;
 				}
@@ -542,12 +546,12 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		else{
 			frame_label = g_strdup(pi->request_method);
 
-			if ((strcmp(pi->request_method,"INVITE")==0)&&(tmp_src == strinfo->initial_speaker)){
+			if ((strcmp(pi->request_method,"INVITE")==0)&&(ADDRESSES_EQUAL(&tmp_src,&(strinfo->initial_speaker)))){
 				tmp_sipinfo->invite_cseq = pi->tap_cseq_number;
 				comment = g_strdup_printf("SIP From: %s To:%s", strinfo->from_identity, strinfo->to_identity);
 			}
 			else if ((strcmp(pi->request_method,"ACK")==0)&&(pi->tap_cseq_number == tmp_sipinfo->invite_cseq)
-				&&(tmp_src == strinfo->initial_speaker)&&(tmp_sipinfo->sip_state==SIP_200_REC)){
+				&&(ADDRESSES_EQUAL(&tmp_src,&(strinfo->initial_speaker)))&&(tmp_sipinfo->sip_state==SIP_200_REC)){
 				strinfo->call_state = VOIP_IN_CALL;
 				comment = g_strdup_printf("SIP Request");
 			}
@@ -557,7 +561,7 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 				comment = g_strdup_printf("SIP Request");
 			}
 			else if ((strcmp(pi->request_method,"CANCEL")==0)&&(pi->tap_cseq_number == tmp_sipinfo->invite_cseq)
-				&&(tmp_src == strinfo->initial_speaker)&&(strinfo->call_state==VOIP_CALL_SETUP)){
+				&&(ADDRESSES_EQUAL(&tmp_src,&(strinfo->initial_speaker)))&&(strinfo->call_state==VOIP_CALL_SETUP)){
 				strinfo->call_state = VOIP_CANCELLED;
 				tmp_sipinfo->sip_state = SIP_CANCEL_SENT;
 				comment = g_strdup_printf("SIP Request");
@@ -577,6 +581,8 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num);  
 		g_free(comment);
 		g_free(frame_label);
+		g_free((void *)tmp_src.data);
+		g_free((void *)tmp_dst.data);
 	}
 	return 1;  /* refresh output */
 }
@@ -779,7 +785,7 @@ mtp3_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		strinfo = g_malloc(sizeof(voip_calls_info_t));
 		strinfo->call_active_state = VOIP_ACTIVE;
 		strinfo->call_state = VOIP_UNKNOWN;
-		g_memmove(&(strinfo->initial_speaker), pinfo->src.data, 4);
+		COPY_ADDRESS(&(strinfo->initial_speaker),&(pinfo->src));
 		strinfo->selected=FALSE;
 		strinfo->first_frame_num=pinfo->fd->num;
 		strinfo->start_sec=pinfo->fd->rel_secs;
@@ -1007,15 +1013,10 @@ remove_tap_listener_q931_calls(void)
 static const guint8 guid_allzero[GUID_LEN] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 /* defines specific H323 data */
 
-void add_h245_Address(h323_calls_info_t *h323info, guint32 h245_address, guint16 h245_port)
+
+void add_h245_Address(h323_calls_info_t *h323info,  h245_address_t *h245_address)
 {
-	h245_address_t *h245_add = NULL;
-
-	h245_add = g_malloc(sizeof(h245_address_t));
-		h245_add->h245_address = h245_address;
-		h245_add->h245_port = h245_port;
-
-	h323info->h245_list = g_list_append(h323info->h245_list, h245_add);				
+	h323info->h245_list = g_list_append(h323info->h245_list, h245_address);				
 }
 
 /****************************************************************************/
@@ -1030,8 +1031,9 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	h323_calls_info_t *tmp2_h323info;
 	gchar *frame_label;
 	gchar *comment;
-	GList* list;
-	guint32 tmp_src, tmp_dst;
+	GList *list, *list2;
+	address tmp_src, tmp_dst;
+	h245_address_t *h245_add = NULL;
 	guint foo;
 	
 	const h225_packet_info *pi = H225info;
@@ -1099,8 +1101,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		strinfo->call_state = VOIP_UNKNOWN;
 		strinfo->from_identity=g_strdup("");
 		strinfo->to_identity=g_strdup("");
-		
-		g_memmove(&(strinfo->initial_speaker), pinfo->src.data,4);
+		COPY_ADDRESS(&(strinfo->initial_speaker),&(pinfo->src));
 		strinfo->selected=FALSE;
 		strinfo->first_frame_num=pinfo->fd->num;
 		strinfo->start_sec=pinfo->fd->rel_secs;
@@ -1109,7 +1110,8 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		strinfo->prot_info=g_malloc(sizeof(h323_calls_info_t));
 		tmp_h323info = strinfo->prot_info;
 		tmp_h323info->guid = (guint8 *) g_memdup(pi->guid,GUID_LEN);
-		tmp_h323info->h225SetupAddr = 0;
+		tmp_h323info->h225SetupAddr.type = AT_NONE;
+		tmp_h323info->h225SetupAddr.len = 0;
 		tmp_h323info->h245_list = NULL;
 		tmp_h323info->is_faststart_Setup = FALSE;
 		tmp_h323info->is_faststart_Proc = FALSE;
@@ -1123,39 +1125,49 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		
 		tapinfo->strinfo_list = g_list_append(tapinfo->strinfo_list, strinfo);				
 	}
-	
-	/* let's analyze the call state */
-	
-	g_memmove(&(tmp_src), pinfo->src.data, 4);
-	g_memmove(&(tmp_dst), pinfo->dst.data, 4);
-	
-	strinfo->stop_sec=pinfo->fd->rel_secs;
-	strinfo->stop_usec=pinfo->fd->rel_usecs;
-	strinfo->last_frame_num=pinfo->fd->num;
-	++(strinfo->npackets);
-	/* increment the packets counter of all calls */
-	++(tapinfo->npackets);
-	
-	/* XXX: it is supposed to be initialized isn't it? */
-	g_assert(tmp_h323info != NULL);
-	
-	/* change the status */
-	if (pi->msg_type == H225_CS) {
-		if (tmp_h323info->q931_crv == -1) {
-			tmp_h323info->q931_crv = q931_crv;
-		} else if (tmp_h323info->q931_crv != q931_crv) {
-			tmp_h323info->q931_crv2 = q931_crv;
-		}
-		
-		if (pi->is_h245 == TRUE){
-			add_h245_Address(tmp_h323info, pi->h245_address, pi->h245_port);
-		}
-		
-		if (pi->cs_type != H225_RELEASE_COMPLET) tmp_h323info->is_h245Tunneling = pi->is_h245Tunneling;
-		
-		frame_label = g_strdup(pi->frame_label);
-		
-		switch(pi->cs_type){
+
+	if (strinfo!=NULL){
+
+		/* let's analyze the call state */
+
+		COPY_ADDRESS(&(tmp_src),&(pinfo->src));
+		COPY_ADDRESS(&(tmp_dst),&(pinfo->dst));
+
+		strinfo->stop_sec=pinfo->fd->rel_secs;
+		strinfo->stop_usec=pinfo->fd->rel_usecs;
+		strinfo->last_frame_num=pinfo->fd->num;
+		++(strinfo->npackets);
+		/* increment the packets counter of all calls */
+		++(tapinfo->npackets);
+
+
+		/* XXX: it is supposed to be initialized isn't it? */
+		g_assert(tmp_h323info != NULL);
+
+		/* change the status */
+		if (pi->msg_type == H225_CS){
+			if (tmp_h323info->q931_crv == -1) {
+				tmp_h323info->q931_crv = q931_crv;
+			} else if (tmp_h323info->q931_crv != q931_crv) {
+				tmp_h323info->q931_crv2 = q931_crv;
+			}
+
+			/* this is still IPv4 only, because the dissector is */
+			if (pi->is_h245 == TRUE){
+				h245_add = g_malloc(sizeof (h245_address_t));
+				h245_add->h245_address.type=AT_IPv4;
+				h245_add->h245_address.len=4;
+				h245_add->h245_address.data = g_malloc(sizeof(pi->h245_address));
+				g_memmove((void *)(h245_add->h245_address.data), &(pi->h245_address), 4);
+				h245_add->h245_port = pi->h245_port;
+				add_h245_Address(tmp_h323info, h245_add);
+			}
+
+			if (pi->cs_type != H225_RELEASE_COMPLET) tmp_h323info->is_h245Tunneling = pi->is_h245Tunneling;
+
+			frame_label = g_strdup(pi->frame_label);
+
+			switch(pi->cs_type){
 			case H225_SETUP:
 				tmp_h323info->is_faststart_Setup = pi->is_faststart;
 				/* set te calling and called number from the Q931 packet */
@@ -1191,8 +1203,17 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 							g_free(tmp_listinfo->from_identity);
 							g_free(tmp_listinfo->to_identity);
 							g_free(tmp2_h323info->guid);
-							g_list_free(tmp2_h323info->h245_list);
-							tmp2_h323info->h245_list = NULL;		
+							
+							list2 = g_list_first(tmp2_h323info->h245_list);
+							while (list2)
+							{
+								h245_add=list2->data;
+								g_free((void *)h245_add->h245_address.data);
+								g_free(list2->data);
+								list2 = g_list_next(list2);
+							}
+							g_list_free(tmp_h323info->h245_list);
+							tmp_h323info->h245_list = NULL;
 							g_free(tmp_listinfo->prot_info);
 							tapinfo->strinfo_list = g_list_remove(tapinfo->strinfo_list, tmp_listinfo);
 							break;
@@ -1202,7 +1223,8 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 				}
 					foo = g_list_length(list);
 				/* Set the Setup address if it was not set */
-				if (tmp_h323info->h225SetupAddr == 0) g_memmove(&(tmp_h323info->h225SetupAddr), pinfo->src.data,4);
+				if (tmp_h323info->h225SetupAddr.type == AT_NONE) 
+				  COPY_ADDRESS(&(tmp_h323info->h225SetupAddr), &(pinfo->src));
 					strinfo->call_state=VOIP_CALL_SETUP;
 				comment = g_strdup_printf("H225 From: %s To:%s  TunnH245:%s FS:%s", strinfo->from_identity, strinfo->to_identity, (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"), 
 										  (pi->is_faststart==TRUE?"on":"off"));
@@ -1214,9 +1236,9 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 											  (pi->is_faststart==TRUE?"on":"off"));
 				break;
 			case H225_RELEASE_COMPLET:
-				g_memmove(&(tmp_src), pinfo->src.data, 4);
+			    COPY_ADDRESS(&tmp_src,&(pinfo->src));
 				if (strinfo->call_state==VOIP_CALL_SETUP){
-					if (tmp_h323info->h225SetupAddr == tmp_src){  /* forward direction */
+					if (ADDRESSES_EQUAL(&(tmp_h323info->h225SetupAddr),&tmp_src)){  /* forward direction */
 						strinfo->call_state=VOIP_CANCELLED;
 					}
 					else{												/* reverse */
@@ -1247,8 +1269,9 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 				comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"), 
 										  (pi->is_faststart==TRUE?"on":"off"));
 				
-		}
-	} else if (pi->msg_type == H225_RAS){
+			} /* switch pi->cs_type*/
+		} /* if pi->msg_type == H225_CS */
+		else if (pi->msg_type == H225_RAS){
 		switch(pi->msg_tag){
 			case 18:  /* LRQ */
 				if (!pi->is_duplicate){
@@ -1277,10 +1300,14 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	if (!append_to_frame_graph(tapinfo, pinfo->fd->num, pi->frame_label, comment)) {
 		/* if not exist, add to the graph */
 		add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num);
+		g_free((void *)tmp_src.data);
+		g_free((void *)tmp_dst.data);
 	}
 
 	g_free(frame_label);
 	g_free(comment);
+	
+	} /* if strinfo!=NULL */
 	
 	return 1;  /* refresh output */
 }
@@ -1346,7 +1373,7 @@ H245dgcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 	gchar *comment;
 	GList* list;
 	GList* list2;
-	guint32 tmp_src, tmp_dst;
+	address tmp_src, tmp_dst;
 	h245_address_t *h245_add = NULL;
 
 	const h245_packet_info *pi = H245info;
@@ -1364,14 +1391,14 @@ H245dgcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 		if (tmp_listinfo->protocol == VOIP_H323){
 			tmp_h323info = tmp_listinfo->prot_info;
 
-			g_memmove(&(tmp_src), pinfo->src.data, 4);
-			g_memmove(&(tmp_dst), pinfo->dst.data, 4);
+			COPY_ADDRESS(&(tmp_src), &(pinfo->src));
+			COPY_ADDRESS(&(tmp_dst), &(pinfo->dst));
 			list2 = g_list_first(tmp_h323info->h245_list);
 			while (list2)
 			{
 				h245_add=list2->data;
-				if ( ((h245_add->h245_address == tmp_src) && (h245_add->h245_port == pinfo->srcport))
-					|| ((h245_add->h245_address == tmp_dst) && (h245_add->h245_port == pinfo->destport)) ){
+				if ( (ADDRESSES_EQUAL(&(h245_add->h245_address),&tmp_src) && (h245_add->h245_port == pinfo->srcport))
+					|| (ADDRESSES_EQUAL(&(h245_add->h245_address),&tmp_dst) && (h245_add->h245_port == pinfo->destport)) ){
 					strinfo = (voip_calls_info_t*)(list->data);
 
 					++(strinfo->npackets);
@@ -1383,6 +1410,8 @@ H245dgcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 			list2 = g_list_next(list2);
 			}
 			if (strinfo!=NULL) break;
+			g_free((void *)tmp_src.data);
+			g_free((void *)tmp_dst.data);
 		}
 		list = g_list_next(list);
 	}
@@ -1725,7 +1754,7 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			strinfo->from_identity=g_strdup("");
 			strinfo->to_identity=g_strdup(pi->endpointId);
 		}
-		g_memmove(&(strinfo->initial_speaker), pinfo->src.data, 4);
+		COPY_ADDRESS(&(strinfo->initial_speaker),&(pinfo->src));
 		strinfo->first_frame_num=pinfo->fd->num;
 		strinfo->selected=FALSE;
 		strinfo->start_sec=pinfo->fd->rel_secs;
