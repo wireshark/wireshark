@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\lsarpc packet disassembly
  * Copyright 2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-lsa-ds.c,v 1.1 2002/11/01 00:42:00 tpot Exp $
+ * $Id: packet-dcerpc-lsa-ds.c,v 1.2 2002/11/02 22:55:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,9 +41,14 @@ static gint ett_dcerpc_lsa_ds = -1;
 void
 proto_register_dcerpc_lsa_ds(void)
 {
+        static gint *ett[] = {
+                &ett_dcerpc_lsa_ds
+        };
+
         proto_dcerpc_lsa_ds = proto_register_protocol(
                 "Microsoft Local Security Architecture (Directory Services)", 
 		"LSA_DS", "lsa_ds");
+        proto_register_subtree_array(ett, array_length(ett));
 }
 
 /* Protocol handoff */
