@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.71 2001/03/27 06:16:10 guy Exp $
+ * $Id: tethereal.c,v 1.72 2001/03/27 06:48:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -96,7 +96,7 @@
 
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
-static gchar   comp_info_str[256];
+static GString *comp_info_str;
 static gboolean verbose;
 static gboolean print_hex;
 static gboolean line_buffered;
@@ -142,8 +142,8 @@ print_usage(void)
 {
   int i;
 
-  fprintf(stderr, "This is GNU t%s %s, compiled with %s\n", PACKAGE,
-	  VERSION, comp_info_str);
+  fprintf(stderr, "This is GNU t%s %s, compiled %s\n", PACKAGE, VERSION,
+	comp_info_str->str);
 #ifdef HAVE_LIBPCAP
   fprintf(stderr, "t%s [ -DvVhlp ] [ -c count ] [ -f <capture filter> ]\n", PACKAGE);
   fprintf(stderr, "\t[ -F <capture file type> ] [ -i interface ] [ -n ]\n");
@@ -251,47 +251,53 @@ main(int argc, char *argv[])
   col_init(&cfile.cinfo, prefs->num_cols);
 
   /* Assemble the compile-time options */
-  snprintf(comp_info_str, 256,
-#ifdef GTK_MAJOR_VERSION
-    "GTK+ %d.%d.%d, %s%s, %s%s, %s%s", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
-    GTK_MICRO_VERSION,
+  comp_info_str = g_string_new("");
+
+  g_string_append(comp_info_str, "with ");
+  g_string_sprintfa(comp_info_str,
+#ifdef GLIB_MAJOR_VERSION
+    "GLib %d.%d.%d", GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION,
+    GLIB_MICRO_VERSION);
 #else
-    "GTK+ (version unknown), %s%s, %s%s, %s%s",
+    "GLib (version unknown)");
 #endif
 
 #ifdef HAVE_LIBPCAP
-   "with libpcap ", pcap_version,
+  g_string_append(comp_info_str, ", with libpcap ");
+  g_string_append(comp_info_str, pcap_version);
 #else
-   "without libpcap", "",
+  g_string_append(comp_info_str, ", without libpcap");
 #endif
 
 #ifdef HAVE_LIBZ
+  g_string_append(comp_info_str, ", with libz ");
 #ifdef ZLIB_VERSION
-   "with libz ", ZLIB_VERSION,
+  g_string_append(comp_info_str, ZLIB_VERSION);
 #else /* ZLIB_VERSION */
-   "with libz ", "(version unknown)",
+  g_string_append(comp_info_str, "(version unknown)");
 #endif /* ZLIB_VERSION */
 #else /* HAVE_LIBZ */
-   "without libz", "",
+  g_string_append(comp_info_str, ", without libz");
 #endif /* HAVE_LIBZ */
 
 /* Oh, this is pretty */
 #if defined(HAVE_UCD_SNMP_SNMP_H)
+  g_string_append(comp_info_str, ", with UCD SNMP ");
 #ifdef HAVE_UCD_SNMP_VERSION_H
-   "with UCD SNMP ", VersionInfo
+  g_string_append(comp_info_str, VersionInfo);
 #else /* HAVE_UCD_SNMP_VERSION_H */
-   "with UCD SNMP ", "(version unknown)"
+  g_string_append(comp_info_str, "(version unknown)");
 #endif /* HAVE_UCD_SNMP_VERSION_H */
 #elif defined(HAVE_SNMP_SNMP_H)
+  g_string_append(comp_info_str, ", with CMU SNMP ");
 #ifdef HAVE_SNMP_VERSION_H
-   "with CMU SNMP ", snmp_Version()
+  g_string_append(comp_info_str, snmp_Version());
 #else /* HAVE_SNMP_VERSION_H */
-   "with CMU SNMP ", "(version unknown)"
+  g_string_append(comp_info_str, "(version unknown)");
 #endif /* HAVE_SNMP_VERSION_H */
 #else /* no SNMP */
-   "without SNMP", ""
+  g_string_append(comp_info_str, ", without SNMP");
 #endif
-   );
     
   /* Now get our args */
   while ((opt = getopt(argc, argv, "c:Df:F:hi:lno:pr:R:s:t:vw:Vx")) != EOF) {
@@ -305,6 +311,7 @@ main(int argc, char *argv[])
 #endif
         break;
       case 'D':        /* Print a list of capture devices */
+#ifdef HAVE_LIBPCAP
         if_list = get_interface_list(&err, err_str);
         if (if_list == NULL) {
             switch (err) {
@@ -325,6 +332,10 @@ main(int argc, char *argv[])
           printf("%s\n", (char *)if_entry->data);
         free_interface_list(if_list);
         exit(0);
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif
         break;
       case 'f':
 #ifdef HAVE_LIBPCAP
@@ -427,7 +438,7 @@ main(int argc, char *argv[])
         }
         break;
       case 'v':        /* Show version and exit */
-        printf("t%s %s, with %s\n", PACKAGE, VERSION, comp_info_str);
+        printf("t%s %s, %s\n", PACKAGE, VERSION, comp_info_str->str);
         exit(0);
         break;
       case 'w':        /* Write to capture file xxx */

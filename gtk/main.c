@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.184 2001/03/27 06:19:30 guy Exp $
+ * $Id: main.c,v 1.185 2001/03/27 06:48:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -143,7 +143,7 @@ static GtkWidget	*bv_scrollw;
 GdkFont     *m_r_font, *m_b_font;
 guint		m_font_height, m_font_width;
 guint        main_ctx, file_ctx, help_ctx;
-gchar        comp_info_str[256];
+static GString *comp_info_str;
 gchar       *ethereal_path = NULL;
 gchar       *last_open_dir = NULL;
 
@@ -171,13 +171,13 @@ about_ethereal( GtkWidget *w, gpointer data ) {
   simple_dialog(ESD_TYPE_INFO, NULL,
 		"Ethereal - Network Protocol Analyzer\n"
 		"Version " VERSION " (C) 1998-2000 Gerald Combs <gerald@ethereal.com>\n"
-                "Compiled with %s\n\n"
+                "Compiled %s\n\n"
 
 		"Check the man page for complete documentation and\n"
 		"for the list of contributors.\n"
 
 		"\nSee http://www.ethereal.com/ for more information.",
-                 comp_info_str);
+                 comp_info_str->str);
 }
 
 void
@@ -700,8 +700,8 @@ file_quit_cmd_cb (GtkWidget *widget, gpointer data)
 static void 
 print_usage(void) {
 
-  fprintf(stderr, "This is GNU " PACKAGE " " VERSION ", compiled with %s\n",
-	  comp_info_str);
+  fprintf(stderr, "This is GNU " PACKAGE " " VERSION ", compiled %s\n",
+	  comp_info_str->str);
 #ifdef HAVE_LIBPCAP
   fprintf(stderr, "%s [ -vh ] [ -kpQS ] [ -B <byte view height> ] [ -c count ]\n",
 	  PACKAGE);
@@ -725,7 +725,7 @@ show_version(void)
   create_console();
 #endif
 
-  printf("%s %s, with %s\n", PACKAGE, VERSION, comp_info_str);
+  printf("%s %s, %s\n", PACKAGE, VERSION, comp_info_str->str);
 }
 
 /* And now our feature presentation... [ fade to music ] */
@@ -873,47 +873,62 @@ main(int argc, char *argv[])
   col_init(&cfile.cinfo, prefs->num_cols);
 
   /* Assemble the compile-time options */
-  snprintf(comp_info_str, 256,
+  comp_info_str = g_string_new("");
+
+  g_string_append(comp_info_str, "with ");
+  g_string_sprintfa(comp_info_str,
 #ifdef GTK_MAJOR_VERSION
-    "GTK+ %d.%d.%d, %s%s, %s%s, %s%s", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
-    GTK_MICRO_VERSION,
+    "GTK+ %d.%d.%d", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
+    GTK_MICRO_VERSION);
 #else
-    "GTK+ (version unknown), %s%s, %s%s, %s%s",
+    "GTK+ (version unknown)");
+#endif
+
+  g_string_append(comp_info_str, ", with ");
+  g_string_sprintfa(comp_info_str,
+#ifdef GLIB_MAJOR_VERSION
+    "GLib %d.%d.%d", GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION,
+    GLIB_MICRO_VERSION);
+#else
+    "GLib (version unknown)");
 #endif
 
 #ifdef HAVE_LIBPCAP
-   "with libpcap ", pcap_version,
+  g_string_append(comp_info_str, ", with libpcap ");
+  g_string_append(comp_info_str, pcap_version);
 #else
-   "without libpcap", "",
+  g_string_append(comp_info_str, ", without libpcap");
 #endif
 
 #ifdef HAVE_LIBZ
+  g_string_append(comp_info_str, ", with libz ");
 #ifdef ZLIB_VERSION
-   "with libz ", ZLIB_VERSION,
+  g_string_append(comp_info_str, ZLIB_VERSION);
 #else /* ZLIB_VERSION */
-   "with libz ", "(version unknown)",
+  g_string_append(comp_info_str, "(version unknown)");
 #endif /* ZLIB_VERSION */
 #else /* HAVE_LIBZ */
-   "without libz", "",
+  g_string_append(comp_info_str, ", without libz");
 #endif /* HAVE_LIBZ */
 
 /* Oh, this is pretty */
 #if defined(HAVE_UCD_SNMP_SNMP_H)
+  g_string_append(comp_info_str, ", with UCD SNMP ");
 #ifdef HAVE_UCD_SNMP_VERSION_H
-   "with UCD SNMP ", VersionInfo
+  g_string_append(comp_info_str, VersionInfo);
 #else /* HAVE_UCD_SNMP_VERSION_H */
-   "with UCD SNMP ", "(version unknown)"
+  g_string_append(comp_info_str, "(version unknown)");
 #endif /* HAVE_UCD_SNMP_VERSION_H */
 #elif defined(HAVE_SNMP_SNMP_H)
+  g_string_append(comp_info_str, ", with CMU SNMP ");
 #ifdef HAVE_SNMP_VERSION_H
-   "with CMU SNMP ", snmp_Version()
+  g_string_append(comp_info_str, snmp_Version());
 #else /* HAVE_SNMP_VERSION_H */
-   "with CMU SNMP ", "(version unknown)"
+  g_string_append(comp_info_str, "(version unknown)");
 #endif /* HAVE_SNMP_VERSION_H */
 #else /* no SNMP */
-   "without SNMP", ""
+  g_string_append(comp_info_str, ", without SNMP");
 #endif
-   );
 
   /* Now get our args */
   while ((opt = getopt(argc, argv, "B:c:f:hi:km:no:pP:Qr:R:Ss:t:T:w:W:vZ:")) != EOF) {
