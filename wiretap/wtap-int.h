@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.1 2000/05/19 23:07:04 gram Exp $
+ * $Id: wtap-int.h,v 1.2 2000/05/25 09:00:23 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -47,10 +47,21 @@
 
 #include "wtap.h"
 
+/* Information for a compressed Sniffer data stream. */
+typedef struct {
+	unsigned char *file_outbuf;
+	unsigned char *nextout;
+	size_t	outbuf_nbytes;
+	long	offset;
+} ngsniffer_comp_stream_t;
+
 typedef struct {
 	double	timeunit;
 	time_t	start;
 	int	is_atm;
+	ngsniffer_comp_stream_t seq;	/* sequential access */
+	ngsniffer_comp_stream_t rand;	/* random access */
+	long	data_offset;		/* start of possibly-compressed stuff */
 } ngsniffer_t;
 
 typedef struct {
@@ -126,6 +137,7 @@ struct wtap {
 
 	subtype_read_func	subtype_read;
 	subtype_seek_read_func	subtype_seek_read;
+	void			(*subtype_sequential_close)(struct wtap*);
 	void			(*subtype_close)(struct wtap*);
 	int			file_encap;	/* per-file, for those
 						   file formats that have

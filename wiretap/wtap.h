@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.71 2000/05/19 23:07:04 gram Exp $
+ * $Id: wtap.h,v 1.72 2000/05/25 09:00:24 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -106,23 +106,24 @@
 #define WTAP_FILE_PCAP_MODIFIED			3
 #define WTAP_FILE_PCAP_RH_6_1			4
 #define WTAP_FILE_LANALYZER			5
-#define WTAP_FILE_NGSNIFFER			6
-#define WTAP_FILE_SNOOP				7
-#define WTAP_FILE_IPTRACE_1_0			8
-#define WTAP_FILE_IPTRACE_2_0			9
-#define WTAP_FILE_NETMON_1_x			10
-#define WTAP_FILE_NETMON_2_x			11
-#define WTAP_FILE_NETXRAY_1_0			12
-#define WTAP_FILE_NETXRAY_1_1			13
-#define WTAP_FILE_NETXRAY_2_001			14
-#define WTAP_FILE_RADCOM			15
-#define WTAP_FILE_ASCEND			16
-#define WTAP_FILE_NETTL				17
-#define WTAP_FILE_TOSHIBA			18
-#define WTAP_FILE_I4BTRACE			19
+#define WTAP_FILE_NGSNIFFER_UNCOMPRESSED	6
+#define WTAP_FILE_NGSNIFFER_COMPRESSED		7
+#define WTAP_FILE_SNOOP				8
+#define WTAP_FILE_IPTRACE_1_0			9
+#define WTAP_FILE_IPTRACE_2_0			10
+#define WTAP_FILE_NETMON_1_x			11
+#define WTAP_FILE_NETMON_2_x			12
+#define WTAP_FILE_NETXRAY_1_0			13
+#define WTAP_FILE_NETXRAY_1_1			14
+#define WTAP_FILE_NETXRAY_2_001			15
+#define WTAP_FILE_RADCOM			16
+#define WTAP_FILE_ASCEND			17
+#define WTAP_FILE_NETTL				18
+#define WTAP_FILE_TOSHIBA			19
+#define WTAP_FILE_I4BTRACE			20
 
 /* last WTAP_FILE_ value + 1 */
-#define WTAP_NUM_FILE_TYPES			20
+#define WTAP_NUM_FILE_TYPES			21
 
 /*
  * Maximum packet size we'll support.
@@ -336,6 +337,12 @@ int wtap_pcap_encap_to_wtap_encap(int encap);
 	/* We read an invalid record */
 #define	WTAP_ERR_SHORT_WRITE			-12
 	/* An attempt to write wrote less data than it should have */
+#define	WTAP_ERR_UNC_TRUNCATED			-13
+	/* Sniffer compressed data was oddly truncated */
+#define	WTAP_ERR_UNC_OVERFLOW			-14
+	/* Uncompressing Sniffer data would overflow buffer */
+#define	WTAP_ERR_UNC_BAD_OFFSET			-15
+	/* LZ77 compressed data has bad offset to string */
 
 /* Errors from zlib; zlib error Z_xxx turns into Wiretap error
    WTAP_ERR_ZLIB + Z_xxx.

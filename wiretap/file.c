@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.52 2000/05/19 23:06:48 gram Exp $
+ * $Id: file.c,v 1.53 2000/05/25 09:00:20 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -169,6 +169,7 @@ wtap* wtap_open_offline(const char *filename, int *err, gboolean do_random)
 	/* initialization */
 	wth->file_encap = WTAP_ENCAP_UNKNOWN;
 	wth->data_offset = 0;
+	wth->subtype_sequential_close = NULL;
 	wth->subtype_close = NULL;
 
 	/* Try all file types */
@@ -236,9 +237,13 @@ const static struct file_type_info {
 	{ "Novell LANalyzer", NULL,
 	  NULL, NULL },
 
-	/* WTAP_FILE_NGSNIFFER */
+	/* WTAP_FILE_NGSNIFFER_UNCOMPRESSED */
 	{ "Network Associates Sniffer (DOS-based)", "ngsniffer",
 	  ngsniffer_dump_can_write_encap, ngsniffer_dump_open },
+
+	/* WTAP_FILE_NGSNIFFER_COMPRESSED */
+	{ "Network Associates Sniffer (DOS-based), compressed", "ngsniffer_comp",
+	  NULL, NULL },
 
 	/* WTAP_FILE_SNOOP */
 	{ "Sun snoop", "snoop",

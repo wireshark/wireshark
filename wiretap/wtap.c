@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.43 2000/05/19 23:07:04 gram Exp $
+ * $Id: wtap.c,v 1.44 2000/05/25 09:00:23 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -155,7 +155,10 @@ static const char *wtap_errlist[] = {
 	NULL,
 	"Less data was read than was expected",
 	"File contains a record that's not valid",
-	"Less data was written than was requested"
+	"Less data was written than was requested",
+	"Uncompression error: data oddly truncated",
+	"Uncompression error: data would overflow buffer",
+	"Uncompression error: bad LZ77 offset",
 };
 #define	WTAP_ERRLIST_SIZE	(sizeof wtap_errlist / sizeof wtap_errlist[0])
 
@@ -186,11 +189,18 @@ const char *wtap_strerror(int err)
 }
 
 /* Close only the sequential side, freeing up memory it uses.
+
    Note that we do *not* want to call the subtype's close function,
    as it would free any per-subtype data, and that data may be
-   needed by the random-access side. */
+   needed by the random-access side.
+   
+   Instead, if the subtype has a "sequential close" function, we call it,
+   to free up stuff used only by the sequential side. */
 void wtap_sequential_close(wtap *wth)
 {
+	if (wth->subtype_sequential_close != NULL)
+		(*wth->subtype_sequential_close)(wth);
+
 	if (wth->fh != NULL) {
 		file_close(wth->fh);
 		wth->fh = NULL;
