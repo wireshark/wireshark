@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.157 2000/01/25 00:36:35 guy Exp $
+ * $Id: file.c,v 1.158 2000/01/25 01:05:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -209,6 +209,8 @@ close_cap_file(capture_file *cf, void *w)
   cf->plist = NULL;
   cf->plist_end = NULL;
   unselect_packet(cf);	/* nothing to select */
+  cf->first_displayed = NULL;
+  cf->last_displayed = NULL;
 
   /* Clear the packet list. */
   gtk_clist_freeze(GTK_CLIST(packet_list));
@@ -326,9 +328,9 @@ read_cap_file(capture_file *cf)
   /* Enable menu items that make sense if you have some captured packets. */
   set_menus_for_captured_packets(TRUE);
 
-  /* If we have any packets to select, select the first packet by making
-     the first row the selected row. */
-  if (cf->plist != NULL)
+  /* If we have any displayed packets to select, select the first of those
+     packets by making the first row the selected row. */
+  if (cf->first_displayed != NULL)
     gtk_signal_emit_by_name(GTK_OBJECT(packet_list), "select_row", 0);
 
   if (!success) {
