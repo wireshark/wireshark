@@ -734,6 +734,76 @@ AC_DEFUN([AC_ETHEREAL_LIBPCRE_CHECK],
 ])
 
 #
+# AC_ETHEREAL_NETSNMP_CHECK
+#
+AC_DEFUN([AC_ETHEREAL_NETSNMP_CHECK],
+[
+	dnl get the net-snmp-config binary
+	if test "x$netsnmpconfig" = "x" ; then
+		#
+		# The user didn't specify where net-snmp-config is
+		# located; search for it.
+		#
+		AC_PATH_PROG(NETSNMPCONFIG, net-snmp-config)
+	else
+		NETSNMPCONFIG=$netsnmpconfig
+		if test ! -x $NETSNMPCONFIG -o ! -f $NETSNMPCONFIG ; then
+		        NETSNMPCONFIG=$netsnmpconfig/bin/net-snmp-config
+			if test ! -x $NETSNMPCONFIG -o ! -f $NETSNMPCONFIG ; then
+				AC_MSG_ERROR(Invalid net-snmp-config: $netsnmpconfig)
+			fi
+		fi
+	fi
+
+	#
+	# XXX - check whether $NETSNMPCONFIG is executable?
+	# if test "x$NETSNMPCONFIG" != "xno" -a "x$NETSNMPCONFIG" != "x" -a -x "$NETSNMPCONFIG" ; then
+	# We already did that if it was set; presumably AC_PATH_PROG
+	# will fail if it doesn't find an executable version.
+	#
+
+	dnl other choices for flags to use here: could also use
+	dnl --prefix or --exec-prefix if you don't want the full list.
+
+	#
+	# Save the current settings of CFLAGS and CPPFLAGS, and add
+	# the output of "$NETSNMPCONFIG --cflags" to it, so that when
+	# searching for the Net-SNMP headers, we look in whatever
+	# directory that output specifies.
+	#
+	ethereal_save_CFLAGS="$CFLAGS"
+	ethereal_save_CPPFLAGS="$CPPFLAGS"
+	CFLAGS="$CFLAGS `$NETSNMPCONFIG --cflags`"
+	CPPFLAGS="$CPPFLAGS `$NETSNMPCONFIG --cflags`"
+
+	AC_CHECK_HEADERS(net-snmp/net-snmp-config.h net-snmp/library/default_store.h)
+	if test "x$ac_cv_header_net_snmp_net_snmp_config_h" = "xyes" -a "x$ac_cv_header_net_snmp_library_default_store_h" = "xyes" ; then
+		SNMP_LIBS=`$NETSNMPCONFIG --libs`
+		if echo "$SNMP_LIBS" | grep crypto >/dev/null  && test "x$SSL_LIBS" = "x"; then
+			if test "x$want_netsnmp" = "xyes" ; then
+				AC_MSG_ERROR(Net-SNMP requires openssl but ssl not enabled)
+			else
+				AC_MSG_RESULT(Net-SNMP requires openssl but ssl not enabled - disabling Net-SNMP)
+			fi
+			CFLAGS="$ethereal_save_CFLAGS"
+			CPPFLAGS="$ethereal_save_CPPFLAGS"
+			SNMP_LIBS=
+		else
+			AC_DEFINE(HAVE_NET_SNMP, 1, [Define to enable support for Net-SNMP])
+			have_net_snmp="yes"
+		fi
+	else
+		#
+		# Restore the versions of CFLAGS and CPPFLAGS before
+		# we added the output of '$NETSNMPCONFIG --cflags",
+		# as we didn't actually find Net-SNMP there.
+		#
+		CFLAGS="$ethereal_save_CFLAGS"
+		CPPFLAGS="$ethereal_save_CPPFLAGS"
+	fi	
+])
+
+#
 # AC_ETHEREAL_UCDSNMP_CHECK
 #
 AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
@@ -1179,4 +1249,3 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	fi
 	AC_SUBST(KRB5_LIBS)
 ])
-

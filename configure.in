@@ -798,15 +798,31 @@ else
 fi
 AC_SUBST(SSL_LIBS)
 
-dnl UCD SNMP/NET-SNMP Check
+dnl UCD SNMP/Net-SNMP Check
 SNMP_LIBS=''
 
 AC_ARG_WITH(net-snmp,
 changequote(<<, >>)dnl
-<<  --with-net-snmp=PATH    use NET-SNMP library, with PATH as the location of the net-snmp-config shell script that comes with the net-snmp package.>>,
+<<  --with-net-snmp[=PATH] use Net-SNMP library (with PATH as the location of the net-snmp-config shell script that comes with the net-snmp package, if supplied)  [default=yes, if present]>>,
 changequote([, ])dnl
-[netsnmpconfig=$withval]
-)
+[
+	if test $withval = no
+	then
+		want_netsnmp=no
+	elif test $withval = yes
+	then
+		want_netsnmp=yes
+	else
+		want_netsnmp=yes
+		netsnmpconfig="$withval"
+	fi
+],[
+	#
+	# Set "want_netsnmp" to "ifpresent" to make the default "use it
+	# if you find it, otherwise don't".
+	#
+	want_netsnmp=ifpresent
+])
 
 AC_ARG_WITH(ucd-snmp,
 changequote(<<, >>)dnl
@@ -832,72 +848,21 @@ changequote([, ])dnl
 	ucdsnmp_dir=
 ])
 
-dnl try net-snmp first
-AC_MSG_CHECKING(whether to use NET-SNMP library if available)
-if test "x$netsnmpconfig" != "xno" ; then
-	AC_MSG_RESULT(yes)
-	dnl get the net-snmp-config binary
-	if test "x$netsnmpconfig" = "xyes" -o "x$netsnmpconfig" = "x" ; then
-		dnl search for it
-		AC_PATH_PROG(NETSNMPCONFIG,net-snmp-config)
-	else
-		NETSNMPCONFIG=$netsnmpconfig
-		if test ! -x $NETSNMPCONFIG -o ! -f $NETSNMPCONFIG ; then
-		        NETSNMPCONFIG=$netsnmpconfig/bin/net-snmp-config
-			if test ! -x $NETSNMPCONFIG -o ! -f $NETSNMPCONFIG ; then
-				AC_MSG_ERROR(Invalid net-snmp-config: $netsnmpconfig)
-			fi
-		fi
-	fi
-else
+#
+# Try Net-SNMP first.
+#
+AC_MSG_CHECKING(whether to use Net-SNMP library if available)
+if test "x$want_netsnmp" = "xno" ; then
 	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	AC_ETHEREAL_NETSNMP_CHECK
 fi
 
-if test "x$NETSNMPCONFIG" != "xno" -a "x$NETSNMPCONFIG" != "x" -a -x "$NETSNMPCONFIG" ; then
-	dnl other choices for flags to use here: could also use
-	dnl --prefix or --exec-prefix if you don't want the full list.
-
-	#
-	# Save the current settings of CFLAGS and CPPFLAGS, and add
-	# the output of "$NETSNMPCONFIG --cflags" to it, so that when
-	# searching for the Net-SNMP headers, we look in whatever
-	# directory that output specifies.
-	#
-	ethereal_save_CFLAGS="$CFLAGS"
-	ethereal_save_CPPFLAGS="$CPPFLAGS"
-	CFLAGS="$CFLAGS `$NETSNMPCONFIG --cflags`"
-	CPPFLAGS="$CPPFLAGS `$NETSNMPCONFIG --cflags`"
-
-	AC_CHECK_HEADERS(net-snmp/net-snmp-config.h net-snmp/library/default_store.h)
-	if test "x$ac_cv_header_net_snmp_net_snmp_config_h" = "xyes" -a "x$ac_cv_header_net_snmp_library_default_store_h" = "xyes" ; then
-		SNMP_LIBS=`$NETSNMPCONFIG --libs`
-		if echo "$SNMP_LIBS" | grep crypto >/dev/null  && test "x$SSL_LIBS" = "x"; then
-			AC_MSG_RESULT(Net-SNMP requires openssl but ssl not enabled - disabling Net-SNMP)
-			CFLAGS="$ethereal_save_CFLAGS"
-			CPPFLAGS="$ethereal_save_CPPFLAGS"
-			SNMP_LIBS=
-			NETSNMPCONFIG="no"
-		else
-			AC_DEFINE(HAVE_NET_SNMP, 1, [Define to enable support for NET-SNMP])
-			have_net_snmp="yes"
-		fi
-	else
-		# technically, we should retry ucd-snmp but it's
-		# unlikely they have installed net-snmp-config and not
-		# the net-snmp headers but do have the ucd-snmp
-		# headers.  This would likely be a broken system to
-		# try and use anyway.
-		NETSNMPCONFIG="no"
-
-		#
-		# Restore the versions of CFLAGS and CPPFLAGS before
-		# we added the output of '$NETSNMPCONFIG --cflags",
-		# as we didn't actually find Net-SNMP there.
-		#
-		CFLAGS="$ethereal_save_CFLAGS"
-		CPPFLAGS="$ethereal_save_CPPFLAGS"
-	fi	
-else
+#
+# If that didn't find Net-SNMP, try UCD SNMP.
+#
+if test "x$have_net_snmp" != "xyes" ; then
 	AC_MSG_CHECKING(whether to use UCD SNMP library if available)
 	if test "x$want_ucdsnmp" = "xno" ; then
 		AC_MSG_RESULT(no)
@@ -1316,12 +1281,12 @@ else
 	adns_message="no"
 fi
 
-if test "x$NETSNMPCONFIG" != "xno" -a "x$NETSNMPCONFIG" != "x" -a -x "$NETSNMPCONFIG" ; then
+if test "x$have_net_snmp" = "xyes" ; then
 	snmp_libs_message="yes (net-snmp)"
-elif test "x$SNMP_LIBS" = "x" ; then
-	snmp_libs_message="no"
-else
+elif test "x$have_ucdsnmp" = "xyes" ; then
 	snmp_libs_message="yes (ucd-snmp)"
+else
+	snmp_libs_message="no"
 fi
 
 echo ""
@@ -1350,4 +1315,4 @@ echo "              Use kerberos library : $krb5_message"
 echo "              Use GNU ADNS library : $adns_message"
 echo "            Use SSL crypto library : $ssl_message"
 echo "          Use IPv6 name resolution : $enable_ipv6"
-echo "     Use UCD SNMP/NET-SNMP library : $snmp_libs_message"
+echo "     Use UCD SNMP/Net-SNMP library : $snmp_libs_message"
