@@ -2,7 +2,7 @@
  * Routines for BACnet (NPDU) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bacnet.c,v 1.10 2002/01/21 07:36:32 guy Exp $
+ * $Id: packet-bacnet.c,v 1.11 2002/05/30 02:04:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -354,7 +354,8 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tvb, offset, 2, FALSE);
 			offset += 2;
 			/* attention: doesnt work here because of if(tree) */
-			call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+			call_dissector(data_handle,
+			    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
 		}
 		/* Performance Index (in I-Could-Be-Router-To-Network) */
 		if (bacnet_mesgtyp == BAC_NET_ICB_R) {

@@ -159,7 +159,9 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 	    proto_tree_add_text(gmrp_tree, tvb, GARP_PROTOCOL_ID, sizeof(guint16), 
  "   (Warning: this version of Ethereal only knows about protocol id = 1)");
-	    call_dissector(data_handle,tvb_new_subset(tvb, GARP_PROTOCOL_ID + sizeof(guint16), -1,tvb_reported_length_remaining(tvb,GARP_PROTOCOL_ID + sizeof(guint16))),pinfo, tree);
+	    call_dissector(data_handle,
+	        tvb_new_subset(tvb, GARP_PROTOCOL_ID + sizeof(guint16), -1, -1),
+	        pinfo, tree);
 	    return;
 	}
 
@@ -189,7 +191,9 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 				else
 				{
-					call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+					call_dissector(data_handle,
+					    tvb_new_subset(tvb, offset, -1, -1),
+					    pinfo, tree);
 					return;
 				}
 			}
@@ -206,7 +210,9 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* GMRP supports Group Membership and Service Requirement as attribute types */
 			if ( (octet != GMRP_ATTRIBUTE_TYPE_GROUP_MEMBERSHIP) && (octet != GMRP_ATTRIBUTE_TYPE_SERVICE_REQUIREMENT) )
 			{
-				call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+				call_dissector(data_handle,
+				    tvb_new_subset(tvb, offset, -1, -1), pinfo,
+				    tree);
 				return;
 			}
 
@@ -239,7 +245,9 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					}
 					else
 					{
-						call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+						call_dissector(data_handle,
+						    tvb_new_subset(tvb, offset, -1, -1),
+						    pinfo, tree);
 						return;
 					}
 				}
@@ -270,7 +278,9 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					case GMRP_EVENT_LEAVEALL:
 						if (octet != GMRP_LENGTH_LEAVEALL)
 						{
-							call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+							call_dissector(data_handle,
+							    tvb_new_subset(tvb, offset, -1, -1),
+							    pinfo, tree);
 							return;
 						}
 						break;
@@ -282,7 +292,9 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 case GMRP_EVENT_EMPTY:
 						if ( (octet != GMRP_GROUP_MEMBERSHIP_NON_LEAVEALL) && (octet != GMRP_SERVICE_REQUIREMENT_NON_LEAVEALL) )
 						{
-							call_dissector(data_handle,tvb_new_subset(tvb, offset, -1,tvb_reported_length_remaining(tvb,offset)),pinfo, tree);
+							call_dissector(data_handle,
+							    tvb_new_subset(tvb, offset, -1, -1),
+							    pinfo, tree);
 							return;
 						}
 
@@ -309,14 +321,18 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					}
 					else
 					{
-						call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+						call_dissector(data_handle,
+						    tvb_new_subset(tvb, offset, -1, -1),
+						    pinfo, tree);
 						return;
 					}
 
 					break;
 
 					 default:
-					call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+					call_dissector(data_handle,
+					    tvb_new_subset(tvb, offset, -1, -1),
+					    pinfo, tree);
 					return;
 					}
 				}
