@@ -2,7 +2,7 @@
  * Routines for docsis dissection
  * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
  *
- * $Id: packet-docsis.c,v 1.3 2002/07/20 23:19:20 guy Exp $
+ * $Id: packet-docsis.c,v 1.4 2002/07/21 00:22:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -192,7 +192,7 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree)
   proto_tree *ehdr_tree;
   proto_item *it;
   guint8 ehdrlen;
-  guint8 pos;
+  int pos;
   guint8 type;
   guint8 len;
   guint8 mini_slots;
@@ -203,7 +203,7 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree)
 
   it = proto_tree_add_text (tree, tvb, pos, ehdrlen, "Extended Header");
   ehdr_tree = proto_item_add_subtree (it, ett_ehdr);
-  while (pos < (ehdrlen + 4))
+  while (pos < (int)(ehdrlen + 4))
     {
       proto_tree_add_item (ehdr_tree, hf_docsis_eh_type, tvb, pos, 1, FALSE);
       proto_tree_add_item (ehdr_tree, hf_docsis_eh_len, tvb, pos, 1, FALSE);
