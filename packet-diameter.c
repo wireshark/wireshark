@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.13 2001/02/16 21:41:00 gram Exp $
+ * $Id: packet-diameter.c,v 1.14 2001/02/16 21:44:54 gram Exp $
  *
  * Copyright (c) 2000 by David Frascone <chaos@mindspring.com>
  *
@@ -447,7 +447,7 @@ static void dissect_attribute_value_pairs(const u_char *pd, int offset,
 		fixAmt = 4 - (avph.avp_length % 4);
 		if (fixAmt == 4) fixAmt = 0;
 		adj = avph.avp_length + fixAmt;
-		avplength=avplength - adj;
+		avplength -= adj;
 		avptpstrval=match_strval(avph.avp_type, diameter_attrib_type_vals);
 		if (avptpstrval == NULL) avptpstrval="Unknown Type";
 		if (!BYTES_ARE_IN_FRAME(offset, avph.avp_length)) {
@@ -498,7 +498,7 @@ static void dissect_attribute_value_pairs(const u_char *pd, int offset,
 		if (adj <= 0) {
 			break;
 		}
-		offset=offset+avph.avp_length + adj;
+		offset += adj;
 	}
 }
 
