@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.31 2001/01/09 06:31:41 guy Exp $
+ * $Id: packet-rsvp.c,v 1.32 2001/01/10 23:30:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1834,7 +1834,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			    break;
 
 			case 32: /* AS */
-			    k = pntohs(offset2+l+2);
+			    k = pntohs(pd+offset2+l+2);
 			    ti2 = proto_tree_add_text(rsvp_object_tree, NullTVB, 
 						      offset2+l, 4,
 						      "Autonomous System %d", k);
