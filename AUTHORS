@@ -33,8 +33,6 @@ Bobo Rajec           <bobo@bsp-consulting.sk> {
 }
 
 Laurent Deniel       <deniel@worldnet.fr> {
-    http://www.worldnet.fr/~deniel
-
     Name resolution
     Ethernet/Manufacturer files support
     FDDI support
@@ -42,6 +40,8 @@ Laurent Deniel       <deniel@worldnet.fr> {
     ISO/OSI CLNP/COTP support
     Real time capture and display enhancement
     Many display filters added
+    GUI enhancements (about & help windows)
+    Follow TCP stream for IPv6
     Miscellaneous enhancements and fixes
 }
 
