@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.71 2002/10/15 17:19:06 guy Exp $
+ * $Id: packet-bgp.c,v 1.72 2002/11/04 22:00:14 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -398,7 +398,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
                         case SAFNUM_UNIMULC:
                         case SAFNUM_MPLS_LABEL:
                                 length = 4 ;
-                                tvb_memcpy(tvb, ip4addr, offset, 4);
+                                tvb_memcpy(tvb, ip4addr, offset, sizeof(ip4addr));
 			        snprintf(buf, buflen, "%s", ip_to_str(ip4addr));
                                 break;
                         case SAFNUM_LAB_VPNUNICAST:
@@ -407,17 +407,17 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
                                 rd_type=tvb_get_ntohs(tvb,offset) ;
                                 switch (rd_type) {
                                         case FORMAT_AS2_LOC:
-                                                length = 12;
-                                                tvb_memcpy(tvb, ip4addr, offset + 8, 4);
+                                                length = 8 + sizeof(ip4addr);
+                                                tvb_memcpy(tvb, ip4addr, offset + 8, sizeof(ip4addr));   /* Next Hop */
                                                 snprintf(buf, buflen, "Empty Label Stack RD=%u:%u IP=%s",
                                                                 tvb_get_ntohs(tvb, offset + 2),
                                                                 tvb_get_ntohl(tvb, offset + 4),
                                                                 ip_to_str(ip4addr));
                                                 break;
                                         case FORMAT_IP_LOC:
-                                                length = 12;
-                                                tvb_memcpy(tvb, ip4addr, offset + 2, 4);   /* IP part of the RD            */
-                                                tvb_memcpy(tvb, ip4addr2, offset +6, 4);   /* IP address of the VPN        */
+                                                length = 8 + sizeof(ip4addr);
+                                                tvb_memcpy(tvb, ip4addr, offset + 2, sizeof(ip4addr));   /* IP part of the RD            */
+                                                tvb_memcpy(tvb, ip4addr2, offset + 8, sizeof(ip4addr));  /* Next Hop   */
                                                 snprintf(buf, buflen, "Empty Label Stack RD=%s:%u IP=%s",
                                                                 ip_to_str(ip4addr),
                                                                 tvb_get_ntohs(tvb, offset + 6),
@@ -437,13 +437,41 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
                 break;
         case AFNUM_INET6:
                 switch (safi) {
-                        case SAFNUM_UNICAST: /* only decode unlabeled prefixes */
+                        case SAFNUM_UNICAST:
                         case SAFNUM_MULCAST:
                         case SAFNUM_UNIMULC:
                             length = 16 ;
-                            tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8,offset, sizeof(ip6addr));
+                            tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8,offset, 16);
                             snprintf(buf, buflen, "%s", ip6_to_str(&ip6addr));
                             break;
+                        case SAFNUM_LAB_VPNUNICAST:
+                        case SAFNUM_LAB_VPNMULCAST:
+                        case SAFNUM_LAB_VPNUNIMULC:
+                                rd_type=tvb_get_ntohs(tvb,offset) ;
+                                switch (rd_type) {
+                                        case FORMAT_AS2_LOC:
+                                                length = 8 + 16;
+                                                tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8, offset + 8, 16); /* Next Hop */
+                                                snprintf(buf, buflen, "Empty Label Stack RD=%u:%u IP=%s",
+                                                                tvb_get_ntohs(tvb, offset + 2),
+                                                                tvb_get_ntohl(tvb, offset + 4),
+                                                                ip6_to_str(&ip6addr));
+                                                break;
+                                        case FORMAT_IP_LOC:
+                                                length = 8 + 16;
+                                                tvb_memcpy(tvb, ip4addr, offset + 2, sizeof(ip4addr));   /* IP part of the RD            */
+                                                tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8, offset + 8, 16); /* Next Hop */
+                                                snprintf(buf, buflen, "Empty Label Stack RD=%s:%u IP=%s",
+                                                                ip_to_str(ip4addr),
+                                                                tvb_get_ntohs(tvb, offset + 6),
+                                                                ip6_to_str(&ip6addr));
+                                                break ;
+                                        default:
+                                                length = 0 ;
+                                                snprintf(buf, buflen, "Unknown (0x%04x)labeled VPN address format",rd_type);
+                                                break;
+                                }
+                                break;
                         default:
                             length = 0 ;
                             snprintf(buf, buflen, "Unknown SAFI (%u) for AFI %u", safi, afi);
@@ -485,6 +513,7 @@ decode_prefix_MP(guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf
     int                 labnum;                         /* number of labels             */
     int                 ce_id,labblk_off;
     guint8              ip4addr[4],ip4addr2[4];         /* IPv4 address                 */
+    struct e_in6_addr   ip6addr;                        /* IPv6 address                 */
     guint16             rd_type;                        /* Route Distinguisher type     */
     char                lab_stk[256];                   /* label stack                  */
 
@@ -597,6 +626,71 @@ decode_prefix_MP(guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf
                         case SAFNUM_UNIMULC:
                             length = decode_prefix6(tvb, offset, buf, buflen) - 1 ;
                             break;
+
+                        case SAFNUM_LAB_VPNUNICAST:
+                        case SAFNUM_LAB_VPNMULCAST:
+                        case SAFNUM_LAB_VPNUNIMULC:
+                                plen =  tvb_get_guint8(tvb,offset) ;
+
+                                labnum = decode_MPLS_stack(tvb, offset + 1, lab_stk, sizeof(lab_stk));
+
+                                offset += (1 + labnum * 3);
+                                plen -= (labnum * 3*8);
+
+                                rd_type=tvb_get_ntohs(tvb,offset) ;
+                                plen -= 8*8;
+
+                                switch (rd_type) {
+                                        case FORMAT_AS2_LOC:
+                                                if (plen > 128) {
+                                                        length = 0 ;
+                                                        break ;
+                                                }
+
+                                                length = (plen + 7) / 8;
+                                                memset(ip6addr.u6_addr.u6_addr8, 0, 16);
+                                                tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8, offset + 8, length);
+                                                if (plen % 8)
+                                                        ip6addr.u6_addr.u6_addr8[length - 1] &= ((0xff00 >> (plen % 8)) & 0xff);
+
+                                                snprintf(buf,buflen, "Label Stack=%s RD=%u:%u, IP=%s/%d",
+                                                        lab_stk,
+                                                        tvb_get_ntohs(tvb, offset + 2),
+                                                        tvb_get_ntohl(tvb, offset + 4),
+                                                        ip6_to_str(&ip6addr),
+                                                        plen);
+                                                length += (labnum * 3 + 8) ;
+                                                break ;
+                                        case FORMAT_IP_LOC: 
+                                                tvb_memcpy(tvb, ip4addr, offset + 2, sizeof(ip4addr));
+
+                                                if (plen > 128) {
+                                                        length = 0 ;
+                                                        break ;
+                                                }
+
+                                                length = (plen + 7) / 8;
+                                                memset(ip6addr.u6_addr.u6_addr8, 0, 16);
+                                                tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8, offset + 8, length);
+                                                if (plen % 8)
+                                                        ip6addr.u6_addr.u6_addr8[length - 1] &= ((0xff00 >> (plen % 8)) & 0xff);
+
+                                                snprintf(buf,buflen, "Label Stack=%s RD=%s:%u, IP=%s/%d",
+                                                        lab_stk,
+                                                        ip_to_str(ip4addr),
+                                                        tvb_get_ntohs(tvb, offset + 6),
+                                                        ip6_to_str(&ip6addr),
+                                                        plen);
+                                                length += (labnum * 3 + 8) ;
+                                                break ;
+                                        default:
+                                                length = 0 ;
+                                                snprintf(buf,buflen, "Unknown labeled VPN address format");
+                                                break;
+                                }
+                                break;
+
+
                 default:
                         length = 0 ;
                         snprintf(buf,buflen, "Unknown SAFI (%u) for AFI %u", safi, afi);
