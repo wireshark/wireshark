@@ -249,3 +249,4 @@ typedef void (*addr_col_set_writable) (column_info *, gboolean);
 typedef const char *(*addr_decode_enumerated_bitfield_shifted) (guint32, guint32, int, const value_string *, const char *);
 typedef int (*addr_dissect_xdlc_control) (tvbuff_t *, int, packet_info *, proto_tree *, int, gint, const xdlc_cf_items *, const xdlc_cf_items *, const value_string *, const value_string *, int, int, int);
 typedef protocol_t *(*addr_find_protocol_by_id) (int);
+typedef guint (*addr_tvb_strsize) (tvbuff_t *, gint);
