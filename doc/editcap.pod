@@ -10,6 +10,7 @@ S<[ B<-F> file format ]>
 S<[ B<-T> encapsulation type ]>
 S<[ B<-r> ]>
 S<[ B<-v> ]>
+S<[ B<-s> snaplen ]>
 S<[ B<-h> ]>
 I<infile>
 I<outfile>
@@ -46,15 +47,26 @@ packets with those numbers will I<not> be written to the capture file,
 unless the B<-r> flag is specified, in which case I<only> those packets
 will be written to the capture file.
 
-If the B<-T> flag, the encapsulation type of the output capture file
-will be forced to the specified type, rather than being the type
-appropriate to the encapsulation type of the input capture file.  Note
-that this merely forces the encapsulation type of the output file to be
-the specified type; the packet headers of the packets will not be
-translated from the encapsulation type of the input capture file to the
-specified encapsulation type (for example, it will not translate an
-Ethernet capture to an FDDI capture if an Ethernet capture is read and
-'B<-T fddi>' is specified).
+If the B<-s> flag is used to specify a snapshot length, frames in the
+input file with more captured data than the specified snapshot length
+will have only the amount of data specified by the snapshot length
+written to the output file.  This may be useful if the program that is
+to read the output file cannot handle packets larger than a certain size
+(for example, the versions of snoop in Solaris 2.5.1 and Solaris 2.6
+appear to reject Ethernet frames larger than the standard Ethernet MTU,
+making them incapable of handling gigabit Ethernet captures if jumbo
+frames were used).
+
+If the B<-T> flag is used to specify an encapsulation type, the
+encapsulation type of the output capture file will be forced to the
+specified type, rather than being the type appropriate to the
+encapsulation type of the input capture file.  Note that this merely
+forces the encapsulation type of the output file to be the specified
+type; the packet headers of the packets will not be translated from the
+encapsulation type of the input capture file to the specified
+encapsulation type (for example, it will not translate an Ethernet
+capture to an FDDI capture if an Ethernet capture is read and 'B<-T
+fddi>' is specified).
 
 =head1 OPTIONS
 
@@ -77,6 +89,10 @@ be written to the output capture file.
 =item -v
 
 Causes B<editcap> to print a number of messages while it's working.
+
+=item -s
+
+Sets the snapshot length to use when writing the data.
 
 =item -h
 

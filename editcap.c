@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, or simply convert from one 
  * format to another format.
  *
- * $Id: editcap.c,v 1.8 2000/04/17 14:52:32 gram Exp $
+ * $Id: editcap.c,v 1.9 2000/04/27 00:31:23 guy Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -53,6 +53,7 @@ static int keep_em = 0;
 static int out_file_type = WTAP_FILE_PCAP;   /* default to "libpcap"   */
 static int out_frame_type = -2;              /* Leave frame type alone */
 static int verbose = 0;                      /* Not so verbose         */
+static int snaplen = 0;                      /* No limit               */
 
 /* Add a selection item, a simple parser for now */
 
@@ -133,6 +134,7 @@ edit_callback(u_char *user, const struct wtap_pkthdr *phdr, int offset,
 {
   callback_arg *argp = (callback_arg *)user;
   int err;
+  struct wtap_pkthdr snap_phdr;
 
   if ((!selected(count) && !keep_em) ||
       (selected(count) && keep_em)) {
@@ -140,7 +142,14 @@ edit_callback(u_char *user, const struct wtap_pkthdr *phdr, int offset,
     if (verbose)
       printf("Record: %u\n", count);
 
-    /* We simply write it, we could do other things, like modify it */
+    /* We simply write it, perhaps after truncating it; we could do other
+       things, like modify it. */
+
+    if (snaplen != 0 && phdr->caplen > snaplen) {
+      snap_phdr = *phdr;
+      snap_phdr.caplen = snaplen;
+      phdr = &snap_phdr;
+    }
 
     if (!wtap_dump(argp->pdh, phdr, buf, &err)) {
 
@@ -194,10 +203,11 @@ int main(int argc, char *argv[])
   extern char *optarg;
   extern int optind;
   char opt;
+  char *p;
 
   /* Process the options first */
 
-  while ((opt = getopt(argc, argv, "T:F:rv")) != EOF) {
+  while ((opt = getopt(argc, argv, "T:F:rvs:")) != EOF) {
 
     switch (opt) {
 
@@ -225,6 +235,15 @@ int main(int argc, char *argv[])
 
     case 'r':
       keep_em = !keep_em;  /* Just invert */
+      break;
+
+    case 's':
+      snaplen = strtol(optarg, &p, 10);
+      if (p == optarg || *p != '\0') {
+      	fprintf(stderr, "editcap: \"%s\" is not a valid snapshot length\n",
+      	    optarg);
+      	exit(1);
+      }
       break;
 
     case 'h':
