@@ -25,7 +25,7 @@
 **   drh@acm.org
 **   http://www.hwaci.com/drh/
 **
-** $Id: lemon.c,v 1.4 2001/02/15 06:08:23 guy Exp $
+** $Id: lemon.c,v 1.5 2001/02/15 09:25:38 guy Exp $
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -61,7 +61,7 @@ extern int access(const char *, int);
 #define MAXRHS 1000
 #endif
 
-char *msort(char *, char **, int (*)(void *, void *));
+char *msort(char *, char **, int (*)(const void *, const void *));
 
 
 /********** From the file "struct.h" *************************************/
@@ -334,7 +334,7 @@ char *Strsafe_find(char *);
 /* Routines for handling symbols of the grammar */
 
 struct symbol *Symbol_new(char *x);
-int Symbolcmpp(struct symbol **, struct symbol **);
+int Symbolcmpp(const void *, const void *);
 void Symbol_init(void);
 int Symbol_insert(struct symbol *, char *);
 struct symbol *Symbol_find(char *);
@@ -344,7 +344,7 @@ struct symbol **Symbol_arrayof(void);
 
 /* Routines to manage the state table */
 
-int Configcmp(void *, void *);
+int Configcmp(const void *, const void *);
 struct state *State_new(void);
 void State_init(void);
 int State_insert(struct state *, struct config *);
@@ -384,9 +384,9 @@ struct action *Action_new(void){
 }
 
 /* Compare two actions */
-static int actioncmp(void *ap1_arg, void *ap2_arg)
+static int actioncmp(const void *ap1_arg, const void *ap2_arg)
 {
-  struct action *ap1 = ap1_arg, *ap2 = ap2_arg;
+  const struct action *ap1 = ap1_arg, *ap2 = ap2_arg;
   int rc;
   rc = ap1->sp->index - ap2->sp->index;
   if( rc==0 ) rc = (int)ap1->type - (int)ap2->type;
@@ -1265,8 +1265,7 @@ int main(int argc, char **argv)
   lem.nsymbol = Symbol_count();
   Symbol_new("{default}");
   lem.symbols = Symbol_arrayof();
-  qsort(lem.symbols,lem.nsymbol+1,sizeof(struct symbol*),
-        (int(*)())Symbolcmpp);
+  qsort(lem.symbols,lem.nsymbol+1,sizeof(struct symbol*),Symbolcmpp);
   for(i=0; i<=lem.nsymbol; i++) lem.symbols[i]->index = i;
   for(i=1; safe_isupper(lem.symbols[i]->name[0]); i++);
   lem.nterminal = i;
@@ -1369,7 +1368,8 @@ int main(int argc, char **argv)
 **   The "next" pointers for elements in the lists a and b are
 **   changed.
 */
-static char *merge(char *a, char *b, int (*cmp)(void *, void *), int offset)
+static char *merge(char *a, char *b, int (*cmp)(const void *, const void *),
+    int offset)
 {
   char *ptr, *head;
 
@@ -1417,7 +1417,7 @@ static char *merge(char *a, char *b, int (*cmp)(void *, void *), int offset)
 **   The "next" pointers for elements in list are changed.
 */
 #define LISTSIZE 30
-char *msort(char *list, char **next, int (*cmp)(void *, void *))
+char *msort(char *list, char **next, int (*cmp)(const void *, const void *))
 {
   int offset;
   char *ep;
@@ -3526,8 +3526,11 @@ struct symbol *Symbol_new(char *x)
 }
 
 /* Compare two symbols */
-int Symbolcmpp(struct symbol **a, struct symbol **b)
+int Symbolcmpp(const void *a_arg, const void *b_arg)
 {
+  struct symbol *const *a = a_arg;
+  struct symbol *const *b = b_arg;
+
   return strcmp((**a).name,(**b).name);
 }
 
@@ -3685,9 +3688,9 @@ struct symbol **Symbol_arrayof(void)
 }
 
 /* Compare two configurations */
-int Configcmp(void *a_arg, void *b_arg)
+int Configcmp(const void *a_arg, const void *b_arg)
 {
-  struct config *a = a_arg, *b = b_arg;
+  const struct config *a = a_arg, *b = b_arg;
   int x;
   x = a->rp->index - b->rp->index;
   if( x==0 ) x = a->dot - b->dot;
