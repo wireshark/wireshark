@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h225.c,v 1.23 2003/10/31 19:48:29 guy Exp $
+ * $Id: packet-h225.c,v 1.24 2003/11/10 21:42:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -523,6 +523,7 @@ static int hf_h225_nonStandardData = -1;
 static int hf_h225_nonStandard = -1;
 static int hf_h225_nonStandardReason = -1;
 static int hf_h225_nonStandardAddress = -1;
+static int hf_h225_aliasAddress_sequence = -1;
 /*aaa*/
 
 static gint ett_h225 = -1;
@@ -788,6 +789,7 @@ static gint ett_h225_user_data = -1;
 static gint ett_h225_H221NonStandard = -1;
 static gint ett_h225_NonStandardIdentifier = -1;
 static gint ett_h225_NonStandardParameter = -1;
+static gint ett_h225_aliasAddress_sequence = -1;
 /*bbb*/
 
 /* Subdissector tables */
@@ -5495,6 +5497,14 @@ dissect_h225_remoteExtensionAddress(tvbuff_t *tvb, int offset, packet_info *pinf
 	return offset;
 }
 
+
+static int
+dissect_h225_aliasAddress_sequence(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_h225_aliasAddress_sequence, ett_h225_aliasAddress_sequence, dissect_h225_AliasAddress);
+	return offset;
+}
+
 static int
 dissect_h225_rasAddress_sequence(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -5514,7 +5524,7 @@ static per_sequence_t EndPoint_sequence[] = {
 	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
 	{ "aliasAddress", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_AliasAddress },
+		dissect_h225_aliasAddress_sequence },
 	{ "callSignalAddress", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_callSignalAddress },
 	{ "rasAddress", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -8096,7 +8106,13 @@ static per_sequence_t pdu_item_sequence[] = {
 static int
 dissect_h225_pdu_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
+	gboolean save_info;
+
+	/* dont update the INFO or PROTOCOL fields of the summary */
+	save_info=col_get_writable(pinfo->cinfo);
+	col_set_writable(pinfo->cinfo, FALSE);
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_pdu_item, ett_h225_pdu_item, pdu_item_sequence);
+	col_set_writable(pinfo->cinfo, save_info);
 	return offset;
 }
 
@@ -9419,6 +9435,9 @@ proto_register_h225(void)
 	{ &hf_h225_remoteExtensionAddress,
 		{ "remoteExtensionAddress", "h225.remoteExtensionAddress", FT_NONE, BASE_NONE,
 		NULL, 0, "remoteExtensionAddress sequence of", HFILL }},
+	{ &hf_h225_aliasAddress_sequence,
+		{ "aliasAddress_sequence", "h225.aliasAddress_sequence", FT_NONE, BASE_NONE,
+		NULL, 0, "aliasAddress_sequence sequence of", HFILL }},
 	{ &hf_h225_rasAddress_sequence,
 		{ "rasAddress_sequence", "h225.rasAddress_sequence", FT_NONE, BASE_NONE,
 		NULL, 0, "rasAddress_sequence sequence of", HFILL }},
@@ -10150,6 +10169,7 @@ proto_register_h225(void)
 		&ett_h225_H221NonStandard,
 		&ett_h225_NonStandardIdentifier,
 		&ett_h225_NonStandardParameter,
+            &ett_h225_aliasAddress_sequence,
 /*eee*/
 	};
 	module_t *h225_module;
