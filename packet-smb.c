@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.54 1999/12/12 02:19:00 sharpe Exp $
+ * $Id: packet-smb.c,v 1.55 1999/12/14 23:16:59 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -8884,9 +8884,10 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
 }
 
-char *p_desc = NULL, *d_desc = NULL, *data = NULL, *params = NULL;
-int p_count, d_count, p_offset, d_offset, d_current = 0, p_current = 0;
-int pd_p_current = 0, pd_d_current = 0, in_params = 0, need_data = 0;
+static char *p_desc = NULL, *d_desc = NULL, *data = NULL, *params = NULL;
+static int p_count, d_count, p_offset, d_offset, d_current = 0, p_current = 0;
+static int pd_p_current = 0, pd_d_current = 0, in_params = 0, need_data = 0;
+static int lm_ent_count = 0, lm_act_count = 0; 
 
 /* Initialize the various data structure */
 void 
@@ -8899,6 +8900,7 @@ dissect_transact_engine_init(const u_char *pd, const char *param_desc, const cha
   p_offset = 0;
   d_current = 0;
   p_current = 0;
+  lm_ent_count = lm_act_count = 0;
   pd_d_current = DataOffset;
   pd_p_current = ParameterOffset;
   in_params = need_data = 0;
@@ -8921,13 +8923,30 @@ dissect_transact_engine_init(const u_char *pd, const char *param_desc, const cha
 
 }
 
-int get_byte_count(const u_char *pd)
+int get_ent_count()
+{
+
+  return lm_ent_count;
+
+}
+
+int get_act_count()
+{
+
+  return lm_act_count;
+
+}
+
+int get_byte_count(const u_char *p_data)
 
 {
-  int count = 0;
+  int count = 0, off = 0;
 
-  while (pd[pd_p_current] && isdigit(pd[pd_p_current]))
-    count += (int)pd[pd_p_current++] - (int)'0';
+  while (p_data[off] && isdigit(p_data[off])) {
+
+    count = (count * 10) + (int)p_data[off++] - (int)'0';
+
+  }
 
   return count;
 }
@@ -8973,6 +8992,26 @@ int dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tr
 	  proto_tree_add_text(tree, pd_p_current, 2, "%s: %u (%04X)", (Name) ? Name : "Returned Word", WParam, WParam);
 
 	  pd_p_current += 2;
+
+	  lm_act_count = WParam;
+
+	  return 1;
+
+	}
+
+	break;
+
+      case 'e':  /* An ent count ..  */
+
+	if (dirn == 0) { /* Only relevant in a response */
+
+	  WParam = GSHORT(pd, pd_p_current);
+
+	  proto_tree_add_text(tree, pd_p_current, 2, "%s: (%04X)", (Name) ? Name : "Entry Count", WParam, WParam);
+
+	  pd_p_current += 2;
+
+	  lm_ent_count = WParam;  /* Save this for later retrieval */
 
 	  return 1;
 
@@ -9034,7 +9073,7 @@ int dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tr
 
 	if (dirn == 0) {
  
-	  bc = get_byte_count(pd + pd_p_current);  /* Not clean */
+	  bc = get_byte_count(p_desc + p_offset);
 
 	  proto_tree_add_text(tree, pd_p_current, bc, "%s%u: %s", (Name) ? Name : "B", (bc) ? bc : 1, format_text( pd + pd_p_current, (bc) ? bc : 1));
 
@@ -9050,7 +9089,7 @@ int dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tr
 
 	if (dirn == 1) {
 
-	  bc = get_byte_count(pd + pd_p_current);  /* This is not clean */
+	  bc = get_byte_count(p_desc + p_offset);  /* This is not clean */
 
 	  /*Bytes = g_malloc(bc + 1); / * Is this needed ? */
 
@@ -9901,31 +9940,62 @@ void dissect_server_flags(proto_tree *tree, int offset, int length, int flags)
  *
  * Simply fill in the number, name, and parameter names if you know them
  * Try to keep them in order 
+ *
+ * We will extend this data structure as we try to decode more ...
  */
 
 struct lanman_desc {
   int   lanman_num;
   char  *lanman_name;
-  char  **params;
+  char  **req;
+  char  **req_data;     /* Hmmm, not flexible enough */
+  char  **resp;
+  char  **resp_data;
 };
 
 static char *lm_params_req_0[]   = {"Detail Level", "Return Buffer Size", NULL};
 static char *lm_params_req_1[]   = {"Share Name", "Detail Level", "Receive Buffer Size", NULL};
+static char *lm_params_resp_1[]  = {"Returned Data Len", NULL};
 static char *lm_params_req_13[]  = {"Detail Level", "Receive Buffer Size", NULL};
 static char *lm_params_req_56[]  = {"User Name", "Detail Level", "Receive Buffer Size", NULL};
 static char *lm_params_req_104[] = {"Detail Level", "Return Buffer Size", "Server Type", "Domain", NULL};
 static char *lm_params_req_132[] = {"Reserved1", "Reserved2", "Detail Level", "UserInfoStruct?", "Length of UStruct", "Receive Buffer Size", NULL};
 static char *lm_params_req_133[] = {"Reserved1", "Reserved2", "Detail Level", "UserInfoStruct?", "Length of UStruct", "Receive Buffer Size", NULL};
 
+static char *lm_null_params[] = {NULL};
+
 struct lanman_desc lmd[] = {
-  {0, "NetShareEnum", lm_params_req_0},
-  {1, "NetShareGetInfo", lm_params_req_1},
-  {13, "NetServerGetInfo", lm_params_req_13},
-  {56, "NetUserGetInfo", lm_params_req_56},
-  {104, "NetServerEnum2", lm_params_req_104},
-  {132, "NetWkstaUserLogon", lm_params_req_132},
-  {133, "NetWkstaUserLogoff", lm_params_req_133},
-  {-1, NULL, NULL}
+  {0, "NetShareEnum", lm_params_req_0, lm_null_params, lm_null_params, lm_null_params},
+  {1, "NetShareGetInfo", lm_params_req_1, lm_null_params, lm_params_resp_1, lm_null_params},
+  {13, "NetServerGetInfo", lm_params_req_13, lm_null_params, lm_null_params, lm_null_params},
+  {56, "NetGroupGetUser", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {56, "NetUserGetInfo", lm_params_req_56, lm_null_params, lm_null_params, lm_null_params},
+  {59, "NetUserGetGroups", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {63, "NetWkstaGetInfo", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {69, "DOSPrintQEnum", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {70, "DOSPrintQGetInfo", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {74, "WPrintQueuePause", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {75, "WPrintQueueResume", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {76, "WPrintJobEnumerate", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {77, "WPrintJobGetInfo", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {81, "RDOSPrintJobDel", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {82, "RDOSPrintJobPause", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {83, "RDOSPrintJobResume", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {84, "WPrintDestEnum", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {85, "WPrintDestGetInfo", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {91, "NetRemoteTOD", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {103, "WPrintQueuePurge", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {104, "NetServerEnum2", lm_params_req_104, lm_null_params, lm_null_params, lm_null_params},
+  {105, "WAccessGetUserPerms", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {115, "SetUserPassword", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {132, "NetWkstaUserLogon", lm_params_req_132, lm_null_params, lm_null_params, lm_null_params},
+  {133, "NetWkstaUserLogoff", lm_params_req_133, lm_null_params, lm_null_params, lm_null_params},
+  {147, "PrintJobInfo", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {205, "WPrintDriverEnum", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {206, "WPrintQProcEnum", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {207, "WPrintPortEnum", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {214, "SamOEMChangePassword", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {-1, NULL, NULL,NULL, NULL, NULL}
 };
 
 struct lanman_desc *
@@ -9976,7 +10046,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
     switch (FunctionCode) {
 
-    case NETSHAREENUM + 10000:
+    case NETSHAREENUM + 10000:   /* Never decode this at the moment ... */
 
       if (check_col(fd, COL_INFO)) {
 
@@ -10197,12 +10267,15 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
       if (tree) {
 
-	int i = 0;
+	int i = 0;  /* Counter for names below */
+	char *name = NULL;
 
 	dissect_transact_engine_init(pd, ParameterDescriptor, ReturnDescriptor,SMB_offset, loc_offset, ParameterCount, DataOffset, DataCount);
 
-	while (dissect_transact_next(pd, (lanman) ? lanman -> params[i++] : NULL, dirn, lanman_tree))
-	  ;
+	if (lanman) name = lanman -> req[i];  /* Must be OK ... */
+
+	while (dissect_transact_next(pd, name, dirn, lanman_tree))
+	  if (name) name = lanman -> req[++i];
       }
 
       break;
@@ -10488,18 +10561,28 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
       default:
 
+	lanman = find_lanman(si.request_val -> last_lanman_cmd);
+
 	if (check_col(fd, COL_INFO)) {
 
-	  col_add_fstr(fd, COL_INFO, "Unknown LANMAN Response: %u", FunctionCode);
-
+	  if (lanman) {
+	    col_add_fstr(fd, COL_INFO, "%s Response", lanman -> lanman_name);
+	  }
+	  else {
+	    col_add_fstr(fd, COL_INFO, "Unknown LANMAN Response: %u", FunctionCode);
+	  }
 	}
 
 	if (tree) {
 
 	  ti = proto_tree_add_item(parent, proto_lanman, SMB_offset + ParameterOffset, END_OF_FRAME, NULL);
 	  lanman_tree = proto_item_add_subtree(ti, ett_lanman);
-	  proto_tree_add_text(lanman_tree, loc_offset, 0, "Function Code: Unknown LANMAN Response: %u", FunctionCode);
-
+	  if (lanman) {
+	    proto_tree_add_text(lanman_tree, 0, 0, "%s Response", lanman -> lanman_name);
+	  }
+	  else {
+	    proto_tree_add_text(lanman_tree, loc_offset, 0, "Function Code: Unknown LANMAN Response: %u", FunctionCode);
+	  }
 	}
 
 	loc_offset = SMB_offset + ParameterOffset;
@@ -10523,6 +10606,20 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 	}
 
 	loc_offset += 2;
+
+	if (tree) {
+
+	  int i = 0;
+	  char *name = NULL;
+
+	  dissect_transact_engine_init(pd, si.request_val -> last_param_descrip, si.request_val -> last_data_descrip, SMB_offset, loc_offset, ParameterCount, DataOffset, DataCount);
+
+	  if (lanman) name = lanman -> resp[i];
+	  
+	  while (dissect_transact_next(pd, name, dirn, lanman_tree))
+	    if (name) name = lanman -> resp[++i];
+	  
+	}
 
 	break;
 
