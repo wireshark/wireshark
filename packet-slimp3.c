@@ -6,7 +6,7 @@
  * Adds support for the data packet protocol for the SliMP3
  * See www.slimdevices.com for details.
  *
- * $Id: packet-slimp3.c,v 1.9 2003/02/27 05:37:36 guy Exp $
+ * $Id: packet-slimp3.c,v 1.10 2003/02/27 05:54:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -345,37 +345,44 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case SLIMP3_DISPLAY:
 	if (tree) {
-	    int in_str;
+	    gboolean in_str;
+	    int str_len;
 
 	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_display,
 				       tvb, offset, 1, FALSE);
 
 	    /* Loop through the commands */
 	    i1 = 18;
-	    in_str = 0;
+	    in_str = FALSE;
+	    str_len = 0;
 	    while (i1 < tvb_reported_length_remaining(tvb, offset)) {
 		switch(tvb_get_guint8(tvb, offset + i1)) {
 		case 0:
-		    in_str = 0;
+		    in_str = FALSE;
+		    str_len = 0;
 		    proto_tree_add_text(slimp3_tree, tvb, offset + i1, 2,
 					"Delay (%d ms)", tvb_get_guint8(tvb, offset + i1 + 1));
 		    i1 += 2;
 		    break;
 		case 3:
 		    if (ti && in_str) {
+		    	str_len += 2;
 			proto_item_append_text(ti, "%c",
 					       tvb_get_guint8(tvb, offset + i1 + 1));
+			proto_item_set_len(ti, str_len);
 		    } else {
 			ti = proto_tree_add_text(slimp3_tree, tvb, offset + i1, 2,
 						 "String: %c",
 						 tvb_get_guint8(tvb, offset + i1 + 1));
-			in_str = 1;
+			in_str = TRUE;
+			str_len = 2;
 		    }
 		    i1 += 2;
 		    break;
 
 		case 2:
-		    in_str = 0;
+		    in_str = FALSE;
+		    str_len = 0;
 		    ti = proto_tree_add_text(slimp3_tree, tvb, offset + i1, 2,
 					     "Command: %s",
 					     val_to_str(tvb_get_guint8(tvb, offset + i1 + 1),
@@ -386,7 +393,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					       val_to_str(tvb_get_guint8(tvb, offset + i1 + 2),
 							  slimp3_display_fset8,
 							  "Unknown (0x%0x)"));
-			i1 += 2 ;
+			i1 += 2;
 		    }
 		    i1 += 2;
 		    break;
