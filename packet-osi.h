@@ -1,6 +1,6 @@
 /* packet-osi.h
  *
- * $Id: packet-osi.h,v 1.2 2000/04/15 22:11:12 guy Exp $
+ * $Id: packet-osi.h,v 1.3 2000/06/19 04:49:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -65,14 +65,14 @@
 
 
 
-#define PROTO_STRING_ISIS "ISO 10598 ISIS InTRA Domain Routeing Information Exchange Protocol" 
+#define PROTO_STRING_ISIS "ISO 10589 ISIS InTRA Domain Routeing Information Exchange Protocol" 
 #define PROTO_STRING_IDRP "ISO 10747 IDRP InTER Domain Routeing Information Exchange Protocol" 
 #define PROTO_STRING_ESIS "ISO 9542 ESIS Routeing Information Exchange Protocol"
 #define PROTO_STRING_CLNP "ISO 8473 CLNP ConnectionLess Network Protocol" 
 #define PROTO_STRING_COTP "ISO 8073 COTP Connection-Oriented Transport Protocol"
-#define PROTO_STRING_LSP  "ISO 10598 ISIS Link State Protocol Data Unit"
-#define PROTO_STRING_CSNP "ISO 10598 ISIS Complete Sequence Numbers Protocol Data Unit"
-#define PROTO_STRING_PSNP "ISO 10598 ISIS Partial Sequence Numbers Protocol Data Unit"
+#define PROTO_STRING_LSP  "ISO 10589 ISIS Link State Protocol Data Unit"
+#define PROTO_STRING_CSNP "ISO 10589 ISIS Complete Sequence Numbers Protocol Data Unit"
+#define PROTO_STRING_PSNP "ISO 10589 ISIS Partial Sequence Numbers Protocol Data Unit"
 
 #define OSI_PDU_TYPE_MASK 0x1f
 #define BIS_PDU_TYPE MASK 0xff
