@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.31 2002/04/17 11:32:24 tpot Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.32 2002/04/18 00:29:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4664,13 +4664,6 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
         {0, NULL, NULL,  NULL },
 };
 
-static void samr_init(void)
-{
-	/* Initialise DCERPC/SMB data structures */
-
-	dcerpc_smb_init();
-}
-
 void 
 proto_register_dcerpc_samr(void)
 {
@@ -5042,8 +5035,6 @@ proto_register_dcerpc_samr(void)
 
         proto_register_field_array (proto_dcerpc_samr, hf, array_length (hf));
         proto_register_subtree_array(ett, array_length(ett));
-
-	register_init_routine(samr_init);
 }
 
 void

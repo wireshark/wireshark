@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.20 2002/04/17 10:29:09 sahlberg Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.21 2002/04/18 00:29:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +25,11 @@
 
 #ifndef __PACKET_DCERPC_NT_H
 #define __PACKET_DCEPRC_NT_H
+
+/*
+ * ett_ value for Unicode strings.
+ */
+extern gint ett_nt_unicode_string;
 
 /* Routines for parsing simple types */
 
@@ -142,9 +147,6 @@ dcerpc_smb_store_pol(const guint8 *policy_hnd, char *name, int open_frame,
 void 
 dcerpc_smb_check_long_frame(tvbuff_t *tvb, int offset, 
 			    packet_info *pinfo, proto_tree *tree);
-
-void 
-dcerpc_smb_init(void);
 
 /* Dissect NT specific things */
 

@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.16 2002/04/09 04:41:40 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.17 2002/04/18 00:29:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3064,13 +3064,6 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
  * Dissector initialisation function
  */
 
-static void spoolss_init(void)
-{
-	/* Initialise DCERPC/SMB data structures */
-
-	dcerpc_smb_init();
-}
-
 /* Protocol registration */
 
 static int proto_dcerpc_spoolss = -1;
@@ -3110,8 +3103,6 @@ proto_register_dcerpc_spoolss(void)
                 "Microsoft Spool Subsystem", "SPOOLSS", "spoolss");
 
         proto_register_subtree_array(ett, array_length(ett));
-
-	register_init_routine(spoolss_init);
 }
 
 /* Protocol handoff */

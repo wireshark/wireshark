@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.26 2002/04/17 07:52:26 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.27 2002/04/18 00:29:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -861,28 +861,33 @@ static void init_pol_hash(void)
  * Initialise global DCERPC/SMB data structures
  */
 
-void dcerpc_smb_init(void)
+static void dcerpc_smb_init(void)
 {
-	static gboolean done_init;
+	/* Initialise policy handle hash */
 
+	init_pol_hash();
+}
+
+/*
+ * Register ett_ values, and register "dcerpc_smb_init()" as an
+ * initialisation routine.
+ */
+void proto_register_dcerpc_smb(void)
+{
 	static gint *ett[] = {
 		&ett_nt_unicode_string,
 		&ett_nt_policy_hnd,
 	};
 
 
-	if (done_init)
-		return;
-
-	/* Initialise policy handle hash */
-
-	init_pol_hash();
-
 	/* Register ett's */
 
 	proto_register_subtree_array(ett, array_length(ett));
 
-	done_init = TRUE;
+        /* Register a routine to be called whenever initialisation
+           is done. */
+
+        register_init_routine(dcerpc_smb_init);
 }
 
 /* Check if there is unparsed data remaining in a frame and display an
