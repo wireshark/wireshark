@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.523 2002/12/03 01:44:22 jmayer Exp $
+# $Id: Makefile.am,v 1.524 2002/12/07 21:43:27 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -1070,6 +1070,7 @@ EXTRA_DIST = \
 	make-manuf		\
 	make-reg-dotc		\
 	make-reg-dotc.py	\
+	make-tapreg-dotc		\
 	manuf                   \
 	manuf.tmpl		\
 	mergecap.c		\
