@@ -8,7 +8,7 @@
  * "Always try subdissection of 1st fragment" preference,
  * provided by Olivier Biot.
  *
- * $id: $
+ * $Id: packet-gsm_sms_ud.c,v 1.3 2004/01/27 00:30:46 obiot Exp $
  *
  * Note on SMS Message reassembly
  * ------------------------------
