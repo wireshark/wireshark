@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.34 2003/12/22 07:57:43 ulfl Exp $
+; $Id: ethereal.nsi,v 1.35 2003/12/22 21:41:40 ulfl Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -71,19 +71,25 @@ SetShellVarContext all
 
 SetOutPath $INSTDIR
 File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll"
-File "${COMMON_FILES_GNU}\iconv.dll"
-File "${COMMON_FILES_GNU}\libglib-2.0-0.dll"
-File "${COMMON_FILES_GNU}\libgmodule-2.0-0.dll"
-File "${COMMON_FILES_GNU}\libgobject-2.0-0.dll"
-File "${COMMON_FILES_GNU}\intl.dll"
-File "${COMMON_FILES_GNU}\zlib1.dll"
-File "${COMMON_FILES_GNU}\adns_dll.dll"
-File "${COMMON_FILES_GNU}\pcre.dll"
+File "${GLIB_DIR}\bin\libglib-2.0-0.dll"
+File "${GLIB_DIR}\bin\libgmodule-2.0-0.dll"
+File "${GLIB_DIR}\bin\libgobject-2.0-0.dll"
+File "${ICONV_DIR}\bin\iconv.dll"
+File "${GETTEXT_DIR}\bin\intl.dll"
+!ifdef ZLIB_DIR
+File "${ZLIB_DIR}\zlib1.dll"
+!endif
+!ifdef ADNS_DIR
+File "${ADNS_DIR}\adns_win32\LIB\adns_dll.dll"
+!endif
+!ifdef PCRE_DIR
+File "${PCRE_DIR}\bin\pcre.dll"
+File "${PCRE_DIR}\man\cat3\pcrepattern.3.txt"
+!endif
 File "..\..\FAQ"
 File "..\..\README"
 File "..\..\README.win32"
 File "..\..\manuf"
-File "${PCRE_DIR}\man\cat3\pcrepattern.3.txt"
 
 ;
 ; Install the Diameter DTD and XML files in the "diameter" subdirectory
@@ -117,8 +123,8 @@ File "..\..\ethereal.exe"
 File "..\..\doc\ethereal.html"
 File "..\..\doc\ethereal-filter.html"
 !ifndef GTK2
-File "${COMMON_FILES_GNU}\libgtk-0.dll"
-File "${COMMON_FILES_GNU}\libgdk-0.dll"
+File "${GTK_DIR}\lib\libgtk-0.dll"
+File "${GTK_DIR}\lib\libgdk-0.dll"
 !else
 File "${GTK_DIR}\bin\libgdk-win32-2.0-0.dll"
 File "${GTK_DIR}\bin\libgdk_pixbuf-2.0-0.dll"
