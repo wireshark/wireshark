@@ -4,10 +4,10 @@
  * expression, testing a particular field; display the tree of fields
  * and the relations and values with which it can be compared.
  *
- * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
+ * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.23 2001/08/21 06:39:18 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.24 2002/01/11 06:43:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,9 +57,7 @@
 # include "snprintf.h"
 #endif
 
-#include "prefs.h"
 #include "globals.h"
-#include "gtkglobals.h"
 #include "main.h"
 #include "ui_util.h"
 #include "simple_dialog.h"
@@ -974,8 +972,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 	gtk_box_pack_start(GTK_BOX(col1_vb), tree_scrolled_win, FALSE, FALSE, 0);
 	gtk_widget_show(tree_scrolled_win);
 
-	tree = gtk_ctree_new(1, 0);
-	gtk_ctree_set_line_style(GTK_CTREE(tree), GTK_CTREE_LINES_NONE);
+	tree = ctree_new(1, 0);
 	gtk_signal_connect(GTK_OBJECT(tree), "tree-select-row",
 			     GTK_SIGNAL_FUNC(field_select_row_cb), tree);
 	gtk_container_add(GTK_CONTAINER(tree_scrolled_win), tree);

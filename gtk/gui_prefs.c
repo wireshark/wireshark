@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.28 2002/01/10 07:43:39 guy Exp $
+ * $Id: gui_prefs.c,v 1.29 2002/01/11 06:43:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -172,14 +172,14 @@ gui_prefs_show(void)
 	    "Protocol tree mouse behavior:", selection_mode_vals,
 	    prefs.gui_ptree_sel_browse);
 
-	/* Proto tree line style */
+	/* Tree line style */
 	create_option_menu(main_vb, PTREE_LINE_STYLE_KEY, main_tb, 3,
-	    "Protocol tree line style:", line_style_vals,
+	    "Tree line style:", line_style_vals,
 	    prefs.gui_ptree_line_style);
 
-	/* Proto tree expander style */
+	/* Tree expander style */
 	create_option_menu(main_vb, PTREE_EXPANDER_STYLE_KEY, main_tb, 4,
-	    "Protocol tree expander style:", expander_style_vals,
+	    "Tree expander style:", expander_style_vals,
 	    prefs.gui_ptree_expander_style);
 
 	/* Hex Dump highlight style */
@@ -517,8 +517,8 @@ gui_prefs_apply(GtkWidget *w)
 	set_scrollbar_placement_all(prefs.gui_scrollbar_on_right);
 	set_plist_sel_browse(prefs.gui_plist_sel_browse);
 	set_ptree_sel_browse_all(prefs.gui_ptree_sel_browse);
-	set_ptree_line_style_all(prefs.gui_ptree_line_style);
-	set_ptree_expander_style_all(prefs.gui_ptree_expander_style);
+	set_ctree_styles_all(prefs.gui_ptree_line_style,
+	    prefs.gui_ptree_expander_style);
 	if (colors_changed)
 		update_marked_frames();
 

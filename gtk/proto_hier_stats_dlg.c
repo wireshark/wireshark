@@ -1,11 +1,10 @@
 /* proto_hier_stats_dlg.c
  *
- * $Id: proto_hier_stats_dlg.c,v 1.7 2001/12/31 20:40:34 gerald Exp $
+ * $Id: proto_hier_stats_dlg.c,v 1.8 2002/01/11 06:43:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -136,10 +135,9 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
 			GTK_POLICY_AUTOMATIC);
 	gtk_container_add(GTK_CONTAINER(container), sw);
 
-	tree = gtk_ctree_new_with_titles(NUM_STAT_COLUMNS, 0, column_titles);
+	tree = ctree_new_with_titles(NUM_STAT_COLUMNS, 0, column_titles);
 
 	/* XXX - get 'pos' to set vertical scroll-bar placement. */
-	/* XXX - set line style from preferences ???. */
 
 	/* The title bars do nothing. */
 	gtk_clist_column_titles_passive(GTK_CLIST(tree));

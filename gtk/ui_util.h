@@ -1,12 +1,11 @@
 /* ui_util.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h,v 1.2 2001/12/12 21:38:59 gerald Exp $
+ * $Id: ui_util.h,v 1.3 2002/01/11 06:43:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,5 +34,24 @@ void reactivate_window(GtkWidget *);
 
 /* Set the window icon to the 16x16 3D icon. */
 void window_icon_realize_cb (GtkWidget *, gpointer);
+
+/* Add a scrolled window to the list of scrolled windows. */
+void remember_scrolled_window(GtkWidget *);
+
+/* Set the scrollbar placement of a scrolled window based upon pos value:
+   0 = left, 1 = right */
+void set_scrollbar_placement_scrollw(GtkWidget *, int); /* 0=left, 1=right */
+
+/* Set the scrollbar placement of all scrolled windows based on pos value:
+   0 = left, 1 = right */
+void set_scrollbar_placement_all(int); /* 1=right, 0=left */
+
+/* Create a GtkCTree, give it the right styles, and remember it. */
+GtkWidget *ctree_new(gint columns, gint tree_column);
+GtkWidget *ctree_new_with_titles(gint columns, gint tree_column,
+				 gchar *titles[]);
+
+/* Set the styles of all GtkCTrees based upon style values. */
+void set_ctree_styles_all(gint, gint);
 
 #endif /* __GTKGUIUI_UTIL_H__ */

@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.42 2001/12/18 19:09:08 gram Exp $
+ * $Id: proto_draw.c,v 1.43 2002/01/11 06:43:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,7 @@
 #include "prefs.h"
 #include "proto_draw.h"
 #include "packet_win.h"
+#include "ui_util.h"
 #include "gtkglobals.h"
 
 
@@ -717,7 +718,7 @@ packet_hex_reprint(GtkText *bv){
 
 
 /* List of all protocol tree widgets, so we can globally set the selection
-   mode, line style, expander style, and font of all of them. */
+   mode and font of all of them. */
 static GList *ptree_widgets;
 
 /* Add a protocol tree widget to the list of protocol tree widgets. */
@@ -771,55 +772,6 @@ set_ptree_sel_browse_all(gboolean val)
 	g_list_foreach(ptree_widgets, set_ptree_sel_browse_cb, &val);
 }
 
-/* Set the line style of a given packet tree window. */
-static void
-set_ptree_line_style(GtkWidget *ptreew, gint style)
-{
-	/* I'm using an assert here since the preferences code limits
-	 * the user input, both in the GUI and when reading the preferences file.
-	 * If the value is incorrect, it's a program error, not a user-initiated error.
-	 */
-	g_assert(style >= GTK_CTREE_LINES_NONE && style <= GTK_CTREE_LINES_TABBED);
-	gtk_ctree_set_line_style(GTK_CTREE(ptreew), style);
-}
-
-static void
-set_ptree_line_style_cb(gpointer data, gpointer user_data)
-{
-	set_ptree_line_style((GtkWidget *)data, *(gint *)user_data);
-}
-
-/* Set the line style of all packet tree window. */
-void
-set_ptree_line_style_all(gint style)
-{
-	g_list_foreach(ptree_widgets, set_ptree_line_style_cb, &style);
-}
-
-/* Set the expander style of a given packet tree window. */
-static void
-set_ptree_expander_style(GtkWidget *ptreew, gint style)
-{
-	/* I'm using an assert here since the preferences code limits
-	 * the user input, both in the GUI and when reading the preferences file.
-	 * If the value is incorrect, it's a program error, not a user-initiated error.
-	 */
-	g_assert(style >= GTK_CTREE_EXPANDER_NONE && style <= GTK_CTREE_EXPANDER_CIRCULAR);
-	gtk_ctree_set_expander_style(GTK_CTREE(ptreew), style);
-}
-
-static void
-set_ptree_expander_style_cb(gpointer data, gpointer user_data)
-{
-	set_ptree_expander_style((GtkWidget *)data, *(gint *)user_data);
-}
-	
-void
-set_ptree_expander_style_all(gint style)
-{
-	g_list_foreach(ptree_widgets, set_ptree_expander_style_cb, &style);
-}
-
 static void
 set_ptree_style_cb(gpointer data, gpointer user_data)
 {
@@ -859,7 +811,7 @@ create_tree_view(gint tv_size, e_prefs *prefs, GtkWidget *pane,
   gtk_widget_set_usize(tv_scrollw, -1, tv_size);
   gtk_widget_show(tv_scrollw);
   
-  tree_view = gtk_ctree_new(1, 0);
+  tree_view = ctree_new(1, 0);
   gtk_signal_connect( GTK_OBJECT(tree_view), "key-press-event",
 		      (GtkSignalFunc) toggle_tree, NULL );
   gtk_signal_connect( GTK_OBJECT(tree_view), "tree-expand",
@@ -871,8 +823,6 @@ create_tree_view(gint tv_size, e_prefs *prefs, GtkWidget *pane,
   gtk_clist_set_column_auto_resize( GTK_CLIST(tree_view), 0, TRUE );
   gtk_container_add( GTK_CONTAINER(tv_scrollw), tree_view );
   set_ptree_sel_browse(tree_view, prefs->gui_ptree_sel_browse);
-  set_ptree_line_style(tree_view, prefs->gui_ptree_line_style);
-  set_ptree_expander_style(tree_view, prefs->gui_ptree_expander_style);
   gtk_widget_set_style(tree_view, item_style);
   remember_ptree_widget(tree_view);
 

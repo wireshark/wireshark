@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.35 2002/01/10 07:43:39 guy Exp $
+ * $Id: prefs_dlg.c,v 1.36 2002/01/11 06:43:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,7 +48,6 @@
 #include <epan/filesystem.h>
 
 #include "main.h"
-#include "gtkglobals.h"
 #include "packet.h"
 #include "file.h"
 #include "prefs.h"
@@ -318,18 +317,9 @@ prefs_cb(GtkWidget *w, gpointer dummy) {
   gtk_container_add(GTK_CONTAINER(top_hb), ct_sb);
   gtk_widget_show(ct_sb);
 
-  cts.ctree = gtk_ctree_new(1, 0);
+  cts.ctree = ctree_new(1, 0);
   cts.page  = 0;
   gtk_container_add(GTK_CONTAINER(ct_sb), cts.ctree);
-
-  /* Be consistent with our line/expander styles */
-  g_assert(prefs.gui_ptree_line_style >= GTK_CTREE_LINES_NONE &&
-  	prefs.gui_ptree_line_style <= GTK_CTREE_LINES_TABBED);
-  gtk_ctree_set_line_style(GTK_CTREE(cts.ctree), prefs.gui_ptree_line_style);
-  g_assert(prefs.gui_ptree_expander_style >= GTK_CTREE_EXPANDER_NONE &&
-  	prefs.gui_ptree_expander_style <= GTK_CTREE_EXPANDER_CIRCULAR);
-  gtk_ctree_set_expander_style(GTK_CTREE(cts.ctree),
-  	prefs.gui_ptree_expander_style);
 
   gtk_clist_set_column_auto_resize(GTK_CLIST(cts.ctree), 0, TRUE);
   gtk_signal_connect(GTK_OBJECT(cts.ctree), "tree-select-row",

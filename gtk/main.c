@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.225 2002/01/10 11:05:50 guy Exp $
+ * $Id: main.c,v 1.226 2002/01/11 06:43:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -575,60 +575,6 @@ void resolve_name_cb(GtkWidget *widget, gpointer data) {
     proto_tree_draw(cfile.edt->tree, tree_view);
     prefs.name_resolve = tmp;
   }
-}
-
-/* Set the scrollbar placement of a scrolled window based upon pos value:
-   0 = left, 1 = right */
-void
-set_scrollbar_placement_scrollw(GtkWidget *scrollw, int pos) /* 0=left, 1=right */
-{
-	if (pos) {
-		gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scrollw),
-				GTK_CORNER_TOP_LEFT);
-	} else {
-		gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scrollw),
-				GTK_CORNER_TOP_RIGHT);
-	}
-}
-
-/* List of all scrolled windows, so we can globally set the scrollbar
-   placement of them. */
-static GList *scrolled_windows;
-
-/* Add a scrolled window to the list of scrolled windows. */
-static void forget_scrolled_window(GtkWidget *scrollw, gpointer data);
-
-void
-remember_scrolled_window(GtkWidget *scrollw)
-{
-  scrolled_windows = g_list_append(scrolled_windows, scrollw);
-
-  /* Catch the "destroy" event on the widget, so that we remove it from
-     the list when it's destroyed. */
-  gtk_signal_connect(GTK_OBJECT(scrollw), "destroy",
-		     GTK_SIGNAL_FUNC(forget_scrolled_window), NULL);
-}
-
-/* Remove a scrolled window from the list of scrolled windows. */
-static void
-forget_scrolled_window(GtkWidget *scrollw, gpointer data)
-{
-  scrolled_windows = g_list_remove(scrolled_windows, scrollw);
-}
-
-static void
-set_scrollbar_placement_cb(gpointer data, gpointer user_data)
-{
-	set_scrollbar_placement_scrollw((GtkWidget *)data,
-	    *(int *)user_data);
-}
-
-/* Set the scrollbar placement of all scrolled windows based on pos value:
-   0 = left, 1 = right */
-void
-set_scrollbar_placement_all(int pos)
-{
-	g_list_foreach(scrolled_windows, set_scrollbar_placement_cb, &pos);
 }
 
 /* Set the selection mode of the packet list window. */

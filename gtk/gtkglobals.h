@@ -1,7 +1,7 @@
 /* gtkglobals.h
  * GTK-related Global defines, etc.
  *
- * $Id: gtkglobals.h,v 1.16 2001/06/05 07:38:37 guy Exp $
+ * $Id: gtkglobals.h,v 1.17 2002/01/11 06:43:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,10 +34,6 @@ extern GdkFont     *m_r_font, *m_b_font;
 extern guint m_font_height, m_font_width;
 
 extern GtkStyle *item_style;
-void set_scrollbar_placement_scrollw(GtkWidget *, int); /* 0=left, 1=right */
-void set_scrollbar_placement_all(int); /* 1=right, 0=left */
-void remember_scrolled_window(GtkWidget *);
-
 
 void set_plist_sel_browse(gboolean);
 void set_plist_font(GdkFont *font);
@@ -61,6 +57,5 @@ void set_plist_font(GdkFont *font);
 #undef isprint
 #define isprint(c) (c >= 0x20 && c <= 0x7f)
 #endif
-
 
 #endif
