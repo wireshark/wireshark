@@ -1795,7 +1795,6 @@ static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
         ++m, *offsetp += keycodes_per_modifier) {
 	    const guint8 *p;
 	    proto_item *tikc;
-	    char *sep = ": ";
 	    int i;
 
 	    p = tvb_get_ptr(tvb, *offsetp, keycodes_per_modifier);
@@ -1803,15 +1802,12 @@ static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 	        g_malloc(sizeof(*modifiermap[m]) * keycodes_per_modifier);
 
 	    tikc = proto_tree_add_bytes_format(tt, hf_x11_keycodes_item, tvb,
-	        *offsetp, keycodes_per_modifier, p,
-	        "Keycode list for %s", modifiers[m]);
+	        *offsetp, keycodes_per_modifier, p, "item: ");
 	    for(i = 0; i < keycodes_per_modifier; ++i) {
 		guchar c = p[i];
 
-		if (c) {
-		    proto_item_append_text(tikc, "%s%u", sep, c);
-		    sep = ", ";
-		}
+		if (c)
+		    proto_item_append_text(tikc, " %s=%d", modifiers[m], c);
 
 		modifiermap[m][i] = c;
 	    }
