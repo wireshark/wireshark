@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.175 2002/06/04 11:19:59 guy Exp $
+ * $Id: capture.c,v 1.176 2002/06/04 22:15:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -113,11 +113,11 @@
  * XXX - the various BSDs appear to define BSD in <sys/param.h>; we don't
  * want to include it if it's not present on this platform, however.
  */
-#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__)
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__) || defined(__APPLE__)
 #ifndef BSD
 #define BSD
 #endif /* BSD */
-#endif /* defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__) */
+#endif /* defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__) || defined(__APPLE__) */
 
 /*
  * We don't want to do a "select()" on the pcap_t's file descriptor on
