@@ -1047,7 +1047,7 @@ dissect_IPNIO_Write_resp(tvbuff_t *tvb, int offset,
 /* dissect the IOxS (IOCS, IOPS) field */
 static int
 dissect_PNIO_IOxS(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+	packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_)
 {
     guint8 u8IOxS;
     proto_item *ioxs_item = NULL;
