@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.63 2001/02/20 07:17:20 itojun Exp $
+ * $Id: packet-dns.c,v 1.64 2001/02/20 16:25:52 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2149,6 +2149,72 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
 		     name, type_name, class_name, dname);
 	proto_tree_add_text(rr_tree, NullTVB, cur_offset, dname_len, "Name result domain: %s",
 			dname);
+      }
+    }
+    break;
+
+  case T_SRV:
+    {
+      guint16 priority = 0;
+      guint16 weight = 0;
+      guint16 port = 0;
+      char target[MAXDNAME];
+      int target_len;
+      
+      if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+	    /* We ran past the end of the captured data in the packet. */
+      	if (dns_tree != NULL) {
+	      proto_item_set_text(trr,
+		       "%s: type %s, class %s, <priority goes past end of captured data in packet>",
+		       name, type_name, class_name);
+	    }
+	    return 0;
+      }
+      priority = pntohs(&pd[cur_offset]);
+
+      if (!BYTES_ARE_IN_FRAME(cur_offset+2, 2)) {
+	    /* We ran past the end of the captured data in the packet. */
+      	if (dns_tree != NULL) {
+	      proto_item_set_text(trr,
+		       "%s: type %s, class %s, priority %u, <weight goes past end of captured data in packet>",
+		       name, type_name, class_name, priority);
+	    }
+	    return 0;
+      }
+      weight = pntohs(&pd[cur_offset+2]);
+
+      if (!BYTES_ARE_IN_FRAME(cur_offset+4, 2)) {
+	    /* We ran past the end of the captured data in the packet. */
+      	if (dns_tree != NULL) {
+	      proto_item_set_text(trr,
+		       "%s: type %s, class %s, priority %u, weight %u, <port goes past end of captured data in packet>",
+		       name, type_name, class_name, priority, weight);
+	    }
+	    return 0;
+      }
+      port = pntohs(&pd[cur_offset+4]);
+
+      target_len = get_dns_name(pd, cur_offset + 6, dns_data_offset, target, sizeof(target));
+      if (target_len < 0) {
+	    /* We ran past the end of the captured data in the packet. */
+      	if (dns_tree != NULL) {
+	      proto_item_set_text(trr,
+		       "%s: type %s, class %s, priority %u, weight %u, port %u, <target goes past end of captured data in packet>",
+		       name, type_name, class_name, priority, weight, port);
+	    }
+	    return 0;
+      }
+      if (fd != NULL)
+	col_append_fstr(fd, COL_INFO, " %u %u %u %s", priority, weight, port, target);
+      if (dns_tree != NULL) {
+	proto_item_set_text(trr,
+		       "%s: type %s, class %s, priority %u, weight %u, port %u, target %s",
+		       name, type_name, class_name, priority, weight, port, target);
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, 2, "Priority: %u", priority);
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset + 2, 2, "Weight: %u", weight);
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset + 4, 2, "Port: %u", port);
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset + 6, target_len, "Target: %s",
+			target);
       }
     }
     break;
