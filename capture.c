@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.174 2002/05/04 09:11:28 guy Exp $
+ * $Id: capture.c,v 1.175 2002/06/04 11:19:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -204,6 +204,7 @@ static void capture_stop_cb(GtkWidget *, gpointer);
 static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
   const u_char *);
 static void get_capture_file_io_error(char *, int, const char *, int, gboolean);
+static void popup_errmsg(const char *);
 static void send_errmsg_to_parent(const char *);
 static float pct(gint, gint);
 static void stop_capture(int signo);
@@ -822,7 +823,7 @@ cap_file_input_cb(gpointer data, gint source _U_,
         msglen -= chars_to_copy;
       }
       *r = '\0';
-      simple_dialog(ESD_TYPE_WARN, NULL, msg);
+      simple_dialog(ESD_TYPE_CRIT, NULL, msg);
       g_free(msg);
       break;
     default :
@@ -1285,6 +1286,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 #ifndef _WIN32
   static const char ppamsg[] = "can't find PPA for ";
   char       *libpcap_warn;
+  int         sel_ret;
 #endif
   fd_set      set1;
   struct timeval timeout;
@@ -1437,7 +1439,10 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 	  "you have the proper interface or pipe specified.%s", open_err_str,
 	  libpcap_warn);
       goto error;
-    }
+    } else
+      /* pipe_open_live() succeeded; don't want
+         error message from pcap_open_live() */
+      open_err_str[0] = '\0';
 #endif
   }
 
@@ -1636,7 +1641,8 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
       FD_SET(pipe_fd, &set1);
       timeout.tv_sec = 0;
       timeout.tv_usec = CAP_READ_TIMEOUT*1000;
-      if (select(pipe_fd+1, &set1, NULL, NULL, &timeout) != 0) {
+      sel_ret = select(pipe_fd+1, &set1, NULL, NULL, &timeout);
+      if (sel_ret > 0) {
 	/*
 	 * "select()" says we can read from the pipe without blocking; go for
 	 * it. We are not sure we can read a whole record, but at least the
@@ -1644,8 +1650,15 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 	 * record.
 	 */
 	inpkts = pipe_dispatch(pipe_fd, &ld, &hdr);
-      } else
+      } else {
 	inpkts = 0;
+        if (sel_ret < 0 && errno != EINTR) {
+          snprintf(errmsg, sizeof(errmsg),
+            "Unexpected error from select: %s", strerror(errno));
+          popup_errmsg(errmsg);
+          ld.go = FALSE;
+        }
+      }
     }
     else
 #endif
@@ -1682,7 +1695,8 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
       FD_SET(pcap_fd, &set1);
       timeout.tv_sec = 0;
       timeout.tv_usec = CAP_READ_TIMEOUT*1000;
-      if (select(pcap_fd+1, &set1, NULL, NULL, &timeout) != 0) {
+      sel_ret = select(pcap_fd+1, &set1, NULL, NULL, &timeout);
+      if (sel_ret > 0) {
 	/*
 	 * "select()" says we can read from it without blocking; go for
 	 * it.
@@ -1692,8 +1706,15 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 	  ld.pcap_err = TRUE;
 	  ld.go = FALSE;
 	}
-      } else
-	inpkts = 0;
+      } else {
+        inpkts = 0;
+        if (sel_ret < 0 && errno != EINTR) {
+          snprintf(errmsg, sizeof(errmsg),
+            "Unexpected error from select: %s", strerror(errno));
+          popup_errmsg(errmsg);
+          ld.go = FALSE;
+        }
+      }
 #else
       inpkts = pcap_dispatch(pch, 1, capture_pcap_cb, (u_char *) &ld);
       if (inpkts < 0) {
@@ -1766,29 +1787,13 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   if (ld.pcap_err) {
     snprintf(errmsg, sizeof(errmsg), "Error while capturing packets: %s",
       pcap_geterr(pch));
-    if (capture_child) {
-      /* Tell the parent, so that they can pop up the message;
-         we're going to exit, so if we try to pop it up, either
-         it won't pop up or it'll disappear as soon as we exit. */
-      send_errmsg_to_parent(errmsg);
-    } else {
-     /* Just pop up the message ourselves. */
-     simple_dialog(ESD_TYPE_WARN, NULL, "%s", errmsg);
-    }
+    popup_errmsg(errmsg);
   }
 
   if (ld.err != 0) {
     get_capture_file_io_error(errmsg, sizeof(errmsg), cfile.save_file, ld.err,
 			      FALSE);
-    if (capture_child) {
-      /* Tell the parent, so that they can pop up the message;
-         we're going to exit, so if we try to pop it up, either
-         it won't pop up or it'll disappear as soon as we exit. */
-      send_errmsg_to_parent(errmsg);
-    } else {
-     /* Just pop up the message ourselves. */
-     simple_dialog(ESD_TYPE_WARN, NULL, "%s", errmsg);
-    }
+    popup_errmsg(errmsg);
 
     /* A write failed, so we've already told the user there's a problem;
        if the close fails, there's no point in telling them about that
@@ -1807,15 +1812,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     if (!dump_ok) {
       get_capture_file_io_error(errmsg, sizeof(errmsg), cfile.save_file, err,
 				TRUE);
-      if (capture_child) {
-        /* Tell the parent, so that they can pop up the message;
-           we're going to exit, so if we try to pop it up, either
-           it won't pop up or it'll disappear as soon as we exit. */
-        send_errmsg_to_parent(errmsg);
-      } else {
-       /* Just pop up the message ourselves. */
-       simple_dialog(ESD_TYPE_WARN, NULL, "%s", errmsg);
-      }
+      popup_errmsg(errmsg);
     }
   }
 #ifndef _WIN32
@@ -1838,15 +1835,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
       snprintf(errmsg, sizeof(errmsg),
 		"Can't get packet-drop statistics: %s",
 		pcap_geterr(pch));
-      if (capture_child) {
-        /* Tell the parent, so that they can pop up the message;
-           we're going to exit, so if we try to pop it up, either
-           it won't pop up or it'll disappear as soon as we exit. */
-        send_errmsg_to_parent(errmsg);
-      } else {
-       /* Just pop up the message ourselves. */
-       simple_dialog(ESD_TYPE_WARN, NULL, "%s", errmsg);
-      }
+      popup_errmsg(errmsg);
     }
     pcap_close(pch);
   }
@@ -1876,15 +1865,7 @@ error:
     g_free(cfile.save_file);
   }
   cfile.save_file = NULL;
-  if (capture_child) {
-    /* This is the child process for a sync mode capture.
-       Send the error message to our parent, so they can display a
-       dialog box containing it. */
-    send_errmsg_to_parent(errmsg);
-  } else {
-    /* Display the dialog box ourselves; there's no parent. */
-    simple_dialog(ESD_TYPE_CRIT, NULL, "%s", errmsg);
-  }
+  popup_errmsg(errmsg);
   if (pch != NULL && !ld.from_pipe)
     pcap_close(pch);
 
@@ -1946,6 +1927,20 @@ get_capture_file_io_error(char *errmsg, int errmsglen, const char *fname,
 		fname, wtap_strerror(err));
     }
     break;
+  }
+}
+
+static void
+popup_errmsg(const char *errmsg)
+{
+  if (capture_child) {
+    /* This is the child process for a sync mode capture.
+       Send the error message to our parent, so they can display a
+       dialog box containing it. */
+    send_errmsg_to_parent(errmsg);
+  } else {
+    /* Display the dialog box ourselves; there's no parent. */
+    simple_dialog(ESD_TYPE_CRIT, NULL, "%s", errmsg);
   }
 }
 
