@@ -2,10 +2,10 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.8 2001/08/04 10:17:24 guy Exp $
+ * $Id: smb.h,v 1.9 2001/08/05 00:16:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998, 1999 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -638,10 +638,11 @@ struct smb_request_val {
 };
 
 struct smb_info {
-  int tid, uid, mid, pid;   /* Any more?  */
+  int tid, uid, mid, pid;	/* Any more? */
   conversation_t *conversation;
   struct smb_request_val *request_val;
-  int unicode;
+  gboolean unicode;		/* Are strings in this SMB Unicode? */
+  gboolean request;		/* Is this a request? */
 };
 
 #endif

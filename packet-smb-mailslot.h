@@ -2,10 +2,10 @@
  * Declaration of routines for SMB mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.h,v 1.1 2001/03/18 03:23:30 guy Exp $
+ * $Id: packet-smb-mailslot.h,v 1.2 2001/08/05 00:16:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  * 
  * This program is free software; you can redistribute it and/or
@@ -26,5 +26,5 @@
 gboolean
 dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data,
-	int SMB_offset, int errcode, int dirn, const u_char *command,
+	int SMB_offset, int errcode, const u_char *command,
 	int DataOffset, int DataCount, int ParameterOffset, int ParameterCount);

@@ -2,7 +2,7 @@
  * Routines for SMB named pipe packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.c,v 1.22 2001/08/01 03:51:16 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.23 2001/08/05 00:16:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -288,7 +288,7 @@ static int get_byte_count(const u_char *p_data)
 /* We display the parameters first, then the data, then any auxilliary data */
 
 static int
-dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tree)
+dissect_transact_next(const u_char *pd, char *Name, gboolean request, proto_tree *tree)
 {
   /*  guint8        BParam; */
   guint16       WParam = 0;
@@ -308,7 +308,7 @@ dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tree)
 
       case 'r':
 
-	if (dirn == 0) { /* We need to process the data ... */
+	if (!request) { /* We need to process the data ... */
 	  
 	  need_data = 1;
 
@@ -318,7 +318,7 @@ dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tree)
 
       case 'h':  /* A WORD parameter received */
 
-	if (dirn == 0) {
+	if (!request) {
 
 	  WParam = GSHORT(pd, pd_p_current);
 
@@ -336,7 +336,7 @@ dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tree)
 
       case 'e':  /* An ent count ..  */
 
-	if (dirn == 0) { /* Only relevant in a response */
+	if (!request) { /* Only relevant in a response */
 
 	  WParam = GSHORT(pd, pd_p_current);
 
@@ -354,7 +354,7 @@ dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tree)
 
       case 'W':  /* Word Parameter */
 
-	if (dirn == 1) {  /* A request ... */
+	if (request) {  /* A request ... */
 	
 	  /* Insert a word param */
 
@@ -372,7 +372,7 @@ dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tree)
 
       case 'i':  /* A long word is returned */
 
-	if (dirn == 0) {
+	if (!request) {
 
 	  LParam = GWORD(pd, pd_p_current);
 
@@ -388,7 +388,7 @@ dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tree)
 
       case 'D':  /* Double Word parameter */
 
-	if (dirn == 1) {
+	if (request) {
 
 	  LParam = GWORD(pd, pd_p_current);
 
@@ -404,7 +404,7 @@ dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tree)
 
       case 'g':  /* A byte or series of bytes is returned */
 
-	if (dirn == 0) {
+	if (!request) {
  
 	  bc = get_byte_count(p_desc + p_offset);
 
@@ -420,7 +420,7 @@ dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tree)
 
       case 'b':  /* A byte or series of bytes */
 
-	if (dirn == 1) {
+	if (request) {
 
 	  bc = get_byte_count(p_desc + p_offset);  /* This is not clean */
 
@@ -438,7 +438,7 @@ dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tree)
 
       case 'O': /* A null pointer */
 
-	if (dirn == 1) {
+	if (request) {
 
 	  proto_tree_add_text(tree, NullTVB, pd_p_current, 0, "%s: Null Pointer", (Name) ? Name : "Unknown");
 
@@ -450,7 +450,7 @@ dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tree)
 
       case 'z': /* An AsciiZ string */
 
-	if (dirn == 1) {
+	if (request) {
 
 	  AsciiZ = pd + pd_p_current;
 
@@ -466,7 +466,7 @@ dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tree)
 
       case 'F': /* One or more pad bytes */
 
-	if (dirn == 1) {
+	if (request) {
 
 	  bc = get_byte_count(pd);
 
@@ -482,7 +482,7 @@ dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tree)
 
       case 'L': /* Receive buffer len: Short */
 
-	if (dirn == 1) {
+	if (request) {
 
 	  WParam = GSHORT(pd, pd_p_current);
 
@@ -498,7 +498,7 @@ dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tree)
 
       case 's': /* Send buf ... */
 
-	if (dirn == 1) {
+	if (request) {
 
 	  need_data = 1;
 
@@ -516,7 +516,7 @@ dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tree)
 
       case 'T':
 
-	if (dirn == 1) {
+	if (request) {
 
 	  WParam = GSHORT(pd, pd_p_current);
 
@@ -570,11 +570,12 @@ static GMemChunk  *lanman_proto_data;
 
 static gboolean
 dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *parent, proto_tree *tree, struct smb_info si,
-	int max_data, int SMB_offset, int errcode, int dirn,
+	proto_tree *parent, proto_tree *tree,
+	int max_data, int SMB_offset, int errcode,
 	const u_char *command, int DataOffset, int DataCount,
 	int ParameterOffset, int ParameterCount)
 {
+  struct smb_info     *smb_info = pi.private;
   gboolean            is_interim_response;
   guint32             loc_offset;
   guint16             FunctionCode;
@@ -608,11 +609,11 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
   if (check_col(fd, COL_PROTOCOL))
     col_set_str(fd, COL_PROTOCOL, "LANMAN");
 
-  if (dirn == 1) { /* The request side */
+  if (smb_info->request) { /* The request side */
 
     FunctionCode = GSHORT(pd, loc_offset);
 
-    si.request_val -> last_lanman_cmd = FunctionCode;
+    smb_info->request_val -> last_lanman_cmd = FunctionCode;
 
     lanman = find_lanman(FunctionCode);
 
@@ -646,13 +647,13 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
     /* Now, save these for later */
 
-    si.request_val -> trans_response_seen = 0; 
+    smb_info->request_val -> trans_response_seen = 0; 
 
-    if (si.request_val -> last_param_descrip)
-      g_free(si.request_val -> last_param_descrip);
-    si.request_val -> last_param_descrip = g_malloc(strlen(ParameterDescriptor) + 1);
-    if (si.request_val -> last_param_descrip)
-      strcpy(si.request_val -> last_param_descrip, ParameterDescriptor);
+    if (smb_info->request_val -> last_param_descrip)
+      g_free(smb_info->request_val -> last_param_descrip);
+    smb_info->request_val -> last_param_descrip = g_malloc(strlen(ParameterDescriptor) + 1);
+    if (smb_info->request_val -> last_param_descrip)
+      strcpy(smb_info->request_val -> last_param_descrip, ParameterDescriptor);
 
     if (tree) {
 
@@ -664,11 +665,11 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
     ReturnDescriptor = pd + loc_offset;
 
-    if (si.request_val -> last_data_descrip)
-      g_free(si.request_val -> last_data_descrip);
-    si.request_val -> last_data_descrip = g_malloc(strlen(ReturnDescriptor) + 1);
-    if (si.request_val -> last_data_descrip)
-      strcpy(si.request_val -> last_data_descrip, ReturnDescriptor);
+    if (smb_info->request_val -> last_data_descrip)
+      g_free(smb_info->request_val -> last_data_descrip);
+    smb_info->request_val -> last_data_descrip = g_malloc(strlen(ReturnDescriptor) + 1);
+    if (smb_info->request_val -> last_data_descrip)
+      strcpy(smb_info->request_val -> last_data_descrip, ReturnDescriptor);
 
     if (tree) {
 
@@ -707,7 +708,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
     case NETSERVERENUM2:  /* Process a NetServerEnum2 */
 
       Level = GSHORT(pd, loc_offset);
-      si.request_val -> last_level = Level;
+      smb_info->request_val -> last_level = Level;
 
       if (tree) {
 
@@ -753,7 +754,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
 	if (lanman) name = lanman -> req[i];  /* Must be OK ... */
 
-	while (dissect_transact_next(pd, name, dirn, lanman_tree))
+	while (dissect_transact_next(pd, name, smb_info->request, lanman_tree))
 	  if (name) name = lanman -> req[++i];
       }
 
@@ -761,7 +762,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
     
     }
   }
-  else {  /* dirn == 0, response */
+  else {  /* response */
     response_data    *proto_data;
     guint16          Status;
     guint16          Convert;
@@ -775,13 +776,13 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
     if (proto_data == NULL) {
       /* No.  Allocate some, and set it up. */
       proto_data = g_mem_chunk_alloc(lanman_proto_data);
-      proto_data->FunctionCode = si.request_val -> last_lanman_cmd;
+      proto_data->FunctionCode = smb_info->request_val -> last_lanman_cmd;
 
       /*
        * If we've already seen a response to the request, this must
        * be a continuation of that response.
        */
-      proto_data->is_continuation = si.request_val -> trans_response_seen;
+      proto_data->is_continuation = smb_info->request_val -> trans_response_seen;
 
       /*
        * Attach it to the frame.
@@ -815,7 +816,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
     } 
 
-    si.request_val -> trans_response_seen = 1; 
+    smb_info->request_val -> trans_response_seen = 1; 
 
     lanman = find_lanman(FunctionCode);
 
@@ -1027,7 +1028,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 	if (tree) {
 
 	  ti = proto_tree_add_text(server_tree, NullTVB, loc_offset, 
-				   (si.request_val -> last_level) ? 26 : 16,
+				   (smb_info->request_val -> last_level) ? 26 : 16,
 				   "Server %s", Server);
 	  server = proto_item_add_subtree(ti, ett_lanman_server);
 
@@ -1042,7 +1043,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
 	loc_offset += 16;
 
-	if (si.request_val -> last_level) { /* Print out the rest of the info */
+	if (smb_info->request_val -> last_level) { /* Print out the rest of the info */
 
 	  ServerMajor = GBYTE(pd, loc_offset);
 
@@ -1125,11 +1126,11 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 	int i = 0;
 	char *name = NULL;
 
-	dissect_transact_engine_init(pd, si.request_val -> last_param_descrip, si.request_val -> last_data_descrip, SMB_offset, loc_offset, ParameterCount, DataOffset, DataCount);
+	dissect_transact_engine_init(pd, smb_info->request_val -> last_param_descrip, smb_info->request_val -> last_data_descrip, SMB_offset, loc_offset, ParameterCount, DataOffset, DataCount);
 
 	if (lanman) name = lanman -> resp[i];
 	  
-	while (dissect_transact_next(pd, name, dirn, lanman_tree))
+	while (dissect_transact_next(pd, name, smb_info->request, lanman_tree))
 	  if (name) name = lanman -> resp[++i];
 	  
       }
@@ -1146,7 +1147,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 }
 
 gboolean
-dissect_pipe_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn, const u_char *command, int DataOffset, int DataCount, int ParameterOffset, int ParameterCount)
+dissect_pipe_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, int max_data, int SMB_offset, int errcode, const u_char *command, int DataOffset, int DataCount, int ParameterOffset, int ParameterCount)
 {
 
   if (!proto_is_protocol_enabled(proto_smb_lanman))
@@ -1155,8 +1156,8 @@ dissect_pipe_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *paren
   if (command != NULL && strcmp(command, "LANMAN") == 0) {
     /* Try to decode a LANMAN */
 
-    return dissect_pipe_lanman(pd, offset, fd, parent, tree, si, max_data,
-			       SMB_offset, errcode, dirn, command, DataOffset,
+    return dissect_pipe_lanman(pd, offset, fd, parent, tree, max_data,
+			       SMB_offset, errcode, command, DataOffset,
 			       DataCount, ParameterOffset, ParameterCount);
 
   }

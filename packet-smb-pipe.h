@@ -2,7 +2,7 @@
  * Declarations of routines for SMB named pipe packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.h,v 1.2 2001/08/01 03:51:16 guy Exp $
+ * $Id: packet-smb-pipe.h,v 1.3 2001/08/05 00:16:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,6 +25,6 @@
 
 gboolean
 dissect_pipe_smb(const u_char *pd, int offset, frame_data *fd,
-    proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data,
-    int SMB_offset, int errcode, int dirn, const u_char *command,
+    proto_tree *parent, proto_tree *tree, int max_data,
+    int SMB_offset, int errcode, const u_char *command,
     int DataOffset, int DataCount, int ParameterOffset, int ParameterCount);
