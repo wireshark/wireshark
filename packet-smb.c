@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.232 2002/03/19 23:14:39 sharpe Exp $
+ * $Id: packet-smb.c,v 1.233 2002/03/20 06:51:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2990,7 +2990,9 @@ static int
 dissect_read_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8 wc;
-	guint16 bc, fid;
+	guint16 bc;
+	smb_info_t *si;
+	unsigned int fid;
 
 	WORD_COUNT;
 
@@ -2998,6 +3000,11 @@ dissect_read_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	fid = tvb_get_letohs(tvb, offset);
 	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
+	if (!pinfo->fd->flags.visited) {
+		/* remember the FID for the processing of the response */
+		si = (smb_info_t *)pinfo->private_data;
+		si->sip->extra_info=(void *)fid;
+	}
 
 	/* read count */
 	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 2, TRUE);
@@ -3072,6 +3079,8 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
 	guint16 cnt=0, bc;
 	guint8 wc;
+	smb_info_t *si = (smb_info_t *)pinfo->private_data;
+	int fid=0;
 
 	WORD_COUNT;
 
@@ -3083,6 +3092,13 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* 8 reserved bytes */
 	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 8, TRUE);
 	offset += 8;
+
+	/* If we have seen the request, then print which FID this refers to */
+	/* first check if we have seen the request */
+	if(si->sip != NULL && si->sip->frame_req>0){
+		fid=(int)si->sip->extra_info;
+		add_fid(tvb, pinfo, tree, 0, 0, fid);
+	}
 
 	BYTE_COUNT;
 
@@ -3096,9 +3112,19 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, hf_smb_data_len, tvb, offset, 2, TRUE);
 	COUNT_BYTES(2);
 
-	if (bc != 0) {
-		/* file data */
-		offset = dissect_file_data(tvb, pinfo, tree, offset, bc, bc);
+	/* another way to transport DCERPC over SMB is to skip Transaction completely and just
+	   read write */
+	if(bc){
+		if(si->sip != NULL && si->sip->flags&SMB_SIF_TID_IS_IPC){
+			/* dcerpc call */
+			offset = dissect_file_data_dcerpc(tvb, pinfo, tree,
+			    top_tree, offset, bc, bc, fid);
+		} else {
+			/* ordinary file data, or we didn't see the request,
+			   so we don't know whether this is a DCERPC call
+			   or not */
+			offset = dissect_file_data(tvb, pinfo, tree, offset, bc, bc);
+		}
 		bc = 0;
 	}
 
