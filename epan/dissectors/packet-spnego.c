@@ -406,6 +406,12 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #ifdef HAVE_KERBEROS
 #include <epan/crypt-md5.h>
 
+/* XXX - We should probably do a configure-time check for this instead */
+#ifndef HAVE_HEIMDAL_KERBEROS
+# define KEYTYPE_ARCFOUR_56 24
+# define KRB5_KU_USAGE_SEAL 22
+#endif
+
 static int
 arcfour_mic_key(void *key_data, size_t key_size, int key_type,
 		void *cksum_data, size_t cksum_size,
@@ -526,6 +532,7 @@ gssapi_verify_pad(unsigned char *wrapped_data, int wrapped_length,
     return 0;
 }
 
+#ifdef HAVE_HEIMDAL_KERBEROS
 static int
 decrypt_arcfour(packet_info *pinfo,
 	 char *input_message_buffer,
@@ -646,15 +653,7 @@ decrypt_arcfour(packet_info *pinfo,
     return 0;
 }
 
-
-#ifdef HAVE_HEIMDAL_KERBEROS
-
-
-
-
-
 #include <krb5.h>
-#define GSS_ARCFOUR_WRAP_TOKEN_SIZE 32
 
 static void
 decrypt_heimdal_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int keytype)
@@ -808,6 +807,7 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 	}
 
 #ifdef HAVE_KERBEROS
+#define GSS_ARCFOUR_WRAP_TOKEN_SIZE 32
 	if(pinfo->decrypt_gssapi_tvb){
 		/* if the caller did not provide a tvb, then we just use
 		   whatever is left of our current tvb.
