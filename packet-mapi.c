@@ -1,7 +1,7 @@
 /* packet-mapi.c
  * Routines for MSX mapi packet dissection
  *
- * $Id: packet-mapi.c,v 1.10 2000/11/19 08:54:00 guy Exp $
+ * $Id: packet-mapi.c,v 1.11 2000/12/29 05:15:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,39 +51,42 @@ static gint ett_mapi = -1;
 #define TCP_PORT_MAPI			1065
 
 static void
-dissect_mapi(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_mapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree      *mapi_tree, *ti;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_mapi, pd, offset, fd, tree);
+	CHECK_DISPLAY_AS_DATA(proto_mapi, tvb, pinfo, tree);
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "MAPI");
+	pinfo->current_proto = "MAPI";
 
-	if (check_col(fd, COL_INFO))
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "MAPI");
+
+	if (check_col(pinfo->fd, COL_INFO))
 	{
-		col_add_fstr(fd, COL_INFO, "%s", 
-			(pi.match_port == pi.destport) ? "Request" : "Response");	  
+		col_add_fstr(pinfo->fd, COL_INFO, "%s", 
+			(pinfo->match_port == pinfo->destport) ? "Request" : "Response");	  
 	}
 
 	if (tree) 
 	{
-		ti = proto_tree_add_item(tree, proto_mapi, NullTVB, offset, END_OF_FRAME, FALSE);
+		ti = proto_tree_add_item(tree, proto_mapi, tvb, 0,
+		    tvb_length(tvb), FALSE);
 		mapi_tree = proto_item_add_subtree(ti, ett_mapi);
 
-		if (pi.match_port == pi.destport)
+		if (pinfo->match_port == pinfo->destport)
 		{
-		        proto_tree_add_boolean_hidden(mapi_tree, hf_mapi_request, NullTVB,
-						   offset, END_OF_FRAME, TRUE);
-			proto_tree_add_text(mapi_tree, NullTVB, offset, 
-				END_OF_FRAME, "Request: <opaque data>" );
+		        proto_tree_add_boolean_hidden(mapi_tree, hf_mapi_request, tvb,
+						   0, tvb_length(tvb), TRUE);
+			proto_tree_add_text(mapi_tree, tvb, 0,
+				tvb_length(tvb), "Request: <opaque data>" );
 		}
 		else
 		{
-		        proto_tree_add_boolean_hidden(mapi_tree, hf_mapi_response, NullTVB,
-						   offset, END_OF_FRAME, TRUE);
-			proto_tree_add_text(mapi_tree, NullTVB, offset, 
-				END_OF_FRAME, "Response: <opaque data>");
+		        proto_tree_add_boolean_hidden(mapi_tree, hf_mapi_response, tvb,
+						   0, tvb_length(tvb), TRUE);
+			proto_tree_add_text(mapi_tree, tvb, 0,
+				tvb_length(tvb), "Response: <opaque data>");
 		}
 	}
 }
@@ -114,5 +117,5 @@ proto_register_mapi(void)
 void
 proto_reg_handoff_mapi(void)
 {
-	old_dissector_add("tcp.port", TCP_PORT_MAPI, dissect_mapi);
+	dissector_add("tcp.port", TCP_PORT_MAPI, dissect_mapi);
 }
