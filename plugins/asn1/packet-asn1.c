@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.17 2004/02/20 02:57:08 guy Exp $
+ * $Id: packet-asn1.c,v 1.18 2004/02/20 22:14:12 guy Exp $
  *
  * A plugin for:
  *
@@ -4687,7 +4687,7 @@ proto_register_asn1(void) {
   default_asn1_filename = get_datafile_path(ASN1FILE);
   asn1_filename = default_asn1_filename;
 #ifdef WIN32
-  old_default_asn1_filename = get_datafile_path(OLDASN1FILE);
+  old_default_asn1_filename = get_datafile_path(OLD_ASN1FILE);
 #endif
 
   prefs_register_string_preference(asn1_module, "file",
