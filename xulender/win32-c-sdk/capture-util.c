@@ -60,7 +60,9 @@
 #include "capture-util.h"
 #include "capture-dialog.h"
 #include "capture-info-dialog.h"
+#include "capture-interfaces-dialog.h"
 #include "filter-dialog.h"
+#include "filter-util.h"
 
 /*
  * These should match the element IDs in capture-info-dialog.xul AND
@@ -81,8 +83,31 @@ static gchar *info_element_id[] = {
     /* We handle "total" elsewhere. */
 };
 
-static void set_link_type_list();
+/* the "runtime" data of one interface */
+typedef struct if_dlg_data_s {
+    pcap_t          *pch;
+    win32_element_t *descr_ds;
+    win32_element_t *ip_ds;
+    win32_element_t *curr_ds;
+    win32_element_t *last_ds;
+    win32_element_t *capture_bt;
+    win32_element_t *prepare_bt;
+    guint32          last_packets;
+    gchar           *device;
+} if_dlg_data_t;
 
+static void set_link_type_list();
+static void update_if(if_dlg_data_t *if_dlg_data);
+
+#define IF_DIALOG_DATA_KEY "_if_dialog_data"
+#define IF_CAPTURE_DATA_KEY "_if_capture_data"
+#define IF_PREP_DATA_KEY "_if_prep_data"
+#define IF_TIMER_ID 0xabcd1234  /* Chosen at random */
+
+/*
+ * Timeout, in milliseconds, for reads from the stream of captured packets.
+ */
+#define CAP_READ_TIMEOUT        250
 
 /* Make sure we can perform a capture, and if so open the capture options dialog */
 /* XXX - Switch over to value struct iteration, like we're using in the prefs dialog. */
@@ -124,6 +149,7 @@ capture_start_prep() {
 	g_free(cant_get_if_list_errstr);
     }
 
+    /* XXX - Get rid of g_hw_capture_dlg */
     if (! g_hw_capture_dlg) {
 	g_hw_capture_dlg = capture_dialog_dialog_create(g_hw_mainwin);
 
@@ -145,7 +171,7 @@ capture_start_prep() {
 	    }
 	    if (cfile.iface != NULL) {
 		if (SendMessage(if_el->h_wnd, CB_SELECTSTRING, (WPARAM) -1, (LPARAM) cfile.iface) == CB_ERR)
-		    SendMessage(if_el->h_wnd, CB_SETCURSEL, 0, 0);
+		    SetWindowText(if_el->h_wnd, cfile.iface);
 	    }
 	}
     }
@@ -857,6 +883,337 @@ void capture_prep_file (win32_element_t *btn_el) {
 }
 
 /*
+ * Capture interfaces dialog routines
+ */
+
+/* XXX - We might be able to generalize the next few routines, and get
+ * rid of their GTK-specific counterparts in gtk/capture_if_dlg.c */
+
+/* open a single interface */
+static void
+open_if(gchar *name, if_dlg_data_t *if_dlg_data) {
+    gchar open_err_str[PCAP_ERRBUF_SIZE];
+
+    /*
+     * XXX - on systems with BPF, the number of BPF devices limits the
+     * number of devices on which you can capture simultaneously.
+     *
+     * This means that
+     *
+     *    1) this might fail if you run out of BPF devices
+     *
+     * and
+     *
+     *    2) opening every interface could leave too few BPF devices
+     *       for *other* programs.
+     *
+     * It also means the system could end up getting a lot of traffic
+     * that it has to pass through the networking stack and capture
+     * mechanism, so opening all the devices and presenting packet
+     * counts might not always be a good idea.
+     */
+    if_dlg_data->pch = pcap_open_live(name,
+	    MIN_PACKET_SIZE,
+	    capture_opts.promisc_mode, CAP_READ_TIMEOUT,
+	    open_err_str);
+
+    if (if_dlg_data->pch != NULL) {
+	update_if(if_dlg_data);
+    } else {
+	printf("open_if: %s\n", open_err_str);
+	SetWindowText(if_dlg_data->curr_ds->h_wnd, "error");
+	SetWindowText(if_dlg_data->last_ds->h_wnd, "error");
+    }
+}
+
+/* update a single interface */
+static void
+update_if(if_dlg_data_t *if_dlg_data)
+{
+    struct pcap_stat stats;
+    gchar *str;
+    guint diff;
+
+    /* pcap_stats() stats values differ on libpcap and winpcap!
+     * libpcap: returns the number of packets since pcap_open_live
+     * winpcap: returns the number of packets since the last pcap_stats call
+     * XXX - if that's true, that's a bug, and should be fixed; "pcap_stats()"
+     * is supposed to work the same way on all platforms, including Windows.
+     * Note that the WinPcap 3.0 documentation says "The values represent
+     * packet statistics from the start of the run to the time of the call."
+     * (Note also that some versions of libpcap, on some versions of UN*X,
+     * have the same bug.)
+     */
+    if (if_dlg_data->pch) {
+	if(pcap_stats(if_dlg_data->pch, &stats) >= 0) {
+	    diff = stats.ps_recv - if_dlg_data->last_packets;
+	    if_dlg_data->last_packets = stats.ps_recv;
+
+	    str = g_strdup_printf("%u", if_dlg_data->last_packets);
+	    SetWindowText(if_dlg_data->curr_ds->h_wnd, str);
+	    g_free(str);
+	    str = g_strdup_printf("%u", diff);
+	    SetWindowText(if_dlg_data->last_ds->h_wnd, str);
+	    g_free(str);
+
+	    win32_element_set_enabled(if_dlg_data->curr_ds, diff);
+	    win32_element_set_enabled(if_dlg_data->last_ds, diff);
+	} else {
+	    SetWindowText(if_dlg_data->curr_ds->h_wnd, "error");
+	    SetWindowText(if_dlg_data->last_ds->h_wnd, "error");
+	}
+    }
+}
+
+/* close a single interface */
+static void
+close_if(if_dlg_data_t *if_dlg_data)
+{
+    if(if_dlg_data->pch)
+	pcap_close(if_dlg_data->pch);
+}
+
+/* update all interfaces */
+static void
+update_all(win32_element_t *if_dlg) {
+    GList *if_data, *curr;
+    int ifs;
+
+    if_data = win32_element_get_data(if_dlg, IF_DIALOG_DATA_KEY);
+    if (! if_data)
+	return;
+
+    for(ifs = 0; (curr = g_list_nth(if_data, ifs)); ifs++) {
+	update_if(curr->data);
+    }
+}
+
+/* start capture button was pressed */
+static void
+capture_if_capture(win32_element_t *btn_el) {
+    if_dlg_data_t   *if_dlg_data;
+
+    win32_element_assert(btn_el);
+    if_dlg_data = win32_element_get_data(btn_el, IF_CAPTURE_DATA_KEY);
+    if (!if_dlg_data)
+	return;
+
+    if (cfile.iface)
+	g_free(cfile.iface);
+
+    cfile.iface = g_strdup(if_dlg_data->device);
+
+    do_capture(NULL /* save_file */);
+}
+
+/* prepare capture button was pressed */
+static void
+capture_if_prepare(win32_element_t *btn_el) {
+    if_dlg_data_t *if_dlg_data;
+
+    win32_element_assert(btn_el);
+    if_dlg_data = win32_element_get_data(btn_el, IF_PREP_DATA_KEY);
+    if (!if_dlg_data)
+	return;
+
+    if (cfile.iface)
+	g_free(cfile.iface);
+
+    cfile.iface = g_strdup(if_dlg_data->device);
+
+    capture_start_prep();
+}
+
+void
+capture_interfaces_dialog_init(HWND hw_parent) {
+    win32_element_t *if_dlg = win32_identifier_get_str("capture-interfaces-dialog");
+    HWND             hw_if;
+    win32_element_t *grid, *cur_el, *hbox;
+    GList           *if_list, *if_data = NULL;
+    int              err;
+    char             err_str[PCAP_ERRBUF_SIZE];
+    gchar           *cant_get_if_list_errstr;
+    int              row = 0;
+    if_dlg_data_t   *if_dlg_data;
+    gint             ifs;
+    GList           *curr;
+    if_info_t       *if_info;
+    GSList          *curr_ip;
+    if_addr_t       *ip_addr;
+    gchar           *tmp_str;
+
+    if (!has_wpcap) {
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+	    "Unable to load WinPcap (wpcap.dll); Ethereal will not be able\n"
+	    "to capture packets.\n\n"
+	    "In order to capture packets, WinPcap must be installed; see\n"
+	    "\n"
+	    "        http://winpcap.polito.it/\n"
+	    "\n"
+	    "or the mirror at\n"
+	    "\n"
+	    "        http://winpcap.mirror.ethereal.com/\n"
+	    "\n"
+	    "or the mirror at\n"
+	    "\n"
+	    "        http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/\n"
+	    "\n"
+	    "for a downloadable version of WinPcap and for instructions\n"
+	    "on how to install WinPcap.");
+	return;
+    }
+
+    if_list = get_interface_list(&err, err_str);
+    if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
+	cant_get_if_list_errstr = cant_get_if_list_error_message(err_str);
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", cant_get_if_list_errstr);
+	g_free(cant_get_if_list_errstr);
+	return;
+    }
+
+    if (!if_dlg) {
+	hw_if = capture_interfaces_dialog_dialog_create(hw_parent);
+	if_dlg = (win32_element_t *) GetWindowLong(hw_if, GWL_USERDATA);
+
+	grid = win32_element_find_child(if_dlg, "capture-interfaces-dialog.main-grid");
+	win32_element_assert(grid);
+
+	for(ifs = 0; (curr = g_list_nth(if_list, ifs)); ifs++) {
+	    if_info = curr->data;
+	    if_dlg_data = g_malloc0(sizeof(if_dlg_data_t));
+
+	    win32_grid_add_row(grid, 0.0, 0);
+
+	    /* XXX - Add tooltips */
+
+	    /* device name */
+	    if_dlg_data->device = if_info->name;
+
+	    /* description */
+	    if (if_info->description != NULL)
+		if_dlg_data->descr_ds = win32_description_new(if_dlg->h_wnd, if_info->description);
+	    else
+		if_dlg_data->descr_ds = win32_description_new(if_dlg->h_wnd, "");
+	    win32_box_add(grid, if_dlg_data->descr_ds, -1);
+
+	    /* IP address */
+	    /* only the first IP address will be shown */
+	    curr_ip = g_slist_nth(if_info->ip_addr, 0);
+	    if(curr_ip) {
+		ip_addr = (if_addr_t *)curr_ip->data;
+		switch (ip_addr->type) {
+		    case AT_IPv4:
+			tmp_str = ip_to_str((guint8 *)&ip_addr->ip_addr.ip4_addr);
+			break;
+
+		    case AT_IPv6:
+			tmp_str = ip6_to_str((struct e_in6_addr *)&ip_addr->ip_addr.ip6_addr);
+			break;
+
+		    default:
+			g_assert_not_reached();
+			tmp_str = NULL;
+		}
+		if_dlg_data->ip_ds = win32_description_new(if_dlg->h_wnd, tmp_str);
+		win32_element_set_enabled(if_dlg_data->ip_ds, TRUE);
+	    } else {
+		if_dlg_data->ip_ds = win32_description_new(if_dlg->h_wnd, "unknown");
+		win32_element_set_enabled(if_dlg_data->ip_ds, FALSE);
+	    }
+	    if_dlg_data->ip_ds->text_align = CSS_TEXT_ALIGN_CENTER;
+	    win32_description_apply_styles(if_dlg_data->ip_ds);
+	    win32_box_add(grid, if_dlg_data->ip_ds, -1);
+
+	    /* packets */
+	    if_dlg_data->curr_ds = win32_description_new(if_dlg->h_wnd, "-");
+	    if_dlg_data->curr_ds->text_align = CSS_TEXT_ALIGN_CENTER;
+	    win32_description_apply_styles(if_dlg_data->curr_ds);
+	    win32_box_add(grid, if_dlg_data->curr_ds, -1);
+
+	    /* packets/s */
+	    if_dlg_data->last_ds = win32_description_new(if_dlg->h_wnd, "-");
+	    if_dlg_data->last_ds->text_align = CSS_TEXT_ALIGN_CENTER;
+	    win32_description_apply_styles(if_dlg_data->last_ds);
+	    win32_box_add(grid, if_dlg_data->last_ds, -1);
+
+	    /* button box */
+	    hbox = win32_hbox_new(NULL, grid->h_wnd);
+	    win32_box_add(grid, hbox, -1);
+
+	    /* capture button */
+	    if_dlg_data->capture_bt = win32_button_new(hbox->h_wnd, "Capture");
+	    if_dlg_data->capture_bt->oncommand = capture_if_capture;
+	    win32_element_set_data(if_dlg_data->capture_bt, IF_CAPTURE_DATA_KEY, if_dlg_data);
+	    win32_box_add(hbox, if_dlg_data->capture_bt, -1);
+
+	    /* prepare button */
+	    if_dlg_data->prepare_bt = win32_button_new(hbox->h_wnd, "Prepare");
+	    if_dlg_data->prepare_bt->oncommand = capture_if_prepare;
+	    win32_element_set_data(if_dlg_data->prepare_bt, IF_PREP_DATA_KEY, if_dlg_data);
+	    win32_box_add(hbox, if_dlg_data->prepare_bt, -1);
+
+	    open_if(if_info->name, if_dlg_data);
+
+	    if_data = g_list_append(if_data, if_dlg_data);
+
+	    row++;
+	}
+
+	cur_el = win32_description_new(grid->h_wnd, "Description");
+    }
+
+    win32_element_set_data(if_dlg, IF_DIALOG_DATA_KEY, if_data);
+
+    SetTimer(if_dlg->h_wnd, IF_TIMER_ID, 1000, NULL);
+
+    capture_interfaces_dialog_dialog_show(if_dlg->h_wnd);
+}
+
+BOOL CALLBACK
+capture_interfaces_dialog_dlg_proc(HWND hw_if, UINT msg, WPARAM w_param, LPARAM l_param) {
+    win32_element_t *dlg_box;
+
+    switch(msg) {
+	case WM_INITDIALOG:
+	    capture_interfaces_dialog_handle_wm_initdialog(hw_if);
+	    dlg_box = (win32_element_t *) GetWindowLong(hw_if, GWL_USERDATA);
+	    win32_element_assert (dlg_box);
+	    return 0;
+	    break;
+	case WM_COMMAND:
+	    return 0;
+	    break;
+	case WM_CLOSE:
+	    dlg_box = (win32_element_t *) GetWindowLong(hw_if, GWL_USERDATA);
+	    capture_interfaces_dialog_close(dlg_box);
+	    break;
+	case WM_TIMER:
+	    dlg_box = (win32_element_t *) GetWindowLong(hw_if, GWL_USERDATA);
+	    update_all(dlg_box);
+	    break;
+	default:
+	    return 0;
+    }
+    return 0;
+}
+
+/* Command sent by element type <button>, id "capture-interfaces.stop" */
+void capture_interfaces_dialog_stop (win32_element_t *btn_el) {
+    capture_stop();
+}
+
+/* Command sent by element type <button>, id "capture-interfaces.close" */
+void capture_interfaces_dialog_close (win32_element_t *el) {
+    win32_element_t *if_dlg = win32_element_find_in_window(el, "capture-interfaces-dialog");
+
+    win32_element_assert(if_dlg);
+
+    KillTimer(if_dlg->h_wnd, IF_TIMER_ID);
+
+    win32_element_destroy(if_dlg, TRUE);
+}
+
+/*
  * Private
  */
 
@@ -971,13 +1328,21 @@ set_link_type_list() {
 
     /* XXX - We should probably do this in win32-menulist.c */
     cur_sel = SendMessage(if_ml->h_wnd, CB_GETCURSEL, 0, 0);
-    if (cur_sel == CB_ERR)  /* XXX - We should handle this more gracefully */
-	return;
-    len = SendMessage(if_ml->h_wnd, CB_GETLBTEXTLEN, (WPARAM) cur_sel, 0);
-    if (len > 0) {
+    if (cur_sel != CB_ERR) {
+	len = SendMessage(if_ml->h_wnd, CB_GETLBTEXTLEN, (WPARAM) cur_sel, 0);
+	if (len > 0) {
+	    len++;
+	    entry_text = g_malloc(len);
+	    SendMessage(if_ml->h_wnd, CB_GETLBTEXT, (WPARAM) cur_sel, (LPARAM) entry_text);
+	}
+    } else {	/* Something was entered, but not selected */
+	len = GetWindowTextLength(if_ml->h_wnd);
+	if (len < 1)
+	    return;
 	len++;
 	entry_text = g_malloc(len);
-	SendMessage(if_ml->h_wnd, CB_GETLBTEXT, (WPARAM) cur_sel, (LPARAM) entry_text);
+	if (GetWindowText(if_ml->h_wnd, entry_text, len) == 0)
+	    return;
     }
     if_text = g_strstrip(entry_text);
     if_name = get_if_name(if_text);

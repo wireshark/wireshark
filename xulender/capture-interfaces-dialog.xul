@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<dialog
+  id="capture-interfaces-dialog"
+  title="Ethereal: Capture Interfaces"
+  >
+
+  <vbox>
+    <grid id="capture-interfaces-dialog.main-grid">
+      <columns>
+	<column />
+	<column />
+	<column />
+	<column />
+	<column />
+      </columns>
+      <rows>
+	<row>
+	  <description style="text-align: center;">Description</description>
+	  <description style="text-align: center;">IP</description>
+	  <description style="text-align: center;">Packets</description>
+	  <description style="text-align: center;">Packets/s</description>
+	  <button
+	    id="capture-interfaces.stop"
+	    label="Stop"
+	    oncommand="capture_interfaces_dialog_stop"
+	  />
+	</row>
+      </rows>
+    </grid>
+    <hbox>
+      <spacer flex="1" />
+      <button
+        id="capture-interfaces.close"
+        label="Close"
+        default="True"
+        oncommand="capture_interfaces_dialog_close"
+       />
+      <spacer flex="1" />
+    </hbox>
+
+  </vbox>
+</dialog>

@@ -1604,6 +1604,7 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 			capture_stop();
 			break;
 		    case IDM_ETHEREAL_MAIN_CAPTURE_INTERFACES:
+			capture_interfaces_dialog_init(hw_mainwin);
 			break;
 		    case IDM_ETHEREAL_MAIN_CAPTURE_FILTERS:
 		    case IDB_MAIN_TOOLBAR_CAP_FILT:
