@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.347 2003/06/06 02:09:35 tpot Exp $
+ * $Id: packet-smb.c,v 1.348 2003/06/08 09:11:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -509,6 +509,7 @@ static int hf_smb_ff2_close_eos = -1;
 static int hf_smb_ff2_close = -1;
 static int hf_smb_ff2_information_level = -1;
 static int hf_smb_qpi_loi = -1;
+static int hf_smb_spi_loi = -1;
 #if 0
 static int hf_smb_sfi_writetru = -1;
 static int hf_smb_sfi_caching = -1;
@@ -530,6 +531,7 @@ static int hf_smb_t2_compressed_format = -1;
 static int hf_smb_t2_compressed_unit_shift = -1;
 static int hf_smb_t2_compressed_chunk_shift = -1;
 static int hf_smb_t2_compressed_cluster_shift = -1;
+static int hf_smb_t2_marked_for_deletion = -1;
 static int hf_smb_dfs_path_consumed = -1;
 static int hf_smb_dfs_num_referrals = -1;
 static int hf_smb_get_dfs_server_hold_storage = -1;
@@ -9562,7 +9564,7 @@ static const value_string ff2_il_vals[] = {
 
 /* values used by :
 	TRANS2_QUERY_PATH_INFORMATION
-	TRANS2_SET_PATH_INFORMATION
+	TRANS2_QUERY_FILE_INFORMATION
 */
 static const value_string qpi_loi_vals[] = {
 	{ 1,		"Info Standard  (4.2.14.1)"},
@@ -9617,6 +9619,28 @@ static const value_string qpi_loi_vals[] = {
 	{0, NULL}
 };
 
+/* values used by :
+	TRANS2_SET_PATH_INFORMATION
+	TRANS2_SET_FILE_INFORMATION
+	(the SNIA CIFS spec lists some only for TRANS2_SET_FILE_INFORMATION,
+	but I'm assuming they apply to TRANS2_SET_PATH_INFORMATION as
+	well; note that they're different from the QUERY_PATH_INFORMATION
+	and QUERY_FILE_INFORMATION values!)
+*/
+static const value_string spi_loi_vals[] = {
+	{ 1,		"Info Standard  (4.2.18.1)"},
+	{ 2,		"Info Query EA Size  (4.2.18.1)"},
+	{ 4,		"Info Query All EAs  (4.2.18.2)"},
+	{ 0x0101,	"Set File Basic Info  (4.2.19.1)"},
+	{ 0x0102,	"Set File Disposition Info  (4.2.19.2)"},
+	{ 0x0103,	"Set File Allocation Info  (4.2.19.3)"},
+	{ 0x0104,	"Set File End Of File Info  (4.2.19.4)"},
+	{ 0x0200,	"Set File Unix Basic (4.2.18.3)"},
+	{ 0x0201,	"Set File Unix Link (4.2.18.4)"},
+	{ 0x0202,	"Set File Unix HardLink (4.2.18.5)"},
+	{0, NULL}
+};
+
 static const value_string qfsi_vals[] = {
 	{ 1,		"Info Allocation"},
 	{ 2,		"Info Volume"},
@@ -9662,6 +9686,10 @@ static const value_string alignment_vals[] = {
 	{0, NULL}
 };
 
+static const true_false_string tfs_marked_for_deletion = {
+	"File is MARKED FOR DELETION",
+	"File is NOT marked for deletion"
+};
 
 static const true_false_string tfs_get_dfs_server_hold_storage = {
 	"Referral SERVER HOLDS STORAGE for the file",
@@ -10026,7 +10054,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		si->info_level = tvb_get_letohs(tvb, offset);
 		if (!pinfo->fd->flags.visited)
 			t2i->info_level = si->info_level;
-		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
+		proto_tree_add_uint(tree, hf_smb_spi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 
 		/* 4 reserved bytes */
@@ -10080,7 +10108,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		si->info_level = tvb_get_letohs(tvb, offset);
 		if (!pinfo->fd->flags.visited)
 			t2i->info_level = si->info_level;
-		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
+		proto_tree_add_uint(tree, hf_smb_spi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 
 #if 0
@@ -11049,9 +11077,59 @@ dissect_4_2_14_11(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	return offset;
 }
 
+/* this dissects the SMB_SET_FILE_DISPOSITION_INFO
+   as described in 4.2.19.2
+*/
+static int
+dissect_4_2_19_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	/* marked for deletion? */
+	CHECK_BYTE_COUNT_SUBR(1);
+	proto_tree_add_item(tree, hf_smb_t2_marked_for_deletion, tvb, offset, 1, TRUE);
+	COUNT_BYTES_SUBR(1);
+
+	*trunc = FALSE;
+	return offset;
+}
+
+/* this dissects the SMB_SET_FILE_ALLOCATION_INFO
+   as described in 4.2.19.3
+*/
+static int
+dissect_4_2_19_3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	/* file allocation size */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	*trunc = FALSE;
+	return offset;
+}
+
+/* this dissects the SMB_SET_FILE_END_OF_FILE_INFO
+   as described in 4.2.19.4
+*/
+static int
+dissect_4_2_19_4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	/* file end of file offset */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	*trunc = FALSE;
+	return offset;
+}
 
 
-/*dissect the data block for TRANS2_QUERY_PATH_INFORMATION*/
+
+
+/*dissect the data block for TRANS2_QUERY_PATH_INFORMATION and
+  TRANS2_QUERY_FILE_INFORMATION*/
 static int
 dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     int offset, guint16 *bcp)
@@ -11128,6 +11206,61 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		/* XXX add this from the SNIA doc */
 		break;
 	case 0x0202:	/*Set File Unix HardLink*/
+		/* XXX add this from the SNIA doc */
+		break;
+	}
+
+	return offset;
+}
+
+/*dissect the data block for TRANS2_SET_PATH_INFORMATION and
+  TRANS2_SET_FILE_INFORMATION*/
+static int
+dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
+    int offset, guint16 *bcp)
+{
+	smb_info_t *si;
+	gboolean trunc;
+
+	if(!*bcp){
+		return offset;
+	}
+
+	si = (smb_info_t *)pinfo->private_data;
+	switch(si->info_level){
+	case 1:		/*Info Standard*/
+		
+	case 2:		/*Info Query EA Size*/
+		offset = dissect_4_2_14_1(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 4:		/*Info Query All EAs*/
+		offset = dissect_4_2_14_2(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 0x0101:	/*Set File Basic Info*/
+		offset = dissect_4_2_14_4(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 0x0102:	/*Set File Disposition Info*/
+		offset = dissect_4_2_19_2(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 0x0103:	/*Set File Allocation Info*/
+		offset = dissect_4_2_19_3(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 0x0104:	/*Set End Of File Info*/
+		offset = dissect_4_2_19_4(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 0x0200:	/*Set File Unix Basic*/
+		/* XXX add this from the SNIA doc */
+		break;
+	case 0x0201:	/*Set File Unix Link*/
+		/* XXX add this from the SNIA doc */
+		break;
+	case 0x0203:	/*Set File Unix HardLink*/
 		/* XXX add this from the SNIA doc */
 		break;
 	}
@@ -11266,7 +11399,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		 */
 		break;
 	case 0x06:	/*TRANS2_SET_PATH_INFORMATION*/
-		offset = dissect_qpi_loi_vals(tvb, pinfo, tree, offset, &dc);
+		offset = dissect_spi_loi_vals(tvb, pinfo, tree, offset, &dc);
 		break;
 	case 0x07:	/*TRANS2_QUERY_FILE_INFORMATION*/
 		/* no data field in this request */
@@ -11282,7 +11415,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		 */
 		break;
 	case 0x08:	/*TRANS2_SET_FILE_INFORMATION*/
-		offset = dissect_qpi_loi_vals(tvb, pinfo, tree, offset, &dc);
+		offset = dissect_spi_loi_vals(tvb, pinfo, tree, offset, &dc);
 		break;
 	case 0x09:	/*TRANS2_FSCTL*/
 		/*XXX dont know how to decode this yet */
@@ -12337,7 +12470,14 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree_add_uint(tree, hf_smb_file_name_len, tvb, offset, 4, fn_len);
 	COUNT_BYTES_SUBR(4);
 
-	/* ea length */
+	/*
+	 * EA length.
+	 *
+	 * XXX - in one captures, this has the topmost bit set, and the
+	 * rest of the bits have the value 7.  Is the topmost bit being
+	 * set some indication that the value *isn't* the length of
+	 * the EAs?
+	 */
 	CHECK_BYTE_COUNT_SUBR(4);
 	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
@@ -17775,8 +17915,12 @@ proto_register_smb(void)
 		VALS(ff2_il_vals), 0, "Level of interest for FIND_FIRST2 command", HFILL }},
 
 	{ &hf_smb_qpi_loi,
-		{ "Level of Interest", "smb.loi", FT_UINT16, BASE_DEC,
-		VALS(qpi_loi_vals), 0, "Level of interest for TRANSACTION[2] commands", HFILL }},
+		{ "Level of Interest", "smb.qpi_loi", FT_UINT16, BASE_DEC,
+		VALS(qpi_loi_vals), 0, "Level of interest for TRANSACTION[2] QUERY_{FILE,PATH}_INFO commands", HFILL }},
+
+	{ &hf_smb_spi_loi,
+		{ "Level of Interest", "smb.spi_loi", FT_UINT16, BASE_DEC,
+		VALS(spi_loi_vals), 0, "Level of interest for TRANSACTION[2] SET_{FILE,PATH}_INFO commands", HFILL }},
 
 #if 0
 	{ &hf_smb_sfi_writetru,
@@ -17863,6 +18007,10 @@ proto_register_smb(void)
 	{ &hf_smb_t2_compressed_cluster_shift,
 		{ "Cluster Shift", "smb.compressed.cluster_shift", FT_UINT8, BASE_DEC,
 		NULL, 0, "Allocated size of the stream in number of bytes", HFILL }},
+
+	{ &hf_smb_t2_marked_for_deletion,
+		{ "Marked for Deletion", "smb.marked_for_deletion", FT_BOOLEAN, BASE_NONE,
+		TFS(&tfs_marked_for_deletion), 0x0, "Marked for deletion?", HFILL }},
 
 	{ &hf_smb_dfs_path_consumed,
 		{ "Path Consumed", "smb.dfs.path_consumed", FT_UINT16, BASE_DEC,
