@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.84 1999/08/18 00:57:54 guy Exp $
+ * $Id: packet.h,v 1.85 1999/08/18 16:28:22 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -311,22 +311,6 @@ enum {
 	ETT_XDLC_CONTROL,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
-
-/* The version of pcap.h that comes with some systems is missing these
- * #defines.
- */
-
-#ifndef DLT_RAW
-#define DLT_RAW 12
-#endif
-
-#ifndef DLT_SLIP_BSDOS
-#define DLT_SLIP_BSDOS 13
-#endif
-
-#ifndef DLT_PPP_BSDOS
-#define DLT_PPP_BSDOS 14
-#endif
 
 
 /* Utility routines used by packet*.c */

@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.37 1999/08/18 04:17:28 guy Exp $
+ * $Id: file.h,v 1.38 1999/08/18 16:28:22 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,6 +43,7 @@
 #include <pcap.h>
 #endif
 #endif
+
 
 #ifndef __DFILTER_H__
 #include "dfilter.h"

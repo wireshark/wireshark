@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.12 1999/08/15 22:31:22 guy Exp $
+ * $Id: capture.h,v 1.13 1999/08/18 16:28:22 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,6 +31,23 @@
 #ifndef lib_pcap_h
 #include <pcap.h>
 #endif
+
+/* The version of pcap.h that comes with some systems is missing these
+ * #defines.
+ */
+
+#ifndef DLT_RAW
+#define DLT_RAW 12
+#endif
+
+#ifndef DLT_SLIP_BSDOS
+#define DLT_SLIP_BSDOS 13
+#endif
+
+#ifndef DLT_PPP_BSDOS
+#define DLT_PPP_BSDOS 14
+#endif
+
 
 void   capture_prep_cb(GtkWidget *, gpointer);
 void   capture(void);
