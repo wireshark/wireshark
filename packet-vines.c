@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.51 2003/04/18 03:40:49 guy Exp $
+ * $Id: packet-vines.c,v 1.52 2003/04/18 04:28:07 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -832,12 +832,20 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				      vines_arp_packet_type_vals,
 				      "Unknown"),
 				    packet_type);
-		if (packet_type == VARP_ASSIGNMENT_RESP) {
+	}
+	if (packet_type == VARP_ASSIGNMENT_RESP) {
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", Address = %s",
+				    vines_addr_to_str(tvb_get_ptr(tvb, 2, VINES_ADDR_LEN)));
+		}
+		if (tree) {
 			proto_tree_add_text(vines_arp_tree, tvb, 2,
 					    VINES_ADDR_LEN,
 					    "Address: %s",
 					    vines_addr_to_str(tvb_get_ptr(tvb, 2, VINES_ADDR_LEN)));
 		}
+	}
+	if (tree) {
 		proto_tree_add_text(vines_arp_tree, tvb, 2+VINES_ADDR_LEN, 4,
 				    "Sequence Number: %u",
 				    tvb_get_ntohl(tvb, 2+VINES_ADDR_LEN));
