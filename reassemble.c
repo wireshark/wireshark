@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.15 2002/04/17 10:59:58 guy Exp $
+ * $Id: reassemble.c,v 1.16 2002/04/22 08:14:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -643,7 +643,7 @@ fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
  */
 static gboolean
 fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
-	     packet_info *pinfo, guint32 id, guint32 frag_number,
+	     packet_info *pinfo, guint32 frag_number,
 	     guint32 frag_data_len, gboolean more_frags)
 {
 	fragment_data *fd;
@@ -831,10 +831,6 @@ fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 {
 	fragment_key key, *new_key;
 	fragment_data *fd_head;
-	fragment_data *fd;
-	fragment_data *fd_i;
-	fragment_data *last_fd;
-	guint32 max, dfpos, size;
 
 	/* create key to search hash with */
 	key.src = pinfo->src;
@@ -881,7 +877,7 @@ fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 		g_hash_table_insert(fragment_table, new_key, fd_head);
 	}
 
-	if (fragment_add_seq_work(fd_head, tvb, offset, pinfo, id,
+	if (fragment_add_seq_work(fd_head, tvb, offset, pinfo,
 				  frag_number, frag_data_len, more_frags)) {
 		/*
 		 * Reassembly is complete.
@@ -967,10 +963,6 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	gpointer orig_key, value;
 	fragment_data *fd_head;
 	gboolean short_frame;
-	fragment_data *fd;
-	fragment_data *fd_i;
-	fragment_data *last_fd;
-	guint32 max, dfpos, size;
 
 	/*
 	 * Have we already seen this frame?
@@ -1060,7 +1052,7 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		return frag_number == 0 ? fd_head : NULL;
 	}
 
-	if (fragment_add_seq_work(fd_head, tvb, offset, pinfo, id,
+	if (fragment_add_seq_work(fd_head, tvb, offset, pinfo,
 				  frag_number, frag_data_len, more_frags)) {
 		/*
 		 * Reassembly is complete.
