@@ -1,6 +1,6 @@
 /* packet-mip6.c
  *
- * $Id: packet-mip6.c,v 1.6 2003/12/21 05:51:33 jmayer Exp $
+ * $Id: packet-mip6.c,v 1.7 2004/03/30 17:52:15 guy Exp $
  *
  * Routines for Mobile IPv6 dissection (draft-ietf-mobileip-ipv6-20.txt)
  * Copyright 2003 Oy L M Ericsson Ab <teemu.rinta-aho@ericsson.fi>
@@ -441,7 +441,7 @@ dissect_mip6_options(tvbuff_t *tvb, proto_tree *mip6_tree, int offset, int len,
     if (!mip6_tree)
         return len;
 
-    ti = proto_tree_add_text(mip6_tree, tvb, offset, len - offset, 
+    ti = proto_tree_add_text(mip6_tree, tvb, offset, len, 
                              "Mobility Options");
     opts_tree = proto_item_add_subtree(ti, ett_mip6);
 
