@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.19 2001/09/13 08:02:10 guy Exp $
+ * $Id: packet-nlm.c,v 1.20 2001/09/14 06:48:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,8 +70,8 @@ static int hf_nlm_lock_svid = -1;
 static int hf_nlm_lock_l_offset = -1;
 static int hf_nlm_lock_l_len = -1;
 static int hf_nlm_reclaim = -1;
-static int hf_nlm_state = -1;
 static int hf_nlm_stat = -1;
+static int hf_nlm_state = -1;
 static int hf_nlm_test_stat = -1;
 static int hf_nlm_test_stat_stat = -1;
 static int hf_nlm_holder = -1;
@@ -85,7 +85,7 @@ static gint ett_nlm = -1;
 static gint ett_nlm_lock = -1;
 
 
-const value_string names_nlm_state[] =
+const value_string names_nlm_stats[] =
 {
 	/* NLM_GRANTED is the function number 5 and the state code 0.
 	 * So we use for the state the postfix _S.
@@ -204,7 +204,7 @@ dissect_nlm_lock(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_rpc_bool(tvb, pinfo, tree, hf_nlm_exclusive, offset);
 	offset = dissect_lock(tvb, pinfo, tree, version, offset);
 	offset = dissect_rpc_bool(tvb, pinfo, tree, hf_nlm_reclaim, offset);
-	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_nlm_stat, offset);
+	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_nlm_state, offset);
 	return offset;
 }
 
@@ -339,7 +339,7 @@ dissect_nlm_shareres(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, int version)
 {
 	offset = dissect_rpc_data(tvb, pinfo, tree, hf_nlm_cookie, offset);
-	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_nlm_state, offset);
+	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_nlm_stat, offset);
 	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_nlm_sequence, offset);
 	return offset;
 }
@@ -351,7 +351,7 @@ dissect_nlm_freeall(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_rpc_string(tvb,pinfo,tree,
 			hf_nlm_share_name, offset, NULL);
 
-	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_nlm_state, offset);
+	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_nlm_stat, offset);
 
 	return offset;
 }
@@ -366,7 +366,7 @@ dissect_nlm_gen_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree)
 {
 	offset = dissect_rpc_data(tvb, pinfo, tree, hf_nlm_cookie, offset);
-	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_nlm_state, offset);
+	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_nlm_stat, offset);
 	return offset;
 }
 
@@ -717,18 +717,18 @@ proto_register_nlm(void)
 		{ &hf_nlm_reclaim, {
 			"reclaim", "nlm.reclaim", FT_BOOLEAN, BASE_NONE,
 			&yesno, 0, "reclaim", HFILL }},
-		{ &hf_nlm_stat, {
-			"stat", "nlm.stat", FT_UINT32, BASE_DEC,
-			NULL, 0, "STATD state", HFILL }},
 		{ &hf_nlm_state, {
 			"state", "nlm.state", FT_UINT32, BASE_DEC,
-			VALS(names_nlm_state), 0, "state", HFILL }},
+			NULL, 0, "STATD state", HFILL }},
+		{ &hf_nlm_stat, {
+			"stat", "nlm.stat", FT_UINT32, BASE_DEC,
+			VALS(names_nlm_stats), 0, "stat", HFILL }},
 		{ &hf_nlm_test_stat, {
 			"test_stat", "nlm.test_stat", FT_NONE, 0,
 			NULL, 0, "test_stat", HFILL }},
 		{ &hf_nlm_test_stat_stat, {
 			"stat", "nlm.test_stat.stat", FT_UINT32, BASE_DEC,
-			VALS(names_nlm_state), 0, "stat", HFILL }},
+			VALS(names_nlm_stats), 0, "stat", HFILL }},
 		{ &hf_nlm_holder, {
 			"holder", "nlm.holder", FT_NONE, 0,
 			NULL, 0, "holder", HFILL }},
