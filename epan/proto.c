@@ -2701,14 +2701,23 @@ proto_register_subtree_array(gint *const *indices, int num_indices)
 	gint	*const *ptr = indices;
 
 	/*
-	 * Make sure we haven't already allocated the array of "tree is
-	 * expanded" flags.
-	 *
-	 * XXX - if it's *really* important to allow more ett_ values to
-	 * be given out after "proto_init()" is called, we could expand
-	 * the array.
+	 * If we've already allocated the array of tree types, expand
+	 * it; this lets plugins such as mate add tree types after
+	 * the initial startup.  (If we haven't already allocated it,
+	 * we don't allocate it; on the first pass, we just assign
+	 * ett values and keep track of how many we've assigned, and
+	 * when we're finished registering all dissectors we allocate
+	 * the array, so that we do only one allocation rather than
+	 * wasting CPU time and memory by growing the array for each
+	 * dissector that registers ett values.)
 	 */
-	g_assert(tree_is_expanded == NULL);
+	if (tree_is_expanded != NULL) {
+		tree_is_expanded =
+		    g_realloc(tree_is_expanded,
+		        (num_tree_types+num_indices)*sizeof (gint *));
+		memset(tree_is_expanded + num_tree_types, 0,
+		    num_indices*sizeof (gint *));
+	}
 
 	/*
 	 * Assign "num_indices" subtree numbers starting at "num_tree_types",
