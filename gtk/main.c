@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.375 2004/01/25 21:55:10 guy Exp $
+ * $Id: main.c,v 1.376 2004/01/25 22:20:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -809,7 +809,7 @@ main_filter_packets(capture_file *cf, const gchar *dftext)
   /* GtkCombos don't let us get at their list contents easily, so we maintain
      our own filter list, and feed it to gtk_combo_set_popdown_strings when
      a new filter is added. */
-  if ((filter_packets_ret = filter_packets(&cfile, s))) {
+  if ((filter_packets_ret = filter_packets(cf, s))) {
     li = g_list_first(filter_list);
     while (li) {
       if (li->data && strcmp(s, li->data) == 0)
@@ -840,7 +840,7 @@ main_filter_packets(capture_file *cf, const gchar *dftext)
 /* Run the current display filter on the current packet set, and
    redisplay. */
 static void
-filter_activate_cb(GtkWidget *w, gpointer data)
+filter_activate_cb(GtkWidget *w _U_, gpointer data)
 {
   const char *s;
 
