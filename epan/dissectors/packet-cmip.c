@@ -2501,10 +2501,10 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		case SES_CONNECTION_ACCEPT:
 		case SES_DISCONNECT:
 		case SES_FINISH:
+		case SES_REFUSE:
 			dissect_cmip_CMIPUserInfo(FALSE,tvb,0,pinfo,tree,-1);
 			break;
 		case SES_ABORT:
-		case SES_REFUSE:
 			dissect_cmip_CMIPAbortInfo(FALSE,tvb,0,pinfo,tree,-1);
 			break;
 		case SES_DATA_TRANSFER:
