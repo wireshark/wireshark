@@ -2,7 +2,7 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.2 1999/04/05 23:39:51 guy Exp $
+ * $Id: packet-pop.c,v 1.3 1999/05/13 01:05:11 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -39,7 +39,6 @@
 # include <netinet/in.h>
 #endif
 
-#include <arpa/tftp.h>
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
