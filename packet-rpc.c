@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.116 2003/04/16 12:15:06 sahlberg Exp $
+ * $Id: packet-rpc.c,v 1.117 2003/04/18 06:34:42 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2170,6 +2170,14 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	}
 
+	/* we must queue this packet to the tap system before we actually
+	   call the subdissectors since short packets (i.e. nfs read reply)
+	   will cause an exception and execution would never reach the call
+	   to tap_queue_packet() in that case
+	*/
+	tap_queue_packet(rpc_tap, pinfo, rpc_call);
+
+
 	if (!proto_is_protocol_enabled(proto))
 		dissect_function = NULL;
 
@@ -2285,7 +2293,6 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	}
 
-	tap_queue_packet(rpc_tap, pinfo, rpc_call);
 	return TRUE;
 }
 
