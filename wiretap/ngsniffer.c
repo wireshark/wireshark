@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.29 1999/11/29 08:00:58 guy Exp $
+ * $Id: ngsniffer.c,v 1.30 1999/12/09 23:17:19 oabad Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -62,10 +62,17 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <time.h>
+#include <string.h>
 #include "wtap.h"
 #include "file.h"
 #include "buffer.h"
 #include "ngsniffer.h"
+
+/* Magic number in Sniffer files. */
+static const char ngsniffer_magic[] = {
+	'T', 'R', 'S', 'N', 'I', 'F', 'F', ' ', 'd', 'a', 't', 'a',
+	' ', ' ', ' ', ' ', 0x1a
+};
 
 /*
  * Sniffer record types.
@@ -240,11 +247,14 @@ struct frame4_rec {
 static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 1.0, 0.1 };
 
 static int ngsniffer_read(wtap *wth, int *err);
+static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+	const u_char *pd, int *err);
+static gboolean ngsniffer_dump_close(wtap_dumper *wdh, int *err);
 
 int ngsniffer_open(wtap *wth, int *err)
 {
 	int bytes_read;
-	char magic[18];
+	char magic[sizeof ngsniffer_magic];
 	char record_type[2];
 	char record_length[4]; /* only the first 2 bytes are length,
 							  the last 2 are "reserved" and are thrown away */
@@ -272,18 +282,16 @@ int ngsniffer_open(wtap *wth, int *err)
 	file_seek(wth->fh, 0, SEEK_SET);
 	wth->data_offset = 0;
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(magic, 1, 17, wth->fh);
-	if (bytes_read != 17) {
+	bytes_read = file_read(magic, 1, sizeof magic, wth->fh);
+	if (bytes_read != sizeof magic) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += 17;
+	wth->data_offset += sizeof magic;
 
-	magic[17] = 0;
-
-	if (strcmp(magic, "TRSNIFF data    \x1a")) {
+	if (memcmp(magic, ngsniffer_magic, sizeof ngsniffer_magic)) {
 		return 0;
 	}
 
@@ -627,4 +635,173 @@ found:
 			*1.0e6);
 	wth->phdr.pkt_encap = wth->file_encap;
 	return data_offset;
+}
+
+static const int wtap_encap[] = {
+    -1,		/* WTAP_ENCAP_UNKNOWN -> unsupported */
+    1,		/* WTAP_ENCAP_ETHERNET */
+    0,		/* WTAP_ENCAP_TR */
+    -1,		/* WTAP_ENCAP_SLIP -> unsupported */
+    7,		/* WTAP_ENCAP_PPP -> Internetwork analyzer (synchronous) FIXME ! */
+    -1,		/* WTAP_ENCAP_FDDI -> unsupported */
+    9,		/* WTAP_ENCAP_FDDI_BITSWAPPED */
+    -1,		/* WTAP_ENCAP_RAW_IP -> unsupported */
+    2,		/* WTAP_ENCAP_ARCNET */
+    -1,		/* WTAP_ENCAP_ATM_RFC1483 */
+    -1,		/* WTAP_ENCAP_LINUX_ATM_CLIP */
+    7,		/* WTAP_ENCAP_LAPB -> Internetwork analyzer (synchronous) */
+    -1,		/* WTAP_ENCAP_ATM_SNIFFER */
+    -1		/* WTAP_ENCAP_NULL -> unsupported */
+};
+#define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
+
+/* Returns 0 if we could write the specified encapsulation type,
+   an error indication otherwise. */
+int ngsniffer_dump_can_write_encap(int filetype, int encap)
+{
+    /* Per-packet encapsulations aren't supported. */
+    if (encap == WTAP_ENCAP_PER_PACKET)
+	return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+
+    if (encap < 0 || encap >= NUM_WTAP_ENCAPS || wtap_encap[encap] == -1)
+	return WTAP_ERR_UNSUPPORTED_ENCAP;
+
+    return 0;
+}
+
+/* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
+   failure */
+gboolean ngsniffer_dump_open(wtap_dumper *wdh, int *err)
+{
+    struct vers_rec version;
+    int nwritten;
+    char buf[6] = {REC_VERS, 0x00, 0x12, 0x00, 0x00, 0x00}; /* version record */
+    gint16 maj_vers, min_vers;
+
+    /* This is a sniffer file */
+    wdh->subtype_write = ngsniffer_dump;
+    wdh->subtype_close = ngsniffer_dump_close;
+
+    /* Write the file header. */
+    nwritten = fwrite(ngsniffer_magic, 1, sizeof ngsniffer_magic, wdh->fh);
+    if (nwritten != sizeof ngsniffer_magic) {
+	if (nwritten < 0)
+	    *err = errno;
+	else
+	    *err = WTAP_ERR_SHORT_WRITE;
+	return FALSE;
+    }
+    nwritten = fwrite(buf, 1, 6, wdh->fh);
+    if (nwritten != 6) {
+	if (nwritten < 0)
+	    *err = errno;
+	else
+	    *err = WTAP_ERR_SHORT_WRITE;
+	return FALSE;
+    }
+
+    /* "sniffer" version ? */
+    maj_vers = 4;
+    min_vers = 0;
+    version.maj_vers = pletohs(&maj_vers);
+    version.min_vers = pletohs(&min_vers);
+    version.time = 0;
+    version.date = 0;
+    version.type = 4;
+    version.network = wtap_encap[wdh->encap];
+    version.format = 1;
+    version.timeunit = 1; /* 0.838096 */
+    version.cmprs_vers = 0;
+    version.cmprs_level = 0;
+    version.rsvd[0] = 0;
+    version.rsvd[1] = 0;
+    nwritten = fwrite(&version, 1, sizeof version, wdh->fh);
+    if (nwritten != sizeof version) {
+	if (nwritten < 0)
+	    *err = errno;
+	else
+	    *err = WTAP_ERR_SHORT_WRITE;
+	return FALSE;
+    }
+
+    return TRUE;
+}
+
+/* Write a record for a packet to a dump file.
+   Returns TRUE on success, FALSE on failure. */
+static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+    const u_char *pd, int *err)
+{
+    struct frame2_rec rec_hdr;
+    int nwritten;
+    char buf[6];
+    double t;
+    guint16 t_low, t_med, t_high;
+
+    buf[0] = REC_FRAME2;
+    buf[1] = 0x00;
+    buf[2] = (char)((phdr->caplen + sizeof(struct frame2_rec))%256);
+    buf[3] = (char)((phdr->caplen + sizeof(struct frame2_rec))/256);
+    buf[4] = 0x00;
+    buf[5] = 0x00;
+    nwritten = fwrite(buf, 1, 6, wdh->fh);
+    if (nwritten != 6) {
+	if (nwritten < 0)
+	    *err = errno;
+	else
+	    *err = WTAP_ERR_SHORT_WRITE;
+	return FALSE;
+    }
+    t = (double)phdr->ts.tv_sec + (double)phdr->ts.tv_usec/1.0e6;
+    t = t * (1.0e6 / Usec[1]); /* timeunit = 1 */
+    t_low = (guint16)(t-(double)((guint32)(t/65536.0))*65536.0);
+    t_med = (guint16)((guint32)(t/65536.0) % 65536);
+    t_high = (guint16)((guint32)(t/4294967296.0));
+    rec_hdr.time_low = pletohs(&t_low);
+    rec_hdr.time_med = pletohs(&t_med);
+    rec_hdr.time_high = pletohs(&t_high);
+    rec_hdr.size = pletohs(&phdr->caplen);
+    if (wdh->encap == WTAP_ENCAP_LAPB || wdh->encap == WTAP_ENCAP_PPP)
+	rec_hdr.fs = phdr->pseudo_header.x25.flags & 0x80;
+    else
+	rec_hdr.fs = 0;
+    rec_hdr.flags = 0;
+    rec_hdr.true_size = phdr->len != phdr->caplen ? pletohs(&phdr->len) : 0;
+    rec_hdr.rsvd = 0;
+    nwritten = fwrite(&rec_hdr, 1, sizeof rec_hdr, wdh->fh);
+    if (nwritten != sizeof rec_hdr) {
+	if (nwritten < 0)
+	    *err = errno;
+	else
+	    *err = WTAP_ERR_SHORT_WRITE;
+	return FALSE;
+    }
+    nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
+    if (nwritten != phdr->caplen) {
+	if (nwritten < 0)
+	    *err = errno;
+	else
+	    *err = WTAP_ERR_SHORT_WRITE;
+	return FALSE;
+    }
+    return TRUE;
+}
+
+/* Finish writing to a dump file.
+   Returns TRUE on success, FALSE on failure. */
+static gboolean ngsniffer_dump_close(wtap_dumper *wdh, int *err)
+{
+    /* EOF record */
+    char buf[6] = {REC_EOF, 0x00, 0x00, 0x00, 0x00, 0x00};
+    int nwritten;
+
+    nwritten = fwrite(buf, 1, 6, wdh->fh);
+    if (nwritten != 6) {
+	if (nwritten < 0)
+	    *err = errno;
+	else
+	    *err = WTAP_ERR_SHORT_WRITE;
+	return FALSE;
+    }
+    return TRUE;
 }
