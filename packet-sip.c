@@ -17,7 +17,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.43 2003/09/26 20:00:38 guy Exp $
+ * $Id: packet-sip.c,v 1.44 2003/09/26 21:32:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -260,56 +260,25 @@ typedef enum {
 
 /* global_sip_raw_text determines whether we are going to display		*/
 /* the raw text of the SIP message, much like the MEGACO dissector does.	*/
-
 static gboolean global_sip_raw_text = FALSE;
-
 
 static gboolean dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, gboolean is_heur);
-static line_type_t sip_parse_line(tvbuff_t *tvb, gint eol, guint *token_1_len);
+static line_type_t sip_parse_line(tvbuff_t *tvb, gint linelen,
+    guint *token_1_len);
 static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
     guint meth_len);
-static gint sip_get_msg_offset(tvbuff_t *tvb, int offset);
 static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset,
     guint header_len);
-void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len);
-void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree);
+static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree,
+    guint meth_len);
+static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree);
+static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
 
 static dissector_handle_t sdp_handle;
-static dissector_handle_t data_handle;
-
-static void 
-tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
-
 
 #define SIP2_HDR "SIP/2.0"
 #define SIP2_HDR_LEN (strlen (SIP2_HDR))
-
-
-
-/* Copied from MGCP dissector, prints whole message in raw text */
-
-static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree){
-
-  proto_tree *raw_tree;
-  proto_item *ti;
-  gint tvb_linebegin,tvb_lineend,tvb_len,linelen;
-
-  ti = proto_tree_add_item(tree, proto_raw_sip, tvb, 0, -1, FALSE);
-  raw_tree = proto_item_add_subtree(ti, ett_raw_text);
-
-  tvb_linebegin = 0;
-  tvb_len = tvb_length(tvb);
-
-  do {
-    tvb_find_line_end(tvb,tvb_linebegin,-1,&tvb_lineend,FALSE);
-    linelen = tvb_lineend - tvb_linebegin;
-    proto_tree_add_text(raw_tree, tvb, tvb_linebegin, linelen,
-			"%s", tvb_format_text(tvb,tvb_linebegin,
-					      linelen));
-    tvb_linebegin = tvb_lineend;
-  } while ( tvb_lineend < tvb_len );
-}
 
 /* Code to actually dissect the packets */
 static int
@@ -320,23 +289,31 @@ dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return tvb_length(tvb);
 }
 
+static void
+dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_sip_common(tvb, pinfo, tree, TRUE);
+}
+
 static gboolean
 dissect_sip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	return dissect_sip_common(tvb, pinfo, tree, TRUE);
+	return dissect_sip_common(tvb, pinfo, tree, FALSE);
 }
 
 static gboolean
 dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    gboolean is_heur)
+    gboolean dissect_other_as_continuation)
 {
         int offset;
-        gint eol, next_offset, msg_offset;
+        gint next_offset, linelen;
 	line_type_t line_type;
         tvbuff_t *next_tvb;
         gboolean is_known_request;
         char *descr;
         guint token_1_len;
+        proto_item *ts = NULL, *ti, *th = NULL;
+        proto_tree *sip_tree, *reqresp_tree, *hdr_tree = NULL;
 
         /*
          * Note that "tvb_find_line_end()" will return a value that
@@ -347,28 +324,22 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * "sip_parse_line()" won't throw an exception.
          */
         offset = 0;
-        eol = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
-        line_type = sip_parse_line(tvb, eol, &token_1_len);
+        linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
+        line_type = sip_parse_line(tvb, linelen, &token_1_len);
         if (line_type == OTHER_LINE) {
         	/*
         	 * This is neither a SIP request nor response.
         	 */
-                if (is_heur) {
+                if (!dissect_other_as_continuation) {
                         /*
-                         * This is a heuristic dissector, which means we get
-                         * all the UDP and TCP traffic not sent to a known
-                         * dissector and not claimed by a heuristic dissector
-                         * called before us!
-                         *
-                         * Therefore, we reject this as not being for us.
+                         * We were asked to reject this.
                          */
                 	return FALSE;
-                } else {
-                	/*
-                	 * Just dissect it as data.
-                	 */
-                	goto bad;
                 }
+
+                /*
+                 * Just dissect it as a continuation.
+                 */
         }
 
         if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -382,7 +353,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 if (check_col(pinfo->cinfo, COL_INFO)) {
                         col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
                              descr,
-                             tvb_format_text(tvb, 0, eol - SIP2_HDR_LEN - 1));
+                             tvb_format_text(tvb, 0, linelen - SIP2_HDR_LEN - 1));
                 }
 		break;
 
@@ -390,7 +361,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 descr = "Status";
                 if (check_col(pinfo->cinfo, COL_INFO)) {
                         col_add_fstr(pinfo->cinfo, COL_INFO, "Status: %s",
-                             tvb_format_text(tvb, SIP2_HDR_LEN + 1, eol - SIP2_HDR_LEN - 1));
+                             tvb_format_text(tvb, SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1));
                 }
 		break;
 
@@ -401,18 +372,14 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
                 break;
         }
-        msg_offset = sip_get_msg_offset(tvb, offset);
 
         if (tree) {
-                proto_item *ti, *th;
-                proto_tree *sip_tree, *reqresp_tree, *hdr_tree;
-
-                ti = proto_tree_add_item(tree, proto_sip, tvb, 0, -1, FALSE);
-                sip_tree = proto_item_add_subtree(ti, ett_sip);
+                ts = proto_tree_add_item(tree, proto_sip, tvb, 0, -1, FALSE);
+                sip_tree = proto_item_add_subtree(ts, ett_sip);
 
                 ti = proto_tree_add_text(sip_tree, tvb, 0, next_offset,
                                          "%s line: %s", descr,
-                                         tvb_format_text(tvb, 0, eol));
+                                         tvb_format_text(tvb, 0, linelen));
                 reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
 
 		switch (line_type) {
@@ -426,28 +393,46 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         break;
 
 		case OTHER_LINE:
-		        break;
+		        proto_tree_add_text(sip_tree, tvb, 0, -1,
+		            "Continuation data");
+		        return TRUE;
                 }
 
                 offset = next_offset;
-                th = proto_tree_add_item(sip_tree, hf_msg_hdr, tvb, offset, msg_offset - offset, FALSE);
+                th = proto_tree_add_item(sip_tree, hf_msg_hdr, tvb, offset, -1,
+                    FALSE);
                 hdr_tree = proto_item_add_subtree(th, ett_sip_hdr);
+        }
 
-                /* - 2 since we have a CRLF separating the message-body */
-                while (msg_offset - 2 > (int) offset) {
-                	gint line_end_offset;
-                	gint colon_offset;
-			gint header_len;
-                        gint hf_index;
-                        gint value_offset;
-                        guchar c;
-		        size_t value_len;
-			char *value;
+        /*
+         * Process the headers - if we're not building a protocol tree,
+         * we just do this to find the blank line separating the
+         * headers from the message body.
+         */
+        next_offset = offset;
+        while (tvb_reported_length_remaining(tvb, offset) > 0) {
+                gint line_end_offset;
+                gint colon_offset;
+                gint header_len;
+                gint hf_index;
+                gint value_offset;
+                guchar c;
+		size_t value_len;
+                char *value;
 
-                        eol = tvb_find_line_end(tvb, offset, -1, &next_offset,
-                            FALSE);
-                        line_end_offset = offset + eol;
-			colon_offset = tvb_find_guint8(tvb, offset, -1, ':');
+                linelen = tvb_find_line_end(tvb, offset, -1, &next_offset,
+                    FALSE);
+                if (linelen == 0) {
+                        /*
+                         * This is a blank line separating the
+                         * message header from the message body.
+                         */
+                        break;
+                }
+                if (tree) {
+                        line_end_offset = offset + linelen;
+			colon_offset = tvb_find_guint8(tvb, offset, linelen,
+			    ':');
 			if (colon_offset == -1) {
 				/*
 				 * Malformed header - no colon after the
@@ -455,7 +440,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				 */
 				proto_tree_add_text(hdr_tree, tvb, offset,
 				    next_offset - offset, "%s",
-				    tvb_format_text(tvb, offset, eol));
+				    tvb_format_text(tvb, offset, linelen));
 			} else {
 				header_len = colon_offset - offset;
 				hf_index = sip_is_known_sip_header(tvb,
@@ -464,7 +449,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				if (hf_index == -1) {
 					proto_tree_add_text(hdr_tree, tvb,
 					    offset, next_offset - offset, "%s",
-					    tvb_format_text(tvb, offset, eol));
+					    tvb_format_text(tvb, offset, linelen));
 				} else {
 					/*
 					 * Skip whitespace after the colon.
@@ -490,33 +475,35 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					    hf_header_array[hf_index], tvb,
 					    offset, next_offset - offset,
 					    value, "%s",
-					    tvb_format_text(tvb, offset, eol));
+					    tvb_format_text(tvb, offset, linelen));
 					g_free(value);
 				}
 			} 
-					    
-                        offset = next_offset;
                 }
-                offset += 2;  /* Skip the CRLF mentioned above */
+                offset = next_offset;
         }
 
-        if (tvb_offset_exists(tvb, msg_offset)) {
-                next_tvb = tvb_new_subset(tvb, msg_offset, -1, -1);
+        if (tvb_offset_exists(tvb, next_offset)) {
+                /*
+                 * There's a message body starting at "next_offset".
+                 * Set the length of the SIP portion and of the
+                 * header item.
+                 */
+                proto_item_set_end(ts, tvb, next_offset);
+                proto_item_set_end(th, tvb, next_offset);
+                next_tvb = tvb_new_subset(tvb, next_offset, -1, -1);
                 call_dissector(sdp_handle, next_tvb, pinfo, tree);
         }
-	if(global_sip_raw_text)
-		tvb_raw_text_add(tvb, tree);
-        return TRUE;
 
-  bad:
-        next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-        call_dissector(data_handle,next_tvb, pinfo, tree);
+        if (global_sip_raw_text)
+                tvb_raw_text_add(tvb, tree);
 
         return TRUE;
 }
 
 /* Display filter for SIP Request-Line */
-void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len)
+static void
+dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len)
 {
 	char	*string;
 
@@ -530,7 +517,8 @@ void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len)
 }
 
 /* Display filter for SIP Status-Line */
-void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree)
+static void
+dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree)
 {
 	char string[3+1];
 
@@ -546,32 +534,6 @@ void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree)
             3, string);
 }
 
-/* Returns the offset to the start of the optional message-body, or
- * an offset just past the end of the packet if not found.
- */
-static gint sip_get_msg_offset(tvbuff_t *tvb, int offset)
-{
-        gint linelen, next_offset;
-
-	while (tvb_offset_exists(tvb, offset)) {
-                linelen = tvb_find_line_end(tvb, offset, -1, &next_offset,
-                                            FALSE);
-                /*
-                 * If the line length is 0, this is a blank line;
-                 * we're done.
-                 */
-                if (linelen == 0)
-                        break;
-                offset = next_offset;
-        }
-
-        /*
-         * Return the offset just past the line we just processed (or
-         * past the end of the buffer if we didn't find a blank line).
-         */
-        return next_offset;
-}
-
 /* From section 4.1 of RFC 2543:
  *
  * Request-Line  =  Method SP Request-URI SP SIP-Version CRLF
@@ -581,7 +543,7 @@ static gint sip_get_msg_offset(tvbuff_t *tvb, int offset)
  * Status-Line  =  SIP-version SP Status-Code SP Reason-Phrase CRLF
  */
 static line_type_t
-sip_parse_line(tvbuff_t *tvb, gint eol, guint *token_1_lenp)
+sip_parse_line(tvbuff_t *tvb, gint linelen, guint *token_1_lenp)
 {
 	gint space_offset;
 	guint token_1_len;
@@ -616,7 +578,7 @@ sip_parse_line(tvbuff_t *tvb, gint eol, guint *token_1_lenp)
 	}
 	token_2_len = space_offset - token_2_start;
 	token_3_start = space_offset + 1;
-	token_3_len = eol - token_3_start;
+	token_3_len = linelen - token_3_start;
 	
 	*token_1_lenp = token_1_len;
 
@@ -712,6 +674,30 @@ static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset, guint header_len)
         }
 
         return -1;
+}
+
+/*
+ * Display the entire message as raw text.
+ */
+static void
+tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
+{
+        proto_tree *raw_tree;
+        proto_item *ti;
+        int offset, next_offset, linelen;
+
+        ti = proto_tree_add_item(tree, proto_raw_sip, tvb, 0, -1, FALSE);
+        raw_tree = proto_item_add_subtree(ti, ett_raw_text);
+
+        offset = 0;
+
+        while (tvb_offset_exists(tvb, offset)) {
+                tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+                linelen = next_offset - offset;
+                proto_tree_add_text(raw_tree, tvb, offset, linelen,
+                    "%s", tvb_format_text(tvb, offset, linelen));
+                offset = next_offset;
+        }
 }
 
 /* Register the protocol with Ethereal */
@@ -1021,19 +1007,20 @@ void proto_register_sip(void)
 void
 proto_reg_handoff_sip(void)
 {
-        dissector_handle_t sip_handle;
+        dissector_handle_t sip_handle, sip_tcp_handle;
 
         sip_handle = new_create_dissector_handle(dissect_sip, proto_sip);
-        dissector_add("tcp.port", TCP_PORT_SIP, sip_handle);
         dissector_add("udp.port", UDP_PORT_SIP, sip_handle);
 
-        heur_dissector_add( "udp", dissect_sip_heur, proto_sip );
-        heur_dissector_add( "tcp", dissect_sip_heur, proto_sip );
-        heur_dissector_add( "sctp", dissect_sip_heur, proto_sip );
+        sip_tcp_handle = create_dissector_handle(dissect_sip_tcp, proto_sip);
+        dissector_add("tcp.port", TCP_PORT_SIP, sip_tcp_handle);
+
+        heur_dissector_add("udp", dissect_sip_heur, proto_sip);
+        heur_dissector_add("tcp", dissect_sip_heur, proto_sip);
+        heur_dissector_add("sctp", dissect_sip_heur, proto_sip);
 
         /*
          * Get a handle for the SDP dissector.
          */
         sdp_handle = find_dissector("sdp");
-        data_handle = find_dissector("data");
 }
