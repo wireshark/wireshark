@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.21 2002/01/24 09:20:52 guy Exp $
+ * $Id: packet-vrrp.c,v 1.22 2002/03/06 06:33:37 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,7 @@ static gint hf_vrrp_count_ip = -1;
 static gint hf_vrrp_auth_type = -1;
 static gint hf_vrrp_adver_int = -1;
 static gint hf_vrrp_ip = -1;
+static gint hf_vrrp_ip6 = -1;
 
 #define VRRP_VERSION_MASK 0xf0
 #define VRRP_TYPE_MASK 0x0f
@@ -111,7 +112,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (tree) {
                 proto_item *ti, *tv;
                 proto_tree *vrrp_tree, *ver_type_tree;
-                guint8 priority, ip_count, auth_type;
+                guint8 priority, ip_count = 0, auth_type;
                 guint16 cksum, computed_cksum;
                 guint8 auth_buf[VRRP_AUTH_DATA_LEN+1];
 
@@ -139,9 +140,19 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                            val_to_str(priority, vrrp_prio_vals, "Non-default backup priority"));
                 offset++;
 
-                ip_count = tvb_get_guint8(tvb, offset);
-                proto_tree_add_uint(vrrp_tree, hf_vrrp_count_ip, tvb, offset, 1, ip_count);
-                offset++;
+		switch(hi_nibble(ver_type)) {
+		case 3:
+			/* Skip reserve field */
+			offset++;
+			break;
+		case 2:
+		default:
+			ip_count = tvb_get_guint8(tvb, offset);
+			proto_tree_add_uint(vrrp_tree, hf_vrrp_count_ip, tvb,
+			    offset, 1, ip_count);
+			offset++;
+			break;
+		}
 
                 auth_type = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(vrrp_tree, hf_vrrp_auth_type, tvb, offset, 1, FALSE);
@@ -174,12 +185,21 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
                 offset+=2;
 
-                while (ip_count > 0) {
-                        proto_tree_add_item(vrrp_tree, hf_vrrp_ip, tvb, offset, 4, FALSE);
-                        offset+=4;
-                        ip_count--;
-                }
-
+		switch(hi_nibble(ver_type)) {
+		case 3:
+			proto_tree_add_item(vrrp_tree, hf_vrrp_ip6, tvb, offset, 16, FALSE);
+			offset+=16;
+			break;
+		case 2:
+		default:
+			while (ip_count > 0) {
+				proto_tree_add_item(vrrp_tree, hf_vrrp_ip, tvb,
+				    offset, 4, FALSE);
+				offset+=4;
+				ip_count--;
+			}
+			break;
+		}
                 if (auth_type != VRRP_AUTH_TYPE_SIMPLE_TEXT)
                         return; /* Contents of the authentication data is undefined */
 
@@ -241,6 +261,10 @@ void proto_register_vrrp(void)
                    FT_IPv4, 0, NULL, 0x0,
                    "IP address associated with the virtual router", HFILL }},
 
+                { &hf_vrrp_ip6,
+                  {"IPv6 Address", "vrrp.ipv6_addr",
+                   FT_IPv6, 0, NULL, 0x0,
+                   "IPv6 address associated with the virtual router", HFILL }},
         };
 
         static gint *ett[] = {
