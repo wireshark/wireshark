@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.94 2000/06/20 13:21:55 gram Exp $
+ * $Id: packet-ip.c,v 1.95 2000/07/05 09:40:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "resolv.h"
+#include "prefs.h"
 
 #ifdef NEED_SNPRINTF_H
 # ifdef HAVE_STDARG_H
@@ -1390,6 +1391,7 @@ proto_register_ip(void)
 		&ett_ip_option_route,
 		&ett_ip_option_timestamp,
 	};
+	module_t *ip_module;
 
 	proto_ip = proto_register_protocol ("Internet Protocol", "ip");
 	proto_register_field_array(proto_ip, hf, array_length(hf));
@@ -1397,6 +1399,13 @@ proto_register_ip(void)
 
 	/* subdissector code */
 	ip_dissector_table = register_dissector_table("ip.proto");
+
+	/* Register a configuration option for decoding TOS as DSCP */
+	ip_module = prefs_register_module("ip", "IP", NULL);
+	prefs_register_bool_preference(ip_module, "decode_tos_as_diffserv",
+	    "Decode IPv4 TOS field as DiffServ field",
+"Whether the IPv4 type-of-service field should be decoded as a Differentiated Services field",
+	    &g_ip_dscp_actif);
 }
 
 void

@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.15 2000/01/06 07:33:22 guy Exp $
+ * $Id: prefs.h,v 1.16 2000/07/05 09:40:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,7 +50,96 @@ typedef struct _e_prefs {
 
 extern e_prefs prefs;
 
-e_prefs* read_prefs(char **);
+/*
+ * Routines to let modules that have preference settings register
+ * themselves by name, and to let them register preference settings
+ * by name.
+ */
+struct pref_module;
+
+typedef struct pref_module module_t;
+
+/*
+ * Register a module that will have preferences.
+ * Specify the name used for the module in the preferences file, the
+ * title used in the tab for it in a preferences dialog box, and a
+ * routine to call back when we apply the preferences.
+ */
+module_t *prefs_register_module(const char *name, const char *title,
+    void (*apply_cb)(void));
+
+typedef void (*module_cb)(module_t *module, gpointer user_data);
+
+/*
+ * Call a callback function, with a specified argument, for each module.
+ */
+void prefs_module_foreach(module_cb callback, gpointer user_data);
+
+/*
+ * Call the "apply" callback function for each module.
+ */
+void prefs_apply_all(void);
+
+struct preference;
+
+typedef struct preference pref_t;
+
+/*
+ * Register a preference with an unsigned integral value.
+ */
+void prefs_register_uint_preference(module_t *module, const char *name,
+    const char *title, const char *description, guint base, guint *var);
+
+/*
+ * Register a preference with an Boolean value.
+ */
+void prefs_register_bool_preference(module_t *module, const char *name,
+    const char *title, const char *description, gboolean *var);
+
+/*
+ * Register a preference with an enumerated value.
+ */
+typedef struct {
+	char	*name;
+	gint	value;
+} enum_val;
+
+void prefs_register_enum_preference(module_t *module, const char *name,
+    const char *title, const char *description, gint *var,
+    const enum_val *enumvals, gboolean radio_buttons);
+
+/*
+ * Register a preference with a character-string value.
+ */
+void prefs_register_string_preference(module_t *module, const char *name,
+    const char *title, const char *description, char **var);
+
+typedef void (*pref_cb)(pref_t *pref, gpointer user_data);
+
+/*
+ * Call a callback function, with a specified argument, for each preference
+ * in a given module.
+ */
+void prefs_pref_foreach(module_t *module, pref_cb callback, gpointer user_data);
+
+/*
+ * Register all non-dissector modules' preferences.
+ */
+void prefs_register_modules(void);
+
+e_prefs *read_prefs(int *, char **, int *, char **);
 int write_prefs(char **);
+
+/*
+ * Given a string of the form "<pref name>:<pref value>", as might appear
+ * as an argument to a "-o" option, parse it and set the preference in
+ * question.  Return an indication of whether it succeeded or failed
+ * in some fashion.
+ */
+#define PREFS_SET_OK		0	/* succeeded */
+#define PREFS_SET_SYNTAX_ERR	1	/* syntax error in string */
+#define PREFS_SET_NO_SUCH_PREF	2	/* no such preference */
+
+int prefs_set_pref(char *prefarg);
 
 #endif /* prefs.h */

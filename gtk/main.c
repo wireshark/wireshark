@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.127 2000/07/05 02:04:16 guy Exp $
+ * $Id: main.c,v 1.128 2000/07/05 09:41:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1144,15 +1144,16 @@ print_usage(void) {
   fprintf(stderr, "%s [ -vh ] [ -kQS ] [ -b <bold font> ] [ -B <byte view height> ]\n",
 	  PACKAGE);
   fprintf(stderr, "\t[ -c count ] [ -D ] [ -f <capture filter> ] [ -i interface ]\n");
-  fprintf(stderr, "\t[ -m <medium font> ] [ -n ] [ -P <packet list height> ] [ -r infile ]\n");
-  fprintf(stderr, "\t[ -R <read filter> ] [ -s snaplen ] [ -t <time stamp format> ]\n");
-  fprintf(stderr, "\t[ -T <tree view height> ] [ -w savefile ]\n");
+  fprintf(stderr, "\t[ -m <medium font> ] [ -n ] [ -o <preference setting> ] ...\n");
+  fprintf(stderr, "\t[ -P <packet list height> ] [ -r infile ] [ -R <read filter> ]\n");
+  fprintf(stderr, "\t[ -s snaplen ] [ -t <time stamp format> ] [ -T <tree view height> ]\n");
+  fprintf(stderr, "\t[ -w savefile ]\n");
 #else
   fprintf(stderr, "%s [ -vh ] [ -b <bold font> ] [ -B <byte view height> ]\n",
 	  PACKAGE);
-  fprintf(stderr, "\t[ -m <medium font> ] [ -n ] [ -P <packet list height> ] [ -r infile ]\n");
-  fprintf(stderr, "\t[ -R <read filter> ] [ -t <time stamp format> ]\n");
-  fprintf(stderr, "\t[ -T <tree view height> ]\n");
+  fprintf(stderr, "\t[ -m <medium font> ] [ -n ] [ -o <preference setting ] ...\n");
+  fprintf(stderr, "\t[ -P <packet list height> ] [ -r infile ] [ -R <read filter> ]\n");
+  fprintf(stderr, "\t[ -t <time stamp format> ] [ -T <tree view height> ]\n");
 #endif
 }
 
@@ -1175,8 +1176,8 @@ main(int argc, char *argv[])
   extern char          pcap_version[];
 #endif
 #endif
-  char                *pf_path;
-  int                  pf_open_errno = 0;
+  char                *gpf_path, *pf_path;
+  int                  gpf_open_errno, pf_open_errno;
   int                  err;
 #ifdef HAVE_LIBPCAP
   gboolean             start_capture = FALSE;
@@ -1201,6 +1202,16 @@ main(int argc, char *argv[])
   capture_child = (strcmp(command_name, CHILD_NAME) == 0);
 #endif
 
+  /* Register all dissectors; we must do this before checking for the
+     "-G" flag, as the "-G" flag dumps a list of fields registered
+     by the dissectors, and we must do it before we read the preferences,
+     in case any dissectors register preferences. */
+  dissect_init();
+
+  /* Now register the preferences for any non-dissector modules.
+     We must do that before we read the preferences as well. */
+  prefs_register_modules();
+
   /* If invoked with the "-G" flag, we dump out a glossary of
      display filter symbols.
 
@@ -1221,7 +1232,6 @@ main(int argc, char *argv[])
 
 	any arguments after the "-G" flag will not be used. */
   if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
-    dissect_init();
     proto_registrar_dump();
     exit(0);
   }
@@ -1235,13 +1245,7 @@ main(int argc, char *argv[])
   /* Let GTK get its args */
   gtk_init (&argc, &argv);
   
-  prefs = read_prefs(&pf_path);
-  if (pf_path != NULL) {
-    /* The preferences file exists, but couldn't be opened; "pf_path" is
-       its pathname.  Remember "errno", as that says why the attempt
-       failed. */
-    pf_open_errno = errno;
-  }
+  prefs = read_prefs(&gpf_open_errno, &gpf_path, &pf_open_errno, &pf_path);
 
   /* Initialize the capture file struct */
   cfile.plist		= NULL;
@@ -1312,7 +1316,7 @@ main(int argc, char *argv[])
    );
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "b:B:c:Df:hi:km:nP:Qr:R:Ss:t:T:w:W:vZ:")) != EOF) {
+  while ((opt = getopt(argc, argv, "b:B:c:Df:hi:km:no:P:Qr:R:Ss:t:T:w:W:vZ:")) != EOF) {
     switch (opt) {
       case 'b':	       /* Bold font */
 	bold_font = g_strdup(optarg);
@@ -1367,6 +1371,21 @@ main(int argc, char *argv[])
       case 'n':        /* No name resolution */
 	g_resolving_actif = 0;
 	break;
+      case 'o':        /* Override preference from command line */
+        switch (prefs_set_pref(optarg)) {
+
+	case PREFS_SET_SYNTAX_ERR:
+          fprintf(stderr, "ethereal: Invalid -o flag \"%s\"\n", optarg);
+          exit(1);
+          break;
+
+        case PREFS_SET_NO_SUCH_PREF:
+          fprintf(stderr, "ethereal: -o flag \"%s\" specifies unknown preference\n",
+			optarg);
+          exit(1);
+          break;
+        }
+        break;
       case 'P':        /* Packet list pane height */
         pl_size = atoi(optarg);
         break;
@@ -1541,12 +1560,6 @@ main(int argc, char *argv[])
 
   create_main_window(pl_size, tv_size, bv_size, prefs);
 
-/* 
-   Hmmm should we do it here
-*/
-
-  dissect_init();   /* Init anything that needs initializing */
-
 #ifdef HAVE_LIBPCAP
   /* Is this a "child" ethereal, which is only supposed to pop up a
      capture box to let us stop the capture, and run a capture
@@ -1611,12 +1624,21 @@ main(int argc, char *argv[])
   }
 #endif
 
-  /* If we failed to open the preferences file, pop up an alert box;
-     we defer it until now, so that the alert box is more likely to
-     come up on top of the main window. */
+  /* If the global preferences file exists but we failed to open it,
+     pop up an alert box; we defer that until now, so that the alert
+     box is more likely to come up on top of the main window. */
+  if (gpf_path != NULL) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        "Could not open global preferences file\n\"%s\": %s.", gpf_path,
+        strerror(gpf_open_errno));
+  }
+
+  /* If the user's preferences file exists but we failed to open it,
+     pop up an alert box; we defer that until now, so that the alert
+     box is more likely to come up on top of the main window. */
   if (pf_path != NULL) {
       simple_dialog(ESD_TYPE_WARN, NULL,
-        "Could not open preferences file\n\"%s\": %s.", pf_path,
+        "Could not open your preferences file\n\"%s\": %s.", pf_path,
         strerror(pf_open_errno));
   }
 

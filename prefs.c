@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.30 2000/01/29 16:41:14 gram Exp $
+ * $Id: prefs.c,v 1.31 2000/07/05 09:40:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 #endif
 
 #include <stdlib.h>
+#include <string.h>
 #include <ctype.h>
 #include <errno.h>
 
@@ -53,6 +54,8 @@
 #include "print.h"
 #include "util.h"
 
+#include "prefs-int.h"
+
 /* Internal functions */
 static int    set_pref(gchar*, gchar*);
 static GList *get_string_list(gchar *);
@@ -60,7 +63,9 @@ static void   clear_string_list(GList *);
 
 #define PF_NAME "preferences"
 
-static int init_prefs = 1;
+#define GPF_PATH	DATAFILE_DIR "/ethereal.conf"
+
+static gboolean init_prefs = TRUE;
 static gchar *pf_path = NULL;
 
 e_prefs prefs;
@@ -71,6 +76,244 @@ gchar	*gui_ptree_line_style_text[] =
 gchar	*gui_ptree_expander_style_text[] =
 	{ "NONE", "SQUARE", "TRIANGLE", "CIRCULAR", NULL };
 
+
+/*
+ * List of modules with preference settings.
+ */
+static GList *modules;
+
+/*
+ * Register a module that will have preferences.
+ * Specify the name used for the module in the preferences file, the
+ * title used in the tab for it in a preferences dialog box, and a
+ * routine to call back when we apply the preferences.
+ */
+module_t *
+prefs_register_module(const char *name, const char *title,
+    void (*apply_cb)(void))
+{
+	module_t *module;
+
+	module = g_malloc(sizeof (module_t));
+	module->name = name;
+	module->title = title;
+	module->apply_cb = apply_cb;
+	module->prefs = NULL;	/* no preferences, to start */
+	module->numprefs = 0;
+
+	modules = g_list_append(modules, module);
+
+	return module;
+}
+
+/*
+ * Find a module, given its name.
+ */
+static gint
+module_match(gconstpointer a, gconstpointer b)
+{
+	const module_t *module = a;
+	const char *name = b;
+
+	return strcmp(name, module->name);
+}
+
+static module_t *
+find_module(char *name)
+{
+	GList *list_entry;
+
+	list_entry = g_list_find_custom(modules, name, module_match);
+	if (list_entry == NULL)
+		return NULL;	/* no such module */
+	return (module_t *) list_entry->data;
+}
+
+typedef struct {
+	module_cb callback;
+	gpointer user_data;
+} module_cb_arg_t;
+
+static void
+do_module_callback(gpointer data, gpointer user_data)
+{
+	module_t *module = data;
+	module_cb_arg_t *arg = user_data;
+
+	(*arg->callback)(module, arg->user_data);
+}
+
+/*
+ * Call a callback function, with a specified argument, for each module.
+ */
+void
+prefs_module_foreach(module_cb callback, gpointer user_data)
+{
+	module_cb_arg_t arg;
+
+	arg.callback = callback;
+	arg.user_data = user_data;
+	g_list_foreach(modules, do_module_callback, &arg);
+}
+
+static void
+call_apply_cb(gpointer data, gpointer user_data)
+{
+	module_t *module = data;
+
+	(*module->apply_cb)();
+}
+
+/*
+ * Call the "apply" callback function for each module.
+ */
+void
+prefs_apply_all(void)
+{
+	g_list_foreach(modules, call_apply_cb, NULL);
+}
+
+/*
+ * Register a preference in a module's list of preferences.
+ */
+static pref_t *
+register_preference(module_t *module, const char *name, const char *title,
+    const char *description)
+{
+	pref_t *preference;
+
+	preference = g_malloc(sizeof (pref_t));
+	preference->name = name;
+	preference->title = title;
+	preference->description = description;
+	preference->ordinal = module->numprefs;
+
+	module->prefs = g_list_append(module->prefs, preference);
+	module->numprefs++;
+
+	return preference;
+}
+
+/*
+ * Find a preference in a module's list of preferences, given the module
+ * and the preference's name.
+ */
+static gint
+preference_match(gconstpointer a, gconstpointer b)
+{
+	const pref_t *pref = a;
+	const char *name = b;
+
+	return strcmp(name, pref->name);
+}
+
+static struct preference *
+find_preference(module_t *module, char *name)
+{
+	GList *list_entry;
+
+	list_entry = g_list_find_custom(module->prefs, name, preference_match);
+	if (list_entry == NULL)
+		return NULL;	/* no such preference */
+	return (struct preference *) list_entry->data;
+}
+
+/*
+ * Register a preference with an unsigned integral value.
+ */
+void
+prefs_register_uint_preference(module_t *module, const char *name,
+    const char *title, const char *description, guint base, guint *var)
+{
+	pref_t *preference;
+
+	preference = register_preference(module, name, title, description);
+	preference->type = PREF_UINT;
+	preference->varp.uint = var;
+	preference->info.base = base;
+}
+
+/*
+ * Register a preference with an Boolean value.
+ */
+void
+prefs_register_bool_preference(module_t *module, const char *name,
+    const char *title, const char *description, gboolean *var)
+{
+	pref_t *preference;
+
+	preference = register_preference(module, name, title, description);
+	preference->type = PREF_BOOL;
+	preference->varp.bool = var;
+}
+
+/*
+ * Register a preference with an enumerated value.
+ */
+void
+prefs_register_enum_preference(module_t *module, const char *name,
+    const char *title, const char *description, gint *var,
+    const enum_val *enumvals, gboolean radio_buttons)
+{
+	pref_t *preference;
+
+	preference = register_preference(module, name, title, description);
+	preference->type = PREF_ENUM;
+	preference->varp.enump = var;
+	preference->info.enum_info.enumvals = enumvals;
+	preference->info.enum_info.radio_buttons = radio_buttons;
+}
+
+/*
+ * Register a preference with a character-string value.
+ */
+void
+prefs_register_string_preference(module_t *module, const char *name,
+    const char *title, const char *description, char **var)
+{
+	pref_t *preference;
+
+	preference = register_preference(module, name, title, description);
+	preference->type = PREF_STRING;
+	preference->varp.string = var;
+	preference->saved_val.string = NULL;
+}
+
+typedef struct {
+	pref_cb callback;
+	gpointer user_data;
+} pref_cb_arg_t;
+
+static void
+do_pref_callback(gpointer data, gpointer user_data)
+{
+	pref_t *pref = data;
+	pref_cb_arg_t *arg = user_data;
+
+	(*arg->callback)(pref, arg->user_data);
+}
+
+/*
+ * Call a callback function, with a specified argument, for each preference
+ * in a given module.
+ */
+void
+prefs_pref_foreach(module_t *module, pref_cb callback, gpointer user_data)
+{
+	pref_cb_arg_t arg;
+
+	arg.callback = callback;
+	arg.user_data = user_data;
+	g_list_foreach(module->prefs, do_pref_callback, &arg);
+}
+
+/*
+ * Register all non-dissector modules' preferences.
+ */
+void
+prefs_register_modules(void)
+{
+}
 
 /* Parse through a list of comma-separated, quoted strings.  Return a
    list of the string data */
@@ -129,6 +372,29 @@ clear_string_list(GList *sl) {
   }
 }
 
+/*
+ * Takes a string, a pointer to an array of "enum_val"s, and a default gint
+ * value.
+ * The array must be terminated by an entry with a null "name" string.
+ * If the string matches a "name" strings in an entry, the value from that
+ * entry is returned. Otherwise, the default value that was passed as the
+ * third argument is returned.
+ */
+gint
+find_val_for_string(const char *needle, const enum_val *haystack,
+    gint default_value)
+{
+	int i = 0;
+
+	while (haystack[i].name != NULL) {
+		if (strcasecmp(needle, haystack[i].name) == 0) {
+			return haystack[i].value;
+		}
+		i++;	
+	}
+	return default_value;
+}
+
 /* Takes an string and a pointer to an array of strings, and a default int value.
  * The array must be terminated by a NULL string. If the string is found in the array
  * of strings, the index of that string in the array is returned. Otherwise, the
@@ -167,24 +433,26 @@ print.file: /a/very/long/path/
 #define MAX_VAL_LEN  1024
 
 #define DEF_NUM_COLS    6
+
+static void read_prefs_file(const char *pf_path, FILE *pf);
+
 e_prefs *
-read_prefs(char **pf_path_return) {
-  enum { START, IN_VAR, PRE_VAL, IN_VAL, IN_SKIP };
+read_prefs(int *gpf_errno_return, char **gpf_path_return,
+	   int *pf_errno_return, char **pf_path_return)
+{
+  int       i;
   FILE     *pf;
-  gchar     cur_var[MAX_VAR_LEN], cur_val[MAX_VAL_LEN];
-  int       got_c, state = START, i;
-  gint      var_len = 0, val_len = 0, fline = 1, pline = 1;
-  gboolean  got_val = FALSE;
   fmt_data *cfmt;
   gchar    *col_fmt[] = {"No.",      "%m", "Time",        "%t",
                          "Source",   "%s", "Destination", "%d",
                          "Protocol", "%p", "Info",        "%i"};
 
   
-  /* Initialize preferences.  With any luck, these values will be
-     overwritten below. */
   if (init_prefs) {
-    init_prefs       = 0;
+    /* Initialize preferences to wired-in default values.
+       They may be overridded by the global preferences file or the
+       user's preferences file. */
+    init_prefs       = FALSE;
     prefs.pr_format  = PR_FMT_TEXT;
     prefs.pr_dest    = PR_DEST_CMD;
     prefs.pr_file    = g_strdup("ethereal.out");
@@ -220,19 +488,57 @@ read_prefs(char **pf_path_return) {
     prefs.gui_ptree_expander_style = 1;
   }
 
+  /* Read the global preferences file, if it exists. */
+  *gpf_path_return = NULL;
+  if ((pf = fopen(GPF_PATH, "r")) != NULL) {
+    /* We succeeded in opening it; read it. */
+    read_prefs_file(GPF_PATH, pf);
+    fclose(pf);
+  } else {
+    /* We failed to open it.  If we failed for some reason other than
+       "it doesn't exist", return the errno and the pathname, so our
+       caller can report the error. */
+    if (errno != ENOENT) {
+      *gpf_errno_return = errno;
+      *gpf_path_return = GPF_PATH;
+    }
+  }
+
+  /* Construct the pathname of the user's preferences file. */
   if (! pf_path) {
     pf_path = (gchar *) g_malloc(strlen(get_home_dir()) + strlen(PF_DIR) +
       strlen(PF_NAME) + 4);
     sprintf(pf_path, "%s/%s/%s", get_home_dir(), PF_DIR, PF_NAME);
   }
     
+  /* Read the user's preferences file, if it exists. */
   *pf_path_return = NULL;
-  if ((pf = fopen(pf_path, "r")) == NULL) {
-    if (errno != ENOENT)
+  if ((pf = fopen(pf_path, "r")) != NULL) {
+    /* We succeeded in opening it; read it. */
+    read_prefs_file(pf_path, pf);
+    fclose(pf);
+  } else {
+    /* We failed to open it.  If we failed for some reason other than
+       "it doesn't exist", return the errno and the pathname, so our
+       caller can report the error. */
+    if (errno != ENOENT) {
+      *pf_errno_return = errno;
       *pf_path_return = pf_path;
-    return &prefs;
+    }
   }
-    
+  
+  return &prefs;
+}
+
+static void
+read_prefs_file(const char *pf_path, FILE *pf)
+{
+  enum { START, IN_VAR, PRE_VAL, IN_VAL, IN_SKIP };
+  gchar     cur_var[MAX_VAR_LEN], cur_val[MAX_VAL_LEN];
+  int       got_c, state = START;
+  gboolean  got_val = FALSE;
+  gint      var_len = 0, val_len = 0, fline = 1, pline = 1;
+
   while ((got_c = getc(pf)) != EOF) {
     if (got_c == '\n') {
       state = START;
@@ -259,8 +565,17 @@ read_prefs(char **pf_path_return) {
             if (got_val) {
               cur_var[var_len] = '\0';
               cur_val[val_len] = '\0';
-              if (! set_pref(cur_var, cur_val))
-                g_warning ("%s line %d: Bogus preference", pf_path, pline);
+              switch (set_pref(cur_var, cur_val)) {
+
+	      case PREFS_SET_SYNTAX_ERR:
+                g_warning ("%s line %d: Syntax error", pf_path, pline);
+                break;
+
+	      case PREFS_SET_NO_SUCH_PREF:
+                g_warning ("%s line %d: No such preference \"%s\"", pf_path,
+				pline, cur_var);
+                break;
+              }
             } else {
               g_warning ("%s line %d: Incomplete preference", pf_path, pline);
             }
@@ -311,15 +626,62 @@ read_prefs(char **pf_path_return) {
     if (got_val) {
       cur_var[var_len] = '\0';
       cur_val[val_len] = '\0';
-      if (! set_pref(cur_var, cur_val))
-        g_warning ("%s line %d: Bogus preference", pf_path, pline);
+      switch (set_pref(cur_var, cur_val)) {
+
+      case PREFS_SET_SYNTAX_ERR:
+        g_warning ("%s line %d: Syntax error", pf_path, pline);
+        break;
+
+      case PREFS_SET_NO_SUCH_PREF:
+        g_warning ("%s line %d: No such preference \"%s\"", pf_path,
+			pline, cur_var);
+        break;
+      }
     } else {
       g_warning ("%s line %d: Incomplete preference", pf_path, pline);
     }
   }
-  fclose(pf);
-  
-  return &prefs;
+}
+
+/*
+ * Given a string of the form "<pref name>:<pref value>", as might appear
+ * as an argument to a "-o" option, parse it and set the preference in
+ * question.  Return an indication of whether it succeeded or failed
+ * in some fashion.
+ */
+int
+prefs_set_pref(char *prefarg)
+{
+	u_char *p, *colonp;
+	int ret;
+
+	colonp = strchr(prefarg, ':');
+	if (colonp == NULL)
+		return PREFS_SET_SYNTAX_ERR;
+
+	p = colonp;
+	*p++ = '\0';
+
+	/*
+	 * Skip over any white space (there probably won't be any, but
+	 * as we allow it in the preferences file, we might as well
+	 * allow it here).
+	 */
+	while (isspace(*p))
+		p++;
+	if (*p == '\0') {
+		/*
+		 * Put the colon back, so if our caller uses, in an
+		 * error message, the string they passed us, the message
+		 * looks correct.
+		 */
+		*colonp = ':';
+		return PREFS_SET_SYNTAX_ERR;
+	}
+
+	ret = set_pref(prefarg, p);
+	*colonp = ':';	/* put the colon back */
+	return ret;
 }
 
 #define PRS_PRINT_FMT    "print.format"
@@ -344,36 +706,42 @@ read_prefs(char **pf_path_return) {
 static gchar *pr_formats[] = { "text", "postscript" };
 static gchar *pr_dests[]   = { "command", "file" };
 
-int
-set_pref(gchar *pref, gchar *value) {
+static int
+set_pref(gchar *pref_name, gchar *value)
+{
   GList    *col_l;
   gint      llen;
   fmt_data *cfmt;
   unsigned long int cval;
+  guint    uval;
+  char     *p;
+  gchar    *dotp;
+  module_t *module;
+  pref_t   *pref;
 
-  if (strcmp(pref, PRS_PRINT_FMT) == 0) {
+  if (strcmp(pref_name, PRS_PRINT_FMT) == 0) {
     if (strcmp(value, pr_formats[PR_FMT_TEXT]) == 0) {
       prefs.pr_format = PR_FMT_TEXT;
     } else if (strcmp(value, pr_formats[PR_FMT_PS]) == 0) {
       prefs.pr_format = PR_FMT_PS;
     } else {
-      return 0;
+      return PREFS_SET_SYNTAX_ERR;
     }
-  } else if (strcmp(pref, PRS_PRINT_DEST) == 0) {
+  } else if (strcmp(pref_name, PRS_PRINT_DEST) == 0) {
     if (strcmp(value, pr_dests[PR_DEST_CMD]) == 0) {
       prefs.pr_dest = PR_DEST_CMD;
     } else if (strcmp(value, pr_dests[PR_DEST_FILE]) == 0) {
       prefs.pr_dest = PR_DEST_FILE;
     } else {
-      return 0;
+      return PREFS_SET_SYNTAX_ERR;
     }
-  } else if (strcmp(pref, PRS_PRINT_FILE) == 0) {
+  } else if (strcmp(pref_name, PRS_PRINT_FILE) == 0) {
     if (prefs.pr_file) g_free(prefs.pr_file);
     prefs.pr_file = g_strdup(value);
-  } else if (strcmp(pref, PRS_PRINT_CMD) == 0) {
+  } else if (strcmp(pref_name, PRS_PRINT_CMD) == 0) {
     if (prefs.pr_cmd) g_free(prefs.pr_cmd);
     prefs.pr_cmd = g_strdup(value);
-  } else if (strcmp(pref, PRS_COL_FMT) == 0) {
+  } else if (strcmp(pref_name, PRS_COL_FMT) == 0) {
     if ((col_l = get_string_list(value)) && (g_list_length(col_l) % 2) == 0) {
       while (prefs.col_list) {
         cfmt = prefs.col_list->data;
@@ -396,66 +764,195 @@ set_pref(gchar *pref, gchar *value) {
       /* To do: else print some sort of error? */
     }
     clear_string_list(col_l);
-  } else if (strcmp(pref, PRS_STREAM_CL_FG) == 0) {
+  } else if (strcmp(pref_name, PRS_STREAM_CL_FG) == 0) {
     cval = strtoul(value, NULL, 16);
     prefs.st_client_fg.pixel = 0;
     prefs.st_client_fg.red   = RED_COMPONENT(cval);
     prefs.st_client_fg.green = GREEN_COMPONENT(cval);
     prefs.st_client_fg.blue  = BLUE_COMPONENT(cval);
-  } else if (strcmp(pref, PRS_STREAM_CL_BG) == 0) {
+  } else if (strcmp(pref_name, PRS_STREAM_CL_BG) == 0) {
     cval = strtoul(value, NULL, 16);
     prefs.st_client_bg.pixel = 0;
     prefs.st_client_bg.red   = RED_COMPONENT(cval);
     prefs.st_client_bg.green = GREEN_COMPONENT(cval);
     prefs.st_client_bg.blue  = BLUE_COMPONENT(cval);
-  } else if (strcmp(pref, PRS_STREAM_SR_FG) == 0) {
+  } else if (strcmp(pref_name, PRS_STREAM_SR_FG) == 0) {
     cval = strtoul(value, NULL, 16);
     prefs.st_server_fg.pixel = 0;
     prefs.st_server_fg.red   = RED_COMPONENT(cval);
     prefs.st_server_fg.green = GREEN_COMPONENT(cval);
     prefs.st_server_fg.blue  = BLUE_COMPONENT(cval);
-  } else if (strcmp(pref, PRS_STREAM_SR_BG) == 0) {
+  } else if (strcmp(pref_name, PRS_STREAM_SR_BG) == 0) {
     cval = strtoul(value, NULL, 16);
     prefs.st_server_bg.pixel = 0;
     prefs.st_server_bg.red   = RED_COMPONENT(cval);
     prefs.st_server_bg.green = GREEN_COMPONENT(cval);
     prefs.st_server_bg.blue  = BLUE_COMPONENT(cval);
-  } else if (strcmp(pref, PRS_GUI_SCROLLBAR_ON_RIGHT) == 0) {
+  } else if (strcmp(pref_name, PRS_GUI_SCROLLBAR_ON_RIGHT) == 0) {
     if (strcmp(value, "TRUE") == 0) {
 	    prefs.gui_scrollbar_on_right = TRUE;
     }
     else {
 	    prefs.gui_scrollbar_on_right = FALSE;
     }
-  } else if (strcmp(pref, PRS_GUI_PLIST_SEL_BROWSE) == 0) {
+  } else if (strcmp(pref_name, PRS_GUI_PLIST_SEL_BROWSE) == 0) {
     if (strcmp(value, "TRUE") == 0) {
 	    prefs.gui_plist_sel_browse = TRUE;
     }
     else {
 	    prefs.gui_plist_sel_browse = FALSE;
     }
-  } else if (strcmp(pref, PRS_GUI_PTREE_SEL_BROWSE) == 0) {
+  } else if (strcmp(pref_name, PRS_GUI_PTREE_SEL_BROWSE) == 0) {
     if (strcmp(value, "TRUE") == 0) {
 	    prefs.gui_ptree_sel_browse = TRUE;
     }
     else {
 	    prefs.gui_ptree_sel_browse = FALSE;
     }
-  } else if (strcmp(pref, PRS_GUI_PTREE_LINE_STYLE) == 0) {
+  } else if (strcmp(pref_name, PRS_GUI_PTREE_LINE_STYLE) == 0) {
 	  prefs.gui_ptree_line_style =
 		  find_index_from_string_array(value, gui_ptree_line_style_text, 0);
-  } else if (strcmp(pref, PRS_GUI_PTREE_EXPANDER_STYLE) == 0) {
+  } else if (strcmp(pref_name, PRS_GUI_PTREE_EXPANDER_STYLE) == 0) {
 	  prefs.gui_ptree_expander_style =
 		  find_index_from_string_array(value, gui_ptree_expander_style_text, 1);
   } else {
-    return 0;
+    /* To which module does this preference belong? */
+    dotp = strchr(pref_name, '.');
+    if (dotp == NULL)
+      return PREFS_SET_SYNTAX_ERR;	/* no ".", so no module/name separator */
+    *dotp = '\0';		/* separate module and preference name */
+    module = find_module(pref_name);
+    *dotp = '.';		/* put the preference string back */
+    if (module == NULL)
+      return PREFS_SET_NO_SUCH_PREF;	/* no such module */
+    dotp++;			/* skip past separator to preference name */
+    pref = find_preference(module, dotp);
+    if (pref == NULL)
+      return PREFS_SET_NO_SUCH_PREF;	/* no such preference */
+
+    switch (pref->type) {
+
+    case PREF_UINT:
+      uval = strtoul(value, &p, pref->info.base);
+      if (p == value || *p != '\0')
+        return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+      *pref->varp.uint = uval;
+      break;
+
+    case PREF_BOOL:
+      /* XXX - give an error if it's neither "true" nor "false"? */
+      if (strcasecmp(value, "true") == 0)
+        *pref->varp.bool = TRUE;
+      else
+        *pref->varp.bool = FALSE;
+      break;
+
+    case PREF_ENUM:
+      /* XXX - give an error if it doesn't match? */
+      *pref->varp.enump = find_val_for_string(value,
+					pref->info.enum_info.enumvals, 1);
+      break;
+
+    case PREF_STRING:
+      if (*pref->varp.string != NULL)
+        g_free(*pref->varp.string);
+      *pref->varp.string = g_strdup(value);
+      break;
+    }
   }
   
-  return 1;
+  return PREFS_SET_OK;
+}
+
+typedef struct {
+	module_t *module;
+	FILE	*pf;
+} write_pref_arg_t;
+
+/*
+ * Write out a single preference.
+ */
+static void
+write_pref(gpointer data, gpointer user_data)
+{
+	pref_t *pref = data;
+	write_pref_arg_t *arg = user_data;
+	const enum_val *enum_valp;
+	const char *val_string;
+
+	fprintf(arg->pf, "\n# %s\n", pref->description);
+
+	switch (pref->type) {
+
+	case PREF_UINT:
+		switch (pref->info.base) {
+
+		case 10:
+			fprintf(arg->pf, "# A decimal number.\n");
+			fprintf(arg->pf, "%s.%s: %u\n", arg->module->name,
+			    pref->name, *pref->varp.uint);
+			break;
+
+		case 8:
+			fprintf(arg->pf, "# An octal number.\n");
+			fprintf(arg->pf, "%s.%s: %#o\n", arg->module->name,
+			    pref->name, *pref->varp.uint);
+			break;
+
+		case 16:
+			fprintf(arg->pf, "# A hexadecimal number.\n");
+			fprintf(arg->pf, "%s.%s: %#x\n", arg->module->name,
+			    pref->name, *pref->varp.uint);
+			break;
+		}
+		break;
+
+	case PREF_BOOL:
+		fprintf(arg->pf, "# TRUE or FALSE (case-insensitive).\n");
+		fprintf(arg->pf, "%s.%s: %s\n", arg->module->name, pref->name,
+		    *pref->varp.bool ? "TRUE" : "FALSE");
+		break;
+
+	case PREF_ENUM:
+		fprintf(arg->pf, "# One of: ");
+		enum_valp = pref->info.enum_info.enumvals;
+		val_string = NULL;
+		while (enum_valp->name != NULL) {
+			if (enum_valp->value == *pref->varp.enump)
+				val_string = enum_valp->name;
+			fprintf(arg->pf, "%s", enum_valp->name);
+			enum_valp++;
+			if (enum_valp->name == NULL)
+				fprintf(arg->pf, "\n");
+			else
+				fprintf(arg->pf, ", ");
+		}
+		fprintf(arg->pf, "# (case-insensitive).\n");
+		fprintf(arg->pf, "%s.%s: %s\n", arg->module->name, pref->name,
+		    val_string);
+		break;
+
+	case PREF_STRING:
+		fprintf(arg->pf, "# A string.\n");
+		fprintf(arg->pf, "%s.%s: %s\n", arg->module->name, pref->name,
+		    *pref->varp.string);
+		break;
+	}
+}
+
+static void
+write_module_prefs(gpointer data, gpointer user_data)
+{
+	write_pref_arg_t arg;
+
+	arg.module = data;
+	arg.pf = user_data;
+	g_list_foreach(arg.module->prefs, write_pref, &arg);
 }
 
 int
-write_prefs(char **pf_path_return) {
+write_prefs(char **pf_path_return)
+{
   FILE        *pf;
   struct stat  s_buf;
   
@@ -548,6 +1045,8 @@ write_prefs(char **pf_path_return) {
   fprintf(pf, "\n# Protocol-tree expander style. One of: NONE, SQUARE, TRIANGLE, CIRCULAR\n");
   fprintf(pf, PRS_GUI_PTREE_EXPANDER_STYLE ": %s\n",
 		  gui_ptree_expander_style_text[prefs.gui_ptree_expander_style]);
+
+  g_list_foreach(modules, write_module_prefs, pf);
 
   fclose(pf);
 

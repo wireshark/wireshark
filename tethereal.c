@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.33 2000/07/05 02:06:58 guy Exp $
+ * $Id: tethereal.c,v 1.34 2000/07/05 09:40:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -132,13 +132,13 @@ print_usage(void)
 	  VERSION, comp_info_str);
 #ifdef HAVE_LIBPCAP
   fprintf(stderr, "t%s [ -vVh ] [ -c count ] [ -D ] [ -f <capture filter> ]\n", PACKAGE);
-  fprintf(stderr, "\t[ -F <capture file type> ] [ -i interface ] [ -n ] [ -r infile ]\n");
-  fprintf(stderr, "\t[ -R <read filter> ] [ -s snaplen ] [ -t <time stamp format> ]\n");
-  fprintf(stderr, "\t[ -w savefile ] [ -x ]\n");
+  fprintf(stderr, "\t[ -F <capture file type> ] [ -i interface ] [ -n ]\n");
+  fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r infile ] [ -R <read filter> ]\n");
+  fprintf(stderr, "\t[ -s snaplen ] [ -t <time stamp format> ] [ -w savefile ] [ -x ]\n");
 #else
-  fprintf(stderr, "t%s [ -vVh ] [ -D ] [ -F <capture file type> ] [ -n ] [ -r infile ]\n", PACKAGE);
-  fprintf(stderr, "\t[ -R <read filter> ] [ -t <time stamp format> ] [ -w savefile ]\n");
-  fprintf(stderr, "\t[ -x ]\n");
+  fprintf(stderr, "t%s [ -vVh ] [ -D ] [ -F <capture file type> ] [ -n ]\n", PACKAGE);
+  fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r infile ] [ -R <read filter> ]\n");
+  fprintf(stderr, "\t[ -t <time stamp format> ] [ -w savefile ] [ -x ]\n");
 #endif
   fprintf(stderr, "Valid file type arguments to the \"-F\" flag:\n");
   for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
@@ -162,7 +162,8 @@ main(int argc, char *argv[])
   extern char          pcap_version[];
 #endif
 #endif
-  char                *pf_path;
+  char                *gpf_path, *pf_path;
+  int                  gpf_open_errno, pf_open_errno;
   int                  err;
 #ifdef HAVE_LIBPCAP
   gboolean             capture_filter_specified = FALSE;
@@ -177,13 +178,22 @@ main(int argc, char *argv[])
   dfilter             *rfcode = NULL;
   e_prefs             *prefs;
 
+  /* Register all dissectors; we must do this before checking for the
+     "-G" flag, as the "-G" flag dumps a list of fields registered
+     by the dissectors, and we must do it before we read the preferences,
+     in case any dissectors register preferences. */
+  dissect_init();
+
+  /* Now register the preferences for any non-dissector modules.
+     We must do that before we read the preferences as well. */
+  prefs_register_modules();
+
   /* If invoked with the "-G" flag, we dump out a glossary of
      display filter symbols.
 
      We do this here to mirror what happens in the GTK+ version, although
      it's not necessary here. */
   if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
-    dissect_init();
     proto_registrar_dump();
     exit(0);
   }
@@ -191,10 +201,14 @@ main(int argc, char *argv[])
   /* Set the C-language locale to the native environment. */
   setlocale(LC_ALL, "");
 
-  prefs = read_prefs(&pf_path);
+  prefs = read_prefs(&gpf_open_errno, &gpf_path, &pf_open_errno, &pf_path);
+  if (gpf_path != NULL) {
+    fprintf(stderr, "Can't open global preferences file \"%s\": %s.\n", pf_path,
+        strerror(gpf_open_errno));
+  }
   if (pf_path != NULL) {
-    fprintf(stderr, "Can't open preferences file \"%s\": %s.\n", pf_path,
-        strerror(errno));
+    fprintf(stderr, "Can't open your preferences file \"%s\": %s.\n", pf_path,
+        strerror(pf_open_errno));
   }
     
   /* Initialize the capture file struct */
@@ -266,7 +280,7 @@ main(int argc, char *argv[])
    );
     
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "c:Df:F:hi:nr:R:s:t:vw:Vx")) != EOF) {
+  while ((opt = getopt(argc, argv, "c:Df:F:hi:no:r:R:s:t:vw:Vx")) != EOF) {
     switch (opt) {
       case 'c':        /* Capture xxx packets */
 #ifdef HAVE_LIBPCAP
@@ -311,6 +325,21 @@ main(int argc, char *argv[])
       case 'n':        /* No name resolution */
 	g_resolving_actif = 0;
 	break;
+      case 'o':        /* Override preference from command line */
+        switch (prefs_set_pref(optarg)) {
+
+	case PREFS_SET_SYNTAX_ERR:
+          fprintf(stderr, "tethereal: Invalid -o flag \"%s\"\n", optarg);
+          exit(1);
+          break;
+
+        case PREFS_SET_NO_SUCH_PREF:
+          fprintf(stderr, "tethereal: -o flag \"%s\" specifies unknown preference\n",
+			optarg);
+          exit(1);
+          break;
+        }
+        break;
       case 'r':        /* Read capture file xxx */
         cf_name = g_strdup(optarg);
         break;
@@ -407,8 +436,6 @@ main(int argc, char *argv[])
   else if (cfile.snap < MIN_PACKET_SIZE)
     cfile.snap = MIN_PACKET_SIZE;
   
-  dissect_init();   /* Init anything that needs initializing */
-
   if (rfilter != NULL) {
     if (dfilter_compile(rfilter, &rfcode) != 0) {
       fprintf(stderr, "tethereal: %s\n", dfilter_error_msg);
