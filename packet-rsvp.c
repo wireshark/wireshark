@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.67 2002/06/06 11:02:05 guy Exp $
+ * $Id: packet-rsvp.c,v 1.68 2002/07/14 19:23:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -651,6 +651,10 @@ static hf_register_info rsvpf_info[] = {
 
     {&rsvp_filter[RSVPF_RTEARCONFIRM], 
      { "Resv Tear Confirm Message", "rsvp.rtearconf", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&rsvp_filter[RSVPF_BUNDLE], 
+     { "Bundle Message", "rsvp.bundle", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
     /* Object class */
