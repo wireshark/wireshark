@@ -1371,13 +1371,18 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   capture_opts.show_info =
       !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hide_info_cb));
 
-  g_resolv_flags |= g_resolv_flags & RESOLV_CONCURRENT;
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(m_resolv_cb)))
     g_resolv_flags |= RESOLV_MAC;
+  else
+    g_resolv_flags &= ~RESOLV_MAC;
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(n_resolv_cb)))
     g_resolv_flags |= RESOLV_NETWORK;
+  else
+    g_resolv_flags &= ~RESOLV_NETWORK;
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(t_resolv_cb)))
     g_resolv_flags |= RESOLV_TRANSPORT;
+  else
+    g_resolv_flags &= ~RESOLV_TRANSPORT;
 
   capture_opts.has_ring_num_files =
     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ringbuffer_nbf_cb));

@@ -692,13 +692,22 @@ file_open_ok_cb(GtkWidget *w, gpointer fs) {
   cfile.rfcode = rfcode;
 
   /* Set the global resolving variable */
-  g_resolv_flags = prefs.name_resolve & RESOLV_CONCURRENT;
+  g_resolv_flags = prefs.name_resolve;
   m_resolv_cb = OBJECT_GET_DATA(w, E_FILE_M_RESOLVE_KEY);
-  g_resolv_flags |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (m_resolv_cb)) ? RESOLV_MAC : RESOLV_NONE;
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (m_resolv_cb)))
+    g_resolv_flags |= RESOLV_MAC;
+  else
+    g_resolv_flags &= ~RESOLV_MAC;
   n_resolv_cb = OBJECT_GET_DATA(w, E_FILE_N_RESOLVE_KEY);
-  g_resolv_flags |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (n_resolv_cb)) ? RESOLV_NETWORK : RESOLV_NONE;
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (n_resolv_cb)))
+    g_resolv_flags |= RESOLV_NETWORK;
+  else
+    g_resolv_flags &= ~RESOLV_NETWORK;
   t_resolv_cb = OBJECT_GET_DATA(w, E_FILE_T_RESOLVE_KEY);
-  g_resolv_flags |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (t_resolv_cb)) ? RESOLV_TRANSPORT : RESOLV_NONE;
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (t_resolv_cb)))
+    g_resolv_flags |= RESOLV_TRANSPORT;
+  else
+    g_resolv_flags &= ~RESOLV_TRANSPORT;
 
   /* We've crossed the Rubicon; get rid of the file selection box. */
   window_destroy(GTK_WIDGET (fs));
