@@ -1,7 +1,7 @@
 /* to_str.h
  * Definitions for utilities to convert various other types to strings.
  *
- * $Id: to_str.h,v 1.1 2001/04/01 02:47:56 hagbard Exp $
+ * $Id: to_str.h,v 1.2 2001/04/01 06:32:10 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,6 +50,7 @@ gchar*     ip6_to_str(struct e_in6_addr *);
 gchar*     ipx_addr_to_str(guint32, const guint8 *);
 gchar*     ipxnet_to_string(const guint8 *ad);
 gchar*     ipxnet_to_str_punct(const guint32 ad, char punct);
+gchar*     vines_addr_to_str(const guint8 *addrp);
 gchar*     time_secs_to_str(guint32);
 gchar*	   abs_time_to_str(struct timeval*);
 void       display_signed_time(gchar *, int, gint32, gint32);

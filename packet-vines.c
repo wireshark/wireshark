@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.25 2001/03/13 21:34:24 gram Exp $
+ * $Id: packet-vines.c,v 1.26 2001/04/01 06:32:09 hagbard Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -171,24 +171,6 @@ proto_reg_handoff_vines_frp(void)
 	   the dissector check for that? */
 	dissector_add("udp.port", UDP_PORT_VINES, dissect_vines_frp,
 	    proto_vines_frp);
-}
-
-gchar *
-vines_addr_to_str(const guint8 *addrp)
-{
-  static gchar	str[3][214];
-  static gchar	*cur;
-
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {
-    cur = &str[2][0];
-  } else {
-    cur = &str[0][0];
-  }
-
-  sprintf(cur, "%08x.%04x", pntohl(&addrp[0]), pntohs(&addrp[4]));
-  return cur;
 }
 
 static void

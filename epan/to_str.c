@@ -1,7 +1,7 @@
 /* to_str.h
  * Routines  for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.1 2001/04/01 02:47:55 hagbard Exp $
+ * $Id: to_str.c,v 1.2 2001/04/01 06:32:10 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -229,6 +229,23 @@ ipxnet_to_str_punct(const guint32 ad, char punct)
   return p;
 }
 
+gchar *
+vines_addr_to_str(const guint8 *addrp)
+{
+  static gchar	str[3][214];
+  static gchar	*cur;
+
+  if (cur == &str[0][0]) {
+    cur = &str[1][0];
+  } else if (cur == &str[1][0]) {
+    cur = &str[2][0];
+  } else {
+    cur = &str[0][0];
+  }
+
+  sprintf(cur, "%08x.%04x", pntohl(&addrp[0]), pntohs(&addrp[4]));
+  return cur;
+}
 
 #define	PLURALIZE(n)	(((n) > 1) ? "s" : "")
 #define	COMMA(do_it)	((do_it) ? ", " : "")
