@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.51 2003/01/08 08:37:10 guy Exp $
+ * $Id: packet-atm.c,v 1.52 2003/01/08 23:07:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include "packet-llc.h"
 
 static int proto_atm = -1;
+static int hf_atm_aal = -1;
 static int hf_atm_vpi = -1;
 static int hf_atm_vci = -1;
 static int proto_atm_lane = -1;
@@ -787,11 +788,162 @@ capture_atm(const union wtap_pseudo_header *pseudo_header, const guchar *pd,
     ld->other++;
 }
 
+static void
+dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    proto_tree *atm_tree, gboolean truncated)
+{
+  guint        length, reported_length;
+  guint16      aal5_length;
+  int          pad_length;
+  tvbuff_t     *next_tvb;
+
+  /*
+   * This is reassembled traffic, so the cell headers are missing;
+   * show the VPI and VCI from the pseudo-header.
+   */
+  proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 0,
+    		pinfo->pseudo_header->atm.vpi);
+  proto_tree_add_uint(atm_tree, hf_atm_vci, tvb, 0, 0,
+		pinfo->pseudo_header->atm.vci);
+  if (pinfo->pseudo_header->atm.aal == AAL_5) {
+    proto_tree_add_text(atm_tree, tvb, 0, 0, "Traffic type: %s",
+		val_to_str(pinfo->pseudo_header->atm.type, aal5_hltype_vals,
+		"Unknown AAL5 traffic type (%u)"));
+    switch (pinfo->pseudo_header->atm.type) {
+
+    case TRAF_VCMX:
+      proto_tree_add_text(atm_tree, tvb, 0, 0, "VC multiplexed traffic type: %s",
+		val_to_str(pinfo->pseudo_header->atm.subtype,
+			vcmx_type_vals, "Unknown VCMX traffic type (%u)"));
+      break;
+
+    case TRAF_LANE:
+      proto_tree_add_text(atm_tree, tvb, 0, 0, "LANE traffic type: %s",
+		val_to_str(pinfo->pseudo_header->atm.subtype,
+			lane_type_vals, "Unknown LANE traffic type (%u)"));
+      break;
+
+    case TRAF_IPSILON:
+      proto_tree_add_text(atm_tree, tvb, 0, 0, "Ipsilon traffic type: %s",
+		val_to_str(pinfo->pseudo_header->atm.subtype,
+			ipsilon_type_vals, "Unknown Ipsilon traffic type (%u)"));
+      break;
+    }
+  }
+
+  next_tvb = tvb;
+  if (truncated) {
+    /*
+     * The packet data does not include stuff such as the AAL5
+     * trailer.
+     */
+    if (pinfo->pseudo_header->atm.cells != 0) {
+      /*
+       * If the cell count is 0, assume it means we don't know how
+       * many cells it was.
+       *
+       * XXX - also assume it means we don't know what was in the AAL5
+       * trailer.  We may, however, find some capture program that can
+       * give us the AAL5 trailer information but not the cell count,
+       * in which case we need some other way of indicating whether we
+       * have the AAL5 trailer information.
+       */
+      if (tree) {
+        proto_tree_add_text(atm_tree, tvb, 0, 0, "Cells: %u",
+		pinfo->pseudo_header->atm.cells);
+        proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 UU: 0x%02x",
+		pinfo->pseudo_header->atm.aal5t_u2u >> 8);
+        proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 CPI: 0x%02x",
+		pinfo->pseudo_header->atm.aal5t_u2u & 0xFF);
+        proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 len: %u",
+		pinfo->pseudo_header->atm.aal5t_len);
+        proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 checksum: 0x%08X",
+		pinfo->pseudo_header->atm.aal5t_chksum);
+      }
+    }
+  } else {
+    /*
+     * The packet data includes stuff such as the AAL5 trailer, if
+     * it wasn't cut off by the snapshot length.
+     * Decode the trailer, if present, and then chop it off.
+     */
+    length = tvb_length(tvb);
+    reported_length = tvb_reported_length(tvb);
+    if ((reported_length % 48) == 0) {
+      /*
+       * Reported length is a multiple of 48, so we can presumably
+       * divide it by 48 to get the number of cells.
+       */
+      proto_tree_add_text(atm_tree, tvb, 0, 0, "Cells: %u",
+		reported_length/48);
+    }
+    if (length >= reported_length) {
+      /*
+       * XXX - what if the packet is truncated?  Can that happen?
+       * What if you capture with Windows Sniffer on an ATM link
+       * and tell it not to save the entire packet?  What happens
+       * to the trailer?
+       */
+      aal5_length = tvb_get_ntohs(tvb, length - 6);
+      if (tree) {
+        pad_length = length - aal5_length - 8;
+        if (pad_length > 0) {
+          proto_tree_add_text(atm_tree, tvb, aal5_length, pad_length,
+		"Padding");
+        }
+        proto_tree_add_text(atm_tree, tvb, length - 8, 1, "AAL5 UU: 0x%02x",
+		tvb_get_guint8(tvb, length - 8));
+        proto_tree_add_text(atm_tree, tvb, length - 7, 1, "AAL5 CPI: 0x%02x",
+		tvb_get_guint8(tvb, length - 7));
+        proto_tree_add_text(atm_tree, tvb, length - 6, 2, "AAL5 len: %u",
+		aal5_length);
+        /*
+         * XXX - check the checksum.
+         */
+        proto_tree_add_text(atm_tree, tvb, length - 4, 4, "AAL5 checksum: 0x%08X",
+		tvb_get_ntohl(tvb, length - 4));
+      }
+      next_tvb = tvb_new_subset(tvb, 0, aal5_length, aal5_length);
+    }
+  }
+
+  switch (pinfo->pseudo_header->atm.aal) {
+
+  case AAL_SIGNALLING:
+    call_dissector(sscop_handle, next_tvb, pinfo, tree);
+    break;
+
+  case AAL_5:
+    switch (pinfo->pseudo_header->atm.type) {
+
+    case TRAF_LLCMX:
+      call_dissector(llc_handle, next_tvb, pinfo, tree);
+      break;
+
+    case TRAF_LANE:
+      call_dissector(lane_handle, next_tvb, pinfo, tree);
+      break;
+
+    case TRAF_ILMI:
+      call_dissector(ilmi_handle, next_tvb, pinfo, tree);
+      break;
+
+    default:
+      if (tree) {
+        /* Dump it as raw data. */
+        call_dissector(data_handle, next_tvb, pinfo, tree);
+        break;
+      }
+    }
+    break;
+  }
+}
+
 static const value_string pt_vals[] = {
-	{ 0, "User data, congestion not experienced, SDU-type 0" },
-	{ 1, "User data, congestion not experienced, SDU-type 1" },
-	{ 2, "User data, congestion experienced, SDU-type 0" },
-	{ 3, "User data, congestion experienced, SDU-type 1" },
+	{ 0, "User data cell, congestion not experienced, SDU-type = 0" },
+	{ 1, "User data cell, congestion not experienced, SDU-type = 1" },
+	{ 2, "User data cell, congestion experienced, SDU-type = 0" },
+	{ 3, "User data cell, congestion experienced, SDU-type = 1" },
 	{ 4, "Segment OAM F5 flow related cell" },
 	{ 5, "End-to-end OAM F5 flow related cell" },
 	{ 0, NULL }
@@ -838,21 +990,148 @@ static const value_string ft_ad_vals[] = {
 };
 
 static void
-dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    gboolean truncated)
+dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    proto_tree *atm_tree)
 {
   int          offset;
-  proto_tree   *atm_tree = NULL, *aal_tree;
-  proto_item   *ti = NULL;
-  tvbuff_t     *next_tvb;
-  guint        length, reported_length;
-  guint16      aal5_length;
-  int          pad_length;
+  proto_tree   *aal_tree;
+  proto_item   *ti;
   guint8       octet;
   guint8       vpi;
   guint16      vci;
   guint16      aal3_4_hdr, aal3_4_trlr;
   guint16      oam_crc;
+  tvbuff_t     *next_tvb;
+
+  octet = tvb_get_guint8(tvb, 0);
+  proto_tree_add_text(atm_tree, tvb, 0, 1, "GFC: 0x%x", octet >> 4);
+  vpi = (octet & 0xF0) << 4;
+  octet = tvb_get_guint8(tvb, 1);
+  vpi |= octet >> 4;
+  proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 2, vpi);
+  vci = (octet & 0x0F) << 12;
+  octet = tvb_get_guint8(tvb, 2);
+  vci |= octet << 4;
+  octet = tvb_get_guint8(tvb, 3);
+  vci |= octet >> 4;
+  proto_tree_add_uint(atm_tree, hf_atm_vci, tvb, 1, 3, vci);
+  proto_tree_add_text(atm_tree, tvb, 3, 1, "Payload Type: %s",
+        val_to_str((octet >> 1) & 0x7, pt_vals, "Unknown (%u)"));
+  proto_tree_add_text(atm_tree, tvb, 3, 1, "Cell Loss Priority: %s",
+	(octet & 0x01) ? "Low priority" : "High priority");
+  proto_tree_add_text(atm_tree, tvb, 4, 1, "Header Error Check: 0x%02x",
+	  tvb_get_guint8(tvb, 4));
+  offset = 5;
+
+  switch (pinfo->pseudo_header->atm.aal) {
+
+  case AAL_1:
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "AAL1");
+    ti = proto_tree_add_item(tree, proto_aal1, tvb, offset, -1, FALSE);
+    aal_tree = proto_item_add_subtree(ti, ett_aal1);
+    octet = tvb_get_guint8(tvb, offset);
+    proto_tree_add_text(aal_tree, tvb, offset, 1, "CSI: %u", octet >> 7);
+    proto_tree_add_text(aal_tree, tvb, offset, 1, "Sequence Count: %u",
+		(octet >> 4) & 0x7);
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Sequence count = %u",
+		(octet >> 4) & 0x7);
+    }
+    proto_tree_add_text(aal_tree, tvb, offset, 1, "CRC: 0x%x",
+		(octet >> 1) & 0x7);
+    proto_tree_add_text(aal_tree, tvb, offset, 1, "Parity: %u",
+		octet & 0x1);
+    offset++;
+
+    proto_tree_add_text(aal_tree, tvb, offset, 47, "Payload");
+    break;
+
+  case AAL_3_4:
+    /*
+     * XXX - or should this be the CS PDU?
+     */
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "AAL3/4");
+    ti = proto_tree_add_item(tree, proto_aal3_4, tvb, offset, -1, FALSE);
+    aal_tree = proto_item_add_subtree(ti, ett_aal3_4);
+    aal3_4_hdr = tvb_get_ntohs(tvb, offset);
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s, sequence number = %u",
+		val_to_str(aal3_4_hdr >> 14, st_vals, "Unknown (%u)"),
+		(aal3_4_hdr >> 10) & 0xF);
+    }
+    proto_tree_add_text(aal_tree, tvb, offset, 2, "Segment Type: %s",
+		val_to_str(aal3_4_hdr >> 14, st_vals, "Unknown (%u)"));
+    proto_tree_add_text(aal_tree, tvb, offset, 2, "Sequence Number: %u",
+		(aal3_4_hdr >> 10) & 0xF);
+    proto_tree_add_text(aal_tree, tvb, offset, 2, "Multiplex ID: %u",
+		aal3_4_hdr & 0x3FF);
+    offset += 2;
+
+    proto_tree_add_text(aal_tree, tvb, offset, 44, "Information");
+    offset += 44;
+
+    aal3_4_trlr = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_text(aal_tree, tvb, offset, 2, "Length Indicator: %u",
+		(aal3_4_trlr >> 10) & 0x3F);
+    proto_tree_add_text(aal_tree, tvb, offset, 2, "CRC: 0x%03x",
+		aal3_4_trlr & 0x3FF);
+    break;
+
+  case AAL_OAMCELL:
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "OAM AAL");
+    ti = proto_tree_add_item(tree, proto_oamaal, tvb, offset, -1, FALSE);
+    aal_tree = proto_item_add_subtree(ti, ett_oamaal);
+    octet = tvb_get_guint8(tvb, offset);
+    proto_tree_add_text(aal_tree, tvb, offset, 2, "OAM Type: %s",
+		val_to_str(octet >> 4, oam_type_vals, "Unknown (%u)"));
+    switch (octet >> 4) {
+
+    case OAM_TYPE_FM:
+      proto_tree_add_text(aal_tree, tvb, offset, 2, "Function Type: %s",
+		val_to_str(octet & 0x0F, ft_fm_vals, "Unknown (%u)"));
+      break;
+
+    case OAM_TYPE_PM:
+      proto_tree_add_text(aal_tree, tvb, offset, 2, "Function Type: %s",
+		val_to_str(octet & 0x0F, ft_pm_vals, "Unknown (%u)"));
+      break;
+
+    case OAM_TYPE_AD:
+      proto_tree_add_text(aal_tree, tvb, offset, 2, "Function Type: %s",
+		val_to_str(octet & 0x0F, ft_ad_vals, "Unknown (%u)"));
+      break;
+
+    default:
+      proto_tree_add_text(aal_tree, tvb, offset, 2, "Function Type: %u",
+		octet & 0x0F);
+      break;
+    }
+    offset += 1;
+
+    proto_tree_add_text(aal_tree, tvb, offset, 45, "Function-specific information");
+    offset += 45;
+
+    oam_crc = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_text(aal_tree, tvb, offset, 2, "CRC-10: 0x%03x",
+		oam_crc & 0x3FF);
+    break;
+
+  default:
+    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    call_dissector(data_handle, next_tvb, pinfo, tree);
+    break;
+  }
+}
+
+static void
+dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    gboolean truncated)
+{
+  proto_tree   *atm_tree = NULL;
+  proto_item   *ti = NULL;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
@@ -892,38 +1171,6 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_protocol_format(tree, proto_atm, tvb, 0, 0, "ATM");
     atm_tree = proto_item_add_subtree(ti, ett_atm);
 
-    proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL: %s",
-	val_to_str(pinfo->pseudo_header->atm.aal, aal_vals,
-	"Unknown AAL (%u)"));
-    if (pinfo->pseudo_header->atm.aal == AAL_5) {
-      proto_tree_add_text(atm_tree, tvb, 0, 0, "Traffic type: %s",
-	val_to_str(pinfo->pseudo_header->atm.type, aal5_hltype_vals,
-	"Unknown AAL5 traffic type (%u)"));
-      switch (pinfo->pseudo_header->atm.type) {
-
-      case TRAF_VCMX:
-        proto_tree_add_text(atm_tree, tvb, 0, 0, "VC multiplexed traffic type: %s",
-		val_to_str(pinfo->pseudo_header->atm.subtype,
-			vcmx_type_vals, "Unknown VCMX traffic type (%u)"));
-        break;
-
-      case TRAF_LANE:
-        proto_tree_add_text(atm_tree, tvb, 0, 0, "LANE traffic type: %s",
-		val_to_str(pinfo->pseudo_header->atm.subtype,
-			lane_type_vals, "Unknown LANE traffic type (%u)"));
-        break;
-
-      case TRAF_IPSILON:
-        proto_tree_add_text(atm_tree, tvb, 0, 0, "Ipsilon traffic type: %s",
-		val_to_str(pinfo->pseudo_header->atm.subtype,
-			ipsilon_type_vals, "Unknown Ipsilon traffic type (%u)"));
-        break;
-      }
-    }
-    proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 0,
-    		pinfo->pseudo_header->atm.vpi);
-    proto_tree_add_uint(atm_tree, hf_atm_vci, tvb, 0, 0,
-		pinfo->pseudo_header->atm.vci);
     switch (pinfo->pseudo_header->atm.channel) {
 
     case 0:
@@ -942,226 +1189,21 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  		pinfo->pseudo_header->atm.channel);
       break;
     }
-  }
 
-  next_tvb = tvb;
-  if (truncated) {
-    /*
-     * The packet data does not include stuff such as the AAL5
-     * trailer.
-     */
-    if (pinfo->pseudo_header->atm.cells != 0) {
-      /*
-       * If the cell count is 0, assume it means we don't know how
-       * many cells it was.
-       *
-       * XXX - also, if this is AAL5 traffic, assume it means we don't
-       * know what was in the AAL5 trailer.  We may, however, find
-       * some capture program that can give us the AAL5 trailer
-       * information but not the cell count, in which case we need
-       * some other way of indicating whether we have the AAL5 trailer
-       * information.
-       */
-      if (tree) {
-        proto_tree_add_text(atm_tree, tvb, 0, 0, "Cells: %u",
-		pinfo->pseudo_header->atm.cells);
-        if (pinfo->pseudo_header->atm.aal == AAL_5) {
-          proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 UU: 0x%02x",
-		pinfo->pseudo_header->atm.aal5t_u2u >> 8);
-          proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 CPI: 0x%02x",
-		pinfo->pseudo_header->atm.aal5t_u2u & 0xFF);
-          proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 len: %u",
-		pinfo->pseudo_header->atm.aal5t_len);
-          proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 checksum: 0x%08X",
-		pinfo->pseudo_header->atm.aal5t_chksum);
-	}
-      }
-    }
+    proto_tree_add_uint_format(atm_tree, hf_atm_aal, tvb, 0, 0,
+	pinfo->pseudo_header->atm.aal,
+	"AAL: %s",
+	val_to_str(pinfo->pseudo_header->atm.aal, aal_vals,
+	  "Unknown AAL (%u)"));
+  }
+  if (pinfo->pseudo_header->atm.aal == AAL_5 ||
+      pinfo->pseudo_header->atm.aal == AAL_SIGNALLING) {
+    /* This is a reassembled PDU. */
+    dissect_reassembled_pdu(tvb, pinfo, tree, atm_tree, truncated);
   } else {
-    /*
-     * The packet data includes stuff such as the AAL5 trailer.
-     * If this is AAL5 or Signalling AAL traffic, process it,
-     * and then strip off the trailer.
-     */
-    if (pinfo->pseudo_header->atm.aal == AAL_5 ||
-        pinfo->pseudo_header->atm.aal == AAL_SIGNALLING) {
-      length = tvb_length(tvb);
-      reported_length = tvb_reported_length(tvb);
-      if (length >= reported_length) {
-        /*
-         * XXX - what if the packet is truncated?  Can that happen?
-         * What if you capture with Windows Sniffer on an ATM link
-	 * and tell it not to save the entire packet?  What happens
-	 * to the trailer?
-         */
-        aal5_length = tvb_get_ntohs(tvb, length - 6);
-        if (tree) {
-          pad_length = length - aal5_length - 8;
-          if (pad_length > 0) {
-            proto_tree_add_text(atm_tree, tvb, aal5_length, pad_length,
-		"Padding");
-          }
-          proto_tree_add_text(atm_tree, tvb, length - 8, 1, "AAL5 UU: 0x%02x",
-		tvb_get_guint8(tvb, length - 8));
-          proto_tree_add_text(atm_tree, tvb, length - 7, 1, "AAL5 CPI: 0x%02x",
-		tvb_get_guint8(tvb, length - 7));
-          proto_tree_add_text(atm_tree, tvb, length - 6, 2, "AAL5 len: %u",
-		aal5_length);
-          /*
-           * XXX - check the checksum.
-           */
-          proto_tree_add_text(atm_tree, tvb, length - 4, 4, "AAL5 checksum: 0x%08X",
-		tvb_get_ntohl(tvb, length - 4));
-	}
-	next_tvb = tvb_new_subset(tvb, 0, aal5_length, aal5_length);
-      }
-    }
-  }
-
-  switch (pinfo->pseudo_header->atm.aal) {
-
-  case AAL_SIGNALLING:
-    call_dissector(sscop_handle, next_tvb, pinfo, tree);
-    break;
-
-  case AAL_5:
-    switch (pinfo->pseudo_header->atm.type) {
-
-    case TRAF_LLCMX:
-      /* Dissect as WTAP_ENCAP_ATM_RFC1483 */
-      /* The ATM iptrace capture that we have shows LLC at this point,
-       * so that's what I'm calling */
-      call_dissector(llc_handle, next_tvb, pinfo, tree);
-      break;
-
-    case TRAF_LANE:
-      call_dissector(lane_handle, next_tvb, pinfo, tree);
-      break;
-
-    case TRAF_ILMI:
-      call_dissector(ilmi_handle, next_tvb, pinfo, tree);
-      break;
-
-    default:
-      if (tree) {
-        /* Dump it as raw data. */
-        call_dissector(data_handle, next_tvb, pinfo, tree);
-        break;
-      }
-    }
-    break;
-
-  default:
-    if (tree) {
-      /* Assume this is a single cell. */
-      proto_item_set_len(ti, 5);
-      octet = tvb_get_guint8(tvb, 0);
-      proto_tree_add_text(atm_tree, tvb, 0, 1, "GFC: 0x%x", octet >> 4);
-      vpi = (octet & 0xF0) << 4;
-      octet = tvb_get_guint8(tvb, 1);
-      vpi |= octet >> 4;
-      proto_tree_add_text(atm_tree, tvb, 0, 2, "VPI: %u", vpi);
-      vci = (octet & 0x0F) << 12;
-      octet = tvb_get_guint8(tvb, 2);
-      vci |= octet << 4;
-      octet = tvb_get_guint8(tvb, 3);
-      vci |= octet >> 4;
-      proto_tree_add_text(atm_tree, tvb, 1, 3, "VCI: %u", vci);
-      proto_tree_add_text(atm_tree, tvb, 3, 1, "PT: %s",
-          val_to_str((octet >> 1) & 0x7, pt_vals, "Unknown (%u)"));
-      proto_tree_add_text(atm_tree, tvb, 3, 1, "CLP: %u", octet & 0x01);
-      proto_tree_add_text(atm_tree, tvb, 4, 1, "HEC: 0x%02x",
-	  tvb_get_guint8(tvb, 4));
-      offset = 5;
-
-      switch (pinfo->pseudo_header->atm.aal) {
-
-      case AAL_1:
-        ti = proto_tree_add_item(tree, proto_aal1, tvb, offset, -1, FALSE);
-        aal_tree = proto_item_add_subtree(ti, ett_aal1);
-        octet = tvb_get_guint8(tvb, offset);
-        proto_tree_add_text(aal_tree, tvb, offset, 1, "CSI: %u", octet >> 7);
-        proto_tree_add_text(aal_tree, tvb, offset, 1, "SC: %u",
-		(octet >> 4) & 0x7);
-        proto_tree_add_text(aal_tree, tvb, offset, 1, "CRC: 0x%x",
-		(octet >> 1) & 0x7);
-        proto_tree_add_text(aal_tree, tvb, offset, 1, "Parity: %u",
-		octet & 0x1);
-        offset++;
-
-        proto_tree_add_text(aal_tree, tvb, offset, 47, "Payload");
-        break;
-
-      case AAL_3_4:
-        /*
-         * XXX - or should this be the CS PDU?
-         */
-        ti = proto_tree_add_item(tree, proto_aal3_4, tvb, offset, -1, FALSE);
-        aal_tree = proto_item_add_subtree(ti, ett_aal3_4);
-        aal3_4_hdr = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_text(aal_tree, tvb, offset, 2, "ST: %s",
-		val_to_str(aal3_4_hdr >> 14, st_vals, "Unknown (%u)"));
-        proto_tree_add_text(aal_tree, tvb, offset, 2, "SN: %u",
-		(aal3_4_hdr >> 10) & 0xF);
-        proto_tree_add_text(aal_tree, tvb, offset, 2, "MID: %u",
-		aal3_4_hdr & 0x3FF);
-        offset += 2;
-
-        proto_tree_add_text(aal_tree, tvb, offset, 44, "Information");
-        offset += 44;
-
-        aal3_4_trlr = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_text(aal_tree, tvb, offset, 2, "LI: %u",
-		(aal3_4_hdr >> 10) & 0x3F);
-        proto_tree_add_text(aal_tree, tvb, offset, 2, "CRC: 0x%03x",
-		aal3_4_hdr & 0x3FF);
-	break;
-
-      case AAL_OAMCELL:
-        ti = proto_tree_add_item(tree, proto_oamaal, tvb, offset, -1, FALSE);
-        aal_tree = proto_item_add_subtree(ti, ett_oamaal);
-        octet = tvb_get_guint8(tvb, offset);
-        proto_tree_add_text(aal_tree, tvb, offset, 2, "OAM Type: %s",
-		val_to_str(octet >> 4, oam_type_vals, "Unknown (%u)"));
-        switch (octet >> 4) {
-
-        case OAM_TYPE_FM:
-          proto_tree_add_text(aal_tree, tvb, offset, 2, "Function Type: %s",
-		val_to_str(octet & 0x0F, ft_fm_vals, "Unknown (%u)"));
-          break;
-
-        case OAM_TYPE_PM:
-          proto_tree_add_text(aal_tree, tvb, offset, 2, "Function Type: %s",
-		val_to_str(octet & 0x0F, ft_pm_vals, "Unknown (%u)"));
-          break;
-
-        case OAM_TYPE_AD:
-          proto_tree_add_text(aal_tree, tvb, offset, 2, "Function Type: %s",
-		val_to_str(octet & 0x0F, ft_ad_vals, "Unknown (%u)"));
-          break;
-
-        default:
-          proto_tree_add_text(aal_tree, tvb, offset, 2, "Function Type: %u",
-		octet & 0x0F);
-          break;
-        }
-        offset += 1;
-
-        proto_tree_add_text(aal_tree, tvb, offset, 45, "Function-specific information");
-        offset += 45;
-
-        oam_crc = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_text(aal_tree, tvb, offset, 2, "CRC-10: 0x%03x",
-		oam_crc & 0x3FF);
-        break;
-
-      default:
-        next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-        call_dissector(data_handle, next_tvb, pinfo, tree);
-        break;
-      }
-    }
-    break;
+    /* Assume this is a single cell, with the cell header at the beginning. */
+    proto_item_set_len(ti, 5);
+    dissect_atm_cell(tvb, pinfo, tree, atm_tree);
   }
 }
 
@@ -1181,6 +1223,10 @@ void
 proto_register_atm(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_atm_aal,
+		{ "AAL",		"atm.aal", FT_UINT8, BASE_DEC, VALS(aal_vals), 0x0,
+			"", HFILL }},
+
 		{ &hf_atm_vpi,
 		{ "VPI",		"atm.vpi", FT_UINT8, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
