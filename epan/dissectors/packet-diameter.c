@@ -91,7 +91,7 @@ typedef enum {
 } diameterDataType;
 
 
-static value_string TypeValues[]={
+static const value_string TypeValues[]={
   {  DIAMETER_OCTET_STRING,    "OctetString" },
   {  DIAMETER_INTEGER32,       "Integer32" },
   {  DIAMETER_INTEGER64,       "Integer64" },

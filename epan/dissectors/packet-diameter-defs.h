@@ -779,7 +779,7 @@ static struct old_avp_info old_diameter_avps[] = {
 
 
 
-static value_string diameter_command_code_vals[] = {
+static const value_string diameter_command_code_vals[] = {
 
 	/* Base Protocol */
 	{257, "Capabilities-Exchange"},
@@ -819,7 +819,7 @@ typedef enum {
   DIAMETER_RFC
 } Version_Type;
 
-static enum_val_t options[] = {
+static const enum_val_t options[] = {
   { "draft-16", "Diameter base draft version 16 and below",  DIAMETER_V16  },
   { "rfc3588", "Diameter base RFC 3588 ",                    DIAMETER_RFC  },
   { NULL, NULL, 0 }
