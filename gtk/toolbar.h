@@ -2,7 +2,7 @@
  * Definitions for toolbar utility routines
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.h,v 1.8 2004/06/01 17:33:37 ulfl Exp $
+ * $Id: toolbar.h,v 1.9 2004/06/04 17:16:58 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,6 +28,7 @@
 
 /** @file
  *  The main toolbar.
+ *  @ingroup main_window_group
  */
 
 /** Create the main toolbar.

@@ -1,7 +1,7 @@
 /* ui_util.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h,v 1.13 2004/06/01 20:28:05 ulfl Exp $
+ * $Id: ui_util.h,v 1.14 2004/06/04 17:16:58 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,46 +25,76 @@
 #ifndef __GTKGUIUI_UTIL_H__
 #define __GTKGUIUI_UTIL_H__
 
-
-/** @file 
- * Utilities for Windows and other user interface functions.
+/** @defgroup windows_group Windows
  *
- * Some words about windows / dialogs.
+ * There are the following toplevel windows:
+ *
+ * - @ref main_window_group
+ * - Statistic Windows (several different statistic windows)
+ *
+ * See: @ref howto_window_page for details.
  * 
- * delete event: the window managers "X" (e.g. upper right edge) of the window 
- *   was clicked, default handler will call gtk_widget_destroy()
- * destroy event: everything is already gone, only cleanup of left over ressources
- *   can/should be done now
+ */
+
+/** @page howto_window_page How to develop a window / dialog
  *
- * Hint: don't use WIDGET_SET_SIZE() to set the size of a window,
- * use gtk_window_set_default_size() for that purpose!
+ * Windows and dialogs are related to each other. Dialogs are special kind of windows, but they behave
+ * slightly different. Dialogs stick on it's parent window, normal windows will be much more independant
+ * from it's parent window. Dialogs should be used to ask or note the user something, while windows should
+ * show data independantly from the main window.
+ * Dialogs are created by calling dlg_window_new() which in turn will call window_new().
+ * After that, dialogs can be developed the same way as windows, all window related functions in ui_util.h 
+ * can be used for both.
  *
- * be sure, to call window_present() / window_destroy() appropriately, if you 
- *   want to have size and position handled by ui_util
+ * @section window_create Create a window
  *
- * A typical window / dialog will be created by:
+ * A typical window / dialog will be created by the following calls:
  *
- * window_new() will create a new window with default position and size,
+ * - window_new() will create a new window with default position and size,
  *   use dlg_window_new() if you need a dialog (transient to the main window)
- *
- * gtk_window_set_default_size() to set the default size of the window, only
- *   needed, if the initial size is not appropriate, e.g. a scrolled_window_new() is used
- *   be sure the given is larger than the initial size, otherwise might get clipped content on GTK1
- *
- * SIGNAL_CONNECT(my_win, "destroy", my_destroy_cb, NULL) callback, if some cleanup needs to be 
+ * - gtk_window_set_default_size() to set the default size of the window. Only
+ *   needed, if the initial size is not appropriate, e.g. when a scrolled_window_new() is used.
+ *   Be sure that the given size is larger than the initial size, otherwise the window might
+ *   clip the content (at least on GTK1)
+ * - SIGNAL_CONNECT(my_win, "destroy", my_destroy_cb, NULL) callback, if some cleanup needs to be 
  *   done after the window is destroyed, e.g. free up memory, or set the window pointer
  *   of a singleton window (only one instance allowed, e.g. about dialog) back to zero
- *
- * create and fill in the content and button widgets
- *
- * gtk_widget_show_all() show all the widgets in the window
- *
- * window_present() present the window on screen and 
+ * - create and fill in the content and button widgets
+ * - gtk_widget_show_all() shows all the widgets in the window
+ * - window_present() present the window on screen and 
  *   (if available) set previously saved position and size
  *
- * if you want to save size and position, be sure to call window_destroy() instead of only 
+ * @section window_events Events
+ *
+ * The following events are usually interesting:
+ *
+ * - "delete_event": the window managers "X" (e.g. upper right edge) of the window 
+ *   was clicked, default handler will call gtk_widget_destroy()
+ * - "destroy": everything is already gone, only cleanup of left over ressources
+ *   can/should be done now
+ *
+ * @section window_hints Hints
+ *
+ * If you want to save size and position, be sure to call window_destroy() instead of only 
  *   gtk_widget_destroy(), so you will probably have to SIGNAL_CONNECT to the "delete_event"!
+ *
+ * Don't use WIDGET_SET_SIZE() to set the size of a window,
+ * use gtk_window_set_default_size() for that purpose!
+ *
+ * Be sure to call window_present() / window_destroy() appropriately, if you 
+ *   want to have size and position of the window handled by ui_util.
+ *
  */
+
+/** @file 
+ * Utilities for Windows and other user interface functions. See: @ref howto_window_page for details.
+ * @ingroup dialog_group
+ * @ingroup windows_group
+ */
+
+/** @name Window Functions
+ *  @todo Move these window functions to a new file win_utils.h?
+ *  @{ */
 
 /** Create a new window with the Ethereal icon. 
  *  If you want to create a dialog, use dlg_window_new() instead. 
@@ -177,6 +207,8 @@ extern void window_geom_recent_read_pair(const char *name, const char *key, cons
  * @param win the window from window_new() to be reactivated
  */
 void reactivate_window(GtkWidget *win);
+
+/** @} */
 
 /** Create a GtkScrolledWindow, set its scrollbar placement appropriately,
  *  and remember it.

@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.75 2004/05/31 13:42:17 ulfl Exp $
+# $Id: Makefile.nmake,v 1.76 2004/06/04 17:16:57 ulfl Exp $
 
 include ..\config.nmake
 
@@ -47,14 +47,24 @@ clean:
 distclean: clean
 	rm -f ethereal-tap-register.c
 
+# convert doxygen.cfg to doxygen.tmp with stamped version info
 doxygen.tmp: ..\config.nmake doxygen.cfg
+!IFDEF DOXYGEN
 	sed -e s/@VERSION@/$(VERSION)/ \
 	    < doxygen.cfg > $@
+!ENDIF
 
 doxygen-run:
 !IFDEF DOXYGEN
 	$(DOXYGEN) doxygen.tmp
 !ENDIF
 
-doxygen: doxygen.tmp doxygen-run
+# MS html help conpiler hhc returns 1 on success, but as nmake expects 0 it would stop here.
+# the prepended -1 will raise the accepted error levels of nmake, so it will continue
+doxygen.chm:
+!IFDEF HHC
+	-1 $(HHC) html\index.hhp
+!ENDIF
+
+doxygen: doxygen.tmp doxygen-run doxygen.chm
 

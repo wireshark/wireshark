@@ -1,7 +1,7 @@
 /* packet_list.h
  * Declarations of GTK+-specific routines for managing the packet list.
  *
- * $Id: packet_list.h,v 1.3 2004/06/02 18:44:10 ulfl Exp $
+ * $Id: packet_list.h,v 1.4 2004/06/04 17:16:58 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,7 +26,8 @@
 #define __PACKET_LIST_H__
 
 /** @file
- *  Main windows packet list.
+ *  Packet list pane.
+ *  @ingroup main_window_group
  */
 
 /** Create a new packet list.

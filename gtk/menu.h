@@ -1,7 +1,7 @@
 /* menu.h
  * Menu definitions
  *
- * $Id: menu.h,v 1.19 2004/06/01 21:56:04 ulfl Exp $
+ * $Id: menu.h,v 1.20 2004/06/04 17:16:57 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,7 +30,8 @@ extern "C" {
 #endif /* __cplusplus */
 
 /** @file
- *  Various functions provided by menu.c
+ *  Menubar and context menus.
+ *  @ingroup main_window_group
  */
 
 /** Write all recent capture filenames to the user's recent file.

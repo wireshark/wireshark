@@ -1,7 +1,7 @@
 /* gtkglobals.h
  * GTK-related Global defines, etc.
  *
- * $Id: gtkglobals.h,v 1.26 2004/06/02 07:12:10 ulfl Exp $
+ * $Id: gtkglobals.h,v 1.27 2004/06/04 17:16:57 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,8 +25,28 @@
 #ifndef __GTKGLOBALS_H__
 #define __GTKGLOBALS_H__
 
+/** @mainpage GTK subsystem
+ *
+ * @section intro Introduction
+ *
+ * Ethereal uses GTK (the Gimp ToolKit) as it's user interface toolkit.
+ *
+ * See Modules for a list of submodules.
+ *
+ * Additional info pages:
+ *
+ * - @ref howto_window_page
+ *
+ */
+
+/** @defgroup helpers_group General purpose helpers
+ *
+ * There are some general purpose helper files.
+ */
+
 /** @file
- *  GTK globals like the main application window.
+ *  GTK global definitions. For example a pointer to the main application window.
+ *  @ingroup helpers_group
  */
 
 /** application window */

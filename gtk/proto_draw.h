@@ -1,7 +1,7 @@
 /* proto_draw.h
  * Definitions for GTK+ packet display structures and routines
  *
- * $Id: proto_draw.h,v 1.27 2004/06/03 21:46:27 guy Exp $
+ * $Id: proto_draw.h,v 1.28 2004/06/04 17:16:58 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,6 +27,7 @@
 
 /** @file
  *  Packet tree and details panes.
+ *  @ingroup main_window_group
  */
 
 /** Get the current text notebook page of the packet details notebook.

@@ -2,7 +2,7 @@
  * Definitions for recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.h,v 1.10 2004/06/02 22:13:04 ulfl Exp $
+ * $Id: recent.h,v 1.11 2004/06/04 17:16:58 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,6 +30,7 @@
 
 /** @file
  *  Recent user interface settings.
+ *  @ingroup main_window_group
  */
 
 /** ???. */

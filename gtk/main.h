@@ -1,7 +1,7 @@
 /* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.50 2004/06/01 17:33:36 ulfl Exp $
+ * $Id: main.h,v 1.51 2004/06/04 17:16:57 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,9 +31,32 @@
 
 #include "globals.h"
 
-/** @file
- *  Various functions provided by main.c
+/** @defgroup main_window_group Main window
+ * The main window has the following submodules:
+   @dot
+  digraph main_dependencies {
+      node [shape=record, fontname=Helvetica, fontsize=10];
+      main [ label="main window" URL="\ref main.h"];
+      menu [ label="menubar" URL="\ref menu.h"];
+      toolbar [ label="toolbar" URL="\ref toolbar.h"];
+      packet_list [ label="packet list pane" URL="\ref packet_list.h"];
+      proto_draw [ label="packet details & bytes panes" URL="\ref proto_draw.h"];
+      recent [ label="recent user settings" URL="\ref recent.h"];
+      main -> menu [ arrowhead="open", style="solid" ];
+      main -> toolbar [ arrowhead="open", style="solid" ];
+      main -> packet_list [ arrowhead="open", style="solid" ];
+      main -> proto_draw [ arrowhead="open", style="solid" ];
+      main -> recent [ arrowhead="open", style="solid" ];
+  }
+  @enddot
  */
+
+/** @file
+ *  The main window, filter toolbar, program start/stop and a lot of other things
+ *  @ingroup main_window_group
+ *  @ingroup windows_group
+ */
+
 
 /** User requested "Zoom In" by menu or toolbar.
  *
