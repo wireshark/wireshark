@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.59 2002/08/28 21:00:18 jmayer Exp $
+ * $Id: packet-isakmp.c,v 1.60 2003/01/20 22:27:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -253,7 +253,7 @@ static gboolean get_num(tvbuff_t *, int, guint16, guint32 *);
 #define LOAD_TYPE_NONE		0	/* payload type for None */
 #define LOAD_TYPE_PROPOSAL	2	/* payload type for Proposal */
 #define	LOAD_TYPE_TRANSFORM	3	/* payload type for Transform */
-#define NUM_LOAD_TYPES		15
+#define NUM_LOAD_TYPES		17
 #define loadtype2str(t)	\
   ((t < NUM_LOAD_TYPES) ? strfuncs[t].str : "Unknown payload type")
 
@@ -275,7 +275,9 @@ static struct strfunc {
   {"Notification",		dissect_notif     },
   {"Delete",			dissect_delete    },
   {"Vendor ID",			dissect_vid       },
-  {"Attrib",			dissect_config	  }
+  {"Attrib",			dissect_config	  },
+  {"NAT-Discovery",		NULL		  }, /* http://www.ietf.org/internet-drafts/draft-ietf-ipsec-nat-t-ike-05.txt */
+  {"NAT-Original Address",	NULL		  }  /* http://www.ietf.org/internet-drafts/draft-ietf-ipsec-nat-t-ike-05.txt */
 };
 
 #define VID_LEN 16
@@ -291,6 +293,12 @@ static const guint8 VID_SAFENET[VID_LEN] = {0x44, 0x85, 0x15, 0x2D, 0x18, 0xB6, 
 
 static const guint8 VID_draft_ietf_ipsec_nat_t_ike_03[VID_LEN] = {0x7D, 0x94, 0x19, 0xA6, 0x53, 0x10, 0xCA, 0x6F, 0x2C, 0x17, 0x9D, 0x92, 0x15, 0x52, 0x9d, 0x56}; /* according to http://www.ietf.org/internet-drafts/draft-ietf-ipsec-nat-t-ike-03.txt */
 
+/* 
+*  Seen in Netscreen. Suppose to be ASCII HeartBeat_Notify - but I don't know the rest yet. I suspect it then proceeds with
+*  8k10, which means every 8K (?), and version 1.0 of the protocol (?). I won't add it to the code, until I know what it really
+*  means. ykaul-at-netvision.net.il
+*/
+static const guint8 VID_HeartBeat_Notify[VID_LEN] = {0x48, 0x65, 0x61, 0x72, 0x74, 0x42, 0x65, 0x61, 0x74, 0x5f, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x79}; 
 
 static dissector_handle_t esp_handle;
 static dissector_handle_t ah_handle;
@@ -1183,6 +1191,8 @@ value2str(int ike_p1, guint16 att_type, guint16 value) {
 	case 0:  return "RESERVED";
         case 1:  return "Tunnel";
         case 2:  return "Transport";
+	case 3:  return "UDP-Encapsulated-Tunnel"; /* http://www.ietf.org/internet-drafts/draft-ietf-ipsec-nat-t-ike-05.txt */
+	case 4:  return "UDP-Encapsulated-Transport"; /* http://www.ietf.org/internet-drafts/draft-ietf-ipsec-nat-t-ike-05.txt */
 	case 61440: return "Check Point IPSec UDP Encapsulation";
 	case 61443: return "UDP-Encapsulated-Tunnel (draft)";
 	case 61444: return "UDP-Encapsulated-Transport (draft)";
