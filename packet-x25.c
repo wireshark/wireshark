@@ -2,7 +2,7 @@
  * Routines for X.25 packet disassembly
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-x25.c,v 1.82 2003/03/05 01:12:11 guy Exp $
+ * $Id: packet-x25.c,v 1.83 2003/03/05 05:20:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1445,7 +1445,7 @@ static const value_string sharing_strategy_vals[] = {
 
 static void
 dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    x25_dir_t dir)
+    x25_dir_t dir, gboolean side)
 {
     proto_tree *x25_tree=0, *gfi_tree=0, *userdata_tree=0;
     proto_item *ti;
@@ -1462,6 +1462,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean q_bit_set = FALSE;
     gboolean m_bit_set;
     gint payload_len;
+    guint32 frag_key;
     void *saved_private_data;
     fragment_data *fd_head;
 
@@ -2126,9 +2127,23 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		localoffset += 2;
 	    }
 	    payload_len = tvb_reported_length_remaining(tvb, localoffset);
-	    if (reassemble_x25 && tvb_bytes_exist(tvb, localoffset, payload_len)) {
+	    if (reassemble_x25) {
+		/*
+		 * Reassemble received and sent traffic separately.
+		 * We don't reassemble traffic with an unknown direction
+		 * at all.
+		 */
+		frag_key = vc;
+		if (side) {
+		    /*
+		     * OR in an extra bit to distinguish from traffic
+		     * in the other direction.
+		     */
+		    frag_key |= 0x10000;
+		}
 		fd_head = fragment_add_seq_next(tvb, localoffset, 
-						pinfo, vc, x25_segment_table,
+						pinfo, frag_key,
+						x25_segment_table,
 						x25_reassembled_table,
 						payload_len, m_bit_set);
 		pinfo->fragmented = m_bit_set;
@@ -2145,11 +2160,26 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					       &x25_frag_items, 
 					       x25_tree, 
 					       pinfo, next_tvb);
-	            }
+		    }
 	        }
+
+		if (m_bit_set && next_tvb == NULL) {
+		    /*
+		     * This isn't the last packet, so just
+		     * show it as X.25 user data.
+		     */
+		    proto_tree_add_text(x25_tree, tvb, localoffset, -1,
+		        "User data (%u byte%s)", payload_len,
+		        plurality(payload_len, "", "s"));
+		    return;
+		}
 	    }
 	    break;
 	}
+
+	/*
+	 * Non-data packets (RR, RNR, REJ).
+	 */
 	switch (PACKET_TYPE_FC(pkt_type))
 	{
 	case X25_RR:
@@ -2235,7 +2265,8 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	localoffset += (modulo == 8) ? 1 : 2;
     }
 
-    if (localoffset >= tvb_reported_length(tvb)) return;
+    if (localoffset >= tvb_reported_length(tvb))
+      return;
     if (pinfo->fragmented)
       return;
 
@@ -2303,7 +2334,8 @@ dissect_x25_dir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     dissect_x25_common(tvb, pinfo, tree,
 	(pinfo->pseudo_header->x25.flags & FROM_DCE) ? X25_FROM_DCE :
-						       X25_FROM_DTE);
+						       X25_FROM_DTE,
+	pinfo->pseudo_header->x25.flags & FROM_DCE);
 }
 
 /*
@@ -2313,10 +2345,18 @@ dissect_x25_dir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+    int direction;
+
     /*
      * We don't know if this packet is DTE->DCE or DCE->DCE.
+     * However, we can, at least, distinguish between the two
+     * sides of the conversation, based on the addresses and
+     * ports.
      */
-    dissect_x25_common(tvb, pinfo, tree, X25_UNKNOWN);
+    direction = CMP_ADDRESS(&pinfo->src, &pinfo->dst);
+    if (direction == 0)
+	direction = (pinfo->srcport > pinfo->destport)*2 - 1;
+    dissect_x25_common(tvb, pinfo, tree, X25_UNKNOWN, direction > 0);
 }
 
 static void
