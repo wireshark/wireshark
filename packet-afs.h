@@ -1,7 +1,7 @@
 /* packet-afs.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-afs.h,v 1.3 2001/03/23 21:42:37 nneul Exp $
+ * $Id: packet-afs.h,v 1.4 2001/04/02 19:10:06 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,6 +66,8 @@ void dissect_afs(const u_char *, int, frame_data *, proto_tree *);
 #define CB_TYPE_SHARED 2
 #define CB_TYPE_DROPPED 3
 
+#define OPCODE_LOW 		0
+#define OPCODE_HIGH     550 /* arbitrary, is just a fuzzy check for encrypted traffic */
 #define VOTE_LOW        10000
 #define VOTE_HIGH       10007
 #define DISK_LOW        20000

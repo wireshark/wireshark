@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.28 2001/03/26 15:27:55 nneul Exp $
+ * $Id: packet-afs.c,v 1.29 2001/04/02 19:10:06 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -56,6 +56,9 @@
 #include "packet-afs-defs.h"
 #include "packet-afs-macros.h"
 
+#define VALID_OPCODE(opcode) ((opcode >= OPCODE_LOW && opcode <= OPCODE_HIGH) || \
+		(opcode >= VOTE_LOW && opcode <= VOTE_HIGH) || \
+		(opcode >= DISK_LOW && opcode <= DISK_HIGH))
 
 int afs_packet_init_count = 100;
 
@@ -335,23 +338,34 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		dissector = reply ? dissect_ubik_reply : dissect_ubik_request;
 	}
 
-	if ( vals )
+	if ( VALID_OPCODE(opcode) )
 	{
-		if (check_col(fd, COL_INFO))
-			col_add_fstr(fd, COL_INFO, "%s%s %s: %s (%d)",
-			typenode == hf_afs_ubik ? "UBIK-" : "",
-			val_to_str(port, port_types_short, "Unknown(%d)"),
-			reply ? "Reply" : "Request",
-			val_to_str(opcode, vals, "Unknown(%d)"), opcode);
+		if ( vals )
+		{
+			if (check_col(fd, COL_INFO))
+				col_add_fstr(fd, COL_INFO, "%s%s %s: %s (%d)",
+				typenode == hf_afs_ubik ? "UBIK-" : "",
+				val_to_str(port, port_types_short, "Unknown(%d)"),
+				reply ? "Reply" : "Request",
+				val_to_str(opcode, vals, "Unknown(%d)"), opcode);
+		}
+		else
+		{
+			if (check_col(fd, COL_INFO))
+				col_add_fstr(fd, COL_INFO, "%s%s %s: Unknown(%d)",
+				typenode == hf_afs_ubik ? "UBIK-" : "",
+				val_to_str(port, port_types_short, "Unknown(%d)"),
+				reply ? "Reply" : "Request",
+				opcode);
+		}
 	}
 	else
 	{
 		if (check_col(fd, COL_INFO))
-			col_add_fstr(fd, COL_INFO, "%s%s %s: Unknown(%d)",
-			typenode == hf_afs_ubik ? "UBIK-" : "",
+			col_add_fstr(fd, COL_INFO, "Encrypted %s %s",
 			val_to_str(port, port_types_short, "Unknown(%d)"),
-			reply ? "Reply" : "Request",
-			opcode);
+			reply ? "Reply" : "Request"
+			);
 	}
 
 	if (tree) {
@@ -363,7 +377,8 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			typenode != hf_afs_ubik )
 		{
 			proto_tree_add_text(afs_tree, NullTVB, doffset, END_OF_FRAME,
-				"Service: %s%s %s (Truncated)",
+				"Service: %s%s%s %s (Truncated)",
+				VALID_OPCODE(opcode) ? "" : "Encrypted ",
 				typenode == hf_afs_ubik ? "UBIK - " : "",
 				val_to_str(port, port_types, "Unknown(%d)"),
 				reply ? "Reply" : "Request");
@@ -372,44 +387,48 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		else
 		{
 			proto_tree_add_text(afs_tree, NullTVB, doffset, END_OF_FRAME,
-				"Service: %s%s %s",
+				"Service: %s%s%s %s",
+				VALID_OPCODE(opcode) ? "" : "Encrypted ",
 				typenode == hf_afs_ubik ? "UBIK - " : "",
 				val_to_str(port, port_types, "Unknown(%d)"),
 				reply ? "Reply" : "Request");
 		}
 
-		/* until we do cache, can't handle replies */
-		ti = NULL;
-		if ( !reply && node != 0 )
+		if ( VALID_OPCODE(opcode) )
 		{
-			ti = proto_tree_add_uint(afs_tree,
-				node, NullTVB, doffset, 4, opcode);
-		}
-		else if ( reply && node != 0 )
-		{
-			/* the opcode isn't in this packet */
-			ti = proto_tree_add_uint(afs_tree,
-				node, NullTVB, doffset, 0, opcode);
-		}
-		else
-		{
-			ti = proto_tree_add_text(afs_tree, NullTVB,
-				doffset, 0, "Operation: Unknown");
-		}
-
-		/* Add the subtree for this particular service */
-		afs_op_tree = proto_item_add_subtree(ti, ett_afs_op);
-
-		if ( typenode != 0 )
-		{
-			/* indicate the type of request */
-			proto_tree_add_boolean_hidden(afs_tree, typenode, NullTVB, doffset, 0, 1);
-		}
-
-		/* Process the packet according to what service it is */
-		if ( dissector )
-		{
-			(*dissector)(pd,offset,fd,afs_op_tree,opcode);
+			/* until we do cache, can't handle replies */
+			ti = NULL;
+			if ( !reply && node != 0 )
+			{
+				ti = proto_tree_add_uint(afs_tree,
+					node, NullTVB, doffset, 4, opcode);
+			}
+			else if ( reply && node != 0 )
+			{
+				/* the opcode isn't in this packet */
+				ti = proto_tree_add_uint(afs_tree,
+					node, NullTVB, doffset, 0, opcode);
+			}
+			else
+			{
+				ti = proto_tree_add_text(afs_tree, NullTVB,
+					doffset, 0, "Operation: Unknown");
+			}
+	
+			/* Add the subtree for this particular service */
+			afs_op_tree = proto_item_add_subtree(ti, ett_afs_op);
+	
+			if ( typenode != 0 )
+			{
+				/* indicate the type of request */
+				proto_tree_add_boolean_hidden(afs_tree, typenode, NullTVB, doffset, 0, 1);
+			}
+	
+			/* Process the packet according to what service it is */
+			if ( dissector )
+			{
+				(*dissector)(pd,offset,fd,afs_op_tree,opcode);
+			}
 		}
 	}
 
