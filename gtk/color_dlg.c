@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.22 2003/01/08 01:59:41 guy Exp $
+ * $Id: color_dlg.c,v 1.23 2003/02/17 21:08:37 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -405,7 +405,7 @@ colorize_dialog_new (void)
   SIGNAL_CONNECT(color_filters, "select_row", remember_selected_row, NULL);
   SIGNAL_CONNECT(color_filters, "unselect_row", unremember_selected_row, NULL);
 #else
-  SIGNAL_CONNECT(color_filters, "changed", remember_selected_row, NULL);
+  SIGNAL_CONNECT(selection, "changed", remember_selected_row, color_filters);
 #endif
   OBJECT_SET_DATA(color_filters, COLOR_UP_LB, color_filter_up);
   OBJECT_SET_DATA(color_filters, COLOR_DOWN_LB, color_filter_down);
