@@ -957,7 +957,6 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	  AC_PATH_PROG(KRB5_CONFIG, krb5-config) 
 	  if test -x "$KRB5_CONFIG"
 	  then
-set -x
 	    KRB5_FLAGS=`"$KRB5_CONFIG" --cflags`
 	    CFLAGS="$CFLAGS $KRB5_FLAGS"
             CPPFLAGS="$CPPFLAGS $KRB5_FLAGS"
@@ -975,7 +974,6 @@ set -x
 
 	    #LIBS="$LIBS $KRB5_LIBS"
 	    ac_krb5_version=`"$KRB5_CONFIG" --version | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/i'`
-set +x
  	  fi
 	fi
 
