@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.161 2000/01/27 09:53:50 gram Exp $
+ * $Id: file.c,v 1.162 2000/02/03 06:35:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,7 @@
 #endif
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -1375,7 +1376,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
     /* Copy the file, if we haven't moved it. */
     if (do_copy) {
       /* Copy the raw bytes of the file. */
-      from_fd = open(from_filename, O_RDONLY);
+      from_fd = open(from_filename, O_RDONLY | O_BINARY);
       if (from_fd < 0) {
       	err = errno;
 	simple_dialog(ESD_TYPE_WARN, NULL,
