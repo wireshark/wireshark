@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.61 2002/10/14 17:33:50 guy Exp $
+ * $Id: packet.h,v 1.62 2002/10/22 22:04:23 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,6 +60,7 @@ typedef struct _packet_counts {
   gint           gre;
   gint           netbios;
   gint           ipx;
+  gint           ipv6;
   gint           vines;
   gint           other;
   gint           total;

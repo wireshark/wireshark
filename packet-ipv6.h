@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.h,v 1.28 2002/08/28 21:00:18 jmayer Exp $
+ * $Id: packet-ipv6.h,v 1.29 2002/10/22 22:04:21 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -571,5 +571,8 @@ struct rr_result {		/* router renumbering result message */
 /* network endian */
 #define ICMP6_RR_RESULT_FLAGS_OOB		0x0002
 #define ICMP6_RR_RESULT_FLAGS_FORBIDDEN		0x0001
+
+void capture_ipv6(const guchar *, int, int, packet_counts *);
+
 
 #endif /* __PACKET_IPV6_H_DEFINED__ */

@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.32 2002/10/14 17:33:48 guy Exp $
+ * $Id: packet-ethertype.c,v 1.33 2002/10/22 22:04:21 jmayer Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -31,6 +31,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-ip.h"
+#include "packet-ipv6.h"
 #include "packet-ipx.h"
 #include "packet-vlan.h"
 #include "packet-vines.h"
@@ -109,6 +110,9 @@ capture_ethertype(guint16 etype, const guchar *pd, int offset, int len,
       break;
     case ETHERTYPE_IP:
       capture_ip(pd, offset, len, ld);
+      break;
+    case ETHERTYPE_IPv6:
+      capture_ipv6(pd, offset, len, ld);
       break;
     case ETHERTYPE_IPX:
       capture_ipx(ld);

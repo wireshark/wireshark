@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.87 2002/08/28 21:00:18 jmayer Exp $
+ * $Id: packet-ipv6.c,v 1.88 2002/10/22 22:04:21 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,6 +120,16 @@ static gboolean ipv6_reassemble = FALSE;
  * defragmentation of IPv6
  */
 static GHashTable *ipv6_fragment_table = NULL;
+
+void
+capture_ipv6(const guchar *pd, int offset, int len, packet_counts *ld)
+{
+        ld->ipv6++;
+	/* FIXME: We should count the actual ipv6 payload by protocol,
+	 *	but it looks like we need to replicate quite a few
+	 *	parts of the dissection stuff.
+	 */
+}
 
 static void
 ipv6_reassemble_init(void)
