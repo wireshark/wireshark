@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.42 1999/11/18 01:45:03 guy Exp $
+ * $Id: packet-smb.c,v 1.43 1999/11/18 07:32:46 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -71,6 +71,9 @@ static int proto_browse = -1;
 
 static gint ett_browse = -1;
 static gint ett_browse_flags = -1;
+static gint ett_browse_election_criteria = -1;
+static gint ett_browse_election_os = -1;
+static gint ett_browse_election_desire = -1;
 
 /*
  * Struct passed to each SMB decode routine of info it may need
@@ -9599,12 +9602,17 @@ dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
   guint32              MBZ;
   guint8               ElectionVersion;
   guint32              ElectionCriteria;
+  guint8               ElectionOS;
+  guint8               ElectionDesire;
+  guint16              ElectionRevision;
   guint32              ServerUpTime;
   const char           *ServerName;
   const char           *ServerComment;
-  proto_tree           *browse_tree = NULL, *flags_tree = NULL;
-  proto_item           *ti;
+  proto_tree           *browse_tree = NULL, *flags_tree = NULL, 
+                       *OSflags = NULL, *DesireFlags = NULL;
+  proto_item           *ti, *ec;
   guint32              loc_offset = DataOffset, count = 0;
+  int                  i;
 
   if (strcmp(command, "BROWSE") == 0) { /* Decode a browse */
 
@@ -9691,6 +9699,19 @@ dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
       loc_offset += 1;
 
       ServerType = GWORD(pd, loc_offset);
+
+      if (check_col(fd, COL_INFO)) {
+
+	/* Append the type(s) of the system to the COL_INFO line ... */
+
+	for (i = 1; i <= 32; i++) {
+
+	  if (ServerType & (1 << (i - 1)) && (strcmp("Unused", svr_types[i]) != 0))
+	    col_append_fstr(fd, COL_INFO, ", %s", svr_types[i - 1]);
+
+	}
+
+      }
 
       if (tree) {
 
@@ -9812,12 +9833,73 @@ dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
       loc_offset += 1;
 
       ElectionCriteria = GWORD(pd, loc_offset);
+      ElectionOS       = GBYTE(pd, loc_offset + 3);
+      ElectionRevision = GSHORT(pd, loc_offset + 1);
+      ElectionDesire   = GBYTE(pd, loc_offset);
 
       if (tree) {
 
-	proto_tree_add_text(browse_tree, loc_offset, 4, "Election Criteria = %u (0x%08X)", ElectionCriteria, ElectionCriteria);
+	ti = proto_tree_add_text(browse_tree, loc_offset, 4, "Election Criteria = %u (0x%08X)", ElectionCriteria, ElectionCriteria);
 
+	ec = proto_item_add_subtree(ti, ett_browse_election_criteria);
 
+	ti = proto_tree_add_text(ec, loc_offset + 3, 1, "Election OS Summary: %u (0x%02X)", ElectionOS, ElectionOS);
+
+	OSflags = proto_item_add_subtree(ti, ett_browse_election_os);
+
+	proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+			    decode_boolean_bitfield(ElectionOS, 0x01, 8, "Windows for Workgroups", "Not Windows for Workgroups"));
+
+	proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+			    decode_boolean_bitfield(ElectionOS, 0x02, 8, "Unknown", "Not used"));
+
+	proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+			    decode_boolean_bitfield(ElectionOS, 0x04, 8, "Unknown", "Not used"));
+
+	proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+			    decode_boolean_bitfield(ElectionOS, 0x08, 8, "Unknown", "Not used"));
+
+	proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+			    decode_boolean_bitfield(ElectionOS, 0x10, 8, "Windows NT Workstation", "Not Windows NT Workstation"));
+
+	proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+			    decode_boolean_bitfield(ElectionOS, 0x20, 8, "Windows NT Server", "Not Windows NT Server"));
+
+	proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+			    decode_boolean_bitfield(ElectionOS, 0x40, 8, "Unknown", "Not used"));
+
+	proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+			    decode_boolean_bitfield(ElectionOS, 0x80, 8, "Unknown", "Not used"));
+
+	proto_tree_add_text(ec, loc_offset + 1, 2, "Election Revision: %u (0x%04X)", ElectionRevision, ElectionRevision);
+
+	ti = proto_tree_add_text(ec, loc_offset, 1, "Election Desire Summary: %u (0x%02X)", ElectionDesire, ElectionDesire);
+
+        DesireFlags = proto_item_add_subtree(ti, ett_browse_election_desire);
+
+	proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+			     decode_boolean_bitfield(ElectionDesire, 0x01, 8, "Backup Browse Server", "Not Backup Browse Server"));
+
+	proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+			     decode_boolean_bitfield(ElectionDesire, 0x02, 8, "Standby Browse Server", "Not Standby Browse Server"));
+
+	proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+			     decode_boolean_bitfield(ElectionDesire, 0x04, 8, "Master Browser", "Not Master Browser"));
+
+	proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+			     decode_boolean_bitfield(ElectionDesire, 0x08, 8, "Domain Master Browse Server", "Not Domain Master Browse Server"));
+
+	proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+			     decode_boolean_bitfield(ElectionDesire, 0x10, 8, "Unknown", "Not used"));
+
+	proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+			     decode_boolean_bitfield(ElectionDesire, 0x20, 8, "WINS Client", "Not WINS Client"));
+
+	proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+			     decode_boolean_bitfield(ElectionDesire, 0x40, 8, "Unknown", "Not used"));
+
+	proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+			     decode_boolean_bitfield(ElectionDesire, 0x80, 8, "Windows NT Advanced Server", "Not Windows NT Advanced Server"));
 
       }
 
@@ -10619,6 +10701,9 @@ proto_register_smb(void)
 		&ett_smb_lock_type,
 		&ett_browse,
 		&ett_browse_flags,
+		&ett_browse_election_criteria,
+		&ett_browse_election_os,
+		&ett_browse_election_desire
 	};
 
         proto_smb = proto_register_protocol("Server Message Block Protocol", "smb");
