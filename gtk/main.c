@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.305 2003/08/19 10:09:20 sahlberg Exp $
+ * $Id: main.c,v 1.306 2003/08/19 20:35:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -101,6 +101,7 @@
 #endif
 #include "statusbar.h"
 #include "simple_dialog.h"
+#include "dlg_utils.h"
 #include "proto_draw.h"
 #include <epan/dfilter/dfilter.h>
 #include "keys.h"
@@ -169,18 +170,68 @@ static void create_main_window(gint, gint, gint, e_prefs*);
 #define E_DFILTER_FL_KEY          "display_filter_list"
 
 /* About Ethereal window */
+#define MAX_ABOUT_MSG_LEN 2048
+
 void
 about_ethereal( GtkWidget *w _U_, gpointer data _U_ ) {
-  simple_dialog(ESD_TYPE_INFO, NULL,
-		"Ethereal - Network Protocol Analyzer\n"
-		"Version " VERSION " (C) 1998-2003 Gerald Combs <gerald@ethereal.com>\n"
-                "%s\n%s\n\n"
+  GtkWidget   *win, *main_vb, *top_hb, *msg_label, *bbox, *ok_btn;
+  gchar        message[MAX_ABOUT_MSG_LEN];
 
-		"Check the man page for complete documentation and\n"
-		"for the list of contributors.\n"
+  /*
+   * XXX - use GtkDialog?  The GNOME 2.x GnomeAbout widget does.
+   * Should we use GtkDialog for simple_dialog() as well?  Or
+   * is the GTK+ 2.x GtkDialog appropriate but the 1.2[.x] one
+   * not?  (The GNOME 1.x GnomeAbout widget uses GnomeDialog.)
+   */
+  win = dlg_window_new("About Ethereal");
+  gtk_container_border_width(GTK_CONTAINER(win), 7);
 
-		"\nSee http://www.ethereal.com/ for more information.",
-                 comp_info_str->str, runtime_info_str->str);
+  /* Container for our rows */
+  main_vb = gtk_vbox_new(FALSE, 5);
+  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+  gtk_container_add(GTK_CONTAINER(win), main_vb);
+  gtk_widget_show(main_vb);
+
+  /* Top row: Message text */
+  top_hb = gtk_hbox_new(FALSE, 10);
+  gtk_container_add(GTK_CONTAINER(main_vb), top_hb);
+  gtk_widget_show(top_hb);
+
+  /* Construct the message string */
+  snprintf(message, MAX_ABOUT_MSG_LEN,
+	   "Ethereal - Network Protocol Analyzer\n"
+	   "Version " VERSION " (C) 1998-2003 Gerald Combs <gerald@ethereal.com>\n"
+           "%s\n%s\n\n"
+
+	   "Check the man page for complete documentation and\n"
+	   "for the list of contributors.\n"
+
+	    "\nSee http://www.ethereal.com/ for more information.",
+	    comp_info_str->str, runtime_info_str->str);
+
+  msg_label = gtk_label_new(message);
+  gtk_label_set_justify(GTK_LABEL(msg_label), GTK_JUSTIFY_FILL);
+  gtk_container_add(GTK_CONTAINER(top_hb), msg_label);
+  gtk_widget_show(msg_label);
+
+  /* Button row */
+  bbox = gtk_hbutton_box_new();
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
+  gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+  gtk_widget_show(bbox);
+
+#if GTK_MAJOR_VERSION < 2
+  ok_btn = gtk_button_new_with_label ("OK");
+#else
+  ok_btn = gtk_button_new_from_stock(GTK_STOCK_OK);
+#endif
+  SIGNAL_CONNECT_OBJECT(ok_btn, "clicked", gtk_widget_destroy, win);
+  gtk_container_add(GTK_CONTAINER(bbox), ok_btn);
+  GTK_WIDGET_SET_FLAGS(ok_btn, GTK_CAN_DEFAULT);
+  gtk_widget_grab_default(ok_btn);
+  gtk_widget_show(ok_btn);
+
+  gtk_widget_show(win);
 }
 
 #if GTK_MAJOR_VERSION < 2
