@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-x25.c,v 1.16 2000/01/29 09:19:02 guy Exp $
+ * $Id: packet-x25.c,v 1.17 2000/01/30 05:58:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1345,6 +1345,21 @@ get_x25_pkt_len(const char *data, frame_data *fd, int offset)
     return 0;
 }
 
+#define	PRT_ID_ISO_8073	0x01
+
+static const value_string prt_id_vals[] = {
+        {PRT_ID_ISO_8073, "ISO 8073 COTP"},
+        {0x02,            "ISO 8602"},
+        {0x03,            "ISO 10732 in conjunction with ISO 8073"},
+        {0x04,            "ISO 10736 in conjunction with ISO 8602"},
+        {0x00,            NULL}
+};
+
+static const value_string sharing_strategy_vals[] = {
+        {0x00,            "No sharing"},
+        {0x00,            NULL}
+};
+
 void
 dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
@@ -1414,35 +1429,91 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (IS_DATA_IN_FRAME(localoffset)) /* user data */
 	{
-	    if (pd[localoffset] == NLPID_IP)
-	    {
+	    guint8 spi;
+	    guint8 prt_id;
+
+	    /* Compare the first octet of the CALL REQUEST packet with
+	       various ISO 9577 NLPIDs, as per Annex A of ISO 9577. */
+	    spi = pd[localoffset];
+	    switch (spi) {
+
+	    /* XXX - handle other NLPIDs, e.g. PPP? */
+
+	    case NLPID_IP:
 		x25_hash_add_proto_start(vc, fd->abs_secs,
 					 fd->abs_usecs, dissect_ip);
 		if (x25_tree)
 		    proto_tree_add_text(x25_tree, localoffset, 1,
-					"pid = IP");
+					"X.224 secondary protocol ID: IP");
 		localoffset++;
-	    }
-	    else if (pd[localoffset] == 0x03 &&
-		     pd[localoffset+1] == 0x01 &&
-		     pd[localoffset+2] == 0x01 &&
-		     pd[localoffset+3] == 0x00)
-	    {
-	    	/* XXX - is there an NLPID for COTP and, if so, is it
-		   any of those octets? */
-		x25_hash_add_proto_start(vc, fd->abs_secs,
+		break;
+
+	    default:
+		if ((pd[localoffset] >= 0x03 && pd[localoffset] <= 0x82)
+		    && pd[localoffset+1] == 0x01) {
+		    /* ISO 9577 claims that a SPI in that range is a
+		       length field for X.224/ISO 8073 or X.264/ISO 11570;
+		       however, some of them collide with NLPIDs such
+		       as 0x81 for ISO 8473 CLNP or ISO 8542 ESIS, so
+		       I don't know how you run those over X.25, assuming
+		       you do.
+
+		       I'm also not sure what the "or" means there; it
+		       looks as if X.264 specifies the layout of a
+		       "UN TPDU" ("Use of network connection TPDU"),
+		       which specifies the transport protocol to use
+		       over this network connection, and 0x03 0x01 0x01
+		       0x00 is such a TPDU, with a length of 3, a UN
+		       field of 1 (as is required), a PRT-ID ("protocol
+		       identifier") field of 1 (X.224/ISO 8073, a/k/a
+		       COTP service), and a SHARE ("sharing strategy")
+		       field of 0 ("no sharing", which is the only one
+		       allowed).
+
+		       So we'll assume that's what it is, as the SPI
+		       is in the right range for a length, and the UN
+		       field is 0x01. */
+		    prt_id = pd[localoffset+2];
+		    if (x25_tree) {
+		        proto_tree_add_text(x25_tree, localoffset, 1,
+					"X.264 length indicator: %u",
+					pd[localoffset]);
+		        proto_tree_add_text(x25_tree, localoffset+1, 1,
+		        		"X.264 UN TPDU identifier: 0x%02X",
+		        		pd[localoffset+1]);
+		        proto_tree_add_text(x25_tree, localoffset+2, 1,
+		        		"X.264 protocol identifier: %s",
+					val_to_str(prt_id, prt_id_vals, "Unknown (0x%02X)"));
+		        proto_tree_add_text(x25_tree, localoffset+3, 1,
+		        		"X.264 sharing strategy: %s",
+					val_to_str(pd[localoffset+3], sharing_strategy_vals, "Unknown (0x%02X)"));
+		    }
+
+		    /* XXX - dissect the variable part? */
+
+		    /* The length doesn't include the length octet itself. */
+		    localoffset += pd[localoffset] + 1;
+
+		    switch (prt_id) {
+
+		    case PRT_ID_ISO_8073:
+			/* ISO 8073 COTP */
+			x25_hash_add_proto_start(vc, fd->abs_secs,
 					 fd->abs_usecs, dissect_cotp);
-		if (x25_tree)
-		    proto_tree_add_text(x25_tree, localoffset, 4,
-					"pid = COTP");
-		localoffset += 4;
-	    }
-	    else {
-	    	/* XXX - handle the other NLPIDs, e.g. NLPID_PPP? */
-		if (x25_tree)
-		    proto_tree_add_text(x25_tree, localoffset,
+			break;
+
+		    default:
+			goto unknown;
+		    }
+		} else {
+		unknown:
+		    if (x25_tree) {
+			if (IS_DATA_IN_FRAME(localoffset))
+			   proto_tree_add_text(x25_tree, localoffset,
 					pi.captured_len-localoffset, "Data");
-		localoffset = pi.captured_len;
+		    }
+		    localoffset = pi.captured_len;
+		}
 	    }
 	}
 	break;
