@@ -799,6 +799,7 @@ Tom Uijldert <Tom.Uijldert[AT]cmg.nl> {
 	WTP fixes
 	MMSE support
 	Push-traffic dissecting for WSP/WTLS
+	UCP support
 }
 
 Endoh Akira <endoh[AT]netmarks.co.jp> {
