@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.40 2002/04/16 09:42:31 guy Exp $
+ * $Id: packet-x11.c,v 1.41 2002/04/17 08:33:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -304,10 +304,14 @@ static const value_string direction_vals[] = {
       { 0, NULL }
 };
 
+#define FAMILY_INTERNET	0
+#define FAMILY_DECNET	1
+#define FAMILY_CHAOS	2
+
 static const value_string family_vals[] = {
-      { 0, "Internet" },
-      { 1, "DECnet" },
-      { 2, "Chaos" },
+      { FAMILY_INTERNET, "Internet" },
+      { FAMILY_DECNET,   "DECnet" },
+      { FAMILY_CHAOS,    "Chaos" },
       { 0, NULL }
 };
 
@@ -692,7 +696,7 @@ static gboolean little_endian = TRUE;
 #define COLORMAP(name) { FIELD32(name); }
 #define CURSOR(name)   { FIELD32(name); }
 #define DRAWABLE(name) { FIELD32(name); }
-#define ENUM8(name)    { FIELD8(name); }
+#define ENUM8(name)    (FIELD8(name))
 #define ENUM16(name)   { FIELD16(name); }
 #define FONT(name)     { FIELD32(name); }
 #define FONTABLE(name) { FIELD32(name); }
@@ -1000,33 +1004,14 @@ static void listOfKeysyms(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       proto_item *tti;
       proto_tree *ttt;
       int i;
-      char buffer[128+3+1];
-      int buflen = 128;
-      int nchars;
-      char *bp;
 
       while(keycode_count--) {
-	    bp = buffer + sprintf(buffer, "keysyms:");
-	    for(i = 0; i < keysyms_per_keycode; i++) {
-		  nchars = snprintf(bp, buflen, " %s", keysymString(VALUE32(tvb, *offsetp + i * 4)));
-		  if (nchars == -1 || nchars > buflen) {
-			/*
-			 * Some versions of snprintf return -1 if they'd
-			 * truncate the output.
-			 */
-			strcpy(bp, "...");
-			bp += 3;
-			break;
-		  }
-		  bp += nchars;
-		  buflen -= nchars;
-	    }
-	    *bp = '\0';
 	    tti = proto_tree_add_none_format(tt, hf_item, tvb, *offsetp, keysyms_per_keycode * 4,
-						 "%s", buffer);
+						 "keysyms:");
 	    ttt = proto_item_add_subtree(tti, ett_x11_keysym);
 	    for(i = keysyms_per_keycode; i; i--) {
 		  guint32 v = VALUE32(tvb, *offsetp);
+		  proto_item_append_text(tti, " %s", keysymString(v));
 		  proto_tree_add_uint_format(ttt, hf_x11_keysyms_item_keysym, tvb, *offsetp, 4, v,
 					     "keysym: 0x%08x (%s)", v, keysymString(v));
 		  *offsetp += 4;
@@ -3006,10 +2991,18 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
       case 109: /* ChangeHosts */
 	    ENUM8(change_host_mode);
 	    REQUEST_LENGTH();
-	    ENUM8(family);
+	    v8 = ENUM8(family);
 	    UNUSED(1);
 	    v16 = CARD16(address_length);
-	    LISTofCARD8(address, v16);
+	    if (v8 == FAMILY_INTERNET && v16 == 4) {
+		  /*
+		   * IPv4 addresses.
+		   * XXX - what about IPv6?  Is that a family of
+		   * FAMILY_INTERNET (0) with a length of 16?
+		   */
+		  LISTofCARD8(ip_address, v16);
+	    } else
+		  LISTofCARD8(address, v16);
 	    break;
 
       case 110: /* ListHosts */

@@ -3,7 +3,7 @@
 #
 # Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
 #
-# $Id: x11-fields,v 1.5 2002/04/16 09:42:31 guy Exp $
+# $Id: x11-fields,v 1.6 2002/04/17 08:33:09 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -28,6 +28,7 @@ acceleration-denominator	INT16	DEC
 acceleration-numerator	INT16	DEC
 access-mode	UINT8	DEC	VALS
 address		BYTES	NONE
+ip-address	IPv4	NONE
 address-length	UINT16	DEC
 alloc		UINT8	DEC	VALS
 allow-events-mode	UINT8	DEC	VALS
