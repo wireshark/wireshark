@@ -1,7 +1,7 @@
 /* gtkglobals.h
  * GTK-related Global defines, etc.
  *
- * $Id: gtkglobals.h,v 1.21 2002/12/31 21:49:00 guy Exp $
+ * $Id: gtkglobals.h,v 1.22 2003/08/01 01:39:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,7 +50,7 @@ void set_plist_sel_browse(gboolean);
  * the problem by escaping all characters that aren't printable ASCII.
  */
 #undef isprint
-#define isprint(c) (c >= 0x20 && c <= 0x7f)
+#define isprint(c) (c >= 0x20 && c < 0x7f)
 #endif
 
 #endif

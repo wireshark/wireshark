@@ -1,7 +1,7 @@
 /* strutil.c
  * String utility routines
  *
- * $Id: strutil.c,v 1.10 2002/12/31 21:51:10 guy Exp $
+ * $Id: strutil.c,v 1.11 2003/08/01 01:39:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -133,6 +133,19 @@ get_token_len(const guchar *linep, const guchar *lineend,
 
 #define	INITIAL_FMTBUF_SIZE	128
 
+#ifdef _WIN32
+/*
+ * XXX - "isprint()" can return "true" for non-ASCII characters, but
+ * those don't work with GTK+ on Windows, as GTK+ on Windows assumes
+ * UTF-8 strings.  Until we fix up Ethereal to properly handle
+ * non-ASCII characters in all output (both GUI displays and text
+ * printouts) on all platforms including Windows, we work around
+ * the problem by escaping all characters that aren't printable ASCII.
+ */
+#undef isprint
+#define isprint(c) (c >= 0x20 && c < 0x7f)
+#endif
+
 /*
  * Given a string, generate a string from it that shows non-printable
  * characters as C-style escapes, and return a pointer to it.
@@ -173,19 +186,7 @@ format_text(const guchar *string, int len)
     }
     c = *string++;
 
-#ifdef _WIN32
-    /*
-     * XXX - "isprint()" can return "true" for non-ASCII characters, but
-     * those don't work with GTK+ on Windows, as GTK+ on Windows assumes
-     * UTF-8 strings.  Until we fix up Ethereal to properly handle
-     * non-ASCII characters in all output (both GUI displays and text
-     * printouts) on all platforms including Windows, we work around
-     * the problem by escaping all characters that aren't printable ASCII.
-     */
-    if (c >= 0x20 && c <= 0x7f) {
-#else
     if (isprint(c)) {
-#endif
       fmtbuf[column] = c;
       column++;
     } else {
