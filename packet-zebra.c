@@ -3,7 +3,7 @@
  *
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-zebra.c,v 1.1 2000/08/18 15:26:52 gram Exp $
+ * $Id: packet-zebra.c,v 1.2 2000/08/18 15:45:30 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -477,6 +477,8 @@ dissect_zebra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*zebra_tree;
 	gboolean	request;
 	int		left, offset;
+
+	CHECK_DISPLAY_AS_DATA(proto_zebra, tvb, pinfo, tree);
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_add_str(pinfo->fd, COL_PROTOCOL, "ZEBRA");
