@@ -1,7 +1,7 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.19 2003/11/01 02:30:14 guy Exp $
+ * $Id: pcap-util.c,v 1.20 2003/11/21 08:30:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -141,7 +141,7 @@ get_pcap_linktype(pcap_t *pch, char *devname
 			 */
 			linktype = 1;
 		}
-	} else if (strncmp(ifacename, "tr") == 0) {
+	} else if (strncmp(ifacename, "tr", 2) == 0) {
 		if (linktype == 9) {
 			/*
 			 * That's the RFC 1573 value for 802.5 (Token Ring);
@@ -150,7 +150,7 @@ get_pcap_linktype(pcap_t *pch, char *devname
 			 */
 			linktype = 6;
 		}
-	} else if (strncmp(ifacename, "fi") == 0) {
+	} else if (strncmp(ifacename, "fi", 2) == 0) {
 		if (linktype == 15) {
 			/*
 			 * That's the RFC 1573 value for FDDI; map it to
@@ -158,7 +158,7 @@ get_pcap_linktype(pcap_t *pch, char *devname
 			 */
 			linktype = 10;
 		}
-	} else if (strncmp(ifacename, "lo") == 0) {
+	} else if (strncmp(ifacename, "lo", 2) == 0) {
 		if (linktype == 24) {
 			/*
 			 * That's the RFC 1573 value for "software loopback"
