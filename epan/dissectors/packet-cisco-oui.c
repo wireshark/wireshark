@@ -43,7 +43,7 @@ static int hf_llc_cisco_pid = -1;
  */
 static const value_string cisco_pid_vals[] = {
 	{ 0x0102,	"DRIP" },
-	{ 0x0104,	"PagP" },	/* Port Aggregation Protocol */
+	{ 0x0104,	"PAgP" },	/* Port Aggregation Protocol */
 	{ 0x0105,	"MLS Hello" },	/* from a mail message found on the Web */
 	{ 0x010b,	"PVSTP+" },	/* Per-VLAN Spanning Tree Protocol */
 	{ 0x010c,	"VLAN Bridge" },
