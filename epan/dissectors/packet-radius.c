@@ -4150,7 +4150,7 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint rhlength;
   guint rhcode;
   guint rhident;
-  guint avplength,hdrlength;
+  gint avplength,hdrlength;
   e_radiushdr rh;
   gchar *hex_authenticator;
 
@@ -4163,10 +4163,12 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   tvb_memcpy(tvb,(guint8 *)&rh,0,sizeof(e_radiushdr));
 
-  rhcode= rh.rh_code;
-  rhident= rh.rh_ident;
-  rhlength= g_ntohs(rh.rh_pktlength);
-  codestrval=  match_strval(rhcode,radius_vals);
+  rhcode = rh.rh_code;
+  rhident = rh.rh_ident;
+  rhlength = g_ntohs(rh.rh_pktlength);
+  hdrlength = RD_HDR_LENGTH + AUTHENTICATOR_LENGTH;
+  avplength = rhlength - hdrlength;
+  codestrval =  match_strval(rhcode,radius_vals);
   if (codestrval==NULL)
   {
 	codestrval="Unknown Packet";
@@ -4201,8 +4203,14 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 rh.rh_ident, "Packet identifier: 0x%01x (%d)",
 			rhident,rhident);
 
-	proto_tree_add_uint(radius_tree, hf_radius_length, tvb,
+	if (avplength > 0) {
+	    proto_tree_add_uint(radius_tree, hf_radius_length, tvb,
 			2, 2, rhlength);
+	} else {
+	    proto_tree_add_text(radius_tree, tvb, 2, 2, "Bogus header length: %d",
+	    		rhlength);
+	    return;
+	}
 	if ( authenticator ) {
 	    g_free(authenticator);
 	}
@@ -4218,8 +4226,6 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	g_free(hex_authenticator);
   }
 
-  hdrlength=RD_HDR_LENGTH+AUTHENTICATOR_LENGTH;
-  avplength= rhlength -hdrlength;
 
   if (avplength > 0) {
     /* list the attribute value pairs */
