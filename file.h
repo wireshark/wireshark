@@ -44,7 +44,7 @@ typedef enum {
 
 int  cf_open(char *, gboolean, capture_file *);
 void cf_close(capture_file *);
-void cf_reload();
+void cf_reload(void);
 read_status_t cf_read(capture_file *);
 int  cf_start_tail(char *, gboolean, capture_file *);
 read_status_t cf_continue_tail(capture_file *, int, int *);
