@@ -4,7 +4,7 @@
  * Creates random packet traces. Useful for debugging sniffers by testing
  * assumptions about the veracity of the data found in the packet.
  *
- * $Id: randpkt.c,v 1.7 2000/05/19 23:06:11 gram Exp $
+ * $Id: randpkt.c,v 1.8 2000/06/11 15:54:03 gerald Exp $
  *
  * Copyright (C) 1999 by Gilbert Ramirez <gram@xiexie.org>
  * 
@@ -56,6 +56,7 @@ enum {
 	PKT_IP,
 	PKT_LLC,
 	PKT_NBNS,
+	PKT_SYSLOG,
 	PKT_TCP,
 	PKT_TR,
 	PKT_UDP
@@ -78,7 +79,7 @@ guint8 pkt_arp[] = {
 	0x08, 0x06
 };
 
-/* Ethernet+IP+UP, indicating DNS */
+/* Ethernet+IP+UDP, indicating DNS */
 guint8 pkt_dns[] = {
 	0xff, 0xff, 0xff, 0xff,
 	0xff, 0xff, 0x01, 0x01,
@@ -144,6 +145,24 @@ guint8 pkt_nbns[] = {
 	0x30
 };
 
+/* Ethernet+IP+UDP, indicating syslog */
+guint8 pkt_syslog[] = {
+	0xff, 0xff, 0xff, 0xff,
+	0xff, 0xff, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01,
+	0x08, 0x00,
+
+	0x45, 0x00, 0x00, 0x64,
+	0x20, 0x48, 0x00, 0x00,
+	0xfc, 0x11, 0xf8, 0x03,
+	0xd0, 0x15, 0x02, 0xb8,
+	0x0a, 0x01, 0x01, 0x63,
+
+	0x05, 0xe8, 0x02, 0x02,
+	0x00, 0x50, 0x51, 0xe1,
+	0x3c
+};
+
 /* TR+LLC+IP, indicating TCP */
 guint8 pkt_tcp[] = {
 	0x10, 0x40, 0x68, 0x00,
@@ -200,6 +219,9 @@ pkt_example examples[] = {
 
 	{ "nbns", "NetBIOS-over-TCP Name Service",
 		PKT_NBNS,	pkt_nbns,	WTAP_ENCAP_ETHERNET,	array_length(pkt_nbns) },
+
+	{ "syslog", "Syslog message",
+		PKT_SYSLOG,	pkt_syslog,	WTAP_ENCAP_ETHERNET,	array_length(pkt_syslog) },
 
 	{ "tcp", "Transmission Control Protocol",
 		PKT_TCP,	pkt_tcp,	WTAP_ENCAP_TR,		array_length(pkt_tcp) },

@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Gerald Combs <gerald@zing.org>
  *
- * $Id: packet-syslog.c,v 1.1 2000/06/11 05:19:20 gerald Exp $
+ * $Id: packet-syslog.c,v 1.2 2000/06/11 15:54:02 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,13 +42,15 @@
 #define PRIORITY_MASK 0x0007  /* 0000 0111 */
 #define FACILITY_MASK 0x03f8  /* 1111 1000 */
 
+/* The maximum number if priority digits to read in. */
+#define MAX_DIGITS 3
+
 /* On my RH 6.2 box, memcpy overwrites nearby chunks of memory if this is
-   a multiple of four.  */
+   a multiple of four...  */
 #define COL_INFO_LEN 35
 #define ELLIPSIS "..." /* ISO 8859-1 doesn't appear to have a real ellipsis. */
-#define ELL_LEN ((COL_INFO_LEN - strlen(ELLIPSIS)) - 1)
 
-static const value_string short_pri[] = {
+static const value_string short_lev[] = {
   { 0,      "EMERG" },
   { 1,      "ALERT" },
   { 2,      "CRIT" },
@@ -70,9 +72,10 @@ static const value_string short_fac[] = {
   { 6,     "LPR" },
   { 7,     "NEWS" },
   { 8,     "UUCP" },
-  { 9,     "CRON" },
+  { 9,     "CRON" },		/* The BSDs, Linux, and others */
   { 10,    "AUTHPRIV" },
   { 11,    "FTP" },
+  { 15,    "CRON" },		/* Solaris */
   { 16,    "LOCAL0" },
   { 17,    "LOCAL1" },
   { 18,    "LOCAL2" },
@@ -84,7 +87,7 @@ static const value_string short_fac[] = {
   { 0, NULL },
 };
 
-static const value_string long_pri[] = {
+static const value_string long_lev[] = {
   { 0,      "EMERG - system is unusable" },
   { 1,      "ALERT - action must be taken immediately" },
   { 2,      "CRIT - critical conditions" },
@@ -106,9 +109,10 @@ static const value_string long_fac[] = {
   { 6,     "LPR - line printer subsystem" },
   { 7,     "NEWS - network news subsystem" },
   { 8,     "UUCP - UUCP subsystem" },
-  { 9,     "CRON - clock daemon" },
+  { 9,     "CRON - clock daemon (BSD, Linux)" },
   { 10,    "AUTHPRIV - security/authorization messages (private)" },
   { 11,    "FTP - ftp daemon" },
+  { 15,    "CRON - clock daemon (Solaris)" },
   { 16,    "LOCAL0 - reserved for local use" },
   { 17,    "LOCAL1 - reserved for local use" },
   { 18,    "LOCAL2 - reserved for local use" },
@@ -121,32 +125,34 @@ static const value_string long_fac[] = {
 };
 
 static gint proto_syslog = -1;
-static gint hf_syslog_priority = -1;
+static gint hf_syslog_level = -1;
 static gint hf_syslog_facility = -1;
 static gint hf_syslog_msg_len = -1;
 
 static gint ett_syslog = -1;
 
 /* I couldn't find any documentation for the syslog message format.  
-   According to the BSD sources, the message format is '<', N, '>', and
-   T.  N is a decimal value, which should be treated as an 8 bit
-   unsigned integer.  The lower three bits comprise the priority, and the
+   According to the BSD sources, the message format is '<', P, '>', and
+   T.  P is a decimal value, which should be treated as an 8 bit
+   unsigned integer.  The lower three bits comprise the level, and the
    upper five bits are the facility.  T is the message text.
  */
 
 #if 0
 static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  gint num = -1, pri, fac;
+  gint pri = -1, lev, fac;
   gint msg_off = 0, msg_len;
+  gint ellipsis_len = (COL_INFO_LEN - strlen(ELLIPSIS)) - 1;
   proto_item *ti;
   proto_tree *syslog_tree;
   gchar msg_str[COL_INFO_LEN];
 #else
 static void dissect_syslog(const u_char *pd, int o, frame_data *fd, proto_tree *tree)
 {
-  gint num = -1, pri = -1, fac = -1;
+  gint pri = -1, lev = -1, fac = -1;
   gint msg_off = 0, msg_len;
+  gint ellipsis_len = (COL_INFO_LEN - strlen(ELLIPSIS)) - 1;
   proto_item *ti;
   proto_tree *syslog_tree;
   gchar msg_str[COL_INFO_LEN];
@@ -158,59 +164,61 @@ static void dissect_syslog(const u_char *pd, int o, frame_data *fd, proto_tree *
 
   pinfo->current_proto = "Syslog";
   msg_len = tvb_length(tvb);
-  if (tvb_get_guint8(tvb, 0) == '<') {
+  
+  if (tvb_get_guint8(tvb, 0) == '<' && isdigit(tvb_get_guint8(tvb, 1))) {
     msg_off++;
-    num = 0;
-    while (isdigit(tvb_get_guint8(tvb, msg_off)) && 
+    pri = 0;
+    while (isdigit(tvb_get_guint8(tvb, msg_off)) && msg_off <= MAX_DIGITS &&
            tvb_length_remaining(tvb, msg_off)) {
-      num = num * 10 + (tvb_get_guint8(tvb, msg_off) - '0');
+      pri = pri * 10 + (tvb_get_guint8(tvb, msg_off) - '0');
       msg_off++;
     }
     if (tvb_get_guint8(tvb, msg_off) == '>')
       msg_off++;
-    msg_len = tvb_length_remaining(tvb, msg_off);
-    if (msg_len > ELL_LEN) {
-      tvb_memcpy(tvb, msg_str, msg_off, ELL_LEN);
-      strcpy (msg_str + ELL_LEN, ELLIPSIS);
-      msg_str[COL_INFO_LEN] = '\0';
-    } else {
-      tvb_memcpy(tvb, msg_str, msg_off, msg_len);
-      msg_str[msg_len] = '\0';
-    }
-    
-    fac = (num & FACILITY_MASK) >> 3;
-    pri = num & PRIORITY_MASK;
+    fac = (pri & FACILITY_MASK) >> 3;
+    lev = pri & PRIORITY_MASK;
   }
 
+  /* Copy the message into a string buffer, with a trailing ellipsis if needed. */
+  msg_len = tvb_length_remaining(tvb, msg_off);
+  if (msg_len > ellipsis_len) {
+    tvb_memcpy(tvb, msg_str, msg_off, ellipsis_len);
+    strcpy (msg_str + ellipsis_len, ELLIPSIS);
+    msg_str[COL_INFO_LEN] = '\0';
+  } else {
+    tvb_memcpy(tvb, msg_str, msg_off, msg_len);
+    msg_str[msg_len] = '\0';
+  }
+    
   if (check_col(pinfo->fd, COL_PROTOCOL)) 
     col_add_str(pinfo->fd, COL_PROTOCOL, "Syslog");
     
   if (check_col(pinfo->fd, COL_INFO)) {
-    if (num >= 0) {
+    if (pri >= 0) {
       col_add_fstr(pinfo->fd, COL_INFO, "%s.%s: %s", 
         val_to_str(fac, short_fac, "UNKNOWN"),
-        val_to_str(pri, short_pri, "UNKNOWN"), msg_str);
+        val_to_str(lev, short_lev, "UNKNOWN"), msg_str);
     } else {
       col_add_fstr(pinfo->fd, COL_INFO, "%s", msg_str);
     }
   }
   
   if (tree) {
-    if (num >= 0) {
+    if (pri >= 0) {
       ti = proto_tree_add_protocol_format(tree, proto_syslog, tvb, 0,
         tvb_length(tvb), "Syslog message: %s.%s: %s",
         val_to_str(fac, short_fac, "UNKNOWN"),
-        val_to_str(pri, short_pri, "UNKNOWN"), msg_str);
+        val_to_str(lev, short_lev, "UNKNOWN"), msg_str);
     } else {
-      ti = proto_tree_add_string(tree, proto_syslog, tvb, 0, tvb_length(tvb),
-        msg_str);
+      ti = proto_tree_add_protocol_format(tree, proto_syslog, tvb, 0,
+        tvb_length(tvb), "Syslog message: (unknown): %s", msg_str);
     }
     syslog_tree = proto_item_add_subtree(ti, ett_syslog);
-    if (num >= 0) {
+    if (pri >= 0) {
       ti = proto_tree_add_uint(syslog_tree, hf_syslog_facility, tvb, 0,
-        msg_off - 1, num);
-      ti = proto_tree_add_uint(syslog_tree, hf_syslog_priority, tvb, 0,
-        msg_off - 1, num);
+        msg_off, pri);
+      ti = proto_tree_add_uint(syslog_tree, hf_syslog_level, tvb, 0,
+        msg_off, pri);
     }
     proto_tree_add_uint_format(syslog_tree, hf_syslog_msg_len, tvb, msg_off,
       msg_len, msg_len, "Message (%d byte%s)", msg_len, plurality(msg_len, "", "s"));
@@ -229,15 +237,15 @@ void proto_register_syslog(void)
       FT_UINT8, BASE_DEC, VALS(long_fac), FACILITY_MASK,
       "Message facility" }
     },
-    { &hf_syslog_priority,
-      { "Priority",           "syslog.priority",
-      FT_UINT8, BASE_DEC, VALS(long_pri), PRIORITY_MASK,
-      "Message priority" }
+    { &hf_syslog_level,
+      { "Level",              "syslog.level",
+      FT_UINT8, BASE_DEC, VALS(long_lev), PRIORITY_MASK,
+      "Message level" }
     },
     { &hf_syslog_msg_len,
       { "Message length",     "syslog.msg_len",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      "Message length, excluding priority/facility descriptor" }
+      "Message length, excluding priority descriptor" }
     },
   };
 
@@ -259,4 +267,3 @@ proto_reg_handoff_syslog(void)
 {
   dissector_add("udp.port", UDP_PORT_SYSLOG, dissect_syslog);
 }
-
