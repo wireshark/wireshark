@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.8 2000/11/29 09:49:30 guy Exp $
+ * $Id: packet-mgcp.c,v 1.9 2000/12/20 05:45:27 gram Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -226,7 +226,7 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       tvb_current_len = tvb_len;
       tvb_sectionend = tvb_sectionbegin;
       sectionlen = tvb_find_line_end(tvb,0,-1,&tvb_sectionend);
-      if( tvb_sectionend < tvb_len ){
+      if( sectionlen > 0){
 	dissect_mgcp_firstline(tvb_new_subset(tvb, tvb_sectionbegin,
 					      sectionlen,-1), 
 			       pinfo, mgcp_tree);
@@ -814,10 +814,13 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb,
 
     tvb_current_offset = tvb_find_guint8(tvb,tvb_previous_offset,
 					     tvb_current_len, ' ');
+    if(tvb_current_offset == -1){
+      tvb_current_offset = tvb_len;
+    }
     tvb_current_len = tvb_length_remaining(tvb,tvb_previous_offset);
     tokenlen = tvb_current_offset - tvb_previous_offset;
 
-    while( tvb_current_offset != -1){
+    while( tvb_current_offset < tvb_len || tokennum <= 3){
       if(tokennum == 0){
 	if(is_mgcp_verb(tvb,tvb_previous_offset,tvb_current_len)){
 	  mgcp_type = MGCP_REQUEST;
@@ -1005,27 +1008,54 @@ static gint tvb_find_null_line(tvbuff_t* tvb, gint offset,
   tvb_linebegin = offset;
   tvb_lineend = tvb_linebegin;
 
+  /* Simple setup to allow for the traditional -1 search to the end 
+   * of the tvbuff 
+   */
   if(len != -1){
     tvb_current_len = len;
   } 
   else{
     tvb_current_len = tvb_length_remaining(tvb,offset);
   }
-  maxoffset = tvb_current_len + offset;
+  maxoffset = (tvb_current_len - 1) + offset;
 
+  /*
+   * Loop around until we either find a line begining with a carriage return
+   * or newline character or until we hit the end of the tvbuff.
+   */
   tempchar = tvb_get_guint8(tvb,tvb_linebegin);
   while( tempchar != '\r' && tempchar != '\n' &&
-	 tvb_linebegin < maxoffset){
+	 tvb_linebegin <= maxoffset){
     tvb_find_line_end(tvb, tvb_linebegin, tvb_current_len, &tvb_lineend);
-    tempchar = tvb_get_guint8(tvb,tvb_lineend);
-    tvb_current_len -= tvb_section_length(tvb,tvb_linebegin,tvb_lineend); 
-    tvb_linebegin = tvb_lineend;
+    if(tvb_lineend < maxoffset){
+      tempchar = tvb_get_guint8(tvb,tvb_lineend);
+      tvb_current_len -= tvb_section_length(tvb,tvb_linebegin,tvb_lineend); 
+      tvb_linebegin = tvb_lineend;
+    }
+    else{
+      tvb_linebegin = tvb_lineend;
+      break;
+    }
   }
+  /*
+   * Some cleanup.  If we actually exited the while loop at a null line
+   * and set the appropraite next_token and tvb_current_len.  Otherwise 
+   * we just grab to the end of the buffer.
+   */
   if(tempchar == '\r' || tempchar == '\n'){
     tvb_find_line_end(tvb,tvb_linebegin,tvb_current_len,next_offset);
+    if(*next_offset < maxoffset){
+      tvb_current_len = tvb_linebegin - offset;
+    }
+    else{
+      tvb_current_len = maxoffset + 1;
+    }
   }
-  tvb_current_len = tvb_linebegin - offset;
-    
+  else {
+    *next_offset = maxoffset + 1;
+    tvb_current_len = tvb_length_remaining(tvb,offset);
+  } 
+
   return (tvb_current_len);
 }
 
