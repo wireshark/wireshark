@@ -26,6 +26,7 @@ OBJECTS=capture_dlg.obj \
 	follow_dlg.obj \
 	goto_dlg.obj \
 	gui_prefs.obj \
+	help_dlg.obj \
 	main.obj 	\
 	menu.obj 	\
 	packet_win.obj	\
