@@ -371,6 +371,7 @@ Paul Ionescu <paul[AT]acorp.ro> {
 	Frame-Relay-over-GRE support
 	IPX SAP over IPX EIGRP support
 	Fleshed out TACACS/XTACACS/TACACS+ dissector
+	DLSw support
 }
 
 Mark Burton <markb[AT]ordern.com> {
