@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.33 2003/06/10 05:45:33 guy Exp $
+ * $Id: packet-smtp.c,v 1.34 2003/06/11 18:22:12 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -54,6 +54,7 @@ static int hf_smtp_rsp_code = -1;
 static int hf_smtp_rsp_parameter = -1;
 
 static int ett_smtp = -1;
+static int ett_smtp_cmdresp = -1;
 
 static int global_smtp_tcp_port = TCP_PORT_SMTP;
 
@@ -108,6 +109,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     struct smtp_proto_data  *frame_data;
     proto_tree              *smtp_tree;
+    proto_tree              *cmdresp_tree;
     proto_item              *ti;
     int                     offset = 0;
     int                     request = 0;
@@ -449,10 +451,18 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    cmdlen = linelen;
 	  proto_tree_add_boolean_hidden(smtp_tree, hf_smtp_req, tvb,
 					0, 0, TRUE);
-	  proto_tree_add_item(smtp_tree, hf_smtp_req_command, tvb,
+	  /*
+	   * Put the command line into the protocol tree.
+	   */
+	  ti = proto_tree_add_text(smtp_tree, tvb, offset, next_offset - offset,
+	        "Command: %s",
+		tvb_format_text(tvb, offset, next_offset - offset));
+	  cmdresp_tree = proto_item_add_subtree(ti, ett_smtp_cmdresp);
+
+	  proto_tree_add_item(cmdresp_tree, hf_smtp_req_command, tvb,
 			      offset, cmdlen, FALSE);
 	  if (linelen > 5) {
-	    proto_tree_add_item(smtp_tree, hf_smtp_req_parameter, tvb,
+	    proto_tree_add_item(cmdresp_tree, hf_smtp_req_parameter, tvb,
 				offset + 5, linelen - 5, FALSE);
 	  }
 
@@ -476,13 +486,22 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
 	  /*
+	   * Put it into the protocol tree.
+	   */
+	  ti = proto_tree_add_text(smtp_tree, tvb, offset,
+				   next_offset - offset, "Response: %s",
+				   tvb_format_text(tvb, offset,
+						   next_offset - offset));
+	  cmdresp_tree = proto_item_add_subtree(ti, ett_smtp_cmdresp);
+
+	  /*
 	   * Is it a continuation line?
 	   */
 	  is_continuation_line =
 	      (linelen >= 4 && tvb_get_guint8(tvb, offset + 3) == '-');
 
 	  /*
-	   * Put it into the protocol tree.
+	   * Put the response code and parameters into the protocol tree.
 	   */
 	  line = tvb_get_ptr(tvb, offset, linelen);
 	  if (linelen >= 3 && isdigit(line[0]) && isdigit(line[1])
@@ -491,20 +510,13 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     * We have a 3-digit response code.
 	     */
 	    code = (line[0] - '0')*100 + (line[1] - '0')*10 + (line[2] - '0');
-	    proto_tree_add_uint(smtp_tree, hf_smtp_rsp_code, tvb, offset, 3,
+	    proto_tree_add_uint(cmdresp_tree, hf_smtp_rsp_code, tvb, offset, 3,
 				code);
 
 	    if (linelen >= 4) {
-	      proto_tree_add_item(smtp_tree, hf_smtp_rsp_parameter, tvb,
+	      proto_tree_add_item(cmdresp_tree, hf_smtp_rsp_parameter, tvb,
 				  offset + 4, linelen - 4, FALSE);
 	    }
-	  } else {
-	    /*
-	     * No 3-digit response code.
-	     */
-	    proto_tree_add_text(smtp_tree, tvb, offset, linelen,
-				"Bogus reply line (no response code): %s",
-				tvb_format_text(tvb, offset, linelen));
 	  }
 
 	  /*
@@ -553,7 +565,8 @@ proto_register_smtp(void)
       	"", HFILL }}
   };
   static gint *ett[] = {
-    &ett_smtp
+    &ett_smtp,
+    &ett_smtp_cmdresp,
   };
   module_t *smtp_module;
 
