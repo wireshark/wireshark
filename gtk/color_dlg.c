@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.28 2003/11/30 04:21:54 sharpe Exp $
+ * $Id: color_dlg.c,v 1.29 2004/01/02 00:19:59 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -160,7 +160,7 @@ int color_marked_count(void)
   return count;
 }
 
-/* Create the "Apply Color Filters" dialog. */
+/* Create the "Coloring Rules" dialog. */
 static GtkWidget*
 colorize_dialog_new (char *filter)
 {
@@ -212,7 +212,7 @@ colorize_dialog_new (char *filter)
   /* Resizing of the dialog window is now reasonably done.
    * Default size is set so that it should fit into every usual screen resolution.
    * All other widgets are always packed depending on the current window size. */
-  color_win = dlg_window_new ("Ethereal: Apply Color Filters");
+  color_win = dlg_window_new ("Ethereal: Coloring Rules");
   OBJECT_SET_DATA(color_win, "color_win", color_win);
   gtk_window_set_default_size(GTK_WINDOW(color_win), 600, 350);  
   dlg_vbox = gtk_vbox_new (FALSE, 0);
