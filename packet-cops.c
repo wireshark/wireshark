@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.35 2003/09/12 19:40:33 guy Exp $
+ * $Id: packet-cops.c,v 1.36 2003/10/05 23:09:59 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1020,7 +1020,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
 #ifdef HAVE_NET_SNMP
         if (cops_typefrommib == TRUE)
         {
-          variable.type = NULL;
+          variable.type = 0;
           value = vb_integer_value;
           variable.val.integer = &value;
           variable.val_len = vb_length ;
@@ -1049,7 +1049,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
 #ifdef HAVE_NET_SNMP
         if (cops_typefrommib == TRUE)
         {
-          variable.type = NULL;
+          variable.type = 0;
           value = vb_uinteger_value;
           variable.val.integer = &value;
           variable.val_len = vb_length;
@@ -1082,7 +1082,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
 #ifdef HAVE_NET_SNMP
         if (cops_typefrommib == TRUE)
         {
-          variable.type = NULL;
+          variable.type = 0;
           variable.val.string = vb_octet_string;
           variable.val_len = vb_length;
           vb_display_string = format_asn_value(&variable, 
