@@ -1,10 +1,10 @@
 /* packet-hsrp.c
  * Routines for the Cisco Hot Standby Router Protocol (HSRP)
- * RFC2281
+ * RFC 2281
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-hsrp.c,v 1.10 2000/11/19 08:53:57 guy Exp $
+ * $Id: packet-hsrp.c,v 1.11 2000/11/21 05:36:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,6 +44,18 @@
 #include "packet.h"
 
 static gint proto_hsrp = -1;
+
+static gint hf_hsrp_version = -1;
+static gint hf_hsrp_opcode = -1;
+static gint hf_hsrp_state = -1;
+static gint hf_hsrp_hellotime = -1;
+static gint hf_hsrp_holdtime = -1;
+static gint hf_hsrp_priority = -1;
+static gint hf_hsrp_group = -1;
+static gint hf_hsrp_reserved = -1;
+static gint hf_hsrp_auth_data = -1;
+static gint hf_hsrp_virt_ip_addr = -1;
+
 static gint ett_hsrp = -1;
 
 #define UDP_PORT_HSRP   1985
@@ -89,66 +101,69 @@ static const value_string hsrp_state_vals[] = {
 };
 
 static void
-dissect_hsrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-        struct hsrp_packet hsrp;
-        gboolean short_packet = FALSE;
+        guint8 opcode, state;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_hsrp, pd, offset, fd, tree);
+        CHECK_DISPLAY_AS_DATA(proto_hsrp, tvb, pinfo, tree);
 
-        if (sizeof(struct hsrp_packet) > END_OF_FRAME)
-                short_packet = TRUE;
-        else
-                memcpy(&hsrp, pd + offset, sizeof(struct hsrp_packet));
-
-        if (check_col(fd, COL_PROTOCOL))
-                col_set_str(fd, COL_PROTOCOL, "HSRP");
+        if (check_col(pinfo->fd, COL_PROTOCOL))
+                col_set_str(pinfo->fd, COL_PROTOCOL, "HSRP");
         
-        if (check_col(fd, COL_INFO)) {
-                if (short_packet)
-                        col_add_fstr(fd, COL_INFO, "Short packet, length %u", END_OF_FRAME);
-                else
-                        col_add_fstr(fd, COL_INFO, "%s (state %s)",
-                                     val_to_str(hsrp.opcode, hsrp_opcode_vals, "Unknown"),
-                                     val_to_str(hsrp.state, hsrp_state_vals, "Unknown"));
+        opcode = tvb_get_guint8(tvb, 1);
+        state = tvb_get_guint8(tvb, 2);
+        if (check_col(pinfo->fd, COL_INFO)) {
+                col_add_fstr(pinfo->fd, COL_INFO, "%s (state %s)",
+                             val_to_str(opcode, hsrp_opcode_vals, "Unknown"),
+                             val_to_str(state, hsrp_state_vals, "Unknown"));
         }
 
         if (tree) {
                 proto_item *ti;
                 proto_tree *hsrp_tree;
-                guint8 auth_buf[sizeof(hsrp.auth_data) + 1];
+                int offset;
+                guint8 hellotime, holdtime;
+                guint8 auth_buf[8 + 1];
+                guint32 virt_ip_addr;
 
-                if (short_packet) {
-                        old_dissect_data(pd, offset, fd, tree);
-                        return;
-                }
-
-                ti = proto_tree_add_item(tree, proto_hsrp, NullTVB, offset, END_OF_FRAME, FALSE);
+                offset = 0;
+                ti = proto_tree_add_item(tree, proto_hsrp, tvb, offset, tvb_length(tvb), FALSE);
                 hsrp_tree = proto_item_add_subtree(ti, ett_hsrp);
 
-                proto_tree_add_text(hsrp_tree, NullTVB, offset++, 1, "Version: %u", hsrp.version);
-                proto_tree_add_text(hsrp_tree, NullTVB, offset++, 1, "Opcode: %u (%s)", hsrp.opcode,
-                                    val_to_str(hsrp.opcode, hsrp_opcode_vals, "Unknown"));
-                proto_tree_add_text(hsrp_tree, NullTVB, offset++, 1, "State: %u (%s)", hsrp.state,
-                                    val_to_str(hsrp.state, hsrp_state_vals, "Unknown"));
-                
-                proto_tree_add_text(hsrp_tree, NullTVB, offset++, 1, "Hellotime: %u second%s (%sdefault)",
-                                    hsrp.hellotime, plurality(hsrp.hellotime, "", "s"),
-                                    (hsrp.hellotime == HSRP_DEFAULT_HELLOTIME) ? "" : "non-");
-                proto_tree_add_text(hsrp_tree, NullTVB, offset++, 1, "Holdtime: %u second%s (%sdefault)",
-                                    hsrp.holdtime, plurality(hsrp.holdtime, "", "s"),
-                                    (hsrp.holdtime == HSRP_DEFAULT_HOLDTIME) ? "" : "non-");
-                proto_tree_add_text(hsrp_tree, NullTVB, offset++, 1, "Priority: %u", hsrp.priority);
-                proto_tree_add_text(hsrp_tree, NullTVB, offset++, 1, "Group: %u", hsrp.group);
-                proto_tree_add_text(hsrp_tree, NullTVB, offset++, 1, "Reserved: 0x%x", hsrp.reserved);
-
-                memcpy(auth_buf, hsrp.auth_data, sizeof(hsrp.auth_data));
-                auth_buf[sizeof(hsrp.auth_data)] = '\0';
-                proto_tree_add_text(hsrp_tree, NullTVB, offset, 8, "Authentication Data: `%s'", auth_buf);
-                offset+=8;
-
-                proto_tree_add_text(hsrp_tree, NullTVB, offset++, 4, "Virtual IP address: %s",
-                                    ip_to_str((guint8 *)&hsrp.virt_ip_addr));
+                proto_tree_add_uint(hsrp_tree, hf_hsrp_version, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+                offset++;
+                proto_tree_add_uint(hsrp_tree, hf_hsrp_opcode, tvb, offset, 1, opcode);
+                offset++;
+                proto_tree_add_uint(hsrp_tree, hf_hsrp_state, tvb, offset, 1, state);
+                offset++;
+                hellotime = tvb_get_guint8(tvb, offset);
+                proto_tree_add_uint_format(hsrp_tree, hf_hsrp_hellotime, tvb, offset, 1, hellotime,
+                                           "Hellotime: %sDefault (%u)",
+                                           (hellotime == HSRP_DEFAULT_HELLOTIME) ? "" : "Non-",
+                                           hellotime);
+                offset++;
+                holdtime = tvb_get_guint8(tvb, offset);
+                proto_tree_add_uint_format(hsrp_tree, hf_hsrp_holdtime, tvb, offset, 1, holdtime,
+                                           "Holdtime: %sDefault (%u)",
+                                           (holdtime == HSRP_DEFAULT_HOLDTIME) ? "" : "Non-",
+                                           holdtime);
+                offset++;
+                proto_tree_add_item(hsrp_tree, hf_hsrp_priority, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+                offset++;
+                proto_tree_add_item(hsrp_tree, hf_hsrp_group, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+                offset++;
+                proto_tree_add_item(hsrp_tree, hf_hsrp_reserved, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+                offset++;
+                tvb_memcpy(tvb, auth_buf, offset, 8);
+                auth_buf[sizeof auth_buf - 1] = '\0';
+                proto_tree_add_string_format(hsrp_tree, hf_hsrp_auth_data, tvb, offset, 8, auth_buf,
+                                             "Authentication Data: %sDefault (%s)",
+                                             (tvb_strneql(tvb, offset, "cisco", strlen("cisco"))) == 0 ? "" : "Non-",
+                                             auth_buf);
+                offset += 8;
+                tvb_memcpy(tvb, (guint8 *)&virt_ip_addr, offset, 4);
+                proto_tree_add_ipv4(hsrp_tree, hf_hsrp_virt_ip_addr, tvb, offset, 4, virt_ip_addr);
+                offset += 4;
                 
         }
 
@@ -157,11 +172,65 @@ dissect_hsrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 void proto_register_hsrp(void)
 {
+        static hf_register_info hf[] = {
+                { &hf_hsrp_version,
+                  { "Version", "hsrp.version",  
+                    FT_UINT8, BASE_DEC, NULL, 0x0,
+                    "The version of the HSRP messages"}},
+
+                { &hf_hsrp_opcode,
+                  { "Op Code", "hsrp.opcode",
+                    FT_UINT8, BASE_DEC, VALS(hsrp_opcode_vals), 0x0,
+                    "The type of message contained in this packet" }},
+
+                { &hf_hsrp_state,
+                  { "State", "hsrp.state",
+                    FT_UINT8, BASE_DEC, VALS(hsrp_state_vals), 0x0,
+                    "The current state of the router sending the message" }},
+
+                { &hf_hsrp_hellotime,
+                  { "Hellotime", "hsrp.hellotime",
+                    FT_UINT8, BASE_DEC, NULL, 0x0,
+                    "The approximate period between the Hello messages that the router sends" }},
+
+                { &hf_hsrp_holdtime,
+                  { "Holdtime", "hsrp.holdtime",
+                    FT_UINT8, BASE_DEC, NULL, 0x0,
+                    "Time that the current Hello message should be considered valid" }},
+
+                { &hf_hsrp_priority,
+                  { "Priority", "hsrp.priority",
+                    FT_UINT8, BASE_DEC, NULL, 0x0,
+                    "Used to elect the active and standby routers. Numerically higher priority wins vote" }},
+
+                { &hf_hsrp_group,
+                  { "Group", "hsrp.group",
+                    FT_UINT8, BASE_DEC, NULL, 0x0,
+                    "This field identifies the standby group" }},
+
+                { &hf_hsrp_reserved,
+                  { "Reserved", "hsrp.reserved",
+                    FT_UINT8, BASE_DEC, NULL, 0x0,
+                    "Reserved" }},
+
+                { &hf_hsrp_auth_data,
+                  { "Authentication Data", "hsrp.auth_data",
+                    FT_STRING, 0, NULL, 0x0,
+                    "Contains a clear-text 8 character reused password" }},
+
+                { &hf_hsrp_virt_ip_addr,
+                  { "Virtual IP Address", "hsrp.virt_ip",
+                    FT_IPv4, 0, NULL, 0x0,
+                    "The virtual IP address used by this group" }},
+
+        };
+
         static gint *ett[] = {
                 &ett_hsrp,
         };
 
         proto_hsrp = proto_register_protocol("Cisco Hot Standby Router Protocol", "hsrp");
+        proto_register_field_array(proto_hsrp, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 
         return;
@@ -170,5 +239,5 @@ void proto_register_hsrp(void)
 void
 proto_reg_handoff_hsrp(void)
 {
-	old_dissector_add("udp.port", UDP_PORT_HSRP, dissect_hsrp);
+	dissector_add("udp.port", UDP_PORT_HSRP, dissect_hsrp);
 }
