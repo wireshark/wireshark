@@ -6,7 +6,7 @@
  * Copyright 2002, Ronnie Sahlberg
  *   rewrote entire dissector
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.39 2002/06/24 00:03:18 tpot Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.40 2002/06/24 00:08:17 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6934,6 +6934,53 @@ static const value_string platform_id_vals[] = {
 	{ 600, "OSF" },
 	{ 700, "VMS" },
 	{ 0,   NULL }
+};
+
+static const value_string srvsvc_opnum_vals[] = {
+	{SRV_NETRCHARDEVENUM,		"NetrCharDevEnum" },
+	{SRV_NETRCHARDEVGETINFO,	"NetrCharDevGetInfo" },
+	{SRV_NETRCHARDEVCONTROL,	"NetrCharDevControl" },
+	{SRV_NETRCHARDEVQENUM,		"NetrCharDevQEnum" },
+	{SRV_NETRCHARDEVQGETINFO,	"NetrCharDevQGetInfo" },
+	{SRV_NETRCHARDEVQSETINFO,	"NetrCharDevQSetInfo" },
+	{SRV_NETRCHARDEVQPURGE,		"NetrCharDevQPurge" },
+	{SRV_NETRCHARDEVQPURGESELF,	"NetrCharDevQPurgeSelf" },
+	{SRV_NETRCONNECTIONENUM,	"NetrConnectionEnum" },
+	{SRV_NETRFILEENUM,		"NetrFileEnum" },
+	{SRV_NETRFILEGETINFO,		"NetrFileGetInfo" },
+	{SRV_NETRFILECLOSE,		"NetrFileClose" },
+	{SRV_NETRSESSIONENUM,		"NetrSessionEnum" },
+	{SRV_NETRSESSIONDEL,		"NetrSessionDel" },
+	{SRV_NETRSHAREADD,		"NetrShareAdd" },
+	{SRV_NETRSHAREENUM,		"NetrShareEnum" },
+	{SRV_NETRSHAREGETINFO,		"NetrShareGetInfo" },
+	{SRV_NETRSHARESETINFO,		"NetrShareSetInfo" },
+	{SRV_NETRSHAREDEL,		"NetrShareDel" },
+	{SRV_NETRSHAREDELSTICKY,	"NetrShareDelSticky" },
+	{SRV_NETRSHARECHECK,		"NetrShareCheck" },
+	{SRV_NETRSERVERGETINFO,		"NetrServerGetInfo" },
+	{SRV_NETRSERVERSETINFO,		"NetrServerSetInfo" },
+	{SRV_NETRSERVERDISKENUM,	"NetrServerDiskEnum" },
+	{SRV_NETRSERVERSTATISTICSGET,	"NetrServerStatisticsGet" },
+	{SRV_NETRSERVERTRANSPORTADD,	"NetrServerTransportAdd" },
+	{SRV_NETRSERVERTRANSPORTENUM,	"NetrServerTransportEnum" },
+	{SRV_NETRSERVERTRANSPORTDEL,	"NetrServerTransportDel" },
+	{SRV_NETRREMOTETOD,		"NetrRemoteTOD" },
+	{SRV_NETRSERVERSETSERVICEBITS,	"NetrServerSetServiceBits" },
+	{SRV_NETRPRPATHTYPE,		"NetrPathType" },
+	{SRV_NETRPRPATHCANONICALIZE,	"NetrpPathCanonicalize" },
+	{SRV_NETRPRPATHCOMPARE,		"NetrpPathCompare" },
+	{SRV_NETRPRNAMEVALIDATE,	"NetrpNameValidate" },
+	{SRV_NETRPRNAMECANONICALIZE,	"NetrpNameCanonicalize" },
+	{SRV_NETRPRNAMECOMPARE,		"NetrpNameCompare" },
+	{SRV_NETRSHAREENUMSTICKY,	"NetrShareEnumSticky" },
+	{SRV_NETRSHAREDELSTART,		"NetrShareDelStart" },
+	{SRV_NETRSHAREDELCOMMIT,	"NetrShareDelCommit" },
+	{SRV_NETRPGETFILESECURITY,	"NetrpGetFileSecurity" },
+	{SRV_NETRPSETFILESECURITY,	"NetrpSetFileSecurity" },
+	{SRV_NETRSERVERTRANSPORTADDEX,	"NetrServerTransportAddEx" },
+	{SRV_NETRSERVERSETSERVICEBITS2,	"NetrServerSetServiceBits2" },
+	{0, NULL }
 };
 
 void 
