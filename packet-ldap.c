@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.35 2002/03/01 02:48:10 guy Exp $
+ * $Id: packet-ldap.c,v 1.36 2002/03/01 03:02:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -202,6 +202,7 @@ static int read_integer_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
 	proto_item **new_item, guint *i, int start, guint length)
 {
   guint integer = 0;
+  proto_item *temp_item = NULL;
   int ret;
 
   ret = asn1_uint32_value_decode(a, length, &integer);
@@ -212,13 +213,10 @@ static int read_integer_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
     *i = integer;
 
   if (tree)
-  {
-    proto_tree *temp_item;
-
     temp_item = proto_tree_add_uint(tree, hf_id, a->tvb, start, a->offset-start, integer);
-    if (new_item)
-      *new_item = temp_item;
-  }
+
+  if (new_item)
+    *new_item = temp_item;
 
   return ASN1_ERR_NOERROR;
 }
@@ -245,6 +243,7 @@ static int read_boolean_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
 	proto_item **new_item, guint *i, int start, guint length)
 {
   guint integer = 0;
+  proto_item *temp_item = NULL;
 
   asn1_uint32_value_decode(a, length, &integer);
 
@@ -252,13 +251,9 @@ static int read_boolean_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
     *i = integer;
 
   if (tree)
-  {
-    proto_item *temp_item;
-
     temp_item = proto_tree_add_boolean(tree, hf_id, a->tvb, start, a->offset-start, integer);
-    if (new_item)
-      *new_item = temp_item;
-  }
+  if (new_item)
+    *new_item = temp_item;
 
   return ASN1_ERR_NOERROR;
 }
@@ -285,6 +280,7 @@ static int read_string_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
 	proto_item **new_item, char **s, int start, guint length)
 {
   guchar *string;
+  proto_item *temp_item = NULL;
   int ret;
   
   if (length)
@@ -299,13 +295,9 @@ static int read_string_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
     string = "(null)";
     
   if (tree)
-  {
-    proto_item *temp_item;
-
     temp_item = proto_tree_add_string(tree, hf_id, a->tvb, start, a->offset - start, string);
-    if (new_item)
-      *new_item = temp_item;
-  }
+  if (new_item)
+    *new_item = temp_item;
 
   if (s && length)
     *s = string;
@@ -792,7 +784,6 @@ static int dissect_ldap_response_search_entry(ASN1_SCK *a, proto_tree *tree)
     ret = read_sequence(a, 0);
     if (ret != ASN1_ERR_NOERROR)
       return ret;
-    ti = NULL;
     ret = read_string(a, tree, hf_ldap_message_attribute, &ti, 0, ASN1_UNI, ASN1_OTS);
     if (ret != ASN1_ERR_NOERROR)
       return ret;
@@ -836,7 +827,6 @@ static int dissect_ldap_request_add(ASN1_SCK *a, proto_tree *tree)
     ret = read_sequence(a, 0);
     if (ret != ASN1_ERR_NOERROR)
       return ret;
-    ti = NULL;
     ret = read_string(a, tree, hf_ldap_message_attribute, &ti, 0, ASN1_UNI, ASN1_OTS);
     if (ret != ASN1_ERR_NOERROR)
       return ret;
@@ -956,7 +946,6 @@ static int dissect_ldap_request_modify(ASN1_SCK *a, proto_tree *tree)
     if (ret != ASN1_ERR_NOERROR)
       return ret;
 
-    ti = NULL;
     switch (operation)
     {
      case LDAP_MOD_ADD:
@@ -964,16 +953,23 @@ static int dissect_ldap_request_modify(ASN1_SCK *a, proto_tree *tree)
       if (ret != ASN1_ERR_NOERROR)
         return ret;
       break;
+
      case LDAP_MOD_REPLACE:
       ret = read_string(a, tree, hf_ldap_message_modify_replace, &ti, 0, ASN1_UNI, ASN1_OTS);
       if (ret != ASN1_ERR_NOERROR)
         return ret;
       break;
+
      case LDAP_MOD_DELETE:
       ret = read_string(a, tree, hf_ldap_message_modify_delete, &ti, 0, ASN1_UNI, ASN1_OTS);
       if (ret != ASN1_ERR_NOERROR)
         return ret;
       break;
+
+     default:
+       proto_tree_add_text(tree, a->tvb, a->offset, 0,
+            "Unknown LDAP modify operation (%u)", operation);
+       return ASN1_ERR_NOERROR;
     }
     attr_tree = proto_item_add_subtree(ti, ett_ldap_attribute);
 
