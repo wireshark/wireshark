@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.75 2004/06/29 17:10:53 ulfl Exp $
+ * $Id: gui_prefs.c,v 1.76 2004/07/12 17:20:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -542,7 +542,7 @@ recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
 
     /* We really should pop up a nasty dialog box if newval <= 0 */
 
-    return TRUE;
+    return FALSE;
 }
 
 static gint
