@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.84 2003/10/10 21:16:24 guy Exp $
+ * $Id: packet-rsvp.c,v 1.85 2003/11/08 00:09:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -121,6 +121,7 @@ enum {
     TT_RESTART_CAP,
     TT_PROTECTION_INFO,
     TT_FAST_REROUTE,
+    TT_FAST_REROUTE_FLAGS,
     TT_DETOUR,
     TT_DIFFSERV,
     TT_DIFFSERV_MAP,
@@ -224,6 +225,8 @@ enum rsvp_classes {
     RSVP_CLASS_LABEL_SET,
     RSVP_CLASS_PROTECTION,
 
+    RSVP_CLASS_DETOUR = 63,
+
     RSVP_CLASS_DIFFSERV = 65,
 
     RSVP_CLASS_SUGGESTED_LABEL = 129,
@@ -233,13 +236,12 @@ enum rsvp_classes {
     RSVP_CLASS_NOTIFY_REQUEST = 195,
     RSVP_CLASS_ADMIN_STATUS,
 
+    RSVP_CLASS_FAST_REROUTE = 205,
     RSVP_CLASS_SESSION_ATTRIBUTE = 207,
     RSVP_CLASS_GENERALIZED_UNI,
     RSVP_CLASS_DCLASS = 225,
-    RSVP_CLASS_LSP_TUNNEL_IF_ID = 227,
+    RSVP_CLASS_LSP_TUNNEL_IF_ID = 227
 
-    RSVP_CLASS_FAST_REROUTE = 228, /* TBD */
-    RSVP_CLASS_DETOUR = 229 /* TBD */
 };
 
 static value_string rsvp_class_vals[] = {
@@ -280,6 +282,8 @@ static value_string rsvp_class_vals[] = {
     {RSVP_CLASS_NOTIFY_REQUEST, "NOTIFY-REQUEST object"},
     {RSVP_CLASS_ADMIN_STATUS, "ADMIN-STATUS object"},
     {RSVP_CLASS_GENERALIZED_UNI, "GENERALIZED-UNI object"},
+    {RSVP_CLASS_DETOUR, "DETOUR object"},
+    {RSVP_CLASS_FAST_REROUTE, "FAST-REROUTE object"},
     {0, NULL}
 };
 
@@ -2830,10 +2834,23 @@ dissect_rsvp_session_attribute (proto_tree *ti, tvbuff_t *tvb,
 			"Class number: %u - %s",
 			class, type_str);
     switch(type) {
+    case 1:
     case 7:
 
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
-			    "C-type: 7 - IPv4 LSP");
+			    "C-type: %u - IPv4 LSP (%sResource Affinities)",
+                            type, (type == 1) ? "" : "No ");
+        
+        if (type == 1) {
+            proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4, 
+			    "Exclude-Any: 0x%0x", tvb_get_ntohl(tvb, offset2));
+            proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4, 
+			    "Include-Any: 0x%0x", tvb_get_ntohl(tvb, offset2+4));
+            proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 4, 
+			    "Include-All: 0x%0x", tvb_get_ntohl(tvb, offset2+8));
+            offset2 = offset2+12;
+        }
+
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
 			    "Setup priority: %u",
 			    tvb_get_guint8(tvb, offset2));
@@ -4012,6 +4029,8 @@ dissect_rsvp_fast_reroute (proto_tree *ti, tvbuff_t *tvb,
 			   char *type_str)
 {
     proto_tree *rsvp_object_tree;
+    guint8 flags;
+    proto_tree *ti2, *rsvp_frr_flags_tree;
 
     rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_FAST_REROUTE));
     proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
@@ -4030,15 +4049,27 @@ dissect_rsvp_fast_reroute (proto_tree *ti, tvbuff_t *tvb,
 	    break;
 	}
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
-			    "C-type: 1");
+			    "C-type: %u", type);
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+4, 1, 
 			    "Setup Priority: %d", tvb_get_guint8(tvb, offset+4));
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+5, 1, 
 			    "Hold Priority: %d", tvb_get_guint8(tvb, offset+5));
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+6, 1, 
 			    "Hop Limit: %d", tvb_get_guint8(tvb, offset+6));
-	proto_tree_add_text(rsvp_object_tree, tvb, offset+7, 1, 
-			    "Flags: %d", tvb_get_guint8(tvb, offset+7));
+
+        flags = tvb_get_guint8(tvb, offset+7);
+	ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset+7, 1, 
+                                  "Flags: 0x%02x", flags);
+        rsvp_frr_flags_tree = proto_item_add_subtree(ti2,
+                                                     TREE(TT_FAST_REROUTE_FLAGS));
+	proto_tree_add_text(rsvp_frr_flags_tree, tvb, offset+7, 1,
+			    decode_boolean_bitfield(flags, 0x01, 8,
+						    "One-to-One Backup desired",
+						    "One-to-One Backup not desired"));
+	proto_tree_add_text(rsvp_frr_flags_tree, tvb, offset+7, 1,
+			    decode_boolean_bitfield(flags, 0x02, 8,
+						    "Facility Backup desired",
+						    "Facility Backup not desired"));
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+8, 4, 
 			    "Bandwidth: %.10g", tvb_get_ntohieee_float(tvb, offset+8));
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+12, 4, 
@@ -4049,6 +4080,10 @@ dissect_rsvp_fast_reroute (proto_tree *ti, tvbuff_t *tvb,
 	    proto_tree_add_text(rsvp_object_tree, tvb, offset+20, 4, 
 				"Include-All: 0x%0x", tvb_get_ntohl(tvb, offset+20));
 	}
+
+        proto_item_append_text(ti, "%s%s",
+                               flags &0x01 ? "One-to-One Backup, " : "",
+                               flags &0x02 ? "Facility Backup" : "");
 	break;
 
     default:
@@ -4079,7 +4114,7 @@ dissect_rsvp_detour (proto_tree *ti, tvbuff_t *tvb,
     proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
 			"Class number: %u - %s",
 			class, type_str);
-    proto_item_set_text(ti, "FAST_REROUTE: ");
+    proto_item_set_text(ti, "DETOUR: ");
     switch(type) {
     case 7:
 	for (remaining_length = obj_length - 4, count = 1;
