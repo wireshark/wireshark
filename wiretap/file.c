@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.64 2001/02/22 22:03:31 guy Exp $
+ * $Id: file.c,v 1.65 2001/03/09 07:11:38 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -212,6 +212,8 @@ wtap* wtap_open_offline(const char *filename, int *err, gboolean do_random)
 
 		case -1:
 			/* I/O error - give up */
+			if (wth->random_fh != NULL)
+				file_close(wth->random_fh);
 			file_close(wth->fh);
 			g_free(wth);
 			return NULL;
