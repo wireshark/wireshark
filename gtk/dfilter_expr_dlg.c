@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.2 2001/01/02 19:38:20 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.3 2001/01/02 19:54:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -658,7 +658,7 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 		gtk_widget_show_all(value_list_scrolled_win);
 
 		/*
-		 * We're showing the entry; show the label as well.
+		 * We're showing the value list; show the label as well.
 		 */
 		show_value_label = TRUE;
 		break;
@@ -732,14 +732,11 @@ value_list_sel_cb(GtkList *value_list, GtkWidget *child,
 	char value_string[11+1];	/* long enough for 32-bit octal value */
 
 	/*
-	 * If the value entry is shown, it's an enumerated type (i.e.,
-	 * we have a "value_string" list associated with the field);
-	 * set the value entry to the numerical value for this item.
-	 *
-	 * If it's not shown, it's a Boolean type, and there is no value
-	 * to use in a test of the field.
+	 * This should either be a numeric type or a Boolean type;
+	 * if it's Boolean, there is no value to use in a test of the
+	 * field, so don't set the value entry.
 	 */
-	if (GTK_WIDGET_VISIBLE(value_entry)) {
+	if (hfinfo->type != FT_BOOLEAN) {
 		value = gtk_object_get_data(GTK_OBJECT(child),
 		    E_DFILTER_EXPR_VALUE_KEY);
 		switch (hfinfo->display) {
