@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes, and well-known MAC addresses
 #
-# $Id: manuf,v 1.22 2002/12/03 00:41:08 jmayer Exp $
+# $Id: manuf,v 1.23 2002/12/12 22:09:19 gerald Exp $
 #
 # Laurent Deniel <deniel@worldnet.fr>
 #
@@ -3698,8 +3698,7 @@
 
 00:07:98	Selea_Srl              # Selea SRL
 
-00:07:99	Tipping_Po             # Tipping Point Technologies, Inc.
-
+00:07:99	TippingPoint             # TippingPoint Technologies, Inc.
 00:07:9A	Smartsight             # SmartSight Networks Inc.
 
 00:07:9B	Aurora_Net             # Aurora Networks
@@ -5736,6 +5735,54 @@
 00:0B:F2	Chih-Kan_T             # Chih-Kan Technology Co., Ltd.
 
 00:0B:F3	Bae                    # BAE SYSTEMS
+
+00:0B:F4	Private
+00:0B:F5	Shanghai_S             # Shanghai Sibo Telecom Technology Co.,Ltd
+
+00:0B:F6	Nitgen                 # Nitgen Co., Ltd
+
+00:0B:F7	Nidek                  # NIDEK CO.,LTD
+
+00:0B:F8	Infinera
+00:0B:F9	Gemstone_C             # Gemstone communications, Inc.
+
+00:0B:FA	Private
+00:0B:FB	D-Net_Inte             # D-NET International Corporation
+
+00:0B:FC	Cisco                  # Cisco Systems
+
+00:0B:FD	Cisco                  # Cisco Systems
+
+00:0B:FE	Castel_Bro             # CASTEL Broadband Limited
+
+00:0B:FF	Berkeley_C             # Berkeley Camera Engineering
+
+00:0C:00	Beb_Indust             # BEB Industrie-Elektronik AG
+
+00:0C:01	Abatron                # Abatron AG
+
+00:0C:02	Abb_Oy                 # ABB Oy
+
+00:0C:03	Hdmi_Licen             # HDMI Licensing, LLC
+
+00:0C:04	Tecnova
+00:0C:05	Rpa_Reserc             # RPA Reserch Co., Ltd.
+
+00:0C:06	Nixvue_Pte             # Nixvue Systems  Pte Ltd
+
+00:0C:07	Iftest                 # Iftest AG
+
+00:0C:08	Humex_Tech             # HUMEX Technologies Corp.
+
+00:0C:09	Hitachi_Ie             # Hitachi IE Systems Co., Ltd
+
+00:0C:0A	Guangdong              # Guangdong Province Electronic Technology Research Institute
+
+00:0C:0B	Broadbus_T             # Broadbus Technologies
+
+00:0C:0C	Appro_Tech             # APPRO TECHNOLOGY INC.
+
+00:0C:0D	Communicat             # Communications & Power Industries / Satcom Division
 
 00:10:00	Cable_Tele             # CABLE TELEVISION LABORATIES, INC.
 
@@ -12051,7 +12098,7 @@ EC:10:00	Enance_Sou             # Enance Source Co., Ltd.	PC clones(?)
 #
 # Well-known addresses.
 #
-# $Id: manuf,v 1.22 2002/12/03 00:41:08 jmayer Exp $
+# $Id: manuf,v 1.23 2002/12/12 22:09:19 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
