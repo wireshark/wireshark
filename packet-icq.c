@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.2 1999/10/25 20:28:21 guy Exp $
+ * $Id: packet-icq.c,v 1.3 1999/10/25 20:32:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -707,8 +707,9 @@ icqv5_cmd_login(proto_tree* tree,
 	passwdLen = pletohs(pd + CMD_LOGIN_PASSLEN);
     }
     if (left>=10+passwdLen) {
-	password = g_malloc(passwdLen);
+	password = g_malloc(passwdLen + 1);
 	strncpy(password, pd + CMD_LOGIN_PASSWD, passwdLen);
+	password[passwdLen] = '\0';
     }
 
     if (left>=10+passwdLen+CMD_LOGIN_IP+4) {
