@@ -362,7 +362,8 @@ Dug Song <dugsong@monkey.org> {
 }
 
 Michael Tuexen <Michael.Tuexen@icn.siemens.de> {
-	SCTP
+	SCTP support
+	M3UA support
 }
 
 Bruce Korb <bkorb@sco.com> {
