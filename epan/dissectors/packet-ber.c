@@ -931,7 +931,7 @@ dissect_ber_generalized_time(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 }
 
 /* 8.6 Encoding of a bitstring value */
-int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn_namedbit *named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb) 
+int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const asn_namedbit *named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb) 
 {
 	guint8 class;
 	gboolean pc, ind;
@@ -941,7 +941,7 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 	int end_offset;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	asn_namedbit *nb;
+	const asn_namedbit *nb;
 	char *sep;
 	gboolean term;
 

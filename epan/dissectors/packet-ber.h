@@ -151,7 +151,7 @@ typedef struct _asn_namedbit {
 } asn_namedbit;
 /* this function dissects a BER BIT-STRING
  */
-extern int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn_namedbit *named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb);
+extern int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const asn_namedbit *named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb);
 extern int dissect_ber_bitstring32(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, int **bit_fields, gint hf_id, gint ett_id, tvbuff_t **out_tvb);
 
 
