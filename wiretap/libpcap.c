@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.44 2000/11/15 05:41:47 guy Exp $
+ * $Id: libpcap.c,v 1.45 2000/12/23 08:06:15 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -338,6 +338,12 @@ static const struct {
 	{ 111,		WTAP_ENCAP_HIPPI },	/* NetBSD HIPPI */
 	{ 112,		WTAP_ENCAP_HDLC },	/* NetBSD HDLC framing */
 #endif
+
+	/*
+	 * Linux "cooked mode" captures, used by the current CVS version
+	 * of libpcap.
+	 */
+	{ 113,		WTAP_ENCAP_SLL },	/* Linux cooked capture */
 };
 #define NUM_PCAP_ENCAPS (sizeof pcap_to_wtap_map / sizeof pcap_to_wtap_map[0])
 

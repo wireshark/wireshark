@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.16 2000/11/30 09:31:50 guy Exp $
+ * $Id: packet-bpdu.c,v 1.17 2000/12/23 08:06:14 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -107,8 +107,13 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          BPDU frames.  
          Fortunately, they can be recognized by checking the first 6 octets
          of the destination address, which are in the range from
-         01-80-C2-00-00-20 to 01-80-C2-00-00-2F. */
-      if (pinfo->dl_dst.data[0] == 0x01 && pinfo->dl_dst.data[1] == 0x80 &&
+         01-80-C2-00-00-20 to 01-80-C2-00-00-2F.
+
+	 Yes - we *do* need to check the destination address type;
+	 on Linux cooked captures, there *is* no destination address,
+	 so it's AT_NONE. */
+      if (pinfo->dl_dst.type == AT_ETHER &&
+	  pinfo->dl_dst.data[0] == 0x01 && pinfo->dl_dst.data[1] == 0x80 &&
 	  pinfo->dl_dst.data[2] == 0xC2 && pinfo->dl_dst.data[3] == 0x00 &&
 	  pinfo->dl_dst.data[4] == 0x00 && ((pinfo->dl_dst.data[5] & 0x20) == 0x20)) {
 

@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.49 2000/11/15 05:41:48 guy Exp $
+ * $Id: wtap.c,v 1.50 2000/12/23 08:06:16 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -122,6 +122,8 @@ const static struct encap_type_info {
 	/* WTAP_ENCAP_IEEE_802_11 */
 	{ "IEEE 802.11 Wireless LAN", "ieee-802-11" },
 
+	/* WTAP_ENCAP_SLL */
+	{ "Linux cooked-mode capture", "linux-sll" },
 };
 
 /* Name that should be somewhat descriptive. */
