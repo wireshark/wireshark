@@ -21,15 +21,11 @@ Input options
 
 Filtering options
 -----------------
--Limit each packet to xy bytes: Will limit the maximum size to be captured of each packet, this includes the link-layer header and all subsequent headers. This can be useful when an error is known to be in the first 20 bytes of a packet, for example, as the size of the resulting capture file will be reduced.
-
 -Capture packets in promiscuous mode: Usually a network card will only capture the traffic to its own network address. If you want to capture all traffic that the network card can "see", mark this option. See the FAQ for some more details of capturing packets from a switched network.
 
--Capture Filter: Use a capture filter to reduce the amount of packets to be captured. See "Capture Filters" in this help for further information how to use it.
+-Limit each packet to xy bytes: Will limit the maximum size to be captured of each packet, this includes the link-layer header and all subsequent headers. This can be useful when an error is known to be in the first 20 bytes of a packet, for example, as the size of the resulting capture file will be reduced.
 
-Stop condition options
-----------------------
-These three fields should be obvious; the capture process will be automatically stopped if one of the selected conditions is exceeded.
+-Capture Filter: Use a capture filter to reduce the amount of packets to be captured. See "Capture Filters" in this help for further information how to use it.
 
 Storing options
 ---------------
@@ -38,12 +34,18 @@ Storing options
 -Use ring buffer: Instead of using a single capture file, multiple files will be created. The generated filenames will contain a incrementing number and the start time of the capture. For example, if you choose "/foo.cap" in the "File" field, files like "/foo_00001_20040205110102.cap", "/foo_00002_20040205110102.cap", ... will be created.
 This feature can be useful if you do long term capturing, as working with a single capture file of several GB usually isn't very fast.
 
+Stop condition options
+----------------------
+These three fields should be obvious; the capture process will be automatically stopped if one of the selected conditions is exceeded.
+
 Display while capturing options
 -------------------------------
 -Update List of packets in real time: Using this will show the captured packets immediately on the main screen.
 Please note: this will slow down capturing, so increased packet drops might appear.
 
 -Automatic scrolling in live capture: This will scroll the "Packet List" automatically to the latest captured packet, when the "Update List of packets in real time" option is used.
+
+-Name resolution: perform the corresponding name resolution while capturing
 
 
 
