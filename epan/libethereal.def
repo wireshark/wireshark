@@ -46,6 +46,7 @@ capture_chdlc
 capture_clip
 capture_eth
 capture_fddi
+capture_fr
 capture_ieee80211
 capture_ipfc
 capture_llap
@@ -489,6 +490,7 @@ sid_name_snooping               DATA
 sid_name_table                  DATA
 smb_cmd_vals                    DATA
 sminmpec_values                 DATA
+stats_tree_branch_max_namelen
 stats_tree_branch_to_str
 stats_tree_create_node
 stats_tree_create_node_by_pname
