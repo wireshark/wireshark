@@ -2,7 +2,7 @@
  * Routines for DCERPC NDR dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-ndr.c,v 1.1 2001/11/27 09:27:29 guy Exp $
+ * $Id: packet-dcerpc-ndr.c,v 1.2 2001/12/06 23:30:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -104,5 +104,28 @@ dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         *pdata = uuid;
     }
     return offset + 16;
+}
+
+
+int
+dissect_ndr_ctx_hnd (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                     proto_tree *tree, char *drep, 
+                     int hfindex, e_ctx_hnd *pdata)
+{
+    e_ctx_hnd ctx_hnd;
+
+    if (offset % 4) {
+        offset += 4 - (offset % 4);
+    }
+    ctx_hnd.Data1 = dcerpc_tvb_get_ntohl (tvb, offset, drep);
+    dcerpc_tvb_get_uuid (tvb, offset+4, drep, &ctx_hnd.uuid);
+    if (tree) {
+        proto_tree_add_bytes (tree, hfindex, tvb, offset, 20,
+                              tvb_get_ptr (tvb, offset, 20));
+    }
+    if (pdata) {
+        *pdata = ctx_hnd;
+    }
+    return offset + 20;
 }
 

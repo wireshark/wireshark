@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.4 2001/11/27 09:27:29 guy Exp $
+ * $Id: packet-dcerpc.h,v 1.5 2001/12/06 23:30:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,11 @@ typedef struct _e_uuid_t {
     guint16 Data3;
     guint8 Data4[8];
 } e_uuid_t;
+
+typedef struct _e_ctx_hnd {
+    guint32 Data1;
+    e_uuid_t uuid;
+} e_ctx_hnd;
 
 typedef struct _e_dce_cn_common_hdr_t {
     guint8 rpc_ver;
@@ -117,6 +122,9 @@ int dissect_ndr_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, char *drep, 
                         int hfindex, e_uuid_t *pdata);
+int dissect_ndr_ctx_hnd (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                         proto_tree *tree, char *drep, 
+                         int hfindex, e_ctx_hnd *pdata);
 
 
 typedef int (dcerpc_dissect_fnct_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *drep);

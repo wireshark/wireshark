@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.182 2001/12/06 09:24:02 guy Exp $
+ * $Id: packet-smb.c,v 1.183 2001/12/06 23:30:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -11994,7 +11994,7 @@ static char *decode_smb_error(guint8 errcls, guint16 errcode)
  *
  *	http://www.wildpackets.com/elements/SMB_NT_Status_Codes.txt
  */
-static const value_string NT_errors[] = {
+const value_string NT_errors[] = {
   { 0x00000000, "STATUS_SUCCESS" },
   { 0x00000000, "STATUS_WAIT_0" },
   { 0x00000001, "STATUS_WAIT_1" },

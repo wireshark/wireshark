@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.29 2001/12/05 08:20:30 guy Exp $
+ * $Id: smb.h,v 1.30 2001/12/06 23:30:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -283,4 +283,8 @@ extern int dissect_ipc_state(tvbuff_t *tvb, packet_info *pinfo,
 extern gboolean smb_dcerpc_reassembly;
 extern GHashTable *dcerpc_fragment_table;
 
+/*
+ * NT error codes.
+ */
+extern const value_string NT_errors[];
 #endif

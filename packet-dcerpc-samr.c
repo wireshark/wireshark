@@ -2,7 +2,7 @@
  * Routines for SMB \\PIPE\\samr packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-samr.c,v 1.1 2001/11/21 02:08:57 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.2 2001/12/06 23:30:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,8 +31,15 @@
 #include "packet.h"
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-samr.h"
+#include "smb.h"	/* for "NT_errors[]" */
 
 static int proto_dcerpc_samr = -1;
+
+static int hf_samr_hnd = -1;
+static int hf_samr_perms = -1;
+static int hf_samr_rid = -1;
+static int hf_samr_rc = -1;
+
 static gint ett_dcerpc_samr = -1;
 
 static e_uuid_t uuid_dcerpc_samr = {
@@ -42,15 +49,52 @@ static e_uuid_t uuid_dcerpc_samr = {
 
 static guint16 ver_dcerpc_samr = 1;
 
+static int
+samr_dissect_gen_open_reply (tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *tree, 
+                             char *drep)
+{
+        offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
+                                      hf_samr_hnd, NULL);
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_samr_rc, NULL);
+        return offset;
+}
+
+static int
+samr_dissect_close_hnd_rqst (tvbuff_t *tvb, int offset, 
+                              packet_info *pinfo, proto_tree *tree, 
+                              char *drep)
+{
+        offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
+                                      hf_samr_hnd, NULL);
+        return offset;
+}
+
+static int
+samr_dissect_open_user_rqst (tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *tree, 
+                             char *drep)
+{
+        offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
+                                      hf_samr_hnd, NULL);
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_samr_perms, NULL);
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_samr_rid, NULL);
+        return offset;
+}
+
+
 static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
-        { SAMR_CONNECT_ANON, "SAMR_CONNECT_ANON", NULL, NULL },
-        { SAMR_CLOSE_HND, "SAMR_CLOSE_HND", NULL, NULL },
+        { SAMR_CONNECT_ANON, "SAMR_CONNECT_ANON", NULL, samr_dissect_gen_open_reply },
+        { SAMR_CLOSE_HND, "SAMR_CLOSE_HND", samr_dissect_close_hnd_rqst, samr_dissect_gen_open_reply },
         { SAMR_UNKNOWN_2, "SAMR_UNKNOWN_2", NULL, NULL },
         { SAMR_QUERY_SEC_OBJECT, "SAMR_QUERY_SEC_OBJECT", NULL, NULL },
         { SAMR_UNKNOWN_4, "SAMR_UNKNOWN_4", NULL, NULL },
         { SAMR_LOOKUP_DOMAIN, "SAMR_LOOKUP_DOMAIN", NULL, NULL },
         { SAMR_ENUM_DOMAINS, "SAMR_ENUM_DOMAINS", NULL, NULL },
-        { SAMR_OPEN_DOMAIN, "SAMR_OPEN_DOMAIN", NULL, NULL },
+        { SAMR_OPEN_DOMAIN, "SAMR_OPEN_DOMAIN", NULL, samr_dissect_gen_open_reply },
         { SAMR_QUERY_DOMAIN_INFO, "SAMR_QUERY_DOMAIN_INFO", NULL, NULL },
         { SAMR_CREATE_DOM_GROUP, "SAMR_CREATE_DOM_GROUP", NULL, NULL },
         { SAMR_ENUM_DOM_GROUPS, "SAMR_ENUM_DOM_GROUPS", NULL, NULL },
@@ -60,7 +104,7 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
         { SAMR_QUERY_USERALIASES, "SAMR_QUERY_USERALIASES", NULL, NULL },
         { SAMR_LOOKUP_NAMES, "SAMR_LOOKUP_NAMES", NULL, NULL },
         { SAMR_LOOKUP_RIDS, "SAMR_LOOKUP_RIDS", NULL, NULL },
-        { SAMR_OPEN_GROUP, "SAMR_OPEN_GROUP", NULL, NULL },
+        { SAMR_OPEN_GROUP, "SAMR_OPEN_GROUP", NULL, samr_dissect_gen_open_reply },
         { SAMR_QUERY_GROUPINFO, "SAMR_QUERY_GROUPINFO", NULL, NULL },
         { SAMR_SET_GROUPINFO, "SAMR_SET_GROUPINFO", NULL, NULL },
         { SAMR_ADD_GROUPMEM, "SAMR_ADD_GROUPMEM", NULL, NULL },
@@ -68,14 +112,14 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
         { SAMR_DEL_GROUPMEM, "SAMR_DEL_GROUPMEM", NULL, NULL },
         { SAMR_QUERY_GROUPMEM, "SAMR_QUERY_GROUPMEM", NULL, NULL },
         { SAMR_UNKNOWN_1A, "SAMR_UNKNOWN_1A", NULL, NULL },
-        { SAMR_OPEN_ALIAS, "SAMR_OPEN_ALIAS", NULL, NULL },
+        { SAMR_OPEN_ALIAS, "SAMR_OPEN_ALIAS", NULL, samr_dissect_gen_open_reply },
         { SAMR_QUERY_ALIASINFO, "SAMR_QUERY_ALIASINFO", NULL, NULL },
         { SAMR_SET_ALIASINFO, "SAMR_SET_ALIASINFO", NULL, NULL },
         { SAMR_DELETE_DOM_ALIAS, "SAMR_DELETE_DOM_ALIAS", NULL, NULL },
         { SAMR_ADD_ALIASMEM, "SAMR_ADD_ALIASMEM", NULL, NULL },
         { SAMR_DEL_ALIASMEM, "SAMR_DEL_ALIASMEM", NULL, NULL },
         { SAMR_QUERY_ALIASMEM, "SAMR_QUERY_ALIASMEM", NULL, NULL },
-        { SAMR_OPEN_USER, "SAMR_OPEN_USER", NULL, NULL },
+        { SAMR_OPEN_USER, "SAMR_OPEN_USER", samr_dissect_open_user_rqst, samr_dissect_gen_open_reply },
         { SAMR_DELETE_DOM_USER, "SAMR_DELETE_DOM_USER", NULL, NULL },
         { SAMR_QUERY_USERINFO, "SAMR_QUERY_USERINFO", NULL, NULL },
         { SAMR_SET_USERINFO2, "SAMR_SET_USERINFO2", NULL, NULL },
@@ -97,7 +141,7 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
         { SAMR_UNKNOWN_36, "SAMR_UNKNOWN_36", NULL, NULL },
         { SAMR_CHGPASSWD_USER, "SAMR_CHGPASSWD_USER", NULL, NULL },
         { SAMR_GET_DOM_PWINFO, "SAMR_GET_DOM_PWINFO", NULL, NULL },
-        { SAMR_CONNECT, "SAMR_CONNECT", NULL, NULL },
+        { SAMR_CONNECT, "SAMR_CONNECT", NULL, samr_dissect_gen_open_reply },
         { SAMR_SET_USERINFO, "SAMR_SET_USERINFO", NULL, NULL },
 
         {0, NULL, NULL,  NULL },
@@ -106,6 +150,16 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
 void 
 proto_register_dcerpc_samr(void)
 {
+        static hf_register_info hf[] = {
+                { &hf_samr_hnd,
+                  { "Context Handle", "samr.hnd", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }},
+                { &hf_samr_perms,
+                  { "Access Mask", "samr.perms", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+                { &hf_samr_rid,
+                  { "Rid", "samr.rid", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+                { &hf_samr_rc,
+                  { "Return code", "samr.rc", FT_UINT32, BASE_HEX, VALS (NT_errors), 0x0, "", HFILL }},
+        };
         static gint *ett[] = {
                 &ett_dcerpc_samr,
         };
@@ -113,6 +167,7 @@ proto_register_dcerpc_samr(void)
         proto_dcerpc_samr = proto_register_protocol(
                 "Microsoft Security Account Manager", "SAMR", "samr");
 
+        proto_register_field_array (proto_dcerpc_samr, hf, array_length (hf));
         proto_register_subtree_array(ett, array_length(ett));
 }
 
