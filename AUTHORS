@@ -74,10 +74,12 @@ Didier Jorand <Didier.Jorand@alcatel.fr> {
 	SNMP support
 }
 
-Jun-ichiro itojun Hagino <itojun@iijlab.net> {
+Jun-ichiro itojun Hagino <itojun@itojun.org> {
 	IPv6 support
 	RIPng support
 	PIM (Prototocol-Independent Multicast) support
+	IPComp (IP Payload Compression) support
+	BGP (Border Gateway Protocol) support
 }
 
 Richard Sharpe <sharpe@ns.aus.com> {
