@@ -3,7 +3,7 @@
  * Copyright 2003, Brad Hards <bradh@frogmouth.net>
  * Copyright 2003, Ronnie Sahlberg, added TCP desegmentation.
  *
- * $Id: packet-distcc.c,v 1.3 2003/09/03 20:58:08 guy Exp $
+ * $Id: packet-distcc.c,v 1.4 2003/09/16 17:36:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,7 +55,6 @@ static int hf_distcc_doto_object = -1;
 
 static gint ett_distcc = -1;
 
-static dissector_handle_t distcc_handle;
 static dissector_handle_t data_handle;
 
 
@@ -66,6 +65,7 @@ static gboolean distcc_desegment = TRUE;
 
 static int glb_distcc_tcp_port = TCP_PORT_DISTCC;
 
+extern void proto_reg_handoff_distcc(void);
 
 #define CHECK_PDU_LEN(x) \
 	if(parameter>tvb_length_remaining(tvb, offset)){\
@@ -397,7 +397,8 @@ proto_register_distcc(void)
 	proto_register_field_array(proto_distcc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	distcc_module = prefs_register_protocol(proto_distcc, NULL);
+	distcc_module = prefs_register_protocol(proto_distcc,
+	    proto_reg_handoff_distcc);
 	prefs_register_uint_preference(distcc_module, "tcp.port",
 				   "DISTCC TCP Port",
 				   "Set the TCP port for DISTCC messages",
@@ -408,10 +409,32 @@ proto_register_distcc(void)
 		"Whether the DISTCC dissector should desegment all DISTCC-over-TCP messages",
 		&distcc_desegment);
 }
+
 void
 proto_reg_handoff_distcc(void)
 {
+	static gboolean registered_dissector = FALSE;
+	static int distcc_tcp_port;
+	static dissector_handle_t distcc_handle;
+
+	if (registered_dissector) {
+		/*
+		 * We've registered the dissector with a TCP port number
+		 * of "distcc_tcp_port"; we might be changing the TCP port
+		 * number, so remove that registration.
+		 */
+		dissector_delete("tcp.port", distcc_tcp_port, distcc_handle);
+	} else {
+		/*
+		 * We haven't registered the dissector yet; get a handle
+		 * for it.
+		 */
+		distcc_handle = create_dissector_handle(dissect_distcc,
+		    proto_distcc);
+		registered_dissector = TRUE;
+	}
+	distcc_tcp_port = glb_distcc_tcp_port;
+	dissector_add("tcp.port", distcc_tcp_port, distcc_handle);
+
 	data_handle = find_dissector("data");
-	distcc_handle = create_dissector_handle(dissect_distcc, proto_distcc);
-	dissector_add("tcp.port", glb_distcc_tcp_port, distcc_handle);
 }
