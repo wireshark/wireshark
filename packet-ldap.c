@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.25 2001/05/08 19:46:30 guy Exp $
+ * $Id: packet-ldap.c,v 1.26 2001/05/08 19:50:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -908,7 +908,7 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     message_start = a.offset;
     if (read_sequence(&a, &messageLength))
     {
-      if (check_col(pinfo->fd, COL_INFO))
+      if (first_time && check_col(pinfo->fd, COL_INFO))
         col_set_str(pinfo->fd, COL_INFO, "Invalid LDAP packet");
       if (ldap_tree)
         proto_tree_add_text(ldap_tree, tvb, offset, 1, "Invalid LDAP packet");
@@ -918,7 +918,7 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     message_id_start = a.offset;
     if (read_integer(&a, 0, -1, 0, &messageId, ASN1_INT))
     {
-      if (check_col(pinfo->fd, COL_INFO))
+      if (first_time && check_col(pinfo->fd, COL_INFO))
         col_set_str(pinfo->fd, COL_INFO, "Invalid LDAP packet (No Message ID)");
       if (ldap_tree)
         proto_tree_add_text(ldap_tree, tvb, message_id_start, 1,
