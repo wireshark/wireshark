@@ -1606,7 +1606,7 @@ host_name_lookup_init(void) {
     if (!read_hosts_file(hostspath)) {
       g_free(hostspath);
       hostspath = g_strconcat(sysroot, rootpath_ot, NULL);
-      read_hosts_path(hostspath);
+      read_hosts_file(hostspath);
     }
     g_free(hostspath);
   }
