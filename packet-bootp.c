@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-bootp.c,v 1.70 2002/08/28 21:00:08 jmayer Exp $
+ * $Id: packet-bootp.c,v 1.71 2002/09/28 04:12:38 gerald Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -134,6 +134,18 @@ get_dhcp_type(guint8 byte)
 /* DHCP Authentication Replay Detection Methods */
 #define AUTHEN_RDM_MONOTONIC_COUNTER	0x00
 
+/* DHCP Option Overload (option code 52) */
+#define OPT_OVERLOAD_FILE		1
+#define OPT_OVERLOAD_SNAME		2
+#define OPT_OVERLOAD_BOTH		3
+
+/* Server name and boot file offsets and lengths */
+#define SERVER_NAME_OFFSET		44
+#define SERVER_NAME_LEN 		64
+#define FILE_NAME_OFFSET		108
+#define FILE_NAME_LEN			128
+#define VENDOR_INFO_OFFSET		236
+
 /* Returns the number of bytes consumed by this option. */
 static int
 bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
@@ -147,11 +159,13 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	guchar			byte;
 	int			i,optp, consumed;
 	gulong			time_secs;
-	proto_tree		*v_tree;
+	proto_tree		*v_tree, *o52tree;
 	proto_item		*vti;
 	guint8			protocol;
 	guint8			algorithm;
 	guint8			rdm;
+	int			o52voff, o52eoff;
+	gboolean		o52at_end;
 
 	static const value_string nbnt_vals[] = {
 	    {0x1,   "B-node" },
@@ -172,6 +186,12 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	static const value_string authen_rdm_vals[] = {
 	    {AUTHEN_RDM_MONOTONIC_COUNTER, "Monotonically-increasing counter" },
 	    {0,                            NULL     } };
+
+	static const value_string opt_overload_vals[] = {
+	    { OPT_OVERLOAD_FILE,  "Boot file name holds options",                },
+	    { OPT_OVERLOAD_SNAME, "Server host name holds options",              },
+	    { OPT_OVERLOAD_BOTH,  "Boot file and server host names hold options" },
+	    { 0,                  NULL                                           } };
 
 	static struct opt_info opt[] = {
 		/*   0 */ { "Padding",								none },
@@ -562,6 +582,51 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 				    "Unknown (0x%02x)"));
 		break;
 
+	case 52:	/* Option Overload */
+		byte = tvb_get_guint8(tvb, voff+2);
+		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
+			"Option %d: %s = %s", code, text,
+			val_to_str(byte, opt_overload_vals,
+			    "Unknown (0x%02x)"));
+			    
+		/* Just in case we find an option 52 in sname or file */
+		if (voff > VENDOR_INFO_OFFSET && byte >= 1 && byte <= 3) {
+			o52tree = proto_item_add_subtree(vti, ett_bootp_option);
+			if (byte == 1 || byte == 3) {	/* 'file' */
+				vti = proto_tree_add_text (o52tree, tvb,
+					FILE_NAME_OFFSET, FILE_NAME_LEN,
+					"Boot file name option overload");
+				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+				o52voff = FILE_NAME_OFFSET;
+				o52eoff = FILE_NAME_OFFSET + FILE_NAME_LEN;
+				o52at_end = FALSE;
+				while (o52voff < o52eoff && !o52at_end) {
+					o52voff += bootp_option(tvb, v_tree, o52voff,
+						o52eoff, FALSE, &o52at_end,
+						dhcp_type_p, vendor_class_id_p);
+				}
+			}
+			if (byte == 2 || byte == 3) {	/* 'sname' */
+				vti = proto_tree_add_text (o52tree, tvb,
+					SERVER_NAME_OFFSET, SERVER_NAME_LEN, 
+					"Server host name option overload");
+				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+				o52voff = SERVER_NAME_OFFSET;
+				o52eoff = SERVER_NAME_OFFSET + SERVER_NAME_LEN;
+				o52at_end = FALSE;
+				while (o52voff < o52eoff && !o52at_end) {
+					o52voff += bootp_option(tvb, v_tree, o52voff,
+						o52eoff, FALSE, &o52at_end,
+						dhcp_type_p, vendor_class_id_p);
+				}
+			}
+		}
+
+/*		protocol = tvb_get_guint8(tvb, voff+2);
+		proto_tree_add_text(v_tree, tvb, voff+2, 1, "Protocol: %s (%u)",
+				    val_to_str(protocol, authen_protocol_vals, "Unknown"),
+				    protocol); */
+		break;
 	case 53:	/* DHCP Message Type */
 		proto_tree_add_text(bp_tree, tvb, voff, 3, "Option %d: %s = DHCP %s",
 			code, text, get_dhcp_type(tvb_get_guint8(tvb, voff+2)));
@@ -1196,29 +1261,33 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* The server host name is optional */
 		if (tvb_get_guint8(tvb, 44) != '\0') {
 			proto_tree_add_item(bp_tree, hf_bootp_server, tvb,
-						   44, 64, FALSE);
+						   SERVER_NAME_OFFSET, 
+						   SERVER_NAME_LEN, FALSE);
 		}
 		else {
 			proto_tree_add_string_format(bp_tree, hf_bootp_server, tvb,
-						   44, 64,
-						   tvb_get_ptr(tvb, 44, 1),
+						   SERVER_NAME_OFFSET, 
+						   SERVER_NAME_LEN,
+						   tvb_get_ptr(tvb, SERVER_NAME_OFFSET, 1),
 						   "Server host name not given");
 		}
 
 		/* Boot file */
 		if (tvb_get_guint8(tvb, 108) != '\0') {
 			proto_tree_add_item(bp_tree, hf_bootp_file, tvb,
-						   108, 128, FALSE);
+						   FILE_NAME_OFFSET,
+						   FILE_NAME_LEN, FALSE);
 		}
 		else {
 			proto_tree_add_string_format(bp_tree, hf_bootp_file, tvb,
-						   108, 128,
-						   tvb_get_ptr(tvb, 108, 1),
+						   FILE_NAME_OFFSET,
+						   FILE_NAME_LEN,
+						   tvb_get_ptr(tvb, FILE_NAME_OFFSET, 1),
 						   "Boot file name not given");
 		}
 	}
 
-	voff = 236;
+	voff = VENDOR_INFO_OFFSET;
 
 	/* rfc2132 says it SHOULD exist, not that it MUST exist */
 	if (tvb_bytes_exist(tvb, voff, 4)) {
