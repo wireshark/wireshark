@@ -96,7 +96,7 @@
 	The bash shell is needed to run several shell scripts.
 	</para>
 	
-	<section>
+	<section id="ChToolsGNUBash">
 	<title>Unix: GNU bash</title>
 	<para>
 	The bash is available for most of the unix-like platforms and as the 
@@ -118,7 +118,7 @@ Copyright (C) 2002 Free Software Foundation, Inc.]]>
 	</para>
 	</section>
 	
-	<section>
+	<section id="ChToolsWin32Bash">
 	<title>Win32 native: -</title>
 	<para>
 	The authors don't know of any working win32 native bash implementation.
@@ -130,8 +130,7 @@ Copyright (C) 2002 Free Software Foundation, Inc.]]>
 	<section id="ChToolsCompiler">
 	<title>C compiler</title>
 	
-	<section>
-
+	<section id="ChToolsGCC">
 	<title>Unix: GCC (GNU compiler collection)</title>
 	<note><title>Win32 Note!</title>
 	<para>
@@ -162,7 +161,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	</para>
 	</section>
 	 
-	<section>
+	<section id="ChToolsMSVC6">
 	<title>Win32 native: Microsoft Visual Studio version 6 C compiler</title>
 	<para>
 	<note><title>Note!</title>
@@ -195,13 +194,13 @@ Verwendung: cl [ Option... ] Dateiname... [ /link Linker-Option... ]]]>
 	</para>
 	</section>
 
-	<section>
+	<section id="ChToolsMSVC7">
 	<title>Win32 native: Microsoft Visual Studio .NET (and alike) C compilers
 	</title>
 	<para>
 	<warning><title>Warning!</title>
 	<para>
-	The more recent "Microsoft Visual Studio .NET" C compiler currently cannot 
+	The recent "Microsoft Visual Studio .NET" C compiler(s) currently cannot 
 	be used to compile Ethereal!!!
 	</para>
 	</warning>
@@ -219,7 +218,7 @@ Verwendung: cl [ Option... ] Dateiname... [ /link Linker-Option... ]]]>
 	Microsoft Visual C++ Toolkit 2003, freely available at: <ulink url="http://msdn.microsoft.com/visualc/vctoolkit2003/"/>
 	</para></listitem>
 	</itemizedlist>
-	All containing version 7 or later C compiler.
+	All containing version 7 or later of Microsoft's C compiler.
 	</para>
 	<para>
 	It is reported that this compiler requires to ship a MSVCRT70.dll together 
@@ -229,10 +228,10 @@ Verwendung: cl [ Option... ] Dateiname... [ /link Linker-Option... ]]]>
 	</para>
 	<para>
 	Example why this hurts: A dependant library might try to open a file using 
-	functions in MSVCRT.dll which creates a file handle and internally keeps 
+	functions in MSVCRT.dll which creates an internal file handle and keeps 
 	information about that file. When Ethereal tries to read data from that 
-	file, it uses the functions from MSVCRT70.dll, which doesn't know about
-	that previously opened file and returns an error code.
+	file, it uses the functions from MSVCRT70.dll, which doesn't know anything 
+	about that previously opened file and returns an error code.
 	</para>
 	<para>
 	There where also attempts to bring the compiler to use only the old 
@@ -245,7 +244,7 @@ Verwendung: cl [ Option... ] Dateiname... [ /link Linker-Option... ]]]>
 	<note><title>Note!</title>
 	<para>
 	This isn't an Ethereal specific problem. Any software project trying to use
-	the new C compiler will have the problems described above!
+	the version 7 C compiler will have the problems described above!
 	</para>
 	</note>
 	</section>
@@ -255,7 +254,7 @@ Verwendung: cl [ Option... ] Dateiname... [ /link Linker-Option... ]]]>
 	<section id="ChToolsMake">
 	<title>make</title>
 
-	<section>
+	<section id="ChToolsGNUmake">
 	<title>Unix: GNU make</title>
 	<note><title>Win32 Note!</title>
 	<para>
@@ -286,7 +285,7 @@ PARTICULAR PURPOSE.]]>
 	</para>
 	</section>
 
-	<section>
+	<section id="ChToolsNmake">
 	<title>Win32 native: nmake</title>
 	<para>
 	nmake is part of the Microsoft Visual Studio suite, see comment above.
@@ -331,7 +330,7 @@ Stop.]]]>
 	fine.
 	</para>
 
-	<section>
+	<section id="ChToolsUnixPython">
 	<title>Unix: python</title>
 	<para>
 	Python is available for most of the unix-like platforms and as the 
@@ -354,7 +353,7 @@ Stop.]]]>
 	</para>
 	</section>
 
-	<section>
+	<section id="ChToolsWin32Python">
 	<title>Win32 native: python</title>
 	<para>
 	Have a look at <ulink url="http://python.org/download/"/>
@@ -375,7 +374,7 @@ Stop.]]]>
 	Perl is used to XXX. Perl version XXX and above should be working fine.
 	</para>
 
-	<section>
+	<section id="ChToolsUnixPerl">
 	<title>Unix: perl</title>
 	<para>
 	Perl is available for most of the unix-like platforms and as the 
@@ -406,7 +405,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.]]>
 
 	</section>
 
-	<section>
+	<section id="ChToolsWin32Perl">
 	<title>Win32 native: perl</title>
 	<para>
 	A native Win32 perl package can be obtained from 
@@ -446,7 +445,7 @@ Built 18:08:02 Feb  4 2003
 	process uses this to stamp version strings into various places.
 	</para>
 
-	<section>
+	<section id="ChToolsUnixSed">
 	<title>Unix: sed</title>
 	<para>
 	Sed is available for most of the unix-like platforms and as the 
@@ -471,7 +470,7 @@ to the extent permitted by law.]]>
 	</para>
 	</section>
 
-	<section>
+	<section id="ChToolsWin32Sed">
 	<title>Win32 native: -</title>
 	<para>
 	The authors don't know of any working win32 native sed implementation.
@@ -486,7 +485,7 @@ to the extent permitted by law.]]>
 	Bison is a free implementation of yacc.
 	</para>
 
-	<section>
+	<section id="ChToolsUnixYacc">
 	<title>Unix: bison</title>
 	<para>
 	Bison is available for most of the unix-like platforms and as the 
@@ -512,7 +511,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	</para>
 	</section>
 
-	<section>
+	<section id="ChToolsWin32Yacc">
 	<title>Win32 native: -</title>
 	<para>
 	The authors don't know of any working win32 native yacc/bison 
@@ -527,8 +526,8 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	<para>
 	Flex is a free implementation of lexx.
 	</para>
-	<section>
 	
+	<section id="ChToolsUnixLexx">
 	<title>Unix: flex</title>
 	<para>
 	Flex is available for most of the unix-like platforms and as the 
@@ -549,7 +548,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	</para>
 	</section>
 
-	<section>
+	<section id="ChToolsWin32Lexx">
 	<title>Win32 native: -</title>
 	<para>
 	The authors don't know of any working win32 native lexx/flex 
@@ -584,7 +583,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	use the subversion client.
 	</para>
 
-	<section>
+	<section id="ChToolsUnixSVN">
 	<title>Unix: svn</title>
 	<para>
 	SVN is available for most of the unix-like platforms and as the 
@@ -612,7 +611,7 @@ This product includes software developed by CollabNet (http://www.Collab.Net/).
 	</para>
 	</section>
 
-	<section>
+	<section id="ChToolsTortoiseSVN">
 	<title>Win32 native: TortoiseSVN</title>
 	<para>
 	A good subversion client for Win32 can be found at: 
@@ -642,7 +641,7 @@ This product includes software developed by CollabNet (http://www.Collab.Net/).
 	use the diff tool.
 	</para>
 
-	<section>
+	<section id="ChToolsGNUDiff">
 	<title>Unix: GNU diff</title>
 	<para>
 	Diff is available for most of the unix-like platforms and as the 
@@ -669,7 +668,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	</para>
 	</section>
 
-	<section>
+	<section id="ChToolsWin32Diff">
 	<title>Win32 native: -</title>
 	<para>
 	The authors don't know of any working win32 native diff implementation.
@@ -698,7 +697,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	to use the patch tool.
 	</para>
 
-	<section>
+	<section id="ChToolsUnixPatch">
 	<title>Unix: patch</title>
 	<para>
 	Patch is available for most of the unix-like platforms and as the 
@@ -728,7 +727,7 @@ written by Larry Wall and Paul Eggert]]>
 	</para>
 	</section>
 
-	<section>
+	<section id="ChToolsWin32Patch">
 	<title>Win32 native: -</title>
 	<para>
 	The authors don't know of any working win32 native patch implementation.

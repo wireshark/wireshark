@@ -15,11 +15,10 @@
   <section id="ChIntroWhatIs">
     <title>What is <application>Ethereal?</application></title>
     <para>
-	Well, if you want to develop some things into Ethereal, you might already 
+	Well, if you want to start Ethereal development, you might already 
 	know what Ethereal is doing. If not, please have a look at the 
 	<ulink url="&EtherealUsersGuidePage;">Ethereal User's Guide</ulink>, 
-	which will explain what Ethereal is doing and a lot more general 
-	information about it.
+	which will provide a lot of general information about it.
     </para>
 		
   </section>
@@ -34,7 +33,7 @@
     <para>
 	As Ethereal is developed in a platform independant way and uses libraries 
 	which are available for a lot of different platforms (such as the GTK+ 
-	GUI library), it's available on a wide variety of platforms.
+	GUI library), it's available on a such a wide variety of platforms.
     </para>
     <para>
       If a binary package is not available for your platform, you should 
@@ -109,9 +108,9 @@
       There have also been a large number of people who have contributed 
       protocol dissectors to Ethereal, and it is expected that this will 
       continue.  You can find a list of the people who have contributed 
-      code to Ethereal by checking the about dialog box of Ethereal, or at 
-	  the <ulink url="&EtherealAuthorsPage;">authors</ulink> page on the 
-      Ethereal web site.
+      code to Ethereal by checking the about dialog box of Ethereal, or have 
+	  a look at the <ulink url="&EtherealAuthorsPage;"/> page on the Ethereal 
+	  web site.
     </para>
     <para>
 	The 
@@ -138,7 +137,7 @@
 	will be sufficient for Ethereal development in almost any case.
     </para>
     <para>
-	So unless you are going to change the development process of Ethereal in 
+	So unless you are going to change the development process of Ethereal 
 	itself, you won't come in touch with any other programming language than 
 	ANSI C (such as perl or python, which are used only in the Ethereal build 
 	process).
@@ -323,7 +322,7 @@
 	<varlistentry><term><command>ethereal-users</command></term>
 	  <listitem>
 	    <para>
-	      This list is for users of Ethereal.  People post 
+	      This list is for users of Ethereal. People post 
 	      questions about building and using Ethereal, others (hopefully) 
 		  provide answers. 
 	    </para>
@@ -332,8 +331,20 @@
 	<varlistentry><term><command>ethereal-dev</command></term>
 	  <listitem>
 	    <para>
-	      This list is for Ethereal developers. If you want to start 
-	      developing a protocol dissector, join this list.
+	      This list is for Ethereal developers. People post questions about 
+		  the development of Ethereal, others (hopefully) provide answers. 
+		  If you want to start developing a protocol dissector, join this list.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>ethereal-cvs</command></term>
+	  <listitem>
+	    <para>
+	      This list is for Ethereal developers. Everytime a change to the SVN 
+		  repository is checked in, a mail to this mailing list is generated.
+		  If you want to be notified about all the changes to the SVN 
+		  repository, join this list. Details about the SVN repository can be 
+		  found in <xref linkend="ChSrcSVNServer"/>.
 	    </para>
 	  </listitem>
 	</varlistentry>

@@ -4,7 +4,7 @@
 <chapter id="ChapterLibraries">
   <title>Libraries</title>
   
-  <section>
+  <section id="ChLibIntro">
 	<title>Introduction</title>
 	<para>
 	Several libraries are needed to build / run Ethereal. Most of the
@@ -96,14 +96,14 @@
 	libraries.
 	</para>
 	
-	<section>
+	<section id="ChLibsUnixGTK">
 	<title>Unix: ...</title>
 	<para>
 	Unix: <ulink url="http://www.gtk.org"/>
 	</para>
 	</section>
 
-	<section>
+	<section id="ChLibsWin32GTK">
 	<title>Win32 native: ...</title>
 	<para>
 	Win32 native: <ulink url="http://www.gimp.org/%7Etml/gimp/win32/downloads.html"/>
@@ -119,14 +119,14 @@
 	"Various tools relating to the Simple Network Management Protocol"
 	</para>
 	
-	<section>
+	<section id="ChLibsUnixSNMP">
 	<title>Unix: Net SNMP</title>
 	<para>
 	Unix: XXX: where to find the right binaries?
 	</para>
 	</section>
 
-	<section>
+	<section id="ChLibsWin32SNMP">
 	<title>Win32 native: Net SNMP</title>
 	<para>
 	Win32 native: XXX: where to find the right binaries?
@@ -143,14 +143,14 @@
 utilities."
 	</para>
 	
-	<section>
+	<section id="ChLibsUnixADNS">
 	<title>Unix: GNU ADNS</title>
 	<para>
 	Unix: XXX: where to find the right binaries?
 	</para>
 	</section>
 
-	<section>
+	<section id="ChLibsWin32ADNS">
 	<title>Win32 native: GNU ADNS</title>
 	<para>
 	Win32 native: <ulink url="http://adns.jgaa.com/"/>
@@ -166,14 +166,14 @@ utilities."
 	"Perl compatible regular expressions"
 	</para>
 	
-	<section>
+	<section id="ChLibsUnixPCRE">
 	<title>Unix: PCRE</title>
 	<para>
 	Unix: XXX: where to find the right binaries?
 	</para>
 	</section>
 
-	<section>
+	<section id="ChLibsWin32PCRE">
 	<title>Win32 native: PCRE</title>
 	<para>
 	Win32 native: <ulink url="http://gnuwin32.sourceforge.net/packages/pcre.htm"/>
@@ -193,14 +193,14 @@ utilities."
 	hardware and operating system."
 	</para>
 
-	<section>
+	<section id="ChLibsUnixZlib">
 	<title>Unix: zlib</title>
 	<para>
 	Unix: XXX: where to find the right binaries?
 	</para>
 	</section>
 
-	<section>
+	<section id="ChLibsWin32Zlib">
 	<title>Win32 native: zlib</title>
 	<para>
 	Win32 native: <ulink url="http://www.gzip.org/zlib/"/>
@@ -210,20 +210,20 @@ utilities."
   </section>
   
   
-  <section id="ChLibsWinpPcap">
+  <section id="ChLibsPcap">
 	<title>libpcap/WinPcap (optional)</title>
 	<para>
 	"packet capture library"
 	</para>
 	
-	<section>
+	<section id="ChLibsLibpcap">
 	<title>Unix: libpcap</title>
 	<para>
 	Unix: XXX
 	</para>
 	</section>
 
-	<section>
+	<section id="ChLibsWinpPcap">
 	<title>Win32 native: WinPcap</title>
 	<para>
 	"Windows packet capture library"
@@ -237,25 +237,15 @@ utilities."
 
 
   <section id="ChLibsWimp">
-	<title>Win32: GTK WIMP (optional)</title>
+	<title>Win32: GTK WIMP (optional) for GTK 2.x only</title>
 	<para>
 	"GTK-Wimp ("Windows impersonator") is a GTK theme that blends well into
 	the Windows desktop environment."
 	</para>
-
-	<section>
-	<title>Unix: -</title>
-	<para>
-	</para>
-	</section>
-
-	<section>
-	<title>Win32 native: WIMP (for GTK2.x only)</title>
 	<para>
 	Wimp is only available for the GTK2.x versions at: 
-	<ulink url="http://gtk-wimp.sourceforge.net/"/>
+	<ulink url="http://gtk-wimp.sourceforge.net/"/>.
 	</para>
-	</section>
 
   </section>
 

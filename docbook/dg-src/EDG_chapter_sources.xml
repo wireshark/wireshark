@@ -37,13 +37,36 @@
 	track of the changes made to the source code.
 	</para>
 	<para>
-	The svn server makes it possible to get the source files from any previous 
-	release, see which person changed a specific piece of code, and a lot more 
-	things related to the history of the Ethereal source code development.
+	Using the SVN repository you can:
+	<itemizedlist>
+	<listitem><para>
+	keep your private sources uptodate with very little effort
+	</para></listitem>
+	<listitem><para>
+	get a mail notification if someone changes the latest sources
+	</para></listitem>
+	<listitem><para>
+	get the source files from any previous release (or any other point in time)
+	</para></listitem>
+	<listitem><para>
+	have a quick look at the sources using a web interface
+	</para></listitem>
+	<listitem><para>
+	see which person changed a specific piece of code
+	</para></listitem>
+	<listitem><para>
+	... and a lot more things related to the history of the Ethereal source 
+	code development
+	</para></listitem>
+	</itemizedlist>
 	</para>
 	<para>
-	There are several ways to have a look at and obtain the sources from this 
-	server. Please note that the anonymous SVN repository is separate from 
+	For further reference about subversion, have a look at the homepage of the 
+	subversion project: <ulink url="http://subversion.tigris.org/"/>. There 
+	is a book about it available at: <ulink url="http://svnbook.red-bean.com/"/>.
+	</para>
+	<para>
+	Please note that the anonymous SVN repository is separate from 
 	the main repository. It may take several minutes for committed changes to 
 	appear in the anonymous repository. XXX - be more specific here.
 	</para>
@@ -54,11 +77,6 @@
 	CVS in the Ethereal documentation and source files.
 	</para>
 	</tip>
-	<para>
-	For further reference about subversion, have a look at the homepage of the 
-	subversion project: <ulink url="http://subversion.tigris.org/"/>. There 
-	is a book about it available at: <ulink url="http://svnbook.red-bean.com/"/>.
-	</para>
   </section>
 	
   <section id="ChSrcQuickLook">
@@ -666,9 +684,11 @@ diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/pa
 	If they're relative to a higher-level directory, you'd replace 0 with the 
 	number of higher-level directories in the path, e.g. if the names are 
 	"ethereal.orig/prefs.c" and "ethereal.mine/prefs.c", you'd run it with:
+	</para>
 	<para>
     <userinput>patch -p1 &lt;new.diff</userinput>
 	</para>
+	<para>
 	If they're relative to a <command>subdirectory</command> of the top-level 
 	directory, you'd run "patch" in <command>that</command> directory and run 
 	it with "-p0".

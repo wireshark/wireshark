@@ -87,13 +87,19 @@ FILE SECTION
 <title>Ethereal Build Environment</title>
 <partintro>
 <para>
-This is the first of two parts:
-</para>
-<para>
 <command>Part I. Ethereal Build Environment</command>
 </para>
 <para>
+<command>The first part describes how to set up the tools, libraries and 
+source needed to generate Ethereal, and how to do some typical development 
+tasks.</command>
+</para>
+<para>
 Part II. Ethereal Development
+</para>
+<para>
+The second part describes how the Ethereal sources are structured and how 
+to change the sources (e.g. adding a new dissector).
 </para>
 </partintro>
 &EnvIntroduction;
@@ -102,16 +108,24 @@ Part II. Ethereal Development
 &Sources;
 </part>
 <part id="PartDevelopment" label="II">
-<title>Ethereal Development</title>
+<title>Ethereal Development (incomplete)</title>
 <partintro>
-<para>
+<!--<para>
 This is the second of two parts:
-</para>
+</para>-->
 <para>
 Part I. Ethereal Build Environment
 </para>
 <para>
+The first part describes how to set up the tools, libraries and source needed 
+to generate Ethereal, and how to do some typical development tasks.
+</para>
+<para>
 <command>Part II. Ethereal Development</command>
+</para>
+<para>
+<command>The second part describes how the Ethereal sources are structured and how 
+to change the sources (e.g. adding a new dissector).</command>
 </para>
 </partintro>
 &BuildIntroduction;

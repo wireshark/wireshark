@@ -4,14 +4,14 @@
 <chapter id="ChapterDissection">
   <title>Packet dissection</title>
   
-  <section id="ChDissWorks">
+  <section id="ChDissectWorks">
 	<title>How it works</title>
 	<para>
 	XXX - well, how does it work?
 	</para>
   </section>
 
-  <section id="ChDissAdd">
+  <section id="ChDissectAdd">
 	<title>Adding a basic dissector</title>
 	<para>
 	The steps to add a new dissector (including some skeleton code) can be 
@@ -19,7 +19,7 @@
 	</para>
   </section>
 
-  <section id="ChDissConversation">
+  <section id="ChDissectConversation">
 	<title>How to use conversations</title>
 	<para>
 	Some info about how to use conversations in a dissector can be 
