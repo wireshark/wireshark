@@ -12,7 +12,7 @@
  * - support for reassembly
  * - error checking mode 
  *
- * $Id: packet-sctp.c,v 1.59 2003/08/02 01:00:06 guy Exp $
+ * $Id: packet-sctp.c,v 1.60 2003/08/06 07:17:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1309,14 +1309,13 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
   guint16 payload_length;
   guint32 payload_proto_id;
   tvbuff_t *payload_tvb;
-	proto_tree *flags_tree;
-	guint8 e_bit, b_bit, u_bit;
+  proto_tree *flags_tree;
+  guint8 e_bit, b_bit, u_bit;
 	
-  payload_length    = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET) - DATA_CHUNK_HEADER_LENGTH;
-  payload_tvb       = tvb_new_subset(chunk_tvb, DATA_CHUNK_PAYLOAD_OFFSET, payload_length, payload_length);
   payload_proto_id  = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET);
 
   if (chunk_tree) {
+    proto_item_set_len(chunk_item, DATA_CHUNK_HEADER_LENGTH);
     flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_data_chunk_flags);
     proto_tree_add_item(flags_tree, hf_data_chunk_e_bit,             chunk_tvb, CHUNK_FLAGS_OFFSET,                    CHUNK_FLAGS_LENGTH,                    NETWORK_BYTE_ORDER);
     proto_tree_add_item(flags_tree, hf_data_chunk_b_bit,             chunk_tvb, CHUNK_FLAGS_OFFSET,                    CHUNK_FLAGS_LENGTH,                    NETWORK_BYTE_ORDER);
@@ -1326,32 +1325,43 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
     proto_tree_add_item(chunk_tree, hf_data_chunk_stream_seq_number, chunk_tvb, DATA_CHUNK_STREAM_SEQ_NUMBER_OFFSET,   DATA_CHUNK_STREAM_SEQ_NUMBER_LENGTH,   NETWORK_BYTE_ORDER);
     proto_tree_add_item(chunk_tree, hf_data_chunk_payload_proto_id,  chunk_tvb, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH, NETWORK_BYTE_ORDER);
 
-		e_bit = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_DATA_CHUNK_E_BIT;
-		b_bit = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_DATA_CHUNK_B_BIT;
-		u_bit = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_DATA_CHUNK_U_BIT;
+    e_bit = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_DATA_CHUNK_E_BIT;
+    b_bit = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_DATA_CHUNK_B_BIT;
+    u_bit = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_DATA_CHUNK_U_BIT;
 
-		proto_item_append_text(chunk_item, "(%s, ", (u_bit) ? "unordered" : "ordered");
-		if (b_bit) {
-			if (e_bit)
-				proto_item_append_text(chunk_item, "complete");
-			else
-				proto_item_append_text(chunk_item, "first");
-		} else {
-			if (e_bit)
-				proto_item_append_text(chunk_item, "last");
-			else
-				proto_item_append_text(chunk_item, "middle");
-		}
+    proto_item_append_text(chunk_item, "(%s, ", (u_bit) ? "unordered" : "ordered");
+    if (b_bit) {
+      if (e_bit)
+        proto_item_append_text(chunk_item, "complete");
+      else
+        proto_item_append_text(chunk_item, "first");
+    } else {
+      if (e_bit)
+        proto_item_append_text(chunk_item, "last");
+      else
+        proto_item_append_text(chunk_item, "middle");
+    }
 				
-    proto_item_append_text(chunk_item, " segment, TSN: %u, SID: %u, SSN: %u, PPID: %u, payload length: %u byte%s)",
+    proto_item_append_text(chunk_item, " segment, TSN: %u, SID: %u, SSN: %u, PPID: %u",
                            tvb_get_ntohl(chunk_tvb, DATA_CHUNK_TSN_OFFSET), 
                            tvb_get_ntohs(chunk_tvb, DATA_CHUNK_STREAM_ID_OFFSET),
                            tvb_get_ntohs(chunk_tvb, DATA_CHUNK_STREAM_SEQ_NUMBER_OFFSET),
-                           payload_proto_id,
-                           payload_length, plurality(payload_length, "", "s"));
-    proto_item_set_len(chunk_item, DATA_CHUNK_HEADER_LENGTH);
-
+                           payload_proto_id);
   }
+  payload_length    = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET);
+  if (payload_length < DATA_CHUNK_HEADER_LENGTH) {
+    if (chunk_tree) {
+      proto_item_append_text(chunk_item, ", bogus chunk length %u < %u)",
+                             payload_length, DATA_CHUNK_HEADER_LENGTH);
+    }
+    return TRUE;
+  }
+  payload_length -= DATA_CHUNK_HEADER_LENGTH;
+  if (chunk_tree) {
+      proto_item_append_text(chunk_item, ", payload length: %u byte%s)",
+                             payload_length, plurality(payload_length, "", "s"));
+  }
+  payload_tvb       = tvb_new_subset(chunk_tvb, DATA_CHUNK_PAYLOAD_OFFSET, payload_length, payload_length);
   return dissect_payload(payload_tvb, pinfo, tree, payload_proto_id);
 }
 
@@ -1950,8 +1960,8 @@ dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
         sctp_item_length_set = FALSE;
       }
     } else {
-    /* get rid of the dissected chunk */
-    offset += total_length;
+      /* get rid of the dissected chunk */
+      offset += total_length;
     }
   }
   if (!sctp_item_length_set && (tree)) {
