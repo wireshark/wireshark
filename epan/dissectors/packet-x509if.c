@@ -185,7 +185,7 @@ static const ber_sequence RDNSequence_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_RDNSequence_item },
 };
 
-static int
+int
 dissect_x509if_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                    RDNSequence_sequence_of, hf_index, ett_x509if_RDNSequence);

@@ -11,6 +11,7 @@ AttributeType
 Name
 RelativeDistinguishedName
 DistinguishedName
+RDNSequence
 
 #.NO_EMIT
 
