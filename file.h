@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.29 1999/08/10 07:52:54 guy Exp $
+ * $Id: file.h,v 1.30 1999/08/10 07:54:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -72,7 +72,7 @@ typedef struct _capture_file {
 #endif
   /* XXX - I'm cheating for now. I'll hardcode 65536 here until I re-arrange
    * more header files so that ethereal.h is split up into two files, a
-   * generic header and a gtk+-speficic header (or the gtk+ definitions are
+   * generic header and a gtk+-specific header (or the gtk+ definitions are
    * moved to different header files) --gilbert
    */
   /*guint8       pd[MAX_PACKET_SIZE];*/  /* Packet data */
@@ -80,8 +80,8 @@ typedef struct _capture_file {
   frame_data  *plist;     /* Packet list */
   frame_data  *plist_end; /* Last packet in list */
   column_info  cinfo;    /* Column formatting information */
-  int         selected_packet;   /* Index in packet list of currently selected packet, if any */
-  int         selected_row;   /* Row in packet display of currently selected packet, if any */
+  int          selected_packet;   /* Index in packet list of currently selected packet, if any */
+  int          selected_row;   /* Row in packet display of currently selected packet, if any */
   frame_data  *fd;        /* Frame data for currently selected packet */
   proto_tree  *protocol_tree; /* Protocol tree for currently selected packet */
   FILE        *print_fh;  /* File we're printing to */
