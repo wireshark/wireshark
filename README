@@ -31,6 +31,19 @@ Ethereal is known to compile and run on the following systems:
 
 It should run on other systems without too much trouble.
 
+NOTE: the Makefile appears to depend on GNU "make"; it doesn't appear to
+work with the "make" that comes with Solaris 7 nor the BSD "make".
+
+In addition, wiretap (see below) requires "flex" - it cannot be built
+with vanilla "lex" - and either "bison" or the Berkeley "yacc"; whilst
+the "yacc" that comes with Solaris 7 has a "-p" flag to replace "yy" in
+various variable names with a specified prefix, to allow multiple
+yacc-built parsers in the same program, it doesn't replace "yy" in the
+"y.tab.h" file, so the lexical analyzer has no clue that "yylval" has
+been renamed to "wtap_lval".  (What *were* they thinking?)
+
+You must therefore install GNU "make", "flex", and either "bison" or
+Berkeley "yacc" on systems that lack them.
 
 Full installation instructions can be found in the INSTALL file.
          
