@@ -1,5 +1,5 @@
 /* packet-amr.c
- * Routines for PROTONAME dissection
+ * Routines for AMR dissection
  * Copyright 2005, Anders Broman <anders.broman[at]ericsson.com>
  *
  * $Id$
@@ -7,12 +7,6 @@
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
- * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
- * is a dissector file; if you just copied this from README.developer,
- * don't bother with the "Copied from" - you don't even need to put
- * in a "Copied from" if you copied an existing dissector, especially
- * if the bulk of the code in the new dissector is your code)
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,6 +21,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
  * References:
  * RFC 3267 
  * http://www.ietf.org/rfc/rfc3267.txt?number=3267
@@ -122,7 +117,7 @@ dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* add an item to the subtree, see section 1.6 for more information */
 		proto_tree_add_item(amr_tree, hf_amr_cmr, tvb, offset, 1, FALSE);
-		if ( octet_aligned = FALSE )
+		if ( !octet_aligned )
 			return; /* only handle octet aligned for now */
 
 		proto_tree_add_item(amr_tree, hf_amr_reserved, tvb, offset, 1, FALSE);
