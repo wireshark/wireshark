@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: make-manuf,v 1.5 2002/05/02 11:07:47 guy Exp $
+# $Id: make-manuf,v 1.6 2002/08/03 23:09:24 jmayer Exp $
 #
 # Make-manuf - Creates a file containing ethernet OUIs and their
 # company IDs.  It merges the databases at
@@ -23,7 +23,7 @@ if( $@ ) {
 $template = "manuf.tmpl";
 $outfile  = "manuf";
 $inheader = 1;
-$ieee_url = "http://standards.ieee.org/regauth/oui/oui.txt";
+$ieee_url = "http://standards.ieee.org/regauth/oui/oui_public.txt";
 $cb_url   = "http://www.cavebear.com/CaveBear/Ethernet/Ethernet.txt";
 %oui_list = ();
 $hp       = "[0-9a-fA-F]{2}";
