@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.45 2002/04/19 20:49:28 guy Exp $
+ * $Id: prefs_dlg.c,v 1.46 2002/04/20 20:29:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,6 +64,12 @@
 #include "simple_dialog.h"
 
 #include "prefs-int.h"
+
+#ifdef HAVE_LIBPCAP
+#ifdef WIN32
+#include "capture-wpcap.h"
+#endif /* _WIN32 */
+#endif /* HAVE_LIBPCAP */
 
 static void     prefs_main_ok_cb(GtkWidget *, gpointer);
 static void     prefs_main_apply_cb(GtkWidget *, gpointer);
