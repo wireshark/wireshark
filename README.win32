@@ -1,11 +1,35 @@
-$Id: README.win32,v 1.3 2000/01/15 00:22:28 gram Exp $
+$Id: README.win32,v 1.4 2000/01/25 02:11:30 guy Exp $
 
 Ethereal can be compiled on Win32 platforms. Some libraries are
 needed, however.
 
 The glib, gtk, glib-dev, and gtk-dev packages for win32 can be found
-at http://www.gimp.org/~tml/gimp/win32 You will definitely need these.
-Download them and unpack them.
+at
+	http://www.gimp.org/~tml/gimp/win32
+
+or
+
+	http://www.iki.fi/tml/gimp/win32/
+
+(the mirror nearer to you may be faster).
+
+You will definitely need these.  Download them and unpack them.  As of
+2000-01-24, at least in one test, some problems have been seen with the
+versions there; the page in question says
+
+	The latest version of my port, 19991218, might be buggier than
+	the next-to-previous version, 1990828.  If you have problems
+	with the latest version, try the 19990828 version instead.
+
+and the problems seemed not to be present with the 19990828 version.  If
+you see problems (e.g., a mangled hex dump window), that version can be
+found at
+
+	http://www.gimp.org/~tml/gimp/win32/index-19990828.html
+
+or
+
+	http://www.iki.fi/~tml/gimp/win32/index-19990828.html
 
 The UCD SNMP library for win32 can be had from
 ftp://ftp.revelstone.com/pub/snmp/, but it has not been tested
