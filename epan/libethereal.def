@@ -51,7 +51,6 @@ capture_raw
 capture_sll
 capture_tr
 check_col
-close_print_dest
 col_add_fstr
 col_add_str
 col_append_fstr
@@ -87,6 +86,7 @@ decode_enumerated_bitfield
 decode_enumerated_bitfield_shifted
 decode_numeric_bitfield
 deletefile
+destroy_print_stream
 dfilter_apply_edt
 dfilter_compile
 dfilter_dump
@@ -298,11 +298,11 @@ match_strval
 mtp3_addr_to_str_buf
 mtp3_service_indicator_code_short_vals DATA
 new_create_dissector_handle
+new_page
 new_register_dissector
 nt_cmd_vals                     DATA
 num_tap_filters                 DATA
 num_tree_types                  DATA
-open_print_dest
 plugin_list                     DATA
 postseq_cleanup_all_protocols
 prefs                           DATA
@@ -320,12 +320,16 @@ prefs_register_protocol
 prefs_register_string_preference
 prefs_register_uint_preference
 prefs_set_pref
+print_bookmark
 print_finale
-print_formfeed
 print_hex_data
 print_line
 print_packet_header
 print_preamble
+print_stream_ps_new
+print_stream_ps_stdio_new
+print_stream_text_new
+print_stream_text_stdio_new
 protocols_module                DATA
 proto_can_match_selected
 proto_can_toggle_protocol
