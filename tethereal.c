@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.214 2004/01/05 19:31:44 ulfl Exp $
+ * $Id: tethereal.c,v 1.215 2004/01/09 19:02:18 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2565,7 +2565,10 @@ wtap_dispatch_cb_print(guchar *user, const struct wtap_pkthdr *phdr,
     print_args.print_summary = !verbose;
     print_args.print_hex = print_hex;
     print_args.print_dissections = print_dissections_expanded;
-    print_args.print_range = print_range_all_captured;
+
+    /* init the packet range */
+    packet_range_init(&print_args.range);
+
     if (verbose) {
       /* Print the information in the protocol tree. */
       proto_tree_print(&print_args, edt, stdout);
