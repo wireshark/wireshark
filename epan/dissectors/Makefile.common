@@ -107,6 +107,7 @@ DISSECTOR_SRC =	\
 	packet-clip.c	\
 	packet-clnp.c	\
 	packet-cmip.c \
+	packet-cmp.c	\
 	packet-cms.c	\
 	packet-cops.c	\
 	packet-cosine.c	\
@@ -576,6 +577,7 @@ DISSECTOR_INCLUDES =	\
 	packet-clearcase.h	\
 	packet-clip.h	\
 	packet-cmip.h \
+	packet-cmp.h	\
 	packet-cms.h	\
 	packet-crmf.h	\
 	packet-data.h	\

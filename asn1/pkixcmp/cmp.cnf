@@ -1,0 +1,71 @@
+# CMP.cnf
+# CMP conformation file
+
+# $Id: cmp.cnf 12740 2004-12-13 08:15:34Z sahlberg $
+
+#.MODULE_IMPORT
+PKIX1Explicit88	pkix1explicit
+PKIX1Implicit88	pkix1implicit
+PKIXCRMF	crmf
+		
+#.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
+#.INCLUDE ../pkix1implicit/pkix1implicit_exp.cnf
+#.INCLUDE ../pkixcrmf/crmf-exp.cnf
+
+#.EXPORTS
+CAKeyUpdAnnContent
+CertAnnContent
+CertifiedKeyPair
+CertOrEncCert
+CertRepMessage
+CertResponse
+Challenge
+CRLAnnContent
+DHBasedMac
+DHBMParameter
+ErrorMsgContent
+GenMsgContent
+GenRepContent
+InfoTypeAndValue
+KeyRecRepContent
+NestedMessageContent
+OOBCert
+OOBCertHash
+PasswordBasedMac
+PBMParameter
+PKIBody
+PKIConfirmContent
+PKIFailureInfo
+PKIFreeText
+PKIHeader
+PKIMessage
+PKIProtection
+PKIStatus
+PKIStatusInfo
+POPODecKeyChallContent
+POPODecKeyRespContent
+ProtectedPart
+RevAnnContent
+RevDetails
+RevRepContent
+RevReqContent
+
+#.REGISTER
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+
+#.FN_BODY InfoTypeAndValue/infoType
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cmp_type_oid, object_identifier_id);
+
+#.FN_BODY InfoTypeAndValue/infoValue
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+#.END
+
+
