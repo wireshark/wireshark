@@ -1,7 +1,7 @@
 /* range.c
  * Packet range routines (save, print, ...)
  *
- * $Id: range.c,v 1.1 2003/12/29 22:42:39 guy Exp $
+ * $Id: range.c,v 1.2 2003/12/30 22:48:14 guy Exp $
  *
  * Dick Gooris <gooris@lucent.com>
  * Ulf Lamping <ulf.lamping@web.de>
@@ -29,6 +29,7 @@
 #include "config.h"
 #endif
 
+#include <string.h>
 #include <ctype.h>
 
 #include <glib.h>
