@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.26 2002/04/09 08:15:04 guy Exp $
+ * $Id: nettl.c,v 1.27 2002/05/17 09:53:20 sahlberg Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -65,6 +65,71 @@ struct nettlrec_ns_ls_ip_hdr {
 
 
 /* header is followed by data and once again the total length (2 bytes) ! */
+
+
+/* NL_LS_DRIVER :
+The following shows what the header looks like for NS_LS_DRIVER
+The capture was taken on HPUX11 and for a 100baseT interface.
+
+000080 00 44 00 0b 00 00 00 02 00 00 00 00 20 00 00 00
+000090 00 00 00 00 00 00 04 06 00 00 00 00 00 00 00 00
+0000a0 00 00 00 74 00 00 00 74 3c e3 76 19 00 06 34 63
+0000b0 ff ff ff ff 00 00 00 00 00 00 00 00 ff ff ff ff
+0000c0 00 00 00 00 00 00 01 02 00 5c 00 5c ff ff ff ff
+0000d0 3c e3 76 19 00 06 34 5a 00 0b 00 14 <here starts the MAC heder>
+
+Each entry starts with 0x0044000b
+
+The values 0x005c at position 0x0000c8 and 0x0000ca matches the number of bytes in
+the packet up to the next entry, which starts with 0x00440b again. These probably
+indicate the real and captured length of the packet (order unknown)
+
+The values 0x00000074 at positions 0x0000a0 and 0x0000a4 seems to indicate
+the same number as positions 0x0000c8 and 0x0000ca but added with 24.
+Perhaps we have here two layers of headers.
+The first layer is fixed and consists of all the bytes from 0x000084 up to and 
+including 0x0000c3 which is a generic header for all packets captured from any
+device. This header might be of fixed size 64 bytes and there might be something in
+it which indicates the type of the next header which is link type specific.
+Following this header there is another header for the 100baseT interface which
+in this case is 24 bytes long spanning positions 0x0000c4 to 0x0000db.
+
+When someone reports that the loading of the captures breaks, we can compare 
+this header above with what he/she got to learn how to distinguish between different
+types of link specific headers.
+
+
+For now:
+The first header seems to be
+	0-27	unknown
+	28-31	length1
+	32-35	length2
+	36-39	secs
+	40-43	100 x nsecs 
+	44-63 	unknown
+
+The header for 100baseT seems to be
+	0-3	unknown
+	4-5	length1   these are probably total/captured len. unknown which.
+	6-7	length2
+	8-11	unknown	
+	12-15	secs
+	16-19	100 x nsec
+	20-23	unknown
+*/
+struct nettlrec_ns_ls_drv_hdr {
+    guint8	xxa[64];
+};
+struct nettlrec_ns_ls_drv_eth_hdr {
+    guint8	xxa[4];
+    guint8	length[2];
+    guint8	length2[2];
+    guint8	xxb[4];
+    guint8	sec[4];
+    guint8	cnsec[4];  /* unit of 100 nsec */
+    guint8	xxc[4];
+};
+
 
 static gboolean nettl_read(wtap *wth, int *err, long *data_offset);
 static gboolean nettl_seek_read(wtap *wth, long seek_off,
@@ -195,6 +260,8 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     int bytes_read;
     struct nettlrec_sx25l2_hdr lapb_hdr;
     struct nettlrec_ns_ls_ip_hdr ip_hdr;
+    struct nettlrec_ns_ls_drv_hdr drv_hdr;
+    struct nettlrec_ns_ls_drv_eth_hdr drv_eth_hdr;
     guint16 length;
     int offset = 0;
     guint8 encap[4];
@@ -262,6 +329,46 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 
 	    phdr->ts.tv_sec = pntohl(&ip_hdr.sec);
 	    phdr->ts.tv_usec = pntohl(&ip_hdr.usec);
+	    break;
+	case NETTL_SUBSYS_NS_LS_DRIVER :
+	    bytes_read = file_read(&drv_hdr, 1, sizeof drv_hdr, fh);
+	    if (bytes_read != sizeof drv_hdr) {
+		*err = file_error(fh);
+		if (*err != 0)
+		    return -1;
+		if (bytes_read != 0) {
+		    *err = WTAP_ERR_SHORT_READ;
+		    return -1;
+		}
+		return 0;
+	    }
+	    offset += sizeof drv_hdr;
+
+	    /* XXX we dont know how to identify this as ehternet frames, so
+	       we assumes everything is. We will crash and burn for anything else */
+	    /* for encapsulated 100baseT we do this */
+	    phdr->pkt_encap = WTAP_ENCAP_ETHERNET; 
+	    bytes_read = file_read(&drv_eth_hdr, 1, sizeof drv_eth_hdr, fh);
+	    if (bytes_read != sizeof drv_eth_hdr) {
+		*err = file_error(fh);
+		if (*err != 0)
+		    return -1;
+		if (bytes_read != 0) {
+		    *err = WTAP_ERR_SHORT_READ;
+		    return -1;
+		}
+		return 0;
+	    }
+	    offset += sizeof drv_eth_hdr;
+
+	    length = pntohl(&drv_eth_hdr.length);
+	    if (length <= 0) return 0;
+	    phdr->len = length;
+	    phdr->caplen = length;
+
+	    phdr->ts.tv_sec = pntohl(&drv_eth_hdr.sec);
+	    phdr->ts.tv_usec = pntohl(&drv_eth_hdr.cnsec)/10;
+
 	    break;
 	case NETTL_SUBSYS_SX25L2 :
 	    phdr->pkt_encap = WTAP_ENCAP_LAPB;
