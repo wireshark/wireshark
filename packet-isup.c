@@ -5,7 +5,10 @@
  *		<anders.broman@ericsson.com>
  * Inserted routines for BICC dissection according to Q.765.5 Q.1902 Q.1970 Q.1990,
  * calling SDP dissector for RFC2327 decoding.
- * $Id: packet-isup.c,v 1.41 2003/12/12 19:55:27 guy Exp $
+ * Modified 2004-01-10 by Anders Broman to add abillity to dissect
+ * Content type application/ISUP RFC 3204 used in SIP-T
+ *
+ * $Id: packet-isup.c,v 1.42 2004/01/13 03:35:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5592,6 +5595,39 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	message_tvb = tvb_new_subset(tvb, BICC_CIC_LENGTH, -1, -1);
 	dissect_isup_message(message_tvb, pinfo, bicc_tree);
 }
+
+static void
+dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+/* Set up structures needed to add the protocol subtree and manage it */
+	proto_item *ti;
+	proto_tree *isup_tree = NULL;
+	tvbuff_t *message_tvb;
+	guint8 message_type;
+
+/* Make entries in Protocol column and Info column on summary display */
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "application/ISUP (ITU)");
+
+/* Extract message type field */
+	message_type = tvb_get_guint8(tvb, 0);
+	/* application/ISUP has no  CIC  */
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(message_type, isup_message_type_value_acro, "reserved"));
+
+/* In the interest of speed, if "tree" is NULL, don't do any work not
+   necessary to generate protocol tree items. */
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_isup, tvb, 0, -1, FALSE);
+		isup_tree = proto_item_add_subtree(ti, ett_isup);
+
+
+	}
+
+	message_tvb = tvb_new_subset(tvb, 0, -1, -1);
+	dissect_isup_message(message_tvb, pinfo, isup_tree);
+}
 /*---------------------------------------------------------------------*/
 /* Register the protocol with Ethereal */
 void
@@ -6273,10 +6309,13 @@ void
 proto_reg_handoff_isup(void)
 {
   dissector_handle_t isup_handle;
+  dissector_handle_t application_isup_handle;
  
   isup_handle = create_dissector_handle(dissect_isup, proto_isup);
+  application_isup_handle = create_dissector_handle(dissect_application_isup, proto_isup);
   dissector_add("mtp3.service_indicator", MTP3_ISUP_SERVICE_INDICATOR, isup_handle);
   dissector_add("m3ua.protocol_data_si", MTP3_ISUP_SERVICE_INDICATOR, isup_handle);
+  dissector_add_string("media_type","application/ISUP", application_isup_handle);
 
 }
 
