@@ -52,6 +52,7 @@ static sctp_assoc_info_t* selected_stream = NULL;  /* current selection */
 extern GtkWidget *main_display_filter_widget;
 static sctp_allassocs_info_t *sctp_assocs=NULL;
 static guint16 n_children=0;
+static GtkWidget *bt_afilter = NULL;
 
 #define NUM_COLS 7
 #define FRAME_LIMIT	8
@@ -133,6 +134,13 @@ static void add_to_clist(sctp_assoc_info_t* assinfo)
 static void
 sctp_stat_on_unselect(GtkButton *button _U_, gpointer user_data _U_)
 {
+	if (filter_string != NULL) {
+		g_free(filter_string);
+		filter_string = NULL;
+	}
+	
+	selected_stream = NULL;
+	gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), "");
 	gtk_clist_unselect_all(GTK_CLIST(clist));
 }
 
@@ -203,7 +211,9 @@ sctp_assoc_info_t* assoc;
 static void
 sctp_stat_on_apply_filter (GtkButton *button _U_, gpointer user_data _U_)
 {
-	main_filter_packets(&cfile, filter_string, FALSE);
+	if (filter_string != NULL) {
+		main_filter_packets(&cfile, filter_string, FALSE);
+	}
 }
 
 static void
@@ -217,8 +227,10 @@ GString *gstring=NULL;
 struct sockaddr_in *infosrc=NULL;
 struct sockaddr_in *infodst=NULL;
 
-	if (selected_stream==NULL)
+	if (selected_stream==NULL) {
+		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), "");
 		return;
+	}
 
 	if (selected_stream->n_packets>FRAME_LIMIT)
 	{
@@ -302,6 +314,7 @@ struct sockaddr_in *infodst=NULL;
 			str = g_strdup_printf(")))");
 			g_string_append(gstring, str);
 			filter_string = gstring->str;
+			g_string_free(gstring,FALSE);
 		}
 	}
 	else
@@ -318,8 +331,14 @@ struct sockaddr_in *infodst=NULL;
 			list = g_list_next(list);
 		}
 		filter_string = gstring->str;
+		g_string_free(gstring,FALSE);
 	}
-    gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string);
+	
+	if (filter_string != NULL) {
+		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string);
+	} else {
+		g_assert_not_reached();
+	}
 }
 
 
@@ -409,7 +428,7 @@ GtkWidget *vbox1;
 GtkWidget *scrolledwindow1;
 GtkWidget *hbuttonbox2;
 GtkWidget *bt_unselect;
-GtkWidget *bt_filter, *bt_afilter;
+GtkWidget *bt_filter;
 GtkWidget *bt_close;
 GtkWidget *bt_analyse;
 
