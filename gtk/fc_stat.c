@@ -1,7 +1,7 @@
 /* fc_stat.c
  * fc_stat   2003 Ronnie Sahlberg
  *
- * $Id: fc_stat.c,v 1.23 2004/02/11 04:17:03 guy Exp $
+ * $Id: fc_stat.c,v 1.24 2004/02/11 04:28:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,8 +25,6 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <stdio.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>

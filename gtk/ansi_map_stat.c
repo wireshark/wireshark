@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: ansi_map_stat.c,v 1.15 2004/02/11 04:17:02 guy Exp $
+ * $Id: ansi_map_stat.c,v 1.16 2004/02/11 04:28:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,7 +35,6 @@
 #endif
 
 #include <gtk/gtk.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "epan/packet_info.h"

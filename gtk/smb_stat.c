@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.34 2004/02/11 04:17:05 guy Exp $
+ * $Id: smb_stat.c,v 1.35 2004/02/11 04:28:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,8 +25,6 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <stdio.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>

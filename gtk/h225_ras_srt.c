@@ -2,7 +2,7 @@
  * h225 RAS Service Response Time statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: h225_ras_srt.c,v 1.9 2004/02/11 04:17:03 guy Exp $
+ * $Id: h225_ras_srt.c,v 1.10 2004/02/11 04:28:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,8 +26,6 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <stdio.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>

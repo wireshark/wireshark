@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.61 2004/02/11 04:17:03 guy Exp $
+ * $Id: io_stat.c,v 1.62 2004/02/11 04:28:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,8 +26,6 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <stdio.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>

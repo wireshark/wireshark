@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.161 2004/02/11 04:17:04 guy Exp $
+ * $Id: menu.c,v 1.162 2004/02/11 04:28:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,7 +29,6 @@
 #include <gtk/gtk.h>
 
 #include <string.h>
-#include <stdio.h>
 
 #include "main.h"
 #include "menu.h"

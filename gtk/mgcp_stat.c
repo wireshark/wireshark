@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.26 2004/02/11 04:17:04 guy Exp $
+ * $Id: mgcp_stat.c,v 1.27 2004/02/11 04:28:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,8 +26,6 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <stdio.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
