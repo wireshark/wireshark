@@ -38,6 +38,7 @@
 
 /* in /gtk ... */
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 #include "gtkglobals.h"
 
 #include "dlg_utils.h"
@@ -45,6 +46,8 @@
 #include "main.h"
 #include "compat_macros.h"
 #include "../color.h"
+
+#include <string.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -647,6 +650,63 @@ static gint button_press_event(GtkWidget *widget, GdkEventButton *event _U_)
 }
 
 /****************************************************************************/
+static gint scroll_event(GtkWidget *widget, GdkEventButton *event _U_)
+{
+	graph_analysis_data_t *user_data;
+	
+	user_data=(graph_analysis_data_t *)OBJECT_GET_DATA(widget, "graph_analysis_data_t");
+	
+	/* Up scroll */
+	if (event->state == 0){
+		if (user_data->dlg.first_item == 0) return TRUE;
+		user_data->dlg.first_item--;
+		
+		/* Down scroll */
+	} else {
+		if ((user_data->dlg.first_item+user_data->dlg.v_scrollbar_adjustment->page_size+1 == user_data->num_items)) return TRUE;
+		user_data->dlg.first_item++;
+	}
+	dialog_graph_redraw(user_data);
+	
+	return TRUE;
+}
+
+/****************************************************************************/
+static gint key_press_event(GtkWidget *widget, GdkEventKey *event _U_)
+{
+	graph_analysis_data_t *user_data;
+	
+	user_data=(graph_analysis_data_t *)OBJECT_GET_DATA(widget, "graph_analysis_data_t");
+	
+	/* Up arrow */
+	if (event->keyval == GDK_Up){
+		if (user_data->dlg.selected_item == 0) return TRUE;
+		user_data->dlg.selected_item--;
+		if ( (user_data->dlg.selected_item<user_data->dlg.first_item) || (user_data->dlg.selected_item>user_data->dlg.first_item+user_data->dlg.v_scrollbar_adjustment->page_size) )
+			user_data->dlg.first_item = user_data->dlg.selected_item;
+		/* Down arrow */
+	} else if (event->keyval == GDK_Down){
+		if (user_data->dlg.selected_item == user_data->num_items-1) return TRUE;
+		user_data->dlg.selected_item++;
+		if ( (user_data->dlg.selected_item<user_data->dlg.first_item) || (user_data->dlg.selected_item>user_data->dlg.first_item+user_data->dlg.v_scrollbar_adjustment->page_size) )
+			user_data->dlg.first_item = (guint32)user_data->dlg.selected_item-(guint32)user_data->dlg.v_scrollbar_adjustment->page_size;
+	} else if (event->keyval == GDK_Left){
+		if (user_data->dlg.first_node == 0) return TRUE;
+		user_data->dlg.first_node--;
+	} else if (event->keyval == GDK_Right){
+		if ((user_data->dlg.first_node+user_data->dlg.h_scrollbar_adjustment->page_size+1 == user_data->num_nodes)) return TRUE;
+		user_data->dlg.first_node++;
+	}
+	
+	user_data->dlg.needs_redraw=TRUE;
+	dialog_graph_draw(user_data);
+	
+	cf_goto_frame(&cfile, user_data->dlg.items[user_data->dlg.selected_item-user_data->dlg.first_item].frame_num);
+	
+	return TRUE;
+}
+
+/****************************************************************************/
 static gint expose_event(GtkWidget *widget, GdkEventExpose *event)
 {
 	graph_analysis_data_t *user_data;
@@ -795,6 +855,9 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 
 
         user_data->dlg.draw_area=gtk_drawing_area_new();
+		GTK_WIDGET_SET_FLAGS(user_data->dlg.draw_area, GTK_CAN_FOCUS);
+		gtk_widget_grab_focus(user_data->dlg.draw_area);
+
         SIGNAL_CONNECT(user_data->dlg.draw_area, "destroy", quit, user_data);
         OBJECT_SET_DATA(user_data->dlg.draw_area, "graph_analysis_data_t", user_data);
 
@@ -807,7 +870,9 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 		gtk_widget_add_events (user_data->dlg.draw_area,
 			 GDK_BUTTON_PRESS_MASK);
 		SIGNAL_CONNECT(user_data->dlg.draw_area, "button_press_event", button_press_event, user_data);
-
+		SIGNAL_CONNECT(user_data->dlg.draw_area, "scroll_event",  scroll_event, user_data);
+		SIGNAL_CONNECT(user_data->dlg.draw_area, "key_press_event",  key_press_event, user_data);
+		
         gtk_widget_show(user_data->dlg.draw_area);
         gtk_box_pack_start(GTK_BOX(vbox), user_data->dlg.draw_area, TRUE, TRUE, 0);
 
