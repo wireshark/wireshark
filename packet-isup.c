@@ -2,7 +2,7 @@
  * Routines for ISUP dissection
  * Copyright 2001, Martina Obermeier <martina.obermeier@icn.siemens.de>
  *
- * $Id: packet-isup.c,v 1.16 2003/02/28 23:16:14 guy Exp $
+ * $Id: packet-isup.c,v 1.17 2003/03/12 00:27:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3762,11 +3762,6 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
   /* Extract message type field */
   message_type = tvb_get_guint8(message_tvb,0);
 
-  if (check_col(pinfo->cinfo, COL_INFO)){
-    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(message_type, isup_message_type_value, "reserved"));
-    col_append_str(pinfo->cinfo, COL_INFO, " ");
-  }
-
    proto_tree_add_uint_format(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type, "Message type: %s (%u)", val_to_str(message_type, isup_message_type_value, "reserved"), message_type);
    offset +=  MESSAGE_TYPE_LENGTH;
 
@@ -3978,6 +3973,7 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *isup_tree;
 	tvbuff_t *message_tvb;
 	guint16 cic;
+	guint8 message_type;
 
 /* Make entries in Protocol column and Info column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -3985,6 +3981,14 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_str(pinfo->cinfo, COL_INFO, "ISUP message: ");
+
+/* Extract message type field */
+	message_type = tvb_get_guint8(tvb, CIC_OFFSET + CIC_LENGTH);
+
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_append_str(pinfo->cinfo, COL_INFO, val_to_str(message_type, isup_message_type_value, "reserved"));
+		col_append_str(pinfo->cinfo, COL_INFO, " ");
+	}
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
