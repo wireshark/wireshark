@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.28 2000/04/06 06:52:09 guy Exp $
+ * $Id: menu.c,v 1.29 2000/05/02 03:21:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -97,7 +97,7 @@ static GtkItemFactoryEntry menu_items[] =
   {"/File/Save _As...", NULL, GTK_MENU_FUNC(file_save_as_cmd_cb), 0, NULL},
   {"/File/_Reload", "<control>R", GTK_MENU_FUNC(file_reload_cmd_cb), 0, NULL},
   {"/File/<separator>", NULL, NULL, 0, "<Separator>"},
-  {"/File/Print...", NULL, GTK_MENU_FUNC(file_print_cmd_cb), 0, NULL},
+  {"/File/_Print...", NULL, GTK_MENU_FUNC(file_print_cmd_cb), 0, NULL},
   {"/File/Print Pac_ket", "<control>P", GTK_MENU_FUNC(file_print_packet_cmd_cb), 0, NULL},
   {"/File/<separator>", NULL, NULL, 0, "<Separator>"},
   {"/File/_Quit", "<control>Q", GTK_MENU_FUNC(file_quit_cmd_cb), 0, NULL},
