@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.64 2002/08/24 21:58:57 guy Exp $
+ * $Id: packet-bgp.c,v 1.65 2002/08/27 08:41:43 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -203,9 +203,9 @@ static const value_string bgpattr_nlri_safi[] = {
     { SAFNUM_MULCAST, "Multicast" },
     { SAFNUM_UNIMULC, "Unicast+Multicast" },
     { SAFNUM_MPLS_LABEL, "MPLS Labeled Prefix"},
-    { SAFNUM_LAB_VPNUNICAST, "Labeled Unicast" },        /* draft-rosen-rfc2547bis-03 */
-    { SAFNUM_LAB_VPNMULCAST, "Labeled Multicast" },
-    { SAFNUM_LAB_VPNUNIMULC, "Labeled Unicast+Multicast" },
+    { SAFNUM_LAB_VPNUNICAST, "Labeled VPN Unicast" },        /* draft-rosen-rfc2547bis-03 */
+    { SAFNUM_LAB_VPNMULCAST, "Labeled VPN Multicast" },
+    { SAFNUM_LAB_VPNUNIMULC, "Labeled VPN Unicast+Multicast" },
     { 0, NULL },
 };
 
@@ -333,6 +333,8 @@ decode_prefix6(tvbuff_t *tvb, gint offset, char *buf, int buflen)
     return(1 + length);
 }
 
+
+
 /*
  * Decode an MPLS label stack
  */
@@ -415,7 +417,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
                                         case FORMAT_IP_LOC:
                                                 length = 12;
                                                 tvb_memcpy(tvb, ip4addr, offset + 2, 4);   /* IP part of the RD            */
-                                                tvb_memcpy(tvb, ip4addr2, offset +6, 4);   /* IP address of the VPN-IPv4   */
+                                                tvb_memcpy(tvb, ip4addr2, offset +6, 4);   /* IP address of the VPN        */
                                                 snprintf(buf, buflen, "Empty Label Stack RD=%s:%u IP=%s",
                                                                 ip_to_str(ip4addr),
                                                                 tvb_get_ntohs(tvb, offset + 6),
@@ -423,20 +425,46 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
                                                 break ;
                                         default:
                                                 length = 0 ;
-                                                snprintf(buf, buflen, "Unknown labeled VPN-IPv4 address format");
+                                                snprintf(buf, buflen, "Unknown (0x%04x)labeled VPN address format",rd_type);
                                                 break;
                                 }
                                 break;
                         default:
-                                length = 0 ;
-                                snprintf(buf, buflen, "Unknown SAFI (%u) for AFI %u", safi, afi);
-                                break;
+                            length = 0 ;
+                            snprintf(buf, buflen, "Unknown SAFI (%u) for AFI %u", safi, afi);
+                            break;
                 }
                 break;
         case AFNUM_INET6:
-                length = 16 ;
-                tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8,offset, sizeof(ip6addr));
-                snprintf(buf, buflen, "%s", ip6_to_str(&ip6addr));
+                switch (safi) {
+                        case SAFNUM_UNICAST: /* only decode unlabeled prefixes */
+                        case SAFNUM_MULCAST:
+                        case SAFNUM_UNIMULC:
+                            length = 16 ;
+                            tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8,offset, sizeof(ip6addr));
+                            snprintf(buf, buflen, "%s", ip6_to_str(&ip6addr));
+                            break;
+                        default:
+                            length = 0 ;
+                            snprintf(buf, buflen, "Unknown SAFI (%u) for AFI %u", safi, afi);
+                            break;
+                }
+                break;
+       case AFNUM_L2VPN:
+                switch (safi) {
+                        case SAFNUM_LAB_VPNUNICAST: /* only labeles prefixes do make sense */
+                        case SAFNUM_LAB_VPNMULCAST:
+                        case SAFNUM_LAB_VPNUNIMULC:
+                            length = 4; /* the next-hop is simply an ipv4 addr */
+                            tvb_memcpy(tvb, ip4addr, offset + 0, 4);
+                            snprintf(buf, buflen, "IP=%s",
+                                     ip_to_str(ip4addr));
+                            break;
+                        default:
+                            length = 0 ;
+                            snprintf(buf, buflen, "Unknown SAFI (%u) for AFI %u", safi, afi);
+                            break; 
+                }
                 break;
         default:
                 length = 0 ;
@@ -455,6 +483,7 @@ decode_prefix_MP(guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf
     int                 length;                         /* length of the prefix in byte */
     int                 plen;                           /* length of the prefix in bit  */
     int                 labnum;                         /* number of labels             */
+    int                 ce_id,labblk_off;
     guint8              ip4addr[4],ip4addr2[4];         /* IPv4 address                 */
     guint16             rd_type;                        /* Route Distinguisher type     */
     char                lab_stk[256];                   /* label stack                  */
@@ -551,7 +580,7 @@ decode_prefix_MP(guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf
                                                 break ;
                                         default:
                                                 length = 0 ;
-                                                snprintf(buf,buflen, "Unknown labeled VPN  address format");
+                                                snprintf(buf,buflen, "Unknown labeled VPN address format");
                                                 break;
                                 }
                                 break;
@@ -562,8 +591,62 @@ decode_prefix_MP(guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf
                 }
                 break;
         case AFNUM_INET6:
-                 length = decode_prefix6(tvb, offset, buf, buflen) - 1 ;
-                 break;
+                switch (safi) {
+                        case SAFNUM_UNICAST:
+                        case SAFNUM_MULCAST:
+                        case SAFNUM_UNIMULC:
+                            length = decode_prefix6(tvb, offset, buf, buflen) - 1 ;
+                            break;
+                default:
+                        length = 0 ;
+                        snprintf(buf,buflen, "Unknown SAFI (%u) for AFI %u", safi, afi);
+                        break;
+                }
+                break;
+       case AFNUM_L2VPN:
+                switch (safi) {
+                        case SAFNUM_LAB_VPNUNICAST:
+                        case SAFNUM_LAB_VPNMULCAST:
+                        case SAFNUM_LAB_VPNUNIMULC:
+                                plen =  tvb_get_ntohs(tvb,offset);
+                                rd_type=tvb_get_ntohs(tvb,offset+2);
+                                ce_id=tvb_get_ntohs(tvb,offset+10);
+                                labblk_off=tvb_get_ntohs(tvb,offset+12);
+                                labnum = decode_MPLS_stack(tvb, offset + 14, lab_stk, sizeof(lab_stk));
+ 
+                                switch (rd_type) {
+                                        case FORMAT_AS2_LOC:
+                                                tvb_memcpy(tvb, ip4addr, offset + 6, 4);
+                                                snprintf(buf,buflen, "RD: %u:%s, CE-ID: %u, Label-Block Offset: %u, Label Base %s",
+                                                         tvb_get_ntohs(tvb, offset + 4),
+                                                         ip_to_str(ip4addr),
+                                                         ce_id,
+                                                         labblk_off,
+                                                         lab_stk);
+                                                break ;
+                                        case FORMAT_IP_LOC:
+                                                tvb_memcpy(tvb, ip4addr, offset + 4, 4);
+                                                snprintf(buf,buflen, "RD: %s:%u, CE-ID: %u, Label-Block Offset: %u, Label Base %s",
+                                                         ip_to_str(ip4addr),
+                                                         tvb_get_ntohs(tvb, offset + 8),
+                                                         ce_id,
+                                                         labblk_off,
+                                                         lab_stk);
+                                                break ;
+                                        default:
+                                                length = 0 ;
+                                                snprintf(buf,buflen, "Unknown labeled VPN address format");
+                                                break;
+                                }
+                            /* FIXME there are subTLVs left to decode ... for now lets omit them */
+                            length=plen+1; /* should be 2 but length+1 is returned at the end */
+                            break;
+                default:
+                        length = 0 ;
+                        snprintf(buf, buflen, "Unknown SAFI (%u) for AFI %u", safi, afi);
+                        break;
+                }
+                break;
         default:
                 length = 0 ;
                 snprintf(buf,buflen, "Unknown AFI (%u) value", afi);
@@ -864,8 +947,8 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
     char            *as_path_str = NULL;        /* AS_PATH string           */
     char            *communities_str = NULL;    /* COMMUNITIES string       */
     char            *cluster_list_str = NULL;   /* CLUSTER_LIST string      */
-    char            *ext_com_str = NULL;        /* EXTENDED COMMUNITY list  */
     char            junk_buf[256];              /* tmp                      */
+    int             junk_buf_len;               /* tmp len                  */
     guint8          ipaddr[4];                  /* IPv4 address             */
 
     hlen = tvb_get_ntohs(tvb, offset + BGP_MARKER_SIZE);
@@ -1138,22 +1221,20 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                    (o + current attribute + aoff bytes to first tuple) */
                 q = o + i + aoff;
                 end = q + tlen;
-                ext_com_str = malloc((tlen / 8)*MAX_SIZE_OF_EXT_COM_NAMES);
-                if (ext_com_str == NULL) break;
-                ext_com_str[0] = '\0';
+                junk_buf_len=0;
                 while (q < end) {
                         ext_com = tvb_get_ntohs(tvb, q);
-                        snprintf(junk_buf, sizeof(junk_buf), "%s", val_to_str(ext_com,bgpext_com_type,"Unknown"));
-                        strncat(ext_com_str, junk_buf, sizeof(junk_buf));
+                        junk_buf_len=snprintf(junk_buf+junk_buf_len,sizeof(junk_buf),"%s",
+                                              val_to_str(ext_com,bgpext_com_type,"Unknown"));
                         q = q + 8;
-                        if (q < end) strncat(ext_com_str, ",", 1);
+                        if (q < end) junk_buf_len=snprintf(junk_buf+junk_buf_len, sizeof(junk_buf)-junk_buf_len, ", ");
                 }
+                junk_buf[junk_buf_len]='\0';
                 ti = proto_tree_add_text(subtree,tvb,o+i,tlen+aoff,
                         "%s: %s (%u %s)",
                         val_to_str(bgpa.bgpa_type,bgpattr_type,"Unknown"),
-                        ext_com_str, tlen + aoff,
+                        junk_buf, tlen + aoff,
                         (tlen + aoff == 1) ? "byte" : "bytes");
-                free(ext_com_str);
                 break;
 
 	    default:
@@ -1460,7 +1541,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 		    "Subsequent address family identifier: %s (%u)",
 		    val_to_str(saf, bgpattr_nlri_safi, saf >= 128 ? "Vendor specific" : "Unknown"),
 		    saf);
-                if (af != AFNUM_INET && af != AFNUM_INET6) {
+                if (af != AFNUM_INET && af != AFNUM_INET6 && af != AFNUM_L2VPN) {
                     /*
                      * The addresses don't contain lengths, so if we
                      * don't understand the address family type, we
@@ -1512,7 +1593,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                 }
                 tlen -= off;
 		aoff += off;
-
+                
 		ti = proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
 			"Network layer reachability information (%u %s)",
 			tlen, (tlen == 1) ? "byte" : "bytes");
@@ -1549,10 +1630,10 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                         while (tlen > 0) {
                                 advance = decode_prefix_MP(af, saf, tvb, o + i + aoff , junk_buf, sizeof(junk_buf)) ;
                                 proto_tree_add_text(subtree3, tvb, o + i + aoff, advance, "%s", junk_buf) ;
-                                if (advance==1)  /* catch if this is a unknown AFI type*/
-                                        break;
 		                tlen -= advance;
 		                aoff += advance;
+                                if (advance==1)  /* catch if this is a unknown AFI type*/
+                                        break;
                         }
                 }
                 break;
@@ -1594,63 +1675,64 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                 } else {
                         q = o + i + aoff ;
                         end = o + i + aoff + tlen ;
-                        ext_com_str = malloc(MAX_SIZE_OF_EXT_COM_NAMES+MAX_SIZE_OF_IP_ADDR_STRING*2+1) ;
-                        if (ext_com_str == NULL) break ;
                         ti = proto_tree_add_text(subtree2,tvb,q,tlen, "Carried Extended communities");
                         subtree3 = proto_item_add_subtree(ti,ett_bgp_extended_communities) ;
 
+                        junk_buf_len=0;
                         while (q < end) {
-                            ext_com_str[0] = '\0' ;
                             ext_com = tvb_get_ntohs(tvb,q) ;
-                            snprintf(junk_buf, sizeof(junk_buf), "%s", val_to_str(ext_com,bgpext_com_type,"Unknown"));
-                            strncat(ext_com_str,junk_buf,sizeof(junk_buf));
+                            junk_buf_len=snprintf(junk_buf+junk_buf_len, sizeof(junk_buf), "%s",
+                                                  val_to_str(ext_com,bgpext_com_type,"Unknown"));
                             switch (ext_com) {
                             case BGP_EXT_COM_RT_0:
                             case BGP_EXT_COM_RO_0:
-                                snprintf(junk_buf, sizeof(junk_buf), ": %u%s%d",tvb_get_ntohs(tvb,q+2),":",tvb_get_ntohl(tvb,q+4));
+                                junk_buf_len+=snprintf(junk_buf+junk_buf_len, sizeof(junk_buf)-junk_buf_len, ": %u%s%d",
+                                                       tvb_get_ntohs(tvb,q+2),":",tvb_get_ntohl(tvb,q+4));
                                 break ;
                             case BGP_EXT_COM_RT_1:
                             case BGP_EXT_COM_RO_1:
                                 tvb_memcpy(tvb,ipaddr,q+2,4);
-                                snprintf(junk_buf, sizeof(junk_buf), ": %s%s%u",ip_to_str(ipaddr),":",tvb_get_ntohs(tvb,q+6));
+                                junk_buf_len+=snprintf(junk_buf+junk_buf_len, sizeof(junk_buf)-junk_buf_len, ": %s%s%u",
+                                                       ip_to_str(ipaddr),":",tvb_get_ntohs(tvb,q+6));
                                 break;
                             case BGP_EXT_COM_VPN_ORIGIN:
                             case BGP_EXT_COM_OSPF_RID:
                                 tvb_memcpy(tvb,ipaddr,q+2,4);
-                                snprintf(junk_buf, sizeof(junk_buf), ": %s",ip_to_str(ipaddr));
+                                junk_buf_len+=snprintf(junk_buf+junk_buf_len, sizeof(junk_buf)-junk_buf_len, ": %s",
+                                                       ip_to_str(ipaddr));
                                 break;
                             case BGP_EXT_COM_OSPF_RTYPE: 
                                 tvb_memcpy(tvb,ipaddr,q+2,4);
-                                snprintf(junk_buf, sizeof(junk_buf), ": Area:%s %s",
+                                junk_buf_len+=snprintf(junk_buf+junk_buf_len, sizeof(junk_buf)-junk_buf_len, ": Area:%s %s",
                                          ip_to_str(ipaddr),
                                          val_to_str(tvb_get_guint8(tvb,q+6),bgpext_ospf_rtype,"Unknown"));
 				/* print OSPF Metric type if selected */
 				/* always print E2 even if not external route -- receiving router should ignore */
                                 if ( (tvb_get_guint8(tvb,q+7)) & BGP_OSPF_RTYPE_METRIC_TYPE ) { 
-                                    strcat(junk_buf," E2");
+                                    junk_buf_len+=snprintf(junk_buf+junk_buf_len,sizeof(junk_buf)-junk_buf_len," E2");
                                 } else if (tvb_get_guint8(tvb,q+6)==(BGP_OSPF_RTYPE_EXT ||BGP_OSPF_RTYPE_NSSA ) ) {
-                                    strcat(junk_buf, " E1");
+                                    junk_buf_len+=snprintf(junk_buf+junk_buf_len,sizeof(junk_buf)-junk_buf_len," E1");
                                 }
                                 break;
                             case BGP_EXT_COM_LINKBAND:
                                 tvb_memcpy(tvb,ipaddr,q+2,4); /* need to check on IEEE format on all platforms */
-                                snprintf(junk_buf, sizeof(junk_buf), ": %f bytes per second",(double)*ipaddr);
+                                junk_buf_len+=snprintf(junk_buf+junk_buf_len, sizeof(junk_buf)-junk_buf_len, ": %.3f Mbps",
+                                                       ((double)*ipaddr)*8/1000000);
                                 break;
                             case BGP_EXT_COM_L2INFO:
-                                snprintf(junk_buf, sizeof(junk_buf), ": %s:Control Flags [0x%02x]:MTU %u",
+                                junk_buf_len+=snprintf(junk_buf+junk_buf_len, sizeof(junk_buf)-junk_buf_len, ": %s:Control Flags [0x%02x]:MTU %u",
                                          val_to_str(tvb_get_guint8(tvb,q+2),bgp_l2vpn_encaps,"Unknown"),
                                          tvb_get_guint8(tvb,q+3),
                                          tvb_get_ntohs(tvb,q+4));
                               break;
                             default:
-                                snprintf(junk_buf, sizeof(junk_buf), " ");
+                                junk_buf_len+=snprintf(junk_buf+junk_buf_len, sizeof(junk_buf)-junk_buf_len, " ");
                                 break ;
-			  }
-			  strncat(ext_com_str,junk_buf,sizeof(junk_buf));
-			  proto_tree_add_text(subtree3,tvb,q,8, "%s",ext_com_str);
-			  q = q + 8 ;
+                            }
+                            junk_buf[junk_buf_len]='\0';
+                            proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_buf);
+                            q = q + 8 ;
                         }
-                        free(ext_com_str) ;
                 }
                 break;
 	    default:

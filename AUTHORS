@@ -687,14 +687,9 @@ Hannes Gredler <hannes[AT]juniper.net> {
 	Many IS-IS enhancements
 	Juniper Networks vendor ID in RADIUS dissector
 	HELLO message support in RSVP
-	Labeled unicast support for BGP
-	BGP bug fixes
+	Many BGP enhancements and bug fixes
 	Fix display of OSI system IDs to use a dot rather than a dash
 	    before the PSN byte
-	Fix display of one-byte NETs in ISIS dissector
-	Basic support for AFI & Extd communities in
-	    draft-kompella-ppvpn-l2vpn
-	More robust handling for unknown AFIs in BGP MP(UN)REACH NLRIs
 }
 
 Inoue <inoue[AT]ainet.or.jp> {
