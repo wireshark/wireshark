@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.46 2000/01/15 00:22:33 gram Exp $
+ * $Id: packet-udp.c,v 1.47 2000/02/01 04:13:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -75,6 +75,7 @@ typedef struct _e_udphdr {
 #define UDP_PORT_NBNS	137
 #define UDP_PORT_NBDGM	138
 #define UDP_PORT_SNMP   161
+#define UDP_PORT_SNMP_TRAP 162
 #define UDP_PORT_SRVLOC 427
 #define UDP_PORT_PIM_RP_DISC 496
 #define UDP_PORT_ISAKMP	500
@@ -293,7 +294,7 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	(uh_dport >= UDP_PORT_RX_LOW && uh_dport <= UDP_PORT_RX_HIGH) ||
 	PORT_IS(UDP_PORT_RX_AFS_BACKUPS)) 
       dissect_rx(pd, offset, fd, tree); /* transarc AFS's RX protocol */
-  else if (PORT_IS(UDP_PORT_SNMP))
+  else if (PORT_IS(UDP_PORT_SNMP) || PORT_IS(UDP_PORT_SNMP_TRAP))
       dissect_snmp(pd, offset, fd, tree);
   else if (PORT_IS(UDP_PORT_VINES)) {
       /* FIXME: AFAIK, src and dst port must be the same */
