@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.43 2002/04/30 18:58:14 guy Exp $
+ * $Id: packet-atm.c,v 1.44 2002/04/30 21:52:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -557,10 +557,6 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	val_to_str(pinfo->pseudo_header->atm.type, aal5_hltype_vals,
 	"Unknown AAL5 traffic type (%u)"));
       switch (pinfo->pseudo_header->atm.type) {
-
-      case TRAF_LLCMX:
-        proto_tree_add_text(atm_tree, tvb, 0, 0, "LLC multiplexed traffic");
-        break;
 
       case TRAF_VCMX:
         proto_tree_add_text(atm_tree, tvb, 0, 0, "VC multiplexed traffic type: %s",
