@@ -2,7 +2,7 @@
  * Dissector for GSS-API tokens as described in rfc2078, section 3.1
  * Copyright 2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-gssapi.c,v 1.14 2002/08/31 22:22:29 guy Exp $
+ * $Id: packet-gssapi.c,v 1.15 2002/09/04 21:34:38 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,7 +73,8 @@ gssapi_oid_hash(gconstpointer k)
 }
 
 void
-gssapi_init_oid(char *oid, int proto, int ett, dissector_handle_t handle)
+gssapi_init_oid(char *oid, int proto, int ett, dissector_handle_t handle,
+		gchar *comment)
 {
 	char *key = g_strdup(oid);
 	gssapi_oid_value *value = g_malloc(sizeof(*value));
@@ -81,6 +82,7 @@ gssapi_init_oid(char *oid, int proto, int ett, dissector_handle_t handle)
 	value->proto = proto;
 	value->ett = ett;
 	value->handle = handle;
+	value->comment = comment;
 
 	g_hash_table_insert(gssapi_oids, key, value);
 }
@@ -166,14 +168,13 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (!(cls == ASN1_APL && con == ASN1_CON && tag == 0)) {
 		  /* 
-		   * If we do not recognise an Application class, then
+		   * If we do not recognise an Application class,
 		   * then we are probably dealing with an inner context
 		   * token, and we should retrieve the dissector from
 		   * the conversation that exists or we created from pinfo
 		   *
 		   * Note! We cheat. Since we only need the dissector handle,
-		   * We store that as the conversation data ... after type
-		   * casting. 
+		   * We store that as the conversation data ... 
 		   */
 
 		  if (conversation && 
@@ -214,20 +215,14 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		oid_string = format_oid(oid, oid_len);
 
-		proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s",
-				    oid_string);
-
-		offset += nbytes;
-
-		g_free(oid_string);
-
 		/*
 		 * Hand off to subdissector.
 		 * We can't use "oid_string", as it might contain an
 		 * interpretation of the OID after the raw string, so
 		 * we generate our own string for it.
 		 */
-		oid_string = g_malloc(oid_len * 22 + 1);
+
+		/*oid_string = g_malloc(oid_len * 22 + 1);
 		p = oid_string;
 		len = sprintf(p, "%lu", (unsigned long)oid[0]);
 		p += len;
@@ -235,9 +230,15 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			len = sprintf(p, ".%lu", (unsigned long)oid[i]);
 			p += len;
 		}
-
+		*/
 		if (((value = g_hash_table_lookup(gssapi_oids, oid_string)) == NULL) ||
 		    !proto_is_protocol_enabled(value->proto)) {
+
+		        proto_tree_add_text(subtree, tvb, offset, nbytes, 
+					    "OID: %s",
+					    oid_string);
+
+			offset += nbytes;
 
 			g_free(oid_string);
 
@@ -248,6 +249,16 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			goto done;
 		}
+
+		if (value)
+		  proto_tree_add_text(subtree, tvb, offset, nbytes, 
+				      "OID: %s (%s)",
+				      oid_string, value->comment);
+		else
+		  proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s",
+				      oid_string);
+
+		offset += nbytes;
 
 		g_free(oid_string);
 

@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.25 2002/09/04 06:54:45 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.26 2002/09/04 21:34:38 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -153,6 +153,7 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	 */
 
 	while (len1) {
+	  gssapi_oid_value *value;
 
 	  ret = asn1_oid_decode(hnd, &oid, &len, &nbytes);
 
@@ -163,9 +164,13 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	  }
 
 	  oid_string = format_oid(oid, len);
-
-	  proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s",
-			      oid_string);
+	  value = g_hash_table_lookup(gssapi_oids, oid_string);
+	  if (value)
+	    proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s (%s)",
+				oid_string, value->comment);
+	  else
+	    proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s",
+				oid_string);
 
 	  offset += nbytes;
 	  len1 -= nbytes;
@@ -527,9 +532,6 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	oid_string = format_oid(oid, oid_len);
 
-	proto_tree_add_text(tree, tvb, offset, nbytes, "supportedMech: %s",
-			    oid_string);
-
 	offset += nbytes;
 
 	g_free(oid_string);
@@ -544,6 +546,14 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	}
 
 	value = g_hash_table_lookup(gssapi_oids, oid_string);
+	printf("OID Value : %0X\n", value);
+	if (value)
+	  proto_tree_add_text(tree, tvb, offset, nbytes, 
+			      "supportedMech: %s (%s)",
+			      oid_string, value->comment);
+	else
+	  proto_tree_add_text(tree, tvb, offset, nbytes, "supportedMech: %s",
+			      oid_string);
 
 	/* Should check for an unrecognized OID ... */
 
@@ -913,5 +923,5 @@ proto_reg_handoff_spnego(void)
 
 	spnego_handle = create_dissector_handle(dissect_spnego, proto_spnego);
 	gssapi_init_oid("1.3.6.1.5.5.2", proto_spnego, ett_spnego,
-	    spnego_handle);
+	    spnego_handle, "SPNEGO (Simple Protected Negotiation)");
 }
