@@ -9,8 +9,14 @@ Installation Checklist
 
          http://www.gtk.org .
 
-         Ethereal should work with the latest stable (1.0.x) version, as
-         well as the development (1.1.x) versions.
+         Ethereal should work with the latest 1.0.x version, as well as
+         the latest 1.2.x version.
+
+         If you installed GTK+ from a binary package, you may have to
+         install a "development" package; there may be separate "user's"
+         and "developer's" packages, with the former not including
+         header files and the like.  For example, Red Hat users will
+         need to install a "gtk-devel" .rpm.
 
   [ ] 2. Make sure you have libpcap installed.  The latest version can be
          found at
