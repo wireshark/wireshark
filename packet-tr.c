@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.3 1998/09/17 03:29:27 gram Exp $
+ * $Id: packet-tr.c,v 1.4 1998/09/17 22:28:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -74,19 +74,29 @@ sr_frame(u_char val) {
 	else return rc_frame[val];
 }
 
+
 void
 dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
 
 	GtkWidget	*fh_tree, *ti;
 	int			offset = 14;
+
 	int			source_routed = 0;
-	int			rif_bytes = 0;
-	int			true_rif_bytes = 0;	/* because of silly_linux */
-	guint8		nonsr_hwaddr[8];
-	int			frame_type = (pd[1] & 192) >> 6; /* I use this value a lot */
-	#ifdef linux
-	int			silly_linux = 0;
-	#endif
+	int			frame_type;
+	guint8			trn_rif_bytes;
+	guint8			actual_rif_bytes;
+
+	/* The trn_hdr struct, as separate variables */
+	guint8			trn_ac;		/* access control field */
+	guint8			trn_fc;		/* field control field */
+	guint8			trn_dhost[6];	/* destination host */
+	guint8			trn_shost[6];	/* source host */
+	guint16			trn_rcf;	/* routing control field */
+	guint16			trn_rseg[8];	/* routing registers */
+
+	/* non-source-routed version of source addr */
+	guint8			trn_shost_nonsr[6];
+
 
 	/* Token-Ring Strings */
 	char *fc[] = { "MAC", "LLC", "Reserved" };
@@ -98,74 +108,110 @@ dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
 	char *rc_direction[] = { "From originating station",
 		"To originating station" };
 
+	/* get the data */
+	memcpy(&trn_ac, &pd[0], sizeof(guint8));
+	memcpy(&trn_fc, &pd[1], sizeof(guint8));
+	memcpy(trn_dhost, &pd[2], 6 * sizeof(guint8));
+	memcpy(trn_shost, &pd[8], 6 * sizeof(guint8));
+	memcpy(&trn_rcf, &pd[14], sizeof(guint16));
+	memcpy(trn_rseg, &pd[16], 8 * sizeof(guint16));
+
+	memcpy(trn_shost_nonsr, &pd[8], 6 * sizeof(guint8));
+	trn_shost_nonsr[0] &= 127;
+	frame_type = (trn_fc & 192) >> 6;
+
 	/* if the high bit on the first byte of src hwaddr is 1, then
 		this packet is source-routed */
-	source_routed = pd[8] & 128;
+	source_routed = trn_shost[0] & 128;
+
+	trn_rif_bytes = pd[14] & 31;
 
 	/* sometimes we have a RCF but no RIF... half source-routed? */
 	/* I'll check for 2 bytes of RIF and the 0x70 byte */
 	if (!source_routed) {
-		if ((pd[14] & 31) == 2) {
+		if (trn_rif_bytes == 2) {
 			source_routed = 1;
 		}
+		/* the Linux 2.0 TR code strips source-route bits in
+		 * order to test for SR. This can be removed from most
+		 * packets with oltr, but not all. So, I try to figure out
+		 * which packets should have been SR here. I'll check to
+		 * see if there's a SNAP or IPX field right after
+		 * my RIF fields.
+		 */
+		else if ( (
+			pd[0x0e + trn_rif_bytes] == 0xaa &&
+			pd[0x0f + trn_rif_bytes] == 0xaa &&
+			pd[0x10 + trn_rif_bytes] == 0x03) ||
+			  (
+			pd[0x0e + trn_rif_bytes] == 0xe0 &&
+			pd[0x0f + trn_rif_bytes] == 0xe0) ) {
+
+			source_routed = 1;
+		}
+/*		else {
+			printf("0e+%d = %02X   0f+%d = %02X\n", trn_rif_bytes, pd[0x0e + trn_rif_bytes],
+					trn_rif_bytes, pd[0x0f + trn_rif_bytes]);
+		} */
+
 	}
 
 	if (source_routed) {
-		rif_bytes = pd[14] & 31;
-		true_rif_bytes = rif_bytes;
+		actual_rif_bytes = trn_rif_bytes;
 	}
+	else {
+		trn_rif_bytes = 0;
+		actual_rif_bytes = 0;
+	}
+
 	/* this is a silly hack for Linux 2.0.x. Read the comment below,
-	in front of the other #ifdef linux */
-	#ifdef linux
-	if ((source_routed && rif_bytes == 2 && frame_type == 1) ||
+	in front of the other #ifdef linux. If we're sniffing our own NIC,
+	 we get a full RIF, sometimes with garbage */
+	if ((source_routed && trn_rif_bytes == 2 && frame_type == 1) ||
 		(!source_routed && frame_type == 1)) {
 		/* look for SNAP or IPX only */
 		if ( (pd[0x20] == 0xaa && pd[0x21] == 0xaa && pd[0x22] == 03) ||
 			 (pd[0x20] == 0xe0 && pd[0x21] == 0xe0) ) {
-			silly_linux = 1;
-			rif_bytes = 18;
+			actual_rif_bytes = 18;
 		}
 	}
-	#endif
-	offset += rif_bytes;
+	offset += actual_rif_bytes;
 
-	/* Make a copy of the src hwaddr, w/o source routing. I'll do this
-		for all packets, even non-sr packets */
-	memcpy(nonsr_hwaddr, &pd[8], 6);
-	nonsr_hwaddr[0] &= 127;
 
+	/* information window */
 	if (fd->win_info[0]) {
 		strcpy(fd->win_info[2], ether_to_str((guint8 *)&pd[2]));
-		strcpy(fd->win_info[1], ether_to_str(nonsr_hwaddr));
+		strcpy(fd->win_info[1], ether_to_str(trn_shost_nonsr));
 		strcpy(fd->win_info[3], "TR");
 		sprintf(fd->win_info[4], "Token-Ring %s", fc[frame_type]);
 	}
 
+	/* protocol analysis tree */
 	if (tree) {
-		ti = add_item_to_tree(GTK_WIDGET(tree), 0, 14 + rif_bytes,
+		ti = add_item_to_tree(GTK_WIDGET(tree), 0, 14 + actual_rif_bytes,
 		  "Token-Ring (%d on wire, %d captured)", fd->pkt_len, fd->cap_len);
 		fh_tree = gtk_tree_new();
 		add_subtree(ti, fh_tree, ETT_TOKEN_RING);
 		add_item_to_tree(fh_tree, 0, 1,
 			"Access Control: %s, Priority=%d, Monitor Count=%d, "
 			"Priority Reservation=%d",
-			((pd[0] & 16) >> 4) ? "Frame" : "Token",	/* frame/token */
-			((pd[0] & 224) >> 5),						/* priority */
-			((pd[0] & 8) >> 3),							/* monitor count */
-			((pd[0] & 7)));								/* priority reserv. */
+			((trn_ac & 16) >> 4) ? "Frame" : "Token",	/* frame/token */
+			((trn_ac & 224) >> 5),				/* priority */
+			((trn_ac & 8) >> 3),				/* monitor count */
+			((trn_ac & 7)));				/* priority reserv. */
 
 		add_item_to_tree(fh_tree, 1, 1,
 			"Frame Control: %s, Physical Control=%d (%s)",
-			fc[frame_type], (pd[1] & 15),
-			fc_pcf[(pd[1] & 15)]);
+			fc[frame_type], (trn_fc & 15),
+			fc_pcf[(trn_fc & 15)]);
 
 		add_item_to_tree(fh_tree, 2, 6, "Destination: %s",
-			ether_to_str((guint8 *) &pd[2]));
+			ether_to_str((guint8 *) trn_dhost));
 		add_item_to_tree(fh_tree, 8, 6, "Source: %s",
-			ether_to_str((guint8 *) &pd[8]));
+			ether_to_str((guint8 *) trn_shost));
 
 		if (source_routed) {
-			add_item_to_tree(fh_tree, 14, 1, "RIF length: %d bytes", true_rif_bytes);
+			add_item_to_tree(fh_tree, 14, 1, "RIF length: %d bytes", trn_rif_bytes);
 
 			add_item_to_tree(fh_tree, 15, 1,
 				"%s, up to %d bytes in frame (LF=%d)",
@@ -180,8 +226,8 @@ dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
 
 			/* if we have more than 2 bytes of RIF, then we have
 				ring/bridge pairs */
-			if (true_rif_bytes > 2) {
-				add_ring_bridge_pairs(rif_bytes, pd, fh_tree);
+			if (trn_rif_bytes > 2) {
+				add_ring_bridge_pairs(trn_rif_bytes, pd, fh_tree);
 			}
 		}
 
@@ -194,9 +240,15 @@ dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
 		to know the src hwaddr of the machine from which you were running
 		tcpdump. W/o that, however, I'm guessing that DSAP == SSAP if the
 		frame type is LLC.  It's very much a hack. -- Gilbert Ramirez */
-		#ifdef linux
-		if (source_routed && (true_rif_bytes == 2) && silly_linux) {
-			add_item_to_tree(fh_tree, 14 + true_rif_bytes, 18 - true_rif_bytes,
+		if (actual_rif_bytes > trn_rif_bytes) {
+			printf("trn_rif %d    actual_rif %d\n", trn_rif_bytes, actual_rif_bytes);
+			add_item_to_tree(fh_tree, 14 + trn_rif_bytes, actual_rif_bytes - trn_rif_bytes,
+				"Empty RIF from Linux 2.0.x driver. The sniffing NIC "
+				"is also running a protocol stack.");
+		}
+		/*
+		if (source_routed && (trn_rif_bytes == 2) && silly_linux) {
+			add_item_to_tree(fh_tree, 14 + trn_rif_bytes, 18 - actual_rif_bytes,
 				"Empty RIF from Linux 2.0.x driver. The sniffing NIC "
 				"is also running a protocol stack.");
 		}
@@ -204,15 +256,13 @@ dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
 			add_item_to_tree(fh_tree, 14, 18,
 				"Empty RIF from Linux 2.0.x driver. The sniffing NIC "
 				"is also running a protocol stack.");
-		}
-		#endif
+		}*/
 	}
 
 	/* The package is either MAC or LLC */
 	switch (frame_type) {
 		/* MAC */
 		case 0:
-			/* dissect_trmac(pd, offset, fd, tree) */
 			dissect_trmac(pd, offset, fd, tree);
 			break;
 		case 1:
