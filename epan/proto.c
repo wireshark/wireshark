@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.20 2001/04/05 19:25:16 guy Exp $
+ * $Id: proto.c,v 1.21 2001/04/10 19:10:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1462,9 +1462,6 @@ proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint
 	return pi;
 }
 
-/* The default name for a NullTVB. This removed when all dissectors use tvbuffs */
-static gchar* null_tvb_ds_name = "Frame";
-
 static field_info *
 alloc_field_info(int hfindex, tvbuff_t *tvb, gint start, gint length)
 {
@@ -1492,7 +1489,7 @@ alloc_field_info(int hfindex, tvbuff_t *tvb, gint start, gint length)
 	if ( tvb)
 		fi->ds_name = tvb_get_name(tvb);
 	else
-		fi->ds_name = null_tvb_ds_name;
+		fi->ds_name = tvb_get_name(pi.compat_top_tvb);
 
 	return fi;
 }

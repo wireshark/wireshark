@@ -2,7 +2,7 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.8 2001/03/30 10:51:50 guy Exp $
+ * $Id: packet-wcp.c,v 1.9 2001/04/10 19:10:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -309,6 +309,8 @@ void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	int		wcp_header_len;
 	guint16		temp, cmd, ext_cmd, seq;
 	tvbuff_t	*next_tvb;
+	packet_info	save_pi;
+	gboolean	must_restore_pi = FALSE;
 
 	pinfo->current_proto = "WCP";
 
@@ -394,6 +396,14 @@ void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                              		"[Malformed Frame: Bad WCP compressed data]" );
 			return;
 		}
+
+		/* Save the current value of "pi", and adjust certain fields to
+		   reflect the new tvbuff. */
+		save_pi = pi;
+		pi.compat_top_tvb = next_tvb;
+		pi.len = tvb_reported_length(next_tvb);
+		pi.captured_len = tvb_length(next_tvb);
+		must_restore_pi = TRUE;
 	}
 
 	if ( tree)	 		/* add the check byte */
@@ -402,6 +412,9 @@ void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		 	tvb_get_guint8( tvb, tvb_reported_length(tvb)-1));
 
 	dissect_fr_uncompressed(next_tvb, pinfo, tree);
+
+	if (must_restore_pi)
+		pi = save_pi;
 
 	return;
 }

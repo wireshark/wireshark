@@ -2,7 +2,7 @@
  * Routines for GTP dissection
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *
- * $Id: packet-gtp.c,v 1.2 2001/04/04 03:29:49 gram Exp $
+ * $Id: packet-gtp.c,v 1.3 2001/04/10 19:10:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -1592,6 +1592,7 @@ decode_gtp_proto_conf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 	guint8		*target;
 	proto_tree	*ext_tree;
 	proto_item	*te;
+	packet_info	save_pi;
 
 	te = proto_tree_add_text(tree, tvb, offset, 1, val_to_str(GTP_EXT_PROTO_CONF, gtp_ext_val, "Unknown message"));
 	ext_tree = proto_item_add_subtree(te, ett_gtp_ext);
@@ -1626,7 +1627,18 @@ decode_gtp_proto_conf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 			tvb_set_free_cb(temp, free_tvb_data);
 			tvb_set_child_real_data_tvbuff(tvb, temp);
 			next_tvb = tvb_new_subset(temp, offset+5+raw_offset, proto_len+2, proto_len+2);
+
+			/* Save the current value of "pi", and adjust
+			   certain fields to reflect the new top-level
+			   tvbuff. */
+			save_pi = pi;
+			pi.compat_top_tvb = temp;
+			pi.len = tvb_reported_length(temp);
+			pi.captured_len = tvb_length(temp);
+
 			call_dissector(ppp_handle, next_tvb, pinfo, ext_tree); 
+
+			pi = save_pi;
 		}
 	}
 	
