@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.34 2002/04/16 03:00:54 gerald Exp $
+$Id: README.win32,v 1.35 2002/05/19 17:12:25 gerald Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -249,6 +249,28 @@ Python for Win32 is available from
 
 Instructions for Cygwin
 -----------------------
-No one has ever compiled Ethereal entirely with Cygwin.  It should not
-be difficult, however.  This spot is reserved for your instructions on
-how to compile Ethereal with Cygwin.
+
+It is possible to build Ethereal under Cygwin using their version
+of XFree86.  Ronnie Sahlberg has this to say in 
+http://www.ethereal.com/lists/ethereal-dev/200205/msg00107.html:
+
+To get it running there are some small steps :
+1, Install XFree for Cygwin and make sure it runs properly
+(www.cygwin.com)
+2, Follow the GNOME link on www.cygwin.com and download, compile and install
+both gtk 1.2.10 and glib 1.2.10 . Note on the page that there is a one line
+fix required for
+gtk to compile.
+3, Download ethereal nightly snapshot and configure it with
+ ./autogen.sh --without-pcap --without-plugins
+(is it --without-plugin or --without-plugins ? dont remember)
+4, Run 'make ethereal.exe'
+
+Something is wrong with the makefile that gets generated so it doesnt work
+just running make.
+I am not curious enough to look at why 'make' doesnt work. 'make
+ethereal.exe' works well
+enough for me.
+
+4, start X and ethereal, voila behold the mighty sniffer in all its glory.
+
