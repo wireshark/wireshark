@@ -8,6 +8,7 @@
 .*.swp
 .deps
 .libs
+FAQTMP*
 Makefile
 Makefile.in
 aclocal.m4

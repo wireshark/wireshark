@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.31 2003/01/29 12:58:48 jmayer Exp $
+ * $Id: help_dlg.c,v 1.32 2003/03/02 17:42:37 jmayer Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -369,9 +369,11 @@ static char *dfilter_help =
 "The following per-protocol fields can be used in display\n"
 "filters:\n";
 
-static char *faq_help =
+// static char *faq_help =
+// #include "../FAQ.include"
+// "\n";
+/* FAQ_PARTS, FAQ_SIZE, faq_part[0] ... faq_part[FAQ_PARTS-1] */
 #include "../FAQ.include"
-"\n";
 
 static char *cfilter_help =
 "Packet capturing is performed with the pcap library. The capture filter "
@@ -406,6 +408,7 @@ static void set_help_text(GtkWidget *w, help_type_t type)
 #define BUFF_LEN 4096
 #define B_LEN    256
   char buffer[BUFF_LEN];
+  char faq_help[FAQ_SIZE];
   header_field_info *hfinfo;
   int i, len, maxlen = 0, maxlen2 = 0;
 #if GTK_MAJOR_VERSION < 2
@@ -545,6 +548,10 @@ static void set_help_text(GtkWidget *w, help_type_t type)
 #endif
     break;
   case FAQ_HELP :
+    for (i=0; i<FAQ_PARTS; i++) {
+	/* this is O(n^2) but with very small n */
+	strcat(faq_help, faq_part[i]);
+    }
     insert_text(w, faq_help, -1);
     break;
   case CFILTER_HELP :

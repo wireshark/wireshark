@@ -1,14 +1,16 @@
 #!/bin/sh
 #
-# $Id: make-faq,v 1.3 2003/02/18 11:24:19 jmayer Exp $
+# $Id: make-faq,v 1.4 2003/03/02 17:42:28 jmayer Exp $
 #
 # Make-faq - Creates a plain text version of the Ethereal FAQ
 #	from http://www.ethereal.com/faq
 
-FAQ=FAQ
+# Split the FAQ every LINECOUNT lines so the strings don't become too long
+# for # some compilers.
+LINECOUNT=400
 
-rm -f $FAQ
-cat >$FAQ <<EOF
+rm -f FAQ
+cat >FAQ <<EOF
 
    The Ethereal FAQ
 
@@ -24,6 +26,22 @@ EOF
 lynx -dump -nolist "http://www.ethereal.com/faq" | sed -e '1,/INDEX/d' >>FAQ
 
 # Create an #include'able version for gtk/help_dlg.c
-sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/^/"/' -e 's/$/\\n"/' <FAQ >FAQ.include
+rm -f FAQ.include FAQTMP*
+split -l $LINECOUNT FAQ FAQTMP
+NUM=0
+echo "const char *faq_part[] = {" >>FAQ.include
+for i in FAQTMP*; do
+   if [ $NUM -ne 0 ]; then
+      echo "," >>FAQ.include
+      echo >>FAQ.include
+   fi
+   sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/^/"/' -e 's/$/\\n"/' <$i >>FAQ.include
+   NUM=`expr $NUM + 1`
+done
+echo "};" >>FAQ.include
+echo "#define FAQ_PARTS $NUM" >>FAQ.include
+SIZE=`wc -c FAQ | tr -d ' A-Za-z'`
+echo "#define FAQ_SIZE $SIZE" >>FAQ.include
+rm -f FAQTMP*
 
 exit 0
