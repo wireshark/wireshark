@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.16 2000/11/15 07:07:44 guy Exp $
+ * $Id: packet-sdp.c,v 1.17 2000/11/19 21:01:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -118,6 +118,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    next_offset - offset,
 			    "Invalid line: %s",
 			    tvb_format_text(tvb, offset, next_offset - offset));
+                        offset = next_offset;
 			continue;
 		}
 		value = line + 2;

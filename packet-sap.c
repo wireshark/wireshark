@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.15 2000/11/19 08:54:05 guy Exp $
+ * $Id: packet-sap.c,v 1.16 2000/11/19 21:01:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -137,6 +137,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         guint16 tmp1;
         guint8 *addr;
         guint8 auth_flags;
+        tvbuff_t *next_tvb;
 
         proto_item *si, *sif;
         proto_tree *sap_tree, *sap_flags_tree;
@@ -239,7 +240,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           }
 
           /* Do we have the optional payload type aka. MIME content specifier */
-          if (!tvb_strneql(tvb, offset, "v=", strlen("v="))) {
+          if (tvb_strneql(tvb, offset, "v=", strlen("v="))) {
                   gint remaining_len;
                   guint32 pt_len;
                   int pt_string_len;
@@ -276,10 +277,11 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                       tvb_get_ptr(tvb, offset, pt_string_len));
                   offset += pt_len;
           }
-          
-          /* Done with SAP */
-          call_dissector(sdp_handle, tvb, pinfo, tree);
 	}
+
+        /* Done with SAP */
+        next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        call_dissector(sdp_handle, next_tvb, pinfo, tree);
 
         return;
 }
