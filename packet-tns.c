@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.32 2002/06/06 13:17:49 nneul Exp $
+ * $Id: packet-tns.c,v 1.33 2002/07/08 22:57:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,7 +41,13 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include "packet-tcp.h"
 #include "packet-tns.h"
+
+#include "prefs.h"
+
+/* desegmentation of TNS over TCP */
+static gboolean tns_desegment = TRUE;
 
 static int proto_tns = -1;
 static int hf_tns_request = -1;
@@ -196,6 +202,10 @@ static const value_string tns_control_cmds[] = {
 	{1, "Oracle Trace Command"},
 	{0, NULL}
 };
+
+void proto_reg_handoff_tns(void);
+static guint get_tns_pdu_len(tvbuff_t *tvb, int offset);
+static void dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void dissect_tns_service_options(tvbuff_t *tvb, int offset,
 	proto_tree *sopt_tree)
@@ -838,10 +848,24 @@ static void dissect_tns_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return;
 }
 
-
+static guint
+get_tns_pdu_len(tvbuff_t *tvb, int offset)
+{
+        /*
+         * Get the length of the TNS message, including header
+         */
+        return tvb_get_ntohs(tvb, offset);
+}
 
 static void
 dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	tcp_dissect_pdus(tvb, pinfo, tree, tns_desegment, 2,
+	    get_tns_pdu_len, dissect_tns_pdu);
+}
+
+static void
+dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree      *tns_tree = NULL, *ti;
 	int offset = 0;
@@ -1276,10 +1300,18 @@ void proto_register_tns(void)
 		&ett_tns_conn_flag,
 		&ett_sql
 	};
+	module_t *tns_module;
+
 	proto_tns = proto_register_protocol(
 		"Transparent Network Substrate Protocol", "TNS", "tns");
 	proto_register_field_array(proto_tns, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	tns_module = prefs_register_protocol(proto_tns, NULL);
+	prefs_register_bool_preference(tns_module, "desegment_tns_messages",
+	  "Desegment all TNS messages spanning multiple TCP segments",
+	  "Whether the TNS dissector should desegment all messages spanning multiple TCP segments",
+	  &tns_desegment);
 }
 
 void
