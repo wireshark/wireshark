@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.92 2001/05/23 03:33:59 gerald Exp $
+ * $Id: packet-udp.c,v 1.93 2001/06/08 08:43:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,7 +42,7 @@
 #include <string.h>
 
 #include <glib.h>
-#include "globals.h"
+#include "packet.h"
 #include "resolv.h"
 #include "ipproto.h"
 #include "in_cksum.h"
