@@ -176,7 +176,7 @@ bpf_image(struct bpf_instruction *p, int n)
 
 	case BPF_JMP|BPF_JEQ|BPF_K:
 		op = "jeq";
-		fmt = "#0x%x";
+		fmt = "#0x%08x";
 		break;
 
 	case BPF_JMP|BPF_JSET|BPF_K:
@@ -266,7 +266,7 @@ bpf_image(struct bpf_instruction *p, int n)
 
 	case BPF_ALU|BPF_AND|BPF_K:
 		op = "and";
-		fmt = "#0x%x";
+		fmt = "#0x%08x";
 		break;
 
 	case BPF_ALU|BPF_OR|BPF_K:
