@@ -1,7 +1,7 @@
 /* compat_macros.h
  * GTK-related Global defines, etc.
  *
- * $Id: compat_macros.h,v 1.17 2004/06/01 17:33:35 ulfl Exp $
+ * $Id: compat_macros.h,v 1.18 2004/06/05 10:13:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,7 +71,6 @@ gtk_signal_connect_object(GTK_OBJECT(widget), name, GTK_SIGNAL_FUNC(callback), \
  * @param object the object which emits the signal
  * @param func the function pointer to search for
  * @param data 	the user data to search for
- * @todo function only rarely used, think about removing it
  */
 #define SIGNAL_DISCONNECT_BY_FUNC(object, func, data) \
 gtk_signal_disconnect_by_func(GTK_OBJECT(object), func, data)
@@ -86,20 +85,6 @@ gtk_signal_disconnect_by_func(GTK_OBJECT(object), func, data)
  */
 #define OBJECT_SET_DATA(widget, key, data) \
 gtk_object_set_data(GTK_OBJECT(widget), key, (gpointer)data)
-
-/** Like OBJECT_SET_DATA() except it adds notification for when the 
- *  association is destroyed, either by gtk_object_remove_data() or when the 
- *  object is destroyed.
- *
- * @param widget object containing the associations
- * @param key name of the key
- * @param data data to associate with that key
- * @param destroy function to call when the association is destroyed
- * @todo function only rarely used, think about removing it
- */
-#define OBJECT_SET_DATA_FULL(widget, key, data, destroy) \
-gtk_object_set_data_full(GTK_OBJECT(widget), key, (gpointer)(data), \
-                         (GtkDestroyNotify)(destroy))
 
 /** Get a named field from the object's table of associations (the object_data).
  *
@@ -281,10 +266,6 @@ g_signal_handlers_disconnect_by_func(G_OBJECT(object), func, data)
 
 #define OBJECT_SET_DATA(widget, key, data) \
 g_object_set_data(G_OBJECT(widget), key, (gpointer)data)
-
-#define OBJECT_SET_DATA_FULL(widget, key, data, destroy) \
-g_object_set_data_full(G_OBJECT(widget), key, (gpointer)(data), \
-                       (GDestroyNotify)(destroy))
 
 #define OBJECT_GET_DATA(widget, key) \
 g_object_get_data(G_OBJECT(widget), key)
