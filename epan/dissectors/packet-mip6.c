@@ -537,6 +537,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             return;
         }
         len -= (offset - start_offset);
+        tvb_ensure_bytes_exist(tvb, offset, len);
         dissect_mip6_options(tvb, mip6_tree, offset, len, pinfo);
     }
 }
