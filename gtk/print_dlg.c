@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.46 2003/11/29 06:09:54 sharpe Exp $
+ * $Id: print_dlg.c,v 1.47 2003/11/30 04:21:55 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,9 @@
  * Only need this for construct_args
  */
 #include "filter_prefs.h"
+/*
+ * file_dlg.h must come after filter_prefs.h
+ */
 #include "file_dlg.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
@@ -59,12 +62,8 @@
   for this (and also use various UNIX printing APIs, when present?).
 */
 
-void print_file_cb(GtkWidget *file_bt, construct_args_t *args);
 static void print_cmd_toggle_dest(GtkWidget *widget, gpointer data);
 static void print_cmd_toggle_detail(GtkWidget *widget, gpointer data);
-static void print_fs_ok_cb(GtkWidget *w, gpointer data);
-static void print_fs_cancel_cb(GtkWidget *w, gpointer data);
-static void print_fs_destroy_cb(GtkWidget *win, GtkWidget* file_te);
 static void print_ok_cb(GtkWidget *ok_bt, gpointer parent_w);
 static void print_close_cb(GtkWidget *close_bt, gpointer parent_w);
 static void print_destroy_cb(GtkWidget *win, gpointer user_data);
@@ -96,10 +95,6 @@ static gchar * print_cmd;
 #define PRINT_AS_DISPLAYED_RB_KEY "printer_as_displayed_radio_button"
 #define PRINT_EXPAND_ALL_RB_KEY   "printer_expand_all_radio_button"
 #define PRINT_PRINT_ONLY_MARKED_RB_KEY "printer_print_only_marked_radio_button"
-
-#define E_FS_CALLER_PTR_KEY       "fs_caller_ptr"
-#define E_FILE_SEL_DIALOG_PTR_KEY "file_sel_dialog_ptr"
-
 
 /*
  * Keep a static pointer to the current "Print" window, if any, so that if
@@ -297,7 +292,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 #endif
 
   SIGNAL_CONNECT(dest_cb, "toggled", print_cmd_toggle_dest, NULL);
-  SIGNAL_CONNECT(file_bt, "clicked", print_file_cb, &file_dlg_args);
+  SIGNAL_CONNECT(file_bt, "clicked", select_file_cb, &file_dlg_args);
 
 
 /*****************************************************/
@@ -600,110 +595,6 @@ print_cmd_toggle_detail(GtkWidget *widget, gpointer data _U_)
   gtk_widget_set_sensitive(as_displayed_rb, print_detail);
   gtk_widget_set_sensitive(expand_all_rb, print_detail);
   gtk_widget_set_sensitive(hex_cb, print_detail);
-}
-
-void
-print_file_cb(GtkWidget *file_bt, construct_args_t *args _U_)
-{
-  GtkWidget *caller = gtk_widget_get_toplevel(file_bt);
-  GtkWidget *fs, *file_te;
-
-  /* Has a file selection dialog box already been opened for that top-level
-     widget? */
-  fs = OBJECT_GET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY);
-  file_te = OBJECT_GET_DATA(file_bt, E_FILE_TE_PTR_KEY);
-  if (fs != NULL) {
-    /* Yes.  Just re-activate that dialog box. */
-    reactivate_window(fs);
-    return;
-  }
-
-  fs = file_selection_new ("Ethereal: Print to File");
-
-  /* If we've opened a file, start out by showing the files in the directory
-     in which that file resided. */
-  if (last_open_dir)
-    gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
-
-  OBJECT_SET_DATA(fs, PRINT_FILE_TE_KEY, file_te);
-
-  /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
-  OBJECT_SET_DATA(fs, E_FS_CALLER_PTR_KEY, caller);
-
-  /* Set the E_FILE_SEL_DIALOG_PTR_KEY for the caller to point to us */
-  OBJECT_SET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY, fs);
-
-  /* Call a handler when the file selection box is destroyed, so we can inform
-     our caller, if any, that it's been destroyed. */
-  SIGNAL_CONNECT(fs, "destroy", GTK_SIGNAL_FUNC(print_fs_destroy_cb), file_te);
-
-  SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->ok_button, "clicked", print_fs_ok_cb,
-                 fs);
-
-  /* Connect the cancel_button to destroy the widget */
-  SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->cancel_button, "clicked",
-                 print_fs_cancel_cb, fs);
-
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Cancel" button had
-     been selected. */
-  dlg_set_cancel(fs, GTK_FILE_SELECTION(fs)->cancel_button);
-
-  gtk_widget_show(fs);
-}
-
-static void
-print_fs_ok_cb(GtkWidget *w _U_, gpointer data)
-{
-  gchar     *f_name;
-
-  f_name = g_strdup(gtk_file_selection_get_filename(
-    GTK_FILE_SELECTION (data)));
-
-  /* Perhaps the user specified a directory instead of a file.
-     Check whether they did. */
-  if (test_for_directory(f_name) == EISDIR) {
-        /* It's a directory - set the file selection box to display it. */
-        set_last_open_dir(f_name);
-        g_free(f_name);
-        gtk_file_selection_set_filename(GTK_FILE_SELECTION(data),
-          last_open_dir);
-        return;
-  }
-
-  gtk_entry_set_text(GTK_ENTRY(OBJECT_GET_DATA(data, PRINT_FILE_TE_KEY)),
-                     f_name);
-  gtk_widget_destroy(GTK_WIDGET(data));
-
-  g_free(f_name);
-}
-
-static void
-print_fs_cancel_cb(GtkWidget *w _U_, gpointer data)
-{
-  gtk_widget_destroy(GTK_WIDGET(data));
-}
-
-static void
-print_fs_destroy_cb(GtkWidget *win, GtkWidget* file_te)
-{
-  GtkWidget *caller;
-
-  /* Get the widget that requested that we be popped up.
-     (It should arrange to destroy us if it's destroyed, so
-     that we don't get a pointer to a non-existent window here.) */
-  caller = OBJECT_GET_DATA(win, E_FS_CALLER_PTR_KEY);
-
-  /* Tell it we no longer exist. */
-  OBJECT_SET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY, NULL);
-
-  /* Now nuke this window. */
-  gtk_grab_remove(GTK_WIDGET(win));
-  gtk_widget_destroy(GTK_WIDGET(win));
-
-  /* Give the focus to the file text entry widget so the user can just press
-     Return to print to the file. */
-  gtk_widget_grab_focus(file_te);
 }
 
 #ifdef _WIN32

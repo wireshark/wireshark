@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.64 2003/10/16 00:45:12 guy Exp $
+ * $Id: file_dlg.c,v 1.65 2003/11/30 04:21:54 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,12 +56,128 @@ static void file_color_import_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 static void file_color_import_destroy_cb(GtkWidget *win, gpointer user_data);
 static void file_color_export_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 static void file_color_export_destroy_cb(GtkWidget *win, gpointer user_data);
+static void file_select_ok_cb(GtkWidget *w, gpointer data);
+static void file_select_cancel_cb(GtkWidget *w, gpointer data);
+static void file_select_destroy_cb(GtkWidget *win, GtkWidget* file_te);
 
 #define E_FILE_M_RESOLVE_KEY	  "file_dlg_mac_resolve_key"
 #define E_FILE_N_RESOLVE_KEY	  "file_dlg_network_resolve_key"
 #define E_FILE_T_RESOLVE_KEY	  "file_dlg_transport_resolve_key"
 
 #define ARGUMENT_CL "argument_cl"
+
+/*
+ * A generic select_file_cb routine that is intended to be connected to
+ * a Browse button on other dialog boxes. This allows the user to browse
+ * for a file and select it. We fill in the text_entry that is asssociated
+ * with the button that invoked us. 
+ *
+ * We display the window label specified in our args.
+ */
+void
+select_file_cb(GtkWidget *file_bt, construct_args_t *args _U_)
+{
+  GtkWidget *caller = gtk_widget_get_toplevel(file_bt);
+  GtkWidget *fs, *file_te;
+
+  /* Has a file selection dialog box already been opened for that top-level
+     widget? */
+  fs = OBJECT_GET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY);
+  file_te = OBJECT_GET_DATA(file_bt, E_FILE_TE_PTR_KEY);
+  if (fs != NULL) {
+    /* Yes.  Just re-activate that dialog box. */
+    reactivate_window(fs);
+    return;
+  }
+
+  fs = file_selection_new ("Ethereal: Print to File");
+
+  /* If we've opened a file, start out by showing the files in the directory
+     in which that file resided. */
+  if (last_open_dir)
+    gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
+
+  OBJECT_SET_DATA(fs, PRINT_FILE_TE_KEY, file_te);
+
+  /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
+  OBJECT_SET_DATA(fs, E_FS_CALLER_PTR_KEY, caller);
+
+  /* Set the E_FILE_SEL_DIALOG_PTR_KEY for the caller to point to us */
+  OBJECT_SET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY, fs);
+
+  /* Call a handler when the file selection box is destroyed, so we can inform
+     our caller, if any, that it's been destroyed. */
+  SIGNAL_CONNECT(fs, "destroy", GTK_SIGNAL_FUNC(file_select_destroy_cb), 
+		 file_te);
+
+  SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->ok_button, "clicked", 
+		 file_select_ok_cb, fs);
+
+  /* Connect the cancel_button to destroy the widget */
+  SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->cancel_button, "clicked",
+                 file_select_cancel_cb, fs);
+
+  /* Catch the "key_press_event" signal in the window, so that we can catch
+     the ESC key being pressed and act as if the "Cancel" button had
+     been selected. */
+  dlg_set_cancel(fs, GTK_FILE_SELECTION(fs)->cancel_button);
+
+  gtk_widget_show(fs);
+}
+
+static void
+file_select_ok_cb(GtkWidget *w _U_, gpointer data)
+{
+  gchar     *f_name;
+
+  f_name = g_strdup(gtk_file_selection_get_filename(
+    GTK_FILE_SELECTION (data)));
+
+  /* Perhaps the user specified a directory instead of a file.
+     Check whether they did. */
+  if (test_for_directory(f_name) == EISDIR) {
+        /* It's a directory - set the file selection box to display it. */
+        set_last_open_dir(f_name);
+        g_free(f_name);
+        gtk_file_selection_set_filename(GTK_FILE_SELECTION(data),
+          last_open_dir);
+        return;
+  }
+
+  gtk_entry_set_text(GTK_ENTRY(OBJECT_GET_DATA(data, PRINT_FILE_TE_KEY)),
+                     f_name);
+  gtk_widget_destroy(GTK_WIDGET(data));
+
+  g_free(f_name);
+}
+
+static void
+file_select_cancel_cb(GtkWidget *w _U_, gpointer data)
+{
+  gtk_widget_destroy(GTK_WIDGET(data));
+}
+
+static void
+file_select_destroy_cb(GtkWidget *win, GtkWidget* file_te)
+{
+  GtkWidget *caller;
+
+  /* Get the widget that requested that we be popped up.
+     (It should arrange to destroy us if it's destroyed, so
+     that we don't get a pointer to a non-existent window here.) */
+  caller = OBJECT_GET_DATA(win, E_FS_CALLER_PTR_KEY);
+
+  /* Tell it we no longer exist. */
+  OBJECT_SET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY, NULL);
+
+  /* Now nuke this window. */
+  gtk_grab_remove(GTK_WIDGET(win));
+  gtk_widget_destroy(GTK_WIDGET(win));
+
+  /* Give the focus to the file text entry widget so the user can just press
+     Return to print to the file. */
+  gtk_widget_grab_focus(file_te);
+}
 
 /*
  * Keep a static pointer to the current "Open Capture File" window, if

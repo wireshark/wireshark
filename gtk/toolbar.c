@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.16 2003/11/28 18:59:02 ulfl Exp $
+ * $Id: toolbar.c,v 1.17 2003/11/30 04:21:55 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,12 +46,12 @@
 #ifdef HAVE_LIBPCAP
 #include "capture_dlg.h"
 #endif /* HAVE_LIBPCAP */
+#include "filter_prefs.h"
 #include "file_dlg.h"
 #include "find_dlg.h"
 #include "goto_dlg.h"
 #include "color.h"
 #include "color_dlg.h"
-#include "filter_prefs.h"
 #include "prefs.h"
 #include "prefs_dlg.h"
 #include "main.h"

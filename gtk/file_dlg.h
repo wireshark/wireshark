@@ -1,7 +1,7 @@
 /* file_dlg.h
  * Definitions for dialog boxes for handling files
  *
- * $Id: file_dlg.h,v 1.5 2003/11/29 06:09:53 sharpe Exp $
+ * $Id: file_dlg.h,v 1.6 2003/11/30 04:21:54 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,12 +30,15 @@ void file_save_cmd_cb(GtkWidget *, gpointer);
 void file_save_as_cmd_cb(GtkWidget *, gpointer);
 void file_close_cmd_cb(GtkWidget *, gpointer);
 void file_reload_cmd_cb(GtkWidget *, gpointer);
+void select_file_cb(GtkWidget *file_bt, construct_args_t *args);
 
 void file_color_import_cmd_cb(GtkWidget *w, gpointer data);
 void file_color_export_cmd_cb(GtkWidget *, gpointer);
 
 /* Keys ... */
 #define E_FILE_TE_PTR_KEY         "file_te_ptr"
+#define E_FILE_SEL_DIALOG_PTR_KEY "file_sel_dialog_ptr"
+#define E_FS_CALLER_PTR_KEY       "fs_caller_ptr"
 
 /*
  * Set the "Save only marked packets" toggle button as appropriate for

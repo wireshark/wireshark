@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.114 2003/11/29 06:15:05 sharpe Exp $
+ * $Id: menu.c,v 1.115 2003/11/30 04:21:55 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,8 +37,8 @@
 #include "prefs.h"
 #include "capture_dlg.h"
 #include "color_dlg.h"
-#include "file_dlg.h"
 #include "filter_prefs.h"
+#include "file_dlg.h"
 #include "find_dlg.h"
 #include "goto_dlg.h"
 #include "summary_dlg.h"

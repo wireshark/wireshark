@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.27 2003/10/07 10:07:47 sahlberg Exp $
+ * $Id: color_dlg.c,v 1.28 2003/11/30 04:21:54 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,7 @@
 #include "ui_util.h"
 #include "dfilter_expr_dlg.h"
 #include "compat_macros.h"
+#include "filter_prefs.h"
 #include "file_dlg.h"
 
 static GtkWidget* colorize_dialog_new(char *filter);

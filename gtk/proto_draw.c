@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.66 2003/11/29 06:09:54 sharpe Exp $
+ * $Id: proto_draw.c,v 1.67 2003/11/30 04:21:55 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -749,9 +749,6 @@ savehex_dlg_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
 	gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
 
-/* Needed because we don't declare it yet anywhere */
-void print_file_cb(GtkWidget *file_bt, construct_args_t *args _U_);
-
 /* Forward declaration */
 static void
 savehex_save_clicked_cb(GtkWidget * w, gpointer data);
@@ -803,7 +800,7 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 
 	/* File Browse button */
 	file_bt = gtk_button_new_with_label("Browse:");
-	SIGNAL_CONNECT(file_bt, "clicked", print_file_cb, &args);
+	SIGNAL_CONNECT(file_bt, "clicked", select_file_cb, &args);
 
 	/* file entry for print dialog */
 	OBJECT_SET_DATA(file_bt, E_FILE_TE_PTR_KEY, file_entry);
