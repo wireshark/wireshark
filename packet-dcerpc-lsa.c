@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\lsarpc packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-lsa.c,v 1.3 2001/12/16 20:17:10 guy Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.4 2001/12/17 08:27:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -706,22 +706,22 @@ static int prs_DOM_RID_ARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					   "DOM_RID_ARRAY");
 		subtree = proto_item_add_subtree(item, ett_DOM_RID_ARRAY);
 
-		if (!prs_pop_ptr(ptr_list, "RIDs"))
-			goto done;
+		if (prs_pop_ptr(ptr_list, "RIDs")) {
+			offset = prs_uint32(tvb, offset, pinfo, subtree, &count,
+					    "Count");
 
-		offset = prs_uint32(tvb, offset, pinfo, subtree, &count,
-				    "Count");
+			for (i = 0; i < count; i++) {
+				offset = prs_DOM_RID(tvb, offset, pinfo,
+						     subtree, PARSE_SCALARS,
+						     ptr_list);
+			}
 
-		for (i = 0; i < count; i++) {
-			offset = prs_DOM_RID(tvb, offset, pinfo, subtree, 
-					     PARSE_SCALARS, ptr_list);
+			for (i = 0; i < count; i++) {
+				offset = prs_DOM_RID(tvb, offset, pinfo,
+						     subtree, PARSE_BUFFERS,
+						     ptr_list);
+			}
 		}
-
-		for (i = 0; i < count; i++) {
-			offset = prs_DOM_RID(tvb, offset, pinfo, subtree, 
-					     PARSE_BUFFERS, ptr_list);
-		}
-done:
 	}
 
 	return offset;
