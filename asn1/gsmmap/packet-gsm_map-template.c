@@ -57,7 +57,18 @@ static int hf_gsm_map_invoke = -1;                /* InvokePDU */
 static int hf_gsm_map_returnResult = -1;          /* InvokePDU */
 static int hf_gsm_map_returnResult_result = -1;
 static int hf_gsm_map_getPassword = -1;  
-static int hf_gsm_map_currentPassword = -1;  
+static int hf_gsm_map_currentPassword = -1;
+static int hf_gsm_map_extension = -1;
+static int hf_gsm_map_nature_of_number = -1;
+static int hf_gsm_map_number_plan = -1;
+static int hf_gsm_map_misdn_digits = -1;
+static int hf_gsm_map_servicecentreaddress_digits = -1;
+static int hf_gsm_map_imsi_digits = -1;
+static int hf_gsm_map_Ss_Status_unused = -1;
+static int hf_gsm_map_Ss_Status_q_bit = -1;
+static int hf_gsm_map_Ss_Status_p_bit = -1;
+static int hf_gsm_map_Ss_Status_r_bit = -1;
+static int hf_gsm_map_Ss_Status_a_bit = -1;
 #include "packet-gsm_map-hf.c"
 
 /* Initialize the subtree pointers */
@@ -85,64 +96,38 @@ static guint global_tcap_itu_ssn4 = 9;
 /* Global variables */
 static proto_tree *top_tree;
 
-static int  dissect_invokeCmd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
+static char*
+unpack_digits(tvbuff_t *tvb, int offset){
 
-typedef struct dgt_set_t
-{
-    unsigned char out[15];
-}
-dgt_set_t;
+	int length;
+	guint8 octet;
+	int i=0;
+	char *digit_str;
 
-static dgt_set_t Dgt_msid = {
-    {
-  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
-     '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?'
-    }
-};
+	length = tvb_length(tvb);
+	digit_str = g_malloc(length-offset+1);
 
-/*
- * Unpack BCD input pattern into output ASCII pattern
- *
- * Input Pattern is supplied using the same format as the digits
- *
- * Returns: length of unpacked pattern
- */
-static int
-my_dgt_tbcd_unpack(
-    char	*out,		/* ASCII pattern out */
-    guchar	*in,		/* packed pattern in */
-    int		num_octs,	/* Number of octets to unpack */
-    dgt_set_t	*dgt		/* Digit definitions */
-    )
-{
-    int cnt = 0;
-    unsigned char i;
+	while ( offset < length ){
 
-    while (num_octs)
-    {
-	/*
-	 * unpack first value in byte
-	 */
-	i = *in++;
-	*out++ = dgt->out[i & 0x0f];
-	cnt++;
+		octet = tvb_get_guint8(tvb,offset);
+		digit_str[i] = ((octet & 0x0f) + 0x30);
+		i++;
 
-	/*
-	 * unpack second value in byte
-	 */
-	i >>= 4;
+		/*
+		 * unpack second value in byte
+		 */
+		octet = octet >> 4;
 
-	if (i == 0x0f)	/* odd number bytes - hit filler */
-	    break;
+		if (octet == 0x0f)	/* odd number bytes - hit filler */
+			break;
 
-	*out++ = dgt->out[i];
-	cnt++;
-	num_octs--;
-    }
+		digit_str[i] = ((octet & 0x0f) + 0x30);
+		i++;
+		offset++;
 
-    *out = '\0';
-
-    return(cnt);
+	}
+	digit_str[i]= '\0';
+	return digit_str;
 }
 
 
@@ -240,6 +225,53 @@ const value_string gsm_map_opr_code_strings[] = {
   {  85, "sendRoutingInfoForLCS" },
   {  86, "subscriberLocationReport" },
   { 0, NULL }
+};
+
+static const true_false_string gsm_map_extension_value = {
+  "No Extension",
+  "Extension"
+};
+static const value_string gsm_map_nature_of_number_values[] = {
+	{   0x00,	"unknown" },
+	{   0x01,	"International Number" },
+	{   0x02,	"National Significant Number" },
+	{   0x03,	"Network Specific Number" },
+	{   0x04,	"Subscriber Number" },
+	{   0x05,	"Reserved" },
+	{   0x06,	"Abbreviated Number" },
+	{   0x07,	"Reserved for extension" },
+	{ 0, NULL }
+};
+static const value_string gsm_map_number_plan_values[] = {
+	{   0x00,	"unknown" },
+	{   0x01,	"ISDN/Telephony Numbering (Rec ITU-T E.164)" },
+	{   0x02,	"spare" },
+	{   0x03,	"Data Numbering (ITU-T Rec. X.121)" },
+	{   0x04,	"Telex Numbering (ITU-T Rec. F.69)" },
+	{   0x05,	"spare" },
+	{   0x06,	"Land Mobile Numbering (ITU-T Rec. E.212)" },
+	{   0x07,	"spare" },
+	{   0x08,	"National Numbering" },
+	{   0x09,	"Private Numbering" },
+	{   0x0f,	"Reserved for extension" },
+	{ 0, NULL }
+};
+
+static const true_false_string gsm_map_Ss_Status_q_bit_values = {
+  "Quiescent",
+  "Operative"
+};
+static const true_false_string gsm_map_Ss_Status_p_values = {
+  "Provisioned",
+  "Not Provisioned"
+};
+static const true_false_string gsm_map_Ss_Status_r_values = {
+  "Registered",
+  "Not Registered"
+};
+static const true_false_string gsm_map_Ss_Status_a_values = {
+  "Active",
+  "not Active"
 };
 
 static guint32 opcode=0;
@@ -958,7 +990,50 @@ void proto_register_gsm_map(void) {
       { "Password", "gsm_map.password",
         FT_UINT8, BASE_DEC, VALS(gsm_map_GetPasswordArg_vals), 0,
         "Password", HFILL }},
-
+    { &hf_gsm_map_extension,
+      { "Extension", "gsm_map.extension",
+        FT_BOOLEAN, 8, TFS(&gsm_map_extension_value), 0x80,
+        "Extension", HFILL }},
+    { &hf_gsm_map_nature_of_number,
+      { "Nature of number", "gsm_map.nature_of_number",
+        FT_UINT8, BASE_HEX, VALS(gsm_map_nature_of_number_values), 0x70,
+        "ature of number", HFILL }},
+    { &hf_gsm_map_number_plan,
+      { "Number plan", "gsm_map.number_plan",
+        FT_UINT8, BASE_HEX, VALS(gsm_map_number_plan_values), 0x0f,
+        "Number plan", HFILL }},
+	{ &hf_gsm_map_misdn_digits,
+      { "Misdn digits", "gsm_map.misdn_digits",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Misdn digits", HFILL }},
+	{ &hf_gsm_map_servicecentreaddress_digits,
+      { "ServiceCentreAddress digits", "gsm_map.servicecentreaddress_digits",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "ServiceCentreAddress digits", HFILL }},
+	{ &hf_gsm_map_imsi_digits,
+      { "Imsi digits", "gsm_map.imsi_digits",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Imsi digits", HFILL }},
+	{ &hf_gsm_map_Ss_Status_unused,
+      { "Unused", "gsm_map.unused",
+        FT_UINT8, BASE_HEX, NULL, 0xf0,
+        "Unused", HFILL }},
+	{ &hf_gsm_map_Ss_Status_q_bit,
+      { "Q bit", "gsm_map.ss_status_q_bit",
+        FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_q_bit_values), 0x08,
+        "Q bit", HFILL }},
+	{ &hf_gsm_map_Ss_Status_p_bit,
+      { "P bit", "gsm_map.ss_status_p_bit",
+        FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_p_values), 0x04,
+        "P bit", HFILL }},
+	{ &hf_gsm_map_Ss_Status_r_bit,
+      { "R bit", "ss_status_r_bit",
+        FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_r_values), 0x02,
+        "R bit", HFILL }},
+	{ &hf_gsm_map_Ss_Status_a_bit,
+      { "A bit", "ss_status_a_bit",
+        FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_a_values), 0x01,
+        "A bit", HFILL }},
 
 #include "packet-gsm_map-hfarr.c"
   };
@@ -1002,6 +1077,7 @@ void proto_register_gsm_map(void) {
 	register_ber_oid_name("0.4.0.0.1.0.14.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) infoRetrieval(14) version2(2)" );
 	register_ber_oid_name("0.4.0.0.1.0.14.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) infoRetrieval(14) version1(1)" );
 	register_ber_oid_name("0.4.0.0.1.0.15.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) interVlrInfoRetrieval(15) version2(2)" );
+	register_ber_oid_name("0.4.0.0.1.0.16.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) subscriberDataMngt(16) version3(3)" );
 	register_ber_oid_name("0.4.0.0.1.0.16.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) subscriberDataMngt(16) version2(2)" );
 	register_ber_oid_name("0.4.0.0.1.0.16.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) subscriberDataMngt(16) version1(1)" );
 	register_ber_oid_name("0.4.0.0.1.0.17.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) tracing(17) version2(2)" );

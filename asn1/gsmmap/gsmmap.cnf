@@ -31,6 +31,83 @@ RequestedInfo/subscriberState      subscriberStateFlag
     dissector_try_port(sms_dissector_table, 0, tpdu_tvb, pinfo, top_tree);
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_BODY Imsi
+
+ tvbuff_t	*parameter_tvb;
+ char		*digit_str;
+
+ offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                    &parameter_tvb);
+
+ digit_str = unpack_digits(parameter_tvb, 0);
+
+ proto_tree_add_string(tree, hf_gsm_map_imsi_digits, parameter_tvb, 1, -1, digit_str);
+ g_free(digit_str);
+
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY ServiceCentreAddress
+
+ tvbuff_t	*parameter_tvb;
+ char		*digit_str;
+
+ offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                    &parameter_tvb);
+
+ proto_tree_add_item(tree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(tree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(tree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
+
+ digit_str = unpack_digits(parameter_tvb, 1);
+
+ proto_tree_add_string(tree, hf_gsm_map_servicecentreaddress_digits, parameter_tvb, 1, -1, digit_str);
+ g_free(digit_str);
+
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY Msisdn
+
+ tvbuff_t	*parameter_tvb;
+ char		*digit_str;
+
+ offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                    &parameter_tvb);
+
+ proto_tree_add_item(tree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(tree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(tree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
+
+ digit_str = unpack_digits(parameter_tvb, 1);
+
+ proto_tree_add_string(tree, hf_gsm_map_misdn_digits, parameter_tvb, 1, -1, digit_str);
+ g_free(digit_str);
+
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY Ss-Status
+
+ tvbuff_t	*parameter_tvb;
+ guint8		octet;
+
+ offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                    &parameter_tvb);
+
+ octet = tvb_get_guint8(parameter_tvb,0);
+
+ proto_tree_add_uint(tree, hf_gsm_map_Ss_Status_unused, parameter_tvb, 0,1,octet);
+ if ((octet & 0x01)== 1)	
+	proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_q_bit, parameter_tvb, 0,1,octet);
+										
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_p_bit, parameter_tvb, 0,1,octet);									
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_r_bit, parameter_tvb, 0,1,octet);									
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_a_bit, parameter_tvb, 0,1,octet);									
+
+
+#.END
+#----------------------------------------------------------------------------------------
 #.TYPE_ATTR
 Ss-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)
 Teleservice  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Teleservice_vals)

@@ -1323,7 +1323,7 @@ EraseCC-EntryRes ::= SEQUENCE {
 RoutingInfoForSMArg ::= SEQUENCE {
          msisdn                 [0] IMPLICIT Msisdn, 
          sm-RP-PRI              [1] IMPLICIT BOOLEAN, 
-         serviceCentreAddress   [2] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ), 
+         serviceCentreAddress   [2] IMPLICIT ServiceCentreAddress, 
          extensionContainer     [6] IMPLICIT ExtensionContainer OPTIONAL,
          ... , 
          gprsSupportIndicator   [7] IMPLICIT NULL OPTIONAL, 
@@ -1377,17 +1377,18 @@ Mo-forwardSM-Res ::= SEQUENCE {
 
 Sm-RP-OA ::= CHOICE {
             msisdn                     [2] IMPLICIT Msisdn, 
-            serviceCentreAddressOA     [4] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ), 
+            serviceCentreAddressOA     [4] IMPLICIT ServiceCentreAddress, 
             noSM-RP-OA                 [5] IMPLICIT NULL}
 
 Sm-RP-DA ::= CHOICE {
             imsi                       [0] IMPLICIT Imsi, 
             lmsi                       [1] IMPLICIT Lmsi, 
-            serviceCentreAddressDA     [4] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ), 
+            serviceCentreAddressDA     [4] IMPLICIT ServiceCentreAddress, 
             noSM-RP-DA                 [5] IMPLICIT NULL
 }
 
 Sm-RP-UI ::= OCTET STRING ( SIZE( 1 .. 200 ) )
+ServiceCentreAddress ::= OCTET STRING ( SIZE( 1 .. 20 ) )
 
 --mt-forwardSM OPERATION
 --   ARGUMENT
@@ -1429,7 +1430,7 @@ Sm-DeliveryOutcome ::= ENUMERATED {
 --  ARGUMENT
 ReportSM-DeliveryStatusArg ::= SEQUENCE {
          msisdn                                   Msisdn, 
-         serviceCentreAddress                     OCTET STRING ( SIZE( 1 .. 20 ) ), 
+         serviceCentreAddress                     ServiceCentreAddress, 
          sm-DeliveryOutcome                       Sm-DeliveryOutcome, 
          absentSubscriberDiagnosticSM             [0] IMPLICIT INTEGER ( 0 .. 255 ) OPTIONAL, 
          extensionContainer                       [1] IMPLICIT ExtensionContainer OPTIONAL,
@@ -1467,7 +1468,7 @@ InformServiceCentreArg ::= SEQUENCE {
 --   ARGUMENT
 AlertServiceCentreArg ::= SEQUENCE {
          msisdn                 Msisdn, 
-         serviceCentreAddress   OCTET STRING ( SIZE( 1 .. 20 ) ), 
+         serviceCentreAddress   ServiceCentreAddress, 
          ... }
 --   ERRORS {
 -- systemFailure   localValue : 34, 
