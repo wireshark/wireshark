@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.52 2002/08/28 21:00:10 jmayer Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.53 2002/08/29 19:05:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -433,11 +433,11 @@ static const true_false_string tfs_job_status_user_intervention = {
 static int hf_spoolss_setprinter_cmd = -1;
 
 static const value_string setprinter_cmd_vals[] = {
-	{ PRINTER_CONTROL_UNPAUSE, "Unpause" },
-	{ PRINTER_CONTROL_PAUSE, "Pause" },
-	{ PRINTER_CONTROL_RESUME, "Resume" },
-	{ PRINTER_CONTROL_PURGE, "Purge" },
-	{ PRINTER_CONTROL_SET_STATUS, "Set status" },
+	{ SPOOLSS_PRINTER_CONTROL_UNPAUSE, "Unpause" },
+	{ SPOOLSS_PRINTER_CONTROL_PAUSE, "Pause" },
+	{ SPOOLSS_PRINTER_CONTROL_RESUME, "Resume" },
+	{ SPOOLSS_PRINTER_CONTROL_PURGE, "Purge" },
+	{ SPOOLSS_PRINTER_CONTROL_SET_STATUS, "Set status" },
 	{ 0, NULL }
 };
 
@@ -2493,19 +2493,19 @@ static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 		flags_subtree, hf_spoolss_rffpcnex_flags_add_printer, tvb,
 		offset - 4, 4, flags);
 
-	if (flags & PRINTER_CHANGE_PRINTER)
+	if (flags & SPOOLSS_PRINTER_CHANGE_PRINTER)
 		proto_item_append_text(flags_item, ", change printer");
 
-	if (flags & PRINTER_CHANGE_JOB)
+	if (flags & SPOOLSS_PRINTER_CHANGE_JOB)
 		proto_item_append_text(flags_item, ", change job");
 
-	if (flags & PRINTER_CHANGE_FORM)
+	if (flags & SPOOLSS_PRINTER_CHANGE_FORM)
 		proto_item_append_text(flags_item, ", change form");
 
-	if (flags & PRINTER_CHANGE_PORT)
+	if (flags & SPOOLSS_PRINTER_CHANGE_PORT)
 		proto_item_append_text(flags_item, ", change port");
 
-	if (flags & PRINTER_CHANGE_PRINTER_DRIVER)
+	if (flags & SPOOLSS_PRINTER_CHANGE_PRINTER_DRIVER)
 		proto_item_append_text(flags_item, ", change printer driver");
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -2962,9 +2962,9 @@ static int SpoolssSetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static const value_string form_type_vals[] =
 {
-	{ FORM_USER, "User" },
-	{ FORM_BUILTIN, "Builtin" },
-	{ FORM_PRINTER, "Printer" },
+	{ SPOOLSS_FORM_USER, "User" },
+	{ SPOOLSS_FORM_BUILTIN, "Builtin" },
+	{ SPOOLSS_FORM_PRINTER, "Printer" },
 	{ 0, NULL }
 };
 
@@ -6269,103 +6269,103 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_spoolss_rffpcnex_flags_add_printer,
 		  { "Add printer", "spoolss.rffpcnex.flags.add_printer",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_printer),
-		    PRINTER_CHANGE_ADD_PRINTER, "Add printer", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_ADD_PRINTER, "Add printer", HFILL }},
 
 		{ &hf_spoolss_rffpcnex_flags_set_printer,
 		  { "Set printer", "spoolss.rffpcnex.flags.set_printer",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_set_printer),
-		    PRINTER_CHANGE_SET_PRINTER, "Set printer", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_SET_PRINTER, "Set printer", HFILL }},
 
 		{ &hf_spoolss_rffpcnex_flags_delete_printer,
 		  { "Delete printer", "spoolss.rffpcnex.flags.delete_printer",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_printer),
-		    PRINTER_CHANGE_DELETE_PRINTER, "Delete printer", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_DELETE_PRINTER, "Delete printer", HFILL }},
 
 		{ &hf_spoolss_rffpcnex_flags_add_job,
 		  { "Add job", "spoolss.rffpcnex.flags.add_job",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_job),
-		    PRINTER_CHANGE_ADD_JOB, "Add job", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_ADD_JOB, "Add job", HFILL }},
 
 		{ &hf_spoolss_rffpcnex_flags_set_job,
 		  { "Set job", "spoolss.rffpcnex.flags.set_job",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_set_job),
-		    PRINTER_CHANGE_SET_JOB, "Set job", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_SET_JOB, "Set job", HFILL }},
 
 		{ &hf_spoolss_rffpcnex_flags_delete_job,
 		  { "Delete job", "spoolss.rffpcnex.flags.delete_job",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_job),
-		    PRINTER_CHANGE_DELETE_JOB, "Delete job", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_DELETE_JOB, "Delete job", HFILL }},
 
 		{ &hf_spoolss_rffpcnex_flags_write_job,
 		  { "Write job", "spoolss.rffpcnex.flags.write_job",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_write_job),
-		    PRINTER_CHANGE_WRITE_JOB, "Write job", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_WRITE_JOB, "Write job", HFILL }},
 
 		{ &hf_spoolss_rffpcnex_flags_add_form,
 		  { "Add form", "spoolss.rffpcnex.flags.add_form",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_form),
-		    PRINTER_CHANGE_ADD_FORM, "Add form", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_ADD_FORM, "Add form", HFILL }},
 
 		{ &hf_spoolss_rffpcnex_flags_set_form,
 		  { "Set form", "spoolss.rffpcnex.flags.set_form",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_set_form),
-		    PRINTER_CHANGE_SET_FORM, "Set form", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_SET_FORM, "Set form", HFILL }},
 
 		{ &hf_spoolss_rffpcnex_flags_delete_form,
 		  { "Delete form", "spoolss.rffpcnex.flags.delete_form",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_form),
-		    PRINTER_CHANGE_DELETE_FORM, "Delete form", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_DELETE_FORM, "Delete form", HFILL }},
 
 		{ &hf_spoolss_rffpcnex_flags_add_port,
 		  { "Add port", "spoolss.rffpcnex.flags.add_port",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_port),
-		    PRINTER_CHANGE_ADD_PORT, "Add port", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_ADD_PORT, "Add port", HFILL }},
 
 		{ &hf_spoolss_rffpcnex_flags_configure_port,
 		  { "Configure port", "spoolss.rffpcnex.flags.configure_port",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_configure_port),
-		    PRINTER_CHANGE_CONFIGURE_PORT, "Configure port", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_CONFIGURE_PORT, "Configure port", HFILL }},
 
 		{ &hf_spoolss_rffpcnex_flags_delete_port,
 		  { "Delete port", "spoolss.rffpcnex.flags.delete_port",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_port),
-		    PRINTER_CHANGE_DELETE_PORT, "Delete port", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_DELETE_PORT, "Delete port", HFILL }},
 
 
 		{ &hf_spoolss_rffpcnex_flags_add_print_processor,
 		  { "Add processor", "spoolss.rffpcnex.flags.add_processor",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_print_processor),
-		    PRINTER_CHANGE_ADD_PRINT_PROCESSOR, "Add processor", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_ADD_PRINT_PROCESSOR, "Add processor", HFILL }},
 
 		{ &hf_spoolss_rffpcnex_flags_delete_print_processor,
 		  { "Delete processor", "spoolss.rffpcnex.flags.delete_processor",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_print_processor),
-		    PRINTER_CHANGE_DELETE_PRINT_PROCESSOR, "Delete processor", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_DELETE_PRINT_PROCESSOR, "Delete processor", HFILL }},
 
 		{ &hf_spoolss_rffpcnex_flags_add_driver,
 		  { "Add driver", "spoolss.rffpcnex.flags.add_driver",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_driver),
-		    PRINTER_CHANGE_ADD_PRINTER_DRIVER, "Add driver", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_ADD_PRINTER_DRIVER, "Add driver", HFILL }},
 
 		{ &hf_spoolss_rffpcnex_flags_set_driver,
 		  { "Set driver", "spoolss.rffpcnex.flags.set_driver",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_set_driver),
-		    PRINTER_CHANGE_SET_PRINTER_DRIVER, "Set driver", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_SET_PRINTER_DRIVER, "Set driver", HFILL }},
 
 		{ &hf_spoolss_rffpcnex_flags_delete_driver,
 		  { "Delete driver", "spoolss.rffpcnex.flags.delete_driver",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_driver),
-		    PRINTER_CHANGE_DELETE_PRINTER_DRIVER, "Delete driver", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_DELETE_PRINTER_DRIVER, "Delete driver", HFILL }},
 
 		{ &hf_spoolss_rffpcnex_flags_timeout,
 		  { "Timeout", "spoolss.rffpcnex.flags.timeout",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_timeout),
-		    PRINTER_CHANGE_TIMEOUT, "Timeout", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_TIMEOUT, "Timeout", HFILL }},
 
 		{ &hf_spoolss_rffpcnex_flags_failed_printer_connection,
 		  { "Failed printer connection", "spoolss.rffpcnex.flags.failed_connection_printer",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_failed_connection_printer),
-		    PRINTER_CHANGE_FAILED_CONNECTION_PRINTER, "Failed printer connection", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_FAILED_CONNECTION_PRINTER, "Failed printer connection", HFILL }},
 
 		{ &hf_spoolss_notify_options_version,
 		  { "Version", "spoolss.notify_options.version", FT_UINT32, BASE_DEC,

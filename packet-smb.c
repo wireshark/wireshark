@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.286 2002/08/29 05:26:45 sharpe Exp $
+ * $Id: packet-smb.c,v 1.287 2002/08/29 19:05:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1434,32 +1434,32 @@ dissect_access(tvbuff_t *tvb, proto_tree *parent_tree, int offset, char *type)
 	return offset;
 }
 
-#define FILE_ATTRIBUTE_READ_ONLY		0x00000001
-#define FILE_ATTRIBUTE_HIDDEN			0x00000002
-#define FILE_ATTRIBUTE_SYSTEM			0x00000004
-#define FILE_ATTRIBUTE_VOLUME			0x00000008
-#define FILE_ATTRIBUTE_DIRECTORY		0x00000010
-#define FILE_ATTRIBUTE_ARCHIVE			0x00000020
-#define FILE_ATTRIBUTE_DEVICE			0x00000040
-#define FILE_ATTRIBUTE_NORMAL			0x00000080
-#define FILE_ATTRIBUTE_TEMPORARY		0x00000100
-#define FILE_ATTRIBUTE_SPARSE			0x00000200
-#define FILE_ATTRIBUTE_REPARSE			0x00000400
-#define FILE_ATTRIBUTE_COMPRESSED		0x00000800
-#define FILE_ATTRIBUTE_OFFLINE			0x00001000
-#define FILE_ATTRIBUTE_NOT_CONTENT_INDEXED	0x00002000
-#define FILE_ATTRIBUTE_ENCRYPTED		0x00004000
+#define SMB_FILE_ATTRIBUTE_READ_ONLY		0x00000001
+#define SMB_FILE_ATTRIBUTE_HIDDEN			0x00000002
+#define SMB_FILE_ATTRIBUTE_SYSTEM			0x00000004
+#define SMB_FILE_ATTRIBUTE_VOLUME			0x00000008
+#define SMB_FILE_ATTRIBUTE_DIRECTORY		0x00000010
+#define SMB_FILE_ATTRIBUTE_ARCHIVE			0x00000020
+#define SMB_FILE_ATTRIBUTE_DEVICE			0x00000040
+#define SMB_FILE_ATTRIBUTE_NORMAL			0x00000080
+#define SMB_FILE_ATTRIBUTE_TEMPORARY		0x00000100
+#define SMB_FILE_ATTRIBUTE_SPARSE			0x00000200
+#define SMB_FILE_ATTRIBUTE_REPARSE			0x00000400
+#define SMB_FILE_ATTRIBUTE_COMPRESSED		0x00000800
+#define SMB_FILE_ATTRIBUTE_OFFLINE			0x00001000
+#define SMB_FILE_ATTRIBUTE_NOT_CONTENT_INDEXED	0x00002000
+#define SMB_FILE_ATTRIBUTE_ENCRYPTED		0x00004000
 
 /*
  * These are flags to be used in NT Create operations.
  */
-#define FILE_ATTRIBUTE_WRITE_THROUGH		0x80000000
-#define FILE_ATTRIBUTE_NO_BUFFERING		0x20000000
-#define FILE_ATTRIBUTE_RANDOM_ACCESS		0x10000000
-#define FILE_ATTRIBUTE_SEQUENTIAL_SCAN		0x08000000
-#define FILE_ATTRIBUTE_DELETE_ON_CLOSE		0x04000000
-#define FILE_ATTRIBUTE_BACKUP_SEMANTICS		0x02000000
-#define FILE_ATTRIBUTE_POSIX_SEMANTICS		0x01000000
+#define SMB_FILE_ATTRIBUTE_WRITE_THROUGH		0x80000000
+#define SMB_FILE_ATTRIBUTE_NO_BUFFERING		0x20000000
+#define SMB_FILE_ATTRIBUTE_RANDOM_ACCESS		0x10000000
+#define SMB_FILE_ATTRIBUTE_SEQUENTIAL_SCAN		0x08000000
+#define SMB_FILE_ATTRIBUTE_DELETE_ON_CLOSE		0x04000000
+#define SMB_FILE_ATTRIBUTE_BACKUP_SEMANTICS		0x02000000
+#define SMB_FILE_ATTRIBUTE_POSIX_SEMANTICS		0x01000000
 
 static const true_false_string tfs_file_attribute_write_through = {
 	"This object requires WRITE THROUGH",
@@ -16136,87 +16136,87 @@ proto_register_smb(void)
 
 	{ &hf_smb_file_attr_read_only_16bit,
 		{ "Read Only", "smb.file_attribute.read_only", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_read_only), FILE_ATTRIBUTE_READ_ONLY, "READ ONLY file attribute", HFILL }},
+		TFS(&tfs_file_attribute_read_only), SMB_FILE_ATTRIBUTE_READ_ONLY, "READ ONLY file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_read_only_8bit,
 		{ "Read Only", "smb.file_attribute.read_only", FT_BOOLEAN, 8,
-		TFS(&tfs_file_attribute_read_only), FILE_ATTRIBUTE_READ_ONLY, "READ ONLY file attribute", HFILL }},
+		TFS(&tfs_file_attribute_read_only), SMB_FILE_ATTRIBUTE_READ_ONLY, "READ ONLY file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_hidden_16bit,
 		{ "Hidden", "smb.file_attribute.hidden", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_hidden), FILE_ATTRIBUTE_HIDDEN, "HIDDEN file attribute", HFILL }},
+		TFS(&tfs_file_attribute_hidden), SMB_FILE_ATTRIBUTE_HIDDEN, "HIDDEN file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_hidden_8bit,
 		{ "Hidden", "smb.file_attribute.hidden", FT_BOOLEAN, 8,
-		TFS(&tfs_file_attribute_hidden), FILE_ATTRIBUTE_HIDDEN, "HIDDEN file attribute", HFILL }},
+		TFS(&tfs_file_attribute_hidden), SMB_FILE_ATTRIBUTE_HIDDEN, "HIDDEN file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_system_16bit,
 		{ "System", "smb.file_attribute.system", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_system), FILE_ATTRIBUTE_SYSTEM, "SYSTEM file attribute", HFILL }},
+		TFS(&tfs_file_attribute_system), SMB_FILE_ATTRIBUTE_SYSTEM, "SYSTEM file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_system_8bit,
 		{ "System", "smb.file_attribute.system", FT_BOOLEAN, 8,
-		TFS(&tfs_file_attribute_system), FILE_ATTRIBUTE_SYSTEM, "SYSTEM file attribute", HFILL }},
+		TFS(&tfs_file_attribute_system), SMB_FILE_ATTRIBUTE_SYSTEM, "SYSTEM file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_volume_16bit,
 		{ "Volume ID", "smb.file_attribute.volume", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_volume), FILE_ATTRIBUTE_VOLUME, "VOLUME file attribute", HFILL }},
+		TFS(&tfs_file_attribute_volume), SMB_FILE_ATTRIBUTE_VOLUME, "VOLUME file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_volume_8bit,
 		{ "Volume ID", "smb.file_attribute.volume", FT_BOOLEAN, 8,
-		TFS(&tfs_file_attribute_volume), FILE_ATTRIBUTE_VOLUME, "VOLUME ID file attribute", HFILL }},
+		TFS(&tfs_file_attribute_volume), SMB_FILE_ATTRIBUTE_VOLUME, "VOLUME ID file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_directory_16bit,
 		{ "Directory", "smb.file_attribute.directory", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_directory), FILE_ATTRIBUTE_DIRECTORY, "DIRECTORY file attribute", HFILL }},
+		TFS(&tfs_file_attribute_directory), SMB_FILE_ATTRIBUTE_DIRECTORY, "DIRECTORY file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_directory_8bit,
 		{ "Directory", "smb.file_attribute.directory", FT_BOOLEAN, 8,
-		TFS(&tfs_file_attribute_directory), FILE_ATTRIBUTE_DIRECTORY, "DIRECTORY file attribute", HFILL }},
+		TFS(&tfs_file_attribute_directory), SMB_FILE_ATTRIBUTE_DIRECTORY, "DIRECTORY file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_archive_16bit,
 		{ "Archive", "smb.file_attribute.archive", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_archive), FILE_ATTRIBUTE_ARCHIVE, "ARCHIVE file attribute", HFILL }},
+		TFS(&tfs_file_attribute_archive), SMB_FILE_ATTRIBUTE_ARCHIVE, "ARCHIVE file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_archive_8bit,
 		{ "Archive", "smb.file_attribute.archive", FT_BOOLEAN, 8,
-		TFS(&tfs_file_attribute_archive), FILE_ATTRIBUTE_ARCHIVE, "ARCHIVE file attribute", HFILL }},
+		TFS(&tfs_file_attribute_archive), SMB_FILE_ATTRIBUTE_ARCHIVE, "ARCHIVE file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_device,
 		{ "Device", "smb.file_attribute.device", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_device), FILE_ATTRIBUTE_DEVICE, "Is this file a device?", HFILL }},
+		TFS(&tfs_file_attribute_device), SMB_FILE_ATTRIBUTE_DEVICE, "Is this file a device?", HFILL }},
 
 	{ &hf_smb_file_attr_normal,
 		{ "Normal", "smb.file_attribute.normal", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_normal), FILE_ATTRIBUTE_NORMAL, "Is this a normal file?", HFILL }},
+		TFS(&tfs_file_attribute_normal), SMB_FILE_ATTRIBUTE_NORMAL, "Is this a normal file?", HFILL }},
 
 	{ &hf_smb_file_attr_temporary,
 		{ "Temporary", "smb.file_attribute.temporary", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_temporary), FILE_ATTRIBUTE_TEMPORARY, "Is this a temporary file?", HFILL }},
+		TFS(&tfs_file_attribute_temporary), SMB_FILE_ATTRIBUTE_TEMPORARY, "Is this a temporary file?", HFILL }},
 
 	{ &hf_smb_file_attr_sparse,
 		{ "Sparse", "smb.file_attribute.sparse", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_sparse), FILE_ATTRIBUTE_SPARSE, "Is this a sparse file?", HFILL }},
+		TFS(&tfs_file_attribute_sparse), SMB_FILE_ATTRIBUTE_SPARSE, "Is this a sparse file?", HFILL }},
 
 	{ &hf_smb_file_attr_reparse,
 		{ "Reparse Point", "smb.file_attribute.reparse", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_reparse), FILE_ATTRIBUTE_REPARSE, "Does this file have an associated reparse point?", HFILL }},
+		TFS(&tfs_file_attribute_reparse), SMB_FILE_ATTRIBUTE_REPARSE, "Does this file have an associated reparse point?", HFILL }},
 
 	{ &hf_smb_file_attr_compressed,
 		{ "Compressed", "smb.file_attribute.compressed", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_compressed), FILE_ATTRIBUTE_COMPRESSED, "Is this file compressed?", HFILL }},
+		TFS(&tfs_file_attribute_compressed), SMB_FILE_ATTRIBUTE_COMPRESSED, "Is this file compressed?", HFILL }},
 
 	{ &hf_smb_file_attr_offline,
 		{ "Offline", "smb.file_attribute.offline", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_offline), FILE_ATTRIBUTE_OFFLINE, "Is this file offline?", HFILL }},
+		TFS(&tfs_file_attribute_offline), SMB_FILE_ATTRIBUTE_OFFLINE, "Is this file offline?", HFILL }},
 
 	{ &hf_smb_file_attr_not_content_indexed,
 		{ "Content Indexed", "smb.file_attribute.not_content_indexed", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_not_content_indexed), FILE_ATTRIBUTE_NOT_CONTENT_INDEXED, "May this file be indexed by the content indexing service", HFILL }},
+		TFS(&tfs_file_attribute_not_content_indexed), SMB_FILE_ATTRIBUTE_NOT_CONTENT_INDEXED, "May this file be indexed by the content indexing service", HFILL }},
 
 	{ &hf_smb_file_attr_encrypted,
 		{ "Encrypted", "smb.file_attribute.encrypted", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_encrypted), FILE_ATTRIBUTE_ENCRYPTED, "Is this file encrypted?", HFILL }},
+		TFS(&tfs_file_attribute_encrypted), SMB_FILE_ATTRIBUTE_ENCRYPTED, "Is this file encrypted?", HFILL }},
 
 	{ &hf_smb_file_size,
 		{ "File Size", "smb.file_size", FT_UINT32, BASE_DEC,
@@ -16224,27 +16224,27 @@ proto_register_smb(void)
 
 	{ &hf_smb_search_attribute_read_only,
 		{ "Read Only", "smb.search.attribute.read_only", FT_BOOLEAN, 16,
-		TFS(&tfs_search_attribute_read_only), FILE_ATTRIBUTE_READ_ONLY, "READ ONLY search attribute", HFILL }},
+		TFS(&tfs_search_attribute_read_only), SMB_FILE_ATTRIBUTE_READ_ONLY, "READ ONLY search attribute", HFILL }},
 
 	{ &hf_smb_search_attribute_hidden,
 		{ "Hidden", "smb.search.attribute.hidden", FT_BOOLEAN, 16,
-		TFS(&tfs_search_attribute_hidden), FILE_ATTRIBUTE_HIDDEN, "HIDDEN search attribute", HFILL }},
+		TFS(&tfs_search_attribute_hidden), SMB_FILE_ATTRIBUTE_HIDDEN, "HIDDEN search attribute", HFILL }},
 
 	{ &hf_smb_search_attribute_system,
 		{ "System", "smb.search.attribute.system", FT_BOOLEAN, 16,
-		TFS(&tfs_search_attribute_system), FILE_ATTRIBUTE_SYSTEM, "SYSTEM search attribute", HFILL }},
+		TFS(&tfs_search_attribute_system), SMB_FILE_ATTRIBUTE_SYSTEM, "SYSTEM search attribute", HFILL }},
 
 	{ &hf_smb_search_attribute_volume,
 		{ "Volume ID", "smb.search.attribute.volume", FT_BOOLEAN, 16,
-		TFS(&tfs_search_attribute_volume), FILE_ATTRIBUTE_VOLUME, "VOLUME ID search attribute", HFILL }},
+		TFS(&tfs_search_attribute_volume), SMB_FILE_ATTRIBUTE_VOLUME, "VOLUME ID search attribute", HFILL }},
 
 	{ &hf_smb_search_attribute_directory,
 		{ "Directory", "smb.search.attribute.directory", FT_BOOLEAN, 16,
-		TFS(&tfs_search_attribute_directory), FILE_ATTRIBUTE_DIRECTORY, "DIRECTORY search attribute", HFILL }},
+		TFS(&tfs_search_attribute_directory), SMB_FILE_ATTRIBUTE_DIRECTORY, "DIRECTORY search attribute", HFILL }},
 
 	{ &hf_smb_search_attribute_archive,
 		{ "Archive", "smb.search.attribute.archive", FT_BOOLEAN, 16,
-		TFS(&tfs_search_attribute_archive), FILE_ATTRIBUTE_ARCHIVE, "ARCHIVE search attribute", HFILL }},
+		TFS(&tfs_search_attribute_archive), SMB_FILE_ATTRIBUTE_ARCHIVE, "ARCHIVE search attribute", HFILL }},
 
 	{ &hf_smb_access_mode,
 		{ "Access Mode", "smb.access.mode", FT_UINT16, BASE_DEC,
@@ -16999,91 +16999,91 @@ proto_register_smb(void)
 
 	{ &hf_smb_file_eattr_read_only,
 		{ "Read Only", "smb.file_attribute.read_only", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_read_only), FILE_ATTRIBUTE_READ_ONLY, "READ ONLY file attribute", HFILL }},
+		TFS(&tfs_file_attribute_read_only), SMB_FILE_ATTRIBUTE_READ_ONLY, "READ ONLY file attribute", HFILL }},
 
 	{ &hf_smb_file_eattr_hidden,
 		{ "Hidden", "smb.file_attribute.hidden", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_hidden), FILE_ATTRIBUTE_HIDDEN, "HIDDEN file attribute", HFILL }},
+		TFS(&tfs_file_attribute_hidden), SMB_FILE_ATTRIBUTE_HIDDEN, "HIDDEN file attribute", HFILL }},
 
 	{ &hf_smb_file_eattr_system,
 		{ "System", "smb.file_attribute.system", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_system), FILE_ATTRIBUTE_SYSTEM, "SYSTEM file attribute", HFILL }},
+		TFS(&tfs_file_attribute_system), SMB_FILE_ATTRIBUTE_SYSTEM, "SYSTEM file attribute", HFILL }},
 
 	{ &hf_smb_file_eattr_volume,
 		{ "Volume ID", "smb.file_attribute.volume", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_volume), FILE_ATTRIBUTE_VOLUME, "VOLUME file attribute", HFILL }},
+		TFS(&tfs_file_attribute_volume), SMB_FILE_ATTRIBUTE_VOLUME, "VOLUME file attribute", HFILL }},
 
 	{ &hf_smb_file_eattr_directory,
 		{ "Directory", "smb.file_attribute.directory", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_directory), FILE_ATTRIBUTE_DIRECTORY, "DIRECTORY file attribute", HFILL }},
+		TFS(&tfs_file_attribute_directory), SMB_FILE_ATTRIBUTE_DIRECTORY, "DIRECTORY file attribute", HFILL }},
 
 	{ &hf_smb_file_eattr_archive,
 		{ "Archive", "smb.file_attribute.archive", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_archive), FILE_ATTRIBUTE_ARCHIVE, "ARCHIVE file attribute", HFILL }},
+		TFS(&tfs_file_attribute_archive), SMB_FILE_ATTRIBUTE_ARCHIVE, "ARCHIVE file attribute", HFILL }},
 
 	{ &hf_smb_file_eattr_device,
 		{ "Device", "smb.file_attribute.device", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_device), FILE_ATTRIBUTE_DEVICE, "Is this file a device?", HFILL }},
+		TFS(&tfs_file_attribute_device), SMB_FILE_ATTRIBUTE_DEVICE, "Is this file a device?", HFILL }},
 
 	{ &hf_smb_file_eattr_normal,
 		{ "Normal", "smb.file_attribute.normal", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_normal), FILE_ATTRIBUTE_NORMAL, "Is this a normal file?", HFILL }},
+		TFS(&tfs_file_attribute_normal), SMB_FILE_ATTRIBUTE_NORMAL, "Is this a normal file?", HFILL }},
 
 	{ &hf_smb_file_eattr_temporary,
 		{ "Temporary", "smb.file_attribute.temporary", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_temporary), FILE_ATTRIBUTE_TEMPORARY, "Is this a temporary file?", HFILL }},
+		TFS(&tfs_file_attribute_temporary), SMB_FILE_ATTRIBUTE_TEMPORARY, "Is this a temporary file?", HFILL }},
 
 	{ &hf_smb_file_eattr_sparse,
 		{ "Sparse", "smb.file_attribute.sparse", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_sparse), FILE_ATTRIBUTE_SPARSE, "Is this a sparse file?", HFILL }},
+		TFS(&tfs_file_attribute_sparse), SMB_FILE_ATTRIBUTE_SPARSE, "Is this a sparse file?", HFILL }},
 
 	{ &hf_smb_file_eattr_reparse,
 		{ "Reparse Point", "smb.file_attribute.reparse", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_reparse), FILE_ATTRIBUTE_REPARSE, "Does this file have an associated reparse point?", HFILL }},
+		TFS(&tfs_file_attribute_reparse), SMB_FILE_ATTRIBUTE_REPARSE, "Does this file have an associated reparse point?", HFILL }},
 
 	{ &hf_smb_file_eattr_compressed,
 		{ "Compressed", "smb.file_attribute.compressed", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_compressed), FILE_ATTRIBUTE_COMPRESSED, "Is this file compressed?", HFILL }},
+		TFS(&tfs_file_attribute_compressed), SMB_FILE_ATTRIBUTE_COMPRESSED, "Is this file compressed?", HFILL }},
 
 	{ &hf_smb_file_eattr_offline,
 		{ "Offline", "smb.file_attribute.offline", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_offline), FILE_ATTRIBUTE_OFFLINE, "Is this file offline?", HFILL }},
+		TFS(&tfs_file_attribute_offline), SMB_FILE_ATTRIBUTE_OFFLINE, "Is this file offline?", HFILL }},
 
 	{ &hf_smb_file_eattr_not_content_indexed,
 		{ "Content Indexed", "smb.file_attribute.not_content_indexed", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_not_content_indexed), FILE_ATTRIBUTE_NOT_CONTENT_INDEXED, "May this file be indexed by the content indexing service", HFILL }},
+		TFS(&tfs_file_attribute_not_content_indexed), SMB_FILE_ATTRIBUTE_NOT_CONTENT_INDEXED, "May this file be indexed by the content indexing service", HFILL }},
 
 	{ &hf_smb_file_eattr_encrypted,
 		{ "Encrypted", "smb.file_attribute.encrypted", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_encrypted), FILE_ATTRIBUTE_ENCRYPTED, "Is this file encrypted?", HFILL }},
+		TFS(&tfs_file_attribute_encrypted), SMB_FILE_ATTRIBUTE_ENCRYPTED, "Is this file encrypted?", HFILL }},
 
 	{ &hf_smb_file_eattr_write_through,
 		{ "Write Through", "smb.file_attribute.write_through", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_write_through), FILE_ATTRIBUTE_WRITE_THROUGH, "Does this object need write through?", HFILL }},
+		TFS(&tfs_file_attribute_write_through), SMB_FILE_ATTRIBUTE_WRITE_THROUGH, "Does this object need write through?", HFILL }},
 
 	{ &hf_smb_file_eattr_no_buffering,
 		{ "No Buffering", "smb.file_attribute.no_buffering", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_no_buffering), FILE_ATTRIBUTE_NO_BUFFERING, "May the server buffer this object?", HFILL }},
+		TFS(&tfs_file_attribute_no_buffering), SMB_FILE_ATTRIBUTE_NO_BUFFERING, "May the server buffer this object?", HFILL }},
 
 	{ &hf_smb_file_eattr_random_access,
 		{ "Random Access", "smb.file_attribute.random_access", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_random_access), FILE_ATTRIBUTE_RANDOM_ACCESS, "Optimize for random access", HFILL }},
+		TFS(&tfs_file_attribute_random_access), SMB_FILE_ATTRIBUTE_RANDOM_ACCESS, "Optimize for random access", HFILL }},
 
 	{ &hf_smb_file_eattr_sequential_scan,
 		{ "Sequential Scan", "smb.file_attribute.sequential_scan", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_sequential_scan), FILE_ATTRIBUTE_SEQUENTIAL_SCAN, "Optimize for sequential scan", HFILL }},
+		TFS(&tfs_file_attribute_sequential_scan), SMB_FILE_ATTRIBUTE_SEQUENTIAL_SCAN, "Optimize for sequential scan", HFILL }},
 
 	{ &hf_smb_file_eattr_delete_on_close,
 		{ "Delete on Close", "smb.file_attribute.delete_on_close", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_delete_on_close), FILE_ATTRIBUTE_DELETE_ON_CLOSE, "Should this object be deleted on close?", HFILL }},
+		TFS(&tfs_file_attribute_delete_on_close), SMB_FILE_ATTRIBUTE_DELETE_ON_CLOSE, "Should this object be deleted on close?", HFILL }},
 
 	{ &hf_smb_file_eattr_backup_semantics,
 		{ "Backup", "smb.file_attribute.backup_semantics", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_backup_semantics), FILE_ATTRIBUTE_BACKUP_SEMANTICS, "Does this object need/support backup semantics", HFILL }},
+		TFS(&tfs_file_attribute_backup_semantics), SMB_FILE_ATTRIBUTE_BACKUP_SEMANTICS, "Does this object need/support backup semantics", HFILL }},
 
 	{ &hf_smb_file_eattr_posix_semantics,
 		{ "Posix", "smb.file_attribute.posix_semantics", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_posix_semantics), FILE_ATTRIBUTE_POSIX_SEMANTICS, "Does this object need/support POSIX semantics?", HFILL }},
+		TFS(&tfs_file_attribute_posix_semantics), SMB_FILE_ATTRIBUTE_POSIX_SEMANTICS, "Does this object need/support POSIX semantics?", HFILL }},
 
 	{ &hf_smb_sec_desc_len,
 		{ "NT Security Descriptor Length", "smb.sec_desc_len", FT_UINT32, BASE_DEC,
