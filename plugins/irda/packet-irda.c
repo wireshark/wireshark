@@ -6,7 +6,7 @@
  * Extended by Jan Kiszka <jan.kiszka@web.de>
  * Copyright 2003 Jan Kiszka
  *
- * $Id: packet-irda.c,v 1.7 2004/03/08 23:19:14 guy Exp $
+ * $Id: packet-irda.c,v 1.8 2004/06/30 15:42:24 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -153,8 +153,6 @@
 #ifndef ENABLE_STATIC
 G_MODULE_EXPORT const gchar version[] = VERSION;
 #endif
-
-dissector_handle_t data_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_irlap = -1;
