@@ -190,9 +190,9 @@ ps.c	: rdps.exe print.ps
 dfilter-scanner.obj : dfilter-scanner.c dfilter-grammar.h
 
 dfilter-scanner.c : dfilter-scanner.l
-	$(LEX) -Pdfilter_ -t dfilter-scanner.l > dfilter-scanner.c 
+	$(LEX) -Pdfilter_ -odfilter-scanner.c dfilter-scanner.l
 
-dfilter-grammar.c dfilter-grammer.h : dfilter-grammar.y
+dfilter-grammar.c dfilter-grammar.h : dfilter-grammar.y
 	$(YACC) $(YACC_OPTS) -d -p dfilter_ dfilter-grammar.y -o dfilter-grammar.c
 
 clean:
