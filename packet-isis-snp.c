@@ -1,7 +1,7 @@
 /* packet-isis-snp.c
  * Routines for decoding isis complete & partial SNP and their payload
  *
- * $Id: packet-isis-snp.c,v 1.22 2003/07/09 04:25:16 guy Exp $
+ * $Id: packet-isis-snp.c,v 1.23 2003/12/08 20:40:33 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -40,46 +40,56 @@
 /* csnp packets */
 static int hf_isis_csnp_pdu_length = -1;
 static gint ett_isis_csnp = -1;
-static gint ett_isis_csnp_lsp_entries = -1;
+static gint ett_isis_csnp_clv_lsp_entries = -1;
 static gint ett_isis_csnp_lsp_entry = -1;
-static gint ett_isis_csnp_authentication = -1;
+static gint ett_isis_csnp_clv_authentication = -1;
+static gint ett_isis_csnp_clv_ip_authentication = -1;
+static gint ett_isis_csnp_clv_checksum = -1;
 static gint ett_isis_csnp_clv_unknown = -1;
 
 /* psnp packets */
 static int hf_isis_psnp_pdu_length = -1;
 static gint ett_isis_psnp = -1;
-static gint ett_isis_psnp_lsp_entries = -1;
+static gint ett_isis_psnp_clv_lsp_entries = -1;
 static gint ett_isis_psnp_lsp_entry = -1;
-static gint ett_isis_psnp_authentication = -1;
+static gint ett_isis_psnp_clv_authentication = -1;
+static gint ett_isis_psnp_clv_ip_authentication = -1;
+static gint ett_isis_psnp_clv_checksum = -1;
 static gint ett_isis_psnp_clv_unknown = -1;
 
-static void dissect_l1_snp_authentication_clv(tvbuff_t *tvb,
+static void dissect_snp_authentication_clv(tvbuff_t *tvb,
 	proto_tree *tree, int offset, int id_length, int length);
-static void dissect_l2_snp_authentication_clv(tvbuff_t *tvb,
+static void dissect_snp_ip_authentication_clv(tvbuff_t *tvb,
 	proto_tree *tree, int offset, int id_length, int length);
-static void dissect_csnp_lsp_entries(tvbuff_t *tvb,
+static void dissect_snp_checksum_clv(tvbuff_t *tvb,
 	proto_tree *tree, int offset, int id_length, int length);
-static void dissect_psnp_lsp_entries(tvbuff_t *tvb,
+static void dissect_snp_lsp_entries_clv(tvbuff_t *tvb,
 	proto_tree *tree, int offset, int id_length, int length);
 
 static const isis_clv_handle_t clv_l1_csnp_opts[] = {
 	{
-		ISIS_CLV_L1_CSNP_LSP_ENTRIES,
+		ISIS_CLV_LSP_ENTRIES,
 		"LSP entries",
-		&ett_isis_csnp_lsp_entries,
-		dissect_csnp_lsp_entries
+		&ett_isis_csnp_clv_lsp_entries,
+		dissect_snp_lsp_entries_clv
 	},
 	{
-		ISIS_CLV_L1_CSNP_AUTHENTICATION_NS,
-		"Authentication(non spec)",
-		&ett_isis_csnp_authentication,
-		dissect_l1_snp_authentication_clv
-	},
-	{
-		ISIS_CLV_L1_CSNP_AUTHENTICATION,
+		ISIS_CLV_AUTHENTICATION,
 		"Authentication",
-		&ett_isis_csnp_authentication,
-		dissect_l1_snp_authentication_clv
+		&ett_isis_csnp_clv_authentication,
+		dissect_snp_authentication_clv
+	},
+	{
+		ISIS_CLV_IP_AUTHENTICATION,
+		"IP Authentication",
+		&ett_isis_csnp_clv_ip_authentication,
+		dissect_snp_ip_authentication_clv
+	},
+	{
+		ISIS_CLV_CHECKSUM,
+		"Checksum",
+		&ett_isis_csnp_clv_checksum,
+		dissect_snp_checksum_clv
 	},
 	{
 		0, "", NULL, NULL
@@ -88,22 +98,28 @@ static const isis_clv_handle_t clv_l1_csnp_opts[] = {
 
 static const isis_clv_handle_t clv_l2_csnp_opts[] = {
 	{
-		ISIS_CLV_L2_CSNP_LSP_ENTRIES,
+		ISIS_CLV_LSP_ENTRIES,
 		"LSP entries",
-		&ett_isis_csnp_lsp_entries,
-		dissect_csnp_lsp_entries
+		&ett_isis_csnp_clv_lsp_entries,
+		dissect_snp_lsp_entries_clv
 	},
 	{
-		ISIS_CLV_L2_CSNP_AUTHENTICATION_NS,
-		"Authentication(non spec)",
-		&ett_isis_csnp_authentication,
-		dissect_l2_snp_authentication_clv
-	},
-	{
-		ISIS_CLV_L2_CSNP_AUTHENTICATION,
+		ISIS_CLV_AUTHENTICATION,
 		"Authentication",
-		&ett_isis_csnp_authentication,
-		dissect_l2_snp_authentication_clv
+		&ett_isis_csnp_clv_authentication,
+		dissect_snp_authentication_clv
+	},
+	{
+		ISIS_CLV_IP_AUTHENTICATION,
+		"IP Authentication",
+		&ett_isis_csnp_clv_ip_authentication,
+		dissect_snp_ip_authentication_clv
+	},
+	{
+		ISIS_CLV_CHECKSUM,
+		"Checksum",
+		&ett_isis_csnp_clv_checksum,
+		dissect_snp_checksum_clv
 	},
 	{
 		0, "", NULL, NULL
@@ -112,22 +128,28 @@ static const isis_clv_handle_t clv_l2_csnp_opts[] = {
 
 static const isis_clv_handle_t clv_l1_psnp_opts[] = {
 	{
-		ISIS_CLV_L1_PSNP_LSP_ENTRIES,
+		ISIS_CLV_LSP_ENTRIES,
 		"LSP entries",
-		&ett_isis_psnp_lsp_entries,
-		dissect_psnp_lsp_entries
+		&ett_isis_psnp_clv_lsp_entries,
+		dissect_snp_lsp_entries_clv
 	},
 	{
-		ISIS_CLV_L1_PSNP_AUTHENTICATION_NS,
-		"Authentication(non spec)",
-		&ett_isis_psnp_authentication,
-		dissect_l1_snp_authentication_clv
-	},
-	{
-		ISIS_CLV_L1_PSNP_AUTHENTICATION,
+		ISIS_CLV_AUTHENTICATION,
 		"Authentication",
-		&ett_isis_psnp_authentication,
-		dissect_l1_snp_authentication_clv
+		&ett_isis_psnp_clv_authentication,
+		dissect_snp_authentication_clv
+	},
+	{
+		ISIS_CLV_IP_AUTHENTICATION,
+		"IP Authentication",
+		&ett_isis_psnp_clv_ip_authentication,
+		dissect_snp_ip_authentication_clv
+	},
+	{
+		ISIS_CLV_CHECKSUM,
+		"Checksum",
+		&ett_isis_psnp_clv_checksum,
+		dissect_snp_checksum_clv
 	},
 	{
 		0, "", NULL, NULL
@@ -136,22 +158,28 @@ static const isis_clv_handle_t clv_l1_psnp_opts[] = {
 
 static const isis_clv_handle_t clv_l2_psnp_opts[] = {
 	{
-		ISIS_CLV_L2_PSNP_LSP_ENTRIES,
+		ISIS_CLV_LSP_ENTRIES,
 		"LSP entries",
-		&ett_isis_psnp_lsp_entries,
-		dissect_psnp_lsp_entries
+		&ett_isis_psnp_clv_lsp_entries,
+		dissect_snp_lsp_entries_clv
 	},
 	{
-		ISIS_CLV_L2_PSNP_AUTHENTICATION_NS,
-		"Authentication(non spec)",
-		&ett_isis_psnp_authentication,
-		dissect_l2_snp_authentication_clv
-	},
-	{
-		ISIS_CLV_L2_PSNP_AUTHENTICATION,
+		ISIS_CLV_AUTHENTICATION,
 		"Authentication",
-		&ett_isis_psnp_authentication,
-		dissect_l2_snp_authentication_clv
+		&ett_isis_psnp_clv_authentication,
+		dissect_snp_authentication_clv
+	},
+	{
+		ISIS_CLV_IP_AUTHENTICATION,
+		"IP Authentication",
+		&ett_isis_psnp_clv_ip_authentication,
+		dissect_snp_ip_authentication_clv
+	},
+	{
+		ISIS_CLV_CHECKSUM,
+		"Checksum",
+		&ett_isis_psnp_clv_checksum,
+		dissect_snp_checksum_clv
 	},
 	{
 		0, "", NULL, NULL
@@ -159,7 +187,7 @@ static const isis_clv_handle_t clv_l2_psnp_opts[] = {
 };
 
 /*
- * Name: dissect_snp_lsp_entries()
+ * Name: dissect_snp_lsp_entries_clv()
  *
  * Description:
  *	All the snp packets use a common payload format.  We have up
@@ -180,7 +208,7 @@ static const isis_clv_handle_t clv_l2_psnp_opts[] = {
  *      void, but we will add to proto tree if !NULL.
  */
 static void
-dissect_csnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
+dissect_snp_lsp_entries_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int id_length, int length)
 {
         proto_tree *subtree,*ti;
@@ -188,7 +216,7 @@ dissect_csnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
 	while ( length > 0 ) {
 		if ( length < 2+id_length+2+4+2 ) {
 			isis_dissect_unknown(tvb, tree, offset,
-				"Short CSNP header entry (%d vs %d)", length,
+				"Short SNP header entry (%d vs %d)", length,
 				2+id_length+2+4+2 );
 			return;
 		}
@@ -224,50 +252,6 @@ dissect_csnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 }
 
-static void
-dissect_psnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
-	int id_length, int length)
-{
-        proto_tree *subtree,*ti;
-
-	while ( length > 0 ) {
-		if ( length < 2+id_length+2+4+2 ) {
-			isis_dissect_unknown(tvb, tree, offset,
-				"Short PSNP header entry (%d vs %d)", length,
-				2+id_length+2+4+2 );
-			return;
-		}
-
-	        ti = proto_tree_add_text(tree, tvb, offset, 2+id_length+2+4+2,
-                                    "LSP-ID: %s, Sequence: 0x%08x, Lifetime: %5us, Checksum: 0x%04x",
-                                           print_system_id( tvb_get_ptr(tvb, offset+2, id_length+2), id_length+2 ),
-                                           tvb_get_ntohl(tvb, offset+2+id_length+2),
-                                           tvb_get_ntohs(tvb, offset),
-                                           tvb_get_ntohs(tvb, offset+2+id_length+2+4));
-
-                subtree = proto_item_add_subtree(ti,ett_isis_psnp_lsp_entry);
-
-		proto_tree_add_text(subtree, tvb, offset+2, 8,
-			"LSP-ID:             : %s",
-			print_system_id( tvb_get_ptr(tvb, offset+2, id_length+2), id_length+2 ));
-
-		proto_tree_add_text(subtree, tvb, offset+2+id_length+2, 4,
-			"LSP Sequence Number : 0x%08x",
-			tvb_get_ntohl(tvb, offset+2+id_length+2));
-
-		proto_tree_add_text(subtree, tvb, offset, 2,
-			"Remaining Lifetime  : %us",
-			tvb_get_ntohs(tvb, offset));
-
-		proto_tree_add_text(subtree, tvb, offset+2+id_length+2+4, 2,
-			"LSP checksum        : 0x%04x",
-			tvb_get_ntohs(tvb, offset+2+id_length+2+4));
-
-		length -= 2+id_length+2+4+2;
-		offset += 2+id_length+2+4+2;
-	}
-
-}
 
 /*
  * Name: isis_dissect_isis_csnp()
@@ -429,11 +413,11 @@ isis_dissect_isis_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 }
 
 /*
- * Name: dissect_L1_snp_authentication_clv()
+ * Name: dissect_snp_authentication_clv()
  *
  * Description:
- *	Decode for a lsp packets authenticaion clv.  Calls into the
- *	clv common one.  An auth inside a L1 SNP is a per area password
+ *	Decode for a snp packets authenticaion clv.
+ *      Calls into the CLV common one.
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
@@ -446,19 +430,18 @@ isis_dissect_isis_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
  *	void, will modify proto_tree if not null.
  */
 static void
-dissect_l1_snp_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
+dissect_snp_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int id_length _U_, int length)
 {
-	isis_dissect_authentication_clv(tvb, tree, offset, length,
-		"Per area authentication" );
+	isis_dissect_authentication_clv(tvb, tree, offset, length);
 }
 
 /*
- * Name: dissect_l2_authentication_clv()
+ * Name: dissect_snp_ip_authentication_clv()
  *
  * Description:
- *	Decode for a lsp packets authenticaion clv.  Calls into the
- *	clv common one.  An auth inside a L2 LSP is a per domain password
+ *	Decode for a snp packets authenticaion clv.
+ *      Calls into the CLV common one.
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
@@ -471,11 +454,77 @@ dissect_l1_snp_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  *	void, will modify proto_tree if not null.
  */
 static void
-dissect_l2_snp_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
+dissect_snp_ip_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int id_length _U_, int length)
 {
-	isis_dissect_authentication_clv(tvb, tree, offset, length,
-		"Per domain authentication" );
+	isis_dissect_ip_authentication_clv(tvb, tree, offset, length);
+}
+
+/*
+ * Name: dissect_snp_checksum_clv()
+ *
+ * Description:
+ *      dump and verify the optional checksum in TLV 12
+ *
+ * Input:
+ *      tvbuff_t * : tvbuffer for packet data
+ *      proto_tree * : protocol display tree to fill out.  May be NULL
+ *      int : offset into packet data where we are.
+ *      int : length of clv we are decoding
+ *
+ * Output:
+ *      void, but we will add to proto tree if !NULL.
+ */
+
+static void
+dissect_snp_checksum_clv(tvbuff_t *tvb,
+        proto_tree *tree, int offset, int id_length _U_, int length) {
+
+	guint16 pdu_length,checksum, cacl_checksum=0;
+
+	if (tree) {
+                if ( length != 2 ) {
+                        proto_tree_add_text ( tree, tvb, offset, length,
+                                              "incorrect checksum length (%u), should be (2)", length );
+                        return;
+                }
+
+    		checksum = tvb_get_ntohs(tvb, offset);    		
+
+                /* the check_and_get_checksum() function needs to know how big
+                 * the packet is. we can either pass through the pdu-len through several layers
+                 * of dissectors and wrappers or extract the PDU length field from the PDU specific header
+                 * which is offseted 8 bytes (relative to the beginning of the IS-IS packet) in SNPs */
+
+    		pdu_length = tvb_get_ntohs(tvb, 8);   
+
+                /* unlike the LSP checksum verification which starts at an offset of 12 we start at offset 0*/
+		switch (check_and_get_checksum(tvb, 0, pdu_length, checksum, offset, &cacl_checksum))
+		{
+
+        		case NO_CKSUM :
+                                proto_tree_add_text ( tree, tvb, offset, length,
+                                                      "Checksum: 0x%04x (unused)", checksum);
+       	 		break;
+        		case DATA_MISSING :
+          			isis_dissect_unknown(tvb, tree, offset,
+                                                     "packet length %d went beyond packet",
+                                                     tvb_length_remaining(tvb, 0));
+        		break;
+        		case CKSUM_NOT_OK :
+                                proto_tree_add_text ( tree, tvb, offset, length,
+                                                      "Checksum: 0x%04x (incorrect, should be 0x%04x)",
+                                                      checksum,
+                                                      cacl_checksum);
+        		break;
+	        	case CKSUM_OK :
+                                proto_tree_add_text ( tree, tvb, offset, length,
+                                                      "Checksum: 0x%04x (correct)", checksum);
+        		break;
+        		default :
+          			g_message("'check_and_get_checksum' returned an invalid value");
+    		}
+	}
 }
 
 /*
@@ -499,9 +548,11 @@ isis_register_csnp(int proto_isis) {
 	};
 	static gint *ett[] = {
 		&ett_isis_csnp,
-		&ett_isis_csnp_lsp_entries,
+		&ett_isis_csnp_clv_lsp_entries,
 		&ett_isis_csnp_lsp_entry,
-		&ett_isis_csnp_authentication,
+		&ett_isis_csnp_clv_authentication,
+		&ett_isis_csnp_clv_ip_authentication,
+		&ett_isis_csnp_clv_checksum,
 		&ett_isis_csnp_clv_unknown,
 	};
 
@@ -531,9 +582,11 @@ isis_register_psnp(int proto_isis) {
 	};
 	static gint *ett[] = {
 		&ett_isis_psnp,
-		&ett_isis_psnp_lsp_entries,
+		&ett_isis_psnp_clv_lsp_entries,
 		&ett_isis_psnp_lsp_entry,
-		&ett_isis_psnp_authentication,
+		&ett_isis_psnp_clv_authentication,
+		&ett_isis_psnp_clv_ip_authentication,
+		&ett_isis_psnp_clv_checksum,
 		&ett_isis_psnp_clv_unknown,
 	};
 

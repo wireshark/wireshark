@@ -1,7 +1,7 @@
 /* packet-isis-snp.h
  * Defines and such for CSNP, PSNP, and their payloads
  *
- * $Id: packet-isis-snp.h,v 1.7 2002/08/29 18:52:51 guy Exp $
+ * $Id: packet-isis-snp.h,v 1.8 2003/12/08 20:40:33 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -25,39 +25,6 @@
 
 #ifndef _PACKET_ISIS_SNP_H
 #define _PACKET_ISIS_SNP_H
-
-/*
- * Note, the spec say 133 for authentication, but everyone seems to use 10.
- * Any clue on why this is would be appreciated!
- */
-
-/*
- * detail cvls information for L1 CSNP packets
- */
-#define ISIS_CLV_L1_CSNP_LSP_ENTRIES		9
-#define ISIS_CLV_L1_CSNP_AUTHENTICATION_NS	10
-#define ISIS_CLV_L1_CSNP_AUTHENTICATION		133
-
-/*
- * detail cvls information for L2 CSNP packets
- */
-#define ISIS_CLV_L2_CSNP_LSP_ENTRIES		9
-#define ISIS_CLV_L2_CSNP_AUTHENTICATION_NS	10
-#define ISIS_CLV_L2_CSNP_AUTHENTICATION		133
-
-/*
- * detail cvls information for L1 PSNP packets
- */
-#define ISIS_CLV_L1_PSNP_LSP_ENTRIES		9
-#define ISIS_CLV_L1_PSNP_AUTHENTICATION_NS	10
-#define ISIS_CLV_L1_PSNP_AUTHENTICATION		133
-
-/*
- * detail cvls information for L2 PSNP packets
- */
-#define ISIS_CLV_L2_PSNP_LSP_ENTRIES		9
-#define ISIS_CLV_L2_PSNP_AUTHENTICATION_NS	10
-#define ISIS_CLV_L2_PSNP_AUTHENTICATION		133
 
 /*
  * Published API functions.  NOTE, this are "local" API functions and

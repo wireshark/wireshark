@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.28 2003/06/04 08:46:35 guy Exp $
+ * $Id: packet-isis-clv.c,v 1.29 2003/12/08 20:40:32 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -128,26 +128,23 @@ isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  *
  * Description:
  *	Take apart the CLV that hold authentication information.  This
- *	is currently 1 octet auth type (which must be 1) and then
- *	the clear text password.
- *
- *	An ISIS password has different meaning depending where it
- *	is found.  Thus we support a passed in prefix string to
- *	use to name this.
+ *	is currently 1 octet auth type.
+ *      the two defined authentication types
+ *	  are 1 for a clear text password and
+ *           54 for a HMAC-MD5 digest
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *	int : offset into packet data where we are.
  *	int : length of clv we are decoding
- *	char * : Password meaning
  *
  * Output:
  *	void, but we will add to proto tree if !NULL.
  */
 void
 isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
-	int length, char *meaning)
+	int length)
 {
 	guchar pw_type;
 	int auth_unsupported;
@@ -204,8 +201,7 @@ isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		break;
 	}
 
-	proto_tree_add_text ( tree, tvb, offset - 1, length + 1,
-			"%s %s", meaning, gstr->str );
+	proto_tree_add_text ( tree, tvb, offset - 1, length + 1, "%s", gstr->str );
 
 	/*
 	 * We're done with the GString, so delete it and get rid of
@@ -218,6 +214,38 @@ isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
        			"Unknown authentication type" );
 	}
 }
+
+/*
+ * Name: isis_ip_authentication_clv()
+ *
+ * Description:
+ *      dump the IP authentication information found in TLV 133
+ *      the CLV is standardized in rf1195, however all major
+ *      implementations use TLV #10
+ * Input:
+ *      tvbuff_t * : tvbuffer for packet data
+ *      proto_tree * : protocol display tree to fill out.  May be NULL
+ *      int : offset into packet data where we are.
+ *      int : length of clv we are decoding
+ *
+ * Output:
+ *      void, but we will add to proto tree if !NULL.
+ */
+
+
+void
+isis_dissect_ip_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
+	int length)
+{
+        if ( !tree ) return;            /* nothing to do! */
+
+        if ( length != 0 ) {
+                proto_tree_add_text ( tree, tvb, offset, length,
+                        "IP Authentication: %.*s", length,
+                        tvb_get_ptr(tvb, offset, length) );
+        }
+}
+
 
 /*
  * Name: isis_dissect_hostname_clv()

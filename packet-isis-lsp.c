@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.45 2003/11/19 09:58:37 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.46 2003/12/08 20:40:33 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -70,7 +70,8 @@ static gint ett_isis_lsp_clv_prefix_neighbors = -1;
 static gint ett_isis_lsp_clv_nlpid = -1;
 static gint ett_isis_lsp_clv_hostname = -1;
 static gint ett_isis_lsp_clv_te_router_id = -1;
-static gint ett_isis_lsp_clv_auth = -1;
+static gint ett_isis_lsp_clv_authentication = -1;
+static gint ett_isis_lsp_clv_ip_authentication = -1;
 static gint ett_isis_lsp_clv_ipv4_int_addr = -1;
 static gint ett_isis_lsp_clv_ipv6_int_addr = -1; /* CLV 232 */
 static gint ett_isis_lsp_clv_ip_reachability = -1;
@@ -122,9 +123,9 @@ static void dissect_lsp_l1_is_neighbors_clv(tvbuff_t *tvb,
 	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_area_address_clv(tvbuff_t *tvb,
 	proto_tree *tree, int offset, int id_length, int length);
-static void dissect_lsp_l2_auth_clv(tvbuff_t *tvb,
+static void dissect_lsp_authentication_clv(tvbuff_t *tvb,
 	proto_tree *tree, int offset, int id_length, int length);
-static void dissect_lsp_l1_auth_clv(tvbuff_t *tvb,
+static void dissect_lsp_ip_authentication_clv(tvbuff_t *tvb,
 	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_ipv6_int_addr_clv(tvbuff_t *tvb,
 	proto_tree *tree, int offset, int id_length, int length);
@@ -154,115 +155,115 @@ static void dissect_lsp_mt_reachable_IPv6_prefx_clv(tvbuff_t *tvb,
 
 static const isis_clv_handle_t clv_l1_lsp_opts[] = {
 	{
-		ISIS_CLV_L1_LSP_AREA_ADDRESS,
+		ISIS_CLV_AREA_ADDRESS,
 		"Area address(es)",
 		&ett_isis_lsp_clv_area_addr,
 		dissect_lsp_area_address_clv
 	},
 	{
-		ISIS_CLV_L1_LSP_IS_NEIGHBORS,
+		ISIS_CLV_IS_REACH,
 		"IS Reachability",
 		&ett_isis_lsp_clv_is_neighbors,
 		dissect_lsp_l1_is_neighbors_clv
 	},
 	{
-		ISIS_CLV_L1_LSP_ES_NEIGHBORS,
+		ISIS_CLV_ES_NEIGHBORS,
 		"ES Neighbor(s)",
 		&ett_isis_lsp_clv_is_neighbors,
 		dissect_lsp_l1_es_neighbors_clv
 	},
 	{
-		ISIS_CLV_L1_LSP_EXT_IS_REACHABLE,
+		ISIS_CLV_EXTD_IS_REACH,
 		"Extended IS reachability",
 		&ett_isis_lsp_clv_ext_is_reachability,
 		dissect_lsp_ext_is_reachability_clv
 	},
 	{
-		ISIS_CLV_L1_LSP_IP_INT_REACHABLE,
+		ISIS_CLV_INT_IP_REACH,
 		"IP Internal reachability",
 		&ett_isis_lsp_clv_ip_reachability,
 		dissect_lsp_ip_reachability_clv
 	},
 	{
-		ISIS_CLV_L1_LSP_IP_EXT_REACHABLE,
+		ISIS_CLV_EXT_IP_REACH,
 		"IP External reachability",
 		&ett_isis_lsp_clv_ip_reachability,
 		dissect_lsp_ip_reachability_clv
 	},
 	{
-		ISIS_CLV_L1_LSP_EXT_IP_REACHABLE,
+		ISIS_CLV_EXTD_IP_REACH,
 		"Extended IP Reachability",
 		&ett_isis_lsp_clv_ext_ip_reachability,
 		dissect_lsp_ext_ip_reachability_clv
 	},
 	{
-		ISIS_CLV_L1_LSP_IPv6_REACHABLE,
+		ISIS_CLV_IP6_REACH,
 		"IPv6 reachability",
 		&ett_isis_lsp_clv_ipv6_reachability,
 		dissect_lsp_ipv6_reachability_clv
 	},
 	{
-		ISIS_CLV_L1_LSP_NLPID,
+		ISIS_CLV_PROTOCOLS_SUPPORTED,
 		"Protocols supported",
 		&ett_isis_lsp_clv_nlpid,
 		dissect_lsp_nlpid_clv
 	},
         {
-                ISIS_CLV_L1_LSP_HOSTNAME,
+                ISIS_CLV_HOSTNAME,
                 "Hostname",
                 &ett_isis_lsp_clv_hostname,
                 dissect_lsp_hostname_clv
         },
         {
-                ISIS_CLV_L1_LSP_TE_ROUTER_ID,
+                ISIS_CLV_TE_ROUTER_ID,
                 "Traffic Engineering Router ID",
                 &ett_isis_lsp_clv_te_router_id,
                 dissect_lsp_te_router_id_clv
         },
 	{
-		ISIS_CLV_L1_LSP_IP_INTERFACE_ADDR,
+		ISIS_CLV_IP_ADDR,
 		"IP Interface address(es)",
 		&ett_isis_lsp_clv_ipv4_int_addr,
 		dissect_lsp_ip_int_addr_clv
 	},
 	{
-		ISIS_CLV_L1_LSP_IPv6_INTERFACE_ADDR,
+		ISIS_CLV_IP6_ADDR,
 		"IPv6 Interface address(es)",
 		&ett_isis_lsp_clv_ipv6_int_addr,
 		dissect_lsp_ipv6_int_addr_clv
 	},
 	{
-		ISIS_CLV_L1_LSP_AUTHENTICATION_NS,
-		"Authentication(non-spec)",
-		&ett_isis_lsp_clv_auth,
-		dissect_lsp_l1_auth_clv
-	},
-	{
-		ISIS_CLV_L1_LSP_AUTHENTICATION,
+		ISIS_CLV_AUTHENTICATION,
 		"Authentication",
-		&ett_isis_lsp_clv_auth,
-		dissect_lsp_l1_auth_clv
+		&ett_isis_lsp_clv_authentication,
+		dissect_lsp_authentication_clv
 	},
 	{
-		ISIS_CLV_L1_LSP_MT,
-		"Multi Topology",
+		ISIS_CLV_IP_AUTHENTICATION,
+		"IP Authentication",
+		&ett_isis_lsp_clv_ip_authentication,
+		dissect_lsp_ip_authentication_clv
+	},
+	{
+		ISIS_CLV_MT_SUPPORTED,
+		"Multi Topology supported",
 		&ett_isis_lsp_clv_mt,
 		dissect_lsp_mt_clv
 	},
 	{
-		ISIS_CLV_L1_LSP_MT_IS_REACHABLE,
+		ISIS_CLV_MT_IS_REACH,
 		"Multi Topology IS Reachability",
 		&ett_isis_lsp_clv_mt_is,
 		dissect_lsp_mt_is_reachability_clv
 	},
 	{
-		ISIS_CLV_L1_LSP_MT_REACHABLE_IPv4_PREFX,
+		ISIS_CLV_MT_IP_REACH,
 		"Multi Topology Reachable IPv4 Prefixes",
 		&ett_isis_lsp_clv_mt_reachable_IPv4_prefx,
 		dissect_lsp_mt_reachable_IPv4_prefx_clv
 	},
 	{
-		ISIS_CLV_L1_LSP_MT_REACHABLE_IPv6_PREFX,
+		ISIS_CLV_MT_IP6_REACH,
 		"Multi Topology Reachable IPv6 Prefixes",
 		&ett_isis_lsp_clv_mt_reachable_IPv6_prefx,
 		dissect_lsp_mt_reachable_IPv6_prefx_clv
@@ -277,121 +278,121 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
 
 static const isis_clv_handle_t clv_l2_lsp_opts[] = {
 	{
-		ISIS_CLV_L1_LSP_AREA_ADDRESS,
+		ISIS_CLV_AREA_ADDRESS,
 		"Area address(es)",
 		&ett_isis_lsp_clv_area_addr,
 		dissect_lsp_area_address_clv
 	},
 	{
-		ISIS_CLV_L2_LSP_IS_NEIGHBORS,
+		ISIS_CLV_IS_REACH,
 		"IS Reachability",
 		&ett_isis_lsp_clv_is_neighbors,
 		dissect_lsp_l2_is_neighbors_clv
 	},
 	{
-		ISIS_CLV_L2_LSP_EXT_IS_REACHABLE,
+		ISIS_CLV_EXTD_IS_REACH,
 		"Extended IS reachability",
 		&ett_isis_lsp_clv_ext_is_reachability,
 		dissect_lsp_ext_is_reachability_clv
 	},
 	{
-		ISIS_CLV_L2_LSP_PARTITION_DIS,
+		ISIS_CLV_PARTITION_DIS,
 		"Parition Designated Level 2 IS",
 		&ett_isis_lsp_clv_partition_dis,
 		dissect_lsp_partition_dis_clv
 	},
 	{
-		ISIS_CLV_L2_LSP_PREFIX_NEIGHBORS,
+		ISIS_CLV_PREFIX_NEIGHBORS,
 		"Prefix neighbors",
 		&ett_isis_lsp_clv_prefix_neighbors,
 		dissect_lsp_prefix_neighbors_clv
 	},
 	{
-		ISIS_CLV_L2_LSP_IP_INT_REACHABLE,
+		ISIS_CLV_INT_IP_REACH,
 		"IP Internal reachability",
 		&ett_isis_lsp_clv_ip_reachability,
 		dissect_lsp_ip_reachability_clv
 	},
 	{
-		ISIS_CLV_L2_LSP_IP_EXT_REACHABLE,
+		ISIS_CLV_EXT_IP_REACH,
 		"IP External reachability",
 		&ett_isis_lsp_clv_ip_reachability,
 		dissect_lsp_ip_reachability_clv
 	},
 	{
-		ISIS_CLV_L2_LSP_NLPID,
+		ISIS_CLV_PROTOCOLS_SUPPORTED,
 		"Protocols supported",
 		&ett_isis_lsp_clv_nlpid,
 		dissect_lsp_nlpid_clv
 	},
         {
-                ISIS_CLV_L2_LSP_HOSTNAME,
+                ISIS_CLV_HOSTNAME,
                 "Hostname",
                 &ett_isis_lsp_clv_hostname,
                 dissect_lsp_hostname_clv
         },
         {
-                ISIS_CLV_L2_LSP_TE_ROUTER_ID,
+                ISIS_CLV_TE_ROUTER_ID,
                 "Traffic Engineering Router ID",
                 &ett_isis_lsp_clv_te_router_id,
                 dissect_lsp_te_router_id_clv
         },
 	{
-		ISIS_CLV_L2_LSP_EXT_IP_REACHABLE,
+		ISIS_CLV_EXTD_IP_REACH,
 		"Extended IP Reachability",
 		&ett_isis_lsp_clv_ext_ip_reachability,
 		dissect_lsp_ext_ip_reachability_clv
 	},
 	{
-		ISIS_CLV_L2_LSP_IPv6_REACHABLE,
+		ISIS_CLV_IP6_REACH,
 		"IPv6 reachability",
 		&ett_isis_lsp_clv_ipv6_reachability,
 		dissect_lsp_ipv6_reachability_clv
 	},
 	{
-		ISIS_CLV_L2_LSP_IP_INTERFACE_ADDR,
+		ISIS_CLV_IP_ADDR,
 		"IP Interface address(es)",
 		&ett_isis_lsp_clv_ipv4_int_addr,
 		dissect_lsp_ip_int_addr_clv
 	},
 	{
-		ISIS_CLV_L2_LSP_IPv6_INTERFACE_ADDR,
+		ISIS_CLV_IP6_ADDR,
 		"IPv6 Interface address(es)",
 		&ett_isis_lsp_clv_ipv6_int_addr,
 		dissect_lsp_ipv6_int_addr_clv
 	},
 	{
-		ISIS_CLV_L2_LSP_AUTHENTICATION_NS,
-		"Authentication(non spec)",
-		&ett_isis_lsp_clv_auth,
-		dissect_lsp_l2_auth_clv
-	},
-	{
-		ISIS_CLV_L2_LSP_AUTHENTICATION,
+		ISIS_CLV_AUTHENTICATION,
 		"Authentication",
-		&ett_isis_lsp_clv_auth,
-		dissect_lsp_l2_auth_clv
+		&ett_isis_lsp_clv_authentication,
+		dissect_lsp_authentication_clv
 	},
 	{
-		ISIS_CLV_L2_LSP_MT,
+		ISIS_CLV_IP_AUTHENTICATION,
+		"IP Authentication",
+		&ett_isis_lsp_clv_ip_authentication,
+		dissect_lsp_ip_authentication_clv
+	},
+	{
+		ISIS_CLV_MT_SUPPORTED,
 		"Multi Topology",
 		&ett_isis_lsp_clv_mt,
 		dissect_lsp_mt_clv
 	},
 	{
-		ISIS_CLV_L2_LSP_MT_IS_REACHABLE,
+		ISIS_CLV_MT_IS_REACH,
 		"Multi Topology IS Reachability",
 		&ett_isis_lsp_clv_mt_is,
 		dissect_lsp_mt_is_reachability_clv
 	},
 	{
-		ISIS_CLV_L2_LSP_MT_REACHABLE_IPv4_PREFX,
+		ISIS_CLV_MT_IP_REACH,
 		"Multi Topology Reachable IPv4 Prefixes",
 		&ett_isis_lsp_clv_mt_reachable_IPv4_prefx,
 		dissect_lsp_mt_reachable_IPv4_prefx_clv
 	},
 	{
-		ISIS_CLV_L2_LSP_MT_REACHABLE_IPv6_PREFX,
+		ISIS_CLV_MT_IP6_REACH,
 		"Multi Topology Reachable IPv6 Prefixes",
 		&ett_isis_lsp_clv_mt_reachable_IPv6_prefx,
 		dissect_lsp_mt_reachable_IPv6_prefx_clv
@@ -1033,11 +1034,11 @@ dissect_lsp_ipv6_int_addr_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 }
 
 /*
- * Name: dissect_lsp_L1_auth_clv()
+ * Name: dissect_lsp_authentication_clv()
  *
  * Description:
  *	Decode for a lsp packets authenticaion clv.  Calls into the
- *	clv common one.  An auth inside a L1 LSP is a per area password
+ *	clv common one.
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
@@ -1050,19 +1051,18 @@ dissect_lsp_ipv6_int_addr_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  *	void, will modify proto_tree if not null.
  */
 static void
-dissect_lsp_l1_auth_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
+dissect_lsp_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int id_length _U_, int length)
 {
-	isis_dissect_authentication_clv(tvb, tree, offset, length,
-		"Per area authentication" );
+	isis_dissect_authentication_clv(tvb, tree, offset, length);
 }
 
 /*
- * Name: dissect_lsp_L2_auth_clv()
+ * Name: dissect_lsp_ip_authentication_clv()
  *
  * Description:
  *	Decode for a lsp packets authenticaion clv.  Calls into the
- *	clv common one.  An auth inside a L2 LSP is a per domain password
+ *	clv common one.
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
@@ -1075,11 +1075,10 @@ dissect_lsp_l1_auth_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  *	void, will modify proto_tree if not null.
  */
 static void
-dissect_lsp_l2_auth_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
+dissect_lsp_ip_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int id_length _U_, int length)
 {
-	isis_dissect_authentication_clv(tvb, tree, offset, length,
-		"Per domain authentication" );
+	isis_dissect_ip_authentication_clv(tvb, tree, offset, length);
 }
 
 /*
@@ -1984,7 +1983,8 @@ isis_register_lsp(int proto_isis) {
 		&ett_isis_lsp_clv_unknown,
 		&ett_isis_lsp_clv_partition_dis,
 		&ett_isis_lsp_clv_prefix_neighbors,
-		&ett_isis_lsp_clv_auth,
+		&ett_isis_lsp_clv_authentication,
+		&ett_isis_lsp_clv_ip_authentication,
 		&ett_isis_lsp_clv_nlpid,
                 &ett_isis_lsp_clv_hostname,
 		&ett_isis_lsp_clv_ipv4_int_addr,

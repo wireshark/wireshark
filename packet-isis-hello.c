@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.33 2002/08/29 18:52:51 guy Exp $
+ * $Id: packet-isis-hello.c,v 1.34 2003/12/08 20:40:32 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -38,30 +38,32 @@
 #include "epan/resolv.h"
 
 /* hello packets */
-static int hf_isis_hello_circuit_reserved    = -1;
-static int hf_isis_hello_source_id           = -1;
-static int hf_isis_hello_holding_timer       = -1;
-static int hf_isis_hello_pdu_length          = -1;
-static int hf_isis_hello_priority_reserved   = -1;
-static int hf_isis_hello_lan_id              = -1;
-static int hf_isis_hello_local_circuit_id    = -1;
-static int hf_isis_hello_clv_ipv4_int_addr   = -1;
-static int hf_isis_hello_clv_ipv6_int_addr   = -1;
-static int hf_isis_hello_clv_ptp_adj         = -1;
-static int hf_isis_hello_clv_mt              = -1;
+static int hf_isis_hello_circuit_reserved = -1;
+static int hf_isis_hello_source_id = -1;
+static int hf_isis_hello_holding_timer = -1;
+static int hf_isis_hello_pdu_length = -1;
+static int hf_isis_hello_priority_reserved = -1;
+static int hf_isis_hello_lan_id = -1;
+static int hf_isis_hello_local_circuit_id = -1;
+static int hf_isis_hello_clv_ipv4_int_addr = -1;
+static int hf_isis_hello_clv_ipv6_int_addr = -1;
+static int hf_isis_hello_clv_ptp_adj = -1;
+static int hf_isis_hello_clv_mt = -1;
 
-static gint ett_isis_hello                   = -1;
-static gint ett_isis_hello_clv_area_addr     = -1;
-static gint ett_isis_hello_clv_is_neighbors  = -1;
-static gint ett_isis_hello_clv_padding       = -1;
-static gint ett_isis_hello_clv_unknown       = -1;
-static gint ett_isis_hello_clv_nlpid         = -1;
-static gint ett_isis_hello_clv_auth          = -1;
+static gint ett_isis_hello = -1;
+static gint ett_isis_hello_clv_area_addr = -1;
+static gint ett_isis_hello_clv_is_neighbors = -1;
+static gint ett_isis_hello_clv_padding = -1;
+static gint ett_isis_hello_clv_unknown = -1;
+static gint ett_isis_hello_clv_nlpid = -1;
+static gint ett_isis_hello_clv_authentication = -1;
+static gint ett_isis_hello_clv_ip_authentication = -1;
 static gint ett_isis_hello_clv_ipv4_int_addr = -1;
 static gint ett_isis_hello_clv_ipv6_int_addr = -1;
-static gint ett_isis_hello_clv_ptp_adj       = -1;
-static gint ett_isis_hello_clv_mt            = -1;
-static gint ett_isis_hello_clv_restart       = -1;
+static gint ett_isis_hello_clv_ptp_adj = -1;
+static gint ett_isis_hello_clv_mt = -1;
+static gint ett_isis_hello_clv_restart = -1;
+static gint ett_isis_hello_clv_checksum = -1;
 
 static const value_string isis_hello_circuit_type_vals[] = {
 	{ ISIS_HELLO_TYPE_RESERVED,	"Reserved 0 (discard PDU)"},
@@ -81,7 +83,11 @@ static void dissect_hello_ptp_adj_clv(tvbuff_t *tvb,
 		proto_tree *tree, int offset, int id_length, int length);
 static void dissect_hello_area_address_clv(tvbuff_t *tvb,
 		proto_tree *tree, int offset, int id_length, int length);
-static void dissect_hello_auth_clv(tvbuff_t *tvb,
+static void dissect_hello_authentication_clv(tvbuff_t *tvb,
+		proto_tree *tree, int offset, int id_length, int length);
+static void dissect_hello_ip_authentication_clv(tvbuff_t *tvb,
+		proto_tree *tree, int offset, int id_length, int length);
+static void dissect_hello_checksum_clv(tvbuff_t *tvb,
 		proto_tree *tree, int offset, int id_length, int length);
 static void dissect_hello_ipv6_int_addr_clv(tvbuff_t *tvb,
 		proto_tree *tree, int offset, int id_length, int length);
@@ -97,64 +103,70 @@ static void dissect_hello_restart_clv(tvbuff_t *tvb,
 
 static const isis_clv_handle_t clv_l1_hello_opts[] = {
 	{
-		ISIS_CLV_L1H_AREA_ADDRESS,
+		ISIS_CLV_AREA_ADDRESS,
 		"Area address(es)",
 		&ett_isis_hello_clv_area_addr,
 		dissect_hello_area_address_clv
 	},
 	{
-		ISIS_CLV_L1H_IS_NEIGHBORS,
+		ISIS_CLV_IS_NEIGHBORS,
 		"IS Neighbor(s)",
 		&ett_isis_hello_clv_is_neighbors,
 		dissect_hello_is_neighbors_clv
 	},
 	{
-		ISIS_CLV_L1H_PADDING,
+		ISIS_CLV_PADDING,
 		"Padding",
 		&ett_isis_hello_clv_padding,
 		dissect_hello_padding_clv
 	},
 	{
-		ISIS_CLV_L1H_NLPID,
+		ISIS_CLV_PROTOCOLS_SUPPORTED,
 		"Protocols Supported",
 		&ett_isis_hello_clv_nlpid,
 		dissect_hello_nlpid_clv
 	},
 	{
-		ISIS_CLV_L1H_IP_INTERFACE_ADDR,
+		ISIS_CLV_IP_ADDR,
 		"IP Interface address(es)",
 		&ett_isis_hello_clv_ipv4_int_addr,
 		dissect_hello_ip_int_addr_clv
 	},
 	{
-		ISIS_CLV_L1H_IPv6_INTERFACE_ADDR,
+		ISIS_CLV_IP6_ADDR,
 		"IPv6 Interface address(es)",
 		&ett_isis_hello_clv_ipv6_int_addr,
 		dissect_hello_ipv6_int_addr_clv
 	},
 	{
-		ISIS_CLV_L1H_RESTART,
+		ISIS_CLV_RESTART,
 		"Restart Signaling",
 		&ett_isis_hello_clv_restart,
 		dissect_hello_restart_clv
 	},
 	{
-		ISIS_CLV_L1H_AUTHENTICATION_NS,
-		"Authentication(non spec)",
-		&ett_isis_hello_clv_auth,
-		dissect_hello_auth_clv
-	},
-	{
-		ISIS_CLV_L1H_AUTHENTICATION,
+		ISIS_CLV_AUTHENTICATION,
 		"Authentication",
-		&ett_isis_hello_clv_auth,
-		dissect_hello_auth_clv
+		&ett_isis_hello_clv_authentication,
+		dissect_hello_authentication_clv
 	},
 	{
-		ISIS_CLV_L1H_MT,
+		ISIS_CLV_IP_AUTHENTICATION,
+		"IP Authentication",
+		&ett_isis_hello_clv_ip_authentication,
+		dissect_hello_ip_authentication_clv
+	},
+	{
+		ISIS_CLV_MT_SUPPORTED,
 		"Multi Topology",
 		&ett_isis_hello_clv_mt,
 		dissect_hello_mt_clv
+	},
+	{
+		ISIS_CLV_CHECKSUM,
+		"Checksum",
+		&ett_isis_hello_clv_checksum,
+		dissect_hello_checksum_clv
 	},
 	{
 		0,
@@ -166,64 +178,70 @@ static const isis_clv_handle_t clv_l1_hello_opts[] = {
 
 static const isis_clv_handle_t clv_l2_hello_opts[] = {
 	{
-		ISIS_CLV_L2H_AREA_ADDRESS,
+		ISIS_CLV_AREA_ADDRESS,
 		"Area address(es)",
 		&ett_isis_hello_clv_area_addr,
 		dissect_hello_area_address_clv
 	},
 	{
-		ISIS_CLV_L2H_IS_NEIGHBORS,
+		ISIS_CLV_IS_NEIGHBORS,
 		"IS Neighbor(s)",
 		&ett_isis_hello_clv_is_neighbors,
 		dissect_hello_is_neighbors_clv
 	},
 	{
-		ISIS_CLV_L2H_PADDING,
+		ISIS_CLV_PADDING,
 		"Padding",
 		&ett_isis_hello_clv_padding,
 		dissect_hello_padding_clv
 	},
 	{
-		ISIS_CLV_L2H_NLPID,
+		ISIS_CLV_PROTOCOLS_SUPPORTED,
 		"Protocols Supported",
 		&ett_isis_hello_clv_nlpid,
 		dissect_hello_nlpid_clv
 	},
 	{
-		ISIS_CLV_L2H_IP_INTERFACE_ADDR,
+		ISIS_CLV_IP_ADDR,
 		"IP Interface address(es)",
 		&ett_isis_hello_clv_ipv4_int_addr,
 		dissect_hello_ip_int_addr_clv
 	},
 	{
-		ISIS_CLV_L2H_IPv6_INTERFACE_ADDR,
+		ISIS_CLV_IP6_ADDR,
 		"IPv6 Interface address(es)",
 		&ett_isis_hello_clv_ipv6_int_addr,
 		dissect_hello_ipv6_int_addr_clv
 	},
 	{
-		ISIS_CLV_L2H_AUTHENTICATION_NS,
-		"Authentication(non spec)",
-		&ett_isis_hello_clv_auth,
-		dissect_hello_auth_clv
+		ISIS_CLV_AUTHENTICATION,
+		"Authentication",
+		&ett_isis_hello_clv_authentication,
+		dissect_hello_authentication_clv
 	},
 	{
-		ISIS_CLV_L2H_RESTART,
+		ISIS_CLV_IP_AUTHENTICATION,
+		"IP Authentication",
+		&ett_isis_hello_clv_ip_authentication,
+		dissect_hello_ip_authentication_clv
+	},
+	{
+		ISIS_CLV_RESTART,
 		"Restart Signaling",
 		&ett_isis_hello_clv_restart,
 		dissect_hello_restart_clv
 	},
 	{
-		ISIS_CLV_L2H_AUTHENTICATION,
-		"Authentication",
-		&ett_isis_hello_clv_auth,
-		dissect_hello_auth_clv
-	},
-	{
-		ISIS_CLV_L2H_MT,
+		ISIS_CLV_MT_SUPPORTED,
 		"Multi Topology",
 		&ett_isis_hello_clv_mt,
 		dissect_hello_mt_clv
+	},
+	{
+		ISIS_CLV_CHECKSUM,
+		"Checksum",
+		&ett_isis_hello_clv_checksum,
+		dissect_hello_checksum_clv
 	},
 	{
 		0,
@@ -235,64 +253,70 @@ static const isis_clv_handle_t clv_l2_hello_opts[] = {
 
 static const isis_clv_handle_t clv_ptp_hello_opts[] = {
 	{
-		ISIS_CLV_PTP_AREA_ADDRESS,
+		ISIS_CLV_AREA_ADDRESS,
 		"Area address(es)",
 		&ett_isis_hello_clv_area_addr,
 		dissect_hello_area_address_clv
 	},
 	{
-		ISIS_CLV_PTP_PADDING,
+		ISIS_CLV_PADDING,
 		"Padding",
 		&ett_isis_hello_clv_padding,
 		dissect_hello_padding_clv
 	},
 	{
-		ISIS_CLV_PTP_NLPID,
+		ISIS_CLV_PROTOCOLS_SUPPORTED,
 		"Protocols Supported",
 		&ett_isis_hello_clv_nlpid,
 		dissect_hello_nlpid_clv
 	},
 	{
-		ISIS_CLV_PTP_IP_INTERFACE_ADDR,
+		ISIS_CLV_IP_ADDR,
 		"IP Interface address(es)",
 		&ett_isis_hello_clv_ipv4_int_addr,
 		dissect_hello_ip_int_addr_clv
 	},
 	{
-		ISIS_CLV_PTP_IPv6_INTERFACE_ADDR,
+		ISIS_CLV_IP6_ADDR,
 		"IPv6 Interface address(es)",
 		&ett_isis_hello_clv_ipv6_int_addr,
 		dissect_hello_ipv6_int_addr_clv
 	},
 	{
-		ISIS_CLV_PTP_AUTHENTICATION_NS,
-		"Authentication(non spec)",
-		&ett_isis_hello_clv_auth,
-		dissect_hello_auth_clv
-	},
-	{
-		ISIS_CLV_PTP_AUTHENTICATION,
+		ISIS_CLV_AUTHENTICATION,
 		"Authentication",
-		&ett_isis_hello_clv_auth,
-		dissect_hello_auth_clv
+		&ett_isis_hello_clv_authentication,
+		dissect_hello_authentication_clv
 	},
 	{
-		ISIS_CLV_PTP_RESTART,
+		ISIS_CLV_IP_AUTHENTICATION,
+		"IP Authentication",
+		&ett_isis_hello_clv_ip_authentication,
+		dissect_hello_ip_authentication_clv
+	},
+	{
+		ISIS_CLV_RESTART,
 		"Restart Option",
 		&ett_isis_hello_clv_restart,
 		dissect_hello_restart_clv
 	},
 	{
-		ISIS_CLV_PTP_ADJ,
+		ISIS_CLV_PTP_ADJ_STATE,
 		"Point-to-point Adjacency State",
 		&ett_isis_hello_clv_ptp_adj,
 		dissect_hello_ptp_adj_clv
 	},
 	{
-		ISIS_CLV_PTP_MT,
+		ISIS_CLV_MT_SUPPORTED,
 		"Multi Topology",
 		&ett_isis_hello_clv_mt,
 		dissect_hello_mt_clv
+	},
+	{
+		ISIS_CLV_CHECKSUM,
+		"Checksum",
+		&ett_isis_hello_clv_checksum,
+		dissect_hello_checksum_clv
 	},
 	{
 		0,
@@ -438,12 +462,11 @@ dissect_hello_ipv6_int_addr_clv(tvbuff_t *tvb,
 }
 
 /*
- * Name: dissect_hello_auth_clv()
+ * Name: dissect_hello_authentication_clv()
  *
  * Description:
- *	Decode for a hello packets authenticaion clv.  Calls into the
- *	clv common one.  An auth inside a hello packet is a perlink
- *	password.
+ *	Decode for a hello packets authenticaion clv.
+ *      Calls into the CLV common one. 
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
@@ -456,19 +479,111 @@ dissect_hello_ipv6_int_addr_clv(tvbuff_t *tvb,
  *	void, will modify proto_tree if not null.
  */
 static void
-dissect_hello_auth_clv(tvbuff_t *tvb,
+dissect_hello_authentication_clv(tvbuff_t *tvb,
 	proto_tree *tree, int offset, int id_length _U_, int length)
 {
-	isis_dissect_authentication_clv(tvb, tree, offset,
-		length, "authentication" );
+	isis_dissect_authentication_clv(tvb, tree, offset, length);
 }
+
+/*
+ * Name: dissect_hello_ip_authentication_clv()
+ *
+ * Description:
+ *	Decode for a hello packets IP authenticaion clv.
+ *      Calls into the CLV common one. 
+ *
+ * Input:
+ *	tvbuff_t * : tvbuffer for packet data
+ *	proto_tree * : proto tree to build on (may be null)
+ *	int : current offset into packet data
+ *	int : length of IDs in packet.
+ *	int : length of this clv
+ *
+ * Output:
+ *	void, will modify proto_tree if not null.
+ */
+static void
+dissect_hello_ip_authentication_clv(tvbuff_t *tvb,
+	proto_tree *tree, int offset, int id_length _U_, int length)
+{
+	isis_dissect_ip_authentication_clv(tvb, tree, offset, length);
+}
+
+/*
+ * Name: dissect_hello_checksum_clv()
+ *
+ * Description:
+ *      dump and verify the optional checksum in TLV 12
+ *
+ * Input:
+ *      tvbuff_t * : tvbuffer for packet data
+ *      proto_tree * : protocol display tree to fill out.  May be NULL
+ *      int : offset into packet data where we are.
+ *      int : length of clv we are decoding
+ *
+ * Output:
+ *      void, but we will add to proto tree if !NULL.
+ */
+
+static void
+dissect_hello_checksum_clv(tvbuff_t *tvb,
+        proto_tree *tree, int offset, int id_length _U_, int length) {
+
+	guint16 pdu_length,checksum, cacl_checksum=0;
+
+	if (tree) {
+                if ( length != 2 ) {
+                        proto_tree_add_text ( tree, tvb, offset, length,
+                                              "incorrect checksum length (%u), should be (2)", length );
+                        return;
+                }
+
+    		checksum = tvb_get_ntohs(tvb, offset);    		
+
+                /* the check_and_get_checksum() function needs to know how big
+                 * the packet is. we can either pass through the pdu-len through several layers
+                 * of dissectors and wrappers or extract the PDU length field from the PDU specific header
+                 * which is offseted 17 bytes in IIHs (relative to the beginning of the IS-IS packet) */
+
+    		pdu_length = tvb_get_ntohs(tvb, 17);   
+
+                /* unlike the LSP checksum verification which starts at an offset of 12 we start at offset 0*/
+		switch (check_and_get_checksum(tvb, 0, pdu_length, checksum, offset, &cacl_checksum))
+		{
+
+        		case NO_CKSUM :
+                                proto_tree_add_text ( tree, tvb, offset, length,
+                                                      "Checksum: 0x%04x (unused)", checksum);
+       	 		break;
+        		case DATA_MISSING :
+          			isis_dissect_unknown(tvb, tree, offset,
+                                                     "packet length %d went beyond packet",
+                                                     tvb_length_remaining(tvb, 0));
+        		break;
+        		case CKSUM_NOT_OK :
+                                proto_tree_add_text ( tree, tvb, offset, length,
+                                                      "Checksum: 0x%04x (incorrect, should be 0x%04x)",
+                                                      checksum,
+                                                      cacl_checksum);
+        		break;
+	        	case CKSUM_OK :
+                                proto_tree_add_text ( tree, tvb, offset, length,
+                                                      "Checksum: 0x%04x (correct)", checksum);
+        		break;
+        		default :
+          			g_message("'check_and_get_checksum' returned an invalid value");
+    		}
+	}
+}
+
+
 
 /*
  * Name: dissect_hello_area_address_clv()
  *
  * Description:
- *	Decode for a hello packets area address clv.  Calls into the
- *	clv common one.
+ *	Decode for a hello packets area address clv.
+ *      Calls into the CLV common one.
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
@@ -798,12 +913,14 @@ isis_register_hello(int proto_isis) {
 		&ett_isis_hello_clv_padding,
 		&ett_isis_hello_clv_unknown,
 		&ett_isis_hello_clv_nlpid,
-		&ett_isis_hello_clv_auth,
+		&ett_isis_hello_clv_authentication,
+		&ett_isis_hello_clv_ip_authentication,
 		&ett_isis_hello_clv_ipv4_int_addr,
 		&ett_isis_hello_clv_ipv6_int_addr,
 		&ett_isis_hello_clv_ptp_adj,
 		&ett_isis_hello_clv_mt,
-		&ett_isis_hello_clv_restart
+		&ett_isis_hello_clv_restart,
+		&ett_isis_hello_clv_checksum
 	};
 
 	proto_register_field_array(proto_isis, hf, array_length(hf));

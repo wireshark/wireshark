@@ -1,7 +1,7 @@
 /* packet-isis-hello.h
  * Declares for hello handling inside isis.
  *
- * $Id: packet-isis-hello.h,v 1.10 2002/08/29 18:52:51 guy Exp $
+ * $Id: packet-isis-hello.h,v 1.11 2003/12/08 20:40:33 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -38,61 +38,6 @@
 #define ISIS_HELLO_TYPE_LEVEL_1		1
 #define ISIS_HELLO_TYPE_LEVEL_2		2
 #define ISIS_HELLO_TYPE_LEVEL_12	3
-
-/*
- * detail clv information on l1 hello packets
- */
-#define ISIS_CLV_L1H_AREA_ADDRESS	 1
-#define ISIS_CLV_L1H_IS_NEIGHBORS	 6
-#define ISIS_CLV_L1H_PADDING		 8
-#define ISIS_CLV_L1H_NLPID		 129
-#define ISIS_CLV_L1H_IP_INTERFACE_ADDR	 132
-#define ISIS_CLV_L1H_RESTART             211
-#define ISIS_CLV_L1H_MT                  229
-#define ISIS_CLV_L1H_IPv6_INTERFACE_ADDR 232
-
-/*
- * Note, the spec say 133, but everyone seems to use 10. Any clue on why
- * this is would be appreciated!
- */
-#define ISIS_CLV_L1H_AUTHENTICATION_NS	10	/*non spec */
-#define ISIS_CLV_L1H_AUTHENTICATION	133
-
-/*
- * detail clv information on l2 hello packets
- */
-#define ISIS_CLV_L2H_AREA_ADDRESS	 1
-#define ISIS_CLV_L2H_IS_NEIGHBORS	 6
-#define ISIS_CLV_L2H_PADDING		 8
-#define ISIS_CLV_L2H_NLPID		 129
-#define ISIS_CLV_L2H_IP_INTERFACE_ADDR	 132
-#define ISIS_CLV_L2H_RESTART             211
-#define ISIS_CLV_L2H_MT                  229
-#define ISIS_CLV_L2H_IPv6_INTERFACE_ADDR 232
-/*
- * Note, the spec say 133, but everyone seems to use 10. Any clue on why
- * this is would be appreciated!
- */
-#define ISIS_CLV_L2H_AUTHENTICATION_NS	10	/*non spec */
-#define ISIS_CLV_L2H_AUTHENTICATION	133
-
-/*
- * detail clv information on PTP hello packets
- */
-#define ISIS_CLV_PTP_AREA_ADDRESS	 1
-#define ISIS_CLV_PTP_PADDING		 8
-#define ISIS_CLV_PTP_NLPID		 129
-#define ISIS_CLV_PTP_IP_INTERFACE_ADDR	 132
-#define ISIS_CLV_PTP_RESTART             211
-#define ISIS_CLV_PTP_MT                  229
-#define ISIS_CLV_PTP_IPv6_INTERFACE_ADDR 232
-#define ISIS_CLV_PTP_ADJ                 240
-/*
- * Note, the spec say 133, but everyone seems to use 10. Any clue on why
- * this is would be appreciated!
- */
-#define ISIS_CLV_PTP_AUTHENTICATION_NS	10	/*non spec */
-#define ISIS_CLV_PTP_AUTHENTICATION	133
 
 /*
  * misc. bittest macros
