@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.28 2002/10/10 21:24:59 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.29 2002/10/10 23:06:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1428,8 +1428,8 @@ process_bitfield(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
         guint32                 bvalue = 0;
 
         bvalue = 0x00000001;
-        strcpy(flags_str, " (");
-        sep = " ";
+        strcpy(flags_str, "");
+        sep = "";
         for (i = 0 ; i < (values->vlength*8); i++ ) {
                 if (values->vvalue & bvalue) 
                 {
@@ -1490,88 +1490,84 @@ process_bitfield(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
 	        }
                 bvalue = bvalue*2;
         }
-        if (flags_str[0] != '\0')
+        if(values->vlength==4)
         {
-	        strcat(flags_str, " )\0");
-                if(values->vlength==4)
-                {
-		        tinew = proto_tree_add_uint_format(ncp_tree, values->hfname,
-		                tvb, values->voffset, values->vlength, values->vvalue, "%s 0x%08x -%s",
-                                values->vdesc, values->vvalue, flags_str);
-                }
-                else
-                {                
-		        tinew = proto_tree_add_uint_format(ncp_tree, values->hfname,
-		                tvb, values->voffset, values->vlength, values->vvalue, "%s 0x%04x -%s",
-                                values->vdesc, values->vvalue, flags_str);
-                }
-                        
+		tinew = proto_tree_add_uint_format(ncp_tree, values->hfname,
+	                tvb, values->voffset, values->vlength, values->vvalue, "%s 0x%08x",
+                        values->vdesc, values->vvalue);
+	}
+        else
+        {                
+	        tinew = proto_tree_add_uint_format(ncp_tree, values->hfname,
+	                tvb, values->voffset, values->vlength, values->vvalue, "%s 0x%04x",
+                        values->vdesc, values->vvalue);
+        }
+	if (flags_str[0] != '\0')
+	        proto_item_append_text(tinew, " - (%s)", flags_str);
                                                         
-		flags_tree = proto_item_add_subtree(tinew, ett_nds);
+	flags_tree = proto_item_add_subtree(tinew, ett_nds);
                                                 
-                bvalue = 0x00000001;
+        bvalue = 0x00000001;
 		
-                for (i = 0 ; i < (values->vlength*8); i++ ) {
-                
-                        if (values->vvalue & bvalue) 
+        for (i = 0 ; i < (values->vlength*8); i++ ) {
+                if (values->vvalue & bvalue) 
+                {
+                        switch(bvalue)
                         {
-                                switch(bvalue)
-                                {
-                                        case 0x00000001:
-	                                        proto_tree_add_item(flags_tree, values->bit1hfname, tvb, values->voffset, values->vlength, TRUE);
-                                                break;
-                                        case 0x00000002:
-	                                        proto_tree_add_item(flags_tree, values->bit2hfname, tvb, values->voffset, values->vlength, TRUE);
-                                                break;
-                                        case 0x00000004:
-	                                        proto_tree_add_item(flags_tree, values->bit3hfname, tvb, values->voffset, values->vlength, TRUE);
-                                                break;
-                                        case 0x0000008:
-	                                        proto_tree_add_item(flags_tree, values->bit4hfname, tvb, values->voffset, values->vlength, TRUE);
-                                                break;
-                                        case 0x00000010:
-	                                        proto_tree_add_item(flags_tree, values->bit5hfname, tvb, values->voffset, values->vlength, TRUE);
-                                                break;
-                                        case 0x00000020:
-	                                        proto_tree_add_item(flags_tree, values->bit6hfname, tvb, values->voffset, values->vlength, TRUE);
-                                                break;
-                                        case 0x00000040:
-	                                        proto_tree_add_item(flags_tree, values->bit7hfname, tvb, values->voffset, values->vlength, TRUE);
-                                                break;
-                                        case 0x00000080:
-	                                        proto_tree_add_item(flags_tree, values->bit8hfname, tvb, values->voffset, values->vlength, TRUE);
-                                                break;
-                                        case 0x00000100:
-	                                        proto_tree_add_item(flags_tree, values->bit9hfname, tvb, values->voffset, values->vlength, TRUE);
-                                                break;
-                                        case 0x00000200:
-	                                        proto_tree_add_item(flags_tree, values->bit10hfname, tvb, values->voffset, values->vlength, TRUE);
-                                                break;
-                                        case 0x00000400:
-	                                        proto_tree_add_item(flags_tree, values->bit11hfname, tvb, values->voffset, values->vlength, TRUE);
-                                                break;
-                                        case 0x00000800:
-	                                        proto_tree_add_item(flags_tree, values->bit12hfname, tvb, values->voffset, values->vlength, TRUE);
-                                                break;
-                                        case 0x00001000:
-	                                        proto_tree_add_item(flags_tree, values->bit13hfname, tvb, values->voffset, values->vlength, TRUE);
-                                                break;
-                                        case 0x00002000:
-	                                        proto_tree_add_item(flags_tree, values->bit14hfname, tvb, values->voffset, values->vlength, TRUE);
-                                                break;
-                                        case 0x00004000:
-	                                        proto_tree_add_item(flags_tree, values->bit15hfname, tvb, values->voffset, values->vlength, TRUE);
-                                                break;
-                                        case 0x00008000:
-	                                        proto_tree_add_item(flags_tree, values->bit16hfname, tvb, values->voffset, values->vlength, TRUE);
-                                                break;
-                                        default:
-                                                break;
-                                }
+                                case 0x00000001:
+                                        proto_tree_add_item(flags_tree, values->bit1hfname, tvb, values->voffset, values->vlength, TRUE);
+                                        break;
+                                case 0x00000002:
+	                                proto_tree_add_item(flags_tree, values->bit2hfname, tvb, values->voffset, values->vlength, TRUE);
+                                        break;
+                                case 0x00000004:
+	                                proto_tree_add_item(flags_tree, values->bit3hfname, tvb, values->voffset, values->vlength, TRUE);
+                                        break;
+                                case 0x0000008:
+                                        proto_tree_add_item(flags_tree, values->bit4hfname, tvb, values->voffset, values->vlength, TRUE);
+                                        break;
+                                case 0x00000010:
+                                        proto_tree_add_item(flags_tree, values->bit5hfname, tvb, values->voffset, values->vlength, TRUE);
+                                        break;
+                                case 0x00000020:
+                                        proto_tree_add_item(flags_tree, values->bit6hfname, tvb, values->voffset, values->vlength, TRUE);
+                                        break;
+                                case 0x00000040:
+                                        proto_tree_add_item(flags_tree, values->bit7hfname, tvb, values->voffset, values->vlength, TRUE);
+                                        break;
+                                case 0x00000080:
+                                        proto_tree_add_item(flags_tree, values->bit8hfname, tvb, values->voffset, values->vlength, TRUE);
+                                        break;
+                                case 0x00000100:
+                                        proto_tree_add_item(flags_tree, values->bit9hfname, tvb, values->voffset, values->vlength, TRUE);
+                                        break;
+                                case 0x00000200:
+                                        proto_tree_add_item(flags_tree, values->bit10hfname, tvb, values->voffset, values->vlength, TRUE);
+                                        break;
+                                case 0x00000400:
+                                        proto_tree_add_item(flags_tree, values->bit11hfname, tvb, values->voffset, values->vlength, TRUE);
+                                        break;
+                                case 0x00000800:
+                                        proto_tree_add_item(flags_tree, values->bit12hfname, tvb, values->voffset, values->vlength, TRUE);
+                                        break;
+                                case 0x00001000:
+                                        proto_tree_add_item(flags_tree, values->bit13hfname, tvb, values->voffset, values->vlength, TRUE);
+                                        break;
+                                case 0x00002000:
+                                        proto_tree_add_item(flags_tree, values->bit14hfname, tvb, values->voffset, values->vlength, TRUE);
+                                        break;
+                                case 0x00004000:
+                                        proto_tree_add_item(flags_tree, values->bit15hfname, tvb, values->voffset, values->vlength, TRUE);
+                                        break;
+                                case 0x00008000:
+                                        proto_tree_add_item(flags_tree, values->bit16hfname, tvb, values->voffset, values->vlength, TRUE);
+                                        break;
+                                default:
+                                        break;
                         }
-                        bvalue = bvalue*2;
                 }
-        }        
+                bvalue = bvalue*2;
+        }
 }
 
 
