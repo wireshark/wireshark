@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.63 2000/01/22 06:22:44 guy Exp $
+ * $Id: wtap.h,v 1.64 2000/02/19 08:00:08 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -450,7 +450,7 @@ int wtap_pcap_encap_to_wtap_encap(int encap);
 #define	WTAP_ERR_UNSUPPORTED_FILE_TYPE		-5
 	/* Wiretap can't save files in the specified format */
 #define	WTAP_ERR_UNSUPPORTED_ENCAP		-6
-	/* Wiretap can't save files in the specified format with the
+	/* Wiretap can't read or save files in the specified format with the
 	   specified encapsulation */
 #define	WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED	-7
 	/* The specified format doesn't support per-packet encapsulations */

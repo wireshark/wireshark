@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.17 2000/01/22 06:22:43 guy Exp $
+ * $Id: radcom.c,v 1.18 2000/02/19 08:00:04 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -180,7 +180,7 @@ int radcom_open(wtap *wth, int *err)
 		wth->file_encap = WTAP_ENCAP_ETHERNET;
 	else {
 		g_message("pcap: network type \"%.4s\" unknown", search_encap);
-		*err = WTAP_ERR_UNSUPPORTED;
+		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		return -1;
 	}
 

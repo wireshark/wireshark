@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.31 2000/01/22 06:22:39 guy Exp $
+ * $Id: libpcap.c,v 1.32 2000/02/19 08:00:06 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -247,7 +247,7 @@ int libpcap_open(wtap *wth, int *err)
 	    || pcap_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
 		g_message("pcap: network type %u unknown or unsupported",
 		    hdr.network);
-		*err = WTAP_ERR_UNSUPPORTED;
+		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		return -1;
 	}
 

@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.35 2000/01/22 06:22:41 guy Exp $
+ * $Id: ngsniffer.c,v 1.36 2000/02/19 08:00:07 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -355,7 +355,7 @@ int ngsniffer_open(wtap *wth, int *err)
 	       && version.network != 7)) {
 		g_message("ngsniffer: network type %u unknown or unsupported",
 		    version.network);
-		*err = WTAP_ERR_UNSUPPORTED;
+		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		return -1;
 	}
 

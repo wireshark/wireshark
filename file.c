@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.164 2000/02/18 13:41:24 oabad Exp $
+ * $Id: file.c,v 1.165 2000/02/19 07:59:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -341,6 +341,10 @@ read_cap_file(capture_file *cf)
        the line.  Don't throw out the stuff we managed to read, though,
        if any. */
     switch (err) {
+
+    case WTAP_ERR_UNSUPPORTED_ENCAP:
+      errmsg = "The capture file is for a network type that Ethereal doesn't support.";
+      break;
 
     case WTAP_ERR_CANT_READ:
       errmsg = "An attempt to read from the file failed for"
@@ -1525,8 +1529,10 @@ file_open_error_message(int err, int for_writing)
 
   case WTAP_ERR_UNSUPPORTED_ENCAP:
   case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
-    /* Seen only when opening a capture file for writing. */
-    errmsg = "Ethereal cannot save this capture in that format.";
+    if (for_writing)
+      errmsg = "Ethereal cannot save this capture in that format.";
+    else
+      errmsg = "The file \"%s\" is a capture for a network type that Ethereal doesn't support.";
     break;
 
   case WTAP_ERR_BAD_RECORD:

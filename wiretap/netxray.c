@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.23 2000/01/29 05:10:06 gram Exp $
+ * $Id: netxray.c,v 1.24 2000/02/19 08:00:04 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -178,7 +178,7 @@ int netxray_open(wtap *wth, int *err)
 	    || netxray_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
 		g_message("netxray: network type %u unknown or unsupported",
 		    hdr.network);
-		*err = WTAP_ERR_UNSUPPORTED;
+		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		return -1;
 	}
 

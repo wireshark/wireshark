@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.24 2000/01/22 06:22:37 guy Exp $
+ * $Id: iptrace.c,v 1.25 2000/02/19 08:00:06 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -147,7 +147,7 @@ static int iptrace_read_1_0(wtap *wth, int *err)
 	if (wth->phdr.pkt_encap == WTAP_ENCAP_UNKNOWN) {
 		g_message("iptrace: interface type IFT=0x%02x unknown or unsupported",
 		    pkt_hdr.if_type);
-		*err = WTAP_ERR_UNSUPPORTED;
+		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		return -1;
 	}
 
@@ -251,7 +251,7 @@ static int iptrace_read_2_0(wtap *wth, int *err)
 	if (wth->phdr.pkt_encap == WTAP_ENCAP_UNKNOWN) {
 		g_message("iptrace: interface type IFT=0x%02x unknown or unsupported",
 		    pkt_hdr.if_type);
-		*err = WTAP_ERR_UNSUPPORTED;
+		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		return -1;
 	}
 

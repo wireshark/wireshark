@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.24 2000/01/22 06:22:43 guy Exp $
+ * $Id: snoop.c,v 1.25 2000/02/19 08:00:04 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -187,7 +187,7 @@ int snoop_open(wtap *wth, int *err)
 	    || snoop_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
 		g_message("snoop: network type %u unknown or unsupported",
 		    hdr.network);
-		*err = WTAP_ERR_UNSUPPORTED;
+		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		return -1;
 	}
 
