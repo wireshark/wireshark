@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.8 2000/03/09 19:32:31 oabad Exp $
+$Id: README.developer,v 1.9 2000/03/10 08:57:05 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a protocol dissector and the use some of the important functions and variables 
@@ -6,12 +6,6 @@ in Ethereal.
 
 See also the "proto_tree" file for a more detailed description of the
 protocol tree construction functions.
-
-NOTE: please don't use C++-style comments (comments beginning with "//"
-and running to the end of the line); Ethereal's dissectors are written
-in C, and thus run through C rather than C++ compilers, and not all C
-compilers support C++-style comments (GCC does, but IBM's C compiler for
-AIX, for example, doesn't do so by default).
 
 1. Setting up your protocol dissector code.
 
@@ -33,9 +27,8 @@ rather than C++ compilers, and not all C compilers support C++-style comments
 Ethereal uses the underscore_convention rather than the InterCapConvention for
 function names, so new code should probably use underscores rather than
 intercaps for functions and variable names. This is especially important if you
-are writting code that will be called from outside your code.  We are just
-trying to keep thing consistant for other users.
-
+are writing code that will be called from outside your code.  We are just
+trying to keep thing consistent for other users.
 
 1.2 Skeleton code.
 
@@ -64,7 +57,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.8 2000/03/09 19:32:31 oabad Exp $" in the comment will be updated by CVS when the file is
+The "$Id: README.developer,v 1.9 2000/03/10 08:57:05 guy Exp $" in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
@@ -73,7 +66,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.8 2000/03/09 19:32:31 oabad Exp $
+ * $Id: README.developer,v 1.9 2000/03/10 08:57:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -227,11 +220,59 @@ FIELDDESCR	A brief description of the field.
 
 1.4 The dissector and the data it receives.
 
-1.4.1 The dissector has the following header which must be placed into
+1.4.1 Header file.
+
+The dissector has the following header which must be placed into
 packet-PROTOABBREV.h.
 
 void
 dissect_PROTOABBREV(const u_char *pd, int offset, frame_data *fd, proto_tree *tree); 
+
+1.4.2 Extracting data from packets.
+
+The "pd" argument to a dissector points to a buffer containing the raw
+data for the frame; the "offset" argument is the offset into that buffer
+of the first byte belonging to the protocol to be dissected by that
+dissector.
+
+One must not assume that the data to be dissected is aligned on a
+particular boundary in memory, and therefore one must not, for example,
+extract a 4-byte unsigned integer by doing
+
+	foo = *(guint32 *)pd[offset + 8];
+
+as, if "pd + offset" is not aligned on a 4-byte boundary in memory
+(because, for example, "pd" is so aligned but "offset" is not a multiple
+of 4), that line of code may, when executed, cause Ethereal to crash.
+
+In addition, one must not assume that Ethereal is running on a machine
+with a particular byte order (big-endian or little-endian); if the field
+one is dissecting is, for example, big-endian, code such as the example
+above, even if "pd + offset" is aligned on a 4-byte boundary or if the
+processor on which Ethereal is running doesn't require addresses to be
+aligned on appropriate boundaries, will not work correctly on
+little-endian systems such as IBM-compatible PCs or most systems with
+Alpha processors - and the same problem would exist if the field were
+little-endian and the code were running on big-endian systems such as
+SPARC machines.
+
+One should, instead, use the "pntohs()", "pntohl()", "pletohs()", or
+"pletohl()" macros:
+
+	foo = pntohl(&pd[offset + 8]);
+
+which will extract a 4-byte big-endian value from the field starting at
+an offset of "offset + 8" from the beginning of the frame.
+
+The macros in question extract:
+
+	pntohs()		2-byte, big-endian quantity
+
+	pntohl()		4-byte, big-endian quantity
+
+	pletohs()		2-byte, little-endian quantity
+
+	pletohl()		4-byte, little-endian quantity
 
 1.5 Functions to handle columns in the traffic summary window.
 
