@@ -1,7 +1,13 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.41 2004/02/01 03:35:05 guy Exp $
+; $Id: ethereal.nsi,v 1.42 2004/02/03 01:06:21 ulfl Exp $
+
+ 
+!ifdef MAKENSIS_MODERN_UI
+; Set the compression mechanism first
+SetCompressor lzma
+!endif
 
 ; ============================================================================
 ; Header configuration
