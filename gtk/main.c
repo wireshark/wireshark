@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.116 2000/04/13 20:39:36 gram Exp $
+ * $Id: main.c,v 1.117 2000/04/14 09:00:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1556,6 +1556,27 @@ main(int argc, char *argv[])
      "noreturn". */
   return 0;	/* not reached */
 }
+
+#ifdef WIN32
+
+/* We build this as a GUI subsystem application on Win32, so
+   "WinMain()", not "main()", gets called.
+
+   Hack shamelessly stolen from the Win32 port of the GIMP. */
+#ifdef __GNUC__
+#define _stdcall  __attribute__((stdcall))
+#endif
+
+int _stdcall
+WinMain (struct HINSTANCE__ *hInstance,
+	 struct HINSTANCE__ *hPrevInstance,
+	 char               *lpszCmdLine,
+	 int                 nCmdShow)
+{
+  return main (__argc, __argv);
+}
+
+#endif
 
 static void
 create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)

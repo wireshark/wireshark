@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: nmake -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.27 2000/04/13 21:08:16 oabad Exp $
+# $Id: Makefile.nmake,v 1.28 2000/04/14 09:00:12 guy Exp $
 
 include config.nmake
 
@@ -10,8 +10,7 @@ include config.nmake
 CC = cl
 LINK= link
 
-LDFLAGS = /NOLOGO /SUBSYSTEM:console /INCREMENTAL:no /MACHINE:I386 \
-	$(LOCAL_LDFLAGS)
+LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 
 CFLAGS=/MT -DHAVE_CONFIG_H $(LOCAL_CFLAGS) /I$(GLIB_DIR) /I$(GLIB_DIR)\gmodule \
 	/I$(GTK_DIR) /Iwiretap /I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
@@ -198,17 +197,17 @@ all: $(EXECUTABLES)
 
 ethereal.exe	: config.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) wiretap gtk plugins
 	$(LINK) @<<
-		/OUT:ethereal.exe $(LDFLAGS) $(ethereal_LIBS) $(ethereal_OBJECTS) $(EXTRA_OBJECTS)
+		/OUT:ethereal.exe $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(ethereal_OBJECTS) $(EXTRA_OBJECTS)
 <<
 
 tethereal.exe	: config.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) wiretap plugins
 	$(LINK) @<<
-		/OUT:tethereal.exe $(LDFLAGS) $(tethereal_LIBS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS)
+		/OUT:tethereal.exe $(LDFLAGS) /SUBSYSTEM:console $(tethereal_LIBS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS)
 <<
 
 editcap.exe	: config.h editcap.obj getopt.obj wiretap
 	$(LINK) @<<
-		/OUT:editcap.exe $(LDFLAGS) editcap.obj getopt.obj $(editcap_LIBS)
+		/OUT:editcap.exe $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj $(editcap_LIBS)
 <<
 
 config.h	: config.h.win32
