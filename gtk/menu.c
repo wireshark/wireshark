@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.102 2003/10/15 19:40:40 guy Exp $
+ * $Id: menu.c,v 1.103 2003/10/17 17:28:37 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -715,6 +715,7 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
 {
   set_menu_sensitivity(main_menu_factory, "/File/Open...",
       !capture_in_progress);
+#ifdef HAVE_LIBPCAP
   set_menu_sensitivity(main_menu_factory, "/Capture/Start...",
       !capture_in_progress);
   /*
@@ -725,6 +726,7 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
       capture_in_progress);
 #endif
   set_toolbar_for_capture_in_progress(capture_in_progress);
+#endif /* HAVE_LIBPCAP */
 }
 
 /* Enable or disable menu items based on whether you have some captured

@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.8 2003/10/17 08:14:19 guy Exp $
+ * $Id: toolbar.c,v 1.9 2003/10/17 17:28:38 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,7 +43,9 @@
 
 #include <gtk/gtk.h>
 
+#ifdef HAVE_LIBPCAP
 #include "capture_dlg.h"
+#endif /* HAVE_LIBPCAP */
 #include "file_dlg.h"
 #include "find_dlg.h"
 #include "goto_dlg.h"
@@ -80,7 +82,10 @@
 /* this icons are derived from the original stock icons */
 #include "../image/toolbar/capture_24.xpm"
 #endif
+
+#ifdef HAVE_LIBPCAP
 #include "../image/toolbar/cfilter_24.xpm"
+#endif /* HAVE_LIBPCAP */
 #include "../image/toolbar/dfilter_24.xpm"
 
 
@@ -90,10 +95,13 @@
 
 static gboolean toolbar_init = FALSE;
 
+#ifdef HAVE_LIBPCAP
 static GtkWidget *new_button, *stop_button;
+static GtkWidget *capture_filter_button;
+#endif /* HAVE_LIBPCAP */
 static GtkWidget *open_button, *save_button, *close_button, *reload_button;
 static GtkWidget *print_button, *find_button, *find_next_button, *go_to_button;
-static GtkWidget *capture_filter_button, *display_filter_button;
+static GtkWidget *display_filter_button;
 static GtkWidget *color_display_button, *prefs_button, *help_button;
 
 static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar);
@@ -184,6 +192,8 @@ void set_toolbar_for_capture_file(gboolean have_capture_file) {
 }
 
 
+#ifdef HAVE_LIBPCAP
+
 /* set toolbar state "have a capture in progress" */
 void set_toolbar_for_capture_in_progress(gboolean capture_in_progress) {
 
@@ -207,6 +217,7 @@ void set_toolbar_for_capture_in_progress(gboolean capture_in_progress) {
     }
 }
 
+#endif /* HAVE_LIBPCAP */
 
 /* set toolbar state "have packets captured" */
 void set_toolbar_for_captured_packets(gboolean have_captured_packets) {
@@ -270,6 +281,8 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                 GTK_ORIENTATION_HORIZONTAL);
 #endif
 
+#ifdef HAVE_LIBPCAP
+
     /* start capture button */
 #if GTK_MAJOR_VERSION < 2
     icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
@@ -316,6 +329,8 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                            -1);
     gtk_toolbar_append_space(GTK_TOOLBAR(*toolbar));
 #endif
+
+#endif /* HAVE_LIBPCAP */
 
     /* open capture button */
 #if GTK_MAJOR_VERSION < 2
@@ -487,6 +502,8 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
     gtk_toolbar_append_space(GTK_TOOLBAR(*toolbar));
 #endif
 
+#ifdef HAVE_LIBPCAP
+
     /* capture filter button */
     icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
                                         &window->style->white, cfilter_24_xpm);
@@ -499,6 +516,8 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
 #if GTK_MAJOR_VERSION < 2
     gtk_toolbar_append_space (GTK_TOOLBAR(*toolbar));
 #endif
+
+#endif /* HAVE_LIBPCAP */
 
     /* display filter button */
     icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
@@ -575,8 +594,9 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
     toolbar_init = TRUE;
     set_toolbar_for_captured_packets(FALSE);
     set_toolbar_for_capture_file(FALSE);
+#ifdef HAVE_LIBPCAP
     set_toolbar_for_capture_in_progress(FALSE);
-
+#endif
     /* everything is well done here :-) */
     gtk_widget_show (*toolbar);
 }
