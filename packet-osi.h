@@ -1,6 +1,6 @@
 /* packet-osi.h
  *
- * $Id: packet-osi.h,v 1.6 2001/03/30 10:51:50 guy Exp $
+ * $Id: packet-osi.h,v 1.7 2001/04/01 05:48:14 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,29 +25,7 @@
 #ifndef _PACKET_OSI_H
 #define _PACKET_OSI_H
 
-/* OSI Global defines, common for all OSI protocols */
-
-#define MAX_NSAP_LEN          30    
-#define MAX_SYSTEMID_LEN      15    
-#define MAX_AREA_LEN          30    
-
-#define RFC1237_NSAP_LEN      20
-#define RFC1237_FULLAREA_LEN  13
-#define RFC1237_SYSTEMID_LEN   6
-#define RFC1237_SELECTOR_LEN   1
-
-#define RFC1237_IDI_LEN        2
-#define RFC1237_AFI_LEN        1
-#define RFC1237_DFI_LEN        1
-#define RFC1237_ORG_LEN        3
-#define RFC1237_AA_LEN         3
-#define RFC1237_RSVD_LEN       2
-#define RFC1237_RD_LEN         2
-#define RFC1237_AREA_LEN       3
-
-
-#define NSAP_IDI_ISODCC       0x39
-#define NSAP_IDI_GOSIP2       0x47
+#include "osi-utils.h"
 
 #define PDU_TYPE_ESIS_ESH       100
 #define PDU_TYPE_ESIS_ISH       101
@@ -107,9 +85,6 @@ dissector_table_t osinl_subdissector_table;
  * published API functions
  */
 
-extern gchar *print_nsap_net ( const u_char *, int );
-extern gchar *print_area     ( const u_char *, int );
-extern gchar *print_system_id( const u_char *, int );
 extern gchar *calc_checksum  ( tvbuff_t *, int, u_int, u_int );
 
 #endif /* _PACKET_OSI_H */

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.28 2001/04/01 04:50:42 hagbard Exp $
+ * $Id: packet.c,v 1.29 2001/04/01 05:48:15 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,7 +76,7 @@
 #include "packet-ipv6.h"
 #include "sna-utils.h"
 #include "packet-vines.h"
-#include "packet-osi.h"
+#include "osi-utils.h"
 #include "to_str.h"
 
 #include "resolv.h"

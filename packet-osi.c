@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: packet-osi.c,v 1.41 2001/03/30 10:51:50 guy Exp $
+ * $Id: packet-osi.c,v 1.42 2001/04/01 05:48:14 hagbard Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -46,133 +46,6 @@
 #include "packet-osi.h"
 #include "packet-isis.h"
 #include "packet-esis.h"
-
-
-gchar *print_system_id( const u_char *buffer, int length ) {
-  int           tmp;
-  u_char       *cur; 
-  static gchar  str[MAX_SYSTEMID_LEN * 3 + 5]; /* Don't trust exact matching */  
- 
-  if ( ( length <= 0 ) || ( length > MAX_SYSTEMID_LEN ) ) {
-    sprintf( str, "<Invalid length of SYSTEM ID>");
-    return( str );
-  }  
- 
-  cur = str;
-  if ( ( 6 == length ) || ( 7 == length ) ) { /* Special case, print as MAC */
-    cur += sprintf(str, "[%02x:%02x:%02x_%02x:%02x:%02x]", buffer[0], buffer[1],
-                    buffer[2], buffer[3], buffer[4], buffer[5] );
-    if ( 7 == length ) {
-      sprintf( cur, "-%02x", buffer[6] );
-    }
-  }
-  else {
-    tmp = 0;
-    while ( tmp < length / 4 ) { /* 16 / 4 == 4 > four Octets left to print */
-      cur += sprintf( str, "%02x%02x%02x%02x.", buffer[tmp++], buffer[tmp++],
-                      buffer[tmp++], buffer[tmp++] );
-    }
-    if ( 1 == tmp ) {   /* Special case for Designated IS */
-      sprintf( --cur, "-%02x", buffer[tmp] );
-    }
-    else {
-      for ( ; tmp < length; ) {  /* print the rest without dot */
-        cur += sprintf( cur, "%02x", buffer[tmp++] );
-      }
-    }
-  }
-  return( str );
-}
-
-gchar *print_area(const u_char *buffer, int length)
-{
-  /* to do : all real area decoding now: NET is assumed if id len is 1 more byte
-   * and take away all these stupid resource consuming local statics
-   */
-  
-  static gchar  str[MAX_AREA_LEN * 3 + 20]; /* reserve space for nice layout */
-  gchar *cur;
-  u_int  tmp  = 0;
-
-  cur = str;
-
-  if (length <= 0 || length > MAX_AREA_LEN) {
-    sprintf( str, "<Invalid length of AREA>");
-    return( str );
-  }
-  
-  if ( (  ( NSAP_IDI_ISODCC          == *buffer )      
-       || ( NSAP_IDI_GOSIP2          == *buffer )
-       )
-       && 
-       (  ( RFC1237_FULLAREA_LEN     ==  length ) 
-       || ( RFC1237_FULLAREA_LEN + 1 ==  length )
-       ) 
-     ) {    /* AFI is good and length is long enough  */
-  
-    if ( length > RFC1237_FULLAREA_LEN + 1 ) {  /* Special Case Designated IS */
-      sprintf( str, "<Invalid length of AREA for DCC / GOSIP AFI>");
-      return( str );
-    }
- 
-    cur += sprintf( cur, "[%02x|%02x:%02x][%02x|%02x:%02x:%02x|%02x:%02x]", 
-                    buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], 
-                    buffer[5], buffer[6], buffer[7], buffer[8] );
-    cur += sprintf( cur, "[%02x:%02x|%02x:%02x]",
-                    buffer[9], buffer[10],  buffer[11], buffer[12] );
-    if ( RFC1237_FULLAREA_LEN + 1 == length ) {
-      sprintf( cur, "-[%02x]", buffer[20] );
-    }
-    return str;
-  }
-  else { /* print standard format */
-    if ( 4 < length ) { 
-      while ( tmp < length / 4 ) {      /* 16/4==4  four Octets left to print */
-        cur += sprintf( str, "%02x%02x%02x%02x.", buffer[tmp++], buffer[tmp++],
-                        buffer[tmp++], buffer[tmp++] );
-      }
-      if ( 1 == tmp ) {                     /* Special case for Designated IS */
-        sprintf( --cur, "-%02x", buffer[tmp] );
-      }
-      else {
-        for ( ; tmp < length; ) {  /* print the rest without dot */ 
-          cur += sprintf( cur, "%02x", buffer[tmp++] );
-        }
-      } 
-    }
-    return( str );
-  }
-} /* print_area */
-
-
-gchar *print_nsap_net( const u_char *buffer, int length)
-{
-  /* to do : NSAP / NET decoding */
-
-  static gchar  str[MAX_NSAP_LEN * 3 + 50]; /* reserve space for nice layout */
-  gchar *cur;
-
-  cur = str;
-
-  if ( (length <= 0 ) || ( length > MAX_NSAP_LEN ) ) {
-    sprintf( str, "<Invalid length of NSAP>");
-    return( str );
-  }
-  if ( ( length == RFC1237_NSAP_LEN ) || ( length == RFC1237_NSAP_LEN + 1 ) ) {
-    cur += sprintf( cur, "%s", print_area( buffer, RFC1237_FULLAREA_LEN ) );
-    cur += sprintf( cur, "%s", print_system_id( buffer + RFC1237_FULLAREA_LEN, 
-                    RFC1237_SYSTEMID_LEN ) );
-    cur += sprintf( cur, "[%02x]", 
-                    buffer[ RFC1237_FULLAREA_LEN + RFC1237_SYSTEMID_LEN ] );
-    if ( length == RFC1237_NSAP_LEN + 1 ) {
-      cur += sprintf( cur, "-%02x", buffer[ length -1 ] );
-    }
-    return ( str );
-  }
-  else {    /* probably format as standard */
-    return( print_area( buffer, length ) );
-  }
-} /* print_nsap */
 
 
 gchar *calc_checksum( tvbuff_t *tvb, int offset, u_int len, u_int checksum) {
