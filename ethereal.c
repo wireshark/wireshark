@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.75 1999/08/05 16:46:03 gram Exp $
+ * $Id: ethereal.c,v 1.76 1999/08/05 18:20:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -987,7 +987,7 @@ main(int argc, char *argv[])
      we don't want to look at the argument list, because we don't
      want to call "gtk_init()", because we don't want to have to
      do any X stuff just to do a build. */
-  command_name = strchr(ethereal_path, '/');
+  command_name = strrchr(ethereal_path, '/');
   if (command_name == NULL)
     command_name = ethereal_path;
   else
