@@ -2572,7 +2572,7 @@ static value_string radius_vendor_packetcable_channel_state_vals[] =
   {0,  "Not Used/Reserved"},
   {1,  "Open"},
   {2,  "Change"},
-  {2,  "Close"},
+  {3,  "Close"},
   {0, NULL}
 };
 
