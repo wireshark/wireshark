@@ -400,14 +400,14 @@ CLEANFILES =		\
 # included in that list.)
 #
 DISTCLEANFILES = \
+	AUTHORS-SHORT		\
+	AUTHORS-SHORT-FORMAT	\
 	ps.c
 
 MAINTAINERCLEANFILES =		\
 	$(GENERATED_FILES)
 
 EXTRA_DIST = \
-	AUTHORS-SHORT		\
-	AUTHORS-SHORT-FORMAT	\
 	FAQ			\
 	INSTALL.configure       \
 	Makefile.common		\
