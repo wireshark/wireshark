@@ -9,7 +9,7 @@
  * 2002, some share information levels implemented based on samba
  * sources.
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.60 2003/09/27 23:34:56 guy Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.61 2003/11/20 06:43:51 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -101,6 +101,7 @@ static int hf_srvsvc_user_path = -1;
 static int hf_srvsvc_share = -1;
 static int hf_srvsvc_share_type = -1;
 static int hf_srvsvc_num_entries = -1;
+static int hf_srvsvc_total_entries = -1;
 static int hf_srvsvc_preferred_len = -1;
 static int hf_srvsvc_parm_error = -1;
 static int hf_srvsvc_enum_handle = -1;
@@ -2453,12 +2454,16 @@ srvsvc_dissect_SHARE_INFO_1004_CONTAINER(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_srvsvc_num_entries, NULL);
+	guint32 count;
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		srvsvc_dissect_SHARE_INFO_1004_array, NDR_POINTER_UNIQUE,
-		"SHARE_INFO_1004 array:", -1);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_num_entries, &count);
+
+	if (count) {
+	   offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		  srvsvc_dissect_SHARE_INFO_1004_array, NDR_POINTER_UNIQUE,
+		  "SHARE_INFO_1004 array:", -1);
+	}
 
 	return offset;
 }
@@ -2703,7 +2708,11 @@ srvsvc_dissect_SHARE_INFO_UNION(tvbuff_t *tvb, int offset,
 			srvsvc_dissect_SHARE_INFO_502,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_502:", -1);
 		break;
-	case 1004:
+	/*
+	 * These next lot do not seem to be understood by Windows of any
+	 * flavor
+	 */
+	/*case 1004:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_INFO_1004,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_1004:", -1);
@@ -2727,7 +2736,7 @@ srvsvc_dissect_SHARE_INFO_UNION(tvbuff_t *tvb, int offset,
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_INFO_1501,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_1501:", -1);
-		break;
+		break;*/
 	}
 
 	return offset;
@@ -2830,7 +2839,7 @@ srvsvc_dissect_SHARE_ENUM_UNION(tvbuff_t *tvb, int offset,
 			srvsvc_dissect_SHARE_INFO_502_CONTAINER,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_502_CONTAINER:", -1);
 		break;
-	case 1004:
+	/*case 1004:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_INFO_1004_CONTAINER,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_1004_CONTAINER:", -1);
@@ -2854,7 +2863,7 @@ srvsvc_dissect_SHARE_ENUM_UNION(tvbuff_t *tvb, int offset,
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_INFO_1501_CONTAINER,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_1501_CONTAINER:", -1);
-		break;
+		break;*/
 	}
 
 	return offset;
@@ -2862,7 +2871,6 @@ srvsvc_dissect_SHARE_ENUM_UNION(tvbuff_t *tvb, int offset,
 
 /*
  * IDL typedef struct {
- * IDL   long Level;
  * IDL   SHARE_ENUM_UNION shares;
  * IDL } SHARE_ENUM_STRUCT;
  */
@@ -2871,9 +2879,6 @@ srvsvc_dissect_SHARE_ENUM_STRUCT(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-			hf_srvsvc_info_level, 0);
-
 	offset = srvsvc_dissect_SHARE_ENUM_UNION(tvb, offset, pinfo, tree, drep);
 
 	return offset;
@@ -2882,6 +2887,7 @@ srvsvc_dissect_SHARE_ENUM_STRUCT(tvbuff_t *tvb, int offset,
 /*
  * IDL long NetrShareEnum(
  * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL	    [in] [out] level
  * IDL      [in] [out] [ref] SHARE_ENUM_STRUCT *share,
  * IDL      [in] long MaxLen,
  * IDL      [out] long Entries,
@@ -2896,8 +2902,11 @@ srvsvc_dissect_netrshareenum_rqst(tvbuff_t *tvb, int offset,
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server, 0);
 
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_info_level, 0);
+
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_SHARE_ENUM_STRUCT,
+			srvsvc_dissect_SHARE_ENUM_UNION,
 			NDR_POINTER_REF, "Shares", -1);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -2915,12 +2924,15 @@ srvsvc_dissect_netrshareenum_reply(tvbuff_t *tvb, int offset,
 				      packet_info *pinfo, proto_tree *tree,
 				      char *drep)
 {
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_info_level, 0);
+
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			srvsvc_dissect_SHARE_ENUM_STRUCT,
+			srvsvc_dissect_SHARE_ENUM_UNION,
 			NDR_POINTER_REF, "Shares", -1);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-			hf_srvsvc_num_entries, NULL);
+			hf_srvsvc_total_entries, NULL);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_ENUM_HANDLE,
@@ -7071,6 +7083,9 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_num_entries,
 	    { "Number of entries", "srvsvc.share.num_entries", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Number of Entries", HFILL}},
+	  { &hf_srvsvc_total_entries,
+	    { "Total entries", "srvsvc.share.tot_entries", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Total Entries", HFILL}},
 	  { &hf_srvsvc_initworkitems,
 	    { "Init Workitems", "srvsvc.initworkitems", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Workitems", HFILL}},
