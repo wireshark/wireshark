@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.355 2004/02/03 00:16:58 ulfl Exp $
+ * $Id: file.c,v 1.356 2004/02/03 00:30:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -315,11 +315,11 @@ set_display_filename(capture_file *cf)
   }
 
   if (cf->f_len/1024/1024 > 10) {
-    size_str = g_strdup_printf("%u MB", cf->f_len/1024/1024);
+    size_str = g_strdup_printf("%ld MB", cf->f_len/1024/1024);
   } else if (cf->f_len/1024 > 10) {
-    size_str = g_strdup_printf("%u KB", cf->f_len/1024);
+    size_str = g_strdup_printf("%ld KB", cf->f_len/1024);
   } else {
-    size_str = g_strdup_printf("%u bytes", cf->f_len);
+    size_str = g_strdup_printf("%ld bytes", cf->f_len);
   }
 
   if (cf->drops_known) {
