@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.111 2004/07/02 09:12:21 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.112 2004/07/04 03:46:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -127,6 +127,9 @@ static char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #define COOK_FLAGS(x)           (((x) & 0xFF00) >> 8)
 #define COOK_DS_STATUS(x)       ((x) & 0x3)
 #define COOK_WEP_KEY(x)       (((x) & 0xC0) >> 6)
+
+#define KEY_EXTIV		0x20
+#define EXTIV_LEN		8
 
 #define FLAG_TO_DS		0x01
 #define FLAG_FROM_DS		0x02
@@ -391,6 +394,8 @@ static int tag_interpretation = -1;
 static int hf_fixed_parameters = -1;	/* Protocol payload for management frames */
 static int hf_tagged_parameters = -1;	/* Fixed payload item */
 static int hf_wep_iv = -1;
+static int hf_tkip_extiv = -1;
+static int hf_ccmp_extiv = -1;
 static int hf_wep_key = -1;
 static int hf_wep_icv = -1;
 
@@ -1432,12 +1437,13 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   proto_tree *fc_tree;
   guint16 hdr_len;
   gboolean has_fcs;
-  gint len, reported_len;
+  gint len, reported_len, ivlen;
   gboolean save_fragmented;
   tvbuff_t *volatile next_tvb = NULL;
   guint32 addr_type;
   volatile encap_t encap_type;
   guint8 octet1, octet2;
+  char out_buff[SHORT_STR];
 
   if (check_col (pinfo->cinfo, COL_PROTOCOL))
     col_set_str (pinfo->cinfo, COL_PROTOCOL, "IEEE 802.11");
@@ -1923,72 +1929,114 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     gboolean can_decrypt = FALSE;
     proto_tree *wep_tree = NULL;
     guint32 iv;
-    guint8 key;
+    guint8 key, keybyte;
 
-    /*
-     * XXX - pass the IV and key to "try_decrypt_wep()", and have it pass
-     * them to "wep_decrypt()", rather than having "wep_decrypt()" extract
-     * them itself.
-     *
-     * Also, just pass the data *following* the WEP parameters as the
-     * buffer to decrypt.
-     */
-    iv = tvb_get_letoh24(tvb, hdr_len);
-    if (tree) {
-      proto_item *wep_fields;
+    keybyte = tvb_get_guint8(tvb, hdr_len + 3);
+    key = COOK_WEP_KEY(keybyte);
+    if ((keybyte & KEY_EXTIV) && (len >= EXTIV_LEN)) {
+      /* Extended IV; this frame is likely encrypted with TKIP or CCMP */
+      if (tree) {
+	proto_item *extiv_fields;
 
-      wep_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 4,
-					   "WEP parameters");
+	extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
+					   "TKIP/CCMP parameters");
+	wep_tree = proto_item_add_subtree (extiv_fields, ett_wep_parameters);
+	/* It is unknown whether this is a TKIP or CCMP encrypted packet, so
+	 * display both packet number alternatives unless the ExtIV can be
+	 * determined to be possible only with one of the encryption protocols.
+	 */
+	if (tvb_get_guint8(tvb, hdr_len + 1) & 0x20) {
+	  snprintf(out_buff, SHORT_STR, "0x%08X%02X%02X",
+		   tvb_get_letohl(tvb, hdr_len + 4),
+		   tvb_get_guint8(tvb, hdr_len),
+		   tvb_get_guint8(tvb, hdr_len + 2));
+	  proto_tree_add_string(wep_tree, hf_tkip_extiv, tvb, hdr_len,
+				EXTIV_LEN, out_buff);
+	} 
+	if (tvb_get_guint8(tvb, hdr_len + 2) == 0) {
+	  snprintf(out_buff, SHORT_STR, "0x%08X%02X%02X",
+		   tvb_get_letohl(tvb, hdr_len + 4),
+		   tvb_get_guint8(tvb, hdr_len + 1),
+		   tvb_get_guint8(tvb, hdr_len));
+	  proto_tree_add_string(wep_tree, hf_ccmp_extiv, tvb, hdr_len,
+				EXTIV_LEN, out_buff);
+	}
+        proto_tree_add_uint(wep_tree, hf_wep_key, tvb, hdr_len + 3, 1, key);
+      }
 
-      wep_tree = proto_item_add_subtree (wep_fields, ett_wep_parameters);
-      proto_tree_add_uint (wep_tree, hf_wep_iv, tvb, hdr_len, 3, iv);
-    }
-    key = COOK_WEP_KEY (tvb_get_guint8 (tvb, hdr_len + 3));
-    if (tree)
-      proto_tree_add_uint (wep_tree, hf_wep_key, tvb, hdr_len + 3, 1, key);
-
-    /* Subtract out the length of the IV. */
-    len -= 4;
-    reported_len -= 4;
-
-    /*
-     * Well, this packet should, in theory, have an ICV.
-     * Do we have the entire packet, and does it have enough data for
-     * the ICV?
-     */
-    if (reported_len < 4) {
-      /*
-       * The packet is claimed not to even have enough data for a
-       * 4-byte ICV.
-       * Pretend it doesn't have an ICV.
-       */
-      ;
-    } else if (len < reported_len) {
-      /*
-       * The packet is claimed to have enough data for a 4-byte ICV,
-       * but we didn't capture all of the packet.
-       * Slice off the 4-byte ICV from the reported length, and trim
-       * the captured length so it's no more than the reported length;
-       * that will slice off what of the ICV, if any, is in the
-       * captured length.
-       *
-       */
-      reported_len -= 4;
-      if (len > reported_len)
-	len = reported_len;
+      /* Subtract out the length of the IV. */
+      len -= EXTIV_LEN;
+      reported_len -= EXTIV_LEN;
+      ivlen = EXTIV_LEN;
+      /* It is unknown whether this is TKIP or CCMP, so let's not even try to
+       * parse TKIP Michael MIC+ICV or CCMP MIC. */
     } else {
+      /* No Ext. IV - WEP packet */
       /*
-       * We have the entire packet, and it includes a 4-byte ICV.
-       * Slice it off, and put it into the tree.
+       * XXX - pass the IV and key to "try_decrypt_wep()", and have it pass
+       * them to "wep_decrypt()", rather than having "wep_decrypt()" extract
+       * them itself.
        *
-       * We only support decrypting if we have the the ICV.
-       *
-       * XXX - the ICV is encrypted; we're putting the encrypted
-       * value, not the decrypted value, into the tree.
+       * Also, just pass the data *following* the WEP parameters as the
+       * buffer to decrypt.
        */
+      iv = tvb_get_letoh24(tvb, hdr_len);
+      if (tree) {
+	proto_item *wep_fields;
+
+	wep_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 4,
+					 "WEP parameters");
+
+	wep_tree = proto_item_add_subtree (wep_fields, ett_wep_parameters);
+	proto_tree_add_uint (wep_tree, hf_wep_iv, tvb, hdr_len, 3, iv);
+      }
+      if (tree)
+        proto_tree_add_uint (wep_tree, hf_wep_key, tvb, hdr_len + 3, 1, key);
+
+      /* Subtract out the length of the IV. */
       len -= 4;
       reported_len -= 4;
-      can_decrypt = TRUE;
+      ivlen = 4;
+
+      /*
+       * Well, this packet should, in theory, have an ICV.
+       * Do we have the entire packet, and does it have enough data for
+       * the ICV?
+       */
+      if (reported_len < 4) {
+        /*
+	 * The packet is claimed not to even have enough data for a
+	 * 4-byte ICV.
+	 * Pretend it doesn't have an ICV.
+	 */
+        ;
+      } else if (len < reported_len) {
+        /*
+	 * The packet is claimed to have enough data for a 4-byte ICV,
+	 * but we didn't capture all of the packet.
+	 * Slice off the 4-byte ICV from the reported length, and trim
+	 * the captured length so it's no more than the reported length;
+	 * that will slice off what of the ICV, if any, is in the
+	 * captured length.
+	 *
+	 */
+        reported_len -= 4;
+        if (len > reported_len)
+	  len = reported_len;
+      } else {
+        /*
+	 * We have the entire packet, and it includes a 4-byte ICV.
+	 * Slice it off, and put it into the tree.
+	 *
+	 * We only support decrypting if we have the the ICV.
+	 *
+	 * XXX - the ICV is encrypted; we're putting the encrypted
+	 * value, not the decrypted value, into the tree.
+	 */
+        len -= 4;
+	reported_len -= 4;
+	can_decrypt = TRUE;
+      }
     }
 
     if (!can_decrypt || (next_tvb = try_decrypt_wep(tvb, hdr_len, reported_len + 8)) == NULL) {
@@ -1996,14 +2044,14 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
        * WEP decode impossible or failed, treat payload as raw data
        * and don't attempt fragment reassembly or further dissection.
        */
-      next_tvb = tvb_new_subset(tvb, hdr_len + 4, len, reported_len);
+      next_tvb = tvb_new_subset(tvb, hdr_len + ivlen, len, reported_len);
 
       if (tree && can_decrypt)
 	proto_tree_add_uint_format (wep_tree, hf_wep_icv, tvb, 
-				    hdr_len + 4 + len, 4, 
-				    tvb_get_ntohl(tvb, hdr_len + 4 + len),
+				    hdr_len + ivlen + len, 4, 
+				    tvb_get_ntohl(tvb, hdr_len + ivlen + len),
 				    "WEP ICV: 0x%08x (not verified)", 
-				    tvb_get_ntohl(tvb, hdr_len + 4 + len));
+				    tvb_get_ntohl(tvb, hdr_len + ivlen + len));
 
       call_dissector(data_handle, next_tvb, pinfo, tree);
       return;
@@ -2011,10 +2059,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
       if (tree)
 	proto_tree_add_uint_format (wep_tree, hf_wep_icv, tvb, 
-				    hdr_len + 4 + len, 4, 
-				    tvb_get_ntohl(tvb, hdr_len + 4 + len),
+				    hdr_len + ivlen + len, 4, 
+				    tvb_get_ntohl(tvb, hdr_len + ivlen + len),
 				    "WEP ICV: 0x%08x (correct)", 
-				    tvb_get_ntohl(tvb, hdr_len + 4 + len));
+				    tvb_get_ntohl(tvb, hdr_len + ivlen + len));
 
       add_new_data_source(pinfo, next_tvb, "Decrypted WEP data");
     }
@@ -2590,6 +2638,14 @@ proto_register_ieee80211 (void)
     {&hf_wep_iv,
      {"Initialization Vector", "wlan.wep.iv", FT_UINT24, BASE_HEX, NULL, 0,
       "Initialization Vector", HFILL }},
+
+    {&hf_tkip_extiv,
+     {"TKIP Ext. Initialization Vector", "wlan.tkip.extiv", FT_STRING,
+      BASE_HEX, NULL, 0, "TKIP Extended Initialization Vector", HFILL }},
+
+    {&hf_ccmp_extiv,
+     {"CCMP Ext. Initialization Vector", "wlan.ccmp.extiv", FT_STRING,
+      BASE_HEX, NULL, 0, "CCMP Extended Initialization Vector", HFILL }},
 
     {&hf_wep_key,
      {"Key", "wlan.wep.key", FT_UINT8, BASE_DEC, NULL, 0,
