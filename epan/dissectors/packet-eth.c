@@ -39,7 +39,7 @@
 #include <epan/crc32.h>
 #include <epan/tap.h>
 
-/* Interpret capture file as FW1 monitor file */
+/* Interpret packets as FW1 monitor file packets if they look as if they are */
 static gboolean eth_interpret_as_fw1_monitor = FALSE;
 
 /* protocols and header fields */
@@ -275,8 +275,11 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  hf_eth_len, hf_eth_trailer, fcs_len);
   } else {
     if (eth_interpret_as_fw1_monitor) {
-      call_dissector(fw1_handle, tvb, pinfo, tree);
-      goto end_of_eth;
+	if ((dst_addr[0] == 'i') || (dst_addr[0] == 'I') ||
+	    (dst_addr[0] == 'o') || (dst_addr[0] == 'O')) {
+	  call_dissector(fw1_handle, tvb, pinfo, tree);
+	  goto end_of_eth;
+	}
     }
 
     if (check_col(pinfo->cinfo, COL_INFO))
@@ -447,8 +450,8 @@ proto_register_eth(void)
 	/* Register configuration preferences */
 	eth_module = prefs_register_protocol(proto_eth, NULL);
 	prefs_register_bool_preference(eth_module, "interpret_as_fw1_monitor",
-            "Interpret as FireWall-1 monitor file",
-"Whether the capture file should be interpreted as a CheckPoint FireWall-1 monitor file",
+            "Attempt to interpret as FireWall-1 monitor file",
+            "Whether packets should be interpreted as coming from CheckPoint FireWall-1 monitor file if they look as if they do",
             &eth_interpret_as_fw1_monitor);
 
 	register_dissector("eth", dissect_eth, proto_eth);
