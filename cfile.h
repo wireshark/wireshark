@@ -61,7 +61,6 @@ typedef struct _capture_file {
   gboolean     has_snap;  /* TRUE if maximum capture packet length is known */
   int          snap;      /* Maximum captured packet length */
   gchar       *iface;     /* Interface */
-  gchar       *save_file; /* File that user saved capture to */
   wtap        *wth;       /* Wiretap session */
   dfilter_t   *rfcode;    /* Compiled read filter program */
   gchar       *dfilter;   /* Display filter string */

@@ -37,6 +37,7 @@
 /** Capture options coming from user interface */
 typedef struct capture_options_tag {
     /* general */
+    void *cf;               /**< handle to cfile (note: untyped handle) */
 #ifdef _WIN32
     int buffer_size;        /**< the capture buffer size (MB) */
 #endif
@@ -47,6 +48,7 @@ typedef struct capture_options_tag {
 	int linktype;			/**< Data link type to use, or -1 for
 					   "use default" */
 	gboolean capture_child;	/**< True if this is the child for "-S" */
+    gchar    *save_file;    /**< File that user saved capture to */
     int      save_file_fd;  /**< File descriptor for saved file */
 
     /* GUI related */
@@ -77,6 +79,9 @@ typedef struct capture_options_tag {
 	gboolean has_autostop_duration;	/**< TRUE if maximum capture duration
 					   is specified */
 	gint32 autostop_duration;	/**< Maximum capture duration */
+
+    /* internally used (don't touch from outside) */
+    int fork_child;	            /**< If not -1, in parent, process ID of child */
 } capture_options;
 
 
@@ -90,10 +95,10 @@ extern gboolean do_capture(capture_options *capture_opts, const char *save_file)
 extern int  capture_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats);
 
 /** Stop a capture from a menu item. */
-extern void capture_stop(gboolean sync_mode);
+extern void capture_stop(capture_options *capture_opts);
 
 /** Terminate the capture child cleanly when exiting. */
-extern void kill_capture_child(gboolean sync_mode);
+extern void kill_capture_child(capture_options *capture_opts);
 
 /** Do the low-level work of a capture. */
 extern int  capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats);

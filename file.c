@@ -707,6 +707,32 @@ cf_get_display_name(capture_file *cf)
   return displayname;
 }
 
+/* XXX - use a macro instead? */
+int
+cf_packet_count(capture_file *cf)
+{
+    return cf->count;
+}
+
+/* XXX - use a macro instead? */
+gboolean
+cf_is_tempfile(capture_file *cf)
+{
+    return cf->is_tempfile;
+}
+
+/* XXX - use a macro instead? */
+void cf_set_drops_known(capture_file *cf, gboolean drops_known)
+{
+    cf->drops_known = drops_known;
+}
+
+/* XXX - use a macro instead? */
+void cf_set_drops(capture_file *cf, guint32 drops)
+{
+    cf->drops = drops;
+}
+
 typedef struct {
   color_filter_t *colorf;
   epan_dissect_t *edt;

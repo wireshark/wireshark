@@ -129,8 +129,8 @@ capture_open_output(capture_options *capture_opts, const char *save_file, gboole
 
   /* close the old file */
   cf_close(&cfile);
-  g_assert(cfile.save_file == NULL);
-  cfile.save_file = capfile_name;
+  g_assert(capture_opts->save_file == NULL);
+  capture_opts->save_file = capfile_name;
   /* cfile.save_file is "g_free"ed later, which is equivalent to
      "g_free(capfile_name)". */
 
@@ -193,21 +193,21 @@ normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
       if (capture_opts->multi_files_on) {
 	ringbuf_free();
       } else {
-	g_free(cfile.save_file);
+	g_free(capture_opts->save_file);
       }
-      cfile.save_file = NULL;
+      capture_opts->save_file = NULL;
       return FALSE;
     }
     /* Capture succeeded; attempt to read in the capture file. */
-    if ((err = cf_open(cfile.save_file, is_tempfile, &cfile)) != 0) {
+    if ((err = cf_open(capture_opts->save_file, is_tempfile, &cfile)) != 0) {
       /* We're not doing a capture any more, so we don't have a save
 	 file. */
       if (capture_opts->multi_files_on) {
 	ringbuf_free();
       } else {
-	g_free(cfile.save_file);
+	g_free(capture_opts->save_file);
       }
-      cfile.save_file = NULL;
+      capture_opts->save_file = NULL;
       return FALSE;
     }
 
@@ -266,9 +266,9 @@ normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
     if (capture_opts->multi_files_on) {
       ringbuf_free();
     } else {
-      g_free(cfile.save_file);
+      g_free(capture_opts->save_file);
     }
-    cfile.save_file = NULL;
+    capture_opts->save_file = NULL;
 
     /* if we didn't captured even a single packet, close the file again */
     if(cfile.count == 0) {
@@ -306,21 +306,21 @@ capture_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_
 }
 
 void
-capture_stop(gboolean sync_mode)
+capture_stop(capture_options *capture_opts)
 {
 
-  if (sync_mode) {	
-    sync_pipe_stop();
+  if (capture_opts->sync_mode) {	
+    sync_pipe_stop(capture_opts);
   }
     
   capture_loop_stop();
 }
 
 void
-kill_capture_child(gboolean sync_mode)
+kill_capture_child(capture_options *capture_opts)
 {
-  if (sync_mode) {	
-    sync_pipe_kill();
+  if (capture_opts->sync_mode) {	
+    sync_pipe_kill(capture_opts);
   }
 }
 

@@ -50,11 +50,11 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile);
 
 /** User wants to stop capturing, gracefully close the capture child */
 extern void
-sync_pipe_stop(void);
+sync_pipe_stop(capture_options *capture_opts);
 
 /** We want to stop the program, just kill the child as soon as possible */
 extern void
-sync_pipe_kill(void);
+sync_pipe_kill(capture_options *capture_opts);
 
 
 /** the child will immediately start capturing, notify the parent */

@@ -822,12 +822,12 @@ static int capture_loop_open_wiretap_output(capture_options *capture_opts, loop_
         g_snprintf(errmsg, errmsg_len,
 		     "The file to which the capture would be"
                      " saved (\"%s\") could not be opened: Error %d.",
- 			cfile.save_file, err);
+ 			capture_opts->save_file, err);
       } else {
         g_snprintf(errmsg, errmsg_len,
 		     "The file to which the capture would be"
                      " saved (\"%s\") could not be opened: %s.",
- 			cfile.save_file, strerror(err));
+ 			capture_opts->save_file, strerror(err));
       }
       break;
     }
@@ -840,7 +840,7 @@ static int capture_loop_open_wiretap_output(capture_options *capture_opts, loop_
 
 static gboolean capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err_close) {
   if (capture_opts->multi_files_on) {
-    return ringbuf_wtap_dump_close(&cfile.save_file, err_close);
+    return ringbuf_wtap_dump_close(&capture_opts->save_file, err_close);
   } else {
     return wtap_dump_close(ld->wtap_pdh, err_close);
   }
@@ -1106,7 +1106,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           }
 
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&ld.wtap_pdh, &cfile.save_file, &capture_opts->save_file_fd, &ld.err)) {
+          if (ringbuf_switch_file(&ld.wtap_pdh, &capture_opts->save_file, &capture_opts->save_file_fd, &ld.err)) {
             /* File switch succeeded: reset the conditions */
             cnd_reset(cnd_autostop_size);
             if (cnd_file_duration) {
@@ -1175,7 +1175,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           }
 
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&ld.wtap_pdh, &cfile.save_file, &capture_opts->save_file_fd, &ld.err)) {
+          if (ringbuf_switch_file(&ld.wtap_pdh, &capture_opts->save_file, &capture_opts->save_file_fd, &ld.err)) {
             /* file switch succeeded: reset the conditions */
             cnd_reset(cnd_file_duration);
             if(cnd_autostop_size)
@@ -1225,7 +1225,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   if (ld.err == 0) {
     write_ok = TRUE;
   } else {
-    capture_loop_get_errmsg(errmsg, sizeof(errmsg), cfile.save_file, ld.err,
+    capture_loop_get_errmsg(errmsg, sizeof(errmsg), capture_opts->save_file, ld.err,
 			      FALSE);
     capture_loop_popup_errmsg(capture_opts, errmsg);
     write_ok = FALSE;
@@ -1237,7 +1237,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   /* If we've displayed a message about a write error, there's no point
      in displaying another message about an error on close. */
   if (!close_ok && write_ok) {
-    capture_loop_get_errmsg(errmsg, sizeof(errmsg), cfile.save_file, err_close,
+    capture_loop_get_errmsg(errmsg, sizeof(errmsg), capture_opts->save_file, err_close,
 		TRUE);
     capture_loop_popup_errmsg(capture_opts, errmsg);
   }
@@ -1287,10 +1287,10 @@ error:
 
     /* We couldn't even start the capture, so get rid of the capture
        file. */
-    unlink(cfile.save_file); /* silently ignore error */
-    g_free(cfile.save_file);
+    unlink(capture_opts->save_file); /* silently ignore error */
+    g_free(capture_opts->save_file);
   }
-  cfile.save_file = NULL;
+  capture_opts->save_file = NULL;
   capture_loop_popup_errmsg(capture_opts, errmsg);
 
   /* close the input file (pcap or cap_pipe) */

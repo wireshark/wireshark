@@ -95,8 +95,6 @@
 # include <io.h>
 #endif
 
-int fork_child = -1;	    /* If not -1, in parent, process ID of child */
-
 #ifdef _WIN32
 #include <process.h>    /* For spawning child process */
 #endif
@@ -113,7 +111,7 @@ static char *sync_pipe_signame(int);
 
 
 static gboolean sync_pipe_input_cb(gint source, gpointer user_data);
-static void sync_pipe_wait_for_child(gboolean always_report);
+static void sync_pipe_wait_for_child(int fork_child, gboolean always_report);
 
 /* Size of buffer to hold decimal representation of
    signed/unsigned 64-bit int */
@@ -233,7 +231,7 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
     int sync_pipe[2];                       /* pipes used to sync between instances */
 
 
-    fork_child = -1;
+    capture_opts->fork_child = -1;
 
     /* Allocate the string pointer array with enough space for the
        terminating NULL pointer. */
@@ -248,7 +246,7 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
     argv = sync_pipe_add_arg(argv, &argc, cfile.iface);
 
     argv = sync_pipe_add_arg(argv, &argc, "-w");
-    argv = sync_pipe_add_arg(argv, &argc, cfile.save_file);
+    argv = sync_pipe_add_arg(argv, &argc, capture_opts->save_file);
 
     argv = sync_pipe_add_arg(argv, &argc, "-W");
     sprintf(save_file_fd,"%d",capture_opts->save_file_fd);	/* in lieu of itoa */
@@ -302,9 +300,9 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
     if(_pipe(sync_pipe, 512, O_BINARY) < 0) {
       /* Couldn't create the pipe between parent and child. */
       error = errno;
-      unlink(cfile.save_file);
-      g_free(cfile.save_file);
-      cfile.save_file = NULL;
+      unlink(capture_opts->save_file);
+      g_free(capture_opts->save_file);
+      capture_opts->save_file = NULL;
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't create sync pipe: %s",
                         strerror(error));
       return FALSE;
@@ -329,7 +327,7 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
     }
 
     /* Spawn process */
-    fork_child = spawnvp(_P_NOWAIT, ethereal_path, argv);
+    capture_opts->fork_child = spawnvp(_P_NOWAIT, ethereal_path, argv);
     g_free(fontstring);
     if (filterstring) {
       g_free(filterstring);
@@ -398,13 +396,13 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
        it and reading the save file through Wiretap. */
     close(capture_opts->save_file_fd);
 
-    if (fork_child == -1) {
+    if (capture_opts->fork_child == -1) {
       /* We couldn't even create the child process. */
       error = errno;
       close(sync_pipe[PIPE_READ]);
-      unlink(cfile.save_file);
-      g_free(cfile.save_file);
-      cfile.save_file = NULL;
+      unlink(capture_opts->save_file);
+      g_free(capture_opts->save_file);
+      capture_opts->save_file = NULL;
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Couldn't create child process: %s", strerror(error));
       return FALSE;
@@ -423,10 +421,10 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
 	   Close the read side of the sync pipe, remove the capture file,
 	   and report the failure. */
 	close(sync_pipe[PIPE_READ]);
-	unlink(cfile.save_file);
-	g_free(cfile.save_file);
-	cfile.save_file = NULL;
-	sync_pipe_wait_for_child(TRUE);
+	unlink(capture_opts->save_file);
+	g_free(capture_opts->save_file);
+	capture_opts->save_file = NULL;
+	sync_pipe_wait_for_child(capture_opts->fork_child, TRUE);
 	return FALSE;
       }
       if (c == SP_CAPSTART || c == SP_ERROR_MSG)
@@ -436,9 +434,9 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
 	   Close the read side of the sync pipe, remove the capture file,
 	   and report the failure. */
 	close(sync_pipe[PIPE_READ]);
-	unlink(cfile.save_file);
-	g_free(cfile.save_file);
-	cfile.save_file = NULL;
+	unlink(capture_opts->save_file);
+	g_free(capture_opts->save_file);
+	capture_opts->save_file = NULL;
 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Capture child process sent us a bad message");
 	return FALSE;
@@ -467,7 +465,7 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
 	  } else if (i == 0) {
 	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		  "Capture child process failed: EOF reading its error message.");
-	    sync_pipe_wait_for_child(FALSE);
+	    sync_pipe_wait_for_child(capture_opts->fork_child, FALSE);
 	  } else
 	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, msg);
 	  g_free(msg);
@@ -477,16 +475,16 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
 	close(sync_pipe[PIPE_READ]);
 
 	/* Get rid of the save file - the capture never started. */
-	unlink(cfile.save_file);
-	g_free(cfile.save_file);
-	cfile.save_file = NULL;
+	unlink(capture_opts->save_file);
+	g_free(capture_opts->save_file);
+	capture_opts->save_file = NULL;
       }
       return FALSE;
     }
 
     /* The child process started a capture.
        Attempt to open the capture file and set up to read it. */
-    err = cf_start_tail(cfile.save_file, is_tempfile, &cfile);
+    err = cf_start_tail(capture_opts->save_file, is_tempfile, &cfile);
     if (err != 0) {
       /* We weren't able to open the capture file; user has been
 	 alerted. Close the sync pipe. */
@@ -495,15 +493,15 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
 
       /* Don't unlink the save file - leave it around, for debugging
 	 purposes. */
-      g_free(cfile.save_file);
-      cfile.save_file = NULL;
+      g_free(capture_opts->save_file);
+      capture_opts->save_file = NULL;
       return FALSE;
     }
     /* We were able to open and set up to read the capture file;
        arrange that our callback be called whenever it's possible
        to read from the sync pipe, so that it's called when
        the child process wants to tell us something. */
-    pipe_input_set_handler(sync_pipe[PIPE_READ], (gpointer) &cfile, &fork_child, sync_pipe_input_cb);
+    pipe_input_set_handler(sync_pipe[PIPE_READ], (gpointer) capture_opts, &capture_opts->fork_child, sync_pipe_input_cb);
 
     return TRUE;
 }
@@ -515,7 +513,8 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
 static gboolean 
 sync_pipe_input_cb(gint source, gpointer user_data)
 {
-  capture_file *cf = (capture_file *)user_data;
+  capture_options *capture_opts = (capture_options *)user_data;
+  gint fork_child = capture_opts->fork_child;
 #define BUFSIZE	4096
   char buffer[BUFSIZE+1], *p = buffer, *q = buffer, *msg, *r;
   int  nread, msglen, chars_to_copy;
@@ -527,20 +526,20 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     /* The child has closed the sync pipe, meaning it's not going to be
        capturing any more packets.  Pick up its exit status, and
        complain if it did anything other than exit with status 0. */
-    sync_pipe_wait_for_child(FALSE);
+    sync_pipe_wait_for_child(fork_child, FALSE);
 
     /* Read what remains of the capture file, and finish the capture.
        XXX - do something if this fails? */
-    switch (cf_finish_tail(cf, &err)) {
+    switch (cf_finish_tail(capture_opts->cf, &err)) {
 
     case READ_SUCCESS:
-        if(cf->count == 0) {
+        if(cf_packet_count(capture_opts->cf) == 0) {
           simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
           "%sNo packets captured!%s\n\n"
           "As no data was captured, closing the %scapture file!",
           simple_dialog_primary_start(), simple_dialog_primary_end(),
-          (cf->is_tempfile) ? "temporary " : "");
-          cf_close(cf);
+          cf_is_tempfile(capture_opts->cf) ? "temporary " : "");
+          cf_close(capture_opts->cf);
         }
         break;
     case READ_ERROR:
@@ -558,8 +557,8 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 
     /* We're not doing a capture any more, so we don't have a save
        file. */
-    g_free(cf->save_file);
-    cf->save_file = NULL;
+    g_free(capture_opts->save_file);
+    capture_opts->save_file = NULL;
 
     return FALSE;
   }
@@ -576,8 +575,8 @@ sync_pipe_input_cb(gint source, gpointer user_data)
       nread--;
       break;
     case SP_DROPS :
-      cf->drops_known = TRUE;
-      cf->drops = atoi(p);
+      cf_set_drops_known(capture_opts->cf, TRUE);
+      cf_set_drops(capture_opts->cf, atoi(p));
       p = q + 1;
       q++;
       nread--;
@@ -622,7 +621,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
   /* Read from the capture file the number of records the child told us
      it added.
      XXX - do something if this fails? */
-  switch (cf_continue_tail(cf, to_read, &err)) {
+  switch (cf_continue_tail(capture_opts->cf, to_read, &err)) {
 
   case READ_SUCCESS:
   case READ_ERROR:
@@ -636,7 +635,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
   case READ_ABORTED:
     /* Kill the child capture process; the user wants to exit, and we
        shouldn't just leave it running. */
-    kill_capture_child(TRUE /* sync_mode */);
+    kill_capture_child(capture_opts);
     break;
   }
 
@@ -646,7 +645,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 
 /* the child process is going down, wait until it's completely terminated */
 static void
-sync_pipe_wait_for_child(gboolean always_report)
+sync_pipe_wait_for_child(int fork_child, gboolean always_report)
 {
   int  wstatus;
 
@@ -789,11 +788,11 @@ sync_pipe_signame(int sig)
 
 
 void
-sync_pipe_stop(void)
+sync_pipe_stop(capture_options *capture_opts)
 {
-  if (fork_child != -1) {
+  if (capture_opts->fork_child != -1) {
 #ifndef _WIN32
-      kill(fork_child, SIGUSR1);
+      kill(capture_opts->fork_child, SIGUSR1);
 #else
       /* XXX: this is not the preferred method of closing a process!
        * the clean way would be getting the process id of the child process,
@@ -807,18 +806,18 @@ sync_pipe_stop(void)
        * running in the same console, I don't know if that is true for our case.
        * And this also will require to have the process id
        */
-      TerminateProcess((HANDLE) fork_child, 0);
+      TerminateProcess((HANDLE) (capture_opts->fork_child), 0);
 #endif
   }
 }
 
 
 void
-sync_pipe_kill(void)
+sync_pipe_kill(capture_options *capture_opts)
 {
-  if (fork_child != -1)
+  if (capture_opts->fork_child != -1)
 #ifndef _WIN32
-      kill(fork_child, SIGTERM);	/* SIGTERM so it can clean up if necessary */
+      kill(capture_opts->fork_child, SIGTERM);	/* SIGTERM so it can clean up if necessary */
 #else
       /* XXX: this is not the preferred method of closing a process!
        * the clean way would be getting the process id of the child process,
@@ -832,7 +831,7 @@ sync_pipe_kill(void)
        * running in the same console, I don't know if that is true for our case.
        * And this also will require to have the process id
        */
-      TerminateProcess((HANDLE) fork_child, 0);
+      TerminateProcess((HANDLE) (capture_opts->fork_child), 0);
 #endif
 }
 

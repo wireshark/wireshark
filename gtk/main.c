@@ -880,7 +880,7 @@ main_do_quit(void)
 
 #ifdef HAVE_LIBPCAP
 	/* Nuke any child capture in progress. */
-	kill_capture_child(capture_opts->sync_mode);
+	kill_capture_child(capture_opts);
 #endif
 
 	/* Are we in the middle of reading a capture? */
@@ -1847,6 +1847,7 @@ main(int argc, char *argv[])
   }
 #endif
 
+  capture_opts->cf = &cfile;
 #ifdef HAVE_LIBPCAP
   capture_opts->has_snaplen = FALSE;
   capture_opts->snaplen = MIN_PACKET_SIZE;

@@ -123,7 +123,7 @@ capture_prep_interface_changed_cb(GtkWidget *entry, gpointer parent_w);
 void
 capture_stop_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-    capture_stop(capture_opts->sync_mode);
+    capture_stop(capture_opts);
 }
 
 /*

@@ -167,48 +167,9 @@ typedef struct _loop_data {
 
 static loop_data ld;
 
-static int capture(int);
-static void capture_pcap_cb(guchar *, const struct pcap_pkthdr *,
-  const guchar *);
-static void report_counts(void);
-#ifdef _WIN32
-static BOOL WINAPI capture_cleanup(DWORD);
-#else /* _WIN32 */
-static void capture_cleanup(int);
-#ifdef SIGINFO
-static void report_counts_siginfo(int);
-#endif /* SIGINFO */
-#endif /* _WIN32 */
-#endif /* HAVE_LIBPCAP */
-
-static int load_cap_file(capture_file *, int);
-static gboolean process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
-    const struct wtap_pkthdr *whdr, union wtap_pseudo_header *pseudo_header,
-    const guchar *pd, int *err);
-static void show_capture_file_io_error(const char *, int, gboolean);
-static void show_print_file_io_error(int err);
-static gboolean write_preamble(capture_file *cf);
-static gboolean print_packet(capture_file *cf, epan_dissect_t *edt);
-static gboolean write_finale(void);
-static char *cf_open_error_message(int err, gchar *err_info,
-    gboolean for_writing, int file_type);
-#ifdef HAVE_LIBPCAP
-#ifndef _WIN32
-static void adjust_header(loop_data *, struct pcap_hdr *, struct pcaprec_hdr *);
-static int pipe_open_live(char *, struct pcap_hdr *, loop_data *, char *, int);
-static int pipe_dispatch(int, loop_data *, struct pcap_hdr *, \
-                struct pcaprec_modified_hdr *, guchar *, char *, int);
-#endif /* _WIN32 */
-#endif
-
-static void open_failure_message(const char *filename, int err,
-    gboolean for_writing);
-static void failure_message(const char *msg_format, va_list ap);
-static void read_failure_message(const char *filename, int err);
-
-capture_file cfile;
 #ifdef HAVE_LIBPCAP
 typedef struct {
+    gchar    *save_file;    /* File that user saved capture to */
 	int snaplen;			/* Maximum captured packet length */
 	int promisc_mode;		/* Capture in promiscuous mode */
 	int autostop_count;		/* Maximum packet count */
@@ -227,6 +188,7 @@ typedef struct {
 } capture_options;
 
 static capture_options capture_opts = {
+    "",
 	WTAP_MAX_PACKET_SIZE,		/* snapshot length - default is
 					   infinite, in effect */
 	TRUE,				/* promiscuous mode is the default */
@@ -253,6 +215,49 @@ static gboolean infodelay;	/* if TRUE, don't print capture info in SIGINFO handl
 static gboolean infoprint;	/* if TRUE, print capture info after clearing infodelay */
 #endif /* SIGINFO */
 #endif /* HAVE_LIBPCAP */
+
+
+static int capture(int);
+static void capture_pcap_cb(guchar *, const struct pcap_pkthdr *,
+  const guchar *);
+static void report_counts(void);
+#ifdef _WIN32
+static BOOL WINAPI capture_cleanup(DWORD);
+#else /* _WIN32 */
+static void capture_cleanup(int);
+#ifdef SIGINFO
+static void report_counts_siginfo(int);
+#endif /* SIGINFO */
+#endif /* _WIN32 */
+#endif /* HAVE_LIBPCAP */
+
+static int load_cap_file(capture_file *, capture_options *capture_opts, int);
+static gboolean process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
+    const struct wtap_pkthdr *whdr, union wtap_pseudo_header *pseudo_header,
+    const guchar *pd, int *err);
+static void show_capture_file_io_error(const char *, int, gboolean);
+static void show_print_file_io_error(int err);
+static gboolean write_preamble(capture_file *cf);
+static gboolean print_packet(capture_file *cf, epan_dissect_t *edt);
+static gboolean write_finale(void);
+static char *cf_open_error_message(int err, gchar *err_info,
+    gboolean for_writing, int file_type);
+#ifdef HAVE_LIBPCAP
+#ifndef _WIN32
+static void adjust_header(loop_data *, struct pcap_hdr *, struct pcaprec_hdr *);
+static int pipe_open_live(char *, struct pcap_hdr *, loop_data *, char *, int);
+static int pipe_dispatch(int, loop_data *, struct pcap_hdr *, \
+                struct pcaprec_modified_hdr *, guchar *, char *, int);
+#endif /* _WIN32 */
+#endif
+
+static void open_failure_message(const char *filename, int err,
+    gboolean for_writing);
+static void failure_message(const char *msg_format, va_list ap);
+static void read_failure_message(const char *filename, int err);
+
+capture_file cfile;
+
 
 static void
 print_usage(gboolean print_ver)
@@ -1238,7 +1243,7 @@ main(int argc, char *argv[])
         exit(0);
         break;
       case 'w':        /* Write to capture file xxx */
-        cfile.save_file = g_strdup(optarg);
+        capture_opts.save_file = g_strdup(optarg);
 	break;
       case 'V':        /* Verbose */
         verbose = TRUE;
@@ -1317,12 +1322,12 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   ld.output_to_pipe = FALSE;
 #endif
-  if (cfile.save_file != NULL) {
+  if (capture_opts.save_file != NULL) {
     /* We're writing to a capture file. */
-    if (strcmp(cfile.save_file, "-") == 0) {
+    if (strcmp(capture_opts.save_file, "-") == 0) {
       /* Write to the standard output. */
-      g_free(cfile.save_file);
-      cfile.save_file = g_strdup("");
+      g_free(capture_opts.save_file);
+      capture_opts.save_file = g_strdup("");
 #ifdef HAVE_LIBPCAP
       /* XXX - should we check whether it's a pipe?  It's arguably
          silly to do "-w - >output_file" rather than "-w output_file",
@@ -1333,7 +1338,7 @@ main(int argc, char *argv[])
     }
 #ifdef HAVE_LIBPCAP
     else {
-      err = test_for_fifo(cfile.save_file);
+      err = test_for_fifo(capture_opts.save_file);
       switch (err) {
 
       case ENOENT:	/* it doesn't exist, so we'll be creating it,
@@ -1406,7 +1411,7 @@ main(int argc, char *argv[])
   } else {
     /* If they didn't specify a "-w" flag, but specified a maximum capture
        file size, tell them that this doesn't work, and exit. */
-    if (capture_opts.has_autostop_filesize && cfile.save_file == NULL) {
+    if (capture_opts.has_autostop_filesize && capture_opts.save_file == NULL) {
       fprintf(stderr, "tethereal: Maximum capture file size specified, but "
         "capture isn't being saved to a file.\n");
       exit(1);
@@ -1420,7 +1425,7 @@ main(int argc, char *argv[])
 	 c) it makes no sense to enable the ring buffer if the maximum
 	    file size is set to "infinite";
 	 d) file must not be a pipe. */
-      if (cfile.save_file == NULL) {
+      if (capture_opts.save_file == NULL) {
 	fprintf(stderr, "tethereal: Ring buffer requested, but "
 	  "capture isn't being saved to a file.\n");
 	exit(1);
@@ -1578,7 +1583,7 @@ main(int argc, char *argv[])
       epan_cleanup();
       exit(2);
     }
-    err = load_cap_file(&cfile, out_file_type);
+    err = load_cap_file(&cfile, &capture_opts, out_file_type);
     if (err != 0) {
       epan_cleanup();
       exit(2);
@@ -1869,7 +1874,7 @@ capture(int out_file_type)
     file_snaplen = pcap_snapshot(ld.pch);
   }
   ld.linktype = wtap_pcap_encap_to_wtap_encap(pcap_encap);
-  if (cfile.save_file != NULL) {
+  if (capture_opts.save_file != NULL) {
     /* Set up to write to the capture file. */
     if (ld.linktype == WTAP_ENCAP_UNKNOWN) {
       strcpy(errmsg, "The network you're capturing from is of a type"
@@ -1877,7 +1882,7 @@ capture(int out_file_type)
       goto error;
     }
     if (capture_opts.ringbuffer_on) {
-      save_file_fd = ringbuf_init(cfile.save_file,
+      save_file_fd = ringbuf_init(capture_opts.save_file,
         capture_opts.ringbuffer_num_files);
       if (save_file_fd != -1) {
         ld.pdh = ringbuf_init_wtap_dump_fdopen(out_file_type, ld.linktype,
@@ -1887,14 +1892,14 @@ capture(int out_file_type)
         ld.pdh = NULL;
       }
     } else {
-      ld.pdh = wtap_dump_open(cfile.save_file, out_file_type,
+      ld.pdh = wtap_dump_open(capture_opts.save_file, out_file_type,
 		 ld.linktype, file_snaplen, &err);
     }
 
     if (ld.pdh == NULL) {
       snprintf(errmsg, sizeof errmsg,
 	       cf_open_error_message(err, NULL, TRUE, out_file_type),
-	       *cfile.save_file == '\0' ? "stdout" : cfile.save_file);
+	       *capture_opts.save_file == '\0' ? "stdout" : capture_opts.save_file);
       goto error;
     }
   }
@@ -2035,7 +2040,7 @@ capture(int out_file_type)
            its maximum size. */
         if (capture_opts.ringbuffer_on) {
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&ld.pdh, &cfile.save_file, &save_file_fd, &loop_err)) {
+          if (ringbuf_switch_file(&ld.pdh, &capture_opts.save_file, &save_file_fd, &loop_err)) {
             /* File switch succeeded: reset the condition */
             cnd_reset(cnd_stop_capturesize);
 	    if (cnd_ring_timeout) {
@@ -2071,7 +2076,7 @@ capture(int out_file_type)
   if (cnd_ring_timeout != NULL)
     cnd_delete(cnd_ring_timeout);
 
-  if ((cfile.save_file != NULL) && !quiet) {
+  if ((capture_opts.save_file != NULL) && !quiet) {
     /* We're saving to a file, which means we're printing packet counts
        to stderr if we are not running silent and deep.
        Send a newline so that we move to the line after the packet count. */
@@ -2097,21 +2102,21 @@ capture(int out_file_type)
   if (volatile_err == 0)
     write_err = FALSE;
   else {
-    show_capture_file_io_error(cfile.save_file, volatile_err, FALSE);
+    show_capture_file_io_error(capture_opts.save_file, volatile_err, FALSE);
     write_err = TRUE;
   }
 
-  if (cfile.save_file != NULL) {
+  if (capture_opts.save_file != NULL) {
     /* We're saving to a file or files; close all files. */
     if (capture_opts.ringbuffer_on) {
-      dump_ok = ringbuf_wtap_dump_close(&cfile.save_file, &err);
+      dump_ok = ringbuf_wtap_dump_close(&capture_opts.save_file, &err);
     } else {
       dump_ok = wtap_dump_close(ld.pdh, &err);
     }
     /* If we've displayed a message about a write error, there's no point
        in displaying another message about an error on close. */
     if (!dump_ok && !write_err)
-      show_capture_file_io_error(cfile.save_file, err, TRUE);
+      show_capture_file_io_error(capture_opts.save_file, err, TRUE);
   }
 
 #ifndef _WIN32
@@ -2143,8 +2148,8 @@ error:
   if (capture_opts.ringbuffer_on) {
     ringbuf_error_cleanup();
   }
-  g_free(cfile.save_file);
-  cfile.save_file = NULL;
+  g_free(capture_opts.save_file);
+  capture_opts.save_file = NULL;
   fprintf(stderr, "tethereal: %s\n", errmsg);
 #ifndef _WIN32
   if (ld.from_pipe) {
@@ -2195,7 +2200,7 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
    */
   if (cnd_ring_timeout != NULL && cnd_eval(cnd_ring_timeout)) {
     /* time elapsed for this ring file, switch to the next */
-    if (ringbuf_switch_file(&ldat->pdh, &cfile.save_file, &save_file_fd, &loop_err)) {
+    if (ringbuf_switch_file(&ldat->pdh, &capture_opts.save_file, &save_file_fd, &loop_err)) {
       /* File switch succeeded: reset the condition */
       cnd_reset(cnd_ring_timeout);
     } else {
@@ -2212,7 +2217,7 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
          a count of packets captured; move to the line after the count. */
       fprintf(stderr, "\n");
     }
-    show_capture_file_io_error(cfile.save_file, err, FALSE);
+    show_capture_file_io_error(capture_opts.save_file, err, FALSE);
     pcap_close(ldat->pch);
     wtap_dump_close(ldat->pdh, &err);
     exit(2);
@@ -2311,7 +2316,7 @@ report_counts_siginfo(int signum _U_)
 #endif /* HAVE_LIBPCAP */
 
 static int
-load_cap_file(capture_file *cf, int out_file_type)
+load_cap_file(capture_file *cf, capture_options *capture_opts, int out_file_type)
 {
   gint         linktype;
   int          snapshot_length;
@@ -2321,14 +2326,14 @@ load_cap_file(capture_file *cf, int out_file_type)
   long         data_offset;
 
   linktype = wtap_file_encap(cf->wth);
-  if (cf->save_file != NULL) {
+  if (capture_opts->save_file != NULL) {
     /* Set up to write to the capture file. */
     snapshot_length = wtap_snapshot_length(cf->wth);
     if (snapshot_length == 0) {
       /* Snapshot length of input file not known. */
       snapshot_length = WTAP_MAX_PACKET_SIZE;
     }
-    pdh = wtap_dump_open(cf->save_file, out_file_type,
+    pdh = wtap_dump_open(capture_opts->save_file, out_file_type,
 		linktype, snapshot_length, &err);
 
     if (pdh == NULL) {
@@ -2351,19 +2356,19 @@ load_cap_file(capture_file *cf, int out_file_type)
         fprintf(stderr,
           "tethereal: The file \"%s\" couldn't be created for some "
           "unknown reason.\n",
-            *cf->save_file == '\0' ? "stdout" : cf->save_file);
+            *capture_opts->save_file == '\0' ? "stdout" : capture_opts->save_file);
         break;
 
       case WTAP_ERR_SHORT_WRITE:
         fprintf(stderr,
           "tethereal: A full header couldn't be written to the file \"%s\".\n",
-		*cf->save_file == '\0' ? "stdout" : cf->save_file);
+		*capture_opts->save_file == '\0' ? "stdout" : capture_opts->save_file);
         break;
 
       default:
         fprintf(stderr,
           "tethereal: The file \"%s\" could not be created: %s\n.",
- 		*cf->save_file == '\0' ? "stdout" : cf->save_file,
+ 		*capture_opts->save_file == '\0' ? "stdout" : capture_opts->save_file,
 		wtap_strerror(err));
         break;
       }
@@ -2384,7 +2389,7 @@ load_cap_file(capture_file *cf, int out_file_type)
                         wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth),
                         &err)) {
       /* Error writing to a capture file */
-      show_capture_file_io_error(cf->save_file, err, FALSE);
+      show_capture_file_io_error(capture_opts->save_file, err, FALSE);
       wtap_dump_close(pdh, &err);
       exit(2);
     }
@@ -2423,16 +2428,16 @@ load_cap_file(capture_file *cf, int out_file_type)
 	cf->filename, wtap_strerror(err));
       break;
     }
-    if (cf->save_file != NULL) {
+    if (capture_opts->save_file != NULL) {
       /* Now close the capture file. */
       if (!wtap_dump_close(pdh, &err))
-        show_capture_file_io_error(cfile.save_file, err, TRUE);
+        show_capture_file_io_error(capture_opts->save_file, err, TRUE);
     }
   } else {
-    if (cf->save_file != NULL) {
+    if (capture_opts->save_file != NULL) {
       /* Now close the capture file. */
       if (!wtap_dump_close(pdh, &err))
-        show_capture_file_io_error(cfile.save_file, err, TRUE);
+        show_capture_file_io_error(capture_opts->save_file, err, TRUE);
     } else {
       if (print_packet_info) {
         if (!write_finale()) {

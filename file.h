@@ -52,6 +52,10 @@ read_status_t cf_finish_tail(capture_file *, int *);
 /* size_t read_frame_header(capture_file *); */
 gboolean cf_save(char *fname, capture_file * cf, packet_range_t *range, guint save_format);
 const gchar *cf_get_display_name(capture_file *);
+int cf_packet_count(capture_file *cf);
+gboolean cf_is_tempfile(capture_file *cf);
+void cf_set_drops_known(capture_file *cf, gboolean drops_known);
+void cf_set_drops(capture_file *cf, guint32 drops);
 
 gboolean
 cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
