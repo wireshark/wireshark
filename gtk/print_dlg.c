@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.50 2003/12/13 02:42:09 ulfl Exp $
+ * $Id: print_dlg.c,v 1.51 2003/12/23 00:32:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -130,9 +130,8 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   GtkTooltips   *tooltips;
   gchar         label_text[100];
   frame_data    *packet;
-  guint32       selected_count;
-  guint32       captured_count;
-  guint32       displayed_count;
+  int           selected_count;
+  int           displayed_count;
 
   if (print_w != NULL) {
     /* There's already a "Print" dialog box; reactivate it. */
@@ -141,19 +140,16 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   }
 
   /* count packets */
-  /* XXX: this counters should be a in cfile, so we don't have to do this here */
-  selected_count = 0;
-  captured_count = 0;
+  selected_count = (cfile.current_frame != NULL) ? 1 : 0;
+  /* XXX: this counter should be a in cfile, so we don't have to do this here */
   displayed_count = 0;
   packet = cfile.plist;
   while(packet != NULL) {
-    captured_count++;
     if (packet->flags.passed_dfilter) {
       displayed_count++;
     }
     packet = packet->next;
   }
-  selected_count = (displayed_count) ? 1 : 0;
 
   /* get settings from preferences only once */
   if(print_prefs_init == FALSE) {
@@ -311,7 +307,8 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   /* "Packets from x to y" */
 
   /* there will be a selected packet, if at least one packet is displayed */
-  g_snprintf(label_text, sizeof(label_text), "_Selected packets only, %u packet(s)", selected_count);
+  g_snprintf(label_text, sizeof(label_text), "_Selected packets only, %u %s",
+             selected_count, plurality(selected_count, "packet", "packets"));
 #if GTK_MAJOR_VERSION < 2
   selected_rb = dlg_radio_button_new_with_label_with_mnemonic(
                 NULL,
@@ -327,7 +324,8 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_widget_set_sensitive(selected_rb, selected_count);
   gtk_widget_show(selected_rb);
 
-  g_snprintf(label_text, sizeof(label_text), "_Marked packets only, %u packet(s)", cfile.marked_count);
+  g_snprintf(label_text, sizeof(label_text), "_Marked packets only, %u %s",
+             cfile.marked_count, plurality(cfile.marked_count, "packet", "packets"));
 #if GTK_MAJOR_VERSION < 2
   marked_rb = dlg_radio_button_new_with_label_with_mnemonic(
                 gtk_radio_button_group(GTK_RADIO_BUTTON(selected_rb)),
@@ -342,7 +340,8 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_widget_set_sensitive(marked_rb, cfile.marked_count);
   gtk_widget_show(marked_rb);
 
-  g_snprintf(label_text, sizeof(label_text), "All packets _displayed, %u packet(s)", displayed_count);
+  g_snprintf(label_text, sizeof(label_text), "All packets _displayed, %u %s",
+             displayed_count, plurality(displayed_count, "packet", "packets"));
 #if GTK_MAJOR_VERSION < 2
   all_displayed_rb = dlg_radio_button_new_with_label_with_mnemonic(
                 gtk_radio_button_group(GTK_RADIO_BUTTON(selected_rb)),
@@ -356,10 +355,11 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
       ("Print all packets currently displayed"), NULL);
   gtk_container_add(GTK_CONTAINER(range_vb), all_displayed_rb);
   /* set sensitive only, if we are displaying any packets and a display filter showed any effect */
-  gtk_widget_set_sensitive(all_displayed_rb, displayed_count && displayed_count != captured_count);
+  gtk_widget_set_sensitive(all_displayed_rb, displayed_count && displayed_count != cfile.count);
   gtk_widget_show(all_displayed_rb);
 
-  g_snprintf(label_text, sizeof(label_text), "All packets _captured, %u packet(s)", captured_count);
+  g_snprintf(label_text, sizeof(label_text), "All packets _captured, %u %s",
+             cfile.count, plurality(cfile.count, "packet", "packets"));
 #if GTK_MAJOR_VERSION < 2
   all_captured_rb = dlg_radio_button_new_with_label_with_mnemonic(
                 gtk_radio_button_group(GTK_RADIO_BUTTON(selected_rb)),
