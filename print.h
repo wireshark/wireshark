@@ -1,7 +1,7 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id: print.h,v 1.34 2004/01/09 18:10:40 ulfl Exp $
+ * $Id: print.h,v 1.35 2004/01/24 10:53:24 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -65,9 +65,9 @@ typedef struct {
 /* Functions in print.h */
 
 FILE *open_print_dest(int to_file, const char *dest);
-void close_print_dest(int to_file, FILE *fh);
-void print_preamble(FILE *fh, gint format);
-void print_finale(FILE *fh, gint format);
+gboolean close_print_dest(int to_file, FILE *fh);
+gboolean print_preamble(FILE *fh, gint format);
+gboolean print_finale(FILE *fh, gint format);
 void proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
     FILE *fh);
 void print_hex_data(FILE *fh, gint format, epan_dissect_t *edt);

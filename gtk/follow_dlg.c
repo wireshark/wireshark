@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.35 2004/01/24 02:01:44 guy Exp $
+ * $Id: follow_dlg.c,v 1.36 2004/01/24 10:53:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -496,7 +496,7 @@ follow_charset_toggle_cb(GtkWidget * w _U_, gpointer data)
 #define FLT_BUF_SIZE 1024
 static void
 follow_read_stream(follow_info_t *follow_info,
-		   void (*print_line) (char *, int, gboolean, void *),
+		   gboolean (*print_line) (char *, int, gboolean, void *),
 		   void *arg)
 {
     tcp_stream_chunk	sc;
@@ -550,13 +550,15 @@ follow_read_stream(follow_info_t *follow_info,
 			case SHOW_EBCDIC:
 			    /* If our native arch is ASCII, call: */
 			    EBCDIC_to_ASCII(buffer, nchars);
-			    (*print_line) (buffer, nchars, is_server, arg);
+			    if (!(*print_line) (buffer, nchars, is_server, arg))
+				goto fail;
 			    break;
 			case SHOW_ASCII:
 			    /* If our native arch is EBCDIC, call:
 			     * ASCII_TO_EBCDIC(buffer, nchars);
 			     */
-			    (*print_line) (buffer, nchars, is_server, arg);
+			    if (!(*print_line) (buffer, nchars, is_server, arg))
+				goto fail;
 			    break;
 			case SHOW_HEXDUMP:
 			    current_pos = 0;
@@ -613,14 +615,16 @@ follow_read_stream(follow_info_t *follow_info,
 				(*global_pos) += i;
 				hexbuf[cur++] = '\n';
 				hexbuf[cur] = 0;
-				(*print_line) (hexbuf, strlen(hexbuf), is_server, arg);
+				if (!(*print_line) (hexbuf, strlen(hexbuf), is_server, arg))
+				    goto fail;
 			    }
 			    break;
 			case SHOW_CARRAY:
 			    current_pos = 0;
 			    sprintf(initbuf, "char peer%d_%d[] = {\n", is_server ? 1 : 0,
 				    is_server ? server_packet_count++ : client_packet_count++);
-			    (*print_line) (initbuf, strlen(initbuf), is_server, arg);
+			    if (!(*print_line) (initbuf, strlen(initbuf), is_server, arg))
+				goto fail;
 			    while (current_pos < nchars) {
 				gchar hexbuf[256];
 				gchar hexchars[] = "0123456789abcdef";
@@ -655,7 +659,8 @@ follow_read_stream(follow_info_t *follow_info,
 				(*global_pos) += i;
 				hexbuf[cur++] = '\n';
 				hexbuf[cur] = 0;
-				(*print_line) (hexbuf, strlen(hexbuf), is_server, arg);
+				if (!(*print_line) (hexbuf, strlen(hexbuf), is_server, arg))
+				    goto fail;
 			    }
 			    break;
 		    }
@@ -667,6 +672,7 @@ follow_read_stream(follow_info_t *follow_info,
 			  "Error reading temporary file %s: %s", follow_info->data_out_filename,
 			  strerror(errno));
 	}
+    fail:
 	fclose(data_out_file);
 	data_out_file = NULL;
     } else {
@@ -685,12 +691,29 @@ follow_read_stream(follow_info_t *follow_info,
  *
  * For now, we support only text printing.
  */
-static void
+typedef struct {
+    gboolean to_file;
+    const char *filename;
+    FILE *fh;
+} print_text_args_t;
+
+static gboolean
 follow_print_text(char *buffer, int nchars, gboolean is_server _U_, void *arg)
 {
-    FILE *fh = arg;
+    print_text_args_t *print_args = arg;
 
-    fwrite(buffer, nchars, 1, fh);
+    if (fwrite(buffer, nchars, 1, print_args->fh) != 1) {
+      if (print_args->to_file) {
+        simple_dialog(ESD_TYPE_CRIT, NULL,
+		      file_write_error_message(errno), print_args->filename);
+      } else {
+        simple_dialog(ESD_TYPE_CRIT, NULL,
+		      "Error writing to print command: %s",
+		      strerror(errno));
+      }
+      return FALSE;
+    }
+    return TRUE;
 }
 
 static void
@@ -720,6 +743,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
     gboolean		to_file;
     char		*print_dest;
     follow_info_t	*follow_info = data;
+    print_text_args_t	args;
 
     switch (prefs.pr_dest) {
     case PR_DEST_CMD:
@@ -740,27 +764,58 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 
     fh = open_print_dest(to_file, print_dest);
     if (fh == NULL) {
-	switch (to_file) {
-	case FALSE:
-	    simple_dialog(ESD_TYPE_WARN, NULL,
-			  "Couldn't run print command %s.", prefs.pr_cmd);
-	    break;
-
-	case TRUE:
+	if (to_file) {
 	    simple_dialog(ESD_TYPE_WARN, NULL,
 			  file_write_error_message(errno), prefs.pr_file);
-	    break;
+	} else {
+	    simple_dialog(ESD_TYPE_WARN, NULL,
+			  "Couldn't run print command %s.", prefs.pr_cmd);
 	}
 	return;
     }
 
-    print_preamble(fh, PR_FMT_TEXT);
-    follow_read_stream(follow_info, follow_print_text, fh);
-    print_finale(fh, PR_FMT_TEXT);
-    close_print_dest(to_file, fh);
+    if (!print_preamble(fh, PR_FMT_TEXT)) {
+	if (to_file) {
+	    simple_dialog(ESD_TYPE_WARN, NULL,
+			  file_write_error_message(errno), prefs.pr_file);
+	} else {
+	    simple_dialog(ESD_TYPE_WARN, NULL,
+			  "Error writing to print command: %s",
+			  strerror(errno));
+	}
+	/* XXX - cancel printing? */
+	close_print_dest(to_file, fh);
+	return;
+    }
+    args.to_file = to_file;
+    args.filename = prefs.pr_file;
+    args.fh = fh;
+    follow_read_stream(follow_info, follow_print_text, &args);
+    if (!print_finale(fh, PR_FMT_TEXT)) {
+	if (to_file) {
+	    simple_dialog(ESD_TYPE_WARN, NULL,
+			  file_write_error_message(errno), prefs.pr_file);
+	} else {
+	    simple_dialog(ESD_TYPE_WARN, NULL,
+			  "Error writing to print command: %s",
+			  strerror(errno));
+	}
+	/* XXX - cancel printing? */
+	close_print_dest(to_file, fh);
+	return;
+    }
+    if (!close_print_dest(to_file, fh)) {
+	if (to_file) {
+	    simple_dialog(ESD_TYPE_WARN, NULL,
+			  file_write_error_message(errno), prefs.pr_file);
+	} else {
+	    simple_dialog(ESD_TYPE_WARN, NULL,
+			  "Error closing print destination.");
+	}
+    }
 }
 
-static void
+static gboolean
 follow_add_to_gtk_text(char *buffer, int nchars, gboolean is_server,
 		       void *arg)
 {
@@ -810,6 +865,7 @@ follow_add_to_gtk_text(char *buffer, int nchars, gboolean is_server,
                                      NULL);
     g_free(convbuf);
 #endif
+    return TRUE;
 }
 
 static void
@@ -901,6 +957,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, GtkFileSelection * fs)
 	follow_info_t	*follow_info;
 	FILE		*fh;
 	gchar		*dirname;
+	print_text_args_t args;
 
 	to_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
 
@@ -928,8 +985,14 @@ follow_save_as_ok_cb(GtkWidget * w _U_, GtkFileSelection * fs)
 	follow_info = OBJECT_GET_DATA(fs, E_FOLLOW_INFO_KEY);
 	gtk_widget_destroy(GTK_WIDGET(fs));
 
-	follow_read_stream(follow_info, follow_print_text, fh);
-	fclose(fh);
+	args.to_file = TRUE;
+	args.filename = to_name;
+	args.fh = fh;
+	follow_read_stream(follow_info, follow_print_text, &args);
+	if (fclose(fh) == EOF) {
+	    simple_dialog(ESD_TYPE_WARN, NULL,
+			  file_write_error_message(errno), to_name);
+	}
 
 	/* Save the directory name for future file dialogs. */
 	dirname = get_dirname(to_name);  /* Overwrites to_name */

@@ -1,6 +1,6 @@
 /* rdps.c
  *
- * $Id: rdps.c,v 1.6 2004/01/23 00:43:15 jmayer Exp $
+ * $Id: rdps.c,v 1.7 2004/01/24 10:53:25 guy Exp $
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
@@ -127,7 +127,7 @@ int main(int argc, char **argv)
 void start_code(FILE *fd, char *func)
 {
 	fprintf(fd, "/* Created by rdps.c. Do not edit! */\n");
-	fprintf(fd, "void print_ps_%s(FILE *fd) {\n", func);
+	fprintf(fd, "int print_ps_%s(FILE *fd) {\n", func);
 }
 
 void write_code(FILE *fd, char *string)
@@ -139,6 +139,7 @@ void write_code(FILE *fd, char *string)
 
 void end_code(FILE *fd)
 {
+	fprintf(fd, "\treturn ferror(fd);\n");
 	fprintf(fd, "}\n\n\n");
 }
 

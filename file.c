@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.346 2004/01/24 02:01:42 guy Exp $
+ * $Id: file.c,v 1.347 2004/01/24 10:53:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -119,7 +119,7 @@ static char *cf_open_error_message(int err, gboolean for_writing,
     int file_type);
 static char *file_rename_error_message(int err);
 static char *cf_write_error_message(int);
-static char *file_close_error_message(int err);
+static char *cf_close_error_message(int err);
 static   gboolean copy_binary_file(char *from_filename, char *to_filename);
 
 /* Update the progress bar this many times when reading a file. */
@@ -2621,7 +2621,7 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
     }
 
     if (!wtap_dump_close(pdh, &err)) {
-      simple_dialog(ESD_TYPE_WARN, NULL, file_close_error_message(err), fname);
+      simple_dialog(ESD_TYPE_WARN, NULL, cf_close_error_message(err), fname);
       goto fail;
     }
   }
@@ -2812,37 +2812,33 @@ cf_write_error_message(int err)
    might not send writes to the server until the "write()" call finishes,
    so that the write may fail on the server but the "write()" may succeed. */
 static char *
-file_close_error_message(int err)
+cf_close_error_message(int err)
 {
   char *errmsg;
   static char errmsg_errno[1024+1];
 
-  switch (err) {
+  if (err < 0) {
+    /* Wiretap error. */
+    switch (err) {
 
-  case WTAP_ERR_CANT_CLOSE:
-    errmsg = "The file \"%s\" couldn't be closed for some unknown reason.";
-    break;
+    case WTAP_ERR_CANT_CLOSE:
+      errmsg = "The file \"%s\" couldn't be closed for some unknown reason.";
+      break;
 
-  case WTAP_ERR_SHORT_WRITE:
-    errmsg = "Not all the packets could be written to the file \"%s\".";
-    break;
+    case WTAP_ERR_SHORT_WRITE:
+      errmsg = "Not all the packets could be written to the file \"%s\".";
+      break;
 
-  case ENOSPC:
-    errmsg = "The file \"%s\" could not be saved because there is no space left on the file system.";
-    break;
-
-#ifdef EDQUOT
-  case EDQUOT:
-    errmsg = "The file \"%s\" could not be saved because you are too close to, or over, your disk quota.";
-    break;
-#endif
-
-  default:
-    snprintf(errmsg_errno, sizeof(errmsg_errno),
-		    "An error occurred while closing the file \"%%s\": %s.",
-				wtap_strerror(err));
-    errmsg = errmsg_errno;
-    break;
+    default:
+      snprintf(errmsg_errno, sizeof(errmsg_errno),
+	       "An error occurred while closing the file \"%%s\": %s.",
+	       wtap_strerror(err));
+      errmsg = errmsg_errno;
+      break;
+    }
+  } else {
+    /* We assume that a close error from the OS is really a write error. */
+    errmsg = file_write_error_message(err);
   }
   return errmsg;
 }
@@ -2908,7 +2904,7 @@ copy_binary_file(char *from_filename, char *to_filename)
   if (close(to_fd) < 0) {
     err = errno;
     simple_dialog(ESD_TYPE_CRIT, NULL,
-		  file_close_error_message(err), to_filename);
+		  file_write_error_message(err), to_filename);
     goto done;
   }
 
