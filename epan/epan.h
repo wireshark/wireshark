@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.h,v 1.5 2001/02/01 20:21:16 gram Exp $
+ * $Id: epan.h,v 1.6 2001/04/02 00:38:34 hagbard Exp $
  *
  * Ethereal Protocol Analyzer Library
  *
@@ -14,7 +14,8 @@
 /* XXX - for now */
 #include "packet.h"
 
-void epan_init(const char *);
+void epan_init(const char * plugindir, void (register_all_protocols)(void),
+	       void (register_all_handoffs)(void));
 void epan_cleanup(void);
 void epan_conversation_init(void);
 

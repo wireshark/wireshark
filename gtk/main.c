@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.185 2001/03/27 06:48:12 guy Exp $
+ * $Id: main.c,v 1.186 2001/04/02 00:38:36 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -134,6 +134,7 @@
 #include "plugins.h"
 #include "colors.h"
 #include "strutil.h"
+#include "register.h"
 
 packet_info  pi;
 capture_file cfile;
@@ -804,7 +805,7 @@ main(int argc, char *argv[])
      "-G" flag, as the "-G" flag dumps a list of fields registered
      by the dissectors, and we must do it before we read the preferences,
      in case any dissectors register preferences. */
-  epan_init(PLUGIN_DIR);
+  epan_init(PLUGIN_DIR,register_all_protocols,register_all_protocol_handoffs);
 
   /* Now register the preferences for any non-dissector modules.
      We must do that before we read the preferences as well. */

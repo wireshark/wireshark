@@ -1,6 +1,6 @@
 /* dftest.c.c
  *
- * $Id: dftest.c,v 1.1 2001/02/01 20:21:13 gram Exp $
+ * $Id: dftest.c,v 1.2 2001/04/02 00:38:33 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -81,6 +81,7 @@
 #include "prefs.h"
 #include "util.h"
 #include "epan/dfilter/dfilter.h"
+#include "register.h"
 
 packet_info	pi;
 ts_type		timestamp_type = RELATIVE;
@@ -98,7 +99,8 @@ main(int argc, char **argv)
 	"-g" flag, as the "-g" flag dumps a list of fields registered
 	by the dissectors, and we must do it before we read the preferences,
 	in case any dissectors register preferences. */
-	epan_init(PLUGIN_DIR);
+	epan_init(PLUGIN_DIR,register_all_protocols,
+		  register_all_protocol_handoffs);
 
 	/* now register the preferences for any non-dissector modules.
 	we must do that before we read the preferences as well. */

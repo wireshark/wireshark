@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.18 2001/04/01 22:50:08 hagbard Exp $
+ * $Id: proto.c,v 1.19 2001/04/02 00:38:34 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,7 +42,6 @@
 #include "packet.h"
 #include "strutil.h"
 #include "resolv.h"
-#include "register.h"
 #include "plugins.h"
 #include "ipv6-utils.h"
 #include "proto.h"
@@ -164,7 +163,8 @@ gboolean proto_tree_is_visible = FALSE;
 
 /* initialize data structures and register protocols and fields */
 void
-proto_init(const char *plugin_dir)
+proto_init(const char *plugin_dir,void (register_all_protocols)(void),
+	   void (register_all_protocol_handoffs)(void))
 {
 	static hf_register_info hf[] = {
 		{ &hf_text_only,

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.72 2001/03/27 06:48:11 guy Exp $
+ * $Id: tethereal.c,v 1.73 2001/04/02 00:38:33 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -93,6 +93,7 @@
 #include "util.h"
 #include "conversation.h"
 #include "plugins.h"
+#include "register.h"
 
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
@@ -201,7 +202,7 @@ main(int argc, char *argv[])
      "-G" flag, as the "-G" flag dumps a list of fields registered
      by the dissectors, and we must do it before we read the preferences,
      in case any dissectors register preferences. */
-  epan_init(PLUGIN_DIR);
+  epan_init(PLUGIN_DIR,register_all_protocols,register_all_protocol_handoffs);
 
   /* Now register the preferences for any non-dissector modules.
      We must do that before we read the preferences as well. */
