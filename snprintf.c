@@ -553,7 +553,15 @@ va_list args;
             exponent(&data, d);
             state = 0;
             break;
-          case 'u':
+          case 'u':  /* unsigned decimal */
+            STAR_ARGS(&data);
+            if (data.a_long == FOUND)
+              d = va_arg(args, unsigned long);
+            else
+              d = va_arg(args, unsigned int);
+            decimal(&data, d);
+            state = 0;
+            break;
           case 'd':  /* decimal */
             STAR_ARGS(&data);
             if (data.a_long == FOUND)
