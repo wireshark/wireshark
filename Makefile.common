@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.24 2004/02/23 22:45:24 gerald Exp $
+# $Id: Makefile.common,v 1.25 2004/02/29 08:01:21 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -291,6 +291,7 @@ DISSECTOR_SRC =	\
 	packet-nbns.c	\
 	packet-ncp.c	\
 	packet-ncp2222.c	\
+	packet-ncp-nmas.c	\
 	packet-ndmp.c	\
 	packet-ndps.c	\
 	packet-netbios.c	\
@@ -550,6 +551,7 @@ DISSECTOR_INCLUDES =	\
 	packet-msnip.h	\
 	packet-mtp3.h	\
 	packet-ncp-int.h	\
+	packet-ncp-nmas.h	\
 	packet-ndps.h	\
 	packet-netbios.h	\
 	packet-nfs.h	\

@@ -25,7 +25,7 @@ http://developer.novell.com/ndk/doc/ncp/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.63 2003/11/01 04:42:19 guy Exp $
+$Id: ncp2222.py,v 1.64 2004/02/29 08:01:21 guy Exp $
 
 
 Portions Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>.
@@ -1175,9 +1175,6 @@ def endian(field, endianness):
 ##############################################################################
 # NCP Field Types. Defined in Appendix A of "Programmer's Guide..."
 ##############################################################################
-FileSize64bit       = bytes("f_size_64bit", "64bit File Size", 64)
-Length64bit         = bytes("length_64bit", "64bit Length", 64)
-StartOffset64bit    = bytes("s_offset_64bit", "64bit Starting Offset", 64)
 
 AbortQueueFlag  		= val_string8("abort_q_flag", "Abort Queue Flag", [
 	[ 0x00, "Place at End of Queue" ],
@@ -1602,7 +1599,7 @@ DeleteExistingFileFlag		= val_string8("delete_existing_file_flag", "Delete Exist
 ])
 DenyReadCount			= uint16("deny_read_count", "Deny Read Count")
 DenyWriteCount			= uint16("deny_write_count", "Deny Write Count")
-DescriptionStrings		= fw_string("description_string", "Description", 512)
+DescriptionStrings		= fw_string("description_string", "Description", 100)
 DesiredAccessRights 		= bitfield16("desired_access_rights", "Desired Access Rights", [
         bf_boolean16(0x0001, "dsired_acc_rights_read_o", "Read Only"),
 	bf_boolean16(0x0002, "dsired_acc_rights_write_o", "Write Only"),
@@ -2164,6 +2161,7 @@ FileNameLen			= uint8("file_name_len", "Filename Length")
 FileOffset			= uint32("file_offset", "File Offset")
 FilePath			= nstring8("file_path", "File Path")
 FileSize			= uint32("file_size", "File Size", BE)
+FileSize64bit       = bytes("f_size_64bit", "64bit File Size", 64)
 FileSystemID			= uint8("file_system_id", "File System ID")
 FileTime			= uint16("file_time", "File Time")
 FileTime.NWTime()
@@ -2545,6 +2543,7 @@ LastRecordSeen			= uint16("last_record_seen", "Last Record Seen")
 LastSearchIndex			= uint16("last_search_index", "Search Index")
 LastSeen			= uint32("last_seen", "Last Seen")
 LastSequenceNumber		= uint16("last_sequence_number", "Sequence Number")
+Length64bit         = bytes("length_64bit", "64bit Length", 64)
 Level				= uint8("level", "Level")
 LFSCounters			= uint32("lfs_counters", "LFS Counters")
 LimboDataStreamsCount		= uint32("limbo_data_streams_count", "Limbo Data Streams Count")
@@ -2702,7 +2701,10 @@ MigratedFiles			= uint32("migrated_files", "Migrated Files")
 MigratedSectors			= uint32("migrated_sectors", "Migrated Sectors")
 MinorVersion			= uint32("minor_version", "Minor Version")
 Minute				= uint8("s_minute", "Minutes")
-MixedModePathFlag		= uint8("mixed_mode_path_flag", "Mixed Mode Path Flag")
+MixedModePathFlag		= val_string8("mixed_mode_path_flag", "Mixed Mode Path Flag", [
+    [ 0x00, "Mixed mode path handling is not available"],
+    [ 0x01, "Mixed mode path handling is available"],
+])
 ModifiedDate			= uint16("modified_date", "Modified Date")
 ModifiedDate.NWDate()
 ModifiedTime			= uint16("modified_time", "Modified Time")
@@ -3345,7 +3347,7 @@ Reserved28			= bytes("reserved28", "Reserved", 28)
 Reserved36			= bytes("reserved36", "Reserved", 36)
 Reserved44			= bytes("reserved44", "Reserved", 44)
 Reserved48			= bytes("reserved48", "Reserved", 48)
-Reserved51			= bytes("reserved51", "Reserved", 51)
+Reserved50			= bytes("reserved50", "Reserved", 50)
 Reserved56			= bytes("reserved56", "Reserved", 56)
 Reserved64			= bytes("reserved64", "Reserved", 64)
 Reserved120			= bytes("reserved120", "Reserved", 120)
@@ -3595,6 +3597,10 @@ SharedMemoryAddresses 		= bytes("shared_memory_addresses", "Shared Memory Addres
 ShortName 			= fw_string("short_name", "Short Name", 12)
 ShortStkName                    = fw_string("short_stack_name", "Short Stack Name", 16)
 SiblingCount                    = uint32("sibling_count", "Sibling Count")
+SixtyFourBitOffsetsSupportedFlag = val_string8("64_bit_flag", "64 Bit Support", [
+    [ 0x00, "No support for 64 bit offsets" ],
+    [ 0x01, "64 bit offsets supported" ],
+])
 SMIDs                           = uint32("smids", "Storage Media ID's")
 SoftwareDescription 		= fw_string("software_description", "Software Description", 65)
 SoftwareDriverType 		= uint8("software_driver_type", "Software Driver Type")
@@ -3627,6 +3633,7 @@ StartingNumber 			= uint32("starting_number", "Starting Number")
 StartingSearchNumber		= uint16("start_search_number", "Start Search Number")
 StartNumber 			= uint32("start_number", "Start Number")
 startNumberFlag 		= uint16("start_number_flag", "Start Number Flag")
+StartOffset64bit    = bytes("s_offset_64bit", "64bit Starting Offset", 64)
 StartVolumeNumber		= uint32("start_volume_number", "Starting Volume Number")
 StationList			= uint32("station_list", "Station List")
 StationNumber			= bytes("station_number", "Station Number", 3)
@@ -5021,7 +5028,7 @@ TrendCounters			= struct("trend_counters", [
 	uint32("num_of_cache_hits_no_wait", "Number Of Cache Hits No Wait"),
 ], "Trend Counters")
 TrusteeStruct			= struct("trustee_struct", [
-	ObjectID,
+	endian(ObjectID, LE),
 	AccessRightsMaskWord,
 ])
 UpdateDateStruct                = struct("update_date_struct", [
@@ -5554,6 +5561,7 @@ def produce_code():
 #include <epan/conversation.h>
 #include "ptvcursor.h"
 #include "packet-ncp-int.h"
+#include "packet-ncp-nmas.h"
 #include <epan/strutil.h>
 #include "reassemble.h"
 
@@ -8383,7 +8391,7 @@ def define_ncp2222():
 		rec( 8, 1, DirHandle ),
 		rec( 9, 1, AccessRightsMask ),
 	])
-	pkt.CompletionCodes([0x0000, 0x9600, 0x9804, 0x9900, 0x9c03, 0x9d00,
+	pkt.CompletionCodes([0x0000, 0x9600, 0x9804, 0x9900, 0x9b00, 0x9c03, 0x9d00,
 			     0xa100, 0xfd00, 0xff00])
 	# 2222/1613, 22/19
 	pkt = NCP(0x1613, "Alloc Temporary Directory Handle", 'fileserver')
@@ -9091,7 +9099,8 @@ def define_ncp2222():
 		rec( 80, 2, ProductMinorVersion, BE ),
 		rec( 82, 2, ProductRevisionVersion, BE ),
 		rec( 84, 1, OSLanguageID, LE ),
-		rec( 85, 51, Reserved51 ),
+		rec( 85, 1, SixtyFourBitOffsetsSupportedFlag ),
+		rec( 86, 50, Reserved50 ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9600])
 	# 2222/1712, 23/18
@@ -10131,8 +10140,8 @@ def define_ncp2222():
 	# 2222/17c9, 23/201
 	pkt = NCP(0x17c9, "Get File Server Description Strings", 'stats')
 	pkt.Request(10)
-	pkt.Reply(520, [
-		rec( 8, 512, DescriptionStrings ),
+	pkt.Reply(108, [
+		rec( 8, 100, DescriptionStrings ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9600])
 	# 2222/17CA, 23/202
@@ -11833,7 +11842,7 @@ def define_ncp2222():
         ])
 	pkt.ReqCondSizeVariable()
         pkt.CompletionCodes([0x0000, 0x7f00, 0x8001, 0x8101, 0x8401, 0x8501,
-			     0x8701, 0x8900, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x8701, 0x8900, 0x8d00, 0x8f00, 0x9001, 0x9400, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xa500, 0xa802, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5702, 87/02
 	pkt = NCP(0x5702, "Initialize Search", 'file', has_length=0)
@@ -14174,7 +14183,7 @@ def define_ncp2222():
                 rec(36, 4, ItemsInPacket, var="x"),
                 rec(40, 20, NCPNetworkAddress, repeat="x" ),
         ])
-	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb01, 0xff00])
 	# 2222/7B14, 123/20
 	pkt = NCP(0x7B14, "Active LAN Board List", 'stats')
 	pkt.Request(14, [

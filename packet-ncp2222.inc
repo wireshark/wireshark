@@ -11,7 +11,7 @@
  * Portions Copyright (c) Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp2222.inc,v 1.69 2003/12/22 02:04:18 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.70 2004/02/29 08:01:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2036,7 +2036,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                revent = tvb_get_letohs(tvb, voffset); /* Event */
                                proto_tree_add_uint_format(nvtree, hf_nds_revent, tvb, voffset,
                                         2, revent, "Event: %d", revent);
-                               voffset = voffset+14;
+                               voffset = voffset+2;
                                voffset += align_4(tvb, voffset);
                                break;
                        case 0x00000017:        /* Back Link */
@@ -4558,6 +4558,10 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 			process_ptvc_record(ptvc, ncp_rec->request_ptvc, NULL, TRUE, ncp_rec);
 		}
 		ptvcursor_free(ptvc);
+                /* NMAS packets are dessected in packet-ncp-nmas.c */
+                if (func == 0x5e && ncp_tree) {
+                        dissect_nmas_request(tvb, pinfo, ncp_tree, request_value);
+                }
 
 		/* Now that the dissection is done, do we need to run
 		 * some display filters on the resulting tree in order
@@ -4857,6 +4861,11 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 
                 /* Decode NDS Reply packets */
                 if (ncp_rec) {
+                        /* Dissect NMAS Reply packets */
+                        if (ncp_rec->func == 0x5e && request_value)
+                        {
+                                dissect_nmas_reply(tvb, pinfo, ncp_tree, ncp_rec->func, ncp_rec->subfunc, request_value);
+                        }
                         if ((ncp_rec->func == 0x68 && ncp_rec->subfunc == 0x01) && completion_code == 0) {
                                 ping_version = tvb_get_guint8(tvb, 8);
                 		proto_tree_add_item(ncp_tree, hf_ping_version, tvb, 8, 1, TRUE);
@@ -6042,7 +6051,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 	char			string_buffer[9][1024];
         guint8                  nds_version = 0;
         guint32                 foffset = 0;
-        guint32                 nds_reply_buffer;
         nw_uni_t                req_buffer;
         char                    global_object_name[256];
         guint32                 global_eid=0;
@@ -6087,9 +6095,10 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         nds_version = 0;
                         foffset = 28;
                 }
-                nds_reply_buffer = tvb_get_letohl(tvb, foffset);        
-                proto_tree_add_uint(ncp_tree, hf_nds_buffer_size, tvb, foffset,
-                        4, nds_reply_buffer);
+                if (type == NCP_SERVICE_REQUEST) {
+                        proto_tree_add_item(ncp_tree, hf_nds_buffer_size, tvb, foffset,
+                                            4, TRUE);
+                }
                 foffset = foffset+4;        
                 verb_string = val_to_str(nds_verb, ncp_nds_verb_vals,
                     "Continuation Fragment");
