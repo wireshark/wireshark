@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.252 2002/04/29 08:20:10 guy Exp $
+ * $Id: packet-smb.c,v 1.253 2002/04/29 10:23:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6635,13 +6635,12 @@ dissect_security_information_mask(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	return offset;
 }
-#if 0
+
 static void
 free_g_string(void *arg)
 {
 	g_string_free(arg, TRUE);
 }
-#endif
 
 int
 dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, char *name)
@@ -6649,7 +6648,6 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset = offset, sa_offset = offset;
-        guint *s_auths = NULL;
 	guint rid;
 	guint8 revision;
 	guint8 num_auth;
@@ -6680,11 +6678,6 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 	     a new FT_xxx thingie? SMB is quite common!*/
 	  /* identifier authorities */
 
-          /* FIXME: We should dynamically allocate the authorities array,
-             which is only one thing. Then we don't have to allocate two
-             strings below etc ...
-          */
-
 	  for(i=0;i<6;i++){
 	    auth = (auth << 8) + tvb_get_guint8(tvb, offset);
 
@@ -6695,28 +6688,25 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 
           sa_offset = offset;
 
-	  CLEANUP_PUSH(free, s_auths);
-
-          s_auths = g_malloc(sizeof(guint) * num_auth);
-
-	  /* sub authorities, leave RID to last */
-	  /* FIXME: If we take an exception now, we lose the whole 
-	     sub-authorities string thang */
-	  for(i=0; i < (num_auth > 4?(num_auth - 1):num_auth); i++){
-	    /* XXX should not be letohl but native byteorder according to
-	       samba header files. considering that all non-x86 NT ports
-	       are dead we can (?) assume that non le byte encodings
-	       will be "uncommon"?*/
-              s_auths[i] = tvb_get_letohl(tvb, offset);
-              offset+=4;
-	  }
-
-	  CLEANUP_CALL_AND_POP;
-
           gstr = g_string_new("");
           
-          for (i = 0; i < (num_auth>4?(num_auth - 1):num_auth); i++)
-              g_string_sprintfa(gstr, (i>0 ? "-%u" : "%u"), s_auths[i]);
+	  CLEANUP_PUSH(free_g_string, gstr);
+
+	  /* sub authorities, leave RID to last */
+	  for(i=0; i < (num_auth > 4?(num_auth - 1):num_auth); i++){
+	    /*
+	     * XXX should not be letohl but native byteorder according to
+	     * Samba header files.
+	     *
+	     * However, considering that there were never any NT ports
+	     * to big-endian platforms (PowerPC and MIPS ran little-endian,
+	     * and IA-64 runs little-endian, as does x86-64), we can (?)
+	     * assume that non le byte encodings will be "uncommon"?
+	     */
+             g_string_sprintfa(gstr, (i>0 ? "-%u" : "%u"),
+                  tvb_get_letohl(tvb, offset));
+             offset+=4;
+	  }
 
           proto_tree_add_text(tree, tvb, sa_offset, num_auth * 4, "Sub-authorities: %s", gstr->str);
 
@@ -6729,6 +6719,8 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 	  else {
 	    proto_item_append_text(item, ": S-1-%u-%s", auth, gstr->str);  
 	  }
+
+	  CLEANUP_CALL_AND_POP;
 
 	}
 
