@@ -8,11 +8,13 @@
 #define ACN_PDU_DES_PS		0x40
 #define ACN_PDU_DES_CID		0x80
 #define ACN_PDU_DES_ALL		0xC0
+
 #define ACN_PDU_SRC		0x30
 #define ACN_PDU_SRC_SAME	0x00
 #define ACN_PDU_SRC_PS		0x10
 #define ACN_PDU_SRC_CID		0x20
 #define ACN_PDU_SRC_UM		0x30
+
 #define ACN_PDU_FLAG_P		0x08
 #define ACN_PDU_FLAG_T		0x04
 #define ACN_PDU_FLAG_RES	0x02
@@ -68,6 +70,10 @@ typedef struct acn_pdu_history_s
 #define ACN_SDT_TYPE_SEQLOST		21
 #define ACN_SDT_TYPE_NAKPARAMS		22
 
+
+#define ACN_SDT_ADDR_NULL 0
+#define ACN_SDT_ADDR_IPV4 1
+#define ACN_SDT_ADDR_IPV6 2
 
 /* DMP */
 #define ACN_DMP_TYPE_UNKNOWN	0
