@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.48 2003/11/02 23:36:01 gerald Exp $
+# $Id: configure.in,v 1.49 2003/11/18 08:13:09 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -106,6 +106,22 @@ else
 	esac
 fi
 
+AC_ARG_ENABLE(profile-build,
+[  --enable-profile-build  build profile-ready binaries.  [default=no]],enable_profile_build=$enableval,enable_profile_build=no)
+AM_CONDITIONAL(USE_PROFILE_BUILD, test x$enable_profile_build = xyes)
+AC_MSG_CHECKING(if profile builds must be generated)
+if test "x$enable_profile_build" = "xyes" ; then
+	if test -n "$GCC" ; then
+		AC_MSG_RESULT(yes)
+		CFLAGS=" -pg $CFLAGS"
+	else
+		AC_MSG_RESULT(no)
+		echo "Building profile binaries currently only supported for GCC."
+	fi
+else
+	AC_MSG_RESULT(no)
+fi
+	
 # Create DATAFILE_DIR #define for config.h
 datafiledir=$datadir/ethereal
 datafiledir=`(
