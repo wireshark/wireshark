@@ -805,7 +805,7 @@ struct sctp_analyse * u_data;
 	u_data->analyse_nb=NULL;
 	u_data->window=NULL;
 	u_data->num_children=0;
-	retap_packets(&cfile);
+	cf_retap_packets(&cfile);
 	sctp_analyse_cb(u_data);
 }
 
