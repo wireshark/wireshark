@@ -1,10 +1,13 @@
-$Id: README.plugins,v 1.8 2003/01/26 19:35:27 deniel Exp $
+$Id: README.plugins,v 1.9 2003/11/06 09:52:28 guy Exp $
 
 Plugins
 
 Writing a "plugin" dissector is not very different from writing a standard one.
 In fact all of the functions described in the README.developer can be 
 used in the plugins exactly as the are used in standard dissectors.
+
+(Note, however, that not all OSes on which Ethereal runs can support
+plugins.)
 
 Once you have written a packet-xxx.c to create your plugin 
 ( where xxx is the name of the protocol you are dissecting ) there are 
@@ -90,7 +93,7 @@ wrappers for the proto_reg_handoff_xxx and proto_register_xxx functions.
 
 4 Directory structure and other file changes
 
-Plugins should be places in plugin/xxx/ which should contain minimally 
+Plugins should be places in plugins/xxx/ which should contain minimally 
 the following files:
 
 AUTHORS
@@ -103,10 +106,10 @@ packet-xxx.c
 
 The AUTHORS, COPYING, and ChangeLog are the standard sort of GPL project 
 files, see plugins/mgcp for examples.  You will also need to change 
-the plugin/Makefile.am toplevel Makefile.am and toplevel configure.in 
-files.
+the plugins/Makefile.am toplevel Makefile.am, the plugins/Makefile.nmake
+toplevel Makefile.nmake, and toplevel configure.in files.
 
-3.4.1 plugin/xxx/Makefile.am
+3.4.1 plugins/xxx/Makefile.am
 
 An example of the Makefile.am follows:
 
@@ -123,22 +126,14 @@ xxx_la_LDFLAGS = -module -avoid-version
 # add them here.
 LIBS =
 
-
-# The following allows a non-plugin version of the module to be built to 
-# be linked with a static ethereal binary.
-#
-xxx_la_DEPENDENCIES = packet-xxx-static.o
-
-packet-xxx-static.o:   packet-xxx.c moduleinfo.h
-        $(LTCOMPILE) -c -o packet-xxx-static.o -D__ETHEREAL_STATIC__ $(srcdir)/packet-xxx.c 
-
 CLEANFILES = \
-        xxx \
+        xxx
+
 EXTRA_DIST = \
         Makefile.nmake
 
 
-4.2 plugin/xxx/Makefile.nmake
+4.2 plugins/xxx/Makefile.nmake
 
 Makefile.nmake is used for building the plugin for for Windows.
 
@@ -146,22 +141,20 @@ include ..\..\config.nmake
 
 ############### no need to modify below this line #########
 
-CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap \
-	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
-	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
-	/I$(PCAP_DIR)\include $(LOCAL_CFLAGS)
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
+	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
 OBJECTS=packet-xxx.obj 
 
-xxx.dll xxx.exp xxx.lib : packet-xxx.obj ..\plugin_api.obj
-	link -dll /out:xxx.dll packet-xxx.obj ..\plugin_api.obj \
-	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
+xxx.dll xxx.exp xxx.lib : $(OBJECTS) ..\plugin_api.obj
+	link -dll /out:xxx.dll $(OBJECTS) ..\plugin_api.obj \
+	$(GLIB_LIBS)
 
 clean:
-	rm -f $(OBJECTS) xxx.dll xxx.exp xxx.lib
+	rm -f $(OBJECTS) xxx.dll xxx.exp xxx.lib $(PDB_FILE)
 
 
-4.3 plugin/xxx/moduleinfo.h
+4.3 plugins/xxx/moduleinfo.h
 	
 moduleinfo.h is used to set the version information for the plugin.  
 An example follows:
@@ -292,7 +285,7 @@ there
 ./configure --prefix=${HOME}/build/root;make install
 
 then subsequent rebuilds/installs of your plugin can be accomplished 
-by going to the plugin/xxx directory and running 
+by going to the plugins/xxx directory and running 
 
 make install
 
