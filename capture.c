@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.236 2004/02/03 20:48:50 guy Exp $
+ * $Id: capture.c,v 1.237 2004/02/09 19:19:19 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -701,6 +701,16 @@ do_capture(const char *save_file)
       g_free(cfile.save_file);
     }
     cfile.save_file = NULL;
+
+    /* if we didn't captured even a single packet, close the file again */
+    if(cfile.count == 0) {
+      simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
+      "%sNo packets captured!%s\n\n"
+      "As no data was captured, closing the %scapture file!",
+      simple_dialog_primary_start(), simple_dialog_primary_end(),
+      (cfile.is_tempfile) ? "temporary " : "");
+      cf_close(&cfile);
+    }
   }
   return TRUE;
 }
