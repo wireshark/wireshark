@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.329 2003/12/09 22:41:06 ulfl Exp $
+ * $Id: file.c,v 1.330 2003/12/13 18:01:29 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -297,6 +297,12 @@ set_display_filename(capture_file *cf)
   gchar  *win_name;
 
   name_ptr = cf_get_display_name(cf);
+	
+  if (!cf->is_tempfile) {
+    /* Add this filename to the list of recent files in the "Recent Files" submenu */
+    add_menu_recent_capture_file(cf->filename);
+  }
+
   if (cf->drops_known) {
     msg_len = strlen(name_ptr) + strlen(done_fmt_drops) + 64;
     done_msg = g_malloc(msg_len);
@@ -640,6 +646,9 @@ cf_get_display_name(capture_file *cf)
     /* Get the last component of the file name, and use that. */
     if (cf->filename){
       displayname = get_basename(cf->filename);
+      
+      /* Add this filename to the list of recent files in the "Recent Files" submenu */
+      add_menu_recent_capture_file(cf->filename);
     } else {
       displayname="<no file>";
     }

@@ -2,7 +2,7 @@
  * Definitions for menu routines with toolkit-independent APIs but
  * toolkit-dependent implementations.
  *
- * $Id: menu.h,v 1.11 2003/09/24 02:36:33 guy Exp $
+ * $Id: menu.h,v 1.12 2003/12/13 18:01:29 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +29,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+
+/* Add a new recent capture filename to the "Recent Files" submenu
+   (duplicates will be ignored) */
+void add_menu_recent_capture_file(gchar *file);
 
 /* Routines to enable or disable sets of menu items. */
 

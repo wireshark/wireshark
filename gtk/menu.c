@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.123 2003/12/09 22:41:07 ulfl Exp $
+ * $Id: menu.c,v 1.124 2003/12/13 18:01:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +29,7 @@
 #include <gtk/gtk.h>
 
 #include <string.h>
+#include <stdio.h>
 
 #include "main.h"
 #include "menu.h"
@@ -106,6 +107,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/_File", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/File/_Open...", "<control>O", file_open_cmd_cb,
                              0, GTK_STOCK_OPEN),
+    ITEM_FACTORY_ENTRY("/File/Open _Recent", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/File/_Close", "<control>W", file_close_cmd_cb,
                              0, GTK_STOCK_CLOSE),
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
@@ -658,6 +660,139 @@ set_menu_object_data (gchar *path, gchar *key, gpointer data) {
 	menu_list = g_slist_next(menu_list);
   }
 }
+
+
+/* Recently used capture files submenu: 
+ * Submenu containing the recently used capture files.
+ * The capture filenames are always kept with the absolute path, to be independant
+ * of the current path. 
+ * They are only stored inside the labels of the submenu (no separate list). */
+
+/* the maximum number of entries in the recent capture files list */
+static guint recent_files_count_max = 10;
+
+#define MENU_RECENT_FILES_PATH "/File/Open Recent"
+
+/* callback, if the user pushed a recent file submenu item */
+void
+menu_open_recent_file_cmd_cb(GtkWidget *w, gpointer data _U_)
+{
+	int        err;
+	GtkWidget *menu_item_child;
+	gchar     *cf_name;
+
+
+	/* get capture filename from the menu item label */
+	menu_item_child = (GTK_BIN(w))->child;
+	gtk_label_get(GTK_LABEL(menu_item_child), &cf_name);
+
+	/* open and read the capture file (this will close an existing file) */
+    if ((err = cf_open(cf_name, FALSE, &cfile)) == 0) {
+		cf_read(&cfile, &err);
+	}
+}
+
+
+/* add the capture filename (with an absolute path) to the "Recent Files" menu */
+void
+add_menu_recent_capture_file_absolute(gchar *cf_name) {
+	GtkWidget *submenu_recent_files;
+	GList *menu_item_list;
+	GList *li;
+	gchar *widget_cf_name;
+	GtkWidget *menu_item;
+	guint cnt;
+
+
+	/* get the submenu container item */
+	submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
+
+	/* convert container to a GList */
+	menu_item_list = gtk_container_children(GTK_CONTAINER(submenu_recent_files));
+
+	/* iterate through list items of menu_item_list, 
+	 * removing a maybe duplicate entry and every item above count_max */
+	li = g_list_first(menu_item_list);
+    for (cnt = 1; li; li = li->next, cnt++) {
+		/* get capture filename from the menu item label */
+		menu_item = (GtkWidget *) li->data;
+		gtk_label_get(GTK_LABEL(GTK_BIN(menu_item)->child), &widget_cf_name);
+
+		/* if this element string is already in the list, or 
+		 * this element is above maximum count (too old), remove it */
+		if (strncmp(widget_cf_name, cf_name, 1000) == 0 ||
+				cnt >= recent_files_count_max) {
+			/* XXX: is this all we need to do, to destroy the menu item and its label? */
+			gtk_container_remove(GTK_CONTAINER(submenu_recent_files), li->data);
+			gtk_widget_destroy(li->data);
+			cnt--;
+		}
+	}
+
+	g_list_free(menu_item_list);
+
+	/* add new item at latest position */
+	menu_item = gtk_menu_item_new_with_label(cf_name);
+	gtk_menu_prepend (GTK_MENU(submenu_recent_files), menu_item);
+	
+	gtk_signal_connect_object(GTK_OBJECT(menu_item), "activate", 
+		menu_open_recent_file_cmd_cb, (GtkObject *) menu_item);
+	gtk_widget_show (menu_item);
+}
+
+
+/* add the capture filename to the "Recent Files" menu */
+/* (will change nothing, if this filename is already in the menu) */
+void
+add_menu_recent_capture_file(gchar *cf_name) {
+	gchar *curr;
+	gchar *absolute;
+	
+	
+	/* if this filename is an absolute path, we can use it directly */
+	if (g_path_is_absolute(cf_name)) {
+		add_menu_recent_capture_file_absolute(cf_name);
+		return;
+	}
+
+	/* this filename is not an absolute path, prepend the current dir */
+	curr = g_get_current_dir();
+	absolute = g_strdup_printf("%s%s%s", curr, G_DIR_SEPARATOR_S, cf_name);
+	add_menu_recent_capture_file_absolute(absolute);
+	g_free(curr);
+	g_free(absolute);
+}
+
+
+
+/* write a single menu item widget label to the user's recent file */
+/* helper, for menu_recent_file_write_all() */
+void menu_recent_file_write(GtkWidget *widget, gpointer data) {
+	GtkWidget *menu_item_child;
+	gchar     *cf_name;
+	FILE      *rf = (FILE *) data;
+
+
+	/* get capture filename from the menu item label */
+	menu_item_child = (GTK_BIN(widget))->child;
+	gtk_label_get(GTK_LABEL(menu_item_child), &cf_name);
+
+	fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", cf_name);
+}
+
+
+/* write all capture filenames of the menu to the user's recent file */
+void
+menu_recent_file_write_all(FILE *rf) {
+	GtkWidget *submenu_recent_files;
+
+
+	submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
+
+	gtk_container_foreach(GTK_CONTAINER(submenu_recent_files), 
+		menu_recent_file_write, rf);
+}
+
 
 gint
 popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)

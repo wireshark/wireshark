@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.340 2003/12/13 16:30:10 ulfl Exp $
+ * $Id: main.c,v 1.341 2003/12/13 18:01:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,6 +111,7 @@
 #include "colors.h"
 #include <epan/strutil.h>
 #include "register.h"
+#include <prefs-int.h>
 #include "ringbuffer.h"
 #include "ui_util.h"
 #include "toolbar.h"
@@ -605,6 +606,177 @@ prepare_selected_cb_or_plist_not(GtkWidget *w _U_, gpointer data)
         MATCH_SELECTED_OR_NOT,
         get_text_from_packet_list(data));
 }
+
+
+#define RECENT_FILE_NAME "recent"
+
+
+/* Write out "recent" to the user's recent file, and return 0.
+   If we got an error, stuff a pointer to the path of the recent file
+   into "*pf_path_return", and return the errno. */
+int
+write_recent(char **rf_path_return)
+{
+  char        *rf_path;
+  FILE        *rf;
+
+  /* To do:
+   * - Split output lines longer than MAX_VAL_LEN
+   * - Create a function for the preference directory check/creation
+   *   so that duplication can be avoided with filter.c
+   */
+
+  rf_path = get_persconffile_path(RECENT_FILE_NAME, TRUE);
+  if ((rf = fopen(rf_path, "w")) == NULL) {
+    *rf_path_return = rf_path;
+    return errno;
+  }
+
+  fputs("# Recent settings file for Ethereal " VERSION ".\n"
+    "#\n"
+    "# This file is regenerated each time Ethereal is quit.\n"
+    "# So be careful, if you want to make manual changes here.\n"
+    "\n"
+    "######## Recent capture files (latest first) ########\n"
+    "\n", rf);
+
+  menu_recent_file_write_all(rf);
+
+  fputs("\n"
+    "######## Recent display filters (latest last) ########\n"
+    "\n", rf);
+
+  dfilter_combo_write_all(rf);
+
+  fclose(rf);
+
+  /* XXX - catch I/O errors (e.g. "ran out of disk space") and return
+     an error indication, or maybe write to a new preferences file and
+     rename that file on top of the old one only if there are not I/O
+     errors. */
+  return 0;
+}
+
+
+/* set one user's recent file key/value pair */
+static int
+set_recent_pair(gchar *key, gchar *value)
+{
+
+
+  if (strcmp(key, RECENT_KEY_CAPTURE_FILE) == 0) {
+	add_menu_recent_capture_file(value);
+  } else if (strcmp(key, RECENT_KEY_DISPLAY_FILTER) == 0) {
+	dfilter_combo_add_recent(value);
+  } 
+
+  return PREFS_SET_OK;
+}
+
+
+/* opens the user's recent file and read it out */
+void
+read_recent(char **rf_path_return, int *rf_errno_return)
+{
+  char       *rf_path;
+  FILE       *rf;
+
+
+  /* Construct the pathname of the user's recent file. */
+  rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE);
+
+  /* Read the user's recent file, if it exists. */
+  *rf_path_return = NULL;
+  if ((rf = fopen(rf_path, "r")) != NULL) {
+    /* We succeeded in opening it; read it. */
+    read_prefs_file(rf_path, rf, set_recent_pair);
+	/* set dfilter combobox to have one empty line at the current position */
+	dfilter_combo_add_recent("");
+    fclose(rf);
+    g_free(rf_path);
+    rf_path = NULL;
+  } else {
+    /* We failed to open it.  If we failed for some reason other than
+       "it doesn't exist", return the errno and the pathname, so our
+       caller can report the error. */
+    if (errno != ENOENT) {
+      *rf_errno_return = errno;
+      *rf_path_return = rf_path;
+    }
+  }
+}
+
+
+
+static guint dfilter_combo_max_recent = 10;
+
+/* add a display filter to the combo box */
+/* Note: a new filter string will replace an old identical one */
+static gboolean
+dfilter_combo_add(GtkWidget *filter_cm, char *s) {
+  GList     *li;
+  GList     *filter_list = gtk_object_get_data(GTK_OBJECT(filter_cm), E_DFILTER_FL_KEY);
+
+
+  /* GtkCombos don't let us get at their list contents easily, so we maintain
+     our own filter list, and feed it to gtk_combo_set_popdown_strings when
+     a new filter is added. */
+    li = g_list_first(filter_list);
+    while (li) {
+        /* If the filter is already in the list, remove the old one and 
+		 * append the new one at the latest position (at g_list_append() below) */
+		if (li->data && strcmp(s, li->data) == 0) {
+          filter_list = g_list_remove(filter_list, li->data);
+		  break;
+		}
+      li = li->next;
+    }
+
+    filter_list = g_list_append(filter_list, s);
+    gtk_object_set_data(GTK_OBJECT(filter_cm), E_DFILTER_FL_KEY, filter_list);
+    gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), filter_list);
+    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(filter_cm)->entry), g_list_last(filter_list)->data);
+
+	return TRUE;
+}
+
+
+/* write all non empty display filters (until maximum count) 
+ * of the combo box GList to the user's recent file */
+void
+dfilter_combo_write_all(FILE *rf) {
+  GtkWidget *filter_cm = OBJECT_GET_DATA(top_level, E_DFILTER_CM_KEY);
+  GList     *filter_list = gtk_object_get_data(GTK_OBJECT(filter_cm), E_DFILTER_FL_KEY);
+  GList     *li;
+  gint       max_count = 0;
+
+
+  /* write all non empty display filter strings to the recent file (until max count) */
+  li = g_list_first(filter_list);
+  while ( li && (max_count++ <= dfilter_combo_max_recent) ) {
+    if (strlen(li->data)) {
+      fprintf (rf, RECENT_KEY_DISPLAY_FILTER ": %s\n", li->data);
+	}
+    li = li->next;
+  }
+}
+
+
+/* add a display filter coming from the user's recent file to the dfilter combo box */
+gboolean
+dfilter_combo_add_recent(gchar *s) {
+  GtkWidget *filter_cm = OBJECT_GET_DATA(top_level, E_DFILTER_CM_KEY);
+  char      *dup;
+
+  dup = g_strdup(s);
+  if (!dfilter_combo_add(filter_cm, dup)) {
+    g_free(dup);
+	return FALSE;
+  }
+
+  return TRUE;
+}
+
 
 /* Run the current display filter on the current packet set, and
    redisplay. */
@@ -1181,6 +1353,13 @@ statusbar_pop_field_msg(void)
 static gboolean
 do_quit(void)
 {
+	gchar *rec_path;
+
+
+	/* write user's recent file to disk
+	 * It is no problem to write this file, even if we do not quit */
+	write_recent(&rec_path);
+
 	/* XXX - should we check whether the capture file is an
 	   unsaved temporary file for a live capture and, if so,
 	   pop up a "do you want to exit without saving the capture
@@ -1575,6 +1754,8 @@ main(int argc, char *argv[])
   WSADATA 	       wsaData;
 #endif  /* WIN32 */
 
+  char                *rf_path;
+  int                  rf_open_errno;
   char                *gpf_path, *pf_path;
   char                *cf_path, *df_path, *dp_path;
   int                  gpf_open_errno, gpf_read_errno;
@@ -2394,6 +2575,9 @@ main(int argc, char *argv[])
        we were told to. */
     create_main_window(pl_size, tv_size, bv_size, prefs);
 
+    /* Read the recent file, as we have the gui now ready for it. */
+    read_recent(&rf_path, &rf_open_errno);
+
     colors_init();
     colfilter_init();
 
@@ -3000,6 +3184,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     main_display_filter_widget=filter_te;
     OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
     OBJECT_SET_DATA(filter_te, E_DFILTER_CM_KEY, filter_cm);
+    OBJECT_SET_DATA(top_level, E_DFILTER_CM_KEY, filter_cm);
     gtk_box_pack_start(GTK_BOX(stat_hbox), filter_cm, TRUE, TRUE, 3);
     SIGNAL_CONNECT(filter_te, "activate", filter_activate_cb, filter_te);
     gtk_widget_show(filter_cm);
