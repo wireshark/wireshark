@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.26 2001/01/09 06:31:36 guy Exp $
+ * $Id: packet-icq.c,v 1.27 2001/03/25 01:52:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -81,15 +81,14 @@ static gint ett_icq_body_parts = -1;
 
 enum { ICQ5_client, ICQ5_server};
 
-static void dissect_icqv5(const u_char *pd,
-		   int offset,
-		   frame_data *fd,
+static void dissect_icqv5(tvbuff_t *tvb,
+		   packet_info *pinfo,
 		   proto_tree *tree);
 
 static void
-dissect_icqv5Server(const u_char *pd,
+dissect_icqv5Server(tvbuff_t *tvb,
 		    int offset,
-		    frame_data *fd,
+		    packet_info *pinfo,
 		    proto_tree *tree,
 		    guint32 pktsize);
 
@@ -432,90 +431,13 @@ findStatus(int num)
     return findcmd(statusCode, num);
 }
 
-static void
-proto_tree_add_hexdump(proto_tree* t,
-		       guint32 offset,
-		       const u_char *data,
-		       int size)
-{
-    int i;
-    char buf[96];
-    int n;
-    int done = 0, line = 0;
-    int added = 0;
-
-    if (size==0)
-	return;
-    
-    line = size / 16;
-    
-    for (i=0;i<line;i++) {
-	added = 0;
-	done = 0;
-	for (n = i * 16; n < (i+1)*16; n++) {
-	    added = sprintf(buf+done, "%02x", data[n]);
-	    if ((n%8)==7)
-		added += sprintf(buf + done + added, "  ");
-	    else
-		added += sprintf(buf + done + added, " ");
-	    done += added;
-	}
-	for (n = i * 16; n < (i+1)*16; n++) {
-	    if (isprint(data[n]))
-		added = sprintf(buf + done, "%c", data[n]);
-	    else
-		added = sprintf(buf + done, ".");
-	    done += added;
-	}
-	proto_tree_add_text(t, NullTVB,
-			    offset + i*16,
-			    16,
-			    buf);
-    }
-    if ((size%16)!=0) {
-	done = 0;
-	for (n = line * 16 ; n < size ; n++) {
-	    added = sprintf(buf+done, "%02x", data[n]);
-	    if ((n%8)==7)
-		added += sprintf(buf + done + added, "  ");
-	    else
-		added += sprintf(buf + done + added, " ");
-	    done += added;
-	}
-	for (n = size ; (n%16)!=0;n++) {
-	    added = 0;
-	    if ((n%8)==7)
-		added += sprintf(buf + done + added, "    ");
-	    else
-		added += sprintf(buf + done + added, "   ");
-	    done += added;
-	}
-	for (n = line * 16; n < (line+1)*16; n++) {
-	    added = 0;
-	    if (n<size) {
-		if (isprint(data[n]))
-		    added = sprintf(buf + done, "%c", data[n]);
-		else
-		    added = sprintf(buf + done, ".");
-	    } else {
-		added = sprintf(buf + done, " ");
-	    }
-	    done += added;
-	}
-	proto_tree_add_text(t, NullTVB,
-			    offset + line*16,
-			    size % 16,
-			    buf);
-    }
-}
-
 static guint32
-get_v5key(const u_char* pd, int len)
+get_v5key(tvbuff_t *tvb, int len)
 {
     guint32 a1, a2, a3, a4, a5;
     guint32 code, check, key;
 
-    code = pletohl(&pd[ICQ5_CL_CHECKCODE]);
+    code = tvb_get_letohl(tvb, ICQ5_CL_CHECKCODE);
 
     a1 = code & 0x0001f000;
     a2 = code & 0x07c007c0;
@@ -540,7 +462,7 @@ decrypt_v5(u_char *bfr, guint32 size,guint32 key)
 {
     guint32 i;
     guint32 k;
-    for (i=0x0a; i < size+3; i+=4 ) {
+    for (i=ICQ5_CL_SESSIONID; i < size+3; i+=4 ) {
 	k = key+table_v5[i&0xff];
 	if ( i != 0x16 ) {
 	    bfr[i] ^= (u_char)(k & 0xff);
@@ -554,160 +476,144 @@ decrypt_v5(u_char *bfr, guint32 size,guint32 key)
 }
 
 static void
-dissect_icqv4(const u_char *pd,
-	      int offset,
-	      frame_data *fd, 
+dissect_icqv4(tvbuff_t *tvb,
+	      packet_info *pinfo,
 	      proto_tree *tree)
 {
     /* Not really implemented yet */
-    if (check_col(fd, COL_PROTOCOL)) {
-	col_set_str(fd, COL_PROTOCOL, "ICQv4 (UDP)");
+    if (check_col(pinfo->fd, COL_PROTOCOL)) {
+	col_set_str(pinfo->fd, COL_PROTOCOL, "ICQv4 (UDP)");
     }
-    if (check_col(fd, COL_INFO)) {
-	col_set_str(fd, COL_INFO, "ICQ Version 4 protocol");
+    if (check_col(pinfo->fd, COL_INFO)) {
+	col_set_str(pinfo->fd, COL_INFO, "ICQ Version 4 protocol");
     }
 }
 
 static void
-dissect_icqv3(const u_char *pd,
-	      int offset,
-	      frame_data *fd, 
+dissect_icqv3(tvbuff_t *tvb,
+	      packet_info *pinfo,
 	      proto_tree *tree)
 {
     /* Not really implemented yet */
-    if (check_col(fd, COL_PROTOCOL)) {
-	col_set_str(fd, COL_PROTOCOL, "ICQv3 (UDP)");
+    if (check_col(pinfo->fd, COL_PROTOCOL)) {
+	col_set_str(pinfo->fd, COL_PROTOCOL, "ICQv3 (UDP)");
     }
-    if (check_col(fd, COL_INFO)) {
-	col_set_str(fd, COL_INFO, "ICQ Version 3 protocol");
+    if (check_col(pinfo->fd, COL_INFO)) {
+	col_set_str(pinfo->fd, COL_INFO, "ICQ Version 3 protocol");
     }
 }
 
 static void
-dissect_icqv2(const u_char *pd,
-	      int offset,
-	      frame_data *fd, 
+dissect_icqv2(tvbuff_t *tvb,
+	      packet_info *pinfo,
 	      proto_tree *tree)
 {
     /* Not really implemented yet */
-    if (check_col(fd, COL_PROTOCOL)) {
-	col_set_str(fd, COL_PROTOCOL, "ICQv2 (UDP)");
+    if (check_col(pinfo->fd, COL_PROTOCOL)) {
+	col_set_str(pinfo->fd, COL_PROTOCOL, "ICQv2 (UDP)");
     }
-    if (check_col(fd, COL_INFO)) {
-	col_set_str(fd, COL_INFO, "ICQ Version 2 protocol");
+    if (check_col(pinfo->fd, COL_INFO)) {
+	col_set_str(pinfo->fd, COL_INFO, "ICQ Version 2 protocol");
     }
 }
 
 /*
- * Find first occurrence of ch in buf
- * Buf is max size big.
- */
-static char*
-strnchr(const u_char* buf, u_char ch, int size)
-{
-    int i;
-    u_char* p = (u_char*) buf;
-    for (i=0;(*p) && (*p!=ch) && (i<size); p++, i++)
-	;
-    if ((*p == '\0') || (i>=size))
-	return NULL;
-    return p;
-}
-
-/*
- * The packet at pd has a (len, string) pair.
- * Copy the string to a buffer, and display it in the tree.
- * Observe any limits you might cross.
+ * The packet has, at offset "offset" a (len, string) pair.
+ * Display the length and string in the tree.
  *
  * If anything is wrong, return -1, since -1 is not a valid string
  * length. Else, return the number of chars processed.
  */
 static guint16
 proto_add_icq_attr(proto_tree* tree, /* The tree to add to */
-		   const char* pd, /* Pointer to the field */
-		   const int offset, /* Offset from the start of packet */
-		   const int size, /* The number of bytes left in pd */
+		   tvbuff_t *tvb,    /* Tvbuff with packet */
+		   const int offset, /* Offset from the start of packet of field */
 		   char* descr)	/* The description to use in the tree */
 {
     guint16 len;
-    char* data;
-    int left = size;
     
-    if (size<sizeof(guint16))
-	return -1;
-    len = pletohs(pd);
-    left -= sizeof(guint16);
-    if (left<len) {
-	proto_tree_add_text(tree, NullTVB,
-			    offset,
-			    sizeof(guint16),
-			    "Length: %u", len);
-	return -1;
-    }
-			    
-    data = g_malloc(len);
-
-    strncpy(data, pd + sizeof(guint16), len);
-    data[len - 1] = '\0';
-
-    proto_tree_add_text(tree, NullTVB,
+    len = tvb_get_letohs(tvb, offset);
+    if (len > tvb_reported_length_remaining(tvb, offset))
+	return -1;	/* length goes past end of packet */
+    proto_tree_add_text(tree, tvb,
 			offset,
 			sizeof(guint16) + len,
-			"%s[%u]: %s", descr, len, data);
-    g_free(data);
-
+			"%s[%u]: %.*s", descr, len, len,
+			tvb_get_ptr(tvb, offset + sizeof(guint16), len));
     return len + sizeof(guint16);
 }
 
 static void
 icqv5_decode_msgType(proto_tree* tree,
-		     const unsigned char* pd, /* From start of messageType */
+		     tvbuff_t *tvb,
 		     int offset,
 		     int size)
 {
     proto_item* ti = NULL;
     proto_tree* subtree = NULL;
     int left = size;
-    char *msgText = NULL;
-    guint16 msgType = -1;
-    guint16 msgLen = -1;
-    int i,j,n;
+    guint16 msgType;
+    gint sep_offset;
+    int sz;            /* Size of the current element */
+    int n;
+    static char* url_field_descr[] = {
+	"Description",
+	"URL",
+    };
+#define N_URL_FIELDS	(sizeof url_field_descr / sizeof url_field_descr[0])
+    static char* email_field_descr[] = {
+	"Nickname",
+	"First name",
+	"Last name",
+	"Email address",
+	"Unknown",
+	"Text"
+    };
+#define N_EMAIL_FIELDS	(sizeof email_field_descr / sizeof email_field_descr[0])
     static char* auth_req_field_descr[] = {
 	"Nickname",
 	"First name",
 	"Last name",
 	"Email address",
 	"Unknown",
-	"Reason"};
-    static char* emain_field_descr[] = {
+	"Reason"
+    };
+#define N_AUTH_REQ_FIELDS	(sizeof auth_req_field_descr / sizeof auth_req_field_descr[0])
+    static char* user_added_field_descr[] = {
 	"Nickname",
 	"First name",
 	"Last name",
 	"Email address",
-	"Unknown",
-	"Text\n"
     };
+#define N_USER_ADDED_FIELDS	(sizeof user_added_field_descr / sizeof user_added_field_descr[0])
     
-    enum {OFF_MSG_TYPE=0,
-	  OFF_MSG_LEN=2,
-	  OFF_MSG_TEXT=4};
-
-    
-    if (left >= sizeof(guint16)) {
-	msgType = pletohs(pd + OFF_MSG_TYPE);
-	left -= sizeof(guint16);
-    }
-    if (left >= sizeof(guint16)) {
-	msgLen = pletohs(pd + OFF_MSG_LEN);
-	left -= sizeof(guint16);
-    }
-
-    ti = proto_tree_add_text(tree, NullTVB,
-			     offset ,
-			     2,
-			     "Type: %u (%s)", msgType, findMsgType(msgType));
+    msgType = tvb_get_letohs(tvb, offset);
+    ti = proto_tree_add_text(tree, tvb,
+			     offset,
+			     size,
+			     "Message: Type = %u (%s)", msgType, findMsgType(msgType));
     /* Create a new subtree */
     subtree = proto_item_add_subtree(ti, ett_icq_body_parts);
+
+    proto_tree_add_text(subtree, tvb,
+			offset,
+			2,
+			"Type: %u (%s)", msgType, findMsgType(msgType));
+    offset += 2;
+    left -= 2;
+    if (msgType != MSG_AUTH) {
+	/*
+	 * XXX - does a MSG_AUTH message really have 3 bytes of information
+	 * rather than a length field?
+	 */
+	proto_tree_add_text(subtree, tvb,
+			    offset,
+			    2,
+			    "Length: %u",
+			    tvb_get_letohs(tvb, offset));
+	offset += 2;
+	left -= 2;
+    }
 
     switch(msgType) {
     case 0xffff:           /* Field unknown */
@@ -716,211 +622,186 @@ icqv5_decode_msgType(proto_tree* tree,
 	fprintf(stderr, "Unknown msgType: %u (%04x)\n", msgType, msgType);
 	break;
     case MSG_TEXT:
-	msgText = g_malloc(left + 1);
-	strncpy(msgText, pd + OFF_MSG_TEXT, left);
-	msgText[left] = '\0';
-	proto_tree_add_text(subtree, NullTVB,
-			    offset + OFF_MSG_TEXT,
+	proto_tree_add_text(subtree, tvb,
+			    offset,
 			    left,
-			    "Msg: %s", msgText);
-	g_free(msgText);
+			    "Msg: %.*s", left-1,
+			    tvb_get_ptr(tvb, offset, left));
 	break;
     case MSG_URL:
-	/* Two parts, a description and the URL. Separeted by FE */
-	for (i=0;i<left;i++) {
-	    if (pd[OFF_MSG_TEXT + i] == 0xfe)
-		break;
+	for (n = 0; n < N_URL_FIELDS; n++) {
+	    if (n != N_URL_FIELDS - 1) {
+		sep_offset = tvb_find_guint8(tvb, offset, left, 0xfe);
+		sz = sep_offset - offset + 1;
+	    } else
+		sz = left;
+	    if (sz != 0) {
+		proto_tree_add_text(subtree, tvb,
+				    offset,
+				    sz,
+				    "%s: %.*s",
+				    url_field_descr[n],
+				    sz - 1,
+				    tvb_get_ptr(tvb, offset, sz));
+	    } else {
+		proto_tree_add_text(subtree, tvb,
+				    offset,
+				    0,
+				    "%s: %s", url_field_descr[n], "(empty)");
+	    }
+	    offset += sz;
+	    left -= sz;
 	}
-	msgText = g_malloc(i + 1);
-	strncpy(msgText, pd + OFF_MSG_TEXT, i);
-	if (i==left)
-	    msgText[i] = '\0';
-	else
-	    msgText[i-1] = '\0';
-	proto_tree_add_text(subtree, NullTVB,
-			    offset + OFF_MSG_TEXT,
-			    i,
-			    "Description: %s", msgText);
-	if (i==left)
-	    break;
-	msgText = g_realloc(msgText, left - i);
-	strncpy(msgText, pd + OFF_MSG_TEXT + i + 1, left - i - 1);
-	msgText[left - i] = '\0';
-	proto_tree_add_text(subtree, NullTVB,
-			    offset + OFF_MSG_TEXT,
-			    i,
-			    "URL: %s", msgText);
-	g_free(msgText);
 	break;
     case MSG_EMAIL:
-	i = 0;
-	j = 0;
-	msgText = NULL;
-	for (n = 0; n < 6; n++) {
-	    for (;
-		 (i<left) && (pd[OFF_MSG_TEXT+i]!=0xfe);
-		 i++)
-		;
-	    if (i>j) {
-		msgText = g_realloc(msgText, i-j);
-		strncpy(msgText, pd + OFF_MSG_TEXT + j, i - j - 1);
-		msgText[i-j-1] = '\0';
-		proto_tree_add_text(subtree, NullTVB,
-				    offset + OFF_MSG_TEXT + j,
-				    i - j - 1,
-				    "%s: %s", emain_field_descr[n], msgText);
+	for (n = 0; n < N_EMAIL_FIELDS; n++) {
+	    if (n != N_EMAIL_FIELDS - 1) {
+		sep_offset = tvb_find_guint8(tvb, offset, left, 0xfe);
+		sz = sep_offset - offset + 1;
+	    } else
+		sz = left;
+	    if (sz != 0) {
+		proto_tree_add_text(subtree, tvb,
+				    offset,
+				    sz,
+				    "%s: %.*s",
+				    email_field_descr[n],
+				    sz - 1,
+				    tvb_get_ptr(tvb, offset, sz));
 	    } else {
-		proto_tree_add_text(subtree, NullTVB,
-				    offset + OFF_MSG_TEXT + j,
+		proto_tree_add_text(subtree, tvb,
+				    offset,
 				    0,
-				    "%s: %s", emain_field_descr[n], "(empty)");
+				    "%s: %s", email_field_descr[n], "(empty)");
 	    }
-	    j = ++i;
+	    offset += sz;
+	    left -= sz;
 	}
-	if (msgText != NULL)
-	    g_free(msgText);
 	break;
 	
     case MSG_AUTH:
     {
 	/* Three bytes, first is a char signifying success */
-	unsigned char auth_suc = pd[OFF_MSG_LEN];
-	guint16 x1 = pd[OFF_MSG_LEN+1];
-	proto_tree_add_text(subtree, NullTVB,
-			    offset + OFF_MSG_LEN,
+	unsigned char auth_suc;
+
+	auth_suc = tvb_get_guint8(tvb, offset);
+	proto_tree_add_text(subtree, tvb,
+			    offset,
 			    1,
 			    "Authorization: (%u) %s",auth_suc,
 			    (auth_suc==0)?"Denied":"Allowed");
-	proto_tree_add_text(subtree, NullTVB,
-			    offset + OFF_MSG_LEN + 1,
+	offset++;
+	proto_tree_add_text(subtree, tvb,
+			    offset,
 			    sizeof(guint16),
-			    "x1: 0x%04x",x1);
+			    "x1: 0x%04x",
+			    tvb_get_letohs(tvb, offset));
 	break;
     }
     case MSG_AUTH_REQ:
-	/* Six parts, separated by FE */
-	i = 0;
-	j = 0;
-	msgText = g_malloc(64);
-	for (n = 0; n < 6 && i<left; n++) {
-            while (i<left && pd[OFF_MSG_TEXT+i]!=0xfe)
-                i++;
-            if (i<=left) {
-                /* pd[OFF_MSG_TEXT+i] == 0xfe */
-                if (i!=j) {   
-                    /* Otherwise, it'd be a null string */
-                    msgText = g_realloc(msgText, i - j);
-                    strncpy(msgText, pd + OFF_MSG_TEXT + j, i-j);
-		    msgText[i-j] = '\0';
-                    proto_tree_add_text(subtree, NullTVB,
-                                        offset + OFF_MSG_TEXT + j,
-                                        i - j,
-                                        "%s: %s", auth_req_field_descr[n], msgText);
-                } else {
-                    proto_tree_add_text(subtree, NullTVB,
-                                        offset + OFF_MSG_TEXT + j,
-                                        i - j,
-                                        "%s: %s", auth_req_field_descr[n], "(null)");
-                }
-                j = ++i;
-                /* i and j point after the 0xfe character */
-            }
-        }    
-
-	if (msgText != NULL)
-	    g_free(msgText);
+	for (n = 0; n < N_AUTH_REQ_FIELDS; n++) {
+	    if (n != N_AUTH_REQ_FIELDS - 1) {
+		sep_offset = tvb_find_guint8(tvb, offset, left, 0xfe);
+		sz = sep_offset - offset + 1;
+	    } else
+		sz = left;
+	    if (sz != 0) {
+		proto_tree_add_text(subtree, tvb,
+				    offset,
+				    sz,
+				    "%s: %.*s",
+				    auth_req_field_descr[n],
+				    sz - 1,
+				    tvb_get_ptr(tvb, offset, sz));
+	    } else {
+		proto_tree_add_text(subtree, tvb,
+				    offset,
+				    0,
+				    "%s: %s", auth_req_field_descr[n], "(empty)");
+	    }
+	    offset += sz;
+	    left -= sz;
+	}
 	break;
     case MSG_USER_ADDED:
-	/* Four parts, separated by FE */
-	i = 0;
-	j = 0;
-	/* This is necessary, because g_realloc does not behave like
-	     * g_malloc if the first parameter == NULL */
-	msgText = g_malloc(64);
-        for (n = 0; n < 4 && i<left; n++) {
-            while (i<left && pd[OFF_MSG_TEXT+i]!=0xfe)
-                i++;
-            if (i<=left) {
-                /* pd[OFF_MSG_TEXT+i] == 0xfe */
-                if (i!=j) {   
-                    /* Otherwise, it'd be a null string */
-                    msgText = g_realloc(msgText, i - j);
-                    strncpy(msgText, pd + OFF_MSG_TEXT + j, i-j);
-		    msgText[i-j] = '\0';
-                    proto_tree_add_text(subtree, NullTVB,
-                                        offset + OFF_MSG_TEXT + j,
-                                        i - j,
-                                        "%s: %s", auth_req_field_descr[n], msgText);
-                } else {
-                    proto_tree_add_text(subtree, NullTVB,
-                                        offset + OFF_MSG_TEXT + j,
-                                        i - j,
-                                        "%s: %s", auth_req_field_descr[n], "(null)");
-                }
-                j = ++i;
-                /* i and j point after the 0xfe character */
-            }
-        }    
-	if (msgText != NULL)
-	    g_free(msgText);
+	for (n = 0; n < N_USER_ADDED_FIELDS; n++) {
+	    if (n != N_USER_ADDED_FIELDS - 1) {
+		sep_offset = tvb_find_guint8(tvb, offset, left, 0xfe);
+		sz = sep_offset - offset + 1;
+	    } else
+		sz = left;
+	    if (sz != 0) {
+		proto_tree_add_text(subtree, tvb,
+				    offset,
+				    sz,
+				    "%s: %.*s",
+				    user_added_field_descr[n],
+				    sz - 1,
+				    tvb_get_ptr(tvb, offset, sz));
+	    } else {
+		proto_tree_add_text(subtree, tvb,
+				    offset,
+				    0,
+				    "%s: %s", user_added_field_descr[n], "(empty)");
+	    }
+	    offset += sz;
+	    left -= sz;
+	}
 	break;
     case MSG_CONTACTS:
     {
-	u_char* p = (u_char*) &pd[OFF_MSG_TEXT];
-	u_char* pprev = p;
+	gint sep_offset_prev;
 	int sz = 0;            /* Size of the current element */
 	int n = 0;             /* The nth element */
-	int done = 0;          /* Number of chars processed */
-	u_char* msgText2 = NULL;
-	msgText = NULL;
-	/* Create a new subtree */
-	subtree = proto_item_add_subtree(ti, ett_icq_body_parts);
-	while (p!=NULL) {
-	    p = strnchr(pprev, 0xfe, left);
-	    
-	    if (p!=NULL)
-		sz = (int)(p - pprev);
-	    else
+	gboolean last = FALSE;
+
+	while (!last) {
+	    sep_offset = tvb_find_guint8(tvb, offset, left, 0xfe);
+	    if (sep_offset != -1)
+		sz = sep_offset - offset + 1;
+	    else {
 		sz = left;
-	    msgText = g_realloc(msgText, sz+1);
-	    strncpy(msgText, pprev, sz);
-	    msgText[sz] = '\0';
-	    
+		last = TRUE;
+	    }
 	    if (n == 0) {
 		/* The first element is the number of Nick/UIN pairs follow */
-		proto_tree_add_text(subtree, NullTVB,
-				    offset + OFF_MSG_TEXT + done,
+		proto_tree_add_text(subtree, tvb,
+				    offset,
 				    sz,
-				    "Number of pairs: %s", msgText);
+				    "Number of pairs: %.*s",
+				    sz - 1,
+				    tvb_get_ptr(tvb, offset, sz));
 		n++;
-	    } else if (p!=NULL) {
+	    } else if (!last) {
 		int svsz = sz;
-		left -= (sz+1);
-		pprev = p + 1;
-		p = strnchr(pprev, 0xfe, left);
-		if (p!=NULL)
-		    sz = (int)(p - pprev);
-		else
+
+		left -= sz;
+		sep_offset_prev = sep_offset;
+		sep_offset = tvb_find_guint8(tvb, sep_offset_prev, left,
+					     0xfe);
+		if (sep_offset != -1)
+		    sz = sep_offset - offset + 1;
+		else {
 		    sz = left;
-		msgText2 = g_malloc(sz+1);
-		strncpy(msgText2, pprev, sz);
-		msgText2[sz] = '\0';
-		
-		proto_tree_add_text(subtree, NullTVB,
-				    offset + OFF_MSG_TEXT + done,
-				    sz + svsz + 2,
-				    "%s:%s", msgText, msgText2);
-		n+=2;
-		g_free(msgText2);
+		    last = TRUE;
+		}
+		proto_tree_add_text(subtree, tvb,
+				    offset,
+				    sz + svsz,
+				    "%.*s: %.*s",
+				    svsz - 1,
+				    tvb_get_ptr(tvb, offset, svsz),
+				    sz - 1,
+				    tvb_get_ptr(tvb, sep_offset_prev + 1, sz));
+		n += 2;
 	    }
 	    
 	    left -= (sz+1);
-	    pprev = p+1;
+	    offset = sep_offset + 1;
 	}
-	if (msgText != NULL)
-	    g_free(msgText);
 	break;
-    }}
+    }
+    }
 }
 
 /*********************************
@@ -930,37 +811,36 @@ icqv5_decode_msgType(proto_tree* tree,
  *********************************/
 static void
 icqv5_cmd_ack(proto_tree* tree,/* Tree to put the data in */
-		     const u_char* pd, /* Packet content */
-		     int offset, /* Offset from the start of the packet to the content */
-		     int size)	/* Number of chars left to do */
+	      tvbuff_t *tvb, /* Tvbuff with decrypted packet data */
+	      int offset) /* Offset from the start of the packet to the content */
 {
-    guint32 random = pletohl(pd + CMD_ACK_RANDOM);
     proto_tree* subtree;
     proto_item* ti;
 
     if (tree){
 	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
-					NullTVB,
+					tvb,
 					offset,
 					4,
 					CMD_ACK,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	proto_tree_add_text(subtree, NullTVB,
+	proto_tree_add_text(subtree, tvb,
 			    offset + CMD_ACK_RANDOM,
 			    4,
-			    "Random: 0x%08x", random);
+			    "Random: 0x%08x",
+			    tvb_get_letohl(tvb, offset + CMD_ACK_RANDOM));
     }
 }
 
 static void
-icqv5_cmd_rand_search(proto_tree* tree,       /* Tree to put the data in */
-		      const u_char* pd,       /* Packet content */
-		      int offset,             /* Offset from the start of the packet to the content */
-		      int size)               /* Number of chars left to do */
+icqv5_cmd_rand_search(proto_tree* tree, /* Tree to put the data in */
+		      tvbuff_t *tvb,    /* Decrypted packet content */
+		      int offset,       /* Offset from the start of the packet to the content */
+		      int size)         /* Number of chars left to do */
 {
-    guint16 group = pletohs(pd + CMD_RAND_SEARCH_GROUP);
+    guint16 group;
     proto_tree* subtree;
     proto_item* ti;
 
@@ -981,19 +861,20 @@ icqv5_cmd_rand_search(proto_tree* tree,       /* Tree to put the data in */
     if (tree){
 	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
-					NullTVB,
+					tvb,
 					offset,
 					4,
 					CMD_RAND_SEARCH,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
+	group = tvb_get_letohs(tvb, offset + CMD_RAND_SEARCH_GROUP);
 	if (group>0 && (group<=sizeof(groups)/sizeof(const char*)))
-	    proto_tree_add_text(subtree, NullTVB,
+	    proto_tree_add_text(subtree, tvb,
 				offset + CMD_RAND_SEARCH_GROUP,
 				4,
 				"Group: (%u) %s", group, groups[group-1]);
 	else
-	    proto_tree_add_text(subtree, NullTVB,
+	    proto_tree_add_text(subtree, tvb,
 				offset + CMD_RAND_SEARCH_GROUP,
 				4,
 				"Group: (%u)", group);
@@ -1001,51 +882,50 @@ icqv5_cmd_rand_search(proto_tree* tree,       /* Tree to put the data in */
 }
 
 static void
-icqv5_cmd_ack_messages(proto_tree* tree,/* Tree to put the data in */
-		       const u_char* pd,      /* Packet content */
-		       int offset,              /* Offset from the start of the packet to the content */
-		       int size)                  /* Number of chars left to do */
+icqv5_cmd_ack_messages(proto_tree* tree, /* Tree to put the data in */
+		       tvbuff_t *tvb,    /* Decrypted packet content */
+		       int offset)       /* Offset from the start of the packet to the content */
 {
-    guint32 random = pletohl(pd + CMD_ACK_MESSAGES_RANDOM);
     proto_tree* subtree;
     proto_item* ti;
 
     if (tree){
 	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
-					NullTVB,
+					tvb,
 					offset,
 					4,
 					CMD_ACK_MESSAGES,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	proto_tree_add_text(subtree, NullTVB,
+	proto_tree_add_text(subtree, tvb,
 			    offset + CMD_ACK_MESSAGES_RANDOM,
 			    4,
-			    "Random: 0x%08x", random);
+			    "Random: 0x%08x",
+			    tvb_get_letohl(tvb, offset + CMD_ACK_MESSAGES_RANDOM));
     }
 }
 
 static void
-icqv5_cmd_keep_alive(proto_tree* tree,/* Tree to put the data in */
-		       const u_char* pd,      /* Packet content */
-		       int offset,              /* Offset from the start of the packet to the content */
-		       int size)                  /* Number of chars left to do */
+icqv5_cmd_keep_alive(proto_tree* tree, /* Tree to put the data in */
+		     tvbuff_t *tvb,    /* Decrypted packet content */
+		     int offset)       /* Offset from the start of the packet to the content */
 {
-    guint32 random = pletohl(pd + CMD_KEEP_ALIVE_RANDOM);
+    guint32 random;
     proto_tree* subtree;
     proto_item* ti;
 
     if (tree){
 	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
-					NullTVB,
+					tvb,
 					offset,
 					4,
 					CMD_KEEP_ALIVE,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	proto_tree_add_text(subtree, NullTVB,
+	random = tvb_get_letohl(tvb, offset + CMD_KEEP_ALIVE_RANDOM);
+	proto_tree_add_text(subtree, tvb,
 			    offset + CMD_KEEP_ALIVE_RANDOM,
 			    4,
 			    "Random: 0x%08x", random);
@@ -1053,62 +933,50 @@ icqv5_cmd_keep_alive(proto_tree* tree,/* Tree to put the data in */
 }
 
 static void
-icqv5_cmd_send_text_code(proto_tree* tree,/* Tree to put the data in */
-			 const u_char* pd,      /* Packet content */
-			 int offset,              /* Offset from the start of the packet to the content */
-			 int size)                  /* Number of chars left to do */
+icqv5_cmd_send_text_code(proto_tree* tree, /* Tree to put the data in */
+			 tvbuff_t *tvb,    /* Decrypted packet content */
+			 int offset,       /* Offset from the start of the packet to the content */
+			 int size)         /* Number of chars left to do */
 {
     proto_tree* subtree = NULL;
     proto_item* ti = NULL;
     guint16 len = 0;
     guint16 x1 = -1;
-    char* text;
-    int left = size;		/* The amount of data left to analyse */
 
     if (tree){
 	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
-					NullTVB,
+					tvb,
 					offset,
-					left,
+					size,
 					CMD_KEEP_ALIVE,
 					"Body");
     }
 
-    if (left<sizeof(guint16))
-	return;
-    len = pletohs(pd+CMD_SEND_TEXT_CODE_LEN);
-    left -= sizeof(gint16);
+    len = tvb_get_letohs(tvb, offset+CMD_SEND_TEXT_CODE_LEN);
     if (tree){
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	proto_tree_add_text(subtree, NullTVB,
+	proto_tree_add_text(subtree, tvb,
 			    offset + CMD_SEND_TEXT_CODE_LEN,
 			    2,
 			    "Length: %d", len);
     }
 
     if (len>0) {
-	len = MIN(len, left);
-	text = g_malloc(len+1);
-	memcpy(text, pd + CMD_SEND_TEXT_CODE_TEXT, len);
-	text[len] = '\0';
-	left -= len;
 	if (tree){
-	    proto_tree_add_text(subtree, NullTVB,
+	    proto_tree_add_text(subtree, tvb,
 			    offset + CMD_SEND_TEXT_CODE_TEXT,
 			    len,
-			    "Text: %s",text);
+			    "Text: %.*s",
+			    len,
+			    tvb_get_ptr(tvb, offset + CMD_SEND_TEXT_CODE_TEXT,
+			    		len));
 	}
-	g_free(text);
     }
 
-    if (left<sizeof(gint16))
-	return;
-
-    x1 = pletohs(pd + size - left);
-    left -= sizeof(gint16);
+    x1 = tvb_get_letohs(tvb, offset + CMD_SEND_TEXT_CODE_TEXT + len);
     if (tree){
-	proto_tree_add_text(subtree, NullTVB,
+	proto_tree_add_text(subtree, tvb,
 			    offset + CMD_SEND_TEXT_CODE_TEXT + len,
 			    2,
 			    "X1: 0x%04x", x1);
@@ -1116,26 +984,25 @@ icqv5_cmd_send_text_code(proto_tree* tree,/* Tree to put the data in */
 }
 
 static void
-icqv5_cmd_add_to_list(proto_tree* tree,/* Tree to put the data in */
-		      const u_char* pd,      /* Packet content */
-		      int offset,            /* Offset from the start of the packet to the content */
-		      int size)              /* Number of chars left to do */
+icqv5_cmd_add_to_list(proto_tree* tree, /* Tree to put the data in */
+		      tvbuff_t *tvb,    /* Decrypted packet content */
+		      int offset)       /* Offset from the start of the packet to the content */
 {
     guint32 uin = -1;
     proto_tree* subtree;
     proto_item* ti;
-    if (size>=4)
-	uin = pletohl(pd + CMD_ADD_TO_LIST);
+
     if (tree){
 	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
-					NullTVB,
+					tvb,
 					offset,
 					4,
 					CMD_ADD_TO_LIST,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	proto_tree_add_text(subtree, NullTVB,
+	uin = tvb_get_letohl(tvb, offset + CMD_ADD_TO_LIST);
+	proto_tree_add_text(subtree, tvb,
 			    offset + CMD_ADD_TO_LIST_UIN,
 			    4,
 			    "UIN: %u", uin);
@@ -1143,192 +1010,148 @@ icqv5_cmd_add_to_list(proto_tree* tree,/* Tree to put the data in */
 }
 
 static void
-icqv5_cmd_status_change(proto_tree* tree,/* Tree to put the data in */
-			const u_char* pd,       /* Packet content */
-			int offset,                /* Offset from the start of the packet to the content */
-			int size)                     /* Number of chars left to do */
+icqv5_cmd_status_change(proto_tree* tree, /* Tree to put the data in */
+		        tvbuff_t *tvb,    /* Decrypted packet content */
+			int offset)       /* Offset from the start of the packet to the content */
 {
-    guint32 status = -1;
+    guint32 status;
     proto_tree* subtree;
     proto_item* ti;
 
-    if (size >= CMD_STATUS_CHANGE_STATUS + 4)
-	status = pletohl(pd + CMD_STATUS_CHANGE_STATUS);
     if (tree){
 	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
-					NullTVB,
+					tvb,
 					offset,
 					4,
 					CMD_STATUS_CHANGE,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	if (status!=-1)
-	    proto_tree_add_text(subtree, NullTVB,
-				offset + CMD_STATUS_CHANGE_STATUS,
-				4,
-				"Status: %08x (%s)", status, findStatus(status));
+	status = tvb_get_letohl(tvb, offset + CMD_STATUS_CHANGE_STATUS);
+	proto_tree_add_text(subtree, tvb,
+			    offset + CMD_STATUS_CHANGE_STATUS,
+			    4,
+			    "Status: %08x (%s)", status, findStatus(status));
     }
 }
 
 static void
 icqv5_cmd_send_msg(proto_tree* tree,
-		   const u_char* pd,
+		   tvbuff_t *tvb,
 		   int offset,
 		   int size,
 		   int cmd)
 {
     proto_tree* subtree;
     proto_item* ti;
-    guint32 receiverUIN = 0xffffffff;
-    guint16 msgType = 0xffff;
-    guint16 msgLen = 0xffff;
     int left = size;		/* left chars to do */
-    
-    if (left < 4)
-	return;
-    receiverUIN = pletohl(pd + CMD_SEND_MSG_RECV_UIN);
-    left -= 4;
-    if (left < 2) 
-	return;
-    msgType = pletohs(pd + CMD_SEND_MSG_MSG_TYPE);
-    left -= 2;
-    if (left < 2) 
-	return;
-    msgLen = pletohs(pd + CMD_SEND_MSG_MSG_LEN);
-    left -= 2;
 
     if (tree) {
 	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
-					NullTVB,
+					tvb,
 					offset,
 					size,
 					cmd,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	proto_tree_add_text(subtree, NullTVB,
+	proto_tree_add_text(subtree, tvb,
 			    offset + CMD_SEND_MSG_RECV_UIN,
 			    4,
-			    "Receiver UIN: %u", receiverUIN);
-	proto_tree_add_text(subtree, NullTVB,
-			    offset + CMD_SEND_MSG_MSG_LEN,
-			    2,
-			    "Length: %u", msgLen);
+			    "Receiver UIN: %u",
+			    tvb_get_letohl(tvb, offset + CMD_SEND_MSG_RECV_UIN));
+	left -= 4;
 
 	icqv5_decode_msgType(subtree,
-			     pd + CMD_SEND_MSG_MSG_TYPE,
+			     tvb,
 			     offset + CMD_SEND_MSG_MSG_TYPE,
-			     left+4); /* There are 4 bytes more... */
+			     left);
     }
 }
 
 static void
 icqv5_cmd_login(proto_tree* tree,
-		const u_char* pd,
+		tvbuff_t *tvb,
 		int offset,
 		int size)
 {
     proto_item* ti;
     proto_tree* subtree;
-    time_t theTime = -1;
-    guint32 port = -1;
-    guint32 passwdLen = -1;
-    char* password = NULL;
-    const u_char *ipAddrp = NULL;
-    guint32 status = -1;
-    guint32 left = size;
+    time_t theTime;
+    char *aTime;
+    guint32 port;
+    guint32 passwdLen;
+    const u_char *ipAddrp;
+    guint32 status;
 
-    if (left>=4) {
-	theTime = pletohl(pd + CMD_LOGIN_TIME);
-    }
-    if (left>=8) {
-	port = pletohl(pd + CMD_LOGIN_PORT);
-    }
-    if (left>=10) {
-	passwdLen = pletohs(pd + CMD_LOGIN_PASSLEN);
-    }
-    if (left>=10+passwdLen) {
-	password = g_malloc(passwdLen + 1);
-	strncpy(password, pd + CMD_LOGIN_PASSWD, passwdLen);
-	password[passwdLen] = '\0';
-    }
-
-    if (left>=10+passwdLen+CMD_LOGIN_IP+4) {
-	ipAddrp = pd + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_IP;
-    }
-    if (left>=10+passwdLen+CMD_LOGIN_STATUS+4) {
-	status = pletohs(pd + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_STATUS);
-    }
     if (tree) {
 	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
-					NullTVB,
+					tvb,
 					offset,
 					size,
 					CMD_SEND_MSG,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	if (theTime!=-1) {
-	    char *aTime = ctime(&theTime);
-
-	    aTime[strlen(aTime)-1] = '\0';
-	    proto_tree_add_text(subtree, NullTVB,
-				offset + CMD_LOGIN_TIME,
-				4,
-				"Time: %ld = %s", (long)theTime, aTime);
-	}
-	if (port!=-1)
-	    proto_tree_add_text(subtree, NullTVB,
-				offset + CMD_LOGIN_PORT,
-				4,
-				"Port: %u", port);
-	if ((passwdLen!=-1) && (password!=NULL))
-	    proto_tree_add_text(subtree, NullTVB,
-				offset + CMD_LOGIN_PASSLEN,
-				2 + passwdLen,
-				"Passwd: %s", password);
-	if (ipAddrp!=NULL)
-	    proto_tree_add_text(subtree, NullTVB,
-				offset + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_IP,
-				4,
-				"IP: %s", ip_to_str(ipAddrp));
-	if (status!=-1)
-	    proto_tree_add_text(subtree, NullTVB,
-				offset + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_STATUS,
-				4,
-				"Status: %s", findStatus(status));
+	theTime = tvb_get_letohl(tvb, offset + CMD_LOGIN_TIME);
+	aTime = ctime(&theTime);
+	aTime[strlen(aTime)-1] = '\0';
+	proto_tree_add_text(subtree, tvb,
+			    offset + CMD_LOGIN_TIME,
+			    4,
+			    "Time: %ld = %s", (long)theTime, aTime);
+	port = tvb_get_letohl(tvb, offset + CMD_LOGIN_PORT);
+	proto_tree_add_text(subtree, tvb,
+			    offset + CMD_LOGIN_PORT,
+			    4,
+			    "Port: %u", port);
+	passwdLen = tvb_get_letohs(tvb, offset + CMD_LOGIN_PASSLEN);
+	proto_tree_add_text(subtree, tvb,
+			    offset + CMD_LOGIN_PASSLEN,
+			    2 + passwdLen,
+			    "Passwd: %.*s",
+			    (int)passwdLen,
+			    tvb_get_ptr(tvb, offset + CMD_LOGIN_PASSWD,
+					passwdLen));
+	ipAddrp = tvb_get_ptr(tvb,
+			offset + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_IP,
+			4);
+	proto_tree_add_text(subtree, tvb,
+			    offset + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_IP,
+			    4,
+			    "IP: %s", ip_to_str(ipAddrp));
+	status = tvb_get_letohs(tvb,
+	    offset + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_STATUS);
+	proto_tree_add_text(subtree, tvb,
+			    offset + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_STATUS,
+			    4,
+			    "Status: %s", findStatus(status));
     }
-    if (password!=NULL)
-	g_free(password);
 }
 
 static void
 icqv5_cmd_contact_list(proto_tree* tree,
-		       const u_char* pd,
+		       tvbuff_t *tvb,
 		       int offset,
 		       int size)
 {
     proto_tree* subtree;
     proto_item* ti;
-    unsigned char num = -1;
-    int i, left;
+    unsigned char num;
+    int i;
     guint32 uin;
-    const u_char* p = NULL;
-
-    if (size >= CMD_CONTACT_LIST_NUM + 1) 
-	num = pd[CMD_CONTACT_LIST_NUM];
 
     if (tree) {
 	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
-					NullTVB,
+					tvb,
 					offset,
 					size,
 					CMD_CONTACT_LIST,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	proto_tree_add_text(subtree, NullTVB,
+	num = tvb_get_guint8(tvb, offset + CMD_CONTACT_LIST_NUM);
+	proto_tree_add_text(subtree, tvb,
 			    offset + CMD_CONTACT_LIST,
 			    1,
 			    "Number of uins: %u", num);
@@ -1336,28 +1159,21 @@ icqv5_cmd_contact_list(proto_tree* tree,
 	 * A sequence of num times UIN follows
 	 */
 	offset += (CMD_CONTACT_LIST_NUM + 1);
-	left = size;
-	p = &pd[CMD_CONTACT_LIST_NUM + 1];
-	for (i = 0; (i<num) && (left>0);i++) {
-	    if (left>=4) {
-		uin = pletohl(p);
-		proto_tree_add_text(subtree, NullTVB,
-				    offset,
-				    4,
-				    "UIN[%d]: %u",i,uin);
-		p += 4;
-		offset += 4;
-		left -= 4;
-	    }
+	for (i = 0; i < num; i++) {
+	    uin = tvb_get_letohl(tvb, offset);
+	    proto_tree_add_text(subtree, tvb,
+				offset,
+				4,
+				"UIN[%d]: %u", i ,uin);
+	    offset += 4;
 	}
     }
 }
 
 static void
-icqv5_cmd_no_params(proto_tree* tree,/* Tree to put the data in */
-		    const u_char* pd,      /* Packet content */
-		    int offset,            /* Offset from the start of the packet to the content */
-		    int size,              /* Number of chars left to do */
+icqv5_cmd_no_params(proto_tree* tree, /* Tree to put the data in */
+		    tvbuff_t *tvb,    /* Decrypted packet content */
+		    int offset,       /* Offset from the start of the packet to the content */
 		    int cmd)
 {
     proto_tree* subtree;
@@ -1366,13 +1182,13 @@ icqv5_cmd_no_params(proto_tree* tree,/* Tree to put the data in */
     if (tree){
 	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
-					NullTVB,
+					tvb,
 					offset,
 					0,
 					cmd,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	proto_tree_add_text(subtree, NullTVB,
+	proto_tree_add_text(subtree, tvb,
 			    offset,
 			    0,
 			    "No parameters");
@@ -1386,10 +1202,10 @@ icqv5_cmd_no_params(proto_tree* tree,/* Tree to put the data in */
  **********************
  */
 static void
-icqv5_srv_no_params(proto_tree* tree,/* Tree to put the data in */
-		    const u_char* pd,      /* Packet content */
-		    int offset,            /* Offset from the start of the packet to the content */
-		    int size,              /* Number of chars left to do */
+icqv5_srv_no_params(proto_tree* tree, /* Tree to put the data in */
+		    tvbuff_t *tvb,    /* Packet content */
+		    int offset,       /* Offset from the start of the packet to the content */
+		    int size,         /* Number of chars left to do */
 		    int cmd)
 {
     proto_tree* subtree;
@@ -1398,13 +1214,13 @@ icqv5_srv_no_params(proto_tree* tree,/* Tree to put the data in */
     if (tree){
 	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
-					NullTVB,
+					tvb,
 					offset,
 					0,
 					cmd,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	proto_tree_add_text(subtree, NullTVB,
+	proto_tree_add_text(subtree, tvb,
 			    offset,
 			    0,
 			    "No Parameters");
@@ -1413,27 +1229,25 @@ icqv5_srv_no_params(proto_tree* tree,/* Tree to put the data in */
 
 static void
 icqv5_srv_login_reply(proto_tree* tree,/* Tree to put the data in */
-		      const u_char* pd,       /* Packet content */
-		      int offset,                /* Offset from the start of the packet to the content */
-		      int size)                     /* Number of chars left to do */
+		      tvbuff_t *tvb,   /* Tvbuff with packet */
+		      int offset,      /* Offset from the start of the packet to the content */
+		      int size)        /* Number of chars left to do */
 {
     proto_tree* subtree;
     proto_item* ti;
-    const u_char *ipAddrp = NULL;
-
-    if (size >= SRV_LOGIN_REPLY_IP + 4) 
-	ipAddrp = &pd[SRV_LOGIN_REPLY_IP];
+    const u_char *ipAddrp;
 
     if (tree) {
 	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
-					NullTVB,
+					tvb,
 					offset,
 					SRV_LOGIN_REPLY_IP + 8,
 					SRV_LOGIN_REPLY,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	proto_tree_add_text(subtree, NullTVB,
+	ipAddrp = tvb_get_ptr(tvb, offset + SRV_LOGIN_REPLY_IP, 4);
+	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_LOGIN_REPLY_IP,
 			    4,
 			    "IP: %s", ip_to_str(ipAddrp));
@@ -1442,134 +1256,113 @@ icqv5_srv_login_reply(proto_tree* tree,/* Tree to put the data in */
 
 static void
 icqv5_srv_user_online(proto_tree* tree,/* Tree to put the data in */
-		      const u_char* pd,       /* Packet content */
-		      int offset,                /* Offset from the start of the packet to the content */
-		      int size)                     /* Number of chars left to do */
+		      tvbuff_t *tvb,   /* Tvbuff with packet */
+		      int offset,      /* Offset from the start of the packet to the content */
+		      int size)        /* Number of chars left to do */
 {
     proto_tree* subtree;
     proto_item* ti;
-    guint32 uin = -1;
-    const u_char *ipAddrp = NULL;
-    guint32 port = -1;
-    const u_char *realipAddrp = NULL;
-    guint32 status = -1;
-    guint32 version = -1;
-
-    if (size >= SRV_USER_ONL_UIN + 4)
-	uin = pletohl(pd + SRV_USER_ONL_UIN);
-    
-    if (size >= SRV_USER_ONL_IP + 4) 
-	ipAddrp = &pd[SRV_USER_ONL_IP];
-
-    if (size >= SRV_USER_ONL_PORT + 4)
-	port = pletohl(pd + SRV_USER_ONL_PORT);
-
-    if (size >= SRV_USER_ONL_REALIP + 4)
-	realipAddrp = &pd[SRV_USER_ONL_REALIP];
-
-    if (size >= SRV_USER_ONL_STATUS + 2)
-	status = pletohs(pd + SRV_USER_ONL_STATUS);
-
-    /*
-     * Kojak: Hypothesis is that this field might be an encoding for the
-     * version used by the UIN that changed. To test this, I included
-     * this line to the code.
-     */
-    if (size >= SRV_USER_ONL_X2 + 4)
-	version = pletohl(pd + SRV_USER_ONL_X2);
+    const u_char *ipAddrp;
+    const u_char *realipAddrp;
+    guint32 status;
 
     if (tree) {
 	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
-					NullTVB,
+					tvb,
 					offset,
 					SRV_LOGIN_REPLY_IP + 8,
 					SRV_LOGIN_REPLY,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	proto_tree_add_text(subtree, NullTVB,
+	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_USER_ONL_UIN,
 			    4,
-			    "UIN: %u", uin);
-	proto_tree_add_text(subtree, NullTVB,
+			    "UIN: %u",
+			    tvb_get_letohl(tvb, offset + SRV_USER_ONL_UIN));
+	ipAddrp = tvb_get_ptr(tvb, offset + SRV_USER_ONL_IP, 4);
+	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_USER_ONL_IP,
 			    4,
 			    "IP: %s", ip_to_str(ipAddrp));
-	proto_tree_add_text(subtree, NullTVB,
+	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_USER_ONL_PORT,
 			    4,
-			    "Port: %u", port);
-	proto_tree_add_text(subtree, NullTVB,
+			    "Port: %u",
+			    tvb_get_letohl(tvb, offset + SRV_USER_ONL_PORT));
+	realipAddrp = tvb_get_ptr(tvb, offset + SRV_USER_ONL_REALIP, 4);
+	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_USER_ONL_REALIP,
 			    4,
 			    "RealIP: %s", ip_to_str(realipAddrp));
-	proto_tree_add_text(subtree, NullTVB,
+	status = tvb_get_letohs(tvb, offset + SRV_USER_ONL_STATUS);
+	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_USER_ONL_STATUS,
 			    2,
 			    "Status: %s", findStatus(status));
-	proto_tree_add_text(subtree, NullTVB,
+	/*
+	 * Kojak: Hypothesis is that this field might be an encoding for the
+	 * version used by the UIN that changed. To test this, I included
+	 * this line to the code.
+	 */
+	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_USER_ONL_X2,
 			    4,
-			    "Version: %08x", version);
+			    "Version: %08x",
+			    tvb_get_letohl(tvb, offset + SRV_USER_ONL_X2));
     }
 }
 
 static void
 icqv5_srv_user_offline(proto_tree* tree,/* Tree to put the data in */
-		      const u_char* pd,       /* Packet content */
-		      int offset,                /* Offset from the start of the packet to the content */
-		      int size)                     /* Number of chars left to do */
+		      tvbuff_t *tvb,    /* Tvbuff with packet */
+		      int offset,       /* Offset from the start of the packet to the content */
+		      int size)         /* Number of chars left to do */
 {
     proto_tree* subtree;
     proto_item* ti;
-    guint32 uin = -1;
-
-    if (size >= SRV_USER_OFFLINE + 4) 
-	uin = pletohl(&pd[SRV_USER_OFFLINE]);
 
     if (tree) {
 	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
-					NullTVB,
+					tvb,
 					offset,
 					SRV_USER_OFFLINE_UIN + 4,
 					SRV_USER_OFFLINE,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	proto_tree_add_text(subtree, NullTVB,
+	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_USER_OFFLINE_UIN,
 			    4,
-			    "UIN: %u", uin);
+			    "UIN: %u",
+			    tvb_get_letohl(tvb, offset + SRV_USER_OFFLINE));
     }
 }
 
 static void
-icqv5_srv_multi(proto_tree* tree,/* Tree to put the data in */
-		const u_char* pd,      /* Packet content */
-		int offset,            /* Offset from the start of the packet to the content */
-		int size,              /* Number of chars left to do */
-		frame_data* fd)
+icqv5_srv_multi(proto_tree* tree, /* Tree to put the data in */
+		tvbuff_t *tvb,    /* Packet content */
+		int offset,       /* Offset from the start of the packet to the content */
+		int size,         /* Number of chars left to do */
+		packet_info* pinfo)
 {
     proto_tree* subtree;
     proto_item* ti;
     unsigned char num = -1;
     guint16 pktSz;
     int i, left;
-    const u_char* p = NULL;
-
-    if (size >= SRV_MULTI_NUM + 1) 
-	num = pd[SRV_MULTI_NUM];
 
     if (tree) {
 	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
-					NullTVB,
+					tvb,
 					offset,
 					size,
 					SRV_MULTI,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	proto_tree_add_text(subtree, NullTVB,
+	num = tvb_get_guint8(tvb, offset + SRV_MULTI_NUM);
+	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_MULTI_NUM,
 			    1,
 			    "Number of pkts: %u", num);
@@ -1578,16 +1371,13 @@ icqv5_srv_multi(proto_tree* tree,/* Tree to put the data in */
 	 */
 	offset += (SRV_MULTI_NUM + 1);
 	left = size;
-	p = &pd[SRV_MULTI_NUM + 1];
 	for (i = 0; (i<num) && (left>0);i++) {
 	    if (left>=2) {
-		pktSz = pletohs(p);
-		p += 2;
+		pktSz = tvb_get_letohs(tvb, offset);
 		offset += 2;
 		left -= 2;
 		if (left>=pktSz) {
-		    dissect_icqv5Server(p, offset, fd, subtree, pktSz);
-		    p += pktSz;
+		    dissect_icqv5Server(tvb, offset, pinfo, subtree, pktSz);
 		    offset += pktSz;
 		    left -= pktSz;
 		}
@@ -1597,10 +1387,10 @@ icqv5_srv_multi(proto_tree* tree,/* Tree to put the data in */
 }
 
 static void
-icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
-		    const u_char* pd,      /* Packet content */
-		    int offset,            /* Offset from the start of the packet to the content */
-		    int size)              /* Number of chars left to do */
+icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
+		    tvbuff_t *tvb,    /* Tvbuff with packet */
+		    int offset,       /* Offset from the start of the packet to the content */
+		    int size)         /* Number of chars left to do */
 {
 #if 0
     proto_tree* subtree = NULL;
@@ -1608,42 +1398,39 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
     proto_tree* sstree = NULL;
     proto_item* ti = NULL;
     int left = size;
-    const char* p = pd;
-
-    guint16 subcmd = -1;
-    unsigned char result = -1;
-
-    if (size>=SRV_META_USER_SUBCMD + 2)
-	subcmd = pletohs(pd+SRV_META_USER_SUBCMD);
-    if (size>=SRV_META_USER_RESULT + 1)
-	result = pd[SRV_META_USER_RESULT];
+    guint16 subcmd;
+    unsigned char result;
 
     if (tree) {
 #if 0
 	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
-					NullTVB,
+					tvb,
 					offset,
 					size,
 					SRV_META_USER,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	ti = proto_tree_add_text(subtree, NullTVB,
+	subcmd = tvb_get_letohs(tvb, offset + SRV_META_USER_SUBCMD);
+	ti = proto_tree_add_text(subtree, tvb,
 				 offset + SRV_META_USER_SUBCMD,
 				 2,
 				 "%s", findSubCmd(subcmd));
-	proto_tree_add_text(subtree, NullTVB,
+	result = tvb_get_guint8(tvb, offset + SRV_META_USER_RESULT);
+	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_META_USER_RESULT,
 			    1,
 			    "%s", (result==0x0a)?"Success":"Failure");
 	sstree = proto_item_add_subtree(ti, ett_icq_body_parts);
 #else
-	ti = proto_tree_add_text(tree, NullTVB,
+	subcmd = tvb_get_letohs(tvb, offset + SRV_META_USER_SUBCMD);
+	ti = proto_tree_add_text(tree, tvb,
 				 offset + SRV_META_USER_SUBCMD,
 				 2,
 				 "%s", findSubCmd(subcmd));
 	sstree = proto_item_add_subtree(ti, ett_icq_body_parts);
-	proto_tree_add_text(sstree, NullTVB,
+	result = tvb_get_guint8(tvb, offset + SRV_META_USER_RESULT);
+	proto_tree_add_text(sstree, tvb,
 			    offset + SRV_META_USER_RESULT,
 			    1,
 			    "%s", (result==0x0a)?"Success":"Failure");
@@ -1651,7 +1438,7 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 
 	/* Skip the META_USER header */
 	left -= 3;
-	p += 3;
+	offset += 3;
 
 	switch(subcmd) {
 	case META_EX_USER_FOUND:
@@ -1661,14 +1448,14 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 	     */
 	    guint16 pktLen = -1;
 
-	    /* Read the lenght field */
-	    pktLen = pletohs(p);
-	    proto_tree_add_text(sstree, NullTVB,
-				offset + size - left,
+	    /* Read the length field */
+	    pktLen = tvb_get_letohs(tvb, offset);
+	    proto_tree_add_text(sstree, tvb,
+				offset,
 				sizeof(guint16),
 				"Length: %u", pktLen);
 	    
-	    p += sizeof(guint16); left -= sizeof(guint16);
+	    offset += sizeof(guint16); left -= sizeof(guint16);
 	}
 	case META_USER_FOUND:
 	{
@@ -1677,7 +1464,6 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 	     *
 	     * They are used to "implement" a poorman's exception handling
 	     */
-	    guint32 uin = -1;
 	    int len = 0;
 	    char *descr[] = {
 		"Nick",
@@ -1686,80 +1472,62 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 		"Email",
 		NULL};
 	    char** d = descr;
-	    guint16 x2 = -1;
-	    guint32 x3 = -1;
 	    unsigned char auth;
 	    /*
 	     * Read UIN
 	     */
-	    if (left<sizeof(guint32))
-		break;
-	    uin = pletohl(p);
-	    proto_tree_add_text(sstree, NullTVB,
-				offset + size - left,
+	    proto_tree_add_text(sstree, tvb,
+				offset,
 				sizeof(guint32),
-				"UIN: %u", uin);
-	    p+=sizeof(guint32);left-=sizeof(guint32);
+				"UIN: %u",
+				tvb_get_letohl(tvb, offset));
+	    offset+=sizeof(guint32);left-=sizeof(guint32);
 
 	    for ( ; *d!=NULL; d++) {
 		len = proto_add_icq_attr(sstree,
-					 p,
-					 offset + size - left,
-					 left,
+					 tvb,
+					 offset,
 					 *d);
 		if (len == -1)
 		    return;
-		p += len; left -= len;
+		offset += len; left -= len;
 	    }
 	    /* Get the authorize setting */
-	    if (left<sizeof(unsigned char))
-		break;
-	    auth = *p;
-	    proto_tree_add_text(sstree, NullTVB,
-				offset + size - left,
-				sizeof(guint16),
+	    auth = tvb_get_guint8(tvb, offset);
+	    proto_tree_add_text(sstree, tvb,
+				offset,
+				1,
 				"authorization: %s", (auth==0x01)?"Neccessary":"Who needs it");
-	    p++; left--;
+	    offset++; left--;
 	    /* Get x2 */
-	    if (left<sizeof(guint16))
-		break;
-	    x2 = pletohs(p);
-	    proto_tree_add_text(sstree, NullTVB,
-				offset + size - left,
+	    proto_tree_add_text(sstree, tvb,
+				offset,
 				sizeof(guint16),
-				"x2: %04x", x2);
-	    p+=sizeof(guint16);left-=sizeof(guint16);
+				"x2: 0x%04x",
+				tvb_get_letohs(tvb, offset));
+	    offset+=sizeof(guint16);left-=sizeof(guint16);
 	    /* Get x3 */
-	    if (left<sizeof(guint32))
-		break;
-	    x3 = pletohl(p);
-	    proto_tree_add_text(sstree, NullTVB,
-				offset + size - left,
+	    proto_tree_add_text(sstree, tvb,
+				offset,
 				sizeof(guint32),
-				"x3: %08x", x3);
-	    p+=sizeof(guint32);left-=sizeof(guint32);
+				"x3: 0x%08x",
+				tvb_get_letohl(tvb, offset));
+	    offset+=sizeof(guint32);left-=sizeof(guint32);
 	    break;
 	}
 	case META_ABOUT:
 	{
 	    int len;
-	    char* about = NULL;
+
 	    /* Get the about information */
-	    if (left<sizeof(guint16))
-		break;
-	    len = pletohs(p);
-	    p+=sizeof(guint16);left-=sizeof(guint16);
-	    if ((len<=0) || (left<len))
-		break;
-	    about = g_malloc(len);
-	    strncpy(about, p, len);
-	    proto_tree_add_text(sstree, NullTVB,
-				offset + size - left,
+	    len = tvb_get_letohs(tvb, offset);
+	    offset+=sizeof(guint16);left-=sizeof(guint16);
+	    proto_tree_add_text(sstree, tvb,
+				offset - sizeof(guint16),
 				sizeof(guint16)+len,
-				"About(%d): %s", len, about);
-	    p+=len;left-=len;
-	    left -= 3;
-	    g_free(about);
+				"About(%d): %.*s", len,
+				len, tvb_get_ptr(tvb, offset, len));
+	    offset+=len;left-=len;
 	    break;
 	}
 	case META_USER_INFO:
@@ -1785,93 +1553,75 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 		"Zip",
 		NULL};
 	    const char** d = descr;
-	    char* item = NULL;
 	    guint16 country;
 	    unsigned char user_timezone = -1;
 	    unsigned char auth = -1;
 	    int len = 0;
 #if 0
 	    /* Get the uin */
-	    if (left<sizeof(guint32))
-		break;
-	    uin = pletohl(p);
-	    proto_tree_add_text(sstree, NullTVB,
-				offset + size - left,
+	    uin = tvb_get_letohl(tvb, offset);
+	    proto_tree_add_text(sstree, tvb,
+				offset,
 				sizeof(guint32),
 				"UIN: %u", uin);
-	    p+=sizeof(guint32);left-=sizeof(guint32);
+	    offset+=sizeof(guint32);left-=sizeof(guint32);
 #endif
 	    
 	    /*
 	     * Get every field from the description
 	     */
 	    while ((*d)!=NULL) {
-		if (left<sizeof(guint16))
-		    break;
-		len = pletohs(p);
-		p+=sizeof(guint16);left-=sizeof(guint16);
-		if ((len<0) || (left<len))
-		    break;
+		len = tvb_get_letohs(tvb, offset);
+		offset+=sizeof(guint16);left-=sizeof(guint16);
 		if (len>0) {
-		    item = g_malloc(len);
-		    strncpy(item, p, len);
-		    proto_tree_add_text(sstree, NullTVB,
-					offset + size - left - sizeof(guint16),
+		    proto_tree_add_text(sstree, tvb,
+					offset - sizeof(guint16),
 					sizeof(guint16)+len,
-					"%s(%d): %s",*d, len, item);
-		    g_free(item);
-		    p+=len;left-=len;
+					"%s(%d): %.*s",*d, len,
+					len - 1,
+					tvb_get_ptr(tvb, offset, len - 1));
+		    offset+=len;left-=len;
 		}
 		d++;
 	    }
 	    /* Get country code */
-	    if (left<sizeof(guint16))
-		break;
-	    country = pletohs(p);
-	    proto_tree_add_text(sstree, NullTVB,
-				offset + size - left,
+	    country = tvb_get_letohs(tvb, offset);
+	    proto_tree_add_text(sstree, tvb,
+				offset,
 				sizeof(guint16),
 				"Countrycode: %u", country);
-	    p+=sizeof(guint16); left-=sizeof(guint16);
+	    offset+=sizeof(guint16); left-=sizeof(guint16);
 	    /* Get the timezone setting */
-	    if (left<sizeof(unsigned char))
-		break;
-	    user_timezone = *p;
-	    proto_tree_add_text(sstree, NullTVB,
-				offset + size - left,
+	    user_timezone = tvb_get_guint8(tvb, offset);
+	    proto_tree_add_text(sstree, tvb,
+				offset,
 				sizeof(unsigned char),
 				"Timezone: %u", user_timezone);
-	    p++; left--;
+	    offset++; left--;
 	    /* Get the authorize setting */
-	    if (left<sizeof(unsigned char))
-		break;
-	    auth = *p;
-	    proto_tree_add_text(sstree, NullTVB,
-				offset + size - left,
+	    auth = tvb_get_guint8(tvb, offset);
+	    proto_tree_add_text(sstree, tvb,
+				offset,
 				sizeof(unsigned char),
 				"Authorization: (%u) %s",
 				auth, (auth==0)?"No":"Yes");
-	    p++; left--;
+	    offset++; left--;
 	    /* Get the webaware setting */
-	    if (left<sizeof(unsigned char))
-		break;
-	    auth = *p;
-	    proto_tree_add_text(sstree, NullTVB,
-				offset + size - left,
+	    auth = tvb_get_guint8(tvb, offset);
+	    proto_tree_add_text(sstree, tvb,
+				offset,
 				sizeof(unsigned char),
 				"Webaware: (%u) %s",
 				auth, (auth==0)?"No":"Yes");
-	    p++; left--;
+	    offset++; left--;
 	    /* Get the authorize setting */
-	    if (left<sizeof(unsigned char))
-		break;
-	    auth = *p;
-	    proto_tree_add_text(sstree, NullTVB,
-				offset + size - left,
+	    auth = tvb_get_guint8(tvb, offset);
+	    proto_tree_add_text(sstree, tvb,
+				offset,
 				sizeof(unsigned char),
 				"HideIP: (%u) %s",
 				auth, (auth==0)?"No":"Yes");
-	    p++; left--;
+	    offset++; left--;
 	    break;
 	}
 	default:
@@ -1883,10 +1633,10 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 }
 
 static void
-icqv5_srv_recv_message(proto_tree* tree,      /* Tree to put the data in */
-		       const u_char* pd,      /* Packet content */
-		       int offset,            /* Offset from the start of the packet to the content */
-		       int size)              /* Number of chars left to do */
+icqv5_srv_recv_message(proto_tree* tree, /* Tree to put the data in */
+		       tvbuff_t* tvb,    /* Packet content */
+		       int offset,       /* Offset from the start of the packet to the content */
+		       int size)         /* Number of chars left to do */
 {
     proto_tree* subtree = NULL;
     proto_item* ti = NULL;
@@ -1901,42 +1651,33 @@ icqv5_srv_recv_message(proto_tree* tree,      /* Tree to put the data in */
     if (tree) {
 	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
-					NullTVB,
+					tvb,
 					offset,
 					4,
 					SRV_RECV_MESSAGE,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	if (left>=sizeof(guint32)) {
-	    uin = pletohl(pd + SRV_RECV_MSG_UIN);
-	    proto_tree_add_uint_format(subtree,
-				       hf_icq_uin,
-				       NullTVB,
-				       offset + SRV_RECV_MSG_UIN,
-				       sizeof(guint32),
-				       uin,
-				       "UIN: %u", uin);
-	    left -= sizeof(guint32);
-	} else
-	    return;
-	if (left>=(sizeof(guint16)+4*sizeof(unsigned char))) {
-	    year = pletohs(pd + SRV_RECV_MSG_YEAR);
-	    month = pd[SRV_RECV_MSG_MONTH];
-	    day = pd[SRV_RECV_MSG_DAY];
-	    hour = pd[SRV_RECV_MSG_HOUR];
-	    minute = pd[SRV_RECV_MSG_MINUTE];
+	uin = tvb_get_letohl(tvb, offset + SRV_RECV_MSG_UIN);
+	proto_tree_add_uint_format(subtree,
+				   hf_icq_uin,
+				   tvb,
+				   offset + SRV_RECV_MSG_UIN,
+				   sizeof(guint32),
+				   uin,
+				   "UIN: %u", uin);
+	year = tvb_get_letohs(tvb, offset + SRV_RECV_MSG_YEAR);
+	month = tvb_get_guint8(tvb, offset + SRV_RECV_MSG_MONTH);
+	day = tvb_get_guint8(tvb, offset + SRV_RECV_MSG_DAY);
+	hour = tvb_get_guint8(tvb, offset + SRV_RECV_MSG_HOUR);
+	minute = tvb_get_guint8(tvb, offset + SRV_RECV_MSG_MINUTE);
 
-	    proto_tree_add_text(subtree, NullTVB,
-				offset + SRV_RECV_MSG_YEAR,
-				sizeof(guint16) + 4*sizeof(unsigned char),
-				"Time: %u-%u-%u %02u:%02u",
-				day, month, year, hour, minute);
-	    
-	    left -= (sizeof(guint16)+4*sizeof(unsigned char));
-	} else
-	    return;
+	proto_tree_add_text(subtree, tvb,
+			    offset + SRV_RECV_MSG_YEAR,
+			    sizeof(guint16) + 4*sizeof(unsigned char),
+			    "Time: %u-%u-%u %02u:%02u",
+			    day, month, year, hour, minute);
 	icqv5_decode_msgType(subtree,
-			     pd + SRV_RECV_MSG_MSG_TYPE,
+			     tvb,
 			     offset + SRV_RECV_MSG_MSG_TYPE,
 			     left);
     }
@@ -1944,9 +1685,8 @@ icqv5_srv_recv_message(proto_tree* tree,      /* Tree to put the data in */
 
 static void
 icqv5_srv_rand_user(proto_tree* tree,      /* Tree to put the data in */
-		       const u_char* pd,      /* Packet content */
-		       int offset,            /* Offset from the start of the packet to the content */
-		       int size)              /* Number of chars left to do */
+		    tvbuff_t *tvb,         /* Tvbuff with packet */
+		    int offset)            /* Offset from the start of the packet to the content */
 {
     proto_tree* subtree = NULL;
     proto_item* ti = NULL;
@@ -1957,79 +1697,59 @@ icqv5_srv_rand_user(proto_tree* tree,      /* Tree to put the data in */
     unsigned char commClass = -1;
     guint32 status;
     guint16 tcpVer;
-    int left = size;
     
     if (tree) {
 	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
-					NullTVB,
+					tvb,
 					offset,
 					SRV_RAND_USER_TCP_VER + 2,
 					SRV_RAND_USER,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	/* guint32 UIN */
-	if (left<sizeof(guint32))
-	    return;
-	uin = pletohl(pd + SRV_RAND_USER_UIN);
-	proto_tree_add_text(subtree, NullTVB,
+	uin = tvb_get_letohl(tvb, offset + SRV_RAND_USER_UIN);
+	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_RAND_USER_UIN,
 			    sizeof(guint32),
 			    "UIN: %u", uin);
-	left -= sizeof(guint32);
 	/* guint32 IP */
-	if (left<sizeof(guint32))
-	    return;
-	IP = pd + SRV_RAND_USER_IP;
-	proto_tree_add_text(subtree, NullTVB,
+	IP = tvb_get_ptr(tvb, offset + SRV_RAND_USER_IP, 4);
+	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_RAND_USER_IP,
 			    sizeof(guint32),
-			    "IP: %s", ip_to_str(IP));
-	left -= sizeof(guint32);
+			    "IP: %s",
+			    ip_to_str(IP));
 	/* guint32 portNum */
-	if (left<sizeof(guint32))
-	    return;
-	port = pletohs(pd + SRV_RAND_USER_PORT);
-	proto_tree_add_text(subtree, NullTVB,
+	port = tvb_get_letohs(tvb, offset + SRV_RAND_USER_PORT);
+	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_RAND_USER_UIN,
 			    sizeof(guint32),
 			    "Port: %u", port);
-	left -= sizeof(guint32);
-	/* guint32 realIP */			    
-	if (left<sizeof(guint32))
-	    return;
-	realIP = pd + SRV_RAND_USER_REAL_IP;
-	proto_tree_add_text(subtree, NullTVB,
+	/* guint32 realIP */		    
+	realIP = tvb_get_ptr(tvb, offset + SRV_RAND_USER_REAL_IP, 4);
+	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_RAND_USER_REAL_IP,
 			    sizeof(guint32),
 			    "RealIP: %s", ip_to_str(realIP));
-	left -= sizeof(guint32);
 	/* guit16 Communication Class */
-	if (left<sizeof(unsigned char))
-	    return;
-	commClass = pd[SRV_RAND_USER_CLASS];
-	proto_tree_add_text(subtree, NullTVB,
+	commClass = tvb_get_guint8(tvb, offset + SRV_RAND_USER_CLASS);
+	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_RAND_USER_CLASS,
 			    sizeof(unsigned char),
 			    "Class: %s", (commClass!=4)?"User to User":"Through Server");
-	left -= sizeof(unsigned char);
 	/* guint32 status */
-	if (left<sizeof(guint32))
-	    return;
-	status = pletohs(pd + SRV_RAND_USER_STATUS);
-	proto_tree_add_text(subtree, NullTVB,
+	status = tvb_get_letohs(tvb, offset + SRV_RAND_USER_STATUS);
+	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_RAND_USER_STATUS,
 			    sizeof(guint32),
 			    "Status: (%u) %s", status, findStatus(status));
 	/* guint16 tcpVersion */
-	if (left<sizeof(guint16))
-	    return;
-	tcpVer = pletohs(pd + SRV_RAND_USER_TCP_VER);
-	proto_tree_add_text(subtree, NullTVB,
+	tcpVer = tvb_get_letohs(tvb, offset + SRV_RAND_USER_TCP_VER);
+	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_RAND_USER_TCP_VER,
 			    sizeof(guint16),
 			    "TCPVersion: %u", tcpVer);
-	left -= sizeof(guint16);
     }
 }
 
@@ -2037,27 +1757,24 @@ icqv5_srv_rand_user(proto_tree* tree,      /* Tree to put the data in */
  * Dissect all the v5 client traffic. This is encrypted, so be careful.
  */
 static void
-dissect_icqv5Client(const u_char *pd,
-		    int offset,
-		    frame_data *fd, 
+dissect_icqv5Client(tvbuff_t *tvb,
+		    packet_info *pinfo,
 		    proto_tree *tree)
 {
     proto_tree *icq_tree = NULL;
     proto_tree *icq_header_tree = NULL;
-    proto_tree *icq_decode_tree = NULL;
     proto_item *ti = NULL;
 
-    guint16 version = -1, cmd = -1;
-    guint16 seqnum1 = 0 , seqnum2 = 0;
-    guint32 uin = -1, sessionid = -1;
-    guint32 key = -1;
-    guint16 pktsize = -1;		/* The size of the ICQ content */
+    guint16 pktsize;		/* The size of the ICQ content */
+    guint32 key;
+    guint16 cmd;
     static u_char *decr_pd = NULL;	/* Decrypted content */
     static int decr_size = 0;		/* Size of decrypted-content buffer */
+    tvbuff_t *decr_tvb;
     
-    pktsize = END_OF_FRAME;
+    pktsize = tvb_length(tvb);
 
-    if (decr_size == 0 ) {
+    if (decr_size == 0) {
         decr_size = sizeof(u_char) * 128;
 	decr_pd = g_malloc(decr_size);
     }
@@ -2067,29 +1784,30 @@ dissect_icqv5Client(const u_char *pd,
 	decr_pd = g_realloc(decr_pd, decr_size);
     }
     
-    /* First copy the memory, we don't want to overwrite the old content */
-    memcpy(decr_pd, &pd[offset], pktsize);
-    if (pktsize>0x14) {
-	key = get_v5key(decr_pd, pktsize);
-	decrypt_v5(decr_pd, pktsize, key);
-    
-	/* This information only makes sense in the decrypted version */
-	uin = pletohl(&decr_pd[ICQ5_CL_UIN]);
-	cmd = pletohs(&decr_pd[ICQ5_CL_CMD]);
-	sessionid = pletohl(&decr_pd[ICQ5_CL_SESSIONID]);
-	version = pletohs(&decr_pd[ICQ_VERSION]);
-	seqnum1 = pletohs(&decr_pd[ICQ5_CL_SEQNUM1]);
-	seqnum2 = pletohs(&decr_pd[ICQ5_CL_SEQNUM2]);
+    /* Get the encryption key */
+    key = get_v5key(tvb, pktsize);
 
-	if (check_col(fd, COL_INFO))
-	    col_add_fstr(fd, COL_INFO, "ICQv5 %s", findClientCmd(cmd));
-    }
+    /* Make a copy of the packet data, and decrypt it */
+    tvb_memcpy(tvb, decr_pd, 0, pktsize);
+    decrypt_v5(decr_pd, pktsize, key);
+    
+    /* Allocate a new tvbuff, referring to the decrypted data. */
+    decr_tvb = tvb_new_real_data(decr_pd, pktsize, tvb_reported_length(tvb),
+	"Decrypted");
+
+    /* Add the decrypted data to the data source list. */
+    pinfo->fd->data_src = g_slist_append(pinfo->fd->data_src, decr_tvb);
+
+    cmd = tvb_get_letohs(decr_tvb, ICQ5_CL_CMD);
+
+    if (check_col(pinfo->fd, COL_INFO))
+      col_add_fstr(pinfo->fd, COL_INFO, "ICQv5 %s", findClientCmd(cmd));
     
     if (tree) {
         ti = proto_tree_add_protocol_format(tree,
 				 proto_icq,
-				 NullTVB,
-				 offset,
+				 tvb,
+				 0,
 				 pktsize,
 				 "ICQv5 %s (len %u)",
 				 findClientCmd(cmd),
@@ -2097,49 +1815,48 @@ dissect_icqv5Client(const u_char *pd,
         icq_tree = proto_item_add_subtree(ti, ett_icq);
 	ti = proto_tree_add_uint_format(icq_tree,
 					hf_icq_type,
-					NullTVB,
-					offset,
+					tvb,
+					0,
 					ICQ5_CL_HDRSIZE,
 					ICQ5_client,
 					"Header");
 	icq_header_tree = proto_item_add_subtree(ti, ett_icq_header);
 					
-	proto_tree_add_text(icq_header_tree, NullTVB,
-			    offset + ICQ_VERSION,
+	proto_tree_add_text(icq_header_tree, tvb,
+			    ICQ_VERSION,
 			    2,
-			    "Version: %u", version);
-	proto_tree_add_uint_format(icq_header_tree,
-				   hf_icq_uin,
-				   NullTVB,
-				   offset+ICQ5_CL_UIN,
-				   4,
-				   uin,
-				   "UIN: %u (0x%08X)",
-				   uin, uin);
-	proto_tree_add_uint_format(icq_header_tree,
-				   hf_icq_sessionid,
-				   NullTVB,
-				   offset+ICQ5_CL_SESSIONID,
-				   4,
-				   sessionid,
-				   "Session ID: 0x%08x",
-				   sessionid);
-	proto_tree_add_text(icq_header_tree, NullTVB,
-			    offset + ICQ5_CL_CMD,
+			    "Version: %u",
+			    tvb_get_letohs(tvb, ICQ_VERSION));
+	proto_tree_add_item(icq_header_tree,
+			    hf_icq_uin,
+			    tvb,
+			    ICQ5_CL_UIN,
+			    4,
+			    TRUE);
+	proto_tree_add_item(icq_header_tree,
+			    hf_icq_sessionid,
+			    decr_tvb,
+			    ICQ5_CL_SESSIONID,
+			    4,
+			    TRUE);
+	proto_tree_add_text(icq_header_tree, decr_tvb,
+			    ICQ5_CL_CMD,
 			    2,
 			    "Command: %s (%u)", findClientCmd(cmd), cmd);
-	proto_tree_add_text(icq_header_tree, NullTVB,
-			    offset + ICQ5_CL_SEQNUM1,
+	proto_tree_add_text(icq_header_tree, decr_tvb,
+			    ICQ5_CL_SEQNUM1,
 			    2,
-			    "Seq Number 1: 0x%04x", seqnum1);
-	proto_tree_add_text(icq_header_tree, NullTVB,
-			    offset + ICQ5_CL_SEQNUM2,
+			    "Seq Number 1: 0x%04x",
+			    tvb_get_letohs(decr_tvb, ICQ5_CL_SEQNUM1));
+	proto_tree_add_text(icq_header_tree, decr_tvb,
+			    ICQ5_CL_SEQNUM2,
 			    2,
-			    "Seq Number 2: 0x%04x", seqnum2);
+			    "Seq Number 2: 0x%04x",
+			    tvb_get_letohs(decr_tvb, ICQ5_CL_SEQNUM2));
 	proto_tree_add_uint_format(icq_header_tree,
 				   hf_icq_checkcode,
-				   NullTVB,
-				   offset+ICQ5_CL_CHECKCODE,
+				   tvb,
+				   ICQ5_CL_CHECKCODE,
 				   4,
 				   key,
 				   "Key: 0x%08x",
@@ -2147,64 +1864,59 @@ dissect_icqv5Client(const u_char *pd,
 	switch(cmd) {
 	case CMD_ACK:
 	    icqv5_cmd_ack(icq_tree,
-			  decr_pd + ICQ5_CL_HDRSIZE,
-			  offset + ICQ5_CL_HDRSIZE,
-			  pktsize - ICQ5_CL_HDRSIZE);
+			  decr_tvb,
+			  ICQ5_CL_HDRSIZE);
 	    break;
 	case CMD_SEND_MSG:
 	case CMD_MSG_TO_NEW_USER:
 	    icqv5_cmd_send_msg(icq_tree,
-			       decr_pd + ICQ5_CL_HDRSIZE,
-			       offset + ICQ5_CL_HDRSIZE,
+			       decr_tvb,
+			       ICQ5_CL_HDRSIZE,
 			       pktsize - ICQ5_CL_HDRSIZE,
 			       cmd);
 	    break;
 	case CMD_RAND_SEARCH:
 	    icqv5_cmd_rand_search(icq_tree,
-				  decr_pd + ICQ5_CL_HDRSIZE,
-				  offset + ICQ5_CL_HDRSIZE,
+				  decr_tvb,
+				  ICQ5_CL_HDRSIZE,
 				  pktsize - ICQ5_CL_HDRSIZE);
 	    break;
 	case CMD_LOGIN:
 	    icqv5_cmd_login(icq_tree,
-			    decr_pd + ICQ5_CL_HDRSIZE,
-			    offset + ICQ5_CL_HDRSIZE,
+			    decr_tvb,
+			    ICQ5_CL_HDRSIZE,
 			    pktsize - ICQ5_CL_HDRSIZE);
 	    break;
 	case CMD_SEND_TEXT_CODE:
 	    icqv5_cmd_send_text_code(icq_tree,
-				     decr_pd + ICQ5_CL_HDRSIZE,
-				     offset + ICQ5_CL_HDRSIZE,
+				     decr_tvb,
+				     ICQ5_CL_HDRSIZE,
 				     pktsize - ICQ5_CL_HDRSIZE);
 	    break;
 	case CMD_STATUS_CHANGE:
 	    icqv5_cmd_status_change(icq_tree,
-				    decr_pd + ICQ5_CL_HDRSIZE,
-				    offset + ICQ5_CL_HDRSIZE,
-				    pktsize - ICQ5_CL_HDRSIZE);
+				    decr_tvb,
+				    ICQ5_CL_HDRSIZE);
 	    break;
 	case CMD_ACK_MESSAGES:
 	    icqv5_cmd_ack_messages(icq_tree,
-				   decr_pd + ICQ5_CL_HDRSIZE,
-				   offset + ICQ5_CL_HDRSIZE,
-				   pktsize - ICQ5_CL_HDRSIZE);
+				   decr_tvb,
+				   ICQ5_CL_HDRSIZE);
 	    break;
 	case CMD_KEEP_ALIVE:
 	    icqv5_cmd_keep_alive(icq_tree,
-				 decr_pd + ICQ5_CL_HDRSIZE,
-				 offset + ICQ5_CL_HDRSIZE,
-				 pktsize - ICQ5_CL_HDRSIZE);
+				 decr_tvb,
+				 ICQ5_CL_HDRSIZE);
 	    break;
 	case CMD_ADD_TO_LIST:
 	    icqv5_cmd_add_to_list(icq_tree,
-				   decr_pd + ICQ5_CL_HDRSIZE,
-				   offset + ICQ5_CL_HDRSIZE,
-				   pktsize - ICQ5_CL_HDRSIZE);
+				   decr_tvb,
+				   ICQ5_CL_HDRSIZE);
 	    break;
 	case CMD_CONTACT_LIST:
 	    icqv5_cmd_contact_list(icq_tree,
-				   decr_pd + ICQ5_CL_HDRSIZE,
-				   offset + ICQ5_CL_HDRSIZE,
+				   decr_tvb,
+				   ICQ5_CL_HDRSIZE,
 				   pktsize - ICQ5_CL_HDRSIZE);
 	    break;
 	case CMD_META_USER:
@@ -2212,16 +1924,15 @@ dissect_icqv5Client(const u_char *pd,
 	case CMD_QUERY_SERVERS:
 	case CMD_QUERY_ADDONS:
 	    icqv5_cmd_no_params(icq_tree,
-				decr_pd + ICQ5_CL_HDRSIZE,
-				offset + ICQ5_CL_HDRSIZE,
-				pktsize - ICQ5_CL_HDRSIZE,
+				decr_tvb,
+				ICQ5_CL_HDRSIZE,
 				cmd);
 	    break;
 	default:
 	    proto_tree_add_uint_format(icq_tree,
 				       hf_icq_cmd,
-				       NullTVB,
-				       offset+ICQ5_CL_CMD,
+				       decr_tvb,
+				       ICQ5_CL_CMD,
 				       2,
 				       cmd,
 				       "Command: %u (%s)",
@@ -2229,21 +1940,13 @@ dissect_icqv5Client(const u_char *pd,
 	    fprintf(stderr,"Missing: %s\n", findClientCmd(cmd));
 	    break;
 	}
-	ti = proto_tree_add_text(icq_tree, NullTVB,
-				 offset,
-				 pktsize,
-				 "Decoded packet");
-        icq_decode_tree = proto_item_add_subtree(ti,
-						 ett_icq_decode);
-	proto_tree_add_hexdump(icq_decode_tree, offset, decr_pd, pktsize);
-
     }
 }
 
 static void
-dissect_icqv5Server(const u_char *pd,
+dissect_icqv5Server(tvbuff_t *tvb,
 		    int offset,
-		    frame_data *fd, 
+		    packet_info *pinfo,
 		    proto_tree *tree,
 		    guint32 pktsize)
 {
@@ -2251,32 +1954,21 @@ dissect_icqv5Server(const u_char *pd,
     proto_tree *icq_tree = NULL;
     proto_tree *icq_header_tree = NULL;
     proto_item *ti = NULL;
-    const u_char* decr_pd;
     int changeCol = (pktsize==(guint32)-1);
 
-    guint16 version, cmd;
-    guint32 uin, sessionid;
-    guint16 seqnum1, seqnum2;
-    guint32 checkcode;
+    guint16 cmd;
     
-    uin = pletohl(&pd[ICQ5_SRV_UIN]);
-    sessionid = pletohl(&pd[ICQ5_SRV_SESSIONID]);
-    cmd = pletohs(&pd[ICQ5_SRV_CMD]);
-    version = pletohs(&pd[ICQ_VERSION]);
-    checkcode = pletohl(&pd[ICQ5_SRV_CHECKCODE]);
-    seqnum1 = pletohs(&pd[ICQ5_SRV_SEQNUM1]);
-    seqnum2 = pletohs(&pd[ICQ5_SRV_SEQNUM2]);
-    if (pktsize == -1)
-	pktsize = END_OF_FRAME;
-    decr_pd = pd;
-    
-    if (changeCol && check_col(fd, COL_INFO))
-	col_add_fstr(fd, COL_INFO, "ICQv5 %s", findServerCmd(cmd));
+    cmd = tvb_get_letohs(tvb, offset + ICQ5_SRV_CMD);
+    if (changeCol && check_col(pinfo->fd, COL_INFO))
+	col_add_fstr(pinfo->fd, COL_INFO, "ICQv5 %s", findServerCmd(cmd));
 
+    if (pktsize == -1)
+	pktsize = tvb_reported_length(tvb);
+    
     if (tree) {
         ti = proto_tree_add_protocol_format(tree,
 					proto_icq,
-					NullTVB,
+					tvb,
 					offset,
 					pktsize,
 					"ICQv5 %s (len %u)",
@@ -2287,105 +1979,101 @@ dissect_icqv5Server(const u_char *pd,
 
 	ti = proto_tree_add_uint_format(icq_tree,
 					hf_icq_type,
-					NullTVB,
+					tvb,
 					offset,
 					ICQ5_SRV_HDRSIZE,
 					ICQ5_server,
 					"Header");
 	icq_header_tree = proto_item_add_subtree(ti, ett_icq_header);
 					
-	proto_tree_add_text(icq_header_tree, NullTVB,
+	proto_tree_add_text(icq_header_tree, tvb,
 			    offset + ICQ_VERSION,
 			    2,
-			    "Version: %u", version);
-	proto_tree_add_uint_format(icq_header_tree,
-				   hf_icq_sessionid,
-				   NullTVB,
-				   offset+ICQ5_SRV_SESSIONID,
-				   4,
-				   sessionid,
-				   "Session ID: 0x%08x",
-				   sessionid);
-	proto_tree_add_text(icq_header_tree, NullTVB,
+			    "Version: %u",
+			    tvb_get_letohs(tvb, ICQ_VERSION));
+	proto_tree_add_item(icq_header_tree,
+			    hf_icq_sessionid,
+			    tvb,
+			    offset + ICQ5_SRV_SESSIONID,
+			    4,
+			    TRUE);
+	proto_tree_add_text(icq_header_tree, tvb,
 			    offset + ICQ5_SRV_CMD,
 			    2,
 			    "Command: %s (%u)", findServerCmd(cmd), cmd);
-	proto_tree_add_text(icq_header_tree, NullTVB,
+	proto_tree_add_text(icq_header_tree, tvb,
 			    offset + ICQ5_SRV_SEQNUM1,
 			    2,
-			    "Seq Number 1: 0x%04x", seqnum1);
-	proto_tree_add_text(icq_header_tree, NullTVB,
+			    "Seq Number 1: 0x%04x",
+			    tvb_get_letohs(tvb, offset + ICQ5_SRV_SEQNUM1));
+	proto_tree_add_text(icq_header_tree, tvb,
 			    offset + ICQ5_SRV_SEQNUM2,
 			    2,
-			    "Seq Number 2: 0x%04x", seqnum2);
-	proto_tree_add_uint_format(icq_header_tree,
-				   hf_icq_uin,
-				   NullTVB,
-				   offset+ICQ5_SRV_UIN,
-				   4,
-				   uin,
-				   "UIN: %u",
-				   uin);
-	proto_tree_add_uint_format(icq_header_tree,
-				   hf_icq_checkcode,
-				   NullTVB,
-				   offset+ICQ5_SRV_CHECKCODE,
-				   4,
-				   checkcode,
-				   "Checkcode: 0x%08x",
-				   checkcode);
+			    "Seq Number 2: 0x%04x",
+			    tvb_get_letohs(tvb, offset + ICQ5_SRV_SEQNUM2));
+	proto_tree_add_item(icq_header_tree,
+			    hf_icq_uin,
+			    tvb,
+			    offset + ICQ5_SRV_UIN,
+			    4,
+			    TRUE);
+	proto_tree_add_item(icq_header_tree,
+			    hf_icq_checkcode,
+			    tvb,
+			    offset + ICQ5_SRV_CHECKCODE,
+			    4,
+			    TRUE);
 	switch (cmd) {
 	case SRV_RAND_USER:
 	    icqv5_srv_rand_user(icq_tree,
-			       decr_pd + ICQ5_SRV_HDRSIZE,
-			       offset + ICQ5_SRV_HDRSIZE,
-			       pktsize - ICQ5_SRV_HDRSIZE);
+			       tvb,
+			       offset + ICQ5_SRV_HDRSIZE);
 	    break;
 	case SRV_SYS_DELIVERED_MESS:
 	    /* The message structures are all the same. Why not run
 	     * the same routine? */
 	    icqv5_cmd_send_msg(icq_tree,
-			       decr_pd + ICQ5_SRV_HDRSIZE,
+			       tvb,
 			       offset + ICQ5_SRV_HDRSIZE,
 			       pktsize - ICQ5_SRV_HDRSIZE,
 			       cmd);
 	    break;
 	case SRV_USER_ONLINE:
 	    icqv5_srv_user_online(icq_tree,
-			       decr_pd + ICQ5_SRV_HDRSIZE,
+			       tvb,
 			       offset + ICQ5_SRV_HDRSIZE,
 			       pktsize - ICQ5_SRV_HDRSIZE);
 	    break;
 	case SRV_USER_OFFLINE:
 	    icqv5_srv_user_offline(icq_tree,
-			       decr_pd + ICQ5_SRV_HDRSIZE,
+			       tvb,
 			       offset + ICQ5_SRV_HDRSIZE,
 			       pktsize - ICQ5_SRV_HDRSIZE);
 	    break;
 	case SRV_LOGIN_REPLY:
 	    icqv5_srv_login_reply(icq_tree,
-			       decr_pd + ICQ5_SRV_HDRSIZE,
+			       tvb,
 			       offset + ICQ5_SRV_HDRSIZE,
 			       pktsize - ICQ5_SRV_HDRSIZE);
 	    break;
 	case SRV_META_USER:
 	    icqv5_srv_meta_user(icq_tree,
-			       decr_pd + ICQ5_SRV_HDRSIZE,
+			       tvb,
 			       offset + ICQ5_SRV_HDRSIZE,
 			       pktsize - ICQ5_SRV_HDRSIZE);
 	    break;
 	case SRV_RECV_MESSAGE:
 	    icqv5_srv_recv_message(icq_tree,
-				   decr_pd + ICQ5_SRV_HDRSIZE,
+				   tvb,
 				   offset + ICQ5_SRV_HDRSIZE,
 				   pktsize - ICQ5_SRV_HDRSIZE);
 	    break;
 	case SRV_MULTI:
 	    icqv5_srv_multi(icq_tree,
-			    decr_pd + ICQ5_SRV_HDRSIZE,
+			    tvb,
 			    offset + ICQ5_SRV_HDRSIZE,
 			    pktsize - ICQ5_SRV_HDRSIZE,
-			    fd);
+			    pinfo);
 	    break;
 	case SRV_ACK:
 	case SRV_SILENT_TOO_LONG:
@@ -2394,7 +2082,7 @@ dissect_icqv5Server(const u_char *pd,
 	case SRV_BAD_PASS:
 	case SRV_UPDATE_SUCCESS:
 	    icqv5_srv_no_params(icq_tree,
-				decr_pd + ICQ5_SRV_HDRSIZE,
+	    			tvb,
 				offset + ICQ5_SRV_HDRSIZE,
 				pktsize - ICQ5_SRV_HDRSIZE,
 				cmd);
@@ -2402,8 +2090,8 @@ dissect_icqv5Server(const u_char *pd,
 	default:
 	    proto_tree_add_uint_format(icq_tree,
 				       hf_icq_cmd,
-				       NullTVB,
-				       offset + ICQ5_SRV_CMD,
+				       tvb,
+				       ICQ5_SRV_CMD,
 				       2,
 				       cmd,
 				       "Command: %u (%s)",
@@ -2414,46 +2102,52 @@ dissect_icqv5Server(const u_char *pd,
     }
 }
 
-static void dissect_icqv5(const u_char *pd,
-			  int offset,
-			  frame_data *fd, 
+static void dissect_icqv5(tvbuff_t *tvb,
+			  packet_info *pinfo,
 			  proto_tree *tree)
 {
-  guint32 unknown = pletohl(&pd[offset + ICQ5_UNKNOWN]);
+  guint32 unknown;
   
-  if (check_col(fd, COL_PROTOCOL))
-      col_set_str(fd, COL_PROTOCOL, "ICQv5 (UDP)");
-  if (check_col(fd, COL_INFO))
-      col_set_str(fd, COL_INFO, "ICQv5 packet");
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+      col_set_str(pinfo->fd, COL_PROTOCOL, "ICQv5 (UDP)");
+  if (check_col(pinfo->fd, COL_INFO))
+      col_set_str(pinfo->fd, COL_INFO, "ICQv5 packet");
+
+  unknown = tvb_get_letohl(tvb, ICQ5_UNKNOWN);
+
   if (unknown == 0x0L) {
-      dissect_icqv5Client(pd, offset, fd, tree);
+      dissect_icqv5Client(tvb, pinfo, tree);
   } else {
-      dissect_icqv5Server(pd + offset, offset, fd, tree, (guint32) -1);
+      dissect_icqv5Server(tvb, 0, pinfo, tree, (guint32) -1);
   }
 }
 
-static void dissect_icq(const u_char *pd,
-			int offset,
-			frame_data *fd, 
+static void dissect_icq(tvbuff_t *tvb,
+			packet_info *pinfo,
 			proto_tree *tree)
 {
-  int version = 0;
+  int version;
 
-  OLD_CHECK_DISPLAY_AS_DATA(proto_icq, pd, offset, fd, tree);
+  if (check_col(pinfo->fd, COL_PROTOCOL)) {
+    col_set_str(pinfo->fd, COL_PROTOCOL, "ICQ");
+  }
+  if (check_col(pinfo->fd, COL_INFO)) {
+    col_clear(pinfo->fd, COL_INFO);
+  }
 
-  version = pletohs(&pd[offset + ICQ_VERSION]);
+  version = tvb_get_letohs(tvb, ICQ_VERSION);
   switch (version) {
   case 0x0005:
-      dissect_icqv5(pd, offset, fd, tree);
+      dissect_icqv5(tvb, pinfo, tree);
       break;
   case 0x0004:
-      dissect_icqv4(pd, offset, fd, tree);
+      dissect_icqv4(tvb, pinfo, tree);
       break;
   case 0x0003:
-      dissect_icqv3(pd, offset, fd, tree);
+      dissect_icqv3(tvb, pinfo, tree);
       break;
   case 0x0002:
-      dissect_icqv2(pd, offset, fd, tree);
+      dissect_icqv2(tvb, pinfo, tree);
       break;
   default:
       fprintf(stderr, "ICQ: Unknown version (%d)\n", version);
@@ -2471,7 +2165,7 @@ proto_register_icq(void)
 	{ &hf_icq_uin,
 	  {"UIN", "icq.uin", FT_UINT32, BASE_DEC, NULL, 0x0, ""}},
 	{ &hf_icq_sessionid,
-	  {"SessionID", "icq.sessionid", FT_UINT32, BASE_HEX, NULL, 0x0, ""}},
+	  {"Session ID", "icq.sessionid", FT_UINT32, BASE_HEX, NULL, 0x0, ""}},
 	{ &hf_icq_cmd,
 	  {"Command", "icq.cmd", FT_UINT16, BASE_DEC, NULL, 0x0, ""}},
 	{ &hf_icq_checkcode,
@@ -2497,5 +2191,5 @@ proto_register_icq(void)
 void
 proto_reg_handoff_icq(void)
 {
-    old_dissector_add("udp.port", UDP_PORT_ICQ, dissect_icq, proto_icq);
+    dissector_add("udp.port", UDP_PORT_ICQ, dissect_icq, proto_icq);
 }
