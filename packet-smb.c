@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.335 2003/04/28 04:44:54 tpot Exp $
+ * $Id: packet-smb.c,v 1.336 2003/04/28 10:42:14 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7337,7 +7337,7 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	   pointer if we have one, otherwise just display bits 0-15 in
 	   boring fashion. */
 
-	if (ami->specific_rights_name)
+	if (ami && ami->specific_rights_name)
 		item = proto_tree_add_text(subtree, tvb, offset - 4, 4,
 					   "%s specific rights: 0x%08x",
 					   ami->specific_rights_name,
@@ -7349,7 +7349,7 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	specific = proto_item_add_subtree(item, ett_nt_access_mask_specific);
 
-	if (ami->specific_rights_fn) {
+	if (ami && ami->specific_rights_fn) {
 		ami->specific_rights_fn(tvb, offset - 4, specific, access);
 		return offset;
 	}
