@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.3 2002/04/28 19:33:32 guy Exp $
+ * $Id: packet-afp.c,v 1.4 2002/04/28 21:04:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -262,9 +262,10 @@ static dissector_handle_t data_handle;
 
 static const value_string vol_signature_vals[] = {
 	{1, "Flat"},
-	{2,  "Fixed Directory ID"},
-	{3,  "Variable Directory ID (deprecated)"},
-	{0,				 NULL } };
+	{2, "Fixed Directory ID"},
+	{3, "Variable Directory ID (deprecated)"},
+	{0, NULL }
+};
 
 static const value_string CommandCode_vals[] = {
   {AFP_BYTELOCK,	"afpByteRangeLock" },
@@ -278,7 +279,7 @@ static const value_string CommandCode_vals[] = {
   {AFP_ENUMERATE,	"afpEnumerate" },
   {AFP_FLUSH,		"afpFlush" },
   {AFP_FLUSHFORK,	"afpForkFlush" },
-  {AFP_GETFORKPARAM,"afpGetForkParms" },
+  {AFP_GETFORKPARAM,	"afpGetForkParms" },
   {AFP_GETSRVINFO,	"afpGetSInfo" },
   {AFP_GETSRVPARAM,	"afpGetSParms" },
   {AFP_GETVOLPARAM,	"afpGetVolParms" },
@@ -294,18 +295,18 @@ static const value_string CommandCode_vals[] = {
   {AFP_READ,		"afpRead" },
   {AFP_RENAME,		"afpRename" },
   {AFP_SETDIRPARAM,	"afpSetDirParms" },
-  {AFP_SETFILEPARAM,"afpSetFileParms" },
-  {AFP_SETFORKPARAM,"afpSetForkParms" },
+  {AFP_SETFILEPARAM,	"afpSetFileParms" },
+  {AFP_SETFORKPARAM,	"afpSetForkParms" },
   {AFP_SETVOLPARAM,	"afpSetVolParms" },
   {AFP_WRITE,		"afpWrite" },
-  {AFP_GETFLDRPARAM,"afpGetFlDrParms" },
-  {AFP_SETFLDRPARAM,"afpSetFlDrParms" },
+  {AFP_GETFLDRPARAM,	"afpGetFlDrParms" },
+  {AFP_SETFLDRPARAM,	"afpSetFlDrParms" },
   {AFP_CHANGEPW,	"afpChangePw" },
   {AFP_GETSRVRMSG,	"afpGetSrvrMsg" },
   {AFP_CREATEID,	"afpCreateID" },
   {AFP_DELETEID,	"afpDeleteID" },
   {AFP_RESOLVEID,	"afpResolveID" },
-  {AFP_EXCHANGEFILE,"afpExchangeFiles" },
+  {AFP_EXCHANGEFILE,	"afpExchangeFiles" },
   {AFP_CATSEARCH,	"afpCatSearch" },
   {AFP_OPENDT,		"afpDTOpen" },
   {AFP_CLOSEDT,		"afpDTClose" },
@@ -318,7 +319,8 @@ static const value_string CommandCode_vals[] = {
   {AFP_RMVCMT,		"afpRmvCmt" },
   {AFP_GETCMT,		"afpGetCmt" },
   {AFP_ADDICON,		"afpAddIcon" },
-  {0,				 NULL } };
+  {0,			 NULL }
+};
 
 
 /* volume bitmap
@@ -327,39 +329,39 @@ static const value_string CommandCode_vals[] = {
 */
 #define kFPVolAttributeBit 		(1 << 0)
 #define kFPVolSignatureBit 		(1 << 1)
-#define kFPVolCreateDateBit 	(1 << 2)
+#define kFPVolCreateDateBit	 	(1 << 2)
 #define kFPVolModDateBit 		(1 << 3)
-#define kFPVolBackupDateBit 	(1 << 4)
+#define kFPVolBackupDateBit 		(1 << 4)
 #define kFPVolIDBit 			(1 << 5)
-#define kFPVolBytesFreeBit  	(1 << 6)
+#define kFPVolBytesFreeBit	  	(1 << 6)
 #define kFPVolBytesTotalBit	 	(1 << 7)
 #define kFPVolNameBit 			(1 << 8)
-#define kFPVolExtBytesFreeBit 	(1 << 9)
-#define kFPVolExtBytesTotalBit	(1 << 10)
+#define kFPVolExtBytesFreeBit 		(1 << 9)
+#define kFPVolExtBytesTotalBit		(1 << 10)
 #define kFPVolBlockSizeBit 	  	(1 << 11)
 
-static int hf_afp_vol_bitmap_Attribute 		= -1;
+static int hf_afp_vol_bitmap_Attributes 	= -1;
 static int hf_afp_vol_bitmap_Signature 		= -1;
 static int hf_afp_vol_bitmap_CreateDate 	= -1;
 static int hf_afp_vol_bitmap_ModDate 		= -1;
 static int hf_afp_vol_bitmap_BackupDate 	= -1;
-static int hf_afp_vol_bitmap_ID 			= -1;
+static int hf_afp_vol_bitmap_ID 		= -1;
 static int hf_afp_vol_bitmap_BytesFree 		= -1;
 static int hf_afp_vol_bitmap_BytesTotal 	= -1;
-static int hf_afp_vol_bitmap_Name 			= -1;
+static int hf_afp_vol_bitmap_Name 		= -1;
 static int hf_afp_vol_bitmap_ExtBytesFree 	= -1;
 static int hf_afp_vol_bitmap_ExtBytesTotal 	= -1;
 static int hf_afp_vol_bitmap_BlockSize 		= -1;
 
-static int hf_afp_vol_attribute_ReadOnly                    = -1;
-static int hf_afp_vol_attribute_HasVolumePassword			= -1;
-static int hf_afp_vol_attribute_SupportsFileIDs             = -1;
-static int hf_afp_vol_attribute_SupportsCatSearch           = -1;
-static int hf_afp_vol_attribute_SupportsBlankAccessPrivs    = -1;
-static int hf_afp_vol_attribute_SupportsUnixPrivs           = -1;
-static int hf_afp_vol_attribute_SupportsUTF8Names           = -1;
+static int hf_afp_vol_attribute_ReadOnly			= -1;
+static int hf_afp_vol_attribute_HasVolumePassword		= -1;
+static int hf_afp_vol_attribute_SupportsFileIDs			= -1;
+static int hf_afp_vol_attribute_SupportsCatSearch		= -1;
+static int hf_afp_vol_attribute_SupportsBlankAccessPrivs	= -1;
+static int hf_afp_vol_attribute_SupportsUnixPrivs		= -1;
+static int hf_afp_vol_attribute_SupportsUTF8Names		= -1;
 
-static int hf_afp_dir_bitmap_Attribute		= -1;
+static int hf_afp_dir_bitmap_Attributes     = -1;
 static int hf_afp_dir_bitmap_ParentDirID    = -1;
 static int hf_afp_dir_bitmap_CreateDate     = -1;
 static int hf_afp_dir_bitmap_ModDate        = -1;
@@ -387,7 +389,7 @@ static int hf_afp_dir_attribute_RenameInhibit = -1;
 static int hf_afp_dir_attribute_DeleteInhibit = -1;
 static int hf_afp_dir_attribute_SetClear      = -1;
 
-static int hf_afp_file_bitmap_Attribute		 = -1;
+static int hf_afp_file_bitmap_Attributes     = -1;
 static int hf_afp_file_bitmap_ParentDirID    = -1;
 static int hf_afp_file_bitmap_CreateDate     = -1;
 static int hf_afp_file_bitmap_ModDate        = -1;
@@ -419,39 +421,39 @@ static int hf_afp_file_attribute_SetClear      = -1;
 
 static const value_string vol_bitmap_vals[] = {
   {kFPVolAttributeBit,          "VolAttribute"},
-  {kFPVolSignatureBit,			"VolSignature"},
-  {kFPVolCreateDateBit,			"VolCreateDate"},
-  {kFPVolModDateBit,			"VolModDate"},
-  {kFPVolBackupDateBit,			"VolBackupDate"},
-  {kFPVolIDBit,					"VolID"},
-  {kFPVolBytesFreeBit,			"VolBytesFree"},
-  {kFPVolBytesTotalBit,			"VolBytesTotal"},
-  {kFPVolNameBit,				"VolNameBit"},
-  {kFPVolExtBytesFreeBit,		"VolExtBytesFree"},
-  {kFPVolExtBytesTotalBit,		"VolExtBytesTotal"},
-  {kFPVolBlockSizeBit,	  		"VolBlockSize"},
+  {kFPVolSignatureBit,		"VolSignature"},
+  {kFPVolCreateDateBit,		"VolCreateDate"},
+  {kFPVolModDateBit,		"VolModDate"},
+  {kFPVolBackupDateBit,		"VolBackupDate"},
+  {kFPVolIDBit,			"VolID"},
+  {kFPVolBytesFreeBit,		"VolBytesFree"},
+  {kFPVolBytesTotalBit,		"VolBytesTotal"},
+  {kFPVolNameBit,		"VolNameBit"},
+  {kFPVolExtBytesFreeBit,	"VolExtBytesFree"},
+  {kFPVolExtBytesTotalBit,	"VolExtBytesTotal"},
+  {kFPVolBlockSizeBit,	  	"VolBlockSize"},
   {0,				 NULL } };
 
 static const value_string flag_vals[] = {
   {0,	"Start" },
   {1,	"End" },
-  {0,			NULL } };
+  {0,	NULL } };
 
 static const value_string path_type_vals[] = {
   {1,	"Short names" },
   {2,	"Long names" },
   {3,	"Unicode names" },
-  {0,			NULL } };
+  {0,	NULL } };
 
 /*
   volume attribute from Apple AFP3.0.pdf 
   Table 1-3 p. 22
 */
-#define kReadOnly 					(1 << 0)
+#define kReadOnly 				(1 << 0)
 #define kHasVolumePassword 			(1 << 1)
 #define kSupportsFileIDs 			(1 << 2)
 #define kSupportsCatSearch 			(1 << 3)
-#define kSupportsBlankAccessPrivs 	(1 << 4)
+#define kSupportsBlankAccessPrivs 		(1 << 4)
 #define kSupportsUnixPrivs 			(1 << 5)
 #define kSupportsUTF8Names 			(1 << 6)
 
@@ -468,7 +470,7 @@ static const value_string path_type_vals[] = {
 #define kFPLongNameBit			(1 << 6)
 #define kFPShortNameBit 		(1 << 7)
 #define kFPNodeIDBit 			(1 << 8)
-#define kFPOffspringCountBit 	(1 << 9)
+#define kFPOffspringCountBit	 	(1 << 9)
 #define kFPOwnerIDBit 			(1 << 10)
 #define kFPGroupIDBit 			(1 << 11)
 #define kFPAccessRightsBit 		(1 << 12)
@@ -532,10 +534,10 @@ kFPNodeIDBit 			(bit 8)
 kFPUTF8NameBit 			(bit 13)
 */
 
-#define kFPDataForkLenBit 			(1 << 9)
-#define kFPRsrcForkLenBit 			(1 << 10)
+#define kFPDataForkLenBit 		(1 << 9)
+#define kFPRsrcForkLenBit 		(1 << 10)
 #define kFPExtDataForkLenBit 		(1 << 11)
-#define kFPLaunchLimitBit 			(1 << 12)
+#define kFPLaunchLimitBit 		(1 << 12)
 
 #define kFPExtRsrcForkLenBit 		(1 << 14)
 #define kFPUnixPrivsBit_file 		(1 << 15)	/* :( */
@@ -618,15 +620,15 @@ decode_vol_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset)
 		sub_tree = proto_item_add_subtree(item, ett_afp_vol_bitmap);
 	}
 	
-	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_Attribute, 		tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_Signature, 		tvb, offset, 2,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_Attributes,	tvb, offset, 2,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_Signature, 	tvb, offset, 2,FALSE);
 	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_CreateDate, 	tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_ModDate, 		tvb, offset, 2,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_ModDate, 	tvb, offset, 2,FALSE);
 	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_BackupDate, 	tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_ID, 			tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_BytesFree, 		tvb, offset, 2,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_ID, 		tvb, offset, 2,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_BytesFree, 	tvb, offset, 2,FALSE);
 	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_BytesTotal, 	tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_Name, 			tvb, offset, 2,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_Name, 		tvb, offset, 2,FALSE);
 	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_ExtBytesFree, 	tvb, offset, 2,FALSE);
 	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_ExtBytesTotal, 	tvb, offset, 2,FALSE);
 	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_BlockSize , 	tvb, offset, 2,FALSE);
@@ -670,8 +672,8 @@ decode_vol_attribute (proto_tree *tree, tvbuff_t *tvb, gint offset)
 static guint32
 print_date(proto_tree *tree,int id, tvbuff_t *tvb, gint offset)
 {
-time_t date = tvb_get_ntohl(tvb, offset);
-nstime_t tv;
+	time_t date = tvb_get_ntohl(tvb, offset);
+	nstime_t tv;
 
 	tv.secs = AD_DATE_TO_UNIX(date);
 	proto_tree_add_time(tree, id, tvb, offset, 4, &tv);
@@ -683,7 +685,7 @@ nstime_t tv;
 static gint
 parse_vol_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap)
 {
-guint16 nameoff = 0;
+	guint16 nameoff = 0;
 
 	if ((bitmap & kFPVolAttributeBit)) {
 		decode_vol_attribute(tree,tvb,offset);
@@ -759,7 +761,7 @@ decode_file_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset)
 		item = proto_tree_add_item(tree, hf_afp_file_bitmap, tvb, offset, 2,FALSE);
 		sub_tree = proto_item_add_subtree(item, ett_afp_file_bitmap);
 	}
-	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_Attribute      , tvb, offset, 2,FALSE);  
+	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_Attributes      , tvb, offset, 2,FALSE);  
 	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_ParentDirID    , tvb, offset, 2,FALSE);
 	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_CreateDate     , tvb, offset, 2,FALSE);
 	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_ModDate        , tvb, offset, 2,FALSE);
@@ -930,7 +932,7 @@ decode_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset)
 		sub_tree = proto_item_add_subtree(item, ett_afp_dir_bitmap);
 	}
 	
-	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_Attribute      , tvb, offset, 2,FALSE);  
+	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_Attributes      , tvb, offset, 2,FALSE);  
 	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_ParentDirID    , tvb, offset, 2,FALSE);
 	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_CreateDate     , tvb, offset, 2,FALSE);
 	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_ModDate        , tvb, offset, 2,FALSE);
@@ -1256,7 +1258,7 @@ decode_name_label (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint off
 static gint
 decode_name (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset)
 {
-	return decode_name_label(tree, pinfo, tvb, offset," path : %s");
+	return decode_name_label(tree, pinfo, tvb, offset, "Path: %s");
 }
 
 /* ************************** */
@@ -1878,9 +1880,9 @@ dissect_query_afp_move(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
 	proto_tree_add_item(tree, hf_afp_did, tvb, offset, 4,FALSE);
 	offset += 4;
 
-	offset = decode_name_label(tree, pinfo, tvb, offset," source path : %s");
-	offset = decode_name_label(tree, NULL, tvb, offset," dest dir    : %s");
-	offset = decode_name_label(tree, NULL, tvb, offset," new name    : %s");
+	offset = decode_name_label(tree, pinfo, tvb, offset, "Source path: %s");
+	offset = decode_name_label(tree, NULL, tvb, offset,  "Dest dir:    %s");
+	offset = decode_name_label(tree, NULL, tvb, offset,  "New name:    %s");
 
 	return offset;
 }
@@ -1893,8 +1895,8 @@ dissect_query_afp_rename(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 	PAD(1);
 	offset = decode_vol_did(tree, tvb, offset);
 
-	offset = decode_name_label(tree, pinfo, tvb, offset," old name    : %s");
-	offset = decode_name_label(tree, NULL, tvb, offset," new name    : %s");
+	offset = decode_name_label(tree, pinfo, tvb, offset, "Old name:     %s");
+	offset = decode_name_label(tree, NULL, tvb, offset,  "New name:     %s");
 
 	return offset;
 }
@@ -1909,7 +1911,7 @@ dissect_query_afp_byte_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	
 	flag = tvb_get_guint8(tvb, offset);
 	if (tree) {
-		item = proto_tree_add_text(tree, tvb, offset, 1, "flags : 0x%02x", flag);
+		item = proto_tree_add_text(tree, tvb, offset, 1, "Flags: 0x%02x", flag);
 		sub_tree = proto_item_add_subtree(item, ett_afp_lock_flags);
 	}
 
@@ -2437,500 +2439,582 @@ proto_register_afp(void)
 		FT_UINT8, BASE_DEC, VALS(CommandCode_vals), 0x0,
       	"AFP function", HFILL }},
 
-	{ &hf_afp_pad,    
-	  { "pad",    		"afp.pad",    
+    { &hf_afp_pad,    
+      { "Pad",    	"afp.pad",    
 		FT_NONE,   BASE_NONE, NULL, 0, 
-		"Pad Byte",	HFILL }},
+	"Pad Byte",	HFILL }},
 
     { &hf_afp_AFPVersion,
       { "AFP Version",  "afp.AFPVersion",
 		FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-      	"client AFP version", HFILL }},
+      	"Client AFP version", HFILL }},
 
     { &hf_afp_UAM,
       { "UAM",          "afp.UAM",
 		FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-      	"USer Authentication method", HFILL }},
+      	"User Authentication Method", HFILL }},
 
     { &hf_afp_user,
-      { "user",         "afp.user",
+      { "User",         "afp.user",
 		FT_UINT_STRING, BASE_NONE, NULL, 0x0,
       	"User", HFILL }},
 
     { &hf_afp_passwd,
-      { "password",     "afp.passwd",
+      { "Password",     "afp.passwd",
 		FT_STRINGZ, BASE_NONE, NULL, 0x0,
-      	"password", HFILL }},
+      	"Password", HFILL }},
 
     { &hf_afp_vol_bitmap,
-      { "bitmap",         "afp.vol_bitmap",
+      { "Bitmap",         "afp.vol_bitmap",
 		FT_UINT16, BASE_HEX, NULL, 0 /* 0x0FFF*/,
       	"Volume bitmap", HFILL }},
 
-	{ &hf_afp_vol_bitmap_Attribute,
-      { "attribute",         "afp.vol_bitmap.attribute",
+    { &hf_afp_vol_bitmap_Attributes,
+      { "Attributes",      "afp.vol_bitmap.attributes",
 		FT_BOOLEAN, 16, NULL, kFPVolAttributeBit,
-      	"Volume attribute", HFILL }},
+      	"Volume attributes", HFILL }},
 
-	    { &hf_afp_vol_attribute, { "attribute",         "afp.vol_attribute",
-			FT_UINT16, BASE_HEX, NULL, 0 , "Volume attribute", HFILL }},
+    { &hf_afp_vol_attribute,
+      { "Attributes",         "afp.vol_attribute",
+		FT_UINT16, BASE_HEX, NULL, 0,
+	"Volume attributes", HFILL }},
 
-	    { &hf_afp_vol_attribute_ReadOnly, 
-	     { "read only",         "afp.vol_attribute.read_only",
+    { &hf_afp_vol_attribute_ReadOnly, 
+      { "Read only",         "afp.vol_attribute.read_only",
 		 FT_BOOLEAN, 16, NULL, kReadOnly,
-      	 "Read only volume", HFILL }},
+        "Read only volume", HFILL }},
 
-	    { &hf_afp_vol_attribute_HasVolumePassword,
-	     { "volume password",         "afp.vol_attribute.passwd",
+    { &hf_afp_vol_attribute_HasVolumePassword,
+      { "Volume password",         "afp.vol_attribute.passwd",
 		 FT_BOOLEAN, 16, NULL, kHasVolumePassword,
-      	 "Has a volume password", HFILL }},
+      	"Has a volume password", HFILL }},
 
-	    { &hf_afp_vol_attribute_SupportsFileIDs,
- 	     { "files ID",         "afp.vol_attribute.fileIDs",
+    { &hf_afp_vol_attribute_SupportsFileIDs,
+      { "File IDs",         "afp.vol_attribute.fileIDs",
 		 FT_BOOLEAN, 16, NULL, kSupportsFileIDs,
-      	 "Supports files ID", HFILL }},
+	"Supports file IDs", HFILL }},
 
-	    { &hf_afp_vol_attribute_SupportsCatSearch,
-	     { "cat search",         "afp.vol_attribute.cat_search",
+    { &hf_afp_vol_attribute_SupportsCatSearch,
+      { "Catalog search",         "afp.vol_attribute.cat_search",
 		 FT_BOOLEAN, 16, NULL, kSupportsCatSearch,
-      	 "Supports cat search call", HFILL }},
+      	"Supports catalog search operations", HFILL }},
 
-	    { &hf_afp_vol_attribute_SupportsBlankAccessPrivs,
-	     { "blank access privs",         "afp.vol_attribute.blank_access_privs",
+    { &hf_afp_vol_attribute_SupportsBlankAccessPrivs,
+      { "Blank access privileges",         "afp.vol_attribute.blank_access_privs",
 		 FT_BOOLEAN, 16, NULL, kSupportsBlankAccessPrivs,
-      	 "Supports blank access priv.", HFILL }},
+        "Supports blank access privileges", HFILL }},
 
-	    { &hf_afp_vol_attribute_SupportsUnixPrivs,
-	    { "blank access privs",         "afp.vol_attribute.unix_privs",
+    { &hf_afp_vol_attribute_SupportsUnixPrivs,
+      { "UNIX access privileges",         "afp.vol_attribute.unix_privs",
 		 FT_BOOLEAN, 16, NULL, kSupportsUnixPrivs,
-      	 "Supports Unix access priv.", HFILL }},
+      	"Supports UNIX access privileges", HFILL }},
 
-	    { &hf_afp_vol_attribute_SupportsUTF8Names,
-	    { "blank access privs",         "afp.vol_attribute.utf8_names",
+    { &hf_afp_vol_attribute_SupportsUTF8Names,
+      { "UTF-8 names",         "afp.vol_attribute.utf8_names",
 		 FT_BOOLEAN, 16, NULL, kSupportsUTF8Names,
-      	 "Supports UTF8 names.", HFILL }},
+      	"Supports UTF-8 names", HFILL }},
 
     { &hf_afp_vol_bitmap_Signature,
-      { "signature",         "afp.vol_bitmap.signature",
+      { "Signature",         "afp.vol_bitmap.signature",
 		FT_BOOLEAN, 16, NULL, kFPVolSignatureBit,
       	"Volume signature", HFILL }},
+
     { &hf_afp_vol_bitmap_CreateDate,
-      { "creation date",      "afp.vol_bitmap.create_date",
+      { "Creation date",      "afp.vol_bitmap.create_date",
 		FT_BOOLEAN, 16, NULL, kFPVolCreateDateBit,
       	"Volume creation date", HFILL }},
+
     { &hf_afp_vol_bitmap_ModDate,
-      { "modification date",  "afp.vol_bitmap.mod_date",
+      { "Modification date",  "afp.vol_bitmap.mod_date",
 		FT_BOOLEAN, 16, NULL, kFPVolModDateBit,
       	"Volume modification date", HFILL }},
+
     { &hf_afp_vol_bitmap_BackupDate,
-      { "backup date",        "afp.vol_bitmap.backup_date",
+      { "Backup date",        "afp.vol_bitmap.backup_date",
 		FT_BOOLEAN, 16, NULL, kFPVolBackupDateBit,
       	"Volume backup date", HFILL }},
+
     { &hf_afp_vol_bitmap_ID,
       { "ID",         "afp.vol_bitmap.id",
 		FT_BOOLEAN, 16, NULL,  kFPVolIDBit,
       	"Volume ID", HFILL }},
+
     { &hf_afp_vol_bitmap_BytesFree,
-      { "bytes free",         "afp.vol_bitmap.bytes_free",
+      { "Bytes free",         "afp.vol_bitmap.bytes_free",
 		FT_BOOLEAN, 16, NULL,  kFPVolBytesFreeBit,
       	"Volume free bytes", HFILL }},
+
     { &hf_afp_vol_bitmap_BytesTotal,
-      { "bytes total",         "afp.vol_bitmap.bytes_total",
+      { "Bytes total",         "afp.vol_bitmap.bytes_total",
 		FT_BOOLEAN, 16, NULL,  kFPVolBytesTotalBit,
       	"Volume total bytes", HFILL }},
+
     { &hf_afp_vol_bitmap_Name,
-      { "name",         "afp.vol_bitmap.name",
+      { "Name",         "afp.vol_bitmap.name",
 		FT_BOOLEAN, 16, NULL,  kFPVolNameBit,
       	"Volume name", HFILL }},
+
     { &hf_afp_vol_bitmap_ExtBytesFree,
-      { "ex. bytes free",         "afp.vol_bitmap.ex_bytes_free",
+      { "Extended bytes free",         "afp.vol_bitmap.ex_bytes_free",
 		FT_BOOLEAN, 16, NULL,  kFPVolExtBytesFreeBit,
-      	"Volume ext. free bytes", HFILL }},
+      	"Volume extended (>2GB) free bytes", HFILL }},
+
     { &hf_afp_vol_bitmap_ExtBytesTotal,
-      { "ex bytes total",         "afp.vol_bitmap.ex_bytes_total",
+      { "Extended bytes total",         "afp.vol_bitmap.ex_bytes_total",
 		FT_BOOLEAN, 16, NULL,  kFPVolExtBytesTotalBit,
-      	"Volume ex. total byte", HFILL }},
+      	"Volume extended (>2GB) total bytes", HFILL }},
+
     { &hf_afp_vol_bitmap_BlockSize,
-      { "block size",         "afp.vol_bitmap.block_size",
+      { "Block size",         "afp.vol_bitmap.block_size",
 		FT_BOOLEAN, 16, NULL,  kFPVolBlockSizeBit,
       	"Volume block size", HFILL }},
 
-    { &hf_afp_dir_bitmap_Attribute,        
-      { "attribute",         "afp.dir_bitmap.attribute",
+    { &hf_afp_dir_bitmap_Attributes,        
+      { "Attributes",         "afp.dir_bitmap.attributes",
 	    FT_BOOLEAN, 16, NULL,  kFPAttributeBit,
-      	"directory attribute", HFILL }},
+      	"Return attributes if directory", HFILL }},
+
     { &hf_afp_dir_bitmap_ParentDirID,	   
       { "DID",         "afp.dir_bitmap.did",
     	FT_BOOLEAN, 16, NULL,  kFPParentDirIDBit,
-      	"parent directory ID", HFILL }},
+      	"Return parent directory ID if directory", HFILL }},
+
     { &hf_afp_dir_bitmap_CreateDate,	   
-      { "creation date",         "afp.dir_bitmap.create_date",
+      { "Creation date",         "afp.dir_bitmap.create_date",
 	    FT_BOOLEAN, 16, NULL,  kFPCreateDateBit,
-      	"directory creation date", HFILL }},
+      	"Return creation date if directory", HFILL }},
+
     { &hf_afp_dir_bitmap_ModDate,		   
-      { "modification date",         "afp.dir_bitmap.mod_date",
+      { "Modification date",         "afp.dir_bitmap.mod_date",
     	FT_BOOLEAN, 16, NULL,  kFPModDateBit,
-      	"directory modification date", HFILL }},
+      	"Return modification date if directory", HFILL }},
+
     { &hf_afp_dir_bitmap_BackupDate,	   
-      { "backup date",         "afp.dir_bitmap.backup_date",
+      { "Backup date",         "afp.dir_bitmap.backup_date",
 	    FT_BOOLEAN, 16, NULL,  kFPBackupDateBit,
-      	"directory backup date", HFILL }},
+      	"Return backup date if directory", HFILL }},
+
     { &hf_afp_dir_bitmap_FinderInfo,	   
       { "Finder info",         "afp.dir_bitmap.finder_info",
     	FT_BOOLEAN, 16, NULL,  kFPFinderInfoBit,
-      	"directory finder info", HFILL }},
+      	"Return finder info if directory", HFILL }},
+
     { &hf_afp_dir_bitmap_LongName,		   
-      { "long name",         "afp.dir_bitmap.long_name",
+      { "Long name",         "afp.dir_bitmap.long_name",
 	    FT_BOOLEAN, 16, NULL,  kFPLongNameBit,
-      	"directory long name", HFILL }},
+      	"Return long name if directory", HFILL }},
+
     { &hf_afp_dir_bitmap_ShortName,		   
-      { "short name",         "afp.dir_bitmap.short_name",
+      { "Short name",         "afp.dir_bitmap.short_name",
     	FT_BOOLEAN, 16, NULL,  kFPShortNameBit,
-      	"directory short name", HFILL }},
+      	"Return short name if directory", HFILL }},
+
     { &hf_afp_dir_bitmap_NodeID,		   
-      { "file ID",         "afp.dir_bitmap.fid",
+      { "File ID",         "afp.dir_bitmap.fid",
 	    FT_BOOLEAN, 16, NULL,  kFPNodeIDBit,
-      	"directory file ID", HFILL }},
+      	"Return file ID if directory", HFILL }},
+
     { &hf_afp_dir_bitmap_OffspringCount,   
-      { "offspring count",         "afp.dir_bitmap.offspring_count",
+      { "Offspring count",         "afp.dir_bitmap.offspring_count",
     	FT_BOOLEAN, 16, NULL,  kFPOffspringCountBit,
-      	"directory offSpring count", HFILL }},
+      	"Return offspring count if directory", HFILL }},
+
     { &hf_afp_dir_bitmap_OwnerID,		   
-      { "owner id",         "afp.dir_bitmap.owner_id",
+      { "Owner id",         "afp.dir_bitmap.owner_id",
 	    FT_BOOLEAN, 16, NULL,  kFPOwnerIDBit,
-      	"directory owner id", HFILL }},
+      	"Return owner id if directory", HFILL }},
+
     { &hf_afp_dir_bitmap_GroupID,		   
-      { "group id",         "afp.dir_bitmap.group_id",
+      { "Group id",         "afp.dir_bitmap.group_id",
     	FT_BOOLEAN, 16, NULL,  kFPGroupIDBit,
-      	"directory group id", HFILL }},
+      	"Return group id if directory", HFILL }},
+
     { &hf_afp_dir_bitmap_AccessRights,	   
-      { "access rights",         "afp.dir_bitmap.access_rights",
+      { "Access rights",         "afp.dir_bitmap.access_rights",
 	    FT_BOOLEAN, 16, NULL,  kFPAccessRightsBit,
-      	"directory access rights", HFILL }},
+      	"Return access rights if directory", HFILL }},
+
     { &hf_afp_dir_bitmap_UTF8Name,		   
-      { "UTF8 name",         "afp.dir_bitmap.UTF8_name",
+      { "UTF-8 name",         "afp.dir_bitmap.UTF8_name",
     	FT_BOOLEAN, 16, NULL,  kFPUTF8NameBit,
-      	"directory UTF8 name", HFILL }},
+      	"Return UTF-8 name if diectory", HFILL }},
+
     { &hf_afp_dir_bitmap_UnixPrivs,		   
-      { "unix privs",         "afp.dir_bitmap.unix_privs",
+      { "UNIX privileges",         "afp.dir_bitmap.unix_privs",
 	    FT_BOOLEAN, 16, NULL,  kFPUnixPrivsBit,
-      	"directory unix privs", HFILL }},
+      	"Return UNIX privileges if directory", HFILL }},
 
     { &hf_afp_dir_attribute_Invisible,
-      { "invisible",         "afp.dir_attribute.invisible",
+      { "Invisible",         "afp.dir_attribute.invisible",
 	    FT_BOOLEAN, 16, NULL,  kFPInvisibleBit,
-      	"dir is not visible", HFILL }},
-    { &hf_afp_dir_attribute_IsExpFolder,
-      { "share point",         "afp.dir_attribute.share",
-	    FT_BOOLEAN, 16, NULL,  kFPMultiUserBit,
-      	"share point", HFILL }},
-    { &hf_afp_dir_attribute_System,
-      { "sytem",         	 "afp.dir_attribute.system",
-	    FT_BOOLEAN, 16, NULL,  kFPSystemBit,
-      	"sytem dir", HFILL }},
-    { &hf_afp_dir_attribute_Mounted,
-      { "mounted",         "afp.dir_attribute.mounted",
-	    FT_BOOLEAN, 16, NULL,  kFPDAlreadyOpenBit,
-      	"dir is mounted", HFILL }},
-    { &hf_afp_dir_attribute_InExpFolder,
-      { "shared area",         "afp.dir_attribute.in_exported_folder",
-	    FT_BOOLEAN, 16, NULL,  kFPRAlreadyOpenBit,
-      	"in a shared dir", HFILL }},
-    { &hf_afp_dir_attribute_BackUpNeeded,
-      { "backup needed",         "afp.dir_attribute.backup_needed",
-	    FT_BOOLEAN, 16, NULL,  kFPBackUpNeededBit,
-      	"backup needed", HFILL }},
-    { &hf_afp_dir_attribute_RenameInhibit,
-      { "rename inhibit",         "afp.dir_attribute.rename_inhibit",
-	    FT_BOOLEAN, 16, NULL,  kFPRenameInhibitBit,
-      	"rename inhibit", HFILL }},
-    { &hf_afp_dir_attribute_DeleteInhibit,
-      { "delete inhibit",         "afp.dir_attribute.delete_inhibit",
-	    FT_BOOLEAN, 16, NULL,  kFPDeleteInhibitBit,
-      	"delete inhibit", HFILL }},
-    { &hf_afp_dir_attribute_SetClear,
-      { "set",         "afp.dir_attribute.set_clear",
-	    FT_BOOLEAN, 16, NULL,  kFPSetClearBit,
-      	"clear/set attribute", HFILL }},
+      	"Directory is not visible", HFILL }},
 
-    { &hf_afp_file_bitmap_Attribute,        
-      { "attribute",         "afp.file_bitmap.attribute",
+    { &hf_afp_dir_attribute_IsExpFolder,
+      { "Share point",         "afp.dir_attribute.share",
+	    FT_BOOLEAN, 16, NULL,  kFPMultiUserBit,
+      	"Directory is a share point", HFILL }},
+
+    { &hf_afp_dir_attribute_System,
+      { "System",         	 "afp.dir_attribute.system",
+	    FT_BOOLEAN, 16, NULL,  kFPSystemBit,
+      	"Directory is a system directory", HFILL }},
+
+    { &hf_afp_dir_attribute_Mounted,
+      { "Mounted",         "afp.dir_attribute.mounted",
+	    FT_BOOLEAN, 16, NULL,  kFPDAlreadyOpenBit,
+      	"Directory is mounted", HFILL }},
+
+    { &hf_afp_dir_attribute_InExpFolder,
+      { "Shared area",         "afp.dir_attribute.in_exported_folder",
+	    FT_BOOLEAN, 16, NULL,  kFPRAlreadyOpenBit,
+      	"Directory is in a shared area", HFILL }},
+
+    { &hf_afp_dir_attribute_BackUpNeeded,
+      { "Backup needed",         "afp.dir_attribute.backup_needed",
+	    FT_BOOLEAN, 16, NULL,  kFPBackUpNeededBit,
+      	"Directory needs to be backed up", HFILL }},
+
+    { &hf_afp_dir_attribute_RenameInhibit,
+      { "Rename inhibit",         "afp.dir_attribute.rename_inhibit",
+	    FT_BOOLEAN, 16, NULL,  kFPRenameInhibitBit,
+      	"Rename inhibit", HFILL }},
+
+    { &hf_afp_dir_attribute_DeleteInhibit,
+      { "Delete inhibit",         "afp.dir_attribute.delete_inhibit",
+	    FT_BOOLEAN, 16, NULL,  kFPDeleteInhibitBit,
+      	"Delete inhibit", HFILL }},
+
+    { &hf_afp_dir_attribute_SetClear,
+      { "Set",         "afp.dir_attribute.set_clear",
+	    FT_BOOLEAN, 16, NULL,  kFPSetClearBit,
+      	"Clear/set attribute", HFILL }},
+
+    { &hf_afp_file_bitmap_Attributes,
+      { "Attributes",         "afp.file_bitmap.attributes",
 	    FT_BOOLEAN, 16, NULL,  kFPAttributeBit,
-      	"file attribute", HFILL }},
+      	"Return attributes if file", HFILL }},
+
     { &hf_afp_file_bitmap_ParentDirID,	   
       { "DID",         "afp.file_bitmap.did",
     	FT_BOOLEAN, 16, NULL,  kFPParentDirIDBit,
-      	"parent directory ID", HFILL }},
+      	"Return parent directory ID if file", HFILL }},
+
     { &hf_afp_file_bitmap_CreateDate,	   
-      { "creation date",         "afp.file_bitmap.create_date",
+      { "Creation date",         "afp.file_bitmap.create_date",
 	    FT_BOOLEAN, 16, NULL,  kFPCreateDateBit,
-      	"file creation date", HFILL }},
+      	"Return creation date if file", HFILL }},
+
     { &hf_afp_file_bitmap_ModDate,		   
-      { "modification date",         "afp.file_bitmap.mod_date",
+      { "Modification date",         "afp.file_bitmap.mod_date",
     	FT_BOOLEAN, 16, NULL,  kFPModDateBit,
-      	"file modification date", HFILL }},
+      	"Return modification date if file", HFILL }},
+
     { &hf_afp_file_bitmap_BackupDate,	   
-      { "backup date",         "afp.file_bitmap.backup_date",
+      { "Backup date",         "afp.file_bitmap.backup_date",
 	    FT_BOOLEAN, 16, NULL,  kFPBackupDateBit,
-      	"file backup date", HFILL }},
+      	"Return backup date if file", HFILL }},
+
     { &hf_afp_file_bitmap_FinderInfo,	   
       { "Finder info",         "afp.file_bitmap.finder_info",
     	FT_BOOLEAN, 16, NULL,  kFPFinderInfoBit,
-      	"file finder info", HFILL }},
+      	"Return finder info if file", HFILL }},
+
     { &hf_afp_file_bitmap_LongName,		   
-      { "long name",         "afp.file_bitmap.long_name",
+      { "Long name",         "afp.file_bitmap.long_name",
 	    FT_BOOLEAN, 16, NULL,  kFPLongNameBit,
-      	"file long name", HFILL }},
+      	"Return long name if file", HFILL }},
+
     { &hf_afp_file_bitmap_ShortName,		   
-      { "short name",         "afp.file_bitmap.short_name",
+      { "Short name",         "afp.file_bitmap.short_name",
     	FT_BOOLEAN, 16, NULL,  kFPShortNameBit,
-      	"file short name", HFILL }},
+      	"Return short name if file", HFILL }},
+
     { &hf_afp_file_bitmap_NodeID,		   
-      { "file ID",         "afp.file_bitmap.fid",
+      { "File ID",         "afp.file_bitmap.fid",
 	    FT_BOOLEAN, 16, NULL,  kFPNodeIDBit,
-      	"file file ID", HFILL }},
+      	"Return file ID if file", HFILL }},
 
     { &hf_afp_file_bitmap_DataForkLen,
-      	{ "data size",         "afp.file_bitmap.data_fork_len",
+      { "Data fork size",         "afp.file_bitmap.data_fork_len",
 	    FT_BOOLEAN, 16, NULL,  kFPDataForkLenBit,
-      	"data fork size", HFILL }},
+      	"Return data fork size if file", HFILL }},
+
     { &hf_afp_file_bitmap_RsrcForkLen,
-      	{ "ressource size",         "afp.file_bitmap.ressource_fork_len",
+      { "Resource fork size",         "afp.file_bitmap.resource_fork_len",
 	    FT_BOOLEAN, 16, NULL,  kFPRsrcForkLenBit,
-      	"ressource fork size", HFILL }},
+      	"Return resource fork size if file", HFILL }},
+
     { &hf_afp_file_bitmap_ExtDataForkLen,
-      	{ "ext. data size",         "afp.file_bitmap.ex_data_fork_len",
+      { "Extended data fork size",         "afp.file_bitmap.ex_data_fork_len",
 	    FT_BOOLEAN, 16, NULL,  kFPExtDataForkLenBit,
-      	">2Gbyte data fork size", HFILL }},
+      	"Return extended (>2GB) data fork size if file", HFILL }},
+
     { &hf_afp_file_bitmap_LaunchLimit,
-      	{ "launch limit",         "afp.file_bitmap.launch_limit",
+      { "Launch limit",         "afp.file_bitmap.launch_limit",
 	    FT_BOOLEAN, 16, NULL,  kFPLaunchLimitBit,
-      	"launch limit", HFILL }},
+      	"Return launch limit if file", HFILL }},
+
     { &hf_afp_file_bitmap_UTF8Name,		   
-      { "UTF8 name",         "afp.file_bitmap.UTF8_name",
+      { "UTF-8 name",         "afp.file_bitmap.UTF8_name",
     	FT_BOOLEAN, 16, NULL,  kFPUTF8NameBit,
-      	"file UTF8 name", HFILL }},
+      	"Return UTF-8 name if file", HFILL }},
+
     { &hf_afp_file_bitmap_ExtRsrcForkLen,
-      	{ "ext. ressource size",         "afp.file_bitmap.ex_ressource_fork_len",
+      	{ "Extended resource fork size",         "afp.file_bitmap.ex_resource_fork_len",
 	    FT_BOOLEAN, 16, NULL,  kFPExtRsrcForkLenBit,
-      	">2Gbyte ressource fork size", HFILL }},
+      	"Return extended (>2GB) resource fork size if file", HFILL }},
+
     { &hf_afp_file_bitmap_UnixPrivs,		   
-      { "unix privs",         "afp.file_bitmap.unix_privs",
+      { "UNIX privileges",    "afp.file_bitmap.unix_privs",
 	    FT_BOOLEAN, 16, NULL,  kFPUnixPrivsBit_file,
-      	"file unix privs", HFILL }},
+      	"Return UNIX privileges if file", HFILL }},
+
 	/* ---------- */
     { &hf_afp_file_attribute_Invisible,
-      { "invisible",         "afp.file_attribute.invisible",
+      { "Invisible",         "afp.file_attribute.invisible",
 	    FT_BOOLEAN, 16, NULL,  kFPInvisibleBit,
-      	"file is not visible", HFILL }},
+      	"File is not visible", HFILL }},
+
     { &hf_afp_file_attribute_MultiUser,
-      { "multi user",         "afp.file_attribute.multi_user",
+      { "Multi user",         "afp.file_attribute.multi_user",
 	    FT_BOOLEAN, 16, NULL,  kFPMultiUserBit,
       	"multi user", HFILL }},
+
     { &hf_afp_file_attribute_System,
-      { "sytem",         	 "afp.file_attribute.system",
+      { "System",         	 "afp.file_attribute.system",
 	    FT_BOOLEAN, 16, NULL,  kFPSystemBit,
-      	"system file", HFILL }},
+      	"File is a system file", HFILL }},
+
     { &hf_afp_file_attribute_DAlreadyOpen,
-      { "df open",         "afp.file_attribute.df_open",
+      { "Data fork open",         "afp.file_attribute.df_open",
 	    FT_BOOLEAN, 16, NULL,  kFPDAlreadyOpenBit,
-      	"data fork already open", HFILL }},
+      	"Data fork already open", HFILL }},
+
     { &hf_afp_file_attribute_RAlreadyOpen,
-      { "rf open",         "afp.file_attribute.rf_open",
+      { "Resource fork open",         "afp.file_attribute.rf_open",
 	    FT_BOOLEAN, 16, NULL,  kFPRAlreadyOpenBit,
-      	"ressource fork already open", HFILL }},
+      	"Resource fork already open", HFILL }},
+
     { &hf_afp_file_attribute_WriteInhibit,
-      { "write inhibit",         "afp.file_attribute.write_inhibit",
+      { "Write inhibit",         "afp.file_attribute.write_inhibit",
 	    FT_BOOLEAN, 16, NULL,  kFPWriteInhibitBit,
-      	"write inhibit", HFILL }},
+      	"Write inhibit", HFILL }},
+
     { &hf_afp_file_attribute_BackUpNeeded,
-      { "backup needed",         "afp.file_attribute.backup_needed",
+      { "Backup needed",         "afp.file_attribute.backup_needed",
 	    FT_BOOLEAN, 16, NULL,  kFPBackUpNeededBit,
-      	"backup needed", HFILL }},
+      	"File needs to be backed up", HFILL }},
+
     { &hf_afp_file_attribute_RenameInhibit,
-      { "rename inhibit",         "afp.file_attribute.rename_inhibit",
+      { "Rename inhibit",         "afp.file_attribute.rename_inhibit",
 	    FT_BOOLEAN, 16, NULL,  kFPRenameInhibitBit,
       	"rename inhibit", HFILL }},
+
     { &hf_afp_file_attribute_DeleteInhibit,
-      { "delete inhibit",         "afp.file_attribute.delete_inhibit",
+      { "Delete inhibit",         "afp.file_attribute.delete_inhibit",
 	    FT_BOOLEAN, 16, NULL,  kFPDeleteInhibitBit,
       	"delete inhibit", HFILL }},
+
     { &hf_afp_file_attribute_CopyProtect,
-      { "copy protect",         "afp.file_attribute.copy_protect",
+      { "Copy protect",         "afp.file_attribute.copy_protect",
 	    FT_BOOLEAN, 16, NULL,  kFPCopyProtectBit,
       	"copy protect", HFILL }},
+
     { &hf_afp_file_attribute_SetClear,
-      { "set",         "afp.file_attribute.set_clear",
+      { "Set",         "afp.file_attribute.set_clear",
 	    FT_BOOLEAN, 16, NULL,  kFPSetClearBit,
-      	"clear/set attribute", HFILL }},
+      	"Clear/set attribute", HFILL }},
 	/* ---------- */
+
     { &hf_afp_vol_name,
       { "Volume",         "afp.vol_name",
 	FT_UINT_STRING, BASE_NONE, NULL, 0x0,
       	"Volume name", HFILL }},
+
     { &hf_afp_vol_id,
-      { "volume id",         "afp.vol_id",
+      { "Volume id",         "afp.vol_id",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
       	"Volume id", HFILL }},
+
     { &hf_afp_vol_signature,
-      { "signature",         "afp.vol_signature",
+      { "Signature",         "afp.vol_signature",
 		FT_UINT16, BASE_DEC, VALS(vol_signature_vals), 0x0,
       	"Volume signature", HFILL }},
+
     { &hf_afp_bitmap_offset,
-      { "offset",         "afp.bitmap_offset",
+      { "Offset",         "afp.bitmap_offset",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"name offset in packet", HFILL }},
+      	"Name offset in packet", HFILL }},
+
     { &hf_afp_vol_creation_date,
-      { "creation date",         "afp.vol_creation_date",
+      { "Creation date",         "afp.vol_creation_date",
 		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-      	"volume creation date", HFILL }},
+      	"Volume creation date", HFILL }},
+
     { &hf_afp_vol_modification_date,
-      { "modification date",         "afp.vol_modification_date",
+      { "Modification date",         "afp.vol_modification_date",
 		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-      	"volume modification date", HFILL }},
+      	"Volume modification date", HFILL }},
+
     { &hf_afp_vol_backup_date,
-      { "backup date",         "afp.vol_backup_date",
+      { "Backup date",         "afp.vol_backup_date",
 		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-      	"volume backup date", HFILL }},
+      	"Volume backup date", HFILL }},
+
     { &hf_afp_vol_bytes_free,
-      { "bytes free",         "afp.vol_bytes_free",
+      { "Bytes free",         "afp.vol_bytes_free",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
-      	"free space", HFILL }},
+      	"Free space", HFILL }},
+
     { &hf_afp_vol_bytes_total,
-      { "bytes total",         "afp.vol_bytes_total",
+      { "Bytes total",         "afp.vol_bytes_total",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
-      	"volume size ", HFILL }},
+      	"Volume size", HFILL }},
+
     { &hf_afp_vol_ex_bytes_free,
-      { "ex. bytes free",         "afp.vol_ex_bytes_free",
+      { "Extended bytes free",         "afp.vol_ex_bytes_free",
 		FT_UINT64, BASE_DEC, NULL, 0x0,
-      	"ex. free space", HFILL }},
+      	"Extended (>2GB) free space", HFILL }},
+
     { &hf_afp_vol_ex_bytes_total,
-      { "ex. bytes total",         "afp.vol_ex_bytes_total",
+      { "Extended bytes total",         "afp.vol_ex_bytes_total",
 		FT_UINT64, BASE_DEC, NULL, 0x0,
-      	"ex. volume size ", HFILL }},
+      	"Extended (>2GB) volume size", HFILL }},
+
     { &hf_afp_vol_block_size,
-      { "block size",         "afp.vol_block_size",
+      { "Block size",         "afp.vol_block_size",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
-      	"volume block size", HFILL }},
+      	"Volume block size", HFILL }},
 
     { &hf_afp_did,
-      { "did",         "afp.did",
+      { "DID",         "afp.did",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
-      	"parent directory id", HFILL }},
+      	"Parent directory ID", HFILL }},
 
     { &hf_afp_dir_bitmap,
-      { "dir bitmap",         "afp.dir_bitmap",
+      { "Directory bitmap",         "afp.dir_bitmap",
 		FT_UINT16, BASE_HEX, NULL, 0x0,
-      	"directory bitmap", HFILL }},
+      	"Directory bitmap", HFILL }},
+
     { &hf_afp_dir_offspring,
-      { "off spring",         "afp.dir_offspring",
+      { "Offspring",         "afp.dir_offspring",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"directory offspring", HFILL }},
+      	"Directory offspring", HFILL }},
+
     { &hf_afp_dir_OwnerID,
-      { "owner ID",         "afp.dir_owner_id",
+      { "Owner ID",         "afp.dir_owner_id",
 		FT_INT32, BASE_DEC, NULL, 0x0,
-      	"directory owner ID", HFILL }},
+      	"Directory owner ID", HFILL }},
+
     { &hf_afp_dir_GroupID,
-      { "group ID",         "afp.dir_group_id",
+      { "Group ID",         "afp.dir_group_id",
 		FT_INT32, BASE_DEC, NULL, 0x0,
-      	"directory group ID", HFILL }},
+      	"Directory group ID", HFILL }},
 
     { &hf_afp_creation_date,
-      { "creation date",         "afp.creation_date",
+      { "Creation date",         "afp.creation_date",
 		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-      	"creation date", HFILL }},
+      	"Creation date", HFILL }},
+
     { &hf_afp_modification_date,
-      { "modification date",         "afp.modification_date",
+      { "Modification date",         "afp.modification_date",
 		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-      	"modification date", HFILL }},
+      	"Modification date", HFILL }},
+
     { &hf_afp_backup_date,
-      { "backup date",         "afp.backup_date",
+      { "Backup date",         "afp.backup_date",
 		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-      	"backup date", HFILL }},
+      	"Backup date", HFILL }},
 
     { &hf_afp_finder_info,
-      { "finder info",         "afp.finder_info",
+      { "Finder info",         "afp.finder_info",
 		FT_BYTES, BASE_HEX, NULL, 0x0,
-      	"finder info", HFILL }},
+      	"Finder info", HFILL }},
 
     { &hf_afp_file_id,
-      { "file id",         "afp.file_id",
+      { "File ID",         "afp.file_id",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
-      	"file/directory id", HFILL }},
+      	"File/directory ID", HFILL }},
+
     { &hf_afp_file_DataForkLen,
-      { "df size",         "afp.data_fork_len",
+      { "Data fork size",         "afp.data_fork_len",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
-      	"data fork size", HFILL }},
+      	"Data fork size", HFILL }},
+
     { &hf_afp_file_RsrcForkLen,
-      { "rf size",         "afp.ressource_fork_len",
+      { "Resource fork size",         "afp.resource_fork_len",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
-      	"ressource fork size", HFILL }},
+      	"Resource fork size", HFILL }},
+
     { &hf_afp_file_ExtDataForkLen,
-      { "ext df size",         "afp.ext_data_fork_len",
+      { "Extended data fork size",         "afp.ext_data_fork_len",
 		FT_UINT64, BASE_DEC, NULL, 0x0,
-      	">2GByte data fork len", HFILL }},
+      	"Extended (>2GB) data fork length", HFILL }},
+
     { &hf_afp_file_ExtRsrcForkLen,
-      { "ext rf size",         "afp.ext_ressource_fork_len",
+      { "Extended resource fork size",         "afp.ext_resource_fork_len",
 		FT_UINT64, BASE_DEC, NULL, 0x0,
-      	">2GByte ressource fork len", HFILL }},
+      	"Extended (>2GB) resource fork length", HFILL }},
+
     { &hf_afp_file_UnixPrivs,
-      { "unix privs",         "afp.unix_privs",
+      { "UNIX privileges",         "afp.unix_privs",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
-      	"Unix privs", HFILL }},
+      	"UNIX privileges", HFILL }},
     
     { &hf_afp_file_bitmap,
-      { "file bitmap",         "afp.file_bitmap",
+      { "File bitmap",         "afp.file_bitmap",
 		FT_UINT16, BASE_HEX, NULL, 0x0,
-      	"file bitmap", HFILL }},
+      	"File bitmap", HFILL }},
     
     { &hf_afp_req_count,
-      { "req count",         "afp.req_count",
+      { "Req count",         "afp.req_count",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
       	"Maximum number of structures returned", HFILL }},
 
-    { & hf_afp_start_index, 
-      { "start index",         "afp.start_index",
+    { &hf_afp_start_index, 
+      { "Start index",         "afp.start_index",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"first structure returned", HFILL }},
+      	"First structure returned", HFILL }},
     
     { &hf_afp_max_reply_size,
-      { "reply size",         "afp.reply_size",
+      { "Reply size",         "afp.reply_size",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"first structure returned", HFILL }},
+      	"First structure returned", HFILL }},
 
     { &hf_afp_file_flag,
-      { "dir",         "afp.flag",
+      { "Dir",         "afp.flag",
 		FT_BOOLEAN, 8, NULL, 0x80,
-      	"is a dir", HFILL }},
+      	"Is a dir", HFILL }},
 
     { &hf_afp_create_flag,
-      { "hard create",         "afp.create_flag",
+      { "Hard create",         "afp.create_flag",
 		FT_BOOLEAN, 8, NULL, 0x80,
-      	"soft/hard create file", HFILL }},
+      	"Soft/hard create file", HFILL }},
 
     { &hf_afp_struct_size,
-      { "struct size",         "afp.struct_size",
+      { "Struct size",         "afp.struct_size",
 		FT_UINT8, BASE_DEC, NULL,0,
-      	"sizeof of struct", HFILL }},
+      	"Sizeof of struct", HFILL }},
     
     { &hf_afp_flag,
-      { "from",         "afp.flag",
+      { "From",         "afp.flag",
 		FT_UINT8, BASE_HEX, VALS(flag_vals), 0x80,
-      	"offset is relative to start/end of the fork", HFILL }},
+      	"Offset is relative to start/end of the fork", HFILL }},
+
     { &hf_afp_dt_ref,
       { "DT ref",         "afp.dt_ref",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
       	"Desktop database reference num", HFILL }},
 
     { &hf_afp_ofork,
-      { "fork",         "afp.ofork",
+      { "Fork",         "afp.ofork",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
       	"Open fork reference number", HFILL }},
 
     { &hf_afp_offset,
-      { "offset",         "afp.offset",
+      { "Offset",         "afp.offset",
 		FT_INT32, BASE_DEC, NULL, 0x0,
-      	"offset ", HFILL }},
+      	"Offset", HFILL }},
     
     { &hf_afp_rw_count,
       { "Count",         "afp.rw_count",
@@ -2943,194 +3027,208 @@ proto_register_afp(void)
       	"Offset of the last byte written", HFILL }},
 
     { &hf_afp_actual_count,
-      { "count",         "afp.actual_count",
+      { "Count",         "afp.actual_count",
 		FT_INT32, BASE_DEC, NULL, 0x0,
-      	"number of bytes returned by read/write", HFILL }},
+      	"Number of bytes returned by read/write", HFILL }},
       
     { &hf_afp_ofork_len,
-      { "new length",         "afp.ofork_len",
+      { "New length",         "afp.ofork_len",
 		FT_INT32, BASE_DEC, NULL, 0x0,
-      	"new length ", HFILL }},
+      	"New length", HFILL }},
 
     { &hf_afp_path_type,
-      { "type ",         "afp.path_type",
+      { "Type",         "afp.path_type",
 		FT_UINT8, BASE_HEX, VALS(path_type_vals), 0,
-      	"type of names", HFILL }},
+      	"Type of names", HFILL }},
 
     { &hf_afp_path_len,
-      { "len",  "afp.path_len",
+      { "Len",  "afp.path_len",
 		FT_UINT8, BASE_DEC, NULL, 0x0,
-      	"path len", HFILL }},
+      	"Path length", HFILL }},
 
     { &hf_afp_path_name,
-      { "Name ",  "afp.path_name",
+      { "Name",  "afp.path_name",
 		FT_STRING, BASE_NONE, NULL, 0x0,
-      	"path name", HFILL }},
+      	"Path name", HFILL }},
 
     { &hf_afp_fork_type,
-      { "ressource fork",         "afp.fork_type",
+      { "Resource fork",         "afp.fork_type",
 		FT_BOOLEAN, 8, NULL, 0x80,
-      	"data/ressource fork", HFILL }},
+      	"Data/resource fork", HFILL }},
 
     { &hf_afp_access_mode,
-      { "access mode",         "afp.access",
+      { "Access mode",         "afp.access",
 		FT_UINT8, BASE_HEX, NULL, 0x0,
-      	"fork access mode", HFILL }},
+      	"Fork access mode", HFILL }},
+
     { &hf_afp_access_read,
-      { "read",         "afp.access.read",
+      { "Read",         "afp.access.read",
     	FT_BOOLEAN, 8, NULL,  1,
-      	"open for reading", HFILL }},
+      	"Open for reading", HFILL }},
+
     { &hf_afp_access_write,
-      { "write",         "afp.access.write",
+      { "Write",         "afp.access.write",
     	FT_BOOLEAN, 8, NULL,  2,
-      	"open for writing", HFILL }},
+      	"Open for writing", HFILL }},
+
     { &hf_afp_access_deny_read,
-      { "deny read",         "afp.access.deny_read",
+      { "Deny read",         "afp.access.deny_read",
     	FT_BOOLEAN, 8, NULL,  0x10,
-      	"deny read", HFILL }},
+      	"Deny read", HFILL }},
+
     { &hf_afp_access_deny_write,
-      { "deny write",         "afp.access.deny_write",
+      { "Deny write",         "afp.access.deny_write",
     	FT_BOOLEAN, 8, NULL,  0x20,
-      	"deny write", HFILL }},
+      	"Deny write", HFILL }},
 
     { &hf_afp_comment,
-      { "comment",         "afp.comment",
+      { "Comment",         "afp.comment",
 		FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-      	"file/folder comment", HFILL }},
+      	"File/folder comment", HFILL }},
 
     { &hf_afp_file_creator,
-      { "file creator",         "afp.file_creator",
+      { "File creator",         "afp.file_creator",
 		FT_STRING, BASE_NONE, NULL, 0x0,
-      	"file creator", HFILL }},
+      	"File creator", HFILL }},
 
     { &hf_afp_file_type,
-      { "file type",         "afp.file_type",
+      { "File type",         "afp.file_type",
 		FT_STRING, BASE_NONE, NULL, 0x0,
-      	"file type", HFILL }},
+      	"File type", HFILL }},
 
     { &hf_afp_icon_type,
-      { "icon type",         "afp.icon_type",
+      { "Icon type",         "afp.icon_type",
 		FT_UINT8, BASE_HEX, NULL , 0,
-      	"icon type", HFILL }},
+      	"Icon type", HFILL }},
 
     { &hf_afp_icon_length,
-      { "size",         "afp.icon_length",
+      { "Size",         "afp.icon_length",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"size for icon bitmap", HFILL }},
+      	"Size for icon bitmap", HFILL }},
 
     { &hf_afp_icon_index,
-      { "index",         "afp.icon_index",
+      { "Index",         "afp.icon_index",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"icon index in desktop database", HFILL }},
+      	"Icon index in desktop database", HFILL }},
 
     { &hf_afp_icon_tag,
-      { "tag",         "afp.icon_tag",
+      { "Tag",         "afp.icon_tag",
 		FT_UINT32, BASE_HEX, NULL, 0x0,
-      	"icon tag", HFILL }},
+      	"Icon tag", HFILL }},
 
     { &hf_afp_appl_index,
-      { "index",         "afp.appl_index",
+      { "Index",         "afp.appl_index",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"appl index ", HFILL }},
+      	"Application index", HFILL }},
 
     { &hf_afp_appl_tag,
-      { "tag",         "afp.appl_tag",
+      { "Tag",         "afp.appl_tag",
 		FT_UINT32, BASE_HEX, NULL, 0x0,
-      	"appl tag", HFILL }},
+      	"Application tag", HFILL }},
       	
     { &hf_afp_lock_op,
       { "unlock",         "afp.lock_op",
 		FT_BOOLEAN, 8, NULL, 0x1,
-      	"lock/unlock op", HFILL }},
+      	"Lock/unlock op", HFILL }},
+
     { &hf_afp_lock_from,
-      { "end",         "afp.lock_from",
+      { "End",         "afp.lock_from",
 		FT_BOOLEAN, 8, NULL, 0x80,
-      	"relative start/end of the fork", HFILL }},
+      	"Offset is relative to the end of the fork", HFILL }},
     
     { &hf_afp_lock_offset,
-       { "offset",         "afp.lock_offset",
+      { "Offset",         "afp.lock_offset",
 		FT_INT32, BASE_DEC, NULL, 0x0,
-      	"first byte to be locked", HFILL }},
+      	"First byte to be locked", HFILL }},
 
     { &hf_afp_lock_len,
-       { "length",         "afp.lock_len",
+      { "Length",         "afp.lock_len",
 		FT_INT32, BASE_DEC, NULL, 0x0,
-      	"number of bytes to be locked/unlocked", HFILL }},
+      	"Number of bytes to be locked/unlocked", HFILL }},
 
     { &hf_afp_lock_range_start,
-       { "start",         "afp.lock_range_start",
+      { "Start",         "afp.lock_range_start",
 		FT_INT32, BASE_DEC, NULL, 0x0,
-      	"first byte locked/unlocked", HFILL }},
+      	"First byte locked/unlocked", HFILL }},
 
     { &hf_afp_dir_ar,
-       { "access right",         "afp.dir_ar",
+      { "Access rights",         "afp.dir_ar",
 		FT_UINT32, BASE_HEX, NULL, 0x0,
-      	"directory access right", HFILL }},
+      	"Directory access rights", HFILL }},
 
     { &hf_afp_dir_ar_o_search,
-       { "owner has search access",      "afp.dir_ar.o_search",
+      { "Owner has search access",      "afp.dir_ar.o_search",
 		FT_BOOLEAN, 32, NULL, AR_O_SEARCH,
-      	"owner search access", HFILL }},
+      	"Owner has search access", HFILL }},
+
     { &hf_afp_dir_ar_o_read,
-       { "owner has read access",        "afp.dir_ar.o_read",
+      { "Owner has read access",        "afp.dir_ar.o_read",
 		FT_BOOLEAN, 32, NULL, AR_O_READ,
-      	"owner read access", HFILL }},
+      	"Owner has read access", HFILL }},
+
     { &hf_afp_dir_ar_o_write,
-       { "owner has write access",       "afp.dir_ar.o_write",
+      { "Owner has write access",       "afp.dir_ar.o_write",
 		FT_BOOLEAN, 32, NULL, AR_O_WRITE,
-      	"owner write access", HFILL }},
+      	"Gwner has write access", HFILL }},
 
     { &hf_afp_dir_ar_g_search,
-       { "group has search access",      "afp.dir_ar.g_search",
+      { "Group has search access",      "afp.dir_ar.g_search",
 		FT_BOOLEAN, 32, NULL, AR_G_SEARCH,
-      	"group search access", HFILL }},
+      	"Group has search access", HFILL }},
+
     { &hf_afp_dir_ar_g_read,
-       { "group has read access",        "afp.dir_ar.g_read",
+      { "Group has read access",        "afp.dir_ar.g_read",
 		FT_BOOLEAN, 32, NULL, AR_G_READ,
-      	"group read access", HFILL }},
+      	"Group has read access", HFILL }},
+
     { &hf_afp_dir_ar_g_write,
-       { "group has write access",       "afp.dir_ar.g_write",
+      { "Group has write access",       "afp.dir_ar.g_write",
 		FT_BOOLEAN, 32, NULL, AR_G_WRITE,
-      	"group write access", HFILL }},
+      	"Group has write access", HFILL }},
 
     { &hf_afp_dir_ar_e_search,
-       { "everyone has search access",   "afp.dir_ar.e_search",
+      { "Everyone has search access",   "afp.dir_ar.e_search",
 		FT_BOOLEAN, 32, NULL, AR_E_SEARCH,
-      	"everyone search access", HFILL }},
+      	"Everyone has search access", HFILL }},
+
     { &hf_afp_dir_ar_e_read,
-       { "everyone has read access",     "afp.dir_ar.e_read",
+      { "Everyone has read access",     "afp.dir_ar.e_read",
 		FT_BOOLEAN, 32, NULL, AR_E_READ,
-      	"everyone read access", HFILL }},
+      	"Everyone has read access", HFILL }},
+
     { &hf_afp_dir_ar_e_write,
-       { "everyone has write access",    "afp.dir_ar.e_write",
+      { "Everyone has write access",    "afp.dir_ar.e_write",
 		FT_BOOLEAN, 32, NULL, AR_E_WRITE,
-      	"everyone write access", HFILL }},
+      	"Everyone has write access", HFILL }},
 
     { &hf_afp_dir_ar_u_search,
-       { "user has search access",   "afp.dir_ar.u_search",
+      { "User has search access",   "afp.dir_ar.u_search",
 		FT_BOOLEAN, 32, NULL, AR_U_SEARCH,
-      	"user search access", HFILL }},
+      	"User has search access", HFILL }},
+
     { &hf_afp_dir_ar_u_read,
-       { "user has read access",     "afp.dir_ar.u_read",
+      { "User has read access",     "afp.dir_ar.u_read",
 		FT_BOOLEAN, 32, NULL, AR_U_READ,
-      	"user read access", HFILL }},
+      	"User has read access", HFILL }},
+
     { &hf_afp_dir_ar_u_write,
-       { "user has write access",     "afp.dir_ar.u_write",
+      { "User has write access",     "afp.dir_ar.u_write",
 		FT_BOOLEAN, 32, NULL, AR_U_WRITE,
-      	"user has write access", HFILL }},
+      	"User has write access", HFILL }},
 
     { &hf_afp_dir_ar_blank,
-       { "blank access right",     "afp.dir_ar.blank",
+      { "Blank access right",     "afp.dir_ar.blank",
 		FT_BOOLEAN, 32, NULL, AR_BLANK,
-      	"blank access right", HFILL }},
+      	"Blank access right", HFILL }},
+
     { &hf_afp_dir_ar_u_own,
-       { "user is the owner",     "afp.dir_ar.u_owner",
+      { "User is the owner",     "afp.dir_ar.u_owner",
 		FT_BOOLEAN, 32, NULL, AR_U_OWN,
-      	"current user is the directory owner", HFILL }},
+      	"Current user is the directory owner", HFILL }},
   };
 
   static gint *ett[] = {
-    &ett_afp,
+	&ett_afp,
 	&ett_afp_vol_bitmap,
 	&ett_afp_vol_attribute,
 	&ett_afp_dir_bitmap,
