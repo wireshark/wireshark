@@ -915,6 +915,15 @@
 		  </para></entry>
 	      </row>
 	      <row>
+		<entry><command>Interfaces ...</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item brings up a dialog box that shows what's going on 
+			at the network interfaces Ethereal knows of, see
+			<xref linkend="ChCapInterfaceSection"/>) .
+		  </para></entry>
+	      </row>
+	      <row>
 		<entry><command>Capture Filters...</command></entry>
 		<entry></entry>
 		<entry><para>

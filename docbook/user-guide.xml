@@ -163,6 +163,7 @@ FILE SECTION
   <!ENTITY EtherealExportPSMLDialog SYSTEM "./graphics/ethereal-export-psml.png" NDATA PNG>
   <!ENTITY EtherealExportPDMLDialog SYSTEM "./graphics/ethereal-export-pdml.png" NDATA PNG>
   <!ENTITY EtherealExportSelectedDialog SYSTEM "./graphics/ethereal-export-selected.png" NDATA PNG>
+  <!ENTITY EtherealCaptureInterfacesDialog SYSTEM "./graphics/ethereal-capture-interfaces.png" NDATA PNG>
   <!ENTITY EtherealCaptureOptionsDialog SYSTEM "./graphics/ethereal-capture-options.png" NDATA PNG>
   <!ENTITY EtherealCaptureInfoDialog SYSTEM "./graphics/ethereal-capture-info.png" NDATA PNG>
   <!ENTITY EtherealMergeDialog SYSTEM "./graphics/ethereal-merge.png" NDATA PNG>

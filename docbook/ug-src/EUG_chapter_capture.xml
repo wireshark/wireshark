@@ -3,35 +3,184 @@
 
 <chapter id="ChapterCapture">
   <title>Capturing Live Network Data</title>
+  
+  <section id="ChCapIntroduction">
+	<title>Introduction</title>
+	<para>
+	Capturing live network data is one of the major features of Ethereal.
+	</para>
+	<para>
+	The Ethereal capture engine provides the following features:
+	</para>
+	<itemizedlist>
+	<listitem><para>
+	Capture from different kinds of network hardware (Ethernet, Token Ring, 
+	ATM, ...).
+	</para></listitem>
+	<listitem><para>
+	Stop the capture on different triggers like: amount of captured data, 
+	captured time, captured number of packets.
+	</para></listitem>
+	<listitem><para>
+	Simultaneously show decoded packets while keep on capturing.
+	</para></listitem>
+	<listitem><para>
+	Filter packets, reducing the amount of data to be captured, see <xref 
+	linkend="ChCapCaptureFilterSection"/>.
+	</para></listitem>
+	<listitem><para>
+	Capturing into multiple files while doing a long term capture, and in 
+	addition the option to form a ringbuffer of these files, keeping only 
+	the last x files, useful for a "very long term" capture, see <xref 
+	linkend="ChCapCaptureFiles"/>.
+	</para></listitem>
+	</itemizedlist>
+	The capture engine still lacks the following features:
+	<itemizedlist>
+	<listitem><para>
+	Simultaneous capturing from multiple network interfaces (however, you 
+	can start multiple instances of Ethereal and merge capture files later).
+	</para></listitem>
+	<listitem><para>
+	Stop capturing (or doing some other action), depending on the captured 
+	data.
+	</para></listitem>
+	</itemizedlist>
+  </section>
+  
   <section id="ChCapCapturingSection"><title>Start Capturing</title>
     <para>
-      There are two methods you can use to start capturing packets with 
+      There are three methods you can use to start capturing packets with 
 	  Ethereal:
       <orderedlist>
 	<listitem>
 	  <para>
-	    From the command line using the following:
+	    You can get an overview of the available local interfaces using the 
+		"Capture interfaces" dialog box, see 
+		<xref linkend="ChCapCaptureInterfacesDialog"/>. You can also start a 
+		capture from this dialog box, using (one of) the "Capture" button.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    You can start capturing using the "Capture Options" dialog box, see 
+		<xref linkend="ChCapCaptureOptionsDialog"/>.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    If you already know the name of the capture interface, you can start 
+		Ethereal from the command line and use the following:
 	    <programlisting>
 ethereal -i eth0 -k
 	    </programlisting>
 		This will start Ethereal capturing on interface eth0.
 	  </para>
 	</listitem>
-	<listitem>
-	  <para>
-	    By starting Ethereal and then selecting Start... from the 
-	    Capture menu (or use the corresponding item in the "Main" toolbar),
-		this brings up the Capture Options dialog box.
-	  </para>
-	</listitem>
       </orderedlist>
     </para>
     </section>
 
+  <section id="ChCapInterfaceSection">
+	<title>The "Capture Interfaces" dialog box</title>
+	<para>
+	When you select "Interfaces..." from the Capture menu, Ethereal pops 
+	up the "Capture Interfaces" dialog box as shown in 
+	<xref linkend="ChCapCaptureInterfacesDialog"/>.
+	<warning><title>Warning!</title>
+	<para>
+	As the "Capture Interfaces" dialog is showing live captured data, it is 
+	consuming a lot of system ressources. Close this dialog as soon as 
+	possible to prevent excessive system load.
+	</para>
+	</warning>
+	<note><title>Note!</title>
+	<para>
+	This dialog box will only show the local interfaces Ethereal knows 
+	of. As Ethereal might not be able to detect all local interfaces, and it 
+	cannot detect the remote interfaces available, there could be more capture 
+	interfaces available than listed.
+	</para>
+	</note>
+	<figure id="ChCapCaptureInterfacesDialog">
+	<title>The "Capture Interfaces" dialog box</title>
+	<graphic entityref="EtherealCaptureInterfacesDialog" format="PNG"/>
+	</figure>
+	<variablelist>
+	  <varlistentry><term><command>Description</command></term>
+	    <listitem>
+	      <para>
+		  The interface description provided by the operating system.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>IP</command></term>
+	    <listitem>
+	      <para>
+		  The first IP address Ethereal could resolve from this interface. 
+		  If no address could be resolved (e.g. no DHCP server available), 
+		  "unknown" will be displayed. If more than one IP address could be 
+		  resolved, only the first is shown (unpredictable which one in that 
+		  case).
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Packets</command></term>
+	    <listitem>
+	      <para>
+		  The number of packets captured from this interface, since this 
+		  dialog was opened. Will be greyed out, if no packet was captured 
+		  in the last second.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Packets/s</command></term>
+	    <listitem>
+	      <para>
+		  Number of packets captured in the last second. Will be greyed out, 
+		  if no packet was captured in the last second.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Stop</command></term>
+	    <listitem>
+	      <para>
+		  Stop a currently running capture.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Capture</command></term>
+	    <listitem>
+	      <para>
+		  Start a capture on this interface immediately, using the settings 
+		  from the last capture.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Prepare</command></term>
+	    <listitem>
+	      <para>
+		  Open the Capture Options dialog with this interface selected, see 
+		  <xref linkend="ChCapCaptureOptions"/>.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Close</command></term>
+	    <listitem>
+	      <para>
+		  Close this dialog box.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+	</para>
+  </section>
+  
     <section id="ChCapCaptureOptions">
       <title>The "Capture Options" dialog box</title>
       <para>
-	When you select Start... from the Capture menu, Ethereal pops 
+	When you select Start... from the Capture menu (or use the corresponding 
+	item in the "Main" toolbar), Ethereal pops 
 	up the "Capture Options" dialog box as shown in 
 	<xref linkend="ChCapCaptureOptionsDialog"/>.
       </para>
