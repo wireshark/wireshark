@@ -5,7 +5,7 @@
  *
  * Copyright 2001, Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-mtp2.c,v 1.8 2003/04/22 13:47:38 tuexen Exp $
+ * $Id: packet-mtp2.c,v 1.9 2003/12/03 22:50:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -208,6 +208,12 @@ proto_register_mtp2(void)
 void
 proto_reg_handoff_mtp2(void)
 {
+  dissector_handle_t mtp2_handle;
+
+  mtp2_handle = create_dissector_handle(dissect_mtp2, proto_mtp2);
+
+  dissector_add("wtap_encap", WTAP_ENCAP_MTP2, mtp2_handle);
+
   mtp3_handle   = find_dissector("mtp3");
   mtp3_proto_id = proto_get_id_by_filter_name("mtp3");
 }

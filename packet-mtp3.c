@@ -9,7 +9,7 @@
  * Copyright 2001, Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Updated for ANSI and Chinese ITU support by Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3.c,v 1.22 2003/09/06 00:03:23 guy Exp $
+ * $Id: packet-mtp3.c,v 1.23 2003/12/03 22:50:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -502,5 +502,11 @@ proto_register_mtp3(void)
 void
 proto_reg_handoff_mtp3(void)
 {
+  dissector_handle_t mtp3_handle;
+
+  mtp3_handle = create_dissector_handle(dissect_mtp3, proto_mtp3);
+
+  dissector_add("wtap_encap", WTAP_ENCAP_MTP3, mtp3_handle);
+
   data_handle = find_dissector("data");
 }
