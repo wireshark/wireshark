@@ -1763,6 +1763,7 @@ And assorted fixes and enhancements by the people listed above and by:
 	Nathan Jennings <njen [AT] bellsouth.net>
 	Gregory Stark <gsstark [AT] mit.edu>
 	Darren Steele <steeley [AT] steeley.co.uk>
+	<smhuang [AT] pcs.csie.nctu.edu.tw>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.

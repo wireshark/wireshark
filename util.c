@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.66 2003/06/13 22:22:48 guy Exp $
+ * $Id: util.c,v 1.67 2003/07/11 06:45:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -135,7 +135,7 @@ get_compiled_version_info(GString *str)
 #ifdef HAVE_PCAP_VERSION
 	g_string_sprintfa(str, "with libpcap %s,", pcap_version);
 #else /* HAVE_PCAP_VERSION */
-	g_string_append("with libpcap (version unknown)");
+	g_string_append(str, "with libpcap (version unknown)");
 #endif /* HAVE_PCAP_VERSION */
 	do_word_wrap(str, break_point);
 #endif /* WIN32 */
