@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.37 2001/06/18 02:17:45 guy Exp $
+ * $Id: packet-cdp.c,v 1.38 2001/06/20 05:18:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -134,6 +134,18 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 	    type = tvb_get_ntohs(tvb, offset + TLV_TYPE);
 	    length = tvb_get_ntohs(tvb, offset + TLV_LENGTH);
+	    if (length < 4) {
+		tlvi = proto_tree_add_text(cdp_tree, tvb, offset, 4,
+		    "TLV with invalid length %u (< 4)",
+		    length);
+		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+			    offset + TLV_TYPE, 2, type);
+		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+			    offset + TLV_LENGTH, 2, length);
+		offset += 4;
+		break;
+	    }
 
 	    switch (type) {
 
