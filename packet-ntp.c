@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.22 2001/01/06 09:42:10 guy Exp $
+ * $Id: packet-ntp.c,v 1.23 2001/01/07 01:47:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -95,9 +95,16 @@
 #define UDP_PORT_NTP	123
 #define TCP_PORT_NTP	123
 
- /* Leap indicator, 2bit field is used to warn of a inserted/deleted
-  * second, or to alarm loosed synchronization.
-  */
+/* Leap indicator, 2bit field is used to warn of a inserted/deleted
+ * second, or to alarm loosed synchronization.
+ */
+#define NTP_LI_MASK	0xC0
+
+#define NTP_LI_NONE	0
+#define NTP_LI_61	1
+#define NTP_LI_59	2
+#define NTP_LI_ALARM	3
+
 static const value_string li_types[] = {
 	{ NTP_LI_NONE,	"no warning" },
 	{ NTP_LI_61,	"last minute has 61 seconds" },
@@ -113,20 +120,33 @@ static const value_string li_types[] = {
  * on purpose? I don't know yet, probably some browsing through ntp sources
  * would help. My solution is to put them as reserved for now.
  */
+#define NTP_VN_MASK	0x38
+
 static const value_string ver_nums[] = {
-	{ NTP_VN_R0,	"reserved" },
-	{ NTP_VN_R1,	"reserved" },
-	{ NTP_VN_R2,	"reserved" },
-	{ NTP_VN_3,	"NTP Version 3" },
-	{ NTP_VN_4,	"NTP Version 4" },
-	{ NTP_VN_R5,	"reserved" },
-	{ NTP_VN_R6,	"reserved" },
-	{ NTP_VN_R7,	"reserved" },
-	{ 0,		NULL}
+	{ 0,	"reserved" },
+	{ 1,	"reserved" },
+	{ 2,	"reserved" },
+	{ 3,	"NTP Version 3" },
+	{ 4,	"NTP Version 4" },
+	{ 5,	"reserved" },
+	{ 6,	"reserved" },
+	{ 7,	"reserved" },
+	{ 0,	NULL}
 };
 
 /* Mode, 3bit field representing mode of comunication.
  */
+#define NTP_MODE_MASK   7
+
+#define NTP_MODE_RSV	0
+#define NTP_MODE_SYMACT	1
+#define NTP_MODE_SYMPAS	2
+#define NTP_MODE_CLIENT	3
+#define NTP_MODE_SERVER	4
+#define NTP_MODE_BCAST	5
+#define NTP_MODE_CTRL	6
+#define NTP_MODE_PRIV	7
+
 static const value_string mode_types[] = {
 	{ NTP_MODE_RSV,		"reserved" },
 	{ NTP_MODE_SYMACT,	"symmetric active" },
@@ -270,18 +290,12 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* Adding flag subtree and items */
 		flags_tree = proto_item_add_subtree(tf, ett_ntp_flags);
-		proto_tree_add_uint_format(flags_tree, hf_ntp_flags_li, tvb, 0, 1,
-					   flags & NTP_LI_MASK,
-					   decode_enumerated_bitfield(flags, NTP_LI_MASK,
-					   8, li_types, "Leap Indicator: %s"));
-		proto_tree_add_uint_format(flags_tree, hf_ntp_flags_vn, tvb, 0, 1,
-					   flags & NTP_VN_MASK,
-					   decode_enumerated_bitfield(flags, NTP_VN_MASK,
-				           8, ver_nums, "Version number: %s"));
-		proto_tree_add_uint_format(flags_tree, hf_ntp_flags_mode, tvb, 0, 1,
-					   flags & NTP_MODE_MASK,
-					   decode_enumerated_bitfield(flags, NTP_MODE_MASK,
-				           8, mode_types, "Mode: %s"));
+		proto_tree_add_uint(flags_tree, hf_ntp_flags_li, tvb, 0, 1,
+					   flags);
+		proto_tree_add_uint(flags_tree, hf_ntp_flags_vn, tvb, 0, 1,
+					   flags);
+		proto_tree_add_uint(flags_tree, hf_ntp_flags_mode, tvb, 0, 1,
+					   flags);
 
 		/* Stratum, 1byte field represents distance from primary source
 		 */
@@ -430,13 +444,13 @@ proto_register_ntp(void)
 			NULL, 0, "Flags (Leap/Version/Mode)" }},
 		{ &hf_ntp_flags_li, {
 			"Leap Indicator", "ntp.flags.li", FT_UINT8, BASE_DEC,
-			VALS(li_types), 0, "Leap Indicator" }},
+			VALS(li_types), NTP_LI_MASK, "Leap Indicator" }},
 		{ &hf_ntp_flags_vn, {
 			"Version number", "ntp.flags.vn", FT_UINT8, BASE_DEC,
-			VALS(ver_nums), 0, "Version number" }},
+			VALS(ver_nums), NTP_VN_MASK, "Version number" }},
 		{ &hf_ntp_flags_mode, {
-			"Leap Indicator", "ntp.flags.mode", FT_UINT8, BASE_DEC,
-			VALS(mode_types), 0, "Leap Indicator" }},
+			"Mode", "ntp.flags.mode", FT_UINT8, BASE_DEC,
+			VALS(mode_types), NTP_MODE_MASK, "Mode" }},
 		{ &hf_ntp_stratum, {	
 			"Peer Clock Stratum", "ntp.stratum", FT_UINT8, BASE_DEC,
 			NULL, 0, "Peer Clock Stratum" }},
