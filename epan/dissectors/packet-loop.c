@@ -37,6 +37,7 @@
 static int proto_loop = -1;
 static int hf_loop_skipcount = -1;
 static int hf_loop_function = -1;
+static int hf_loop_receipt_number = -1;
 static int hf_loop_forwarding_address = -1;
 
 static gint ett_loop = -1;
@@ -90,8 +91,11 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (function) {
 
     case FUNC_REPLY:
-    default:
-      next_tvb = tvb_new_subset(tvb, 4, -1, -1);
+      if (tree)
+        proto_tree_add_item(loop_tree, hf_loop_receipt_number, tvb, offset, 2,
+                            FALSE);
+      offset += 2;
+      next_tvb = tvb_new_subset(tvb, offset, -1, -1);
       call_dissector(data_handle, next_tvb, pinfo, tree);
       return;
 
@@ -101,6 +105,11 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             6, FALSE);
       offset += 6;
       break;
+
+    default:
+      next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+      call_dissector(data_handle, next_tvb, pinfo, tree);
+      return;
     }
   }
 }
@@ -115,12 +124,17 @@ proto_register_loop(void)
       	"", HFILL }},
 
     { &hf_loop_function,
-      { "function",		"loop.function",
+      { "Function",		"loop.function",
 	FT_UINT16,	BASE_DEC,	VALS(function_vals),	0x0,
       	"", HFILL }},
 
+    { &hf_loop_receipt_number,
+      { "Receipt number",	"loop.receipt_number",
+	FT_UINT16,	BASE_DEC,	NULL,	0x0,
+      	"", HFILL }},
+
     { &hf_loop_forwarding_address,
-      { "Forwarding address",		"loop.forwarding_address",
+      { "Forwarding address",	"loop.forwarding_address",
 	FT_ETHER,	BASE_NONE,	NULL,	0x0,
       	"", HFILL }},
   };
