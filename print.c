@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.68 2003/12/30 23:13:32 guy Exp $
+ * $Id: print.c,v 1.69 2004/01/09 18:49:31 sharpe Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -36,6 +36,7 @@
 #include <epan/tvbuff.h>
 #include <epan/packet.h>
 
+#include "range.h"
 #include "print.h"
 #include "ps.h"
 #include "util.h"
