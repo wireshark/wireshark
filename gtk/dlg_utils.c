@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.12 2003/09/24 08:43:34 guy Exp $
+ * $Id: dlg_utils.c,v 1.13 2003/12/12 02:50:04 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,7 +51,9 @@ dlg_window_new(const gchar *title)
   win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
 #endif
-  gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
+  if (top_level) {
+    gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
+  }
   gtk_window_set_title(GTK_WINDOW(win), title);
   SIGNAL_CONNECT(win, "realize", window_icon_realize_cb, NULL);
   return win;

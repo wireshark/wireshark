@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.338 2003/12/09 06:48:40 guy Exp $
+ * $Id: main.c,v 1.339 2003/12/12 02:50:04 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -133,7 +133,7 @@ typedef struct column_arrows {
 
 capture_file cfile;
 GtkWidget   *main_display_filter_widget=NULL;
-GtkWidget   *top_level, *packet_list, *tree_view, *byte_nb_ptr,
+GtkWidget   *top_level = NULL, *packet_list, *tree_view, *byte_nb_ptr,
             *tv_scrollw, *pkt_scrollw;
 static GtkWidget	*info_bar;
 #if GTK_MAJOR_VERSION < 2
