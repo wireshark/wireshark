@@ -1,7 +1,7 @@
 /* packet-pcnfsd.c
  * Routines for PCNFSD dissection
  *
- * $Id: packet-pcnfsd.c,v 1.6 2002/04/03 13:24:12 girlich Exp $
+ * $Id: packet-pcnfsd.c,v 1.7 2002/04/14 23:04:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,7 +66,7 @@ static gint ett_pcnfsd_auth_password = -1;
 static gint ett_pcnfsd_gids = -1;
 
 /* "NFS Illustrated 14.7.13 */
-void
+static void
 pcnfsd_decode_obscure(char* data, int len)
 {
 	for ( ; len>0 ; len--, data++) {
@@ -76,7 +76,7 @@ pcnfsd_decode_obscure(char* data, int len)
 
 
 /* "NFS Illustrated" 14.7.13 */
-int
+static int
 dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree *tree)
 {
@@ -161,7 +161,7 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 
 /* "NFS Illustrated" 14.7.13 */
-int
+static int
 dissect_pcnfsd2_auth_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree *tree)
 {

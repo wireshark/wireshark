@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.24 2002/04/03 13:24:12 girlich Exp $
+ * $Id: packet-nlm.c,v 1.25 2002/04/14 23:04:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,7 +87,7 @@ static gint ett_nlm = -1;
 static gint ett_nlm_lock = -1;
 
 
-const value_string names_nlm_stats[] =
+static const value_string names_nlm_stats[] =
 {
 	/* NLM_GRANTED is the function number 5 and the state code 0.
 	 * So we use for the state the postfix _S.
@@ -116,7 +116,7 @@ const value_string names_nlm_stats[] =
 };
 
 
-const value_string names_fsh_mode[] =
+static const value_string names_fsh_mode[] =
 {
 #define FSM_DN	0
 		{	FSM_DN,		"deny none"	},
@@ -131,7 +131,7 @@ const value_string names_fsh_mode[] =
 };
 
 
-const value_string names_fsh_access[] =
+static const value_string names_fsh_access[] =
 {
 #define FSA_NONE	0
 		{	FSA_NONE,	"no access"	},

@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.58 2002/03/29 00:41:54 ashokn Exp $
+ * $Id: packet-rsvp.c,v 1.59 2002/04/14 23:04:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,6 +73,7 @@
 #include "etypes.h"
 #include "ipproto.h"
 
+#include "packet-rsvp.h"
 #include "packet-ip.h"
 
 static int proto_rsvp = -1;
@@ -856,7 +857,7 @@ find_rsvp_session_tempfilt(tvbuff_t *tvb, int hdr_offset, int *session_offp, int
     if (tempfilt_offp) *tempfilt_offp = t_off;
 }
 
-char *summary_session (tvbuff_t *tvb, int offset)
+static char *summary_session (tvbuff_t *tvb, int offset)
 {
     static char buf[80];
 
@@ -880,7 +881,7 @@ char *summary_session (tvbuff_t *tvb, int offset)
     return buf;
 }
 
-char *summary_template (tvbuff_t *tvb, int offset)
+static char *summary_template (tvbuff_t *tvb, int offset)
 {
     static char buf[80];
     char *objtype;

@@ -2,7 +2,7 @@
  * Routines for Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q2931.c,v 1.22 2002/01/24 09:20:50 guy Exp $
+ * $Id: packet-q2931.c,v 1.23 2002/04/14 23:04:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -654,7 +654,7 @@ static const value_string q2931_up_conn_config_vals[] = {
 	{ 0x00, NULL }
 };
 
-void
+static void
 dissect_q2931_bband_bearer_cap_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
@@ -706,7 +706,7 @@ static const value_string q2931_hi_layer_info_type_vals[] = {
 	{ 0x00, NULL }
 };
 
-void
+static void
 dissect_q2931_bband_hi_layer_info_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
@@ -780,7 +780,7 @@ static const value_string lane_pid_vals[] = {
 /*
  * Dissect a broadband low layer information information element.
  */
-void
+static void
 dissect_q2931_bband_low_layer_info_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {

@@ -4,7 +4,7 @@
  * Robert Tsai <rtsai@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rsh.c,v 1.16 2002/01/24 09:20:51 guy Exp $
+ * $Id: packet-rsh.c,v 1.17 2002/04/14 23:04:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,7 +44,7 @@ static gint ett_rsh = -1;
 
 #define TCP_PORT_RSH			514
 
-void
+static void
 dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*rsh_tree;

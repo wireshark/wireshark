@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.25 2002/01/24 09:20:51 guy Exp $
+ * $Id: packet-smtp.c,v 1.26 2002/04/14 23:04:04 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -84,8 +84,8 @@ struct smtp_request_val {
   guint16 crlf_seen;     /* Have we seen a CRLF on the end of a packet */
 };
 
-GMemChunk  *smtp_request_vals = NULL;
-GMemChunk  *smtp_packet_infos = NULL;
+static GMemChunk  *smtp_request_vals = NULL;
+static GMemChunk  *smtp_packet_infos = NULL;
 
 static void
 smtp_init_protocol(void)

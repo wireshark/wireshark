@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.89 2002/04/01 00:51:43 guy Exp $
+ * $Id: packet-ppp.c,v 1.90 2002/04/14 23:04:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,7 @@
 # include <sys/types.h>
 #endif
 
+#include <string.h>
 #include <glib.h>
 #include "prefs.h"
 #include <epan/packet.h>
@@ -1182,7 +1183,7 @@ static const ip_tcp_opt pppmuxcp_opts[] = {
 
 #define N_PPPMUXCP_OPTS (sizeof pppmuxcp_opts / sizeof pppmuxcp_opts[0])
 
-const unsigned int fcstab_32[256] =
+static const unsigned int fcstab_32[256] =
       {
       0x00000000, 0x77073096, 0xee0e612c, 0x990951ba,
       0x076dc419, 0x706af48f, 0xe963a535, 0x9e6495a3,
@@ -1250,7 +1251,7 @@ const unsigned int fcstab_32[256] =
       0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
       };
 
-const unsigned short fcstab_16[256] = {
+static const unsigned short fcstab_16[256] = {
         0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf,
         0x8c48, 0x9dc1, 0xaf5a, 0xbed3, 0xca6c, 0xdbe5, 0xe97e, 0xf8f7,
         0x1081, 0x0108, 0x3393, 0x221a, 0x56a5, 0x472c, 0x75b7, 0x643e,
@@ -1290,7 +1291,7 @@ const unsigned short fcstab_16[256] = {
 * DETAILS : Calculate a new FCS-16 given the current FCS-16 and the new data.
 *******************************************************************************
 */
-guint16
+static guint16
 fcs16(register guint16 fcs,
          tvbuff_t * tvbuff,
          guint32 offset,
@@ -1315,7 +1316,7 @@ fcs16(register guint16 fcs,
 * DETAILS : Calculate a new FCS-32 given the current FCS-32 and the new data.
 *******************************************************************************
 */
-guint32
+static guint32
 fcs32(guint32 fcs,
          tvbuff_t * tvbuff,
          guint32 offset,

@@ -5,7 +5,7 @@
  * ISO 10589 ISIS (Intradomain Routing Information Exchange Protocol)
  * ISO  9542 ESIS (End System To Intermediate System Routing Exchange Protocol)
  *
- * $Id: packet-osi-options.c,v 1.10 2002/04/07 21:54:48 guy Exp $
+ * $Id: packet-osi-options.c,v 1.11 2002/04/14 23:04:03 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -165,7 +165,7 @@ static const value_string osi_opt_rfd_reassembly[] = {
         { 0,    NULL} };
      
 
-void
+static void
 dissect_option_qos( const u_char type, const u_char sub_type, int offset,
                     u_char len, tvbuff_t *tvb, proto_tree *tree ) {
 
@@ -216,7 +216,7 @@ dissect_option_qos( const u_char type, const u_char sub_type, int offset,
   }
 }
 
-void
+static void
 dissect_option_route( u_char parm_type, u_char offset, u_char parm_len, 
                       tvbuff_t *tvb, proto_tree *tree ) {
 
@@ -277,7 +277,7 @@ dissect_option_route( u_char parm_type, u_char offset, u_char parm_len,
 
 
 
-void
+static void
 dissect_option_rfd( const u_char error, const u_char field, u_char offset,
                           u_char len, tvbuff_t *tvb, proto_tree *tree ) {
   u_char error_class = 0;

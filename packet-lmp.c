@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-lmp.c,v 1.1 2002/04/10 22:00:49 ashokn Exp $
+ * $Id: packet-lmp.c,v 1.2 2002/04/14 23:04:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,6 +65,7 @@
 #include "ipproto.h"
 
 #include "packet-ip.h"
+#include "packet-rsvp.h"
 
 static int proto_lmp = -1;
 
@@ -185,12 +186,6 @@ static value_string lmp_class_vals[] = {
 /*------------------------------------------------------------------------------
  * Other constants & stuff
  */
-
-/*
- * From packet-rsvp.c
- */
-extern const value_string gmpls_lsp_enc_str[];
-extern const value_string gmpls_switching_type_str[];
 
 /* Channel Status */
 static const value_string channel_status_str[] = {

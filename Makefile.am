@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.419 2002/04/14 22:52:49 guy Exp $
+# $Id: Makefile.am,v 1.420 2002/04/14 23:04:03 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -405,7 +405,6 @@ noinst_HEADERS = \
 	packet-osi-options.h \
 	packet-pcnfsd.h \
 	packet-pflog.h \
-	packet-pgm.h   \
 	packet-pim.h   \
 	packet-portmap.h   \
 	packet-ppp.h   \
@@ -415,6 +414,7 @@ noinst_HEADERS = \
 	packet-ripng.h \
 	packet-rpc.h   \
 	packet-rquota.h \
+	packet-rsvp.h  \
 	packet-rtcp.h  \
 	packet-rtp.h   \
 	packet-rwall.h  \

@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quakeworld.c,v 1.12 2002/04/02 06:29:48 girlich Exp $
+ * $Id: packet-quakeworld.c,v 1.13 2002/04/14 23:04:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,7 +90,7 @@ static	char		com_token[1024];
 static	int		com_token_start;
 static	int		com_token_length;
 
-char *
+static char *
 COM_Parse (char *data)
 {
 	int	c;
@@ -160,14 +160,14 @@ static	int		cmd_argv_length[MAX_ARGS];
 
 
 
-int
+static int
 Cmd_Argc(void)
 {
 	return cmd_argc;
 }
 
 
-char*
+static char*
 Cmd_Argv(int arg)
 {
 	if ( arg >= cmd_argc )
@@ -176,7 +176,7 @@ Cmd_Argv(int arg)
 }
 
 
-int
+static int
 Cmd_Argv_start(int arg)
 {
 	if ( arg >= cmd_argc )
@@ -185,7 +185,7 @@ Cmd_Argv_start(int arg)
 }
 
 
-int
+static int
 Cmd_Argv_length(int arg)
 {
 	if ( arg >= cmd_argc )
@@ -194,7 +194,7 @@ Cmd_Argv_length(int arg)
 }
 
 
-void
+static void
 Cmd_TokenizeString(char* text)
 {
 	int i;
@@ -244,7 +244,7 @@ Cmd_TokenizeString(char* text)
 }
 
 			
-void
+static void
 dissect_id_infostring(tvbuff_t *tvb, proto_tree* tree, 
 	int offset, char* infostring,
 	gint ett_key_value, int hf_key_value, int hf_key, int hf_value)

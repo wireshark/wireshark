@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-tr.c,v 1.69 2002/01/21 07:36:44 guy Exp $
+ * $Id: packet-tr.c,v 1.70 2002/04/14 23:04:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -139,6 +139,7 @@ static dissector_handle_t data_handle;
  * (And this real frame x bytes in looks like a proper TR frame that goes on the wire
  * with none of the Linux idiosyncrasies).
  */
+static
 int check_for_old_linux_tvb(tvbuff_t *tvb)
 {
 	const guint8	*data;
@@ -162,6 +163,7 @@ int check_for_old_linux_tvb(tvbuff_t *tvb)
 	return 0;		
 }
 
+static
 int check_for_old_linux(const u_char * pd)
 {
 	int x;

@@ -4,7 +4,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.54 2002/04/08 20:30:52 gram Exp $
+ * $Id: packet-radius.c,v 1.55 2002/04/14 23:04:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -852,7 +852,7 @@ static value_string radius_attrib_type_vals[] = {
 {0,NULL},
 };
 
-guint32 match_numval(guint32 val, const value_value_pair *vs)
+static guint32 match_numval(guint32 val, const value_value_pair *vs)
 {
   guint32 i = 0;
 
@@ -867,7 +867,8 @@ guint32 match_numval(guint32 val, const value_value_pair *vs)
 
 static gchar textbuffer[2000];
 
-gchar *rdconvertbufftostr(gchar *dest, tvbuff_t *tvb, int offset, int length)
+static gchar *
+rdconvertbufftostr(gchar *dest, tvbuff_t *tvb, int offset, int length)
 {
 /*converts the raw buffer into printable text */
 	guint32 i;
@@ -895,7 +896,7 @@ gchar *rdconvertbufftostr(gchar *dest, tvbuff_t *tvb, int offset, int length)
         return dest;
 }
 
-gchar *rd_match_strval(guint32 val, const value_string *vs) {
+static gchar *rd_match_strval(guint32 val, const value_string *vs) {
 	return val_to_str(val, vs, "Undefined (%u)");
 }
 
@@ -1146,7 +1147,8 @@ static gchar *rd_value_to_str(e_avphdr *avph, tvbuff_t *tvb, int offset)
 }
 
 
-void dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
+static void
+dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
 				   int avplength,packet_info *pinfo)
 {
 /* adds the attribute value pairs to the tree */

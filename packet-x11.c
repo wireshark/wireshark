@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.37 2002/04/14 22:50:07 guy Exp $
+ * $Id: packet-x11.c,v 1.38 2002/04/14 23:04:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2599,9 +2599,9 @@ static gint compareAddresses(gconstpointer aa, gconstpointer bb)
    started in a previous packet...
 */
 
-int numberOfBitSetTable[] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4 };
+static int numberOfBitSetTable[] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4 };
 
-int numberOfBitSet(tvbuff_t *tvb, int offset, int maskLength)
+static int numberOfBitSet(tvbuff_t *tvb, int offset, int maskLength)
 {
       int res = 0;
       while(maskLength--) {

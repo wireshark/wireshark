@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.37 2002/04/11 09:38:03 guy Exp $
+ * $Id: packet-socks.c,v 1.38 2002/04/14 23:04:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -450,7 +450,7 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 }
 
 			
-void 
+static void 
 new_udp_conversation( socks_hash_entry_t *hash_info, packet_info *pinfo){
 
 	conversation_t *conversation = conversation_new( &pinfo->src, &pinfo->dst,  PT_UDP,

@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.58 2002/02/19 21:56:56 ashokn Exp $
+ * $Id: packet-ospf.c,v 1.59 2002/04/14 23:04:03 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -52,6 +52,7 @@
 #include "ipproto.h"
 #include "in_cksum.h"
 #include "ieee-float.h"
+#include "packet-rsvp.h"
 
 #define OSPF_VERSION_2 2
 #define OSPF_VERSION_3 3
@@ -761,12 +762,6 @@ static const value_string mpls_link_stlv_str[] = {
     {0, NULL},
 };
 
-/*
- * From packet-rsvp.c
- */
-extern const value_string gmpls_lsp_enc_str[];
-extern const value_string gmpls_switching_type_str[];
-
 /* 
  * Dissect MPLS/TE opaque LSA 
  */
@@ -981,7 +976,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 /*
  * Dissect opaque LSAs
  */
-void
+static void
 dissect_ospf_lsa_opaque(tvbuff_t *tvb, int offset, proto_tree *tree,
 			guint8 ls_id_type, guint32 length)
 {
