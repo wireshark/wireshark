@@ -34,7 +34,8 @@ capture file. Ethereal knows how to read B<libpcap> capture files, including tho
 B<tcpdump>. In addition, Ethereal can read capture files from B<snoop> (including
 B<Shomiti>), B<LanAlyzer>,
 uncompressed B<Sniffer>, Microsoft B<Network Monitor>, AIX's B<iptrace>, B<NetXray>,
-B<Sniffer Pro>, B<RADCOM>'s WAN/LAN analyzer, and B<Lucent/Ascend> router debug output.
+B<Sniffer Pro>, B<RADCOM>'s WAN/LAN analyzer, B<Lucent/Ascend> router debug output,
+and HP-UX's B<nettl>.
 There is no need to tell Ethereal what type of file you
 are reading; it will determine the file type by itself. Ethereal is also capable
 of reading any of these file formats if they are compressed using gzip. Ethereal

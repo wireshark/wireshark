@@ -75,7 +75,7 @@ formats, and create display filters for them as well:
 
 libpcap, Sniffer (uncompresed), NetXray, Sniffer Pro, snoop,
 Shomiti, LANalyzer, Network Monitor, iptrace 2.0 (AIX), RADCOM's
-WAN/LAN Analyzer, and Lucent/Ascend access products.
+WAN/LAN Analyzer, Lucent/Ascend access products, and HP-UX's nettl.
 
 Although Ethereal can read AIX iptrace files, the documentation on
 AIX's iptrace packet-trace command is sparse.  The 'iptrace' command

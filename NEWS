@@ -38,6 +38,7 @@ Overview of changes in Ethereal 0.7.6:
 * Added NTP (Nathan)
 * Added BGP (Jun-ichiro)
 * Added AFS, RX (Nathan)
+* Addef VLAN (802.1q) (Nathan)
 
 Overview of changes in Ethereal 0.7.5:
 * Fixed bug when reading files on FreeBSD (Guy)
