@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.178 2000/04/04 05:14:48 guy Exp $
+ * $Id: file.c,v 1.179 2000/04/06 06:04:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -209,8 +209,10 @@ close_cap_file(capture_file *cf, void *w)
   /* ...which means we have nothing to save. */
   cf->user_saved = FALSE;
 
-  if (cf->plist_chunk != NULL)
+  if (cf->plist_chunk != NULL) {
     g_mem_chunk_destroy(cf->plist_chunk);
+    cf->plist_chunk = NULL;
+  }
   if (cf->rfcode != NULL) {
     dfilter_destroy(cf->rfcode);
     cf->rfcode = NULL;
