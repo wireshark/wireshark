@@ -3,7 +3,7 @@
  * Copyright 2003, Wayne Parrott <wayne_p@pacific.net.au>
  * Copied from packet-yhoo.c and updated
  *
- * $Id: packet-ymsg.c,v 1.3 2003/10/22 21:21:05 guy Exp $
+ * $Id: packet-ymsg.c,v 1.4 2004/04/02 07:28:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+#include "packet-tcp.h"
+#include "prefs.h"
+
 static int proto_ymsg = -1;
 static int hf_ymsg_version = -1;
 static int hf_ymsg_len = -1;
@@ -48,6 +51,9 @@ static gint ett_ymsg_content = -1;
 #define TCP_PORT_YMSG	23	/* XXX - this is Telnet! */
 #define TCP_PORT_YMSG_2	25	/* And this is SMTP! */
 #define TCP_PORT_YMSG_3	5050	/* This, however, is regular Yahoo Messenger */
+
+/* desegmentation of YMSG over TCP */
+static gboolean ymsg_desegment = TRUE;
 
 /*
  * This is from yahoolib2.c from libyahoo2.
@@ -240,6 +246,9 @@ static const value_string ymsg_status_vals[] = {
 	{0, NULL}
 };
 
+static guint get_ymsg_pdu_len(tvbuff_t *tvb, int offset);
+static void dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
 int
 get_content_item_length(tvbuff_t *tvb, int offset) {
 	int origoffset = offset;
@@ -254,8 +263,39 @@ get_content_item_length(tvbuff_t *tvb, int offset) {
 	return offset - origoffset;
 }
 
+
 static gboolean
 dissect_ymsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+
+  if (tvb_memeql(tvb, 0, "YMSG", 4) == -1) {
+    /* Not a Yahoo Messenger packet. */
+    return FALSE;
+  }
+  
+  tcp_dissect_pdus(tvb, pinfo, tree, ymsg_desegment, 8, get_ymsg_pdu_len,
+		   dissect_ymsg_pdu);
+  return TRUE;
+}
+
+static guint
+get_ymsg_pdu_len(tvbuff_t *tvb, int offset)
+{
+  guint16 plen;
+
+  /*
+   * Get the length of the YMSG packet.
+   */
+  plen = tvb_get_ntohs(tvb, offset + 8);
+
+  /*
+   * That length doesn't include the length of the header itself; add that in.
+   */
+  return plen + 20;
+}
+
+static void
+dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree      *ymsg_tree, *ti;
 	proto_item      *content_item;
@@ -267,11 +307,6 @@ dissect_ymsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int vallen = 0;
 	int offset = 0;
 	int content_len = 0;
-
-	if (tvb_memeql(tvb, offset, "YMSG", 4) == -1) {
-		/* Not a Yahoo Messenger packet. */
-		return FALSE;
-	}
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "YMSG");
@@ -335,7 +370,7 @@ dissect_ymsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
-	return TRUE;
+	return;
 }
 
 void
@@ -365,6 +400,7 @@ proto_register_ymsg(void)
 		&ett_ymsg,
 		&ett_ymsg_content,
 	};
+	module_t *ymsg_module;
 
 	proto_ymsg = proto_register_protocol("Yahoo YMSG Messenger Protocol",
 	    "YMSG", "ymsg");
@@ -372,6 +408,12 @@ proto_register_ymsg(void)
 	proto_register_field_array(proto_ymsg, hf, array_length(hf));
 
 	proto_register_subtree_array(ett, array_length(ett));
+
+	ymsg_module = prefs_register_protocol(proto_ymsg, NULL);
+	prefs_register_bool_preference(ymsg_module, "desegment",
+				       "Desegment all YMSG messages spanning multiple TCP segments",
+				       "Whether the YMSG dissector should desegment all messages spanning multiple TCP segments",
+				       &ymsg_desegment);
 }
 
 void
@@ -385,7 +427,7 @@ proto_reg_handoff_ymsg(void)
 	 * old and new Yahoo messenger protocols.
 	 *
 	 * Just register as a heuristic TCP dissector, and reject stuff
-	 * not to or from any of those ports.
+	 * that doesn't begin with a YMSG signature.
 	 */
 	heur_dissector_add("tcp", dissect_ymsg, proto_ymsg);
 }
