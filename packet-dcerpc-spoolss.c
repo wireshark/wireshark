@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.53 2002/08/29 19:05:40 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.54 2002/11/07 17:45:30 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -491,6 +491,10 @@ static int hf_printer_access_admin = -1;
 static int hf_printer_access_use = -1;
 static int hf_job_access_admin = -1;
 
+/* EnumPrinterKey */
+static int hf_spoolss_keybuffer_size = -1;
+static int hf_spoolss_keybuffer_data = -1;
+
 static void
 spoolss_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
 			guint32 access)
@@ -576,6 +580,29 @@ dissect_spoolss_buffer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				     dissect_spoolss_buffer_data,
 				     NDR_POINTER_UNIQUE, "Buffer",
 				     -1, 0);
+
+	return offset;
+}
+
+static int
+dissect_spoolss_keybuffer(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			  proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = pinfo->private_data;
+	guint32 size;
+
+	if (di->conformant_run)
+		return offset;
+
+	/* Dissect size and data */
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_keybuffer_size, &size);
+
+	if (size)
+		offset = dissect_ndr_uint16s(tvb, offset, pinfo, tree, drep,
+					     hf_spoolss_keybuffer_data, size, 
+					     NULL);
 
 	return offset;
 }
@@ -5765,6 +5792,65 @@ static int SpoolssRouterReplyPrinter_r(tvbuff_t *tvb, int offset, packet_info *p
 	return offset;
 }
 
+static int SpoolssEnumPrinterKey_q(tvbuff_t *tvb, int offset, 
+				   packet_info *pinfo, proto_tree *tree, 
+				   char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	char *key_name;
+
+	if (dcv->rep_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0,
+				    "Reply in frame %u", dcv->rep_frame);
+
+	/* Parse packet */
+
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
+		FALSE, FALSE);
+
+ 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
+ 					  prs_UNISTR2_dp, (void **)&key_name,
+ 					  NULL);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", key_name);
+
+	g_free(key_name);
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Size");
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}
+
+static int SpoolssEnumPrinterKey_r(tvbuff_t *tvb, int offset, 
+				   packet_info *pinfo, proto_tree *tree, 
+				   char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+	if (dcv->req_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0,
+				    "Request in frame %u", dcv->req_frame);
+
+	/* Parse packet */
+
+	offset = dissect_spoolss_keybuffer(tvb, offset, pinfo, tree, drep);
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Needed");
+
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+				  hf_spoolss_rc, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}
+
 #if 0
 
 /* Templates for new subdissectors */
@@ -5972,7 +6058,7 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 	{ SPOOLSS_ENUMPRINTERDATAEX, "EnumPrinterDataEx",
 	  NULL, SpoolssGeneric_r },
 	{ SPOOLSS_ENUMPRINTERKEY, "EnumPrinterKey",
-	  NULL, SpoolssGeneric_r },
+	  SpoolssEnumPrinterKey_q, SpoolssEnumPrinterKey_r },
 	{ SPOOLSS_DELETEPRINTERDATAEX, "DeletePrinterDataEx",
 	  NULL, SpoolssGeneric_r },
 	{ SPOOLSS_DELETEPRINTERDRIVEREX, "DeletePrinterDriverEx",
@@ -6703,7 +6789,17 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_enumprinters_flags_remote,
 		  { "Enum remote", "spoolss.enumprinters.flags.enum_remote",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    PRINTER_ENUM_REMOTE, "Enum remote", HFILL }}
+		    PRINTER_ENUM_REMOTE, "Enum remote", HFILL }},
+
+		/* EnumPrinterKey */
+		{ &hf_spoolss_keybuffer_size,
+		  { "Key Buffer size", "spoolss.keybuffer.size", FT_UINT32, 
+		    BASE_DEC, NULL, 0x0, "Size of buffer", HFILL }},
+
+		{ &hf_spoolss_keybuffer_data,
+		  { "Key Buffer data", "spoolss.keybuffer.data", FT_BYTES, 
+		    BASE_HEX, NULL, 0x0, "Contents of buffer", HFILL }},
+
 	};
 
         static gint *ett[] = {
