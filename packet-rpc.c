@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.109 2002/11/18 09:35:29 girlich Exp $
+ * $Id: packet-rpc.c,v 1.110 2002/11/23 03:38:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -900,7 +900,7 @@ dissect_rpc_authdes_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 	case AUTHDES_NAMEKIND_NICKNAME:
 		nickname = tvb_get_ntohl(tvb, offset+0);
 		proto_tree_add_uint(tree, hf_rpc_authdes_nickname, tvb, offset+0, 4,
-			window);
+			nickname);
 		offset += 4;
 		break;
 	}
