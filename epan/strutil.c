@@ -1,12 +1,11 @@
 /* strutil.c
  * String utility routines
  *
- * $Id: strutil.c,v 1.9 2002/08/28 20:40:45 jmayer Exp $
+ * $Id: strutil.c,v 1.10 2002/12/31 21:51:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -173,7 +172,20 @@ format_text(const guchar *string, int len)
       fmtbuf = g_realloc(fmtbuf, fmtbuf_len);
     }
     c = *string++;
+
+#ifdef _WIN32
+    /*
+     * XXX - "isprint()" can return "true" for non-ASCII characters, but
+     * those don't work with GTK+ on Windows, as GTK+ on Windows assumes
+     * UTF-8 strings.  Until we fix up Ethereal to properly handle
+     * non-ASCII characters in all output (both GUI displays and text
+     * printouts) on all platforms including Windows, we work around
+     * the problem by escaping all characters that aren't printable ASCII.
+     */
+    if (c >= 0x20 && c <= 0x7f) {
+#else
     if (isprint(c)) {
+#endif
       fmtbuf[column] = c;
       column++;
     } else {

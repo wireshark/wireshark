@@ -1521,6 +1521,9 @@ Ronald Henderson <Ronald.Henderson [AT] CognicaseUSA.com> {
 	    buttons to pop up a filter dialog
 	Fix up "snprintf()" and "vsnprintf()" calls in "epan/proto.c" to
 	    properly handle string truncation
+	Make "format_text()", on Windows, escape all characters that
+	    aren't printable ASCII, as GTK+ for Windows thinks strings
+	    are UTF-8 but the strings we give it wouldn't be UTF-8
 }
 
 Brian Ginsbach <ginsbach [AT] cray.com> {
