@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.31 2001/05/30 07:41:18 guy Exp $
+ * $Id: packet-vines.c,v 1.32 2001/06/02 08:15:57 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -471,9 +471,8 @@ proto_register_vines_spp(void)
 }
 
 void
-proto_register_handoff_vines_spp(void)
+proto_reg_handoff_vines_spp(void)
 {
 	dissector_add("vines.proto", VIP_PROTO_SPP, dissect_vines_spp,
 	    proto_vines_spp);
 }
-
