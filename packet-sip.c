@@ -18,7 +18,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.67 2004/05/04 21:12:24 etxrab Exp $
+ * $Id: packet-sip.c,v 1.68 2004/05/15 21:08:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,6 +78,7 @@ static gint hf_sip_to_addr = -1;
 static gint hf_sip_from_addr = -1;
 static gint hf_sip_tag = -1;
 static gint hf_sip_resend = -1;
+static gint hf_sip_original_frame = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_sip 		= -1;
@@ -1022,13 +1023,15 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* And add the filterable field to the request/response line */
 	if (reqresp_tree)
 	{
-		proto_tree_add_boolean(reqresp_tree, hf_sip_resend, tvb, 0, 0,
-					resend_for_packet > 0);
+		proto_item *item;
+		item = proto_tree_add_boolean(reqresp_tree, hf_sip_resend, tvb, 0, 0,
+						resend_for_packet > 0);
+		PROTO_ITEM_SET_GENERATED(item);
 		if (resend_for_packet > 0)
 		{
-			proto_tree_add_text(reqresp_tree, tvb, 0, 0,
-						"(suspected resend of frame %d)",
-						resend_for_packet);
+			item = proto_tree_add_uint(reqresp_tree, hf_sip_original_frame,
+						tvb, 0, 0, resend_for_packet);
+			PROTO_ITEM_SET_GENERATED(item);
 		}
 	}
 
@@ -1853,8 +1856,11 @@ void proto_register_sip(void)
 			{ "Resent Packet", "sip.resend",
 			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"", HFILL }
-		}
-
+		},
+		{ &hf_sip_original_frame,
+			{ "Suspected resend of frame",  "sip.resend-original",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+		    	"Original transmission of frame", HFILL}}
         };
 
         /* Setup protocol subtree array */
