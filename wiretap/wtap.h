@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.68 2000/05/10 22:16:31 guy Exp $
+ * $Id: wtap.h,v 1.69 2000/05/12 21:27:04 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -534,7 +534,7 @@ int wtap_pcap_encap_to_wtap_encap(int encap);
                      (guint16)*((guint8 *)p+0)<<0))
 #endif
 
-#ifndef plethol
+#ifndef pletohl
 #define pletohl(p) ((guint32)*((guint8 *)p+3)<<24|  \
                     (guint32)*((guint8 *)p+2)<<16|  \
                     (guint32)*((guint8 *)p+1)<<8|   \
