@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.107 2002/03/05 08:39:30 guy Exp $
+ * $Id: wtap.h,v 1.108 2002/04/08 09:09:49 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -98,18 +98,19 @@
 #define WTAP_ENCAP_V120				16
 #define WTAP_ENCAP_PPP_WITH_PHDR		17
 #define WTAP_ENCAP_IEEE_802_11			18
-#define WTAP_ENCAP_SLL				19
-#define WTAP_ENCAP_FRELAY			20
-#define WTAP_ENCAP_CHDLC			21
-#define WTAP_ENCAP_CISCO_IOS			22
-#define WTAP_ENCAP_LOCALTALK			23
-#define WTAP_ENCAP_PRISM_HEADER			24
-#define WTAP_ENCAP_PFLOG			25
-#define WTAP_ENCAP_AIROPEEK			26
-#define WTAP_ENCAP_HHDLC			27
+#define WTAP_ENCAP_IEEE_802_11_WITH_RADIO	19
+#define WTAP_ENCAP_SLL				20
+#define WTAP_ENCAP_FRELAY			21
+#define WTAP_ENCAP_CHDLC			22
+#define WTAP_ENCAP_CISCO_IOS			23
+#define WTAP_ENCAP_LOCALTALK			24
+#define WTAP_ENCAP_PRISM_HEADER			25
+#define WTAP_ENCAP_PFLOG			26
+#define WTAP_ENCAP_AIROPEEK			27
+#define WTAP_ENCAP_HHDLC			28
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			28
+#define WTAP_NUM_ENCAP_TYPES			29
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we
@@ -221,10 +222,17 @@ struct ascend_phdr {
 	guint32	task;			/* Task number */
 };
 
+/* Packet "pseudo-header" for point-to-point links with direction flags. */
 struct p2p_phdr {
 	gboolean	sent; /* TRUE=sent, FALSE=received */
 };
 
+/* Packet "pseudo-header" information for 802.11 with radio information. */
+struct ieee_802_11_phdr {
+	guint8	channel;	/* Channel number */
+	guint8	data_rate;	/* in .5 Mb/s units */
+	guint8	signal_level;	/* percentage */
+};
 
 /*
  * Bits in AppTrafType.
@@ -283,6 +291,7 @@ union wtap_pseudo_header {
 	struct ngsniffer_atm_phdr	ngsniffer_atm;
 	struct ascend_phdr		ascend;
 	struct p2p_phdr			p2p;
+	struct ieee_802_11_phdr		ieee_802_11;
 };
 
 struct wtap_pkthdr {

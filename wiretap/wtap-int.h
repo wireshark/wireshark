@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.23 2002/04/07 21:29:01 guy Exp $
+ * $Id: wtap-int.h,v 1.24 2002/04/08 09:09:49 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -97,13 +97,13 @@ typedef struct {
 } netmon_t;
 
 typedef struct {
-	time_t	start_time;
-	double	timeunit;
-	double	start_timestamp;
-	int	wrapped;
-	int	end_offset;
-	int	version_major;
-	guint	padding;	/* end-of-packet padding */
+	time_t		start_time;
+	double		timeunit;
+	double		start_timestamp;
+	gboolean	wrapped;
+	int		end_offset;
+	int		version_major;
+	guint		padding;	/* end-of-packet padding */
 } netxray_t;
 
 typedef struct {

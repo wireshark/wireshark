@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.51 2002/04/08 02:11:24 guy Exp $
+ * $Id: netxray.c,v 1.52 2002/04/08 09:09:49 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -89,7 +89,7 @@ struct netxrayrec_1_x_hdr {
 	guint32	timehi;		/* upper 32 bits of time stamp */
 	guint16	orig_len;	/* packet length */
 	guint16	incl_len;	/* capture length */
-	guint32	xxx[4];		/* unknown */
+	guint8	xxx[16];	/* unknown */
 };
 
 /* NetXRay 2.x data record format - followed by frame data. */
@@ -98,12 +98,31 @@ struct netxrayrec_2_x_hdr {
 	guint32	timehi;		/* upper 32 bits of time stamp */
 	guint16	orig_len;	/* packet length */
 	guint16	incl_len;	/* capture length */
-	guint32	xxx[7];		/* unknown */
-	/* For 802.11 captures, the "unkown" data appears to include
-	   signal level, channel, and data rate information */
+	guint8	xxx[28];	/* unknown */
+	/* For 802.11 captures, "xxx" data appears to include:
+	   the channel, in xxx[12];
+	   the data rate, in .5 Mb/s units, in xxx[13];
+	   the signal level, as a percentage, in xxx[14];
+	   0xff, in xxx[15]. */
+};
+
+/*
+ * Union of the two headers.
+ */
+union netxrayrec_hdr {
+	struct netxrayrec_1_x_hdr hdr_1_x;
+	struct netxrayrec_2_x_hdr hdr_2_x;
 };
 
 static gboolean netxray_read(wtap *wth, int *err, long *data_offset);
+static gboolean netxray_seek_read(wtap *wth, long seek_off,
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err);
+static int netxray_read_rec_header(wtap *wth, FILE_T fh,
+    union netxrayrec_hdr *hdr, int *err);
+static void netxray_set_pseudo_header(wtap *wth,
+    union wtap_pseudo_header *pseudo_header, union netxrayrec_hdr *hdr);
+static gboolean netxray_read_rec_data(FILE_T fh, guint8 *data_ptr,
+    guint32 packet_size, int *err);
 static void netxray_close(wtap *wth);
 static gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
@@ -122,13 +141,14 @@ int netxray_open(wtap *wth, int *err)
 		WTAP_ENCAP_ETHERNET,
 		WTAP_ENCAP_TOKEN_RING,
 		WTAP_ENCAP_FDDI_BITSWAPPED,
-		WTAP_ENCAP_ETHERNET,	/* WAN(PPP), but shaped like ethernet */
+		WTAP_ENCAP_ETHERNET,	/* WAN(PPP), but shaped like Ethernet */
 		WTAP_ENCAP_UNKNOWN,	/* LocalTalk */
 		WTAP_ENCAP_UNKNOWN,	/* "DIX" - should not occur */
 		WTAP_ENCAP_UNKNOWN,	/* ARCNET raw */
 		WTAP_ENCAP_UNKNOWN,	/* ARCNET 878.2 */
 		WTAP_ENCAP_ATM_RFC1483,	/* ATM */
-		WTAP_ENCAP_IEEE_802_11,	/* Wireless WAN */
+		WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
+					/* Wireless WAN with radio information */
 		WTAP_ENCAP_UNKNOWN	/* IrDA */
 	};
 	#define NUM_NETXRAY_ENCAPS (sizeof netxray_encap / sizeof netxray_encap[0])
@@ -205,7 +225,7 @@ int netxray_open(wtap *wth, int *err)
 	wth->file_type = file_type;
 	wth->capture.netxray = g_malloc(sizeof(netxray_t));
 	wth->subtype_read = netxray_read;
-	wth->subtype_seek_read = wtap_def_seek_read;
+	wth->subtype_seek_read = netxray_seek_read;
 	wth->subtype_close = netxray_close;
 	wth->file_encap = netxray_encap[hdr.network];
 	wth->snapshot_length = 0;	/* not available in header */
@@ -227,7 +247,7 @@ int netxray_open(wtap *wth, int *err)
 	 * that look like FCS values.
 	 */
 	wth->capture.netxray->padding = 0;
-	if (netxray_encap[hdr.network] == WTAP_ENCAP_IEEE_802_11) {
+	if (netxray_encap[hdr.network] == WTAP_ENCAP_IEEE_802_11_WITH_RADIO) {
 		wth->capture.netxray->padding = 4;
 	}
 	/*wth->frame_number = 0;*/
@@ -236,7 +256,7 @@ int netxray_open(wtap *wth, int *err)
 	/* Remember the offset after the last packet in the capture (which
 	 * isn't necessarily the last packet in the file), as it appears
 	 * there's sometimes crud after it. */
-	wth->capture.netxray->wrapped = 0;
+	wth->capture.netxray->wrapped = FALSE;
 	wth->capture.netxray->end_offset = pletohl(&hdr.end_offset);
 
 	/* Seek to the beginning of the data records. */
@@ -254,12 +274,8 @@ int netxray_open(wtap *wth, int *err)
 static gboolean netxray_read(wtap *wth, int *err, long *data_offset)
 {
 	guint32	packet_size;
-	int	bytes_read;
-	union {
-		struct netxrayrec_1_x_hdr hdr_1_x;
-		struct netxrayrec_2_x_hdr hdr_2_x;
-	}	hdr;
-	int	hdr_size = 0;
+	union netxrayrec_hdr hdr;
+	int	hdr_size;
 	double	t;
 
 reread:
@@ -270,31 +286,22 @@ reread:
 		return FALSE;
 	}
 	/* Read record header. */
-	switch (wth->capture.netxray->version_major) {
-
-	case 1:
-		hdr_size = sizeof (struct netxrayrec_1_x_hdr);
-		break;
-
-	case 2:
-		hdr_size = sizeof (struct netxrayrec_2_x_hdr);
-		break;
-	}
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, 1, hdr_size, wth->fh);
-	if (bytes_read != hdr_size) {
-		*err = file_error(wth->fh);
-		if (*err != 0)
-			return FALSE;
-		if (bytes_read != 0) {
-			*err = WTAP_ERR_SHORT_READ;
+	hdr_size = netxray_read_rec_header(wth, wth->fh, &hdr, err);
+	if (hdr_size == 0) {
+		/*
+		 * Error or EOF.
+		 */
+		if (*err != 0) {
+			/*
+			 * Error of some sort; give up.
+			 */
 			return FALSE;
 		}
 
 		/* We're at EOF.  Wrap? */
 		if (!wth->capture.netxray->wrapped) {
 			/* Yes.  Remember that we did. */
-			wth->capture.netxray->wrapped = 1;
+			wth->capture.netxray->wrapped = TRUE;
 			if (file_seek(wth->fh, CAPTUREFILE_HEADER_SIZE,
 			    SEEK_SET) == -1) {
 				*err = file_error(wth->fh);
@@ -307,22 +314,28 @@ reread:
 		/* We've already wrapped - don't wrap again. */
 		return FALSE;
 	}
+
+	/*
+	 * Return the offset of the record header, so we can reread it
+	 * if we go back to this frame.
+	 */
+	*data_offset = wth->data_offset;
 	wth->data_offset += hdr_size;
 
+	/*
+	 * Read the packet data.
+	 */
 	packet_size = pletohs(&hdr.hdr_1_x.incl_len);
 	buffer_assure_space(wth->frame_buffer, packet_size);
-	*data_offset = wth->data_offset;
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
-			packet_size, wth->fh);
-
-	if ((guint32)bytes_read != packet_size) {
-		*err = file_error(wth->fh);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
+	if (!netxray_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
+	    packet_size, err))
 		return FALSE;
-	}
 	wth->data_offset += packet_size;
+
+	/*
+	 * Set the pseudo-header.
+	 */
+	netxray_set_pseudo_header(wth, &wth->pseudo_header, &hdr);
 
 	t = (double)pletohl(&hdr.hdr_1_x.timelo)
 	    + (double)pletohl(&hdr.hdr_1_x.timehi)*4294967296.0;
@@ -339,6 +352,111 @@ reread:
 	wth->phdr.len = pletohs(&hdr.hdr_1_x.orig_len) - wth->capture.netxray->padding;
 	wth->phdr.pkt_encap = wth->file_encap;
 
+	return TRUE;
+}
+
+static gboolean
+netxray_seek_read(wtap *wth, long seek_off,
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err)
+{
+	union netxrayrec_hdr hdr;
+
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
+		*err = file_error(wth->random_fh);
+		return FALSE;
+	}
+
+	if (!netxray_read_rec_header(wth, wth->random_fh, &hdr, err)) {
+		if (*err == 0) {
+			/*
+			 * EOF - we report that as a short read, as
+			 * we've read this once and know that it
+			 * should be there.
+			 */
+			*err = WTAP_ERR_SHORT_READ;
+		}
+		return FALSE;
+	}
+
+	/*
+	 * Set the pseudo-header.
+	 */
+	netxray_set_pseudo_header(wth, pseudo_header, &hdr);
+
+	/*
+	 * Read the packet data.
+	 */
+	return netxray_read_rec_data(wth->random_fh, pd, length, err);
+}
+
+static int
+netxray_read_rec_header(wtap *wth, FILE_T fh, union netxrayrec_hdr *hdr,
+    int *err)
+{
+	int	bytes_read;
+	int	hdr_size = 0;
+
+	/* Read record header. */
+	switch (wth->capture.netxray->version_major) {
+
+	case 1:
+		hdr_size = sizeof (struct netxrayrec_1_x_hdr);
+		break;
+
+	case 2:
+		hdr_size = sizeof (struct netxrayrec_2_x_hdr);
+		break;
+	}
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(hdr, 1, hdr_size, fh);
+	if (bytes_read != hdr_size) {
+		*err = file_error(wth->fh);
+		if (*err != 0)
+			return 0;
+		if (bytes_read != 0) {
+			*err = WTAP_ERR_SHORT_READ;
+			return 0;
+		}
+
+		/*
+		 * We're at EOF.  "*err" is 0; we return FALSE - that
+		 * combination tells our caller we're at EOF.
+		 */
+		return 0;
+	}
+	return hdr_size;
+}
+
+static void
+netxray_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseudo_header,
+    union netxrayrec_hdr *hdr)
+{
+	/*
+	 * If this is 802.11, set the pseudo-header.
+	 */
+	if (wth->capture.netxray->version_major == 2 &&
+	    wth->file_encap == WTAP_ENCAP_IEEE_802_11_WITH_RADIO) {
+		pseudo_header->ieee_802_11.channel = hdr->hdr_2_x.xxx[12];
+		pseudo_header->ieee_802_11.data_rate = hdr->hdr_2_x.xxx[13];
+		pseudo_header->ieee_802_11.signal_level = hdr->hdr_2_x.xxx[14];
+	}
+}
+
+static gboolean
+netxray_read_rec_data(FILE_T fh, guint8 *data_ptr, guint32 packet_size,
+    int *err)
+{
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(data_ptr, 1, packet_size, fh);
+
+	if (bytes_read <= 0 || (guint32)bytes_read != packet_size) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
 	return TRUE;
 }
 

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.171 2002/02/24 09:25:34 guy Exp $
+ * $Id: capture.c,v 1.172 2002/04/08 09:09:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1235,6 +1235,7 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr)
       capture_clip(pd, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_IEEE_802_11:
+    case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
       capture_ieee80211(pd, 0, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_CHDLC:

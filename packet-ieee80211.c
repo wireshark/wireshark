@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.52 2002/03/09 22:41:50 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.53 2002/04/08 09:09:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -226,6 +226,14 @@ static const value_string frame_type_subtype_vals[] = {
 };
 
 static int proto_wlan = -1;
+
+/* ************************************************************************* */
+/*                Header field info values for radio information             */
+/* ************************************************************************* */
+static int hf_data_rate = -1;
+static int hf_channel = -1;
+static int hf_signal_strength = -1;
+
 /* ************************************************************************* */
 /*                Header field info values for FC-field                      */
 /* ************************************************************************* */
@@ -1058,7 +1066,8 @@ set_dst_addr_cols(packet_info *pinfo, const guint8 *addr, char *type)
 /* ************************************************************************* */
 static void
 dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
-			  proto_tree * tree, gboolean fixed_length_header)
+			  proto_tree * tree, gboolean fixed_length_header,
+			  gboolean has_radio_information)
 {
   guint16 fcf, flags, frame_type_subtype;
   const guint8 *src = NULL, *dst = NULL;
@@ -1090,12 +1099,30 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           val_to_str(frame_type_subtype, frame_type_subtype_vals,
               "Unrecognized (Reserved frame)"));
 
-  /* Add the FC to the current tree */
+  /* Add the radio information, if present, and the FC to the current tree */
   if (tree)
     {
       ti = proto_tree_add_protocol_format (tree, proto_wlan, tvb, 0, hdr_len,
 					   "IEEE 802.11");
       hdr_tree = proto_item_add_subtree (ti, ett_80211);
+
+      if (has_radio_information) {
+	proto_tree_add_uint_format(hdr_tree, hf_data_rate,
+				   tvb, 0, 0,
+				   pinfo->pseudo_header->ieee_802_11.data_rate,
+				   "Data Rate: %g mb/s",
+				   .5*pinfo->pseudo_header->ieee_802_11.data_rate);
+
+	proto_tree_add_uint(hdr_tree, hf_channel,
+			    tvb, 0, 0,
+			    pinfo->pseudo_header->ieee_802_11.channel);
+
+	proto_tree_add_uint_format(hdr_tree, hf_signal_strength,
+				   tvb, 0, 0,
+				   pinfo->pseudo_header->ieee_802_11.signal_level,
+				   "Signal Strength: %u%%",
+				   pinfo->pseudo_header->ieee_802_11.signal_level);
+      }
 
       proto_tree_add_uint (hdr_tree, hf_fc_frame_type_subtype,
 			   tvb, 0, 1,
@@ -1546,7 +1573,17 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 static void
 dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE);
+}
+
+/*
+ * Dissect 802.11 with a variable-length link-layer header and a pseudo-
+ * header containing radio information.
+ */
+static void
+dissect_ieee80211_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+{
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, TRUE);
 }
 
 /*
@@ -1556,7 +1593,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 static void
 dissect_ieee80211_fixed (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, TRUE);
+  dissect_ieee80211_common (tvb, pinfo, tree, TRUE, FALSE);
 }
 
 void
@@ -1717,6 +1754,18 @@ proto_register_wlan (void)
   };
 
   static hf_register_info hf[] = {
+    {&hf_data_rate,
+     {"Data Rate", "wlan.data_rate", FT_UINT8, BASE_DEC, NULL, 0,
+      "Data rate (.5 Mb/s units)", HFILL }},
+
+    {&hf_channel,
+     {"Channel", "wlan.channel", FT_UINT8, BASE_DEC, NULL, 0,
+      "Radio channel", HFILL }},
+
+    {&hf_signal_strength,
+     {"Signal Strength", "wlan.signal_strength", FT_UINT8, BASE_DEC, NULL, 0,
+      "Signal strength (percentage)", HFILL }},
+
     {&hf_fc_field,
      {"Frame Control Field", "wlan.fc", FT_UINT16, BASE_HEX, NULL, 0,
       "MAC Frame control", HFILL }},
@@ -1962,6 +2011,7 @@ void
 proto_reg_handoff_wlan(void)
 {
   dissector_handle_t ieee80211_handle;
+  dissector_handle_t ieee80211_radio_handle;
 
   /*
    * Get handles for the LLC and IPX dissectors.
@@ -1972,4 +2022,8 @@ proto_reg_handoff_wlan(void)
 
   ieee80211_handle = find_dissector("wlan");
   dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11, ieee80211_handle);
+  ieee80211_radio_handle = create_dissector_handle(dissect_ieee80211_radio,
+						   proto_wlan);
+  dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
+		ieee80211_radio_handle);
 }

@@ -1,7 +1,7 @@
 /* packet-airopeek.c
  * Routines for AiroPeek capture file dissection
  *
- * $Id: packet-airopeek.c,v 1.3 2002/02/22 07:15:28 guy Exp $
+ * $Id: packet-airopeek.c,v 1.4 2002/04/08 09:09:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,8 +78,8 @@ dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    tvb, 1, 1, FALSE);
 
 		signal_strength = tvb_get_guint8(tvb, 2);
-		proto_tree_add_uint_format(airopeek_tree, hf_airopeek_data_rate,
-		    tvb, 2, 1, data_rate,
+		proto_tree_add_uint_format(airopeek_tree, hf_airopeek_signal_strength,
+		    tvb, 2, 1, signal_strength,
 		    "Signal Strength: %u%%", signal_strength);
 	}
 
