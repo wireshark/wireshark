@@ -3,7 +3,7 @@
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.c,v 1.26 2004/03/04 23:16:08 obiot Exp $
+ * $Id: packet-wbxml.c,v 1.27 2004/03/04 23:33:41 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2478,11 +2478,11 @@ static const value_string wbxml_wv_csp_11_tags_cp1[] = {
 /* Service code page */
 static const value_string wbxml_wv_csp_11_tags_cp2[] = {
 	/* 0x00 -- 0x04 GLOBAL */
-	{ 0x5, "ADDGM" },
-	{ 0x6, "AttListFunc" },
-	{ 0x7, "BLENT" },
-	{ 0x8, "CAAUT" },
-	{ 0x9, "CAINV" },
+	{ 0x05, "ADDGM" },
+	{ 0x06, "AttListFunc" },
+	{ 0x07, "BLENT" },
+	{ 0x08, "CAAUT" },
+	{ 0x09, "CAINV" },
 	{ 0x0A, "CALI" },
 	{ 0x0B, "CCLI" },
 	{ 0x0C, "ContListFunc" },
@@ -3085,7 +3085,7 @@ static const value_string wbxml_wv_csp_12_tags_cp2[] = {
 	{ 0x39, "STSRC" },
 	{ 0x3A, "SUBGCN" },
 	{ 0x3B, "UPDPR" },
-	{ 0x3E, "VRID" },
+	{ 0x3E, "VRID" }, /* Duplicate - WV-CSP is really crappy */
 	{ 0x3C, "WVCSPFeat" },
 
 	{ 0x00, NULL }
