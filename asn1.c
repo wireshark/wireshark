@@ -1,7 +1,7 @@
 /* asn1.c
  * Routines for ASN.1 BER dissection
  *
- * $Id: asn1.c,v 1.18 2003/04/28 00:31:26 guy Exp $
+ * $Id: asn1.c,v 1.19 2003/05/10 02:00:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -607,20 +607,42 @@ asn1_bits_decode ( ASN1_SCK *asn1, int enc_len, guchar **bits,
     int eoc;
     guchar *ptr;
 
-    eoc = asn1->offset + enc_len;
     *bits = NULL;
     ret = asn1_octet_decode (asn1, unused);
     if (ret != ASN1_ERR_NOERROR)
         return ret;
     *len = 0;
-    ptr = *bits = g_malloc(enc_len);
+
+    /*
+     * First, make sure the entire string is in the tvbuff, and throw
+     * an exception if it isn't.  If the length is bogus, this should
+     * keep us from trying to allocate an immensely large buffer.
+     * (It won't help if the length is *valid* but immensely large,
+     * but that's another matter; in any case, that would happen only
+     * if we had an immensely large tvbuff....)
+     */
+    if (enc_len != 0) {
+        tvb_ensure_bytes_exist(asn1->tvb, asn1->offset, enc_len);
+        *bits = g_malloc (enc_len);
+    } else {
+	/*
+	 * If the length is 0, we allocate a 1-byte buffer, as
+	 * "g_malloc()" returns NULL if passed 0 as an argument,
+	 * and our caller expects us to return a pointer to a
+	 * buffer.
+	 */
+	*bits = g_malloc (1);
+    }
+
+    eoc = asn1->offset + enc_len;
+    ptr = *bits;
     while (asn1->offset < eoc) {
         ret = asn1_octet_decode (asn1, (guchar *)ptr++);
         if (ret != ASN1_ERR_NOERROR) {
             g_free(*bits);
             *bits = NULL;
 	    return ret;
-          }
+	}
     }
     *len = ptr - *bits;
     return ASN1_ERR_NOERROR;
@@ -654,10 +676,11 @@ asn1_string_value_decode ( ASN1_SCK *asn1, int enc_len, guchar **octets)
      * an exception if it isn't.  If the length is bogus, this should
      * keep us from trying to allocate an immensely large buffer.
      * (It won't help if the length is *valid* but immensely large,
-     * but that's another matter.)
+     * but that's another matter; in any case, that would happen only
+     * if we had an immensely large tvbuff....)
      */
     if (enc_len != 0) {
-    	tvb_ensure_bytes_exist(asn1->tvb, asn1->offset, enc_len);
+	tvb_ensure_bytes_exist(asn1->tvb, asn1->offset, enc_len);
 	*octets = g_malloc (enc_len);
     } else {
 	/*
@@ -821,10 +844,11 @@ asn1_oid_value_decode ( ASN1_SCK *asn1, int enc_len, subid_t **oid, guint *len)
      * an exception if it isn't.  If the length is bogus, this should
      * keep us from trying to allocate an immensely large buffer.
      * (It won't help if the length is *valid* but immensely large,
-     * but that's another matter.)
+     * but that's another matter; in any case, that would happen only
+     * if we had an immensely large tvbuff....)
      */
     if (enc_len != 0)
-    	tvb_ensure_bytes_exist(asn1->tvb, asn1->offset, enc_len);
+	tvb_ensure_bytes_exist(asn1->tvb, asn1->offset, enc_len);
 
     eoc = asn1->offset + enc_len;
 
