@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.39 2003/04/30 02:35:28 gerald Exp $
+ * $Id: packet-mgcp.c,v 1.40 2003/06/12 10:10:17 guy Exp $
  *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -1001,7 +1001,6 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
 	tokenlen = tvb_current_offset - tvb_previous_offset;
       }
       if(tokennum == 0){
-        code = g_malloc(tokenlen);
         code = tvb_format_text(tvb,tvb_previous_offset,tokenlen);
         strncpy(mi->code,code,4);
         mi->code[4] = '\0';
@@ -1022,7 +1021,6 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
 	}
       }
       if(tokennum == 1){
-      	transid = g_malloc(tokenlen);
         transid = tvb_format_text(tvb,tvb_previous_offset,tokenlen);
         /* XXX - what if this isn't a valid text string? */
         mi->transid = atol(transid);
