@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.31 2002/03/04 00:25:35 guy Exp $
+ * $Id: lanalyzer.c,v 1.32 2002/05/23 06:34:10 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -33,7 +33,7 @@
 /* The LANalyzer format is documented (at least in part) in Novell document
    TID022037, which can be found at, among other places:
 
-	http://www.hackzone.ru/nsp/info/nw/lan/trace.txt
+	http://secinf.net/info/nw/lan/trace.txt
  */
 
 /* Record types. */
