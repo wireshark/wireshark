@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.287 2002/08/28 21:00:06 jmayer Exp $
+ * $Id: file.c,v 1.288 2002/08/31 09:55:18 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,9 +63,17 @@
 #include <epan/epan.h>
 #include <epan/filesystem.h>
 
+#if GTK_MAJOR_VERSION == 1
 #include "gtk/main.h"
+#else
+#include "gtk2/main.h"
+#endif
 #include "color.h"
+#if GTK_MAJOR_VERSION == 1
 #include "gtk/color_utils.h"
+#else
+#include "gtk2/color_utils.h"
+#endif
 #include "column.h"
 #include <epan/packet.h>
 #include "print.h"
@@ -77,12 +85,21 @@
 #include "ui_util.h"
 #include "statusbar.h"
 #include "prefs.h"
+#if GTK_MAJOR_VERSION == 1
 #include "gtk/proto_draw.h"
 #include "gtk/packet_win.h"
+#else
+#include "gtk2/proto_draw.h"
+#include "gtk2/packet_win.h"
+#endif
 #include <epan/dfilter/dfilter.h>
 #include <epan/conversation.h>
 #include "globals.h"
+#if GTK_MAJOR_VERSION == 1
 #include "gtk/colors.h"
+#else
+#include "gtk2/colors.h"
+#endif
 #include <epan/epan_dissect.h>
 
 extern GtkWidget *packet_list, *byte_nb_ptr, *tree_view;
@@ -1429,7 +1446,12 @@ change_time_formats(capture_file *cf)
   for (i = 0; i < cf->cinfo.num_cols; i++) {
     if (cf->cinfo.fmt_matx[i][COL_CLS_TIME]) {
       gtk_clist_set_column_width(GTK_CLIST(packet_list), i,
+#if GTK_MAJOR_VERSION == 1
         gdk_string_width(pl_style->font, get_column_longest_string(COL_CLS_TIME)));
+#else
+        gdk_string_width(gdk_font_from_description(pl_style->font_desc),
+                         get_column_longest_string(COL_CLS_TIME)));
+#endif
     }
   }
 

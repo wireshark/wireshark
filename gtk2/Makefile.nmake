@@ -1,0 +1,68 @@
+## Makefile for building ethereal.exe with Microsoft C and nmake
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+#
+# $Id: Makefile.nmake,v 1.1 2002/08/31 09:55:20 oabad Exp $
+
+include ..\config.nmake
+
+############### no need to modify below this line #########
+
+CFLAGS=-DHAVE_CONFIG_H /I.. /I../wiretap \
+	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
+	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
+	/I$(PCAP_DIR)\WPCAP\LIBPCAP /I$(PCAP_DIR)\WPCAP\LIBPCAP\bpf \
+	/I$(PCAP_DIR)\WPCAP\LIBPCAP\lbl \
+	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+
+CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
+
+.c.obj::
+   $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
+
+# gtkclist.obj is not in here because it is gtk+-1.2 code,
+# while the DLL for GTK+ on windows is gtk+-1.3, and there's
+# some functions that have disappeared in gtk+-1.3. I might
+# get around to #ifdef'ing them out in our gtkclist.c.
+OBJECTS=capture_dlg.obj \
+	capture_prefs.obj \
+	color_dlg.obj    \
+	colors.obj       \
+	color_utils.obj  \
+	column_prefs.obj \
+	decode_as_dlg.obj \
+	dfilter_expr_dlg.obj \
+	display_opts.obj \
+	dlg_utils.obj	\
+	file_dlg.obj \
+	filter_prefs.obj \
+	find_dlg.obj \
+	follow_dlg.obj \
+	goto_dlg.obj \
+	gui_prefs.obj \
+	help_dlg.obj \
+	main.obj 	\
+	menu.obj 	\
+	nameres_prefs.obj \
+	packet_win.obj	\
+	plugins_dlg.obj	\
+	prefs_dlg.obj \
+	print_dlg.obj \
+        print_mswin.obj \
+	print_prefs.obj  \
+	progress_dlg.obj \
+	proto_dlg.obj \
+	proto_draw.obj \
+	proto_hier_stats_dlg.obj	\
+	simple_dialog.obj \
+	stream_prefs.obj \
+	summary_dlg.obj \
+	tcp_graph.obj \
+	ui_util.obj
+
+
+libui.lib	: ..\config.h $(OBJECTS)
+	lib /out:libui.lib $(OBJECTS)	
+
+
+clean:
+	rm -f $(OBJECTS) libui.lib $(PDB_FILE)

@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.174 2002/08/28 00:37:17 jmayer Exp $
+# $Id: configure.in,v 1.175 2002/08/31 09:55:18 oabad Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -219,6 +219,7 @@ AC_ARG_ENABLE(ethereal,
 
 AC_ARG_ENABLE(gtk2,
 [  --enable-gtk2           build Glib2/Gtk2+-based (t)ethereal.  [default=no]],enable_gtk2=yes,enable_gtk2=no)
+AM_CONDITIONAL(USE_GTK2, test x$enable_gtk2 = xyes)
 
 # GTK checks
 # We don't add $GLIB_LIBS to LIBS, because we don't want to force all
@@ -247,7 +248,7 @@ fi
 if test "$GTK_OK" = "two" ; then
 	ethereal_bin="ethereal"
 	ethereal_man="ethereal.1"
-	ethereal_SUBDIRS="gtk"   # <--- change to gtk2, if we can't use the same directory
+	ethereal_SUBDIRS="gtk2"
 
 	# Ignore GLIB_CFLAGS
 	AM_PATH_GLIB_2_0(2.0.0, , AC_MSG_ERROR(GLib distribution not found.), gmodule)
@@ -702,6 +703,7 @@ AC_OUTPUT(
   Makefile
   doc/Makefile
   gtk/Makefile
+  gtk2/Makefile
   packaging/Makefile
   packaging/nsis/Makefile
   packaging/rpm/Makefile
@@ -753,6 +755,7 @@ echo "                      Build dftest : $enable_dftest"
 echo ""
 echo "                    Install setuid : $setuid_message"
 echo "                       Use plugins : $have_plugins"
+echo "               Use GTK+ v2 library : $enable_gtk2"
 echo "                  Use pcap library : $want_pcap"
 echo "                  Use zlib library : $zlib_message"
 echo "          Use IPv6 name resolution : $enable_ipv6"

@@ -1,22 +1,22 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.463 2002/08/30 02:08:50 sharpe Exp $
+# $Id: Makefile.am,v 1.464 2002/08/31 09:55:18 oabad Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
 # Copyright 1998 Gerald Combs
-# 
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
 # of the License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -63,7 +63,7 @@ ACLOCAL_AMFLAGS = `./aclocal-flags`
 bin_PROGRAMS = @ethereal_bin@ @editcap_bin@ @mergecap_bin@ @tethereal_bin@ @dftest_bin@ @randpkt_bin@ @text2pcap_bin@
 bin_SCRIPTS = @idl2eth_bin@
 man1_MANS = @ethereal_man@ @editcap_man@ @mergecap_man@ @tethereal_man@ @text2pcap_man@ @idl2eth_man@
-man_MANS = 
+man_MANS =
 
 EXTRA_PROGRAMS = ethereal ethereal_static tethereal tethereal_static editcap mergecap dftest text2pcap
 EXTRA_SCRIPTS = idl2eth
@@ -543,7 +543,7 @@ noinst_HEADERS = \
 	packet-ypbind.h \
 	packet-yppasswd.h \
 	packet-ypserv.h \
-	packet-ypxfr.h 
+	packet-ypxfr.h
 
 ETHEREAL_COMMON_SRC = \
 	afn.c          \
@@ -645,7 +645,7 @@ ethereal_static_SOURCES = \
 	statusbar.h    \
 	summary.c      \
 	summary.h      \
-	ui_util.h	
+	ui_util.h
 
 EXTRA_ethereal_SOURCES = \
 	snprintf.c	\
@@ -673,12 +673,21 @@ ethereal_optional_objects = @SNPRINTF_O@ @STRERROR_O@ \
 
 # Additional libs that I know how to build. These will be
 # linked into the ethereal executable.
+if USE_GTK2
+ethereal_additional_libs = \
+	wiretap/libwiretap.a	\
+	gtk2/libui.a		\
+	epan/libethereal.a	\
+	epan/ftypes/libftypes.a \
+	epan/dfilter/libdfilter.a
+else
 ethereal_additional_libs = \
 	wiretap/libwiretap.a	\
 	gtk/libui.a		\
 	epan/libethereal.a	\
 	epan/ftypes/libftypes.a \
 	epan/dfilter/libdfilter.a
+endif
 
 # This is the automake dependency variable for the executable
 ethereal_DEPENDENCIES = \
@@ -710,7 +719,7 @@ ethereal_static_LDADD = \
 	$(ethereal_optional_objects)	\
 	$(ethereal_additional_libs)	\
 	@SNMP_LIBS@ @SSL_LIBS@		\
-	@PCAP_LIBS@ @GTK_LIBS@		
+	@PCAP_LIBS@ @GTK_LIBS@
 
 ethereal_LDFLAGS = -export-dynamic
 ethereal_static_LDFLAGS = -Wl,-static
@@ -743,7 +752,7 @@ tethereal_DEPENDENCIES = \
 
 tethereal_static_DEPENDENCIES = \
 	$(ethereal_optional_objects)	\
-	$(tethereal_additional_libs)	
+	$(tethereal_additional_libs)
 
 # This automake variable adds to the link-line for the executable
 tethereal_LDADD = wiretap/libwiretap.a	\
