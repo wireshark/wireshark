@@ -1392,8 +1392,8 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
             }
           }
           out_buff[SHORT_STR-1] = '\0';
-          proto_tree_add_string (tree, tag_interpretation, tvb, offset + 5,
-               bmaplen, out_buff);
+          proto_tree_add_string_format (tree, tag_interpretation, tvb, offset + 5,
+               bmaplen, out_buff, "%s", out_buff);
         }
       }
       break;
