@@ -1837,7 +1837,7 @@ dissect_pktdrop_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *chunk
 static void
 dissect_unknown_chunk(tvbuff_t *chunk_tvb, proto_tree *chunk_tree, proto_item *chunk_item)
 {
-  guint chunk_value_length;
+  gint chunk_value_length;
 
   if (chunk_tree) {
     chunk_value_length = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET) - CHUNK_HEADER_LENGTH;
