@@ -521,7 +521,7 @@ window_destroy(GtkWidget *win)
    * cannot be retrieved at destroy time (so don't use event "destroy" for this) */
   /* ...and don't do this at all, if we currently have no GdkWindow (e.g. if the 
    * GtkWidget is hidden) */
-  if(!GTK_WIDGET_NO_WINDOW(win)) {
+  if(!GTK_WIDGET_NO_WINDOW(win) && GTK_WIDGET_VISIBLE(win)) {
       window_get_geometry(win, &geom);
 
       name = OBJECT_GET_DATA(win, WINDOW_GEOM_KEY);
