@@ -989,6 +989,13 @@ static int hf_h245_iPSourceRouteAddress_route = -1;
 static int hf_h245_audioTelephoneEvent = -1;
 static int hf_h245_alphanumeric = -1;
 static int hf_h245_h221Manufacturer = -1;
+static int hf_h245_VideoCapabilitySO = -1;
+static int hf_h245_GenericCapabilitySO = -1;
+static int hf_h245_ExtendedVideoCapability = -1;
+static int hf_h245_subMessageIdentifier = -1;
+static int hf_h245_H239SubMessageIdentifier = -1;
+static int hf_h245_GenericMessage = -1;
+static int hf_h245_h239_standard_0_127 = -1;
 
 
 static gint ett_h245 = -1;
@@ -1472,6 +1479,11 @@ static gint ett_h245_lostPicture = -1;
 static gint ett_h245_recoveryReferencePicture = -1;
 static gint ett_h245_iPSourceRouteAddress_route = -1;
 
+static gint ett_h245_VideoCapabilitySO = -1;
+static gint ett_h245_GenericCapabilitySO = -1;
+static gint ett_h245_ExtendedVideoCapability = -1;
+static gint ett_h245_GenericMessage = -1;
+
 static dissector_table_t nsp_object_dissector_table;
 static dissector_table_t nsp_h221_dissector_table;
 
@@ -1484,6 +1496,9 @@ static guint32 t35CountryCode;
 static guint32 t35Extension;
 static guint32 manufacturerCode;
 static guint32 h221NonStandard;
+static guint32 subMessageIdentifier;
+static char standardObject[256];
+static gboolean h239standardObject = FALSE;
 
 static gboolean h245_reassembly = TRUE;
 static gboolean h245_shorttypes = FALSE;
@@ -10214,9 +10229,16 @@ dissect_h245_T38FaxProfile(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 static int
 dissect_h245_standard_0_127(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_constrained_integer(tvb, offset, pinfo,
-		tree, hf_h245_standard_0_127, 0, 127,
-		NULL, NULL, FALSE);
+	if(h239standardObject){
+		offset=dissect_per_constrained_integer(tvb, offset, pinfo,
+			tree, hf_h245_h239_standard_0_127, 0, 127,
+			NULL, NULL, FALSE);
+	}
+	else{
+		offset=dissect_per_constrained_integer(tvb, offset, pinfo,
+			tree, hf_h245_standard_0_127, 0, 127,
+			NULL, NULL, FALSE);
+	}
 
 	return offset;
 }
@@ -12439,7 +12461,10 @@ dissect_h245_antiSpamAlgorithm(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 static int
 dissect_h245_standard_object(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_h245_standard_object, NULL);
+	offset=dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_h245_standard_object, standardObject);
+	if(strncmp(standardObject,"0.0.8.239.",10)==0){
+		h239standardObject=TRUE;
+	}
 	return offset;
 }
 
@@ -13316,6 +13341,7 @@ static const per_choice_t CapabilityIdentifier_choice[] = {
 static int
 dissect_h245_CapabilityIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
+	h239standardObject=FALSE; /* will be set later on if OID is starting with 0.0.8.239. */
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CapabilityIdentifier, ett_h245_CapabilityIdentifier, CapabilityIdentifier_choice, "CapabilityIdentifier", NULL);
 
 	return offset;
@@ -13331,6 +13357,21 @@ static const value_string ParameterIdentifier_vals[] = {
 	{  3, "domainBased" },
 	{  0, NULL }
 };
+
+
+static const value_string h239_parameterIdentifier_vals[] = {
+	{  0,   "reserved" },
+	{  1,   "roleLabel" },
+	{  41,  "bitRate" },
+	{  42,  "channelId" },
+	{  43,  "symmetryBreaking" },
+	{  44,  "terminalLabel" },
+	{  126, "acknowledge" },
+	{  127, "reject" },
+	{  0, NULL }
+};
+
+
 static const per_choice_t ParameterIdentifier_choice[] = {
 	{  0, "standard", ASN1_EXTENSION_ROOT,
 		dissect_h245_standard_0_127 },
@@ -14082,7 +14123,6 @@ dissect_h245_GenericCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 	return offset;
 }
-
 
 
 
@@ -15597,7 +15637,8 @@ dissect_h245_H263VideoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 
-
+static int
+dissect_h245_ExtendedVideoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
 
 static const value_string VideoCapability_vals[] = {
@@ -15607,6 +15648,7 @@ static const value_string VideoCapability_vals[] = {
 	{  3, "h263VideoCapability" },
 	{  4, "is11172VideoCapability" },
 	{  5, "genericVideoCapability" },
+	{  6, "extendedVideoCapability" },
 	{  0, NULL }
 };
 static const per_choice_t VideoCapability_choice[] = {
@@ -15622,6 +15664,8 @@ static const per_choice_t VideoCapability_choice[] = {
 		dissect_h245_IS11172VideoCapability},
 	{  5, "genericVideoCapability", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h245_GenericCapability },
+	{  6, "extendedVideoCapability", ASN1_NOT_EXTENSION_ROOT,
+		dissect_h245_ExtendedVideoCapability },
 	{  0, NULL, 0, NULL }
 };
 static int
@@ -16511,6 +16555,87 @@ dissect_h245_H235Media_mediaType(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 
+static int
+dissect_h245_VideoCapability_sequence_of(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_h245_VideoCapabilitySO, ett_h245_VideoCapabilitySO, dissect_h245_VideoCapability );
+	return offset;
+}
+
+
+static int
+dissect_h245_GenericCapability_sequence_of(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_h245_GenericCapabilitySO, ett_h245_GenericCapabilitySO, dissect_h245_GenericCapability );
+	return offset;
+}
+
+
+
+static const per_sequence_t ExtendedVideoCapability_sequence[] = {
+	{ "videoCapability", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+		dissect_h245_VideoCapability_sequence_of },
+	{ "videoCapabilityExtension", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
+		dissect_h245_GenericCapability_sequence_of },
+	{ NULL, 0, 0, NULL }
+};
+
+static int
+dissect_h245_ExtendedVideoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_ExtendedVideoCapability, ett_h245_ExtendedVideoCapability, ExtendedVideoCapability_sequence);
+
+	return offset;
+}
+
+
+static const value_string H239SubMessageIdentifier_vals[] = {
+	{  1, "flowControlReleaseRequest" },
+	{  2, "flowControlReleaseResponse" },
+	{  3, "presentationTokenRequest" },
+	{  4, "presentationTokenResponse" },
+	{  5, "presentationTokenRelease" },
+	{  6, "presentationTokenIndicateOwner" },
+	{  0, NULL }
+};
+
+static int
+dissect_h245_subMessageIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	if(h239standardObject){
+		offset=dissect_per_constrained_integer(tvb, offset, pinfo,
+			tree, hf_h245_H239SubMessageIdentifier, 0, 127,
+			&subMessageIdentifier, NULL, FALSE);
+	}
+	else{
+		offset=dissect_per_constrained_integer(tvb, offset, pinfo,
+			tree, hf_h245_subMessageIdentifier, 0, 127,
+			&subMessageIdentifier, NULL, FALSE);
+	}
+
+
+	return offset;
+}
+
+
+
+static const per_sequence_t GenericMessage_sequence[] = {
+	{ "messageIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+		dissect_h245_CapabilityIdentifier },
+	{ "subMessageIdentifier", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
+		dissect_h245_subMessageIdentifier },
+	{ "messageContent", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
+		dissect_h245_genericParameter_sequence_of },
+	{ NULL, 0, 0, NULL }
+};
+
+static int
+dissect_h245_GenericMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_GenericMessage, ett_h245_GenericMessage, GenericMessage_sequence);
+
+	return offset;
+}
 
 
 
@@ -18410,6 +18535,7 @@ static const value_string IndicationMessage_short_vals[] = {
 	{ 20,	"LCRRelease" },
 	{ 21,	"FCIndication" },
 	{ 22,	"MMRI" },
+	{ 22,	"GI" },
 	{  0, NULL }
 };
 
@@ -18438,6 +18564,7 @@ static const value_string IndicationMessage_vals[] = {
 	{ 20,	"LogicalChannelRateRelease" },
 	{ 21,	"FlowControlIndication" },
 	{ 22,	"MobileMultilinkReconfigurationIndication" },
+	{ 23,	"GenericIndication" },
 	{  0, NULL }
 };
 static const per_choice_t IndicationMessage_choice[] = {
@@ -18487,6 +18614,8 @@ static const per_choice_t IndicationMessage_choice[] = {
 		dissect_h245_FlowControlIndication },
 	{ 22,	"MobileMultilinkReconfigurationIndication",ASN1_NOT_EXTENSION_ROOT,
 		dissect_h245_MobileMultilinkReconfigurationIndication },
+	{ 22,	"GenericIndication",ASN1_NOT_EXTENSION_ROOT,
+		dissect_h245_GenericMessage },
 	{  0, NULL, 0, NULL }
 };
 static int
@@ -18532,6 +18661,7 @@ static const value_string RequestMessage_short_vals[] = {
 	{ 12,	"CR" },
 	{ 13,	"MR" },
 	{ 14,	"LCRR" },
+	{ 15,	"GR" },
 	{  0, NULL }
 };
 
@@ -18552,6 +18682,7 @@ static const value_string RequestMessage_vals[] = {
 	{ 12,	"ConferenceRequest" },
 	{ 13,	"MultilinkRequest" },
 	{ 14,	"LogicalChannelRateRequest" },
+	{ 15,	"GenericRequest" },  /*h239*/
 	{  0, NULL }
 };
 static const per_choice_t RequestMessage_choice[] = {
@@ -18584,7 +18715,9 @@ static const per_choice_t RequestMessage_choice[] = {
 	{ 13,	"MultilinkRequest",		ASN1_NOT_EXTENSION_ROOT,
 			dissect_h245_MultilinkRequest },
 	{ 14,	"LogicalChannelRateRequest",	ASN1_NOT_EXTENSION_ROOT,
-			dissect_h245_LogicalChannelRateRequest },
+			dissect_h245_LogicalChannelRateRequest },  
+	{ 15,	"GenericRequest",	ASN1_NOT_EXTENSION_ROOT,   /* h239 */
+			dissect_h245_GenericMessage },
 	{  0, NULL, 0, NULL }
 };
 static int
@@ -18870,6 +19003,7 @@ static const value_string CommandMessage_short_vals[] = {
 	{  9,	"H223MR" },
 	{ 10,	"NATMVCC" },
 	{ 11,	"MMRC" },
+	{ 12,	"GC" },
 	{  0, NULL }
 };
 
@@ -18888,6 +19022,7 @@ static const value_string CommandMessage_vals[] = {
 	{  9,	"H223MultiplexReconfiguration" },
 	{ 10,	"NewATMVCCommand" },
 	{ 11,	"MobileMultilinkReconfigurationCommand" },
+	{ 12,	"GenericCommand" },
 	{  0, NULL }
 };
 static const per_choice_t CommandMessage_choice[] = {
@@ -18915,6 +19050,8 @@ static const per_choice_t CommandMessage_choice[] = {
 			dissect_h245_NewATMVCCommand },
 	{ 11,	"MobileMultilinkReconfigurationCommand",ASN1_NOT_EXTENSION_ROOT,
 			dissect_h245_MobileMultilinkReconfigurationCommand },
+	{ 12,	"GenericCommand",ASN1_NOT_EXTENSION_ROOT,
+			dissect_h245_GenericMessage },
 	{  0, NULL, 0, NULL }
 };
 static int
@@ -18970,6 +19107,7 @@ static const value_string ResponseMessage_short_vals[] = {
 	{ 21,	"MResponse" },
 	{ 22,	"LCRAck" },
 	{ 23,	"LCRReject" },
+	{ 24,	"GR" },
 	{  0, NULL }
 };
 
@@ -18999,6 +19137,7 @@ static const value_string ResponseMessage_vals[] = {
 	{ 21,	"MultilinkResponse" },
 	{ 22,	"LogicalChannelRateAck" },
 	{ 23,	"LogicalChannelRateReject" },
+	{ 24,	"GenericResponse" },
 	{  0, NULL }
 };
 static const per_choice_t ResponseMessage_choice[] = {
@@ -19050,6 +19189,8 @@ static const per_choice_t ResponseMessage_choice[] = {
 			dissect_h245_LogicalChannelRateAck },
 	{ 23,	"LogicalChannelRateReject", 	ASN1_NOT_EXTENSION_ROOT,
 			dissect_h245_LogicalChannelRateReject },
+	{ 24,	"GenericResponse", 	ASN1_NOT_EXTENSION_ROOT,
+			dissect_h245_GenericMessage },
 	{  0, NULL, 0, NULL }
 };
 static int
@@ -21451,6 +21592,9 @@ proto_register_h245(void)
 	{ &hf_h245_standard_0_127,
 		{ "standard_0_127", "h245.standard_0_127", FT_UINT32, BASE_DEC,
 		NULL, 0, "standard_0_127 value", HFILL }},
+	{ &hf_h245_h239_standard_0_127,
+		{ "standard_0_127", "h245.h239.parameterIdentifier", FT_UINT32, BASE_DEC,
+		VALS(h239_parameterIdentifier_vals), 0, "standard_0_127 value", HFILL }},
 	{ &hf_h245_booleanArray,
 		{ "booleanArray", "h245.booleanArray", FT_UINT32, BASE_DEC,
 		NULL, 0, "booleanArray value", HFILL }},
@@ -21979,6 +22123,24 @@ proto_register_h245(void)
 	{ &hf_h245_h221Manufacturer,
 		{ "H.221 Manufacturer", "h245.h221Manufacturer", FT_UINT32, BASE_HEX,
 		VALS(H221ManufacturerCode_vals), 0, "H.221 Manufacturer", HFILL }},
+	{ &hf_h245_VideoCapabilitySO,
+		{ "videoCapability", "h245.videoCapability_sequence_of", FT_NONE, BASE_NONE,
+		NULL, 0 , "videoCapability sequence of", HFILL }},
+	{ &hf_h245_GenericCapabilitySO,
+		{ "genericCapability", "h245.genericCapability_sequence_of", FT_NONE, BASE_NONE,
+		NULL, 0 , "genericCapability sequence of", HFILL }},
+	{ &hf_h245_ExtendedVideoCapability,
+		{ "ExtendedVideoCapability", "h245.ExtendedVideoCapability", FT_NONE, BASE_NONE,
+		NULL, 0, "ExtendedVideoCapability sequence", HFILL }},
+	{ &hf_h245_GenericMessage,
+		{ "GenericMessage", "h245.GenericMessage", FT_NONE, BASE_NONE,
+		NULL, 0, "GenericMessage sequence", HFILL }},
+	{ &hf_h245_subMessageIdentifier,
+		{ "subMessageIdentifier", "h245.subMessageIdentifier", FT_UINT32, BASE_DEC,
+		NULL, 0, "subMessageIdentifier value", HFILL }},
+	{ &hf_h245_H239SubMessageIdentifier,
+		{ "subMessageIdentifier", "h245.H239SubMessageIdentifier", FT_UINT32, BASE_DEC,
+		VALS(H239SubMessageIdentifier_vals), 0, "H239SubMessageIdentifier value", HFILL }},
 	};
 
 	static gint *ett[] =
@@ -22463,6 +22625,10 @@ proto_register_h245(void)
 		&ett_h245_lostPicture,
 		&ett_h245_recoveryReferencePicture,
 		&ett_h245_iPSourceRouteAddress_route,
+		&ett_h245_VideoCapabilitySO,
+		&ett_h245_GenericCapabilitySO,
+		&ett_h245_ExtendedVideoCapability,
+		&ett_h245_GenericMessage,
 	};
 	module_t *h245_module;
 
@@ -22487,6 +22653,9 @@ proto_register_h245(void)
 
 	h245_tap = register_tap("h245");
 
+	register_ber_oid_name("0.0.8.239.1.1","itu-t(0) recommendation(0) h(8) h239(239) generic-capabilities(1) h239ControlCapability(1)");
+	register_ber_oid_name("0.0.8.239.1.2","itu-t(0) recommendation(0) h(8) h239(239) generic-capabilities(1) h239ExtendedVideoCapability(2)");
+	register_ber_oid_name("0.0.8.239.2","itu-t(0) recommendation(0) h(8) h239(239) generic-message(2)");
 	register_ber_oid_name("0.0.8.245.0.3","itu-t(0) recommendation(0) h(8) h245(245) version(0) 3");
 	register_ber_oid_name("0.0.8.245.0.5","itu-t(0) recommendation(0) h(8) h245(245) version(0) 5");
 	register_ber_oid_name("0.0.8.245.0.6","itu-t(0) recommendation(0) h(8) h245(245) version(0) 6");
