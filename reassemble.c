@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.41 2003/08/28 04:19:29 guy Exp $
+ * $Id: reassemble.c,v 1.42 2003/08/28 04:46:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1491,7 +1491,10 @@ process_reassembled_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (update_col_infop != NULL)
 			*update_col_infop = update_col_info;
 	} else {
-		/* We don't have the complete reassembled payload. */
+		/*
+		 * We don't have the complete reassembled payload, or this
+		 * isn't the final frame of that payload.
+		 */
 		next_tvb = NULL;
 
 		/*
