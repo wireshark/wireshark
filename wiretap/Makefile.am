@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Wiretap
 #
-# $Id: Makefile.am,v 1.40 2003/04/02 20:21:45 guy Exp $
+# $Id: Makefile.am,v 1.41 2003/04/27 09:16:36 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -96,7 +96,7 @@ EXTRA_DIST = \
 	wtap.def
 
 # Any POSIX-compatible YACC should honor the -p flag
-YFLAGS=-d -p ascend
+AM_YFLAGS=-d -p ascend
 
 ascend-scanner.c : ascend-scanner.l
 	$(LEX) -Pascend -oascend-scanner.c $(srcdir)/ascend-scanner.l
