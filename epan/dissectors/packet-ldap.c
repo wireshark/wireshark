@@ -1952,6 +1952,7 @@ static void dissect_ldap_controls(ASN1_SCK *a, proto_tree *tree)
     proto_tree_add_text(tree, a->tvb, a->offset, 0,
                         "ERROR: Couldn't parse LDAP Controls: %s",
                         asn1_err_to_str(ASN1_ERR_WRONG_TYPE));
+    return;
   }
 
   ctrls_item = proto_tree_add_text(tree, a->tvb, start, length, "LDAP Controls");
