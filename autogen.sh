@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.14 2001/12/09 00:02:44 guy Exp $
+# $Id: autogen.sh,v 1.15 2001/12/09 21:05:54 guy Exp $
 
 DIE=true
 PROJECT="Ethereal"
@@ -69,7 +69,18 @@ esac
 
 $DIE
 
-libtoolize --copy || exit 1
+#
+# We do NOT want libtoolize overwriting our versions of config.guess and
+# config.sub, so move them away and then move them back.
+# We don't omit "--force", as we want libtoolize to install other files
+# without whining.
+#
+mv config.guess config.guess.save-libtool
+mv config.sub config.sub.save-libtool
+libtoolize --copy --force || exit 1
+rm -f config.guess config.sub
+mv config.guess.save-libtool config.guess
+mv config.sub.save-libtool config.sub
 
 if test -z "$*"; then
 	echo "Running ./configure with no arguments. If you wish to pass any,"
