@@ -1,7 +1,31 @@
-$Id: README.linux,v 1.5 2000/02/01 21:52:22 guy Exp $
+$Id: README.linux,v 1.6 2000/02/19 21:44:13 guy Exp $
 
-The standard libpcap compiled for Linux has a timeout problem; it
-doesn't support the timeout argument to "pcap_open_live()".
+In order to capture packets (with Ethereal/Tethereal, tcpdump, or any
+other packet capture program) on a Linux system, the "packet" protocol
+must be supported by your kernel.  If it is not, you may get error
+messages such as
+
+	modprobe: can't locate module net-pf-17
+
+in "/var/adm/messages".  The following note is from the Linux
+"Configure.help" file:
+
+	Packet socket
+	CONFIG_PACKET
+	  The Packet protocol is used by applications which communicate
+	  directly with network devices without an intermediate network
+	  protocol implemented in the kernel, e.g. tcpdump. If you want them
+	  to work, choose Y. 
+
+	  This driver is also available as a module called af_packet.o ( =
+	  code which can be inserted in and removed from the running kernel
+	  whenever you want). If you want to compile it as a module, say M
+	  here and read Documentation/modules.txt; if you use modprobe or
+	  kmod, you may also want to add "alias net-pf-17 af_packet" to 
+	  /etc/modules.conf.
+
+In addition, the standard libpcap compiled for Linux has a timeout
+problem; it doesn't support the timeout argument to "pcap_open_live()".
 
 The current version of Ethereal attempts to work around this, so its GUI
 shouldn't freeze when capturing on a not-so-busy network.  If its GUI
@@ -13,7 +37,7 @@ The current version of Ethereal should work with versions of libpcap
 that have been patched to fix the timeout problem, as well as working
 with unpatched versions.
 
-An additional problem, on Linux, with current versions of libpcap is
+An additional problem, on Linux, with current versions of libpcap, is
 that capture filters do not work when snooping loopback devices; if
 you're capturing on a Linux loopback device, do not use a capture
 filter, as it will probably reject most if not all packets, including
