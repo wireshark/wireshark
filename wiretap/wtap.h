@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.46 1999/10/31 17:46:11 gram Exp $
+ * $Id: wtap.h,v 1.47 1999/11/06 08:42:01 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -159,7 +159,8 @@ typedef struct {
 } lanalyzer_t;
 
 typedef struct {
-	int	byte_swapped;
+	gboolean byte_swapped;
+	gboolean mutant;
 	guint16	version_major;
 	guint16	version_minor;
 } libpcap_t;

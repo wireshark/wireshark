@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.21 1999/10/05 07:06:06 guy Exp $
+ * $Id: libpcap.c,v 1.22 1999/11/06 08:42:00 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -39,9 +39,19 @@
    writes them, and the reader is expected to fix this up.
 
    PCAP_MAGIC is the magic number, in host byte order; PCAP_SWAPPED_MAGIC
-   is a byte-swapped version of that.  */
-#define	PCAP_MAGIC		0xa1b2c3d4
-#define	PCAP_SWAPPED_MAGIC	0xd4c3b2a1
+   is a byte-swapped version of that.
+
+   PCAP_MUTANT_MAGIC is for Alexey Kuznetsov's modified "libpcap"
+   format, as generated on Linux systems that have a "libpcap" with
+   his patches, at
+   
+	http://ftp.sunet.se/pub/os/Linux/ip-routing/lbl-tools/
+
+   applied; PCAP_SWAPPED_MUTANT_MAGIC is the byte-swapped version. */
+#define	PCAP_MAGIC			0xa1b2c3d4
+#define	PCAP_SWAPPED_MAGIC		0xd4c3b2a1
+#define	PCAP_MUTANT_MAGIC		0xa1b2cd34
+#define	PCAP_SWAPPED_MUTANT_MAGIC	0x34cdb2a1
 
 /* Macros to byte-swap 32-bit and 16-bit quantities. */
 #define	BSWAP32(x) \
@@ -74,6 +84,16 @@ struct pcaprec_hdr {
 	guint32	ts_usec;	/* timestamp microseconds */
 	guint32	incl_len;	/* number of octets of packet saved in file */
 	guint32	orig_len;	/* actual length of packet */
+};
+
+/* "libpcap" record header for Alexey's patched version. */
+struct pcaprec_mutant_hdr {
+	struct pcaprec_hdr hdr;	/* the regular header */
+	guint32 ifindex;	/* index, in *capturing* machine's list of
+				   interfaces, of the interface on which this
+				   packet came in. */
+	guint16 protocol;	/* Ethernet packet type */
+	guint8 pkt_type;	/* broadcast/multicast/etc. indication */
 };
 
 static int libpcap_read(wtap *wth, int *err);
@@ -144,7 +164,8 @@ int libpcap_open(wtap *wth, int *err)
 	int bytes_read;
 	guint32 magic;
 	struct pcap_hdr hdr;
-	int byte_swapped = 0;
+	gboolean byte_swapped = FALSE;
+	gboolean mutant = FALSE;
 
 	/* Read in the number that should be at the start of a "libpcap" file */
 	file_seek(wth->fh, 0, SEEK_SET);
@@ -159,12 +180,37 @@ int libpcap_open(wtap *wth, int *err)
 	}
 	wth->data_offset += sizeof magic;
 
-	if (magic == PCAP_SWAPPED_MAGIC) {
+	switch (magic) {
+
+	case PCAP_MAGIC:
+		/* Host that wrote it has our byte order. */
+		byte_swapped = FALSE;
+		mutant = FALSE;
+		break;
+
+	case PCAP_MUTANT_MAGIC:
+		/* Host that wrote it has our byte order, but was running
+		   a program using the patched "libpcap". */
+		byte_swapped = FALSE;
+		mutant = TRUE;
+		break;
+
+	case PCAP_SWAPPED_MAGIC:
 		/* Host that wrote it has a byte order opposite to ours. */
-		magic = PCAP_MAGIC;
-		byte_swapped = 1;
-	}
-	if (magic != PCAP_MAGIC) {
+		byte_swapped = TRUE;
+		mutant = FALSE;
+		break;
+
+	case PCAP_SWAPPED_MUTANT_MAGIC:
+		/* Host that wrote it out has a byte order opposite to
+		   ours, and was running a program using the patched
+		   "libpcap". */
+		byte_swapped = TRUE;
+		mutant = TRUE;
+		break;
+
+	default:
+		/* Not a "libpcap" type we know about. */
 		return 0;
 	}
 
@@ -205,6 +251,7 @@ int libpcap_open(wtap *wth, int *err)
 	wth->file_type = WTAP_FILE_PCAP;
 	wth->capture.pcap = g_malloc(sizeof(libpcap_t));
 	wth->capture.pcap->byte_swapped = byte_swapped;
+	wth->capture.pcap->mutant = mutant;
 	wth->capture.pcap->version_major = hdr.version_major;
 	wth->capture.pcap->version_minor = hdr.version_minor;
 	wth->subtype_read = libpcap_read;
@@ -217,14 +264,15 @@ int libpcap_open(wtap *wth, int *err)
 static int libpcap_read(wtap *wth, int *err)
 {
 	guint	packet_size;
-	int	bytes_read;
-	struct pcaprec_hdr hdr;
+	int	bytes_to_read, bytes_read;
+	struct pcaprec_mutant_hdr hdr;
 	int	data_offset;
 
 	/* Read record header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, 1, sizeof hdr, wth->fh);
-	if (bytes_read != sizeof hdr) {
+	bytes_to_read = wth->capture.pcap->mutant ? sizeof hdr : sizeof hdr.hdr;
+	bytes_read = file_read(&hdr, 1, bytes_to_read, wth->fh);
+	if (bytes_read != bytes_to_read) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
 			return -1;
@@ -234,14 +282,14 @@ static int libpcap_read(wtap *wth, int *err)
 		}
 		return 0;
 	}
-	wth->data_offset += sizeof hdr;
+	wth->data_offset += bytes_read;
 
 	if (wth->capture.pcap->byte_swapped) {
 		/* Byte-swap the record header fields. */
-		hdr.ts_sec = BSWAP32(hdr.ts_sec);
-		hdr.ts_usec = BSWAP32(hdr.ts_usec);
-		hdr.incl_len = BSWAP32(hdr.incl_len);
-		hdr.orig_len = BSWAP32(hdr.orig_len);
+		hdr.hdr.ts_sec = BSWAP32(hdr.hdr.ts_sec);
+		hdr.hdr.ts_usec = BSWAP32(hdr.hdr.ts_usec);
+		hdr.hdr.incl_len = BSWAP32(hdr.hdr.incl_len);
+		hdr.hdr.orig_len = BSWAP32(hdr.hdr.orig_len);
 	}
 
 	/* In file format version 2.3, the "incl_len" and "orig_len" fields
@@ -255,15 +303,15 @@ static int libpcap_read(wtap *wth, int *err)
 	if (wth->capture.pcap->version_major == 2 &&
 	    (wth->capture.pcap->version_minor < 3 ||
 	     (wth->capture.pcap->version_minor == 3 &&
-	      hdr.incl_len > hdr.orig_len))) {
+	      hdr.hdr.incl_len > hdr.hdr.orig_len))) {
 		guint32 temp;
 
-		temp = hdr.orig_len;
-		hdr.orig_len = hdr.incl_len;
-		hdr.incl_len = temp;
+		temp = hdr.hdr.orig_len;
+		hdr.hdr.orig_len = hdr.hdr.incl_len;
+		hdr.hdr.incl_len = temp;
 	}
 
-	packet_size = hdr.incl_len;
+	packet_size = hdr.hdr.incl_len;
 	if (packet_size > WTAP_MAX_PACKET_SIZE) {
 		/*
 		 * Probably a corrupt capture file; don't blow up trying
@@ -289,10 +337,10 @@ static int libpcap_read(wtap *wth, int *err)
 	}
 	wth->data_offset += packet_size;
 
-	wth->phdr.ts.tv_sec = hdr.ts_sec;
-	wth->phdr.ts.tv_usec = hdr.ts_usec;
+	wth->phdr.ts.tv_sec = hdr.hdr.ts_sec;
+	wth->phdr.ts.tv_usec = hdr.hdr.ts_usec;
 	wth->phdr.caplen = packet_size;
-	wth->phdr.len = hdr.orig_len;
+	wth->phdr.len = hdr.hdr.orig_len;
 	wth->phdr.pkt_encap = wth->file_encap;
 
 	return data_offset;
