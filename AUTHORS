@@ -1413,6 +1413,7 @@ Ulf Lamping <ulf.lamping[AT]web.de> {
 	Decoding of IEEE float and doubles for DCE-RPC
 	Win32 fixes
 	Count ARP packets in capture progress dialog box
+	Show total running time of capture in capture progress dialog box
 }
 
 Matthew Smart <smart[AT]monkey.org> {

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.193 2002/10/14 17:33:48 guy Exp $
+ * $Id: capture.c,v 1.194 2002/10/16 23:34:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -131,8 +131,6 @@
 # define MUST_DO_SELECT
 #endif
 
-#include "gtk/main.h"
-#include "gtk/gtkglobals.h"
 #include <epan/packet.h>
 #include "file.h"
 #include "capture.h"
@@ -1355,6 +1353,7 @@ int
 capture(gboolean *stats_known, struct pcap_stat *stats)
 {
   GtkWidget  *cap_w, *main_vb, *stop_bt, *counts_tb;
+  GtkWidget  *counts_fr, *running_tb, *running_label, *running_time;
   pcap_t     *pch;
   int         pcap_encap;
   int         file_snaplen;
@@ -1364,6 +1363,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   bpf_u_int32 netnum, netmask;
   struct bpf_program fcode;
   time_t      upd_time, cur_time;
+  time_t      start_time;
   int         err, inpkts;
   condition  *cnd_stop_capturesize = NULL;
   condition  *cnd_stop_timeout = NULL;
@@ -1662,9 +1662,14 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   gtk_container_add(GTK_CONTAINER(cap_w), main_vb);
   gtk_widget_show(main_vb);
 
+  counts_fr = gtk_frame_new("Captured Frames");
+  gtk_box_pack_start(GTK_BOX(main_vb), counts_fr, FALSE, FALSE, 3);
+  gtk_widget_show(counts_fr);
+
   /* Individual statistic elements */
   counts_tb = gtk_table_new(N_COUNTS, 3, TRUE);
-  gtk_box_pack_start(GTK_BOX(main_vb), counts_tb, TRUE, TRUE, 3);
+  gtk_container_add(GTK_CONTAINER(counts_fr), counts_tb);
+  gtk_container_border_width(GTK_CONTAINER(counts_tb), 5);
   gtk_widget_show(counts_tb);
 
   for (i = 0; i < N_COUNTS; i++) {
@@ -1692,6 +1697,24 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
       gtk_widget_show(counts[i].percent);
   }
 
+  /* Running time */
+  running_tb = gtk_table_new(1, 3, TRUE);
+  gtk_box_pack_start(GTK_BOX(main_vb), running_tb, FALSE, FALSE, 3);
+  gtk_widget_show(running_tb);
+
+  running_label = gtk_label_new("Running");
+  gtk_misc_set_alignment(GTK_MISC(running_label), 0.0f, 0.0f);
+  gtk_widget_show(running_label);
+  gtk_table_attach_defaults(GTK_TABLE(running_tb),
+                                running_label, 0, 1, 0, 1);
+
+  running_time = gtk_label_new("00:00:00");
+  gtk_misc_set_alignment(GTK_MISC(running_time), 0.0f, 0.0f);
+  gtk_widget_show(running_time);
+  gtk_table_attach(GTK_TABLE(running_tb),
+                       running_time,
+                       1, 2, 0, 1, 0, 0, 5, 0);
+
   /* allow user to either click a stop button, or the close button on
 	the window to stop a capture in progress. */
   stop_bt = gtk_button_new_with_label ("Stop");
@@ -1699,7 +1722,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     GTK_SIGNAL_FUNC(capture_stop_cb), (gpointer) &ld);
   gtk_signal_connect(GTK_OBJECT(cap_w), "delete_event",
 	GTK_SIGNAL_FUNC(capture_delete_cb), (gpointer) &ld);
-  gtk_box_pack_end(GTK_BOX(main_vb), stop_bt, FALSE, FALSE, 3);
+  gtk_box_pack_start(GTK_BOX(main_vb), stop_bt, FALSE, FALSE, 3);
   GTK_WIDGET_SET_FLAGS(stop_bt, GTK_CAN_DEFAULT);
   gtk_widget_grab_default(stop_bt);
   GTK_WIDGET_SET_FLAGS(stop_bt, GTK_CAN_DEFAULT);
@@ -1708,6 +1731,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 
   gtk_widget_show(cap_w);
 
+  start_time = time(NULL);
   upd_time = time(NULL);
 #ifdef MUST_DO_SELECT
   if (!ld.from_pipe) pcap_fd = pcap_fileno(pch);
@@ -1851,6 +1875,12 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     cur_time = time(NULL);
     if (cur_time > upd_time) {
       upd_time = cur_time;
+
+      /* calculate and display running time */
+      cur_time -= start_time;
+      snprintf(label_str, sizeof(label_str), "%02d:%02d:%02d", 
+      cur_time/3600, cur_time/60%3600, cur_time%60);
+      gtk_label_set(GTK_LABEL(running_time), label_str);
 
       if (ld.sync_packets) {
 
