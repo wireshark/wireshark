@@ -1,6 +1,6 @@
 %{
 /*
- * $Id: scanner.l,v 1.5 2001/06/22 16:29:13 gram Exp $
+ * $Id: scanner.l,v 1.6 2002/04/11 03:26:26 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -127,7 +127,7 @@ static gboolean str_to_guint32(char *s, guint32* pint);
 
 
 
-[[:alnum:]_.:]+	{
+[-[:alnum:]_.:]+	{
 	/* Is it a field name? */
 	header_field_info *hfinfo;
 
