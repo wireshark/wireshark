@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.22 2000/10/20 04:26:40 gram Exp $
+ * $Id: proto_draw.c,v 1.23 2000/11/22 04:07:00 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -126,7 +126,7 @@ packet_hex_print(GtkText *bv, guint8 *pd, frame_data *fd, field_info *finfo)
   /* Clear out the text */
   gtk_text_set_point(bv, 0);
   /* Keep GTK+ 1.2.3 through 1.2.6 from dumping core - see 
-     http://ethereal.zing.org/lists/ethereal-dev/199912/msg00312.html and
+     http://www.ethereal.com/lists/ethereal-dev/199912/msg00312.html and
      http://www.gnome.org/mailing-lists/archives/gtk-devel-list/1999-October/0051.shtml
      for more information */
   gtk_adjustment_set_value(bv->vadj, 0.0);

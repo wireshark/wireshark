@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.11 2000/09/09 15:00:36 deniel Exp $
+ * $Id: help_dlg.c,v 1.12 2000/11/22 04:07:00 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -417,7 +417,7 @@ static void clear_help_text(GtkWidget *w)
 
   gtk_text_set_point(txt, 0);
   /* Keep GTK+ 1.2.3 through 1.2.6 from dumping core - see 
-     http://ethereal.zing.org/lists/ethereal-dev/199912/msg00312.html and
+     http://www.ethereal.com/lists/ethereal-dev/199912/msg00312.html and
      http://www.gnome.org/mailing-lists/archives/gtk-devel-list/1999-October/0051.shtml
      for more information */
   gtk_adjustment_set_value(txt->vadj, 0.0);

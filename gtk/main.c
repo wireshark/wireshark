@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.165 2000/11/21 23:54:09 guy Exp $
+ * $Id: main.c,v 1.166 2000/11/22 04:07:00 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -154,7 +154,7 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 		"Check the man page for complete documentation and\n"
 		"for the list of contributors.\n"
 
-		"\nSee http://ethereal.zing.org/ for more information.",
+		"\nSee http://www.ethereal.com/ for more information.",
                  comp_info_str);
 }
 

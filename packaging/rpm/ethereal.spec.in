@@ -10,7 +10,7 @@ Release:	%rel
 Copyright:	GPL
 Group:		Networking/Utilities
 Source:		ethereal-%{PACKAGE_VERSION}.tar.gz
-URL:		http://ethereal.zing.org/
+URL:		http://www.ethereal.com/
 BuildRoot:	/tmp/ethereal-%{PACKAGE_VERSION}-root
 Packager:	FastJack <fastjack@i-s-o.net>
 Requires:	gtk+
