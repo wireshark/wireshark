@@ -1,6 +1,6 @@
 =head1 NAME
 
-ethereal-filter - Filter packets from a set of captured packets
+ethereal-filter - Ethereal filter syntax and reference
 
 =head1 SYNOPSYS
 
@@ -12,14 +12,248 @@ S<[ B<-R> "filter expression" ]>
 
 =head1 DESCRIPTION
 
-ethereal(1) and tethereal(1) can filter on many protocols and protocol
-fields. The following section lists all of them. The abbreviation of the
-protocol or field is given. This abbreviation is what you use in the
-read filter.  The type of the field is also given. For detailed
-information on how to apply these filters, see the ethereal(1) or
-tethereal(1) manpage.
+Ethereal and Tethereal share a powerful filter engine that help remove the
+noise from a packet trace and let you see only the packets that interest
+you.  If a packet meets the requirements expressed in your filter, then it
+is displayed in the list of packets.  Display filters let you compare the
+fields within a protocol against a specific value, compare fields against
+fields, and to check the existence of specified fields or protocols.
 
-=head1 READ FILTER PROTOCOL FIELDS
+Filters are also used by other features such as statistics generation and
+packet list colorization (Ethereal only).  This manual page describes
+their syntax and provides a comprehensive reference of filter fields.
+
+=head1 FILTER SYNTAX
+
+The simplest filter allows you to check for the existence of a protocol or
+field.  If you want to see all packets which contain the IPX protocol, the
+filter would be "ipx".  (Without the quotation marks) To see all packets
+that contain a Token-Ring RIF field, use "tr.rif".
+
+Fields can also be compared against values.  The comparison operators
+can be expressed either through C-like symbols, or through English-like
+abbreviations:
+
+    eq, ==    Equal
+    ne, !=    Not equal
+    gt, >     Greater than
+    lt, <     Less Than
+    ge, >=    Greater than or Equal to
+    le, <=    Less than or Equal to
+
+An additional operator exists that is expressed only in English, not
+punctuation:
+
+    contains  Does the protocol, byte-string, or string contain a value
+
+Furthermore, each protocol field is typed. The types are:
+
+    Unsigned integer (either 8-bit, 16-bit, 24-bit, or 32-bit)
+    Signed integer (either 8-bit, 16-bit, 24-bit, or 32-bit)
+    Boolean
+    Ethernet address (6 bytes)
+    Byte string (n-number of bytes)
+    IPv4 address
+    IPv6 address
+    IPX network number
+    String (text)
+    Double-precision floating point number
+
+An integer may be expressed in decimal, octal, or hexadecimal notation. 
+The following three display filters are equivalent:
+
+    frame.pkt_len > 10
+    frame.pkt_len > 012
+    frame.pkt_len > 0xa
+
+Boolean values are either true or false.  In a display filter expression
+testing the value of a Boolean field, "true" is expressed as 1 or any
+other non-zero value, and "false" is expressed as zero.  For example, a
+token-ring packet's source route field is boolean.  To find any
+source-routed packets, a display filter would be:
+
+    tr.sr == 1
+
+Non source-routed packets can be found with:
+
+    tr.sr == 0
+
+Ethernet addresses, as well as a string of bytes, are represented in hex
+digits.  The hex digits may be separated by colons, periods, or hyphens:
+
+    fddi.dst eq ff:ff:ff:ff:ff:ff
+    ipx.srcnode == 0.0.0.0.0.1
+    eth.src == aa-aa-aa-aa-aa-aa
+
+If a string of bytes contains only one byte, then it is represented as
+an unsigned integer.  That is, if you are testing for hex value 'ff' in
+a one-byte byte-string, you must compare it agains '0xff' and not 'ff'. 
+
+IPv4 addresses can be represented in either dotted decimal notation, or
+by using the hostname:
+
+    ip.dst eq www.mit.edu
+    ip.src == 192.168.1.1
+
+IPv4 addresses can be compared with the same logical relations as numbers:
+eq, ne, gt, ge, lt, and le.  The IPv4 address is stored in host order,
+so you do not have to worry about how the endianness of an IPv4 address
+when using it in a display filter.
+
+Classless InterDomain Routing (CIDR) notation can be used to test if an
+IPv4 address is in a certain subnet.  For example, this display filter
+will find all packets in the 129.111 Class-B network:
+
+    ip.addr == 129.111.0.0/16
+
+Remember, the number after the slash represents the number of bits used
+to represent the network.  CIDR notation can also be used with
+hostnames, in this example of finding IP addresses on the same Class C
+network as 'sneezy':
+
+    ip.addr eq sneezy/24
+
+The CIDR notation can only be used on IP addresses or hostnames, not in
+variable names.  So, a display filter like "ip.src/24 == ip.dst/24" is
+not valid.  (yet)
+
+IPX networks are represented by unsigned 32-bit integers.  Most likely
+you will be using hexadecimal when testing for IPX network values:
+
+    ipx.srcnet == 0xc0a82c00
+
+Strings are enclosed in double-quotes:
+
+    http.request.method == "POST"
+
+Inside double quotes, you may use the backslash to embed a double-quote,
+or an arbitrary byte represented in either octal or hexadecimal.
+
+    browser.comment = "An embedded \" double-quote"
+
+Use of hexadecimal to look for "HEAD":
+
+    http.request.method == "\x48EAD"
+
+Use of octal to look for "HEAD":
+
+    http.request.method == "\x110EAD"
+
+This means that you must escape backslashes with backslashes inside
+double quotes:
+
+    smb.path contains "\\\\SERVER\\SHARE"
+
+to look for \\SERVER\SHARE in "smb.path".
+
+A slice operator also exists.  You can check the substring
+(byte-string) of any protocol or field.  For example, you can filter on
+the vendor portion of an ethernet address (the first three bytes) like
+this:
+
+    eth.src[0:3] == 00:00:83
+
+If the length of your byte-slice is only one byte, then it is still
+represented in hex, but without the preceding "0x": 
+
+    llc[3] == aa
+
+You can use the slice operator on a protocol name, too.  And
+remember, the "frame" protocol encompasses the entire packet, allowing
+you to look at the nth byte of a packet regardless of its frame type
+(Ethernet, token-ring, etc.).
+
+    token[0:5] ne 0.0.0.1.1
+    ipx[0:2] == ff:ff
+    llc[3:1] eq 0xaa
+
+The following syntax governs slices:
+
+	[i:j]	i = start_offset, j = length
+	[i-j]	i = start_offset, j = end_offset, inclusive.
+	[i]	i = start_offset, length = 1
+	[:j]	start_offset = 0, length = j
+	[i:]	start_offset = i, end_offset = end_of_field
+
+Offsets and lengths can be negative, in which case they indicate the
+offset from the B<end> of the field.  Here's how to check the last 4
+bytes of a frame:
+
+    frame[-4:4] == 0.1.2.3
+
+or
+
+    frame[-4:] == 0.1.2.3
+
+You can create complex concatenations of slices using the comma operator:
+
+	field[1,3-5,9:] == 01:03:04:05:09:0a:0b
+
+All the above tests can be combined together with logical expressions. 
+These too are expressable in C-like syntax or with English-like
+abbreviations:
+
+    and, &&   Logical AND
+    or, ||    Logical OR
+    not, !    Logical NOT
+
+Expressions can be grouped by parentheses as well.  The following are
+all valid display filter expression:
+
+    tcp.port == 80 and ip.src == 192.168.2.1
+    not llc
+    (ipx.srcnet == 0xbad && ipx.srnode == 0.0.0.0.0.1) || ip
+    tr.dst[0:3] == 0.6.29 xor tr.src[0:3] == 0.6.29
+
+A special caveat must be given regarding fields that occur more than
+once per packet.  "ip.addr" occurs twice per IP packet, once for the
+source address, and once for the destination address.  Likewise,
+tr.rif.ring fields can occur more than once per packet.  The following
+two expressions are not equivalent:
+
+        ip.addr ne 192.168.4.1
+    not ip.addr eq 192.168.4.1
+
+The first filter says "show me IP packets where an ip.addr exists that
+does not equal 192.168.4.1".  That is, as long as one ip.addr in the
+packet does not equal 192.168.44.1, the packet passes the display
+filter.  The second filter "don't show me any packets that have at least
+one ip.addr field equal to 192.168.4.1".  If one ip.addr is 192.168.4.1,
+the packet does not pass.  If B<neither> ip.addr fields is 192.168.4.1,
+then the packet passes.
+
+It is easy to think of the 'ne' and 'eq' operators as having an implict
+"exists" modifier when dealing with multiply-recurring fields.  "ip.addr
+ne 192.168.4.1" can be thought of as "there exists an ip.addr that does
+not equal 192.168.4.1".
+
+Be careful with multiply-recurring fields; they can be confusing.
+
+Care must also be taken when using the display filter to remove noise
+from the packet trace. If you want to e.g. filter out all IP multicast
+packets to address 224.1.2.3, then using:
+
+    ip.dst ne 224.1.2.3
+
+may be too restrictive. Filtering with "ip.dst" selects only those
+B<IP> packets that satisfy the rule. Any other packets, including all
+non-IP packets, will not be displayed. For displaying also the non-IP
+packets, you can use one of the following two expressions:
+
+    not ip or ip.dst ne 224.1.2.3
+    not ip.addr eq 224.1.2.3
+
+The first filter uses "not ip" to include all non-IP packets and then
+lets "ip.dst ne 224.1.2.3" to filter out the unwanted IP packets. The
+second filter has already been explained above where filtering with
+multiply occuring fields was discussed.
+
+
+=head1 FILTER PROTOCOL REFERENCE
+
+Each entry below provides an abbreviated protocol or field name.  Every
+one of these fields can be used as a display filter.  The type of the
+field is also given.
 
 =insert_dfilter_table
 
