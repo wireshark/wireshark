@@ -1,5 +1,5 @@
 # Note that this is NOT a relocatable package
-%define ver      0.6.2
+%define ver      0.6.3
 %define rel      1
 %define prefix   /usr/X11R6
 

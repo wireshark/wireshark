@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.44 1999/06/22 22:02:10 gram Exp $
+ * $Id: ethereal.c,v 1.45 1999/06/24 16:25:58 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -114,6 +114,9 @@ int sync_pipe[2]; /* used to sync father */
 int fork_mode;	/* fork a child to do the capture */
 int sigusr2_received = 0;
 int quit_after_cap; /* Makes a "capture only mode". Implies -k */
+
+/* Specifies byte offsets for object selected in tree */
+static gint tree_selected_start=-1, tree_selected_len=-1; 
 
 #define E_DFILTER_TE_KEY "display_filter_te"
 
@@ -293,6 +296,87 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
       "Error following stream.  Please make\n"
       "sure you have a TCP packet selected.");
   }
+}
+
+/* Match selected byte pattern */
+void
+match_selected_cb(GtkWidget *w, gpointer data)
+{
+    int i;
+    unsigned char *c;
+    char *buf = malloc(1024);
+    char *ptr;
+    GtkWidget *filter_te = NULL;
+
+    if (w)
+  	filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
+
+    if (tree_selected_start<0) {
+	simple_dialog(ESD_TYPE_WARN, NULL,
+		      "Error determining selected bytes.  Please make\n"
+		      "sure you have selected a field within the tree\n"
+		      "view to be matched.");
+	return;
+    }
+
+#ifdef WITH_WIRETAP
+    simple_dialog(ESD_TYPE_WARN, NULL,
+		  "This functionality currently unsupported with Wiretap");
+    return;
+#else
+    switch (cf.lnk_t) {
+    case DLT_EN10MB :
+	c="ether";
+	break;
+    case DLT_FDDI :
+	c="fddi";
+	break;
+    default :
+	simple_dialog(ESD_TYPE_WARN, NULL,
+		      "Unsupported frame type format. Only Ethernet and FDDI\n"
+		      "frame formats are supported.");
+	return;
+    }
+
+    sprintf(buf, "("); ptr = buf+strlen(buf);
+    for (i=0, c=cf.pd+tree_selected_start; i+4<tree_selected_len; i+=4, c+=4) {
+	sprintf(ptr, "(ether[%d : 4]=0x%02X%02X%02X%02X) and ", 
+	       tree_selected_start+i, 
+	       *c,
+	       *(c+1),
+	       *(c+2),
+	       *(c+3));
+	ptr = buf+strlen(buf);
+    }
+
+    sprintf(ptr, "(ether[%d : %d]=0x", 
+	   tree_selected_start+i, 
+	   tree_selected_len - i);
+    ptr = buf+strlen(buf);
+    for (;i<tree_selected_len; i++) {
+	sprintf(ptr, "%02X", *c++);
+	ptr = buf+strlen(buf);
+    }
+
+    sprintf(ptr, "))");
+#endif
+
+    if( cf.dfilter != NULL ) {
+      /* get rid of this one */
+      g_free( cf.dfilter );
+      cf.dfilter = NULL;
+    }
+    /* create a new one and set the display filter entry accordingly */
+    cf.dfilter = buf;
+    if (filter_te)
+	gtk_entry_set_text(GTK_ENTRY(filter_te), cf.dfilter);
+    /* reload so it goes in effect. */
+    close_cap_file( &cf, info_bar, file_ctx);
+    load_cap_file( cf.filename, &cf );
+    if( cf.dfilter != NULL ) {
+      g_free( cf.dfilter );
+      cf.dfilter = NULL;
+    }
 }
 
 /* Open a file */
@@ -498,20 +582,27 @@ packet_list_unselect_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
 
 void
 tree_view_cb(GtkWidget *w) {
-  gint       start = -1, len = -1;
+
+  tree_selected_start = -1;
+  tree_selected_len = -1;
 
   if (GTK_TREE(w)->selection) {
-    start = (gint) gtk_object_get_data(GTK_OBJECT(GTK_TREE(w)->selection->data),
-      E_TREEINFO_START_KEY);
-    len   = (gint) gtk_object_get_data(GTK_OBJECT(GTK_TREE(w)->selection->data),
-      E_TREEINFO_LEN_KEY);
+    tree_selected_start = 
+	(gint) gtk_object_get_data(GTK_OBJECT(GTK_TREE(w)->selection->data),
+				   E_TREEINFO_START_KEY);
+    tree_selected_len   = 
+	(gint) gtk_object_get_data(GTK_OBJECT(GTK_TREE(w)->selection->data),
+				   E_TREEINFO_LEN_KEY);
   }
 
   gtk_text_freeze(GTK_TEXT(byte_view));
   gtk_text_set_point(GTK_TEXT(byte_view), 0);
   gtk_text_forward_delete(GTK_TEXT(byte_view),
     gtk_text_get_length(GTK_TEXT(byte_view)));
-  packet_hex_print(GTK_TEXT(byte_view), cf.pd, fd->cap_len, start, len);
+  packet_hex_print(GTK_TEXT(byte_view), cf.pd, fd->cap_len, 
+		   tree_selected_start, 
+		   tree_selected_len);
+  
   gtk_text_thaw(GTK_TEXT(byte_view));
 }
 

@@ -4,6 +4,11 @@ Overview of changes in Ethereal 0.6.3:
 * ISAKMP, GRE, PPTP added (Brad Robel-Forrest)
 * RSVP added (Ashok Narayanan)
 * Summary dialogue added (Aaron Hillegass)
+* Match Selected GUI added (Ashok Narayanan)
+* Display Option GUI allows change of Time column (Guy)
+* GTK 1.[12] bug fix (Gilbert)
+* Code clean up (Guy)
+* strerror() added for platforms that don't have it (Guy)
 
 Overview of changes in Ethereal 0.6.2:
 * Almost-real-time capture and display (John, Laurent)

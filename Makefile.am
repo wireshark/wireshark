@@ -92,6 +92,7 @@ ethereal_SOURCES = \
 	smb.h          \
         summary.h      \
         summary.c      \
+	timestamp.h    \
 	util.c         \
 	util.h
 
