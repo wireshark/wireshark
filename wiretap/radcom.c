@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.35 2002/03/05 08:39:29 guy Exp $
+ * $Id: radcom.c,v 1.36 2002/04/09 08:15:04 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -279,7 +279,7 @@ static gboolean radcom_read(wtap *wth, int *err, long *data_offset)
 	tm.tm_isdst = -1;
 	wth->phdr.ts.tv_sec = mktime(&tm);
 	wth->phdr.ts.tv_usec = pletohl(&hdr.date.usec);
-	wth->pseudo_header.x25.flags = (hdr.dce & 0x1) ? 0x00 : 0x80;
+	wth->pseudo_header.x25.flags = (hdr.dce & 0x1) ? 0x00 : FROM_DCE;
 
 	/*
 	 * Read the packet data.
@@ -332,7 +332,7 @@ radcom_seek_read(wtap *wth, long seek_off,
 		return FALSE;
 	}
 
-	pseudo_header->x25.flags = (hdr.dce & 0x1) ? 0x00 : 0x80;
+	pseudo_header->x25.flags = (hdr.dce & 0x1) ? 0x00 : FROM_DCE;
 
 	/*
 	 * Read the packet data.

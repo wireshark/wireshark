@@ -1,6 +1,6 @@
 /* i4btrace.c
  *
- * $Id: i4btrace.c,v 1.19 2002/03/05 08:39:29 guy Exp $
+ * $Id: i4btrace.c,v 1.20 2002/04/09 08:15:04 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
@@ -338,7 +338,7 @@ i4b_set_pseudo_header(wtap *wth, i4b_trace_hdr_t *hdr,
 			 * V.120.
 			 */
 			pseudo_header->x25.flags =
-			    (hdr->dir == FROM_TE) ? 0x00 : 0x80;
+			    (hdr->dir == FROM_TE) ? 0x00 : FROM_DCE;
 		}
 		break;
 	}

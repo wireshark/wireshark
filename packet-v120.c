@@ -2,7 +2,7 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.24 2002/01/21 07:36:44 guy Exp $
+ * $Id: packet-v120.c,v 1.25 2002/04/09 08:15:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,8 +36,6 @@
 #include <string.h>
 #include <epan/packet.h>
 #include "xdlc.h"
-
-#define FROM_DCE	0x80
 
 static int proto_v120 = -1;
 static int hf_v120_address = -1;

@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.109 2002/04/08 09:44:42 guy Exp $
+ * $Id: wtap.h,v 1.110 2002/04/09 08:15:04 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 #ifndef __WTAP_H__
@@ -186,8 +185,9 @@
  */
 
 /* Packet "pseudo-header" information for X.25 capture files. */
+#define FROM_DCE			0x80
 struct x25_phdr {
-	guint8	flags; /* ENCAP_LAPB : 1st bit means From DCE */
+	guint8	flags; /* ENCAP_LAPB, ENCAP_V120 : 1st bit means From DCE */
 };
 
 /* Packet "pseudo-header" for ATM Sniffer capture files. */

@@ -2,7 +2,7 @@
  * File read and write routines for Visual Networks cap files.
  * Copyright (c) 2001, Tom Nisbet  tnisbet@visualnetworks.com
  *
- * $Id: visual.c,v 1.5 2002/03/05 08:39:29 guy Exp $
+ * $Id: visual.c,v 1.6 2002/04/09 08:15:04 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -299,7 +299,8 @@ static gboolean visual_read(wtap *wth, int *err, long *data_offset)
 
     case WTAP_ENCAP_FRELAY:
     case WTAP_ENCAP_LAPB:
-        wth->pseudo_header.x25.flags = (packet_status & PS_SENT) ? 0x00 : 0x80;
+        wth->pseudo_header.x25.flags =
+            (packet_status & PS_SENT) ? 0x00 : FROM_DCE;
         break;
     }
 
@@ -376,7 +377,7 @@ static gboolean visual_seek_read (wtap *wth, long seek_off,
 
     case WTAP_ENCAP_FRELAY:
     case WTAP_ENCAP_LAPB:
-        pseudo_header->x25.flags = (packet_status & PS_SENT) ? 0x00 : 0x80;
+        pseudo_header->x25.flags = (packet_status & PS_SENT) ? 0x00 : FROM_DCE;
         break;
     }
 
@@ -523,7 +524,8 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
     case WTAP_ENCAP_FRELAY:
     case WTAP_ENCAP_LAPB:
-        packet_status |= ((pseudo_header->x25.flags & 0x80) ? 0x00 : PS_SENT);
+        packet_status |=
+            ((pseudo_header->x25.flags & FROM_DCE) ? 0x00 : PS_SENT);
         break;
     }
     vpkt_hdr.status = htolel(packet_status);

@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.64 2002/01/24 09:20:53 guy Exp $
+ * $Id: packet-x25.c,v 1.65 2002/04/09 08:15:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,7 +41,14 @@
 #include "nlpid.h"
 #include "x264_prt_id.h"
 
-#define FROM_DCE			0x80
+/*
+ * Direction of packet.
+ */
+typedef enum {
+	X25_FROM_DCE,		/* DCE->DTE */
+	X25_FROM_DTE,		/* DTE->DCE */
+	X25_UNKNOWN		/* direction unknown */
+} x25_dir_t;
 
 #define	X25_CALL_REQUEST		0x0B
 #define	X25_CALL_ACCEPTED		0x0F
@@ -1482,7 +1489,8 @@ static const value_string sharing_strategy_vals[] = {
 };
 
 static void
-dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    x25_dir_t dir)
 {
     proto_tree *x25_tree=0, *gfi_tree=0, *userdata_tree=0;
     proto_item *ti;
@@ -1494,6 +1502,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean toa;         /* TOA/NPI address format */
     guint16 bytes0_1;
     guint8 pkt_type;
+    char *short_name = NULL, *long_name = NULL;
     tvbuff_t *next_tvb;
     gboolean q_bit_set = FALSE;
 
@@ -1552,18 +1561,30 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     switch (pkt_type) {
     case X25_CALL_REQUEST:
+        switch (dir) {
+
+	case X25_FROM_DCE:
+	    short_name = "Inc. call";
+	    long_name = "Incoming call";
+	    break;
+
+	case X25_FROM_DTE:
+	    short_name = "Call req.";
+	    long_name = "Call request";
+	    break;
+
+	case X25_UNKNOWN:
+	    short_name = "Inc. call/Call req.";
+	    long_name = "Incoming call/Call request";
+	    break;
+	}
 	if (check_col(pinfo->cinfo, COL_INFO))
-	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d",
-		    (pinfo->pseudo_header->x25.flags & FROM_DCE) ? "Inc. call"
-		                                                 : "Call req." ,
-                    vc);
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d", short_name, vc);
 	if (x25_tree) {
 	    proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb,
 		    0, 2, bytes0_1);
 	    proto_tree_add_uint_format(x25_tree, hf_x25_type, tvb, 2, 1,
-		    X25_CALL_REQUEST,
-		    (pinfo->pseudo_header->x25.flags & FROM_DCE) ? "Incoming call"
-			                                         : "Call request");
+		    X25_CALL_REQUEST, "%s", long_name);
 	}
 	localoffset = 3;
 	if (localoffset < x25_pkt_len) /* calling/called addresses */
@@ -1789,17 +1810,29 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	break;
     case X25_CALL_ACCEPTED:
+        switch (dir) {
+
+	case X25_FROM_DCE:
+	    short_name = "Call conn.";
+	    long_name = "Call connected";
+	    break;
+
+	case X25_FROM_DTE:
+	    short_name = "Call acc.";
+	    long_name = "Call accepted";
+	    break;
+
+	case X25_UNKNOWN:
+	    short_name = "Call conn./Call acc.";
+	    long_name = "Call connected/Call accepted";
+	    break;
+	}
 	if(check_col(pinfo->cinfo, COL_INFO))
-	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d",
-		    (pinfo->pseudo_header->x25.flags & FROM_DCE) ? "Call conn."
-			                                         : "Call acc." ,
-		    vc);
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d", short_name, vc);
 	if (x25_tree) {
 	    proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb, 0, 2, bytes0_1);
 	    proto_tree_add_uint_format(x25_tree, hf_x25_type, tvb, 2, 1,
-	    	    X25_CALL_ACCEPTED,
-		    (pinfo->pseudo_header->x25.flags & FROM_DCE) ? "Call connected"
-		                                                 : "Call accepted");
+	    	    X25_CALL_ACCEPTED, "%s", long_name);
 	}
 	localoffset = 3;
         if (localoffset < x25_pkt_len) /* calling/called addresses */
@@ -1816,10 +1849,25 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	break;
     case X25_CLEAR_REQUEST:
+        switch (dir) {
+
+	case X25_FROM_DCE:
+	    short_name = "Clear ind.";
+	    long_name = "Clear indication";
+	    break;
+
+	case X25_FROM_DTE:
+	    short_name = "Clear req.";
+	    long_name = "Clear request";
+	    break;
+
+	case X25_UNKNOWN:
+	    short_name = "Clear ind./Clear req.";
+	    long_name = "Clear indication/Clear request";
+	    break;
+	}
 	if(check_col(pinfo->cinfo, COL_INFO)) {
-	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d %s - %s",
-		    (pinfo->pseudo_header->x25.flags & FROM_DCE) ? "Clear ind."
-			                                         : "Clear req." ,
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d %s - %s", short_name,
 		    vc, clear_code(tvb_get_guint8(tvb, 3)),
 		    clear_diag(tvb_get_guint8(tvb, 4)));
 	}
@@ -1827,9 +1875,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (x25_tree) {
 	    proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb, 0, 2, bytes0_1);
 	    proto_tree_add_uint_format(x25_tree, hf_x25_type, tvb,
-	    	    localoffset+2, 1, X25_CLEAR_REQUEST,
-		    (pinfo->pseudo_header->x25.flags & FROM_DCE) ? "Clear indication"
-		                                                 : "Clear request");
+	    	    localoffset+2, 1, X25_CLEAR_REQUEST, "%s", long_name);
 	    proto_tree_add_text(x25_tree, tvb, 3, 1,
 		    "Cause : %s", clear_code(tvb_get_guint8(tvb, 3)));
 	    proto_tree_add_text(x25_tree, tvb, 4, 1,
@@ -1887,20 +1933,33 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	localoffset = x25_pkt_len;
 	break;
     case X25_RESET_REQUEST:
+        switch (dir) {
+
+	case X25_FROM_DCE:
+	    short_name = "Reset ind.";
+	    long_name = "Reset indication";
+	    break;
+
+	case X25_FROM_DTE:
+	    short_name = "Reset req.";
+	    long_name = "Reset request";
+	    break;
+
+	case X25_UNKNOWN:
+	    short_name = "Reset ind./Reset req.";
+	    long_name = "Reset indication/Reset request";
+	    break;
+	}
 	if(check_col(pinfo->cinfo, COL_INFO)) {
 	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d %s - Diag.:%d",
-		    (pinfo->pseudo_header->x25.flags & FROM_DCE) ? "Reset ind."
-		                                                 : "Reset req.",
-		    vc, reset_code(tvb_get_guint8(tvb, 3)),
+		    short_name, vc, reset_code(tvb_get_guint8(tvb, 3)),
 		    (int)tvb_get_guint8(tvb, 4));
 	}
 	x25_hash_add_proto_end(vc, pinfo->fd->abs_secs, pinfo->fd->abs_usecs);
 	if (x25_tree) {
 	    proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb, 0, 2, bytes0_1);
 	    proto_tree_add_uint_format(x25_tree, hf_x25_type, tvb, 2, 1,
-		    X25_RESET_REQUEST,
-		    (pinfo->pseudo_header->x25.flags & FROM_DCE) ? "Reset indication"
-                                                                 : "Reset request");
+		    X25_RESET_REQUEST, "%s", long_name);
 	    proto_tree_add_text(x25_tree, tvb, 3, 1,
 		    "Cause : %s", reset_code(tvb_get_guint8(tvb, 3)));
 	    proto_tree_add_text(x25_tree, tvb, 4, 1,
@@ -1919,18 +1978,32 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	localoffset = x25_pkt_len;
 	break;
     case X25_RESTART_REQUEST:
+        switch (dir) {
+
+	case X25_FROM_DCE:
+	    short_name = "Restart ind.";
+	    long_name = "Restart indication";
+	    break;
+
+	case X25_FROM_DTE:
+	    short_name = "Restart req.";
+	    long_name = "Restart request";
+	    break;
+
+	case X25_UNKNOWN:
+	    short_name = "Restart ind./Restart req.";
+	    long_name = "Restart indication/Restart request";
+	    break;
+	}
 	if(check_col(pinfo->cinfo, COL_INFO)) {
 	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s - Diag.:%d",
-		    (pinfo->pseudo_header->x25.flags & FROM_DCE) ? "Restart ind."
-		                                                 : "Restart req.",
+		    short_name,
 		    restart_code(tvb_get_guint8(tvb, 3)),
 		    (int)tvb_get_guint8(tvb, 3));
 	}
 	if (x25_tree) {
 	    proto_tree_add_uint_format(x25_tree, hf_x25_type, tvb, 2, 1,
-		    X25_RESTART_REQUEST,
-		    (pinfo->pseudo_header->x25.flags & FROM_DCE) ? "Restart indication"
-		                                                 : "Restart request");
+		    X25_RESTART_REQUEST, "%s", long_name);
 	    proto_tree_add_text(x25_tree, tvb, 3, 1,
 		    "Cause : %s", restart_code(tvb_get_guint8(tvb, 3)));
 	    proto_tree_add_text(x25_tree, tvb, 4, 1,
@@ -2175,6 +2248,31 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     call_dissector(data_handle, next_tvb, pinfo, tree);
 }
 
+/*
+ * X.25 dissector for use when "pinfo->pseudo_header" points to a
+ * "struct x25_phdr".
+ */
+static void
+dissect_x25_dir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    dissect_x25_common(tvb, pinfo, tree,
+	(pinfo->pseudo_header->x25.flags & FROM_DCE) ? X25_FROM_DCE :
+						       X25_FROM_DTE);
+}
+
+/*
+ * X.25 dissector for use when "pinfo->pseudo_header" doesn't point to a
+ * "struct x25_phdr".
+ */
+static void
+dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    /*
+     * We don't know if this packet is DTE->DCE or DCE->DCE.
+     */
+    dissect_x25_common(tvb, pinfo, tree, X25_UNKNOWN);
+}
+
 void
 proto_register_x25(void)
 {
@@ -2256,6 +2354,7 @@ proto_register_x25(void)
 	"X.25 secondary protocol identifier", FT_UINT8, BASE_HEX);
     register_heur_dissector_list("x.25", &x25_heur_subdissector_list);
 
+    register_dissector("x.25_dir", dissect_x25_dir, proto_x25);
     register_dissector("x.25", dissect_x25, proto_x25);
 
     /* Preferences */

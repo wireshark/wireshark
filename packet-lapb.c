@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-lapb.c,v 1.34 2002/01/24 09:20:49 guy Exp $
+ * $Id: packet-lapb.c,v 1.35 2002/04/09 08:15:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,8 +37,6 @@
 #include <epan/packet.h>
 #include "xdlc.h"
 
-#define FROM_DCE	0x80
-
 static int proto_lapb = -1;
 static int hf_lapb_address = -1;
 static int hf_lapb_control = -1;
@@ -46,7 +44,7 @@ static int hf_lapb_control = -1;
 static gint ett_lapb = -1;
 static gint ett_lapb_control = -1;
 
-static dissector_handle_t x25_handle;
+static dissector_handle_t x25_dir_handle;
 
 static void
 dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -108,7 +106,7 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* not end of frame ==> X.25 */
     if (tvb_reported_length(tvb) > 2) {
 	    next_tvb = tvb_new_subset(tvb, 2, -1, -1);
-	    call_dissector(x25_handle, next_tvb, pinfo, tree);
+	    call_dissector(x25_dir_handle, next_tvb, pinfo, tree);
     }
 }
 
@@ -143,9 +141,10 @@ proto_reg_handoff_lapb(void)
     dissector_handle_t lapb_handle;
 
     /*
-     * Get a handle for the X.25 dissector.
+     * Get a handle for the X.25 dissector; we will be getting an
+     * X.25 pseudo-header, so call the dissector that can handle it.
      */
-    x25_handle = find_dissector("x.25");
+    x25_dir_handle = find_dissector("x.25_dir");
 
     lapb_handle = find_dissector("lapb");
     dissector_add("wtap_encap", WTAP_ENCAP_LAPB, lapb_handle);

@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.25 2002/03/05 08:39:29 guy Exp $
+ * $Id: nettl.c,v 1.26 2002/04/09 08:15:04 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -300,7 +300,8 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 
 	    phdr->ts.tv_sec = pntohl(&lapb_hdr.sec);
 	    phdr->ts.tv_usec = pntohl(&lapb_hdr.usec);
-	    pseudo_header->x25.flags = (lapb_hdr.from_dce & 0x20 ? 0x80 : 0x00);
+	    pseudo_header->x25.flags =
+	        (lapb_hdr.from_dce & 0x20 ? FROM_DCE : 0x00);
 	    break;
 	default:
 	    g_message("nettl: network type %u unknown or unsupported",
