@@ -60,11 +60,16 @@ rm -rf $RPM_BUILD_ROOT
 /usr/X11R6/bin/ethereal
 /usr/X11R6/man/man1/ethereal.1.gz
 /usr/bin/tethereal
+/usr/lib/libwiretap.so*
+/usr/lib/libethereal.so*
 /usr/bin/editcap
 /usr/man/man1/tethereal.1.gz
 /usr/man/man1/editcap.1.gz
 
 %changelog
+* Sat Feb 07 2004 Joerg Mayer
+- in case there are shared libs: include them
+
 * Tue Aug 24 1999 Gilbert Ramirez
 - changed to ethereal.spec.in so that 'configure' can update
   the version automatically
