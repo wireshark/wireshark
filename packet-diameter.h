@@ -1,7 +1,7 @@
 /* packet-diameter.h
  * Declaration of the DIAMETER dissector.
  *
- * $Id: packet-diameter.h,v 1.2 2000/08/11 13:34:13 deniel Exp $
+ * $Id: packet-diameter.h,v 1.3 2001/02/19 23:14:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,7 +26,6 @@
 #ifndef __PACKET_DIAMETER_H__
 #define __PACKET_DIAMETER_H__
 
-extern void dissect_diameter(const u_char *pd, int offset, frame_data *fd, 
-    proto_tree *tree);
+static void dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 #endif
