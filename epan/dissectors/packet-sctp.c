@@ -502,10 +502,12 @@ dissect_heartbeat_info_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
 static void
 dissect_ipv4_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, proto_item *additional_item, gboolean dissecting_init_init_ack_chunk)
 {
-  proto_tree_add_item(parameter_tree, hf_ipv4_address, parameter_tvb, IPV4_ADDRESS_OFFSET, IPV4_ADDRESS_LENGTH, NETWORK_BYTE_ORDER);
-  proto_item_append_text(parameter_item, " (Address: %s)", ip_to_str((const guint8 *)tvb_get_ptr(parameter_tvb, IPV4_ADDRESS_OFFSET, IPV4_ADDRESS_LENGTH)));
-  if (additional_item)
-      proto_item_append_text(additional_item, "%s", ip_to_str((const guint8 *)tvb_get_ptr(parameter_tvb, IPV4_ADDRESS_OFFSET, IPV4_ADDRESS_LENGTH)));
+  if (parameter_tree) {
+    proto_tree_add_item(parameter_tree, hf_ipv4_address, parameter_tvb, IPV4_ADDRESS_OFFSET, IPV4_ADDRESS_LENGTH, NETWORK_BYTE_ORDER);
+    proto_item_append_text(parameter_item, " (Address: %s)", ip_to_str((const guint8 *)tvb_get_ptr(parameter_tvb, IPV4_ADDRESS_OFFSET, IPV4_ADDRESS_LENGTH)));
+    if (additional_item)
+        proto_item_append_text(additional_item, "%s", ip_to_str((const guint8 *)tvb_get_ptr(parameter_tvb, IPV4_ADDRESS_OFFSET, IPV4_ADDRESS_LENGTH)));
+  }
   if (dissecting_init_init_ack_chunk) {
   	  if (sctp_info.number_of_tvbs < MAXIMUM_NUMBER_OF_TVBS)
         sctp_info.tvb[sctp_info.number_of_tvbs++] = parameter_tvb;
@@ -520,10 +522,12 @@ dissect_ipv4_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
 static void
 dissect_ipv6_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, proto_item *additional_item, gboolean dissecting_init_init_ack_chunk)
 {
-  proto_tree_add_item(parameter_tree, hf_ipv6_address, parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH, NETWORK_BYTE_ORDER);
-  proto_item_append_text(parameter_item, " (Address: %s)", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH)));
-  if (additional_item)
-    proto_item_append_text(additional_item, "%s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH)));
+  if (parameter_tree) {
+    proto_tree_add_item(parameter_tree, hf_ipv6_address, parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH, NETWORK_BYTE_ORDER);
+    proto_item_append_text(parameter_item, " (Address: %s)", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH)));
+    if (additional_item)
+      proto_item_append_text(additional_item, "%s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH)));
+  }
   if (dissecting_init_init_ack_chunk) {
   	if (sctp_info.number_of_tvbs < MAXIMUM_NUMBER_OF_TVBS)
       sctp_info.tvb[sctp_info.number_of_tvbs++] = parameter_tvb;
@@ -788,15 +792,23 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *chunk
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   padding_length = tvb_length(parameter_tvb) - length;
 
-  parameter_item = proto_tree_add_text(chunk_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s parameter", val_to_str(type, parameter_identifier_values, "Unknown"));
-  parameter_tree = proto_item_add_subtree(parameter_item, ett_sctp_chunk_parameter);
+  if (!(chunk_tree || (dissecting_init_init_ack_chunk && (type == IPV4ADDRESS_PARAMETER_ID || type == IPV6ADDRESS_PARAMETER_ID))))
+    return;
 
-  type_item = proto_tree_add_item(parameter_tree, hf_parameter_type,   parameter_tvb, PARAMETER_TYPE_OFFSET,   PARAMETER_TYPE_LENGTH,   NETWORK_BYTE_ORDER);
-  type_tree = proto_item_add_subtree(type_item, ett_sctp_parameter_type);
-  proto_tree_add_item(type_tree, hf_parameter_bit_1,  parameter_tvb, PARAMETER_TYPE_OFFSET,  PARAMETER_TYPE_LENGTH,  NETWORK_BYTE_ORDER);
-  proto_tree_add_item(type_tree, hf_parameter_bit_2,  parameter_tvb, PARAMETER_TYPE_OFFSET,  PARAMETER_TYPE_LENGTH,  NETWORK_BYTE_ORDER);
-  proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, NETWORK_BYTE_ORDER);
+  if (chunk_tree) {
+    parameter_item = proto_tree_add_text(chunk_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s parameter", val_to_str(type, parameter_identifier_values, "Unknown"));
+    parameter_tree = proto_item_add_subtree(parameter_item, ett_sctp_chunk_parameter);
 
+    type_item = proto_tree_add_item(parameter_tree, hf_parameter_type,   parameter_tvb, PARAMETER_TYPE_OFFSET,   PARAMETER_TYPE_LENGTH,   NETWORK_BYTE_ORDER);
+    type_tree = proto_item_add_subtree(type_item, ett_sctp_parameter_type);
+    proto_tree_add_item(type_tree, hf_parameter_bit_1,  parameter_tvb, PARAMETER_TYPE_OFFSET,  PARAMETER_TYPE_LENGTH,  NETWORK_BYTE_ORDER);
+    proto_tree_add_item(type_tree, hf_parameter_bit_2,  parameter_tvb, PARAMETER_TYPE_OFFSET,  PARAMETER_TYPE_LENGTH,  NETWORK_BYTE_ORDER);
+    proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, NETWORK_BYTE_ORDER);
+  } else {
+    parameter_item = NULL;
+    parameter_tree = NULL;
+  }
+  
   switch(type) {
   case HEARTBEAT_INFO_PARAMETER_ID:
     dissect_heartbeat_info_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1444,15 +1456,14 @@ dissect_init_chunk(tvbuff_t *chunk_tvb,  packet_info *pinfo, proto_tree *chunk_t
     proto_tree_add_item(chunk_tree, hf_init_chunk_number_of_inbound_streams,  chunk_tvb, INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET,  INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_LENGTH,  NETWORK_BYTE_ORDER);
     proto_tree_add_item(chunk_tree, hf_init_chunk_initial_tsn,                chunk_tvb, INIT_CHUNK_INITIAL_TSN_OFFSET,                INIT_CHUNK_INITIAL_TSN_LENGTH,                NETWORK_BYTE_ORDER);
 
-    /* handle variable paramters */
-    parameters_length = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET) - INIT_CHUNK_FIXED_PARAMTERS_LENGTH - CHUNK_HEADER_LENGTH;
-    parameters_tvb = tvb_new_subset(chunk_tvb, INIT_CHUNK_VARIABLE_LENGTH_PARAMETER_OFFSET, parameters_length, parameters_length);
-    dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, TRUE);
-
     proto_item_append_text(chunk_item, " (Outbound streams: %u, inbound streams: %u)",
                            tvb_get_ntohs(chunk_tvb, INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET),
                            tvb_get_ntohs(chunk_tvb, INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET));
   }
+  /* handle variable paramters */
+  parameters_length = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET) - INIT_CHUNK_FIXED_PARAMTERS_LENGTH - CHUNK_HEADER_LENGTH;
+  parameters_tvb = tvb_new_subset(chunk_tvb, INIT_CHUNK_VARIABLE_LENGTH_PARAMETER_OFFSET, parameters_length, parameters_length);
+  dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, TRUE);
 }
 
 static void
@@ -1470,15 +1481,14 @@ dissect_init_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *chun
     proto_tree_add_item(chunk_tree, hf_initack_chunk_number_of_inbound_streams,  chunk_tvb, INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET,  INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_LENGTH,  NETWORK_BYTE_ORDER);
     proto_tree_add_item(chunk_tree, hf_initack_chunk_initial_tsn,                chunk_tvb, INIT_CHUNK_INITIAL_TSN_OFFSET,                INIT_CHUNK_INITIAL_TSN_LENGTH,                NETWORK_BYTE_ORDER);
 
-    /* handle variable paramters */
-    parameters_length = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET) - INIT_CHUNK_FIXED_PARAMTERS_LENGTH - CHUNK_HEADER_LENGTH;
-    parameters_tvb = tvb_new_subset(chunk_tvb, INIT_CHUNK_VARIABLE_LENGTH_PARAMETER_OFFSET, parameters_length, parameters_length);
-    dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, TRUE);
-
     proto_item_append_text(chunk_item, " (Outbound streams: %u, inbound streams: %u)",
                            tvb_get_ntohs(chunk_tvb, INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET),
                            tvb_get_ntohs(chunk_tvb, INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET));
   }
+  /* handle variable paramters */
+  parameters_length = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET) - INIT_CHUNK_FIXED_PARAMTERS_LENGTH - CHUNK_HEADER_LENGTH;
+  parameters_tvb = tvb_new_subset(chunk_tvb, INIT_CHUNK_VARIABLE_LENGTH_PARAMETER_OFFSET, parameters_length, parameters_length);
+  dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, TRUE);
 }
 
 #define SACK_CHUNK_CUMULATIVE_TSN_ACK_LENGTH    4
