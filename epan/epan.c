@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.c,v 1.15 2001/12/18 19:09:03 gram Exp $
+ * $Id: epan.c,v 1.16 2002/01/04 08:57:09 guy Exp $
  *
  * Ethereal Protocol Analyzer Library
  *
@@ -81,7 +81,7 @@ epan_dissect_new(gboolean create_proto_tree, gboolean proto_tree_visible)
 
 	if (create_proto_tree) {
 		edt->tree = proto_tree_create_root();
-        proto_tree_set_visible(edt->tree, proto_tree_visible);
+		proto_tree_set_visible(edt->tree, proto_tree_visible);
 	}
 	else {
 		edt->tree = NULL;
@@ -96,9 +96,9 @@ epan_dissect_run(epan_dissect_t *edt, void* pseudo_header,
 {
 	/* start with empty data source list */
 	if (fd->data_src) {
-        g_slist_free(fd->data_src);
-    }
-    fd->data_src = NULL;
+		g_slist_free(fd->data_src);
+	}
+	fd->data_src = NULL;
 
 	dissect_packet(edt, pseudo_header, data, fd, cinfo);
 }
