@@ -1700,6 +1700,10 @@ Can Erkin Acar <canacar [AT] eee.metu.edu.tr> {
 	Support for new DLT_PFLOG format
 }
 
+Martin Warnes <martin.warnes [AT] ntlworld.com> {
+	Support for VMS UCX$TRACE output in wiretap
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>

@@ -1,6 +1,6 @@
 /* vms.c
  *
- * $Id: vms.c,v 1.16 2003/01/17 23:54:19 guy Exp $
+ * $Id: vms.c,v 1.17 2003/05/19 20:58:18 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <ethereal@mmilgram.NOSPAMmail.net>
@@ -40,7 +40,8 @@
 #include <string.h>
 #include <ctype.h>
 
-/* This module reads the output of the 'TCPIPTRACE' command in VMS
+/* This module reads the output of the 'TCPIPTRACE' and 'UCX$TRACE'
+ * commands in VMS.
  * It was initially based on toshiba.c.
  */
 
@@ -65,13 +66,36 @@
    06000000   01000000   A5860100   00000000    0040    ................
                                     00000000    0050    ....
 
+   Example UCX INTERnet (UCX$TRACE) output data:
+    UCX INTERnet trace RCV packet seq # = 1 at 14-MAY-2003 11:32:10.93 
+
+   IP Version = 4,  IHL = 5,  TOS = 00,   Total Length = 583 = ^x0247 
+   IP Identifier  = ^x702E,  Flags (0=0,DF=0,MF=0),  
+         Fragment Offset = 0 = ^x0000,   Calculated Offset = 0 = ^x0000 
+   IP TTL = 128 = ^x80,  Protocol = 17 = ^x11,  Header Checksum = ^x70EC 
+   IP Source Address      = 10.20.4.159 
+   IP Destination Address = 10.20.4.255 
+
+   UDP Source Port = 138,   UDP Destination Port = 138 
+   UDP Header and Datagram Length = 563 = ^x0233,   Checksum = ^xB913 
+
+   9F04140A   70EC1180   0000702E   47020045    0000    E..G.p.....p....
+   B1B80E11 | B9133302   8A008A00 | FF04140A    0010    .........3......
+   46484648   45200000   1D028A00   9F04140A    0020    ...........EHFHF
+   43414341   4341434D   454D4546   45454550    0030    PEEEFEMEMCACACAC
+
+The only difference between the 2 Utilities is the Packet header line, primarily
+the utility identifier and the packet sequencing.
+
 --------------------------------------------------------------------------------
 
  */
 
-/* Magic text to check for VMS-ness of file */
+/* Magic text to check for VMS-ness of file, common to both
+ * TCPIPtrace and UCX$TRACE
+ */
 static const char vms_hdr_magic[]  =
-{ 'T', 'C', 'P', 'I', 'P', 't', 'r', 'a', 'c', 'e', ' '};
+{ 'R','C','V',' ','p', 'a', 'c', 'k', 'e', 't',' '};
 #define VMS_HDR_MAGIC_SIZE  (sizeof vms_hdr_magic  / sizeof vms_hdr_magic[0])
 
 /* Magic text for start of packet */
@@ -86,7 +110,6 @@ static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
 static gboolean parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf,
     int *err);
 static int parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err);
-
 
 #ifdef TCPIPTRACE_FRAGMENTS_HAVE_HEADER_LINE
 /* Seeks to the beginning of the next packet, and returns the
@@ -329,12 +352,22 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err)
 	if ((csec == 101) && (p = strstr(line, "packet "))
 	    && (! strstr(line, "could not save "))) {
 	    /* Find text in line starting with "packet ". */
-	    num_items_scanned = sscanf(p,
-				       "packet %d at %d-%3s-%d %d:%d:%d.%d",
-				       &pktnum, &time.tm_mday, mon,
+
+	    /* First look for the TCPIPtrace format */
+	    num_items_scanned = sscanf(p,  
+		  		       "packet %d at %d-%3s-%d %d:%d:%d.%d",
+			  	       &pktnum, &time.tm_mday, mon,
 				       &time.tm_year, &time.tm_hour,
 				       &time.tm_min, &time.tm_sec, &csec);
-
+	    /* if not TCPIPtrace then try the UCX$TRACE format */
+	    if (num_items_scanned != 8) {
+	      num_items_scanned = sscanf(p,
+		  		         "packet seq # = %d at %d-%3s-%d %d:%d:%d.%d",
+			  	         &pktnum, &time.tm_mday, mon,
+				         &time.tm_year, &time.tm_hour,
+				         &time.tm_min, &time.tm_sec, &csec);
+	    }
+	    /* if neither then exit with error */
 	    if (num_items_scanned != 8) {
 	        *err = WTAP_ERR_BAD_RECORD;
 		return -1;
