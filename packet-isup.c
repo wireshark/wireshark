@@ -5,7 +5,7 @@
  *		<anders.broman@ericsson.com>
  * Inserted routines for BICC dissection according to Q.765.5 Q.1902 Q.1970 Q.1990,
  * calling SDP dissector for RFC2327 decoding.
- * $Id: packet-isup.c,v 1.36 2003/11/13 23:38:32 guy Exp $
+ * $Id: packet-isup.c,v 1.37 2003/11/24 00:05:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5022,14 +5022,14 @@ dissect_isup_circuit_group_blocking_messages(tvbuff_t *message_tvb, proto_tree *
   parameter_item = proto_tree_add_text(isup_tree, message_tvb,
 				       offset +  parameter_pointer,
 				       parameter_length + PARAMETER_LENGTH_IND_LENGTH,
-				       "Facility indicator");
+				       "Range and status");
   parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));
   proto_tree_add_uint_format(parameter_tree, hf_isup_mandatory_variable_parameter_pointer, message_tvb, offset, PARAMETER_POINTER_LENGTH, parameter_pointer, "Pointer to Parameter: %u", parameter_pointer);
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, message_tvb, offset + parameter_pointer, PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
   actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH, MIN(parameter_length, actual_length), parameter_length );
-  dissect_isup_facility_ind_parameter(parameter_tvb, parameter_item);
+  dissect_isup_range_and_status_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += PARAMETER_POINTER_LENGTH;
 
   return offset;
