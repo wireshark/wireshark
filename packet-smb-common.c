@@ -2,7 +2,7 @@
  * Common routines for smb packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-common.c,v 1.17 2003/05/09 01:41:28 tpot Exp $
+ * $Id: packet-smb-common.c,v 1.18 2003/06/12 08:33:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,22 +52,12 @@ const value_string share_type_vals[] = {
 int display_ms_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index, char **data)
 {
 	char *str;
-	int len;
+	gint len;
 
 	/* display a string from the tree and return the new offset */
 
-	len = tvb_strnlen(tvb, offset, -1);
-	if (len == -1) {
-		/*
-		 * XXX - throw an exception?
-		 */
-		len = tvb_length_remaining(tvb, offset);
-	}
-	str = g_malloc(len+1);
-	tvb_memcpy(tvb, (guint8 *)str, offset, len);
-	str[len] = '\0';
-
-	proto_tree_add_string(tree, hf_index, tvb, offset, len+1, str);
+	str = tvb_get_stringz(tvb, offset, &len);
+	proto_tree_add_string(tree, hf_index, tvb, offset, len, str);
 
 	/* Return a copy of the string if requested */
 
@@ -76,7 +66,7 @@ int display_ms_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index,
 	else
 		g_free(str);
 
-	return 	offset+len+1;
+	return 	offset+len;
 }
 
 

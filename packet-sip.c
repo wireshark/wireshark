@@ -17,7 +17,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.38 2003/06/11 21:17:41 guy Exp $
+ * $Id: packet-sip.c,v 1.39 2003/06/12 08:33:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -443,10 +443,8 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					 * Fetch the value.
 					 */
 					value_len = line_end_offset - value_offset;
-					value = g_malloc(value_len + 1);
-					tvb_memcpy(tvb, value, value_offset,
+					value = tvb_get_string(tvb, value_offset,
 					    value_len);
-					value[value_len] = '\0';
 
 					/*
 					 * Add it to the protocol tree,
@@ -489,9 +487,7 @@ void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len)
          * We know we have the entire method; otherwise, "sip_parse_line()"
          * would have returned OTHER_LINE.
          */
-	string = g_malloc(meth_len + 1);
-        tvb_memcpy(tvb, (guint8 *)string, 0, meth_len);
-        string[meth_len] = '\0';
+        string = tvb_get_string(tvb, 0, meth_len);
         proto_tree_add_string(tree, hf_Method, tvb, 0, meth_len, string);
         g_free(string);
 }

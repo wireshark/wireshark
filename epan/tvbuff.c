@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.46 2003/06/09 07:27:42 guy Exp $
+ * $Id: tvbuff.c,v 1.47 2003/06/12 08:33:31 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -105,6 +105,10 @@ struct tvbuff {
 	/* Func to call when actually freed */
 	tvbuff_free_cb_t	free_cb;
 };
+
+static guint8*
+ensure_contiguous_no_exception(tvbuff_t *tvb, gint offset, gint length,
+		int *exception);
 
 static guint8*
 ensure_contiguous(tvbuff_t *tvb, gint offset, gint length);
@@ -804,7 +808,8 @@ tvb_raw_offset(tvbuff_t *tvb)
 }
 
 static guint8*
-composite_ensure_contiguous(tvbuff_t *tvb, guint abs_offset, guint abs_length)
+composite_ensure_contiguous_no_exception(tvbuff_t *tvb, guint abs_offset,
+		guint abs_length)
 {
 	guint		i, num_members;
 	tvb_comp_t	*composite;
@@ -831,8 +836,11 @@ composite_ensure_contiguous(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 	if (check_offset_length_no_exception(member_tvb, abs_offset - composite->start_offsets[i],
 				abs_length, &member_offset, &member_length, NULL)) {
 
+		/*
+		 * The range is, in fact, contiguous within member_tvb.
+		 */
 		g_assert(!tvb->real_data);
-		return ensure_contiguous(member_tvb, member_offset, member_length);
+		return ensure_contiguous_no_exception(member_tvb, member_offset, member_length, NULL);
 	}
 	else {
 		tvb->real_data = tvb_memdup(tvb, 0, -1);
@@ -854,6 +862,10 @@ ensure_contiguous_no_exception(tvbuff_t *tvb, gint offset, gint length,
 		return NULL;
 	}
 
+	/*
+	 * We know that all the data is present in the tvbuff, so
+	 * no exceptions should be thrown.
+	 */
 	if (tvb->real_data) {
 		return tvb->real_data + abs_offset;
 	}
@@ -862,11 +874,11 @@ ensure_contiguous_no_exception(tvbuff_t *tvb, gint offset, gint length,
 			case TVBUFF_REAL_DATA:
 				g_assert_not_reached();
 			case TVBUFF_SUBSET:
-				return ensure_contiguous(tvb->tvbuffs.subset.tvb,
+				return ensure_contiguous_no_exception(tvb->tvbuffs.subset.tvb,
 						abs_offset - tvb->tvbuffs.subset.offset,
-						abs_length);
+						abs_length, NULL);
 			case TVBUFF_COMPOSITE:
-				return composite_ensure_contiguous(tvb, abs_offset, abs_length);
+				return composite_ensure_contiguous_no_exception(tvb, abs_offset, abs_length);
 		}
 	}
 
@@ -1021,10 +1033,9 @@ tvb_memcpy(tvbuff_t *tvb, guint8* target, gint offset, gint length)
  * "tvb_ensure_bytes_exist()" and then allocates a buffer and copies
  * data to it.
  *
- * Does anything depend on this routine treating -1 as meaning "to the
- * end of the buffer"?  If so, perhaps we need two routines, one that
- * treats -1 as such, and one that checks for -1 and then calls this
- * routine.
+ * "composite_ensure_contiguous_no_exception()" depends on -1 not being
+ * an error; does anything else depend on this routine treating -1 as
+ * meaning "to the end of the buffer"?
  */
 guint8*
 tvb_memdup(tvbuff_t *tvb, gint offset, gint length)
@@ -1685,6 +1696,48 @@ tvb_format_text(tvbuff_t *tvb, gint offset, gint size)
 
   return format_text(ptr, len);
 
+}
+
+/*
+ * Given a tvbuff, an offset, and a length, allocate a buffer big enough
+ * to hold a non-null-terminated string of that length at that offset,
+ * plus a trailing '\0', copy the string into it, and return a pointer
+ * to the string.
+ *
+ * Throws an exception if the tvbuff ends before the string does.
+ */
+guint8 *
+tvb_get_string(tvbuff_t *tvb, gint offset, gint length)
+{
+	guint8 *ptr, *strbuf;
+
+	ptr = ensure_contiguous(tvb, offset, length);
+	strbuf = g_malloc(length + 1);
+	if (length != 0)
+		memcpy(strbuf, ptr, length);
+	strbuf[length] = '\0';
+	return strbuf;
+}
+
+/*
+ * Given a tvbuff and an offset, with the offset assumed to refer to
+ * a null-terminated string, find the length of that string (and throw
+ * an exception if the tvbuff ends before we find the null), allocate
+ * a buffer big enough to hold the string, copy the string into it,
+ * and return a pointer to the string.  Also return the length of the
+ * string (including the terminating null) through a pointer.
+ */
+guint8 *
+tvb_get_stringz(tvbuff_t *tvb, gint offset, gint *lengthp)
+{
+	guint size;
+	guint8 *strptr;
+
+	size = tvb_strsize(tvb, offset);
+	strptr = g_malloc(size);
+	tvb_memcpy(tvb, strptr, offset, size);
+	*lengthp = size;
+	return strptr;
 }
 
 /* Looks for a stringz (NUL-terminated string) in tvbuff and copies

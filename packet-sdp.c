@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.33 2002/08/28 21:00:30 jmayer Exp $
+ * $Id: packet-sdp.c,v 1.34 2003/06/12 08:33:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -272,20 +272,17 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 		tokenoffset = 2;
-		if( hf == hf_unknown )
-		  tokenoffset = 0;
-		string = g_malloc(linelen - tokenoffset + 1);
-		CLEANUP_PUSH(g_free, string);
-		tvb_memcpy(tvb, (guint8 *)string, offset + tokenoffset,
+		if (hf == hf_unknown)
+			tokenoffset = 0;
+		string = tvb_get_string(tvb, offset + tokenoffset,
 		    linelen - tokenoffset);
-		string[linelen - tokenoffset] = '\0';
 		sub_ti = proto_tree_add_string_format(sdp_tree,hf,tvb, offset,
 					       linelen, string,
 					       "%s: %s",
 					       proto_registrar_get_name(hf),
 					       format_text(string,
 					         linelen - tokenoffset));
-		CLEANUP_CALL_AND_POP;
+		g_free(string);
 		call_sdp_subdissector(tvb_new_subset(tvb,offset+tokenoffset,
 						     linelen-tokenoffset,-1),
 				      hf,sub_ti);

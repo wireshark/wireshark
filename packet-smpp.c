@@ -2,7 +2,7 @@
  * Routines for Short Message Peer to Peer dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-smpp.c,v 1.11 2003/06/06 01:56:39 guy Exp $
+ * $Id: packet-smpp.c,v 1.12 2003/06/12 08:33:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -572,7 +572,7 @@ static const value_string vals_its_session_ind[] = {
  * \retval	FALSE	Absolute time
  */
 static gboolean
-smpp_mktime(char *datestr, time_t *secs, int *nsecs)
+smpp_mktime(const char *datestr, time_t *secs, int *nsecs)
 {
     struct tm	 r_time;
     time_t	 t_diff;
@@ -616,7 +616,7 @@ smpp_mktime(char *datestr, time_t *secs, int *nsecs)
 static void
 smpp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 {
-    gint	 len;
+    guint	 len;
 
     len = tvb_strsize(tvb, *offset);
     if (len > 1) {
@@ -660,12 +660,11 @@ static void
 smpp_handle_time(proto_tree *tree, tvbuff_t *tvb,
 		 int field, int field_R, int *offset)
 {
-    char	 strval[BUFSIZ];
+    char	 *strval;
     gint	 len;
     nstime_t	 tmptime;
 
-    len = tvb_get_nstringz(tvb, *offset, BUFSIZ, strval);
-    len++;
+    strval = tvb_get_stringz(tvb, *offset, &len);
     if (*strval)
     {
 	if (smpp_mktime(strval, &tmptime.secs, &tmptime.nsecs))
@@ -673,6 +672,7 @@ smpp_handle_time(proto_tree *tree, tvbuff_t *tvb,
 	else
 	    proto_tree_add_time(tree, field, tvb, *offset, len, &tmptime);
     }
+    g_free(strval);
     *offset += len;
 }
 

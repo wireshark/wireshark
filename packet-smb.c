@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.352 2003/06/10 05:28:02 guy Exp $
+ * $Id: packet-smb.c,v 1.353 2003/06/12 08:33:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -10736,8 +10736,7 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 		/* EA name */
 
-		name = g_malloc(name_len + 1);
-		tvb_get_nstringz(tvb, offset, name_len + 1, name);
+		name = tvb_get_string(tvb, offset, name_len);
 		proto_item_append_text(item, ": %s", name);
 		g_free(name);
 

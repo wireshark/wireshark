@@ -2,7 +2,7 @@
  * Routines for Financial Information eXchange (FIX) Protocol dissection
  * Copyright 2000, PC Drew <drewpc@ibsncentral.com>
  *
- * $Id: packet-fix.c,v 1.5 2003/06/12 08:02:47 guy Exp $
+ * $Id: packet-fix.c,v 1.6 2003/06/12 08:33:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -867,8 +867,7 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_clear(pinfo->cinfo, COL_INFO);
     }
 
-    value = g_malloc(value_len);
-    tvb_get_nstringz0(tvb, value_offset, value_len, value);
+    value = tvb_get_string(tvb, value_offset, value_len);
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s", (char *)g_datalist_get_data(&msg_types, value));
@@ -929,12 +928,10 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                    packet. */
                 return TRUE;
             }
-            tag_str = g_malloc(tag_len);
-            tvb_get_nstringz0(tvb, field_offset, tag_len, tag_str);
+            tag_str = tvb_get_string(tvb, field_offset, tag_len);
             tag = atoi(tag_str);
 
-            value = g_malloc(value_len);
-            tvb_get_nstringz0(tvb, value_offset, value_len, value);
+            value = tvb_get_string(tvb, value_offset, value_len);
 
             switch(tag) {
                 case 1: /* Field Account */
@@ -2912,6 +2909,7 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_string(fix_tree, hf_fix_SideComplianceID, tvb, offset, field_len, value);
                     break;
                 default:
+                    /* XXX - it could be -1 if the tag isn't a number */
                     proto_tree_add_text(fix_tree, tvb, offset, field_len, "%i: %s", tag, value);
                     break;
             }

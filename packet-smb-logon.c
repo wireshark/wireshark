@@ -2,7 +2,7 @@
  * Routines for SMB net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.33 2003/05/21 10:16:10 sahlberg Exp $
+ * $Id: packet-smb-logon.c,v 1.34 2003/06/12 08:33:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -310,18 +310,17 @@ dissect_smb_logon_LM20_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 static int
 dissect_smb_pdc_query(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	char *name = NULL;
+	char *name;
 
 	/*** 0x07 Query for Primary PDC  ***/
 
 	/* computer name */
 	offset = display_ms_string(tvb, tree, offset, hf_computer_name, &name);
 
-	if (name && check_col(pinfo->cinfo, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", name);
-		g_free(name);
-		name = NULL;
-	}
+
+	g_free(name);
 
 	/* mailslot name */
 	offset = display_ms_string(tvb, tree, offset, hf_mailslot_name, NULL);

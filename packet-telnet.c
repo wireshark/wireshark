@@ -2,7 +2,7 @@
  * Routines for Telnet packet dissection; see RFC 854 and RFC 855
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.40 2003/04/30 02:35:20 gerald Exp $
+ * $Id: packet-telnet.c,v 1.41 2003/06/12 08:33:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -406,9 +406,8 @@ dissect_comport_subopt(const char *optname, tvbuff_t *tvb, int offset, int len,
     if (len == 0) {
         proto_tree_add_text(tree, tvb, offset, 1, "%s Requests Signature",source);
     } else {
-        guint8 *sig = g_malloc(len);
-        gint siglen = tvb_get_nstringz0(tvb, offset+1, len, sig);
-        proto_tree_add_text(tree, tvb, offset, 1 + siglen, "%s Signature: %s",source, sig);
+        guint8 *sig = tvb_get_string(tvb, offset + 1, len);
+        proto_tree_add_text(tree, tvb, offset, 1 + len, "%s Signature: %s",source, sig);
 	g_free(sig);
     }
     break;
@@ -416,7 +415,7 @@ dissect_comport_subopt(const char *optname, tvbuff_t *tvb, int offset, int len,
   case TNCOMPORT_SETBAUDRATE:
     len--;
     if (len >= 4) {
-  	    guint32 baud = tvb_get_ntohl(tvb, offset+1);
+  	guint32 baud = tvb_get_ntohl(tvb, offset+1);
         if (baud == 0) {
             proto_tree_add_text(tree, tvb, offset, 5, "%s Requests Baud Rate",source);            
         } else {
@@ -430,7 +429,7 @@ dissect_comport_subopt(const char *optname, tvbuff_t *tvb, int offset, int len,
   case TNCOMPORT_SETDATASIZE:
     len--;
     if (len >= 1) {
-  	    guint8 datasize = tvb_get_guint8(tvb, offset+1);
+  	guint8 datasize = tvb_get_guint8(tvb, offset+1);
         const char *ds = (datasize > 8) ? "<invalid>" : datasizes[datasize];
         proto_tree_add_text(tree, tvb, offset, 2, "%s Data Size: %s",source,ds);
     } else {
@@ -441,7 +440,7 @@ dissect_comport_subopt(const char *optname, tvbuff_t *tvb, int offset, int len,
   case TNCOMPORT_SETPARITY:
     len--;
     if (len >= 1) {
-  	    guint8 parity = tvb_get_guint8(tvb, offset+1);
+  	guint8 parity = tvb_get_guint8(tvb, offset+1);
         const char *pr = (parity > 5) ? "<invalid>" : parities[parity];
         proto_tree_add_text(tree, tvb, offset, 2, "%s Parity: %s",source,pr);
     } else {
@@ -452,7 +451,7 @@ dissect_comport_subopt(const char *optname, tvbuff_t *tvb, int offset, int len,
   case TNCOMPORT_SETSTOPSIZE:
     len--;
     if (len >= 1) {
-  	    guint8 stop = tvb_get_guint8(tvb, offset+1);
+  	guint8 stop = tvb_get_guint8(tvb, offset+1);
         const char *st = (stop > 3) ? "<invalid>" : stops[stop];
         proto_tree_add_text(tree, tvb, offset, 2, "%s Stop: %s",source,st);
     } else {
@@ -463,7 +462,7 @@ dissect_comport_subopt(const char *optname, tvbuff_t *tvb, int offset, int len,
   case TNCOMPORT_SETCONTROL:
     len--;
     if (len >= 1) {
-  	    guint8 crt = tvb_get_guint8(tvb, offset+1);
+  	guint8 crt = tvb_get_guint8(tvb, offset+1);
         const char *c = (crt > 19) ? "Control: <invalid>" : control[crt];
         proto_tree_add_text(tree, tvb, offset, 2, "%s %s",source,c);
     } else {
@@ -478,7 +477,7 @@ dissect_comport_subopt(const char *optname, tvbuff_t *tvb, int offset, int len,
         const char *print_pattern = (cmd == TNCOMPORT_SETLINESTATEMASK) ?
                                         "%s Set Linestate Mask: %s" : "%s Linestate: %s";
         char ls_buffer[512];
-  	    guint8 ls = tvb_get_guint8(tvb, offset+1);
+  	guint8 ls = tvb_get_guint8(tvb, offset+1);
         int print_count = 0;
         int idx;
         ls_buffer[0] = '\0';

@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.128 2003/06/10 05:53:32 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.129 2003/06/12 08:33:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1057,17 +1057,14 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
     } else {
         /*
-         * First, make sure the entire string is in the tvbuff, and throw
-         * an exception if it isn't.  If the length is bogus, this should
+         * "tvb_get_string()" throws an exception if the entire string
+         * isn't in the tvbuff.  If the length is bogus, this should
          * keep us from trying to allocate an immensely large buffer.
          * (It won't help if the length is *valid* but immensely large,
          * but that's another matter; in any case, that would happen only
          * if we had an immensely large tvbuff....)
          */
-        tvb_ensure_bytes_exist(tvb, offset, buffer_len);
-        s = g_malloc(buffer_len + 1);
-        tvb_memcpy(tvb, s, offset, buffer_len);
-        s[buffer_len] = '\0';
+        s = tvb_get_string(tvb, offset, buffer_len);
         if (tree && buffer_len)
             proto_tree_add_item(string_tree, hfindex, tvb, offset,
                                 buffer_len, drep[0] & 0x10);

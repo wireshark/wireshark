@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.32 2003/05/19 03:23:12 gerald Exp $
+ * $Id: tvbuff.h,v 1.33 2003/06/12 08:33:31 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -317,6 +317,26 @@ extern char *tvb_fake_unicode(tvbuff_t *tvb, int offset, int len,
  * Format the data in the tvb from offset for size ...
  */
 extern guint8 * tvb_format_text(tvbuff_t *tvb, gint offset, gint size);
+
+/*
+ * Given a tvbuff, an offset, and a length, allocate a buffer big enough
+ * to hold a non-null-terminated string of that length at that offset,
+ * plus a trailing '\0', copy the string into it, and return a pointer
+ * to the string.
+ *
+ * Throws an exception if the tvbuff ends before the string does.
+ */
+extern guint8 *tvb_get_string(tvbuff_t *tvb, gint offset, gint length);
+
+/*
+ * Given a tvbuff and an offset, with the offset assumed to refer to
+ * a null-terminated string, find the length of that string (and throw
+ * an exception if the tvbuff ends before we find the null), allocate
+ * a buffer big enough to hold the string, copy the string into it,
+ * and return a pointer to the string.  Also return the length of the
+ * string (including the terminating null) through a pointer.
+ */
+extern guint8 *tvb_get_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
 
 /* Looks for a stringz (NUL-terminated string) in tvbuff and copies
  * no more than bufsize number of bytes, including terminating NUL, to buffer.

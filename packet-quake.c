@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quake.c,v 1.29 2003/05/19 03:23:11 gerald Exp $
+ * $Id: packet-quake.c,v 1.30 2003/06/12 08:33:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -155,18 +155,18 @@ static void
 dissect_quake_CCREQ_CONNECT
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	char game[QUAKE_MAXSTRING];
-	guint8 version;
-	gint len;
+	gint offset;
+	proto_item *ti;
 
-	len = tvb_get_nstringz0(tvb, 0, sizeof(game), game);
-	version = tvb_get_guint8(tvb, len + 1);
+	offset = 0;
 
 	if (tree) {
-		proto_tree_add_string(tree, hf_quake_CCREQ_CONNECT_game,
-			tvb, 0, len + 1, game);
-		proto_tree_add_uint(tree, hf_quake_CCREQ_CONNECT_version,
-			tvb, len + 1, 1, version);
+		ti = proto_tree_add_item(tree, hf_quake_CCREQ_CONNECT_game,
+			tvb, offset, -1, TRUE);
+		offset += proto_item_get_len(ti);
+
+		proto_tree_add_item(tree, hf_quake_CCREQ_CONNECT_version,
+			tvb, offset, 1, TRUE);
 	}
 }
 
@@ -175,18 +175,17 @@ static void
 dissect_quake_CCREQ_SERVER_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	char game[QUAKE_MAXSTRING];
-	guint8 version;
-	gint len;
+	gint offset;
+	proto_item *ti;
 
-	len = tvb_get_nstringz0(tvb, 0, sizeof(game), game);
-	version = tvb_get_guint8(tvb, len + 1);
+	offset = 0;
 
 	if (tree) {
-		proto_tree_add_string(tree, hf_quake_CCREQ_SERVER_INFO_game,
-			tvb, 0, len + 1, game);
-		proto_tree_add_uint(tree, hf_quake_CCREQ_SERVER_INFO_version,
-			tvb, len + 1, 1, version);
+		ti = proto_tree_add_item(tree, hf_quake_CCREQ_SERVER_INFO_game,
+			tvb, offset, -1, TRUE);
+		offset += proto_item_get_len(ti);
+		proto_tree_add_item(tree, hf_quake_CCREQ_SERVER_INFO_version,
+			tvb, offset, 1, TRUE);
 	}
 }
 
@@ -195,12 +194,9 @@ static void
 dissect_quake_CCREQ_PLAYER_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	guint8 player;
-
-	player = tvb_get_guint8(tvb, 0);
 	if (tree) {
-		 proto_tree_add_uint(tree, hf_quake_CCREQ_PLAYER_INFO_player,
-			tvb, 0, 1, player);
+		 proto_tree_add_item(tree, hf_quake_CCREQ_PLAYER_INFO_player,
+			tvb, 0, 1, TRUE);
 	}
 }
 
@@ -209,13 +205,9 @@ static void
 dissect_quake_CCREQ_RULE_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	char rule[QUAKE_MAXSTRING];
-	gint len;
-
-	len = tvb_get_nstringz0(tvb, 0, sizeof(rule), rule);
 	if (tree) {
-		proto_tree_add_string(tree, hf_quake_CCREQ_RULE_INFO_lastrule,
-			tvb, 0, len + 1, rule);
+		proto_tree_add_item(tree, hf_quake_CCREQ_RULE_INFO_lastrule,
+			tvb, 0, -1, TRUE);
 	}
 }
 
@@ -244,14 +236,9 @@ static void
 dissect_quake_CCREP_REJECT
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	char reason[QUAKE_MAXSTRING];
-	gint len;
-
-	len = tvb_get_nstringz0(tvb, 0, sizeof(reason), reason);
-
 	if (tree) {
-		proto_tree_add_string(tree, hf_quake_CCREP_REJECT_reason,
-			tvb, 0, len + 1, reason);
+		proto_tree_add_item(tree, hf_quake_CCREP_REJECT_reason,
+			tvb, 0, -1, TRUE);
 	}
 }
 
@@ -261,49 +248,33 @@ dissect_quake_CCREP_SERVER_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
 	gint offset;
-	gint len;
-	char address[QUAKE_MAXSTRING];
-	char server[QUAKE_MAXSTRING];
-	char map[QUAKE_MAXSTRING];
-
-	guint8 num_player;
-	guint8 max_player;
-	guint8 version;
+	proto_item *ti;
 
 	offset = 0;
 
-	len = tvb_get_nstringz0(tvb, offset, sizeof(address), address);
 	if (tree) {
-		proto_tree_add_string(tree, hf_quake_CCREP_SERVER_INFO_address,
-			tvb, offset, len + 1, address);
-	}
-	offset += len + 1;
+		ti = proto_tree_add_item(tree,
+			hf_quake_CCREP_SERVER_INFO_address, tvb, offset, -1,
+			TRUE);
+		offset += proto_item_get_len(ti);
 
-	len = tvb_get_nstringz0(tvb, offset, sizeof(server), server);
-	if (tree) {
-		proto_tree_add_string(tree, hf_quake_CCREP_SERVER_INFO_server,
-			tvb, offset, len + 1, server);
-	}
-	offset += len + 1;
+		ti = proto_tree_add_item(tree,
+			hf_quake_CCREP_SERVER_INFO_server, tvb, offset, -1,
+			TRUE);
+		offset += proto_item_get_len(ti);
 
-	len = tvb_get_nstringz0(tvb, offset, sizeof(map), map);
-	if (tree) {
-		proto_tree_add_string(tree, hf_quake_CCREP_SERVER_INFO_map,
-			tvb, offset, len + 1, map);
-	}
-	offset += len + 1;
+		ti = proto_tree_add_item(tree, hf_quake_CCREP_SERVER_INFO_map,
+			tvb, offset, -1, TRUE);
+		offset += proto_item_get_len(ti);
 
-	num_player = tvb_get_guint8(tvb, offset + 0);
-	max_player = tvb_get_guint8(tvb, offset + 1);
-	version    = tvb_get_guint8(tvb, offset + 2);
-
-	if (tree) {
-		proto_tree_add_uint(tree, hf_quake_CCREP_SERVER_INFO_num_player,
-			tvb, offset + 0, 1, num_player);
-		proto_tree_add_uint(tree, hf_quake_CCREP_SERVER_INFO_max_player,
-			tvb, offset + 1, 1, max_player);
-		proto_tree_add_uint(tree, hf_quake_CCREQ_SERVER_INFO_version,
-			tvb, offset + 2, 1, version);
+		proto_tree_add_item(tree, hf_quake_CCREP_SERVER_INFO_num_player,
+			tvb, offset, 1, TRUE);
+		offset += 1;
+		proto_tree_add_item(tree, hf_quake_CCREP_SERVER_INFO_max_player,
+			tvb, offset, 1, TRUE);
+		offset += 1;
+		proto_tree_add_item(tree, hf_quake_CCREQ_SERVER_INFO_version,
+			tvb, offset, 1, TRUE);
 	}
 }
 
@@ -313,67 +284,50 @@ dissect_quake_CCREP_PLAYER_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
 	gint offset;
-	guint8 player;
-	gint len;
-	char name[QUAKE_MAXSTRING];
+	proto_item *ti;
 	guint32 colors;
 	guint32 color_shirt;
 	guint32 color_pants;
-	guint32 frags;
-	guint32 connect_time;
-	char address[QUAKE_MAXSTRING];
+	proto_item *colors_item;
+	proto_tree *colors_tree;
 
 	offset = 0;
 
-	player = tvb_get_guint8(tvb, offset);
 	if (tree) {
-		proto_tree_add_uint(tree, hf_quake_CCREQ_PLAYER_INFO_player,
-			tvb, offset, 1, player);
-	}
-	offset += 1;
+		proto_tree_add_item(tree, hf_quake_CCREQ_PLAYER_INFO_player,
+			tvb, offset, 1, TRUE);
+		offset += 1;
 
-	len = tvb_get_nstringz0(tvb, offset, sizeof(name), name);
-	if (tree) {
-		proto_tree_add_string(tree, hf_quake_CCREP_PLAYER_INFO_name,
-			tvb, offset, len + 1, name);
-	}
-	offset += len + 1;
+		ti = proto_tree_add_item(tree, hf_quake_CCREP_PLAYER_INFO_name,
+			tvb, offset, -1, TRUE);
+		offset += proto_item_get_len(ti);
 
-	colors       = tvb_get_letohl(tvb, offset + 0);
-	color_shirt = (colors >> 4) & 0x0f;
-	color_pants = (colors     ) & 0x0f;
-	frags        = tvb_get_letohl(tvb, offset + 4);
-	connect_time = tvb_get_letohl(tvb, offset + 8);
-	if (tree) {
-		proto_item *colors_item;
-		proto_tree *colors_tree;
+		colors       = tvb_get_letohl(tvb, offset + 0);
+		color_shirt = (colors >> 4) & 0x0f;
+		color_pants = (colors     ) & 0x0f;
 
 		colors_item = proto_tree_add_uint(tree,
 			hf_quake_CCREP_PLAYER_INFO_colors,
-			tvb, offset + 0, 4, colors);
-		if (colors_item) {
-			colors_tree = proto_item_add_subtree(colors_item,
-					ett_quake_control_colors);
-			proto_tree_add_uint(colors_tree,
-				hf_quake_CCREP_PLAYER_INFO_colors_shirt,
-				tvb, offset + 0, 1, color_shirt);
-			proto_tree_add_uint(colors_tree,
-				hf_quake_CCREP_PLAYER_INFO_colors_pants,
-				tvb, offset + 0, 1, color_pants);
-		}
-		proto_tree_add_uint(tree, hf_quake_CCREP_PLAYER_INFO_frags,
-			tvb, offset + 4, 4, frags);
-		proto_tree_add_uint(tree, hf_quake_CCREP_PLAYER_INFO_connect_time,
-			tvb, offset + 8, 4, connect_time);
-	}
-	offset += 3*4;
+			tvb, offset, 4, colors);
+		colors_tree = proto_item_add_subtree(colors_item,
+				ett_quake_control_colors);
+		proto_tree_add_uint(colors_tree,
+			hf_quake_CCREP_PLAYER_INFO_colors_shirt,
+			tvb, offset, 1, color_shirt);
+		proto_tree_add_uint(colors_tree,
+			hf_quake_CCREP_PLAYER_INFO_colors_pants,
+			tvb, offset, 1, color_pants);
+		offset += 4;
+		proto_tree_add_item(tree, hf_quake_CCREP_PLAYER_INFO_frags,
+			tvb, offset, 4, TRUE);
+		offset += 4;
+		proto_tree_add_item(tree, hf_quake_CCREP_PLAYER_INFO_connect_time,
+			tvb, offset, 4, TRUE);
+		offset += 4;
 
-	len = tvb_get_nstringz0(tvb, offset, sizeof(address), address);
-	if (tree) {
-		proto_tree_add_string(tree, hf_quake_CCREP_PLAYER_INFO_address,
-			tvb, offset, len + 1, address);
+		proto_tree_add_item(tree, hf_quake_CCREP_PLAYER_INFO_address,
+			tvb, offset, -1, TRUE);
 	}
-	offset += len + 1;
 }
 
 
@@ -381,28 +335,21 @@ static void
 dissect_quake_CCREP_RULE_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	char rule[QUAKE_MAXSTRING];
-	char value[QUAKE_MAXSTRING];
-	gint len;
 	gint offset;
+	proto_item *ti;
 
-	if (tvb_length(tvb) == 0) return;
+	if (tvb_reported_length(tvb) == 0) return;
 
 	offset = 0;
 
-	len = tvb_get_nstringz0(tvb, offset, sizeof(rule), rule);
 	if (tree) {
-		proto_tree_add_string(tree, hf_quake_CCREP_RULE_INFO_rule,
-			tvb, offset, len + 1, rule);
-	}
-	offset += len + 1;
+		ti = proto_tree_add_item(tree, hf_quake_CCREP_RULE_INFO_rule,
+			tvb, offset, -1, TRUE);
+		offset += proto_item_get_len(ti);
 
-	len = tvb_get_nstringz0(tvb, offset, sizeof(value), value);
-	if (tree) {
-		proto_tree_add_string(tree, hf_quake_CCREP_RULE_INFO_value,
-			tvb, offset, len + 1, value);
+		proto_tree_add_item(tree, hf_quake_CCREP_RULE_INFO_value,
+			tvb, offset, -1, TRUE);
 	}
-	offset += len + 1;
 }
 
 
@@ -608,7 +555,7 @@ proto_register_quake(void)
 	"Control Command", HFILL }},
     { &hf_quake_CCREQ_CONNECT_game,
       { "Game", "quake.control.connect.game",
-	FT_STRING, BASE_DEC, NULL, 0x0,
+	FT_STRINGZ, BASE_NONE, NULL, 0x0,
 	"Game Name", HFILL }},
     { &hf_quake_CCREQ_CONNECT_version,
       { "Version", "quake.control.connect.version",
@@ -616,7 +563,7 @@ proto_register_quake(void)
 	"Game Protocol Version Number", HFILL }},
     { &hf_quake_CCREQ_SERVER_INFO_game,
       { "Game", "quake.control.server_info.game",
-	FT_STRING, BASE_DEC, NULL, 0x0,
+	FT_STRINGZ, BASE_NONE, NULL, 0x0,
 	"Game Name", HFILL }},
     { &hf_quake_CCREQ_SERVER_INFO_version,
       { "Version", "quake.control.server_info.version",
@@ -628,7 +575,7 @@ proto_register_quake(void)
 	"Player", HFILL }},
     { &hf_quake_CCREQ_RULE_INFO_lastrule,
       { "Last Rule", "quake.control.rule_info.lastrule",
-	FT_STRING, BASE_DEC, NULL, 0x0,
+	FT_STRINGZ, BASE_NONE, NULL, 0x0,
 	"Last Rule Name", HFILL }},
     { &hf_quake_CCREP_ACCEPT_port,
       { "Port", "quake.control.accept.port",
@@ -636,19 +583,19 @@ proto_register_quake(void)
 	"Game Data Port", HFILL }},
     { &hf_quake_CCREP_REJECT_reason,
       { "Reason", "quake.control.reject.reason",
-	FT_STRING, BASE_DEC, NULL, 0x0,
+	FT_STRINGZ, BASE_NONE, NULL, 0x0,
 	"Reject Reason", HFILL }},
     { &hf_quake_CCREP_SERVER_INFO_address,
       { "Address", "quake.control.server_info.address",
-	FT_STRING, BASE_DEC, NULL, 0x0,
+	FT_STRINGZ, BASE_NONE, NULL, 0x0,
 	"Server Address", HFILL }},
     { &hf_quake_CCREP_SERVER_INFO_server,
       { "Server", "quake.control.server_info.server",
-	FT_STRING, BASE_DEC, NULL, 0x0,
+	FT_STRINGZ, BASE_NONE, NULL, 0x0,
 	"Server Name", HFILL }},
     { &hf_quake_CCREP_SERVER_INFO_map,
       { "Map", "quake.control.server_info.map",
-	FT_STRING, BASE_DEC, NULL, 0x0,
+	FT_STRINGZ, BASE_NONE, NULL, 0x0,
 	"Map Name", HFILL }},
     { &hf_quake_CCREP_SERVER_INFO_num_player,
       { "Number of Players", "quake.control.server_info.num_player",
@@ -660,7 +607,7 @@ proto_register_quake(void)
 	"Maximal Number of Players", HFILL }},
     { &hf_quake_CCREP_PLAYER_INFO_name,
       { "Name", "quake.control.player_info.name",
-	FT_STRING, BASE_DEC, NULL, 0x0,
+	FT_STRINGZ, BASE_NONE, NULL, 0x0,
 	"Player Name", HFILL }},
     { &hf_quake_CCREP_PLAYER_INFO_colors,
       { "Colors", "quake.control.player_info.colors",
@@ -684,15 +631,15 @@ proto_register_quake(void)
 	"Player Connect Time", HFILL }},
     { &hf_quake_CCREP_PLAYER_INFO_address,
       { "Address", "quake.control.player_info.address",
-	FT_STRING, BASE_DEC, NULL, 0x0,
+	FT_STRINGZ, BASE_NONE, NULL, 0x0,
 	"Player Address", HFILL }},
     { &hf_quake_CCREP_RULE_INFO_rule,
       { "Rule", "quake.control.rule_info.rule",
-	FT_STRING, BASE_DEC, NULL, 0x0,
+	FT_STRINGZ, BASE_NONE, NULL, 0x0,
 	"Rule Name", HFILL }},
     { &hf_quake_CCREP_RULE_INFO_value,
       { "Value", "quake.control.rule_info.value",
-	FT_STRING, BASE_DEC, NULL, 0x0,
+	FT_STRINGZ, BASE_NONE, NULL, 0x0,
 	"Rule Value", HFILL }},
   };
 	static gint *ett[] = {

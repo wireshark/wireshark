@@ -1,7 +1,8 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
+ * RFC 1661, RFC 1662
  *
- * $Id: packet-ppp.c,v 1.111 2003/05/19 03:23:11 gerald Exp $
+ * $Id: packet-ppp.c,v 1.112 2003/06/12 08:33:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -295,7 +296,7 @@ const value_string ppp_vals[] = {
 	{PPP_SPAP,	"Shiva Password Authentication Protocol" },
 	{PPP_CBCP,	"Callback Control Protocol" },
 	{PPP_BACP,	"Bandwidth Allocation Control Protocol" },
-	{PPP_BAP,	"Bandwitdh Allocation Protocol" },
+	{PPP_BAP,	"Bandwidth Allocation Protocol" },
 	{PPP_CONTCP,	"Container Control Protocol" },
 	{PPP_CHAP,	"Challenge Handshake Authentication Protocol" },
 	{PPP_RSAAP,	"RSA Authentication Protocol" },
@@ -2095,9 +2096,7 @@ dissect_cbcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   proto_item *ta;
   proto_tree *addr_tree;
   guint8 addr_type;
-  gint addr_len;
-  guint8 buf[256];	/* Since length field in Callback Conf Option is
-			   8 bits, 256-octet buf is large enough. */
+  guint addr_len;
 
   tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
@@ -2117,9 +2116,12 @@ dissect_cbcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 			((addr_type == 1) ? "PSTN/ISDN" : "Other"), addr_type);
     offset++;
     length--;
-    addr_len = tvb_get_nstringz0(tvb, offset, sizeof(buf), buf);
-    proto_tree_add_text(addr_tree, tvb, offset, addr_len + 1,
-			"Address: %s", buf);
+    addr_len = tvb_strsize(tvb, offset);
+    proto_tree_add_text(addr_tree, tvb, offset, addr_len,
+			"Address: %s",
+			addr_len == 1 ?
+			  "" :
+			  tvb_format_text(tvb, offset, addr_len - 1));
     offset += (addr_len + 1);
     length -= (addr_len + 1);
   }
@@ -2171,8 +2173,6 @@ dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   proto_tree *suboption_tree;
   guint8 subopt_type;
   guint8 subopt_len;
-  guint8 buf[256];	/* Since Sub-Option length field in BAP Phone-Delta
-			   Option is 8 bits, 256-octets buf is large enough */
 
   tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
@@ -2203,9 +2203,9 @@ dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
       break;
     case BAP_PHONE_DELTA_SUBOPT_SUBSC_NUM:
       if (subopt_len > 2) {
-        tvb_get_nstringz0(tvb, offset + 2, subopt_len - 2, buf);
         proto_tree_add_text(suboption_tree, tvb, offset + 2, subopt_len - 2,
-			  "Subscriber Number: %s", buf);
+			  "Subscriber Number: %s",
+			  tvb_format_text(tvb, offset + 2, subopt_len - 2));
       } else {
         proto_tree_add_text(suboption_tree, tvb, offset + 1, 1,
 			  "Invalid suboption length: %u", subopt_len);
@@ -2213,9 +2213,9 @@ dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
       break;
     case BAP_PHONE_DELTA_SUBOPT_PHONENUM_SUBADDR:
       if (subopt_len > 2) {
-        tvb_get_nstringz0(tvb, offset + 2, subopt_len - 2, buf);
         proto_tree_add_text(suboption_tree, tvb, offset + 2, subopt_len - 2,
-			  "Phone Number Sub Address: %s", buf);
+			  "Phone Number Sub Address: %s",
+			  tvb_format_text(tvb, offset + 2, subopt_len - 2));
       }
       break;
     default:
@@ -2233,13 +2233,10 @@ dissect_bap_reason_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
-  guint8 buf[256];	/* Since length field in BAP Reason Option is
-			   8 bits, 256-octets buf is large enough */
-
   if (length > 2) {
-    tvb_get_nstringz0(tvb, offset + 2, length - 2, buf);
     proto_tree_add_text(tree, tvb, offset, length, "%s: %s",
-			   optp->name, buf);
+			   optp->name,
+			   tvb_format_text(tvb, offset + 2, length - 2));
   }
 }
 
@@ -2474,6 +2471,9 @@ dissect_lcp_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             -1, pinfo, tree);
 }
 
+/*
+ * RFC 1661.
+ */
 static void
 dissect_lcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2481,6 +2481,9 @@ dissect_lcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     lcp_opts, N_LCP_OPTS, pinfo, tree);
 }
 
+/*
+ * RFC 1332.
+ */
 static void
 dissect_ipcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2488,6 +2491,9 @@ dissect_ipcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     ipcp_opts, N_IPCP_OPTS, pinfo, tree);
 }
 
+/*
+ * RFC 1962.
+ */
 static void
 dissect_ccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2495,6 +2501,11 @@ dissect_ccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     ccp_opts, N_CCP_OPTS, pinfo, tree);
 }
 
+/*
+ * Callback Control Protocol - see
+ *
+ *	http://www.linet.gr.jp/~manabe/PPxP/doc/Standards/draft-gidwani-ppp-callback-cp-00.txt
+ */
 static void
 dissect_cbcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2502,6 +2513,9 @@ dissect_cbcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     cbcp_opts, N_CBCP_OPTS, pinfo, tree);
 }
 
+/*
+ * RFC 2125 (BACP and BAP).
+ */
 static void
 dissect_bacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2512,7 +2526,6 @@ dissect_bacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_bap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-
   proto_item *ti;
   proto_tree *fh_tree = NULL;
   proto_item *tf;
@@ -2590,6 +2603,9 @@ dissect_comp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
+/*
+ * RFC 3153 (both PPPMuxCP and PPPMux).
+ */
 static void
 dissect_pppmuxcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2697,6 +2713,9 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } /* if tree */
 }
 
+/*
+ * RFC 3032.
+ */
 static void
 dissect_mplscp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2704,6 +2723,10 @@ dissect_mplscp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     NULL, 0, pinfo, tree);
 }
 
+/*
+ * Cisco Discovery Protocol Control Protocol.
+ * XXX - where is this documented?
+ */
 static void
 dissect_cdpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -3193,6 +3216,9 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   }
 }
 
+/*
+ * RFC 2472.
+ */
 static void
 dissect_ipv6cp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {

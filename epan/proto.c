@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.92 2003/06/11 21:48:39 guy Exp $
+ * $Id: proto.c,v 1.93 2003/06/12 08:33:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -711,7 +711,8 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 					/* This can throw an exception */
 					length = tvb_strsize(tvb, start);
 
-					/* This g_strdup'ed memory is freed in proto_tree_free_node() */
+					/* This g_malloc'ed memory is freed
+					   in proto_tree_free_node() */
 					string = g_malloc(length);
 
 					tvb_memcpy(tvb, string, start, length);
@@ -750,16 +751,10 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 					 * rather than null-terminated.)
 					 */
 
-					/* This g_strdup'ed memory is freed
+					/* This g_malloc'ed memory is freed
 					 * in proto_tree_free_node() */
-					string = g_malloc(length + 1);
-
-					CLEANUP_PUSH(g_free, string);
-
-					tvb_memcpy(tvb, string, start, length);
-					string[length] = '\0';
-
-					CLEANUP_POP;
+					string = tvb_get_string(tvb, start,
+					    length);
 					new_fi->length = length;
 				}
 				proto_tree_set_string(new_fi, string, TRUE);
