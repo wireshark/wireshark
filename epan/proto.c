@@ -2121,9 +2121,12 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 			 * Ethereal, we don't highlight stuff past
 			 * the end of the data.
 			 */
-			length_remaining = tvb_length_remaining(tvb, start);
-			if (item_length < 0 || length_remaining < item_length)
-				item_length = length_remaining;
+            /* XXX - what to do, if we don't have a tvb? */
+            if(tvb) {
+			    length_remaining = tvb_length_remaining(tvb, start);
+			    if (item_length < 0 || length_remaining < item_length)
+				    item_length = length_remaining;
+            }
 		}
 		if (item_length < 0) {
 			REPORT_DISSECTOR_BUG(g_strdup_printf("\"%s\" - \"%s\" invalid length: %d (%s:%u)",
