@@ -35,11 +35,16 @@ TODO
    NTTIME_hyper A 64 bit integer representing a NTTIME
    NTTIME_1sec
 
+   unistr       A conformant and varying unicode string
 
+   ascstr       A conformant and varying ascii string
+
+
+   SID          A SID structure.
+
+
+   policy_handle
    bool8
-
-   unistr
-   ascstr
    GUID
    uuid_t
    policy_handle
@@ -1248,6 +1253,22 @@ find_type(char *name)
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
 			tmptype=register_new_type("time_t", dissectorname, "FT_ABSOLUTE_TIME", "BASE_DEC", "0", "NULL", 4);
+		} else if(!strcmp(name,"SID")){
+			sprintf(dissectorname, "%s_dissect_%s", ifname, name);
+			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
+			FPRINTF(eth_code, "\n");
+			FPRINTF(eth_code, "static int\n");
+			FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param)\n", dissectorname);
+			FPRINTF(eth_code, "{\n");
+			FPRINTF(eth_code, "    dcerpc_info *di = (dcerpc_info *)pinfo->private_data;\n");
+			FPRINTF(eth_code, "\n");
+			FPRINTF(eth_code, "    di->hf_index=hf_index;\n");
+
+			FPRINTF(eth_code, "    offset=dissect_ndr_nt_SID_with_options(tvb, offset, pinfo, tree, drep, param);\n");
+			FPRINTF(eth_code, "    return offset;\n");
+			FPRINTF(eth_code, "}\n");
+			FPRINTF(eth_code, "\n");
+			tmptype=register_new_type("SID", dissectorname, "FT_STRING", "BASE_DEC", "0", "NULL", 4);
 		} else if(!strcmp(name,"WERROR")){
 			sprintf(dissectorname, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
@@ -1519,7 +1540,7 @@ void parsetypedefstruct(int pass)
 				alignment=4;
 			}
 		}
-		/* now that we know how many real poitner there were we must
+		/* now that we know how many real pointers there were we must
 		   prepend default pointers to the list so it has the right
 		   length.
 		*/
@@ -1548,9 +1569,7 @@ void parsetypedefstruct(int pass)
 				/* this is just a normal [] array */
 				fixed_array_size=0;
 			} else if(!strcmp("*", ti->str)){
-				if(bi && !(bi->flags|BI_POINTER)){
-					pi=prepend_pointer_list(pi, 1);
-				}
+				pi=prepend_pointer_list(pi, num_pointers+1);
 				fixed_array_size=0;
 				is_array_of_pointers=1;
 				ti=ti->next;

@@ -7,7 +7,7 @@
 /* packet-dcerpc-efs.h
  * Routines for EFS packet disassembly
  *
- * $Id$
+ * $Id: packet-dcerpc-efs.h 11410 2004-07-18 18:06:47Z gram $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,16 +31,6 @@
 #ifndef __PACKET_DCERPC_EFS_H
 #define __PACKET_DCERPC_EFS_H
 
-
-
-/* INCLUDED FILE : ETH_HDR */
-int efs_dissect_EFS_HASH_BLOB(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
-int efs_dissect_ENCRYPTION_CERTIFICATE_HASH(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
-int efs_dissect_ENCRYPTION_CERTIFICATE_HASH_LIST(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
-int efs_dissect_EFS_CERTIFICATE_BLOB(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
-int efs_dissect_ENCRYPTION_CERTIFICATE(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
-/* END OF INCLUDED FILE : ETH_HDR */
-
-
+ETH_HDR
 
 #endif /* packet-dcerpc-efs.h */
