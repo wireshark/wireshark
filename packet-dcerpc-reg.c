@@ -2,7 +2,7 @@
  * Routines for SMB \\PIPE\\winreg packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.c,v 1.4 2002/05/31 00:31:13 tpot Exp $
+ * $Id: packet-dcerpc-reg.c,v 1.5 2002/06/21 04:59:04 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,33 +61,33 @@ static e_uuid_t uuid_dcerpc_reg = {
 static guint16 ver_dcerpc_reg = 1;
 
 static dcerpc_sub_dissector dcerpc_reg_dissectors[] = {
-        { REG_OPEN_HKCR, "REG_OPEN_HKCR", NULL, NULL },
-        { _REG_UNK_01, "_REG_UNK_01", NULL, NULL },
-        { REG_OPEN_HKLM, "REG_OPEN_HKLM", NULL, NULL },
-        { _REG_UNK_03, "_REG_UNK_03", NULL, NULL },
-        { REG_OPEN_HKU, "REG_OPEN_HKU", NULL, NULL },
-        { REG_CLOSE, "REG_CLOSE", NULL, NULL },
-        { REG_CREATE_KEY, "REG_CREATE_KEY", NULL, NULL },
-        { REG_DELETE_KEY, "REG_DELETE_KEY", NULL, NULL },
-        { REG_DELETE_VALUE, "REG_DELETE_VALUE", NULL, NULL },
-        { REG_ENUM_KEY, "REG_ENUM_KEY", NULL, NULL },
-        { REG_ENUM_VALUE, "REG_ENUM_VALUE", NULL, NULL },
-        { REG_FLUSH_KEY, "REG_FLUSH_KEY", NULL, NULL },
-        { REG_GET_KEY_SEC, "REG_GET_KEY_SEC", NULL, NULL },
-        { _REG_UNK_0D, "_REG_UNK_0D", NULL, NULL },
-        { _REG_UNK_0E, "_REG_UNK_0E", NULL, NULL },
-        { REG_OPEN_ENTRY, "REG_OPEN_ENTRY", NULL, NULL },
-        { REG_QUERY_KEY, "REG_QUERY_KEY", NULL, NULL },
-        { REG_INFO, "REG_INFO", NULL, NULL },
-        { _REG_UNK_12, "_REG_UNK_12", NULL, NULL },
-        { _REG_UNK_13, "_REG_UNK_13", NULL, NULL },
-        { _REG_UNK_14, "_REG_UNK_14", NULL, NULL },
-        { REG_SET_KEY_SEC, "REG_SET_KEY_SEC", NULL, NULL },
-        { REG_CREATE_VALUE, "REG_CREATE_VALUE", NULL, NULL },
-        { _REG_UNK_17, "_REG_UNK_17", NULL, NULL },
-        { REG_SHUTDOWN, "REG_SHUTDOWN", NULL, NULL },
-        { REG_ABORT_SHUTDOWN, "REG_ABORT_SHUTDOWN", NULL, NULL },
-        { REG_UNK_1A, "REG_UNK_1A", NULL, NULL },
+        { REG_OPEN_HKCR, "OpenHKCR", NULL, NULL },
+        { _REG_UNK_01, "Unknown01", NULL, NULL },
+        { REG_OPEN_HKLM, "OpenHKLM", NULL, NULL },
+        { _REG_UNK_03, "Unknown03", NULL, NULL },
+        { REG_OPEN_HKU, "OpenHKU", NULL, NULL },
+        { REG_CLOSE, "Close", NULL, NULL },
+        { REG_CREATE_KEY, "CreateKey", NULL, NULL },
+        { REG_DELETE_KEY, "DeleteKey", NULL, NULL },
+        { REG_DELETE_VALUE, "DeleteValue", NULL, NULL },
+        { REG_ENUM_KEY, "EnumKey", NULL, NULL },
+        { REG_ENUM_VALUE, "EnumValue", NULL, NULL },
+        { REG_FLUSH_KEY, "FlushKey", NULL, NULL },
+        { REG_GET_KEY_SEC, "GetKeySecurity", NULL, NULL },
+        { _REG_UNK_0D, "Unknown0d", NULL, NULL },
+        { _REG_UNK_0E, "Unknown0e", NULL, NULL },
+        { REG_OPEN_ENTRY, "OpenEntry", NULL, NULL },
+        { REG_QUERY_KEY, "QueryKey", NULL, NULL },
+        { REG_INFO, "Info", NULL, NULL },
+        { _REG_UNK_12, "Unknown12", NULL, NULL },
+        { _REG_UNK_13, "Unknown13", NULL, NULL },
+        { _REG_UNK_14, "Unknown14", NULL, NULL },
+        { REG_SET_KEY_SEC, "SetKeySecurity", NULL, NULL },
+        { REG_CREATE_VALUE, "CreateValue", NULL, NULL },
+        { _REG_UNK_17, "Unknown17", NULL, NULL },
+        { REG_SHUTDOWN, "Shutdown", NULL, NULL },
+        { REG_ABORT_SHUTDOWN, "AbortShutdown", NULL, NULL },
+        { REG_UNK_1A, "Unknown1A", NULL, NULL },
 
         { 0, NULL, NULL,  NULL }
 };
