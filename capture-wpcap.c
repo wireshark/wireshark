@@ -69,6 +69,12 @@ static int     (*p_pcap_loop) (pcap_t *, int, pcap_handler, guchar *);
 static int     (*p_pcap_findalldevs) (pcap_if_t **, char *);
 static void    (*p_pcap_freealldevs) (pcap_if_t *);
 #endif
+#ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
+static const char *(*p_pcap_datalink_name_to_val) (int);
+#endif
+#ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
+static const char *(*p_pcap_datalink_val_to_name) (int);
+#endif
 static const char *(*p_pcap_lib_version) (void);
 static int     (*p_pcap_setbuff) (pcap_t *, int dim);
 
@@ -101,6 +107,12 @@ load_wpcap(void)
 #ifdef HAVE_PCAP_FINDALLDEVS
 		SYM(pcap_findalldevs, TRUE),
 		SYM(pcap_freealldevs, TRUE),
+#endif
+#ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
+		SYM(pcap_datalink_name_to_val, TRUE),
+#endif
+#ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
+		SYM(pcap_datalink_val_to_name, TRUE),
 #endif
 		SYM(pcap_lib_version, TRUE),
 		SYM(pcap_setbuff, TRUE),
@@ -247,6 +259,24 @@ pcap_freealldevs(pcap_if_t *a)
 {
 	g_assert(has_wpcap && p_pcap_freealldevs != NULL);
 	p_pcap_freealldevs(a);
+}
+#endif
+
+#ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
+int
+pcap_datalink_name_to_val(const char *name)
+{
+	g_assert(has_wpcap && p_pcap_datalink_name_to_val != NULL);
+	return p_pcap_datalink_name_to_val(dlt);
+}
+#endif
+
+#ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
+const char *
+pcap_datalink_val_to_name(int dlt)
+{
+	g_assert(has_wpcap && p_pcap_datalink_val_to_name != NULL);
+	return p_pcap_datalink_val_to_name(dlt);
 }
 #endif
 
