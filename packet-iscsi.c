@@ -4,7 +4,7 @@
  *
  * Conforms to the protocol described in: draft-ietf-ips-iscsi-08.txt
  *
- * $Id: packet-iscsi.c,v 1.19 2002/01/10 01:28:43 guy Exp $
+ * $Id: packet-iscsi.c,v 1.20 2002/01/16 20:25:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -669,6 +669,9 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     conversation_t *conversation = NULL;
     iscsi_conv_data_t *cdata = NULL;
     iscsi_conv_key_t ckey, *req_key;
+    int paddedDataSegmentLength = data_segment_len;
+    if(paddedDataSegmentLength & 3)
+	paddedDataSegmentLength += 4 - (paddedDataSegmentLength & 3);
 
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -861,6 +864,9 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_ExpDataSN, tvb, offset + 36, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_SCSIResponse_BidiReadResidualCount, tvb, offset + 44, 4, FALSE);
 	    offset = handleHeaderDigest(ti, tvb, offset, 48);
+	    /* do not update offset here because the data segment is
+	     * dissected below */
+	    handleDataDigest(ti, tvb, offset, paddedDataSegmentLength);
 	}
 	else if(opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION) {
 	    /* Task Management Function */
@@ -1003,6 +1009,9 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_DataSN, tvb, offset + 36, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_BufferOffset, tvb, offset + 40, 4, FALSE);
 	    offset = handleHeaderDigest(ti, tvb, offset, 48);
+	    /* do not update offset here because the data segment is
+	     * dissected below */
+	    handleDataDigest(ti, tvb, offset, paddedDataSegmentLength);
 	}
 	else if(opcode == ISCSI_OPCODE_SCSI_DATA_IN) {
 	    /* SCSI Data In (read) */
@@ -1026,6 +1035,9 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_DataSN, tvb, offset + 36, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_BufferOffset, tvb, offset + 40, 4, FALSE);
 	    offset = handleHeaderDigest(ti, tvb, offset, 48);
+	    /* do not update offset here because the data segment is
+	     * dissected below */
+	    handleDataDigest(ti, tvb, offset, paddedDataSegmentLength);
 	}
 	else if(opcode == ISCSI_OPCODE_LOGOUT_COMMAND) {
 	    /* Logout Command */

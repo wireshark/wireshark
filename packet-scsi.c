@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.1 2002/01/10 01:28:43 guy Exp $
+ * $Id: packet-scsi.c,v 1.2 2002/01/16 20:25:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2055,7 +2055,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tree) {
         if (cmd == SCSI_CMND_SPC2) {
             ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, offset,
-                                                 tvb_length (tvb),
+                                                 payload_len,
                                                  "SCSI Payload (%s %s)",
                                                  val_to_str (opcode,
                                                              scsi_spc2_val,
@@ -2064,7 +2064,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         else if (cmd == SCSI_CMND_SBC2) {
             ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, offset,
-                                                 tvb_length (tvb),
+                                                 payload_len,
                                                  "SCSI Payload (%s %s)",
                                                  val_to_str (opcode,
                                                              scsi_sbc2_val,
@@ -2073,7 +2073,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         else {
             ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, offset,
-                                                 tvb_length (tvb),
+                                                 payload_len,
                                                  "SCSI Payload (0x%02x %s)",
                                                  opcode,
                                                  isreq ? "Request" : "Response");
