@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.80 2003/11/03 10:16:00 guy Exp $
+ * $Id: packet-wsp.c,v 1.81 2003/11/04 19:47:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,12 +58,15 @@
 #include "tap.h"
 static int wsp_tap = -1;
 
+
 /* File scoped variables for the protocol and registered fields */
 static int proto_wsp 					= HF_EMPTY;
 
-/* These fields used by fixed part of header */
+/*
+ * Initialize the header field pointers
+ */
 
-/* WSP header fields */
+/* WSP header fields and their subfields if available */
 static int hf_hdr_name					= HF_EMPTY;
 static int hf_hdr_id					= HF_EMPTY;
 static int hf_hdr_accept				= HF_EMPTY;
@@ -74,6 +77,9 @@ static int hf_hdr_accept_ranges			= HF_EMPTY;
 static int hf_hdr_age					= HF_EMPTY;
 static int hf_hdr_allow					= HF_EMPTY;
 static int hf_hdr_authorization			= HF_EMPTY;
+static int hf_hdr_authorization_scheme			= HF_EMPTY; /* Subfield */
+static int hf_hdr_authorization_user_id			= HF_EMPTY; /* Subfield */
+static int hf_hdr_authorization_password		= HF_EMPTY; /* Subfield */
 static int hf_hdr_cache_control			= HF_EMPTY;
 static int hf_hdr_connection			= HF_EMPTY;
 static int hf_hdr_content_encoding		= HF_EMPTY;
@@ -98,7 +104,12 @@ static int hf_hdr_location				= HF_EMPTY;
 static int hf_hdr_max_forwards			= HF_EMPTY;
 static int hf_hdr_pragma				= HF_EMPTY;
 static int hf_hdr_proxy_authenticate	= HF_EMPTY;
+static int hf_hdr_proxy_authenticate_scheme		= HF_EMPTY; /* Subfield */
+static int hf_hdr_proxy_authenticate_realm		= HF_EMPTY; /* Subfield */
 static int hf_hdr_proxy_authorization	= HF_EMPTY;
+static int hf_hdr_proxy_authorization_scheme	= HF_EMPTY; /* Subfield */
+static int hf_hdr_proxy_authorization_user_id	= HF_EMPTY; /* Subfield */
+static int hf_hdr_proxy_authorization_password	= HF_EMPTY; /* Subfield */
 static int hf_hdr_public				= HF_EMPTY;
 static int hf_hdr_range					= HF_EMPTY;
 static int hf_hdr_referer				= HF_EMPTY;
@@ -110,13 +121,21 @@ static int hf_hdr_user_agent			= HF_EMPTY;
 static int hf_hdr_vary					= HF_EMPTY;
 static int hf_hdr_via					= HF_EMPTY;
 static int hf_hdr_warning				= HF_EMPTY;
+static int hf_hdr_warning_code					= HF_EMPTY; /* Subfield */
+static int hf_hdr_warning_agent					= HF_EMPTY; /* Subfield */
+static int hf_hdr_warning_text					= HF_EMPTY; /* Subfield */
 static int hf_hdr_www_authenticate		= HF_EMPTY;
+static int hf_hdr_www_authenticate_scheme		= HF_EMPTY; /* Subfield */
+static int hf_hdr_www_authenticate_realm		= HF_EMPTY; /* Subfield */
 static int hf_hdr_content_disposition	= HF_EMPTY;
 static int hf_hdr_application_id		= HF_EMPTY;
 static int hf_hdr_content_uri			= HF_EMPTY;
 static int hf_hdr_initiator_uri			= HF_EMPTY;
 static int hf_hdr_bearer_indication		= HF_EMPTY;
 static int hf_hdr_push_flag				= HF_EMPTY;
+static int hf_hdr_push_flag_auth				= HF_EMPTY; /* Subfield */
+static int hf_hdr_push_flag_trust				= HF_EMPTY; /* Subfield */
+static int hf_hdr_push_flag_last				= HF_EMPTY; /* Subfield */
 static int hf_hdr_profile				= HF_EMPTY;
 static int hf_hdr_profile_diff			= HF_EMPTY;
 static int hf_hdr_profile_warning		= HF_EMPTY;
@@ -131,19 +150,6 @@ static int hf_hdr_encoding_version		= HF_EMPTY;
 static int hf_hdr_x_wap_security		= HF_EMPTY;
 static int hf_hdr_x_wap_application_id	= HF_EMPTY;
 static int hf_hdr_accept_application	= HF_EMPTY;
-
-/* For Authorization and Proxy-Authorization */
-static int hf_hdr_authorization_scheme			= HF_EMPTY;
-static int hf_hdr_authorization_user_id			= HF_EMPTY;
-static int hf_hdr_authorization_password		= HF_EMPTY;
-static int hf_hdr_proxy_authorization_scheme	= HF_EMPTY;
-static int hf_hdr_proxy_authorization_user_id	= HF_EMPTY;
-static int hf_hdr_proxy_authorization_password	= HF_EMPTY;
-
-/* Push-specific WSP headers */
-static int hf_hdr_push_flag_auth				= HF_EMPTY;
-static int hf_hdr_push_flag_trust				= HF_EMPTY;
-static int hf_hdr_push_flag_last				= HF_EMPTY;
 
 
 /* Openwave headers */
@@ -242,109 +248,10 @@ static int hf_wsp_push_data				= HF_EMPTY;
 static int hf_wsp_multipart_data			= HF_EMPTY;
 static int hf_wsp_mpart					= HF_EMPTY;
 
-
-
+/* Header code page shift sequence */
 static int hf_wsp_header_shift_code			= HF_EMPTY;
 
-#if 0
-
-static int hf_wsp_header_accept				= HF_EMPTY;
-static int hf_wsp_header_accept_str			= HF_EMPTY;
-static int hf_wsp_header_accept_application		= HF_EMPTY;
-static int hf_wsp_header_accept_application_str		= HF_EMPTY;
-static int hf_wsp_header_accept_charset			= HF_EMPTY;
-static int hf_wsp_header_accept_charset_str		= HF_EMPTY;
-static int hf_wsp_header_accept_language		= HF_EMPTY;
-static int hf_wsp_header_accept_language_str		= HF_EMPTY;
-static int hf_wsp_header_accept_ranges			= HF_EMPTY;
-static int hf_wsp_header_accept_ranges_str		= HF_EMPTY;
-static int hf_wsp_header_cache_control			= HF_EMPTY;
-static int hf_wsp_header_cache_control_str		= HF_EMPTY;
-static int hf_wsp_header_cache_control_field_name	= HF_EMPTY;
-static int hf_wsp_header_connection			= HF_EMPTY;
-static int hf_wsp_header_connection_str			= HF_EMPTY;
-static int hf_wsp_header_cache_control_field_name_str	= HF_EMPTY;
-static int hf_wsp_header_content_length			= HF_EMPTY;
-static int hf_wsp_header_age				= HF_EMPTY;
-static int hf_wsp_header_bearer_indication		= HF_EMPTY;
-static int hf_wsp_header_date				= HF_EMPTY;
-static int hf_wsp_header_etag				= HF_EMPTY;
-static int hf_wsp_header_expires			= HF_EMPTY;
-static int hf_wsp_header_last_modified			= HF_EMPTY;
-static int hf_wsp_header_location			= HF_EMPTY;
-static int hf_wsp_header_if_modified_since		= HF_EMPTY;
-static int hf_wsp_header_profile			= HF_EMPTY;
-static int hf_wsp_header_pragma				= HF_EMPTY;
-static int hf_wsp_header_proxy_authenticate				= HF_EMPTY;
-static int hf_wsp_header_www_authenticate				= HF_EMPTY;
-static int hf_wsp_header_proxy_authorization			= HF_EMPTY;
-static int hf_wsp_header_proxy_authorization_scheme		= HF_EMPTY;
-static int hf_wsp_header_proxy_authorization_user_id	= HF_EMPTY;
-static int hf_wsp_header_proxy_authorization_password	= HF_EMPTY;
-static int hf_wsp_header_authorization					= HF_EMPTY;
-static int hf_wsp_header_authorization_scheme			= HF_EMPTY;
-static int hf_wsp_header_authorization_user_id			= HF_EMPTY;
-static int hf_wsp_header_authorization_password			= HF_EMPTY;
-static int hf_wsp_header_server				= HF_EMPTY;
-static int hf_wsp_header_user_agent			= HF_EMPTY;
-static int hf_wsp_header_warning			= HF_EMPTY;
-static int hf_wsp_header_warning_code			= HF_EMPTY;
-static int hf_wsp_header_warning_agent			= HF_EMPTY;
-static int hf_wsp_header_warning_text			= HF_EMPTY;
-static int hf_wsp_header_application_header		= HF_EMPTY;
-static int hf_wsp_header_application_value		= HF_EMPTY;
-static int hf_wsp_header_x_wap_tod			= HF_EMPTY;
-static int hf_wsp_header_content_ID			= HF_EMPTY;
-static int hf_wsp_header_transfer_encoding		= HF_EMPTY;
-static int hf_wsp_header_transfer_encoding_str		= HF_EMPTY;
-static int hf_wsp_header_via				= HF_EMPTY;
-static int hf_wsp_header_wap_application_id		= HF_EMPTY;
-static int hf_wsp_header_wap_application_id_str		= HF_EMPTY;
-
-static int hf_wsp_header_vary_well_known		= HF_EMPTY;
-static int hf_wsp_header_vary_str		= HF_EMPTY;
-
-/* Push-specific WSP headers */
-static int hf_wsp_header_push_flag			= HF_EMPTY;
-static int hf_wsp_header_push_flag_auth		= HF_EMPTY;
-static int hf_wsp_header_push_flag_trust	= HF_EMPTY;
-static int hf_wsp_header_push_flag_last		= HF_EMPTY;
-
-/* Openwave-specific WSP headers */
-static int hf_wsp_header_openwave_proxy_push_addr	= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_push_accept	= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_push_seq	= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_notify		= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_operator_domain	= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_home_page	= HF_EMPTY;
-static int hf_wsp_header_openwave_devcap_has_color	= HF_EMPTY;
-static int hf_wsp_header_openwave_devcap_num_softkeys	= HF_EMPTY;
-static int hf_wsp_header_openwave_devcap_softkey_size	= HF_EMPTY;
-static int hf_wsp_header_openwave_devcap_screen_chars	= HF_EMPTY;
-static int hf_wsp_header_openwave_devcap_screen_pixels	= HF_EMPTY;
-static int hf_wsp_header_openwave_devcap_em_size	= HF_EMPTY;
-static int hf_wsp_header_openwave_devcap_screen_depth	= HF_EMPTY;
-static int hf_wsp_header_openwave_devcap_immed_alert	= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_net_ask		= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_uplink_version	= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_tod		= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_ba_enable	= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_ba_realm	= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_redirect_enable	= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_request_uri	= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_redirect_status	= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_trans_charset	= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_trans_charset_str	= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_linger		= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_client_id	= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_enable_trust	= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_trust_old	= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_trust		= HF_EMPTY;
-static int hf_wsp_header_openwave_proxy_bookmark	= HF_EMPTY;
-static int hf_wsp_header_openwave_devcap_gui		= HF_EMPTY;
-
-#endif
-
+/* WSP Redirect fields */
 static int hf_wsp_redirect_flags			= HF_EMPTY;
 static int hf_wsp_redirect_permanent			= HF_EMPTY;
 static int hf_wsp_redirect_reuse_security_session	= HF_EMPTY;
@@ -358,31 +265,24 @@ static int hf_wsp_redirect_ipv4_addr			= HF_EMPTY;
 static int hf_wsp_redirect_ipv6_addr			= HF_EMPTY;
 static int hf_wsp_redirect_addr				= HF_EMPTY;
 
-/* Initialize the subtree pointers */
+/*
+ * Initialize the subtree pointers
+ */
+
+/* WSP tree */
 static gint ett_wsp 					= ETT_EMPTY;
-static gint ett_content_type_parameters			= ETT_EMPTY;
+/* WSP headers tree */
 static gint ett_header 					= ETT_EMPTY;
+/* WSP header subtree */
 static gint ett_headers					= ETT_EMPTY;
-static gint ett_header_warning				= ETT_EMPTY;
-static gint ett_header_cache_control_parameters		= ETT_EMPTY;
-static gint ett_header_cache_control_field_names	= ETT_EMPTY;
-static gint ett_capabilities				= ETT_EMPTY;
+/* CO-WSP session capabilities */
+static gint ett_capabilities			= ETT_EMPTY;
 static gint ett_post					= ETT_EMPTY;
-static gint ett_content_type				= ETT_EMPTY;
-static gint ett_redirect_flags				= ETT_EMPTY;
-static gint ett_redirect_afl				= ETT_EMPTY;
+static gint ett_redirect_flags			= ETT_EMPTY;
+static gint ett_redirect_afl			= ETT_EMPTY;
 static gint ett_multiparts				= ETT_EMPTY;
 static gint ett_mpartlist				= ETT_EMPTY;
-static gint ett_header_credentials			= ETT_EMPTY;
-static gint ett_push_flags			= ETT_EMPTY;
-static gint ett_parameters			= ETT_EMPTY;
 
-/* Authorization, Proxy-Authorization */
-static gint ett_authorization	= ETT_EMPTY;
-/* WWW-Authenticate, Proxy-Authenticate */
-static gint ett_authenticate	= ETT_EMPTY;
-/* Warning */
-static gint ett_warning			= ETT_EMPTY;
 
 
 /* Handle for WSP-over-UDP dissector */
@@ -1062,11 +962,6 @@ static const value_string vals_languages[] = {
 	{ 0x00, NULL }
 };
 
-static const value_string vals_accept_ranges[] = {
-	{ 0x00, "none" },
-	{ 0x01, "bytes" },
-	{ 0x00, NULL }
-};
 
 #define CACHE_CONTROL_NO_CACHE			0x00
 #define CACHE_CONTROL_NO_STORE			0x01
@@ -1309,6 +1204,8 @@ static void add_headers (proto_tree *tree, tvbuff_t *tvb);
 #define get_delta_seconds_value(val,tvb,start,len,ok) \
 	get_integer_value(val,tvb,start,len,ok)
 
+/* NOTE - Don't forget to g_free() the str value after its usage as the
+ * tvb_get_string[z]() functions return g_malloc()ed memory! */ 
 #define get_text_string(str,tvb,start,len,ok) \
 	if (is_text_string(tvb_get_guint8(tvb,start))) { \
 		str = tvb_get_stringz(tvb,start,&len); \
@@ -1334,7 +1231,6 @@ static void add_headers (proto_tree *tree, tvbuff_t *tvb);
 	if (val & 0x80) { /* High nibble "." Low nibble */ \
 		len = 1; \
 		val &= 0x7F; \
-		if (str) g_free (str); \
 		str = g_malloc (6 * sizeof(char)); \
 		g_assert (str); \
 		snprintf (str,5,"%u.%u",val>>4,val&0x0F); \
@@ -1435,6 +1331,11 @@ static guint32 wkh_x_wap_tod (proto_tree *tree, tvbuff_t *tvb,
 /* Delta-seconds-value */
 static guint32 wkh_age (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
+/* Challenge */
+static guint32 wkh_proxy_authenticate (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_www_authenticate (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
 /* Credentials */
 static guint32 wkh_authorization (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
@@ -1479,15 +1380,14 @@ static guint32 wkh_profile_warning (proto_tree *tree, tvbuff_t *tvb,
 static guint32 wkh_content_md5 (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
 
+/* WSP encoding version */
+static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
 
 /* TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 static guint32 wkh_content_base (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
 static guint32 wkh_content_range (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
-static guint32 wkh_proxy_authenticate (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
-static guint32 wkh_www_authenticate (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
 static guint32 wkh_range (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
@@ -1506,8 +1406,6 @@ static guint32 wkh_content_id (proto_tree *tree, tvbuff_t *tvb,
 static guint32 wkh_set_cookie (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
 static guint32 wkh_cookie (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
-static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
 */
 
@@ -1599,13 +1497,13 @@ static const hdr_parse_func_ptr WellKnownHeader[128] = {
 	/* 0x1A */	wkh_if_range,			/* 0x1B */	wkh_if_unmodified_since,
 	/* 0x1C */	wkh_location,			/* 0x1D */	wkh_last_modified,
 	/* 0x1E */	wkh_max_forwards,		/* 0x1F */	wkh_pragma,
-	/* 0x20 */	wkh_default,			/* 0x21 */	wkh_proxy_authorization,
+	/* 0x20 */	wkh_proxy_authenticate,	/* 0x21 */	wkh_proxy_authorization,
 	/* 0x22 */	wkh_public,				/* 0x23 */	wkh_default,
 	/* 0x24 */	wkh_referer,			/* 0x25 */	wkh_default,
 	/* 0x26 */	wkh_server,				/* 0x27 */	wkh_transfer_encoding,
 	/* 0x28 */	wkh_upgrade,			/* 0x29 */	wkh_user_agent,
 	/* 0x2A */	wkh_vary,				/* 0x2B */	wkh_via,
-	/* 0x2C */	wkh_warning,			/* 0x2D */	wkh_default,
+	/* 0x2C */	wkh_warning,			/* 0x2D */	wkh_www_authenticate,
 	/* 0x2E */	wkh_default,			/* 0x2F */	wkh_x_wap_application_id,
 	/* 0x30 */	wkh_content_uri,		/* 0x31 */	wkh_initiator_uri,
 	/* 0x32 */	wkh_accept_application,	/* 0x33 */	wkh_bearer_indication,
@@ -1616,7 +1514,7 @@ static const hdr_parse_func_ptr WellKnownHeader[128] = {
 	/* 0x3C */	wkh_accept_encoding,	/* 0x3D */	wkh_cache_control,
 	/* 0x3E */	wkh_default,			/* 0x3F */	wkh_x_wap_tod,
 	/* 0x40 */	wkh_default,			/* 0x41 */	wkh_default,
-	/* 0x42 */	wkh_default,			/* 0x43 */	wkh_default,
+	/* 0x42 */	wkh_default,			/* 0x43 */	wkh_encoding_version,
 	/* 0x44 */	wkh_profile_warning,	/* 0x45 */	wkh_default,
 	/* 0x46 */	wkh_x_wap_security,		/* 0x47 */	wkh_cache_control,
 	/*******************************************************
@@ -1917,6 +1815,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb)
  * correct result, so appropriate error information must be provided.
  */
 
+
 #define wkh_0_Declarations					/* Declarations for Parsing */ \
 	gboolean ok = FALSE; /* Triggers error notification code at end */ \
 	proto_item *ti = NULL; /* Needed for error notification at end */ \
@@ -2054,6 +1953,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
 		peek = tvb_get_guint8(tvb, off); \
 		if (is_text_string(peek)) { \
 			get_extension_media(val_str, tvb, off, len, ok); \
+			/* As we're using val_str, it is automatically g_free()d */ \
 			off += len; /* off now points to 1st byte after string */ \
 			ti = proto_tree_add_string (tree, hf_hdr_ ## underscored, \
 					tvb, hdr_start, offset - hdr_start, val_str); \
@@ -2070,7 +1970,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
 		/* Remember: offset == val_start + val_len */ \
 		if (ok && (off < offset)) { /* Add parameters if any */ \
 			parameter_tree = proto_item_add_subtree (ti, \
-					ett_parameters); \
+					ett_header); \
 			while (off < offset) { \
 				off = parameter (parameter_tree, ti, tvb, off, offset - off); \
 			} \
@@ -2160,6 +2060,7 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 		peek = tvb_get_guint8(tvb, off);
 		if (is_text_string(peek)) {
 			get_extension_media(val_str, tvb, off, len, ok);
+			/* As we're using val_str, it is automatically g_free()d */
 			off += len; /* off now points to 1st byte after string */
 			ti = proto_tree_add_string (tree, hf_hdr_content_type,
 					tvb, hdr_start, offset - hdr_start, val_str);
@@ -2178,7 +2079,7 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 		/* Remember: offset == val_start + val_len */
 		if (ok && (off < offset)) { /* Add parameters if any */
 			parameter_tree = proto_item_add_subtree (ti,
-					ett_parameters);
+					ett_header);
 			while (off < offset) {
 				off = parameter (parameter_tree, ti, tvb, off, offset - off);
 			}
@@ -2209,11 +2110,13 @@ wkh_ ## underscored (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
 	wkh_2_TextualValue; \
 		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 				tvb, hdr_start, offset - hdr_start, val_str); \
+		ok = TRUE; \
 	wkh_3_ValueWithLength; \
 		off = val_start + val_len_len; \
 		peek = tvb_get_guint8(tvb, off); \
 		if (is_text_string(peek)) { \
 			get_token_text(val_str, tvb, off, len, ok); \
+			/* As we're using val_str, it is automatically g_free()d */ \
 			off += len; /* off now points to 1st byte after string */ \
 			ti = proto_tree_add_string (tree, hf_hdr_ ## underscored, \
 					tvb, hdr_start, offset - hdr_start, val_str); \
@@ -2230,7 +2133,7 @@ wkh_ ## underscored (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
 		/* Remember: offset == val_start + val_len */ \
 		if (ok && (off < offset)) { /* Add Q-value if available */ \
 			parameter_tree = proto_item_add_subtree (ti, \
-					ett_parameters); \
+					ett_header); \
 			off = parameter_value_q (parameter_tree, ti, tvb, off); \
 		} \
 	\
@@ -2267,7 +2170,7 @@ wkh_push_flag(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 	wkh_1_WellKnownValue;
 		ti = proto_tree_add_string(tree, hf_hdr_push_flag,
 				tvb, hdr_start, offset - hdr_start, "");
-		subtree = proto_item_add_subtree(ti, ett_push_flags);
+		subtree = proto_item_add_subtree(ti, ett_header);
 		proto_tree_add_uint(subtree, hf_hdr_push_flag_auth,
 				tvb, val_start, 1, val_id);
 		proto_tree_add_uint(subtree, hf_hdr_push_flag_trust,
@@ -2578,13 +2481,14 @@ wkh_accept_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 			if (ok) {
 				ti = proto_tree_add_string(tree, hf_hdr_accept_encoding,
 						tvb, hdr_start, offset - hdr_start, str);
+				g_free(str);
 			}
 			off += len;
 		}
 		if (ok) {
 			/* Remember: offset == val_start + val_len */
 			if (off < offset) { /* Add Q-value if available */
-				parameter_tree = proto_item_add_subtree(ti, ett_parameters);
+				parameter_tree = proto_item_add_subtree(ti, ett_header);
 				off = parameter_value_q(parameter_tree, ti, tvb, off);
 			}
 		}
@@ -2845,6 +2749,89 @@ wkh_integer_lookup_or_text_value(content_language, "Content-Language",
 
 
 /*
+ * Challenge
+ */
+
+/*
+ * Common code for headers with only a challenge value
+ * is written in the macro below:
+ */
+#define wkh_challenge_value_header(underscored,Text) \
+static guint32 \
+wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
+		guint32 hdr_start) \
+{ \
+	wkh_0_Declarations; \
+	guint8 peek; \
+	guint32 off, len; \
+	proto_tree *subtree; \
+	gchar *str; \
+	\
+	wkh_1_WellKnownValue; \
+		/* Invalid */ \
+	wkh_2_TextualValue; \
+		/* Invalid */ \
+	wkh_3_ValueWithLength; \
+		off = val_start + val_len_len; \
+		peek = tvb_get_guint8(tvb, off); \
+		if (peek == 0x80) { /* Basic */ \
+			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+					tvb, hdr_start, offset - hdr_start, "basic"); \
+			subtree = proto_item_add_subtree(ti, ett_header); \
+			proto_tree_add_string(subtree, hf_hdr_ ## underscored ## _scheme, \
+					tvb, off, 1, "basic"); \
+			off++; \
+			/* Realm: text-string */ \
+			get_text_string(str,tvb,off,len,ok); \
+			if (ok) { \
+				proto_tree_add_string(subtree, \
+						hf_hdr_ ## underscored ## _realm, \
+						tvb, off, len, str); \
+				val_str = malloc((len + 11) * sizeof(char)); \
+				sprintf(val_str, "; realm='%s'", str); \
+				proto_item_append_string(ti, val_str); \
+				g_free(val_str); \
+				g_free(str); \
+				off += len; \
+			} \
+		} else { /* Authentication-scheme: token-text */ \
+			get_token_text(str, tvb, off, len, ok); \
+			if (ok) { \
+				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+						tvb, hdr_start, off - hdr_start, str); \
+				subtree = proto_item_add_subtree(ti, ett_header); \
+				proto_tree_add_string(subtree, \
+						hf_hdr_ ## underscored ## _scheme, \
+						tvb, hdr_start, off - hdr_start, str); \
+				g_free(str); \
+				off += len; \
+				/* Realm: text-string */ \
+				get_text_string(str,tvb,off,len,ok); \
+				if (ok) { \
+					proto_tree_add_string(subtree, \
+							hf_hdr_ ## underscored ## _realm, \
+							tvb, off, len, str); \
+					val_str = malloc((len + 11) * sizeof(char)); \
+					sprintf(val_str, "; realm='%s'", str); \
+					proto_item_append_string(ti, val_str); \
+					g_free(val_str); \
+					g_free(str); \
+					off += len; \
+					/* Auth-params: parameter - TODO */ \
+					while (off < offset) /* Parse parameters */ \
+						off = parameter(subtree, ti, tvb, off, offset - off); \
+				} \
+			} \
+		} \
+	wkh_4_End(hf_hdr_ ## underscored); \
+}
+
+/* Challenge-value only headers: */
+wkh_challenge_value_header(www_authenticate, "WWW-Authenticate")
+wkh_challenge_value_header(proxy_authenticate, "Proxy-Authenticate")
+
+
+/*
  * Credentials
  */
 
@@ -2873,7 +2860,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
 		if (peek == 0x80) { /* Basic */ \
 			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 					tvb, hdr_start, offset - hdr_start, "basic"); \
-			subtree = proto_item_add_subtree(ti, ett_header_credentials); \
+			subtree = proto_item_add_subtree(ti, ett_header); \
 			proto_tree_add_string(subtree, hf_hdr_ ## underscored ## _scheme, \
 					tvb, off, 1, "basic"); \
 			off++; \
@@ -2887,6 +2874,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
 				sprintf(val_str, "; user-id='%s'", str); \
 				proto_item_append_string(ti, val_str); \
 				g_free(val_str); \
+				g_free(str); \
 				off += len; \
 				/* Password: text-string */ \
 				get_text_string(str,tvb,off,len,ok); \
@@ -2898,6 +2886,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
 					sprintf(val_str, "; password='%s'", str); \
 					proto_item_append_string(ti, val_str); \
 					g_free(val_str); \
+					g_free(str); \
 					off += len; \
 				} \
 			} \
@@ -2906,10 +2895,11 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
 			if (ok) { \
 				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, off - hdr_start, str); \
-				subtree = proto_item_add_subtree(ti, ett_header_credentials); \
+				subtree = proto_item_add_subtree(ti, ett_header); \
 				proto_tree_add_string(subtree, \
 						hf_hdr_ ## underscored ## _scheme, \
 						tvb, hdr_start, off - hdr_start, str); \
+				g_free(str); \
 				off += len; \
 				/* Auth-params: parameter - TODO */ \
 				while (off < offset) /* Parse parameters */ \
@@ -3170,6 +3160,7 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 			if (ok) {
 				ti = proto_tree_add_string(tree, hf_hdr_cache_control,
 						tvb, hdr_start, offset - hdr_start, val_str);
+				g_free(val_str);
 				get_integer_value(val, tvb, off, len, ok);
 				if (ok) { /* Integer-value */
 					val_str = g_malloc(20 * sizeof(char));
@@ -3202,6 +3193,7 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 	guint32 off, len, val;
 	guint8 warn_code;
 	char *str;
+	proto_tree *subtree;
 
 	/* TODO - subtree with values */
 
@@ -3211,6 +3203,9 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 		if (val_str) {
 			ti = proto_tree_add_string(tree, hf_hdr_warning,
 					tvb, hdr_start, offset - hdr_start, val_str);
+			subtree = proto_item_add_subtree(ti, ett_header);
+			proto_tree_add_uint(subtree, hf_hdr_warning_code,
+					tvb, val_start, 1, val);
 			ok = TRUE;
 		}
 	wkh_2_TextualValue;
@@ -3218,29 +3213,40 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 	wkh_3_ValueWithLength;
 		/* TODO - subtree with individual values */
 		off = val_start + val_len_len;
-		warn_code = tvb_get_guint8(tvb, off++);
+		warn_code = tvb_get_guint8(tvb, off);
 		if (warn_code & 0x80) { /* Well known warn code */
-			val_str = match_strval(warn_code & 0x7F,
-					vals_wsp_warning_code_short);
+			val = warn_code & 0x7f;
+			val_str = match_strval(val, vals_wsp_warning_code_short);
 			if (val_str) { /* OK */
 				ti = proto_tree_add_string(tree, hf_hdr_warning,
 						tvb, hdr_start, offset - hdr_start, val_str);
+				subtree = proto_item_add_subtree(ti, ett_header);
+				proto_tree_add_uint(subtree, hf_hdr_warning_code,
+						tvb, off, 1, val);
+				off++; /* Now skip to the warn-agent subfield */
 				get_text_string(str, tvb, off, len, ok);
 				if (ok) { /* Valid warn-agent string */
-					off += len;
-					val_str = g_malloc((len+11) * sizeof(char));
+					proto_tree_add_string(subtree, hf_hdr_warning_agent,
+							tvb, off, len, str);
+					val_str = g_malloc((len + 11) * sizeof(char));
 					g_assert(val_str);
 					sprintf(val_str, "; Agent = %s", str);
 					proto_item_append_string(ti, val_str);
 					g_free(val_str); /* proto_XXX creates a copy */
+					g_free(str);
+					off += len;
 					get_text_string(str, tvb, off, len, ok);
 					if (ok) { /* Valid warn-text string */
-						off += len;
-						val_str = g_malloc((len+3) * sizeof(char));
+						proto_tree_add_string(subtree,
+								hf_hdr_warning_text,
+								tvb, off, len, str);
+						val_str = g_malloc((len + 10) * sizeof(char));
 						g_assert(val_str);
-						sprintf(val_str, ": %s", str);
+						sprintf(val_str, "; Text = %s", str);
 						proto_item_append_string(ti, val_str);
 						g_free(val_str); /* proto_XXX creates a copy */
+						g_free(str);
+						off += len;
 					}
 				}
 			}
@@ -3316,6 +3322,58 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 }
 
 
+/* Encoding-version-value =
+ *	  Short-integer
+ *	| Text-string
+ *	| Length Short-integer [ Short-integer | text-string ]
+ */
+static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start)
+{
+	wkh_0_Declarations;
+	guint32 off, val, len;
+	guint8 *str;
+
+	wkh_1_WellKnownValue;
+		val = val_id & 0x7F;
+		val_str = g_malloc(6 * sizeof(char));
+		g_assert(val_str);
+		sprintf(val_str, "%u.%u", val >> 4, val & 0x0F);
+		proto_tree_add_string(tree, hf_hdr_encoding_version,
+				tvb, hdr_start, offset - hdr_start, val_str);
+		g_free(val_str);
+		ok = TRUE;
+	wkh_2_TextualValue;
+		proto_tree_add_string(tree, hf_hdr_encoding_version,
+				tvb, hdr_start, offset - hdr_start, val_str);
+		ok = TRUE;
+	wkh_3_ValueWithLength;
+		off = val_start + val_len_len;
+		val = tvb_get_guint8(tvb, off);
+		if (val & 0x80) { /* Header Code Page */
+			val_str = g_malloc(14 * sizeof(char));
+			g_assert(val_str);
+			sprintf(val_str, "Code-page %u", val & 0x7F);
+			ti = proto_tree_add_string(tree, hf_hdr_encoding_version,
+					tvb, hdr_start, off - hdr_start, val_str);
+			g_free(val_str);
+			off++;
+			ok = TRUE;
+			if (off < offset) { /* Extra version-value */
+				get_version_value(val,val_str,tvb,off,len,ok);
+				if (ok) { /* Always creates a string if OK */
+					str = g_malloc((len + 2) * sizeof(char));
+					g_assert(str);
+					sprintf(str, ": %s", val_str);
+					proto_item_append_string(ti, str);
+					g_free(str);
+					g_free(val_str);
+				}
+			}
+		}
+
+	wkh_4_End(hf_hdr_encoding_version);
+}
 
 
 /****************************************************************************
@@ -3485,29 +3543,35 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 	guint8 ok;
 
 	if (is_token_text (peek)) { /* Untyped parameter */
-		get_token_text (str,tvb,start,val_len,ok); /* always succeeds */
-		offset += val_len;
-		get_token_text (str2,tvb,offset,val_len,ok);
-		offset += val_len;
-		if (ok) { /* Valid str2 as string */
-			proto_tree_add_text(tree, tvb, start, offset - start,
-					"%s: %s", str, str2);
-			proto_item_append_text(ti, "; %s=%s", str, str2);
-		} else {
-			get_integer_value (val,tvb,offset,val_len,ok);
+		get_token_text (str,tvb,start,val_len,ok); /* Should always succeed */
+		if (ok) { /* Found a textual parameter name: str */
 			offset += val_len;
-			if (ok) { /* Valid val as integer */
+			get_token_text (str2,tvb,offset,val_len,ok);
+			if (ok) { /* Also found a textual parameter value: str2 */
+				offset += val_len;
 				proto_tree_add_text(tree, tvb, start, offset - start,
-						"%s: %u", str, val);
-				proto_item_append_text(ti, "; %s=%u", str, val);
-			} else { /* Error: neither token-text not Integer-value */
-				proto_tree_add_text (tree, tvb, start, offset - start,
-						"<Error: Invalid untyped parameter definition>");
-				offset = start + len; /* Skip to end of buffer */
+						"%s: %s", str, str2);
+				proto_item_append_text(ti, "; %s=%s", str, str2);
+				/* TODO - check if we can insert a searchable field in the
+				 * protocol tree for the untyped parameter case */
+				g_free(str2);
+			} else { /* Try integer value */
+				get_integer_value (val,tvb,offset,val_len,ok);
+				if (ok) { /* Also found a valid integer parameter value: val */
+					offset += val_len;
+					proto_tree_add_text(tree, tvb, start, offset - start,
+							"%s: %u", str, val);
+					proto_item_append_text(ti, "; %s=%u", str, val);
+					/* TODO - check if we can insert a searchable field in the
+					 * protocol tree for the untyped parameter case */
+				} else { /* Error: neither token-text not Integer-value */
+					proto_tree_add_text (tree, tvb, start, offset - start,
+							"<Error: Invalid untyped parameter definition>");
+					offset = start + len; /* Skip to end of buffer */
+				}
 			}
+			g_free(str);
 		}
-		/* XXX - HERE is the fault: I only check the 1st string! * /
-		offset = add_untyped_parameter (tree, tvb, offset, val_len); */
 		return offset;
 	} /* Else: typed parameter */
 	get_integer_value (val,tvb,start,len,ok);
@@ -3662,6 +3726,7 @@ parameter_value_q (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start)
 		proto_item_append_text (ti, "; Q=%s", str);
 		proto_tree_add_string (tree, hf_parameter_q,
 				tvb, start, val_len, str);
+		g_free(str);
 		offset += val_len;
 	} else {
 		proto_tree_add_text (tree, tvb, start, offset,
@@ -3887,7 +3952,6 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 /* Set up structures we will need to add the protocol subtree and manage it */
 	proto_item *ti;
 	proto_tree *wsp_tree = NULL;
-/*	proto_tree *wsp_header_fixed; */
 
 	wsp_info_value_t *stat_info;
 	stat_info = g_malloc( sizeof(wsp_info_value_t) );
@@ -3900,7 +3964,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* Connection-less mode has a TID first */
 	if (is_connectionless)
 	{
-		offset++;
+		offset++; /* Skip the 1-byte Transaction ID */
 	};
 
 	/* Find the PDU type */
@@ -3913,43 +3977,31 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			val_to_str (pdut, vals_pdu_type, "Unknown PDU type (0x%02x)"));
 	};
 
-/* In the interest of speed, if "tree" is NULL, don't do any work not
-   necessary to generate protocol tree items. */
+	/* In the interest of speed, if "tree" is NULL, don't do any work not
+	 * necessary to generate protocol tree items. */
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_wsp, tvb, 0, -1,
-		    bo_little_endian);
+		ti = proto_tree_add_item(tree, proto_wsp,
+				tvb, 0, -1, bo_little_endian);
 		wsp_tree = proto_item_add_subtree(ti, ett_wsp);
-
-/* Code to process the packet goes here */
-/*
-		wsp_header_fixed = proto_item_add_subtree(ti, ett_header );
-*/
 
 		/* Add common items: only TID and PDU Type */
 
 		/* If this is connectionless, then the TID Field is always first */
 		if (is_connectionless)
 		{
-			ti = proto_tree_add_item (wsp_tree, hf_wsp_header_tid,tvb,
-				0,1,bo_little_endian);
+			ti = proto_tree_add_item (wsp_tree, hf_wsp_header_tid,
+					tvb, 0, 1, bo_little_endian);
 		}
-
-		ti = proto_tree_add_item(
-				wsp_tree, 		/* tree */
-				hf_wsp_header_pdu_type, /* id */
-				tvb,
-				offset, 		/* start of high light */
-				1,			/* length of high light */
-				bo_little_endian	/* value */
-		     );
+		ti = proto_tree_add_item( wsp_tree, hf_wsp_header_pdu_type,
+				tvb, offset, 1, bo_little_endian);
 	}
 	offset++;
 
-	/* Map extended methods to the main method now the Column info has been written;
-	 * this way we can dissect the extended method PDUs. */
-	if ((pdut >= 0x50) && (pdut <= 0x5F))
+	/* Map extended methods to the main method now the Column info has been
+	 * written; this way we can dissect the extended method PDUs. */
+	if ((pdut >= 0x50) && (pdut <= 0x5F)) /* Extended GET --> GET */
 		pdut = WSP_PDU_GET;
-	else if ((pdut >= 0x70) && (pdut <= 0x7F))
+	else if ((pdut >= 0x70) && (pdut <= 0x7F)) /* Extended POST --> POST */
 		pdut = WSP_PDU_POST;
 
 	switch (pdut)
@@ -3960,45 +4012,55 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tree) {
 				if (pdut == WSP_PDU_CONNECT)
 				{
-					ti = proto_tree_add_item (wsp_tree, hf_wsp_version_major,tvb,offset,1,bo_little_endian);
-					ti = proto_tree_add_item (wsp_tree, hf_wsp_version_minor,tvb,offset,1,bo_little_endian);
+					ti = proto_tree_add_item (wsp_tree, hf_wsp_version_major,
+							tvb, offset, 1, bo_little_endian);
+					ti = proto_tree_add_item (wsp_tree, hf_wsp_version_minor,
+							tvb, offset, 1, bo_little_endian);
 					offset++;
 				} else {
 					count = 0;	/* Initialise count */
 					value = tvb_get_guintvar (tvb, offset, &count);
-					ti = proto_tree_add_uint (wsp_tree, hf_wsp_server_session_id,tvb,offset,count,value);
+					ti = proto_tree_add_uint (wsp_tree,
+							hf_wsp_server_session_id,
+							tvb, offset, count, value);
 					offset += count;
 				}
 				capabilityStart = offset;
 				count = 0;	/* Initialise count */
 				capabilityLength = tvb_get_guintvar (tvb, offset, &count);
 				offset += count;
-				ti = proto_tree_add_uint (wsp_tree, hf_wsp_capability_length,tvb,capabilityStart,count,capabilityLength);
+				ti = proto_tree_add_uint (wsp_tree, hf_wsp_capability_length,
+						tvb, capabilityStart, count, capabilityLength);
 
 				if (pdut != WSP_PDU_RESUME)
 				{
 					count = 0;	/* Initialise count */
 					headerLength = tvb_get_guintvar (tvb, offset, &count);
-					ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,offset,count,headerLength);
+					ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,
+							tvb, offset, count, headerLength);
 					offset += count;
 					capabilityStart = offset;
 					headerStart = capabilityStart + capabilityLength;
 				} else {
-						/* Resume computes the headerlength by remaining bytes */
+						/* Resume computes the headerlength
+						 * by remaining bytes */
 					capabilityStart = offset;
 					headerStart = capabilityStart + capabilityLength;
-					headerLength = tvb_reported_length_remaining (tvb, headerStart);
+					headerLength = tvb_reported_length_remaining (tvb,
+							headerStart);
 				}
 				if (capabilityLength > 0)
 				{
-					tmp_tvb = tvb_new_subset (tvb, offset, capabilityLength, capabilityLength);
+					tmp_tvb = tvb_new_subset (tvb, offset,
+							capabilityLength, capabilityLength);
 					add_capabilities (wsp_tree, tmp_tvb, pdut);
 					offset += capabilityLength;
 				}
 
 				if (headerLength > 0)
 				{
-					tmp_tvb = tvb_new_subset (tvb, offset, headerLength, headerLength);
+					tmp_tvb = tvb_new_subset (tvb, offset,
+							headerLength, headerLength);
 					add_headers (wsp_tree, tmp_tvb);
 				}
 			}
@@ -4006,8 +4068,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			break;
 
 		case WSP_PDU_REDIRECT:
-			dissect_redirect(tvb, offset, pinfo, wsp_tree,
-			  dissector_handle);
+			dissect_redirect(tvb, offset, pinfo, wsp_tree, dissector_handle);
 			break;
 
 		case WSP_PDU_DISCONNECT:
@@ -4015,18 +4076,20 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tree) {
 				count = 0;	/* Initialise count */
 				value = tvb_get_guintvar (tvb, offset, &count);
-				ti = proto_tree_add_uint (wsp_tree, hf_wsp_server_session_id,tvb,offset,count,value);
+				ti = proto_tree_add_uint (wsp_tree,
+						hf_wsp_server_session_id,
+						tvb, offset, count, value);
 			}
 			break;
 
 		case WSP_PDU_GET:
 			count = 0;	/* Initialise count */
-				/* Length of URI and size of URILen field */
+			/* Length of URI and size of URILen field */
 			value = tvb_get_guintvar (tvb, offset, &count);
 			nextOffset = offset + count;
 			add_uri (wsp_tree, pinfo, tvb, offset, nextOffset);
 			if (tree) {
-				offset += (value+count); /* VERIFY */
+				offset += value + count; /* VERIFY */
 				tmp_tvb = tvb_new_subset (tvb, offset, -1, -1);
 				add_headers (wsp_tree, tmp_tvb);
 			}
@@ -4045,31 +4108,37 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset += uriLength;
 
 			if (tree)
-				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,headersLength);
+				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,
+						tvb, headerStart, count, headersLength);
 
 			if (headersLength == 0)
 				break;
 
 			contentTypeStart = offset;
 			nextOffset = add_content_type (wsp_tree,
-			    tvb, offset, &contentType,
-			    &contentTypeStr);
+					tvb, offset, &contentType, &contentTypeStr);
 
 			if (tree) {
 				/* Add headers subtree that will hold the headers fields */
-				/* Runs from nextOffset for headersLength-(length of content-type field)*/
-				headerLength = headersLength-(nextOffset-contentTypeStart);
+				/* Runs from nextOffset for
+				 * headersLength - (length of content-type field) */
+				headerLength = headersLength - (nextOffset - contentTypeStart);
 				if (headerLength > 0)
 				{
-					tmp_tvb = tvb_new_subset (tvb, nextOffset, headerLength, headerLength);
+					tmp_tvb = tvb_new_subset (tvb, nextOffset,
+							headerLength, headerLength);
 					add_headers (wsp_tree, tmp_tvb);
 				}
 				offset = nextOffset+headerLength;
 			}
-			/* WSP_PDU_POST data - First check whether a subdissector exists for the content type */
-			if (tvb_reported_length_remaining(tvb, headerStart + count + uriLength + headersLength) > 0)
+			/* WSP_PDU_POST data - First check whether a subdissector exists
+			 * for the content type */
+			if (tvb_reported_length_remaining(tvb,
+						headerStart + count + uriLength + headersLength) > 0)
 			{
-				tmp_tvb = tvb_new_subset (tvb, headerStart + count + uriLength + headersLength, -1, -1);
+				tmp_tvb = tvb_new_subset (tvb,
+						headerStart + count + uriLength + headersLength,
+						-1, -1);
 				/*
 				 * Try finding a dissector for the content
 				 * first, then fallback.
@@ -4078,23 +4147,21 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					/*
 					 * Content type is numeric.
 					 */
-					found_match =
-					    dissector_try_port(wsp_dissector_table,
+					found_match = dissector_try_port(wsp_dissector_table,
 					      contentType, tmp_tvb, pinfo, tree);
 				} else {
 					/*
 					 * Content type is a string.
 					 */
 					found_match = dissector_try_string(wsp_dissector_table_text,
-					    contentTypeStr, tmp_tvb, pinfo, tree);
+							contentTypeStr, tmp_tvb, pinfo, tree);
 				}
-				if (!found_match) {
-					if (!dissector_try_heuristic(heur_subdissector_list,
-					    tmp_tvb, pinfo, tree))
+				if (! found_match) {
+					if (! dissector_try_heuristic(heur_subdissector_list,
+								tmp_tvb, pinfo, tree))
 						if (tree) /* Only display if needed */
 							add_post_data (wsp_tree, tmp_tvb,
-							    contentType,
-							    contentTypeStr);
+									contentType, contentTypeStr);
 				}
 			}
 			break;
@@ -4105,40 +4172,48 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			headerStart = offset + count + 1;
 			reply_status = tvb_get_guint8(tvb, offset);
 			if (tree)
-				ti = proto_tree_add_item (wsp_tree, hf_wsp_header_status,tvb,offset,1,bo_little_endian);
- 			stat_info->status_code = (gint) tvb_get_guint8( tvb, offset);				
+				ti = proto_tree_add_item (wsp_tree, hf_wsp_header_status,
+						tvb, offset, 1, bo_little_endian);
+ 			stat_info->status_code = (gint) tvb_get_guint8(tvb, offset);				
 			if (check_col(pinfo->cinfo, COL_INFO))
 			{ /* Append status code to INFO column */
-				col_append_fstr(pinfo->cinfo, COL_INFO, ": \"0x%02x %s\"", reply_status,
-						val_to_str (reply_status, vals_status, "Unknown response status (0x%02x)"));
+				col_append_fstr(pinfo->cinfo, COL_INFO,
+						": \"0x%02x %s\"", reply_status,
+						val_to_str (reply_status, vals_status,
+							"Unknown response status (0x%02x)"));
 			}
 			nextOffset = offset + 1 + count;
 			if (tree)
-				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,offset+1,count,headersLength);
+				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,
+						tvb, offset + 1, count, headersLength);
 
 			if (headersLength == 0)
 				break;
 
 			contentTypeStart = nextOffset;
-			nextOffset = add_content_type (wsp_tree,
-			    tvb, nextOffset, &contentType,
-			    &contentTypeStr);
+			nextOffset = add_content_type (wsp_tree, tvb,
+					nextOffset, &contentType, &contentTypeStr);
 
 			if (tree) {
 				/* Add headers subtree that will hold the headers fields */
-				/* Runs from nextOffset for headersLength-(length of content-type field)*/
-				headerLength = headersLength-(nextOffset-contentTypeStart);
+				/* Runs from nextOffset for
+				 * headersLength - (length of content-type field) */
+				headerLength = headersLength - (nextOffset - contentTypeStart);
 				if (headerLength > 0)
 				{
-					tmp_tvb = tvb_new_subset (tvb, nextOffset, headerLength, headerLength);
+					tmp_tvb = tvb_new_subset (tvb, nextOffset,
+							headerLength, headerLength);
 					add_headers (wsp_tree, tmp_tvb);
 				}
 				offset += count+headersLength+1;
 			}
-			/* WSP_PDU_REPLY data - First check whether a subdissector exists for the content type */
-			if (tvb_reported_length_remaining(tvb, headerStart + headersLength) > 0)
+			/* WSP_PDU_REPLY data - First check whether a subdissector exists
+			 * for the content type */
+			if (tvb_reported_length_remaining(tvb, headerStart + headersLength)
+					> 0)
 			{
-				tmp_tvb = tvb_new_subset (tvb, headerStart + headersLength, -1, -1);
+				tmp_tvb = tvb_new_subset (tvb, headerStart + headersLength,
+						-1, -1);
 				/*
 				 * Try finding a dissector for the content
 				 * first, then fallback.
@@ -4148,22 +4223,21 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					 * Content type is numeric.
 					 */
 					found_match = dissector_try_port(wsp_dissector_table,
-					    contentType, tmp_tvb, pinfo, tree);
+							contentType, tmp_tvb, pinfo, tree);
 				} else {
 					/*
 					 * Content type is a string.
 					 */
 					found_match = dissector_try_string(wsp_dissector_table_text,
-					    contentTypeStr, tmp_tvb, pinfo, tree);
+							contentTypeStr, tmp_tvb, pinfo, tree);
 				}
-				if (!found_match) {
-					if (!dissector_try_heuristic(heur_subdissector_list,
+				if (! found_match) {
+					if (! dissector_try_heuristic(heur_subdissector_list,
 					    tmp_tvb, pinfo, tree))
 						if (tree) /* Only display if needed */
 							ti = proto_tree_add_item (wsp_tree,
 							    hf_wsp_reply_data,
-							    tmp_tvb, 0, -1,
-							    bo_little_endian);
+							    tmp_tvb, 0, -1, bo_little_endian);
 				}
 			}
 			break;
@@ -4175,7 +4249,8 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			headerStart = offset + count;
 
 			if (tree)
-				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,offset,count,headersLength);
+				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,
+						tvb, offset, count, headersLength);
 
 			if (headersLength == 0)
 				break;
@@ -4183,25 +4258,28 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset += count;
 			contentTypeStart = offset;
 			nextOffset = add_content_type (wsp_tree,
-			    tvb, offset, &contentType,
-			    &contentTypeStr);
+					tvb, offset, &contentType, &contentTypeStr);
 
 			if (tree) {
 				/* Add headers subtree that will hold the headers fields */
-				/* Runs from nextOffset for headersLength-(length of content-type field)*/
+				/* Runs from nextOffset for
+				 * headersLength-(length of content-type field) */
 				headerLength = headersLength-(nextOffset-contentTypeStart);
 				if (headerLength > 0)
 				{
-					tmp_tvb = tvb_new_subset (tvb, nextOffset, headerLength, headerLength);
+					tmp_tvb = tvb_new_subset (tvb, nextOffset,
+							headerLength, headerLength);
 					add_headers (wsp_tree, tmp_tvb);
 				}
 				offset += headersLength;
 			}
-			/* WSP_PDU_PUSH data - First check whether a subdissector exists for the content type */
-			if (tvb_reported_length_remaining(tvb, headerStart + headersLength) > 0)
+			/* WSP_PDU_PUSH data - First check whether a subdissector exists
+			 * for the content type */
+			if (tvb_reported_length_remaining(tvb, headerStart + headersLength)
+					> 0)
 			{
-				tmp_tvb = tvb_new_subset (tvb, headerStart + headersLength, -1, -1);
-				/* Try finding a dissector for the content first, then fallback */
+				tmp_tvb = tvb_new_subset (tvb, headerStart + headersLength,
+						-1, -1);
 				/*
 				 * Try finding a dissector for the content
 				 * first, then fallback.
@@ -4211,30 +4289,30 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					 * Content type is numeric.
 					 */
 					found_match = dissector_try_port(wsp_dissector_table,
-					    contentType, tmp_tvb, pinfo, tree);
+							contentType, tmp_tvb, pinfo, tree);
 				} else {
 					/*
 					 * Content type is a string.
 					 */
 					found_match = dissector_try_string(wsp_dissector_table_text,
-					    contentTypeStr, tmp_tvb, pinfo, tree);
+							contentTypeStr, tmp_tvb, pinfo, tree);
 				}
-				if (!found_match) {
-					if (!dissector_try_heuristic(heur_subdissector_list,
-					    tmp_tvb, pinfo, tree))
+				if (! found_match) {
+					if (! dissector_try_heuristic(heur_subdissector_list,
+								tmp_tvb, pinfo, tree))
 						if (tree) /* Only display if needed */
 							ti = proto_tree_add_item (wsp_tree,
-							    hf_wsp_push_data,
-							    tmp_tvb, 0, -1,
-							    bo_little_endian);
+									hf_wsp_push_data,
+									tmp_tvb, 0, -1, bo_little_endian);
 				}
 			}
 			break;
 
 	}
-	stat_info->pdut = pdut ;
+	stat_info->pdut = pdut;
 	tap_queue_packet (wsp_tap, pinfo, stat_info);
 }
+
 
 /*
  * Called directly from UDP.
@@ -4251,6 +4329,7 @@ dissect_wsp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_wsp_common(tvb, pinfo, tree, wsp_fromudp_handle, TRUE);
 }
 
+
 /*
  * Called from a higher-level WAP dissector, in connection-oriented mode.
  * Leave the "Protocol" column alone - the dissector calling us should
@@ -4264,6 +4343,7 @@ dissect_wsp_fromwap_co(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	dissect_wsp_common(tvb, pinfo, tree, wtp_fromudp_handle, FALSE);
 }
+
 
 /*
  * Called from a higher-level WAP dissector, in connectionless mode.
@@ -4283,8 +4363,10 @@ dissect_wsp_fromwap_cl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_wsp_common(tvb, pinfo, tree, wtp_fromudp_handle, TRUE);
 }
 
+
 static void
-add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint URILenOffset, guint URIOffset)
+add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
+		guint URILenOffset, guint URIOffset)
 {
 	proto_item *ti;
 
@@ -4292,11 +4374,13 @@ add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint URILenOffset
 	guint uriLen = tvb_get_guintvar (tvb, URILenOffset, &count);
 
 	if (tree)
-		ti = proto_tree_add_uint (tree, hf_wsp_header_uri_len,tvb,URILenOffset,count,uriLen);
+		ti = proto_tree_add_uint (tree, hf_wsp_header_uri_len,
+				tvb, URILenOffset, count, uriLen);
 
 	tvb_ensure_bytes_exist(tvb, URIOffset, uriLen);
 	if (tree)
-		ti = proto_tree_add_item (tree, hf_wsp_header_uri,tvb,URIOffset,uriLen,bo_little_endian);
+		ti = proto_tree_add_item (tree, hf_wsp_header_uri,
+				tvb, URIOffset, uriLen, bo_little_endian);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
 		    tvb_format_text (tvb, URIOffset, uriLen));
@@ -5166,11 +5250,10 @@ proto_register_wsp(void)
 			}
 		},
 		{ &hf_wsp_header_shift_code,
-			{ 	"Shift code",
-				"wsp.header.shift",
-				 /*FT_NONE, BASE_DEC, NULL, 0x00,*/
-				 FT_UINT8, BASE_HEX, NULL, 0x00,
-				"Header code page shift code", HFILL
+			{ 	"Switching to WSP header code-page",
+				"wsp.code_page",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Header code-page shift code", HFILL
 			}
 		},
 		/*
@@ -5432,14 +5515,14 @@ proto_register_wsp(void)
 			}
 		},
 		{ &hf_hdr_authorization_user_id,
-			{	"user_id",
+			{	"User-id",
 				"wsp.hdr.authorization.user_id",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Authorization: user ID for basic authorization", HFILL
 			}
 		},
 		{ &hf_hdr_authorization_password,
-			{	"password",
+			{	"Password",
 				"wsp.hdr.authorization.password",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Authorization: password for basic authorization", HFILL
@@ -5613,6 +5696,20 @@ proto_register_wsp(void)
 				"WSP header Proxy-Authenticate", HFILL
 			}
 		},
+		{ &hf_hdr_proxy_authenticate_scheme,
+			{	"Authentication Scheme",
+				"wsp.hdr.proxy_authenticate.scheme",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Proxy-Authenticate: used scheme", HFILL
+			}
+		},
+		{ &hf_hdr_proxy_authenticate_realm,
+			{	"Authentication Realm",
+				"wsp.hdr.proxy_authenticate.realm",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Proxy-Authenticate: used realm", HFILL
+			}
+		},
 		{ &hf_hdr_proxy_authorization,
 			{	"Proxy-Authorization",
 				"wsp.hdr.proxy_authorization",
@@ -5628,14 +5725,14 @@ proto_register_wsp(void)
 			}
 		},
 		{ &hf_hdr_proxy_authorization_user_id,
-			{	"user_id",
+			{	"User-id",
 				"wsp.hdr.proxy_authorization.user_id",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Proxy-Authorization: user ID for basic authorization", HFILL
 			}
 		},
 		{ &hf_hdr_proxy_authorization_password,
-			{	"password",
+			{	"Password",
 				"wsp.hdr.proxy_authorization.password",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Proxy-Authorization: password for basic authorization", HFILL
@@ -5718,11 +5815,46 @@ proto_register_wsp(void)
 				"WSP header Warning", HFILL
 			}
 		},
+		{ &hf_hdr_warning_code,
+			{	"Warning code",
+				"wsp.hdr.warning.code",
+				FT_UINT8, BASE_HEX, VALS(vals_wsp_warning_code), 0x00,
+				"WSP header Warning code", HFILL
+			}
+		},
+		{ &hf_hdr_warning_agent,
+			{	"Warning agent",
+				"wsp.hdr.warning.agent",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Warning agent", HFILL
+			}
+		},
+		{ &hf_hdr_warning_text,
+			{	"Warning text",
+				"wsp.hdr.warning.text",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Warning text", HFILL
+			}
+		},
 		{ &hf_hdr_www_authenticate,
 			{	"Www-Authenticate",
 				"wsp.hdr.www_authenticate",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Www-Authenticate", HFILL
+			}
+		},
+		{ &hf_hdr_www_authenticate_scheme,
+			{	"Authentication Scheme",
+				"wsp.hdr.www_authenticate.scheme",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header WWW-Authenticate: used scheme", HFILL
+			}
+		},
+		{ &hf_hdr_www_authenticate_realm,
+			{	"Authentication Realm",
+				"wsp.hdr.www_authenticate.realm",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header WWW-Authenticate: used realm", HFILL
 			}
 		},
 		{ &hf_hdr_content_disposition,
@@ -6108,25 +6240,14 @@ proto_register_wsp(void)
 /* Setup protocol subtree array */
 	static gint *ett[] = { /* TODO - remove unneeded subtrees */
 		&ett_wsp,
-		&ett_content_type_parameters,
-		&ett_header,
-		&ett_headers,
-		&ett_header_warning,
-		&ett_header_cache_control_parameters,
-		&ett_header_cache_control_field_names,
-		&ett_capabilities,
+		&ett_header, /* Header field subtree */
+		&ett_headers, /* Subtree for WSP headers */
+		&ett_capabilities, /* CO-WSP Session Capabilities */
 		&ett_post,
-		&ett_content_type,
 		&ett_redirect_flags,
 		&ett_redirect_afl,
 		&ett_multiparts,
 		&ett_mpartlist,
-		&ett_header_credentials,
-		&ett_push_flags,
-		&ett_parameters,
-		&ett_authorization,	/* Authorization, Proxy-Authorization */
-		&ett_authenticate, /* WWW-Authenticate, Proxy-Authenticate */
-		&ett_warning, /* Warning */
 	};
 
 /* Register the protocol name and description */
