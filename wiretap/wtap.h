@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.37 1999/09/11 22:36:38 gerald Exp $
+ * $Id: wtap.h,v 1.38 1999/09/13 03:52:53 gerald Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -194,14 +194,16 @@ struct ngsniffer_atm_phdr {
 
 #define ASCEND_MAX_STR_LEN 64
 
-#define ASCEND_PFX_ETHER 1
-#define ASCEND_PFX_PPP_X 2
-#define ASCEND_PFX_PPP_R 3
+#define ASCEND_PFX_WDS_X 1
+#define ASCEND_PFX_WDS_R 2
+#define ASCEND_PFX_WDD   3
 
 struct ascend_phdr {
 	guint16	type;			/* ASCEND_PFX_*, as defined above */
-	char	user[ASCEND_MAX_STR_LEN];   /* Username, from header */
-	guint32	sess;			/* Session number */
+	char	user[ASCEND_MAX_STR_LEN];   /* Username, from wandsession header */
+	guint32	sess;			/* Session number, from wandsession header */
+	char	call_num[ASCEND_MAX_STR_LEN];   /* Called number, from WDD header */
+	guint32	chunk;			/* Chunk number, from WDD header */
 	guint32	task;			/* Task number */
 };
 
