@@ -2,7 +2,7 @@
  * Routines for IGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  * 
- * $Id: packet-igrp.c,v 1.5 2001/01/22 03:33:45 guy Exp $
+ * $Id: packet-igrp.c,v 1.6 2001/03/05 20:11:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,8 +36,8 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
+#include "packet-ip.h"
 
-#define IP_PROTO_IGRP 9
 #define IGRP_HEADER_LENGTH 12
 #define IGRP_ENTRY_LENGTH 14
 

@@ -1,7 +1,7 @@
 /* ipproto.c
  * Routines for converting IPv4 protocol/v6 nxthdr field into string
  *
- * $Id: ipproto.c,v 1.9 2000/08/11 13:35:31 deniel Exp $
+ * $Id: ipproto.c,v 1.10 2001/03/05 20:11:36 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -53,7 +53,8 @@
 static const value_string ipproto_val[] = {
     { IP_PROTO_ICMP,	"ICMP" },
     { IP_PROTO_IGMP,	"IGMP" },
-    { IP_PROTO_EIGRP,	"IGRP/EIGRP" },
+    { IP_PROTO_EIGRP,	"EIGRP" },
+    { IP_PROTO_IGRP,	"IGRP" },
     { IP_PROTO_TCP,	"TCP" },
     { IP_PROTO_UDP,	"UDP" },
     { IP_PROTO_OSPF,	"OSPF" },
@@ -65,8 +66,9 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_IGMP,	"IGMP" },
     { IP_PROTO_GGP,	"GGP" },
     { IP_PROTO_IPIP,	"IPIP" },
+#if 0
     { IP_PROTO_IPV4,	"IPv4" },
-    { IP_PROTO_TCP,	"TCP" },
+#endif
     { IP_PROTO_EGP,	"EGP" },
     { IP_PROTO_PUP,	"PUP" },
     { IP_PROTO_UDP,	"UDP" },

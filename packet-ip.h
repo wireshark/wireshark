@@ -1,7 +1,7 @@
 /* packet-ip.h
  * Definitions for IP packet disassembly structures and routines
  *
- * $Id: packet-ip.h,v 1.17 2001/01/22 03:33:45 guy Exp $
+ * $Id: packet-ip.h,v 1.18 2001/03/05 20:11:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,6 +38,7 @@ void capture_ip(const u_char *, int, packet_counts *);
 #define IP_PROTO_IPV4		4		/* IP header */
 #define IP_PROTO_TCP		6		/* tcp */
 #define IP_PROTO_EGP		8		/* exterior gateway protocol */
+#define IP_PROTO_IGRP		9
 #define IP_PROTO_PUP		12		/* pup */
 #define IP_PROTO_UDP		17		/* user datagram protocol */
 #define IP_PROTO_IDP		22		/* xns idp */
