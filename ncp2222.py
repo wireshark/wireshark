@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.15 2002/03/02 03:38:24 gram Exp $
+$Id: ncp2222.py,v 1.14.2.16 2002/03/02 16:58:20 gram Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -244,7 +244,7 @@ class PTVC(NamedList):
 			# Fields that don't have a length determinable at run-time
 			# cannot be variable-length.
 			if type(ptvc_rec.Length()) == type(()):
-				if isinstance(ptvc_rec.Field(), nstring8):
+				if isinstance(ptvc_rec.Field(), nstring):
 					expected_offset = -1
 					pass
 				elif isinstance(ptvc_rec.Field(), struct):
@@ -827,16 +827,41 @@ class uint32(Type, CountingNumber):
 	def __init__(self, abbrev, descr, endianness = BE):
 		Type.__init__(self, abbrev, descr, 4, endianness)
 
-class nstring8(Type):
-	"""A string of up to 255 characters. The first byte
+class nstring:
+	pass
+
+class nstring8(Type, nstring):
+	"""A string of up to (2^8)-1 characters. The first byte
 	gives the string length. Thus, the total length of
-	this data structure is from 1 to 256 bytes, including
+	this data structure is from 1 to 2^8 bytes, including
 	the first byte."""
 
 	type	= "nstring8"
 	ftype	= "FT_UINT_STRING"
 	def __init__(self, abbrev, descr):
 		Type.__init__(self, abbrev, descr, 1)
+
+class nstring16(Type, nstring):
+	"""A string of up to (2^16)-1 characters. The first byte
+	gives the string length. Thus, the total length of
+	this data structure is from 1 to 2^16 bytes, including
+	the first byte."""
+
+	type	= "nstring16"
+	ftype	= "FT_UINT_STRING"
+	def __init__(self, abbrev, descr):
+		Type.__init__(self, abbrev, descr, 2)
+
+class nstring32(Type, nstring):
+	"""A string of up to (2^32)-1 characters. The first byte
+	gives the string length. Thus, the total length of
+	this data structure is from 1 to 2^32 bytes, including
+	the first byte."""
+
+	type	= "nstring32"
+	ftype	= "FT_UINT_STRING"
+	def __init__(self, abbrev, descr):
+		Type.__init__(self, abbrev, descr, 4)
 
 class fw_string(Type):
 	"""A fixed-width string of n bytes."""
@@ -1054,10 +1079,8 @@ AllocationBlockSize		= uint32("allocation_block_size", "Allocation Block Size")
 AllocFreeCount			= uint32("alloc_free_count", "Reclaimable Free Bytes", LE)
 ApplicationNumber		= uint16("application_number", "Application Number")
 ArchivedTime			= uint16("archived_time", "Archived Time", LE)
-ArchivedTime.Display("BASE_HEX")
 ArchivedTime.NWTime()
 ArchivedDate			= uint16("archived_date", "Archived Date", LE)
-ArchivedDate.Display("BASE_HEX")
 ArchivedDate.NWDate()
 ArchivedDateAndTime		= uint32("archived_date_and_time", "Archived Date & Time")
 ArchiverID			= uint32("archiver_id", "Archiver ID")
@@ -1290,11 +1313,9 @@ CPUType				= val_string8("cpu_type", "CPU Type", [
         [ 0x03, "Pentium Pro" ],
 ])    
 CreationDate 			= uint16("creation_date", "Creation Date", LE)
-CreationDate.Display("BASE_HEX")
 CreationDate.NWDate()
 CreationDateAndTime		= uint32("creation_date_and_time", "Creation Date & Time")
 CreationTime			= uint16("creation_time", "Creation Time", LE)
-CreationTime.Display("BASE_HEX")
 CreationTime.NWTime()
 CreatorID			= uint32("creator_id", "Creator ID")
 CreatorID.Display("BASE_HEX")
@@ -2442,10 +2463,8 @@ MinorVersion			= uint32("minor_version", "Minor Version", LE)
 Minute				= uint8("s_minute", "Minutes")
 MixedModePathFlag		= uint8("mixed_mode_path_flag", "Mixed Mode Path Flag")
 ModifiedDate			= uint16("modified_date", "Modified Date", LE)
-ModifiedDate.Display("BASE_HEX")
 ModifiedDate.NWDate()
 ModifiedTime			= uint16("modified_time", "Modified Time", LE)
-ModifiedTime.Display("BASE_HEX")
 ModifiedTime.NWTime()
 ModifierID 			= uint32("modifier_id", "Modifier ID")
 ModifierID.Display("BASE_HEX")
