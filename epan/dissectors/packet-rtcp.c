@@ -224,8 +224,6 @@ static gint ett_sdes_item		= -1;
 static gint ett_PoC1			= -1;
 static gint ett_rtcp_setup		= -1;
 
-static address fake_addr;
-
 static gboolean dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree );
 static void dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo,
@@ -307,9 +305,6 @@ void rtcp_add_address( packet_info *pinfo,
 
 static void rtcp_init( void )
 {
-	unsigned char* tmp_data;
-	int i;
-
 	/* (Re)allocate mem chunk for conversations */
 	if (rtcp_conversations)
 	{
@@ -319,17 +314,6 @@ static void rtcp_init( void )
 	                                     sizeof(struct _rtcp_conversation_info),
 	                                     20 * sizeof(struct _rtcp_conversation_info),
 	                                     G_ALLOC_ONLY);
-
-
-	/* Create a fake adddress... */
-	fake_addr.type = AT_IPv4;
-	fake_addr.len = 4;
-
-	tmp_data = g_malloc( fake_addr.len );
-	for ( i = 0; i < fake_addr.len; i++) {
-		tmp_data[i] = 0;
-	}
-	fake_addr.data = tmp_data;
 }
 
 static gboolean
