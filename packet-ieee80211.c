@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.30 2001/06/20 23:29:16 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.31 2001/06/20 23:58:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -790,7 +790,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   guint16 fcf, flags, frame_type_subtype;
   const guint8 *src = NULL, *dst = NULL;
-  proto_item *ti;
+  proto_item *ti = NULL;
   proto_item *flag_item;
   proto_item *fc_item;
   static proto_tree *hdr_tree;
@@ -887,6 +887,11 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     {
 
     case MGT_FRAME:		/* All management frames share a common header */
+      /*
+       * Set the top-level item to cover the entire frame.
+       */
+      if (ti != NULL)
+        proto_item_set_len(ti, tvb_length(tvb));
       src = tvb_get_ptr (tvb, 10, 6);
       dst = tvb_get_ptr (tvb, 4, 6);
 
@@ -1415,6 +1420,13 @@ void
 proto_register_wlan (void)
 {
 
+  static const value_string frame_type[] = {
+    {MGT_FRAME,     "Management frame"},
+    {CONTROL_FRAME, "Control frame"},
+    {DATA_FRAME,    "Data frame"},
+    {0,             NULL}
+  };
+
   static const value_string tofrom_ds[] = {
     {0, "Not leaving DS or network is operating in AD-HOC mode (To DS: 0  From DS: 0)"},
     {1, "Frame is exiting DS (To DS: 0  From DS: 1)"},
@@ -1574,7 +1586,7 @@ proto_register_wlan (void)
       "MAC Protocol version", HFILL }},	/* 0 */
 
     {&hf_fc_frame_type,
-     {"Type", "wlan.fc.type", FT_UINT8, BASE_DEC, NULL, 0,
+     {"Type", "wlan.fc.type", FT_UINT8, BASE_DEC, VALS(frame_type), 0,
       "Frame type", HFILL }},
 
     {&hf_fc_frame_subtype,
@@ -1582,7 +1594,7 @@ proto_register_wlan (void)
       "Frame subtype", HFILL }},	/* 2 */
 
     {&hf_fc_frame_type_subtype,
-     {"Type/Subtype", "wlan.fc.type_subtype", FT_UINT16, BASE_HEX, VALS(frame_type_subtype_vals), 0,
+     {"Type/Subtype", "wlan.fc.type_subtype", FT_UINT16, BASE_DEC, VALS(frame_type_subtype_vals), 0,
       "Type and subtype combined", HFILL }},
 
     {&hf_fc_flags,
