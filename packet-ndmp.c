@@ -1,18 +1,8 @@
-/* XXX TODO:
-   Someone should take packet-iscsi.c apart and break all the SCSI-CDB stuff
-   out and put SCSI-CDB in packet-scsi.c instead.
-   Then packet-iscsi.c only contains the iscsi layer and it will call
-   packet-scsi.c to dissect the cdb's.
-   Then we can call packet-scsi.c to dissect the scsi cdb's 
-   from here as well.
-
-   volunteers?
-*/
 /* packet-ndmp.c
  * Routines for NDMP dissection
  * 2001 Ronnie Sahlberg (see AUTHORS for email)
  *
- * $Id: packet-ndmp.c,v 1.13 2002/02/03 21:44:01 guy Exp $
+ * $Id: packet-ndmp.c,v 1.14 2002/02/12 23:56:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +41,7 @@
 
 #include <epan/packet.h>
 #include "packet-rpc.h"
+#include "packet-scsi.h"
 #include "packet-frame.h"
 #include "prefs.h"
 
@@ -131,6 +122,16 @@ static int hf_ndmp_scsi_device = -1;
 static int hf_ndmp_scsi_controller = -1;
 static int hf_ndmp_scsi_id = -1;
 static int hf_ndmp_scsi_lun = -1;
+static int hf_ndmp_execute_cdb_flags_data_in = -1;
+static int hf_ndmp_execute_cdb_flags_data_out = -1;
+static int hf_ndmp_execute_cdb_timeout = -1;
+static int hf_ndmp_execute_cdb_datain_len = -1;
+static int hf_ndmp_execute_cdb_cdb_len = -1;
+static int hf_ndmp_execute_cdb_dataout = -1;
+static int hf_ndmp_execute_cdb_status = -1;
+static int hf_ndmp_execute_cdb_dataout_len = -1;
+static int hf_ndmp_execute_cdb_datain = -1;
+static int hf_ndmp_execute_cdb_sns_len = -1;
 static int hf_ndmp_tape_invalid_file_num = -1;
 static int hf_ndmp_tape_invalid_soft_errors = -1;
 static int hf_ndmp_tape_invalid_block_size = -1;
@@ -217,6 +218,9 @@ static gint ett_ndmp_header = -1;
 static gint ett_ndmp_butype_attrs = -1;
 static gint ett_ndmp_fs_invalid = -1;
 static gint ett_ndmp_tape_attr = -1;
+static gint ett_ndmp_execute_cdb_flags = -1;
+static gint ett_ndmp_execute_cdb_cdb = -1;
+static gint ett_ndmp_execute_cdb_sns = -1;
 static gint ett_ndmp_tape_invalid = -1;
 static gint ett_ndmp_tape_flags = -1;
 static gint ett_ndmp_addr = -1;
@@ -607,7 +611,7 @@ dissect_butype_attrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	flags=tvb_get_ntohl(tvb, offset);
 	if (parent_tree) {
 		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-				"Attributes: 0x%08x ", flags);
+				"Attributes: 0x%08x", flags);
 		tree = proto_item_add_subtree(item, ett_ndmp_butype_attrs);
 	}
 
@@ -695,7 +699,7 @@ dissect_fs_invalid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pa
 	flags=tvb_get_ntohl(tvb, offset);
 	if (parent_tree) {
 		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-				"Invalids: 0x%08x ", flags);
+				"Invalids: 0x%08x", flags);
 		tree = proto_item_add_subtree(item, ett_ndmp_fs_invalid);
 	}
 
@@ -809,7 +813,7 @@ dissect_tape_attr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *par
 	flags=tvb_get_ntohl(tvb, offset);
 	if (parent_tree) {
 		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-				"Attributes: 0x%08x ", flags);
+				"Attributes: 0x%08x", flags);
 		tree = proto_item_add_subtree(item, ett_ndmp_tape_attr);
 	}
 
@@ -990,6 +994,134 @@ dissect_scsi_set_state_request(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 	return offset;
 }
 
+static int
+dissect_execute_cdb_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree)
+{
+	proto_item* item = NULL;
+	proto_tree* tree = NULL;
+	guint32 flags;
+
+	flags = tvb_get_ntohl(tvb, offset);
+	if (parent_tree) {
+		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
+				"Flags: 0x%08x", flags);
+		tree = proto_item_add_subtree(item, ett_ndmp_execute_cdb_flags);
+	}
+	
+	proto_tree_add_boolean(tree, hf_ndmp_execute_cdb_flags_data_in,
+				tvb, offset, 4, flags);
+	proto_tree_add_boolean(tree, hf_ndmp_execute_cdb_flags_data_out,
+				tvb, offset, 4, flags);
+	offset += 4;
+	return offset;
+}
+
+static int
+dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree)
+{
+	proto_item* item = NULL;
+	proto_tree* tree = NULL;
+	guint32 cdb_len;
+	guint32 cdb_len_full;
+
+	cdb_len = tvb_get_ntohl(tvb, offset+0);
+	cdb_len_full = rpc_roundup(cdb_len);
+	
+	if (parent_tree) {
+		item = proto_tree_add_text(parent_tree, tvb, offset,
+				4+cdb_len_full, "CDB");
+		tree = proto_item_add_subtree(item, ett_ndmp_execute_cdb_cdb);
+	}
+
+	proto_tree_add_uint(tree, hf_ndmp_execute_cdb_cdb_len, tvb, offset, 4,
+			cdb_len);
+	offset += 4;
+
+	if (cdb_len != 0) {
+		dissect_scsi_cdb(tvb, pinfo, tree, offset, cdb_len);
+		offset += cdb_len_full;
+	}
+
+	return offset;
+}
+
+static int
+dissect_execute_cdb_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	/* flags */
+	offset = dissect_execute_cdb_flags(tvb, offset, pinfo, tree);
+
+	/* timeout */
+	proto_tree_add_item(tree, hf_ndmp_execute_cdb_timeout, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	/* datain_len */
+	proto_tree_add_item(tree, hf_ndmp_execute_cdb_datain_len, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	/* CDB */
+	offset = dissect_execute_cdb_cdb(tvb, offset, pinfo, tree);
+
+	/* dataout */
+	/* XXX - is this present if DATA_OUT isn't set? */
+	offset = dissect_rpc_data(tvb, pinfo, tree, hf_ndmp_execute_cdb_dataout,
+	    offset);
+}
+
+static int
+dissect_execute_cdb_sns(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree)
+{
+	proto_item* item = NULL;
+	proto_tree* tree = NULL;
+	guint32 sns_len;
+	guint32 sns_len_full;
+
+	sns_len = tvb_get_ntohl(tvb, offset+0);
+	sns_len_full = rpc_roundup(sns_len);
+	
+	if (parent_tree) {
+		item = proto_tree_add_text(parent_tree, tvb, offset,
+				4+sns_len_full, "Sense data");
+		tree = proto_item_add_subtree(item, ett_ndmp_execute_cdb_sns);
+	}
+
+	proto_tree_add_uint(tree, hf_ndmp_execute_cdb_sns_len, tvb, offset, 4,
+			sns_len);
+	offset += 4;
+
+	if (sns_len != 0) {
+		dissect_scsi_snsinfo(tvb, pinfo, tree, offset, sns_len);
+		offset += sns_len_full;
+	}
+
+	return offset;
+}
+
+static int
+dissect_execute_cdb_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	/* error */
+	proto_tree_add_item(tree, hf_ndmp_error, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	/* status */
+	proto_tree_add_item(tree, hf_ndmp_execute_cdb_status, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	/* dataout_len */
+	proto_tree_add_item(tree, hf_ndmp_execute_cdb_dataout_len, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	/* datain */
+	offset = dissect_rpc_data(tvb, pinfo, tree, hf_ndmp_execute_cdb_datain,
+	    offset);
+
+	/* ext_sense */
+	offset = dissect_execute_cdb_sns(tvb, offset, pinfo, tree);
+
+	return offset;
+}
+
 #define NDMP_TAPE_OPEN_MODE_READ	0
 #define NDMP_TAPE_OPEN_MODE_RDWR	1
 static const value_string tape_open_mode_vals[] = {
@@ -1051,7 +1183,7 @@ dissect_tape_invalid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	flags=tvb_get_ntohl(tvb, offset);
 	if (parent_tree) {
 		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-				"Invalids: 0x%08x ", flags);
+				"Invalids: 0x%08x", flags);
 		tree = proto_item_add_subtree(item, ett_ndmp_tape_invalid);
 	}
 
@@ -1100,7 +1232,7 @@ dissect_tape_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pa
 	flags=tvb_get_ntohl(tvb, offset);
 	if (parent_tree) {
 		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-				"Flags: 0x%08x ", flags);
+				"Flags: 0x%08x", flags);
 		tree = proto_item_add_subtree(item, ett_ndmp_tape_flags);
 	}
 
@@ -1716,7 +1848,7 @@ dissect_file_invalids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 	flags=tvb_get_ntohl(tvb, offset);
 	if (parent_tree) {
 		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-				"Invalids: 0x%08x ", flags);
+				"Invalids: 0x%08x", flags);
 		tree = proto_item_add_subtree(item, ett_ndmp_file_invalids);
 	}
 
@@ -2019,7 +2151,7 @@ dissect_state_invalids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	flags=tvb_get_ntohl(tvb, offset);
 	if (parent_tree) {
 		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-				"Invalids: 0x%08x ", flags);
+				"Invalids: 0x%08x", flags);
 		tree = proto_item_add_subtree(item, ett_ndmp_state_invalids);
 	}
 
@@ -2158,7 +2290,8 @@ static const ndmp_command ndmp_commands[] = {
 		NULL, dissect_error},
 	{NDMP_SCSI_RESET_BUS, 		
 		NULL, dissect_error},
-	{NDMP_SCSI_EXECUTE_CDB, 	NULL,NULL},
+	{NDMP_SCSI_EXECUTE_CDB,
+		dissect_execute_cdb_request, dissect_execute_cdb_reply},
 	{NDMP_TAPE_OPEN, 		
 		dissect_tape_open_request, dissect_error},
 	{NDMP_TAPE_CLOSE, 		
@@ -2171,7 +2304,8 @@ static const ndmp_command ndmp_commands[] = {
 		dissect_tape_write_request, dissect_tape_write_reply},
 	{NDMP_TAPE_READ, 	
 		dissect_tape_read_request, dissect_tape_read_reply},
-	{NDMP_TAPE_EXECUTE_CDB, 	NULL,NULL},
+	{NDMP_TAPE_EXECUTE_CDB,
+		dissect_execute_cdb_request, dissect_execute_cdb_reply},
 	{NDMP_DATA_GET_STATE, 		
 		NULL, dissect_data_get_state_reply},
 	{NDMP_DATA_START_BACKUP,
@@ -2725,6 +2859,46 @@ proto_register_ndmp(void)
 		"LUN", "ndmp.scsi.lun", FT_UINT32, BASE_DEC,
 		NULL, 0, "Target LUN", HFILL }},
 
+	{ &hf_ndmp_execute_cdb_flags_data_in, {
+		"DATA_IN", "ndmp.execute_cdb.flags.data_in", FT_BOOLEAN, 32,
+		NULL, 0x00000001, "DATA_IN", HFILL }},
+
+	{ &hf_ndmp_execute_cdb_flags_data_out, {
+		"DATA_OUT", "ndmp.execute_cdb.flags.data_out", FT_BOOLEAN, 32,
+		NULL, 0x00000002, "DATA_OUT", HFILL }},
+
+	{ &hf_ndmp_execute_cdb_timeout, {
+		"Timeout", "ndmp.execute_cdb.timeout", FT_UINT32, BASE_DEC,
+		NULL, 0, "Reselect timeout, in milliseconds", HFILL }},
+
+	{ &hf_ndmp_execute_cdb_datain_len, {
+		"Data in length", "ndmp.execute_cdb.datain_len", FT_UINT32, BASE_DEC,
+		NULL, 0, "Expected length of data bytes to read", HFILL }},
+
+	{ &hf_ndmp_execute_cdb_cdb_len, {
+		"CDB length", "ndmp.execute_cdb.cdb_len", FT_UINT32, BASE_DEC,
+		NULL, 0, "Length of CDB", HFILL }},
+
+	{ &hf_ndmp_execute_cdb_dataout, {
+		"Data out", "ndmp.execute_cdb.dataout", FT_BYTES, BASE_NONE,
+		NULL, 0, "Data to be transferred to the SCSI device", HFILL }},
+
+	{ &hf_ndmp_execute_cdb_status, {
+		"Status", "ndmp.execute_cdb.status", FT_UINT8, BASE_DEC,
+		VALS(scsi_status_val), 0, "SCSI status", HFILL }},
+
+	{ &hf_ndmp_execute_cdb_dataout_len, {
+		"Data out length", "ndmp.execute_cdb.dataout_len", FT_UINT32, BASE_DEC,
+		NULL, 0, "Number of bytes transferred to the device", HFILL }},
+
+	{ &hf_ndmp_execute_cdb_datain, {
+		"Data in", "ndmp.execute_cdb.datain", FT_BYTES, BASE_NONE,
+		NULL, 0, "Data transferred from the SCSI device", HFILL }},
+
+	{ &hf_ndmp_execute_cdb_sns_len, {
+		"Sense data length", "ndmp.execute_cdb.sns_len", FT_UINT32, BASE_DEC,
+		NULL, 0, "Length of sense data", HFILL }},
+
 	{ &hf_ndmp_tape_open_mode, {
 		"Mode", "ndmp.tape.open_mode", FT_UINT32, BASE_DEC,
 		VALS(tape_open_mode_vals), 0, "Mode to open tape in", HFILL }},
@@ -3067,6 +3241,9 @@ proto_register_ndmp(void)
     &ett_ndmp_butype_attrs,
     &ett_ndmp_fs_invalid,
     &ett_ndmp_tape_attr,
+    &ett_ndmp_execute_cdb_flags,
+    &ett_ndmp_execute_cdb_cdb,
+    &ett_ndmp_execute_cdb_sns,
     &ett_ndmp_tape_invalid,
     &ett_ndmp_tape_flags,
     &ett_ndmp_addr,
