@@ -37,7 +37,9 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include "packet-edonkey.h"
+#include "packet-tcp.h"
 
 static int proto_edonkey = -1;
 
@@ -74,6 +76,9 @@ static gint ett_edonkey_fileinfo = -1;
 static gint ett_edonkey_serverinfo = -1;
 static gint ett_edonkey_clientinfo = -1;
 static gint ett_overnet_peer = -1;
+
+/* desegmentation of eDonkey over TCP */
+static gboolean edonkey_desegment = TRUE;
 
 static const value_string edonkey_protocols[] = {
 	{ EDONKEY_PROTO_EDONKEY,             "eDonkey"                  },
@@ -1159,127 +1164,141 @@ static void dissect_emule_udp_message(guint8 msg_type,
 	return;
 }
 
-static void dissect_edonkey_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
+
+static guint get_edonkey_tcp_pdu_len(tvbuff_t *tvb, int offset)
 {
-  	proto_item *ti;
-	proto_tree *edonkey_tree = NULL, *edonkey_msg_tree = NULL;
-	int offset, bytes, messages;
-	guint8 protocol, msg_type;
+    guint32 msg_len;
+
+    /*
+     * Get the length of the eDonkey packet.
+     */
+    msg_len = tvb_get_letohl(tvb, offset+1);
+
+    /*
+     * That length doesn't include the header; add that in.
+     * XXX - what if it overflows?
+     */
+    return msg_len + EDONKEY_TCP_HEADER_LENGTH;
+}
+
+static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
+{
+    proto_item *ti;
+    proto_tree *edonkey_tree = NULL, *edonkey_msg_tree = NULL;
+    int offset, bytes, messages;
+    guint8 protocol, msg_type;
     guint32 msg_len;
     gchar *protocol_name, *message_name;
     void  (*dissector)(guint8, tvbuff_t*, packet_info*, int, int, proto_tree*);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "eDonkey");
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "eDonkey");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_clear(pinfo->cinfo, COL_INFO);
 
-	if (tree) {
+    if (tree) {
         ti = proto_tree_add_item(tree, proto_edonkey, tvb, 0, -1, FALSE);
         edonkey_tree = proto_item_add_subtree(ti, ett_edonkey);
     }
 
     offset = 0;
     messages = 0;
-    while (tvb_length_remaining(tvb, offset) >= EDONKEY_TCP_HEADER_LENGTH) {
-        protocol = tvb_get_guint8(tvb, offset);
-        msg_len = tvb_get_letohl(tvb, offset+1);
+    protocol = tvb_get_guint8(tvb, offset);
+    msg_len = tvb_get_letohl(tvb, offset+1);
         
-        protocol_name = match_strval(protocol, edonkey_protocols);
-        if (protocol_name == NULL) {
-            /* Not a recognized eDonkey protocol - probably a continuation */
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_add_str(pinfo->cinfo, COL_INFO, "eDonkey Continuation");
-            if (edonkey_tree) {
-                bytes = tvb_length_remaining(tvb, offset);
-                proto_tree_add_text(edonkey_tree, tvb, 0, -1, "Continuation data (%d bytes)", bytes);
-            }
-            return;
-        }
-
-        /* Add edonkey message tree */
+    protocol_name = match_strval(protocol, edonkey_protocols);
+    if (protocol_name == NULL) {
+        /* Not a recognized eDonkey protocol - probably a continuation */
+        if (check_col(pinfo->cinfo, COL_INFO))
+            col_add_str(pinfo->cinfo, COL_INFO, "eDonkey Continuation");
         if (edonkey_tree) {
-            ti = proto_tree_add_item(edonkey_tree, hf_edonkey_message, tvb, 
-                                     offset, EDONKEY_TCP_HEADER_LENGTH + msg_len, FALSE);
-            edonkey_msg_tree = proto_item_add_subtree(ti, ett_edonkey_message);
-            
-            proto_tree_add_uint_format(edonkey_msg_tree, hf_edonkey_protocol, tvb, offset, 1, protocol,
-                                       "Protocol: %s (0x%02x)", protocol_name, protocol);
-            proto_tree_add_uint(edonkey_msg_tree, hf_edonkey_message_length, tvb, offset+1, 4, msg_len);
+            bytes = tvb_length_remaining(tvb, offset);
+            proto_tree_add_text(edonkey_tree, tvb, 0, -1, "Continuation data (%d bytes)", bytes);
         }
+        return;
+    }
+
+    /* Add edonkey message tree */
+    if (edonkey_tree) {
+        ti = proto_tree_add_item(edonkey_tree, hf_edonkey_message, tvb, 
+                                 offset, EDONKEY_TCP_HEADER_LENGTH + msg_len, FALSE);
+        edonkey_msg_tree = proto_item_add_subtree(ti, ett_edonkey_message);
+            
+        proto_tree_add_uint_format(edonkey_msg_tree, hf_edonkey_protocol, tvb, offset, 1, protocol,
+                                  "Protocol: %s (0x%02x)", protocol_name, protocol);
+        proto_tree_add_uint(edonkey_msg_tree, hf_edonkey_message_length, tvb, offset+1, 4, msg_len);
+    }
 
 
-        /* Skip past the EDONKEY Header */
-        offset += EDONKEY_TCP_HEADER_LENGTH;
+    /* Skip past the EDONKEY Header */
+    offset += EDONKEY_TCP_HEADER_LENGTH;
         
-        if(tvb_reported_length_remaining(tvb, offset) <= 0) {
-            /* There is not enough space for the msg_type - mark as fragment */
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                if (messages == 0)
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s TCP Message Fragment", protocol_name);
-                else col_append_fstr(pinfo->cinfo, COL_INFO, "; %s TCP Message Fragment", protocol_name);
-            }
-            return;
-        } 
-
+    if(tvb_reported_length_remaining(tvb, offset) <= 0) {
+        /* There is not enough space for the msg_type - mark as fragment */
         if (check_col(pinfo->cinfo, COL_INFO)) {
-            if (messages == 0)
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s TCP", protocol_name);
-            else col_append_fstr(pinfo->cinfo, COL_INFO, "; %s TCP", protocol_name);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "%s TCP Message Fragment", protocol_name);
         }
+        return;
+    } 
 
-        msg_type = tvb_get_guint8(tvb, offset);
-        switch (protocol) {
-            case EDONKEY_PROTO_EDONKEY:
-                message_name =  val_to_str(msg_type, edonkey_tcp_msgs, "Unknown");
-                dissector = dissect_edonkey_tcp_message;
-                break;
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s TCP", protocol_name);
+    }
+
+    msg_type = tvb_get_guint8(tvb, offset);
+    switch (protocol) {
+        case EDONKEY_PROTO_EDONKEY:
+            message_name =  val_to_str(msg_type, edonkey_tcp_msgs, "Unknown");
+            dissector = dissect_edonkey_tcp_message;
+            break;
             
-            case EDONKEY_PROTO_EMULE_EXT:
-                message_name = val_to_str(msg_type, emule_tcp_msgs,
-                                          val_to_str(msg_type, edonkey_tcp_msgs, "Unknown"));
-                dissector = dissect_emule_tcp_message;
-                break;
+        case EDONKEY_PROTO_EMULE_EXT:
+            message_name = val_to_str(msg_type, emule_tcp_msgs,
+                                      val_to_str(msg_type, edonkey_tcp_msgs, "Unknown"));
+            dissector = dissect_emule_tcp_message;
+            break;
 
-            default:
-                message_name = "Unknown";
-                dissector = NULL;
-                break;
-        }
+        default:
+            message_name = "Unknown";
+            dissector = NULL;
+            break;
+    }
 
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", message_name);
-        }
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", message_name);
+    }
 
 
-        if (edonkey_msg_tree) {
-            proto_tree_add_uint_format(edonkey_msg_tree, hf_edonkey_message_type, tvb, offset, 1, msg_type,
-                                       "Message Type: %s (0x%02x)", message_name, msg_type);
-            if (dissector && (msg_len > 1)) 
-                (*dissector)(msg_type, tvb, pinfo, offset+1, msg_len-1, edonkey_msg_tree);
-        }
+    if (edonkey_msg_tree) {
+        proto_tree_add_uint_format(edonkey_msg_tree, hf_edonkey_message_type, tvb, offset, 1, msg_type,
+                                   "Message Type: %s (0x%02x)", message_name, msg_type);
+        if (dissector && (msg_len > 1)) 
+            (*dissector)(msg_type, tvb, pinfo, offset+1, msg_len-1, edonkey_msg_tree);
+    }
+}
 
-        offset += msg_len;
-        messages++;
-	}
+static void dissect_edonkey_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, edonkey_desegment, 5,
+                     get_edonkey_tcp_pdu_len, dissect_edonkey_tcp_pdu);
 }
 
 static void dissect_edonkey_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
 {
-  	proto_item *ti;
-	proto_tree *edonkey_tree = NULL, *edonkey_msg_tree = NULL;
-	int offset;
-	guint8 protocol, msg_type;
+    proto_item *ti;
+    proto_tree *edonkey_tree = NULL, *edonkey_msg_tree = NULL;
+    int offset;
+    guint8 protocol, msg_type;
     gchar *protocol_name, *message_name;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "eDonkey");
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "eDonkey");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "eDonkey UDP Message");
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_set_str(pinfo->cinfo, COL_INFO, "eDonkey UDP Message");
 
-	if (tree) {
+    if (tree) {
         ti = proto_tree_add_item(tree, proto_edonkey, tvb, 0, -1, FALSE);
         edonkey_tree = proto_item_add_subtree(ti, ett_edonkey);
     }
@@ -1320,22 +1339,22 @@ static void dissect_edonkey_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                     break;
             }
         }
-	}
+    }
 }
 
 void proto_register_edonkey(void) {
 
 	static hf_register_info hf[] = {
-		{ &hf_edonkey_message,  
+        { &hf_edonkey_message,  
           { "eDonkey Message", "edonkey.message",
             FT_NONE, BASE_NONE, NULL, 0, "eDonkey Message", HFILL } },
-		{ &hf_edonkey_protocol, 
+        { &hf_edonkey_protocol, 
           { "Protocol", "edonkey.protocol",
-            FT_UINT8, BASE_HEX, NULL, 0, "eDonkey Protocol", HFILL } },
-		{ &hf_edonkey_message_length,   
+            FT_UINT8, BASE_HEX, VALS(edonkey_protocols), 0, "eDonkey Protocol", HFILL } },
+        { &hf_edonkey_message_length,   
           { "Message Length", "edonkey.message.length",
             FT_UINT32, BASE_DEC, NULL, 0, "eDonkey Message Length", HFILL } },
-		{ &hf_edonkey_message_type,   
+        { &hf_edonkey_message_type,   
           { "Message Type", "edonkey.message.type",
             FT_UINT8, BASE_HEX, NULL, 0, "eDonkey Message Type", HFILL } },
         { &hf_edonkey_client_hash,
@@ -1356,7 +1375,7 @@ void proto_register_edonkey(void) {
         { &hf_edonkey_port,
           { "Port", "edonkey.port",
             FT_UINT16, BASE_DEC, NULL, 0, "eDonkey Port", HFILL } },
-		{ &hf_edonkey_metatag,  
+        { &hf_edonkey_metatag,  
           { "eDonkey Meta Tag", "edonkey.metatag",
             FT_NONE, BASE_NONE, NULL, 0, "eDonkey Meta Tag", HFILL } },
         { &hf_edonkey_metatag_type,
@@ -1371,7 +1390,7 @@ void proto_register_edonkey(void) {
         { &hf_edonkey_metatag_namesize,
           { "Meta Tag Name Size", "edonkey.metatag.namesize",
             FT_UINT16, BASE_DEC, NULL, 0, "eDonkey Meta Tag Name Size", HFILL } },
-		{ &hf_edonkey_search,  
+        { &hf_edonkey_search,  
           { "eDonkey Search", "edonkey.search",
             FT_NONE, BASE_NONE, NULL, 0, "eDonkey Search", HFILL } },
         { &hf_edonkey_hash,
@@ -1386,30 +1405,31 @@ void proto_register_edonkey(void) {
         { &hf_edonkey_directory,
           { "Directory", "edonkey.directory",
             FT_STRING, BASE_NONE, NULL, 0, "eDonkey Directory", HFILL } },
-		{ &hf_edonkey_fileinfo,  
+        { &hf_edonkey_fileinfo,  
           { "eDonkey File Info", "edonkey.fileinfo",
             FT_NONE, BASE_NONE, NULL, 0, "eDonkey File Info", HFILL } },
-		{ &hf_edonkey_serverinfo,  
+        { &hf_edonkey_serverinfo,  
           { "eDonkey Server Info", "edonkey.serverinfo",
             FT_NONE, BASE_NONE, NULL, 0, "eDonkey Server Info", HFILL } },
-		{ &hf_edonkey_clientinfo,  
+        { &hf_edonkey_clientinfo,  
           { "eDonkey Client Info", "edonkey.clientinfo",
             FT_NONE, BASE_NONE, NULL, 0, "eDonkey Client Info", HFILL } },
-		{ &hf_overnet_peer,  
+        { &hf_overnet_peer,  
           { "Overnet Peer", "overnet.peer",
             FT_NONE, BASE_NONE, NULL, 0, "Overnet Peer", HFILL } },
-	};
+        };
 
 	static gint *ett[] = {
 		&ett_edonkey,
-        &ett_edonkey_message,
-        &ett_edonkey_metatag,
-        &ett_edonkey_search,
-        &ett_edonkey_fileinfo,
-        &ett_edonkey_serverinfo,
-        &ett_edonkey_clientinfo,
-        &ett_overnet_peer
+		&ett_edonkey_message,
+		&ett_edonkey_metatag,
+		&ett_edonkey_search,
+		&ett_edonkey_fileinfo,
+		&ett_edonkey_serverinfo,
+		&ett_edonkey_clientinfo,
+		&ett_overnet_peer
 	};
+	module_t *edonkey_module;
 
 	proto_edonkey = proto_register_protocol("eDonkey Protocol", "EDONKEY", "edonkey");
 
@@ -1418,6 +1438,13 @@ void proto_register_edonkey(void) {
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("edonkey.tcp", dissect_edonkey_tcp, proto_edonkey);
 	register_dissector("edonkey.udp", dissect_edonkey_udp, proto_edonkey);
+
+	edonkey_module = prefs_register_protocol(proto_edonkey, NULL);
+	prefs_register_bool_preference(edonkey_module, "desegment",
+	    "Reassemble eDonkey messages spanning multiple TCP segments",
+	    "Whether the eDonkey dissector should reassemble messages spanning multiple TCP segments."
+	    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+	    &edonkey_desegment);
 }
 
 void proto_reg_handoff_edonkey(void) {
