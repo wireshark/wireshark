@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.65 2003/05/26 22:53:58 gerald Exp $
+ * $Id: packet-isakmp.c,v 1.66 2003/06/24 05:54:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1022,11 +1022,11 @@ dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 static const char *
 payloadtype2str(guint8 type) {
 
-  if (type < NUM_LOAD_TYPES) return strfuncs[type].str;
-  if (type < 128)            return "RESERVED";
-  if (type < 256)            return "Private USE";
-
-  return "Huh? You should never see this! Shame on you!";
+  if (type < NUM_LOAD_TYPES)
+    return strfuncs[type].str;
+  if (type < 128)
+    return "RESERVED";
+  return "Private USE";
 }
 
 static const char *
@@ -1051,10 +1051,9 @@ exchtype2str(guint8 type) {
   case 33:
     return "New Group Mode";
   }
-  if (type < 240)          return "DOI Specific Use";
-  if (type < 256)          return "Private Use";
-
-  return "Huh? You should never see this! Shame on you!";
+  if (type < 240)
+    return "DOI Specific Use";
+  return "Private Use";
 }
 
 static const char *
