@@ -2,7 +2,7 @@
  * Routines for docsis dissection
  * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
  *
- * $Id: packet-docsis.c,v 1.2 2002/07/17 00:42:58 guy Exp $
+ * $Id: packet-docsis.c,v 1.3 2002/07/20 23:19:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -357,8 +357,8 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	case FCTYPE_MACSPC:
 	  if (fcparm == 0x02)
 	    col_add_fstr (pinfo->cinfo, COL_INFO,
-			  "Request Frame SID = %u Mini Slots = %u", mac_parm,
-			  len_sid);
+			  "Request Frame SID = %u Mini Slots = %u", len_sid,
+			  mac_parm);
 	  else if (fcparm == 0x03)
 	    col_set_str (pinfo->cinfo, COL_INFO, "Mac Specific");
 	  else
