@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.30 1999/11/27 07:46:44 guy Exp $
+ * $Id: packet-dns.c,v 1.31 1999/11/27 08:59:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -56,6 +56,7 @@ static gint ett_dns_rr = -1;
 static gint ett_dns_qry = -1;
 static gint ett_dns_ans = -1;
 static gint ett_dns_flags = -1;
+static gint ett_t_key_flags = -1;
 
 /* DNS structs and definitions */
 
@@ -131,7 +132,7 @@ static gint ett_dns_flags = -1;
 
 /* See RFC 1035 for all RR types for which no RFC is listed. */
 static char *
-dns_type_name (int type)
+dns_type_name (u_int type)
 {
   char *type_names[36] = {
     "unused",
@@ -200,13 +201,13 @@ dns_type_name (int type)
     case 255:
       return "ANY";
     }
-  
+
   return "unknown";
 }
 
 
 static char *
-dns_long_type_name (int type)
+dns_long_type_name (u_int type)
 {
   char *type_names[36] = {
     "unused",
@@ -544,6 +545,20 @@ add_rr_to_tree(proto_item *trr, int rr_type, int offset, const char *name,
   return rr_tree;
 }
 
+/*
+ * SIG and KEY RR algorithms.
+ */
+#define	DNS_ALGO_MD5		1	/* MD5/RSA */
+#define	DNS_ALGO_EDATE		253	/* Expiration date */
+#define	DNS_ALGO_PRIVATE	254	/* Private use */	
+
+static const value_string algo_vals[] = {
+	  { DNS_ALGO_MD5,     "MD5/RSA" },
+	  { DNS_ALGO_EDATE,   "Expiration date" },
+	  { DNS_ALGO_PRIVATE, "Private use" },
+	  { 0,                NULL }
+};
+
 static int
 dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
   frame_data *fd, proto_tree *dns_tree)
@@ -781,7 +796,6 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
     }
     break;
 
-
   case T_HINFO:
     {
       int cpu_offset;
@@ -901,6 +915,194 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
     }
     break;
 
+  case T_SIG:
+    {
+      int rr_len = data_len;
+      struct timeval unixtime;
+      char signer_name[MAXDNAME];
+      int signer_name_len;
+
+      if (fd != NULL)
+	col_append_fstr(fd, COL_INFO, " %s", type_name);
+      if (dns_tree != NULL) {
+	trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
+		     "%s: type %s, class %s",
+		     name, type_name, class_name);
+	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
+		       long_type_name, class_name, ttl, data_len);
+
+        if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+        }
+	proto_tree_add_text(rr_tree, cur_offset, 2, "Type covered: %s (%s)",
+		dns_type_name(pntohs(&pd[cur_offset])),
+		dns_long_type_name(pntohs(&pd[cur_offset])));
+	cur_offset += 2;
+	rr_len -= 2;
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 1)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+	proto_tree_add_text(rr_tree, cur_offset, 1, "Algorithm: %s",
+		val_to_str(pd[cur_offset], algo_vals,
+	            "Unknown (0x%02X)"));
+	cur_offset += 1;
+	rr_len -= 1;
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 1)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+	proto_tree_add_text(rr_tree, cur_offset, 1, "Labels: %u",
+		pd[cur_offset]);
+	cur_offset += 1;
+	rr_len -= 1;
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+	proto_tree_add_text(rr_tree, cur_offset, 4, "Original TTL: %s",
+		time_secs_to_str(pntohl(&pd[cur_offset])));
+	cur_offset += 4;
+	rr_len -= 4;
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+	unixtime.tv_sec = pntohl(&pd[cur_offset]);
+	unixtime.tv_usec = 0;
+	proto_tree_add_text(rr_tree, cur_offset, 4, "Signature expiration: %s",
+		abs_time_to_str(&unixtime));
+	cur_offset += 4;
+	rr_len -= 4;
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+	unixtime.tv_sec = pntohl(&pd[cur_offset]);
+	unixtime.tv_usec = 0;
+	proto_tree_add_text(rr_tree, cur_offset, 4, "Time signed: %s",
+		abs_time_to_str(&unixtime));
+	cur_offset += 4;
+	rr_len -= 4;
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+	proto_tree_add_text(rr_tree, cur_offset, 2, "Key footprint: 0x%04x",
+		pntohs(&pd[cur_offset]));
+	cur_offset += 2;
+	rr_len -= 2;
+
+	signer_name_len = get_dns_name(pd, cur_offset, dns_data_offset, signer_name, sizeof(signer_name));
+	if (signer_name_len < 0) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+	proto_tree_add_text(rr_tree, cur_offset, signer_name_len,
+		"Signer's name: %s", signer_name);
+	cur_offset += signer_name_len;
+	rr_len -= signer_name_len;
+
+	proto_tree_add_text(rr_tree, cur_offset, rr_len, "Signature");
+      }
+    }
+    break;
+
+  case T_KEY:
+    {
+      int rr_len = data_len;
+      guint16 flags;
+      proto_item *tf;
+      proto_tree *flags_tree;
+
+      if (fd != NULL)
+	col_append_fstr(fd, COL_INFO, " %s", type_name);
+      if (dns_tree != NULL) {
+	trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
+		     "%s: type %s, class %s",
+		     name, type_name, class_name);
+	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
+		       long_type_name, class_name, ttl, data_len);
+
+        if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+        }
+        flags = pntohs(&pd[cur_offset]);
+	tf = proto_tree_add_text(rr_tree, cur_offset, 2, "Flags: 0x%04X", flags);
+	flags_tree = proto_item_add_subtree(tf, ett_t_key_flags);
+	proto_tree_add_text(flags_tree, cur_offset, 2, "%s",
+		decode_boolean_bitfield(flags, 0x8000,
+		  2*8, "Key prohibited for authentication",
+		       "Key allowed for authentication"));
+	proto_tree_add_text(flags_tree, cur_offset, 2, "%s",
+		decode_boolean_bitfield(flags, 0x4000,
+		  2*8, "Key prohibited for confidentiality",
+		       "Key allowed for confidentiality"));
+	if ((flags & 0xC000) != 0xC000) {
+	  /* We have a key */
+	  proto_tree_add_text(flags_tree, cur_offset, 2, "%s",
+		decode_boolean_bitfield(flags, 0x2000,
+		  2*8, "Key is experimental or optional",
+		       "Key is required"));
+	  proto_tree_add_text(flags_tree, cur_offset, 2, "%s",
+		decode_boolean_bitfield(flags, 0x0400,
+		  2*8, "Key is associated with a user",
+		       "Key is not associated with a user"));
+	  proto_tree_add_text(flags_tree, cur_offset, 2, "%s",
+		decode_boolean_bitfield(flags, 0x0200,
+		  2*8, "Key is associated with the named entity",
+		       "Key is not associated with the named entity"));
+	  proto_tree_add_text(flags_tree, cur_offset, 2, "%s",
+		decode_boolean_bitfield(flags, 0x0100,
+		  2*8, "This is the zone key for the specified zone",
+		       "This is not a zone key"));
+	  proto_tree_add_text(flags_tree, cur_offset, 2, "%s",
+		decode_boolean_bitfield(flags, 0x0080,
+		  2*8, "Key is valid for use with IPSEC",
+		       "Key is not valid for use with IPSEC"));
+	  proto_tree_add_text(flags_tree, cur_offset, 2, "%s",
+		decode_boolean_bitfield(flags, 0x0040,
+		  2*8, "Key is valid for use with MIME security multiparts",
+		       "Key is not valid for use with MIME security multiparts"));
+	  proto_tree_add_text(flags_tree, cur_offset, 2, "%s",
+		decode_numeric_bitfield(flags, 0x000F,
+		  2*8, "Signatory = %u"));
+	}
+	cur_offset += 2;
+	rr_len -= 2;
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 1)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+	proto_tree_add_text(rr_tree, cur_offset, 1, "Protocol: %u",
+		pd[cur_offset]);
+	cur_offset += 1;
+	rr_len -= 1;
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 1)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+	proto_tree_add_text(rr_tree, cur_offset, 1, "Algorithm: %s",
+		val_to_str(pd[cur_offset], algo_vals,
+	            "Unknown (0x%02X)"));
+	cur_offset += 1;
+		rr_len -= 1;
+
+	proto_tree_add_text(rr_tree, cur_offset, rr_len, "Public key");
+      }
+    }
+    break;
+
   case T_AAAA:
     if (fd != NULL) {
       col_append_fstr(fd, COL_INFO, " %s %s", type_name,
@@ -994,6 +1196,55 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
     }
     break;
       
+  case T_NXT:
+    {
+      int rr_len = data_len;
+      char next_domain_name[MAXDNAME];
+      int next_domain_name_len;
+      int rr_type;
+      guint8 bits;
+      int mask;
+      int i;
+
+      next_domain_name_len = get_dns_name(pd, cur_offset, dns_data_offset,
+			next_domain_name, sizeof(next_domain_name));
+      if (fd != NULL)
+	col_append_fstr(fd, COL_INFO, " %s %s", type_name, next_domain_name);
+      if (dns_tree != NULL) {
+	trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
+		     "%s: type %s, class %s, next domain name %s",
+		     name, type_name, class_name, next_domain_name);
+	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
+		       long_type_name, class_name, ttl, data_len);
+	if (next_domain_name_len < 0) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+	proto_tree_add_text(rr_tree, cur_offset, next_domain_name_len,
+			"Next domain name: %s", next_domain_name);
+	cur_offset += next_domain_name_len;
+	rr_len -= next_domain_name_len;
+	rr_type = 0;
+	while (rr_len != 0) {
+	  bits = pd[cur_offset];
+	  mask = 1<<8;
+	  for (i = 0; i < 8; i++) {
+	    if (bits & mask) {
+	      proto_tree_add_text(rr_tree, cur_offset, 1,
+			"RR type in bit map: %s (%s)",
+			dns_type_name(rr_type),
+			dns_long_type_name(rr_type));
+	    }
+	    mask >>= 1;
+	    rr_type++;
+	  }
+	  cur_offset += 1;
+	  rr_len -= 1;
+	}
+      }
+    }
+    break;
+
     /* TODO: parse more record types */
 
   default:
@@ -1007,6 +1258,7 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
 		       long_type_name, class_name, ttl, data_len);
       proto_tree_add_text(rr_tree, cur_offset, data_len, "Data");
     }
+    break;
   }
   
   dptr += data_len;
@@ -1268,6 +1520,7 @@ proto_register_dns(void)
     &ett_dns_qry,
     &ett_dns_ans,
     &ett_dns_flags,
+    &ett_t_key_flags,
   };
 
   proto_dns = proto_register_protocol("Domain Name Service", "dns");
