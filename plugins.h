@@ -1,7 +1,7 @@
 /* plugins.h
  * definitions for plugins structures
  *
- * $Id: plugins.h,v 1.6 2000/03/31 21:42:24 oabad Exp $
+ * $Id: plugins.h,v 1.7 2000/08/11 13:34:27 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,13 +36,8 @@
 #endif
 #endif /* HAVE_CONFIG_H */
 
-#ifndef __DFILTER_H__
 #include "dfilter.h"
-#endif
-
-#ifndef __PACKET_H__
 #include "packet.h"
-#endif
 
 #ifdef HAVE_WINSOCK_H
 #include <winsock.h>

@@ -2,7 +2,7 @@
  * Structures and functions for NetWare Core Protocol.
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ncp-int.h,v 1.1 2000/07/28 20:03:42 gram Exp $
+ * $Id: packet-ncp-int.h,v 1.2 2000/08/11 13:34:06 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,6 +23,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+#ifndef __PACKET_NCP_INT_H__
+#define __PACKET_NCP_INT_H__
 
 typedef struct {
 	int		*hf_ptr;
@@ -65,3 +68,5 @@ gboolean ncp_hash_lookup(conversation_t*, guint8 nw_sequence,
 
 
 extern int proto_ncp;
+
+#endif

@@ -1,6 +1,31 @@
-/* packet-ospf.h (c) 1998 Hannes Boehm */
+/* packet-ospf.h
+ *
+ * $Id: packet-ospf.h,v 1.9 2000/08/11 13:34:04 deniel Exp $
+ * 
+ * (c) 1998 Hannes Boehm
+ *
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@zing.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
-/* $Id: packet-ospf.h,v 1.8 2000/04/16 22:46:21 guy Exp $ */
+#ifndef __PACKET_OSPF_H__
+#define __PACKET_OSPF_H__
 
 #define OSPF_HEADER_LENGTH	24
 
@@ -137,3 +162,5 @@ typedef struct _e_ospf_crypto {
     guint8      length;
     guint32   sequence_num;
 } e_ospf_crypto;
+
+#endif

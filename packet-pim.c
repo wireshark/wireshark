@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.15 2000/08/07 03:20:59 guy Exp $
+ * $Id: packet-pim.c,v 1.16 2000/08/11 13:35:08 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,8 +23,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
- 
-#include "config.h"
+
+#ifdef HAVE_CONFIG_H 
+# include "config.h"
+#endif
 
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
@@ -34,16 +36,12 @@
 #include <netinet/in.h>
 #endif
 
+#include <glib.h>
+
 #ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
 # include "snprintf.h"
 #endif
 
-#include <glib.h>
 #include "packet.h"
 #include "packet-ip.h"
 #include "packet-ipv6.h"

@@ -2,7 +2,7 @@
  * Exported routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.h,v 1.4 2000/05/30 03:35:55 guy Exp $
+ * $Id: packet-snmp.h,v 1.5 2000/08/11 13:34:00 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -24,9 +24,14 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __PACKET_SNMP_H__
+#define __PACKET_SNMP_H__
+
 /*
  * Guts of the SNMP dissector - exported for use by protocols such as
  * ILMI.
  */
 void dissect_snmp_pdu(const u_char *, int, frame_data *, proto_tree *tree,
     char *, int, gint);
+
+#endif

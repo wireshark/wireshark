@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.19 2000/08/07 03:20:38 guy Exp $
+ * $Id: packet-icq.c,v 1.20 2000/08/11 13:35:24 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -57,11 +57,6 @@
 #include <glib.h>
 
 #ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
 # include "snprintf.h"
 #endif
 

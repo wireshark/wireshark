@@ -1,7 +1,7 @@
 /* globals.h
  * Global defines, etc.
  *
- * $Id: globals.h,v 1.19 2000/08/03 12:44:21 gram Exp $
+ * $Id: globals.h,v 1.20 2000/08/11 13:34:29 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,21 +26,10 @@
 #ifndef __GLOBALS_H__
 #define __GLOBALS_H__
 
-#ifndef _STDIO_H_
 #include <stdio.h>
-#endif
-
-#ifndef __PACKET_H__
 #include "packet.h"
-#endif
-
-#ifndef __FILE_H__
 #include "file.h"
-#endif
-
-#ifndef __TIMESTAMP_H__
 #include "timestamp.h"
-#endif
 
 #define MIN_PACKET_SIZE 68	/* minimum amount of packet data we can read */
 

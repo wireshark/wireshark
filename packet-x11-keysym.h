@@ -1,9 +1,12 @@
 /* packet-x11-keysym.h
  *
- * $Id: packet-x11-keysym.h,v 1.1 2000/06/12 02:30:34 guy Exp $
+ * $Id: packet-x11-keysym.h,v 1.2 2000/08/11 13:33:55 deniel Exp $
  *
  * Put there so as to make packet-x11.c lighter. See packet-x11.c
  */
+
+#ifndef __PACKET_X11_KEYSYM_H__
+#define __PACKET_X11_KEYSYM_H__
 
 static const value_string keysym_vals_source[] = {
       { 0, "NoSymbol" }, { 0x020, "space" }, { 0x021, "!" }, { 0x022, "\"" },
@@ -341,3 +344,5 @@ static const value_string keysym_vals_source[] = {
       { 0xFFEC, "Super_R" }, { 0xFFED, "Hyper_L" }, { 0xFFEE, "Hyper_R" }, { 0xFFFF, "Delete" },
       { 0xFFFFFF, "VoidSymbol" }, { 0, NULL }
 };
+
+#endif

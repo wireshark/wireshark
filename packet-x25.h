@@ -1,6 +1,6 @@
 /* packet-x25.h
  *
- * $Id: packet-x25.h,v 1.6 2000/05/25 21:34:58 oabad Exp $
+ * $Id: packet-x25.h,v 1.7 2000/08/11 13:33:55 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,4 +22,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __PACKET_X25_H__
+#define __PACKET_X25_H__
+
 void dissect_x25(tvbuff_t *, packet_info *, proto_tree *);
+
+#endif

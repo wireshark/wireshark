@@ -20,14 +20,16 @@
 #endif
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$Id: inet_pton.c,v 1.3 2000/01/10 17:32:51 gram Exp $";
+static char rcsid[] = "$Id: inet_pton.c,v 1.4 2000/08/11 13:34:52 deniel Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
 
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
 
 #ifdef HAVE_WINSOCK_H
 #include <winsock.h>

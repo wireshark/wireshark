@@ -1,6 +1,6 @@
 /* packet-q2931.h
  *
- * $Id: packet-q2931.h,v 1.2 2000/05/29 08:57:38 guy Exp $
+ * $Id: packet-q2931.h,v 1.3 2000/08/11 13:34:03 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,4 +22,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __PACKET_Q2931_H__
+#define __PACKET_Q2931_H__
+
 void dissect_q2931(tvbuff_t *, packet_info *, proto_tree *);
+
+#endif

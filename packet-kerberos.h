@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.h,v 1.1 2000/08/11 03:32:44 guy Exp $
+ * $Id: packet-kerberos.h,v 1.2 2000/08/11 13:34:19 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -24,6 +24,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+
+#ifndef __PACKET_KERBEROS_H__
+#define __PACKET_KERBEROS_H__
+
 void dissect_kerberos(const u_char *, int, frame_data *, proto_tree *);
 void dissect_PrincipalName(char *title, ASN1_SCK *asn1p, frame_data *fd,
                             proto_tree *tree, int *offset);
@@ -37,4 +41,5 @@ void dissect_Addresses(char *title, ASN1_SCK *asn1p, frame_data *fd,
                        proto_tree *tree, int *inoff);
 
 
+#endif
 

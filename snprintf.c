@@ -44,8 +44,8 @@
 # include "config.h"
 #endif
 
-#include "snprintf-imp.h"
 #include "snprintf.h"
+#include "snprintf-imp.h"
 
 /*
  * Find the nth power of 10

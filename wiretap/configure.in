@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.21 2000/02/12 08:54:32 guy Exp $
+# $Id: configure.in,v 1.22 2000/08/11 13:32:35 deniel Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -46,7 +46,7 @@ fi
 
 dnl Checks for header files
 AC_HEADER_STDC
-AC_CHECK_HEADERS(sys/time.h netinet/in.h unistd.h)
+AC_CHECK_HEADERS(sys/time.h netinet/in.h unistd.h fcntl.h sys/stat.h sys/types.h)
 
 AC_CANONICAL_HOST
 

@@ -2,7 +2,7 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.7 2000/08/07 03:21:04 guy Exp $
+ * $Id: packet-rlogin.c,v 1.8 2000/08/11 13:35:07 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,6 +48,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
+
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
+#endif
+
 #include "packet.h"
 #include "resolv.h"
 #include "globals.h"
@@ -56,14 +61,6 @@
 
 #include "packet-tcp.h"
 
-#ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
-# include "snprintf.h"
-#endif
 
 #define CHECK_PACKET_LENGTH(X) if (!BYTES_ARE_IN_FRAME(offset, X)){  \
         proto_tree_add_text(tree, NullTVB, offset, 0, "*** FRAME TOO SHORT ***"); \

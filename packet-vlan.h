@@ -1,6 +1,6 @@
 /* packet-vlan.h
  *
- * $Id: packet-vlan.h,v 1.2 2000/04/16 22:59:37 guy Exp $
+ * $Id: packet-vlan.h,v 1.3 2000/08/11 13:33:57 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,4 +22,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __PACKET_VLAN_H__
+#define __PACKET_VLAN_H__
+
 void capture_vlan(const u_char *, int, packet_counts *);
+
+#endif

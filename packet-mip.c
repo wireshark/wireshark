@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <Stefan.Raab@nextel.com>
  *
- * $Id: packet-mip.c,v 1.6 2000/08/07 03:20:51 guy Exp $
+ * $Id: packet-mip.c,v 1.7 2000/08/11 13:35:14 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -38,17 +38,13 @@
 # include <netinet/in.h>
 #endif
 
+#include <string.h>
+#include <glib.h>
+
 #ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
 # include "snprintf.h"
 #endif
 
-#include <string.h>
-#include <glib.h>
 #include "packet.h"
 
 /* Initialize the protocol and registered fields */

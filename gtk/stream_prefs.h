@@ -1,7 +1,7 @@
 /* stream_prefs.h
  * Definitions for stream preferences window
  *
- * $Id: stream_prefs.h,v 1.1 1999/12/02 04:30:15 gerald Exp $
+ * $Id: stream_prefs.h,v 1.2 2000/08/11 13:32:56 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,9 +23,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __STREAM_PREFS_H__
+#define __STREAM_PREFS_H__
 
 GtkWidget *stream_prefs_show(void);
 void stream_prefs_ok(GtkWidget *w);
 void stream_prefs_save(GtkWidget *w);
 void stream_prefs_cancel(GtkWidget *w);
 void stream_prefs_delete(GtkWidget *w);
+
+#endif

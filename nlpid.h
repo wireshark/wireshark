@@ -2,7 +2,7 @@
  * Definitions of OSI NLPIDs (Network Layer Protocol IDs)
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: nlpid.h,v 1.4 2000/04/15 22:11:07 guy Exp $
+ * $Id: nlpid.h,v 1.5 2000/08/11 13:34:19 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,6 +23,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+#ifndef __NLPID_H__
+#define __NLPID_H__
 
 /* ISO/IEC TR 9577 NLPID values. */
 
@@ -45,3 +48,4 @@
 
 extern const value_string nlpid_vals[];
 
+#endif

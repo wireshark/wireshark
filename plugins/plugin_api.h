@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.6 2000/05/31 18:32:14 gram Exp $
+ * $Id: plugin_api.h,v 1.7 2000/08/11 13:37:21 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -104,10 +104,7 @@
 
 #endif
 
-#ifndef __PACKET_H__
 #include "packet.h"
-#endif
-
 #include "dfilter.h"
 
 #include "plugin_table.h"

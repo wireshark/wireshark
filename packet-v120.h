@@ -1,6 +1,6 @@
 /* packet-v120.h
  *
- * $Id: packet-v120.h,v 1.4 2000/05/31 03:58:55 gram Exp $
+ * $Id: packet-v120.h,v 1.5 2000/08/11 13:33:57 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,4 +22,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __PACKET_V120_H__
+#define __PACKET_V120_H__
+
 void dissect_v120(tvbuff_t *, packet_info *, proto_tree *);
+
+#endif

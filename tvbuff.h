@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.6 2000/08/10 07:58:44 guy Exp $
+ * $Id: tvbuff.h,v 1.7 2000/08/11 13:34:24 deniel Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -36,13 +36,8 @@
 #ifndef __TVBUFF_H__
 #define __TVBUFF_H__
 
-#ifndef __GLIB_H__
 #include <glib.h>
-#endif
-
-#ifndef __EXCEPTIONS_H__
 #include "exceptions.h"
-#endif
 
 typedef struct tvbuff tvbuff_t;
 

@@ -1,6 +1,6 @@
 /* inet_aton.h
  *
- * $Id: inet_aton.h,v 1.1 2000/07/14 07:11:53 guy Exp $
+ * $Id: inet_aton.h,v 1.2 2000/08/11 13:34:19 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -24,5 +24,11 @@
 /*
  * Version of "inet_aton()", for the benefit of OSes that don't have it.
  */
+
+#ifndef __INET_ATON_H__
+#define __INET_ATON_H__
+
 struct in_addr;
 extern int inet_aton(const char* cp_arg, struct in_addr *addr);
+
+#endif

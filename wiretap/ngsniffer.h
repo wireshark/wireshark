@@ -1,6 +1,6 @@
 /* ngsniffer.h
  *
- * $Id: ngsniffer.h,v 1.7 2000/01/22 06:22:43 guy Exp $
+ * $Id: ngsniffer.h,v 1.8 2000/08/11 13:32:34 deniel Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -21,6 +21,11 @@
  *
  */
 
+#ifndef __NGSNIFFER_H__
+#define __NGSNIFFER_H__
+
 int ngsniffer_open(wtap *wth, int *err);
 gboolean ngsniffer_dump_open(wtap_dumper *wdh, int *err);
 int ngsniffer_dump_can_write_encap(int filetype, int encap);
+
+#endif

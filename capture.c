@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.116 2000/07/31 04:03:31 guy Exp $
+ * $Id: capture.c,v 1.117 2000/08/11 13:34:41 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,7 +50,10 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+
+#ifdef HAVE_FCNTL_H
 #include <fcntl.h>
+#endif
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -74,11 +77,6 @@
 #include <errno.h>
 
 #ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
 # include "snprintf.h"
 #endif
 

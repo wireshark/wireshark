@@ -1,6 +1,6 @@
 /* inet_v6defs.h
  *
- * $Id: inet_v6defs.h,v 1.3 2000/07/14 07:11:53 guy Exp $
+ * $Id: inet_v6defs.h,v 1.4 2000/08/11 13:34:19 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -20,6 +20,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+#ifndef __INET_V6DEFS_H__
+#define __INET_V6DEFS_H__
 
 /*
  * Versions of "inet_pton()" and "inet_ntop()", for the benefit of OSes that
@@ -44,4 +47,6 @@ extern const char *inet_ntop(int af, const void *src, char *dst,
  */
 #ifndef __P
 #define __P(args)	args
+#endif
+
 #endif

@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-common.h,v 1.2 2000/05/11 08:15:45 gram Exp $
+ * $Id: packet-smb-common.h,v 1.3 2000/08/11 13:34:00 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -24,6 +24,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+#ifndef __PACKET_SMB_COMMON_H__
+#define __PACKET_SMB_COMMON_H__
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -83,3 +86,5 @@ int display_unicode_string( char *Name, const u_char *pd, int offset,
 		frame_data *fd, proto_tree *tree);
 void dissect_smb_unknown( const u_char *pd, int offset, frame_data *fd,
 		proto_tree *tree);
+
+#endif

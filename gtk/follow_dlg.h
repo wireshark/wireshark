@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.h,v 1.1 2000/08/03 12:44:37 gram Exp $
+ * $Id: follow_dlg.h,v 1.2 2000/08/11 13:32:57 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,5 +22,9 @@
  *
  */
 
+#ifndef __FOLLOW_DLG_H__
+#define __FOLLOW_DLG_H__
+
 void follow_stream_cb( GtkWidget *, gpointer);
 
+#endif

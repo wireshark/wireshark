@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.7 2000/08/10 14:21:09 deniel Exp $
+ * $Id: packet-isis-clv.c,v 1.8 2000/08/11 13:35:17 deniel Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -34,18 +34,14 @@
 # include <sys/types.h>
 #endif
 
-#ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
-# include "snprintf.h"
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
+
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
+#endif
+
 #include "packet.h"
 #include "packet-osi.h"
 #include "packet-isis.h"

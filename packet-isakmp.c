@@ -3,7 +3,7 @@
  * (ISAKMP) (RFC 2408)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.24 2000/08/07 03:20:45 guy Exp $
+ * $Id: packet-isakmp.c,v 1.25 2000/08/11 13:35:18 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,16 +40,12 @@
 #endif
 
 #include <glib.h>
-#include "packet.h"
 
 #ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
 # include "snprintf.h"
 #endif
+
+#include "packet.h"
 
 static int proto_isakmp = -1;
 

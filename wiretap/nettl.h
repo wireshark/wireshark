@@ -1,6 +1,6 @@
 /* nettl.h
  *
- * $Id: nettl.h,v 1.4 2000/02/17 21:08:15 oabad Exp $
+ * $Id: nettl.h,v 1.5 2000/08/11 13:32:34 deniel Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -20,6 +20,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
+
+#ifndef __NETTL_H__
+#define __NETTL_H__
 
 #define NETTL_SUBSYS_NS_LS_LOGGING	0x00
 #define NETTL_SUBSYS_NS_LS_NFT		0x01
@@ -66,3 +69,5 @@
 #define NETTL_SUBSYS_EM			0x7C
 
 int nettl_open(wtap *wth, int *err);
+
+#endif

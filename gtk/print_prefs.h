@@ -1,7 +1,7 @@
 /* print_prefs.h
  * Definitions for print preferences window
  *
- * $Id: print_prefs.h,v 1.3 1999/09/10 06:53:32 guy Exp $
+ * $Id: print_prefs.h,v 1.4 2000/08/11 13:32:56 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,9 +23,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __PRINT_PREFS_H__
+#define __PRINT_PREFS_H__
 
 GtkWidget *printer_prefs_show(void);
 void printer_prefs_ok(GtkWidget *w);
 void printer_prefs_save(GtkWidget *w);
 void printer_prefs_cancel(GtkWidget *w);
 void printer_prefs_delete(GtkWidget *w);
+
+#endif

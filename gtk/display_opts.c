@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.13 2000/07/09 23:22:33 guy Exp $
+ * $Id: display_opts.c,v 1.14 2000/08/11 13:33:09 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,17 +44,12 @@
 
 #include <time.h>
 
-#ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
-# include "snprintf.h"
-#endif
-
 #ifdef HAVE_SYS_SOCKIO_H
 # include <sys/sockio.h>
+#endif
+
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
 #endif
 
 #include "globals.h"

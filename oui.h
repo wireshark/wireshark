@@ -2,7 +2,7 @@
  * Definitions of OUIs
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: oui.h,v 1.6 2000/04/12 20:24:34 gram Exp $
+ * $Id: oui.h,v 1.7 2000/08/11 13:34:18 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -24,6 +24,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __OUI_H__
+#define __OUI_H__
+
 #define	OUI_ENCAP_ETHER	0x000000	/* encapsulated Ethernet */
 #define	OUI_CISCO	0x00000C	/* Cisco (future use) */
 #define	OUI_CISCO_90	0x0000F8	/* Cisco (IOS 9.0 and above?) */
@@ -33,3 +36,5 @@
 #define OUI_CABLE_BPDU	0x00E02F	/* DOCSIS spanning tree BPDU */
 
 extern const value_string oui_vals[];
+
+#endif

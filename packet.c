@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.97 2000/08/07 03:21:24 guy Exp $
+ * $Id: packet.c,v 1.98 2000/08/11 13:34:33 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,7 +43,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef HAVE_STDARG_H
 #include <stdarg.h>
+#endif
+
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
@@ -86,14 +90,8 @@
 #include "packet-v120.h"
 #include "packet-vines.h"
 
-#ifndef __RESOLV_H__
 #include "resolv.h"
-#endif
-
-#ifndef __TVBUFF_H__
 #include "tvbuff.h"
-#endif
-
 #include "plugins.h"
 
 extern capture_file  cfile;

@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.3 2000/08/09 05:26:11 gram Exp $
+ * $Id: follow_dlg.c,v 1.4 2000/08/11 13:33:12 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,19 +33,20 @@
 #include <string.h>
 
 #include <errno.h>
+
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
+
+#ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
+#endif
 
 #ifdef HAVE_IO_H
 #include <io.h>			/* open/close on win32 */
 #endif
 
 #ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
 # include "snprintf.h"
 #endif
 

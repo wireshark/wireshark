@@ -1,6 +1,6 @@
 /* packet-isl.h
  *
- * $Id: packet-isl.h,v 1.1 2000/02/15 21:02:28 gram Exp $
+ * $Id: packet-isl.h,v 1.2 2000/08/11 13:34:10 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,5 +22,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __PACKET_ISL_H__
+#define __PACKET_ISL_H__
+
 void capture_isl(const u_char *, int, packet_counts *);
 void dissect_isl(const u_char *, int, frame_data *, proto_tree *);
+
+#endif

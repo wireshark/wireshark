@@ -1,7 +1,7 @@
 /* print_prefs.c
  * Dialog boxes for preferences for printing
  *
- * $Id: print_prefs.c,v 1.5 2000/05/08 07:54:54 guy Exp $
+ * $Id: print_prefs.c,v 1.6 2000/08/11 13:33:01 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,28 +29,12 @@
 
 #include <errno.h>
 
-#ifndef __GLOBALS_H__
 #include "globals.h"
-#endif
-
 #include "print_prefs.h"
-
-#ifndef __KEYS_H__
 #include "keys.h"
-#endif
-
-#ifndef __PRINT_H__
 #include "print.h"
-#endif
-
-#ifndef __PREFS_DLG_H__
 #include "prefs_dlg.h"
-#endif
-
-#ifndef __UTIL_H__
 #include "util.h"
-#endif
-
 #include "ui_util.h"
 #include "dlg_utils.h"
 

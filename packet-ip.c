@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.100 2000/08/07 03:20:40 guy Exp $
+ * $Id: packet-ip.c,v 1.101 2000/08/11 13:35:20 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,19 +38,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
-#include "resolv.h"
-#include "prefs.h"
 
 #ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
 # include "snprintf.h"
 #endif
 
+#include "packet.h"
+#include "resolv.h"
+#include "prefs.h"
 #include "etypes.h"
 #include "ppptypes.h"
 #include "llcsaps.h"

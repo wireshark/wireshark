@@ -1,6 +1,6 @@
 /* packet-smb.h
  *
- * $Id: packet-smb.h,v 1.1 2000/02/15 21:03:09 gram Exp $
+ * $Id: packet-smb.h,v 1.2 2000/08/11 13:33:52 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,5 +22,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __PACKET_SMB_H__
+#define __PACKET_SMB_H__
 
 void dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data);
+
+#endif

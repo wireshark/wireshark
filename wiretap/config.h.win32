@@ -8,6 +8,15 @@
 /* Define if you have the z library (-lz).  */
 /*#define HAVE_LIBZ 1*/
 
+/* Define if you have the <sys/stat.h> header file.  */
+#define HAVE_SYS_STAT_H 1
+
+/* Define if you have the <sys/types.h> header file.  */
+#define HAVE_SYS_TYPES_H 1
+
+/* Define if you have the <fcntl.h> header file.  */
+#define HAVE_FCNTL_H 1
+
 /* Name of package */
 #define PACKAGE "libwtap.a"
 

@@ -1,7 +1,7 @@
 /* packet-sna.h
  * Definitions for SNA dissection.
  *
- * $Id: packet-sna.h,v 1.3 2000/04/17 00:32:43 guy Exp $
+ * $Id: packet-sna.h,v 1.4 2000/08/11 13:34:00 deniel Exp $
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,6 +18,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __PACKET_SNA_H__
+#define __PACKET_SNA_H__
+
 /*
  * Structure used to represent an FID Type 4 address; gives the layout of the
  * data pointed to by an AT_SNA "address" structure if the size is
@@ -33,3 +36,5 @@ struct sna_fid_type_4_addr {
  * Routine to take an SNA FID Type 4 address and generate a string.
  */
 extern gchar *sna_fid_type_4_addr_to_str(const struct sna_fid_type_4_addr *addrp);
+
+#endif

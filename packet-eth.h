@@ -1,6 +1,6 @@
 /* packet-eth.h
  *
- * $Id: packet-eth.h,v 1.2 2000/05/16 06:21:32 gram Exp $
+ * $Id: packet-eth.h,v 1.3 2000/08/11 13:34:13 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,5 +22,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __PACKET_ETH_H__
+#define __PACKET_ETH_H__
+
 void capture_eth(const u_char *, int, packet_counts *);
 void dissect_eth(tvbuff_t *, packet_info *, proto_tree *);
+
+#endif
+

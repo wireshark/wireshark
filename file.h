@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.74 2000/08/09 06:18:16 gram Exp $
+ * $Id: file.h,v 1.75 2000/08/11 13:34:30 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,27 +30,15 @@
 #include <sys/types.h>
 #endif
 
-#ifndef __WTAP_H__
 #include "wiretap/wtap.h"
-#endif
 
 #ifdef HAVE_LIBPCAP
-#ifndef lib_pcap_h
 #include <pcap.h>
 #endif
-#endif
 
-#ifndef __DFILTER_H__
 #include "dfilter.h"
-#endif
-
-#ifndef __COLORS_H__
 #include "gtk/colors.h"		/* XXX */
-#endif
-
-#ifndef __PRINT_H__
 #include "print.h"
-#endif
 
 #include <errno.h>
 

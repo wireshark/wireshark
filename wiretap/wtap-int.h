@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.5 2000/08/11 07:28:12 guy Exp $
+ * $Id: wtap-int.h,v 1.6 2000/08/11 13:32:36 deniel Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -24,8 +24,9 @@
 #ifndef __WTAP_INT_H__
 #define __WTAP_INT_H__
 
-
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
 
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>

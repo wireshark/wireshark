@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.132 2000/08/05 07:02:28 guy Exp $
+ * $Id: main.c,v 1.133 2000/08/11 13:33:06 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,8 +50,14 @@
 #endif
 
 #include <errno.h>
+
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
+
+#ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
+#endif
 
 #ifdef HAVE_IO_H
 #include <io.h> /* open/close on win32 */
@@ -68,11 +74,6 @@
 #include <signal.h>
 
 #ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
 # include "snprintf.h"
 #endif
 

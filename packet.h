@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.192 2000/08/10 07:58:43 guy Exp $
+ * $Id: packet.h,v 1.193 2000/08/11 13:34:38 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,18 +27,9 @@
 #ifndef __PACKET_H__
 #define __PACKET_H__
 
-#ifndef __WTAP_H__
 #include "wiretap/wtap.h"
-#endif
-
-#ifndef __PROTO_H__
 #include "proto.h"
-#endif
-
-#ifndef __TVBUFF_H__
 #include "tvbuff.h"
-#endif
-
 
 /* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a
  * byte array, returns the value of the two or four bytes at the pointer.

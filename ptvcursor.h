@@ -3,7 +3,7 @@
  * Proto Tree TVBuff cursor
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: ptvcursor.h,v 1.1 2000/07/28 20:03:43 gram Exp $
+ * $Id: ptvcursor.h,v 1.2 2000/08/11 13:34:25 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -24,18 +24,15 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __PTVCURSOR_H__
+#define __PTVCURSOR_H__
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
 
 #include <glib.h>
-
-#ifndef __PACKET_H__
 #include "packet.h"
-#endif
-
-#ifndef __PTVCURSOR_H__
-#define __PTVCURSOR_H__
 
 typedef struct ptvcursor ptvcursor_t;
 

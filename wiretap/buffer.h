@@ -1,6 +1,6 @@
 /* buffer.h
  *
- * $Id: buffer.h,v 1.6 2000/07/31 04:15:58 guy Exp $
+ * $Id: buffer.h,v 1.7 2000/08/11 13:32:35 deniel Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -20,6 +20,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
+
+#ifndef __W_BUFFER_H__
+#define __W_BUFFER_H__
 
 #define SOME_FUNCTIONS_ARE_DEFINES
 
@@ -50,4 +53,6 @@ void buffer_remove_start(Buffer* buffer, unsigned int bytes);
  unsigned int buffer_length(Buffer* buffer);
  u_char* buffer_start_ptr(Buffer* buffer);
  u_char* buffer_end_ptr(Buffer* buffer);
+#endif
+
 #endif

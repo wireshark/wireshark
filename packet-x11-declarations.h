@@ -1,10 +1,13 @@
 /* packet-x11-declarations.h
  *
- * $Id: packet-x11-declarations.h,v 1.1 2000/06/12 02:30:33 guy Exp $
+ * $Id: packet-x11-declarations.h,v 1.2 2000/08/11 13:33:54 deniel Exp $
  *
  * Put there so as to make packet-x11.c lighter. Generated from
  * x11-list. See packet-x11.c
  */
+
+#ifndef __PACKET_X11_DECLARATIONS_H__
+#define __PACKET_X11_DECLARATIONS_H__
 
 static int hf_x11_acceleration_denominator = -1;
 static int hf_x11_acceleration_numerator = -1;
@@ -373,3 +376,5 @@ static int hf_x11_window_value_mask_colormap = -1;
 static int hf_x11_window_value_mask_cursor = -1;
 static int hf_x11_x = -1;
 static int hf_x11_y = -1;
+
+#endif

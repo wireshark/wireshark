@@ -1,11 +1,11 @@
-/* packet-netbios.c
+/* packet-netbios.h
  * Declarations of public routines for NetBIOS protocol packet disassembly
  * Jeff Foster <foste@woodward.com>            
  * Copyright 1999 Jeffrey C. Foster
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.h,v 1.6 2000/04/17 00:32:41 guy Exp $
+ * $Id: packet-netbios.h,v 1.7 2000/08/11 13:34:05 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,6 +27,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __PACKET_NETBIOS_H__
+#define __PACKET_NETBIOS_H__
+
 /* Length of NetBIOS names */
 #define NETBIOS_NAME_LEN	16
 
@@ -38,3 +41,5 @@ extern int get_netbios_name(const u_char *data_ptr, int offset,
 extern char *netbios_name_type_descr(int name_type);
 extern gboolean netbios_add_name( char* label, const u_char *pd, int offset,
     proto_tree *tree);
+
+#endif

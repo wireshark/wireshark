@@ -1,6 +1,6 @@
 /* help_dlg.h
  *
- * $Id: help_dlg.h,v 1.1 2000/08/08 12:28:50 deniel Exp $
+ * $Id: help_dlg.h,v 1.2 2000/08/11 13:32:57 deniel Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -24,4 +24,9 @@
  *
  */
 
+#ifndef __HELP_DLG_H__
+#define __HELP_DLG_H__
+
 void help_cb(GtkWidget *, gpointer);
+
+#endif

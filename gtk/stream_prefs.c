@@ -1,7 +1,7 @@
 /* stream_prefs.c
  * Dialog boxes for preferences for the stream window
  *
- * $Id: stream_prefs.c,v 1.1 1999/12/02 04:30:15 gerald Exp $
+ * $Id: stream_prefs.c,v 1.2 2000/08/11 13:33:00 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,27 +29,12 @@
 
 #include <errno.h>
 
-#ifndef __GLOBALS_H__
 #include "globals.h"
-#endif
-
 #include "stream_prefs.h"
-
-#ifndef __KEYS_H__
 #include "keys.h"
-#endif
-
-#ifndef __PRINT_H__
 #include "print.h"
-#endif
-
-#ifndef __PREFS_DLG_H__
 #include "prefs_dlg.h"
-#endif
-
-#ifndef __UTIL_H__
 #include "util.h"
-#endif
 
 static void update_text_color(GtkWidget *, gpointer);
 static void update_current_color(GtkWidget *, gpointer);

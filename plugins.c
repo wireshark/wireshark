@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.20 2000/08/03 01:54:44 gram Exp $
+ * $Id: plugins.c,v 1.21 2000/08/11 13:34:47 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,8 +43,14 @@
 
 #include <string.h>
 #include <stdlib.h>
+
+#ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
+#endif
+
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
 
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>

@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.7 2000/08/07 03:20:52 guy Exp $
+ * $Id: packet-msproxy.c,v 1.8 2000/08/11 13:35:11 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -59,6 +59,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
+
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
+#endif
+
 #include "packet.h"
 #include "resolv.h"
 #include "globals.h"
@@ -67,16 +72,6 @@
 
 #include "packet-tcp.h"
 #include "packet-udp.h"
-
-
-#ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
-# include "snprintf.h"
-#endif
 
 #define CHECK_PACKET_LENGTH(X) if (!BYTES_ARE_IN_FRAME(offset, X)){  \
  	proto_tree_add_text(tree, NullTVB, offset, 0, "****FRAME TOO SHORT***"); return;}

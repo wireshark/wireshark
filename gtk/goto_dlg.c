@@ -1,7 +1,7 @@
 /* goto_dlg.c
  * Routines for "go to frame" window
  *
- * $Id: goto_dlg.c,v 1.9 2000/07/20 05:09:59 guy Exp $
+ * $Id: goto_dlg.c,v 1.10 2000/08/11 13:33:03 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,9 +36,7 @@
 #include <unistd.h>
 #endif
 
-#ifndef __G_LIB_H__
 #include <glib.h>
-#endif
 
 #include "proto.h"
 #include "dfilter.h"

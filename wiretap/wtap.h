@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.76 2000/08/08 22:16:42 mhall Exp $
+ * $Id: wtap.h,v 1.77 2000/08/11 13:32:37 deniel Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -132,7 +132,9 @@
  */
 #define	WTAP_MAX_PACKET_SIZE			65535
 
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
 
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>

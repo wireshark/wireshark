@@ -2,7 +2,7 @@
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sctp.c,v 1.3 2000/08/07 03:21:09 guy Exp $
+ * $Id: packet-sctp.c,v 1.4 2000/08/11 13:35:00 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -41,19 +41,14 @@
 # include <netinet/in.h>
 #endif
 
+#include <string.h>
+#include <glib.h>
+
 #ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
 # include "snprintf.h"
 #endif
 
-#include <string.h>
-#include <glib.h>
 #include "packet.h"
-
 #include "packet-ip.h"
 
 /* Initialize the protocol and registered fields */

@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.4 2000/02/29 06:24:37 guy Exp $
+ * $Id: gui_prefs.c,v 1.5 2000/08/11 13:33:02 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,16 +29,10 @@
 
 #include <errno.h>
 
-#ifndef __GLOBALS_H__
 #include "globals.h"
-#endif
-
 #include "gui_prefs.h"
 #include "gtkglobals.h"
-
-#ifndef __PREFS_DLG_H__
 #include "prefs_dlg.h"
-#endif
 
 static void scrollbar_menu_item_cb(GtkWidget *w, gpointer data);
 static void plist_sel_browse_cb(GtkWidget *w, gpointer data);

@@ -1,6 +1,6 @@
 /* lanalyzer.h
  *
- * $Id: lanalyzer.h,v 1.3 2000/01/22 06:22:38 guy Exp $
+ * $Id: lanalyzer.h,v 1.4 2000/08/11 13:32:35 deniel Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -21,4 +21,9 @@
  *
  */
 
+#ifndef __LANALYZER_H__
+#define __LANALYZER_H__
+
 int lanalyzer_open(wtap *wth, int *err);
+
+#endif

@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.24 2000/08/07 03:20:23 guy Exp $
+ * $Id: packet-bgp.c,v 1.25 2000/08/11 13:35:29 deniel Exp $
  * 
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -49,24 +49,20 @@
 # include <netinet/in.h>
 #endif
 
-#ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
-# include "snprintf.h"
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
 #endif
 
 #include <string.h>
 #include <glib.h>
+
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
+#endif
+
 #include "packet.h"
 #include "packet-bgp.h"
 #include "packet-ipv6.h"
-
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
 
 #define TCP_PORT_BGP			179
 

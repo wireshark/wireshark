@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.27 2000/01/10 01:43:47 guy Exp $
+ * $Id: column.c,v 1.28 2000/08/11 13:34:48 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,7 +39,9 @@
 #include <unistd.h>
 #endif
 
+#ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
+#endif
 
 #include "timestamp.h"
 #include "prefs.h"

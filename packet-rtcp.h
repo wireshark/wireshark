@@ -3,7 +3,7 @@
  *
  * Jason Lango <jal@netapp.com>
  *
- * $Id: packet-rtcp.h,v 1.1 2000/04/21 01:45:57 guy Exp $
+ * $Id: packet-rtcp.h,v 1.2 2000/08/11 13:34:01 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,4 +25,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __PACKET_RTCP_H__
+#define __PACKET_RTCP_H__
+
 void dissect_rtcp(const u_char *, int, frame_data *, proto_tree *);
+
+#endif

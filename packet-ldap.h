@@ -1,6 +1,6 @@
 /* packet-ldap.h
  *
- * $Id: packet-ldap.h,v 1.4 2000/04/08 07:07:28 guy Exp $
+ * $Id: packet-ldap.h,v 1.5 2000/08/11 13:34:09 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -21,6 +21,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+#ifndef __PACKET_LDAP_H__
+#define __PACKET_LDAP_H__
 
 /*
  * These are all APPLICATION types; the value is the type tag.
@@ -72,3 +75,5 @@
 #define LDAP_MOD_ADD            0
 #define LDAP_MOD_DELETE         1
 #define LDAP_MOD_REPLACE        2
+
+#endif

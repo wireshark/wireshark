@@ -1,7 +1,7 @@
-/* ethereal.h
+/* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.15 2000/08/03 12:44:39 gram Exp $
+ * $Id: main.h,v 1.16 2000/08/11 13:32:58 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,9 +30,7 @@
 #include "config.h"
 #endif
 
-#ifndef __GLOBALS_H__
 #include "globals.h"
-#endif
 
 #ifdef WIN32
 #define MONO_MEDIUM_FONT "-*-lucida console-medium-*-*-*-*-100-*-*-*-*-*-*"

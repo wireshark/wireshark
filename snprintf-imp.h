@@ -69,12 +69,6 @@ Return values:
 Alain Magloire: alainm@rcsm.ee.mcgill.ca
 */
 
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-#include <stdarg.h>
-#else
-#include <varargs.h>
-#endif
-
 #include <stdlib.h>    /* for atoi() */
 #include <ctype.h>
 

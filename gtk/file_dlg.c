@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.29 2000/07/31 04:53:40 guy Exp $
+ * $Id: file_dlg.c,v 1.30 2000/08/11 13:33:04 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,34 +37,16 @@
 
 #include <string.h>
 
-#ifndef __GLOBALS_H__
 #include "globals.h"
-#endif
-#ifndef __GTKGLOBALS_H__
 #include "gtkglobals.h"
-#endif
-
-#ifndef __KEYS_H__
 #include "keys.h"
-#endif
-
 #include "filter_prefs.h"
 #include "ui_util.h"
-
-#ifndef __DIALOG_H__
 #include "simple_dialog.h"
-#endif
-
-#ifndef __MENU_H__
 #include "menu.h"
-#endif
-
 #include "file_dlg.h"
 #include "dlg_utils.h"
-
-#ifndef __UTIL_H__
 #include "util.h"
-#endif
 
 static void file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 static void file_open_destroy_cb(GtkWidget *win, gpointer user_data);

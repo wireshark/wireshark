@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.6 2000/08/10 07:58:44 guy Exp $
+ * $Id: tvbuff.c,v 1.7 2000/08/11 13:34:31 deniel Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -33,9 +33,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __TVBUFF_H__
 #include "tvbuff.h"
-#endif
 
 #include <string.h>
 

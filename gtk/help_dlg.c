@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.1 2000/08/08 12:28:50 deniel Exp $
+ * $Id: help_dlg.c,v 1.2 2000/08/11 13:33:11 deniel Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -32,14 +32,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
 
 #ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
 # include "snprintf.h"
 #endif
 

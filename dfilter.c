@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.36 2000/08/01 18:10:05 gram Exp $
+ * $Id: dfilter.c,v 1.37 2000/08/11 13:35:31 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,39 +31,17 @@
 # include <sys/types.h>
 #endif
 
-#ifndef _STDIO_H
 #include <stdio.h>
-#endif
-
-#ifndef _STRING_H
 #include <string.h>
-#endif
+#include <glib.h>
 
 #ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
 # include "snprintf.h"
 #endif
 
-#ifndef __G_LIB_H__
-#include <glib.h>
-#endif
-
-#ifndef __PROTO_H__
 #include "proto.h"
-#endif
-
-#ifndef __DFILTER_H__
 #include "dfilter.h"
-#endif
-
-#ifndef __UTIL_H__
 #include "util.h"
-#endif
-
 #include "dfilter-int.h"
 #include "dfilter-grammar.h"
 

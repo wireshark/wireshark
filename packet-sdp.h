@@ -1,6 +1,6 @@
 /* packet-sdp.h
  *
- * $Id: packet-sdp.h,v 1.1 2000/02/15 21:03:08 gram Exp $
+ * $Id: packet-sdp.h,v 1.2 2000/08/11 13:34:00 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,5 +22,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __PACKET_SDP_H__
+#define __PACKET_SDP_H__
 
 void dissect_sdp(const u_char *, int, frame_data *, proto_tree *);
+
+#endif

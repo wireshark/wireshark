@@ -1,6 +1,6 @@
 /* packet-trmac.h
  *
- * $Id: packet-trmac.h,v 1.2 2000/06/20 03:05:37 gram Exp $
+ * $Id: packet-trmac.h,v 1.3 2000/08/11 13:33:58 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,5 +22,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __PACKET_TRMAC_H__
+#define __PACKET_TRMAC_H__
 
 void dissect_trmac(tvbuff_t *, packet_info *, proto_tree *);
+
+#endif

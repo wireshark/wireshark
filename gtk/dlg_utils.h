@@ -1,7 +1,7 @@
 /* dlg_utils.h
  * Declarations of utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.h,v 1.3 2000/07/05 02:45:39 guy Exp $
+ * $Id: dlg_utils.h,v 1.4 2000/08/11 13:32:57 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,6 +23,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __DLG_UTILS_H__
+#define __DLG_UTILS_H__
+
 /* Create a dialog box window that belongs to Ethereal's main window. */
 GtkWidget *dlg_window_new(void);
 
@@ -39,3 +42,5 @@ GtkWidget *dlg_radio_button_new_with_label_with_mnemonic(GSList *group,
     const gchar *label, GtkAccelGroup *accel_group);
 GtkWidget *dlg_check_button_new_with_label_with_mnemonic(const gchar *label,
     GtkAccelGroup *accel_group);
+
+#endif

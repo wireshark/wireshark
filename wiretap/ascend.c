@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.16 2000/05/19 23:06:47 gram Exp $
+ * $Id: ascend.c,v 1.17 2000/08/11 13:32:37 deniel Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -29,7 +29,9 @@
 #include "ascend-int.h"
 #include "file_wrappers.h"
 
+#ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
+#endif
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>

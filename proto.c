@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.75 2000/08/10 19:41:45 guy Exp $
+ * $Id: proto.c,v 1.76 2000/08/11 13:35:33 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,39 +31,19 @@
 # include <sys/types.h>
 #endif
 
-#ifndef _STDIO_H
 #include <stdio.h>
-#endif
-
-#ifndef _STRING_H
 #include <string.h>
-#endif
-
-#ifndef __G_LIB_H__
 #include <glib.h>
-#endif
-
-#ifndef __PROTO_H__
-#include "proto.h"
-#endif
-
-#ifndef __PACKET_H__
-#include "packet.h"
-#endif
-
-#ifndef __RESOLV_H__
-#include "resolv.h"
-#endif
-
-#ifndef __REGISTER_H__
-#include "register.h"
-#endif
-
-#include "packet-ipv6.h"
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
 #endif
+
+#include "packet.h"
+#include "resolv.h"
+#include "register.h"
+#include "packet-ipv6.h"
+#include "proto.h"
 
 #define cVALS(x) (const value_string*)(x)
 

@@ -1,6 +1,6 @@
 /* libpcap.h
  *
- * $Id: libpcap.h,v 1.8 2000/07/30 16:54:12 oabad Exp $
+ * $Id: libpcap.h,v 1.9 2000/08/11 13:32:35 deniel Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -20,6 +20,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
+
+#ifndef __W_LIBPCAP_H__
+#define __W_LIBPCAP_H__
 
 /* Magic numbers in "libpcap" files.
 
@@ -86,3 +89,5 @@ struct pcaprec_ss990915_hdr {
 int libpcap_open(wtap *wth, int *err);
 gboolean libpcap_dump_open(wtap_dumper *wdh, int *err);
 int libpcap_dump_can_write_encap(int filetype, int encap);
+
+#endif

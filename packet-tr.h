@@ -1,6 +1,6 @@
 /* packet-tr.h
  *
- * $Id: packet-tr.h,v 1.2 2000/05/15 06:22:07 gram Exp $
+ * $Id: packet-tr.h,v 1.3 2000/08/11 13:33:58 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,5 +22,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __PACKET_TR_H__
+#define __PACKET_TR_H__
+
 void capture_tr(const u_char *, int, packet_counts *);
 void dissect_tr(tvbuff_t *, packet_info *, proto_tree *);
+
+#endif

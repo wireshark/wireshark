@@ -1,7 +1,7 @@
 /* ipproto.c
  * Routines for converting IPv4 protocol/v6 nxthdr field into string
  *
- * $Id: ipproto.c,v 1.8 2000/05/26 21:54:50 guy Exp $
+ * $Id: ipproto.c,v 1.9 2000/08/11 13:35:31 deniel Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -37,23 +37,16 @@
 # include <netdb.h>
 #endif
 
+#include <glib.h>
+
 #ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
 # include "snprintf.h"
 #endif
 
-#include <glib.h>
-
-#ifndef __GLOBALS_H__
 #include "globals.h"
-#endif
-
 #include "packet.h"
 #include "etypes.h"
+#include "resolv.h"
 #include "packet-ip.h"
 #include "packet-ipv6.h"
 

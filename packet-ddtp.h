@@ -3,7 +3,7 @@
  * see http://ddt.sourceforge.net/
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-ddtp.h,v 1.2 2000/05/28 17:04:10 oabad Exp $
+ * $Id: packet-ddtp.h,v 1.3 2000/08/11 13:34:14 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,6 +27,9 @@
  *
  */
 
+#ifndef __PACKET_DDTP_H__
+#define __PACKET_DDTP_H__
+
 #define DDTP_VERSION_ERROR	0
 #define DDTP_VERSION_4		1
 #define DDTP_VERSION_5		2
@@ -49,3 +52,5 @@
 #define DDTP_INVALID_PASSWORD	2
 #define DDTP_INVALID_ACCOUNT	3
 #define DDTP_INVALID_OPCODE	4
+
+#endif

@@ -1,6 +1,6 @@
 /* strerror.h
  *
- * $Id: strerror.h,v 1.1 1999/06/14 21:46:36 guy Exp $
+ * $Id: strerror.h,v 1.2 2000/08/11 13:33:51 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -21,8 +21,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __STRERROR_H__
+#define __STRERROR_H__
+
 /*
  * Version of "strerror()", for the benefit of OSes that don't have it
  * (e.g., SunOS 4.x).
  */
 extern char *strerror(int);
+
+#endif

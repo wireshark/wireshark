@@ -1,6 +1,6 @@
 /* buffer.c
  *
- * $Id: buffer.c,v 1.9 2000/07/31 04:15:58 guy Exp $
+ * $Id: buffer.c,v 1.10 2000/08/11 13:32:37 deniel Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -29,7 +29,9 @@
 #include <string.h>
 #include <glib.h>
 
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
 
 #include "buffer.h"
 
