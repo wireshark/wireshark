@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.112 2002/10/08 09:29:48 guy Exp $
+ * $Id: packet-ipx.c,v 1.113 2002/10/10 21:05:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -132,7 +132,7 @@ static const value_string ipx_socket_vals[] = {
 	{ IPX_SOCKET_NWLINK_SMB_BROWSE,		"NWLink SMB Browse" },
 	{ IPX_SOCKET_ATTACHMATE_GW,		"Attachmate Gateway" },
 	{ IPX_SOCKET_IPX_MESSAGE,		"IPX Message" },
-    { IPX_SOCKET_IPX_MESSAGE1,      "IPX Message" },
+	{ IPX_SOCKET_IPX_MESSAGE1,		"IPX Message" },
 	{ IPX_SOCKET_SNMP_AGENT,		"SNMP Agent" },
 	{ IPX_SOCKET_SNMP_SINK,			"SNMP Sink" },
 	{ IPX_SOCKET_PING_NOVELL,		"Novell PING" },
@@ -142,12 +142,12 @@ static const value_string ipx_socket_vals[] = {
 	{ IPX_SOCKET_ADSM,			"ADSM" },
 	{ IPX_SOCKET_EIGRP,			"Cisco EIGRP for IPX" },
 	{ IPX_SOCKET_WIDE_AREA_ROUTER,		"Wide Area Router" },
-    { SPX_SOCKET_PA,            "NDPS Printer Agent/PSM" },
-    { SPX_SOCKET_BROKER,        "NDPS Broker" },
-    { SPX_SOCKET_SRS,           "NDPS Service Registry Service" },
-    { SPX_SOCKET_ENS,           "NDPS Event Notification Service" },
-    { SPX_SOCKET_RMS,           "NDPS Remote Management Service" },
-    { SPX_SOCKET_NOTIFY_LISTENER,    "NDPS Notify Listener" },
+	{ SPX_SOCKET_PA,			"NDPS Printer Agent/PSM" },
+	{ SPX_SOCKET_BROKER,			"NDPS Broker" },
+	{ SPX_SOCKET_SRS,			"NDPS Service Registry Service" },
+	{ SPX_SOCKET_ENS,			"NDPS Event Notification Service" },
+	{ SPX_SOCKET_RMS,			"NDPS Remote Management Service" },
+	{ SPX_SOCKET_NOTIFY_LISTENER,		"NDPS Notify Listener" },
 	{ 0xE885,				"NT Server-RPC/GW" },
 	{ 0x400C,				"HP LaserJet/QuickSilver" },
 	{ 0x907B,				"SMS Testing and Development" },
@@ -330,12 +330,12 @@ spx_conn_ctrl(guint8 ctrl)
 	const char *p;
 
 	static const value_string conn_vals[] = {
-		{ 0x10, " End-of-Message" },
-		{ 0x20, " Attention" },
-		{ 0x40, " Acknowledgment Required"},
-        { 0x50, " Send Ack: End Message"},
-        { 0x80, " System Packet"},
-        { 0xc0, " System Packet: Send Ack"},
+		{ 0x10, "End-of-Message" },
+		{ 0x20, "Attention" },
+		{ 0x40, "Acknowledgment Required"},
+		{ 0x50, "Send Ack: End Message"},
+		{ 0x80, "System Packet"},
+		{ 0xc0, "System Packet: Send Ack"},
 		{ 0x00, NULL }
 	};
 
@@ -345,7 +345,7 @@ spx_conn_ctrl(guint8 ctrl)
 		return p;
 	}
 	else {
-		return " Unknown";
+		return "Unknown";
 	}
 }
 
@@ -373,7 +373,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	guint8		conn_ctrl;
 	guint8		datastream_type;
-	const char	*spx_msg_string = '\0';
+	const char	*spx_msg_string;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPX");
@@ -388,7 +388,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conn_ctrl = tvb_get_guint8(tvb, 0);
 	spx_msg_string = spx_conn_ctrl(conn_ctrl);
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_str(pinfo->cinfo, COL_INFO, (gchar*) spx_msg_string);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", spx_msg_string);
 	if (tree) {
 		proto_tree_add_uint_format(spx_tree, hf_spx_connection_control, tvb,
 					   0, 1, conn_ctrl,
