@@ -783,6 +783,12 @@ diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/pa
 	because you want to try a patch from someone on the developer mailing 
 	list, or you want to check your own patch before submitting.
 	</para>
+	<warning><title>Warning!</title>
+	<para>
+	If you have problems applying a patch, make sure the line endings (CR/NL)
+	of the patch and your source files match.
+	</para>
+	</warning>
 	<para>
 	XXX - the following is a collection of material and needs some 
 	clarification.
