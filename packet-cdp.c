@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.49 2002/08/28 21:00:08 jmayer Exp $
+ * $Id: packet-cdp.c,v 1.50 2003/10/25 06:07:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,12 @@
  *	http://www.cisco.com/univercd/cc/td/doc/product/lan/trsrb/frames.htm
  *
  * for some information on CDP.
+ *
+ * See
+ *
+ *	http://www.cisco.com/en/US/products/hw/switches/ps663/products_tech_note09186a0080094713.shtml
+ *
+ * for some more information on CDP version 2.
  */
 
 /* Offsets in TLV structure. */
@@ -75,9 +81,9 @@ add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
 #define TYPE_PLATFORM		0x0006
 #define TYPE_IP_PREFIX		0x0007
 
-#define TYPE_VTP_MGMT_DOMAIN    0x0009 /* Guessed, from tcpdump */
-#define TYPE_NATIVE_VLAN        0x000a /* Guessed, from tcpdump */
-#define TYPE_DUPLEX             0x000b /* Guessed, from tcpdump */
+#define TYPE_VTP_MGMT_DOMAIN    0x0009 /* VTP Domain, CTPv2 - see second URL */
+#define TYPE_NATIVE_VLAN        0x000a /* Native VLAN, CTPv2 - see second URL */
+#define TYPE_DUPLEX             0x000b /* Full/Half Duplex - see second URL */
 
 static const value_string type_vals[] = {
 	{ TYPE_DEVICE_ID,    	"Device ID" },
