@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for ldp packet disassembly
  *
- * $Id: packet-ldp.c,v 1.1 2000/11/29 13:15:01 sharpe Exp $
+ * $Id: packet-ldp.c,v 1.2 2000/11/30 06:24:53 sharpe Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -99,13 +99,84 @@ static const value_string ldp_message_types[] = {
   {0, NULL}
 };
 
+int dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
+
+}
+
+int
+dissect_ldp_notification(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+{
+
+}
+
+int 
+dissect_ldp_hello(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+{
+
+}
+
+int 
+dissect_ldp_initialization(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+{
+
+}
+
+int 
+dissect_ldp_keepalive(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+{
+
+}
+
+int 
+dissect_ldp_address(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+{
+
+}
+
+int 
+dissect_ldp_address_withdrawal(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+{
+
+}
+
+int 
+dissect_ldp_label_mapping(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+{
+
+}
+
+int 
+dissect_ldp_label_request(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+{
+
+}
+
+int 
+dissect_ldp_label_withdrawal(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+{
+
+}
+
+int 
+dissect_ldp_label_release(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+{
+
+}
+
+int 
+dissect_ldp_label_abort_request(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+{
+
+}
+
 static void
 dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree     *ldp_tree = NULL, 
                  *ti = NULL,
                  *hdr_tree = NULL, *ldpid_tree = NULL;
-  int	         offset = 0;
+  int	         offset = 0, msg_cnt = 0;
   guint16        ldp_message = 0;
 
 /* Add your variables here */
@@ -122,16 +193,7 @@ dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_add_str(pinfo->fd, COL_PROTOCOL, "LDP");
 
-  ldp_message = tvb_get_ntohs(tvb, 10);    /* Get the message type */
-
-  if (check_col(pinfo->fd, COL_INFO)) {  /* Check the type ... */
-
-    col_add_fstr(pinfo->fd, COL_INFO, "%s", 
-	         val_to_str(ldp_message, ldp_message_types, "Unknown Message (0x%04X)"));
-
-  }
-
-  if (tree) {  /* Build the tree info ... */
+  if (tree) {  /* Build the tree info ..., this is wrong! FIXME */
 
     ti = proto_tree_add_item(tree, proto_ldp, tvb, offset,
 			     tvb_length_remaining(tvb, offset), FALSE);
@@ -163,6 +225,82 @@ dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   }
 
+  offset = 10;
+
+  while (tvb_length_remaining(tvb, offset) > 0) { /* Dissect a message */
+
+    ldp_message = tvb_get_ntohs(tvb, offset) & 0x7FFF; /* Get the message type */
+
+    if (check_col(pinfo->fd, COL_INFO)) {  /* Check the type ... */
+
+      if (msg_cnt > 0) 
+	col_append_fstr(pinfo->fd, COL_INFO, " %s",
+			val_to_str(ldp_message, ldp_message_types, "Unknown Message (0x%04X)"));
+      else
+	col_add_fstr(pinfo->fd, COL_INFO, "%s", 
+		     val_to_str(ldp_message, ldp_message_types, "Unknown Message (0x%04X)"));
+
+    }
+
+    msg_cnt++;
+
+    switch (ldp_message) {
+
+    case LDP_NOTIFICATION:
+
+      offset += dissect_ldp_notification(tvb, offset, pinfo, ldp_tree); 
+
+      break;
+
+    case LDP_HELLO:
+
+      break;
+
+    case LDP_INITIALIZATION:
+
+      break;
+
+    case LDP_KEEPALIVE:
+
+      break;
+
+    case LDP_ADDRESS:
+
+      break;
+
+    case LDP_ADDRESS_WITHDRAWAL:
+
+      break;
+
+    case LDP_LABEL_MAPPING:
+
+      break;
+
+    case LDP_LABEL_REQUEST:
+
+      break;
+
+    case LDP_LABEL_WITHDRAWAL:
+
+      break;
+
+    case LDP_LABEL_RELEASE:
+
+      break;
+
+    case LDP_LABEL_ABORT_REQUEST:
+
+      break;
+
+    default:
+
+      break;
+
+    }
+    
+    offset += tvb_length_remaining(tvb, offset); /* FIXME: Fake this out */
+
+  }
 
 }
 
