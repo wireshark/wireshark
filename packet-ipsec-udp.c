@@ -43,27 +43,33 @@ static void
 dissect_udpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   tvbuff_t *next_tvb;
-  proto_tree *udpencap_tree;
+  proto_tree *udpencap_tree = NULL;
   proto_item *ti;
   guint32 spi;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "UDPENCAP");
-
-  tvb_memcpy(tvb, (guint8 *)&spi, 0, sizeof(spi));
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_udpencap, tvb, 0, -1,
-	 "UDP Encapsulation of IPsec Packets");
+    ti = proto_tree_add_item(tree, proto_udpencap, tvb, 0, -1, FALSE);
     udpencap_tree = proto_item_add_subtree(ti, ett_udpencap);
   }
 
-  /* SPI of zero indicates IKE traffic, otherwise it's ESP */
-  if (spi == 0) {
-    next_tvb = tvb_new_subset(tvb, sizeof(spi), -1, -1);
-    call_dissector(isakmp_handle, next_tvb, pinfo, tree);
+  /* First byte of 0 iindicates NAT-keepalive */
+  if (tvb_get_guint8(tvb, 0) == 0xff) {
+    if (tree)
+      proto_tree_add_text(udpencap_tree, tvb, 0, 1, "NAT-keepalive packet");
   } else {
-    call_dissector(esp_handle, tvb, pinfo, tree);
+    /* SPI of zero indicates IKE traffic, otherwise it's ESP */
+    tvb_memcpy(tvb, (guint8 *)&spi, 0, sizeof(spi));
+    if (spi == 0) {
+      next_tvb = tvb_new_subset(tvb, sizeof(spi), -1, -1);
+      call_dissector(isakmp_handle, next_tvb, pinfo, tree);
+    } else {
+      call_dissector(esp_handle, tvb, pinfo, tree);
+    }
   }
 }
 
@@ -77,7 +83,6 @@ proto_register_udpencap(void)
   proto_udpencap = proto_register_protocol(
 	"UDP Encapsulation of IPsec Packets", "UDPENCAP", "udpencap");
   proto_register_subtree_array(ett, array_length(ett));
-  register_dissector("udpencap", dissect_udpencap, proto_udpencap);
 }
 
 void
@@ -87,6 +92,7 @@ proto_reg_handoff_udpencap(void)
 
   esp_handle = find_dissector("esp");
   isakmp_handle = find_dissector("isakmp");
-  udpencap_handle = find_dissector("udpencap");
+
+  udpencap_handle = create_dissector_handle(dissect_udpencap, proto_udpencap);
   dissector_add("udp.port", 4500, udpencap_handle);
 }
