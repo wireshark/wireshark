@@ -13,6 +13,7 @@ packet-irda.lo
 packet-ircomm.lo
 packet-irda-static.lo
 packet-ircomm-static.lo
+packet-sir.lo
 stamp-h
 *.obj
 *.dll
