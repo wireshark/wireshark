@@ -227,6 +227,4 @@ void q931_calls_reset(voip_calls_tapinfo_t *tapinfo);
 
 void graph_analysis_data_init(void);
 
-void add_rtp_streams_graph(void);
-
 #endif /*VOIP_CALLS_H_INCLUDED*/

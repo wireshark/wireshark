@@ -174,81 +174,6 @@ void graph_analysis_data_init(void){
 }
 
 /****************************************************************************/
-/* Add the RTP streams into the graph data */
-/** 
- * TODO: 
- * - reimplement this function
- * This function does not work with VoIP taps
- * which keep the window up to date.
- * Either make rtp_stream() work without redissection or
- * add an additional tap listener for rtp to this file.
- * The second solution is cleaner and probably easier to implement, 
- * leaving the current rtp analysis feature untouched.
- */
-void add_rtp_streams_graph(void)
-{
-	rtp_stream_info_t *strinfo;
-	GList *strinfo_list;
-	guint nfound;
-	guint item;
-	GList* voip_calls_graph_list;
-	graph_analysis_item_t *gai;
-	graph_analysis_item_t *new_gai;
-	guint16 conv_num;
-	guint32 duration;
-
-	/* Scan for rtpstream */
-	rtpstream_scan();
-
-	/* assigne the RTP streams to calls */
-	nfound = 0;
-	strinfo_list = g_list_first(rtpstream_get_info()->strinfo_list);
-	while (strinfo_list)
-	{
-		strinfo = (rtp_stream_info_t*)(strinfo_list->data);
-
-		/* look in the voip calls graph list if there is a match for this RTP stream */
-		voip_calls_graph_list = g_list_first(the_tapinfo_struct.graph_analysis->list);
-		item = 0;
-		while (voip_calls_graph_list)
-		{			
-			gai = voip_calls_graph_list->data;
-			conv_num = gai->conv_num;
-			if (strinfo->setup_frame_number == gai->frame_num){
-				while(voip_calls_graph_list){
-					gai = voip_calls_graph_list->data;
-					/* add the RTP item to the graph */
-					if (strinfo->first_frame_num<gai->frame_num){
-						new_gai = g_malloc(sizeof(graph_analysis_item_t));
-						new_gai->frame_num = strinfo->first_frame_num;
-						new_gai->time = (double)strinfo->start_rel_sec + (double)strinfo->start_rel_usec/1000000;
-						g_memmove(&new_gai->ip_src, strinfo->src_addr.data, 4);
-						g_memmove(&new_gai->ip_dst, strinfo->dest_addr.data, 4);
-						new_gai->port_src = strinfo->src_port;
-						new_gai->port_dst = strinfo->dest_port;
-						duration = (strinfo->stop_rel_sec*1000000 + strinfo->stop_rel_usec) - (strinfo->start_rel_sec*1000000 + strinfo->start_rel_usec);
-						new_gai->frame_label = g_strdup_printf("RTP (%s)", val_to_str(strinfo->pt, rtp_payload_type_short_vals, "%u"));
-						new_gai->comment = g_strdup_printf("RTP Num packets:%d  Duration:%d.%03ds ssrc:%d", strinfo->npackets, duration/1000000,(duration%1000000)/1000, strinfo->ssrc);
-						new_gai->conv_num = conv_num;
-						new_gai->display=FALSE;
-						new_gai->line_style = 2;  /* the arrow line will be 2 pixels width */
-						the_tapinfo_struct.graph_analysis->list = g_list_insert(the_tapinfo_struct.graph_analysis->list, new_gai, item);
-						
-						break;
-					}
-					voip_calls_graph_list = g_list_next(voip_calls_graph_list);
-					item++;
-				}
-				break;
-			}
-			voip_calls_graph_list = g_list_next(voip_calls_graph_list);
-			item++;
-		}
-		strinfo_list = g_list_next(strinfo_list);
-	}
-}
-
-/****************************************************************************/
 /* Add a new item into the graph */
 int add_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, gchar *frame_label, gchar *comment, guint16 call_num)
 {
@@ -323,8 +248,9 @@ int append_to_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_num, 
 
 /****************************************************************************/
 /* when there is a [re]reading of RTP packet's */
-void voip_rtp_reset(voip_rtp_tapinfo_t *tapinfo)
+void voip_rtp_reset(void *ptr _U_)
 {
+	voip_rtp_tapinfo_t *tapinfo = &the_tapinfo_rtp_struct;
 	GList* list;
 	/* free the data items first */
 	list = g_list_first(tapinfo->list);
@@ -472,7 +398,7 @@ rtp_init_tap(void)
 	if(have_RTP_tap_listener==FALSE)
 	{
 		/* don't register tap listener, if we have it already */
-		error_string = register_tap_listener("rtp", &(the_tapinfo_rtp_struct), NULL,
+		error_string = register_tap_listener("rtp", &(the_tapinfo_rtp_struct.rtp_dummy), NULL,
 			voip_rtp_reset, 
 			RTP_packet, 
 			RTP_packet_draw
