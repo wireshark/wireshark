@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.26 2002/04/30 18:58:15 guy Exp $
+# $Id: Makefile.nmake,v 1.27 2002/06/13 10:39:29 guy Exp $
 #
 
 include ..\config.nmake
@@ -7,7 +7,8 @@ include <win32.mak>
 
 ############### no need to modify below this line #########
 
-CFLAGS=-DHAVE_CONFIG_H /I$(GLIB_DIR) /I$(ZLIB_DIR) -D_U_="" $(LOCAL_CFLAGS)
+CFLAGS=-DHAVE_CONFIG_H /I$(GLIB_DIR) /I$(ZLIB_DIR) /I$(PCAP_DIR)/include \
+	-D_U_="" $(LOCAL_CFLAGS)
 
 .c.obj::
    $(CC) $(cvarsdll) $(CFLAGS) -Fd.\ -c $<
