@@ -3,7 +3,7 @@
  * Copyright 2004, Anders Broman <anders.broman[at]ericsson.com>
  * Copyright 2004, Olivier Biot <olivier.biot[at]siemens.com>
  *
- * $Id: packet-multipart.c,v 1.5 2004/01/22 23:47:59 obiot Exp $
+ * $Id: packet-multipart.c,v 1.6 2004/02/06 01:07:51 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,6 +70,9 @@
 
 #include <epan/packet.h>
 
+/* Dissector table for media requiring special attention in multipart
+ * encapsulation. */
+static dissector_table_t multipart_media_subdissector_table;
 
 /* Initialize the protocol and registered fields */
 static int proto_multipart = -1;
@@ -633,8 +636,18 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 			gboolean dissected;
 
 			pinfo->private_data = parameters;
-			dissected = dissector_try_string(media_type_dissector_table,
+			/*
+			 * First try the dedicated multipart dissector table
+			 */
+			dissected = dissector_try_string(multipart_media_subdissector_table,
 						content_type_str, tmp_tvb, pinfo, subtree);
+			if (! dissected) {
+				/*
+				 * Fall back to the default media dissector table
+				 */
+				dissected = dissector_try_string(media_type_dissector_table,
+						content_type_str, tmp_tvb, pinfo, subtree);
+			}
 			pinfo->private_data = save_private_data;
 			g_free(content_type_str);
 			content_type_str = NULL;
@@ -868,6 +881,17 @@ proto_register_multipart(void)
 			"Display multipart bodies with no media type dissector"
 			" as raw text (may cause problems with binary data).",
 			&display_unknown_body_as_text);
+
+	/*
+	 * Dissectors requiring different behavior in cases where the media
+	 * is contained in a multipart entity should register their multipart
+	 * dissector in the dissector table below, which is similar to the
+	 * "media_type" dissector table defined in the HTTP dissector code.
+	 */
+	multipart_media_subdissector_table = register_dissector_table(
+			"multipart_media_type",
+			"Internet media type (for multipart processing)",
+			FT_STRING, BASE_NONE);
 }
 
 

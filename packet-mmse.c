@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.31 2004/01/17 00:45:02 obiot Exp $
+ * $Id: packet-mmse.c,v 1.32 2004/02/06 01:07:51 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,7 +67,10 @@
 /*
  * Forward declarations
  */
-static void dissect_mmse(tvbuff_t *, packet_info *, proto_tree *);
+static void dissect_mmse_standalone(tvbuff_t *, packet_info *, proto_tree *);
+static void dissect_mmse_encapsulated(tvbuff_t *, packet_info *, proto_tree *);
+static void dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+	guint8 pdut, char *message_type);
 
 /*
  * Header field values
@@ -397,14 +400,59 @@ dissect_mmse_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if ((tvb_get_guint8(tvb, 2) != MM_TID_HDR) &&
 	(tvb_get_guint8(tvb, 2) != MM_VERSION_HDR))
 	return FALSE;
-    dissect_mmse(tvb, pinfo, tree);
+    dissect_mmse_standalone(tvb, pinfo, tree);
     return TRUE;
 }
 
 static void
-dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mmse_standalone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8	 pdut;
+    char	 *message_type;
+
+    DebugLog(("dissect_mmse_standalone() - START (Packet %u)\n",
+		pinfo->fd->num));
+
+    pdut = tvb_get_guint8(tvb, 1);
+    message_type = match_strval(pdut, vals_message_type);
+
+    /* Make entries in Protocol column and Info column on summary display */
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MMSE");
+
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_clear(pinfo->cinfo, COL_INFO);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "MMS %s", message_type);
+    }
+
+    dissect_mmse(tvb, pinfo, tree, pdut, message_type);
+}
+
+static void
+dissect_mmse_encapsulated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint8	 pdut;
+    char	 *message_type;
+
+    DebugLog(("dissect_mmse_encapsulated() - START (Packet %u)\n",
+		pinfo->fd->num));
+
+    pdut = tvb_get_guint8(tvb, 1);
+    message_type = match_strval(pdut, vals_message_type);
+
+    /* Make entries in Info column on summary display */
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(MMS %s)",
+		message_type);
+    }
+
+    dissect_mmse(tvb, pinfo, tree, pdut, message_type);
+}
+
+static void
+dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
+	char *message_type)
+{
     guint	 offset;
     guint8	 field = 0;
     char	 *strval;
@@ -416,18 +464,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree	*mmse_tree = NULL;
 
     DebugLog(("dissect_mmse() - START (Packet %u)\n", pinfo->fd->num));
-
-    pdut = tvb_get_guint8(tvb, 1);
-    strval = match_strval(pdut, vals_message_type);
-
-    /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MMSE");
-
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
-	col_add_fstr(pinfo->cinfo, COL_INFO, "MMS %s", strval);
-    }
 
     /* If tree == NULL then we are only interested in protocol dissection
      * up to reassembly and handoff to subdissectors if applicable; the
@@ -442,7 +478,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	DebugLog(("tree != NULL\n"));
 
 	ti = proto_tree_add_item(tree, proto_mmse, tvb, 0, -1, FALSE);
-	proto_item_append_text(ti, ", Type: %s", strval);
+	proto_item_append_text(ti, ", Type: %s", message_type);
 	/* create display subtree for the protocol */
 	mmse_tree = proto_item_add_subtree(ti, ett_mmse);
 
@@ -1020,12 +1056,18 @@ proto_register_mmse(void)
 void
 proto_reg_handoff_mmse(void)
 {
-    dissector_handle_t mmse_handle;
+    dissector_handle_t mmse_standalone_handle;
+    dissector_handle_t mmse_encapsulated_handle;
 
     heur_dissector_add("wsp", dissect_mmse_heur, proto_mmse);
-    mmse_handle = create_dissector_handle(dissect_mmse, proto_mmse);
+    mmse_standalone_handle = create_dissector_handle(
+	    dissect_mmse_standalone, proto_mmse);
+    mmse_encapsulated_handle = create_dissector_handle(
+	    dissect_mmse_encapsulated, proto_mmse);
 	/* As the media types for WSP and HTTP are the same, the WSP dissector
 	 * uses the same string dissector table as the HTTP protocol. */
     dissector_add_string("media_type",
-	    "application/vnd.wap.mms-message", mmse_handle);
+	    "application/vnd.wap.mms-message", mmse_standalone_handle);
+    dissector_add_string("multipart_media_type",
+	    "application/vnd.wap.mms-message", mmse_encapsulated_handle);
 }
