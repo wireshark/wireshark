@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for stats_tree Ethereal plugin
 #
-# $Id: Makefile.am 12763 2004-12-16 19:36:23Z lroland $
+# $Id$
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>

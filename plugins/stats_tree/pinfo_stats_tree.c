@@ -1,9 +1,9 @@
-/* eth-stat_tree.c
+/* pinfo_stats_tree.c
 * Stats tree for ethernet frames
 *
 *  (c) 2005, Luis E. G. Ontanon <luis.ontanon@gmail.com>
 *
-* $Id:  $
+* $Id$
 *
 * Ethereal - Network traffic analyzer
 * By Gerald Combs <gerald@ethereal.com>
