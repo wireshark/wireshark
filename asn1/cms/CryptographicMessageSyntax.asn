@@ -74,115 +74,115 @@ Attribute ::= SEQUENCE {
 
 SignatureValue ::= OCTET STRING
 
--- EnvelopedData ::= SEQUENCE {
---   version CMSVersion,
---   originatorInfo [0] IMPLICIT OriginatorInfo OPTIONAL,
---   recipientInfos RecipientInfos,
---   encryptedContentInfo EncryptedContentInfo,
---   unprotectedAttrs [1] IMPLICIT UnprotectedAttributes OPTIONAL }
--- 
--- OriginatorInfo ::= SEQUENCE {
---   certs [0] IMPLICIT CertificateSet OPTIONAL,
---OK   crls [1] IMPLICIT CertificateRevocationLists OPTIONAL }
--- 
--- RecipientInfos ::= SET OF RecipientInfo
--- 
--- EncryptedContentInfo ::= SEQUENCE {
---   contentType ContentType,
---   contentEncryptionAlgorithm ContentEncryptionAlgorithmIdentifier,
---   encryptedContent [0] IMPLICIT EncryptedContent OPTIONAL }
--- 
--- EncryptedContent ::= OCTET STRING
--- 
--- UnprotectedAttributes ::= SET SIZE (1..MAX) OF Attribute
--- 
--- RecipientInfo ::= CHOICE {
---   ktri KeyTransRecipientInfo,
---   kari [1] KeyAgreeRecipientInfo,
---   kekri [2] KEKRecipientInfo }
--- 
--- EncryptedKey ::= OCTET STRING
--- 
--- KeyTransRecipientInfo ::= SEQUENCE {
---   version CMSVersion,  
+EnvelopedData ::= SEQUENCE {
+  version CMSVersion,
+  originatorInfo [0] IMPLICIT OriginatorInfo OPTIONAL,
+  recipientInfos RecipientInfos,
+  encryptedContentInfo EncryptedContentInfo,
+  unprotectedAttrs [1] IMPLICIT UnprotectedAttributes OPTIONAL }
+
+OriginatorInfo ::= SEQUENCE {
+  certs [0] IMPLICIT CertificateSet OPTIONAL,
+  crls [1] IMPLICIT CertificateRevocationLists OPTIONAL }
+
+RecipientInfos ::= SET OF RecipientInfo
+
+EncryptedContentInfo ::= SEQUENCE {
+  contentType ContentType,
+  contentEncryptionAlgorithm ContentEncryptionAlgorithmIdentifier,
+  encryptedContent [0] IMPLICIT EncryptedContent OPTIONAL }
+
+EncryptedContent ::= OCTET STRING
+
+UnprotectedAttributes ::= SET SIZE (1..MAX) OF Attribute
+
+RecipientInfo ::= CHOICE {
+  ktri KeyTransRecipientInfo,
+  kari [1] KeyAgreeRecipientInfo,
+  kekri [2] KEKRecipientInfo }
+
+EncryptedKey ::= OCTET STRING
+
+KeyTransRecipientInfo ::= SEQUENCE {
+  version CMSVersion,  
 --            always set to 0 or 2
---OK   rid RecipientIdentifier,
---   keyEncryptionAlgorithm KeyEncryptionAlgorithmIdentifier,
---   encryptedKey EncryptedKey }
+  rid RecipientIdentifier,
+  keyEncryptionAlgorithm KeyEncryptionAlgorithmIdentifier,
+  encryptedKey EncryptedKey }
 
 RecipientIdentifier ::= CHOICE {
   issuerAndSerialNumber IssuerAndSerialNumber,
   subjectKeyIdentifier [0] SubjectKeyIdentifier }
 
--- KeyAgreeRecipientInfo ::= SEQUENCE {
---   version CMSVersion,  
+KeyAgreeRecipientInfo ::= SEQUENCE {
+  version CMSVersion,  
 --              always set to 3
---   originator [0] EXPLICIT OriginatorIdentifierOrKey,
---   ukm [1] EXPLICIT UserKeyingMaterial OPTIONAL,
---   keyEncryptionAlgorithm KeyEncryptionAlgorithmIdentifier,
---   recipientEncryptedKeys RecipientEncryptedKeys }
--- 
--- OriginatorIdentifierOrKey ::= CHOICE {
---OK   issuerAndSerialNumber IssuerAndSerialNumber,
---OK   subjectKeyIdentifier [0] SubjectKeyIdentifier,
---   originatorKey [1] OriginatorPublicKey }
--- 
--- OriginatorPublicKey ::= SEQUENCE {
---   algorithm AlgorithmIdentifier,
---   publicKey BIT STRING }
--- 
--- RecipientEncryptedKeys ::= SEQUENCE OF RecipientEncryptedKey
--- 
--- RecipientEncryptedKey ::= SEQUENCE {
---OK   rid KeyAgreeRecipientIdentifier,
---   encryptedKey EncryptedKey }
--- 
--- KeyAgreeRecipientIdentifier ::= CHOICE {
---OK   issuerAndSerialNumber IssuerAndSerialNumber,
---   rKeyId [0] IMPLICIT RecipientKeyIdentifier }
--- 
--- RecipientKeyIdentifier ::= SEQUENCE {
---OK   subjectKeyIdentifier SubjectKeyIdentifier,
---   date GeneralizedTime OPTIONAL,
---   other OtherKeyAttribute OPTIONAL }
+  originator [0] EXPLICIT OriginatorIdentifierOrKey,
+  ukm [1] EXPLICIT UserKeyingMaterial OPTIONAL,
+  keyEncryptionAlgorithm KeyEncryptionAlgorithmIdentifier,
+  recipientEncryptedKeys RecipientEncryptedKeys }
+
+OriginatorIdentifierOrKey ::= CHOICE {
+  issuerAndSerialNumber IssuerAndSerialNumber,
+  subjectKeyIdentifier [0] SubjectKeyIdentifier,
+  originatorKey [1] OriginatorPublicKey }
+
+OriginatorPublicKey ::= SEQUENCE {
+  algorithm AlgorithmIdentifier,
+  publicKey BIT STRING }
+
+RecipientEncryptedKeys ::= SEQUENCE OF RecipientEncryptedKey
+
+RecipientEncryptedKey ::= SEQUENCE {
+  rid KeyAgreeRecipientIdentifier,
+  encryptedKey EncryptedKey }
+
+KeyAgreeRecipientIdentifier ::= CHOICE {
+  issuerAndSerialNumber IssuerAndSerialNumber,
+  rKeyId [0] IMPLICIT RecipientKeyIdentifier }
+
+RecipientKeyIdentifier ::= SEQUENCE {
+  subjectKeyIdentifier SubjectKeyIdentifier,
+  date GeneralizedTime OPTIONAL,
+  other OtherKeyAttribute OPTIONAL }
 
 SubjectKeyIdentifier ::= OCTET STRING
 
--- KEKRecipientInfo ::= SEQUENCE {
---   version CMSVersion,
+KEKRecipientInfo ::= SEQUENCE {
+  version CMSVersion,
 --              always set to 4
---   kekid KEKIdentifier,
---   keyEncryptionAlgorithm KeyEncryptionAlgorithmIdentifier,
---   encryptedKey EncryptedKey }
--- 
--- KEKIdentifier ::= SEQUENCE {
---   keyIdentifier OCTET STRING,
---   date GeneralizedTime OPTIONAL,
---   other OtherKeyAttribute OPTIONAL }
--- 
--- DigestedData ::= SEQUENCE {
---OK   version CMSVersion,
---OK   digestAlgorithm DigestAlgorithmIdentifier,
---OK   encapContentInfo EncapsulatedContentInfo,
---OK   digest Digest }
+  kekid KEKIdentifier,
+  keyEncryptionAlgorithm KeyEncryptionAlgorithmIdentifier,
+  encryptedKey EncryptedKey }
+
+KEKIdentifier ::= SEQUENCE {
+  keyIdentifier OCTET STRING,
+  date GeneralizedTime OPTIONAL,
+  other OtherKeyAttribute OPTIONAL }
+
+DigestedData ::= SEQUENCE {
+  version CMSVersion,
+  digestAlgorithm DigestAlgorithmIdentifier,
+  encapContentInfo EncapsulatedContentInfo,
+  digest Digest }
 
 Digest ::= OCTET STRING
 
--- EncryptedData ::= SEQUENCE {
---   version CMSVersion,
---   encryptedContentInfo EncryptedContentInfo,
---   unprotectedAttrs [1] IMPLICIT UnprotectedAttributes OPTIONAL }
--- 
--- AuthenticatedData ::= SEQUENCE {
---   version CMSVersion,
---   originatorInfo [0] IMPLICIT OriginatorInfo OPTIONAL,
---   recipientInfos RecipientInfos,
---   macAlgorithm MessageAuthenticationCodeAlgorithm,
---OK   digestAlgorithm [1] DigestAlgorithmIdentifier OPTIONAL,
---OK   encapContentInfo EncapsulatedContentInfo,
---   authenticatedAttributes [2] IMPLICIT AuthAttributes OPTIONAL,
---   mac MessageAuthenticationCode,
---   unauthenticatedAttributes [3] IMPLICIT UnauthAttributes OPTIONAL }
+EncryptedData ::= SEQUENCE {
+  version CMSVersion,
+  encryptedContentInfo EncryptedContentInfo,
+  unprotectedAttrs [1] IMPLICIT UnprotectedAttributes OPTIONAL }
+
+AuthenticatedData ::= SEQUENCE {
+  version CMSVersion,
+  originatorInfo [0] IMPLICIT OriginatorInfo OPTIONAL,
+  recipientInfos RecipientInfos,
+  macAlgorithm MessageAuthenticationCodeAlgorithm,
+  digestAlgorithm [1] DigestAlgorithmIdentifier OPTIONAL,
+  encapContentInfo EncapsulatedContentInfo,
+  authenticatedAttributes [2] IMPLICIT AuthAttributes OPTIONAL,
+  mac MessageAuthenticationCode,
+  unauthenticatedAttributes [3] IMPLICIT UnauthAttributes OPTIONAL }
 
 AuthAttributes ::= SET SIZE (1..MAX) OF Attribute
 
@@ -215,13 +215,14 @@ IssuerAndSerialNumber ::= SEQUENCE {
 
 CMSVersion ::= INTEGER  { v0(0), v1(1), v2(2), v3(3), v4(4) }
 
--- UserKeyingMaterial ::= OCTET STRING
--- 
--- OtherKeyAttribute ::= SEQUENCE {
---   keyAttrId OBJECT IDENTIFIER,
---   keyAttr ANY DEFINED BY keyAttrId OPTIONAL }
--- 
--- 
+UserKeyingMaterial ::= OCTET STRING
+
+-- Implemented by hand in the template
+OtherKeyAttribute ::= SEQUENCE {
+--  keyAttrId OBJECT IDENTIFIER,
+--  keyAttr ANY DEFINED BY keyAttrId OPTIONAL }
+}
+
 -- CMS Attributes
 -- 
 -- MessageDigest ::= OCTET STRING

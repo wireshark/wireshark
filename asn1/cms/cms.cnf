@@ -10,8 +10,10 @@ AuthenticationFramework x509af
 
 #.EXPORTS
 SignedData
+Countersignature
 
 #.NO_EMIT
+OtherKeyAttribute
 
 #.TYPE_RENAME
 
