@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.98 2003/11/16 23:17:24 guy Exp $
+ * $Id: packet.c,v 1.99 2003/11/21 21:58:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -286,6 +286,7 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.srcport  = 0;
 	edt->pi.destport = 0;
 	edt->pi.match_port = 0;
+	edt->pi.match_string = NULL;
 	edt->pi.can_desegment = 0;
 	edt->pi.want_pdu_tracking = 0;
 	edt->pi.p2p_dir = P2P_DIR_UNKNOWN;
@@ -987,6 +988,7 @@ dissector_try_string(dissector_table_t sub_dissectors, const gchar *string,
 	dtbl_entry_t *dtbl_entry;
 	struct dissector_handle *handle;
 	int ret;
+	const gchar *saved_match_string;
 
 	dtbl_entry = find_string_dtbl_entry(sub_dissectors, string);
 	if (dtbl_entry != NULL) {
@@ -1003,7 +1005,15 @@ dissector_try_string(dissector_table_t sub_dissectors, const gchar *string,
 			return FALSE;
 		}
 
+		/*
+		 * Save the current value of "pinfo->match_string",
+		 * set it to the string that matched, call the
+		 * dissector, and restore "pinfo->match_string".
+		 */
+		saved_match_string = pinfo->match_string;
+		pinfo->match_string = string;
 		ret = call_dissector_work(handle, tvb, pinfo, tree);
+		pinfo->match_string = saved_match_string;
 
 		/*
 		 * If a new-style dissector returned 0, it means that

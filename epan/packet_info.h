@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.34 2003/10/30 02:06:13 guy Exp $
+ * $Id: packet_info.h,v 1.35 2003/11/21 21:58:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -154,6 +154,7 @@ typedef struct _packet_info {
   guint32 srcport;		/* source port */
   guint32 destport;		/* destination port */
   guint32 match_port;
+  const char *match_string;	/* Subdissectors with string dissector tables use this */
   guint16 can_desegment;	/* >0 if this segment could be desegmented.
 				   A dissector that can offer this API (e.g. TCP)
 				   sets can_desegment=2, then can_desegment is

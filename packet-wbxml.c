@@ -2,7 +2,7 @@
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.c,v 1.15 2003/11/20 22:50:56 guy Exp $
+ * $Id: packet-wbxml.c,v 1.16 2003/11/21 21:58:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -167,7 +167,11 @@ static const value_string vals_wbxml_public_ids[] = {
 	{ 0x0c, "-//WAPFORUM//DTD WTA-WML 1.2//EN (WTA-WML 1.2)" },
 	{ 0x0d, "-//WAPFORUM//DTD EMN 1.0//EN (Email Notification 1.0)" },
 	{ 0x0e, "-//WAPFORUM//DTD DRMREL 1.0//EN (DRMREL 1.0)" },
-	
+	{ 0x0f, "-//WIRELESSVILLAGE//DTD CSP 1.0//EN"
+		" (Wireless Village Client-Server Protocol DTD v1.0)" },
+	{ 0x10, "-//WIRELESSVILLAGE//DTD CSP 1.1//EN"
+		" (Wireless Village Client-Server Protocol DTD v1.1)" },
+
 	/* Registered values - www.syncml.org */
 	{ 0x0fd1, "-//SYNCML//DTD SyncML 1.0//EN (SyncML 1.0)" },
 	{ 0x0fd3, "-//SYNCML//DTD SyncML 1.1//EN (SyncML 1.1)" },
@@ -188,6 +192,8 @@ static const value_string vals_wbxml_public_ids[] = {
 	{ 0x110c, "-//PHONE.COM//DTD MMC 1.1//EN" },
 	{ 0x110d, "-//PHONE.COM//DTD WML 1.3//EN (WML+ 1.3)" },
 	{ 0x110e, "-//PHONE.COM//DTD MMC 2.0//EN" },
+	/* 0x110F -- 0x11FF: unassigned */
+	{ 0x1200, "-//3GPP2.COM//DTD IOTA 1.0//EN" },
 	
 	{ 0x00, NULL }
 };
@@ -1614,6 +1620,103 @@ static const value_valuestring wbxml_channelc10_attrStart[] = {
 
 
 
+/* application/x-wap-prov.browser-settings
+ * application/x-wap-prov.browser-bookmarks
+ * 
+ * Nokia OTA Provisioning document format
+ ***************************************/
+
+/*****   Global extension tokens   *****/
+
+/*****         Tag tokens          *****/
+static const value_string wbxml_nokiaprovc70_tags_cp0[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "CHARACTERISTIC-LIST" },
+	{ 0x06, "CHARACTERISTIC" },
+	{ 0x07, "PARM" },
+
+	{ 0x00, NULL }
+};
+
+/*****    Attribute Start tokens   *****/
+static const value_string wbxml_nokiaprovc70_attrStart_cp0[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x06, "TYPE='ADDRESS'" },
+	{ 0x07, "TYPE='URL'" },
+	{ 0x08, "TYPE='NAME'" },
+	{ 0x10, "NAME" },
+	{ 0x11, "VALUE" },
+	{ 0x12, "NAME='BEARER'" },
+	{ 0x13, "NAME='PROXY'" },
+	{ 0x14, "NAME='PORT'" },
+	{ 0x15, "NAME='NAME'" },
+	{ 0x16, "NAME='PROXY_TYPE'" },
+	{ 0x17, "NAME='URL'" },
+	{ 0x18, "NAME='PROXY_AUTHNAME'" },
+	{ 0x19, "NAME='PROXY_AUTHSECRET'" },
+	{ 0x1A, "NAME='SMS_SMSC_ADDRESS'" },
+	{ 0x1B, "NAME='USSD_SERVICE_CODE'" },
+	{ 0x1C, "NAME='GPRS_ACCESSPOINTNAME'" },
+	{ 0x1D, "NAME='PPP_LOGINTYPE'" },
+	{ 0x1E, "NAME='PROXY_LOGINTYPE'" },
+	{ 0x21, "NAME='CSD_DIALSTRING'" },
+	{ 0x22, "NAME='PPP_AUTHTYPE'" },
+	{ 0x23, "NAME='PPP_AUTHNAME'" },
+	{ 0x24, "NAME='PPP_AUTHSECRET'" },
+	{ 0x28, "NAME='CSD_CALLTYPE'" },
+	{ 0x29, "NAME='CSD_CALLSPEED'" },
+	{ 0x45, "VALUE='GSM/CSD'" },
+	{ 0x46, "VALUE='GSM/SMS'" },
+	{ 0x47, "VALUE='GSM/USSD'" },
+	{ 0x48, "VALUE='IS-136/CSD'" },
+	{ 0x49, "VALUE='GPRS'" },
+	{ 0x60, "VALUE='9200'" },
+	{ 0x61, "VALUE='9201'" },
+	{ 0x62, "VALUE='9202'" },
+	{ 0x63, "VALUE='9203'" },
+	{ 0x64, "VALUE='AUTOMATIC'" },
+	{ 0x65, "VALUE='MANUAL'" },
+	{ 0x6A, "VALUE='AUTO'" },
+	{ 0x6B, "VALUE='9600'" },
+	{ 0x6C, "VALUE='14400'" },
+	{ 0x6D, "VALUE='19200'" },
+	{ 0x6E, "VALUE='28800'" },
+	{ 0x6F, "VALUE='38400'" },
+	{ 0x70, "VALUE='PAP'" },
+	{ 0x71, "VALUE='CHAP'" },
+	{ 0x72, "VALUE='ANALOGUE'" },
+	{ 0x73, "VALUE='ISDN'" },
+	{ 0x74, "VALUE='43200'" },
+	{ 0x75, "VALUE='57600'" },
+	{ 0x76, "VALUE='MSISDN_NO'" },
+	{ 0x77, "VALUE='IPV4'" },
+	{ 0x78, "VALUE='MS_CHAP'" },
+	{ 0x7C, "TYPE='MMSURL'" },
+	{ 0x7D, "TYPE='ID'" },
+	{ 0x7E, "NAME='ISP_NAME'" },
+	{ 0x7F, "TYPE='BOOKMARK'" },
+
+	{ 0x00, NULL }
+};
+
+/*****    Attribute Value tokens   *****/
+
+/***** Token code page aggregation *****/
+static const value_valuestring wbxml_nokiaprovc70_tags[] = {
+	{ 0, wbxml_nokiaprovc70_tags_cp0 },
+	{ 0, NULL }
+};
+
+static const value_valuestring wbxml_nokiaprovc70_attrStart[] = {
+	{ 0, wbxml_nokiaprovc70_attrStart_cp0 },
+	{ 0, NULL }
+};
+
+
+
+
+
+
 /********************** WBXML token mapping aggregation **********************/
 
 
@@ -1621,7 +1724,8 @@ static const value_valuestring wbxml_channelc10_attrStart[] = {
  * contains arrays of pointers to value_string arrays (one per code page).
  */
 typedef struct _wbxml_token_map {
-	const guint32 publicid;  /* WBXML DTD number - see WINA */
+	const guint32 publicid;  /* WBXML DTD number - see WINA (now OMNA) */
+	const gchar *content_type;	/* Content type if no WBXML DTD number */
 	const guint8 defined;    /* Are there mapping tables defined */
 	const value_valuestring *global;     /* Global token map */
 	const value_valuestring *tags;       /* Tag token map */
@@ -1629,104 +1733,111 @@ typedef struct _wbxml_token_map {
 	const value_valuestring *attrValue;  /* Attribute Value token map */
 } wbxml_token_map;
 
-static const wbxml_token_map *wbxml_content_map (guint32 publicid);
+static const wbxml_token_map *wbxml_content_map (guint32 publicid,
+		const char *content_type);
 
 /**
  ** Aggregation of content type and aggregated code pages
- ** Content type map lookup will stop at the 1st entry with 2nd member = FALSE
+ ** Content type map lookup will stop at the 1st entry with 3rd member = FALSE
  **/
 static const wbxml_token_map map[] = {
 #ifdef Test_the_WBXML_parser_without_token_mappings
-	{ 0, FALSE, NULL, NULL, NULL, NULL },
+	{ 0, NULL, FALSE, NULL, NULL, NULL, NULL },
 #endif
-	{ 0x02, TRUE, /* WML 1.0 */
+	{ 0x02, NULL, TRUE, /* WML 1.0 */
 		wbxml_wmlc10_global,
 		wbxml_wmlc10_tags,
 		wbxml_wmlc10_attrStart,
 		wbxml_wmlc10_attrValue
 	},
 #ifdef remove_directive_and_set_TRUE_if_mapping_available
-	{ 0x03, FALSE, /* WTA 1.0 (deprecated) */
+	{ 0x03, NULL, FALSE, /* WTA 1.0 (deprecated) */
 		NULL, NULL, NULL, NULL
 	},
 #endif
-	{ 0x04, TRUE, /* WML 1.1 */
+	{ 0x04, NULL, TRUE, /* WML 1.1 */
 		wbxml_wmlc11_global,
 		wbxml_wmlc11_tags,
 		wbxml_wmlc11_attrStart,
 		wbxml_wmlc11_attrValue
 	},
-	{ 0x05, TRUE, /* SI 1.0 */
+	{ 0x05, NULL, TRUE, /* SI 1.0 */
 		NULL, /* wbxml_sic10_global - does not exist */
 		wbxml_sic10_tags,
 		wbxml_sic10_attrStart,
 		wbxml_sic10_attrValue
 	},
-	{ 0x06, TRUE, /* SL 1.0 */
+	{ 0x06, NULL, TRUE, /* SL 1.0 */
 		NULL, /* wbxml_slc10_global - does not exist */
 		wbxml_slc10_tags,
 		wbxml_slc10_attrStart,
 		wbxml_slc10_attrValue
 	},
-	{ 0x07, TRUE, /* CO 1.0 */
+	{ 0x07, NULL, TRUE, /* CO 1.0 */
 		NULL, /* wbxml_coc10_global - does not exist */
 		wbxml_coc10_tags,
 		wbxml_coc10_attrStart,
 		wbxml_coc10_attrValue
 	},
-	{ 0x08, TRUE, /* CHANNEL 1.0 (deprecated) */
+	{ 0x08, NULL, TRUE, /* CHANNEL 1.0 (deprecated) */
 		NULL, /* wbxml_channelc10_global - does not exist */
 		wbxml_channelc10_tags,
 		wbxml_channelc10_attrStart,
 		NULL, /* wbxml_channelc10_attrValue - does not exist */
 	},
-	{ 0x09, TRUE, /* WML 1.2 */
+	{ 0x09, NULL, TRUE, /* WML 1.2 */
 		wbxml_wmlc12_global,
 		wbxml_wmlc12_tags,
 		wbxml_wmlc12_attrStart,
 		wbxml_wmlc12_attrValue
 	},
-	{ 0x0A, TRUE, /* WML 1.3 */
+	{ 0x0A, NULL, TRUE, /* WML 1.3 */
 		wbxml_wmlc13_global,
 		wbxml_wmlc13_tags,
 		wbxml_wmlc13_attrStart,
 		wbxml_wmlc13_attrValue
 	},
-	{ 0x0B, TRUE, /* PROV 1.0 */
+	{ 0x0B, NULL, TRUE, /* PROV 1.0 */
 		NULL, /* wbxml_provc10_global - does not exist */
 		wbxml_provc10_tags,
 		wbxml_provc10_attrStart,
 		wbxml_provc10_attrValue
 	},
 #ifdef remove_directive_and_set_TRUE_if_mapping_available
-	{ 0x0C, FALSE, /* WTA-WML 1.2 */
+	{ 0x0C, NULL, FALSE, /* WTA-WML 1.2 */
 		NULL, NULL, NULL, NULL
 	},
 #endif
-	{ 0x0D, TRUE, /* EMN 1.0 */
+	{ 0x0D, NULL, TRUE, /* EMN 1.0 */
 		NULL, /* wbxml_emnc10_global - does not exist */
 		wbxml_emnc10_tags,
 		wbxml_emnc10_attrStart,
 		wbxml_emnc10_attrValue
 	},
 #ifdef remove_directive_and_set_TRUE_if_mapping_available
-	{ 0x0E, FALSE, /* DRMREL 1.0 */
+	{ 0x0E, NULL, FALSE, /* DRMREL 1.0 */
 		NULL, NULL, NULL, NULL
 	},
 #endif
-	{ 0x0FD1, TRUE, /* SyncML 1.0 */
+	{ 0x020B, NULL, TRUE, /* Nokia OTA Provisioning 7.0 */
+		NULL, /* wbxml_nokiaprovc70_global - does not exist */
+		wbxml_nokiaprovc70_tags,
+		wbxml_nokiaprovc70_attrStart,
+		NULL, /* wbxml_nokiaprovc70_attrValue - does not exist */
+	},
+	{ 0x0FD1, NULL, TRUE, /* SyncML 1.0 */
 		NULL, /* wbxml_syncmlc10_global - does not exist */
 		wbxml_syncmlc10_tags,
 		NULL, /* wbxml_syncmlc10_attrStart - does not exist */
 		NULL, /* wbxml_syncmlc10_attrValue - does not exist */
 	},
-	{ 0x0FD3, TRUE, /* SyncML 1.1 */
+	{ 0x0FD3, NULL, TRUE, /* SyncML 1.1 */
 		NULL, /* wbxml_syncmlc11_global - does not exist */
 		wbxml_syncmlc11_tags,
 		NULL, /* wbxml_syncmlc11_attrStart - does not exist */
 		NULL, /* wbxml_syncmlc11_attrValue - does not exist */
 	},
-	{ 0x1108, TRUE, /* Phone.com - WML+ 1.1 */
+	{ 0x1108, NULL, TRUE, /* Phone.com - WML+ 1.1 */
 		/* Note: I assumed WML+ 1.1 would be not that different from WML 1.1,
 		 *       the real mapping should come from Phone.com (OpenWave)! */
 		wbxml_wmlc11_global, /* Not 100% true */
@@ -1734,7 +1845,7 @@ static const wbxml_token_map map[] = {
 		wbxml_wmlc11_attrStart, /* Not 100% true */
 		wbxml_wmlc11_attrValue /* Not 100% true */
 	},
-	{ 0x110D, TRUE, /* Phone.com - WML+ 1.3 */
+	{ 0x110D, NULL, TRUE, /* Phone.com - WML+ 1.3 */
 		/* Note: I assumed WML+ 1.3 would be not that different from WML 1.3,
 		 *       the real mapping should come from Phone.com (OpenWave)! */
 		wbxml_wmlc13_global, /* Not 100% true */
@@ -1743,9 +1854,26 @@ static const wbxml_token_map map[] = {
 		wbxml_wmlc13_attrValue /* Not 100% true */
 	},
 	
-	{ 0, FALSE, NULL, NULL, NULL, NULL }
+	{ 0, NULL, FALSE, NULL, NULL, NULL, NULL }
 };
 
+/* The following map contains entries only registered with a media type */
+static const wbxml_token_map textual_map[] = {
+	{ 0x00, "application/x-wap-prov.browser-settings", TRUE,
+		NULL, /* wbxml_nokiaprovc70_global - does not exist */
+		wbxml_nokiaprovc70_tags,
+		wbxml_nokiaprovc70_attrStart,
+		NULL, /* wbxml_nokiaprovc70_attrValue - does not exist */
+	},
+	{ 0x00, "application/x-wap-prov.browser-bookmarks", TRUE,
+		NULL, /* wbxml_nokiaprovc70_global - does not exist */
+		wbxml_nokiaprovc70_tags,
+		wbxml_nokiaprovc70_attrStart,
+		NULL, /* wbxml_nokiaprovc70_attrValue - does not exist */
+	},
+	
+	{ 0, NULL, FALSE, NULL, NULL, NULL, NULL }
+};
 
 /* WBXML content token mapping depends on the following parameters:
  *   - Content type (guint32)
@@ -1798,14 +1926,34 @@ map_token (const value_valuestring *token_map, guint8 codepage, guint8 token) {
 
 /* Returns a pointer to the WBXML token map for the given WBXML public
  * identifier value (see WINA for a table with defined identifiers). */
-static const wbxml_token_map *wbxml_content_map (guint32 publicid) {
+static const wbxml_token_map *wbxml_content_map (guint32 publicid,
+		const char *content_type) {
 	gint i = 0;
 
+	DebugLog(("wbxml_token_map: publicid = %u, content_type = [%s]\n",
+				publicid, content_type));
+	/* First look whether we have a publicid mapping */
 	while (map[i].defined) {
 		if (map[i].publicid == publicid)
 			return &(map[i]);
 		i++;
 	}
+	/* Then look if the content type has a mapping */
+	if (content_type && content_type[0]) {
+		DebugLog(("wbxml_token_map(no match for publicid = %u;"
+					" looking up content_type = [%s])\n",
+					publicid, content_type));
+		i = 0;
+		while(textual_map[i].defined) {
+			if (strcasecmp(content_type, textual_map[i].content_type) == 0) {
+				return &(textual_map[i]);
+			}
+			i++;
+		}
+	}
+	DebugLog(("wbxml_token_map(no match for publicid = %u"
+				" or content_type = [%s])\n",
+				publicid, content_type));
 	return NULL;
 }
 
@@ -1989,10 +2137,15 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (wbxml_tree) { /* Show only if visible */
 			if (publicid) {
 				/* Retrieve the content token mapping if available */
-				content_map = wbxml_content_map (publicid);
+				content_map = wbxml_content_map (publicid, pinfo->match_string);
 				if (content_map) {
 					/* Is there a defined token mapping for publicid? */
 					if (content_map->defined) {
+						if (content_map->content_type) {
+							proto_item_append_text(ti,
+									" is based on Content-Type: %s",
+									content_map->content_type);
+						}
 						proto_tree_add_text (wbxml_content_tree, tvb,
 								offset, -1,
 								"Level | State | Codepage "
