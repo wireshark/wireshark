@@ -2008,6 +2008,11 @@ Alastair Maw <ethereal [AT] almaw.com> {
 	IAX2 support
 }
 
+Sam Leffler <sam [AT] errno.com> {
+	Support for Radiotap 802.11 radio header (header used by FreeBSD
+	   5.2 and later and by NetBSD-current
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>

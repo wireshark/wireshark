@@ -2083,6 +2083,7 @@ B<http://www.ethereal.com>.
   Chris Wilson             <chris [AT] mxtelecom.com>
   Rolf Fiedler             <Rolf.Fiedler [AT] Innoventif.com>
   Alastair Maw             <ethereal [AT] almaw.com>
+  Sam Leffler              <sam [AT] errno.com>
   Pavel Roskin             <proski [AT] gnu.org>
   Georgi Guninski          <guninski [AT] guninski.com>
   Jason Copenhaver         <jcopenha [AT] typedef.org>
