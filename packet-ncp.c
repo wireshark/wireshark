@@ -2,14 +2,14 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
- * Modified to decode server op-lock
+ * Modified to decode server op-lock, packet signature,
  * & NDS packets by Greg Morris <gmorris@novell.com>
  *
  * Portions Copyright (c) by Gilbert Ramirez 2000-2002
  * Portions Copyright (c) by James Coe 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp.c,v 1.76 2003/12/22 02:04:18 guy Exp $
+ * $Id: packet-ncp.c,v 1.77 2004/02/18 06:01:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,8 +50,8 @@
 #include "packet-tcp.h"
 #include "packet-ncp-int.h"
 #include "reassemble.h"
+#include <epan/conversation.h>
 
-gboolean is_signed = FALSE;
 int proto_ncp = -1;
 static int hf_ncp_ip_ver = -1;
 static int hf_ncp_ip_length = -1;
@@ -125,6 +125,7 @@ struct ncp_ip_header {
 	guint32 length;
 };
 
+
 /* This header only appears on NCP over IP request packets */
 struct ncp_ip_rqhdr {
 	guint32 version;
@@ -184,6 +185,100 @@ static value_string ncp_type_vals[] = {
 	{ 0,			NULL }
 };
 
+/* Conversation Struct so we can store whether the conversation is using Packet Signature */
+
+typedef struct {
+	conversation_t	*conversation;
+} mncp_rhash_key;
+
+typedef struct {
+        gboolean            packet_signature;
+} mncp_rhash_value;
+
+static GHashTable *mncp_rhash = NULL;
+static GMemChunk *mncp_rhash_keys = NULL;
+static GMemChunk *mncp_rhash_values = NULL;
+
+/* Hash Functions */
+gint
+mncp_equal(gconstpointer v, gconstpointer v2)
+{
+	const mncp_rhash_key	*val1 = (const mncp_rhash_key*)v;
+	const mncp_rhash_key	*val2 = (const mncp_rhash_key*)v2;
+
+	if (val1->conversation == val2->conversation ) {
+		return 1;
+	}
+	return 0;
+}
+
+guint
+mncp_hash(gconstpointer v)
+{
+	const mncp_rhash_key	*mncp_key = (const mncp_rhash_key*)v;
+	return GPOINTER_TO_UINT(mncp_key->conversation);
+}
+
+/* Initializes the hash table and the mem_chunk area each time a new
+ * file is loaded or re-loaded in ethereal */
+static void
+mncp_init_protocol(void)
+{
+	if (mncp_rhash)
+		g_hash_table_destroy(mncp_rhash);
+	if (mncp_rhash_keys)
+		g_mem_chunk_destroy(mncp_rhash_keys);
+	if (mncp_rhash_values)
+		g_mem_chunk_destroy(mncp_rhash_values);
+
+	mncp_rhash = g_hash_table_new(mncp_hash, mncp_equal);
+	mncp_rhash_keys = g_mem_chunk_new("mncp_rhash_keys",
+			sizeof(mncp_rhash_key),
+			200 * sizeof(mncp_rhash_key),
+			G_ALLOC_ONLY);
+	mncp_rhash_values = g_mem_chunk_new("mncp_rhash_values",
+			sizeof(mncp_rhash_value),
+			200 * sizeof(mncp_rhash_value),
+			G_ALLOC_ONLY);
+}
+
+/* After the sequential run, we don't need the ncp_request hash and keys
+ * anymore; the lookups have already been done and the vital info
+ * saved in the reply-packets' private_data in the frame_data struct. */
+static void
+mncp_postseq_cleanup(void)
+{
+}
+
+mncp_rhash_value*
+mncp_hash_insert(conversation_t *conversation)
+{
+	mncp_rhash_key		*key;
+	mncp_rhash_value	*value;
+
+	/* Now remember the request, so we can find it if we later
+	   a reply to it. */
+	key = g_mem_chunk_alloc(mncp_rhash_keys);
+	key->conversation = conversation;
+
+	value = g_mem_chunk_alloc(mncp_rhash_values);
+	value->packet_signature = FALSE;
+       
+	g_hash_table_insert(mncp_rhash, key, value);
+
+	return value;
+}
+
+/* Returns the ncp_rec*, or NULL if not found. */
+mncp_rhash_value*
+mncp_hash_lookup(conversation_t *conversation)
+{
+	mncp_rhash_key		key;
+
+	key.conversation = conversation;
+
+	return g_hash_table_lookup(mncp_rhash, &key);
+}
 
 /*
  * Burst packet system flags.
@@ -215,6 +310,8 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	tvbuff_t       			*next_tvb;
 	guint32				testvar = 0;
 	guint8				subfunction;
+    mncp_rhash_value    *request_value = NULL;
+    conversation_t      *conversation;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NCP");
@@ -223,63 +320,118 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	hdr_offset = 0;
 
-	if (is_tcp) {
-        	if (tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RQST &&
-        	    tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RPLY) 
+	if (is_tcp) 
+    {
+       	if (tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RQST && tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RPLY) 
 			hdr_offset += 1;
 		ncpiph.signature	= tvb_get_ntohl(tvb, hdr_offset);
 		ncpiph.length		= tvb_get_ntohl(tvb, hdr_offset+4);
 		hdr_offset += 8;
-		if (ncpiph.signature == NCPIP_RQST) {
+		if (ncpiph.signature == NCPIP_RQST) 
+        {
 			ncpiphrq.version	= tvb_get_ntohl(tvb, hdr_offset);
 			hdr_offset += 4;
 			ncpiphrq.rplybufsize	= tvb_get_ntohl(tvb, hdr_offset);
 			hdr_offset += 4;
 		}
-		if (ncpiph.length & 0x80000000 ||
-		    ncpiph.signature == NCPIP_RPLY) {
-			if (!pinfo->fd->flags.visited) {
-				/*
-				 * This appears to indicate that this packet
-				 * is signed; the signature is 8 bytes long.
-				 *
-				 * XXX - that bit does *not* appear to be set
-				 * in signed replies, and we can't dissect the
-				 * reply enough to find the matching request
-				 * without knowing whether the reply is
-				 * signed.
-				 *
-				 * XXX - what about NCP-over-IPX signed
-				 * messages?
-				 *
-				 * XXX - you can't use a global here;
-				 * you have to store the "signed"
-				 * flag somewhere so that the reply
-				 * can be identified as signed,
-				 * otherwise, in Ethereal, replies are
-				 * dissected as signed iff whatever
-				 * packet Ethereal dissected just before
-				 * the reply was signed.
-				 */
-				if (ncpiph.signature == NCPIP_RQST) {
-					is_signed = TRUE;
+        /* Ok, we need to track the conversation so that we can determine
+         * if packet signature is occuring for this connection. We will
+         * store the conversation the first time and that state of packet 
+         * signature will be stored later in our logic. This way when we 
+         * dissect reply packets we will be able to determine if we need 
+         * to also dissect with a signature.
+         */
+        conversation = find_conversation(&pinfo->src, &pinfo->dst,
+            PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport, 0);
+		if (ncpiph.length & 0x80000000 || ncpiph.signature == NCPIP_RPLY) 
+        {
+            /* First time through we will store packet signature state */
+			if (!pinfo->fd->flags.visited) 
+            {
+                if (conversation != NULL) 
+                {
+                    /* find the record telling us the request made that caused
+                    this reply */
+                    request_value = mncp_hash_lookup(conversation);
+                    /* if for some reason we have no conversation in our hash, create one */
+                    if (request_value==NULL)
+                    {
+                        request_value = mncp_hash_insert(conversation);
+                    }
+                }
+                else
+                {
+                    /* It's not part of any conversation - create a new one. */
+                    conversation = conversation_new(&pinfo->src, &pinfo->dst,
+                        PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport, 0);
+                    request_value = mncp_hash_insert(conversation);
+                }
+                /* If this is a request packet then we know that we have a signature */
+				if (ncpiph.signature == NCPIP_RQST) 
+                {
 					hdr_offset += 8;
 					ncpiph.length &= 0x7fffffff;
-				} else {
-					if (is_signed) {
+                    request_value->packet_signature=TRUE;
+				}
+                else
+                {
+                    /* Now on reply packets we have to use the state of the original request packet */
+                    /* So look up the request value and check the state of packet signature */
+                    request_value = mncp_hash_lookup(conversation);
+					if (request_value->packet_signature==TRUE) 
+                    {
 						hdr_offset += 8;
 						ncpiph.length &= 0x7fffffff;
-					} else
-						is_signed = FALSE;
+                        request_value->packet_signature=TRUE;
+                    }
+                    else
+                    {
+                        request_value->packet_signature=FALSE;
+                    }
 				}
-			} else {
-				if (is_signed) {
+			}
+            else
+            {
+                /* Get request value data */
+                request_value = mncp_hash_lookup(conversation);
+				if (request_value->packet_signature==TRUE) 
+                {
 					hdr_offset += 8;
 					ncpiph.length &= 0x7fffffff;
 				}
 			}
-		} else
-			is_signed = FALSE;
+		} 
+        else
+        {
+			if (!pinfo->fd->flags.visited) 
+            {
+                if (conversation != NULL) 
+                {
+                    /* find the record telling us the request made that caused
+                    this reply */
+                    request_value = mncp_hash_lookup(conversation);
+                    /* if for some reason we have no conversation in our hash, create one */
+                    if (request_value==NULL)
+                    {
+                        request_value = mncp_hash_insert(conversation);
+                    }
+                }
+                else
+                {
+                    /* It's not part of any conversation - create a new one. */
+                    conversation = conversation_new(&pinfo->src, &pinfo->dst,
+                        PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport, 0);
+                    request_value = mncp_hash_insert(conversation);
+                }
+                /* find the record telling us the request made that caused
+                   this reply */
+                request_value->packet_signature=FALSE;
+            }
+            else
+            {
+                request_value = mncp_hash_lookup(conversation);
+            }
+        }
 	}
 
 	/* Record the offset where the NCP common header starts */
@@ -309,10 +461,10 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (ncpiph.signature == NCPIP_RQST) {
 				proto_tree_add_uint(ncp_tree, hf_ncp_ip_ver, tvb, 8, 4, ncpiphrq.version);
 				proto_tree_add_uint(ncp_tree, hf_ncp_ip_rplybufsize, tvb, 12, 4, ncpiphrq.rplybufsize);
-				if (is_signed)
+				if (request_value->packet_signature==TRUE)
 					proto_tree_add_item(ncp_tree, hf_ncp_ip_packetsig, tvb, 16, 8, FALSE);
 			} else {
-				if (is_signed)
+				if (request_value->packet_signature==TRUE)
 					proto_tree_add_item(ncp_tree, hf_ncp_ip_packetsig, tvb, 8, 8, FALSE);
 			}
 		}
@@ -807,6 +959,8 @@ proto_register_ncp(void)
     "Defragment all NDS messages spanning multiple packets",
     "Whether the NCP dissector should defragment all NDS messages spanning multiple packets",
     &nds_defragment);
+  register_init_routine(&mncp_init_protocol);
+  register_postseq_cleanup_routine(&mncp_postseq_cleanup);
 }
 
 void
