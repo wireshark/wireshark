@@ -3,7 +3,7 @@
  * (ISAKMP) (RFC 2408)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.34 2001/01/09 06:31:37 guy Exp $
+ * $Id: packet-isakmp.c,v 1.35 2001/02/13 20:47:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -323,7 +323,7 @@ static const char *value2str(int, guint16, guint16);
 static const char *num2str(const guint8 *, guint16);
 static const char *attrtype2str(guint8);
 static const char *cfgattrident2str(guint16);
-
+static const char *certtype2str(guint8);
 #define NUM_LOAD_TYPES		15
 #define loadtype2str(t)	\
   ((t < NUM_LOAD_TYPES) ? strfuncs[t].str : "Unknown payload type")
@@ -754,7 +754,7 @@ dissect_cert(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   offset += sizeof(length);
   
   proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->cert_enc),
-		      "Certificate encoding: %u", hdr->cert_enc);
+		      "Certificate encoding: %u - %s", hdr->cert_enc,certtype2str(hdr->cert_enc));
   offset += sizeof(hdr->cert_enc);
 
   proto_tree_add_text(ntree, NullTVB, offset, length - sizeof(*hdr), "Certificate Data");
@@ -790,7 +790,7 @@ dissect_certreq(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
   offset += sizeof(length);
   
   proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->cert_type),
-		      "Certificate type: %u", hdr->cert_type);
+		      "Certificate type: %u - %s", hdr->cert_type,certtype2str(hdr->cert_type));
   offset += sizeof(hdr->cert_type);
 
   proto_tree_add_text(ntree, NullTVB, offset, length - sizeof(*hdr), "Certificate Authority");
@@ -1404,6 +1404,27 @@ cfgattrident2str(guint16 ident) {
   case 16527: return "XAUTH_STATUS";
   default: return "Private use";
   }
+}
+
+static const char *
+certtype2str(guint8 type) {
+#define NUM_CERTTYPE 11
+  static const char *msgs[NUM_CERTTYPE] = {
+    "NONE",
+    "PKCS #7 wrapped X.509 certificate",
+    "PGP Certificate",
+    "DNS Signed Key",
+    "X.509 Certificate - Signature",
+    "X.509 Certificate - Key Exchange",
+    "Kerberos Tokens",
+    "Certificate Revocation List (CRL)",
+    "Authority Revocation List (ARL)",
+    "SPKI Certificate",
+    "X.509 Certificate - Attribute",
+  };
+  if(type > NUM_CERTTYPE)
+    return "RESERVED";
+  return msgs[type];
 }
 
 static const char *
