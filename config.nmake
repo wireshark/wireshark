@@ -1,7 +1,11 @@
 # $Id$
 
+# Some more informations about the settings in this file, can be found 
+# in the file README.win32.
+
+# The current Ethereal version
 VERSION=0.10.6
-WTAP_VERSION=0.1
+
 #
 # The RC_VERSION should be comma-separated, not dot-separated, 
 # as per Graham Bloice's message in
@@ -14,6 +18,9 @@ WTAP_VERSION=0.1
 # for the executables, and XP's tooltip, rather than 0.0.0.0."
 #
 RC_VERSION=0,10,6
+
+# The version of the wiretap library
+WTAP_VERSION=0.1
 RC_WTAP_VERSION=0,1
 
 #
@@ -139,18 +146,38 @@ LOCAL_LDFLAGS=/DEBUG
 # Set PDB_FILE according to your VC++ version 
 PDB_FILE=vc*.pdb
 
-# Set path if you need to find some binary
-PATH=c:\cygwin\bin;c:\python23;$(PATH)
+# add cygwin binaries to the path
+PATH=c:\cygwin\bin;$(PATH)
 
-# Set path to some required DLLs
+# add some required DLLs to the path 
 PATH=$(GLIB_DIR)\bin;$(GETTEXT_DIR)\bin;$(ICONV_DIR)\bin;$(PATH)
 
+
+# Set the following commands to find the tools.
+# The easiest way is to use the corresponding packages from cygwin.
+
+# command for a shell (typically cygwin's bash package)
 SH=bash
+
+# command for perl (typically cygwin's perl package)
 PERL=perl
+
+# command for pod2man and pod2html (part of the perl package)
 POD2MAN=$(SH) pod2man
 POD2HTML=$(SH) pod2html
-PYTHON="C:/python23/python.exe"
+
+# command for python (native windows version)
+#PYTHON="C:/python23/python.exe"
+# add native python to the path (not needed if cygwin's python is used)
+#PATH=c:\python23;$(PATH)
+
+# command for python (typically cygwin's python package)
+PYTHON=env python
+
+# command for lex/flexx (typically cygwin's flex package)
 LEX=flex
+
+# command for yacc/bison (typically cygwin's bison package)
 YACC=bison
 
 # To build the installer
