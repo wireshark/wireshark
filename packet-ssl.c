@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.12 2002/01/04 07:01:54 guy Exp $
+ * $Id: packet-ssl.c,v 1.13 2002/01/17 09:24:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -432,7 +432,8 @@ static const value_string ssl_31_ciphersuite[] = {
 /* record layer dissector */
 static int dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                                proto_tree *tree, guint32 offset,
-                               guint *conv_version);
+                               guint *conv_version,
+                               gboolean *need_desegmentation);
 
 /* change cipher spec dissector */
 static void dissect_ssl3_change_cipher_spec(tvbuff_t *tvb, packet_info *pinfo,
@@ -481,7 +482,8 @@ static void dissect_ssl3_hnd_finished(tvbuff_t *tvb, packet_info *pinfo,
 /* record layer dissector */
 static int dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo,
                                proto_tree *tree, guint32 offset,
-                               guint *conv_version);
+                               guint *conv_version,
+                               gboolean *need_desegmentation);
 
 /* client hello dissector */
 static void dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
@@ -536,6 +538,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *ssl_tree   = NULL;
     guint32 offset         = 0;
     gboolean first_record_in_frame = TRUE;
+    gboolean need_desegmentation;
 
     /* Track the version using conversations to reduce the
      * chance that a packet that simply *looks* like a v2 or
@@ -609,13 +612,19 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             col_append_str(pinfo->cinfo, COL_INFO, ", ");
         }
 
+	/*
+	 * Assume, for now, that this doesn't need desegmentation.
+	 */
+	need_desegmentation = FALSE;
+
         /* first try to dispatch off the cached version
          * known to be associated with the conversation
          */
         switch(conv_version) {
         case SSL_VER_SSLv2:
             offset = dissect_ssl2_record(tvb, pinfo, ssl_tree,
-                                         offset, &conv_version);
+                                         offset, &conv_version,
+                                         &need_desegmentation);
             break;
 
         case SSL_VER_SSLv3:
@@ -629,12 +638,14 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (ssl_is_v2_client_hello(tvb, offset))
             {
                 offset = dissect_ssl2_record(tvb, pinfo, ssl_tree,
-                                             offset, &conv_version);
+                                             offset, &conv_version,
+                                             &need_desegmentation);
             }
             else
             {
                 offset = dissect_ssl3_record(tvb, pinfo, ssl_tree,
-                                             offset, &conv_version);
+                                             offset, &conv_version,
+                                             &need_desegmentation);
             }
             break;
 
@@ -646,13 +657,15 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 /* looks like sslv2 client hello */
                 offset = dissect_ssl2_record(tvb, pinfo, ssl_tree,
-                                             offset, &conv_version);
+                                             offset, &conv_version,
+                                             &need_desegmentation);
             }
             else if (ssl_looks_like_sslv3(tvb, offset))
             {
                 /* looks like sslv3 or tls */
                 offset = dissect_ssl3_record(tvb, pinfo, ssl_tree,
-                                             offset, &conv_version);
+                                             offset, &conv_version,
+                                             &need_desegmentation);
             }
             else
             {
@@ -675,7 +688,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         /* Desegmentation return check */
-        if (pinfo->desegment_len > 0)
+        if (need_desegmentation)
           return;
 
         /* If we haven't already set the version information for
@@ -701,7 +714,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                     proto_tree *tree, guint32 offset,
-                    guint *conv_version)
+                    guint *conv_version, gboolean *need_desegmentation)
 {
 
     /*
@@ -749,6 +762,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
             pinfo->desegment_offset = offset;
             pinfo->desegment_len    = record_length - available_bytes;
+            *need_desegmentation = TRUE;
             return offset;
         }
       
@@ -768,7 +782,6 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         }
         return offset + 5 + record_length;
     }
-
 
     /*
      * If GUI, fill in record layer part of tree
@@ -1529,7 +1542,8 @@ dissect_ssl3_hnd_finished(tvbuff_t *tvb, packet_info *pinfo,
 /* record layer dissector */
 static int
 dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree
-                    *tree, guint32 offset, guint *conv_version)
+                    *tree, guint32 offset, guint *conv_version,
+                    gboolean *need_desegmentation)
 {
     guint32 initial_offset       = offset;
     guint8  byte                 = 0;
@@ -1586,6 +1600,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         pinfo->desegment_offset = offset;
         pinfo->desegment_len    = record_length - available_bytes;
+        *need_desegmentation = TRUE;
         return offset;
     }
 
