@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.20 2002/06/07 10:11:41 guy Exp $
+ * $Id: reassemble.c,v 1.21 2002/06/07 10:17:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1169,6 +1169,22 @@ show_fragment(fragment_data *fd, int offset, fragment_items *fit,
 	}
 }
 
+static gboolean
+show_fragment_errs_in_col(fragment_data *fd_head, fragment_items *fit,
+    packet_info *pinfo)
+{
+	if (fd_head->flags & (FD_OVERLAPCONFLICT
+		|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, 
+				"[Illegal %s]", fit->tag);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 /* This function will build the fragment subtree; it's for fragments
    reassembled with "fragment_add()".
    
@@ -1192,16 +1208,7 @@ show_fragment_tree(fragment_data *fd_head, fragment_items *fit,
 	for (fd=fd_head->next; fd; fd=fd->next)
 		show_fragment(fd, fd->offset, fit, ft, tvb);
 
-	if (fd_head->flags & (FD_OVERLAPCONFLICT
-		|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, 
-				"[Illegal %s]", fit->tag);
-			return TRUE;
-		}
-	}
-
-	return FALSE;
+	return show_fragment_errs_in_col(fd_head, fit, pinfo);
 }	
 
 /* This function will build the fragment subtree; it's for fragments
@@ -1231,14 +1238,5 @@ show_fragment_seq_tree(fragment_data *fd_head, fragment_items *fit,
 		offset += fd->len;
 	}
 
-	if (fd_head->flags & (FD_OVERLAPCONFLICT
-		|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, 
-				"[Illegal %s]", fit->tag);
-			return TRUE;
-		}
-	}
-
-	return FALSE;
+	return show_fragment_errs_in_col(fd_head, fit, pinfo);
 }	
