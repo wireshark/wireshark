@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.79 2004/04/24 23:13:46 ulfl Exp $
+ * $Id: print.c,v 1.80 2004/04/26 15:58:33 gram Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -155,7 +155,7 @@ proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
 
 /*
  * Find the data source for a specified field, and return a pointer
- * to the data in it.
+ * to the data in it. Returns NULL if the data is out of bounds.
  */
 static const guint8 *
 get_field_data(GSList *src_list, field_info *fi)
@@ -179,9 +179,12 @@ get_field_data(GSList *src_list, field_info *fi)
 			 * that could be expensive.  Until we fix that,
 			 * we'll do the check here.
 			 */
-			length = fi->length;
 			tvbuff_length = tvb_length_remaining(src_tvb,
 			    fi->start);
+			if (tvbuff_length < 0) {
+				return NULL;
+			}
+			length = fi->length;
 			if (length > tvbuff_length)
 				length = tvbuff_length;
 			return tvb_get_ptr(src_tvb, fi->start, length);
@@ -227,8 +230,10 @@ void proto_tree_print_node(proto_node *node, gpointer data)
 		 * Find the data for this field.
 		 */
 		pd = get_field_data(pdata->src_list, fi);
-		print_hex_data_buffer(pdata->fh, pd, fi->length,
-		    pdata->encoding, pdata->format);
+		if (pd) {
+			print_hex_data_buffer(pdata->fh, pd, fi->length,
+			    pdata->encoding, pdata->format);
+		}
 	}
 
 	/* If we're printing all levels, or if this node is one with a
@@ -283,9 +288,11 @@ print_field_hex_value(print_data *pdata, field_info *fi)
 	/* Find the data for this field. */
 	pd = get_field_data(pdata->src_list, fi);
 
-	/* Print a simple hex dump */
-	for (i = 0 ; i < fi->length; i++) {
-		fprintf(pdata->fh, "%02x", pd[i]);
+	if (pd) {
+		/* Print a simple hex dump */
+		for (i = 0 ; i < fi->length; i++) {
+			fprintf(pdata->fh, "%02x", pd[i]);
+		}
 	}
 }
 
