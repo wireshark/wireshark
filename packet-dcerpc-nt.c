@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.33 2002/05/11 22:28:05 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.34 2002/05/11 22:53:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -814,7 +814,8 @@ gboolean dcerpc_smb_fetch_pol(const guint8 *policy_hnd, char **name,
 
 /* Iterator to free a policy handle key/value pair */
 
-static void free_pol_keyvalue(gpointer key, gpointer value, gpointer user_data)
+static void free_pol_keyvalue(gpointer key _U_, gpointer value,
+    gpointer user_data _U_)
 {
 	pol_hash_value *pol_value = (pol_hash_value *)value;
 
