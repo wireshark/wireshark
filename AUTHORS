@@ -1126,6 +1126,7 @@ Jim Sienicki <sienicki[AT]issanni.com> {
 
 Steven French <sfrench[AT]us.ibm.com> {
 	Add names for some additional spool service RPCs
+	Decode NT Rename SMB
 }
 
 Diana Eichert <deicher[AT]sandia.gov> {
