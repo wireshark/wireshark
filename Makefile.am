@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.327 2001/05/27 07:15:26 guy Exp $
+# $Id: Makefile.am,v 1.328 2001/05/27 07:37:46 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -271,7 +271,6 @@ noinst_HEADERS = \
 	packet-fddi.h  \
 	packet-fr.h    \
 	packet-frame.h  \
-	packet-h261.h  \
 	packet-hclnfsd.h  \
 	packet-http.h  \
 	packet-ieee80211.h \

@@ -6,7 +6,7 @@
  * Andreas Sikkema <andreas.sikkema@philips.com>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * 
@@ -51,8 +51,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "packet-h261.h"
-
 /* H.261 header fields             */
 static int proto_h261          = -1;
 static int hf_h261_sbit        = -1;
@@ -69,7 +67,7 @@ static int hf_h261_data        = -1;
 /* H.261 fields defining a sub tree */
 static gint ett_h261           = -1;
 
-void
+static void
 dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
 	proto_item *ti            = NULL;
@@ -259,4 +257,6 @@ proto_register_h261(void)
 	    "H.261", "h261");
 	proto_register_field_array(proto_h261, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	register_dissector("h261", dissect_h261, proto_h261);
 }

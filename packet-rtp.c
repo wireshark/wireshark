@@ -7,7 +7,7 @@
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * 
@@ -55,7 +55,6 @@
 #include <string.h>
 
 #include "packet-rtp.h"
-#include "packet-h261.h"
 #include "conversation.h"
 
 /* RTP header fields             */
@@ -83,6 +82,8 @@ static int hf_rtp_hdr_ext      = -1;
 static gint ett_rtp       = -1;
 static gint ett_csrc_list = -1;
 static gint ett_hdr_ext   = -1;
+
+static dissector_handle_t h261_handle;
 
 /*
  * Fields in the first octet of the RTP header.
@@ -273,18 +274,18 @@ dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	return TRUE;
 }
 
-void 
-dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *rtp_tree, int offset, unsigned int data_len, unsigned int payload_type )
+static void 
+dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    proto_tree *rtp_tree, int offset, unsigned int data_len,
+    unsigned int data_reported_len, unsigned int payload_type )
 {
 	tvbuff_t *newtvb;
 
 	switch( payload_type ) {
 		case PT_H261:
-			/*
-			 * What does reported length DO?
-			 */
-			newtvb = tvb_new_subset( tvb, offset, data_len, -1 );
-			dissect_h261(newtvb, pinfo, tree);
+			newtvb = tvb_new_subset( tvb, offset, data_len,
+			    data_reported_len );
+			call_dissector(h261_handle, newtvb, pinfo, tree);
 			break;
 		default:
 			proto_tree_add_bytes( rtp_tree, hf_rtp_data, tvb, offset, data_len, tvb_get_ptr( tvb, offset, data_len ) );
@@ -426,7 +427,11 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		if ( padding_set ) {
 			padding_count = tvb_get_guint8( tvb, tvb_length( tvb ) - 1 );
 			if ( padding_count > 0 ) {
-				dissect_rtp_data( tvb, pinfo, tree, rtp_tree, offset, tvb_length( tvb ) - padding_count, payload_type );
+				dissect_rtp_data( tvb, pinfo, tree, rtp_tree,
+				    offset,
+				    tvb_length( tvb ) - padding_count,
+				    tvb_reported_length( tvb ) - padding_count,
+				    payload_type );
 				offset = tvb_length( tvb ) - padding_count;
 				proto_tree_add_item( rtp_tree, hf_rtp_padding_data, tvb, offset, padding_count - 1, FALSE );
 				offset += padding_count - 1;
@@ -437,7 +442,10 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 			}
 		}
 		else {
-			dissect_rtp_data( tvb, pinfo, tree, rtp_tree, offset, tvb_length_remaining( tvb, offset ) - padding_count, payload_type );
+			dissect_rtp_data( tvb, pinfo, tree, rtp_tree, offset,
+			    tvb_length_remaining( tvb, offset ) - padding_count,
+			    tvb_reported_length_remaining( tvb, offset ) - padding_count,
+			    payload_type );
 		}
 	}
 }
@@ -662,6 +670,11 @@ proto_register_rtp(void)
 void
 proto_reg_handoff_rtp(void)
 {
+	/*
+	 * Get handle for the H.261 dissector.
+	 */
+	h261_handle = find_dissector("h261");
+
 	/*
 	 * Register this dissector as one that can be assigned to a
 	 * UDP conversation.
