@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.20 2002/01/21 07:37:41 guy Exp $
+ * $Id: find_dlg.c,v 1.21 2002/03/05 11:55:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,7 +67,7 @@ find_frame_destroy_cb(GtkWidget *win, gpointer user_data);
 static GtkWidget *find_frame_w;
 
 void
-find_frame_cb(GtkWidget *w, gpointer d)
+find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   GtkWidget     *main_vb, *filter_hb, *filter_bt, *filter_te,
                 *direction_hb, *forward_rb, *backward_rb,
@@ -182,7 +182,7 @@ find_frame_cb(GtkWidget *w, gpointer d)
 }
 
 static void
-find_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
+find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 {
   GtkWidget *filter_te, *backward_rb;
   gchar *filter_text;
@@ -229,14 +229,14 @@ find_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 }
 
 static void
-find_frame_close_cb(GtkWidget *close_bt, gpointer parent_w)
+find_frame_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
 {
   gtk_grab_remove(GTK_WIDGET(parent_w));
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
 
 static void
-find_frame_destroy_cb(GtkWidget *win, gpointer user_data)
+find_frame_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 {
   GtkWidget *find_frame_filter_w;
 

@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.21 2002/01/21 07:37:41 guy Exp $
+ * $Id: help_dlg.c,v 1.22 2002/03/05 11:55:59 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -73,7 +73,7 @@ static GtkWidget *help_w = NULL;
  */
 GtkWidget *overview_text, *proto_text, *dfilter_text, *cfilter_text;
 
-void help_cb(GtkWidget *w, gpointer data)
+void help_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 
   GtkWidget *main_vb, *bbox, *help_nb, *close_bt, *label, *txt_scrollw,
@@ -239,12 +239,12 @@ void help_cb(GtkWidget *w, gpointer data)
 
 } /* help_cb */
 
-static void help_close_cb(GtkWidget *w, gpointer data)
+static void help_close_cb(GtkWidget *w _U_, gpointer data)
 {
   gtk_widget_destroy(GTK_WIDGET(data));
 }
 
-static void help_destroy_cb(GtkWidget *w, gpointer data)
+static void help_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
 {
   /* Note that we no longer have a Help window. */
   help_w = NULL;

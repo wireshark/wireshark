@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.22 2002/01/21 07:37:41 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.23 2002/03/05 11:55:58 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -191,13 +191,13 @@ GSList *dissector_reset_list = NULL;
  *
  * @param value A pointer to the value for this entry in the dissector
  * hash table.  This is an opaque pointer that can only be handed back
- * to routine in the file packet.c
+ * to routine in the file packet.c - but it's unused.
  *
  * @param user_data Unused.
  */
 static void
 decode_build_reset_list (gchar *table_name, gpointer key,
-			 gpointer value, gpointer user_data)
+			 gpointer value _U_, gpointer user_data _U_)
 {
     dissector_delete_item_t *item;
 
@@ -309,7 +309,7 @@ decode_build_show_list (gchar *table_name, gpointer key,
  * @param gpointer A pointer to the dialog window.
  */
 static void
-decode_show_ok_cb (GtkWidget *ok_bt, gpointer parent_w)
+decode_show_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
 {
     gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
@@ -326,7 +326,7 @@ decode_show_ok_cb (GtkWidget *ok_bt, gpointer parent_w)
  * @param gpointer A pointer to the dialog window.
  */
 static void
-decode_show_reset_cb (GtkWidget *reset_bt, gpointer parent_w)
+decode_show_reset_cb (GtkWidget *reset_bt _U_, gpointer parent_w)
 {
     dissector_delete_item_t *item;
     GSList *tmp;
@@ -358,7 +358,7 @@ decode_show_reset_cb (GtkWidget *reset_bt, gpointer parent_w)
  * @param gpointer Unknown
  */
 static gboolean
-decode_show_delete_cb (GtkWidget *decode_w, gpointer dummy)
+decode_show_delete_cb (GtkWidget *decode_w _U_, gpointer dummy _U_)
 {
     decode_show_ok_cb(NULL, decode_show_w);
     return FALSE;
@@ -376,7 +376,7 @@ decode_show_delete_cb (GtkWidget *decode_w, gpointer dummy)
  * @param gpointer Unknown
  */
 static void
-decode_show_destroy_cb (GtkWidget *win, gpointer user_data)
+decode_show_destroy_cb (GtkWidget *win _U_, gpointer user_data _U_)
 {
     /* Note that we no longer have a "Decode As:Show" dialog box. */
     decode_show_w = NULL;
@@ -391,7 +391,7 @@ decode_show_destroy_cb (GtkWidget *win, gpointer user_data)
  * @param data Unknown
  */
 void
-decode_show_cb (GtkWidget * w, gpointer data)
+decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
 {
     GtkWidget *main_vb, *bbox, *ok_bt, *button, *scrolled_window;
     GtkCList  *clist;
@@ -650,7 +650,7 @@ decode_transport (GtkObject *notebook_pg)
  * @param parent_w A pointer to the dialog window.
  */
 static void
-decode_ok_cb (GtkWidget *ok_bt, gpointer parent_w)
+decode_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
 {
     GtkWidget *notebook, *notebook_pg;
     GtkSignalFunc func;
@@ -683,7 +683,7 @@ decode_ok_cb (GtkWidget *ok_bt, gpointer parent_w)
  * @param parent_w A pointer to the dialog window.
  */
 static void
-decode_cancel_cb (GtkWidget *cancel_bt, gpointer parent_w)
+decode_cancel_cb (GtkWidget *cancel_bt _U_, gpointer parent_w)
 {
     gtk_widget_destroy(GTK_WIDGET(parent_w));
     g_slist_free(decode_dimmable);
@@ -702,7 +702,7 @@ decode_cancel_cb (GtkWidget *cancel_bt, gpointer parent_w)
  * @param dummy Unknown
  */
 static gboolean
-decode_delete_cb (GtkWidget *decode_w, gpointer dummy)
+decode_delete_cb (GtkWidget *decode_w, gpointer dummy _U_)
 {
     decode_cancel_cb(NULL, decode_w);
     return FALSE;
@@ -722,7 +722,7 @@ decode_delete_cb (GtkWidget *decode_w, gpointer dummy)
  * @return void
  */
 static void
-decode_destroy_cb (GtkWidget *win, gpointer user_data)
+decode_destroy_cb (GtkWidget *win _U_, gpointer user_data _U_)
 {
     /* Note that we no longer have a "Decode As" dialog box. */
     decode_w = NULL;
@@ -744,7 +744,7 @@ decode_destroy_cb (GtkWidget *win, gpointer user_data)
  * will be either E_DECODE_YES or E_DECODE_NO
  */
 static void
-decode_update_action (GtkWidget *w, gpointer data)
+decode_update_action (GtkWidget *w _U_, gpointer data)
 {
     GSList *tmp;
     gboolean enable;
@@ -1210,7 +1210,7 @@ decode_add_notebook (GtkWidget *format_hb)
  * @param data Unknown
  */
 void
-decode_as_cb (GtkWidget * w, gpointer data)
+decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
 {
     GtkWidget	*main_vb, *format_hb, *bbox, *ok_bt, *cancel_bt, *button;
     GtkWidget   *button_vb;

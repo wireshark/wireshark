@@ -1,7 +1,7 @@
 /* progress_dlg.c
  * Routines for progress-bar (modal) dialog
  *
- * $Id: progress_dlg.c,v 1.9 2001/03/24 02:07:22 guy Exp $
+ * $Id: progress_dlg.c,v 1.10 2002/03/05 11:56:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -145,7 +145,7 @@ create_progress_dlg(const gchar *title, const gchar *stop_title,
  * "stop" flag is TRUE and abort the operation.
  */
 static gint
-delete_event_cb(GtkWidget *w, GdkEvent *event, gpointer data)
+delete_event_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data)
 {
 	gboolean *stop_flag = (gboolean *) data;
   
@@ -160,7 +160,7 @@ delete_event_cb(GtkWidget *w, GdkEvent *event, gpointer data)
  * true and abort the operation.
  */
 static void
-stop_cb(GtkWidget *w, gpointer data)
+stop_cb(GtkWidget *w _U_, gpointer data)
 {
 	gboolean *stop_flag = (gboolean *) data;
   

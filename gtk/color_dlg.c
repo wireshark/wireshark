@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.12 2002/01/21 07:37:41 guy Exp $
+ * $Id: color_dlg.c,v 1.13 2002/03/05 11:55:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -92,7 +92,7 @@ static gchar *titles[2] = { "Name", "Filter String" };
 #define COLOR_SELECTION_PARENT	"color_selection_parent"
 
 static void
-filter_expr_cb(GtkWidget *w, gpointer filter_te)
+filter_expr_cb(GtkWidget *w _U_, gpointer filter_te)
 {
 
         dfilter_expr_dlg_new(GTK_WIDGET(filter_te));
@@ -101,7 +101,7 @@ filter_expr_cb(GtkWidget *w, gpointer filter_te)
 
 /* Callback for the "Display:Colorize Display" menu item. */
 void
-color_display_cb(GtkWidget *w, gpointer d)
+color_display_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   if (colorize_win != NULL) {
     /* There's already a color dialog box active; reactivate it. */
@@ -431,10 +431,10 @@ color_filter_down_cb                   (GtkButton       *button,
 
 /* Set selected row in cf */
 static void
-remember_selected_row                 (GtkCList        *clist,
+remember_selected_row                 (GtkCList        *clist _U_,
                                         gint             row,
-                                        gint             column,
-                                        GdkEvent        *event,
+                                        gint             column _U_,
+                                        GdkEvent        *event _U_,
                                         gpointer         user_data)
 {
   colfilter *filter = (colfilter *)user_data;
@@ -447,8 +447,8 @@ remember_selected_row                 (GtkCList        *clist,
  * dialog.
  jjj*/
 static void
-color_destroy_cb                       (GtkButton       *button,
-                                        gpointer         user_data)
+color_destroy_cb                       (GtkButton       *button _U_,
+                                        gpointer         user_data _U_)
 {
   /* Destroy any edit dialogs we have open. */
   g_slist_foreach(filter_list, destroy_edit_dialog_cb, NULL);
@@ -457,7 +457,7 @@ color_destroy_cb                       (GtkButton       *button,
 }
 
 static void
-destroy_edit_dialog_cb(gpointer filter_arg, gpointer dummy)
+destroy_edit_dialog_cb(gpointer filter_arg, gpointer dummy _U_)
 {
   color_filter_t *colorf = (color_filter_t *)filter_arg;
 
@@ -575,7 +575,7 @@ color_delete_cb(GtkWidget *widget, gpointer user_data)
 
 /* Save color filters to the color filter file. */
 static void
-color_save_cb                          (GtkButton       *button,
+color_save_cb                          (GtkButton       *button _U_,
                                         gpointer         user_data)
 {
   colfilter *filter = (colfilter *)user_data;
@@ -588,8 +588,8 @@ color_save_cb                          (GtkButton       *button,
 
 /* Exit dialog and apply new list of color filters to the capture. */
 static void
-color_ok_cb                            (GtkButton       *button,
-                                        gpointer         user_data)
+color_ok_cb                            (GtkButton       *button _U_,
+                                        gpointer         user_data _U_)
 {
   /* colorize list */
   colorize_packets(&cfile);
@@ -601,8 +601,8 @@ color_ok_cb                            (GtkButton       *button,
 /* Exit dialog without colorizing packets with the new list.
    XXX - should really undo any changes to the list.... */
 static void
-color_cancel_cb                        (GtkWidget       *widget,
-                                        gpointer         user_data)
+color_cancel_cb                        (GtkWidget       *widget _U_,
+                                        gpointer         user_data _U_)
 {
   /* Destroy the dialog box. */
   gtk_widget_destroy(colorize_win);
@@ -610,8 +610,8 @@ color_cancel_cb                        (GtkWidget       *widget,
 
 /* Apply new list of color filters to the capture. */
 static void
-color_apply_cb                         (GtkButton       *button,
-                                        gpointer         user_data)
+color_apply_cb                         (GtkButton       *button _U_,
+                                        gpointer         user_data _U_)
 {
   colorize_packets(&cfile);
 }
@@ -817,7 +817,7 @@ edit_color_filter_dialog_new (colfilter *filter,
    to this dialog. */
 static void
 edit_color_filter_destroy_cb           (GtkObject       *object,
-                                        gpointer         user_data)
+                                        gpointer         user_data _U_)
 {
   color_filter_t *colorf;
   GtkWidget *color_sel;
@@ -965,7 +965,7 @@ edit_color_filter_ok_cb                (GtkButton       *button,
 
 /* Exit dialog and do not process list */
 static void
-edit_color_filter_cancel_cb            (GtkObject       *object,
+edit_color_filter_cancel_cb            (GtkObject       *object _U_,
                                         gpointer         user_data)
 {
   GtkWidget *dialog;
@@ -1081,7 +1081,7 @@ color_sel_win_destroy(GtkWidget *sel_win)
 
 /* Retrieve selected color */
 static void
-color_sel_ok_cb                        (GtkButton       *button,
+color_sel_ok_cb                        (GtkButton       *button _U_,
                                         gpointer         user_data)
 {
   GdkColor new_color; /* Color from color selection dialog */
@@ -1134,7 +1134,7 @@ color_sel_ok_cb                        (GtkButton       *button,
 /* Don't choose the selected color as the foreground or background
    color for the filter. */
 static void
-color_sel_cancel_cb                    (GtkObject       *object,
+color_sel_cancel_cb                    (GtkObject       *object _U_,
                                         gpointer         user_data)
 {
   GtkWidget *color_dialog;

@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.42 2002/02/14 10:58:49 gram Exp $
+ * $Id: prefs_dlg.c,v 1.43 2002/03/05 11:55:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -239,7 +239,7 @@ module_prefs_show(module_t *module, gpointer user_data)
 }
 
 void
-prefs_cb(GtkWidget *w, gpointer dummy)
+prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 {
   GtkWidget        *main_vb, *top_hb, *bbox, *prefs_nb, *ct_sb, *frame,
                    *ok_bt, *apply_bt, *save_bt, *cancel_bt;
@@ -761,7 +761,7 @@ module_prefs_fetch(module_t *module, gpointer user_data)
 }
 
 static void
-pref_clean(pref_t *pref, gpointer user_data)
+pref_clean(pref_t *pref, gpointer user_data _U_)
 {
   switch (pref->type) {
 
@@ -788,7 +788,7 @@ pref_clean(pref_t *pref, gpointer user_data)
 }
 
 static void
-module_prefs_clean(module_t *module, gpointer user_data)
+module_prefs_clean(module_t *module, gpointer user_data _U_)
 {
   /* For all preferences in this module, clean up any cruft allocated for
      use by the GUI code. */
@@ -796,7 +796,7 @@ module_prefs_clean(module_t *module, gpointer user_data)
 }
 
 static void
-prefs_main_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
+prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 {
   gboolean must_redissect = FALSE;
 
@@ -830,7 +830,7 @@ prefs_main_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 }
 
 static void
-prefs_main_apply_cb(GtkWidget *apply_bt, gpointer parent_w)
+prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
 {
   gboolean must_redissect = FALSE;
 
@@ -861,7 +861,7 @@ prefs_main_apply_cb(GtkWidget *apply_bt, gpointer parent_w)
 }
 
 static void
-prefs_main_save_cb(GtkWidget *save_bt, gpointer parent_w)
+prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
 {
   gboolean must_redissect = FALSE;
   int err;
@@ -990,7 +990,7 @@ module_prefs_revert(module_t *module, gpointer user_data)
 }
 
 static void
-prefs_main_cancel_cb(GtkWidget *cancel_bt, gpointer parent_w)
+prefs_main_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
 {
   gboolean must_redissect = FALSE;
 
@@ -1023,14 +1023,14 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt, gpointer parent_w)
    a higher-level handler that says "OK, we've been asked to delete
    this, so destroy it"? */
 static gboolean
-prefs_main_delete_cb(GtkWidget *prefs_w, gpointer dummy)
+prefs_main_delete_cb(GtkWidget *prefs_w, gpointer dummy _U_)
 {
   prefs_main_cancel_cb(NULL, prefs_w);
   return FALSE;
 }
 
 static void
-prefs_main_destroy_cb(GtkWidget *win, gpointer user_data)
+prefs_main_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
   /* Let the preference tabs clean up anything they've done. */
   printer_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w), E_PRINT_PAGE_KEY));
@@ -1108,7 +1108,7 @@ properties_cb(GtkWidget *w, gpointer dummy)
 /* Prefs tree selection callback.  The node data has been loaded with 
    the proper notebook page to load. */
 static void
-prefs_tree_select_cb(GtkCTree *ct, GtkCTreeNode *node, gint col, gpointer dummy)
+prefs_tree_select_cb(GtkCTree *ct, GtkCTreeNode *node, gint col _U_, gpointer dummy _U_)
 {
   gint page = GPOINTER_TO_INT(gtk_ctree_node_get_row_data(ct, node));
   

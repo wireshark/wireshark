@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.11 2002/02/08 10:07:38 guy Exp $
+ * $Id: summary_dlg.c,v 1.12 2002/03/05 11:56:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,7 +58,7 @@ add_string_to_box(gchar *str, GtkWidget *box)
 
 
 void
-summary_open_cb(GtkWidget *w, gpointer d)
+summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   summary_tally summary;
   GtkWidget     *sum_open_w,

@@ -1,7 +1,7 @@
 /* goto_dlg.c
  * Routines for "go to frame" window
  *
- * $Id: goto_dlg.c,v 1.14 2002/01/21 07:37:41 guy Exp $
+ * $Id: goto_dlg.c,v 1.15 2002/03/05 11:55:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,7 +54,7 @@ static void
 goto_frame_close_cb(GtkWidget *close_bt, gpointer parent_w);
 
 void
-goto_frame_cb(GtkWidget *w, gpointer d)
+goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   GtkWidget     *goto_frame_w, *main_vb, *fnumber_hb, *fnumber_lb, *fnumber_te,
                 *bbox, *ok_bt, *cancel_bt;
@@ -123,7 +123,7 @@ goto_frame_cb(GtkWidget *w, gpointer d)
 }
 
 static void
-goto_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
+goto_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 {
   GtkWidget *fnumber_te;
   gchar *fnumber_text;
@@ -162,7 +162,7 @@ goto_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 }
 
 static void
-goto_frame_close_cb(GtkWidget *close_bt, gpointer parent_w)
+goto_frame_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
 {
   gtk_grab_remove(GTK_WIDGET(parent_w));
   gtk_widget_destroy(GTK_WIDGET(parent_w));

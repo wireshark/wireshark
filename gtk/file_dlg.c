@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.48 2002/01/21 07:37:41 guy Exp $
+ * $Id: file_dlg.c,v 1.49 2002/03/05 11:55:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,7 +72,7 @@ static GtkWidget *file_open_w;
 
 /* Open a file */
 void
-file_open_cmd_cb(GtkWidget *w, gpointer data)
+file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
 {
   GtkWidget	*main_vb, *filter_hbox, *filter_bt, *filter_te,
   		*m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
@@ -263,7 +263,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 }
 
 static void
-file_open_destroy_cb(GtkWidget *win, gpointer user_data)
+file_open_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 {
   GtkWidget *file_open_filter_w;
 
@@ -282,7 +282,7 @@ file_open_destroy_cb(GtkWidget *win, gpointer user_data)
 
 /* Close a file */
 void
-file_close_cmd_cb(GtkWidget *widget, gpointer data) {
+file_close_cmd_cb(GtkWidget *widget _U_, gpointer data _U_) {
   close_cap_file(&cfile);
 }
 
@@ -369,7 +369,7 @@ set_file_type_list(GtkWidget *option_menu)
 }
 
 static void
-select_file_type_cb(GtkWidget *w, gpointer data)
+select_file_type_cb(GtkWidget *w _U_, gpointer data)
 {
   int new_filetype = (int)data;
 
@@ -383,7 +383,7 @@ select_file_type_cb(GtkWidget *w, gpointer data)
 }
 
 static void
-toggle_filtered_cb(GtkWidget *widget, gpointer data)
+toggle_filtered_cb(GtkWidget *widget, gpointer data _U_)
 {
   gboolean new_filtered;
 
@@ -397,7 +397,7 @@ toggle_filtered_cb(GtkWidget *widget, gpointer data)
 }
 
 static void
-toggle_marked_cb(GtkWidget *widget, gpointer data)
+toggle_marked_cb(GtkWidget *widget, gpointer data _U_)
 {
   gboolean new_marked;
 
@@ -419,7 +419,7 @@ toggle_marked_cb(GtkWidget *widget, gpointer data)
 static GtkWidget *file_save_as_w;
 
 void
-file_save_as_cmd_cb(GtkWidget *w, gpointer data)
+file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 {
   GtkWidget *ok_bt, *main_vb, *ft_hb, *ft_lb;
 
@@ -562,7 +562,7 @@ file_set_save_marked_sensitive(void)
 }
 
 static void
-file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
+file_save_as_ok_cb(GtkWidget *w _U_, GtkFileSelection *fs) {
   gchar	*cf_name;
 
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
@@ -579,7 +579,7 @@ file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 }
 
 static void
-file_save_as_destroy_cb(GtkWidget *win, gpointer user_data)
+file_save_as_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
   /* Note that we no longer have a "Save Capture File As" dialog box. */
   file_save_as_w = NULL;
@@ -587,7 +587,7 @@ file_save_as_destroy_cb(GtkWidget *win, gpointer user_data)
 
 /* Reload a file using the current read and display filters */
 void
-file_reload_cmd_cb(GtkWidget *w, gpointer data) {
+file_reload_cmd_cb(GtkWidget *w, gpointer data _U_) {
   /*GtkWidget *filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);*/
   GtkWidget *filter_te;
   gchar *filename;

@@ -1,6 +1,6 @@
 /* proto_hier_stats_dlg.c
  *
- * $Id: proto_hier_stats_dlg.c,v 1.8 2002/01/11 06:43:18 guy Exp $
+ * $Id: proto_hier_stats_dlg.c,v 1.9 2002/03/05 11:56:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -169,7 +169,7 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
 #define WNAME "Protocol Hierarchy Statistics"
 
 void
-proto_hier_stats_cb(GtkWidget *w, gpointer d)
+proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	ph_stats_t	*ps;
 	GtkWidget	*dlg, *bt, *vbox, *frame, *bbox;

@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.9 2002/01/11 07:40:31 guy Exp $
+ * $Id: proto_dlg.c,v 1.10 2002/03/05 11:56:00 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -70,7 +70,7 @@ typedef struct protocol_data {
   gboolean was_enabled;
 } protocol_data_t;
 
-void proto_cb(GtkWidget *w, gpointer data)
+void proto_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 
   GtkWidget *main_vb, *bbox, *proto_nb, *apply_bt, *cancel_bt, *ok_bt, 
@@ -199,7 +199,7 @@ void proto_cb(GtkWidget *w, gpointer data)
 
 /* Toggle All */
 static void
-toggle_all_cb(GtkWidget *button, gpointer parent_w)
+toggle_all_cb(GtkWidget *button _U_, gpointer parent_w)
 {
 
   GSList *entry;
@@ -247,7 +247,7 @@ disable_all_cb(GtkWidget *button, gpointer parent_w)
 	set_active_all(button, parent_w, FALSE);
 }
 
-static void proto_destroy_cb(GtkWidget *w, gpointer data)
+static void proto_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
 {
   GSList *entry;
 
@@ -269,13 +269,13 @@ static void proto_destroy_cb(GtkWidget *w, gpointer data)
    XXX - that'll destroy the Protocols dialog; will that upset
    a higher-level handler that says "OK, we've been asked to delete
    this, so destroy it"? */
-static gboolean proto_delete_cb(GtkWidget *proto_w, gpointer dummy)
+static gboolean proto_delete_cb(GtkWidget *proto_w, gpointer dummy _U_)
 {
   proto_cancel_cb(NULL, proto_w);
   return FALSE;
 }
 
-static void proto_ok_cb(GtkWidget *ok_bt, gpointer parent_w) 
+static void proto_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) 
 {
   gboolean redissect;
 
@@ -285,13 +285,13 @@ static void proto_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
     redissect_packets(&cfile);
 }
 
-static void proto_apply_cb(GtkWidget *apply_bt, gpointer parent_w) 
+static void proto_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w) 
 {
   if (set_proto_selection(GTK_WIDGET(parent_w)))
     redissect_packets(&cfile);
 }
 
-static void proto_cancel_cb(GtkWidget *cancel_bt, gpointer parent_w) 
+static void proto_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w) 
 {
   gboolean redissect;
 

@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.33 2002/02/18 01:08:44 guy Exp $
+ * $Id: packet_win.c,v 1.34 2002/03/05 11:55:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,7 +90,7 @@ static void new_tree_view_unselect_row_cb( GtkCTree *ctree, GList *node,
 static void create_new_window( char *Title, gint tv_size, gint bv_size);
 static void destroy_new_window(GtkObject *object, gpointer user_data);
 
-void new_window_cb(GtkWidget *w){
+void new_window_cb(GtkWidget *w _U_){
 
 	#define NewWinTitleLen 1000
 	
@@ -193,7 +193,7 @@ create_new_window(char *Title, gint tv_size, gint bv_size)
 }
 
 static void
-destroy_new_window(GtkObject *object, gpointer user_data)
+destroy_new_window(GtkObject *object _U_, gpointer user_data)
 {
   struct PacketWinData *DataPtr = user_data;
 
@@ -206,7 +206,7 @@ destroy_new_window(GtkObject *object, gpointer user_data)
 	
 /* called when a tree row is selected in the popup packet window */	
 static void
-new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column,
+new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column _U_,
 	gpointer user_data)
 {
 	field_info *finfo;
@@ -239,7 +239,7 @@ new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column,
 
 /* called when a tree row is unselected in the popup packet window */	
 static void
-new_tree_view_unselect_row_cb(GtkCTree *ctree, GList *node, gint column,
+new_tree_view_unselect_row_cb(GtkCTree *ctree _U_, GList *node _U_, gint column _U_,
 	gpointer user_data)
 {
 	GtkWidget* byte_view;
@@ -279,7 +279,7 @@ destroy_packet_wins(void)
 }
 
 static void
-redraw_hex_dump_cb(gpointer data, gpointer user_data)
+redraw_hex_dump_cb(gpointer data, gpointer user_data _U_)
 {
 	struct PacketWinData *DataPtr = (struct PacketWinData *)data;
 

@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.63 2002/03/05 02:25:09 guy Exp $
+ * $Id: capture_dlg.c,v 1.64 2002/03/05 11:55:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -113,7 +113,7 @@ static void
 capture_prep_destroy_cb(GtkWidget *win, gpointer user_data);
 
 void
-capture_stop_cb(GtkWidget *w, gpointer d)
+capture_stop_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     capture_stop();
 }
@@ -127,7 +127,7 @@ capture_stop_cb(GtkWidget *w, gpointer d)
 static GtkWidget *cap_open_w;
 
 void
-capture_prep_cb(GtkWidget *w, gpointer d)
+capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   GtkWidget     *main_vb,
                 *capture_fr, *capture_vb,
@@ -627,7 +627,7 @@ capture_prep_file_cb(GtkWidget *w, gpointer file_te)
 }
 
 static void
-cap_prep_fs_ok_cb(GtkWidget *w, gpointer data)
+cap_prep_fs_ok_cb(GtkWidget *w _U_, gpointer data)
 {
   gtk_entry_set_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(data),
       E_CAP_FILE_TE_KEY)),
@@ -636,13 +636,13 @@ cap_prep_fs_ok_cb(GtkWidget *w, gpointer data)
 }
 
 static void
-cap_prep_fs_cancel_cb(GtkWidget *w, gpointer data)
+cap_prep_fs_cancel_cb(GtkWidget *w _U_, gpointer data)
 {
   gtk_widget_destroy(GTK_WIDGET(data));
 }  
 
 static void
-cap_prep_fs_destroy_cb(GtkWidget *win, gpointer data)
+cap_prep_fs_destroy_cb(GtkWidget *win, gpointer data _U_)
 {
   GtkWidget *caller;
 
@@ -660,7 +660,7 @@ cap_prep_fs_destroy_cb(GtkWidget *win, gpointer data)
 }
 
 static void
-capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
+capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   GtkWidget *if_cb, *snap_cb, *snap_sb, *promisc_cb, *filter_te,
             *file_te, *ringbuffer_on_tb, *ringbuffer_nbf_sb,
             *sync_cb, *auto_scroll_cb,
@@ -806,14 +806,14 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
 }
 
 static void
-capture_prep_close_cb(GtkWidget *close_bt, gpointer parent_w)
+capture_prep_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
 {
   gtk_grab_remove(GTK_WIDGET(parent_w));
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
 
 static void
-capture_prep_destroy_cb(GtkWidget *win, gpointer user_data)
+capture_prep_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 {
   GtkWidget *capture_prep_filter_w;
   GtkWidget *fs;
@@ -845,7 +845,7 @@ capture_prep_destroy_cb(GtkWidget *win, gpointer user_data)
  * of other widgets.
  */
 static void
-capture_prep_adjust_sensitivity(GtkWidget *tb, gpointer parent_w)
+capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
 {
   GtkWidget *snap_cb, *snap_sb,
             *ringbuffer_on_tb, *ringbuffer_nbf_lb, *ringbuffer_nbf_sb,

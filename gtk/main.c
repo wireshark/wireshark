@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.238 2002/03/05 05:58:35 guy Exp $
+ * $Id: main.c,v 1.239 2002/03/05 11:55:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -193,7 +193,7 @@ static void create_main_window(gint, gint, gint, e_prefs*);
 
 /* About Ethereal window */
 void
-about_ethereal( GtkWidget *w, gpointer data ) {
+about_ethereal( GtkWidget *w _U_, gpointer data _U_ ) {
   simple_dialog(ESD_TYPE_INFO, NULL,
 		"Ethereal - Network Protocol Analyzer\n"
 		"Version " VERSION " (C) 1998-2000 Gerald Combs <gerald@ethereal.com>\n"
@@ -434,7 +434,7 @@ get_text_from_packet_list(gpointer data)
 }
 
 void
-match_selected_cb_replace2(GtkWidget *w, gpointer data)
+match_selected_cb_replace2(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW,
@@ -442,7 +442,7 @@ match_selected_cb_replace2(GtkWidget *w, gpointer data)
 }
 
 void
-match_selected_cb_and2(GtkWidget *w, gpointer data)
+match_selected_cb_and2(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW,
@@ -450,7 +450,7 @@ match_selected_cb_and2(GtkWidget *w, gpointer data)
 }
 
 void
-match_selected_cb_or2(GtkWidget *w, gpointer data)
+match_selected_cb_or2(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW,
@@ -458,7 +458,7 @@ match_selected_cb_or2(GtkWidget *w, gpointer data)
 }
 
 void
-match_selected_cb_not2(GtkWidget *w, gpointer data)
+match_selected_cb_not2(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW,
@@ -466,7 +466,7 @@ match_selected_cb_not2(GtkWidget *w, gpointer data)
 }
 
 void
-match_selected_cb_and_not2(GtkWidget *w, gpointer data)
+match_selected_cb_and_not2(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW,
@@ -474,7 +474,7 @@ match_selected_cb_and_not2(GtkWidget *w, gpointer data)
 }
 
 void
-match_selected_cb_or_not2(GtkWidget *w, gpointer data)
+match_selected_cb_or_not2(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW,
@@ -482,7 +482,7 @@ match_selected_cb_or_not2(GtkWidget *w, gpointer data)
 }
 
 void
-prepare_selected_cb_replace2(GtkWidget *w, gpointer data)
+prepare_selected_cb_replace2(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_REPLACE,
@@ -490,7 +490,7 @@ prepare_selected_cb_replace2(GtkWidget *w, gpointer data)
 }
 
 void
-prepare_selected_cb_and2(GtkWidget *w, gpointer data)
+prepare_selected_cb_and2(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_AND,
@@ -498,7 +498,7 @@ prepare_selected_cb_and2(GtkWidget *w, gpointer data)
 }
 
 void
-prepare_selected_cb_or2(GtkWidget *w, gpointer data)
+prepare_selected_cb_or2(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_OR,
@@ -506,7 +506,7 @@ prepare_selected_cb_or2(GtkWidget *w, gpointer data)
 }
 
 void
-prepare_selected_cb_not2(GtkWidget *w, gpointer data)
+prepare_selected_cb_not2(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_NOT,
@@ -514,7 +514,7 @@ prepare_selected_cb_not2(GtkWidget *w, gpointer data)
 }
 
 void
-prepare_selected_cb_and_not2(GtkWidget *w, gpointer data)
+prepare_selected_cb_and_not2(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_AND_NOT,
@@ -522,7 +522,7 @@ prepare_selected_cb_and_not2(GtkWidget *w, gpointer data)
 }
 
 void
-prepare_selected_cb_or_not2(GtkWidget *w, gpointer data)
+prepare_selected_cb_or_not2(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_OR_NOT,
@@ -569,7 +569,7 @@ filter_activate_cb(GtkWidget *w, gpointer data)
 
 /* redisplay with no display filter */
 static void
-filter_reset_cb(GtkWidget *w, gpointer data)
+filter_reset_cb(GtkWidget *w, gpointer data _U_)
 {
   GtkWidget *filter_te = NULL;
 
@@ -679,7 +679,7 @@ set_frame_mark(gboolean set, frame_data *frame, gint row) {
 }
 
 static void
-packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data) {
+packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_) {
   
   GdkEventButton *event_button = (GdkEventButton *)event;
   gint row, column;
@@ -695,7 +695,7 @@ packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data) {
   }
 }
 
-void mark_frame_cb(GtkWidget *w, gpointer data) {
+void mark_frame_cb(GtkWidget *w _U_, gpointer data _U_) {
   if (cfile.current_frame) {
     /* XXX hum, should better have a "cfile->current_row" here ... */
     set_frame_mark(!cfile.current_frame->flags.marked,
@@ -726,17 +726,17 @@ void update_marked_frames(void) {
   }
 }
 
-void mark_all_frames_cb(GtkWidget *w, gpointer data) {
+void mark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_) {
   mark_all_frames(TRUE);
 }
 
-void unmark_all_frames_cb(GtkWidget *w, gpointer data) {
+void unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_) {
   mark_all_frames(FALSE);
 }
 
 /* What to do when a list item is selected/unselected */
 static void
-packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
+packet_list_select_cb(GtkWidget *w _U_, gint row, gint col _U_, gpointer evt _U_) {
 
 /* Remove the hex display tabbed pages */
   while( (gtk_notebook_get_nth_page( GTK_NOTEBOOK(byte_nb_ptr), 0)))
@@ -747,14 +747,14 @@ packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
 
 
 static void
-packet_list_unselect_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
+packet_list_unselect_cb(GtkWidget *w _U_, gint row _U_, gint col _U_, gpointer evt _U_) {
 
   unselect_packet(&cfile);
 }
 
 
 static void
-tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user_data)
+tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column _U_, gpointer user_data _U_)
 {
 	field_info	*finfo;
 	gchar		*help_str = NULL;
@@ -823,7 +823,7 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user
 }
 
 static void
-tree_view_unselect_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user_data)
+tree_view_unselect_row_cb(GtkCTree *ctree _U_, GList *node _U_, gint column _U_, gpointer user_data _U_)
 {
 	GtkWidget	*byte_view;
 	const guint8	*data;
@@ -846,17 +846,17 @@ tree_view_unselect_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer us
 		NULL, len);
 }
 
-void collapse_all_cb(GtkWidget *widget, gpointer data) {
+void collapse_all_cb(GtkWidget *widget _U_, gpointer data _U_) {
   if (cfile.edt->tree)
     collapse_all_tree(cfile.edt->tree, tree_view);
 }
 
-void expand_all_cb(GtkWidget *widget, gpointer data) {
+void expand_all_cb(GtkWidget *widget _U_, gpointer data _U_) {
   if (cfile.edt->tree)
     expand_all_tree(cfile.edt->tree, tree_view);
 }
 
-void resolve_name_cb(GtkWidget *widget, gpointer data) {
+void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_) {
   if (cfile.edt->tree) {
     guint32 tmp = g_resolv_flags;
     g_resolv_flags = RESOLV_ALL;
@@ -1037,7 +1037,7 @@ do_quit(void)
 }
 
 static gboolean
-main_window_delete_event_cb(GtkWidget *widget, GdkEvent *event, gpointer data)
+main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data _U_)
 {
 	gint desk_x, desk_y;
 
@@ -1059,7 +1059,7 @@ main_window_delete_event_cb(GtkWidget *widget, GdkEvent *event, gpointer data)
 }
 
 void
-file_quit_cmd_cb (GtkWidget *widget, gpointer data)
+file_quit_cmd_cb (GtkWidget *widget _U_, gpointer data _U_)
 {
 	do_quit();
 }

@@ -2139,9 +2139,9 @@ column_button_clicked (GtkWidget *widget,
 }
 
 static gint
-column_title_passive_func (GtkWidget *widget, 
+column_title_passive_func (GtkWidget *widget _U_, 
 			   GdkEvent  *event,
-			   gpointer   data)
+			   gpointer   data _U_)
 {
   g_return_val_if_fail (event != NULL, FALSE);
   
@@ -3509,7 +3509,7 @@ gtk_clist_undo_selection (GtkCList *clist)
 static GList *
 selection_find (GtkCList *clist,
 		gint      row_number,
-		GList    *row_list_element)
+		GList    *row_list_element _U_)
 {
   return g_list_find (clist->selection, GINT_TO_POINTER (row_number));
 }
@@ -3700,8 +3700,8 @@ real_select_row (GtkCList *clist,
 static void
 real_unselect_row (GtkCList *clist,
 		   gint      row,
-		   gint      column,
-		   GdkEvent *event)
+		   gint      column _U_,
+		   GdkEvent *event _U_)
 {
   GtkCListRow *clist_row;
 
@@ -7566,7 +7566,7 @@ gtk_clist_drag_end (GtkWidget	   *widget,
 static void
 gtk_clist_drag_leave (GtkWidget      *widget,
 		      GdkDragContext *context,
-		      guint           time)
+		      guint           time _U_)
 {
   GtkCList *clist;
   GtkCListDestInfo *dest_info;
@@ -7703,9 +7703,9 @@ gtk_clist_drag_motion (GtkWidget      *widget,
 static gboolean
 gtk_clist_drag_drop (GtkWidget      *widget,
 		     GdkDragContext *context,
-		     gint            x,
-		     gint            y,
-		     guint           time)
+		     gint            x _U_,
+		     gint            y _U_,
+		     guint           time _U_)
 {
   g_return_val_if_fail (widget != NULL, FALSE);
   g_return_val_if_fail (GTK_IS_CLIST (widget), FALSE);
@@ -7734,8 +7734,8 @@ gtk_clist_drag_data_received (GtkWidget        *widget,
 			      gint              x,
 			      gint              y,
 			      GtkSelectionData *selection_data,
-			      guint             info,
-			      guint             time)
+			      guint             info _U_,
+			      guint             time _U_)
 {
   GtkCList *clist;
 
@@ -7778,8 +7778,8 @@ static void
 gtk_clist_drag_data_get (GtkWidget        *widget,
 			 GdkDragContext   *context,
 			 GtkSelectionData *selection_data,
-			 guint             info,
-			 guint             time)
+			 guint             info _U_,
+			 guint             time _U_)
 {
   g_return_if_fail (widget != NULL);
   g_return_if_fail (GTK_IS_CLIST (widget));
@@ -7812,7 +7812,7 @@ gtk_clist_drag_data_get (GtkWidget        *widget,
 
 static void
 draw_drag_highlight (GtkCList        *clist,
-		     GtkCListRow     *dest_row,
+		     GtkCListRow     *dest_row _U_,
 		     gint             dest_row_number,
 		     GtkCListDragPos  drag_pos)
 {

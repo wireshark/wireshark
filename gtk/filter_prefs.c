@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.33 2002/01/11 07:40:31 guy Exp $
+ * $Id: filter_prefs.c,v 1.34 2002/03/05 11:55:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,7 +107,7 @@ static void       filter_filter_te_destroy_cb(GtkWidget *, gpointer);
    lists, but we don't yet have that, so the list of filters this
    shows is a list of all filters. */
 void
-capture_filter_construct_cb(GtkWidget *w, gpointer user_data)
+capture_filter_construct_cb(GtkWidget *w, gpointer user_data _U_)
 {
 	GtkWidget *caller = gtk_widget_get_toplevel(w);
 	GtkWidget *filter_browse_w;
@@ -208,7 +208,7 @@ static GtkWidget *global_cfilter_w;
 /* Create a filter dialog for editing capture filters; this is to be used
    as a callback for menu items, toolbars, etc.. */
 void
-cfilter_dialog_cb(GtkWidget *w)
+cfilter_dialog_cb(GtkWidget *w _U_)
 {
 	/* No Apply button, and there's no text widget to set, much less
 	   activate, on "OK". */
@@ -240,7 +240,7 @@ static GtkWidget *global_dfilter_w;
 /* Create a filter dialog for editing display filters; this is to be used
    as a callback for menu items, toolbars, etc.. */
 void
-dfilter_dialog_cb(GtkWidget *w)
+dfilter_dialog_cb(GtkWidget *w _U_)
 {
 	/* No Apply button, and there's no text widget to set, much less
 	   activate, on "OK". */
@@ -321,7 +321,7 @@ get_filter_dialog_list(filter_list_type_t list)
 }
 
 static GtkWidget *
-filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
+filter_dialog_new(GtkWidget *caller _U_, GtkWidget *parent_filter_te,
     filter_list_type_t list, construct_args_t *construct_args)
 {
 	GtkWidget	*main_w,		/* main window */
@@ -653,7 +653,7 @@ filter_dlg_dclick(GtkWidget *filter_l, gpointer main_w_arg)
 }
 
 static void
-filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer data)
+filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer data _U_)
 {
 	GtkWidget  *main_w = gtk_widget_get_toplevel(ok_bt);
 
@@ -669,7 +669,7 @@ filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer data)
 }
 
 static void
-filter_dlg_apply_cb(GtkWidget *apply_bt, gpointer dummy)
+filter_dlg_apply_cb(GtkWidget *apply_bt, gpointer dummy _U_)
 {
 	filter_apply(gtk_widget_get_toplevel(apply_bt));
 }
@@ -704,7 +704,7 @@ filter_apply(GtkWidget *main_w)
 }
 
 static void
-filter_dlg_save_cb(GtkWidget *save_bt, gpointer data)
+filter_dlg_save_cb(GtkWidget *save_bt _U_, gpointer data)
 {
 	filter_list_type_t list = *(filter_list_type_t *)data;
 	char *pf_dir_path;
@@ -748,7 +748,7 @@ filter_dlg_save_cb(GtkWidget *save_bt, gpointer data)
 }
 
 static void
-filter_dlg_close_cb(GtkWidget *close_bt, gpointer parent_w)
+filter_dlg_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
 {
 	gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
@@ -819,7 +819,7 @@ filter_sel_list_button_cb (GtkWidget *widget, GdkEventButton *event,
 }
 
 static void
-filter_sel_list_cb(GtkWidget *l, gpointer data)
+filter_sel_list_cb(GtkWidget *l, gpointer data _U_)
 {
   GtkWidget  *main_w = gtk_widget_get_toplevel(l);
   GtkWidget  *name_te = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_NAME_TE_KEY);
@@ -880,7 +880,7 @@ filter_sel_list_cb(GtkWidget *l, gpointer data)
 }
 
 static void
-filter_list_destroy_cb(GtkWidget *l, gpointer data)
+filter_list_destroy_cb(GtkWidget *l, gpointer data _U_)
 {
   GtkWidget  *main_w = gtk_widget_get_toplevel(l);
 
@@ -1021,7 +1021,7 @@ filter_chg_bt_clicked_cb(GtkWidget *w, gpointer data)
 }
 
 static void
-filter_chg_bt_destroy_cb(GtkWidget *chg_bt, gpointer data)
+filter_chg_bt_destroy_cb(GtkWidget *chg_bt, gpointer data _U_)
 {
   GtkWidget  *main_w = gtk_widget_get_toplevel(chg_bt);
 
@@ -1062,7 +1062,7 @@ filter_copy_bt_clicked_cb(GtkWidget *w, gpointer data)
 }
 
 static void
-filter_copy_bt_destroy_cb(GtkWidget *copy_bt, gpointer data)
+filter_copy_bt_destroy_cb(GtkWidget *copy_bt, gpointer data _U_)
 {
   GtkWidget  *main_w = gtk_widget_get_toplevel(copy_bt);
 
@@ -1107,7 +1107,7 @@ filter_del_bt_clicked_cb(GtkWidget *w, gpointer data)
 }
 
 static void
-filter_del_bt_destroy_cb(GtkWidget *del_bt, gpointer data)
+filter_del_bt_destroy_cb(GtkWidget *del_bt, gpointer data _U_)
 {
   GtkWidget  *main_w = gtk_widget_get_toplevel(del_bt);
 
@@ -1115,7 +1115,7 @@ filter_del_bt_destroy_cb(GtkWidget *del_bt, gpointer data)
 }
 
 static void
-filter_expr_cb(GtkWidget *w, gpointer main_w_arg)
+filter_expr_cb(GtkWidget *w _U_, gpointer main_w_arg)
 {
 	GtkWidget  *main_w = GTK_WIDGET(main_w_arg);
 	GtkWidget  *filter_te;
@@ -1126,7 +1126,7 @@ filter_expr_cb(GtkWidget *w, gpointer main_w_arg)
 }
 
 static void
-filter_name_te_destroy_cb(GtkWidget *name_te, gpointer data)
+filter_name_te_destroy_cb(GtkWidget *name_te, gpointer data _U_)
 {
   GtkWidget  *main_w = gtk_widget_get_toplevel(name_te);
 
@@ -1134,7 +1134,7 @@ filter_name_te_destroy_cb(GtkWidget *name_te, gpointer data)
 }
 
 static void
-filter_filter_te_destroy_cb(GtkWidget *filter_te, gpointer data)
+filter_filter_te_destroy_cb(GtkWidget *filter_te, gpointer data _U_)
 {
   GtkWidget  *main_w = gtk_widget_get_toplevel(filter_te);
 

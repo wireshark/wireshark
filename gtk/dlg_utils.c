@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.6 2001/12/12 21:38:58 gerald Exp $
+ * $Id: dlg_utils.c,v 1.7 2002/03/05 11:55:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -70,7 +70,7 @@ dlg_set_activate(GtkWidget *widget, GtkWidget *ok_button)
 }
 
 static void
-dlg_activate (GtkWidget *widget, gpointer ok_button)
+dlg_activate (GtkWidget *widget _U_, gpointer ok_button)
 {
   gtk_widget_activate(GTK_WIDGET(ok_button));
 }

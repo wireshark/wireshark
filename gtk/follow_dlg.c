@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.21 2002/02/28 19:35:09 gram Exp $
+ * $Id: follow_dlg.c,v 1.22 2002/03/05 11:55:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -135,7 +135,7 @@ forget_follow_info(follow_info_t *follow_info)
 }
 
 static void
-follow_redraw(gpointer data, gpointer user_data)
+follow_redraw(gpointer data, gpointer user_data _U_)
 {
 	follow_load_text((follow_info_t *)data);
 }
@@ -151,7 +151,7 @@ follow_redraw_all(void)
    a dissection routine on belongs (this might be the most recently
    selected packet, or it might be the last packet in the file). */
 void
-follow_stream_cb(GtkWidget * w, gpointer data)
+follow_stream_cb(GtkWidget * w, gpointer data _U_)
 {
 	GtkWidget	*streamwindow, *vbox, *txt_scrollw, *text, *filter_te;
 	GtkWidget	*hbox, *button, *radio_bt;
@@ -399,7 +399,7 @@ follow_stream_cb(GtkWidget * w, gpointer data)
 /* The destroy call back has the responsibility of
  * unlinking the temporary file */
 static void
-follow_destroy_cb(GtkWidget *w, gpointer data)
+follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 {
 	follow_info_t	*follow_info;
 
@@ -413,7 +413,7 @@ follow_destroy_cb(GtkWidget *w, gpointer data)
 /* XXX - can I emulate follow_charset_toggle_cb() instead of having
  * 3 different functions here? */
 static void
-follow_stream_om_both(GtkWidget *w, gpointer data)
+follow_stream_om_both(GtkWidget *w _U_, gpointer data)
 {
 	follow_info_t	*follow_info = data;
 	follow_info->show_stream = BOTH_HOSTS;
@@ -421,7 +421,7 @@ follow_stream_om_both(GtkWidget *w, gpointer data)
 }
 
 static void
-follow_stream_om_client(GtkWidget *w, gpointer data)
+follow_stream_om_client(GtkWidget *w _U_, gpointer data)
 {
 	follow_info_t	*follow_info = data;
 	follow_info->show_stream = FROM_CLIENT;
@@ -429,7 +429,7 @@ follow_stream_om_client(GtkWidget *w, gpointer data)
 }
 
 static void
-follow_stream_om_server(GtkWidget *w, gpointer data)
+follow_stream_om_server(GtkWidget *w _U_, gpointer data)
 {
 	follow_info_t	*follow_info = data;
 	follow_info->show_stream = FROM_SERVER;
@@ -439,7 +439,7 @@ follow_stream_om_server(GtkWidget *w, gpointer data)
 
 /* Handles the ASCII/EBCDIC toggling */
 static void
-follow_charset_toggle_cb(GtkWidget * w, gpointer data)
+follow_charset_toggle_cb(GtkWidget * w _U_, gpointer data)
 {
 	follow_info_t	*follow_info = data;
 
@@ -603,7 +603,7 @@ follow_read_stream(follow_info_t *follow_info,
  * For now, we support only text printing.
  */
 static void
-follow_print_text(char *buffer, int nchars, gboolean is_server, void *arg)
+follow_print_text(char *buffer, int nchars, gboolean is_server _U_, void *arg)
 {
     FILE *fh = arg;
 
@@ -611,7 +611,7 @@ follow_print_text(char *buffer, int nchars, gboolean is_server, void *arg)
 }
 
 static void
-follow_print_stream(GtkWidget * w, gpointer data)
+follow_print_stream(GtkWidget * w _U_, gpointer data)
 {
     FILE		*fh;
     gboolean		to_file;
@@ -718,7 +718,7 @@ follow_load_text(follow_info_t *follow_info)
  * up the existing one, rather than creating a new one.
  */
 static void
-follow_save_as_cmd_cb(GtkWidget *w, gpointer data)
+follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 {
     GtkWidget		*ok_bt, *new_win;
     follow_info_t	*follow_info = data;
@@ -770,7 +770,7 @@ follow_save_as_cmd_cb(GtkWidget *w, gpointer data)
 
 
 static void
-follow_save_as_ok_cb(GtkWidget * w, GtkFileSelection * fs)
+follow_save_as_ok_cb(GtkWidget * w _U_, GtkFileSelection * fs)
 {
 	gchar		*to_name;
 	follow_info_t	*follow_info;
@@ -795,7 +795,7 @@ follow_save_as_ok_cb(GtkWidget * w, GtkFileSelection * fs)
 }
 
 static void
-follow_save_as_destroy_cb(GtkWidget * win, gpointer data)
+follow_save_as_destroy_cb(GtkWidget * win _U_, gpointer data)
 {
 	follow_info_t	*follow_info = data;
 

@@ -1,7 +1,7 @@
 /* stream_prefs.c
  * Dialog boxes for preferences for the stream window
  *
- * $Id: stream_prefs.c,v 1.10 2002/01/11 07:40:32 guy Exp $
+ * $Id: stream_prefs.c,v 1.11 2002/03/05 11:56:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,7 +138,7 @@ stream_prefs_show()
 }
 
 static void
-update_text_color(GtkWidget *w, gpointer data) {
+update_text_color(GtkWidget *w, gpointer data _U_) {
   GtkText  *sample   = gtk_object_get_data(GTK_OBJECT(w), STREAM_SAMPLE_KEY);
   gdouble   scolor[4];
 
@@ -176,7 +176,7 @@ update_current_color(GtkWidget *w, gpointer data)
 }
 
 void
-stream_prefs_fetch(GtkWidget *w)
+stream_prefs_fetch(GtkWidget *w _U_)
 {
   gdkcolor_to_color_t(&prefs.st_client_fg, &tcolors[CFG_IDX]);
   gdkcolor_to_color_t(&prefs.st_client_bg, &tcolors[CBG_IDX]);
@@ -189,11 +189,11 @@ stream_prefs_fetch(GtkWidget *w)
    that calling "stream_prefs_apply()" without calling "gui_prefs_apply()"
    won't work. */
 void
-stream_prefs_apply(GtkWidget *w)
+stream_prefs_apply(GtkWidget *w _U_)
 {
 }
 
 void
-stream_prefs_destroy(GtkWidget *w)
+stream_prefs_destroy(GtkWidget *w _U_)
 {
 }

@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.8 2002/01/20 20:05:18 guy Exp $
+ * $Id: capture_prefs.c,v 1.9 2002/03/05 11:55:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -153,12 +153,12 @@ capture_prefs_fetch(GtkWidget *w)
 }
 
 void
-capture_prefs_apply(GtkWidget *w)
+capture_prefs_apply(GtkWidget *w _U_)
 {
 }
 
 void
-capture_prefs_destroy(GtkWidget *w)
+capture_prefs_destroy(GtkWidget *w _U_)
 {
 }
 

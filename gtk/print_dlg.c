@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.29 2002/01/21 07:37:42 guy Exp $
+ * $Id: print_dlg.c,v 1.30 2002/03/05 11:55:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -93,7 +93,7 @@ static GtkWidget *print_w;
 
 /* Print the capture */
 void
-file_print_cmd_cb(GtkWidget *widget, gpointer data)
+file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
   GtkAccelGroup *accel_group;
   GtkWidget     *main_vb, *main_tb, *button;
@@ -369,7 +369,7 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
 
 #ifndef _WIN32
 static void
-print_cmd_toggle_dest(GtkWidget *widget, gpointer data)
+print_cmd_toggle_dest(GtkWidget *widget, gpointer data _U_)
 {
   GtkWidget     *cmd_lb, *cmd_te, *file_bt, *file_te;
   int            to_file;
@@ -397,7 +397,7 @@ print_cmd_toggle_dest(GtkWidget *widget, gpointer data)
 #endif
 
 static void
-print_cmd_toggle_detail(GtkWidget *widget, gpointer data)
+print_cmd_toggle_detail(GtkWidget *widget, gpointer data _U_)
 {
   GtkWidget     *expand_all_rb, *as_displayed_rb, *hex_cb;
   gboolean      print_detail;
@@ -466,7 +466,7 @@ print_file_cb(GtkWidget *file_bt, gpointer file_te)
 }
 
 static void
-print_fs_ok_cb(GtkWidget *w, gpointer data)
+print_fs_ok_cb(GtkWidget *w _U_, gpointer data)
 {
   
   gtk_entry_set_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(data),
@@ -476,13 +476,13 @@ print_fs_ok_cb(GtkWidget *w, gpointer data)
 }
 
 static void
-print_fs_cancel_cb(GtkWidget *w, gpointer data)
+print_fs_cancel_cb(GtkWidget *w _U_, gpointer data)
 {
   gtk_widget_destroy(GTK_WIDGET(data));
 }
 
 static void
-print_fs_destroy_cb(GtkWidget *win, gpointer data)
+print_fs_destroy_cb(GtkWidget *win, gpointer data _U_)
 {
   GtkWidget *caller;
 
@@ -561,14 +561,14 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 }
 
 static void
-print_close_cb(GtkWidget *close_bt, gpointer parent_w)
+print_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
 {
   gtk_grab_remove(GTK_WIDGET(parent_w));
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
 
 static void
-print_destroy_cb(GtkWidget *win, gpointer user_data)
+print_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 {
   GtkWidget *fs;
 
@@ -587,7 +587,7 @@ print_destroy_cb(GtkWidget *win, gpointer user_data)
 
 /* Print a packet */
 void
-file_print_packet_cmd_cb(GtkWidget *widget, gpointer data) {
+file_print_packet_cmd_cb(GtkWidget *widget _U_, gpointer data _U_) {
   FILE *fh;
   print_args_t print_args;
 

@@ -1,7 +1,7 @@
 /* column_prefs.c
  * Dialog box for column preferences
  *
- * $Id: column_prefs.c,v 1.7 2002/01/11 07:40:31 guy Exp $
+ * $Id: column_prefs.c,v 1.8 2002/03/05 11:55:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -225,7 +225,7 @@ column_sel_list_cb(GtkWidget *l, gpointer data) {
 /* To do: add input checking to each of these callbacks */
  
 static void
-column_sel_new_cb(GtkWidget *w, gpointer data) {
+column_sel_new_cb(GtkWidget *w _U_, gpointer data _U_) {
   fmt_data   *cfmt;
   gchar      *title;
   GtkWidget  *nl_item, *nl_lb;
@@ -252,7 +252,7 @@ column_sel_new_cb(GtkWidget *w, gpointer data) {
 }
 
 static void
-column_sel_chg_cb(GtkWidget *w, gpointer data) {
+column_sel_chg_cb(GtkWidget *w _U_, gpointer data _U_) {
   fmt_data   *cfmt;
   gchar      *title = "";
   GList      *sl, *clp;
@@ -281,7 +281,7 @@ column_sel_chg_cb(GtkWidget *w, gpointer data) {
 }
 
 static void
-column_sel_del_cb(GtkWidget *w, gpointer data) {
+column_sel_del_cb(GtkWidget *w _U_, gpointer data _U_) {
   GList      *sl, *clp;
   fmt_data   *cfmt;
   GtkObject  *l_item;
@@ -304,7 +304,7 @@ column_sel_del_cb(GtkWidget *w, gpointer data) {
 }
 
 static void
-column_sel_arrow_cb(GtkWidget *w, gpointer data) {
+column_sel_arrow_cb(GtkWidget *w, gpointer data _U_) {
   GList      *sl, *clp, *il;
   fmt_data   *cfmt;
   GtkObject  *l_item;
@@ -336,16 +336,16 @@ column_sel_arrow_cb(GtkWidget *w, gpointer data) {
 }
 
 void
-column_set_fmt_cb(GtkWidget *w, gpointer data) {
+column_set_fmt_cb(GtkWidget *w _U_, gpointer data) {
   cur_fmt = (gint) data;
 }
 
 void
-column_prefs_fetch(GtkWidget *w) {
+column_prefs_fetch(GtkWidget *w _U_) {
 }
 
 void
-column_prefs_apply(GtkWidget *w) {
+column_prefs_apply(GtkWidget *w _U_) {
 }
 
 void

@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.33 2002/01/20 20:05:18 guy Exp $
+ * $Id: gui_prefs.c,v 1.34 2002/03/05 11:55:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -226,7 +226,7 @@ gui_prefs_show(void)
 
 /* Create a font dialog for browsing. */
 static void
-font_browse_cb(GtkWidget *w, gpointer data)
+font_browse_cb(GtkWidget *w, gpointer data _U_)
 {
 	GtkWidget *caller = gtk_widget_get_toplevel(w);
 	GtkWidget *font_browse_w;
@@ -305,7 +305,7 @@ font_browse_cb(GtkWidget *w, gpointer data)
 }
 
 static void
-font_browse_ok_cb(GtkWidget *w, GtkFontSelectionDialog *fs)
+font_browse_ok_cb(GtkWidget *w _U_, GtkFontSelectionDialog *fs)
 {
 	gchar *font_name, *bold_font_name;
 	GdkFont *new_r_font, *new_b_font;
@@ -360,7 +360,7 @@ font_browse_ok_cb(GtkWidget *w, GtkFontSelectionDialog *fs)
 }
 
 static void
-font_browse_destroy(GtkWidget *win, gpointer data)
+font_browse_destroy(GtkWidget *win, gpointer data _U_)
 {
 	GtkWidget *caller;
 
@@ -425,7 +425,7 @@ gui_prefs_fetch(GtkWidget *w)
 }
 
 void
-gui_prefs_apply(GtkWidget *w)
+gui_prefs_apply(GtkWidget *w _U_)
 {
 	GdkFont *new_r_font, *new_b_font;
 	char *bold_font_name;
@@ -528,7 +528,7 @@ static color_info_t color_info[MAX_HANDLED_COL] = {
 static GdkColor *curcolor = NULL;
 
 static void
-color_browse_cb(GtkWidget *w, gpointer data)
+color_browse_cb(GtkWidget *w, gpointer data _U_)
 {
 
   GtkWidget *main_vb, *main_tb, *label, *optmenu, *menu, *menuitem;
@@ -651,7 +651,7 @@ color_browse_cb(GtkWidget *w, gpointer data)
 }
 
 static void
-update_text_color(GtkWidget *w, gpointer data) {
+update_text_color(GtkWidget *w, gpointer data _U_) {
   GtkText  *sample = gtk_object_get_data(GTK_OBJECT(w), COLOR_SAMPLE_PTR_KEY);
   gdouble   scolor[4];
 
@@ -689,7 +689,7 @@ update_current_color(GtkWidget *w, gpointer data)
 }
 
 static void
-color_ok_cb(GtkWidget *w, gpointer data)
+color_ok_cb(GtkWidget *w _U_, gpointer data)
 {
   /* We assume the user actually changed a color here. */
   colors_changed = TRUE;
@@ -699,7 +699,7 @@ color_ok_cb(GtkWidget *w, gpointer data)
 }
 
 static void
-color_cancel_cb(GtkWidget *w, gpointer data)
+color_cancel_cb(GtkWidget *w _U_, gpointer data)
 {
   /* Revert the colors to the current preference settings. */
   color_t_to_gdkcolor(&color_info[MFG_IDX].color, &prefs.gui_marked_fg);
@@ -713,14 +713,14 @@ color_cancel_cb(GtkWidget *w, gpointer data)
    a higher-level handler that says "OK, we've been asked to delete
    this, so destroy it"? */
 static gboolean
-color_delete_cb(GtkWidget *prefs_w, gpointer dummy)
+color_delete_cb(GtkWidget *prefs_w _U_, gpointer dummy _U_)
 {
   color_cancel_cb(NULL, NULL);
   return FALSE;
 }
 
 static void
-color_destroy_cb(GtkWidget *w, gpointer data)
+color_destroy_cb(GtkWidget *w, gpointer data _U_)
 {
   GtkWidget *caller = gtk_object_get_data(GTK_OBJECT(w), 
 					  COLOR_CALLER_PTR_KEY);

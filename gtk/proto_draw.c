@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.46 2002/02/18 01:08:44 guy Exp $
+ * $Id: proto_draw.c,v 1.47 2002/03/05 11:56:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -159,7 +159,7 @@ redraw_hex_dump_all(void)
 }
 
 static void
-expand_tree(GtkCTree *ctree, GtkCTreeNode *node, gpointer user_data)
+expand_tree(GtkCTree *ctree, GtkCTreeNode *node, gpointer user_data _U_)
 {
 	field_info	*finfo;
 	gboolean	*val;
@@ -172,7 +172,7 @@ expand_tree(GtkCTree *ctree, GtkCTreeNode *node, gpointer user_data)
 }
 
 static void
-collapse_tree(GtkCTree *ctree, GtkCTreeNode *node, gpointer user_data)
+collapse_tree(GtkCTree *ctree, GtkCTreeNode *node, gpointer user_data _U_)
 {
 	field_info	*finfo;
 	gboolean	*val;
@@ -185,7 +185,7 @@ collapse_tree(GtkCTree *ctree, GtkCTreeNode *node, gpointer user_data)
 }
 
 static void
-toggle_tree(GtkCTree *ctree, GdkEventKey *event, gpointer user_data)
+toggle_tree(GtkCTree *ctree, GdkEventKey *event, gpointer user_data _U_)
 {
 	if (event->keyval != GDK_Return)
 		return;
@@ -364,7 +364,7 @@ create_byte_view(gint bv_size, GtkWidget *pane, int pos)
 }
 
 static void
-byte_view_realize_cb(GtkWidget *bv, gpointer data)
+byte_view_realize_cb(GtkWidget *bv, gpointer data _U_)
 {
  const guint8 *byte_data;
  guint byte_len;
@@ -742,7 +742,7 @@ remember_ptree_widget(GtkWidget *ptreew)
 
 /* Remove a protocol tree widget from the list of protocol tree widgets. */
 static void
-forget_ptree_widget(GtkWidget *ptreew, gpointer data)
+forget_ptree_widget(GtkWidget *ptreew, gpointer data _U_)
 {
   ptree_widgets = g_list_remove(ptree_widgets, ptreew);
 }

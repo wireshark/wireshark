@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.8 2001/12/12 21:38:59 gerald Exp $
+ * $Id: simple_dialog.c,v 1.9 2002/03/05 11:56:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -168,7 +168,7 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
 }
 
 static void
-simple_dialog_cancel_cb(GtkWidget *w, gpointer win) {
+simple_dialog_cancel_cb(GtkWidget *w _U_, gpointer win) {
   gint *btn_mask = (gint *) gtk_object_get_data(win, bm_key);
   
   if (btn_mask)

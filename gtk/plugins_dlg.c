@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.23 2002/01/21 07:37:42 guy Exp $
+ * $Id: plugins_dlg.c,v 1.24 2002/03/05 11:55:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,7 +46,7 @@ static void plugins_close_cb(GtkWidget *, gpointer);
 static void plugins_scan(GtkWidget *);
 
 void
-tools_plugins_cmd_cb(GtkWidget *widget, gpointer data)
+tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
     GtkWidget *plugins_window;
     GtkWidget *main_vbox;
@@ -134,7 +134,7 @@ plugins_scan(GtkWidget *clist)
 }
 
 static void
-plugins_close_cb(GtkWidget *close_bt, gpointer parent_w)
+plugins_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
 {
     gtk_grab_remove(GTK_WIDGET(parent_w));
     gtk_widget_destroy(GTK_WIDGET(parent_w));

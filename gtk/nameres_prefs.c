@@ -1,7 +1,7 @@
 /* nameres_prefs.c
  * Dialog box for name resolution preferences
  *
- * $Id: nameres_prefs.c,v 1.3 2002/01/21 07:37:41 guy Exp $
+ * $Id: nameres_prefs.c,v 1.4 2002/03/05 11:55:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -114,7 +114,7 @@ nameres_prefs_fetch(GtkWidget *w)
 }
 
 void
-nameres_prefs_apply(GtkWidget *w)
+nameres_prefs_apply(GtkWidget *w _U_)
 {
 	/*
 	 * XXX - force a regeneration of the protocol list if this has
@@ -124,6 +124,6 @@ nameres_prefs_apply(GtkWidget *w)
 }
 
 void
-nameres_prefs_destroy(GtkWidget *w)
+nameres_prefs_destroy(GtkWidget *w _U_)
 {
 }

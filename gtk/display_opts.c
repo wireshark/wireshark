@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.25 2002/01/21 07:37:41 guy Exp $
+ * $Id: display_opts.c,v 1.26 2002/03/05 11:55:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -92,7 +92,7 @@ static ts_type initial_timestamp_type;
 static ts_type current_timestamp_type;
 
 void
-display_opt_cb(GtkWidget *w, gpointer d) {
+display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
   GtkWidget     *button, *main_vb, *bbox, *ok_bt, *apply_bt, *cancel_bt;
   GtkAccelGroup *accel_group;
 
@@ -244,7 +244,7 @@ display_opt_cb(GtkWidget *w, gpointer d) {
 }
 
 static void
-display_opt_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
+display_opt_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   get_display_options(GTK_WIDGET(parent_w));
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
@@ -253,7 +253,7 @@ display_opt_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
 }
 
 static void
-display_opt_apply_cb(GtkWidget *ok_bt, gpointer parent_w) {
+display_opt_apply_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   get_display_options(GTK_WIDGET(parent_w));
 
   update_display();
@@ -325,7 +325,7 @@ update_display(void)
 }
 
 static void
-display_opt_close_cb(GtkWidget *close_bt, gpointer parent_w)
+display_opt_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
 {
   /* Revert the timestamp type to the value it has when we started. */
   timestamp_type = initial_timestamp_type;
@@ -338,7 +338,7 @@ display_opt_close_cb(GtkWidget *close_bt, gpointer parent_w)
 }
 
 static void
-display_opt_destroy_cb(GtkWidget *win, gpointer user_data)
+display_opt_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
   /* Note that we no longer have a "Display Options" dialog box. */
   display_opt_w = NULL;

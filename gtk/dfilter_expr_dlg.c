@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.24 2002/01/11 06:43:17 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.25 2002/03/05 11:55:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -104,8 +104,8 @@ static void display_value_fields(header_field_info *hfinfo,
  * whether it is already selected or not.
  */
 static void
-field_select_row_cb(GtkWidget *tree, GList *node, gint column,
-    gpointer user_data)
+field_select_row_cb(GtkWidget *tree, GList *node, gint column _U_,
+    gpointer user_data _U_)
 {
 	GtkWidget *window = gtk_widget_get_toplevel(tree);
 	GtkWidget *relation_label = gtk_object_get_data(GTK_OBJECT(window),
@@ -291,8 +291,8 @@ add_relation_list(GtkWidget *relation_list, char *relation)
 }
 
 static void
-relation_list_sel_cb(GtkList *relation_list, GtkWidget *child,
-    gpointer user_data)
+relation_list_sel_cb(GtkList *relation_list, GtkWidget *child _U_,
+    gpointer user_data _U_)
 {
 	GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(relation_list));
 	GtkWidget *range_label = gtk_object_get_data(GTK_OBJECT(window),
@@ -899,7 +899,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
 }
 
 static void
-dfilter_expr_dlg_cancel_cb(GtkWidget *w, gpointer parent_w)
+dfilter_expr_dlg_cancel_cb(GtkWidget *w _U_, gpointer parent_w)
 {
 	/*
 	 * User pressed the cancel button; close the dialog box.

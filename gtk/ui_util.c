@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.8 2002/01/11 07:40:32 guy Exp $
+ * $Id: ui_util.c,v 1.9 2002/03/05 11:56:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,7 +116,7 @@ reactivate_window(GtkWidget *win)
    part of the installation of Ethereal.
    */
 void
-window_icon_realize_cb (GtkWidget *win, gpointer data) 
+window_icon_realize_cb (GtkWidget *win, gpointer data _U_) 
 {
 #ifndef WIN32
   static GdkPixmap *icon_pmap = NULL;
@@ -171,7 +171,7 @@ setup_scrolled_window(GtkWidget *scrollw)
 
 /* Remove a GtkScrolledWindow from the list of GtkScrolledWindows. */
 static void
-forget_scrolled_window(GtkWidget *scrollw, gpointer data)
+forget_scrolled_window(GtkWidget *scrollw, gpointer data _U_)
 {
   scrolled_windows = g_list_remove(scrolled_windows, scrollw);
 }
@@ -191,7 +191,7 @@ set_scrollbar_placement_scrollw(GtkWidget *scrollw)
 }
 
 static void
-set_scrollbar_placement_cb(gpointer data, gpointer user_data)
+set_scrollbar_placement_cb(gpointer data, gpointer user_data _U_)
 {
   set_scrollbar_placement_scrollw((GtkWidget *)data);
 }
@@ -249,7 +249,7 @@ setup_ctree(GtkWidget *ctree)
 
 /* Remove a GtkCTree from the list of GtkCTrees. */
 static void
-forget_ctree(GtkWidget *ctree, gpointer data)
+forget_ctree(GtkWidget *ctree, gpointer data _U_)
 {
   ctrees = g_list_remove(ctrees, ctree);
 }
@@ -268,7 +268,7 @@ set_ctree_styles(GtkWidget *ctree)
 }
 
 static void
-set_ctree_styles_cb(gpointer data, gpointer user_data)
+set_ctree_styles_cb(gpointer data, gpointer user_data _U_)
 {
   set_ctree_styles((GtkWidget *)data);
 }

@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.15 2002/03/05 05:58:35 guy Exp $
+ * $Id: tcp_graph.c,v 1.16 2002/03/05 11:56:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -535,7 +535,7 @@ static char helptext[] =
 ";
 #endif
 
-void tcp_graph_cb (GtkWidget *w, gpointer data, guint graph_type)
+void tcp_graph_cb (GtkWidget *w _U_, gpointer data _U_, guint graph_type)
 {
 	struct segment current;
 	struct graph *g;
@@ -788,7 +788,7 @@ static void create_drawing_area (struct graph *g)
 	/* puts ("exiting create_drawing_area()"); */
 }
 
-static void callback_toplevel_destroy (GtkWidget *widget, gpointer data)
+static void callback_toplevel_destroy (GtkWidget *widget _U_, gpointer data)
 {
 	struct graph *g = (struct graph * )data;
 
@@ -947,7 +947,7 @@ static void control_panel_add_graph_type_page (struct graph *g, GtkWidget *n)
 	gtk_notebook_append_page (GTK_NOTEBOOK (n), frame, label);
 }
 
-static void callback_close (GtkWidget *widget, gpointer data)
+static void callback_close (GtkWidget *widget _U_, gpointer data)
 {
 	struct graph *g = (struct graph * )data;
 
@@ -957,7 +957,7 @@ static void callback_close (GtkWidget *widget, gpointer data)
 	}
 }
 
-static void callback_create_help (GtkWidget *widget, gpointer data)
+static void callback_create_help (GtkWidget *widget _U_, gpointer data)
 {
 	struct graph *g = (struct graph * )data;
 	GtkWidget *toplevel, *box, *text, *scroll, *close;
@@ -988,17 +988,17 @@ static void callback_create_help (GtkWidget *widget, gpointer data)
 	gtk_widget_show_all (toplevel);
 }
 
-static void callback_close_help (GtkWidget *widget, gpointer data)
+static void callback_close_help (GtkWidget *widget _U_, gpointer data)
 {
 	gtk_widget_destroy ((GtkWidget * )data);
 }
 
-static void callback_time_origin (GtkWidget *toggle, gpointer data)
+static void callback_time_origin (GtkWidget *toggle _U_, gpointer data)
 {
 	toggle_time_origin ((struct graph * )data);
 }
 
-static void callback_seq_origin (GtkWidget *toggle, gpointer data)
+static void callback_seq_origin (GtkWidget *toggle _U_, gpointer data)
 {
 	toggle_seq_origin ((struct graph * )data);
 }
@@ -1583,7 +1583,7 @@ static void callback_graph_type (GtkWidget *toggle, gpointer data)
 	graph_init_sequence (g);
 }
 
-static void callback_graph_init_on_typechg (GtkWidget *toggle, gpointer data)
+static void callback_graph_init_on_typechg (GtkWidget *toggle _U_, gpointer data)
 {
 	((struct graph * )data)->flags ^= GRAPH_INIT_ON_TYPE_CHANGE;
 }
@@ -3012,7 +3012,7 @@ static gint key_release_event (GtkWidget *widget, GdkEventKey *event)
 	return TRUE;
 }
 
-static gint leave_notify_event (GtkWidget *widget, GdkEventCrossing *event)
+static gint leave_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_)
 {
 	struct graph *g;
 
@@ -3026,7 +3026,7 @@ static gint leave_notify_event (GtkWidget *widget, GdkEventCrossing *event)
 	return TRUE;
 }
 
-static gint enter_notify_event (GtkWidget *widget, GdkEventCrossing *event)
+static gint enter_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_)
 {
 	struct graph *g;
 

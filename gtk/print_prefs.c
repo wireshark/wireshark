@@ -1,7 +1,7 @@
 /* print_prefs.c
  * Dialog boxes for preferences for printing
  *
- * $Id: print_prefs.c,v 1.11 2002/01/20 20:05:18 guy Exp $
+ * $Id: print_prefs.c,v 1.12 2002/03/05 11:55:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -170,13 +170,13 @@ printer_opts_fs_ok_cb(GtkWidget *w, gpointer data) {
 }
 
 static void
-printer_opts_fs_cancel_cb(GtkWidget *w, gpointer data) {
+printer_opts_fs_cancel_cb(GtkWidget *w _U_, gpointer data) {
 	  
 	gtk_widget_destroy(GTK_WIDGET(data));
 } 
 
 static void
-printer_opts_fs_destroy_cb(GtkWidget *win, gpointer data)
+printer_opts_fs_destroy_cb(GtkWidget *win, gpointer data _U_)
 {
   GtkWidget *caller;
 
@@ -218,7 +218,7 @@ printer_prefs_fetch(GtkWidget *w)
 }
 
 void
-printer_prefs_apply(GtkWidget *w)
+printer_prefs_apply(GtkWidget *w _U_)
 {
 }
 
