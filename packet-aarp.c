@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.9 1999/10/03 15:06:27 deniel Exp $
+ * $Id: packet-aarp.c,v 1.10 1999/10/03 15:21:11 deniel Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -93,6 +93,11 @@ dissect_aarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
                              {AARP_REPLY,    "AARP reply"   },
                              {AARP_PROBE,    "AARP probe"   },
                              {0,             NULL           } };
+
+  if (!BYTES_ARE_IN_FRAME(offset, sizeof(e_ether_aarp))) {
+    dissect_data(pd, offset, fd, tree);
+    return;
+  }
 
   ea.htype = pntohs(&pd[offset]);
   ea.ptype = pntohs(&pd[offset + 2]);
