@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.37 2003/11/18 19:20:15 ulfl Exp $
+ * $Id: packet-sdp.c,v 1.38 2003/12/05 09:34:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -217,9 +217,6 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* XXX: Needs description. */
 		col_append_str(pinfo->cinfo, COL_INFO, ", with session description");
 	}
-
-	if (!tree)
-		return;
 
 	ti = proto_tree_add_item(tree, proto_sdp, tvb, offset, -1, FALSE);
 	sdp_tree = proto_item_add_subtree(ti, ett_sdp);
