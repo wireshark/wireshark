@@ -25,7 +25,7 @@
 **   drh@acm.org
 **   http://www.hwaci.com/drh/
 **
-** $Id: lemon.c,v 1.15 2003/12/21 00:16:54 ulfl Exp $
+** $Id: lemon.c,v 1.16 2004/01/18 15:53:43 jmayer Exp $
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -224,8 +224,8 @@ struct lemon {
   char *argv0;             /* Name of the program */
 };
 
+void memory_error(void);
 #define MemoryCheck(X) if((X)==0){ \
-  extern void memory_error(void); \
   memory_error(); \
 }
 
@@ -2569,7 +2569,6 @@ PRIVATE char *pathsearch(char *argv0, char *name, int modemask)
     if( path ) sprintf(path,"%s/%s",argv0,name);
     *cp = c;
   }else{
-    extern char *getenv();
     pathlist = getenv("PATH");
     if( pathlist==0 ) pathlist = ".:/bin:/usr/bin";
     path = (char *)malloc( strlen(pathlist)+strlen(name)+2 );
@@ -3310,7 +3309,6 @@ char *SetNew(void){
   int i;
   s = (char*)malloc( size );
   if( s==0 ){
-    extern void memory_error();
     memory_error();
   }
   for(i=0; i<size; i++) s[i] = 0;
