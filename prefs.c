@@ -38,10 +38,8 @@
 #include <glib.h>
 
 #include <epan/filesystem.h>
-#include "globals.h"
 #include <epan/addr_resolv.h>
 #include <epan/packet.h>
-#include "file.h"
 #include "prefs.h"
 #include <epan/proto.h>
 #include "column.h"
