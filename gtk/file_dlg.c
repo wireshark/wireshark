@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.70 2003/12/30 01:19:02 ulfl Exp $
+ * $Id: file_dlg.c,v 1.71 2004/01/01 13:10:45 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -708,7 +708,7 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
     main_vb, FALSE, FALSE, 0);
   gtk_widget_show(main_vb);	
 		
-  /*** Save Range frame ***/
+  /*** Packet Range frame ***/
   range_fr = gtk_frame_new("Packet Range");
   gtk_box_pack_start(GTK_BOX(main_vb), range_fr, FALSE, FALSE, 0);
   gtk_widget_show(range_fr);
