@@ -470,11 +470,11 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, guint8 initial_payload,
 static void
 dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  int			offset = 0;
+  int			offset = 0, len;
   struct isakmp_hdr 	hdr;
   proto_item *		ti;
   proto_tree *		isakmp_tree = NULL;
-  guint32		len;
+g_warning("in isakmp");
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISAKMP");
@@ -551,11 +551,18 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
 
+    len = hdr.length - sizeof(hdr);
+
+    if (len < 0) {
+        proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.length),
+			    "Length: (bogus, length is %u, which is too large)",
+			    hdr.length);
+        return;
+    }
+
     proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.length),
 			"Length: %u", hdr.length);
     offset += sizeof(hdr.length);
-
-    len = hdr.length - sizeof(hdr);
 
     if (hdr.flags & E_FLAG) {
       if (len && isakmp_tree) {
