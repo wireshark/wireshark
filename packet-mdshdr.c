@@ -2,7 +2,7 @@
  * Routines for dissection of Cisco MDS Switch Internal Header
  * Copyright 2001, Dinesh G Dutt <ddutt@andiamo.com>
  *
- * $Id: packet-mdshdr.c,v 1.5 2003/06/05 18:46:41 guy Exp $
+ * $Id: packet-mdshdr.c,v 1.6 2003/06/07 09:35:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,6 +122,8 @@ static gint ett_mdshdr_trlr = -1;
 
 static dissector_handle_t data_handle, fc_dissector_handle;
 
+static gboolean decode_if_zero_etype = TRUE;
+
 static const value_string sof_vals[] = {
     {MDSHDR_SOFc1,               "SOFc1"},
     {MDSHDR_SOFi1,               "SOFi1"},
@@ -149,6 +151,8 @@ static const value_string eof_vals[] = {
     {MDSHDR_EOF_UNKNOWN,         ""},
     {0,                          NULL},
 };
+
+void proto_reg_handoff_mdshdr(void);
 
 /* Code to actually dissect the packets */
 static void
@@ -289,13 +293,23 @@ proto_register_mdshdr(void)
         &ett_mdshdr_hdr,
         &ett_mdshdr_trlr
     };
+    module_t *mdshdr_module;
 
 /* Register the protocol name and description */
-    proto_mdshdr = proto_register_protocol("MDS Header", "mdshdr", "mdshdr");
+    proto_mdshdr = proto_register_protocol("MDS Header", "MDS Header", "mdshdr");
 
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_mdshdr, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    mdshdr_module = prefs_register_protocol (proto_mdshdr, proto_reg_handoff_mdshdr);
+    prefs_register_bool_preference (mdshdr_module, "decode_if_etype_zero",
+                                    "Decode as MDS Header If Ethertype == 0",
+                                    "A frame is considered for decoding as MDSHDR if either "
+                                    "ethertype is 0xFCFC or zero. Turn this flag off if you "
+                                    "you don't want ethertype zero to be decoded as MDSHDR. "
+                                    "This might be useful to avoid problems with test frames.",
+                                    &decode_if_zero_etype);
 }
 
 
@@ -306,12 +320,48 @@ proto_register_mdshdr(void)
 void
 proto_reg_handoff_mdshdr(void)
 {
-    dissector_handle_t mdshdr_handle;
+    static dissector_handle_t mdshdr_handle;
+    static gboolean registered_for_zero_etype = FALSE;
+    static gboolean mdshdr_prefs_initialized = FALSE;
 
-    mdshdr_handle = create_dissector_handle (dissect_mdshdr, proto_mdshdr);
-    dissector_add ("ethertype", ETHERTYPE_UNK, mdshdr_handle);
-    dissector_add ("ethertype", ETHERTYPE_FCFT, mdshdr_handle);
+    if (!mdshdr_prefs_initialized) {
+        /*
+         * This is the first time this has been called (i.e.,
+         * Ethereal/Tethereal is starting up), so create a handle for
+         * the MDS Header dissector, register the dissector for
+         * ethertype ETHERTYPE_FCFT, and fetch the data and Fibre
+         * Channel handles.
+         */
+        mdshdr_handle = create_dissector_handle (dissect_mdshdr, proto_mdshdr);
+        dissector_add ("ethertype", ETHERTYPE_FCFT, mdshdr_handle);
+        data_handle = find_dissector ("data");
+        fc_dissector_handle = find_dissector ("fc");
+        mdshdr_prefs_initialized = TRUE;
+    }
 
-    data_handle = find_dissector ("data");
-    fc_dissector_handle = find_dissector ("fc");
+    /*
+     * Only register the dissector for ethertype 0 if the preference
+     * is set to do so.
+     */
+    if (decode_if_zero_etype) {
+        /*
+         * The preference to register for ethertype ETHERTYPE_UNK (0)
+         * is set; if we're not registered for ethertype ETHERTYPE_UNK,
+         * do so.
+         */
+        if (!registered_for_zero_etype) {
+            dissector_add ("ethertype", ETHERTYPE_UNK, mdshdr_handle);
+            registered_for_zero_etype = TRUE;
+        }
+    } else {
+        /*
+         * The preference to register for ethertype ETHERTYPE_UNK (0)
+         * is not set; if we're registered for ethertype ETHERTYPE_UNK,
+         * undo that registration.
+         */
+        if (registered_for_zero_etype) {
+            dissector_delete ("ethertype", ETHERTYPE_UNK, mdshdr_handle);
+            registered_for_zero_etype = FALSE;
+        }
+    }
 }
