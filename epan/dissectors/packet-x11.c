@@ -122,7 +122,8 @@ Mod1Mask, Mod2Mask, Mod3Mask, Mod4Mask, Mod5Mask };
 /* from <X11/X.h> */
 #define NoSymbol             0L /* special KeySym */
 
-typedef struct {
+typedef struct _x11_conv_data {
+      struct _x11_conv_data *next;
       GHashTable *seqtable;	/* hashtable of sequencenumber <-> opcode. */
       GHashTable *valtable;/* hashtable of sequencenumber <-> &opcode_vals */
       /* major opcodes including extensions (NULL terminated) */
@@ -147,7 +148,7 @@ typedef struct {
 } x11_conv_data_t;
 
 static GMemChunk *x11_state_chunk = NULL;
-
+static x11_conv_data_t *x11_conv_data_list;
 
 /* Initialize the protocol and registered fields */
 static int proto_x11 = -1;
@@ -1257,8 +1258,8 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  const char *volatile sep, x11_conv_data_t *volatile state,
 		  gboolean little_endian);
 
-static void
-x11_stateinit(x11_conv_data_t **state, conversation_t *conversation);
+static x11_conv_data_t *
+x11_stateinit(conversation_t *conversation);
 
 static const char *
 keysymString(guint32 v);
@@ -2486,6 +2487,13 @@ static void windowAttributes(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 
 static void x11_init_protocol(void)
 {
+      x11_conv_data_t *state;
+
+      for (state = x11_conv_data_list; state != NULL; state = state->next) {
+	    g_hash_table_destroy(state->seqtable);
+	    g_hash_table_destroy(state->valtable);
+      }
+      x11_conv_data_list = NULL;
       if (x11_state_chunk != NULL)
 	    g_mem_chunk_destroy(x11_state_chunk);
 
@@ -4083,7 +4091,7 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
       guint16 auth_proto_len, auth_data_len;
       const char *volatile sep = NULL;
       conversation_t *conversation;
-      x11_conv_data_t *state;
+      x11_conv_data_t *volatile state;
       int length;
       tvbuff_t *next_tvb;
 
@@ -4138,7 +4146,7 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
 	     */
 	    if ((state = conversation_get_proto_data(conversation, proto_x11))
 	    == NULL)
-		x11_stateinit(&state, conversation);
+		state = x11_stateinit(conversation);
 
 	    /*
 	     * Guess the byte order if we don't already know it.
@@ -4359,33 +4367,37 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
       }
 }
 
-static void
-x11_stateinit(x11_conv_data_t **state, conversation_t *conversation)
+static x11_conv_data_t *
+x11_stateinit(conversation_t *conversation)
 {
+	x11_conv_data_t *state;
 	static x11_conv_data_t stateinit;
 	int i = 0;
 
-	*state = g_mem_chunk_alloc(x11_state_chunk);
-	**state = stateinit; 
+	state = g_mem_chunk_alloc(x11_state_chunk);
+	*state = stateinit; 
+	state->next = x11_conv_data_list;
+	x11_conv_data_list = state;
 
 	/* initialise opcodes */
 	while (1) {
 	  if (opcode_vals[i].strptr == NULL) break;
-	  (*state)->opcode_vals[i].value = opcode_vals[i].value;
-	  (*state)->opcode_vals[i].strptr = opcode_vals[i].strptr;
+	  state->opcode_vals[i].value = opcode_vals[i].value;
+	  state->opcode_vals[i].strptr = opcode_vals[i].strptr;
 	  i++;
 	}
 	while (i <= MAX_OPCODES) {
-	  (*state)->opcode_vals[i].value = 0;
-	  (*state)->opcode_vals[i].strptr = NULL;
+	  state->opcode_vals[i].value = 0;
+	  state->opcode_vals[i].strptr = NULL;
 	  i++;
 	}	
 
-	(*state)->seqtable = g_hash_table_new(g_direct_hash, g_direct_equal);
-	(*state)->valtable = g_hash_table_new(g_direct_hash, g_direct_equal);
-      	g_hash_table_insert((*state)->seqtable, (int *)0, (int *)NOTHING_SEEN);
-	(*state)->byte_order = BYTE_ORDER_UNKNOWN; /* don't know yet*/
-	conversation_add_proto_data(conversation, proto_x11, *state);
+	state->seqtable = g_hash_table_new(g_direct_hash, g_direct_equal);
+	state->valtable = g_hash_table_new(g_direct_hash, g_direct_equal);
+      	g_hash_table_insert(state->seqtable, (int *)0, (int *)NOTHING_SEEN);
+	state->byte_order = BYTE_ORDER_UNKNOWN; /* don't know yet*/
+	conversation_add_proto_data(conversation, proto_x11, state);
+	return state;
 }
 
 
@@ -4396,7 +4408,7 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	volatile int offset, plen;
 	tvbuff_t * volatile next_tvb;
 	conversation_t *conversation;
-	x11_conv_data_t *state;
+	x11_conv_data_t *volatile state;
 	gboolean little_endian;
 	int length_remaining;
 	const char *volatile sep = NULL;
@@ -4425,7 +4437,7 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * No - create a state structure and attach it.
 		 */
-		x11_stateinit(&state, conversation);
+		state = x11_stateinit(conversation);
 	}
 
 	/*
