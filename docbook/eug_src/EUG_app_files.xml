@@ -30,7 +30,7 @@
 	      <row>
 		<entry>File/Folder</entry>
 		<entry>Description</entry>
-		<entry>Unix folders</entry>
+		<entry>Unix/Linux folders</entry>
 		<entry>Windows folders</entry>
 	      </row>
 	    </thead>
@@ -38,8 +38,8 @@
 	      <row>
 		<entry><command>preferences</command></entry>
 		<entry>Settings from the Preferences dialog box.</entry>
-		<entry>$HOME/.ethereal/preferences</entry>
-		<entry>%ETHEREAL%\preferences, %APPDATA%\Ethereal\preferences</entry>
+		<entry>/etc/ethereal.conf, $HOME/.ethereal/preferences</entry>
+		<entry>%ETHEREAL%\ethereal.conf, %APPDATA%\Ethereal\preferences</entry>
 	      </row>
 	      <row>
 		<entry><command>recent</command></entry>
@@ -80,7 +80,7 @@
 	      <row>
 		<entry><command>manuf</command></entry>
 		<entry>Ethernet name resolution.</entry>
-		<entry>/usr/local/etc/manuf</entry>
+		<entry>/etc/manuf</entry>
 		<entry>%ETHEREAL%\manuf</entry>
 	      </row>
 	      <row>
@@ -99,7 +99,7 @@
 		<entry><command>plugins</command></entry>
 		<entry>Plugin directories.</entry>
 		<entry>/usr/share/ethereal/plugins, 
-	      /usr/local/share/ethereals/plugins, 
+	      /usr/local/share/ethereal/plugins, 
 	      $HOME/.ethereal/plugins
 		</entry>
 		<entry>%ETHEREAL%\plugins\&lt;version&gt;, 
@@ -123,10 +123,17 @@
 	<filename>C:\Program Files\Ethereal</filename>
 	</para>
 	</note>
+	<note><title>Unix/Linux folders</title>
+	<para>
+	The <filename>/etc</filename> folder is the global Ethereal configuration 
+	folder. The folder actually used on your system 
+	may vary, maybe something like: <filename>/usr/local/etc</filename>.
+	</para>
+	</note>
     <para>
       <variablelist>
 	<varlistentry>
-	  <term><command>preferences</command></term>
+	  <term><command>preferences/ethereal.conf</command></term>
 	  <listitem>
 	    <para>
 	      This file contains your Ethereal preferences, 
