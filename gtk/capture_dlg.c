@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.136 2004/06/30 17:53:51 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.137 2004/06/30 18:24:56 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -349,7 +349,7 @@ static GtkWidget *time_unit_option_menu_new(guint32 value) {
     return unit_om;
 }
 
-static guint32 time_unit_option_menu_set_value(
+static guint32 time_unit_option_menu_convert_value(
 guint32 value)
 {
     /* days */
@@ -474,7 +474,7 @@ guint32 value)
     return value;
 }
 
-static guint32 size_unit_option_menu_get_value(
+static guint32 size_unit_option_menu_convert_value(
 GtkWidget *unit_om,
 guint32 value)
 {
@@ -852,7 +852,7 @@ capture_prep(void)
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), ring_filesize_om, 2, 3, row, row+1);
 
   value = size_unit_option_menu_set_value(capture_opts.autostop_filesize);
-  gtk_adjustment_set_value(ring_filesize_adj, (gdouble) value);
+  gtk_adjustment_set_value(ring_filesize_adj, (gfloat) value);
 
   row++;
 
@@ -877,8 +877,8 @@ capture_prep(void)
   file_duration_om = time_unit_option_menu_new(capture_opts.file_duration);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), file_duration_om, 2, 3, row, row+1);
 
-  value = time_unit_option_menu_set_value(capture_opts.file_duration);
-  gtk_adjustment_set_value(file_duration_adj, (gdouble) value);
+  value = time_unit_option_menu_convert_value(capture_opts.file_duration);
+  gtk_adjustment_set_value(file_duration_adj, (gfloat) value);
   row++;
 
   /* Ring buffer files row */
@@ -982,7 +982,7 @@ capture_prep(void)
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_filesize_om, 2, 3, row, row+1);
 
   value = size_unit_option_menu_set_value(capture_opts.autostop_filesize);
-  gtk_adjustment_set_value(stop_filesize_adj, (gdouble) value);
+  gtk_adjustment_set_value(stop_filesize_adj, (gfloat) value);
 
   row++;
 
@@ -1005,8 +1005,8 @@ capture_prep(void)
   stop_duration_om = time_unit_option_menu_new(capture_opts.autostop_duration);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_duration_om, 2, 3, row, row+1);
 
-  value = time_unit_option_menu_set_value(capture_opts.autostop_duration);
-  gtk_adjustment_set_value(stop_duration_adj, (gdouble) value);
+  value = time_unit_option_menu_convert_value(capture_opts.autostop_duration);
+  gtk_adjustment_set_value(stop_duration_adj, (gfloat) value);
   row++;
 
   /* Display-related options frame */
@@ -1414,7 +1414,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ring_filesize_cb));
     if (capture_opts.has_autostop_filesize) {
       tmp = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(ring_filesize_sb));
-      tmp = size_unit_option_menu_get_value(ring_filesize_om, tmp);
+      tmp = size_unit_option_menu_convert_value(ring_filesize_om, tmp);
       if(tmp != 0) {
         capture_opts.autostop_filesize = tmp;
       } else {
@@ -1444,7 +1444,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_filesize_cb));
     if (capture_opts.has_autostop_filesize) {
       tmp = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(stop_filesize_sb));
-      tmp = size_unit_option_menu_get_value(stop_filesize_om, tmp);
+      tmp = size_unit_option_menu_convert_value(stop_filesize_om, tmp);
       if(tmp != 0) {
         capture_opts.autostop_filesize = tmp;
       } else {
