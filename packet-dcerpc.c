@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.136 2003/07/18 06:07:14 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.137 2003/07/21 09:10:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1842,6 +1842,15 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
                 show_reported_bounds_error(tvb, pinfo, tree);
             } ENDTRY;
 
+            /* If there is auth padding at the end of the stub, display it */
+            if (auth_info != NULL && auth_info->auth_pad_len != 0) {
+                proto_tree_add_text (sub_tree, tvb, offset, 
+                                     auth_info->auth_pad_len,
+                                     "Auth Padding (%u byte%s)",
+                                     auth_info->auth_pad_len,
+                                     plurality(auth_info->auth_pad_len, "", "s"));
+                offset += auth_info->auth_pad_len;
+            }
 
 	    /* If we have a subdissector and it didn't dissect all data in
                the tvb, make a note of it. */
@@ -1957,18 +1966,14 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 		    proto_tree_add_text (dcerpc_tree, tvb, offset, hdr->auth_len,
 					 "Auth Credentials");
 	}
-
-        /* figure out where the auth padding starts */
-        offset = hdr->frag_len - (hdr->auth_len + 8 + auth_info->auth_pad_len);
-        if (offset > 0 && auth_info->auth_pad_len) {
-            proto_tree_add_text (dcerpc_tree, tvb, offset,
-                                 auth_info->auth_pad_len, "Auth padding");
-	    auth_info->auth_size = hdr->auth_len + 8 + auth_info->auth_pad_len;
-        } else {
-	    auth_info->auth_size = hdr->auth_len + 8;
-        }
+	
+        /* Compute the size of the auth block.  Note that this should not 
+	   include auth padding, since when NTLMSSP encryption is used, the
+	   padding is actually inside the encrypted stub */
+	auth_info->auth_size = hdr->auth_len + 8;
     } else {
         auth_info->auth_size = 0;
+        auth_info->auth_pad_len = 0;
     }
 }
 
