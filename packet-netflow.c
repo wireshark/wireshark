@@ -45,7 +45,7 @@
  ** http://www.cisco.com/univercd/cc/td/doc/cisintwk/intsolns/netflsol/nfwhite.htm
  **
  ** $Yahoo: //depot/fumerola/packet-netflow/packet-netflow.c#14 $
- ** $Id: packet-netflow.c,v 1.11 2004/03/09 20:08:26 guy Exp $
+ ** $Id: packet-netflow.c,v 1.12 2004/06/01 18:39:13 guy Exp $
  */
 
 #ifdef HAVE_CONFIG_H
@@ -161,6 +161,7 @@ static int      hf_cflow_sysuptime = -1;
 static int      hf_cflow_unix_secs = -1;
 static int      hf_cflow_unix_nsecs = -1;
 static int      hf_cflow_timestamp = -1;
+static int      hf_cflow_samplingmode = -1;
 static int      hf_cflow_samplerate = -1;
 
 /*
@@ -455,6 +456,8 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		offset = flow_process_textfield(netflow_tree, tvb, offset, 4,
 						"reserved");
 	else if (ver == 5) {
+		proto_tree_add_item(netflow_tree, hf_cflow_samplingmode,
+				    tvb, offset, 2, FALSE);
 		proto_tree_add_item(netflow_tree, hf_cflow_samplerate,
 				    tvb, offset, 2, FALSE);
 		offset += 2;
@@ -1422,9 +1425,14 @@ proto_register_netflow(void)
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
 		  "Residual nanoseconds since epoch", HFILL}
 		 },
+		{&hf_cflow_samplingmode,
+		 {"SamplingMode", "cflow.samplingmode",
+		  FT_UINT16, BASE_DEC, NULL, 0xC000,
+		  "Sampling Mode of exporter", HFILL}
+		 },
 		{&hf_cflow_samplerate,
 		 {"SampleRate", "cflow.samplerate",
-		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  FT_UINT16, BASE_DEC, NULL, 0x3FFF,
 		  "Sample Frequency of exporter", HFILL}
 		 },
 
