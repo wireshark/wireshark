@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.39 2000/04/08 00:33:04 sharpe Exp $
+ * $Id: wtap.c,v 1.40 2000/05/12 05:06:33 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -211,6 +211,9 @@ int wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user,
 	int *err)
 {
 	int data_offset, loop = 0;
+
+	/* Start be clearing error flag */
+	*err = 0;
 
 	while ((data_offset = wth->subtype_read(wth, err)) > 0) {
 		callback(user, &wth->phdr, data_offset,
