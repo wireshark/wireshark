@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.32 2001/06/21 06:36:44 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.33 2001/06/21 06:59:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,7 +120,7 @@
 #define DATA_SHORT_HDR_LEN     24
 #define DATA_LONG_HDR_LEN      30
 #define MGT_FRAME_HDR_LEN      24	/* Length of Managment frame-headers */
-#define CTLR
+
 #define MGT_ASSOC_REQ        0x00	/* Management - association request        */
 #define MGT_ASSOC_RESP       0x01	/* Management - association response       */
 #define MGT_REASSOC_REQ      0x02	/* Management - reassociation request      */
@@ -332,10 +332,35 @@ static dissector_handle_t llc_handle;
 /* ************************************************************************* */
 /*            Return the length of the current header (in bytes)             */
 /* ************************************************************************* */
-int
+static int
 find_header_length (guint16 fcf)
 {
-  return (COOK_ADDR_SELECTOR(fcf) == DATA_ADDR_T4) ? 30 : 24;
+  switch (COOK_FRAME_TYPE (fcf)) {
+
+  case MGT_FRAME:
+    return MGT_FRAME_HDR_LEN;
+
+  case CONTROL_FRAME:
+    switch (COMPOSE_FRAME_TYPE (fcf)) {
+
+    case CTRL_CTS:
+    case CTRL_ACKNOWLEDGEMENT:
+      return 10;
+
+    case CTRL_RTS:
+    case CTRL_PS_POLL:
+    case CTRL_CFP_END:
+    case CTRL_CFP_ENDACK:
+      return 16;
+    }
+    return 4;	/* XXX */
+
+  case DATA_FRAME:
+    return (COOK_ADDR_SELECTOR(fcf) == DATA_ADDR_T4) ? DATA_LONG_HDR_LEN :
+						       DATA_SHORT_HDR_LEN;
+  default:
+    return 4;	/* XXX */
+  }
 }
 
 
@@ -413,7 +438,7 @@ get_tagged_parameter_tree (proto_tree * tree, tvbuff_t *tvb, int start, int size
 /* ************************************************************************* */
 /*            Add the subtree used to store WEP parameters                   */
 /* ************************************************************************* */
-void
+static void
 get_wep_parameter_tree (proto_tree * tree, tvbuff_t *tvb, int start, int size)
 {
   proto_item *wep_fields;
