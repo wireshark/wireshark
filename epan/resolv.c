@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.20 2002/01/13 20:35:10 guy Exp $
+ * $Id: resolv.c,v 1.21 2002/01/30 08:46:29 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -1086,7 +1086,11 @@ extern const guchar *get_hostname6(struct e_in6_addr *addr)
 #ifdef INET6
   if (!(g_resolv_flags & RESOLV_NETWORK))
     return ip6_to_str(addr);
+#ifdef SOLARIS8_INET6
+  if (IN6_IS_ADDR_LINKLOCAL((struct in6_addr*)addr) || IN6_IS_ADDR_MULTICAST((struct in6_addr*)addr))
+#else
   if (IN6_IS_ADDR_LINKLOCAL(addr) || IN6_IS_ADDR_MULTICAST(addr))
+#endif
     return ip6_to_str(addr);
 #endif
 
