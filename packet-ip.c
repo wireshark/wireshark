@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.75 2000/03/07 05:24:12 guy Exp $
+ * $Id: packet-ip.c,v 1.76 2000/03/12 04:47:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -933,11 +933,11 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     ip_tree = proto_item_add_subtree(ti, ett_ip);
 
     proto_tree_add_item(ip_tree, hf_ip_version, offset, 1, hi_nibble(iph.ip_v_hl));
-    proto_tree_add_item_format(ip_tree, hf_ip_hdr_len, offset, 1, hlen,
+    proto_tree_add_uint_format(ip_tree, hf_ip_hdr_len, offset, 1, hlen,
 	"Header length: %u bytes", hlen);
 
     if (g_ip_dscp_actif) {
-      tf = proto_tree_add_item_format(ip_tree, hf_ip_dsfield, offset + 1, 1, iph.ip_tos,
+      tf = proto_tree_add_uint_format(ip_tree, hf_ip_dsfield, offset + 1, 1, iph.ip_tos,
 	   "Differentiated Services Field: 0x%02x (DSCP 0x%02x: %s)", iph.ip_tos,
 	   IPDSFIELD_DSCP(iph.ip_tos), val_to_str(IPDSFIELD_DSCP(iph.ip_tos), dscp_vals,
 	   "Unknown DSCP"));
@@ -946,7 +946,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       proto_tree_add_item(field_tree, hf_ip_dsfield_dscp, offset + 1, 1, iph.ip_tos);
       proto_tree_add_item(field_tree, hf_ip_dsfield_cu, offset + 1, 1, iph.ip_tos);
     } else {
-      tf = proto_tree_add_item_format(ip_tree, hf_ip_tos, offset + 1, 1, iph.ip_tos,
+      tf = proto_tree_add_uint_format(ip_tree, hf_ip_tos, offset + 1, 1, iph.ip_tos,
 	  "Type of service: 0x%02x (%s)", iph.ip_tos,
 	  val_to_str( IPTOS_TOS(iph.ip_tos), iptos_vals, "Unknown") );
 
@@ -969,9 +969,9 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_item(ip_tree, hf_ip_frag_offset, offset +  6, 2,
       iph.ip_off & IP_OFFSET);
     proto_tree_add_item(ip_tree, hf_ip_ttl, offset +  8, 1, iph.ip_ttl);
-    proto_tree_add_item_format(ip_tree, hf_ip_proto, offset +  9, 1, iph.ip_p,
+    proto_tree_add_uint_format(ip_tree, hf_ip_proto, offset +  9, 1, iph.ip_p,
 	"Protocol: %s (0x%02x)", ipprotostr(iph.ip_p), iph.ip_p);
-    proto_tree_add_item_format(ip_tree, hf_ip_checksum, offset + 10, 2, iph.ip_sum,
+    proto_tree_add_uint_format(ip_tree, hf_ip_checksum, offset + 10, 2, iph.ip_sum,
         "Header checksum: 0x%04x (%s)", iph.ip_sum, ip_checksum_state((e_ip*) &pd[offset]));
     proto_tree_add_item(ip_tree, hf_ip_src, offset + 12, 4, iph.ip_src);
     proto_tree_add_item(ip_tree, hf_ip_dst, offset + 16, 4, iph.ip_dst);
@@ -1201,11 +1201,11 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   if (tree) {
     ti = proto_tree_add_item(tree, proto_icmp, offset, 4, NULL);
     icmp_tree = proto_item_add_subtree(ti, ett_icmp);
-    proto_tree_add_item_format(icmp_tree, hf_icmp_type, offset,      1, 
+    proto_tree_add_uint_format(icmp_tree, hf_icmp_type, offset,      1, 
 			       ih.icmp_type,
 			       "Type: %u (%s)",
 			       ih.icmp_type, type_str);
-    proto_tree_add_item_format(icmp_tree, hf_icmp_code,	offset +  1, 1, 
+    proto_tree_add_uint_format(icmp_tree, hf_icmp_code,	offset +  1, 1, 
 			       ih.icmp_code,
 			       "Code: %u %s",
 			       ih.icmp_code, code_str);
@@ -1362,11 +1362,11 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     igmp_tree = proto_item_add_subtree(ti, ett_igmp);
     proto_tree_add_item(igmp_tree, hf_igmp_version, offset,     1, 
 			hi_nibble(ih.igmp_v_t));
-    proto_tree_add_item_format(igmp_tree, hf_igmp_type,  offset    , 1, 
+    proto_tree_add_uint_format(igmp_tree, hf_igmp_type,  offset    , 1, 
 			       lo_nibble(ih.igmp_v_t),
 			       "Type: %u (%s)",
 			       lo_nibble(ih.igmp_v_t), type_str);
-    proto_tree_add_item_format(igmp_tree, hf_igmp_unused, offset + 1, 1,
+    proto_tree_add_uint_format(igmp_tree, hf_igmp_unused, offset + 1, 1,
 			       ih.igmp_unused,
 			       "Unused: 0x%02x",
 			       ih.igmp_unused);

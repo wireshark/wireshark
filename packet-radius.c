@@ -1,7 +1,7 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
  *
- * $Id: packet-radius.c,v 1.6 1999/12/02 23:25:29 gram Exp $
+ * $Id: packet-radius.c,v 1.7 2000/03/12 04:47:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -584,13 +584,13 @@ proto_tree
 
         radius_tree = proto_item_add_subtree(ti, ett_radius);
 
-	proto_tree_add_item_format(radius_tree,hf_radius_code, offset,      1,
+	proto_tree_add_uint_format(radius_tree,hf_radius_code, offset,      1,
                 rh.rh_code, "Packet code:0x%01x (%s)",rhcode, codestrval);
-        proto_tree_add_item_format(radius_tree,hf_radius_id, offset+1, 1,
+        proto_tree_add_uint_format(radius_tree,hf_radius_id, offset+1, 1,
                 rh.rh_ident, "Packet identifier: 0x%01x (%d)",
 			rhident,rhident);         
 
-	proto_tree_add_item_format(radius_tree, hf_radius_length,
+	proto_tree_add_uint_format(radius_tree, hf_radius_length,
 			offset+2, 2,
                  (guint16)rhlength, 
 		"Packet length: 0x%02x(%d)",rhlength,rhlength); 

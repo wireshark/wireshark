@@ -1,7 +1,7 @@
 /* packet-vtp.c
  * Routines for the disassembly of Cisco's Virtual Trunking Protocol
  *
- * $Id: packet-vtp.c,v 1.1 2000/02/05 09:19:04 guy Exp $
+ * $Id: packet-vtp.c,v 1.2 2000/03/12 04:47:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -131,7 +131,7 @@ dissect_vtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			    1, md_len);
 			offset += 1;
 
-			proto_tree_add_item_format(vtp_tree, hf_vtp_md, offset,
+			proto_tree_add_string_format(vtp_tree, hf_vtp_md, offset,
 			    32, &pd[offset], "Management Domain: %.32s",
 			    &pd[offset]);
 			offset += 32;
@@ -144,7 +144,7 @@ dissect_vtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			    offset, 4, &pd[offset]);
 			offset += 4;
 
-			proto_tree_add_item_format(vtp_tree, hf_vtp_upd_ts,
+			proto_tree_add_string_format(vtp_tree, hf_vtp_upd_ts,
 			    offset, 12, &pd[offset],
 			    "Update Timestamp: %.2s-%.2s-%.2s %.2s:%.2s:%.2s",
 			    &pd[offset], &pd[offset+2], &pd[offset+4],
@@ -165,7 +165,7 @@ dissect_vtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			    1, md_len);
 			offset += 1;
 
-			proto_tree_add_item_format(vtp_tree, hf_vtp_md, offset,
+			proto_tree_add_string_format(vtp_tree, hf_vtp_md, offset,
 			    32, &pd[offset], "Management Domain: %.32s",
 			    &pd[offset]);
 			offset += 32;
@@ -207,7 +207,7 @@ dissect_vtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			    1, md_len);
 			offset += 1;
 
-			proto_tree_add_item_format(vtp_tree, hf_vtp_md, offset,
+			proto_tree_add_string_format(vtp_tree, hf_vtp_md, offset,
 			    32, &pd[offset], "Management Domain: %.32s",
 			    &pd[offset]);
 			offset += 32;
@@ -341,7 +341,7 @@ dissect_vlan_info(const u_char *pd, int offset, proto_tree *tree)
 	if (!BYTES_ARE_IN_FRAME(offset, vlan_name_len)
 	    || vlan_info_left < vlan_name_len)
 		return -1;
-	proto_tree_add_item_format(vlan_info_tree, hf_vtp_vlan_name, offset,
+	proto_tree_add_string_format(vlan_info_tree, hf_vtp_vlan_name, offset,
 	    vlan_name_len, &pd[offset], "VLAN Name: %.*s", vlan_name_len,
 	    &pd[offset]);
 	offset += vlan_name_len;

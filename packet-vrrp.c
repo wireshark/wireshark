@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.2 2000/01/07 22:05:42 guy Exp $
+ * $Id: packet-vrrp.c,v 1.3 2000/03/12 04:47:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -133,7 +133,7 @@ void dissect_vrrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
                 ti = proto_tree_add_item(tree, proto_vrrp, offset, END_OF_FRAME, NULL);
                 vrrp_tree = proto_item_add_subtree(ti, ett_vrrp);
 
-                tv = proto_tree_add_item_format(vrrp_tree, hf_vrrp_ver_type, offset, 1,
+                tv = proto_tree_add_uint_format(vrrp_tree, hf_vrrp_ver_type, offset, 1,
                                                 vrh.ver_type, "Version %u, Packet type %u (%s)",
                                                 hi_nibble(vrh.ver_type), lo_nibble(vrh.ver_type),
                                                 val_to_str(lo_nibble(vrh.ver_type), vrrp_type_vals, "Unknown"));

@@ -2,7 +2,7 @@
  * Routines for SSCOP (Q.2110, Q.SAAL) frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sscop.c,v 1.5 2000/02/15 21:03:12 gram Exp $
+ * $Id: packet-sscop.c,v 1.6 2000/03/12 04:47:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -192,8 +192,8 @@ dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     break;
   }
   if (tree) {
-    ti = proto_tree_add_item_format(tree, proto_sscop, pi.len - pdu_len,
-    					pdu_len, NULL, "SSCOP");
+    ti = proto_tree_add_protocol_format(tree, proto_sscop, pi.len - pdu_len,
+    					pdu_len, "SSCOP");
     sscop_tree = proto_item_add_subtree(ti, ett_sscop);
 
     proto_tree_add_text(sscop_tree, SSCOP_PDU_TYPE, 1,

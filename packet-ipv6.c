@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.28 2000/03/07 05:26:05 guy Exp $
+ * $Id: packet-ipv6.c,v 1.29 2000/03/12 04:47:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -286,7 +286,7 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
      * there should be no alignment problems for ip6_flow, since it's the first
      * guint32 in the ipv6 struct
      */
-    proto_tree_add_item_format(ipv6_tree, hf_ipv6_flow,
+    proto_tree_add_uint_format(ipv6_tree, hf_ipv6_flow,
 		offset + offsetof(struct ip6_hdr, ip6_flow), 4,
 		(unsigned long)(ntohl(ipv6.ip6_flow & IPV6_FLOWLABEL_MASK)),
 		"Flowlabel: 0x%05lx",
@@ -296,7 +296,7 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		offset + offsetof(struct ip6_hdr, ip6_plen), 2,
 		ntohs(ipv6.ip6_plen));
 
-    proto_tree_add_item_format(ipv6_tree, hf_ipv6_nxt,
+    proto_tree_add_uint_format(ipv6_tree, hf_ipv6_nxt,
 		offset + offsetof(struct ip6_hdr, ip6_nxt), 1,
 		ipv6.ip6_nxt,
 		"Next header: %s (0x%02x)",
@@ -306,7 +306,7 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		offset + offsetof(struct ip6_hdr, ip6_hlim), 1,
 		ipv6.ip6_hlim);
 
-    proto_tree_add_item_format(ipv6_tree, hf_ipv6_src,
+    proto_tree_add_ipv6_format(ipv6_tree, hf_ipv6_src,
 		offset + offsetof(struct ip6_hdr, ip6_src), 16,
 		&ipv6.ip6_src,
 #ifdef INET6
@@ -317,7 +317,7 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 #endif
 		ip6_to_str(&ipv6.ip6_src));
 
-    proto_tree_add_item_format(ipv6_tree, hf_ipv6_dst,
+    proto_tree_add_ipv6_format(ipv6_tree, hf_ipv6_dst,
 		offset + offsetof(struct ip6_hdr, ip6_dst), 16,
 		&ipv6.ip6_dst,
 #ifdef INET6

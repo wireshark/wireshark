@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.15 2000/02/15 21:02:11 gram Exp $
+ * $Id: packet-gre.c,v 1.16 2000/03/12 04:47:38 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -120,7 +120,7 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       break;
     }
 
-    ti = proto_tree_add_item_format(tree, proto_gre, offset, len, NULL,
+    ti = proto_tree_add_protocol_format(tree, proto_gre, offset, len,
       "Generic Routing Encapsulation (%s)",
       val_to_str(type, typevals, "0x%04X - unknown"));
     gre_tree = proto_item_add_subtree(ti, ett_gre);

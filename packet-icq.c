@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.11 2000/03/07 05:30:37 guy Exp $
+ * $Id: packet-icq.c,v 1.12 2000/03/12 04:47:38 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -909,7 +909,7 @@ icqv5_cmd_ack(proto_tree* tree,/* Tree to put the data in */
     proto_item* ti;
 
     if (tree){
-	ti = proto_tree_add_item_format(tree,
+	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
 					offset,
 					4,
@@ -948,7 +948,7 @@ icqv5_cmd_rand_search(proto_tree* tree,       /* Tree to put the data in */
     };
     
     if (tree){
-	ti = proto_tree_add_item_format(tree,
+	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
 					offset,
 					4,
@@ -979,7 +979,7 @@ icqv5_cmd_ack_messages(proto_tree* tree,/* Tree to put the data in */
     proto_item* ti;
 
     if (tree){
-	ti = proto_tree_add_item_format(tree,
+	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
 					offset,
 					4,
@@ -1004,7 +1004,7 @@ icqv5_cmd_keep_alive(proto_tree* tree,/* Tree to put the data in */
     proto_item* ti;
 
     if (tree){
-	ti = proto_tree_add_item_format(tree,
+	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
 					offset,
 					4,
@@ -1032,7 +1032,7 @@ icqv5_cmd_send_text_code(proto_tree* tree,/* Tree to put the data in */
     int left = size;		/* The amount of data left to analyse */
 
     if (tree){
-	ti = proto_tree_add_item_format(tree,
+	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
 					offset,
 					left,
@@ -1092,7 +1092,7 @@ icqv5_cmd_add_to_list(proto_tree* tree,/* Tree to put the data in */
     if (size>=4)
 	uin = pletohl(pd + CMD_ADD_TO_LIST);
     if (tree){
-	ti = proto_tree_add_item_format(tree,
+	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
 					offset,
 					4,
@@ -1119,7 +1119,7 @@ icqv5_cmd_status_change(proto_tree* tree,/* Tree to put the data in */
     if (size >= CMD_STATUS_CHANGE_STATUS + 4)
 	status = pletohl(pd + CMD_STATUS_CHANGE_STATUS);
     if (tree){
-	ti = proto_tree_add_item_format(tree,
+	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
 					offset,
 					4,
@@ -1162,7 +1162,7 @@ icqv5_cmd_send_msg(proto_tree* tree,
     left -= 2;
 
     if (tree) {
-	ti = proto_tree_add_item_format(tree,
+	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
 					offset,
 					size,
@@ -1223,7 +1223,7 @@ icqv5_cmd_login(proto_tree* tree,
 	status = pletohs(pd + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_STATUS);
     }
     if (tree) {
-	ti = proto_tree_add_item_format(tree,
+	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
 					offset,
 					size,
@@ -1277,7 +1277,7 @@ icqv5_cmd_contact_list(proto_tree* tree,
 	num = pd[CMD_CONTACT_LIST_NUM];
 
     if (tree) {
-	ti = proto_tree_add_item_format(tree,
+	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
 					offset,
 					size,
@@ -1320,7 +1320,7 @@ icqv5_cmd_no_params(proto_tree* tree,/* Tree to put the data in */
     proto_item* ti;
 
     if (tree){
-	ti = proto_tree_add_item_format(tree,
+	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
 					offset,
 					0,
@@ -1351,7 +1351,7 @@ icqv5_srv_no_params(proto_tree* tree,/* Tree to put the data in */
     proto_item* ti;
 
     if (tree){
-	ti = proto_tree_add_item_format(tree,
+	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
 					offset,
 					0,
@@ -1379,7 +1379,7 @@ icqv5_srv_login_reply(proto_tree* tree,/* Tree to put the data in */
 	ipAddrp = &pd[SRV_LOGIN_REPLY_IP];
 
     if (tree) {
-	ti = proto_tree_add_item_format(tree,
+	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
 					offset,
 					SRV_LOGIN_REPLY_IP + 8,
@@ -1432,7 +1432,7 @@ icqv5_srv_user_online(proto_tree* tree,/* Tree to put the data in */
 	version = pletohl(pd + SRV_USER_ONL_X2);
 
     if (tree) {
-	ti = proto_tree_add_item_format(tree,
+	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
 					offset,
 					SRV_LOGIN_REPLY_IP + 8,
@@ -1480,7 +1480,7 @@ icqv5_srv_user_offline(proto_tree* tree,/* Tree to put the data in */
 	uin = pletohl(&pd[SRV_USER_OFFLINE]);
 
     if (tree) {
-	ti = proto_tree_add_item_format(tree,
+	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
 					offset,
 					SRV_USER_OFFLINE_UIN + 4,
@@ -1512,7 +1512,7 @@ icqv5_srv_multi(proto_tree* tree,/* Tree to put the data in */
 	num = pd[SRV_MULTI_NUM];
 
     if (tree) {
-	ti = proto_tree_add_item_format(tree,
+	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
 					offset,
 					size,
@@ -1570,7 +1570,7 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 
     if (tree) {
 #if 0
-	ti = proto_tree_add_item_format(tree,
+	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
 					offset,
 					size,
@@ -1848,7 +1848,7 @@ icqv5_srv_recv_message(proto_tree* tree,      /* Tree to put the data in */
     unsigned char minute = -1;
     
     if (tree) {
-	ti = proto_tree_add_item_format(tree,
+	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
 					offset,
 					4,
@@ -1857,7 +1857,7 @@ icqv5_srv_recv_message(proto_tree* tree,      /* Tree to put the data in */
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	if (left>=sizeof(guint32)) {
 	    uin = pletohl(pd + SRV_RECV_MSG_UIN);
-	    proto_tree_add_item_format(subtree,
+	    proto_tree_add_uint_format(subtree,
 				       hf_icq_uin,
 				       offset + SRV_RECV_MSG_UIN,
 				       sizeof(guint32),
@@ -1907,7 +1907,7 @@ icqv5_srv_rand_user(proto_tree* tree,      /* Tree to put the data in */
     int left = size;
     
     if (tree) {
-	ti = proto_tree_add_item_format(tree,
+	ti = proto_tree_add_uint_format(tree,
 					hf_icq_cmd,
 					offset,
 					SRV_RAND_USER_TCP_VER + 2,
@@ -2020,7 +2020,7 @@ dissect_icqv5Client(const u_char *pd,
     }
     
     if (tree) {
-        ti = proto_tree_add_item_format(tree,
+        ti = proto_tree_add_uint_format(tree,
 				 proto_icq,
 				 offset,
 				 pktsize, NULL,
@@ -2028,7 +2028,7 @@ dissect_icqv5Client(const u_char *pd,
 				 findClientCmd(cmd),
 				 pktsize);
         icq_tree = proto_item_add_subtree(ti, ett_icq);
-	ti = proto_tree_add_item_format(icq_tree,
+	ti = proto_tree_add_uint_format(icq_tree,
 					hf_icq_type,
 					offset,
 					ICQ5_CL_HDRSIZE,
@@ -2036,21 +2036,21 @@ dissect_icqv5Client(const u_char *pd,
 					"Header");
 	icq_header_tree = proto_item_add_subtree(ti, ett_icq_header);
 					
-	proto_tree_add_item_format(icq_header_tree,
+	proto_tree_add_uint_format(icq_header_tree,
 				   hf_icq_sessionid,
 				   offset+ICQ5_CL_SESSIONID,
 				   4,
 				   sessionid,
 				   "Session ID: 0x%08x",
 				   sessionid);
-	proto_tree_add_item_format(icq_header_tree,
+	proto_tree_add_uint_format(icq_header_tree,
 				   hf_icq_checkcode,
 				   offset+ICQ5_CL_CHECKCODE,
 				   4,
 				   key,
 				   "Key: 0x%08x",
 				   key);
-	proto_tree_add_item_format(icq_header_tree,
+	proto_tree_add_uint_format(icq_header_tree,
 				   hf_icq_uin,
 				   offset+ICQ5_CL_UIN,
 				   4,
@@ -2139,7 +2139,7 @@ dissect_icqv5Client(const u_char *pd,
 				cmd);
 	    break;
 	default:
-	    proto_tree_add_item_format(icq_tree,
+	    proto_tree_add_uint_format(icq_tree,
 				       hf_icq_cmd,
 				       offset+ICQ5_CL_CMD,
 				       2,
@@ -2195,7 +2195,7 @@ dissect_icqv5Server(const u_char *pd,
 	col_add_fstr(fd, COL_INFO, "ICQv5 %s", findServerCmd(cmd));
 
     if (tree) {
-        ti = proto_tree_add_item_format(tree,
+        ti = proto_tree_add_uint_format(tree,
 					proto_icq,
 					offset,
 					pktsize, NULL,
@@ -2205,7 +2205,7 @@ dissect_icqv5Server(const u_char *pd,
 	
         icq_tree = proto_item_add_subtree(ti, ett_icq);
 
-	ti = proto_tree_add_item_format(icq_tree,
+	ti = proto_tree_add_uint_format(icq_tree,
 					hf_icq_type,
 					offset,
 					ICQ5_SRV_HDRSIZE,
@@ -2213,7 +2213,7 @@ dissect_icqv5Server(const u_char *pd,
 					"Header");
 	icq_header_tree = proto_item_add_subtree(ti, ett_icq_header);
 					
-	proto_tree_add_item_format(icq_header_tree,
+	proto_tree_add_uint_format(icq_header_tree,
 				   hf_icq_sessionid,
 				   offset+ICQ5_SRV_SESSIONID,
 				   4,
@@ -2230,14 +2230,14 @@ dissect_icqv5Server(const u_char *pd,
 			    2,
 			    "Seq Number2: 0x%04x",
 			    seq_num2);
-	proto_tree_add_item_format(icq_header_tree,
+	proto_tree_add_uint_format(icq_header_tree,
 				   hf_icq_uin,
 				   offset+ICQ5_SRV_UIN,
 				   4,
 				   uin,
 				   "UIN: %u",
 				   uin);
-	proto_tree_add_item_format(icq_header_tree,
+	proto_tree_add_uint_format(icq_header_tree,
 				   hf_icq_checkcode,
 				   offset+ICQ5_SRV_CHECKCODE,
 				   4,
@@ -2309,7 +2309,7 @@ dissect_icqv5Server(const u_char *pd,
 				cmd);
 	    break;
 	default:
-	    proto_tree_add_item_format(icq_tree,
+	    proto_tree_add_uint_format(icq_tree,
 				       hf_icq_cmd,
 				       offset + ICQ5_SRV_CMD,
 				       2,

@@ -2,7 +2,7 @@
  * Routines for ftp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-ftp.c,v 1.11 2000/01/07 22:05:30 guy Exp $
+ * $Id: packet-ftp.c,v 1.12 2000/03/12 04:47:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -114,9 +114,9 @@ dissect_ftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				       offset, i1, TRUE);
 	    proto_tree_add_item_hidden(ftp_tree, hf_ftp_response,
 				       offset, i1, FALSE);
-	    proto_tree_add_item_format(ftp_tree, hf_ftp_request_command,
+	    proto_tree_add_string_format(ftp_tree, hf_ftp_request_command,
 				       offset, i1, rr, "Request: %s", rr);
-	    proto_tree_add_item_format(ftp_tree, hf_ftp_request_data,
+	    proto_tree_add_string_format(ftp_tree, hf_ftp_request_data,
 				       offset + i1 + 1, END_OF_FRAME, 
 				       rd, "Request Arg: %s", rd);
 	  }
@@ -126,10 +126,10 @@ dissect_ftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				       offset, i1, FALSE);
 	    proto_tree_add_item_hidden(ftp_tree, hf_ftp_response,
 				       offset, i1, TRUE);
-	    proto_tree_add_item_format(ftp_tree, hf_ftp_response_code, 
+	    proto_tree_add_uint_format(ftp_tree, hf_ftp_response_code, 
 				       offset, i1, 
 				       atoi(rr), "Response: %s", rr);
-	    proto_tree_add_item_format(ftp_tree, hf_ftp_response_data,
+	    proto_tree_add_string_format(ftp_tree, hf_ftp_response_data,
 				       offset + i1 + 1, END_OF_FRAME,
 				       rd, "Response Arg: %s", rd);
 	  }

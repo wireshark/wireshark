@@ -2,7 +2,7 @@
  * Routines for ICP (internet cache protocol) packet disassembly
  * RFC 2186 && RFC 2187
  *
- * $Id: packet-icp.c,v 1.4 1999/12/23 09:53:53 guy Exp $
+ * $Id: packet-icp.c,v 1.5 2000/03/12 04:47:38 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Peter Torvals
@@ -209,16 +209,16 @@ void dissect_icp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			NULL);
 
         icp_tree = proto_item_add_subtree(ti, ett_icp);
-        proto_tree_add_item_format(icp_tree,hf_icp_opcode, offset,      1,
+        proto_tree_add_uint_format(icp_tree,hf_icp_opcode, offset,      1,
                icph.opcode, "Opcode:0x%01x (%s)",icph.opcode, opcodestrval);
 
-        proto_tree_add_item_format(icp_tree,hf_icp_version, offset+1, 1,
+        proto_tree_add_uint_format(icp_tree,hf_icp_version, offset+1, 1,
                 icph.version,"Version: 0x%01x (%d)", icph.version, (int)icph.version);
 
-        proto_tree_add_item_format(icp_tree,hf_icp_length, offset+2, 2,
+        proto_tree_add_uint_format(icp_tree,hf_icp_length, offset+2, 2,
                 icph.message_length,
 		"Length: 0x%02x (%d)", icph.message_length,(int)icph.message_length);
-        proto_tree_add_item_format(icp_tree,hf_icp_request_nr, offset+4, 4,
+        proto_tree_add_uint_format(icp_tree,hf_icp_request_nr, offset+4, 4,
                 icph.request_number,
 		"Request Number: 0x%04x (%u)", icph.request_number,icph.request_number);
 		

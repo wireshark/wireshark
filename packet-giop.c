@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-giop.c,v 1.10 1999/11/16 11:42:30 guy Exp $
+ * $Id: packet-giop.c,v 1.11 2000/03/12 04:47:38 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -290,7 +290,7 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	break;
     } /* minor_version */
 
-    proto_tree_add_item_format(clnp_tree, 
+    proto_tree_add_uint_format(clnp_tree, 
 			       hf_giop_message_type,
 			       offset +  7, 1, 
 			       header.message_type,

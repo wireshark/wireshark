@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.54 2000/03/07 05:54:52 guy Exp $
+ * $Id: proto.c,v 1.55 2000/03/12 04:47:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -92,6 +92,39 @@ static char* hfinfo_int_format(header_field_info *hfinfo);
 
 static gboolean check_for_protocol_or_field_id(GNode *node, gpointer data);
 static gboolean check_for_field_within_protocol(GNode *node, gpointer data);
+
+static field_info*
+proto_tree_add_field_info(int hfindex, gint start, gint length, int visible);
+
+static proto_item*
+proto_tree_add_node(proto_tree *tree, field_info *fi);
+
+static proto_item *
+proto_tree_add_pi(proto_tree *tree, int hfindex, gint start, gint length,
+		const char *format, gboolean visible, field_info **pfi, va_list ap);
+
+static void
+proto_tree_set_value(field_info *fi, gint length, va_list ap);
+static void
+proto_tree_set_bytes(field_info *fi, guint8* start_ptr, gint length);
+static void
+proto_tree_set_time(field_info *fi, struct timeval *value_ptr);
+static void
+proto_tree_set_string(field_info *fi, char* value);
+static void
+proto_tree_set_ether(field_info *fi, guint8* value);
+static void
+proto_tree_set_ipxnet(field_info *fi, guint32 value);
+static void
+proto_tree_set_ipv4(field_info *fi, guint32 value);
+static void
+proto_tree_set_ipv6(field_info *fi, guint8* value_ptr);
+static void
+proto_tree_set_boolean(field_info *fi, guint32 value);
+static void
+proto_tree_set_double(field_info *fi, double value);
+static void
+proto_tree_set_uint(field_info *fi, guint32 value);
 
 static int proto_register_field_init(header_field_info *hfinfo, int parent);
 
@@ -225,85 +258,562 @@ find_hfinfo_record(int hfindex)
 	return g_ptr_array_index(gpa_hfinfo, hfindex);
 }
 
+
+/* Add a node with no text */
+proto_item *
+proto_tree_add_notext(proto_tree *tree, gint start, gint length)
+{
+	field_info	*fi;
+	proto_item	*pi;
+
+	if (!tree)
+		return(NULL);
+
+	fi = proto_tree_add_field_info(hf_text_only, start, length,
+	    proto_tree_is_visible);
+	pi = proto_tree_add_node(tree, fi);
+	fi->representation = NULL;
+
+	return pi;
+}
+
+/* Add a text-only node to the proto_tree */
+proto_item *
+proto_tree_add_text(proto_tree *tree, gint start, gint length,
+	const char *format, ...)
+{
+	field_info	*fi;
+	proto_item	*pi;
+	va_list		ap;
+
+	if (!tree)
+		return(NULL);
+
+	fi = proto_tree_add_field_info(hf_text_only, start, length,
+	    proto_tree_is_visible);
+	pi = proto_tree_add_node(tree, fi);
+
+	/* Only add text if we know that proto_tree is to be shown */
+	if (proto_tree_is_visible) {
+		va_start(ap, format);
+		fi->representation = g_mem_chunk_alloc(gmc_item_labels);
+		vsnprintf(fi->representation, ITEM_LABEL_LENGTH, format, ap);
+		va_end(ap);
+	}
+	else {
+		fi->representation = NULL;
+	}
+
+	return pi;
+}
+
+/* Add an item to a proto_tree, using the text label registered to that item. */
 proto_item *
 proto_tree_add_item(proto_tree *tree, int hfindex, gint start, gint length, ...)
 {
 	proto_item	*pi;
 	va_list		ap;
+	field_info	*new_fi;
+
+	if (!tree)
+		return(NULL);
 
 	va_start(ap, length);
-	pi = _proto_tree_add_item_value(tree, hfindex, start, length, 0, 1, ap);
+	/* ap won't be used since format is NULL */
+	pi = proto_tree_add_pi(tree, hfindex, start, length,
+			NULL, TRUE, &new_fi, ap);
+	proto_tree_set_value(new_fi, length, ap);
 	va_end(ap);
 
 	return pi;
 }
 
+/* Add an item to a proto_tree, but make it invisible in GUI. The field is
+ * still searchable, though. */
 proto_item *
 proto_tree_add_item_hidden(proto_tree *tree, int hfindex, gint start, gint length, ...)
 {
 	proto_item	*pi;
 	va_list		ap;
-
-	va_start(ap, length);
-	pi = _proto_tree_add_item_value(tree, hfindex, start, length, 0, 0, ap);
-	va_end(ap);
-
-	return pi;
-}
-
-proto_item *
-proto_tree_add_item_format(proto_tree *tree, int hfindex, gint start, gint length, ...)
-{
-	proto_item	*pi;
-	va_list		ap;
-
-	va_start(ap, length);
-	pi = _proto_tree_add_item_value(tree, hfindex, start, length, 1, 1, ap);
-	va_end(ap);
-
-	return pi;
-}
-
-proto_item *
-proto_tree_add_notext(proto_tree *tree, gint start, gint length, ...)
-{
-	proto_item	*pi;
-	va_list		ap;
-
-	va_start(ap, length);
-	pi = _proto_tree_add_item_value(tree, hf_text_only, start, length, 0, 1, ap);
-	va_end(ap);
-
-	return pi;
-}
-
-proto_item *
-proto_tree_add_text(proto_tree *tree, gint start, gint length, ...)
-{
-	proto_item	*pi;
-	va_list		ap;
-
-	va_start(ap, length);
-	pi = _proto_tree_add_item_value(tree, hf_text_only, start, length, 1, 1, ap);
-	va_end(ap);
-
-	return pi;
-}
-
-proto_item *
-_proto_tree_add_item_value(proto_tree *tree, int hfindex, gint start,
-	gint length, int include_format, int visible, va_list ap)
-{
-	proto_item	*pi;
-	field_info	*fi;
-	char		*junk, *format;
-	header_field_info *hfinfo;
+	field_info	*new_fi;
 
 	if (!tree)
 		return(NULL);
 
-	/* either visibility flag can nullify the other */
-	visible = proto_tree_is_visible && visible;
+	va_start(ap, length);
+	/* ap won't be used since format is NULL */
+	pi = proto_tree_add_pi(tree, hfindex, start, length,
+			NULL, FALSE, &new_fi, ap);
+	proto_tree_set_value(new_fi, length, ap);
+	va_end(ap);
+
+	return pi;
+}
+
+static void
+proto_tree_set_value(field_info *fi, gint length, va_list ap)
+{
+	header_field_info	*hfinfo;
+
+	hfinfo = fi->hfinfo;
+
+	/* from the stdarg man page on Solaris 2.6:
+	NOTES
+	     It is up to the calling routine to specify  in  some  manner
+	     how  many arguments there are, since it is not always possi-
+	     ble to determine the number  of  arguments  from  the  stack
+	     frame.   For example, execl is passed a zero pointer to sig-
+	     nal the end of the list.  printf can tell how many arguments
+	     there  are  by  the format.  It is non-portable to specify a
+	     second argument of char, short, or float to va_arg,  because
+	     arguments  seen  by the called function are not char, short,
+	     or float.  C converts char and short arguments  to  int  and
+	     converts  float arguments to double before passing them to a
+	     function.
+	*/
+	switch(hfinfo->type) {
+		case FT_NONE:
+			break;
+
+		case FT_BYTES:
+			proto_tree_set_bytes(fi, va_arg(ap, guint8*), length);
+			break;
+
+		case FT_BOOLEAN:
+			proto_tree_set_boolean(fi, va_arg(ap, unsigned int));
+			break;
+
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+			proto_tree_set_uint(fi, va_arg(ap, unsigned int));
+			break;
+
+		case FT_IPv4:
+			proto_tree_set_ipv4(fi, va_arg(ap, unsigned int));
+			break;
+
+		case FT_IPXNET:
+			proto_tree_set_ipxnet(fi, va_arg(ap, unsigned int));
+			break;
+
+		case FT_IPv6:
+			proto_tree_set_ipv6(fi, va_arg(ap, guint8*));
+			break;
+
+		case FT_DOUBLE:
+			proto_tree_set_double(fi, va_arg(ap, double));
+			break;
+
+		case FT_ETHER:
+			proto_tree_set_ether(fi, va_arg(ap, guint8*));
+			break;
+
+		case FT_ABSOLUTE_TIME:
+		case FT_RELATIVE_TIME:
+			proto_tree_set_time(fi, va_arg(ap, struct timeval*));
+			break;
+
+		case FT_STRING:
+			/* This g_strdup'ed memory is freed in proto_tree_free_node() */
+			proto_tree_set_string(fi, va_arg(ap, char*));
+			break;
+
+		case FT_TEXT_ONLY:
+			; /* nothing */
+			break;
+
+		default:
+			g_error("hfinfo->type %d not handled\n", hfinfo->type);
+			g_assert_not_reached();
+			break;
+	}
+}
+
+
+/* Add a FT_NONE to a proto_tree */
+proto_item *
+proto_tree_add_protocol_format(proto_tree *tree, int hfindex, gint start, gint length,
+		const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+	header_field_info	*hfinfo;
+
+	if (!tree)
+		return (NULL);
+
+	hfinfo = find_hfinfo_record(hfindex);
+	g_assert(hfinfo->type == FT_NONE);
+
+	va_start(ap, format);
+	pi = proto_tree_add_pi(tree, hfindex, start, length,
+			format, TRUE, NULL, ap);
+	/* no value to set for FT_NONE */
+	va_end(ap);
+
+	return pi;
+}
+
+/* Add a FT_BYTES to a proto_tree */
+proto_item *
+proto_tree_add_bytes_format(proto_tree *tree, int hfindex, gint start, gint length,
+		guint8 *start_ptr, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+	field_info		*new_fi;
+	header_field_info	*hfinfo;
+
+	if (!tree)
+		return (NULL);
+
+	hfinfo = find_hfinfo_record(hfindex);
+	g_assert(hfinfo->type == FT_BYTES);
+
+	va_start(ap, format);
+	pi = proto_tree_add_pi(tree, hfindex, start, length,
+			format, TRUE, &new_fi, ap);
+	proto_tree_set_bytes(new_fi, start_ptr, length);
+	va_end(ap);
+
+	return pi;
+}
+
+/* Set the FT_BYTES value */
+static void
+proto_tree_set_bytes(field_info *fi, guint8* start_ptr, gint length)
+{
+
+	/* This g_malloc'ed memory is freed in
+	   proto_tree_free_node() */
+	fi->value.bytes = g_malloc(length);
+	memcpy(fi->value.bytes, start_ptr, length);
+}
+
+/* Add a FT_*TIME to a proto_tree */
+proto_item *
+proto_tree_add_time_format(proto_tree *tree, int hfindex, gint start, gint length,
+		struct timeval *value_ptr, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+	field_info		*new_fi;
+	header_field_info	*hfinfo;
+
+	if (!tree)
+		return (NULL);
+
+	hfinfo = find_hfinfo_record(hfindex);
+	g_assert(hfinfo->type == FT_ABSOLUTE_TIME ||
+				hfinfo->type == FT_RELATIVE_TIME);
+
+	va_start(ap, format);
+	pi = proto_tree_add_pi(tree, hfindex, start, length,
+			format, TRUE, &new_fi, ap);
+	proto_tree_set_time(new_fi, value_ptr);
+	va_end(ap);
+
+	return pi;
+}
+
+/* Set the FT_*TIME value */
+static void
+proto_tree_set_time(field_info *fi, struct timeval *value_ptr)
+{
+	memcpy(&fi->value.time, value_ptr, sizeof(struct timeval));
+}
+
+/* Add a FT_IPXNET to a proto_tree */
+proto_item *
+proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, gint start, gint length,
+		guint32 value, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+	field_info		*new_fi;
+	header_field_info	*hfinfo;
+
+	if (!tree)
+		return (NULL);
+
+	hfinfo = find_hfinfo_record(hfindex);
+	g_assert(hfinfo->type == FT_IPXNET);
+
+	va_start(ap, format);
+	pi = proto_tree_add_pi(tree, hfindex, start, length,
+			format, TRUE, &new_fi, ap);
+	proto_tree_set_ipxnet(new_fi, value);
+	va_end(ap);
+
+	return pi;
+}
+
+/* Set the FT_IPXNET value */
+static void
+proto_tree_set_ipxnet(field_info *fi, guint32 value)
+{
+	fi->value.numeric = value;
+}
+
+/* Add a FT_IPv4 to a proto_tree */
+proto_item *
+proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, gint start, gint length,
+		guint32 value, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+	field_info		*new_fi;
+	header_field_info	*hfinfo;
+
+	if (!tree)
+		return (NULL);
+
+	hfinfo = find_hfinfo_record(hfindex);
+	g_assert(hfinfo->type == FT_IPv4);
+
+	va_start(ap, format);
+	pi = proto_tree_add_pi(tree, hfindex, start, length,
+			format, TRUE, &new_fi, ap);
+	proto_tree_set_ipv4(new_fi, value);
+	va_end(ap);
+
+	return pi;
+}
+
+/* Set the FT_IPv4 value */
+static void
+proto_tree_set_ipv4(field_info *fi, guint32 value)
+{
+	ipv4_addr_set_net_order_addr(&(fi->value.ipv4), value);
+	ipv4_addr_set_netmask_bits(&(fi->value.ipv4), 32);
+}
+
+/* Add a FT_IPv6 to a proto_tree */
+proto_item *
+proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, gint start, gint length,
+		guint8* value_ptr, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+	field_info		*new_fi;
+	header_field_info	*hfinfo;
+
+	if (!tree)
+		return (NULL);
+
+	hfinfo = find_hfinfo_record(hfindex);
+	g_assert(hfinfo->type == FT_IPv6);
+
+	va_start(ap, format);
+	pi = proto_tree_add_pi(tree, hfindex, start, length,
+			format, TRUE, &new_fi, ap);
+	proto_tree_set_ipv6(new_fi, value_ptr);
+	va_end(ap);
+
+	return pi;
+}
+
+/* Set the FT_IPv4 value */
+static void
+proto_tree_set_ipv6(field_info *fi, guint8* value_ptr)
+{
+	memcpy(fi->value.ipv6, value_ptr, 16);
+}
+
+/* Add a FT_STRING to a proto_tree */
+proto_item *
+proto_tree_add_string_format(proto_tree *tree, int hfindex, gint start, gint length,
+		char* value, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+	field_info		*new_fi;
+	header_field_info	*hfinfo;
+
+	if (!tree)
+		return (NULL);
+
+	hfinfo = find_hfinfo_record(hfindex);
+	g_assert(hfinfo->type == FT_STRING);
+
+	va_start(ap, format);
+	pi = proto_tree_add_pi(tree, hfindex, start, length,
+			format, TRUE, &new_fi, ap);
+	proto_tree_set_string(new_fi, value);
+	va_end(ap);
+
+	return pi;
+}
+
+/* Set the FT_STRING value */
+static void
+proto_tree_set_string(field_info *fi, char* value)
+{
+	/* This g_strdup'ed memory is freed in proto_tree_free_node() */
+	fi->value.string = g_strdup(value);
+}
+
+/* Add a FT_ETHER to a proto_tree */
+proto_item *
+proto_tree_add_ether_format(proto_tree *tree, int hfindex, gint start, gint length,
+		guint8* value, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+	field_info		*new_fi;
+	header_field_info	*hfinfo;
+
+	if (!tree)
+		return (NULL);
+
+	hfinfo = find_hfinfo_record(hfindex);
+	g_assert(hfinfo->type == FT_ETHER);
+
+	va_start(ap, format);
+	pi = proto_tree_add_pi(tree, hfindex, start, length,
+			format, TRUE, &new_fi, ap);
+	proto_tree_set_ether(new_fi, value);
+	va_end(ap);
+
+	return pi;
+}
+
+/* Set the FT_ETHER value */
+static void
+proto_tree_set_ether(field_info *fi, guint8* value)
+{
+	memcpy(fi->value.ether, value, 6);
+}
+
+/* Add a FT_BOOLEAN to a proto_tree */
+proto_item *
+proto_tree_add_boolean_format(proto_tree *tree, int hfindex, gint start, gint length,
+		guint32 value, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+	field_info		*new_fi;
+	header_field_info	*hfinfo;
+
+	if (!tree)
+		return (NULL);
+
+	hfinfo = find_hfinfo_record(hfindex);
+	g_assert(hfinfo->type == FT_BOOLEAN);
+
+	va_start(ap, format);
+	pi = proto_tree_add_pi(tree, hfindex, start, length,
+			format, TRUE, &new_fi, ap);
+	proto_tree_set_boolean(new_fi, value);
+	va_end(ap);
+
+	return pi;
+}
+
+/* Set the FT_BOOLEAN value */
+static void
+proto_tree_set_boolean(field_info *fi, guint32  value)
+{
+	fi->value.numeric = value;
+}
+
+/* Add a FT_DOUBLE to a proto_tree */
+proto_item *
+proto_tree_add_double_format(proto_tree *tree, int hfindex, gint start, gint length,
+		double value, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+	field_info		*new_fi;
+	header_field_info	*hfinfo;
+
+	if (!tree)
+		return (NULL);
+
+	hfinfo = find_hfinfo_record(hfindex);
+	g_assert(hfinfo->type == FT_DOUBLE);
+
+	va_start(ap, format);
+	pi = proto_tree_add_pi(tree, hfindex, start, length,
+			format, TRUE, &new_fi, ap);
+	proto_tree_set_double(new_fi, value);
+	va_end(ap);
+
+	return pi;
+}
+
+/* Set the FT_DOUBLE value */
+static void
+proto_tree_set_double(field_info *fi, double value)
+{
+	fi->value.floating = value;
+}
+
+/* Add any FT_UINT* to a proto_tree */
+proto_item *
+proto_tree_add_uint_format(proto_tree *tree, int hfindex, gint start, gint length,
+		guint32 value, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+	field_info		*new_fi;
+	header_field_info	*hfinfo;
+
+	if (!tree)
+		return (NULL);
+
+	hfinfo = find_hfinfo_record(hfindex);
+	switch(hfinfo->type) {
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+			va_start(ap, format);
+			pi = proto_tree_add_pi(tree, hfindex, start, length,
+					format, TRUE, &new_fi, ap);
+			proto_tree_set_uint(new_fi, value);
+			va_end(ap);
+			break;
+
+		default:
+			g_assert_not_reached();
+	}
+
+	return pi;
+}
+
+/* Set the FT_UINT* value */
+static void
+proto_tree_set_uint(field_info *fi, guint32 value)
+{
+	header_field_info *hfinfo;
+
+	hfinfo = fi->hfinfo;
+	fi->value.numeric = value;
+	if (hfinfo->bitmask) {
+		/* Mask out irrelevant portions */
+		fi->value.numeric &= hfinfo->bitmask;
+
+		/* Shift bits */
+		if (hfinfo->bitshift > 0) {
+			fi->value.numeric >>= hfinfo->bitshift;
+		}
+	}
+}
+
+
+
+/* Create a new field_info struct, and initialize it */
+static field_info *
+proto_tree_add_field_info(int hfindex, gint start, gint length, int visible)
+{
+	field_info *fi;
 
 	fi = g_mem_chunk_alloc(gmc_field_info);
 
@@ -314,113 +824,57 @@ _proto_tree_add_item_value(proto_tree *tree, int hfindex, gint start,
 	fi->tree_type = ETT_NONE;
 	fi->visible = visible;
 
-	/* for convenience */
+	return fi;
+}
 
-	hfinfo = fi->hfinfo;
-/* from the stdarg man page on Solaris 2.6:
-NOTES
-     It is up to the calling routine to specify  in  some  manner
-     how  many arguments there are, since it is not always possi-
-     ble to determine the number  of  arguments  from  the  stack
-     frame.   For example, execl is passed a zero pointer to sig-
-     nal the end of the list.  printf can tell how many arguments
-     there  are  by  the format.  It is non-portable to specify a
-     second argument of char, short, or float to va_arg,  because
-     arguments  seen  by the called function are not char, short,
-     or float.  C converts char and short arguments  to  int  and
-     converts  float arguments to double before passing them to a
-     function.
-*/
-	switch(hfinfo->type) {
-		case FT_NONE:
-			junk = va_arg(ap, guint8*);
-			break;
-
-		case FT_BYTES:
-			/* This g_malloc'ed memory is freed in
-			   proto_tree_free_node() */
-			fi->value.bytes = (guint8 *)g_malloc(length);
-			memcpy(fi->value.bytes, va_arg(ap, guint8*), length);
-			break;
-
-		case FT_BOOLEAN:
-		case FT_UINT8:
-		case FT_UINT16:
-		case FT_UINT24:
-		case FT_UINT32:
-		case FT_INT8:
-		case FT_INT16:
-		case FT_INT24:
-		case FT_INT32:
-			fi->value.numeric = va_arg(ap, unsigned int);
-			if (hfinfo->bitmask) {
-				/* Mask out irrelevant portions */
-				fi->value.numeric &= hfinfo->bitmask;
-
-				/* Shift bits */
-				if (hfinfo->bitshift > 0) {
-					fi->value.numeric >>= hfinfo->bitshift;
-				}
-			}
-			break;
-
-		case FT_IPv4:
-			ipv4_addr_set_net_order_addr(&(fi->value.ipv4), va_arg(ap, unsigned int));
-			ipv4_addr_set_netmask_bits(&(fi->value.ipv4), 32);
-			break;
-
-		case FT_IPXNET:
-			fi->value.numeric = va_arg(ap, unsigned int);
-			break;
-
-		case FT_IPv6:
-			memcpy(fi->value.ipv6, va_arg(ap, guint8*), 16);
-			break;
-
-		case FT_DOUBLE:
-			fi->value.floating = va_arg(ap, double);
-			break;
-
-		case FT_ETHER:
-			memcpy(fi->value.ether, va_arg(ap, guint8*), 6);
-			break;
-
-		case FT_ABSOLUTE_TIME:
-		case FT_RELATIVE_TIME:
-			memcpy(&fi->value.time, va_arg(ap, struct timeval*),
-				sizeof(struct timeval));
-			break;
-
-		case FT_STRING:
-			/* This g_strdup'ed memory is freed in proto_tree_free_node() */
-			fi->value.string = g_strdup(va_arg(ap, char*));
-			break;
-
-		case FT_TEXT_ONLY:
-			; /* nothing */
-			break;
-
-		default:
-			g_error("hfinfo->type %d not handled\n", hfinfo->type);
-			break;
-	}
+/* Add a field_info struct to the proto_tree, encapsulating it in a GNode (proto_item) */
+static proto_item *
+proto_tree_add_node(proto_tree *tree, field_info *fi)
+{
+	proto_item *pi;
 
 	pi = (proto_item*) g_node_new(fi);
 	g_node_append((GNode*)tree, (GNode*)pi);
 
+	return pi;
+}
+
+
+/* Generic way to allocate field_info, add to proto_tree, and set representation.
+ * Sets *pfi to address of newly-allocated field_info struct, if pfi is non-NULL. */
+static proto_item *
+proto_tree_add_pi(proto_tree *tree, int hfindex, gint start, gint length,
+		const char *format, gboolean visible, field_info **pfi, va_list ap)
+{
+	proto_item	*pi;
+	field_info	*fi;
+
+	if (!tree)
+		return(NULL);
+
+	/* either visibility flag can nullify the other */
+	visible = proto_tree_is_visible && visible;
+
+	fi = proto_tree_add_field_info(hfindex, start, length, visible);
+
+	pi = proto_tree_add_node(tree, fi);
+
 	/* are there any formatting arguments? */
-	if (visible && include_format) {
-		format = va_arg(ap, char*);
+	if (visible && format) {
 		fi->representation = g_mem_chunk_alloc(gmc_item_labels);
-		vsnprintf(fi->representation, ITEM_LABEL_LENGTH,
-				format, ap);
+		vsnprintf(fi->representation, ITEM_LABEL_LENGTH, format, ap);
 	}
 	else {
 		fi->representation = NULL;
 	}
 
+	if (pfi) {
+		*pfi = fi;
+	}
+
 	return pi;
 }
+
 
 void
 proto_item_set_text(proto_item *pi, const char *format, ...)

@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.49 2000/02/15 21:02:23 gram Exp $
+ * $Id: packet-ipx.c,v 1.50 2000/03/12 04:47:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -397,19 +397,19 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		ti = proto_tree_add_item(tree, proto_ipx, offset, 30, NULL);
 		ipx_tree = proto_item_add_subtree(ti, ett_ipx);
 		proto_tree_add_item(ipx_tree, hf_ipx_checksum, offset, 2, ipx_checksum);
-		proto_tree_add_item_format(ipx_tree, hf_ipx_len, offset+2, 2, ipx_length,
+		proto_tree_add_uint_format(ipx_tree, hf_ipx_len, offset+2, 2, ipx_length,
 			"Length: %d bytes", ipx_length);
-		proto_tree_add_item_format(ipx_tree, hf_ipx_hops, offset+4, 1, ipx_hops,
+		proto_tree_add_uint_format(ipx_tree, hf_ipx_hops, offset+4, 1, ipx_hops,
 			"Transport Control: %d hops", ipx_hops);
 		proto_tree_add_item(ipx_tree, hf_ipx_packet_type, offset+5, 1, ipx_type);
 		proto_tree_add_item(ipx_tree, hf_ipx_dnet, offset+6, 4, ipx_dnet_val);
 		proto_tree_add_item(ipx_tree, hf_ipx_dnode, offset+10, 6, ipx_dnode);
-		proto_tree_add_item_format(ipx_tree, hf_ipx_dsocket, offset+16, 2,
+		proto_tree_add_uint_format(ipx_tree, hf_ipx_dsocket, offset+16, 2,
 			ipx_dsocket, "Destination Socket: %s (0x%04X)",
 			port_text(ipx_dsocket), ipx_dsocket);
 		proto_tree_add_item(ipx_tree, hf_ipx_snet, offset+18, 4, ipx_snet_val);
 		proto_tree_add_item(ipx_tree, hf_ipx_snode, offset+22, 6, ipx_snode);
-		proto_tree_add_item_format(ipx_tree, hf_ipx_ssocket, offset+28, 2,
+		proto_tree_add_uint_format(ipx_tree, hf_ipx_ssocket, offset+28, 2,
 			ipx_ssocket, "Source Socket: %s (0x%04X)", port_text(ipx_ssocket),
 			ipx_ssocket);
 	}
@@ -516,14 +516,14 @@ dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		ti = proto_tree_add_item(tree, proto_spx, offset, 12, NULL);
 		spx_tree = proto_item_add_subtree(ti, ett_spx);
 
-		proto_tree_add_item_format(spx_tree, hf_spx_connection_control,
+		proto_tree_add_uint_format(spx_tree, hf_spx_connection_control,
 					   offset,      1,
 					   pd[offset],
 					   "Connection Control: %s (0x%02X)",
 					   spx_conn_ctrl(pd[offset]), 
 					   pd[offset]);
 
-		proto_tree_add_item_format(spx_tree, hf_spx_datastream_type,
+		proto_tree_add_uint_format(spx_tree, hf_spx_datastream_type,
 					   offset+1,     1,
 					   pd[offset+1],
 					   "Datastream Type: %s (0x%02X)",

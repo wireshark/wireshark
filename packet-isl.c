@@ -1,7 +1,7 @@
 /* packet-isl.c
  * Routines for Cisco ISL Ethernet header disassembly
  *
- * $Id: packet-isl.c,v 1.5 2000/02/15 21:02:27 gram Exp $
+ * $Id: packet-isl.c,v 1.6 2000/03/12 04:47:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -157,8 +157,8 @@ dissect_isl(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   type = (pd[offset+5] >> 4)&0x0F;
 
   if (tree) {
-    ti = proto_tree_add_item_format(tree, proto_isl, offset, ISL_HEADER_SIZE,
-		NULL, "ISL");
+    ti = proto_tree_add_protocol_format(tree, proto_isl, offset, ISL_HEADER_SIZE,
+		"ISL");
     fh_tree = proto_item_add_subtree(ti, ett_isl);
     proto_tree_add_item(fh_tree, hf_isl_dst, offset+0, 6, &pd[offset+0]);
     proto_tree_add_item(fh_tree, hf_isl_type, offset+5, 1, pd[offset+5]);

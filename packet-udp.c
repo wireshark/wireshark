@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.51 2000/02/23 22:28:50 oabad Exp $
+ * $Id: packet-udp.c,v 1.52 2000/03/12 04:47:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -252,16 +252,16 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     ti = proto_tree_add_item(tree, proto_udp, offset, 8);
     udp_tree = proto_item_add_subtree(ti, ett_udp);
 
-    proto_tree_add_item_format(udp_tree, hf_udp_srcport, offset, 2, uh_sport,
+    proto_tree_add_uint_format(udp_tree, hf_udp_srcport, offset, 2, uh_sport,
 	"Source port: %s (%u)", get_udp_port(uh_sport), uh_sport);
-    proto_tree_add_item_format(udp_tree, hf_udp_dstport, offset + 2, 2, uh_dport,
+    proto_tree_add_uint_format(udp_tree, hf_udp_dstport, offset + 2, 2, uh_dport,
 	"Destination port: %s (%u)", get_udp_port(uh_dport), uh_dport);
 
     proto_tree_add_item_hidden(udp_tree, hf_udp_port, offset, 2, uh_sport);
     proto_tree_add_item_hidden(udp_tree, hf_udp_port, offset+2, 2, uh_dport);
 
     proto_tree_add_item(udp_tree, hf_udp_length, offset + 4, 2,  uh_ulen);
-    proto_tree_add_item_format(udp_tree, hf_udp_checksum, offset + 6, 2, uh_sum,
+    proto_tree_add_uint_format(udp_tree, hf_udp_checksum, offset + 6, 2, uh_sum,
 	"Checksum: 0x%04x", uh_sum);
   }
 

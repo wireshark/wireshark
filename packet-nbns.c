@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.37 2000/02/15 21:02:37 gram Exp $
+ * $Id: packet-nbns.c,v 1.38 2000/03/12 04:47:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1314,22 +1314,22 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_nbdgm, offset, header.dgm_length, NULL);
 		nbdgm_tree = proto_item_add_subtree(ti, ett_nbdgm);
 
-		proto_tree_add_item_format(nbdgm_tree, hf_nbdgm_type,
+		proto_tree_add_uint_format(nbdgm_tree, hf_nbdgm_type,
 					   offset, 1, 
 					   header.msg_type,   
 					   "Message Type: %s",
 					   message[message_index]);
-		proto_tree_add_item_format(nbdgm_tree, hf_nbdgm_fragment,
+		proto_tree_add_boolean_format(nbdgm_tree, hf_nbdgm_fragment,
 					   offset+1, 1, 
 					   header.flags.more,
 					   "More fragments follow: %s",
 					   yesno[header.flags.more]);
-		proto_tree_add_item_format(nbdgm_tree, hf_nbdgm_first,
+		proto_tree_add_boolean_format(nbdgm_tree, hf_nbdgm_first,
 					   offset+1, 1, 
 					   header.flags.first,
 					   "This is first fragment: %s",
 					   yesno[header.flags.first]);
-		proto_tree_add_item_format(nbdgm_tree, hf_nbdgm_node_type,
+		proto_tree_add_uint_format(nbdgm_tree, hf_nbdgm_node_type,
 					   offset+1, 1, 
 					   header.flags.node_type,
 					   "Node Type: %s",
@@ -1466,7 +1466,7 @@ dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 	  ti = proto_tree_add_item(tree, proto_nbss, offset, length + 4, NULL);
 	  nbss_tree = proto_item_add_subtree(ti, ett_nbss);
 	  
-	  proto_tree_add_item_format(nbss_tree, hf_nbss_type,
+	  proto_tree_add_uint_format(nbss_tree, hf_nbss_type,
 				     offset, 1, 
 				     msg_type,
 				     "Message Type: %s",

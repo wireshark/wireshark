@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-auto_rp.c,v 1.2 2000/01/07 22:05:29 guy Exp $
+ * $Id: packet-auto_rp.c,v 1.3 2000/03/12 04:47:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -152,7 +152,7 @@ void dissect_auto_rp(const u_char *pd, int offset, frame_data *fd, proto_tree *t
                 ti = proto_tree_add_item(tree, proto_auto_rp, offset, END_OF_FRAME, NULL);
                 auto_rp_tree = proto_item_add_subtree(ti, ett_auto_rp);
 
-                tv = proto_tree_add_item_format(auto_rp_tree, hf_auto_rp_ver_type, offset, 1,
+                tv = proto_tree_add_uint_format(auto_rp_tree, hf_auto_rp_ver_type, offset, 1,
                                                 arh.ver_type, "Version: %s, Packet type: %s",
                                                 val_to_str(hi_nibble(arh.ver_type), auto_rp_ver_vals, "Unknown"),
                                                 val_to_str(lo_nibble(arh.ver_type), auto_rp_type_vals, "Unknown"));
@@ -254,7 +254,7 @@ static int do_auto_rp_map(const u_char *pd, int offset, frame_data *fd, proto_tr
                 return -1;
         memcpy(&m, pd+offset, sizeof(struct auto_rp_map_hdr));
 
-        ti = proto_tree_add_item_format(auto_rp_tree, hf_auto_rp_map, offset,
+        ti = proto_tree_add_uint_format(auto_rp_tree, hf_auto_rp_map, offset,
                                         MIN(sizeof(m) + m.group_count*sizeof(g), END_OF_FRAME), 1,
                                         "RP %s: %u group%s", ip_to_str((void *)&m.rp_address),
                                         m.group_count, plurality(m.group_count, "", "s"));
@@ -273,7 +273,7 @@ static int do_auto_rp_map(const u_char *pd, int offset, frame_data *fd, proto_tr
                 if (2*sizeof(guint8) + sizeof(guint32) > END_OF_FRAME) /* struct auto_rp_enc_grp_hdr */
                         return -1;
 
-                gi = proto_tree_add_item_format(map_tree, hf_auto_rp_group, offset, 6, 1,
+                gi = proto_tree_add_uint_format(map_tree, hf_auto_rp_group, offset, 6, 1,
                                                 "group %s/%u (%s)", ip_to_str(pd + offset + 2),
                                                 pd[offset + 1],
                                                 val_to_str(pd[offset]&AUTO_RP_SIGN_MASK, auto_rp_mask_sign_vals, ""));

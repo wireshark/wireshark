@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.9 2000/01/22 02:00:27 guy Exp $
+ * $Id: packet-ntp.c,v 1.10 2000/03/12 04:47:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -258,15 +258,15 @@ dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 		/* Adding flag subtree and items */
 		flags_tree = proto_item_add_subtree(tf, ett_ntp_flags);
-		proto_tree_add_item_format(flags_tree, hf_ntp_flags_li, offset, 1,
+		proto_tree_add_uint_format(flags_tree, hf_ntp_flags_li, offset, 1,
 					   *pkt->flags & NTP_LI_MASK,
 					   decode_enumerated_bitfield(*pkt->flags, NTP_LI_MASK,
 				           sizeof(pkt->flags) * 8, li_types, "Leap Indicator: %s"));
-		proto_tree_add_item_format(flags_tree, hf_ntp_flags_vn, offset, 1,
+		proto_tree_add_uint_format(flags_tree, hf_ntp_flags_vn, offset, 1,
 					   *pkt->flags & NTP_VN_MASK,
 					   decode_enumerated_bitfield(*pkt->flags, NTP_VN_MASK,
 				           sizeof(pkt->flags) * 8, ver_nums, "Version number: %s"));
-		proto_tree_add_item_format(flags_tree, hf_ntp_flags_mode, offset, 1,
+		proto_tree_add_uint_format(flags_tree, hf_ntp_flags_mode, offset, 1,
 					   *pkt->flags & NTP_MODE_MASK,
 					   decode_enumerated_bitfield(*pkt->flags, NTP_MODE_MASK,
 				           sizeof(pkt->flags) * 8, mode_types, "Mode: %s"));
@@ -282,12 +282,12 @@ dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		} else {
 			strcpy (buff, "Peer Clock Stratum: reserved: %d");
 		}
-		proto_tree_add_item_format(ntp_tree, hf_ntp_stratum, offset+1, 1, pkt->stratum,
+		proto_tree_add_bytes_format(ntp_tree, hf_ntp_stratum, offset+1, 1, pkt->stratum,
 					   buff, (int) *pkt->stratum);
 		/* Poll interval, 1byte field indicating the maximum interval between
 		 * successive messages, in seconds to the nearest power of two.
 		 */
-		proto_tree_add_item_format(ntp_tree, hf_ntp_ppoll, offset+2, 1, pkt->ppoll,
+		proto_tree_add_bytes_format(ntp_tree, hf_ntp_ppoll, offset+2, 1, pkt->ppoll,
 					   (((*pkt->ppoll >= 4) && (*pkt->ppoll <= 16)) ? 
 					   "Peer Pooling Interval: %d (%d sec)" :
 					   "Peer Pooling Interval: invalid (%d)"), (int) *pkt->ppoll,
@@ -295,13 +295,13 @@ dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		/* Precision, 1byte field indicating the precision of the
 		 * local clock, in seconds to the nearest power of two.
 		 */
-		proto_tree_add_item_format(ntp_tree, hf_ntp_precision, offset+3, 1, pkt->precision,
+		proto_tree_add_bytes_format(ntp_tree, hf_ntp_precision, offset+3, 1, pkt->precision,
 					   "Peer Clock Precision: %8.6f sec", pow(2, *pkt->precision));
 		/* Root Delay is a 32-bit signed fixed-point number indicating the
 		 * total roundtrip delay to the primary reference source, in seconds
 		 * with fraction point between bits 15 and 16.
 		 */
-		proto_tree_add_item_format(ntp_tree, hf_ntp_rootdelay, offset+4, 4, pkt->rootdelay,
+		proto_tree_add_bytes_format(ntp_tree, hf_ntp_rootdelay, offset+4, 4, pkt->rootdelay,
 					   "Root Delay: %9.4f sec",
 					   ((gint32) pntohs(pkt->rootdelay)) +
 					   pntohs(pkt->rootdelay + 2) / 65536.0);
@@ -309,7 +309,7 @@ dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		 * the nominal error relative to the primary reference source, in
 		 * seconds with fraction point between bits 15 and 16.
 		 */
-		proto_tree_add_item_format(ntp_tree, hf_ntp_rootdispersion, offset+8, 4, pkt->rootdispersion,
+		proto_tree_add_bytes_format(ntp_tree, hf_ntp_rootdispersion, offset+8, 4, pkt->rootdispersion,
 					   "Clock Dispersion: %9.4f sec",
 					   ((gint32) pntohs(pkt->rootdispersion)) +
 					   pntohs(pkt->rootdispersion + 2) / 65536.0);
@@ -332,30 +332,30 @@ dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			}
 		} else
 			strcpy (buff, get_hostname (pntohl(pkt->refid)));
-		proto_tree_add_item_format(ntp_tree, hf_ntp_refid, offset+12, 4, pkt->refid,
+		proto_tree_add_bytes_format(ntp_tree, hf_ntp_refid, offset+12, 4, pkt->refid,
 					   "Reference Clock ID: %s", buff);
 		/* Reference Timestamp: This is the time at which the local clock was
 		 * last set or corrected.
 		 */
-		proto_tree_add_item_format(ntp_tree, hf_ntp_reftime, offset+16, 8, pkt->reftime,
+		proto_tree_add_bytes_format(ntp_tree, hf_ntp_reftime, offset+16, 8, pkt->reftime,
 				           "Reference Clock Update Time: %s", 
 					   ntp_fmt_ts(pkt->reftime, buff));
 		/* Originate Timestamp: This is the time at which the request departed
 		 * the client for the server.
 		 */
-		proto_tree_add_item_format(ntp_tree, hf_ntp_org, offset+24, 8, pkt->org,
+		proto_tree_add_bytes_format(ntp_tree, hf_ntp_org, offset+24, 8, pkt->org,
 				           "Originate Time Stamp: %s", 
 					   ntp_fmt_ts(pkt->org, buff));
 		/* Receive Timestamp: This is the time at which the request arrived at
 		 * the server.
 		 */
-		proto_tree_add_item_format(ntp_tree, hf_ntp_rec, offset+32, 8, pkt->rec,
+		proto_tree_add_bytes_format(ntp_tree, hf_ntp_rec, offset+32, 8, pkt->rec,
 				           "Receive Time Stamp: %s", 
 					   ntp_fmt_ts(pkt->rec, buff));
 		/* Transmit Timestamp: This is the time at which the reply departed the
 		 * server for the client.
 		 */
-		proto_tree_add_item_format(ntp_tree, hf_ntp_xmt, offset+40, 8, pkt->xmt,
+		proto_tree_add_bytes_format(ntp_tree, hf_ntp_xmt, offset+40, 8, pkt->xmt,
 				           "Transmit Time Stamp: %s", 
 					   ntp_fmt_ts(pkt->xmt, buff));
 

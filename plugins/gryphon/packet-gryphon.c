@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Routines for Gryphon protocol packet disassembly
  *
- * $Id: packet-gryphon.c,v 1.6 2000/02/07 17:23:53 gram Exp $
+ * $Id: packet-gryphon.c,v 1.7 2000/03/12 04:48:32 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -153,7 +153,7 @@ dissector(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    msglen = pntohs ((unsigned short *)&data[4]);
 
     	    header_item = proto_tree_add_text(gryphon_tree, offset,
-	    	    MSG_HDR_SZ, "Header", NULL);
+	    	    MSG_HDR_SZ, "Header");
 	    header_tree = proto_item_add_subtree(header_item,
 	    	    ett_gryphon_header);
 	    for (i = 0; i < SIZEOF(src_dest); i++) {
@@ -182,14 +182,14 @@ dissector(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    	    "Data length: %d bytes", msglen);
 	    proto_tree_add_text(header_tree, offset+6, 1,
 	    	    "Frame type: %s", frame_type[frmtyp]);
-	    proto_tree_add_text(header_tree, offset+7, 1, "reserved", NULL);
+	    proto_tree_add_text(header_tree, offset+7, 1, "reserved");
 
     	    proto_tree_add_item_hidden(header_tree, hf_gryph_type, offset+6, 1, frmtyp);
 	    msgpad = 3 - (msglen + 3) % 4;
 	    msgend = data + msglen + msgpad + MSG_HDR_SZ;
 
     	    body_item = proto_tree_add_text(gryphon_tree, offset + MSG_HDR_SZ,
-	    	    msglen + msgpad, "Body", NULL);
+	    	    msglen + msgpad, "Body");
     	    body_tree = proto_item_add_subtree(body_item, ett_gryphon_body);
 
 	    offset += MSG_HDR_SZ;
@@ -216,12 +216,12 @@ dissector(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    }
 	    if (data < msgend - msgpad) {
 	    	i = msgend - msgpad - data;
-		proto_tree_add_text(gryphon_tree, offset, i, "Data", NULL);
+		proto_tree_add_text(gryphon_tree, offset, i, "Data");
 		BUMP (offset, data, i);
 	    }
 	    if (data < msgend) {
 	    	i = msgend - data;
-		proto_tree_add_text(gryphon_tree, offset, i, "padding", NULL);
+		proto_tree_add_text(gryphon_tree, offset, i, "padding");
 		BUMP (offset, data, i);
 	    }
 /*	    data = dataend;*/
@@ -534,7 +534,7 @@ decode_data (int src, const u_char **data, const u_char *dataend, int *offset, i
 	padding = 3 - (hdrsize + datasize + extrasize + 3) % 4;
 	msgsize = hdrsize + datasize + extrasize + padding + 16;
 
-    	item = proto_tree_add_text(pt, *offset, 16, "Message header", NULL);
+    	item = proto_tree_add_text(pt, *offset, 16, "Message header");
 	tree = proto_item_add_subtree (item, ett_gryphon_data_header);
     	proto_tree_add_text(tree, *offset, 2, "Header length: %d bytes, %d bits", hdrsize, hdrbits);
     	proto_tree_add_text(tree, *offset+2, 2, "Data length: %d bytes", datasize);
@@ -544,15 +544,15 @@ decode_data (int src, const u_char **data, const u_char *dataend, int *offset, i
 	if (mode) {
 	    tree1 = proto_item_add_subtree (item1, ett_gryphon_flags);
 	    if (mode & 0x80)
-	    	proto_tree_add_text(tree1, *offset+5, 1, "1... .... = Transmitted message", NULL);
+	    	proto_tree_add_text(tree1, *offset+5, 1, "1... .... = Transmitted message");
 	    if (mode & 0x40)
-	    	proto_tree_add_text(tree1, *offset+5, 1, ".1.. .... = Received message", NULL);
+	    	proto_tree_add_text(tree1, *offset+5, 1, ".1.. .... = Received message");
 	    if (mode & 0x20)
-	    	proto_tree_add_text(tree1, *offset+5, 1, "..1. .... = Local message", NULL);
+	    	proto_tree_add_text(tree1, *offset+5, 1, "..1. .... = Local message");
 	    if (mode & 0x10)
-	    	proto_tree_add_text(tree1, *offset+5, 1, "...1 .... = Remote message", NULL);
+	    	proto_tree_add_text(tree1, *offset+5, 1, "...1 .... = Remote message");
 	    if (mode & 0x01)
-	    	proto_tree_add_text(tree1, *offset+5, 1, ".... ...1 = Internal message", NULL);
+	    	proto_tree_add_text(tree1, *offset+5, 1, ".... ...1 = Internal message");
 	}
     	proto_tree_add_text(tree, *offset+6, 1, "Priority: %d", (*data)[6]);
     	proto_tree_add_text(tree, *offset+7, 1, "Error status: %hd", (*data)[7]);
@@ -563,24 +563,24 @@ decode_data (int src, const u_char **data, const u_char *dataend, int *offset, i
 	fraction = timestamp % 100000;
     	proto_tree_add_text(tree, *offset+8, 4, "Timestamp: %d:%02d:%02d.%05d", hours, minutes, seconds, fraction);
     	proto_tree_add_text(tree, *offset+12, 1, "Context: %hd", (*data)[12]);
-    	proto_tree_add_text(tree, *offset+13, 3, "reserved:", NULL);
+    	proto_tree_add_text(tree, *offset+13, 3, "reserved:");
 	BUMP (*offset, *data, 16);
-    	item = proto_tree_add_text(pt, *offset, msgsize-16-padding, "Message Body", NULL);
+    	item = proto_tree_add_text(pt, *offset, msgsize-16-padding, "Message Body");
 	tree = proto_item_add_subtree (item, ett_gryphon_data_body);
 	if (hdrsize) {
-	    proto_tree_add_text(tree, *offset, hdrsize, "Header", NULL);
+	    proto_tree_add_text(tree, *offset, hdrsize, "Header");
 	    BUMP (*offset, *data, hdrsize);
 	}
 	if (datasize) {
-	    proto_tree_add_text(tree, *offset, datasize, "Data", NULL);
+	    proto_tree_add_text(tree, *offset, datasize, "Data");
 	    BUMP (*offset, *data, datasize);
 	}
 	if (extrasize) {
-	    proto_tree_add_text(tree, *offset, extrasize, "Extra data", NULL);
+	    proto_tree_add_text(tree, *offset, extrasize, "Extra data");
 	    BUMP (*offset, *data, extrasize);
 	}
 	if (padding) {
-    	    proto_tree_add_text(pt, *offset, padding, "padding", NULL);
+    	    proto_tree_add_text(pt, *offset, padding, "padding");
 	    BUMP (*offset, *data, padding);
 	}
 }
@@ -596,7 +596,7 @@ decode_event (int src, const u_char **data, const u_char *dataend, int *offset, 
     msgend = *data + msglen;
     proto_tree_add_text(pt, *offset, 1, "Event ID: %hd", **data);
     proto_tree_add_text(pt, *offset+1, 1, "Event context: %hd", *((*data)+1));
-    proto_tree_add_text(pt, *offset+2, 2, "reserved", NULL);
+    proto_tree_add_text(pt, *offset+2, 2, "reserved");
     BUMP (*offset, *data, 4);
     timestamp = pntohl ((unsigned long *)(*data));
     hours = timestamp /(100000 * 60 *60);
@@ -611,7 +611,7 @@ decode_event (int src, const u_char **data, const u_char *dataend, int *offset, 
 	BUMP (*offset, *data, length);
     }
     if (padding) {
-    	proto_tree_add_text (pt, *offset, padding, "padding", NULL);
+    	proto_tree_add_text (pt, *offset, padding, "padding");
 	BUMP (*offset, *data, padding);
     }
 }
@@ -628,7 +628,7 @@ cmd_init (int src, const u_char **data, const u_char *dataend, int *offset, int 
     else
     	ptr = "Initialize if not previously initialized";
     proto_tree_add_text(pt, *offset, 1, "Mode: %s", ptr);
-    proto_tree_add_text(pt, *offset+1, 3, "reserved", NULL);
+    proto_tree_add_text(pt, *offset+1, 3, "reserved");
     BUMP (*offset, *data, 4);
 }
 
@@ -640,8 +640,8 @@ eventnum (int src, const u_char **data, const u_char *dataend, int *offset, int 
     if (event)
     	proto_tree_add_text(pt, *offset, 1, "Event number: %hd", event);
     else
-    	proto_tree_add_text(pt, *offset, 1, "Event numbers: All", NULL);
-    proto_tree_add_text(pt, *offset+1, 3, "padding", NULL);
+    	proto_tree_add_text(pt, *offset, 1, "Event numbers: All");
+    proto_tree_add_text(pt, *offset+1, 3, "padding");
     BUMP (*offset, *data, 4);
 }
 
@@ -689,12 +689,12 @@ cmd_setfilt (int src, const u_char **data, const u_char *dataend, int *offset, i
     proto_tree_add_text(pt, *offset+4, 4, "Length of Pattern & Mask: %d", length);
     BUMP (*offset, *data, 8);
     if (length) {
-    	proto_tree_add_text(pt, *offset, length * 2, "discarded data", NULL);
+    	proto_tree_add_text(pt, *offset, length * 2, "discarded data");
     	BUMP (*offset, *data, length * 2);
     }
     padding = 3 - (length * 2 + 3) % 4;
     if (padding) {
-	proto_tree_add_text(pt, *offset+1, 3, "padding", NULL);
+	proto_tree_add_text(pt, *offset+1, 3, "padding");
 	BUMP (*offset, *data, padding);
     }
 }
@@ -714,7 +714,7 @@ cmd_ioctl (int src, const u_char **data, const u_char *dataend, int *offset, int
     	i = SIZEOF(ioctls) - 1;
     proto_tree_add_text(pt, *offset, 4, "IOCTL: %s", ioctls[i].strptr);
     BUMP (*offset, *data, 4);
-    proto_tree_add_text(pt, *offset, dataend - *data, "Data", NULL);
+    proto_tree_add_text(pt, *offset, dataend - *data, "Data");
     BUMP (*offset, *data, dataend - *data);
 }
 
@@ -730,22 +730,22 @@ cmd_addfilt (int src, const u_char **data, const u_char *dataend, int *offset, i
     char    	active[] = ".... ..1. = The filter is active";
     char    	inactive[] = ".... ..0. = The filter is inactive";
 
-    item = proto_tree_add_text(pt, *offset, 1, "Flags", NULL);
+    item = proto_tree_add_text(pt, *offset, 1, "Flags");
     tree = proto_item_add_subtree (item, ett_gryphon_flags);
     if (**data & FILTER_PASS_FLAG)
     	ptr = pass;
     else
     	ptr = block;
-    proto_tree_add_text(tree, *offset, 1, ptr, NULL);
+    proto_tree_add_text(tree, *offset, 1, ptr);
     if (**data & FILTER_ACTIVE_FLAG)
     	ptr = active;
     else
     	ptr = inactive;
-    proto_tree_add_text(tree, *offset, 1, ptr, NULL);
+    proto_tree_add_text(tree, *offset, 1, ptr);
     BUMP (*offset, *data, 1);
     blocks = **data;
     proto_tree_add_text(pt, *offset, 1, "Number of filter blocks = %d", blocks);
-    proto_tree_add_text(pt, *offset+1, 6, "reserved", NULL);
+    proto_tree_add_text(pt, *offset+1, 6, "reserved");
     BUMP (*offset, *data, 7);
     for (i = 1; i <= blocks; i++) {
 	length = pntohs ((unsigned short *)((*data)+2)) * 2 + 8;
@@ -760,7 +760,7 @@ void
 resp_addfilt (int src, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt)
 {
     proto_tree_add_text(pt, *offset, 1, "Filter handle: %hd", **data);
-    proto_tree_add_text(pt, *offset+1, 3, "reserved", NULL);
+    proto_tree_add_text(pt, *offset+1, 3, "reserved");
     BUMP (*offset, *data, 4);
 }
 
@@ -773,7 +773,7 @@ cmd_modfilt (int src, const u_char **data, const u_char *dataend, int *offset, i
     if (**data)
     	proto_tree_add_text(pt, *offset, 1, "Filter handle: %hd", **data);
     else
-    	proto_tree_add_text(pt, *offset, 1, "Filter handles: all", NULL);
+    	proto_tree_add_text(pt, *offset, 1, "Filter handles: all");
     action = *((*data) + 1);
     for (i = 0; i < SIZEOF(filtacts); i++) {
     	if (filtacts[i].value == action)
@@ -782,7 +782,7 @@ cmd_modfilt (int src, const u_char **data, const u_char *dataend, int *offset, i
     if (i >= SIZEOF(filtacts))
     	i = SIZEOF(filtacts) - 1;
     proto_tree_add_text(pt, *offset+1, 1, "Action: %s filter", filtacts[i].strptr);
-    proto_tree_add_text(pt, *offset+2, 2, "reserved", NULL);
+    proto_tree_add_text(pt, *offset+2, 2, "reserved");
     BUMP (*offset, *data, 4);
 }
 
@@ -798,7 +798,7 @@ resp_filthan (int src, const u_char **data, const u_char *dataend, int *offset, 
     }
     padding = 3 - (handles + 1 + 3) % 4;
     if (padding)
-    	proto_tree_add_text(pt, *offset+1+handles, padding, "padding", NULL);
+    	proto_tree_add_text(pt, *offset+1+handles, padding, "padding");
     BUMP (*offset, *data, 1+handles+padding);
 }
 
@@ -815,7 +815,7 @@ dfiltmode (int src, const u_char **data, const u_char *dataend, int *offset, int
     if (i >= SIZEOF(dmodes))
     	i = SIZEOF(dmodes) - 1;
     proto_tree_add_text(pt, *offset, 1, "Filter mode: %s", dmodes[i].strptr);
-    proto_tree_add_text(pt, *offset+1, 3, "reserved", NULL);
+    proto_tree_add_text(pt, *offset+1, 3, "reserved");
     BUMP (*offset, *data, 4);
 }
 
@@ -832,7 +832,7 @@ filtmode (int src, const u_char **data, const u_char *dataend, int *offset, int 
     if (i >= SIZEOF(modes))
     	i = SIZEOF(modes) - 1;
     proto_tree_add_text(pt, *offset, 1, "Filter mode: %s", modes[i].strptr);
-    proto_tree_add_text(pt, *offset+1, 3, "reserved", NULL);
+    proto_tree_add_text(pt, *offset+1, 3, "reserved");
     BUMP (*offset, *data, 4);
 }
 
@@ -871,7 +871,7 @@ resp_register (int src, const u_char **data, const u_char *dataend, int *offset,
     
     proto_tree_add_text(pt, *offset, 1, "Client ID: %hd", (*data)[0]);
     proto_tree_add_text(pt, *offset+1, 1, "Privileges: %hd", (*data)[1]);
-    proto_tree_add_text(pt, *offset+2, 2, "reserved", NULL);
+    proto_tree_add_text(pt, *offset+2, 2, "reserved");
     BUMP (*offset, *data, 4);
 }
 
@@ -915,7 +915,7 @@ resp_config (int src, const u_char **data, const u_char *dataend, int *offset, i
 
     devices = **data;
     proto_tree_add_text(pt, *offset, 1, "Number of channels: %d", devices);
-    proto_tree_add_text(pt, *offset+1, 15, "reserved", NULL);
+    proto_tree_add_text(pt, *offset+1, 15, "reserved");
     BUMP (*offset, *data, 16);
     for (i = 1; i <= devices; i++) {
 	pi = proto_tree_add_text(pt, *offset, 80, "Channel %d:", i);
@@ -947,7 +947,7 @@ resp_config (int src, const u_char **data, const u_char *dataend, int *offset, i
 	BUMP (*offset, *data, 2);
 
 	proto_tree_add_text(ft, *offset, 1, "Channel ID: %hd", **data);
-	proto_tree_add_text(ft, *offset+1, 5, "reserved", NULL);
+	proto_tree_add_text(ft, *offset+1, 5, "reserved");
 	BUMP (*offset, *data, 6);
     }
 }
@@ -965,12 +965,12 @@ cmd_sched (int src, const u_char **data, const u_char *dataend, int *offset, int
     
     x = pntohl ((unsigned int *)*data);
     if (x == 0xFFFFFFFF)
-    	proto_tree_add_text(pt, *offset, 4, "Number of iterations: infinite", NULL);
+    	proto_tree_add_text(pt, *offset, 4, "Number of iterations: infinite");
     else
     	proto_tree_add_text(pt, *offset, 4, "Number of iterations: %d", x);
     BUMP (*offset, *data, 4);
     x = pntohl ((unsigned int *)*data);
-    item = proto_tree_add_text(pt, *offset, 4, "Flags", NULL);
+    item = proto_tree_add_text(pt, *offset, 4, "Flags");
     tree = proto_item_add_subtree (item, ett_gryphon_flags);
     ptr = x & 1 ? crit : norm;
     proto_tree_add_text(tree, *offset, 4, ptr, NULL);
@@ -990,14 +990,14 @@ cmd_sched (int src, const u_char **data, const u_char *dataend, int *offset, int
 	x = pntohl ((unsigned int *)*data);
 	proto_tree_add_text(tree, *offset, 4, "Transmit period: %d milliseconds", x);
 	BUMP (*offset, *data, 4);
-	proto_tree_add_text(tree, *offset, 2, "reserved flags", NULL);
+	proto_tree_add_text(tree, *offset, 2, "reserved flags");
 	x = *((*data)+2);
 	if (x == 0)
 	    x = def_chan;
 	proto_tree_add_text(tree, *offset+2, 1, "Channel: %d", x);
-	proto_tree_add_text(tree, *offset+3, 1, "reserved", NULL);
+	proto_tree_add_text(tree, *offset+3, 1, "reserved");
 	BUMP (*offset, *data, 4);
-	item1 = proto_tree_add_text(tree, *offset, length, "Message", NULL);
+	item1 = proto_tree_add_text(tree, *offset, length, "Message");
 	tree1 = proto_item_add_subtree (item1, ett_gryphon_cmd_sched_cmd);
    	decode_data (src, data, dataend, offset, msglen, tree1);
 	i++;
@@ -1065,7 +1065,7 @@ cmd_addresp (int src, const u_char **data, const u_char *dataend, int *offset, i
     char    	inactive[] = ".... ..0. = The response is inactive";
 
     actionType = 0;
-    item = proto_tree_add_text(pt, *offset, 1, "Flags", NULL);
+    item = proto_tree_add_text(pt, *offset, 1, "Flags");
     tree = proto_item_add_subtree (item, ett_gryphon_flags);
     if (**data & FILTER_ACTIVE_FLAG)
     	ptr = active;
@@ -1100,19 +1100,19 @@ cmd_addresp (int src, const u_char **data, const u_char *dataend, int *offset, i
     tree = proto_item_add_subtree (item, ett_gryphon_flags);
     if (action & FR_DEACT_AFTER_PER && !(action & FR_DELETE)){
     	proto_tree_add_text(tree, *offset, 1,
-	    	"1.0. .... Deactivate this response after the specified period following a conforming message", NULL);
+	    	"1.0. .... Deactivate this response after the specified period following a conforming message");
     }
     if (action & FR_DEACT_ON_EVENT && !(action & FR_DELETE)){
     	proto_tree_add_text(tree, *offset, 1,
-	    	".10. .... Deactivate this response for a conforming message", NULL);
+	    	".10. .... Deactivate this response for a conforming message");
     }
     if (action & FR_DEACT_AFTER_PER && action & FR_DELETE){
     	proto_tree_add_text(tree, *offset, 1,
-	    	"1.1. .... Delete this response after the specified period following a conforming message", NULL);
+	    	"1.1. .... Delete this response after the specified period following a conforming message");
     }
     if (action & FR_DEACT_ON_EVENT && action & FR_DELETE){
     	proto_tree_add_text(tree, *offset, 1,
-	    	".11. .... Delete this response for a conforming message", NULL);
+	    	".11. .... Delete this response for a conforming message");
     }
     actionValue = pntohs ((unsigned short *)((*data)+2));
     if (actionValue) {
@@ -1126,7 +1126,7 @@ cmd_addresp (int src, const u_char **data, const u_char *dataend, int *offset, i
     	proto_tree_add_text(tree, *offset, 1, ptr, NULL);
     }
     BUMP (*offset, *data, 1);
-    proto_tree_add_text(pt, *offset, 1, "reserved", NULL);
+    proto_tree_add_text(pt, *offset, 1, "reserved");
     BUMP (*offset, *data, 1);
     if (actionValue) {
     	if (actionType == 1) {
@@ -1158,7 +1158,7 @@ resp_addresp (int src, const u_char **data, const u_char *dataend, int *offset, 
 {
     if (*data < dataend) {
 	proto_tree_add_text(pt, *offset, 1, "Response handle: %hd", **data);
-	proto_tree_add_text(pt, *offset+1, 3, "reserved", NULL);
+	proto_tree_add_text(pt, *offset+1, 3, "reserved");
 	BUMP (*offset, *data, 4);
     }
 }
@@ -1175,7 +1175,7 @@ cmd_modresp (int src, const u_char **data, const u_char *dataend, int *offset, i
     else if (dest)
     	proto_tree_add_text(pt, *offset, 1, "Response handles: all on channel %hd", dest);
     else
-    	proto_tree_add_text(pt, *offset, 1, "Response handles: all", NULL);
+    	proto_tree_add_text(pt, *offset, 1, "Response handles: all");
     action = *((*data) + 1);
     for (i = 0; i < SIZEOF(filtacts); i++) {
     	if (filtacts[i].value == action)
@@ -1184,7 +1184,7 @@ cmd_modresp (int src, const u_char **data, const u_char *dataend, int *offset, i
     if (i >= SIZEOF(filtacts))
     	i = SIZEOF(filtacts) - 1;
     proto_tree_add_text(pt, *offset+1, 1, "Action: %s response", filtacts[i].strptr);
-    proto_tree_add_text(pt, *offset+2, 2, "reserved", NULL);
+    proto_tree_add_text(pt, *offset+2, 2, "reserved");
     BUMP (*offset, *data, 4);
 }
 
@@ -1200,7 +1200,7 @@ resp_resphan (int src, const u_char **data, const u_char *dataend, int *offset, 
     }
     padding = 3 - (handles + 1 + 3) % 4;
     if (padding)
-    	proto_tree_add_text(pt, *offset+1+handles, padding, "padding", NULL);
+    	proto_tree_add_text(pt, *offset+1+handles, padding, "padding");
     BUMP (*offset, *data, 1+handles+padding);
 }
 
@@ -1238,15 +1238,15 @@ resp_desc (int src, const u_char **data, const u_char *dataend, int *offset, int
     char    	missing[] = ".... ...0 = The program is not present";
     char    	present[] = ".... ...1 = The program is already present";
     
-    item = proto_tree_add_text(pt, *offset, 1, "Flags", NULL);
+    item = proto_tree_add_text(pt, *offset, 1, "Flags");
     tree = proto_item_add_subtree (item, ett_gryphon_flags);
     if (**data & 1)
     	ptr = present;
     else
     	ptr = missing;
-    proto_tree_add_text(tree, *offset, 1, ptr, NULL);
+    proto_tree_add_text(tree, *offset, 1, ptr);
     proto_tree_add_text(pt, *offset+1, 1, "Handle: %hd", (*data)[1]);
-    proto_tree_add_text(pt, *offset+2, 2, "reserved", NULL);
+    proto_tree_add_text(pt, *offset+2, 2, "reserved");
     BUMP (*offset, *data, 4);
 }
 
@@ -1263,7 +1263,7 @@ cmd_upload (int src, const u_char **data, const u_char *dataend, int *offset, in
     BUMP (*offset, *data, length);
     length = 3 - (length + 3) % 4;
     if (length) {
-	proto_tree_add_text(pt, *offset, length, "padding", NULL);
+	proto_tree_add_text(pt, *offset, length, "padding");
 	BUMP (*offset, *data, length);
     }
 }
@@ -1282,7 +1282,7 @@ void
 cmd_list (int src, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt) {
     
     proto_tree_add_text(pt, *offset, 1, "Block number: %hd", (*data)[0]);
-    proto_tree_add_text(pt, *offset+1, 3, "reserved", NULL);
+    proto_tree_add_text(pt, *offset+1, 3, "reserved");
     BUMP (*offset, *data, 4);
 }
 
@@ -1295,7 +1295,7 @@ resp_list (int src, const u_char **data, const u_char *dataend, int *offset, int
     
     count = (*data)[0];
     proto_tree_add_text(pt, *offset, 1, "Number of programs in this response: %d", count);
-    proto_tree_add_text(pt, *offset+1, 1, "reserved", NULL);
+    proto_tree_add_text(pt, *offset+1, 1, "reserved");
     BUMP (*offset, *data, 2);
     proto_tree_add_text(pt, *offset, 2, "Number of remaining programs: %d", pntohs ((unsigned short *)(*data)));
     BUMP (*offset, *data, 2);
@@ -1326,7 +1326,7 @@ cmd_start (int src, const u_char **data, const u_char *dataend, int *offset, int
     BUMP (*offset, *data, length);
     length = 3 - (length + 3) % 4;
     if (length) {
-	proto_tree_add_text(pt, *offset, length, "padding", NULL);
+	proto_tree_add_text(pt, *offset, length, "padding");
 	BUMP (*offset, *data, length);
     }
 }
@@ -1335,7 +1335,7 @@ void
 resp_start (int src, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt) {
     
     proto_tree_add_text(pt, *offset, 1, "Channel (Client) number: %hd", (*data)[0]);
-    proto_tree_add_text(pt, *offset+1, 3, "reserved", NULL);
+    proto_tree_add_text(pt, *offset+1, 3, "reserved");
     BUMP (*offset, *data, 4);
 }
 
@@ -1357,7 +1357,7 @@ resp_status (int src, const u_char **data, const u_char *dataend, int *offset, i
     }
     length = 3 - (copies + 1 + 3) % 4;
     if (length) {
-	proto_tree_add_text(pt, *offset, length, "padding", NULL);
+	proto_tree_add_text(pt, *offset, length, "padding");
 	BUMP (*offset, *data, length);
     }
 }
@@ -1370,7 +1370,7 @@ cmd_options (int src, const u_char **data, const u_char *dataend, int *offset, i
     unsigned char   *string, *string1;
     
     item = proto_tree_add_text(pt, *offset, 1, "Handle: %hd", **data);
-    item = proto_tree_add_text(pt, *offset+1, 3, "reserved", NULL);
+    item = proto_tree_add_text(pt, *offset+1, 3, "reserved");
     BUMP (*offset, *data, 4);
     for (i = 1; *data <= dataend; i++) {
     	size = (*data)[1] + 2;
@@ -1421,7 +1421,7 @@ cmd_options (int src, const u_char **data, const u_char *dataend, int *offset, i
 	proto_tree_add_text(tree, *offset, 1, "%s", string);
 	proto_tree_add_text(tree, *offset+2, option_length, "%s", string1);
 	if (padding)
-	    proto_tree_add_text(tree, *offset+option_length+2, padding, "padding", NULL);
+	    proto_tree_add_text(tree, *offset+option_length+2, padding, "padding");
     	BUMP (*offset, *data, size + padding);
     }
 }
@@ -1430,7 +1430,7 @@ void
 speed (int src, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt) {
     
     proto_tree_add_text(pt, *offset, 1, "Baud rate index: %hd", (*data)[0]);
-    proto_tree_add_text(pt, *offset+1, 3, "reserved", NULL);
+    proto_tree_add_text(pt, *offset+1, 3, "reserved");
     BUMP (*offset, *data, 4);
 }
 
@@ -1458,12 +1458,12 @@ filter_block (int src, const u_char **data, const u_char *dataend, int *offset, 
     if (i >= SIZEOF(operators))
     	i = SIZEOF(operators) - 1;
     proto_tree_add_text(pt, *offset+5, 1, "Type of comparison: %s", operators[i].strptr);
-    proto_tree_add_text(pt, *offset+6, 2, "reserved" ,NULL);
+    proto_tree_add_text(pt, *offset+6, 2, "reserved");
     BUMP (*offset, *data, 8);
     
     if (operator == BIT_FIELD_CHECK) {
-    	proto_tree_add_text(pt, *offset, length, "Pattern" ,NULL);
-    	proto_tree_add_text(pt, *offset+length, length, "Mask" ,NULL);
+    	proto_tree_add_text(pt, *offset, length, "Pattern");
+    	proto_tree_add_text(pt, *offset+length, length, "Mask");
     } else {
     	switch (length) {
 	case 1:
@@ -1476,13 +1476,13 @@ filter_block (int src, const u_char **data, const u_char *dataend, int *offset, 
    	    proto_tree_add_text(pt, *offset, 4, "Value: %dl", pntohl ((unsigned long *)(*data)));
 	    break;
 	default:
-   	    proto_tree_add_text(pt, *offset, length, "Value", NULL);
+   	    proto_tree_add_text(pt, *offset, length, "Value");
 	}
     }
     BUMP (*offset, *data, length * 2);
     padding = 3 - (length * 2 + 3) % 4;
     if (padding) {
-    	proto_tree_add_text(pt, *offset, padding, "padding", NULL);
+    	proto_tree_add_text(pt, *offset, padding, "padding");
 	BUMP (*offset, *data, padding);
     }
 }

@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.27 2000/02/15 21:02:08 gram Exp $
+ * $Id: packet-fddi.c,v 1.28 2000/03/12 04:47:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -294,7 +294,7 @@ void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree,
   offset = FDDI_HEADER_SIZE;
 
   if (tree) {
-	ti = proto_tree_add_item_format(tree, proto_fddi, 0, offset, NULL,
+	ti = proto_tree_add_protocol_format(tree, proto_fddi, 0, offset,
 		"Fiber Distributed Data Interface, %s", fc_str);
 
       swap_mac_addr(dst_swapped, (u_char*)&pd[FDDI_P_DHOST]);

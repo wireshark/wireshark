@@ -2,7 +2,7 @@
  * Routines for use by various SDLC-derived protocols, such as HDLC
  * and its derivatives LAPB, IEEE 802.2 LLC, etc..
  *
- * $Id: xdlc.c,v 1.11 2000/01/07 22:05:43 guy Exp $
+ * $Id: xdlc.c,v 1.12 2000/03/12 04:47:55 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -249,7 +249,7 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 	    col_add_str(fd, COL_INFO, info);
 	if (xdlc_tree) {
 	    if (is_extended) {
-		tc = proto_tree_add_item_format(xdlc_tree, hf_xdlc_control,
+		tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control,
 			offset, 2,
 			frame_type,
 			"Control field: %s (0x%04X)", info, control);
@@ -270,7 +270,7 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 		    decode_boolean_bitfield(control, 0x03, 2*8,
 			"Supervisory frame", NULL));
 	    } else {
-		tc = proto_tree_add_item_format(xdlc_tree, hf_xdlc_control,
+		tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control,
 			offset, 1,
 			frame_type,
 			"Control field: %s (0x%02X)", info, control);
@@ -323,7 +323,7 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 	if (check_col(fd, COL_INFO))
 	    col_add_str(fd, COL_INFO, info);
 	if (xdlc_tree) {
-	    tc = proto_tree_add_item_format(xdlc_tree, hf_xdlc_control,
+	    tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control,
 			offset, 1,
 			frame_type,
 			"Control field: %s (0x%02X)", info, control);
@@ -366,7 +366,7 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 	if (check_col(fd, COL_INFO))
 	    col_add_str(fd, COL_INFO, info);
 	if (xdlc_tree) {
-	    tc = proto_tree_add_item_format(xdlc_tree, hf_xdlc_control,
+	    tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control,
 			offset, (is_extended) ? 2 : 1,
 			frame_type,
 			(is_extended) ? "Control field: %s (0x%04X)"

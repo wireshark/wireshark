@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.22 2000/03/07 05:22:51 guy Exp $
+ * $Id: packet-nfs.c,v 1.23 2000/03/12 04:47:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -174,7 +174,7 @@ guint32* status)
 	if (tree) {
 		/* this gives the right NFSv2 number<->message relation */
 		/* and makes it searchable via "nfs.status" */
-		proto_tree_add_item_format(tree, hf_nfs_nfsstat3,
+		proto_tree_add_uint_format(tree, hf_nfs_nfsstat3,
 			offset+0, 4, stat, "Status: %s (%u)", 
 			val_to_str(stat,names_nfs_stat,"%u"), stat);
 	}

@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.11 2000/01/07 22:05:39 guy Exp $
+ * $Id: packet-sna.c,v 1.12 2000/03/12 04:47:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -491,9 +491,9 @@ dissect_fid2 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	/* Addresses in FID 2 are FT_UINT8 */
 	proto_tree_add_text(tree, offset+1, 1, "Reserved");
-	proto_tree_add_item_format(tree, hf_sna_th_daf ,offset+2, 1, daf,
+	proto_tree_add_uint_format(tree, hf_sna_th_daf ,offset+2, 1, daf,
 			"Destination Address Field: 0x%02x", daf);
-	proto_tree_add_item_format(tree, hf_sna_th_oaf ,offset+3, 1, oaf,
+	proto_tree_add_uint_format(tree, hf_sna_th_oaf ,offset+3, 1, oaf,
 			"Origin Address Field: 0x%02x", oaf);
 	proto_tree_add_item(tree, hf_sna_th_snf ,offset+4, 2, snf);
 

@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.23 2000/03/07 05:54:52 guy Exp $
+ * $Id: proto.h,v 1.24 2000/03/12 04:47:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,7 +94,7 @@ typedef struct header_field_info {
 	char				*name;
 	char				*abbrev;
 	enum ftenum			type;
-	int				display;	/* for integers only, so far. Base and Endianness */
+	int				display;	/* for integers only, so far. Base */
 	void				*strings;	/* val_string or true_false_string */
 	guint32				bitmask;
 	char				*blurb;		/* Brief description of field. */
@@ -184,12 +184,7 @@ proto_register_field_array(int parent, hf_register_info *hf, int num_records);
 void
 proto_register_subtree_array(gint **indices, int num_indices);
 
-/* We have to make this prototype accessible for plugin_api.c, but we
-   don't want anybody except plugin_api.c to use it directly */
-proto_item *
-_proto_tree_add_item_value(proto_tree *tree, int hfindex, gint start,
-	gint length, int include_format, int visible, va_list ap);
-
+/* Add item's value to proto_tree, using label registered to that field */
 proto_item *
 proto_tree_add_item(proto_tree *tree, int hfindex, gint start,
 	gint length, ...);
@@ -198,15 +193,132 @@ proto_item *
 proto_tree_add_item_hidden(proto_tree *tree, int hfindex, gint start,
 	gint length, ...);
 
+#if __GNUC__ == 2
 proto_item *
-proto_tree_add_item_format(proto_tree *tree, int hfindex, gint start,
-	gint length, ...);
+proto_tree_add_protocol_format(proto_tree *tree, int hfindex, gint start,
+	gint length, const char *format, ...)
+	__attribute__((format (printf, 5, 6)));
+#else
+proto_item *
+proto_tree_add_protocol_format(proto_tree *tree, int hfindex, gint start,
+	gint length, const char *format, ...);
+#endif
+
+
+#if __GNUC__ == 2
+proto_item *
+proto_tree_add_bytes_format(proto_tree *tree, int hfindex, gint start,
+	gint length, guint8* start_ptr, const char *format, ...)
+	__attribute__((format (printf, 6, 7)));
+#else
+proto_item *
+proto_tree_add_bytes_format(proto_tree *tree, int hfindex, gint start,
+	gint length, guint8* start_ptr, const char *format, ...);
+#endif
+
+#if __GNUC__ == 2
+proto_item *
+proto_tree_add_time_format(proto_tree *tree, int hfindex, gint start,
+	gint length, struct timeval* value_ptr, const char *format, ...)
+	__attribute__((format (printf, 6, 7)));
+#else
+proto_item *
+proto_tree_add_time_format(proto_tree *tree, int hfindex, gint start,
+	gint length, struct timeval* value_ptr, const char *format, ...);
+#endif
+
+#if __GNUC__ == 2
+proto_item *
+proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, gint start,
+	gint length, guint32 value, const char *format, ...)
+	__attribute__((format (printf, 6, 7)));
+#else
+proto_item *
+proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, gint start,
+	gint length, guint32 value, const char *format, ...);
+#endif
+
+#if __GNUC__ == 2
+proto_item *
+proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, gint start,
+	gint length, guint32 value, const char *format, ...)
+	__attribute__((format (printf, 6, 7)));
+#else
+proto_item *
+proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, gint start,
+	gint length, guint32 value, const char *format, ...);
+#endif
+
+#if __GNUC__ == 2
+proto_item *
+proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, gint start,
+	gint length, guint8* value_ptr, const char *format, ...)
+	__attribute__((format (printf, 6, 7)));
+#else
+proto_item *
+proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, gint start,
+	gint length, guint8* value_ptr, const char *format, ...);
+#endif
+
+#if __GNUC__ == 2
+proto_item *
+proto_tree_add_ether_format(proto_tree *tree, int hfindex, gint start,
+	gint length, guint8* value, const char *format, ...)
+	__attribute__((format (printf, 6, 7)));
+#else
+proto_item *
+proto_tree_add_ether_format(proto_tree *tree, int hfindex, gint start,
+	gint length, guint8* value, const char *format, ...);
+#endif
+
+#if __GNUC__ == 2
+proto_item *
+proto_tree_add_string_format(proto_tree *tree, int hfindex, gint start,
+	gint length, char* value, const char *format, ...)
+	__attribute__((format (printf, 6, 7)));
+#else
+proto_item *
+proto_tree_add_string_format(proto_tree *tree, int hfindex, gint start,
+	gint length, char* value, const char *format, ...);
+#endif
+
+#if __GNUC__ == 2
+proto_item *
+proto_tree_add_boolean_format(proto_tree *tree, int hfindex, gint start,
+	gint length, guint32 value, const char *format, ...)
+	__attribute__((format (printf, 6, 7)));
+#else
+proto_item *
+proto_tree_add_boolean_format(proto_tree *tree, int hfindex, gint start,
+	gint length, guint32 value, const char *format, ...);
+#endif
+
+#if __GNUC__ == 2
+proto_item *
+proto_tree_add_uint_format(proto_tree *tree, int hfindex, gint start,
+	gint length, guint32 value, const char *format, ...)
+	__attribute__((format (printf, 6, 7)));
+#else
+proto_item *
+proto_tree_add_uint_format(proto_tree *tree, int hfindex, gint start,
+	gint length, guint32 value, const char *format, ...);
+#endif
+
+
+#if __GNUC__ == 2
+proto_item *
+proto_tree_add_text(proto_tree *tree, gint start, gint length, const char *,
+	...) __attribute__((format (printf, 4, 5)));
+#else
+proto_item *
+proto_tree_add_text(proto_tree *tree, gint start, gint length, const char *,
+	...);
+#endif
+
 
 proto_item *
-proto_tree_add_notext(proto_tree *tree, gint start, gint length, ...);
+proto_tree_add_notext(proto_tree *tree, gint start, gint length);
 
-proto_item *
-proto_tree_add_text(proto_tree *tree, gint start, gint length, ...);
 
 void
 proto_item_fill_label(field_info *fi, gchar *label_str);

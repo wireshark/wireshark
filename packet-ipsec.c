@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.11 2000/02/15 21:02:19 gram Exp $
+ * $Id: packet-ipsec.c,v 1.12 2000/03/12 04:47:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -224,7 +224,7 @@ dissect_ipcomp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		offset + offsetof(struct ipcomp, comp_cpi), 2,
 		ntohs(ipcomp.comp_cpi));
 	} else {
-	    proto_tree_add_item_format(ipcomp_tree, hf_ipcomp_cpi, 
+	    proto_tree_add_uint_format(ipcomp_tree, hf_ipcomp_cpi, 
 		offset + offsetof(struct ipcomp, comp_cpi), 2,
 		ntohs(ipcomp.comp_cpi),
 		"CPI: %s (0x%04x)",

@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-x25.c,v 1.21 2000/02/22 07:42:49 guy Exp $
+ * $Id: packet-x25.c,v 1.22 2000/03/12 04:47:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1387,8 +1387,8 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (check_col(fd, COL_INFO))
 	    col_add_str(fd, COL_INFO, "Invalid/short X.25 packet");
 	if (tree)
-	    proto_tree_add_item_format(tree, (modulo == 8 ? proto_x25 : proto_ex25),
-			    localoffset, END_OF_FRAME, NULL,
+	    proto_tree_add_protocol_format(tree, (modulo == 8 ? proto_x25 : proto_ex25),
+			    localoffset, END_OF_FRAME,
 			    "Invalid/short X.25 packet");
 	return;
     }
@@ -1416,7 +1416,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (x25_tree) {
 	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn,
 		    localoffset, 2, pd[localoffset]*256+pd[localoffset+1]);
-	    proto_tree_add_item_format(x25_tree,
+	    proto_tree_add_uint_format(x25_tree,
 		    (modulo == 8) ? hf_x25_type : hf_ex25_type,
 		    localoffset+2, 1, X25_CALL_REQUEST,
 		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Incoming call"
@@ -1528,7 +1528,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (x25_tree) {
 	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn,
 		    localoffset, 2, pd[localoffset]*256+pd[localoffset+1]);
-	    proto_tree_add_item_format(x25_tree,
+	    proto_tree_add_uint_format(x25_tree,
 		    (modulo == 8) ? hf_x25_type : hf_ex25_type,
 		    localoffset+2, 1, X25_CALL_ACCEPTED,
 		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Call connected"
@@ -1560,7 +1560,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (x25_tree) {
 	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn,
 		    localoffset, 2, pd[localoffset]*256+pd[localoffset+1]);
-	    proto_tree_add_item_format(x25_tree,
+	    proto_tree_add_uint_format(x25_tree,
 		    (modulo == 8) ? hf_x25_type : hf_ex25_type,
 		    localoffset+2, 1, X25_CLEAR_REQUEST,
 		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Clear indication"
@@ -1639,7 +1639,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (x25_tree) {
 	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn,
 		    localoffset, 2, pd[localoffset]*256+pd[localoffset+1]);
-	    proto_tree_add_item_format(x25_tree,
+	    proto_tree_add_uint_format(x25_tree,
 		    (modulo == 8) ? hf_x25_type : hf_ex25_type, localoffset+2, 1,
 		    X25_RESET_REQUEST,
 		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Reset indication"
@@ -1673,7 +1673,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		    (int)pd[localoffset+4]);
 	}
 	if (x25_tree) {
-	    proto_tree_add_item_format(x25_tree,
+	    proto_tree_add_uint_format(x25_tree,
 		    (modulo == 8) ? hf_x25_type : hf_ex25_type, localoffset+2, 1,
 		    X25_RESTART_REQUEST,
 		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Restart indication"

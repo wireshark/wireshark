@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.9 2000/02/15 21:02:49 gram Exp $
+ * $Id: packet-pim.c,v 1.10 2000/03/12 04:47:47 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -223,7 +223,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	proto_tree_add_item(pim_tree, hf_pim_version, offset, 1,
 	    PIM_VER(pim.pim_typever)); 
-	proto_tree_add_item_format(pim_tree, hf_pim_type, offset, 1,
+	proto_tree_add_uint_format(pim_tree, hf_pim_type, offset, 1,
 	    PIM_TYPE(pim.pim_typever),
 	    "Type: %s (%u)", typestr, PIM_TYPE(pim.pim_typever)); 
 

@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.16 1999/12/10 00:45:15 nneul Exp $
+ * $Id: packet-aarp.c,v 1.17 2000/03/12 04:47:33 gram Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -191,13 +191,13 @@ dissect_aarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   if (tree) {
     if ((op_str = match_strval(ar_op, op_vals)))
-      ti = proto_tree_add_item_format(tree, proto_aarp, offset,
+      ti = proto_tree_add_protocol_format(tree, proto_aarp, offset,
 				      MIN_AARP_HEADER_SIZE + 2*ar_hln + 
-				      2*ar_pln, NULL, "AppleTalk Address Resolution Protocol (%s)", op_str);
+				      2*ar_pln, "AppleTalk Address Resolution Protocol (%s)", op_str);
     else
-      ti = proto_tree_add_item_format(tree, proto_aarp, offset,
+      ti = proto_tree_add_protocol_format(tree, proto_aarp, offset,
 				      MIN_AARP_HEADER_SIZE + 2*ar_hln + 
-				      2*ar_pln, NULL,
+				      2*ar_pln,
 				      "AppleTalk Address Resolution Protocol (opcode 0x%04x)", ar_op);
     aarp_tree = proto_item_add_subtree(ti, ett_aarp);
     proto_tree_add_item(aarp_tree, hf_aarp_hard_type, offset + AR_HRD, 2,
@@ -210,16 +210,16 @@ dissect_aarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			       ar_pln);
     proto_tree_add_item(aarp_tree, hf_aarp_opcode, offset + AR_OP, 2,
 			       ar_op);
-    proto_tree_add_item_format(aarp_tree, hf_aarp_src_ether, sha_offset, ar_hln,
+    proto_tree_add_bytes_format(aarp_tree, hf_aarp_src_ether, sha_offset, ar_hln,
 			       &pd[sha_offset],
 			       "Sender hardware address: %s", sha_str);
-    proto_tree_add_item_format(aarp_tree, hf_aarp_src_id, spa_offset, ar_pln,
+    proto_tree_add_bytes_format(aarp_tree, hf_aarp_src_id, spa_offset, ar_pln,
 			       &pd[spa_offset],
 			       "Sender ID: %s", spa_str);
-    proto_tree_add_item_format(aarp_tree, hf_aarp_dst_ether, tha_offset, ar_hln,
+    proto_tree_add_bytes_format(aarp_tree, hf_aarp_dst_ether, tha_offset, ar_hln,
 			       &pd[tha_offset],
 			       "Target hardware address: %s", tha_str);
-    proto_tree_add_item_format(aarp_tree, hf_aarp_dst_id, tpa_offset, ar_pln,
+    proto_tree_add_bytes_format(aarp_tree, hf_aarp_dst_id, tpa_offset, ar_pln,
 			       &pd[tpa_offset],
 			       "Target ID: %s", tpa_str);
   }

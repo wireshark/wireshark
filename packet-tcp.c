@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.59 2000/03/12 04:26:35 guy Exp $
+ * $Id: packet-tcp.c,v 1.60 2000/03/12 04:47:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -452,20 +452,20 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
   
   if (tree) {
-    ti = proto_tree_add_item_format(tree, proto_tcp, offset, hlen, NULL, "Transmission Control Protocol, Src Port: %s (%u), Dst Port: %s (%u), Seq: %u, Ack: %u", get_tcp_port(th.th_sport), th.th_sport, get_tcp_port(th.th_dport), th.th_dport, th.th_seq, th.th_ack);
+    ti = proto_tree_add_protocol_format(tree, proto_tcp, offset, hlen, "Transmission Control Protocol, Src Port: %s (%u), Dst Port: %s (%u), Seq: %u, Ack: %u", get_tcp_port(th.th_sport), th.th_sport, get_tcp_port(th.th_dport), th.th_dport, th.th_seq, th.th_ack);
     tcp_tree = proto_item_add_subtree(ti, ett_tcp);
-    proto_tree_add_item_format(tcp_tree, hf_tcp_srcport, offset, 2, th.th_sport,
+    proto_tree_add_uint_format(tcp_tree, hf_tcp_srcport, offset, 2, th.th_sport,
 	"Source port: %s (%u)", get_tcp_port(th.th_sport), th.th_sport);
-    proto_tree_add_item_format(tcp_tree, hf_tcp_dstport, offset + 2, 2, th.th_dport,
+    proto_tree_add_uint_format(tcp_tree, hf_tcp_dstport, offset + 2, 2, th.th_dport,
 	"Destination port: %s (%u)", get_tcp_port(th.th_dport), th.th_dport);
     proto_tree_add_item_hidden(tcp_tree, hf_tcp_port, offset, 2, th.th_sport);
     proto_tree_add_item_hidden(tcp_tree, hf_tcp_port, offset + 2, 2, th.th_dport);
     proto_tree_add_item(tcp_tree, hf_tcp_seq, offset + 4, 4, th.th_seq);
     if (th.th_flags & TH_ACK)
       proto_tree_add_item(tcp_tree, hf_tcp_ack, offset + 8, 4, th.th_ack);
-    proto_tree_add_item_format(tcp_tree, hf_tcp_hdr_len, offset + 12, 1, hlen,
+    proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, offset + 12, 1, hlen,
 	"Header length: %u bytes", hlen);
-    tf = proto_tree_add_item_format(tcp_tree, hf_tcp_flags, offset + 13, 1,
+    tf = proto_tree_add_uint_format(tcp_tree, hf_tcp_flags, offset + 13, 1,
 	th.th_flags, "Flags: 0x%04x (%s)", th.th_flags, flags);
     field_tree = proto_item_add_subtree(tf, ett_tcp_flags);
     proto_tree_add_item(field_tree, hf_tcp_flags_urg, offset + 13, 1, th.th_flags);

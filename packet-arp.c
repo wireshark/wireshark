@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.25 1999/12/07 15:38:20 nneul Exp $
+ * $Id: packet-arp.c,v 1.26 2000/03/12 04:47:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -496,13 +496,11 @@ dissect_atmarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
   if (tree) {
     if ((op_str = match_strval(ar_op, atmop_vals)))
-      ti = proto_tree_add_item_format(tree, proto_arp, offset, tot_len,
-				      NULL, 
+      ti = proto_tree_add_protocol_format(tree, proto_arp, offset, tot_len,
 					"ATM Address Resolution Protocol (%s)", 
 					op_str);
     else
-      ti = proto_tree_add_item_format(tree, proto_arp, offset, tot_len,
-				      NULL,
+      ti = proto_tree_add_protocol_format(tree, proto_arp, offset, tot_len,
 				      "ATM Address Resolution Protocol (opcode 0x%04x)", ar_op);
     arp_tree = proto_item_add_subtree(ti, ett_arp);
     proto_tree_add_item(arp_tree, hf_arp_hard_type, offset + ATM_AR_HRD, 2,
@@ -527,24 +525,24 @@ dissect_atmarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
       dissect_atm_number(pd, sha_offset, ar_shtl, hf_atmarp_src_atm_num_e164,
 			       hf_atmarp_src_atm_num_nsap, arp_tree);
     if (ar_ssl != 0)
-      proto_tree_add_item_format(arp_tree, hf_atmarp_src_atm_subaddr, ssa_offset,
+      proto_tree_add_bytes_format(arp_tree, hf_atmarp_src_atm_subaddr, ssa_offset,
 			       ar_ssl,
 			       &pd[ssa_offset],
 			       "Sender ATM subaddress: %s", ssa_str);
     if (ar_spln != 0)
-      proto_tree_add_item_format(arp_tree, hf_arp_src_proto, spa_offset, ar_spln,
+      proto_tree_add_bytes_format(arp_tree, hf_arp_src_proto, spa_offset, ar_spln,
 			       &pd[spa_offset],
 			       "Sender protocol address: %s", spa_str);
     if (ar_thl != 0)
       dissect_atm_number(pd, tha_offset, ar_thtl, hf_atmarp_dst_atm_num_e164,
 			       hf_atmarp_dst_atm_num_nsap, arp_tree);
     if (ar_tsl != 0)
-      proto_tree_add_item_format(arp_tree, hf_atmarp_dst_atm_subaddr, tsa_offset,
+      proto_tree_add_bytes_format(arp_tree, hf_atmarp_dst_atm_subaddr, tsa_offset,
 			       ar_tsl,
 			       &pd[tsa_offset],
 			       "Target ATM subaddress: %s", tsa_str);
     if (ar_tpln != 0)
-      proto_tree_add_item_format(arp_tree, hf_arp_dst_proto, tpa_offset, ar_tpln,
+      proto_tree_add_bytes_format(arp_tree, hf_arp_dst_proto, tpa_offset, ar_tpln,
 			       &pd[tpa_offset],
 			       "Target protocol address: %s", tpa_str);
   }
@@ -641,12 +639,10 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
   if (tree) {
     if ((op_str = match_strval(ar_op, op_vals)))
-      ti = proto_tree_add_item_format(tree, proto_arp, offset, tot_len,
-				      NULL, 
+      ti = proto_tree_add_protocol_format(tree, proto_arp, offset, tot_len,
 					"Address Resolution Protocol (%s)", op_str);
     else
-      ti = proto_tree_add_item_format(tree, proto_arp, offset, tot_len,
-				      NULL,
+      ti = proto_tree_add_protocol_format(tree, proto_arp, offset, tot_len,
 				      "Address Resolution Protocol (opcode 0x%04x)", ar_op);
     arp_tree = proto_item_add_subtree(ti, ett_arp);
     proto_tree_add_item(arp_tree, hf_arp_hard_type, offset + AR_HRD, 2,
@@ -660,19 +656,19 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     proto_tree_add_item(arp_tree, hf_arp_opcode, offset + AR_OP,  2,
 			       ar_op);
     if (ar_hln != 0)
-      proto_tree_add_item_format(arp_tree, hf_arp_src_ether, sha_offset, ar_hln,
+      proto_tree_add_bytes_format(arp_tree, hf_arp_src_ether, sha_offset, ar_hln,
 			       &pd[sha_offset],
 			       "Sender hardware address: %s", sha_str);
     if (ar_pln != 0)
-      proto_tree_add_item_format(arp_tree, hf_arp_src_proto, spa_offset, ar_pln,
+      proto_tree_add_bytes_format(arp_tree, hf_arp_src_proto, spa_offset, ar_pln,
 			       &pd[spa_offset],
 			       "Sender protocol address: %s", spa_str);
     if (ar_hln != 0)
-      proto_tree_add_item_format(arp_tree, hf_arp_dst_ether, tha_offset, ar_hln,
+      proto_tree_add_bytes_format(arp_tree, hf_arp_dst_ether, tha_offset, ar_hln,
 			       &pd[tha_offset],
 			       "Target hardware address: %s", tha_str);
     if (ar_pln != 0)
-      proto_tree_add_item_format(arp_tree, hf_arp_dst_proto, tpa_offset, ar_pln,
+      proto_tree_add_bytes_format(arp_tree, hf_arp_dst_proto, tpa_offset, ar_pln,
 			       &pd[tpa_offset],
 			       "Target protocol address: %s", tpa_str);
   }

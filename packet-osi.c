@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.22 2000/03/02 07:27:05 guy Exp $
+ * $Id: packet-osi.c,v 1.23 2000/03/12 04:47:45 gram Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -1499,7 +1499,7 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
     if (tree) {
       ti = proto_tree_add_item(tree, proto_clnp, offset, 1, NULL);
       clnp_tree = proto_item_add_subtree(ti, ett_clnp);
-      proto_tree_add_item_format(clnp_tree, hf_clnp_id, offset, 1, 
+      proto_tree_add_uint_format(clnp_tree, hf_clnp_id, offset, 1, 
 				 clnp.cnf_proto_id,
 				 "Inactive subset");
     } 
@@ -1529,11 +1529,11 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
 			clnp.cnf_hdr_len); 
     proto_tree_add_item(clnp_tree, hf_clnp_version, offset +  2, 1, 
 			clnp.cnf_vers);
-    proto_tree_add_item_format(clnp_tree, hf_clnp_ttl, offset +  3, 1, 
+    proto_tree_add_uint_format(clnp_tree, hf_clnp_ttl, offset +  3, 1, 
 			       clnp.cnf_ttl,
 			       "TTL: %d (%d secs)", 
 			       clnp.cnf_ttl, clnp.cnf_ttl / 2);
-    proto_tree_add_item_format(clnp_tree, hf_clnp_type, offset +  4, 1, 
+    proto_tree_add_uint_format(clnp_tree, hf_clnp_type, offset +  4, 1, 
 			       clnp.cnf_type,
 			       "Type code: 0x%02x (%s%s%s%s)",
 			       clnp.cnf_type,
@@ -1544,7 +1544,7 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
 			       "DT" : "ER");
     proto_tree_add_item(clnp_tree, hf_clnp_pdu_length, offset +  5, 2, 
 			EXTRACT_SHORT(&clnp.cnf_seglen_msb));
-    proto_tree_add_item_format(clnp_tree, hf_clnp_checksum, offset +  7, 2,
+    proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, offset +  7, 2,
 			       EXTRACT_SHORT(&clnp.cnf_cksum_msb),
 			       "Checksum: 0x%04x",
 			       EXTRACT_SHORT(&clnp.cnf_cksum_msb));
@@ -1567,13 +1567,13 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
   if (tree) {
     proto_tree_add_item(clnp_tree, hf_clnp_dest_length, offset, 1, 
 			dst_len);
-    proto_tree_add_item_format(clnp_tree, hf_clnp_dest, offset + 1 , dst_len, 
+    proto_tree_add_bytes_format(clnp_tree, hf_clnp_dest, offset + 1 , dst_len, 
 			       &pd[offset + 1],
 			       "Destination address: %s", 
 			       print_nsap(&pd[offset + 1], dst_len));
     proto_tree_add_item(clnp_tree, hf_clnp_src_length, 
 			offset + 1 + dst_len, 1, src_len);
-    proto_tree_add_item_format(clnp_tree, hf_clnp_src, 
+    proto_tree_add_bytes_format(clnp_tree, hf_clnp_src, 
 			       offset + dst_len + 2, src_len,
 			       &pd[offset + dst_len + 2],
 			       "Source address: %s", 

@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.30 1999/12/09 17:06:37 nneul Exp $
+ * $Id: packet-atalk.c,v 1.31 2000/03/12 04:47:35 gram Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -313,7 +313,7 @@ dissect_nbp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     ti = proto_tree_add_item(tree, proto_nbp, offset, END_OF_FRAME, NULL);
     nbp_tree = proto_item_add_subtree(ti, ett_nbp);
 
-    info_item = proto_tree_add_item_format(nbp_tree, hf_nbp_info, offset, 1,
+    info_item = proto_tree_add_uint_format(nbp_tree, hf_nbp_info, offset, 1,
 		pd[offset], 
 		"Info: 0x%01X  Operation: %s  Count: %d", pd[offset],
 		val_to_str(op, nbp_op_vals, "unknown"),

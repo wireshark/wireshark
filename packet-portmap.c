@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.12 2000/01/22 05:49:06 guy Exp $
+ * $Id: packet-portmap.c,v 1.13 2000/03/12 04:47:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,14 +74,14 @@ int dissect_getport_call(const u_char *pd, int offset, frame_data *fd,
 	if ( tree )
 	{
 		prog = pntohl(&pd[offset+0]);
-		proto_tree_add_item_format(tree, hf_portmap_prog,
+		proto_tree_add_uint_format(tree, hf_portmap_prog,
 			offset, 4, prog, "Program: %s (%u)",
 			rpc_prog_name(prog), prog);
 		proto_tree_add_item(tree, hf_portmap_version,
 			offset+4, 4, pntohl(&pd[offset+4]));
 
 		proto = pntohl(&pd[offset+8]);
-		proto_tree_add_item_format(tree, hf_portmap_proto,
+		proto_tree_add_uint_format(tree, hf_portmap_proto,
 			offset+8, 4, proto, "Proto: %s (%u)", ipprotostr(proto), proto);
 
 		proto_tree_add_item(tree, hf_portmap_port,
@@ -114,14 +114,14 @@ int dissect_set_call(const u_char *pd, int offset, frame_data *fd,
 	if ( tree )
 	{
 		prog = pntohl(&pd[offset+0]);
-		proto_tree_add_item_format(tree, hf_portmap_prog,
+		proto_tree_add_uint_format(tree, hf_portmap_prog,
 			offset, 4, prog, "Program: %s (%d)",
 			rpc_prog_name(prog), prog);
 		proto_tree_add_item(tree, hf_portmap_version,
 			offset+4, 4, pntohl(&pd[offset+4]));
 
 		proto = pntohl(&pd[offset+8]);
-		proto_tree_add_item_format(tree, hf_portmap_proto,
+		proto_tree_add_uint_format(tree, hf_portmap_proto,
 			offset+8, 4, proto, "Proto: %s (%d)", ipprotostr(proto), proto);
 
 		proto_tree_add_item(tree, hf_portmap_port,
@@ -142,7 +142,7 @@ int dissect_unset_call(const u_char *pd, int offset, frame_data *fd,
 	if ( tree )
 	{
 		prog = pntohl(&pd[offset+0]);
-		proto_tree_add_item_format(tree, hf_portmap_prog,
+		proto_tree_add_uint_format(tree, hf_portmap_prog,
 			offset, 4, prog, "Program: %s (%d)",
 			rpc_prog_name(prog), prog);
 		proto_tree_add_item(tree, hf_portmap_version,
@@ -206,12 +206,12 @@ int dissect_dump_reply(const u_char *pd, int offset, frame_data *fd,
 					rpc_prog_name(prog), prog, version);
 				subtree = proto_item_add_subtree(ti, ett_portmap_entry);
 
-				proto_tree_add_item_format(subtree, hf_portmap_prog,
+				proto_tree_add_uint_format(subtree, hf_portmap_prog,
 					offset+0, 4, prog,
 					"Program: %s (%u)", rpc_prog_name(prog), prog);
 				proto_tree_add_item(subtree, hf_portmap_version,
 					offset+4, 4, version);
-				proto_tree_add_item_format(subtree, hf_portmap_proto,
+				proto_tree_add_uint_format(subtree, hf_portmap_proto,
 					offset+8, 4, proto, 
 					"Protocol: %s (0x%02x)", ipprotostr(proto), proto);
 				proto_tree_add_item(subtree, hf_portmap_port,
@@ -273,7 +273,7 @@ int dissect_rpcb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
 	prog = EXTRACT_UINT(pd, offset + 0);
 	if (rpcb_tree)
-		proto_tree_add_item_format(rpcb_tree, hf_portmap_rpcb_prog,
+		proto_tree_add_uint_format(rpcb_tree, hf_portmap_rpcb_prog,
 			offset+0, 4, prog, 
 			"Program: %s (%u)", rpc_prog_name(prog), prog);
 	offset += 4;

@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.7 2000/01/16 02:54:44 guy Exp $
+ * $Id: packet-bpdu.c,v 1.8 2000/03/12 04:47:36 gram Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -120,9 +120,10 @@ void dissect_bpdu(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	    protocol_identifier = pntohs(bpdu + BPDU_IDENTIFIER);
 	    protocol_version_identifier = (guint8) bpdu[BPDU_VERSION_IDENTIFIER];
 
-	    ti = proto_tree_add_item_format(tree, proto_bpdu, offset, 35, NULL, "Spanning Tree Protocol");
+	    ti = proto_tree_add_protocol_format(tree, proto_bpdu, offset, 35,
+			    	"Spanning Tree Protocol");
 	    bpdu_tree = proto_item_add_subtree(ti, ett_bpdu);
-	    proto_tree_add_item_format(bpdu_tree, hf_bpdu_proto_id,
+	    proto_tree_add_uint_format(bpdu_tree, hf_bpdu_proto_id,
 				       offset + BPDU_IDENTIFIER, 2, 
 				       protocol_identifier,
 				       "Protocol Identifier: 0x%04x (%s)", 
@@ -135,7 +136,7 @@ void dissect_bpdu(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 				protocol_version_identifier);
 	    if (protocol_version_identifier != 0)
 		  proto_tree_add_text(bpdu_tree, offset + BPDU_VERSION_IDENTIFIER, 1, "   (Warning: this version of packet-bpdu only knows about version = 0)");
-	    proto_tree_add_item_format(bpdu_tree, hf_bpdu_type,
+	    proto_tree_add_uint_format(bpdu_tree, hf_bpdu_type,
 				       offset + BPDU_TYPE, 1, 
 				       bpdu_type,
 				       "BPDU Type: 0x%02x (%s)", 

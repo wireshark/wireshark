@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.12 2000/02/15 21:02:00 gram Exp $
+ * $Id: packet-atm.c,v 1.13 2000/03/12 04:47:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -153,8 +153,7 @@ dissect_le_client(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   proto_tree *lane_tree;
 
   if (tree) {
-    ti = proto_tree_add_item_format(tree, proto_atm_lane, offset, 2, NULL,
-					    "ATM LANE");
+    ti = proto_tree_add_protocol_format(tree, proto_atm_lane, offset, 2, "ATM LANE");
     lane_tree = proto_item_add_subtree(ti, ett_atm_lane);
 
     proto_tree_add_text(lane_tree, offset, 2, "LE Client: 0x%04X",
@@ -263,8 +262,7 @@ dissect_le_control(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
     col_add_str(fd, COL_INFO, "LE Control");
 
   if (tree) {
-    ti = proto_tree_add_item_format(tree, proto_atm_lane, offset, 108, NULL,
-					    "ATM LANE");
+    ti = proto_tree_add_protocol_format(tree, proto_atm_lane, offset, 108, "ATM LANE");
     lane_tree = proto_item_add_subtree(ti, ett_atm_lane);
 
     proto_tree_add_text(lane_tree, offset, 2, "Marker: 0x%04X",
@@ -621,8 +619,7 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
   }
 
   if (tree) {
-    ti = proto_tree_add_item_format(tree, proto_atm, 0, 0, NULL,
-					    "ATM");
+    ti = proto_tree_add_protocol_format(tree, proto_atm, 0, 0, "ATM");
     atm_tree = proto_item_add_subtree(ti, ett_atm);
 
     proto_tree_add_text(atm_tree, 0, 0, "AAL: %s",

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.64 2000/02/15 21:03:33 gram Exp $
+ * $Id: packet.c,v 1.65 2000/03/12 04:47:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1073,8 +1073,8 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 
 	/* Put in frame header information. */
 	if (tree) {
-	  ti = proto_tree_add_item_format(tree, proto_frame, 0, fd->cap_len,
-	    NULL, "Frame %u (%u on wire, %u captured)", fd->num,
+	  ti = proto_tree_add_protocol_format(tree, proto_frame, 0, fd->cap_len,
+	    "Frame %u (%u on wire, %u captured)", fd->num,
 	    fd->pkt_len, fd->cap_len);
 
 	  fh_tree = proto_item_add_subtree(ti, ett_frame);
@@ -1094,11 +1094,11 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 	  proto_tree_add_item(fh_tree, hf_frame_number,
 		0, 0, fd->num);
 
-	  proto_tree_add_item_format(fh_tree, hf_frame_packet_len,
+	  proto_tree_add_uint_format(fh_tree, hf_frame_packet_len,
 		0, 0, fd->pkt_len, "Packet Length: %d byte%s", fd->pkt_len,
 		plurality(fd->pkt_len, "", "s"));
 		
-	  proto_tree_add_item_format(fh_tree, hf_frame_capture_len,
+	  proto_tree_add_uint_format(fh_tree, hf_frame_capture_len,
 		0, 0, fd->cap_len, "Capture Length: %d byte%s", fd->cap_len,
 		plurality(fd->cap_len, "", "s"));
 	}

@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.27 2000/03/09 12:09:53 girlich Exp $
+ * $Id: packet-rpc.c,v 1.28 2000/03/12 04:47:49 gram Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -913,7 +913,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	xid      = EXTRACT_UINT(pd,offset+0);
 	if (rpc_tree) {
-		proto_tree_add_item_format(rpc_tree,hf_rpc_xid,
+		proto_tree_add_uint_format(rpc_tree,hf_rpc_xid,
 			offset+0, 4, xid, "XID: 0x%x (%u)", xid, xid);
 	}
 
@@ -941,7 +941,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		prog = EXTRACT_UINT(pd,offset+4);
 		
 		if (rpc_tree) {
-			proto_tree_add_item_format(rpc_tree,
+			proto_tree_add_uint_format(rpc_tree,
 				hf_rpc_program, offset+4, 4, prog,
 				"Program: %s (%u)", progname, prog);
 		}
@@ -981,7 +981,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			procname = procname_static;
 		}
 		if (rpc_tree) {
-			proto_tree_add_item_format(rpc_tree,
+			proto_tree_add_uint_format(rpc_tree,
 				hf_rpc_procedure, offset+12, 4, proc,
 				"Procedure: %s (%u)", procname, proc);
 		}
@@ -1098,12 +1098,12 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		}
 
 		if (rpc_tree) {
-			proto_tree_add_item_format(rpc_tree,
+			proto_tree_add_uint_format(rpc_tree,
 				hf_rpc_program, 0, 0, prog,
 				"Program: %s (%u)", progname, prog);
 			proto_tree_add_item(rpc_tree,
 				hf_rpc_programversion, 0, 0, vers);
-			proto_tree_add_item_format(rpc_tree,
+			proto_tree_add_uint_format(rpc_tree,
 				hf_rpc_procedure, 0, 0, proc,
 				"Procedure: %s (%u)", procname, proc);
 		}
@@ -1220,7 +1220,7 @@ dissect_rpc_prog:
 		if (ptree) {
 			proto_tree_add_item(ptree,
 				hf_rpc_programversion, 0, 0, vers);
-			proto_tree_add_item_format(ptree,
+			proto_tree_add_uint_format(ptree,
 				hf_rpc_procedure, 0, 0, proc,
 				"Procedure: %s (%u)", procname, proc);
 		}

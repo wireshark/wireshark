@@ -2,7 +2,7 @@
  * Routines for who protocol (see man rwhod)
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-who.c,v 1.3 2000/01/07 22:05:42 guy Exp $
+ * $Id: packet-who.c,v 1.4 2000/03/12 04:47:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -216,7 +216,7 @@ dissect_whoent(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		line_offset += 4;
 
 		idle_secs = pntohl(&pd[line_offset]);
-		proto_tree_add_item_format(whoent_tree, hf_who_idle, line_offset, 4, idle_secs,
+		proto_tree_add_uint_format(whoent_tree, hf_who_idle, line_offset, 4, idle_secs,
 				"Idle: %s", time_secs_to_str(idle_secs));
 		line_offset += 4;
 

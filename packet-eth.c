@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.29 2000/02/15 21:02:07 gram Exp $
+ * $Id: packet-eth.c,v 1.30 2000/03/12 04:47:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -191,8 +191,8 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     }
     if (tree) {
 
-	ti = proto_tree_add_item_format(tree, proto_eth, offset, ETH_HEADER_SIZE,
-		NULL, "IEEE 802.3 %s", (ethhdr_type == ETHERNET_802_3 ? "Raw " : ""));
+	ti = proto_tree_add_protocol_format(tree, proto_eth, offset, ETH_HEADER_SIZE,
+		"IEEE 802.3 %s", (ethhdr_type == ETHERNET_802_3 ? "Raw " : ""));
 
 	fh_tree = proto_item_add_subtree(ti, ett_ieee8023);
 
@@ -217,8 +217,8 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
       col_add_str(fd, COL_INFO, "Ethernet II");
     if (tree) {
 
-	ti = proto_tree_add_item_format(tree, proto_eth, offset, ETH_HEADER_SIZE,
-		NULL, "Ethernet II");
+	ti = proto_tree_add_protocol_format(tree, proto_eth, offset, ETH_HEADER_SIZE,
+		"Ethernet II");
 
 	fh_tree = proto_item_add_subtree(ti, ett_ether2);
 

@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.30 2000/01/22 06:22:16 guy Exp $
+ * $Id: packet-ncp.c,v 1.31 2000/03/12 04:47:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -590,7 +590,7 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				proto_tree_add_text(ncp_tree, offset - 4, 4, "Reply buffer size: %d", ncpiphrq.rplybufsize);
 			};
 		};
-		proto_tree_add_item_format(ncp_tree, hf_ncp_type, 
+		proto_tree_add_uint_format(ncp_tree, hf_ncp_type, 
 					   offset,      2,
 					   header.type,
 					   "Type: %s", 

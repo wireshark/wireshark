@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-lapb.c,v 1.10 2000/02/15 21:02:29 gram Exp $
+ * $Id: packet-lapb.c,v 1.11 2000/03/12 04:47:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -64,8 +64,8 @@ dissect_lapb(const u_char *pd, frame_data *fd, proto_tree *tree)
 	if (check_col(fd, COL_INFO))
 	    col_add_str(fd, COL_INFO, "Invalid LAPB frame");
 	if (tree)
-	    ti = proto_tree_add_item_format(tree, proto_lapb, 0, fd->cap_len,
-			                    NULL, "Invalid LAPB frame");
+	    ti = proto_tree_add_protocol_format(tree, proto_lapb, 0, fd->cap_len,
+			                    "Invalid LAPB frame");
 	return;
     }
 
@@ -89,10 +89,10 @@ dissect_lapb(const u_char *pd, frame_data *fd, proto_tree *tree)
 	is_response = FALSE;
 
     if (tree) {
-	ti = proto_tree_add_item_format(tree, proto_lapb, 0, 2, NULL,
+	ti = proto_tree_add_protocol_format(tree, proto_lapb, 0, 2,
 					    "LAPB");
 	lapb_tree = proto_item_add_subtree(ti, ett_lapb);
-	proto_tree_add_item_format(lapb_tree, hf_lapb_address, 0, 1, pd[0],
+	proto_tree_add_uint_format(lapb_tree, hf_lapb_address, 0, 1, pd[0],
 				       "Address: 0x%02X", pd[0]);
     }
     else
@@ -109,7 +109,7 @@ proto_register_lapb(void)
 {
     static hf_register_info hf[] = {
 	{ &hf_lapb_address,
-	  { "Address Field", "lapb.address", FT_UINT8, BASE_DEC, NULL, 0x0, 
+	  { "Address Field", "lapb.address", FT_UINT8, BASE_HEX, NULL, 0x0, 
 	  	"" }},
 
 	{ &hf_lapb_control,

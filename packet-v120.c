@@ -2,7 +2,7 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.3 1999/12/14 06:21:19 guy Exp $
+ * $Id: packet-v120.c,v 1.4 2000/03/12 04:47:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,8 +71,8 @@ dissect_v120(const u_char *pd, frame_data *fd, proto_tree *tree)
 	if (check_col(fd, COL_INFO))
 	    col_add_str(fd, COL_INFO, "Invalid V.120 frame");
 	if (tree)
-	    ti = proto_tree_add_item_format(tree, proto_v120, 0, fd->cap_len,
-			                    NULL, "Invalid V.120 frame");
+	    ti = proto_tree_add_protocol_format(tree, proto_v120, 0, fd->cap_len,
+			                    "Invalid V.120 frame");
 	return;
     }
 
@@ -100,14 +100,14 @@ dissect_v120(const u_char *pd, frame_data *fd, proto_tree *tree)
     else
 	v120len = 5;
     if (tree) {
-	ti = proto_tree_add_item_format(tree, proto_v120, 0, v120len, NULL,
+	ti = proto_tree_add_protocol_format(tree, proto_v120, 0, v120len,
 					    "V.120");
 	v120_tree = proto_item_add_subtree(ti, ett_v120);
 	addr = pd[1] << 8 | pd[0];
 	sprintf(info, "LLI: %d C/R: %s",
 			((pd[0] & 0xfc) << 5) | ((pd[1] & 0xfe) >> 1),
 			pd[0] & 0x02 ? "R" : "C");
-	tc = proto_tree_add_item_format(v120_tree, ett_v120_address,
+	tc = proto_tree_add_text(v120_tree,
 			0, 2,
 			"Address field: %s", info);
 	address_tree = proto_item_add_subtree(tc, ett_v120_address);
@@ -150,7 +150,7 @@ dissect_v120_header(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 	nbits = header_len * 8;
 	sprintf(info, "Header: B: %d F: %d", pd[offset] & 0x02 ? 1:0,
 			pd[offset] & 0x01 ? 1:0);
-	tc = proto_tree_add_item_format(tree, ett_v120_header,
+	tc = proto_tree_add_text(tree,
 			offset, header_len,
 			"Header octet: %s (0x%02X)", info, pd[offset]);
 	h_tree = proto_item_add_subtree(tc, ett_v120_header);

@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.20 2000/01/22 04:59:54 guy Exp $
+ * $Id: packet-cdp.c,v 1.21 2000/03/12 04:47:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -113,11 +113,11 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	/* CDP header */
 	proto_tree_add_item(cdp_tree, hf_cdp_version, offset, 1, pd[offset]);
 	offset += 1;
-	proto_tree_add_item_format(cdp_tree, hf_cdp_ttl, offset, 1,
+	proto_tree_add_uint_format(cdp_tree, hf_cdp_ttl, offset, 1,
 				   pntohs(&pd[offset]),
 				   "TTL: %u seconds", pd[offset]);
 	offset += 1;
-	proto_tree_add_item_format(cdp_tree, hf_cdp_flags, offset, 2,
+	proto_tree_add_uint_format(cdp_tree, hf_cdp_flags, offset, 2,
 				   pd[offset], 
 				   "Checksum: 0x%04x", pntohs(&pd[offset]));
 	offset += 2;

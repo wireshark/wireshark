@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.26 2000/02/14 18:15:29 guy Exp $
+ * $Id: packet-bootp.c,v 1.27 2000/03/12 04:47:35 gram Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -479,12 +479,12 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_bootp, offset, END_OF_FRAME, NULL);
 		bp_tree = proto_item_add_subtree(ti, ett_bootp);
 
-		proto_tree_add_item_format(bp_tree, hf_bootp_type, 
+		proto_tree_add_uint_format(bp_tree, hf_bootp_type, 
 					   offset, 1,
 					   pd[offset], 
 					   pd[offset] == 1 ?
 					   "Boot Request" : "Boot Reply");
-		proto_tree_add_item_format(bp_tree, hf_bootp_hw_type,
+		proto_tree_add_uint_format(bp_tree, hf_bootp_hw_type,
 					   offset + 1, 1,
 					   pd[offset+1],
 					   "Hardware type: %s",
@@ -514,7 +514,7 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		proto_tree_add_item(bp_tree, hf_bootp_ip_relay,
 				    offset + 24, 4, ip_addr);
 
-		proto_tree_add_item_format(bp_tree, hf_bootp_hw_addr, 
+		proto_tree_add_bytes_format(bp_tree, hf_bootp_hw_addr, 
 					   offset + 28, pd[offset+2],
 					   &pd[offset+28],
 					   "Client hardware address: %s",
@@ -523,14 +523,14 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 		/* The server host name is optional */
 		if (pd[offset+44]) {
-			proto_tree_add_item_format(bp_tree, hf_bootp_server,
+			proto_tree_add_string_format(bp_tree, hf_bootp_server,
 						   offset + 44, 64,
 						   &pd[offset+44],
 						   "Server host name: %s",
 						   &pd[offset+44]);
 		}
 		else {
-			proto_tree_add_item_format(bp_tree, hf_bootp_server,
+			proto_tree_add_string_format(bp_tree, hf_bootp_server,
 						   offset + 44, 64,
 						   &pd[offset+44],
 						   "Server host name not given");
@@ -538,21 +538,21 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 		/* Boot file */
 		if (pd[offset+108]) {
-			proto_tree_add_item_format(bp_tree, hf_bootp_file,
+			proto_tree_add_string_format(bp_tree, hf_bootp_file,
 						   offset + 108, 128,
 						   &pd[offset+108],
 						   "Boot file name: %s",
 						   &pd[offset+108]);
 		}
 		else {
-			proto_tree_add_item_format(bp_tree, hf_bootp_file,
+			proto_tree_add_string_format(bp_tree, hf_bootp_file,
 						   offset + 108, 128,
 						   &pd[offset+108],
 						   "Boot file name not given");
 		}
 
 		if (pntohl(&pd[offset+236]) == 0x63825363) {
-			proto_tree_add_item_format(bp_tree, hf_bootp_cookie,
+			proto_tree_add_ipv4_format(bp_tree, hf_bootp_cookie,
 						   offset + 236, 4,
 						   pd[offset+236],
 						   "Magic cookie: (OK)");

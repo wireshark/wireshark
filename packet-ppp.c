@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.28 2000/02/15 21:02:51 gram Exp $
+ * $Id: packet-ppp.c,v 1.29 2000/03/12 04:47:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1092,10 +1092,10 @@ dissect_mp(const u_char *pd, int offset, frame_data *fd,
     ti = proto_tree_add_text(mp_tree, offset, 1, "Fragment: 0x%2X (%s)",
       flags, flag_str);
     hdr_tree = proto_item_add_subtree(ti, ett_mp_flags);
-    proto_tree_add_item_format(hdr_tree, hf_mp_frag_first, offset, 1, first,
+    proto_tree_add_boolean_format(hdr_tree, hf_mp_frag_first, offset, 1, first,
       "%s", decode_boolean_bitfield(flags, MP_FRAG_FIRST, sizeof(flags) * 8,
         "first", "not first"));
-    proto_tree_add_item_format(hdr_tree, hf_mp_frag_last, offset, 1, last,
+    proto_tree_add_boolean_format(hdr_tree, hf_mp_frag_last, offset, 1, last,
       "%s", decode_boolean_bitfield(flags, MP_FRAG_LAST, sizeof(flags) * 8,
         "last", "not last"));
     proto_tree_add_text(hdr_tree, offset, 1, "%s",

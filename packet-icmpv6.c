@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly 
  *
- * $Id: packet-icmpv6.c,v 1.13 2000/01/24 03:51:34 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.14 2000/03/12 04:47:38 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -347,12 +347,12 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	ti = proto_tree_add_item(tree, proto_icmpv6, offset, len, NULL);
 	icmp6_tree = proto_item_add_subtree(ti, ett_icmpv6);
 
-	proto_tree_add_item_format(icmp6_tree, hf_icmpv6_type,
+	proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_type,
 	    offset + offsetof(struct icmp6_hdr, icmp6_type), 1,
 	    dp->icmp6_type,
 	    "Type: 0x%02x (%s)", dp->icmp6_type, typename);
 	if (codename) {
-	    proto_tree_add_item_format(icmp6_tree, hf_icmpv6_code,
+	    proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_code,
 		offset + offsetof(struct icmp6_hdr, icmp6_code), 1,
 		dp->icmp6_code,
 		"Code: 0x%02x (%s)", dp->icmp6_code, codename);
