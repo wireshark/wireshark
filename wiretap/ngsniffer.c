@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.31 1999/12/11 09:22:36 oabad Exp $
+ * $Id: ngsniffer.c,v 1.32 1999/12/11 10:02:11 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -680,6 +680,10 @@ gboolean ngsniffer_dump_open(wtap_dumper *wdh, int *err)
     wdh->subtype_write = ngsniffer_dump;
     wdh->subtype_close = ngsniffer_dump_close;
 
+    wdh->private.ngsniffer = g_malloc(sizeof(ngsniffer_dump_t));
+    wdh->private.ngsniffer->first_frame = TRUE;
+    wdh->private.ngsniffer->start = 0;
+
     /* Write the file header. */
     nwritten = fwrite(ngsniffer_magic, 1, sizeof ngsniffer_magic, wdh->fh);
     if (nwritten != sizeof ngsniffer_magic) {
@@ -706,27 +710,29 @@ gboolean ngsniffer_dump_open(wtap_dumper *wdh, int *err)
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const u_char *pd, int *err)
 {
+    ngsniffer_dump_t *priv = wdh->private.ngsniffer;
     struct frame2_rec rec_hdr;
     int nwritten;
     char buf[6];
     double t;
     guint16 t_low, t_med, t_high;
-    static gboolean first_frame=TRUE;
-    static time_t start=0;
     struct vers_rec version;
     gint16 maj_vers, min_vers;
     guint16 start_date;
     struct tm *tm;
 
-    /* we need to know the timestamp of the first frame */
-    if (first_frame) {
-	first_frame=FALSE;
+    /* Sniffer files have a capture start date in the file header, and
+       have times relative to the beginning of that day in the packet
+       headers; pick the date of the first packet as the capture start
+       date. */
+    if (priv->first_frame) {
+	priv->first_frame=FALSE;
 	tm = localtime(&phdr->ts.tv_sec);
 	start_date = (tm->tm_year - (1980 - 1900)) << 9;
 	start_date |= (tm->tm_mon + 1) << 5;
 	start_date |= tm->tm_mday;
 	/* record the start date, not the start time */
-	start = phdr->ts.tv_sec - (3600*tm->tm_hour + 60*tm->tm_min + tm->tm_sec);
+	priv->start = phdr->ts.tv_sec - (3600*tm->tm_hour + 60*tm->tm_min + tm->tm_sec);
 
 	/* "sniffer" version ? */
 	maj_vers = 4;
@@ -768,7 +774,7 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	return FALSE;
     }
     t = (double)phdr->ts.tv_sec + (double)phdr->ts.tv_usec/1.0e6; /* # of secs */
-    t = (t - start)*1.0e6 / Usec[1]; /* timeunit = 1 */
+    t = (t - priv->start)*1.0e6 / Usec[1]; /* timeunit = 1 */
     t_low = (guint16)(t-(double)((guint32)(t/65536.0))*65536.0);
     t_med = (guint16)((guint32)(t/65536.0) % 65536);
     t_high = (guint16)(t/4294967296.0);

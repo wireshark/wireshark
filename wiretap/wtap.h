@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.56 1999/12/11 00:40:39 guy Exp $
+ * $Id: wtap.h,v 1.57 1999/12/11 10:02:13 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -346,9 +346,14 @@ typedef gboolean (*subtype_write_func)(struct wtap_dumper*,
 typedef gboolean (*subtype_close_func)(struct wtap_dumper*, int*);
 
 typedef struct {
-	guint32	frame_table_offset;
-	struct timeval first_record_time;
+	gboolean first_frame;
+	time_t start;
+} ngsniffer_dump_t;
+
+typedef struct {
 	gboolean got_first_record_time;
+	struct timeval first_record_time;
+	guint32	frame_table_offset;
 	guint32	*frame_table;
 	int	frame_table_index;
 	int	frame_table_size;
@@ -362,6 +367,7 @@ typedef struct wtap_dumper {
 
 	union {
 		void			*opaque;
+		ngsniffer_dump_t	*ngsniffer;
 		netmon_dump_t		*netmon;
 	} private;
 
