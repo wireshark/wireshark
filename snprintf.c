@@ -1,5 +1,5 @@
 /*
- * $Id: snprintf.c,v 1.11 2000/08/11 22:03:02 guy Exp $
+ * $Id: snprintf.c,v 1.12 2000/11/21 21:24:52 guy Exp $
  */
 
 /*
@@ -57,12 +57,7 @@
  * Find the nth power of 10
  */
 PRIVATE double
-#ifdef __STDC__
 pow_10(int n)
-#else
-pow_10(n)
-int n;
-#endif
 { 
   int i;
   double P;
@@ -83,12 +78,7 @@ int n;
  * log_10(250) = 2;
  */
 PRIVATE int
-#ifdef __STDC__
 log_10(double r)
-#else
-log_10(r)
-double r;
-#endif
 { 
   int i = 0;
   double result = 1.;
@@ -113,13 +103,7 @@ double r;
  * In many ways it resemble the modf() found on most Un*x
  */
 PRIVATE double
-#ifdef __STDC__
 integral(double real, double * ip)
-#else
-integral(real, ip)
-double real;
-double * ip;
-#endif
 { 
   int j;
   double i, s, p;
@@ -161,15 +145,7 @@ double * ip;
  * declare with fix size 
  */
 PRIVATE char *
-#ifdef __STDC__
 numtoa(double number, int base, int precision, char ** fract)
-#else
-numtoa(number, base, precision, fract)
-double number;
-int base;
-int precision;
-char ** fract;
-#endif
 {
   register int i, j;
   double ip, fp; /* integer and fraction part */
@@ -248,13 +224,7 @@ char ** fract;
  * the representation with the right padding
  */
 PRIVATE void
-#ifdef __STDC__
 decimal(struct DATA *p, double d)
-#else
-decimal(p, d)
-struct DATA *p;
-double d;
-#endif
 {
   char *tmp;
 
@@ -272,13 +242,7 @@ double d;
 
 /* for %o octal representation */
 PRIVATE void
-#ifdef __STDC__
 octal(struct DATA *p, double d)
-#else
-octal(p, d)
-struct DATA *p;
-double d;
-#endif
 {
   char *tmp;
 
@@ -296,13 +260,7 @@ double d;
 
 /* for %x %X hexadecimal representation */
 PRIVATE void
-#ifdef __STDC__
 hexa(struct DATA *p, double d)
-#else
-hexa(p, d)
-struct DATA *p;
-double d;
-#endif
 {
   char *tmp;
 
@@ -321,13 +279,7 @@ double d;
 
 /* %s strings */
 PRIVATE void
-#ifdef __STDC__
 strings(struct DATA *p, char *tmp)
-#else
-strings(p, tmp)
-struct DATA *p;
-char *tmp;
-#endif
 {
   int i;
 
@@ -345,13 +297,7 @@ char *tmp;
 
 /* %f or %g  floating point representation */
 PRIVATE void
-#ifdef __STDC__
 floating(struct DATA *p, double d)
-#else
-floating(p, d)
-struct DATA *p;
-double d;
-#endif
 {
   char *tmp, *tmp2;
   int i;
@@ -384,13 +330,7 @@ double d;
 
 /* %e %E %g exponent representation */
 PRIVATE void
-#ifdef __STDC__
 exponent(struct DATA *p, double d)
-#else
-exponent(p, d)
-struct DATA *p;
-double d;
-#endif
 {
   char *tmp, *tmp2;
   int j, i;
@@ -445,13 +385,7 @@ double d;
 
 /* initialize the conversion specifiers */
 PRIVATE void
-#ifdef __STDC__
 conv_flag(char * s, struct DATA * p)
-#else
-conv_flag(s, p)
-char * s;
-struct DATA * p;
-#endif
 {
   char number[MAX_FIELD/2];
   int i;
@@ -495,15 +429,7 @@ struct DATA * p;
 }
 
 PUBLIC int
-#ifdef __STDC__
 vsnprintf(char *string, size_t length, const char * format, va_list args)
-#else
-vsnprintf(string, length, format, args)
-char *string;
-size_t length;
-char * format;
-va_list args;
-#endif
 {
   struct DATA data;
   char conv_field[MAX_FIELD];
@@ -653,20 +579,12 @@ va_list args;
 #ifndef HAVE_SNPRINTF
 
 PUBLIC int
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 snprintf(char *string, size_t length, const char * format, ...)
-#else
-snprintf(string, length, format, va_alist)
-char *string;
-size_t length;
-char * format;
-va_dcl
-#endif
 {
   int rval;
   va_list args;
 
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#if defined(HAVE_STDARG_H)
   va_start(args, format);
 #else
   va_start(args);

@@ -1,11 +1,11 @@
 /*
- * $Id: snprintf.h,v 1.4 2000/08/11 22:00:49 guy Exp $
+ * $Id: snprintf.h,v 1.5 2000/11/21 21:24:52 guy Exp $
  */
 
 #ifndef __ETHEREAL_SNPRINTF_H__
 #define __ETHEREAL_SNPRINTF_H__
 
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#if defined(HAVE_STDARG_H)
 # include <stdarg.h>
 #else
 # include <varargs.h>
@@ -14,11 +14,11 @@
 extern int vsnprintf(char *string, size_t length, const char * format,
   va_list args);
 
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-extern int snprintf(char *string, size_t length, const char * format, ...);
+#if __GNUC__ == 2
+extern int snprintf(char *string, size_t length, const char * format, ...)
+	__attribute__((format (printf, 3, 4)));
 #else
-extern int snprintf(char *string, size_t length, const char * format,
-  int va_alist);
+extern int snprintf(char *string, size_t length, const char * format, ...);
 #endif
 
 #endif
