@@ -9,7 +9,7 @@
  *
  * By Tim Newsham
  *
- * $Id: packet-prism.c,v 1.9 2002/11/06 21:49:29 guy Exp $
+ * $Id: packet-prism.c,v 1.10 2003/03/08 11:43:54 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -123,15 +123,15 @@ capture_prism(const guchar *pd, int offset, int len, packet_counts *ld)
  */
 #define IFHELP(size, name, var, str) \
         proto_tree_add_uint_format(prism_tree, hf_prism_ ## name, \
-            tvb, offset, size, hdr. ## var, str, hdr. ## var);	  \
+            tvb, offset, size, hdr.var, str, hdr.var);		  \
         offset += (size)
 #define INTFIELD(size, name, str)	IFHELP(size, name, name, str)
 #define VALFIELD(name, str) \
         proto_tree_add_uint_format(prism_tree, hf_prism_ ## name ## _data, \
-            tvb, offset, 12, hdr. ## name ## .data,			   \
+            tvb, offset, 12, hdr.name.data,				   \
             str ": 0x%x (DID 0x%x, Status 0x%x, Length 0x%x)",		   \
-            hdr. ## name ## .data, hdr. ## name ## .did,		   \
-            hdr. ## name ## .status, hdr. ## name ## .len);		   \
+            hdr.name.data, hdr.name.did,				   \
+            hdr.name.status, hdr.name.len);				   \
         offset += 12
 
 static void
@@ -198,7 +198,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             str, "prism." #var, size, BASE_HEX, NULL, 0x0, "", HFILL } },
 #define INTFIELD2(size, name, str)	IFHELP2(size, name, name, str)
 #define VALFIELD2(name, str) \
-   IFHELP2(FT_UINT32, name ## _data, name ## .data, str ## " Field")
+   IFHELP2(FT_UINT32, name ## _data, name.data, str " Field")
 
 void
 proto_register_prism(void)
