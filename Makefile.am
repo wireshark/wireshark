@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.286 2001/02/27 19:40:57 guy Exp $
+# $Id: Makefile.am,v 1.287 2001/03/06 23:45:03 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -421,15 +421,15 @@ ethereal_static_DEPENDENCIES = \
 ethereal_LDADD = \
 	$(ethereal_optional_objects)	\
 	$(ethereal_additional_libs)	\
-	@SNMP_LIBS@			\
+	@SNMP_LIBS@ @SSL_LIBS@ 		\
 	"-dlopen" self	\
 	"-dlopen" plugins/gryphon/gryphon.la @PCAP_LIBS@ @GTK_LIBS@ \
 	"-dlopen" plugins/mgcp/mgcp.la @PCAP_LIBS@ @GTK_LIBS@
 
 ethereal_static_LDADD = \
 	$(ethereal_optional_objects)	\
-	$(ethereal_additional_libs) \
-	@SNMP_LIBS@			\
+	$(ethereal_additional_libs)	\
+	@SNMP_LIBS@ @SSL_LIBS@		\
 	@PCAP_LIBS@ @GTK_LIBS@
 
 ethereal_LDFLAGS = -export-dynamic
@@ -466,7 +466,7 @@ tethereal_static_DEPENDENCIES = \
 tethereal_LDADD = wiretap/libwiretap.a	\
 	$(ethereal_optional_objects)	\
 	$(tethereal_additional_libs)	\
-	@SNMP_LIBS@			\
+	@SNMP_LIBS@ @SSL_LIBS@		\
 	"-dlopen" self	\
 	"-dlopen" plugins/gryphon/gryphon.la @GLIB_LIBS@ -lm \
 	"-dlopen" plugins/mgcp/mgcp.la @GLIB_LIBS@ -lm \
@@ -475,7 +475,7 @@ tethereal_LDADD = wiretap/libwiretap.a	\
 tethereal_static_LDADD = wiretap/libwiretap.a	\
 	$(ethereal_optional_objects)	\
 	$(tethereal_additional_libs)	\
-	@SNMP_LIBS@			\
+	@SNMP_LIBS@ @SSL_LIBS@		\
 	@GLIB_LIBS@ -lm \
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@
 
@@ -551,7 +551,7 @@ dftest_DEPENDENCIES = \
 dftest_LDADD = \
 	$(ethereal_optional_objects)	\
 	$(dftest_additional_libs)	\
-	@SNMP_LIBS@			\
+	@SNMP_LIBS@ @SSL_LIBS@		\
 	"-dlopen" self	\
 	"-dlopen" plugins/gryphon/gryphon.la @GLIB_LIBS@ -lm \
 	"-dlopen" plugins/mgcp/mgcp.la @GLIB_LIBS@ -lm \
