@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.43 2001/11/20 09:07:32 guy Exp $
+ * $Id: proto.c,v 1.44 2001/11/21 01:01:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,7 +84,7 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap);
 static void
 proto_tree_set_protocol_tvb(field_info *fi, tvbuff_t *tvb);
 static void
-proto_tree_set_uint64b(field_info *fi, const guint8 *value_ptr, gboolean little_endian);
+proto_tree_set_uint64(field_info *fi, const guint8 *value_ptr, gboolean little_endian);
 static void
 proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start, gboolean little_endian);
 static void
