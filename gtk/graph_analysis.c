@@ -56,9 +56,6 @@
 #include "compat_macros.h"
 #include "../color.h"
 
-#include "image/clist_ascend.xpm"
-#include "image/clist_descend.xpm"
-
 #include <math.h>
 #include <fcntl.h>
 #include <string.h>
@@ -870,7 +867,6 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
         GtkWidget *vbox;
         GtkWidget *hbox;
     	GtkWidget *bt_close;
-		GtkWidget *label = NULL;
 
         /* create the main window */
         user_data->dlg.window=window_new(GTK_WINDOW_TOPLEVEL, "Graph Analysis");
@@ -882,17 +878,17 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
 
         create_draw_area(user_data, vbox);
 
-	    hbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+        hbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
         gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
-		gtk_widget_show(hbox);
+        gtk_widget_show(hbox);
 
-		bt_close = OBJECT_GET_DATA(hbox, GTK_STOCK_CLOSE);
-		window_set_cancel_button(user_data->dlg.window, bt_close, window_cancel_button_cb);
+        bt_close = OBJECT_GET_DATA(hbox, GTK_STOCK_CLOSE);
+        window_set_cancel_button(user_data->dlg.window, bt_close, window_cancel_button_cb);
 
-		SIGNAL_CONNECT(user_data->dlg.window, "delete_event", window_delete_event_cb, NULL);
+        SIGNAL_CONNECT(user_data->dlg.window, "delete_event", window_delete_event_cb, NULL);
 
-	    gtk_widget_show(user_data->dlg.window);
-	    window_present(user_data->dlg.window);
+        gtk_widget_show(user_data->dlg.window);
+        window_present(user_data->dlg.window);
 }
 
 /* Return the index array if the node is in the array. Return -1 if there is room in the array
