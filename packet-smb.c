@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.68 2000/05/31 05:07:42 guy Exp $
+ * $Id: packet-smb.c,v 1.69 2000/07/30 14:35:39 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -10617,7 +10617,7 @@ proto_register_smb(void)
 		&ett_smb_lock_type,
 	};
 
-        proto_smb = proto_register_protocol("Server Message Block Protocol", "smb");
+        proto_smb = proto_register_protocol("SMB (Server Message Block Protocol)", "smb");
 
 	proto_register_subtree_array(ett, array_length(ett));
 	register_init_routine(&smb_init_protocol);
