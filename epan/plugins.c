@@ -313,7 +313,7 @@ plugins_scan_dir(const char *dirname)
 
 /* get the global plugin dir */
 /* Return value is malloced so the caller should g_free() it. */
-const char *get_plugins_global_dir(const char *plugin_dir)
+char *get_plugins_global_dir(const char *plugin_dir)
 {
 #ifdef _WIN32
 	char *install_plugin_dir;
@@ -365,7 +365,7 @@ const char *get_plugins_global_dir(const char *plugin_dir)
 
 /* get the personal plugin dir */
 /* Return value is malloced so the caller should g_free() it. */
-const char *get_plugins_pers_dir(void)
+char *get_plugins_pers_dir(void)
 {
     return get_persconffile_path(PLUGINS_DIR_NAME, FALSE);
 }
@@ -376,7 +376,7 @@ const char *get_plugins_pers_dir(void)
 void
 init_plugins(const char *plugin_dir)
 {
-    const char *datafile_dir;
+    char *datafile_dir;
 
     if (plugin_list == NULL)      /* ensure init_plugins is only run once */
     {
@@ -385,14 +385,14 @@ init_plugins(const char *plugin_dir)
 	 */
 	datafile_dir = get_plugins_global_dir(plugin_dir);
 	plugins_scan_dir(datafile_dir);
-	g_free((char *) datafile_dir);
+	g_free(datafile_dir);
 
 	/*
 	 * Scan the users plugin directory.
 	 */
 	datafile_dir = get_plugins_pers_dir();
 	plugins_scan_dir(datafile_dir);
-	g_free((char *) datafile_dir);
+	g_free(datafile_dir);
     }
 }
 

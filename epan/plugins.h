@@ -4,9 +4,8 @@
  * $Id$
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1999 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -46,10 +45,10 @@ extern void register_all_plugin_handoffs(void);
 
 /* get the global plugin dir */
 /* Return value is g_malloced so the caller should g_free() it. */
-extern const char *get_plugins_global_dir(const char *plugin_dir);
+extern char *get_plugins_global_dir(const char *plugin_dir);
 
 /* get the personal plugin dir */
 /* Return value is g_malloced so the caller should g_free() it. */
-extern const char *get_plugins_pers_dir(void);
+extern char *get_plugins_pers_dir(void);
 
 #endif /* __PLUGINS_H__ */
