@@ -45,7 +45,9 @@
  *
  * In at least some Linux distributions (e.g., RedHat Linux 9), if ADNS
  * is used, we appear to hang in host_name_lookup6() in a gethostbyaddr()
- * call.
+ * call (and possibly in other gethostbyaddr() calls), because there's
+ * a mutex lock held in gethostbyaddr() and it doesn't get released
+ * if we longjmp out of it.
  *
  * There's no guarantee that longjmp()ing out of name resolution calls
  * will work on *any* platform; OpenBSD got rid of the alarm/longjmp
