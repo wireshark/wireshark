@@ -40,6 +40,9 @@
 #include <stdio.h>
 #include <string.h>
 #include "packet-rtp-events.h"
+#include "packet-rtp.h"
+#include <epan/conversation.h>
+#include <epan/tap.h>
 
 /*  rtp_event_payload_type_value is the value used globally
 	to set the appropriate payload type
@@ -54,6 +57,7 @@ static guint saved_payload_type_value;
 /* RTP Event Fields */
 
 static int proto_rtp_events          = -1;
+static int rtp_event_tap = -1;
 
 static int hf_rtp_events_event = -1; /* one byte */
 static int hf_rtp_events_end = -1; /* one bit */
@@ -69,12 +73,15 @@ static gint ett_rtp_events           = -1;
 void
 proto_reg_handoff_rtp_events(void);
 
+static struct _rtp_event_info rtp_event_info;
+
 static void
 dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
 	proto_item *ti            = NULL;
 	proto_tree *rtp_events_tree     = NULL;
 	unsigned int offset       = 0;
+	struct _rtp_conversation_info *p_conv_data = NULL;
 
 	guint8      rtp_evt;
 	guint8      octet;
@@ -91,13 +98,21 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	rtp_evt = tvb_get_guint8(tvb, offset );
 
+	/* get tap info */
+	rtp_event_info.info_rtp_evt = rtp_evt;
+
+	p_conv_data = p_get_proto_data(pinfo->fd, proto_get_id_by_filter_name("rtp"));
+	if (p_conv_data)
+		rtp_event_info.info_setup_frame_num = p_conv_data->frame_number;
+	else
+		rtp_event_info.info_setup_frame_num = 0;
+
+
 	if ( check_col( pinfo->cinfo, COL_INFO) )
 	  {
 		col_add_fstr( pinfo->cinfo, COL_INFO,
 		    "Payload type=RTP Event, %s",
 		    val_to_str( rtp_evt, rtp_event_type_values, "Unknown (%u)" ));
-
-
 	  }
 
 	if ( tree )
@@ -121,6 +136,7 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	    }
 
 	  }
+	tap_queue_packet(rtp_event_tap, pinfo, &rtp_event_info);
 }
 
 
@@ -214,6 +230,8 @@ proto_register_rtp_events(void)
                                     "This is the value of the Payload Type field"
                                     "that specifies RTP Events", 10,
                                     &rtp_event_payload_type_value);
+	register_dissector("rtpevent", dissect_rtp_events, proto_rtp_events);
+	rtp_event_tap = register_tap("rtpevent");
 }
 
 

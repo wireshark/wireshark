@@ -58,10 +58,13 @@ struct _rtp_conversation_info
 {
 	gchar   method[MAX_RTP_SETUP_METHOD_SIZE + 1];
 	guint32 frame_number;
+	guint32 rtp_event_pt;	/* this is payload type for dynamic RTP events (RFC2833) */
 };
 
 /* Add an RTP conversation with the given details */
 void rtp_add_address(packet_info *pinfo,
                      address *addr, int port,
                      int other_port,
-                     gchar *setup_method, guint32 setup_frame_number);
+                     gchar *setup_method, 
+					 guint32 setup_frame_number,
+					 int rtp_event_pt);

@@ -70,6 +70,7 @@
 
 static dissector_handle_t rtp_handle;
 static dissector_handle_t stun_handle;
+static dissector_handle_t rtpevent_handle=NULL;
 
 static int rtp_tap = -1;
 
@@ -238,7 +239,7 @@ const value_string rtp_payload_type_short_vals[] =
 void rtp_add_address(packet_info *pinfo,
                      address *addr, int port,
                      int other_port,
-                     gchar *setup_method, guint32 setup_frame_number)
+                     gchar *setup_method, guint32 setup_frame_number, int rtp_event_pt)
 {
 	address null_addr;
 	conversation_t* p_conv;
@@ -296,6 +297,7 @@ void rtp_add_address(packet_info *pinfo,
 	strncpy(p_conv_data->method, setup_method, MAX_RTP_SETUP_METHOD_SIZE);
 	p_conv_data->method[MAX_RTP_SETUP_METHOD_SIZE] = '\0';
 	p_conv_data->frame_number = setup_frame_number;
+	p_conv_data->rtp_event_pt = rtp_event_pt;
 }
 
 static void rtp_init( void )
@@ -368,11 +370,25 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     unsigned int data_reported_len, unsigned int payload_type )
 {
 	tvbuff_t *newtvb;
+	struct _rtp_conversation_info *p_conv_data = NULL;
 
 	newtvb = tvb_new_subset( tvb, offset, data_len, data_reported_len );
-	if (!dissector_try_port(rtp_pt_dissector_table, payload_type, newtvb,
-	    pinfo, tree))
-		proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
+
+	/* if this is part of a conv set by a SDP, we know the payload type for dynamic payloads */
+	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
+	if (p_conv_data && (strcmp(p_conv_data->method, "SDP") == 0) ) {
+		if ( (p_conv_data->rtp_event_pt != 0) && (p_conv_data->rtp_event_pt == (guint32)payload_type) )
+		{
+			call_dissector(rtpevent_handle, newtvb, pinfo, tree);
+		} else 
+		{
+			proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
+		}
+	} else {
+    /* is not part of a conv, use the preference saved value do decode the payload type */
+		if (!dissector_try_port(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
+				proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
+	}
 }
 
 static struct _rtp_info rtp_info;
@@ -715,6 +731,7 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				p_conv_packet_data = g_mem_chunk_alloc(rtp_conversations);
 				strcpy(p_conv_packet_data->method, p_conv_data->method);
 				p_conv_packet_data->frame_number = p_conv_data->frame_number;
+				p_conv_packet_data->rtp_event_pt = p_conv_data->rtp_event_pt;
 				p_add_proto_data(pinfo->fd, proto_rtp, p_conv_packet_data);
 			}
 		}
@@ -1031,6 +1048,7 @@ proto_reg_handoff_rtp(void)
 {
 	data_handle = find_dissector("data");
 	stun_handle = find_dissector("stun");
+	rtpevent_handle = find_dissector("rtpevent");
 
 	/*
 	 * Register this dissector as one that can be selected by a

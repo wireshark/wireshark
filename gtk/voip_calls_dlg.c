@@ -179,6 +179,7 @@ void voip_calls_remove_tap_listener(void)
 	remove_tap_listener_q931_calls();
 	remove_tap_listener_sdp_calls();
 	remove_tap_listener_rtp();
+	remove_tap_listener_rtp_event();
 	if (find_tap_id("mgcp")) {
 		remove_tap_listener_mgcp_calls();
 	}
@@ -729,6 +730,7 @@ voip_calls_init_tap(char *dummy _U_)
 	q931_calls_init_tap();
 	sdp_calls_init_tap();
 	rtp_init_tap();
+	rtp_event_init_tap();
 	/* We don't register this tap, if we don't have the mgcp plugin loaded.*/
 	if (find_tap_id("mgcp")) {
 		mgcp_calls_init_tap();
