@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.29 1999/12/09 15:31:24 nneul Exp $
+ * $Id: packet-atalk.c,v 1.30 1999/12/09 17:06:37 nneul Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -54,17 +54,26 @@ static int hf_nbp_info = -1;
 static int hf_nbp_count = -1;
 static int hf_nbp_tid = -1;
 
-static int hf_nbp_node_net;
-static int hf_nbp_node_port;
-static int hf_nbp_node_node;
-static int hf_nbp_node_enum;
-static int hf_nbp_node_object;
-static int hf_nbp_node_type;
-static int hf_nbp_node_zone;
+static int hf_nbp_node_net = -1;
+static int hf_nbp_node_port = -1;
+static int hf_nbp_node_node = -1;
+static int hf_nbp_node_enum = -1;
+static int hf_nbp_node_object = -1;
+static int hf_nbp_node_type = -1;
+static int hf_nbp_node_zone = -1;
+
+static int proto_rtmp = -1;
+static int hf_rtmp_tuple_net = -1;
+static int hf_rtmp_tuple_dist = -1;
+static int hf_rtmp_net = -1;
+static int hf_rtmp_node_len = -1;
+static int hf_rtmp_node = -1;
 
 static gint ett_nbp = -1;
 static gint ett_nbp_info = -1;
 static gint ett_nbp_node = -1;
+static gint ett_rtmp = -1;
+static gint ett_rtmp_tuple = -1;
 static gint ett_ddp = -1;
 static gint ett_pstring = -1;
 
@@ -95,8 +104,6 @@ typedef struct _e_ddp {
 #define DDP_ADSP	0x07
 #define DDP_HEADER_SIZE 13
 
-#define NBP_LOOKUP 2
-
 gchar *
 atalk_addr_to_str(const struct atalk_ddp_addr *addrp)
 {
@@ -126,8 +133,14 @@ static const value_string op_vals[] = {
   {0, NULL}
 };
 
+#define NBP_LOOKUP 2
+#define NBP_FORWARD 4
+#define NBP_REPLY 3
+
 static const value_string nbp_op_vals[] = {
   {NBP_LOOKUP, "lookup"},
+  {NBP_FORWARD, "forward request"},
+  {NBP_REPLY, "reply"},
   {0, NULL}
 };
 
@@ -178,7 +191,98 @@ dissect_rtmp_request(const u_char *pd, int offset, frame_data *fd, proto_tree *t
 
 static void
 dissect_rtmp_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-  dissect_data(pd, offset, fd, tree);
+  proto_tree *rtmp_tree;
+  proto_item *ti;
+  guint16 net;
+  guint8 nodelen,nodelen_bits;
+  guint16 node; /* might be more than 8 bits */
+  int i;
+
+  if (!BYTES_ARE_IN_FRAME(offset, 3)) {
+    dissect_data(pd, offset, fd, tree);
+    return;
+  }
+
+  net = pntohs(&pd[offset]);
+  nodelen_bits = pd[offset+2];
+  if ( nodelen_bits <= 8 ) {
+  	node = pd[offset]+1;
+	nodelen = 1;
+  } else {
+    node = pntohs(&pd[offset]);
+	nodelen = 2;
+  }
+  
+  if (check_col(fd, COL_PROTOCOL))
+    col_add_str(fd, COL_PROTOCOL, "RTMP");
+
+  if (check_col(fd, COL_INFO))
+    col_add_fstr(fd, COL_INFO, "Net: %d  Node Len: %d  Node: %d",
+		net, nodelen_bits, node);
+  
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_rtmp, offset, END_OF_FRAME, NULL);
+    rtmp_tree = proto_item_add_subtree(ti, ett_rtmp);
+
+	proto_tree_add_item(rtmp_tree, hf_rtmp_net, offset, 2, net);
+	proto_tree_add_item(rtmp_tree, hf_rtmp_node_len, offset+2, 1, nodelen_bits);
+	proto_tree_add_item(rtmp_tree, hf_rtmp_node, offset+3, nodelen, nodelen);
+    offset += 3 + nodelen;
+
+    i = 1;
+	while ( BYTES_ARE_IN_FRAME(offset, 1) )
+	{
+		proto_tree *tuple_item, *tuple_tree;
+		guint16 tuple_net, tuple_net2;
+		guint8 tuple_dist, tuple_dist2;
+
+		if ( ! BYTES_ARE_IN_FRAME(offset, 3) )
+		{
+			dissect_data(pd,offset,fd,rtmp_tree);
+			return;
+		}
+
+		tuple_net = pntohs(&pd[offset]);
+		tuple_dist = pd[offset+2];
+
+		tuple_item = proto_tree_add_text(rtmp_tree, offset, 3, 
+			"Tuple %d:  Net: %d  Dist: %d",
+			i, tuple_net, tuple_dist);
+		tuple_tree = proto_item_add_subtree(tuple_item, ett_rtmp_tuple);
+
+		proto_tree_add_item(tuple_tree, hf_rtmp_tuple_net, offset, 2, 
+			tuple_net);
+		proto_tree_add_item(tuple_tree, hf_rtmp_tuple_dist, offset+2, 1,
+			tuple_dist);
+
+		if ( tuple_dist == 0 || tuple_dist & 0x80 ) /* phase 1/2 */
+		{
+			if ( ! BYTES_ARE_IN_FRAME(offset+3, 3) )
+			{
+				dissect_data(pd,offset,fd,rtmp_tree);
+				return;
+			}
+
+			tuple_net2 = pntohs(&pd[offset+3]);
+			tuple_dist2 = pd[offset+5];
+
+			proto_tree_add_item(tuple_tree, hf_rtmp_tuple_net, offset, 2, 
+				tuple_net2);
+			proto_tree_add_item(tuple_tree, hf_rtmp_tuple_dist, offset+2, 1,
+				tuple_dist2);
+				
+			proto_item_set_len(tuple_item, 6);
+			offset += 6;
+		}
+		else /* screwy gatorbox/etc. */
+		{
+			offset += 3;
+		}
+
+		i++;
+	}
+  }
+
   return;
 }
 
@@ -223,6 +327,7 @@ dissect_nbp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     for (i=0; i<count; i++) {
 		struct atalk_ddp_addr addr;
 		proto_tree *node_item,*node_tree;
+		int soffset = offset;
 
 		if ( !BYTES_ARE_IN_FRAME(offset, 6) ) {
 			dissect_data(pd,offset,fd,nbp_tree);
@@ -252,6 +357,8 @@ dissect_nbp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		offset = dissect_pascal_string(pd,offset,fd,node_tree,hf_nbp_node_object);
 		offset = dissect_pascal_string(pd,offset,fd,node_tree,hf_nbp_node_type);
 		offset = dissect_pascal_string(pd,offset,fd,node_tree,hf_nbp_node_zone);
+
+		proto_item_set_len(node_item, offset-soffset);
 	}
   }
 
@@ -408,12 +515,33 @@ proto_register_atalk(void)
 		NULL, 0x0, "Transaction ID" }}
   };
 
+  static hf_register_info hf_rtmp[] = {
+    { &hf_rtmp_net,
+      { "Net",		"rtmp.net",	FT_UINT16,  BASE_DEC, 
+		NULL, 0x0, "Net" }},
+    { &hf_rtmp_node,
+      { "Node",		"nbp.nodeid",	FT_UINT8,  BASE_DEC, 
+		NULL, 0x0, "Node" }},
+    { &hf_rtmp_node_len,
+      { "Node Length",		"nbp.nodeid.length",	FT_UINT8,  BASE_DEC, 
+		NULL, 0x0, "Node Length" }},
+    { &hf_rtmp_tuple_net,
+      { "Net",		"rtmp.tuple.net",	FT_UINT16,  BASE_DEC, 
+		NULL, 0x0, "Net" }},
+    { &hf_rtmp_tuple_dist,
+      { "Distance",		"rtmp.tuple.dist",	FT_UINT16,  BASE_DEC, 
+		NULL, 0x0, "Distance" }}
+  };
+
+
   static gint *ett[] = {
     &ett_ddp,
 	&ett_nbp,
 	&ett_nbp_info,
 	&ett_nbp_node,
-	&ett_pstring
+	&ett_pstring,
+	&ett_rtmp,
+	&ett_rtmp_tuple
   };
 
   proto_ddp = proto_register_protocol("Datagram Delivery Protocol", "ddp");
@@ -421,6 +549,9 @@ proto_register_atalk(void)
 
   proto_nbp = proto_register_protocol("Name Binding Protocol", "nbp");
   proto_register_field_array(proto_nbp, hf_nbp, array_length(hf_nbp));
+
+  proto_rtmp = proto_register_protocol("Routing Table", "rtmp");
+  proto_register_field_array(proto_rtmp, hf_rtmp, array_length(hf_rtmp));
 
   proto_register_subtree_array(ett, array_length(ett));
 }

@@ -158,6 +158,8 @@ Nathan Neulinger <nneul@umr.edu> {
 	TNS/Oracle dissector
 	Tacacs+/XTacacs dissector
 	IRC dissector
+	AppleTalk NBP dissector
+	AppleTalk RTMP response dissector
 }
 
 Tomislav Vujec <tvujec@carnet.hr> {
