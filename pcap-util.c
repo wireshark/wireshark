@@ -1,7 +1,7 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.20 2003/11/21 08:30:40 guy Exp $
+ * $Id: pcap-util.c,v 1.21 2003/11/21 08:33:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,18 +57,18 @@
  */
 int
 get_pcap_linktype(pcap_t *pch, char *devname
-#ifndef AIX
+#ifndef _AIX
 	_U_
 #endif
 )
 {
 	int linktype;
-#ifdef AIX
+#ifdef _AIX
 	char *ifacename;
 #endif
 
 	linktype = pcap_datalink(pch);
-#ifdef AIX
+#ifdef _AIX
 
 	/*
 	 * The libpcap that comes with AIX 5.x uses RFC 1573 ifType values
