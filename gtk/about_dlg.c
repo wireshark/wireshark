@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.5 2004/05/21 08:44:45 guy Exp $
+ * $Id: about_dlg.c,v 1.6 2004/05/21 08:55:07 ulfl Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -26,8 +26,6 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <string.h>
 
 #include <gtk/gtk.h>
 
@@ -108,6 +106,21 @@ about_ethereal_page_new(void)
   return main_vb;
 }
 
+#if 0
+extern GtkWidget * text_page_new(const char *absolute_path);
+
+static GtkWidget *
+about_authors_page_new(void)
+{
+  GtkWidget   *page;
+  char *absolute_path;
+
+  absolute_path = get_datafile_path("AUTHORS");
+  page = text_page_new(absolute_path);
+
+  return page;
+}
+#endif
 
 static void
 about_folders_row(GtkWidget *table, const char *label, const char *dir, const char *tip)
@@ -163,7 +176,7 @@ about_folders_page_new(void)
   /*g_free(path);*/
 
   /* program */
-  path = strdup(ethereal_path);
+  path = g_strdup(ethereal_path);
   path = get_dirname((char *) path);
   about_folders_row(table, "Program", path,
       "program files");
@@ -194,7 +207,7 @@ about_ethereal_cb( GtkWidget *w _U_, gpointer data _U_ )
 {
   GtkWidget   *main_vb, *main_nb, *bbox, *ok_btn;
 
-  GtkWidget   *page_lb, *about_page, *folders_page, *plugins_page;
+  GtkWidget   *page_lb, *about_page, /* *authors_page,*/ *folders_page, *plugins_page;
 
   if (about_ethereal_w != NULL) {
     /* There's already an "About Ethereal" dialog box; reactivate it. */
@@ -222,6 +235,12 @@ about_ethereal_cb( GtkWidget *w _U_, gpointer data _U_ )
   about_page = about_ethereal_page_new();
   page_lb = gtk_label_new("Ethereal");
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), about_page, page_lb);
+
+#if 0
+  authors_page = about_authors_page_new();
+  page_lb = gtk_label_new("Authors");
+  gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), authors_page, page_lb);
+#endif
 
   folders_page = about_folders_page_new();
   WIDGET_SET_SIZE(folders_page, 500, 200);

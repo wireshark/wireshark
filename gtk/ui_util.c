@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.22 2004/05/20 22:57:21 ulfl Exp $
+ * $Id: ui_util.c,v 1.23 2004/05/21 08:55:07 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -488,8 +488,8 @@ set_tree_styles_all(void)
 
 #if GTK_MAJOR_VERSION < 2
 /* convert variable argument list of values to array of strings (GTK2 -> GTK1) */
-void
-simple_list_convert(GtkWidget *list, gchar **ent, va_list ap)
+static void
+simple_list_convert(gchar **ent, va_list ap)
 {
     int i;
     char *s;
@@ -518,7 +518,7 @@ simple_list_append(GtkWidget *list, ...)
 
     va_start(ap, list);
 #if GTK_MAJOR_VERSION < 2
-    simple_list_convert(list, ent, ap);
+    simple_list_convert(ent, ap);
     gtk_clist_append(GTK_CLIST(list), ent);
 #else
     store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list)));

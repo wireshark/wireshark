@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.49 2004/05/21 00:27:56 ulfl Exp $
+ * $Id: help_dlg.c,v 1.50 2004/05/21 08:55:07 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -73,9 +73,9 @@ typedef struct {
 static GSList *help_text_pages = NULL;
 
 /*
- * Helper function to show a simple text page.
+ * Helper function to show a simple text page from a file.
  */
-GtkWidget * text_page_new(const char *topic, const char *absolute_path)
+GtkWidget * text_page_new(const char *absolute_path)
 {
   GtkWidget *page_vb, *txt_scrollw, *txt;
 
@@ -132,7 +132,7 @@ static GtkWidget * help_page(const char *topic, const char *filename)
 
   relative_path = g_strconcat(HELP_DIR, G_DIR_SEPARATOR_S, filename, NULL);
   absolute_path = get_datafile_path(relative_path);
-  page_vb = text_page_new(topic, absolute_path);
+  page_vb = text_page_new(absolute_path);
   g_free(relative_path);
   gtk_widget_show(page_vb);
 

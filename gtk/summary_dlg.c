@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.30 2004/05/21 06:39:25 guy Exp $
+ * $Id: summary_dlg.c,v 1.31 2004/05/21 08:55:07 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,7 +75,7 @@ add_string_to_table(GtkWidget *list, guint *row, gchar *title, gchar *value)
 
 
 static void
-add_string_to_list(GtkWidget *list, guint *row, gchar *title, gchar *captured, gchar *displayed)
+add_string_to_list(GtkWidget *list, gchar *title, gchar *captured, gchar *displayed)
 {
     simple_list_append(list, 0, title, 1, captured, 2, displayed, -1);
 }
@@ -222,7 +222,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   } else {
     strcpy(string_buff2, "");
   }
-  add_string_to_list(list, &row, "Between first and last packet", string_buff, string_buff2);
+  add_string_to_list(list, "Between first and last packet", string_buff, string_buff2);
 
   /* Packet count */
   g_snprintf(string_buff, SUM_STR_MAX, "%i", summary.packet_count);
@@ -231,7 +231,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   } else {
     strcpy(string_buff2, "");
   }
-  add_string_to_list(list, &row, "Packets", string_buff, string_buff2);
+  add_string_to_list(list, "Packets", string_buff, string_buff2);
 
   /* Packets per second */
   if (seconds > 0){
@@ -244,7 +244,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   } else {
     strcpy(string_buff2, "");
   }
-  add_string_to_list(list, &row, "Avg. packets/sec", string_buff, string_buff2);
+  add_string_to_list(list, "Avg. packets/sec", string_buff, string_buff2);
 
   /* Packet size */
   if (summary.packet_count > 0){
@@ -259,7 +259,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   } else {
     strcpy(string_buff2, "");
   }
-  add_string_to_list(list, &row, "Avg. packet size", string_buff, string_buff2);
+  add_string_to_list(list, "Avg. packet size", string_buff, string_buff2);
 
   /* Byte count */
   g_snprintf(string_buff, SUM_STR_MAX, "%d", summary.bytes);
@@ -268,7 +268,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   } else {
     strcpy(string_buff2, "");
   }
-  add_string_to_list(list, &row, "Bytes", string_buff, string_buff2);
+  add_string_to_list(list, "Bytes", string_buff, string_buff2);
 
   /* Bytes per second */
   if (seconds > 0){
@@ -281,7 +281,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   } else {
     strcpy(string_buff2, "");
   }
-  add_string_to_list(list, &row, "Avg. bytes/sec", string_buff, string_buff2);
+  add_string_to_list(list, "Avg. bytes/sec", string_buff, string_buff2);
 
   /* MBit per second */
   if (seconds > 0){
@@ -295,7 +295,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   } else {
     strcpy(string_buff2, "");
   }
-  add_string_to_list(list, &row, "Avg. MBit/sec", string_buff, string_buff2);
+  add_string_to_list(list, "Avg. MBit/sec", string_buff, string_buff2);
 
   
   /* Button row. */
