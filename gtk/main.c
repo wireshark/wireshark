@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.384 2004/02/01 02:59:20 guy Exp $
+ * $Id: main.c,v 1.385 2004/02/01 10:01:19 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1578,6 +1578,78 @@ dnd_open_file_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
     }
 }
 
+static gchar *
+dnd_uri2filename(gchar *cf_name)
+{
+    gchar     *src, *dest;
+    gint      i, ret;
+    gchar     esc[3];
+
+
+    /*
+     * Remove URI header.
+     * On win32 (at least WinXP), this string looks like:
+     * file:///d:/dir1/dir2/capture-file.cap
+     * we have to remove the file:/// to get a valid filename.
+     *
+     * On UNIX (at least KDE 3.0 Konqueror), this string looks like:
+     * file:/dir1/dir2/capture-file.cap
+     * we have to remove the file: to get a valid filename.
+     */ 
+    if (strncmp("file:///", cf_name, 8) == 0) {
+        cf_name += 8;
+    } else if (strncmp("file:", cf_name, 5) == 0) {
+        cf_name += 5;
+    }
+
+    /* 
+     * unescape the escaped URI characters (spaces, ...)
+     *
+     * we have to replace escaped chars to their equivalents, 
+     * e.g. %20 (always a two digit hexstring) -> ' '
+     * the percent character '%' is escaped be a double one "%%"
+     *
+     * we do this conversation "in place" as the result is always 
+     * equal or smaller in size.
+     */
+    src = cf_name;
+    dest = cf_name;
+    while (*src) {
+        if (*src == '%') {
+            src++;
+            if (*src == '%') {
+                /* this is an escaped '%' char (was: "%%") */
+                *dest = *src;
+                src++;
+                dest++;
+            } else {
+                /* convert escaped hexnumber to unscaped character */
+                esc[0] = src[0];
+                esc[1] = src[1];
+                esc[2] = '\0';
+                ret = sscanf(esc, "%x", &i);
+                if (ret == 1) {
+                    src+=2;
+                    *dest = (gchar) i;
+                    dest++;
+                } else {
+                    /* somethings wrong, just jump over that char
+                     * this will result in a wrong string, but we might get
+                     * user feedback and can fix it later ;-) */
+                    src++;
+                }
+            }
+        } else {
+            *dest = *src;
+            src++;
+            dest++;
+        }
+    }
+    *dest = '\0';
+
+    return cf_name;
+}
+
 static void 
 dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gint y _U_, 
 GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
@@ -1604,19 +1676,8 @@ GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
         /* replace trailing CR NL simply with zeroes */
         g_strdelimit(cf_name, "\r\n", '\0');
 
-        /*
-         * Remove URI header.
-         * XXX - at least on UNIX, these are probably absolute pathnames,
-         * meaning the last "/" shouldn't be removed.  Should we look for
-         * "file:" followed by an arbitrary number of "/"es, and remove
-         * all but the last "/"?
-         * And what about Windows?
-         */ 
-        if (strncmp("file:///", cf_name, 8) == 0) {
-            cf_name += 8;
-        } else if (strncmp("file:", cf_name, 5) == 0) {
-            cf_name += 5;
-        }
+        /* convert the URI to a local filename */
+        cf_name = dnd_uri2filename(cf_name);
 
         /* we need a clean name for later call to g_free() */
         cf_name = strdup(cf_name);
