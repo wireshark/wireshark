@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.36 2003/12/22 22:17:30 guy Exp $
+; $Id: ethereal.nsi,v 1.37 2003/12/26 11:36:43 ulfl Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -250,6 +250,7 @@ Delete "$INSTDIR\lib\gtk-2.0\2.2.0\loaders\*.*"
 Delete "$INSTDIR\lib\gtk-2.0\2.2.0\immodules\*.*"
 Delete "$INSTDIR\lib\pango\1.2.0\modules\*.*"
 !endif
+Delete "$INSTDIR\help\*.*"
 Delete "$INSTDIR\plugins\${VERSION}\*.*"
 Delete "$INSTDIR\plugins\*.*"
 Delete "$INSTDIR\diameter\*.*"
@@ -273,6 +274,7 @@ RMDir "$INSTDIR\lib\pango"
 RMDir "$INSTDIR\lib"
 !endif
 RMDir "$SMPROGRAMS\Ethereal"
+RMDir "$INSTDIR\help"
 RMDir "$INSTDIR\plugins\${VERSION}"
 RMDir "$INSTDIR\plugins"
 RMDir "$INSTDIR\diameter"
