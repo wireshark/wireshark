@@ -2,7 +2,7 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.7 2001/03/29 08:05:07 guy Exp $
+ * $Id: packet-wcp.c,v 1.8 2001/03/30 10:51:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -110,12 +110,10 @@
 #include <string.h>
 #include "packet.h"
 #include "packet-frame.h"
-#include "packet-osi.h"
+#include "packet-fr.h"
 #include "conversation.h"
 #include "etypes.h"
 #include "nlpid.h"
-#include "oui.h"
-#include "packet-llc.h"
 
 #define MAX_WIN_BUF_LEN 0x7fff		/* storage size for decompressed data */
 #define MAX_WCP_BUF_LEN 2048		/* storage size for decompressed data */
@@ -176,11 +174,6 @@ static int hf_wcp_long_len = -1;
 static int hf_wcp_short_run = -1;
 static int hf_wcp_long_run = -1;
 static int hf_wcp_offset = -1;
-
-/*$$ are these needed or should the Frame relay stuff be used (call a decoder in frame relay)?? */
-static int hf_wcp_oui = -1;
-static int hf_wcp_pid = -1;
-static int hf_wcp_type = -1;
 
 static gint ett_wcp = -1;
 static gint ett_wcp_field = -1;
@@ -316,19 +309,15 @@ void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	int		wcp_header_len;
 	guint16		temp, cmd, ext_cmd, seq;
 	tvbuff_t	*next_tvb;
-	guint8		protocol_id;
 
-	temp = tvb_get_guint8(tvb, 0);
-
-        if (!proto_is_protocol_enabled(proto_wcp))
-                return;
-
-	temp =tvb_get_ntohs(tvb, 0); 
 	pinfo->current_proto = "WCP";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "WCP");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
 
+	temp =tvb_get_ntohs(tvb, 0); 
 
 	cmd = (temp & 0xf000) >> 12;
 	ext_cmd = (temp & 0x0f00) >> 8;
@@ -412,15 +401,7 @@ void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			tvb_reported_length( tvb)-1, 1,
 		 	tvb_get_guint8( tvb, tvb_reported_length(tvb)-1));
 
-	protocol_id = tvb_get_guint8( next_tvb, 0);
-
-/*XXX This isn't really what we want to do !! Should be able to call a decoder	*/
-/*	routine in the frame relay code or PPP (if that is added).		*/
-
-  	if (!dissector_try_port(fr_subdissector_table, protocol_id,
-			tvb_new_subset(next_tvb, 1,-1,-1), pinfo, tree))
-		dissect_snap(next_tvb, 0, pinfo, tree, wcp_tree, 0,
-	      		hf_wcp_oui, hf_wcp_type, hf_wcp_pid, 0);
+	dissect_fr_uncompressed(next_tvb, pinfo, tree);
 
 	return;
 }
@@ -727,15 +708,6 @@ proto_register_wcp(void)
 	{ &hf_wcp_short_run,
 	  { "Short Compression", "wcp.short_comp", FT_UINT8, BASE_HEX, NULL, 0,
 	  	"Short Compression type"}},
-	{ &hf_wcp_oui, {
-	   "Organization Code",	"wcp.snap.oui", FT_UINT24, BASE_HEX, 
-	   VALS(oui_vals), 0x0, ""}},
-	{ &hf_wcp_pid, {
-	   "Protocol ID", "wcp.snap.pid", FT_UINT16, BASE_HEX, 
-	   NULL, 0x0, ""}},
-        { &hf_wcp_type, { 
-           "Type", "wcp.type", FT_UINT16, BASE_HEX, 
-            NULL, 0x0, "WCP SNAP Encapsulated Protocol" }},
 
    };
 
@@ -758,6 +730,3 @@ proto_reg_handoff_wcp(void) {
     dissector_add("fr.ietf", NLPID_COMPRESSED, dissect_wcp, proto_wcp);
     dissector_add("ethertype",  ETHERTYPE_WCP, dissect_wcp, proto_wcp);
 }
-
-
-

@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.13 2001/03/29 08:05:06 guy Exp $
+ * $Id: packet-fr.c,v 1.14 2001/03/30 10:51:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,8 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
+#include "packet-fr.h"
+#include "packet-osi.h"
 #include "packet-llc.h"
 #include "packet-chdlc.h"
 #include "xdlc.h"
@@ -101,21 +103,47 @@ static const true_false_string ea_string = {
                 "More Follows"
         };
 
+/*
+ * This isn't the same as "nlpid_vals[]"; 0x08 is Q.933, not Q.931,
+ * and 0x09 is LMI, not Q.2931.
+ */
+static const value_string fr_nlpid_vals[] = {
+	{ NLPID_NULL,            "NULL" },
+	{ NLPID_T_70,            "T.70" },
+	{ NLPID_X_633,           "X.633" },
+	{ NLPID_Q_931,           "Q.933" },
+	{ NLPID_LMI,             "LMI" },
+	{ NLPID_Q_2119,          "Q.2119" },
+	{ NLPID_SNAP,            "SNAP" },
+	{ NLPID_ISO8473_CLNP,    "CLNP" },
+	{ NLPID_ISO9542_ESIS,    "ESIS" },
+	{ NLPID_ISO10589_ISIS,   "ISIS" },
+	{ NLPID_ISO10747_IDRP,   "IDRP" },
+	{ NLPID_ISO9542X25_ESIS, "ESIS (X.25)" },
+	{ NLPID_ISO10030,        "ISO 10030" },
+	{ NLPID_ISO11577,        "ISO 11577" },
+	{ NLPID_COMPRESSED,      "Data compression protocol" },
+	{ NLPID_IP,              "IP" },
+	{ NLPID_PPP,             "PPP" },
+	{ 0,                     NULL },
+};
+
 dissector_table_t fr_subdissector_table;
 
+static void dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			     proto_tree *tree, proto_item *ti,
+			     proto_tree *fr_tree, guint8 fr_ctrl);
 static void dissect_lapf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_fr_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item *ti;
+  proto_item *ti = NULL;
   proto_tree *fr_tree = NULL;
   guint16 fr_header,fr_type,offset=2; /* default header length of FR is 2 bytes */
   guint16 address;
   char    buf[32];
-  guint8  fr_nlpid,fr_ctrl;
-
-  CHECK_DISPLAY_AS_DATA(proto_fr, tvb, pinfo, tree);
+  guint8  fr_ctrl;
 
   pinfo->current_proto = "Frame Relay";
   if (check_col(pinfo->fd, COL_PROTOCOL)) 
@@ -144,7 +172,7 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_add_fstr(pinfo->fd, COL_INFO, "DLCI %u", address);
 
   if (tree) {
-      ti = proto_tree_add_protocol_format(tree, proto_fr, tvb, 0, 4, "Frame Relay");
+      ti = proto_tree_add_protocol_format(tree, proto_fr, tvb, 0, 3, "Frame Relay");
       fr_tree = proto_item_add_subtree(ti, ett_fr);
 
       decode_bitfield_value(buf, fr_header, FRELAY_DLCI, 16);
@@ -168,48 +196,10 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(fr_tree, tvb, offset, 1, "Unnumbered Information");
       }
       offset++;
-      fr_nlpid = tvb_get_guint8 (tvb,offset);
-      if (fr_nlpid == 0) {
-		if (tree)
-			proto_tree_add_text(fr_tree, tvb, offset, 1, "Padding");
-		offset++;
-		fr_nlpid=tvb_get_guint8( tvb,offset);
-      }
-      if (tree)
-		proto_tree_add_uint(fr_tree, hf_fr_nlpid, tvb, offset, 1, fr_nlpid );
-      offset++;
 
       SET_ADDRESS(&pinfo->dl_src, AT_DLCI, 2, (guint8*)&address);
 
-      if (fr_nlpid == NLPID_SNAP) {
-		dissect_snap(tvb, offset, pinfo, tree, fr_tree, fr_ctrl,
-		      hf_fr_oui, hf_fr_snaptype, hf_fr_pid, 0);
-		return;
-      }
-		                                  
-      /*
-       * XXX - we should just call "dissect_osi()" here, but
-       * some of the routines "dissect_osi()" calls themselves put
-       * the NLPID into the tree, and not everything registered with
-       * "fr.ietf" is also registered with "osinl".
-       *
-       * We'd need to figure out what to do with the NLPID.
-       * "dissect_osi()" is registered with the "llc.dsap" dissector
-       * table, so if it were to put the NLPID into the protocol
-       * tree it'd have to create its own subtree for it - not all its
-       * callers can do that for it (without knowing whether they're
-       * going to call it or not, and the LLC dissector doesn't).
-       *
-       * Currently, it hands the NLPID as part of the tvbuff to
-       * the sub-dissectors it calls; if none of them need to look
-       * at it, we could perhaps have it put the NLPID into the
-       * tree and *not* have the subdissectors expect it - that's
-       * what would have to be done for IP, for example, as IP,
-       * unlike CLNP, doesn't expect an NLPID as the first byte.
-       */
-      if (!dissector_try_port(fr_subdissector_table,fr_nlpid, tvb_new_subset(tvb,offset,-1,-1), pinfo, tree))
-		dissect_data(tvb_new_subset(tvb,offset,-1,-1), 0, pinfo, tree);
-      return;
+      dissect_fr_nlpid(tvb, offset, pinfo, tree, ti, fr_tree, fr_ctrl);
   } else {
       if (address == 0) {
 		/* this must be some sort of lapf on DLCI 0 for SVC */
@@ -231,6 +221,128 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_text(fr_tree, tvb, offset, 0, "------- Cisco Encapsulation -------");
       fr_type  = tvb_get_ntohs(tvb, offset);
       chdlctype(fr_type, tvb, offset+2, pinfo, tree, fr_tree, hf_fr_chdlctype);
+  }
+}
+
+
+void dissect_fr_uncompressed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_item *ti = NULL;
+  proto_tree *fr_tree = NULL;
+
+  CHECK_DISPLAY_AS_DATA(proto_fr, tvb, pinfo, tree);
+
+  pinfo->current_proto = "Frame Relay";
+  if (check_col(pinfo->fd, COL_PROTOCOL)) 
+      col_set_str(pinfo->fd, COL_PROTOCOL, "FR");
+  if (check_col(pinfo->fd, COL_INFO)) 
+      col_clear(pinfo->fd, COL_INFO);
+
+  if (tree) {
+      ti = proto_tree_add_protocol_format(tree, proto_fr, tvb, 0, 4, "Frame Relay");
+      fr_tree = proto_item_add_subtree(ti, ett_fr);
+  }
+  dissect_fr_nlpid(tvb, 0, pinfo, tree, ti, fr_tree, XDLC_U);
+}
+
+static void dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			     proto_tree *tree, proto_item *ti,
+			     proto_tree *fr_tree, guint8 fr_ctrl)
+{
+  guint8  fr_nlpid;
+  tvbuff_t *next_tvb;
+
+  fr_nlpid = tvb_get_guint8 (tvb,offset);
+  if (fr_nlpid == 0) {
+	if (tree)
+		proto_tree_add_text(fr_tree, tvb, offset, 1, "Padding");
+	offset++;
+	if (ti != NULL) {
+		/* Include the padding in the top-level protocol tree item. */
+		proto_item_set_len(ti, proto_item_get_len(ti) + 1);
+	}
+	fr_nlpid=tvb_get_guint8( tvb,offset);
+  }
+
+  /*
+   * OSI network layer protocols consider the NLPID to be part
+   * of the frame, so we'll pass it as part of the payload and,
+   * if the protocol is one of those, add it as a hidden item here.
+   */
+  next_tvb = tvb_new_subset(tvb,offset,-1,-1);
+  if (dissector_try_port(osinl_subdissector_table, fr_nlpid, next_tvb,
+			 pinfo, tree)) {
+	/*
+	 * Yes, we got a match.  Add the NLPID as a hidden item,
+	 * so you can, at least, filter on it.
+	 */
+	if (tree)
+		proto_tree_add_uint_hidden(fr_tree, hf_fr_nlpid,
+		    tvb, offset, 1, fr_nlpid );
+	return;
+  }
+
+  /*
+   * All other protocols don't.
+   *
+   * XXX - not true for Q.933 and LMI, but we don't yet have a
+   * Q.933 dissector (it'd be similar to the Q.931 dissector,
+   * but I don't think it'd be identical, although it's less
+   * different than is the Q.2931 dissector), and the LMI
+   * dissector doesn't yet put the protocol discriminator
+   * (NLPID) into the tree.
+   *
+   * Note that an NLPID of 0x08 for Q.933 could either be a
+   * Q.933 signaling message or a message for a protocol
+   * identified by a 2-octet layer 2 protocol type and a
+   * 2-octet layer 3 protocol type, those protocol type
+   * octets having the values from octets 6, 6a, 7, and 7a
+   * of a Q.931 low layer compatibility information element
+   * (section 4.5.19 of Q.931; Q.933 says they have the values
+   * from a Q.933 low layer compatibility information element,
+   * but Q.933 low layer compatibility information elements
+   * don't have protocol values in them).
+   *
+   * Assuming that, as Q.933 seems to imply, that Q.933 messages
+   * look just like Q.931 messages except where it explicitly
+   * says they differ, then the octet after the NLPID would,
+   * in a Q.933 message, have its upper 4 bits zero (that's
+   * the length of the call reference value, in Q.931, and
+   * is limited to 15 or fewer octets).  As appears to be the case,
+   * octet 6 of a Q.931 low layer compatibility element has the
+   * 0x40 bit set, so you can distinguish between a Q.933
+   * message and an encapsulated packet by checking whether
+   * the upper 4 bits of the octet after the NLPID are zero.
+   *
+   * To handle this, we'd handle Q.933's NLPID specially, which
+   * we'd want to do anyway, so that we give it a tvbuff that
+   * includes the NLPID.
+   */
+  if (tree)
+	proto_tree_add_uint(fr_tree, hf_fr_nlpid, tvb, offset, 1, fr_nlpid );
+  offset++;
+  if (ti != NULL) {
+	/* Include the NLPID in the top-level protocol tree item. */
+	proto_item_set_len(ti, proto_item_get_len(ti) + 1);
+  }
+
+  switch (fr_nlpid) {
+
+  case NLPID_SNAP:
+	if (ti != NULL) {
+		/* Include the SNAP header in the top-level protocol tree item. */
+		proto_item_set_len(ti, proto_item_get_len(ti) + 5);
+	}
+	dissect_snap(tvb, offset, pinfo, tree, fr_tree, fr_ctrl,
+	      hf_fr_oui, hf_fr_snaptype, hf_fr_pid, 0);
+	return;
+
+  default:
+	next_tvb = tvb_new_subset(tvb,offset,-1,-1);
+	if (!dissector_try_port(fr_subdissector_table,fr_nlpid,
+				next_tvb, pinfo, tree))
+		dissect_data(next_tvb, 0, pinfo, tree);
+	break;
   }
 }
 
@@ -274,7 +386,7 @@ void proto_register_fr(void)
             FRELAY_EA, "Extended Address" }},
         { &hf_fr_nlpid, { 
            "NLPID", "fr.nlpid", FT_UINT8, BASE_HEX, 
-            VALS(nlpid_vals), 0x0, "FrameRelay Encapsulated Protocol NLPID" }},
+            VALS(fr_nlpid_vals), 0x0, "FrameRelay Encapsulated Protocol NLPID" }},
 	{ &hf_fr_oui, {
 	   "Organization Code",	"fr.snap.oui", FT_UINT24, BASE_HEX, 
 	   VALS(oui_vals), 0x0, ""}},

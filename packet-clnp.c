@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.26 2001/03/15 06:41:12 guy Exp $
+ * $Id: packet-clnp.c,v 1.27 2001/03/30 10:51:49 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1929,7 +1929,5 @@ proto_reg_handoff_clnp(void)
 	dissector_add("osinl", NLPID_ISO8473_CLNP, dissect_clnp,
 	    proto_clnp);
 	dissector_add("osinl", NLPID_NULL, dissect_clnp,
-	    proto_clnp);	/* Inactive subset */
-	dissector_add("fr.ietf", NLPID_ISO8473_CLNP, dissect_clnp,
 	    proto_clnp);	/* Inactive subset */
 }

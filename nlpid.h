@@ -2,7 +2,7 @@
  * Definitions of OSI NLPIDs (Network Layer Protocol IDs)
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: nlpid.h,v 1.7 2001/03/29 06:09:50 guy Exp $
+ * $Id: nlpid.h,v 1.8 2001/03/30 10:51:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,5 +48,10 @@
 #define NLPID_PPP		0xcf
 
 extern const value_string nlpid_vals[];
+
+/*
+ * 0x09 is, in Frame Relay, LMI, Q.2931.
+ */
+#define NLPID_LMI		0x09	/* LMI */
 
 #endif

@@ -1,6 +1,6 @@
 /* packet-osi.h
  *
- * $Id: packet-osi.h,v 1.5 2000/11/18 10:38:25 guy Exp $
+ * $Id: packet-osi.h,v 1.6 2001/03/30 10:51:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -97,16 +97,19 @@
 #define BIT_15  0x4000
 #define BIT_16  0x8000
 
+/*
+ * Dissector table for NLPIDs for protocols whose packets begin with
+ * the NLPID.
+ */
+dissector_table_t osinl_subdissector_table;
 
 /*
  * published API functions
  */
 
-extern void   dissect_osi( tvbuff_t *, packet_info *, proto_tree *);
 extern gchar *print_nsap_net ( const u_char *, int );
 extern gchar *print_area     ( const u_char *, int );
 extern gchar *print_system_id( const u_char *, int );
 extern gchar *calc_checksum  ( tvbuff_t *, int, u_int, u_int );
 
 #endif /* _PACKET_OSI_H */
-
