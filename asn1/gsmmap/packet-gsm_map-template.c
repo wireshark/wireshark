@@ -374,7 +374,7 @@ dissect_gsm_map_Opcode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
 
-	guint8 octet;
+  guint8 octet;
 
   switch(opcode){
   case  2: /*updateLocation*/
@@ -536,7 +536,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 		offset = offset +2;
 		offset=dissect_gsm_map_PrepareHandoverV3Arg(TRUE, tvb, offset, pinfo, tree, -1);
 	}else{
-		offset=offset=dissect_gsm_map_PrepareHO_Arg(FALSE, tvb, offset, pinfo, tree, -1);
+		offset=dissect_gsm_map_PrepareHO_Arg(FALSE, tvb, offset, pinfo, tree, -1);
 	}
     break;
   case 69: /*prepareSubsequentHandover*/
@@ -584,7 +584,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
 	
-	guint8 octet;
+  guint8 octet;
   switch(opcode){
   case  2: /*updateLocation*/
     offset=dissect_gsm_map_UpdateLocationRes(FALSE, tvb, offset, pinfo, tree, -1);
@@ -861,7 +861,7 @@ dissect_global_errorCode(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 static const ber_choice_t ReturnError_result_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_local_errorCode },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_global_errorCode },
-  { 0, 0, 0, NULL }
+  {   0, 0, 0, 0, NULL }
 };
 
 
