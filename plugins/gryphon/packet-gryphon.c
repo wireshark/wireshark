@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Routines for Gryphon protocol packet disassembly
  *
- * $Id: packet-gryphon.c,v 1.22 2001/06/18 02:18:25 guy Exp $
+ * $Id: packet-gryphon.c,v 1.23 2001/07/08 21:51:32 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -48,7 +48,9 @@
 #include "packet.h"
 #include "packet-gryphon.h"
 
+#ifndef __ETHEREAL_STATIC__
 G_MODULE_EXPORT const gchar version[] = VERSION;
+#endif
 
 #ifndef G_HAVE_GINT64
 #error "Sorry, this won't compile without 64-bit integer support"
@@ -1816,8 +1818,8 @@ blm_mode(tvbuff_t *tvb, int offset, int src, int msglen, proto_tree *pt)
     return offset;
 }
 
-G_MODULE_EXPORT void
-plugin_init(plugin_address_table_t *pat)
+void
+proto_register_gryphon(void)
 {
     static hf_register_info hf[] = {
 	{ &hf_gryph_src,
@@ -1859,22 +1861,32 @@ plugin_init(plugin_address_table_t *pat)
 	&ett_gryphon_pgm_status,
 	&ett_gryphon_pgm_options,
     };
-    plugin_address_table_init(pat);
-    if (proto_gryphon == -1) {
-	/* first activation */
-	proto_gryphon = proto_register_protocol("DG Gryphon Protocol",
-						"Gryphon",
-						"gryphon");
-	proto_register_field_array(proto_gryphon, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
-    } else {
-	/* do nothing, this is in fact a re-activation with possibly 
-	   a new filter */
-    }
+    proto_gryphon = proto_register_protocol("DG Gryphon Protocol",
+					    "Gryphon",
+					    "gryphon");
+    proto_register_field_array(proto_gryphon, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 }
 
-G_MODULE_EXPORT void
-plugin_reg_handoff(void)
+void
+proto_reg_handoff_gryphon(void)
 {
     dissector_add("tcp.port", 7000, &dissect_gryphon, proto_gryphon);
 }
+
+/* Start the functions we need for the plugin stuff */
+G_MODULE_EXPORT void
+plugin_reg_handoff(void){
+  proto_reg_handoff_gryphon();
+}
+
+G_MODULE_EXPORT void
+plugin_init(plugin_address_table_t *pat){
+  /* initialise the table of pointers needed in Win32 DLLs */
+  plugin_address_table_init(pat);
+  /* register the new protocol, protocol fields, and subtrees */
+  if (proto_gryphon == -1) { /* execute protocol initialization only once */
+    proto_register_gryphon();
+  }
+}
+/* End the functions we need for plugin stuff */

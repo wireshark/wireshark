@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.25 2001/07/08 04:47:33 hagbard Exp $
+ * $Id: packet-mgcp.c,v 1.26 2001/07/08 21:51:34 hagbard Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -51,7 +51,9 @@
 #include "prefs.h"
 #include "strutil.h"
 
+#ifndef __ETHEREAL_STATIC__
 G_MODULE_EXPORT const gchar version[] = VERSION;
+#endif
 
 #define TCP_PORT_MGCP_GATEWAY 2427
 #define UDP_PORT_MGCP_GATEWAY 2427
@@ -1248,6 +1250,9 @@ static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset,
 }
 
 /* Start the functions we need for the plugin stuff */
+
+#ifndef __ETHEREAL_STATIC__
+
 G_MODULE_EXPORT void
 plugin_reg_handoff(void){
   proto_reg_handoff_mgcp();
@@ -1262,4 +1267,9 @@ plugin_init(plugin_address_table_t *pat){
     proto_register_mgcp();
   }
 }
+
+#endif
+
 /* End the functions we need for plugin stuff */
+
+

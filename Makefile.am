@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.343 2001/07/04 06:25:03 girlich Exp $
+# $Id: Makefile.am,v 1.344 2001/07/08 21:51:31 hagbard Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -259,6 +259,10 @@ DISSECTOR_SRC = \
 	packet-ypxfr.c \
 	packet-zebra.c
 
+PLUGIN_SRC = \
+	plugins/mgcp/packet-mgcp.c	\
+	plugins/gryphon/packet-gryphon.c 
+
 noinst_HEADERS = \
 	packet-afs.h   \
 	packet-afs-macros.h \
@@ -384,7 +388,6 @@ ETHEREAL_COMMON_SRC = \
 	ptvcursor.h	\
 	reassemble.c   \
 	reassemble.h   \
-	register.c     \
 	register.h     \
 	smb.h          \
 	util.c         \
@@ -401,6 +404,7 @@ BUILT_SOURCES = \
 ethereal_SOURCES = \
 	$(DISSECTOR_SRC) \
 	$(ETHEREAL_COMMON_SRC) \
+	register.c     \
 	capture.c      \
 	capture.h      \
 	file.c         \
@@ -419,7 +423,25 @@ ethereal_SOURCES = \
 	ui_util.h
 
 ethereal_static_SOURCES = \
-	$(ethereal_SOURCES)
+	$(DISSECTOR_SRC) \
+	$(ETHEREAL_COMMON_SRC) \
+	register-static.c     \
+	capture.c      \
+	capture.h      \
+	file.c         \
+	file.h         \
+	filters.c      \
+	filters.h      \
+	globals.h      \
+	menu.h         \
+	progress_dlg.h \
+	proto_hier_stats.h	\
+	proto_hier_stats.c	\
+	simple_dialog.h \
+	statusbar.h    \
+	summary.c      \
+	summary.h      \
+	ui_util.h	
 
 EXTRA_ethereal_SOURCES = \
 	snprintf.c	\
@@ -482,10 +504,12 @@ ethereal_LDADD = \
 
 ethereal_static_LDADD = \
 	"-all-static" 			\
+	plugins/mgcp/packet-mgcp-static.o		\
+	plugins/gryphon/packet-gryphon-static.o		\
 	$(ethereal_optional_objects)	\
 	$(ethereal_additional_libs)	\
 	@SNMP_LIBS@ @SSL_LIBS@		\
-	@PCAP_LIBS@ @GTK_LIBS@
+	@PCAP_LIBS@ @GTK_LIBS@		
 
 ethereal_LDFLAGS = -export-dynamic
 ethereal_static_LDFLAGS = -Wl,-static
@@ -493,10 +517,14 @@ ethereal_static_LDFLAGS = -Wl,-static
 tethereal_SOURCES = \
 	$(DISSECTOR_SRC) \
 	$(ETHEREAL_COMMON_SRC) \
+	register.c     \
 	tethereal.c
 
 tethereal_static_SOURCES = \
-	$(tethereal_SOURCES)
+	$(DISSECTOR_SRC) \
+	$(ETHEREAL_COMMON_SRC) \
+	register-static.c     \
+	tethereal.c
 
 # Additional libs that I know how to build. These will be
 # linked into the tethereal executable.
@@ -529,6 +557,8 @@ tethereal_LDADD = wiretap/libwiretap.a	\
 
 tethereal_static_LDADD = \
 	"-all-static"		\
+	plugins/mgcp/packet-mgcp-static.o		\
+	plugins/gryphon/packet-gryphon-static.o		\
 	wiretap/libwiretap.a	\
 	$(ethereal_optional_objects)	\
 	$(tethereal_additional_libs)	\
@@ -582,7 +612,11 @@ x11-declarations.h x11-register-info.h: x11-fields process-x11-fields.pl
 #
 register.c: $(DISSECTOR_SRC) $(srcdir)/make-reg-dotc
 	@echo Making register.c
-	@$(srcdir)/make-reg-dotc $(srcdir) $(DISSECTOR_SRC)
+	@$(srcdir)/make-reg-dotc register.c $(srcdir) $(DISSECTOR_SRC)
+
+register-static.c: $(PLUGIN_SRC) $(DISSECTOR_SRC) $(srcdir)/make-reg-dotc
+	@echo Making register-static.c
+	@$(srcdir)/make-reg-dotc register-static.c $(srcdir) $(PLUGIN_SRC) $(DISSECTOR_SRC)
 
 ps.c: print.ps rdps
 	./rdps $(srcdir)/print.ps ps.c
@@ -600,6 +634,7 @@ randpkt: randpkt.o wiretap/libwiretap.a
 dftest_SOURCES = \
 	$(DISSECTOR_SRC) \
 	$(ETHEREAL_COMMON_SRC) \
+	register.c     \
 	dftest.c
 
 dftest_additional_libs =		\
@@ -627,6 +662,7 @@ dftest_LDFLAGS = -export-dynamic
 
 DISTCLEANFILES =	\
 	register.c	\
+	register-static.c \
 	rdps		\
 	ps.c		\
 	*~
