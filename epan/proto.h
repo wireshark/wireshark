@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.57 2004/03/25 23:55:21 guy Exp $
+ * $Id: proto.h,v 1.58 2004/04/30 06:56:15 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -216,10 +216,6 @@ extern proto_item* proto_item_get_parent_nth(proto_item *ti, int gen);
 
 /* Get a parent item of subtree; returns item pointer */
 extern proto_item* proto_tree_get_parent(proto_tree *tree);
-
-extern int
-proto_register_field(char *name, char *abbrev, enum ftenum type, int parent,
-	struct _value_string* vals);
 
 extern int
 proto_register_protocol(char *name, char *short_name, char *filter_name);

@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.c,v 1.15 2004/02/11 22:52:54 guy Exp $
+ * $Id: dfilter.c,v 1.16 2004/04/30 06:56:15 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,12 +44,8 @@
 static gchar dfilter_error_msg_buf[1024];
 gchar *dfilter_error_msg;	/* NULL when no error resulted */
 
-/* In proto.c */
-extern int hf_text_only;
-
 /* From scanner.c */
 void    df_scanner_text(const char *text);
-void    df_scanner_file(FILE *fh);
 void    df_scanner_cleanup(void);
 int     df_lex(void);
 
