@@ -4,7 +4,7 @@
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  * Copyright 2004, Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-aim-messaging.c,v 1.8 2004/05/23 01:53:29 guy Exp $
+ * $Id: packet-aim-messaging.c,v 1.9 2004/06/03 04:19:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,7 +87,7 @@ static const value_string aim_fnac_family_messaging[] = {
 #define INCOMING_CH1_TYPING            0x000b
 
 static const aim_tlv messaging_incoming_ch1_tlvs[] = {
-  { INCOMING_CH1_MESSAGE_BLOCK, "Message Block", dissect_aim_tlv_value_bytes },
+  { INCOMING_CH1_MESSAGE_BLOCK, "Message Block", dissect_aim_tlv_value_messageblock },
   { INCOMING_CH1_SERVER_ACK_REQ, "Server Ack Requested", dissect_aim_tlv_value_bytes },
   { INCOMING_CH1_MESSAGE_AUTH_RESP, "Message is Auto Response", dissect_aim_tlv_value_bytes },
   { INCOMING_CH1_MESSAGE_OFFLINE, "Message was received offline", dissect_aim_tlv_value_bytes },
@@ -165,35 +165,31 @@ static int dissect_aim_messaging(tvbuff_t *tvb, packet_info *pinfo,
       return 0;
     case FAMILY_MESSAGING_OUTGOING:
 
-      /* Unknown */
-      offset += 10;
+      /* ICBM Cookie */
+      proto_tree_add_item(msg_tree, hf_aim_icbm_cookie, tvb, offset, 8, FALSE);
+      offset += 8;
 
-      buddyname_length = aim_get_buddyname( buddyname, tvb, offset, offset + 1 );
-      
-      if (check_col(pinfo->cinfo, COL_INFO))
+      /* Message Channel ID */
+      proto_tree_add_item(msg_tree, hf_aim_message_channel_id, tvb, offset, 2,
+			  FALSE);
+      offset += 2;
+
+      /* Add the outgoing username to the info column */
+      if (check_col(pinfo->cinfo, COL_INFO)) {
+	buddyname_length = aim_get_buddyname(buddyname, tvb, offset, 
+					     offset + 1);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " to: %s", buddyname);
-
-      if(msg_tree) {
-	proto_tree_add_text(msg_tree, tvb, offset, buddyname_length + 1,
-			    "Screen Name: %s", buddyname);
       }
 
-      /* Buddyname length and buddyname */
-      offset += buddyname_length + 1;
+      offset = dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);
 
-      /* djh - My test suggest that this is broken.  Need to give this a
-	 closer look @@@@@@@@@ */
-      msg_length = tvb_ensure_length_remaining(tvb, offset);
-      aim_get_message( msg, tvb, offset, msg_length );
-      
-      if (check_col(pinfo->cinfo, COL_INFO))
-	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
-      
-      /* XXX - put the message into the protocol tree?
-         In at least one capture, there's a bunch of bytes before the
-         "<HTML>" tag for the message.  "aim_get_message()" skips them,
-         looking for the "<HTML>" tag - are they part of the message,
-         or are they some other unknown field? */
+      while(tvb_reported_length_remaining(tvb, offset) > 0) {
+	/* djh - Note that we reuse the "incoming ch1 tlv" set even though this
+	   is outgoing.  We may need to split this to a separate TLV set, but
+	   so far I haven't seen the need @@@@@@@@ */
+	offset = dissect_aim_tlv(tvb, pinfo, offset, msg_tree, 
+					  messaging_incoming_ch1_tlvs);
+      }
 
       return offset;
       

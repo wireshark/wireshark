@@ -2,8 +2,9 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
+ * Copyright 2004, Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-aim.c,v 1.41 2004/05/05 09:30:56 guy Exp $
+ * $Id: packet-aim.c,v 1.42 2004/06/03 04:19:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -319,6 +320,15 @@ static int hf_aim_userclass_unknown100 = -1;
 static int hf_aim_userclass_unknown200 = -1;
 static int hf_aim_userclass_unknown400 = -1;
 static int hf_aim_userclass_unknown800 = -1;
+static int hf_aim_messageblock_featuresdes = -1;
+static int hf_aim_messageblock_featureslen = -1;
+static int hf_aim_messageblock_features = -1;
+static int hf_aim_messageblock_info = -1;
+static int hf_aim_messageblock_len = -1;
+static int hf_aim_messageblock_charset = -1;
+static int hf_aim_messageblock_charsubset = -1;
+static int hf_aim_messageblock_message = -1;
+
 
 /* Initialize the subtree pointers */
 static gint ett_aim          = -1;
@@ -326,6 +336,7 @@ static gint ett_aim_buddyname= -1;
 static gint ett_aim_fnac     = -1;
 static gint ett_aim_tlv      = -1;
 static gint ett_aim_userclass = -1;
+static gint ett_aim_messageblock = -1;
 
 /* desegmentation of AIM over TCP */
 static gboolean aim_desegment = TRUE;
@@ -829,6 +840,68 @@ int dissect_aim_tlv_value_uint32 (proto_item *ti, guint16 valueid _U_, tvbuff_t 
   return 4;
 }
 
+int dissect_aim_tlv_value_messageblock (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb){
+  proto_tree *entry;
+  guint8 *buf;
+  guint16 featurelen;
+  guint16 blocklen;
+  int offset=0;
+
+  /* Setup a new subtree */
+  entry = proto_item_add_subtree(ti, ett_aim_messageblock);
+
+  /* Features descriptor */
+  proto_tree_add_item(entry, hf_aim_messageblock_featuresdes, tvb, offset, 2,
+		      FALSE);
+  offset += 2;
+
+  /* Features Length */
+  featurelen = tvb_get_ntohs(tvb, offset);
+  proto_tree_add_item(entry, hf_aim_messageblock_featureslen, tvb, offset, 2,
+		      FALSE);
+  offset += 2;
+
+  /* Features (should be expanded further @@@@@@@ ) */
+  proto_tree_add_item(entry, hf_aim_messageblock_features, tvb, offset, 
+		      featurelen, FALSE);
+  offset += featurelen;
+
+  /* There can be multiple messages in this message block */
+  while (tvb_length_remaining(tvb, offset) > 0) {
+    /* Info field */
+    proto_tree_add_item(entry, hf_aim_messageblock_info, tvb, offset, 2,
+			FALSE);
+    offset += 2;
+    
+    /* Block length (includes charset and charsubset) */
+    blocklen = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(entry, hf_aim_messageblock_len, tvb, offset, 2,
+			FALSE);
+    offset += 2;
+    
+    /* Character set */
+    proto_tree_add_item(entry, hf_aim_messageblock_charset, tvb, offset, 2,
+			FALSE);
+    offset += 2;
+    
+    /* Character subset */
+    proto_tree_add_item(entry, hf_aim_messageblock_charsubset, tvb, offset, 2,
+			FALSE);
+    offset += 2;
+
+    /* The actual message */
+    buf = tvb_get_string(tvb, offset, blocklen - 4 );
+    proto_item_set_text(ti, "Message: %s", buf);
+    proto_tree_add_item(entry, hf_aim_messageblock_message, tvb, offset, 
+			blocklen-4,
+			FALSE);
+    offset += tvb_length_remaining(tvb, offset);
+    g_free(buf);
+  }
+
+  return offset;
+}
+
 /* Dissect a TLV value */
 int dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, 
 			   int offset, proto_tree *tree, const aim_tlv *tlv)
@@ -1006,6 +1079,30 @@ proto_register_aim(void)
 	{ &hf_aim_userinfo_warninglevel,
 		{ "Warning Level", "aim.userinfo.warninglevel", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
 	},
+    { &hf_aim_messageblock_featuresdes,
+		{ "Features", "aim.messageblock.featuresdes", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+	},
+    { &hf_aim_messageblock_featureslen,
+		{ "Features Length", "aim.messageblock.featureslen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+	},
+    { &hf_aim_messageblock_features,
+		{ "Features", "aim.messageblock.features", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL },
+	},
+    { &hf_aim_messageblock_info,
+		{ "Block info", "aim.messageblock.info", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+	},
+    { &hf_aim_messageblock_len,
+		{ "Block length", "aim.messageblock.length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+	},
+    { &hf_aim_messageblock_charset,
+		{ "Block Character set", "aim.messageblock.charset", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+	},
+    { &hf_aim_messageblock_charsubset,
+		{ "Block Character subset", "aim.messageblock.charsubset", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+	},
+    { &hf_aim_messageblock_message,
+		{ "Message", "aim.messageblock.message", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL },
+	},
   };
 
   /* Setup protocol subtree array */
@@ -1014,7 +1111,8 @@ proto_register_aim(void)
 	  &ett_aim_fnac,
 	  &ett_aim_tlv,
 	  &ett_aim_buddyname,
-	  &ett_aim_userclass
+	  &ett_aim_userclass,
+	  &ett_aim_messageblock
   };
   module_t *aim_module;
 
