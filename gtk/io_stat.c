@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.62 2004/02/11 04:28:48 guy Exp $
+ * $Id: io_stat.c,v 1.63 2004/02/13 00:53:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,9 +36,12 @@
 #include <ctype.h>
 
 #include <gtk/gtk.h>
+
+#include <epan/epan_dissect.h>
+#include <epan/packet_info.h>
+
 #include "gtkglobals.h"
-#include "epan/epan_dissect.h"
-#include "epan/packet_info.h"
+#include "ui_util.h"
 #include "tap_menu.h"
 #include "../tap.h"
 #include "../register.h"
@@ -1752,7 +1755,7 @@ init_io_stat_window(io_stat_t *io)
 	GtkWidget *hbox;
 
 	/* create the main window */
-	io->window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	io->window=window_new(GTK_WINDOW_TOPLEVEL, NULL);
 
 	gtk_widget_set_name(io->window, "I/O Statistics");
 

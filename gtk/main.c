@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.396 2004/02/13 00:00:25 guy Exp $
+ * $Id: main.c,v 1.397 2004/02/13 00:53:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3630,7 +3630,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     };
 
     /* Main window */
-    top_level = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    top_level = window_new(GTK_WINDOW_TOPLEVEL, "The Ethereal Network Analyzer");
 
     tooltips = gtk_tooltips_new();
 
@@ -3643,8 +3643,6 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_set_name(top_level, "main window");
     SIGNAL_CONNECT(top_level, "delete_event", main_window_delete_event_cb,
                    NULL);
-    SIGNAL_CONNECT(top_level, "realize", window_icon_realize_cb, NULL);
-    gtk_window_set_title(GTK_WINDOW(top_level), "The Ethereal Network Analyzer");
     gtk_window_set_policy(GTK_WINDOW(top_level), TRUE, TRUE, FALSE);
 
     /* Container for menu bar, toolbar(s), paned windows and progress/info box */

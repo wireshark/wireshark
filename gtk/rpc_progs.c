@@ -1,7 +1,7 @@
 /* rpc_progs.c
  * rpc_progs   2002 Ronnie Sahlberg
  *
- * $Id: rpc_progs.c,v 1.18 2004/02/11 04:28:49 guy Exp $
+ * $Id: rpc_progs.c,v 1.19 2004/02/13 00:53:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,13 +34,15 @@
 
 #include <gtk/gtk.h>
 
-#include "epan/packet_info.h"
-#include "epan/epan.h"
+#include <epan/packet_info.h>
+#include <epan/epan.h>
+
 #include "tap_menu.h"
 #include "tap.h"
 #include "../register.h"
 #include "packet-rpc.h"
 #include "../globals.h"
+#include "ui_util.h"
 #include "compat_macros.h"
 
 static GtkWidget *win=NULL;
@@ -319,7 +321,6 @@ win_destroy_cb(void *dummy _U_, gpointer data _U_)
 void
 gtk_rpcprogs_init(char *optarg _U_)
 {
-	char title_string[60];
 	GtkWidget *vbox;
 	GtkWidget *stat_label;
 	GtkWidget *tmp;
@@ -330,9 +331,7 @@ gtk_rpcprogs_init(char *optarg _U_)
 		return;
 	}
 
-	win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	sprintf(title_string,"ONC-RPC Program Statistics");
-	gtk_window_set_title(GTK_WINDOW(win), title_string);
+	win=window_new(GTK_WINDOW_TOPLEVEL, "ONC-RPC Program Statistics");
 	SIGNAL_CONNECT(win, "destroy", win_destroy_cb, win);
 
 	vbox=gtk_vbox_new(FALSE, 0);
@@ -340,7 +339,7 @@ gtk_rpcprogs_init(char *optarg _U_)
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
 	gtk_widget_show(vbox);
 
-	stat_label=gtk_label_new(title_string);
+	stat_label=gtk_label_new("ONC-RPC Program Statistics");
 	gtk_box_pack_start(GTK_BOX(vbox), stat_label, FALSE, FALSE, 0);
 	gtk_widget_show(stat_label);
 

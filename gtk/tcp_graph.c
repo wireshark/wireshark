@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.50 2004/02/06 19:19:11 ulfl Exp $
+ * $Id: tcp_graph.c,v 1.51 2004/02/13 00:53:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -583,11 +583,10 @@ static void create_text_widget (struct graph *g)
 	GtkWidget *streamwindow, *txt_scrollw, *box;
 
 	debug(DBS_FENTRY) puts ("create_text_widget()");
-	streamwindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	streamwindow = window_new (GTK_WINDOW_TOPLEVEL, "Ethereal: Packet chain");
 	gtk_widget_set_name (streamwindow, "Packet chain");
 	WIDGET_SET_SIZE(streamwindow, TXT_WIDTH, TXT_HEIGHT);
 	gtk_container_border_width (GTK_CONTAINER(streamwindow), 2);
-	SIGNAL_CONNECT(streamwindow, "realize", window_icon_realize_cb, NULL);
 
 	box = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (streamwindow), box);
@@ -709,9 +708,10 @@ static void create_drawing_area (struct graph *g)
 	g->font = gdk_font_load ("-biznet-fotinostypewriter-medium-r-normal-*-*-120"
 							"-*-*-m-*-iso8859-2");
 #endif
-	g->toplevel = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	snprintf (window_title, WINDOW_TITLE_LENGTH, "TCP Graph %d - Ethereal",
+					refnum);
+	g->toplevel = window_new (GTK_WINDOW_TOPLEVEL, window_title);
 	gtk_widget_set_name (g->toplevel, "Test Graph");
-	SIGNAL_CONNECT(g->toplevel, "realize", window_icon_realize_cb, NULL);
 
 	/* Create the drawing area */
 	g->drawing_area = gtk_drawing_area_new ();
@@ -770,9 +770,6 @@ static void create_drawing_area (struct graph *g)
 
 	gtk_container_add (GTK_CONTAINER (g->toplevel), g->drawing_area);
 	gtk_widget_show (g->toplevel);
-	snprintf (window_title, WINDOW_TITLE_LENGTH, "TCP Graph %d - Ethereal",
-					refnum);
-	gtk_window_set_title (GTK_WINDOW (g->toplevel), window_title);
 
 	/* in case we didn't get what we asked for */
 	g->wp.width = GTK_WIDGET (g->drawing_area)->allocation.width -
@@ -871,8 +868,9 @@ static void control_panel_create (struct graph *g)
 	control_panel_add_cross_page (g, notebook);
 	control_panel_add_graph_type_page (g, notebook);
 
-	toplevel = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	SIGNAL_CONNECT(toplevel, "realize", window_icon_realize_cb, NULL);
+	snprintf (window_title, WINDOW_TITLE_LENGTH,
+				"Graph %d - Control - Ethereal", refnum);
+	toplevel = window_new (GTK_WINDOW_TOPLEVEL, window_title);
 	SIGNAL_CONNECT(toplevel, "destroy", callback_toplevel_destroy, g);
 
 	table = gtk_table_new (2, 1,  FALSE);
@@ -882,24 +880,21 @@ static void control_panel_create (struct graph *g)
                           GTK_FILL|GTK_EXPAND, GTK_FILL, 5, 5);
 
 	/* bottom buttons */
-    bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_CLOSE, NULL);
-    gtk_table_attach (GTK_TABLE (table), bbox, 0, 1, 1, 2,
+	bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_CLOSE, NULL);
+	gtk_table_attach (GTK_TABLE (table), bbox, 0, 1, 1, 2,
                           GTK_FILL|GTK_EXPAND, GTK_FILL, 5, 5);
-    gtk_widget_show(bbox);
+	gtk_widget_show(bbox);
 
-    help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+	help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
 	SIGNAL_CONNECT(help_bt, "clicked", callback_create_help, g);
 
-    close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    gtk_widget_grab_default(close_bt);
+	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	gtk_widget_grab_default(close_bt);
 	SIGNAL_CONNECT(close_bt, "clicked", callback_close, g);
 
 	/* gtk_widget_show_all (table); */
 	/* g->gui.control_panel = table; */
 	gtk_widget_show_all (toplevel);
-	snprintf (window_title, WINDOW_TITLE_LENGTH,
-				"Graph %d - Control - Ethereal", refnum);
-	gtk_window_set_title (GTK_WINDOW (toplevel), window_title);
 	g->gui.control_panel = toplevel;
 }
 
@@ -1019,10 +1014,8 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
         GtkTextBuffer *buf;
 #endif
 
-	toplevel = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(toplevel), "Help for TCP graphing");
+	toplevel = window_new (GTK_WINDOW_TOPLEVEL, "Help for TCP graphing");
 	WIDGET_SET_SIZE(toplevel, 500, 400);
-	SIGNAL_CONNECT(toplevel, "realize", window_icon_realize_cb, NULL);
 
 	box = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (toplevel), box);
@@ -2688,8 +2681,7 @@ static void magnify_create (struct graph *g, int x, int y)
 	mg = g->magnify.g = (struct graph * )malloc (sizeof (struct graph));
 	memcpy ((void * )mg, (void * )g, sizeof (struct graph));
 
-	mg->toplevel = gtk_window_new (GTK_WINDOW_POPUP);
-	SIGNAL_CONNECT(mg->toplevel, "realize", window_icon_realize_cb, NULL);
+	mg->toplevel = window_new (GTK_WINDOW_POPUP, NULL);
 	mg->drawing_area = mg->toplevel;
 	WIDGET_SET_SIZE(mg->toplevel, g->magnify.width, g->magnify.height);
 	gtk_widget_set_events (mg->drawing_area, GDK_EXPOSURE_MASK

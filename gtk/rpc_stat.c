@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.37 2004/02/11 04:28:49 guy Exp $
+ * $Id: rpc_stat.c,v 1.38 2004/02/13 00:53:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,10 +34,12 @@
 
 #include <gtk/gtk.h>
 
-#include "epan/packet_info.h"
-#include "epan/epan.h"
+#include <epan/packet_info.h>
+#include <epan/epan.h>
+
 #include "tap_menu.h"
 #include "simple_dialog.h"
+#include "ui_util.h"
 #include "dlg_utils.h"
 #include "tap.h"
 #include "../register.h"
@@ -230,7 +232,7 @@ gtk_rpcstat_init(char *optarg)
 	hf_index=rpc_prog_hf(rpc_program, rpc_version);
 	hfi=proto_registrar_get_nth(hf_index);
 
-	rs->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	rs->win=window_new(GTK_WINDOW_TOPLEVEL, NULL);
 	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
 	rpcstat_set_title(rs);
 	SIGNAL_CONNECT(rs->win, "destroy", win_destroy_cb, rs);

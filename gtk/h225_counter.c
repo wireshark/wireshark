@@ -2,7 +2,7 @@
  * h225 message counter for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: h225_counter.c,v 1.11 2004/02/11 04:28:48 guy Exp $
+ * $Id: h225_counter.c,v 1.12 2004/02/13 00:53:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,13 +31,16 @@
 # include <sys/types.h>
 #endif
 
-#include <gtk/gtk.h>
 #include <string.h>
-#include "../epan/packet_info.h"
-#include "../epan/epan.h"
+
+#include <gtk/gtk.h>
+
+#include <epan/packet_info.h>
+#include <epan/epan.h>
+#include <epan/value_string.h>
+
 #include "tap_menu.h"
 #include "../tap.h"
-#include "../epan/value_string.h"
 #include "../register.h"
 #include "../packet-h225.h"
 #include "gtk_stat_util.h"
@@ -486,7 +489,7 @@ gtk_h225counter_init(char *optarg)
 
 	h225counter_reset(hs);
 
-	hs->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	hs->win=window_new(GTK_WINDOW_TOPLEVEL, NULL);
 	SIGNAL_CONNECT(hs->win, "destroy", win_destroy_cb, hs);
 
 	hs->vbox=gtk_vbox_new(FALSE, 0);

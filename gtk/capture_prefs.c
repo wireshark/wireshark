@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.29 2004/02/06 19:19:09 ulfl Exp $
+ * $Id: capture_prefs.c,v 1.30 2004/02/13 00:53:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -238,15 +238,11 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	
 	/* create a new dialog */
 	ifopts_edit_dlg = dlg_window_new("Ethereal: Preferences: Interface Options");
-	/*gtk_window_set_title(GTK_WINDOW(ifopts_edit_dlg), 
-			"Ethereal: Preferences: Interface Options");*/
 	SIGNAL_CONNECT(ifopts_edit_dlg, "destroy", ifopts_edit_destroy_cb, NULL);
-	SIGNAL_CONNECT(ifopts_edit_dlg, "realize", window_icon_realize_cb, NULL);
-    main_vb = gtk_vbox_new(FALSE, 1);
-    gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
-    gtk_container_add(GTK_CONTAINER(ifopts_edit_dlg), main_vb);
-    gtk_widget_show(main_vb);
-
+	main_vb = gtk_vbox_new(FALSE, 1);
+	gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+	gtk_container_add(GTK_CONTAINER(ifopts_edit_dlg), main_vb);
+	gtk_widget_show(main_vb);
 	
 	/* create current options frame */
 	cur_opts_fr = gtk_frame_new("Current options");
@@ -338,15 +334,15 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_show(if_hide_cb);
 	
 	/* button row: OK and Cancel buttons */
-    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
+	bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
 	gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
-    gtk_widget_show(bbox);
+	gtk_widget_show(bbox);
 
-    ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
-    gtk_widget_grab_default(ok_bt);
+	ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+	gtk_widget_grab_default(ok_bt);
 	SIGNAL_CONNECT(ok_bt, "clicked", ifopts_edit_ok_cb, ifopts_edit_dlg);
 
-    cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+	cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
 	SIGNAL_CONNECT(cancel_bt, "clicked", ifopts_edit_close_cb, ifopts_edit_dlg);
 
 	/* Call a handler when we're destroyed, so we can inform

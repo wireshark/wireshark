@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.36 2004/02/12 22:24:28 guy Exp $
+ * $Id: rtp_analysis.c,v 1.37 2004/02/13 00:53:36 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -44,9 +44,10 @@
 #include "../graph/graph.h"
 #endif
 
+#include <epan/epan_dissect.h>
+#include <epan/filesystem.h>
+
 #include "util.h"
-#include "epan/epan_dissect.h"
-#include "epan/filesystem.h"
 #include "tap.h"
 #include "register.h"
 #include "packet-rtp.h"
@@ -1918,8 +1919,7 @@ void create_rtp_dialog(user_data_t* user_data)
 	column_arrows *col_arrows_rev;
 	
 
-	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title (GTK_WINDOW (window), "Ethereal: RTP Stream Analysis");
+	window = window_new (GTK_WINDOW_TOPLEVEL, "Ethereal: RTP Stream Analysis");
 	gtk_window_set_position (GTK_WINDOW (window), GTK_WIN_POS_CENTER);
 	SIGNAL_CONNECT(window, "destroy", on_destroy, user_data);
 

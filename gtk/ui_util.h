@@ -1,7 +1,7 @@
 /* ui_util.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h,v 1.6 2002/11/03 17:38:34 oabad Exp $
+ * $Id: ui_util.h,v 1.7 2004/02/13 00:53:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,15 +25,16 @@
 #ifndef __GTKGUIUI_UTIL_H__
 #define __GTKGUIUI_UTIL_H__
 
+/* Create a new window, of the specified type, with the specified title
+   (if any) and the Ethereal icon. */
+GtkWidget *window_new(GtkWindowType, const gchar *);
+
 /* Given a pointer to a GtkWidget for a top-level window, raise it and
    de-iconify it.  This routine is used if the user has done something to
    ask that a window of a certain type be popped up when there can be only
    one such window and such a window has already been popped up - we
    pop up the existing one rather than creating a new one. */
 void reactivate_window(GtkWidget *);
-
-/* Set the window icon to the 16x16 3D icon. */
-void window_icon_realize_cb (GtkWidget *, gpointer);
 
 /* Create a GtkScrolledWindow, set its scrollbar placement appropriately,
    and remember it. */

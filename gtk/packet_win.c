@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.43 2004/01/19 00:42:10 ulfl Exp $
+ * $Id: packet_win.c,v 1.44 2004/02/13 00:53:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,7 @@
 #include "proto_draw.h"
 #include "keys.h"
 #include "gtkglobals.h"
+#include "ui_util.h"
 #include <epan/plugins.h>
 #include <epan/epan_dissect.h>
 #include "compat_macros.h"
@@ -114,8 +115,6 @@ void new_window_cb(GtkWidget *w _U_)
           DataPtr->frame, &cfile.cinfo);
   epan_dissect_fill_in_columns(DataPtr->edt);
 
-  main_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-
   /*
    * Build title of window by getting column data constructed when the
    * frame was dissected.
@@ -128,7 +127,7 @@ void new_window_cb(GtkWidget *w _U_)
     }
   }
 
-  gtk_window_set_title(GTK_WINDOW(main_w), Title);
+  main_w = window_new(GTK_WINDOW_TOPLEVEL, Title);
   gtk_window_set_default_size(GTK_WINDOW(main_w), DEF_WIDTH, -1);
 
   /* Container for paned windows  */

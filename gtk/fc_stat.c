@@ -1,7 +1,7 @@
 /* fc_stat.c
  * fc_stat   2003 Ronnie Sahlberg
  *
- * $Id: fc_stat.c,v 1.24 2004/02/11 04:28:48 guy Exp $
+ * $Id: fc_stat.c,v 1.25 2004/02/13 00:53:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,18 +30,22 @@
 # include <sys/types.h>
 #endif
 
-#include <gtk/gtk.h>
 #include <string.h>
-#include "../epan/packet_info.h"
-#include "../epan/epan.h"
+
+#include <gtk/gtk.h>
+
+#include <epan/packet_info.h>
+#include <epan/epan.h>
+#include <epan/value_string.h>
+
 #include "tap_menu.h"
 #include "../tap.h"
-#include "../epan/value_string.h"
 #include "../packet-fc.h"
 #include "../register.h"
 #include "../timestats.h"
 #include "compat_macros.h"
 #include "../simple_dialog.h"
+#include "ui_util.h"
 #include "dlg_utils.h"
 #include "../file.h"
 #include "../globals.h"
@@ -142,7 +146,7 @@ gtk_fcstat_init(char *optarg)
 
 	fc=g_malloc(sizeof(fcstat_t));
 
-	fc->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	fc->win=window_new(GTK_WINDOW_TOPLEVEL, NULL);
 	gtk_window_set_default_size(GTK_WINDOW(fc->win), 550, 400);
 	fcstat_set_title(fc);
 	SIGNAL_CONNECT(fc->win, "destroy", win_destroy_cb, fc);

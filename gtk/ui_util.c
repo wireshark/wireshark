@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.18 2004/02/06 19:19:11 ulfl Exp $
+ * $Id: ui_util.c,v 1.19 2004/02/13 00:53:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,81 @@
 
 #include "image/eicon3d16.xpm"
 
+/* Set our window icon.  The GDK documentation doesn't provide any
+   actual documentation for gdk_window_set_icon(), so we'll steal
+   libgimp/gimpdialog.c:gimp_dialog_realize_callback() from the Gimp
+   sources and assume it's safe.
+
+   XXX - The current icon size is fixed at 16x16 pixels, which looks fine
+   with kwm (KDE 1.x's window manager), Sawfish (the "default" window
+   manager for GNOME?), and under Windows with Exceed putting X windows
+   on the Windows desktop, using Exceed as the window manager, as those
+   window managers put a 16x16 icon on the title bar.
+
+   The window managers in some windowing environments (e.g. dtwm in CDE)
+   and some stand-alone window managers have larger icon sizes (many window
+   managers put the window icon on the desktop, in the Windows 3.x style,
+   rather than in the titlebar, in the Windows 4.x style), so we need to
+   find a way to size our icon appropriately.
+
+   The X11 Inter-Client Communications Conventions Manual, Version 1.1,
+   in X11R5, specifies that "a window manager that wishes to place
+   constraints on the sizes of icon pixmaps and/or windows should
+   place a property called WM_ICON_SIZE on the root"; that property
+   contains minimum width and height, maximum width and height, and
+   width and height increment values.  "XGetIconSizes()" retrieves
+   that property; unfortunately, I've yet to find a window manager
+   that sets it on the root window (kwm, AfterStep, and Exceed don't
+   appear to set it).
+
+   The X Desktop Group's Window Manager Standard specifies, in the section
+   on Application Window Properties, an _NET_WM_ICON property, presumably
+   set by the window manager, which is an array of possible icon sizes
+   for the client.  There's no API in GTK+ 1.2[.x] for this; there may
+   eventually be one either in GTK+ 2.0 or GNOME 2.0.
+
+   Some window managers can be configured to take the window name
+   specified by the WM_NAME property of a window or the resource
+   or class name specified by the WM_CLASS property and base the
+   choice of icon for the window on one of those; WM_CLASS for
+   Ethereal's windows has a resource name of "ethereal" and a class
+   name of "Ethereal".  However, the way that's done is window-manager-
+   specific, and there's no way to determine what size a particular
+   window manager would want, so there's no way to automate this as
+   part of the installation of Ethereal.
+   */
+static void
+window_icon_realize_cb (GtkWidget *win, gpointer data _U_)
+{
+#ifndef WIN32
+  static GdkPixmap *icon_pmap = NULL;
+  static GdkBitmap *icon_mask = NULL;
+  GtkStyle         *style;
+
+  style = gtk_widget_get_style (win);
+
+  if (icon_pmap == NULL) {
+    icon_pmap = gdk_pixmap_create_from_xpm_d (win->window,
+		&icon_mask, &style->bg[GTK_STATE_NORMAL], eicon3d16_xpm);
+  }
+
+  gdk_window_set_icon (win->window, NULL, icon_pmap, icon_mask);
+#endif
+}
+
+/* Create a new window, of the specified type, with the specified title
+   (if any) and the Ethereal icon. */
+GtkWidget *
+window_new(GtkWindowType type, const gchar *title)
+{
+  GtkWidget *win;
+
+  win = gtk_window_new(type);
+  if (title != NULL)
+    gtk_window_set_title(GTK_WINDOW(win), title);
+  SIGNAL_CONNECT(win, "realize", window_icon_realize_cb, NULL);
+  return win;
+}
 
 /* Set the name of the top-level window and its icon to the specified
    string. */
@@ -220,68 +295,6 @@ reactivate_window(GtkWidget *win)
 {
   gdk_window_show(win->window);
   gdk_window_raise(win->window);
-}
-
-/* Set our window icon.  The GDK documentation doesn't provide any
-   actual documentation for gdk_window_set_icon(), so we'll steal
-   libgimp/gimpdialog.c:gimp_dialog_realize_callback() from the Gimp
-   sources and assume it's safe.
-
-   XXX - The current icon size is fixed at 16x16 pixels, which looks fine
-   with kwm (KDE 1.x's window manager), Sawfish (the "default" window
-   manager for GNOME?), and under Windows with Exceed putting X windows
-   on the Windows desktop, using Exceed as the window manager, as those
-   window managers put a 16x16 icon on the title bar.
-
-   The window managers in some windowing environments (e.g. dtwm in CDE)
-   and some stand-alone window managers have larger icon sizes (many window
-   managers put the window icon on the desktop, in the Windows 3.x style,
-   rather than in the titlebar, in the Windows 4.x style), so we need to
-   find a way to size our icon appropriately.
-
-   The X11 Inter-Client Communications Conventions Manual, Version 1.1,
-   in X11R5, specifies that "a window manager that wishes to place
-   constraints on the sizes of icon pixmaps and/or windows should
-   place a property called WM_ICON_SIZE on the root"; that property
-   contains minimum width and height, maximum width and height, and
-   width and height increment values.  "XGetIconSizes()" retrieves
-   that property; unfortunately, I've yet to find a window manager
-   that sets it on the root window (kwm, AfterStep, and Exceed don't
-   appear to set it).
-
-   The X Desktop Group's Window Manager Standard specifies, in the section
-   on Application Window Properties, an _NET_WM_ICON property, presumably
-   set by the window manager, which is an array of possible icon sizes
-   for the client.  There's no API in GTK+ 1.2[.x] for this; there may
-   eventually be one either in GTK+ 2.0 or GNOME 2.0.
-
-   Some window managers can be configured to take the window name
-   specified by the WM_NAME property of a window or the resource
-   or class name specified by the WM_CLASS property and base the
-   choice of icon for the window on one of those; WM_CLASS for
-   Ethereal's windows has a resource name of "ethereal" and a class
-   name of "Ethereal".  However, the way that's done is window-manager-
-   specific, and there's no way to determine what size a particular
-   window manager would want, so there's no way to automate this as
-   part of the installation of Ethereal.
-   */
-void
-window_icon_realize_cb (GtkWidget *win, gpointer data _U_)
-{
-#ifndef WIN32
-  static GdkPixmap *icon_pmap = NULL;
-  static GdkBitmap *icon_mask = NULL;
-  GtkStyle         *style;
-
-  style = gtk_widget_get_style (win);
-
-  if (icon_pmap == NULL) {
-    icon_pmap = gdk_pixmap_create_from_xpm_d (win->window,
-		&icon_mask, &style->bg[GTK_STATE_NORMAL], eicon3d16_xpm);
-  }
-
-  gdk_window_set_icon (win->window, NULL, icon_pmap, icon_mask);
-#endif
 }
 
 /* List of all GtkScrolledWindows, so we can globally set the scrollbar

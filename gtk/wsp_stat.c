@@ -1,7 +1,7 @@
 /* wsp_stat.c
  * wsp_stat   2003 Jean-Michel FAYARD
  *
- * $Id: wsp_stat.c,v 1.17 2004/02/11 04:28:49 guy Exp $
+ * $Id: wsp_stat.c,v 1.18 2004/02/13 00:53:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,13 +27,16 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
 #include <string.h>
 
-#include "epan/packet_info.h"
-#include "epan/epan.h"
+#include <gtk/gtk.h>
+
+#include <epan/packet_info.h>
+#include <epan/epan.h>
+
 #include "tap_menu.h"
 #include "simple_dialog.h"
+#include "ui_util.h"
 #include "dlg_utils.h"
 #include "tap.h"
 #include "../register.h"
@@ -349,8 +352,7 @@ gtk_wspstat_init(char *optarg)
 		sp->pdu_stats[i].packets=0;
 	}
 
-	sp->win = gtk_window_new( GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title( GTK_WINDOW(sp->win), title );
+	sp->win = window_new( GTK_WINDOW_TOPLEVEL, title);
 	g_free(title);
 	SIGNAL_CONNECT( sp->win, "destroy", win_destroy_cb, sp);
 

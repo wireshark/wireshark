@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.20 2004/01/31 12:13:22 ulfl Exp $
+ * $Id: dlg_utils.c,v 1.21 2004/02/13 00:53:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -292,10 +292,9 @@ dlg_window_new(const gchar *title)
   GtkWidget *win;
 
 #if GTK_MAJOR_VERSION < 2
-  win = gtk_window_new(GTK_WINDOW_DIALOG);
+  win = window_new(GTK_WINDOW_DIALOG, title);
 #else
-  win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
+  win = window_new(GTK_WINDOW_TOPLEVEL, title);
 #endif
   /*
    * XXX - if we're running in the capture child process, we can't easily
@@ -314,8 +313,9 @@ dlg_window_new(const gchar *title)
   if (top_level) {
     gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
   }
-  gtk_window_set_title(GTK_WINDOW(win), title);
-  SIGNAL_CONNECT(win, "realize", window_icon_realize_cb, NULL);
+#if GTK_MAJOR_VERSION >= 2
+  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
+#endif
   return win;
 }
 

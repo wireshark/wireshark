@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.30 2004/02/06 19:19:09 ulfl Exp $
+ * $Id: endpoint_talkers_table.c,v 1.31 2004/02/13 00:53:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,7 +33,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+
 #include <gtk/gtk.h>
+
 #include "compat_macros.h"
 #include "epan/packet_info.h"
 #include "epan/to_str.h"
@@ -958,10 +960,9 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 	talkers=g_malloc(sizeof(endpoints_table));
 
 	talkers->name=table_name;
-	talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
 	snprintf(title, 255, "%s Conversations: %s", table_name, cf_get_display_name(&cfile));
-	gtk_window_set_title(GTK_WINDOW(talkers->win), title);
+	talkers->win=window_new(GTK_WINDOW_TOPLEVEL, title);
+	gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
 
 	SIGNAL_CONNECT(talkers->win, "destroy", ett_win_destroy_cb, talkers);
 

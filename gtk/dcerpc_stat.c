@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.48 2004/02/11 04:28:47 guy Exp $
+ * $Id: dcerpc_stat.c,v 1.49 2004/02/13 00:53:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,11 +33,13 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
 #include <string.h>
 
-#include "epan/packet_info.h"
-#include "epan/epan.h"
+#include <gtk/gtk.h>
+
+#include <epan/packet_info.h>
+#include <epan/epan.h>
+
 #include "tap_menu.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
@@ -257,9 +259,9 @@ gtk_dcerpcstat_init(char *optarg)
 	rs->uuid=uuid;
 	rs->ver=ver;
 
-	rs->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
+	rs->win=window_new(GTK_WINDOW_TOPLEVEL, NULL);
 	dcerpcstat_set_title(rs);
+	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
 	SIGNAL_CONNECT(rs->win, "destroy", win_destroy_cb, rs);
 
 	vbox=gtk_vbox_new(FALSE, 0);

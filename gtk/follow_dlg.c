@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.45 2004/02/11 01:37:12 guy Exp $
+ * $Id: follow_dlg.c,v 1.46 2004/02/13 00:53:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -242,7 +242,13 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	fclose(data_out_file);
 
 	/* The data_out_filename file now has all the text that was in the session */
-	streamwindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	if (incomplete_tcp_stream) {
+	    streamwindow = window_new(GTK_WINDOW_TOPLEVEL,
+				 "Contents of TCP stream (incomplete)");
+	} else {
+	    streamwindow = window_new(GTK_WINDOW_TOPLEVEL,
+				 "Contents of TCP stream");
+	}
 
 	/* needed in follow_filter_out_stream(), is there a better way? */
 	follow_info->streamwindow = streamwindow;
@@ -250,14 +256,6 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	gtk_widget_set_name(streamwindow, "TCP stream window");
 
 	SIGNAL_CONNECT(streamwindow, "destroy", follow_destroy_cb, NULL);
-	SIGNAL_CONNECT(streamwindow, "realize", window_icon_realize_cb, NULL);
-	if (incomplete_tcp_stream) {
-	    gtk_window_set_title(GTK_WINDOW(streamwindow),
-				 "Contents of TCP stream (incomplete)");
-	} else {
-	    gtk_window_set_title(GTK_WINDOW(streamwindow),
-				 "Contents of TCP stream");
-	}
 	WIDGET_SET_SIZE(streamwindow, DEF_WIDTH, DEF_HEIGHT);
 	gtk_container_border_width(GTK_CONTAINER(streamwindow), 2);
 

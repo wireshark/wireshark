@@ -1,7 +1,7 @@
 /* bootp_stat.c
  * boop_stat   2003 Jean-Michel FAYARD
  *
- * $Id: bootp_stat.c,v 1.17 2004/02/11 04:28:47 guy Exp $
+ * $Id: bootp_stat.c,v 1.18 2004/02/13 00:53:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,10 +30,12 @@
 #include <gtk/gtk.h>
 #include <string.h>
 
-#include "epan/packet_info.h"
-#include "epan/epan.h"
+#include <epan/packet_info.h>
+#include <epan/epan.h>
+
 #include "tap_menu.h"
 #include "simple_dialog.h"
+#include "ui_util.h"
 #include "dlg_utils.h"
 #include "tap.h"
 #include "../register.h"
@@ -216,8 +218,7 @@ gtk_dhcpstat_init(char *optarg)
 	}
 
 	/* top level window */
-	sp->win = gtk_window_new( GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title( GTK_WINDOW(sp->win), title );
+	sp->win = window_new( GTK_WINDOW_TOPLEVEL, title);
 	g_free(title);
 	SIGNAL_CONNECT( sp->win, "destroy", win_destroy_cb, sp);
 
