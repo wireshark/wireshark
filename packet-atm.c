@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.36 2001/06/18 02:17:44 guy Exp $
+ * $Id: packet-atm.c,v 1.37 2001/11/26 01:03:35 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,6 +59,7 @@ static dissector_handle_t llc_handle;
 static dissector_handle_t sscop_handle;
 static dissector_handle_t lane_handle;
 static dissector_handle_t ilmi_handle;
+static dissector_handle_t data_handle;
 
 /*
  * See
@@ -413,7 +414,7 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   default:
     /* Dump it as raw data. */
     next_tvb		= tvb_new_subset(tvb, 0, -1, -1);
-    dissect_data(next_tvb, 0, pinfo, tree);
+    call_dissector(data_handle,next_tvb, pinfo, tree);
     break;
   }
 }
@@ -744,7 +745,7 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     default:
       if (tree) {
         /* Dump it as raw data. */
-        dissect_data(tvb, 0, pinfo, tree);
+        call_dissector(data_handle,tvb, pinfo, tree);
         break;
       }
     }
@@ -753,7 +754,7 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   default:
     if (tree) {
       /* Dump it as raw data.  (Is this a single cell?) */
-      dissect_data(tvb, 0, pinfo, tree);
+      call_dissector(data_handle,tvb, pinfo, tree);
     }
     break;
   }
@@ -807,6 +808,7 @@ proto_reg_handoff_atm(void)
 	sscop_handle = find_dissector("sscop");
 	lane_handle = find_dissector("lane");
 	ilmi_handle = find_dissector("ilmi");
+	data_handle = find_dissector("data");
 
 	dissector_add("wtap_encap", WTAP_ENCAP_ATM_SNIFFER, dissect_atm,
 	    proto_atm);

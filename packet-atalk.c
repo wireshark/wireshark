@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.55 2001/06/18 02:17:44 guy Exp $
+ * $Id: packet-atalk.c,v 1.56 2001/11/26 01:03:35 hagbard Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -84,6 +84,8 @@ static gint ett_ddp = -1;
 static gint ett_pstring = -1;
 
 static dissector_table_t ddp_dissector_table;
+
+static dissector_handle_t data_handle;
 
 /*
  * P = Padding, H = Hops, L = Len
@@ -418,7 +420,7 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   new_tvb = tvb_new_subset(tvb, DDP_HEADER_SIZE, -1, -1);
 
   if (!dissector_try_port(ddp_dissector_table, ddp.type, new_tvb, pinfo, tree))
-    dissect_data(new_tvb, 0, pinfo, tree);
+    call_dissector(data_handle,new_tvb, pinfo, tree);
 }
 
 void
@@ -566,4 +568,5 @@ proto_reg_handoff_atalk(void)
   dissector_add("ddp.type", DDP_NBP, dissect_nbp, proto_nbp);
   dissector_add("ddp.type", DDP_RTMPREQ, dissect_rtmp_request, proto_rtmp);
   dissector_add("ddp.type", DDP_RTMPDATA, dissect_rtmp_data, proto_rtmp);
+  data_handle = find_dissector("data");
 }

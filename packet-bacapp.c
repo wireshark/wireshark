@@ -2,7 +2,7 @@
  * Routines for BACnet (APDU) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bacapp.c,v 1.4 2001/06/18 02:17:44 guy Exp $
+ * $Id: packet-bacapp.c,v 1.5 2001/11/26 01:03:35 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -69,6 +69,8 @@ static int hf_bacapp_type = -1;
 
 static gint ett_bacapp = -1;
 
+static dissector_handle_t data_handle;
+
 static void
 dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -101,7 +103,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	}
 	next_tvb = tvb_new_subset(tvb,offset,-1,-1);
-	dissect_data(next_tvb, 0, pinfo, tree);
+	call_dissector(data_handle,next_tvb, pinfo, tree);
 }
 
 
@@ -126,4 +128,5 @@ void
 proto_reg_handoff_bacapp(void)
 {
 	dissector_add("bacnet_control_net", 0, dissect_bacapp, proto_bacapp);
+	data_handle = find_dissector("data");
 }

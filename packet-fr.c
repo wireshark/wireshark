@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.18 2001/06/18 02:17:46 guy Exp $
+ * $Id: packet-fr.c,v 1.19 2001/11/26 01:03:35 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -91,6 +91,8 @@ static gint hf_fr_oui   = -1;
 static gint hf_fr_pid   = -1;
 static gint hf_fr_snaptype = -1;
 static gint hf_fr_chdlctype = -1;
+
+static dissector_handle_t data_handle;
 
 static const true_false_string cmd_string = {
                 "Command",
@@ -349,7 +351,7 @@ static void dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	next_tvb = tvb_new_subset(tvb,offset,-1,-1);
 	if (!dissector_try_port(fr_subdissector_table,fr_nlpid,
 				next_tvb, pinfo, tree))
-		dissect_data(next_tvb, 0, pinfo, tree);
+		call_dissector(data_handle,next_tvb, pinfo, tree);
 	break;
   }
 }
@@ -357,12 +359,12 @@ static void dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void dissect_lapf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree_add_text(tree, tvb, 0, 0, "Frame relay lapf not yet implemented");
-	dissect_data(tvb_new_subset(tvb,0,-1,-1),0,pinfo,tree);
+	call_dissector(data_handle,tvb_new_subset(tvb,0,-1,-1),pinfo,tree);
 }
 static void dissect_fr_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree_add_text(tree, tvb, 0, 0, "Frame relay xid not yet implemented");
-	dissect_data(tvb_new_subset(tvb,0,-1,-1),0,pinfo,tree);
+	call_dissector(data_handle,tvb_new_subset(tvb,0,-1,-1),pinfo,tree);
 }
  
 /* Register the protocol with Ethereal */
@@ -426,4 +428,5 @@ void proto_reg_handoff_fr(void)
 {
   dissector_add("wtap_encap", WTAP_ENCAP_FRELAY, dissect_fr, proto_fr);
   dissector_add("gre.proto", GRE_FR, dissect_fr, proto_fr);
+  data_handle = find_dissector("data");
 }

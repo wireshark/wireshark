@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.52 2001/11/20 21:59:12 guy Exp $
+ * $Id: packet-fddi.c,v 1.53 2001/11/26 01:03:35 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,6 +126,7 @@ static const value_string mac_subtype_vals[] = {
 #define FDDI_P_SHOST		7
 
 static dissector_handle_t llc_handle;
+static dissector_handle_t data_handle;
 
 static void
 swap_mac_addr(u_char *swapped_addr, const u_char *orig_addr)
@@ -369,7 +370,7 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       return;
       
     default :
-      dissect_data(next_tvb, 0, pinfo, tree);
+      call_dissector(data_handle,next_tvb, pinfo, tree);
       return;
 
   } /* fc */
@@ -455,6 +456,7 @@ proto_reg_handoff_fddi(void)
 	 * Get a handle for the LLC dissector.
 	 */
 	llc_handle = find_dissector("llc");
+	data_handle = find_dissector("data");
 
 	dissector_add("wtap_encap", WTAP_ENCAP_FDDI,
 	    dissect_fddi_not_bitswapped, proto_fddi);

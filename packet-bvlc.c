@@ -2,7 +2,7 @@
  * Routines for BACnet/IP (BVLL, BVLC) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bvlc.c,v 1.4 2001/06/18 02:17:45 guy Exp $
+ * $Id: packet-bvlc.c,v 1.5 2001/11/26 01:03:35 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,7 +67,7 @@ static int hf_bvlc_fdt_timeout = -1;
 static int hf_bvlc_fwd_ip = -1;
 static int hf_bvlc_fwd_port = -1;
 
-
+static dissector_handle_t data_handle;
 
 static dissector_table_t bvlc_dissector_table;
 
@@ -293,7 +293,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (!dissector_try_port(bvlc_dissector_table, 
 	bvlc_function, next_tvb, pinfo, tree)) {
 		/* Unknown function - dissect the paylod as data */
-		dissect_data(next_tvb, 0, pinfo, tree);
+		call_dissector(data_handle,next_tvb, pinfo, tree);
 	}
 }
 
@@ -396,6 +396,7 @@ void
 proto_reg_handoff_bvlc(void)
 {
 	dissector_add("udp.port", 0xBAC0, dissect_bvlc, proto_bvlc); /* added proto_bvlc */
+	data_handle = find_dissector("data");
 }
 /* Taken from add-135a (BACnet-IP-standard paper):
  *
