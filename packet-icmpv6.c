@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.44 2001/06/01 23:53:48 itojun Exp $
+ * $Id: packet-icmpv6.c,v 1.45 2001/06/02 06:10:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -171,6 +171,10 @@ again:
     tvb_memcpy(tvb, (guint8 *)opt, offset, sizeof *opt);
     len = opt->nd_opt_len << 3;
 
+    /* !!! specify length */
+    ti = proto_tree_add_text(tree, tvb, offset, len, "ICMPv6 options");
+    icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6opt);
+
     if (len == 0) {
 	proto_tree_add_text(icmp6opt_tree, tvb,
 			    offset + offsetof(struct nd_opt_hdr, nd_opt_len), 1,
@@ -178,10 +182,6 @@ again:
 			    opt->nd_opt_len);
 	return; /* we must not try to decode this */
     }
-
-    /* !!! specify length */
-    ti = proto_tree_add_text(tree, tvb, offset, len, "ICMPv6 options");
-    icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6opt);
 
     switch (opt->nd_opt_type) {
     case ND_OPT_SOURCE_LINKADDR:
