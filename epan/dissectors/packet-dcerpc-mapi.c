@@ -49,8 +49,6 @@ static int hf_mapi_decrypted_data_offset = -1;
 static int hf_mapi_decrypted_data_len = -1;
 static int hf_mapi_decrypted_data = -1;
 static int hf_mapi_pdu_len = -1;
-static int hf_mapi_pdu_trailer = -1;
-static int hf_mapi_pdu_extra_trailer = -1;
 
 static gint ett_dcerpc_mapi = -1;
 static gint ett_mapi_decrypted_pdu = -1;
@@ -165,12 +163,6 @@ mapi_decrypt_pdu(tvbuff_t *tvb, int offset,
 
 	/*XXX call dissector here */
 	proto_tree_add_item(tr, hf_mapi_decrypted_data, decrypted_tvb, 2, pdu_len-2, FALSE);
-
-	proto_tree_add_item(tr, hf_mapi_pdu_trailer, decrypted_tvb, pdu_len, 4, FALSE);
-	if(len>((gint)pdu_len+4)){
-		proto_tree_add_item(tr, hf_mapi_pdu_extra_trailer, decrypted_tvb, pdu_len+4, len-(pdu_len+4), FALSE);
-	}
-
 
 	offset+=len;
 
@@ -378,13 +370,6 @@ static hf_register_info hf[] = {
 		{ "Length", "mapi.pdu.len", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "Size of the command PDU", HFILL }},
 
-	{ &hf_mapi_pdu_trailer,
-		{ "Trailer", "mapi.pdu.trailer", FT_UINT32, BASE_HEX,
-		NULL, 0x0, "If you know what this is, contact ethereal developers", HFILL }},
-
-	{ &hf_mapi_pdu_extra_trailer,
-		{ "unknown", "mapi.pdu.extra_trailer", FT_BYTES, BASE_HEX,
-		NULL, 0x0, "If you know what this is, contact ethereal developers", HFILL }}
 	};
 
 
