@@ -2,7 +2,7 @@
  * Routines for docsis dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-docsis.c,v 1.17 2003/12/13 03:18:37 guy Exp $
+ * $Id: packet-docsis.c,v 1.18 2004/02/05 08:16:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,8 +34,15 @@
  * This dissector depends on the presence of a DOCSIS enapsulation type.
  * There is no simple way to distinguish DOCSIS Frames from Ethernet frames,
  * since the frames are copied from the RF interface on the CMTS to
- * a Fast Ethernet interface; Thus a preference was needed to enable
+ * a Fast Ethernet interface; thus a preference was needed to enable
  * the DOCSIS encapsulation type.
+ *
+ * The current CVS version of libpcap allows a link-layer header type to
+ * be specified for some interfaces on some platforms; for Ethernet
+ * interfaces, it allows DOCSIS to be specified.  If an Ethernet capture
+ * is done with a link-layer type of DOCSIS, the file will have a link-
+ * layer type of DLT_DOCSIS; Ethereal will treat the frames in that capture
+ * as DOCSIS frames.
  */
 
 #ifdef HAVE_CONFIG_H
