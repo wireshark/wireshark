@@ -7,7 +7,7 @@
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-skinny.c,v 1.4 2001/10/20 18:42:01 guy Exp $
+ * $Id: packet-skinny.c,v 1.5 2001/11/25 22:19:25 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -175,6 +175,8 @@ static int hf_skinny_messageid   = -1;
 /* Initialize the subtree pointers */
 static gint ett_skinny          = -1;
 
+static dissector_handle_t data_handle;
+
 /* Code to actually dissect the packets */
 static void dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -204,7 +206,7 @@ static void dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* hdr_data_length > 1024 is just a heuristic. Better values/checks welcome */
   if (hdr_data_length < 4 || hdr_data_length > 1024 || hdr_reserved != 0) {
     /* Not an SKINNY packet, just happened to use the same port */
-    dissect_data(tvb, 0, pinfo, tree);
+    call_dissector(data_handle,tvb, pinfo, tree);
     return;
   }
   
@@ -289,5 +291,6 @@ proto_register_skinny(void)
 void
 proto_reg_handoff_skinny(void)
 {
+  data_handle = find_dissector("data");
   dissector_add("tcp.port", TCP_PORT_SKINNY, &dissect_skinny, proto_skinny);
 }

@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.54 2001/11/15 21:11:01 gram Exp $
+ * $Id: packet-x25.c,v 1.55 2001/11/25 22:19:25 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -158,6 +158,7 @@ static dissector_handle_t ip_handle;
 static dissector_handle_t ositp_handle;
 static dissector_handle_t sna_handle;
 static dissector_handle_t qllc_handle;
+static dissector_handle_t data_handle;
 
 /* Preferences */
 static gboolean non_q_bit_is_sna = FALSE;
@@ -2029,7 +2030,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             call_dissector(ip_handle, next_tvb, pinfo, tree);
         }
         else {
-            dissect_data(next_tvb, 0, pinfo, tree);
+            call_dissector(data_handle,next_tvb, pinfo, tree);
         }
     }
 }
@@ -2129,6 +2130,7 @@ proto_reg_handoff_x25(void)
     ositp_handle = find_dissector("ositp");
     sna_handle = find_dissector("sna");
     qllc_handle = find_dissector("qllc");
+    data_handle = find_dissector("data");
 
     dissector_add("llc.dsap", SAP_X25, dissect_x25, proto_x25);
 }

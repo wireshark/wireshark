@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quake.c,v 1.18 2001/09/03 10:33:06 guy Exp $
+ * $Id: packet-quake.c,v 1.19 2001/11/25 22:19:24 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,6 +80,7 @@ static gint ett_quake_control = -1;
 static gint ett_quake_control_colors = -1;
 static gint ett_quake_flags = -1;
 
+static dissector_handle_t data_handle;
 
 /* I took these names directly out of the Q1 source. */
 #define NETFLAG_LENGTH_MASK 0x0000ffff
@@ -501,7 +502,7 @@ dissect_quake_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			(next_tvb, pinfo, control_tree);
 		break;
 		default:
-			dissect_data(next_tvb, 0, pinfo, control_tree);
+			call_dissector(data_handle,next_tvb, pinfo, control_tree);
 		break;
 	}
 }
@@ -595,7 +596,7 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	rest_length = tvb_reported_length(tvb) - 8;
 	next_tvb = tvb_new_subset(tvb, 8, rest_length , rest_length);
-	dissect_data(next_tvb, 0, pinfo, quake_tree);
+	call_dissector(data_handle,next_tvb, pinfo, quake_tree);
 }
 
 
@@ -616,6 +617,7 @@ proto_reg_handoff_quake(void)
  
 	dissector_add("udp.port", gbl_quakeServerPort,
                         dissect_quake, proto_quake);
+	data_handle = find_dissector("data");
 }
 
 

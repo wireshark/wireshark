@@ -2,7 +2,7 @@
  * Routines for SSCOP (Q.2110, Q.SAAL) frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sscop.c,v 1.15 2001/05/27 07:15:26 guy Exp $
+ * $Id: packet-sscop.c,v 1.16 2001/11/25 22:19:25 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,7 @@ static int proto_sscop = -1;
 static gint ett_sscop = -1;
 
 static dissector_handle_t q2931_handle;
+static dissector_handle_t data_handle;
 
 /*
  * See
@@ -307,7 +308,7 @@ dissect_sscop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (pdu_type == SSCOP_SD)
         call_dissector(q2931_handle, next_tvb, pinfo, tree);
       else
-        dissect_data(next_tvb, 0, pinfo, tree);
+        call_dissector(data_handle,next_tvb, pinfo, tree);
     }
     break;
   }
@@ -331,4 +332,5 @@ proto_reg_handoff_sscop(void)
    * Get handle for the Q.2931 dissector.
    */
   q2931_handle = find_dissector("q2931");
+  data_handle = find_dissector("data");
 }

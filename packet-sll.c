@@ -1,7 +1,7 @@
 /* packet-sll.c
  * Routines for disassembly of packets from Linux "cooked mode" captures
  *
- * $Id: packet-sll.c,v 1.12 2001/11/20 21:59:13 guy Exp $
+ * $Id: packet-sll.c,v 1.13 2001/11/25 22:19:25 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,6 +90,7 @@ static const value_string ltype_vals[] = {
 
 static dissector_handle_t ipx_handle;
 static dissector_handle_t llc_handle;
+static dissector_handle_t data_handle;
 
 void
 capture_sll(const u_char *pd, int len, packet_counts *ld)
@@ -216,7 +217,7 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 
 		default:
-			dissect_data(next_tvb, 0, pinfo, tree);
+			call_dissector(data_handle,next_tvb, pinfo, tree);
 			break;
 		}
 	} else {
@@ -284,6 +285,7 @@ proto_reg_handoff_sll(void)
 	 */
 	llc_handle = find_dissector("llc");
 	ipx_handle = find_dissector("ipx");
+	data_handle = find_dissector("data");
 
 	dissector_add("wtap_encap", WTAP_ENCAP_SLL, dissect_sll, proto_sll);
 }

@@ -7,7 +7,7 @@
  *	http://www.dgs.monash.edu.au/~timf/bottim/
  *	http://www.opt-sci.Arizona.EDU/Pandora/default.asp
  *
- * $Id: packet-quake2.c,v 1.2 2001/07/22 18:52:38 girlich Exp $
+ * $Id: packet-quake2.c,v 1.3 2001/11/25 22:19:24 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -64,6 +64,7 @@ static gint ett_quake2_game_seq2 = -1;
 static gint ett_quake2_game_clc = -1;
 static gint ett_quake2_game_svc = -1;
 
+static dissector_handle_t data_handle;
 
 #define PORT_MASTER 27910
 static unsigned int gbl_quake2ServerPort=PORT_MASTER;
@@ -120,7 +121,7 @@ dissect_quake2_client_commands(tvbuff_t *tvb, packet_info *pinfo,
 	   the information from my DM2 specs:
 		http://www.planetquake.com/demospecs/dm2/
 	*/
-	dissect_data(tvb, 0, pinfo, tree);
+	call_dissector(data_handle,tvb, pinfo, tree);
 }
 
 
@@ -132,7 +133,7 @@ dissect_quake2_server_commands(tvbuff_t *tvb, packet_info *pinfo,
 	   the information from my DM2 specs:
 		http://www.planetquake.com/demospecs/dm2/
 	*/
-	dissect_data(tvb, 0, pinfo, tree);
+	call_dissector(data_handle,tvb, pinfo, tree);
 }
 
 
@@ -347,6 +348,7 @@ proto_reg_handoff_quake2(void)
  
 	dissector_add("udp.port", gbl_quake2ServerPort,
 			dissect_quake2, proto_quake2);
+	data_handle = find_dissector("data");
 }
 
 

@@ -15,7 +15,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@clarent.com>
  *
- * $Id: packet-sip.c,v 1.17 2001/10/26 18:28:16 gram Exp $
+ * $Id: packet-sip.c,v 1.18 2001/11/25 22:19:24 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,6 +78,7 @@ static gboolean sip_is_request(tvbuff_t *tvb, guint32 offset);
 static gint sip_get_msg_offset(tvbuff_t *tvb, guint32 offset);
  
 static dissector_handle_t sdp_handle;
+static dissector_handle_t data_handle;
 
 #define SIP2_HDR "SIP/2.0 "
 #define SIP2_HDR_LEN (strlen (SIP2_HDR))
@@ -153,7 +154,7 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   bad:
         next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-        dissect_data(next_tvb, 0, pinfo, tree);
+        call_dissector(data_handle,next_tvb, pinfo, tree);
 
         return;
 }
@@ -227,4 +228,5 @@ proto_reg_handoff_sip(void)
 	 * Get a handle for the SDP dissector.
 	 */
 	sdp_handle = find_dissector("sdp");
+	data_handle = find_dissector("data");
 }

@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quakeworld.c,v 1.4 2001/07/22 18:51:51 girlich Exp $
+ * $Id: packet-quakeworld.c,v 1.5 2001/11/25 22:19:24 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -77,7 +77,7 @@ static gint ett_quakeworld_game_seq2 = -1;
 static gint ett_quakeworld_game_clc = -1;
 static gint ett_quakeworld_game_svc = -1;
 
-
+static dissector_handle_t data_handle;
 
 /*
    helper functions, they may ave to go somewhere else
@@ -580,7 +580,7 @@ dissect_quakeworld_client_commands(tvbuff_t *tvb, packet_info *pinfo,
 	   the information from my QWD specs:
 		http://www.planetquake.com/demospecs/qwd/
 	*/
-	dissect_data(tvb, 0, pinfo, tree);
+	call_dissector(data_handle,tvb, pinfo, tree);
 }
 
 
@@ -592,7 +592,7 @@ dissect_quakeworld_server_commands(tvbuff_t *tvb, packet_info *pinfo,
 	   the information from my QWD specs:
 		http://www.planetquake.com/demospecs/qwd/
 	*/
-	dissect_data(tvb, 0, pinfo, tree);
+	call_dissector(data_handle,tvb, pinfo, tree);
 }
 
 
@@ -798,6 +798,7 @@ proto_reg_handoff_quakeworld(void)
  
 	dissector_add("udp.port", gbl_quakeworldServerPort,
 			dissect_quakeworld, proto_quakeworld);
+	data_handle = find_dissector("data");
 }
 
 

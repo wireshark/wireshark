@@ -3,7 +3,7 @@
  *
  * Uwe Girlich <uwe@planetquake.com>
  *
- * $Id: packet-quake3.c,v 1.4 2001/10/13 07:43:25 guy Exp $
+ * $Id: packet-quake3.c,v 1.5 2001/11/25 22:19:24 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,6 +77,7 @@ static gint ett_quake3_game_seq2 = -1;
 static gint ett_quake3_game_clc = -1;
 static gint ett_quake3_game_svc = -1;
 
+static dissector_handle_t data_handle;
 
 #define QUAKE3_SERVER_PORT 27960
 #define QUAKE3_MASTER_PORT 27950
@@ -353,7 +354,7 @@ dissect_quake3_client_commands(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree)
 {
 	/* this shouldn't be too difficult */
-	dissect_data(tvb, 0, pinfo, tree);
+	call_dissector(data_handle,tvb, pinfo, tree);
 }
 
 
@@ -363,7 +364,7 @@ dissect_quake3_server_commands(tvbuff_t *tvb, packet_info *pinfo,
 {
 	/* It is totally forbidden to decode this any further,
 	I wont do it. */
-	dissect_data(tvb, 0, pinfo, tree);
+	call_dissector(data_handle,tvb, pinfo, tree);
 }
 
 
@@ -580,6 +581,7 @@ proto_reg_handoff_quake3(void)
 	for (i=0;i<4;i++)
 		dissector_add("udp.port", gbl_quake3_master_port + i,
 			dissect_quake3, proto_quake3);
+	data_handle = find_dissector("data");
 }
 
 
