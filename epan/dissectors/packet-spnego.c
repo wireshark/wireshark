@@ -405,9 +405,8 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #ifdef HAVE_KERBEROS
 
 #ifdef HAVE_HEIMDAL_KERBEROS
-#include "krb5.h"
-#include "gssapi.h"
-#include "rc4.h"
+#include <krb5.h>
+#include <rc4.h>
 #define GSS_ARCFOUR_WRAP_TOKEN_SIZE 32
 krb5_context gssapi_krb5_context;
 
@@ -506,9 +505,9 @@ arcfour_mic_cksum(krb5_keyblock *key, unsigned usage,
 
 static int
 heimdal_decrypt_arcfour(packet_info *pinfo,
-	 OM_uint32 *minor_status,
-	 const gss_buffer_t input_message_buffer,
-	 gss_buffer_t output_message_buffer,
+	 guint32 *minor_status,
+	 const krb5_data *input_message_buffer,
+	 krb5_data *output_message_buffer,
 	 krb5_keyblock *key)
 {
     u_char Klocaldata[16];
@@ -589,8 +588,8 @@ heimdal_decrypt_arcfour(packet_info *pinfo,
 	return 7;
     }
 
-    output_message_buffer->value = g_malloc(datalen);
-    if (output_message_buffer->value == NULL) {
+    output_message_buffer->data = g_malloc(datalen);
+    if (output_message_buffer->data == NULL) {
 	return 8;
     }
     output_message_buffer->length = datalen;
@@ -603,15 +602,15 @@ heimdal_decrypt_arcfour(packet_info *pinfo,
 		(void *)tvb_get_ptr(pinfo->gssapi_wrap_tvb, 24, 8), 
 		Confounder); /* Confounder */
 	RC4 (&rc4_key, datalen, 
-	     input_message_buffer->value, 
-	     output_message_buffer->value);
+	     input_message_buffer->data, 
+	     output_message_buffer->data);
 	memset(&rc4_key, 0, sizeof(rc4_key));
     } else {
 	memcpy(Confounder, 
 		tvb_get_ptr(pinfo->gssapi_wrap_tvb, 24, 8), 
 		8); /* Confounder */
-	memcpy(output_message_buffer->value, 
-		input_message_buffer->value, 
+	memcpy(output_message_buffer->data, 
+		input_message_buffer->data, 
 	        datalen);
     }
     memset(k6_data, 0, sizeof(k6_data));
@@ -627,7 +626,7 @@ heimdal_decrypt_arcfour(packet_info *pinfo,
 			    cksum_data, sizeof(cksum_data),
 			    tvb_get_ptr(pinfo->gssapi_wrap_tvb, 0, 8), 8,
 			    Confounder, sizeof(Confounder),
-			    output_message_buffer->value, 
+			    output_message_buffer->data, 
 			    output_message_buffer->length + padlen);
     if (ret) {
 	gss_release_buffer(minor_status, output_message_buffer);
@@ -654,12 +653,12 @@ decrypt_heimdal_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tv
 	enc_key_t *ek;
 	int length;
 	const guint8 *original_data;
-	OM_uint32 minor_status;
+	guint32 minor_status;
 
-	gss_buffer_desc *output_message_buffer;
+	krb5_data *output_message_buffer;
 	static int omb_index=0;
-	static gss_buffer_desc omb_arr[4]={{0, NULL},{0, NULL},{0, NULL},{0, NULL}};
-	gss_buffer_desc input_message_buffer;
+	static krb5_data omb_arr[4]={{0, NULL},{0, NULL},{0, NULL},{0, NULL}};
+	krb5_data input_message_buffer;
 	static guint8 *cryptocopy=NULL; /* workaround for pre-0.6.1 heimdal bug */
 
 	omb_index++;
@@ -668,9 +667,9 @@ decrypt_heimdal_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tv
 	}
 	output_message_buffer=omb_arr+omb_index;
 	output_message_buffer->length=0;
-	if(output_message_buffer->value){
-		g_free(output_message_buffer->value);
-		output_message_buffer->value=NULL;
+	if(output_message_buffer->data){
+		g_free(output_message_buffer->data);
+		output_message_buffer->data=NULL;
 	}
 
 	length=tvb_length(pinfo->gssapi_encrypted_tvb);
@@ -721,7 +720,7 @@ decrypt_heimdal_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tv
 		*/
 		memcpy(cryptocopy, original_data, length);
 		input_message_buffer.length=length;
-		input_message_buffer.value=cryptocopy;
+		input_message_buffer.data=cryptocopy;
 		ret=heimdal_decrypt_arcfour(pinfo,
 				 &minor_status,
 				 &input_message_buffer,
@@ -731,7 +730,7 @@ decrypt_heimdal_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tv
 			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
 			krb5_crypto_destroy(context, crypto);
 			pinfo->gssapi_decrypted_tvb=tvb_new_real_data(
-				output_message_buffer->value,
+				output_message_buffer->data,
 				length, length);
 			tvb_set_child_real_data_tvbuff(tvb, pinfo->gssapi_decrypted_tvb);
 			add_new_data_source(pinfo, pinfo->gssapi_decrypted_tvb, "Decrypted GSS-Krb5");
