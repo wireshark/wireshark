@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.164 2002/11/02 22:00:17 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.165 2002/11/07 08:51:07 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2218,35 +2218,35 @@ proto_register_tcp(void)
 			"This frame has some of the TCP analysis flags set", HFILL }},
 
 		{ &hf_tcp_analysis_retransmission,
-		{ "",		"tcp.analysis.retransmission", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		{ "Retransmission",		"tcp.analysis.retransmission", FT_NONE, BASE_NONE, NULL, 0x0,
 			"This frame is a suspected TCP retransmission", HFILL }},
 
 		{ &hf_tcp_analysis_lost_packet,
-		{ "",		"tcp.analysis.lost_segment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		{ "Previous Segment Lost",		"tcp.analysis.lost_segment", FT_NONE, BASE_NONE, NULL, 0x0,
 			"A segment before this one was lost from the capture", HFILL }},
 
 		{ &hf_tcp_analysis_ack_lost_packet,
-		{ "",		"tcp.analysis.ack_lost_segment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		{ "ACKed Lost Packet",		"tcp.analysis.ack_lost_segment", FT_NONE, BASE_NONE, NULL, 0x0,
 			"This frame ACKs a lost segment", HFILL }},
 
 		{ &hf_tcp_analysis_keep_alive,
-		{ "",		"tcp.analysis.keep_alive", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		{ "Keep Alive",		"tcp.analysis.keep_alive", FT_NONE, BASE_NONE, NULL, 0x0,
 			"This is a keep-alive segment", HFILL }},
 
 		{ &hf_tcp_analysis_duplicate_ack,
-		{ "",		"tcp.analysis.duplicate_ack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		{ "Duplicate ACK",		"tcp.analysis.duplicate_ack", FT_NONE, BASE_NONE, NULL, 0x0,
 			"This is a duplicate ACK", HFILL }},
 
 		{ &hf_tcp_analysis_zero_window_violation,
-		{ "",		"tcp.analysis.zero_window_violation", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		{ "Zero Window Violation",		"tcp.analysis.zero_window_violation", FT_NONE, BASE_NONE, NULL, 0x0,
 			"This is a zero-window violation, an attempt to write >1 byte to a zero-window", HFILL }},
 
 		{ &hf_tcp_analysis_zero_window_probe,
-		{ "",		"tcp.analysis.zero_window_probe", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		{ "Zero Window Probe",		"tcp.analysis.zero_window_probe", FT_NONE, BASE_NONE, NULL, 0x0,
 			"This is a zero-window-probe", HFILL }},
 
 		{ &hf_tcp_analysis_zero_window,
-		{ "",		"tcp.analysis.zero_window", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		{ "Zero Window",		"tcp.analysis.zero_window", FT_NONE, BASE_NONE, NULL, 0x0,
 			"This is a Zero-Window", HFILL }},
 
 		{ &hf_tcp_len,
