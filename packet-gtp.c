@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.15 2001/11/20 22:29:04 guy Exp $
+ * $Id: packet-gtp.c,v 1.16 2001/11/21 02:01:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3475,7 +3475,7 @@ decode_gtp_pdp_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 
 	guint8		ggsn_addr_len, apn_len, trans_id, vaa, order, nsapi, sapi, pdu_send_no, pdu_rec_no, pdp_cntxt_id,
 			pdp_type_org, pdp_type_num, pdp_addr_len;
-	guint16		length, l_offset, sn_down, sn_up, up_flow;
+	guint16		length, sn_down, sn_up, up_flow;
 	guint32 	addr_ipv4, up_teid, up_teid_cp;
 	struct	e_in6_addr addr_ipv6;	
 	proto_tree	*ext_tree_pdp;
@@ -3621,8 +3621,7 @@ decode_gtp_pdp_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 static int
 decode_gtp_apn(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
 
-	guint16		length, name_len, tmp;	
-	gchar		*apn;
+	guint16		length;
 	proto_tree	*ext_tree_apn;
 	proto_item	*te;
 	

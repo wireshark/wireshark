@@ -1,7 +1,7 @@
 /* packet-pgm.c
  * Routines for pgm packet disassembly
  *
- * $Id: packet-pgm.c,v 1.7 2001/08/06 19:05:14 guy Exp $
+ * $Id: packet-pgm.c,v 1.8 2001/11/21 02:01:05 guy Exp $
  * 
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -111,7 +111,6 @@ static int hf_pgm_opt_type = -1;
 static int hf_pgm_opt_len = -1;
 static int hf_pgm_opt_tlen = -1;
 
-static int hf_pgm_genopt = -1;
 static int hf_pgm_genopt_type = -1;
 static int hf_pgm_genopt_len = -1;
 static int hf_pgm_genopt_opx = -1;
@@ -774,8 +773,6 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case PGM_RDATA_PCKT:
 		case PGM_ODATA_PCKT: {
-			tvbuff_t *next_tvb;
-
 			type_tree = proto_item_add_subtree(tf, ett_pgm_data);
 
 			proto_tree_add_uint(type_tree, hf_pgm_spm_sqn, tvb, 

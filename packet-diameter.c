@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.33 2001/11/04 02:50:19 guy Exp $
+ * $Id: packet-diameter.c,v 1.34 2001/11/21 02:01:06 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -335,7 +335,6 @@ addStaticAVP(int code, gchar *name, diameterDataType type, value_string *values)
   /* Parse our values array, if we have one */
   if (values) {
 	for (i=0; values[i].strptr != NULL; i++) {
-	  char *valueName=NULL, *valueCode=NULL;
 	  ValueName *ve = NULL;
 			
 	  ve = g_malloc(sizeof(ValueName));
@@ -510,7 +509,6 @@ addCommand(int code, char *name, char *vendorId)
 static int
 xmlParseCommand(xmlDocPtr doc, xmlNodePtr cur)
 {
-  guint32 vendorId = 0;
   char *name, *code, *vendorIdString;
 
   /*
@@ -1271,7 +1269,6 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
   size_t offset = 0 ;
   char dataBuffer[4096];
   tvbuff_t        *group_tvb;
-  tvbuff_t        *mip_tvb;
   proto_tree *group_tree;
   proto_item *grouptf;
   proto_item *avptf;
@@ -1584,8 +1581,6 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 		}
 		break;
 	  case DIAMETER_MIP_REG_REQ:
-
-		/* Make a new tvb */
 		safe_dissect_mip(tvb, pinfo, avpi_tree, offset, avpDataLength);
 		break;
 

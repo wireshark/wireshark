@@ -224,7 +224,6 @@ is_icap_header:
 
 	datalen = tvb_length_remaining(tvb, offset);
 	if (datalen > 0) {
-		tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 		dissect_data(tvb, offset, pinfo, icap_tree);
 	}
 }

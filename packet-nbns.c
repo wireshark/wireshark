@@ -3,7 +3,7 @@
  * to when it had only NBNS)
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.64 2001/11/13 23:55:30 gram Exp $
+ * $Id: packet-nbns.c,v 1.65 2001/11/21 02:01:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1154,7 +1154,6 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree		*nbdgm_tree = NULL;
 	proto_item		*ti = NULL;
 	struct nbdgm_header	header;
-	int			msglen;
 	int			flags;
 	int			message_index;
 	tvbuff_t		*next_tvb;
@@ -1276,6 +1275,8 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Here we can pass the packet off to the next protocol.
 		 * Set the length of our top-level tree item to include
 		 * only our stuff.
+		 *
+		 * XXX - take the datagram length into account?
 		 */
 		proto_item_set_len(ti, offset);
 		next_tvb = tvb_new_subset(tvb, offset, -1, -1);

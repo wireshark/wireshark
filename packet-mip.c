@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-mip.c,v 1.21 2001/10/31 22:16:25 guy Exp $
+ * $Id: packet-mip.c,v 1.22 2001/11/21 02:01:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -177,7 +177,6 @@ dissect_mip_extensions( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8        ext_subtype=0;
   size_t        offset = 0;
   gchar         ext_data[256];
-  gchar        *eString;
   size_t        dataLength;
   size_t        hdrLen;
 
@@ -287,10 +286,10 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree	*mip_tree=NULL;
   proto_item    *tf;
   proto_tree    *flags_tree;
-  guint8         type, code;
+  guint8         type;
   guint8         flags;
   nstime_t       ident_time;
-  size_t         offset=0, eoffset;
+  size_t         offset=0;
   tvbuff_t      *extensions_tvb;
   size_t         dataRemaining;
   

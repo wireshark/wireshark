@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.163 2001/11/20 08:18:01 guy Exp $
+ * $Id: packet-smb.c,v 1.164 2001/11/21 02:01:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -507,8 +507,6 @@ static int hf_smb_fs_attr_fc = -1;
 static int hf_smb_fs_attr_vq = -1;
 static int hf_smb_fs_attr_dim = -1;
 static int hf_smb_fs_attr_vic = -1;
-static int hf_smb_setupword1 = -1;
-static int hf_smb_setupword2 = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_hdr = -1;
@@ -1769,7 +1767,6 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 	while(bc){
 		int len;
-		int old_offset = offset;
 		const guint8 *str;
 		proto_item *dit = NULL;
 		proto_tree *dtr = NULL;
@@ -1997,8 +1994,6 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 				tvb, offset, dn_len, dn);
 			COUNT_BYTES(dn_len);
 		} else {
-			int len;
-
 			/* guid */
 			/* XXX - show it in the standard Microsoft format
 			   for GUIDs? */
@@ -2691,7 +2686,6 @@ dissect_query_information_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 {
 	guint16 bc;
 	guint8 wc;
-	nstime_t ts;
 
 	WORD_COUNT;
 
@@ -3379,7 +3373,6 @@ dissect_read_mpx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 {
 	guint16 datalen=0, bc;
 	guint8 wc;
-	int tvblen;
 
 	WORD_COUNT;
 
@@ -3490,7 +3483,6 @@ dissect_write_raw_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	guint32 to;
 	guint16 datalen=0, bc;
 	guint8 wc;
-	int tvblen;
 
 	WORD_COUNT;
 
@@ -3568,7 +3560,6 @@ dissect_write_mpx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	guint32 to;
 	guint16 datalen=0, bc;
 	guint8 wc;
-	int tvblen;
 
 	WORD_COUNT;
 
@@ -4521,7 +4512,6 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
 	guint8	wc, cmd=0xff;
 	guint16 andxoffset=0, bc, datalen=0;
-	int len;
 
 	WORD_COUNT;
 
@@ -4665,8 +4655,7 @@ static int
 dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8	wc, cmd=0xff;
-	guint16 andxoffset=0, bc, datalen=0;
-	int len;
+	guint16 andxoffset=0, bc;
 
 	WORD_COUNT;
 
@@ -8750,9 +8739,6 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree = NULL;
 	smb_info_t *si;
 	smb_transact2_info_t *t2i;
-	int fn_len;
-	const char *fn;
-	int old_offset = offset;
 
 	si = (smb_info_t *)pinfo->private_data;
 	t2i = si->sip->extra_info;
@@ -9821,8 +9807,8 @@ static int
 dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
-	int fn_len, sfn_len;
-	const char *fn, *sfn;
+	int fn_len;
+	const char *fn;
 	int old_offset = offset;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -10196,8 +10182,6 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree = NULL;
 	smb_info_t *si;
 	smb_transact2_info_t *t2i;
-	int fn_len;
-	const char *fn;
 	int count;
 	gboolean trunc;
 
@@ -10328,8 +10312,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 	smb_info_t *si;
 	smb_transact2_info_t *t2i;
 	guint16 fid;
-	int fn_len, lno;
-	const char *fn;
+	int lno;
 	int old_offset = offset;
 
 	si = (smb_info_t *)pinfo->private_data;
@@ -10512,12 +10495,11 @@ static int
 dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8 sc, wc;
-	guint16 od=0, tf, po=0, pc=0, pd, dc=0, dd=0;
+	guint16 od=0, po=0, pc=0, pd, dc=0, dd=0;
 	int so=offset;
 	int sl=0;
 	int spo=offset;
 	int spc=0;
-	guint32 to;
 	smb_info_t *si;
 	smb_transact2_info_t *t2i = NULL;
 	guint16 bc;
@@ -11539,7 +11521,6 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
 {
   static gchar  str[3][MAX_UNICODE_STR_LEN+3+1];
   static gchar *cur;
-  int offset = *offsetp;
   const gchar *string;
   int string_len;
   smb_info_t *si;
@@ -12633,8 +12614,6 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	guint16         flags2;
 	smb_info_t 	si;
 	smb_saved_info_t	*sip = NULL;
-	proto_item *cmd_item = NULL;
-	proto_tree *cmd_tree = NULL;
         guint32 nt_status = 0;
         guint8 errclass = 0;
         guint16 errcode = 0;

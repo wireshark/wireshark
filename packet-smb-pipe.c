@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.51 2001/11/20 09:07:31 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.52 2001/11/21 02:01:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1233,7 +1233,7 @@ find_lanman(int lanman_num)
 static const guchar *
 get_count(const guchar *desc, int *countp)
 {
-	int count = 0, off = 0;
+	int count = 0;
 	guchar c;
 
 	if (!isdigit(*desc)) {
@@ -1978,11 +1978,9 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 	gboolean has_data;
 	gboolean has_ent_count;
 	guint16 ent_count, aux_count;
-	guint i, j;
+	guint i;
 	proto_item *data_item;
 	proto_tree *data_tree;
-	proto_item *entry_item;
-	proto_tree *entry_tree;
 
 	if (!proto_is_protocol_enabled(proto_smb_lanman))
 		return FALSE;
@@ -2609,7 +2607,6 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 	int offset;
 	int function;
 	int fid = -1;
-	int len;
 	guint16 info_level;
 
 	if (!proto_is_protocol_enabled(proto_smb_pipe))

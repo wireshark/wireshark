@@ -2,7 +2,7 @@
  * Routines for gnutella dissection
  * Copyright 2001, B. Johannessen <bob@havoq.com>
  *
- * $Id: packet-gnutella.c,v 1.7 2001/10/26 18:28:16 gram Exp $
+ * $Id: packet-gnutella.c,v 1.8 2001/11/21 02:01:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -176,13 +176,12 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, guint offset, proto_tree *t
 
 	proto_tree *qhi, *hit_tree;
 	int hit_count, i;
-	int hit_offset, idx, hit_size;
+	int hit_offset;
 	int name_length, extra_length;
 	int idx_at_offset, size_at_offset;
 	int servent_id_at_offset;
 	int name_at_offset, extra_at_offset;
 	int cur_char, remaining, used;
-	unsigned long ip;
 
 	if(offset + size > tvb_length(tvb)) {
 		proto_tree_add_item(tree,
@@ -194,7 +193,7 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, guint offset, proto_tree *t
 		return;
 	}
 
-    hit_count = tvb_get_guint8(tvb, offset + GNUTELLA_QUERYHIT_COUNT_OFFSET);
+	hit_count = tvb_get_guint8(tvb, offset + GNUTELLA_QUERYHIT_COUNT_OFFSET);
 
 	proto_tree_add_uint(tree,
 		hf_gnutella_queryhit_count,

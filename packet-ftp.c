@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  * 
- * $Id: packet-ftp.c,v 1.35 2001/09/03 20:52:25 guy Exp $
+ * $Id: packet-ftp.c,v 1.36 2001/11/21 02:01:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -119,7 +119,7 @@ static void
 handle_pasv_response(const u_char *line, int linelen, packet_info *pinfo)
 {
 	char *args;
-	char *p, *endp;
+	char *p;
 	u_char c;
 	int i;
 	int address[4], port[2];

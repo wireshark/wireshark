@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.75 2001/11/20 21:59:13 guy Exp $
+ * $Id: packet-ppp.c,v 1.76 2001/11/21 02:01:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1969,8 +1969,6 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   proto_tree *field_tree;
   proto_item *tv;
   proto_tree *value_tree;
-  proto_item *tm;
-  proto_tree *message_tree;
 
   guint8 code, id, value_size;
   guint16 length;

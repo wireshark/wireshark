@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.47 2001/10/27 00:47:26 guy Exp $
+ * $Id: packet-ospf.c,v 1.48 2001/11/21 02:01:05 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -1178,25 +1178,15 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     guint16		 ls_type;
     guint16		 ls_length;
     int			 end_offset;
-    guint8		 nr_links;
-    guint16		 nr_tos;
     guint8               reserved;
 
     /* router LSA */
     guint8		 link_type;
-    guint16 		 link_counter;
-    guint8 		 tos_counter;
     char  		*link_type_str;
     guint32              metric;
 
     guint8               router_lsa_flags;
     char                 router_lsa_flags_string[5];
-
-    /* AS-external LSA */
-    guint8		 options;
-
-    /* opaque LSA */
-    guint8		 ls_id_type;
 
     guint8               router_priority;
     guint32              number_prefixes;
@@ -1204,7 +1194,6 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     guint16              reserved16;
 
     guint16              referenced_ls_type;
-    char                 *referenced_ls_type_str;
 
     guint8               flags;
     guint8               flags_string[4];
@@ -1230,7 +1219,6 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 2, 2, "LSA Type: 0x%04x (%s)",
 			ls_type, val_to_str(ls_type, v3_ls_type_vals,"Unkown"));
 
-    ls_id_type = 0;
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 4, "Link State ID: %s",
 			    ip_to_str(tvb_get_ptr(tvb, offset + 4, 4)));
 
