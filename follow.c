@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.23 2000/08/03 12:44:20 gram Exp $
+ * $Id: follow.c,v 1.24 2000/08/09 05:18:37 gram Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -50,9 +50,22 @@ gboolean incomplete_tcp_stream = FALSE;
 
 static guint32 ip_address[2];
 static u_int   tcp_port[2];
+static u_int   bytes_written[2];
 
 static int check_fragments( int, tcp_stream_chunk * );
-static void write_packet_data( tcp_stream_chunk *, const char * );
+static void write_packet_data( int, tcp_stream_chunk *, const char * );
+
+void
+follow_tcp_stats(follow_tcp_stats_t* stats)
+{
+	int i;
+
+	for (i = 0; i < 2 ; i++) {
+		stats->ip_address[i] = ip_address[i];
+		stats->tcp_port[i] = tcp_port[i];
+		stats->bytes_written[i] = bytes_written[i];
+	}
+}
 
 /* this will build libpcap filter text that will only 
    pass the packets related to the stream. There is a 
@@ -162,7 +175,7 @@ reassemble_tcp( u_long sequence, u_long length, const char* data,
       seq[src_index]++;
     }
     /* write out the packet data */
-    write_packet_data( &sc, data );
+    write_packet_data( src_index, &sc, data );
     return;
   }
   /* if we are here, we have already seen this src, let's
@@ -199,7 +212,7 @@ reassemble_tcp( u_long sequence, u_long length, const char* data,
     seq[src_index] += length;
     if( synflag ) seq[src_index]++;
     if( data ) {
-      write_packet_data( &sc, data );
+      write_packet_data( src_index, &sc, data );
     }
     /* done with the packet, see if it caused a fragment to fit */
     while( check_fragments( src_index, &sc ) )
@@ -236,7 +249,7 @@ check_fragments( int index, tcp_stream_chunk *sc ) {
       /* this fragment fits the stream */
       if( current->data ) {
         sc->dlen = current->data_len;
-	write_packet_data( sc, current->data );
+	write_packet_data( index, sc, current->data );
       }
       seq[index] += current->len;
       if( prev ) {
@@ -266,6 +279,7 @@ reset_tcp_reassembly() {
     src_port[i] = 0;
     ip_address[i] = 0;
     tcp_port[i] = 0;
+    bytes_written[i] = 0;
     current = frags[i];
     while( current ) {
       next = current->next;
@@ -278,7 +292,9 @@ reset_tcp_reassembly() {
 }
 
 static void 
-write_packet_data( tcp_stream_chunk *sc, const char *data ) {
+write_packet_data( int index, tcp_stream_chunk *sc, const char *data )
+{
   fwrite( sc, 1, sizeof(tcp_stream_chunk), data_out_file );
   fwrite( data, 1, sc->dlen, data_out_file );
+  bytes_written[index] += sc->dlen;
 }

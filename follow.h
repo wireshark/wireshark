@@ -1,6 +1,6 @@
 /* follow.h
  *
- * $Id: follow.h,v 1.8 2000/03/12 04:26:35 guy Exp $
+ * $Id: follow.h,v 1.9 2000/08/09 05:18:38 gram Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -50,5 +50,13 @@ char* build_follow_filter( packet_info * );
 void reassemble_tcp( u_long, u_long, const char*, u_long, int, 
 		     address *, address *, u_int, u_int );
 void  reset_tcp_reassembly( void );
+
+typedef struct {
+	guint32		ip_address[2];
+	guint32		tcp_port[2];
+	unsigned int	bytes_written[2];
+} follow_tcp_stats_t;
+
+void follow_tcp_stats(follow_tcp_stats_t* stats);
 
 #endif
