@@ -2,13 +2,18 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.15 1999/12/05 02:32:38 guy Exp $
+ * $Id: packet-snmp.c,v 1.16 1999/12/10 09:49:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
  * Copyright 1998 Didier Jorand
  *
+ * Some stuff from:
  * 
+ * GXSNMP -- An snmp mangament application
+ * Copyright (C) 1998 Gregory McLean & Jochen Friedrich
+ * Beholder RMON ethernet network monitor,Copyright (C) 1993 DNPAP group
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -28,12 +33,6 @@
 # include "config.h"
 #endif
 
-#if defined(HAVE_UCD_SNMP_SNMP_H)
-# define WITH_SNMP_UCD 1
-#elif defined(HAVE_SNMP_SNMP_H)
-# define WITH_SNMP_CMU 1
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -46,8 +45,17 @@
 # include <netinet/in.h>
 #endif
 
+#if defined(HAVE_UCD_SNMP_SNMP_H)
+#include <ucd-snmp/asn1.h>
+#include <ucd-snmp/mib.h>
+#include <ucd-snmp/parse.h>
+#elif defined(HAVE_SNMP_SNMP_H)
+#include <snmp/snmp.h>
+#endif
+
 #include <glib.h>
 #include "packet.h"
+#include "asn1.h"
 
 #include "packet-snmp.h"
 
@@ -55,174 +63,31 @@ static int proto_snmp = -1;
 
 static gint ett_snmp = -1;
 
-#if defined(WITH_SNMP_CMU) || defined(WITH_SNMP_UCD)
-
-#define in_addr_t u_int
-
-#ifdef WITH_SNMP_UCD
-/* should be defined only if supported in ucd-snmp */
-#define OPAQUE_SPECIAL_TYPES 1
-#include <ucd-snmp/asn1.h>
-#include <ucd-snmp/snmp.h>
-#include <ucd-snmp/snmp_api.h>
-#include <ucd-snmp/snmp_impl.h>
-#include <ucd-snmp/mib.h>
-
-typedef long SNMP_INT;
-typedef unsigned  long SNMP_UINT;
-#define OID_FORMAT_STRING "%ld"
-#define OID_FORMAT_STRING1 ".%ld"
-#endif
-
-#ifdef WITH_SNMP_CMU
-#include <snmp/snmp.h>
-#include <snmp/snmp_impl.h>
-
-#ifndef MAX_NAME_LEN
-#define MAX_NAME_LEN SNMP_MAX_LEN
-#endif
-
-#define SNMP_MSG_GET GET_REQ_MSG
-#define SNMP_MSG_GETNEXT GETNEXT_REQ_MSG
-#define SNMP_MSG_RESPONSE GET_RSP_MSG
-#define SNMP_MSG_SET SET_REQ_MSG   
-#define SNMP_MSG_TRAP TRP_REQ_MSG
-
-#ifdef GETBULK_REQ_MSG
-#define SNMP_MSG_GETBULK GETBULK_REQ_MSG
-#else
-#define SNMP_MSG_GETBULK SNMP_PDU_GETBULK
-#endif
-
-#ifdef INFORM_REQ_MSG
-#define SNMP_MSG_INFORM INFORM_REQ_MSG
-#else
-#define SNMP_MSG_INFORM SNMP_PDU_INFORM
-#endif
-
-#ifdef TRP2_REQ_MSG
-#define SNMP_MSG_TRAP2 TRP2_REQ_MSG
-#else
-#define SNMP_MSG_TRAP2 SNMP_PDU_V2TRAP
-#endif
-
-#ifdef REPORT_MSG
-#define SNMP_MSG_REPORT REPORT_MSG
-#else
-#define SNMP_MSG_REPORT SNMP_PDU_REPORT
-#endif
-
-#ifndef SNMP_VERSION_2c
-#define SNMP_VERSION_2c 1
-#endif
-#ifndef SNMP_VERSION_2u
-#define SNMP_VERSION_2u 2
-#endif
-#ifndef SNMP_VERSION_3
-#define SNMP_VERSION_3 3
-#endif
-
-#ifdef SNMP_TRAP_AUTHENTICATIONFAILURE
-#define SNMP_TRAP_AUTHFAIL SNMP_TRAP_AUTHENTICATIONFAILURE
-#endif
-
-#ifndef COMMUNITY_MAX_LEN
-#define COMMUNITY_MAX_LEN 256
-#endif
-
-#ifndef ASN_INTEGER
-#define ASN_INTEGER SMI_INTEGER
-#endif
-#ifndef ASN_OCTET_STR
-#define ASN_OCTET_STR SMI_STRING
-#endif
-#ifndef ASN_OBJECT_ID
-#define ASN_OBJECT_ID SMI_OBJID
-#endif
-#ifndef ASN_NULL
-#define ASN_NULL SMI_NULLOBJ
-#endif
-
-#ifndef ASN_IPADDRESS
-	#ifdef IPADDRESS
-	#define ASN_IPADDRESS IPADDRESS
-	#else
-	#define ASN_IPADDRESS SMI_IPADDRESS
-	#endif
-#endif
-
-#ifndef ASN_COUNTER
-	#ifdef COUNTER
-	#define ASN_COUNTER COUNTER
-	#else
-	#define ASN_COUNTER SMI_COUNTER32
-	#endif
-#endif
-
-#ifndef ASN_GAUGE
-	#ifdef GAUGE
-	#define ASN_GAUGE GAUGE
-	#else
-	#define ASN_GAUGE SMI_GAUGE32
-	#endif
-#endif
-
-#ifndef ASN_TIMETICKS
-	#ifdef TIMETICKS
-	#define ASN_TIMETICKS TIMETICKS
-	#else
-	#define ASN_TIMETICKS SMI_TIMETICKS
-	#endif
-#endif
-
-#ifndef ASN_OPAQUE
-	#ifdef OPAQUE
-	#define ASN_OPAQUE OPAQUE
-	#else
-	#define ASN_OPAQUE SMI_OPAQUE
-	#endif
-#endif
-
-#ifndef ASN_COUNTER64
-	#ifdef COUNTER64
-	#define ASN_COUNTER64 COUNTER64
-	#else
-	#define ASN_COUNTER64 SMI_COUNTER64
-	#endif
-#endif
-
-#ifndef ASN_UINTEGER
-/* historic: should not be used! */
-#define ASN_UINTEGER (ASN_APPLICATION | 7)
-#endif
-#ifndef ASN_NSAP
-/* historic: should not be used! */
-#define ASN_NSAP (ASN_APPLICATION | 5)
-#endif
-#ifndef SNMP_NOSUCHOBJECT
-#define SNMP_NOSUCHOBJECT SMI_NOSUCHOBJECT
-#endif
-#ifndef SNMP_NOSUCHINSTANCE
-#define SNMP_NOSUCHINSTANCE SMI_NOSUCHINSTANCE
-#endif
-#ifndef SNMP_ENDOFMIBVIEW
-#define SNMP_ENDOFMIBVIEW SMI_ENDOFMIBVIEW
-#endif
-
-typedef int SNMP_INT;
-typedef unsigned int SNMP_UINT;
-#define OID_FORMAT_STRING "%d"
-#define OID_FORMAT_STRING1 ".%d"
-
-#endif /* WITH_SNMP_CMU */
+/* Protocol version numbers */
+#define SNMP_VERSION_1	0
+#define SNMP_VERSION_2c	1
+#define SNMP_VERSION_2u	2
+#define SNMP_VERSION_3	3
 
 static const value_string versions[] = {
-	{ SNMP_VERSION_1,	"VERSION 1" },
-	{ SNMP_VERSION_2c,	"VERSION 2C" },
-	{ SNMP_VERSION_2u,	"VERSION 2U" },
-	{ SNMP_VERSION_3,	"VERSION 3" },
+	{ SNMP_VERSION_1,	"1" },
+	{ SNMP_VERSION_2c,	"2C" },
+	{ SNMP_VERSION_2u,	"2U" },
+	{ SNMP_VERSION_3,	"3" },
 	{ 0,			NULL },
 };
+
+/* PDU types */
+#define SNMP_MSG_GET		0
+#define SNMP_MSG_GETNEXT	1
+#define SNMP_MSG_RESPONSE	2
+#define SNMP_MSG_SET		3
+#define SNMP_MSG_TRAP		4
+
+#define SNMP_MSG_GETBULK	5
+#define SNMP_MSG_INFORM		6
+#define SNMP_MSG_TRAP2		7
+#define SNMP_MSG_REPORT		8
 
 static const value_string pdu_types[] = {
 	{ SNMP_MSG_GET,		"GET" },
@@ -237,28 +102,60 @@ static const value_string pdu_types[] = {
 	{ 0,			NULL }
 };
 
+/* Error status values */
+#define SNMP_ERR_NOERROR		0
+#define SNMP_ERR_TOOBIG			1
+#define SNMP_ERR_NOSUCHNAME		2
+#define SNMP_ERR_BADVALUE		3
+#define SNMP_ERR_READONLY		4
+#define SNMP_ERR_GENERROR		5
+
+#define SNMP_ERR_NOACCESS		6
+#define SNMP_ERR_WRONGTYPE		7
+#define SNMP_ERR_WRONGLENGTH		8
+#define SNMP_ERR_WRONGENCODING		9
+#define SNMP_ERR_WRONGVALUE		10
+#define SNMP_ERR_NOCREATION		11
+#define SNMP_ERR_INCONSISTENTVALUE	12
+#define SNMP_ERR_RESOURCEUNAVAILABLE	13
+#define SNMP_ERR_COMMITFAILED		14
+#define SNMP_ERR_UNDOFAILED		15
+#define SNMP_ERR_AUTHORIZATIONERROR	16
+#define SNMP_ERR_NOTWRITABLE		17
+#define SNMP_ERR_INCONSISTENTNAME	18
+
 static const value_string error_statuses[] = {
 	{ SNMP_ERR_NOERROR,		"NO ERROR" },
-	{ SNMP_ERR_TOOBIG,		"ERROR: TOOBIG" },
-	{ SNMP_ERR_NOSUCHNAME,		"ERROR: NO SUCH NAME" },
-	{ SNMP_ERR_BADVALUE,		"ERROR: BAD VALUE" },
-	{ SNMP_ERR_READONLY,		"ERROR: READ ONLY" },
-	{ SNMP_ERR_GENERR,		"ERROR: GENERIC ERROR" },
-	{ SNMP_ERR_NOACCESS,		"ERROR: NO ACCESS" },
-	{ SNMP_ERR_WRONGTYPE,		"ERROR: WRONG TYPE" },
-	{ SNMP_ERR_WRONGLENGTH,		"ERROR: WRONG LENGTH" },
-	{ SNMP_ERR_WRONGENCODING,	"ERROR: WRONG ENCODING" },
-	{ SNMP_ERR_WRONGVALUE,		"ERROR: WRONG VALUE" },
-	{ SNMP_ERR_NOCREATION,		"ERROR: NO CREATION" },
-	{ SNMP_ERR_INCONSISTENTVALUE,	"ERROR: INCONSISTENT VALUE" },
-	{ SNMP_ERR_RESOURCEUNAVAILABLE,	"ERROR: RESOURCE UNAVAILABLE" },
-	{ SNMP_ERR_COMMITFAILED,	"ERROR: COMMIT FAILED" },
-	{ SNMP_ERR_UNDOFAILED,		"ERROR: UNDO FAILED" },
-	{ SNMP_ERR_AUTHORIZATIONERROR,	"ERROR: AUTHORIZATION ERROR" },
-	{ SNMP_ERR_NOTWRITABLE,		"ERROR: NOT WRITABLE" },
-	{ SNMP_ERR_INCONSISTENTNAME,	"ERROR: INCONSISTENT NAME" },
+	{ SNMP_ERR_TOOBIG,		"TOOBIG" },
+	{ SNMP_ERR_NOSUCHNAME,		"NO SUCH NAME" },
+	{ SNMP_ERR_BADVALUE,		"BAD VALUE" },
+	{ SNMP_ERR_READONLY,		"READ ONLY" },
+	{ SNMP_ERR_GENERROR,		"GENERIC ERROR" },
+	{ SNMP_ERR_NOACCESS,		"NO ACCESS" },
+	{ SNMP_ERR_WRONGTYPE,		"WRONG TYPE" },
+	{ SNMP_ERR_WRONGLENGTH,		"WRONG LENGTH" },
+	{ SNMP_ERR_WRONGENCODING,	"WRONG ENCODING" },
+	{ SNMP_ERR_WRONGVALUE,		"WRONG VALUE" },
+	{ SNMP_ERR_NOCREATION,		"NO CREATION" },
+	{ SNMP_ERR_INCONSISTENTVALUE,	"INCONSISTENT VALUE" },
+	{ SNMP_ERR_RESOURCEUNAVAILABLE,	"RESOURCE UNAVAILABLE" },
+	{ SNMP_ERR_COMMITFAILED,	"COMMIT FAILED" },
+	{ SNMP_ERR_UNDOFAILED,		"UNDO FAILED" },
+	{ SNMP_ERR_AUTHORIZATIONERROR,	"AUTHORIZATION ERROR" },
+	{ SNMP_ERR_NOTWRITABLE,		"NOT WRITABLE" },
+	{ SNMP_ERR_INCONSISTENTNAME,	"INCONSISTENT NAME" },
 	{ 0,				NULL }
 };
+
+/* General SNMP V1 Traps */
+
+#define SNMP_TRAP_COLDSTART		0
+#define SNMP_TRAP_WARMSTART		1
+#define SNMP_TRAP_LINKDOWN		2
+#define SNMP_TRAP_LINKUP		3
+#define SNMP_TRAP_AUTHFAIL		4
+#define SNMP_TRAP_EGPNEIGHBORLOSS	5
+#define SNMP_TRAP_ENTERPRISESPECIFIC	6
 
 static const value_string trap_types[] = {
 	{ SNMP_TRAP_COLDSTART,		"COLD START" },
@@ -271,6 +168,151 @@ static const value_string trap_types[] = {
 	{ 0,				NULL }
 };
 
+/* SNMP Tags */
+
+#define SNMP_IPA    0		/* IP Address */
+#define SNMP_CNT    1		/* Counter (Counter32) */
+#define SNMP_GGE    2		/* Gauge (Gauge32) */
+#define SNMP_TIT    3		/* TimeTicks */
+#define SNMP_OPQ    4		/* Opaque */
+#define SNMP_NSP    5		/* NsapAddress */
+#define SNMP_C64    6		/* Counter64 */
+#define SNMP_U32    7		/* Uinteger32 */
+
+#define SERR_NSO    0
+#define SERR_NSI    1
+#define SERR_EOM    2
+
+/* SNMPv1 Types */
+
+#define SNMP_NULL                0
+#define SNMP_INTEGER             1    /* l  */
+#define SNMP_OCTETSTR            2    /* c  */
+#define SNMP_DISPLAYSTR          2    /* c  */
+#define SNMP_OBJECTID            3    /* ul */
+#define SNMP_IPADDR              4    /* uc */
+#define SNMP_COUNTER             5    /* ul */
+#define SNMP_GAUGE               6    /* ul */
+#define SNMP_TIMETICKS           7    /* ul */
+#define SNMP_OPAQUE              8    /* c  */
+
+/* additional SNMPv2 Types */
+
+#define SNMP_UINTEGER            5    /* ul */
+#define SNMP_BITSTR              9    /* uc */
+#define SNMP_NSAP               10    /* uc */
+#define SNMP_COUNTER64          11    /* ul */
+#define SNMP_NOSUCHOBJECT       12
+#define SNMP_NOSUCHINSTANCE     13
+#define SNMP_ENDOFMIBVIEW       14
+
+typedef struct _SNMP_CNV SNMP_CNV;
+
+struct _SNMP_CNV
+{
+  guint class;
+  guint tag;
+  gint  syntax;
+  gchar *name;
+};
+
+static SNMP_CNV SnmpCnv [] =
+{
+  {ASN1_UNI, ASN1_NUL, SNMP_NULL,      "NULL"},
+  {ASN1_UNI, ASN1_INT, SNMP_INTEGER,   "INTEGER"},
+  {ASN1_UNI, ASN1_OTS, SNMP_OCTETSTR,  "OCTET STRING"},
+  {ASN1_UNI, ASN1_OJI, SNMP_OBJECTID,  "OBJECTID"},
+  {ASN1_APL, SNMP_IPA, SNMP_IPADDR,    "IPADDR"},
+  {ASN1_APL, SNMP_CNT, SNMP_COUNTER,   "COUNTER"},  /* Counter32 */
+  {ASN1_APL, SNMP_GGE, SNMP_GAUGE,     "GAUGE"},    /* Gauge32 == Unsigned32  */
+  {ASN1_APL, SNMP_TIT, SNMP_TIMETICKS, "TIMETICKS"},
+  {ASN1_APL, SNMP_OPQ, SNMP_OPAQUE,    "OPAQUE"},
+
+/* SNMPv2 data types and errors */
+
+  {ASN1_UNI, ASN1_BTS, SNMP_BITSTR,         "BITSTR"},
+  {ASN1_APL, SNMP_C64, SNMP_COUNTER64,      "COUNTER64"},
+  {ASN1_CTX, SERR_NSO, SNMP_NOSUCHOBJECT,   "NOSUCHOBJECT"},
+  {ASN1_CTX, SERR_NSI, SNMP_NOSUCHINSTANCE, "NOSUCHINSTANCE"},
+  {ASN1_CTX, SERR_EOM, SNMP_ENDOFMIBVIEW,   "ENDOFMIBVIEW"},
+  {0,       0,         -1,                  NULL}
+};
+
+/*
+ * NAME:        g_snmp_tag_cls2syntax
+ * SYNOPSIS:    gboolean g_snmp_tag_cls2syntax
+ *                  (
+ *                      guint    tag,
+ *                      guint    cls,
+ *                      gushort *syntax
+ *                  )
+ * DESCRIPTION: Converts ASN1 tag and class to Syntax tag and name.
+ *              See SnmpCnv for conversion.
+ * RETURNS:     name on success, NULL on failure
+ */
+
+static gchar *
+snmp_tag_cls2syntax ( guint tag, guint cls, gushort *syntax)
+{
+    SNMP_CNV *cnv;
+
+    cnv = SnmpCnv;
+    while (cnv->syntax != -1)
+    {
+        if (cnv->tag == tag && cnv->class == cls)
+        {
+            *syntax = cnv->syntax;
+            return cnv->name;
+        }
+        cnv++;
+    }
+    return NULL;
+}
+
+static void
+dissect_snmp_parse_error(const u_char *pd, int offset, frame_data *fd,
+		   proto_tree *tree, const char *field_name, int ret)
+{
+	const gchar *errstr;
+
+	if (check_col(fd, COL_INFO)) {
+		switch (ret) {
+
+		case ASN1_ERR_EMPTY:
+			errstr = "Ran out of data";
+			break;
+
+		case ASN1_ERR_EOC_MISMATCH:
+			errstr = "EOC mismatch";
+			break;
+
+		case ASN1_ERR_WRONG_TYPE:
+			errstr = "Wrong type for that item";
+			break;
+
+		case ASN1_ERR_LENGTH_NOT_DEFINITE:
+			errstr = "Length was indefinite";
+			break;
+
+		case ASN1_ERR_LENGTH_MISMATCH:
+			errstr = "Length mismatch";
+			break;
+
+		case ASN1_ERR_WRONG_LENGTH_FOR_TYPE:
+			errstr = "Wrong length for that item's type";
+			break;
+
+		default:
+			errstr = "Unknown error";
+			break;
+		}
+		col_add_fstr(fd, COL_INFO,
+		    "ERROR: Couldn't parse %s: %s", field_name, errstr);
+	}
+
+	dissect_data(pd, offset, fd, tree);
+}
+
 static void
 dissect_snmp_error(const u_char *pd, int offset, frame_data *fd,
 		   proto_tree *tree, const char *message)
@@ -281,607 +323,569 @@ dissect_snmp_error(const u_char *pd, int offset, frame_data *fd,
 	dissect_data(pd, offset, fd, tree);
 }
 
+static void
+format_oid(gchar *buf, subid_t *oid, guint oid_length)
+{
+	int i;
+	int len;
+
+	len = sprintf(buf, "%lu", (unsigned long)oid[0]);
+	buf += len;
+	for (i = 1; i < oid_length;i++) {
+		len = sprintf(buf, ".%lu", (unsigned long)oid[i]);
+		buf += len;
+	}
+}
+
+static int
+snmp_variable_decode(proto_tree *snmp_tree, ASN1_SCK *asn1, int offset,
+			guint *lengthp)
+{
+	const guchar *start;
+	guint length;
+	gboolean def;
+	guint vb_length;
+	gushort vb_type;
+	gchar *vb_type_name;
+	int ret;
+	guint cls, con, tag;
+
+	gint32 vb_integer_value;
+	guint32 vb_uinteger_value;
+
+	guint8 *vb_octet_string;
+	gchar vb_string[MAX_NAME_LEN*6]; /* TBC */
+
+	subid_t *vb_oid;
+	guint vb_oid_length;
+
+	int i;
+	gchar *buf;
+	int len;
+
+	/* parse the type of the object */
+	start = asn1->pointer;
+	ret = asn1_header_decode (asn1, &cls, &con, &tag, &def, &vb_length);
+	if (ret != ASN1_ERR_NOERROR)
+		return ret;
+	if (!def)
+		return ASN1_ERR_LENGTH_NOT_DEFINITE;
+
+	/* Convert the class, constructed flag, and tag to a type. */
+	vb_type_name = snmp_tag_cls2syntax(tag, cls, &vb_type);
+	if (vb_type_name == NULL)
+		return -1;	/* XXX - do something here */
+
+	/* parse the value */
+	switch (vb_type) {
+
+	case SNMP_INTEGER:
+		ret = asn1_int32_value_decode(asn1, vb_length,
+		    &vb_integer_value);
+		if (ret != ASN1_ERR_NOERROR)
+			return ret;
+		length = asn1->pointer - start;
+		if (snmp_tree) {
+			proto_tree_add_text(snmp_tree, offset, length,
+			    "Value: <%s> %d (%#x)", vb_type_name,
+			    vb_integer_value, vb_integer_value);
+		}
+		break;
+
+	case SNMP_COUNTER:
+	case SNMP_GAUGE:
+	case SNMP_TIMETICKS:
+		ret = asn1_uint32_value_decode(asn1, vb_length,
+		    &vb_uinteger_value);
+		if (ret != ASN1_ERR_NOERROR)
+			return ret;
+		length = asn1->pointer - start;
+		if (snmp_tree) {
+			proto_tree_add_text(snmp_tree, offset, length,
+			    "Value: <%s> %u (%#x)", vb_type_name,
+			    vb_integer_value, vb_uinteger_value);
+		}
+		break;
+
+	case SNMP_OCTETSTR:
+	case SNMP_IPADDR:
+	case SNMP_OPAQUE:
+	case SNMP_NSAP:
+		ret = asn1_octet_string_value_decode (asn1, vb_length,
+		    &vb_octet_string);
+		if (ret != ASN1_ERR_NOERROR)
+			return ret;
+		length = asn1->pointer - start;
+		if (snmp_tree) {
+			/*
+			 * If some characters are not printable, display
+			 * the string as bytes.
+			 */
+			for (i = 0; i < vb_length; i++) {
+				if (!(isprint(vb_octet_string[i])
+				    || isspace(vb_octet_string[i])))
+					break;
+			}
+			if (i < vb_length) {
+				/*
+				 * We stopped, due to a non-printable
+				 * character, before we got to the end
+				 * of the string.
+				 */
+				buf = &vb_string[0];
+				len = sprintf(buf, "%03u", vb_octet_string[0]);
+				for (i = 1; i < vb_length; i++) {
+					len = sprintf(buf, ".%03u",
+					    vb_octet_string[i]);
+					buf += len;
+				}
+				proto_tree_add_text(snmp_tree, offset, length,
+				    "Value: <%s> %s", vb_type_name, vb_string);
+			} else {
+				proto_tree_add_text(snmp_tree, offset, length,
+				    "Value: <%s> %.*s", vb_type_name, vb_length,
+				    vb_octet_string);
+			}
+		}
+		g_free(vb_octet_string);
+		break;
+
+	case SNMP_NULL:
+		ret = asn1_null_decode (asn1, vb_length);
+		if (ret != ASN1_ERR_NOERROR)
+			return ret;
+		length = asn1->pointer - start;
+		if (snmp_tree) {
+			proto_tree_add_text(snmp_tree, offset, length,
+			    "Value: <%s>", vb_type_name);
+		}
+		break;
+
+	case SNMP_OBJECTID:
+		ret = asn1_oid_value_decode (asn1, vb_length, &vb_oid,
+		    &vb_oid_length);
+		if (ret != ASN1_ERR_NOERROR)
+			return ret;
+		length = asn1->pointer - start;
+		if (snmp_tree) {
+			format_oid(vb_string, vb_oid, vb_oid_length);
+			proto_tree_add_text(snmp_tree, offset, length,
+			    "Value: <%s> %s", vb_type_name);
+		}
+		g_free(vb_oid);
+		break;
+
+	case SNMP_NOSUCHOBJECT:
+		length = asn1->pointer - start;
+		if (snmp_tree) {
+			proto_tree_add_text(snmp_tree, offset, length,
+			    "Value: <err> no such object");
+		}			
+		break;
+
+	case SNMP_NOSUCHINSTANCE:
+		length = asn1->pointer - start;
+		if (snmp_tree) {
+			proto_tree_add_text(snmp_tree, offset, length,
+			    "Value: <err> no such instance");
+		}			
+		break;
+
+	case SNMP_ENDOFMIBVIEW:
+		length = asn1->pointer - start;
+		if (snmp_tree) {
+			proto_tree_add_text(snmp_tree, offset, length,
+			    "Value: <err> end of mib view");
+		}			
+		break;
+
+	default:
+		length = asn1->pointer - start;
+		if (snmp_tree) {
+			proto_tree_add_text(snmp_tree, offset, length,
+			    "Value: <unsupported type>");
+		}
+	}
+	*lengthp = length;
+	return ASN1_ERR_NOERROR;
+}
+
 void
 dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
     proto_tree *tree, char *proto_name, int proto, gint ett)
 {
-	int length=fd->pkt_len-offset;
-	u_char *data, *tmp_data;
+	ASN1_SCK asn1;
+	const guchar *start;
+	gboolean def;
+	guint length;
+	guint sequence_length;
 
-	int all_length, header_length;
-	u_char type, pdu_type;
-	int pdu_type_length;
-	SNMP_INT request_id, error_status, error_index;
-	int request_id_length, error_status_length, error_index_length;
-	
-	SNMP_INT version;
-	u_char community[COMMUNITY_MAX_LEN];
-	int community_length = COMMUNITY_MAX_LEN;
+	guint message_length;
 
-	oid enterprise[MAX_NAME_LEN];
-	int enterprise_length;
-	SNMP_INT trap_type, specific_type;
-	SNMP_UINT timestamp;
-	
-	int tmp_length;
-	oid vb_name[MAX_NAME_LEN];
-	int vb_name_length;
-	int vb_index;
-	u_char vb_type;
-	char vb_string[MAX_NAME_LEN*6]; /* TBC */
-	char vb_string2[2048]; /* TBC */
-	char tmp_string[12];
-	SNMP_INT vb_integer_value;
-	SNMP_UINT vb_unsigned_value;
-#ifdef WITH_SNMP_UCD	
-	struct counter64 vb_counter64_value;
-#endif	
-	oid vb_oid_value[MAX_NAME_LEN];
-	int vb_oid_value_length;
-	unsigned char vb_string_value[128];
-	int vb_string_value_length;
-#ifdef WITH_SNMP_UCD	
-	float vb_float_value;
-	double vb_double_value;
-#endif
-	
-	int i;
+	guint32 version;
 
+	guchar *community;
+	int community_length;
+
+	guint pdu_type;
 	char *pdu_type_string;
+	guint pdu_length;
 
-	proto_tree *snmp_tree=NULL;
-	proto_item *item=NULL;
+	guint32 request_id;
+
+	guint32 error_status;
+
+	guint32 error_index;
+
+	subid_t *enterprise;
+	guint enterprise_length;
+
+	guint8 *agent_address;
+	guint agent_address_length;
+
+	guint32 trap_type;
+
+	guint32 specific_type;
+
+	guint timestamp;
+	guint timestamp_length;
+
+	gchar oid_string[MAX_NAME_LEN*6]; /* TBC */
+
+	guint variable_bindings_length;
+
+	int vb_index;
+	guint variable_length;
+	subid_t *variable_oid;
+	guint variable_oid_length;
+	gchar vb_oid_string[MAX_NAME_LEN*6]; /* TBC */
+
+	proto_tree *snmp_tree = NULL;
+	proto_item *item = NULL;
+	int ret;
+	guint cls, con, tag;
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, proto_name);
+
+	if (tree) {
+		item = proto_tree_add_item(tree, proto, offset, END_OF_FRAME, NULL);
+		snmp_tree = proto_item_add_subtree(item, ett);
+	}
 
 	/* NOTE: we have to parse the message piece by piece, since the
 	 * capture length may be less than the message length: a 'global'
 	 * parsing is likely to fail.
 	 */
-	
-#ifdef WITH_SNMP_UCD	
 	/* parse the SNMP header */
-	if(NULL == asn_parse_header((u_char*)&pd[offset], &length, &type)) {
-		dissect_snmp_error(pd, offset, fd, tree,
-			"Couldn't parse SNMP header");
+	asn1_open(&asn1, &pd[offset], END_OF_FRAME);
+	ret = asn1_sequence_decode(&asn1, &message_length, &length);
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_snmp_parse_error(pd, offset, fd, tree,
+			"message header", ret);
 		return;
 	}
-	
-	if (type != (ASN_SEQUENCE | ASN_CONSTRUCTOR)) {
-		dissect_snmp_error(pd, offset, fd, tree, "Not an SNMP PDU");
-		return;
-	}
-	
-	/* authenticates message */
-	length=fd->pkt_len-offset;
-	header_length=length;
-	data = snmp_comstr_parse((u_char*)&pd[offset], &length, community, &community_length, (long*)&version);
-	if(NULL == data) {
-		dissect_snmp_error(pd, offset, fd, tree,
-		    "Couldn't parse authentication");
-		return;
-	}
-#endif /* WITH_SNMP_UCD */
-#ifdef WITH_SNMP_CMU
-	/* initialize length variables */
-	/* length=fd->pkt_len-offset; */
-	header_length=length;	
+	offset += length;
 
-	/* parse the SNMP header */
-	data = asn_parse_header((u_char*)&pd[offset], &length, &type);
-	if(NULL == data) {
-		dissect_snmp_error(pd, offset, fd, tree,
-			"Couldn't parse SNMP header");
+	ret = asn1_uint32_decode (&asn1, &version, &length);
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_snmp_parse_error(pd, offset, fd, tree, "version number",
+		    ret);
 		return;
 	}
-	
-	if (type != (ASN_SEQUENCE | ASN_CONSTRUCTOR)) {
-		dissect_snmp_error(pd, offset, fd, tree, "Not an SNMP PDU");
-		return;
+	if (tree) {
+		proto_tree_add_text(snmp_tree, offset, length,
+		    "Version: %s",
+		    val_to_str(version, versions, "Unknown version %#x"));
 	}
+	offset += length;
 
-	data = asn_parse_int(data, &length, &type, &version, sizeof(SNMP_INT));
-	if(NULL == data) {
-		dissect_snmp_error(pd, offset, fd, tree,
-		    "Couldn't parse SNMP version number");
+	ret = asn1_octet_string_decode (&asn1, &community, &community_length,
+	    &length);
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_snmp_parse_error(pd, offset, fd, tree, "community",
+		    ret);
 		return;
 	}
-	data = asn_parse_string(data, &length, &type, community, &community_length);
-	if(NULL == data) {
-		dissect_snmp_error(pd, offset, fd, tree,
-		    "Couldn't parse SNMP community");
-		return;
+	if (tree) {
+		proto_tree_add_text(snmp_tree, offset, length,
+		    "Community: %.*s", community_length, community);
 	}
-	community[community_length] = '\0';	
-#endif /* WITH_SNMP_CMU */
+	g_free(community);
+	offset += length;
 
-	header_length-=length;
-	/* printf("Community is %s, version is %d (header length is %d)\n", community, version, header_length); */
-	if(version != SNMP_VERSION_1) {
+	switch (version) {
+
+	case SNMP_VERSION_1:
+	case SNMP_VERSION_2c:
+	case SNMP_VERSION_2u:
+	case SNMP_VERSION_3:
+		break;
+
+	default:
 		dissect_snmp_error(pd, offset, fd, tree,
-		    "Non-version-1 SNMP PDU");
+		    "PDU for unknown version of SNMP");
 		return;
 	}
 
-	pdu_type_length=length;
-	data = asn_parse_header(data, &length, &pdu_type);
-	if (data == NULL) {
-		dissect_snmp_error(pd, offset, fd, tree,
-		    "Couldn't parse PDU type");
+	start = asn1.pointer;
+	ret = asn1_header_decode (&asn1, &cls, &con, &pdu_type, &def,
+	    &pdu_length);
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_snmp_parse_error(pd, offset, fd, tree,
+		    "PDU type", ret);
 		return;
 	}
-	pdu_type_length-=length;
-	/* printf("pdu type is %#x (length is %d)\n", type, pdu_type_length); */
-	
+	if (cls != ASN1_CTX || con != ASN1_CON) {
+		dissect_snmp_parse_error(pd, offset, fd, tree,
+		    "PDU type", ASN1_ERR_WRONG_TYPE);
+		return;
+	}
+	pdu_type_string = val_to_str(pdu_type, pdu_types,
+	    "Unknown PDU type %#x");
+	if (check_col(fd, COL_INFO))
+		col_add_str(fd, COL_INFO, pdu_type_string);
+	length = asn1.pointer - start;
+	if (tree) {
+		proto_tree_add_text(snmp_tree, offset, length,
+		    "PDU type: %s", pdu_type_string);
+	}
+	offset += length;
+
 	/* get the fields in the PDU preceeding the variable-bindings sequence */
-	if (pdu_type != SNMP_MSG_TRAP) {
+	switch (pdu_type) {
 
-	/* request id */
-		request_id_length=length;
-		data = asn_parse_int(data, &length, &type, &request_id, sizeof(request_id));
-		if (data == NULL) {
-			dissect_snmp_error(pd, offset, fd, tree,
-				"Couldn't parse request ID");
+	case SNMP_MSG_GET:
+	case SNMP_MSG_GETNEXT:
+	case SNMP_MSG_RESPONSE:
+	case SNMP_MSG_SET:
+#if 0
+	/* XXX - are they like V1 non-trap PDUs? */
+	case SNMP_MSG_GETBULK:
+	case SNMP_MSG_INFORM:
+#endif
+		/* request id */
+		ret = asn1_uint32_decode (&asn1, &request_id, &length);
+		if (ret != ASN1_ERR_NOERROR) {
+			dissect_snmp_parse_error(pd, offset, fd, tree,
+			    "request ID", ret);
 			return;
 		}
-		request_id_length-=length;
-		/* printf("request id is %#lx (length is %d)\n", request_id, request_id_length); */
-		
-	/* error status (getbulk non-repeaters) */
-		error_status_length=length;
-		data = asn_parse_int(data, &length, &type, &error_status, sizeof(error_status));
-		if (data == NULL) {
-			dissect_snmp_error(pd, offset, fd, tree,
-				"Couldn't parse error status");
-			return;
-		}
-		error_status_length-=length;
-
-	/* error index (getbulk max-repetitions) */
-		error_index_length=length;
-		data = asn_parse_int(data, &length, &type, &error_index, sizeof(error_index));
-		if (data == NULL) {
-			dissect_snmp_error(pd, offset, fd, tree,
-				"Couldn't parse error index");
-			return;
-		}
-		error_index_length-=length;
-
-		pdu_type_string = val_to_str(pdu_type, pdu_types,
-		    "Unknown PDU type %#x");
-		if (check_col(fd, COL_INFO))
-			col_add_str(fd, COL_INFO, pdu_type_string);
 		if (tree) {
-			/* all_length=header_length+pdu_type_length+request_id_length+error_status_length+error_index_length; */
-			all_length=fd->pkt_len-offset;
-			item = proto_tree_add_item(tree, proto, offset, all_length, NULL);
-			snmp_tree = proto_item_add_subtree(item, ett);
-			proto_tree_add_text(snmp_tree, offset, header_length, "Community: \"%s\", Version: %s", community, val_to_str(version, versions, "Unknown version %#x"));
-			offset+=header_length;
-			proto_tree_add_text(snmp_tree, offset, pdu_type_length, "%s", pdu_type_string);
-			offset+=pdu_type_length;
-			proto_tree_add_text(snmp_tree, offset, request_id_length, "Request Id.: %#x", (unsigned int)request_id);
-			offset+=request_id_length;
-			proto_tree_add_text(snmp_tree, offset, error_status_length, "Error Status: %s", val_to_str(error_status, error_statuses, "Unknown (%d)"));
-			offset+=error_status_length;
-			proto_tree_add_text(snmp_tree, offset, error_index_length, "Error Index: %d", (int)error_index);
-			offset+=error_index_length;
-		} else {
-			offset+=header_length;
-			offset+=pdu_type_length;
-			offset+=request_id_length;
-			offset+=error_status_length;
-			offset+=error_index_length;		
+			proto_tree_add_text(snmp_tree, offset, length,
+			    "Request Id: %#x", request_id);
 		}
+		offset += length;
 		
-	} else {
-		/* an SNMPv1 trap PDU */
-		pdu_type_string = val_to_str(pdu_type, pdu_types,
-		    "Unknown PDU type %#x");
-		if (check_col(fd, COL_INFO))
-			col_add_str(fd, COL_INFO, pdu_type_string);
-		if(tree) {
-			all_length=fd->pkt_len-offset;
-			item = proto_tree_add_item(tree, proto, offset, all_length, NULL);
-			snmp_tree = proto_item_add_subtree(item, ett);
-			proto_tree_add_text(snmp_tree, offset, header_length, "Community: \"%s\", Version: %s", community, val_to_str(version, versions, "Unknown version %#x"));
-			offset+=header_length;
-			proto_tree_add_text(snmp_tree, offset, pdu_type_length, "Pdu type: %s", pdu_type_string);
-			offset+=pdu_type_length;
-		} else {
-			offset+=header_length;
-			offset+=pdu_type_length;
-		}
-		
-	/* enterprise */
-		enterprise_length = MAX_NAME_LEN;
-		tmp_length=length;
-		data = asn_parse_objid(data, &length, &type, enterprise,  &enterprise_length);
-		if (data == NULL) {
-			dissect_snmp_error(pd, offset, fd, tree,
-				"Couldn't parse enterprise OID");
+		/* error status (getbulk non-repeaters) */
+		ret = asn1_uint32_decode (&asn1, &error_status, &length);
+		if (ret != ASN1_ERR_NOERROR) {
+			dissect_snmp_parse_error(pd, offset, fd, tree,
+			    "error status", ret);
 			return;
 		}
-		tmp_length-=length;
+		if (tree) {
+			proto_tree_add_text(snmp_tree, offset, length,
+			    "Error Status: %s",
+			    val_to_str(error_status, error_statuses,
+			      "Unknown (%d)"));
+		}
+		offset += length;
 
-		sprintf(vb_string, OID_FORMAT_STRING, enterprise[0]);
-		for(i=1; i<enterprise_length;i++) {
-			sprintf(tmp_string, OID_FORMAT_STRING1, enterprise[i]);
-			strcat(vb_string,tmp_string);
+		/* error index (getbulk max-repetitions) */
+		ret = asn1_uint32_decode (&asn1, &error_index, &length);
+		if (ret != ASN1_ERR_NOERROR) {
+			dissect_snmp_parse_error(pd, offset, fd, tree,
+			    "error index", ret);
+			return;
 		}
-		if(tree) {
-			proto_tree_add_text(snmp_tree, offset, tmp_length, "Enterprise: %s", vb_string);
+		if (tree) {
+			proto_tree_add_text(snmp_tree, offset, length,
+			    "Error Index: %u", error_index);
 		}
-		offset+=tmp_length;
+		offset += length;
+		break;
 
-	/* agent address */
-		vb_string_value_length = 4;
-		tmp_length=length;
-		data = asn_parse_string(data, &length, &type, vb_string_value, &vb_string_value_length);
-		if (data == NULL) {
-			dissect_snmp_error(pd, offset, fd, tree,
-				"Couldn't parse agent address");
+	case SNMP_MSG_TRAP:
+		/* enterprise */
+		ret = asn1_oid_decode (&asn1, &enterprise, &enterprise_length,
+		    &length);
+		if (ret != ASN1_ERR_NOERROR) {
+			dissect_snmp_parse_error(pd, offset, fd, tree,
+			    "enterprise OID", ret);
 			return;
 		}
-		tmp_length-=length;
-		if(tree) {
-			proto_tree_add_text(snmp_tree, offset, tmp_length, "Agent address: %d.%d.%d.%d",
-							 vb_string_value[0],vb_string_value[1],vb_string_value[2],vb_string_value[3]);
+		if (tree) {
+			format_oid(oid_string, enterprise, enterprise_length);
+			proto_tree_add_text(snmp_tree, offset, length,
+			    "Enterprise: %s", oid_string);
 		}
-		offset+=tmp_length;
+		g_free(enterprise);
+		offset += length;
+
+		/* agent address */
+		start = asn1.pointer;
+		ret = asn1_header_decode (&asn1, &cls, &con, &tag,
+		    &def, &agent_address_length);
+		if (ret != ASN1_ERR_NOERROR) {
+			dissect_snmp_parse_error(pd, offset, fd, tree,
+			    "agent address", ret);
+			return;
+		}
+		if (!((cls == ASN1_APL && con == ASN1_PRI && tag == SNMP_IPA) ||
+		    (cls == ASN1_UNI && con == ASN1_PRI && tag == ASN1_OTS))) {
+			/* GXSNMP 0.0.15 says the latter is "needed for
+			   Banyan" */
+			dissect_snmp_parse_error(pd, offset, fd, tree,
+			    "agent_address", ASN1_ERR_WRONG_TYPE);
+			return;
+		}
+		if (agent_address_length != 4) {
+			dissect_snmp_parse_error(pd, offset, fd, tree,
+			    "agent_address", ASN1_ERR_WRONG_LENGTH_FOR_TYPE);
+			return;
+		}
+		ret = asn1_octet_string_value_decode (&asn1,
+		    agent_address_length, &agent_address);
+		if (ret != ASN1_ERR_NOERROR) {
+			dissect_snmp_parse_error(pd, offset, fd, tree,
+			    "agent address", ret);
+			return;
+		}
+		length = asn1.pointer - start;
+		if (tree) {
+			proto_tree_add_text(snmp_tree, offset, agent_address_length,
+			    "Agent address: %s", ip_to_str(agent_address));
+		}
+		g_free(agent_address);
+		offset += length;
 		
-        /* generic trap */
-		tmp_length=length;
-		data = asn_parse_int(data, &length, &type, &trap_type, sizeof(trap_type));
-		if (data == NULL) {
-			dissect_snmp_error(pd, offset, fd, tree,
-				"Couldn't parse trap type");
+	        /* generic trap type */
+		ret = asn1_uint32_decode (&asn1, &trap_type, &length);
+		if (ret != ASN1_ERR_NOERROR) {
+			dissect_snmp_parse_error(pd, offset, fd, tree,
+			    "generic trap type", ret);
 			return;
 		}
-		tmp_length-=length;
-		if(tree) {
-			proto_tree_add_text(snmp_tree, offset, tmp_length, "Trap type: %s", val_to_str(trap_type, trap_types, "Unknown (%d)"));
+		if (tree) {
+			proto_tree_add_text(snmp_tree, offset, length,
+			    "Trap type: %s",
+			    val_to_str(trap_type, trap_types, "Unknown (%u)"));
 		}		
-		offset+=tmp_length;
+		offset += length;
 		
-        /* specific trap */
-		tmp_length=length;
-		data = asn_parse_int(data, &length, &type, &specific_type, sizeof(specific_type));
-		if (data == NULL) {
-			dissect_snmp_error(pd, offset, fd, tree,
-				"Couldn't parse specific trap type");
+	        /* specific trap type */
+		ret = asn1_uint32_decode (&asn1, &specific_type, &length);
+		if (ret != ASN1_ERR_NOERROR) {
+			dissect_snmp_parse_error(pd, offset, fd, tree,
+			    "specific trap type", ret);
 			return;
 		}
-		tmp_length-=length;
-		if(tree) {
-			proto_tree_add_text(snmp_tree, offset, tmp_length, "Specific trap type: %ld (%#lx)", (long)specific_type, (long)specific_type);
+		if (tree) {
+			proto_tree_add_text(snmp_tree, offset, length,
+			    "Specific trap type: %u (%#x)",
+			    specific_type, specific_type);
 		}		
-		offset+=tmp_length;
+		offset += length;
 		
-        /* timestamp  */
-		tmp_length=length;
-		data = asn_parse_unsigned_int(data, &length, &type, &timestamp, sizeof(timestamp));
-		if (data == NULL) {
-			dissect_snmp_error(pd, offset, fd, tree,
-				"Couldn't parse time stamp");
+	        /* timestamp */
+		start = asn1.pointer;
+		ret = asn1_header_decode (&asn1, &cls, &con, &tag,
+		    &def, &timestamp_length);
+		if (ret != ASN1_ERR_NOERROR) {
+			dissect_snmp_parse_error(pd, offset, fd, tree,
+			    "timestamp", ret);
 			return;
 		}
-		tmp_length-=length;
-		if(tree) {
-			proto_tree_add_text(snmp_tree, offset, tmp_length, "Timestamp: %lu", (unsigned long)timestamp);
+		if (!((cls == ASN1_APL && con == ASN1_PRI && tag == SNMP_TIT) ||
+		    (cls == ASN1_UNI && con == ASN1_PRI && tag == ASN1_INT))) {
+			dissect_snmp_parse_error(pd, offset, fd, tree,
+			    "timestamp", ASN1_ERR_WRONG_TYPE);
+			return;
+		}
+		ret = asn1_uint32_value_decode(&asn1, timestamp_length,
+		    &timestamp);
+		if (ret != ASN1_ERR_NOERROR) {
+			dissect_snmp_parse_error(pd, offset, fd, tree,
+			    "timestamp", ret);
+			return;
+		}
+		length = asn1.pointer - start;
+		if (tree) {
+			proto_tree_add_text(snmp_tree, offset, length,
+			    "Timestamp: %u", timestamp);
 		}		
-		offset+=tmp_length;
+		offset += length;
+		break;
 	}
-	
+
 	/* variable bindings */
-    /* get header for variable-bindings sequence */
-	tmp_length=length;
-	data = asn_parse_header(data, &length, &type);
-	if (data == NULL) {
-		dissect_snmp_error(pd, offset, fd, tree,
-			"Couldn't variable-bindings header");
+	/* get header for variable-bindings sequence */
+	ret = asn1_sequence_decode(&asn1, &variable_bindings_length, &length);
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_snmp_parse_error(pd, offset, fd, tree,
+			"variable bindings header", ret);
 		return;
 	}
-	tmp_length-=length;
-	if (type != (u_char)(ASN_SEQUENCE | ASN_CONSTRUCTOR)) {
-		dissect_snmp_error(pd, offset, fd, tree,
-			"Bad type for variable-bindings header");
-		return;
-	}
-	offset+=tmp_length;
-	/* printf("VB header: offset is %d; length is %d.\n", offset, tmp_length); */
+	offset += length;
 
 	/* loop on variable bindings */
-	vb_index=0;
-	while(length>0) {
+	vb_index = 0;
+	while (variable_bindings_length > 0) {
 		vb_index++;
-		/* printf("VB index is %d (offset=%d; length=%d).\n", vb_index, offset, length); */
+		sequence_length = 0;
+
 		/* parse type */
-		tmp_length=length;
-		tmp_data=data;
-		data = asn_parse_header(data, &tmp_length, &type);
-		if (data == NULL) {
-			dissect_snmp_error(pd, offset, fd, tree,
-				"Couldn't parse variable-binding header");
+		ret = asn1_sequence_decode(&asn1, &variable_length, &length);
+		if (ret != ASN1_ERR_NOERROR) {
+			dissect_snmp_parse_error(pd, offset, fd, tree,
+				"variable binding header", ret);
 			return;
 		}
-		if (type != (u_char)(ASN_SEQUENCE | ASN_CONSTRUCTOR)) {
-			dissect_snmp_error(pd, offset, fd, tree,
-				"Bad type for variable-binding header");
-			return;
-		}
-		tmp_length=(int)(data-tmp_data);
-		length-=tmp_length;
-		offset+=tmp_length;
-		
+		sequence_length += length;
+
 		/* parse object identifier */
-		vb_name_length=MAX_NAME_LEN;
-		tmp_length=length;
-		data = asn_parse_objid(data, &length, &type, vb_name, &vb_name_length);
-		if (data == NULL) {
-			dissect_snmp_error(pd, offset, fd, tree,
-				"No object-identifier for variable-binding");
+		ret = asn1_oid_decode (&asn1, &variable_oid,
+		    &variable_oid_length, &length);
+		if (ret != ASN1_ERR_NOERROR) {
+			dissect_snmp_parse_error(pd, offset, fd, tree,
+			    "variable binding OID", ret);
 			return;
 		}
+		sequence_length += length;
 
-		if (type != (u_char)(ASN_UNIVERSAL | ASN_PRIMITIVE | ASN_OBJECT_ID)) {
-			dissect_snmp_error(pd, offset, fd, tree,
-				"Bad type for variable-binding");
-			return;
-		}
-		tmp_length-=length;
-
-		if(tree) {
-			sprintf(vb_string, OID_FORMAT_STRING, vb_name[0]);
-			for(i=1; i<vb_name_length;i++) {
-				sprintf(tmp_string, OID_FORMAT_STRING1, vb_name[i]);
-				strcat(vb_string,tmp_string);
-			}
+		if (tree) {
+			format_oid(oid_string, variable_oid,
+			    variable_oid_length);
 			
-			sprint_objid(vb_string2, vb_name, vb_name_length);
+#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+			sprint_objid(vb_oid_string, variable_oid,
+			    variable_oid_length);
+#endif
 			
-			proto_tree_add_text(snmp_tree, offset, tmp_length, "Object identifier %d: %s (%s)", vb_index, vb_string, vb_string2);
+			proto_tree_add_text(snmp_tree, offset, sequence_length,
+#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H) || defined(HAVE_SMI_H)
+			    "Object identifier %d: %s (%s)", vb_index,
+			    oid_string, vb_oid_string);
+#else
+			    "Object identifier %d: %s", vb_index,
+			    oid_string);
+#endif
 		}
-		offset+=tmp_length;
+		offset += sequence_length;
+		variable_bindings_length -= sequence_length;
 				
-		/* parse the type of the object */
-		tmp_length=length;
-		if (NULL == asn_parse_header(data, &tmp_length, &vb_type)){
-			dissect_snmp_error(pd, offset, fd, tree,
-				"Bad type for variable-binding value");
+		/* Parse the variable's value */
+		ret = snmp_variable_decode(snmp_tree, &asn1, offset, &length);
+		if (ret != ASN1_ERR_NOERROR) {
+			dissect_snmp_parse_error(pd, offset, fd, tree,
+			    "variable", ret);
 			return;
 		}
-
-		/* parse the value */
-		switch(vb_type) {
-		case ASN_NULL:
-			tmp_length=length;
-			data=asn_parse_null(data, &length, &type);
-			tmp_length-=length;
-			if (data == NULL){
-				dissect_snmp_error(pd, offset, fd, tree,
-					"Couldn't parse null value");
-				return;
-			}
-			if(tree) {
-				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: NULL");
-			}
-			offset+=tmp_length;
-			break;
-			
-		case ASN_INTEGER:
-			tmp_length=length;
-			data=asn_parse_int(data,  &length, &type, &vb_integer_value, sizeof(vb_integer_value));
-			tmp_length-=length;
-			if (data == NULL){
-				dissect_snmp_error(pd, offset, fd, tree,
-					"Couldn't parse integer value");
-				return;
-			}
-			if(tree) {
-				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <i> %ld (%#lx)", (long)vb_integer_value, (long)vb_integer_value);
-			}
-			offset+=tmp_length;
-			break;
-
-		case ASN_COUNTER:
-		case ASN_GAUGE:
-		case ASN_TIMETICKS:
-		case ASN_UINTEGER:
-			tmp_length=length;
-			data=asn_parse_unsigned_int(data, &length, &type, &vb_unsigned_value, sizeof(vb_unsigned_value));
-			tmp_length-=length;
-			if (data == NULL){
-				dissect_snmp_error(pd, offset, fd, tree,
-					"Couldn't parse unsigned value");
-				return;
-			}
-			if(tree) {
-				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <u> %lu (%#lx)", (unsigned long)vb_unsigned_value, (unsigned long)vb_unsigned_value);
-			}
-			offset+=tmp_length;
-			break;
-
-#ifdef WITH_SNMP_UCD
-			/* only ucd support 64bits types */
-		case ASN_COUNTER64:
-#ifdef OPAQUE_SPECIAL_TYPES
-		case ASN_OPAQUE_COUNTER64:
-		case ASN_OPAQUE_U64:
-#endif /* OPAQUE_SPECIAL_TYPES */
-			tmp_length=length;
-			data=asn_parse_unsigned_int64(data, &length, &type, &vb_counter64_value, sizeof(vb_counter64_value));
-			tmp_length-=length;
-			if (data == NULL){
-				dissect_snmp_error(pd, offset, fd, tree,
-					"Couldn't parse counter64 value");
-				return;
-			}
-			if(tree) {
-				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <i64> %lu:%lu (%#lx:%lx)",
-								 vb_counter64_value.high,
-								 vb_counter64_value.low,
-								 vb_counter64_value.high,
-								 vb_counter64_value.low);
-			}
-			offset+=tmp_length;
-			break;
-#endif /* WITH_SNMP_UCD */
-			
-		case ASN_OBJECT_ID:
-			vb_oid_value_length = MAX_NAME_LEN;
-			tmp_length=length;
-			data=asn_parse_objid(data, &length, &type, vb_oid_value, &vb_oid_value_length);
-			tmp_length-=length;
-			if (data == NULL){
-				dissect_snmp_error(pd, offset, fd, tree,
-					"Couldn't parse OID value");
-				return;
-			}
-			if(tree) {
-				sprintf(vb_string, OID_FORMAT_STRING, vb_oid_value[0]);
-				for(i=1; i<vb_oid_value_length;i++) {
-					sprintf(tmp_string, OID_FORMAT_STRING1, vb_oid_value[i]);
-					strcat(vb_string,tmp_string);
-				}
-				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <oid> %s", vb_string);
-			}			
-			offset+=tmp_length;
-			break;
-		case ASN_OCTET_STR:
-		case ASN_IPADDRESS:
-		case ASN_OPAQUE:
-		case ASN_NSAP:
-			vb_string_value_length=128;
-			tmp_length=length;
-			data=asn_parse_string(data, &length, &type, vb_string_value, &vb_string_value_length);
-			tmp_length-=length;
-			if (data == NULL){
-				dissect_snmp_error(pd, offset, fd, tree,
-					"Couldn't parse octet string value");
-				return;
-			}
-			if(tree) {
-				vb_string_value[vb_string_value_length]=0;
-				/* if some characters are not printable, display the string as
-				 * bytes */
-				for(i=0; i<vb_string_value_length; i++) {
-					if(!(isprint(vb_string_value[i]) || isspace(vb_string_value[i]))) break;
-				}
-				if(i<vb_string_value_length) {
-					sprintf(vb_string, "%03d", (int)vb_string_value[0]);
-					for(i=1; i<vb_string_value_length; i++) {
-						sprintf(tmp_string, ".%03d", (int)vb_string_value[i]);
-						strcat(vb_string,tmp_string);
-					}
-					proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <str> %s", vb_string);
-				}else {
-					proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <str> %s", vb_string_value);
-				}
-			}
-			offset+=tmp_length;
-			break;			
-
-#ifdef OPAQUE_SPECIAL_TYPES
-		case ASN_OPAQUE_I64:
-			tmp_length=length;
-			data=asn_parse_signed_int64(data, &length, &type, &vb_counter64_value, sizeof(vb_counter64_value));
-			tmp_length-=length;
-			if (data == NULL){
-				dissect_snmp_error(pd, offset, fd, tree,
-					"Couldn't parse integer64 value");
-				return;
-			}
-			if(tree) {
-				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <i64> %ld:%lu (%#lx:%lx)",
-								 vb_counter64_value.high,
-								 vb_counter64_value.low,
-								 vb_counter64_value.high,
-								 vb_counter64_value.low);
-			}
-			offset+=tmp_length;
-			break;
-			break;
-
-		case ASN_OPAQUE_FLOAT:
-			tmp_length=length;
-			data=asn_parse_float(data, &length, &type,&vb_float_value, sizeof(vb_float_value));
-			tmp_length-=length;
-			if (data == NULL){
-				dissect_snmp_error(pd, offset, fd, tree,
-					"Couldn't parse float value");
-				return;
-			}
-			if(tree) {
-				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <f> %f", (double)vb_float_value);
-			}
-			offset+=tmp_length;
-			break;
-			
-		case ASN_OPAQUE_DOUBLE:
-			tmp_length=length;
-			data=asn_parse_double(data, &length, &type,&vb_double_value, sizeof(vb_double_value));
-			tmp_length-=length;
-			if (data == NULL){
-				dissect_snmp_error(pd, offset, fd, tree,
-					"Couldn't parse double value");
-				return;
-			}
-			if(tree) {
-				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <d> %f", vb_double_value);
-			}
-			offset+=tmp_length;
-			break;
-#endif /* OPAQUE_SPECIAL_TYPES */
-			
-		case SNMP_NOSUCHOBJECT:
-			if(tree) {
-				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <err> no such object");
-			}			
-			break;
-		case SNMP_NOSUCHINSTANCE:
-			if(tree) {
-				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <err> no such instance");
-			}			
-			break;
-		case SNMP_ENDOFMIBVIEW:
-			if(tree) {
-				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <err> end of mib view");
-			}			
-			break;
-			
-		default:
-			dissect_snmp_error(pd, offset, fd, tree,
-				"Unsupported type for variable-binding value");
-			return;
-		}			
+		offset += length;
+		variable_bindings_length -= length;
 	}
 }
-
-#else /* WITH_SNMP: CMU or UCD */
-
-/* Stub dissector, for use when there's no SNMP library. */
-void
-dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
-    proto_tree *tree, char *proto_name, int proto, gint ett)
-{
-	proto_item *item;
-	proto_tree *snmp_tree;
-
-	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, proto_name);
-	if (check_col(fd, COL_INFO))
-		col_add_str(fd, COL_INFO, "SNMP request or reply");
-	if (tree) {
-		item = proto_tree_add_item(tree, proto, offset, END_OF_FRAME,
-		    NULL);
-		snmp_tree = proto_item_add_subtree(item, ett);
-		dissect_data(pd, offset, fd, snmp_tree);
-	}
-}
-
-#endif /* WITH_SNMP: CMU or UCD */
 
 void
 dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
@@ -889,32 +893,22 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	dissect_snmp_pdu(pd, offset, fd, tree, "SNMP", proto_snmp, ett_snmp);
 }
 
-/*
- * Allow the stuff that builds "register.c" to scan "packet-snmp.c" even
- * if we're not enabling SNMP decoding (for "canned" source distributions
- * such as BSD ports, it may be a pain to arrange that it be scanned only
- * if SNMP is being used), by having "proto_register_snmp()" always be
- * defined, but not do anything if SNMP decoding isn't enabled.
- */
 void
 proto_register_snmp(void)
 {
-#if defined(WITH_SNMP_CMU) || defined(WITH_SNMP_UCD)
 /*        static hf_register_info hf[] = {
                 { &variable,
                 { "Name",           "snmp.abbreviation", TYPE, VALS_POINTER }},
         };*/
-#endif /* WITH_SNMP: CMU or UCD */
 	static gint *ett[] = {
 		&ett_snmp,
 	};
 
-#if defined(WITH_SNMP_CMU) || defined(WITH_SNMP_UCD)
+#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+	/* UCD or CMU SNMP */
 	init_mib();
-#endif /* WITH_SNMP: CMU or UCD */
+#endif
         proto_snmp = proto_register_protocol("Simple Network Management Protocol", "snmp");
-#if defined(WITH_SNMP_CMU) || defined(WITH_SNMP_UCD)
  /*       proto_register_field_array(proto_snmp, hf, array_length(hf));*/
-#endif /* WITH_SNMP: CMU or UCD */
 	proto_register_subtree_array(ett, array_length(ett));
 }

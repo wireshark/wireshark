@@ -1,7 +1,7 @@
 /* asn1.c
  * Routines for ASN.1 BER dissection
  *
- * $Id: asn1.c,v 1.1 1999/12/05 07:47:44 guy Exp $
+ * $Id: asn1.c,v 1.2 1999/12/10 09:49:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,7 +27,6 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-int debug_level;
 
 /*
  * MODULE INFORMATION
@@ -57,6 +56,14 @@ int debug_level;
  *              This can be very useful if you want to decode both
  *              definite and indefinite encodings.
  */
+
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
 
 #include <glib.h>
 #include "asn1.h"
@@ -710,7 +717,7 @@ done:
  * SYNOPSIS:    int asn1_subid_decode
  *                  (
  *                      ASN1_SCK *asn1,
- *                      guint32  *subid
+ *                      subid_t  *subid
  *                  )
  * DESCRIPTION: Decodes Sub Identifier.
  *              Parameters:
@@ -719,7 +726,7 @@ done:
  * RETURNS:     ASN1_ERR value (ASN1_ERR_NOERROR on success)
  */
 int
-asn1_subid_decode ( ASN1_SCK *asn1, guint32 *subid)
+asn1_subid_decode ( ASN1_SCK *asn1, subid_t *subid)
 {
     int    ret;
     guchar ch;
@@ -741,7 +748,7 @@ asn1_subid_decode ( ASN1_SCK *asn1, guint32 *subid)
  *                  (
  *                      ASN1_SCK *asn1,
  *                      int      enc_len,
- *                      guintew  **oid,
+ *                      subid_t  **oid,
  *                      guint    *len
  *                  )
  * DESCRIPTION: Decodes value portion of Object Identifier.
@@ -753,13 +760,13 @@ asn1_subid_decode ( ASN1_SCK *asn1, guint32 *subid)
  * RETURNS:     ASN1_ERR value (ASN1_ERR_NOERROR on success)
  */
 int
-asn1_oid_value_decode ( ASN1_SCK *asn1, int enc_len, guint32 **oid, guint *len)
+asn1_oid_value_decode ( ASN1_SCK *asn1, int enc_len, subid_t **oid, guint *len)
 {
     int          ret;
     const guchar *eoc;
-    guint32      subid;
+    subid_t      subid;
     guint        size;
-    guint32      *optr;
+    subid_t      *optr;
 
     eoc = asn1->pointer + enc_len;
     size = eoc - asn1->pointer + 1;
@@ -805,7 +812,7 @@ asn1_oid_value_decode ( ASN1_SCK *asn1, int enc_len, guint32 **oid, guint *len)
  * SYNOPSIS:    int asn1_oid_decode
  *                  (
  *                      ASN1_SCK *asn1,
- *                      guint32  **oid,
+ *                      subid_t  **oid,
  *                      guint    *len,
  *                      guint    *nbytes
  *                  )
@@ -818,7 +825,7 @@ asn1_oid_value_decode ( ASN1_SCK *asn1, int enc_len, guint32 **oid, guint *len)
  * RETURNS:     ASN1_ERR value (ASN1_ERR_NOERROR on success)
  */
 int
-asn1_oid_decode ( ASN1_SCK *asn1, guint32 **oid, guint *len, guint *nbytes)
+asn1_oid_decode ( ASN1_SCK *asn1, subid_t **oid, guint *len, guint *nbytes)
 {
     int          ret;
     const guchar *start;
