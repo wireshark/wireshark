@@ -1,7 +1,7 @@
 /* compat_macros.h
  * GTK-related Global defines, etc.
  *
- * $Id: compat_macros.h,v 1.1 2002/11/09 20:00:35 oabad Exp $
+ * $Id: compat_macros.h,v 1.2 2002/11/11 17:30:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,7 +58,16 @@ gtk_object_get_data(GTK_OBJECT(widget), key)
 #define WIDGET_SET_SIZE(widget, width, height) \
 gtk_widget_set_usize(GTK_WIDGET(widget), width, height);
 
-#else
+#define SIGNAL_EMIT_BY_NAME(widget, name) \
+gtk_signal_emit_by_name(GTK_OBJECT(widget), name);
+
+#define SIGNAL_EMIT_BY_NAME1(widget, name, arg) \
+gtk_signal_emit_by_name(GTK_OBJECT(widget), name, arg);
+
+#define SIGNAL_EMIT_STOP_BY_NAME(widget, name) \
+gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name);
+
+#else /* GTK_MAJOR_VERSION >= 2 */
 
 #define SIGNAL_CONNECT(widget, name, callback, arg) \
 g_signal_connect(G_OBJECT(widget), name, G_CALLBACK(callback), \
@@ -84,6 +93,15 @@ g_object_get_data(G_OBJECT(widget), key)
 #define WIDGET_SET_SIZE(widget, width, height) \
 gtk_widget_set_size_request(GTK_WIDGET(widget), width, height);
 
-#endif
+#define SIGNAL_EMIT_BY_NAME(widget, name) \
+g_signal_emit_by_name(G_OBJECT(widget), name);
 
-#endif
+#define SIGNAL_EMIT_BY_NAME1(widget, name, arg) \
+g_signal_emit_by_name(G_OBJECT(widget), name, arg);
+
+#define SIGNAL_EMIT_STOP_BY_NAME(widget, name) \
+g_signal_stop_emission_by_name(G_OBJECT(widget), name);
+
+#endif /* GTK_MAJOR_VERSION */
+
+#endif /* __COMPAT_MACROS_H__ */
