@@ -1,4 +1,4 @@
-$Id: README,v 1.23 2000/08/04 05:17:18 gram Exp $
+$Id: README,v 1.24 2000/08/22 06:50:16 gram Exp $
 
 Wiretap is a library that is being developed as a future replacement for
 libpcap, the current standard Unix library for packet capturing. Libpcap
@@ -131,6 +131,9 @@ ISDN4BSD "i4btrace" utility
 ---------------------------
 Bert Driehuis
 
+Cisco Secure Intrustion Detection System iplogging facility
+-----------------------------------------------------------
+Mike Hall
 
 Gilbert Ramirez <gram@xiexie.org>
 Guy Harris <guy@alum.mit.edu>

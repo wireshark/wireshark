@@ -1,4 +1,4 @@
-$Id: README,v 1.40 2000/08/15 18:44:52 deniel Exp $
+$Id: README,v 1.41 2000/08/22 06:50:04 gram Exp $
 
 General Information
 ------- -----------
@@ -84,12 +84,23 @@ development parallel to ethereal.  In the future it is hoped that
 wiretap will have more features than libpcap, but wiretap is still in
 its infancy. However, wiretap is used in ethereal for its ability
 to read multiple file types. You can read the following file
-formats, and create display filters for them as well:
+formats:
 
-libpcap (tcpdump -w), Sniffer (compressed and uncompressed), NetXray,
-Sniffer Pro, snoop, Shomiti, LANalyzer, Microsoft Network Monitor, AIX's
-iptrace, RADCOM's WAN/LAN Analyzer, Lucent/Ascend access products, HP-UX's
-nettl, Toshiba's ISDN routers, and the ISDN4BSD "i4btrace" utility.
+libpcap (tcpdump -w, Ethereal)
+Sniffer (compressed and uncompressed)
+NetXray
+Sniffer Pro
+snoop
+Shomiti
+LANalyzer
+Microsoft Network Monitor
+AIX's iptrace
+RADCOM's WAN/LAN Analyzer
+Lucent/Ascend access products
+HP-UX's nettl
+Toshiba's ISDN routers
+ISDN4BSD "i4btrace" utility
+Cisco Secure Intrustion Detection System iplogging facility
 
 In addition, it can read gzipped versions of any of these files
 automatically, if you have the zlib library available when compiling
