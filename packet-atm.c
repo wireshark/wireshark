@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.50 2003/01/03 06:45:42 guy Exp $
+ * $Id: packet-atm.c,v 1.51 2003/01/08 08:37:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,9 @@ static int hf_atm_vpi = -1;
 static int hf_atm_vci = -1;
 static int proto_atm_lane = -1;
 static int proto_ilmi = -1;
+static int proto_aal1 = -1;
+static int proto_aal3_4 = -1;
+static int proto_oamaal = -1;
 
 static gint ett_atm = -1;
 static gint ett_atm_lane = -1;
@@ -51,6 +54,9 @@ static gint ett_atm_lane_lc_lan_dest_rd = -1;
 static gint ett_atm_lane_lc_flags = -1;
 static gint ett_atm_lane_lc_tlv = -1;
 static gint ett_ilmi = -1;
+static gint ett_aal1 = -1;
+static gint ett_aal3_4 = -1;
+static gint ett_oamaal = -1;
 
 static dissector_handle_t eth_handle;
 static dissector_handle_t tr_handle;
@@ -781,17 +787,72 @@ capture_atm(const union wtap_pseudo_header *pseudo_header, const guchar *pd,
     ld->other++;
 }
 
+static const value_string pt_vals[] = {
+	{ 0, "User data, congestion not experienced, SDU-type 0" },
+	{ 1, "User data, congestion not experienced, SDU-type 1" },
+	{ 2, "User data, congestion experienced, SDU-type 0" },
+	{ 3, "User data, congestion experienced, SDU-type 1" },
+	{ 4, "Segment OAM F5 flow related cell" },
+	{ 5, "End-to-end OAM F5 flow related cell" },
+	{ 0, NULL }
+};
+
+static const value_string st_vals[] = {
+	{ 2, "BOM" },
+	{ 0, "COM" },
+	{ 1, "EOM" },
+	{ 3, "SSM" },
+	{ 0, NULL }
+};
+
+#define OAM_TYPE_FM	1	/* Fault Management */
+#define OAM_TYPE_PM	2	/* Performance Management */
+#define OAM_TYPE_AD	8	/* Activation/Deactivation */
+
+static const value_string oam_type_vals[] = {
+	{ OAM_TYPE_FM, "Fault Management" },
+	{ OAM_TYPE_PM, "Performance Management" },
+	{ OAM_TYPE_AD, "Activation/Deactivation" },
+	{ 0,           NULL }
+};
+
+static const value_string ft_fm_vals[] = {
+	{ 0, "Alarm Indication Signal" },
+	{ 1, "Far End Receive Failure" },
+	{ 8, "OAM Cell Loopback" },
+	{ 4, "Continuity Check" },
+	{ 0, NULL }
+};
+
+static const value_string ft_pm_vals[] = {
+	{ 0, "Forward Monitoring" },
+	{ 1, "Backward Reporting" },
+	{ 2, "Monitoring and Reporting" },
+	{ 0, NULL }
+};
+
+static const value_string ft_ad_vals[] = {
+	{ 0, "Performance Monitoring" },
+	{ 1, "Continuity Check" },
+	{ 0, NULL }
+};
+
 static void
 dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean truncated)
 {
-
-  proto_tree   *atm_tree = NULL;
-  proto_item   *ti;
+  int          offset;
+  proto_tree   *atm_tree = NULL, *aal_tree;
+  proto_item   *ti = NULL;
   tvbuff_t     *next_tvb;
   guint        length, reported_length;
   guint16      aal5_length;
   int          pad_length;
+  guint8       octet;
+  guint8       vpi;
+  guint16      vci;
+  guint16      aal3_4_hdr, aal3_4_trlr;
+  guint16      oam_crc;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
@@ -905,8 +966,10 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_text(atm_tree, tvb, 0, 0, "Cells: %u",
 		pinfo->pseudo_header->atm.cells);
         if (pinfo->pseudo_header->atm.aal == AAL_5) {
-          proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 U2U: %u",
-		pinfo->pseudo_header->atm.aal5t_u2u);
+          proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 UU: 0x%02x",
+		pinfo->pseudo_header->atm.aal5t_u2u >> 8);
+          proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 CPI: 0x%02x",
+		pinfo->pseudo_header->atm.aal5t_u2u & 0xFF);
           proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 len: %u",
 		pinfo->pseudo_header->atm.aal5t_len);
           proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 checksum: 0x%08X",
@@ -938,10 +1001,15 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_text(atm_tree, tvb, aal5_length, pad_length,
 		"Padding");
           }
-          proto_tree_add_text(atm_tree, tvb, length - 8, 2, "AAL5 U2U: %u",
-		tvb_get_ntohs(tvb, length - 8));
+          proto_tree_add_text(atm_tree, tvb, length - 8, 1, "AAL5 UU: 0x%02x",
+		tvb_get_guint8(tvb, length - 8));
+          proto_tree_add_text(atm_tree, tvb, length - 7, 1, "AAL5 CPI: 0x%02x",
+		tvb_get_guint8(tvb, length - 7));
           proto_tree_add_text(atm_tree, tvb, length - 6, 2, "AAL5 len: %u",
 		aal5_length);
+          /*
+           * XXX - check the checksum.
+           */
           proto_tree_add_text(atm_tree, tvb, length - 4, 4, "AAL5 checksum: 0x%08X",
 		tvb_get_ntohl(tvb, length - 4));
 	}
@@ -985,8 +1053,113 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   default:
     if (tree) {
-      /* Dump it as raw data.  (Is this a single cell?) */
-      call_dissector(data_handle, next_tvb, pinfo, tree);
+      /* Assume this is a single cell. */
+      proto_item_set_len(ti, 5);
+      octet = tvb_get_guint8(tvb, 0);
+      proto_tree_add_text(atm_tree, tvb, 0, 1, "GFC: 0x%x", octet >> 4);
+      vpi = (octet & 0xF0) << 4;
+      octet = tvb_get_guint8(tvb, 1);
+      vpi |= octet >> 4;
+      proto_tree_add_text(atm_tree, tvb, 0, 2, "VPI: %u", vpi);
+      vci = (octet & 0x0F) << 12;
+      octet = tvb_get_guint8(tvb, 2);
+      vci |= octet << 4;
+      octet = tvb_get_guint8(tvb, 3);
+      vci |= octet >> 4;
+      proto_tree_add_text(atm_tree, tvb, 1, 3, "VCI: %u", vci);
+      proto_tree_add_text(atm_tree, tvb, 3, 1, "PT: %s",
+          val_to_str((octet >> 1) & 0x7, pt_vals, "Unknown (%u)"));
+      proto_tree_add_text(atm_tree, tvb, 3, 1, "CLP: %u", octet & 0x01);
+      proto_tree_add_text(atm_tree, tvb, 4, 1, "HEC: 0x%02x",
+	  tvb_get_guint8(tvb, 4));
+      offset = 5;
+
+      switch (pinfo->pseudo_header->atm.aal) {
+
+      case AAL_1:
+        ti = proto_tree_add_item(tree, proto_aal1, tvb, offset, -1, FALSE);
+        aal_tree = proto_item_add_subtree(ti, ett_aal1);
+        octet = tvb_get_guint8(tvb, offset);
+        proto_tree_add_text(aal_tree, tvb, offset, 1, "CSI: %u", octet >> 7);
+        proto_tree_add_text(aal_tree, tvb, offset, 1, "SC: %u",
+		(octet >> 4) & 0x7);
+        proto_tree_add_text(aal_tree, tvb, offset, 1, "CRC: 0x%x",
+		(octet >> 1) & 0x7);
+        proto_tree_add_text(aal_tree, tvb, offset, 1, "Parity: %u",
+		octet & 0x1);
+        offset++;
+
+        proto_tree_add_text(aal_tree, tvb, offset, 47, "Payload");
+        break;
+
+      case AAL_3_4:
+        /*
+         * XXX - or should this be the CS PDU?
+         */
+        ti = proto_tree_add_item(tree, proto_aal3_4, tvb, offset, -1, FALSE);
+        aal_tree = proto_item_add_subtree(ti, ett_aal3_4);
+        aal3_4_hdr = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_text(aal_tree, tvb, offset, 2, "ST: %s",
+		val_to_str(aal3_4_hdr >> 14, st_vals, "Unknown (%u)"));
+        proto_tree_add_text(aal_tree, tvb, offset, 2, "SN: %u",
+		(aal3_4_hdr >> 10) & 0xF);
+        proto_tree_add_text(aal_tree, tvb, offset, 2, "MID: %u",
+		aal3_4_hdr & 0x3FF);
+        offset += 2;
+
+        proto_tree_add_text(aal_tree, tvb, offset, 44, "Information");
+        offset += 44;
+
+        aal3_4_trlr = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_text(aal_tree, tvb, offset, 2, "LI: %u",
+		(aal3_4_hdr >> 10) & 0x3F);
+        proto_tree_add_text(aal_tree, tvb, offset, 2, "CRC: 0x%03x",
+		aal3_4_hdr & 0x3FF);
+	break;
+
+      case AAL_OAMCELL:
+        ti = proto_tree_add_item(tree, proto_oamaal, tvb, offset, -1, FALSE);
+        aal_tree = proto_item_add_subtree(ti, ett_oamaal);
+        octet = tvb_get_guint8(tvb, offset);
+        proto_tree_add_text(aal_tree, tvb, offset, 2, "OAM Type: %s",
+		val_to_str(octet >> 4, oam_type_vals, "Unknown (%u)"));
+        switch (octet >> 4) {
+
+        case OAM_TYPE_FM:
+          proto_tree_add_text(aal_tree, tvb, offset, 2, "Function Type: %s",
+		val_to_str(octet & 0x0F, ft_fm_vals, "Unknown (%u)"));
+          break;
+
+        case OAM_TYPE_PM:
+          proto_tree_add_text(aal_tree, tvb, offset, 2, "Function Type: %s",
+		val_to_str(octet & 0x0F, ft_pm_vals, "Unknown (%u)"));
+          break;
+
+        case OAM_TYPE_AD:
+          proto_tree_add_text(aal_tree, tvb, offset, 2, "Function Type: %s",
+		val_to_str(octet & 0x0F, ft_ad_vals, "Unknown (%u)"));
+          break;
+
+        default:
+          proto_tree_add_text(aal_tree, tvb, offset, 2, "Function Type: %u",
+		octet & 0x0F);
+          break;
+        }
+        offset += 1;
+
+        proto_tree_add_text(aal_tree, tvb, offset, 45, "Function-specific information");
+        offset += 45;
+
+        oam_crc = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_text(aal_tree, tvb, offset, 2, "CRC-10: 0x%03x",
+		oam_crc & 0x3FF);
+        break;
+
+      default:
+        next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        call_dissector(data_handle, next_tvb, pinfo, tree);
+        break;
+      }
     }
     break;
   }
@@ -1019,6 +1192,9 @@ proto_register_atm(void)
 	static gint *ett[] = {
 		&ett_atm,
 		&ett_ilmi,
+		&ett_aal1,
+		&ett_aal3_4,
+		&ett_oamaal,
 		&ett_atm_lane,
 		&ett_atm_lane_lc_lan_dest,
 		&ett_atm_lane_lc_lan_dest_rd,
@@ -1026,6 +1202,9 @@ proto_register_atm(void)
 		&ett_atm_lane_lc_tlv,
 	};
 	proto_atm = proto_register_protocol("ATM", "ATM", "atm");
+	proto_aal1 = proto_register_protocol("ATM AAL1", "AAL1", "aal1");
+	proto_aal3_4 = proto_register_protocol("ATM AAL3/4", "AAL3_4", "aal3_4");
+	proto_oamaal = proto_register_protocol("ATM OAM AAL", "OAM AAL", "oamaal");
 	proto_register_field_array(proto_atm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
