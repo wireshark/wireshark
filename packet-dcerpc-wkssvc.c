@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.7 2003/04/26 00:44:21 sharpe Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.8 2003/04/27 06:11:45 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,7 @@ static int hf_wkssvc_platform_id = -1;
 static int hf_wkssvc_net_group = -1;
 static int hf_wkssvc_ver_major = -1;
 static int hf_wkssvc_ver_minor = -1;
+static int hf_wkssvc_lan_root = -1;
 static int hf_wkssvc_rc = -1;
 static gint ett_dcerpc_wkssvc = -1;
 
@@ -87,6 +88,42 @@ wkssvc_dissect_WKS_INFO_100(tvbuff_t *tvb, int offset,
 }
 
 /*
+ * IDL typedef struct {
+ * IDL   long platform_id;
+ * IDL   [string] [unique] wchar_t *server;
+ * IDL   [string] [unique] wchar_t *lan_grp;
+ * IDL   long ver_major;
+ * IDL   long ver_minor;
+ * IDL   [string] [unique] wchar_t *lan_root;
+ * IDL } WKS_INFO_101;
+ */
+static int
+wkssvc_dissect_WKS_INFO_101(tvbuff_t *tvb, int offset,
+			    packet_info *pinfo, proto_tree *tree,
+			    char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_platform_id, NULL);
+
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Server", hf_wkssvc_server, 0);
+
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Net Group", hf_wkssvc_net_group, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_ver_major, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_ver_minor, NULL);
+
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Lan Root", hf_wkssvc_lan_root, 0);
+
+	return offset;
+}
+
+/*
  * IDL long NetrQueryInfo(
  * IDL      [in] [string] [unique] wchar_t *ServerName,
  * IDL      [in] long level,
@@ -112,6 +149,8 @@ wkssvc_dissect_netrqueryinfo_rqst(tvbuff_t *tvb, int offset,
 /*
  * IDL typedef [switch_type(long)] union {
  * IDL   [case(100)] [unique] WKS_INFO_100 *wks100;
+ * IDL   [case(101)] [unique] WKS_INFO_101 *wks101;
+ * IDL   [case(102)] [unique] WKS_INFO_102 *wks102;
  * IDL } WKS_INFO_UNION;
  */
 static int
@@ -130,6 +169,12 @@ wkssvc_dissect_WKS_INFO_UNION(tvbuff_t *tvb, int offset,
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			wkssvc_dissect_WKS_INFO_100,
 			NDR_POINTER_UNIQUE, "WKS_INFO_100:", -1);
+		break;
+
+	case 101:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			wkssvc_dissect_WKS_INFO_101,
+			NDR_POINTER_UNIQUE, "WKS_INFO_101:", -1);
 		break;
 
 	}
@@ -182,6 +227,9 @@ proto_register_dcerpc_wkssvc(void)
 	  { &hf_wkssvc_ver_minor,
 	    { "Minor Version", "wkssvc.version.minor", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Minor Version", HFILL}},
+	  { &hf_wkssvc_lan_root,
+	    { "Lan Root", "wkssvc.lan.root", FT_STRING, BASE_NONE,
+	      NULL, 0x0, "Lan Root", HFILL}},
 	  { &hf_wkssvc_rc,
 	    { "Return code", "srvsvc.rc", FT_UINT32,
 	      BASE_HEX, VALS(DOS_errors), 0x0, "Return Code", HFILL}},
