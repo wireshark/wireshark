@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.80 2004/01/10 14:11:58 ulfl Exp $
+ * $Id: file_dlg.c,v 1.81 2004/01/10 17:28:46 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,7 @@
 #include "compat_macros.h"
 #include "prefs.h"
 #include "color.h"
+#include "../ui_util.h"
 #include "gtk/color_filters.h"
 #include "gtk/color_dlg.h"
 
@@ -988,6 +989,12 @@ file_save_as_ok_cb(GtkWidget *w _U_, GtkFileSelection *fs) {
   dirname = get_dirname(cf_name);  /* Overwrites cf_name */
   set_last_open_dir(dirname);
   g_free(cf_name);
+}
+
+void
+file_save_as_destroy(void)
+{
+  gtk_widget_destroy(file_save_as_w);
 }
 
 static void

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.339 2004/01/09 22:56:59 guy Exp $
+ * $Id: file.c,v 1.340 2004/01/10 17:29:26 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -221,9 +221,9 @@ cf_close(capture_file *cf)
   /* Die if we're in the middle of reading a file. */
   g_assert(cf->state != FILE_READ_IN_PROGRESS);
 
-  /* Destroy all popup packet windows, as they refer to packets in the
+  /* Destroy all windows, which refer to the
      capture file we're closing. */
-  destroy_packet_wins();
+  destroy_cfile_wins();
 
   if (cf->wth) {
     wtap_close(cf->wth);

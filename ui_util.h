@@ -1,7 +1,7 @@
 /* ui_util.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h,v 1.14 2003/12/09 06:48:38 guy Exp $
+ * $Id: ui_util.h,v 1.15 2004/01/10 17:29:26 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,13 @@ void clear_tree_and_hex_views(void);
 
 /* Destroy all popup packet windows. */
 void destroy_packet_wins(void);
+
+/* Destroy the save as dialog */
+void file_save_as_destroy(void);
+
+#define destroy_cfile_wins() \
+    destroy_packet_wins(); \
+    file_save_as_destroy();
 
 #ifdef __cplusplus
 }
