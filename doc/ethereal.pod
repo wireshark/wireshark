@@ -1577,16 +1577,11 @@ filter, and applies it to the current capture.
 
 =item Save
 
-Saves the current filter list in F<$HOME/.ethereal/cfilters> on
-UNIX-compatible systems, and F<%APPDATA%\Ethereal\cfilters> (or, if
-%APPDATA% isn't defined,
-F<%USERPROFILE%\Application Data\Ethereal\cfilters>)
-on Windows systems, if the list of filters being edited is the list of
-capture filters, or in F<$HOME/.ethereal/dfilters> on UNIX-compatible
-systems, and F<%APPDATA%\Ethereal\dfilters> (or, if %APPDATA% isn't
-defined, F<%USERPROFILE%\Application Data\Ethereal\dfilters>) on Windows
-systems, if the list of filters being edited is the list of display
-filters.
+If the list of filters being edited is the list of
+capture filters, saves the current filter list to the personal capture
+filters file, and if the list of filters being edited is the list of
+display filters, saves the current filter list to the personal display
+filters file.
 
 =item Close
 
@@ -1918,6 +1913,15 @@ For example, these four lines are valid lines of an ipxnets file.
   c0-a8-1c-00              CEO
   00:00:BE:EF              IT_Server1
   110f                     FileServer3
+
+The personal capture filters file, in F<$HOME/.ethereal/cfilters> on
+UNIX-compatible systems, and F<%APPDATA%\Ethereal\cfilters> (or, if
+%APPDATA% isn't defined, F<%USERPROFILE%\Application
+Data\Ethereal\cfilters>) on Windows systems, and the personal display
+filters file, in F<$HOME/.ethereal/dfilters> on UNIX-compatible systems,
+and F<%APPDATA%\Ethereal\dfilters> (or, if %APPDATA% isn't defined,
+F<%USERPROFILE%\Application Data\Ethereal\dfilters>) on Windows systems,
+contain personal capture and display filters, respectively.
 
 The global color filters file, F<colorfilters>, which is installed in
 the F<etc> directory under the main installation directory (for example,
