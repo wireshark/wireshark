@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  * 
- * $Id: packet-ftp.c,v 1.43 2002/04/26 20:59:42 guy Exp $
+ * $Id: packet-ftp.c,v 1.44 2002/07/13 20:08:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -416,7 +416,7 @@ proto_register_ftp(void)
       	"", HFILL }},
 
     { &hf_ftp_response_arg,
-      { "Response arg",      "ftp.reponse.arg",
+      { "Response arg",      "ftp.response.arg",
       	FT_STRING,  BASE_NONE, NULL, 0x0,
       	"", HFILL }}
   };
