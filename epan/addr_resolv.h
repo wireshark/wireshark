@@ -27,6 +27,8 @@
 #ifndef __RESOLV_H__
 #define __RESOLV_H__
 
+#include <epan/address.h>
+
 #ifndef MAXNAMELEN
 #define MAXNAMELEN  	64	/* max name length (hostname and port name) */
 #endif
