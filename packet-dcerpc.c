@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.1 2001/03/18 02:13:32 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.2 2001/03/18 02:34:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -165,7 +165,7 @@ dcerpc_tvb_get_uuid (tvbuff_t *tvb, gint offset, char *drep, e_uuid_t *uuid)
 
 
 /*
- * MSRPC dissector for connection oriented calls
+ * DCERPC dissector for connection oriented calls
  */
 static gboolean
 dissect_dcerpc_cn (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -181,7 +181,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32 call_id;
 
     /*
-     * Check if this looks like a C/O MSRPC call
+     * Check if this looks like a C/O DCERPC call
      */
     if (!tvb_bytes_exist (tvb, 0, 16)) {
         return FALSE;
@@ -198,11 +198,9 @@ dissect_dcerpc_cn (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     if (check_col (pinfo->fd, COL_PROTOCOL))
-        col_add_str (pinfo->fd, COL_PROTOCOL, "MSRPC");
+        col_set_str (pinfo->fd, COL_PROTOCOL, "DCERPC");
     if (check_col (pinfo->fd, COL_INFO))
-        col_clear (pinfo->fd, COL_INFO);
-    if (check_col (pinfo->fd, COL_INFO))
-        col_add_fstr (pinfo->fd, COL_INFO, "%s", pckt_vals[pkt_type].strptr);
+        col_set_str (pinfo->fd, COL_INFO, pckt_vals[pkt_type].strptr);
     if (tree) {
         ti = proto_tree_add_item (tree, proto_dcerpc, tvb, 0, tvb_length(tvb), FALSE);
         if (ti) {
@@ -253,7 +251,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /*
- * MSRPC dissector for connectionless calls
+ * DCERPC dissector for connectionless calls
  */
 static gboolean
 dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -276,7 +274,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     e_uuid_t act_id;
 
     /*
-     * Check if this looks like a CL MSRPC call.  All dg packets
+     * Check if this looks like a CL DCERPC call.  All dg packets
      * have an 80 byte header on them.  Which starts with
      * version (4), pkt_type.
      */
@@ -291,11 +289,9 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     
 
     if (check_col (pinfo->fd, COL_PROTOCOL))
-        col_add_str (pinfo->fd, COL_PROTOCOL, "MSRPC");
+        col_set_str (pinfo->fd, COL_PROTOCOL, "DCERPC");
     if (check_col (pinfo->fd, COL_INFO))
-        col_clear (pinfo->fd, COL_INFO);
-    if (check_col (pinfo->fd, COL_INFO))
-        col_add_fstr (pinfo->fd, COL_INFO, "%s", pckt_vals[pkt_type].strptr);
+        col_set_str (pinfo->fd, COL_INFO, pckt_vals[pkt_type].strptr);
     if (tree) {
         ti = proto_tree_add_item (tree, proto_dcerpc, tvb, 0, tvb_length(tvb), FALSE);
         if (ti) {
