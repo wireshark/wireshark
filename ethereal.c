@@ -1,11 +1,13 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.22 1999/02/11 06:17:29 guy Exp $
+ * $Id: ethereal.c,v 1.23 1999/02/19 05:28:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
+ * Richard Sharpe, 13-Feb-1999, added support for initializing structures
+ *                              needed by dissect routines
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -386,6 +388,13 @@ main_realize_cb(GtkWidget *w, gpointer data) {
   }
 }
 
+static void
+ethereal_proto_init(void) {
+
+  init_dissect_udp();
+
+}
+
 void 
 print_usage(void) {
 
@@ -720,6 +729,12 @@ main(int argc, char *argv[])
   gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, DEF_READY_MESSAGE);
   gtk_box_pack_start(GTK_BOX(stat_hbox), info_bar, TRUE, TRUE, 0);
   gtk_widget_show(info_bar);
+
+/* 
+   Hmmm should we do it here
+*/
+
+  ethereal_proto_init();   /* Init anything that needs initializing */
 
   gtk_widget_show(window);
   gtk_main();
