@@ -37,6 +37,22 @@
 #include <winspool.h>
 #endif
 
+/*
+Some thoughts about a GTK win32 printer dialog:
+
+"EnumPrinters()", asking for information level 2 - the PRINTER_INFO_2
+structure contains a pLocation string pointer, along with other
+information.
+ 
+"PrinterProperties", could be used to show a native printer property page?!?
+
+See
+ 
+ 	http://msdn.microsoft.com/library/default.asp?url=/library/en-us/gdi/prntspol_62ia.asp
+ 
+for information on printer APIs. 
+
+*/
 BOOL CALLBACK abort_proc( HDC hDC, int Error );
 HDC get_printer_dc(void);
 void init_doc_struct( DOCINFO* di, char* docname);
