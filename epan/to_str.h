@@ -1,7 +1,7 @@
 /* to_str.h
  * Definitions for utilities to convert various other types to strings.
  *
- * $Id: to_str.h,v 1.4 2001/08/01 08:27:00 guy Exp $
+ * $Id: to_str.h,v 1.5 2001/09/14 07:10:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,7 +25,7 @@
 #ifndef __TO_STR_H__
 #define __TO_STR_H__
 
-#include "glib.h"
+#include <glib.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
@@ -34,6 +34,17 @@
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
 #endif
+
+#include "nstime.h"
+
+/*
+ * Resolution of a time stamp.
+ */
+typedef enum {
+	MSECS,	/* milliseconds */
+	USECS,	/* microseconds */
+	NSECS	/* nanoseconds */
+} time_res_t;
 
 /* 
  * These are utility functions which convert various types to strings,
@@ -52,10 +63,10 @@ gchar*     ipxnet_to_str_punct(const guint32 ad, char punct);
 gchar*     vines_addr_to_str(const guint8 *addrp);
 gchar*     time_secs_to_str(guint32);
 gchar*     time_msecs_to_str(guint32);
-gchar*	   abs_time_to_str(struct timeval*);
-void       display_signed_time(gchar *, int, gint32, gint32);
-gchar*	   rel_time_to_str(struct timeval*);
-gchar*	   rel_time_to_secs_str(struct timeval*);
+gchar*	   abs_time_to_str(nstime_t*);
+void       display_signed_time(gchar *, int, gint32, gint32, time_res_t);
+gchar*	   rel_time_to_str(nstime_t*);
+gchar*	   rel_time_to_secs_str(nstime_t*);
 
 
 char * decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width);

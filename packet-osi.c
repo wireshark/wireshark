@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: packet-osi.c,v 1.45 2001/06/05 09:06:19 guy Exp $
+ * $Id: packet-osi.c,v 1.46 2001/09/14 07:10:05 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -55,7 +55,7 @@ calc_checksum( tvbuff_t *tvb, int offset, u_int len, u_int checksum) {
   const guint8 *p;
   guint32 c0, c1;
   u_int   seglen;
-  int     i;
+  u_int   i;
 
   if ( 0 == checksum )
     return( NO_CKSUM );

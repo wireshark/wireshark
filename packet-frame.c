@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.8 2001/06/18 02:17:46 guy Exp $
+ * $Id: packet-frame.c,v 1.9 2001/09/14 07:10:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,7 +60,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*fh_tree;
 	proto_item	*ti;
-	struct timeval	tv;
+	nstime_t	ts;
 	int		cap_len, pkt_len;
 
 	pinfo->current_proto = "Frame";
@@ -82,23 +82,23 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	  fh_tree = proto_item_add_subtree(ti, ett_frame);
 
-	  tv.tv_sec = pinfo->fd->abs_secs;
-	  tv.tv_usec = pinfo->fd->abs_usecs;
+	  ts.secs = pinfo->fd->abs_secs;
+	  ts.nsecs = pinfo->fd->abs_usecs*1000;
 
 	  proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
-		0, 0, &tv);
+		0, 0, &ts);
 
-	  tv.tv_sec = pinfo->fd->del_secs;
-	  tv.tv_usec = pinfo->fd->del_usecs;
+	  ts.secs = pinfo->fd->del_secs;
+	  ts.nsecs = pinfo->fd->del_usecs*1000;
 
 	  proto_tree_add_time(fh_tree, hf_frame_time_delta, tvb,
-		0, 0, &tv);
+		0, 0, &ts);
 
-	  tv.tv_sec = pinfo->fd->rel_secs;
-	  tv.tv_usec = pinfo->fd->rel_usecs;
+	  ts.secs = pinfo->fd->rel_secs;
+	  ts.nsecs = pinfo->fd->rel_usecs*1000;
 
 	  proto_tree_add_time(fh_tree, hf_frame_time_relative, tvb,
-		0, 0, &tv);
+		0, 0, &ts);
 
 	  proto_tree_add_uint(fh_tree, hf_frame_number, tvb,
 		0, 0, pinfo->fd->num);

@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.3 2001/08/12 11:46:23 sharpe Exp $
+ * $Id: ftypes.h,v 1.4 2001/09/14 07:10:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -122,6 +122,7 @@ ftype_can_le(enum ftenum ftype);
 #endif
 
 #include "tvbuff.h"
+#include "nstime.h"
 #include "dfilter/drange.h"
 
 typedef struct {
@@ -135,7 +136,7 @@ typedef struct {
 		GByteArray	*bytes;
 		ipv4_addr	ipv4;
 		guint8		ipv6[16];
-		struct timeval	time;
+		nstime_t	time;
 		tvbuff_t	*tvb;
 	} value;
 } fvalue_t;

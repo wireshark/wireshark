@@ -1,7 +1,7 @@
 /* packet-nisplus.c
  * 2001  Ronnie Sahlberg   <rsahlber@bigpond.net.au>
  *
- * $Id: packet-nisplus.c,v 1.7 2001/06/18 02:17:50 guy Exp $
+ * $Id: packet-nisplus.c,v 1.8 2001/09/14 07:10:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,7 +25,6 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
 
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
@@ -268,13 +267,13 @@ static const value_string ns_type[] = {
 static int
 dissect_nisplus_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hfindex)
 {
-	struct timeval tv;
+	nstime_t ts;
 
-	tv.tv_usec = 0;
-	tv.tv_sec = tvb_get_ntohl(tvb, offset);
+	ts.nsecs = 0;
+	ts.secs = tvb_get_ntohl(tvb, offset);
 	offset += 4;
 
-	proto_tree_add_time(tree, hfindex, tvb, offset, 4, &tv);
+	proto_tree_add_time(tree, hfindex, tvb, offset, 4, &ts);
 
 	return offset;
 }

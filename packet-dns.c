@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.72 2001/08/29 00:51:06 guy Exp $
+ * $Id: packet-dns.c,v 1.73 2001/09/14 07:10:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1071,7 +1071,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
     {
       int rr_len = data_len;
       guint16 type_covered;
-      struct timeval unixtime;
+      nstime_t nstime;
       char signer_name[MAXDNAME];
       int signer_name_len;
 
@@ -1099,17 +1099,17 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += 4;
 	rr_len -= 4;
 
-	unixtime.tv_sec = tvb_get_ntohl(tvb, cur_offset);
-	unixtime.tv_usec = 0;
+	nstime.secs = tvb_get_ntohl(tvb, cur_offset);
+	nstime.nsecs = 0;
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Signature expiration: %s",
-		abs_time_to_str(&unixtime));
+		abs_time_to_str(&nstime));
 	cur_offset += 4;
 	rr_len -= 4;
 
-	unixtime.tv_sec = tvb_get_ntohl(tvb, cur_offset);
-	unixtime.tv_usec = 0;
+	nstime.secs = tvb_get_ntohl(tvb, cur_offset);
+	nstime.nsecs = 0;
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Time signed: %s",
-		abs_time_to_str(&unixtime));
+		abs_time_to_str(&nstime));
 	cur_offset += 4;
 	rr_len -= 4;
 
@@ -1437,7 +1437,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       int tkey_algname_len;
       guint16 tkey_mode, tkey_error, tkey_keylen, tkey_otherlen;
       int rr_len = data_len;
-      struct timeval unixtime;
+      nstime_t nstime;
       static const value_string tkey_modes[] = {
 		  { TKEYMODE_SERVERASSIGNED,   "Server assigned"   },
 		  { TKEYMODE_DIFFIEHELLMAN,    "Diffie Hellman"    },
@@ -1453,17 +1453,17 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += tkey_algname_len;
 	rr_len -= tkey_algname_len;
 
-	unixtime.tv_sec = tvb_get_ntohl(tvb, cur_offset);
-	unixtime.tv_usec = 0;
+	nstime.secs = tvb_get_ntohl(tvb, cur_offset);
+	nstime.nsecs = 0;
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Signature inception: %s",
-		abs_time_to_str(&unixtime));
+		abs_time_to_str(&nstime));
 	cur_offset += 4;
 	rr_len -= 4;
 
-	unixtime.tv_sec = tvb_get_ntohl(tvb, cur_offset);
-	unixtime.tv_usec = 0;
+	nstime.secs = tvb_get_ntohl(tvb, cur_offset);
+	nstime.nsecs = 0;
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Signature expiration: %s",
-		abs_time_to_str(&unixtime));
+		abs_time_to_str(&nstime));
 	cur_offset += 4;
 	rr_len -= 4;
 
@@ -1508,7 +1508,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       guint32 tsig_timelo;
       char tsig_algname[MAXDNAME];
       int tsig_algname_len;
-      struct timeval unixtime;
+      nstime_t nstime;
       int rr_len = data_len;
 
       if (dns_tree != NULL) {
@@ -1520,10 +1520,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
 	tsig_timehi = tvb_get_ntohs(tvb, cur_offset);
 	tsig_timelo = tvb_get_ntohl(tvb, cur_offset + 2);
-	unixtime.tv_sec = tsig_timelo;
-	unixtime.tv_usec = 0;
+	nstime.secs = tsig_timelo;
+	nstime.nsecs = 0;
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 6, "Time signed: %s%s",
-		abs_time_to_str(&unixtime), tsig_timehi == 0 ? "" : "(high bits set)");
+		abs_time_to_str(&nstime), tsig_timehi == 0 ? "" : "(high bits set)");
 	cur_offset += 6;
 	rr_len -= 6;
 

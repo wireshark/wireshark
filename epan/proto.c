@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.34 2001/08/29 00:51:08 guy Exp $
+ * $Id: proto.c,v 1.35 2001/09/14 07:10:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,7 +85,7 @@ proto_tree_set_bytes(field_info *fi, const guint8* start_ptr, gint length);
 static void
 proto_tree_set_bytes_tvb(field_info *fi, tvbuff_t *tvb, gint offset, gint length);
 static void
-proto_tree_set_time(field_info *fi, struct timeval *value_ptr);
+proto_tree_set_time(field_info *fi, nstime_t *value_ptr);
 static void
 proto_tree_set_string(field_info *fi, const char* value);
 static void
@@ -725,7 +725,7 @@ proto_tree_set_bytes_tvb(field_info *fi, tvbuff_t *tvb, gint offset, gint length
 /* Add a FT_*TIME to a proto_tree */
 proto_item *
 proto_tree_add_time(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
-		struct timeval *value_ptr)
+		nstime_t *value_ptr)
 {
 	proto_item		*pi;
 	field_info		*new_fi;
@@ -746,7 +746,7 @@ proto_tree_add_time(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 
 proto_item *
 proto_tree_add_time_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
-		struct timeval *value_ptr)
+		nstime_t *value_ptr)
 {
 	proto_item		*pi;
 	field_info 		*fi;
@@ -763,7 +763,7 @@ proto_tree_add_time_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 
 proto_item *
 proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
-		struct timeval *value_ptr, const char *format, ...)
+		nstime_t *value_ptr, const char *format, ...)
 {
 	proto_item		*pi;
 	va_list			ap;
@@ -781,7 +781,7 @@ proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 
 /* Set the FT_*TIME value */
 static void
-proto_tree_set_time(field_info *fi, struct timeval *value_ptr)
+proto_tree_set_time(field_info *fi, nstime_t *value_ptr)
 {
 	fvalue_set(fi->value, value_ptr, FALSE);
 }
@@ -2980,7 +2980,7 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 
 		case FT_ABSOLUTE_TIME:
 			value_str =
-			    abs_time_to_str((struct timeval *)fvalue_get(finfo->value));
+			    abs_time_to_str((nstime_t *)fvalue_get(finfo->value));
 			dfilter_len = abbrev_len + strlen(value_str) + 7;
 			buf = g_malloc0(dfilter_len);
 			snprintf(buf, dfilter_len, "%s == \"%s\"",
@@ -2989,7 +2989,7 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 
 		case FT_RELATIVE_TIME:
 			value_str =
-			    rel_time_to_secs_str((struct timeval *)fvalue_get(finfo->value));
+			    rel_time_to_secs_str((nstime_t *)fvalue_get(finfo->value));
 			dfilter_len = abbrev_len + strlen(value_str) + 4;
 			buf = g_malloc0(dfilter_len);
 			snprintf(buf, dfilter_len, "%s == %s",

@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.34 2001/09/03 18:05:57 guy Exp $
+ * $Id: packet-wsp.c,v 1.35 2001/09/14 07:10:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1611,7 +1611,7 @@ add_application_header (proto_tree *tree, tvbuff_t *tvb, int offset)
 	int subvalueLen;
 	int subvalueOffset;
 	guint secs;
-	struct timeval timeValue;
+	nstime_t timeValue;
 	int asvOffset;
 	guint stringSize;
 
@@ -1643,8 +1643,8 @@ add_application_header (proto_tree *tree, tvbuff_t *tvb, int offset)
 			 * there weren't WAP phones or Web servers back in
 			 * late 1969/early 1970, they're unlikely to be used.
 			 */
-			timeValue.tv_sec = secs;
-			timeValue.tv_usec = 0;
+			timeValue.secs = secs;
+			timeValue.nsecs = 0;
 			proto_tree_add_time (tree, hf_wsp_header_x_wap_tod,
 			    tvb, startOffset, offset - startOffset, &timeValue);
 		}
@@ -2727,7 +2727,7 @@ add_date_value_header (proto_tree *tree, tvbuff_t *header_buff,
     int valueLen, int hf_time, guint8 headerType)
 {
 	guint secs;
-	struct timeval timeValue;
+	nstime_t timeValue;
 
 	/* Attempt to get the date value from the buffer */
 	if (get_integer (value_buff, 0, valueLen, valueType, &secs) == 0)
@@ -2741,8 +2741,8 @@ add_date_value_header (proto_tree *tree, tvbuff_t *header_buff,
 		 * there weren't WAP phones or Web servers back in
 		 * late 1969/early 1970, they're unlikely to be used.
 		 */
-		timeValue.tv_sec = secs;
-		timeValue.tv_usec = 0;
+		timeValue.secs = secs;
+		timeValue.nsecs = 0;
 		proto_tree_add_time (tree, hf_time, header_buff, 0,
 			headerLen, &timeValue);
 	}

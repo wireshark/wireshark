@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.16 2001/08/29 00:51:08 guy Exp $
+ * $Id: proto.h,v 1.17 2001/09/14 07:10:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,10 +26,6 @@
 #ifndef __PROTO_H__
 #define __PROTO_H__
 
-#ifdef HAVE_SYS_TIME_H
-# include <sys/time.h>
-#endif
-
 #ifdef HAVE_STDARG_H
 # include <stdarg.h>
 #else
@@ -41,6 +37,7 @@
 #endif
 
 #include "ipv4.h"
+#include "nstime.h"
 #include "tvbuff.h"
 #include "ftypes/ftypes.h"
 
@@ -241,21 +238,21 @@ proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 /* Add a FT_*TIME to a proto_tree */
 proto_item *
 proto_tree_add_time(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, struct timeval* value_ptr);
+	gint length, nstime_t* value_ptr);
 
 proto_item *
 proto_tree_add_time_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, struct timeval* value_ptr);
+	gint length, nstime_t* value_ptr);
 
 #if __GNUC__ >= 2
 proto_item *
 proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, struct timeval* value_ptr, const char *format, ...)
+	gint length, nstime_t* value_ptr, const char *format, ...)
 	__attribute__((format (printf, 7, 8)));
 #else
 proto_item *
 proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, struct timeval* value_ptr, const char *format, ...);
+	gint length, nstime_t* value_ptr, const char *format, ...);
 #endif
 
 /* Add a FT_IPXNET to a proto_tree */

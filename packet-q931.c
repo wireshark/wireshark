@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.31 2001/07/03 04:56:45 guy Exp $
+ * $Id: packet-q931.c,v 1.32 2001/09/14 07:10:05 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -2099,7 +2099,6 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean started_heuristic)
 {
 	int		offset = 0;
-	guint		reported_length;
 	proto_tree	*q931_tree = NULL;
 	proto_item	*ti;
 	proto_tree	*ie_tree;
@@ -2260,8 +2259,7 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	codeset = 0;	/* start out in codeset 0 */
 	non_locking_shift = TRUE;
-	reported_length = tvb_reported_length(tvb);
-	while (offset < reported_length) {
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		info_element = tvb_get_guint8(tvb, offset);
 
 		/*

@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.34 2001/08/27 20:04:21 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.35 2001/09/14 07:10:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -419,13 +419,13 @@ static int
 add_reltime(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
     proto_tree *tree, int convert, int hf_index)
 {
-	struct timeval timeval;
+	nstime_t nstime;
 
-	timeval.tv_sec = tvb_get_letohl(tvb, offset);
-	timeval.tv_usec = 0;
+	nstime.secs = tvb_get_letohl(tvb, offset);
+	nstime.nsecs = 0;
 	proto_tree_add_time_format(tree, hf_index, tvb, offset, 4,
-	    &timeval, "%s: %s", proto_registrar_get_name(hf_index),
-	    time_secs_to_str(timeval.tv_sec));
+	    &nstime, "%s: %s", proto_registrar_get_name(hf_index),
+	    time_secs_to_str(nstime.secs));
 	offset += 4;
 	return offset;
 }
@@ -439,14 +439,14 @@ add_abstime_common(tvbuff_t *tvb, int offset, int count,
     packet_info *pinfo, proto_tree *tree, int convert, int hf_index,
     const char *absent_name)
 {
-	struct timeval timeval;
+	nstime_t nstime;
 	struct tm *tmp;
 
-	timeval.tv_sec = tvb_get_letohl(tvb, offset);
-	timeval.tv_usec = 0;
-	if (timeval.tv_sec == -1) {
+	nstime.secs = tvb_get_letohl(tvb, offset);
+	nstime.nsecs = 0;
+	if (nstime.secs == -1) {
 		proto_tree_add_time_format(tree, hf_index, tvb, offset, 4,
-		    &timeval, "%s: %s", proto_registrar_get_name(hf_index),
+		    &nstime, "%s: %s", proto_registrar_get_name(hf_index),
 		    absent_name);
 	} else {
 		/*
@@ -454,11 +454,11 @@ add_abstime_common(tvbuff_t *tvb, int offset, int count,
 		 * run it through "mktime()" to put it back together
 		 * as UTC.
 		 */
-		tmp = gmtime(&timeval.tv_sec);
+		tmp = gmtime(&nstime.secs);
 		tmp->tm_isdst = -1;	/* we don't know if it's DST or not */
-		timeval.tv_sec = mktime(tmp);
+		nstime.secs = mktime(tmp);
 		proto_tree_add_time(tree, hf_index, tvb, offset, 4,
-		    &timeval);
+		    &nstime);
 	}
 	offset += 4;
 	return offset;

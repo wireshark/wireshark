@@ -5,12 +5,11 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.34 2001/06/18 02:17:49 guy Exp $
+ * $Id: packet-netbios.c,v 1.35 2001/09/14 07:10:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,8 +25,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
-
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -1037,10 +1034,11 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			(dissect_netb[ command])( tvb, offset, netb_tree);		
 	}
 
-							/* Test for SMB data */
-	if (  tvb_length(tvb)> ( hdr_len + 4)){		/* if enough data */
+	offset += hdr_len;			/* move past header */
 
-		offset += hdr_len;			/* move past header */
+						/* Test for SMB data */
+
+	if (tvb_bytes_exist(tvb, offset, 4)){	/* if enough data */
 
 		if (( tvb_get_guint8( tvb, offset) == 0xff) &&	/* if SMB marker */
 		    ( tvb_get_guint8( tvb, offset + 1) == 'S') &&

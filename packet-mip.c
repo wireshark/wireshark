@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-mip.c,v 1.18 2001/06/18 02:17:49 guy Exp $
+ * $Id: packet-mip.c,v 1.19 2001/09/14 07:10:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -141,8 +141,8 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti;
 	proto_tree	*mip_tree=NULL, *ext_tree=NULL;
 	guint8		type, code;
-	struct timeval      ident_time;
-	int eoffset, elen;
+	nstime_t	ident_time;
+	int		eoffset, elen;
 	
 /* Make entries in Protocol column and Info column on summary display */
 
@@ -177,12 +177,13 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 proto_tree_add_item(mip_tree, hf_mip_homeaddr, tvb, 4, 4, FALSE);
 		 proto_tree_add_item(mip_tree, hf_mip_haaddr, tvb, 8, 4, FALSE);
 		 proto_tree_add_item(mip_tree, hf_mip_coa, tvb, 12, 4, FALSE);
-		 ident_time.tv_sec =  tvb_get_ntohl(tvb,16)-(guint32) NTP_BASETIME;
-		 ident_time.tv_usec = tvb_get_ntohl(tvb,20);
+		 ident_time.secs =  tvb_get_ntohl(tvb,16)-(guint32) NTP_BASETIME;
+		 ident_time.nsecs = tvb_get_ntohl(tvb,20)*1000;
 		 proto_tree_add_time(mip_tree, hf_mip_ident, tvb, 16, 8, &ident_time);
 		 
 		 eoffset = 24;
-		 while (eoffset < tvb_length(tvb)) {             /* Registration Extensions */
+		 while (tvb_reported_length_remaining(tvb, eoffset) > 0) {
+			/* Registration Extensions */
 			if (eoffset ==24) {
 			  ti = proto_tree_add_text(mip_tree, tvb, 24, tvb_length(tvb)-24, "Extensions");
 			  ext_tree = proto_item_add_subtree(ti, ett_mip_ext);
@@ -232,12 +233,13 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 proto_tree_add_item(mip_tree, hf_mip_life, tvb, 2, 2, FALSE);
 		 proto_tree_add_item(mip_tree, hf_mip_homeaddr, tvb, 4, 4, FALSE);
   		 proto_tree_add_item(mip_tree, hf_mip_haaddr, tvb, 8, 4, FALSE);
-		 ident_time.tv_sec =  tvb_get_ntohl(tvb,12)-(guint32) NTP_BASETIME;
-		 ident_time.tv_usec = tvb_get_ntohl(tvb,16);
+		 ident_time.secs =  tvb_get_ntohl(tvb,12)-(guint32) NTP_BASETIME;
+		 ident_time.nsecs = tvb_get_ntohl(tvb,16)*1000;
 		 proto_tree_add_time(mip_tree, hf_mip_ident, tvb, 12, 8, &ident_time);
 		 
 		 eoffset = 20;
-		 while (eoffset < tvb_length(tvb)) {             /* Registration Extensions */
+		 while (tvb_reported_length_remaining(tvb, eoffset) > 0) {
+			/* Registration Extensions */
 			if (eoffset==20) {
 			  ti = proto_tree_add_text(mip_tree, tvb, 20, tvb_length(tvb)-20, "Extensions");
 			  ext_tree = proto_item_add_subtree(ti, ett_mip_ext);

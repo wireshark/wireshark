@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.25 2001/08/20 02:11:13 guy Exp $
+ * $Id: packet-rx.c,v 1.26 2001/09/14 07:10:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -156,12 +156,12 @@ dissect_rx_response_encrypted(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 
 	/* epoch : 4 bytes */
 	{
-		struct timeval tv;
-		tv.tv_sec = tvb_get_ntohl(tvb, offset);
-		tv.tv_usec = 0;
+		nstime_t ts;
+		ts.secs = tvb_get_ntohl(tvb, offset);
+		ts.nsecs = 0;
 		
 		proto_tree_add_time(tree, hf_rx_epoch, tvb,
-			offset, 4, &tv);
+			offset, 4, &ts);
 		offset += 4;
 	}
 
@@ -444,12 +444,12 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	/* epoch : 4 bytes */
 	{
-		struct timeval tv;
-		tv.tv_sec = tvb_get_ntohl(tvb, offset);
-		tv.tv_usec = 0;
+		nstime_t ts;;
+		ts.secs = tvb_get_ntohl(tvb, offset);
+		ts.nsecs = 0;
 		
 		proto_tree_add_time(tree, hf_rx_epoch, tvb,
-			offset, 4, &tv);
+			offset, 4, &ts);
 		offset += 4;
 	}
 

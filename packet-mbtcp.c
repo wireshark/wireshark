@@ -10,7 +10,7 @@
  *
  * for information on Modbus/TCP.
  *
- * $Id: packet-mbtcp.c,v 1.4 2001/06/18 02:17:48 guy Exp $
+ * $Id: packet-mbtcp.c,v 1.5 2001/09/14 07:10:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -323,7 +323,7 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		offset = offset + sizeof(mbtcp_hdr) + (mh.len - sizeof(modbus_hdr));
 		packet_num++;
-	} while ( offset < tvb_length(tvb) );
+	} while ( tvb_reported_length_remaining(tvb, offset) > 0 );
 
 	
 /* Update entries in Info column on summary display */

@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-time.c,v 1.10 2001/07/13 00:55:56 guy Exp $
+ * $Id: ftype-time.c,v 1.11 2001/09/14 07:10:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,62 +46,62 @@
 static gboolean
 cmp_eq(fvalue_t *a, fvalue_t *b)
 {
-	return ((a->value.time.tv_sec) ==(b->value.time.tv_sec))
-	     &&((a->value.time.tv_usec)==(b->value.time.tv_usec));
+	return ((a->value.time.secs) ==(b->value.time.secs))
+	     &&((a->value.time.nsecs)==(b->value.time.nsecs));
 }
 static gboolean
 cmp_ne(fvalue_t *a, fvalue_t *b)
 {
-	return (a->value.time.tv_sec !=b->value.time.tv_sec)
-	     ||(a->value.time.tv_usec!=b->value.time.tv_usec);
+	return (a->value.time.secs !=b->value.time.secs)
+	     ||(a->value.time.nsecs!=b->value.time.nsecs);
 }
 static gboolean
 cmp_gt(fvalue_t *a, fvalue_t *b)
 {
-	if (a->value.time.tv_sec > b->value.time.tv_sec) {
+	if (a->value.time.secs > b->value.time.secs) {
 		return TRUE;
 	}
-	if (a->value.time.tv_sec < b->value.time.tv_sec) {
+	if (a->value.time.secs < b->value.time.secs) {
 		return FALSE;
 	}
 
-	return a->value.time.tv_usec > b->value.time.tv_usec;
+	return a->value.time.nsecs > b->value.time.nsecs;
 }
 static gboolean
 cmp_ge(fvalue_t *a, fvalue_t *b)
 {
-	if (a->value.time.tv_sec > b->value.time.tv_sec) {
+	if (a->value.time.secs > b->value.time.secs) {
 		return TRUE;
 	}
-	if (a->value.time.tv_sec < b->value.time.tv_sec) {
+	if (a->value.time.secs < b->value.time.secs) {
 		return FALSE;
 	}
 
-	return a->value.time.tv_usec >= b->value.time.tv_usec;
+	return a->value.time.nsecs >= b->value.time.nsecs;
 }
 static gboolean
 cmp_lt(fvalue_t *a, fvalue_t *b)
 {
-	if (a->value.time.tv_sec < b->value.time.tv_sec) {
+	if (a->value.time.secs < b->value.time.secs) {
 		return TRUE;
 	}
-	if (a->value.time.tv_sec > b->value.time.tv_sec) {
+	if (a->value.time.secs > b->value.time.secs) {
 		return FALSE;
 	}
 
-	return a->value.time.tv_usec < b->value.time.tv_usec;
+	return a->value.time.nsecs < b->value.time.nsecs;
 }
 static gboolean
 cmp_le(fvalue_t *a, fvalue_t *b)
 {
-	if (a->value.time.tv_sec < b->value.time.tv_sec) {
+	if (a->value.time.secs < b->value.time.secs) {
 		return TRUE;
 	}
-	if (a->value.time.tv_sec > b->value.time.tv_sec) {
+	if (a->value.time.secs > b->value.time.secs) {
 		return FALSE;
 	}
 
-	return a->value.time.tv_usec <= b->value.time.tv_usec;
+	return a->value.time.nsecs <= b->value.time.nsecs;
 }
 
 
@@ -120,7 +120,7 @@ relative_val_from_string(fvalue_t *fv, char *s, LogFunc log)
 		/*
 		 * Get the seconds value.
 		 */
-		fv->value.time.tv_sec = strtoul(curptr, &endptr, 10);
+		fv->value.time.secs = strtoul(curptr, &endptr, 10);
 		if (endptr == curptr || (*endptr != '\0' && *endptr != '.'))
 			goto fail;
 		curptr = endptr;
@@ -130,26 +130,26 @@ relative_val_from_string(fvalue_t *fv, char *s, LogFunc log)
 		/*
 		 * No seconds value - it's 0.
 		 */
-		fv->value.time.tv_sec = 0;
+		fv->value.time.secs = 0;
 		curptr++;		/* skip the decimal point */
 	}
 
 	/*
 	 * If there's more stuff left in the string, it should be the
-	 * microseconds value.
+	 * nanoseconds value.
 	 */
 	if (*endptr != '\0') {
 		/*
-		 * Get the microseconds value.
+		 * Get the nanoseconds value.
 		 */
-		fv->value.time.tv_usec = strtoul(curptr, &endptr, 10);
+		fv->value.time.nsecs = strtoul(curptr, &endptr, 10);
 		if (endptr == curptr || *endptr != '\0')
 			goto fail;
 	} else {
 		/*
-		 * No microseconds value - it's 0.
+		 * No nanoseconds value - it's 0.
 		 */
-		fv->value.time.tv_usec = 0;
+		fv->value.time.nsecs = 0;
 	}
 
 	/*
@@ -174,28 +174,28 @@ absolute_val_from_string(fvalue_t *fv, char *s, LogFunc log)
 	if (curptr == NULL)
 		goto fail;
 	tm.tm_isdst = -1;	/* let the computer figure out if it's DST */
-	fv->value.time.tv_sec = mktime(&tm);
+	fv->value.time.secs = mktime(&tm);
 	if (*curptr != '\0') {
 		/*
 		 * Something came after the seconds field; it must be
-		 * a microseconds field.
+		 * a nanoseconds field.
 		 */
 		if (*curptr != '.')
 			goto fail;	/* it's not */
 		curptr++;	/* skip the "." */
 		if (!isdigit((unsigned char)*curptr))
 			goto fail;	/* not a digit, so not valid */
-		fv->value.time.tv_usec = strtoul(curptr, &endptr, 10);
+		fv->value.time.nsecs = strtoul(curptr, &endptr, 10);
 		if (endptr == curptr || *endptr != '\0')
 			goto fail;
 	} else {
 		/*
-		 * No microseconds value - it's 0.
+		 * No nanoseconds value - it's 0.
 		 */
-		fv->value.time.tv_usec = 0;
+		fv->value.time.nsecs = 0;
 	}
 
-	if (fv->value.time.tv_sec == -1) {
+	if (fv->value.time.secs == -1) {
 		/*
 		 * XXX - should we supply an error message that mentions
 		 * that the time specified might be syntactically valid
@@ -221,15 +221,15 @@ fail:
 static void
 time_fvalue_new(fvalue_t *fv)
 {
-	fv->value.time.tv_sec = 0;
-	fv->value.time.tv_usec = 0;
+	fv->value.time.secs = 0;
+	fv->value.time.nsecs = 0;
 }
 
 static void
 time_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
 	g_assert(!already_copied);
-	memcpy(&(fv->value.time), value, sizeof(struct timeval));
+	memcpy(&(fv->value.time), value, sizeof(nstime_t));
 }
 
 static gpointer

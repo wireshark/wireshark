@@ -2,7 +2,7 @@
  * Routines for who protocol (see man rwhod)
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-who.c,v 1.17 2001/06/18 02:17:54 guy Exp $
+ * $Id: packet-who.c,v 1.18 2001/09/14 07:10:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -102,7 +102,7 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*who_ti = NULL;
 	gchar		server_name[33];
 	double		loadav_5 = 0.0, loadav_10 = 0.0, loadav_15 = 0.0;
-	struct timeval	tv;
+	nstime_t	ts;
 
 	/* Summary information */
 	if (check_col(pinfo->fd, COL_PROTOCOL))
@@ -110,7 +110,7 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->fd, COL_INFO))
 		col_clear(pinfo->fd, COL_INFO);
 
-	tv.tv_usec = 0;
+	ts.nsecs = 0;
 
 	if (tree) {
 		who_ti = proto_tree_add_item(tree, proto_who, tvb, offset,
@@ -130,16 +130,16 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 2;
 
 	if (tree) {
-		tv.tv_sec = tvb_get_ntohl(tvb, offset);
+		ts.secs = tvb_get_ntohl(tvb, offset);
 		proto_tree_add_time(who_tree, hf_who_sendtime, tvb, offset, 4,
-		    &tv);
+		    &ts);
 	}
 	offset += 4;
 
 	if (tree) {
-		tv.tv_sec = tvb_get_ntohl(tvb, offset);
+		ts.secs = tvb_get_ntohl(tvb, offset);
 		proto_tree_add_time(who_tree, hf_who_recvtime, tvb, offset, 4,
-		    &tv);
+		    &ts);
 	}
 	offset += 4;
 
@@ -173,9 +173,9 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				server_name, loadav_5, loadav_10, loadav_15);
 
 	if (tree) {
-		tv.tv_sec = tvb_get_ntohl(tvb, offset);
+		ts.secs = tvb_get_ntohl(tvb, offset);
 		proto_tree_add_time(who_tree, hf_who_boottime, tvb, offset, 4,
-		    &tv);
+		    &ts);
 		offset += 4;
 
 		dissect_whoent(tvb, offset, who_tree);
@@ -195,11 +195,11 @@ dissect_whoent(tvbuff_t *tvb, int offset, proto_tree *tree)
 	int		line_offset = offset;
 	gchar		out_line[9];	
 	gchar		out_name[9];	
-	struct timeval	tv;
+	nstime_t	ts;
 	int		whoent_num = 0;
 	guint32		idle_secs; /* say that out loud... */
 
-	tv.tv_usec = 0;
+	ts.nsecs = 0;
 
 	while (tvb_reported_length_remaining(tvb, line_offset) > 0
 	    && whoent_num < MAX_NUM_WHOENTS) {
@@ -217,9 +217,9 @@ dissect_whoent(tvbuff_t *tvb, int offset, proto_tree *tree)
 		    8, out_name);
 		line_offset += 8;
 
-		tv.tv_sec = tvb_get_ntohl(tvb, line_offset);
+		ts.secs = tvb_get_ntohl(tvb, line_offset);
 		proto_tree_add_time(whoent_tree, hf_who_timeon, tvb,
-		    line_offset, 4, &tv);
+		    line_offset, 4, &ts);
 		line_offset += 4;
 
 		idle_secs = tvb_get_ntohl(tvb, line_offset);

@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-macros.h,v 1.11 2001/07/16 05:16:57 guy Exp $
+ * $Id: packet-afs-macros.h,v 1.12 2001/09/14 07:10:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,21 +66,22 @@
 		tvb_get_letohl(tvb, offset));\
 	offset += 4;
 
-/* Output a UNIX seconds/microseconds timestamp, after converting to a timeval */
+/* Output a UNIX seconds/microseconds timestamp, after converting to an
+   nstime_t */
 #define OUT_TIMESTAMP(field) \
-	{ struct timeval tv; \
-	tv.tv_sec = tvb_get_ntohl(tvb, offset); \
-	tv.tv_usec = tvb_get_ntohl(tvb, offset); \
-	proto_tree_add_time(tree,field, tvb,offset,2*sizeof(guint32),&tv); \
+	{ nstime_t ts; \
+	ts.secs = tvb_get_ntohl(tvb, offset); \
+	ts.nsecs = tvb_get_ntohl(tvb, offset)*1000; \
+	proto_tree_add_time(tree,field, tvb,offset,2*sizeof(guint32),&ts); \
 	offset += 8; \
 	}
 
-/* Output a UNIX seconds-only timestamp, after converting to a timeval */
+/* Output a UNIX seconds-only timestamp, after converting to an nstime_t */
 #define OUT_DATE(field) \
-	{ struct timeval tv; \
-	tv.tv_sec = tvb_get_ntohl(tvb, offset); \
-	tv.tv_usec = 0; \
-	proto_tree_add_time(tree,field, tvb,offset,sizeof(guint32),&tv); \
+	{ nstime_t ts; \
+	ts.secs = tvb_get_ntohl(tvb, offset); \
+	ts.nsecs = 0; \
+	proto_tree_add_time(tree,field, tvb,offset,sizeof(guint32),&ts); \
 	offset += 4; \
 	}
 
@@ -466,20 +467,20 @@
 #define OUT_UBIKVERSION(label) \
 	{ 	proto_tree *save, *ti; \
 		unsigned int epoch,counter; \
-		struct timeval tv; \
+		nstime_t ts; \
 		epoch = tvb_get_ntohl(tvb, offset); \
 		offset += 4; \
 		counter = tvb_get_ntohl(tvb, offset); \
 		offset += 4; \
-		tv.tv_sec = epoch; \
-		tv.tv_usec = 0; \
+		ts.secs = epoch; \
+		ts.nsecs = 0; \
 		ti = proto_tree_add_text(tree, tvb, offset-8, 8, \
 			"UBIK Version (%s): %u.%u", label, epoch, counter ); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_ubikver); \
 		if ( epoch != 0 ) \
 		proto_tree_add_time(tree,hf_afs_ubik_version_epoch, tvb,offset-8, \
-			sizeof(guint32),&tv); \
+			sizeof(guint32),&ts); \
 		else \
 			proto_tree_add_text(tree, tvb, offset-8, \
 			sizeof(guint32),"Epoch: 0"); \

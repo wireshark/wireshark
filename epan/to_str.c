@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.11 2001/08/01 08:27:00 guy Exp $
+ * $Id: to_str.c,v 1.12 2001/09/14 07:10:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,7 +38,7 @@
 #endif
 
 #ifdef HAVE_WINSOCK_H
-# include <winsock.h>   /* for "struct timeval" and "u_char" */
+# include <winsock.h>   /* for "u_char" */
 #endif
 
 #ifdef NEED_SNPRINTF_H
@@ -277,11 +277,11 @@ vines_addr_to_str(const guint8 *addrp)
  * Convert a value in seconds and fractions of a second to a string,
  * giving time in days, hours, minutes, and seconds, and put the result
  * into a buffer.
- * "is_usecs" says that "frac" is microseconds if true and milliseconds
+ * "is_nsecs" says that "frac" is microseconds if true and milliseconds
  * if false.
  */
 static void
-time_secs_to_str_buf(guint32 time, guint32 frac, gboolean is_usecs,
+time_secs_to_str_buf(guint32 time, guint32 frac, gboolean is_nsecs,
 			   gchar *buf)
 {
   static gchar *p;
@@ -316,8 +316,8 @@ time_secs_to_str_buf(guint32 time, guint32 frac, gboolean is_usecs,
     do_comma = 0;
   if (secs != 0 || frac != 0) {
     if (frac != 0) {
-      if (is_usecs)
-        sprintf(p, "%s%u.%06u seconds", COMMA(do_comma), secs, frac);
+      if (is_nsecs)
+        sprintf(p, "%s%u.%09u seconds", COMMA(do_comma), secs, frac);
       else
         sprintf(p, "%s%u.%03u seconds", COMMA(do_comma), secs, frac);
     } else
@@ -391,7 +391,7 @@ static const char *mon_names[12] = {
 };
 
 gchar *
-abs_time_to_str(struct timeval *abs_time)
+abs_time_to_str(nstime_t *abs_time)
 {
         struct tm *tmp;
         static gchar *cur;
@@ -405,16 +405,16 @@ abs_time_to_str(struct timeval *abs_time)
                 cur = &str[0][0];
         }
 
-        tmp = localtime(&abs_time->tv_sec);
+        tmp = localtime(&abs_time->secs);
         if (tmp) {
-          sprintf(cur, "%s %2d, %d %02d:%02d:%02d.%06ld",
+          sprintf(cur, "%s %2d, %d %02d:%02d:%02d.%09ld",
                   mon_names[tmp->tm_mon],
                   tmp->tm_mday,
                   tmp->tm_year + 1900,
                   tmp->tm_hour,
                   tmp->tm_min,
                   tmp->tm_sec,
-                  (long)abs_time->tv_usec);
+                  (long)abs_time->nsecs);
         } else {
           strncpy(cur, "Not representable", sizeof(str[0]));
         }
@@ -422,35 +422,49 @@ abs_time_to_str(struct timeval *abs_time)
 }
 
 void
-display_signed_time(gchar *buf, int buflen, gint32 sec, gint32 usec)
+display_signed_time(gchar *buf, int buflen, gint32 sec, gint32 frac,
+    time_res_t units)
 {
 	char *sign;
 
-	/* If the microseconds part of the time stamp is negative,
+	/* If the fractional part of the time stamp is negative,
 	   print its absolute value and, if the seconds part isn't
 	   (the seconds part should be zero in that case), stick
 	   a "-" in front of the entire time stamp. */
 	sign = "";
-	if (usec < 0) {
-		usec = -usec;
+	if (frac < 0) {
+		frac = -frac;
 		if (sec >= 0)
 			sign = "-";
 	}
-	snprintf(buf, buflen, "%s%d.%06d", sign, sec, usec);
+	switch (units) {
+
+	case MSECS:
+		snprintf(buf, buflen, "%s%d.%03d", sign, sec, frac);
+		break;
+
+	case USECS:
+		snprintf(buf, buflen, "%s%d.%06d", sign, sec, frac);
+		break;
+
+	case NSECS:
+		snprintf(buf, buflen, "%s%d.%09d", sign, sec, frac);
+		break;
+	}
 }
 
 /*
  * Display a relative time as days/hours/minutes/seconds.
  */
 gchar *
-rel_time_to_str(struct timeval *rel_time)
+rel_time_to_str(nstime_t *rel_time)
 {
 	static gchar *cur;
 	static char str[3][1+TIME_SECS_LEN+1+6+1];
 	char *p;
 	char *sign;
 	guint32 time;
-	gint32 usec;
+	gint32 nsec;
 
 	if (cur == &str[0][0]) {
 		cur = &str[1][0];
@@ -461,40 +475,40 @@ rel_time_to_str(struct timeval *rel_time)
 	}
 	p = cur;
 
-	/* If the microseconds part of the time stamp is negative,
+	/* If the nanoseconds part of the time stamp is negative,
 	   print its absolute value and, if the seconds part isn't
 	   (the seconds part should be zero in that case), stick
 	   a "-" in front of the entire time stamp. */
 	sign = "";
-	time = rel_time->tv_sec;
-	usec = rel_time->tv_usec;
-	if (time == 0 && usec == 0) {
-		sprintf(cur, "0.000000 seconds");
+	time = rel_time->secs;
+	nsec = rel_time->nsecs;
+	if (time == 0 && nsec == 0) {
+		sprintf(cur, "0.000000000 seconds");
 		return cur;
 	}
-	if (usec < 0) {
-		usec = -usec;
+	if (nsec < 0) {
+		nsec = -nsec;
 		*p++ = '-';
 
 		/*
-		 * We assume here that "rel_time->tv_sec" is negative
+		 * We assume here that "rel_time->secs" is negative
 		 * or zero; if it's not, the time stamp is bogus,
 		 * with a positive seconds and negative microseconds.
 		 */
-		time = -rel_time->tv_sec;
+		time = -rel_time->secs;
 	}
 
-	time_secs_to_str_buf(time, usec, TRUE, p);
+	time_secs_to_str_buf(time, nsec, TRUE, p);
 	return cur;
 }
 
-#define REL_TIME_SECS_LEN	(1+10+1+6+1)
+#define REL_TIME_SECS_LEN	(1+10+1+9+1)
 
 /*
  * Display a relative time as seconds.
  */
 gchar *
-rel_time_to_secs_str(struct timeval *rel_time)
+rel_time_to_secs_str(nstime_t *rel_time)
 {
         static gchar *cur;
         static char str[3][REL_TIME_SECS_LEN];
@@ -507,8 +521,8 @@ rel_time_to_secs_str(struct timeval *rel_time)
                 cur = &str[0][0];
         }
 
-        display_signed_time(cur, REL_TIME_SECS_LEN, rel_time->tv_sec,
-            rel_time->tv_usec);
+        display_signed_time(cur, REL_TIME_SECS_LEN, rel_time->secs,
+            rel_time->nsecs, NSECS);
         return cur;
 }
 

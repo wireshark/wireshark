@@ -2,12 +2,11 @@
  * Routines for Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q2931.c,v 1.18 2001/06/18 02:17:50 guy Exp $
+ * $Id: packet-q2931.c,v 1.19 2001/09/14 07:10:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -1974,7 +1973,6 @@ static void
 dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int		offset = 0;
-	guint		reported_length;
 	proto_tree	*q2931_tree = NULL;
 	proto_item	*ti;
 	proto_tree	*ext_tree;
@@ -2045,8 +2043,7 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	codeset = 0;	/* start out in codeset 0 */
 	non_locking_shift = TRUE;
-	reported_length = tvb_reported_length(tvb);
-	while (offset < reported_length) {
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		info_element = tvb_get_guint8(tvb, offset);
 		info_element_ext = tvb_get_guint8(tvb, offset + 1);
 		info_element_len = tvb_get_ntohs(tvb, offset + 2);

@@ -2,10 +2,10 @@
  *
  * Routines to dissect WTLS component of WAP traffic.
  * 
- * $Id: packet-wtls.c,v 1.11 2001/07/20 09:10:16 guy Exp $
+ * $Id: packet-wtls.c,v 1.12 2001/09/14 07:10:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Didier Jorand
  *
  * WAP dissector based on original work by Ben Fowler
@@ -449,7 +449,7 @@ static void
 dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint count)
 {
 	char pdu_msg_type;
-	struct timeval timeValue;
+	nstime_t timeValue;
 	int client_size = 0;
 	guint value = 0;
 	int size = 0;
@@ -485,8 +485,8 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 			ti = proto_tree_add_item (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_version,
 					tvb,offset,1,bo_big_endian);
 			offset++;
-			timeValue.tv_sec = tvb_get_ntohl (tvb, offset);
-			timeValue.tv_usec = 0;
+			timeValue.secs = tvb_get_ntohl (tvb, offset);
+			timeValue.nsecs = 0;
 			ti = proto_tree_add_time (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_gmt, tvb,
 					offset, 4, &timeValue);
 			offset+=4;
@@ -870,8 +870,8 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 			ti = proto_tree_add_item (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_version,
 					tvb,offset,1,bo_big_endian);
 			offset++;
-			timeValue.tv_sec = tvb_get_ntohl (tvb, offset);
-			timeValue.tv_usec = 0;
+			timeValue.secs = tvb_get_ntohl (tvb, offset);
+			timeValue.nsecs = 0;
 			ti = proto_tree_add_time (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_gmt, tvb,
 					offset, 4, &timeValue);
 			offset+=4;
@@ -1008,15 +1008,15 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 							case IDENTIFIER_X509 :
 								break;
 						}
-						timeValue.tv_sec = tvb_get_ntohl (tvb, offset);
-						timeValue.tv_usec = 0;
+						timeValue.secs = tvb_get_ntohl (tvb, offset);
+						timeValue.nsecs = 0;
 						ti = proto_tree_add_time (wtls_msg_type_item_sub_tree, 
 								hf_wtls_hands_certificate_wtls_valid_not_before,
 								tvb, offset, 4, &timeValue);
 						offset+=4;
 						client_size+=4;
-						timeValue.tv_sec = tvb_get_ntohl (tvb, offset);
-						timeValue.tv_usec = 0;
+						timeValue.secs = tvb_get_ntohl (tvb, offset);
+						timeValue.nsecs = 0;
 						ti = proto_tree_add_time (wtls_msg_type_item_sub_tree, 
 								hf_wtls_hands_certificate_wtls_valid_not_after,
 								tvb, offset, 4, &timeValue);

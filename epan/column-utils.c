@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.4 2001/07/15 19:14:02 guy Exp $
+ * $Id: column-utils.c,v 1.5 2001/09/14 07:10:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -268,7 +268,7 @@ static void
 col_set_rel_time(frame_data *fd, int col)
 {
   display_signed_time(fd->cinfo->col_buf[col], COL_MAX_LEN,
-	fd->rel_secs, fd->rel_usecs);
+	fd->rel_secs, fd->rel_usecs, USECS);
   fd->cinfo->col_data[col] = fd->cinfo->col_buf[col];
 }
 
@@ -276,7 +276,7 @@ static void
 col_set_delta_time(frame_data *fd, int col)
 {
   display_signed_time(fd->cinfo->col_buf[col], COL_MAX_LEN,
-	fd->del_secs, fd->del_usecs);
+	fd->del_secs, fd->del_usecs, USECS);
   fd->cinfo->col_data[col] = fd->cinfo->col_buf[col];
 }
 

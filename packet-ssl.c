@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.6 2001/09/03 10:33:07 guy Exp $
+ * $Id: packet-ssl.c,v 1.7 2001/09/14 07:10:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1117,14 +1117,14 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
 {
     /* show the client's random challenge */
     guint32 initial_offset = offset;
-    struct timeval gmt_unix_time;
+    nstime_t gmt_unix_time;
     guint8  session_id_length = 0;
 
     if (tree)
     {
         /* show the time */
-        gmt_unix_time.tv_sec = tvb_get_ntohl(tvb, offset);
-        gmt_unix_time.tv_usec = 0;
+        gmt_unix_time.secs = tvb_get_ntohl(tvb, offset);
+        gmt_unix_time.nsecs = 0;
         proto_tree_add_time(tree, hf_ssl_handshake_random_time,
                                      tvb, offset, 4, &gmt_unix_time);
         offset += 4;
