@@ -4,7 +4,7 @@
  *
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-dccp.c,v 1.10 2003/01/31 03:17:45 guy Exp $
+ * $Id: packet-dccp.c,v 1.11 2004/03/11 03:24:13 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -549,7 +549,7 @@ proto_register_dccp(void)
 		&ett_dccp_trace,
 	};
 
-	proto_dccp = proto_register_protocol("Distributed Checksum Clearinghouse Prototocl",
+	proto_dccp = proto_register_protocol("Distributed Checksum Clearinghouse Protocol",
 	    "DCCP", "dccp");
 
 	proto_register_field_array(proto_dccp, hf, array_length(hf));
