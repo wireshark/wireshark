@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.90 2000/05/31 05:07:08 guy Exp $
+ * $Id: packet-ip.c,v 1.91 2000/06/02 16:43:46 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1118,8 +1118,8 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       case ICMP_MASKREPLY:
 	proto_tree_add_text(icmp_tree, NullTVB, offset +  4, 2, "Identifier: 0x%04x",
 	  pntohs(&pd[offset +  4]));
-	proto_tree_add_text(icmp_tree, NullTVB, offset +  6, 2, "Sequence number: %u",
-	  pntohs(&pd[offset +  6]));
+	proto_tree_add_text(icmp_tree, NullTVB, offset +  6, 2, "Sequence number: %02x:%02x",
+	  pd[offset+6], pd[offset+7]);
 	break;
 
        case ICMP_UNREACH:
