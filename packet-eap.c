@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.23 2002/03/27 19:38:37 guy Exp $
+ * $Id: packet-eap.c,v 1.24 2002/03/28 09:51:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -102,7 +102,7 @@ static const value_string eap_type_vals[] = {
   { 20,          "SRP-SHA1 Part 2 [Carlson]" },
   { 21,          "EAP-TTLS [Funk]" },
   { 22,          "Remote Access Service [Fields]" },
-  { 23,          "UMTS Authentication and Key Argreement [Haverinen]" }, 
+  { 23,          "UMTS Authentication and Key Agreement [Haverinen]" }, 
   { 24,          "EAP-3Com Wireless [Young]" }, 
   { 25,          "PEAP [Palekar]" },
   { 26,          "MS-EAP-Authentication [Palekar]" },
@@ -122,14 +122,27 @@ static const value_string eap_type_vals[] = {
  *
  *	http://www.missl.cs.umd.edu/wireless/ethereal/leap.txt
  *
- * Attach to all frames containing fragments of EAP-TLS messages the
- * EAP ID value of the first fragment, so we can determine which
- * message is getting reassembled after the first pass through
- * the packets.  We also attach a sequence number for fragments,
- * which starts with 0 for the first fragment.
+ * Attach to all conversations:
  *
- * Attach to all frames containing LEAP messages an indication of
- * the state of the LEAP negotiation, so we can properly dissect
+ *	a sequence number to be handed to "fragment_add_seq()" as
+ *	the fragment sequence number - if it's -1, no reassembly
+ *	is in progress, but if it's not, it's the sequence number
+ *	to use for the current fragment;
+ *
+ *	a value to be handed to "fragment_add_seq()" as the
+ *	reassembly ID - when a reassembly is started, it's set to
+ *	the frame number of the current frame, i.e. the frame
+ *	that starts the reassembly;
+ *
+ *	an indication of the current state of LEAP negotiation,
+ *	with -1 meaning no LEAP negotiation is in progress.
+ *
+ * Attach to frames containing fragments of EAP-TLS messages the
+ * reassembly ID for those fragments, so we can find the reassembled
+ * data after the first pass through the packets.
+ *
+ * Attach to LEAP frames the state of the LEAP negotiation when the
+ * frame was processed, so we can properly dissect
  * the LEAP message after the first pass through the packets.
  *
  * Attach to all conversations both pieces of information, to keep
@@ -138,8 +151,8 @@ static const value_string eap_type_vals[] = {
 static GMemChunk *conv_state_chunk = NULL;
 
 typedef struct {
-	int	init_eap_id;
 	int	eap_tls_seq;
+	guint32	eap_reass_cookie;
 	int	leap_state;
 } conv_state_t;
 
@@ -290,17 +303,17 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   /*
-   * Get the LEAP state information for the conversation; attach some if
+   * Get the state information for the conversation; attach some if
    * we don't find it.
    */
   conversation_state = conversation_get_proto_data(conversation, proto_eap);
   if (conversation_state == NULL) {
     /*
-     * Attach LEAP state information to the conversation.
+     * Attach state information to the conversation.
      */
     conversation_state = g_mem_chunk_alloc(conv_state_chunk);
-    conversation_state->init_eap_id = -1;
     conversation_state->eap_tls_seq = -1;
+    conversation_state->eap_reass_cookie = 0;
     conversation_state->leap_state = -1;
     conversation_add_proto_data(conversation, proto_eap, conversation_state);
   }
@@ -404,8 +417,9 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	gboolean more_fragments;
 	gboolean has_length;
 	guint32 length;
-	int init_eap_id = -1;
 	int eap_tls_seq = -1;
+	guint32 eap_reass_cookie = 0;
+	gboolean needs_reassembly = FALSE;
 
 	more_fragments = test_flag(flags,EAP_TLS_FLAG_M);
 	has_length = test_flag(flags,EAP_TLS_FLAG_L);
@@ -487,27 +501,26 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	       */
 	      if (conversation_state->eap_tls_seq != -1) {
 		/*
-		 * There's a reassembly in progress; the EAP ID of
-		 * the message containing the first fragment
-		 * is "conversation_state->init_eap_id", and
-		 * the sequence number of the previous fragment
-		 * is "conversation_state->eap_tls_seq".
+		 * There's a reassembly in progress; the sequence number
+		 * of the previous fragment is
+		 * "conversation_state->eap_tls_seq", and the reassembly
+		 * ID is "conversation_state->eap_reass_cookie".
 		 *
 		 * We must include this frame in the reassembly.
 		 * We advance the sequence number, giving us the
 		 * sequence number for this fragment.
 		 */
-		init_eap_id = conversation_state->init_eap_id;
+		needs_reassembly = TRUE;
 		conversation_state->eap_tls_seq++;
+
+		eap_reass_cookie = conversation_state->eap_reass_cookie;
 		eap_tls_seq = conversation_state->eap_tls_seq;
 	      } else if (more_fragments && has_length) {
 		/*
 		 * This message has the Fragment flag set, so it requires
 		 * reassembly.  It's the message containing the first
-		 * fragment (if it's a later fragment, the EAP ID
-		 * in the conversation state would not be -1, it'd
-		 * be the EAP ID of the first fragment), so remember its
-		 * EAP ID.
+		 * fragment (if it's a later fragment, the sequence
+		 * number in the conversation state would not be -1).
 		 *
 		 * If it doesn't include a length, however, we can't
 		 * do reassembly (either the message is in error, as
@@ -516,29 +529,31 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * happens to be the first fragment we saw), so we
 		 * also check that we have a length;
 		 */
-		init_eap_id = eap_id;
-		conversation_state->init_eap_id = eap_id;
+		needs_reassembly = TRUE;
+		conversation_state->eap_reass_cookie = pinfo->fd->num;
 
 		/*
-		 * Start the sequence number at 0.
+		 * Start the reassembly sequence number at 0.
 		 */
 		conversation_state->eap_tls_seq = 0;
+
 		eap_tls_seq = conversation_state->eap_tls_seq;
+		eap_reass_cookie = conversation_state->eap_reass_cookie;
 	      }
 
-	      if (init_eap_id != -1) {
+	      if (needs_reassembly) {
 		/*
-		 * This frame requires reassembly; remember the initial
-		 * EAP ID for subsequent accesses to it.
+		 * This frame requires reassembly; remember the reassembly
+		 * ID for subsequent accesses to it.
 		 */
 		packet_state = g_mem_chunk_alloc(frame_state_chunk);
-		packet_state->info = init_eap_id;
+		packet_state->info = eap_reass_cookie;
 		p_add_proto_data(pinfo->fd, proto_eap, packet_state);
 	      }
 	    }
 	  } else {
 	    /*
-	     * This frame has an initial EAP ID associated with it, so
+	     * This frame has a reassembly cookie associated with it, so
 	     * it requires reassembly.  We've already done the
 	     * reassembly in the first pass, so "fragment_add_seq()"
 	     * won't look at the sequence number; set it to 0.
@@ -557,7 +572,8 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	     * or do something else equally horrible, we may not
 	     * have to worry about this at all.
 	     */
-	    init_eap_id = packet_state->info;
+	    needs_reassembly = TRUE;
+	    eap_reass_cookie = packet_state->info;
 	    eap_tls_seq = 0;
 	  }
 
@@ -565,10 +581,10 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	     We test here to see whether EAP-TLS packet 
 	     carry fragmented of TLS data. 
 
-	     If is his case, we do reasembly below,
+	     If this is the case, we do reasembly below,
 	     otherwise we just call dissector.
 	  */
-	  if (init_eap_id != -1) {
+	  if (needs_reassembly) {
 	    fragment_data   *fd_head = NULL;
 
 	    /*
@@ -578,7 +594,7 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    save_fragmented = pinfo->fragmented;
 	    pinfo->fragmented = TRUE;
 	    fd_head = fragment_add_seq(tvb, offset, pinfo, 
-				   init_eap_id,
+				   eap_reass_cookie,
 				   eaptls_fragment_table,
 				   eap_tls_seq, 
 				   size,
@@ -620,10 +636,8 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * We're finished reassembing this frame.
 		 * Reinitialize the reassembly state.
 		 */
-		if (!pinfo->fd->flags.visited) {
-		  conversation_state->init_eap_id = -1;
+		if (!pinfo->fd->flags.visited)
 		  conversation_state->eap_tls_seq = -1;
-		}
 	      }
 
 	    pinfo->fragmented = save_fragmented;
