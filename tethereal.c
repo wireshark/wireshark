@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.11 2000/01/22 06:22:19 guy Exp $
+ * $Id: tethereal.c,v 1.12 2000/01/22 07:19:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -100,8 +100,15 @@ static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
 static void capture_cleanup(int);
 #endif
 
-static int load_cap_file(capture_file *);
-static void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, int,
+typedef struct {
+  capture_file *cf;
+  wtap_dumper *pdh;
+} cb_args_t;
+
+static int load_cap_file(capture_file *, int);
+static void wtap_dispatch_cb_write(u_char *, const struct wtap_pkthdr *, int,
+    const u_char *);
+static void wtap_dispatch_cb_print(u_char *, const struct wtap_pkthdr *, int,
     const u_char *);
 static gchar *col_info(frame_data *, gint);
 
@@ -334,12 +341,7 @@ main(int argc, char *argv[])
         exit(0);
         break;
       case 'w':        /* Write to capture file xxx */
-#ifdef HAVE_LIBPCAP
         cf.save_file = g_strdup(optarg);
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
 	break;
       case 'V':        /* Verbose */
         verbose = TRUE;
@@ -377,21 +379,21 @@ main(int argc, char *argv[])
   
   ethereal_proto_init();   /* Init anything that needs initializing */
 
-  if (cf_name) {
-    if (rfilter != NULL) {
-      if (dfilter_compile(rfilter, &rfcode) != 0) {
-      	fprintf(stderr, "tethereal: %s\n", dfilter_error_msg);
-        ethereal_proto_cleanup();
-        exit(2);
-      }
+  if (rfilter != NULL) {
+    if (dfilter_compile(rfilter, &rfcode) != 0) {
+      fprintf(stderr, "tethereal: %s\n", dfilter_error_msg);
+      ethereal_proto_cleanup();
+      exit(2);
     }
+  }
+  cf.rfcode = rfcode;
+  if (cf_name) {
     err = open_cap_file(cf_name, FALSE, &cf);
     if (err != 0) {
       ethereal_proto_cleanup();
       exit(2);
     }
-    cf.rfcode = rfcode;
-    err = load_cap_file(&cf);
+    err = load_cap_file(&cf, out_file_type);
     if (err != 0) {
       ethereal_proto_cleanup();
       exit(2);
@@ -568,21 +570,22 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
 {
   struct wtap_pkthdr whdr;
   loop_data *ld = (loop_data *) user;
-  int err;
+  cb_args_t args;
 
   whdr.ts = phdr->ts;
   whdr.caplen = phdr->caplen;
   whdr.len = phdr->len;
   whdr.pkt_encap = ld->linktype;
 
+  args.cf = &cf;
+  args.pdh = ld->pdh;
   if (ld->pdh) {
-    /* XXX - do something if this fails */
-    wtap_dump(ld->pdh, &whdr, pd, &err);
+    wtap_dispatch_cb_write((u_char *)&args, &whdr, 0, pd);
     cf.count++;
     printf("\r%u ", cf.count);
     fflush(stdout);
   } else {
-    wtap_dispatch_cb((u_char *)&cf, &whdr, 0, pd);
+    wtap_dispatch_cb_print((u_char *)&args, &whdr, 0, pd);
   }
 }
 
@@ -601,41 +604,100 @@ capture_cleanup(int signum)
 #endif /* HAVE_LIBPCAP */
 
 static int
-load_cap_file(capture_file *cf)
+load_cap_file(capture_file *cf, int out_file_type)
 {
-  int     err;
-  int     success;
-  char   *errmsg;
-  char    errmsg_errno[1024+1];
+  gint         linktype;
+  wtap_dumper *pdh;
+  int          err;
+  int          success;
+  cb_args_t    args;
 
-  success = wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf, &err);
+  linktype = wtap_file_encap(cf->wth);
+  if (cf->save_file != NULL) {
+    /* Set up to write to the capture file. */
+    pdh = wtap_dump_open(cf->save_file, out_file_type,
+		linktype, wtap_snapshot_length(cf->wth), &err);
+
+    if (pdh == NULL) {
+      /* We couldn't set up to write to the capture file. */
+      switch (err) {
+
+      case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
+        fprintf(stderr,
+		"tethereal: Capture files can't be written in that format.\n");
+        break;
+
+      case WTAP_ERR_UNSUPPORTED_ENCAP:
+      case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
+        fprintf(stderr,
+"tethereal: The capture file being read cannot be written in that format.\n");
+        break;
+
+      case WTAP_ERR_CANT_OPEN:
+        fprintf(stderr,
+"tethereal: The file \"%s\" couldn't be created for some unknown reason.\n",
+                 cf->save_file);
+        break;
+
+      case WTAP_ERR_SHORT_WRITE:
+        fprintf(stderr,
+"tethereal: A full header couldn't be written to the file \"%s\".\n",
+		cf->save_file);
+        break;
+
+      default:
+        if (err < 0) {
+          fprintf(stderr,
+		"tethereal: The file \"%s\" could not be opened: Error %d.\n",
+   		cf->save_file, err);
+        } else {
+          fprintf(stderr,
+		"tethereal: The file \"%s\" could not be opened: %s\n.",
+ 		cf->save_file, strerror(err));
+        }
+        break;
+      }
+      goto out;
+    }
+    args.cf = cf;
+    args.pdh = pdh;
+    success = wtap_loop(cf->wth, 0, wtap_dispatch_cb_write, (u_char *) &args,
+ 			&err);
+  } else {
+    args.cf = cf;
+    args.pdh = NULL;
+    success = wtap_loop(cf->wth, 0, wtap_dispatch_cb_print, (u_char *) &args,
+ 			&err);
+  }
   if (!success) {
     /* Print up a message box noting that the read failed somewhere along
        the line. */
     switch (err) {
 
     case WTAP_ERR_CANT_READ:
-      errmsg = "An attempt to read from the file failed for"
-               " some unknown reason.";
+      fprintf(stderr,
+"tethereal: An attempt to read from the file failed for some unknown reason.\n");
       break;
 
     case WTAP_ERR_SHORT_READ:
-      errmsg = "The capture file appears to have been cut short"
-               " in the middle of a packet.";
+      fprintf(stderr,
+"tethereal: The capture file appears to have been cut short in the middle of a packet.\n");
       break;
 
     case WTAP_ERR_BAD_RECORD:
-      errmsg = "The capture file appears to be damaged or corrupt.";
+      fprintf(stderr,
+"tethereal: The capture file appears to be damaged or corrupt.\n");
       break;
 
     default:
-      sprintf(errmsg_errno, "An error occurred while reading the"
-                              " capture file: %s.", wtap_strerror(err));
-      errmsg = errmsg_errno;
+      fprintf(stderr,
+"tethereal: An error occurred while reading the capture file: %s.\n",
+	wtap_strerror(err));
       break;
     }
-    fprintf(stderr, "tethereal: %s\n", errmsg);
   }
+
+out:
   wtap_close(cf->wth);
   cf->wth = NULL;
 
@@ -643,78 +705,117 @@ load_cap_file(capture_file *cf)
 }
 
 static void
-wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
+fill_in_fdata(frame_data *fdata, capture_file *cf,
+	const struct wtap_pkthdr *phdr, int offset)
+{
+  int i;
+
+  fdata->next = NULL;
+  fdata->prev = NULL;
+  fdata->pkt_len  = phdr->len;
+  fdata->cap_len  = phdr->caplen;
+  fdata->file_off = offset;
+  fdata->lnk_t = phdr->pkt_encap;
+  fdata->abs_secs  = phdr->ts.tv_sec;
+  fdata->abs_usecs = phdr->ts.tv_usec;
+  fdata->encoding = CHAR_ASCII;
+  fdata->pseudo_header = phdr->pseudo_header;
+  fdata->cinfo = NULL;
+
+  fdata->num = cf->count;
+
+  /* If we don't have the time stamp of the first packet in the
+     capture, it's because this is the first packet.  Save the time
+     stamp of this packet as the time stamp of the first packet. */
+  if (!firstsec && !firstusec) {
+    firstsec  = fdata->abs_secs;
+    firstusec = fdata->abs_usecs;
+  }
+
+  /* Get the time elapsed between the first packet and this packet. */
+  cf->esec = fdata->abs_secs - firstsec;
+  if (firstusec <= fdata->abs_usecs) {
+    cf->eusec = fdata->abs_usecs - firstusec;
+  } else {
+    cf->eusec = (fdata->abs_usecs + 1000000) - firstusec;
+    cf->esec--;
+  }
+  
+  /* If we don't have the time stamp of the previous displayed packet,
+     it's because this is the first displayed packet.  Save the time
+     stamp of this packet as the time stamp of the previous displayed
+     packet. */
+  if (!prevsec && !prevusec) {
+    prevsec  = fdata->abs_secs;
+    prevusec = fdata->abs_usecs;
+  }
+
+  /* Get the time elapsed between the first packet and this packet. */
+  fdata->rel_secs = cf->esec;
+  fdata->rel_usecs = cf->eusec;
+  
+  /* Get the time elapsed between the previous displayed packet and
+     this packet. */
+  fdata->del_secs = fdata->abs_secs - prevsec;
+  if (prevusec <= fdata->abs_usecs) {
+    fdata->del_usecs = fdata->abs_usecs - prevusec;
+  } else {
+    fdata->del_usecs = (fdata->abs_usecs + 1000000) - prevusec;
+    fdata->del_secs--;
+  }
+  prevsec = fdata->abs_secs;
+  prevusec = fdata->abs_usecs;
+
+  fdata->cinfo = &cf->cinfo;
+  for (i = 0; i < fdata->cinfo->num_cols; i++) {
+    fdata->cinfo->col_data[i][0] = '\0';
+  }
+}
+
+static void
+wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   const u_char *buf)
 {
+  cb_args_t    *args = (cb_args_t *) user;
+  capture_file *cf = args->cf;
+  wtap_dumper  *pdh = args->pdh;
   frame_data    fdata;
-  gint          i;
-  capture_file *cf = (capture_file *) user;
+  proto_tree   *protocol_tree;
+  int           err;
+  gboolean      passed;
+
+  cf->count++;
+  if (cf->rfcode) {
+    fill_in_fdata(&fdata, cf, phdr, offset);
+    protocol_tree = proto_tree_create_root();
+    dissect_packet(buf, &fdata, protocol_tree);
+    passed = dfilter_apply(cf->rfcode, protocol_tree, buf);
+  } else {
+    protocol_tree = NULL;
+    passed = TRUE;
+  }
+  if (passed) {
+    /* XXX - do something if this fails */
+    wtap_dump(pdh, phdr, buf, &err);
+  }
+  if (protocol_tree != NULL)
+    proto_tree_free(protocol_tree);
+}
+
+static void
+wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr, int offset,
+  const u_char *buf)
+{
+  cb_args_t    *args = (cb_args_t *) user;
+  capture_file *cf = args->cf;
+  frame_data    fdata;
   proto_tree   *protocol_tree;
   gboolean      passed;
   print_args_t print_args;
 
   cf->count++;
 
-  fdata.next = NULL;
-  fdata.prev = NULL;
-  fdata.pkt_len  = phdr->len;
-  fdata.cap_len  = phdr->caplen;
-  fdata.file_off = offset;
-  fdata.lnk_t = phdr->pkt_encap;
-  fdata.abs_secs  = phdr->ts.tv_sec;
-  fdata.abs_usecs = phdr->ts.tv_usec;
-  fdata.encoding = CHAR_ASCII;
-  fdata.pseudo_header = phdr->pseudo_header;
-  fdata.cinfo = NULL;
-
-  fdata.num = cf->count;
-
-  /* If we don't have the time stamp of the first packet in the
-     capture, it's because this is the first packet.  Save the time
-     stamp of this packet as the time stamp of the first packet. */
-  if (!firstsec && !firstusec) {
-    firstsec  = fdata.abs_secs;
-    firstusec = fdata.abs_usecs;
-  }
-
-  /* Get the time elapsed between the first packet and this packet. */
-  cf->esec = fdata.abs_secs - firstsec;
-  if (firstusec <= fdata.abs_usecs) {
-    cf->eusec = fdata.abs_usecs - firstusec;
-  } else {
-    cf->eusec = (fdata.abs_usecs + 1000000) - firstusec;
-    cf->esec--;
-  }
-  
-  fdata.cinfo = &cf->cinfo;
-  for (i = 0; i < fdata.cinfo->num_cols; i++) {
-    fdata.cinfo->col_data[i][0] = '\0';
-  }
-
-  /* If we don't have the time stamp of the previous displayed packet,
-     it's because this is the first displayed packet.  Save the time
-     stamp of this packet as the time stamp of the previous displayed
-     packet. */
-  if (!prevsec && !prevusec) {
-    prevsec  = fdata.abs_secs;
-    prevusec = fdata.abs_usecs;
-  }
-
-  /* Get the time elapsed between the first packet and this packet. */
-  fdata.rel_secs = cf->esec;
-  fdata.rel_usecs = cf->eusec;
-  
-  /* Get the time elapsed between the previous displayed packet and
-     this packet. */
-  fdata.del_secs = fdata.abs_secs - prevsec;
-  if (prevusec <= fdata.abs_usecs) {
-    fdata.del_usecs = fdata.abs_usecs - prevusec;
-  } else {
-    fdata.del_usecs = (fdata.abs_usecs + 1000000) - prevusec;
-    fdata.del_secs--;
-  }
-  prevsec = fdata.abs_secs;
-  prevusec = fdata.abs_usecs;
+  fill_in_fdata(&fdata, cf, phdr, offset);
 
   passed = TRUE;
   if (cf->rfcode || verbose)

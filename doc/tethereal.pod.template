@@ -24,49 +24,59 @@ S<[ B<-x> ]>
 =head1 DESCRIPTION
 
 B<Tethereal> is a network protocol analyzer.  It lets you capture packet
-data from a live network, either printing a decoded form of those
-packets to the standard output or saving the captured packets to a file,
-and lets you print a decoded form of packets from a previously saved
-capture file.  B<Tethereal> knows how to read B<libpcap> capture files,
-including those of B<tcpdump>.  In addition, B<Tethereal> can read
-capture files from B<snoop> (including B<Shomiti>) and B<atmsnoop>,
-B<LanAlyzer>, uncompressed B<Sniffer>, Microsoft B<Network Monitor>,
-AIX's B<iptrace>, B<NetXray>, B<Sniffer Pro>, B<RADCOM>'s WAN/LAN
-analyzer, B<Lucent/Ascend> router debug output, HP-UX's B<nettl>, the
-dump output from B<Toshiba's> ISDN routers, and B<i4btrace> from the
-ISDN4BSD project.  There is no need to tell B<Tethereal> what type of
-file you are reading; it will determine the file type by itself. 
-B<Tethereal> is also capable of reading any of these file formats if
-they are compressed using gzip.  B<Tethereal> recognizes this directly
-from the file; the '.gz' extension is not required for this purpose.
+data from a live network, or read packets from a previously saved
+capture file, either printing a decoded form of those packets to the
+standard output or writing the packets to a file.  B<Tethereal> knows
+how to read B<libpcap> capture files, including those of B<tcpdump>.  In
+addition, B<Tethereal> can read capture files from B<snoop> (including
+B<Shomiti>) and B<atmsnoop>, B<LanAlyzer>, uncompressed B<Sniffer>,
+Microsoft B<Network Monitor>, AIX's B<iptrace>, B<NetXray>, B<Sniffer
+Pro>, B<RADCOM>'s WAN/LAN analyzer, B<Lucent/Ascend> router debug
+output, HP-UX's B<nettl>, the dump output from B<Toshiba's> ISDN
+routers, and B<i4btrace> from the ISDN4BSD project.  There is no need to
+tell B<Tethereal> what type of file you are reading; it will determine
+the file type by itself.  B<Tethereal> is also capable of reading any of
+these file formats if they are compressed using gzip.  B<Tethereal>
+recognizes this directly from the file; the '.gz' extension is not
+required for this purpose.
 
-By default, when writing a capture file, B<Tethereal> writes capture
-file in B<libpcap> format, and writes all of the packets in the capture
-file to the output file.  The B<-F> flag can be used to specify the
-format in which to write the capture file; it can write the file in
-B<libpcap> format (standard B<libpcap> format, a modified format used by
-some patched versions of B<libpcap>, or the format used by Red Hat Linux
-6.1), B<snoop> format, uncompressed B<Sniffer> format, Microsoft
-B<Network Monitor> 1.x format, and the format used by Windows-based
-versions of the B<Sniffer> software.
+If the B<-w> flag is not specified, B<Tethereal> prints a decoded form
+of the packets it captures or reads; otherwise, it writes those packets
+to the file specified by that flag.
 
-By default, when printing a decoded form of packets, B<Tethereal> prints
-a summary line giving a time stamp for the packet, the source and
-destination address for the packet, the top-level protocol for the
+When printing a decoded form of packets, B<Tethereal> prints, by
+default, a summary line giving a time stamp for the packet, the source
+and destination address for the packet, the top-level protocol for the
 packet that B<Tethereal> understands, and a summary of the packet's
-contents for that protocol.  It can also print a protocol tree, showing
-all the fields of all protocols in the packet.
+contents for that protocol.  If the B<-V> flag is specified, it prints
+intead a protocol tree, showing all the fields of all protocols in the
+packet.
+
+When writing packets to a file, B<Tethereal>, by default, writes the
+file in B<libpcap> format, and writes all of the packets it sees to the
+output file.  The B<-F> flag can be used to specify the format in which
+to write the file; it can write the file in B<libpcap> format (standard
+B<libpcap> format, a modified format used by some patched versions of
+B<libpcap>, or the format used by Red Hat Linux 6.1), B<snoop> format,
+uncompressed B<Sniffer> format, Microsoft B<Network Monitor> 1.x format,
+and the format used by Windows-based versions of the B<Sniffer>
+software.
 
 Read filters in B<Tethereal>, which allow you to select which packets
-are to be decoded when reading a saved capture file, are very powerful;
-more fields are filterable in B<Tethereal> than in other protocol
-analyzers, and the syntax you can use to create your filters is richer. 
-As B<Tethereal> progresses, expect more and more protocol fields to be
-allowed in read filters.
+are to be decoded or written to a file, are very powerful; more fields
+are filterable in B<Tethereal> than in other protocol analyzers, and the
+syntax you can use to create your filters is richer.  As B<Tethereal>
+progresses, expect more and more protocol fields to be allowed in read
+filters.
 
 Packet capturing is performed with the pcap library.  The capture filter
 syntax follows the rules of the pcap library.  This syntax is different
-from the read filter syntax.
+from the read filter syntax.  A read filter can also be specified when
+capturing, and only packets that pass the read filter will be displayed
+or saved to the output file; note, however, that capture filers are much
+more efficient than read filters, and it may be more difficult for
+B<Tethereal> to keep up with a busy network if a read filter is
+specified for a live capture.
 
 Compressed file support uses (and therefore requires) the zlib library. 
 If the zlib library is not present, B<Tethereal> will compile, but will
@@ -115,9 +125,9 @@ Reads packet data from I<file>.
 =item -R
 
 Causes the specified filter (which uses the syntax of read filters,
-rather than that of capture filters) to be applied, when a capture file
-is read, to all packets read from the capture file; packets not matching
-the filter are discarded.
+rather than that of capture filters) to be applied before printing a
+decoded form of packets or writing packets to a file; packets not
+matching the filter are discarded rather than being printed or written.
 
 =item -s
 
@@ -145,7 +155,7 @@ a one-line summary of the packet.
 
 =item -w
 
-Sets the default capture file name.
+Writes packet data to I<savefile>.
 
 =item -x
 
