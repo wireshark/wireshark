@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.177 2002/06/06 19:03:39 guy Exp $
+ * $Id: capture.c,v 1.178 2002/06/07 10:36:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2025,32 +2025,39 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
 
   switch (ld->linktype) {
     case WTAP_ENCAP_ETHERNET:
-      capture_eth(pd, 0, phdr->len, &ld->counts);
+      capture_eth(pd, 0, phdr->caplen, &ld->counts);
       break;
     case WTAP_ENCAP_FDDI:
     case WTAP_ENCAP_FDDI_BITSWAPPED:
-      capture_fddi(pd, phdr->len, &ld->counts);
+      capture_fddi(pd, phdr->caplen, &ld->counts);
       break;
     case WTAP_ENCAP_PRISM_HEADER:
-      capture_prism(pd, 0, phdr->len, &ld->counts);
+      capture_prism(pd, 0, phdr->caplen, &ld->counts);
       break;
     case WTAP_ENCAP_TOKEN_RING:
-      capture_tr(pd, 0, phdr->len, &ld->counts);
+      capture_tr(pd, 0, phdr->caplen, &ld->counts);
       break;
     case WTAP_ENCAP_NULL:
-      capture_null(pd, phdr->len, &ld->counts);
+      capture_null(pd, phdr->caplen, &ld->counts);
       break;
     case WTAP_ENCAP_PPP:
-      capture_ppp_hdlc(pd, 0, phdr->len, &ld->counts);
+      capture_ppp_hdlc(pd, 0, phdr->caplen, &ld->counts);
       break;
     case WTAP_ENCAP_RAW_IP:
-      capture_raw(pd, phdr->len, &ld->counts);
+      capture_raw(pd, phdr->caplen, &ld->counts);
       break;
     case WTAP_ENCAP_SLL:
-      capture_sll(pd, phdr->len, &ld->counts);
+      capture_sll(pd, phdr->caplen, &ld->counts);
       break;
     case WTAP_ENCAP_LINUX_ATM_CLIP:
-      capture_clip(pd, phdr->len, &ld->counts);
+      capture_clip(pd, phdr->caplen, &ld->counts);
+      break;
+    case WTAP_ENCAP_IEEE_802_11:
+    case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
+      capture_ieee80211(pd, 0, phdr->caplen, &ld->counts);
+      break;
+    case WTAP_ENCAP_CHDLC:
+      capture_chdlc(pd, 0, phdr->caplen, &ld->counts);
       break;
     case WTAP_ENCAP_LOCALTALK:
       capture_llap(&ld->counts);
