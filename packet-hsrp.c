@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-hsrp.c,v 1.17 2001/06/18 02:17:46 guy Exp $
+ * $Id: packet-hsrp.c,v 1.18 2001/07/12 19:42:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -126,13 +126,12 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 int offset;
                 guint8 hellotime, holdtime;
                 guint8 auth_buf[8 + 1];
-                guint32 virt_ip_addr;
 
                 offset = 0;
                 ti = proto_tree_add_item(tree, proto_hsrp, tvb, offset, tvb_length(tvb), FALSE);
                 hsrp_tree = proto_item_add_subtree(ti, ett_hsrp);
 
-                proto_tree_add_uint(hsrp_tree, hf_hsrp_version, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+                proto_tree_add_item(hsrp_tree, hf_hsrp_version, tvb, offset, 1, FALSE);
                 offset++;
                 proto_tree_add_uint(hsrp_tree, hf_hsrp_opcode, tvb, offset, 1, opcode);
                 offset++;
@@ -150,11 +149,11 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                            (holdtime == HSRP_DEFAULT_HOLDTIME) ? "" : "Non-",
                                            holdtime);
                 offset++;
-                proto_tree_add_item(hsrp_tree, hf_hsrp_priority, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+                proto_tree_add_item(hsrp_tree, hf_hsrp_priority, tvb, offset, 1, FALSE);
                 offset++;
-                proto_tree_add_item(hsrp_tree, hf_hsrp_group, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+                proto_tree_add_item(hsrp_tree, hf_hsrp_group, tvb, offset, 1, FALSE);
                 offset++;
-                proto_tree_add_item(hsrp_tree, hf_hsrp_reserved, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+                proto_tree_add_item(hsrp_tree, hf_hsrp_reserved, tvb, offset, 1, FALSE);
                 offset++;
                 tvb_memcpy(tvb, auth_buf, offset, 8);
                 auth_buf[sizeof auth_buf - 1] = '\0';
@@ -163,8 +162,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                              (tvb_strneql(tvb, offset, "cisco", strlen("cisco"))) == 0 ? "" : "Non-",
                                              auth_buf);
                 offset += 8;
-                tvb_memcpy(tvb, (guint8 *)&virt_ip_addr, offset, 4);
-                proto_tree_add_ipv4(hsrp_tree, hf_hsrp_virt_ip_addr, tvb, offset, 4, virt_ip_addr);
+                proto_tree_add_item(hsrp_tree, hf_hsrp_virt_ip_addr, tvb, offset, 4, FALSE);
                 offset += 4;
                 
         }
