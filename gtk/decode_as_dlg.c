@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.8 2001/06/25 07:57:50 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.9 2001/06/25 08:10:38 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -606,22 +606,12 @@ decode_network (GtkWidget *notebook_pg)
     GSList *item;
     gint row, assigned, port_num;
 
-    /* Get the currently selected row in the clist of network protocols,
-       and get the protocol number assigned to it.
-
-       This must be done *before* calling "decode_simple()", as, if
-       "Do not decode" is selected, "decode_simple()" will clear the
-       current selection in that clist. */
-    port_num = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(notebook_pg),
-						E_PAGE_VALUE));
-    clist = GTK_CLIST(gtk_object_get_data(GTK_OBJECT(notebook_pg), E_PAGE_CLIST));
-    row = GPOINTER_TO_INT(clist->selection->data);
-    assigned = GPOINTER_TO_INT(gtk_clist_get_row_data(clist, row));
-
     /* Do the real work */
     decode_simple(notebook_pg);
 
     /* Now tweak a local table of protocol ids currently decoded as TCP/UDP */
+    port_num = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(notebook_pg),
+						E_PAGE_VALUE));
 
     /* Ignore changes to the normal TCP and UDP protocol numbers */
     if ((port_num == IP_PROTO_TCP) || (port_num == IP_PROTO_UDP))
@@ -634,7 +624,12 @@ decode_network (GtkWidget *notebook_pg)
 	return;
     }
 
-    /* Not assigning TCP or UDP - remove any entry for this IP protocol number */
+    /* Not assigning TCP or UDP - remove any entry for this IP protocol number.
+       Note: if the action was E_DECODE_NO, the selection on the clist
+       was cleared, so the code to get "row" below would blow up. */
+    clist = GTK_CLIST(gtk_object_get_data(GTK_OBJECT(notebook_pg), E_PAGE_CLIST));
+    row = GPOINTER_TO_INT(clist->selection->data);
+    assigned = GPOINTER_TO_INT(gtk_clist_get_row_data(clist, row));
     if ((assigned != IP_PROTO_TCP) && (assigned != IP_PROTO_UDP)) {
 	decode_as_tcpudp =
 	    g_slist_remove(decode_as_tcpudp, GINT_TO_POINTER(port_num));
