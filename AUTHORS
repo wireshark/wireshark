@@ -481,6 +481,7 @@ Martti Kuparinen <martti.kuparinen@nomadiclab.com> {
 David Hampton <dhampton@mac.com> {
 	Support for HTTP methods added by GENA (the uPnP protocol)
 	Support for the HTTP-based SSDP protocol
+	"Decode As" dialog
 }
 
 Kent Engström <kent@unit.liu.se> {
@@ -490,6 +491,7 @@ Kent Engström <kent@unit.liu.se> {
 Ronnie Sahlberg <rsahlber@bigpond.net.au> {
 	NLM dissector enhancements
 	Mount dissector enhancements
+	Support for status monitor protocol
 }
 
 Borosa Tomislav <tomislav.borosa@SIEMENS.HR> {
@@ -499,10 +501,6 @@ Borosa Tomislav <tomislav.borosa@SIEMENS.HR> {
 Alexandre P. Ferreira <alexandref@spliceip.com.br> {
 	WTLS support
 	WSP fixes
-}
-
-David Hampton <dhampton@mac.com> {
-	"Decode As" dialog
 }
 
 Simharajan Srishylam <Simharajan.Srishylam@netapp.com> {
