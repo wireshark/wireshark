@@ -347,7 +347,16 @@ dissect_ber_integer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 
 	/* ok,  we cant handle >4 byte integers so lets fake them */
 	if(len>8){
-		proto_tree_add_text(tree, tvb, offset, len, "BER: Can not parse %d byte integers", len);
+		header_field_info *hfinfo;
+		proto_item *pi;
+
+		hfinfo = proto_registrar_get_nth(hf_id);
+		pi=proto_tree_add_text(tree, tvb, offset, len, "%s : 0x", hfinfo->name);
+		if(pi){
+			for(i=0;i<len;i++){
+				proto_item_append_text(pi,"%02x",tvb_get_guint8(tvb, offset+i));
+			}
+		}
 		return 0xdeadbeef;
 	}
 	if(len>4){
