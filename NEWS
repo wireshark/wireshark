@@ -6,7 +6,7 @@ Overview of changes in Ethereal 0.7.2:
 * Handles ICMP Unreachable|Frag Required (John)
 * NetBEUI support (Jeff, Guy)
 * Fix for Token-Ring RIF display (Gilbert)
-* Dramatically increased file-load time (Guy)
+* Dramatically decreased file-load time (Guy)
 * Fixed -S option timeout handling (Laurent)
 
 Overview of changes in Ethereal 0.7.1:
