@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.104 2004/04/22 21:40:48 ulfl Exp $
+ * $Id: file_dlg.c,v 1.105 2004/04/23 03:22:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,7 +70,6 @@ static void file_select_ok_cb(GtkWidget *w, gpointer data);
 static void file_select_cancel_cb(GtkWidget *w, gpointer data);
 #endif
 static void file_select_destroy_cb(GtkWidget *win, GtkWidget* file_te);
-static void toggle_captured_cb(GtkWidget *widget, gpointer data _U_);
 
 #define E_FILE_M_RESOLVE_KEY	  "file_dlg_mac_resolve_key"
 #define E_FILE_N_RESOLVE_KEY	  "file_dlg_network_resolve_key"
