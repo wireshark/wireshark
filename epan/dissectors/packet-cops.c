@@ -789,11 +789,11 @@ static void dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code, guint32 offset, proto_tree *tree, guint16 client_type);
 static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree,
-                                     guint8 op_code, guint16 client_type, guint8 c_num, guint8 c_type, guint16 len);
+                                     guint8 op_code, guint16 client_type, guint8 c_num, guint8 c_type, int len);
 
-static void dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *tree, guint16 pr_len);
+static void dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *tree, int pr_len);
 static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *tree,
-                                       guint8 s_num, guint8 s_type, guint16 len);
+                                       guint8 s_num, guint8 s_type, int len);
 
 /* Added for PacketCable */
 static proto_tree *info_to_cops_subtree(tvbuff_t *, proto_tree *, int, int, char *);
@@ -965,7 +965,7 @@ static char *cops_c_type_to_str(guint8 c_num, guint8 c_type)
 
 static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code, guint32 offset, proto_tree *tree, guint16 client_type)
 {
-  guint16 object_len, contents_len;
+  int object_len, contents_len;
   guint8 c_num, c_type;
   proto_item *ti;
   proto_tree *obj_tree;
@@ -1011,9 +1011,9 @@ static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code
   return object_len;
 }
 
-static void dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *tree, guint16 pr_len)
+static void dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *tree, int pr_len)
 {
-  guint16 object_len, contents_len;
+  int object_len, contents_len;
   guint8 s_num, s_type;
   char *type_str;
   int ret;
@@ -1070,7 +1070,7 @@ static void dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *t
 }
 
 static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree,
-                                     guint8 op_code, guint16 client_type, guint8 c_num, guint8 c_type, guint16 len)
+                                     guint8 op_code, guint16 client_type, guint8 c_num, guint8 c_type, int len)
 {
   proto_item *ti;
   proto_tree *r_type_tree, *itf_tree, *reason_tree, *dec_tree, *error_tree, *clientsi_tree, *pdp_tree;
@@ -1149,7 +1149,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
       offset += 2;
       proto_tree_add_uint(dec_tree, hf_cops_dec_flags, tvb, offset, 2, cmd_flags);
     } else if (c_type == 5) { /*COPS-PR Data*/
-      ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: %u bytes", len);
+      ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: %d bytes", len);
       dec_tree = proto_item_add_subtree(ti, ett_cops_decision);
       dissect_cops_pr_objects(tvb, offset, dec_tree, len);
     }
@@ -1195,7 +1195,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
     if (c_type != 2) /*Not COPS-PR data*/
       break;
 
-    ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: %u bytes", len);
+    ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: %d bytes", len);
     clientsi_tree = proto_item_add_subtree(ti, ett_cops_clientsi);
 
     dissect_cops_pr_objects(tvb, offset, clientsi_tree, len);
@@ -1277,7 +1277,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
 
     break;
   default:
-    proto_tree_add_text(tree, tvb, offset, len, "Contents: %u bytes", len);
+    proto_tree_add_text(tree, tvb, offset, len, "Contents: %d bytes", len);
 
     break;
   }
@@ -1586,7 +1586,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
 }
 
 static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *tree,
-                                       guint8 s_num, guint8 s_type, guint16 len)
+                                       guint8 s_num, guint8 s_type, int len)
 {
   proto_item *ti;
   proto_tree *asn1_object_tree, *gperror_tree, *cperror_tree;
@@ -1674,7 +1674,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree
 
     break;
   default:
-    proto_tree_add_text(tree, tvb, offset, len, "Contents: %u bytes", len);
+    proto_tree_add_text(tree, tvb, offset, len, "Contents: %d bytes", len);
     break;
   }
 
@@ -4428,7 +4428,6 @@ decode_docsis_request_transmission_policy(tvbuff_t *tvb, guint32 offset, proto_t
 static void
 cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 op_code, guint32 offset) {
 
-    gint remdata;
     guint16 object_len;
     guint8 s_num, s_type;
     guint16 num_type_glob;
@@ -4439,8 +4438,7 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
 
     /* Do the remaining client specific objects */
-    remdata = tvb_length_remaining(tvb, offset);
-    while (remdata > 4) {
+    while (tvb_reported_length_remaining(tvb, offset) > 4) {
 
        /* In case we have remaining data, then lets try to get this analyzed */
        object_len   = tvb_get_ntohs(tvb, offset);
@@ -4531,9 +4529,6 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
        /* Tune offset */
        offset += object_len;
-
-       /* See what we can still get from the buffer */
-       remdata = tvb_length_remaining(tvb, offset);
     }
 }
 
