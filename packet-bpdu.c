@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.22 2001/02/08 03:59:12 guy Exp $
+ * $Id: packet-bpdu.c,v 1.23 2001/02/08 07:32:11 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -154,12 +154,23 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       }
 
       bpdu_type = tvb_get_guint8(tvb, BPDU_TYPE);
-      flags = tvb_get_guint8(tvb, BPDU_FLAGS);
-      root_identifier_bridge_priority = tvb_get_ntohs(tvb, BPDU_ROOT_IDENTIFIER);
-      root_identifier_mac = tvb_get_ptr(tvb, BPDU_ROOT_IDENTIFIER + 2, 6);
-      root_identifier_mac_str = ether_to_str(root_identifier_mac);
-      root_path_cost = tvb_get_ntohl(tvb, BPDU_ROOT_PATH_COST);
-      port_identifier = tvb_get_ntohs(tvb, BPDU_PORT_IDENTIFIER);
+      if (bpdu_type == 0) {
+	    flags = tvb_get_guint8(tvb, BPDU_FLAGS);
+	    root_identifier_bridge_priority = tvb_get_ntohs(tvb,
+	        BPDU_ROOT_IDENTIFIER);
+	    root_identifier_mac = tvb_get_ptr(tvb, BPDU_ROOT_IDENTIFIER + 2, 6);
+	    root_identifier_mac_str = ether_to_str(root_identifier_mac);
+	    root_path_cost = tvb_get_ntohl(tvb, BPDU_ROOT_PATH_COST);
+	    port_identifier = tvb_get_ntohs(tvb, BPDU_PORT_IDENTIFIER);
+      } else {
+	    /* Squelch GCC complaints. */
+	    flags = 0;
+	    root_identifier_bridge_priority = 0;
+	    root_identifier_mac = NULL;
+	    root_identifier_mac_str = NULL;
+	    root_path_cost = 0;
+	    port_identifier = 0;
+      }
 
       if (check_col(pinfo->fd, COL_INFO)) {
 	    if (bpdu_type == 0)
