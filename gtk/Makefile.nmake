@@ -1,0 +1,36 @@
+GLIB_DIR=c:\prj\gtk+-win32\src\glib
+GTK_DIR=c:\prj\gtk+-win32\src\gtk+
+
+#LOCAL_CFLAGS=/Ic:\tools\msdev\include
+LOCAL_CFLAGS=
+
+#################3
+CFLAGS=/DHAVE_CONFIG_H /I$(GLIB_DIR) /I$(GTK_DIR) /I.. \
+	/I$(GTK_DIR)\gdk\win32 $(LOCAL_CFLAGS)
+
+OBJECTS=capture_dlg.obj \
+	display_opts.obj \
+	file_dlg.obj \
+	filter_prefs.obj \
+	find_dlg.obj \
+	goto_dlg.obj \
+	gtkclist.obj \
+	main.obj 	\
+	menu.obj 	\
+	plugins_dlg.obj \
+	prefs_dlg.obj \
+	print_dlg.obj \
+	print_prefs.c   \
+	proto_draw.obj \
+	stream_prefs.obj \
+	summary_dlg.obj \
+	ui_util.obj
+
+
+libui.lib	: config.h $(OBJECTS)
+	lib /out:libui.lib $(OBJECTS)	
+
+
+config.h	: config.h.win32
+	copy config.h.win32 $@
+
