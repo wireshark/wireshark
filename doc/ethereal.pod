@@ -1922,7 +1922,7 @@ B<http://www.ethereal.com>.
   Alex Ruzin               <alexr[AT]nbase.co.il>
   Jouni Malinen            <jkmaline[AT]cc.hut.fi>
   Paul E. Erkkila          <pee[AT]erkkila.org>
-  Jakob Schlyter           <jakob[AT]crt.se>
+  Jakob Schlyter           <jakob[AT]openbsd.org>
   Jim Sienicki             <sienicki[AT]issanni.com>
   Steven French            <sfrench[AT]us.ibm.com>
   Diana Eichert            <deicher[AT]sandia.gov>
