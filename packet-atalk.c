@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.78 2002/06/29 21:27:38 guy Exp $
+ * $Id: packet-atalk.c,v 1.79 2002/06/29 22:15:41 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -689,7 +689,7 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       int soffset = offset;
 
       node_item = proto_tree_add_text(nbp_tree, tvb, offset, -1, 
-			"Node %d", i+1);
+			"Node %u", i+1);
       node_tree = proto_item_add_subtree(node_item, ett_nbp_node);
 
       proto_tree_add_item(node_tree, hf_nbp_node_net, tvb, offset, 2, FALSE);
@@ -800,7 +800,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_clear(pinfo->cinfo, COL_INFO);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s transaction %d", 
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s transaction %u", 
     	val_to_str(op, atp_function_vals, "Unknown (0x%01x)"),tid);
     if (more_fragment) 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " [fragment]");
@@ -824,7 +824,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     }
     if (query) {
       proto_tree_add_text(atp_tree, tvb, offset +1, 1,
-			  "Bitmap: 0x%02x  %d packet(s) max", bitmap, nbe);
+			  "Bitmap: 0x%02x  %u packet(s) max", bitmap, nbe);
     }
     else {
       proto_tree_add_item(atp_tree, hf_atp_bitmap, tvb, offset +1, 1, FALSE);
@@ -924,16 +924,16 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	tree = proto_item_add_subtree(ti, ett_asp_status);
 
 	ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_MACHOFF);
-	proto_tree_add_text(tree, tvb, offset +AFPSTATUS_MACHOFF, 2, "Machine offset: %d", ofs);
+	proto_tree_add_text(tree, tvb, offset +AFPSTATUS_MACHOFF, 2, "Machine offset: %u", ofs);
 
 	ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_VERSOFF);
-	proto_tree_add_text(tree, tvb, offset +AFPSTATUS_VERSOFF, 2, "Version offset: %d", ofs);
+	proto_tree_add_text(tree, tvb, offset +AFPSTATUS_VERSOFF, 2, "Version offset: %u", ofs);
 
 	ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_UAMSOFF);
-	proto_tree_add_text(tree, tvb, offset +AFPSTATUS_UAMSOFF, 2, "UAMS offset: %d", ofs);
+	proto_tree_add_text(tree, tvb, offset +AFPSTATUS_UAMSOFF, 2, "UAMS offset: %u", ofs);
 
 	ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_ICONOFF);
-	proto_tree_add_text(tree, tvb, offset +AFPSTATUS_ICONOFF, 2, "Icon offset: %d", ofs);
+	proto_tree_add_text(tree, tvb, offset +AFPSTATUS_ICONOFF, 2, "Icon offset: %u", ofs);
 
 	ofs = offset +AFPSTATUS_FLAGOFF;
 	ti = proto_tree_add_item(tree, hf_asp_server_flag, tvb, ofs, 2, FALSE);
@@ -958,20 +958,20 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			ofs++;
 
 		sign_ofs = tvb_get_ntohs(tvb, ofs);
-		proto_tree_add_text(tree, tvb, ofs, 2, "Signature offset: %d", sign_ofs);
+		proto_tree_add_text(tree, tvb, ofs, 2, "Signature offset: %u", sign_ofs);
 		sign_ofs += offset;
 
 		if ((flag & AFPSRVRINFO_TCPIP)) {
 			ofs += 2;
 			adr_ofs =  tvb_get_ntohs(tvb, ofs);
-			proto_tree_add_text(tree, tvb, ofs, 2, "Network address offset: %d", adr_ofs);
+			proto_tree_add_text(tree, tvb, ofs, 2, "Network address offset: %u", adr_ofs);
 			adr_ofs += offset;
 		}
 
 		if ((flag & AFPSRVRINFO_SRVDIRECTORY)) {
 			ofs += 2;
 			dir_ofs =  tvb_get_ntohs(tvb, ofs);
-			proto_tree_add_text(tree, tvb, ofs, 2, "Directory services offset: %d", dir_ofs);
+			proto_tree_add_text(tree, tvb, ofs, 2, "Directory services offset: %u", dir_ofs);
 			dir_ofs += offset;
 		}
 	}
@@ -983,7 +983,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_VERSOFF);
 	if (ofs) {
 		nbe = tvb_get_guint8(tvb, ofs);
-		ti = proto_tree_add_text(tree, tvb, ofs, 1, "Version list: %d", nbe);
+		ti = proto_tree_add_text(tree, tvb, ofs, 1, "Version list: %u", nbe);
 		ofs++;
 		sub_tree = proto_item_add_subtree(ti, ett_asp_vers);
 		for (i = 0; i < nbe; i++) {
@@ -996,7 +996,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_UAMSOFF);
 	if (ofs) {
 		nbe = tvb_get_guint8(tvb, ofs);
-		ti = proto_tree_add_text(tree, tvb, ofs, 1, "UAMS list: %d", nbe);
+		ti = proto_tree_add_text(tree, tvb, ofs, 1, "UAMS list: %u", nbe);
 		ofs++;
 		sub_tree = proto_item_add_subtree(ti, ett_asp_uams);
 		for (i = 0; i < nbe; i++) {
@@ -1024,7 +1024,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		        	
 		ofs = adr_ofs;
 		nbe = tvb_get_guint8(tvb, ofs);
-		ti = proto_tree_add_text(tree, tvb, ofs, 1, "Address list: %d", nbe);
+		ti = proto_tree_add_text(tree, tvb, ofs, 1, "Address list: %u", nbe);
 		ofs++;
 		adr_tree = proto_item_add_subtree(ti, ett_asp_addr);
 		for (i = 0; i < nbe; i++) {
@@ -1040,7 +1040,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			case 2: /* IP + port */
 				ip = tvb_get_ptr(tvb, ofs+2, 4);
 				port = tvb_get_ntohs(tvb, ofs+6);
-				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip %s:%d",ip_to_str(ip),port);
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip %s:%u",ip_to_str(ip),port);
 				break;
 			case 3: /* DDP, atalk_addr_to_str want host order not network */
 				net  = tvb_get_ntohs(tvb, ofs+2);
@@ -1060,7 +1060,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				} 
 				/* else fall to default malformed record */
 			default:
-				ti = proto_tree_add_text(adr_tree, tvb, ofs, len,"Unknow type : %d", type);
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len,"Unknow type : %u", type);
 				break;
 			}			
 			len -= 2;
@@ -1077,7 +1077,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	if (dir_ofs) {
 		ofs = dir_ofs;
 		nbe = tvb_get_guint8(tvb, ofs);
-		ti = proto_tree_add_text(tree, tvb, ofs, 1, "Directory services list: %d", nbe);
+		ti = proto_tree_add_text(tree, tvb, ofs, 1, "Directory services list: %u", nbe);
 		ofs++;
 		sub_tree = proto_item_add_subtree(ti, ett_asp_directory);
 		for (i = 0; i < nbe; i++) {
@@ -1160,9 +1160,9 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
 	if (aspinfo->reply)
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %d",aspinfo->seq);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",aspinfo->seq);
 	else
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %d",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %u",
       				val_to_str(fn, asp_func_vals, "Unknown (0x%01x)"), aspinfo->seq);
   }
 
@@ -1308,9 +1308,9 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
 	if (aspinfo->reply)
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %d",aspinfo->seq);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",aspinfo->seq);
 	else
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %d",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %u",
       				val_to_str(fn, zip_atp_function_vals, "Unknown (0x%01x)"), aspinfo->seq);
   }
 
@@ -1440,7 +1440,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       sub_tree = proto_item_add_subtree(ti, ett_zip_network_list);
       for (i= 1; i <= count; i++) {
           net = tvb_get_ntohs(tvb, offset);
-          ti = proto_tree_add_text(zip_tree, tvb, offset , 2, "Zone for network : %d", net);
+          ti = proto_tree_add_text(zip_tree, tvb, offset , 2, "Zone for network : %u", net);
           net_tree = proto_item_add_subtree(ti, ett_zip_network_list);
           proto_tree_add_item(net_tree, hf_zip_network, tvb, offset, 2, FALSE);
           offset += 2;
