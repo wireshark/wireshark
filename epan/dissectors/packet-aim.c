@@ -729,7 +729,9 @@ static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo,
   if( aim_tree )
     {
       offset = orig_offset;
-      ti1 = proto_tree_add_text(aim_tree, tvb, 6, 10, "FNAC: Family: 0x%04x, Subtype: %04x", family_id, subtype_id);
+      ti1 = proto_tree_add_text(aim_tree, tvb, 6, 10, "FNAC: Family: %s (0x%04x), Subtype: %s (0x%04x)",
+			        family?family->name:"Unknown", family_id,
+			        (subtype && subtype->name)?subtype->name:"Unknown", subtype_id);
       aim_tree_fnac = proto_item_add_subtree(ti1, ett_aim_fnac);
 
       proto_tree_add_text (aim_tree_fnac, 
