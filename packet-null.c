@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.2 1998/09/27 22:12:33 gerald Exp $
+ * $Id: packet-null.c,v 1.3 1998/11/05 10:23:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,8 +62,7 @@ dissect_null( const u_char *pd, frame_data *fd, GtkTree *tree ) {
      layer (ie none) */
   if(tree) {
     ti = add_item_to_tree( GTK_WIDGET(tree), 0, 4,
-      "Null/Loopback (%d on link, %d captured)", fd->pkt_len,
-      fd->cap_len );
+      "Null/Loopback" );
     fh_tree = gtk_tree_new();
     add_subtree(ti, fh_tree, ETT_NULL);
     add_item_to_tree(fh_tree, 0, 1, "Next: %02x", nh.null_next);

@@ -1,7 +1,7 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id: packet-raw.c,v 1.4 1998/10/10 03:32:15 gerald Exp $
+ * $Id: packet-raw.c,v 1.5 1998/11/05 10:23:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,8 +55,7 @@ dissect_raw( const u_char *pd, frame_data *fd, GtkTree *tree ) {
      layer (ie none) */
   if(tree) {
     ti = add_item_to_tree( GTK_WIDGET(tree), 0, 0,
-			   "Raw packet data (%d on link, %d captured)",
-			   fd->pkt_len, fd->cap_len );
+			   "Raw packet data" );
     fh_tree = gtk_tree_new();
     add_subtree(ti, fh_tree, ETT_RAW);
     add_item_to_tree(fh_tree, 0, 0, "No link information available");
