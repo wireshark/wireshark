@@ -1,4 +1,4 @@
-/* packet-DNP3.c
+/* packet-dnp3.c
  * Routines for DNP dissection
  * Copyright 2003, Graham Bloice <graham.bloice@trihedral.com>
  *
@@ -41,6 +41,16 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include "reassemble.h"
+
+/*
+ * See
+ *
+ *	http://www.dnp.org/
+ *
+ * although note that you have to join the DNP organization to get to
+ * see the protocol specs online - otherwise, you have to buy a
+ * dead-tree version.
+ */
 
 /* DNP 3.0 constants */
 #define DNP_HDR_LEN     10
