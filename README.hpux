@@ -1,0 +1,22 @@
+The Software Porting And Archive Centre for HP-UX, at
+
+	http://hpux.csc.liv.ac.uk/
+
+(and with mirrors in various countries, listed on the Centre's home
+page) has ported versions, in both source and binary form, for Ethereal,
+as well as for the "libpcap", GLib, GTK+, "zlib", and CMU SNMP libraries
+that it uses.
+
+The changes they've made appear largely to be compile option changes; if
+you've downloaded the source to the latest version of Ethereal (the
+version on the Centre's site may not necessarily be the latest version),
+it should be able to compile, perhaps with those changes.
+
+They appear to have used HP-UX's "cc" compiler, with the options "-Ae
+-O"; there's a comment "Add -Dhpux_9 if building under 9.X".  It may
+also build with GCC.
+
+If you want to use Ethereal to capture packets, you will have to install
+"libpcap"; the INSTALL file for "libpcap" has several comments about
+HP-UX, which you should read if you're going to install and use
+"libpcap" on HP-UX.
