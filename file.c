@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.221 2000/09/12 03:28:34 guy Exp $
+ * $Id: file.c,v 1.222 2000/09/17 07:58:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -387,7 +387,7 @@ read_cap_file(capture_file *cf, int *err)
   if (cf->first_displayed != NULL)
     gtk_signal_emit_by_name(GTK_OBJECT(packet_list), "select_row", 0);
 
-  if (data_offset < 0) {
+  if (*err != 0) {
     /* Put up a message box noting that the read failed somewhere along
        the line.  Don't throw out the stuff we managed to read, though,
        if any. */
@@ -492,7 +492,7 @@ continue_tail_cap_file(capture_file *cf, int to_read, int *err)
        "finish_tail_cap_file()" will be called, and it will clean up
        and exit. */
     return READ_ABORTED;
-  } else if (data_offset < 0) {
+  } else if (*err != 0) {
     /* We got an error reading the capture file.
        XXX - pop up a dialog box? */
     return (READ_ERROR);
@@ -561,7 +561,7 @@ finish_tail_cap_file(capture_file *cf, int *err)
   set_menus_for_capture_file(TRUE);
   set_menus_for_unsaved_capture_file(!cf->user_saved);
 
-  if (data_offset < 0) {
+  if (*err != 0) {
     /* We got an error reading the capture file.
        XXX - pop up a dialog box? */
     return (READ_ERROR);
