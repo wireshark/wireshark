@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.54 1999/08/04 23:43:42 guy Exp $
+ * $Id: file.c,v 1.55 1999/08/05 00:23:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -669,6 +669,21 @@ change_time_formats(capture_file *cf)
   thaw_clist(cf);
 }
 
+static void
+clear_tree_and_hex_views(void)
+{
+  /* Clear the hex dump. */
+  gtk_text_freeze(GTK_TEXT(byte_view));
+  gtk_text_set_point(GTK_TEXT(byte_view), 0);
+  gtk_text_forward_delete(GTK_TEXT(byte_view),
+    gtk_text_get_length(GTK_TEXT(byte_view)));
+
+  /* Clear the protocol tree view. */
+  gtk_text_thaw(GTK_TEXT(byte_view));
+  gtk_tree_clear_items(GTK_TREE(tree_view), 0,
+    g_list_length(GTK_TREE(tree_view)->children));
+}
+
 /* Select the packet on a given row. */
 void
 select_packet(capture_file *cf, int row)
@@ -696,6 +711,7 @@ select_packet(capture_file *cf, int row)
   dissect_packet(cf->pd, cf->fd, cf->protocol_tree);
 
   /* Display the GUI protocol tree and hex dump. */
+  clear_tree_and_hex_views();
   proto_tree_draw(cf->protocol_tree, tree_view);
   packet_hex_print(GTK_TEXT(byte_view), cf->pd, cf->fd->cap_len, -1, -1);
   gtk_text_thaw(GTK_TEXT(byte_view));
@@ -717,16 +733,8 @@ unselect_packet(capture_file *cf)
     cf->protocol_tree = NULL;
   }
 
-  /* Clear the hex dump. */
-  gtk_text_freeze(GTK_TEXT(byte_view));
-  gtk_text_set_point(GTK_TEXT(byte_view), 0);
-  gtk_text_forward_delete(GTK_TEXT(byte_view),
-    gtk_text_get_length(GTK_TEXT(byte_view)));
-
-  /* Clear the protocol tree view. */
-  gtk_text_thaw(GTK_TEXT(byte_view));
-  gtk_tree_clear_items(GTK_TREE(tree_view), 0,
-    g_list_length(GTK_TREE(tree_view)->children));
+  /* Clear out the display of that packet. */
+  clear_tree_and_hex_views();
 
   /* No packet is selected, so "File/Print Packet" has nothing to print. */
   set_menu_sensitivity("/File/Print Packet", FALSE);
