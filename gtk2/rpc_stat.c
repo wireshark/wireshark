@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.3 2002/10/23 23:12:38 guy Exp $
+ * $Id: rpc_stat.c,v 1.4 2002/10/23 23:17:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,7 @@
 #include "tap.h"
 #include "rpc_stat.h"
 #include "packet-rpc.h"
+#include "../globals.h"
 
 
 /* used to keep track of statistics for a specific procedure */
@@ -393,6 +394,7 @@ gtk_rpcstat_init(guint32 program, guint32 version, char *filter)
 
 
 	gtk_widget_show_all(rs->win);
+	redissect_packets(&cfile);
 }
 
 
