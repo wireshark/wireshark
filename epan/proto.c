@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.94 2003/07/04 03:41:00 gram Exp $
+ * $Id: proto.c,v 1.95 2003/07/07 20:29:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -177,7 +177,12 @@ int		num_tree_types;
 
 /* initialize data structures and register protocols and fields */
 void
-proto_init(const char *plugin_dir,void (register_all_protocols)(void),
+proto_init(const char *plugin_dir
+#ifndef HAVE_PLUGINS
+				 _U_
+#endif
+	   ,
+	   void (register_all_protocols)(void),
 	   void (register_all_protocol_handoffs)(void))
 {
 	int			id, num_symbols;
