@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.389 2004/03/30 07:39:05 sharpe Exp $
+ * $Id: packet-smb.c,v 1.390 2004/04/02 21:38:34 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2340,6 +2340,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 		} else {
 			proto_item *blob_item;
+			guint16 sbloblen;
 
 			/* guid */
 			/* XXX - show it in the standard Microsoft format
@@ -2349,9 +2350,18 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 				tvb, offset, 16, TRUE);
 			COUNT_BYTES(16);
 
+			/* security blob */
+			/* dont try to eat too much of we might get an exception on 
+			 * short frames and then we will not see anything at all
+			 * of the security blob.
+			 */
+			sbloblen=bc;
+			if(sbloblen>tvb_length_remaining(tvb, offset)){
+				sbloblen=tvb_length_remaining(tvb,offset);
+			}
 			blob_item = proto_tree_add_item(
 				tree, hf_smb_security_blob,
-				tvb, offset, bc, TRUE);
+				tvb, offset, sbloblen, TRUE);
 
 			/* security blob */
 			/* 
@@ -2367,7 +2377,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 					blob_item, ett_smb_secblob);
 
 				gssapi_tvb = tvb_new_subset(
-					tvb, offset, bc, bc);
+					tvb, offset, sbloblen, sbloblen);
 
 				call_dissector(
 					gssapi_handle, gssapi_tvb, pinfo,
@@ -5827,7 +5837,13 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		proto_item *blob_item;
 
 		/* security blob */
-
+		/* dont try to eat too much of we might get an exception on 
+		 * short frames and then we will not see anything at all
+		 * of the security blob.
+		 */
+		if(sbloblen>tvb_length_remaining(tvb,offset)){
+			sbloblen=tvb_length_remaining(tvb,offset);
+		}
 		blob_item = proto_tree_add_item(tree, hf_smb_security_blob,
 						tvb, offset, sbloblen, TRUE);
 
@@ -6081,7 +6097,13 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		proto_item *blob_item;
 
 		/* security blob */
-
+		/* dont try to eat too much of we might get an exception on 
+		 * short frames and then we will not see anything at all
+		 * of the security blob.
+		 */
+		if(sbloblen>tvb_length_remaining(tvb,offset)){
+			sbloblen=tvb_length_remaining(tvb,offset);
+		}
 		blob_item = proto_tree_add_item(tree, hf_smb_security_blob,
 						tvb, offset, sbloblen, TRUE);
 
