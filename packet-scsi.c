@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.12 2002/08/18 19:59:37 guy Exp $
+ * $Id: packet-scsi.c,v 1.13 2002/08/19 13:06:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1573,7 +1573,7 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
                               val_to_str (pcode & 0x3F, scsi_modesns_page_val,
                                           "Unknown (0x%08x)"));
     tree = proto_item_add_subtree (ti, ett_scsi_page);
-    proto_tree_add_text (tree, tvb, offset, 1, "PS: %u", (pcode & 0x80) >> 8);
+    proto_tree_add_text (tree, tvb, offset, 1, "PS: %u", (pcode & 0x80) >> 7);
                          
     proto_tree_add_item (tree, hf_scsi_modesns_pagecode, tvb, offset, 1, 0);
     proto_tree_add_text (tree, tvb, offset+1, 1, "Page Length: %u",
@@ -1816,7 +1816,7 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
     case SCSI_MODEPAGE_XORCTL:
         break;
     default:
-        proto_tree_add_text (tree, tvb, offset, plen,
+        proto_tree_add_text (tree, tvb, offset+2, plen,
                              "Unknown Page");
         break;
     }
@@ -1826,7 +1826,7 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
 static void
 dissect_scsi_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           guint offset, gboolean isreq, gboolean iscdb,
-                          guint payload_len _U_)
+                          guint payload_len)
 {
     guint8 flags;
     guint tot_len, desclen, plen;
@@ -1858,34 +1858,72 @@ dissect_scsi_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * Page (s)
          *    - Page code, Page length, Page Parameters
          */
+        if (payload_len < 1)
+            return;
         tot_len = tvb_get_guint8 (tvb, offset);
         proto_tree_add_text (tree, tvb, offset, 1, "Mode Data Length: %u",
                              tot_len);
-        proto_tree_add_text (tree, tvb, offset+1, 1, "Medium Type: 0x%02x",
-                             tvb_get_guint8 (tvb, offset+1));
-        proto_tree_add_text (tree, tvb, offset+2, 1,
+        offset += 1;
+        payload_len -= 1;
+        /* The mode data length is reserved for MODE SELECT, so we just
+           use the payload length. */
+
+        if (payload_len < 1)
+            return;
+        proto_tree_add_text (tree, tvb, offset, 1, "Medium Type: 0x%02x",
+                             tvb_get_guint8 (tvb, offset));
+        offset += 1;
+        payload_len -= 1;
+
+        if (payload_len < 1)
+            return;
+        proto_tree_add_text (tree, tvb, offset, 1,
                              "Device-Specific Parameter: 0x%02x",
-                             tvb_get_guint8 (tvb, offset+2));
-        desclen = tvb_get_guint8 (tvb, offset+3);
-        proto_tree_add_text (tree, tvb, offset+3, 1,
+                             tvb_get_guint8 (tvb, offset));
+        offset += 1;
+        payload_len -= 1;
+
+        if (payload_len < 1)
+            return;
+        desclen = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_text (tree, tvb, offset, 1,
                              "Block Descriptor Length: %u", desclen);
-        tot_len += offset;
-        offset += 4;
-        tot_len -= 3;           /* tot_len does not include the len field */
+        offset += 1;
+        payload_len -= 1;
+
         if (desclen) {
-            proto_tree_add_text (tree, tvb, offset, 4, "No. of Blocks: %u",
-                                 tvb_get_ntohl (tvb, offset));
-            proto_tree_add_text (tree, tvb, offset+4, 1, "Density Code: 0x%02x",
-                                 tvb_get_guint8 (tvb, offset+4));
-            proto_tree_add_text (tree, tvb, offset+5, 3, "Block Length: %u",
-                                 tvb_get_ntoh24 (tvb, offset+5));
-            offset += 8;        /* increment the offset by 8 */
-            tot_len -= 8;       /* subtract by the block desc len */
+            if (payload_len < 1)
+                return;
+            proto_tree_add_text (tree, tvb, offset, 1, "Density Code: 0x%02x",
+                                 tvb_get_guint8 (tvb, offset));
+            offset += 1;
+            payload_len -= 1;
+
+            if (payload_len < 3)
+                return;
+            proto_tree_add_text (tree, tvb, offset, 3, "No. of Blocks: %u",
+                                 tvb_get_ntoh24 (tvb, offset));
+            offset += 3;
+            payload_len -= 3;
+
+            if (payload_len < 1)
+                return;
+            /* Reserved byte */
+            offset += 1;
+            payload_len -= 1;
+
+            if (payload_len < 3)
+                return;
+            proto_tree_add_text (tree, tvb, offset, 3, "Block Length: %u",
+                                 tvb_get_ntoh24 (tvb, offset));
+            offset += 3;
+            payload_len -= 3;
         }
         /* offset points to the start of the mode page */
-        while ((tot_len > offset) && tvb_bytes_exist (tvb, offset, 2)) {
+        while ((payload_len > 0) && tvb_bytes_exist (tvb, offset, 2)) {
             plen = dissect_scsi_modepage (tvb, pinfo, tree, offset);
             offset += plen;
+            payload_len -= plen;
         }
     }
 }
@@ -1893,11 +1931,11 @@ dissect_scsi_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_scsi_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            guint offset, gboolean isreq, gboolean iscdb,
-                           guint payload_len _U_)
+                           guint payload_len)
 {
     guint8 flags;
     gboolean longlba;
-    guint tot_len, desclen;
+    guint tot_len, desclen, plen;
     
     if (!tree)
         return;
@@ -1926,36 +1964,80 @@ dissect_scsi_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * Page (s)
          *    - Page code, Page length, Page Parameters
          */
+        if (payload_len < 1)
+            return;
         tot_len = tvb_get_ntohs (tvb, offset);
         proto_tree_add_text (tree, tvb, offset, 2, "Mode Data Length: %u",
                              tot_len);
-        proto_tree_add_text (tree, tvb, offset+2, 1, "Medium Type: 0x%02x",
-                             tvb_get_guint8 (tvb, offset+2));
-        proto_tree_add_text (tree, tvb, offset+3, 1,
+        offset += 2;
+        payload_len -= 2;
+        /* The mode data length is reserved for MODE SELECT, so we just
+           use the payload length. */
+
+        if (payload_len < 1)
+            return;
+        proto_tree_add_text (tree, tvb, offset, 1, "Medium Type: 0x%02x",
+                             tvb_get_guint8 (tvb, offset));
+        offset += 1;
+        payload_len -= 1;
+
+        if (payload_len < 1)
+            return;
+        proto_tree_add_text (tree, tvb, offset, 1,
                              "Device-Specific Parameter: 0x%02x",
-                             tvb_get_guint8 (tvb, offset+3));
-        longlba = tvb_get_guint8 (tvb, offset+4) & 0x1;
-        proto_tree_add_text (tree, tvb, offset+4, 1, "LongLBA: %u", longlba);
-        desclen = tvb_get_guint8 (tvb, offset+6);
-        proto_tree_add_text (tree, tvb, offset+6, 1,
+                             tvb_get_guint8 (tvb, offset));
+        offset += 1;
+        payload_len -= 1;
+
+        if (payload_len < 1)
+            return;
+        longlba = tvb_get_guint8 (tvb, offset) & 0x1;
+        proto_tree_add_text (tree, tvb, offset, 1, "LongLBA: %u", longlba);
+        offset += 2;	/* skip LongLBA byte and reserved byte */
+        payload_len -= 2;
+
+        if (payload_len < 1)
+            return;
+        desclen = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_text (tree, tvb, offset, 1,
                              "Block Descriptor Length: %u", desclen);
-        tot_len += offset;
-        offset += 8;
-        tot_len -= 6;           /* tot_len does not include the len field */
+        offset += 1;
+        payload_len -= 1;
+
         if (desclen) {
-            proto_tree_add_text (tree, tvb, offset, 8, "No. of Blocks: %s",
-                                 bytes_to_str (tvb_get_ptr (tvb, offset, 8),
-                                               8));
-            proto_tree_add_text (tree, tvb, offset+8, 1, "Density Code: 0x%02x",
-                                 tvb_get_guint8 (tvb, offset+4));
-            proto_tree_add_text (tree, tvb, offset+12, 4, "Block Length: %u",
-                                 tvb_get_ntohl (tvb, offset+12));
-            offset += 16;        /* increment the offset by 8 */
-            tot_len -= 16;       /* subtract by the block desc len */
+            /* XXX - does longlba affect this? */
+            if (payload_len < 1)
+                return;
+            proto_tree_add_text (tree, tvb, offset, 1, "Density Code: 0x%02x",
+                                 tvb_get_guint8 (tvb, offset));
+            offset += 1;
+            payload_len -= 1;
+
+            if (payload_len < 3)
+                return;
+            proto_tree_add_text (tree, tvb, offset, 3, "No. of Blocks: %u",
+                                 tvb_get_ntoh24 (tvb, offset));
+            offset += 3;
+            payload_len -= 3;
+
+            if (payload_len < 1)
+                return;
+            /* Reserved byte */
+            offset += 1;
+            payload_len -= 1;
+
+            if (payload_len < 3)
+                return;
+            proto_tree_add_text (tree, tvb, offset, 3, "Block Length: %u",
+                                 tvb_get_ntoh24 (tvb, offset));
+            offset += 3;
+            payload_len -= 3;
         }
         /* offset points to the start of the mode page */
-        while ((tot_len > offset) && tvb_bytes_exist (tvb, offset, 2)) {
-            offset += dissect_scsi_modepage (tvb, pinfo, tree, offset);
+        while ((payload_len > 0) && tvb_bytes_exist (tvb, offset, 2)) {
+            plen = dissect_scsi_modepage (tvb, pinfo, tree, offset);
+            offset += plen;
+            payload_len -= plen;
         }
     }
 }
@@ -1966,7 +2048,7 @@ dissect_scsi_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                          guint payload_len)
 {
     guint8 flags;
-    guint tot_len, desclen;
+    guint tot_len, desclen, plen;
     
     if (!tree)
         return;
@@ -2000,33 +2082,74 @@ dissect_scsi_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         tot_len = tvb_get_guint8 (tvb, offset);
         proto_tree_add_text (tree, tvb, offset, 1, "Mode Data Length: %u",
                              tot_len);
-        proto_tree_add_text (tree, tvb, offset+1, 1, "Medium Type: 0x%02x",
-                             tvb_get_guint8 (tvb, offset+1));
-        proto_tree_add_text (tree, tvb, offset+2, 1,
-                             "Device-Specific Parameter: 0x%02x",
-                             tvb_get_guint8 (tvb, offset+2));
-        desclen = tvb_get_guint8 (tvb, offset+3);
-        proto_tree_add_text (tree, tvb, offset+3, 1,
-                             "Block Descriptor Length: %u", desclen);
-        tot_len += offset;
-        offset += 4;
+        offset += 1;
+
         /* The actual payload is the min of the length in the response & the
          * space allocated by the initiator as specified in the request.
+         *
+         * XXX - the payload length includes the length field, so we
+         * really should subtract the length of the length field from
+         * the payload length - but can it really be zero here?
          */
         if (payload_len && (tot_len > payload_len))
             tot_len = payload_len;
+
+        if (tot_len < 1)
+            return;
+        proto_tree_add_text (tree, tvb, offset, 1, "Medium Type: 0x%02x",
+                             tvb_get_guint8 (tvb, offset));
+        offset += 1;
+        tot_len -= 1;
+
+        if (tot_len < 1)
+            return;
+        proto_tree_add_text (tree, tvb, offset, 1,
+                             "Device-Specific Parameter: 0x%02x",
+                             tvb_get_guint8 (tvb, offset));
+        offset += 1;
+        tot_len -= 1;
+
+        if (tot_len < 1)
+            return;
+        desclen = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_text (tree, tvb, offset, 1,
+                             "Block Descriptor Length: %u", desclen);
+        offset += 1;
+        tot_len -= 1;
+
         if (desclen) {
-            proto_tree_add_text (tree, tvb, offset, 4, "No. of Blocks: %u",
-                                 tvb_get_ntohl (tvb, offset));
-            proto_tree_add_text (tree, tvb, offset+4, 1, "Density Code: 0x%02x",
-                                 tvb_get_guint8 (tvb, offset+4));
-            proto_tree_add_text (tree, tvb, offset+5, 3, "Block Length: %u",
-                                 tvb_get_ntoh24 (tvb, offset+5));
-            offset += 8;        /* increment the offset by 8 */
+            if (tot_len < 1)
+                return;
+            proto_tree_add_text (tree, tvb, offset, 1, "Density Code: 0x%02x",
+                                 tvb_get_guint8 (tvb, offset));
+            offset += 1;
+            tot_len -= 1;
+
+            if (tot_len < 3)
+                return;
+            proto_tree_add_text (tree, tvb, offset, 3, "No. of Blocks: %u",
+                                 tvb_get_ntoh24 (tvb, offset));
+            offset += 3;
+            tot_len -= 3;
+
+            if (tot_len < 1)
+                return;
+            /* Reserved byte */
+            offset += 1;
+            tot_len -= 1;
+
+            if (tot_len < 3)
+                return;
+            proto_tree_add_text (tree, tvb, offset, 3, "Block Length: %u",
+                                 tvb_get_ntoh24 (tvb, offset));
+            offset += 3;
+            tot_len -= 3;
         }
         /* offset points to the start of the mode page */
-        while ((tot_len > offset) && tvb_bytes_exist (tvb, offset, 2)) {
-            offset += dissect_scsi_modepage (tvb, pinfo, tree, offset);
+        while ((tot_len > 0) && tvb_bytes_exist (tvb, offset, 2)) {
+            plen = dissect_scsi_modepage (tvb, pinfo, tree, offset);
+            offset += plen;
+            tot_len -= plen;
         }
     }
 }
@@ -2038,7 +2161,7 @@ dissect_scsi_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     guint8 flags;
     gboolean longlba;
-    guint tot_len, desclen;
+    guint tot_len, desclen, plen;
  
     if (!tree)
         return;
@@ -2073,35 +2196,81 @@ dissect_scsi_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         tot_len = tvb_get_ntohs (tvb, offset);
         proto_tree_add_text (tree, tvb, offset, 2, "Mode Data Length: %u",
                              tot_len);
-        proto_tree_add_text (tree, tvb, offset+2, 1, "Medium Type: 0x%02x",
-                             tvb_get_guint8 (tvb, offset+2));
-        proto_tree_add_text (tree, tvb, offset+3, 1,
-                             "Device-Specific Parameter: 0x%02x",
-                             tvb_get_guint8 (tvb, offset+3));
-        longlba = tvb_get_guint8 (tvb, offset+4) & 0x1;
-        proto_tree_add_text (tree, tvb, offset+4, 1, "LongLBA: %u", longlba);
-        desclen = tvb_get_guint8 (tvb, offset+6);
-        proto_tree_add_text (tree, tvb, offset+6, 1,
-                             "Block Descriptor Length: %u", desclen);
-        offset = 8;
-
+        offset += 2;
+        /* The actual payload is the min of the length in the response & the
+         * space allocated by the initiator as specified in the request.
+         *
+         * XXX - the payload length includes the length field, so we
+         * really should subtract the length of the length field from
+         * the payload length - but can it really be zero here?
+         */
         if (payload_len && (tot_len > payload_len))
             tot_len = payload_len;
 
+        if (tot_len < 1)
+            return;
+        proto_tree_add_text (tree, tvb, offset, 1, "Medium Type: 0x%02x",
+                             tvb_get_guint8 (tvb, offset));
+        offset += 1;
+        tot_len -= 1;
+
+        if (tot_len < 1)
+            return;
+        proto_tree_add_text (tree, tvb, offset, 1,
+                             "Device-Specific Parameter: 0x%02x",
+                             tvb_get_guint8 (tvb, offset));
+        offset += 1;
+        tot_len -= 1;
+
+        if (tot_len < 1)
+            return;
+        longlba = tvb_get_guint8 (tvb, offset) & 0x1;
+        proto_tree_add_text (tree, tvb, offset, 1, "LongLBA: %u", longlba);
+        offset += 2;	/* skip LongLBA byte and reserved byte */
+        tot_len -= 2;
+
+        if (tot_len < 1)
+            return;
+        desclen = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_text (tree, tvb, offset, 1,
+                             "Block Descriptor Length: %u", desclen);
+        offset += 1;
+        tot_len -= 1;
+
         if (desclen) {
-            proto_tree_add_text (tree, tvb, offset, 8, "No. of Blocks: %s",
-                                 bytes_to_str (tvb_get_ptr (tvb, offset, 8),
-                                               8));
-            proto_tree_add_text (tree, tvb, offset+8, 1, "Density Code: 0x%02x",
-                                 tvb_get_guint8 (tvb, offset+4));
-            proto_tree_add_text (tree, tvb, offset+12, 4, "Block Length: %u",
-                                 tvb_get_ntohl (tvb, offset+12));
-            offset += 16;        /* increment the offset by 8 */
-            tot_len -= 16;       /* subtract by the block desc len */
+            /* XXX - does longlba affect this? */
+            if (tot_len < 1)
+                return;
+            proto_tree_add_text (tree, tvb, offset, 1, "Density Code: 0x%02x",
+                                 tvb_get_guint8 (tvb, offset));
+            offset += 1;
+            tot_len -= 1;
+
+            if (tot_len < 3)
+                return;
+            proto_tree_add_text (tree, tvb, offset, 3, "No. of Blocks: %u",
+                                 tvb_get_ntoh24 (tvb, offset));
+            offset += 3;
+            tot_len -= 3;
+
+            if (tot_len < 1)
+                return;
+            /* Reserved byte */
+            offset += 1;
+            tot_len -= 1;
+
+            if (tot_len < 3)
+                return;
+            proto_tree_add_text (tree, tvb, offset, 3, "Block Length: %u",
+                                 tvb_get_ntoh24 (tvb, offset));
+            offset += 3;
+            tot_len -= 3;
         }
         /* offset points to the start of the mode page */
-        while ((tot_len > offset) && tvb_bytes_exist (tvb, offset, 2)) {
-            offset += dissect_scsi_modepage (tvb, pinfo, tree, offset);
+        while ((tot_len > 0) && tvb_bytes_exist (tvb, offset, 2)) {
+            plen = dissect_scsi_modepage (tvb, pinfo, tree, offset);
+            offset += plen;
+            tot_len -= plen;
         }
     }
 }
