@@ -1,7 +1,7 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id: print.h,v 1.9 1999/07/23 21:09:23 guy Exp $
+ * $Id: print.h,v 1.10 1999/09/01 03:04:12 gram Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -30,10 +30,6 @@
 
 /* Functions in print.h */
 
-GtkWidget *printer_prefs_show();
-void printer_prefs_ok(GtkWidget *w);
-void printer_prefs_save(GtkWidget *w);
-void printer_prefs_cancel(GtkWidget *w);
 FILE *open_print_dest(int to_file, const char *dest);
 void close_print_dest(int to_file, FILE *fh);
 void print_preamble(FILE *fh);

@@ -32,10 +32,9 @@ ethereal_SOURCES = \
 	filter.h       \
 	follow.c       \
 	follow.h       \
+	globals.h      \
 	gtkpacket.c    \
 	gtkpacket.h    \
-	menu.c         \
-	menu.h         \
 	packet-aarp.c  \
 	packet-arp.c   \
 	packet-atalk.c \

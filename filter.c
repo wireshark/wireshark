@@ -1,7 +1,7 @@
 /* filter.c
  * Routines for managing filter sets
  *
- * $Id: filter.c,v 1.14 1999/07/13 03:08:05 gram Exp $
+ * $Id: filter.c,v 1.15 1999/09/01 03:04:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,7 +44,6 @@
 #include "filter.h"
 #include "packet.h"
 #include "file.h"
-#include "menu.h"
 #include "prefs.h"
 
 #define E_FILT_NAME_KEY "filter_name"

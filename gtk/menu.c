@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.34 1999/08/24 16:27:23 gram Exp $
+ * $Id: menu.c,v 1.1 1999/09/01 03:04:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

@@ -1,7 +1,7 @@
 /* menu.h
  * Menu definitions
  *
- * $Id: menu.h,v 1.5 1999/07/13 03:08:06 gram Exp $
+ * $Id: menu.h,v 1.1 1999/09/01 03:04:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

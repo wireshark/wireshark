@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.85 1999/08/28 23:47:42 gram Exp $
+ * $Id: file.c,v 1.86 1999/09/01 03:04:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -70,7 +70,7 @@
 
 #include "ethereal.h"
 #include "column.h"
-#include "menu.h"
+#include "gtk/menu.h"
 #include "packet.h"
 #include "print.h"
 #include "file.h"
