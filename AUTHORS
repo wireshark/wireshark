@@ -777,6 +777,7 @@ Motonori Shindo <mshindo[AT]mshindo.net> {
 	    when dissecting L2TP
 	L2TP Dissconnect Cause Information AVP support
 	PPP CCP support
+	PPP compressed packet support
 }
 
 Terje Krogdahl <tekr[AT]nextra.com> {
