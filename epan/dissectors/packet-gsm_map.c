@@ -43,9 +43,9 @@
 #include <string.h>
 
 #include "epan/packet.h"
+#include <epan/prefs.h>
 #include <epan/tap.h>
 #include "asn1.h"
-
 #include "packet-tcap.h"
 #include "packet-gsm_ss.h"
 #include "packet-gsm_map.h"
@@ -314,6 +314,17 @@ static gint ett_params = -1;
 static gint ett_problem = -1;
 static gint ett_opr_code = -1;
 static gint ett_err_code = -1;
+
+/* Preferenc settings default */
+static guint tcap_itu_ssn1 = 6;
+static guint tcap_itu_ssn2 = 7;
+static guint tcap_itu_ssn3 = 8;
+static guint tcap_itu_ssn4 = 9;
+
+static guint global_tcap_itu_ssn1 = 6;
+static guint global_tcap_itu_ssn2 = 7;
+static guint global_tcap_itu_ssn3 = 8;
+static guint global_tcap_itu_ssn4 = 9;
 
 typedef struct dgt_set_t
 {
@@ -3008,12 +3019,41 @@ dissect_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 /* Register the protocol with Ethereal */
+void
+proto_reg_handoff_map(void)
+{
+    dissector_handle_t	map_handle;
+	static int map_prefs_initialized = FALSE;
+
+    map_handle = create_dissector_handle(dissect_map, proto_map);
+
+	if (!map_prefs_initialized) {
+		map_prefs_initialized = TRUE;
+	}
+	else {
+		dissector_delete("tcap.itu_ssn", tcap_itu_ssn1, map_handle);
+		dissector_delete("tcap.itu_ssn", tcap_itu_ssn2, map_handle);
+		dissector_delete("tcap.itu_ssn", tcap_itu_ssn3, map_handle);
+		dissector_delete("tcap.itu_ssn", tcap_itu_ssn4, map_handle);
+	}
+		/* Set our sub system number for future use */
+	tcap_itu_ssn1 = global_tcap_itu_ssn1;
+	tcap_itu_ssn2 = global_tcap_itu_ssn2;
+	tcap_itu_ssn3 = global_tcap_itu_ssn3;
+	tcap_itu_ssn4 = global_tcap_itu_ssn4;
+
+    dissector_add("tcap.itu_ssn", tcap_itu_ssn1, map_handle);
+    dissector_add("tcap.itu_ssn", tcap_itu_ssn2, map_handle);
+    dissector_add("tcap.itu_ssn", tcap_itu_ssn3, map_handle);
+    dissector_add("tcap.itu_ssn", tcap_itu_ssn4, map_handle);
+}
 
 void
 proto_register_map(void)
 {
     guint		i;
     gint		last_offset;
+	module_t	*map_module;
 
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] =
@@ -3130,16 +3170,26 @@ proto_register_map(void)
 	FT_UINT8, BASE_DEC);
 
     gsm_map_tap = register_tap("gsm_map");
+
+	/* Register our configuration options, particularly our ports */
+
+	map_module = prefs_register_protocol(proto_map, proto_reg_handoff_map);
+	prefs_register_uint_preference(map_module, "tcap.itu_ssn1",
+		"Subsystem number used for GSM MAP 1",
+		"Set Subsystem number used for GSM MAP",
+		10, &global_tcap_itu_ssn1);
+	prefs_register_uint_preference(map_module, "tcap.itu_ssn2",
+		"Subsystem number used for GSM MAP 2",
+		"Set Subsystem number used for GSM MAP",
+		10, &global_tcap_itu_ssn2);
+	prefs_register_uint_preference(map_module, "tcap.itu_ssn3",
+		"Subsystem number used for GSM MAP 3",
+		"Set Subsystem number used for GSM MAP",
+		10, &global_tcap_itu_ssn3);
+	prefs_register_uint_preference(map_module, "tcap.itu_ssn4",
+		"Subsystem number used for GSM MAP 4",
+		"Set Subsystem number used for GSM MAP",
+		10, &global_tcap_itu_ssn4);
+
 }
 
-void
-proto_reg_handoff_map(void)
-{
-    dissector_handle_t	map_handle;
-
-    map_handle = create_dissector_handle(dissect_map, proto_map);
-    dissector_add("tcap.itu_ssn", 6, map_handle);
-    dissector_add("tcap.itu_ssn", 7, map_handle);
-    dissector_add("tcap.itu_ssn", 8, map_handle);
-    dissector_add("tcap.itu_ssn", 9, map_handle);
-}
