@@ -26,6 +26,9 @@ RequestedInfo/subscriberState      subscriberStateFlag
 AdditionalSignalInfo/signalInfo    ext_signalInfo
 ForwardingInfo/forwardingFeatureList forwardingFeatureList_1_32
 SendIdentificationRes/authenticationSetList sendId_authenticationSetList
+AnyTimeSubscriptionInterrogationArg/requestedSubscriptionInfo/supportedVLR-CAMEL-Phases supportedVLR-CAMEL-Phases_flg
+AnyTimeSubscriptionInterrogationArg/requestedSubscriptionInfo/supportedSGSN-CAMEL-Phases supportedSGSN-CAMEL-Phases_flg
+RequestedInfo/imei imei_flg
 #----------------------------------------------------------------------------------------
 #.FN_BODY Sm-RP-UI
 

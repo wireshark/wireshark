@@ -456,8 +456,21 @@ Odb-GeneralData ::= BIT STRING {
   internationalECTBarred  (11 ), 
   interzonalECTBarred  (12 ), 
   doublyChargeableECTBarred  (13 ), 
-  multipleECTBarred  (14 )}
-
+  multipleECTBarred  (14 ),
+  allPacketOrientedServicesBarred  (15 ), 
+  roamerAccessToHPLMN-AP-Barred  (16 ), 
+  roamerAccessToVPLMN-AP-Barred  (17 ), 
+  roamingOutsidePLMNOG-CallsBarred  (18 ), 
+  allIC-CallsBarred  (19 ), 
+  roamingOutsidePLMNIC-CallsBarred  (20 ), 
+  roamingOutsidePLMNICountryIC-CallsBarred  (21 ), 
+  roamingOutsidePLMN-Barred  (22 ), 
+  roamingOutsidePLMN-CountryBarred  (23 ), 
+  registrationAllCF-Barred  (24 ), 
+  registrationCFNotToHPLMN-Barred  (25 ), 
+  registrationInterzonalCF-Barred  (26 ), 
+  registrationInterzonalCFNotToHPLMN-Barred  (27 ), 
+  registrationInternationalCF-Barred  (28 )}
 Odb-HPLMN-Data ::= BIT STRING {
   plmnSpecificBarringType1  (0 ), 
   plmnSpecificBarringType2  (1 ), 
@@ -470,7 +483,10 @@ SubscriberStatus ::= ENUMERATED {
 
 BcsmTriggerDetectionPoint ::= ENUMERATED {
   collectedInfo    ( 2 ), 
+  routeSelectFailure    (4 ),
   termAttemptAuthorized    ( 12 ), 
+  tBusy                    (13 ), 
+  tNoAnswer                (14 ),  
   ...  }
 
 ServiceKey ::= INTEGER ( 0 .. 2147483647 )
@@ -540,11 +556,7 @@ InsertSubscriberDataArg ::= SEQUENCE {
                   defaultPriority           INTEGER ( 0 .. 15 ), 
                   extensionContainer   ExtensionContainer OPTIONAL, 
                   ... }} OPTIONAL, 
-         odb-Data                                    [8] IMPLICIT SEQUENCE {
-            odb-GeneralData      Odb-GeneralData, 
-            odb-HPLMN-Data       Odb-HPLMN-Data OPTIONAL, 
-            extensionContainer   ExtensionContainer OPTIONAL, 
-            ... } OPTIONAL, 
+         odb-Data                                    [8] IMPLICIT Odb-data OPTIONAL, 
          roamingRestrictionDueToUnsupportedFeature   [9] IMPLICIT NULL OPTIONAL, 
          regionalSubscriptionData                    [10] IMPLICIT SEQUENCE  ( SIZE( 1 .. 10 ) ) OF
             OCTET STRING ( SIZE( 2 ) ) OPTIONAL, 
@@ -564,12 +576,7 @@ InsertSubscriberDataArg ::= SEQUENCE {
             extensionContainer            [1] IMPLICIT ExtensionContainer OPTIONAL, 
             ... , 
             ss-CSI                        [2] IMPLICIT SEQUENCE {
-               ss-CamelData         SEQUENCE {
-                  ss-EventList         SEQUENCE  ( SIZE( 1 .. 10 ) ) OF
-                     OCTET STRING ( SIZE( 1 ) ), 
-                  gsmSCF-Address       GsmSCF-Address, 
-                  extensionContainer   [0] IMPLICIT ExtensionContainer OPTIONAL, 
-                  ... }, 
+               ss-CamelData         Ss-CamelData, 
                extensionContainer   ExtensionContainer OPTIONAL, 
                ... } OPTIONAL, 
             o-BcsmCamelTDP-CriteriaList   [4] IMPLICIT O-BcsmCamelTDP-CriteriaList OPTIONAL, 
@@ -584,7 +591,7 @@ InsertSubscriberDataArg ::= SEQUENCE {
                   pdp-ContextId         INTEGER ( 1 .. 50 ), 
                   pdp-Type              [16] IMPLICIT OCTET STRING ( SIZE( 2 ) ), 
                   pdp-Address           [17] IMPLICIT OCTET STRING ( SIZE( 1 .. 16 ) ) OPTIONAL, 
-                  qos-Subscribed        [18] IMPLICIT OCTET STRING ( SIZE( 3 ) ), 
+                  qos-Subscribed        [18] IMPLICIT Qos-Subscribed, 
                   vplmnAddressAllowed   [19] IMPLICIT NULL OPTIONAL, 
                   apn                   [20] IMPLICIT OCTET STRING ( SIZE( 2 .. 63 ) ), 
                   extensionContainer    [21] IMPLICIT ExtensionContainer OPTIONAL, 
@@ -670,6 +677,13 @@ InsertSubscriberDataRes ::= SEQUENCE {
 -- unidentifiedSubscriber   localValue : 5}
 -- ::= localValue : 7
 -- Ethereal adaptation --
+Ss-CamelData ::= SEQUENCE {
+                  ss-EventList         SEQUENCE  ( SIZE( 1 .. 10 ) ) OF
+                     OCTET STRING ( SIZE( 1 ) ), 
+                  gsmSCF-Address       GsmSCF-Address, 
+                  extensionContainer   [0] IMPLICIT ExtensionContainer OPTIONAL, 
+                  ... }
+
 CliRestrictionOption ::= ENUMERATED {
                   permanent                     ( 0 ), 
                   temporaryDefaultRestricted    ( 1 ), 
@@ -692,14 +706,17 @@ ForwardedToSubaddress ::= OCTET STRING ( SIZE( 1 .. 21 ) )
 
 CallBarringInfo ::= SEQUENCE {
                   ss-Code                  Ss-Code, 
-                  callBarringFeatureList   SEQUENCE  ( SIZE( 1 .. 32 ) ) OF
+                  callBarringFeatureList   CallBarringFeatureList, 
+                  extensionContainer   ExtensionContainer OPTIONAL, 
+       ... }
+
+CallBarringFeatureList ::= SEQUENCE  ( SIZE( 1 .. 32 ) ) OF
                      SEQUENCE {
                         basicService         BasicService OPTIONAL, 
                         ss-Status            [4] IMPLICIT Ss-Status, 
                         extensionContainer   ExtensionContainer OPTIONAL, 
-                        ... }, 
-                  extensionContainer   ExtensionContainer OPTIONAL, 
-       ... }
+                        ... }
+
 ForwardingFeatureList ::= SEQUENCE {
                         basicService            BasicService OPTIONAL, 
                         ss-Status               [4] IMPLICIT Ss-Status, 
@@ -708,7 +725,11 @@ ForwardingFeatureList ::= SEQUENCE {
                         forwardingOptions       [6] IMPLICIT ForwardingOptions OPTIONAL, 
                         noReplyConditionTime    [7] IMPLICIT INTEGER OPTIONAL, 
                         extensionContainer      [9] IMPLICIT ExtensionContainer OPTIONAL, 
+                        longForwardedToNumber   [10] IMPLICIT LongForwardedToNumber OPTIONAL,
                         ... }
+
+LongForwardedToNumber ::= OCTET STRING (  SIZE (1 .. 20 ) ) 
+
 NotificationToMSUser ::= ENUMERATED {
                      notifyLocationAllowed                             ( 0 ), 
                      notifyAndVerify-LocationAllowedIfNoResponse       ( 1 ), 
@@ -935,11 +956,7 @@ SendRoutingInfoRes ::= [3] IMPLICIT SEQUENCE {
             extensionContainer       [2] IMPLICIT ExtensionContainer OPTIONAL,
             ... } OPTIONAL, 
          msisdn                            [12] IMPLICIT Msisdn OPTIONAL, 
-         numberPortabilityStatus           [13] IMPLICIT ENUMERATED {
-            notKnownToBePorted                     ( 0 ), 
-            ownNumberPortedOut                     ( 1 ), 
-            foreignNumberPortedToForeignNetwork    ( 2 ), 
-            ...  } OPTIONAL}
+         numberPortabilityStatus           [13] IMPLICIT NumberPortabilityStatus OPTIONAL}
 --   ERRORS {
 -- systemFailure   localValue : 34, 
 -- dataMissing   localValue : 35, 
@@ -983,13 +1000,111 @@ LocationInformation ::= SEQUENCE {
                   cellIdFixedLength     [0] IMPLICIT OCTET STRING ( SIZE( 7 ) ), 
                   laiFixedLength        [1] IMPLICIT OCTET STRING ( SIZE( 5 ) )} OPTIONAL, 
                extensionContainer         [4] IMPLICIT ExtensionContainer OPTIONAL,
+               selectedLSA-Id             [5] IMPLICIT OCTET STRING (  SIZE (3 ) ) OPTIONAL, 
+               msc-Number                 [6] IMPLICIT Msc-Number OPTIONAL, 
+               geodeticInformation        [7] IMPLICIT OCTET STRING (  SIZE (10 ) ) OPTIONAL, 
+               currentLocationRetrieved   [8] IMPLICIT NULL OPTIONAL, 
+               sai-Present                [9] IMPLICIT NULL OPTIONAL, 
                ... }
 SubscriberInfo ::=  SEQUENCE {
-            locationInformation   [0] IMPLICIT LocationInformation OPTIONAL, 
-            subscriberState       [1] SubscriberState OPTIONAL, 
-            extensionContainer    [2] IMPLICIT ExtensionContainer OPTIONAL,
-            ... } 
+         locationInformation   [0] IMPLICIT LocationInformation OPTIONAL, 
+         subscriberState       [1] SubscriberState OPTIONAL, 
+         extensionContainer    [2] IMPLICIT ExtensionContainer OPTIONAL,
+         locationInformationGPRS   [3] IMPLICIT SEQUENCE {
+            cellGlobalIdOrServiceAreaIdOrLAI   [0] CHOICE {
+               cellGlobalIdOrServiceAreaIdFixedLength     [0] IMPLICIT OCTET STRING (  SIZE (7 ) ), 
+               laiFixedLength                             [1] IMPLICIT OCTET STRING (  SIZE (5 ) )} OPTIONAL, 
+            routeingAreaIdentity               [1] IMPLICIT OCTET STRING (  SIZE (6 ) ) OPTIONAL, 
+            geographicalInformation            [2] IMPLICIT OCTET STRING (  SIZE (8 ) ) OPTIONAL, 
+            sgsn-Number                        [3] IMPLICIT Sgsn-Number OPTIONAL, 
+            selectedLSAIdentity                [4] IMPLICIT OCTET STRING (  SIZE (3 ) ) OPTIONAL, 
+            extensionContainer                 [5] IMPLICIT ExtensionContainer OPTIONAL, 
+            ... , 
+            sai-Present                        [6] IMPLICIT NULL OPTIONAL, 
+            geodeticInformation                [7] IMPLICIT OCTET STRING (  SIZE (10 ) ) OPTIONAL, 
+            currentLocationRetrieved           [8] IMPLICIT NULL OPTIONAL, 
+            ageOfLocationInformation           [9] IMPLICIT INTEGER ( 0 .. 32767 ) OPTIONAL} OPTIONAL, 
+         ps-SubscriberState        [4] CHOICE {
+            notProvidedFromSGSN                    [0] IMPLICIT NULL, 
+            ps-Detached                            [1] IMPLICIT NULL, 
+            ps-AttachedNotReachableForPaging       [2] IMPLICIT NULL, 
+            ps-AttachedReachableForPaging          [3] IMPLICIT NULL, 
+            ps-PDP-ActiveNotReachableForPaging     [4] IMPLICIT SEQUENCE  (  SIZE (1 .. 50 ) ) OF
+               SEQUENCE {
+                  pdp-ContextIdentifier     [0] IMPLICIT INTEGER ( 1 .. 50 ), 
+                  pdp-ContextActive         [1] IMPLICIT NULL OPTIONAL, 
+                  pdp-Type                  [2] IMPLICIT OCTET STRING (  SIZE (2 ) ), 
+                  pdp-Address               [3] IMPLICIT OCTET STRING (  SIZE (1 .. 16 ) ) OPTIONAL, 
+                  apn-Subscribed            [4] IMPLICIT OCTET STRING (  SIZE (2 .. 63 ) ) OPTIONAL, 
+                  apn-InUse                 [5] IMPLICIT OCTET STRING (  SIZE (2 .. 63 ) ) OPTIONAL, 
+                  nsapi                     [6] IMPLICIT INTEGER ( 0 .. 15 ) OPTIONAL, 
+                  transactionId             [7] IMPLICIT OCTET STRING (  SIZE (1 .. 2 ) ) OPTIONAL, 
+                  teid-ForGnAndGp           [8] IMPLICIT OCTET STRING (  SIZE (4 ) ) OPTIONAL, 
+                  teid-ForIu                [9] IMPLICIT OCTET STRING (  SIZE (4 ) ) OPTIONAL, 
+                  ggsn-Address              [10] IMPLICIT Ggsn-Address OPTIONAL, 
+                  qos-Subscribed            [11] IMPLICIT Qos-Subscribed OPTIONAL, 
+                  qos-Requested             [12] IMPLICIT OCTET STRING (  SIZE (1 .. 9 ) ) OPTIONAL, 
+                  qos-Negotiated            [13] IMPLICIT OCTET STRING (  SIZE (1 .. 9 ) ) OPTIONAL, 
+                  chargingId                [14] IMPLICIT OCTET STRING (  SIZE (4 ) ) OPTIONAL, 
+                  chargingCharacteristics   [15] IMPLICIT OCTET STRING (  SIZE (2 ) ) OPTIONAL, 
+                  rnc-Address               [16] IMPLICIT OCTET STRING (  SIZE (5 .. 17 ) ) OPTIONAL, 
+                  extensionContainer        [17] IMPLICIT ExtensionContainer OPTIONAL, 
+                  ... , 
+                  qos2-Subscribed           [18] IMPLICIT OCTET STRING (  SIZE (1 .. 3 ) ) OPTIONAL, 
+                  qos2-Requested            [19] IMPLICIT OCTET STRING (  SIZE (1 .. 3 ) ) OPTIONAL, 
+                  qos2-Negotiated           [20] IMPLICIT OCTET STRING (  SIZE (1 .. 3 ) ) OPTIONAL}, 
+            ps-PDP-ActiveReachableForPaging        [5] IMPLICIT SEQUENCE  (  SIZE (1 .. 50 ) ) OF
+               SEQUENCE {
+                  pdp-ContextIdentifier     [0] IMPLICIT INTEGER ( 1 .. 50 ), 
+                  pdp-ContextActive         [1] IMPLICIT NULL OPTIONAL, 
+                  pdp-Type                  [2] IMPLICIT OCTET STRING (  SIZE (2 ) ), 
+                  pdp-Address               [3] IMPLICIT OCTET STRING (  SIZE (1 .. 16 ) ) OPTIONAL, 
+                  apn-Subscribed            [4] IMPLICIT OCTET STRING (  SIZE (2 .. 63 ) ) OPTIONAL, 
+                  apn-InUse                 [5] IMPLICIT OCTET STRING (  SIZE (2 .. 63 ) ) OPTIONAL, 
+                  nsapi                     [6] IMPLICIT INTEGER ( 0 .. 15 ) OPTIONAL, 
+                  transactionId             [7] IMPLICIT OCTET STRING (  SIZE (1 .. 2 ) ) OPTIONAL, 
+                  teid-ForGnAndGp           [8] IMPLICIT OCTET STRING (  SIZE (4 ) ) OPTIONAL, 
+                  teid-ForIu                [9] IMPLICIT OCTET STRING (  SIZE (4 ) ) OPTIONAL, 
+                  ggsn-Address              [10] IMPLICIT Ggsn-Address OPTIONAL, 
+                  qos-Subscribed            [11] IMPLICIT Qos-Subscribed OPTIONAL, 
+                  qos-Requested             [12] IMPLICIT OCTET STRING (  SIZE (1 .. 9 ) ) OPTIONAL, 
+                  qos-Negotiated            [13] IMPLICIT OCTET STRING (  SIZE (1 .. 9 ) ) OPTIONAL, 
+                  chargingId                [14] IMPLICIT OCTET STRING (  SIZE (4 ) ) OPTIONAL, 
+                  chargingCharacteristics   [15] IMPLICIT OCTET STRING (  SIZE (2 ) ) OPTIONAL, 
+                  rnc-Address               [16] IMPLICIT OCTET STRING (  SIZE (5 .. 17 ) ) OPTIONAL, 
+                  extensionContainer        [17] IMPLICIT ExtensionContainer OPTIONAL, 
+                  ... , 
+                  qos2-Subscribed           [18] IMPLICIT OCTET STRING (  SIZE (1 .. 3 ) ) OPTIONAL, 
+                  qos2-Requested            [19] IMPLICIT OCTET STRING (  SIZE (1 .. 3 ) ) OPTIONAL, 
+                  qos2-Negotiated           [20] IMPLICIT OCTET STRING (  SIZE (1 .. 3 ) ) OPTIONAL}, 
+            netDetNotReachable                     ENUMERATED {
+               msPurged          (0 ), 
+               imsiDetached      (1 ), 
+               restrictedArea    (2 ), 
+               notRegistered     (3 )}} OPTIONAL, 
+         imei                      [5] IMPLICIT Imei OPTIONAL, 
+         ms-Classmark2             [6] IMPLICIT OCTET STRING (  SIZE (3 ) ) OPTIONAL, 
+         gprs-MS-Class             [7] IMPLICIT SEQUENCE {
+            mSNetworkCapability       [0] IMPLICIT OCTET STRING (  SIZE (1 .. 8 ) ), 
+            mSRadioAccessCapability   [1] IMPLICIT OCTET STRING (  SIZE (1 .. 50 ) ) OPTIONAL} OPTIONAL, 
+         mnpInfoRes                [8] IMPLICIT SEQUENCE {
+            routeingNumber            [0] IMPLICIT OCTET STRING (  SIZE (1 .. 5 ) ) OPTIONAL, 
+            imsi                      [1] IMPLICIT Imsi OPTIONAL, 
+            msisdn                    [2] IMPLICIT Msisdn OPTIONAL, 
+            numberPortabilityStatus   [3] IMPLICIT NumberPortabilityStatus OPTIONAL, 
+            extensionContainer        [4] IMPLICIT ExtensionContainer OPTIONAL},
+         ... } 
 RoamingNumber ::= OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ) 
+
+NumberPortabilityStatus ::=  ENUMERATED {
+               notKnownToBePorted                     (0 ), 
+               ownNumberPortedOut                     (1 ), 
+               foreignNumberPortedToForeignNetwork    (2 ), 
+               ... , 
+               ownNumberNotPortedOut                  (4 ), 
+               foreignNumberPortedIn                  (5 )
+			   }
+Qos-Subscribed ::= OCTET STRING (  SIZE (1 .. 9 ) )
 
 AdditionalSignalInfo ::= SEQUENCE {
             ext-ProtocolId       ENUMERATED {
@@ -1521,7 +1636,8 @@ RoutingInfoForSMRes ::= SEQUENCE {
             gprsNodeIndicator    [5] IMPLICIT NULL OPTIONAL, 
             additional-Number    [6] CHOICE {
                msc-Number      [0] IMPLICIT Msc-Number, 
-               sgsn-Number     [1] IMPLICIT Sgsn-Number} OPTIONAL}, 
+               sgsn-Number     [1] IMPLICIT Sgsn-Number} OPTIONAL
+			   }, 
          extensionContainer     [4] IMPLICIT ExtensionContainer OPTIONAL,
          ... }
 --   ERRORS {
@@ -1699,13 +1815,19 @@ RequestedInfo ::= SEQUENCE {
             locationInformation   [0] IMPLICIT NULL OPTIONAL, 
             subscriberState       [1] IMPLICIT NULL OPTIONAL, 
             extensionContainer    [2] IMPLICIT ExtensionContainer OPTIONAL,
-            ... }
+            currentLocation       [3] IMPLICIT NULL OPTIONAL, 
+            requestedDomain       [4] IMPLICIT ENUMERATED {
+               cs-Domain    (0 ), 
+               ps-Domain    (1 ), 
+               ... } OPTIONAL, 
+            imei                  [6] IMPLICIT NULL OPTIONAL, 
+            ms-classmark          [5] IMPLICIT NULL OPTIONAL, 
+            mnpRequestedInfo      [7] IMPLICIT NULL OPTIONAL,
+						... }
 --anyTimeInterrogation OPERATION
 --   ARGUMENT
 AnyTimeInterrogationArg ::= SEQUENCE {
-         subscriberIdentity   [0] CHOICE {
-            imsi         [0] IMPLICIT Imsi, 
-            msisdn       [1] IMPLICIT Msisdn}, 
+         subscriberIdentity   [0] SubscriberIdentity, 
          requestedInfo        [1] IMPLICIT RequestedInfo, 
          gsmSCF-Address       [3] IMPLICIT GsmSCF-Address, 
          extensionContainer   [2] IMPLICIT ExtensionContainer OPTIONAL,
@@ -1722,6 +1844,424 @@ AnyTimeInterrogationRes ::= SEQUENCE {
 -- unexpectedDataValue   localValue : 36, 
 -- unknownSubscriber   localValue : 1}
 -- ::= localValue : 71
+
+-- anyTimeSubscriptionInterrogation OPERATION  ::=  {
+--   ARGUMENT     SEQUENCE {
+AnyTimeSubscriptionInterrogationArg ::= SEQUENCE {
+      subscriberIdentity          [0] SubscriberIdentity, 
+      requestedSubscriptionInfo   [1] IMPLICIT SEQUENCE {
+         requestedSS-Info                            [1] IMPLICIT SEQUENCE {
+            ss-Code             Ss-Code, 
+            basicService        BasicService, 
+            ... , 
+            longFTN-Supported   [4] IMPLICIT NULL OPTIONAL} OPTIONAL, 
+         odb                                         [2] IMPLICIT NULL OPTIONAL, 
+         requestedCAMEL-SubscriptionInfo             [3] IMPLICIT ENUMERATED {
+            o-CSI         (0 ), 
+            t-CSI         (1 ), 
+            vt-CSI        (2 ), 
+            tif-CSI       (3 ), 
+            gprs-CSI      (4 ), 
+            mo-sms-CSI    (5 ), 
+            ss-CSI        (6 ), 
+            m-CSI         (7 ), 
+            d-csi         (8 )} OPTIONAL, 
+         supportedVLR-CAMEL-Phases                   [4] IMPLICIT NULL OPTIONAL, 
+         supportedSGSN-CAMEL-Phases                  [5] IMPLICIT NULL OPTIONAL, 
+         extensionContainer                          [6] ExtensionContainer OPTIONAL, 
+         ... , 
+         additionalRequestedCAMEL-SubscriptionInfo   [7] IMPLICIT AdditionalRequestedCAMEL-SubscriptionInfo OPTIONAL}, 
+      gsmSCF-Address              [2] IMPLICIT GsmSCF-Address, 
+      extensionContainer          [3] IMPLICIT ExtensionContainer OPTIONAL, 
+      longFTN-Supported           [4] IMPLICIT NULL OPTIONAL, 
+      ... }
+
+--   RESULT     SEQUENCE {
+AnyTimeSubscriptionInterrogationRes ::= SEQUENCE {
+      callForwardingData           [1] IMPLICIT SEQUENCE {
+         forwardingFeatureList   ForwardingFeatureList OPTIONAL, 
+         notificationToCSE       NULL OPTIONAL, 
+         extensionContainer      [0] IMPLICIT ExtensionContainer OPTIONAL, 
+         ... } OPTIONAL, 
+      callBarringData              [2] IMPLICIT SEQUENCE {
+         callBarringFeatureList         CallBarringFeatureList, 
+ --        password                       NumericString ( FROM ("0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9" ) |  SIZE (4 ) ) OPTIONAL, 
+         password                       NumericString  OPTIONAL, 
+         wrongPasswordAttemptsCounter   INTEGER ( 0 .. 4 ) OPTIONAL, 
+         notificationToCSE              NULL OPTIONAL, 
+         extensionContainer             ExtensionContainer OPTIONAL, 
+         ... } OPTIONAL, 
+      odb-Info                     [3] IMPLICIT SEQUENCE {
+         odb-Data             Odb-data, 
+         notificationToCSE    NULL OPTIONAL, 
+         extensionContainer   ExtensionContainer OPTIONAL, 
+         ... } OPTIONAL, 
+      camel-SubscriptionInfo       [4] IMPLICIT SEQUENCE {
+         o-CSI                               [0] IMPLICIT O-CSI OPTIONAL, 
+         o-BcsmCamelTDP-CriteriaList         [1] IMPLICIT SEQUENCE  (  SIZE (1 .. 10 ) ) OF
+            SEQUENCE {
+               o-BcsmTriggerDetectionPoint   ENUMERATED {
+                  collectedInfo         (2 ), 
+                  ... , 
+                  routeSelectFailure    (4 )}, 
+               destinationNumberCriteria     [0] IMPLICIT DestinationNumberCriteria OPTIONAL, 
+               basicServiceCriteria          [1] IMPLICIT BasicServiceCriteria OPTIONAL, 
+               callTypeCriteria              [2] IMPLICIT CallTypeCriteria OPTIONAL, 
+               ... , 
+               o-CauseValueCriteria          [3] IMPLICIT O-CauseValueCriteria OPTIONAL, 
+               extensionContainer            [4] IMPLICIT ExtensionContainer OPTIONAL
+			   } OPTIONAL, 
+         d-CSI                               [2] IMPLICIT SEQUENCE {
+            dp-AnalysedInfoCriteriaList   [0] IMPLICIT Dp-AnalysedInfoCriteriaList OPTIONAL, 
+            camelCapabilityHandling       [1] IMPLICIT INTEGER ( 1 .. 16 ) OPTIONAL, 
+            extensionContainer            [2] IMPLICIT ExtensionContainer OPTIONAL, 
+            notificationToCSE             [3] IMPLICIT NULL OPTIONAL, 
+            csi-Active                    [4] IMPLICIT NULL OPTIONAL, 
+            ... } OPTIONAL, 
+         t-CSI                               [3] IMPLICIT SEQUENCE {
+            t-BcsmCamelTDPDataList    BcsmCamelTDPDataList, 
+            extensionContainer        ExtensionContainer OPTIONAL, 
+            ... , 
+            camelCapabilityHandling   [0] IMPLICIT INTEGER ( 1 .. 16 ) OPTIONAL, 
+            notificationToCSE         [1] IMPLICIT NULL OPTIONAL, 
+            csi-Active                [2] IMPLICIT NULL OPTIONAL} OPTIONAL, 
+         t-BCSM-CAMEL-TDP-CriteriaList       [4] IMPLICIT SEQUENCE  (  SIZE (1 .. 10 ) ) OF
+            SEQUENCE {
+               t-BCSM-TriggerDetectionPoint   ENUMERATED {
+                  termAttemptAuthorized    (12 ), 
+                  ... , 
+                  tBusy                    (13 ), 
+                  tNoAnswer                (14 )}, 
+               basicServiceCriteria           [0] IMPLICIT BasicServiceCriteria OPTIONAL, 
+               t-CauseValueCriteria           [1] IMPLICIT T-CauseValueCriteria OPTIONAL, 
+               ... } OPTIONAL, 
+         vt-CSI                              [5] IMPLICIT SEQUENCE {
+            t-BcsmCamelTDPDataList    BcsmCamelTDPDataList, 
+            extensionContainer        ExtensionContainer OPTIONAL, 
+            ... , 
+            camelCapabilityHandling   [0] IMPLICIT INTEGER ( 1 .. 16 ) OPTIONAL, 
+            notificationToCSE         [1] IMPLICIT NULL OPTIONAL, 
+            csi-Active                [2] IMPLICIT NULL OPTIONAL} OPTIONAL, 
+         vt-BCSM-CAMEL-TDP-CriteriaList      [6] IMPLICIT SEQUENCE  (  SIZE (1 .. 10 ) ) OF
+            SEQUENCE {
+               t-BCSM-TriggerDetectionPoint   ENUMERATED {
+                  termAttemptAuthorized    (12 ), 
+                  ... , 
+                  tBusy                    (13 ), 
+                  tNoAnswer                (14 )}, 
+               basicServiceCriteria           [0] IMPLICIT BasicServiceCriteria OPTIONAL, 
+               t-CauseValueCriteria           [1] IMPLICIT T-CauseValueCriteria, 
+               ... } OPTIONAL, 
+         tif-CSI                             [7] IMPLICIT NULL OPTIONAL, 
+         tif-CSI-NotificationToCSE           [8] IMPLICIT NULL OPTIONAL, 
+         gprs-CSI                            [9] IMPLICIT SEQUENCE {
+            gprs-CamelTDPDataList     [0] IMPLICIT SEQUENCE  (  SIZE (1 .. 10 ) ) OF
+               SEQUENCE {
+                  gprs-TriggerDetectionPoint   [0] IMPLICIT ENUMERATED {
+                     attach                                     (1 ), 
+                     attachChangeOfPosition                     (2 ), 
+                     pdp-ContextEstablishment                   (11 ), 
+                     pdp-ContextEstablishmentAcknowledgement    (12 ), 
+                     pdp-ContextChangeOfPosition                (14 ), 
+                     ... }, 
+                  serviceKey                   [1] IMPLICIT ServiceKey, 
+                  gsmSCF-Address               [2] IMPLICIT GsmSCF-Address, 
+                  defaultSessionHandling       [3] IMPLICIT ENUMERATED {
+                     continueTransaction    (0 ), 
+                     releaseTransaction     (1 ), 
+                     ... }, 
+                  extensionContainer           [4] IMPLICIT ExtensionContainer OPTIONAL, 
+                  ... } OPTIONAL, 
+            camelCapabilityHandling   [1] IMPLICIT INTEGER ( 1 .. 16 ) OPTIONAL, 
+            extensionContainer        [2] IMPLICIT ExtensionContainer OPTIONAL, 
+            notificationToCSE         [3] IMPLICIT NULL OPTIONAL, 
+            csi-Active                [4] IMPLICIT NULL OPTIONAL, 
+            ... } OPTIONAL, 
+         mo-sms-CSI                          [10] IMPLICIT SEQUENCE {
+            sms-CAMEL-TDP-DataList    [0] IMPLICIT Sms-CAMEL-TDP-DataList OPTIONAL, 
+            camelCapabilityHandling   [1] IMPLICIT INTEGER ( 1 .. 16 ) OPTIONAL, 
+            extensionContainer        [2] IMPLICIT ExtensionContainer OPTIONAL, 
+            notificationToCSE         [3] IMPLICIT NULL OPTIONAL, 
+            csi-Active                [4] IMPLICIT NULL OPTIONAL, 
+            ... } OPTIONAL, 
+         ss-CSI                              [11] IMPLICIT SEQUENCE {
+            ss-CamelData         Ss-CamelData, 
+            extensionContainer   ExtensionContainer OPTIONAL, 
+            ... , 
+            notificationToCSE    [0] IMPLICIT NULL OPTIONAL, 
+            csi-Active           [1] IMPLICIT NULL OPTIONAL} OPTIONAL, 
+         m-CSI                               [12] IMPLICIT SEQUENCE {
+            mobilityTriggers     MobilityTriggers, 
+            serviceKey           ServiceKey, 
+            gsmSCF-Address       [0] IMPLICIT GsmSCF-Address, 
+            extensionContainer   [1] IMPLICIT ExtensionContainer OPTIONAL, 
+            notificationToCSE    [2] IMPLICIT NULL OPTIONAL, 
+            csi-Active           [3] IMPLICIT NULL OPTIONAL, 
+            ... } OPTIONAL, 
+         extensionContainer                  [13] IMPLICIT ExtensionContainer OPTIONAL, 
+         ... , 
+         specificCSIDeletedList              [14] IMPLICIT BIT STRING {
+            o-csi  (0 ), 
+            ss-csi  (1 ), 
+            tif-csi  (2 ), 
+            d-csi  (3 ), 
+            vt-csi  (4 ), 
+            mo-sms-csi  (5 ), 
+            m-csi  (6 ), 
+            gprs-csi  (7 ), 
+            t-csi  (8 ), 
+            mt-sms-csi  (9 ), 
+            mg-csi  (10 ), 
+            o-IM-CSI  (11 ), 
+            d-IM-CSI  (12 ), 
+            vt-IM-CSI  (13 )} (  SIZE (8 .. 32 ) ) OPTIONAL, 
+         mt-sms-CSI                          [15] IMPLICIT SEQUENCE {
+            sms-CAMEL-TDP-DataList    [0] IMPLICIT Sms-CAMEL-TDP-DataList OPTIONAL, 
+            camelCapabilityHandling   [1] IMPLICIT INTEGER ( 1 .. 16 ) OPTIONAL, 
+            extensionContainer        [2] IMPLICIT ExtensionContainer OPTIONAL, 
+            notificationToCSE         [3] IMPLICIT NULL OPTIONAL, 
+            csi-Active                [4] IMPLICIT NULL OPTIONAL, 
+            ... } OPTIONAL, 
+         mt-smsCAMELTDP-CriteriaList         [16] IMPLICIT SEQUENCE  (  SIZE (1 .. 10 ) ) OF
+            SEQUENCE {
+               sms-TriggerDetectionPoint   ENUMERATED {
+                  sms-CollectedInfo      (1 ), 
+                  ... , 
+                  sms-DeliveryRequest    (2 )}, 
+               tpdu-TypeCriterion          [0] IMPLICIT SEQUENCE  (  SIZE (1 .. 5 ) ) OF
+                  ENUMERATED {
+                     sms-DELIVER          (0 ), 
+                     sms-SUBMIT-REPORT    (1 ), 
+                     sms-STATUS-REPORT    (2 ), 
+                     ... } OPTIONAL, 
+               ... } OPTIONAL, 
+         mg-csi                              [17] IMPLICIT SEQUENCE {
+            mobilityTriggers     MobilityTriggers, 
+            serviceKey           ServiceKey, 
+            gsmSCF-Address       [0] IMPLICIT GsmSCF-Address, 
+            extensionContainer   [1] IMPLICIT ExtensionContainer OPTIONAL, 
+            notificationToCSE    [2] IMPLICIT NULL OPTIONAL, 
+            csi-Active           [3] IMPLICIT NULL OPTIONAL, 
+            ... } OPTIONAL, 
+         o-IM-CSI                            [18] IMPLICIT SEQUENCE {
+            o-BcsmCamelTDPDataList    BcsmCamelTDPDataList, 
+            extensionContainer        ExtensionContainer OPTIONAL, 
+            ... , 
+            camelCapabilityHandling   [0] IMPLICIT INTEGER ( 1 .. 16 ) OPTIONAL, 
+            notificationToCSE         [1] IMPLICIT NULL OPTIONAL, 
+            csiActive                 [2] IMPLICIT NULL OPTIONAL} OPTIONAL, 
+         o-IM-BcsmCamelTDP-CriteriaList      [19] IMPLICIT SEQUENCE  (  SIZE (1 .. 10 ) ) OF
+            SEQUENCE {
+               o-BcsmTriggerDetectionPoint   ENUMERATED {
+                  collectedInfo         (2 ), 
+                  ... , 
+                  routeSelectFailure    (4 )}, 
+               destinationNumberCriteria     [0] IMPLICIT DestinationNumberCriteria OPTIONAL, 
+               basicServiceCriteria          [1] IMPLICIT BasicServiceCriteria OPTIONAL, 
+               callTypeCriteria              [2] IMPLICIT CallTypeCriteria OPTIONAL, 
+               ... , 
+               o-CauseValueCriteria          [3] IMPLICIT O-CauseValueCriteria OPTIONAL, 
+               extensionContainer            [4] IMPLICIT ExtensionContainer OPTIONAL} OPTIONAL, 
+         d-IM-CSI                            [20] IMPLICIT SEQUENCE {
+            dp-AnalysedInfoCriteriaList   [0] IMPLICIT Dp-AnalysedInfoCriteriaList OPTIONAL, 
+            camelCapabilityHandling       [1] IMPLICIT INTEGER ( 1 .. 16 ) OPTIONAL, 
+            extensionContainer            [2] IMPLICIT ExtensionContainer OPTIONAL, 
+            notificationToCSE             [3] IMPLICIT NULL OPTIONAL, 
+            csi-Active                    [4] IMPLICIT NULL OPTIONAL, 
+            ... } OPTIONAL, 
+         vt-IM-CSI                           [21] IMPLICIT SEQUENCE {
+            t-BcsmCamelTDPDataList    BcsmCamelTDPDataList, 
+            extensionContainer        ExtensionContainer OPTIONAL, 
+            ... , 
+            camelCapabilityHandling   [0] IMPLICIT INTEGER ( 1 .. 16 ) OPTIONAL, 
+            notificationToCSE         [1] IMPLICIT NULL OPTIONAL, 
+            csi-Active                [2] IMPLICIT NULL OPTIONAL} OPTIONAL, 
+         vt-IM-BCSM-CAMEL-TDP-CriteriaList   [22] IMPLICIT SEQUENCE  (  SIZE (1 .. 10 ) ) OF
+            SEQUENCE {
+               t-BCSM-TriggerDetectionPoint   ENUMERATED {
+                  termAttemptAuthorized    (12 ), 
+                  ... , 
+                  tBusy                    (13 ), 
+                  tNoAnswer                (14 )}, 
+               basicServiceCriteria           [0] IMPLICIT BasicServiceCriteria OPTIONAL, 
+               t-CauseValueCriteria           [1] IMPLICIT T-CauseValueCriteria, 
+               ... } OPTIONAL} OPTIONAL, 
+      supportedVLR-CAMEL-Phases    [5] IMPLICIT BIT STRING {
+         phase1  (0 ), 
+         phase2  (1 ), 
+         phase3  (2 ), 
+         phase4  (3 )} (  SIZE (1 .. 16 ) ) OPTIONAL, 
+      supportedSGSN-CAMEL-Phases   [6] IMPLICIT BIT STRING {
+         phase1  (0 ), 
+         phase2  (1 ), 
+         phase3  (2 ), 
+         phase4  (3 )} (  SIZE (1 .. 16 ) ) OPTIONAL, 
+      extensionContainer           [7] IMPLICIT ExtensionContainer OPTIONAL, 
+      ... , 
+      offeredCamel4CSIsInVLR       [8] IMPLICIT BIT STRING {
+         o-csi  (0 ), 
+         d-csi  (1 ), 
+         vt-csi  (2 ), 
+         t-csi  (3 ), 
+         mt-sms-csi  (4 ), 
+         mg-csi  (5 ), 
+         psi-enhancements  (6 )} (  SIZE (7 .. 16 ) ) OPTIONAL, 
+      offeredCamel4CSIsInSGSN      [9] IMPLICIT BIT STRING {
+         o-csi  (0 ), 
+         d-csi  (1 ), 
+         vt-csi  (2 ), 
+         t-csi  (3 ), 
+         mt-sms-csi  (4 ), 
+         mg-csi  (5 ), 
+         psi-enhancements  (6 )} (  SIZE (7 .. 16 ) ) OPTIONAL}
+--   ERRORS     {
+--      atsi-NotAllowed | 
+--      dataMissing | 
+--      unexpectedDataValue | 
+--      unknownSubscriber | 
+--      bearerServiceNotProvisioned | 
+--     teleserviceNotProvisioned | 
+--      callBarred | 
+--      illegalSS-Operation | 
+--      ss-NotAvailable | 
+--      informationNotAvailable }
+--   CODE     local      : 62
+--   }
+AdditionalRequestedCAMEL-SubscriptionInfo ::= ENUMERATED {
+            mt-sms-CSI    (0 ), 
+            mg-csi        (1 ), 
+            o-IM-CSI      (2 ), 
+            d-IM-CSI      (3 ), 
+            vt-IM-CSI     (4 ), 
+            ... }
+
+Sms-CAMEL-TDP-DataList ::= SEQUENCE  (  SIZE (1 .. 10 ) ) OF
+               SEQUENCE {
+                  sms-TriggerDetectionPoint   [0] IMPLICIT ENUMERATED {
+                     sms-CollectedInfo      (1 ), 
+                     ... , 
+                     sms-DeliveryRequest    (2 )}, 
+                  serviceKey                  [1] IMPLICIT ServiceKey, 
+                  gsmSCF-Address              [2] IMPLICIT GsmSCF-Address, 
+                  defaultSMS-Handling         [3] IMPLICIT ENUMERATED {
+                     continueTransaction    (0 ), 
+                     releaseTransaction     (1 ), 
+                     ... }, 
+                  extensionContainer          [4] IMPLICIT ExtensionContainer OPTIONAL, 
+                  ... }
+
+T-CauseValueCriteria ::= SEQUENCE  (  SIZE (1 .. 5 ) ) OF
+                  OCTET STRING (  SIZE (1 ) )
+
+O-CauseValueCriteria ::= SEQUENCE  (  SIZE (1 .. 5 ) ) OF
+                  OCTET STRING (  SIZE (1 ) )
+
+MobilityTriggers ::=  SEQUENCE  (  SIZE (1 .. 10 ) ) OF
+               OCTET STRING (  SIZE (1 ) )
+
+BasicServiceCriteria ::= SEQUENCE  (  SIZE (1 .. 5 ) ) OF
+                  CHOICE {
+                     ext-BearerService     [2] IMPLICIT OCTET STRING (  SIZE (1 .. 5 ) ), 
+                     ext-Teleservice       [3] IMPLICIT OCTET STRING (  SIZE (1 .. 5 ) )}
+
+Dp-AnalysedInfoCriteriaList ::= SEQUENCE  (  SIZE (1 .. 10 ) ) OF
+               SEQUENCE {
+                  dialledNumber         OCTET STRING (  SIZE (1 .. 20 ) ) (  SIZE (1 .. 9 ) ), 
+                  serviceKey            ServiceKey, 
+                  gsmSCF-Address        GsmSCF-Address, 
+                  defaultCallHandling   DefaultCallHandling, 
+                  extensionContainer    ExtensionContainer OPTIONAL, 
+                  ... }
+
+SubscriberIdentity ::= CHOICE {
+            imsi         [0] IMPLICIT Imsi, 
+            msisdn       [1] IMPLICIT Msisdn
+			}
+
+
+--anyTimeModification OPERATION  ::=  {
+--   ARGUMENT     SEQUENCE {
+
+AnyTimeModificationArg ::= SEQUENCE {
+      subscriberIdentity                [0] SubscriberIdentity, 
+      gsmSCF-Address                    [1] IMPLICIT GsmSCF-Address, 
+      modificationRequestFor-CF-Info    [2] IMPLICIT SEQUENCE {
+         ss-Code                   [0] IMPLICIT Ss-Code, 
+         basicService              [1] CHOICE {
+            ext-BearerService     [2] IMPLICIT OCTET STRING (  SIZE (1 .. 5 ) ), 
+            ext-Teleservice       [3] IMPLICIT OCTET STRING (  SIZE (1 .. 5 ) )} OPTIONAL, 
+         ss-Status                 [2] IMPLICIT Ss-Status OPTIONAL, 
+         forwardedToNumber         [3] IMPLICIT ForwardedToNumber OPTIONAL, 
+         forwardedToSubaddress     [4] IMPLICIT ForwardedToSubaddress OPTIONAL, 
+         noReplyConditionTime      [5] IMPLICIT INTEGER ( 1 .. 100 ) OPTIONAL, 
+         modifyNotificationToCSE   [6] IMPLICIT ModifyNotificationToCSE OPTIONAL, 
+         extensionContainer        [7] IMPLICIT ExtensionContainer OPTIONAL, 
+         ... } OPTIONAL, 
+      modificationRequestFor-CB-Info    [3] IMPLICIT SEQUENCE {
+         ss-Code                        [0] IMPLICIT Ss-Code, 
+         basicService                   [1] CHOICE {
+            ext-BearerService     [2] IMPLICIT OCTET STRING (  SIZE (1 .. 5 ) ), 
+            ext-Teleservice       [3] IMPLICIT OCTET STRING (  SIZE (1 .. 5 ) )} OPTIONAL, 
+         ss-Status                      [2] IMPLICIT Ss-Status OPTIONAL, 
+--         password                       [3] IMPLICIT NumericString ( FROM ("0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9" ) |  SIZE (4 ) ) OPTIONAL, 
+         password                       [2] IMPLICIT NumericString  OPTIONAL, 
+         wrongPasswordAttemptsCounter   [4] IMPLICIT INTEGER ( 0 .. 4 ) OPTIONAL, 
+         modifyNotificationToCSE        [5] IMPLICIT ModifyNotificationToCSE OPTIONAL, 
+         extensionContainer             [6] IMPLICIT ExtensionContainer OPTIONAL, 
+         ... } OPTIONAL, 
+      modificationRequestFor-CSI        [4] IMPLICIT SEQUENCE {
+         requestedCamel-SubscriptionInfo             [0] IMPLICIT ENUMERATED {
+            o-CSI         (0 ), 
+            t-CSI         (1 ), 
+            vt-CSI        (2 ), 
+            tif-CSI       (3 ), 
+            gprs-CSI      (4 ), 
+            mo-sms-CSI    (5 ), 
+            ss-CSI        (6 ), 
+            m-CSI         (7 ), 
+            d-csi         (8 )}, 
+         modifyNotificationToCSE                     [1] IMPLICIT ModifyNotificationToCSE OPTIONAL, 
+         modifyCSI-State                             [2] IMPLICIT ENUMERATED {
+            deactivate    (0 ), 
+            activate      (1 )} OPTIONAL, 
+         extensionContainer                          [3] IMPLICIT ExtensionContainer OPTIONAL, 
+         ... , 
+         additionalRequestedCAMEL-SubscriptionInfo   [4] IMPLICIT AdditionalRequestedCAMEL-SubscriptionInfo OPTIONAL} OPTIONAL, 
+      extensionContainer                [5] IMPLICIT ExtensionContainer OPTIONAL, 
+      longFTN-Supported                 [6] IMPLICIT NULL OPTIONAL, 
+      ... , 
+      modificationRequestFor-ODB-data   [7] IMPLICIT SEQUENCE {
+         odb-data                  [0] IMPLICIT Odb-data OPTIONAL, 
+         modifyNotificationToCSE   [1] IMPLICIT ModifyNotificationToCSE OPTIONAL, 
+         extensionContainer        [2] IMPLICIT ExtensionContainer OPTIONAL, 
+         ... } OPTIONAL}
+
+--   RESULT     SEQUENCE {
+ModifyNotificationToCSE ::= ENUMERATED {
+            deactivate    (0 ), 
+            activate      (1 )}
+
+Odb-data ::=  SEQUENCE {
+            odb-GeneralData      Odb-GeneralData, 
+            odb-HPLMN-Data       Odb-HPLMN-Data OPTIONAL, 
+            extensionContainer   ExtensionContainer OPTIONAL, 
+            ... }
+		
+--   ERRORS     {
+--      atm-NotAllowed | 
+--      dataMissing | 
+--      unexpectedDataValue | 
+--      unknownSubscriber | 
+--      bearerServiceNotProvisioned | 
+--      teleserviceNotProvisioned | 
+--      callBarred | 
+--      illegalSS-Operation | 
+--      ss-SubscriptionViolation | 
+--      ss-ErrorStatus | 
+--      ss-Incompatibility | 
+--      informationNotAvailable }
+--   CODE     local      : 65
+--   }
 
 --ss-InvocationNotification OPERATION
 --   ARGUMENT
