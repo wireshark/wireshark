@@ -6,7 +6,7 @@
  * Portions based on information retrieved from the RX definitions
  *   in Arla, the free AFS client at http://www.stacken.kth.se/project/arla/
  *
- * $Id: packet-afs.c,v 1.3 1999/10/24 07:27:18 guy Exp $
+ * $Id: packet-afs.c,v 1.4 1999/10/28 15:08:41 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -749,7 +749,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		case AFS_PORT_ERROR:
 			typenode = hf_afs_error;
 			node = hf_afs_error_opcode;
-//			dissector = reply ? dissect_error_reply : dissect_error_request;
+			/* dissector = reply ? dissect_error_reply : dissect_error_request; */
 			break;
 		case AFS_PORT_BOS:
 			typenode = hf_afs_bos;
@@ -760,12 +760,12 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		case AFS_PORT_UPDATE:
 			typenode = hf_afs_update;
 			node = hf_afs_update_opcode;
-//			dissector = reply ? dissect_update_reply : dissect_update_request;
+			/* dissector = reply ? dissect_update_reply : dissect_update_request; */
 			break;
 		case AFS_PORT_RMTSYS:
 			typenode = hf_afs_rmtsys;
 			node = hf_afs_rmtsys_opcode;
-//			dissector = reply ? dissect_rmtsys_reply : dissect_rmtsys_request;
+			/* dissector = reply ? dissect_rmtsys_reply : dissect_rmtsys_request; */
 			break;
 		case AFS_PORT_BACKUP:
 			typenode = hf_afs_backup;
@@ -872,32 +872,32 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
  * should be incremented after performing the macro's operation.
  */
 
-// Get the next available integer, be sure and call TRUNC beforehand
+/* Get the next available integer, be sure and call TRUNC beforehand */
 #define GETINT() (ntohl( *((int*)&pd[curoffset]) ))
 
-// Check if enough bytes are present, if not, return to caller
-// after adding a 'Truncated' message to tree
+/* Check if enough bytes are present, if not, return to caller
+   after adding a 'Truncated' message to tree */
 #define TRUNC(bytes) \
 	if(!BYTES_ARE_IN_FRAME(curoffset,(bytes))) \
 	{ proto_tree_add_text(tree,curoffset,END_OF_FRAME,"Truncated"); \
 	return; }
 
-// Output a unsigned integer, stored into field 'field'
-// Assumes it is in network byte order, converts to host before using
+/* Output a unsigned integer, stored into field 'field'
+   Assumes it is in network byte order, converts to host before using */
 #define UINTOUT(field) \
 	TRUNC(sizeof(guint32)) \
 	proto_tree_add_item(tree,field,curoffset,sizeof(guint32), GETINT()); \
 	curoffset += 4;
 
-// Output a unsigned integer, stored into field 'field'
-// Assumes it is in network byte order, converts to host before using
+/* Output a unsigned integer, stored into field 'field'
+   Assumes it is in network byte order, converts to host before using */
 #define IPOUT(field) \
 	TRUNC(sizeof(gint32)) \
 	proto_tree_add_item(tree,field,curoffset,sizeof(gint32),\
 		*((int*)&pd[curoffset]));\
 	curoffset += 4;
 
-// Output a unix timestamp, after converting to a timeval
+/* Output a unix timestamp, after converting to a timeval */
 #define BIGDATEOUT(field) \
 	{ struct timeval tv; \
 	TRUNC(2*sizeof(guint32)); \
@@ -907,7 +907,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	curoffset += 8; \
 	}
 
-// Output a unix timestamp, after converting to a timeval
+/* Output a unix timestamp, after converting to a timeval */
 #define DATEOUT(field) \
 	{ struct timeval tv; \
 	TRUNC(sizeof(guint32)); \
@@ -917,8 +917,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	curoffset += 4; \
 	}
 
-
-// Output a callback
+/* Output a callback */
 #define FS_CALLBACKOUT() \
 	{ 	proto_tree *save, *ti; \
 		ti = proto_tree_add_text(tree, curoffset, 3*4, "Callback"); \
@@ -931,7 +930,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		tree = save; \
 	}
 
-// Output a callback
+/* Output a callback */
 #define CB_CALLBACKOUT() \
 	{ 	proto_tree *save, *ti; \
 		ti = proto_tree_add_text(tree, curoffset, 3*4, "Callback"); \
@@ -945,7 +944,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 
-// Output a File ID
+/* Output a File ID */
 #define FS_FIDOUT(label) \
 	{ 	proto_tree *save, *ti; \
 		ti = proto_tree_add_text(tree, curoffset, 3*4, \
@@ -958,7 +957,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		tree = save; \
 	}
 
-// Output a File ID
+/* Output a File ID */
 #define CB_FIDOUT(label) \
 	{ 	proto_tree *save, *ti; \
 		ti = proto_tree_add_text(tree, curoffset, 3*4, \
@@ -971,8 +970,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		tree = save; \
 	}
 
-// Output a AFS acl
-//
+/* Output a AFS acl */
 #define ACLOUT(who, positive, acl, bytes) \
 	{ 	proto_tree *save, *ti; \
 		int tmpoffset; \
@@ -1004,23 +1002,23 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		tree = save; \
 	}
 
-// Skip a certain number of bytes
+/* Skip a certain number of bytes */
 #define SKIP(bytes) \
 	TRUNC(bytes) \
 	curoffset += bytes;
 
-// Raw data - to end of frame
+/* Raw data - to end of frame */
 #define RAWOUT(field) BYTESOUT(field, offset+END_OF_FRAME-curoffset)
 
-// Raw data
+/* Raw data */
 #define BYTESOUT(field, bytes) \
 	TRUNC(bytes); \
 	proto_tree_add_item(tree,field,curoffset,bytes,\
 		(void *)&pd[curoffset]); \
 	curoffset += bytes;
 
-// Output a rx style string, up to a maximum length
-// first 4 bytes - length, then char data
+/* Output a rx style string, up to a maximum length first 
+   4 bytes - length, then char data */
 #define STROUT(field) \
 	{	int i; \
 		TRUNC(4); \
@@ -1037,7 +1035,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		curoffset += i; \
 	}
 
-// Output a fixed length vectorized string (each char is a 32 bit int)
+/* Output a fixed length vectorized string (each char is a 32 bit int) */
 #define VECOUT(field, length) \
 	{ 	char tmp[length+1]; \
 		int i,soff; \
@@ -1052,7 +1050,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		proto_tree_add_item(tree, field, soff, length, tmp);\
 	}
 
-// Output a UBIK version code
+/* Output a UBIK version code */
 #define UBIK_VERSIONOUT(label) \
 	{ 	proto_tree *save, *ti; \
 		unsigned int epoch,counter; \

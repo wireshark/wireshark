@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.2 1999/10/22 03:55:17 guy Exp $
+ * $Id: packet-rx.c,v 1.3 1999/10/28 15:08:42 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -146,8 +146,6 @@ dissect_rx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			offset+24, 2, ntohs(rxh->spare));
 		proto_tree_add_item(rx_tree, hf_rx_serviceid,
 			offset+26, 2, ntohs(rxh->serviceId));
-
-		//proto_tree_add_text(rx_tree, offset+28, END_OF_FRAME, "Data");
 	}
 
 	if (check_col(fd, COL_INFO))
