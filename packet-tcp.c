@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.129 2002/02/03 21:44:52 guy Exp $
+ * $Id: packet-tcp.c,v 1.130 2002/02/03 23:28:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -365,28 +365,20 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		proto_tree *st = NULL;
 		proto_item *si = NULL;
 
-		/* first we show a tree with all segments */
-		si = proto_tree_add_text(tcp_tree, tvb, 0, 0,
-				"Segments");
-		st = proto_item_add_subtree(si, ett_tcp_segments);
-		for(ipfd=ipfd_head->next; ipfd; ipfd=ipfd->next){
-			proto_tree_add_text(st, tvb, 0, 0,
-				"Frame:%u seq#:%u-%u [%u-%u]",
-				ipfd->frame,
-				tsk->start_seq + ipfd->offset,
-				tsk->start_seq + ipfd->offset + ipfd->len - 1,
-				ipfd->offset,
-				ipfd->offset + ipfd->len - 1); 
-		}
-
 		/*
+		 * Yes, we think it is.
 		 * We only call subdissector for the last segment.
 		 * Note that the last segment may include more than what
 		 * we needed.
 		 */
 		if(nxtseq >= (tsk->start_seq + tsk->tot_len)){
-			/* ok, lest call subdissector with desegmented data */
+			/*
+			 * OK, this is the last segment.
+			 * Let's call the subdissector with the desegmented
+			 * data.
+			 */
 			tvbuff_t *next_tvb;
+			int old_len;
 
 			/* create a new TVB structure for desegmented data */
 			next_tvb = tvb_new_real_data(ipfd_head->data,
@@ -407,56 +399,119 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				sport, dport);
 			called_dissector = TRUE;
 
-			/* Did the subdissector ask us to desegment some more
-			   data?  This means that the data at the beginning
-			   of this segment completed a higher-level PDU,
-			   but the data at the end of this segment started
-			   a higher-level PDU but didn't complete it.
-
-			   If so we have to create some structures in our
-			   table but this is something we only do the first
-			   time we see this packet.
-			*/
-			if(pinfo->desegment_len) {
-				if (!pinfo->fd->flags.visited)
-					must_desegment = TRUE;
+			/*
+			 * OK, did the subdissector think it was completely
+			 * desegmented, or does it think we need even more
+			 * data?
+			 */
+			old_len=(int)(tvb_reported_length(next_tvb)-tvb_reported_length_remaining(tvb, offset));
+			if(pinfo->desegment_len &&
+			    pinfo->desegment_offset<=old_len){
+				tcp_segment_key *new_tsk;
 
 				/*
-				 * The stuff we couldn't dissect must have
-				 * come from this segment, so it's all in
-				 * "tvb".
-				 *
-				 * "pinfo->desegment_offset" is relative
-				 * to the beginning of "next_tvb";
-				 * we want an offset relative to the
-				 * beginning of "tvb".
-				 *
-				 * First, compute the offset relative to
-				 * the *end* of "next_tvb" - i.e., the number
-				 * of bytes before the end of "next_tvb"
-				 * at which the subdissector stopped.
-				 * That's the length of "next_tvb" minus
-				 * the offset, relative to the beginning
-				 * of "next_tvb, at which the subdissector
-				 * stopped.
+				 * "desegment_len" isn't 0, so it needs more
+				 * data for something - and "desegment_offset"
+				 * is before "old_len", so it needs more data
+				 * to dissect the stuff we thought was
+				 * completely desegmented (as opposed to the
+				 * stuff at the beginning being completely
+				 * desegmented, but the stuff at the end
+				 * being a new higher-level PDU that also
+				 * needs desegmentation).
 				 */
-				deseg_offset =
-				    ipfd_head->datalen - pinfo->desegment_offset;
+				fragment_set_partial_reassembly(pinfo,tsk->start_seq,tcp_fragment_table);
+				tsk->tot_len = tvb_reported_length(next_tvb) + pinfo->desegment_len;
 
 				/*
-				 * "tvb" and "next_tvb" end at the same byte
-				 * of data, so the offset relative to the
-				 * end of "next_tvb" of the byte at which
-				 * we stopped is also the offset relative
-				 * to the end of "tvb" of the byte at which
-				 * we stopped.
-				 *
-				 * Convert that back into an offset relative
-				 * to the beginninng of "tvb", by taking
-				 * the length of "tvb" and subtracting the
-				 * offset relative to the end.
+				 * Update tsk structure.
+				 * Can ask ->next->next because at least there's a hdr and one
+				 * entry in fragment_add()
 				 */
-				deseg_offset = tvb_length(tvb) - deseg_offset;
+				for(ipfd=ipfd_head->next; ipfd->next; ipfd=ipfd->next){
+					old_tsk.seq = tsk->start_seq + ipfd->offset;
+					new_tsk = g_hash_table_lookup(tcp_segment_table, &old_tsk);
+					new_tsk->tot_len = tsk->tot_len;
+				}
+
+				/* this is the next segment in the sequence we want */
+				new_tsk = g_mem_chunk_alloc(tcp_segment_key_chunk);
+				memcpy(new_tsk, tsk, sizeof(tcp_segment_key));
+				new_tsk->seq = nxtseq;
+				g_hash_table_insert(tcp_segment_table,new_tsk,new_tsk);
+			} else {
+				/*
+				 * The subdissector thought it was completely
+				 * desegmented (although the stuff at the
+				 * end may, in turn, require desegmentation),
+				 * so we show a tree with all segments.
+				 */
+				si = proto_tree_add_text(tcp_tree, tvb, 0, 0,
+						"Segments");
+				st = proto_item_add_subtree(si, ett_tcp_segments);
+				for(ipfd=ipfd_head->next; ipfd; ipfd=ipfd->next){
+					proto_tree_add_text(st, tvb, 0, 0,
+					"Frame:%u seq#:%u-%u [%u-%u]",
+					ipfd->frame,
+					tsk->start_seq + ipfd->offset,
+					tsk->start_seq + ipfd->offset + ipfd->len-1,
+					ipfd->offset,
+					ipfd->offset + ipfd->len - 1);
+				}
+
+				/* Did the subdissector ask us to desegment
+				   some more data?  This means that the data
+				   at the beginning of this segment completed
+				   a higher-level PDU, but the data at the
+				   end of this segment started a higher-level
+				   PDU but didn't complete it.
+
+				   If so, we have to create some structures
+				   in our table, but this is something we
+				   only do the first time we see this packet.
+				*/
+				if(pinfo->desegment_len) {
+					if (!pinfo->fd->flags.visited)
+						must_desegment = TRUE;
+
+					/* The stuff we couldn't dissect
+					   must have come from this segment,
+					   so it's all in "tvb".
+
+				 	   "pinfo->desegment_offset" is
+				 	   relative to the beginning of
+				 	   "next_tvb"; we want an offset
+				 	   relative to the beginning of "tvb".
+
+				 	   First, compute the offset relative
+				 	   to the *end* of "next_tvb" - i.e.,
+				 	   the number of bytes before the end
+				 	   of "next_tvb" at which the
+				 	   subdissector stopped.  That's the
+				 	   length of "next_tvb" minus the
+				 	   offset, relative to the beginning
+				 	   of "next_tvb, at which the
+				 	   subdissector stopped.
+				 	*/
+					deseg_offset =
+					    ipfd_head->datalen - pinfo->desegment_offset;
+
+					/* "tvb" and "next_tvb" end at the
+					   same byte of data, so the offset
+					   relative to the end of "next_tvb"
+					   of the byte at which we stopped
+					   is also the offset relative to
+					   the end of "tvb" of the byte at
+					   which we stopped.
+
+					   Convert that back into an offset
+					   relative to the beginninng of
+					   "tvb", by taking the length of
+					   "tvb" and subtracting the offset
+					   relative to the end.
+					*/
+					deseg_offset=tvb_reported_length(tvb) - deseg_offset;
+				}
 			}
 		}
 	}

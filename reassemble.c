@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.8 2002/01/21 07:36:48 guy Exp $
+ * $Id: reassemble.c,v 1.9 2002/02/03 23:28:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,12 +45,12 @@ static int fragment_init_count = 200;
 #define LINK_FRAG(fd_head,fd)					\
 	{ 	fragment_data *fd_i;				\
 		/* add fragment to list, keep list sorted */		\
-		for(fd_i=fd_head;fd_i->next;fd_i=fd_i->next){	\
-			if( (fd->offset) < (fd_i->next->offset) )	\
+		for(fd_i=(fd_head);fd_i->next;fd_i=fd_i->next){	\
+			if( ((fd)->offset) < (fd_i->next->offset) )	\
 				break;					\
 		}							\
-		fd->next=fd_i->next;				\
-		fd_i->next=fd;					\
+		(fd)->next=fd_i->next;				\
+		fd_i->next=(fd);					\
 	}
 
 static gint
@@ -126,7 +126,7 @@ free_all_fragments(gpointer key_arg, gpointer value, gpointer user_data)
 	g_free((gpointer)key->dst.data);
 
 	for (fd_head = value; fd_head != NULL; fd_head = fd_head->next) {
-		if (fd_head->data)
+		if(fd_head->data && !(fd_head->flags&FD_NOT_MALLOCED))
 			g_free(fd_head->data);
 	}
 
@@ -213,7 +213,8 @@ fragment_delete(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
 		fragment_data *tmp_fd;
 		tmp_fd=fd->next;
 
-		g_free(fd->data);
+		if( !(fd->flags&FD_NOT_MALLOCED) )
+			g_free(fd->data);
 		g_mem_chunk_free(fragment_data_chunk, fd);
 		fd=tmp_fd;
 	}
@@ -277,6 +278,32 @@ fragment_set_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table,
 	return;
 }
 
+
+/* This function will set the partial reassembly flag for a fh.
+   When this function is called, the fh MUST already exist, i.e.
+   the fh MUST be created by the initial call to fragment_add() before
+   this function is called.
+   Also note that this function MUST be called to indicate a fh will be 
+   extended (increase the already stored data)
+*/
+
+void
+fragment_set_partial_reassembly(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
+{
+	fragment_data *fd_head;
+	fragment_key key;
+
+	/* create key to search hash with */
+	key.src = pinfo->src;
+	key.dst = pinfo->dst;
+	key.id  = id;
+
+	fd_head = g_hash_table_lookup(fragment_table, &key);
+
+	if(fd_head){
+		fd_head->flags |= FD_PARTIAL_REASSEMBLY;
+	}
+}
 /*
  * This function adds a new fragment to the fragment hash table.
  * If this is the first fragment seen for this datagram, a new entry
@@ -290,6 +317,13 @@ fragment_set_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table,
  *
  * This function assumes frag_offset being a byte offset into the defragment
  * packet.
+ *
+ * 01-2002
+ * Once the fh is defragmented (= FD_DEFRAGMENTED set), it can be
+ * extended using the FD_PARTIAL_REASSEMBLY flag. This flag should be set 
+ * using fragment_set_partial_reassembly() before calling fragment_add
+ * with the new fragment. FD_TOOLONGFRAGMENT and FD_MULTIPLETAILS flags
+ * are lowered when a new extension process is started.
  */
 fragment_data *
 fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
@@ -301,6 +335,7 @@ fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	fragment_data *fd;
 	fragment_data *fd_i;
 	guint32 max, dfpos;
+	unsigned char *old_data;
 
 	/* create key to search hash with */
 	key.src = pinfo->src;
@@ -355,6 +390,24 @@ fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	fd->offset = frag_offset;
 	fd->len  = frag_data_len;
 	fd->data = NULL;
+
+	/*
+	 * If it was already defragmented and this new fragment goes beyond
+	 * data limits, set flag in already empty fds & point old fds to malloc'ed data.
+ 	 */
+	if(fd_head->flags & FD_DEFRAGMENTED && (frag_offset+frag_data_len) >= fd_head->datalen &&
+		fd_head->flags & FD_PARTIAL_REASSEMBLY){
+		for(fd_i=fd_head->next; fd_i; fd_i=fd_i->next){
+			if( !fd_i->data ) {
+				fd_i->data = fd_head->data + fd_i->offset;
+				fd_i->flags |= FD_NOT_MALLOCED;
+			}
+			fd_i->flags &= (~FD_TOOLONGFRAGMENT) & (~FD_MULTIPLETAILS);
+		}
+		fd_head->flags ^= FD_DEFRAGMENTED|FD_PARTIAL_REASSEMBLY;
+		fd_head->flags &= (~FD_TOOLONGFRAGMENT) & (~FD_MULTIPLETAILS);
+		fd_head->datalen=0;
+	}
 
 	if (!more_frags) {  
 		/*
@@ -448,6 +501,8 @@ fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 
 
 	if (max > (fd_head->datalen)) {
+		/*XXX not sure if current fd was the TOOLONG*/
+		/*XXX is it fair to flag current fd*/
 		/* oops, too long fragment detected */
 		fd->flags      |= FD_TOOLONGFRAGMENT;
 		fd_head->flags |= FD_TOOLONGFRAGMENT;
@@ -457,6 +512,8 @@ fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	/* we have received an entire packet, defragment it and
          * free all fragments 
          */
+	/* store old data just in case */
+	old_data=fd_head->data;
 	fd_head->data = g_malloc(max);
 
 	/* add all data fragments */
@@ -472,15 +529,24 @@ fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 					fd_i->flags    |= FD_OVERLAPCONFLICT;
 					fd_head->flags |= FD_OVERLAPCONFLICT;
 				}
-			}
-			memcpy(fd_head->data+fd_i->offset,fd_i->data,fd_i->len);
-			g_free(fd_i->data);
+			} 
+			/* dfpos is always >= than fd_i->offset */
+			/* No gaps can exist here, max_loop(above) does this */
+			if( fd_i->offset+fd_i->len > dfpos )
+				memcpy(fd_head->data+dfpos, fd_i->data+(dfpos-fd_i->offset),
+					fd_i->len-(dfpos-fd_i->offset));
+			if( fd_i->flags & FD_NOT_MALLOCED )
+				fd_i->flags ^= FD_NOT_MALLOCED;
+			else
+				g_free(fd_i->data);
 			fd_i->data=NULL;
 
 			dfpos=MAX(dfpos,(fd_i->offset+fd_i->len));
 		}
 	}
 
+	if( old_data )
+		g_free(old_data);
 	/* mark this packet as defragmented.
            allows us to skip any trailing fragments */
 	fd_head->flags |= FD_DEFRAGMENTED;

@@ -1,7 +1,7 @@
 /* reassemble.h
  * Declarations of outines for {fragment,segment} reassembly
  *
- * $Id: reassemble.h,v 1.3 2001/12/15 05:40:32 guy Exp $
+ * $Id: reassemble.h,v 1.4 2002/02/03 23:28:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,12 @@
 
 /* fragment contains data past the end of the datagram */
 #define FD_TOOLONGFRAGMENT	0x0010
+
+/* fragment data not alloced, fd->data pointing to fd_head->data+fd->offset */
+#define FD_NOT_MALLOCED         0x0020
+
+/* this flag is used to request fragment_add to continue the reassembly process */
+#define FD_PARTIAL_REASSEMBLY   0x0040
 
 /* fragment offset is indicated by sequence number and not byte offset
    into the defragmented packet */
@@ -96,6 +102,16 @@ fragment_data *fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo,
 void
 fragment_set_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table, 
 		     guint32 tot_len);
+/*
+ * This function will set the partial reassembly flag(FD_PARTIAL_REASSEMBLY) for a fh.
+ * When this function is called, the fh MUST already exist, i.e.
+ * the fh MUST be created by the initial call to fragment_add() before
+ * this function is called. Also note that this function MUST be called to indicate 
+ * a fh will be extended (increase the already stored data). After calling this function,
+ * and if FD_DEFRAGMENTED is set, the reassembly process will be continued.
+ */
+void
+fragment_set_partial_reassembly(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
 
 /* This function is used to check if there is partial or completed reassembly state
  * matching this packet. I.e. Are there reassembly going on or not for this packet?
