@@ -156,13 +156,18 @@ Exits the application.
 
 Sets the packet printing and filter options (see L<"Preferences"> below).
 
-=item Tools:Capture
+=item Capture:Start
 
 Initiates a live packet capture (see L<"Capture Preferences"> below).
 A temporary file will be created to hold the capture. The location of the
 file can be chosen by setting your TMPDIR environment variable before
 starting ethereal. Otherwise, the default TMPDIR location is system-dependent,
 but is likely either /var/tmp or /tmp.
+
+=item Display:Options
+
+Sets the format of the packet timestamp displayed in the packet list
+window to relative, absolute, or delta.
 
 =item Tools:Follow TCP Stream
 
@@ -327,6 +332,13 @@ string as described above.  The I<File:> entry specifies the file to save
 to, as in the I<Printer Options> dialog above.  You can choose to open the
 file after capture, and you can also specify the maximum number of bytes
 to capture per packet with the I<Capture length> entry.
+
+=item Display Options
+
+The I<Display Options> dialog lets you specify the format of the time stamp
+in the packet list.  You can select "Time of day" for absolute time stamps,
+"Seconds since beginning of capture" for relative time stamps, or
+"Seconds since previous frame" for delta time stamps.
 
 =back
 
