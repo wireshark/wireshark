@@ -1,4 +1,4 @@
-$Id: NEWS,v 1.117 2002/12/07 23:14:09 gerald Exp $
+$Id: NEWS,v 1.118 2002/12/08 02:34:41 gerald Exp $
 
 == December 7, 2002
 
@@ -44,7 +44,8 @@ Bug Fixes and Updates
 
 New Protocols
 
-  ARCNET, ClearCase NFS, DCERPC LSA_DS, HyperSCSI, MDNS, PCLI, RPL
+  ARCNET, ClearCase NFS, DCERPC LSA_DS, Fibre Channel, HyperSCSI, MDNS,
+  PCLI, RPL
 
 
 Updated Protocols

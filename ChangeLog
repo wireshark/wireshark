@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.11 2002/12/07 23:14:09 gerald Exp $
+$Id: ChangeLog,v 1.12 2002/12/08 02:34:41 gerald Exp $
 
 Overview of changes in Ethereal 0.9.8:
 * Display AFS KAUTH information (Loic Tortay)
@@ -386,9 +386,10 @@ Overview of changes in Ethereal 0.9.8:
 * Add Shomiti Surveyor vs UNICOS/mp snoop file checking (Guy)
 * Improve RPC retransmission handling (Ronnie)
 * Don't pass a null string pointer to proto_tree_add_text() in TDS (Gerald)
-* Add SNMP MIBS to Windows installer
-* Add make-tapreg-dotc to the distribution
-* Add RCS IDs to ChangeLog and NEWS
+* Add SNMP MIBS to Windows installer (Gerald)
+* Add make-tapreg-dotc to the distribution (Gerald)
+* Add RCS IDs to ChangeLog and NEWS (Gerald)
+* Add Fibre Channel support (Dinesh)
 
 
 Overview of changes in Ethereal 0.9.7:
