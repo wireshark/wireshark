@@ -197,11 +197,6 @@ static const value_string duidtype_vals[] =
 	{ 0, NULL }
 };
 
-static const true_false_string tfs_present = {
-    "present",
-    "absent"
-};
-
 /* This FQDN draft is a mess, I've tried to understand, 
    but N,O,S bit descriptions are really cryptic */
 static const true_false_string fqdn_n = {
