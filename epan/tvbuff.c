@@ -2228,6 +2228,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 	compr = tvb_memdup(tvb, offset, comprlen);
 
 	if (!compr) {
+		g_free(strm);
 		return NULL;
 	}
 
@@ -2257,6 +2258,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 
 	if(strmbuf == NULL) {
 		g_free(compr);
+		g_free(strm);
 		return NULL;
 	}
 
