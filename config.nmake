@@ -129,7 +129,7 @@ PCRE_DIR=$(ETHEREAL_LIBS)\pcre-4.4
 # If you don't have Nettle, comment this line out, so that NETTLE_DIR
 # isn't defined.
 #
-NETTLE_DIR=$(ETHEREAL_LIBS)\nettle-1.10
+# NETTLE_DIR=$(ETHEREAL_LIBS)\nettle-1.10
 
 #
 # Set ICONV_DIR to the pathname of the directory in which the
