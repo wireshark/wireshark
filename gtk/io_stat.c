@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.65 2004/02/23 19:19:37 ulfl Exp $
+ * $Id: io_stat.c,v 1.66 2004/02/23 20:28:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -176,7 +176,7 @@ io_stat_set_title(io_stat_t *io)
 	if(!io->window){
 		return;
 	}
-	title = g_strdup_printf("IO-Stat: %s", cf_get_display_name(&cfile));
+	title = g_strdup_printf("Ethereal Throughput: %s", cf_get_display_name(&cfile));
 	gtk_window_set_title(GTK_WINDOW(io->window), title);
 	g_free(title);
 }
@@ -1792,6 +1792,6 @@ register_tap_listener_gtk_iostat(void)
 {
 	register_ethereal_tap("io,stat", gtk_iostat_init);
 
-	register_tap_menu_item("IO Statistics", REGISTER_TAP_GROUP_GENERIC,
+	register_tap_menu_item("Throughput Graph", REGISTER_TAP_GROUP_GENERIC,
         gtk_iostat_cb, NULL, NULL, NULL);
 }

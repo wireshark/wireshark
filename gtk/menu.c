@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.172 2004/02/23 19:19:38 ulfl Exp $
+ * $Id: menu.c,v 1.173 2004/02/23 20:28:31 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -585,7 +585,6 @@ register_tap_menu_item(
     case(REGISTER_TAP_GROUP_GENERIC): toolspath = "/Statistics/"; break;
     case(REGISTER_TAP_GROUP_CONVERSATION_LIST): toolspath = "/Statistics/Conversation List/"; break;
     case(REGISTER_TAP_GROUP_ENDPOINT_LIST): toolspath = "/Statistics/Endpoint List/"; break;
-    case(REGISTER_TAP_GROUP_HOST_LIST): toolspath = "/Statistics/Host List/"; break;
     case(REGISTER_TAP_GROUP_RESPONSE_TIME): toolspath = "/Statistics/Service Response Time/"; break;
     case(REGISTER_TAP_GROUP_NONE): toolspath = "/Statistics/"; break;
     default:
@@ -742,9 +741,6 @@ void merge_all_tap_menus(GList *node) {
         /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
     }
     if (merge_tap_menus_layered(node, REGISTER_TAP_GROUP_ENDPOINT_LIST)) {
-        /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
-    }
-    if (merge_tap_menus_layered(node, REGISTER_TAP_GROUP_HOST_LIST)) {
         /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
     }
     if (merge_tap_menus_layered(node, REGISTER_TAP_GROUP_RESPONSE_TIME)) {

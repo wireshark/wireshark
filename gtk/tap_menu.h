@@ -1,7 +1,7 @@
 /* tap_menu.h
  * Menu definitions for use by taps
  *
- * $Id: tap_menu.h,v 1.3 2004/02/23 19:19:38 ulfl Exp $
+ * $Id: tap_menu.h,v 1.4 2004/02/23 20:28:31 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,8 +63,7 @@ extern void register_tap_menu_item(
 #define REGISTER_TAP_GROUP_GENERIC              0
 #define REGISTER_TAP_GROUP_CONVERSATION_LIST    1
 #define REGISTER_TAP_GROUP_ENDPOINT_LIST        2
-#define REGISTER_TAP_GROUP_HOST_LIST            3
-#define REGISTER_TAP_GROUP_RESPONSE_TIME        4
+#define REGISTER_TAP_GROUP_RESPONSE_TIME        3
 #define REGISTER_TAP_GROUP_NONE                 10
 
 #ifdef __cplusplus
