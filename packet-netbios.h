@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.h,v 1.7 2000/08/11 13:34:05 deniel Exp $
+ * $Id: packet-netbios.h,v 1.8 2000/11/10 21:09:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,10 +36,10 @@
 void capture_netbios(const u_char *, int, packet_counts *);
 
 extern int process_netbios_name(const u_char *name_ptr, char *name_ret);
-extern int get_netbios_name(const u_char *data_ptr, int offset,
+extern int get_netbios_name(tvbuff_t *tvb, int offset,
     char *name_ret);
 extern char *netbios_name_type_descr(int name_type);
-extern gboolean netbios_add_name( char* label, const u_char *pd, int offset,
+extern gboolean netbios_add_name( char* label, tvbuff_t *tvb, int offset,
     proto_tree *tree);
 
 #endif

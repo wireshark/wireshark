@@ -1,6 +1,6 @@
 /* packet-nbipx.h
  *
- * $Id: packet-nbipx.h,v 1.3 2000/08/11 13:34:08 deniel Exp $
+ * $Id: packet-nbipx.h,v 1.4 2000/11/10 21:09:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,6 +25,6 @@
 #ifndef __PACKET_NBIPX_H__
 #define __PACKET_NBIPX_H__
 
-void dissect_nbipx(const u_char *, int, frame_data *, proto_tree *);
+void dissect_nbipx(tvbuff_t *, packet_info *, proto_tree *);
 
 #endif

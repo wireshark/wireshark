@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.65 2000/10/22 07:54:04 guy Exp $
+ * $Id: packet-ipx.c,v 1.66 2000/11/10 21:09:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -369,7 +369,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case IPX_PACKET_TYPE_WANBCAST:
 		case IPX_PACKET_TYPE_PEP:
 			if (ipx_dsocket == IPX_SOCKET_NETBIOS) {
-				dissect_nbipx(next_pd, next_offset, pinfo->fd, tree);
+				dissect_nbipx(next_tvb, pinfo, tree);
 				return;
 			}
 			/* else fall through */
