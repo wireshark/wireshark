@@ -8,7 +8,10 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.52 2003/02/25 21:28:04 guy Exp $
+ * Portions Copyright (c) Gilbert Ramirez 2000-2002
+ * Portions Copyright (c) Novell, Inc. 2000-2003
+ *
+ * $Id: packet-ncp2222.inc,v 1.53 2003/04/08 00:46:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4398,7 +4401,10 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 	if (ncp_rec && ncp_rec->errors) {
 		error_string = ncp_error_string(ncp_rec->errors, completion_code);
 	}
-	else if (completion_code == 0) {
+	else {
+		error_string = "Not OK";
+	}
+	if (completion_code == 0) {
 		if(type == NCP_POSITIVE_ACK)
                 {
                         error_string = "Server Busy, Request Being Processed";
@@ -4407,9 +4413,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                 {                
                         error_string = "OK";
                 }        
-	}
-	else {
-		error_string = "Not OK";
 	}
         if (type == NCP_SERVICE_REPLY && ncp_rec && ncp_rec->func==0x68 &&
             ncp_rec->subfunc==0x02)
@@ -7941,7 +7944,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                		default:
-               			verb_string = "NDS Continuation Fragment";
+               			verb_string = "Continuation Fragment";
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                	}
         }
