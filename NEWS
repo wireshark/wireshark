@@ -1,3 +1,9 @@
+Overview of changes in Ethereal 0.3.16:
+
+* Support for ISO/OSI CLNP & COTP (Laurent)
+* Support for Banyan Vines (Don)
+* TCP reconstruction support (Mike)
+
 Overview of changes in Ethereal 0.3.15:
 
 * OSPF fixes (Hannes)
