@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.15 2000/05/08 04:53:21 guy Exp $
+ * $Id: print_dlg.c,v 1.16 2000/05/08 05:35:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,6 +49,7 @@
 #include "simple_dialog.h"
 #endif
 
+#include "ui_util.h"
 #include "dlg_utils.h"
 
 static void print_cmd_toggle_dest(GtkWidget *widget, gpointer data);
@@ -56,8 +57,10 @@ static void print_cmd_toggle_detail(GtkWidget *widget, gpointer data);
 static void print_file_cb(GtkWidget *file_bt, gpointer file_te);
 static void print_fs_ok_cb(GtkWidget *w, gpointer data);
 static void print_fs_cancel_cb(GtkWidget *w, gpointer data);
+static void print_fs_destroy_cb(GtkWidget *win, gpointer data);
 static void print_ok_cb(GtkWidget *ok_bt, gpointer parent_w);
 static void print_close_cb(GtkWidget *close_bt, gpointer parent_w);
+static void print_destroy_cb(GtkWidget *win, gpointer user_data);
 
 /*
  * Remember whether we printed to a printer or a file the last time we
@@ -79,11 +82,20 @@ static gint	print_format = PR_FMT_TEXT;
 #define PRINT_EXPAND_ALL_RB_KEY   "printer_expand_all_radio_button"
 #define PRINT_AS_DISPLAYED_RB_KEY "printer_as_displayed_radio_button"
 
+#define E_FS_CALLER_PTR_KEY       "fs_caller_ptr"
+#define E_FILE_SEL_DIALOG_PTR_KEY "file_sel_dialog_ptr"
+
+/*
+ * Keep a static pointer to the current "Print" window, if any, so that if
+ * somebody tries to do "File:Print" while there's already a "Print" window
+ * up, we just pop up the existing one, rather than creating a new one.
+ */
+static GtkWidget *print_w;
+
 /* Print the capture */
 void
 file_print_cmd_cb(GtkWidget *widget, gpointer data)
 {
-  GtkWidget     *print_w;
   GtkAccelGroup *accel_group;
   GtkWidget     *main_vb, *main_tb, *button;
   GtkWidget     *format_rb;
@@ -101,11 +113,16 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   GSList        *expand_grp;
   GtkWidget     *bbox, *ok_bt, *cancel_bt;
 
-  /* XXX - don't pop up one if there's already one open; instead,
-       give it the input focus if that's possible. */
+  if (print_w != NULL) {
+    /* There's already a "Print" dialog box; reactivate it. */
+    reactivate_window(print_w);
+    return;
+  }
 
   print_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(print_w), "Ethereal: Print");
+  gtk_signal_connect(GTK_OBJECT(print_w), "destroy",
+	GTK_SIGNAL_FUNC(print_destroy_cb), NULL);
 
   /* Accelerator group for the accelerators (or, as they're called in
      Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
@@ -317,9 +334,6 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
      been selected. */
   dlg_set_cancel(print_w, cancel_bt);
 
-#if 0
-  display_opt_window_active = TRUE;
-#endif
   gtk_widget_show(print_w);
 }
 
@@ -377,10 +391,32 @@ print_cmd_toggle_detail(GtkWidget *widget, gpointer data)
 static void
 print_file_cb(GtkWidget *file_bt, gpointer file_te)
 {
+  GtkWidget *caller = gtk_widget_get_toplevel(file_bt);
   GtkWidget *fs;
 
+  /* Has a file selection dialog box already been opened for that top-level
+     widget? */
+  fs = gtk_object_get_data(GTK_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY);
+
+  if (fs != NULL) {
+    /* Yes.  Just re-activate that dialog box. */
+    reactivate_window(fs);
+    return;
+  }
+
   fs = gtk_file_selection_new ("Ethereal: Print to File");
-	gtk_object_set_data(GTK_OBJECT(fs), PRINT_FILE_TE_KEY, file_te);
+  gtk_object_set_data(GTK_OBJECT(fs), PRINT_FILE_TE_KEY, file_te);
+
+  /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
+  gtk_object_set_data(GTK_OBJECT(fs), E_FS_CALLER_PTR_KEY, caller);
+
+  /* Set the E_FILE_SEL_DIALOG_PTR_KEY for the caller to point to us */
+  gtk_object_set_data(GTK_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY, fs);
+
+  /* Call a handler when the file selection box is destroyed, so we can inform
+     our caller, if any, that it's been destroyed. */
+  gtk_signal_connect(GTK_OBJECT(fs), "destroy",
+	    GTK_SIGNAL_FUNC(print_fs_destroy_cb), NULL);
 
   gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION(fs)->ok_button),
     "clicked", (GtkSignalFunc) print_fs_ok_cb, fs);
@@ -406,6 +442,24 @@ static void
 print_fs_cancel_cb(GtkWidget *w, gpointer data)
 {
   gtk_widget_destroy(GTK_WIDGET(data));
+}
+
+static void
+print_fs_destroy_cb(GtkWidget *win, gpointer data)
+{
+  GtkWidget *caller;
+
+  /* Get the widget that requested that we be popped up.
+     (It should arrange to destroy us if it's destroyed, so
+     that we don't get a pointer to a non-existent window here.) */
+  caller = gtk_object_get_data(GTK_OBJECT(win), E_FS_CALLER_PTR_KEY);
+
+  /* Tell it we no longer exist. */
+  gtk_object_set_data(GTK_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY, NULL);
+
+  /* Now nuke this window. */
+  gtk_grab_remove(GTK_WIDGET(win));
+  gtk_widget_destroy(GTK_WIDGET(win));
 }
 
 static void
@@ -447,9 +501,6 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   print_args.expand_all = GTK_TOGGLE_BUTTON (button)->active;
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
-#if 0
-  display_opt_window_active = FALSE;
-#endif
 
   /* Now print the packets */
   if (!print_packets(&cf, &print_args)) {
@@ -467,12 +518,26 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 static void
 print_close_cb(GtkWidget *close_bt, gpointer parent_w)
 {
-
   gtk_grab_remove(GTK_WIDGET(parent_w));
   gtk_widget_destroy(GTK_WIDGET(parent_w));
-#if 0
-  display_opt_window_active = FALSE;
-#endif
+}
+
+static void
+print_destroy_cb(GtkWidget *win, gpointer user_data)
+{
+  GtkWidget *fs;
+
+  /* Is there a file selection dialog associated with this
+     Print File dialog? */
+  fs = gtk_object_get_data(GTK_OBJECT(win), E_FILE_SEL_DIALOG_PTR_KEY);
+
+  if (fs != NULL) {
+    /* Yes.  Destroy it. */
+    gtk_widget_destroy(fs);
+  }
+
+  /* Note that we no longer have a "Print" dialog box. */
+  print_w = NULL;
 }
 
 /* Print a packet */
