@@ -287,7 +287,6 @@ File "..\..\help\getting_started.txt"
 File "..\..\help\capturing.txt"
 File "..\..\help\capture_filters.txt"
 File "..\..\help\display_filters.txt"
-File "..\..\help\well_known.txt"
 File "..\..\help\faq.txt"
 
 ; Write the uninstall keys for Windows
