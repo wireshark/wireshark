@@ -1,7 +1,7 @@
 /*
  * tap_rtp.c
  *
- * $Id: tap_rtp.c,v 1.2 2003/03/06 21:15:59 deniel Exp $
+ * $Id: tap_rtp.c,v 1.3 2003/03/06 23:09:09 guy Exp $
  *
  * RTP analysing addition for ethereal
  *
@@ -75,10 +75,6 @@
  *
  * XXX Problems: 
  *
- * - how to use snprintf (or g_snprintf) with guint16, guint32 ? If I put %lu for guint32 
- *   then compiler makes a warning but it works. If I put %d for guint32, 
- *   then compiler doesn't warns, but then it doesn't work
- *
  * - instead of tmpnam() use of mkstemp(). 
  *   I tried to do it with mkstemp() but didn't now how to solve following  problem: 
  *   I call mkstemp() and then write in this temp file and it works fine . But if the user 
@@ -120,8 +116,14 @@
 #include "progress_dlg.h"
 #include "compat_macros.h"
 #include "../g711.h"
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #include <fcntl.h>
+
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
 
 static GtkWidget *rtp_w = NULL;
 static GtkWidget *voice_w = NULL;
@@ -236,10 +238,10 @@ rtp_reset(void *prs)
 	fclose(rs->f_fp); 
   if (rs->r_fp != NULL)
 	fclose(rs->r_fp); 
-  rs->f_fp = fopen(f_tempname, "w"); 
+  rs->f_fp = fopen(f_tempname, "wb"); 
   if (rs->f_fp == NULL)
 	rs->f_error_type = FILE_OPEN_ERROR;
-  rs->r_fp = fopen(r_tempname, "w");
+  rs->r_fp = fopen(r_tempname, "wb");
   if (rs->r_fp == NULL)
 	rs->r_error_type = FILE_OPEN_ERROR;
   return;
@@ -1453,8 +1455,6 @@ static void add_rtp_notebook(void *pri)
   gchar label_forward[150];
   gchar label_reverse[150];
 
-  /* XXX is it ok to use %lu for guint32? The compiler is not satisfied, but it works
-   * with %d the compiler is satisfied, but it doesn't work */
   g_snprintf(label_forward, 149, 
 		"Analysing connection from  %s port %u  to  %s port %u   SSRC = %u\n", 
 		rs->source, rs->srcport, rs->destination, rs->dstport, rs->ssrc_forward);
@@ -1835,17 +1835,17 @@ static gboolean copy_file(gchar *dest, gint channels, /*gint format,*/ void *dat
 	guint32 progbar_count, progbar_quantum, progbar_nextstep = 0, count = 0;
 	gboolean stop_flag = FALSE;
 
-	forw_fd = open(f_tempname, O_RDONLY | 0);
+	forw_fd = open(f_tempname, O_RDONLY | O_BINARY);
 	if (forw_fd < 0) 
 		return FALSE;
-	rev_fd = open(r_tempname, O_RDONLY | 0);
+	rev_fd = open(r_tempname, O_RDONLY | O_BINARY);
 	if (rev_fd < 0) {
 		close(forw_fd); 
 		return FALSE;
 	}
 
 	/* open file for saving */
-	to_fd = open(dest, O_WRONLY | O_CREAT | O_TRUNC | 0, 0644);
+	to_fd = open(dest, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
 	if (to_fd < 0) {
 		close(forw_fd);
 		close(rev_fd);
