@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.50 2003/12/04 05:57:53 gram Exp $
+ * $Id: packet-socks.c,v 1.51 2003/12/29 19:05:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -894,6 +894,11 @@ display_ping_and_tracert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 
 
+static void clear_in_socks_dissector_flag(void *dummy _U_)
+{
+	in_socks_dissector_flag = 0; /* avoid recursive overflow */
+}
+
 static void call_next_dissector(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, socks_hash_entry_t *hash_info) {
 
@@ -925,10 +930,11 @@ static void call_next_dissector(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* 2003-09-18 JCFoster Fixed problem with socks tunnel in socks tunnel */
 
 		in_socks_dissector_flag = 1; /* avoid recursive overflow */
+		CLEANUP_PUSH(clear_in_socks_dissector_flag, NULL);
 
 		decode_tcp_ports( tvb, offset, pinfo, tree, pinfo->srcport, pinfo->destport);
 
-		in_socks_dissector_flag = 0; /* avoid recursive overflow */
+		CLEANUP_CALL_AND_POP;
 
 	        *ptr = TCP_PORT_SOCKS;
 	}
