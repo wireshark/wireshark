@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.12 1999/12/10 07:04:30 guy Exp $
+ * $Id: menu.c,v 1.13 2000/01/03 03:57:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,6 +35,8 @@
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
+
+#include "../menu.h"
 
 #include "main.h"
 #include "menu.h"
@@ -148,25 +150,14 @@ menus_init(void) {
 
     factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
     gtk_item_factory_create_items_ac(factory, nmenu_items, menu_items, NULL,2);
-    set_menu_sensitivity("/File/Close", FALSE);
-    set_menu_sensitivity("/File/Save", FALSE);
-    set_menu_sensitivity("/File/Save As...", FALSE);
-    set_menu_sensitivity("/File/Reload", FALSE);
-    set_menu_sensitivity("/File/Print...", FALSE);
-    set_menu_sensitivity("/File/Print Packet", FALSE);
+    set_menus_for_unsaved_capture_file(FALSE);
+    set_menus_for_capture_file(FALSE);
     set_menu_sensitivity("/Edit/Cut", FALSE);
     set_menu_sensitivity("/Edit/Copy", FALSE);
     set_menu_sensitivity("/Edit/Paste", FALSE);
     set_menu_sensitivity("/Edit/Find", FALSE);
-    set_menu_sensitivity("/Display/Match Selected", FALSE);
-    set_menu_sensitivity("/Display/Colorize Display...", FALSE);
-    set_menu_sensitivity("/Display/Find Frame...", FALSE);
-    set_menu_sensitivity("/Display/Go To Frame...", FALSE);
-    set_menu_sensitivity("/Display/Collapse All", FALSE);
-    set_menu_sensitivity("/Display/Expand All", FALSE);
-    set_menu_sensitivity("/Tools/Follow TCP Stream", FALSE);
-    set_menu_sensitivity("/Tools/Graph", FALSE);
-    set_menu_sensitivity("/Tools/Summary", FALSE);
+    set_menus_for_captured_packets(FALSE);
+    set_menus_for_selected_packet(FALSE);
   }
 }
 
@@ -186,4 +177,53 @@ set_menu_object_data (gchar *path, gchar *key, gpointer data) {
     gtk_object_set_data(GTK_OBJECT(menu), key, data);
 }
 
+/* Enable or disable menu items based on whether you have a capture file
+   you've finished reading. */
+void
+set_menus_for_capture_file(gboolean have_capture_file)
+{
+  set_menu_sensitivity("/File/Save As...", have_capture_file);
+  set_menu_sensitivity("/File/Close", have_capture_file);
+  set_menu_sensitivity("/File/Reload", have_capture_file);
+  set_menu_sensitivity("/File/Print...", have_capture_file);
+}
 
+/* Enable or disable menu items based on whether you have an unsaved
+   capture file you've finished reading. */
+void
+set_menus_for_unsaved_capture_file(gboolean have_unsaved_capture_file)
+{
+  set_menu_sensitivity("/File/Save", have_unsaved_capture_file);
+}
+
+/* Enable or disable menu items based on whether there's a capture in
+   progress. */
+void
+set_menus_for_capture_in_progress(gboolean capture_in_progress)
+{
+  set_menu_sensitivity("/File/Open...", !capture_in_progress);
+  set_menu_sensitivity("/Capture/Start...", !capture_in_progress);
+}
+
+/* Enable or disable menu items based on whether you have some captured
+   packets. */
+void
+set_menus_for_captured_packets(gboolean have_captured_packets)
+{
+  set_menu_sensitivity("/Display/Match Selected", have_captured_packets);
+  set_menu_sensitivity("/Display/Colorize Display...", have_captured_packets);
+  set_menu_sensitivity("/Display/Find Frame...", have_captured_packets);
+  set_menu_sensitivity("/Display/Go To Frame...", have_captured_packets);
+  set_menu_sensitivity("/Tools/Summary", have_captured_packets);
+}
+
+/* Enable or disable menu items based on whether a packet is selected. */
+void
+set_menus_for_selected_packet(gboolean have_selected_packet)
+{
+  set_menu_sensitivity("/File/Print Packet", have_selected_packet);
+  set_menu_sensitivity("/Display/Collapse All", have_selected_packet);
+  set_menu_sensitivity("/Display/Expand All", have_selected_packet);
+  set_menu_sensitivity("/Tools/Follow TCP Stream",
+      have_selected_packet ? (pi.ipproto == 6) : FALSE);
+}

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.144 2000/01/03 03:46:36 guy Exp $
+ * $Id: file.c,v 1.145 2000/01/03 03:56:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,10 +71,10 @@
 
 #include "gtk/main.h"
 #include "column.h"
-#include "gtk/menu.h"
 #include "packet.h"
 #include "print.h"
 #include "file.h"
+#include "menu.h"
 #include "util.h"
 #include "ui_util.h"
 #include "gtk/proto_draw.h"
@@ -225,21 +225,10 @@ close_cap_file(capture_file *cf, void *w)
   set_main_window_name("The Ethereal Network Analyzer");
 
   /* Disable all menu items that make sense only if you have a capture. */
-  set_menu_sensitivity("/File/Save", FALSE);
-  set_menu_sensitivity("/File/Save As...", FALSE);
-  set_menu_sensitivity("/File/Close", FALSE);
-  set_menu_sensitivity("/File/Reload", FALSE);
-  set_menu_sensitivity("/File/Print...", FALSE);
-  set_menu_sensitivity("/Display/Options...", FALSE);
-  set_menu_sensitivity("/Display/Match Selected", FALSE);
-  set_menu_sensitivity("/Display/Colorize Display...", FALSE);
-  set_menu_sensitivity("/Display/Find Frame...", FALSE);
-  set_menu_sensitivity("/Display/Go To Frame...", FALSE);
-  set_menu_sensitivity("/Display/Collapse All", FALSE);
-  set_menu_sensitivity("/Display/Expand All", FALSE);
-  set_menu_sensitivity("/Tools/Follow TCP Stream", FALSE);
-  set_menu_sensitivity("/Tools/Graph", FALSE);
-  set_menu_sensitivity("/Tools/Summary", FALSE);
+  set_menus_for_capture_file(FALSE);
+  set_menus_for_unsaved_capture_file(FALSE);
+  set_menus_for_captured_packets(FALSE);
+  set_menus_for_selected_packet(FALSE);
 }
 
 /* Set the file name in the status line, in the name for the main window,
@@ -335,20 +324,11 @@ read_cap_file(capture_file *cf)
 
   /* Enable menu items that make sense if you have a capture file you've
      finished reading. */
-  set_menu_sensitivity("/File/Save", !cf->user_saved);
-  set_menu_sensitivity("/File/Save As...", TRUE);
-  set_menu_sensitivity("/File/Close", TRUE);
-  set_menu_sensitivity("/File/Reload", TRUE);
-  set_menu_sensitivity("/File/Print...", TRUE);
+  set_menus_for_capture_file(TRUE);
+  set_menus_for_unsaved_capture_file(!cf->user_saved);
 
   /* Enable menu items that make sense if you have some captured packets. */
-  set_menu_sensitivity("/Display/Options...", TRUE);
-  set_menu_sensitivity("/Display/Match Selected", TRUE);
-  set_menu_sensitivity("/Display/Colorize Display...", TRUE);
-  set_menu_sensitivity("/Display/Find Frame...", TRUE);
-  set_menu_sensitivity("/Display/Go To Frame...", TRUE);
-  set_menu_sensitivity("/Tools/Graph", TRUE);
-  set_menu_sensitivity("/Tools/Summary", TRUE);
+  set_menus_for_captured_packets(TRUE);
 
   if (!success) {
     /* Put up a message box noting that the read failed somewhere along
@@ -392,23 +372,13 @@ start_tail_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
 
   err = open_cap_file(fname, is_tempfile, cf);
   if (err == 0) {
-    /* Disable menu items that make sense only if you have a capture
-       file you've finished reading. */
-    set_menu_sensitivity("/File/Open...", FALSE);
-
-    /* Disable menu items that make sense only if you're not currently
-       running a capture. */
-    set_menu_sensitivity("/Capture/Start...", FALSE);
+    /* Disable menu items that make no sense if you're currently running
+       a capture. */
+    set_menus_for_capture_in_progress(TRUE);
 
     /* Enable menu items that make sense if you have some captured
        packets (yes, I know, we don't have any *yet*). */
-    set_menu_sensitivity("/Display/Options...", TRUE);
-    set_menu_sensitivity("/Display/Match Selected", TRUE);
-    set_menu_sensitivity("/Display/Colorize Display...", TRUE);
-    set_menu_sensitivity("/Display/Find Frame...", TRUE);
-    set_menu_sensitivity("/Display/Go To Frame...", TRUE);
-    set_menu_sensitivity("/Tools/Graph", TRUE);
-    set_menu_sensitivity("/Tools/Summary", TRUE);
+    set_menus_for_captured_packets(TRUE);
 
     for (i = 0; i < cf->cinfo.num_cols; i++) {
       if (get_column_resize_type(cf->cinfo.col_fmt[i]) == RESIZE_LIVE)
@@ -478,20 +448,14 @@ finish_tail_cap_file(capture_file *cf)
 
   set_display_filename(cf);
 
-  /* Restore the "File/Open" menu item. */
-  set_menu_sensitivity("/File/Open...", TRUE);
+  /* Enable menu items that make sense if you're not currently running
+     a capture. */
+  set_menus_for_capture_in_progress(FALSE);
 
   /* Enable menu items that make sense if you have a capture file
      you've finished reading. */
-  set_menu_sensitivity("/File/Save", !cf->user_saved);
-  set_menu_sensitivity("/File/Save As...", TRUE);
-  set_menu_sensitivity("/File/Close", TRUE);
-  set_menu_sensitivity("/File/Reload", TRUE);
-  set_menu_sensitivity("/File/Print...", TRUE);
-
-  /* Enable menu items that make sense if you're not currently running
-     a capture. */
-  set_menu_sensitivity("/Capture/Start...", TRUE);
+  set_menus_for_capture_file(TRUE);
+  set_menus_for_unsaved_capture_file(!cf->user_saved);
 
   return err;
 }
@@ -1259,16 +1223,8 @@ select_packet(capture_file *cf, int row)
   packet_hex_print(GTK_TEXT(byte_view), cf->pd, cf->current_frame->cap_len,
 			-1, -1, cf->current_frame->encoding);
 
-  /* A packet is selected, so "File/Print Packet" has something to print. */
-  set_menu_sensitivity("/File/Print Packet", TRUE);
-  set_menu_sensitivity("/Display/Collapse All", TRUE);
-  set_menu_sensitivity("/Display/Expand All", TRUE);
-  
-  if (pi.ipproto == 6) {
-      set_menu_sensitivity("/Tools/Follow TCP Stream", TRUE);
-  } else {
-      set_menu_sensitivity("/Tools/Follow TCP Stream", FALSE);
-  }
+  /* A packet is selected. */
+  set_menus_for_selected_packet(TRUE);
 }
 
 /* Unselect the selected packet, if any. */
@@ -1288,11 +1244,8 @@ unselect_packet(capture_file *cf)
   /* Clear out the display of that packet. */
   clear_tree_and_hex_views();
 
-  /* No packet is selected, so "File/Print Packet" has nothing to print. */
-  set_menu_sensitivity("/File/Print Packet", FALSE);
-  set_menu_sensitivity("/Display/Collapse All", FALSE);
-  set_menu_sensitivity("/Display/Expand All", FALSE);
-  set_menu_sensitivity("/Tools/Follow TCP Stream", FALSE);
+  /* No packet is selected. */
+  set_menus_for_selected_packet(FALSE);
 }
 
 static void
@@ -1517,7 +1470,7 @@ done:
       if ((err = open_cap_file(fname, FALSE, cf)) == 0) {
 	/* XXX - report errors if this fails? */
 	err = read_cap_file(cf);
-	set_menu_sensitivity("/File/Save", FALSE);
+	set_menus_for_unsaved_capture_file(FALSE);
       }
     }
   }

@@ -1,7 +1,7 @@
 /* menu.h
  * Menu definitions
  *
- * $Id: menu.h,v 1.1 1999/09/01 03:04:23 gram Exp $
+ * $Id: menu.h,v 1.2 2000/01/03 03:57:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,8 +23,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __MENU_H__
-#define __MENU_H__
+#ifndef __GTKGUIMENU_H__
+#define __GTKGUIMENU_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,4 +44,4 @@ void menus_create (GtkMenuEntry *, int);
 }
 #endif /* __cplusplus */
 
-#endif /* __MENU_H__ */
+#endif /* __GTKGUIMENU_H__ */
