@@ -55,6 +55,9 @@ static int hf_q933_connected_number 			= -1;
 static int hf_q933_redirecting_number 			= -1;
 static int hf_q933_screening_ind				= -1;
 static int hf_q933_presentation_ind				= -1;
+static int hf_q933_report_type				= -1;
+static int hf_q933_link_verf_txseq		       	= -1;
+static int hf_q933_link_verf_rxseq		       	= -1;
 
 static gint ett_q933 					= -1;
 static gint ett_q933_ie 				= -1;
@@ -223,8 +226,20 @@ static const value_string q933_info_element_vals3[] = {
 static const value_string q933_info_element_vals4[] = {
 	{ 0,					NULL }
 };
+
+/* Codeset 5 */
+#define Q933_IE_ANSI_REPORT_TYPE         0x01
+#define Q933_IE_ANSI_LINK_INTEGRITY_VERF 0x03
+#define Q933_IE_ANSI_PVC_STATUS          0x07
+
 /* Codeset 5 */
 static const value_string q933_info_element_vals5[] = {
+        { Q933_IE_ANSI_REPORT_TYPE,             "Report type (ANSI)" },
+        { Q933_IE_REPORT_TYPE,                  "Report type (CCITT)" },
+        { Q933_IE_ANSI_LINK_INTEGRITY_VERF,     "Keep Alive (ANSI)" },
+        { Q933_IE_LINK_INTEGRITY_VERF,          "Keep Alive (CCITT)" },
+        { Q933_IE_ANSI_PVC_STATUS,              "PVC Status (ANSI)" },
+        { Q933_IE_PVC_STATUS,                   "PVC Status (CCITT)" },
 	{ 0,					NULL }
 };
 /* Codeset 6 */
@@ -1077,6 +1092,92 @@ dissect_q933_call_state_ie(tvbuff_t *tvb, int offset, int len,
 	    "Call state: %s",
 	    val_to_str(octet & 0x3F, q933_call_state_vals,
 	      "Unknown (0x%02X)"));
+}
+
+/*
+ * Dissect a Report Type information element.
+ */
+#define Q933_IE_REPORT_TYPE_FULL_STATUS 0x00
+#define Q933_IE_REPORT_TYPE_LINK_VERIFY 0x01
+#define Q933_IE_REPORT_TYPE_ASYNC_PVC_STATUS 0x02
+
+static const value_string q933_report_type_vals[] = {
+        { Q933_IE_REPORT_TYPE_FULL_STATUS, "Full Status" },
+        { Q933_IE_REPORT_TYPE_LINK_VERIFY, "Link verify" },
+        { Q933_IE_REPORT_TYPE_ASYNC_PVC_STATUS, "Async PVC Status" },
+	{ 0,    NULL }
+};
+
+static void
+dissect_q933_report_type_ie(tvbuff_t *tvb, int offset, int len,
+    proto_tree *tree)
+{
+	guint8 report_type;
+
+	if (len == 0)
+		return;
+
+	report_type = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_q933_report_type, tvb, offset, 1, report_type);
+}
+
+/*
+ * Dissect a Link Integrity Verification information element.
+ */
+static void
+dissect_q933_link_integrity_verf_ie(tvbuff_t *tvb, int offset, int len,
+    proto_tree *tree)
+{
+	guint8 txseq,rxseq;
+
+	if (len < 2)
+		return;
+
+	txseq = tvb_get_guint8(tvb, offset);
+	rxseq = tvb_get_guint8(tvb, offset+1);
+
+	proto_tree_add_uint(tree, hf_q933_link_verf_txseq, tvb, offset, 1, txseq);
+	proto_tree_add_uint(tree, hf_q933_link_verf_rxseq, tvb, offset+1, 1, rxseq);
+
+}
+
+/*
+ * Dissect a PVC status information element.
+ */
+static value_string q933_pvc_status_vals[] = {
+    {0x00, "Inactive"},
+    {0x02, "Active"},
+    {0x08, "New"},
+    {0x0a, "New, Active"},
+};
+
+static void
+dissect_q933_pvc_status_ie(tvbuff_t *tvb, int offset, int len,
+    proto_tree *tree)
+{
+	guint32 dlci;
+        guint8 dlci_status,dlci_len=2;
+
+	if (len < 3)
+		return;
+
+        dlci = ((tvb_get_guint8(tvb, offset) & 0x3F) << 4) |
+            ((tvb_get_guint8(tvb, offset+1) & 0x78) >> 3);
+
+        /* first determine the DLCI field length */
+        if (len == 4) {
+            dlci = (dlci << 6) | ((tvb_get_guint8(tvb, offset+2) & 0x7E) >> 1);
+            dlci_len++;
+        } else if (len == 5) {
+            dlci = (dlci << 13) | (tvb_get_guint8(tvb, offset+3) & 0x7F) |
+                ((tvb_get_guint8(tvb, offset+4) & 0x7E) >> 1);
+            dlci_len+=2;
+        }
+        dlci_status=tvb_get_guint8(tvb, offset+dlci_len)&0x0a;
+
+	proto_tree_add_text(tree, tvb, offset, dlci_len, "DLCI: %u", dlci);
+	proto_tree_add_text(tree, tvb, offset+dlci_len, 1, "Status: %s",
+                            val_to_str(dlci_status, q933_pvc_status_vals, "Unknown"));
 }
 
 /*
@@ -2026,6 +2127,29 @@ dissect_q933(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    ie_tree);
 				break;
 
+
+			case CS0 | Q933_IE_REPORT_TYPE:
+			case CS5 | Q933_IE_REPORT_TYPE:
+			case CS5 | Q933_IE_ANSI_REPORT_TYPE:
+				dissect_q933_report_type_ie(tvb,
+				    offset + 2, info_element_len,
+				    ie_tree);
+				break;
+
+			case CS5 | Q933_IE_LINK_INTEGRITY_VERF:
+			case CS5 | Q933_IE_ANSI_LINK_INTEGRITY_VERF:
+                                dissect_q933_link_integrity_verf_ie(tvb,
+				    offset + 2, info_element_len,
+				    ie_tree);
+				break;
+
+			case CS5 | Q933_IE_PVC_STATUS:
+			case CS5 | Q933_IE_ANSI_PVC_STATUS:
+				dissect_q933_pvc_status_ie(tvb,
+				    offset + 2, info_element_len,
+				    ie_tree);
+				break;
+
 			default:
 				proto_tree_add_text(ie_tree, tvb,
 				    offset + 2, info_element_len,
@@ -2127,6 +2251,16 @@ proto_register_q933(void)
 		{ &hf_q933_redirecting_number,
 		  { "Redirecting party number digits", "q933.redirecting_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
+		{ &hf_q933_report_type,
+		  { "Report type", "q933.report_type", FT_UINT8, BASE_DEC, VALS(q933_report_type_vals), 0x0,
+			"", HFILL }},
+		{ &hf_q933_link_verf_txseq,
+		  { "TX Sequence", "q933.link_verification.txseq", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+		{ &hf_q933_link_verf_rxseq,
+		  { "RX Sequence", "q933.link_verification.rxseq", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+
 	};
 	static gint *ett[] = {
 		&ett_q933,
