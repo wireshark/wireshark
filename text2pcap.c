@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.5 2001/11/24 07:52:05 guy Exp $
+ * $Id: text2pcap.c,v 1.6 2001/11/24 07:55:07 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -283,7 +283,7 @@ write_byte (char *str)
 /*----------------------------------------------------------------------
  * Remove bytes from the current packet
  */
-static int
+static void
 unwrite_bytes (unsigned long nbytes)
 {
     curr_offset -= nbytes;
