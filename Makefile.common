@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.42 2004/05/09 10:03:36 guy Exp $
+# $Id: Makefile.common,v 1.43 2004/05/10 03:30:24 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -253,7 +253,8 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 
 # "BUILT_SOURCES" are built before any "make all" or "make check" targets.
 BUILT_SOURCES =		\
-	cvsversion.h
+	cvsversion.h \
+	ps.c
 
 # sources common for ethereal and tethereal
 ETHEREAL_COMMON_SRC =	\
