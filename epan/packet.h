@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.72 2003/10/01 07:11:45 guy Exp $
+ * $Id: packet.h,v 1.73 2004/06/08 05:42:57 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -220,24 +220,47 @@ extern void dissector_add_handle(const char *name, dissector_handle_t handle);
    by another dissector. */
 typedef GSList *heur_dissector_list_t;
 
-/* Type of a heuristic dissector */
-typedef gboolean (*heur_dissector_t)(tvbuff_t *, packet_info *,
-	proto_tree *);
-
-/* A protocol uses this function to register a heuristic dissector list */
+/** A protocol uses this function to register a heuristic sub-dissector list.
+ *  Call this in the parent dissectors proto_register function.
+ *
+ * @param name the name of this protocol
+ * @param list the list of heuristic sub-dissectors to be registered
+ */
 extern void register_heur_dissector_list(const char *name,
     heur_dissector_list_t *list);
 
-/* Add a sub-dissector to a heuristic dissector list.  Called by the
-   protocol routine that wants to register a sub-dissector.  */
-extern void heur_dissector_add(const char *name, heur_dissector_t dissector,
-    int proto);
-
-/* Try all the dissectors in a given heuristic dissector list until
-   we find one that recognizes the protocol, in which case we return
-   TRUE, or we run out of dissectors, in which case we return FALSE. */
+/** Try all the dissectors in a given heuristic dissector list. This is done,
+ *  until we find one that recognizes the protocol.
+ *  Call this while the parent dissector running.
+ *
+ * @param sub_dissectors the sub-dissector list
+ * @param tvb the tv_buff with the (remaining) packet data
+ * @param pinfo the packet info of this packet (additional info)
+ * @param tree the protocol tree to be build or NULL
+ * @return TRUE if the packet was recognized by the sub-dissector (stop dissection here)
+ */
 extern gboolean dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+/** Type of a heuristic dissector, used in heur_dissector_add().
+ *
+ * @param tvb the tv_buff with the (remaining) packet data
+ * @param pinfo the packet info of this packet (additional info)
+ * @param tree the protocol tree to be build or NULL
+ * @return TRUE if the packet was recognized by the sub-dissector (stop dissection here)
+ */
+typedef gboolean (*heur_dissector_t)(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree);
+
+/** Add a sub-dissector to a heuristic dissector list.
+ *  Call this in the proto_handoff function of the sub-dissector.
+ *
+ * @param name the name of the "parent" protocol, e.g. "tcp"
+ * @param dissector the sub-dissector to be registered
+ * @param proto the protocol id of the sub-dissector
+ */
+extern void heur_dissector_add(const char *name, heur_dissector_t dissector,
+    int proto);
 
 /* Register a dissector. */
 extern void register_dissector(const char *name, dissector_t dissector,
