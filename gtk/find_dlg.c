@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.30 2003/08/05 00:01:27 guy Exp $
+ * $Id: find_dlg.c,v 1.31 2003/08/11 22:41:10 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,7 @@
 #include "compat_macros.h"
 #include "prefs.h"
 #include "prefs_dlg.h"
+#include "keys.h"
 
 /* Capture callback data keys */
 #define E_FIND_FILT_KEY     "find_filter_te"
@@ -50,8 +51,13 @@
 #define E_FIND_FILTERDATA_KEY "find_filter"
 #define E_FIND_STRINGTYPE_KEY "find_string_type"
 #define E_CASE_SEARCH_KEY "case_insensitive_search"
+#define E_SOURCE_HEX_KEY "hex_data_source"
+#define E_SOURCE_DECODE_KEY "decode_data_source"
+#define E_SOURCE_SUMMARY_KEY "summary_data_source"
 
 static gboolean case_type = TRUE;
+static gboolean summary_data = FALSE;
+static gboolean decode_data = FALSE;
 
 static void
 find_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w);
@@ -61,6 +67,9 @@ find_frame_close_cb(GtkWidget *close_bt, gpointer parent_w);
 
 static void
 find_frame_destroy_cb(GtkWidget *win, gpointer user_data);
+
+static void
+ascii_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w);
 
 /*
  * Keep a static pointer to the current "Find Frame" window, if any, so
@@ -76,6 +85,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkWidget     *main_vb, *filter_hb, *filter_bt, *filter_te,
                 *direction_hb, *forward_rb, *backward_rb, 
                 *hex_hb, *hex_rb, *ascii_rb, *filter_rb,
+                *data_hb, *hex_data_rb, *decode_data_rb, *summary_data_rb,
                 *combo_hb, *combo_cb, *combo_lb,
                 *bbox, *ok_bt, *cancel_bt, *case_cb;
 #if GTK_MAJOR_VERSION < 2
@@ -199,9 +209,54 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ascii_rb), cfile.ascii);
   gtk_box_pack_start(GTK_BOX(hex_hb), ascii_rb, TRUE, TRUE, 0);
+  SIGNAL_CONNECT(ascii_rb, "clicked", ascii_selected_cb, find_frame_w);
   gtk_widget_show(ascii_rb);
 
-  /* String Type Selection Dropdown Box */
+  /* Hex, Decode, or Summary Data Search */
+  /* Source Hex Data Search Window*/
+  data_hb = gtk_hbox_new(FALSE, 3);
+  gtk_container_add(GTK_CONTAINER(main_vb), data_hb);
+  gtk_widget_show(data_hb);
+
+#if GTK_MAJOR_VERSION < 2
+  hex_data_rb = dlg_radio_button_new_with_label_with_mnemonic(NULL, "Hex",
+                                                             accel_group);
+#else
+  hex_data_rb = gtk_radio_button_new_with_mnemonic(NULL, "Hex");
+#endif
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(hex_data_rb), !decode_data && !summary_data);
+  gtk_box_pack_start(GTK_BOX(data_hb), hex_data_rb, TRUE, TRUE, 0);
+  gtk_widget_show(hex_data_rb);
+
+  /* Search Decode Window */
+#if GTK_MAJOR_VERSION < 2
+  decode_data_rb = dlg_radio_button_new_with_label_with_mnemonic(
+               gtk_radio_button_group(GTK_RADIO_BUTTON(hex_data_rb)),
+               "Decode", accel_group);
+#else
+  decode_data_rb = gtk_radio_button_new_with_mnemonic_from_widget(
+               GTK_RADIO_BUTTON(hex_data_rb), "Decode");
+#endif
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(decode_data_rb), decode_data);
+  gtk_box_pack_start(GTK_BOX(data_hb), decode_data_rb, TRUE, TRUE, 0);
+  gtk_widget_show(decode_data_rb);
+
+  /* Search Summary Window */
+
+#if GTK_MAJOR_VERSION < 2
+  summary_data_rb = dlg_radio_button_new_with_label_with_mnemonic(
+               gtk_radio_button_group(GTK_RADIO_BUTTON(hex_data_rb)),
+               "Summary", accel_group);
+#else
+  summary_data_rb = gtk_radio_button_new_with_mnemonic_from_widget(
+               GTK_RADIO_BUTTON(hex_data_rb), "Summary");
+#endif
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(summary_data_rb), summary_data);
+  gtk_box_pack_start(GTK_BOX(data_hb), summary_data_rb, TRUE, TRUE, 0);
+  gtk_widget_show(summary_data_rb);
+
+  /* String Type Selection Dropdown Box 
+     These only apply to the Hex Window search option */
   combo_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(main_vb), combo_hb);
   gtk_widget_show(combo_hb);
@@ -269,8 +324,12 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   OBJECT_SET_DATA(find_frame_w, E_FIND_ASCIIDATA_KEY, ascii_rb);
   OBJECT_SET_DATA(find_frame_w, E_FIND_STRINGTYPE_KEY, combo_cb);
   OBJECT_SET_DATA(find_frame_w, E_CASE_SEARCH_KEY, case_cb);
+  OBJECT_SET_DATA(find_frame_w, E_SOURCE_HEX_KEY, hex_data_rb);
+  OBJECT_SET_DATA(find_frame_w, E_SOURCE_DECODE_KEY, decode_data_rb);
+  OBJECT_SET_DATA(find_frame_w, E_SOURCE_SUMMARY_KEY, summary_data_rb);
   
 
+  ascii_selected_cb(NULL, find_frame_w);
   /* Catch the "activate" signal on the filter text entry, so that
      if the user types Return there, we act as if the "OK" button
      had been selected, as happens if Return is typed if some widget
@@ -288,10 +347,46 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(find_frame_w);
 }
 
+/* 
+ *  This function will disable the string options until
+ *  the string search is selected.
+ */  
+static void
+ascii_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
+{
+    GtkWidget   *ascii_rb, *hex_data_rb, *decode_data_rb, *summary_data_rb,
+                *data_combo_cb, *data_case_cb;
+
+    ascii_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_ASCIIDATA_KEY);
+    hex_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_HEX_KEY);
+    decode_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_DECODE_KEY);
+    summary_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_SUMMARY_KEY);
+    data_combo_cb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_STRINGTYPE_KEY);
+    data_case_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CASE_SEARCH_KEY);
+
+    
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ascii_rb))) {
+      gtk_widget_set_sensitive(GTK_WIDGET(hex_data_rb), TRUE);
+      gtk_widget_set_sensitive(GTK_WIDGET(decode_data_rb), TRUE);
+      gtk_widget_set_sensitive(GTK_WIDGET(summary_data_rb), TRUE);
+      gtk_widget_set_sensitive(GTK_WIDGET(data_combo_cb), TRUE);
+      gtk_widget_set_sensitive(GTK_WIDGET(data_case_cb), TRUE);
+    } else {
+        gtk_widget_set_sensitive(GTK_WIDGET(hex_data_rb), FALSE);
+        gtk_widget_set_sensitive(GTK_WIDGET(decode_data_rb), FALSE);
+        gtk_widget_set_sensitive(GTK_WIDGET(summary_data_rb), FALSE);
+        gtk_widget_set_sensitive(GTK_WIDGET(data_combo_cb), FALSE);
+        gtk_widget_set_sensitive(GTK_WIDGET(data_case_cb), FALSE);
+    }
+    return;
+}
+
+
 static void
 find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 {
-  GtkWidget *filter_te, *backward_rb, *hex_rb, *ascii_rb, *combo_cb, *case_cb;
+  GtkWidget *filter_te, *backward_rb, *hex_rb, *ascii_rb, *combo_cb, *case_cb,
+            *decode_data_rb, *summary_data_rb;
   gchar     *filter_text, *string_type;
   dfilter_t *sfcode;
 
@@ -301,11 +396,15 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   ascii_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_ASCIIDATA_KEY);
   combo_cb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_STRINGTYPE_KEY);
   case_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CASE_SEARCH_KEY);
+  decode_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_DECODE_KEY);
+  summary_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_SUMMARY_KEY);
 
   filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
   string_type = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(combo_cb)->entry));
 
   case_type = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(case_cb));
+  decode_data = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(decode_data_rb));
+  summary_data = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(summary_data_rb));
 
   /*
    * Try to compile the filter.
@@ -345,10 +444,23 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   }
   else
   {
-      if (!find_ascii(&cfile, filter_text, cfile.ascii, string_type, case_type)) {
-          /* We didn't find the packet. */
-          simple_dialog(ESD_TYPE_CRIT, NULL, "No packet matched search criteria.");
-          return;
+      if (!decode_data && !summary_data) {
+          if (!find_ascii(&cfile, filter_text, cfile.ascii, string_type, case_type)) {
+              /* We didn't find the packet. */
+              simple_dialog(ESD_TYPE_CRIT, NULL, "No packet matched search criteria.");
+              return;
+          }
+      }
+      else
+      {
+          /* Use the cfile.hex to indicate if summary or decode search */
+          /* This way the Next and Previous find options will work */
+          cfile.hex = summary_data; 
+          if (!find_in_gtk_data(&cfile, parent_w, filter_text, case_type, summary_data)) {
+              /* We didn't find the packet. */
+              simple_dialog(ESD_TYPE_CRIT, NULL, "No packet matched search criteria.");
+              return;
+          }
       }
   }
   gtk_widget_destroy(GTK_WIDGET(parent_w));
@@ -382,7 +494,12 @@ find_previous_next(GtkWidget *w, gpointer d, gboolean sens)
      cfile.sbackward = sens;
      if (cfile.hex || cfile.ascii) 
      {
-         find_ascii(&cfile, cfile.sfilter, cfile.ascii, cfile.ftype, case_type);
+         if (!decode_data && !summary_data) {
+            find_ascii(&cfile, cfile.sfilter, cfile.ascii, cfile.ftype, case_type);
+         }
+         else {
+            find_in_gtk_data(&cfile, d, cfile.sfilter, case_type, cfile.hex);
+         }
      }
      else 
      {

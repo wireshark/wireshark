@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.301 2003/08/05 00:01:26 guy Exp $
+ * $Id: file.c,v 1.302 2003/08/11 22:41:09 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +29,9 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#include <gtk/gtk.h>
+#include <gtk/keys.h>
+#include <gtk/compat_macros.h>
 
 #include <time.h>
 
@@ -78,6 +81,7 @@
 #include "globals.h"
 #include <epan/epan_dissect.h>
 #include "tap.h"
+#include "packet-data.h"
 
 #ifdef HAVE_LIBPCAP
 gboolean auto_scroll_live;
@@ -93,10 +97,12 @@ static void rescan_packets(capture_file *cf, const char *action, const char *act
 
 static void freeze_plist(capture_file *cf);
 static void thaw_plist(capture_file *cf);
+static void proto_tree_get_node(GNode *node, gpointer data);
 
 static char *file_rename_error_message(int err);
 static char *file_close_error_message(int err);
 static gboolean copy_binary_file(char *from_filename, char *to_filename);
+static char decode_data[16536];
 
 /* Update the progress bar this many times when reading a file. */
 #define N_PROGBAR_UPDATES	100
@@ -104,6 +110,18 @@ static gboolean copy_binary_file(char *from_filename, char *to_filename);
 /* Number of "frame_data" structures per memory chunk.
    XXX - is this the right number? */
 #define	FRAME_DATA_CHUNK_SIZE	1024
+
+
+typedef struct {
+	int		level;
+	FILE		*fh;
+	GSList		*src_list;
+	gboolean	print_all_levels;
+	gboolean	print_hex_for_data;
+	char_enc	encoding;
+	gint		format;		/* text or PostScript */
+} print_data;
+
 
 int
 open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
@@ -1453,6 +1471,276 @@ get_int_value(char char_val)
     default:
         return(atoi(&char_val));
     }
+}
+
+static char*
+get_info_string(epan_dissect_t* edt)
+{
+    int i;
+
+    for (i=0;i<edt->pi.cinfo->num_cols;i++) {
+        if (strcmp(edt->pi.cinfo->col_title[i], "Info")==0) {
+            return edt->pi.cinfo->col_data[i];
+        }
+    }
+    return NULL;
+}
+
+/*
+ * Find the data source for a specified field, and return a pointer
+ * to the data in it.
+ */
+static const guint8 *
+get_field_data(GSList *src_list, field_info *fi)
+{
+	GSList *src_le;
+	data_source *src;
+	tvbuff_t *src_tvb;
+
+	for (src_le = src_list; src_le != NULL; src_le = src_le->next) {
+		src = src_le->data;
+		src_tvb = src->tvb;
+		if (fi->ds_tvb == src_tvb) {
+			/*
+			 * Found it.
+			 */
+            if(tvb_length_remaining(src_tvb, 0) < fi->length+fi->start){
+                return NULL;
+            }
+			return tvb_get_ptr(src_tvb, fi->start, fi->length);
+		}
+	}
+	return NULL;	/* not found */
+}
+
+/* Print a tree's data, and any child nodes to the buffer. */
+static
+void proto_tree_get_node(GNode *node, gpointer data)
+{
+	field_info	*fi = PITEM_FINFO(node);
+	print_data	*pdata = (print_data*) data;
+	const guint8	*pd;
+	gchar		label_str[ITEM_LABEL_LENGTH];
+	gchar		*label_ptr, *string_ptr;
+
+    string_ptr = decode_data;
+
+	/* Don't print invisible entries. */
+	if (!fi->visible)
+		return;
+
+	/* was a free format label produced? */
+	if (fi->representation) {
+		label_ptr = fi->representation;
+	}
+	else { /* no, make a generic label */
+		label_ptr = label_str;
+		proto_item_fill_label(fi, label_str);
+	}
+    
+    strcat(string_ptr, label_ptr);
+
+    /*
+	 * Find the data for this field.
+	 */
+	pd = get_field_data(pdata->src_list, fi);
+    if (pd!=NULL) {
+        if (strlen(pd) > 0) {
+            strcat(string_ptr, pd);
+        }
+    }
+
+	/* If we're printing all levels, or if this node is one with a
+	   subtree and its subtree is expanded, recurse into the subtree,
+	   if it exists. */
+	g_assert(fi->tree_type >= -1 && fi->tree_type < num_tree_types);
+	if (pdata->print_all_levels ||
+	    (fi->tree_type >= 0 && tree_is_expanded[fi->tree_type])) {
+		if (g_node_n_children(node) > 0) {
+			pdata->level++;
+			g_node_children_foreach(node, G_TRAVERSE_ALL,
+				proto_tree_get_node, pdata);
+			pdata->level--;
+		}
+	}
+}
+
+gboolean
+find_in_gtk_data(capture_file *cf, gpointer *data, char *ascii_text, gboolean case_type, gboolean summary_search)
+{
+    frame_data *start_fd;
+    frame_data *fdata;
+    frame_data *new_fd = NULL;
+    progdlg_t  *progbar = NULL;
+    gboolean    stop_flag;
+    int         count;
+    int         err;
+    guint32     i;
+    guint16     c_match=0;
+    gboolean    frame_matched;
+    int         row;
+    float       prog_val;
+    GTimeVal    start_time;
+    gchar       status_str[100];
+    guint8      c_char=0;
+    guint32     buf_len=0;
+    guint8      hex_val=0;
+    char        char_val;
+    guint8      num1, num2;
+    gchar       *uppercase;
+    epan_dissect_t*   new_edt;
+    char        *info_string;
+	print_data  ndata;
+
+    start_fd = cf->current_frame;
+    if (start_fd != NULL)  {
+      /* Iterate through the list of packets, starting at the packet we've
+         picked, calling a routine to run the filter on the packet, see if
+         it matches, and stop if so.  */
+      count = 0;
+      fdata = start_fd;
+
+      if (case_type) {
+          g_strup(ascii_text);
+      }
+
+      cf->progbar_nextstep = 0;
+      /* When we reach the value that triggers a progress bar update,
+         bump that value by this amount. */
+      cf->progbar_quantum = cf->count/N_PROGBAR_UPDATES;
+
+      stop_flag = FALSE;
+      g_get_current_time(&start_time);
+
+      fdata = start_fd;
+      for (;;) {
+        /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
+           when we update it, we have to run the GTK+ main loop to get it
+           to repaint what's pending, and doing so may involve an "ioctl()"
+           to see if there's any pending input from an X server, and doing
+           that for every packet can be costly, especially on a big file. */
+        if (count >= cf->progbar_nextstep) {
+          /* let's not divide by zero. I should never be started
+           * with count == 0, so let's assert that
+           */
+          g_assert(cf->count > 0);
+
+          prog_val = (gfloat) count / cf->count;
+
+          /* Create the progress bar if necessary */
+          if (progbar == NULL)
+             progbar = delayed_create_progress_dlg("Searching", cf->sfilter, "Cancel",
+               &stop_flag, &start_time, prog_val);
+
+          if (progbar != NULL) {
+            g_snprintf(status_str, sizeof(status_str),
+                       "%4u of %u frames", count, cf->count);
+            update_progress_dlg(progbar, prog_val, status_str);
+          }
+
+          cf->progbar_nextstep += cf->progbar_quantum;
+        }
+
+        if (stop_flag) {
+          /* Well, the user decided to abort the search.  Go back to the
+             frame where we started. */
+          new_fd = start_fd;
+          break;
+        }
+
+        /* Go past the current frame. */
+        if (cf->sbackward) {
+          /* Go on to the previous frame. */
+          fdata = fdata->prev;
+          if (fdata == NULL)
+            fdata = cf->plist_end;	/* wrap around */
+        } else {
+          /* Go on to the next frame. */
+          fdata = fdata->next;
+          if (fdata == NULL)
+            fdata = cf->plist;	/* wrap around */
+        }
+
+        count++;
+
+        /* Is this packet in the display? */
+        if (fdata->flags.passed_dfilter) {
+          /* Yes.  Does it match the search filter? */
+          /* XXX - do something with "err" */
+          wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
+                  cf->pd, fdata->cap_len, &err);
+          new_edt = epan_dissect_new(TRUE, TRUE);
+          epan_dissect_run(new_edt, &cfile.pseudo_header, cfile.pd, fdata, &cfile.cinfo);
+          if (summary_search) {
+              info_string = get_info_string(new_edt);
+              if (info_string == NULL) {
+                  simple_dialog(ESD_TYPE_CRIT, NULL, "Can't find info column. Terminating.");
+                  return FALSE;
+              }
+          }
+          else
+          {
+              strcpy(decode_data,"\0");
+              info_string = decode_data;
+              ndata.level = 0;
+              ndata.fh = NULL;
+              ndata.src_list = new_edt->pi.data_src;
+              ndata.encoding = new_edt->pi.fd->flags.encoding;
+              ndata.print_all_levels = TRUE;
+              ndata.print_hex_for_data = FALSE;
+              ndata.format = 0;
+              g_node_children_foreach((GNode*) new_edt->tree, G_TRAVERSE_ALL,
+                  proto_tree_get_node, &ndata);
+          }
+          if (case_type) {
+              g_strup(info_string);
+          }
+          frame_matched = FALSE;
+          buf_len = strlen(info_string);
+          for (i=0;i<buf_len;i++) {
+              c_char = info_string[i];
+              if (c_char == ascii_text[c_match]) {
+                 c_match++;
+                 if (c_match == strlen(ascii_text)) {
+                    frame_matched = TRUE;
+                    break;
+                 }
+              }
+              else
+              {
+                 c_match = 0;
+              }
+          }
+          if (frame_matched) {
+            new_fd = fdata;
+            break;	/* found it! */
+          }
+          epan_dissect_free(new_edt);
+        }
+
+        if (fdata == start_fd) {
+          /* We're back to the frame we were on originally, and that frame
+             doesn't match the search filter.  The search failed. */
+          break;
+        }
+      }
+
+      /* We're done scanning the packets; destroy the progress bar if it
+         was created. */
+      if (progbar != NULL)
+        destroy_progress_dlg(progbar);
+    }
+
+    if (new_fd != NULL) {
+      /* We found a frame.  Find what row it's in. */
+      row = packet_list_find_row_from_data(new_fd);
+      g_assert(row != -1);
+
+      /* Select that row, make it the focus row, and make it visible. */
+      packet_list_set_selected_row(row);
+      return TRUE;	/* success */
+    } else
+      return FALSE;	/* failure */
 }
 
 gboolean
