@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.258 2002/05/15 19:37:20 guy Exp $
+ * $Id: packet-smb.c,v 1.259 2002/05/16 23:36:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -8633,23 +8633,61 @@ static const value_string qpi_loi_vals[] = {
 	{ 0x0103,	"Query File EA Info  (4.2.14.6)"},
 	{ 0x0104,	"Query File Name Info  (4.2.14.7)"},
 	{ 0x0107,	"Query File All Info  (4.2.14.8)"},
-	{ 0x0108,	"Query File Alt File Info  (4.2.14.7)"},
+	{ 0x0108,	"Query File Alt Name Info  (4.2.14.7)"},
 	{ 0x0109,	"Query File Stream Info  (4.2.14.10)"},
 	{ 0x010b,	"Query File Compression Info  (4.2.14.11)"},
 	{ 0x0200,	"Set File Unix Basic"},
 	{ 0x0201,	"Set File Unix Link"},
 	{ 0x0202,	"Set File Unix HardLink"},
+	{ 1004,		"Query File Basic Info  (4.2.14.4)"},
+	{ 1005,		"Query File Standard Info  (4.2.14.5)"},
+	{ 1006,		"Query File Internal Info  (4.2.14.?)"},
+	{ 1007,		"Query File EA Info  (4.2.14.6)"},
+	{ 1009,		"Query File Name Info  (4.2.14.7)"},
+	{ 1010,		"Query File Rename Info  (4.2.14.?)"},
+	{ 1011,		"Query File Link Info  (4.2.14.?)"},
+	{ 1012,		"Query File Names Info  (4.2.14.?)"},
+	{ 1013,		"Query File Disposition Info  (4.2.14.?)"},
+	{ 1014,		"Query File Position Info  (4.2.14.?)"},
+	{ 1015,		"Query File Full EA Info  (4.2.14.?)"},
+	{ 1016,		"Query File Mode Info  (4.2.14.?)"},
+	{ 1017,		"Query File Alignment Info  (4.2.14.?)"},
+	{ 1018,		"Query File All Info  (4.2.14.8)"},
+	{ 1019,		"Query File Allocation Info  (4.2.14.?)"},
+	{ 1020,		"Query File End of File Info  (4.2.14.?)"},
+	{ 1021,		"Query File Alt Name Info  (4.2.14.7)"},
+	{ 1022,		"Query File Stream Info  (4.2.14.10)"},
+	{ 1023,		"Query File Pipe Info  (4.2.14.?)"},
+	{ 1024,		"Query File Pipe Local Info  (4.2.14.?)"},
+	{ 1025,		"Query File Pipe Remote Info  (4.2.14.?)"},
+	{ 1026,		"Query File Mailslot Query Info  (4.2.14.?)"},
+	{ 1027,		"Query File Mailslot Set Info  (4.2.14.?)"},
+	{ 1028,		"Query File Compression Info  (4.2.14.11)"},
+	{ 1029,		"Query File ObjectID Info  (4.2.14.?)"},
+	{ 1030,		"Query File Completion Info  (4.2.14.?)"},
+	{ 1031,		"Query File Move Cluster Info  (4.2.14.?)"},
+	{ 1032,		"Query File Quota Info  (4.2.14.?)"},
+	{ 1033,		"Query File Reparsepoint Info  (4.2.14.?)"},
+	{ 1034,		"Query File Network Open Info  (4.2.14.?)"},
+	{ 1035,		"Query File Attribute Tag Info  (4.2.14.?)"},
+	{ 1036,		"Query File Tracking Info  (4.2.14.?)"},
+	{ 1037,		"Query File Maximum Info  (4.2.14.?)"},
 	{0, NULL}
 };
 
 static const value_string qfsi_vals[] = {
 	{ 1,		"Info Allocation"},
 	{ 2,		"Info Volume"},
+	{ 0x0101,	"Query FS Label Info"},
 	{ 0x0102,	"Query FS Volume Info"},
 	{ 0x0103,	"Query FS Size Info"},
 	{ 0x0104,	"Query FS Device Info"},
 	{ 0x0105,	"Query FS Attribute Info"},
+	{ 1001,		"Query FS Label Info"},
+	{ 1002,		"Query FS Volume Info"},
 	{ 1003,		"Query FS Size Info"},
+	{ 1004,		"Query FS Device Info"},
+	{ 1005,		"Query FS Attribute Info"},
 	{ 1006,		"Query FS Quota Info"},
 	{ 1007,		"Query Full FS Size Info"},
 	{0, NULL}
@@ -9924,34 +9962,43 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		    &trunc);
 		break;
 	case 0x0101:	/*Query File Basic Info*/
+	case 1004:	/* SMB_FILE_BASIC_INFORMATION */
 		offset = dissect_4_2_14_4(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0102:	/*Query File Standard Info*/
+	case 1005:	/* SMB_FILE_STANDARD_INFORMATION */
 		offset = dissect_4_2_14_5(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0103:	/*Query File EA Info*/
+	case 1007:	/* SMB_FILE_EA_INFORMATION */
 		offset = dissect_4_2_14_6(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0104:	/*Query File Name Info*/
+	case 1009:	/* SMB_FILE_NAME_INFORMATION */
 		offset = dissect_4_2_14_7(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0107:	/*Query File All Info*/
+	case 1018:	/* SMB_FILE_ALL_INFORMATION */
 		offset = dissect_4_2_14_8(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0108:	/*Query File Alt File Info*/
+	case 1021:	/* SMB_FILE_ALTERNATE_NAME_INFORMATION */
 		offset = dissect_4_2_14_7(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
+	case 1022:	/* SMB_FILE_STREAM_INFORMATION */
+	        ((smb_info_t *)(pinfo->private_data))->unicode = TRUE;
 	case 0x0109:	/*Query File Stream Info*/
 		offset = dissect_4_2_14_10(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x010b:	/*Query File Compression Info*/
+	case 1028:	/* SMB_FILE_COMPRESSION_INFORMATION */
 		offset = dissect_4_2_14_11(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
@@ -11432,7 +11479,25 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		COUNT_BYTES_TRANS_SUBR(fn_len);
 
 		break;
+	case 0x0101:	/* SMB_QUERY_FS_LABEL_INFO */
+	case 1001:	/* SMB_FS_LABEL_INFORMATION */
+		/* volume label length */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		vll = tvb_get_letohl(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_volume_label_len, tvb, offset, 4, vll);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+		/* label */
+		fn_len = vll;
+		fn = get_unicode_or_ascii_string(tvb, &offset, pinfo, &fn_len, FALSE, TRUE, bcp);
+		CHECK_STRING_TRANS_SUBR(fn);
+		proto_tree_add_string(tree, hf_smb_volume_label, tvb, offset, fn_len,
+			fn);
+		COUNT_BYTES_TRANS_SUBR(fn_len);
+
+		break;
 	case 0x0102:	/* SMB_QUERY_FS_VOLUME_INFO */
+	case 1002:	/* SMB_FS_VOLUME_INFORMATION */
 		/* create time */
 		CHECK_BYTE_COUNT_TRANS_SUBR(8);
 		offset = dissect_smb_64bit_time(tvb, tree, offset,
@@ -11488,6 +11553,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 		break;
 	case 0x0104:	/* SMB_QUERY_FS_DEVICE_INFO */
+	case 1004:	/* SMB_FS_DEVICE_INFORMATION */
 		/* device type */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
 		proto_tree_add_item(tree, hf_smb_device_type, tvb, offset, 4, TRUE);
@@ -11500,6 +11566,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	
 		break;
 	case 0x0105:	/* SMB_QUERY_FS_ATTRIBUTE_INFO */
+	case 1005:	/* SMB_FS_ATTRIBUTE_INFORMATION */
 		/* FS attributes */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
 		offset = dissect_fs_attributes(tvb, tree, offset);
@@ -13025,10 +13092,8 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
     }
     if(exactlen){
       string_len = *len;
-      string = unicode_to_str(tvb, *offsetp, &string_len, exactlen, *bcp);
-    } else {
-      string = unicode_to_str(tvb, *offsetp, &string_len, exactlen, *bcp);
     }
+    string = unicode_to_str(tvb, *offsetp, &string_len, exactlen, *bcp);
   } else {
     if(exactlen){
       /*
