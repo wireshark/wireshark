@@ -16,6 +16,14 @@
 	on win32.
   </para>
   <para>
+	The first part of this book will describe how to set up the environment 
+	needed to develop Ethereal.
+  </para>
+  <para>
+	The second part of this book will describe how to change the Ethereal 
+	source code.
+  </para>
+  <para>
     We hope that you find this book useful, and look forward to your comments.
   </para>
   </section>

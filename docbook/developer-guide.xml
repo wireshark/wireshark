@@ -87,8 +87,13 @@ FILE SECTION
 <title>Ethereal Build Environment</title>
 <partintro>
 <para>
-The first part of this book will describe how to set up the environment needed
-to develop Ethereal.
+This is the first of two parts:
+</para>
+<para>
+<command>Part I. Ethereal Build Environment</command>
+</para>
+<para>
+Part II. Ethereal Development
 </para>
 </partintro>
 &EnvIntroduction;
@@ -100,7 +105,13 @@ to develop Ethereal.
 <title>Ethereal Development</title>
 <partintro>
 <para>
-The second part of this book will describe how to do the actual Ethereal development.
+This is the second of two parts:
+</para>
+<para>
+Part I. Ethereal Build Environment
+</para>
+<para>
+<command>Part II. Ethereal Development</command>
 </para>
 </partintro>
 &BuildIntroduction;
