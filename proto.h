@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.32 2000/05/31 05:08:00 guy Exp $
+ * $Id: proto.h,v 1.33 2000/05/31 17:10:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -194,15 +194,6 @@ proto_register_field_array(int parent, hf_register_info *hf, int num_records);
 
 void
 proto_register_subtree_array(gint **indices, int num_indices);
-
-/* Add item's value to proto_tree, using label registered to that field */
-proto_item *
-proto_tree_add_item_old(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, ...);
-
-proto_item *
-proto_tree_add_item_hidden_old(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, ...);
 
 /* Add an item to a proto_tree, using the text label registered to that item;
    the item is extracted from the tvbuff handed to it. */

@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.67 2000/05/31 05:07:59 guy Exp $
+ * $Id: proto.c,v 1.68 2000/05/31 17:10:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -98,8 +98,6 @@ proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint
 static void
 proto_tree_set_representation(proto_item *pi, const char *format, va_list ap);
 
-static void
-proto_tree_set_value(field_info *fi, gint length, va_list ap);
 static void
 proto_tree_set_bytes(field_info *fi, const guint8* start_ptr, gint length);
 static void
@@ -302,43 +300,6 @@ proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length,
 	return pi;
 }
 
-/* Add an item to a proto_tree, using the text label registered to that item. */
-proto_item *
-proto_tree_add_item_old(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length, ...)
-{
-	proto_item	*pi;
-	va_list		ap;
-	field_info	*new_fi;
-
-	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length, &new_fi);
-	if (pi == NULL)
-		return(NULL);
-
-	va_start(ap, length);
-	proto_tree_set_value(new_fi, length, ap);
-	va_end(ap);
-
-	return pi;
-}
-
-/* Add an item to a proto_tree, but make it invisible in GUI. The field is
- * still searchable, though. */
-proto_item *
-proto_tree_add_item_hidden_old(proto_tree *tree, int hfindex, tvbuff_t* tvb, gint start, gint length, ...)
-{
-	proto_item	*pi;
-	field_info	*fi;
-
-	pi = proto_tree_add_item_old(tree, hfindex, tvb, start, length);
-	if (pi == NULL)
-		return(NULL);
-
-	fi = (field_info*) (((GNode*)pi)->data);
-	fi->visible = FALSE;
-
-	return pi;
-}
-
 static guint32
 get_uint_value(tvbuff_t *tvb, gint offset, gint length, gboolean little_endian)
 {
@@ -508,94 +469,6 @@ proto_tree_add_item_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	fi->visible = FALSE;
 
 	return pi;
-}
-
-static void
-proto_tree_set_value(field_info *fi, gint length, va_list ap)
-{
-	header_field_info	*hfinfo;
-
-	hfinfo = fi->hfinfo;
-
-	/* from the stdarg man page on Solaris 2.6:
-	NOTES
-	     It is up to the calling routine to specify  in  some  manner
-	     how  many arguments there are, since it is not always possi-
-	     ble to determine the number  of  arguments  from  the  stack
-	     frame.   For example, execl is passed a zero pointer to sig-
-	     nal the end of the list.  printf can tell how many arguments
-	     there  are  by  the format.  It is non-portable to specify a
-	     second argument of char, short, or float to va_arg,  because
-	     arguments  seen  by the called function are not char, short,
-	     or float.  C converts char and short arguments  to  int  and
-	     converts  float arguments to double before passing them to a
-	     function.
-	*/
-	switch(hfinfo->type) {
-		case FT_NONE:
-			break;
-
-		case FT_BYTES:
-			proto_tree_set_bytes(fi, va_arg(ap, guint8*), length);
-			break;
-
-		case FT_BOOLEAN:
-			proto_tree_set_boolean(fi, va_arg(ap, unsigned int));
-			break;
-
-		case FT_UINT8:
-		case FT_UINT16:
-		case FT_UINT24:
-		case FT_UINT32:
-			proto_tree_set_uint(fi, va_arg(ap, unsigned int));
-			break;
-
-		case FT_INT8:
-		case FT_INT16:
-		case FT_INT24:
-		case FT_INT32:
-			proto_tree_set_int(fi, va_arg(ap, int));
-			break;
-
-		case FT_IPv4:
-			proto_tree_set_ipv4(fi, va_arg(ap, unsigned int));
-			break;
-
-		case FT_IPXNET:
-			proto_tree_set_ipxnet(fi, va_arg(ap, unsigned int));
-			break;
-
-		case FT_IPv6:
-			proto_tree_set_ipv6(fi, va_arg(ap, guint8*));
-			break;
-
-		case FT_DOUBLE:
-			proto_tree_set_double(fi, va_arg(ap, double));
-			break;
-
-		case FT_ETHER:
-			proto_tree_set_ether(fi, va_arg(ap, guint8*));
-			break;
-
-		case FT_ABSOLUTE_TIME:
-		case FT_RELATIVE_TIME:
-			proto_tree_set_time(fi, va_arg(ap, struct timeval*));
-			break;
-
-		case FT_STRING:
-			/* This g_strdup'ed memory is freed in proto_tree_free_node() */
-			proto_tree_set_string(fi, va_arg(ap, char*));
-			break;
-
-		case FT_TEXT_ONLY:
-			; /* nothing */
-			break;
-
-		default:
-			g_error("hfinfo->type %d not handled\n", hfinfo->type);
-			g_assert_not_reached();
-			break;
-	}
 }
 
 

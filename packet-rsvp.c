@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.22 2000/05/31 05:07:36 guy Exp $
+ * $Id: packet-rsvp.c,v 1.23 2000/05/31 17:10:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -875,7 +875,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				hdr->message_type);
 	    return;
 	}
-	proto_tree_add_item_hidden_old(rsvp_header_tree, rsvp_filter[RSVPF_MSG + hdr->message_type], NullTVB, 
+	proto_tree_add_uint_hidden(rsvp_header_tree, rsvp_filter[RSVPF_MSG + hdr->message_type], NullTVB, 
 				   offset+1, 1, 1);
 	proto_tree_add_text(rsvp_header_tree, NullTVB, offset + 2 , 2, "Message Checksum");
 	proto_tree_add_text(rsvp_header_tree, NullTVB, offset + 4 , 1, "Sending TTL: %u",
@@ -898,7 +898,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    if (!object_type) object_type = "Unknown";
 	    ti = proto_tree_add_uint_hidden(rsvp_tree, rsvp_filter[RSVPF_OBJECT], NullTVB, 
 					    offset, obj_length, obj->class);
-	    ti = proto_tree_add_item_old(rsvp_tree, rsvp_filter[rsvp_class_to_filter_num(obj->class)], NullTVB, 
+	    ti = proto_tree_add_uint(rsvp_tree, rsvp_filter[rsvp_class_to_filter_num(obj->class)], NullTVB, 
 				     offset, obj_length, obj->class);
 
 	    offset2 = offset + sizeof(rsvp_object);
