@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.276 2002/08/06 19:02:24 guy Exp $
+ * $Id: packet-smb.c,v 1.277 2002/08/07 00:48:52 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -13935,6 +13935,7 @@ const value_string DOS_errors[] = {
   {SMBE_invalidformsize, "Invalid form size"},
   {SMBE_invalidsecuritydescriptor, "Invalid security descriptor"},
   {SMBE_invalidowner, "Invalid owner"},
+  {SMBE_nomoreitems, "No more items"},
   {0, NULL}
   };
 

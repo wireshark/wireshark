@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.41 2002/07/20 23:14:36 guy Exp $
+ * $Id: smb.h,v 1.42 2002/08/07 00:48:53 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -149,6 +149,7 @@
 #define SMBE_pipeclosing 232       /* named pipe close in progress */
 #define SMBE_notconnected 233      /* No process on other end of named pipe */
 #define SMBE_moredata 234          /* More data to be returned */
+#define SMBE_nomoreitems 259       /* No more items */
 #define SMBE_baddirectory 267      /* Invalid directory name in a path. */
 #define SMBE_eas_didnt_fit 275     /* Extended attributes didn't fit */
 #define SMBE_eas_nsup 282          /* Extended attributes not supported */
