@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.41 2002/06/28 07:17:34 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.42 2002/08/07 00:54:32 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -937,7 +937,7 @@ dissect_ntstatus(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hfindex, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (tree && status != 0 && check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				val_to_str(status, NT_errors, 
 					   "Unknown error 0x%08x"));
@@ -959,7 +959,7 @@ dissect_doserror(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hfindex, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (tree && status != 0 && check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				val_to_str(status, DOS_errors, 
 					   "Unknown error 0x%08x"));
