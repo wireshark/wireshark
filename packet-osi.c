@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.26 2000/04/13 08:14:33 guy Exp $
+ * $Id: packet-osi.c,v 1.27 2000/04/15 06:47:43 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -270,7 +270,7 @@ static int osi_decode_DR(const u_char *pd, int offset,
   }
 
   if (check_col(fd, COL_INFO))
-    col_add_fstr(fd, COL_INFO, "DR TPDU src-ref: 0x%04x dst-ref: 0x%04x",
+    col_append_fstr(fd, COL_INFO, "DR TPDU src-ref: 0x%04x dst-ref: 0x%04x",
 		 src_ref, dst_ref);
 
   if (tree) {
@@ -291,7 +291,7 @@ static int osi_decode_DR(const u_char *pd, int offset,
   offset += li + 1;
   dissect_data(pd, offset, fd, tree);
 
-  return 0;
+  return pi.captured_len;	/* we dissected all of the containing PDU */
 
 } /* osi_decode_DR */
 
@@ -359,7 +359,7 @@ static int osi_decode_DT(const u_char *pd, int offset,
   }
 
   if (check_col(fd, COL_INFO))
-    col_add_fstr(fd, COL_INFO, "DT TPDU (%d) dst-ref: 0x%04x %s", 
+    col_append_fstr(fd, COL_INFO, "DT TPDU (%d) dst-ref: 0x%04x %s", 
 		 tpdu_nr,
 		 dst_ref,
 		 (fragment)? "(fragment)" : "");
@@ -436,7 +436,7 @@ static int osi_decode_DT(const u_char *pd, int offset,
 	dissect_data(pd, offset, fd, tree);
 	}
 
-  return 0;
+  return pi.captured_len;	/* we dissected all of the containing PDU */
 
 } /* osi_decode_DT */
 
@@ -499,7 +499,7 @@ static int osi_decode_ED(const u_char *pd, int offset,
   } /* li */
 
   if (check_col(fd, COL_INFO))
-    col_add_fstr(fd, COL_INFO, "ED TPDU (%d) dst-ref: 0x%04x", 
+    col_append_fstr(fd, COL_INFO, "ED TPDU (%d) dst-ref: 0x%04x", 
 		 tpdu_nr, dst_ref);
 
   if (tree) {
@@ -553,7 +553,7 @@ static int osi_decode_ED(const u_char *pd, int offset,
   offset += li + 1;
   dissect_data(pd, offset, fd, tree);
 
-  return 0;
+  return pi.captured_len;	/* we dissected all of the containing PDU */
 
 } /* osi_decode_ED */
 
@@ -580,7 +580,7 @@ static int osi_decode_RJ(const u_char *pd, int offset,
   }
 
   if (check_col(fd, COL_INFO))
-    col_add_fstr(fd, COL_INFO, "RJ TPDU (%d) dst-ref: 0x%04x", 
+    col_append_fstr(fd, COL_INFO, "RJ TPDU (%d) dst-ref: 0x%04x", 
 		 tpdu_nr, dst_ref);
 
   if (tree) {
@@ -607,9 +607,8 @@ static int osi_decode_RJ(const u_char *pd, int offset,
   }
 
   offset += li + 1;
-  dissect_data(pd, offset, fd, tree);
 
-  return 0;
+  return offset;
 
 } /* osi_decode_RJ */
 
@@ -678,7 +677,7 @@ static int osi_decode_CC(const u_char *pd, int offset,
     return -1;
 
   if (check_col(fd, COL_INFO))
-    col_add_fstr(fd, COL_INFO, "%s TPDU src-ref: 0x%04x dst-ref: 0x%04x",
+    col_append_fstr(fd, COL_INFO, "%s TPDU src-ref: 0x%04x dst-ref: 0x%04x",
 		 (tpdu == CR_TPDU) ? "CR" : "CC",
 		 src_ref,
 		 dst_ref);
@@ -930,7 +929,7 @@ static int osi_decode_CC(const u_char *pd, int offset,
   offset += li + 1;
   dissect_data(pd, offset, fd, tree);
 
-  return 0;
+  return pi.captured_len;	/* we dissected all of the containing PDU */
 
 } /* osi_decode_CC */
 
@@ -963,7 +962,7 @@ static int osi_decode_DC(const u_char *pd, int offset,
   } /* li */
 
   if (check_col(fd, COL_INFO))
-    col_add_fstr(fd, COL_INFO, "DC TPDU src-ref: 0x%04x dst-ref: 0x%04x", 
+    col_append_fstr(fd, COL_INFO, "DC TPDU src-ref: 0x%04x dst-ref: 0x%04x", 
 		 src_ref,
 		 dst_ref);
 
@@ -992,9 +991,8 @@ static int osi_decode_DC(const u_char *pd, int offset,
   }
 
   offset += li + 1;
-  dissect_data(pd, offset, fd, tree);
 
-  return 0;
+  return offset;
 
 } /* osi_decode_DC */
 
@@ -1015,7 +1013,7 @@ static int osi_decode_AK(const u_char *pd, int offset,
     tpdu_nr = pd[offset + P_TPDU_NR_234];
 
     if (check_col(fd, COL_INFO))
-      col_add_fstr(fd, COL_INFO, "AK TPDU (%d) dst-ref: 0x%04x", 
+      col_append_fstr(fd, COL_INFO, "AK TPDU (%d) dst-ref: 0x%04x", 
 		   tpdu_nr, dst_ref);
     
     if (tree) {
@@ -1119,7 +1117,7 @@ static int osi_decode_AK(const u_char *pd, int offset,
     cdt_in_ak = EXTRACT_SHORT(&pd[offset + P_CDT_IN_AK]);
 
     if (check_col(fd, COL_INFO))
-      col_add_fstr(fd, COL_INFO, "AK TPDU (%d) dst-ref: 0x%04x", 
+      col_append_fstr(fd, COL_INFO, "AK TPDU (%d) dst-ref: 0x%04x", 
 		   tpdu_nr, dst_ref);
     
     if (tree) {
@@ -1221,9 +1219,8 @@ static int osi_decode_AK(const u_char *pd, int offset,
   } /* is_LI_NORMAL_AK */
 
   offset += li + 1;
-  dissect_data(pd, offset, fd, tree);
 
-  return 0;
+  return offset;
 
 } /* osi_decode_AK */
 
@@ -1270,7 +1267,7 @@ static int osi_decode_EA(const u_char *pd, int offset,
   } /* li */
 
   if (check_col(fd, COL_INFO))
-    col_add_fstr(fd, COL_INFO, 
+    col_append_fstr(fd, COL_INFO, 
 		 "EA TPDU (%d) dst-ref: 0x%04x", tpdu_nr, dst_ref);
 
   if (tree) {
@@ -1318,9 +1315,8 @@ static int osi_decode_EA(const u_char *pd, int offset,
   } /* tree */
 
   offset += li + 1;
-  dissect_data(pd, offset, fd, tree);
 
-  return 0;
+  return offset;
 
 } /* osi_decode_EA */
 
@@ -1354,7 +1350,7 @@ static int osi_decode_ER(const u_char *pd, int offset,
   }
 
   if (check_col(fd, COL_INFO))
-    col_add_fstr(fd, COL_INFO, "ER TPDU dst-ref: 0x%04x", dst_ref);
+    col_append_fstr(fd, COL_INFO, "ER TPDU dst-ref: 0x%04x", dst_ref);
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, offset, li + 1, NULL);
@@ -1370,75 +1366,91 @@ static int osi_decode_ER(const u_char *pd, int offset,
   }
 
   offset += li + 1;
-  dissect_data(pd, offset, fd, tree);
 
-  return 0;
+  return offset;
 
 } /* osi_decode_ER */
 
 static void dissect_cotp_internal(const u_char *pd, int offset, frame_data *fd,
 		  proto_tree *tree, gboolean uses_inactive_subset) 
 {
-  int status = -1;
+  gboolean first_tpdu = TRUE;
+  int new_offset;
 
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "COTP");
 
-  if ((li = pd[offset + P_LI]) == 0) {
-    if (check_col(fd, COL_INFO))
-      col_add_str(fd, COL_INFO, "Length indicator is zero");
-    dissect_data(pd, offset, fd, tree);
-    return;
-  }
- if (!BYTES_ARE_IN_FRAME(offset, P_LI + li + 1)) {
-    if (check_col(fd, COL_INFO))
-      col_add_str(fd, COL_INFO, "Captured data in frame doesn't include entire frame");
-    dissect_data(pd, offset, fd, tree);
-    return;
-  }
+  /* Initialize the COL_INFO field; each of the TPDUs will have its
+     information appended. */
+  if (check_col(fd, COL_INFO))
+    col_add_str(fd, COL_INFO, "");
 
-  tpdu    = (pd[offset + P_TPDU] >> 4) & 0x0F;
-  cdt     = pd[offset + P_CDT] & 0x0F;
-  dst_ref = EXTRACT_SHORT(&pd[offset + P_DST_REF]);
-
-  switch (tpdu) {
-    case CC_TPDU :
-    case CR_TPDU :
-      status = osi_decode_CC(pd, offset, fd, tree);
-      break;
-    case DR_TPDU :
-      status = osi_decode_DR(pd, offset, fd, tree);
-      break;
-    case DT_TPDU :
-      status = osi_decode_DT(pd, offset, fd, tree, uses_inactive_subset);
-      break;
-    case ED_TPDU :
-      status = osi_decode_ED(pd, offset, fd, tree);
-      break;
-    case RJ_TPDU :
-      status = osi_decode_RJ(pd, offset, fd, tree);
-      break;
-    case DC_TPDU :
-      status = osi_decode_DC(pd, offset, fd, tree);
-      break;
-    case AK_TPDU :
-      status = osi_decode_AK(pd, offset, fd, tree);
-      break;
-    case EA_TPDU :
-      status = osi_decode_EA(pd, offset, fd, tree);
-      break;
-    case ER_TPDU :
-      status = osi_decode_ER(pd, offset, fd, tree);
-      break;
-    default      :
+  while (IS_DATA_IN_FRAME(offset)) {
+    if (!first_tpdu) {
       if (check_col(fd, COL_INFO))
-        col_add_fstr(fd, COL_INFO, "Unknown TPDU type (0x%x)", tpdu);
-      break;
+        col_append_str(fd, COL_INFO, ", ");
+    }
+    if ((li = pd[offset + P_LI]) == 0) {
+      if (first_tpdu && check_col(fd, COL_INFO))
+        col_append_str(fd, COL_INFO, "Length indicator is zero");
+      dissect_data(pd, offset, fd, tree);
+      return;
+    }
+    if (!BYTES_ARE_IN_FRAME(offset, P_LI + li + 1)) {
+      if (first_tpdu && check_col(fd, COL_INFO))
+        col_append_str(fd, COL_INFO, "Captured data in frame doesn't include entire frame");
+      dissect_data(pd, offset, fd, tree);
+      return;
+    }
+
+    tpdu    = (pd[offset + P_TPDU] >> 4) & 0x0F;
+    cdt     = pd[offset + P_CDT] & 0x0F;
+    dst_ref = EXTRACT_SHORT(&pd[offset + P_DST_REF]);
+
+    switch (tpdu) {
+      case CC_TPDU :
+      case CR_TPDU :
+        new_offset = osi_decode_CC(pd, offset, fd, tree);
+        break;
+      case DR_TPDU :
+        new_offset = osi_decode_DR(pd, offset, fd, tree);
+        break;
+      case DT_TPDU :
+        new_offset = osi_decode_DT(pd, offset, fd, tree, uses_inactive_subset);
+        break;
+      case ED_TPDU :
+        new_offset = osi_decode_ED(pd, offset, fd, tree);
+        break;
+      case RJ_TPDU :
+        new_offset = osi_decode_RJ(pd, offset, fd, tree);
+        break;
+      case DC_TPDU :
+        new_offset = osi_decode_DC(pd, offset, fd, tree);
+        break;
+      case AK_TPDU :
+        new_offset = osi_decode_AK(pd, offset, fd, tree);
+        break;
+      case EA_TPDU :
+        new_offset = osi_decode_EA(pd, offset, fd, tree);
+        break;
+      case ER_TPDU :
+        new_offset = osi_decode_ER(pd, offset, fd, tree);
+        break;
+      default      :
+        if (first_tpdu && check_col(fd, COL_INFO))
+          col_append_fstr(fd, COL_INFO, "Unknown TPDU type (0x%x)", tpdu);
+        new_offset = -1;	/* bad PDU type */
+        break;
+    }
+
+    if (new_offset == -1) { /* incorrect TPDU */
+      dissect_data(pd, offset, fd, tree);
+      return;
+    }
+
+    offset = new_offset;
+    first_tpdu = FALSE;
   }
-
-  if (status == -1) /* incorrect TPDU */
-    dissect_data(pd, offset, fd, tree);
-
 } /* dissect_cotp_internal */
 
 void dissect_cotp(const u_char *pd, int offset, frame_data *fd,
@@ -1537,17 +1549,11 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
   segment_length = EXTRACT_SHORT(&clnp.cnf_seglen_msb);
   flag_string[0] = '\0';
   if (clnp.cnf_type & CNF_SEG_OK)
-    strcat(flag_string, "S");
-  if (clnp.cnf_type & CNF_MORE_SEGS) {
-    if (flag_string[0] != '\0')
-      strcat(flag_string, " ");
-    strcat(flag_string, "M");
-  }
-  if (clnp.cnf_type & CNF_ERR_OK) {
-    if (flag_string[0] != '\0')
-      strcat(flag_string, " ");
-    strcat(flag_string, "E");
-  }
+    strcat(flag_string, "S ");
+  if (clnp.cnf_type & CNF_MORE_SEGS)
+    strcat(flag_string, "M ");
+  if (clnp.cnf_type & CNF_ERR_OK)
+    strcat(flag_string, "E ");
   pdu_type_string = val_to_str(clnp.cnf_type & CNF_TYPE, npdu_type_vals,
 				"Unknown (0x%02x)");
   if (tree) {
@@ -1565,7 +1571,7 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
 			       clnp.cnf_ttl, clnp.cnf_ttl / 2);
     proto_tree_add_uint_format(clnp_tree, hf_clnp_type, offset +  4, 1, 
 			       clnp.cnf_type,
-			       "Type code: 0x%02x (%s %s)",
+			       "Type code: 0x%02x (%s%s)",
 			       clnp.cnf_type,
 			       flag_string,
 			       pdu_type_string);
@@ -1669,27 +1675,44 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
      for CLNP. */
   if ((clnp.cnf_type & CNF_SEG_OK) && segment_offset != 0) {
     if (check_col(fd, COL_INFO))
-      col_add_fstr(fd, COL_INFO, "Fragmented %s NPDU %s (off=%u)",
+      col_add_fstr(fd, COL_INFO, "Fragmented %s NPDU %s(off=%u)",
 		pdu_type_string, flag_string, segment_offset);
     dissect_data(pd, offset, fd, tree);
     return;
   }
 
-  if (!IS_DATA_IN_FRAME(offset)) {
-    if (check_col(fd, COL_INFO))
-      col_add_fstr(fd, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
-    return;
-  }
+  if (IS_DATA_IN_FRAME(offset)) {
+    switch (clnp.cnf_type & CNF_TYPE) {
 
-  /* continue with COTP if any */
+    case DT_NPDU:
+    case MD_NPDU:
+      /* Continue with COTP if any data.
+         XXX - if this isn't the first Derived PDU of a segmented Initial
+         PDU, skip that? */
 
-  if (nsel == NSEL_TP) 	/* just guessing here - valid for DECNet-OSI */
-    dissect_cotp_internal(pd, offset, fd, tree, FALSE);
-  else {
-    if (check_col(fd, COL_INFO))
-      col_add_fstr(fd, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
-    dissect_data(pd, offset, fd, tree);
+      if (nsel == NSEL_TP) { 	/* just guessing here - valid for DECNet-OSI */
+        dissect_cotp_internal(pd, offset, fd, tree, FALSE);
+        return;
+      }
+      break;
+
+    case ER_NPDU:
+      /* The payload is the header and "none, some, or all of the data
+         part of the discarded PDU", i.e. it's like an ICMP error;
+	 just as we don't yet trust ourselves to be able to dissect
+	 the payload of an ICMP error packet, we don't yet trust
+	 ourselves to dissect the payload of a CLNP ER packet. */
+      break;
+
+    case ERQ_NPDU:
+    case ERP_NPDU:
+      /* XXX - dissect this */
+      break;
+    }
   }
+  if (check_col(fd, COL_INFO))
+    col_add_fstr(fd, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
+  dissect_data(pd, offset, fd, tree);
 
 } /* dissect_clnp */
 
