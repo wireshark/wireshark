@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.74 2003/12/07 03:17:42 guy Exp $
+ * $Id: packet-http.c,v 1.75 2003/12/07 03:21:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -127,7 +127,7 @@ static gboolean check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb,
     gchar *value);
 
 static dissector_table_t port_subdissector_table;
-static dissector_table_t content_type_subdissector_table;
+static dissector_table_t media_type_subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 
 static dissector_handle_t ntlmssp_handle=NULL;
@@ -560,7 +560,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * for that content type?
 			 */
 			handle = dissector_get_string_handle(
-			    content_type_subdissector_table,
+			    media_type_subdissector_table,
 			    entity_headers.content_type);
 		}
 		g_free(entity_headers.content_type);
@@ -1091,7 +1091,7 @@ proto_register_http(void)
 	 * It's just "media_type", not "http.content_type", because
 	 * it's an Internet media type, usable by other protocols as well.
 	 */
-	content_type_subdissector_table =
+	media_type_subdissector_table =
 	    register_dissector_table("media_type",
 		"Internet media type", FT_STRING, BASE_NONE);
 
