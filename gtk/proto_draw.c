@@ -1,7 +1,7 @@
 /* gtkpacket.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.12 1999/12/29 20:10:12 gram Exp $
+ * $Id: proto_draw.c,v 1.13 2000/01/25 03:45:45 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -68,6 +68,11 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
 
   /* Clear out the text */
   gtk_text_set_point(bv, 0);
+  /* Keep GTK+ 1.2.3 through 1.2.6 from dumping core - see 
+     http://ethereal.zing.org/lists/ethereal-dev/199912/msg00312.html and
+     http://www.gnome.org/mailing-lists/archives/gtk-devel-list/1999-October/0051.shtml
+     for more information */
+  gtk_adjustment_set_value(bv->vadj, 0.0);
   gtk_text_forward_delete(bv, gtk_text_get_length(bv));
 
   if (bstart >= 0 && blen >= 0) {
