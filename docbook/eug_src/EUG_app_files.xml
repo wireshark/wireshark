@@ -84,6 +84,12 @@
 		<entry>%ETHEREAL%\manuf</entry>
 	      </row>
 	      <row>
+		<entry><command>hosts</command></entry>
+		<entry>IPv4 and IPv6 name resolution.</entry>
+		<entry>$HOME/.ethereal/hosts</entry>
+		<entry>%APPDATA%\hosts</entry>
+	      </row>
+	      <row>
 		<entry><command>ipxnets</command></entry>
 		<entry>IPX name resolution.</entry>
 		<entry>$HOME/.ethereal/ipxnets</entry>
@@ -251,6 +257,35 @@ c0-00-ff-ff-ff-ff    TR_broadcast
 		  to translate the first three bytes of an Ethernet address into a 
 		  manufacturers name.  This file has the same format as the ethers 
 		  file, except addresses are three bytes long.
+	    </para>
+	    <para>
+	      An example is:
+	      <programlisting>
+00:00:01	Xerox                  # XEROX CORPORATION
+	      </programlisting>
+	    </para>
+		<para>
+ 		The settings from this file are read in at program start and never 
+		written by Ethereal.
+		</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>hosts</command></term>
+	  <listitem>
+	    <para>
+	      Ethereal uses the files listed in <xref linkend="AppFilesTabFolders"/>
+		  to translate IPv4 and IPv6 addresses into names.
+	    </para>
+	    <para>
+		  This file has the same format as the usual /etc/hosts file in unix systems.
+	    </para>
+	    <para>
+	      An example is:
+	      <programlisting>
+# Comments must be prepended by the # sign!
+192.168.0.1 homeserver
+	      </programlisting>
 	    </para>
 		<para>
  		The settings from this file are read in at program start and never 

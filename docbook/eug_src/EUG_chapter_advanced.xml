@@ -190,10 +190,9 @@
 	Name resolution tries to resolve some of the address values to human 
 	readable names. This conversion might fail. For example, the name might be 
 	unknown. Some of the lookups are done with data from your local 
-	machine, while others asking network services such as DNS.
-    </para>
-    <para>
-	XXX - add ipxnets name resolution explanation.
+	machine, while others asking network services such as DNS. For details about
+	the configuration files Ethereal uses for name resolution, see 
+	<xref linkend="AppFiles"/>.
     </para>
     <note><title>Note!</title>
     <para>
@@ -213,19 +212,26 @@
 	following protocol layers:
     </para>
 	<section><title>MAC Layer</title>
-    <para><command>ARP name resolution</command>
-	Convert an ethernet address to the corresponding IP address 
-	(e.g. 00:09:5b:01:02:03 -> 192.168.0.1). 
+    <para><command>ARP name resolution (system service)</command>
+	Ethereal will ask the operating system to convert an ethernet address 
+	to the corresponding IP address (e.g. 00:09:5b:01:02:03 -> 192.168.0.1). 
     </para>
-    <para><command>Ethernet manufacturer codes</command>
-	If the ARP name resolution failed, Ethereal tries to convert the first 3 
-	bytes of an ethernet address to an abbreviated manufacturer name, which 
-	has been assigned by the IETF (e.g. 00:09:5b:01:02:03 -> Netgear_01:02:03).
+    <para><command>Ethernet codes (ethers file)</command>
+	If the ARP name resolution failed, Ethereal tries to convert the ethernet 
+	address to a known device name, which has been assigned by the user using 
+	an ethers file (e.g. 00:09:5b:01:02:03 -> homerouter).
+    </para>
+    <para><command>Ethernet manufacturer codes (manuf file)</command>
+	If both ARP and ethers didn't returned a result, Ethereal tries to convert 
+	the first 3 bytes of an ethernet address to an abbreviated manufacturer name, 
+	which has been assigned by the IETF 
+	(e.g. 00:09:5b:01:02:03 -> Netgear_01:02:03).
     </para>
 	</section>
 	<section><title>Network Layer</title>
-    <para><command>DNS name resolution</command>
-	Convert an IP address to the hostname associated with it 
+    <para><command>DNS name resolution (system/ADNS service)</command>
+	Ethereal will ask the operating system (or the ADNS library, see below), 
+	to convert an IP address to the hostname associated with it 
 	(e.g. 65.208.228.223 -> www.ethereal.com).
     </para>
 	<warning>
@@ -237,10 +243,19 @@
 		case.
 	  </para>
 	</warning>	
+    <para><command>IP name resolution (hosts file)</command>
+	If DNS name resolution failed, Ethereal will try to convert an IP address 
+	to the hostname associated with it, using an hosts file provided by the user
+	(e.g. 65.208.228.223 -> www.ethereal.com).
+    </para>
+    <para><command>ipxnet name resolution (ipxnets file)</command>
+	XXX - add ipxnets name resolution explanation.
+    </para>
 	</section>
-	<section><title>Transport Layer</title>
-    <para><command>TCP/UDP port conversion</command>
-	Convert a TCP or UDP port to its well known name (e.g. 80 -> http).
+	<section><title>Transport Layer (system service)</title>
+    <para><command>TCP/UDP port conversion (system service)</command>
+	Ethereal will ask the operating system to convert a TCP or UDP port to 
+	its well known name (e.g. 80 -> http).
     </para>
 	</section>
 	<section><title>ADNS</title>
