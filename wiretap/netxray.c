@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.68 2003/01/07 01:06:58 guy Exp $
+ * $Id: netxray.c,v 1.69 2003/01/07 01:11:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -578,25 +578,14 @@ netxray_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseudo_header,
 		case WTAP_ENCAP_ISDN:
 			/*
 			 * ISDN.
-			 * It appears that the high-order bit of byte
-			 * 10 is a direction flag, and that the two
-			 * low-order bits of byte 13 of "hdr.hdr_2_x.xxx"
-			 * indicates whether this is a B-channel (1 or 2)
-			 * or a D-channel (0).
 			 *
-			 * XXX - or is it just a channel number?  Primary
-			 * Rate ISDN has more channels; let's assume that
-			 * the bottom 5 bits are the channel number, which
-			 * is enough for European PRI.  (XXX - maybe the
-			 * whole byte is the channel number?)
+			 * XXX - there's a direction flag somewhere, but
+			 * in at least some captures the high-order bit
+			 * of byte 10 of "hdr.hdr_2_x.xxx" isn't it.
 			 *
-			 * XXX - some stuff that Sniffer Pro 4.6 considers
-			 * D-channel traffic has a channel number of 16.
-			 * Let's call channel numbers 0 and 16 D channels,
-			 * channel numbers 1 through 15 B1 through B15,
-			 * and channel numbers 17 through 31 B16 through B31.
-			 *
-			 * XXX - is that direction flag right?
+			 * The bottom 5 bits of byte 13 of "hdr.hdr_2_x.xxx"
+			 * are the channel number, but some mapping is
+			 * required for PRI.
 			 */
 			pseudo_header->isdn.uton =
 			    (hdr->hdr_2_x.xxx[10] & 0x80);
