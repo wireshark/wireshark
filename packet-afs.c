@@ -6,7 +6,7 @@
  * Portions based on information retrieved from the RX definitions
  *   in Arla, the free AFS client at http://www.stacken.kth.se/project/arla/
  *
- * $Id: packet-afs.c,v 1.17 2000/11/02 16:59:29 nneul Exp $
+ * $Id: packet-afs.c,v 1.18 2000/11/02 18:45:15 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -263,6 +263,41 @@ static const value_string bos_req[] = {
 	{ 112,		"get-log" },
 	{ 113,		"wait-all" },
 	{ 114,		"get-instance-strings" },
+	{ 0,		NULL },
+};
+
+static const value_string update_req[] = {
+	{ 1,		"fetch-file" },
+	{ 2,		"fetch-info" },
+	{ 0,		NULL },
+};
+
+static const value_string rmtsys_req[] = {
+	{ 1,		"setpag" },
+	{ 2,		"pioctl" },
+	{ 0,		NULL },
+};
+
+static const value_string backup_req[] = {
+	{ 100,		"perform-dump" },
+	{ 101,		"perform-restore" },
+	{ 102,		"check-dump" },
+	{ 103,		"abort-dump" },
+	{ 104,		"wait-for-dump" },
+	{ 105,		"end-dump" },
+	{ 106,		"get-tm-info" },
+	{ 107,		"label-tape" },
+	{ 108,		"scan-nodes" },
+	{ 109,		"read-label" },
+	{ 110,		"scan-dumps" },
+	{ 111,		"get-tc-info" },
+	{ 112,		"save-database" },
+	{ 113,		"restore-database" },
+	{ 114,		"get-status" },
+	{ 115,		"request-abort" },
+	{ 116,		"end-status" },
+	{ 117,		"scan-status" },
+	{ 118,		"delete-dump" },
 	{ 0,		NULL },
 };
 
@@ -736,16 +771,16 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	OLD_CHECK_DISPLAY_AS_DATA(proto_afs, pd, offset, fd, tree);
 
-	rxh = (struct rx_header *) &pd[offset];
-	doffset = offset + sizeof(struct rx_header);
-	afsh = (struct afs_header *) &pd[doffset];
-
 	/* get at least a full packet structure */
 	if ( !BYTES_ARE_IN_FRAME(offset, sizeof(struct rx_header)) )
 		return;
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "AFS (RX)");
+
+	rxh = (struct rx_header *) &pd[offset];
+	doffset = offset + sizeof(struct rx_header);
+	afsh = (struct afs_header *) &pd[doffset];
 
 	reply = (rxh->flags & RX_CLIENT_INITIATED) == 0;
 	port = ((reply == 0) ? pi.destport : pi.srcport );
@@ -787,7 +822,6 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 		request_val = g_mem_chunk_alloc(afs_request_vals);
 		request_val -> opcode = pntohl(&afsh->opcode);
-		opcode = request_val->opcode;
 
 		g_hash_table_insert(afs_request_hash, new_request_key,
 			request_val);
@@ -797,6 +831,8 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	{
 		opcode = request_val->opcode;
 	}
+
+	
 
 	node = 0;
 	typenode = 0;
@@ -854,16 +890,19 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		case AFS_PORT_UPDATE:
 			typenode = hf_afs_update;
 			node = hf_afs_update_opcode;
+			vals = update_req;
 			/* dissector = reply ? dissect_update_reply : dissect_update_request; */
 			break;
 		case AFS_PORT_RMTSYS:
 			typenode = hf_afs_rmtsys;
 			node = hf_afs_rmtsys_opcode;
+			vals = rmtsys_req;
 			/* dissector = reply ? dissect_rmtsys_reply : dissect_rmtsys_request; */
 			break;
 		case AFS_PORT_BACKUP:
 			typenode = hf_afs_backup;
 			node = hf_afs_backup_opcode;
+			vals = backup_req;
 			dissector = reply ? dissect_backup_reply : dissect_backup_request;
 			break;
 	}
@@ -2275,16 +2314,16 @@ proto_register_afs(void)
 			VALS(bos_req), 0, "Operation" }},
 		{ &hf_afs_update_opcode, {
 			"Operation", "afs.update.opcode", FT_UINT32, BASE_DEC,
-			0, 0, "Operation" }},
+			VALS(update_req), 0, "Operation" }},
 		{ &hf_afs_rmtsys_opcode, {
 			"Operation", "afs.rmtsys.opcode", FT_UINT32, BASE_DEC,
-			0, 0, "Operation" }},
+			VALS(rmtsys_req), 0, "Operation" }},
 		{ &hf_afs_error_opcode, {
 			"Operation", "afs.error.opcode", FT_UINT32, BASE_DEC,
 			0, 0, "Operation" }},
 		{ &hf_afs_backup_opcode, {
 			"Operation", "afs.backup.opcode", FT_UINT32, BASE_DEC,
-			0, 0, "Operation" }},
+			VALS(backup_req), 0, "Operation" }},
 		{ &hf_afs_ubik_opcode, {
 			"Operation", "afs.ubik.opcode", FT_UINT32, BASE_DEC,
 			VALS(ubik_req), 0, "Operation" }},
