@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.5 1998/09/24 04:22:07 gram Exp $
+ * $Id: packet-ipx.c,v 1.6 1998/09/27 03:43:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -325,6 +325,11 @@ dissect_spx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 /* ================================================================= */
 /* IPX RIP                                                           */
 /* ================================================================= */
+/* I don't do NLSP in packet-ipx.c because we don't use Netware Link State
+ * Protocol at work, so I can't debug any ethereal code I write for it. If you
+ * can supply me a tcpdump output file showing NLSP packets, I'll gladly
+ * create dissect_ipxnlsp(). -- gram@verdict.uthscsa.edu
+ */
 static void
 dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
@@ -491,9 +496,21 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 						ether_to_str((guint8*)&pd[cursor+54]));
 				add_item_to_tree(s_tree, cursor+60, 2, "Socket: %s (0x%04X)",
 						port_text(server.server_port), server.server_port);
-				add_item_to_tree(s_tree, cursor+62, 2,
-						"Intermediate Networks: %d",
-						server.intermediate_network);
+
+				/* A hop-count of 16 is unreachable. This type of packet
+				 * is the Server Down notification produced when a server
+				 * is brought down gracefully.
+				 */
+				if (server.intermediate_network >= 16) {
+					add_item_to_tree(s_tree, cursor+62, 2,
+							"Intermediate Networks: %d (Unreachable)",
+							server.intermediate_network);
+				}
+				else {
+					add_item_to_tree(s_tree, cursor+62, 2,
+							"Intermediate Networks: %d",
+							server.intermediate_network);
+				}
 			}
 		}
 		else {  /* queries */
