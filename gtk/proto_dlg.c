@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.23 2002/12/02 10:59:23 oabad Exp $
+ * $Id: proto_dlg.c,v 1.24 2002/12/02 11:05:58 oabad Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -94,7 +94,9 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   GtkWidget *main_vb, *bbox, *proto_list, *label, *proto_sw, *proto_frame,
             *proto_vb, *button;
   gchar *titles[] = { "Status", "Protocol", "Description" };
-#if GTK_MAJOR_VERSION >= 2
+#if GTK_MAJOR_VERSION < 2
+  gint width;
+#else
   GtkListStore *proto_store;
   GtkCellRenderer *proto_rend;
   GtkTreeViewColumn *proto_col;
