@@ -2,7 +2,7 @@
  * Routines for use by various SDLC-derived protocols, such as HDLC
  * and its derivatives LAPB, IEEE 802.2 LLC, etc..
  *
- * $Id: xdlc.c,v 1.23 2004/01/18 08:32:46 guy Exp $
+ * $Id: xdlc.c,v 1.24 2004/01/20 20:27:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -223,17 +223,18 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	if (is_extended) {
 	    poll_final = (control & XDLC_P_F_EXT);
-	    sprintf(info, "S%s, %sN(R) = %u", frame_type,
+	    sprintf(info, "S%s, func=%s, N(R)=%u", frame_type,
 		 	(poll_final ?
-		 	    (is_response ? "func = F, " : "func = P, ") :
+		 	    (is_response ? " F" : " P") :
 		 	    ""),
 			(control & XDLC_N_R_EXT_MASK) >> XDLC_N_R_EXT_SHIFT);
 	} else {
 	    poll_final = (control & XDLC_P_F);
-	    sprintf(info, "S%s, %sN(R) = %u", frame_type,
+	    sprintf(info, "S%s, func=%s, N(R)=%u",
 		 	(poll_final ?
-		 	    (is_response ? "func = F, " : "func = P, ") :
+		 	    (is_response ? " F" : " P") :
 		 	    ""),
+		 	frame_type,
 			(control & XDLC_N_R_MASK) >> XDLC_N_R_SHIFT);
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -292,7 +293,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (modifier == NULL)
 		modifier = "Unknown";
 	poll_final = (control & XDLC_P_F);
-	sprintf(info, "U%s, func = %s",
+	sprintf(info, "U%s, func=%s",
 		(poll_final ?
 		    (is_response ? " F" : " P") :
 		    ""),
@@ -334,7 +335,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    cf_items = cf_items_ext;
 	    control_format = "Control field: %s (0x%04X)";
 	    poll_final = (control & XDLC_P_F_EXT);
-	    sprintf(info, "I%s, N(R) = %u, N(S) = %u",
+	    sprintf(info, "I%s, N(R)=%u, N(S)=%u",
 			((control & XDLC_P_F_EXT) ? " P" : ""),
 			(control & XDLC_N_R_EXT_MASK) >> XDLC_N_R_EXT_SHIFT,
 			(control & XDLC_N_S_EXT_MASK) >> XDLC_N_S_EXT_SHIFT);
@@ -344,7 +345,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    cf_items = cf_items_nonext;
 	    control_format = "Control field: %s (0x%02X)";
 	    poll_final = (control & XDLC_P_F);
-	    sprintf(info, "I%s, N(R) = %u, N(S) = %u",
+	    sprintf(info, "I%s, N(R)=%u, N(S)=%u",
 			((control & XDLC_P_F) ? " P" : ""),
 			(control & XDLC_N_R_MASK) >> XDLC_N_R_SHIFT,
 			(control & XDLC_N_S_MASK) >> XDLC_N_S_SHIFT);
