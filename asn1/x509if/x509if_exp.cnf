@@ -1,7 +1,9 @@
 #.IMPORT_TAG
 Attribute        BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 AttributeType            BER_CLASS_UNI BER_UNI_TAG_OID
+DistinguishedName        BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 Name                     BER_CLASS_ANY -1
+RDNSequence              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 RelativeDistinguishedName BER_CLASS_UNI BER_UNI_TAG_SET
 #.END
 
