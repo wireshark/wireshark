@@ -134,6 +134,8 @@
 
 #define RETHROW				except_rethrow(exc)
 
+#define EXCEPT_CODE			except_code(exc)
+
 /* Register cleanup functions in case an exception is thrown and not caught.
  * From the Kazlib documentation, with modifications for use with the
  * Ethereal-specific macros:
