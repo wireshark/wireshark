@@ -73,7 +73,7 @@ Simon Wilkinson      <sxw[AT]dcs.ed.ac.uk> {
 	AppleTalk support
 }
 
-Joerg Mayer      <jmayer[AT]loplof.de> {
+JÃ¶rg Mayer      <jmayer[AT]loplof.de> {
 	Banyan Vines support
 	NTP fixes
 	DHCP support for Intel PXEclient DHCP requests
@@ -594,7 +594,7 @@ David Hampton <dhampton[AT]mac.com> {
 	"Decode As" dialog
 }
 
-Kent Engström <kent[AT]unit.liu.se> {
+Kent EngstrÃ¶m <kent[AT]unit.liu.se> {
 	CDP VTP Management Domain item support
 }
 
@@ -700,7 +700,7 @@ Todd Sabin <tas[AT]webspan.net> {
 	Skeleton NSPI dissector
 }
 
-Eduardo Pérez Ureta <eperez[AT]dei.inf.uc3m.es> {
+Eduardo PÃ©rez Ureta <eperez[AT]dei.inf.uc3m.es> {
 	GUI fixes
 }
 
@@ -1163,7 +1163,7 @@ Jirka Novak <j.novak[AT]netsystem.cz> {
 	    hex and ASCII data
 }
 
-Ricardo Barroetaveña <rbarroetavena[AT]veufort.com> {
+Ricardo BarroetaveÃ±a <rbarroetavena[AT]veufort.com> {
 	Enhanced LDP support
 	Support TCP reassembly requiring multiple steps (e.g.,
 	    reassemble the PDU header to get the length of the PDU, then
@@ -1294,7 +1294,7 @@ Kevin Humphries <khumphries[AT]networld.com> {
 	Additional PIM hello options support
 }
 
-Erik Nordström <erik.nordstrom[AT]it.uu.se> {
+Erik NordstrÃ¶m <erik.nordstrom[AT]it.uu.se> {
 	AODV dissection support
 }
 
@@ -1946,7 +1946,7 @@ Baktha Muralitharan <muralidb [AT] cisco.com> {
 	Link Management Protocol (LMP) fixes
 }
 
-Loïc Minier <lool [AT] dooz.org> {
+LoÃ¯c Minier <lool [AT] dooz.org> {
 	HTTP header and payload desegmentation
 }
 
@@ -2097,7 +2097,7 @@ Duncan Sargeant <dunc-ethereal-dev [AT] rcpt.to> {
 	Cisco SS7 RUDP, RLM, and Session Management support
 }
 
-Love Hörnquist Åstrand <lha [AT] it.su.se> {
+Love HÃ¶rnquist Ã…strand <lha [AT] it.su.se> {
 	HAVE_HEIMDAL_KERBEROS support to allow Ethereal to use heimdal 
 	libraries to decrypt kerberos encrypted blobs.
 }
@@ -2127,7 +2127,7 @@ Rich Coe <Richard.Coe [AT] med.ge.com> {
 	DICOM support
 }
 
-Dominic Béchaz <bdo [AT] zhwin.ch> {
+Dominic BÃ©chaz <bdo [AT] zhwin.ch> {
 	IEEE 1588 / PTP support
 }
 
