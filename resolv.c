@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.17 1999/11/20 03:39:20 gram Exp $
+ * $Id: resolv.c,v 1.18 1999/11/20 05:35:15 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -76,9 +76,6 @@
 #include "globals.h"
 #include "resolv.h"
 
-#ifndef MAXNAMELEN
-#define MAXNAMELEN  	64	/* max name length (hostname and port name) */
-#endif
 #define MAXMANUFLEN	9	/* max vendor name length with ending '\0' */
 #define HASHETHSIZE	1024
 #define HASHHOSTSIZE	1024
@@ -104,6 +101,7 @@ typedef struct hashmanuf {
 typedef struct hashether {
   u_char 		addr[6];
   char 			name[MAXNAMELEN];
+  gboolean		is_name_from_file;
   struct hashether     	*next;
 } hashether_t;
 
@@ -561,6 +559,37 @@ static hashmanuf_t *manuf_name_lookup(const u_char *addr)
 
 } /* manuf_name_lookup */
 
+static void initialize_ethers(void)
+{
+  ether_t *eth;
+
+#ifdef DEBUG_RESOLV
+  signal(SIGSEGV, SIG_IGN);
+#endif
+
+  /* Set g_pethers_path here, but don't actually do anything
+   * with it. It's used in get_ethbyname() and get_ethbyaddr()
+   */
+  if (g_pethers_path == NULL) {
+    g_pethers_path = g_malloc(strlen(getenv("HOME")) + 
+			      strlen(EPATH_PERSONAL_ETHERS) + 2);
+    sprintf(g_pethers_path, "%s/%s", 
+	    (char *)getenv("HOME"), EPATH_PERSONAL_ETHERS);
+  }
+
+  /* manuf hash table initialization */
+
+  set_ethent(g_manuf_path);
+
+  while ((eth = get_ethent(0))) {
+    add_manuf_name(eth->addr, eth->name);
+    printf("Add manuf? %02x:%02x:%02x... %s\n", eth->addr[0], eth->addr[1], eth->addr[2], eth->name);
+  }
+
+  end_ethent();
+
+} /* initialize_ethers */
+
 static hashether_t *add_eth_name(u_char *addr, u_char *name)
 {
   hashether_t *tp;
@@ -639,14 +668,77 @@ static u_char *eth_name_lookup(const u_char *addr)
       sprintf(tp->name, "%s_%02x:%02x:%02x", 
 	      manufp->name, addr[3], addr[4], addr[5]);
 
+    tp->is_name_from_file = FALSE;
+
   } else {
     strncpy(tp->name, eth->name, MAXNAMELEN);
     tp->name[MAXNAMELEN-1] = '\0';
+    tp->is_name_from_file = TRUE;
   }
 
   return (tp->name);
 
 } /* eth_name_lookup */
+
+/* Look for an ether name in the hash, and return it if found.
+ * If it's not found, simply return NULL. We DO NOT make a new
+ * hash entry for it with the hex digits turned into a string.
+ */
+u_char *get_ether_name_if_known(const u_char *addr)
+{
+  hashether_t *tp;
+  hashether_t **table = eth_table;
+  int i,j;
+
+  /* Initialize ether structs if we're the first
+   * ether-related function called */
+  if (!g_resolving_actif)
+    return NULL;
+  
+  if (!eth_resolution_initialized) {
+    initialize_ethers();
+    eth_resolution_initialized = 1;
+  }
+
+  j = (addr[2] << 8) | addr[3];
+  i = (addr[4] << 8) | addr[5];
+
+  tp = table[ (i ^ j) & (HASHETHSIZE - 1)];
+
+  if( tp == NULL ) {
+	  /* Hash key not found in table.
+	   * Force a lookup (and a hash entry) for addr, then call
+	   * myself. I plan on not getting into an infinite loop because
+	   * eth_name_lookup() is guaranteed to make a hashtable entry,
+	   * so when I call myself again, I can never get into this
+	   * block of code again. Knock on wood...
+	   */
+	  (void) eth_name_lookup(addr);
+	  return get_ether_name_if_known(addr); /* a well-placed goto would suffice */
+  }
+  else { 
+    while(1) {
+      if (memcmp(tp->addr, addr, sizeof(tp->addr)) == 0) {
+	      if (tp->is_name_from_file) {
+		/* A name was found, and its origin is an ethers file */
+		return tp->name;
+	      }
+	      else {
+		/* A name was found, but it was created, not found in a file */
+		return NULL;
+	      }
+      }
+      if (tp->next == NULL) {
+	  /* Read my reason above for why I'm sure I can't get into an infinite loop */
+	  (void) eth_name_lookup(addr);
+	  return get_ether_name_if_known(addr); /* a well-placed goto would suffice */
+      }
+      tp = tp->next;
+    }
+  }
+  g_assert_not_reached();
+  return NULL;
+}
 
 static u_char *eth_addr_lookup(u_char *name)
 {
@@ -678,32 +770,6 @@ static u_char *eth_addr_lookup(u_char *name)
 
 } /* eth_addr_lookup */
 
-static void initialize_ethers(void)
-{
-  ether_t *eth;
-
-#ifdef DEBUG_RESOLV
-  signal(SIGSEGV, SIG_IGN);
-#endif
-
-  if (g_pethers_path == NULL) {
-    g_pethers_path = g_malloc(strlen(getenv("HOME")) + 
-			      strlen(EPATH_PERSONAL_ETHERS) + 2);
-    sprintf(g_pethers_path, "%s/%s", 
-	    (char *)getenv("HOME"), EPATH_PERSONAL_ETHERS);
-  }
-
-  /* manuf hash table initialization */
-
-  set_ethent(g_manuf_path);
-
-  while ((eth = get_ethent(0))) {
-    add_manuf_name(eth->addr, eth->name);
-  }
-
-  end_ethent();
-
-} /* initialize_ethers */
 
 /* 
  *  External Functions

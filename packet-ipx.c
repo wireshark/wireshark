@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.33 1999/11/17 02:17:06 guy Exp $
+ * $Id: packet-ipx.c,v 1.34 1999/11/20 05:35:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -37,6 +37,7 @@
 #include "packet.h"
 #include "packet-ipx.h"
 #include "packet-ncp.h"
+#include "resolv.h"
 
 /* The information in this module (IPX, SPX, NCP) comes from:
 	NetWare LAN Analysis, Second Edition
@@ -229,7 +230,7 @@ static const value_string ipx_packet_type_vals[] = {
 gchar*
 ipxnet_to_string(const guint8 *ad)
 {
-	static gchar	str[3][12];
+	static gchar	str[3][8+3+1]; /* 8 digits, 3 spaces, 1 null */
 	static gchar	*cur;
 
 	if (cur == &str[0][0]) {
@@ -244,11 +245,17 @@ ipxnet_to_string(const guint8 *ad)
 	return cur;
 }
 
+/* We use a different representation of hardware addresses
+ * than ether_to_str(); we don't put punctuation between the hex
+ * digits.
+ */
+
 gchar*
 ipx_addr_to_str(guint32 net, const guint8 *ad)
 {
-	static gchar	str[3][22];
+	static gchar	str[3][8+1+MAXNAMELEN+1]; /* 8 digits, 1 period, NAME, 1 null */
 	static gchar	*cur;
+	char		*name;
 
 	if (cur == &str[0][0]) {
 		cur = &str[1][0];
@@ -258,8 +265,14 @@ ipx_addr_to_str(guint32 net, const guint8 *ad)
 		cur = &str[0][0];
 	}
 
-	sprintf(cur, "%X.%02x%02x%02x%02x%02x%02x", net, 
-		ad[0], ad[1], ad[2], ad[3], ad[4], ad[5]);
+	name = get_ether_name_if_known(ad);
+
+	if (name) {
+		sprintf(cur, "%X.%s", net, name);
+	}
+	else {
+		sprintf(cur, "%X.%s", net, ether_to_str_punct(ad, '\0'));
+	}
 	return cur;
 }
 

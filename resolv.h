@@ -1,7 +1,7 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.9 1999/10/22 07:17:51 guy Exp $
+ * $Id: resolv.h,v 1.10 1999/11/20 05:35:15 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -36,6 +36,10 @@
 #define EPATH_MANUF  		DATAFILE_DIR "/manuf"
 #define EPATH_PERSONAL_ETHERS 	".ethereal/ethers" /* with "$HOME/" prefix */
 
+#ifndef MAXNAMELEN
+#define MAXNAMELEN  	64	/* max name length (hostname and port name) */
+#endif
+
 /* global variables */
 
 extern gchar *g_ethers_path;
@@ -61,6 +65,9 @@ gchar* get_hostname6(struct e_in6_addr *ad);
    "<vendor>_%02x:%02x:%02x" if the vendor code is known else
    "%02x:%02x:%02x:%02x:%02x:%02x" */
 extern u_char *get_ether_name(const u_char *addr);
+
+/* get_ether_name returns the logical name if found in ethers files else NULL */
+extern u_char *get_ether_name_if_known(const u_char *addr);
 
 /* get_manuf_name returns the vendor name or "%02x:%02x:%02x" if not known */
 extern u_char *get_manuf_name(u_char *addr);

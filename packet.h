@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.146 1999/11/19 09:55:38 guy Exp $
+ * $Id: packet.h,v 1.147 1999/11/20 05:35:14 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -208,6 +208,7 @@ typedef struct tcp_extra_data {
 
 /* Utility routines used by packet*.c */
 gchar*     ether_to_str(const guint8 *);
+gchar*     ether_to_str_punct(const guint8 *, char);
 gchar*     ip_to_str(const guint8 *);
 struct e_in6_addr;
 gchar*     ip6_to_str(struct e_in6_addr *);

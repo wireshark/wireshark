@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.55 1999/11/17 21:58:32 guy Exp $
+ * $Id: packet.c,v 1.56 1999/11/20 05:35:14 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,8 +76,21 @@ static int hf_frame_capture_len = -1;
 
 static gint ett_frame = -1;
 
+/* Wrapper for the most common case of asking
+ * for a string using a colon as the hex-digit separator.
+ */
 gchar *
-ether_to_str(const guint8 *ad) {
+ether_to_str(const guint8 *ad)
+{
+	return ether_to_str_punct(ad, ':');
+}
+
+/* Places char punct in the string as the hex-digit separator.
+ * If punct is '\0', no punctuation is applied (and thus
+ * the resulting string is 5 bytes shorter)
+ */
+gchar *
+ether_to_str_punct(const guint8 *ad, char punct) {
   static gchar  str[3][18];
   static gchar *cur;
   gchar        *p;
@@ -102,7 +115,8 @@ ether_to_str(const guint8 *ad) {
     *--p = hex_digits[octet&0xF];
     if (i == 0)
       break;
-    *--p = ':';
+    if (punct)
+      *--p = punct;
     i--;
   }
   return p;
