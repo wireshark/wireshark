@@ -2,7 +2,7 @@
  * Routines to Dissect Appendix C TLV's
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-tlv.c,v 1.14 2003/12/11 21:23:37 ulfl Exp $
+ * $Id: packet-tlv.c,v 1.15 2003/12/13 02:38:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -350,13 +350,13 @@ const value_string docsis_conf_code[] = {
 
 /* Code to actually dissect the packets */
 static void
-dissect_phs_err (tvbuff_t * tvb, proto_tree * tree, guint16 start,
+dissect_phs_err (tvbuff_t * tvb, proto_tree * tree, int start,
 		 guint16 len)
 {
   guint8 type, length;
   proto_item *it;
   proto_tree *err_tree;
-  guint16 pos = start;
+  int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
 			 "5 Service Flow Error Encodings (Length = %u)", len);
@@ -401,12 +401,12 @@ dissect_phs_err (tvbuff_t * tvb, proto_tree * tree, guint16 start,
 }
 
 static void
-dissect_phs (tvbuff_t * tvb, proto_tree * tree, guint16 start, guint16 len)
+dissect_phs (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
   proto_tree *phs_tree;
-  guint16 pos = start;
+  int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
 			 "26 PHS Encodings (Length = %u)", len);
@@ -528,7 +528,7 @@ dissect_phs (tvbuff_t * tvb, proto_tree * tree, guint16 start, guint16 len)
 
 
 static void
-dissect_reqxmit_policy (tvbuff_t * tvb, proto_tree * tree, guint16 start)
+dissect_reqxmit_policy (tvbuff_t * tvb, proto_tree * tree, int start)
 {
   guint32 value;
   proto_item *it;
@@ -570,13 +570,13 @@ dissect_reqxmit_policy (tvbuff_t * tvb, proto_tree * tree, guint16 start)
 }
 
 static void
-dissect_sflow_err (tvbuff_t * tvb, proto_tree * tree, guint16 start,
+dissect_sflow_err (tvbuff_t * tvb, proto_tree * tree, int start,
 		   guint16 len)
 {
   guint8 type, length;
   proto_item *it;
   proto_tree *err_tree;
-  guint16 pos = start;
+  int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
 			 "5 Service Flow Error Encodings (Length = %u)", len);
@@ -622,10 +622,10 @@ dissect_sflow_err (tvbuff_t * tvb, proto_tree * tree, guint16 start,
 
 static void
 dissect_downstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
-			  guint16 start, guint16 len)
+			  int start, guint16 len)
 {
   guint8 type, length;
-  guint16 pos = start;
+  int pos = start;
   while (pos < (start + len))
     {
       type = tvb_get_guint8 (tvb, pos++);
@@ -653,10 +653,10 @@ dissect_downstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
 
 static void
 dissect_upstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
-			guint16 start, guint16 len)
+			int start, guint16 len)
 {
   guint8 type, length;
-  guint16 pos = start;
+  int pos = start;
   while (pos < (start + len))
     {
       type = tvb_get_guint8 (tvb, pos++);
@@ -793,13 +793,13 @@ dissect_upstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
 }
 
 static void
-dissect_sflow (tvbuff_t * tvb, proto_tree * tree, guint16 start, guint16 len,
+dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
 	       guint8 direction)
 {
   guint8 type, length;
   proto_item *it;
   proto_tree *sflow_tree;
-  guint16 pos = start;
+  int pos = start;
   if (direction == 24)
     it =
       proto_tree_add_text (tree, tvb, start, len,
@@ -955,9 +955,9 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, guint16 start, guint16 len,
 	  break;
 	default:
 	  if (direction == 24)
-	    dissect_upstream_sflow (tvb, sflow_tree, (guint16) (pos - 2), length);
+	    dissect_upstream_sflow (tvb, sflow_tree, pos - 2, length);
 	  else
-	    dissect_downstream_sflow (tvb, sflow_tree, (guint16) (pos - 2), length);
+	    dissect_downstream_sflow (tvb, sflow_tree, pos - 2, length);
 	  break;
 
 	}			/* switch (type) */
@@ -967,13 +967,13 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, guint16 start, guint16 len,
 }
 
 static void
-dissect_dot1q_clsfr (tvbuff_t * tvb, proto_tree * tree, guint16 start,
+dissect_dot1q_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
 		     guint16 len)
 {
   guint8 type, length;
   proto_item *it;
   proto_tree *dot1qclsfr_tree;
-  guint16 pos = start;
+  int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
 			 "11 801.1P/Q Classifiers (Length = %u)", len);
@@ -1021,13 +1021,13 @@ dissect_dot1q_clsfr (tvbuff_t * tvb, proto_tree * tree, guint16 start,
 }
 
 static void
-dissect_eth_clsfr (tvbuff_t * tvb, proto_tree * tree, guint16 start,
+dissect_eth_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
 		   guint16 len)
 {
   guint8 type, length;
   proto_item *it;
   proto_tree *ethclsfr_tree;
-  guint16 pos = start;
+  int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
 			 "10 Ethernet Classifiers (Length = %u)", len);
@@ -1083,13 +1083,13 @@ dissect_eth_clsfr (tvbuff_t * tvb, proto_tree * tree, guint16 start,
 }
 
 static void
-dissect_clsfr_err (tvbuff_t * tvb, proto_tree * tree, guint16 start,
+dissect_clsfr_err (tvbuff_t * tvb, proto_tree * tree, int start,
 		   guint16 len)
 {
   guint8 type, length;
   proto_item *it;
   proto_tree *err_tree;
-  guint16 pos = start;
+  int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
 			 "8 Classifier Error Encodings (Length = %u)", len);
@@ -1142,13 +1142,13 @@ dissect_clsfr_err (tvbuff_t * tvb, proto_tree * tree, guint16 start,
 }
 
 static void
-dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, guint16 start,
+dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
 		       guint16 len)
 {
   guint8 type, length;
   proto_item *it;
   proto_tree *ipclsfr_tree;
-  guint16 pos = start;
+  int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
 			 "9 IP Classifier (Length = %u)", len);
@@ -1285,13 +1285,13 @@ dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, guint16 start,
 
 }
 static void
-dissect_classifiers (tvbuff_t * tvb, proto_tree * tree, guint16 start,
+dissect_classifiers (tvbuff_t * tvb, proto_tree * tree, int start,
 		     guint16 len, guint8 direction)
 {
   guint8 type, length;
   proto_item *it;
   proto_tree *clsfr_tree;
-  guint16 pos = start;
+  int pos = start;
   if (direction == 22)
     it =
       proto_tree_add_text (tree, tvb, start, len,
@@ -1415,13 +1415,13 @@ dissect_classifiers (tvbuff_t * tvb, proto_tree * tree, guint16 start,
 }
 
 static void
-dissect_doc10cos (tvbuff_t * tvb, proto_tree * tree, guint16 start,
+dissect_doc10cos (tvbuff_t * tvb, proto_tree * tree, int start,
 		  guint16 len)
 {
   guint8 type, length;
   proto_item *it;
   proto_tree *doc10cos_tree;
-  guint16 pos = start;
+  int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
 			 "1 Docsis 1.0 Class of Service (Length = %u)", len);
@@ -1462,13 +1462,13 @@ dissect_doc10cos (tvbuff_t * tvb, proto_tree * tree, guint16 start,
 }
 
 static void
-dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, guint16 start,
+dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
 		  guint16 len)
 {
   guint8 type, length;
   proto_item *it;
   proto_tree *mcap_tree;
-  guint16 pos = start;
+  int pos = start;
 
   it =
     proto_tree_add_text (tree, tvb, start, len,
@@ -1623,12 +1623,12 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, guint16 start,
 }
 
 static void
-dissect_cos (tvbuff_t * tvb, proto_tree * tree, guint16 start, guint16 len)
+dissect_cos (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
   proto_tree *cos_tree;
-  guint16 pos = start;
+  int pos = start;
 
   it =
     proto_tree_add_text (tree, tvb, start, len,
@@ -1726,7 +1726,7 @@ dissect_cos (tvbuff_t * tvb, proto_tree * tree, guint16 start, guint16 len)
 }
 
 static void
-dissect_svc_unavail(tvbuff_t * tvb, proto_tree * tree, guint16 pos, guint16 length) {
+dissect_svc_unavail(tvbuff_t * tvb, proto_tree * tree, int pos, guint16 length) {
 
   proto_item *svc_unavail_it;
   proto_tree *svc_unavail_tree;
@@ -1747,11 +1747,11 @@ dissect_svc_unavail(tvbuff_t * tvb, proto_tree * tree, guint16 pos, guint16 leng
 }
 
 static void
-dissect_snmpv3_kickstart(tvbuff_t * tvb, proto_tree *tree, guint16 start, guint16 len) {
+dissect_snmpv3_kickstart(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) {
   proto_item *snmpv3_it;
   proto_tree *snmpv3_tree;
   guint8 type, length;
-  guint16 pos = start;
+  int pos = start;
 
   snmpv3_it = proto_tree_add_item (tree,
                             hf_docsis_tlv_snmpv3_kick,
@@ -1784,7 +1784,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
   proto_item *it;
   proto_tree *tlv_tree;
   guint16 total_len;
-  guint16 pos = 0;
+  int pos = 0;
   guint8 type, length;
   guint16 x;
   tvbuff_t *vsif_tvb;
