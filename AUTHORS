@@ -1411,6 +1411,7 @@ Ulf Lamping <ulf.lamping[AT]web.de> {
 	    that cause compiler warnings
 	Decoding of IEEE float and doubles for DCE-RPC
 	Win32 fixes
+	Count ARP packets in capture progress dialog box
 }
 
 Matthew Smart <smart[AT]monkey.org> {

@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.31 2002/08/28 21:00:13 jmayer Exp $
+ * $Id: packet-ethertype.c,v 1.32 2002/10/14 17:33:48 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -104,6 +104,9 @@ capture_ethertype(guint16 etype, const guchar *pd, int offset, int len,
 		  packet_counts *ld)
 {
   switch (etype) {
+    case ETHERTYPE_ARP:
+      ld->arp++;
+      break;
     case ETHERTYPE_IP:
       capture_ip(pd, offset, len, ld);
       break;

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.192 2002/10/09 08:18:37 guy Exp $
+ * $Id: capture.c,v 1.193 2002/10/14 17:33:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1384,6 +1384,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
       { "TCP", &ld.counts.tcp, NULL, NULL, NULL },
       { "UDP", &ld.counts.udp, NULL, NULL, NULL },
       { "ICMP", &ld.counts.icmp, NULL, NULL, NULL },
+      { "ARP", &ld.counts.arp, NULL, NULL, NULL },
       { "OSPF", &ld.counts.ospf, NULL, NULL, NULL },
       { "GRE", &ld.counts.gre, NULL, NULL, NULL },
       { "NetBIOS", &ld.counts.netbios, NULL, NULL, NULL },
@@ -1448,6 +1449,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   ld.counts.netbios = 0;
   ld.counts.vines   = 0;
   ld.counts.other   = 0;
+  ld.counts.arp     = 0;
   ld.pdh            = NULL;
 
   /* We haven't yet gotten the capture statistics. */
