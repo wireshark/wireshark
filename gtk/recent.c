@@ -2,7 +2,7 @@
  * Recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.c,v 1.12 2004/02/20 23:04:50 guy Exp $
+ * $Id: recent.c,v 1.13 2004/04/25 23:45:12 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,6 +53,8 @@
 #define RECENT_GUI_GEOMETRY_MAIN_WIDTH      "gui.geometry_main_width"
 #define RECENT_GUI_GEOMETRY_MAIN_HEIGHT     "gui.geometry_main_height"
 #define RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED  "gui.geometry_main_maximized"
+#define RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE "gui.geometry_main_upper_pane"
+#define RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE "gui.geometry_main_lower_pane"
 #define RECENT_GUI_FILEOPEN_REMEMBERED_DIR  "gui.fileopen_remembered_dir"
 
 
@@ -176,6 +178,13 @@ write_recent(char **rf_path_return)
   fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED ": %s\n",
 		  recent.gui_geometry_main_maximized == TRUE ? "TRUE" : "FALSE");
 
+  fprintf(rf, "\n# Main window panes (GTK2 only).\n");
+  fprintf(rf, "# Decimal numbers.\n");
+  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE ": %d\n",
+		  recent.gui_geometry_main_upper_pane);
+  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE ": %d\n",
+		  recent.gui_geometry_main_lower_pane);
+
   if (last_open_dir != NULL) {
     fprintf(rf, "\n# Last directory navigated to in File Open dialog.\n");
     fprintf(rf, RECENT_GUI_FILEOPEN_REMEMBERED_DIR ": %s\n", last_open_dir);
@@ -265,6 +274,11 @@ read_set_recent_pair(gchar *key, gchar *value)
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_HEIGHT) == 0) {
     recent.gui_geometry_main_height = strtol(value, NULL, 10);
 
+  } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE) == 0) {
+    recent.gui_geometry_main_upper_pane = strtol(value, NULL, 10);
+  } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE) == 0) {
+    recent.gui_geometry_main_lower_pane = strtol(value, NULL, 10);
+
   } else if (strcmp(key, RECENT_GUI_FILEOPEN_REMEMBERED_DIR) == 0) {
     set_last_open_dir(value);
   }
@@ -296,6 +310,9 @@ read_recent(char **rf_path_return, int *rf_errno_return)
   recent.gui_geometry_main_width    = DEF_WIDTH;
   recent.gui_geometry_main_height   =        -1;
   recent.gui_geometry_main_maximized=     FALSE;
+
+  recent.gui_geometry_main_upper_pane   = 200;
+  recent.gui_geometry_main_lower_pane   = 200;
 
   /* Construct the pathname of the user's recent file. */
   rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE);

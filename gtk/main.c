@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.424 2004/04/16 23:57:54 guy Exp $
+ * $Id: main.c,v 1.425 2004/04/25 23:45:12 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1285,6 +1285,9 @@ main_load_window_geometry(GtkWidget *widget
             gdk_window_unmaximize(widget->window);
         }
     }
+
+    gtk_paned_set_position(GTK_PANED(upper_pane), recent.gui_geometry_main_upper_pane);
+    gtk_paned_set_position(GTK_PANED(lower_pane), recent.gui_geometry_main_lower_pane);
 #endif
 }
 
@@ -1339,6 +1342,9 @@ main_save_window_geometry(GtkWidget *widget)
         state = gdk_window_get_state(widget->window);
         recent.gui_geometry_main_maximized = (state == GDK_WINDOW_STATE_MAXIMIZED);
     }
+
+    recent.gui_geometry_main_upper_pane = gtk_paned_get_position(GTK_PANED(upper_pane));
+    recent.gui_geometry_main_lower_pane = gtk_paned_get_position(GTK_PANED(lower_pane));
 #endif
 }
 
