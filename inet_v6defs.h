@@ -1,13 +1,11 @@
-/* acconfig.h
- * #ifdefs to be controlled by "configure"
+/* inet_pton.h
  *
- * $Id: acconfig.h,v 1.12 1999/10/14 06:55:11 guy Exp $
+ * $Id: inet_v6defs.h,v 1.1 1999/10/14 06:55:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
- * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -23,16 +21,27 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#undef PACKAGE
+/*
+ * Version of "inet_pton()" and "inet_ntop()", for the benefit of OSes that
+ * don't have it.
+ */
+extern int inet_pton(int af, const char *src, void *dst);
+extern const char *inet_ntop(int af, const void *src, char *dst,
+    size_t size);
 
-#undef VERSION
+/*
+ * Those OSes may also not have AF_INET6, so declare it here if it's not
+ * already declared, so that we can pass it to "inet_ntop()" and "inet_pton()".
+ */
+#ifndef AF_INET6
+#define	AF_INET6	127	/* pick a value unlikely to duplicate an existing AF_ value */
+#endif
 
-#undef HAVE_SA_LEN
-
-#undef DATAFILE_DIR
-
-#undef NEED_INET_V6DEFS_H
-
-#undef NEED_SNPRINTF_H
-
-#undef NEED_STRERROR_H
+/*
+ * And if __P isn't defined, define it here, so we can use it in
+ * "inet_ntop.c" and "inet_pton.c" (rather than having to change them
+ * not to use it).
+ */
+#ifndef __P
+#define __P(args)	args
+#endif

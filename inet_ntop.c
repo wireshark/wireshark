@@ -16,8 +16,10 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$Id: inet_ntop.c,v 1.1 1999/10/14 05:41:29 itojun Exp $";
+static char rcsid[] = "$Id: inet_ntop.c,v 1.2 1999/10/14 06:55:08 guy Exp $";
 #endif /* LIBC_SCCS and not lint */
+
+#include "config.h"
 
 #include <sys/param.h>
 #include <sys/types.h>
@@ -39,6 +41,8 @@ static char rcsid[] = "$Id: inet_ntop.c,v 1.1 1999/10/14 05:41:29 itojun Exp $";
 # endif
 # include "snprintf.h"
 #endif
+
+#include "inet_v6defs.h"
 
 #ifndef NS_INADDRSZ
 #define NS_INADDRSZ	4

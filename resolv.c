@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.14 1999/10/14 05:41:33 itojun Exp $
+ * $Id: resolv.c,v 1.15 1999/10/14 06:55:10 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -39,7 +39,6 @@
 #endif
 #endif
 
-
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -66,6 +65,10 @@
 
 #ifdef AVOID_DNS_TIMEOUT
 # include <setjmp.h>
+#endif
+
+#ifdef NEED_INET_V6DEFS_H
+# include "inet_v6defs.h"
 #endif
 
 #include "packet.h"

@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.51 1999/10/14 05:41:28 itojun Exp $
+# $Id: configure.in,v 1.52 1999/10/14 06:55:08 guy Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -228,10 +228,11 @@ AC_SUBST(INET_PTON_C)
 AC_SUBST(INET_PTON_O)
 
 AC_CHECK_FUNC(inet_ntop, INET_NTOP_O="",
-  INET_ATON_O="inet_ntop.o")
+  INET_NTOP_O="inet_ntop.o")
 if test "$ac_cv_func_inet_ntop" = no ; then
-  INET_ATON_C="inet_ntop.c"
-  INET_ATON_O="inet_ntop.o"
+  INET_NTOP_C="inet_ntop.c"
+  INET_NTOP_O="inet_ntop.o"
+  AC_DEFINE(NEED_INET_V6DEFS_H)
 fi
 AC_SUBST(INET_NTOP_C)
 AC_SUBST(INET_NTOP_O)

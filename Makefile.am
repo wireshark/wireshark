@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.86 1999/10/14 05:41:28 itojun Exp $
+# $Id: Makefile.am,v 1.87 1999/10/14 06:55:07 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -168,7 +168,7 @@ ethereal_DEPENDENCIES = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ \
 @STRNCASECMP_O@ @MKSTEMP_O@ @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@\
 wiretap/libwiretap.a gtk/libui.a
 ethereal_LDADD = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ \
-@STRNCASECMP_O@ @MKSTEMP_O@ @INET_ATON_O@ @INET_ATON_O@ @INET_NTOP_O@\
+@STRNCASECMP_O@ @MKSTEMP_O@ @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@\
 wiretap/libwiretap.a gtk/libui.a \
 @SNMP_A@
 

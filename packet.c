@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.47 1999/10/14 05:41:30 itojun Exp $
+ * $Id: packet.c,v 1.48 1999/10/14 06:55:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,6 +53,10 @@
 
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
+#endif
+
+#ifdef NEED_INET_V6DEFS_H
+# include "inet_v6defs.h"
 #endif
 
 #include "packet.h"
