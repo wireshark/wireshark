@@ -1,4 +1,4 @@
-$Id: TODO,v 1.7 2000/08/25 19:43:28 deniel Exp $
+$Id: TODO,v 1.8 2000/08/25 20:50:31 guy Exp $
 
 Things to do:
 =============
@@ -48,6 +48,7 @@ right-clicks.
 
 *) A GtkClist replacement, with dynamic columns, allowing columns to be
 added, removed, or moved without having to exit and restart Ethereal.
+(guy)
 
 *) A GUI capture/display filter creator.
 
@@ -66,17 +67,11 @@ man page, which may be the right solution here.
 *) Provide alternative user interfaces, e.g. other toolkits (Qt/KDE,
 full GNOME, native Windows, etc.) and text-mode "curses".
 
-*) Perhaps provide a "line-mode" capture program, i.e. one that, like
-"tcpdump" and "snoop", captures to a file without displaying anything
-other than, perhaps a count of packets captured, or captures and prints
-packet summary or detail data to the standard output, or reads a capture
-file and prints to the standard output summary or detail data.
+*) Kerberos version 4 dissector - standard krb4 - from tcpdump (nneul);
+we have krb5, but not krb4
 
 *) Display filters: allow filtering on "enumerated" data types by name,
 i.e. if a field has a "value_string" array associated with it, allow
 users to specify the string associated with a value.
 
 *) Display filters: add regexes to strings and byte ranges
-
-*) Make lines in GTK Tree (proto_tree GUI) user-selectable
-
