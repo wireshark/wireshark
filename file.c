@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.336 2004/01/09 14:04:52 ulfl Exp $
+ * $Id: file.c,v 1.337 2004/01/09 18:10:40 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,6 +65,7 @@
 #include "color.h"
 #include "column.h"
 #include <epan/packet.h>
+#include "range.h"
 #include "print.h"
 #include "file.h"
 #include "menu.h"
@@ -1277,6 +1278,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
   float       prog_val;
   GTimeVal    start_time;
   gchar       status_str[100];
+  range_process_e process_this;
 
   cf->print_fh = open_print_dest(print_args->to_file, print_args->dest);
   if (cf->print_fh == NULL)
@@ -1332,7 +1334,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
     }
     *cp = '\0';
     print_line(cf->print_fh, 0, print_args->format, line_buf);
-  }
+  } /* if (print_summary) */
 
   print_separator = FALSE;
 
@@ -1346,6 +1348,8 @@ print_packets(capture_file *cf, print_args_t *print_args)
 
   stop_flag = FALSE;
   g_get_current_time(&start_time);
+
+  packet_range_process_init(&print_args->range);
 
   /* Iterate through the list of packets, printing the packets that
      were selected by the current display filter.  */
@@ -1387,22 +1391,24 @@ print_packets(capture_file *cf, print_args_t *print_args)
     }
 
     count++;
-    /* Check to see if we are suppressing unmarked packets, if so,
-     * suppress them and then proceed to check for visibility.
-     */
-/*    if (((print_args->print_only_marked && fdata->flags.marked ) ||
-        !(print_args->print_only_marked)) && fdata->flags.passed_dfilter) {*/
-    if(print_args->print_range == print_range_all_captured ||
-      (print_args->print_range == print_range_all_displayed && fdata->flags.passed_dfilter) ||
-      (print_args->print_range == print_range_selected_only && cf->current_frame == fdata) ||
-      (print_args->print_range == print_range_marked_only && fdata->flags.marked )) {
-      if (!wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
-      			   cf->pd, fdata->cap_len, &err)) {
-        simple_dialog(ESD_TYPE_CRIT, NULL,
-		      file_read_error_message(err), cf->filename);
+
+    /* do we have to process this packet? */
+    process_this = packet_range_process_packet(&print_args->range, fdata);
+    if (process_this == range_process_next) {
+        /* this packet uninteresting, continue with next one */
+        continue;
+    } else if (process_this == range_processing_finished) {
+        /* all interesting packets processed, stop the loop */
         break;
-      }
-      if (print_args->print_summary) {
+    }
+
+    if (!wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
+      	       cf->pd, fdata->cap_len, &err)) {
+        simple_dialog(ESD_TYPE_CRIT, NULL,
+	      file_read_error_message(err), cf->filename);
+        break;
+    }
+    if (print_args->print_summary) {
         /* Fill in the column information, but don't bother creating
            the logical protocol tree. */
         edt = epan_dissect_new(FALSE, FALSE);
@@ -1456,11 +1462,10 @@ print_packets(capture_file *cf, print_args_t *print_args)
 	}
 
         /* Print a blank line if we print anything after this. */
-        print_separator = TRUE;
-      }
+    print_separator = TRUE;
+      } /* if (print_summary) */
       epan_dissect_free(edt);
-    }
-  }
+  } /* for (fdata) */
 
   /* We're done printing the packets; destroy the progress bar if
      it was created. */

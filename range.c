@@ -1,7 +1,7 @@
 /* range.c
  * Packet range routines (save, print, ...)
  *
- * $Id: range.c,v 1.7 2004/01/09 14:04:52 ulfl Exp $
+ * $Id: range.c,v 1.8 2004/01/09 18:10:40 ulfl Exp $
  *
  * Dick Gooris <gooris@lucent.com>
  * Ulf Lamping <ulf.lamping@web.de>
@@ -59,13 +59,13 @@ void packet_range_calc(packet_range_t *range) {
 
   mark_low                      = 0L;
   mark_high                     = 0L;
-  range->mark_range             = 0L;
+  range->mark_range_cnt         = 0L;
 
   displayed_mark_low            = 0L;
   displayed_mark_high           = 0L;
   range->displayed_cnt          = 0L;
   range->displayed_marked_cnt   = 0L;
-  range->displayed_mark_range   = 0L;
+  range->displayed_mark_range_cnt=0L;
 
   /* The next for-loop is used to obtain the amount of packets to be processed
    * and is used to present the information in the Save/Print As widget.
@@ -111,14 +111,14 @@ void packet_range_calc(packet_range_t *range) {
       if (current_count >= mark_low && 
           current_count <= mark_high)
       {
-          range->mark_range++;
+          range->mark_range_cnt++;
       }
 
       if (current_count >= displayed_mark_low && 
           current_count <= displayed_mark_high)
       {
           if (packet->flags.passed_dfilter) {
-            range->displayed_mark_range++;
+            range->displayed_mark_range_cnt++;
           }
       }
   }
@@ -140,17 +140,17 @@ void packet_range_calc_user(packet_range_t *range) {
   guint32       current_count;
   frame_data    *packet;
 
-  range->user_range             = 0L;
-  range->displayed_user_range   = 0L;
+  range->user_range_cnt             = 0L;
+  range->displayed_user_range_cnt   = 0L;
 
   current_count = 0;
   for(packet = cfile.plist; packet != NULL; packet = packet->next) {
       current_count++;
 
       if (packet_is_in_range(range, current_count)) {
-          range->user_range++;
+          range->user_range_cnt++;
           if (packet->flags.passed_dfilter) {
-            range->displayed_user_range++;
+            range->displayed_user_range_cnt++;
           }
       }
   }
@@ -178,9 +178,9 @@ void packet_range_process_init(packet_range_t *range) {
   range->selected_done          = FALSE;
 
   if (range->process_filtered == FALSE) {
-    range->markers = range->mark_range;
+    range->marked_range_left = range->mark_range_cnt;
   } else {
-    range->markers = range->displayed_mark_range;
+    range->marked_range_left = range->displayed_mark_range_cnt;
   }
 }
 
@@ -210,19 +210,19 @@ range_process_e packet_range_process_packet(packet_range_t *range, frame_data *f
         }
         break;
     case(range_process_marked_range):
-        if (range->markers == 0) {
+        if (range->marked_range_left == 0) {
           return range_processing_finished;
         }
         if (fdata->flags.marked == TRUE) {
           range->marked_range_active = TRUE;
-          if (!range->process_filtered ||
-              (range->process_filtered && fdata->flags.passed_dfilter == TRUE))
-          {
-            range->markers--;
-          }
         }
         if (range->marked_range_active == FALSE ) {
           return range_process_next;
+        }
+        if (!range->process_filtered ||
+          (range->process_filtered && fdata->flags.passed_dfilter == TRUE))
+        {
+          range->marked_range_left--;
         }
         break;
     case(range_process_user_range):

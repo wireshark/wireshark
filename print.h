@@ -1,7 +1,7 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id: print.h,v 1.33 2003/12/09 22:21:24 ulfl Exp $
+ * $Id: print.h,v 1.34 2004/01/09 18:10:40 ulfl Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -53,9 +53,7 @@ typedef struct {
   gboolean	to_file;	/* TRUE if we're printing to a file */
   char		*dest;		/* if printing to file, pathname;
 				   if not, command string */
-  print_range_e print_range;
-  /*guint32		print_range_min;*/
-  /*guint32		print_range_max;*/
+  packet_range_t range;
 
   gboolean	print_summary;	/* TRUE if we should just print summary;
 				   FALSE if we should print protocol tree. */

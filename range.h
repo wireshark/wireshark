@@ -1,7 +1,7 @@
 /* range.h
  * Packet range routines (save, print, ...)
  *
- * $Id: range.h,v 1.7 2004/01/09 14:04:53 ulfl Exp $
+ * $Id: range.h,v 1.8 2004/01/09 18:10:40 ulfl Exp $
  *
  * Dick Gooris <gooris@lucent.com>
  * Ulf Lamping <ulf.lamping@web.de>
@@ -66,18 +66,18 @@ typedef struct packet_range_tag {
     /* current packet counts (captured) */
     /* cfile.count */               /* packets in capture file */
     /* cfile.marked_count */        /* packets marked */
-    guint32  mark_range;            /* packets in marked range */
-    guint32  user_range;            /* packets in user specified range */
+    guint32  mark_range_cnt;        /* packets in marked range */
+    guint32  user_range_cnt;        /* packets in user specified range */
 
     /* current packet counts (displayed) */
     guint32  displayed_cnt;
     guint32  displayed_marked_cnt;
-    guint32  displayed_mark_range;
-    guint32  displayed_user_range;
+    guint32  displayed_mark_range_cnt;
+    guint32  displayed_user_range_cnt;
 
     /* "enumeration" values */
     gboolean marked_range_active;   /* marked range is currently processed */
-    guint32  markers;               /* marked range packets left to do */
+    guint32  marked_range_left;     /* marked range packets left to do */
     gboolean selected_done;         /* selected packet already processed */
 } packet_range_t;
 
