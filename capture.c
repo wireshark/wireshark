@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.14 1998/12/22 05:52:48 gram Exp $
+ * $Id: capture.c,v 1.15 1998/12/22 07:07:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -300,7 +300,7 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_COUNT_KEY, count_cb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_OPEN_KEY,  capfile_ck);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_SNAP_KEY,  snap_sb);
-  
+
   gtk_widget_show(cap_open_w);
 }
 
@@ -349,6 +349,9 @@ capture_prep_ok_cb(GtkWidget *w, gpointer data) {
   GtkWidget *if_cb, *filter_te, *file_te, *count_cb, *open_ck, *snap_sb;
   gint     open;
 
+#ifdef GTK_HAVE_FEATURES_1_1_0
+  data = w;
+#endif
   if_cb     = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_IFACE_KEY);
   filter_te = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_FILT_KEY);
   file_te   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_FILE_KEY);
@@ -380,6 +383,9 @@ capture_prep_ok_cb(GtkWidget *w, gpointer data) {
 void
 capture_prep_close_cb(GtkWidget *w, gpointer win) {
 
+#ifdef GTK_HAVE_FEATURES_1_1_0
+  win = w;
+#endif
   gtk_grab_remove(GTK_WIDGET(win));
   gtk_widget_destroy(GTK_WIDGET(win));
 }

@@ -1,7 +1,7 @@
 /* filter.c
  * Routines for managing filter sets
  *
- * $Id: filter.c,v 1.10 1998/12/17 05:42:24 gram Exp $
+ * $Id: filter.c,v 1.11 1998/12/22 07:07:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -244,7 +244,10 @@ filter_sel_list_cb(GtkWidget *l, gpointer data) {
   GtkObject  *l_item;
   gint        sensitivity = FALSE;
 
-  sl = GTK_LIST(l)->selection;
+  if (l)
+	  sl = GTK_LIST(l)->selection;
+  else
+	  sl = NULL;
           
   if (sl) {  /* Something was selected */
     l_item = GTK_OBJECT(sl->data);
