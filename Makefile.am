@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.455 2002/08/20 01:06:27 jmayer Exp $
+# $Id: Makefile.am,v 1.456 2002/08/20 22:42:16 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -393,6 +393,7 @@ plugin_static_ldadd = \
 	plugins/docsis/packet-tlv-static.o \
 	plugins/docsis/packet-uccreq-static.o \
 	plugins/docsis/packet-uccrsp-static.o \
+	plugins/docsis/packet-ucd-static.o \
 	plugins/giop/packet-cosnaming-static.o \
 	plugins/giop/packet-coseventcomm-static.o \
 	plugins/gryphon/packet-gryphon-static.o \
