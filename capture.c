@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.132 2000/11/15 05:41:41 guy Exp $
+ * $Id: capture.c,v 1.133 2000/12/27 22:35:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,8 +41,37 @@
 #ifdef HAVE_SYS_WAIT_H
 # include <sys/wait.h>
 #endif
+
+#ifndef _WIN32
+/*
+ * Define various POSIX macros (and, in the case of WCOREDUMP, non-POSIX
+ * macros) on UNIX systems that don't have them.
+ */
+#ifndef WIFEXITED
+# define WIFEXITED(status)	(((status) & 0177) == 0)
+#endif
+#ifndef WIFSTOPPED
+# define WIFSTOPPED(status)	(((status) & 0177) == 0177)
+#endif
+#ifndef WIFSIGNALED
+# define WIFSIGNALED(status)	(!WIFSTOPPED(status) && !WIFEXITED(status))
+#endif
+#ifndef WEXITSTATUS
+# define WEXITSTATUS(status)	((status) >> 8)
+#endif
+#ifndef WTERMSIG
+# define WTERMSIG(status)	((status) & 0177)
+#endif
+#ifndef WCOREDUMP
+# define WCOREDUMP(status)	((status) & 0200)
+#endif
+#ifndef WSTOPSIG
+# define WSTOPSIG(status)	((status) >> 8)
+#endif
+#endif /* _WIN32 */
+
 #ifdef HAVE_IO_H
-#include <io.h>
+# include <io.h>
 #endif
 
 #include <gtk/gtk.h>
@@ -121,6 +150,10 @@ static int cap_timer_cb(gpointer); /* Win32 kludge to check for pipe input */
 #endif
 
 static void cap_file_input_cb(gpointer, gint, GdkInputCondition);
+static void wait_for_child(gboolean);
+#ifndef _WIN32
+static char *signame(int);
+#endif
 static void capture_delete_cb(GtkWidget *, GdkEvent *, gpointer);
 static void capture_stop_cb(GtkWidget *, gpointer);
 static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
@@ -404,13 +437,12 @@ do_capture(char *capfile_name)
       if (i == 0) {
 	/* EOF - the child process died.
 	   Close the read side of the sync pipe, remove the capture file,
-	   and report the failure.
-	   XXX - reap the child process and report the status in detail. */
+	   and report the failure. */
 	close(sync_pipe[READ]);
 	unlink(cfile.save_file);
 	g_free(cfile.save_file);
 	cfile.save_file = NULL;
-	simple_dialog(ESD_TYPE_WARN, NULL, "Capture child process died");
+	wait_for_child(TRUE);
 	return;
       }
       if (c == ';')
@@ -482,6 +514,7 @@ do_capture(char *capfile_name)
 	} else if (i == 0) {
 	  simple_dialog(ESD_TYPE_WARN, NULL,
 		  "Capture child process failed: EOF reading its error message.");
+	  wait_for_child(FALSE);
 	} else
 	  simple_dialog(ESD_TYPE_WARN, NULL, msg);
 	g_free(msg);
@@ -583,12 +616,6 @@ cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
   int  to_read = 0;
   gboolean exit_loop = FALSE;
   int  err;
-  int  wstatus;
-  int  wsignal;
-  char *msg;
-  char *sigmsg;
-  char sigmsg_buf[6+1+3+1];
-  char *coredumped;
 
 #ifndef _WIN32
   /* avoid reentrancy problems and stack overflow */
@@ -598,112 +625,8 @@ cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
   if ((nread = read(sync_pipe[READ], buffer, 256)) <= 0) {
     /* The child has closed the sync pipe, meaning it's not going to be
        capturing any more packets.  Pick up its exit status, and
-       complain if it died of a signal. */
-#ifdef _WIN32
-    /* XXX - analyze the wait stuatus and display more information
-       in the dialog box? */
-    if (_cwait(&wstatus, child_process, _WAIT_CHILD) == -1) {
-      simple_dialog(ESD_TYPE_WARN, NULL, "Child capture process stopped unexpectedly");
-    }
-#else
-    if (wait(&wstatus) != -1) {
-      /* XXX - are there any platforms on which we can run that *don't*
-         support POSIX.1's <sys/wait.h> and macros therein? */
-      wsignal = wstatus & 0177;
-      coredumped = "";
-      if (wstatus == 0177) {
-      	/* It stopped, rather than exiting.  "Should not happen." */
-      	msg = "stopped";
-      	wsignal = (wstatus >> 8) & 0xFF;
-      } else {
-        msg = "terminated";
-        if (wstatus & 0200)
-          coredumped = " - core dumped";
-      }
-      if (wsignal != 0) {
-        switch (wsignal) {
-
-        case SIGHUP:
-          sigmsg = "Hangup";
-          break;
-
-        case SIGINT:
-          sigmsg = "Interrupted";
-          break;
-
-        case SIGQUIT:
-          sigmsg = "Quit";
-          break;
-
-        case SIGILL:
-          sigmsg = "Illegal instruction";
-          break;
-
-        case SIGTRAP:
-          sigmsg = "Trace trap";
-          break;
-
-        case SIGABRT:
-          sigmsg = "Abort";
-          break;
-
-        case SIGFPE:
-          sigmsg = "Arithmetic exception";
-          break;
-
-        case SIGKILL:
-          sigmsg = "Killed";
-          break;
-
-        case SIGBUS:
-          sigmsg = "Bus error";
-          break;
-
-        case SIGSEGV:
-          sigmsg = "Segmentation violation";
-          break;
-
-	/* http://metalab.unc.edu/pub/Linux/docs/HOWTO/GCC-HOWTO 
-		Linux is POSIX compliant.  These are not POSIX-defined signals ---
-		  ISO/IEC 9945-1:1990 (IEEE Std 1003.1-1990), paragraph B.3.3.1.1 sez:
-
-	       ``The signals SIGBUS, SIGEMT, SIGIOT, SIGTRAP, and SIGSYS
-		were omitted from POSIX.1 because their behavior is
-		implementation dependent and could not be adequately catego-
-		rized.  Conforming implementations may deliver these sig-
-		nals, but must document the circumstances under which they
-		are delivered and note any restrictions concerning their
-		delivery.''
-	*/
-
-	#ifdef SIGSYS
-        case SIGSYS:
-          sigmsg = "Bad system call";
-          break;
-	#endif
-
-        case SIGPIPE:
-          sigmsg = "Broken pipe";
-          break;
-
-        case SIGALRM:
-          sigmsg = "Alarm clock";
-          break;
-
-        case SIGTERM:
-          sigmsg = "Terminated";
-          break;
-
-        default:
-          sprintf(sigmsg_buf, "Signal %d", wsignal);
-          sigmsg = sigmsg_buf;
-          break;
-        }
-	simple_dialog(ESD_TYPE_WARN, NULL,
-		"Child capture process %s: %s%s", msg, sigmsg, coredumped);
-      }
-    }
-#endif
+       complain if it did anything other than exit with status 0. */
+    wait_for_child(FALSE);
       
     /* Read what remains of the capture file, and finish the capture.
        XXX - do something if this fails? */
@@ -788,6 +711,142 @@ cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
 				     NULL);
 #endif
 }
+
+static void
+wait_for_child(gboolean always_report)
+{
+  int  wstatus;
+
+#ifdef _WIN32
+  /* XXX - analyze the wait stuatus and display more information
+     in the dialog box? */
+  if (_cwait(&wstatus, child_process, _WAIT_CHILD) == -1) {
+    simple_dialog(ESD_TYPE_WARN, NULL, "Child capture process stopped unexpectedly");
+  }
+#else
+  if (wait(&wstatus) != -1) {
+    if (WIFEXITED(wstatus)) {
+      /* The child exited; display its exit status, if it's not zero,
+         and even if it's zero if "always_report" is true. */
+      if (always_report || WEXITSTATUS(wstatus) != 0) {
+        simple_dialog(ESD_TYPE_WARN, NULL,
+		      "Child capture process exited: exit status %d",
+		      WEXITSTATUS(wstatus));
+      }
+    } else if (WIFSTOPPED(wstatus)) {
+      /* It stopped, rather than exiting.  "Should not happen." */
+      simple_dialog(ESD_TYPE_WARN, NULL,
+		    "Child capture process stopped: %s",
+		    signame(WSTOPSIG(wstatus)));
+    } else if (WIFSIGNALED(wstatus)) {
+      /* It died with a signal. */
+      simple_dialog(ESD_TYPE_WARN, NULL,
+		    "Child capture process died: %s%s",
+		    signame(WTERMSIG(wstatus)),
+		    WCOREDUMP(wstatus) ? " - core dumped" : "");
+    } else {
+      /* What?  It had to either have exited, or stopped, or died with
+         a signal; what happened here? */
+      simple_dialog(ESD_TYPE_WARN, NULL,
+		    "Child capture process died: wait status %#o", wstatus);
+    }
+  }
+#endif
+}
+
+#ifndef _WIN32
+static char *
+signame(int sig)
+{
+  char *sigmsg;
+  static char sigmsg_buf[6+1+3+1];
+
+  switch (sig) {
+
+  case SIGHUP:
+    sigmsg = "Hangup";
+    break;
+
+  case SIGINT:
+    sigmsg = "Interrupted";
+    break;
+
+  case SIGQUIT:
+    sigmsg = "Quit";
+    break;
+
+  case SIGILL:
+    sigmsg = "Illegal instruction";
+    break;
+
+  case SIGTRAP:
+    sigmsg = "Trace trap";
+    break;
+
+  case SIGABRT:
+    sigmsg = "Abort";
+    break;
+
+  case SIGFPE:
+    sigmsg = "Arithmetic exception";
+    break;
+
+  case SIGKILL:
+    sigmsg = "Killed";
+    break;
+
+  case SIGBUS:
+    sigmsg = "Bus error";
+    break;
+
+  case SIGSEGV:
+    sigmsg = "Segmentation violation";
+    break;
+
+  /* http://metalab.unc.edu/pub/Linux/docs/HOWTO/GCC-HOWTO 
+     Linux is POSIX compliant.  These are not POSIX-defined signals ---
+     ISO/IEC 9945-1:1990 (IEEE Std 1003.1-1990), paragraph B.3.3.1.1 sez:
+
+	``The signals SIGBUS, SIGEMT, SIGIOT, SIGTRAP, and SIGSYS
+	were omitted from POSIX.1 because their behavior is
+	implementation dependent and could not be adequately catego-
+	rized.  Conforming implementations may deliver these sig-
+	nals, but must document the circumstances under which they
+	are delivered and note any restrictions concerning their
+	delivery.''
+
+     So we only check for SIGSYS on those systems that happen to
+     implement them (a system can be POSIX-compliant and implement
+     them, it's just that POSIX doesn't *require* a POSIX-compliant
+     system to implement them).
+   */
+
+#ifdef SIGSYS
+  case SIGSYS:
+    sigmsg = "Bad system call";
+    break;
+#endif
+
+  case SIGPIPE:
+    sigmsg = "Broken pipe";
+    break;
+
+  case SIGALRM:
+    sigmsg = "Alarm clock";
+    break;
+
+  case SIGTERM:
+    sigmsg = "Terminated";
+    break;
+
+  default:
+    sprintf(sigmsg_buf, "Signal %d", sig);
+    sigmsg = sigmsg_buf;
+    break;
+  }
+  return sigmsg;
+}
+#endif
 
 /*
  * Timeout, in milliseconds, for reads from the stream of captured packets.
