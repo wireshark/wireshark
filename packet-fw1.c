@@ -2,14 +2,14 @@
  * Routines for Ethernet header disassembly of FW1 "monitor" files
  * Copyright 2002, Alfred Koebler <ak@icon-sult.de>
  *
- * $Id: packet-fw1.c,v 1.1 2002/08/08 09:28:08 guy Exp $
+ * $Id: packet-fw1.c,v 1.2 2002/08/08 09:33:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Alfred Koebler <ak@icon-sult.de>
  * Copyright 2002 I.Consult
  * 
  * To use this dissector use the command line option
- * -o eth.eth_interpret_as_fw1_monitor:TRUE
+ * -o eth.interpret_as_fw1_monitor:TRUE
  *
  * At the moment the way with the option is the best one.
  * A automatic way is not possible, because the file format isn't different
@@ -109,7 +109,7 @@ static gint ett_fw1 = -1;
 
 static dissector_handle_t eth_handle;
 
-void
+static void
 dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   /* Set up structures needed to add the protocol subtree and manage it */
@@ -220,9 +220,9 @@ proto_register_fw1(void)
 
   /* Register configuration preferences */
   fw1_module = prefs_register_protocol(proto_fw1, NULL);
-  prefs_register_bool_preference(fw1_module, "fw1_summary_in_tree",
-            "Show FW1 summary in protocol tree",
-"Whether the FW1 summary line should be shown in the protocol tree",
+  prefs_register_bool_preference(fw1_module, "summary_in_tree",
+            "Show FireWall-1 summary in protocol tree",
+"Whether the FireWall-1 summary line should be shown in the protocol tree",
             &fw1_summary_in_tree);
 
   register_dissector("fw1", dissect_fw1, proto_fw1);
