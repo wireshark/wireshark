@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.8 2003/04/27 06:11:45 sharpe Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.9 2003/04/27 06:16:57 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,7 +124,7 @@ wkssvc_dissect_WKS_INFO_101(tvbuff_t *tvb, int offset,
 }
 
 /*
- * IDL long NetrQueryInfo(
+ * IDL long NetWkstaGetInfo(
  * IDL      [in] [string] [unique] wchar_t *ServerName,
  * IDL      [in] long level,
  * IDL      [out] [ref] WKS_INFO_UNION *wks
@@ -198,7 +198,7 @@ static int wkssvc_dissect_netrqueryinfo_reply(tvbuff_t *tvb, int offset,
 }
 
 static dcerpc_sub_dissector dcerpc_wkssvc_dissectors[] = {
-        { WKS_QUERY_INFO, "WKS_QUERY_INFO", 
+        { WKS_QUERY_INFO, "NetWkstaGetInfo", 
 	  wkssvc_dissect_netrqueryinfo_rqst, 
 	  wkssvc_dissect_netrqueryinfo_reply},
 
