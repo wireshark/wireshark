@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.66 2000/05/25 08:31:58 guy Exp $
+ * $Id: packet-smb.c,v 1.67 2000/05/25 08:38:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1084,6 +1084,15 @@ dissect_write_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
 
     offset += 2; /* Skip Data Length */
 
+    if (ByteCount > 0 && tree) {
+
+	if(END_OF_FRAME >= ByteCount)
+	    proto_tree_add_text(tree, NullTVB, offset, ByteCount, "Data (%u bytes)", ByteCount);
+	else
+	    proto_tree_add_text(tree, NullTVB, offset, END_OF_FRAME, "Data (first %u bytes)", END_OF_FRAME);
+
+    }
+
   }
 
   if (dirn == 0) { /* Response(s) dissect code */
@@ -1383,6 +1392,7 @@ dissect_delete_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 {
   guint8        WordCount;
   guint8        BufferFormat;
+  guint16       SearchAttributes;
   guint16       ByteCount;
   const char    *FileName;
 
@@ -1399,6 +1409,17 @@ dissect_delete_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
     }
 
     offset += 1; /* Skip Word Count (WCT) */
+
+    /* Build display for: SearchAttributes */
+
+    SearchAttributes = GSHORT(pd, offset);
+
+    if (tree) {
+
+	proto_tree_add_text(tree, NullTVB, offset, 2, "Search Attributes: %u", SearchAttributes);
+    }
+
+    offset += 2; /* Skip SearchAttributes */
 
     /* Build display for: Byte Count (BCC) */
 
@@ -2281,18 +2302,20 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
       if (ByteCount > 0) {
 
-	/* Build display for: ANSI Password */
+	  /* Build display for: ANSI Password */
 
-	ANSIPassword = pd + offset;
+	  ANSIPassword = pd + offset;
 
-	if (tree) {
+	  if (ANSIAccountPasswordLength > 0) {
 
-	  proto_tree_add_text(tree, NullTVB, offset, ANSIAccountPasswordLength, "ANSI Password: %s", format_text(ANSIPassword, ANSIAccountPasswordLength));
+	      if (tree) {
 
-	}
+		  proto_tree_add_text(tree, NullTVB, offset, ANSIAccountPasswordLength, "ANSI Password: %s", format_text(ANSIPassword, ANSIAccountPasswordLength));
 
-	offset += ANSIAccountPasswordLength; /* Skip ANSI Password */
-	if (ANSIAccountPasswordLength == 0) offset++;  /* Add 1 */
+	      }
+
+	      offset += ANSIAccountPasswordLength; /* Skip ANSI Password */
+	  }
 
 	/* Build display for: UNICODE Password */
 
@@ -3425,6 +3448,7 @@ dissect_createdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
   }
 
 }
+
 
 void
 dissect_checkdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
@@ -5272,6 +5296,343 @@ dissect_read_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
   }
 
   if (dirn == 0) { /* Response(s) dissect code */
+
+  }
+
+}
+
+void
+dissect_read_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
+
+{
+  guint8        WordCount;
+  guint8        AndXReserved;
+  guint8        AndXCommand = 0xFF;
+  guint16       ByteCount;
+  guint16       AndXOffset = 0;
+  guint16       FID;
+  guint16       DataCompactionMode;
+  guint16       DataLength;
+  guint16       DataOffset;
+  guint16       Remaining;
+  guint16       MaxCount;
+  guint16       MinCount;
+  guint16       Reserved;
+  guint32       Offset;
+  guint32       OffsetHigh;
+  int           i;
+
+  if (dirn == 1) { /* Request(s) dissect code */
+
+    /* Build display for: Word Count (WCT) */
+
+    WordCount = GBYTE(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Word Count (WCT): %u", WordCount);
+
+    }
+
+    offset += 1; /* Skip Word Count (WCT) */
+
+    /* Build display for: AndXCommand */
+
+    AndXCommand = GBYTE(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, NullTVB, offset, 1, "AndXCommand: %u", AndXCommand);
+
+    }
+
+    offset += 1; /* Skip AndXCommand */
+
+    /* Build display for: AndXReserved */
+
+    AndXReserved = GBYTE(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, NullTVB, offset, 1, "AndXReserved: %u", AndXReserved);
+
+    }
+
+    offset += 1; /* Skip AndXReserved */
+
+    /* Build display for: AndXOffset */
+
+    AndXOffset = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, NullTVB, offset, 2, "AndXOffset: %u", AndXOffset);
+
+    }
+
+    offset += 2; /* Skip AndXOffset */
+
+    /* Build display for: FID */
+
+    FID = GSHORT(pd, offset);
+
+    if (tree) {
+	
+      proto_tree_add_text(tree, NullTVB, offset, 2, "FID: %u", FID);
+	
+    }
+
+    offset += 2; /* Skip FID */
+
+    /* Build display for: Offset */
+
+    Offset = GWORD(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, NullTVB, offset, 4, "Offset: %u", Offset);
+
+    }
+
+    offset += 4; /* Skip Offset */
+
+    /* Build display for: Max Count */
+
+    MaxCount = GSHORT(pd, offset);
+
+    if (tree) {
+
+        proto_tree_add_text(tree, NullTVB, offset, 2, "Max Count: %u", MaxCount);
+
+    }
+
+    offset += 2; /* Skip Max Count */
+
+    /* Build display for: Min Count */
+
+    MinCount = GSHORT(pd, offset);
+
+    if (tree) {
+
+        proto_tree_add_text(tree, NullTVB, offset, 2, "Min Count: %u", MinCount);
+
+    }
+
+    offset += 2; /* Skip Min Count */
+
+    /* Build display for: Reserved */
+
+    Reserved = GWORD(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, NullTVB, offset, 4, "Reserved: %u", Reserved);
+
+    }
+
+    offset += 4; /* Skip Reserved */
+
+    /* Build display for: Remaining */
+
+    Remaining = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, NullTVB, offset, 2, "Remaining: %u", Remaining);
+
+    }
+
+    offset += 2; /* Skip Remaining */
+
+    if (WordCount == 12) {
+
+	/* Build display for: Offset High */
+
+	OffsetHigh = GWORD(pd, offset);
+
+	if (tree) {
+
+	    proto_tree_add_text(tree, NullTVB, offset, 4, "Offset High: %u", OffsetHigh);
+
+	}
+
+	offset += 4; /* Skip Offset High */
+    }
+
+    /* Build display for: Byte Count (BCC) */
+
+    ByteCount = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", ByteCount);
+
+    }
+
+    offset += 2; /* Skip Byte Count (BCC) */
+
+
+    if (AndXCommand != 0xFF) {
+
+      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn);
+
+    }
+
+  }
+
+  if (dirn == 0) { /* Response(s) dissect code */
+
+    /* Build display for: Word Count (WCT) */
+
+    WordCount = GBYTE(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Word Count (WCT): %u", WordCount);
+
+    }
+
+    offset += 1; /* Skip Word Count (WCT) */
+
+    /* Build display for: AndXCommand */
+
+    AndXCommand = GBYTE(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, NullTVB, offset, 1, "AndXCommand: %u", AndXCommand);
+
+    }
+
+    offset += 1; /* Skip AndXCommand */
+
+    /* Build display for: AndXReserved */
+
+    AndXReserved = GBYTE(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, NullTVB, offset, 1, "AndXReserved: %u", AndXReserved);
+
+    }
+
+    offset += 1; /* Skip AndXReserved */
+
+    /* Build display for: AndXOffset */
+
+    AndXOffset = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, NullTVB, offset, 2, "AndXOffset: %u", AndXOffset);
+
+    }
+
+    offset += 2; /* Skip AndXOffset */
+
+    /* Build display for: Remaining */
+
+    Remaining = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, NullTVB, offset, 2, "Remaining: %u", Remaining);
+
+    }
+
+    offset += 2; /* Skip Remaining */
+
+    /* Build display for: Data Compaction Mode */
+
+    DataCompactionMode = GSHORT(pd, offset);
+
+    if (tree) {
+
+	proto_tree_add_text(tree, NullTVB, offset, 2, "Data Compaction Mode: %u", DataCompactionMode);
+
+    }
+
+    offset += 2; /* Skip Data Compaction Mode */
+
+    /* Build display for: Reserved */
+
+    Reserved = GSHORT(pd, offset);
+
+    if (tree) {
+
+	proto_tree_add_text(tree, NullTVB, offset, 2, "Reserved: %u", Reserved);
+
+    }
+
+    offset += 2; /* Skip Reserved */
+
+    /* Build display for: Data Length */
+
+    DataLength = GSHORT(pd, offset);
+
+    if (tree) {
+
+	proto_tree_add_text(tree, NullTVB, offset, 2, "Data Length: %u", DataLength);
+
+    }
+
+    offset += 2; /* Skip Data Length */
+
+    /* Build display for: Data Offset */
+
+    DataOffset = GSHORT(pd, offset);
+
+    if (tree) {
+
+	proto_tree_add_text(tree, NullTVB, offset, 2, "Data Offset: %u", DataOffset);
+
+    }
+
+    offset += 2; /* Skip Data Offset */
+
+    /* Build display for: Reserved[5] */
+ 
+    for(i = 1; i <= 5; ++i) {
+
+	Reserved = GSHORT(pd, offset);
+
+	if (tree) {
+
+	    proto_tree_add_text(tree, NullTVB, offset, 2, "Reserved%u: %u", i, Reserved);
+
+	}
+	offset += 2;
+    }
+
+    /* Build display for: Byte Count (BCC) */
+
+    ByteCount = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", ByteCount);
+
+    }
+
+    offset += 2; /* Skip Byte Count (BCC) */
+
+    /* Build display for data */
+
+    if (tree) {
+
+	offset = SMB_offset + DataOffset;
+	if(END_OF_FRAME >= DataLength)
+	    proto_tree_add_text(tree, NullTVB, offset, DataLength, "Data (%u bytes)", DataLength);
+	else
+	    proto_tree_add_text(tree, NullTVB, offset, END_OF_FRAME, "Data (first %u bytes)", END_OF_FRAME);
+
+    }
+
+    if (AndXCommand != 0xFF) {
+
+      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn);
+
+    }
 
   }
 
@@ -8195,6 +8556,7 @@ char *trans2_cmd_names[] = {
   "TRANS2_FIND_FIRST2",
   "TRANS2_FIND_NEXT2",
   "TRANS2_QUERY_FS_INFORMATION",
+  "no such command",
   "TRANS2_QUERY_PATH_INFORMATION",
   "TRANS2_SET_PATH_INFORMATION",
   "TRANS2_QUERY_FILE_INFORMATION",
@@ -9551,8 +9913,8 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 
 void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, proto_tree *, struct smb_info, int, int, int, int) = {
 
-  dissect_unknown_smb,      /* unknown SMB 0x00 */
-  dissect_unknown_smb,      /* unknown SMB 0x01 */
+  dissect_createdir_smb,    /* unknown SMB 0x00 */
+  dissect_deletedir_smb,    /* unknown SMB 0x01 */
   dissect_unknown_smb,      /* SMBopen open a file */
   dissect_create_file_smb,  /* SMBcreate create a file */
   dissect_close_smb,        /* SMBclose close a file */
@@ -9597,7 +9959,7 @@ void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, proto_tree
   dissect_unknown_smb,      /* SMBecho echo */
   dissect_unknown_smb,      /* SMBwriteclose write a file and then close it */
   dissect_open_andx_smb,      /* SMBopenX open and X */
-  dissect_unknown_smb,      /* SMBreadX read and X */
+  dissect_read_andx_smb,    /* SMBreadX read and X */
   dissect_unknown_smb,      /* SMBwriteX write and X */
   dissect_unknown_smb,      /* unknown SMB 0x30 */
   dissect_unknown_smb,      /* unknown SMB 0x31 */
@@ -9897,7 +10259,7 @@ static const value_string SRV_errors[] = {
   {SMBE_useSTD, "Temporarily unable to use raw mode, use standard mode"},
   {SMBE_contMPX, "Resume MPX mode"},
   {SMBE_badPW, "Bad Password???"},
-  {SMBE_nosupport, "Operation not supported???"},
+  {SMBE_nosupport, "Operation not supported"},
   { 0, 0}
 };
 
@@ -9926,7 +10288,7 @@ static const value_string HRD_errors[] = {
   {0, 0}
 };
 
-char *decode_smb_error(guint8 errcls, guint8 errcode)
+char *decode_smb_error(guint8 errcls, guint16 errcode)
 {
 
   switch (errcls) {
@@ -9968,6 +10330,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	proto_item      *ti, *tf;
 	guint8          cmd, errcls, errcode1, flags;
 	guint16         flags2, errcode, tid, pid, uid, mid;
+	guint32         status;
 	int             SMB_offset = offset;
 	struct smb_info si;
 
@@ -10010,40 +10373,61 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	offset += 1;
 
-	/* Next, look at the error class, SMB_RETCLASS */
+	/* Handle error code */
 
-	errcls = pd[offset];
+	if (GSHORT(pd, SMB_offset + 10) & 0x4000) {
+	    /* handle NT 32 bit error code */
+	    errcode = 0;	/* better than a random number */
+	    status = GWORD(pd, offset); 
 
-	if (tree) {
+	    if (tree) {
 
-	  proto_tree_add_text(smb_tree, NullTVB, offset, 1, "Error Class: %s", 
-			      val_to_str((guint8)pd[offset], errcls_types, "Unknown Error Class (%x)"));
-	}
+		proto_tree_add_text(smb_tree, NullTVB, offset, 4, "Status: 0x%08x",
+				    status);
 
-	offset += 1;
+	    }
 
-	/* Error code, SMB_HEINFO ... */
-
-	errcode1 = pd[offset];
-
-	if (tree) {
-
-	  proto_tree_add_text(smb_tree, NullTVB, offset, 1, "Reserved: %i", errcode1); 
+	    offset += 4;
 
 	}
+	else {
+	    /* handle DOS error code & class */
 
-	offset += 1;
+	    /* Next, look at the error class, SMB_RETCLASS */
 
-	errcode = GSHORT(pd, offset); 
+	    errcls = pd[offset];
 
-	if (tree) {
+	    if (tree) {
 
-	  proto_tree_add_text(smb_tree, NullTVB, offset, 2, "Error Code: %s",
-			      decode_smb_error(errcls, errcode));
+		proto_tree_add_text(smb_tree, NullTVB, offset, 1, "Error Class: %s", 
+				    val_to_str((guint8)pd[offset], errcls_types, "Unknown Error Class (%x)"));
+	    }
 
+	    offset += 1;
+
+	    /* Error code, SMB_HEINFO ... */
+
+	    errcode1 = pd[offset];
+
+	    if (tree) {
+
+		proto_tree_add_text(smb_tree, NullTVB, offset, 1, "Reserved: %i", errcode1); 
+
+	    }
+
+	    offset += 1;
+
+	    errcode = GSHORT(pd, offset); 
+
+	    if (tree) {
+
+		proto_tree_add_text(smb_tree, NullTVB, offset, 2, "Error Code: %s",
+				    decode_smb_error(errcls, errcode));
+
+	    }
+
+	    offset += 2;
 	}
-
-	offset += 2;
 
 	/* Now for the flags: Bit 0 = 0 means cmd, 0 = 1 means resp */
 
