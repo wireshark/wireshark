@@ -5,10 +5,10 @@
  * [1] PacketCable Security Specification, PKT-SP-SEC-I10-040113, January 13, 
  *     2004, Cable Television Laboratories, Inc., http://www.PacketCable.com/
  *
-  * Ronnie Sahlberg 2004
- * Thomas Anders 2004 * Declarations of routines for PKTC PacketCable packet disassembly
+ * Ronnie Sahlberg 2004
+ * Thomas Anders 2004
  *
- * $Id: packet-pktc.c,v 1.3 2004/05/21 10:36:45 sahlberg Exp $
+ * $Id: packet-pktc.c,v 1.4 2004/05/22 21:47:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,14 +48,18 @@ static gint hf_pktc_doi = -1;
 static gint hf_pktc_version_major = -1;
 static gint hf_pktc_version_minor = -1;
 static gint hf_pktc_server_nonce = -1;
+static gint hf_pktc_server_principal = -1;
 static gint hf_pktc_snmpEngineID_len = -1;
 static gint hf_pktc_snmpEngineID = -1;
 static gint hf_pktc_snmpEngineBoots = -1;
 static gint hf_pktc_snmpEngineTime = -1;
 static gint hf_pktc_usmUserName_len = -1;
 static gint hf_pktc_usmUserName = -1;
+static gint hf_pktc_ipsec_spi = -1;
 static gint hf_pktc_snmpAuthenticationAlgorithm = -1;
 static gint hf_pktc_snmpEncryptionTransformID = -1;
+static gint hf_pktc_ipsecAuthenticationAlgorithm = -1;
+static gint hf_pktc_ipsecEncryptionTransformID = -1;
 static gint hf_pktc_reestablish_flag = -1;
 static gint hf_pktc_ack_required_flag = -1;
 static gint hf_pktc_sha1_hmac = -1;
@@ -188,12 +192,30 @@ dissect_pktc_app_specific_data(packet_info *pinfo _U_, proto_tree *parent_tree, 
             tvb_get_guint8(tvb, 9999); /* bail out and inform user we cant dissect the packet */
         };
         break;
+    case DOI_IPSEC:
+        switch(kmmid){
+        /* we dont distinguish between SPIs for inbound Security Associations 
+	   of the client (AP-REQ) vs. server (AP-REP, REKEY). Feel free to add 
+	   separation for this if it is imporant enough for you. */
+        case KMMID_AP_REQUEST:
+        case KMMID_AP_REPLY:
+        case KMMID_REKEY:
+            /* Security Parameter Index (SPI) */
+            proto_tree_add_item(tree, hf_pktc_ipsec_spi, tvb, offset, 4, FALSE);
+            offset+=4;
+
+	    break;
+        default:
+            proto_tree_add_text(tree, tvb, offset, 1, "Dont know how to parse this type of KMMID yet");
+            tvb_get_guint8(tvb, 9999); /* bail out and inform user we cant dissect the packet */
+        };
+	break;
     default:
-        proto_tree_add_text(tree, tvb, offset, 1, "Dont know how to parse this type of DOI yet");
+        proto_tree_add_text(tree, tvb, offset, 1, "Unknown DOI");
         tvb_get_guint8(tvb, 9999); /* bail out and inform user we cant dissect the packet */
     }
 
-    proto_item_set_len(item, old_offset-offset);
+    proto_item_set_len(item, offset-old_offset);
     return offset;
 }
 
@@ -216,25 +238,54 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
     proto_tree_add_uint(tree, hf_pktc_list_of_ciphersuites_len, tvb, offset, 1, len);
     offset+=1;
 
-    for(i=0;i<len;i++){
-        switch(doi){
-        case DOI_SNMPv3:
-            /* authentication algorithm */
+    switch(doi){
+    case DOI_SNMPv3:
+        for(i=0;i<len;i++){
+            /* SNMPv3 authentication algorithm */
             proto_tree_add_item(tree, hf_pktc_snmpAuthenticationAlgorithm, tvb, offset, 1, FALSE);
             offset+=1;
 
-            /* encryption transform id */
+            /* SNMPv3 encryption transform id */
             proto_tree_add_item(tree, hf_pktc_snmpEncryptionTransformID, tvb, offset, 1, FALSE);
             offset+=1;
-            break;
-        default:
-            proto_tree_add_text(tree, tvb, offset, 1, "Dont know how to parse this type of Algorithm Identifier yet");
-            tvb_get_guint8(tvb, 9999); /* bail out and inform user we cant dissect the packet */
-        }
+	}
+	break;
+    case DOI_IPSEC:
+        for(i=0;i<len;i++){
+            /* IPsec authentication algorithm */
+            proto_tree_add_item(tree, hf_pktc_ipsecAuthenticationAlgorithm, tvb, offset, 1, FALSE);
+            offset+=1;
 
+            /* IPsec encryption transform id */
+            proto_tree_add_item(tree, hf_pktc_ipsecEncryptionTransformID, tvb, offset, 1, FALSE);
+            offset+=1;
+	}
+        break;
+    default:
+        proto_tree_add_text(tree, tvb, offset, 1, "Dont know how to parse this type of Algorithm Identifier yet");
+	tvb_get_guint8(tvb, 9999); /* bail out and inform user we cant dissect the packet */
     }
 
-    proto_item_set_len(item, old_offset-offset);
+    proto_item_set_len(item, offset-old_offset);
+    return offset;
+}
+
+static int
+dissect_pktc_wakeup(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+    guint32 snonce;
+    guint string_len;
+
+    /* Server Nonce */
+    snonce=tvb_get_ntohl(tvb, offset);
+    proto_tree_add_uint(tree, hf_pktc_server_nonce, tvb, offset, 4, snonce);
+    offset+=4;
+
+    /* Server Kerberos Principal Identifier */
+    string_len=tvb_strsize(tvb, offset);
+    proto_tree_add_item(tree, hf_pktc_server_principal, tvb, offset, string_len, FALSE);
+    offset+=string_len;
+
     return offset;
 }
 
@@ -308,6 +359,16 @@ dissect_pktc_ap_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
     return offset;
 }
 
+static int
+dissect_pktc_sec_param_rec(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+    /* sha-1 hmac of the subkey of the preceding AP-REP */
+    proto_tree_add_item(tree, hf_pktc_sha1_hmac, tvb, offset, 20, FALSE);
+    offset+=20;
+
+    return offset;
+}
+
 static void
 dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -340,14 +401,31 @@ dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(pktc_tree, hf_pktc_version_minor, tvb, offset, 1, (version)&0x0f);
     offset+=1;
 
+    /* fill COL_INFO */
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_add_str(pinfo->cinfo, COL_INFO, 
+		    val_to_str(kmmid, kmmid_types, "Unknown KMMID %#x"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+		        val_to_str(doi, doi_types, "Unknown DOI %#x"));
+    }
+
     switch(kmmid){
+    case KMMID_WAKEUP:
+        offset=dissect_pktc_wakeup(pktc_tree, tvb, offset);
+	break;
     case KMMID_AP_REQUEST:
         offset=dissect_pktc_ap_request(pinfo, pktc_tree, tvb, offset, doi);
         break;
     case KMMID_AP_REPLY:
         offset=dissect_pktc_ap_reply(pinfo, pktc_tree, tvb, offset, doi);
         break;
+    case KMMID_SEC_PARAM_REC:
+        offset=dissect_pktc_sec_param_rec(pktc_tree, tvb, offset);
+	break;
+    /* XXX: KMMID_REKEY, KMMID_ERROR_REPLY */
     };
+
+    proto_item_set_len(item, offset);
 }
 
 void
@@ -369,8 +447,11 @@ proto_register_pktc(void)
 	{ &hf_pktc_server_nonce, {
 	    "Server Nonce", "pktc.server_nonce", FT_UINT32, BASE_HEX,
 	    NULL, 0, "Server Nonce random number", HFILL }},
+	{ &hf_pktc_server_principal, {
+	    "Server Kerberos Principal Identifier", "pktc.server_principal", FT_STRING, BASE_DEC,
+	    NULL, 0, "Server Kerberos Principal Identifier", HFILL }},
 	{ &hf_pktc_app_spec_data, {
-	    "Application Specific data", "pktc.asd", FT_NONE, BASE_HEX,
+	    "Application Specific Data", "pktc.asd", FT_NONE, BASE_HEX,
 	    NULL, 0, "KMMID/DOI application specific data", HFILL }},
 	{ &hf_pktc_list_of_ciphersuites, {
 	    "List of Ciphersuites", "pktc.list_of_ciphersuites", FT_NONE, BASE_HEX,
@@ -384,16 +465,22 @@ proto_register_pktc(void)
 	{ &hf_pktc_snmpEncryptionTransformID, {
            "SNMPv3 Encryption Transform ID", "pktc.asd.snmp_enc_alg", FT_UINT8, BASE_HEX,
            VALS(snmp_transform_id_vals), 0, "SNMPv3 Encryption Transform ID", HFILL }},
-       { &hf_pktc_snmpEngineID_len, {
+	{ &hf_pktc_ipsecAuthenticationAlgorithm, {
+           "IPsec Authentication Algorithm", "pktc.asd.ipsec_auth_alg", FT_UINT8, BASE_HEX,
+           VALS(ipsec_authentication_algorithm_vals), 0, "IPsec Authentication Algorithm", HFILL }},
+	{ &hf_pktc_ipsecEncryptionTransformID, {
+           "IPsec Encryption Transform ID", "pktc.asd.ipsec_enc_alg", FT_UINT8, BASE_HEX,
+           VALS(ipsec_transform_id_vals), 0, "IPsec Encryption Transform ID", HFILL }},
+	{ &hf_pktc_snmpEngineID_len, {
            "SNMPv3 Engine ID Length", "pktc.asd.snmp_engine_id.len", FT_UINT8, BASE_DEC,
            NULL, 0, "Length of SNMPv3 Engine ID", HFILL }},
 	{ &hf_pktc_snmpEngineID, {
            "SNMPv3 Engine ID", "pktc.asd.snmp_engine_id", FT_BYTES, BASE_HEX,
            NULL, 0, "SNMPv3 Engine ID", HFILL }},
-       { &hf_pktc_snmpEngineBoots, {
+	{ &hf_pktc_snmpEngineBoots, {
            "SNMPv3 Engine Boots", "pktc.asd.snmp_engine_boots", FT_UINT32, BASE_DEC,
            NULL, 0, "SNMPv3 Engine Boots", HFILL }},
-       { &hf_pktc_snmpEngineTime, {
+	{ &hf_pktc_snmpEngineTime, {
            "SNMPv3 Engine Time", "pktc.asd.snmp_engine_time", FT_UINT32, BASE_DEC,
            NULL, 0, "SNMPv3 Engine ID Time", HFILL }},
 	{ &hf_pktc_usmUserName_len, {
@@ -402,14 +489,17 @@ proto_register_pktc(void)
 	{ &hf_pktc_usmUserName, {
            "SNMPv3 USM User Name", "pktc.asd.snmp_usm_username", FT_STRING, BASE_DEC,
            NULL, 0, "SNMPv3 USM User Name", HFILL }},
+	{ &hf_pktc_ipsec_spi, {
+           "IPsec Security Parameter Index", "pktc.asd.ipsec_spi", FT_UINT32, BASE_DEC,
+           NULL, 0, "Security Parameter Index for inbound Security Association (IPsec)", HFILL }},
 	{ &hf_pktc_reestablish_flag, {
-	    "Re-establish Flag", "pktc.reestablish_flag", FT_UINT8, BASE_DEC,
+	    "Re-establish Flag", "pktc.reestablish", FT_BOOLEAN, BASE_NONE,
 	    NULL, 0, "Re-establish Flag", HFILL }},
 	{ &hf_pktc_ack_required_flag, {
-	    "ACK Required Flag", "pktc.ack_required_flag", FT_UINT8, BASE_DEC,
+	    "ACK Required Flag", "pktc.ack_required", FT_BOOLEAN, BASE_NONE,
 	    NULL, 0, "ACK Required Flag", HFILL }},
 	{ &hf_pktc_sec_param_lifetime, {
-	    "Security Parameter Lifetime", "pktc.sec_param_lifetime", FT_UINT32, BASE_DEC,
+	    "Security Parameter Lifetime", "pktc.spl", FT_UINT32, BASE_DEC,
 	    NULL, 0, "Lifetime in seconds of security parameter", HFILL }},
         { &hf_pktc_sha1_hmac, {
            "SHA-1 HMAC", "pktc.sha1_hmac", FT_BYTES, BASE_HEX,
