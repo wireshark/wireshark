@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.68 2003/10/22 02:24:14 guy Exp $
+ * $Id: packet-gtp.c,v 1.69 2003/11/29 03:55:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -428,6 +428,8 @@ static const value_string message_type[] = {
 #define GTP_EXT_HDR_LIST	0x8D	/* 3G */
 #define GTP_EXT_TRIGGER_ID	0x8E	/* 3G */
 #define GTP_EXT_OMC_ID		0x8F	/* 3G */
+#define GTP_EXT_C1		0xC1
+#define GTP_EXT_C2		0xC2
 #define GTP_EXT_REL_PACK	0xF9	/* charging */
 #define GTP_EXT_CAN_PACK	0xFA	/* charging */
 #define GTP_EXT_CHRG_ADDR	0xFB
@@ -4186,7 +4188,7 @@ dissect_gtp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti, *tf;
 	int		i, offset, length, gtp_prime, checked_field, mandatory;
 	int		seq_no, flow_label;
-	guint8		pdu_no, next_hdr, ext_hdr_val;
+	guint8		pdu_no, next_hdr = 0, ext_hdr_val;
 	const guint8	*tid_val;
 	gchar		*tid_str;
 	guint32		teid;
@@ -4292,7 +4294,8 @@ dissect_gtp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					
 					next_hdr = tvb_get_guint8 (tvb, offset);
 					proto_tree_add_uint (gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr);
-					offset++;
+					if (!next_hdr)
+						offset++;
 				}
 				break;
 			default:
@@ -4307,7 +4310,12 @@ dissect_gtp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			for (;;) {
 				if (offset >= length) 
 					break;
-				ext_hdr_val = tvb_get_guint8 (tvb, offset);
+				if (next_hdr) {
+					ext_hdr_val = next_hdr;
+					next_hdr = 0;
+				}
+				else
+					ext_hdr_val = tvb_get_guint8 (tvb, offset);
 				if (gtp_etsi_order) {
 					checked_field = check_field_presence (gtp_hdr.message, ext_hdr_val , (int *)&mandatory);
 					switch (checked_field) {
