@@ -27,35 +27,6 @@ WCP, WEP, WSP, WTP
 
 Capture File Updates
 
-
 Ethereal can now write LANalyzer files.  The Sniffer, nettl, snoop,
 NetXRay, and libpcap code all received updates.
-
-
-Download Sites
-
-The source code and Windows installer can be downloaded immediately from
-the following locations:
-
-Main site:
-
-Source: 
-
-  http://www.ethereal.com/distribution/ethereal-0.9.5.tar.gz
-
-Windows installer: 
-
-  http://www.ethereal.com/distribution/win32/ethereal-setup-0.9.5.exe
-
-SourceForge:
-
-  http://sourceforge.net/project/showfiles.php?group_id=255  
-
-
-The mirror sites listed at http://www.ethereal.com/download.html#sources
-should be updated shortly.
-
-
-
-
 
