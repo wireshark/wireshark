@@ -6,7 +6,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.103 2004/03/31 20:57:42 guy Exp $
+ * $Id: packet-radius.c,v 1.104 2004/05/29 04:41:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2012,13 +2012,15 @@ static const radius_attr_info radius_vendor_redback_attrib[] =
 
 /*
 reference:
-	http://www.juniper.net/techpubs/software/junos53/swconfig53-getting-started/html/sys-mgmt-authentication2.html
+    http://www.juniper.net/techpubs/software/junos/junos62/swconfig62-system-basics/frameset.htm
 */
 static const radius_attr_info radius_vendor_juniper_attrib[] =
 {
   {1,	RADIUS_STRING,		"Juniper Local User Name", NULL},
   {2,	RADIUS_STRING,		"Juniper Allow Commands", NULL},
   {3,	RADIUS_STRING,		"Juniper Deny Commands", NULL},
+  {4,	RADIUS_STRING,		"Juniper Allow Configuration", NULL},
+  {5,	RADIUS_STRING,		"Juniper Deny Configuration", NULL},
   {0, 0, NULL, NULL}
 };
 
@@ -2450,9 +2452,66 @@ static const radius_attr_info radius_vendor_nomadix_attrib[] =
 
 /*
 reference:
-	'dictionary.erx' file from FreeRADIUS
-		http://www.freeradius.org/radiusd/raddb/dictionary.erx
+	'unisphere5-2.dct' file from Juniper Networks
+          http://www.juniper.net/techpubs/software/erx/junose52/unisphere5-2.dct
 */
+
+static const value_string radius_vendor_unisphere_ingress_statistics_vals[] =
+{ 
+  {0,	"Disable"},
+  {1,	"Enable"}
+};
+
+static const value_string radius_vendor_unisphere_egress_statistics_vals[] =
+{ 
+  {0,	"Disable"},
+  {1,	"Enable"}
+};
+
+static const value_string radius_vendor_unisphere_atm_service_category_vals[] =
+{
+  {1,	"UBR"},
+  {2,	"UBRPCR"},
+  {3,	"nrtVBR"},
+  {4,	"CBR"},
+  {0,	"NULL"}
+};
+
+static const value_string radius_vendor_unisphere_cli_allow_all_vr_access_vals[] =
+{
+  {0,	"Disable"},
+  {1,	"Enable"},
+};
+
+static const value_string radius_vendor_unisphere_sa_validate_vals[] =
+{
+  {0,	"Disable"},
+  {1,	"Enable"},
+};
+
+static const value_string radius_vendor_unisphere_igmp_enable_vals[] =
+{
+  {0,	"Disable"},
+  {1,	"Enable"},
+};
+
+static const value_string radius_vendor_unisphere_ppp_protocol_vals[] =
+{
+  {0,	"none"},
+  {1,	"pap"},
+  {2,	"chap"},
+  {3,	"pap-chap"},
+  {4,	"chap-pap"}
+};
+
+static const value_string radius_vendor_unisphere_tunnel_bearer_type_vals[] =
+{
+  {0,	"none"},
+  {1,	"analog"},
+  {2,	"digital"},
+};
+
+
 static const radius_attr_info radius_vendor_unisphere_attrib[] =
 {
   {1,	RADIUS_STRING,		"ERX Virtual Router Name", NULL},
@@ -2466,18 +2525,42 @@ static const radius_attr_info radius_vendor_unisphere_attrib[] =
   {9,	RADIUS_STRING,		"ERX Tunnel Password", NULL},
   {10,	RADIUS_STRING,		"ERX Ingress Policy Name", NULL},
   {11,	RADIUS_STRING,		"ERX Egress Policy Name", NULL},
-  {12,	RADIUS_STRING,		"ERX Ingress Statistics", NULL},
-  {13,	RADIUS_STRING,		"ERX Egress Statistics", NULL},
-  {14,	RADIUS_STRING,		"ERX Atm Service Category", NULL},
+  {12,	RADIUS_STRING,		"ERX Ingress Statistics", radius_vendor_unisphere_ingress_statistics_vals},
+  {13,	RADIUS_STRING,		"ERX Egress Statistics", radius_vendor_unisphere_egress_statistics_vals},
+  {14,	RADIUS_STRING,		"ERX Atm Service Category", radius_vendor_unisphere_atm_service_category_vals},
   {15,	RADIUS_STRING,		"ERX Atm PCR", NULL},
   {16,	RADIUS_STRING,		"ERX Atm SCR", NULL},
   {17,	RADIUS_STRING,		"ERX Atm MBS", NULL},
   {18,	RADIUS_STRING,		"ERX Cli Initial Access Level", NULL},
-  {19,	RADIUS_INTEGER4,	"ERX Cli Allow All VR Access", NULL},
+  {19,	RADIUS_INTEGER4,	"ERX Cli Allow All VR Access", radius_vendor_unisphere_cli_allow_all_vr_access_vals},
   {20,	RADIUS_STRING,		"ERX Alternate Cli Access Level", NULL},
   {21,	RADIUS_STRING,		"ERX Alternate Cli Vrouter Name", NULL},
-  {22,	RADIUS_INTEGER4,	"ERX Sa Validate", NULL},
-  {23,	RADIUS_INTEGER4,	"ERX Igmp Enable", NULL},
+  {22,	RADIUS_INTEGER4,	"ERX Sa Validate", radius_vendor_unisphere_sa_validate_vals},
+  {23,	RADIUS_INTEGER4,	"ERX Igmp Enable", radius_vendor_unisphere_igmp_enable_vals},
+  {24,	RADIUS_STRING,		"ERX PPPoE Description", NULL},
+  {25,	RADIUS_STRING,		"ERX Redirect Virtual Router Name", NULL},
+  {26,	RADIUS_STRING,		"ERX Qos Profile Name", NULL},
+  /* 27 Unused */
+  {28,	RADIUS_STRING,		"ERX PPPoE URL", NULL},
+  /* 29,30 Unused */
+  {31,	RADIUS_STRING,		"ERX Service Bundle", NULL},
+  /* 32 Unused */
+  {33,	RADIUS_INTEGER4,	"ERX Tunnel Max Sessions", NULL},
+  {34,	RADIUS_INTEGER4,	"ERX Framed IP Route Tag", NULL},
+  {35,	RADIUS_STRING,		"ERX Tunnel Dialout Number", NULL},
+  {36,	RADIUS_STRING,		"ERX PPP Username", NULL},
+  {37,	RADIUS_STRING,		"ERX PPP Password", NULL},
+  {38,	RADIUS_INTEGER4,	"ERX PPP Protocol", radius_vendor_unisphere_ppp_protocol_vals},
+  {39,	RADIUS_INTEGER4,	"ERX Tunnel Min Bps", NULL},
+  {40,	RADIUS_INTEGER4,	"ERX Tunnel Max Bps", NULL},
+  {41,	RADIUS_INTEGER4,	"ERX Tunnel Bearer Type", radius_vendor_unisphere_tunnel_bearer_type_vals},
+  {42,	RADIUS_INTEGER4,	"ERX Input Gigapackets", NULL},
+  {43,	RADIUS_INTEGER4,	"ERX Output Gigapackets", NULL},
+  {44,	RADIUS_STRING,		"ERX Tunnel Interface Id", NULL},
+  {45,	RADIUS_STRING,		"ERX IPV6 Virtual Router", NULL},
+  {46,	RADIUS_STRING,		"ERX IPV6 Local Interface", NULL},
+  {47,	RADIUS_IP6_ADDRESS,	"ERX IPV6 Primary Dns", NULL},
+  {48,	RADIUS_IP6_ADDRESS,	"ERX IPV6 Secondary Dns", NULL},
   {0, 0, NULL, NULL},
 };
 
