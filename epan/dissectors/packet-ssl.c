@@ -137,6 +137,10 @@ static int hf_ssl_handshake_session_id       = -1;
 static int hf_ssl_handshake_comp_methods_len = -1;
 static int hf_ssl_handshake_comp_methods     = -1;
 static int hf_ssl_handshake_comp_method      = -1;
+static int hf_ssl_handshake_extensions_len   = -1;
+static int hf_ssl_handshake_extension_type   = -1;
+static int hf_ssl_handshake_extension_len    = -1;
+static int hf_ssl_handshake_extension_data   = -1;
 static int hf_ssl_handshake_certificates_len = -1;
 static int hf_ssl_handshake_certificates     = -1;
 static int hf_ssl_handshake_certificate      = -1;
@@ -186,6 +190,7 @@ static gint ett_ssl_alert             = -1;
 static gint ett_ssl_handshake         = -1;
 static gint ett_ssl_cipher_suites     = -1;
 static gint ett_ssl_comp_methods      = -1;
+static gint ett_ssl_extension         = -1;
 static gint ett_ssl_certs             = -1;
 static gint ett_ssl_cert_types        = -1;
 static gint ett_ssl_dnames            = -1;
@@ -671,6 +676,18 @@ static const value_string pct_error_code[] = {
 	{ PCT_ERR_SERVER_AUTH_FAILED, "PCT_ERR_SERVER_AUTH_FAILED" },
 	{ PCT_ERR_SPECS_MISMATCH, "PCT_ERR_SPECS_MISMATCH" },
 	{ 0x00, NULL },
+};
+
+/* RFC 3546 */
+static const value_string tls_hello_extension_types[] = {
+	{ 0, "server_name" },
+	{ 1, "max_fragment_length" },
+	{ 2, "client_certificate_url" },
+	{ 3, "trusted_ca_keys" },
+	{ 4, "truncated_hmac" },
+	{ 5, "status_request" },
+	{ 35, "EAP-FAST PAC-Opaque" /* draft-cam-winget-eap-fast-00.txt */ },
+	{ 0, NULL }
 };
 
 /*********************************************************************
@@ -1511,6 +1528,57 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
     return offset - initial_offset;
 }
 
+static int
+dissect_ssl3_hnd_hello_ext(tvbuff_t *tvb,
+                           proto_tree *tree, guint32 offset)
+{
+    guint16 extension_length;
+    guint16 ext_type;
+    guint16 ext_len;
+    proto_item *pi;
+    proto_tree *ext_tree;
+
+    if (tvb_length_remaining(tvb, offset) < 2)
+	return offset;
+
+    extension_length = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint(tree, hf_ssl_handshake_extensions_len,
+			tvb, offset, 2, extension_length);
+    offset += 2;
+
+    while (tvb_length_remaining(tvb, offset) >= 4)
+    {
+	ext_type = tvb_get_ntohs(tvb, offset);
+	ext_len = tvb_get_ntohs(tvb, offset + 2);
+
+	pi = proto_tree_add_text(tree, tvb, offset, 4 + ext_len,
+				 "Extension: %s",
+				 val_to_str(ext_type,
+					    tls_hello_extension_types,
+					    "Unknown %u"));
+	ext_tree = proto_item_add_subtree(pi, ett_ssl_extension);
+	if (!ext_tree)
+	    ext_tree = tree;
+
+	proto_tree_add_uint(ext_tree, hf_ssl_handshake_extension_type,
+			    tvb, offset, 2, ext_type);
+	offset += 2;
+
+	proto_tree_add_uint(ext_tree, hf_ssl_handshake_extension_len,
+			    tvb, offset, 2, ext_len);
+	offset += 2;
+
+	proto_tree_add_bytes_format(ext_tree, hf_ssl_handshake_extension_data,
+				    tvb, offset, ext_len,
+				    tvb_get_ptr(tvb, offset, ext_len),
+				    "Data (%u byte%s)",
+				    ext_len, plurality(ext_len, "", "s"));
+	offset += ext_len;
+    }
+
+    return offset;
+}
+
 static void
 dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb,
                            proto_tree *tree, guint32 offset)
@@ -1521,6 +1589,7 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb,
      *     SessionID session_id;
      *     CipherSuite cipher_suites<2..2^16-1>;
      *     CompressionMethod compression_methods<1..2^8-1>;
+     *     Extension client_hello_extension_list<0..2^16-1>;
      * } ClientHello;
      *
      */
@@ -1612,6 +1681,8 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb,
                 compression_methods_length--;
             }
         }
+
+	offset = dissect_ssl3_hnd_hello_ext(tvb, tree, offset);
     }
 }
 
@@ -1625,6 +1696,7 @@ dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
      *     SessionID session_id;
      *     CipherSuite cipher_suite;
      *     CompressionMethod compression_method;
+     *     Extension server_hello_extension_list<0..2^16-1>;
      * } ServerHello;
      */
 
@@ -1648,6 +1720,9 @@ dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
         /* and the server-selected compression method */
         proto_tree_add_item(tree, hf_ssl_handshake_comp_method,
                             tvb, offset, 1, FALSE);
+	offset++;
+
+	offset = dissect_ssl3_hnd_hello_ext(tvb, tree, offset);
     }
 }
 
@@ -3206,6 +3281,26 @@ proto_register_ssl(void)
             FT_UINT8, BASE_DEC, VALS(ssl_31_compression_method), 0x0,
             "Compression Method", HFILL }
         },
+        { &hf_ssl_handshake_extensions_len,
+          { "Extensions Length", "ssl.handshake.extensions_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of hello extensions", HFILL }
+        },
+        { &hf_ssl_handshake_extension_type,
+          { "Type", "ssl.handshake.extension.type",
+            FT_UINT16, BASE_HEX, VALS(tls_hello_extension_types), 0x0,
+            "Hello extension type", HFILL }
+        },
+        { &hf_ssl_handshake_extension_len,
+          { "Length", "ssl.handshake.extension.len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of a hello extension", HFILL }
+        },
+        { &hf_ssl_handshake_extension_data,
+          { "Data", "ssl.handshake.extension.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "Hello Extension data", HFILL }
+        },
         { &hf_ssl_handshake_certificates_len,
           { "Certificates Length", "ssl.handshake.certificates_length",
             FT_UINT24, BASE_DEC, NULL, 0x0,
@@ -3416,6 +3511,7 @@ proto_register_ssl(void)
         &ett_ssl_handshake,
         &ett_ssl_cipher_suites,
         &ett_ssl_comp_methods,
+	&ett_ssl_extension,
         &ett_ssl_certs,
         &ett_ssl_cert_types,
         &ett_ssl_dnames,
