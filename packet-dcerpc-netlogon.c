@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.62 2002/11/29 22:35:54 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.63 2002/11/29 23:20:40 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -155,6 +155,10 @@ static int hf_netlogon_alias_name = -1;
 static int hf_netlogon_country = -1;
 static int hf_netlogon_codepage = -1;
 static int hf_netlogon_flags = -1;
+static int hf_netlogon_trust_attribs = -1;
+static int hf_netlogon_trust_type = -1;
+static int hf_netlogon_trust_flags = -1;
+static int hf_netlogon_trust_parent_index = -1;
 static int hf_netlogon_user_flags = -1;
 static int hf_netlogon_auth_flags = -1;
 static int hf_netlogon_pwd_expired = -1;
@@ -199,7 +203,7 @@ static gint ett_LM_OWF_PASSWORD = -1;
 static gint ett_NT_OWF_PASSWORD = -1;
 static gint ett_GROUP_MEMBERSHIP = -1;
 static gint ett_BLOB = -1;
-static gint ett_DSROLE_DOMAIN_INFO_EX = -1;
+static gint ett_DS_DOMAIN_TRUSTS = -1;
 static gint ett_DOMAIN_TRUST_INFO = -1;
 
 static e_uuid_t uuid_dcerpc_netlogon = {
@@ -4498,7 +4502,7 @@ netlogon_dissect_TYPE_50_ptr(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_DSROLE_PRIMARY_DOMAIN_INFO_EX(tvbuff_t *tvb, int offset,
+netlogon_dissect_DS_DOMAIN_TRUSTS(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *parent_tree, char *drep)
 {
 	guint32 tmp;
@@ -4508,8 +4512,8 @@ netlogon_dissect_DSROLE_PRIMARY_DOMAIN_INFO_EX(tvbuff_t *tvb, int offset,
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
-			"DSROLE_DOMAIN_INFO_EX");
-		tree = proto_item_add_subtree(item, ett_DSROLE_DOMAIN_INFO_EX);
+			"DS_DOMAIN_TRUSTS");
+		tree = proto_item_add_subtree(item, ett_DS_DOMAIN_TRUSTS);
 	}
 
 	/* name */
@@ -4523,16 +4527,16 @@ netlogon_dissect_DSROLE_PRIMARY_DOMAIN_INFO_EX(tvbuff_t *tvb, int offset,
 		"DNS Domain Name", hf_netlogon_dns_domain_name, 1);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, &tmp);
+		hf_netlogon_trust_flags, &tmp);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, &tmp);
+		hf_netlogon_trust_parent_index, &tmp);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, &tmp);
+		hf_netlogon_trust_type, &tmp);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, &tmp);
+		hf_netlogon_trust_attribs, &tmp);
 
 	/* SID pointer */
 	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
@@ -4545,12 +4549,12 @@ netlogon_dissect_DSROLE_PRIMARY_DOMAIN_INFO_EX(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_DSROLE_PRIMARY_DOMAIN_INFO_EX_ARRAY(tvbuff_t *tvb, int offset,
+netlogon_dissect_DS_DOMAIN_TRUSTS_ARRAY(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_DSROLE_PRIMARY_DOMAIN_INFO_EX);
+		netlogon_dissect_DS_DOMAIN_TRUSTS);
 
 	return offset;
 }
@@ -5366,8 +5370,8 @@ netlogon_dissect_function_24_reply(tvbuff_t *tvb, int offset,
 		hf_netlogon_entries, NULL);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_DSROLE_PRIMARY_DOMAIN_INFO_EX_ARRAY, NDR_POINTER_UNIQUE,
-		"DSROLE_PRIMARY_DOMAIN_INFO_EX_ARRAY:", -1, 0);
+		netlogon_dissect_DS_DOMAIN_TRUSTS_ARRAY, NDR_POINTER_UNIQUE,
+		"DS_DOMAIN_TRUSTS_ARRAY:", -1, 0);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_netlogon_rc, NULL);
@@ -5486,7 +5490,7 @@ netlogon_dissect_logonsamlogonex_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_dsrrolegetprimarydomaininformation_rqst(tvbuff_t *tvb, int offset,
+netlogon_dissect_enumeratetrusteddomains_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
@@ -5500,15 +5504,15 @@ netlogon_dissect_dsrrolegetprimarydomaininformation_rqst(tvbuff_t *tvb, int offs
 
 
 static int
-netlogon_dissect_dsrrolegetprimarydomaininformation_reply(tvbuff_t *tvb, int offset,
+netlogon_dissect_enumeratetrusteddomains_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_entries, NULL);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_DSROLE_PRIMARY_DOMAIN_INFO_EX_ARRAY, NDR_POINTER_UNIQUE,
-		"DSROLE_PRIMARY_DOMAIN_INFO_EX_ARRAY:", -1, 0);
+		netlogon_dissect_DS_DOMAIN_TRUSTS_ARRAY, NDR_POINTER_UNIQUE,
+		"DS_DOMAIN_TRUSTS_ARRAY:", -1, 0);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_netlogon_rc, NULL);
@@ -5676,9 +5680,9 @@ static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
 	{ NETLOGON_LOGONSAMLOGONEX, "LogonSamLogonEx",
 		netlogon_dissect_logonsamlogonex_rqst,
 		netlogon_dissect_logonsamlogonex_reply },
-	{ NETLOGON_DSRROLEGETPRIMARYDOMAININFORMATION, "DsrRoleGetPrimaryDomainInformation",
-		netlogon_dissect_dsrrolegetprimarydomaininformation_rqst,
-		netlogon_dissect_dsrrolegetprimarydomaininformation_reply },
+	{ NETLOGON_ENUMERATETRUSTEDDOMAINS, "EnumerateTrustedDomains",
+		netlogon_dissect_enumeratetrusteddomains_rqst,
+		netlogon_dissect_enumeratetrusteddomains_reply },
 	{ NETLOGON_DSRDEREGISTERDNSHOSTRECORDS, "DsrDeregisterDNSHostRecords",
 		netlogon_dissect_dsrderegisterdnshostrecords_rqst,
 		netlogon_dissect_dsrderegisterdnshostrecords_reply },
@@ -5726,7 +5730,7 @@ static const value_string netlogon_opnum_vals[] = {
 	{ NETLOGON_FUNCTION_25, "Function_0x25" },
 	{ NETLOGON_FUNCTION_26, "Function_0x26" },
 	{ NETLOGON_LOGONSAMLOGONEX, "LogonSamLogonEx" },
-	{ NETLOGON_DSRROLEGETPRIMARYDOMAININFORMATION, "DsrRoleGetPrimaryDomainInformation" },
+	{ NETLOGON_ENUMERATETRUSTEDDOMAINS, "EnumerateTrustedDomains" },
 	{ NETLOGON_DSRDEREGISTERDNSHOSTRECORDS, "DsrDeregisterDNSHostRecords" },
 	{ 0, NULL }
 };
@@ -6245,6 +6249,22 @@ static hf_register_info hf[] = {
 		{ "Neg Flags", "netlogon.neg_flags", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Negotiation Flags", HFILL }},
 
+	{ &hf_netlogon_trust_attribs,
+		{ "Trust Attributes", "netlogon.trust_attribs", FT_UINT32, BASE_HEX,
+		NULL, 0x0, "Trust Attributes", HFILL }},
+
+	{ &hf_netlogon_trust_type,
+		{ "Trust Type", "netlogon.trust_type", FT_UINT32, BASE_DEC,
+		NULL, 0x0, "Trust Type", HFILL }},
+
+	{ &hf_netlogon_trust_flags,
+		{ "Trust Flags", "netlogon.trust_flags", FT_UINT32, BASE_HEX,
+		NULL, 0x0, "Trust Flags", HFILL }},
+
+	{ &hf_netlogon_trust_parent_index,
+		{ "Parent Index", "netlogon.parent_index", FT_UINT32, BASE_HEX,
+		NULL, 0x0, "Parent Index", HFILL }},
+
 	{ &hf_netlogon_logon_time,
 		{ "Logon Time", "netlogon.logon_time", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0, "Time for last time this user logged on", HFILL }},
@@ -6324,7 +6344,7 @@ static hf_register_info hf[] = {
 		&ett_LM_OWF_PASSWORD,
 		&ett_NT_OWF_PASSWORD,
 		&ett_GROUP_MEMBERSHIP,
-		&ett_DSROLE_DOMAIN_INFO_EX,
+		&ett_DS_DOMAIN_TRUSTS,
 		&ett_BLOB,
 		&ett_DOMAIN_TRUST_INFO
         };

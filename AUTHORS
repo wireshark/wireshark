@@ -1441,6 +1441,7 @@ Matthew Smart <smart[AT]monkey.org> {
 
 Luke Howard <lukeh[AT]au.padl.com> {
 	NETLOGON bugfix for LogonGetDomainInfo
+	Various NETLOGON fixes
 }
 
 PC Drew <drewpc[AT]ibsncentral.com> {
