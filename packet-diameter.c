@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.19 2001/02/20 08:10:14 guy Exp $
+ * $Id: packet-diameter.c,v 1.20 2001/02/23 19:26:26 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -71,12 +71,8 @@ typedef enum {
 
 #define  NTP_TIME_DIFF                   (2208988800UL)
 
-#undef SCTP_DISSECTORS_ENABLED
-
 #define TCP_PORT_DIAMETER	1812
-#ifdef SCTP_DISSECTORS_ENABLED
 #define SCTP_PORT_DIAMETER	1812
-#endif
 
 static int proto_diameter = -1;
 static int hf_diameter_length = -1;
@@ -112,9 +108,7 @@ static gint ett_diameter_avpinfo = -1;
 
 static char gbl_diameterString[200];
 static int gbl_diameterTcpPort=TCP_PORT_DIAMETER;
-#ifdef SCTP_DISSECTORS_ENABLED
 static int gbl_diameterSctpPort=SCTP_PORT_DIAMETER;
-#endif
 
 typedef struct _e_diameterhdr {
 	guint8 reserved;
@@ -153,6 +147,7 @@ typedef struct _e_avphdr {
 static gchar *rd_value_to_str(e_avphdr *avph,const u_char *input, int length);
 static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static guint32 match_numval(guint32 val, const value_value_pair *vs);
+static gchar *DetermineMessageType(char flagsVer);
 
 /* Code to actually dissect the packets */
 
@@ -208,8 +203,9 @@ static void dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	if (check_col(pinfo->fd, COL_INFO)) {
 		col_add_fstr(pinfo->fd, COL_INFO,
-		    "%s%s(%d) vendor=%d (id=%d) EIR=%d%d%d",
+		    "%s%s: %s(%d) vendor=%d (id=%d) EIR=%d%d%d",
 		    (BadPacket)?"***** Bad Packet!: ":"",
+		    DetermineMessageType(dh.flagsVer),
 		    codestrval, dh.commandCode, dh.vendorId,
 		    dh.identifier,
 		    (dh.flagsVer & DIAM_FLAGS_E)?1:0,
@@ -235,11 +231,12 @@ static void dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		    hf_diameter_flags,
 		    tvb, offset, 1,
 		    dh.flagsVer,
-		    "Packet flags: 0x%02x  E:%d I:%d R:%d",
+		    "Packet flags: 0x%02x  E:%d I:%d R:%d (%s)",
 		    (dh.flagsVer&0xf8)>>3,
 		    (dh.flagsVer & DIAM_FLAGS_E)?1:0,
 		    (dh.flagsVer & DIAM_FLAGS_I)?1:0,
-		    (dh.flagsVer & DIAM_FLAGS_R)?1:0);
+		    (dh.flagsVer & DIAM_FLAGS_R)?1:0,
+		    DetermineMessageType(dh.flagsVer));
 
 		/* Version */
 		proto_tree_add_uint(diameter_tree,
@@ -699,30 +696,49 @@ static gchar *rd_value_to_str(e_avphdr *avph, const u_char *input, int length)
 	return buffer;
 } /* rd value to str */
 
+static gchar *
+DetermineMessageType(char flagsVer)
+{
+	/* Get rid of version */
+	flagsVer = flagsVer >> 3;
+
+	/* Mask out reserved bits */
+	flagsVer = flagsVer & 0x7;
+
+	switch (flagsVer) {
+	case 0x0: /* Indication */
+		return "Indication";
+	case 0x4: /* Request */
+		return "Request";
+	case 0x1: /* Answer */
+		return "Answer";
+	case 0x6: /* Query */
+		return "Query";
+	case 0x3: /* Reply */
+		return "Reply";
+	default:
+		return "Illegal Command Type";
+	}
+} /* DetermineMessageType */
+
 
 void
 proto_reg_handoff_diameter(void)
 {
 	static int Initialized=FALSE;
 	static int TcpPort=0;
-#ifdef SCTP_DISSECTORS_ENABLED
 	static int SctpPort=0;
-#endif
+
 	if (Initialized) {
 		dissector_delete("tcp.port", TcpPort, dissect_diameter);
-#ifdef SCTP_DISSECTORS_ENABLED
-		dissector_delete("sctp.srcport", SctpPort, dissect_diameter);
-		dissector_delete("sctp.destport", SctpPort, dissect_diameter);
-#endif
+		dissector_delete("sctp.port", SctpPort, dissect_diameter);
 	} else {
 		Initialized=TRUE;
 	}
 
 	/* set port for future deletes */
 	TcpPort=gbl_diameterTcpPort;
-#ifdef SCTP_DISSECTORS_ENABLED
 	SctpPort=gbl_diameterSctpPort;
-#endif
 
 	strcpy(gbl_diameterString, "Diameter Protocol");
 
@@ -730,12 +746,8 @@ proto_reg_handoff_diameter(void)
 		gbl_diameterTcpPort); */
 	dissector_add("tcp.port", gbl_diameterTcpPort, dissect_diameter,
 	    proto_diameter);
-#ifdef SCTP_DISSECTORS_ENABLED
-	dissector_add("sctp.srcport", gbl_diameterSctpPort,
+	dissector_add("sctp.port", gbl_diameterSctpPort,
 	    dissect_diameter, proto_diameter);
-	dissector_add("sctp.destport", gbl_diameterSctpPort,
-	    dissect_diameter, proto_diameter);
-#endif
 }
 
 /* registration with the filtering engine */
@@ -835,11 +847,9 @@ proto_register_diameter(void)
 				       "Set the TCP port for DIAMETER messages",
 				       10,
 				       &gbl_diameterTcpPort);
-#ifdef SCTP_DISSECTORS_ENABLED
 	prefs_register_uint_preference(diameter_module, "sctp.port",
 				       "DIAMETER SCTP Port",
 				       "Set the SCTP port for DIAMETER messages",
 				       10,
 				       &gbl_diameterSctpPort);
-#endif
 }
