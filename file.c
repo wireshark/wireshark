@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.343 2004/01/20 18:47:21 ulfl Exp $
+ * $Id: file.c,v 1.344 2004/01/21 22:00:27 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -398,7 +398,7 @@ cf_read(capture_file *cf, int *err)
         }
         if (progbar == NULL) {
           /* Create the progress bar if necessary */
-          progbar = delayed_create_progress_dlg("Loading", load_msg, "Stop",
+          progbar = delayed_create_progress_dlg("Loading", load_msg,
             &stop_flag, &start_time, prog_val);
           if (progbar != NULL)
             g_free(load_msg);
@@ -1100,7 +1100,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 
       if (progbar == NULL)
         /* Create the progress bar if necessary */
-        progbar = delayed_create_progress_dlg(action, action_item, "Stop", &stop_flag,
+        progbar = delayed_create_progress_dlg(action, action_item, &stop_flag,
           &start_time, prog_val);
 
       if (progbar != NULL) {
@@ -1266,7 +1266,7 @@ typedef enum {
 
 psp_return_t
 process_specified_packets(capture_file *cf, packet_range_t *range,
-    const char *string1, const char *string2, const char *stop_button_title,
+    const char *string1, const char *string2,
     gboolean (*callback)(capture_file *, frame_data *,
                          union wtap_pseudo_header *, const guint8 *, void *),
     void *callback_args)
@@ -1318,7 +1318,6 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
       if (progbar == NULL)
         /* Create the progress bar if necessary */
         progbar = delayed_create_progress_dlg(string1, string2,
-                                              stop_button_title,
                                               &progbar_stop_flag,
                                               &progbar_start_time,
                                               progbar_val);
@@ -1408,7 +1407,7 @@ retap_packets(capture_file *cf)
   packet_range_init(&range);
   packet_range_process_init(&range);
   switch (process_specified_packets(cf, &range, "Refiltering statistics on",
-                                    "all packets", "Stop", retap_packet,
+                                    "all packets", retap_packet,
                                     NULL)) {
   case PSP_FINISHED:
     /* Completed successfully. */
@@ -1585,7 +1584,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
   /* Iterate through the list of packets, printing the packets we were
      told to print. */
   switch (process_specified_packets(cf, &print_args->range, "Printing",
-                                    "selected packets", "Stop", print_packet,
+                                    "selected packets", print_packet,
                                     &callback_args)) {
   case PSP_FINISHED:
     /* Completed successfully. */
@@ -1710,7 +1709,7 @@ change_time_formats(capture_file *cf)
 
       if (progbar == NULL)
         /* Create the progress bar if necessary */
-        progbar = delayed_create_progress_dlg("Changing", "time display", "Stop",
+        progbar = delayed_create_progress_dlg("Changing", "time display", 
           &stop_flag, &start_time, prog_val);
 
       if (progbar != NULL) {
@@ -2155,7 +2154,7 @@ find_packet(capture_file *cf,
 
         /* Create the progress bar if necessary */
         if (progbar == NULL)
-           progbar = delayed_create_progress_dlg("Searching", cf->sfilter, "Cancel",
+           progbar = delayed_create_progress_dlg("Searching", cf->sfilter, 
              &stop_flag, &start_time, prog_val);
 
         if (progbar != NULL) {
@@ -2600,7 +2599,7 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
     callback_args.pdh = pdh;
     callback_args.fname = fname;
     switch (process_specified_packets(cf, range, "Saving",
-                                      "selected packets", "Stop", save_packet,
+                                      "selected packets", save_packet,
                                       &callback_args)) {
 
     case PSP_FINISHED:

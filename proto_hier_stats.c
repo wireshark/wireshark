@@ -1,7 +1,7 @@
 /* proto_hier_stats.c
  * Routines for calculating statistics based on protocol.
  *
- * $Id: proto_hier_stats.c,v 1.21 2004/01/09 21:38:21 guy Exp $
+ * $Id: proto_hier_stats.c,v 1.22 2004/01/21 22:00:28 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -205,7 +205,7 @@ ph_stats_new(void)
 			if (progbar == NULL)
 				/* Create the progress bar if necessary */
 				progbar = delayed_create_progress_dlg(
-				    "Computing", "protocol hierarchy statistics", "Stop",
+				    "Computing", "protocol hierarchy statistics", 
 				    &stop_flag, &start_time, prog_val);
 
 			if (progbar != NULL) {

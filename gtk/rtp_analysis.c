@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.21 2004/01/21 03:54:31 ulfl Exp $
+ * $Id: rtp_analysis.c,v 1.22 2004/01/21 22:00:28 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -1070,7 +1070,7 @@ static gboolean copy_file(gchar *dest, gint channels, /*gint format,*/ user_data
 		return FALSE;
 	}
 
-	progbar = create_progress_dlg("Saving voice in a file", dest, "Stop", &stop_flag);
+	progbar = create_progress_dlg("Saving voice in a file", dest, &stop_flag);
 
 	/* First we write the .au header. XXX Hope this is endian independant */
 	/* the magic word 0x2e736e64 == .snd */

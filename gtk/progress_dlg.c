@@ -1,7 +1,7 @@
 /* progress_dlg.c
  * Routines for progress-bar (modal) dialog
  *
- * $Id: progress_dlg.c,v 1.20 2004/01/05 18:11:28 ulfl Exp $
+ * $Id: progress_dlg.c,v 1.21 2004/01/21 22:00:28 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,11 +78,11 @@ struct progdlg {
  */
 progdlg_t *
 create_progress_dlg(const gchar *task_title, const gchar *item_title,
-                    const gchar *stop_title, gboolean *stop_flag)
+                    gboolean *stop_flag)
 {
 	progdlg_t *dlg;
 	GtkWidget *dlg_w, *main_vb, *title_lb, *status_lb, *elapsed_lb, *time_left_lb, *percentage_lb;
-	GtkWidget *prog_bar, *bbox, *stop_bt;
+	GtkWidget *prog_bar, *bbox, *cancel_bt;
 	GtkWidget *static_vb, *tmp_lb, *main_hb, *dynamic_vb, *percentage_hb;
 	gchar tmp[100];
 
@@ -191,28 +191,21 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
 	gtk_box_pack_start(GTK_BOX(main_hb), dynamic_vb, FALSE, TRUE, 3);
 	gtk_box_pack_start(GTK_BOX(main_vb), main_hb, FALSE, TRUE, 3);
 
-	/*
-	 * Button row: cancel button.
-	 * (We put it in an HButtonBox, even though there's only one
-	 * of them, so that it doesn't expand to the width of the window.)
-	 */
-	bbox = gtk_hbutton_box_new();
-	gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
-	gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+	/* Button row */
+    bbox = dlg_button_row_new(GTK_STOCK_CANCEL, NULL);
+    gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+    gtk_widget_show(bbox);
+
+    cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+    gtk_widget_grab_default(cancel_bt);
 
 	/*
-	 * Allow user to either click a "stop this operation" button, or
+	 * Allow user to either click the "Cancel" button, or
 	 * the close button on the window, to stop an operation in
 	 * progress.
 	 */
-	stop_bt = gtk_button_new_with_label(stop_title);
-	gtk_box_pack_start(GTK_BOX (bbox), stop_bt, TRUE, TRUE, 0);
-	SIGNAL_CONNECT(stop_bt, "clicked", stop_cb, stop_flag);
+	SIGNAL_CONNECT(cancel_bt, "clicked", stop_cb, stop_flag);
 	SIGNAL_CONNECT(dlg_w, "delete_event", delete_event_cb, stop_flag);
-	GTK_WIDGET_SET_FLAGS(stop_bt, GTK_CAN_DEFAULT);
-	gtk_widget_grab_default(stop_bt);
-	GTK_WIDGET_SET_FLAGS(stop_bt, GTK_CAN_DEFAULT);
-	gtk_widget_grab_default(stop_bt);
 
 	gtk_widget_show_all(dlg_w);
 
@@ -226,8 +219,7 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
 
 progdlg_t *
 delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,
-			    const gchar *stop_title, gboolean *stop_flag,
-			    const GTimeVal *start_time, gfloat progress)
+			    gboolean *stop_flag, const GTimeVal *start_time, gfloat progress)
 {
     GTimeVal    time_now;
     gdouble     delta_time;
@@ -283,7 +275,7 @@ delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,
     if (progress >= (delta_time / (delta_time + min_display)))
         return NULL;
 
-    dlg = create_progress_dlg(task_title, item_title, stop_title, stop_flag);
+    dlg = create_progress_dlg(task_title, item_title, stop_flag);
 
     /* set dialog start_time to the start of processing, not box creation */
     dlg->start_time = *start_time;
