@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.61 2003/01/10 04:04:42 guy Exp $
+ * $Id: snoop.c,v 1.62 2003/02/18 19:59:00 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -268,10 +268,12 @@ int snoop_open(wtap *wth, int *err)
 	 * hardware".
 	 *
 	 * The only way I can see to determine that is to check how much
-	 * padding there is in the first packet - if there're 3 bytes or
+	 * padding there is in the first packet - if there're 4 bytes or
 	 * fewer, it's probably Sun snoop, which uses the padding only
-	 * for padding, but if there's more, it's probably a Shomiti tool,
-	 * which uses the padding for additional information.
+	 * for padding (except for atmsnoop, which sometimes appears to
+	 * have 4 bytes of padding), but if there's more, it's probably
+	 * a Shomiti tool, which uses the padding for additional
+	 * information.
 	 */
 
 	/* Read first record header. */
@@ -303,12 +305,14 @@ int snoop_open(wtap *wth, int *err)
 	} else {
 		/*
 		 * Compute the number of bytes of padding in the
-		 * record.  If it's greater than 3, this must be a
-		 * Shomiti capture.
+		 * record.  If it's greater than 4, this must be a
+		 * Shomiti capture.  (Some atmsnoop captures appear
+		 * to have 4 bytes of padding; Shomiti captures stuff
+		 * more than that into the padding.)
 		 */
 		padbytes = g_ntohl(rec_hdr.rec_len) -
 		    (sizeof rec_hdr + g_ntohl(rec_hdr.incl_len));
-		is_shomiti = (padbytes > 3);
+		is_shomiti = (padbytes > 4);
 	}
 
 	/*
