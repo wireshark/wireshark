@@ -1177,12 +1177,11 @@ bssgp_proto_handoff(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset, disse
   tvbuff_t *next_tvb;
 
   next_tvb = tvb_new_subset(bi->tvb, bi->offset, -1, -1);
-  call_dissector(handle, next_tvb, bi->pinfo, bi->parent_tree);
 
   if (bi->bssgp_tree) {
     bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
   }
-  if (!handle) {
+  if (handle) {
     call_dissector(handle, next_tvb, bi->pinfo, bi->parent_tree);    
   }
   else if (data_handle) {
