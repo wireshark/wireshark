@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.51 2002/01/15 10:12:17 guy Exp $
+ * $Id: packet-bgp.c,v 1.52 2002/01/17 09:25:55 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -67,6 +67,7 @@
 #include "packet-bgp.h"
 #include "packet-ipv6.h"
 #include "afn.h"
+#include "prefs.h"
 
 static const value_string bgptypevals[] = {
     { BGP_OPEN, "OPEN Message" },
@@ -238,6 +239,10 @@ static gint ett_bgp_cluster_list = -1;  /* cluster list tree          */
 static gint ett_bgp_options = -1;       /* optional parameters tree   */
 static gint ett_bgp_option = -1;        /* an optional parameter tree */
 static gint ett_bgp_extended_communities = -1 ; /* extended communities list tree */
+
+/* desegmentation */
+static gboolean bgp_desegment = TRUE;
+
 /*
  * Decode an IPv4 prefix.
  */
@@ -1669,12 +1674,10 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_clear(pinfo->cinfo, COL_INFO);
 
-    l = tvb_length(tvb);
+    l = tvb_reported_length(tvb);
     i = 0;
     found = -1;
     /* run through the TCP packet looking for BGP headers         */
-    /* this is done twice, but this way each message type can be 
-       printed in the COL_INFO field                              */
     while (i + BGP_HEADER_SIZE <= l) {
 	tvb_memcpy(tvb, bgp.bgp_marker, i, BGP_HEADER_SIZE);
 
@@ -1686,6 +1689,27 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	found++;
 	hlen = ntohs(bgp.bgp_len);
+
+	/*
+	 * Desegmentation check.
+	 */
+	if (bgp_desegment) {
+	    if (hlen > tvb_length_remaining(tvb, i) && pinfo->can_desegment) {
+		/*
+		 * Not all of this packet is in the data we've been
+		 * handed, but we can do reassembly on it.
+		 *
+		 * Tell the TCP dissector where the data for
+		 * this message starts in the data it handed
+		 * us, and how many more bytes we need, and
+		 * return.
+		 */
+		pinfo->desegment_offset = i;
+		pinfo->desegment_len = hlen - tvb_length_remaining(tvb, i);
+		return;
+	    }
+	}
+
 	typ = val_to_str(bgp.bgp_type, bgptypevals, "Unknown Message");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -1695,35 +1719,12 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", typ);
 	}
 
-	i += hlen;
-    }
+	if (tree) {
+	    ti = proto_tree_add_item(tree, proto_bgp, tvb, i, hlen, FALSE);
+	    bgp_tree = proto_item_add_subtree(ti, ett_bgp);
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_bgp, tvb, 0,
-				 l, FALSE);
-	bgp_tree = proto_item_add_subtree(ti, ett_bgp);
+	    ti = proto_tree_add_text(bgp_tree, tvb, i, hlen, "%s", typ);
 
-	i = 0;
-        /* now, run through the TCP packet again, this time dissect */
-        /* each message that we find */
-	while (i + BGP_HEADER_SIZE <= l) {
-	    tvb_memcpy(tvb, bgp.bgp_marker, i, BGP_HEADER_SIZE);
-
-	    /* look for bgp header */
-	    if (memcmp(bgp.bgp_marker, marker, sizeof(marker)) != 0) {
-		i++;
-		continue;
-	    }
-
-	    hlen = ntohs(bgp.bgp_len);
-	    typ = val_to_str(bgp.bgp_type, bgptypevals, "Unknown Message");
-	    if (l < hlen) {
-		ti = proto_tree_add_text(bgp_tree, tvb, i,
-                     l, "%s (truncated)", typ);
-	    } else {
-		ti = proto_tree_add_text(bgp_tree, tvb, i, hlen,
-			    "%s", typ);
-	    }
 	    /* add a different tree for each message type */
 	    switch (bgp.bgp_type) {
 	    case BGP_OPEN:
@@ -1787,9 +1788,9 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    default:
 		break;
 	    }
-
-	    i += hlen;
 	}
+
+	i += hlen;
     }
 }
 
@@ -1828,11 +1829,18 @@ proto_register_bgp(void)
       &ett_bgp_option,
       &ett_bgp_extended_communities
     };
+    module_t *bgp_module;
 
     proto_bgp = proto_register_protocol("Border Gateway Protocol",
 					"BGP", "bgp");
     proto_register_field_array(proto_bgp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    bgp_module = prefs_register_protocol(proto_bgp, NULL);
+    prefs_register_bool_preference(bgp_module, "desegment",
+      "Desegment all BGP messages spanning multiple TCP segments",
+      "Whether the BGP dissector should desegment all messages spanning multiple TCP segments",
+      &bgp_desegment);
 }
 
 void
