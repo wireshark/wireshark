@@ -1582,6 +1582,7 @@ host_name_lookup_init(void) {
 
   #ifdef WIN32
   char *sysroot;
+  char *hostspath;
   static char rootpath[] = "\\system32\\drivers\\etc\\hosts";
   #endif
 
