@@ -18,7 +18,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.53 2004/01/02 02:03:39 guy Exp $
+ * $Id: packet-sip.c,v 1.54 2004/01/07 19:49:45 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -344,6 +344,9 @@ typedef enum {
 /* global_sip_raw_text determines whether we are going to display		*/
 /* the raw text of the SIP message, much like the MEGACO dissector does.	*/
 static gboolean global_sip_raw_text = FALSE;
+/* strict_sip_version determines whether the SIP dissector enforces
+ * the SIP version to be "SIP/2.0". */
+static gboolean strict_sip_version = TRUE;
 
 static gboolean dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, gboolean is_heur);
@@ -358,8 +361,9 @@ static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree,
 static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree);
 static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
 
-/* SIP content type and internet media type used by other dissectors are the same */
-/* List of nmediatypes from IANA at: http://www.iana.org/assignments/media-types/index.html */
+/* SIP content type and internet media type used by other dissectors
+ * are the same.  List of media types from IANA at:
+ * http://www.iana.org/assignments/media-types/index.html */
 static dissector_table_t media_type_dissector_table;
 
 #define SIP2_HDR "SIP/2.0"
@@ -692,8 +696,9 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					semicolon_offset = tvb_find_guint8(tvb, value_offset,linelen, ';');
 					if ( semicolon_offset != -1) {
 						content_type_len = semicolon_offset - value_offset;
-						content_type_parameter_str_len = linelen - semicolon_offset; 
-						content_type_parameter_str = tvb_get_string(tvb, semicolon_offset + 1, content_type_parameter_str_len);
+						content_type_parameter_str_len = line_end_offset - (semicolon_offset + 1); 
+						content_type_parameter_str = tvb_get_string(tvb, semicolon_offset + 1,
+								content_type_parameter_str_len);
 					}
 					media_type_str = tvb_get_string(tvb, value_offset, content_type_len);
 					break;
@@ -830,6 +835,11 @@ dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree)
  * From section 5.1 of RFC 2543:
  *
  * Status-Line  =  SIP-version SP Status-Code SP Reason-Phrase CRLF
+ *
+ * From section 7.1 of RFC 3261:
+ *
+ * Unlike HTTP, SIP treats the version number as a literal string.
+ * In practice, this should make no difference.
  */
 static line_type_t
 sip_parse_line(tvbuff_t *tvb, gint linelen, guint *token_1_lenp)
@@ -874,8 +884,12 @@ sip_parse_line(tvbuff_t *tvb, gint linelen, guint *token_1_lenp)
 	/*
 	 * Is the first token a version string?
 	 */
-	if (token_1_len == SIP2_HDR_LEN &&
-	    tvb_strneql(tvb, 0, SIP2_HDR, SIP2_HDR_LEN) == 0) {
+	if ( (strict_sip_version && (
+		token_1_len == SIP2_HDR_LEN
+		&& tvb_strneql(tvb, 0, SIP2_HDR, SIP2_HDR_LEN) == 0)
+	) || (! strict_sip_version && (
+		tvb_strneql(tvb, 0, "SIP/", 4) == 0)
+	)) {
 		/*
 		 * Yes, so this is either a Status-Line or something
 		 * else other than a Request-Line.  To be a Status-Line,
@@ -925,8 +939,12 @@ sip_parse_line(tvbuff_t *tvb, gint linelen, guint *token_1_lenp)
 			return OTHER_LINE;
 		}
 		/* XXX - Check for a proper URI prefix? */
-		if (token_3_len != SIP2_HDR_LEN ||
-		    tvb_strneql(tvb, token_3_start, SIP2_HDR, SIP2_HDR_LEN) == -1) {
+		if ( (strict_sip_version && (
+			token_3_len != SIP2_HDR_LEN
+			|| tvb_strneql(tvb, token_3_start, SIP2_HDR, SIP2_HDR_LEN) == -1)
+		) || (! strict_sip_version && (
+			tvb_strneql(tvb, token_3_start, "SIP/", 4) == -1)
+		)) {
 			/*
 			 * The version string isn't an SIP version 2.0 version
 			 * string.
@@ -1452,6 +1470,12 @@ void proto_register_sip(void)
 		"SIP message should be displayed "
 		"in addition to the dissection tree",
 		&global_sip_raw_text);
+	prefs_register_bool_preference(sip_module, "strict_sip_version",
+		"Enforce strict SIP version check (" SIP2_HDR ")",
+		"If enabled, only " SIP2_HDR " traffic will be dissected as SIP. "
+		"Disable it to allow SIP traffic with a different version "
+		"to be dissected as SIP.",
+		&strict_sip_version);
 }
 
 void
