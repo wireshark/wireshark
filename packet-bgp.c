@@ -324,7 +324,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
     p = &pd[offset + BGP_HEADER_SIZE];	/*XXX*/
 
     /* check for withdrawals */
-    len = ntohs(*(guint16 *)p);
+    len = pntohs(p);
     proto_tree_add_text(tree, p - pd, 2, 
 	"Unfeasible routes length: %u %s", len, (len == 1) ? "byte" : "bytes");
     p += 2;
@@ -347,7 +347,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
     }
 
     /* check for advertisements */
-    len = ntohs(*(guint16 *)p);
+    len = pntohs(p);
     proto_tree_add_text(tree, p - pd, 2, "Total path attribute length: %u %s", 
             len, (len == 1) ? "byte" : "bytes");
 
@@ -366,7 +366,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 	    memcpy(&bgpa, &p[i], sizeof(bgpa));
             /* check for the Extended Length bit */
 	    if (bgpa.bgpa_flags & BGP_ATTR_FLAG_EXTENDED_LENGTH) {
-		alen = ntohs(*(guint16 *)&p[i + sizeof(bgpa)]);
+		alen = pntohs(&p[i + sizeof(bgpa)]);
 		aoff = sizeof(bgpa) + 2;
 	    } else {
 		alen = p[i + sizeof(bgpa)];
@@ -455,7 +455,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 		ti = proto_tree_add_text(subtree, p - pd + i, alen + aoff,
 			"%s: %u (%u %s)",
 			val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
-			ntohl(*(guint32 *)&p[i + aoff]), alen + aoff, 
+			pntohl(&p[i + aoff]), alen + aoff, 
                         (alen + aoff == 1) ? "byte" : "bytes");
 		break;
 	    case BGPTYPE_LOCAL_PREF:
@@ -464,7 +464,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 		ti = proto_tree_add_text(subtree, p - pd + i, alen + aoff,
 			"%s: %u (%u %s)",
 			val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
-			ntohl(*(guint32 *)&p[i + aoff]), alen + aoff,
+			pntohl(&p[i + aoff]), alen + aoff,
                         (alen + aoff == 1) ? "byte" : "bytes");
 		break;
             case BGPTYPE_ATOMIC_AGGREGATE:
@@ -481,7 +481,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 		ti = proto_tree_add_text(subtree, p - pd + i, alen + aoff,
 			"%s: AS: %u origin: %s (%u %s)",
 			val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
-			ntohs(*(guint16 *)&p[i + aoff]),
+			pntohs(&p[i + aoff]),
 			ip_to_str(&p[i + aoff + 2]), alen + aoff, 
                         (alen + aoff == 1) ? "byte" : "bytes");
 		break;
@@ -490,18 +490,18 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 		    goto default_attribute_top;
 
                 /* check for well-known communities */
-		if (ntohl(*(guint32 *)&p[i + aoff]) == BGP_COMM_NO_EXPORT)
+		if (pntohl(&p[i + aoff]) == BGP_COMM_NO_EXPORT)
                     strncpy(junk_buf, "NO_EXPORT", 10);
-		else if (ntohl(*(guint32 *)&p[i + aoff]) == 
+		else if (pntohl(&p[i + aoff]) == 
                         BGP_COMM_NO_ADVERTISE)
                     strncpy(junk_buf, "NO_ADVERTISE", 13);
-		else if (ntohl(*(guint32 *)&p[i + aoff]) == 
+		else if (pntohl(&p[i + aoff]) == 
                         BGP_COMM_NO_EXPORT_SUBCONFED)
                     strncpy(junk_buf, "NO_EXPORT_SUBCONFED", 20);
                 else {
                     snprintf(junk_buf, sizeof(junk_buf), "%u:%u",
-		            ntohs(*(guint16 *)&p[i + aoff]), 
-                            ntohs(*(guint16 *)&p[i + aoff + 2]));
+		            pntohs(&p[i + aoff]), 
+                            pntohs(&p[i + aoff + 2]));
                 }
 
 		ti = proto_tree_add_text(subtree, p - pd + i, alen + aoff,
@@ -687,7 +687,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 		} else {
 		    proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
 			    "Multi exit discriminator: %u",
-			    ntohl(*(guint32 *)&p[i + aoff]));
+			    pntohl(&p[i + aoff]));
 		}
 		break;
 	    case BGPTYPE_LOCAL_PREF:
@@ -698,7 +698,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 		} else {
 		    proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
 			    "Local preference: %u",
-			    ntohl(*(guint32 *)&p[i + aoff]));
+			    pntohl(&p[i + aoff]));
 		}
 		break;
 	    case BGPTYPE_ATOMIC_AGGREGATE:
@@ -716,7 +716,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 		} else {
 		    proto_tree_add_text(subtree2, p - pd + i + aoff, 2,
 			    "Aggregator AS: %u",
-			    ntohs(*(guint16 *)&p[i + aoff]));
+			    pntohs(&p[i + aoff]));
 		    proto_tree_add_text(subtree2, p - pd + i + aoff + 2, 4,
 			    "Aggregator origin: %s",
 			    ip_to_str(&p[i + aoff + 2]));
@@ -729,36 +729,36 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
                             (alen == 1) ? "byte" : "bytes");
                 }
                 /* check for reserved values */
-		else if (ntohs(*(guint16 *)&p[i + aoff]) == FOURHEX0 ||
-		        ntohs(*(guint16 *)&p[i + aoff]) == FOURHEXF) {
+		else if (pntohs(&p[i + aoff]) == FOURHEX0 ||
+		        pntohs(&p[i + aoff]) == FOURHEXF) {
                     /* check for well-known communities */
-		    if (ntohl(*(guint32 *)&p[i + aoff]) == BGP_COMM_NO_EXPORT)
+		    if (pntohl(&p[i + aoff]) == BGP_COMM_NO_EXPORT)
 		        proto_tree_add_text(subtree2, p - pd + i + aoff, 4, 
                                 "Communities: NO_EXPORT (0x%x)", 
-                                ntohl(*(guint32 *)&p[i + aoff]));
-		    else if (ntohl(*(guint32 *)&p[i + aoff]) == 
+                                pntohl(&p[i + aoff]));
+		    else if (pntohl(&p[i + aoff]) == 
                             BGP_COMM_NO_ADVERTISE)
 		        proto_tree_add_text(subtree2, p - pd + i + aoff, 4, 
                                 "Communities: NO_ADVERTISE (0x%x)",
-                                ntohl(*(guint32 *)&p[i + aoff]));
-		    else if (ntohl(*(guint32 *)&p[i + aoff]) == 
+                                pntohl(&p[i + aoff]));
+		    else if (pntohl(&p[i + aoff]) == 
                             BGP_COMM_NO_EXPORT_SUBCONFED)
 		        proto_tree_add_text(subtree2, p - pd + i + aoff, 4, 
                                 "Communities: NO_EXPORT_SUBCONFED (0x%x)",
-                                ntohl(*(guint32 *)&p[i + aoff]));
+                                pntohl(&p[i + aoff]));
                     else {
 		        proto_tree_add_text(subtree2, p - pd + i + aoff, 4, 
                                 "Communities (reserved): 0x%x",
-		                ntohl(*(guint32 *)&p[i + aoff]));
+		                pntohl(&p[i + aoff]));
                     }
                 }
                 else {
 		    proto_tree_add_text(subtree2, p - pd + i + aoff, 2, 
                             "Communities AS: %u", 
-                            ntohs(*(guint16 *)&p[i + aoff]));
+                            pntohs(&p[i + aoff]));
 		    proto_tree_add_text(subtree2, p - pd + i + aoff + 2, 2, 
                             "Communities value: %u", 
-                            ntohs(*(guint16 *)&p[i + aoff + 2]));
+                            pntohs(&p[i + aoff + 2]));
                 }
 		break;
 	    case BGPTYPE_ORIGINATOR_ID:
@@ -773,7 +773,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 		}
 		break;
 	    case BGPTYPE_MP_REACH_NLRI:
-		af = ntohs(*(guint16 *)&p[i + aoff]);
+		af = pntohs(&p[i + aoff]);
 		proto_tree_add_text(subtree2, p - pd + i + aoff, 2,
 		    "Address family: %s (%u)",
 		    val_to_str(af, afnumber, "Unknown"), af);
@@ -868,7 +868,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 
 		break;
 	    case BGPTYPE_MP_UNREACH_NLRI:
-		af = ntohs(*(guint16 *)&p[i + aoff]);
+		af = pntohs(&p[i + aoff]);
 		proto_tree_add_text(subtree2, p - pd + i + aoff, 2,
 		    "Address family: %s (%u)",
 		    val_to_str(af, afnumber, "Unknown"), af);

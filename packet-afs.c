@@ -6,7 +6,7 @@
  * Portions based on information retrieved from the RX definitions
  *   in Arla, the free AFS client at http://www.stacken.kth.se/project/arla/
  *
- * $Id: packet-afs.c,v 1.8 2000/01/07 22:05:28 guy Exp $
+ * $Id: packet-afs.c,v 1.9 2000/01/15 04:17:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -764,8 +764,8 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	request_key.conversation = conversation->index;	
-	request_key.service = ntohs(rxh->serviceId);
-	request_key.callnumber = ntohl(rxh->callNumber);
+	request_key.service = pntohs(&rxh->serviceId);
+	request_key.callnumber = pntohl(&rxh->callNumber);
 
 	request_val = (struct afs_request_val *) g_hash_table_lookup(
 		afs_request_hash, &request_key);
@@ -778,7 +778,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		*new_request_key = request_key;
 
 		request_val = g_mem_chunk_alloc(afs_request_vals);
-		request_val -> opcode = ntohl(afsh->opcode);
+		request_val -> opcode = pntohl(&afsh->opcode);
 		opcode = request_val->opcode;
 
 		g_hash_table_insert(afs_request_hash, new_request_key,
@@ -959,7 +959,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
  */
 
 /* Get the next available integer, be sure and call TRUNC beforehand */
-#define GETINT() (ntohl( *((int*)&pd[curoffset]) ))
+#define GETINT() (pntohl(&pd[curoffset]))
 
 /* Check if enough bytes are present, if not, return to caller
    after adding a 'Truncated' message to tree */
@@ -1108,7 +1108,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 #define STROUT(field) \
 	{	int i; \
 		TRUNC(4); \
-		i = ntohl(*((int *) &pd[curoffset])); \
+		i = pntohl(&pd[curoffset]); \
 		curoffset += 4; \
 		TRUNC(i); \
 		if ( i > 0 ) { \
@@ -1188,7 +1188,7 @@ static void dissect_acl(const u_char *pd, int offset, frame_data *fd, proto_tree
 	curoffset = offset;
 
 	TRUNC(sizeof(guint32));
-	bytes = ntohl(*((int *) &pd[curoffset]));
+	bytes = pntohl(&pd[curoffset]);
 	UINTOUT(hf_afs_fs_acl_datasize);
 
 	TRUNC(bytes);
@@ -1367,7 +1367,7 @@ dissect_fs_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 			unsigned int j,i;
 			TRUNC(1);
 
-			j = ntohl( *((int*)&pd[curoffset]) );
+			j = pntohl(&pd[curoffset]);
 			curoffset += 1;
 			for (i=0; i<j; i++)
 			{

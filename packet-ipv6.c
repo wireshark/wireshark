@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.25 1999/11/16 11:42:36 guy Exp $
+ * $Id: packet-ipv6.c,v 1.26 2000/01/15 04:17:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -196,7 +196,7 @@ dissect_opts(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		if (p[1] == 4) {
 		    proto_tree_add_text(dstopt_tree, p - pd, p[1] + 2,
 			"Jumbo payload: %u (%d bytes)",
-			ntohl(*(guint32 *)&p[2]), p[1] + 2);
+			pntohl(&p[2]), p[1] + 2);
 		} else {
 		    proto_tree_add_text(dstopt_tree, p - pd, p[1] + 2,
 			"Jumbo payload: Invalid length (%d bytes)",
@@ -210,7 +210,7 @@ dissect_opts(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		char *rta;
 
 		if (p[1] == 2) {
-		    rta = val_to_str(ntohs(*(guint16 *)&p[2]), rtalertvals,
+		    rta = val_to_str(pntohs(&p[2]), rtalertvals,
 				"Unknown");
 		} else
 		    rta = "Invalid length";

@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.7 1999/11/16 11:42:46 guy Exp $
+ * $Id: packet-pim.c,v 1.8 2000/01/15 04:17:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -248,11 +248,11 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    guint16 *w;
 	    w = (guint16 *)&pd[offset + sizeof(struct pim)];
 	    while ((guint8 *)w < &pd[offset + END_OF_FRAME]) {
-		if (ntohs(w[0]) == 1 && ntohs(w[1]) == 2
+		if (pntohs(&w[0]) == 1 && pntohs(&w[1]) == 2
 		 && (guint8 *)&w[3] <= &pd[offset + END_OF_FRAME]) {
 		    proto_tree_add_text(pimopt_tree, (guint8 *)w - pd, 6,
-			"Holdtime: %u%s", ntohs(w[2]),
-			ntohs(w[2]) == 0xffff ? " (infty)" : "");
+			"Holdtime: %u%s", pntohs(&w[2]),
+			pntohs(&w[2]) == 0xffff ? " (infty)" : "");
 		    w += 3;
 		} else
 		    break;
@@ -269,7 +269,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	    flagoff = offset + sizeof(struct pim);
 	    tiflag = proto_tree_add_text(pimopt_tree, flagoff, 4,
-		"Flags: 0x%08x", ntohl(*(guint32 *)&pd[flagoff]));
+		"Flags: 0x%08x", pntohl(&pd[flagoff]));
 	    flag_tree = proto_item_add_subtree(tiflag, ett_pim);
 	    proto_tree_add_text(flag_tree, flagoff, 1, "%s",
 		decode_boolean_bitfield(pd[flagoff], 0x80000000, 32,
@@ -361,8 +361,8 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    if (PIM_TYPE(pim.pim_typever) != 7)	{
 		/* not graft-ack */
 		proto_tree_add_text(pimopt_tree, offset, 2,
-		    "Holdtime: %u%s", ntohs(*(guint16 *)&pd[offset]),
-		    ntohs(*(guint16 *)&pd[offset]) == 0xffff ? " (infty)" : "");
+		    "Holdtime: %u%s", pntohs(&pd[offset]),
+		    pntohs(&pd[offset]) == 0xffff ? " (infty)" : "");
 	    }
 	    offset += 2;
 
@@ -380,8 +380,8 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 		if (&pd[offset + 4] > ep)
 		    goto breakbreak3;
-		njoin = ntohs(*(guint16 *)&pd[offset]);
-		nprune = ntohs(*(guint16 *)&pd[offset + 2]);
+		njoin = pntohs(&pd[offset]);
+		nprune = pntohs(&pd[offset + 2]);
 
 		tisub = proto_tree_add_text(grouptree, offset, 2,
 		    "Join: %d", njoin);
@@ -428,7 +428,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    if (END_OF_FRAME < 2)
 		break;
 	    proto_tree_add_text(pimopt_tree, offset, 2,
-		"Fragment tag: 0x%04x", ntohs(*(guint16 *)&pd[offset]));
+		"Fragment tag: 0x%04x", pntohs(&pd[offset]));
 	    offset += 2;
 
 	    if (END_OF_FRAME < 2)
@@ -477,8 +477,8 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		    if (END_OF_FRAME < 4)
 			goto breakbreak4;
 		    proto_tree_add_text(grouptree, offset, 2,
-			"Holdtime: %u%s", ntohs(*(guint16 *)&pd[offset]),
-			ntohs(*(guint16 *)&pd[offset]) == 0xffff ? " (infty)" : "");
+			"Holdtime: %u%s", pntohs(&pd[offset]),
+			pntohs(&pd[offset]) == 0xffff ? " (infty)" : "");
 		    proto_tree_add_text(grouptree, offset + 3, 1,
 			"Priority: %u", pd[offset + 3]);
 
@@ -517,13 +517,13 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		decode_boolean_bitfield(pd[offset], 0x80, 8,
 		    "RP Tree", "Not RP Tree"));
 	    proto_tree_add_text(pimopt_tree, offset, 4, "Preference: %u",
-		ntohl(*(guint32 *)&pd[offset] & 0x7fffffff));
+		pntohl(&pd[offset]) & 0x7fffffff);
 	    offset += 4;
 
 	    if (END_OF_FRAME < 4)
 		break;
 	    proto_tree_add_text(pimopt_tree, offset, 4, "Metric: %u",
-		ntohl(*(guint32 *)&pd[offset]));
+		pntohl(&pd[offset]));
 
 	    break;
 	  }
@@ -544,8 +544,8 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    proto_tree_add_text(pimopt_tree, offset + 1, 1,
 		"Priority: %u", pd[offset + 1]);
 	    proto_tree_add_text(pimopt_tree, offset + 2, 2,
-		"Holdtime: %u%s", ntohs(*(guint16 *)&pd[offset + 2]),
-		ntohs(*(guint16 *)&pd[offset + 2]) == 0xffff ? " (infty)" : "");
+		"Holdtime: %u%s", pntohs(&pd[offset + 2]),
+		pntohs(&pd[offset + 2]) == 0xffff ? " (infty)" : "");
 	    offset += 4;
 
 	    if (END_OF_FRAME <= 0)
