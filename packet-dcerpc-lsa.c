@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.27 2002/04/28 10:24:40 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.28 2002/04/28 10:33:30 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -108,6 +108,7 @@ static int hf_lsa_auth_update = -1;
 static int hf_lsa_auth_type = -1;
 static int hf_lsa_auth_len = -1;
 static int hf_lsa_auth_blob = -1;
+static int hf_lsa_rights = -1;
 
 static int hf_lsa_unknown_hyper = -1;
 static int hf_lsa_unknown_long = -1;
@@ -2694,6 +2695,59 @@ lsa_dissect_lsaquerysecret_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+lsa_dissect_lsadeleteobject_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsadeleteobject_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsaenumerateaccountswithuserright_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in, unique] LSA_UNICODE_STRING *rights */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
+		"LSA_UNICODE_STRING pointer: rights", hf_lsa_rights, 0);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsaenumerateaccountswithuserright_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [out, ref] LSA_UNICODE_STRING_ARRAY *accounts */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_UNICODE_STRING_array, NDR_POINTER_REF,
+		"Account pointer: names", hf_lsa_acct, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
 
 
 static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
@@ -2806,17 +2860,11 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 		lsa_dissect_lsalookupprivilegedisplayname_reply },
 #endif
 	{ LSA_LSADELETEOBJECT, "LSADELETEOBJECT",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsadeleteobject_rqst,
 		lsa_dissect_lsadeleteobject_reply },
-#endif
 	{ LSA_LSAENUMERATEACCOUNTSWITHUSERRIGHT, "LSAENUMERATEACCOUNTSWITHUSERRIGHT",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsaenumerateaccountswithuserright_rqst,
 		lsa_dissect_lsaenumerateaccountswithuserright_reply },
-#endif
 	{ LSA_LSAENUMERATEACCOUNTRIGHTS, "LSAENUMERATEACCOUNTRIGHTS",
 		NULL, NULL },
 #ifdef REMOVED
@@ -3205,6 +3253,10 @@ proto_register_dcerpc_lsa(void)
 	{ &hf_lsa_privilege_name,
 		{ "Name", "lsa.privilege.name", FT_STRING, BASE_NONE, 
 		NULL, 0x0, "LSA Privilege Name", HFILL }},
+
+	{ &hf_lsa_rights,
+		{ "Rights", "lsa.rights", FT_STRING, BASE_NONE, 
+		NULL, 0x0, "Account Rights", HFILL }},
 
 	{ &hf_lsa_attr,
 		{ "Attr", "lsa.attr", FT_UINT64, BASE_HEX, 
