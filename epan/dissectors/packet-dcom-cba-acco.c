@@ -106,8 +106,6 @@ static int hf_cba_getconsconnout = -1;
 static int hf_cba_diagconsconnout = -1;
 static int hf_cba_acco_conn_error_state = -1;
 
-static int hf_cba_acco_server_cb_pointer = -1;
-
 static int hf_cba_acco_info_max = -1;
 static int hf_cba_acco_info_curr = -1;
 
@@ -2017,11 +2015,8 @@ dissect_ICBAAccoMgt2_DiagConsConnections_resp(tvbuff_t *tvb, int offset,
 	guint32 u32Idx;
 	guint32 u32VariableOffset;
 	gchar 	szProv[1000] = { 0 };
-	guint32 u32MaxProvLen = sizeof(szProv);
 	gchar 	szProvItem[1000] = { 0 };
-	guint32 u32MaxProvItemLen = sizeof(szProvItem);
 	gchar 	szConsItem[1000] = { 0 };
-	guint32 u32MaxConsItemLen = sizeof(szConsItem);
 	guint32	u32ConnErrorState;
 
 
@@ -2691,8 +2686,6 @@ static dcerpc_sub_dissector ICBAAccoSync_dissectors[] = {
 void
 proto_register_dcom_cba_acco (void)
 {
-	static gint *ett[1];
-	static gint *ett2[2];
 	static gint *ett3[3];
 	static gint *ett4[4];
 	static gint *ett5[5];

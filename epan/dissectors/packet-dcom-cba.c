@@ -1300,10 +1300,6 @@ void
 proto_register_dcom_cba (void)
 {
 	static gint *ett[1];
-	static gint *ett2[2];
-	static gint *ett3[3];
-	static gint *ett4[4];
-	static gint *ett5[5];
 
 	static hf_register_info hf_cba_browse_array[] = {
 		{ &hf_cba_browse_count,
@@ -1510,7 +1506,7 @@ proto_reg_handoff_dcom_cba (void)
 		ICBALogicalDevice_dissectors, hf_cba_opnum);
 
 	dcerpc_init_uuid(proto_ICBALogicalDevice2, ett_ICBALogicalDevice,
-		&uuid_ICBALogicalDevice2, ver_ICBALogicalDevice,
+		&uuid_ICBALogicalDevice2, ver_ICBALogicalDevice2,
 		ICBALogicalDevice_dissectors, hf_cba_opnum);
 
 	dcerpc_init_uuid(proto_ICBAState, ett_ICBAState,

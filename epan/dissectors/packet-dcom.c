@@ -82,6 +82,8 @@
 #include <netinet/in.h>
 #endif
 
+#include <string.h>
+
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
@@ -787,14 +789,10 @@ dissect_dcom_dcerpc_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 /* XXX: handout data to generic "unkown data" dissector? */
 extern int
 dissect_dcom_tobedone_data(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, guint8 *drep, int length)
+	packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int length)
 {
-/*XXX fixme
-	if (drep);
-	if (pinfo);
-*/
 
-	proto_tree_add_uint(tree, hf_dcom_tobedone_len, tvb, offset, length, length);
+    proto_tree_add_uint(tree, hf_dcom_tobedone_len, tvb, offset, length, length);
 
 	proto_tree_add_bytes(tree, hf_dcom_tobedone, tvb, offset, length, 
 		tvb_get_ptr(tvb, offset, length));
@@ -1519,7 +1517,7 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 /* dissect an STDOBJREF */
 int
 dissect_dcom_STDOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, guint8 *drep, int hfindex)
+                       proto_tree *tree, guint8 *drep, int hfindex _U_)
 {
 	guint32	u32Flags;
 	guint32	u32PublicRefs;
@@ -1530,8 +1528,6 @@ dissect_dcom_STDOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	proto_tree *sub_tree;
 	guint32	u32SubStart;
 
-
-	if (hfindex);
 
 	/* add subtree header */
 	sub_item = proto_tree_add_item(tree, hf_dcom_stdobjref, tvb, offset, 0, FALSE);
@@ -1669,8 +1665,8 @@ dissect_dcom_PMInterfacePointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 
 
-void dcom_register_server_coclass(int proto, int ett, e_uuid_t *uuid, guint16 ver, 
-					dcerpc_sub_dissector *sub_dissectors, int opnum_hf) {
+void dcom_register_server_coclass(int proto _U_, int ett _U_, e_uuid_t *uuid _U_, guint16 ver _U_, 
+					dcerpc_sub_dissector *sub_dissectors _U_, int opnum_hf _U_) {
 
 	/* XXX: this must be simply the name registration of the UUID,
 	 * not a whole sub_dissector registration */
