@@ -3,7 +3,7 @@
  * Copyright 2001, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  * Updated for ANSI support by Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3.c,v 1.12 2002/06/20 20:40:36 guy Exp $
+ * $Id: packet-mtp3.c,v 1.13 2003/01/02 20:44:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,10 @@
 
 #include <glib.h>
 
+#ifdef NEED_SNPRINTF_H
+#include "snprintf.h"
+#endif
+
 #include <epan/packet.h>
 #include "prefs.h"
 
@@ -44,10 +48,12 @@ static int hf_mtp3_network_indicator = -1;
 static int hf_mtp3_itu_spare = -1;
 static int hf_mtp3_ansi_priority = -1;
 static int hf_mtp3_itu_opc = -1;
+static int hf_mtp3_ansi_opc = -1;
 static int hf_mtp3_opc_network = -1;
 static int hf_mtp3_opc_cluster = -1;
 static int hf_mtp3_opc_member = -1;
 static int hf_mtp3_itu_dpc = -1;
+static int hf_mtp3_ansi_dpc = -1;
 static int hf_mtp3_dpc_network = -1;
 static int hf_mtp3_dpc_cluster = -1;
 static int hf_mtp3_dpc_member = -1;
@@ -135,7 +141,7 @@ static const value_string network_indicator_vals[] = {
 static dissector_handle_t data_handle;
 
 static void
-dissect_mtp3_sio(tvbuff_t *tvb, proto_tree *mtp3_tree)
+dissect_mtp3_sio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_tree)
 {
   guint8 sio;
   proto_item *sio_item;
@@ -162,6 +168,9 @@ dissect_mtp3_sio(tvbuff_t *tvb, proto_tree *mtp3_tree)
 
   proto_tree_add_uint(sio_tree, hf_mtp3_service_indicator, tvb, SIO_OFFSET,
 		      SIO_LENGTH, sio);
+
+  /* Store the SI so that subidissectors know what SI this msg is */
+  pinfo->private_data = (void *)(sio & SERVICE_INDICATOR_MASK);
 }
 
 static void
@@ -171,6 +180,7 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, proto_tree *mtp3_tree)
   guint8 sls;
   proto_item *label_item, *label_dpc_item, *label_opc_item;
   proto_tree *label_tree, *label_dpc_tree, *label_opc_tree;
+  char pc[ANSI_PC_STRING_LENGTH];
 
   switch (mtp3_standard) {
   case ITU_STANDARD:
@@ -192,56 +202,64 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, proto_tree *mtp3_tree)
     break;
 
   case ANSI_STANDARD:
-    /* this could be 5 or 8 bits */
-    sls = tvb_get_guint8(tvb, ANSI_SLS_OFFSET);
-
     /* Create the Routing Label Tree */
     label_item = proto_tree_add_text(mtp3_tree, tvb, ANSI_ROUTING_LABEL_OFFSET,
 				     ANSI_ROUTING_LABEL_LENGTH,
 				     "Routing label");
     label_tree = proto_item_add_subtree(label_item, ett_mtp3_label);
 
+    /* SLS */
+    if (mtp3_use_ansi_5_bit_sls)
+      proto_tree_add_item(label_tree, hf_mtp3_ansi_5_bit_sls, tvb,
+			  ANSI_SLS_OFFSET, ANSI_SLS_LENGTH, TRUE);
+    else
+      proto_tree_add_item(label_tree, hf_mtp3_ansi_8_bit_sls, tvb,
+			  ANSI_SLS_OFFSET, ANSI_SLS_LENGTH, TRUE);
+
     /* create the DPC tree */
     dpc = tvb_get_ntoh24(tvb, ANSI_DPC_OFFSET);
-    label_dpc_item = proto_tree_add_text(label_tree, tvb, ANSI_DPC_OFFSET,
-					 ANSI_PC_LENGTH, "DPC (%d-%d-%d)",
-					 (dpc & ANSI_NETWORK_MASK),
+    snprintf(pc, sizeof(pc), "%d-%d-%d", (dpc & ANSI_NETWORK_MASK),
 					 ((dpc & ANSI_CLUSTER_MASK) >> 8),
 					 ((dpc & ANSI_MEMBER_MASK) >> 16));
+
+    label_dpc_item = proto_tree_add_string_format(label_tree, hf_mtp3_ansi_dpc,
+						  tvb, ANSI_DPC_OFFSET,
+						  ANSI_PC_LENGTH, pc,
+						  "DPC (%s)", pc);
 
     label_dpc_tree = proto_item_add_subtree(label_dpc_item, ett_mtp3_label_dpc);
 
     proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_member, tvb,
-			ANSI_DPC_OFFSET, ANSI_PC_LENGTH, dpc);
+			ANSI_DPC_OFFSET + ANSI_MEMBER_OFFSET, ANSI_NCM_LENGTH,
+			dpc);
     proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_cluster,tvb,
-			ANSI_DPC_OFFSET, ANSI_PC_LENGTH, dpc);
+			ANSI_DPC_OFFSET + ANSI_CLUSTER_OFFSET, ANSI_NCM_LENGTH,
+			dpc);
     proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_network,tvb,
-			ANSI_DPC_OFFSET, ANSI_PC_LENGTH, dpc);
+			ANSI_DPC_OFFSET + ANSI_NETWORK_OFFSET, ANSI_NCM_LENGTH,
+			dpc);
 
     /* create the OPC tree */
     opc = tvb_get_ntoh24(tvb, ANSI_OPC_OFFSET);
-
-    label_opc_item = proto_tree_add_text(label_tree, tvb, ANSI_OPC_OFFSET,
-					 ANSI_PC_LENGTH, "OPC (%d-%d-%d)",
-					 (opc & ANSI_NETWORK_MASK),
+    snprintf(pc, sizeof(pc), "%d-%d-%d", (opc & ANSI_NETWORK_MASK),
 					 ((opc & ANSI_CLUSTER_MASK) >> 8),
 					 ((opc & ANSI_MEMBER_MASK) >> 16));
+    label_opc_item = proto_tree_add_string_format(label_tree, hf_mtp3_ansi_opc,
+						  tvb, ANSI_OPC_OFFSET,
+						  ANSI_PC_LENGTH, pc,
+						  "OPC (%s)", pc);
+
     label_opc_tree = proto_item_add_subtree(label_opc_item, ett_mtp3_label_opc);
 
     proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_member, tvb,
-			ANSI_OPC_OFFSET, ANSI_PC_LENGTH, opc);
+			ANSI_OPC_OFFSET + ANSI_MEMBER_OFFSET, ANSI_NCM_LENGTH,
+			opc);
     proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_cluster, tvb,
-			ANSI_OPC_OFFSET, ANSI_PC_LENGTH, opc);
+			ANSI_OPC_OFFSET + ANSI_CLUSTER_OFFSET, ANSI_NCM_LENGTH,
+			opc);
     proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_network,tvb,
-			ANSI_OPC_OFFSET, ANSI_PC_LENGTH, opc);
-
-    /* SLS */
-    if (mtp3_use_ansi_5_bit_sls)
-      proto_tree_add_item(label_tree, hf_mtp3_ansi_5_bit_sls, tvb,
-			  ANSI_SLS_OFFSET, ANSI_SLS_LENGTH, sls);
-    else
-      proto_tree_add_item(label_tree, hf_mtp3_ansi_8_bit_sls, tvb,
-			  ANSI_SLS_OFFSET, ANSI_SLS_LENGTH, sls);
+			ANSI_OPC_OFFSET + ANSI_NETWORK_OFFSET, ANSI_NCM_LENGTH,
+			opc);
     break;
   }
 }
@@ -291,21 +309,21 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (mtp3_standard) {
     case ITU_STANDARD:
       mtp3_item = proto_tree_add_item(tree, proto_mtp3, tvb, 0,
-				      ITU_HEADER_LENGTH, FALSE);
+				      ITU_HEADER_LENGTH, TRUE);
       break;
     case ANSI_STANDARD:
       mtp3_item = proto_tree_add_item(tree, proto_mtp3, tvb, 0,
-				      ANSI_HEADER_LENGTH, FALSE);
+				      ANSI_HEADER_LENGTH, TRUE);
       break;
     }
     mtp3_tree = proto_item_add_subtree(mtp3_item, ett_mtp3);
 
-    /* dissect the packet */
-    dissect_mtp3_sio(tvb, mtp3_tree);
-    dissect_mtp3_routing_label(tvb, mtp3_tree);
   }
 
-  /* Need to dissect payload even if !tree so can call sub-dissectors */
+  /* Dissect the packet (even if !tree so can call sub-dissectors) */
+  dissect_mtp3_sio(tvb, pinfo, mtp3_tree);
+  if (tree)
+    dissect_mtp3_routing_label(tvb, mtp3_tree);
   dissect_mtp3_payload(tvb, pinfo, tree);
 }
 
@@ -335,6 +353,10 @@ proto_register_mtp3(void)
       { "OPC", "mtp3.opc",
 	      FT_UINT32, BASE_DEC, NULL, ITU_OPC_MASK,
 	      "", HFILL }},
+    { &hf_mtp3_ansi_opc,
+      { "DPC", "mtp3.ansi_opc",
+	      FT_STRING, BASE_NONE, NULL, 0x0,
+	      "", HFILL }},
     { &hf_mtp3_opc_network,
      { "OPC Network", "mtp3.opc.network",
 	     FT_UINT24, BASE_DEC, NULL, ANSI_NETWORK_MASK,
@@ -350,6 +372,10 @@ proto_register_mtp3(void)
     { &hf_mtp3_itu_dpc,
       { "DPC", "mtp3.dpc",
 	      FT_UINT32, BASE_DEC, NULL, ITU_DPC_MASK,
+	      "", HFILL }},
+    { &hf_mtp3_ansi_dpc,
+      { "DPC", "mtp3.ansi_dpc",
+	      FT_STRING, BASE_NONE, NULL, 0x0,
 	      "", HFILL }},
     { &hf_mtp3_dpc_network,
       { "DPC Network", "mtp3.dpc.network",

@@ -6,7 +6,7 @@
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-sccpmg.c,v 1.1 2002/09/20 09:22:46 sahlberg Exp $
+ * $Id: packet-sccpmg.c,v 1.2 2003/01/02 20:44:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,7 +31,17 @@
 # include "config.h"
 #endif
 
-#include "epan/packet.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <glib.h>
+
+#ifdef NEED_SNPRINTF_H
+#include "snprintf.h"
+#endif
+
+#include <epan/packet.h>
 #include "packet-mtp3.h"
 
 #define SCCPMG_SSN 1
@@ -101,6 +111,7 @@ static int proto_sccpmg = -1;
 static int hf_sccpmg_message_type = -1;
 static int hf_sccpmg_affected_ssn = -1;
 static int hf_sccpmg_affected_pc = -1;
+static int hf_sccpmg_affected_ansi_pc = -1;
 static int hf_sccpmg_affected_pc_member = -1;
 static int hf_sccpmg_affected_pc_cluster = -1;
 static int hf_sccpmg_affected_pc_network = -1;
@@ -138,6 +149,7 @@ dissect_sccpmg_affected_pc(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 	proto_tree *pc_tree = 0;
 	guint32 dpc;
 	guint8 offset = SCCPMG_AFFECTED_PC_OFFSET;
+	char pc[ANSI_PC_STRING_LENGTH];
 
 	if (mtp3_standard == ITU_STANDARD) {
 		proto_tree_add_item(sccpmg_tree, hf_sccpmg_affected_pc, tvb,
@@ -145,11 +157,16 @@ dissect_sccpmg_affected_pc(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 	} else if (mtp3_standard == ANSI_STANDARD) {
 		/* create the DPC tree; modified from that in packet-sccp.c */
 		dpc = tvb_get_ntoh24(tvb, offset);
-		pc_item = proto_tree_add_text(sccpmg_tree, tvb, offset,
-					      ANSI_PC_LENGTH, "PC (%d-%d-%d)",
-					      (dpc & ANSI_NETWORK_MASK),
-					      ((dpc & ANSI_CLUSTER_MASK) >> 8),
-					      ((dpc & ANSI_MEMBER_MASK) >> 16));
+		snprintf(pc, sizeof(pc), "%d-%d-%d",
+			 (dpc & ANSI_NETWORK_MASK),
+			 ((dpc & ANSI_CLUSTER_MASK) >> 8),
+			 ((dpc & ANSI_MEMBER_MASK) >> 16));
+
+		pc_item = proto_tree_add_string_format(sccpmg_tree,
+						       hf_sccpmg_affected_ansi_pc,
+						       tvb, offset,
+						       ANSI_PC_LENGTH, pc,
+						       "PC (%s)", pc);
 
 		pc_tree = proto_item_add_subtree(pc_item,
 						 ett_sccpmg_affected_pc);
@@ -277,41 +294,40 @@ proto_register_sccpmg(void)
 	static hf_register_info hf[] = {
 	  { &hf_sccpmg_message_type,
 	    { "Message Type", "sccpmg.message_type",
-	    FT_UINT8, BASE_HEX, VALS(sccpmg_message_type_values), 0x0,
-	    "", HFILL}},
+	      FT_UINT8, BASE_HEX, VALS(sccpmg_message_type_values), 0x0,
+	      "", HFILL}},
 	  { &hf_sccpmg_affected_ssn,
 	    { "Affected SubSystem Number", "sccpmg.ssn",
-	    FT_UINT8, BASE_DEC, NULL, 0x0,
-	    "", HFILL}},
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
+	      "", HFILL}},
 	  { &hf_sccpmg_affected_pc,
 	    { "Affected Point Code", "sccpmg.pc",
-	    FT_UINT16, BASE_DEC, NULL, ITU_PC_MASK,
-	    "", HFILL}},
+	      FT_UINT16, BASE_DEC, NULL, ITU_PC_MASK,
+	      "", HFILL}},
+	  { &hf_sccpmg_affected_ansi_pc,
+	    { "Affected Point Code", "sccpmg.ansi_pc",
+	      FT_STRING, BASE_NONE, NULL, 0x0,
+	      "", HFILL}},
 	  { &hf_sccpmg_affected_pc_network,
-	    { "Affected PC Network",
-	    "sccpmg.network",
-	    FT_UINT24, BASE_DEC, NULL, ANSI_NETWORK_MASK,
-	    "", HFILL}},
+	    { "Affected PC Network", "sccpmg.network",
+	      FT_UINT24, BASE_DEC, NULL, ANSI_NETWORK_MASK,
+	      "", HFILL}},
 	  { &hf_sccpmg_affected_pc_cluster,
-	    { "Affected PC Cluster",
-	    "sccpmg.cluster",
-	    FT_UINT24, BASE_DEC, NULL, ANSI_CLUSTER_MASK,
-	    "", HFILL}},
+	    { "Affected PC Cluster", "sccpmg.cluster",
+	      FT_UINT24, BASE_DEC, NULL, ANSI_CLUSTER_MASK,
+	      "", HFILL}},
 	  { &hf_sccpmg_affected_pc_member,
-	    { "Affected PC Member",
-	    "sccpmg.member",
-	    FT_UINT24, BASE_DEC, NULL, ANSI_MEMBER_MASK,
-	    "", HFILL}},
+	    { "Affected PC Member", "sccpmg.member",
+	      FT_UINT24, BASE_DEC, NULL, ANSI_MEMBER_MASK,
+	      "", HFILL}},
 	  { &hf_sccpmg_smi,
-	    { "Subsystem Multiplicity Indicator",
-	    "sccpmg.smi",
-	    FT_UINT8, BASE_DEC, NULL, SCCPMG_SMI_MASK,
-	    "", HFILL}},
+	    { "Subsystem Multiplicity Indicator", "sccpmg.smi",
+	      FT_UINT8, BASE_DEC, NULL, SCCPMG_SMI_MASK,
+	      "", HFILL}},
 	  { &hf_sccpmg_congestion_level,
-	    { "SCCP Congestionl Level (ITU)",
-	    "sccpmg.congestion",
-	    FT_UINT8, BASE_DEC, NULL, ITU_SCCPMG_CONGESTION_MASK,
-	    "", HFILL}}
+	    { "SCCP Congestionl Level (ITU)", "sccpmg.congestion",
+	      FT_UINT8, BASE_DEC, NULL, ITU_SCCPMG_CONGESTION_MASK,
+	      "", HFILL}}
 	};
 
 	/* Setup protocol subtree array */

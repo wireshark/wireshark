@@ -1,6 +1,6 @@
 /* packet-mtp3.h
  *
- * $Id: packet-mtp3.h,v 1.1 2002/03/04 22:39:22 guy Exp $
+ * $Id: packet-mtp3.h,v 1.2 2003/01/02 20:44:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,10 @@ extern Standard_Type mtp3_standard;
 
 #define ANSI_PC_LENGTH    3
 #define ANSI_NCM_LENGTH   1
+#define ANSI_MEMBER_OFFSET 0
+#define ANSI_CLUSTER_OFFSET 1
+#define ANSI_NETWORK_OFFSET 2
 #define ANSI_NETWORK_MASK 0x0000FF
 #define ANSI_CLUSTER_MASK 0x00FF00
 #define ANSI_MEMBER_MASK  0xFF0000
+#define ANSI_PC_STRING_LENGTH 16

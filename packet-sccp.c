@@ -6,7 +6,7 @@
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-sccp.c,v 1.6 2002/08/02 23:36:00 jmayer Exp $
+ * $Id: packet-sccp.c,v 1.7 2003/01/02 20:44:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,10 +35,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <string.h>
 
-#include "epan/packet.h"
+#include <glib.h>
+
+#ifdef NEED_SNPRINTF_H
+#include "snprintf.h"
+#endif
+
+#include <epan/packet.h>
 #include "packet-mtp3.h"
 
 #define SCCP_SI 3
@@ -93,7 +98,7 @@ static const value_string sccp_message_type_values[] = {
   { MESSAGE_TYPE_LUDTS,  "Long Unitdata Service (ITU)" },
   { 0,                   NULL } };
 
-/* Same as above but in acronym for (for the Info column) */
+/* Same as above but in acronym form (for the Info column) */
 static const value_string sccp_message_type_acro_values[] = {
   { MESSAGE_TYPE_CR,     "CR" },
   { MESSAGE_TYPE_CC,     "CC" },
@@ -564,6 +569,7 @@ static int hf_sccp_called_ssn = -1;
 static int hf_sccp_called_pc_member = -1;
 static int hf_sccp_called_pc_cluster = -1;
 static int hf_sccp_called_pc_network = -1;
+static int hf_sccp_called_ansi_pc = -1;
 static int hf_sccp_called_itu_pc = -1;
 static int hf_sccp_called_gt_nai = -1;
 static int hf_sccp_called_gt_oe = -1;
@@ -585,6 +591,7 @@ static int hf_sccp_calling_ssn = -1;
 static int hf_sccp_calling_pc_member = -1;
 static int hf_sccp_calling_pc_cluster = -1;
 static int hf_sccp_calling_pc_network = -1;
+static int hf_sccp_calling_ansi_pc = -1;
 static int hf_sccp_calling_itu_pc = -1;
 static int hf_sccp_calling_gt_nai = -1;
 static int hf_sccp_calling_gt_oe = -1;
@@ -835,6 +842,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
   guint8 national = -1, routing_ind, gti, pci, ssni, ssn;
   guint32 dpc;
   tvbuff_t *gt_tvb;
+  char pc[ANSI_PC_STRING_LENGTH];
 
   call_item = proto_tree_add_text(tree, tvb, 0, length,
 				    "%s Party address (%u byte%s)",
@@ -963,12 +971,15 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
     if (pci) {
       /* create the DPC tree; modified from that in packet-mtp3.c */
       dpc = tvb_get_ntoh24(tvb, offset);
-      call_pc_item = proto_tree_add_text(call_tree, tvb, offset,
-					   ANSI_PC_LENGTH,
-					   "PC (%d-%d-%d)",
-					   (dpc & ANSI_NETWORK_MASK),
+      snprintf(pc, sizeof(pc), "%d-%d-%d", (dpc & ANSI_NETWORK_MASK),
 					   ((dpc & ANSI_CLUSTER_MASK) >> 8),
 					   ((dpc & ANSI_MEMBER_MASK) >> 16));
+
+      call_pc_item = proto_tree_add_string_format(call_tree,
+						  called ? hf_sccp_called_ansi_pc
+							 : hf_sccp_calling_ansi_pc,
+						  tvb, offset, ANSI_PC_LENGTH,
+						  pc, "PC (%s)", pc);
 
       call_pc_tree = proto_item_add_subtree(call_pc_item,
 					      called ? ett_sccp_called_pc
@@ -1925,6 +1936,10 @@ proto_register_sccp(void)
       { "PC", "sccp.called.pc",
 	FT_UINT16, BASE_DEC, NULL, ITU_PC_MASK,
 	"", HFILL}},
+    { &hf_sccp_called_ansi_pc,
+      { "PC", "sccp.called.ansi_pc",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"", HFILL}},
     { &hf_sccp_called_pc_network,
       { "PC Network",
 	"sccp.called.network",
@@ -2010,6 +2025,10 @@ proto_register_sccp(void)
     { &hf_sccp_calling_itu_pc,
       { "PC", "sccp.calling.pc",
 	FT_UINT16, BASE_DEC, NULL, ITU_PC_MASK,
+	"", HFILL}},
+    { &hf_sccp_calling_ansi_pc,
+      { "PC", "sccp.calling.ansi_pc",
+	FT_STRING, BASE_NONE, NULL, 0x0,
 	"", HFILL}},
     { &hf_sccp_calling_pc_network,
       { "PC Network",
