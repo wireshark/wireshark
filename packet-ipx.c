@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.8 1998/10/02 22:14:29 gram Exp $
+ * $Id: packet-ipx.c,v 1.9 1998/10/14 04:09:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -88,7 +88,7 @@ static struct port_info	ports[] = {
 	{ 0x0451, dissect_ncp,		"NCP" },
 	{ 0x0452, dissect_sap,		"SAP" },
 	{ 0x0453, dissect_ipxrip, 	"RIP" },
-	{ 0x0455, NULL,				"NetBIOS" },
+	{ 0x0455, dissect_nbipx,	"NetBIOS" },
 	{ 0x0456, NULL,				"Diagnostic" },
 	{ 0x0457, NULL,				"Serialization" },
 	{ 0x055d, NULL,				"Attachmate Gateway" },
@@ -134,7 +134,7 @@ ipx_packet_type(u_char val)
 		return "NCP";
 	}
 	else if (val == 20) {
-		return "NetBIOS";
+		return "NetBIOS Name Packet";
 	}
 	else if (val >= 16 && val <= 31) {
 		return "Experimental Protocol";
@@ -145,7 +145,7 @@ ipx_packet_type(u_char val)
 }
 
 gchar*
-network_to_string(const guint8 *ad)
+ipxnet_to_string(const guint8 *ad)
 {
 	static gchar	str[3][12];
 	static gchar	*cur;
@@ -173,8 +173,8 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	void		(*dissect) (const u_char *, int, frame_data *, GtkTree *);
 
 	/* Calculate here for use in win_info[] and in tree */
-	dnet = network_to_string((guint8*)&pd[offset+6]);
-	snet = network_to_string((guint8*)&pd[offset+18]);
+	dnet = ipxnet_to_string((guint8*)&pd[offset+6]);
+	snet = ipxnet_to_string((guint8*)&pd[offset+18]);
 	dsocket = pntohs(&pd[offset+16]);
 
 	if (fd->win_info[COL_NUM]) {
@@ -224,7 +224,7 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 			break;
 
 		case 20: /* NetBIOS */
-			dissect_data(pd, offset, fd, tree);
+			dissect_nbipx(pd, offset, fd, tree);
 			break;
 
 		case 0: /* IPX, fall through to default */
@@ -369,14 +369,14 @@ dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 			if (operation == IPX_RIP_REQUEST - 1) {
 				add_item_to_tree(rip_tree, cursor,      8,
 					"Route Vector: %s, %d hop%s, %d tick%s",
-					network_to_string((guint8*)&route.network),
+					ipxnet_to_string((guint8*)&route.network),
 					route.hops,  route.hops  == 1 ? "" : "s",
 					route.ticks, route.ticks == 1 ? "" : "s");
 			}
 			else {
 				add_item_to_tree(rip_tree, cursor,      8,
 					"Route Vector: %s, %d hop%s, %d tick%s (%d ms)",
-					network_to_string((guint8*)&route.network),
+					ipxnet_to_string((guint8*)&route.network),
 					route.hops,  route.hops  == 1 ? "" : "s",
 					route.ticks, route.ticks == 1 ? "" : "s",
 					route.ticks * 1000 / 18);
@@ -499,7 +499,7 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 				add_item_to_tree(s_tree, cursor, 2, "Server Type: %s (0x%04X)",
 						server_type(server.server_type), server.server_type);
 				add_item_to_tree(s_tree, cursor+50, 4, "Network: %s",
-						network_to_string((guint8*)&pd[cursor+50]));
+						ipxnet_to_string((guint8*)&pd[cursor+50]));
 				add_item_to_tree(s_tree, cursor+54, 6, "Node: %s",
 						ether_to_str((guint8*)&pd[cursor+54]));
 				add_item_to_tree(s_tree, cursor+60, 2, "Socket: %s (0x%04X)",

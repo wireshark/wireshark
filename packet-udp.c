@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.4 1998/09/27 22:12:40 gerald Exp $
+ * $Id: packet-udp.c,v 1.5 1998/10/14 04:09:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -88,6 +88,9 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       /* we should check the source port too (RIP: UDP src and dst port 520) */
       dissect_rip(pd, offset, fd, tree);
       break;
+	case UDP_PORT_NBNS:
+	  dissect_nbns(pd, offset, fd, tree);
+	  break;
     case UDP_PORT_IPX: /* RFC 1234 */
       dissect_ipx(pd, offset, fd, tree);
       break;

@@ -24,6 +24,8 @@ ethereal_SOURCES = \
 	packet-ip.c    \
 	packet-ipv6.c  \
 	packet-ipx.c   \
+	packet-nbipx.c \
+	packet-nbns.c  \
 	packet-ncp.c   \
 	packet-null.c  \
 	packet-osi.c   \
