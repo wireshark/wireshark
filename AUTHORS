@@ -143,6 +143,8 @@ Christophe Tronche <ch.tronche@computer.org> {
 Nathan Neulinger <nneul@umr.edu> {
 	Yahoo messenger and pager protocol support
 	NTP (Network Time Protocol) support
+	RX protocol support
+	Andrew File System protocol support
 }
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to

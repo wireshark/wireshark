@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.29 1999/10/15 18:33:44 guy Exp $
+ * $Id: packet-udp.c,v 1.30 1999/10/20 16:41:19 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -79,6 +79,9 @@ typedef struct _e_udphdr {
 #define UDP_PORT_RADACCT 1646
 #define UDP_PORT_RADACCT_NEW 1813
 #define UDP_PORT_ICP    3130
+#define UDP_PORT_RX_LOW 7000
+#define UDP_PORT_RX_HIGH 7009
+#define UDP_PORT_RX_AFS_BACKUPS 7021
 
 struct hash_struct {
   guint16 proto;
@@ -246,6 +249,10 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       dissect_ntp(pd, offset, fd, tree);
  else if (PORT_IS(UDP_PORT_IPX)) /* RFC 1234 */
       dissect_ipx(pd, offset, fd, tree);
+ else if ((uh_sport >= UDP_PORT_RX_LOW && uh_sport <= UDP_PORT_RX_HIGH) ||
+	(uh_dport >= UDP_PORT_RX_LOW && uh_dport <= UDP_PORT_RX_HIGH) ||
+	PORT_IS(UDP_PORT_RX_AFS_BACKUPS)) 
+      dissect_rx(pd, offset, fd, tree); /* transarc AFS's RX protocol */
 #if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
  else if (PORT_IS(UDP_PORT_SNMP))
       dissect_snmp(pd, offset, fd, tree);

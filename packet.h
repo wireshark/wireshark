@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.114 1999/10/18 00:37:35 itojun Exp $
+ * $Id: packet.h,v 1.115 1999/10/20 16:41:20 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -279,6 +279,14 @@ enum {
 	ETT_SNMP,
 	ETT_NBSS,
 	ETT_NBSS_FLAGS,
+	ETT_RX,
+	ETT_RX_FLAGS,
+	ETT_AFS,
+	ETT_AFS_OP,
+	ETT_AFS_FID,
+	ETT_AFS_ACL,
+	ETT_AFS_CALLBACK,
+	ETT_AFS_UBIKVER,
 	ETT_SMB,
 	ETT_SMB_FLAGS,
 	ETT_SMB_FLAGS2,
@@ -410,6 +418,7 @@ void       col_add_str(frame_data *, gint, const gchar *);
 void       col_append_str(frame_data *, gint, gchar *);
 
 
+void afs_init_protocol(void);
 void smb_init_protocol(void);
 
 void dissect_packet(const u_char *, frame_data *, proto_tree *);
@@ -467,6 +476,7 @@ typedef void	(*DissectFunc)	(const u_char*, int, frame_data*, proto_tree*);
  */
 int dissect_ah(const u_char *, int, frame_data *, proto_tree *);
 void dissect_aarp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_afs(const u_char *, int, frame_data *, proto_tree *);
 void dissect_arp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_bgp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_bootp(const u_char *, int, frame_data *, proto_tree *);
@@ -516,6 +526,7 @@ void dissect_rip(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ripng(const u_char *, int, frame_data *, proto_tree *);
 void dissect_rsvp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_rtsp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_rx(const u_char *, int, frame_data *, proto_tree *);
 void dissect_sdp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_sna(const u_char *, int, frame_data *, proto_tree *);
 void dissect_snmp(const u_char *, int, frame_data *, proto_tree *);
