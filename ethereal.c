@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.105 1999/08/24 17:26:10 gram Exp $
+ * $Id: ethereal.c,v 1.106 1999/08/25 03:22:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1475,7 +1475,7 @@ main(int argc, char *argv[])
      come up on top of the main window. */
   if (pf_path != NULL) {
       simple_dialog(ESD_TYPE_WARN, NULL,
-        "Can't open preferences file\n\"%s\": %s.", pf_path,
+        "Could not open preferences file\n\"%s\": %s.", pf_path,
         strerror(pf_open_errno));
   }
 

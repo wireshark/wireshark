@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.3 1999/08/24 23:00:56 gram Exp $
+ * $Id: colors.c,v 1.4 1999/08/25 03:22:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,6 +32,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+#include <errno.h>
+#include <sys/types.h>
 
 #include "ethereal.h"
 #include "packet.h"
@@ -116,16 +119,15 @@ colors_init(capture_file *cf)
 	color_filter(cf,i)->c_colorfilter = dfilter_new();
 	if(dfilter_compile((color_filter(cf,i)->c_colorfilter),
 	  default_colors[i].proto) != 0}{
-		simple_dialog(ESD_TYPE_WARN, NULL, "Cannot compile default filter %s.\n%s",
+		simple_dialog(ESD_TYPE_WARN, NULL,
+		  "Cannot compile default filter %s.\n%s",
 		  default_colors[i].proto, dfilter_error_msg);
 		/* should reject this filter */
 	}
 	cf->colors->num_of_filters++;
   }
 #endif
-  if(!read_filters(cf))
-    /* again, no window because it is not up, yet */
-	fprintf(stderr,"Cound not open filter file\n");
+  read_filters(cf);
 
   fprintf(stderr,"Colors initialized\n");
   fflush(stderr);
@@ -217,6 +219,11 @@ read_filters(capture_file *cf)
 	sprintf(path, "%s/%s", getenv("HOME"), fname);
 
 	if ((f = fopen(path, "r")) == NULL) {
+	  if (errno != ENOENT) {
+	    simple_dialog(ESD_TYPE_WARN, NULL,
+	      "Could not open filter file\n\"%s\": %s.", path,
+	      strerror(errno));
+	  }
 	  g_free(path);
 	  return FALSE;
 	}
@@ -296,8 +303,9 @@ write_filters(capture_file *cf)
 	sprintf(path, "%s/%s", getenv("HOME"), name);
 
 	if ((f = fopen(path, "w+")) == NULL) {
-	  simple_dialog(ESD_TYPE_WARN, NULL, "Could not open\n%s\nfor writing.",
-	  	path);
+	  simple_dialog(ESD_TYPE_WARN, NULL,
+		"Could not open\n%s\nfor writing: %s.",
+		path, strerror(errno));
 	  g_free(path);
 	  return FALSE;
 	}
@@ -469,7 +477,8 @@ color_save_cb                          (GtkButton       *button,
   capture_file *cf;
   cf = (capture_file *)user_data;
   if(!write_filters(cf))
-	simple_dialog(ESD_TYPE_WARN, NULL, "Could not open filter file!");
+	simple_dialog(ESD_TYPE_WARN, NULL, "Could not open filter file: %s",
+	    strerror(errno));
 
 }
 
