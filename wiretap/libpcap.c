@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.9 1999/08/18 17:08:47 guy Exp $
+ * $Id: libpcap.c,v 1.10 1999/08/19 05:31:37 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -70,7 +70,7 @@ struct pcaprec_hdr {
 	guint32	orig_len;	/* actual length of packet */
 };
 
-static int libpcap_read(wtap *wth);
+static int libpcap_read(wtap *wth, int *err);
 static int libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const u_char *pd, int *err);
 static int libpcap_dump_close(wtap_dumper *wdh, int *err);
@@ -99,8 +99,7 @@ static const int pcap_encap[] = {
 };
 #define NUM_PCAP_ENCAPS (sizeof pcap_encap / sizeof pcap_encap[0])
 
-/* Returns WTAP_FILE_PCAP on success, WTAP_FILE_UNKNOWN on failure */
-int libpcap_open(wtap *wth)
+int libpcap_open(wtap *wth, int *err)
 {
 	int bytes_read;
 	guint32 magic;
@@ -109,10 +108,14 @@ int libpcap_open(wtap *wth)
 
 	/* Read in the number that should be at the start of a "libpcap" file */
 	fseek(wth->fh, 0, SEEK_SET);
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(&magic, 1, sizeof magic, wth->fh);
-
 	if (bytes_read != sizeof magic) {
-		return WTAP_FILE_UNKNOWN;
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
+		return 0;
 	}
 
 	if (magic == PCAP_SWAPPED_MAGIC) {
@@ -121,13 +124,18 @@ int libpcap_open(wtap *wth)
 		byte_swapped = 1;
 	}
 	if (magic != PCAP_MAGIC) {
-		return WTAP_FILE_UNKNOWN;
+		return 0;
 	}
 
 	/* Read the rest of the header. */
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(&hdr, 1, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
-		return WTAP_FILE_UNKNOWN;
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
+		return 0;
 	}
 
 	if (byte_swapped) {
@@ -139,14 +147,19 @@ int libpcap_open(wtap *wth)
 	}
 	if (hdr.version_major < 2) {
 		/* We only support version 2.0 and later. */
-		return WTAP_FILE_UNKNOWN;
+		g_message("pcap: major version %d unsupported",
+		    hdr.version_major);
+		*err = WTAP_ERR_UNSUPPORTED;
+		return -1;
 	}
 	if (hdr.network >= NUM_PCAP_ENCAPS) {
-		g_error("pcap: network type %d unknown", hdr.network);
-		return WTAP_FILE_UNKNOWN;
+		g_message("pcap: network type %d unknown", hdr.network);
+		*err = WTAP_ERR_UNSUPPORTED;
+		return -1;
 	}
 
 	/* This is a libpcap file */
+	wth->file_type = WTAP_FILE_PCAP;
 	wth->capture.pcap = g_malloc(sizeof(libpcap_t));
 	wth->capture.pcap->byte_swapped = byte_swapped;
 	wth->capture.pcap->version_major = hdr.version_major;
@@ -154,12 +167,11 @@ int libpcap_open(wtap *wth)
 	wth->subtype_read = libpcap_read;
 	wth->file_encap = pcap_encap[hdr.network];
 	wth->snapshot_length = hdr.snaplen;
-
-	return WTAP_FILE_PCAP;
+	return 1;
 }
 
 /* Read the next packet */
-static int libpcap_read(wtap *wth)
+static int libpcap_read(wtap *wth, int *err)
 {
 	int	packet_size;
 	int	bytes_read;
@@ -167,11 +179,15 @@ static int libpcap_read(wtap *wth)
 	int	data_offset;
 
 	/* Read record header. */
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(&hdr, 1, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
 		if (bytes_read != 0) {
-			g_error("pcap_read: not enough packet header data (%d bytes)",
-					bytes_read);
+			*err = WTAP_ERR_SHORT_READ;
 			return -1;
 		}
 		return 0;
@@ -207,16 +223,15 @@ static int libpcap_read(wtap *wth)
 	packet_size = hdr.incl_len;
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	data_offset = ftell(wth->fh);
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 			packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
-		if (ferror(wth->fh)) {
-			g_error("pcap_read: fread for data: read error\n");
-		} else {
-			g_error("pcap_read: fread for data: %d bytes out of %d",
-				bytes_read, packet_size);
-		}
+		if (ferror(wth->fh))
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
 

@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.5 1999/07/28 01:35:34 gerald Exp $
+ * $Id: iptrace.c,v 1.6 1999/08/19 05:31:37 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -24,34 +24,42 @@
 #include "config.h"
 #endif
 #include <stdlib.h>
+#include <errno.h>
 #include <time.h>
 #include <string.h>
 #include "wtap.h"
 #include "buffer.h"
 #include "iptrace.h"
 
-int iptrace_open(wtap *wth)
+static int iptrace_read(wtap *wth, int *err);
+
+int iptrace_open(wtap *wth, int *err)
 {
 	int bytes_read;
 	char name[12];
 
 	fseek(wth->fh, 0, SEEK_SET);
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(name, 1, 11, wth->fh);
-
 	if (bytes_read != 11) {
-		return WTAP_FILE_UNKNOWN;
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
+		return 0;
 	}
 	name[11] = 0;
 	if (strcmp(name, "iptrace 2.0") != 0) {
-		return WTAP_FILE_UNKNOWN;
+		return 0;
 	}
-	wth->subtype_read = iptrace_read;
 
-	return WTAP_FILE_IPTRACE;
+	wth->file_type = WTAP_FILE_IPTRACE;
+	wth->subtype_read = iptrace_read;
+	return 1;
 }
 
 /* Read the next packet */
-int iptrace_read(wtap *wth)
+static int iptrace_read(wtap *wth, int *err)
 {
 	int bytes_read;
 	int data_offset;
@@ -60,8 +68,13 @@ int iptrace_read(wtap *wth)
 	char if_name1, if_name2;
 
 	/* Read the descriptor data */
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(header, 1, 40, wth->fh);
 	if (bytes_read != 40) {
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
 		/* because of the way we have to kill the iptrace command,
 		 * the existence of a partial header or packet is probable,
 		 * and we should not complain about it. Simply return
@@ -76,6 +89,7 @@ int iptrace_read(wtap *wth)
 	/* Read the packet data */
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	data_offset = ftell(wth->fh);
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 		packet_size, wth->fh);
 
@@ -84,10 +98,15 @@ int iptrace_read(wtap *wth)
 		 * pretend that we reached the end of the file
 		 * normally. If, however, there was a read error
 		 * because of some other reason, complain
+		 *
+		 * XXX - this was returning -1 even on a partial
+		 * packet; should we return 0 on a partial packet,
+		 * so that "wtap_loop()" quits and reports success?
 		 */
-		if (ferror(wth->fh)) {
-			g_print("iptrace_read: fread for data: read error\n");
-		}
+		if (ferror(wth->fh))
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
 

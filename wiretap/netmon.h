@@ -1,6 +1,6 @@
 /* netmon.h
  *
- * $Id: netmon.h,v 1.1 1999/01/18 21:34:54 gram Exp $
+ * $Id: netmon.h,v 1.2 1999/08/19 05:31:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -21,5 +21,4 @@
  *
  */
 
-int netmon_open(wtap *wth);
-int netmon_read(wtap *wth);
+int netmon_open(wtap *wth, int *err);

@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.9 1999/08/18 04:17:37 guy Exp $
+ * $Id: netxray.c,v 1.10 1999/08/19 05:31:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -25,6 +25,7 @@
 #endif
 
 #include <stdlib.h>
+#include <errno.h>
 #include <time.h>
 #include "wtap.h"
 #include "netxray.h"
@@ -86,8 +87,9 @@ struct netxrayrec_2_x_hdr {
 	guint32	xxx[7];		/* unknown */
 };
 
-/* Returns WTAP_FILE_NETXRAY on success, WTAP_FILE_UNKNOWN on failure */
-int netxray_open(wtap *wth)
+static int netxray_read(wtap *wth, int *err);
+
+int netxray_open(wtap *wth, int *err)
 {
 	int bytes_read;
 	char magic[sizeof netxray_magic];
@@ -114,20 +116,29 @@ int netxray_open(wtap *wth)
 	/* Read in the string that should be at the start of a NetXRay
 	 * file */
 	fseek(wth->fh, 0, SEEK_SET);
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(magic, 1, sizeof magic, wth->fh);
-
 	if (bytes_read != sizeof magic) {
-		return WTAP_FILE_UNKNOWN;
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
+		return 0;
 	}
 
 	if (memcmp(magic, netxray_magic, sizeof netxray_magic) != 0) {
-		return WTAP_FILE_UNKNOWN;
+		return 0;
 	}
 
 	/* Read the rest of the header. */
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(&hdr, 1, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
-		return WTAP_FILE_UNKNOWN;
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
+		return 0;
 	}
 
 	/* It appears that version 1.1 files (as produced by Windows
@@ -150,16 +161,20 @@ int netxray_open(wtap *wth)
 		version_major = 2;
 		file_type = WTAP_FILE_NETXRAY_2_001;
 	} else {
-		return WTAP_FILE_UNKNOWN;
+		g_message("netxray: version \"%.8s\" unsupported", hdr.version);
+		*err = WTAP_ERR_UNSUPPORTED;
+		return -1;
 	}
 
 	hdr.network = pletohs(&hdr.network);
 	if (hdr.network >= NUM_NETXRAY_ENCAPS) {
-		g_error("netxray: network type %d unknown", hdr.network);
-		return WTAP_FILE_UNKNOWN;
+		g_message("netxray: network type %d unknown", hdr.network);
+		*err = WTAP_ERR_UNSUPPORTED;
+		return -1;
 	}
 
 	/* This is a netxray file */
+	wth->file_type = file_type;
 	wth->capture.netxray = g_malloc(sizeof(netxray_t));
 	wth->subtype_read = netxray_read;
 	wth->file_encap = netxray_encap[hdr.network];
@@ -183,11 +198,11 @@ int netxray_open(wtap *wth)
 	/* Seek to the beginning of the data records. */
 	fseek(wth->fh, pletohl(&hdr.start_offset), SEEK_SET);
 
-	return file_type;
+	return 1;
 }
 
 /* Read the next packet */
-int netxray_read(wtap *wth)
+static int netxray_read(wtap *wth, int *err)
 {
 	int	packet_size;
 	int	bytes_read;
@@ -217,11 +232,15 @@ reread:
 		hdr_size = sizeof (struct netxrayrec_2_x_hdr);
 		break;
 	}
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(&hdr, 1, hdr_size, wth->fh);
 	if (bytes_read != hdr_size) {
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
 		if (bytes_read != 0) {
-			g_error("netxray_read: not enough packet header data (%d bytes)",
-					bytes_read);
+			*err = WTAP_ERR_SHORT_READ;
 			return -1;
 		}
 
@@ -240,16 +259,15 @@ reread:
 
 	packet_size = pletohs(&hdr.hdr_1_x.incl_len);
 	buffer_assure_space(wth->frame_buffer, packet_size);
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 			packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
-		if (ferror(wth->fh)) {
-			g_error("netxray_read: fread for data: read error\n");
-		} else {
-			g_error("netxray_read: fread for data: %d bytes out of %d",
-				bytes_read, packet_size);
-		}
+		if (ferror(wth->fh))
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
 

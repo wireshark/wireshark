@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.5 1999/07/13 02:53:26 gram Exp $
+ * $Id: snoop.c,v 1.6 1999/08/19 05:31:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -23,6 +23,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <errno.h>
 #include "wtap.h"
 #include "buffer.h"
 #include "snoop.h"
@@ -53,8 +54,9 @@ struct snooprec_hdr {
 	guint32	ts_usec;	/* timestamp microseconds */
 };
 
-/* Returns WTAP_FILE_SNOOP on success, WTAP_FILE_UNKNOWN on failure */
-int snoop_open(wtap *wth)
+static int snoop_read(wtap *wth, int *err);
+
+int snoop_open(wtap *wth, int *err)
 {
 	int bytes_read;
 	char magic[sizeof snoop_magic];
@@ -75,43 +77,55 @@ int snoop_open(wtap *wth)
 
 	/* Read in the string that should be at the start of a "snoop" file */
 	fseek(wth->fh, 0, SEEK_SET);
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(magic, 1, sizeof magic, wth->fh);
-
 	if (bytes_read != sizeof magic) {
-		return WTAP_FILE_UNKNOWN;
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
+		return 0;
 	}
 
 	if (memcmp(magic, snoop_magic, sizeof snoop_magic) != 0) {
-		return WTAP_FILE_UNKNOWN;
+		return 0;
 	}
 
 	/* Read the rest of the header. */
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(&hdr, 1, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
-		return WTAP_FILE_UNKNOWN;
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
+		return 0;
 	}
 
 	hdr.version = ntohl(hdr.version);
 	if (hdr.version != 2) {
 		/* We only support version 2. */
-		return WTAP_FILE_UNKNOWN;
+		g_message("snoop: version %d unsupported", hdr.version);
+		*err = WTAP_ERR_UNSUPPORTED;
+		return -1;
 	}
 	hdr.network = ntohl(hdr.network);
 	if (hdr.network >= NUM_SNOOP_ENCAPS) {
-		g_error("snoop: network type %d unknown", hdr.network);
-		return WTAP_FILE_UNKNOWN;
+		g_message("snoop: network type %d unknown", hdr.network);
+		*err = WTAP_ERR_UNSUPPORTED;
+		return -1;
 	}
 
 	/* This is a snoop file */
+	wth->file_type = WTAP_FILE_SNOOP;
 	wth->subtype_read = snoop_read;
 	wth->file_encap = snoop_encap[hdr.network];
 	wth->snapshot_length = 16384;	/* XXX - not available in header */
-
-	return WTAP_FILE_SNOOP;
+	return 1;
 }
 
 /* Read the next packet */
-int snoop_read(wtap *wth)
+static int snoop_read(wtap *wth, int *err)
 {
 	int	packet_size;
 	int	bytes_read;
@@ -119,11 +133,15 @@ int snoop_read(wtap *wth)
 	int	data_offset;
 
 	/* Read record header. */
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(&hdr, 1, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
 		if (bytes_read != 0) {
-			g_error("snoop_read: not enough packet header data (%d bytes)",
-					bytes_read);
+			*err = WTAP_ERR_SHORT_READ;
 			return -1;
 		}
 		return 0;
@@ -132,16 +150,15 @@ int snoop_read(wtap *wth)
 	packet_size = ntohl(hdr.incl_len);
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	data_offset = ftell(wth->fh);
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 			packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
-		if (ferror(wth->fh)) {
-			g_error("snoop_read: fread for data: read error\n");
-		} else {
-			g_error("snoop_read: fread for data: %d bytes out of %d",
-				bytes_read, packet_size);
-		}
+		if (ferror(wth->fh))
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
 

@@ -1,6 +1,6 @@
 /* iptrace.h
  *
- * $Id: iptrace.h,v 1.1 1999/01/03 04:30:13 gram Exp $
+ * $Id: iptrace.h,v 1.2 1999/08/19 05:31:38 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -36,5 +36,4 @@ struct iptrace_pkt_hdr {
 #endif
 
 
-int iptrace_open(wtap *wth);
-int iptrace_read(wtap *wth);
+int iptrace_open(wtap *wth, int *err);

@@ -1,6 +1,6 @@
 /* netxray.h
  *
- * $Id: netxray.h,v 1.1 1999/02/20 06:49:27 guy Exp $
+ * $Id: netxray.h,v 1.2 1999/08/19 05:31:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -21,5 +21,4 @@
  *
  */
 
-int netxray_open(wtap *wth);
-int netxray_read(wtap *wth);
+int netxray_open(wtap *wth, int *err);

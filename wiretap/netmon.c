@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.9 1999/08/18 04:17:38 guy Exp $
+ * $Id: netmon.c,v 1.10 1999/08/19 05:31:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -23,6 +23,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <errno.h>
 #include <time.h>
 #include "wtap.h"
 #include "buffer.h"
@@ -89,8 +90,9 @@ struct netmonrec_2_x_hdr {
 	guint32	incl_len;	/* number of octets captured in file */
 };
 
-/* Returns WTAP_FILE_NETMON on success, WTAP_FILE_UNKNOWN on failure */
-int netmon_open(wtap *wth)
+static int netmon_read(wtap *wth, int *err);
+
+int netmon_open(wtap *wth, int *err)
 {
 	int bytes_read;
 	char magic[sizeof netmon_1_x_magic];
@@ -116,21 +118,30 @@ int netmon_open(wtap *wth)
 	/* Read in the string that should be at the start of a Network
 	 * Monitor file */
 	fseek(wth->fh, 0, SEEK_SET);
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(magic, 1, sizeof magic, wth->fh);
-
 	if (bytes_read != sizeof magic) {
-		return WTAP_FILE_UNKNOWN;
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
+		return 0;
 	}
 
 	if (memcmp(magic, netmon_1_x_magic, sizeof netmon_1_x_magic) != 0
 	 && memcmp(magic, netmon_2_x_magic, sizeof netmon_1_x_magic) != 0) {
-		return WTAP_FILE_UNKNOWN;
+		return 0;
 	}
 
 	/* Read the rest of the header. */
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(&hdr, 1, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
-		return WTAP_FILE_UNKNOWN;
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
+		return 0;
 	}
 
 	switch (hdr.ver_major) {
@@ -144,16 +155,20 @@ int netmon_open(wtap *wth)
 		break;
 
 	default:
-		return WTAP_FILE_UNKNOWN;
+		g_message("netmon: major version %d unsupported", hdr.ver_major);
+		*err = WTAP_ERR_UNSUPPORTED;
+		return -1;
 	}
 
 	hdr.network = pletohs(&hdr.network);
 	if (hdr.network >= NUM_NETMON_ENCAPS) {
-		g_error("netmon: network type %d unknown", hdr.network);
-		return WTAP_FILE_UNKNOWN;
+		g_message("netmon: network type %d unknown", hdr.network);
+		*err = WTAP_ERR_UNSUPPORTED;
+		return -1;
 	}
 
 	/* This is a netmon file */
+	wth->file_type = file_type;
 	wth->capture.netmon = g_malloc(sizeof(netmon_t));
 	wth->subtype_read = netmon_read;
 	wth->file_encap = netmon_encap[hdr.network];
@@ -198,11 +213,11 @@ int netmon_open(wtap *wth)
 	/* Seek to the beginning of the data records. */
 	fseek(wth->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET);
 
-	return file_type;
+	return 1;
 }
 
 /* Read the next packet */
-int netmon_read(wtap *wth)
+static int netmon_read(wtap *wth, int *err)
 {
 	int	packet_size = 0;
 	int	bytes_read;
@@ -234,11 +249,15 @@ int netmon_read(wtap *wth)
 		hdr_size = sizeof (struct netmonrec_2_x_hdr);
 		break;
 	}
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(&hdr, 1, hdr_size, wth->fh);
 	if (bytes_read != hdr_size) {
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
 		if (bytes_read != 0) {
-			g_error("netmon_read: not enough packet header data (%d bytes)",
-					bytes_read);
+			*err = WTAP_ERR_SHORT_READ;
 			return -1;
 		}
 		return 0;
@@ -256,16 +275,15 @@ int netmon_read(wtap *wth)
 		break;
 	}
 	buffer_assure_space(wth->frame_buffer, packet_size);
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 			packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
-		if (ferror(wth->fh)) {
-			g_error("netmon_read: fread for data: read error\n");
-		} else {
-			g_error("netmon_read: fread for data: %d bytes out of %d",
-				bytes_read, packet_size);
-		}
+		if (ferror(wth->fh))
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
 

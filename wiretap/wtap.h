@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.26 1999/08/18 17:08:47 guy Exp $
+ * $Id: wtap.h,v 1.27 1999/08/19 05:31:38 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -153,7 +153,7 @@ struct wtap;
 struct bpf_instruction;
 struct Buffer;
 
-typedef int (*subtype_func)(struct wtap*);
+typedef int (*subtype_read_func)(struct wtap*, int*);
 typedef struct wtap {
 	FILE*			fh;
 	int			file_type;
@@ -170,7 +170,7 @@ typedef struct wtap {
 		netxray_t		*netxray;
 	} capture;
 
-	subtype_func		subtype_read;
+	subtype_read_func	subtype_read;
 	int			file_encap;	/* per-file, for those
 						   file formats that have
 						   per-file encapsulation
@@ -201,7 +201,7 @@ typedef struct wtap_dumper {
  * a negative number, indicating the type of error, on other failures.
  */
 wtap* wtap_open_offline(const char *filename, int *err);
-void wtap_loop(wtap *wth, int, wtap_handler, u_char*);
+int wtap_loop(wtap *wth, int, wtap_handler, u_char*, int*);
 
 FILE* wtap_file(wtap *wth);
 int wtap_snapshot_length(wtap *wth); /* per file */
@@ -228,15 +228,24 @@ int wtap_pcap_encap_to_wtap_encap(int encap);
 	/* The file being opened for reading isn't a plain file */
 #define	WTAP_ERR_FILE_UNKNOWN_FORMAT		-2
 	/* The file being opened is not a capture file in a known format */
-#define	WTAP_ERR_CANT_OPEN			-3
+#define	WTAP_ERR_UNSUPPORTED			-3
+	/* Supported file type, but there's something in the file we
+	   can't support */
+#define	WTAP_ERR_CANT_OPEN			-4
 	/* The file couldn't be opened, reason unknown */
-#define	WTAP_ERR_UNSUPPORTED_FILE_TYPE		-4
+#define	WTAP_ERR_UNSUPPORTED_FILE_TYPE		-5
 	/* Wiretap can't save files in the specified format */
-#define	WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED	-5
+#define	WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED	-6
 	/* The specified format doesn't support per-packet encapsulations */
-#define	WTAP_ERR_CANT_CLOSE			-6
+#define	WTAP_ERR_CANT_CLOSE			-7
 	/* The file couldn't be closed, reason unknown */
-#define	WTAP_ERR_SHORT_WRITE			-7
+#define	WTAP_ERR_CANT_READ			-8
+	/* An attempt to read failed, reason unknown */
+#define	WTAP_ERR_SHORT_READ			-9
+	/* An attempt to read read less data than it should have */
+#define	WTAP_ERR_BAD_RECORD			-10
+	/* We read an invalid record */
+#define	WTAP_ERR_SHORT_WRITE			-11
 	/* An attempt to write wrote less data than it should have */
 
 /* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a

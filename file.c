@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.74 1999/08/15 23:40:33 gram Exp $
+ * $Id: file.c,v 1.75 1999/08/19 05:31:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -192,11 +192,13 @@ int
 read_cap_file(capture_file *cf) {
   gchar  *name_ptr, *load_msg, *load_fmt = " Loading: %s...";
   gchar  *done_fmt = " File: %s  Drops: %d";
-#if 0
-  gchar  *err_fmt  = " Error: Could not load '%s'";
-#endif
+  int     success;
+  int     err;
   gint    timeout;
   size_t  msg_len;
+  char   *errmsg;
+  char    errmsg_errno[1024+1];
+  gchar   err_str[PCAP_ERRBUF_SIZE];
 
   if ((name_ptr = (gchar *) strrchr(cf->filename, '/')) == NULL)
     name_ptr = cf->filename;
@@ -210,7 +212,7 @@ read_cap_file(capture_file *cf) {
   timeout = gtk_timeout_add(250, file_progress_cb, (gpointer) cf);
 
   freeze_clist(cf);
-  wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);
+  success = wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf, &err);
   wtap_close(cf->wth);
   cf->wth = NULL;
   cf->fh = fopen(cf->filename, "r");
@@ -238,19 +240,39 @@ read_cap_file(capture_file *cf) {
   set_menu_sensitivity("/File/Print...", TRUE);
   set_menu_sensitivity("/Display/Options...", TRUE);
   set_menu_sensitivity("/Tools/Summary", TRUE);
-  return 0;
 
-#if 0
-  /* XXX - need to check whether the read succeeded. */
-fail:
-  msg_len = strlen(name_ptr) + strlen(err_fmt) + 2;
-  load_msg = g_malloc(msg_len);
-  snprintf(load_msg, msg_len, err_fmt, name_ptr);
-  gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
-  g_free(load_msg);
-  close_cap_file(cf);	/* Close the capture file. */
-  return -1;
-#endif
+  if (!success) {
+    /* Put up a message box noting that the read failed somewhere along
+       the line.  Don't throw out the stuff we managed to read, though,
+       if any. */
+    switch (err) {
+
+    case WTAP_ERR_CANT_READ:
+      errmsg = "An attempt to read from the file failed for"
+               " some unknown reason.";
+      break;
+
+    case WTAP_ERR_SHORT_READ:
+      errmsg = "The capture file appears to have been cut short"
+               " in the middle of a packet.";
+      break;
+
+    default:
+      if (err < 0) {
+        sprintf(errmsg_errno, "An error occurred while reading the"
+                              " capture file: Error %d.", err);
+      } else {
+        sprintf(errmsg_errno, "An error occurred while reading the"
+                              " capture file: %s.", strerror(err));
+      }
+      errmsg = errmsg_errno;
+      break;
+    }
+    snprintf(err_str, PCAP_ERRBUF_SIZE, errmsg);
+    simple_dialog(ESD_TYPE_WARN, NULL, err_str);
+    return (err);
+  } else
+    return (0);
 }
 
 #ifdef HAVE_LIBPCAP
@@ -262,6 +284,7 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
   int  nread;
   int  to_read = 0;
   gboolean exit_loop = FALSE;
+  int  err;
 
   /* avoid reentrancy problems and stack overflow */
   gtk_input_remove(cap_input_id);
@@ -273,7 +296,8 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
        and stop capture (restore menu items) */
     gtk_clist_freeze(GTK_CLIST(packet_list));
 
-    wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);      
+    /* XXX - do something if this fails? */
+    wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf, &err);
 
     thaw_clist(cf);
 
@@ -313,7 +337,8 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
   }
 
   gtk_clist_freeze(GTK_CLIST(packet_list));
-  wtap_loop(cf->wth, to_read, wtap_dispatch_cb, (u_char *) cf);      
+  /* XXX - do something if this fails? */
+  wtap_loop(cf->wth, to_read, wtap_dispatch_cb, (u_char *) cf, &err);
   gtk_clist_thaw(GTK_CLIST(packet_list));
 
   /* restore pipe handler */
@@ -993,7 +1018,21 @@ file_open_error_message(int err, int for_writing)
     break;
 
   case WTAP_ERR_FILE_UNKNOWN_FORMAT:
+  case WTAP_ERR_UNSUPPORTED:
+  case WTAP_ERR_BAD_RECORD:
     errmsg = "The file \"%s\" is not a capture file in a format Ethereal understands.";
+    break;
+
+  case WTAP_ERR_CANT_OPEN:
+    if (for_writing)
+      errmsg = "The file \"%s\" could not be created for some unknown reason.";
+    else
+      errmsg = "The file \"%s\" could not be opened for some unknown reason.";
+    break;
+
+  case WTAP_ERR_SHORT_READ:
+    errmsg = "The file \"%s\" appears to have been cut short"
+             " in the middle of a packet.";
     break;
 
   case ENOENT:

@@ -1,6 +1,6 @@
 /* lanalyzer.h
  *
- * $Id: lanalyzer.h,v 1.1 1998/11/12 06:01:23 gram Exp $
+ * $Id: lanalyzer.h,v 1.2 1999/08/19 05:31:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -21,7 +21,4 @@
  *
  */
 
-
-
-int lanalyzer_open(wtap *wth);
-int lanalyzer_read(wtap *wth);
+int lanalyzer_open(wtap *wth, int *err);

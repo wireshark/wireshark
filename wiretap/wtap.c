@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.14 1999/08/18 04:17:37 guy Exp $
+ * $Id: wtap.c,v 1.15 1999/08/19 05:31:33 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -127,13 +127,19 @@ void wtap_close(wtap *wth)
 	fclose(wth->fh);
 }
 
-void wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user)
+int wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user,
+	int *err)
 {
 	int data_offset, loop = 0;
 
-	while ((data_offset = wth->subtype_read(wth)) > 0) {
+	while ((data_offset = wth->subtype_read(wth, err)) > 0) {
 		callback(user, &wth->phdr, data_offset,
 		    buffer_start_ptr(wth->frame_buffer));
-		if (count > 0 && ++loop >= count) break;
+		if (count > 0 && ++loop >= count)
+			break;
 	}
+	if (data_offset < 0)
+		return FALSE;	/* failure */
+	else
+		return TRUE;	/* success */
 }

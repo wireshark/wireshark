@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.14 1999/08/02 02:04:37 guy Exp $
+ * $Id: ngsniffer.c,v 1.15 1999/08/19 05:31:33 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -60,6 +60,7 @@
 #endif
 
 #include <stdlib.h>
+#include <errno.h>
 #include <time.h>
 #include "wtap.h"
 #include "buffer.h"
@@ -259,11 +260,12 @@ static int sniffer_encap[] = {
 		WTAP_ENCAP_NONE		/* ATM */
 };
 
-static int get_atm_linktype(wtap *wth);
+static int ngsniffer_read(wtap *wth, int *err);
+
+static int get_atm_linktype(wtap *wth, int *err);
 static int linktype_for_packet(u_int app_traf_type, u_int app_hl_type);
 
-/* Returns WTAP_FILE_NGSNIFFER on success, WTAP_FILE_UNKNOWN on failure */
-int ngsniffer_open(wtap *wth)
+int ngsniffer_open(wtap *wth, int *err)
 {
 	int bytes_read;
 	char magic[18];
@@ -278,32 +280,35 @@ int ngsniffer_open(wtap *wth)
 
 	/* Read in the string that should be at the start of a Sniffer file */
 	fseek(wth->fh, 0, SEEK_SET);
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(magic, 1, 17, wth->fh);
-
 	if (bytes_read != 17) {
-		return WTAP_FILE_UNKNOWN;
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
+		return 0;
 	}
 
 	magic[17] = 0;
 
 	if (strcmp(magic, "TRSNIFF data    \x1a")) {
-		return WTAP_FILE_UNKNOWN;
+		return 0;
 	}
-
-	/* This is a ngsniffer file */
-	wth->capture.ngsniffer = g_malloc(sizeof(ngsniffer_t));
-	wth->subtype_read = ngsniffer_read;
-	wth->snapshot_length = 16384;	/* not available in header, only in frame */
 
 	/*
 	 * Read the first record, which the manual says is a version
 	 * record.
 	 */
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(record_type, 1, 2, wth->fh);
 	bytes_read += fread(record_length, 1, 4, wth->fh);
 	if (bytes_read != 6) {
-		free(wth->capture.ngsniffer);
-		return WTAP_FILE_UNKNOWN;
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
+		return 0;
 	}
 
 	type = pletohs(record_type);
@@ -311,38 +316,48 @@ int ngsniffer_open(wtap *wth)
 
 	if (type != REC_VERS) {
 		g_message("ngsniffer: Sniffer file doesn't start with a version record");
-		free(wth->capture.ngsniffer);
-		return WTAP_FILE_UNKNOWN;
+		*err = WTAP_ERR_BAD_RECORD;
+		return -1;
 	}
 
-	fread(&version, 1, sizeof version, wth->fh);
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = fread(&version, 1, sizeof version, wth->fh);
+	if (bytes_read != sizeof version) {
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
+		return 0;
+	}
 
 	/* Make sure this is an uncompressed Sniffer file */
 	if (version.format != 1) {
 		g_message("ngsniffer: Compressed Sniffer files are not supported");
-		free(wth->capture.ngsniffer);
-		return WTAP_FILE_UNKNOWN;
+		*err = WTAP_ERR_UNSUPPORTED;
+		return -1;
 	}
 
-	/* Get data link type */
+	/* Check the data link type */
 	if (version.network >= NUM_NGSNIFF_ENCAPS) {
 		g_message("ngsniffer: network type %d unknown", version.network);
-		free(wth->capture.ngsniffer);
-		return WTAP_FILE_UNKNOWN;
-	}
-	else {
-		wth->file_encap = sniffer_encap[version.network];
+		*err = WTAP_ERR_UNSUPPORTED;
+		return -1;
 	}
 
-	/* Get time unit */
+	/* Check the time unit */
 	if (version.timeunit >= NUM_NGSNIFF_TIMEUNITS) {
 		g_message("ngsniffer: Unknown timeunit %d", version.timeunit);
-		free(wth->capture.ngsniffer);
-		return WTAP_FILE_UNKNOWN;
+		*err = WTAP_ERR_UNSUPPORTED;
+		return -1;
 	}
-	else {
-		wth->capture.ngsniffer->timeunit = Usec[version.timeunit];
-	}
+
+	/* This is a ngsniffer file */
+	wth->file_type = WTAP_FILE_NGSNIFFER;
+	wth->capture.ngsniffer = g_malloc(sizeof(ngsniffer_t));
+	wth->subtype_read = ngsniffer_read;
+	wth->snapshot_length = 16384;	/* not available in header, only in frame */
+	wth->capture.ngsniffer->timeunit = Usec[version.timeunit];
+	wth->file_encap = sniffer_encap[version.network];
 
 	/* Get capture start time */
 	start_time = pletohs(&version.time);
@@ -405,23 +420,28 @@ int ngsniffer_open(wtap *wth)
 		 * to cope with raw cells or other types of frames
 		 * anyway; the only place you lose is with FORE
 		 * SPANS.
+		 *
+		 * XXX - eventually add a "Sniffer ATM encapsulation"
+		 * that returns the full data, including the ATM
+		 * pseudo-header.
 		 */
-		wth->file_encap = get_atm_linktype(wth);
+		*err = WTAP_ERR_UNSUPPORTED;
+		wth->file_encap = get_atm_linktype(wth, err);
 		if (wth->file_encap == -1) {
 			/*
 			 * Oops, we couldn't find a link type we can
 			 * handle.
 			 */
-			g_message("ngsniffer: no LANE or RFC 1483 LLC-multiplexed frames found");
 			free(wth->capture.ngsniffer);
-			return WTAP_FILE_UNKNOWN;
+			g_message("ngsniffer: no LANE or RFC 1483 LLC-multiplexed frames found");
+			return -1;
 		}
 		wth->capture.ngsniffer->is_atm = 1;
 	}
-	return WTAP_FILE_NGSNIFFER;
+	return 1;
 }
 
-static int get_atm_linktype(wtap *wth)
+static int get_atm_linktype(wtap *wth, int *err)
 {
 	int	bytes_read;
 	char record_type[2];
@@ -435,15 +455,40 @@ static int get_atm_linktype(wtap *wth)
 		/*
 		 * Read the record header.
 		 */
+		errno = WTAP_ERR_CANT_READ;
 		bytes_read = fread(record_type, 1, 2, wth->fh);
-		bytes_read += fread(record_length, 1, 4, wth->fh);
-		if (bytes_read != 6) {
+		if (bytes_read != 2) {
 			/*
 			 * End of file or error.  Probably means there *are*
 			 * no LANE or RFC 1483 LLC-multiplexed frames,
 			 * which means we can't handle this in
 			 * "wiretap".  Return an error.
 			 */
+			if (ferror(wth->fh))
+				*err = errno;
+			else {
+				/*
+				 * If we read no bytes at all, treat
+				 * that as an EOF, not a short read;
+				 * "*err" got set initially to
+				 * WTAP_ERR_UNSUPPORTED, which is the
+				 * most appropriate error if we just
+				 * ran out of packets without seeing
+				 * any LANE or RFC 1483 LLC-multiplexed
+				 * frames.
+				 */
+				if (bytes_read != 0)
+					*err = WTAP_ERR_SHORT_READ;
+			}
+			return -1;
+		}
+		errno = WTAP_ERR_CANT_READ;
+		bytes_read = fread(record_length, 1, 4, wth->fh);
+		if (bytes_read != 4) {
+			if (ferror(wth->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_READ;
 			return -1;
 		}
 
@@ -455,7 +500,11 @@ static int get_atm_linktype(wtap *wth)
 			 * End of file.  Probably means there *are*
 			 * no LANE or RFC 1483 LLC-multiplexed frames,
 			 * which means we can't handle this in
-			 * "wiretap".  Return an error.
+			 * "wiretap".  "*err" got set initially to
+			 * WTAP_ERR_UNSUPPORTED, which is the most
+			 * appropriate error if we just ran out of
+			 * packets without seeing any LANE or RFC
+			 * 1483 LLC-multiplexed frames.
 			 */
 			return -1;
 		}
@@ -467,16 +516,19 @@ static int get_atm_linktype(wtap *wth)
 			 * Umm, we're not supposed to get these in an
 			 * ATM Sniffer file; return an error.
 			 */
+			g_message("ngsniffer: REC_FRAME2 record in an ATM Sniffer file");
+			*err = WTAP_ERR_BAD_RECORD;
 			return -1;
 
 		case REC_FRAME4:
 			/* Read the f_frame4_struct */
+			errno = WTAP_ERR_CANT_READ;
 			bytes_read = fread(&frame4, 1, sizeof frame4, wth->fh);
 			if (bytes_read != sizeof frame4) {
-				/*
-				 * Read error or short record.  Return
-				 * an error.
-				 */
+				if (ferror(wth->fh))
+					*err = errno;
+				else
+					*err = WTAP_ERR_SHORT_READ;
 				return -1;
 			}
 			time_low = pletohs(&frame4.time_low);
@@ -572,9 +624,8 @@ static int linktype_for_packet(u_int app_traf_type, u_int app_hl_type)
 }
 
 /* Read the next packet */
-int ngsniffer_read(wtap *wth)
+static int ngsniffer_read(wtap *wth, int *err)
 {
-	int	packet_size = wth->capture.ngsniffer->pkt_len;
 	int	bytes_read;
 	char record_type[2];
 	char record_length[4]; /* only 1st 2 bytes are length */
@@ -604,13 +655,27 @@ int ngsniffer_read(wtap *wth)
 		/*
 		 * Read the record header.
 		 */
+		errno = WTAP_ERR_CANT_READ;
 		bytes_read = fread(record_type, 1, 2, wth->fh);
-		bytes_read += fread(record_length, 1, 4, wth->fh);
-		if (bytes_read != 6) {
-			/*
-			 * End of file or error.
-			 */
+		if (bytes_read != 2) {
+			if (ferror(wth->fh)) {
+				*err = errno;
+				return -1;
+			}
+			if (bytes_read != 0) {
+				*err = WTAP_ERR_SHORT_READ;
+				return -1;
+			}
 			return 0;
+		}
+		errno = WTAP_ERR_CANT_READ;
+		bytes_read = fread(record_length, 1, 4, wth->fh);
+		if (bytes_read != 4) {
+			if (ferror(wth->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_READ;
+			return -1;
 		}
 
 		type = pletohs(record_type);
@@ -620,15 +685,14 @@ int ngsniffer_read(wtap *wth)
 
 		case REC_FRAME2:
 			/* Read the f_frame2_struct */
+			errno = WTAP_ERR_CANT_READ;
 			bytes_read = fread(&frame2, 1, sizeof frame2, wth->fh);
 			if (bytes_read != sizeof frame2) {
-				/*
-				 * Read error or short record.  Return
-				 * an error.
-				 */
-				g_message("ngsniffer_read: not enough frame2 data (%d bytes)",
-					bytes_read);
-				return 0;
+				if (ferror(wth->fh))
+					*err = errno;
+				else
+					*err = WTAP_ERR_SHORT_READ;
+				return -1;
 			}
 			time_low = pletohs(&frame2.time_low);
 			time_med = pletohs(&frame2.time_med);
@@ -647,15 +711,14 @@ int ngsniffer_read(wtap *wth)
 
 		case REC_FRAME4:
 			/* Read the f_frame4_struct */
+			errno = WTAP_ERR_CANT_READ;
 			bytes_read = fread(&frame4, 1, sizeof frame4, wth->fh);
 			if (bytes_read != sizeof frame4) {
-				/*
-				 * Read error or short record.  Return
-				 * an error.
-				 */
-				g_message("ngsniffer_read: not enough frame4 data (%d bytes)",
-					bytes_read);
-				return 0;
+				if (ferror(wth->fh))
+					*err = errno;
+				else
+					*err = WTAP_ERR_SHORT_READ;
+				return -1;
 			}
 			time_low = pletohs(&frame4.time_low);
 			time_med = pletohs(&frame4.time_med);
@@ -732,16 +795,15 @@ found:
 	 */
 	buffer_assure_space(wth->frame_buffer, length);
 	data_offset = ftell(wth->fh);
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 			length, wth->fh);
 
 	if (bytes_read != length) {
-		if (ferror(wth->fh)) {
-			g_message("ngsniffer_read: fread for data: read error\n");
-		} else {
-			g_message("ngsniffer_read: fread for data: %d bytes out of %d",
-				bytes_read, packet_size);
-		}
+		if (ferror(wth->fh))
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
 

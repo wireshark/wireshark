@@ -1,6 +1,6 @@
 /* libpcap.h
  *
- * $Id: libpcap.h,v 1.2 1999/08/18 04:17:36 guy Exp $
+ * $Id: libpcap.h,v 1.3 1999/08/19 05:31:37 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -21,5 +21,5 @@
  *
  */
 
-int libpcap_open(wtap *wth);
+int libpcap_open(wtap *wth, int *err);
 int libpcap_dump_open(wtap_dumper *wdh, int *err);

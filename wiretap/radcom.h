@@ -19,5 +19,4 @@
  *
  */
 
-int radcom_open(wtap *wth);
-int radcom_read(wtap *wth);
+int radcom_open(wtap *wth, int *err);

@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.95 1999/08/18 04:17:27 guy Exp $
+ * $Id: ethereal.c,v 1.96 1999/08/19 05:31:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -485,27 +485,25 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   gtk_widget_hide(GTK_WIDGET (fs));
   gtk_widget_destroy(GTK_WIDGET (fs));
 
-  if ((err = read_cap_file(&cf)) == 0) {
-	  /* The read succeeded.  Save the directory name; we can
-	     write over cf_name. */
-	  s = strrchr(cf_name, '/');
-	  if (s && last_open_dir) {
-		  *s = '\0';
-		  if (strcmp(last_open_dir, cf_name) != 0) {
-			  g_free(last_open_dir);
-			  last_open_dir = g_strdup(cf_name);
-		  }
-	  }
-	  else if (s) { /* ! last_open_dir */
-		  *s = '\0';
+  err = read_cap_file(&cf);
+  /* Save the directory name; we can write over cf_name. */
+  s = strrchr(cf_name, '/');
+  if (s && last_open_dir) {
+	  *s = '\0';
+	  if (strcmp(last_open_dir, cf_name) != 0) {
+		  g_free(last_open_dir);
 		  last_open_dir = g_strdup(cf_name);
 	  }
-	  else {
-		  last_open_dir = NULL;
-	  }
-	  set_menu_sensitivity("/File/Save", FALSE);
-	  set_menu_sensitivity("/File/Save As...", TRUE);
   }
+  else if (s) { /* ! last_open_dir */
+	  *s = '\0';
+	  last_open_dir = g_strdup(cf_name);
+  }
+  else {
+	  last_open_dir = NULL;
+  }
+  set_menu_sensitivity("/File/Save", FALSE);
+  set_menu_sensitivity("/File/Save As...", TRUE);
   g_free(cf_name);
 }
 
@@ -567,8 +565,8 @@ file_save_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 	g_free(cf.save_file);
 	cf.save_file = g_strdup(cf_name);
 	cf.user_saved = 1;
-        if ((err = open_cap_file(cf_name, &cf)) == 0 &&
-	    (err = read_cap_file(&cf)) == 0) {
+        if ((err = open_cap_file(cf_name, &cf)) == 0) {
+		err = read_cap_file(&cf);
 		set_menu_sensitivity("/File/Save", FALSE);
 		set_menu_sensitivity("/File/Save As...", TRUE);
 	}
@@ -587,8 +585,8 @@ file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 	g_free(cf.filename);
 	cf.filename = g_strdup(cf_name);
 	cf.user_saved = 1;
-        if ((err = open_cap_file(cf.filename, &cf)) == 0 &&
-	    (err = read_cap_file(&cf)) == 0) {
+        if ((err = open_cap_file(cf.filename, &cf)) == 0) {
+		err = read_cap_file(&cf);
 		set_menu_sensitivity("/File/Save", FALSE);
 		set_menu_sensitivity("/File/Save As...", TRUE);
 	}
@@ -606,7 +604,7 @@ file_reload_cmd_cb(GtkWidget *w, gpointer data) {
   cf.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
   if (open_cap_file(cf.filename, &cf) == 0)
     read_cap_file(&cf);
-  /* XXX - change the menu if it fails? */
+  /* XXX - change the menu if the open fails? */
 }
 
 /* Run the current display filter on the current packet set, and
@@ -1475,9 +1473,8 @@ main(int argc, char *argv[])
     }
     if (!rfilter_parse_failed) {
       cf.rfcode = rfcode;
-      if ((err = open_cap_file(cf_name, &cf)) == 0)
+      if ((err = open_cap_file(cf_name, &cf)) == 0) {
         err = read_cap_file(&cf);
-      if (err == 0) {
         s = strrchr(cf_name, '/');
         if (s) {
           last_open_dir = cf_name;

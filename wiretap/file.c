@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.16 1999/08/18 17:49:34 guy Exp $
+ * $Id: file.c,v 1.17 1999/08/19 05:31:33 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -39,16 +39,42 @@
 #include "netmon.h"
 #include "netxray.h"
 
-/* The open_file_* routines should return the WTAP_FILE_* type
- * that they are checking for if the file is successfully recognized
- * as such. If the file is not of that type, the routine should return
- * WTAP_FILE_UNKNOWN */
+/* The open_file_* routines should return:
+ *
+ *	-1 on an I/O error;
+ *
+ *	1 if the file they're reading is one of the types it handles;
+ *
+ *	0 if the file they're reading isn't the type they're checking for.
+ *
+ * If the routine handles this type of file, it should set the "file_type"
+ * field in the "struct wtap" to the type of the file.
+ *
+ * XXX - I need to drag my damn ANSI C spec in to figure out how to
+ * declare a "const" array of pointers to functions; putting "const"
+ * right after "static" isn't the right answer, at least according
+ * to GCC, which whines if I do that.
+ */
+
+static int (*open_routines[])(wtap *, int *) = {
+	libpcap_open,
+	lanalyzer_open,
+	ngsniffer_open,
+	snoop_open,
+	iptrace_open,
+	netmon_open,
+	netxray_open,
+	radcom_open
+};
+
+#define	N_FILE_TYPES	(sizeof open_routines / sizeof open_routines[0])
 
 /* Opens a file and prepares a wtap struct */
 wtap* wtap_open_offline(const char *filename, int *err)
 {
 	struct stat statb;
 	wtap	*wth;
+	int	i;
 
 	/* First, make sure the file is valid */
 	if (stat(filename, &statb) < 0) {
@@ -81,41 +107,27 @@ wtap* wtap_open_offline(const char *filename, int *err)
 	wth->file_encap = WTAP_ENCAP_NONE;
 
 	/* Try all file types */
+	for (i = 0; i < N_FILE_TYPES; i++) {
+		switch ((*open_routines[i])(wth, err)) {
 
-	/* WTAP_FILE_PCAP */
-	if ((wth->file_type = libpcap_open(wth)) != WTAP_FILE_UNKNOWN) {
-		goto success;
-	}
-	/* WTAP_FILE_NGSNIFFER */
-	if ((wth->file_type = ngsniffer_open(wth)) != WTAP_FILE_UNKNOWN) {
-		goto success;
-	}
-	/* WTAP_FILE_RADCOM */
-	if ((wth->file_type = radcom_open(wth)) != WTAP_FILE_UNKNOWN) {
-		goto success;
-	}
-	/* WTAP_FILE_LANALYZER */
-	if ((wth->file_type = lanalyzer_open(wth)) != WTAP_FILE_UNKNOWN) {
-		goto success;
-	}
-	/* WTAP_FILE_SNOOP */
-	if ((wth->file_type = snoop_open(wth)) != WTAP_FILE_UNKNOWN) {
-		goto success;
-	}
-	/* WTAP_FILE_IPTRACE */
-	if ((wth->file_type = iptrace_open(wth)) != WTAP_FILE_UNKNOWN) {
-		goto success;
-	}
-	/* WTAP_FILE_NETMON_xxx */
-	if ((wth->file_type = netmon_open(wth)) != WTAP_FILE_UNKNOWN) {
-		goto success;
-	}
-	/* WTAP_FILE_NETXRAY_xxx */
-	if ((wth->file_type = netxray_open(wth)) != WTAP_FILE_UNKNOWN) {
-		goto success;
+		case -1:
+			/* I/O error - give up */
+			*err = errno;
+			fclose(wth->fh);
+			free(wth);
+			return NULL;
+
+		case 0:
+			/* No I/O error, but not that type of file */
+			break;
+
+		case 1:
+			/* We found the file type */
+			goto success;
+		}
 	}
 
-/* failure: */
+	/* Well, it's not one of the types of file we know about. */
 	fclose(wth->fh);
 	free(wth);
 	*err = WTAP_ERR_FILE_UNKNOWN_FORMAT;

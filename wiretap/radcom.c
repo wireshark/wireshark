@@ -23,13 +23,11 @@
 #endif
 
 #include <stdlib.h>
+#include <errno.h>
 #include <time.h>
 #include "wtap.h"
 #include "buffer.h"
 #include "radcom.h"
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
 
 struct frame_date {
 	guint16	year;
@@ -43,8 +41,9 @@ static char radcom_magic[8] = {
 	0x42, 0xD2, 0x00, 0x34, 0x12, 0x66, 0x22, 0x88
 };
 
-/* Returns WTAP_FILE_RADCOM on success, WTAP_FILE_UNKNOWN on failure */
-int radcom_open(wtap *wth)
+static int radcom_read(wtap *wth, int *err);
+
+int radcom_open(wtap *wth, int *err)
 {
 	int bytes_read;
 	char magic[8];
@@ -56,39 +55,59 @@ int radcom_open(wtap *wth)
 
 	/* Read in the string that should be at the start of a Sniffer file */
 	fseek(wth->fh, 0, SEEK_SET);
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(magic, 1, 8, wth->fh);
-
 	if (bytes_read != 8) {
-		return WTAP_FILE_UNKNOWN;
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
+		return 0;
 	}
 
 	if (memcmp(magic, radcom_magic, 8)) {
-		return WTAP_FILE_UNKNOWN;
+		return 0;
 	}
 
-	/* This is a radcom file */
-	wth->capture.radcom = g_malloc(sizeof(radcom_t));
-	wth->subtype_read = radcom_read;
-	wth->snapshot_length = 16384;	/* not available in header, only in frame */
 	fseek(wth->fh, 0x8B, SEEK_SET);
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(&byte, 1, 1, wth->fh);
 	if (bytes_read != 1) {
-		return WTAP_FILE_UNKNOWN;
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
+		return 0;
 	}
 	while (byte) {
+		errno = WTAP_ERR_CANT_READ;
 		bytes_read = fread(&byte, 1, 1, wth->fh);
 		if (bytes_read != 1) {
-			return WTAP_FILE_UNKNOWN;
+			if (ferror(wth->fh)) {
+				*err = errno;
+				return -1;
+			}
+			return 0;
 		}
 	}
 	fseek(wth->fh, 1, SEEK_CUR);
 
 	/* Get capture start time */
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(&start_date, 1, sizeof(struct frame_date), wth->fh);
-
 	if (bytes_read != sizeof(struct frame_date)) {
-		return WTAP_FILE_UNKNOWN;
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
+		return 0;
 	}
+
+	/* This is a radcom file */
+	wth->file_type = WTAP_FILE_RADCOM;
+	wth->capture.radcom = g_malloc(sizeof(radcom_t));
+	wth->subtype_read = radcom_read;
+	wth->snapshot_length = 16384;	/* not available in header, only in frame */
 
 	tm.tm_year = start_date.year-1900;
 	tm.tm_mon = start_date.month-1;
@@ -101,40 +120,48 @@ int radcom_open(wtap *wth)
 
 	fseek(wth->fh, sizeof(struct frame_date), SEEK_CUR);
 
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(search_encap, 1, 7, wth->fh);
 	if (bytes_read != 7) {
-		return WTAP_FILE_UNKNOWN;
+		goto read_error;
 	}
 	while (memcmp(encap_magic, search_encap, 7)) {
 		fseek(wth->fh, -6, SEEK_CUR);
+		errno = WTAP_ERR_CANT_READ;
 		bytes_read = fread(search_encap, 1, 7, wth->fh);
 		if (bytes_read != 7) {
-			return WTAP_FILE_UNKNOWN;
+			goto read_error;
 		}
 	}
 	fseek(wth->fh, 12, SEEK_CUR);
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(search_encap, 1, 4, wth->fh);
 	if (bytes_read != 4) {
-		return WTAP_FILE_UNKNOWN;
+		goto read_error;
 	}
 	if (!memcmp(search_encap, "LAPB", 4))
 		wth->file_encap = WTAP_ENCAP_LAPB;
 	else if (!memcmp(search_encap, "Ethe", 4))
 		wth->file_encap = WTAP_ENCAP_ETHERNET;
-	else
-		return WTAP_FILE_UNKNOWN;
+	else {
+		g_message("pcap: network type \"%.4s\" unknown", search_encap);
+		*err = WTAP_ERR_UNSUPPORTED;
+		return -1;
+	}
 
 	/*bytes_read = fread(&next_date, 1, sizeof(struct frame_date), wth->fh);
+	errno = WTAP_ERR_CANT_READ;
 	if (bytes_read != sizeof(struct frame_date)) {
-		return WTAP_FILE_UNKNOWN;
+		goto read_error;
 	}
 
 	while (memcmp(&start_date, &next_date, 4)) {
 		fseek(wth->fh, 1-sizeof(struct frame_date), SEEK_CUR);
+		errno = WTAP_ERR_CANT_READ;
 		bytes_read = fread(&next_date, 1, sizeof(struct frame_date),
 				   wth->fh);
 		if (bytes_read != sizeof(struct frame_date)) {
-			return WTAP_FILE_UNKNOWN;
+			goto read_error;
 		}
 	}*/
 
@@ -143,11 +170,20 @@ int radcom_open(wtap *wth)
 	else if (wth->file_encap == WTAP_ENCAP_LAPB)
 		fseek(wth->fh, 297, SEEK_CUR);
 
-	return WTAP_FILE_RADCOM;
+	return 1;
+
+read_error:
+	if (ferror(wth->fh)) {
+		*err = errno;
+		free(wth->capture.radcom);
+		return -1;
+	}
+	free(wth->capture.radcom);
+	return 0;
 }
 
 /* Read the next packet */
-int radcom_read(wtap *wth)
+static int radcom_read(wtap *wth, int *err)
 {
 	int	bytes_read;
 	guint16 length;
@@ -161,30 +197,35 @@ int radcom_read(wtap *wth)
 	/*
 	 * Read the frame size
 	 */
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(&length, 1, 2, wth->fh);
 	if (bytes_read != 2) {
-		/*
-		 * End of file or error.
-		 */
-		g_message("radcom_read: not enough frame data (%d bytes)",
-			bytes_read);
+		if (ferror(wth->fh)) {
+			*err = errno;
+			return -1;
+		}
+		if (bytes_read != 0) {
+			*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		}
 		return 0;
 	}
 
-	if (wth->file_encap == WTAP_ENCAP_LAPB) length -= 2; /* FCS */
+	if (wth->file_encap == WTAP_ENCAP_LAPB)
+		length -= 2; /* FCS */
 
 	wth->phdr.len = length;
 	wth->phdr.caplen = length;
 
 	fseek(wth->fh, 5, SEEK_CUR);
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(&date, 1, sizeof(struct frame_date), wth->fh);
 	if (bytes_read != sizeof(struct frame_date)) {
-		/*
-		 * End of file or error.
-		 */
-		g_message("radcom_read: not enough frame data (%d bytes)",
-			bytes_read);
-		return 0;
+		if (ferror(wth->fh))
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
 	}
 
 	tm.tm_year = date.year-1900;
@@ -198,14 +239,14 @@ int radcom_read(wtap *wth)
 	wth->phdr.ts.tv_usec = date.usec;
 
 	fseek(wth->fh, 6, SEEK_CUR);
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(&dce, 1, 1, wth->fh);
 	if (bytes_read != 1) {
-		/*
-		 * End of file or error.
-		 */
-		g_message("radcom_read: not enough frame data (%d bytes)",
-			bytes_read);
-		return 0;
+		if (ferror(wth->fh))
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
 	}
 	wth->phdr.flags = (dce & 0x1) ? 0x00 : 0x80;
 
@@ -216,16 +257,15 @@ int radcom_read(wtap *wth)
 	 */
 	buffer_assure_space(wth->frame_buffer, length);
 	data_offset = ftell(wth->fh);
+	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 			length, wth->fh);
 
 	if (bytes_read != length) {
-		if (ferror(wth->fh)) {
-			g_message("radcom_read: fread for data: read error\n");
-		} else {
-			g_message("radcom_read: fread for data: %d bytes out of %d",
-				bytes_read, length);
-		}
+		if (ferror(wth->fh))
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
 
