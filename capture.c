@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.113 2000/07/21 15:56:15 gram Exp $
+ * $Id: capture.c,v 1.114 2000/07/30 16:53:53 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -100,6 +100,9 @@
 #include "prefs.h"
 #include "globals.h"
 
+#include "wiretap/libpcap.h"
+#include "wiretap/wtap-int.h"
+
 #include "packet-clip.h"
 #include "packet-eth.h"
 #include "packet-fddi.h"
@@ -134,6 +137,9 @@ typedef struct _loop_data {
   gint           max;
   gint           linktype;
   gint           sync_packets;
+  gboolean       from_pipe;    /* TRUE if we are capturing data from a pipe */
+  gboolean       modified;     /* TRUE if data in the pipe uses modified pcap headers */
+  gboolean       byte_swapped; /* TRUE if data in the pipe is byte swapped */
   packet_counts  counts;
   wtap_dumper   *pdh;
 } loop_data;
@@ -707,6 +713,226 @@ cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
  */
 #define	CAP_READ_TIMEOUT	250
 
+#ifndef _WIN32
+/* Take carre of byte order in the libpcap headers read from pipes.
+ * (function taken from wiretap/libpcap.c) */
+static void
+adjust_header(loop_data *ld, struct pcap_hdr *hdr, struct pcaprec_hdr *rechdr)
+{
+  if (ld->byte_swapped) {
+    /* Byte-swap the record header fields. */
+    rechdr->ts_sec = BSWAP32(rechdr->ts_sec);
+    rechdr->ts_usec = BSWAP32(rechdr->ts_usec);
+    rechdr->incl_len = BSWAP32(rechdr->incl_len);
+    rechdr->orig_len = BSWAP32(rechdr->orig_len);
+  }
+
+  /* In file format version 2.3, the "incl_len" and "orig_len" fields were
+     swapped, in order to match the BPF header layout.
+
+     Unfortunately, some files were, according to a comment in the "libpcap"
+     source, written with version 2.3 in their headers but without the
+     interchanged fields, so if "incl_len" is greater than "orig_len" - which
+     would make no sense - we assume that we need to swap them.  */
+  if (hdr->version_major == 2 &&
+      (hdr->version_minor < 3 ||
+       (hdr->version_minor == 3 && rechdr->incl_len > rechdr->orig_len))) {
+    guint32 temp;
+
+    temp = rechdr->orig_len;
+    rechdr->orig_len = rechdr->incl_len;
+    rechdr->incl_len = temp;
+  }
+}
+
+/* Mimic pcap_open_live() for pipe captures 
+ * We check if "pipename" is "-" (stdin) or a FIFO, open it, and read the
+ * header.
+ * N.B. : we can't read the libpcap formats used in RedHat 6.1 or SuSE 6.3
+ * because we can't seek on pipes (see wiretap/libpcap.c for details) */
+static int
+pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld, char *ebuf)
+{
+  struct stat pipe_stat;
+  int         fd;
+  guint32     magic;
+  int         bytes_read, b;
+
+  if (strcmp(pipename, "-") == 0) fd = 0; /* read from stdin */
+  else if (stat(pipename, &pipe_stat) == 0 && S_ISFIFO(pipe_stat.st_mode)) {
+    if ((fd = open(pipename, O_RDONLY)) == -1) return -1;
+  } else return -1;
+
+  ld->from_pipe = TRUE;
+  /* read the pcap header */
+  if (read(fd, &magic, sizeof magic) != sizeof magic) {
+    close(fd);
+    return -1;
+  }
+
+  switch (magic) {
+  case PCAP_MAGIC:
+    /* Host that wrote it has our byte order, and was running
+       a program using either standard or ss990417 libpcap. */
+    ld->byte_swapped = FALSE;
+    ld->modified = FALSE;
+    break;
+  case PCAP_MODIFIED_MAGIC:
+    /* Host that wrote it has our byte order, but was running
+       a program using either ss990915 or ss991029 libpcap. */
+    ld->byte_swapped = FALSE;
+    ld->modified = TRUE;
+    break;
+  case PCAP_SWAPPED_MAGIC:
+    /* Host that wrote it has a byte order opposite to ours,
+       and was running a program using either standard or
+       ss990417 libpcap. */
+    ld->byte_swapped = TRUE;
+    ld->modified = FALSE;
+    break;
+  case PCAP_SWAPPED_MODIFIED_MAGIC:
+    /* Host that wrote it out has a byte order opposite to
+       ours, and was running a program using either ss990915
+       or ss991029 libpcap. */
+    ld->byte_swapped = TRUE;
+    ld->modified = TRUE;
+    break;
+  default:
+    /* Not a "libpcap" type we know about. */
+    close(fd);
+    return -1;
+  }
+
+  /* Read the rest of the header */
+  bytes_read = read(fd, hdr, sizeof(struct pcap_hdr));
+  if (bytes_read <= 0) {
+    close(fd);
+    return -1;
+  }
+  while (bytes_read < sizeof(struct pcap_hdr))
+  {
+    b = read(fd, ((char *)&hdr)+bytes_read, sizeof(struct pcap_hdr) - bytes_read);
+    if (b <= 0) {
+      close(fd);
+      return -1;
+    }
+    bytes_read += b;
+  }
+  if (ld->byte_swapped) {
+    /* Byte-swap the header fields about which we care. */
+    hdr->version_major = BSWAP16(hdr->version_major);
+    hdr->version_minor = BSWAP16(hdr->version_minor);
+    hdr->snaplen = BSWAP32(hdr->snaplen);
+    hdr->network = BSWAP32(hdr->network);
+  }
+  if (hdr->version_major < 2) {
+    close(fd);
+    return -1;
+  }
+
+  return fd;
+}
+
+/* We read one record from the pipe, take care of byte order in the record
+ * header, write the record in the capture file, and update capture statistics. */
+static int
+pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr)
+{
+  struct wtap_pkthdr whdr;
+  struct pcaprec_modified_hdr rechdr;
+  int bytes_to_read, bytes_read, b;
+  u_char pd[WTAP_MAX_PACKET_SIZE];
+  int err;
+
+  /* read the record header */
+  bytes_to_read = ld->modified ? sizeof rechdr : sizeof rechdr.hdr;
+  bytes_read = read(fd, &rechdr, bytes_to_read);
+  if (bytes_read <= 0) {
+    close(fd);
+    ld->go = FALSE;
+    return 0;
+  }
+  while (bytes_read < bytes_to_read)
+  {
+    b = read(fd, ((char *)&rechdr)+bytes_read, bytes_to_read - bytes_read);
+    if (b <= 0) {
+      close(fd);
+      ld->go = FALSE;
+      return 0;
+    }
+    bytes_read += b;
+  }
+  /* take care of byte order */
+  adjust_header(ld, hdr, &rechdr.hdr);
+  if (rechdr.hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
+    close(fd);
+    ld->go = FALSE;
+    return 0;
+  }
+  /* read the packet data */
+  bytes_read = read(fd, pd, rechdr.hdr.incl_len);
+  if (bytes_read <= 0) {
+    close(fd);
+    ld->go = FALSE;
+    return 0;
+  }
+  while (bytes_read < rechdr.hdr.incl_len)
+  {
+    b = read(fd, pd+bytes_read, rechdr.hdr.incl_len - bytes_read);
+    if (b <= 0) {
+      close(fd);
+      ld->go = FALSE;
+      return 0;
+    }
+    bytes_read += b;
+  }
+  /* dump the packet data to the capture file */
+  whdr.ts.tv_sec = rechdr.hdr.ts_sec;
+  whdr.ts.tv_usec = rechdr.hdr.ts_usec;
+  whdr.caplen = rechdr.hdr.incl_len;
+  whdr.len = rechdr.hdr.orig_len;
+  whdr.pkt_encap = ld->linktype;
+  wtap_dump(ld->pdh, &whdr, NULL, pd, &err);
+
+  /* Set the initial payload to the packet length, and the initial
+     captured payload to the capture length (other protocols may
+     reduce them if their headers say they're less). */
+  pi.len = whdr.len;
+  pi.captured_len = whdr.caplen;
+    
+  /* update capture statistics */
+  switch (ld->linktype) {
+    case WTAP_ENCAP_ETHERNET:
+      capture_eth(pd, 0, &ld->counts);
+      break;
+    case WTAP_ENCAP_FDDI:
+    case WTAP_ENCAP_FDDI_BITSWAPPED:
+      capture_fddi(pd, &ld->counts);
+      break;
+    case WTAP_ENCAP_TR:
+      capture_tr(pd, 0, &ld->counts);
+      break;
+    case WTAP_ENCAP_NULL:
+      capture_null(pd, &ld->counts);
+      break;
+    case WTAP_ENCAP_PPP:
+      capture_ppp(pd, 0, &ld->counts);
+      break;
+    case WTAP_ENCAP_RAW_IP:
+      capture_raw(pd, &ld->counts);
+      break;
+    case WTAP_ENCAP_LINUX_ATM_CLIP:
+      capture_clip(pd, &ld->counts);
+      break;
+    /* XXX - FreeBSD may append 4-byte ATM pseudo-header to DLT_ATM_RFC1483,
+       with LLC header following; we should implement it at some
+       point. */
+  }
+
+  return 1;
+}
+#endif
+
 /* Do the low-level work of a capture.
    Returns TRUE if it succeeds, FALSE otherwise. */
 int
@@ -724,11 +950,15 @@ capture(void)
 #ifdef linux
   fd_set      set1;
   struct timeval timeout;
-  int         pcap_fd;
+  int         pcap_fd = 0;
 #endif
 #ifdef _WIN32 
   WORD wVersionRequested; 
   WSADATA wsaData; 
+#endif
+#ifndef _WIN32
+  int         pipe_fd = -1;
+  struct pcap_hdr hdr;
 #endif
 
   /* Initialize Windows Socket if we are in a WIN32 OS 
@@ -748,6 +978,7 @@ capture(void)
   ld.counts.total   = 0;
   ld.max            = cfile.count;
   ld.linktype       = WTAP_ENCAP_UNKNOWN;
+  ld.from_pipe      = FALSE;
   ld.sync_packets   = 0;
   ld.counts.sctp    = 0;
   ld.counts.tcp     = 0;
@@ -765,6 +996,26 @@ capture(void)
   pch = pcap_open_live(cfile.iface, cfile.snap, 1, CAP_READ_TIMEOUT, err_str);
 
   if (pch == NULL) {
+#ifndef _WIN32
+    /* try to open cfile.iface as a pipe */
+    pipe_fd = pipe_open_live(cfile.iface, &hdr, &ld, err_str);
+
+    if (pipe_fd == -1) {
+      /* Well, we couldn't start the capture.
+	 If this is a child process that does the capturing in sync
+	 mode or fork mode, it shouldn't do any UI stuff until we pop up the
+	 capture-progress window, and, since we couldn't start the
+	 capture, we haven't popped it up. */
+      if (!capture_child) {
+	while (gtk_events_pending()) gtk_main_iteration();
+      }
+      snprintf(errmsg, sizeof errmsg,
+	  "The capture session could not be initiated (%s).\n"
+	  "Please check to make sure you have sufficient permissions, and that\n"
+	  "you have the proper interface or pipe specified.", err_str);
+      goto error;
+    }
+#else
     /* Well, we couldn't start the capture.
        If this is a child process that does the capturing in sync
        mode or fork mode, it shouldn't do any UI stuff until we pop up the
@@ -774,13 +1025,15 @@ capture(void)
       while (gtk_events_pending()) gtk_main_iteration();
     }
     snprintf(errmsg, sizeof errmsg,
-      "The capture session could not be initiated (%s).\n"
-      "Please check to make sure you have sufficient permissions, and that\n"
-      "you have the proper interface specified.", err_str);
+	"The capture session could not be initiated (%s).\n"
+	"Please check to make sure you have sufficient permissions, and that\n"
+	"you have the proper interface specified.", err_str);
     goto error;
+#endif
   }
 
-  if (cfile.cfilter) {
+  /* capture filters only work on real interfaces */
+  if (cfile.cfilter && !ld.from_pipe) {
     /* A capture filter was specified; set it up. */
     if (pcap_lookupnet (cfile.iface, &netnum, &netmask, err_str) < 0) {
       snprintf(errmsg, sizeof errmsg,
@@ -800,14 +1053,15 @@ capture(void)
   }
 
   /* Set up to write to the capture file. */
-  ld.linktype = wtap_pcap_encap_to_wtap_encap(pcap_datalink(pch));
+  ld.linktype = wtap_pcap_encap_to_wtap_encap(ld.from_pipe ? hdr.network
+	                                                   : pcap_datalink(pch));
   if (ld.linktype == WTAP_ENCAP_UNKNOWN) {
     strcpy(errmsg, "The network you're capturing from is of a type"
              " that Ethereal doesn't support.");
     goto error;
   }
   ld.pdh = wtap_dump_fdopen(cfile.save_file_fd, WTAP_FILE_PCAP,
-		ld.linktype, pcap_snapshot(pch), &err);
+      ld.linktype, ld.from_pipe ? hdr.snaplen : pcap_snapshot(pch), &err);
 
   if (ld.pdh == NULL) {
     /* We couldn't set up to write to the capture file. */
@@ -929,41 +1183,60 @@ capture(void)
 
   upd_time = time(NULL);
 #ifdef linux
-  pcap_fd = pcap_fileno(pch);
+  if (!ld.from_pipe) pcap_fd = pcap_fileno(pch);
 #endif
   while (ld.go) {
     while (gtk_events_pending()) gtk_main_iteration();
+
+    if (ld.from_pipe) {
+      FD_ZERO(&set1);
+      FD_SET(pipe_fd, &set1);
+      timeout.tv_sec = 0;
+      timeout.tv_usec = CAP_READ_TIMEOUT*1000;
+      if (select(pipe_fd+1, &set1, NULL, NULL, &timeout) != 0) {
+	/*
+	 * "select()" says we can read from the pipe without blocking; go for
+	 * it. We are not sure we can read a whole record, but at least the
+	 * begninning of one. pipe_dispatch() will block reading the whole
+	 * record.
+	 */
+	inpkts = pipe_dispatch(pipe_fd, &ld, &hdr);
+      } else
+	inpkts = 0;
+    }
+    else {
 #ifdef linux
-    /*
-     * Sigh.  The semantics of the read timeout argument to
-     * "pcap_open_live()" aren't particularly well specified by
-     * the "pcap" man page - at least with the BSD BPF code, the
-     * intent appears to be, at least in part, a way of cutting
-     * down the number of reads done on a capture, by blocking
-     * until the buffer fills or a timer expires - and the Linux
-     * libpcap doesn't actually support it, so we can't use it
-     * to break out of the "pcap_dispatch()" every 1/4 of a second
-     * or so.
-     *
-     * Thus, on Linux, we do a "select()" on the file descriptor for the
-     * capture, with a timeout of CAP_READ_TIMEOUT milliseconds, or
-     * CAP_READ_TIMEOUT*1000 microseconds.
-     */
-    FD_ZERO(&set1);
-    FD_SET(pcap_fd, &set1);
-    timeout.tv_sec = 0;
-    timeout.tv_usec = CAP_READ_TIMEOUT*1000;
-    if (select(pcap_fd+1, &set1, NULL, NULL, &timeout) != 0) {
       /*
-       * "select()" says we can read from it without blocking; go for
-       * it.
+       * Sigh.  The semantics of the read timeout argument to
+       * "pcap_open_live()" aren't particularly well specified by
+       * the "pcap" man page - at least with the BSD BPF code, the
+       * intent appears to be, at least in part, a way of cutting
+       * down the number of reads done on a capture, by blocking
+       * until the buffer fills or a timer expires - and the Linux
+       * libpcap doesn't actually support it, so we can't use it
+       * to break out of the "pcap_dispatch()" every 1/4 of a second
+       * or so.
+       *
+       * Thus, on Linux, we do a "select()" on the file descriptor for the
+       * capture, with a timeout of CAP_READ_TIMEOUT milliseconds, or
+       * CAP_READ_TIMEOUT*1000 microseconds.
        */
-      inpkts = pcap_dispatch(pch, 1, capture_pcap_cb, (u_char *) &ld);
-    } else
-      inpkts = 0;
+      FD_ZERO(&set1);
+      FD_SET(pcap_fd, &set1);
+      timeout.tv_sec = 0;
+      timeout.tv_usec = CAP_READ_TIMEOUT*1000;
+      if (select(pcap_fd+1, &set1, NULL, NULL, &timeout) != 0) {
+	/*
+	 * "select()" says we can read from it without blocking; go for
+	 * it.
+	 */
+	inpkts = pcap_dispatch(pch, 1, capture_pcap_cb, (u_char *) &ld);
+      } else
+	inpkts = 0;
 #else
-    inpkts = pcap_dispatch(pch, 1, capture_pcap_cb, (u_char *) &ld);
+      inpkts = pcap_dispatch(pch, 1, capture_pcap_cb, (u_char *) &ld);
 #endif
+    }
     if (inpkts > 0)
       ld.sync_packets += inpkts;
     /* Only update once a second so as not to overload slow displays */
@@ -1057,7 +1330,10 @@ capture(void)
       break;
     }
   }
-  pcap_close(pch);
+  if (ld.from_pipe)
+    close(pipe_fd);
+  else
+    pcap_close(pch);
 
   gtk_grab_remove(GTK_WIDGET(cap_w));
   gtk_widget_destroy(GTK_WIDGET(cap_w));
@@ -1083,7 +1359,7 @@ error:
     /* Display the dialog box ourselves; there's no parent. */
     simple_dialog(ESD_TYPE_CRIT, NULL, errmsg);
   }
-  if (pch != NULL)
+  if (pch != NULL && !ld.from_pipe)
     pcap_close(pch);
 
   return FALSE;

@@ -132,6 +132,7 @@ Olivier Abad <oabad@cybercable.fr> {
 	    and HP-UX nettl traces
 	LAPB, X.25
 	Plugins support
+	Support for capturing packet data from pipes
 }
 
 Thierry Andry <Thierry.Andry@advalvas.be> {
