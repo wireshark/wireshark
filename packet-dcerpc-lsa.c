@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.39 2002/04/30 23:48:14 guy Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.40 2002/05/02 06:13:07 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,6 +65,8 @@ static int hf_lsa_paei_enabled = -1;
 static int hf_lsa_paei_settings = -1;
 static int hf_lsa_count = -1;
 static int hf_lsa_size = -1;
+static int hf_lsa_size16 = -1;
+static int hf_lsa_size_needed = -1;
 static int hf_lsa_max_count = -1;
 static int hf_lsa_index = -1;
 static int hf_lsa_domain = -1;
@@ -3253,6 +3255,50 @@ lsa_dissect_lsacreateaccount_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+lsa_dissect_lsalookupprivilegedisplayname_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in, ref] LSA_UNICODE_STRING *name */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_name, 0);
+
+	/* [in] USHORT unknown */
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_lsa_unknown_short, NULL);
+
+	/* [in] USHORT size */
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_lsa_size16, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsalookupprivilegedisplayname_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [out, ref] LSA_UNICODE_STRING **disp_name */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
+		"NAME pointer: ", hf_lsa_privilege_name, 0);
+
+	/* [out, ref] USHORT *size_needed */
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_lsa_size_needed, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+
 
 static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 	{ LSA_LSACLOSE, "LSACLOSE",
@@ -3355,11 +3401,8 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 		lsa_dissect_lsalookupprivilegename_rqst,
 		lsa_dissect_lsalookupprivilegename_reply },
 	{ LSA_LSALOOKUPPRIVILEGEDISPLAYNAME, "LSALOOKUPPRIVILEGEDISPLAYNAME",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsalookupprivilegedisplayname_rqst,
 		lsa_dissect_lsalookupprivilegedisplayname_reply },
-#endif
 	{ LSA_LSADELETEOBJECT, "LSADELETEOBJECT",
 		lsa_dissect_lsadeleteobject_rqst,
 		lsa_dissect_lsadeleteobject_reply },
@@ -3710,6 +3753,14 @@ proto_register_dcerpc_lsa(void)
 
 	{ &hf_lsa_size,
 		{ "Size", "lsa.size", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "", HFILL }},
+
+	{ &hf_lsa_size16,
+		{ "Size", "lsa.size", FT_UINT16, BASE_DEC, 
+		NULL, 0x0, "", HFILL }},
+
+	{ &hf_lsa_size_needed,
+		{ "Size Needed", "lsa.size_needed", FT_UINT16, BASE_DEC, 
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_lsa_privilege_name,
