@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.163 2002/11/01 11:05:37 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.164 2002/11/02 22:00:17 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -528,7 +528,9 @@ ack_finished:
 	   duplicate ACKs*/
 	/* go to the oldest segment in the list of segments 
 	   in the other direction */
-	for(ual=ual2;ual->next;ual=ual->next)
+	/* XXX we should guarantee ual2 to always be non NULL here
+	   so we can skip the ual/ual2 tests */
+	for(ual=ual2;ual&&ual->next;ual=ual->next)
 		;
 	if(ual2){
 		/* we only consider this being a potential duplicate ack
