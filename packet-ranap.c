@@ -3,7 +3,7 @@
  * Based on 3GPP TS 25.413 V3.4.0
  * Copyright 2001, Martin Held <Martin.Held@icn.siemens.de>
  *
- * $Id: packet-ranap.c,v 1.3 2001/05/25 16:19:31 guy Exp $
+ * $Id: packet-ranap.c,v 1.4 2001/06/01 21:00:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,6 +53,8 @@
 
 
 #define SCCP_SSN_RANAP 0x8E
+#define SCCP_SSN_RANAP_C 0x19
+#define SCCP_SSN_RANAP_D 0x1A
 
 /* description of PDU header */
 #define PDU_NUMBER_OF_OCTETS_OFFSET 3
@@ -897,6 +899,7 @@ static int hf_ranap_ProtocolExtensionContainer_present = -1;
 static int hf_ranap_nas_pdu_length = -1;
 static int hf_ranap_relocationRequirement = -1;
 static int hf_ranap_service_Handover = -1;
+static int hf_ranap_extension_field = -1;
 
 
 /* subtrees */
@@ -1258,13 +1261,19 @@ dissect_iE_Extension(tvbuff_t *tvb, proto_tree *tree, gint *offset, gint *bitoff
   allign(offset, bitoffset);
   
   /* create subtree for iE_Extension */
-  ext_item = proto_tree_add_text(tree, tvb, *offset, 0, "%s iE-Extensions", description);
-  ext_tree = proto_item_add_subtree(ext_item, ett_ranap_iE_Extension);			
+  if (tree)
+  {
+     ext_item = proto_tree_add_text(tree, tvb, *offset, 0, "%s iE-Extensions", description);
+     ext_tree = proto_item_add_subtree(ext_item, ett_ranap_iE_Extension);
+  }
 			
   /* number of extension fields */
   number_of_extFields = tvb_get_ntohs(tvb, *offset) + 1;
-  proto_tree_add_uint(ext_tree, hf_ranap_number_of_ProtocolExtensionFields, 
-		      tvb, *offset, 2, number_of_extFields); 
+  if (ext_tree)
+  {
+     proto_tree_add_uint(ext_tree, hf_ranap_number_of_ProtocolExtensionFields, 
+	           	         tvb, *offset, 2, number_of_extFields); 
+  }
 		      
   *offset += 2;		       
   
@@ -1273,32 +1282,49 @@ dissect_iE_Extension(tvbuff_t *tvb, proto_tree *tree, gint *offset, gint *bitoff
   {
      /* add fields to ie subtee */
      /* Extension Field ID */
-     proto_tree_add_item(ext_tree, hf_ranap_ext_field_id, tvb,
-                         *offset, IE_ID_LENGTH, FALSE);        	
+     if (ext_tree)
+     {
+        proto_tree_add_item(ext_tree, hf_ranap_ext_field_id, tvb,
+                            *offset, IE_ID_LENGTH, FALSE); 
+     }       	
      *offset += IE_ID_LENGTH;
  
      /* criticality */
-    proto_tree_add_uint_bits(ext_tree, hf_ranap_ext_field_criticality, tvb, 
-                             *offset, *bitoffset, 2, 0);
-    proceed_nbits(offset, bitoffset, 2);      
+     if (ext_tree)
+     {
+        proto_tree_add_uint_bits(ext_tree, hf_ranap_ext_field_criticality, tvb, 
+                                 *offset, *bitoffset, 2, 0);
+     }
+     proceed_nbits(offset, bitoffset, 2);      
  	
      /* number of octets in the IE */
      allign(offset, bitoffset);
      if (0 == extract_length(tvb, *offset, &number_of_octets, &number_of_octets_size))
      {
-       proto_tree_add_uint(ext_tree, hf_ranap_ext_field_number_of_octets, tvb, 
-                           *offset, number_of_octets_size, number_of_octets);
+       if (ext_tree)
+       {
+          proto_tree_add_uint(ext_tree, hf_ranap_ext_field_number_of_octets, tvb, 
+                              *offset, number_of_octets_size, number_of_octets);
+       }
      }
      else
      {
        /* decoding is not supported */
-       proto_tree_add_text(ext_tree, tvb, *offset, 0,
-                           "Number of Octets greater than 0x3FFF, dissection not supported");
+       if (ext_tree)
+       {
+          proto_tree_add_text(ext_tree, tvb, *offset, 0,
+                              "Number of Octets greater than 0x3FFF, dissection not supported");
+       }
        return(-1);
      }
      
      *offset += number_of_octets_size;
-     proto_tree_add_text(ext_tree, tvb, *offset, number_of_octets, "Extension Field Value: see below");
+     if (ext_tree)
+     {
+     	proto_tree_add_item(ext_tree, hf_ranap_extension_field, tvb,
+                            *offset, number_of_octets, FALSE);
+     	
+     }
 
      *offset +=  number_of_octets;
   }
@@ -3938,6 +3964,12 @@ dissect_ranap_ie_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
      offset = ie_offset;
   }
   
+  /* protocol Extensions */
+  if (ProtocolExtensionContainer_present)
+  {   	
+     return(dissect_iE_Extension(tvb, ranap_tree, &offset, &bitoffset, "PDU"));	
+  }
+  
   return(0);
  
 }
@@ -4188,6 +4220,12 @@ proto_register_ranap(void)
 	FT_BYTES, BASE_NONE, NULL, 0x0,          
 	""}
     },
+    { &hf_ranap_extension_field,
+      { "Extension Field Value", 
+        "ranap.Extension_Field_Value",
+	FT_BYTES, BASE_NONE, NULL, 0x0,          
+	""}
+    },    
     { &hf_ranap_plmn_id,
       { "PLMN-ID", 
         "ranap.PLMN_ID",
