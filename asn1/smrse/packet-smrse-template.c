@@ -48,6 +48,7 @@ int proto_smrse = -1;
 static int hf_smrse_reserved = -1;
 static int hf_smrse_tag = -1;
 static int hf_smrse_length = -1;
+static int hf_smrse_Octet_Format = -1;
 #include "packet-smrse-hf.c"
 
 /* Initialize the subtree pointers */
@@ -155,6 +156,10 @@ void proto_register_smrse(void) {
 	{ &hf_smrse_length, {
 		"Length", "smrse.length", FT_UINT16, BASE_DEC,
 		NULL, 0, "Length of SMRSE PDU", HFILL }},
+    { &hf_smrse_Octet_Format,
+      { "octet-Format", "smrse.octet_Format",
+        FT_STRING, BASE_HEX, NULL, 0,
+        "SMS-Address/address-value/octet-format", HFILL }},
 
 #include "packet-smrse-hfarr.c"
   };
