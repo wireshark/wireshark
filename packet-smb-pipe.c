@@ -2,7 +2,7 @@
  * Routines for SMB named pipe packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.c,v 1.16 2001/03/18 03:23:30 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.17 2001/03/21 22:57:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -563,10 +563,10 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *parent, proto_tree *tree, struct smb_info si,
 	int max_data, int SMB_offset, int errcode, int dirn,
 	const u_char *command, int DataOffset, int DataCount,
-	int ParameterOffset, int ParameterCount) {
-	
-
-  guint32             loc_offset = SMB_offset + ParameterOffset;
+	int ParameterOffset, int ParameterCount)
+{
+ gboolean             is_interim_response;
+  guint32             loc_offset;
   guint16             FunctionCode;
   guint16             Level;
   guint16             RecvBufLen;
@@ -577,6 +577,23 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
   proto_item          *ti;
   struct lanman_desc  *lanman;
   guint32             string_offset;
+
+  if (DataOffset < 0) {
+
+    /* Interim response; we weren't given any data. */
+
+    is_interim_response = TRUE;
+    loc_offset = 0;
+
+  }
+  else {
+
+    /* Offset of the data we should dissect. */
+
+    is_interim_response = FALSE;
+    loc_offset = SMB_offset + ParameterOffset;
+
+  }
 
   if (check_col(fd, COL_PROTOCOL))
     col_set_str(fd, COL_PROTOCOL, "LANMAN");
@@ -599,7 +616,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, ParameterCount, FALSE);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, loc_offset, ParameterCount, FALSE);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
 
 	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Function Code: NetShareEnum");
@@ -672,7 +689,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, ParameterCount, FALSE);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, loc_offset, ParameterCount, FALSE);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
       
 	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Function Code: NetServerEnum2");
@@ -768,7 +785,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, ParameterCount, FALSE);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, loc_offset, ParameterCount, FALSE);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
 
 	if (lanman) {
@@ -832,12 +849,10 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
     }
   }
   else {  /* Dirn == 0, response */
-    gboolean         is_interim_response;
     guint16          Status;
     guint16          Convert;
     guint16          EntCount;
     guint16          AvailCount;
-    guint32          loc_offset = 0;
     int              i;
     proto_tree       *server_tree = NULL, *flags_tree = NULL, *share_tree = NULL;
 
@@ -873,42 +888,34 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
     si.request_val -> trans_response_seen = 1; 
 
-    is_interim_response = (DataOffset < 0);
-
     switch (FunctionCode) {
 
     case NETSHAREENUM:
 
-      if (is_interim_response) {
-
-	if (check_col(fd, COL_INFO)) {
-
-	  col_set_str(fd, COL_INFO, "NetShareEnum Interim Response");
-
-	}
-
-	return TRUE;
-
-      }
-
       if (check_col(fd, COL_INFO)) {
 
-	col_set_str(fd, COL_INFO, "NetShareEnum Response");
+	col_set_str(fd, COL_INFO,
+	    is_interim_response ? "NetShareEnum Interim Response" :
+				  "NetShareEnum Response");
 
       }
 
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, END_OF_FRAME, FALSE);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, loc_offset, END_OF_FRAME, FALSE);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
       
-	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 0, "Function Code: NetShareEnum");
+	proto_tree_add_text(lanman_tree, NullTVB, 0, 0, "Function Code: NetShareEnum");
+
+      }
+
+      if (is_interim_response) {
+
+	return TRUE;	/* no data to dissect */
 
       }
 
       si.request_val -> trans_response_seen = 1; 
-
-      loc_offset = SMB_offset + ParameterOffset;
 
       Status = GSHORT(pd, loc_offset);
 
@@ -1016,34 +1023,28 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
     case NETSERVERENUM2:
 
-      if (is_interim_response) {
-
-	if (check_col(fd, COL_INFO)) {
-
-	  col_set_str(fd, COL_INFO, "NetShareEnum2 Interim Response");
-
-	}
-
-	return TRUE;
-
-      }
-
       if (check_col(fd, COL_INFO)) {
 
-	col_set_str(fd, COL_INFO, "NetServerEnum2 Response");
-
+	col_set_str(fd, COL_INFO,
+	    is_interim_response ? "NetServerEnum2 Interim Response" :
+				  "NetServerEnum2 Response");
       }
 
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, END_OF_FRAME, FALSE);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, loc_offset, END_OF_FRAME, FALSE);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
       
-	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Function Code: NetServerEnum2");
+	proto_tree_add_text(lanman_tree, NullTVB, 0, 0, "Function Code: NetServerEnum2");
 
       }
 
-      loc_offset = SMB_offset + ParameterOffset;
+      if (is_interim_response) {
+
+	return TRUE;	/* no data to dissect */
+
+      }
+
       Status = GSHORT(pd, loc_offset);
 
       if (tree) {
@@ -1187,45 +1188,35 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       lanman = find_lanman(si.request_val -> last_lanman_cmd);
 
-      if (is_interim_response) {
-
-	if (check_col(fd, COL_INFO)) {
-
-	  if (lanman) {
-	    col_add_fstr(fd, COL_INFO, "%s Interim Response", lanman -> lanman_name);
-	  }
-	  else {
-	    col_add_fstr(fd, COL_INFO, "Unknown LANMAN Interim Response: %u", FunctionCode);
-	  }
-	}
-
-	return TRUE;
-
-      }
-
       if (check_col(fd, COL_INFO)) {
 
 	if (lanman) {
-	  col_add_fstr(fd, COL_INFO, "%s Response", lanman -> lanman_name);
+	  col_add_fstr(fd, COL_INFO, "%s %sResponse", lanman -> lanman_name,
+		is_interim_response ? "Interim " : "");
 	}
 	else {
-	  col_add_fstr(fd, COL_INFO, "Unknown LANMAN Response: %u", FunctionCode);
+	  col_add_fstr(fd, COL_INFO, "Unknown LANMAN %sResponse: %u",
+		is_interim_response ? "Interim " : "", FunctionCode);
 	}
       }
 
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, END_OF_FRAME, FALSE);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, loc_offset, END_OF_FRAME, FALSE);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
 	if (lanman) {
 	  proto_tree_add_text(lanman_tree, NullTVB, 0, 0, "%s Response", lanman -> lanman_name);
 	}
 	else {
-	  proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 0, "Function Code: Unknown LANMAN Response: %u", FunctionCode);
+	  proto_tree_add_text(lanman_tree, NullTVB, 0, 0, "Function Code: Unknown LANMAN Response: %u", FunctionCode);
 	}
       }
 
-      loc_offset = SMB_offset + ParameterOffset;
+      if (is_interim_response) {
+
+	return TRUE;	/* no data to dissect */
+
+      }
 
       Status = GSHORT(pd, loc_offset);
 
