@@ -25,6 +25,20 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-int is_tpkt( tvbuff_t *tvb, unsigned int* offset );
-int dissect_tpkt( tvbuff_t *tvb, unsigned int* offset, packet_info *pinfo, proto_tree *tree );
-void proto_register_tpkt( void );
+/*
+ * Check whether this could be a TPKT-encapsulated PDU.
+ */
+gboolean is_tpkt( tvbuff_t *tvb, unsigned int* offset );
+
+
+/*
+ * Dissect the TPKT header; called from the TPKT dissector, as well as
+ * from dissectors such as the dissector for Q.931-over-TCP.
+ *
+ * Returns -1 if we didn't dissect it as a TPKT header, otherwise returns
+ * the PDU length from the TPKT header.
+ *
+ * Sets "*offset" to the offset following the TPKT header.
+ */
+int dissect_tpkt_header( tvbuff_t *tvb, unsigned int* offset,
+    packet_info *pinfo, proto_tree *tree );

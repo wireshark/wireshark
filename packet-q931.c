@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.25 2001/03/27 08:00:00 guy Exp $
+ * $Id: packet-q931.c,v 1.26 2001/03/28 07:49:39 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -42,8 +42,8 @@
 #include "nlpid.h"
 #include "packet-q931.h"
 
-#ifdef H323
 #include "packet-tpkt.h"
+#ifdef H323
 #include "packet-h225.h"
 #endif
 
@@ -2120,6 +2120,7 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int		codeset; 
 	gboolean	non_locking_shift;
 	guint8		protocol_discriminator;
+	int		lv_tpkt_len;
 
 #ifdef H323
 	tvbuff_t	*h225_tvb;
@@ -2142,7 +2143,6 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	protocol_discriminator = tvb_get_guint8( tvb, offset );
 	    /* Keep the protocol discriminator for later use */
 
-#ifdef H323
 	if ( started_heuristic ) {
 		/*
 		 * The heuristic Q.931 message should conform to this
@@ -2160,7 +2160,7 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* 
 	 * The first byte should be < 8 (3 is TPKT, rest is Q.931)
 	 */
-	if ( protocol_discriminator < 8 ) {
+	if ( protocol_discriminator < NLPID_Q_931 ) {
 		/*
 		 * The minimum length of a Q.931 message is 3:
 		 * 1 byte for the protocol discriminator,
@@ -2174,7 +2174,7 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * OK, there are a couple of bytes available, but is there 
 		 * also a protocol discriminator?
 		 */
-		if ( tvb_length_remaining( tvb, offset ) > 3 ) {
+		if ( tvb_length_remaining( tvb, offset ) > 4 ) {
 			/* Reread the protocol discriminator */
 			protocol_discriminator =
 			    tvb_get_guint8( tvb, offset + 4);
@@ -2196,7 +2196,16 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if ( ! is_tpkt( tvb, &offset ) ) 
 			return FALSE;
 
-		dissect_tpkt( tvb, &offset, pinfo, tree );
+		lv_tpkt_len = dissect_tpkt_header( tvb, &offset, pinfo, tree );
+
+		/*
+		 * Check if it's an empty TPKT message (the next one might be a 
+		 * real Q.931 message)
+		 * Skip TPKT length!
+		 */
+		if ( tvb_length_remaining( tvb, offset ) < lv_tpkt_len - 4 ) {
+			return TRUE;
+		}
 
 		/*
 		 * Reset the current_proto variable because dissect_tpkt
@@ -2207,7 +2216,6 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		else 
 			pinfo->current_proto = "Q.931";
 	}
-#endif
 
 	/*
 	 * The minimum length of a Q.931 message is
@@ -2584,7 +2592,6 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 }
 
-#ifdef H323
 gboolean
 dissect_q931_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2600,7 +2607,6 @@ dissect_q931_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->current_proto = "Q.931 HEUR";
 	return q931_dissector(tvb, pinfo, tree, TRUE);
 }
-#endif
 
 void
 dissect_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -2644,7 +2650,5 @@ proto_register_q931(void)
 void
 proto_reg_handoff_q931(void)
 {
-#ifdef H323
-	heur_dissector_add("tcp", dissect_q931_heur);
-#endif
+	heur_dissector_add("tcp", dissect_q931_heur, proto_q931);
 }

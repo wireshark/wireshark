@@ -1,8 +1,11 @@
 /* packet-tpkt.c
  *
- * Routines for TPKT dissection
+ * Routine to check for RFC 1006 TPKT header and to dissect TPKT header
  * Copyright 2000, Philips Electronics N.V.
  * Andreas Sikkema <andreas.sikkema@philips.com>
+ *
+ * Routine to dissect RFC 1006 TPKT packet containing OSI TP PDU
+ * Copyright 2001, Martin Thomas <Martin_A_Thomas@yahoo.com>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,20 +26,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
-/*
- * This dissector tries to dissect the TPKT protocol according to
- * RFC 1006
- *
- * IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT 
- *
- * Please examine the dissector. It is NOT defined in the normal way!
- * Some variables are references and the dissector also returns a 
- * value! And no, this is not a heuristic dissector!
- * 
- * IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT 
- */
-
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -67,69 +56,121 @@ static int hf_tpkt_length      = -1;
 /* TPKT fields defining a sub tree */
 static gint ett_tpkt           = -1;
 
-int 
+#define TCP_PORT_TPKT	102
+
+/* find the dissector for OSI TP (aka COTP) */
+static dissector_handle_t osi_tp_handle; 
+
+/*
+ * Check whether this could be a TPKT-encapsulated PDU.
+ */
+gboolean
 is_tpkt( tvbuff_t *tvb, unsigned int* offset )
 {
-	if ( (*offset) + 4 > tvb_length( tvb ) ) return FALSE;
-	if ( ! ( ( tvb_get_guint8( tvb, ( *offset ) ) == 3 ) && 
-		       ( tvb_get_guint8( tvb, ( *offset ) + 1 ) == 0 ) ) ) return FALSE;
-
-  return TRUE;
-}
-
-int
-dissect_tpkt( tvbuff_t *tvb, unsigned int* offset, packet_info *pinfo, proto_tree *tree )
-{
-	proto_item *ti            = NULL;
-	proto_tree *tpkt_tree     = NULL;
-	unsigned int data_len = 0;
-
-
-	pinfo->current_proto = "TPKT";
-
 	/* There should at least be 4 bytes left in the frame */
-	if ( (*offset) + 4 > tvb_length( tvb ) ) return -1;
+	if ( (*offset) + 4 > tvb_length( tvb ) )
+		return FALSE;	/* there isn't */
 	/* 
 	 * The first octet should be 3 and the second one should be 0 
 	 * The H.323 implementers guide suggests that this migh not 
 	 * always be the case....
 	 */
 	if ( ! ( ( tvb_get_guint8( tvb, ( *offset ) ) == 3 ) && 
-		       ( tvb_get_guint8( tvb, ( *offset ) + 1 ) == 0 ) ) ) return -1;
+		 ( tvb_get_guint8( tvb, ( *offset ) + 1 ) == 0 ) ) )
+		return FALSE;	/* They're not */
+
+	return TRUE;
+}
+
+/*
+ * Dissect the TPKT header; called from the TPKT dissector, as well as
+ * from dissectors such as the dissector for Q.931-over-TCP.
+ *
+ * Returns -1 if we didn't dissect it as a TPKT header, otherwise returns
+ * the PDU length from the TPKT header.
+ *
+ * Sets "*offset" to the offset following the TPKT header.
+ */
+int
+dissect_tpkt_header( tvbuff_t *tvb, unsigned int* offset, packet_info *pinfo, proto_tree *tree )
+{
+	proto_item *ti            = NULL;
+	proto_tree *tpkt_tree     = NULL;
+	guint16 data_len;
+
+	/*
+	 * If TPKT is disabled, don't dissect it, just return -1, meaning
+	 * "this isn't TPKT".
+	 */
+	if (!proto_is_protocol_enabled(proto_tpkt))
+		return -1;
+
+	pinfo->current_proto = "TPKT";
 
 	if ( check_col( pinfo->fd, COL_PROTOCOL ) ) {
 		col_set_str( pinfo->fd, COL_PROTOCOL, "TPKT" );
 	}
 	
-	if ( check_col( pinfo->fd, COL_INFO) ) {
-		/*data_len = pntohs( &pd[ (*offset) + 2 ] );*/
-		data_len = tvb_get_ntohs( tvb, (*offset) + 2 );
+	data_len = tvb_get_ntohs( tvb, (*offset) + 2 );
 
-		col_add_fstr( pinfo->fd, COL_INFO, "TPKT Data length = %d", data_len );
+	if ( check_col( pinfo->fd, COL_INFO) ) {
+		col_add_fstr( pinfo->fd, COL_INFO, "TPKT Data length = %u",
+		    data_len );
 	}
 
 	if ( tree ) {
-		ti = proto_tree_add_item( tree, proto_tpkt, tvb, (*offset), 4, FALSE );
+		ti = proto_tree_add_item( tree, proto_tpkt, tvb, (*offset), 4,
+		    FALSE );
 		tpkt_tree = proto_item_add_subtree( ti, ett_tpkt );
 		/* Version 1st octet */
-		proto_tree_add_item( tpkt_tree, hf_tpkt_version, tvb, (*offset), 1, FALSE );
+		proto_tree_add_item( tpkt_tree, hf_tpkt_version, tvb,
+		    (*offset), 1, FALSE );
 		(*offset)++;
 		/* Reserved octet*/
-		proto_tree_add_item( tpkt_tree, hf_tpkt_reserved, tvb, (*offset), 1, FALSE );
+		proto_tree_add_item( tpkt_tree, hf_tpkt_reserved, tvb,
+		    (*offset), 1, FALSE );
 		(*offset)++;
 	}
 	else {
 		(*offset) += 2;
 	}
-	/* Length, two octets */
-	/*data_len = pntohs( &pd[ (*offset) ] );*/
-	data_len = tvb_get_ntohs( tvb, (*offset) );
 
 	if ( tree )
-		proto_tree_add_uint_format( tpkt_tree, hf_tpkt_length, tvb, (*offset), 2, data_len, "Length: %d", data_len );
+		proto_tree_add_uint( tpkt_tree, hf_tpkt_length, tvb,
+		    (*offset), 2, data_len );
 
 	(*offset) += 2;
 	return data_len;
+}
+
+/*
+ * Dissect RFC 1006 TPKT, which wraps a TPKT header around an OSI TP
+ * PDU.
+ */
+static void
+dissect_tpkt( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+{
+	int tpkt_len;
+	int offset = 0;
+	int length, reported_length;
+	tvbuff_t *next_tvb;
+
+	/* Dissect the TPKT header. */
+	tpkt_len = dissect_tpkt_header(tvb, &offset, pinfo, tree);
+
+	/*
+	 * Now hand the minimum of (what's in this frame, what the TPKT
+	 * header says is in the PDU) on to the OSI TP dissector.
+	 */
+	length = tvb_length_remaining(tvb, offset);
+	reported_length = tvb_reported_length_remaining(tvb, offset);
+	if (length > tpkt_len)
+		length = tpkt_len;
+	if (reported_length > tpkt_len)
+		reported_length = tpkt_len;
+	next_tvb = tvb_new_subset(tvb, offset, length, reported_length);
+
+	call_dissector(osi_tp_handle, next_tvb, pinfo, tree);
 }
 
 void
@@ -173,7 +214,7 @@ proto_register_tpkt(void)
 				"" 
 			}
 		},
-};
+	};
 	
 	static gint *ett[] = 
 	{
@@ -184,4 +225,11 @@ proto_register_tpkt(void)
 	proto_tpkt = proto_register_protocol("TPKT", "TPKT", "tpkt");
 	proto_register_field_array(proto_tpkt, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_tpkt(void)
+{
+	osi_tp_handle = find_dissector("ositp");
+	dissector_add("tcp.port", TCP_PORT_TPKT, dissect_tpkt, proto_tpkt);
 }
