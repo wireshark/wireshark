@@ -21,14 +21,17 @@ LDFLAGS = /NOLOGO /SUBSYSTEM:console /INCREMENTAL:no /MACHINE:I386 \
 CFLAGS=-DHAVE_CONFIG_H $(LOCAL_CFLAGS) /I$(GLIB_DIR) /I$(GTK_DIR) /Iwiretap \
 	/I$(GTK_DIR)\gdk\win32
 
-OBJECTS=capture.obj column.obj dfilter-grammar.obj dfilter-scanner.obj \
-	dfilter.obj display.obj ethereal.obj ethertype.obj file.obj \
-	filter.obj follow.obj gtkpacket.obj menu.obj \
-	packet-aarp.obj \
+OBJECTS=packet-aarp.obj \
+	packet-afs.obj \
 	packet-arp.obj \
+	packet-ascend.obj \
 	packet-atalk.obj \
 	packet-atm.obj \
+	packet-auto-rp.obj \
+	packet-bgp.obj \
 	packet-bootp.obj \
+	packet-bootparams.obj \
+	packet-bpdu.obj \
 	packet-cdp.obj \
 	packet-clip.obj \
 	packet-data.obj \
@@ -38,49 +41,109 @@ OBJECTS=capture.obj column.obj dfilter-grammar.obj dfilter-scanner.obj \
 	packet-ftp.obj \
 	packet-giop.obj \
 	packet-gre.obj \
+	packet-hsrp.obj \
 	packet-http.obj \
 	packet-icmpv6.obj \
+	packet-icp.obj \
+	packet-icq.obj \
+	packet-imap.obj \
 	packet-ip.obj \
 	packet-ipsec.obj \
 	packet-ipv6.obj \
 	packet-ipx.obj \
+	packet-irc.obj \
 	packet-isakmp.obj \
+	packet-isis.obj \
+	packet-isis-clv.obj \
+	packet-isis-hello.obj \
+	packet-isis-lsp.obj \
+	packet-isis-snp.obj \
 	packet-lapb.obj \
+	packet-lapd.obj \
+	packet-ldap.obj \
 	packet-llc.obj \
 	packet-lpd.obj \
+	packet-mapi.obj \
+	packet-mount.obj \
 	packet-nbipx.obj \
 	packet-nbns.obj \
 	packet-ncp.obj \
 	packet-netbios.obj \
+	packet-nfs.obj \
+	packet-nlm.obj \
 	packet-nntp.obj \
 	packet-null.obj \
 	packet-osi.obj \
 	packet-ospf.obj \
+	packet-pim.obj \
 	packet-pop.obj \
+	packet-portmap.obj \
 	packet-ppp.obj \
 	packet-pppoe.obj \
 	packet-pptp.obj \
+	packet-q2931.obj \
+	packet-q931.obj \
 	packet-radius.obj \
 	packet-raw.obj \
 	packet-rip.obj \
+	packet-ripng.obj \
+	packet-rpc.obj \
 	packet-rsvp.obj \
 	packet-rtsp.obj \
+	packet-rx.obj \
+	packet-sap.obj \
 	packet-sdp.obj \
 	packet-smb.obj \
+	packet-sna.obj \
 	packet-snmp.obj \
+	packet-srvloc.obj \
+	packet-sscop.obj \
+	packet-stat.obj \
+	packet-tacacs.obj \
 	packet-tcp.obj \
 	packet-telnet.obj \
 	packet-tftp.obj \
+	packet-sns.obj \
 	packet-tr.obj \
 	packet-trmac.obj \
 	packet-udp.obj \
+	packet-v120.obj \
 	packet-vines.obj \
+	packet-vlan.obj \
+	packet-vrrp.obj \
+	packet-wccp.obj \
+	packet-who.obj \
 	packet-x25.obj \
-	packet.obj prefs.obj print.obj proto.obj ps.obj \
-	resolv.obj snprintf.obj strerror.obj summary.obj util.obj \
-	xdlc.obj
+	packet-yhoo.obj \
+	packet-ypbind.obj \
+	packet-ypserv.obj \
+	packet-ypxfr.obj \
+	asn1.obj \
+	capture.obj \
+	colors.obj \
+	column.obj \
+	conversation.obj \
+	dfilter-grammar.obj \
+	dfilter-scanner.obj \
+	dfilter.obj \
+	ethertype.obj \
+	file.obj \
+	follow.obj \
+	ipproto.obj \
+	packet.obj \
+	prefs.obj \
+	print.obj \
+	proto.obj \
+	ps.obj \
+	register.obj \
+	resolv.obj \
+	summary.obj \
+	util.obj \
+	xdlc.obj \
+	snprintf.obj \
+	strerror.obj 
 
-LIBS= wiretap\libwtap.lib wsock32.lib \
+LIBS= wiretap\libwtap.lib gtk\libui.lib wsock32.lib \
 	$(GTK_DIR)\gtk\gtk-$(GTK_VERSION).lib \
 	$(GTK_DIR)\gdk\win32\gdk-$(GTK_VERSION).lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
