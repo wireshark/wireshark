@@ -1188,6 +1188,8 @@ Erik Nordström <erik.nordstrom[AT]it.uu.se> {
 
 Devin Heitmueller <dheitmueller[AT]netilla.com> {
 	Additional RAP error code
+	Give the user a warning if they click "New" in the filter list
+	    editing code without having specified a filter name and string
 }
 
 Chenjiang Hu <chu[AT]chiaro.com> {

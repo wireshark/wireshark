@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.36 2002/05/02 23:49:21 guy Exp $
+ * $Id: filter_prefs.c,v 1.37 2002/06/22 20:00:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -979,6 +979,13 @@ filter_new_bt_clicked_cb(GtkWidget *w, gpointer data)
     args.active_filter_l = filter_l;
     args.nflp = fl_entry;
     g_list_foreach(get_filter_dialog_list(list), new_filter_cb, &args);
+  } else {
+    /* Give the user some basic directions on how to use the 'new' button */
+    simple_dialog(ESD_TYPE_WARN, NULL,
+     "You have left either the 'Filter name' or 'Filter string' field empty.\n"
+     "To add a new filter, enter a name for the filter, and enter the expression\n"
+     "for the filter or use the 'Add Expression...' button to construct an\n"
+     "expression, then click 'New'.");
   }
 }
 
