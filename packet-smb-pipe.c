@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.83 2002/10/24 06:17:34 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.84 2002/11/16 09:37:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2493,11 +2493,19 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 		 * TCP desegmentation, or if we had a snapshot
 		 * length that was too short.
 		 *
-		 * We can't dissect the data; just show it
-		 * as raw data.
+		 * We can't dissect the data; just show it as raw data or,
+		 * if we've already created a top-level item, note that
+		 * no descriptor is available.
 		 */
-		proto_tree_add_text(tree, tvb, offset, -1,
-		    "Data (no descriptor available)");
+		if (has_ent_count) {
+			if (data_item != NULL) {
+				proto_item_append_text(data_item,
+				    " (No descriptor available)");
+			}
+		} else {
+			proto_tree_add_text(data_tree, tvb, offset, -1,
+			    "Data (no descriptor available)");
+		}
 		offset += tvb_length_remaining(tvb, offset);
 	} else {
 		/*
@@ -2782,22 +2790,63 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		proto_tree_add_uint(tree, hf_convert, p_tvb, offset, 2, convert);
 		offset += 2;
 
-		/* rest of the parameters */
-		offset = dissect_response_parameters(p_tvb, offset, pinfo, tree,
-		    trp->param_descrip, lanman->resp, &has_data,
-		    &has_ent_count, &ent_count);
-
-		/* reset offset, we now start dissecting the data area */
-		offset = 0;
-		/* data */
-		if (has_data && d_tvb && tvb_reported_length(d_tvb) > 0) {
+		if (trp->param_descrip == NULL) {
 			/*
-			 * There's a receive buffer item in the descriptor
-			 * string, and the data count in the transaction
-			 * is non-zero, so there's data to dissect.
+			 * This could happen if we only dissected
+			 * part of the request to which this is a
+			 * reply, e.g. if the request was split
+			 * across TCP segments and we weren't doing
+			 * TCP desegmentation, or if we had a snapshot
+			 * length that was too short.
+			 *
+			 * We can't dissect the parameters; just show them
+			 * as raw data.
 			 */
-			dissect_response_data(d_tvb, pinfo, convert, tree,
-			    smb_info, lanman, has_ent_count, ent_count);
+			proto_tree_add_text(tree, p_tvb, offset, -1,
+			    "Parameters (no descriptor available)");
+
+			/*
+			 * We don't know whether we have a receive buffer,
+			 * as we don't have the descriptor; just show what
+			 * bytes purport to be data.
+			 */
+			if (d_tvb && tvb_reported_length(d_tvb) > 0) {
+				proto_tree_add_text(tree, d_tvb, 0, -1,
+				    "Data (no descriptor available)");
+			}
+		} else {
+			/* rest of the parameters */
+			offset = dissect_response_parameters(p_tvb, offset,
+			    pinfo, tree, trp->param_descrip, lanman->resp,
+			    &has_data, &has_ent_count, &ent_count);
+
+			/* reset offset, we now start dissecting the data area */
+			offset = 0;
+			/* data */
+			if (d_tvb && tvb_reported_length(d_tvb) > 0) {
+				/*
+				 * Well, there are bytes that purport to
+				 * be data, at least.
+				 */
+				if (has_data) {
+					/*
+					 * There's a receive buffer item
+					 * in the descriptor string, so
+					 * dissect it as response data.
+					 */
+					dissect_response_data(d_tvb, pinfo,
+					    convert, tree, smb_info, lanman,
+					    has_ent_count, ent_count);
+				} else {
+					/*
+					 * There's no receive buffer item,
+					 * but we do have data, so just
+					 * show what bytes are data.
+					 */
+					proto_tree_add_text(tree, d_tvb, 0, -1,
+					    "Data (no receive buffer)");
+				}
+			}
 		}
 	}
 
