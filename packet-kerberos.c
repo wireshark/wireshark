@@ -14,7 +14,7 @@
  *
  *	http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-03.txt
  *
- * $Id: packet-kerberos.c,v 1.41 2003/07/08 06:39:13 guy Exp $
+ * $Id: packet-kerberos.c,v 1.42 2003/12/04 08:15:20 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1187,6 +1187,13 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	                        "Error Code: %s",
 				val_to_str(tmp_int, krb5_error_codes,
                                            "Unknown error code %#x"));
+	    if(tmp_int){
+       		if (check_col(pinfo->cinfo, COL_INFO)) {
+	           col_append_fstr(pinfo->cinfo, COL_INFO, ", KRB Error:%s",
+				val_to_str(tmp_int, krb5_error_codes,
+                                           "Unknown error code %#x"));
+		}
+	    }
 	}
         offset += item_len;
 	KRB_HEAD_DECODE_OR_DIE("crealm");
