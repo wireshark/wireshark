@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.49 2004/01/01 13:16:40 ulfl Exp $
+ * $Id: gui_prefs.c,v 1.50 2004/01/09 08:36:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,7 @@
 #include "dlg_utils.h"
 #include "proto_draw.h"
 #include "main.h"
+#include "packet_list.h"
 #include "compat_macros.h"
 #include "toolbar.h"
 

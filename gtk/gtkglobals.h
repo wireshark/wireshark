@@ -1,7 +1,7 @@
 /* gtkglobals.h
  * GTK-related Global defines, etc.
  *
- * $Id: gtkglobals.h,v 1.23 2003/12/24 01:21:32 guy Exp $
+ * $Id: gtkglobals.h,v 1.24 2004/01/09 08:36:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,14 +31,9 @@ extern GdkFont   *m_r_font, *m_b_font;
 extern guint      m_font_height, m_font_width;
 
 extern GtkStyle  *item_style;
-
-void set_plist_font(GdkFont *font);
 #else
 extern PangoFontDescription *m_r_font, *m_b_font;
-
-void set_plist_font(PangoFontDescription *font);
 #endif
-void set_plist_sel_browse(gboolean);
 
 #if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
 /*

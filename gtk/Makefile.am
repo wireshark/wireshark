@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.84 2003/12/29 22:43:33 guy Exp $
+# $Id: Makefile.am,v 1.85 2004/01/09 08:36:22 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -116,6 +116,7 @@ libui_a_SOURCES = \
 	nameres_prefs.c	\
 	nameres_prefs.h	\
 	packet_list.c	\
+	packet_list.h	\
 	packet_win.c	\
 	packet_win.h	\
 	plugins_dlg.c	\
@@ -182,6 +183,8 @@ libui_a_SOURCES = \
 	dlg_utils.h	\
 	endpoint_talkers_table.c \
 	endpoint_talkers_table.h \
+	ethclist.c	\
+	ethclist.h	\
 	ethereal-tap-register.c \
 	file_dlg.c	\
 	file_dlg.h	\
@@ -193,8 +196,6 @@ libui_a_SOURCES = \
 	follow_dlg.h	\
 	goto_dlg.c	\
 	goto_dlg.h	\
-	gtkclist_v12.c	\
-	gtkclist_v12.h	\
 	gtkglobals.h	\
 	gtk_stat_util.c \
 	gtk_stat_util.h \
@@ -210,6 +211,7 @@ libui_a_SOURCES = \
 	nameres_prefs.c	\
 	nameres_prefs.h	\
 	packet_list.c	\
+	packet_list.h	\
 	packet_win.c	\
 	packet_win.h	\
 	plugins_dlg.c	\

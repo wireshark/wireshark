@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.135 2004/01/06 22:38:07 guy Exp $
+ * $Id: menu.c,v 1.136 2004/01/09 08:36:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,6 +64,8 @@
 #include "../tap.h"
 #include "../menu.h"
 #include "../ipproto.h"
+#include "packet_list.h"
+#include "ethclist.h"
 
 GtkWidget *popup_menu_object;
 
@@ -888,7 +890,6 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
     GtkWidget *menu = NULL;
     GdkEventButton *event_button = NULL;
-    GtkCList *packet_list = NULL;
     gint row, column;
 
     if(widget == NULL || event == NULL || data == NULL) {
@@ -897,18 +898,15 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 
     /*
      * If we ever want to make the menu differ based on what row
-     * and/or column we're above, we'd use "gtk_clist_get_selection_info()"
+     * and/or column we're above, we'd use "eth_clist_get_selection_info()"
      * to find the row and column number for the coordinates; a CTree is,
      * I guess, like a CList with one column(?) and the expander widget
      * as a pixmap.
      */
     /* Check if we are on packet_list object */
     if (widget == OBJECT_GET_DATA(popup_menu_object, E_MPACKET_LIST_KEY)) {
-        packet_list=GTK_CLIST(widget);
-        if (gtk_clist_get_selection_info(GTK_CLIST(packet_list),
-                                         (gint) (((GdkEventButton *)event)->x),
-                                         (gint) (((GdkEventButton *)event)->y),
-                                         &row,&column)) {
+        if (packet_list_get_event_row_column(widget, (GdkEventButton *)event,
+                                             &row, &column)) {
             OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_ROW_KEY,
                             GINT_TO_POINTER(row));
             OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_COL_KEY,
