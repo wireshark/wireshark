@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.16 1999/10/12 23:12:01 guy Exp $
+ * $Id: packet-ipv6.c,v 1.17 1999/10/13 02:04:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -79,6 +79,9 @@ dissect_routing6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	rthdr_tree = proto_item_add_subtree(ti, ETT_IPv6);
 
 	proto_tree_add_text(rthdr_tree,
+	    offset + offsetof(struct ip6_rthdr, ip6r_nxt), 1,
+	    "Next header: 0x%02x", rt.ip6r_nxt);
+	proto_tree_add_text(rthdr_tree,
 	    offset + offsetof(struct ip6_rthdr, ip6r_len), 1,
 	    "Length: %d (%d bytes)", rt.ip6r_len, len);
 	proto_tree_add_text(rthdr_tree,
@@ -152,7 +155,10 @@ dissect_opts(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	dstopt_tree = proto_item_add_subtree(ti, ETT_IPv6);
 
 	proto_tree_add_text(dstopt_tree,
-	    offset + offsetof(struct ip6_dest, ip6d_len), 1,
+	    offset + offsetof(struct ip6_ext, ip6e_nxt), 1,
+	    "Next header: 0x%02x", ext.ip6e_nxt);
+	proto_tree_add_text(dstopt_tree,
+	    offset + offsetof(struct ip6_ext, ip6e_len), 1,
 	    "Length: %d (%d bytes)", ext.ip6e_len, len);
 
 	p = (u_char *)(pd + offset + 2);
@@ -187,7 +193,7 @@ dissect_opts(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		char *rta;
 
 		if (p[1] == 2) {
-		    switch (*(guint16 *)&p[2]) {
+		    switch (ntohs(*(guint16 *)&p[2])) {
 		    case IP6OPT_RTALERT_MLD:
 			rta = "MLD";
 			break;
@@ -278,7 +284,7 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     proto_tree_add_text(ipv6_tree,
 		offset + offsetof(struct ip6_hdr, ip6_nxt), 1,
-		"Next Header: %d", ipv6.ip6_nxt);
+		"Next header: 0x%02x", ipv6.ip6_nxt);
 
     proto_tree_add_text(ipv6_tree,
 		offset + offsetof(struct ip6_hdr, ip6_hlim), 1,
