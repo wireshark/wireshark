@@ -1,8 +1,9 @@
-/* packet-gre.c
- * Routines for the Internet Security Association and Key Management Protocol (ISAKMP)
+/* packet-isakmp.c
+ * Routines for the Internet Security Association and Key Management Protocol
+ * (ISAKMP) (RFC 2408)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.22 2000/05/31 05:07:11 guy Exp $
+ * $Id: packet-isakmp.c,v 1.23 2000/07/02 03:25:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -180,22 +181,22 @@ struct isakmp_hdr {
 #define E_FLAG		0x01
 #define C_FLAG		0x02
 #define A_FLAG		0x04
-  guint32	message_id;
-  guint32	length;
+  guint8	message_id[4];
+  guint8	length[4];
 };
 
 struct sa_hdr {
   guint8	next_payload;
   guint8	reserved;
-  guint16	length;
-  guint32	doi;
-  guint32	situation;
+  guint8	length[2];
+  guint8	doi[4];
+  guint8	situation[4];
 };
 
 struct proposal_hdr {
   guint8	next_payload;
   guint8	reserved;
-  guint16	length;
+  guint8	length[2];
   guint8	proposal_num;
   guint8	protocol_id;
   guint8	spi_size;
@@ -205,10 +206,10 @@ struct proposal_hdr {
 struct trans_hdr {
   guint8	next_payload;
   guint8	reserved;
-  guint16	length;
+  guint8	length[2];
   guint8	transform_num;
   guint8	transform_id;
-  guint16	reserved2;
+  guint8	reserved2[2];
 };
 
 #define TRANS_LEN(p)	(pntohs(&((struct trans_hdr *)(p))->length))
@@ -216,83 +217,83 @@ struct trans_hdr {
 struct ke_hdr {
   guint8	next_payload;
   guint8	reserved;
-  guint16	length;
+  guint8	length[2];
 };
 
 struct id_hdr {
   guint8	next_payload;
   guint8	reserved;
-  guint16	length;
+  guint8	length[2];
   guint8	id_type;
   guint8	protocol_id;
-  guint16	port;
+  guint8	port[2];
 };
 
 struct cert_hdr {
   guint8	next_payload;
   guint8	reserved;
-  guint16	length;
+  guint8	length[2];
   guint8	cert_enc;
 };
 
 struct certreq_hdr {
   guint8	next_payload;
   guint8	reserved;
-  guint16	length;
+  guint8	length[2];
   guint8	cert_type;
 };
 
 struct hash_hdr {
   guint8	next_payload;
   guint8	reserved;
-  guint16	length;
+  guint8	length[2];
 };
 
 struct sig_hdr {
   guint8	next_payload;
   guint8	reserved;
-  guint16	length;
+  guint8	length[2];
 };
 
 struct nonce_hdr {
   guint8	next_payload;
   guint8	reserved;
-  guint16	length;
+  guint8	length[2];
 };
 
 struct notif_hdr {
   guint8	next_payload;
   guint8	reserved;
-  guint16	length;
-  guint32	doi;
+  guint8	length[2];
+  guint8	doi[4];
   guint8	protocol_id;
   guint8	spi_size;
-  guint16	msgtype;
+  guint8	msgtype[2];
 };
 
 struct delete_hdr {
   guint8	next_payload;
   guint8	reserved;
-  guint16	length;
-  guint32	doi;
+  guint8	length[2];
+  guint8	doi[4];
   guint8	protocol_id;
   guint8	spi_size;
-  guint16	num_spis;
+  guint8	num_spis[2];
 };
 
 struct vid_hdr {
   guint8	next_payload;
   guint8	reserved;
-  guint16	length;
+  guint8	length[2];
 };
 
 struct cfg_hdr {
   guint8	next_payload;
   guint8	reserved;
-  guint8	length;
+  guint8	length[2];
   guint8	type;
   guint8	reserved2;
-  guint16	identifier;
+  guint8	identifier[2];
 };
 
 static void dissect_none(const u_char *, int, frame_data *, proto_tree *);
@@ -1059,7 +1060,7 @@ dissect_config(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   offset += (sizeof(hdr->type) + sizeof(hdr->reserved2));
   
   proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->identifier),
-                      "Identifier: %u",hdr->identifier);
+                      "Identifier: %u", pntohs(&hdr->identifier));
   offset += sizeof(hdr->identifier);
   length -= sizeof(*hdr);
   
