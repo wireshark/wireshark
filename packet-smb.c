@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.53 1999/12/10 12:51:01 oabad Exp $
+ * $Id: packet-smb.c,v 1.54 1999/12/12 02:19:00 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -8936,12 +8936,12 @@ int get_byte_count(const u_char *pd)
 /* We pull out the next item in the appropriate place and display it */
 /* We display the parameters first, then the data, then any auxilliary data */
 
-int dissect_transact_next(u_char *pd, char *Name, int dirn, proto_tree *tree)
+int dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tree)
 {
   /*  guint8        BParam; */
   guint16       WParam = 0;
-  guint32       LParam;
-  const char    /**Bytes,*/ *AsciiZ;
+  guint32       LParam = 0;
+  const char    /**Bytes,*/ *AsciiZ = NULL;
   int           bc;
 
   while (1) {
@@ -8998,15 +8998,31 @@ int dissect_transact_next(u_char *pd, char *Name, int dirn, proto_tree *tree)
 
 	break;
 
+      case 'i':  /* A long word is returned */
+
+	if (dirn == 0) {
+
+	  LParam = GWORD(pd, pd_p_current);
+
+	  proto_tree_add_text(tree, pd_p_current, 4, "%s: %u (0x%08X)", (Name) ? Name : "Returned Long Word", LParam, LParam);
+
+	  pd_p_current += 2;
+
+	  return 1;
+
+	}
+
+	break;
+
       case 'D':  /* Double Word parameter */
 
 	if (dirn == 1) {
 
 	  LParam = GWORD(pd, pd_p_current);
 
-	  proto_tree_add_text(tree, pd_p_current, 4, "%s: %u (%08X)", (Name) ? Name : "DWord Param", LParam, LParam);
+	  proto_tree_add_text(tree, pd_p_current, 4, "%s: %u (0x%08X)", (Name) ? Name : "DWord Param", LParam, LParam);
 
-	  pd_p_current += 2;
+	  pd_p_current += 4;
 	  
 	  return 1;  /* That's it here */
 
@@ -9098,7 +9114,7 @@ int dissect_transact_next(u_char *pd, char *Name, int dirn, proto_tree *tree)
 
 	  WParam = GSHORT(pd, pd_p_current);
 
-	  proto_tree_add_text(tree, pd_p_current, 2, "%s: %u (%04X)", (Name) ? Name : "Receive Buffer Len", WParam, WParam);
+	  proto_tree_add_text(tree, pd_p_current, 2, "%s: %u (0x%04X)", (Name) ? Name : "Receive Buffer Len", WParam, WParam);
 
 	  pd_p_current += 2;
 
@@ -9890,24 +9906,25 @@ void dissect_server_flags(proto_tree *tree, int offset, int length, int flags)
 struct lanman_desc {
   int   lanman_num;
   char  *lanman_name;
-  char  *params[10];
+  char  **params;
 };
 
+static char *lm_params_req_0[]   = {"Detail Level", "Return Buffer Size", NULL};
+static char *lm_params_req_1[]   = {"Share Name", "Detail Level", "Receive Buffer Size", NULL};
+static char *lm_params_req_13[]  = {"Detail Level", "Receive Buffer Size", NULL};
+static char *lm_params_req_56[]  = {"User Name", "Detail Level", "Receive Buffer Size", NULL};
+static char *lm_params_req_104[] = {"Detail Level", "Return Buffer Size", "Server Type", "Domain", NULL};
+static char *lm_params_req_132[] = {"Reserved1", "Reserved2", "Detail Level", "UserInfoStruct?", "Length of UStruct", "Receive Buffer Size", NULL};
+static char *lm_params_req_133[] = {"Reserved1", "Reserved2", "Detail Level", "UserInfoStruct?", "Length of UStruct", "Receive Buffer Size", NULL};
+
 struct lanman_desc lmd[] = {
-  {0, "NetShareEnum", 
-   {"Detail Level", "Return Buffer Size", NULL}},
-  {1, "NetShareGetInfo", 
-   {"Share Name", "Detail Level", "Receive Buffer Size", NULL}},
-  {13, "NetServerGetInfo", 
-   {"Detail Level", "Receive Buffer Size", NULL}},
-  {56, "NetUserGetInfo",
-   {"User Name", "Detail Level", "Receive Buffer Size", NULL}},
-  {104, "NetServerEnum2", 
-   {"Detail Level", "Return Buffer Size", "Server Type", "Domain", NULL}},
-  {132, "NetWkstaUserLogon", 
-   {"Reserved1", "Reserved2", "Detail Level", "UserInfoStruct?", "Length of UStruct", "Receive Buffer Size", NULL}},
-  {133, "NetWkstaUserLogoff",
-   {"Reserved1", "Reserved2", "Detail Level", "UserInfoStruct?", "Length of UStruct", "Receive Buffer Size", NULL}},
+  {0, "NetShareEnum", lm_params_req_0},
+  {1, "NetShareGetInfo", lm_params_req_1},
+  {13, "NetServerGetInfo", lm_params_req_13},
+  {56, "NetUserGetInfo", lm_params_req_56},
+  {104, "NetServerEnum2", lm_params_req_104},
+  {132, "NetWkstaUserLogon", lm_params_req_132},
+  {133, "NetWkstaUserLogoff", lm_params_req_133},
   {-1, NULL, NULL}
 };
 
@@ -10466,6 +10483,48 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 	  loc_offset += 4;
 
 	}
+
+	break;
+
+      default:
+
+	if (check_col(fd, COL_INFO)) {
+
+	  col_add_fstr(fd, COL_INFO, "Unknown LANMAN Response: %u", FunctionCode);
+
+	}
+
+	if (tree) {
+
+	  ti = proto_tree_add_item(parent, proto_lanman, SMB_offset + ParameterOffset, END_OF_FRAME, NULL);
+	  lanman_tree = proto_item_add_subtree(ti, ett_lanman);
+	  proto_tree_add_text(lanman_tree, loc_offset, 0, "Function Code: Unknown LANMAN Response: %u", FunctionCode);
+
+	}
+
+	loc_offset = SMB_offset + ParameterOffset;
+
+	Status = GSHORT(pd, loc_offset);
+
+	if (tree) {
+
+	  proto_tree_add_text(lanman_tree, loc_offset, 2, "Status: %u", Status);
+
+	}
+
+	loc_offset += 2;
+
+	Convert = GSHORT(pd, loc_offset);
+
+	if (tree) {
+
+	proto_tree_add_text(lanman_tree, loc_offset, 2, "Convert: %u", Convert);
+
+	}
+
+	loc_offset += 2;
+
+	break;
 
       }
 
