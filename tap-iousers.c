@@ -1,7 +1,7 @@
 /* tap-iousers.c
  * iostat   2003 Ronnie Sahlberg
  *
- * $Id: tap-iousers.c,v 1.1 2003/01/22 01:24:04 sahlberg Exp $
+ * $Id: tap-iousers.c,v 1.2 2003/01/22 07:28:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,8 +33,9 @@
 #endif
 
 #include <string.h>
-#include "epan/packet_info.h"
-#include "epan/packet.h"
+#include <epan/packet_info.h>
+#include <epan/packet.h>
+#include <epan/resolv.h>
 #include "tap.h"
 #include "register.h"
 #include "packet-ip.h"
