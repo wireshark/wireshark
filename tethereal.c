@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.123 2002/02/24 01:26:42 guy Exp $
+ * $Id: tethereal.c,v 1.124 2002/02/24 03:33:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -213,6 +213,11 @@ get_positive_int(const char *string, const char *name)
 }
 
 #ifdef HAVE_LIBPCAP
+static gboolean has_autostop_filesize; /* TRUE if maximum capture file size is specified */
+static gint32 autostop_filesize = 0; /* Maximum capture file size */
+static gboolean has_autostop_duration; /* TRUE if maximum capture duration is specified */
+static gint32 autostop_duration = 0; /* Maximum capture duration */
+
 /*
  * Given a string of the form "<autostop criterion>:<value>", as might appear
  * as an argument to a "-a" option, parse it and set the criterion in
@@ -248,9 +253,11 @@ set_autostop_criterion(const char *autostoparg)
     return FALSE;
   }
   if (strcmp(autostoparg,"duration") == 0) {
-    cfile.autostop_duration = get_positive_int(p,"autostop duration");
+    has_autostop_duration = TRUE;
+    autostop_duration = get_positive_int(p,"autostop duration");
   } else if (strcmp(autostoparg,"filesize") == 0) {
-    cfile.autostop_filesize = get_positive_int(p,"autostop filesize");
+    has_autostop_filesize = TRUE;
+    autostop_filesize = get_positive_int(p,"autostop filesize");
   } else {
     return FALSE;
   }
@@ -354,8 +361,6 @@ main(int argc, char *argv[])
   cfile.snap		= WTAP_MAX_PACKET_SIZE;
   cfile.count		= 0;
 #ifdef HAVE_LIBPCAP
-  cfile.autostop_duration = 0;
-  cfile.autostop_filesize = 0;
   cfile.ringbuffer_on = FALSE;
   cfile.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
 #endif
@@ -440,6 +445,11 @@ main(int argc, char *argv[])
       case 'c':        /* Capture xxx packets */
 #ifdef HAVE_LIBPCAP
         packet_count = get_positive_int(optarg, "packet count");
+        if (packet_count == 0) {
+          fprintf(stderr, "tethereal: The specified packet count \"%s\" is zero\n",
+                  optarg);
+          exit(1);
+        }
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -628,7 +638,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   /* If they didn't specify a "-w" flag, but specified a maximum capture
      file size, tell them that this doesn't work, and exit. */
-  if (cfile.autostop_filesize != 0 && cfile.save_file == NULL) {
+  if (has_autostop_filesize && autostop_filesize != 0 && cfile.save_file == NULL) {
     fprintf(stderr, "tethereal: Maximum capture file size specified, but capture isn't being saved to a file.\n");
     exit(2);
   }
@@ -648,7 +658,7 @@ main(int argc, char *argv[])
       fprintf(stderr, "tethereal: Ring buffer requested, but capture isn't being saved in libpcap format.\n");
       exit(2);
     }
-    if (cfile.autostop_filesize == 0) {
+    if (!has_autostop_filesize || autostop_filesize == 0) {
       fprintf(stderr, "tethereal: Ring buffer requested, but no maximum capture file size was specified.\n");
       exit(2);
     }
@@ -792,8 +802,8 @@ capture(volatile int packet_count, int out_file_type)
   int         err;
   volatile int inpkts = 0;
   char        errmsg[1024+1];
-  condition *cnd_stop_capturesize;
-  condition *cnd_stop_timeout;
+  condition  *volatile cnd_stop_capturesize = NULL;
+  condition  *volatile cnd_stop_timeout = NULL;
 #ifndef _WIN32
   static const char ppamsg[] = "can't find PPA for ";
   char       *libpcap_warn;
@@ -944,10 +954,12 @@ capture(volatile int packet_count, int out_file_type)
   /* initialize capture stop conditions */ 
   init_capture_stop_conditions();
   /* create stop conditions */
-  cnd_stop_capturesize = cnd_new((char*)CND_CLASS_CAPTURESIZE,
-                                 (long)cfile.autostop_filesize * 1000);
-  cnd_stop_timeout = cnd_new((char*)CND_CLASS_TIMEOUT,
-                             (gint32)cfile.autostop_duration);
+  if (has_autostop_filesize)
+    cnd_stop_capturesize = cnd_new((char*)CND_CLASS_CAPTURESIZE,
+                                   (long)autostop_filesize * 1000);
+  if (has_autostop_duration)
+    cnd_stop_timeout = cnd_new((char*)CND_CLASS_TIMEOUT,
+                               (gint32)autostop_duration);
 
   if (packet_count == 0)
     packet_count = -1; /* infinite capturng */
@@ -961,11 +973,12 @@ capture(volatile int packet_count, int out_file_type)
     inpkts = pcap_dispatch(ld.pch, 1, capture_pcap_cb, (u_char *) &ld);
     if (packet_count == 0 || inpkts < 0) {
       ld.go = FALSE;
-    } else if (cnd_eval(cnd_stop_timeout) == TRUE) {
+    } else if (cnd_stop_timeout != NULL && cnd_eval(cnd_stop_timeout)) {
       /* The specified capture time has elapsed; stop the capture. */
       ld.go = FALSE;
-    } else if (ld.pdh != NULL && (cnd_eval(cnd_stop_capturesize, 
-                  (guint32)wtap_get_bytes_dumped(ld.pdh))) == TRUE){
+    } else if (ld.pdh != NULL && cnd_stop_capturesize != NULL &&
+                  cnd_eval(cnd_stop_capturesize, 
+                            (guint32)wtap_get_bytes_dumped(ld.pdh))) {
       /* We're saving the capture to a file, and the capture file reached
          its maximum size. */
       if (cfile.ringbuffer_on) {
@@ -986,8 +999,10 @@ capture(volatile int packet_count, int out_file_type)
   }
   
   /* delete stop conditions */
-  cnd_delete(cnd_stop_capturesize);
-  cnd_delete(cnd_stop_timeout);
+  if (cnd_stop_capturesize != NULL)
+    cnd_delete(cnd_stop_capturesize);
+  if (cnd_stop_timeout != NULL)
+    cnd_delete(cnd_stop_timeout);
 
   if (cfile.save_file != NULL) {
     /* We're saving to a file, which means we're printing packet counts

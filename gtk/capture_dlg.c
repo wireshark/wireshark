@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.59 2002/02/22 11:41:22 guy Exp $
+ * $Id: capture_dlg.c,v 1.60 2002/02/24 03:33:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -387,13 +387,13 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_widget_show(count_hb);
 
   count_cb = gtk_check_button_new_with_label("Stop capture after");
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(count_cb), FALSE);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(count_cb), has_autostop_count);
   gtk_signal_connect(GTK_OBJECT(count_cb), "toggled",
     GTK_SIGNAL_FUNC(capture_prep_adjust_sensitivity), GTK_OBJECT(cap_open_w));
   gtk_box_pack_start(GTK_BOX(count_hb), count_cb, FALSE, FALSE, 0);
   gtk_widget_show(count_cb);
 
-  count_adj = (GtkAdjustment *) gtk_adjustment_new(1,
+  count_adj = (GtkAdjustment *) gtk_adjustment_new(autostop_count,
     1, INT_MAX, 1.0, 10.0, 0.0);
   count_sb = gtk_spin_button_new (count_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (count_sb), TRUE);
@@ -412,13 +412,14 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_widget_show(filesize_hb);
 
   filesize_cb = gtk_check_button_new_with_label("");
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filesize_cb), FALSE);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filesize_cb),
+    has_autostop_filesize);
   gtk_signal_connect(GTK_OBJECT(filesize_cb), "toggled",
     GTK_SIGNAL_FUNC(capture_prep_adjust_sensitivity), GTK_OBJECT(cap_open_w));
   gtk_box_pack_start(GTK_BOX(filesize_hb), filesize_cb, FALSE, FALSE, 0);
   gtk_widget_show(filesize_cb);
 
-  filesize_adj = (GtkAdjustment *) gtk_adjustment_new(1,
+  filesize_adj = (GtkAdjustment *) gtk_adjustment_new(autostop_filesize,
     1, INT_MAX, 1.0, 10.0, 0.0);
   filesize_sb = gtk_spin_button_new (filesize_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (filesize_sb), TRUE);
@@ -437,13 +438,14 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_widget_show(duration_hb);
 
   duration_cb = gtk_check_button_new_with_label("Stop capture after");
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(duration_cb), FALSE);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(duration_cb),
+    has_autostop_duration);
   gtk_signal_connect(GTK_OBJECT(duration_cb), "toggled",
     GTK_SIGNAL_FUNC(capture_prep_adjust_sensitivity), GTK_OBJECT(cap_open_w));
   gtk_box_pack_start(GTK_BOX(duration_hb), duration_cb, FALSE, FALSE, 0);
   gtk_widget_show(duration_cb);
 
-  duration_adj = (GtkAdjustment *) gtk_adjustment_new(1,
+  duration_adj = (GtkAdjustment *) gtk_adjustment_new(autostop_duration,
     1, INT_MAX, 1.0, 10.0, 0.0);
   duration_sb = gtk_spin_button_new (duration_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (duration_sb), TRUE);
@@ -764,22 +766,17 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
     save_file = NULL;
   }
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(count_cb)))
-    cfile.count = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(count_sb));
-  else
-    cfile.count = 0;	/* no limit */
+  has_autostop_count = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(count_cb));
+  if (has_autostop_count)
+    autostop_count = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(count_sb));
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(filesize_cb))) {
-    cfile.autostop_filesize =
-        gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(filesize_sb));
-  } else
-    cfile.autostop_filesize = 0;	/* no limit */
+  has_autostop_filesize = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(filesize_cb));
+  if (has_autostop_filesize)
+    autostop_filesize = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(filesize_sb));
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(duration_cb))) {
-    cfile.autostop_duration =
-        gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(duration_sb));
-  } else
-    cfile.autostop_duration = 0;	/* no limit */
+  has_autostop_duration = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(duration_cb));
+  if (has_autostop_duration)
+    autostop_duration = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(duration_sb));
 
   sync_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sync_cb));
 
@@ -801,7 +798,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
       simple_dialog(ESD_TYPE_CRIT, NULL,
         "You must specify a save file if you want to use the ring buffer.");
       return;
-    } else if (cfile.autostop_filesize == 0) {
+    } else if (!has_autostop_filesize || autostop_filesize == 0) {
       simple_dialog(ESD_TYPE_CRIT, NULL,
         "You must specify a file size at which to rotate the capture files\n"
         "if you want to use the ring buffer.");

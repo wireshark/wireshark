@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.169 2002/02/08 10:07:33 guy Exp $
+ * $Id: capture.c,v 1.170 2002/02/24 03:33:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -169,10 +169,20 @@
 #include "capture-wpcap.h"
 #endif
 
+/*
+ * Capture options.
+ */
 gboolean has_snaplen;
 int snaplen;
 int promisc_mode; /* capture in promiscuous mode */
 int sync_mode;	/* fork a child to do the capture, and sync between them */
+gboolean has_autostop_count;
+int autostop_count;
+gboolean has_autostop_filesize;
+gint32 autostop_filesize;
+gboolean has_autostop_duration;
+gint32 autostop_duration;
+
 static int sync_pipe[2]; /* used to sync father */
 enum PIPES { READ, WRITE }; /* Constants 0 and 1 for READ and WRITE */
 int quit_after_cap; /* Makes a "capture only mode". Implies -k */
@@ -360,9 +370,11 @@ do_capture(char *capfile_name)
     sprintf(save_file_fd,"%d",cfile.save_file_fd);	/* in lieu of itoa */
     argv = add_arg(argv, &argc, save_file_fd);
 
-    argv = add_arg(argv, &argc, "-c");
-    sprintf(scount,"%d",cfile.count);
-    argv = add_arg(argv, &argc, scount);
+    if (has_autostop_count) {
+      argv = add_arg(argv, &argc, "-c");
+      sprintf(scount,"%d",autostop_count);
+      argv = add_arg(argv, &argc, scount);
+    }
 
     if (has_snaplen) {
       argv = add_arg(argv, &argc, "-s");
@@ -370,13 +382,17 @@ do_capture(char *capfile_name)
       argv = add_arg(argv, &argc, ssnap);
     }
 
-    argv = add_arg(argv, &argc, "-a");
-    sprintf(sautostop_filesize,"filesize:%d",cfile.autostop_filesize);
-    argv = add_arg(argv, &argc, sautostop_filesize);
+    if (has_autostop_filesize) {
+      argv = add_arg(argv, &argc, "-a");
+      sprintf(sautostop_filesize,"filesize:%d",autostop_filesize);
+      argv = add_arg(argv, &argc, sautostop_filesize);
+    }
 
-    argv = add_arg(argv, &argc, "-a");
-    sprintf(sautostop_duration,"duration:%d",cfile.autostop_duration);
-    argv = add_arg(argv, &argc, sautostop_duration);
+    if (has_autostop_duration) {
+      argv = add_arg(argv, &argc, "-a");
+      sprintf(sautostop_duration,"duration:%d",autostop_duration);
+      argv = add_arg(argv, &argc, sautostop_duration);
+    }
 
     if (!promisc_mode)
       argv = add_arg(argv, &argc, "-p");
@@ -1265,8 +1281,8 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   struct bpf_program fcode;
   time_t      upd_time, cur_time;
   int         err, inpkts;
-  condition *cnd_stop_capturesize;
-  condition *cnd_stop_timeout;
+  condition  *cnd_stop_capturesize = NULL;
+  condition  *cnd_stop_timeout = NULL;
   unsigned int i;
   static const char capstart_msg = SP_CAPSTART;
   char        errmsg[4096+1];
@@ -1323,7 +1339,10 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 
   ld.go             = TRUE;
   ld.counts.total   = 0;
-  ld.max            = cfile.count;
+  if (has_autostop_count)
+    ld.max          = autostop_count;
+  else
+    ld.max          = 0;	/* no limit */
   ld.err            = 0;	/* no error seen yet */
   ld.linktype       = WTAP_ENCAP_UNKNOWN;
   ld.pcap_err       = FALSE;
@@ -1598,10 +1617,10 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   /* initialize capture stop conditions */ 
   init_capture_stop_conditions();
   /* create stop conditions */
-  cnd_stop_capturesize = 
-    cnd_new(CND_CLASS_CAPTURESIZE,(long)cfile.autostop_filesize * 1000); 
-  cnd_stop_timeout = 
-    cnd_new(CND_CLASS_TIMEOUT,(gint32)cfile.autostop_duration);
+  if (has_autostop_filesize)
+    cnd_stop_capturesize = cnd_new(CND_CLASS_CAPTURESIZE,(long)autostop_filesize * 1000); 
+  if (has_autostop_duration)
+    cnd_stop_timeout = cnd_new(CND_CLASS_TIMEOUT,(gint32)autostop_duration);
 
   while (ld.go) {
     while (gtk_events_pending()) gtk_main_iteration();
@@ -1681,11 +1700,11 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     if (inpkts > 0)
       ld.sync_packets += inpkts;
     /* check capture stop conditons */
-    if (cnd_eval(cnd_stop_timeout) == TRUE) {
+    if (cnd_stop_timeout != NULL && cnd_eval(cnd_stop_timeout)) {
       /* The specified capture time has elapsed; stop the capture. */
       ld.go = FALSE;
-    } else if ((cnd_eval(cnd_stop_capturesize, 
-                  (guint32)wtap_get_bytes_dumped(ld.pdh))) == TRUE){
+    } else if (cnd_stop_capturesize != NULL && cnd_eval(cnd_stop_capturesize, 
+                  (guint32)wtap_get_bytes_dumped(ld.pdh))){
       /* Capture file reached its maximum size. */
       if (cfile.ringbuffer_on) {
         /* Switch to the next ringbuffer file */
@@ -1734,8 +1753,10 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   }
     
   /* delete stop conditions */
-  cnd_delete(cnd_stop_capturesize);
-  cnd_delete(cnd_stop_timeout);
+  if (cnd_stop_capturesize != NULL)
+    cnd_delete(cnd_stop_capturesize);
+  if (cnd_stop_timeout != NULL)
+    cnd_delete(cnd_stop_timeout);
 
   if (ld.pcap_err) {
     snprintf(errmsg, sizeof(errmsg), "Error while capturing packets: %s",

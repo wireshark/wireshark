@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.29 2002/02/08 10:07:33 guy Exp $
+ * $Id: capture.h,v 1.30 2002/02/24 03:33:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,6 +35,13 @@ extern gboolean has_snaplen;  /* TRUE if maximum capture packet length is specif
 extern int snaplen; /* Maximum captured packet length */
 extern int promisc_mode; /* capture in promiscuous mode */
 extern int sync_mode;	/* fork a child to do the capture, and sync between them */
+extern gboolean has_autostop_count;
+extern int autostop_count;
+extern gboolean has_autostop_filesize; /* TRUE if maximum capture file size is specified */
+extern gint32 autostop_filesize; /* Maximum capture file size */
+extern gboolean has_autostop_duration; /* TRUE if maximum capture duration is specified */
+extern gint32 autostop_duration; /* Maximum capture duration */
+
 extern int sync_pipe[2]; /* used to sync father */
 extern int quit_after_cap; /* Makes a "capture only mode". Implies -k */
 extern gboolean capture_child;	/* if this is the child for "-S" */

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.234 2002/02/24 01:26:45 guy Exp $
+ * $Id: main.c,v 1.235 2002/02/24 03:33:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1158,9 +1158,11 @@ set_autostop_criterion(const char *autostoparg)
     return FALSE;
   }
   if (strcmp(autostoparg,"duration") == 0) {
-    cfile.autostop_duration = get_positive_int(p,"autostop duration");
+    has_autostop_duration = TRUE;
+    autostop_duration = get_positive_int(p,"autostop duration");
   } else if (strcmp(autostoparg,"filesize") == 0) {
-    cfile.autostop_filesize = get_positive_int(p,"autostop filesize");
+    has_autostop_filesize = TRUE;
+    autostop_filesize = get_positive_int(p,"autostop filesize");
   } else {
     return FALSE;
   }
@@ -1292,6 +1294,12 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   has_snaplen = FALSE;
   snaplen = MIN_PACKET_SIZE;
+  has_autostop_count = FALSE;
+  autostop_count = 1;
+  has_autostop_duration = FALSE;
+  autostop_duration = 1;
+  has_autostop_filesize = FALSE;
+  autostop_filesize = 1;
 
   /* If this is a capture child process, it should pay no attention
      to the "prefs.capture_prom_mode" setting in the preferences file;
@@ -1342,8 +1350,6 @@ main(int argc, char *argv[])
   cfile.snap		= WTAP_MAX_PACKET_SIZE;
   cfile.count		= 0;
 #ifdef HAVE_LIBPCAP
-  cfile.autostop_duration = 0;
-  cfile.autostop_filesize = 0;
   cfile.ringbuffer_on = FALSE;
   cfile.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
 #endif
@@ -1439,7 +1445,13 @@ main(int argc, char *argv[])
         break;
       case 'c':        /* Capture xxx packets */
 #ifdef HAVE_LIBPCAP
-        cfile.count = get_positive_int(optarg, "packet count");
+        has_autostop_count = TRUE;
+        autostop_count = get_positive_int(optarg, "packet count");
+        if (autostop_count == 0) {
+          fprintf(stderr, "ethereal: The specified packet count \"%s\" is zero\n",
+                  optarg);
+          exit(1);
+        }
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1679,7 +1691,7 @@ main(int argc, char *argv[])
       fprintf(stderr, "ethereal: Ring buffer requested, but an \"Update list of packets in real time\" capture is being done.\n");
       cfile.ringbuffer_on = FALSE;
     }
-    if (cfile.autostop_filesize == 0) {
+    if (!has_autostop_filesize || autostop_filesize == 0) {
       fprintf(stderr, "ethereal: Ring buffer requested, but no maximum capture file size was specified.\n");
       cfile.ringbuffer_on = FALSE;
     }
