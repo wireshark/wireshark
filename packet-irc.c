@@ -1,7 +1,7 @@
 /* packet-irc.c
  * Routines for MSX irc packet dissection
  *
- * $Id: packet-irc.c,v 1.11 2001/01/09 06:31:37 guy Exp $
+ * $Id: packet-irc.c,v 1.12 2001/02/03 07:58:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,86 +53,83 @@ static gint ett_irc = -1;
 	/* good candidate for dynamic port specification */
 
 static void
-dissect_irc_request(proto_tree *tree, char *line, int offset, int len)
+dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, int offset, int len,
+    const char *line, int linelen)
 {
-	proto_tree_add_boolean_hidden(tree, hf_irc_request, NullTVB,
-		offset, len, TRUE);
-	proto_tree_add_text(tree, NullTVB, offset, 
-		len, "Request Line: %s", line);
+	proto_tree_add_boolean_hidden(tree, hf_irc_request, tvb, offset, len,
+	    TRUE);
+	proto_tree_add_text(tree, tvb, offset, len, "Request Line: %.*s",
+	    linelen, line);
 }
 
 static void
-dissect_irc_response(proto_tree *tree, char *line, int offset, int len)
+dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, int offset, int len,
+    const char *line, int linelen)
 {
-	proto_tree_add_boolean_hidden(tree, hf_irc_response, NullTVB,
-		offset, len, TRUE);
-	proto_tree_add_text(tree, NullTVB, offset, 
-		len, "Response Line: %s", line);
+	proto_tree_add_boolean_hidden(tree, hf_irc_response, tvb, offset, len,
+	    TRUE);
+	proto_tree_add_text(tree, tvb, offset, len, "Response Line: %.*s",
+	    linelen, line);
 }
 
 static void
-dissect_irc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_irc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree      *irc_tree, *ti;
-	char *tmpline;
-	int start, cur, len;
-	const u_char *i;
+	gint		offset = 0;
+	const u_char	*line;
+	gint		next_offset;
+	int		linelen;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_irc, pd, offset, fd, tree);
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "IRC");
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "IRC");
-
-	if (check_col(fd, COL_INFO))
+	if (check_col(pinfo->fd, COL_INFO))
 	{
-		col_add_fstr(fd, COL_INFO, "%s", 
-			(pi.match_port == pi.destport) ? "Request" : "Response");	  
+		col_set_str(pinfo->fd, COL_INFO,
+		    (pi.match_port == pi.destport) ? "Request" : "Response");
 	}
 
-	if (tree) 
+	if (tree)
 	{
-		ti = proto_tree_add_item(tree, proto_irc, NullTVB, offset, END_OF_FRAME, FALSE);
+		ti = proto_tree_add_item(tree, proto_irc, tvb, 0,
+		    tvb_length(tvb), FALSE);
 		irc_tree = proto_item_add_subtree(ti, ett_irc);
 
-		tmpline = (char *)g_malloc( pi.captured_len );
-		i = pd+offset;
-		while ( i < pd + pi.captured_len )
+		/*
+		 * Process the packet data, a line at a time.
+		 */
+		while (tvb_offset_exists(tvb, offset))
 		{
-			start = i - pd;
-			cur = 0;
-			len = 0;
-			tmpline[cur] = 0;
+			/*
+			 * Find the end of the line.
+			 */
+			linelen = tvb_find_line_end(tvb, offset, -1,
+			    &next_offset);
 
-			/* copy up to end or cr/nl */
-			while ( i < pd + pi.captured_len && *i != '\r' && *i != '\n' )
-			{
-				tmpline[cur++] = *(i++);
-				len++;
-			}
-			tmpline[cur] = 0;
+			/*
+			 * Get a buffer that refers to the line (without
+			 * the line terminator).
+			 */
+			line = tvb_get_ptr(tvb, offset, linelen);
 
-			/* skip any CR/NL */
-			while ( i < pd + pi.captured_len && 
-				(*i == '\r' || *i == '\n') )
-			{
-				i++;
-				len++;
-			}
-
-			if ( strlen(tmpline) > 0 )
+			if (linelen != 0)
 			{
 				if (pi.match_port == pi.destport)
 				{
-					dissect_irc_request(irc_tree, tmpline, start, len);
+					dissect_irc_request(irc_tree, tvb,
+					    offset, next_offset - offset,
+					    line, linelen);
 				}
 				else
 				{
-					dissect_irc_response(irc_tree, tmpline, start, len);
+					dissect_irc_response(irc_tree, tvb,
+					    offset, next_offset - offset,
+					    line, linelen);
 				}
 			}
+			offset = next_offset;
 		}
-		g_free(tmpline);
-		tmpline = 0;
 	}
 }
 
@@ -167,6 +164,6 @@ proto_register_irc(void)
 void
 proto_reg_handoff_irc(void)
 {
-	old_dissector_add("tcp.port", TCP_PORT_IRC, dissect_irc, proto_irc);
+	dissector_add("tcp.port", TCP_PORT_IRC, dissect_irc, proto_irc);
 }
 
