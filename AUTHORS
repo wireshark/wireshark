@@ -285,7 +285,7 @@ Greg Hankins <gregh[AT]twoguys.org> {
 	updates to BGP (Border Gateway Protocol) support
 }
 
-Jerry Talkington <jerryt[AT]netapp.com> {
+Jerry Talkington <jtalkington[AT]users.sourceforge.net> {
 	updates to HTTP support
 	Filter selection/editing GUI improvements
 	WCCP 1.0 support

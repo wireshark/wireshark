@@ -1,8 +1,8 @@
 /* packet-wccp.c
  * Routines for Web Cache Coordination Protocol dissection
- * Jerry Talkington <jerryt@netapp.com>
+ * Jerry Talkington <jtalkington@users.sourceforge.net>
  *
- * $Id: packet-wccp.c,v 1.33 2002/08/28 21:00:37 jmayer Exp $
+ * $Id: packet-wccp.c,v 1.34 2004/04/26 17:10:40 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

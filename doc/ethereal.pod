@@ -1893,7 +1893,7 @@ B<http://www.ethereal.com>.
   Warren Young             <tangent[AT]mail.com>
   Heikki Vatiainen         <hessu[AT]cs.tut.fi>
   Greg Hankins             <gregh[AT]twoguys.org>
-  Jerry Talkington         <jerryt[AT]netapp.com>
+  Jerry Talkington         <jtalkington[AT]users.sourceforge.net>
   Dave Chapeskie           <dchapes[AT]ddm.on.ca>
   James Coe                <jammer[AT]cin.net>
   Bert Driehuis            <driehuis[AT]playbeing.org>

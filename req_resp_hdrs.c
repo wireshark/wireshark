@@ -2,7 +2,7 @@
  * Routines handling protocols with a request/response line, headers,
  * a blank line, and an optional body.
  *
- * $Id: req_resp_hdrs.c,v 1.3 2003/12/29 22:33:18 guy Exp $
+ * $Id: req_resp_hdrs.c,v 1.4 2004/04/26 17:10:40 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,6 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include <string.h>
 
 #include "req_resp_hdrs.h"
 
@@ -47,6 +48,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, packet_info *pinfo,
 	int		linelen;
 	long int	content_length;
 	gboolean	content_length_found = FALSE;
+	gboolean	chunked_encoding = FALSE;
 
 	/*
 	 * Do header desegmentation if we've been told to.
@@ -131,8 +133,8 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, packet_info *pinfo,
 			}
 
 			/*
-			 * Is this a Content-Length header?
-			 * If not, it either means that we are in
+			 * Is this a Content-Length or Transfer-Encoding
+			 * header?  If not, it either means that we are in
 			 * a different header line, or that we are
 			 * at the end of the headers, or that there
 			 * isn't enough data; the two latter cases
@@ -151,6 +153,44 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, packet_info *pinfo,
 					    "%li", &content_length)
 					    == 1)
 						content_length_found = TRUE;
+				} else if (tvb_strncaseeql(tvb,
+					    next_offset_sav,
+					    "Transfer-Encoding:", 18) == 0) {
+					gchar *chunk_type = tvb_get_string(tvb,
+					    next_offset_sav + 18, linelen - 18);
+					/*
+					 * Find out if this Transfer-Encoding is
+					 * chunked.  It should be, since there
+					 * really aren't any other types, but
+					 * RFC 2616 allows for them.
+					 */
+
+					if (chunk_type != NULL) {
+						gchar *c = chunk_type;
+						gint len = strlen(chunk_type);
+
+						
+						/* start after any white-space */
+						while (c != NULL && c <
+							    chunk_type + len &&
+							    (*c == ' ' ||
+							     *c == 0x09)) {
+							c++;
+						}
+
+						if (c <= chunk_type + len ) {
+							if (strncasecmp(c, "chunked", 7)
+							    == 0) {
+								/*
+								 * Don't bother looking for extensions;
+								 * since we don't understand them,
+								 * they should be ignored.
+								 */
+								chunked_encoding = TRUE;
+							}
+						}
+						g_free(chunk_type);
+					}
 				}
 			}
 		}
@@ -158,30 +198,139 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, packet_info *pinfo,
 
 	/*
 	 * The above loop ends when we reached the end of the headers, so
-	 * there should be content_length byte after the 4 terminating bytes
+	 * there should be content_length bytes after the 4 terminating bytes
 	 * and next_offset points to after the end of the headers.
 	 */
-	if (desegment_body && content_length_found) {
-		/* next_offset has been set because content-length was found */
-		if (!tvb_bytes_exist(tvb, next_offset, content_length)) {
-			length_remaining = tvb_length_remaining(tvb,
-			    next_offset);
-			reported_length_remaining =
-			    tvb_reported_length_remaining(tvb, next_offset);
-			if (length_remaining < reported_length_remaining) {
-				/*
-				 * It's a waste of time asking for more
-				 * data, because that data wasn't captured.
-				 */
-				return TRUE;
+	if (desegment_body) {
+		if (content_length_found) {
+			/* next_offset has been set to the end of the headers */
+			if (!tvb_bytes_exist(tvb, next_offset, content_length)) {
+				length_remaining = tvb_length_remaining(tvb,
+				    next_offset);
+				reported_length_remaining =
+				    tvb_reported_length_remaining(tvb, next_offset);
+				if (length_remaining < reported_length_remaining) {
+					/*
+					 * It's a waste of time asking for more
+					 * data, because that data wasn't captured.
+					 */
+					return TRUE;
+				}
+				if (length_remaining == -1)
+					length_remaining = 0;
+				pinfo->desegment_offset = offset;
+				pinfo->desegment_len =
+				    content_length - length_remaining;
+				return FALSE;
 			}
-			if (length_remaining == -1)
-				length_remaining = 0;
-			pinfo->desegment_offset = offset;
-			pinfo->desegment_len =
-			    content_length - length_remaining;
-			return FALSE;
+		} else if (chunked_encoding) {
+			/*
+			 * This data is chunked, so we need to keep pulling
+			 * data until we reach the end of the stream, or a
+			 * zero sized chunk.
+			 *
+			 * XXX
+			 * This doesn't bother with trailing headers; I don't
+			 * think they are really used, and we'd have to use
+			 * is_http_request_or_reply() to determine if it was
+			 * a trailing header, or the start of a new response.
+			 */
+			gboolean done_chunking = FALSE;
+
+			while (!done_chunking) {
+				gint chunk_size = 0;
+				gint chunk_offset = 0;
+				gchar *chunk_string = NULL;
+				gchar *c = NULL;
+
+				length_remaining = tvb_length_remaining(tvb,
+				    next_offset);
+				reported_length_remaining =
+				    tvb_reported_length_remaining(tvb,
+				    next_offset);
+
+				if (reported_length_remaining < 1) {
+					pinfo->desegment_offset = offset;
+					pinfo->desegment_len = 1;
+					return FALSE;
+				}
+
+				linelen = tvb_find_line_end(tvb, next_offset,
+						-1, &chunk_offset, TRUE);
+
+				if (linelen == -1 &&
+				    length_remaining >=
+				    reported_length_remaining) {
+					 pinfo->desegment_offset = offset;
+					 pinfo->desegment_len = 2;
+					 return FALSE;
+				}
+				
+				/* We have a line with the chunk size in it.*/
+				chunk_string = tvb_get_string(tvb, next_offset,
+				    linelen);
+				c = chunk_string;
+
+				/*
+				 * We don't care about the extensions.
+				 */
+				if ((c = strchr(c, ';'))) {
+					*c = '\0';
+				}
+
+				if ((sscanf(chunk_string, "%x",
+				    &chunk_size) < 0) || chunk_size < 0) {
+					/* We couldn't get the chunk size,
+					 * so stop trying.
+					 */
+					return TRUE;
+				}
+
+				if (chunk_size == 0) {
+					/*
+					 * This is the last chunk.  Let's pull in the
+					 * trailing CRLF.
+					 */
+					linelen = tvb_find_line_end(tvb,
+					    chunk_offset, -1, &chunk_offset, TRUE);
+						
+					if (linelen == -1 &&
+					    length_remaining >=
+					    reported_length_remaining) {
+						pinfo->desegment_offset = offset;
+						pinfo->desegment_len = 1;
+						return FALSE;
+					}
+
+					pinfo->desegment_offset = chunk_offset;
+					pinfo->desegment_len = 0;
+					done_chunking = TRUE;
+				} else {
+					/* 
+					 * Skip to the next chunk if we
+					 * already have it 
+					 */
+					if (reported_length_remaining >
+					        chunk_size) {
+						
+						next_offset = chunk_offset 
+						    + chunk_size + 2;
+					} else {
+						/* 
+						 * Fetch this chunk, plus the
+						 * trailing CRLF.
+						 */ 
+						pinfo->desegment_offset = offset;
+						pinfo->desegment_len =
+						    chunk_size + 1 -
+						    reported_length_remaining;
+						return FALSE;
+					}
+				}
+
+			}
 		}
+
 	}
 
 	/*

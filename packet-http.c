@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.96 2004/04/12 22:14:37 guy Exp $
+ * $Id: packet-http.c,v 1.97 2004/04/26 17:10:40 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,6 +73,9 @@ static int hf_http_transfer_encoding = -1;
 static gint ett_http = -1;
 static gint ett_http_ntlmssp = -1;
 static gint ett_http_request = -1;
+static gint ett_http_chunked_response = -1;
+static gint ett_http_chunk_data = -1;
+static gint ett_http_encoded_entity = -1;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t http_handle;
@@ -125,6 +128,8 @@ typedef struct {
 
 static int is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 		RequestDissector *req_dissector, int *req_strlen);
+static int chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
+		proto_tree *tree, int offset);
 static void process_header(tvbuff_t *tvb, int offset, int next_offset,
     const guchar *line, int linelen, int colon_offset, packet_info *pinfo,
     proto_tree *tree, headers_t *eh_ptr);
@@ -589,6 +594,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		tvbuff_t *next_tvb;
 		void *save_private_data = NULL;
+		gint chunks_decoded = 0;
 
 		/*
 		 * Create a tvbuff for the payload.
@@ -608,6 +614,38 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    reported_datalen);
 
 		/*
+		 * Handle transfer encodings other than "identity".
+		 */
+		if (headers.transfer_encoding != NULL &&
+		    strcasecmp(headers.transfer_encoding, "identity") != 0) {
+			if (strcasecmp(headers.transfer_encoding, "chunked")
+			    == 0) {
+
+				chunks_decoded = chunked_encoding_dissector(
+				    &next_tvb, pinfo, tree, 0);
+
+				if (chunks_decoded <= 0) {
+					/* 
+					 * The chunks weren't reassembled,
+					 * or there was a single zero
+					 * length chunk.
+					 */
+					goto body_dissected;
+				}
+
+			} else {
+				/*
+				 * We currently can't handle, for example, "gzip",
+				 * "compress", or "deflate"; just handle them
+				 * as data for now.
+				 */
+				call_dissector(data_handle, next_tvb, pinfo,
+				    http_tree);
+				goto body_dissected;
+			}
+		}
+
+		/*
 		 * Handle content encodings other than "identity" (which
 		 * shouldn't appear in a Content-Encoding header, but
 		 * we handle it in any case).
@@ -619,23 +657,28 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * "compress", or "deflate"; just handle them as
 			 * data for now.
 			 */
-			call_dissector(data_handle, next_tvb, pinfo,
-			    http_tree);
-			goto body_dissected;
-		}
+			if (chunks_decoded != 0) {
+				/*
+				 * There is a chunked response tree, so put
+				 * the entity body below it.
+				 */
+				proto_item *e_ti = NULL;
+				proto_tree *e_tree = NULL;
 
-		/*
-		 * Handle transfer encodings other than "identity".
-		 */
-		if (headers.transfer_encoding != NULL &&
-		    strcasecmp(headers.transfer_encoding, "identity") != 0) {
-			/*
-			 * We currently can't handle, for example, "chunked",
-			 * "gzip", "compress", or "deflate"; just handle them
-			 * as data for now.
-			 */
-			call_dissector(data_handle, next_tvb, pinfo,
-			    http_tree);
+				e_ti = proto_tree_add_text(tree, next_tvb,
+				    0, tvb_length(next_tvb),
+				    "Encoded entity-body (%s)",
+				    headers.content_encoding);
+
+				e_tree = proto_item_add_subtree(e_ti,
+				    ett_http_encoded_entity);
+
+				call_dissector(data_handle, next_tvb, pinfo,
+				    e_tree);
+			} else {
+				call_dissector(data_handle, next_tvb, pinfo,
+				    http_tree);
+			}
 			goto body_dissected;
 		}
 
@@ -749,6 +792,186 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int req_strlen _U_)
 		stat_info->response_code = status_code;
 	}
 }
+
+/*
+ * Dissect the http data chunks and add them to the tree.
+ */
+static int
+chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
+    proto_tree *tree, int offset)
+{
+	guint8 *chunk_string = NULL;
+	gint chunk_size = 0;
+	gint chunk_offset = 0;
+	gint datalen = 0;
+	gint linelen = 0;
+	gint chunks_decoded = 0;
+	tvbuff_t *tvb = NULL;
+	tvbuff_t *new_tvb = NULL;
+	gint chunked_data_size = 0;
+	proto_tree *subtree = NULL;
+	proto_item *ti = NULL;
+	
+	if (tvb_ptr == NULL || *tvb_ptr == NULL) {
+		return 0;
+	}
+
+	tvb = *tvb_ptr;
+
+	datalen = tvb_reported_length_remaining(tvb, offset);
+
+	if (tree) {
+		ti = proto_tree_add_text(tree, tvb, offset, datalen,
+		    "HTTP chunked response");
+		subtree = proto_item_add_subtree(ti, ett_http_chunked_response);
+	}
+
+
+	while (datalen != 0) {
+		proto_item *chunk_ti = NULL;
+		proto_tree *chunk_subtree = NULL;
+		tvbuff_t *data_tvb = NULL;
+		gchar *c = NULL;
+
+		linelen = tvb_find_line_end(tvb, offset, -1, &chunk_offset, TRUE);
+
+		if (linelen <= 0) {
+			/* Can't get the chunk size line */
+			return chunks_decoded;
+		}
+
+		chunk_string = tvb_get_string(tvb, offset, linelen);
+
+		if (chunk_string == NULL) {
+			/* Can't get the chunk size line */
+			return chunks_decoded;
+		}
+		
+		c = chunk_string;
+
+		/*
+		 * We don't care about the extensions.
+		 */
+		if ((c = strchr(c, ';'))) {
+			*c = '\0';
+		}
+
+		if (sscanf(chunk_string, "%x", &chunk_size) != 1) {
+			g_free(chunk_string);
+			return chunks_decoded;
+		}
+
+		g_free(chunk_string);
+
+
+		if (chunk_size > datalen) {
+			/*
+			 * The chunk size is more than what's in the tvbuff,
+			 * so either the user hasn't enabled decoding, or all
+			 * of the segments weren't captured.
+			 */
+			chunk_size = datalen;
+		}/* else if (new_tvb == NULL) {
+			new_tvb = tvb_new_composite();
+		}
+
+
+
+		if (new_tvb != NULL && chunk_size != 0) {
+			tvbuff_t *chunk_tvb = NULL;
+			
+			chunk_tvb = tvb_new_subset(tvb, chunk_offset,
+			    chunk_size, datalen);
+
+			tvb_composite_append(new_tvb, chunk_tvb);
+
+		}
+		*/
+		
+		chunked_data_size += chunk_size;
+
+		if (chunk_size != 0) {
+			guint8 *raw_data = g_malloc(chunked_data_size);
+			gint raw_len = 0;
+
+			if (new_tvb != NULL) {
+				raw_len = tvb_length_remaining(new_tvb, 0);
+				tvb_memcpy(new_tvb, raw_data, 0, raw_len);
+
+				tvb_free(new_tvb);
+			}
+
+			tvb_memcpy(tvb, (guint8 *)(raw_data + raw_len),
+			    chunk_offset, chunk_size);
+
+			new_tvb = tvb_new_real_data(raw_data,
+			    chunked_data_size, chunked_data_size);
+
+		}
+		
+		if (subtree) {
+			if (chunk_size == 0) {
+				chunk_ti = proto_tree_add_text(subtree, tvb,
+				    offset,
+				    chunk_offset - offset + chunk_size + 2,
+				    "Data chunk (last chunk)");
+			} else {
+				chunk_ti = proto_tree_add_text(subtree, tvb,
+				    offset,
+				    chunk_offset - offset + chunk_size + 2,
+				    "Data chunk (%u octets)", chunk_size);
+			}
+
+			chunk_subtree = proto_item_add_subtree(chunk_ti,
+			    ett_http_chunk_data);
+
+			proto_tree_add_text(chunk_subtree, tvb, offset,
+			    chunk_offset - offset, "Chunk size: %u octets",
+			    chunk_size);
+
+			data_tvb = tvb_new_subset(tvb, chunk_offset, chunk_size,
+			    datalen);
+
+		
+			if (chunk_size > 0) { 
+				call_dissector(data_handle, data_tvb, pinfo,
+				    chunk_subtree);
+			}
+
+			proto_tree_add_text(chunk_subtree, tvb, chunk_offset +
+			    chunk_size, 2, "Chunk boundary");
+		}
+
+		chunks_decoded++;
+		offset = chunk_offset + chunk_size + 2;
+		datalen = tvb_reported_length_remaining(tvb, offset);
+	}
+
+	if (new_tvb != NULL) {
+
+		/* Placeholder for the day that composite tvbuffer's will work.
+		tvb_composite_finalize(new_tvb);
+		/ * tvb_set_reported_length(new_tvb, chunked_data_size); * /
+		*/
+
+		tvb_set_child_real_data_tvbuff(tvb, new_tvb);
+		add_new_data_source(pinfo, new_tvb, "De-chunked entity body");
+
+		tvb_free(*tvb_ptr);
+		*tvb_ptr = new_tvb;
+		
+	} else {
+		/*
+		 * We didn't create a new tvb, so don't allow sub dissectors
+		 * try to decode the non-existant entity body.
+		 */
+		chunks_decoded = -1;
+	}
+	
+	return chunks_decoded;
+
+}
+
 
 /*
  * XXX - this won't handle HTTP 0.9 replies, but they're all data
@@ -1271,6 +1494,9 @@ proto_register_http(void)
 		&ett_http,
 		&ett_http_ntlmssp,
 		&ett_http_request,
+		&ett_http_chunked_response,
+		&ett_http_chunk_data,
+		&ett_http_encoded_entity,
 	};
 	module_t *http_module;
 
