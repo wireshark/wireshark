@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.28 2002/10/29 00:28:10 guy Exp $
+ * $Id: resolv.c,v 1.29 2002/11/27 22:42:40 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -1048,7 +1048,7 @@ static guchar *eth_name_lookup(const guint8 *addr)
     }
 
     /* No match whatsoever. */
-    sprintf(tp->name, "%s", ether_to_str((guint8 *)addr));
+    sprintf(tp->name, "%s", ether_to_str(addr));
     tp->is_dummy_entry = TRUE;
 
   } else {
@@ -1500,7 +1500,7 @@ extern guchar *get_sctp_port(guint port)
 extern guchar *get_ether_name(const guint8 *addr)
 {
   if (!(g_resolv_flags & RESOLV_MAC))
-    return ether_to_str((guint8 *)addr);
+    return ether_to_str(addr);
 
   if (!eth_resolution_initialized) {
     initialize_ethers();
