@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.29 1998/12/29 04:05:36 gerald Exp $
+ * $Id: packet.h,v 1.30 1999/01/02 06:10:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -79,6 +79,9 @@ typedef struct _frame_data {
   guint32      del_usecs; /* Delta microseconds */
   long         file_off;  /* File offset */
   column_info *cinfo;     /* Column formatting information */
+#ifdef WITH_WIRETAP
+  int		lnk_t;     /* Per-packet encapsulation/data-link type */
+#endif
 } frame_data;
 
 typedef struct _packet_info {

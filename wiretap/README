@@ -1,4 +1,4 @@
-$Id: README,v 1.4 1998/11/21 05:08:39 gram Exp $
+$Id: README,v 1.5 1999/01/02 06:10:55 gram Exp $
 
 Wiretap is a library that is being developed as a future replacement for
 libpcap, the current standard Unix library for packet capturing. Libpcap is
@@ -27,6 +27,10 @@ LAN's firewall.
 5. I want to look into the possibility of compressing packet data when saved
 to a file, like Sniffer.
 
+6. The packet-filter can be optimized for the host OS. Not all OSes have BPF;
+SunOS has NIT and Solaris has DLPI, which both use the CMU/Stanford
+packet-filter psuedomachine. RMON has another type of packet-filter syntax
+which we could support.
 
 Currently, only #2 is available. Wiretap doesn't even do any filtering yet. It
 can only be used to read packet capture files.
@@ -42,23 +46,33 @@ using the "libpcap" library's code to read it.
 
 Sniffer (uncompressed)
 -------
-The Sniffer format, at least for Token-Ring, is documented in the
-Sniffer manual.  Unfortunately, Sniffer manuals tend to document only
-the format for the Sniffer model they document. Ethernet seems to work well,
-though. If you have an ATM Sniffer file, both Guy and I would be *very*
+The Sniffer format is documented in the Sniffer manual.  Unfortunately,
+Sniffer manuals tend to document only the format for the Sniffer model
+they document. Token-Ring and ethernet seems to work well, though.
+If you have an ATM Sniffer file, both Guy and I would be *very*
 interested in receiving a sample. (see 'AUTHORS' file for our e-mail
-addresses)
+addresses). When using LANE, the ATM Sniffer appears to record the emulated
+LAN information; that is, only the ethernet or token-ring information is
+stored in the trace file, not any information about ATM cells.
 
 LANalyzer
 ---------
 The LANalyzer format is available from http://www.novell.com. Search their
-knowledge base for "Trace File Format". The code in wiretap so far only dumps
-the packet data; I have yet to decode the timestamp for each packet. At least
-I have the format for this, so it will be supported soon.
+knowledge base for "Trace File Format". 
 
 "snoop"
 -------
 The Solaris 2.x "snoop" program's format is documented in RFC 1761.
+
+"iptrace"
+---------
+This is the capture program that comes with AIX 3.x and 4.x. It has an
+undocumented, yet very simple, file format. The interesting thing about
+iptrace is that it will record packets coming in from all network interfaces;
+a single iptrace file can contain multiple datalink types. I have tested
+iptrace on ethernet and token-ring; if you can provide an iptrace file with
+any other datalink type, I would appreciate a copy. (with the output from
+'ipreport' too, if possible).
 
 Gilbert Ramirez
 <gram@verdict.uthscsa.edu>

@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.8 1998/12/17 06:39:13 gram Exp $
+ * $Id: wtap.h,v 1.9 1999/01/02 06:10:55 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -32,6 +32,7 @@
 #define WTAP_ENCAP_RAW_IP			6
 #define WTAP_ENCAP_ARCNET			7
 #define WTAP_ENCAP_ATM_RFC1483			8
+#define WTAP_ENCAP_PER_PACKET			9
 
 /* File types that can be read by wiretap */
 #define WTAP_FILE_UNKNOWN			0
@@ -74,6 +75,7 @@ struct wtap_pkthdr {
 	struct timeval ts;
 	guint32	caplen;
 	guint32 len;
+	int pkt_encap;
 };
 
 typedef void (*wtap_handler)(u_char*, const struct wtap_pkthdr*,

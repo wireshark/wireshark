@@ -1,3 +1,5 @@
+January 1, 1999
+	Added iptrace file format.
 
 December 10, 1998
 	Proper timestamp calculations added to ngsniffer.c and lanalyzer.c

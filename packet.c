@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.15 1998/12/29 04:05:36 gerald Exp $
+ * $Id: packet.c,v 1.16 1999/01/02 06:10:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -310,6 +310,9 @@ dissect_packet(const u_char *pd, frame_data *fd, GtkTree *tree)
 	GtkWidget *fh_tree, *ti;
 	struct tm *tmp;
 	time_t then;
+#ifdef WITH_WIRETAP
+	guint32 lnk_t;
+#endif
 
 	/* Put in frame header information. */
 	if (check_col(fd, COL_ABS_TIME)) {
@@ -354,7 +357,14 @@ dissect_packet(const u_char *pd, frame_data *fd, GtkTree *tree)
 	}
 
 #ifdef WITH_WIRETAP
-	switch (cf.lnk_t) {
+	if (cf.lnk_t == WTAP_ENCAP_PER_PACKET) {
+		lnk_t = fd->lnk_t;
+	}
+	else {
+		lnk_t = cf.lnk_t;
+	}
+
+	switch (lnk_t) {
 		case WTAP_ENCAP_ETHERNET :
 			dissect_eth(pd, fd, tree);
 			break;

@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.7 1998/11/17 04:28:47 gerald Exp $
+ * $Id: file.h,v 1.8 1999/01/02 06:10:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -88,6 +88,7 @@ typedef struct _capture_file {
 
 /* Taken from RFC 1761 */
 
+#ifndef WITH_WIRETAP
 typedef struct _snoop_file_hdr {
   guint32 magic1;
   guint32 magic2;
@@ -103,6 +104,7 @@ typedef struct _snoop_frame_hdr {
   guint32 secs;
   guint32 usecs;
 } snoop_frame_hdr;
+#endif
 
 int  open_cap_file(char *, capture_file *);
 void close_cap_file(capture_file *, GtkWidget *, guint);
