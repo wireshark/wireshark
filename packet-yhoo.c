@@ -2,7 +2,7 @@
  * Routines for yahoo messenger packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-yhoo.c,v 1.13 2001/01/09 06:31:45 guy Exp $
+ * $Id: packet-yhoo.c,v 1.14 2001/04/18 00:21:01 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -105,10 +105,11 @@ static const value_string yhoo_msgtype_vals[] = {
 };
 
 static gboolean
-dissect_yhoo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree      *yhoo_tree, *ti;
-	struct yahoo_rawpacket *pkt;
+	int offset = 0;
+	int length = 0;
 
 	if (!proto_is_protocol_enabled(proto_yhoo)) {
 		return FALSE;
@@ -120,56 +121,77 @@ dissect_yhoo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	/* get at least a full packet structure */
-	if ( !BYTES_ARE_IN_FRAME(offset, sizeof(struct yahoo_rawpacket)) ) {
+	if ( !tvb_bytes_exist(tvb, 0, sizeof(struct yahoo_rawpacket)) ) {
 		/* Not enough data captured; maybe it is a Yahoo
 		   Messenger packet, but it contains too little data to
 		   tell. */
 		return FALSE;
 	}
 
-	if (memcmp(&pd[offset], "YPNS", 4) != 0 &&
-	    memcmp(&pd[offset], "YHOO", 4) != 0) {
+	length = tvb_length(tvb);
+
+	if (memcmp(tvb_get_ptr(tvb, offset, 4), "YPNS", 4) != 0 &&
+	    memcmp(tvb_get_ptr(tvb, offset, 4), "YHOO", 4) != 0) {
 		/* Not a Yahoo Messenger packet. */
 		return FALSE;
 	}
 
-	pkt = (struct yahoo_rawpacket *) &pd[offset];
-	
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "YHOO");
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "YHOO");
 
-	if (check_col(fd, COL_INFO))
-		col_add_fstr(fd, COL_INFO, 
+	offset = 0;
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_add_fstr(pinfo->fd, COL_INFO, 
 			"%s: %s", 
-			( strncmp(pkt->version, "YPNS", 4) == 0 ) ? "Request" : "Response",
-			val_to_str(pletohl(pkt->service),
+			( strncmp(tvb_get_ptr(tvb, offset + 0, 4), "YPNS", 4) == 0 ) ? "Request" : "Response",
+			val_to_str(tvb_get_letohl(tvb, offset + 12),
 				 yhoo_service_vals, "Unknown Service: %u")
 		);
+	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_yhoo, NullTVB, offset, END_OF_FRAME, FALSE);
+		ti = proto_tree_add_item(tree, proto_yhoo, tvb, offset, 
+			END_OF_FRAME, FALSE);
 		yhoo_tree = proto_item_add_subtree(ti, ett_yhoo);
 
-		proto_tree_add_string(yhoo_tree, hf_yhoo_version, NullTVB, 
-			offset, 8, pkt->version);
-		proto_tree_add_uint(yhoo_tree, hf_yhoo_len, NullTVB, 
-			offset+8, 4, pletohl(pkt->len));
-		proto_tree_add_uint(yhoo_tree, hf_yhoo_service, NullTVB, 
-			offset+12, 4, pletohl(pkt->service));
-		proto_tree_add_uint(yhoo_tree, hf_yhoo_connection_id, NullTVB, 
-			offset+16, 4, pletohl(pkt->connection_id));
-		proto_tree_add_uint(yhoo_tree, hf_yhoo_magic_id, NullTVB, 
-			offset+20, 4, pletohl(pkt->magic_id));
-		proto_tree_add_uint(yhoo_tree, hf_yhoo_unknown1, NullTVB, 
-			offset+24, 4, pletohl(pkt->unknown1));
-		proto_tree_add_uint(yhoo_tree, hf_yhoo_msgtype, NullTVB, 
-			offset+28, 4, pletohl(pkt->msgtype));
-		proto_tree_add_string(yhoo_tree, hf_yhoo_nick1, NullTVB, 
-			offset+32, 36, pkt->nick1);
-		proto_tree_add_string(yhoo_tree, hf_yhoo_nick2, NullTVB, 
-			offset+68, 36, pkt->nick2);
-		proto_tree_add_string(yhoo_tree, hf_yhoo_content, NullTVB, 
-			offset+104, END_OF_FRAME, pkt->content);
+		proto_tree_add_string(yhoo_tree, hf_yhoo_version, tvb, 
+			offset, 8, tvb_get_ptr(tvb, offset, 8));
+		offset += 8;
+
+		proto_tree_add_uint(yhoo_tree, hf_yhoo_len, tvb, 
+			offset, 4, tvb_get_letohl(tvb, offset));
+		offset += 4;
+
+		proto_tree_add_uint(yhoo_tree, hf_yhoo_service, tvb, 
+			offset, 4, tvb_get_letohl(tvb, offset));
+		offset += 4;
+
+		proto_tree_add_uint(yhoo_tree, hf_yhoo_connection_id, tvb, 
+			offset, 4, tvb_get_letohl(tvb, offset));
+		offset += 4;
+
+		proto_tree_add_uint(yhoo_tree, hf_yhoo_magic_id, tvb, 
+			offset, 4, tvb_get_letohl(tvb, offset));
+		offset += 4;
+
+		proto_tree_add_uint(yhoo_tree, hf_yhoo_unknown1, tvb, 
+			offset, 4, tvb_get_letohl(tvb, offset));
+		offset += 4;
+
+		proto_tree_add_uint(yhoo_tree, hf_yhoo_msgtype, tvb, 
+			offset, 4, tvb_get_letohl(tvb, offset));
+		offset += 4;
+
+		proto_tree_add_string(yhoo_tree, hf_yhoo_nick1, tvb, 
+			offset, 36, tvb_get_ptr(tvb, offset, 36));
+		offset += 36;
+
+		proto_tree_add_string(yhoo_tree, hf_yhoo_nick2, tvb, 
+			offset, 36, tvb_get_ptr(tvb, offset, 36));
+		offset += 36;
+
+		proto_tree_add_string(yhoo_tree, hf_yhoo_content, tvb, 
+			offset, length, tvb_get_ptr(tvb, offset, length-offset));
 	}
 
 	return TRUE;
@@ -225,5 +247,5 @@ proto_register_yhoo(void)
 void
 proto_reg_handoff_yhoo(void)
 {
-	old_heur_dissector_add("tcp", dissect_yhoo, proto_yhoo);
+	heur_dissector_add("tcp", dissect_yhoo, proto_yhoo);
 }
