@@ -2,7 +2,7 @@
  * gui functions used by stats
  * Copyright 2003 Lars Roland
  *
- * $Id: gtk_stat_util.h,v 1.1 2003/04/25 20:54:18 guy Exp $
+ * $Id: gtk_stat_util.h,v 1.2 2003/04/27 21:50:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,5 +36,9 @@ typedef struct _gtk_table {
 }gtk_table;
 
 extern void add_table_entry(gtk_table *tab, char *str, int x, int y);
+extern void init_main_stat_window(GtkWidget *window, GtkWidget *mainbox, char *title, char *filter);
 
+#if GTK_MAJOR_VERSION < 2
+extern GtkCList *create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, char *titles[]);
+#endif
 #endif

@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.5 2003/04/25 20:54:18 guy Exp $
+ * $Id: mgcp_stat.c,v 1.6 2003/04/27 21:50:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,7 +57,12 @@ typedef struct _mgcpstat_t {
 	GtkWidget *win;
 	GtkWidget *vbox;
 	char *filter;
+#if GTK_MAJOR_VERSION >= 2
 	gtk_table *table;
+#else /* gtk1 using a scrollable clist*/
+	GtkWidget *scrolled_window;
+	GtkCList *table;
+#endif
         timestat_t rtd[NUM_TIMESTATS];
 	guint32 open_req_num;
 	guint32 disc_rsp_num;
@@ -194,6 +199,7 @@ mgcpstat_draw(void *pms)
 {
 	mgcpstat_t *ms=(mgcpstat_t *)pms;
 	int i;
+#if GTK_MAJOR_VERSION >= 2
 	int pos;
 	char str[256];
 
@@ -238,6 +244,37 @@ mgcpstat_draw(void *pms)
 	}
 
 	gtk_widget_show(ms->table->widget);
+#else /* gtk1 using a scrollable clist*/
+	char *str[7];
+
+	for(i=0;i<7;i++) {
+		str[i]=g_malloc(sizeof(char[256]));
+	}
+
+	/* clear list before printing */
+	gtk_clist_clear(ms->table);
+
+	for(i=0;i<NUM_TIMESTATS;i++) {
+		/* nothing seen, nothing to do */
+		if(ms->rtd[i].num==0){
+			continue;
+		}
+
+		sprintf(str[0], "%s", val_to_str(i,mgcp_mesage_type,"Other"));
+		sprintf(str[1], "%d", ms->rtd[i].num);
+		sprintf(str[2], "%8.2f msec", nstime_to_msec(&(ms->rtd[i].min)));
+		sprintf(str[3], "%8.2f msec", nstime_to_msec(&(ms->rtd[i].max)));;
+		sprintf(str[4], "%8.2f msec", get_average(&(ms->rtd[i].tot), ms->rtd[i].num));
+		sprintf(str[5], "%6u", ms->rtd[i].min_num);
+		sprintf(str[6], "%6u", ms->rtd[i].max_num);
+		gtk_clist_append(ms->table, str);
+	}
+
+	gtk_widget_show(GTK_WIDGET(ms->table));
+	for(i=0;i<7;i++) {
+		g_free(str[i]);
+	}
+#endif
 }
 
 void protect_thread_critical_region(void);
@@ -255,22 +292,34 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 		g_free(ms->filter);
 		ms->filter=NULL;
 	}
+#if GTK_MAJOR_VERSION >= 2
 	g_free(ms->table);
 	ms->table=NULL;
+#endif
 	g_free(ms);
 }
+
+static gchar *titles[]={"Type",
+			"Messages",
+			"Min RTD",
+			"Max RTD",
+			"Avg RTD",
+			"Min in Frame",
+			"Max in Frame" };
 
 void
 gtk_mgcpstat_init(char *optarg)
 {
 	mgcpstat_t *ms;
 	char *filter=NULL;
+	GString *error_string;
+#if GTK_MAJOR_VERSION >= 2
 	GtkWidget *stat_label;
 	GtkWidget *filter_label;
 	char filter_string[256];
-	GString *error_string;
+#endif
 
-	if(!strncmp(optarg,"mgcp,rtd,",9)){
+	if(strncmp(optarg,"mgcp,rtd,",9) == 0){
 		filter=optarg+9;
 	} else {
 		filter=g_malloc(1);
@@ -284,22 +333,13 @@ gtk_mgcpstat_init(char *optarg)
 	mgcpstat_reset(ms);
 
 	ms->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(ms->win), "MGCP Response Time Delay (RTD) Statistics");
 	SIGNAL_CONNECT(ms->win, "destroy", win_destroy_cb, ms);
 
 	ms->vbox=gtk_vbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(ms->win), ms->vbox);
-	gtk_container_set_border_width(GTK_CONTAINER(ms->vbox), 10);
-	gtk_widget_show(ms->vbox);
 
-	stat_label=gtk_label_new("MGCP Response Time Delay (RTD) Statistics");
-	gtk_box_pack_start(GTK_BOX(ms->vbox), stat_label, FALSE, FALSE, 0);
-	gtk_widget_show(stat_label);
+	init_main_stat_window(ms->win, ms->vbox, "MGCP Response Time Delay (RTD) Statistics", filter);
 
-	snprintf(filter_string,255,"Filter:%s",filter?filter:"");
-	filter_label=gtk_label_new(filter_string);
-	gtk_box_pack_start(GTK_BOX(ms->vbox), filter_label, FALSE, FALSE, 0);
-	gtk_widget_show(filter_label);
+#if GTK_MAJOR_VERSION >= 2
 
 	ms->table =(gtk_table *)g_malloc(sizeof(gtk_table));
 	ms->table->height=5;
@@ -317,11 +357,21 @@ gtk_mgcpstat_init(char *optarg)
 
 	gtk_widget_show(ms->table->widget);
 
+#else /* GTK1 using a scrollable clist*/
+        /* init a scrolled window*/
+	ms->scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+	WIDGET_SET_SIZE(ms->scrolled_window, 550, 100);
+
+	ms->table = create_stat_table(ms->scrolled_window, ms->vbox, 7, titles);
+#endif
+
 	error_string=register_tap_listener("mgcp", ms, filter, mgcpstat_reset, mgcpstat_packet, mgcpstat_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
 		g_string_free(error_string, TRUE);
+#if GTK_MAJOR_VERSION >= 2
 		g_free(ms->table);
+#endif
 		g_free(ms->filter);
 		g_free(ms);
 		return;

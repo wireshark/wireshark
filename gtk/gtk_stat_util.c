@@ -2,7 +2,7 @@
  * gui functions used by stats
  * Copyright 2003 Lars Roland
  *
- * $Id: gtk_stat_util.c,v 1.1 2003/04/25 20:54:18 guy Exp $
+ * $Id: gtk_stat_util.c,v 1.2 2003/04/27 21:50:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,3 +63,63 @@ add_table_entry(gtk_table *tab, char *str, int x, int y)
 	gtk_widget_show(tmp);
 }
 
+/* init a main windowfor stats, set title and display used filter in window */
+
+void
+init_main_stat_window(GtkWidget *window, GtkWidget *mainbox, char *title, char *filter)
+{
+	GtkWidget *main_label;
+	GtkWidget *filter_label;
+	char filter_string[256];
+
+
+	gtk_window_set_title(GTK_WINDOW(window), title);
+
+	gtk_container_add(GTK_CONTAINER(window), mainbox);
+	gtk_container_set_border_width(GTK_CONTAINER(mainbox), 10);
+	gtk_widget_show(mainbox);
+
+	main_label=gtk_label_new(title);
+	gtk_box_pack_start(GTK_BOX(mainbox), main_label, FALSE, FALSE, 0);
+	gtk_widget_show(main_label);
+
+	snprintf(filter_string,255,"Filter:%s",filter?filter:"");
+	filter_label=gtk_label_new(filter_string);
+	gtk_box_pack_start(GTK_BOX(mainbox), filter_label, FALSE, FALSE, 0);
+	gtk_widget_show(filter_label);
+
+}
+
+/* create a table, using a scrollable gtkclist */
+
+#if GTK_MAJOR_VERSION < 2
+GtkCList *
+create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, char *titles[])
+{
+	GtkCList *table;
+	int i;
+
+	/* create table */
+	table = GTK_CLIST(gtk_clist_new_with_titles(columns, titles));
+
+	/* configure scrolling window*/
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
+				       GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+	gtk_box_pack_start(GTK_BOX(vbox), scrolled_window, TRUE, TRUE, 0);
+
+	/* configure clist */
+	gtk_clist_column_titles_passive(table);
+	gtk_clist_column_titles_show(table);
+	for (i = 0; i < columns; i++)
+	    gtk_clist_set_column_auto_resize(table, i, TRUE);
+	gtk_clist_set_selection_mode(table, GTK_SELECTION_EXTENDED);
+
+	/* Put clist into a scrolled window */
+	gtk_container_add(GTK_CONTAINER(scrolled_window),
+                          GTK_WIDGET(table));
+        gtk_widget_show(GTK_WIDGET(table));
+	gtk_widget_show(scrolled_window);
+
+	return table;
+}
+#endif
