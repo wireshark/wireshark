@@ -1,7 +1,7 @@
 /* filesystem.h
  * Filesystem utility definitions
  *
- * $Id: filesystem.h,v 1.10 2001/10/24 07:18:37 guy Exp $
+ * $Id: filesystem.h,v 1.11 2002/06/23 21:33:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,19 @@ char *get_dirname(char *);
  *	to be a directory.
  */
 int test_for_directory(const char *);
+
+/*
+ * Given a pathname, return:
+ *
+ *	the errno, if an attempt to "stat()" the file fails;
+ *
+ *	ESPIPE, if the attempt succeeded and the file turned out
+ *	to be a FIFO;
+ *
+ *	0, if the attempt succeeded and the file turned out not
+ *	to be a FIFO.
+ */
+int test_for_fifo(const char *);
 
 /*
  * Get the directory in which global configuration and data files are

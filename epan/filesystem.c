@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.17 2002/03/02 20:48:10 guy Exp $
+ * $Id: filesystem.c,v 1.18 2002/06/23 21:33:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -191,6 +191,20 @@ test_for_directory(const char *path)
 
 	if (S_ISDIR(statb.st_mode))
 		return EISDIR;
+	else
+		return 0;
+}
+
+int
+test_for_fifo(const char *path)
+{
+	struct stat statb;
+
+	if (stat(path, &statb) < 0)
+		return errno;
+
+	if (S_ISFIFO(statb.st_mode))
+		return ESPIPE;
 	else
 		return 0;
 }

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.141 2002/06/23 20:30:01 guy Exp $
+ * $Id: tethereal.c,v 1.142 2002/06/23 21:33:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,10 +45,6 @@
 #include <sys/types.h>
 #endif
 
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
@@ -82,6 +78,7 @@
 
 #include <glib.h>
 #include <epan/epan.h>
+#include <epan/filesystem.h>
 
 #include "globals.h"
 #include <epan/timestamp.h>
@@ -109,26 +106,6 @@
 
 #ifdef WIN32
 #include "capture-wpcap.h"
-#endif
-
-/* XXX this code is duplicated in epan/filesystem.c and wiretap/file.c */
-/*
- * Visual C++ on Win32 systems doesn't define these.  (Old UNIX systems don't
- * define them either.)
- *
- * Visual C++ on Win32 systems doesn't define S_IFIFO, it defines _S_IFIFO.
- */
-#ifndef S_ISREG
-#define S_ISREG(mode)   (((mode) & S_IFMT) == S_IFREG)
-#endif
-#ifndef S_IFIFO
-#define S_IFIFO _S_IFIFO
-#endif
-#ifndef S_ISFIFO
-#define S_ISFIFO(mode)  (((mode) & S_IFMT) == S_IFIFO)
-#endif
-#ifndef S_ISDIR
-#define S_ISDIR(mode)   (((mode) & S_IFMT) == S_IFDIR)
 #endif
 
 static guint32 firstsec, firstusec;
@@ -346,7 +323,6 @@ main(int argc, char *argv[])
   dfilter_t           *rfcode = NULL;
   e_prefs             *prefs;
   char                 badopt;
-  struct stat          sstat;
 
   /* Register all dissectors; we must do this before checking for the
      "-G" flag, as the "-G" flag dumps information registered by the
@@ -692,18 +668,27 @@ main(int argc, char *argv[])
     }
   }
 
-  /* See if capture file is a pipe */
+  /* See if we're writing a capture file and the file is a pipe */
   ld.output_to_pipe = FALSE;
   if (cfile.save_file != NULL) {
-    if (stat(cfile.save_file, &sstat) < 0) {
-      if (errno != ENOENT && errno != ENOTDIR) {
-        fprintf(stderr, "tethereal: error on output capture file: %s\n",
-                  strerror(errno));
-        exit(2);
-      }
-    } else {
-      if (S_ISFIFO(sstat.st_mode))
-        ld.output_to_pipe = TRUE;
+    err = test_for_fifo(cfile.save_file);
+    switch (errno) {
+
+    case ENOENT:	/* it doesn't exist, so we'll be creating it,
+    			   and it won't be a FIFO */
+    case ENOTDIR:	/* XXX - why ignore this? */
+    case 0:		/* found it, but it's not a FIFO */
+      break;
+
+    case ESPIPE:	/* it is a FIFO */
+      ld.output_to_pipe = TRUE;
+      break;
+
+    default:		/* couldn't stat it */
+      fprintf(stderr,
+              "tethereal: Error testing whether capture file is a pipe: %s\n",
+              strerror(errno));
+      exit(2);
     }
   }
 
@@ -1163,7 +1148,7 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   args.pdh = ld->pdh;
   if (ld->pdh) {
     wtap_dispatch_cb_write((u_char *)&args, &whdr, 0, &pseudo_header, pd);
-/* Report packet capture count if not quiet */
+    /* Report packet capture count if not quiet */
     if (!quiet) {
       fprintf(stderr, "\r%u ", cfile.count);
       /* stderr could be line buffered */
@@ -1824,21 +1809,11 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
 {
   wtap       *wth;
   int         err;
-  int         fd;
-  struct stat cf_stat;
   char        err_msg[2048+1];
 
   wth = wtap_open_offline(fname, &err, FALSE);
   if (wth == NULL)
     goto fail;
-
-  /* Find the size of the file. */
-  fd = wtap_fd(wth);
-  if (fstat(fd, &cf_stat) < 0) {
-    err = errno;
-    wtap_close(wth);
-    goto fail;
-  }
 
   /* The open succeeded.  Fill in the information for this file. */
 
@@ -1846,8 +1821,8 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   init_dissection();
 
   cf->wth = wth;
-  cf->filed = fd;
-  cf->f_len = cf_stat.st_size;
+  cf->filed = -1;	/* not used, but set it anyway */
+  cf->f_len = 0;	/* not used, but set it anyway */
 
   /* Set the file name because we need it to set the follow stream filter.
      XXX - is that still true?  We need it for other reasons, though,
