@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-integer.c,v 1.2 2001/02/01 20:31:21 gram Exp $
+ * $Id: ftype-integer.c,v 1.3 2001/02/11 03:29:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -175,7 +175,34 @@ boolean_fvalue_new(fvalue_t *fv)
 	fv->value.integer = TRUE;
 }
 
+/* Checks for equality with zero or non-zero */
+static gboolean
+bool_eq(fvalue_t *a, fvalue_t *b)
+{
+	if (a->value.integer) {
+		if (b->value.integer) {
+			return TRUE;
+		}
+		else {
+			return FALSE;
+		}
+	}
+	else {
+		if (b->value.integer) {
+			return FALSE;
+		}
+		else {
+			return TRUE;
+		}
+	}
+}
 
+/* Checks for inequality with zero or non-zero */
+static gboolean
+bool_ne(fvalue_t *a, fvalue_t *b)
+{
+	return (!bool_eq(a,b));
+}
 
 
 
@@ -392,12 +419,12 @@ ftype_register_integers(void)
 		get_integer,
 		NULL,
 
-		cmp_eq,
-		cmp_ne,
-		u_cmp_gt,
-		u_cmp_ge,
-		u_cmp_lt,
-		u_cmp_le,
+		bool_eq,
+		bool_ne,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
 	};
 
 	static ftype_t ipxnet_type = {
