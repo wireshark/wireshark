@@ -142,7 +142,7 @@ ethereal_SOURCES =	\
 	capture.c	\
 	capture_sync.c	\
 	capture_loop.c	\
-	capture_combo_utils.c	\
+	capture_ui_utils.c	\
 	color_filters.c	\
 	file.c	\
 	filters.c	\
@@ -156,7 +156,7 @@ ethereal_INCLUDES =	\
 	alert_box.h	\
 	capture.h	\
 	capture_sync.h	\
-	capture_combo_utils.h	\
+	capture_ui_utils.h	\
 	color_filters.h	\
 	filters.h	\
 	g711.h	\

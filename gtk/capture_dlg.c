@@ -44,7 +44,7 @@
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "pcap-util.h"
-#include "capture_combo_utils.h"
+#include "capture_ui_utils.h"
 #include <epan/prefs.h>
 #include "ringbuffer.h"
 #include <epan/filesystem.h>

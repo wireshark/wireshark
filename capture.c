@@ -55,7 +55,7 @@
 #include "file.h"
 #include "capture.h"
 #include "capture_sync.h"
-#include "capture_combo_utils.h"
+#include "capture_ui_utils.h"
 #include "util.h"
 #include "pcap-util.h"
 #include "alert_box.h"

@@ -41,7 +41,7 @@
 #include "dlg_utils.h"
 #include "simple_dialog.h"
 #include "pcap-util.h"
-#include "capture_combo_utils.h"
+#include "capture_ui_utils.h"
 #include "main.h"
 #include "compat_macros.h"
 

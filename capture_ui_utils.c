@@ -1,5 +1,5 @@
-/* capture_combo_utils.c
- * Utilities for combo box of interface names
+/* capture_ui_utils.c
+ * Utilities for capture user interfaces
  *
  * $Id$
  *
@@ -38,7 +38,7 @@
 
 #include <epan/prefs.h>
 #include "pcap-util.h"
-#include "capture_combo_utils.h"
+#include "capture_ui_utils.h"
 
 /*
  * Find user-specified capture device description that matches interface

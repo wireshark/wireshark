@@ -1,5 +1,5 @@
-/* capture_combo_utils.c
- * Declarations of tilities for combo box of interface names
+/* capture_ui_utils.c
+ * Declarations of utilities for capture user interfaces
  *
  * $Id$
  *
@@ -22,8 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __CAPTURE_COMBO_UTILS_H__
-#define __CAPTURE_COMBO_UTILS_H__
+#ifndef __CAPTURE_UI_UTILS_H__
+#define __CAPTURE_UI_UTILS_H__
 
 /** @file
  *  GList of available capture interfaces.
