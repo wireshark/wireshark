@@ -31,6 +31,10 @@
  * RFC 2867 - RADIUS Accounting Modifications for Tunnel Protocol Support
  * RFC 2868 - RADIUS Attributes for Tunnel Protocol Support
  * RFC 2869 - RADIUS Extensions
+ *
+ * See also
+ *
+ *	http://www.iana.org/assignments/radius-types
  */
 
 /*
