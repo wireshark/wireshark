@@ -1,7 +1,7 @@
 /* packet-tcp.h
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim.h,v 1.3 2004/04/26 18:21:10 obiot Exp $
+ * $Id: packet-aim.h,v 1.4 2004/04/27 19:54:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,6 +63,7 @@ int dissect_aim_tlv_value_bytes(proto_item *ti, guint16, tvbuff_t *);
 int dissect_aim_tlv_value_ipv4(proto_item *ti, guint16, tvbuff_t *);
 int dissect_aim_tlv_value_time(proto_item *ti, guint16, tvbuff_t *);
 int dissect_aim_tlv_value_client_capabilities(proto_item *ti, guint16, tvbuff_t *);
+int dissect_aim_userclass(tvbuff_t *tvb, int offset, proto_item *ti);
 int dissect_aim_tlv_value_userclass(proto_item *ti, guint16, tvbuff_t *);
 
 extern const aim_tlv client_tlvs[];
