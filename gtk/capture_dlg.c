@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.133 2004/06/12 07:47:14 guy Exp $
+ * $Id: capture_dlg.c,v 1.134 2004/06/20 13:39:44 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -83,6 +83,7 @@
 #define E_CAP_STOP_FILES_LB_KEY     "cap_stop_files_lb"
 #define E_CAP_SYNC_KEY              "cap_sync"
 #define E_CAP_AUTO_SCROLL_KEY       "cap_auto_scroll"
+#define E_CAP_HIDE_INFO_KEY         "cap_hide_info"
 #define E_CAP_STOP_PACKETS_CB_KEY   "cap_stop_packets_cb"
 #define E_CAP_STOP_PACKETS_SB_KEY   "cap_stop_packets_sb"
 #define E_CAP_STOP_PACKETS_LB_KEY   "cap_stop_packets_lb"
@@ -462,7 +463,7 @@ capture_prep(void)
                 *stop_duration_cb, *stop_duration_sb, *stop_duration_om,
 
                 *display_fr, *display_vb,
-                *sync_cb, *auto_scroll_cb,
+                *sync_cb, *auto_scroll_cb, *hide_info_cb,
 
                 *resolv_fr, *resolv_vb,
                 *m_resolv_cb, *n_resolv_cb, *t_resolv_cb,
@@ -939,6 +940,14 @@ capture_prep(void)
     "when the \"Update List of packets in real time\" option is used.", NULL);
   gtk_container_add(GTK_CONTAINER(display_vb), auto_scroll_cb);
 
+  /* "Hide capture info" row */
+  hide_info_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
+		"_Hide capture info dialog", accel_group);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(hide_info_cb), !capture_opts.show_info);
+  gtk_tooltips_set_tip(tooltips, hide_info_cb, 
+    "Hide the capture info dialog while capturing.", NULL);
+  gtk_container_add(GTK_CONTAINER(display_vb), hide_info_cb);
+
   /* Name Resolution frame */
   resolv_fr = gtk_frame_new("Name Resolution");
   gtk_container_add(GTK_CONTAINER(right_vb), resolv_fr);
@@ -1015,6 +1024,7 @@ capture_prep(void)
   OBJECT_SET_DATA(cap_open_w, E_CAP_FILE_DURATION_OM_KEY,  file_duration_om);
   OBJECT_SET_DATA(cap_open_w, E_CAP_SYNC_KEY,  sync_cb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_AUTO_SCROLL_KEY, auto_scroll_cb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_HIDE_INFO_KEY, hide_info_cb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_PACKETS_CB_KEY, stop_packets_cb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_PACKETS_SB_KEY, stop_packets_sb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_PACKETS_LB_KEY, stop_packets_lb);
@@ -1130,7 +1140,7 @@ static void
 capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   GtkWidget *if_cb, *snap_cb, *snap_sb, *promisc_cb, *filter_te,
             *file_te, *multi_files_on_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_cb,
-            *linktype_om, *sync_cb, *auto_scroll_cb,
+            *linktype_om, *sync_cb, *auto_scroll_cb, *hide_info_cb,
             *stop_packets_cb, *stop_packets_sb,
             *stop_filesize_cb, *stop_filesize_sb, *stop_filesize_om,
             *stop_duration_cb, *stop_duration_sb, *stop_duration_om,
@@ -1172,6 +1182,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   file_duration_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_DURATION_OM_KEY);
   sync_cb   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SYNC_KEY);
   auto_scroll_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_AUTO_SCROLL_KEY);
+  hide_info_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_HIDE_INFO_KEY);
   stop_packets_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_PACKETS_CB_KEY);
   stop_packets_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_PACKETS_SB_KEY);
   stop_filesize_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILESIZE_CB_KEY);
@@ -1271,6 +1282,9 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
 
   auto_scroll_live =
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(auto_scroll_cb));
+
+  capture_opts.show_info =
+      !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hide_info_cb));
 
   g_resolv_flags |= g_resolv_flags & RESOLV_CONCURRENT;
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(m_resolv_cb)))
@@ -1405,7 +1419,7 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
             *multi_files_on_cb, *ringbuffer_nbf_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_lb,
             *ring_filesize_cb, *ring_filesize_sb, *ring_filesize_om,
             *file_duration_cb, *file_duration_sb, *file_duration_om,
-            *sync_cb, *auto_scroll_cb,
+            *sync_cb, *auto_scroll_cb, *hide_info_cb,
             *stop_packets_cb, *stop_packets_sb, *stop_packets_lb,
             *stop_filesize_cb, *stop_filesize_sb, *stop_filesize_om,
             *stop_duration_cb, *stop_duration_sb, *stop_duration_om,
@@ -1427,6 +1441,7 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
   file_duration_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_DURATION_OM_KEY);
   sync_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SYNC_KEY);
   auto_scroll_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_AUTO_SCROLL_KEY);
+  hide_info_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_HIDE_INFO_KEY);
   stop_packets_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_PACKETS_CB_KEY);
   stop_packets_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_PACKETS_SB_KEY);
   stop_packets_lb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_PACKETS_LB_KEY);
@@ -1458,6 +1473,8 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
     /* Auto-scroll mode is meaningful only in "Update list of packets
        in real time" captures, so make its toggle button sensitive. */
     gtk_widget_set_sensitive(GTK_WIDGET(auto_scroll_cb), TRUE);
+
+    gtk_widget_set_sensitive(GTK_WIDGET(hide_info_cb), TRUE);
   } else {
     /* "Update list of packets in real time" captures disabled; that
        means ring buffer mode is OK, so make its toggle button
@@ -1467,6 +1484,8 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
     /* Auto-scroll mode is meaningful only in "Update list of packets
        in real time" captures, so make its toggle button insensitive. */
     gtk_widget_set_sensitive(GTK_WIDGET(auto_scroll_cb), FALSE);
+
+    gtk_widget_set_sensitive(GTK_WIDGET(hide_info_cb), FALSE);
   }
 
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(multi_files_on_cb))) {

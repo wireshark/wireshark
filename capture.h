@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.46 2004/06/04 17:19:01 ulfl Exp $
+ * $Id: capture.h,v 1.47 2004/06/20 13:39:43 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +47,7 @@ typedef struct {
 					   "use default" */
 	int sync_mode;			/**< Fork a child to do the capture,
 					   and sync between them */
+    gboolean show_info;     /**< show the info dialog */
 
     gboolean multi_files_on;    /**< TRUE if ring buffer in use */
 

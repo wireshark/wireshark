@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.251 2004/05/09 10:03:36 guy Exp $
+ * $Id: capture.c,v 1.252 2004/06/20 13:39:43 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -261,6 +261,7 @@ do_capture(const char *save_file)
   char tmpname[128+1];
   gboolean is_tempfile;
   gchar *capfile_name;
+  gboolean ret;
 
   if (save_file != NULL) {
     /* If the Sync option is set, we return to the caller while the capture
@@ -303,16 +304,21 @@ do_capture(const char *save_file)
   cfile.save_file = capfile_name;
   /* cfile.save_file is "g_free"ed below, which is equivalent to
      "g_free(capfile_name)". */
+  fork_child = -1;
 
   if (capture_opts.sync_mode) {	
     /* sync mode: do the capture in a child process */
-    return sync_pipe_do_capture(is_tempfile);
+    ret = sync_pipe_do_capture(is_tempfile);
     /* capture is still running */
+    set_main_window_name("(Live Capture in Progress) - Ethereal");
   } else {
     /* normal mode: do the capture synchronously */
-    return normal_do_capture(is_tempfile);
+    set_main_window_name("(Live Capture in Progress) - Ethereal");
+    ret = normal_do_capture(is_tempfile);
     /* capture is finished here */
   }
+
+  return ret;
 }
 
 
@@ -429,6 +435,10 @@ sync_pipe_do_capture(gboolean is_tempfile) {
       argv = sync_pipe_add_arg(argv, &argc, "-a");
       sprintf(sautostop_duration,"duration:%d",capture_opts.autostop_duration);
       argv = sync_pipe_add_arg(argv, &argc, sautostop_duration);
+    }
+
+    if (!capture_opts.show_info) {
+      argv = sync_pipe_add_arg(argv, &argc, "-H");
     }
 
     if (!capture_opts.promisc_mode)
@@ -1435,6 +1445,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 #ifdef MUST_DO_SELECT
   int         pcap_fd = 0;
 #endif
+  gboolean    show_info = capture_opts.show_info || !capture_opts.sync_mode;
 
   /* Initialize Windows Socket if we are in a WIN32 OS
      This needs to be done before querying the interface for network/netmask */
@@ -1758,9 +1769,11 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   }
 
   /* start capture info dialog */
-  capture_ui.callback_data  = &ld;
-  capture_ui.counts         = &ld.counts;
-  capture_info_create(&capture_ui, cfile.iface);
+  if(show_info) {
+      capture_ui.callback_data  = &ld;
+      capture_ui.counts         = &ld.counts;
+      capture_info_create(&capture_ui, cfile.iface);
+  }
 
   start_time = time(NULL);
   upd_time = time(NULL);
@@ -1829,7 +1842,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
       }
     }
     else
-#endif
+#endif /* _WIN32 */
     {
 #ifdef MUST_DO_SELECT
       /*
@@ -1889,7 +1902,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
         ld.pcap_err = TRUE;
         ld.go = FALSE;
       }
-#endif
+#endif /* MUST_DO_SELECT */
     }
 
     if (inpkts > 0) {
@@ -1937,10 +1950,12 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 
       	/* Let the parent process know. */
       /* calculate and display running time */
-      cur_time -= start_time;
-      capture_ui.running_time   = cur_time;
-      capture_ui.new_packets    = ld.sync_packets;
-      capture_info_update(&capture_ui);
+      if(show_info) {
+          cur_time -= start_time;
+          capture_ui.running_time   = cur_time;
+          capture_ui.new_packets    = ld.sync_packets;
+          capture_info_update(&capture_ui);
+      }
 
       if (ld.sync_packets) {
         /* do sync here */
@@ -2075,7 +2090,9 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   WSACleanup();
 #endif
 
-  capture_info_destroy(&capture_ui);
+  if(show_info) {
+    capture_info_destroy(&capture_ui);
+  }
 
   return write_ok;
 

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.442 2004/06/17 16:35:25 ulfl Exp $
+ * $Id: main.c,v 1.443 2004/06/20 13:39:44 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1447,7 +1447,7 @@ main(int argc, char *argv[])
   ethereal_tap_list   *tli = NULL;
   gchar               *tap_opt = NULL;
 
-#define OPTSTRING_INIT "a:b:B:c:f:hi:klLm:nN:o:pP:Qr:R:Ss:t:T:w:vy:z:"
+#define OPTSTRING_INIT "a:b:B:c:f:Hhi:klLm:nN:o:pP:Qr:R:Ss:t:T:w:vy:z:"
 
 #ifdef HAVE_LIBPCAP
 #ifdef WIN32
@@ -1652,6 +1652,8 @@ main(int argc, char *argv[])
 
   /* And do the same for "Automatic scrolling in live capture" mode. */
   auto_scroll_live = prefs->capture_auto_scroll;
+
+  capture_opts.show_info = TRUE;
 #endif
 
   /* Set the name resolution code's flags from the preferences. */
@@ -1805,6 +1807,14 @@ main(int argc, char *argv[])
       case 'l':        /* Automatic scrolling in live capture mode */
 #ifdef HAVE_LIBPCAP
         auto_scroll_live = TRUE;
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif
+        break;
+      case 'H':        /* Hide capture info dialog box */
+#ifdef HAVE_LIBPCAP
+        capture_opts.show_info = FALSE;
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
