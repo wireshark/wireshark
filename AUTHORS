@@ -462,6 +462,7 @@ Michael Tuexen          <Michael.Tuexen [AT] fh-muenster.de> {
 	SCCP-atop-M3UA support
 	M2UA support
 	ASAP support
+        ENRP support
 	Fix SCTP port number for M2PA
 }
 
