@@ -1,4 +1,4 @@
-$Id: NEWS,v 1.152 2004/07/06 16:29:18 gerald Exp $
+$Id: NEWS,v 1.153 2004/07/06 19:17:01 gerald Exp $
 
 == July ??, 2004
 
@@ -30,6 +30,7 @@ Ethereal can open help documentation using the default web browser.
 New protocol support
 
 DNP,
+ENRP,
 giFT,
 H.235,
 PacketCable,
