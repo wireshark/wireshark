@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.92 2003/01/23 09:39:32 guy Exp $
+ * $Id: packet-ipv6.c,v 1.93 2003/02/04 20:16:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,22 +74,7 @@ static int hf_ipv6_fragment_error = -1;
 
 static int hf_ipv6_mipv6_type = -1;
 static int hf_ipv6_mipv6_length = -1;
-static int hf_ipv6_mipv6_a_flag = -1;
-static int hf_ipv6_mipv6_h_flag = -1;
-static int hf_ipv6_mipv6_r_flag = -1;
-static int hf_ipv6_mipv6_d_flag = -1;
-static int hf_ipv6_mipv6_m_flag = -1;
-static int hf_ipv6_mipv6_b_flag = -1;
-static int hf_ipv6_mipv6_prefix_length = -1;
-static int hf_ipv6_mipv6_sequence_number = -1;
-static int hf_ipv6_mipv6_life_time = -1;
-static int hf_ipv6_mipv6_status = -1;
-static int hf_ipv6_mipv6_refresh = -1;
 static int hf_ipv6_mipv6_home_address = -1;
-static int hf_ipv6_mipv6_sub_type = -1;
-static int hf_ipv6_mipv6_sub_length = -1;
-static int hf_ipv6_mipv6_sub_unique_ID = -1;
-static int hf_ipv6_mipv6_sub_alternative_COA = -1;
 
 static gint ett_ipv6 = -1;
 static gint ett_ipv6_fragments = -1;
@@ -270,8 +255,11 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree) {
 		    );
 	    }
 	}
-
-	/* decode... */
+	if (rt.ip6r_type == 2) {
+	    proto_tree_add_ipv6(rthdr_tree, hf_ipv6_mipv6_home_address,
+				       tvb, offset + 8, 16,
+				       tvb_get_ptr(tvb, offset + 8, 16));
+	}
     }
 
     return len;
@@ -332,266 +320,26 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
     return len;
 }
 
-/* Binding Update flag description */
-static const true_false_string ipv6_mipv6_bu_a_flag_value = {
-    "Binding Acknowledgement requested",
-    "Binding Acknowledgement not requested"
-};
-static const true_false_string ipv6_mipv6_bu_h_flag_value = {
-    "Home Registration",
-    "No Home Registration"
-};
-static const true_false_string ipv6_mipv6_bu_r_flag_value = {
-    "Router",
-    "Not a Router"
-};
-static const true_false_string ipv6_mipv6_bu_d_flag_value = {
-    "Perform Duplicate Address Detection",
-    "Do not perform Duplicate Address Detection"
-};
-static const true_false_string ipv6_mipv6_bu_m_flag_value = {
-    "MAP Registration",
-    "No MAP Registration"
-};
-static const true_false_string ipv6_mipv6_bu_b_flag_value = {
-    "Request for bicasting",
-    "Do not request for bicasting"
-};
-
 static int
-dissect_mipv6_ba(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset)
-{
-    guint8 status, len = 0;
-    const char *status_text;
-    gboolean sub_options = FALSE;
-
-    proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_type, tvb,
-	offset + len, IP6_MIPv6_OPTION_TYPE_LENGTH,
-	tvb_get_guint8(tvb, offset + len),
-	"Option Type: %u (0x%02x) - Binding Acknowledgement",
-	tvb_get_guint8(tvb, offset + len),
-    tvb_get_guint8(tvb, offset + len));
-    len += IP6_MIPv6_OPTION_TYPE_LENGTH;
-    if (tvb_get_guint8(tvb, offset + len) > 11)
-	sub_options = TRUE;
-    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_length, tvb, offset + len,
-	IP6_MIPv6_OPTION_LENGTH_LENGTH, tvb_get_guint8(tvb, offset + len));
-    len += IP6_MIPv6_OPTION_LENGTH_LENGTH;
-    status = tvb_get_guint8(tvb, offset + len);
-    switch (status) {
-    case BA_OK:
-	status_text = "- Binding Update accepted";
-	break;
-    case BA_REAS_UNSPEC:
-	status_text = "- Binding Update was rejected - Reason unspecified";
-	break;
-    case BA_ADMIN_PROH:
-	status_text = "- Binding Update was rejected - Administratively prohibited";
-	break;
-    case BA_INSUF_RES:
-	status_text = "- Binding Update was rejected - Insufficient resources";
-	break;
-    case BA_NO_HR:
-	status_text = "- Binding Update was rejected - Home registration not supported";
-	break;
-    case BA_NO_SUBNET:
-	status_text = "- Binding Update was rejected - Not home subnet";
-	break;
-    case BA_ERR_ID_LEN:
-	status_text = "- Binding Update was rejected - Incorrect interface identifier length";
-	break;
-    case BA_NO_HA:
-	status_text = "- Binding Update was rejected - Not home agent for this mobile node";
-	break;
-    case BA_DUPL_ADDR:
-	status_text = "- Binding Update was rejected - Duplicate Address Detection failed";
-	break;
-    default:
-	status_text = NULL;
-	break;
-    }
-    if (!status_text) {
-	if (status > 128)
-	    status_text = "- Binding Update was rejected";
-	else
-	    status_text = "";
-    }
-    proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_status,
-	tvb, offset + len, IP6_MIPv6_STATUS_LENGTH,
-	tvb_get_guint8(tvb, offset + len),
-	"Status: %u %s", tvb_get_guint8(tvb, offset + len), status_text);
-    len += IP6_MIPv6_STATUS_LENGTH;
-    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_sequence_number,
-	tvb, offset + len, IP6_MIPv6_SEQUENCE_NUMBER_LENGTH,
-	tvb_get_ntohs(tvb, offset + len));
-    len += IP6_MIPv6_SEQUENCE_NUMBER_LENGTH;
-    if (tvb_get_ntohl(tvb, offset + len) == 0xffffffff) {
-	proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_life_time,
-	    tvb, offset + len, IP6_MIPv6_LIFE_TIME_LENGTH,
-	    tvb_get_ntohl(tvb, offset + len),
-	    "Life Time: %u - Infinity", tvb_get_ntohl(tvb, offset + len));
-    } else {
-	proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_life_time,
-	    tvb, offset + len, IP6_MIPv6_LIFE_TIME_LENGTH,
-	    tvb_get_ntohl(tvb, offset + len));
-    }
-    len += IP6_MIPv6_LIFE_TIME_LENGTH;
-    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_refresh, tvb,
-	offset + len, IP6_MIPv6_REFRESH_LENGTH,
-	tvb_get_ntohl(tvb, offset + len));
-    len += IP6_MIPv6_REFRESH_LENGTH;
-    /* sub - options */
-    if (sub_options)
-	proto_tree_add_text(dstopt_tree, tvb, offset + len, 1, "Sub-Options");
-    return len;
-}
-
-static int
-dissect_mipv6_bu(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset)
+dissect_mipv6_hoa(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset)
 {
     int len = 0;
-    gboolean sub_options = FALSE;
-
-    proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_type, tvb, offset,
-	IP6_MIPv6_OPTION_TYPE_LENGTH, tvb_get_guint8(tvb, offset),
-	"Option Type: %u (0x%02x) - Binding Update",
-	tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset));
-    len += IP6_MIPv6_OPTION_TYPE_LENGTH;
-    if (tvb_get_guint8(tvb, offset + len) > 8)
-	sub_options = TRUE;
-    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_length, tvb, offset + len,
-	IP6_MIPv6_OPTION_LENGTH_LENGTH, tvb_get_guint8(tvb, offset + len));
-    len += IP6_MIPv6_OPTION_LENGTH_LENGTH;
-    proto_tree_add_boolean(dstopt_tree, hf_ipv6_mipv6_a_flag, tvb, offset + len,
-	IP6_MIPv6_FLAGS_LENGTH, tvb_get_guint8(tvb, offset + len));
-    proto_tree_add_boolean(dstopt_tree, hf_ipv6_mipv6_h_flag, tvb, offset + len,
-	IP6_MIPv6_FLAGS_LENGTH, tvb_get_guint8(tvb, offset + len));
-    proto_tree_add_boolean(dstopt_tree, hf_ipv6_mipv6_r_flag, tvb, offset + len,
-	IP6_MIPv6_FLAGS_LENGTH, tvb_get_guint8(tvb, offset + len));
-    proto_tree_add_boolean(dstopt_tree, hf_ipv6_mipv6_d_flag, tvb, offset + len,
-	IP6_MIPv6_FLAGS_LENGTH, tvb_get_guint8(tvb, offset + len));
-    proto_tree_add_boolean(dstopt_tree, hf_ipv6_mipv6_m_flag, tvb, offset + len,
-	IP6_MIPv6_FLAGS_LENGTH, tvb_get_guint8(tvb, offset + len));
-    proto_tree_add_boolean(dstopt_tree, hf_ipv6_mipv6_b_flag, tvb, offset + len,
-	IP6_MIPv6_FLAGS_LENGTH, tvb_get_guint8(tvb, offset + len));
-    len += IP6_MIPv6_FLAGS_LENGTH;
-    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_prefix_length, tvb,
-	offset + len,
-	IP6_MIPv6_PREFIX_LENGTH_LENGTH, tvb_get_guint8(tvb, offset + len));
-    len += IP6_MIPv6_PREFIX_LENGTH_LENGTH;
-    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_sequence_number, tvb,
-	offset + len, IP6_MIPv6_SEQUENCE_NUMBER_LENGTH,
-	tvb_get_ntohs(tvb, offset + len));
-    len += IP6_MIPv6_SEQUENCE_NUMBER_LENGTH;
-    if (tvb_get_ntohl(tvb, offset + len) == 0xffffffff) {
-    proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_life_time, tvb,
-	offset + len, IP6_MIPv6_LIFE_TIME_LENGTH,
-	tvb_get_ntohl(tvb, offset + len), "Life Time: %u - Infinity",
-	tvb_get_ntohl(tvb, offset + len));
-    } else {
-	proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_life_time, tvb,
-	    offset + len, IP6_MIPv6_LIFE_TIME_LENGTH, tvb_get_ntohl(tvb,
-	    offset + len));
-    }
-    len += IP6_MIPv6_LIFE_TIME_LENGTH;
-    /* sub - options */
-    if (sub_options)
-	proto_tree_add_text(dstopt_tree, tvb, offset + len, 1, "Sub-Options");
-    return len;
-}
-
-static int
-dissect_mipv6_ha(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset)
-{
-    int len = 0;
-    gboolean sub_options = FALSE;
 
     proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_type, tvb,
-	offset + len, IP6_MIPv6_OPTION_TYPE_LENGTH,
+	offset + len, 1,
 	tvb_get_guint8(tvb, offset + len),
-	"Option Type: %u (0x%02x) - Home Address",
-	tvb_get_guint8(tvb, offset + len), tvb_get_guint8(tvb, offset + len));
-    len += IP6_MIPv6_OPTION_TYPE_LENGTH;
-    if (tvb_get_guint8(tvb, offset + len) > 16)
-	sub_options = TRUE;
+	"Option Type: %u (0x%02x) - Home Address Option",
+	tvb_get_guint8(tvb, offset + len),
+	tvb_get_guint8(tvb, offset + len));
+    len += 1;
+
     proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_length, tvb, offset + len,
-	IP6_MIPv6_OPTION_LENGTH_LENGTH, tvb_get_guint8(tvb, offset + len));
-    len += IP6_MIPv6_OPTION_LENGTH_LENGTH;
+	1, tvb_get_guint8(tvb, offset + len));
+    len += 1;
+
     proto_tree_add_ipv6(dstopt_tree, hf_ipv6_mipv6_home_address, tvb,
-	offset + len, IP6_MIPv6_HOME_ADDRESS_LENGTH,
-	tvb_get_ptr(tvb, offset + len, IP6_MIPv6_HOME_ADDRESS_LENGTH));
-    len += IP6_MIPv6_HOME_ADDRESS_LENGTH;
-    /* sub - options */
-    if (sub_options)
-	proto_tree_add_text(dstopt_tree, tvb, offset + len, 1, "Sub-Options");
-    return len;
-}
-
-static int
-dissect_mipv6_br(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset)
-{
-    int len = 0;
-    gboolean sub_options = FALSE;
-
-    proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_type, tvb,
-	offset + len, IP6_MIPv6_OPTION_TYPE_LENGTH,
-	tvb_get_guint8(tvb, offset + len),
-	"Option Type: %u (0x%02x) - Binding Request",
-	tvb_get_guint8(tvb, offset + len), tvb_get_guint8(tvb, offset + len));
-    len += IP6_MIPv6_OPTION_TYPE_LENGTH;
-    if (tvb_get_guint8(tvb, offset + len) > 0)
-	sub_options = TRUE;
-    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_length, tvb, offset + len,
-	IP6_MIPv6_OPTION_LENGTH_LENGTH, tvb_get_guint8(tvb, offset + len));
-    len += IP6_MIPv6_OPTION_LENGTH_LENGTH;
-    /* sub - options */
-    if (sub_options)
-	proto_tree_add_text(dstopt_tree, tvb, offset + len, 1, "Sub-Options");
-    return len;
-}
-
-static int
-dissect_mipv6_sub_u(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset)
-{
-    int len = 0;
-
-    proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_sub_length, tvb,
-	offset + len, IP6_MIPv6_SUB_TYPE_LENGTH,
-	tvb_get_guint8(tvb, offset + len),
-	"Sub-Option Type: %u (0x%02x) - Unique Identifier Sub-Option",
-	tvb_get_guint8(tvb, offset + len), tvb_get_guint8(tvb, offset + len));
-    len += IP6_MIPv6_SUB_TYPE_LENGTH;
-    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_sub_length, tvb,
-	offset + len, IP6_MIPv6_SUB_LENGTH_LENGTH,
-	tvb_get_guint8(tvb, offset + len));
-    len += IP6_MIPv6_SUB_LENGTH_LENGTH;
-    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_sub_unique_ID, tvb,
-	offset + len, IP6_MIPv6_SUB_UNIQUE_ID_LENGTH,
-	tvb_get_ntohs(tvb, offset + len));
-    len += IP6_MIPv6_SUB_UNIQUE_ID_LENGTH;
-    return len;
-}
-
-static int
-dissect_mipv6_sub_a_coa(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset)
-{
-    int len = 0;
-
-    proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_sub_type, tvb,
-	offset + len, IP6_MIPv6_SUB_TYPE_LENGTH,
-	tvb_get_guint8(tvb, offset + len),
-	"Sub-Option Type: %u (0x%02x) - Alternative Care Of Address",
-	tvb_get_guint8(tvb, offset + len),
-    tvb_get_guint8(tvb, offset + len));
-    len += IP6_MIPv6_SUB_TYPE_LENGTH;
-    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_sub_length, tvb,
-	offset + len, IP6_MIPv6_SUB_LENGTH_LENGTH,
-	tvb_get_guint8(tvb, offset + len));
-    len += IP6_MIPv6_SUB_LENGTH_LENGTH;
-    proto_tree_add_ipv6(dstopt_tree, hf_ipv6_mipv6_sub_alternative_COA, tvb,
-	offset + len, IP6_MIPv6_SUB_ALTERNATIVE_COA_LENGTH,
-	tvb_get_ptr(tvb, offset + len, IP6_MIPv6_SUB_ALTERNATIVE_COA_LENGTH));
-    len += IP6_MIPv6_SUB_ALTERNATIVE_COA_LENGTH;
+	offset + len, 16, tvb_get_ptr(tvb, offset + len, 16));
+    len += 16;
     return len;
 }
 
@@ -680,33 +428,8 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, char *optname)
 		mip_offset += tvb_get_guint8(tvb, mip_offset + 1) + 2;
 		break;
 	      }
-	    case IP6OPT_BINDING_UPDATE :
-		delta = dissect_mipv6_bu(tvb, dstopt_tree, mip_offset);
-		p += delta;
-		mip_offset += delta;
-		break;
-	    case IP6OPT_BINDING_ACK :
-		delta = dissect_mipv6_ba(tvb, dstopt_tree, mip_offset);
-		p += delta;
-		mip_offset += delta;
-		break;
-	    case IP6OPT_HOME_ADDRESS :
-		delta = dissect_mipv6_ha(tvb, dstopt_tree, mip_offset);
-		p += delta;
-		mip_offset += delta;
-		break;
-	    case IP6OPT_BINDING_REQUEST :
-		delta = dissect_mipv6_br(tvb, dstopt_tree, mip_offset);
-		p += delta;
-		mip_offset += delta;
-		break;
-	    case IP6OPT_MIPv6_UNIQUE_ID_SUB :
-		delta = dissect_mipv6_sub_u(tvb, dstopt_tree, mip_offset);
-		p += delta;
-		mip_offset += delta;
-		break;
-	    case IP6OPT_MIPv6_ALTERNATIVE_COA_SUB :
-		delta = dissect_mipv6_sub_a_coa(tvb, dstopt_tree, mip_offset);
+	    case IP6OPT_HOME_ADDRESS:
+		delta = dissect_mipv6_hoa(tvb, dstopt_tree, mip_offset);
 		p += delta;
 		mip_offset += delta;
 		break;
@@ -1084,87 +807,20 @@ proto_register_ipv6(void)
 				FT_NONE, BASE_NONE, NULL, 0x0,
 				"IPv6 Fragments", HFILL }},
 
-    /* BT INSERT BEGIN */
+    /* Mobile IPv6 */
     { &hf_ipv6_mipv6_type,
       { "Option Type ",		"ipv6.mipv6_type",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
 				"", HFILL }},
     { &hf_ipv6_mipv6_length,
-      { "Option Length ",		"ipv6.mipv6_length",
+      { "Option Length ",	"ipv6.mipv6_length",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"", HFILL }},
-    { &hf_ipv6_mipv6_a_flag,
-      { "Acknowledge (A) ",		"ipv6.mipv6_a_flag",
-				FT_BOOLEAN, 8, TFS(&ipv6_mipv6_bu_a_flag_value),
-				IP6_MIPv6_BU_A_FLAG,
-				"", HFILL }},
-    { &hf_ipv6_mipv6_h_flag,
-      { "Home Registration (H) ",		"ipv6.mipv6_h_flag",
-				FT_BOOLEAN, 8, TFS(&ipv6_mipv6_bu_h_flag_value),
-				IP6_MIPv6_BU_H_FLAG,
-				"", HFILL }},
-    { &hf_ipv6_mipv6_r_flag,
-      { "Router (R) ",		"ipv6.mipv6_r_flag",
-				FT_BOOLEAN, 8, TFS(&ipv6_mipv6_bu_r_flag_value),
-				IP6_MIPv6_BU_R_FLAG,
-				"", HFILL }},
-    { &hf_ipv6_mipv6_d_flag,
-      { "Duplicate Address Detection (D) ",		"ipv6.mipv6_d_flag",
-				FT_BOOLEAN, 8, TFS(&ipv6_mipv6_bu_d_flag_value),
-				IP6_MIPv6_BU_D_FLAG,
-				"", HFILL }},
-    { &hf_ipv6_mipv6_m_flag,
-      { "MAP Registration (M) ",		"ipv6.mipv6_m_flag",
-				FT_BOOLEAN, 8, TFS(&ipv6_mipv6_bu_m_flag_value),
-				IP6_MIPv6_BU_M_FLAG,
-				"", HFILL }},
-    { &hf_ipv6_mipv6_b_flag,
-      { "Bicasting all (B) ",		"ipv6.mipv6_b_flag",
-				FT_BOOLEAN, 8, TFS(&ipv6_mipv6_bu_b_flag_value),
-				IP6_MIPv6_BU_B_FLAG,
-				"", HFILL }},
-    { &hf_ipv6_mipv6_prefix_length,
-      { "Prefix Length ",		"ipv6.mipv6_prefix_length",
-				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"", HFILL }},
-    { &hf_ipv6_mipv6_sequence_number,
-      { "Sequence Number ",		"ipv6.mipv6_sequence_number",
-				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"", HFILL }},
-    { &hf_ipv6_mipv6_life_time,
-      { "Life Time ",		"ipv6.mipv6_life_time",
-				FT_UINT32, BASE_DEC, NULL, 0x0,
-				"", HFILL }},
-    { &hf_ipv6_mipv6_status,
-      { "Status ",		"ipv6.mipv6_status",
-				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"", HFILL }},
-    { &hf_ipv6_mipv6_refresh,
-      { "Refresh ",		"ipv6.mipv6_refresh",
-				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"", HFILL }},
     { &hf_ipv6_mipv6_home_address,
-      { "Home Address ",		"ipv6.mipv6_home_address",
-				FT_IPv6, BASE_HEX, NULL, 0x0,
-				"", HFILL }},
-    { &hf_ipv6_mipv6_sub_type,
-      { "Sub-Option Type ",		"ipv6.mipv6_sub_type",
-				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"", HFILL }},
-    { &hf_ipv6_mipv6_sub_length,
-      { "Sub-Option Length ",		"ipv6.mipv6_sub_length",
-				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"", HFILL }},
-    { &hf_ipv6_mipv6_sub_unique_ID,
-      { "Unique Identifier ",		"ipv6.mipv6_sub_unique_ID",
-				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"", HFILL }},
-    { &hf_ipv6_mipv6_sub_alternative_COA,
-      { "Alternative Care of Address ",		"ipv6.mipv6_sub_alternative_COA",
+      { "Home Address ",	"ipv6.mipv6_home_address",
 				FT_IPv6, BASE_HEX, NULL, 0x0,
 				"", HFILL }},
 
-    /* BT INSERT END */
 #ifdef TEST_FINALHDR
     { &hf_ipv6_final,
       { "Final next header",	"ipv6.final",

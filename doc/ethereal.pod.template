@@ -1724,6 +1724,7 @@ B<http://www.ethereal.com>.
   Huagang Xie              <xie [AT] lids.org>
   cjs 2895                 <cjs2895 [AT] hotmail.com>
   Pasi Kovanen             <Pasi.Kovanen [AT] tahoenetworks.fi>
+  Teemu Rinta-aho          <teemu.rinta-aho [AT] nomadiclab.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

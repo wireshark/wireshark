@@ -1597,6 +1597,10 @@ Pasi Kovanen <Pasi.Kovanen [AT] tahoenetworks.fi> {
 	Display flow label IE in GTP v0 in hex
 }
 
+Teemu Rinta-aho <teemu.rinta-aho [AT] nomadiclab.com> {
+	Draft 20 MIPv6 support
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.69 2003/01/20 05:42:30 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.70 2003/02/04 20:16:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1098,6 +1098,26 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    "Unknown");
 	len = sizeof(struct icmp6_nodeinfo);
 	break;
+    case ICMP6_MIP6_DHAAD_REQUEST:
+	typename = coltypename = "Dynamic Home Agent Address Discovery Request";
+	codename = "Should always be zero";
+	colcodename = NULL;
+	break;
+    case ICMP6_MIP6_DHAAD_REPLY:
+	typename = coltypename = "Dynamic Home Agent Address Discovery Reply";
+	codename = "Should always be zero";
+	colcodename = NULL;
+	break;
+    case ICMP6_MIP6_MPS:
+	typename = coltypename = "Mobile Prefix Solicitation";
+	codename = "Should always be zero";
+	colcodename = NULL;
+	break;
+    case ICMP6_MIP6_MPA:
+	typename = coltypename = "Mobile Prefix Advertisement";
+	codename = "Should always be zero";
+	colcodename = NULL;
+	break;
     }
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -1367,6 +1387,53 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		val_to_str(pntohs(&ni->ni_qtype), names_nodeinfo_qtype,
 		"Unknown"));
 	    dissect_nodeinfo(tvb, offset, pinfo, icmp6_tree);
+	    break;
+	case ICMP6_MIP6_DHAAD_REQUEST:
+	    proto_tree_add_text(icmp6_tree, tvb,
+		offset + 4, 2, "Identifier: %d (0x%02x)",
+		tvb_get_ntohs(tvb, offset + 4),
+		tvb_get_ntohs(tvb, offset + 4));
+	    proto_tree_add_text(icmp6_tree, tvb,
+		offset + 6, 2, "Reserved: %d",
+		tvb_get_ntohs(tvb, offset + 6));
+	    break;
+	case ICMP6_MIP6_DHAAD_REPLY:
+	    proto_tree_add_text(icmp6_tree, tvb,
+		offset + 4, 2, "Identifier: %d (0x%02x)",
+		tvb_get_ntohs(tvb, offset + 4),
+		tvb_get_ntohs(tvb, offset + 4));
+	    proto_tree_add_text(icmp6_tree, tvb,
+		offset + 6, 2, "Reserved: %d",
+		tvb_get_ntohs(tvb, offset + 6));
+	    /* TODO Show all Home Agent Addresses */
+	    break;
+	case ICMP6_MIP6_MPS:
+	    proto_tree_add_text(icmp6_tree, tvb,
+		offset + 4, 2, "Identifier: %d (0x%02x)",
+		tvb_get_ntohs(tvb, offset + 4),
+		tvb_get_ntohs(tvb, offset + 4));
+	    proto_tree_add_text(icmp6_tree, tvb,
+		offset + 6, 2, "Reserved: %d",
+		tvb_get_ntohs(tvb, offset + 6));
+	    break;
+	case ICMP6_MIP6_MPA:
+	    proto_tree_add_text(icmp6_tree, tvb,
+		offset + 4, 2, "Identifier: %d (0x%02x)",
+		tvb_get_ntohs(tvb, offset + 4),
+		tvb_get_ntohs(tvb, offset + 4));
+	    proto_tree_add_text(icmp6_tree, tvb,
+		offset + 6, 2,
+		decode_boolean_bitfield(tvb_get_guint8(tvb, offset + 6),
+		    0x8000, 16,
+		    "Managed Address Configuration",
+		    "No Managed Address Configuration"));
+	    proto_tree_add_text(icmp6_tree, tvb,
+		offset + 6, 2,
+		decode_boolean_bitfield(tvb_get_guint8(tvb, offset + 6),
+		    0x4000, 16,
+		    "Other Stateful Configuration",
+		    "No Other Stateful Configuration"));
+	    /* TODO Show all options */
 	    break;
 	default:
 	    next_tvb = tvb_new_subset(tvb, offset + sizeof(*dp), -1, -1);

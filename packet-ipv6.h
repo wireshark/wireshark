@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.h,v 1.29 2002/10/22 22:04:21 jmayer Exp $
+ * $Id: packet-ipv6.h,v 1.30 2003/02/04 20:16:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -110,13 +110,7 @@ struct ip6_dest {
 #define IP6OPT_RTALERT_ACTNET	2	/* contains an Active Networks msg */
 #define IP6OPT_MINLEN		2
 
-#define IP6OPT_BINDING_UPDATE	0xC6  /* 11 0 00110 */
-#define IP6OPT_BINDING_ACK	0x07  /* 00 0 00111 */
-#define IP6OPT_BINDING_REQUEST	0x08  /* 00 0 01000 */
 #define IP6OPT_HOME_ADDRESS	0xC9  /* 11 0 01001 */
-#define IP6OPT_EID		0x8a  /* 10 0 01010 */
-#define IP6OPT_MIPv6_UNIQUE_ID_SUB 0x02  /* 00 0 00010 */
-#define IP6OPT_MIPv6_ALTERNATIVE_COA_SUB 0x04  /* 00 0 00100 */
 
 #define IP6OPT_TYPE(o)		((o) & 0xC0)
 #define IP6OPT_TYPE_SKIP	0x00
@@ -125,42 +119,6 @@ struct ip6_dest {
 #define IP6OPT_TYPE_ICMP	0xC0
 
 #define IP6OPT_MUTABLE		0x20
-
-/* MIPv6 Lifetime */
-#define MIP_INFINITY 0xffffffff /* Infinity lifetime */
-
-/*	Binding Update Flags */
-#define IP6_MIPv6_BU_A_FLAG 0x80 /* 1000 0000 - Acknowledge */
-#define IP6_MIPv6_BU_H_FLAG 0x40 /* 0100 0000 - Home Registration */
-#define IP6_MIPv6_BU_R_FLAG 0x20 /* 0010 0000 - Router */
-#define IP6_MIPv6_BU_D_FLAG 0x10 /* 0001 0000 - Duplicate Address Detection */
-#define IP6_MIPv6_BU_M_FLAG 0x8  /* 0000 1000 - MAP Registration */
-#define IP6_MIPv6_BU_B_FLAG 0x4  /* 0000 0100 - Request for bicasting */
-
-#define IP6_MIPv6_OPTION_TYPE_LENGTH	1
-#define IP6_MIPv6_OPTION_LENGTH_LENGTH	1
-#define IP6_MIPv6_FLAGS_LENGTH	1
-#define IP6_MIPv6_PREFIX_LENGTH_LENGTH	1
-#define IP6_MIPv6_SEQUENCE_NUMBER_LENGTH	2
-#define IP6_MIPv6_LIFE_TIME_LENGTH	4
-#define IP6_MIPv6_REFRESH_LENGTH	4
-#define IP6_MIPv6_STATUS_LENGTH	1
-#define IP6_MIPv6_HOME_ADDRESS_LENGTH	16
-#define IP6_MIPv6_SUB_TYPE_LENGTH	1
-#define IP6_MIPv6_SUB_LENGTH_LENGTH	1
-#define IP6_MIPv6_SUB_UNIQUE_ID_LENGTH	2
-#define IP6_MIPv6_SUB_ALTERNATIVE_COA_LENGTH	16
-
-/* Binding Ackonwledgement Status */
-#define BA_OK 0 /* Binding update accepted */
-#define BA_REAS_UNSPEC 128 /*Reason unspecified */
-#define BA_ADMIN_PROH 130 /* Administratively prohibited */
-#define BA_INSUF_RES 131 /* Insufficient resources */
-#define BA_NO_HR 132 /* Home registration not supported */
-#define BA_NO_SUBNET 133 /* Not home subnet */
-#define BA_ERR_ID_LEN 136 /* Incorrect interface identifier length */
-#define BA_NO_HA 137 /* Not home agent for this mobile node */
-#define BA_DUPL_ADDR 138 /* Duplicate Address Detection failed */
 
 /* Routing header */
 struct ip6_rthdr {
@@ -255,7 +213,12 @@ struct icmp6_hdr {
 #define MLD6_MTRACE_RESP		141	/* mtrace response(to sender) */
 #define MLD6_MTRACE			142	/* mtrace messages */
 
-#define ICMP6_MAXTYPE			142
+#define ICMP6_MIP6_DHAAD_REQUEST	150	/* Mobile IPv6 DHAAD */
+#define ICMP6_MIP6_DHAAD_REPLY		151	/* Mobile IPv6 DHAAD */
+#define ICMP6_MIP6_MPS			152	/* Mobile IPv6 MPS */
+#define ICMP6_MIP6_MPA			153	/* Mobile IPv6 MPA */
+
+#define ICMP6_MAXTYPE			153
 
 #define ICMP6_DST_UNREACH_NOROUTE	0	/* no route to destination */
 #define ICMP6_DST_UNREACH_ADMIN	 	1	/* administratively prohibited */

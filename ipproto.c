@@ -1,7 +1,7 @@
 /* ipproto.c
  * Routines for converting IPv4 protocol/v6 nxthdr field into string
  *
- * $Id: ipproto.c,v 1.20 2002/08/30 02:11:16 sharpe Exp $
+ * $Id: ipproto.c,v 1.21 2003/02/04 20:16:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,6 +75,7 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_ICMPV6,	"ICMPv6" },
     { IP_PROTO_NONE,	"IPv6 no next header" },
     { IP_PROTO_DSTOPTS,	"IPv6 destination option" },
+    { IP_PROTO_MIPV6,	"Mobile IPv6" },
     { IP_PROTO_EON,	"EON" },
     { IP_PROTO_OSPF,	"OSPF" },
     { IP_PROTO_ENCAP,	"ENCAP" },
