@@ -1339,6 +1339,7 @@ Stefan Wenk             <stefan.wenk[AT]gmx.at> {
 
 Ruud Linders            <ruud[AT]lucent.com> {
 	Report errors from "g_module_open()"
+	Heuristic version of the RTP dissector
 }
 
 Andrew Esh              <Andrew.Esh[AT]tricord.com> {

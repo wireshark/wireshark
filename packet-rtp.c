@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <h323@ramdyne.nl>
  *
- * $Id: packet-rtp.c,v 1.51 2004/06/30 21:08:58 etxrab Exp $
+ * $Id: packet-rtp.c,v 1.52 2004/07/01 06:59:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,6 +117,9 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Preferences bool to control whether or not setup info should be shown */
 static gboolean global_rtp_show_setup_info = TRUE;
 
+/* Try heuristic RTP decode */
+static gboolean global_rtp_heur = FALSE;
+
 /* Memory chunk for storing conversation and per-packet info */
 static GMemChunk *rtp_conversations = NULL;
 
@@ -188,7 +191,6 @@ const value_string rtp_payload_type_vals[] =
 };
 
 static address fake_addr;
-static int heur_init = FALSE;
 
 /* Set up an RTP conversation */
 void rtp_add_address(packet_info *pinfo,
@@ -213,17 +215,6 @@ void rtp_add_address(packet_info *pinfo,
 	src_addr.type = pinfo->net_src.type;
 	src_addr.len = pinfo->net_src.len;
 	src_addr.data = ip_addr;
-
-	/*
-	 * The first time the function is called let the udp dissector
-	 * know that we're interested in traffic
-	 * TODO???
-	 *
-	if ( ! heur_init ) {
-		heur_dissector_add( "udp", dissect_rtp_heur, proto_rtp );
-		heur_init = TRUE;
-	}
-	*/
 
 	/*
 	 * Check if the ip address and port combination is not
@@ -294,36 +285,42 @@ static void rtp_init( void )
 static gboolean
 dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
-	conversation_t* pconv;
-
-	/* This is a heuristic dissector, which means we get all the TCP
+	guint8      octet1, octet2;
+ 	unsigned int version;
+	unsigned int payload_type;
+ 	unsigned int offset = 0;
+   
+	/* This is a heuristic dissector, which means we get all the UDP
 	 * traffic not sent to a known dissector and not claimed by
 	 * a heuristic dissector called before us!
-	 * So we first check if the frame is really meant for us.
 	 */
-	if ( ( pconv = find_conversation( &pinfo->src, &fake_addr, pinfo->ptype,
-	    pinfo->srcport, 0, 0 ) ) == NULL ) {
-		/*
-		 * The source ip:port combination was not what we were
-		 * looking for, check the destination
-		 */
-		if ( ( pconv = find_conversation( &pinfo->dst, &fake_addr,
-		    pinfo->ptype, pinfo->destport, 0, 0 ) ) == NULL ) {
-			return FALSE;
-		}
-	}
 
-	/*
-	 * An RTP conversation always has a data item for RTP.
-	 * (Its existence is sufficient to indicate that this is an RTP
-	 * conversation.)
-	 */
-	if (conversation_get_proto_data(pconv, proto_rtp) == NULL)
+	if (! global_rtp_heur)
 		return FALSE;
 
-	dissect_rtp( tvb, pinfo, tree );
+	/* Get the fields in the first octet */
+	octet1 = tvb_get_guint8( tvb, offset );
+	version = RTP_VERSION( octet1 );
 
-	return TRUE;
+	if (version != 2) {
+		/* Unknown or unsupported version */
+		return FALSE;
+	}
+
+	/* Get the fields in the second octet */
+	octet2 = tvb_get_guint8( tvb, offset + 1 );
+	payload_type = RTP_PAYLOAD_TYPE( octet2 );
+	/*      if (payload_type == PT_PCMU ||
+	 *		     payload_type == PT_PCMA)
+	 *	     payload_type == PT_G729)
+	 *	 */
+	if (payload_type <= PT_H263) {
+ 		dissect_rtp( tvb, pinfo, tree );
+		return TRUE;
+	}
+	else {
+ 		return FALSE;
+	}
 }
 
 static void
@@ -957,6 +954,12 @@ proto_register_rtp(void)
 		"this RTP stream to be created",
 		&global_rtp_show_setup_info);
 
+	prefs_register_bool_preference(rtp_module, "heuristic_rtp",
+		"Try to decode RTP outside of conversations ",
+                "If call control SIP/H323/RTSP/.. messages are missing in the trace, "
+                "RTP isn't decoded without this",
+		&global_rtp_heur);
+   
 	register_init_routine( &rtp_init );
 }
 
@@ -971,4 +974,6 @@ proto_reg_handoff_rtp(void)
 	 */
 	rtp_handle = find_dissector("rtp");
 	dissector_add_handle("udp.port", rtp_handle);
+
+	heur_dissector_add( "udp", dissect_rtp_heur, proto_rtp);
 }
