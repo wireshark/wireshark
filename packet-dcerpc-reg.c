@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\winreg packet disassembly
  * Copyright 2001, 2002 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.c,v 1.9 2002/07/05 20:41:01 guy Exp $
+ * $Id: packet-dcerpc-reg.c,v 1.10 2002/08/07 01:03:10 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,15 @@ static int hf_querykey_max_valname_len = -1;
 static int hf_querykey_max_valbuf_size = -1;
 static int hf_querykey_secdesc = -1;
 static int hf_querykey_modtime = -1;
+
+/* OpenEntry */
+
+static int hf_keyname = -1;
+static int hf_openentry_unknown1 = -1;
+
+/* Unknown 0x1A */
+
+static int hf_unknown1A_unknown1 = -1;
 
 /* Data that is passed to a open call */
 
@@ -378,6 +387,169 @@ RegQueryKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }	
 
+/*
+ * OpenEntry
+ */
+
+static int 
+RegOpenEntry_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	       proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+	if (dcv->rep_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Reply in frame %u", dcv->rep_frame);
+
+	/* Parse packet */
+
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep,
+		hf_hnd, NULL, FALSE, FALSE);
+
+	offset = dissect_ndr_nt_UNICODE_STRING(
+		tvb, offset, pinfo, tree, drep, hf_querykey_class, 0);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_openentry_unknown1, NULL);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_access_mask, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+static int 
+RegOpenEntry_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	       proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	e_ctx_hnd policy_hnd;
+
+	if (dcv->req_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %u", dcv->req_frame);
+
+	/* Parse packet */
+
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep,
+		hf_hnd, &policy_hnd, TRUE, FALSE);
+
+	dcerpc_smb_store_pol_name(&policy_hnd, "OpenEntry handle");
+
+	offset = dissect_ntstatus(
+		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+/*
+ * Unknown1A
+ */
+
+static int 
+RegUnknown1A_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	       proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+	if (dcv->rep_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Reply in frame %u", dcv->rep_frame);
+
+	/* Parse packet */
+
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep,
+		hf_hnd, NULL, FALSE, FALSE);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+static int 
+RegUnknown1A_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	       proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+	if (dcv->req_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %u", dcv->req_frame);
+
+	/* Parse packet */
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_unknown1A_unknown1, NULL);
+
+	offset = dissect_ntstatus(
+		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+/*
+ * EnumKey
+ */
+
+static int 
+RegEnumKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	     proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+	if (dcv->rep_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Reply in frame %u", dcv->rep_frame);
+
+	/* Parse packet */
+
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep,
+		hf_hnd, NULL, FALSE, FALSE);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+static int 
+RegEnumKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	     proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+	if (dcv->req_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %u", dcv->req_frame);
+
+	/* Parse packet */
+
+	offset = dissect_ntstatus(
+		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
 #if 0
 
 /* Templates for new subdissectors */
@@ -466,13 +638,13 @@ static dcerpc_sub_dissector dcerpc_reg_dissectors[] = {
         { REG_CREATE_KEY, "CreateKey", NULL, NULL },
         { REG_DELETE_KEY, "DeleteKey", NULL, NULL },
         { REG_DELETE_VALUE, "DeleteValue", NULL, NULL },
-        { REG_ENUM_KEY, "EnumKey", NULL, NULL },
+        { REG_ENUM_KEY, "EnumKey", RegEnumKey_q, RegEnumKey_r },
         { REG_ENUM_VALUE, "EnumValue", NULL, NULL },
         { REG_FLUSH_KEY, "FlushKey", NULL, NULL },
         { REG_GET_KEY_SEC, "GetKeySecurity", NULL, NULL },
         { _REG_UNK_0D, "Unknown0d", NULL, NULL },
         { _REG_UNK_0E, "Unknown0e", NULL, NULL },
-        { REG_OPEN_ENTRY, "OpenEntry", NULL, NULL },
+        { REG_OPEN_ENTRY, "OpenEntry", RegOpenEntry_q, RegOpenEntry_r },
         { REG_QUERY_KEY, "QueryKey", RegQueryKey_q, RegQueryKey_r },
         { REG_INFO, "Info", NULL, NULL },
         { _REG_UNK_12, "Unknown12", NULL, NULL },
@@ -483,7 +655,7 @@ static dcerpc_sub_dissector dcerpc_reg_dissectors[] = {
         { _REG_UNK_17, "Unknown17", NULL, NULL },
         { REG_SHUTDOWN, "Shutdown", NULL, NULL },
         { REG_ABORT_SHUTDOWN, "AbortShutdown", NULL, NULL },
-        { REG_UNK_1A, "Unknown1A", NULL, NULL },
+        { REG_UNK_1A, "Unknown1A", RegUnknown1A_q, RegUnknown1A_r },
 
         { 0, NULL, NULL,  NULL }
 };
@@ -545,11 +717,11 @@ proto_register_dcerpc_reg(void)
 		/* OpenHKLM */
 
 		{ &hf_openhklm_unknown1,
-		  { "Unknown 1", "reg.openhklm.unknown1", FT_UINT16, BASE_DEC,
+		  { "Unknown 1", "reg.openhklm.unknown1", FT_UINT16, BASE_HEX,
 		    NULL, 0x0, "Unknown 1", HFILL }},
 
 		{ &hf_openhklm_unknown2,
-		  { "Unknown 2", "reg.openhklm.unknown2", FT_UINT16, BASE_DEC,
+		  { "Unknown 2", "reg.openhklm.unknown2", FT_UINT16, BASE_HEX,
 		    NULL, 0x0, "Unknown 2", HFILL }},
 		
 		/* QueryClass */
@@ -590,6 +762,22 @@ proto_register_dcerpc_reg(void)
 		  { "Mod time", "reg.querykey.modtime", FT_ABSOLUTE_TIME, BASE_NONE,
 		    NULL, 0x0, "Secdesc", HFILL }},
 
+		/* OpenEntry */
+
+		{ &hf_keyname,
+		  { "Key name", "reg.keyname", FT_STRING, BASE_NONE,
+		    NULL, 0x0, "Keyname", HFILL }},
+
+		{ &hf_openentry_unknown1,
+		  { "Unknown 1", "reg.openentry.unknown1", FT_UINT32, BASE_HEX,
+		    NULL, 0x0, "Unknown 1", HFILL }},
+
+		/* Unknown1A */
+
+		{ &hf_unknown1A_unknown1,
+		  { "Unknown 1", "reg.unknown1A.unknown1", FT_UINT32, BASE_HEX,
+		    NULL, 0x0, "Unknown 1", HFILL }},
+
 	};
 
         static gint *ett[] = {
@@ -597,7 +785,7 @@ proto_register_dcerpc_reg(void)
         };
 
         proto_dcerpc_reg = proto_register_protocol(
-                "Microsoft Registry", "REG", "reg");
+                "Microsoft Registry", "WINREG", "winreg");
 
 	proto_register_field_array(proto_dcerpc_reg, hf, array_length(hf));
 
