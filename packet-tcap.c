@@ -9,7 +9,7 @@
  *
  * (append your name here for newer version)
  *
- * $Id: packet-tcap.c,v 1.1 2003/10/02 06:13:28 guy Exp $
+ * $Id: packet-tcap.c,v 1.2 2003/10/16 18:15:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,8 +86,6 @@ static int hf_tcap_id = -1;
 static int hf_tcap_tid = -1;
 static int hf_tcap_ssn = -1; /* faked */
 static int hf_tcap_dlg_type = -1;
-static int hf_tcap_cmp_type = -1;
-static int hf_ansi_tcap_cmp_type = -1;
 static int hf_tcap_int = -1;
 
 /* Initialize the subtree pointers */
@@ -188,15 +186,6 @@ static const value_string dlg_type_strings[] = {
 #define TC_REJECT 0xa4
 #define TC_RRN 0xa7
 
-static const value_string cmp_type_strings[] = {
-	{ TC_INVOKE, "Invoke" },
-	{ TC_RRL, "Return Result(Last)" },
-	{ TC_RE, "Return Error" },
-	{ TC_REJECT, "Reject" },
-	{ TC_RRN, "Return Result(Not Last)" },
-	{ 0, NULL },
-};
-
 /* ANSI TCAP component type */
 #define ANSI_TC_INVOKE_L 0xe9
 #define ANSI_TC_RRL 0xea
@@ -205,19 +194,9 @@ static const value_string cmp_type_strings[] = {
 #define ANSI_TC_INVOKE_N 0xed
 #define ANSI_TC_RRN 0xee
 
-static const value_string ansi_cmp_type_strings[] = {
-	{ ANSI_TC_INVOKE_L, "Invoke(Last)" },
-	{ ANSI_TC_RRL, "Return Result(Last)" },
-	{ ANSI_TC_RE, "Return Error" },
-	{ ANSI_TC_REJECT, "Reject" },
-	{ ANSI_TC_INVOKE_N, "Invoke(Not Last)" },
-	{ ANSI_TC_RRN, "Return Result(Not Last)" },
-	{ 0, NULL },
-};
-
-
 #define TC_DS_OK 1
 #define TC_DS_FAIL 0
+
 
 /* dissect length */
 static int
@@ -1111,7 +1090,7 @@ dissect_tcap_invoke(ASN1_SCK *asn1, proto_tree *tree)
     item = proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "Components");
     subtree = proto_item_add_subtree(item, ett_component);
     proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb, saved_offset, asn1->offset - saved_offset,
-					    tag, "Invoke Type Tag");
+	tag, "Invoke Type Tag");
 
     dissect_tcap_len(asn1, subtree, &def_len, &len);
 
@@ -1707,40 +1686,40 @@ dissect_tcap_dlg_result_src_diag(ASN1_SCK *asn1, proto_tree *tree)
 static int
 dissect_tcap_dlg_user_info(ASN1_SCK *asn1, proto_tree *tree)
 {
-	guint tag, len;
-	guint saved_offset = 0;
-	gboolean def_len;
-	gboolean user_info_def_len;
+    guint tag, len;
+    guint saved_offset = 0;
+    gboolean def_len;
+    gboolean user_info_def_len;
 
 #define TC_USR_INFO_TAG 0xbe
-	if (check_tcap_tag(asn1, TC_USR_INFO_TAG))
-	{
-	    tag = -1;
-	    dissect_tcap_tag(asn1, tree, &tag, "User Info Tag");
-	    dissect_tcap_len(asn1, tree, &user_info_def_len, &len);
+    if (check_tcap_tag(asn1, TC_USR_INFO_TAG))
+    {
+	tag = -1;
+	dissect_tcap_tag(asn1, tree, &tag, "User Info Tag");
+	dissect_tcap_len(asn1, tree, &user_info_def_len, &len);
 
 #define TC_EXT_TAG 0x28
-	    if (check_tcap_tag(asn1, TC_EXT_TAG))
-	    {
-		saved_offset = asn1->offset;
-		asn1_id_decode1(asn1, &tag);
-		proto_tree_add_uint_format(tree, hf_tcap_length, asn1->tvb, saved_offset, asn1->offset - saved_offset,
-		    tag, "External Tag: 0x%x", tag);
+	if (check_tcap_tag(asn1, TC_EXT_TAG))
+	{
+	    saved_offset = asn1->offset;
+	    asn1_id_decode1(asn1, &tag);
+	    proto_tree_add_uint_format(tree, hf_tcap_length, asn1->tvb, saved_offset, asn1->offset - saved_offset,
+		tag, "External Tag: 0x%x", tag);
 
-		dissect_tcap_len(asn1, tree, &def_len, &len);
-	    }
-
-	    proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb, asn1->offset, len, "Parameter Data");
-	    asn1->offset += len;
-
-	    if (!user_info_def_len)
-	    {
-		/* for User Information Tag */
-		dissect_tcap_eoc(asn1, tree);
-	    }
+	    dissect_tcap_len(asn1, tree, &def_len, &len);
 	}
 
-	return TC_DS_OK;
+	proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb, asn1->offset, len, "Parameter Data");
+	asn1->offset += len;
+
+	if (!user_info_def_len)
+	{
+	    /* for User Information Tag */
+	    dissect_tcap_eoc(asn1, tree);
+	}
+    }
+
+    return TC_DS_OK;
 }
 
 static int
@@ -1901,8 +1880,8 @@ dissect_tcap_dialog_portion(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *t
     /* error handling */
     if (ST_ITU_DLG_TAG != tag)
     {
-	    asn1->offset = saved_offset;
-	    return TC_DS_FAIL;
+	asn1->offset = saved_offset;
+	return TC_DS_FAIL;
     }
 
     dlg_item =
@@ -2155,7 +2134,7 @@ dissect_tcap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tcap_tree)
     }
 
     proto_tree_add_uint_hidden(tcap_tree, hf_tcap_ssn, asn1.tvb, offset,
-			     0, pinfo->match_port); /* len -1 is unacceptable */
+	0, pinfo->match_port); /* len -1 is unacceptable */
 
     ti = proto_tree_add_uint(tcap_tree, hf_tcap_message_type, asn1.tvb, offset, asn1.offset - saved_offset,
 	    msg_type_tag);
@@ -2210,8 +2189,8 @@ dissect_ansi_tcap_components(ASN1_SCK *asn1, proto_tree *tcap_tree)
 
     if (ST_ANSI_CMP_TAG != tag)
     {
-	    asn1->offset = saved_offset;
-	    return TC_DS_FAIL;
+	asn1->offset = saved_offset;
+	return TC_DS_FAIL;
     }
 
     cmp_item = proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "Components Portion");
@@ -2294,10 +2273,10 @@ dissect_ansi_tcap_qwp_qwop(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti
     trans_item = proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "Transaction Portion");
     subtree = proto_item_add_subtree(trans_item, ett_dlg_portion);
 
-    dissect_tcap_len(asn1, tcap_tree, &def_len, &len);
-
     proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb, saved_offset, asn1->offset - saved_offset, tag,
 	"Originating Transaction ID Identifier");
+
+    dissect_tcap_len(asn1, tcap_tree, &def_len, &len);
 
     if (len != 4)
     {
@@ -2548,7 +2527,7 @@ dissect_ansi_tcap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tcap_tr
     }
 
     proto_tree_add_uint_hidden(tcap_tree, hf_tcap_ssn, asn1.tvb, offset,
-			     0, pinfo->match_port); /* len -1 is unacceptable */
+	0, pinfo->match_port); /* len -1 is unacceptable */
 
     ti = proto_tree_add_uint(tcap_tree, hf_ansi_tcap_message_type, asn1.tvb, offset, asn1.offset - saved_offset,
 	    msg_type_tag);
@@ -2558,30 +2537,30 @@ dissect_ansi_tcap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tcap_tr
     switch(msg_type_tag)
     {
     case ANSI_ST_MSG_TYP_UNI:
-	    dissect_ansi_tcap_unidirectional(&asn1, tcap_tree);
-	    break;
+	dissect_ansi_tcap_unidirectional(&asn1, tcap_tree);
+	break;
     case ANSI_ST_MSG_TYP_QWP:
-	    dissect_ansi_tcap_qwp_qwop(&asn1, tcap_tree, ti);
-	    break;
+	dissect_ansi_tcap_qwp_qwop(&asn1, tcap_tree, ti);
+	break;
     case ANSI_ST_MSG_TYP_QWOP:
-	    dissect_ansi_tcap_qwp_qwop(&asn1, tcap_tree, ti);
-	    break;
+	dissect_ansi_tcap_qwp_qwop(&asn1, tcap_tree, ti);
+	break;
     case ANSI_ST_MSG_TYP_RSP:
-	    dissect_ansi_tcap_rsp(&asn1, tcap_tree, ti);
-	    break;
+	dissect_ansi_tcap_rsp(&asn1, tcap_tree, ti);
+	break;
     case ANSI_ST_MSG_TYP_CWP:
-	    dissect_ansi_tcap_cwp_cwop(&asn1, tcap_tree, ti);
-	    break;
+	dissect_ansi_tcap_cwp_cwop(&asn1, tcap_tree, ti);
+	break;
     case ANSI_ST_MSG_TYP_CWOP:
-	    dissect_ansi_tcap_cwp_cwop(&asn1, tcap_tree, ti);
-	    break;
+	dissect_ansi_tcap_cwp_cwop(&asn1, tcap_tree, ti);
+	break;
     case ANSI_ST_MSG_TYP_PABT:
-	    dissect_ansi_tcap_abort(&asn1, tcap_tree, ti);
-	    break;
+	dissect_ansi_tcap_abort(&asn1, tcap_tree, ti);
+	break;
     default:
-	    proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1.tvb, offset, -1,
-		"Message type not handled, ignoring");
-	    break;
+	proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1.tvb, offset, -1,
+	    "Message type not handled, ignoring");
+	break;
     }
 
     asn1_close(&asn1, &saved_offset);
@@ -2630,131 +2609,121 @@ proto_register_tcap(void)
 {
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
-	static hf_register_info hf[] = {
-		/*{ &hf_tcap_FIELDABBREV,
-			{ "FIELDNAME",           "PROTOABBREV.FIELDABBREV",
-			FIELDTYPE, FIELDBASE, FIELDCONVERT, BITMASK,
-			"FIELDDESCR" }
-		},*/
-		{ &hf_tcap_tag,
-			{ "Tag",           "tcap.msgtype",
-			FT_UINT8, BASE_HEX, NULL, 0,
-			"", HFILL }
-		},
-		{ &hf_tcap_length,
-			{ "Length", "tcap.len",
-			FT_UINT8, BASE_HEX, NULL, 0,
-			"", HFILL }
-		},
-		{ &hf_tcap_id,
-			{ "Value", "tcap.id",
-			FT_UINT8, BASE_HEX, NULL, 0,
-			"", HFILL }
-		},
-		{ &hf_tcap_message_type,
-			{ "Message Type", "tcap.msgtype",
-			FT_UINT8, BASE_HEX, VALS(msg_type_strings), 0,
-			"", HFILL }
-		},
-		{ &hf_ansi_tcap_message_type,
-			{ "Message Type", "tcap.msgtype",
-			FT_UINT8, BASE_HEX, VALS(ansi_msg_type_strings), 0,
-			"", HFILL }
-		},
-		{ &hf_tcap_none,
-			{ "Sub tree", "tcap.none",
-			FT_NONE, 0, 0, 0,
-			"", HFILL }
-		},
-		{ &hf_tcap_tid,
-			{ "Transaction Id", "tcap.tid",
-			FT_UINT32, BASE_DEC, VALS(tid_strings), 0,
-			"", HFILL }
-		},
-		{ &hf_tcap_ssn,
-			{ "Called or Calling SubSystem Number", "tcap.ssn",
-			FT_UINT8, BASE_DEC, 0x0, 0x0,
-			"", HFILL }
-		},
-		{ &hf_tcap_cmp_type,
-			{ "Component Type", "tcap.cmptype",
-			FT_UINT8, BASE_HEX, VALS(cmp_type_strings), 0,
-			"", HFILL }
-		},
-		{ &hf_ansi_tcap_cmp_type,
-			{ "Component Type", "tcap.cmptype",
-			FT_UINT8, BASE_HEX, VALS(ansi_cmp_type_strings), 0,
-			"", HFILL }
-		},
-		{ &hf_tcap_dlg_type,
-			{ "Dialogue Type", "tcap.dlgtype",
-			FT_UINT8, BASE_HEX, VALS(dlg_type_strings), 0,
-			"", HFILL }
-		},
-		{ &hf_tcap_app_con_name,
-			{ "Application Context Name", "tcap.dlg.appconname",
-			FT_BYTES, BASE_HEX, 0, 0,
-			"", HFILL }
-		},
-		{ &hf_tcap_bytes,
-			{ "Binary Data", "tcap.data",
-			FT_BYTES, BASE_HEX, 0, 0,
-			"", HFILL }
-		},
-		{ &hf_tcap_int,
-			{ "Integer Data", "tcap.data",
-			FT_INT32, BASE_DEC, 0, 0,
-			"", HFILL }
-		},
-	};
+    static hf_register_info hf[] = {
+	/*{ &hf_tcap_FIELDABBREV,
+		{ "FIELDNAME",           "PROTOABBREV.FIELDABBREV",
+		FIELDTYPE, FIELDBASE, FIELDCONVERT, BITMASK,
+		"FIELDDESCR" }
+	},*/
+	{ &hf_tcap_tag,
+		{ "Tag",           "tcap.msgtype",
+		FT_UINT8, BASE_HEX, NULL, 0,
+		"", HFILL }
+	},
+	{ &hf_tcap_length,
+		{ "Length", "tcap.len",
+		FT_UINT8, BASE_HEX, NULL, 0,
+		"", HFILL }
+	},
+	{ &hf_tcap_id,
+		{ "Value", "tcap.id",
+		FT_UINT8, BASE_HEX, NULL, 0,
+		"", HFILL }
+	},
+	{ &hf_tcap_message_type,
+		{ "Message Type", "tcap.msgtype",
+		FT_UINT8, BASE_HEX, VALS(msg_type_strings), 0,
+		"", HFILL }
+	},
+	{ &hf_ansi_tcap_message_type,
+		{ "Message Type", "tcap.msgtype",
+		FT_UINT8, BASE_HEX, VALS(ansi_msg_type_strings), 0,
+		"", HFILL }
+	},
+	{ &hf_tcap_none,
+		{ "Sub tree", "tcap.none",
+		FT_NONE, 0, 0, 0,
+		"", HFILL }
+	},
+	{ &hf_tcap_tid,
+		{ "Transaction Id", "tcap.tid",
+		FT_UINT32, BASE_DEC, VALS(tid_strings), 0,
+		"", HFILL }
+	},
+	{ &hf_tcap_ssn,
+		{ "Called or Calling SubSystem Number", "tcap.ssn",
+		FT_UINT8, BASE_DEC, 0x0, 0x0,
+		"", HFILL }
+	},
+	{ &hf_tcap_dlg_type,
+		{ "Dialogue Type", "tcap.dlgtype",
+		FT_UINT8, BASE_HEX, VALS(dlg_type_strings), 0,
+		"", HFILL }
+	},
+	{ &hf_tcap_app_con_name,
+		{ "Application Context Name", "tcap.dlg.appconname",
+		FT_BYTES, BASE_HEX, 0, 0,
+		"", HFILL }
+	},
+	{ &hf_tcap_bytes,
+		{ "Binary Data", "tcap.data",
+		FT_BYTES, BASE_HEX, 0, 0,
+		"", HFILL }
+	},
+	{ &hf_tcap_int,
+		{ "Integer Data", "tcap.data",
+		FT_INT32, BASE_DEC, 0, 0,
+		"", HFILL }
+	},
+    };
 
 /* Setup protocol subtree array */
-	static gint *ett[] = {
-		&ett_tcap,
-		&ett_otid,
-		&ett_dtid,
-		&ett_dlg_portion,
-		&ett_cmp_portion,
-		&ett_reason,
-		&ett_dlg_req,
-		&ett_dlg_rsp,
-		&ett_dlg_abrt,
-		&ett_component,
-		&ett_error,
-		&ett_problem,
-		&ett_params,
-		&ett_param,
-	};
+    static gint *ett[] = {
+	&ett_tcap,
+	&ett_otid,
+	&ett_dtid,
+	&ett_dlg_portion,
+	&ett_cmp_portion,
+	&ett_reason,
+	&ett_dlg_req,
+	&ett_dlg_rsp,
+	&ett_dlg_abrt,
+	&ett_component,
+	&ett_error,
+	&ett_problem,
+	&ett_params,
+	&ett_param,
+    };
 
-	static enum_val_t tcap_options[] = {
-	    { "ITU",  ITU_TCAP_STANDARD },
-	    { "ANSI", ANSI_TCAP_STANDARD },
-	    { NULL, 0 }
-	};
+    static enum_val_t tcap_options[] = {
+	{ "ITU",  ITU_TCAP_STANDARD },
+	{ "ANSI", ANSI_TCAP_STANDARD },
+	{ NULL, 0 }
+    };
 
-	module_t *tcap_module;
+    module_t *tcap_module;
 
 /* Register the protocol name and description */
-	proto_tcap = proto_register_protocol("Transaction Capabilities Application Part",
-	    "TCAP", "tcap");
+    proto_tcap = proto_register_protocol("Transaction Capabilities Application Part",
+	"TCAP", "tcap");
 
 /* Required function calls to register the header fields and subtrees used */
-	proto_register_field_array(proto_tcap, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
+    proto_register_field_array(proto_tcap, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
-	tcap_module = prefs_register_protocol(proto_tcap, proto_reg_handoff_tcap);
+    tcap_module = prefs_register_protocol(proto_tcap, proto_reg_handoff_tcap);
 
-	prefs_register_enum_preference(tcap_module, "standard", "TCAP standard",
-				 "The SS7 standard used in TCAP packets",
-				 (gint *)&tcap_standard, tcap_options, FALSE);
+    prefs_register_enum_preference(tcap_module, "standard", "TCAP standard",
+	"The SS7 standard used in TCAP packets",
+	(gint *)&tcap_standard, tcap_options, FALSE);
 
-        prefs_register_bool_preference(tcap_module, "lock_info_col", "Lock Info column",
-	    "Always show TCAP in Info column",
-	    &lock_info_col);
+    prefs_register_bool_preference(tcap_module, "lock_info_col", "Lock Info column",
+	"Always show TCAP in Info column",
+	&lock_info_col);
 
-	/* we will fake a ssn subfield which has the same value obtained from sccp */
-	tcap_itu_ssn_dissector_table = register_dissector_table("tcap.itu_ssn", "ITU TCAP SSN", FT_UINT8, BASE_DEC);
-	tcap_ansi_ssn_dissector_table = register_dissector_table("tcap.ansi_ssn", "ANSI TCAP SSN", FT_UINT8, BASE_DEC);
+    /* we will fake a ssn subfield which has the same value obtained from sccp */
+    tcap_itu_ssn_dissector_table = register_dissector_table("tcap.itu_ssn", "ITU TCAP SSN", FT_UINT8, BASE_DEC);
+    tcap_ansi_ssn_dissector_table = register_dissector_table("tcap.ansi_ssn", "ANSI TCAP SSN", FT_UINT8, BASE_DEC);
 }
 
 
