@@ -191,17 +191,18 @@ capture, can be saved), a file format in which to save it.
 
 =item File:Print
 
-Prints, for all the packets in the current capture, the packet number,
-followed by  a description of each protocol header found in the packet,
-followed by the packet data itself.  Printing options can be set with the
+Prints, for all the packets in the current capture, either the summary
+line for the packet or the protocol tree view of the packet; when
+printing the protocol tree view, the hex dump of the packet can be
+printed as well.  Printing options can be set with the
 I<Edit:Preferences> menu item, or in the dialog box popped up by this
 item.
 
 =item File:Print Packet
 
-Print a description of each protocol header found in the packet, followed
-by the packet data itself.  Printing options can be set with the
-I<Edit:Preferences> menu item.
+Print a fully-expanded protocol tree view of the currently-selected
+packet.  Printing options can be set with the I<Edit:Preferences> menu
+item.
 
 =item File:Quit
 
@@ -209,7 +210,7 @@ Exits the application.
 
 =item Edit:Preferences
 
-Sets the packet printing, column display, and TCP stream coloring
+Sets the packet printing, column display, TCP stream coloring, and GUI
 options (see L<"Preferences"> below).
 
 =item Edit:Filters
