@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.8 1998/11/17 05:04:04 gerald Exp $
+ * $Id: packet-udp.c,v 1.9 1998/11/20 05:58:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -99,6 +99,9 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       break;
 	case UDP_PORT_NBNS:
 	  dissect_nbns(pd, offset, fd, tree);
+	  break;
+	case UDP_PORT_NBDGM:
+	  dissect_nbdgm(pd, offset, fd, tree);
 	  break;
     case UDP_PORT_IPX: /* RFC 1234 */
       dissect_ipx(pd, offset, fd, tree);

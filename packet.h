@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.25 1998/11/18 03:01:40 gerald Exp $
+ * $Id: packet.h,v 1.26 1998/11/20 05:58:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -363,6 +363,7 @@ typedef struct _e_udphdr {
 #define UDP_PORT_BOOTPS  67
 #define UDP_PORT_IPX    213
 #define UDP_PORT_NBNS	137
+#define UDP_PORT_NBDGM	138
 #define UDP_PORT_RIP    520
 
 /* TCP Ports */
@@ -432,7 +433,8 @@ enum {
 	ETT_NBNS_RR,
 	ETT_NBIPX,
 	ETT_AARP,
-        ETT_GIOP,
+	ETT_GIOP,
+	ETT_NBDGM,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -535,6 +537,7 @@ void dissect_ipx(const u_char *, int, frame_data *, GtkTree *);
 void dissect_giop(const u_char *, int, frame_data *, GtkTree *);
 void dissect_llc(const u_char *, int, frame_data *, GtkTree *);
 void dissect_lpd(const u_char *, int, frame_data *, GtkTree *);
+void dissect_nbdgm(const u_char *, int, frame_data *, GtkTree *);
 void dissect_nbipx_ns(const u_char *, int, frame_data *, GtkTree *);
 void dissect_nbns(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ncp(const u_char *, int, frame_data *, GtkTree *);
