@@ -559,9 +559,7 @@ Alexandre P. Ferreira <alexandref[AT]tcoip.com.br> {
 }
 
 Simharajan Srishylam <Simharajan.Srishylam[AT]netapp.com> {
-	Include Service ID field in dissection of Service Info component
-	    of WCCP 2 messages even if the service type is
-	    WCCP2_SERVICE_DYNAMIC
+	Assorted WCCP2 enhancements
 }
 
 Greg Kilfoyle <gregk[AT]redback.com> {
