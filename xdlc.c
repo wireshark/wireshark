@@ -2,7 +2,7 @@
  * Routines for use by various SDLC-derived protocols, such as HDLC
  * and its derivatives LAPB, IEEE 802.2 LLC, etc..
  *
- * $Id: xdlc.c,v 1.25 2004/03/03 02:06:19 guy Exp $
+ * $Id: xdlc.c,v 1.26 2004/03/04 07:51:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -223,16 +223,17 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	if (is_extended) {
 	    poll_final = (control & XDLC_P_F_EXT);
-	    sprintf(info, "S%s%s, N(R)=%u", frame_type,
+	    sprintf(info, "S%s, func=%s, N(R)=%u",
 		 	(poll_final ?
-		 	    (is_response ? ", func=F" : ", func=P") :
+		 	    (is_response ? " F" : " P") :
 		 	    ""),
+			frame_type,
 			(control & XDLC_N_R_EXT_MASK) >> XDLC_N_R_EXT_SHIFT);
 	} else {
 	    poll_final = (control & XDLC_P_F);
-	    sprintf(info, "S%s%s, N(R)=%u",
+	    sprintf(info, "S%s, func=%s, N(R)=%u",
 		 	(poll_final ?
-		 	    (is_response ? ", func=F" : ", func=P") :
+		 	    (is_response ? " F" : " P") :
 		 	    ""),
 		 	frame_type,
 			(control & XDLC_N_R_MASK) >> XDLC_N_R_SHIFT);
@@ -293,9 +294,9 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (modifier == NULL)
 		modifier = "Unknown";
 	poll_final = (control & XDLC_P_F);
-	sprintf(info, "U%s%s",
+	sprintf(info, "U%s, func=%s",
 		(poll_final ?
-		    (is_response ? ", func=F" : ", func=P") :
+		    (is_response ? " F" : " P") :
 		    ""),
 		modifier);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
