@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.57 2001/07/22 22:34:42 guy Exp $
+ * $Id: prefs.c,v 1.58 2001/07/22 22:41:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -377,8 +377,7 @@ get_string_list(gchar *str)
 {
   enum { PRE_STRING, IN_QUOT, NOT_IN_QUOT };
 
-  gint      i = 0, j = 0;
-  gint      state = PRE_STRING;
+  gint      state = PRE_STRING, i = 0, j = 0;
   gboolean  backslash = FALSE;
   gchar     cur_c, *slstr = NULL;
   GList    *sl = NULL;
@@ -405,21 +404,21 @@ get_string_list(gchar *str)
     }
     if (cur_c == '"' && ! backslash) {
       switch (state) {
-      	case PRE_STRING:
-      	  /* We hadn't yet started processing a string; this starts the
-      	     string, and we're now quoting.  */
-      	  state = IN_QUOT;
-      	  break;
+        case PRE_STRING:
+          /* We hadn't yet started processing a string; this starts the
+             string, and we're now quoting.  */
+          state = IN_QUOT;
+          break;
         case IN_QUOT:
           /* We're in the middle of a quoted string, and we saw a quotation
              mark; we're no longer quoting.   */
           state = NOT_IN_QUOT;
           break;
-      	case NOT_IN_QUOT:
-      	  /* We're working on a string, but haven't seen a quote; we're
-      	     now quoting.  */
-      	  state = IN_QUOT;
-      	  break;
+        case NOT_IN_QUOT:
+          /* We're working on a string, but haven't seen a quote; we're
+             now quoting.  */
+          state = IN_QUOT;
+          break;
         default:
           break;
       }
