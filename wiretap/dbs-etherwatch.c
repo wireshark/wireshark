@@ -1,6 +1,6 @@
 /* dbs-etherwatch.c
  *
- * $Id: dbs-etherwatch.c,v 1.13 2003/12/31 01:07:09 guy Exp $
+ * $Id: dbs-etherwatch.c,v 1.14 2004/01/24 16:48:12 jmayer Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <ethereal@mmilgram.NOSPAMmail.net>
@@ -312,8 +312,8 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err)
 	int length_pos, length_from, length;
 	struct tm time;
 	char mon[4];
-	guchar *p;
-	static guchar months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
+	gchar *p;
+	static gchar months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
 	int	count, line_count;
 
 	eth_hdr_len = 0;

@@ -1,6 +1,6 @@
 /* cosine.c
  *
- * $Id: cosine.c,v 1.6 2003/11/25 05:58:56 guy Exp $
+ * $Id: cosine.c,v 1.7 2004/01/24 16:48:12 jmayer Exp $
  *
  * CoSine IPNOS L2 debug output parsing
  * Copyright (c) 2002 by Motonori Shindo <mshindo@mshindo.net>
@@ -166,7 +166,7 @@
 
 #define COSINE_MAX_PACKET_LEN	65536
 
-static gboolean empty_line(const guchar *line);
+static gboolean empty_line(const gchar *line);
 static long cosine_seek_next_packet(wtap *wth, int *err, char *hdr);
 static gboolean cosine_check_file_type(wtap *wth, int *err);
 static gboolean cosine_read(wtap *wth, int *err, long *data_offset);
@@ -182,7 +182,7 @@ static int parse_single_hex_dump_line(char* rec, guint8 *buf,
 
 /* Returns TRUE if the line appears to be an empty line. Otherwise it
    returns FALSE. */
-static gboolean empty_line(const guchar *line)
+static gboolean empty_line(const gchar *line)
 {
 	while (*line) {
 		if (isspace(*line)) {
@@ -368,7 +368,8 @@ parse_cosine_rec_hdr(wtap *wth, const char *line, union wtap_pseudo_header *pseu
 {
 	int	num_items_scanned;
 	int	yy, mm, dd, hr, min, sec, csec, pkt_len;
-	int	pro, off, pri, rm, error, code1, code2;
+	int	pro, off, pri, rm, error;
+	guint	code1, code2;
 	char	if_name[COSINE_MAX_IF_NAME_LEN], direction[6];
 	struct	tm tm;
 
@@ -456,7 +457,7 @@ parse_cosine_rec_hdr(wtap *wth, const char *line, union wtap_pseudo_header *pseu
 static int
 parse_cosine_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
 {
-	char	line[COSINE_LINE_LENGTH];
+	gchar	line[COSINE_LINE_LENGTH];
 	int	i, hex_lines, n, caplen = 0;
 
 	/* Calculate the number of hex dump lines, each

@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.48 2003/10/01 07:11:47 guy Exp $
+ * $Id: iptrace.c,v 1.49 2004/01/24 16:48:12 jmayer Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -126,7 +126,7 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, long *data_offset)
 	guint8			header[IPTRACE_1_0_PHDR_SIZE];
 	guint8			*data_ptr;
 	iptrace_1_0_phdr	pkt_hdr;
-	char			fddi_padding[3];
+	guchar			fddi_padding[3];
 
 	/* Read the descriptor data */
 	*data_offset = wth->data_offset;
@@ -213,7 +213,7 @@ static gboolean iptrace_seek_read_1_0(wtap *wth, long seek_off,
 	int			ret;
 	guint8			header[IPTRACE_1_0_PHDR_SIZE];
 	int			pkt_encap;
-	char			fddi_padding[3];
+	guchar			fddi_padding[3];
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
@@ -304,7 +304,7 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, long *data_offset)
 	guint8			header[IPTRACE_2_0_PHDR_SIZE];
 	guint8			*data_ptr;
 	iptrace_2_0_phdr	pkt_hdr;
-	char			fddi_padding[3];
+	guchar			fddi_padding[3];
 
 	/* Read the descriptor data */
 	*data_offset = wth->data_offset;
@@ -395,7 +395,7 @@ static gboolean iptrace_seek_read_2_0(wtap *wth, long seek_off,
 	int			ret;
 	guint8			header[IPTRACE_2_0_PHDR_SIZE];
 	int			pkt_encap;
-	char			fddi_padding[3];
+	guchar			fddi_padding[3];
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;

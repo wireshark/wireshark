@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.42 2003/10/01 07:11:48 guy Exp $
+ * $Id: radcom.c,v 1.43 2004/01/24 16:48:12 jmayer Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -272,7 +272,7 @@ static gboolean radcom_read(wtap *wth, int *err, long *data_offset)
 	guint32 sec;
 	int	bytes_read;
 	struct tm tm;
-	char	phdr[8];
+	guchar	phdr[8];
 	char	fcs[2];
 
 	/* Read record header. */
@@ -376,7 +376,7 @@ radcom_seek_read(wtap *wth, long seek_off,
 {
 	int	ret;
 	struct radcomrec_hdr hdr;
-	char	phdr[8];
+	guchar	phdr[8];
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;

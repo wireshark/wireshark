@@ -1,6 +1,6 @@
 /* vms.c
  *
- * $Id: vms.c,v 1.19 2003/05/27 10:14:06 guy Exp $
+ * $Id: vms.c,v 1.20 2004/01/24 16:48:12 jmayer Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <ethereal@mmilgram.NOSPAMmail.net>
@@ -334,7 +334,7 @@ vms_seek_read (wtap *wth, long seek_off,
  * by 3 spaces.
  */
 static int
-isdumpline( guchar *line )
+isdumpline( gchar *line )
 {
     int i, j;
 
@@ -365,8 +365,8 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err)
     int	   csec = 101;
     struct tm time;
     char mon[4] = {'J', 'A', 'N', 0};
-    guchar *p;
-    static guchar months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
+    gchar *p;
+    static gchar months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
 
     time.tm_year = 1970;
     time.tm_hour = 1;
@@ -446,7 +446,7 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err)
 static gboolean
 parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
 {
-    guchar line[VMS_LINE_LENGTH + 1];
+    gchar line[VMS_LINE_LENGTH + 1];
     int    i;
     int    offset = 0;
 
