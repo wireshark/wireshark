@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.15 2003/04/30 17:45:04 sharpe Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.16 2003/04/30 20:26:02 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,6 +55,14 @@ static int hf_wkssvc_other_domains = -1;
 static int hf_wkssvc_logon_server = -1;
 static int hf_wkssvc_entries_read = -1;
 static int hf_wkssvc_total_entries = -1;
+static int hf_wkssvc_char_wait = -1;
+static int hf_wkssvc_collection_time = -1;
+static int hf_wkssvc_maximum_collection_count = -1;
+static int hf_wkssvc_keep_conn = -1;
+static int hf_wkssvc_max_cmds = -1;
+static int hf_wkssvc_sess_timeout = -1;
+static int hf_wkssvc_siz_char_buf = -1;
+static int hf_wkssvc_max_threads = -1;
 static gint ett_dcerpc_wkssvc = -1;
 
 extern const value_string platform_id_vals[];
@@ -185,6 +193,42 @@ wkssvc_dissect_WKS_INFO_102(tvbuff_t *tvb, int offset,
 
 	return offset;
 }
+/*
+ * IDL typedef struct {
+ * IDL   long wki502_sess_timeout;
+ * IDL } WKS_INFO_502;
+ */
+static int
+wkssvc_dissect_WKS_INFO_502(tvbuff_t *tvb, int offset,
+			    packet_info *pinfo, proto_tree *tree,
+			    char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_char_wait, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_collection_time, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_maximum_collection_count, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_keep_conn, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_max_cmds, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_sess_timeout, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_siz_char_buf, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_max_threads, NULL);	
+
+	return offset;
+}
 
 /*
  * IDL long NetWkstaGetInfo(
@@ -214,6 +258,7 @@ wkssvc_dissect_netwkstagetinfo_rqst(tvbuff_t *tvb, int offset,
  * IDL   [case(100)] [unique] WKS_INFO_100 *wks100;
  * IDL   [case(101)] [unique] WKS_INFO_101 *wks101;
  * IDL   [case(102)] [unique] WKS_INFO_102 *wks102;
+ * IDL   [case(502)] [unique] WKS_INFO_502 *wks502; 
  * IDL } WKS_INFO_UNION;
  */
 static int
@@ -243,7 +288,16 @@ wkssvc_dissect_WKS_GETINFO_UNION(tvbuff_t *tvb, int offset,
 	case 102:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			wkssvc_dissect_WKS_INFO_102,
-			NDR_POINTER_UNIQUE, "WKS_INFO_101:", -1);
+			NDR_POINTER_UNIQUE, "WKS_INFO_102:", -1);
+		break;
+
+		/* There is a 302 and 402 level, but I am too lazy today */
+
+	case 502:
+	        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+					     wkssvc_dissect_WKS_INFO_502,
+					     NDR_POINTER_UNIQUE, 
+					     "WKS_INFO_502:", -1);
 		break;
 
 	}
@@ -560,7 +614,31 @@ proto_register_dcerpc_wkssvc(void)
 	  { &hf_wkssvc_total_entries, 
 	    { "Total Entries", "wkssvc.total.entries", FT_INT32,
 	      BASE_DEC, NULL, 0x0, "Total Entries", HFILL}},
-
+	  { &hf_wkssvc_char_wait, 
+	    { "Char Wait", "wkssvc.char.wait", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Char Wait", HFILL}},
+	  { &hf_wkssvc_collection_time, 
+	    { "Collection Time", "wkssvc.collection.time", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Collection Time", HFILL}},
+	  { &hf_wkssvc_maximum_collection_count, 
+	    { "Maximum Collection Count", "wkssvc.maximum.collection.count", 
+	      FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Maximum Collection Count", HFILL}},
+	  { &hf_wkssvc_keep_conn, 
+	    { "Keep Connection", "wkssvc.keep.connection", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Keep Connection", HFILL}},
+	  { &hf_wkssvc_max_cmds, 
+	    { "Maximum Commands", "wkssvc.maximum.commands", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Maximum Commands", HFILL}},
+	  { &hf_wkssvc_sess_timeout, 
+	    { "Session Timeout", "wkssvc.session.timeout", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Session Timeout", HFILL}},
+	  { &hf_wkssvc_siz_char_buf, 
+	    { "Character Buffer Size", "wkssvc.size.char.buff", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Character Buffer Size", HFILL}},
+	  { &hf_wkssvc_max_threads, 
+	    { "Maximum Threads", "wkssvc.maximum.threads", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Maximum Threads", HFILL}},
 	};
         static gint *ett[] = {
                 &ett_dcerpc_wkssvc
