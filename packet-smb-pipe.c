@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.61 2001/12/10 00:25:34 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.62 2001/12/16 20:08:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2657,7 +2657,7 @@ static const value_string pipe_status[] = {
 };
 
 #define PIPE_LANMAN     1
-#define PIPE_MSRPC      2
+#define PIPE_DCERPC     2
 
 /* decode the SMB pipe protocol
    for requests
@@ -2814,8 +2814,8 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		if(strncmp(pipe,"LANMAN",6) == 0){
 			trans_subcmd=PIPE_LANMAN;
 		} else {
-			/* assume it is MSRPC*/
-			trans_subcmd=PIPE_MSRPC;
+			/* assume it is DCERPC */
+			trans_subcmd=PIPE_DCERPC;
 		}
 		
 		if (!pinfo->fd->flags.visited)
@@ -2842,7 +2842,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			    tree);
 			break;
 
-		case PIPE_MSRPC:
+		case PIPE_DCERPC:
 			/*
 			 * Only dissect this if we know the FID.
 			 */

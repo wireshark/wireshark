@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\netdfs packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-dfs.h,v 1.2 2001/12/09 00:07:37 guy Exp $
+ * $Id: packet-dcerpc-dfs.h,v 1.3 2001/12/16 20:08:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,8 +23,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PACKET_MSRPC_DFS_H
-#define __PACKET_MSRPC_DFS_H
+#ifndef __PACKET_DCERPC_DFS_H
+#define __PACKET_DCERPC_DFS_H
 
 /* Functions available on the NETDFS pipe.  From Samba, include/rpc_dfs.h */
 
