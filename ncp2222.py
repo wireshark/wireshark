@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.12 2002/02/27 05:24:39 gram Exp $
+$Id: ncp2222.py,v 1.14.2.13 2002/02/27 17:06:06 gram Exp $
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
 and Greg Morris <GMORRIS@novell.com>.
@@ -5136,7 +5136,7 @@ final_registration_ncp2222(void)
 	for (i = 0; i < NUM_REQ_CONDS; i++) {
 		if (!dfilter_compile((gchar*)req_conds[i].dfilter_text,
 			&req_conds[i].dfilter)) {
-			g_message("NCP dissector failed to compiler dfilter: %s\n",
+			g_message("NCP dissector failed to compiler dfilter: %s\\n",
 			req_conds[i].dfilter_text);
 			g_assert_not_reached();
 		}
