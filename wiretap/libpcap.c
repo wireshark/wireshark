@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.41 2000/09/15 07:52:42 guy Exp $
+ * $Id: libpcap.c,v 1.42 2000/09/17 07:50:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -572,11 +572,13 @@ static libpcap_try_t libpcap_try(wtap *wth, int *err)
 	 * Attempt to read the first record's header.
 	 */
 	if (libpcap_read_header(wth, err, &first_rec_hdr, TRUE) == -1) {
-		if (*err == WTAP_ERR_SHORT_READ) {
+		if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
 			/*
-			 * Short read - assume the file is in this format.
+			 * EOF or short read - assume the file is in this
+			 * format.
 			 * When our client tries to read the first packet
-			 * they will presumably get the same short read.
+			 * they will presumably get the same EOF or short
+			 * read.
 			 */
 			return THIS_FORMAT;
 		}
@@ -608,11 +610,13 @@ static libpcap_try_t libpcap_try(wtap *wth, int *err)
 	 * Now attempt to read the second record's header.
 	 */
 	if (libpcap_read_header(wth, err, &second_rec_hdr, TRUE) == -1) {
-		if (*err == WTAP_ERR_SHORT_READ) {
+		if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
 			/*
-			 * Short read - assume the file is in this format.
+			 * EOF or short read - assume the file is in this
+			 * format.
 			 * When our client tries to read the second packet
-			 * they will presumably get the same short read.
+			 * they will presumably get the same EOF or short
+			 * read.
 			 */
 			return THIS_FORMAT;
 		}
