@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.540 2003/01/19 21:29:08 guy Exp $
+# $Id: Makefile.am,v 1.541 2003/01/21 00:39:57 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -573,6 +573,7 @@ noinst_HEADERS = \
 	packet-nfs.h   \
 	packet-nisplus.h \
 	packet-nlm.h   \
+	packet-ntlmssp.h  \
 	packet-ntp.h  \
 	packet-null.h  \
 	packet-osi-options.h \
@@ -1252,3 +1253,12 @@ debian-package: debian/rules
 
 clean-local:
 	rm -rf $(top_stagedir)
+
+test-splint: $(ethereal_SOURCES)
+	splint \
+		-gnu-extensions	-D_U_=""	\
+		-I. `glib-config --cflags` \
+		-I./epan \
+		-I./tools/lemon \
+		-I./wiretap	\
+		$(ethereal_SOURCES)
