@@ -923,8 +923,9 @@ proto_register_ssh(void)
 
   	ssh_module = prefs_register_protocol(proto_ssh, NULL);
 	prefs_register_bool_preference(ssh_module, "desegment_buffers",
-		"Desegment all SSH buffers spanning multiple TCP segments",
-		"Whether the SSH dissector should desegment all SSH buffers spanning multiple TCP segments",
+		"Reassemble SSH buffers spanning multiple TCP segments",
+		"Whether the SSH dissector should reassemble SSH buffers spanning multiple TCP segments. "
+	    "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 		&ssh_desegment);
 }
 

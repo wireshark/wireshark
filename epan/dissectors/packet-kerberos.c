@@ -3875,9 +3875,10 @@ proto_register_kerberos(void)
     /* Register preferences */
     krb_module = prefs_register_protocol(proto_kerberos, NULL);
     prefs_register_bool_preference(krb_module, "desegment",
-	"Desegment Kerberos over TCP messages",
-	"Whether the dissector should desegment "
-	"multi-segment Kerberos messages", &krb_desegment);
+	"Reassemble Kerberos over TCP messages spanning multiple TCP segments",
+	"Whether the Kerberos dissector should reassemble messages spanning multiple TCP segments."
+	" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+    &krb_desegment);
 #ifdef HAVE_KERBEROS
     prefs_register_bool_preference(krb_module, "decrypt",
 	"Try to decrypt Kerberos blobs",

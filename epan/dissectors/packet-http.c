@@ -1619,16 +1619,20 @@ proto_register_http(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	http_module = prefs_register_protocol(proto_http, NULL);
 	prefs_register_bool_preference(http_module, "desegment_headers",
-	    "Desegment all HTTP headers spanning multiple TCP segments",
-	    "Whether the HTTP dissector should desegment all headers "
-	    "of a request spanning multiple TCP segments",
+	    "Reassemble HTTP headers spanning multiple TCP segments",
+	    "Whether the HTTP dissector should reassemble headers "
+	    "of a request spanning multiple TCP segments. "
+		"To use this option, you must also enable "
+        "\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &http_desegment_headers);
 	prefs_register_bool_preference(http_module, "desegment_body",
-	    "Desegment HTTP bodies spanning multiple TCP segments",
+	    "Reassemble HTTP bodies spanning multiple TCP segments",
 	    "Whether the HTTP dissector should use the "
-	    "\"Content-length:\" value, if present, to desegment "
+	    "\"Content-length:\" value, if present, to reassemble "
 	    "the body of a request spanning multiple TCP segments, "
-	    "and desegment chunked data spanning multiple TCP segments",
+	    "and reassemble chunked data spanning multiple TCP segments. "
+		"To use this option, you must also enable "
+        "\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &http_desegment_body);
 	prefs_register_bool_preference(http_module, "dechunk_body",
 	    "Reassemble chunked transfer-coded bodies",

@@ -413,8 +413,9 @@ proto_register_ipdc(void)
 
 	ipdc_module = prefs_register_protocol(proto_ipdc, proto_reg_handoff_ipdc);
 	prefs_register_bool_preference(ipdc_module, "desegment_ipdc_messages",
-		"Desegment all IPDC messages spanning multiple TCP segments",
-		"Whether the IPDC dissector should desegment all messages spanning multiple TCP segments",
+		"Reassemble IPDC messages spanning multiple TCP segments",
+		"Whether the IPDC dissector should reassemble messages spanning multiple TCP segments."
+		" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 		&ipdc_desegment);
 	prefs_register_uint_preference(ipdc_module, "tcp.port",
 		"IPDC monitoring port",

@@ -1411,8 +1411,8 @@ void proto_register_netbios(void)
 
 	netbios_module = prefs_register_protocol(proto_netbios, NULL);
 	prefs_register_bool_preference(netbios_module, "defragment",
-	    "Defragment all NetBIOS messages spanning multiple frames",
-	    "Whether the NetBIOS dissector should defragment all messages spanning multiple frames",
+	    "Reassemble fragmented NetBIOS messages spanning multiple frames",
+	    "Whether the NetBIOS dissector should defragment messages spanning multiple frames",
 	    &netbios_defragment);
 
 	register_init_routine(netbios_init);

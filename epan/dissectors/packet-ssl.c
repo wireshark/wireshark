@@ -3436,10 +3436,11 @@ proto_register_ssl(void)
     {
       module_t *ssl_module = prefs_register_protocol(proto_ssl, NULL);
       prefs_register_bool_preference(ssl_module,
-                                     "desegment_ssl_records",
-                                     "Desegment SSL records",
-                                     "When enabled, SSL records that span multiple TCP segments are desegmented",
-                                     &ssl_desegment);
+             "desegment_ssl_records",
+             "Reassemble SSL records spanning multiple TCP segments",
+             "Whether the SSL dissector should reassemble SSL records spanning multiple TCP segments. "
+             "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+             &ssl_desegment);
     }
 
     register_dissector("ssl", dissect_ssl, proto_ssl);

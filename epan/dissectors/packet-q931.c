@@ -3134,8 +3134,9 @@ proto_register_q931(void)
 
 	q931_module = prefs_register_protocol(proto_q931, NULL);
 	prefs_register_bool_preference(q931_module, "desegment_h323_messages",
-	    "Desegment all Q.931 messages spanning multiple TCP segments",
-	    "Whether the Q.931 dissector should desegment all messages spanning multiple TCP segments",
+	    "Reassemble Q.931 messages spanning multiple TCP segments",
+	    "Whether the Q.931 dissector should reassemble messages spanning multiple TCP segments."
+	    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &q931_desegment);
 	prefs_register_bool_preference(q931_module, "reassembly",
 	    "Reassemble segmented Q.931 messages",

@@ -2454,8 +2454,9 @@ proto_register_slsk(void)
 
 /* Registers the options in the menu preferences */
 	prefs_register_bool_preference(slsk_module, "desegment",
-	    "Desegment all SoulSeek messages spanning multiple TCP segments",
-	    "Whether the SoulSeek dissector should desegment all messages spanning multiple TCP segments",
+	    "Reassemble SoulSeek messages spanning multiple TCP segments",
+	    "Whether the SoulSeek dissector should reassemble messages spanning multiple TCP segments."
+	    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &slsk_desegment);
 #ifdef HAVE_LIBZ
 	prefs_register_bool_preference(slsk_module, "decompress",

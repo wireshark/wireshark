@@ -828,8 +828,9 @@ proto_register_dsi(void)
 
   dsi_module = prefs_register_protocol(proto_dsi, NULL);
   prefs_register_bool_preference(dsi_module, "desegment",
-    "Desegment all DSI messages spanning multiple TCP segments",
-    "Whether the DSI dissector should desegment all messages spanning multiple TCP segments",
+    "Reassemble DSI messages spanning multiple TCP segments",
+    "Whether the DSI dissector should reassemble messages spanning multiple TCP segments."
+    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &dsi_desegment);
 }
 

@@ -1677,7 +1677,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 			/* add desegmented data to the data source list */
-			add_new_data_source(pinfo, next_tvb, "Desegmented TCP");
+			add_new_data_source(pinfo, next_tvb, "Reassembled TCP");
 
 			/*
 			 * Supply the sequence number of the first of the
@@ -1902,7 +1902,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCP");
 			}
 			if (check_col(pinfo->cinfo, COL_INFO)){
-				col_set_str(pinfo->cinfo, COL_INFO, "[Desegmented TCP]");
+				col_set_str(pinfo->cinfo, COL_INFO, "[Reassembled TCP]");
 			}
 		}
 
@@ -3092,15 +3092,15 @@ proto_register_tcp(void)
 
 		{ &hf_tcp_segment_multiple_tails,
 		{ "Multiple tail segments found",	"tcp.segment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"Several tails were found when desegmenting the pdu", HFILL }},
+			"Several tails were found when reassembling the pdu", HFILL }},
 
 		{ &hf_tcp_segment_too_long_fragment,
 		{ "Segment too long",	"tcp.segment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"Segment contained data past end of the pdu", HFILL }},
 
 		{ &hf_tcp_segment_error,
-		{ "Desegmentation error", "tcp.segment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-			"Desegmentation error due to illegal segments", HFILL }},
+		{ "Reassembling error", "tcp.segment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"Reassembling error due to illegal segments", HFILL }},
 
 		{ &hf_tcp_segment,
 		{ "TCP Segment", "tcp.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
@@ -3212,8 +3212,8 @@ proto_register_tcp(void)
 	    "Whether to check the validity of the TCP checksum",
 	    &tcp_check_checksum);
 	prefs_register_bool_preference(tcp_module, "desegment_tcp_streams",
-	    "Allow subdissector to desegment TCP streams",
-	    "Whether subdissector can request TCP streams to be desegmented",
+	    "Allow subdissector to reassemble TCP streams",
+	    "Whether subdissector can request TCP streams to be reassembled",
 	    &tcp_desegment);
 	prefs_register_bool_preference(tcp_module, "analyze_sequence_numbers",
 	    "Analyze TCP sequence numbers",

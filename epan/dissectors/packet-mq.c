@@ -3256,12 +3256,13 @@ proto_register_mq(void)
 
   mq_module = prefs_register_protocol(proto_mq, NULL);
   prefs_register_bool_preference(mq_module, "desegment",
-    "Desegment all MQ messages spanning multiple TCP segments",
-    "Whether the MQ dissector should desegment all messages spanning multiple TCP segments",
+    "Reassemble MQ messages spanning multiple TCP segments",
+    "Whether the MQ dissector should reassemble messages spanning multiple TCP segments."
+    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &mq_desegment);
   prefs_register_bool_preference(mq_module, "reassembly",
     "Reassemble segmented MQ messages",
-    "Whether the MQ dissector should reassemble all MQ messages spanning multiple TSH segments",
+    "Whether the MQ dissector should reassemble MQ messages spanning multiple TSH segments",
     &mq_reassembly);
 }
 

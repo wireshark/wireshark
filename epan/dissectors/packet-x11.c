@@ -5363,8 +5363,9 @@ void proto_register_x11(void)
 
       x11_module = prefs_register_protocol(proto_x11, NULL);
       prefs_register_bool_preference(x11_module, "desegment",
-	    "Desegment all X11 messages spanning multiple TCP segments",
-	    "Whether the X11 dissector should desegment all messages spanning multiple TCP segments",
+	    "Reassemble X11 messages spanning multiple TCP segments",
+	    "Whether the X11 dissector should reassemble messages spanning multiple TCP segments. "
+	    "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &x11_desegment);
 }
 

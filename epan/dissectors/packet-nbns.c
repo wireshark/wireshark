@@ -1906,8 +1906,9 @@ proto_register_nbt(void)
 
   nbss_module = prefs_register_protocol(proto_nbss, NULL);
   prefs_register_bool_preference(nbss_module, "desegment_nbss_commands",
-    "Desegment all NBSS packets spanning multiple TCP segments",
-    "Whether NBSS dissector should desegment all packets spanning multiple TCP segments",
+    "Reassemble NBSS packets spanning multiple TCP segments",
+    "Whether the NBSS dissector should reassemble packets spanning multiple TCP segments."
+    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &nbss_desegment);
 }
 

@@ -2977,8 +2977,9 @@ proto_register_ldap(void)
 
   ldap_module = prefs_register_protocol(proto_ldap, NULL);
   prefs_register_bool_preference(ldap_module, "desegment_ldap_messages",
-    "Desegment all LDAP messages spanning multiple TCP segments",
-    "Whether the LDAP dissector should desegment all messages spanning multiple TCP segments",
+    "Reassemble LDAP messages spanning multiple TCP segments",
+    "Whether the LDAP dissector should reassemble messages spanning multiple TCP segments."
+    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &ldap_desegment);
 
   proto_cldap = proto_register_protocol(

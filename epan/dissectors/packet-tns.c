@@ -1325,8 +1325,9 @@ void proto_register_tns(void)
 
 	tns_module = prefs_register_protocol(proto_tns, NULL);
 	prefs_register_bool_preference(tns_module, "desegment_tns_messages",
-	  "Desegment all TNS messages spanning multiple TCP segments",
-	  "Whether the TNS dissector should desegment all messages spanning multiple TCP segments",
+	  "Reassemble TNS messages spanning multiple TCP segments",
+	  "Whether the TNS dissector should reassemble messages spanning multiple TCP segments. "
+	  "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	  &tns_desegment);
 }
 

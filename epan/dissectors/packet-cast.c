@@ -1759,8 +1759,9 @@ proto_register_cast(void)
 
   cast_module = prefs_register_protocol(proto_cast, NULL);
   prefs_register_bool_preference(cast_module, "reassembly", /*"desegment",*/
-    "Desegment all CAST messages spanning multiple TCP segments",
-    "Whether the CAST dissector should desegment all messages spanning multiple TCP segments",
+    "Reassemble CAST messages spanning multiple TCP segments",
+    "Whether the CAST dissector should reassemble messages spanning multiple TCP segments."
+    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &cast_desegment);
 }
 

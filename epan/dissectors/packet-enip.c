@@ -2649,8 +2649,9 @@ proto_register_cipencap(void)
 
 	cipencap_module = prefs_register_protocol(proto_cipencap, NULL);
 	prefs_register_bool_preference(cipencap_module, "desegment",
-	    "Desegment all EtherNet/IP messages spanning multiple TCP segments",
-	    "Whether the EtherNet/IP dissector should desegment all messages spanning multiple TCP segments",
+	    "Reassemble EtherNet/IP messages spanning multiple TCP segments",
+	    "Whether the EtherNet/IP dissector should reassemble messages spanning multiple TCP segments."
+	    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &cipencap_desegment);
 } /* end of proto_register_cipencap() */
 

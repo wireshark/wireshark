@@ -3494,18 +3494,19 @@ proto_register_rpc(void)
 
 	rpc_module = prefs_register_protocol(proto_rpc, NULL);
 	prefs_register_bool_preference(rpc_module, "desegment_rpc_over_tcp",
-		"Desegment all RPC-over-TCP messages",
-		"Whether the RPC dissector should desegment all RPC-over-TCP messages",
+	    "Reassemble RPC over TCP messages\nspanning multiple TCP segments",
+	    "Whether the RPC dissector should reassemble messages spanning multiple TCP segments."
+	    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 		&rpc_desegment);
 	prefs_register_bool_preference(rpc_module, "defragment_rpc_over_tcp",
-		"Defragment all RPC-over-TCP messages",
-		"Whether the RPC dissector should defragment multi-fragment RPC-over-TCP messages",
+		"Reassemble fragmented RPC-over-TCP messages",
+		"Whether the RPC dissector should defragment RPC-over-TCP messages.",
 		&rpc_defragment);
 
 	prefs_register_uint_preference(rpc_module, "max_tcp_pdu_size", "Maximum size of a RPC-over-TCP PDU",
 		"Set the maximum size of RPCoverTCP PDUs. "
 		" If the size field of the record marker is larger "
-		"than this value it will not be considered a valid RPC PDU",
+		"than this value it will not be considered a valid RPC PDU.",
 		 10, &max_rpc_tcp_pdu_size);
 
 	prefs_register_bool_preference(rpc_module, "dissect_unknown_programs",

@@ -2524,9 +2524,9 @@ proto_register_snmp(void)
 	    "List of MIB modules to load (the list is set to environment variable MIBS if the variable is not already set)",
 	    &mib_modules);
 	prefs_register_bool_preference(snmp_module, "desegment",
-	    "Desegment all SNMP-over-TCP messages\nspanning multiple TCP segments",
-	    "Whether the SNMP dissector should desegment all messages "
-	    "spanning multiple TCP segments",
+	    "Reassemble SNMP-over-TCP messages\nspanning multiple TCP segments",
+	    "Whether the SNMP dissector should reassemble messages spanning multiple TCP segments."
+	    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &snmp_desegment);
 }
 

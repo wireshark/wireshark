@@ -1942,8 +1942,9 @@ proto_register_diameter(void)
 
 	/* Desegmentation */
 	prefs_register_bool_preference(diameter_module, "desegment",
-								   "Desegment all Diameter messages\nspanning multiple TCP segments",
-								   "Whether the Diameter dissector should desegment all messages spanning multiple TCP segments",
+                                   "Reassemble Diameter messages\nspanning multiple TCP segments",
+								   "Whether the Diameter dissector should reassemble messages spanning multiple TCP segments."
+								   " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 								   &gbl_diameter_desegment);
 	/* Allow zero as valid application ID */
 	prefs_register_bool_preference(diameter_module, "allow_zero_as_app_id",

@@ -1724,8 +1724,8 @@ proto_register_ses(void)
 	ses_module = prefs_register_protocol(proto_ses, NULL);
 /*
 	prefs_register_bool_preference(ses_module, "desegment",
-	    "Desegment all session packets ",
-	    "Whether the session dissector should desegment all messages spanning multiple SES segments",
+	    "Reassemble session packets ",
+	    "Whether the session dissector should reassemble messages spanning multiple SES segments",
 	    &ses_desegment);  */
 
 	/*

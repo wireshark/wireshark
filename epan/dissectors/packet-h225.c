@@ -10512,8 +10512,9 @@ proto_register_h225(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	h225_module = prefs_register_protocol(proto_h225, NULL);
 	prefs_register_bool_preference(h225_module, "reassembly",
-		"Reassemble H.225 over TCP",
-		"Whether the dissector should reassemble H.225 PDUs spanning multiple TCP segments",
+		"Reassemble H.225 messages spanning multiple TCP segments",
+		"Whether the H.225 dissector should reassemble messages spanning multiple TCP segments."
+		" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 		&h225_reassembly);
 	register_dissector("h225", dissect_h225_H323UserInformation, proto_h225);
 

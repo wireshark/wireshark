@@ -2379,7 +2379,8 @@ void proto_register_cotp(void)
 
   prefs_register_bool_preference(cotp_module, "reassemble",
 	 "Reassemble segmented COTP datagrams",
-	 "Whether segmented COTP datagrams should be reassembled",
+	 "Whether segmented COTP datagrams should be reassembled."
+    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	&cotp_reassemble);
 
   prefs_register_enum_preference(cotp_module, "tsap_display",

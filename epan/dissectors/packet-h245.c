@@ -22431,8 +22431,9 @@ proto_register_h245(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	h245_module = prefs_register_protocol(proto_h245, NULL);
 	prefs_register_bool_preference(h245_module, "reassembly",
-		"Reassemble H.245 over TCP",
-		"Whether the dissector should reassemble H.245 PDUs spanning multiple TCP segments",
+		"Reassemble H.245 messages spanning multiple TCP segments",
+		"Whether the H.245 dissector should reassemble messages spanning multiple TCP segments."
+		" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 		&h245_reassembly);
 	prefs_register_bool_preference(h245_module, "shorttypes",
 		"Show short message types",

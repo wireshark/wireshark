@@ -1046,12 +1046,13 @@ proto_register_ncp(void)
   ncp_module = prefs_register_protocol(proto_ncp, NULL);
   prefs_register_obsolete_preference(ncp_module, "initial_hash_size");
   prefs_register_bool_preference(ncp_module, "desegment",
-    "Desegment all NCP-over-TCP messages spanning multiple segments",
-    "Whether the NCP dissector should desegment all messages spanning multiple TCP segments",
+    "Reassemble NCP-over-TCP messages spanning multiple TCP segments",
+    "Whether the NCP dissector should reassemble messages spanning multiple TCP segments."
+    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &ncp_desegment);
   prefs_register_bool_preference(ncp_module, "defragment_nds",
-    "Defragment all NDS messages spanning multiple packets",
-    "Whether the NCP dissector should defragment all NDS messages spanning multiple packets",
+    "Reassemble fragmented NDS messages spanning multiple packets",
+    "Whether the NCP dissector should defragment NDS messages spanning multiple packets.",
     &nds_defragment);
   register_init_routine(&mncp_init_protocol);
   register_postseq_cleanup_routine(&mncp_postseq_cleanup);

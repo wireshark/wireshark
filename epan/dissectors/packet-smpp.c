@@ -2729,8 +2729,9 @@ proto_register_smpp(void)
     smpp_module = prefs_register_protocol (proto_smpp, NULL);
     prefs_register_bool_preference (smpp_module,
 	    "reassemble_smpp_over_tcp",
-	    "Reassemble SMPP over TCP",
-	    "Reassemble TCP segments that convey SMPP traffic.",
+	    "Reassemble SMPP over TCP messages spanning multiple TCP segments",
+	    "Whether the SMPP dissector should reassemble messages spanning multiple TCP segments."
+	    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &reassemble_over_tcp);
 }
 
