@@ -115,6 +115,18 @@ proto_item *get_ber_last_created_item(void) {
 }
 
 
+void
+register_ber_oid_dissector(char *oid, dissector_t dissector, int proto, char *name _U_)
+{
+	/* XXX we should sometime later add tracking of the name of the OID
+	 * so we can print that together with the OID.
+	 */
+	dissector_handle_t dissector_handle;
+
+	dissector_handle=create_dissector_handle(dissector, proto);
+	dissector_add_string("ber.oid", oid, dissector_handle);
+}
+
 int
 call_ber_oid_callback(char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {

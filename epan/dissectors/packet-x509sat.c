@@ -234,9 +234,6 @@ void proto_register_x509sat(void) {
 
 /*--- proto_reg_handoff_x509sat -------------------------------------------*/
 void proto_reg_handoff_x509sat(void) {
-	dissector_handle_t dissector_handle;
-
-	dissector_handle=create_dissector_handle(dissect_x509sat_countryName_callback, proto_x509sat);
-	dissector_add_string("ber.oid", "2.5.4.6", dissector_handle);
+	register_ber_oid_dissector("2.5.4.6", dissect_x509sat_countryName_callback, proto_x509sat, "id-at-countryName");
 }
 

@@ -82,10 +82,6 @@ void proto_register_cms(void) {
 
 /*--- proto_reg_handoff_cms -------------------------------------------*/
 void proto_reg_handoff_cms(void) {
-	dissector_handle_t SignedData_handle;
-
-	SignedData_handle=create_dissector_handle(dissect_cms_SignedData_callback, proto_cms);
-
-	dissector_add_string("ber.oid", "1.2.840.113549.1.7.2", SignedData_handle);
+	register_ber_oid_dissector("1.2.840.113549.1.7.2", dissect_cms_SignedData_callback, proto_cms, "id-signedData");
 }
 
