@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.4 1999/12/10 06:28:24 guy Exp $
+ * $Id: prefs_dlg.c,v 1.5 1999/12/16 06:20:18 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -52,6 +52,7 @@
 #include "prefs_dlg.h"
 #include "print_prefs.h"
 #include "stream_prefs.h"
+#include "gui_prefs.h"
 #include "util.h"
 
 e_prefs prefs;
@@ -65,14 +66,14 @@ static gboolean prefs_main_delete_cb(GtkWidget *, gpointer);
 #define E_PRINT_PAGE_KEY  "printer_options_page"
 #define E_COLUMN_PAGE_KEY "column_options_page"
 #define E_STREAM_PAGE_KEY "tcp_stream_options_page"
+#define E_GUI_PAGE_KEY	  "gui_options_page"
 
 void
 prefs_cb(GtkWidget *w, gpointer sp) {
   GtkWidget *prefs_w, *main_vb, *top_hb, *bbox, *prefs_nb,
             *ok_bt, *save_bt, *cancel_bt;
-  GtkWidget *print_pg, *column_pg, *stream_pg, *label;
+  GtkWidget *print_pg, *column_pg, *stream_pg, *gui_pg, *label;
 
-/*  GtkWidget *nlabel; */
   gint       start_page = (gint) sp;
 
 
@@ -108,11 +109,17 @@ prefs_cb(GtkWidget *w, gpointer sp) {
   label = gtk_label_new ("Columns");
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), column_pg, label);
   
-  /* Column prefs */
+  /* TCP Streams prefs */
   stream_pg = stream_prefs_show();
   gtk_object_set_data(GTK_OBJECT(prefs_w), E_STREAM_PAGE_KEY, stream_pg);
   label = gtk_label_new ("TCP Streams");
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), stream_pg, label);
+
+  /* GUI prefs */
+  gui_pg = gui_prefs_show();
+  gtk_object_set_data(GTK_OBJECT(prefs_w), E_GUI_PAGE_KEY, gui_pg);
+  label = gtk_label_new ("GUI");
+  gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), gui_pg, label);
 
   /* Jump to the specified page, if it was supplied */
   if (start_page > E_PR_PG_NONE)
@@ -156,6 +163,7 @@ prefs_main_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   printer_prefs_ok(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
   column_prefs_ok(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_ok(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
+  gui_prefs_ok(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
 
@@ -165,6 +173,7 @@ prefs_main_save_cb(GtkWidget *save_bt, gpointer parent_w)
   printer_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
   column_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
+  gui_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
   write_prefs();
 }
 
@@ -174,6 +183,7 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt, gpointer parent_w)
   printer_prefs_cancel(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
   column_prefs_cancel(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_cancel(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
+  gui_prefs_cancel(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
 
@@ -183,5 +193,6 @@ prefs_main_delete_cb(GtkWidget *prefs_w, gpointer dummy)
   printer_prefs_delete(gtk_object_get_data(GTK_OBJECT(prefs_w), E_PRINT_PAGE_KEY));
   column_prefs_delete(gtk_object_get_data(GTK_OBJECT(prefs_w), E_COLUMN_PAGE_KEY));
   stream_prefs_delete(gtk_object_get_data(GTK_OBJECT(prefs_w), E_STREAM_PAGE_KEY));
+  gui_prefs_delete(gtk_object_get_data(GTK_OBJECT(prefs_w), E_GUI_PAGE_KEY));
   return FALSE;
 }

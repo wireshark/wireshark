@@ -1,7 +1,7 @@
-/* gtkglobals.h
- * GTK-related Global defines, etc.
+/* gui_prefs.h
+ * Definitions for GUI preferences window
  *
- * $Id: gtkglobals.h,v 1.3 1999/12/16 06:20:15 gram Exp $
+ * $Id: gui_prefs.h,v 1.1 1999/12/16 06:20:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,19 +23,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __GTKGLOBALS_H__
-#define __GTKGLOBALS_H__
 
-#ifndef __GTK_H__
-#include <gtk/gtk.h>
-#endif
-
-extern GtkWidget   *top_level, *file_sel, *packet_list, *tree_view,
-            *byte_view, *prog_bar, *info_bar;
-extern GdkFont     *m_r_font, *m_b_font;
-
-extern GtkStyle *item_style;
-
-void set_scrollbar_placement(int); /* 1=right, 0=left */
-
-#endif
+GtkWidget *gui_prefs_show(void);
+void gui_prefs_ok(GtkWidget *w);
+void gui_prefs_save(GtkWidget *w);
+void gui_prefs_cancel(GtkWidget *w);
+void gui_prefs_delete(GtkWidget *w);

@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.24 1999/12/09 07:19:04 guy Exp $
+ * $Id: prefs.c,v 1.25 1999/12/16 06:19:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -184,6 +184,7 @@ read_prefs(char **pf_path_return) {
     prefs.st_server_bg.red   = 65535;
     prefs.st_server_bg.green = 65535;
     prefs.st_server_bg.blue  = 65535;
+    prefs.gui_scrollbar_on_right = TRUE;
   }
 
   if (! pf_path) {
@@ -297,6 +298,7 @@ read_prefs(char **pf_path_return) {
 #define PRS_STREAM_CL_BG "stream.client.bg"
 #define PRS_STREAM_SR_FG "stream.server.fg"
 #define PRS_STREAM_SR_BG "stream.server.bg"
+#define PRS_GUI_SCROLLBAR_ON_RIGHT "gui.scrollbar_on_right"
 
 #define RED_COMPONENT(x)   ((((x) >> 16) & 0xff) * 65535 / 255)
 #define GREEN_COMPONENT(x) ((((x) >>  8) & 0xff) * 65535 / 255)
@@ -381,6 +383,14 @@ set_pref(gchar *pref, gchar *value) {
     prefs.st_server_bg.red   = RED_COMPONENT(cval);
     prefs.st_server_bg.green = GREEN_COMPONENT(cval);
     prefs.st_server_bg.blue  = BLUE_COMPONENT(cval);
+  } else if (strcmp(pref, PRS_GUI_SCROLLBAR_ON_RIGHT) == 0) {
+    if (strcmp(value, "TRUE") == 0) {
+	    prefs.gui_scrollbar_on_right = TRUE;
+    }
+    else {
+	    prefs.gui_scrollbar_on_right = FALSE;
+    }
+
   } else {
     return 0;
   }
@@ -463,6 +473,10 @@ write_prefs(void) {
     (prefs.st_server_bg.red * 255 / 65535),
     (prefs.st_server_bg.green * 255 / 65535),
     (prefs.st_server_bg.blue * 255 / 65535));
+
+  fprintf(pf, "\n# Vertical scrollbars should be on right side? TRUE/FALSE\n");
+  fprintf(pf, PRS_GUI_SCROLLBAR_ON_RIGHT ": %s\n",
+		  prefs.gui_scrollbar_on_right == TRUE ? "TRUE" : "FALSE");
 
   fclose(pf);
 }

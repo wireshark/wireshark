@@ -395,6 +395,14 @@ desired color.  The new text colors are displayed in a sample window.
 
 =back
 
+=item GUI Preferences
+
+The I<GUI> page is used to modify small aspects of the GUI to your own
+personal taste. The only current option is the placement of the
+vertical scrollbars in the three panes, either on the left or the right.
+
+=back
+
 =item Filters
 
 The I<Filters> dialog lets you create and modify filters, and set the

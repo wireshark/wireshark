@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.75 1999/12/16 04:11:33 gram Exp $
+ * $Id: main.c,v 1.76 1999/12/16 06:20:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -104,12 +104,14 @@
 #include "proto_draw.h"
 #include "dfilter.h"
 #include "keys.h"
+#include "gtkglobals.h"
 
 FILE        *data_out_file = NULL;
 packet_info  pi;
 capture_file cf;
 GtkWidget   *top_level, *file_sel, *packet_list, *tree_view, *byte_view,
-            *prog_bar, *info_bar;
+            *prog_bar, *info_bar, *tv_scrollw, *pkt_scrollw,
+	    *bv_vscroll_left, *bv_vscroll_right;
 GdkFont     *m_r_font, *m_b_font;
 guint        main_ctx, file_ctx;
 gchar        comp_info_str[256];
@@ -759,6 +761,28 @@ void expand_all_cb(GtkWidget *widget, gpointer data) {
 }
 
 void
+set_scrollbar_placement(int pos) /* 0=left, 1=right */
+{
+	if (pos) {
+		gtk_scrolled_window_set_placement( GTK_SCROLLED_WINDOW(pkt_scrollw),
+				GTK_CORNER_TOP_LEFT );
+		gtk_scrolled_window_set_placement( GTK_SCROLLED_WINDOW(tv_scrollw),
+				GTK_CORNER_TOP_LEFT );
+		gtk_widget_hide(bv_vscroll_left);
+		gtk_widget_show(bv_vscroll_right);
+	}
+	else {
+		gtk_scrolled_window_set_placement( GTK_SCROLLED_WINDOW(pkt_scrollw),
+				GTK_CORNER_TOP_RIGHT );
+		gtk_scrolled_window_set_placement( GTK_SCROLLED_WINDOW(tv_scrollw),
+				GTK_CORNER_TOP_RIGHT );
+		gtk_widget_hide(bv_vscroll_right);
+		gtk_widget_show(bv_vscroll_left);
+	}
+}
+
+
+void
 file_quit_cmd_cb (GtkWidget *widget, gpointer data) {
   /* If we have a capture file open, and it's a temporary file,
      unlink it. */
@@ -829,13 +853,12 @@ main(int argc, char *argv[])
   gboolean             capture_option_specified = FALSE;
 #endif
   GtkWidget           *main_vbox, *menubar, *u_pane, *l_pane,
-                      *bv_table, *bv_vscroll, *stat_hbox,
-                      *tv_scrollw, *filter_bt, *filter_cm, *filter_te,
+                      *bv_table, *stat_hbox,
+                      *filter_bt, *filter_cm, *filter_te,
                       *filter_reset;
   GList               *filter_list = NULL;
   GtkStyle            *pl_style;
   GtkAccelGroup       *accel;
-  GtkWidget	      *packet_sw;
   gint                 pl_size = 280, tv_size = 95, bv_size = 75;
   gchar               *rc_file, *cf_name = NULL, *rfilter = NULL;
   dfilter             *rfcode = NULL;
@@ -1186,11 +1209,11 @@ main(int argc, char *argv[])
   /* Packet list */
   packet_list = gtk_clist_new_with_titles(cf.cinfo.num_cols, cf.cinfo.col_title);
   gtk_clist_column_titles_passive(GTK_CLIST(packet_list));
-  packet_sw = gtk_scrolled_window_new(NULL, NULL);
-  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(packet_sw),
+  pkt_scrollw = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(pkt_scrollw),
     GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  gtk_widget_show(packet_sw);
-  gtk_container_add(GTK_CONTAINER(packet_sw), packet_list);
+  gtk_widget_show(pkt_scrollw);
+  gtk_container_add(GTK_CONTAINER(pkt_scrollw), packet_list);
   pl_style = gtk_style_new();
   gdk_font_unref(pl_style->font);
   pl_style->font = m_r_font;
@@ -1215,7 +1238,7 @@ main(int argc, char *argv[])
 						pl_style->font);
   }
   gtk_widget_set_usize(packet_list, -1, pl_size);
-  gtk_paned_add1(GTK_PANED(u_pane), packet_sw);
+  gtk_paned_add1(GTK_PANED(u_pane), pkt_scrollw);
   gtk_widget_show(packet_list);
   
   /* Tree view */
@@ -1241,8 +1264,14 @@ main(int argc, char *argv[])
   gdk_font_unref(item_style->font);
   item_style->font = m_r_font;
 
-  /* Byte view */
-  bv_table = gtk_table_new (2, 2, FALSE);
+  /* Byte view. The table is only one row high, but 3 columns
+   * wide. The middle column contains the GtkText with the hex dump.
+   * The left and right columns contain vertical scrollbars. They both
+   * do the same thing, but only one will be shown at a time, in accordance
+   * with where the user wants the other vertical scrollbars places
+   * (on the left or the right).
+   */
+  bv_table = gtk_table_new (1, 3, FALSE);
   gtk_paned_pack2(GTK_PANED(l_pane), bv_table, FALSE, FALSE);
   gtk_widget_set_usize(bv_table, -1, bv_size);
   gtk_widget_show(bv_table);
@@ -1250,7 +1279,7 @@ main(int argc, char *argv[])
   byte_view = gtk_text_new(NULL, NULL);
   gtk_text_set_editable(GTK_TEXT(byte_view), FALSE);
   gtk_text_set_word_wrap(GTK_TEXT(byte_view), FALSE);
-  gtk_table_attach (GTK_TABLE (bv_table), byte_view, 0, 1, 0, 1,
+  gtk_table_attach (GTK_TABLE (bv_table), byte_view, 1, 2, 0, 1,
     GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
   gtk_widget_show(byte_view);
 
@@ -1261,11 +1290,18 @@ main(int argc, char *argv[])
    * did not work well, and sometimes a few pixels were cut off on
    * the bottom. */
 
-  bv_vscroll = gtk_vscrollbar_new(GTK_TEXT(byte_view)->vadj);
-  gtk_table_attach(GTK_TABLE(bv_table), bv_vscroll, 1, 2, 0, 1,
+  bv_vscroll_left = gtk_vscrollbar_new(GTK_TEXT(byte_view)->vadj);
+  gtk_table_attach(GTK_TABLE(bv_table), bv_vscroll_left, 0, 1, 0, 1,
     GTK_FILL, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
-  gtk_widget_show(bv_vscroll);
-  
+
+  bv_vscroll_right = gtk_vscrollbar_new(GTK_TEXT(byte_view)->vadj);
+  gtk_table_attach(GTK_TABLE(bv_table), bv_vscroll_right, 2, 3, 0, 1,
+    GTK_FILL, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
+ 
+  /* Now that the 3 panes are created, set the vertical scrollbar
+   * on the left or right according to the user's preference */
+  set_scrollbar_placement(prefs->gui_scrollbar_on_right);
+
   /* Progress/filter/info box */
   stat_hbox = gtk_hbox_new(FALSE, 1);
   gtk_container_border_width(GTK_CONTAINER(stat_hbox), 0);
