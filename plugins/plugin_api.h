@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.36 2002/02/02 03:42:18 guy Exp $
+ * $Id: plugin_api.h,v 1.37 2002/02/20 08:24:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -48,10 +48,13 @@
 
 #define register_init_routine		(*p_register_init_routine)
 #define register_postseq_cleanup_routine	(*p_register_postseq_cleanup_routine)
-#define conversation_new		(*p_conversation_new)
-#define find_conversation		(*p_find_conversation)
+
 #define match_strval			(*p_match_strval)
 #define val_to_str			(*p_val_to_str)
+
+#define conversation_new		(*p_conversation_new)
+#define find_conversation		(*p_find_conversation)
+#define conversation_set_dissector	(*p_conversation_set_dissector)
 
 #define	proto_register_protocol		(*p_proto_register_protocol)
 #define	proto_register_field_array	(*p_proto_register_field_array)

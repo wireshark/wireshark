@@ -1,7 +1,7 @@
 /* plugin_api_defs.h
  * Define the variables that hold pointers to plugin API functions
  *
- * $Id: plugin_api_defs.h,v 1.11 2002/02/02 03:42:18 guy Exp $
+ * $Id: plugin_api_defs.h,v 1.12 2002/02/20 08:24:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -37,10 +37,13 @@ addr_col_set_str			p_col_set_str;
 
 addr_register_init_routine		p_register_init_routine;
 addr_register_postseq_cleanup_routine	p_register_postseq_cleanup_routine;
-addr_conversation_new			p_conversation_new;
-addr_find_conversation			p_find_conversation;
+
 addr_match_strval			p_match_strval;
 addr_val_to_str				p_val_to_str;
+
+addr_conversation_new			p_conversation_new;
+addr_find_conversation			p_find_conversation;
+addr_conversation_set_dissector		p_conversation_set_dissector;
 
 addr_proto_register_protocol		p_proto_register_protocol;
 addr_proto_register_field_array		p_proto_register_field_array;
