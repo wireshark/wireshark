@@ -248,7 +248,7 @@ call_acse_dissector(tvbuff_t *tvb, gint offset, gint param_len,
 	}
 }
 static char*
-string_to_hex(unsigned char * in,char * out,int len)
+string_to_hex(const unsigned char * in,char * out,int len)
 {
 	char ascii[MAXSTRING];
 	int  i;
@@ -504,7 +504,7 @@ print_value(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t *tvb,int
 	  gint    start = *offset;
 	  char    tmp[MAXSTRING];
 		*offset = asn->offset;  /* align to data*/
-		string_to_hex((char*)tvb_get_ptr(tvb,*offset,item_len),tmp,item_len);
+		string_to_hex(tvb_get_ptr(tvb,*offset,item_len),tmp,item_len);
 		proto_tree_add_text(pres_tree, tvb, *offset, item_len, tmp);
 		(*offset)=start+item_len;
 		asn->offset = (*offset);
