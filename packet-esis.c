@@ -2,7 +2,7 @@
  * Routines for ISO/OSI End System to Intermediate System  
  * Routing Exchange Protocol ISO 9542.
  *
- * $Id: packet-esis.c,v 1.23 2002/04/07 21:54:48 guy Exp $
+ * $Id: packet-esis.c,v 1.24 2002/04/07 22:00:34 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -65,11 +65,11 @@ static const value_string esis_vals[] = {
 /* internal prototypes */
 
 static void esis_dissect_esh_pdu( u_char len, tvbuff_t *tvb,
-                           packet_info *pinfo, proto_tree *treepd);
+                           proto_tree *treepd);
 static void esis_dissect_ish_pdu( u_char len, tvbuff_t *tvb,
-                           packet_info *pinfo, proto_tree *tree);
+                           proto_tree *tree);
 static void esis_dissect_redirect_pdu( u_char len, tvbuff_t *tvb,
-                           packet_info *pinfo, proto_tree *tree);
+                           proto_tree *tree);
 
 /* ################## Descriptions ###########################################*/
 /* Parameters for the ESH PDU
@@ -134,18 +134,16 @@ static void esis_dissect_redirect_pdu( u_char len, tvbuff_t *tvb,
  *   idea wether I need this or not.
  *  
  * Input
- *   int offset      : Current offset into packet data.
- *   int len         : length of to dump.
+ *   tvbuff_t *      : tvbuff with packet data.
  *   proto_tree *    : tree of display data.  May be NULL.
- *   frame_data * fd : frame data
  *   char *          : format text
+ *   subsequent args : arguments to format
  *
  * Output:
  *   void (may modify proto tree)
  */
 static void
-esis_dissect_unknown( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                      char *fmat, ...){
+esis_dissect_unknown( tvbuff_t *tvb, proto_tree *tree, char *fmat, ...){
   va_list ap;
 
   va_start(ap, fmat);
@@ -155,8 +153,7 @@ esis_dissect_unknown( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 static void
-esis_dissect_esh_pdu( u_char len, tvbuff_t *tvb, packet_info *pinfo,
-		      proto_tree *tree) {
+esis_dissect_esh_pdu( u_char len, tvbuff_t *tvb, proto_tree *tree) {
   proto_tree *esis_area_tree;
   int         offset  = 0;
   int         no_sa   = 0;
@@ -190,8 +187,7 @@ esis_dissect_esh_pdu( u_char len, tvbuff_t *tvb, packet_info *pinfo,
 } /* esis_dissect_esh_pdu */ ;
 
 static void
-esis_dissect_ish_pdu( u_char len, tvbuff_t *tvb, packet_info *pinfo,
-		      proto_tree *tree) {
+esis_dissect_ish_pdu( u_char len, tvbuff_t *tvb, proto_tree *tree) {
   
   int   offset  = 0;
   int   netl    = 0;
@@ -214,8 +210,7 @@ esis_dissect_ish_pdu( u_char len, tvbuff_t *tvb, packet_info *pinfo,
 };
 
 static void
-esis_dissect_redirect_pdu( u_char len, tvbuff_t *tvb, packet_info *pinfo,
-			   proto_tree *tree) {
+esis_dissect_redirect_pdu( u_char len, tvbuff_t *tvb, proto_tree *tree) {
 
   int   offset  = 0;
   int   tmpl    = 0;
@@ -273,9 +268,9 @@ esis_dissect_redirect_pdu( u_char len, tvbuff_t *tvb, packet_info *pinfo,
  *   main esis tree data and call the sub-protocols as needed.
  *
  * Input:
- *   tvbuff *     : tvbuff referring to packet data
- *   frame_data * : frame data (whole packet with extra info)
- *   proto_tree * : tree of display data.  May be NULL.
+ *   tvbuff *      : tvbuff referring to packet data
+ *   packet_info * : info for current packet
+ *   proto_tree *  : tree of display data.  May be NULL.
  *
  * Output:
  *   void, but we will add to the proto_tree if it is not NULL.
@@ -303,7 +298,7 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
      esis_tree = proto_item_add_subtree(ti, ett_esis);
 
      if (ehdr.esis_version != ESIS_REQUIRED_VERSION){
-       esis_dissect_unknown(tvb, pinfo, esis_tree,
+       esis_dissect_unknown(tvb, esis_tree,
                           "Unknown ESIS version (%u vs %u)",
                            ehdr.esis_version, ESIS_REQUIRED_VERSION );
        return;
@@ -378,17 +373,16 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
    switch (ehdr.esis_type & OSI_PDU_TYPE_MASK) {
      case ESIS_ESH_PDU:
-          esis_dissect_esh_pdu( variable_len, tvb, pinfo, esis_tree);
+          esis_dissect_esh_pdu( variable_len, tvb, esis_tree);
      break;
      case ESIS_ISH_PDU:
-          esis_dissect_ish_pdu( variable_len, tvb, pinfo, esis_tree);
+          esis_dissect_ish_pdu( variable_len, tvb, esis_tree);
      break;
      case ESIS_RD_PDU:
-          esis_dissect_redirect_pdu( variable_len, tvb, pinfo, 
-                                     esis_tree);
+          esis_dissect_redirect_pdu( variable_len, tvb, esis_tree);
      break;
      default:
-         esis_dissect_unknown(tvb, pinfo, esis_tree,
+         esis_dissect_unknown(tvb, esis_tree,
 			      "Unknown ESIS packet type 0x%x",
 			      ehdr.esis_type & OSI_PDU_TYPE_MASK );
    }
