@@ -9,7 +9,7 @@
 #	will be replaced by the pod-formatted glossary
 # STDOUT is the output
 #
-# $Id: dfilter2sgml,v 1.5 2002/09/10 15:49:57 sharpe Exp $
+# $Id$
 
 %ftenum_names = (
 	'FT_NONE',		'No value',

@@ -1,4 +1,6 @@
 <!-- EUG Chapter Capture -->
+<!-- $Id$ -->
+
 <chapter id="ChapterCapture">
   <title>Capturing Live Network Data</title>
   <section id="ChCapCapturingSection"><title>Start Capturing</title>

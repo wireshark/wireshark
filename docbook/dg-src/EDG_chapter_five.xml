@@ -1,4 +1,6 @@
 <!-- EDG Chapter Five -->
+<!-- $Id$-->
+
 <chapter id="Chap05">
 <title>Functions available to dissector writers</title>
 <section>

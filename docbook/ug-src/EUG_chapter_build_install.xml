@@ -1,4 +1,6 @@
 <!-- EUG Chapter BuildInstall -->
+<!-- $Id$ -->
+
 <chapter id="ChapterBuildInstall">
   <title>Building and Installing Ethereal</title>
   <section id="ChBuildInstallIntro">

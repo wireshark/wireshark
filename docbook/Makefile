@@ -2,8 +2,14 @@
 # Make the "Ethereal User's Guide" in several formats.
 # See the Readme.txt file for instructions.
 #
+# $Id$
+#
 
 # if you need to change this, don't forget to change it in catalog.xml too
+
+# On suse 9.1, uncomment the following line:
+#DOCBOOKXSL="/usr/share/xml/docbook/stylesheet/nwalsh/1.64.1"
+
 DOCBOOKXSL="/usr/share/docbook-xsl"
 
 # formatting objects processor
@@ -11,11 +17,11 @@ DOCBOOKXSL="/usr/share/docbook-xsl"
 # for win32 (cygwin) environments
 FOP="fop-0.20.5/fop.bat"
 # for unix like environments (if you have problems with fop, try to use an absolute path here)
-#FOP="fop-0.20.5/fop.sh"
+#FOP="/usr/share/fop-0.20.5/fop.sh"
 
 # html help compiler (Win32 only)
 # (comment this out, if you don't want chm or don't have hhc installed)
-HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
+#HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
 
 ############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
 
@@ -35,6 +41,10 @@ clean:
 	rm -f *.fo
 	rm -f *.pdf
 	rm -f *.chm
+	rm -rf eug_html
+	rm -rf eug_html_chunked
+	rm -rf toc.hhc htmlhelp.hhp eug_chm
+
 
 images:
 	cp $(DOCBOOKXSL)/images/note.png ./graphics

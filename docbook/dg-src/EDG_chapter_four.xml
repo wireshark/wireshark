@@ -1,4 +1,6 @@
 <!-- EDG Chapter Four -->
+<!-- $Id$ -->
+
 <chapter id="Chap04">
 <title>Writing a new dissector by example</title>
 <section>
