@@ -37,6 +37,7 @@ ethereal_SOURCES = \
 	packet-nbipx.c \
 	packet-nbns.c  \
 	packet-ncp.c   \
+	packet-nntp.c  \
 	packet-null.c  \
 	packet-osi.c   \
 	packet-ospf.c  \

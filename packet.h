@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.45 1999/04/05 21:54:41 guy Exp $
+ * $Id: packet.h,v 1.46 1999/04/06 02:02:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -222,6 +222,7 @@ enum {
 	ETT_FTP,
 	ETT_TELNET,
 	ETT_TELNET_SUBOPT,
+	ETT_NNTP,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -353,6 +354,7 @@ void dissect_nbdgm(const u_char *, int, frame_data *, proto_tree *);
 void dissect_nbipx_ns(const u_char *, int, frame_data *, proto_tree *);
 void dissect_nbns(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ncp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_nntp(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_nwlink_dg(const u_char *, int, frame_data *, proto_tree *);
 void dissect_osi(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ospf(const u_char *, int, frame_data *, proto_tree *);

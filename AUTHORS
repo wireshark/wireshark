@@ -53,6 +53,7 @@ Guy Harris           <guy@netapp.com> {
     Bitfield decoding
     IP and TCP option decoding
     HTTP support
+    NNTP support
     Miscellaneous enhancements and fixes
 }
 
