@@ -1103,7 +1103,7 @@ B<http://www.ethereal.com>.
   Scott Renfro             <scott@renfro.org>
   Juan Toledo              <toledo@users.sourceforge.net>
   Jean-Christian Pennetier <jeanchristian.pennetier@rd.francetelecom.fr>
-  (unknown)                <bgp4news@yahoo.com>
+  Jian Yu                  <bgp4news@yahoo.com>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
