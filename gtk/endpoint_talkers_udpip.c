@@ -1,7 +1,7 @@
 /* endpoint_talkers_udpip.c
  * endpoint_talkers_udpip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_udpip.c,v 1.14 2003/09/04 11:07:51 sahlberg Exp $
+ * $Id: endpoint_talkers_udpip.c,v 1.15 2003/09/04 23:11:03 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,11 +64,6 @@ static void
 gtk_udpip_talkers_init(char *optarg)
 {
 	char *filter=NULL;
-	endpoints_table *talkers;
-	GtkWidget *vbox;
-	GtkWidget *label;
-	GString *error_string;
-	char title[256];
 
 	if(!strncmp(optarg,"talkers,udp,",12)){
 		filter=optarg+12;
@@ -76,40 +71,8 @@ gtk_udpip_talkers_init(char *optarg)
 		filter=NULL;
 	}
 
-	talkers=g_malloc(sizeof(endpoints_table));
+	init_ett_table(FALSE, "UDP", "udp", filter, (void *)udpip_talkers_packet);
 
-	talkers->name="UDP";
-	talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
-	snprintf(title, 255, "UDP Talkers: %s", get_basename(cfile.filename));
-	gtk_window_set_title(GTK_WINDOW(talkers->win), title);
-
-	SIGNAL_CONNECT(talkers->win, "destroy", ett_win_destroy_cb, talkers);
-
-	vbox=gtk_vbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(talkers->win), vbox);
-	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
-	gtk_widget_show(vbox);
-
-	label=gtk_label_new("UDP Talkers");
-	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-	gtk_widget_show(label);
-
-	/* We must display TOP LEVEL Widget before calling init_ett_table() */
-	gtk_widget_show(talkers->win);
-
-	init_ett_table(talkers, vbox, FALSE);
-
-	error_string=register_tap_listener("udp", talkers, filter, (void *)reset_ett_table_data, udpip_talkers_packet, (void *)draw_ett_table_data);
-	if(error_string){
-		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
-		g_string_free(error_string, TRUE);
-		g_free(talkers);
-		return;
-	}
-
-	gtk_widget_show_all(talkers->win);
-	redissect_packets(&cfile);
 }
 
 

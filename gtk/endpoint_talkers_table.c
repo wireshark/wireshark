@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.11 2003/09/04 11:07:50 sahlberg Exp $
+ * $Id: endpoint_talkers_table.c,v 1.12 2003/09/04 23:11:03 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,7 @@
 #include "tap.h"
 
 extern GtkWidget   *main_display_filter_widget;
+
 
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
 
@@ -195,24 +196,8 @@ typedef struct column_arrows {
 } column_arrows;
 
 
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
-void
-ett_win_destroy_cb(GtkWindow *win _U_, gpointer data)
-{
-	endpoints_table *talkers=(endpoints_table *)data;
 
-	protect_thread_critical_region();
-	remove_tap_listener(talkers);
-	unprotect_thread_critical_region();
-
-	reset_ett_table_data(talkers);
-	g_free(talkers);
-}
-
-
-
-void
+static void
 reset_ett_table_data(endpoints_table *et)
 {
 	guint32 i;
@@ -235,6 +220,23 @@ reset_ett_table_data(endpoints_table *et)
 	et->endpoints=NULL;
 	et->num_endpoints=0;
 }
+
+
+void protect_thread_critical_region(void);
+void unprotect_thread_critical_region(void);
+static void
+ett_win_destroy_cb(GtkWindow *win _U_, gpointer data)
+{
+	endpoints_table *talkers=(endpoints_table *)data;
+
+	protect_thread_critical_region();
+	remove_tap_listener(talkers);
+	unprotect_thread_critical_region();
+
+	reset_ett_table_data(talkers);
+	g_free(talkers);
+}
+
 
 
 static gint
@@ -519,7 +521,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 }
 
 static gint
-ett_show_popup_menu_cb(endpoints_table *et, GdkEvent *event, gpointer vet)
+ett_show_popup_menu_cb(endpoints_table *et, GdkEvent *event, gpointer vet _U_)
 {
 	GdkEventButton *bevent = (GdkEventButton *)event;
 
@@ -794,10 +796,42 @@ ett_create_popup_menu(endpoints_table *et)
 
 
 
+/* XXX should freeze/thaw table here and in the srt thingy? */
+static void 
+draw_ett_table_data(endpoints_table *et)
+{
+	guint32 i;
+	int j;
+
+	for(i=0;i<et->num_endpoints;i++){
+		char str[16];
+
+		j=gtk_clist_find_row_from_data(et->table, (gpointer)i);
+
+		sprintf(str, "%u", et->endpoints[i].tx_frames+et->endpoints[i].rx_frames);
+		gtk_clist_set_text(et->table, j, 4, str);		
+		sprintf(str, "%u", et->endpoints[i].tx_bytes+et->endpoints[i].rx_bytes);
+		gtk_clist_set_text(et->table, j, 5, str);		
+
+
+		sprintf(str, "%u", et->endpoints[i].tx_frames);
+		gtk_clist_set_text(et->table, j, 6, str);	
+		sprintf(str, "%u", et->endpoints[i].tx_bytes);
+		gtk_clist_set_text(et->table, j, 7, str);		
+
+
+		sprintf(str, "%u", et->endpoints[i].rx_frames);
+		gtk_clist_set_text(et->table, j, 8, str);		
+		sprintf(str, "%u", et->endpoints[i].rx_bytes);
+		gtk_clist_set_text(et->table, j, 9, str);		
+
+	}
+	gtk_clist_sort(et->table);
+}
 
 
 void
-init_ett_table(endpoints_table *et, GtkWidget *vbox, gboolean hide_ports)
+init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
 {
 	int i;
 	column_arrows *col_arrows;
@@ -805,25 +839,54 @@ init_ett_table(endpoints_table *et, GtkWidget *vbox, gboolean hide_ports)
 	GdkPixmap *ascend_pm, *descend_pm;
 	GtkStyle *win_style;
 	GtkWidget *column_lb;
+	GString *error_string;
+	endpoints_table *talkers;
+	GtkWidget *vbox;
+	GtkWidget *label;
+	char title[256];
 	char *default_titles[] = { "EP1 Address", "Port", "EP2 Address", "Port", "Frames", "Bytes", "-> Frames", "-> Bytes", "<- Frames", "<- Bytes" };
 
 
-	et->scrolled_window=gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(et->scrolled_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
-	gtk_box_pack_start(GTK_BOX(vbox), et->scrolled_window, TRUE, TRUE, 0);
+	talkers=g_malloc(sizeof(endpoints_table));
 
-	et->table=(GtkCList *)gtk_clist_new(NUM_COLS);
+	talkers->name=table_name;
+	talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
+	snprintf(title, 255, "%s Talkers: %s", table_name, get_basename(cfile.filename));
+	gtk_window_set_title(GTK_WINDOW(talkers->win), title);
 
-	gtk_widget_show(GTK_WIDGET(et->table));
-	gtk_widget_show(et->scrolled_window);
+	SIGNAL_CONNECT(talkers->win, "destroy", ett_win_destroy_cb, talkers);
+
+	vbox=gtk_vbox_new(FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(talkers->win), vbox);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
+	gtk_widget_show(vbox);
+
+	snprintf(title, 255, "%s Talkers", table_name);
+	label=gtk_label_new(title);
+	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
+	gtk_widget_show(label);
+
+	/* We must display TOP LEVEL Widget before calling init_ett_table() */
+	gtk_widget_show(talkers->win);
+
+
+	talkers->scrolled_window=gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(talkers->scrolled_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+	gtk_box_pack_start(GTK_BOX(vbox), talkers->scrolled_window, TRUE, TRUE, 0);
+
+	talkers->table=(GtkCList *)gtk_clist_new(NUM_COLS);
+
+	gtk_widget_show(GTK_WIDGET(talkers->table));
+	gtk_widget_show(talkers->scrolled_window);
 
 	col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * NUM_COLS);
-	win_style = gtk_widget_get_style(et->scrolled_window);
-	ascend_pm = gdk_pixmap_create_from_xpm_d(et->scrolled_window->window,
+	win_style = gtk_widget_get_style(talkers->scrolled_window);
+	ascend_pm = gdk_pixmap_create_from_xpm_d(talkers->scrolled_window->window,
 			&ascend_bm,
 			&win_style->bg[GTK_STATE_NORMAL],
 			(gchar **)clist_ascend_xpm);
-	descend_pm = gdk_pixmap_create_from_xpm_d(et->scrolled_window->window,
+	descend_pm = gdk_pixmap_create_from_xpm_d(talkers->scrolled_window->window,
 			&descend_bm,
 			&win_style->bg[GTK_STATE_NORMAL],
 			(gchar **)clist_descend_xpm);
@@ -842,50 +905,64 @@ init_ett_table(endpoints_table *et, GtkWidget *vbox, gboolean hide_ports)
 		if (i == 4) {
 			gtk_widget_show(col_arrows[i].descend_pm);
 		}
-		gtk_clist_set_column_widget(GTK_CLIST(et->table), i, col_arrows[i].table);
+		gtk_clist_set_column_widget(GTK_CLIST(talkers->table), i, col_arrows[i].table);
 		gtk_widget_show(col_arrows[i].table);
 	}
-	gtk_clist_column_titles_show(GTK_CLIST(et->table));
+	gtk_clist_column_titles_show(GTK_CLIST(talkers->table));
 
-	gtk_clist_set_compare_func(et->table, ett_sort_column);
-	gtk_clist_set_sort_column(et->table, 4);
-	gtk_clist_set_sort_type(et->table, GTK_SORT_DESCENDING);
+	gtk_clist_set_compare_func(talkers->table, ett_sort_column);
+	gtk_clist_set_sort_column(talkers->table, 4);
+	gtk_clist_set_sort_type(talkers->table, GTK_SORT_DESCENDING);
 
 
 	/*XXX instead of this we should probably have some code to
 		dynamically adjust the width of the columns */
-	gtk_clist_set_column_width(et->table, 0, 100);
-	gtk_clist_set_column_width(et->table, 1, 40);
-	gtk_clist_set_column_width(et->table, 2, 100);
-	gtk_clist_set_column_width(et->table, 3, 40);
-	gtk_clist_set_column_width(et->table, 4, 70);
-	gtk_clist_set_column_width(et->table, 5, 60);
-	gtk_clist_set_column_width(et->table, 6, 70);
-	gtk_clist_set_column_width(et->table, 7, 60);
-	gtk_clist_set_column_width(et->table, 8, 70);
-	gtk_clist_set_column_width(et->table, 9, 60);
+	gtk_clist_set_column_width(talkers->table, 0, 100);
+	gtk_clist_set_column_width(talkers->table, 1, 40);
+	gtk_clist_set_column_width(talkers->table, 2, 100);
+	gtk_clist_set_column_width(talkers->table, 3, 40);
+	gtk_clist_set_column_width(talkers->table, 4, 70);
+	gtk_clist_set_column_width(talkers->table, 5, 60);
+	gtk_clist_set_column_width(talkers->table, 6, 70);
+	gtk_clist_set_column_width(talkers->table, 7, 60);
+	gtk_clist_set_column_width(talkers->table, 8, 70);
+	gtk_clist_set_column_width(talkers->table, 9, 60);
 
 
-	gtk_clist_set_shadow_type(et->table, GTK_SHADOW_IN);
-	gtk_clist_column_titles_show(et->table);
-	gtk_container_add(GTK_CONTAINER(et->scrolled_window), (GtkWidget *)et->table);
+	gtk_clist_set_shadow_type(talkers->table, GTK_SHADOW_IN);
+	gtk_clist_column_titles_show(talkers->table);
+	gtk_container_add(GTK_CONTAINER(talkers->scrolled_window), (GtkWidget *)talkers->table);
 
-	SIGNAL_CONNECT(et->table, "click-column", ett_click_column_cb, col_arrows);
+	SIGNAL_CONNECT(talkers->table, "click-column", ett_click_column_cb, col_arrows);
 
-	gtk_widget_show(GTK_WIDGET(et->table));
-	gtk_widget_show(et->scrolled_window);
+	gtk_widget_show(GTK_WIDGET(talkers->table));
+	gtk_widget_show(talkers->scrolled_window);
 
-	et->num_endpoints=0;
-	et->endpoints=NULL;
+	talkers->num_endpoints=0;
+	talkers->endpoints=NULL;
 
 	/* hide srcport and dstport if we dont use ports */
 	if(hide_ports){
-		gtk_clist_set_column_visibility(et->table, 1, FALSE);
-		gtk_clist_set_column_visibility(et->table, 3, FALSE);
+		gtk_clist_set_column_visibility(talkers->table, 1, FALSE);
+		gtk_clist_set_column_visibility(talkers->table, 3, FALSE);
 	}
 
 	/* create popup menu for this table */
-	ett_create_popup_menu(et);
+	ett_create_popup_menu(talkers);
+
+
+	/* register the tap and resissect the packet list */
+	error_string=register_tap_listener(tap_name, talkers, filter, (void *)reset_ett_table_data, packet_func, (void *)draw_ett_table_data);
+	if(error_string){
+		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
+		g_string_free(error_string, TRUE);
+		g_free(talkers);
+		return;
+	}
+
+	gtk_widget_show_all(talkers->win);
+	redissect_packets(&cfile);
+
 }
 
 
@@ -1024,35 +1101,3 @@ add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_
 }
 
 
-/* XXX should freeze/thaw table here and in the srt thingy? */
-void 
-draw_ett_table_data(endpoints_table *et)
-{
-	guint32 i;
-	int j;
-
-	for(i=0;i<et->num_endpoints;i++){
-		char str[16];
-
-		j=gtk_clist_find_row_from_data(et->table, (gpointer)i);
-
-		sprintf(str, "%u", et->endpoints[i].tx_frames+et->endpoints[i].rx_frames);
-		gtk_clist_set_text(et->table, j, 4, str);		
-		sprintf(str, "%u", et->endpoints[i].tx_bytes+et->endpoints[i].rx_bytes);
-		gtk_clist_set_text(et->table, j, 5, str);		
-
-
-		sprintf(str, "%u", et->endpoints[i].tx_frames);
-		gtk_clist_set_text(et->table, j, 6, str);	
-		sprintf(str, "%u", et->endpoints[i].tx_bytes);
-		gtk_clist_set_text(et->table, j, 7, str);		
-
-
-		sprintf(str, "%u", et->endpoints[i].rx_frames);
-		gtk_clist_set_text(et->table, j, 8, str);		
-		sprintf(str, "%u", et->endpoints[i].rx_bytes);
-		gtk_clist_set_text(et->table, j, 9, str);		
-
-	}
-	gtk_clist_sort(et->table);
-}

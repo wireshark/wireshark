@@ -2,7 +2,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers taps.
  *
- * $Id: endpoint_talkers_table.h,v 1.7 2003/09/04 11:07:51 sahlberg Exp $
+ * $Id: endpoint_talkers_table.h,v 1.8 2003/09/04 23:11:03 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,8 +22,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
-#include <gtk/gtk.h>
 
 typedef struct _endpoint_talker_t {
 	address src_address;
@@ -51,9 +49,9 @@ typedef struct _endpoints_table {
 	endpoint_talker_t *endpoints;
 } endpoints_table;
 
-void reset_ett_table_data(endpoints_table *et);
 
-void init_ett_table(endpoints_table *et, GtkWidget *vbox, gboolean hide_ports);
+
+void init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
 
 
 #define SAT_NONE		0
@@ -62,6 +60,3 @@ void init_ett_table(endpoints_table *et, GtkWidget *vbox, gboolean hide_ports);
 #define SAT_TOKENRING		3
 void add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, int sat, int port_type);
 
-void draw_ett_table_data(endpoints_table *et);
-
-void ett_win_destroy_cb(GtkWindow *win _U_, gpointer data);
