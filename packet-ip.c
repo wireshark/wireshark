@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.34 1999/08/09 18:18:38 gram Exp $
+ * $Id: packet-ip.c,v 1.35 1999/08/10 04:57:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -816,7 +816,11 @@ static const gchar *unreach_str[] = {"Network unreachable",
                                      "Port unreachable",
                                      "Fragmentation needed",
                                      "Source route failed",
-                                     "Administratively prohibited",
+                                     "Destination network unknown",
+                                     "Destination host unknown",
+                                     "Source host isolated",
+                                     "Network administratively prohibited",
+                                     "Host administratively prohibited",
                                      "Network unreachable for TOS",
                                      "Host unreachable for TOS",
                                      "Communication administratively filtered",
