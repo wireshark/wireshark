@@ -146,7 +146,7 @@ call_ber_oid_callback(char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 
-static int dissect_ber_sq_of(gboolean implicit_tag, guint32 type, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_sequence *seq, gint hf_id, gint ett_id);
+static int dissect_ber_sq_of(gboolean implicit_tag, guint32 type, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id);
 
 /* 8.1 General rules for encoding */
 
@@ -787,7 +787,7 @@ int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, pro
 	return eoffset;
 }
 
-static int dissect_ber_sq_of(gboolean implicit_tag, guint32 type, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_sequence *seq, gint hf_id, gint ett_id) {
+static int dissect_ber_sq_of(gboolean implicit_tag, guint32 type, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id) {
 	guint8 class;
 	gboolean pc, ind;
 	guint32 tag;
@@ -885,11 +885,11 @@ static int dissect_ber_sq_of(gboolean implicit_tag, guint32 type, packet_info *p
 	return end_offset;
 }
 
-int dissect_ber_sequence_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_sequence *seq, gint hf_id, gint ett_id) {
+int dissect_ber_sequence_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id) {
 	return dissect_ber_sq_of(implicit_tag, BER_UNI_TAG_SEQUENCE, pinfo, parent_tree, tvb, offset, seq, hf_id, ett_id);
 }
 
-int dissect_ber_set_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_sequence *seq, gint hf_id, gint ett_id) {
+int dissect_ber_set_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id) {
 	return dissect_ber_sq_of(implicit_tag, BER_UNI_TAG_SET, pinfo, parent_tree, tvb, offset, seq, hf_id, ett_id);
 }
 
