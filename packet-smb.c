@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.291 2002/08/31 07:26:10 sharpe Exp $
+ * $Id: packet-smb.c,v 1.292 2002/09/04 05:46:01 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5745,6 +5745,14 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		blob_item = proto_tree_add_item(tree, hf_smb_security_blob,
 						tvb, offset, sbloblen, TRUE);
 
+		/* As an optimization, because Windows is perverse,
+		   we check to see if NTLMSSP is the first part of the 
+		   blob, and if so, call the NTLMSSP dissector,
+		   otherwise we call the GSS-API dissector. This is because
+		   Windows can request RAW NTLMSSP, but will happily handle
+		   a client that wraps NTLMSSP in SPNEGO
+		*/
+
 		if(sbloblen){
 			tvbuff_t *blob_tvb;
 
@@ -5753,7 +5761,9 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			blob_tvb = tvb_new_subset(tvb, offset, sbloblen, 
 						  sbloblen);
 
-			if (si && si->ct && si->ct->raw_ntlmssp) {
+			if (si && si->ct && si->ct->raw_ntlmssp && 
+			    !strncmp("NTLMSSP", 
+				     tvb_get_ptr(tvb, offset, 7), 7)) {
 			  proto_tree *ntlmssp_tree;
 
 			  ntlmssp_tree = proto_item_add_subtree(blob_item, 
@@ -5969,7 +5979,9 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			blob_tvb = tvb_new_subset(tvb, offset, sbloblen, 
 						    sbloblen);
 
-			if (si && si->ct && si->ct->raw_ntlmssp) {
+			if (si && si->ct && si->ct->raw_ntlmssp && 
+			    !strncmp("NTLMSSP", 
+				     tvb_get_ptr(tvb, offset, 7), 7)) {
 			  proto_tree *ntlmssp_tree;
 
 			  ntlmssp_tree = proto_item_add_subtree(blob_item, 
