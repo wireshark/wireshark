@@ -2,15 +2,15 @@
  * Routines for Stream Control Transmission Protocol dissection
  * It should be compilant to
  * - RFC 2960, for basic SCTP support
- * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-05.txt for the add-IP extension
- * - http://www.ietf.org/internet-drafts/draft-stewart-prsctp-00.txt for the 'Partial Reliability' extension
+ * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-06.txt for the add-IP extension
+ * - http://www.ietf.org/internet-drafts/draft-stewart-tsvwg-prsctp-01.txt for the 'Partial Reliability' extension
  * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctpcsum-07.txt
  * Copyright 2000, 2001, 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  * Still to do (so stay tuned)
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.38 2002/06/08 21:54:52 guy Exp $
+ * $Id: packet-sctp.c,v 1.39 2002/06/28 22:38:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,6 +126,8 @@ static int hf_sctp_cause_measure_of_staleness = -1;
 static int hf_sctp_cause_tsn = -1;
 
 static int hf_sctp_forward_tsn_chunk_tsn = -1;
+static int hf_sctp_forward_tsn_chunk_sid = -1;
+static int hf_sctp_forward_tsn_chunk_ssn = -1;
 
 static int hf_sctp_asconf_ack_serial = -1;
 static int hf_sctp_asconf_serial = -1;
@@ -289,10 +291,10 @@ static const value_string sctp_parameter_identifier_values[] = {
 #define NO_USER_DATA                               0x09
 #define COOKIE_RECEIVED_WHILE_SHUTTING_DOWN        0x0a
 #define RESTART_WITH_NEW_ADDRESSES                 0x0b
-#define REQUEST_TO_DELETE_LAST_ADDRESS             0x0c
-#define OPERATION_REFUSED_DUE_TO_RESOURCE_SHORTAGE 0X0d
-#define REQUEST_TO_DELETE_SOURCE_ADDRESS           0x0e
-#define ABORT_DUE_TO_ILLEGAL_ASCONF                0x0f
+#define REQUEST_TO_DELETE_LAST_ADDRESS             0x0100
+#define OPERATION_REFUSED_DUE_TO_RESOURCE_SHORTAGE 0X0101
+#define REQUEST_TO_DELETE_SOURCE_ADDRESS           0x0102
+#define ABORT_DUE_TO_ILLEGAL_ASCONF                0x0103
 
 static const value_string sctp_cause_code_values[] = {
   { INVALID_STREAM_IDENTIFIER,                  "Invalid stream identifier" },
@@ -1812,13 +1814,19 @@ dissect_shutdown_complete_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo,
   } 
 }
 
-#define FORWARD_TSN_CHUNK_TSN_OFFSET CHUNK_VALUE_OFFSET
 #define FORWARD_TSN_CHUNK_TSN_LENGTH 4
+#define FORWARD_TSN_CHUNK_SID_LENGTH 2
+#define FORWARD_TSN_CHUNK_SSN_LENGTH 2
+#define FORWARD_TSN_CHUNK_TSN_OFFSET CHUNK_VALUE_OFFSET
+#define FORWARD_TSN_CHUNK_SID_OFFSET 0
+#define FORWARD_TSN_CHUNK_SSN_OFFSET (FORWARD_TSN_CHUNK_SID_OFFSET + FORWARD_TSN_CHUNK_SID_LENGTH)
 
 static void
 dissect_forward_tsn_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item)
 { 
   guint32 tsn;
+  guint   offset;
+  guint16 number_of_affected_streams, affected_stream, length, sid, ssn;
   
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_str(pinfo->cinfo, COL_INFO, "FORWARD TSN ");
@@ -1826,6 +1834,20 @@ dissect_forward_tsn_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *c
   if (chunk_tree) {
     tsn = tvb_get_ntohl(chunk_tvb, FORWARD_TSN_CHUNK_TSN_OFFSET);
     proto_tree_add_uint(chunk_tree, hf_sctp_forward_tsn_chunk_tsn, chunk_tvb, FORWARD_TSN_CHUNK_TSN_OFFSET, FORWARD_TSN_CHUNK_TSN_LENGTH, tsn);
+    length = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET);
+    number_of_affected_streams = (length - CHUNK_HEADER_LENGTH - FORWARD_TSN_CHUNK_TSN_LENGTH) /
+                                 (FORWARD_TSN_CHUNK_SID_LENGTH + FORWARD_TSN_CHUNK_SSN_LENGTH);
+    offset = CHUNK_VALUE_OFFSET + FORWARD_TSN_CHUNK_TSN_LENGTH;
+    
+    for(affected_stream = 0;  affected_stream < number_of_affected_streams; affected_stream++) {
+        sid    = tvb_get_ntohs(chunk_tvb, offset + FORWARD_TSN_CHUNK_SID_OFFSET);
+        ssn    = tvb_get_ntohs(chunk_tvb, offset + FORWARD_TSN_CHUNK_SSN_OFFSET);
+        proto_tree_add_uint(chunk_tree, hf_sctp_forward_tsn_chunk_sid, 
+			                chunk_tvb, offset + FORWARD_TSN_CHUNK_SID_OFFSET, FORWARD_TSN_CHUNK_SID_LENGTH, sid);
+        proto_tree_add_uint(chunk_tree, hf_sctp_forward_tsn_chunk_ssn, 
+			                chunk_tvb, offset + FORWARD_TSN_CHUNK_SSN_OFFSET, FORWARD_TSN_CHUNK_SSN_LENGTH, ssn);
+        offset = offset + (FORWARD_TSN_CHUNK_SID_LENGTH + FORWARD_TSN_CHUNK_SSN_LENGTH);
+    }
     proto_item_set_text(chunk_item, "FORWARD TSN chunk (new cumulative TSN %u)", tsn);
   } 
 }
@@ -2344,6 +2366,16 @@ proto_register_sctp(void)
     {&hf_sctp_forward_tsn_chunk_tsn,
      { "New cumulative TSN", "sctp.forward_tsn.tsn",
        FT_UINT32, BASE_DEC, NULL, 0x0,          
+       "", HFILL }
+    }, 
+    {&hf_sctp_forward_tsn_chunk_sid,
+     { "Stream identifier", "sctp.forward_tsn.sid",
+       FT_UINT16, BASE_DEC, NULL, 0x0,          
+       "", HFILL }
+    }, 
+    {&hf_sctp_forward_tsn_chunk_ssn,
+     { "Stream sequence number", "sctp.forward_tsn.ssn",
+       FT_UINT16, BASE_DEC, NULL, 0x0,          
        "", HFILL }
     }, 
     {&hf_sctp_chunk_parameter_type,
