@@ -1,8 +1,15 @@
-$Id: NEWS,v 1.118 2002/12/08 02:34:41 gerald Exp $
+$Id: NEWS,v 1.119 2002/12/08 02:52:57 gerald Exp $
 
 == December 7, 2002
 
 Ethereal 0.9.8 has been released.
+
+  Serious problems with the BGP, LMP, PPP, and TDS dissectors have been
+  discovered.  See 
+  
+    http://www.ethereal.com/appnotes/enpa-sa-00007.html
+  
+  for more details.
 
 
 New and Updated Features
@@ -28,13 +35,6 @@ Bug Fixes and Updates
 
   A bug which caused Ethereal under Windows to crash when "Update list of
   packets in real time" was enabled has been fixed.
-
-  Serious problems with the BGP, LMP, PPP, and TDS dissectors have been
-  discovered.  See 
-  
-    http://www.ethereal.com/appnotes/enpa-sa-00007.html
-  
-  for more details.
 
   The stability of the text2pcap utility has been improved.
 
