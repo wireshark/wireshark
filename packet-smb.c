@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.372 2003/10/01 08:53:12 guy Exp $
+ * $Id: packet-smb.c,v 1.373 2003/10/23 08:40:56 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7720,7 +7720,7 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset = offset;
-	guint16 revision;
+	guint8  revision;
 	guint32 num_aces;
 
 	if(parent_tree){
@@ -7730,9 +7730,9 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	/* revision */
-	revision = tvb_get_letohs(tvb, offset);
+	revision = tvb_get_guint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_acl_revision,
-		tvb, offset, 2, revision);
+		tvb, offset, 1, revision);
 	offset += 2;
 
 	switch(revision){
@@ -18754,7 +18754,7 @@ proto_register_smb(void)
 		NULL, 0, "Number of authorities for this SID", HFILL }},
 
 	{ &hf_smb_acl_revision,
-		{ "Revision", "smb.acl.revision", FT_UINT16, BASE_DEC,
+		{ "Revision", "smb.acl.revision", FT_UINT8, BASE_DEC,
 		NULL, 0, "Version of NT ACL structure", HFILL }},
 
 	{ &hf_smb_acl_size,
