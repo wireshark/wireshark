@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.6 1998/10/12 01:40:56 gerald Exp $
+ * $Id: print.c,v 1.7 1998/10/22 19:10:17 gram Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -344,7 +344,7 @@ void print_tree_text(FILE *fh, const u_char *pd, frame_data *fd, GtkTree *tree)
 		if (subtree) {
 				print_tree_text(fh, pd, fd, GTK_TREE(subtree));
 		}
-		else if (strcmp("Data", text) == 0) {
+		else if (strncmp("Data (", text, 6) == 0) {
 			data_start = (gint) gtk_object_get_data(GTK_OBJECT(child->data),
       	E_TREEINFO_START_KEY);
 			data_len = (gint) gtk_object_get_data(GTK_OBJECT(child->data),
@@ -459,7 +459,7 @@ void print_tree_ps(FILE *fh, const u_char *pd, frame_data *fd, GtkTree *tree)
 		if (subtree) {
 				print_tree_ps(fh, pd, fd, GTK_TREE(subtree));
 		}
-		else if (strcmp("Data", text) == 0) {
+		else if (strncmp("Data (", text, 6) == 0) {
 			data_start = (gint) gtk_object_get_data(GTK_OBJECT(child->data),
       	E_TREEINFO_START_KEY);
 			data_len = (gint) gtk_object_get_data(GTK_OBJECT(child->data),
