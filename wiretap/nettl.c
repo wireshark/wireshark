@@ -678,7 +678,6 @@ int nettl_dump_can_write_encap(int encap)
    sets "*err" to an error code on failure */
 gboolean nettl_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 {
-	/*guint32 magic;*/
 	struct nettl_file_hdr file_hdr;
 	size_t nwritten;
 
@@ -704,7 +703,7 @@ gboolean nettl_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 			*err = WTAP_ERR_SHORT_WRITE;
 		return FALSE;
 	}
-	wdh->bytes_dumped += sizeof(guint32) /* magic */;
+	wdh->bytes_dumped += sizeof(file_hdr);
 
 	return TRUE;
 }
