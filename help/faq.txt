@@ -215,7 +215,7 @@ General Questions
 
    Q 1.2: What protocols are currently supported?
 
-   A: There are currently 442 supported protocols and media, listed
+   A: There are currently 472 supported protocols and media, listed
    below. Descriptions can be found in the ethereal(1) man page.
 
             802.1q Virtual LAN
@@ -230,6 +230,7 @@ General Questions
             ANSI Mobile Application Part
             AOL Instant Messenger
             ARCNET
+            ASN.1 BER
             ATM
             ATM AAL1
             ATM AAL3/4
@@ -273,6 +274,7 @@ General Questions
             Building Automation and Control Network NPDU
             CCSDS
             CDS Clerk Server Calls
+            Cast Client Control Protocol
             Check Point High Availability Protocol
             Checkpoint FW-1
             Cisco Auto-RP
@@ -288,9 +290,9 @@ General Questions
             CoSine IPNOS L2 debug output
             Common Open Policy Service
             Common Unix Printing System (CUPS) Browsing Protocol
+            Compuserve GIF
             Connectionless Lightweight Directory Access Protocol
             Cross Point Frame Injector
-            DCE DFS Calls
             DCE Distributed Time Service Local Server
             DCE Distributed Time Service Provider
             DCE Name Service
@@ -301,6 +303,7 @@ General Questions
             DCE/RPC BUTC
             DCE/RPC CDS Solicitation
             DCE/RPC Conversation Manager
+            DCE/RPC Directory Acl Interface
             DCE/RPC Endpoint Mapper
             DCE/RPC Endpoint Mapper4
             DCE/RPC FLDB
@@ -308,11 +311,20 @@ General Questions
             DCE/RPC FLDB UBIKVOTE
             DCE/RPC ICL RPC
             DCE/RPC Kerberos V
+            DCE/RPC NCS 1.5.1 Local Location Broker
+            DCE/RPC Operations between registry server replicas
+            DCE/RPC Prop Attr
             DCE/RPC RS_ACCT
             DCE/RPC RS_BIND
             DCE/RPC RS_MISC
             DCE/RPC RS_PROP_ACCT
             DCE/RPC RS_UNIX
+            DCE/RPC Registry Password Management
+            DCE/RPC Registry Server Attributes Schema
+            DCE/RPC Registry server propagation interface - ACLs.
+            DCE/RPC Registry server propagation interface - PGO items
+            DCE/RPC Registry server propagation interface - properties and poli
+cies
             DCE/RPC Remote Management
             DCE/RPC Repserver Calls
             DCE/RPC TokenServer Calls
@@ -320,6 +332,7 @@ General Questions
             DCOM OXID Resolver
             DCOM Remote Activation
             DEC Spanning Tree Protocol
+            DFS Calls
             DHCPv6
             DNS Control Program Server
             Data
@@ -366,6 +379,7 @@ General Questions
             GSM A-I/F RP
             GSM Mobile Application Part
             GSM SMS TPDU (GSM 03.40)
+            GSM Short Message Service User Data
             General Inter-ORB Protocol
             Generic Routing Encapsulation
             Generic Security Service Application Program Interface
@@ -378,7 +392,9 @@ General Questions
             Hummingbird NFS Daemon
             HyperSCSI
             Hypertext Transfer Protocol
+            IAX2
             ICQ Protocol
+            IEEE 802.11 Radiotap Capture header
             IEEE 802.11 wireless LAN
             IEEE 802.11 wireless LAN management frame
             ILMI
@@ -395,6 +411,7 @@ General Questions
             ISO 8327-1 OSI Session Protocol
             ISO 8473 CLNP ConnectionLess Network Protocol
             ISO 8602 CLTP ConnectionLess Transport Protocol
+            ISO 8823 OSI Presentation Protocol
             ISO 9542 ESIS Routeing Information Exchange Protocol
             ITU-T Recommendation H.261
             ITU-T Recommendation H.263 RTP Payload header (RFC2190)
@@ -402,6 +419,7 @@ General Questions
             Intel ANS probe
             Intelligent Platform Management Interface
             Inter-Access-Point Protocol
+            InterSwitch Message Protocol
             Interbase
             Internet Cache Protocol
             Internet Content Adaptation Protocol
@@ -416,6 +434,7 @@ General Questions
             Internet Relay Chat
             Internet Security Association and Key Management Protocol
             Internetwork Packet eXchange
+            JPEG File Interchange Format
             Jabber XML Messaging
             Java RMI
             Java Serialization
@@ -430,6 +449,7 @@ General Questions
             Layer 2 Tunneling Protocol
             Lightweight Directory Access Protocol
             Line Printer Daemon Protocol
+            Line-based text data
             Link Access Procedure Balanced (LAPB)
             Link Access Procedure Balanced Ethernet (LAPBETHER)
             Link Access Procedure, Channel D (LAPD)
@@ -441,6 +461,7 @@ General Questions
             Logical-Link Control
             Lucent/Ascend debug output
             MDS Header
+            MIME Multipart Media Encapsulation
             MMS Message Encapsulation
             MS Kpasswd
             MS Proxy Protocol
@@ -450,11 +471,13 @@ General Questions
             MTP 2 User Adaptation Layer
             MTP 3 User Adaptation Layer
             MTP2 Peer Adaptation Layer
+            Media Type: message/http
             Message Transfer Part Level 2
             Message Transfer Part Level 3
             Message Transfer Part Level 3 Management
             Microsoft Directory Replication Service
             Microsoft Distributed File System
+            Microsoft Distributed Link Tracking Server Service
             Microsoft Exchange MAPI
             Microsoft Local Security Architecture
             Microsoft Local Security Architecture (Directory Services)
@@ -494,6 +517,7 @@ General Questions
             NetBIOS over IPX
             NetWare Core Protocol
             NetWare Link Services Protocol
+            NetWare Serialization Protocol
             Network Data Management Protocol
             Network File System
             Network Lock Manager Protocol
@@ -504,11 +528,14 @@ General Questions
             Nortel SONMP
             Novell Distributed Print System
             Null/Loopback
+            OSI ISO/IEC 10035-1 ACSE Protocol
             Open Shortest Path First
             OpenBSD Encapsulating device
             OpenBSD Packet Filter log file
             OpenBSD Packet Filter log file, pre 3.4
+            Optimized Link State Routing Protocol
             PC NFS
+            POSTGRESQL
             PPP Bandwidth Allocation Control Protocol
             PPP Bandwidth Allocation Protocol
             PPP CDP Control Protocol
@@ -602,9 +629,11 @@ General Questions
             Simple Network Management Protocol
             Simple Traversal of UDP Through NAT
             Sinec H1 Protocol
+            Sipfrag
             Skinny Client Control Protocol
             SliMP3 Communication Protocol
             Socks Protocol
+            SoulSeek Protocol
             Spanning Tree Protocol
             Spnego
             Stream Control Transmission Protocol
@@ -615,6 +644,7 @@ General Questions
             T38
             TACACS
             TACACS+
+            TEI Management Procedure, Channel D (LAPD)
             TEREDO Tunneling IPv6 over UDP through NATs
             TPKT
             Tabular Data Stream
@@ -634,6 +664,7 @@ General Questions
             Virtual Router Redundancy Protocol
             Virtual Trunking Protocol
             WAP Binary XML
+            WAP Session Initiation Request
             Web Cache Coordination Protocol
             Wellfleet Breath of Life
             Wellfleet Compression
@@ -2028,4 +2059,4 @@ echo "Mode: ess">/proc/driver/aironet/ethN/Config
    For corrections/additions/suggestions for this web page page (and not
    Ethereal support questions), please send email to
    ethereal-web[AT]ethereal.com .
-   Last modified: Mon, February 16 2004.
+   Last modified: Sat, March 13 2004.

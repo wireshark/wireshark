@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes, and well-known MAC addresses
 #
-# $Id: manuf,v 1.38 2004/02/18 00:33:12 jmayer Exp $
+# $Id: manuf,v 1.39 2004/03/17 18:13:42 jmayer Exp $
 #
 # Laurent Deniel <laurent.deniel [AT] free.fr>
 #
@@ -3880,7 +3880,7 @@
 00:0F:1D	CosmoTechs             # Cosmo Techs Co., Ltd.
 00:0F:1E	ChengduKtE             # Chengdu KT Electric Co.of High & New Technology
 00:0F:1F	WwPcbaTest             # WW PCBA Test
-00:0F:20	WwOps                  # WW Ops
+00:0F:20	HewlettPac             # Hewlett Packard
 00:0F:21	Scientific             # Scientific Atlanta, Inc
 00:0F:22	Helius                 # Helius, Inc.
 00:0F:23	Cisco                  # Cisco Systems
@@ -3985,6 +3985,81 @@
 00:0F:86	Private
 00:0F:87	MaxcessInt             # Maxcess International
 00:0F:88	Ametek                 # AMETEK, Inc.
+00:0F:89	WinnertecS             # Winnertec System Co., Ltd.
+00:0F:8A	Wideview
+00:0F:8B	OrionMulti             # Orion MultiSystems Inc
+00:0F:8C	Gigawavete             # Gigawavetech Pte Ltd
+00:0F:8D	FastTv-Ser             # FAST TV-Server AG
+00:0F:8E	DongyangTe             # DONGYANG TELECOM CO.,LTD.
+00:0F:8F	Cisco                  # Cisco Systems
+00:0F:90	Cisco                  # Cisco Systems
+00:0F:91	Aeroteleco             # Aerotelecom Co.,Ltd.
+00:0F:92	Microhard              # Microhard Systems Inc.
+00:0F:93	Landis+Gyr             # Landis+Gyr Ltd.
+00:0F:94	Genexis
+00:0F:95	ElecomLane             # ELECOM Co.,LTD Laneed Division
+00:0F:96	CriticalTe             # Critical Telecom Corp.
+00:0F:97	Avanex                 # Avanex Corporation
+00:0F:98	Avamax                 # Avamax Co. Ltd.
+00:0F:99	ApacOptoEl             # APAC opto Electronics Inc.
+00:0F:9A	Synchrony              # Synchrony, Inc.
+00:0F:9B	RossVideo              # Ross Video Limited
+00:0F:9C	Panduit                # Panduit Corp
+00:0F:9D	NewnhamRes             # Newnham Research Ltd
+00:0F:9E	Murrelektr             # Murrelektronik GmbH
+00:0F:9F	MotorolaBc             # Motorola BCS
+00:0F:A0	LotteCanon             # Lotte Canon Co., Ltd.
+00:0F:A1	Gigabit                # Gigabit Systems Inc.
+00:0F:A2	DigitalPat             # Digital Path Networks
+00:0F:A3	AlphaNetwo             # Alpha Networks Inc.
+00:0F:A4	SprecherAu             # Sprecher Automation GmbH
+00:0F:A5	Smp/BwaTec             # SMP / BWA Technology GmbH
+00:0F:A6	S2Security             # S2 Security Corporation
+00:0F:A7	RaptorNetw             # Raptor Networks Technology
+00:0F:A8	Photometri             # Photometrics, Inc.
+00:0F:A9	PcFabrik               # PC Fabrik
+00:0F:AA	NexusTechn             # Nexus Technologies
+00:0F:AB	KyushuElec             # Kyushu Electronics Systems Inc.
+00:0F:AC	Ieee80211              # IEEE 802.11
+00:0F:AD	FmnCommuni             # FMN communications GmbH
+00:0F:AE	E2oCommuni             # E2O Communications
+00:0F:AF	Dialog                 # Dialog Inc.
+00:0F:B0	CompalElec             # Compal Electronics,INC.
+00:0F:B1	Cognio                 # Cognio Inc.
+00:0F:B2	BroadbandP             # Broadband Pacenet (India) Pvt. Ltd.
+00:0F:B3	ActiontecE             # Actiontec Electronics, Inc
+00:0F:B4	TimespaceT             # Timespace Technology
+00:0F:B5	Netgear                # NETGEAR Inc
+00:0F:B6	EuroplexTe             # Europlex Technologies
+00:0F:B7	CaviumNetw             # Cavium Networks
+00:0F:B8	Callurl                # CallURL Inc.
+00:0F:B9	AdaptiveIn             # Adaptive Instruments
+00:0F:BA	Tevebox                # Tevebox AB
+00:0F:BB	SiemensIcn             # Siemens AG, ICN M&L TDC EP
+00:0F:BC	OnkeyTechn             # Onkey Technologies, Inc.
+00:0F:BD	MrvCommuni             # MRV Communications (Networks) LTD
+00:0F:BE	E-W/You                # e-w/you Inc.
+00:0F:BF	DgtSpZOO               # DGT Sp. z o.o.
+00:0F:C0	Delcomp
+00:0F:C1	Wave                   # WAVE Corporation
+00:0F:C2	Uniwell                # Uniwell Corporation
+00:0F:C3	PalmpalmTe             # PalmPalm Technology, Inc.
+00:0F:C4	Nst                    # NST co.,LTD.
+00:0F:C5	Keymed                 # KeyMed Ltd
+00:0F:C6	EurocomInd             # Eurocom Industries A/S
+00:0F:C7	DionicaR&D             # Dionica R&D Ltd.
+00:0F:C8	ChantryNet             # Chantry Networks
+00:0F:C9	Allnet                 # Allnet GmbH
+00:0F:CA	A-JinTechl             # A-JIN TECHLINE CO, LTD
+00:0F:CB	3comEurope             # 3COM EUROPE LTD
+00:0F:CC	Netopia                # Netopia, Inc.
+00:0F:CD	NortelNetw             # Nortel Networks
+00:0F:CE	KikusuiEle             # Kikusui Electronics Corp.
+00:0F:CF	DatawindRe             # Datawind Research
+00:0F:D0	Astri
+00:0F:D1	AppliedWir             # Applied Wireless Identifications Group, Inc.
+00:0F:D2	EwaTechnol             # EWA Technologies, Inc.
+00:0F:D3	Digium
 00:10:00	CableTelev             # CABLE TELEVISION LABORATORIES, INC.
 00:10:01	MckCommuni             # MCK COMMUNICATIONS
 00:10:02	Actia
@@ -7313,7 +7388,7 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 #
 # Well-known addresses.
 #
-# $Id: manuf,v 1.38 2004/02/18 00:33:12 jmayer Exp $
+# $Id: manuf,v 1.39 2004/03/17 18:13:42 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald [AT] ethereal.com>
