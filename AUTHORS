@@ -368,6 +368,7 @@ Michael Tuexen <Michael.Tuexen@icn.siemens.de> {
 	SCTP support
 	M3UA support
 	ISDN Q.921-User Adaptation Layer (IUA) support
+	SUA Light support
 }
 
 Bruce Korb <bkorb@sco.com> {
