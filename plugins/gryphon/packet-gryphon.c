@@ -3,7 +3,7 @@
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
  *
- * $Id: packet-gryphon.c,v 1.41 2003/10/06 02:01:47 jmayer Exp $
+ * $Id: packet-gryphon.c,v 1.42 2003/10/06 15:41:53 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -914,6 +914,9 @@ resp_time(tvbuff_t *tvb, int offset, proto_tree *pt)
     time_t          timestamp;
     unsigned char   date[45];
 
+    /* XXX This code is neither Endianess independent, nor will it work
+     * on platforms that do not support the *optional* guin64 type
+     */
     ts.lng[1] = tvb_get_ntohl(tvb, offset);
     ts.lng[0] = tvb_get_ntohl(tvb, offset + 4);
     timestamp = ts.lnglng / 100000L;
