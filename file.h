@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.86 2001/12/04 08:25:55 guy Exp $
+ * $Id: file.h,v 1.87 2001/12/06 02:21:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,7 +53,8 @@ typedef struct _capture_file {
   guint16      cd_t;      /* File type of capture file */
   int          lnk_t;     /* Link-layer type with which to save capture */
   guint32      vers;      /* Version.  For tcpdump minor is appended to major */
-  int          count;     /* Packet count */
+  int          count;     /* Total number of frames */
+  int          marked_count; /* Number of marked frames */
   gboolean     drops_known; /* TRUE if we know how many packets were dropped */
   guint32      drops;     /* Dropped packets */
   guint32      esec;      /* Elapsed seconds */
@@ -129,6 +130,16 @@ void select_packet(capture_file *, int);
 void unselect_packet(capture_file *);
 
 void unselect_field(void);
+
+/*
+ * Mark a particular frame in a particular capture.
+ */
+void mark_frame(capture_file *, frame_data *);
+
+/*
+ * Unmark a particular frame in a particular capture.
+ */
+void unmark_frame(capture_file *, frame_data *);
 
 /* Moves or copies a file. Returns 0 on failure, 1 on success */
 int file_mv(char *from, char *to);

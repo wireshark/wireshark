@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.215 2001/12/04 08:25:59 guy Exp $
+ * $Id: main.c,v 1.216 2001/12/06 02:21:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -127,6 +127,7 @@
 #include "color_utils.h"
 #include "filter_prefs.h"
 #include "prefs_dlg.h"
+#include "file_dlg.h"
 #include "column.h"
 #include "print.h"
 #include "resolv.h"
@@ -371,15 +372,18 @@ static void
 set_frame_mark(gboolean set, frame_data *frame, gint row) {
   GdkColor fg, bg;
 
-  if (frame == NULL || row == -1) return;
-  frame->flags.marked = set;
+  if (row == -1)
+    return;
   if (set) {
+    mark_frame(&cfile, frame);
     color_t_to_gdkcolor(&fg, &prefs.gui_marked_fg);
     color_t_to_gdkcolor(&bg, &prefs.gui_marked_bg);
   } else {
+    unmark_frame(&cfile, frame);
     fg = BLACK;
     bg = WHITE;
   }
+  file_set_save_marked_sensitive();
   gtk_clist_set_background(GTK_CLIST(packet_list), row, &bg);
   gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &fg);
 }
@@ -413,7 +417,6 @@ void mark_frame_cb(GtkWidget *w, gpointer data) {
 
 static void mark_all_frames(gboolean set) {
   frame_data *fdata;
-  if (cfile.plist == NULL) return;
   for (fdata = cfile.plist; fdata != NULL; fdata = fdata->next) {
     set_frame_mark(set,
 		   fdata,

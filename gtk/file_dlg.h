@@ -1,12 +1,11 @@
 /* file_dlg.h
  * Definitions for dialog boxes for handling files
  *
- * $Id: file_dlg.h,v 1.1 2000/02/12 06:58:41 guy Exp $
+ * $Id: file_dlg.h,v 1.2 2001/12/06 02:21:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -31,5 +30,13 @@ void file_save_cmd_cb(GtkWidget *, gpointer);
 void file_save_as_cmd_cb(GtkWidget *, gpointer);
 void file_close_cmd_cb(GtkWidget *, gpointer);
 void file_reload_cmd_cb(GtkWidget *, gpointer);
+
+/*
+ * Set the "Save only marked packets" toggle button as appropriate for
+ * the current output file type and count of marked packets.
+ * Called when the "Save As..." dialog box is created and when either
+ * the file type or the marked count changes.
+ */
+void file_set_save_marked_sensitive(void);
 
 #endif /* file_dlg.h */

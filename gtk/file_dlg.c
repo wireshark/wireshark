@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.44 2001/11/09 00:08:30 guy Exp $
+ * $Id: file_dlg.c,v 1.45 2001/12/06 02:21:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -378,8 +378,8 @@ select_file_type_cb(GtkWidget *w, gpointer data)
     /* We can select only the filtered or marked packets to be saved if we can
        use Wiretap to save the file. */
     gtk_widget_set_sensitive(filter_cb, can_save_with_wiretap(new_filetype));
-    gtk_widget_set_sensitive(mark_cb, can_save_with_wiretap(new_filetype));
     filetype = new_filetype;
+    file_set_save_marked_sensitive();
   }
 }
 
@@ -472,17 +472,15 @@ file_save_as_cmd_cb(GtkWidget *w, gpointer data)
   gtk_widget_show(filter_cb);
 
   /*
-   * XXX - should this be sensitive only if at least one packet is
-   * marked, so that there are marked packets to save, and if not
-   * all packets are marked, so that "only marked packets" is different
-   * from "all packets"?
+   * XXX - if the number of marked frames changes to or from 0, we
+   * should change whether this is sensitive or not.
    */
   mark_cb = gtk_check_button_new_with_label("Save only marked packets");
   gtk_container_add(GTK_CONTAINER(main_vb), mark_cb);
+  marked = FALSE;
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(mark_cb), FALSE);
   gtk_signal_connect(GTK_OBJECT(mark_cb), "toggled",
 		     GTK_SIGNAL_FUNC(toggle_marked_cb), NULL);
-  gtk_widget_set_sensitive(mark_cb, can_save_with_wiretap(filetype));
   gtk_widget_show(mark_cb);
 
   /* File type row */
@@ -501,6 +499,15 @@ file_save_as_cmd_cb(GtkWidget *w, gpointer data)
   gtk_box_pack_start(GTK_BOX(ft_hb), ft_om, FALSE, FALSE, 0);
   gtk_widget_show(ft_om);
 
+  /*
+   * Make the "Save only marked packets" toggle sensitive if there are
+   * marked frames; make it insensitive, turn it off, and set the
+   * file type option menu appropriately, if there aren't.
+   *
+   * This has to be done after we create the file type menu option.
+   */
+  file_set_save_marked_sensitive();
+
   /* Connect the cancel_button to destroy the widget */
   gtk_signal_connect_object(GTK_OBJECT (GTK_FILE_SELECTION
     (file_save_as_w)->cancel_button), "clicked", (GtkSignalFunc)
@@ -512,7 +519,32 @@ file_save_as_cmd_cb(GtkWidget *w, gpointer data)
   dlg_set_cancel(file_save_as_w, GTK_FILE_SELECTION(file_save_as_w)->cancel_button);
 
   gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_save_as_w), "");
+
   gtk_widget_show(file_save_as_w);
+}
+
+/*
+ * Set the "Save only marked packets" toggle button as appropriate for
+ * the current output file type and count of marked packets.
+ * Called when the "Save As..." dialog box is created and when either
+ * the file type or the marked count changes.
+ */
+void
+file_set_save_marked_sensitive(void)
+{
+  /* We can request that only the marked packets be saved only if we
+     can use Wiretap to save the file and if there *are* marked packets. */
+  if (can_save_with_wiretap(filetype) && cfile.marked_count != 0)
+    gtk_widget_set_sensitive(mark_cb, TRUE);
+  else {
+    /* Force the "Save only marked packets" toggle to "false", turn
+       off the flag it controls, and update the list of types we can
+       save the file as. */
+    marked = FALSE;
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(mark_cb), FALSE);
+    set_file_type_list(ft_om);
+    gtk_widget_set_sensitive(mark_cb, FALSE);
+  }
 }
 
 static void

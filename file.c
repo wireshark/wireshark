@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.249 2001/12/04 23:38:53 guy Exp $
+ * $Id: file.c,v 1.250 2001/12/06 02:21:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -175,6 +175,7 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
 
   cf->cd_t      = wtap_file_type(cf->wth);
   cf->count     = 0;
+  cf->marked_count = 0;
   cf->drops_known = FALSE;
   cf->drops     = 0;
   cf->esec      = 0;
@@ -1640,6 +1641,26 @@ unselect_field(void)
   statusbar_pop_field_msg();
   finfo_selected = NULL;
   set_menus_for_selected_tree_row(FALSE);
+}
+
+/*
+ * Mark a particular frame.
+ */
+void
+mark_frame(capture_file *cf, frame_data *frame)
+{
+  frame->flags.marked = TRUE;
+  cf->marked_count++;
+}
+
+/*
+ * Unmark a particular frame.
+ */
+void
+unmark_frame(capture_file *cf, frame_data *frame)
+{
+  frame->flags.marked = FALSE;
+  cf->marked_count--;
 }
 
 static void
