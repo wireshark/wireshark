@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.131 2003/05/23 17:46:05 sharpe Exp $
+ * $Id: packet-rpc.c,v 1.132 2003/07/17 23:08:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1690,7 +1690,21 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   We already have the message type.
 		   Check whether an RPC version number of 2 is in the
 		   location where it would be, and that an RPC program
-		   number we know about is in the location where it would be. */
+		   number we know about is in the location where it would be.
+
+		   XXX - Sun's snoop appears to recognize as RPC even calls
+		   to stuff it doesn't dissect; does it just look for a 2
+		   at that location, which seems far to weak a heuristic
+		   (too many false positives), or does it have some additional
+		   checks it does?
+
+		   We could conceivably check for any of the program numbers
+		   in the list at
+
+			ftp://ftp.tau.ac.il/pub/users/eilon/rpc/rpc
+
+		   and report it as RPC (but not dissect the payload if
+		   we don't have a subdissector) if it matches. */
 		rpc_prog_key.prog = tvb_get_ntohl(tvb, offset + 12);
 		if (tvb_get_ntohl(tvb, offset + 8) != 2 ||
 		    ((rpc_prog = g_hash_table_lookup(rpc_progs, &rpc_prog_key))
