@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.384 2004/05/27 21:48:10 ulfl Exp $
+ * $Id: file.c,v 1.385 2004/06/29 20:51:26 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -377,10 +377,6 @@ cf_read(capture_file *cf)
   /* When we reach the value that triggers a progress bar update,
      bump that value by this amount. */
   progbar_quantum = cf->f_len/N_PROGBAR_UPDATES;
-
-#ifndef O_BINARY
-#define O_BINARY 	0
-#endif
 
   packet_list_freeze();
 

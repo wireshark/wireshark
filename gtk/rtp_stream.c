@@ -1,7 +1,7 @@
 /* rtp_stream.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream.c,v 1.14 2004/02/12 22:24:28 guy Exp $
+ * $Id: rtp_stream.c,v 1.15 2004/06/29 20:46:29 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -41,15 +41,15 @@
 #include "alert_box.h"
 #include "simple_dialog.h"
 
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
 
 #include <string.h>
-
-#ifndef O_BINARY
-#define O_BINARY 0
-#endif
 
 
 /****************************************************************************/

@@ -25,6 +25,10 @@
 #include <errno.h>
 #include <stdio.h>
 
+#ifdef HAVE_IO_H
+#include <io.h>
+#endif
+
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
@@ -33,11 +37,12 @@
 #include <unistd.h>
 #endif
 
+#ifdef _WIN32
+#include <process.h>    /* For spawning child process */
+#endif
+
 #ifndef __set_errno
 #define __set_errno(x) errno=(x)
-#endif
-#ifndef O_BINARY
-#define O_BINARY 0
 #endif
 
 /* Generate a unique temporary file name from TEMPLATE.

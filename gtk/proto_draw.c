@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.105 2004/06/17 16:35:25 ulfl Exp $
+ * $Id: proto_draw.c,v 1.106 2004/06/29 20:46:28 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,11 +70,6 @@
 #include "progress_dlg.h"
 #include "font_utils.h"
 
-
-/* Win32 needs the O_BINARY flag for open() */
-#ifndef O_BINARY
-#define O_BINARY	0
-#endif
 
 #define BYTE_VIEW_WIDTH    16
 #define BYTE_VIEW_SEP      8

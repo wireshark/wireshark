@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.45 2004/06/01 17:33:37 ulfl Exp $
+ * $Id: rtp_analysis.c,v 1.46 2004/06/29 20:46:28 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -54,10 +54,6 @@
 #include "g711.h"
 #include "rtp_pt.h"
 
-#ifdef NEED_MKSTEMP
-#include "mkstemp.h"
-#endif
-
 /* in /gtk ... */
 #include "dlg_utils.h"
 #include "ui_util.h"
@@ -79,12 +75,12 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_IO_H
-#include <io.h> /* open/close on win32 */
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
 #endif
 
-#ifndef O_BINARY
-#define O_BINARY 0
+#ifdef HAVE_IO_H
+#include <io.h> /* open/close on win32 */
 #endif
 
 /****************************************************************************/
