@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.26 2000/01/06 07:33:22 guy Exp $
+ * $Id: print.c,v 1.27 2000/01/07 00:36:25 guy Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -49,8 +49,6 @@ static void print_hex_data_text(FILE *fh, register const u_char *cp,
 		register u_int length, char_enc encoding);
 static void print_hex_data_ps(FILE *fh, register const u_char *cp,
 		register u_int length, char_enc encoding);
-static void print_ps_file(FILE* target_fh, FILE* source_fh);
-static void print_text_file(FILE* target_fh, FILE* source_fh);
 
 extern int proto_data; /* in packet-data.c */
 
@@ -96,20 +94,6 @@ void print_finale(FILE *fh, gint format)
 {
 	if (format == PR_FMT_PS)
 		print_ps_finale(fh);
-}
-
-void print_file(FILE* fh, const char* filename, gint format)
-{
-       FILE* fh2 = fopen(filename, "r");
-       if (fh2 == NULL) {
-               fprintf(stderr, "Could not open file %s for reading.\n", filename);
-               return;
-       }
-
-       if (format == PR_FMT_PS)
-               print_ps_file(fh, fh2);
-       else
-               print_text_file(fh, fh2);
 }
 
 void proto_tree_print(gboolean print_one_packet, print_args_t *print_args,
@@ -211,9 +195,9 @@ void print_hex_data_text(FILE *fh, register const u_char *cp,
         register int ad, i, j, k;
         u_char c;
         u_char line[60];
-		static u_char binhex[16] = {
-			'0', '1', '2', '3', '4', '5', '6', '7',
-			'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+	static u_char binhex[16] = {
+		'0', '1', '2', '3', '4', '5', '6', '7',
+		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
         memset (line, ' ', sizeof line);
         line[sizeof (line)-1] = 0;
@@ -320,10 +304,10 @@ void print_hex_data_ps(FILE *fh, register const u_char *cp,
         register int ad, i, j, k;
         u_char c;
         u_char line[60];
-		static u_char binhex[16] = {
-			'0', '1', '2', '3', '4', '5', '6', '7',
-			'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-		u_char psline[MAX_LINE_LENGTH];
+	static u_char binhex[16] = {
+		'0', '1', '2', '3', '4', '5', '6', '7',
+		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+	u_char psline[MAX_LINE_LENGTH];
 
 	print_ps_hex(fh);
         memset (line, ' ', sizeof line);
@@ -347,32 +331,11 @@ void print_hex_data_ps(FILE *fh, register const u_char *cp,
         }
 
         if (line[0] != ' ') {
-			ps_clean_string(psline, line, MAX_LINE_LENGTH);
-			fprintf (fh, "(%4x  %s) hexdump\n", ad, psline);
-		}
+		ps_clean_string(psline, line, MAX_LINE_LENGTH);
+		fprintf (fh, "(%4x  %s) hexdump\n", ad, psline);
+	}
         return;
 
-}
-
-static 
-void print_text_file(FILE* target_fh, FILE* source_fh)
-{
-       gchar buffer[MAX_LINE_LENGTH];
-       while (fgets(buffer, sizeof(buffer), source_fh) != NULL) {
-               fputs(buffer, target_fh);
-       }
-}
-
-static 
-void print_ps_file(FILE* target_fh, FILE* source_fh)
-{
-       gchar buffer[MAX_LINE_LENGTH];
-       gchar ps_buffer[MAX_LINE_LENGTH];
-
-       while (fgets(buffer, sizeof(buffer), source_fh) != NULL) {
-               ps_clean_string(ps_buffer, buffer, MAX_LINE_LENGTH);
-               fputs(ps_buffer, target_fh);
-       }
 }
 
 void print_line(FILE *fh, gint format, char *line)
