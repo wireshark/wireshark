@@ -57,6 +57,7 @@ static int frame_tap = -1;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t docsis_handle;
+static dissector_handle_t mate_handle = NULL;
 
 /* Preferences */
 static gboolean show_file_off = FALSE;
@@ -198,6 +199,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ENDTRY;
 
 	tap_queue_packet(frame_tap, pinfo, NULL);
+	
+	if (mate_handle) call_dissector(mate_handle,tvb, pinfo, tree);
+
 }
 
 void
@@ -339,4 +343,5 @@ proto_reg_handoff_frame(void)
 {
 	data_handle = find_dissector("data");
 	docsis_handle = find_dissector("docsis");
+	mate_handle = find_dissector("mate");
 }
