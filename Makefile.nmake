@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: nmake -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.62 2000/11/04 07:50:47 guy Exp $
+# $Id: Makefile.nmake,v 1.63 2000/11/05 23:45:58 guy Exp $
 
 include config.nmake
 
@@ -22,6 +22,7 @@ CFLAGS=/MT -DHAVE_CONFIG_H $(LOCAL_CFLAGS) /I$(GLIB_DIR) /I$(GLIB_DIR)\gmodule \
 DISSECTOR_SOURCES = \
 	packet-aarp.c  \
 	packet-afs.c   \
+	packet-aim.c   \
 	packet-arp.c   \
 	packet-ascend.c\
 	packet-atalk.c \
