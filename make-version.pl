@@ -2,7 +2,7 @@
 #
 # Copyright 2004 Jörg Mayer (see AUTHORS file)
 #
-# $Id: make-version.pl,v 1.6 2004/02/20 20:36:13 gerald Exp $
+# $Id: make-version.pl,v 1.7 2004/03/04 16:19:40 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -47,8 +47,7 @@ my $vconf_file = 'version.conf';
 my %monthnum = ( "Jan" => "0", "Feb" => "1", "Mar" => "2", "Apr" => "3",
 		"May" => "4", "Jun" => "5", "Jul" => "6", "Aug" => "7",
 		"Sep" => "8", "Oct" => "9", "Nov" => "10", "Dec" => "11" );
-my $last = "";
-my $last_modified = 0;
+my $last = 0;
 my $last_file = undef;
 my %version_pref = ("enable" => 1, "format" => "CVS %Y%m%d%H%M%S");
 
@@ -63,13 +62,8 @@ sub find_last_CVS_Entries {
 	foreach $d (readdir(DIR)) {
 		if (-d "$dir/$d" && $d !~ /^\.(|.)$/) {
 			if ($d =~ /^CVS$/) {
-				my @stat = stat("$dir/CVS/Entries");
-
-				if (@stat) {
-					if ($last_modified < $stat[9]) {
-						$last_modified = $stat[9];
-						$last_file = "$dir/CVS/Entries"
-					}
+				if (-f "$dir/CVS/Entries") {
+					&lastentry("$dir/CVS/Entries");
 				}
 			} else { # Recurse in directory
 				&find_last_CVS_Entries("$dir/$d");
@@ -99,7 +93,7 @@ sub lastentry {
 		next if ($date !~ /\w{3} (\w{3}) (.\d) (\d\d):(\d\d):(\d\d) (\d{4})/);
 		$current = timegm($5, $4, $3, $2, $monthnum{$1}, $6);
 
-		if ($current gt $last) {
+		if ($current > $last) {
 			$last = $current;
 		}
 	}
@@ -115,7 +109,7 @@ sub print_cvs_version
 	my $cvs_version;
 	my $needs_update = 1;
 
-	if ($last ne "") {
+	if ($last) {
 		$cvs_version = "#define CVSVERSION \"" . 
 			strftime($version_pref{"format"}, gmtime($last)) .
 			"\"\n";
@@ -167,19 +161,6 @@ if ($version_pref{"enable"} == 0) {
 	&find_last_CVS_Entries(".");
 } else {
 	print "This is not a CVS build.\n";
-}
-
-# Now $last_modified and $last_file are set if we found one CVS/Entries file.
-# We need to invoke lastentry on the most recent entries file.
-
-if (defined $last_file) {
-	my @version_stat = stat($version_file);
-	my $version_mtime = 0;
-	if (@version_stat) {
-		$version_mtime = $version_stat[9];
-	}
-	&lastentry($last_file);
-	# print "Last: $last_file\t($last)\n";
 }
 
 # Now that we've computed everything, print the CVS version to $version_file
