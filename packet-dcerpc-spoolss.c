@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.59 2002/11/19 03:01:18 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.60 2002/11/19 05:25:04 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,6 +124,11 @@ static const value_string spoolss_opnum_vals[] = {
 	{ SPOOLSS_ADDPRINTERDRIVEREX, "AddPrinterDriverEx" },
 	{ 0, NULL }
 };
+
+static int hf_unistr2_maxlen = -1;
+static int hf_unistr2_offset = -1;
+static int hf_unistr2_len = -1;
+static int hf_unistr2_buffer = -1;
 
 static int hf_spoolss_hnd = -1;
 static int hf_spoolss_rc = -1;
@@ -617,6 +622,20 @@ static int hf_devmode_fields_dithertype = -1;
 static int hf_devmode_fields_panningwidth = -1;
 static int hf_devmode_fields_panningheight = -1;
 
+/* Devicemode ctr */
+
+static int hf_spoolss_devmodectr_size = -1;
+
+/* Userlevel */
+
+static int hf_spoolss_userlevel_size = -1;
+static int hf_spoolss_userlevel_client = -1;
+static int hf_spoolss_userlevel_user = -1;
+static int hf_spoolss_userlevel_build = -1;
+static int hf_spoolss_userlevel_major = -1;
+static int hf_spoolss_userlevel_minor = -1;
+static int hf_spoolss_userlevel_processor = -1;
+
 static void
 spoolss_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
 			guint32 access)
@@ -965,9 +984,64 @@ static int SpoolssClosePrinter_r(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-/* Parse a UNISTR2 structure */
+/* Dissect a UNISTR2 structure */
 
 static gint ett_UNISTR2 = -1;
+
+int
+dissect_unistr2(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+		proto_tree *tree, char *drep, int hfindex, char **pdata)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	guint32 maxlen, ofs, len;
+	char *data;
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, NULL, drep, hf_unistr2_maxlen, &maxlen);
+	
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, NULL, drep, hf_unistr2_offset, &ofs);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, NULL, drep, hf_unistr2_len, &len);
+
+	data = fake_unicode(tvb, offset, len);
+
+	/* TODO: This currently displays only the first character of the
+	   string as the field type should be FT_STRING.  I think we need a
+	   FT_UNICODE field type. */
+
+	item = proto_tree_add_item(
+		tree, hfindex, tvb, offset, len * 2, drep[0] & 0x10);
+			    
+	subtree = proto_item_add_subtree(item, ett_UNISTR2);
+
+	proto_tree_add_item(
+		subtree, hf_unistr2_maxlen, tvb, offset - 12, 4, 
+		drep[0] & 0x10);
+
+	proto_tree_add_item(
+		subtree, hf_unistr2_offset, tvb, offset - 8, 4, 
+		drep[0] & 0x10);
+
+	proto_tree_add_item(
+		subtree, hf_unistr2_len, tvb, offset - 4, 4, 
+		drep[0] & 0x10);
+			    
+	proto_tree_add_item(
+		subtree, hf_unistr2_buffer, tvb, offset, len * 2,
+		drep[0] & 0x10);
+
+	offset += len * 2;
+
+	if (pdata)
+		*pdata = data;
+
+	return offset;
+}
+
+/* Parse a UNISTR2 structure */
 
 static int prs_UNISTR2_dp(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			  proto_tree *tree, GList **dp_list _U_, void **data)
@@ -1547,10 +1621,14 @@ static gint ett_DEVMODE = -1;
 static int dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 			   proto_tree *tree, char *drep)
 {
+	dcerpc_info *di = pinfo->private_data;
 	proto_item *item;
 	proto_tree *subtree;
 	guint16 driver_extra;
 	guint32 fields;
+
+	if (di->conformant_run)
+		return offset;	
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, "DEVMODE");
 	subtree = proto_item_add_subtree(item, ett_DEVMODE);
@@ -1705,6 +1783,32 @@ static int dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;				  
 }
 
+/*
+ * DEVMODE_CTR
+ */
+
+static gint ett_DEVMODE_CTR = -1;
+
+static int dissect_DEVMODE_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+			       proto_tree *tree, char *drep)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	guint32 size;
+
+	item = proto_tree_add_text(tree, tvb, offset, 0, "DEVMODE_CTR");
+	subtree = proto_item_add_subtree(item, ett_DEVMODE_CTR);
+	
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
+				    hf_spoolss_devmodectr_size, &size);
+
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, subtree, drep,
+		dissect_DEVMODE, NDR_POINTER_UNIQUE, "DEVMODE", -1, 0);
+
+	return offset;
+}
+	
 static int prs_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		       proto_tree *tree, GList **dp_list _U_, void **data _U_)
 {
@@ -2325,8 +2429,6 @@ static int dissect_PRINTER_INFO_3(tvbuff_t *tvb, int offset,
  * DEVMODE_CTR
  */
 
-static gint ett_DEVMODE_CTR = -1;
-
 static int prs_DEVMODE_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			   proto_tree *tree, GList **dp_list, void **data)
 {
@@ -2350,43 +2452,23 @@ static int prs_DEVMODE_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 /*
- * PRINTER_DEFAULT structure
+ * PRINTER_DATATYPE structure
  */
 
-static gint ett_PRINTER_DEFAULT = -1;
+static gint ett_PRINTER_DATATYPE = -1;
 
-static int prs_PRINTER_DEFAULT(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			       proto_tree *tree, GList **dp_list,
-			       void **data _U_)
+static int dissect_PRINTER_DATATYPE(tvbuff_t *tvb, int offset, 
+				    packet_info *pinfo, proto_tree *tree, 
+				    char *drep _U_)
 {
-	GList *child_dp_list = NULL;
-	proto_item *item;
-	proto_tree *subtree;
-	guint32 ptr = 0;
-	char drep = 0x10;
+	dcerpc_info *di = pinfo->private_data;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "PRINTER_DEFAULT");
+	if (di->conformant_run)
+		return offset;
 
-	subtree = proto_item_add_subtree(item, ett_PRINTER_DEFAULT);
-
-	offset = prs_ptr(tvb, offset, pinfo, subtree, &ptr, "Datatype");
-
-	/* Not sure why this isn't a deferred pointer.  I think this may be
-	   two structures stuck together. */
-
-	if (ptr)
-		offset = prs_UNISTR2_dp(tvb, offset, pinfo, subtree, dp_list,
-					NULL);
-
-	offset = prs_DEVMODE_CTR(tvb, offset, pinfo, subtree,
-				 &child_dp_list, NULL);
-
-	offset = dissect_nt_access_mask(
-		tvb, offset, pinfo, subtree, &drep, hf_access_required,
-		spoolss_specific_rights);
-
-	offset = prs_referents(tvb, offset, pinfo, subtree, dp_list,
-			       &child_dp_list, NULL);
+	offset = dissect_unistr2(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_datatype, NULL);
 
 	return offset;
 }
@@ -2397,78 +2479,89 @@ static int prs_PRINTER_DEFAULT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static gint ett_USER_LEVEL_1 = -1;
 
-static int prs_USER_LEVEL_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			    proto_tree *tree, GList **dp_list,
-			    void **data _U_)
+static int dissect_USER_LEVEL_1(tvbuff_t *tvb, int offset, 
+                                packet_info *pinfo, proto_tree *tree, 
+                                char *drep)
 {
-	proto_item *item;
-	proto_tree *subtree;
-	guint32 ptr = 0;
+        guint32 level;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "USER_LEVEL_1");
+        offset = dissect_ndr_uint32(
+                tvb, offset, pinfo, tree, drep,
+                hf_spoolss_level, &level);
 
-	subtree = proto_item_add_subtree(item, ett_USER_LEVEL_1);
+        offset = dissect_ndr_uint32(
+                tvb, offset, pinfo, tree, drep,
+                hf_spoolss_userlevel_size, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Size");
+        offset = dissect_ndr_pointer(
+                tvb, offset, pinfo, tree, drep,
+                dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+                "Client", hf_spoolss_userlevel_client, 0);
 
-	offset = prs_ptr(tvb, offset, pinfo, subtree, &ptr, "Client name");
+        offset = dissect_ndr_pointer(
+                tvb, offset, pinfo, tree, drep,
+                dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+                "User", hf_spoolss_userlevel_user, 0);
 
-	if (ptr)
-		defer_ptr(dp_list, prs_UNISTR2_dp, subtree);
+        offset = dissect_ndr_uint32(
+                tvb, offset, pinfo, tree, drep, 
+                hf_spoolss_userlevel_build, NULL);
 
-	offset = prs_ptr(tvb, offset, pinfo, subtree, &ptr, "User name");
+        offset = dissect_ndr_uint32(
+                tvb, offset, pinfo, tree, drep,
+                hf_spoolss_userlevel_major, NULL);
 
-	if (ptr)
-		defer_ptr(dp_list, prs_UNISTR2_dp, subtree);
+        offset = dissect_ndr_uint32(
+                tvb, offset, pinfo, tree, drep,
+                hf_spoolss_userlevel_minor, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Build");
+        offset = dissect_ndr_uint32(
+                tvb, offset, pinfo, tree, drep,
+                hf_spoolss_userlevel_processor, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Major");
-
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Minor");
-
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Processor");
-
-	return offset;
+        return offset;
 }
 
 /*
- * USER_LEVEL structure
+ * USER_LEVEL_CTR structure
  */
 
-static gint ett_USER_LEVEL = -1;
+static gint ett_USER_LEVEL_CTR = -1;
 
-static int prs_USER_LEVEL(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			  proto_tree *tree, GList **parent_dp_list,
-			  void **data _U_)
+static int dissect_USER_LEVEL_CTR(tvbuff_t *tvb, int offset, 
+                                  packet_info *pinfo, proto_tree *tree, 
+                                  char *drep)
 {
-	proto_item *item;
-	proto_tree *subtree;
-	guint32 ptr = 0;
-	guint32 level;
+        dcerpc_info *di = pinfo->private_data;
+        proto_item *item;
+        proto_tree *subtree;
+        guint32 level;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "USER_LEVEL");
+        if (di->conformant_run)
+                return offset;
 
-	subtree = proto_item_add_subtree(item, ett_USER_LEVEL);
+        item = proto_tree_add_text(tree, tvb, offset, 0, "USER_LEVEL_CTR");
+        subtree = proto_item_add_subtree(item, ett_USER_LEVEL_CTR);
+        
+        offset = dissect_ndr_uint32(
+                tvb, offset, pinfo, subtree, drep,
+                hf_spoolss_level, &level);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, &level, "Info level");
+        switch(level) {
+        case 1:
+                offset = dissect_ndr_pointer(
+                        tvb, offset, pinfo, subtree, drep,
+                        dissect_USER_LEVEL_1, NDR_POINTER_UNIQUE,
+                        "USER_LEVEL_1", -1, 0);
+                break;
+        default:
+                proto_tree_add_text(
+                        tree, tvb, offset, 0,
+                        "[Info level %d not decoded]", level);
+                break;
+        }
 
-	offset = prs_ptr(tvb, offset, pinfo, subtree, &ptr, "User level");
-
-	if (ptr) {
-		switch (level) {
-		case 1:
-			defer_ptr(parent_dp_list, prs_USER_LEVEL_1, subtree);
-			break;
-		default:
-			proto_tree_add_text(
-				tree, tvb, offset, 0,
-				"[GetPrinter level %d not decoded]", level);
-			break;
-		}
-	}
-
-	return offset;
+        return offset;
 }
 
 /*
@@ -2481,7 +2574,6 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	guint32 ptr = 0;
 
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0,
@@ -2489,32 +2581,29 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 
 	/* Parse packet */
 
-	offset = prs_ptr(tvb, offset, pinfo, tree, &ptr, "Printer name");
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+		"Printer", hf_spoolss_printername, 0);
 
-	if (ptr) {
-		char *printer_name;
+	/* TODO: When we are able to access return data from a ndr
+	   pointer dissection function we should set the private data
+	   to the name of the printer. */
 
-		offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
-						  prs_UNISTR2_dp,
-						  (void **)&printer_name,
-						  NULL);
+	dcv->private_data = g_strdup("");
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-					printer_name);
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_PRINTER_DATATYPE, NDR_POINTER_UNIQUE,
+		"PRINTER_DATATYPE", -1, 0);
 
-		/* Store printer name to match with reply packet */
+	offset = dissect_DEVMODE_CTR(tvb, offset, pinfo, tree, drep);
 
-		dcv->private_data = printer_name;
-	}
+  	offset = dissect_nt_access_mask(
+ 		tvb, offset, pinfo, tree, drep, hf_access_required,
+ 		spoolss_specific_rights);
 
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
-					  prs_PRINTER_DEFAULT, NULL, NULL);
-
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "User switch");
-
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
-					  prs_USER_LEVEL, NULL, NULL);
+	offset = dissect_USER_LEVEL_CTR(tvb, offset, pinfo, tree, drep);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -7902,15 +7991,71 @@ proto_register_dcerpc_spoolss(void)
 		  { "Panning height", "spoolss.devmode.fields.panning_height",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
 		    DEVMODE_PANNINGHEIGHT, "Panning height", HFILL }},
+
+		/* Devicemode ctr */
+
+		{ &hf_spoolss_devmodectr_size,
+		  { "Devicemode ctr size", "spoolss.devicemodectr.size",
+		    FT_UINT32, BASE_DEC, NULL, 0, "Devicemode ctr size", 
+		    HFILL }},
+
+                /* Userlevel */
+
+                { &hf_spoolss_userlevel_size,
+                  { "Size", "spoolss.userlevel.size",
+                    FT_UINT32, BASE_DEC, NULL, 0, "Size", HFILL }},
+
+                { &hf_spoolss_userlevel_client,
+                  { "Client", "spoolss.userlevel.client", FT_STRING, 
+                    BASE_NONE, NULL, 0, "Client", HFILL }},
+
+                { &hf_spoolss_userlevel_user,
+                  { "User", "spoolss.userlevel.user", FT_STRING, 
+                    BASE_NONE, NULL, 0, "User", HFILL }},
+
+                { &hf_spoolss_userlevel_build,
+                  { "Build", "spoolss.userlevel.build",
+                    FT_UINT32, BASE_DEC, NULL, 0, "Build", HFILL }},
+
+                { &hf_spoolss_userlevel_major,
+                  { "Major", "spoolss.userlevel.major",
+                    FT_UINT32, BASE_DEC, NULL, 0, "Major", HFILL }},
+
+                { &hf_spoolss_userlevel_minor,
+                  { "Minor", "spoolss.userlevel.minor",
+                    FT_UINT32, BASE_DEC, NULL, 0, "Minor", HFILL }},
+
+                { &hf_spoolss_userlevel_processor,
+                  { "Processor", "spoolss.userlevel.processor",
+                    FT_UINT32, BASE_DEC, NULL, 0, "Processor", HFILL }},
+
+		/* UNISTR2 */
+
+		{ &hf_unistr2_maxlen,
+		  { "Max len", "unistr2.maxlen",
+		    FT_UINT32, BASE_DEC, NULL, 0, "Max len", HFILL }},
+
+		{ &hf_unistr2_offset,
+		  { "Offset", "unistr2.offset",
+		    FT_UINT16, BASE_DEC, NULL, 0, "Offset", HFILL }},
+
+		{ &hf_unistr2_len,
+		  { "Len", "unistr2.len",
+		    FT_UINT16, BASE_DEC, NULL, 0, "Len", HFILL }},
+
+		{ &hf_unistr2_buffer,
+		  { "Buffer", "unistr2.buffer",
+		    FT_BYTES, BASE_HEX, NULL, 0, "Buffer", HFILL }},
+		
 	};
 
         static gint *ett[] = {
                 &ett_dcerpc_spoolss,
-		&ett_PRINTER_DEFAULT,
+		&ett_PRINTER_DATATYPE,
 		&ett_DEVMODE_CTR,
 		&ett_DEVMODE,
 		&ett_DEVMODE_fields,
-		&ett_USER_LEVEL,
+		&ett_USER_LEVEL_CTR,
 		&ett_USER_LEVEL_1,
 		&ett_BUFFER,
 		&ett_BUFFER_DATA,
