@@ -71,7 +71,6 @@ static dissector_handle_t rtcp_handle=NULL;
 
 static dissector_handle_t t38_handle=NULL;
 
-static void reset_sdp_packet_info(sdp_packet_info *pi);
 static int sdp_tap = -1;
 static sdp_packet_info *sdp_pi;
 
