@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.118 2003/05/08 19:26:08 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.119 2003/05/10 01:57:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1016,29 +1016,38 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset += size_is - (offset % size_is);
 
     if (size_is == sizeof(guint16)) {
-            /* XXX - use drep to determine the byte order? */
-            s = tvb_fake_unicode(tvb, offset, buffer_len / 2, TRUE);
-            /*
-             * XXX - we don't support a string type with Unicode
-             * characters, so if this is a string item, we make
-             * its value be the "fake Unicode" string.
-             */
-            if (tree && buffer_len) {
-                hfinfo = proto_registrar_get_nth(hfindex);
-                if (hfinfo->type == FT_STRING) {
-                    proto_tree_add_string(string_tree, hfindex, tvb, offset,
-                                        buffer_len, s);
-                } else {
-                    proto_tree_add_item(string_tree, hfindex, tvb, offset,
-                                        buffer_len, drep[0] & 0x10);
-                }
-            }
-    } else {
-            s = g_malloc(buffer_len + 1);
-            tvb_memcpy(tvb, s, offset, buffer_len);
-            if (tree && buffer_len)
+        /* XXX - use drep to determine the byte order? */
+        s = tvb_fake_unicode(tvb, offset, buffer_len / 2, TRUE);
+        /*
+         * XXX - we don't support a string type with Unicode
+         * characters, so if this is a string item, we make
+         * its value be the "fake Unicode" string.
+         */
+        if (tree && buffer_len) {
+            hfinfo = proto_registrar_get_nth(hfindex);
+            if (hfinfo->type == FT_STRING) {
+                proto_tree_add_string(string_tree, hfindex, tvb, offset,
+                                      buffer_len, s);
+            } else {
                 proto_tree_add_item(string_tree, hfindex, tvb, offset,
                                     buffer_len, drep[0] & 0x10);
+            }
+        }
+    } else {
+        /*
+         * First, make sure the entire string is in the tvbuff, and throw
+         * an exception if it isn't.  If the length is bogus, this should
+         * keep us from trying to allocate an immensely large buffer.
+         * (It won't help if the length is *valid* but immensely large,
+         * but that's another matter; in any case, that would happen only
+         * if we had an immensely large tvbuff....)
+         */
+        tvb_ensure_bytes_exist(tvb, offset, buffer_len);
+        s = g_malloc(buffer_len + 1);
+        tvb_memcpy(tvb, s, offset, buffer_len);
+        if (tree && buffer_len)
+            proto_tree_add_item(string_tree, hfindex, tvb, offset,
+                                buffer_len, drep[0] & 0x10);
     }
 
     if (string_item != NULL)
