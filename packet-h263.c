@@ -5,7 +5,7 @@
  * Copyright 2003 Niklas Ögren <niklas.ogren@7l.se>
  * Seven Levels Consultants AB
  *
- * $Id: packet-h263.c,v 1.3 2003/08/24 01:25:19 sahlberg Exp $
+ * $Id: packet-h263.c,v 1.4 2003/08/25 21:48:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,7 +59,8 @@ static int hf_h263_picture_coding_type = -1;
 static int hf_h263_unrestricted_motion_vector = -1;
 static int hf_h263_syntax_based_arithmetic = -1;
 static int hf_h263_advanced_prediction = -1;
-/*static int hf_h263_reserved = -1;*/
+static int hf_h263_r = -1;
+static int hf_h263_rr = -1;
 static int hf_h263_dbq = -1;
 static int hf_h263_trb = -1;
 static int hf_h263_tr = -1;
@@ -131,11 +132,11 @@ dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	  h263_tree = proto_item_add_subtree( ti, ett_h263 );
 
 	  /* FBIT 1st octet, 1 bit */
-	  proto_tree_add_boolean( h263_tree, hf_h263_ftype, tvb, offset, 1, tvb_get_guint8( tvb, offset ) >> 7 );
+	  proto_tree_add_boolean( h263_tree, hf_h263_ftype, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x80 );
 	  /* PBIT 1st octet, 1 bit */
-	  proto_tree_add_boolean( h263_tree, hf_h263_pbframes, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) << 1 ) >> 7 );
+	  proto_tree_add_boolean( h263_tree, hf_h263_pbframes, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x40 );
 	  /* SBIT 1st octet, 3 bits */
-	  proto_tree_add_uint( h263_tree, hf_h263_sbit, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) << 2 ) >> 5 );
+	  proto_tree_add_uint( h263_tree, hf_h263_sbit, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x38 ) >> 3 );
 	  /* EBIT 1st octet, 3 bits */
 	  proto_tree_add_uint( h263_tree, hf_h263_ebit, tvb, offset, 1, tvb_get_guint8( tvb, offset )  & 0x7 );
 
@@ -146,26 +147,31 @@ dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	  if(h263_version == 0x00) { /* MODE A */
 	    /* I flag, 1 bit */
-	    proto_tree_add_boolean( h263_tree, hf_h263_picture_coding_type, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) << 3 ) >>7 );
+	    proto_tree_add_boolean( h263_tree, hf_h263_picture_coding_type, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x10 );
 	    /* U flag, 1 bit */
-	    proto_tree_add_boolean( h263_tree, hf_h263_unrestricted_motion_vector, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) << 4 ) >>7 );
+	    proto_tree_add_boolean( h263_tree, hf_h263_unrestricted_motion_vector, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x08 );
 	    /* S flag, 1 bit */
-	    proto_tree_add_boolean( h263_tree, hf_h263_syntax_based_arithmetic, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) << 5 ) >>7 );
+	    proto_tree_add_boolean( h263_tree, hf_h263_syntax_based_arithmetic, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x04 );
 	    /* A flag, 1 bit */
-	    proto_tree_add_boolean( h263_tree, hf_h263_advanced_prediction, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) << 6 ) >>7 );
+	    proto_tree_add_boolean( h263_tree, hf_h263_advanced_prediction, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x02 );
+
+	    /* Reserved 2nd octect, 1 bit + 3rd octect 3 bits */
+	    proto_tree_add_uint( h263_tree, hf_h263_r, tvb, offset, 2, ( ( tvb_get_guint8( tvb, offset ) & 0x1 ) << 3 ) + ( ( tvb_get_guint8( tvb, offset + 1 ) & 0xe0 ) >> 5 ) );
 
 	    offset++;
 
 	    /* DBQ 3 octect, 2 bits */
-	    proto_tree_add_uint( h263_tree, hf_h263_dbq, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) << 3 ) >>6 );
+	    proto_tree_add_uint( h263_tree, hf_h263_dbq, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x18 ) >> 3 );
 	    /* TRB 3 octect, 3 bits */
-	    proto_tree_add_uint( h263_tree, hf_h263_trb, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) << 5 ) >>5 );
+	    proto_tree_add_uint( h263_tree, hf_h263_trb, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x07 ) );
 
 	    offset++;
 	    
 	    /* TR 4 octect, 8 bits */
 	    proto_tree_add_uint( h263_tree, hf_h263_tr, tvb, offset, 1, tvb_get_guint8( tvb, offset ) );
 	    
+	    offset++;
+
 	  } else { /* MODE B or MODE C */
 
 	    /* QUANT 2 octect, 5 bits */
@@ -174,52 +180,63 @@ dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	    offset++;
 
 	    /* GOBN 3 octect, 5 bits */
-	    proto_tree_add_uint( h263_tree, hf_h263_gobn, tvb, offset, 1, tvb_get_guint8( tvb, offset ) >> 3);
+	    proto_tree_add_uint( h263_tree, hf_h263_gobn, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0xf8 ) >> 3);
 	    /* MBA 3 octect, 3 bits + 4 octect 6 bits */
-	    proto_tree_add_uint( h263_tree, hf_h263_mba, tvb, offset, 2, ( ( tvb_get_guint8( tvb, offset ) & 0x7 ) << 6 ) + ( tvb_get_guint8( tvb, offset + 1 ) >> 2 ) );
+	    proto_tree_add_uint( h263_tree, hf_h263_mba, tvb, offset, 2, ( ( tvb_get_guint8( tvb, offset ) & 0x7 ) << 6 ) + ( ( tvb_get_guint8( tvb, offset + 1 ) & 0xfc ) >> 2 ) );
 	    
 	    offset++;
 
+	    /* Reserved 4th octect, 2 bits */
+	    proto_tree_add_uint( h263_tree, hf_h263_r, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x3 ) );
+
+	    offset++;
+
 	    /* I flag, 1 bit */
-	    proto_tree_add_boolean( h263_tree, hf_h263_picture_coding_type, tvb, offset, 1, tvb_get_guint8( tvb, offset ) >>7 );
+	    proto_tree_add_boolean( h263_tree, hf_h263_picture_coding_type, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x80 );
 	    /* U flag, 1 bit */
-	    proto_tree_add_boolean( h263_tree, hf_h263_unrestricted_motion_vector, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) << 1 ) >>7 );
+	    proto_tree_add_boolean( h263_tree, hf_h263_unrestricted_motion_vector, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x40 );
 	    /* S flag, 1 bit */
-	    proto_tree_add_boolean( h263_tree, hf_h263_syntax_based_arithmetic, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) << 2 ) >>7 );
+	    proto_tree_add_boolean( h263_tree, hf_h263_syntax_based_arithmetic, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x20 );
 	    /* A flag, 1 bit */
-	    proto_tree_add_boolean( h263_tree, hf_h263_advanced_prediction, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) << 3 ) >>7 );
+	    proto_tree_add_boolean( h263_tree, hf_h263_advanced_prediction, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x10 );
 
 	    /* HMV1 5th octect, 4 bits + 6th octect 3 bits*/
-	    proto_tree_add_uint( h263_tree, hf_h263_hmv1, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0xf ) << 3 ) + ( tvb_get_guint8( tvb, offset+1 ) >> 5));
+	    proto_tree_add_uint( h263_tree, hf_h263_hmv1, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0xf ) << 3 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xe0 ) >> 5) );
 
 	    offset++;
 	    
 	    /* VMV1 6th octect, 5 bits + 7th octect 2 bits*/
-	    proto_tree_add_uint( h263_tree, hf_h263_vmv1, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0x1f ) << 2 ) + ( tvb_get_guint8( tvb, offset+1 ) >> 6));
+	    proto_tree_add_uint( h263_tree, hf_h263_vmv1, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0x1f ) << 2 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xc0 ) >> 6) );
 	    
 	    offset++;
 
 	    /* HMV2 7th octect, 6 bits + 8th octect 1 bit*/
-	    proto_tree_add_uint( h263_tree, hf_h263_hmv2, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0x3f ) << 1 ) + ( tvb_get_guint8( tvb, offset+1 ) >> 7));
+	    proto_tree_add_uint( h263_tree, hf_h263_hmv2, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0x3f ) << 1 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xf0 ) >> 7) );
 	    
 	    offset++;
 
 	    /* VMV2 8th octect, 7 bits*/
 	    proto_tree_add_uint( h263_tree, hf_h263_vmv2, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x7f );
 		  
+	    offset++;
+
 	    if(h263_version == 0x03) { /* MODE C */
-	      offset+=3;
+	      /* Reserved 9th to 11th octect, 8 + 8 + 3 bits */
+	      proto_tree_add_uint( h263_tree, hf_h263_rr, tvb, offset, 3, ( tvb_get_guint8( tvb, offset ) << 11 ) + ( tvb_get_guint8( tvb, offset + 1 ) << 3 ) + ( ( tvb_get_guint8( tvb, offset + 2 ) & 0xe0 ) >> 5 ) );
+
+	      offset+=2;
 
 	      /* DBQ 11th octect, 2 bits */
-	      proto_tree_add_uint( h263_tree, hf_h263_dbq, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) << 3 ) >>6 );
+	      proto_tree_add_uint( h263_tree, hf_h263_dbq, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x18 ) >>3 );
 	      /* TRB 11th octect, 3 bits */
-	      proto_tree_add_uint( h263_tree, hf_h263_trb, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) << 5 ) >>5 );
+	      proto_tree_add_uint( h263_tree, hf_h263_trb, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x07 );
 	      
 	      offset++;
 	      
 	      /* TR 12th octect, 8 bits */
 	      proto_tree_add_uint( h263_tree, hf_h263_tr, tvb, offset, 1, tvb_get_guint8( tvb, offset ) );
 	      
+	      offset++;
 	    } /* end mode c */
 	  } /* end not mode a */
 
@@ -459,6 +476,30 @@ proto_register_h263(void)
 				NULL,
 				0x0,
 				"Vertical motion vector predictor for block number 3 in the first MB in this packet when four motion vectors are used with the advanced prediction option.", HFILL
+			}
+		},
+		{
+			&hf_h263_r,
+			{
+				"Reserved field",
+				"h263.r",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"Reserved field that houls contain zeroes", HFILL
+			}
+		},
+		{
+			&hf_h263_rr,
+			{
+				"Reserved field 2",
+				"h263.rr",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"Reserved field that should contain zeroes", HFILL
 			}
 		},
 		{
