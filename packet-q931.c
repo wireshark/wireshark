@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.74 2004/03/18 09:00:37 guy Exp $
+ * $Id: packet-q931.c,v 1.75 2004/03/25 23:59:01 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -2100,6 +2100,7 @@ dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	proto_tree_add_item(tree, hfindex, tvb, offset, len, FALSE);
+	proto_item_append_text(proto_tree_get_parent(tree), "  '%s'", tvb_format_text(tvb, offset, len));
 
 	if ( number_plan == 1 ) {
 		if ( e164_info.e164_number_type != NONE ){
@@ -2327,6 +2328,7 @@ dissect_q931_ia5_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree,
 	if (len != 0) {
 		proto_tree_add_text(tree, tvb, offset, len, "%s: %s", label,
 		    tvb_format_text(tvb, offset, len));
+		proto_item_append_text(proto_tree_get_parent(tree), "  '%s'", tvb_format_text(tvb, offset, len));
 	}
 }
 
