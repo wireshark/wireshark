@@ -5,7 +5,7 @@
  * ISO 10589 ISIS (Intradomain Routing Information Exchange Protocol)
  * ISO  9542 ESIS (End System To Intermediate System Routing Exchange Protocol)
  *
- * $Id: packet-osi-options.c,v 1.15 2003/12/11 21:23:36 ulfl Exp $
+ * $Id: packet-osi-options.c,v 1.16 2003/12/13 02:30:18 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -213,7 +213,7 @@ dissect_option_qos( const guchar type, const guchar sub_type, int offset,
 }
 
 static void
-dissect_option_route( guchar parm_type, guchar offset, guchar parm_len,
+dissect_option_route( guchar parm_type, int offset, guchar parm_len,
                       tvbuff_t *tvb, proto_tree *tree ) {
 
   guchar      next_hop = 0;
@@ -274,7 +274,7 @@ dissect_option_route( guchar parm_type, guchar offset, guchar parm_len,
 
 
 static void
-dissect_option_rfd( const guchar error, const guchar field, guchar offset,
+dissect_option_rfd( const guchar error, const guchar field, int offset,
                           guchar len, tvbuff_t *tvb, proto_tree *tree ) {
   guchar error_class = 0;
   char   *format_string[] =
@@ -416,12 +416,12 @@ dissect_osi_options( guchar opt_len, tvbuff_t *tvb,
           case   OSI_OPT_SOURCE_ROUTING:
           case   OSI_OPT_RECORD_OF_ROUTE:
                  dissect_option_route( parm_type,
-                                       (guchar) offset, parm_len, tvb, osi_option_tree );
+                                       offset, parm_len, tvb, osi_option_tree );
           break;
           case   OSI_OPT_REASON_OF_DISCARD:
                  dissect_option_rfd( tvb_get_guint8(tvb, offset),
                                      tvb_get_guint8(tvb, offset + 1),
-                                     (guchar) offset, parm_len, tvb, osi_option_tree );
+                                     offset, parm_len, tvb, osi_option_tree );
           break;
         }
         opt_len -= parm_len + 2;
