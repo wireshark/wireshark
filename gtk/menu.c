@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.6 1999/11/06 06:27:08 guy Exp $
+ * $Id: menu.c,v 1.7 1999/11/10 07:01:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,7 @@
 #include "packet.h"
 #include "capture_dlg.h"
 #include "find_dlg.h"
+#include "goto_dlg.h"
 #include "summary.h"
 #include "display_opts.h"
 #include "prefs_dlg.h"
@@ -103,6 +104,7 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Display/_Match Selected", NULL, GTK_MENU_FUNC(match_selected_cb), 0, NULL},
   {"/Display/_Colorize Display...", NULL, GTK_MENU_FUNC(color_display_cb), 0, NULL},
   {"/Display/_Find Frame...", "<control>F", GTK_MENU_FUNC(find_frame_cb), 0, NULL},
+  {"/Display/_Go To Frame...", NULL, GTK_MENU_FUNC(goto_frame_cb), 0, NULL},
   {"/Display/Collapse _All", NULL, GTK_MENU_FUNC(collapse_all_cb), 0, NULL},
   {"/Display/_Expand All", NULL, GTK_MENU_FUNC(expand_all_cb), 0, NULL},
   {"/_Tools", NULL, NULL, 0, "<Branch>" },
@@ -155,6 +157,7 @@ menus_init(void) {
     set_menu_sensitivity("/Display/Match Selected", FALSE);
     set_menu_sensitivity("/Display/Colorize Display...", FALSE);
     set_menu_sensitivity("/Display/Find Frame...", FALSE);
+    set_menu_sensitivity("/Display/Go To Frame...", FALSE);
     set_menu_sensitivity("/Display/Collapse All", FALSE);
     set_menu_sensitivity("/Display/Expand All", FALSE);
     set_menu_sensitivity("/Tools/Follow TCP Stream", FALSE);
