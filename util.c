@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.49 2001/01/28 23:56:27 guy Exp $
+ * $Id: util.c,v 1.50 2001/03/22 06:14:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -714,7 +714,7 @@ get_interface_list(int *err, char *err_str) {
 		     characters */
 		  do 
 		  { 
-			  win95names=names; 
+			  win95names=(char *)names; 
 			  j = 0; 
 			  while (win95names[i] != 0) 
 				  newname[j++] = win95names[i++]; 
