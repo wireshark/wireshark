@@ -28,6 +28,7 @@
 #ifdef HAVE_LIBPCAP
 
 extern if_info_t *if_info_new(char *name, char *description);
+extern void if_info_add_address(if_info_t *if_info, struct sockaddr *addr);
 #ifdef HAVE_PCAP_FINDALLDEVS
 extern GList *get_interface_list_findalldevs(int *err, char *err_str);
 #endif

@@ -189,42 +189,48 @@ if_info_new(char *name, char *description)
 		if_info->description = NULL;
 	else
 		if_info->description = g_strdup(description);
-    if_info->ip_addr = NULL;
-    if_info->loopback = FALSE;
+	if_info->ip_addr = NULL;
+	if_info->loopback = FALSE;
 	return if_info;
 }
 
-
-/* get all ip address information from the given interface */
-static void if_info_ip(if_info_t *if_info, pcap_if_t *d)
+void
+if_info_add_address(if_info_t *if_info, struct sockaddr *addr)
 {
-  pcap_addr_t *a;
-  guint32       *ip_addr;
+	struct sockaddr_in *ai;
+	guint32 *ip_addr;
 
-  /* Loopback interface */
-  if_info->loopback = (d->flags & PCAP_IF_LOOPBACK) ? TRUE : FALSE;
+	switch (addr->sa_family) {
 
-  /* All addresses */
-  for(a=d->addresses;a;a=a->next) {
-    switch(a->addr->sa_family)
-    {
-      /* IPv4 address */
-      case AF_INET:
-        if (a->addr) {
-	      struct sockaddr_in *ai = ((struct sockaddr_in *)(a->addr));
-          ip_addr = g_malloc(sizeof(*ip_addr));
-          *ip_addr = *((guint32 *)&(ai->sin_addr.s_addr));
-          if_info->ip_addr = g_slist_append(if_info->ip_addr, ip_addr);
-        }
-        break;
-      default:
-        break;
-    }
-  }
+	case AF_INET:
+		ai = (struct sockaddr_in *)addr;
+		ip_addr = g_malloc(sizeof(*ip_addr));
+		*ip_addr = *((guint32 *)&(ai->sin_addr.s_addr));
+		if_info->ip_addr = g_slist_append(if_info->ip_addr, ip_addr);
+		break;
+	}
 }
 
-
 #ifdef HAVE_PCAP_FINDALLDEVS
+/*
+ * Get all IPv4 address information, and the loopback flag, for the given
+ * interface.
+ */
+static void
+if_info_ip(if_info_t *if_info, pcap_if_t *d)
+{
+	pcap_addr_t *a;
+
+	/* Loopback flag */
+	if_info->loopback = (d->flags & PCAP_IF_LOOPBACK) ? TRUE : FALSE;
+
+	/* All addresses */
+	for (a = d->addresses; a != NULL; a = a->next) {
+		if (a->addr != NULL)
+			if_info_add_address(if_info, a->addr);
+	}
+}
+
 GList *
 get_interface_list_findalldevs(int *err, char *err_str)
 {

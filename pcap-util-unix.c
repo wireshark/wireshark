@@ -68,7 +68,7 @@ struct rtentry;
 #ifndef HAVE_PCAP_FINDALLDEVS
 struct search_user_data {
 	char	*name;
-	int	found;
+	if_info_t *if_info;
 };
 
 static void
@@ -135,7 +135,7 @@ get_interface_list(int *err, char *err_str)
 	last = (struct ifreq *) ((char *) ifr + ifc.ifc_len);
 	while (ifr < last) {
 		/*
-		 * Skip addresses that begin with "dummy", or that include
+		 * Skip entries that begin with "dummy", or that include
 		 * a ":" (the latter are Solaris virtuals).
 		 */
 		if (strncmp(ifr->ifr_name, "dummy", 5) == 0 ||
@@ -144,16 +144,19 @@ get_interface_list(int *err, char *err_str)
 
 		/*
 		 * If we already have this interface name on the list,
-		 * don't add it (SIOCGIFCONF returns, at least on
-		 * BSD-flavored systems, one entry per interface *address*;
-		 * if an interface has multiple addresses, we get multiple
-		 * entries for it).
+		 * don't add it, but, if we don't already have an IPv4
+		 * address for it, add that address (SIOCGIFCONF returns,
+		 * at least on BSD-flavored systems, one entry per
+		 * interface *address*; if an interface has multiple
+		 * addresses, we get multiple entries for it).
 		 */
 		user_data.name = ifr->ifr_name;
-		user_data.found = FALSE;
+		user_data.if_info = NULL;
 		g_list_foreach(il, search_for_if_cb, &user_data);
-		if (user_data.found)
+		if (user_data.if_info != NULL) {
+			if_info_add_address(user_data.if_info, &ifr->ifr_addr);
 			goto next;
+		}
 
 		/*
 		 * Get the interface flags.
@@ -195,10 +198,13 @@ get_interface_list(int *err, char *err_str)
 		 * device unless there are no non-loopback devices.
 		 */
 		if_info = if_info_new(ifr->ifr_name, NULL);
+		if_info_add_address(if_info, &ifr->ifr_addr);
 		if ((ifrflags.ifr_flags & IFF_LOOPBACK) ||
-		    strncmp(ifr->ifr_name, "lo", 2) == 0)
+		    strncmp(ifr->ifr_name, "lo", 2) == 0) {
+			if_info->loopback = TRUE;
 			il = g_list_append(il, if_info);
-		else {
+		} else {
+			if_info->loopback = FALSE;
 			il = g_list_insert(il, if_info, nonloopback_pos);
 			/*
 			 * Insert the next non-loopback interface after this
@@ -266,7 +272,7 @@ search_for_if_cb(gpointer data, gpointer user_data)
 	if_info_t *if_info = data;
 
 	if (strcmp(if_info->name, search_user_data->name) == 0)
-		search_user_data->found = TRUE;
+		search_user_data->if_info = if_info;
 }
 #endif /* HAVE_PCAP_FINDALLDEVS */
 
