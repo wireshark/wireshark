@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.34 2003/01/06 11:27:00 sahlberg Exp $
+ * $Id: packet-ntlmssp.c,v 1.35 2003/03/04 20:52:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -197,16 +197,33 @@ typedef struct _ntlmssp_info {
   ntlmssp_blob lm_response;
 } ntlmssp_info;
 
+/*
+ * GMemChunk from which ntlmssp_info structures are allocated.
+ */
+static GMemChunk  *ntlmssp_info_chunk;
+static int ntlmssp_info_count = 10;
+
 /* If this struct exists in the payload_decrypt, then we have already
    decrypted it once */
 typedef struct _ntlmssp_packet_info {
   guint32 flags;
   guint8 challenge[8];  
-  guint8 decrypted_payload[1500]; /* 1500 is an arbitrary size */
+  guint8 *decrypted_payload;
   guint8 verifier[16];
   gboolean payload_decrypted;
   gboolean verifier_decrypted;
 } ntlmssp_packet_info;
+
+/*
+ * GMemChunk from which ntlmssp_packet_info structures are allocated.
+ */
+static GMemChunk  *ntlmssp_packet_info_chunk;
+static int ntlmssp_packet_info_count = 10;
+
+/*
+ * GSlist of decrypted payloads.
+ */
+static GSList *decrypted_payloads;
 
 /*
   Generate a challenge response, given an eight byte challenge and
@@ -684,7 +701,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
   }
 
   if (!conversation_get_proto_data(conversation, proto_ntlmssp)) {
-    conv_ntlmssp_info = g_malloc(sizeof(ntlmssp_info));
+    conv_ntlmssp_info = g_mem_chunk_alloc(ntlmssp_info_chunk);
     /* Insert the flags into the conversation */
     conv_ntlmssp_info->flags = negotiate_flags;
     /* Insert the challenge into the conversation */
@@ -1173,7 +1190,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb,
   packet_ntlmssp_info = p_get_proto_data(pinfo->fd, proto_ntlmssp);
   if (packet_ntlmssp_info == NULL) {
     /* We don't have any packet state, so create one */
-    packet_ntlmssp_info = g_malloc(sizeof(ntlmssp_packet_info));
+    packet_ntlmssp_info = g_mem_chunk_alloc(ntlmssp_packet_info_chunk);
     memset(packet_ntlmssp_info, 0, sizeof(ntlmssp_packet_info));
     p_add_proto_data(pinfo->fd, proto_ntlmssp, packet_ntlmssp_info);
   }
@@ -1213,6 +1230,9 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb,
 
     /* Store the decrypted contents in the packet state struct
        (of course at this point, they aren't decrypted yet) */
+    packet_ntlmssp_info->decrypted_payload = g_malloc (encrypted_block_length);
+    decrypted_payloads = g_slist_prepend(decrypted_payloads,
+                                         packet_ntlmssp_info->decrypted_payload);
     tvb_memcpy(tvb, packet_ntlmssp_info->decrypted_payload, 
 	       offset, encrypted_block_length);
     
@@ -1253,9 +1273,37 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb,
 }
 
 static void
+free_payload(gpointer decrypted_payload, gpointer user_data _U_)
+{
+	g_free(decrypted_payload);
+}
+
+static void
 ntlmssp_init_protocol(void)
 {
+	if (ntlmssp_info_chunk != NULL)
+		g_mem_chunk_destroy(ntlmssp_info_chunk);
+	if (ntlmssp_packet_info_chunk != NULL)
+		g_mem_chunk_destroy(ntlmssp_packet_info_chunk);
 
+	/*
+	 * Free the decrypted payloads, and then free the list of decrypted
+	 * payloads.
+	 */
+	if (decrypted_payloads != NULL) {
+		g_slist_foreach(decrypted_payloads, free_payload, NULL);
+		g_slist_free(decrypted_payloads);
+		decrypted_payloads = NULL;
+	}
+
+	ntlmssp_info_chunk = g_mem_chunk_new("ntlmssp_info_chunk",
+	    sizeof(ntlmssp_info),
+	    ntlmssp_info_count * sizeof(ntlmssp_info),
+	    G_ALLOC_ONLY);
+	ntlmssp_packet_info_chunk = g_mem_chunk_new("ntlmssp_packet_info_chunk",
+	    sizeof(ntlmssp_packet_info),
+	    ntlmssp_packet_info_count * sizeof(ntlmssp_packet_info),
+	    G_ALLOC_ONLY);
 }
 
 void
