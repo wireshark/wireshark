@@ -2,7 +2,7 @@
  * Routines for telnet packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.32 2002/08/28 21:00:36 jmayer Exp $
+ * $Id: packet-telnet.c,v 1.33 2002/10/25 21:09:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,6 +120,7 @@ telnet_sub_option(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
   guint8 opt_byte;
   int subneg_len, req;
   const guchar *opt;
+  int iac_offset;
   guint len;
 
   offset += 2;	/* skip IAC and SB */
@@ -136,11 +137,12 @@ telnet_sub_option(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
 
   /* Search for an IAC. */
   len = tvb_length_remaining(tvb, offset);
-  offset = tvb_find_guint8(tvb, offset, len, TN_IAC);
+  iac_offset = tvb_find_guint8(tvb, offset, len, TN_IAC);
   if (offset == -1) {
     /* None found - run to the end of the packet. */
     offset += len;
-  }
+  } else
+    offset = iac_offset;
 
   subneg_len = offset - start_offset;
 
@@ -285,6 +287,11 @@ telnet_command(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
   case TN_DONT:
     offset = telnet_will_wont_do_dont(telnet_tree, tvb, start_offset,
 					"Don't");
+    break;
+
+  default:
+    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
+			"Command: Unknown (0x%02x)", optcode);
     break;
   }
 
