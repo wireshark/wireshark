@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.53 2003/02/28 06:04:30 guy Exp $
+dnl $Id: acinclude.m4,v 1.54 2003/05/04 18:50:51 gerald Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -677,5 +677,44 @@ AC_DEFUN([AC_ETHEREAL_GNU_SED_CHECK],
 	else
 		AC_MSG_RESULT(no)
 		HAVE_GNU_SED=no
+	fi
+])
+
+#
+# AC_ETHEREAL_ADNS_CHECK
+#
+AC_DEFUN(AC_ETHEREAL_ADNS_CHECK,
+[
+	want_adns=defaultyes
+
+	AC_ARG_WITH(adns,
+	[  --with-adns=DIR          use GNU ADNS, located in directory DIR.], [
+	if   test "x$withval" = "xno";  then
+		want_adns=no
+	elif test "x$withval" = "xyes"; then
+		want_adns=yes
+	elif test -d "$withval"; then
+		want_adns=yes
+		AC_ETHEREAL_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+	fi
+	])
+
+	if test "x$want_adns" = "xdefaultyes"; then
+		want_adns=yes
+		withval=/usr/local
+		if test -d "$withval"; then
+			AC_ETHEREAL_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+		fi
+	fi
+
+	if test "x$want_adns" = "xyes"; then
+		AC_CHECK_LIB(adns, adns_init,
+		  [
+		    ADNS_LIBS=-ladns
+	    	AC_DEFINE(HAVE_GNU_ADNS, 1, [Define to use GNU ADNS library])
+		  ],,
+		)
+	else
+		AC_MSG_RESULT(not required)
 	fi
 ])

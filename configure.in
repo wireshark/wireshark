@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.205 2003/05/01 03:09:51 gerald Exp $
+# $Id: configure.in,v 1.206 2003/05/04 18:50:51 gerald Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -617,6 +617,17 @@ fi
 
 AC_SUBST(SNMP_LIBS)
 
+dnl ADNS Check
+ADNS_LIBS=''
+AC_MSG_CHECKING(whether to use the GNU ADNS library if available)
+if test "x$enable_adns" = "xno" ; then
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	AC_ETHEREAL_ADNS_CHECK
+fi
+AC_SUBST(ADNS_LIBS)
+
 dnl Checks for typedefs, structures, and compiler characteristics.
 # AC_C_CONST
 
@@ -791,6 +802,12 @@ else
 	zlib_message="yes"
 fi
 
+if test "x$want_adns" = "xno" ; then
+	adns_message="no"
+else
+	adns_message="yes"
+fi
+
 if test "x$NETSNMPCONFIG" != "xno" -a "x$NETSNMPCONFIG" != "x" -a -x "$NETSNMPCONFIG" ; then
 	snmp_libs_message="yes (net-snmp)"
 elif test "x$SNMP_LIBS" = "x" ; then
@@ -815,5 +832,6 @@ echo "                       Use plugins : $have_plugins"
 echo "               Use GTK+ v2 library : $enable_gtk2"
 echo "                  Use pcap library : $want_pcap"
 echo "                  Use zlib library : $zlib_message"
+echo "              Use GNU ADNS library : $adns_message"
 echo "          Use IPv6 name resolution : $enable_ipv6"
 echo "     Use UCD SNMP/NET-SNMP library : $snmp_libs_message"

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.181 2003/04/23 03:50:59 guy Exp $
+ * $Id: tethereal.c,v 1.182 2003/05/04 18:50:51 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1764,6 +1764,11 @@ wtap_dispatch_cb_print(guchar *user, const struct wtap_pkthdr *phdr,
   cf->count++;
 
   fill_in_fdata(&fdata, cf, phdr, offset);
+
+  /* Grab any resolved addresses */
+  if (g_resolv_flags) {
+    host_name_lookup_process(NULL);
+  }
 
   passed = TRUE;
   if (cf->rfcode || verbose || num_tap_filters!=0)

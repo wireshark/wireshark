@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.c,v 1.22 2002/10/22 08:22:05 guy Exp $
+ * $Id: epan.c,v 1.23 2003/05/04 18:50:53 gerald Exp $
  *
  * Ethereal Protocol Analyzer Library
  */
@@ -19,6 +19,7 @@
 #include "packet.h"
 #include "column-utils.h"
 #include "../tap.h"
+#include "resolv.h"
 
 /*
  * XXX - this takes the plugin directory as an argument, because
@@ -53,6 +54,7 @@ epan_init(const char *plugin_dir, void (register_all_protocols)(void),
 	packet_init();
 	dfilter_init();
 	final_registration_all_protocols();
+	host_name_lookup_init();
 }
 
 void
@@ -64,6 +66,7 @@ epan_cleanup(void)
 	frame_data_cleanup();
 	tvbuff_cleanup();
 	except_deinit();
+	host_name_lookup_cleanup();
 }
 
 void

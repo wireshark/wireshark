@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.292 2003/05/03 00:48:37 guy Exp $
+ * $Id: main.c,v 1.293 2003/05/04 18:50:56 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1525,6 +1525,11 @@ main(int argc, char *argv[])
   /* this is to keep tap extensions updating once every 3 seconds */
   gtk_timeout_add(3000, (GtkFunction)update_cb,(gpointer)NULL);
 #endif /* !WIN32 && GTK2 && G_THREADS_ENABLED */
+
+#if HAVE_GNU_ADNS
+  gtk_timeout_add(750, (GtkFunction) host_name_lookup_process, NULL);
+#endif
+
 
   /* Set the current locale according to the program environment.
    * We haven't localized anything, but some GTK widgets are localized

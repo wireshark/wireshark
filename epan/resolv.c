@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.30 2003/01/26 19:35:29 deniel Exp $
+ * $Id: resolv.c,v 1.31 2003/05/04 18:50:53 gerald Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -75,6 +75,11 @@
 
 #ifdef NEED_INET_V6DEFS_H
 # include "inet_v6defs.h"
+#endif
+
+#ifdef HAVE_GNU_ADNS
+# include <errno.h>
+# include <adns.h>
 #endif
 
 #include "packet.h"
@@ -182,6 +187,29 @@ gchar *g_ipxnets_path  = NULL;		/* global ipxnets file   */
 gchar *g_pipxnets_path = NULL;		/* personal ipxnets file */
 					/* first resolving call  */
 
+/* GNU ADNS */
+
+#ifdef HAVE_GNU_ADNS
+
+adns_state ads;
+
+/* XXX - Create a preference for this */
+#define ADNS_MAX_CONCURRENCY 500
+int adns_currently_queued = 0;
+
+typedef struct _adns_queue_msg
+{
+  gboolean          submitted;
+  guint32           ip4_addr;
+  struct e_in6_addr ip6_addr;
+  int               type;
+  adns_query        query;
+} adns_queue_msg_t;
+
+GList *adns_queue_head = NULL;
+
+#endif /* HAVE_GNU_ADNS */
+
 /*
  *  Local function definitions
  */
@@ -250,6 +278,7 @@ static guchar *serv_name_lookup(guint port, port_type proto)
 
 } /* serv_name_lookup */
 
+
 #ifdef AVOID_DNS_TIMEOUT
 
 #define DNS_TIMEOUT 	2 	/* max sec per call */
@@ -267,6 +296,9 @@ static guchar *host_name_lookup(guint addr, gboolean *found)
   int hash_idx;
   hashname_t * volatile tp;
   struct hostent *hostp;
+#ifdef HAVE_GNU_ADNS
+  adns_queue_msg_t *qmsg;
+#endif
 
   *found = TRUE;
 
@@ -296,6 +328,18 @@ static guchar *host_name_lookup(guint addr, gboolean *found)
   tp->addr = addr;
   tp->next = NULL;
 
+#ifdef HAVE_GNU_ADNS
+  qmsg = g_malloc(sizeof(adns_queue_msg_t));
+  qmsg->type = AF_INET;
+  qmsg->ip4_addr = addr;
+  qmsg->submitted = FALSE;
+  adns_queue_head = g_list_append(adns_queue_head, (gpointer) qmsg);
+
+  tp->is_dummy_entry = TRUE;
+  ip_to_str_buf((guint8 *)&addr, tp->name);
+  return tp->name;
+#else
+
   /*
    * The Windows "gethostbyaddr()" insists on translating 0.0.0.0 to
    * the name of the host on which it's running; to work around that
@@ -303,28 +347,38 @@ static guchar *host_name_lookup(guint addr, gboolean *found)
    * name.
    */
   if (addr != 0 && (g_resolv_flags & RESOLV_NETWORK)) {
-#ifdef AVOID_DNS_TIMEOUT
+  /* Use async DNS if possible, else fall back to timeouts,
+   * else call gethostbyaddr and hope for the best
+   */
+
+# ifdef AVOID_DNS_TIMEOUT
 
     /* Quick hack to avoid DNS/YP timeout */
 
     if (!setjmp(hostname_env)) {
       signal(SIGALRM, abort_network_query);
       alarm(DNS_TIMEOUT);
-#endif
+# endif /* AVOID_DNS_TIMEOUT */
+
       hostp = gethostbyaddr((char *)&addr, 4, AF_INET);
-#ifdef AVOID_DNS_TIMEOUT
+
+# ifdef AVOID_DNS_TIMEOUT
       alarm(0);
-#endif
+# endif /* AVOID_DNS_TIMEOUT */
+
       if (hostp != NULL) {
 	strncpy(tp->name, hostp->h_name, MAXNAMELEN);
 	tp->name[MAXNAMELEN-1] = '\0';
 	tp->is_dummy_entry = FALSE;
 	return tp->name;
       }
-#ifdef AVOID_DNS_TIMEOUT
+
+# ifdef AVOID_DNS_TIMEOUT
     }
-#endif
+# endif /* AVOID_DNS_TIMEOUT */
+
   }
+#endif /* HAVE_GNU_ADNS */
 
   /* unknown host or DNS timeout */
 
@@ -1366,6 +1420,86 @@ static guint ipxnet_addr_lookup(const guchar *name, gboolean *success)
 /*
  *  External Functions
  */
+
+#ifdef HAVE_GNU_ADNS
+
+void 
+host_name_lookup_init() {
+  /* XXX - Any flags we should be using? */
+  /* XXX - We could provide config settings for DNS servers, and
+           pass them to ADNS with adns_init_strcfg */
+  adns_init(&ads, 0, 0 /*0=>stderr*/);
+  adns_currently_queued = 0;
+}
+
+/* XXX - The ADNS "documentation" isn't very clear:
+ * - Do we need to keep our query structures around?
+ */
+gint
+host_name_lookup_process(gpointer data _U_) {
+  adns_queue_msg_t *almsg;
+  GList *cur;
+  char addr_str[] = "111.222.333.444.in-addr.arpa.";
+  guint8 *addr_bytes;
+  adns_answer *ans;
+  int ret;
+  gboolean dequeue;
+
+  adns_queue_head = g_list_first(adns_queue_head);
+
+  cur = adns_queue_head;
+  while (cur && adns_currently_queued < ADNS_MAX_CONCURRENCY) {
+    almsg = (adns_queue_msg_t *) adns_queue_head->data;
+    if (! almsg->submitted && almsg->type == AF_INET) {
+      addr_bytes = (guint8 *) &almsg->ip4_addr;
+      sprintf(addr_str, "%u.%u.%u.%u.in-addr.arpa.", addr_bytes[3],
+          addr_bytes[2], addr_bytes[1], addr_bytes[0]);
+      adns_submit (ads, addr_str, adns_r_ptr, 0, NULL, &almsg->query);
+      almsg->submitted = TRUE;
+      adns_currently_queued++;
+    }
+    cur = cur->next;
+  }
+
+  cur = adns_queue_head;
+  while (cur) {
+    dequeue = FALSE;
+    almsg = (adns_queue_msg_t *) cur->data;
+    if (almsg->submitted) {
+      ret = adns_check(ads, &almsg->query, &ans, NULL);
+      if (ret == 0) {
+	if (ans->status == adns_s_ok) {
+	  add_host_name(almsg->ip4_addr, *ans->rrs.str);
+	}
+	dequeue = TRUE;
+      }
+    }
+    cur = cur->next;
+    if (dequeue) {
+      adns_queue_head = g_list_remove(adns_queue_head, (void *) almsg);
+      g_free(almsg);
+      adns_currently_queued--;
+    }
+  }
+
+  return 1;
+}
+
+void
+host_name_lookup_cleanup() {
+  void *qdata;
+
+  adns_queue_head = g_list_first(adns_queue_head);
+  while (adns_queue_head) {
+    qdata = adns_queue_head->data;
+    adns_queue_head = g_list_remove(adns_queue_head, qdata);
+    g_free(qdata);
+  }
+  
+  adns_finish(ads);
+}
+
+#endif /* HAVE_GNU_ADNS */
 
 extern guchar *get_hostname(guint addr)
 {

@@ -1,7 +1,7 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.10 2003/01/26 19:35:29 deniel Exp $
+ * $Id: resolv.h,v 1.11 2003/05/04 18:50:54 gerald Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -66,10 +66,16 @@ extern guchar *get_tcp_port(guint port);
 /* get_sctp_port returns the SCTP port name or "%u" if not found */
 extern guchar *get_sctp_port(guint port);
 
+/* host_name_lookup_init fires up an ADNS socket if we're using ADNS */
+extern void host_name_lookup_init();
+
+/* host_name_lookup_cleanup cleans up an ADNS socket if we're using ADNS */
+extern void host_name_lookup_cleanup();
+
 /* get_hostname returns the host name or "%d.%d.%d.%d" if not found */
 extern guchar *get_hostname(guint addr);
 
-/* get_hostname returns the host name, or numeric addr if not found */
+/* get_hostname6 returns the host name, or numeric addr if not found */
 struct e_in6_addr;
 const guchar* get_hostname6(struct e_in6_addr *ad);
 
@@ -113,5 +119,15 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp);
  * return FALSE if we fail.
  */
 gboolean get_host_ipaddr6(const char *host, struct e_in6_addr *addrp);
+
+/*
+ * Asynchronous host name lookup initialization, processing, and cleanup
+ */
+
+#ifdef HAVE_GNU_ADNS
+void host_name_lookup_init();
+gint host_name_lookup_process(gpointer data);
+void host_name_lookup_cleanup();
+#endif
 
 #endif /* __RESOLV_H__ */

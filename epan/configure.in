@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.42 2003/05/01 03:09:54 gerald Exp $
+# $Id: configure.in,v 1.43 2003/05/04 18:50:53 gerald Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -218,6 +218,15 @@ AC_SUBST(INET_NTOP_O)
 AC_CHECK_FUNC(strptime, ,
   [AC_DEFINE(NEED_STRPTIME_H, 1, [Define if strptime.h needs to be included])
 ])
+
+dnl ADNS Check
+AC_MSG_CHECKING(whether to use the GNU ADNS library if available)
+if test "x$enable_adns" = "xno" ; then
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	AC_ETHEREAL_ADNS_CHECK
+fi
 
 #
 # Check whether GLib modules are supported, to determine whether we

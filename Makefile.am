@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.580 2003/04/30 23:21:19 guy Exp $
+# $Id: Makefile.am,v 1.581 2003/05/04 18:50:51 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -821,7 +821,7 @@ ethereal_LDADD = \
 	$(ethereal_additional_libs)	\
 	@SNMP_LIBS@ @SSL_LIBS@ 		\
 	$(plugin_ldadd)			\
-	@PCAP_LIBS@ @GTK_LIBS@
+	@PCAP_LIBS@ @GTK_LIBS@ @ADNS_LIBS@
 
 TETHEREAL_TAP_SRC = \
 	tap-dcerpcstat.c	\
@@ -863,7 +863,7 @@ tethereal_LDADD = \
 	@SNMP_LIBS@ @SSL_LIBS@		\
 	$(plugin_ldadd)			\
 	@GLIB_LIBS@ -lm			\
-	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@
+	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@
 
 if ENABLE_STATIC
 tethereal_LDFLAGS = -Wl,-static -all-static
