@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.270 2002/06/07 10:11:40 guy Exp $
+ * $Id: packet-smb.c,v 1.271 2002/07/13 04:32:14 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -787,7 +787,7 @@ smb_dcerpc_reassembly_init(void)
 
 
 static fragment_data *
-smb_trans_defragment(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
+smb_trans_defragment(proto_tree *tree _U_, packet_info *pinfo, tvbuff_t *tvb,
 		     int offset, int count, int pos, int totlen)
 {
 	fragment_data *fd_head=NULL;
@@ -7877,7 +7877,9 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 
 static int
-dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len, nt_trans_data *ntd)
+dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo, 
+			       int offset, proto_tree *parent_tree, int len, 
+			       nt_trans_data *ntd _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7948,7 +7950,9 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 }
  
 static int
-dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len, nt_trans_data *ntd, guint16 bc)
+dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo, 
+				int offset, proto_tree *parent_tree, 
+				int len, nt_trans_data *ntd _U_, guint16 bc)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -8139,7 +8143,9 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo, int offset, p
 }
  
 static int
-dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len, nt_trans_data *ntd)
+dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo, 
+				int offset, proto_tree *parent_tree, 
+				int len, nt_trans_data *ntd _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -11911,8 +11917,9 @@ dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 }
  
 static int
-dissect_4_3_4_8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
-    int offset, guint16 *bcp, gboolean *trunc)
+dissect_4_3_4_8(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
+		proto_tree *parent_tree _U_, int offset, guint16 *bcp, 
+		gboolean *trunc)
 {
 /*XXX im lazy. i havnt implemented this */
 	offset += *bcp;
