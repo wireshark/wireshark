@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@samba.org> Added a few 
  *		   bits and pieces ...
  *
- * $Id: packet-gssapi.c,v 1.23 2002/11/06 23:38:27 guy Exp $
+ * $Id: packet-gssapi.c,v 1.24 2002/11/23 06:02:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -339,6 +339,14 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		if (is_verifier) {
+			/*
+			 * XXX - these are GSS_Wrap() tokens.
+			 * "gssapi_init_oid()" should take an additional
+			 * handle for a routine to dissect those tokens.
+			 * See, for example, section 1.2.2 of RFC 1964,
+			 * which describes what Kerberos GSS_Wrap tokens
+			 * look like.
+			 */
 			proto_tree_add_text(subtree, tvb, offset, -1,
 			    "Authentication verifier");
 		} else {
