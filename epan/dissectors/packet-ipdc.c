@@ -72,7 +72,10 @@ void proto_reg_handoff_ipdc(void);
 static guint
 get_ipdc_pdu_len(tvbuff_t *tvb, int offset)
 {
-        return tvb_get_ntohs(tvb,offset+2)+4;
+        /* lower 10 bits only */
+        guint raw_len = (tvb_get_ntohs(tvb,offset+2) & 0x03FF);
+ 
+        return raw_len + 4;
 }
 
 static void
@@ -98,7 +101,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	gshort nr = tvb_get_guint8(tvb,0);
 	gshort ns = tvb_get_guint8(tvb,1);
-	guint16 payload_len = (guint16) get_ipdc_pdu_len(tvb,0);
+        guint payload_len = get_ipdc_pdu_len(tvb,0);
 
         gshort protocol_id;
         gshort trans_id_size;
@@ -140,7 +143,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* IPDC tags present - display message code and trans. ID */
 	protocol_id = tvb_get_guint8(tvb,4);
-       	trans_id_size = TRANS_ID_SIZE_IPDC;
+        trans_id_size = TRANS_ID_SIZE_IPDC; /* tvb_get_guint8(tvb,5); */
        	trans_id = tvb_get_ntohl(tvb,6);
        	message_code = tvb_get_ntohs(tvb,6+trans_id_size);
        	offset = 6 + trans_id_size + 2; /* past message_code */
