@@ -8,10 +8,10 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.30 2001/05/27 01:48:23 guy Exp $
+ * $Id: packet-afs.c,v 1.31 2001/05/27 05:00:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-tftp.c
@@ -181,7 +181,7 @@ afs_init_protocol(void)
  * Dissection routines
  */
 
-void
+static void
 dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int reply = 0;
@@ -1660,5 +1660,6 @@ proto_register_afs(void)
 	proto_register_field_array(proto_afs, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_init_routine(&afs_init_protocol);
-}
 
+	register_dissector("afs", dissect_afs, proto_afs);
+}

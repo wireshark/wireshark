@@ -4,10 +4,10 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.20 2001/05/27 01:48:24 guy Exp $
+ * $Id: packet-rx.c,v 1.21 2001/05/27 05:00:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-tftp.c
@@ -45,7 +45,6 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-rx.h"
-#include "packet-afs.h"
 #include "resolv.h"
 
 #define UDP_PORT_RX_LOW		7000
@@ -136,6 +135,8 @@ static gint ett_rx_ack = -1;
 static gint ett_rx_challenge = -1;
 static gint ett_rx_response = -1;
 static gint ett_rx_encrypted = -1;
+
+static dissector_handle_t afs_handle;
 
 static int
 dissect_rx_response_encrypted(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
@@ -517,7 +518,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	case RX_PACKET_TYPE_DATA: {
 		tvbuff_t *next_tvb;
 		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-		dissect_afs(next_tvb, pinfo, parent_tree);
+		call_dissector(afs_handle, next_tvb, pinfo, parent_tree);
 		};
 		break;
 	}
@@ -687,6 +688,11 @@ void
 proto_reg_handoff_rx(void)
 {
 	int port;
+
+	/*
+	 * Get handle for the AFS dissector.
+	 */
+	afs_handle = find_dissector("afs");
 
 	/* Ports in the range UDP_PORT_RX_LOW to UDP_PORT_RX_HIGH
 	   are all used for various AFS services. */
