@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.207 2000/08/19 18:20:58 deniel Exp $
+ * $Id: file.c,v 1.208 2000/08/21 15:45:19 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -731,7 +731,11 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     row = gtk_clist_append(GTK_CLIST(packet_list), fdata->cinfo->col_data);
     gtk_clist_set_row_data(GTK_CLIST(packet_list), row, fdata);
 
-    if (filter_list != NULL && (args.colorf != NULL)) {
+    if (fdata->flags.marked) {
+        /* XXX need user-configurable colors here (see packet_list_button_pressed_cb()) */
+        gtk_clist_set_background(GTK_CLIST(packet_list), row, &BLACK);
+        gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &WHITE);
+    } else if (filter_list != NULL && (args.colorf != NULL)) {
         gtk_clist_set_background(GTK_CLIST(packet_list), row,
                    &args.colorf->bg_color);
         gtk_clist_set_foreground(GTK_CLIST(packet_list), row,
@@ -774,6 +778,7 @@ read_packet(capture_file *cf, int offset)
   fdata->abs_usecs = phdr->ts.tv_usec;
   fdata->flags.encoding = CHAR_ASCII;
   fdata->flags.visited = 0;
+  fdata->flags.marked = 0;
   fdata->cinfo = NULL;
 
   passed = TRUE;
@@ -1606,7 +1611,7 @@ thaw_clist(capture_file *cf)
 }
 
 int
-save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
+save_cap_file(char *fname, capture_file *cf, gboolean save_filtered, gboolean save_marked,
 		guint save_format)
 {
   gchar        *from_filename;
@@ -1627,7 +1632,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
   gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, save_msg);
   g_free(save_msg);
 
-  if (!save_filtered && save_format == cf->cd_t) {
+  if (!save_filtered && !save_marked && save_format == cf->cd_t) {
     /* We're not filtering packets, and we're saving it in the format
        it's already in, so we can just move or copy the raw data. */
 
@@ -1691,16 +1696,24 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
     }
 
     /* XXX - have a way to save only the packets currently selected by
-       the display filter.
+       the display filter or the marked ones.
 
        If we do that, should we make that file the current file?  If so,
        it means we can no longer get at the other packets.  What does
        NetMon do? */
     for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
       /* XXX - do a progress bar */
-      if (!save_filtered || fdata->flags.passed_dfilter) {
-      	/* Either we're saving all frames, or we're saving filtered frames
-	   and this one passed the display filter - save it. */
+      if ((!save_filtered && !save_marked) ||
+	  (save_filtered && fdata->flags.passed_dfilter && !save_marked) ||
+	  (save_marked && fdata->flags.marked && !save_filtered) ||
+	  (save_filtered && save_marked && fdata->flags.passed_dfilter &&
+	   fdata->flags.marked)) {
+      	/* Either :
+	   - we're saving all frames, or
+	   - we're saving filtered frames and this one passed the display filter or
+	   - we're saving marked frames (and it has been marked) or
+	   - we're saving filtered _and_ marked frames,
+	   save it. */
         hdr.ts.tv_sec = fdata->abs_secs;
         hdr.ts.tv_usec = fdata->abs_usecs;
         hdr.caplen = fdata->cap_len;
@@ -1730,7 +1743,7 @@ done:
   /* Pop the "Saving:" message off the status bar. */
   gtk_statusbar_pop(GTK_STATUSBAR(info_bar), file_ctx);
   if (err == 0) {
-    if (!save_filtered) {
+    if (!save_filtered && !save_marked) {
       /* We saved the entire capture, not just some packets from it.
          Open and read the file we saved it to.
 

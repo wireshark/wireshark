@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.196 2000/08/20 20:48:55 deniel Exp $
+ * $Id: packet.h,v 1.197 2000/08/21 15:45:21 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -159,6 +159,7 @@ typedef struct _frame_data {
 	unsigned int passed_dfilter	: 1; /* 1 = display, 0 = no display */
   	unsigned int encoding		: 2; /* Character encoding (ASCII, EBCDIC...) */
 	unsigned int visited		: 1; /* Has this packet been visited yet? 1=Yes,0=No*/
+	unsigned int marked             : 1; /* 1 = marked by user, 0 = normal */
   } flags;
 } frame_data;
 

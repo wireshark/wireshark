@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.144 2000/08/21 12:33:22 deniel Exp $
+ * $Id: main.c,v 1.145 2000/08/21 15:45:33 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -456,6 +456,31 @@ packet_list_click_column_cb(GtkCList *clist, gint column, gpointer data)
   }
 
   gtk_clist_sort(clist);
+}
+
+static void
+packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data) {
+  
+  GdkEventButton *event_button = (GdkEventButton *)event;
+  gint row, column;
+
+  if (w == NULL || event == NULL)
+    return;
+
+  if (event->type == GDK_BUTTON_PRESS && event_button->button == 2 &&
+      gtk_clist_get_selection_info(GTK_CLIST(w), event_button->x, event_button->y,
+				   &row, &column)) {
+    frame_data *fdata;
+    fdata = (frame_data *) gtk_clist_get_row_data(GTK_CLIST(w), row);
+    if (fdata != NULL) {
+      fdata->flags.marked = !fdata->flags.marked;
+      /* XXX need user-configurable colors here */
+      gtk_clist_set_background(GTK_CLIST(packet_list), row,
+			       (fdata->flags.marked) ?&BLACK : &WHITE);
+      gtk_clist_set_foreground(GTK_CLIST(packet_list), row, 
+			       (fdata->flags.marked) ?&WHITE : &BLACK);
+    } 
+  }
 }
 
 /* What to do when a list item is selected/unselected */
@@ -1420,6 +1445,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_signal_connect(GTK_OBJECT(packet_list), "button_press_event",
 		     GTK_SIGNAL_FUNC(popup_menu_handler), 
 		     gtk_object_get_data(GTK_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY));
+  gtk_signal_connect(GTK_OBJECT(packet_list), "button_press_event",
+		     GTK_SIGNAL_FUNC(packet_list_button_pressed_cb), NULL);
   gtk_clist_set_compare_func(GTK_CLIST(packet_list), packet_list_compare);
   gtk_widget_show(packet_list);
 

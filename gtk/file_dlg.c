@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.30 2000/08/11 13:33:04 deniel Exp $
+ * $Id: file_dlg.c,v 1.31 2000/08/21 15:45:32 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -267,8 +267,10 @@ file_save_cmd_cb(GtkWidget *w, gpointer data) {
 
 /* XXX - can we make these not be static? */
 static gboolean filtered;
+static gboolean marked;
 static int filetype;
 static GtkWidget *filter_cb;
+static GtkWidget *mark_cb;
 static GtkWidget *ft_om;
 
 static gboolean
@@ -290,7 +292,11 @@ can_save_with_wiretap(int ft)
    "filtered" is TRUE if we're to save only the packets that passed
    the display filter (in which case we have to save it using Wiretap)
    and FALSE if we're to save the entire file (in which case, if we're
-   saving it in the type it has already, we can just copy it). */
+   saving it in the type it has already, we can just copy it). 
+
+   "marked" is TRUE if we have to save only the marked packets,
+   the same remark as "filtered" applies.
+*/
 static void
 set_file_type_list(GtkWidget *option_menu)
 {
@@ -308,8 +314,8 @@ set_file_type_list(GtkWidget *option_menu)
   /* Check all file types. */
   index = 0;
   for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-    if (filtered || ft != cfile.cd_t) {
-      /* Filtered, or a different file type.  We have to use Wiretap. */
+    if (filtered || marked || ft != cfile.cd_t) {
+      /* Filtered, marked or a different file type.  We have to use Wiretap. */
       if (!can_save_with_wiretap(ft))
         continue;	/* We can't. */
     }
@@ -337,7 +343,7 @@ select_file_type_cb(GtkWidget *w, gpointer data)
   int new_filetype = (int)data;
 
   if (filetype != new_filetype) {
-    /* We can select only the filtered packets to be saved iff we can
+    /* We can select only the filtered or marked packets to be saved if we can
        use Wiretap to save the file. */
     gtk_widget_set_sensitive(filter_cb, can_save_with_wiretap(new_filetype));
     filetype = new_filetype;
@@ -354,6 +360,20 @@ toggle_filtered_cb(GtkWidget *widget, gpointer data)
   if (filtered != new_filtered) {
     /* They changed the state of the "filtered" button. */
     filtered = new_filtered;
+    set_file_type_list(ft_om);
+  }
+}
+
+static void
+toggle_marked_cb(GtkWidget *widget, gpointer data)
+{
+  gboolean new_marked;
+
+  new_marked = GTK_TOGGLE_BUTTON (widget)->active;
+
+  if (marked != new_marked) {
+    /* They changed the state of the "marked" button. */
+    marked = new_marked;
     set_file_type_list(ft_om);
   }
 }
@@ -379,6 +399,7 @@ file_save_as_cmd_cb(GtkWidget *w, gpointer data)
 
   /* Default to saving all packets, in the file's current format. */
   filtered = FALSE;
+  marked   = FALSE;
   filetype = cfile.cd_t;
 
   file_save_as_w = gtk_file_selection_new ("Ethereal: Save Capture File As");
@@ -410,6 +431,14 @@ file_save_as_cmd_cb(GtkWidget *w, gpointer data)
 			GTK_SIGNAL_FUNC(toggle_filtered_cb), NULL);
   gtk_widget_set_sensitive(filter_cb, can_save_with_wiretap(filetype));
   gtk_widget_show(filter_cb);
+
+  mark_cb = gtk_check_button_new_with_label("Save only marked packets");
+  gtk_container_add(GTK_CONTAINER(main_vb), mark_cb);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(mark_cb), FALSE);
+  gtk_signal_connect(GTK_OBJECT(mark_cb), "toggled",
+		     GTK_SIGNAL_FUNC(toggle_marked_cb), NULL);
+  gtk_widget_set_sensitive(mark_cb, can_save_with_wiretap(filetype));
+  gtk_widget_show(mark_cb);
 
   /* File type row */
   ft_hb = gtk_hbox_new(FALSE, 3);
@@ -450,8 +479,8 @@ file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   gtk_widget_destroy(GTK_WIDGET (fs));
 
   /* Write out the packets (all, or only the ones that are currently
-     displayed) to the file with the specified name. */
-  save_cap_file(cf_name, &cfile, filtered, filetype);
+     displayed or marked) to the file with the specified name. */
+  save_cap_file(cf_name, &cfile, filtered, marked, filetype);
 
   /* If "save_cap_file()" saved the file name we handed it, it saved
      a copy, so we should free up our copy. */
