@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.41 2002/06/24 00:03:17 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.42 2002/06/24 04:36:56 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -425,6 +425,19 @@ static const true_false_string tfs_job_status_blocked = {
 static const true_false_string tfs_job_status_user_intervention = {
 	"User intervention required",
 	"User intervention not required"
+};
+
+/* Setprinter RPC */
+
+static int hf_spoolss_setprinter_cmd = -1;
+
+static const value_string setprinter_cmd_vals[] = {
+	{ PRINTER_CONTROL_UNPAUSE, "Unpause" },
+	{ PRINTER_CONTROL_PAUSE, "Pause" },
+	{ PRINTER_CONTROL_RESUME, "Resume" },
+	{ PRINTER_CONTROL_PURGE, "Purge" },
+	{ PRINTER_CONTROL_SET_STATUS, "Set status" },
+	{ 0, NULL }
 };
 
 /* 
@@ -2680,7 +2693,9 @@ static int SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					  prs_SPOOL_PRINTER_INFO_LEVEL,
 					  NULL, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Command");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_setprinter_cmd, NULL);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -6066,6 +6081,10 @@ proto_register_dcerpc_spoolss(void)
 		  { "Published", "spoolss.printer_attributes.published", FT_BOOLEAN,
 		    32, TFS(&tfs_printer_attributes_published), 
 		    PRINTER_ATTRIBUTE_PUBLISHED, "Published", HFILL }},
+
+		{ &hf_spoolss_setprinter_cmd,
+		  { "Command", "spoolss.setprinter_cmd", FT_UINT32, BASE_DEC,
+		   VALS(setprinter_cmd_vals), 0, "Command", HFILL }},
 	};
 
         static gint *ett[] = {
