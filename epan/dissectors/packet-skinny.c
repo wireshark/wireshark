@@ -1317,7 +1317,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       proto_tree_add_item(skinny_tree, hf_skinny_deviceName, tvb, offset+12, StationMaxDeviceNameSize, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_stationUserId, tvb, offset+28, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_stationInstance, tvb, offset+32, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+36, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+36, 4, FALSE);
       proto_tree_add_item(skinny_tree, hf_skinny_deviceType, tvb, offset+40, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_maxStreams, tvb, offset+44, 4, TRUE);
       break;
@@ -1375,7 +1375,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       proto_tree_add_item(skinny_tree, hf_skinny_alarmSeverity, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, StationMaxAlarmMessageSize, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_alarmParam1, tvb, offset+96, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_alarmParam2, tvb, offset+100, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_alarmParam2, tvb, offset+100, 4, FALSE);
       break;
 
     case 0x21 : /* stationMulticastMediaReceptionAck - This decode NOT verified*/
@@ -1385,7 +1385,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     case 0x22 : /* stationOpenReceiveChannelAck */
       proto_tree_add_item(skinny_tree, hf_skinny_ORCStatus, tvb, offset+12, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+16, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+16, 4, FALSE);
       proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+20, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+24, 4, TRUE);
       if((!pinfo->fd->flags.visited) && rtp_handle){
@@ -1428,14 +1428,14 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       i = offset+12+StationMaxDeviceNameSize;
       proto_tree_add_item(skinny_tree, hf_skinny_stationUserId, tvb, i, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_stationInstance, tvb, i+4, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, i+8, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, i+8, 4, FALSE);
       proto_tree_add_item(skinny_tree, hf_skinny_deviceType, tvb, i+12, 4, TRUE);
       break;
 
     case 0x2A : /* MediaTransmissionFailure */
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+20, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+20, 4, FALSE);
       proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+24, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+28, 4, TRUE);
       break;
@@ -1609,7 +1609,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     case 0x31 : /* OpenMultiMediaReceiveChannelAckMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_ORCStatus, tvb, offset+12, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+16, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+16, 4, FALSE);
       proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+20, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+24, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+28, 4, TRUE);
@@ -1761,7 +1761,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case 0x8a : /* startMediaTransmistion */
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID,          tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID,       tvb, offset+16, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_remoteIpAddr,          tvb, offset+20, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_remoteIpAddr,          tvb, offset+20, 4, FALSE);
       proto_tree_add_item(skinny_tree, hf_skinny_remotePortNumber,      tvb, offset+24, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_millisecondPacketSize, tvb, offset+28, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_payloadCapability,     tvb, offset+32, 4, TRUE);
@@ -1912,12 +1912,12 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       break;
 
     case 0x95 : /* startSessionTransmission */
-      proto_tree_add_item(skinny_tree, hf_skinny_remoteIpAddr,  tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_remoteIpAddr,  tvb, offset+12, 4, FALSE);
       proto_tree_add_item(skinny_tree, hf_skinny_sessionType, tvb, offset+16, 4, TRUE);
       break;
 
     case 0x96 : /* stopSessionTransmission */
-      proto_tree_add_item(skinny_tree, hf_skinny_remoteIpAddr,  tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_remoteIpAddr,  tvb, offset+12, 4, FALSE);
       proto_tree_add_item(skinny_tree, hf_skinny_sessionType, tvb, offset+16, 4, TRUE);
       break;
 
@@ -1968,7 +1968,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       }
       j = j+(i*4);
       for (i = 0; i < StationMaxServers; i++) {
-	      proto_tree_add_item(skinny_tree, hf_skinny_serverIpAddress, tvb, j+(i*4), 4, TRUE);
+	      proto_tree_add_item(skinny_tree, hf_skinny_serverIpAddress, tvb, j+(i*4), 4, FALSE);
       }
       break;
 
@@ -1979,7 +1979,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case 0x101 : /* startMulticastMediaReception*/
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_multicastIpAddress, tvb, offset+20, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_multicastIpAddress, tvb, offset+20, 4, FALSE);
       proto_tree_add_item(skinny_tree, hf_skinny_multicastPort, tvb, offset+24, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_millisecondPacketSize, tvb, offset+28, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_payloadCapability, tvb, offset+32, 4, TRUE);
@@ -1990,7 +1990,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case 0x102 : /* startMulticateMediaTermination*/
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_multicastIpAddress, tvb, offset+20, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_multicastIpAddress, tvb, offset+20, 4, FALSE);
       proto_tree_add_item(skinny_tree, hf_skinny_multicastPort, tvb, offset+24, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_millisecondPacketSize, tvb, offset+28, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_payloadCapability, tvb, offset+32, 4, TRUE);
@@ -2336,7 +2336,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_payloadCapability, tvb, offset+20, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+24, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+24, 4, FALSE);
       proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+28, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+32, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_payload_rfc_number, tvb, offset+36, 4, TRUE);
