@@ -6,7 +6,7 @@
  * Magnus Hansson <mah@hms.se>
  * Joakim Wiberg <jow@hms.se>
  *
- * $Id: packet-enip.c,v 1.7 2003/10/06 08:10:32 guy Exp $
+ * $Id: packet-enip.c,v 1.8 2004/01/27 04:43:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,8 @@
 #endif
 
 #include <epan/packet.h>
+#include <prefs.h>
+#include "packet-tcp.h"
 
 /* Defines */
 #define ENIP_ENCAP_PORT		44818	/* EtherNet/IP located on port 44818 */
@@ -272,7 +274,7 @@ static gint ett_cmd_data   = -1;
 static gint ett_port_path  = -1;
 static gint ett_mult_ser   = -1;
 
-
+static gboolean cipencap_desegment = TRUE;
 
 /* Translate function to string - Encapsulation commands */
 static const value_string encap_cmd_vals[] = {
@@ -2006,15 +2008,29 @@ classify_packet(packet_info *pinfo)
 	return CANNOT_CLASSIFY;
 }
 
+static guint
+get_cipencap_pdu_len(tvbuff_t *tvb, int offset)
+{
+   guint16 plen;
 
+   /*
+    * Get the length of the data from the encapsulation header.
+    */
+   plen = tvb_get_letohs(tvb, offset + 2);
+
+   /*
+    * That length doesn't include the encapsulation header itself;
+    * add that in.
+    */
+   return plen + 24;
+}
 
 /* Code to actually dissect the packets */
-static int
-dissect_cipencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_cipencap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
    int	    packet_type;
    guint16  encap_cmd, encap_data_length;
-   gchar    *cmd_string;
    char     pkt_type_str[9] = "";
    guint32  status;
 
@@ -2022,20 +2038,13 @@ dissect_cipencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    proto_item *ti, *encaph, *csf;
    proto_tree *cipencap_tree, *headertree, *csftree;
 
-   /* An ENIP packet is at least 4 bytes long - we need the command type. */
-   if (!tvb_bytes_exist(tvb, 0, 4))
-      return 0;
-
-   /* Get the command type and see if it's valid. */
-   encap_cmd = tvb_get_letohs( tvb, 0 );
-   cmd_string = match_strval(encap_cmd, encap_cmd_vals);
-   if (cmd_string == NULL)
-      return 0;	/* not a known command */
-
    /* Make entries in Protocol column and Info column on summary display */
    if (check_col(pinfo->cinfo, COL_PROTOCOL))
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENIP");
+   if (check_col(pinfo->cinfo, COL_INFO))
+      col_clear(pinfo->cinfo, COL_INFO);
 
+   encap_cmd = tvb_get_letohs( tvb, 0 );
    if(check_col(pinfo->cinfo, COL_INFO))
    {
       packet_type = classify_packet(pinfo);
@@ -2056,7 +2065,9 @@ dissect_cipencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       col_add_fstr(pinfo->cinfo, COL_INFO,
                    "%s: %s, Session=0x%08X",
-		   pkt_type_str, cmd_string, tvb_get_letohl( tvb, 4 ) );
+		   pkt_type_str,
+		   val_to_str(encap_cmd, encap_cmd_vals, "Unknown (0x%04x)"),
+		   tvb_get_letohl( tvb, 4 ) );
    } /* end of if( col exists ) */
 
    /* In the interest of speed, if "tree" is NULL, don't do any work not
@@ -2155,10 +2166,44 @@ dissect_cipencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       } /* end of if( encapsulated data ) */
 
    }
-
-   return tvb_length(tvb);
 } /* end of dissect_cipencap() */
 
+static int
+dissect_cipencap_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+   guint16  encap_cmd;
+
+   /* An ENIP packet is at least 4 bytes long - we need the command type. */
+   if (!tvb_bytes_exist(tvb, 0, 4))
+      return 0;
+
+   /* Get the command type and see if it's valid. */
+   encap_cmd = tvb_get_letohs( tvb, 0 );
+   if (match_strval(encap_cmd, encap_cmd_vals) == NULL)
+      return 0;	/* not a known command */
+
+   dissect_cipencap_pdu(tvb, pinfo, tree);
+   return tvb_length(tvb);
+}
+
+static int
+dissect_cipencap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+   guint16  encap_cmd;
+
+   /* An ENIP packet is at least 4 bytes long - we need the command type. */
+   if (!tvb_bytes_exist(tvb, 0, 4))
+      return 0;
+
+   /* Get the command type and see if it's valid. */
+   encap_cmd = tvb_get_letohs( tvb, 0 );
+   if (match_strval(encap_cmd, encap_cmd_vals) == NULL)
+      return 0;	/* not a known command */
+
+   tcp_dissect_pdus(tvb, pinfo, tree, cipencap_desegment, 4,
+	get_cipencap_pdu_len, dissect_cipencap_pdu);
+   return tvb_length(tvb);
+}
 
 /* Code to actually dissect the io packets*/
 static void
@@ -2385,6 +2430,7 @@ proto_register_cipencap(void)
 		&ett_port_path,
 		&ett_mult_ser
 	};
+	module_t *cipencap_module;
 
 /* Register the protocol name and description */
 	proto_cipencap = proto_register_protocol("EtherNet/IP (Industrial Protocol)",
@@ -2394,6 +2440,11 @@ proto_register_cipencap(void)
 	proto_register_field_array(proto_cipencap, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	cipencap_module = prefs_register_protocol(proto_cipencap, NULL);
+	prefs_register_bool_preference(cipencap_module, "desegment",
+	    "Desegment all EtherNet/IP messages spanning multiple TCP segments",
+	    "Whether the EtherNet/IP dissector should desegment all messages spanning multiple TCP segments",
+	    &cipencap_desegment);
 } /* end of proto_register_cipencap() */
 
 
@@ -2404,13 +2455,14 @@ proto_register_cipencap(void)
 void
 proto_reg_handoff_cipencap(void)
 {
-	dissector_handle_t cipencap_handle;
+	dissector_handle_t cipencap_udp_handle, cipencap_tcp_handle;
 	dissector_handle_t enipio_handle;
 
 	/* Register for encapsulated CIP data, using both TCP/UDP */
-	cipencap_handle = new_create_dissector_handle(dissect_cipencap, proto_cipencap);
-	dissector_add("tcp.port", ENIP_ENCAP_PORT, cipencap_handle);
-	dissector_add("udp.port", ENIP_ENCAP_PORT, cipencap_handle);
+	cipencap_tcp_handle = new_create_dissector_handle(dissect_cipencap_tcp, proto_cipencap);
+	dissector_add("tcp.port", ENIP_ENCAP_PORT, cipencap_tcp_handle);
+	cipencap_udp_handle = new_create_dissector_handle(dissect_cipencap_udp, proto_cipencap);
+	dissector_add("udp.port", ENIP_ENCAP_PORT, cipencap_udp_handle);
 
 	/* Register for IO data over UDP */
 	enipio_handle = create_dissector_handle(dissect_enipio, proto_cipencap);
