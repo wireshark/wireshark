@@ -55,7 +55,6 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_h248				= -1;
-static int proto_h248_annex_C		= -1;
 static int hf_h248_mtpaddress_ni	= -1;
 static int hf_h248_mtpaddress_pc	= -1;
 static int hf_h248_package_name		= -1;
@@ -803,7 +802,7 @@ dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int offset, packe
   return offset;
 }
 static int
-dissect_h248_PropertyID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+dissect_h248_PropertyID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_) {
 
 	guint8 class;
 	gboolean pc, ind;
