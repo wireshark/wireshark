@@ -39,6 +39,7 @@ register.c
 register-static.c
 stamp-h
 stamp-h.in
+stamp-h1
 tethereal
 tethereal_static
 tethereal.1

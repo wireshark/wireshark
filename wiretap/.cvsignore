@@ -4,6 +4,7 @@ config.log
 config.h
 config.status
 stamp-h
+stamp-h1
 .deps
 stamp-h.in
 config.h.in
