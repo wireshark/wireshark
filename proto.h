@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.22 2000/02/07 17:07:45 gram Exp $
+ * $Id: proto.h,v 1.23 2000/03/07 05:54:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -152,7 +152,12 @@ void proto_init(void);
 void proto_cleanup(void);
 
 /* Set text of proto_item after having already been created. */
-void proto_item_set_text(proto_item *ti, ...);
+#if __GNUC__ == 2
+void proto_item_set_text(proto_item *ti, const char *format, ...)
+	__attribute__((format (printf, 2, 3)));
+#else
+void proto_item_set_text(proto_item *ti, const char *format, ...);
+#endif
 
 /* Set length of proto_item after having already been created. */
 void proto_item_set_len(proto_item *ti, gint length);

@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.53 2000/02/07 17:07:45 gram Exp $
+ * $Id: proto.c,v 1.54 2000/03/07 05:54:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -423,18 +423,16 @@ NOTES
 }
 
 void
-proto_item_set_text(proto_item *pi, ...)
+proto_item_set_text(proto_item *pi, const char *format, ...)
 {
 	field_info *fi = (field_info*) (((GNode*)pi)->data);
 	va_list	ap;
-	char *format;
 
 	if (fi->representation)
 		g_mem_chunk_free(gmc_item_labels, fi->representation);
 
 	fi->representation = g_mem_chunk_alloc(gmc_item_labels);
-	va_start(ap, pi);
-	format = va_arg(ap, char*);
+	va_start(ap, format);
 	vsnprintf(fi->representation, ITEM_LABEL_LENGTH,
 				format, ap);
 	va_end(ap);
