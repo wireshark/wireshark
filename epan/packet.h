@@ -322,6 +322,9 @@ extern void register_init_routine(void (*func)(void));
 /* Initialize all data structures used for dissection. */
 extern void init_dissection(void);
 
+/* Free data structures allocated for dissection. */
+extern void cleanup_dissection(void);
+
 /* Allow protocols to register a "cleanup" routine to be
  * run after the initial sequential run through the packets.
  * Note that the file can still be open after this; this is not

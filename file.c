@@ -313,6 +313,8 @@ cf_close(capture_file *cf)
 {
   cf_reset_state(cf);
 
+  cleanup_dissection();
+
   cf_callback_invoke(cf_cb_file_closed, cf);
 }
 

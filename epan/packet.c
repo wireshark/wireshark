@@ -118,6 +118,14 @@ call_init_routine(gpointer routine, gpointer dummy _U_)
 	(*func)();
 }
 
+/*
+ * XXX - for now, these are the same; the "init" routines free whatever
+ * stuff is left over from any previous dissection, and then initialize
+ * their tables.
+ *
+ * We should probably split that into "init" and "cleanup" routines, for
+ * cleanliness' sake.
+ */
 void
 init_dissection(void)
 {
@@ -135,6 +143,12 @@ init_dissection(void)
 	   may free up space for fragments, which they find by using the
 	   data structures that "reassemble_init()" frees. */
 	reassemble_init();
+}
+
+void
+cleanup_dissection(void)
+{
+	init_dissection();
 }
 
 /* Allow protocols to register a "cleanup" routine to be
