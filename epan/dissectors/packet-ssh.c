@@ -38,7 +38,6 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 
-#include "packet-smb-common.h"
 #include "packet-tcp.h"
 #include "reassemble.h"
 #include "prefs.h"
