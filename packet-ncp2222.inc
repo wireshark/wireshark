@@ -7,7 +7,7 @@
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp2222.inc,v 1.8.2.8 2002/03/04 05:35:07 gram Exp $
+ * $Id: packet-ncp2222.inc,v 1.8.2.9 2002/03/30 17:08:14 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -238,7 +238,7 @@ ncp_record_find(guint8 func, guint8 subfunc)
 guint
 get_item_value(proto_item *item)
 {
-	return PITEM_FINFO(item)->value->value.integer;
+	return fvalue_get_integer(PITEM_FINFO(item)->value);
 }
 
 char*
