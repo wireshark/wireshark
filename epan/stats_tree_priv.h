@@ -75,6 +75,7 @@ struct _stat_node {
 struct _stats_tree {
 	guint8*			abbr;
 	guint8*			name;
+	guint8*			tapname;
 	
 	/* is this realy needed? */
 	char*			filter;

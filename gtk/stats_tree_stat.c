@@ -23,6 +23,15 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/*
+ TODO
+
+ -  at reinitialization I have one of these for every node in the tree
+     Gtk-CRITICAL **: file gtktreestore.c: line 1044 (gtk_tree_store_set): assertion `VALID_ITER (iter, tree_store)' failed
+
+ - GTK1
+*/
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -193,11 +202,13 @@ static void init_gtk_tree(char* optarg) {
 		} else {
 			g_error("no such stats_tree (%s) found in stats_tree registry",abbr);
 		}
+		g_free(abbr);
+		
 	} else {
 		g_error("could not obtain stats_tree abbr from optarg");		
 	}
 	
-	window_name = g_strdup_printf("%s_stat", st->abbr);
+	window_name = g_strdup_printf("%s Stats Tree", st->abbr);
 	
 	st->pr->win = window_new_with_geom(GTK_WINDOW_TOPLEVEL,window_name,window_name);
 	g_free(window_name);
@@ -262,7 +273,7 @@ static void init_gtk_tree(char* optarg) {
 	gtk_container_add( GTK_CONTAINER(st->pr->win), scr_win);
 #endif
 	
-	error_string = register_tap_listener( st->abbr,
+	error_string = register_tap_listener( st->tapname,
 										  st,
 										  st->filter,
 										  /* reinit_stats_tree*/ NULL,
@@ -294,7 +305,7 @@ static void register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p 
 	stats_tree* st = v;
 	guint8* s;
 
-	s = g_strdup_printf("%s,stat",st->abbr);
+	s = g_strdup_printf("%s,tree",st->abbr);
 	
 	register_ethereal_tap(s, init_gtk_tree);
 	g_free(s);
@@ -313,7 +324,7 @@ static void register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p 
 	st->pr->stat_dlg = g_malloc(sizeof(tap_dfilter_dlg));
 	
 	st->pr->stat_dlg->win_title = g_strdup_printf("%s Packet Counter",st->name);
-	st->pr->stat_dlg->init_string = g_strdup_printf("%s,stat",st->abbr);
+	st->pr->stat_dlg->init_string = g_strdup_printf("%s,tree",st->abbr);
 	st->pr->stat_dlg->tap_init_cb = init_gtk_tree;
 	st->pr->stat_dlg->index = -1;
 	

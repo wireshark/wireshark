@@ -79,11 +79,14 @@ static void  init_stats_tree(char *optarg) {
 		} else {
 			g_error("no such stats_tree (%s) found in stats_tree registry",abbr);
 		}
+		
+		g_free(abbr);
+		
 	} else {
-		g_error("could not obtain stats_tree abbr from optarg");		
+		g_error("could not obtain stats_tree abbr (%s) from optarg '%s'",abbr,optarg);		
 	}
 	
-	error_string = register_tap_listener( st->abbr,
+	error_string = register_tap_listener( st->tapname,
 										  st,
 										  st->filter,
 										  reset_stats_tree,
@@ -102,7 +105,7 @@ void register_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_) {
 	stats_tree* st = v;
 	
 	st->pr = g_malloc(sizeof(tree_pres));
-	st->pr->init_string = g_strdup_printf("%s,stat",st->abbr);
+	st->pr->init_string = g_strdup_printf("%s,tree",st->abbr);
 
 	register_ethereal_tap(st->pr->init_string, init_stats_tree);
 	

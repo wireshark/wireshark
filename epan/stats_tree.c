@@ -88,7 +88,7 @@ extern void stat_branch_to_str(const stat_node* node, GString* s, guint indent) 
 	for ( i = 0 ; i<(indent-1); i++) indentation[i] = ' ';
 	indentation[i] = '\0';
 	
-	g_string_sprintfa(s,"%s%s = %s (%s/s) (%s)\n",
+	g_string_sprintfa(s,"%s%s\t%s\t%s\t%s\n",
 					  indentation,node->name,value,rate,percent);
 	
 	if (node->children) {
@@ -121,6 +121,7 @@ static void free_stat_node( stat_node* node ) {
 extern void free_stats_tree(stats_tree* st) {
 	stat_node* child;
 	
+	g_free(st->tapname);
 	g_free(st->abbr);
 	g_free(st->filter);
 	
@@ -175,7 +176,8 @@ extern void reinit_stats_tree(void* p) {
 }
 
 /* register a new stats_tree */
-extern void register_stats_tree(guint8* abbr, 
+extern void register_stats_tree(guint8* tapname,
+								guint8* abbr, 
 								guint8* name,
 								stat_tree_packet_cb packet,
 								stat_tree_init_cb init ) {
@@ -183,8 +185,9 @@ extern void register_stats_tree(guint8* abbr,
 	stats_tree* st = g_malloc( sizeof(stats_tree) );
 
 	/* at the very least the abbrev and the packet function should be given */ 
-	g_assert( abbr && packet );
+	g_assert( tapname && abbr && packet );
 
+	st->tapname = g_strdup(tapname);
 	st->abbr = g_strdup(abbr);
 	st->name = name ? g_strdup(name) : g_strdup(abbr);
 	st->filter = NULL;
@@ -424,6 +427,10 @@ extern guint8* manip_stat_node(manip_node_mode mode, stats_tree* st, const guint
 
 extern guint8* get_st_abbr(const guint8* optarg) {
 	guint i;
+
+	/* XXX: this fails when tethereal is given any options
+	   after the -z */
+	g_assert(optarg != NULL);
 	
 	for (i=0; optarg[i] && optarg[i] != ','; i++);
 	
@@ -540,3 +547,41 @@ extern int tick_range(stats_tree* st,
 	
 	return node->id;
 }
+
+extern int create_pivot_node(stats_tree* st,
+							 const gchar* name,
+							 int parent_id) {
+	stat_node* node = new_stat_node(st,name,parent_id,TRUE,TRUE);
+	
+	if (node) 
+		return node->id;
+	else
+		return 0;
+}
+
+extern int create_pivot_node_with_parent_name(stats_tree* st,
+							 const gchar* name,
+							 const gchar* parent_name) {
+	int parent_id = get_parent_id_by_name(st,parent_name);
+	stat_node* node;
+	
+	node = new_stat_node(st,name,parent_id,TRUE,TRUE);
+	
+	if (node) 
+		return node->id;
+	else
+		return 0;
+}
+
+extern int tick_pivot(stats_tree* st,
+					  int pivot_id,
+					  const gchar* pivot_value) {
+	
+	stat_node* parent = g_ptr_array_index(st->parents,pivot_id);
+	
+	parent->counter++;
+	manip_stat_node( MN_INCREASE, st, pivot_value, pivot_id, FALSE, 1);
+	
+	return pivot_id;
+}
+

@@ -52,7 +52,8 @@ typedef void  (*stat_tree_init_cb)(stats_tree*);
  * packet: per packet callback
  * init: tree initialization callback
  */
-extern void register_stats_tree(guint8* abbr, 
+extern void register_stats_tree(guint8* tapname,
+								guint8* abbr, 
 								guint8* name,
 								stat_tree_packet_cb packet,
 								stat_tree_init_cb init );
@@ -101,6 +102,18 @@ extern int tick_range_with_parent_name(stats_tree* st,
 						 const gchar* parent_name,
 						 int value_in_range);
 
+/* */
+extern int create_pivot_node(stats_tree* st,
+							 const gchar* name,
+							 int parent_id);
+
+extern int create_pivot_node_with_parent_name(stats_tree* st,
+											  const gchar* name,
+											  const gchar* parent_name);
+
+extern int tick_pivot(stats_tree* st,
+					  int pivot_id,
+					  const gchar* pivot_value);
 
 /*
  * manipulates the value of the node whose name is given
