@@ -73,6 +73,7 @@ static gint ett_ipcp = -1;
 static gint ett_ipcp_options = -1;
 static gint ett_ipcp_ipaddrs_opt = -1;
 static gint ett_ipcp_compressprot_opt = -1;
+static gint ett_ipcp_iphc_disableprot_opt = -1;
 
 static int proto_osicp = -1;
 
@@ -915,6 +916,12 @@ static void dissect_ipcp_addrs_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 static void dissect_ipcp_addr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 			int offset, guint length, packet_info *pinfo,
 			proto_tree *tree);
+static void dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo,
+			proto_tree *tree);
+static void dissect_ipcp_iphc_disableprot_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo,
+			proto_tree *tree);
 
 static const ip_tcp_opt ipcp_opts[] = {
 	{
@@ -927,11 +934,11 @@ static const ip_tcp_opt ipcp_opts[] = {
 	},
 	{
 		CI_COMPRESSTYPE,
-		"IP compression protocol",
+		"IP compression",
 		&ett_ipcp_compressprot_opt,
 		VARIABLE_LENGTH,
 		4,
-		dissect_lcp_protocol_opt
+		dissect_ipcp_compress_opt
 	},
 	{
 		CI_ADDR,
@@ -984,6 +991,62 @@ static const ip_tcp_opt ipcp_opts[] = {
 };
 
 #define N_IPCP_OPTS	(sizeof ipcp_opts / sizeof ipcp_opts[0])
+
+
+/*
+ * IP Compression options
+ */
+#define IPCP_COMPRESS_VJ_1172	0x37	/* value defined in RFC1172 (typo) */
+#define IPCP_COMPRESS_VJ	0x2d	/* value defined in RFC1332 (correct) */
+#define IPCP_COMPRESS_IPHC	0x61
+
+const value_string ipcp_compress_proto_vals[] = {
+    { IPCP_COMPRESS_VJ_1172,	"VJ compression (RFC1172-typo)" },
+    { IPCP_COMPRESS_VJ,		"VJ compression" },
+    { IPCP_COMPRESS_IPHC,	"IPHC compression" },
+    { 0,			NULL }
+};
+
+/* IPHC suboptions (RFC2508, 3544) */
+#define IPCP_IPHC_CRTP		1
+#define IPCP_IPHC_ECRTP		2
+#define IPCP_IPHC_DISABLE_PROTO	3	/* Disable compression for protocol */
+
+const value_string ipcp_iphc_disable_proto_vals[] = {
+    { 1,	"TCP" },
+    { 2,	"Non-TCP" },
+    { 0,	NULL }
+};
+
+static const ip_tcp_opt ipcp_iphc_subopts[] = {
+	{
+		IPCP_IPHC_CRTP,
+		"RTP compression (RFC2508)",
+		NULL,
+		FIXED_LENGTH,
+		2,
+		NULL
+	},
+	{
+		IPCP_IPHC_CRTP,
+		"Enhanced RTP compression (RFC3545)",
+		NULL,
+		FIXED_LENGTH,
+		2,
+		NULL
+	},
+	{
+		IPCP_IPHC_DISABLE_PROTO,
+		"Enhanced RTP compression (RFC3545)",
+		&ett_ipcp_iphc_disableprot_opt,
+		FIXED_LENGTH,
+		3,
+		dissect_ipcp_iphc_disableprot_opt
+	},
+};
+
+#define N_IPCP_IPHC_SUBOPTS (sizeof ipcp_iphc_subopts / sizeof ipcp_iphc_subopts[0])
+
 
 /*
  * Options.  (OSICP)
@@ -1351,11 +1414,11 @@ static const ip_tcp_opt ipv6cp_opts[] = {
 	},
 	{
 		CI_COMPRESSTYPE,
-		"IPv6 compression protocol",
+		"IPv6 compression",
 		&ett_ipcp_compressprot_opt,
 		VARIABLE_LENGTH,
 		4,
-		dissect_lcp_protocol_opt
+		dissect_ipcp_compress_opt
 	},
 };
 
@@ -1967,6 +2030,150 @@ static void dissect_ipcp_addr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   proto_tree_add_text(tree, tvb, offset, length, "%s: %s", optp->name,
 			ip_to_str(tvb_get_ptr(tvb, offset + 2, 4)));
 }
+
+static void dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo _U_,
+			proto_tree *tree)
+{
+    guint8  ub;
+    guint16 us;
+    proto_item *tf;
+    proto_tree *field_tree = NULL;
+
+    tf = proto_tree_add_text(tree, tvb, offset, length, "%s: %u byte%s",
+			     optp->name, length, plurality(length, "", "s"));
+
+    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    offset += 2;	/* Skip option type + length */
+    length -= 2;
+
+    us = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_text( field_tree, tvb, offset, 2, "%s (0x%04x)",
+			 val_to_str( us, ipcp_compress_proto_vals, "Unknown protocol" ),
+			 us );
+    offset += 2;	/* skip protocol */
+    length -= 2;
+
+    if (length > 0) {
+	switch ( us ) {
+	case IPCP_COMPRESS_VJ_1172:
+	case IPCP_COMPRESS_VJ:
+	    /* First byte is max slot id */
+	    ub = tvb_get_guint8( tvb, offset );
+	    proto_tree_add_text( field_tree, tvb, offset, 1,
+				 "Max slot id: %u (0x%02x)",
+				 ub, ub );
+	    offset++;
+	    length--;
+
+	    if ( length > 0 ) {
+		/* second byte is "compress slot id" */
+		ub = tvb_get_guint8( tvb, offset );
+		proto_tree_add_text( field_tree, tvb, offset, 1,
+				     "Compress slot id: %s (0x%02x)",
+				     ub ? "yes" : "no",  ub );
+		offset++;
+		length--;
+	    }
+	    break;
+
+	    
+	case IPCP_COMPRESS_IPHC:
+	    if ( length < 2 ) {
+		break;
+	    }
+	    us = tvb_get_ntohs(tvb, offset);
+	    proto_tree_add_text( field_tree, tvb, offset, 2,
+				 "TCP space: %u (0x%04x)",
+				 us, us );
+	    offset += 2;
+	    length -= 2;
+
+
+	    if ( length < 2 ) {
+		break;
+	    }
+	    us = tvb_get_ntohs(tvb, offset);
+	    proto_tree_add_text( field_tree, tvb, offset, 2,
+				 "Non-TCP space: %u (0x%04x)",
+				 us, us );
+	    offset += 2;
+	    length -= 2;
+
+
+	    if ( length < 2 ) {
+		break;
+	    }
+	    us = tvb_get_ntohs(tvb, offset);
+	    proto_tree_add_text( field_tree, tvb, offset, 2,
+				 "Max period: %u (0x%04x) compressed packets",
+				 us, us );
+	    offset += 2;
+	    length -= 2;
+
+
+	    if ( length < 2 ) {
+		break;
+	    }
+	    us = tvb_get_ntohs(tvb, offset);
+	    proto_tree_add_text( field_tree, tvb, offset, 2,
+				 "Max time: %u (0x%04x) seconds",
+				 us, us );
+	    offset += 2;
+	    length -= 2;
+
+
+	    if ( length < 2 ) {
+		break;
+	    }
+	    us = tvb_get_ntohs(tvb, offset);
+	    proto_tree_add_text( field_tree, tvb, offset, 2,
+				 "Max header: %u (0x%04x) bytes",
+				 us, us );
+	    offset += 2;
+	    length -= 2;
+
+	    if ( length > 0 ) {
+		/* suboptions */
+		tf = proto_tree_add_text(field_tree, tvb, offset, length,
+					 "Suboptions: (%u byte%s)",
+					 length, plurality(length, "", "s"));
+		field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+		dissect_ip_tcp_options(tvb, offset, length,
+				       ipcp_iphc_subopts, N_IPCP_IPHC_SUBOPTS, -1,
+				       pinfo, field_tree);
+	    }
+	    return;
+	}
+
+	if (length > 0) {
+	    proto_tree_add_text(field_tree, tvb, offset, length,
+				"Data (%d byte%s)", length,
+				plurality(length, "", "s"));
+	}
+    }
+}
+
+static void dissect_ipcp_iphc_disableprot_opt(const ip_tcp_opt *optp,
+					      tvbuff_t *tvb,
+					      int offset, guint length,
+					      packet_info *pinfo _U_,
+					      proto_tree *tree)
+{
+    proto_item *tf;
+    proto_tree *field_tree;
+    guint8 param;
+
+    tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+
+    param = tvb_get_guint8(tvb, offset + 2);
+    proto_tree_add_text(field_tree, tvb, offset + 2, 1,
+			"Protocol: %s (0x%02x)",
+			val_to_str( param, ipcp_iphc_disable_proto_vals, "Unknown" ),
+			param );
+}
+
 
 static void dissect_osicp_align_npdu_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                         int offset, guint length, packet_info *pinfo _U_,
