@@ -2,7 +2,7 @@
  * Routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.26 2003/02/17 01:59:39 tpot Exp $
+ * $Id: packet-smb-browse.c,v 1.27 2003/02/20 07:55:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -432,6 +432,9 @@ dissect_election_criterion(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 
 }
 
+/*
+ * XXX - this causes non-browser packets to have browser fields.
+ */
 int
 dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			      proto_tree *parent_tree, char *drep, 
@@ -442,8 +445,25 @@ dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 flags;
 	int i;
 
-	offset = dissect_ndr_uint32(
-		tvb, offset, pinfo, tree, drep, hf_server_type, &flags);
+	if (drep != NULL) {
+		/*
+		 * Called from a DCE RPC protocol dissector, for a
+		 * protocol where a 32-bit NDR integer contains
+		 * an server type mask; extract the server type mask
+		 * with an NDR call.
+		 */
+		offset = dissect_ndr_uint32(
+			tvb, offset, pinfo, tree, drep, hf_server_type, &flags);
+	} else {
+		/*
+		 * Called from SMB browser or RAS, where the server type
+		 * mask is just a 4-byte little-endian quantity with no
+		 * special NDR alignment requirement; extract it with
+		 * "tvb_get_letohl()".
+		 */
+		flags = tvb_get_letohl(tvb, offset);
+		offset += 4;
+	}
 
 	if (parent_tree) {
 		item = proto_tree_add_uint(parent_tree, hf_server_type, tvb, offset, 4, flags);
@@ -565,8 +585,6 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	case BROWSE_DOMAIN_ANNOUNCEMENT:
 	case BROWSE_LOCAL_MASTER_ANNOUNCEMENT:
 	case BROWSE_HOST_ANNOUNCE: {
-		char drep = 0x10; /* Assume little endian */
-
 		/* update count */
 		proto_tree_add_item(tree, hf_update_count, tvb, offset, 1, TRUE);
 		offset += 1;
@@ -603,7 +621,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 		/* server type flags */
 		offset = dissect_smb_server_type_flags(
-			tvb, offset, pinfo, tree, &drep, TRUE);
+			tvb, offset, pinfo, tree, NULL, TRUE);
 
 		if (cmd == BROWSE_DOMAIN_ANNOUNCEMENT) {
 			/*
@@ -771,7 +789,6 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	guint32 periodicity;
 	const char *host_name;
 	guint namelen;
-	char drep = 0x10; /* Assume little-endian */
 
 	if (!proto_is_protocol_enabled(proto_smb_browse)) {
 		return FALSE;
@@ -815,7 +832,7 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 		/* server type flags */
 		offset = dissect_smb_server_type_flags(
-			tvb, offset, pinfo, tree, &drep, TRUE);
+			tvb, offset, pinfo, tree, NULL, TRUE);
 
 		/* OS major version */
 		proto_tree_add_item(tree, hf_os_major, tvb, offset, 1, TRUE);
