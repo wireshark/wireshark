@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.10 1999/11/16 11:42:52 guy Exp $
+ * $Id: packet-rsvp.c,v 1.11 1999/12/13 19:59:29 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -404,13 +404,13 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			 hdr->ver_flags & 0xf);  
 	proto_tree_add_item(rsvp_header_tree, rsvp_filter[RSVPF_MSG], 
 			    offset+1, 1, hdr->message_type);
+	if (hdr->message_type >= RSVPF_MAX) {
+		proto_tree_add_text(rsvp_header_tree, offset+1, 1, "Message Type: %d - Unknown",
+				 hdr->message_type);
+		return;
+	}
 	proto_tree_add_item_hidden(rsvp_header_tree, rsvp_filter[RSVPF_MSG + hdr->message_type], 
 			    offset+1, 1, 1);
-/*
-	proto_tree_add_text(rsvp_header_tree, offset+1, 1, "Message Type: %d - %s",
-			 hdr->message_type, 
-			 packet_type?packet_type:"Unknown");
-*/
 	proto_tree_add_text(rsvp_header_tree, offset + 2 , 2, "Message Checksum");
 	proto_tree_add_text(rsvp_header_tree, offset + 4 , 1, "Sending TTL: %d",
 			 hdr->sending_ttl);
