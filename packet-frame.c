@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.6 2001/01/03 06:55:28 guy Exp $
+ * $Id: packet-frame.c,v 1.7 2001/04/01 21:12:05 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -188,6 +188,7 @@ proto_register_frame(void)
 	proto_frame = proto_register_protocol("Frame", "Frame", "frame");
 	proto_register_field_array(proto_frame, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	register_dissector("frame",dissect_frame,proto_frame);
 
 	/* You can't disable dissection of "Frame", as that would be
 	   tantamount to not doing any dissection whatsoever. */
