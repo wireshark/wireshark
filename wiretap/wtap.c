@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.85 2003/12/03 22:40:39 guy Exp $
+ * $Id: wtap.c,v 1.86 2003/12/18 19:07:13 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -187,6 +187,9 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_MTP3 */
 	{ "SS7 MTP3", "mtp3" },
+
+	/* WTAP_ENCAP_IRDA */
+	{ "IrDA", "irda" },
 };
 
 /* Name that should be somewhat descriptive. */

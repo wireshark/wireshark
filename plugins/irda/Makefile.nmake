@@ -1,0 +1,21 @@
+#
+# $Id: Makefile.nmake,v 1.1 2003/12/18 19:07:12 guy Exp $
+#
+
+include ..\..\config.nmake
+
+############### no need to modify below this line #########
+
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
+	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+
+OBJECTS=packet-irda.obj packet-ircomm.obj
+
+irda.dll irda.exp irda.lib : $(OBJECTS) ..\plugin_api.obj
+	link -dll /out:irda.dll $(OBJECTS) ..\plugin_api.obj \
+	$(GLIB_LIBS)
+
+clean:
+	rm -f $(OBJECTS) irda.dll irda.exp irda.lib $(PDB_FILE)
+
+distclean: clean

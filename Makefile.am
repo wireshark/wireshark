@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.672 2003/12/17 05:16:19 guy Exp $
+# $Id: Makefile.am,v 1.673 2003/12/18 18:56:36 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -489,6 +489,7 @@ plugin_libs = \
 	plugins/giop/cosnaming.la \
 	plugins/giop/coseventcomm.la \
 	plugins/gryphon/gryphon.la \
+	plugins/irda/irda.la \
 	plugins/lwres/lwres.la \
 	plugins/megaco/megaco.la \
 	plugins/mgcp/mgcp.la \
@@ -529,6 +530,7 @@ plugin_ldadd = \
 	plugins/giop/packet-cosnaming.o \
 	plugins/giop/packet-coseventcomm.o \
 	plugins/gryphon/packet-gryphon.o \
+	plugins/irda/packet-irda.o \
 	plugins/lwres/packet-lwres.o \
 	plugins/megaco/packet-megaco.o \
 	plugins/mgcp/packet-mgcp.o \
@@ -568,6 +570,7 @@ plugin_src = \
 	plugins/giop/packet-cosnaming.c \
 	plugins/giop/packet-coseventcomm.c \
 	plugins/gryphon/packet-gryphon.c \
+	plugins/irda/packet-irda.c \
 	plugins/lwres/packet-lwres.c \
 	plugins/megaco/packet-megaco.c \
 	plugins/mgcp/packet-mgcp.c \
@@ -587,6 +590,7 @@ plugin_ldadd = \
 	"-dlopen" plugins/giop/cosnaming.la \
 	"-dlopen" plugins/giop/coseventcomm.la \
 	"-dlopen" plugins/gryphon/gryphon.la \
+	"-dlopen" plugins/irda/irda.la \
 	"-dlopen" plugins/lwres/lwres.la \
 	"-dlopen" plugins/megaco/megaco.la \
 	"-dlopen" plugins/mgcp/mgcp.la \

@@ -1956,6 +1956,10 @@ Christoph Neusch <christoph.neusch [AT] nortelnetworks.com> {
 	V5UA support
 }
 
+Jan Kiszka <jan.kiszka [AT] web.de> {
+	IrDA support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>

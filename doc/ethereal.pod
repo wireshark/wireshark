@@ -2074,6 +2074,7 @@ B<http://www.ethereal.com>.
   Martijn Schipper         <mschipper [AT] globespanvirata.com>
   Felix Fei                <felix.fei [AT] utstar.com>
   Christoph Neusch         <christoph.neusch [AT] nortelnetworks.com>
+  Jan Kiszka               <jan.kiszka [AT] web.de>
   Pavel Roskin             <proski [AT] gnu.org>
   Georgi Guninski          <guninski [AT] guninski.com>
   Jason Copenhaver         <jcopenha [AT] typedef.org>

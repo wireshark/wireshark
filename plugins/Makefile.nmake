@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.31 2003/12/17 18:05:27 ulfl Exp $
+# $Id: Makefile.nmake,v 1.32 2003/12/18 19:04:47 guy Exp $
 #
 
 include ..\config.nmake
@@ -11,7 +11,7 @@ CFLAGS=/DHAVE_CONFIG_H /I.. /I../wiretap /I. $(GLIB_CFLAGS) \
 
 OBJECTS=plugin_api.obj 
 
-all: $(OBJECTS) acn artnet asn1 docsis enttec giop gryphon lwres megaco mgcp pcli rdm rtnet v5ua
+all: $(OBJECTS) acn artnet asn1 docsis enttec giop gryphon irda lwres megaco mgcp pcli rdm rtnet v5ua
 
 Xplugin_api.c: plugin_gen.py plugin_api_list.c
 	@echo **** Plugin api may be out of date, please generate new files:
@@ -56,6 +56,11 @@ giop::
 
 gryphon::
 	cd gryphon
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+irda::
+	cd irda
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
@@ -110,6 +115,8 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../gryphon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../irda
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../lwres
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../megaco
@@ -140,6 +147,8 @@ distclean: clean
 	cd ../giop
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../gryphon
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../irda
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../lwres
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean

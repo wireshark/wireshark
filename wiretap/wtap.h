@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.146 2003/12/03 22:40:39 guy Exp $
+ * $Id: wtap.h,v 1.147 2003/12/18 19:07:14 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -132,9 +132,10 @@
 #define WTAP_ENCAP_BLUETOOTH_H4			40
 #define WTAP_ENCAP_MTP2				41
 #define WTAP_ENCAP_MTP3				42
+#define WTAP_ENCAP_IRDA				43
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			43
+#define WTAP_NUM_ENCAP_TYPES			44
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we
@@ -364,6 +365,31 @@ struct cosine_phdr {
 	guint16 err;		/* Error Code */
 };
 
+/* Packet "pseudo-header" for IrDA capture files. */
+
+/*
+ * Direction of the packet
+ */
+#define IRDA_INCOMING       0x0000
+#define IRDA_OUTGOING       0x0004
+
+/*
+ * "Inline" log messages produced by IrCOMM2k on Windows
+ */
+#define IRDA_LOG_MESSAGE    0x0100  /* log message */
+#define IRDA_MISSED_MSG     0x0101  /* missed log entry or frame */
+
+/*
+ * Differentiate between frames and log messages
+ */
+#define IRDA_CLASS_FRAME    0x0000
+#define IRDA_CLASS_LOG      0x0100
+#define IRDA_CLASS_MASK     0xFF00
+
+struct irda_phdr {
+	guint16 pkttype;    /* packet type */
+};
+
 union wtap_pseudo_header {
 	struct eth_phdr		eth;
 	struct x25_phdr		x25;
@@ -373,6 +399,7 @@ union wtap_pseudo_header {
 	struct p2p_phdr		p2p;
 	struct ieee_802_11_phdr	ieee_802_11;
 	struct cosine_phdr	cosine;
+	struct irda_phdr	irda;
 };
 
 struct wtap_pkthdr {

@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.101 2003/12/03 22:40:39 guy Exp $
+ * $Id: libpcap.c,v 1.102 2003/12/18 19:07:13 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -25,6 +25,7 @@
 #endif
 
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
@@ -47,6 +48,16 @@ struct sunatm_hdr {
 	guint8	flags;		/* destination and traffic type */
 	guint8	vpi;		/* VPI */
 	guint16	vci;		/* VCI */
+};
+
+/*
+ * The fake link-layer header of IrDA packets as introduced by Jean Tourrilhes
+ * to libpcap.
+ */
+struct irda_sll_hdr {
+    guint16 sll_pkttype;    /* packet type */
+    guint8 unused[12];      /* usused SLL header fields */
+    guint16 sll_protocol;   /* protocol, should be 0x0017 */
 };
 
 /* See source to the "libpcap" library for information on the "libpcap"
@@ -74,6 +85,10 @@ static void adjust_header(wtap *wth, struct pcaprec_hdr *hdr);
 static void libpcap_get_atm_pseudoheader(const struct sunatm_hdr *atm_phdr,
     union wtap_pseudo_header *pseudo_header);
 static gboolean libpcap_read_atm_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err);
+static gboolean libpcap_get_irda_pseudoheader(const struct irda_sll_hdr *irda_phdr,
+    union wtap_pseudo_header *pseudo_header, int *err);
+static gboolean libpcap_read_irda_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
 static gboolean libpcap_read_rec_data(FILE_T fh, guchar *pd, int length,
     int *err);
@@ -260,6 +275,8 @@ static const struct {
 	 *
 	 * 138 is reserved for Apple IP-over-IEEE 1394.
 	 */
+
+	{ 144,		WTAP_ENCAP_IRDA },	/* IrDA capture */
 
 	{ 140,		WTAP_ENCAP_MTP2 },
 	{ 141,		WTAP_ENCAP_MTP3 },
@@ -1019,6 +1036,29 @@ static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
 		 */
 		wth->pseudo_header.eth.fcs_len = -1;
 		break;
+
+	case WTAP_ENCAP_IRDA:
+		if (packet_size < sizeof (struct irda_sll_hdr)) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			g_message("libpcap: IrDA file has a %u-byte packet, too small to have even an IrDA pseudo-header\n",
+			    packet_size);
+			*err = WTAP_ERR_BAD_RECORD;
+			return FALSE;
+		}
+		if (!libpcap_read_irda_pseudoheader(wth->fh, &wth->pseudo_header,
+		    err))
+			return FALSE;	/* Read error */
+
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		orig_size -= sizeof (struct irda_sll_hdr);
+		packet_size -= sizeof (struct irda_sll_hdr);
+		wth->data_offset += sizeof (struct irda_sll_hdr);
+		break;
 	}
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
@@ -1068,6 +1108,14 @@ libpcap_seek_read(wtap *wth, long seek_off,
 		 * We don't know whether there's an FCS in this frame or not.
 		 */
 		pseudo_header->eth.fcs_len = -1;
+		break;
+
+	case WTAP_ENCAP_IRDA:
+		if (!libpcap_read_irda_pseudoheader(wth->random_fh, pseudo_header,
+		    err)) {
+			/* Read error */
+			return FALSE;
+		}
 		break;
 	}
 
@@ -1315,6 +1363,40 @@ libpcap_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header
 }
 
 static gboolean
+libpcap_get_irda_pseudoheader(const struct irda_sll_hdr *irda_phdr,
+    union wtap_pseudo_header *pseudo_header, int *err)
+{
+	if (pntohs(&irda_phdr->sll_protocol) != 0x0017) {
+		g_message("libpcap: IrDA capture has a packet with an invalid sll_protocol field\n");
+		*err = WTAP_ERR_BAD_RECORD;
+		return FALSE;
+	}
+
+	pseudo_header->irda.pkttype = pntohs(&irda_phdr->sll_pkttype);
+
+    return TRUE;
+}
+
+static gboolean
+libpcap_read_irda_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
+    int *err)
+{
+	struct irda_sll_hdr irda_phdr;
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(&irda_phdr, 1, sizeof (struct irda_sll_hdr), fh);
+	if (bytes_read != sizeof (struct irda_sll_hdr)) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	return libpcap_get_irda_pseudoheader(&irda_phdr, pseudo_header, err);
+}
+
+static gboolean
 libpcap_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 {
 	int	bytes_read;
@@ -1430,6 +1512,28 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 		if (pseudo_header->atm.type == TRAF_LANE)
 			atm_guess_lane_type(pd, whdr->caplen, pseudo_header);
 	}
+	else if (linktype == WTAP_ENCAP_IRDA) {
+		if (whdr->caplen < sizeof (struct irda_sll_hdr)) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			g_message("libpcap: IrDA capture has a %u-byte packet, too small to have even an IrDA pseudo-header\n",
+			    whdr->caplen);
+			*err = WTAP_ERR_BAD_RECORD;
+			return NULL;
+		}
+		if (!libpcap_get_irda_pseudoheader((const struct irda_sll_hdr *)pd,
+			pseudo_header, err))
+			return NULL;
+
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		whdr->len -= sizeof (struct irda_sll_hdr);
+		whdr->caplen -= sizeof (struct irda_sll_hdr);
+		pd += sizeof (struct irda_sll_hdr);
+	}
 	return pd;
 }
 #endif
@@ -1534,17 +1638,20 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 	size_t hdr_size;
 	size_t nwritten;
 	struct sunatm_hdr atm_hdr;
-	int atm_hdrsize;
+	struct irda_sll_hdr irda_hdr;
+	int hdrsize;
 
 	if (wdh->encap == WTAP_ENCAP_ATM_PDUS)
-		atm_hdrsize = sizeof (struct sunatm_hdr);
+		hdrsize = sizeof (struct sunatm_hdr);
+	else if (wdh->encap == WTAP_ENCAP_IRDA)
+		hdrsize = sizeof (struct irda_sll_hdr);
 	else
-		atm_hdrsize = 0;
+		hdrsize = 0;
 
 	rec_hdr.hdr.ts_sec = phdr->ts.tv_sec;
 	rec_hdr.hdr.ts_usec = phdr->ts.tv_usec;
-	rec_hdr.hdr.incl_len = phdr->caplen + atm_hdrsize;
-	rec_hdr.hdr.orig_len = phdr->len + atm_hdrsize;
+	rec_hdr.hdr.incl_len = phdr->caplen + hdrsize;
+	rec_hdr.hdr.orig_len = phdr->len + hdrsize;
 	switch (wdh->file_type) {
 
 	case WTAP_FILE_PCAP:
@@ -1658,6 +1765,23 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 			return FALSE;
 		}
 		wdh->bytes_dumped += sizeof atm_hdr;
+	}
+	else if (wdh->encap == WTAP_ENCAP_IRDA) {
+		/*
+		 * Write the IrDA header.
+		 */
+		memset(&irda_hdr, 0, sizeof(irda_hdr));
+		irda_hdr.sll_pkttype  = phtons(&pseudo_header->irda.pkttype);
+		irda_hdr.sll_protocol = htons(0x0017);
+		nwritten = fwrite(&irda_hdr, 1, sizeof(irda_hdr), wdh->fh);
+		if (nwritten != sizeof(irda_hdr)) {
+			if (nwritten == 0 && ferror(wdh->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
+		wdh->bytes_dumped += sizeof(irda_hdr);
 	}
 
 	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
