@@ -5,6 +5,14 @@ Ethereal is a network traffic analyzer, or "sniffer", for Unix and
 Unix-like operating systems.  It uses GTK+, a graphical user interface
 library, and libpcap, a packet capture and filtering library.
 
+The Ethereal distribution also comes with Tethereal, which is a
+line-oriented sniffer (similar to Sun's snoop, or tcpdump) that uses the
+same dissection, capture-file reading and writing, and packet filtering
+code as Ethereal, and with editcap, which is a program to read capture
+files and write the packets from that capture file, possibly in a
+different capture file format, and with some packets possibly removed
+from the capture.
+
 The official home of Ethereal is
 
     http://ethereal.zing.org
@@ -20,11 +28,11 @@ Installation
 Ethereal is known to compile and run on the following systems:
 
   - Linux (2.0.x, 2.1.x, 2.2.x)
-  - Solaris (2.5.1, 2.6)
-  - FreeBSD (2.2.5, 2.2.6)
+  - Solaris (2.5.1, 2.6, 7)
+  - FreeBSD (2.2.5, 2.2.6, 3.1, 3.2, 3.3)
   - Sequent PTX v4.4.5  (Nick Williams <njw@sequent.com>)
   - Tru64 UNIX (formerly Digital UNIX) (3.2, 4.0)
-  - Irix (version?)
+  - Irix (6.5)
   - AIX (4.3.2, with a bit of work)
 
 It should run on other systems without too much trouble.
@@ -49,12 +57,13 @@ instructions.
 Usage
 -----          
 
-In order to capture packets from the network, you need to be running
-as root, or have access to the appropriate entry under /dev if your
-system is so inclined (BSD-derived systems and Solaris typically fall
-into this category.  Although it might be tempting to make the
-Ethereal executable setuid root, please don't - alpha code is by nature
-not very robust, and liable to contain security holes.
+In order to capture packets from the network, you need to be running as
+root, or have access to the appropriate entry under /dev if your system
+is so inclined (BSD-derived systems, and systems such as Solaris and
+HP-UX that support DLPI, typically fall into this category).  Although
+it might be tempting to make the Ethereal executable setuid root, please
+don't - alpha code is by nature not very robust, and liable to contain
+security holes.
 
 Please consult the man page for a description of each command-line
 option and interface feature.
@@ -71,9 +80,9 @@ to read multiple file types. You can read the following file
 formats, and create display filters for them as well:
 
 libpcap (tcpdump -w), Sniffer (uncompressed), NetXray, Sniffer Pro,
-snoop, Shomiti, LANalyzer, Network Monitor, AIX's iptrace,
+snoop, Shomiti, LANalyzer, Microsoft Network Monitor, AIX's iptrace,
 RADCOM's WAN/LAN Analyzer, Lucent/Ascend access products, HP-UX's nettl,
-and Toshiba's ISDN routers.
+Toshiba's ISDN routers, and the ISDN4BSD "i4btrace" utility.
 
 In addition, it can read gzipped versions of any of these files,
 automatically, if you have the zlib library available when compiling
@@ -148,13 +157,12 @@ over IPv6 is planned.
 
 SNMP
 ----
-Ethereal can do some basic decoding of SNMP packets, but it relies on an
-external SNMP library to do this. You can use either the UCD or the CMU
-SNMP libraries. The configure script will automatically determine which
-library you have on your system and will use it. If you have an SNMP
-library but _do not_ want to have ethereal use it, you can run configure
-with the "--disable-snmp" option. No SNMP support will be compiled into
-ethereal with this option.
+Ethereal can do some basic decoding of SNMP packets; it can also use an
+external SNMP library to do more sophisticated decoding..  The configure
+script will automatically determine which library you have on your
+system and will use it.  If you have an SNMP library but _do not_ want
+to have ethereal use it, you can run configure with the "--disable-snmp"
+option. 
 
 
 How to Report a Bug
