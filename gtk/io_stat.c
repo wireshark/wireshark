@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.68 2004/02/24 17:53:40 ulfl Exp $
+ * $Id: io_stat.c,v 1.69 2004/02/24 23:25:28 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,7 +126,6 @@ typedef struct _io_stat_graph_t {
 	int plot_style;
 	gboolean display;
 	GtkWidget *display_button;
-	GtkWidget *color_button;
 	GtkWidget *filter_field;
 	GtkWidget *advanced_buttons;
 	int calc_type;
@@ -971,7 +970,7 @@ gtk_iostat_init(char *optarg _U_)
 	io->scrollbar_adjustment=NULL;
 	io->pixmap_width=500;
 	io->pixmap_height=200;
-	io->pixels_per_tick=5;
+    io->pixels_per_tick=pixels_per_tick[DEFAULT_PIXELS_PER_TICK];
 	io->max_y_units=AUTO_MAX_YSCALE;
 	io->count_type=0;
 	io->last_interval=0xffffffff;
@@ -986,7 +985,6 @@ gtk_iostat_init(char *optarg _U_)
 		io->graphs[i].color.blue=col[i].blue;
 		io->graphs[i].display=0;
 		io->graphs[i].display_button=NULL;
-		io->graphs[i].color_button=NULL;
 		io->graphs[i].filter_field=NULL;
 		io->graphs[i].advanced_buttons=NULL;
 		io->graphs[i].io=io;
@@ -1216,7 +1214,6 @@ create_pixels_per_tick_menu_items(io_stat_t *io, GtkWidget *menu)
 		sprintf(str,"%d", pixels_per_tick[i]);
 		menu_item=gtk_menu_item_new_with_label(str);
 
-		io->pixels_per_tick=DEFAULT_PIXELS_PER_TICK;
 		OBJECT_SET_DATA(menu_item, "pixels_per_tick",
                                 pixels_per_tick[i]);
 		SIGNAL_CONNECT(menu_item, "activate", pixels_per_tick_select, io);
@@ -1371,17 +1368,39 @@ create_ctrl_menu(io_stat_t *io, GtkWidget *box, char *name, void (*func)(io_stat
 static void
 create_ctrl_area(io_stat_t *io, GtkWidget *box)
 {
+    GtkWidget *frame_vbox;
+    GtkWidget *frame;
 	GtkWidget *vbox;
 
+	frame_vbox=gtk_vbox_new(FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(box), frame_vbox);
+	gtk_widget_show(frame_vbox);
+
+    frame = gtk_frame_new("X-Direction (Unit: seconds)");
+	gtk_container_add(GTK_CONTAINER(frame_vbox), frame);
+	gtk_widget_show(frame);
+
 	vbox=gtk_vbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(box), vbox);
+	gtk_container_add(GTK_CONTAINER(frame), vbox);
+    gtk_container_border_width(GTK_CONTAINER(vbox), 3);
 	gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_END);
 	gtk_widget_show(vbox);
 
-	create_ctrl_menu(io, vbox, "X-Tick Interval:", create_tick_interval_menu_items);
-	create_ctrl_menu(io, vbox, "X-Pixels per Tick:", create_pixels_per_tick_menu_items);
-	create_ctrl_menu(io, vbox, "Y-Unit:", create_frames_or_bytes_menu_items);
-	create_ctrl_menu(io, vbox, "Y-Scale:", create_yscale_max_menu_items);
+	create_ctrl_menu(io, vbox, "Tick Interval:", create_tick_interval_menu_items);
+	create_ctrl_menu(io, vbox, "Pixels per Tick:", create_pixels_per_tick_menu_items);
+
+    frame = gtk_frame_new("Y-Direction");
+	gtk_container_add(GTK_CONTAINER(frame_vbox), frame);
+	gtk_widget_show(frame);
+
+	vbox=gtk_vbox_new(FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(frame), vbox);
+    gtk_container_border_width(GTK_CONTAINER(vbox), 3);
+	gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_END);
+	gtk_widget_show(vbox);
+
+    create_ctrl_menu(io, vbox, "Unit:", create_frames_or_bytes_menu_items);
+	create_ctrl_menu(io, vbox, "Scale:", create_yscale_max_menu_items);
 
 	return;
 }
@@ -1627,55 +1646,48 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
         char str[256];
 	int i;
 
-	hbox=gtk_hbox_new(FALSE, 0);
+	hbox=gtk_hbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(box), hbox);
 	gtk_box_set_child_packing(GTK_BOX(box), hbox, FALSE, FALSE, 0, GTK_PACK_START);
 	gtk_widget_show(hbox);
 
-
-	sprintf(str, "Filter:%d", num);
-	label=gtk_label_new(str);
-	gtk_widget_show(label);
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
-
-	gio->display_button=gtk_toggle_button_new();
+	sprintf(str, "Graph %d", num);
+    gio->display_button=gtk_toggle_button_new_with_label(str);
 	gtk_box_pack_start(GTK_BOX(hbox), gio->display_button, FALSE, FALSE, 0);
 	gtk_widget_show(gio->display_button);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
 	SIGNAL_CONNECT(gio->display_button, "toggled", filter_callback, gio);
 
-	gio->color_button=gtk_toggle_button_new();
-	gtk_box_pack_start(GTK_BOX(hbox), gio->color_button, FALSE, FALSE, 0);
-	gtk_widget_show(gio->color_button);
+	label=gtk_label_new("Color");
+	gtk_widget_show(label);
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
 #if GTK_MAJOR_VERSION < 2
+    /* setting the color of the display button doesn't work */
 	rc_style = gtk_rc_style_new ();
-	rc_style->bg[GTK_STATE_NORMAL] = gio->color;
-	rc_style->color_flags[GTK_STATE_NORMAL] |= GTK_RC_BG;
-	rc_style->bg[GTK_STATE_ACTIVE] = gio->color;
-	rc_style->color_flags[GTK_STATE_ACTIVE] |= GTK_RC_BG;
-	rc_style->bg[GTK_STATE_PRELIGHT] = gio->color;
-	rc_style->color_flags[GTK_STATE_PRELIGHT] |= GTK_RC_BG;
-	rc_style->bg[GTK_STATE_SELECTED] = gio->color;
-	rc_style->color_flags[GTK_STATE_SELECTED] |= GTK_RC_BG;
-	rc_style->bg[GTK_STATE_INSENSITIVE] = gio->color;
-	rc_style->color_flags[GTK_STATE_INSENSITIVE] |= GTK_RC_BG;
-	gtk_widget_modify_style (gio->color_button, rc_style);
+	rc_style->fg[GTK_STATE_NORMAL] = gio->color;
+	rc_style->color_flags[GTK_STATE_NORMAL] |= GTK_RC_FG;
+	rc_style->fg[GTK_STATE_ACTIVE] = gio->color;
+	rc_style->color_flags[GTK_STATE_ACTIVE] |= GTK_RC_FG;
+	rc_style->fg[GTK_STATE_PRELIGHT] = gio->color;
+	rc_style->color_flags[GTK_STATE_PRELIGHT] |= GTK_RC_FG;
+	rc_style->fg[GTK_STATE_SELECTED] = gio->color;
+	rc_style->color_flags[GTK_STATE_SELECTED] |= GTK_RC_FG;
+	rc_style->fg[GTK_STATE_INSENSITIVE] = gio->color;
+	rc_style->color_flags[GTK_STATE_INSENSITIVE] |= GTK_RC_FG;
+	gtk_widget_modify_style (label, rc_style);
 	gtk_rc_style_unref (rc_style);
 #else
-	gtk_widget_modify_bg(gio->color_button, GTK_STATE_NORMAL, &gio->color); 
-	gtk_widget_modify_bg(gio->color_button, GTK_STATE_ACTIVE, &gio->color); 
-	gtk_widget_modify_bg(gio->color_button, GTK_STATE_PRELIGHT, &gio->color); 
-	gtk_widget_modify_bg(gio->color_button, GTK_STATE_SELECTED, &gio->color); 
-	gtk_widget_modify_bg(gio->color_button, GTK_STATE_INSENSITIVE, &gio->color); 
+	gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &gio->color); 
+	gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, &gio->color); 
+	gtk_widget_modify_fg(label, GTK_STATE_PRELIGHT, &gio->color); 
+	gtk_widget_modify_fg(label, GTK_STATE_SELECTED, &gio->color); 
+	gtk_widget_modify_fg(label, GTK_STATE_INSENSITIVE, &gio->color); 
 #endif
 /*	gtk_signal_connect(GTK_OBJECT(gio->display_button), "toggled", GTK_SIGNAL_FUNC(filter_callback), gio);*/
 
 
 	/* filter prefs dialog */
-	label=gtk_label_new("   ");
-	gtk_widget_show(label);
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 	gio->filter_bt=BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY);
 
 	sprintf(str, "Ethereal: Display Filter  IO-Stat (Filter:%d)", num);
@@ -1733,11 +1745,17 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 static void
 create_filter_area(io_stat_t *io, GtkWidget *box)
 {
+	GtkWidget *frame;
 	GtkWidget *vbox;
 	int i;
 
-	vbox=gtk_vbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(box), vbox);
+    frame=gtk_frame_new("Graphs");
+	gtk_container_add(GTK_CONTAINER(box), frame);
+	gtk_widget_show(frame);
+
+	vbox=gtk_vbox_new(FALSE, 1);
+	gtk_container_add(GTK_CONTAINER(frame), vbox);
+    gtk_container_border_width(GTK_CONTAINER(vbox), 3);
 	gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_START);
 	gtk_widget_show(vbox);
 
@@ -1777,8 +1795,9 @@ init_io_stat_window(io_stat_t *io)
 
 	create_draw_area(io, vbox);
 
-	hbox=gtk_hbox_new(FALSE, 0);
+	hbox=gtk_hbox_new(FALSE, 3);
 	gtk_box_pack_end(GTK_BOX(vbox), hbox, FALSE, FALSE, 5);
+    gtk_container_border_width(GTK_CONTAINER(hbox), 3);
 	gtk_box_set_child_packing(GTK_BOX(vbox), hbox, FALSE, FALSE, 0, GTK_PACK_START);
 	gtk_widget_show(hbox);
 
