@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.109 2001/08/27 09:09:35 guy Exp $
+ * $Id: packet-smb.c,v 1.110 2001/08/27 20:15:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3827,15 +3827,15 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     offset += strlen(str) + 1;
 
-    str = pd + offset;
+    str = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, strlen(str) + 1, "Native File System: %s", str);
+      proto_tree_add_text(tree, NullTVB, offset, string_len, "Native File System: %s", str);
 
     }
 
-    offset += strlen(str) + 1;
+    offset += string_len;
 
     
     break;
