@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.74 2002/04/29 10:06:01 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.75 2002/04/29 22:43:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -188,6 +188,7 @@ static const value_string status_vals[] = {
 	{2214,  "The logon was not validated by any server"},
 	{2217,  "The logon server is running an older software version"},
 	{2221,  "The user name was not found"},
+	{2226,  "Operation not permitted on Backup Domain Controller"},
 	{2240,  "The user is not allowed to logon from this computer"},
 	{2241,  "The user is not allowed to logon at this time"},
 	{2242,  "The user password has expired"},
