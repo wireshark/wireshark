@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.29 2000/11/09 21:57:35 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.30 2000/11/11 10:23:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -339,14 +339,14 @@ dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    proto_tree_add_text(field_tree, NullTVB,
 		offset + offsetof(struct icmp6_nodeinfo, ni_flags),
 		sizeof(ni->ni_flags), "%s",
-		decode_boolean_bitfield(flags, 0x0001, sizeof(flags) * 8,
+		decode_boolean_bitfield(flags, NI_SUPTYPE_FLAG_COMPRESS, sizeof(flags) * 8,
 		    "Compressed reply supported",
 		    "No compressed reply support"));
 	} else {
 	    proto_tree_add_text(field_tree, NullTVB,
 		offset + offsetof(struct icmp6_nodeinfo, ni_flags),
 		sizeof(ni->ni_flags), "%s",
-		decode_boolean_bitfield(flags, 0x0001, sizeof(flags) * 8,
+		decode_boolean_bitfield(flags, NI_SUPTYPE_FLAG_COMPRESS, sizeof(flags) * 8,
 		    "Compressed", "Not compressed"));
 	}
 	break;
@@ -355,7 +355,7 @@ dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    proto_tree_add_text(field_tree, NullTVB,
 		offset + offsetof(struct icmp6_nodeinfo, ni_flags),
 		sizeof(ni->ni_flags), "%s",
-		decode_boolean_bitfield(flags, 0x0001, sizeof(flags) * 8,
+		decode_boolean_bitfield(flags, NI_FQDN_FLAG_VALIDTTL, sizeof(flags) * 8,
 		    "Valid TTL field", "Meaningless TTL field"));
 	}
 	break;
@@ -363,25 +363,25 @@ dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	proto_tree_add_text(field_tree, NullTVB,
 	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
 	    sizeof(ni->ni_flags), "%s",
-	    decode_boolean_bitfield(flags, 0x0020, sizeof(flags) * 8,
+	    decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_GLOBAL, sizeof(flags) * 8,
 		"Global address",
 		"Not global address"));
 	proto_tree_add_text(field_tree, NullTVB,
 	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
 	    sizeof(ni->ni_flags), "%s",
-	    decode_boolean_bitfield(flags, 0x0010, sizeof(flags) * 8,
+	    decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_SITELOCAL, sizeof(flags) * 8,
 		"Site-local address",
 		"Not site-local address"));
 	proto_tree_add_text(field_tree, NullTVB,
 	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
 	    sizeof(ni->ni_flags), "%s",
-	    decode_boolean_bitfield(flags, 0x0008, sizeof(flags) * 8,
+	    decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_LINKLOCAL, sizeof(flags) * 8,
 		"Link-local address",
 		"Not link-local address"));
 	proto_tree_add_text(field_tree, NullTVB,
 	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
 	    sizeof(ni->ni_flags), "%s",
-	    decode_boolean_bitfield(flags, 0x0004, sizeof(flags) * 8,
+	    decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_COMPAT, sizeof(flags) * 8,
 		"IPv4 compatible/mapped address",
 		"Not IPv4 compatible/mapped address"));
 	/* fall through */
@@ -389,13 +389,13 @@ dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	proto_tree_add_text(field_tree, NullTVB,
 	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
 	    sizeof(ni->ni_flags), "%s",
-	    decode_boolean_bitfield(flags, 0x0002, sizeof(flags) * 8,
+	    decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_ALL, sizeof(flags) * 8,
 		"All unicast address",
 		"Unicast addresses on the queried interface"));
 	proto_tree_add_text(field_tree, NullTVB,
 	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
 	    sizeof(ni->ni_flags), "%s",
-	    decode_boolean_bitfield(flags, 0x0001, sizeof(flags) * 8,
+	    decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_TRUNCATE, sizeof(flags) * 8,
 		"Truncated", "Not truncated"));
 	break;
     }
@@ -1048,13 +1048,13 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
 	    proto_tree_add_text(field_tree, NullTVB, flagoff, 4, "%s",
 		decode_boolean_bitfield(na_flags,
-			0x80000000, 32, "Router", "Not router"));
+			ND_NA_FLAG_ROUTER, 32, "Router", "Not router"));
 	    proto_tree_add_text(field_tree, NullTVB, flagoff, 4, "%s",
 		decode_boolean_bitfield(na_flags,
-			0x40000000, 32, "Solicited", "Not adverted"));
+			ND_NA_FLAG_SOLICITED, 32, "Solicited", "Not adverted"));
 	    proto_tree_add_text(field_tree, NullTVB, flagoff, 4, "%s",
 		decode_boolean_bitfield(na_flags,
-			0x20000000, 32, "Override", "Not override"));
+			ND_NA_FLAG_OVERRIDE, 32, "Override", "Not override"));
 
 		targetoff = offset + offsetof(struct nd_neighbor_advert, nd_na_target);
 	    na_target_p = (struct e_in6_addr*) &pd[targetoff];

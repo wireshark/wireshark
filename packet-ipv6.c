@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.43 2000/08/13 14:08:06 deniel Exp $
+ * $Id: packet-ipv6.c,v 1.44 2000/11/11 10:23:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -147,7 +147,8 @@ dissect_frag6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 
     memcpy(&frag, (void *) &pd[offset], sizeof(frag));
     len = sizeof(frag);
-    *fragstart = ntohs(frag.ip6f_offlg) & 0xfff8;
+    frag.ip6f_offlg = ntohs(frag.ip6f_offlg);
+    *fragstart = frag.ip6f_offlg & IP6F_OFF_MASK;
     if (check_col(fd, COL_INFO)) {
 	col_add_fstr(fd, COL_INFO,
 	    "IPv6 fragment (nxt=%s (0x%02x) off=%u id=0x%x)",
@@ -174,7 +175,7 @@ dissect_frag6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	   proto_tree_add_text(rthdr_tree, NullTVB,
 			 offset + offsetof(struct ip6_frag, ip6f_offlg), 2,
 			 "Offset: %u",
-			 ntohs(frag.ip6f_offlg) & 0xfff8);
+			 frag.ip6f_offlg & IP6F_OFF_MASK);
 
 	   proto_tree_add_text(rthdr_tree, NullTVB,
 			 offset + offsetof(struct ip6_frag, ip6f_offlg), 2,
@@ -327,9 +328,9 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
      */
     proto_tree_add_uint_format(ipv6_tree, hf_ipv6_flow, NullTVB,
 		offset + offsetof(struct ip6_hdr, ip6_flow), 4,
-		(unsigned long)(ntohl(ipv6.ip6_flow & IPV6_FLOWLABEL_MASK)),
+		(unsigned long)(ntohl(ipv6.ip6_flow) & IPV6_FLOWLABEL_MASK),
 		"Flowlabel: 0x%05lx",
-		(unsigned long)(ntohl(ipv6.ip6_flow & IPV6_FLOWLABEL_MASK)));
+		(unsigned long)(ntohl(ipv6.ip6_flow) & IPV6_FLOWLABEL_MASK));
 
     proto_tree_add_uint(ipv6_tree, hf_ipv6_plen, NullTVB,
 		offset + offsetof(struct ip6_hdr, ip6_plen), 2,

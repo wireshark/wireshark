@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.h,v 1.15 2000/11/09 16:39:59 itojun Exp $
+ * $Id: packet-ipv6.h,v 1.16 2000/11/11 10:23:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,13 +94,8 @@ struct ip6_hdr {
 #define	IP6H_SRC	8
 #define	IP6H_DST	24
 
-#ifdef WORDS_BIGENDIAN
 #define IPV6_FLOWINFO_MASK	0x0fffffff	/* flow info (28 bits) */
 #define IPV6_FLOWLABEL_MASK	0x000fffff	/* flow label (20 bits) */
-#else
-#define IPV6_FLOWINFO_MASK	0xffffff0f	/* flow info (28 bits) */
-#define IPV6_FLOWLABEL_MASK	0xffff0f00	/* flow label (20 bits) */
-#endif
 
 /*
  * Extension Headers
@@ -174,15 +169,9 @@ struct ip6_frag {
 	guint32 ip6f_ident;		/* identification */
 };
 
-#if BYTE_ORDER == BIG_ENDIAN
 #define IP6F_OFF_MASK		0xfff8	/* mask out offset from _offlg */
 #define IP6F_RESERVED_MASK	0x0006	/* reserved bits in ip6f_offlg */
 #define IP6F_MORE_FRAG		0x0001	/* more-fragments flag */
-#else /* BYTE_ORDER == LITTLE_ENDIAN */
-#define IP6F_OFF_MASK		0xf8ff	/* mask out offset from _offlg */
-#define IP6F_RESERVED_MASK	0x0600	/* reserved bits in ip6f_offlg */
-#define IP6F_MORE_FRAG		0x0100	/* more-fragments flag */
-#endif /* BYTE_ORDER == LITTLE_ENDIAN */
 
 /*
  * Definition for ICMPv6.
@@ -340,15 +329,9 @@ struct nd_neighbor_advert {	/* neighbor advertisement */
 #define nd_na_code		nd_na_hdr.icmp6_code
 #define nd_na_cksum		nd_na_hdr.icmp6_cksum
 #define nd_na_flags_reserved	nd_na_hdr.icmp6_data32[0]
-#if BYTE_ORDER == BIG_ENDIAN
 #define ND_NA_FLAG_ROUTER		0x80000000
 #define ND_NA_FLAG_SOLICITED		0x40000000
 #define ND_NA_FLAG_OVERRIDE		0x20000000
-#elif BYTE_ORDER == LITTLE_ENDIAN
-#define ND_NA_FLAG_ROUTER		0x80
-#define ND_NA_FLAG_SOLICITED		0x40
-#define ND_NA_FLAG_OVERRIDE		0x20
-#endif
 
 struct nd_redirect {		/* redirect */
 	struct icmp6_hdr	nd_rd_hdr;
@@ -425,15 +408,9 @@ struct icmp6_nodeinfo {
 #define NI_QTYPE_NODEADDR	3 /* Node Addresses */
 #define NI_QTYPE_IPV4ADDR	4 /* IPv4 Addresses */
 
-#if BYTE_ORDER == BIG_ENDIAN
 #define NI_SUPTYPE_FLAG_COMPRESS	0x1
 #define NI_FQDN_FLAG_VALIDTTL		0x1
-#elif BYTE_ORDER == LITTLE_ENDIAN
-#define NI_SUPTYPE_FLAG_COMPRESS	0x0100
-#define NI_FQDN_FLAG_VALIDTTL		0x0100
-#endif
 
-#if BYTE_ORDER == BIG_ENDIAN
 #define NI_NODEADDR_FLAG_TRUNCATE	0x1
 #define NI_NODEADDR_FLAG_ALL		0x2
 #define NI_NODEADDR_FLAG_COMPAT		0x4
@@ -441,15 +418,6 @@ struct icmp6_nodeinfo {
 #define NI_NODEADDR_FLAG_SITELOCAL	0x10
 #define NI_NODEADDR_FLAG_GLOBAL		0x20
 #define NI_NODEADDR_FLAG_ANYCAST	0x40 /* just experimental. not in spec */
-#elif BYTE_ORDER == LITTLE_ENDIAN
-#define NI_NODEADDR_FLAG_TRUNCATE	0x0100
-#define NI_NODEADDR_FLAG_ALL		0x0200
-#define NI_NODEADDR_FLAG_COMPAT		0x0400
-#define NI_NODEADDR_FLAG_LINKLOCAL	0x0800
-#define NI_NODEADDR_FLAG_SITELOCAL	0x1000
-#define NI_NODEADDR_FLAG_GLOBAL		0x2000
-#define NI_NODEADDR_FLAG_ANYCAST	0x4000 /* just experimental. not in spec */
-#endif
 
 struct ni_reply_fqdn {
 	guint32	ni_fqdn_ttl;	/* TTL */
