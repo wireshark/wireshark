@@ -1,0 +1,23 @@
+#
+# $Id: Makefile.nmake,v 1.1 2001/04/04 04:50:05 gram Exp $
+#
+
+include ../../config.nmake
+
+EXE=../../ethereal.exe ../../tethereal.exe ../../editcap.exe
+PDB=../../ethereal.pdb ../../tethereal.pdb ../../editcap.pdb
+DLL=../../wiretap/wiretap-$(WTAP_VERSION).dll
+DOC=../../doc/ethereal.html		\
+	../../doc/tethereal.html	\
+	../../doc/editcap.html 		\
+	../../README			\
+	../../README.win32
+GPL=GPL.txt
+
+PLUGINS=../../plugins/mgcp/mgcp.dll	\
+	../../plugins/gryphon/gryphon.dll
+
+DELIVERABLES=$(EXE) $(DLL) $(DOC) $(GPL) $(PLUGINS) $(PDB)
+
+ethereal-setup.exe : ethereal.nsi $(DELIVERABLES)
+	$(MAKENSIS) ethereal.nsi

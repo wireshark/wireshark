@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.9 2001/03/23 02:05:22 gram Exp $
+# $Id: config.nmake,v 1.10 2001/04/04 04:50:04 gram Exp $
 
 VERSION=0.8.16
 WTAP_VERSION=0.0
@@ -14,7 +14,6 @@ PCAP_DIR=F:\gram\win32tools\WPdpack
 LOCAL_CFLAGS=-Zi
 LOCAL_LDFLAGS=/DEBUG
 
-
 # Set path if you need to find some binary
 #PATH=t:\w32-ix86\cygnus\cygwin-b20\H-i586-cygwin32\bin;$(PATH)
 
@@ -26,3 +25,6 @@ YACC=bison
 
 # Set YACC_OPTS if cygnus bison can't find template file.
 #YACC_OPTS=-S t:\w32-ix86\cygnus\cygwin-b20\share\bison.simple 
+
+# To build the installer
+MAKENSIS="C:/program files/nsis/makensis.exe"
