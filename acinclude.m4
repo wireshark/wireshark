@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.72 2004/04/22 20:02:58 obiot Exp $
+dnl $Id: acinclude.m4,v 1.73 2004/05/13 16:57:43 jmayer Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -878,10 +878,12 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	  CFLAGS="$CFLAGS -I$krb5_dir/include"
 	  ethereal_save_CPPFLAGS="$CPPFLAGS"
 	  CPPFLAGS="$CPPFLAGS -I$krb5_dir/include"
-	  ethereal_save_LIBS="$LIBS"
-	  LIBS="$LIBS -lkrb5 -lasn1 -lcrypto -lroken -lcrypt -lresolv"
+	  #ethereal_save_LIBS="$LIBS"
+	  #LIBS="$LIBS -lkrb5 -lasn1 -lcrypto -lroken -lcrypt -lresolv"
 	  ethereal_save_LDFLAGS="$LDFLAGS"
 	  LDFLAGS="$LDFLAGS -L$krb5_dir/lib"
+	  # XXX: we should find a way to determine ac_krb5_version,
+	  # otherwise we'll bail later
 	else
 	  AC_PATH_PROG(KRB5_CONFIG, krb5-config) 
 	  if test -x $KRB5_CONFIG
@@ -900,7 +902,7 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 		AC_MSG_RESULT(Adding -lresolv to libs)
 	    fi
 
-	    LIBS="$LIBS $KRB5_LIBS"
+	    #LIBS="$LIBS $KRB5_LIBS"
 	    ac_krb5_version=`$KRB5_CONFIG --version | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/i'`
  	  fi
 	fi
@@ -949,7 +951,7 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 			if test "x$krb5_dir" != "x"
 			then
 				#
-				# Put the "-I" and "-L" flags for pcre at
+				# Put the "-I" and "-L" flags for krb5 at
 				# the beginning of CFLAGS, CPPFLAGS,
 				# LDFLAGS, and LIBS.
 				#
@@ -969,11 +971,11 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 				CFLAGS="$ethereal_save_CFLAGS"
 				CPPFLAGS="$ethereal_save_CPPFLAGS"
 				LDFLAGS="$ethereal_save_LDFLAGS"
-				LIBS="$ethereal_save_LIBS"
+				#LIBS="$ethereal_save_LIBS"
 				KRB5_LIBS=""
 			fi
 			want_krb5=no
-		])
+		], $KRB5_LIBS)
 		AC_SUBST(KRB5_LIBS)
 	else
 		want_krb5=no
