@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.70 2000/11/19 08:53:58 guy Exp $
+ * $Id: packet-ipx.c,v 1.71 2000/12/03 09:18:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,7 +41,6 @@
 #include "aftypes.h"
 #include "packet.h"
 #include "packet-ipx.h"
-#include "packet-nbipx.h"
 #include "resolv.h"
 
 #include "packet-snmp.h"
@@ -73,6 +72,8 @@ static gint ett_ipx = -1;
 
 static dissector_table_t ipx_type_dissector_table;
 static dissector_table_t ipx_socket_dissector_table;
+
+static dissector_handle_t nbipx_handle;
 
 static int proto_spx = -1;
 static int hf_spx_connection_control = -1;
@@ -278,8 +279,6 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvbuff_t	*next_tvb;
 	const guint8	*this_pd;
 	int		this_offset, len;
-	const guint8	*next_pd;
-	int		next_offset;
 
 	proto_tree	*ipx_tree;
 	proto_item	*ti;
@@ -361,8 +360,6 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			MIN(available_length, reported_length),
 			reported_length);
 
-	tvb_compat(next_tvb, &next_pd, &next_offset);
-
 	if (dissector_try_port(ipx_type_dissector_table, ipx_type, next_tvb,
 	    pinfo, tree))
 		return;
@@ -371,7 +368,8 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case IPX_PACKET_TYPE_WANBCAST:
 		case IPX_PACKET_TYPE_PEP:
 			if (ipx_dsocket == IPX_SOCKET_NETBIOS) {
-				dissect_nbipx(next_tvb, pinfo, tree);
+				call_dissector(nbipx_handle, next_tvb, pinfo,
+				    tree);
 				return;
 			}
 			/* else fall through */
@@ -904,6 +902,11 @@ proto_register_ipx(void)
 void
 proto_reg_handoff_ipx(void)
 {
+	/*
+	 * Get handle for the NBIPX dissector.
+	 */
+	nbipx_handle = find_dissector("nbipx");
+
 	dissector_add("udp.port", UDP_PORT_IPX, dissect_ipx);
 	dissector_add("ethertype", ETHERTYPE_IPX, dissect_ipx);
 	dissector_add("ppp.protocol", PPP_IPX, dissect_ipx);
