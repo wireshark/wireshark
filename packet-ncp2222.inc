@@ -7,7 +7,7 @@
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp2222.inc,v 1.8 2002/01/10 04:44:34 gram Exp $
+ * $Id: packet-ncp2222.inc,v 1.9 2002/04/04 03:51:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -297,7 +297,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 
 	conversation_t			*conversation;
 	const ncp_record		*ncp_rec = NULL;
-	gboolean			found_request = FALSE;
 	guint8				completion_code;
 	guint				length;
 	ptvcursor_t			*ptvc = NULL;
