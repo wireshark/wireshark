@@ -6,3 +6,5 @@ lemon.exe
 lemon.obj
 .libs
 Makefile.in
+*.pdb
+*.ilk
