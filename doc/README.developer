@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.4 2000/03/03 06:13:23 guy Exp $
+$Id: README.developer,v 1.5 2000/03/03 06:19:50 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a protocol dissector and the use some of the important functions and variables 
@@ -46,7 +46,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.4 2000/03/03 06:13:23 guy Exp $" in the comment will be updated by CVS when the file is
+The "$Id: README.developer,v 1.5 2000/03/03 06:19:50 guy Exp $" in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
@@ -55,7 +55,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.4 2000/03/03 06:13:23 guy Exp $
+ * $Id: README.developer,v 1.5 2000/03/03 06:19:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -714,6 +714,24 @@ functionality while we converted all the old-style proto_tree calls to
 the new-style proto_tree calls.
 
 1.6 Editing Makefile.am and Makefile.nmake to add your dissector.
+
+To arrange that your dissector will be built as part of Ethereal, you
+must add the name of the source file for your dissector, and the header
+file that declares your main dissector routine, to the
+'DISSECTOR_SOURCES' macro in the 'Makefile.am' file in the top-level
+directory, and must add the name the object file for the dissector will
+have when built on Windows - if your dissector source file is
+'packet-PROTOABBREV.c', the object file for it will be
+'packet-PROTOABBREV.obj' - to the 'DISSECTOR_OBJECTS' macro in the
+'Makefile.nmake' file in the top-level directory.  (Note that this is
+for modern versions of UNIX, so there is no 14-character limitation on
+file names, and for modern versions of Windows, so there is no
+8.3-character limitation on file names.)
+
+Please remember to update both files; it may not be necessary to do so
+in order for you to build Ethereal on your machine, but both changes
+will need to be checked in to the Ethereal source code, to allow it to
+build on all platforms.
 
 1.7 Using the CVS source code tree.
 
