@@ -1,7 +1,7 @@
 /* register.h
  * Definitions for protocol registration
  *
- * $Id: register.h,v 1.5 2003/04/23 03:50:59 guy Exp $
+ * $Id: register.h,v 1.6 2004/05/03 18:51:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,6 +28,5 @@
 extern void register_all_protocols(void);
 extern void register_all_protocol_handoffs(void);
 extern void register_all_tap_listeners(void);
-extern void register_all_tap_menus(void);
 extern void register_ethereal_tap(char *str, void (*init)(char *));
 #endif /* __REGISTER_H__ */
