@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.34 2001/06/08 08:50:49 guy Exp $
+ * $Id: print.c,v 1.35 2001/06/08 10:07:55 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -125,22 +125,21 @@ void proto_tree_print(gboolean print_one_packet, print_args_t *print_args,
  * pointer to the data in it.
  */
 static const guint8 *
-find_data_source(GSList *src_list, gchar *ds_name)
+get_field_data(GSList *src_list, field_info *fi)
 {
 	GSList *src;
 	tvbuff_t *src_tvb;
-	guint src_tvb_len;
 
 	for (src = src_list; src != NULL; src = g_slist_next(src)) {
 		src_tvb = src->data;
-		if (strcmp(ds_name, tvb_get_name(src_tvb)) == 0) {
+		if (strcmp(fi->ds_name, tvb_get_name(src_tvb)) == 0) {
 			/*
 			 * Found it.
 			 */
-			src_tvb_len = tvb_length(src_tvb);
-			return tvb_get_ptr(src_tvb, 0, src_tvb_len);
+			return tvb_get_ptr(src_tvb, fi->start, fi->length);
 		}
 	}
+	g_assert_not_reached();
 	return NULL;	/* not found */
 }
 
@@ -188,11 +187,10 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 	   be printing the entire packet in hex). */
 	if (fi->hfinfo->id == proto_data && pdata->print_hex_for_data) {
 		/*
-		 * Find the data source tvbuff for this field.
+		 * Find the data for this field.
 		 */
-		pd = find_data_source(pdata->src_list, fi->ds_name);
-		print_hex_data_text(pdata->fh, &pd[fi->start],
-				fi->length, pdata->encoding);
+		pd = get_field_data(pdata->src_list, fi);
+		print_hex_data_text(pdata->fh, pd, fi->length, pdata->encoding);
 	}
 
 	/* If we're printing all levels, or if this level is expanded,
@@ -317,11 +315,10 @@ void proto_tree_print_node_ps(GNode *node, gpointer data)
 	   be printing the entire packet in hex). */
 	if (fi->hfinfo->id == proto_data && pdata->print_hex_for_data) {
 		/*
-		 * Find the data source tvbuff for this field.
+		 * Find the data for this field.
 		 */
-		pd = find_data_source(pdata->src_list, fi->ds_name);
-		print_hex_data_ps(pdata->fh, &pd[fi->start], fi->length,
-				pdata->encoding);
+		pd = get_field_data(pdata->src_list, fi);
+		print_hex_data_ps(pdata->fh, pd, fi->length, pdata->encoding);
 	}
 
 	/* Recurse into the subtree, if it exists */
