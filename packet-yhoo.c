@@ -2,7 +2,7 @@
  * Routines for yahoo messenger packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-yhoo.c,v 1.5 2000/01/07 22:05:42 guy Exp $
+ * $Id: packet-yhoo.c,v 1.6 2000/05/05 09:32:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,6 +58,8 @@ static int hf_yhoo_content = -1;
 
 static gint ett_yhoo = -1;
 
+#define TCP_PORT_YHOO	5050
+
 static const value_string yhoo_service_vals[] = {
 	{YAHOO_SERVICE_LOGON, "Pager Logon"},
 	{YAHOO_SERVICE_LOGOFF, "Pager Logoff"},
@@ -102,15 +104,30 @@ static const value_string yhoo_msgtype_vals[] = {
 	{0, NULL}
 };
 
-void
+static gboolean
 dissect_yhoo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	proto_tree      *yhoo_tree, *ti;
 	struct yahoo_rawpacket *pkt;
 
+	if (pi.srcport != TCP_PORT_YHOO && pi.destport != TCP_PORT_YHOO) {
+		/* Not the Yahoo port - not a Yahoo Messenger packet. */
+		return FALSE;
+	}
+
 	/* get at least a full packet structure */
-	if ( !BYTES_ARE_IN_FRAME(offset, sizeof(struct yahoo_rawpacket)) )
-		return;
+	if ( !BYTES_ARE_IN_FRAME(offset, sizeof(struct yahoo_rawpacket)) ) {
+		/* Not enough data captured; maybe it is a Yahoo
+		   Messenger packet, but it contains too little data to
+		   tell. */
+		return FALSE;
+	}
+
+	if (memcmp(&pd[offset], "YPNS", 4) != 0 &&
+	    memcmp(&pd[offset], "YHOO", 4) != 0) {
+		/* Not a Yahoo Messenger packet. */
+		return FALSE;
+	}
 
 	pkt = (struct yahoo_rawpacket *) &pd[offset];
 	
@@ -150,6 +167,8 @@ dissect_yhoo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		proto_tree_add_item(yhoo_tree, hf_yhoo_content, 
 			offset+104, END_OF_FRAME, pkt->content);
 	}
+
+	return TRUE;
 }
 
 void
@@ -196,4 +215,10 @@ proto_register_yhoo(void)
 	proto_register_field_array(proto_yhoo, hf, array_length(hf));
 
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_yhoo(void)
+{
+	heur_dissector_add("tcp", dissect_yhoo);
 }

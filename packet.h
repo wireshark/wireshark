@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.182 2000/04/18 04:46:07 guy Exp $
+ * $Id: packet.h,v 1.183 2000/05/05 09:32:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -214,12 +214,13 @@ typedef struct true_false_string {
 	char	*false_string;
 } true_false_string;
 
+/* Hash table for matching port numbers and dissectors */
 typedef GHashTable* dissector_table_t;
 
 /* types for sub-dissector lookup */
 typedef void (*dissector_t)(const u_char *, int, frame_data *, proto_tree *);
 
-/* a protocol uses the function to register its sub-dissector table */
+/* a protocol uses the function to register a sub-dissector table */
 dissector_table_t register_dissector_table(const char *name);
 
 /* dissector lookup routine.  called by protocol dissector to find a sub-dissector */
@@ -227,16 +228,39 @@ dissector_t dissector_lookup( dissector_table_t table, guint32 pattern);
 
 /* Add a sub-dissector to a dissector table.  Called by the protocol routine */
 /* that wants to register a sub-dissector.  */
-void dissector_add( char *abbrev, guint32 pattern, dissector_t dissector);
+void dissector_add(const char *abbrev, guint32 pattern, dissector_t dissector);
 
 /* Add a sub-dissector to a dissector table.  Called by the protocol routine */
 /* that wants to de-register a sub-dissector.  */
-void dissector_delete( char *abbrev, guint32 pattern, dissector_t dissector);
+void dissector_delete(const char *name, guint32 pattern, dissector_t dissector);
 
 /* Look for a given port in a given dissector table and, if found, call
    the dissector with the arguments supplied, and return TRUE, otherwise
    return FALSE. */
 gboolean dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
+    const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
+
+/* List of "heuristic" dissectors (which get handed a packet, look at it,
+   and either recognize it as being for their protocol, dissect it, and
+   return TRUE, or don't recognize it and return FALSE) to be called
+   by another dissector. */
+typedef GSList *heur_dissector_list_t;
+
+/* Type of a heuristic dissector */
+typedef gboolean (*heur_dissector_t)(const u_char *, int, frame_data *,
+	proto_tree *);
+
+/* A protocol uses this function to register a heuristic dissector list */
+void register_heur_dissector_list(const char *name, heur_dissector_list_t *list);
+
+/* Add a sub-dissector to a heuristic dissector list.  Called by the
+   protocol routine that wants to register a sub-dissector.  */
+void heur_dissector_add(const char *name, heur_dissector_t dissector);
+
+/* Try all the dissectors in a given heuristic dissector list until
+   we find one that recognizes the protocol, in which case we return
+   TRUE, or we run out of dissectors, in which case we return FALSE. */
+gboolean dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
     const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 
 /* Many of the structs and definitions below and in packet-*.c files

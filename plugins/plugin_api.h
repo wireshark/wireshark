@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.4 2000/04/04 21:46:29 guy Exp $
+ * $Id: plugin_api.h,v 1.5 2000/05/05 09:32:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -49,6 +49,8 @@
 #define	proto_register_subtree_array	(*p_proto_register_subtree_array)
 
 #define	dissector_add			(*p_dissector_add)
+
+#define	heur_dissector_add		(*p_heur_dissector_add)
 
 #define	proto_item_add_subtree		(*p_proto_item_add_subtree)
 #define	proto_tree_add_item		(*p_proto_tree_add_item)

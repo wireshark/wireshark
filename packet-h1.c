@@ -2,7 +2,7 @@
  * Routines for Sinec H1 packet disassembly
  * Gerrit Gehnen <G.Gehnen@atrie.de>
  *
- * $Id: packet-h1.c,v 1.5 2000/04/28 19:35:40 guy Exp $
+ * $Id: packet-h1.c,v 1.6 2000/05/05 09:32:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,7 +37,6 @@
 #include <glib.h>
 #include "packet.h"
 #include "globals.h"
-#include "packet-h1.h"
 
 static int proto_h1 = -1;
 static int hf_h1_header = -1;
@@ -101,7 +100,7 @@ static gint ett_response = -1;
 static gint ett_empty = -1;
 
 
-gboolean
+static gboolean
 dissect_h1 (const u_char * pd, int offset, frame_data * fd, proto_tree * tree)
 {
   proto_tree *h1_tree = NULL;
@@ -306,4 +305,10 @@ proto_register_h1 (void)
   proto_h1 = proto_register_protocol ("Sinec H1 Protocol", "h1");
   proto_register_field_array (proto_h1, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+}
+
+void
+proto_reg_handoff_h1(void)
+{
+  heur_dissector_add("cotp_is", dissect_h1);
 }

@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.5 2000/04/28 19:35:39 guy Exp $
+ * $Id: packet-clnp.c,v 1.6 2000/05/05 09:32:01 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -44,7 +44,6 @@
 #include "packet-clnp.h"
 #include "packet-isis.h"
 #include "packet-esis.h"
-#include "packet-h1.h"
 #include "nlpid.h"
 
 /* protocols and fields */
@@ -65,8 +64,6 @@ static int hf_clnp_dest_length = -1;
 static int hf_clnp_dest        = -1;
 static int hf_clnp_src_length  = -1;
 static int hf_clnp_src         = -1;
-
-
 
 /*
  * ISO 8473 OSI CLNP definition (see RFC994)
@@ -229,6 +226,10 @@ struct clnp_segment {
 
 static u_char  li, tpdu, cdt; 	/* common fields */
 static u_short dst_ref;
+
+/* List of dissectors to call for COTP packets put atop the Inactive
+   Subset of CLNP. */
+static heur_dissector_list_t cotp_is_heur_subdissector_list;
 
 /* function definitions */
 
@@ -428,7 +429,8 @@ static gboolean osi_decode_DT(const u_char *pd, int offset,
 
   offset += li + 1;
   if (uses_inactive_subset){
-	if (dissect_h1(pd, offset, fd, tree)) {
+	if (dissector_try_heuristic(cotp_is_heur_subdissector_list, pd, offset,
+					fd, tree)) {
 		return TRUE;
 		}
 	/* Fill in other Dissectors using inactive subset here */
@@ -1771,6 +1773,9 @@ void proto_register_cotp(void)
         proto_cotp = proto_register_protocol(PROTO_STRING_COTP, "cotp");
  /*       proto_register_field_array(proto_cotp, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
+
+/* subdissector code */
+	register_heur_dissector_list("cotp_is", &cotp_is_heur_subdissector_list);
 }
 
 void

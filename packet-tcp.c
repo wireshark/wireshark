@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.72 2000/04/20 07:05:57 guy Exp $
+ * $Id: packet-tcp.c,v 1.73 2000/05/05 09:32:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,9 +54,7 @@
 #include "packet-tcp.h"
 
 #include "packet-ip.h"
-#include "packet-giop.h"
 #include "packet-rpc.h"
-#include "packet-yhoo.h"
 
 extern FILE* data_out_file;
 
@@ -89,11 +87,11 @@ static gint ett_tcp_options = -1;
 static gint ett_tcp_option_sack = -1;
 
 static dissector_table_t subdissector_table;
+static heur_dissector_list_t heur_subdissector_list;
 
 /* TCP Ports */
 
 #define TCP_PORT_SMTP			25
-#define TCP_PORT_YHOO			5050
 
 /* TCP structs and definitions */
 
@@ -403,22 +401,11 @@ decode_tcp_ports( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
       dissector_try_port(subdissector_table, dst_port, pd, offset, fd, tree))
     return;
 
-  /* check existence of high level protocols */
-
-#define PORT_IS(port)   ( src_port == port || dst_port == port)    
-
-  if (memcmp(&pd[offset], "GIOP",  4) == 0) {
-    dissect_giop(pd, offset, fd, tree);
+  /* do lookup with the heuristic subdissector table */
+  if (dissector_try_heuristic(heur_subdissector_list, pd, offset, fd, tree))
     return;
-  }
 
-  if ( PORT_IS(TCP_PORT_YHOO) && 
-		(memcmp(&pd[offset], "YPNS",  4) == 0 ||
-		memcmp(&pd[offset], "YHOO",  4) == 0 )) {
-    dissect_yhoo(pd, offset, fd, tree);
-    return;
-  }
-
+  /* Oh, well, we don't know this; dissect it as data. */
   dissect_data(pd, offset, fd, tree);
 }
 
@@ -637,6 +624,7 @@ proto_register_tcp(void)
 
 /* subdissector code */
 	subdissector_table = register_dissector_table("tcp.port");
+	register_heur_dissector_list("tcp", &heur_subdissector_list);
 }
 
 void

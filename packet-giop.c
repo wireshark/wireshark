@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-giop.c,v 1.11 2000/03/12 04:47:38 gram Exp $
+ * $Id: packet-giop.c,v 1.12 2000/05/05 09:32:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -189,7 +189,8 @@ static u_char *print_object_key(int length, u_char *from)
 
 /* main entry point */
 
-void dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
+static gboolean
+dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 {
 
   MessageHeader header;
@@ -216,8 +217,9 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 #define END_OF_GIOP_MESSAGE (offset - first_offset - GIOP_HEADER_SIZE)
 
   if (!BYTES_ARE_IN_FRAME(offset, GIOP_HEADER_SIZE)) {
-    dissect_data(pd, offset, fd, tree);
-    return;
+    /* Not enough data, or not enough captured data; perhaps it was
+       a GIOP message, but we can't tell. */
+    return FALSE;
   }
 
   /* avoid alignment problem */
@@ -227,14 +229,18 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   /* check magic number and version */
 
   if (memcmp(header.magic, GIOP_MAGIC, sizeof(header.magic)) != 0) {
-    dissect_data(pd, offset, fd, tree);
-    return;
+    /* Not a GIOP message. */
+    return FALSE;
   }
 
   if (header.GIOP_version.major != GIOP_MAJOR ||
       ((minor_version = header.GIOP_version.minor) >  GIOP_MINOR)) {
+    /* Bad version number; should we note that and dissect the rest
+       as data, or should we return FALSE on the theory that it
+       might have been some other packet that happened to begin with
+       "GIOP"? */
     dissect_data(pd, offset, fd, tree);
-    return;
+    return TRUE;
   }
 
   switch(minor_version) {
@@ -315,7 +321,7 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
   if (!BYTES_ARE_IN_FRAME(offset, message_size)) {
     dissect_data(pd, offset, fd, tree);
-    return;
+    return TRUE;
   }
 
   /* skip service_context in Request/Reply messages */
@@ -440,7 +446,7 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
       if (sequence_length > message_size) {
 	dissect_data(pd, offset, fd, tree);
-	return;
+	return TRUE;
       }
        
       if (tree) {
@@ -509,7 +515,7 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
 	if (sequence_length > message_size) {
 	  dissect_data(pd, offset, fd, tree);
-	  return;
+	  return TRUE;
 	}
 
 	if (tree) {
@@ -548,7 +554,7 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
 	if (sequence_length > message_size) {
 	  dissect_data(pd, offset, fd, tree);
-	  return;
+	  return TRUE;
 	}
 
 	if (tree) {
@@ -568,7 +574,7 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
 	if (sequence_length > message_size) {
 	  dissect_data(pd, offset, fd, tree);
-	  return;
+	  return TRUE;
 	}
 
 	if (tree && sequence_length) {
@@ -704,6 +710,7 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
     dissect_data(pd, offset, fd, tree);
   }
 
+  return TRUE;
 } /* dissect_giop */
 
 void 
@@ -724,4 +731,10 @@ proto_register_giop(void)
   proto_giop = proto_register_protocol("General Inter-ORB Protocol", "giop");
   proto_register_field_array(proto_giop, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_giop(void)
+{
+  heur_dissector_add("tcp", dissect_giop);
 }

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.78 2000/04/19 03:28:07 gram Exp $
+ * $Id: packet.c,v 1.79 2000/05/05 09:32:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1303,21 +1303,19 @@ find_dissector_table(const char *name)
 	return g_hash_table_lookup( dissector_tables, name );
 }
 
+/* lookup a dissector based upon pattern. */
 dissector_t
 dissector_lookup( dissector_table_t table, guint32 pattern)
 {
-	/* lookup a dissector based upon pattern. */
 	return g_hash_table_lookup( table, GUINT_TO_POINTER( pattern));
 }
 
 
-void
-dissector_add( char *name, guint32 pattern, dissector_t dissector)
-{
-
 /* add an entry, lookup the dissector table for the specified field name,  */
 /* if a valid table found, add the subdissector */
-
+void
+dissector_add(const char *name, guint32 pattern, dissector_t dissector)
+{
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 
 /* sanity check */
@@ -1328,19 +1326,16 @@ dissector_add( char *name, guint32 pattern, dissector_t dissector)
     	 (gpointer)dissector);
 }
 
-
-void
-dissector_delete( char *name, guint32 pattern, dissector_t dissector)
-{
-
 /* delete the entry for this dissector at this pattern */
 
 /* NOTE: this doesn't use the dissector call variable. It is included to */
 /*	be consistant with the dissector_add and more importantly to be used */
-/*	if the technique of adding a temporary dissector is implimented.  */
-/*	If temporary dissectors are deleted, then the original dissector must	*/
+/*	if the technique of adding a temporary dissector is implemented.  */
+/*	If temporary dissectors are deleted, then the original dissector must */
 /*	be available. */
-
+void
+dissector_delete(const char *name, guint32 pattern, dissector_t dissector)
+{
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 
 /* sanity check */
@@ -1382,9 +1377,63 @@ register_dissector_table(const char *name)
 	/* Make sure the registration is unique */
 	g_assert(!g_hash_table_lookup( dissector_tables, name ));
 
-	/* Create and register the dissector array for this field; returns */
+	/* Create and register the dissector table for this name; returns */
 	/* a pointer to the dissector table. */
 	sub_dissectors = g_hash_table_new( g_direct_hash, g_direct_equal );
 	g_hash_table_insert( dissector_tables, (gpointer)name, (gpointer) sub_dissectors );
 	return sub_dissectors;
+}
+
+static GHashTable *heur_dissector_lists = NULL;
+
+/* Finds a heuristic dissector table by field name. */
+static heur_dissector_list_t *
+find_heur_dissector_list(const char *name)
+{
+	g_assert(heur_dissector_lists != NULL);
+	return g_hash_table_lookup(heur_dissector_lists, name);
+}
+
+void
+heur_dissector_add(const char *name, heur_dissector_t dissector)
+{
+	heur_dissector_list_t *sub_dissectors = find_heur_dissector_list(name);
+
+	/* sanity check */
+	g_assert(sub_dissectors != NULL);
+
+	/* do the table insertion */
+	*sub_dissectors = g_slist_append(*sub_dissectors, (gpointer)dissector);
+}
+
+gboolean
+dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
+    const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	heur_dissector_t subdissector;
+	GSList *entry;
+
+	for (entry = sub_dissectors; entry != NULL; entry = g_slist_next(entry)) {
+		subdissector = (heur_dissector_t)entry->data;
+		if ((subdissector)(pd, offset, fd, tree))
+			return TRUE;
+	}
+	return FALSE;
+}
+
+void
+register_heur_dissector_list(const char *name, heur_dissector_list_t *sub_dissectors)
+{
+	/* Create our hash-of-hashes if it doesn't already exist */
+	if (heur_dissector_lists == NULL) {
+		heur_dissector_lists = g_hash_table_new(g_str_hash, g_str_equal);
+		g_assert(heur_dissector_lists != NULL);
+	}
+
+	/* Make sure the registration is unique */
+	g_assert(g_hash_table_lookup(heur_dissector_lists, name) == NULL);
+
+	*sub_dissectors = NULL;	/* initially empty */
+	g_hash_table_insert(heur_dissector_lists, (gpointer)name,
+	    (gpointer) sub_dissectors);
 }
