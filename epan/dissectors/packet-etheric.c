@@ -237,7 +237,7 @@ static const value_string protocol_version_vals[] = {
 #define ETHERIC_PARAM_TYPE_GENERIC_NR           192
 #define ETHERIC_PARAM_TYPE_GENERIC_DIGITS       193
 
-static const value_string isup_parameter_type_value[] = {
+const value_string isup_parameter_type_value[] = {
 { ETHERIC_PARAM_TYPE_END_OF_OPT_PARAMS,        "End of optional parameters"},
   { ETHERIC_PARAM_TYPE_CALL_REF,               "Call Reference (national use)"},
   { ETHERIC_PARAM_TYPE_TRANSM_MEDIUM_REQU,     "Transmission medium requirement"},
@@ -341,7 +341,7 @@ static const value_string isup_calling_partys_category_value[] = {
   { 14,	"Reserved"},
   { 15,	"Reserved"},
   { 0,	NULL}};
-static const value_string isup_transmission_medium_requirement_value[] = {
+const value_string isup_transmission_medium_requirement_value[] = {
   { 0,	"speech"},
   { 1,	"64 kbit/s restricted"},
   { 2,	"64 kbit/s unrestricted"},
