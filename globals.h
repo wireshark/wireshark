@@ -1,7 +1,7 @@
 /* globals.h
  * Global defines, etc.
  *
- * $Id: globals.h,v 1.12 1999/11/19 22:31:50 gram Exp $
+ * $Id: globals.h,v 1.13 1999/12/29 05:48:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -81,9 +81,6 @@
 extern FILE        *data_out_file;
 extern packet_info  pi;
 extern capture_file cf;
-/*extern GtkWidget   *file_sel, *packet_list, *tree_view, *byte_view, *prog_bar,
-            *info_bar;
-extern GdkFont     *m_r_font, *m_b_font;*/
 extern guint        main_ctx, file_ctx;
 extern gchar        comp_info_str[256];
 extern gchar       *ethereal_path;
@@ -95,8 +92,6 @@ extern int          g_resolving_actif;
 extern field_info  *finfo_selected;
 
 extern ts_type timestamp_type;
-
-/*extern GtkStyle *item_style;*/
 
 #define PF_DIR ".ethereal"
 
