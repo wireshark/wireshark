@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.57 2004/06/10 10:12:30 guy Exp $
+; $Id: ethereal.nsi,v 1.58 2004/06/29 07:14:39 guy Exp $
 
  
 !ifdef MAKENSIS_MODERN_UI
@@ -638,24 +638,42 @@ SectionEnd
 ; ============================================================================
 ; Callback functions
 ; ============================================================================
+; We simulate the XOR operator
+!ifdef GTK1_DIR & GTK2_DIR
+!else
+!ifdef GTK1_DIR | GTK2_DIR
 Function .onSelChange
 	Push $0
-!ifdef GTK1_DIR	
+!ifdef GTK1_DIR
 	SectionGetFlags ${SecEtherealGTK1} $0
-	IntOp $0 $0 & 1
+	IntOp  $0 $0 & 1
 	IntCmp $0 0 onSelChange.unselect
+	SectionGetFlags ${SecFileExtensions} $0
+	IntOp  $0 $0 & 16
+	IntCmp $0 16 onSelChange.unreadonly
 	Goto onSelChange.end
-!endif
-!ifdef GTK2_DIR
+!else
 	SectionGetFlags ${SecEtherealGTK2} $0
-	IntOp $0 $0 & 1
+	IntOp  $0 $0 & 1
 	IntCmp $0 0 onSelChange.unselect
+	SectionGetFlags ${SecFileExtensions} $0
+	IntOp  $0 $0 & 16
+	IntCmp $0 16 onSelChange.unreadonly
 	Goto onSelChange.end	
 !endif
 onSelChange.unselect:	
 	SectionGetFlags ${SecFileExtensions} $0
 	IntOp $0 $0 & 0xFFFFFFFE
+	IntOp $0 $0 | 0x10
 	SectionSetFlags ${SecFileExtensions} $0
+	Goto onSelChange.end
+onSelChange.unreadonly:
+	SectionGetFlags ${SecFileExtensions} $0
+	IntOp $0 $0 & 0xFFFFFFEF
+	SectionSetFlags ${SecFileExtensions} $0
+	Goto onSelChange.end
 onSelChange.end:
 	Pop $0
 FunctionEnd
+!endif
+!endif
