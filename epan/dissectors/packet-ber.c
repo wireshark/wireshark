@@ -362,7 +362,7 @@ int dissect_ber_octet_string_wcb(gboolean implicit_tag, packet_info *pinfo, prot
 
 
 int
-dissect_ber_integer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, guint32 *value)
+dissect_ber_integer_new(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, guint32 *value)
 {
 	guint8 class;
 	gboolean pc;
@@ -372,10 +372,12 @@ dissect_ber_integer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 	gint64 val64;
 	guint32 i;
 
-	offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
-	offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
-
-/*	if(class!=BER_CLASS_UNI)*/
+	if(!implicit_tag){
+	  offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+	  offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
+	} else {
+	  len=tvb_length_remaining(tvb, offset);
+	}
 
 	/* ok,  we cant handle >4 byte integers so lets fake them */
 	if(len>8){
@@ -434,7 +436,12 @@ dissect_ber_integer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 	return offset;
 }
 
-
+/* XXX kludge until we fix up asn2eth and rebuild everything */
+int
+dissect_ber_integer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, guint32 *value)
+{
+  return dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_id, value);
+}
 
 
 
