@@ -2,7 +2,7 @@
  *
  * Declarations for disassembly of WSP component of WAP traffic.
  *
- * $Id: packet-wsp.h,v 1.8 2003/09/02 22:47:58 guy Exp $
+ * $Id: packet-wsp.h,v 1.9 2003/11/03 10:16:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,16 +30,6 @@
 #ifndef __PACKET_WSP_H__
 #define __PACKET_WSP_H__
 
-/* Implementation Status:
- *
- * Most PDUs decoded.
- * Some headers decoded.
- *
- * TODO:
- *	Capability encoding
- *	Remaining headers (perhaps a place holder for those yet to be implemented)
- *	Remaining PDUs
- */
 
 /* These reason codes are used in the WTP dissector as the WTP user is
  * assumed to be WSP */
@@ -53,7 +43,9 @@ extern const value_string vals_status[];
  * exported functionality
  */
 void add_post_data (proto_tree *, tvbuff_t *, guint, const char *);
-guint add_content_type (proto_tree *, tvbuff_t *, guint, guint *, const char **);
+guint32 add_content_type (proto_tree *tree, tvbuff_t *tvb,
+		guint32 val_start,
+		guint32 *well_known_content, const char **textual_content);
 
 /* statistics */
 typedef struct _wsp_info_value_t	/* see README.tapping and tap-wspstat.c */

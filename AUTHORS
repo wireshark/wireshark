@@ -729,6 +729,7 @@ Inoue <inoue[AT]ainet.or.jp> {
 
 Olivier Biot <Olivier.Biot[AT]siemens.com> {
 	Various WTP fixes and enhancements
+	Rewrite of much of WSP
 	WBXML/WMLC support
 	README.win32 updates for Cygwin
 	UDH dissection in SMPP

@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.79 2003/10/28 17:59:29 guy Exp $
+ * $Id: packet-wsp.c,v 1.80 2003/11/03 10:16:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12,6 +12,9 @@
  * Updated by Neil Hunter <neil.hunter@energis-squared.com>
  * WTLS support by Alexandre P. Ferreira (Splice IP)
  * Openwave header support by Dermot Bradley <dermot.bradley@openwave.com>
+ * Code optimizations, header value dissection simplification with parse error
+ * notification and macros, extra missing headers, WBXML registration
+ * by Olivier Biot <olivier.biot(ad)siemens.com>.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,6 +30,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+/* Edit with a 4-space tabulation */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -47,6 +52,8 @@
 #include "packet-wap.h"
 #include "packet-wsp.h"
 
+#define PLURALIZE(x)	( (x) == 1 ? "" : "s" )
+
 /* Statistics (see doc/README.tapping) */
 #include "tap.h"
 static int wsp_tap = -1;
@@ -55,6 +62,143 @@ static int wsp_tap = -1;
 static int proto_wsp 					= HF_EMPTY;
 
 /* These fields used by fixed part of header */
+
+/* WSP header fields */
+static int hf_hdr_name					= HF_EMPTY;
+static int hf_hdr_id					= HF_EMPTY;
+static int hf_hdr_accept				= HF_EMPTY;
+static int hf_hdr_accept_charset		= HF_EMPTY;
+static int hf_hdr_accept_encoding		= HF_EMPTY;
+static int hf_hdr_accept_language		= HF_EMPTY;
+static int hf_hdr_accept_ranges			= HF_EMPTY;
+static int hf_hdr_age					= HF_EMPTY;
+static int hf_hdr_allow					= HF_EMPTY;
+static int hf_hdr_authorization			= HF_EMPTY;
+static int hf_hdr_cache_control			= HF_EMPTY;
+static int hf_hdr_connection			= HF_EMPTY;
+static int hf_hdr_content_encoding		= HF_EMPTY;
+static int hf_hdr_content_language		= HF_EMPTY;
+static int hf_hdr_content_length		= HF_EMPTY;
+static int hf_hdr_content_location		= HF_EMPTY;
+static int hf_hdr_content_md5			= HF_EMPTY;
+static int hf_hdr_content_range			= HF_EMPTY;
+static int hf_hdr_content_type			= HF_EMPTY;
+static int hf_hdr_date					= HF_EMPTY;
+static int hf_hdr_etag					= HF_EMPTY;
+static int hf_hdr_expires				= HF_EMPTY;
+static int hf_hdr_from					= HF_EMPTY;
+static int hf_hdr_host					= HF_EMPTY;
+static int hf_hdr_if_modified_since		= HF_EMPTY;
+static int hf_hdr_if_match				= HF_EMPTY;
+static int hf_hdr_if_none_match			= HF_EMPTY;
+static int hf_hdr_if_range				= HF_EMPTY;
+static int hf_hdr_if_unmodified_since	= HF_EMPTY;
+static int hf_hdr_last_modified			= HF_EMPTY;
+static int hf_hdr_location				= HF_EMPTY;
+static int hf_hdr_max_forwards			= HF_EMPTY;
+static int hf_hdr_pragma				= HF_EMPTY;
+static int hf_hdr_proxy_authenticate	= HF_EMPTY;
+static int hf_hdr_proxy_authorization	= HF_EMPTY;
+static int hf_hdr_public				= HF_EMPTY;
+static int hf_hdr_range					= HF_EMPTY;
+static int hf_hdr_referer				= HF_EMPTY;
+static int hf_hdr_retry_after			= HF_EMPTY;
+static int hf_hdr_server				= HF_EMPTY;
+static int hf_hdr_transfer_encoding		= HF_EMPTY;
+static int hf_hdr_upgrade				= HF_EMPTY;
+static int hf_hdr_user_agent			= HF_EMPTY;
+static int hf_hdr_vary					= HF_EMPTY;
+static int hf_hdr_via					= HF_EMPTY;
+static int hf_hdr_warning				= HF_EMPTY;
+static int hf_hdr_www_authenticate		= HF_EMPTY;
+static int hf_hdr_content_disposition	= HF_EMPTY;
+static int hf_hdr_application_id		= HF_EMPTY;
+static int hf_hdr_content_uri			= HF_EMPTY;
+static int hf_hdr_initiator_uri			= HF_EMPTY;
+static int hf_hdr_bearer_indication		= HF_EMPTY;
+static int hf_hdr_push_flag				= HF_EMPTY;
+static int hf_hdr_profile				= HF_EMPTY;
+static int hf_hdr_profile_diff			= HF_EMPTY;
+static int hf_hdr_profile_warning		= HF_EMPTY;
+static int hf_hdr_expect				= HF_EMPTY;
+static int hf_hdr_te					= HF_EMPTY;
+static int hf_hdr_trailer				= HF_EMPTY;
+static int hf_hdr_x_wap_tod				= HF_EMPTY;
+static int hf_hdr_content_id			= HF_EMPTY;
+static int hf_hdr_set_cookie			= HF_EMPTY;
+static int hf_hdr_cookie				= HF_EMPTY;
+static int hf_hdr_encoding_version		= HF_EMPTY;
+static int hf_hdr_x_wap_security		= HF_EMPTY;
+static int hf_hdr_x_wap_application_id	= HF_EMPTY;
+static int hf_hdr_accept_application	= HF_EMPTY;
+
+/* For Authorization and Proxy-Authorization */
+static int hf_hdr_authorization_scheme			= HF_EMPTY;
+static int hf_hdr_authorization_user_id			= HF_EMPTY;
+static int hf_hdr_authorization_password		= HF_EMPTY;
+static int hf_hdr_proxy_authorization_scheme	= HF_EMPTY;
+static int hf_hdr_proxy_authorization_user_id	= HF_EMPTY;
+static int hf_hdr_proxy_authorization_password	= HF_EMPTY;
+
+/* Push-specific WSP headers */
+static int hf_hdr_push_flag_auth				= HF_EMPTY;
+static int hf_hdr_push_flag_trust				= HF_EMPTY;
+static int hf_hdr_push_flag_last				= HF_EMPTY;
+
+
+/* Openwave headers */
+static int hf_hdr_openwave_x_up_proxy_operator_domain	= HF_EMPTY;
+static int hf_hdr_openwave_x_up_proxy_home_page			= HF_EMPTY;
+static int hf_hdr_openwave_x_up_proxy_uplink_version	= HF_EMPTY;
+static int hf_hdr_openwave_x_up_proxy_ba_realm			= HF_EMPTY;
+static int hf_hdr_openwave_x_up_proxy_request_uri		= HF_EMPTY;
+static int hf_hdr_openwave_x_up_proxy_client_id			= HF_EMPTY;
+static int hf_hdr_openwave_x_up_proxy_bookmark			= HF_EMPTY;
+static int hf_hdr_openwave_x_up_proxy_push_seq			= HF_EMPTY;
+static int hf_hdr_openwave_x_up_proxy_notify			= HF_EMPTY;
+static int hf_hdr_openwave_x_up_proxy_net_ask			= HF_EMPTY;
+static int hf_hdr_openwave_x_up_proxy_tod				= HF_EMPTY;
+static int hf_hdr_openwave_x_up_proxy_ba_enable			= HF_EMPTY;
+static int hf_hdr_openwave_x_up_proxy_redirect_enable	= HF_EMPTY;
+static int hf_hdr_openwave_x_up_proxy_redirect_status	= HF_EMPTY;
+static int hf_hdr_openwave_x_up_proxy_linger			= HF_EMPTY;
+static int hf_hdr_openwave_x_up_proxy_enable_trust		= HF_EMPTY;
+static int hf_hdr_openwave_x_up_proxy_trust				= HF_EMPTY;
+static int hf_hdr_openwave_x_up_devcap_has_color		= HF_EMPTY;
+static int hf_hdr_openwave_x_up_devcap_num_softkeys		= HF_EMPTY;
+static int hf_hdr_openwave_x_up_devcap_softkey_size		= HF_EMPTY;
+static int hf_hdr_openwave_x_up_devcap_screen_chars		= HF_EMPTY;
+static int hf_hdr_openwave_x_up_devcap_screen_pixels	= HF_EMPTY;
+static int hf_hdr_openwave_x_up_devcap_em_size			= HF_EMPTY;
+static int hf_hdr_openwave_x_up_devcap_screen_depth		= HF_EMPTY;
+static int hf_hdr_openwave_x_up_devcap_immed_alert		= HF_EMPTY;
+static int hf_hdr_openwave_x_up_devcap_gui				= HF_EMPTY;
+static int hf_hdr_openwave_x_up_proxy_trans_charset		= HF_EMPTY;
+static int hf_hdr_openwave_x_up_proxy_push_accept		= HF_EMPTY;
+
+
+/* WSP parameter fields */
+static int hf_parameter_q					= HF_EMPTY;
+#if 0
+static int hf_parameter_textual				= HF_EMPTY;
+static int hf_parameter_charset				= HF_EMPTY;
+static int hf_parameter_type				= HF_EMPTY;
+static int hf_parameter_name				= HF_EMPTY;
+static int hf_parameter_filename			= HF_EMPTY;
+static int hf_parameter_start				= HF_EMPTY;
+static int hf_parameter_start_info			= HF_EMPTY;
+static int hf_parameter_comment				= HF_EMPTY;
+static int hf_parameter_domain				= HF_EMPTY;
+static int hf_parameter_path				= HF_EMPTY;
+static int hf_parameter_sec					= HF_EMPTY;
+static int hf_parameter_mac					= HF_EMPTY;
+static int hf_parameter_upart_type			= HF_EMPTY;
+static int hf_parameter_upart_type_value	= HF_EMPTY;
+static int hf_parameter_level				= HF_EMPTY;
+#endif
+
+/* Old header fields */
+
 static int hf_wsp_header_tid				= HF_EMPTY;
 static int hf_wsp_header_pdu_type			= HF_EMPTY;
 static int hf_wsp_version_major				= HF_EMPTY;
@@ -91,13 +235,19 @@ static int hf_wsp_parameter_sec			= HF_EMPTY;
 static int hf_wsp_parameter_mac			= HF_EMPTY;
 static int hf_wsp_parameter_upart_type			= HF_EMPTY;
 static int hf_wsp_parameter_upart_type_value		= HF_EMPTY;
+static int hf_wsp_parameter_level			= HF_EMPTY;
 static int hf_wsp_reply_data				= HF_EMPTY;
 static int hf_wsp_post_data				= HF_EMPTY;
 static int hf_wsp_push_data				= HF_EMPTY;
 static int hf_wsp_multipart_data			= HF_EMPTY;
 static int hf_wsp_mpart					= HF_EMPTY;
 
+
+
 static int hf_wsp_header_shift_code			= HF_EMPTY;
+
+#if 0
+
 static int hf_wsp_header_accept				= HF_EMPTY;
 static int hf_wsp_header_accept_str			= HF_EMPTY;
 static int hf_wsp_header_accept_application		= HF_EMPTY;
@@ -151,6 +301,9 @@ static int hf_wsp_header_via				= HF_EMPTY;
 static int hf_wsp_header_wap_application_id		= HF_EMPTY;
 static int hf_wsp_header_wap_application_id_str		= HF_EMPTY;
 
+static int hf_wsp_header_vary_well_known		= HF_EMPTY;
+static int hf_wsp_header_vary_str		= HF_EMPTY;
+
 /* Push-specific WSP headers */
 static int hf_wsp_header_push_flag			= HF_EMPTY;
 static int hf_wsp_header_push_flag_auth		= HF_EMPTY;
@@ -190,6 +343,7 @@ static int hf_wsp_header_openwave_proxy_trust		= HF_EMPTY;
 static int hf_wsp_header_openwave_proxy_bookmark	= HF_EMPTY;
 static int hf_wsp_header_openwave_devcap_gui		= HF_EMPTY;
 
+#endif
 
 static int hf_wsp_redirect_flags			= HF_EMPTY;
 static int hf_wsp_redirect_permanent			= HF_EMPTY;
@@ -221,6 +375,15 @@ static gint ett_multiparts				= ETT_EMPTY;
 static gint ett_mpartlist				= ETT_EMPTY;
 static gint ett_header_credentials			= ETT_EMPTY;
 static gint ett_push_flags			= ETT_EMPTY;
+static gint ett_parameters			= ETT_EMPTY;
+
+/* Authorization, Proxy-Authorization */
+static gint ett_authorization	= ETT_EMPTY;
+/* WWW-Authenticate, Proxy-Authenticate */
+static gint ett_authenticate	= ETT_EMPTY;
+/* Warning */
+static gint ett_warning			= ETT_EMPTY;
+
 
 /* Handle for WSP-over-UDP dissector */
 static dissector_handle_t wsp_fromudp_handle;
@@ -298,53 +461,54 @@ const value_string vals_pdu_type[] = {
 
 };
 
+/* The WSP status codes are inherited from the HTTP status codes */
 const value_string vals_status[] = {
 	/* 0x00 - 0x0F Reserved */
 
-	{ 0x10, "Continue" },
-	{ 0x11, "Switching Protocols" },
+	{ 0x10, "100 Continue" },
+	{ 0x11, "101 Switching Protocols" },
 
-	{ 0x20, "OK" },
-	{ 0x21, "Created" },
-	{ 0x22, "Accepted" },
-	{ 0x23, "Non-Authoritative Information" },
-	{ 0x24, "No Content" },
-	{ 0x25, "Reset Content" },
-	{ 0x26, "Partial Content" },
+	{ 0x20, "200 OK" },
+	{ 0x21, "201 Created" },
+	{ 0x22, "202 Accepted" },
+	{ 0x23, "203 Non-Authoritative Information" },
+	{ 0x24, "204 No Content" },
+	{ 0x25, "205 Reset Content" },
+	{ 0x26, "206 Partial Content" },
 
-	{ 0x30, "Multiple Choices" },
-	{ 0x31, "Moved Permanently" },
-	{ 0x32, "Moved Temporarily" },
-	{ 0x33, "See Other" },
-	{ 0x34, "Not Modified" },
-	{ 0x35, "Use Proxy" },
-	{ 0x37, "Temporary Redirect" },
+	{ 0x30, "300 Multiple Choices" },
+	{ 0x31, "301 Moved Permanently" },
+	{ 0x32, "302 Moved Temporarily" },
+	{ 0x33, "303 See Other" },
+	{ 0x34, "304 Not Modified" },
+	{ 0x35, "305 Use Proxy" },
+	{ 0x37, "307 Temporary Redirect" },
 
-	{ 0x40, "Bad Request" },
-	{ 0x41, "Unauthorised" },
-	{ 0x42, "Payment Required" },
-	{ 0x43, "Forbidden" },
-	{ 0x44, "Not Found" },
-	{ 0x45, "Method Not Allowed" },
-	{ 0x46, "Not Acceptable" },
-	{ 0x47, "Proxy Authentication Required" },
-	{ 0x48, "Request Timeout" },
-	{ 0x49, "Conflict" },
-	{ 0x4A, "Gone" },
-	{ 0x4B, "Length Required" },
-	{ 0x4C, "Precondition Failed" },
-	{ 0x4D, "Request Entity Too Large" },
-	{ 0x4E, "Request-URI Too Large" },
-	{ 0x4F, "Unsupported Media Type" },
-	{ 0x50, "Requested Range Not Satisfiable" },
-	{ 0x51, "Expectation Failed" },
+	{ 0x40, "400 Bad Request" },
+	{ 0x41, "401 Unauthorised" },
+	{ 0x42, "402 Payment Required" },
+	{ 0x43, "403 Forbidden" },
+	{ 0x44, "404 Not Found" },
+	{ 0x45, "405 Method Not Allowed" },
+	{ 0x46, "406 Not Acceptable" },
+	{ 0x47, "407 Proxy Authentication Required" },
+	{ 0x48, "408 Request Timeout" },
+	{ 0x49, "409 Conflict" },
+	{ 0x4A, "410 Gone" },
+	{ 0x4B, "411 Length Required" },
+	{ 0x4C, "412 Precondition Failed" },
+	{ 0x4D, "413 Request Entity Too Large" },
+	{ 0x4E, "414 Request-URI Too Large" },
+	{ 0x4F, "415 Unsupported Media Type" },
+	{ 0x50, "416 Requested Range Not Satisfiable" },
+	{ 0x51, "417 Expectation Failed" },
 
-	{ 0x60, "Internal Server Error" },
-	{ 0x61, "Not Implemented" },
-	{ 0x62, "Bad Gateway" },
-	{ 0x63, "Service Unavailable" },
-	{ 0x64, "Gateway Timeout" },
-	{ 0x65, "HTTP Version Not Supported" },
+	{ 0x60, "500 Internal Server Error" },
+	{ 0x61, "501 Not Implemented" },
+	{ 0x62, "502 Bad Gateway" },
+	{ 0x63, "503 Service Unavailable" },
+	{ 0x64, "504 Gateway Timeout" },
+	{ 0x65, "505 WSP/HTTP Version Not Supported" },
 
 	{ 0x00, NULL }
 };
@@ -533,7 +697,7 @@ static const value_string vals_field_names[] = {
 	{ FN_CONTENT_RANGE_DEP,    "Content-Range (encoding 1.1)" },
 	{ FN_CONTENT_TYPE,         "Content-Type" },
 	{ FN_DATE,                 "Date" },
-	{ FN_ETAG,                 "Etag" },
+	{ FN_ETAG,                 "ETag" },
 	{ FN_EXPIRES,              "Expires" },
 	{ FN_FROM,                 "From" },
 	{ FN_HOST,                 "Host" },
@@ -658,6 +822,7 @@ static const value_string vals_bearer_types[] = {
 };
 
 static const value_string vals_content_types[] = {
+	/* Well-known media types */
 	{ 0x00, "*/*" },
 	{ 0x01, "text/*" },
 	{ 0x02, "text/html" },
@@ -722,17 +887,35 @@ static const value_string vals_content_types[] = {
 	{ 0x3D, "text/css" },
 	{ 0x3E, "application/vnd.wap.mms-message" },
 	{ 0x3F, "application/vnd.wap.rollover-certificate" },
-	{ 0x201, "application/vnd.uplanet.cachop-wbxml" },
-	{ 0x202, "application/vnd.uplanet.signal" },
-	{ 0x203, "application/vnd.uplanet.alert-wbxml" },
-	{ 0x204, "application/vnd.uplanet.list-wbxml" },
-	{ 0x205, "application/vnd.uplanet.listcmd-wbxml" },
-	{ 0x206, "application/vnd.uplanet.channel-wbxml" },
-	{ 0x207, "application/vnd.uplanet.provisioning-status-uri" },
-	{ 0x208, "x-wap.multipart/vnd.uplanet.header-set" },
-	{ 0x209, "application/vnd.uplanet.bearer-choice-wbxml" },
-	{ 0x20A, "application/vnd.phonecom.mmc-wbxml" },
-	{ 0x20B, "application/vnd.nokia.syncset+wbxml" },
+	{ 0x40, "application/vnd.wap.locc+wbxml"},
+	{ 0x41, "application/vnd.wap.loc+xml"},
+	{ 0x42, "application/vnd.syncml.dm+wbxml"},
+	{ 0x43, "application/vnd.syncml.dm+xml"},
+	{ 0x44, "application/vnd.syncml.notification"},
+	{ 0x45, "application/vnd.wap.xhtml+xml"},
+	{ 0x46, "application/vnd.wv.csp.cir"},
+	{ 0x47, "application/vnd.oma.dd+xml"},
+	{ 0x48, "application/vnd.oma.drm.message"},
+	{ 0x49, "application/vnd.oma.drm.content"},
+	{ 0x4A, "application/vnd.oma.drm.rights+xml"},
+	{ 0x4B, "application/vnd.oma.drm.rights+wbxml"},
+	{ 0x4C, "application/vnd.wv.csp+xml"},
+	{ 0x4D, "application/vnd.wv.csp+wbxml"},
+	/* The following media types are registered by 3rd parties */ 
+	{ 0x0201, "application/vnd.uplanet.cachop-wbxml" },
+	{ 0x0202, "application/vnd.uplanet.signal" },
+	{ 0x0203, "application/vnd.uplanet.alert-wbxml" },
+	{ 0x0204, "application/vnd.uplanet.list-wbxml" },
+	{ 0x0205, "application/vnd.uplanet.listcmd-wbxml" },
+	{ 0x0206, "application/vnd.uplanet.channel-wbxml" },
+	{ 0x0207, "application/vnd.uplanet.provisioning-status-uri" },
+	{ 0x0208, "x-wap.multipart/vnd.uplanet.header-set" },
+	{ 0x0209, "application/vnd.uplanet.bearer-choice-wbxml" },
+	{ 0x020A, "application/vnd.phonecom.mmc-wbxml" },
+	{ 0x020B, "application/vnd.nokia.syncset+wbxml" },
+	{ 0x020C, "image/x-up-wpng"},
+	{ 0x0300, "application/iota.mmc-wbxml"},
+	{ 0x0301, "application/iota.mmc-xml"},
 	{ 0x00, NULL }
 };
 
@@ -880,47 +1063,73 @@ static const value_string vals_languages[] = {
 };
 
 static const value_string vals_accept_ranges[] = {
-	{ 0x00, "None" },
-	{ 0x01, "Bytes" },
+	{ 0x00, "none" },
+	{ 0x01, "bytes" },
 	{ 0x00, NULL }
 };
 
-#define NO_CACHE		0x00
-#define NO_STORE		0x01
-#define MAX_AGE			0x02
-#define MAX_STALE		0x03
-#define MIN_FRESH		0x04
-#define ONLY_IF_CACHED		0x05
-#define PUBLIC			0x06
-#define PRIVATE			0x07
-#define NO_TRANSFORM		0x08
-#define MUST_REVALIDATE		0x09
-#define PROXY_REVALIDATE	0x0A
-#define S_MAXAGE		0x0B
+#define CACHE_CONTROL_NO_CACHE			0x00
+#define CACHE_CONTROL_NO_STORE			0x01
+#define CACHE_CONTROL_MAX_AGE			0x02
+#define CACHE_CONTROL_MAX_STALE			0x03
+#define CACHE_CONTROL_MIN_FRESH			0x04
+#define CACHE_CONTROL_ONLY_IF_CACHED	0x05
+#define CACHE_CONTROL_PUBLIC			0x06
+#define CACHE_CONTROL_PRIVATE			0x07
+#define CACHE_CONTROL_NO_TRANSFORM		0x08
+#define CACHE_CONTROL_MUST_REVALIDATE	0x09
+#define CACHE_CONTROL_PROXY_REVALIDATE	0x0A
+#define CACHE_CONTROL_S_MAXAGE			0x0B
 
 static const value_string vals_cache_control[] = {
-	{ NO_CACHE,         "No-cache" },
-	{ NO_STORE,         "No-store" },
-	{ MAX_AGE,          "Max-age" },
-	{ MAX_STALE,        "Max-stale" },
-	{ MIN_FRESH,        "Min-fresh" },
-	{ ONLY_IF_CACHED,   "Only-if-cached" },
-	{ PUBLIC,           "Public" },
-	{ PRIVATE,          "Private" },
-	{ NO_TRANSFORM,     "No-transform" },
-	{ MUST_REVALIDATE,  "Must-revalidate" },
-	{ PROXY_REVALIDATE, "Proxy-revalidate" },
-	{ S_MAXAGE,         "S-max-age" },
-	{ 0x00,             NULL }
-};
+	{ CACHE_CONTROL_NO_CACHE,         "no-cache" },
+	{ CACHE_CONTROL_NO_STORE,         "no-store" },
+	{ CACHE_CONTROL_MAX_AGE,          "max-age" },
+	{ CACHE_CONTROL_MAX_STALE,        "max-stale" },
+	{ CACHE_CONTROL_MIN_FRESH,        "min-fresh" },
+	{ CACHE_CONTROL_ONLY_IF_CACHED,   "only-if-cached" },
+	{ CACHE_CONTROL_PUBLIC,           "public" },
+	{ CACHE_CONTROL_PRIVATE,          "private" },
+	{ CACHE_CONTROL_NO_TRANSFORM,     "no-transform" },
+	{ CACHE_CONTROL_MUST_REVALIDATE,  "must-revalidate" },
+	{ CACHE_CONTROL_PROXY_REVALIDATE, "proxy-revalidate" },
+	{ CACHE_CONTROL_S_MAXAGE,         "s-max-age" },
 
-static const value_string vals_connection[] = {
-	{ 0x00, "Close" },
 	{ 0x00, NULL }
 };
 
-static const value_string vals_transfer_encoding[] = {
-	{ 0x00, "Chunked" },
+static const value_string vals_wap_application_ids[] = {
+	/* Well-known WAP applications */
+	{ 0x00, "x-wap-application:*"},
+	{ 0x01, "x-wap-application:push.sia"},
+	{ 0x02, "x-wap-application:wml.ua"},
+	{ 0x03, "x-wap-application:wta.ua"},
+	{ 0x04, "x-wap-application:mms.ua"},
+	{ 0x05, "x-wap-application:push.syncml"},
+	{ 0x06, "x-wap-application:loc.ua"},
+	{ 0x07, "x-wap-application:syncml.dm"},
+	{ 0x08, "x-wap-application:drm.ua"},
+	{ 0x09, "x-wap-application:emn.ua"},
+	{ 0x0A, "x-wap-application:wv.ua"},
+	/* Registered by 3rd parties */
+	{ 0x8000, "x-wap-microsoft:localcontent.ua"},
+	{ 0x8001, "x-wap-microsoft:IMclient.ua"},
+	{ 0x8002, "x-wap-docomo:imode.mail.ua"},
+	{ 0x8003, "x-wap-docomo:imode.mr.ua"},
+	{ 0x8004, "x-wap-docomo:imode.mf.ua"},
+	{ 0x8005, "x-motorola:location.ua"},
+	{ 0x8006, "x-motorola:now.ua"},
+	{ 0x8007, "x-motorola:otaprov.ua"},
+	{ 0x8008, "x-motorola:browser.ua"},
+	{ 0x8009, "x-motorola:splash.ua"},
+	/* 0x800A: unused */
+	{ 0x800B, "x-wap-nai:mvsw.command"},
+	{ 0x8010, "x-wap-openwave:iota.ua"},
+	{ 0x9000, "x-wap-docomo:imode.mail2.ua"},
+	{ 0x9001, "x-oma-nec:otaprov.ua"},
+	{ 0x9002, "x-oma-nokia:call.ua"},
+	{ 0x9003, "x-oma-coremobility:sqa.ua"},
+
 	{ 0x00, NULL }
 };
 
@@ -958,11 +1167,24 @@ static const value_string vals_wsp_warning_code_short[] = {
 	{ 0, NULL }
 };
 
+/* Profile-Warning codes - see http://www.w3.org/TR/NOTE-CCPPexchange */
+static const value_string vals_wsp_profile_warning_code[] = {
+	{ 0x10, "100 OK" },
+	{ 0x11, "101 Used stale profile" },
+	{ 0x12, "102 Not used profile" },
+	{ 0x20, "200 Not applied" },
+	{ 0x21, "101 Content selection applied" },
+	{ 0x22, "202 Content generation applied" },
+	{ 0x23, "203 Transformation applied" },
+
+	{ 0x00, NULL }
+};
+
 
 /*
  * Redirect flags.
  */
-#define PERMANENT_REDIRECT	0x80
+#define PERMANENT_REDIRECT		0x80
 #define REUSE_SECURITY_SESSION	0x40
 
 /*
@@ -970,7 +1192,7 @@ static const value_string vals_wsp_warning_code_short[] = {
  */
 #define BEARER_TYPE_INCLUDED	0x80
 #define PORT_NUMBER_INCLUDED	0x40
-#define ADDRESS_LEN		0x3f
+#define ADDRESS_LEN				0x3f
 
 static const true_false_string yes_no_truth = {
 	"Yes" ,
@@ -986,23 +1208,23 @@ static const value_string vals_false_true[] = {
 enum {
 	WSP_PDU_RESERVED		= 0x00,
 	WSP_PDU_CONNECT			= 0x01,
-	WSP_PDU_CONNECTREPLY		= 0x02,
+	WSP_PDU_CONNECTREPLY	= 0x02,
 	WSP_PDU_REDIRECT		= 0x03,			/* No sample data */
 	WSP_PDU_REPLY			= 0x04,
 	WSP_PDU_DISCONNECT		= 0x05,
 	WSP_PDU_PUSH			= 0x06,			/* No sample data */
-	WSP_PDU_CONFIRMEDPUSH		= 0x07,			/* No sample data */
+	WSP_PDU_CONFIRMEDPUSH	= 0x07,			/* No sample data */
 	WSP_PDU_SUSPEND			= 0x08,			/* No sample data */
 	WSP_PDU_RESUME			= 0x09,			/* No sample data */
 
-	WSP_PDU_GET			= 0x40,
+	WSP_PDU_GET				= 0x40,
 	WSP_PDU_OPTIONS			= 0x41,			/* No sample data */
 	WSP_PDU_HEAD			= 0x42,			/* No sample data */
 	WSP_PDU_DELETE			= 0x43,			/* No sample data */
 	WSP_PDU_TRACE			= 0x44,			/* No sample data */
 
 	WSP_PDU_POST			= 0x60,
-	WSP_PDU_PUT			= 0x61,			/* No sample data */
+	WSP_PDU_PUT				= 0x61,			/* No sample data */
 };
 
 #define VAL_STRING_SIZE 200
@@ -1018,75 +1240,2446 @@ static dissector_table_t wsp_dissector_table_text;
 static heur_dissector_list_t heur_subdissector_list;
 
 static void add_uri (proto_tree *, packet_info *, tvbuff_t *, guint, guint);
-static void add_headers (proto_tree *, tvbuff_t *);
-static int add_well_known_header (proto_tree *, tvbuff_t *, int, guint8);
-static int add_unknown_header (proto_tree *, tvbuff_t *, int, guint8);
-static int add_application_header (proto_tree *, tvbuff_t *, int);
-static void add_accept_header (proto_tree *, tvbuff_t *, int,
-    tvbuff_t *, value_type_t, int);
-static void add_accept_xxx_header (proto_tree *, tvbuff_t *, int,
-    tvbuff_t *, value_type_t, int, int, int, const value_string *,
-    const char *);
-static void add_accept_ranges_header (proto_tree *, tvbuff_t *, int,
-    tvbuff_t *, value_type_t, int);
-static void add_cache_control_header (proto_tree *, tvbuff_t *, int,
-    tvbuff_t *, value_type_t, int);
-static int add_cache_control_field_name (proto_tree *, tvbuff_t *, int, guint);
-static void add_connection_header (proto_tree *, tvbuff_t *, int,
-    tvbuff_t *, value_type_t, int);
-static void add_content_type_value (proto_tree *, tvbuff_t *, int, int,
-    tvbuff_t *, value_type_t, int, int, int, guint *, const char **);
-static void add_wap_application_id_header (proto_tree *, tvbuff_t *, int,
-    tvbuff_t *, value_type_t, int);
-static void add_integer_value_header_common (proto_tree *, tvbuff_t *, int,
-    tvbuff_t *, value_type_t, int, int, guint8, const value_string *);
-static void add_integer_value_header (proto_tree *, tvbuff_t *, int,
-    tvbuff_t *, value_type_t, int, int, guint8);
-static void add_string_value_header_common (proto_tree *, tvbuff_t *, int,
-    tvbuff_t *, value_type_t, int, int, guint8, const value_string *);
-static void add_string_value_header (proto_tree *, tvbuff_t *, int,
-    tvbuff_t *, value_type_t, int, int, guint8);
-static void add_quoted_string_value_header (proto_tree *, tvbuff_t *, int,
-    tvbuff_t *, value_type_t, int, int, guint8);
-static void add_date_value_header (proto_tree *, tvbuff_t *, int,
-    tvbuff_t *, value_type_t, int, int, guint8);
-static int add_parameter (proto_tree *, tvbuff_t *, int);
-static int add_untyped_parameter (proto_tree *, tvbuff_t *, int, int);
+
 static int add_parameter_charset (proto_tree *, tvbuff_t *, int, int);
 static int add_constrained_encoding (proto_tree *, tvbuff_t *, int, int);
 static int add_parameter_type (proto_tree *, tvbuff_t *, int, int);
 static int add_parameter_text (proto_tree *, tvbuff_t *, int, int, int, const char *);
 static void add_post_variable (proto_tree *, tvbuff_t *, guint, guint, guint, guint);
 static void add_multipart_data (proto_tree *, tvbuff_t *);
-static void add_pragma_header (proto_tree *, tvbuff_t *, int, tvbuff_t *,
-    value_type_t, int);
-static void add_transfer_encoding_header (proto_tree *, tvbuff_t *, int,
-    tvbuff_t *, value_type_t, int);
-static void add_warning_header (proto_tree *, tvbuff_t *, int, tvbuff_t *,
-    value_type_t, int);
-static void add_accept_application_header (proto_tree *, tvbuff_t *, int,
-    tvbuff_t *, value_type_t, int);
-static void add_credentials_value_header (proto_tree *tree,
-		tvbuff_t *header_buff, int headerLen, tvbuff_t *value_buff,
-		value_type_t valueType, int valueLen,
-		int hf_main, int hf_scheme, int hf_basic_user_id, int hf_basic_password);
-static void add_push_flag_header (proto_tree *tree,
-		tvbuff_t *header_buff, int headerLen, tvbuff_t *value_buff,
-		value_type_t valueType, int valueLen);
+
 static void add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type);
 static void add_capability_vals(tvbuff_t *, gboolean, int, guint, guint, char *, size_t);
 static value_type_t get_value_type_len (tvbuff_t *, int, guint *, int *, int *);
 static guint get_uintvar (tvbuff_t *, guint, guint);
 static gint get_integer (tvbuff_t *, guint, guint, value_type_t, guint *);
 
-static int add_well_known_openwave_header (proto_tree *, tvbuff_t *, int, guint8);
-static void add_openwave_integer_value_header (proto_tree *, tvbuff_t *, int,
-    tvbuff_t *, value_type_t, int, int, guint8);
-static void add_openwave_string_value_header (proto_tree *, tvbuff_t *, int,
-    tvbuff_t *, value_type_t, int, int, guint8);
+
+
+/*
+ * Dissect the WSP header part.
+ * This function calls wkh_XXX functions that dissect well-known headers.
+ */
+static void add_headers (proto_tree *tree, tvbuff_t *tvb);
+
+/* The following macros define WSP basic data structures as found
+ * in the ABNF notation of WSP headers.
+ * Currently all text data types are mapped to text_string.
+ */
+#define is_short_integer(x)		( (x) & 0x80 )
+#define is_long_integer(x)		( (x) <= 30 )
+#define is_date_value(x)		is_long_integer(x)
+#define is_integer_value(x)		(is_short_integer(x) || is_long_integer(x))
+#define is_delta_seconds_value(x)	is_integer_value(x)
+/* Text string == *TEXT 0x00, thus also an empty string matches the rule! */
+#define is_text_string(x)	( ((x) == 0) || ( ((x) >= 32) && ((x) <= 127)) ) 
+#define is_quoted_string(x)		is_text_string(x)
+#define is_token_text(x)		is_text_string(x)
+#define is_text_value(x)		is_text_string(x)
+#define is_uri_value(x)			is_text_string(x)
+
+#define get_uintvar_integer(val,tvb,start,len,ok) \
+	val = tvb_get_guintvar(tvb,start,&len); \
+	if (len>5) ok = FALSE; else ok = TRUE;
+#define get_short_integer(val,tvb,start,len,ok) \
+	val = tvb_get_guint8(tvb,start); \
+	if (val & 0x80) ok = TRUE; else ok=FALSE; \
+	val &= 0x7F; len = 1;
+#define get_long_integer(val,tvb,start,len,ok) \
+	len = tvb_get_guint8(tvb,start); \
+	ok = TRUE; /* Valid lengths for us are 1-4 */ \
+	if (len==1) { val = tvb_get_guint8(tvb,start+1); } \
+	else if (len==2) { val = tvb_get_ntohs(tvb,start+1); } \
+	else if (len==3) { val = tvb_get_ntoh24(tvb,start+1); } \
+	else if (len==4) { val = tvb_get_ntohl(tvb,start+1); } \
+	else ok = FALSE; \
+	len++; /* Add the 1st octet to the length */
+#define get_integer_value(val,tvb,start,len,ok) \
+	len = tvb_get_guint8(tvb,start); \
+	ok = TRUE; \
+	if (len & 0x80) { val = len & 0x7F; len = 0; } \
+	else if (len==1) { val = tvb_get_guint8(tvb,start+1); } \
+	else if (len==2) { val = tvb_get_ntohs(tvb,start+1); } \
+	else if (len==3) { val = tvb_get_ntoh24(tvb,start+1); } \
+	else if (len==4) { val = tvb_get_ntohl(tvb,start+1); } \
+	else ok = FALSE; \
+	len++; /* Add the 1st octet to the length */
+#define get_date_value(val,tvb,start,len,ok) \
+	get_long_integer(val,tvb,start,len,ok)
+#define get_delta_seconds_value(val,tvb,start,len,ok) \
+	get_integer_value(val,tvb,start,len,ok)
+
+#define get_text_string(str,tvb,start,len,ok) \
+	if (is_text_string(tvb_get_guint8(tvb,start))) { \
+		str = tvb_get_stringz(tvb,start,&len); \
+		g_assert (str); \
+		ok = TRUE; \
+	} else { len = 0; str = NULL; ok = FALSE; }
+#define get_token_text(str,tvb,start,len,ok) \
+	get_text_string(str,tvb,start,len,ok)
+#define get_extension_media(str,tvb,start,len,ok) \
+	get_text_string(str,tvb,start,len,ok)
+#define get_text_value(str,tvb,start,len,ok) \
+	get_text_string(str,tvb,start,len,ok)
+#define get_extension_media(str,tvb,start,len,ok) \
+	get_text_string(str,tvb,start,len,ok)
+#define get_quoted_string(str,tvb,start,len,ok) \
+	get_text_string(str,tvb,start,len,ok)
+#define get_uri_value(str,tvb,start,len,ok) \
+	get_text_string(str,tvb,start,len,ok)
+
+#define get_version_value(val,str,tvb,start,len,ok) \
+	val = tvb_get_guint8(tvb,start); \
+	ok = TRUE; \
+	if (val & 0x80) { /* High nibble "." Low nibble */ \
+		len = 1; \
+		val &= 0x7F; \
+		if (str) g_free (str); \
+		str = g_malloc (6 * sizeof(char)); \
+		g_assert (str); \
+		snprintf (str,5,"%u.%u",val>>4,val&0x0F); \
+	} else { get_text_string(str,tvb,start,len,ok); }
+	
+/* Parameter parser */
+static int
+parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len);
+static int
+parameter_value_q (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start);
+
+#define InvalidValueForHeader(hdr) \
+	"<Error: Invalid value for the '" hdr "' header>"
+#define InvalidTextualHeader \
+	"<Error: Invalid zero-length textual header>"
+
+/* WSP well-known header parsing function prototypes;
+ * will be listed in the function lookup table WellKnownHeaders[] */
+static guint32 wkh_default (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_accept (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_content_type (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_accept_charset (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_accept_language (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_connection (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_push_flag (proto_tree *tree, tvbuff_t *tvb,
+		guint32 header_start);
+static guint32 wkh_vary (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_accept_ranges (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_accept_encoding (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_content_encoding (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_transfer_encoding (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_pragma (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+/* Single short-integer value */
+static guint32 wkh_x_wap_security (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+/* Text */
+static guint32 wkh_content_location (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_etag (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_from (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_host (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_if_match (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_if_none_match (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_location (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_referer (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_server (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_user_agent (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_upgrade (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_via (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_content_uri (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_initiator_uri (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_profile (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_content_id (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+/* Date-value or text */
+static guint32 wkh_if_range (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+/* Date-value */
+static guint32 wkh_date (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_expires (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_if_modified_since (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_if_unmodified_since (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_last_modified (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+/* Date-value with special meaning */
+static guint32 wkh_x_wap_tod (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+/* Delta-seconds-value */
+static guint32 wkh_age (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+/* Credentials */
+static guint32 wkh_authorization (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_proxy_authorization (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+/* Pragma */
+static guint32 wkh_pragma (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+/* Integer-value */
+static guint32 wkh_content_length (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_max_forwards (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+
+/* Integer lookup value */
+static guint32 wkh_bearer_indication (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+
+/* WAP application ID value */
+static guint32 wkh_x_wap_application_id (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_accept_application (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_content_language (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+
+/* Allow and Public */
+static guint32 wkh_allow(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_public(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start);
+
+/* Cache-control */
+static guint32 wkh_cache_control (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+/* Warning */
+static guint32 wkh_warning (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+/* Profile-warning */
+static guint32 wkh_profile_warning (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+
+/* Content-MD5 */
+static guint32 wkh_content_md5 (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+
+
+/* TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+static guint32 wkh_content_base (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_content_range (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_proxy_authenticate (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_www_authenticate (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_range (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_retry_after (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_content_disposition (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_profile_diff (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_expect (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_te (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_content_id (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_set_cookie (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_cookie (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+*/
+
+
+/* WSP well-known Openwave header parsing function prototypes;
+ * will be listed in the function lookup table WellKnownOpenwaveHeaders[] */
+static guint32 wkh_openwave_default (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+/* Textual headers */
+static guint32 wkh_openwave_x_up_proxy_operator_domain(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_proxy_home_page(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_proxy_uplink_version(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_proxy_ba_realm(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_proxy_request_uri(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_proxy_client_id(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_proxy_bookmark(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+/* Integer headers */
+static guint32 wkh_openwave_x_up_proxy_push_seq(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_proxy_notify(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_proxy_net_ask(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_proxy_tod (proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_proxy_ba_enable(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_proxy_redirect_enable(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_proxy_redirect_status(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_proxy_linger(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_proxy_enable_trust(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_proxy_trust(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_devcap_has_color(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_devcap_num_softkeys(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_devcap_softkey_size(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_devcap_screen_chars(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_devcap_screen_pixels(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_devcap_em_size(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_devcap_screen_depth(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_devcap_immed_alert(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_devcap_gui(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+
+static guint32 wkh_openwave_x_up_proxy_trans_charset(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_openwave_x_up_proxy_push_accept(proto_tree *tree,
+		tvbuff_t *tvb, guint32 hdr_start);
+
+
+/* Define a pointer to function data type for the well-known header
+ * lookup table below */
+typedef guint32 (*hdr_parse_func_ptr) (proto_tree *, tvbuff_t *, guint32);
+
+/* Lookup table for well-known header parsing functions */
+static const hdr_parse_func_ptr WellKnownHeader[128] = {
+	/* 0x00 */	wkh_accept,				/* 0x01 */	wkh_accept_charset,
+	/* 0x02 */	wkh_accept_encoding,	/* 0x03 */	wkh_accept_language,
+	/* 0x04 */	wkh_accept_ranges,		/* 0x05 */	wkh_age,
+	/* 0x06 */	wkh_allow,				/* 0x07 */	wkh_authorization,
+	/* 0x08 */	wkh_cache_control,		/* 0x09 */	wkh_connection,
+	/* 0x0A */	wkh_default,			/* 0x0B */	wkh_content_encoding,
+	/* 0x0C */	wkh_content_language,	/* 0x0D */	wkh_content_length,
+	/* 0x0E */	wkh_content_location,	/* 0x0F */	wkh_content_md5,
+	/* 0x10 */	wkh_default,			/* 0x11 */	wkh_content_type,
+	/* 0x12 */	wkh_date,				/* 0x13 */	wkh_etag,
+	/* 0x14 */	wkh_expires,			/* 0x15 */	wkh_from,
+	/* 0x16 */	wkh_host,				/* 0x17 */	wkh_if_modified_since,
+	/* 0x18 */	wkh_if_match,			/* 0x19 */	wkh_if_none_match,
+	/* 0x1A */	wkh_if_range,			/* 0x1B */	wkh_if_unmodified_since,
+	/* 0x1C */	wkh_location,			/* 0x1D */	wkh_last_modified,
+	/* 0x1E */	wkh_max_forwards,		/* 0x1F */	wkh_pragma,
+	/* 0x20 */	wkh_default,			/* 0x21 */	wkh_proxy_authorization,
+	/* 0x22 */	wkh_public,				/* 0x23 */	wkh_default,
+	/* 0x24 */	wkh_referer,			/* 0x25 */	wkh_default,
+	/* 0x26 */	wkh_server,				/* 0x27 */	wkh_transfer_encoding,
+	/* 0x28 */	wkh_upgrade,			/* 0x29 */	wkh_user_agent,
+	/* 0x2A */	wkh_vary,				/* 0x2B */	wkh_via,
+	/* 0x2C */	wkh_warning,			/* 0x2D */	wkh_default,
+	/* 0x2E */	wkh_default,			/* 0x2F */	wkh_x_wap_application_id,
+	/* 0x30 */	wkh_content_uri,		/* 0x31 */	wkh_initiator_uri,
+	/* 0x32 */	wkh_accept_application,	/* 0x33 */	wkh_bearer_indication,
+	/* 0x34 */	wkh_push_flag,			/* 0x35 */	wkh_profile,
+	/* 0x36 */	wkh_default,			/* 0x37 */	wkh_profile_warning,
+	/* 0x38 */	wkh_default,			/* 0x39 */	wkh_default,
+	/* 0x3A */	wkh_content_id,			/* 0x3B */	wkh_accept_charset,
+	/* 0x3C */	wkh_accept_encoding,	/* 0x3D */	wkh_cache_control,
+	/* 0x3E */	wkh_default,			/* 0x3F */	wkh_x_wap_tod,
+	/* 0x40 */	wkh_default,			/* 0x41 */	wkh_default,
+	/* 0x42 */	wkh_default,			/* 0x43 */	wkh_default,
+	/* 0x44 */	wkh_profile_warning,	/* 0x45 */	wkh_default,
+	/* 0x46 */	wkh_x_wap_security,		/* 0x47 */	wkh_cache_control,
+	/*******************************************************
+	 *** The following headers are not (yet) registered. ***
+	 *******************************************************/
+	/* 0x48 */	wkh_default,			/* 0x49 */	wkh_default,
+	/* 0x4A */	wkh_default,			/* 0x4B */	wkh_default,
+	/* 0x4C */	wkh_default,			/* 0x4D */	wkh_default,
+	/* 0x4E */	wkh_default,			/* 0x4F */	wkh_default,
+	/* 0x50 */	wkh_default,			/* 0x51 */	wkh_default,
+	/* 0x52 */	wkh_default,			/* 0x53 */	wkh_default,
+	/* 0x54 */	wkh_default,			/* 0x55 */	wkh_default,
+	/* 0x56 */	wkh_default,			/* 0x57 */	wkh_default,
+	/* 0x58 */	wkh_default,			/* 0x59 */	wkh_default,
+	/* 0x5A */	wkh_default,			/* 0x5B */	wkh_default,
+	/* 0x5C */	wkh_default,			/* 0x5D */	wkh_default,
+	/* 0x5E */	wkh_default,			/* 0x5F */	wkh_default,
+	/* 0x60 */	wkh_default,			/* 0x61 */	wkh_default,
+	/* 0x62 */	wkh_default,			/* 0x63 */	wkh_default,
+	/* 0x64 */	wkh_default,			/* 0x65 */	wkh_default,
+	/* 0x66 */	wkh_default,			/* 0x67 */	wkh_default,
+	/* 0x68 */	wkh_default,			/* 0x69 */	wkh_default,
+	/* 0x6A */	wkh_default,			/* 0x6B */	wkh_default,
+	/* 0x6C */	wkh_default,			/* 0x6D */	wkh_default,
+	/* 0x6E */	wkh_default,			/* 0x6F */	wkh_default,
+	/* 0x70 */	wkh_default,			/* 0x71 */	wkh_default,
+	/* 0x72 */	wkh_default,			/* 0x73 */	wkh_default,
+	/* 0x74 */	wkh_default,			/* 0x75 */	wkh_default,
+	/* 0x76 */	wkh_default,			/* 0x77 */	wkh_default,
+	/* 0x78 */	wkh_default,			/* 0x79 */	wkh_default,
+	/* 0x7A */	wkh_default,			/* 0x7B */	wkh_default,
+	/* 0x7C */	wkh_default,			/* 0x7D */	wkh_default,
+	/* 0x7E */	wkh_default,			/* 0x7F */	wkh_default,
+}; 
+
+/* Lookup table for well-known header parsing functions */
+static const hdr_parse_func_ptr WellKnownOpenwaveHeader[128] = {
+	/* 0x00 */	wkh_openwave_default,
+	/* 0x01 */	wkh_openwave_x_up_proxy_push_accept,
+	/* 0x02 */	wkh_openwave_x_up_proxy_push_seq,
+	/* 0x03 */	wkh_openwave_x_up_proxy_notify,
+	/* 0x04 */	wkh_openwave_x_up_proxy_operator_domain,
+	/* 0x05 */	wkh_openwave_x_up_proxy_home_page,
+	/* 0x06 */	wkh_openwave_x_up_devcap_has_color,
+	/* 0x07 */	wkh_openwave_x_up_devcap_num_softkeys,
+	/* 0x08 */	wkh_openwave_x_up_devcap_softkey_size,
+	/* 0x09 */	wkh_openwave_x_up_devcap_screen_chars,
+	/* 0x0A */	wkh_openwave_x_up_devcap_screen_pixels,
+	/* 0x0B */	wkh_openwave_x_up_devcap_em_size,
+	/* 0x0C */	wkh_openwave_x_up_devcap_screen_depth,
+	/* 0x0D */	wkh_openwave_x_up_devcap_immed_alert,
+	/* 0x0E */	wkh_openwave_x_up_proxy_net_ask,
+	/* 0x0F */	wkh_openwave_x_up_proxy_uplink_version,
+	/* 0x10 */	wkh_openwave_x_up_proxy_tod,
+	/* 0x11 */	wkh_openwave_x_up_proxy_ba_enable,
+	/* 0x12 */	wkh_openwave_x_up_proxy_ba_realm,
+	/* 0x13 */	wkh_openwave_x_up_proxy_redirect_enable,
+	/* 0x14 */	wkh_openwave_x_up_proxy_request_uri,
+	/* 0x15 */	wkh_openwave_x_up_proxy_redirect_status,
+	/* 0x16 */	wkh_openwave_x_up_proxy_trans_charset,
+	/* 0x17 */	wkh_openwave_x_up_proxy_linger,
+	/* 0x18 */	wkh_openwave_x_up_proxy_client_id,
+	/* 0x19 */	wkh_openwave_x_up_proxy_enable_trust,
+	/* 0x1A */	wkh_openwave_x_up_proxy_trust,
+	/* 0x1B */	wkh_openwave_default,
+	/* 0x1C */	wkh_openwave_default,
+	/* 0x1D */	wkh_openwave_default,
+	/* 0x1E */	wkh_openwave_default,
+	/* 0x1F */	wkh_openwave_default,
+	/* 0x20 */	wkh_openwave_x_up_proxy_trust,
+	/* 0x21 */	wkh_openwave_x_up_proxy_bookmark,
+	/* 0x22 */	wkh_openwave_x_up_devcap_gui,
+	/*******************************************************
+	 *** The following headers are not (yet) registered. ***
+	 *******************************************************/
+	/* 0x23 */	wkh_openwave_default,
+	/* 0x24 */	wkh_openwave_default,		/* 0x25 */	wkh_openwave_default,
+	/* 0x26 */	wkh_openwave_default,		/* 0x27 */	wkh_openwave_default,
+	/* 0x28 */	wkh_openwave_default,		/* 0x29 */	wkh_openwave_default,
+	/* 0x2A */	wkh_openwave_default,		/* 0x2B */	wkh_openwave_default,
+	/* 0x2C */	wkh_openwave_default,		/* 0x2D */	wkh_openwave_default,
+	/* 0x2E */	wkh_openwave_default,		/* 0x2F */	wkh_openwave_default,
+	/* 0x30 */	wkh_openwave_default,		/* 0x31 */	wkh_openwave_default,
+	/* 0x32 */	wkh_openwave_default,		/* 0x33 */	wkh_openwave_default,
+	/* 0x34 */	wkh_openwave_default,		/* 0x35 */	wkh_openwave_default,
+	/* 0x36 */	wkh_openwave_default,		/* 0x37 */	wkh_openwave_default,
+	/* 0x38 */	wkh_openwave_default,		/* 0x39 */	wkh_openwave_default,
+	/* 0x3A */	wkh_openwave_default,		/* 0x3B */	wkh_openwave_default,
+	/* 0x3C */	wkh_openwave_default,		/* 0x3D */	wkh_openwave_default,
+	/* 0x3E */	wkh_openwave_default,		/* 0x3F */	wkh_openwave_default,
+	/* 0x40 */	wkh_openwave_default,		/* 0x41 */	wkh_openwave_default,
+	/* 0x42 */	wkh_openwave_default,		/* 0x43 */	wkh_openwave_default,
+	/* 0x44 */	wkh_openwave_default,		/* 0x45 */	wkh_openwave_default,
+	/* 0x46 */	wkh_openwave_default,		/* 0x47 */	wkh_openwave_default,
+	/* 0x48 */	wkh_openwave_default,		/* 0x49 */	wkh_openwave_default,
+	/* 0x4A */	wkh_openwave_default,		/* 0x4B */	wkh_openwave_default,
+	/* 0x4C */	wkh_openwave_default,		/* 0x4D */	wkh_openwave_default,
+	/* 0x4E */	wkh_openwave_default,		/* 0x4F */	wkh_openwave_default,
+	/* 0x50 */	wkh_openwave_default,		/* 0x51 */	wkh_openwave_default,
+	/* 0x52 */	wkh_openwave_default,		/* 0x53 */	wkh_openwave_default,
+	/* 0x54 */	wkh_openwave_default,		/* 0x55 */	wkh_openwave_default,
+	/* 0x56 */	wkh_openwave_default,		/* 0x57 */	wkh_openwave_default,
+	/* 0x58 */	wkh_openwave_default,		/* 0x59 */	wkh_openwave_default,
+	/* 0x5A */	wkh_openwave_default,		/* 0x5B */	wkh_openwave_default,
+	/* 0x5C */	wkh_openwave_default,		/* 0x5D */	wkh_openwave_default,
+	/* 0x5E */	wkh_openwave_default,		/* 0x5F */	wkh_openwave_default,
+	/* 0x60 */	wkh_openwave_default,		/* 0x61 */	wkh_openwave_default,
+	/* 0x62 */	wkh_openwave_default,		/* 0x63 */	wkh_openwave_default,
+	/* 0x64 */	wkh_openwave_default,		/* 0x65 */	wkh_openwave_default,
+	/* 0x66 */	wkh_openwave_default,		/* 0x67 */	wkh_openwave_default,
+	/* 0x68 */	wkh_openwave_default,		/* 0x69 */	wkh_openwave_default,
+	/* 0x6A */	wkh_openwave_default,		/* 0x6B */	wkh_openwave_default,
+	/* 0x6C */	wkh_openwave_default,		/* 0x6D */	wkh_openwave_default,
+	/* 0x6E */	wkh_openwave_default,		/* 0x6F */	wkh_openwave_default,
+	/* 0x70 */	wkh_openwave_default,		/* 0x71 */	wkh_openwave_default,
+	/* 0x72 */	wkh_openwave_default,		/* 0x73 */	wkh_openwave_default,
+	/* 0x74 */	wkh_openwave_default,		/* 0x75 */	wkh_openwave_default,
+	/* 0x76 */	wkh_openwave_default,		/* 0x77 */	wkh_openwave_default,
+	/* 0x78 */	wkh_openwave_default,		/* 0x79 */	wkh_openwave_default,
+	/* 0x7A */	wkh_openwave_default,		/* 0x7B */	wkh_openwave_default,
+	/* 0x7C */	wkh_openwave_default,		/* 0x7D */	wkh_openwave_default,
+	/* 0x7E */	wkh_openwave_default,		/* 0x7F */	wkh_openwave_default,
+}; 
+
+
+
+
+
+
+/* WSP header format
+ *   1st byte: 0x00        : <Not allowed>
+ *   1st byte: 0x01 -- 0x1F: <Shorthand Header Code Page switch>
+ *   1st byte: 0x20 -- 0x7E: <Textual header (C string)>
+ *       Followed with: <Textual header value (C string)>
+ *   1st byte: 0x7F        : <Header Code Page switch>
+ *       Followed with: 2nd byte: <Header Code Page>
+ *   1st byte: 0x80 -- 0xFF: <Binary header (7-bit encoded ID)>
+ *       Followed with:
+ *         2nd byte: 0x00 -- 0x1E: <Value Length (bytes)>
+ *             Followed with: <Len> bytes of data
+ *         2nd byte: 0x1F        : <Value Length is a guintvar>
+ *             Followed with: <guintvar Len>
+ *             Followed with: <Len> bytes of data
+ *         2nd byte: 0x20 -- 0x7F: <Textual header value (C string)>
+ *         2nd byte: 0x80 -- 0xFF: <Binary value (7-bit encoded ID)>
+ */
+static void
+add_headers (proto_tree *tree, tvbuff_t *tvb)
+{
+	guint8 hdr_id, val_id, codepage = 1;
+	gint32 tvb_len = tvb_length(tvb);
+	gint32 offset = 0, hdr_len, hdr_start;
+	gint32 val_len, val_start;
+	guint8 *hdr_str, *val_str;
+	proto_tree *wsp_headers;
+	proto_item *ti;
+	guint8 ok;
+	guint32 val = 0;
+	nstime_t tv;
+
+	if (offset >= tvb_len)
+		return; /* No headers! */
+
+	ti = proto_tree_add_item(tree, hf_wsp_headers_section,
+			tvb, offset, tvb_len, bo_little_endian);
+	wsp_headers = proto_item_add_subtree(ti, ett_headers);
+
+	while (offset < tvb_len) {
+		hdr_start = offset;
+		hdr_id = tvb_get_guint8(tvb, offset);
+		if (hdr_id & 0x80) { /* Well-known header */
+			hdr_len = 1;
+			val_start = ++offset;
+			val_id = tvb_get_guint8(tvb, val_start);
+			/* Call header value dissector for given header */
+			if (codepage == 1) { /* Default header code page */
+				offset = WellKnownHeader[hdr_id & 0x7F](wsp_headers, tvb,
+						hdr_start);
+			} else { /* Openwave header code page */
+				/* Here I'm delibarately assuming that Openwave is the only
+				 * company that defines a WSP header code page. */
+				offset = WellKnownOpenwaveHeader[hdr_id & 0x7F](wsp_headers,
+						tvb, hdr_start);
+			}
+		} else if (hdr_id == 0x7F) { /* HCP shift sequence */
+			codepage = tvb_get_guint8(tvb, offset+1);
+			proto_tree_add_uint(wsp_headers, hf_wsp_header_shift_code,
+					tvb, offset, 2, codepage);
+			offset += 2;
+		} else if (hdr_id >= 0x20) { /* Textual header */
+			/* Header name MUST be NUL-ended string ==> tvb_get_stringz() */
+			hdr_str = tvb_get_stringz(tvb, hdr_start, &hdr_len);
+			val_start = hdr_start + hdr_len;
+			val_id = tvb_get_guint8(tvb, val_start);
+			/* Call header value dissector for given header */
+			if (val_id >= 0x20 && val_id <=0x7E) { /* OK! */
+				/* Header value sometimes NOT NUL-ended => tvb_strnlen() */
+				val_len = tvb_strnlen(tvb, val_start, tvb_len - val_start);
+				if (val_len == -1) { /* Reached end-of-tvb before '\0' */
+					val_len = tvb_len - val_start;
+					val_str = tvb_get_string(tvb, val_start, val_len);
+					val_len++; /* For extra '\0' byte */
+					offset = tvb_len;
+				} else { /* OK */
+					val_str = tvb_get_stringz(tvb, val_start, &val_len);
+					g_assert(val_str);
+					offset = val_start + val_len;
+				}
+				proto_tree_add_text(wsp_headers,tvb,hdr_start,offset-hdr_start,
+						"%s: %s", hdr_str, val_str);
+				g_free (val_str);
+			} else {
+				/* Old-style X-WAP-TOD uses a non-textual value
+				 * after a textual header. */
+				if (strcasecmp(hdr_str, "x-wap.tod") == 0) {
+					get_delta_seconds_value(val, tvb, val_start, val_len, ok);
+					if (ok) {
+						if (val == 0) {
+							ti = proto_tree_add_string (wsp_headers,
+									hf_hdr_x_wap_tod,
+									tvb, hdr_start, hdr_len + val_len,
+									"Requesting Time Of Day");
+						} else {
+							tv.secs = val;
+							tv.nsecs = 0;
+							val_str = abs_time_to_str(&tv);
+							g_assert (val_str);
+							ti = proto_tree_add_string (wsp_headers,
+									hf_hdr_x_wap_tod,
+									tvb, hdr_start, hdr_len + val_len, val_str);
+						}
+						proto_item_append_text(ti, " <Warning: "
+								"should be encoded as a textual value>");
+					} else {
+						/* I prefer using X-Wap-Tod to the real hdr_str */
+						proto_tree_add_string (wsp_headers, hf_hdr_x_wap_tod,
+								tvb, hdr_start, hdr_len + val_len,
+								InvalidValueForHeader("X-Wap-Tod"));
+					}
+				} else {
+					proto_tree_add_text (wsp_headers, tvb, hdr_start, hdr_len,
+							"<Error: Invalid value for the textual '%s' header"
+							" (should be a textual value)>",
+							hdr_str);
+				}
+				offset = tvb_len;
+			}
+			proto_tree_add_string_hidden(wsp_headers, hf_hdr_name,
+					tvb, hdr_start, offset - hdr_start, hdr_str);
+		} else if (hdr_id > 0) { /* Shorthand HCP switch */
+			codepage = hdr_id;
+			proto_tree_add_uint (wsp_headers, hf_wsp_header_shift_code,
+					tvb, offset, 1, codepage);
+			offset++;
+		} else {
+			proto_tree_add_text (wsp_headers, tvb, hdr_start, 1,
+					InvalidTextualHeader);
+			offset = tvb_len;
+		}
+	}
+}
+
+
+/* The following macros hide common processing for all well-known headers
+ * and shortens the code to be written in a wkh_XXX() function.
+ * Even declarations are hidden by a macro.
+ *
+ * Define a wkh_XXX() function as follows:
+ *
+ * static guint32
+ * wkh_XXX (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+ * {
+ * 		wkh_0_Declarations;
+ *		<< add other required declarations here >>
+ *
+ *		wkh_1_WellKnownValue;
+ *			<< add well-known value proto item here; don't forget to set the
+ *			ok variable to TRUE if parsing was correct >>
+ *		wkh_2_TextualValue;
+ *			<< add textual value proto item here; don't forget to set the
+ *			ok variable to TRUE if parsing was correct >>
+ *		wkh_3_ValueWithLength;
+ *			<< add custom code for value processing and value proto item here >>
+ *
+ *		wkh_4_End(hf);
+ *			<< This macro takes care of parse errors within the header value;
+ *			it requires the header field index if the header has not yet been
+ *			written to the protocol tree (ti == NULL). >>
+ * }
+ *
+ *	NOTE:	You only need to write parsing code for the successful case,
+ *			Errors are automatically reported through the wkh_4_End() macro
+ *			when ok <> TRUE.
+ */
+
+/* The following code is the generic template with which the value of a
+ * well-known header can be processed. Not all sections yield a semantically
+ * correct result, so appropriate error information must be provided.
+ */
+
+#define wkh_0_Declarations					/* Declarations for Parsing */ \
+	gboolean ok = FALSE; /* Triggers error notification code at end */ \
+	proto_item *ti = NULL; /* Needed for error notification at end */ \
+	guint32 val_start = hdr_start + 1; \
+	guint8 hdr_id = tvb_get_guint8 (tvb, hdr_start) & 0x7F; \
+	guint8 val_id = tvb_get_guint8 (tvb, val_start); \
+	guint32 offset = val_start; /* Offset to one past this header */ \
+	guint32 val_len; /* length for value with length field */ \
+	guint32 val_len_len; /* length of length field */ \
+	guint8 *val_str = NULL
+
+#define wkh_1_WellKnownValue				/* Parse Well Known Value */ \
+	proto_tree_add_string_hidden(tree, hf_hdr_name, \
+			tvb, hdr_start, offset - hdr_start, \
+			match_strval (hdr_id, vals_field_names)); \
+	if (val_id & 0x80) { /* Well-known value */ \
+		offset++; \
+		/* Well-known value processing starts HERE \
+		 * \
+		 * BEGIN */
+
+#define wkh_2_TextualValue					/* Parse Textual Value */ \
+		/* END */ \
+	} else if ((val_id == 0) || (val_id >=0x20)) { /* Textual value */ \
+		val_str = tvb_get_stringz (tvb, val_start, &val_len); \
+		g_assert(val_str); \
+		offset = val_start + val_len; \
+		/* Textual value processing starts HERE \
+		 * \
+		 * BEGIN */
+
+#define wkh_3_ValueWithLength				/* Parse Value With Length */ \
+		/* END */ \
+		g_free(val_str); \
+	} else { /* val_start points to 1st byte of length field */ \
+		if (val_id == 0x1F) { /* Value Length = guintvar */ \
+			val_len = tvb_get_guintvar(tvb, val_start + 1, &val_len_len); \
+			val_len_len++; /* 0x1F length indicator byte */ \
+		} else { /* Short length followed by Len data octets */ \
+			val_len = tvb_get_guint8(tvb, offset); \
+			val_len_len = 1; \
+		} \
+		offset += val_len_len + val_len; \
+		/* Value with length processing starts HERE \
+		 * The value lies between val_start and offset: \
+		 *  - Value Length:	Start  = val_start \
+		 *					Length = val_len_len \
+		 *  - Value Data  :	Start  = val_start + val_len_len \
+		 *					Length = val_len \
+		 *					End    = offset - 1 \
+		 * BEGIN */
+
+#define wkh_4_End(hf)						/* End of value parsing */ \
+		/* END */ \
+	} \
+	/* Check for errors */ \
+	if (! ok) { \
+		if (ti) { /* Append to protocol tree item label */ \
+			proto_item_append_text(ti, \
+					"<Error: Invalid header value>"); \
+		} else if (hf > 0) { /* Create protocol tree item */ \
+			proto_tree_add_string(tree, hf, \
+					tvb, hdr_start, offset - hdr_start, \
+					" <Error: Invalid header value>"); \
+		} else { /* Create anonymous header field entry */ \
+			proto_tree_add_text(tree, tvb, hdr_start, offset - hdr_start, \
+					"%s: <Error: Invalid header value>", \
+					val_to_str (hdr_id, vals_field_names, \
+						"<Unknown WSP header field 0x%02X>")); \
+		} \
+	} \
+	return offset;
+
+
+/*
+ * This yields the following default header value parser function body
+ */
+static guint32
+wkh_default(proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start)
+{
+	wkh_0_Declarations;
+
+	ok = TRUE; /* Bypass error checking as we don't parse the values! */
+
+	wkh_1_WellKnownValue;
+		ti = proto_tree_add_text (tree, tvb, hdr_start, offset - hdr_start,
+				"%s: (Undecoded well-known value 0x%02x)",
+				match_strval (hdr_id, vals_field_names), val_id & 0x7F);
+	wkh_2_TextualValue;
+		ti = proto_tree_add_text(tree, tvb, hdr_start, offset - hdr_start,
+				"%s: %s",
+				match_strval (hdr_id, vals_field_names), val_str);
+	wkh_3_ValueWithLength;
+		ti = proto_tree_add_text (tree, tvb, hdr_start, offset - hdr_start,
+				"%s: (Undecoded value in general form with length indicator)",
+				match_strval (hdr_id, vals_field_names));
+
+	wkh_4_End(HF_EMPTY); /* The default parser has no associated hf_index;
+							additionally the error code is always bypassed */
+}
+
+
+/* Content-type processing uses the following common core: */
+#define wkh_content_type_header(underscored,Text) \
+static guint32 \
+wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
+{ \
+	wkh_0_Declarations; \
+	guint32 off, val = 0, len; \
+	guint8 peek; \
+	proto_tree *parameter_tree = NULL; \
+	\
+	wkh_1_WellKnownValue; \
+		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+				tvb, hdr_start, offset - hdr_start, \
+				val_to_str(val_id & 0x7F, vals_content_types, \
+					"(Unknown content type identifier 0x%X)")); \
+		ok = TRUE; \
+	wkh_2_TextualValue; \
+		/* Sometimes with a No-Content response, a NULL content type \
+		 * is reported. Process this correctly! */ \
+		if (*val_str) { \
+			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+					tvb, hdr_start, offset - hdr_start, \
+					val_str); \
+		} else { \
+			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+					tvb, hdr_start, offset - hdr_start, \
+					"<no content type has been specified>"); \
+		} \
+		ok = TRUE; \
+	wkh_3_ValueWithLength; \
+		off = val_start + val_len_len; \
+		peek = tvb_get_guint8(tvb, off); \
+		if (is_text_string(peek)) { \
+			get_extension_media(val_str, tvb, off, len, ok); \
+			off += len; /* off now points to 1st byte after string */ \
+			ti = proto_tree_add_string (tree, hf_hdr_ ## underscored, \
+					tvb, hdr_start, offset - hdr_start, val_str); \
+		} else if (is_integer_value(peek)) { \
+			get_integer_value(val, tvb, off, len, ok); \
+			if (ok) { \
+				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+						tvb, hdr_start, offset - hdr_start, \
+						val_to_str(val, vals_content_types, \
+							"(Unknown content type identifier 0x%X)")); \
+			} \
+			off += len; \
+		} \
+		/* Remember: offset == val_start + val_len */ \
+		if (ok && (off < offset)) { /* Add parameters if any */ \
+			parameter_tree = proto_item_add_subtree (ti, \
+					ett_parameters); \
+			while (off < offset) { \
+				off = parameter (parameter_tree, ti, tvb, off, offset - off); \
+			} \
+		} \
+	\
+	wkh_4_End(hf_hdr_ ## underscored); \
+}
+
+
+/*
+ * Accept-value =
+ *	  Short-integer
+ *	| Extension-media
+ *	| ( Value-length ( Extension-media | Integer-value ) *( Parameter ) )
+ */
+wkh_content_type_header(accept, "Accept")
+
+
+/*
+ * Content-type-value =
+ *	  Short-integer
+ *	| Extension-media
+ *	| ( Value-length ( Extension-media | Integer-value ) *( Parameter ) )
+ *
+ * Beware: this header should not appear as such; it is dissected elsewhere
+ * and at the same time the content type is used for subdissectors.
+ * It is here for the sake of completeness.
+ */
+wkh_content_type_header(content_type, "Content-Type")
+
+
+/*
+ * Content-type-value =
+ *	  Short-integer
+ *	| Extension-media
+ *	| ( Value-length ( Extension-media | Integer-value ) *( Parameter ) )
+ *
+ * This function adds the content type value to the protocol tree,
+ * and computes either the numeric or textual media type in return,
+ * which will be used for further subdissection (e.g., MMS, WBXML).
+ */
+guint32
+add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
+		guint32 *well_known_content, const char **textual_content)
+{
+	/* Replace wkh_0_Declarations with slightly modified declarations
+	 * so we can still make use of the wkh_[1-4]_XXX macros! */
+	guint32 hdr_start = val_start; /* No header name, only value! */
+	guint8 hdr_id = FN_CONTENT_TYPE; /* Same remark */
+	guint8 val_id = tvb_get_guint8 (tvb, val_start);
+	guint32 offset = val_start; /* Offset to one past this header */
+	guint32 val_len; /* length for value with length field */
+	guint32 val_len_len; /* length of length field */
+	guint8 *val_str = NULL;
+	guint32 off, val = 0, len;
+	guint8 peek;
+	gboolean ok = FALSE;
+	proto_item *ti = NULL;
+	proto_tree *parameter_tree = NULL;
+
+	*textual_content = NULL;
+	*well_known_content = 0;
+
+	wkh_1_WellKnownValue;
+		ti = proto_tree_add_string(tree, hf_hdr_content_type,
+				tvb, hdr_start, offset - hdr_start,
+				val_to_str(val_id & 0x7F, vals_content_types,
+					"<Unknown content type identifier 0x%X>"));
+		*well_known_content = val_id & 0x7F;
+		ok = TRUE;
+	wkh_2_TextualValue;
+		/* Sometimes with a No-Content response, a NULL content type
+		 * is reported. Process this correctly! */
+		if (*val_str) {
+			ti = proto_tree_add_string(tree, hf_hdr_content_type,
+					tvb, hdr_start, offset - hdr_start,
+					val_str);
+			*textual_content = g_strdup(val_str);
+		} else {
+			ti = proto_tree_add_string(tree, hf_hdr_content_type,
+					tvb, hdr_start, offset - hdr_start,
+					"<no content type has been specified>");
+		}
+		ok = TRUE;
+	wkh_3_ValueWithLength;
+		off = val_start + val_len_len;
+		peek = tvb_get_guint8(tvb, off);
+		if (is_text_string(peek)) {
+			get_extension_media(val_str, tvb, off, len, ok);
+			off += len; /* off now points to 1st byte after string */
+			ti = proto_tree_add_string (tree, hf_hdr_content_type,
+					tvb, hdr_start, offset - hdr_start, val_str);
+			*textual_content = g_strdup(val_str);
+		} else if (is_integer_value(peek)) {
+			get_integer_value(val, tvb, off, len, ok);
+			if (ok) {
+				ti = proto_tree_add_string(tree, hf_hdr_content_type,
+						tvb, hdr_start, offset - hdr_start,
+						val_to_str(val, vals_content_types,
+							"<Unknown content type identifier 0x%X>"));
+				*well_known_content = val;
+			}
+			off += len;
+		} /* else ok = FALSE */
+		/* Remember: offset == val_start + val_len */
+		if (ok && (off < offset)) { /* Add parameters if any */
+			parameter_tree = proto_item_add_subtree (ti,
+					ett_parameters);
+			while (off < offset) {
+				off = parameter (parameter_tree, ti, tvb, off, offset - off);
+			}
+		}
+
+	wkh_4_End(hf_hdr_content_type);
+}
+
+
+/*
+ * Template for accept_X headers with optional Q parameter value
+ */
+#define wkh_accept_x_q_header(underscored,Text,valueString,valueName) \
+static guint32 \
+wkh_ ## underscored (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
+{ \
+	wkh_0_Declarations; \
+	guint32 off, val = 0, len; \
+	guint8 peek; \
+	proto_tree *parameter_tree = NULL; \
+	\
+	wkh_1_WellKnownValue; \
+		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+				tvb, hdr_start, offset - hdr_start, \
+				val_to_str(val_id & 0x7F, valueString, \
+					"<Unknown " valueName " identifier 0x%X>")); \
+		ok = TRUE; \
+	wkh_2_TextualValue; \
+		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+				tvb, hdr_start, offset - hdr_start, val_str); \
+	wkh_3_ValueWithLength; \
+		off = val_start + val_len_len; \
+		peek = tvb_get_guint8(tvb, off); \
+		if (is_text_string(peek)) { \
+			get_token_text(val_str, tvb, off, len, ok); \
+			off += len; /* off now points to 1st byte after string */ \
+			ti = proto_tree_add_string (tree, hf_hdr_ ## underscored, \
+					tvb, hdr_start, offset - hdr_start, val_str); \
+		} else if (is_integer_value(peek)) { \
+			get_integer_value(val, tvb, off, len, ok); \
+			if (ok) { \
+				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+						tvb, hdr_start, offset - hdr_start, \
+						val_to_str(val, valueString, \
+							"<Unknown " valueName " identifier 0x%X>")); \
+			} \
+			off += len; \
+		} /* else ok = FALSE */ \
+		/* Remember: offset == val_start + val_len */ \
+		if (ok && (off < offset)) { /* Add Q-value if available */ \
+			parameter_tree = proto_item_add_subtree (ti, \
+					ett_parameters); \
+			off = parameter_value_q (parameter_tree, ti, tvb, off); \
+		} \
+	\
+	wkh_4_End(hf_hdr_ ## underscored); \
+}
+
+/*
+ * Accept-charset-value =
+ *	  Short-integer
+ *	| Extension-media
+ *	| ( Value-length ( Token-text | Integer-value ) [ Q-value ] )
+ */
+wkh_accept_x_q_header(accept_charset, "Accept-Charset",
+		vals_character_sets, "character set")
+/*
+ * Accept-language-value =
+ *	  Short-integer
+ *	| Extension-media
+ *	| ( Value-length ( Text-string | Integer-value ) [ Q-value ] )
+ */
+wkh_accept_x_q_header(accept_language, "Accept-Language",
+		vals_languages, "language")
+
+
+/*
+ * Push-flag-value = Short-integer
+ */
+static guint32
+wkh_push_flag(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+{
+	wkh_0_Declarations;
+	proto_tree *subtree = NULL;
+
+	wkh_1_WellKnownValue;
+		ti = proto_tree_add_string(tree, hf_hdr_push_flag,
+				tvb, hdr_start, offset - hdr_start, "");
+		subtree = proto_item_add_subtree(ti, ett_push_flags);
+		proto_tree_add_uint(subtree, hf_hdr_push_flag_auth,
+				tvb, val_start, 1, val_id);
+		proto_tree_add_uint(subtree, hf_hdr_push_flag_trust,
+				tvb, val_start, 1, val_id);
+		proto_tree_add_uint(subtree, hf_hdr_push_flag_last,
+				tvb, val_start, 1, val_id);
+		if (val_id & 0x01)
+			proto_item_append_string(ti, " (Initiator URI authenticated)");
+		if (val_id & 0x02)
+			proto_item_append_string(ti, " (Content trusted)");
+		if (val_id & 0x04)
+			proto_item_append_string(ti, " (Last push message)");
+		if (val_id & 0x78)
+			proto_item_append_text(ti, " <Warning: Reserved flags set>");
+		else
+			ok = TRUE;
+	wkh_2_TextualValue;
+		/* Invalid */
+	wkh_3_ValueWithLength;
+		/* Invalid */
+	wkh_4_End(hf_hdr_push_flag);
+}
+
+
+/*
+ * Allow-value =
+ *     Short-integer
+ */
+static guint32
+wkh_allow(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+{
+	wkh_0_Declarations;
+
+	wkh_1_WellKnownValue;
+		val_id &= 0x7F;
+		if (val_id >= 0x40) { /* Valid WSP method */
+			ti = proto_tree_add_string(tree, hf_hdr_allow,
+					tvb, hdr_start, offset - hdr_start,
+					val_to_str(val_id & 0x7F, vals_pdu_type,
+						"<Unknown WSP method 0x%02X>"));
+			ok = TRUE;
+		}
+	wkh_2_TextualValue;
+		/* Invalid */
+	wkh_3_ValueWithLength;
+		/* Invalid */
+	wkh_4_End(hf_hdr_allow);
+}
+
+
+/*
+ * Public-value =
+ *     Token-text | Short-integer
+ */
+static guint32
+wkh_public(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+{
+	wkh_0_Declarations;
+
+	wkh_1_WellKnownValue;
+		val_id &= 0x7F;
+		if (val_id >= 0x40) { /* Valid WSP method */
+			ti = proto_tree_add_string(tree, hf_hdr_public,
+					tvb, hdr_start, offset - hdr_start,
+					val_to_str(val_id & 0x7F, vals_pdu_type,
+						"<Unknown WSP method 0x%02X>"));
+			ok = TRUE;
+		}
+	wkh_2_TextualValue;
+		ti = proto_tree_add_string(tree, hf_hdr_public,
+				tvb, hdr_start, offset - hdr_start, val_str);
+		ok = TRUE;
+	wkh_3_ValueWithLength;
+		/* Invalid */
+	wkh_4_End(hf_hdr_public);
+}
+
+
+/*
+ * Vary-value =
+ *     Token-text | Short-integer
+ */
+static guint32
+wkh_vary(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+{
+	wkh_0_Declarations;
+
+	wkh_1_WellKnownValue;
+		ti = proto_tree_add_string(tree, hf_hdr_vary,
+				tvb, hdr_start, offset - hdr_start,
+				val_to_str(val_id & 0x7F, vals_field_names,
+					"<Unknown WSP header field 0x%02X>"));
+		ok = TRUE;
+	wkh_2_TextualValue;
+		ti = proto_tree_add_string(tree, hf_hdr_vary,
+				tvb, hdr_start, offset - hdr_start,
+				val_str);
+		ok = TRUE;
+	wkh_3_ValueWithLength;
+		/* Invalid */
+	wkh_4_End(hf_hdr_vary);
+}
+
+
+/*
+ * X-wap-security-value = 0x80
+ */
+static guint32
+wkh_x_wap_security(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+{
+	wkh_0_Declarations;
+
+	wkh_1_WellKnownValue;
+		if (val_id == 0x80) {
+			ti = proto_tree_add_string(tree, hf_hdr_x_wap_security,
+					tvb, hdr_start, offset - hdr_start, "close-subordinate");
+			ok = TRUE;
+		}
+	wkh_2_TextualValue;
+		/* Invalid */
+	wkh_3_ValueWithLength;
+		/* Invalid */
+	wkh_4_End(hf_hdr_x_wap_security);
+}
+
+
+/*
+ * Connection-value = 0x80 | Token-text
+ */
+static guint32
+wkh_connection(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+{
+	wkh_0_Declarations;
+
+	wkh_1_WellKnownValue;
+		if (val_id == 0x80) {
+			ti = proto_tree_add_string(tree, hf_hdr_connection,
+					tvb, hdr_start, offset - hdr_start, "close");
+			ok = TRUE;
+		}
+	wkh_2_TextualValue;
+		ti = proto_tree_add_string(tree, hf_hdr_connection,
+				tvb, hdr_start, offset - hdr_start, val_str);
+		ok = TRUE;
+	wkh_3_ValueWithLength;
+		/* Invalid */
+	wkh_4_End(hf_hdr_connection);
+}
+
+
+/*
+ * Transfer-encoding-value = 0x80 | Token-text
+ */
+static guint32
+wkh_transfer_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+{
+	wkh_0_Declarations;
+
+	wkh_1_WellKnownValue;
+		if (val_id == 0x80) {
+			ti = proto_tree_add_string(tree, hf_hdr_transfer_encoding,
+					tvb, hdr_start, offset - hdr_start, "chunked");
+			ok = TRUE;
+		}
+	wkh_2_TextualValue;
+		ti = proto_tree_add_string(tree, hf_hdr_transfer_encoding,
+				tvb, hdr_start, offset - hdr_start, val_str);
+		ok = TRUE;
+	wkh_3_ValueWithLength;
+		/* Invalid */
+	wkh_4_End(hf_hdr_transfer_encoding);
+}
+
+
+/*
+ * Accept-range-value = 0x80 | 0x81 | Token-text
+ */
+static guint32
+wkh_accept_ranges(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+{
+	wkh_0_Declarations;
+
+	wkh_1_WellKnownValue;
+		switch (val_id) {
+			case 0x80: /* none */
+				ti = proto_tree_add_string(tree, hf_hdr_accept_ranges,
+						tvb, hdr_start, offset - hdr_start, "none");
+				ok = TRUE;
+				break;
+			case 0x81: /* bytes */
+				ti = proto_tree_add_string(tree, hf_hdr_accept_ranges,
+						tvb, hdr_start, offset - hdr_start, "bytes");
+				ok = TRUE;
+				break;
+		}
+	wkh_2_TextualValue;
+		ti = proto_tree_add_string(tree, hf_hdr_accept_ranges,
+				tvb, hdr_start, offset - hdr_start, val_str);
+		ok = TRUE;
+	wkh_3_ValueWithLength;
+		/* Invalid */
+	wkh_4_End(hf_hdr_accept_ranges);
+}
+
+
+/*
+ * Content-encoding-value = 0x80 | 0x81 | 0x82 | Token-text
+ */
+static guint32
+wkh_content_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+{
+	wkh_0_Declarations;
+
+	wkh_1_WellKnownValue;
+		switch (val_id) {
+			case 0x80: /* gzip */
+				ti = proto_tree_add_string(tree, hf_hdr_content_encoding,
+						tvb, hdr_start, offset - hdr_start, "gzip");
+				ok = TRUE;
+				break;
+			case 0x81: /* compress */
+				ti = proto_tree_add_string(tree, hf_hdr_content_encoding,
+						tvb, hdr_start, offset - hdr_start, "compress");
+				ok = TRUE;
+				break;
+			case 0x82: /* deflate */
+				ti = proto_tree_add_string(tree, hf_hdr_content_encoding,
+						tvb, hdr_start, offset - hdr_start, "deflate");
+				ok = TRUE;
+				break;
+		}
+	wkh_2_TextualValue;
+		ti = proto_tree_add_string(tree, hf_hdr_content_encoding,
+				tvb, hdr_start, offset - hdr_start, val_str);
+		ok = TRUE;
+	wkh_3_ValueWithLength;
+		/* Invalid */
+	wkh_4_End(hf_hdr_content_encoding);
+}
+
+
+/*
+ * Accept-encoding-value =
+ *	  Short-integer
+ *	| Token-text
+ *	| ( Value-length ( Short-integer | Text-string ) [ Q-value ] )
+ */
+static guint32
+wkh_accept_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+{
+	wkh_0_Declarations;
+	guint32 len, off;
+	guint8 peek;
+	gchar *str;
+	proto_tree *parameter_tree = NULL;
+
+	wkh_1_WellKnownValue;
+		switch (val_id) {
+			case 0x80: /* gzip */
+				ti = proto_tree_add_string(tree, hf_hdr_accept_encoding,
+						tvb, hdr_start, offset - hdr_start, "gzip");
+				ok = TRUE;
+				break;
+			case 0x81: /* compress */
+				ti = proto_tree_add_string(tree, hf_hdr_accept_encoding,
+						tvb, hdr_start, offset - hdr_start, "compress");
+				ok = TRUE;
+				break;
+			case 0x82: /* deflate */
+				ti = proto_tree_add_string(tree, hf_hdr_accept_encoding,
+						tvb, hdr_start, offset - hdr_start, "deflate");
+				ok = TRUE;
+				break;
+		}
+	wkh_2_TextualValue;
+		proto_tree_add_string(tree, hf_hdr_accept_encoding,
+				tvb, hdr_start, offset - hdr_start, val_str);
+		ok = TRUE;
+	wkh_3_ValueWithLength;
+		off = val_start + val_len_len;
+		peek = tvb_get_guint8(tvb, off);
+		if (is_short_integer(peek)) {
+			switch (val_id) {
+				case 0x80: /* gzip */
+					ti = proto_tree_add_string(tree, hf_hdr_accept_encoding,
+							tvb, hdr_start, offset - hdr_start, "gzip");
+					ok = TRUE;
+					break;
+				case 0x81: /* compress */
+					ti = proto_tree_add_string(tree, hf_hdr_accept_encoding,
+							tvb, hdr_start, offset - hdr_start, "compress");
+					ok = TRUE;
+					break;
+				case 0x82: /* deflate */
+					ti = proto_tree_add_string(tree, hf_hdr_accept_encoding,
+							tvb, hdr_start, offset - hdr_start, "deflate");
+					ok = TRUE;
+					break;
+				case 0x83: /* any */
+					ti = proto_tree_add_string(tree, hf_hdr_accept_encoding,
+							tvb, hdr_start, offset - hdr_start, "*");
+					ok = TRUE;
+					break;
+			}
+			off++;
+		} else {
+			get_token_text(str, tvb, off, len, ok);
+			if (ok) {
+				ti = proto_tree_add_string(tree, hf_hdr_accept_encoding,
+						tvb, hdr_start, offset - hdr_start, str);
+			}
+			off += len;
+		}
+		if (ok) {
+			/* Remember: offset == val_start + val_len */
+			if (off < offset) { /* Add Q-value if available */
+				parameter_tree = proto_item_add_subtree(ti, ett_parameters);
+				off = parameter_value_q(parameter_tree, ti, tvb, off);
+			}
+		}
+	wkh_4_End(hf_hdr_accept_encoding);
+}
+
+
+/*
+ * Common code for headers with only a textual value
+ * is written in the macro below:
+ */
+#define wkh_text_header(underscored,Text) \
+static guint32 \
+wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
+{ \
+	wkh_0_Declarations; \
+	\
+	wkh_1_WellKnownValue; \
+		/* Invalid */ \
+	wkh_2_TextualValue; \
+		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+				tvb, hdr_start, offset - hdr_start, val_str); \
+		ok = TRUE; \
+	wkh_3_ValueWithLength; \
+		/* Invalid */ \
+	wkh_4_End(hf_hdr_ ## underscored); \
+}
+
+/* Text-only headers: */
+wkh_text_header(content_location, "Content-Location")
+wkh_text_header(etag, "ETag")
+wkh_text_header(from, "From")
+wkh_text_header(host, "Host")
+wkh_text_header(if_match, "If-Match")
+wkh_text_header(if_none_match, "If-None-Match")
+wkh_text_header(location, "Location")
+wkh_text_header(referer, "Referer")
+wkh_text_header(server, "Server")
+wkh_text_header(user_agent, "User-Agent")
+wkh_text_header(upgrade, "Upgrade")
+wkh_text_header(via, "Via")
+wkh_text_header(content_uri, "Content-Uri")
+wkh_text_header(initiator_uri, "Initiator-Uri")
+wkh_text_header(profile, "Profile")
+wkh_text_header(content_id, "Content-ID")
+
+
+/*
+ * Common code for headers with only a textual or a date value
+ * is written in the macro below:
+ */
+#define wkh_text_or_date_value_header(underscored,Text) \
+static guint32 \
+wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
+{ \
+	wkh_0_Declarations; \
+	guint32 val = 0, off = val_start, len; \
+	nstime_t tv; \
+	gchar *str; /* may not be freed! */ \
+	\
+	wkh_1_WellKnownValue; \
+		/* Invalid */ \
+	wkh_2_TextualValue; \
+		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+				tvb, hdr_start, offset - hdr_start, val_str); \
+		ok = TRUE; \
+	wkh_3_ValueWithLength; \
+		if (val_id <= 4) { /* Length field already parsed by macro! */ \
+			get_date_value(val, tvb, off, len, ok); \
+			if (ok) { \
+				tv.secs = val; \
+				tv.nsecs = 0; \
+				str = abs_time_to_str(&tv); \
+				g_assert(str); \
+				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+						tvb, hdr_start, offset - hdr_start, str); \
+				/* BEHOLD: do NOT try to free str, as this generates a core
+				 * dump!  It looks like abs_time_to_str() is buggy or works
+				 * with static data. */ \
+			} \
+		} \
+	wkh_4_End(hf_hdr_ ## underscored); \
+}
+
+/* If-Range */
+wkh_text_or_date_value_header(if_range,"If-Range")
+
+
+/*
+ * Common code for headers with only a date value
+ * is written in the macro below:
+ */
+#define wkh_date_value_header(underscored,Text) \
+static guint32 \
+wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
+{ \
+	wkh_0_Declarations; \
+	guint32 val = 0, off = val_start, len; \
+	nstime_t tv; \
+	gchar *str; /* may not be freed! */ \
+	\
+	wkh_1_WellKnownValue; \
+		/* Invalid */ \
+	wkh_2_TextualValue; \
+		/* Invalid */ \
+	wkh_3_ValueWithLength; \
+		if (val_id <= 4) { /* Length field already parsed by macro! */ \
+			get_date_value(val, tvb, off, len, ok); \
+			if (ok) { \
+				tv.secs = val; \
+				tv.nsecs = 0; \
+				str = abs_time_to_str(&tv); \
+				g_assert(str); \
+				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+						tvb, hdr_start, offset - hdr_start, str); \
+				/* BEHOLD: do NOT try to free str, as this generates a core
+				 * dump!  It looks like abs_time_to_str() is buggy or works
+				 * with static data. */ \
+			} \
+		} \
+	wkh_4_End(hf_hdr_ ## underscored); \
+}
+
+/* Date-value only headers: */
+wkh_date_value_header(date, "Date")
+wkh_date_value_header(expires, "Expires")
+wkh_date_value_header(if_modified_since, "If-Modified-Since")
+wkh_date_value_header(if_unmodified_since, "If-Unmodified-Since")
+wkh_date_value_header(last_modified, "Last-Modified")
+
+
+/* Date-value with special interpretation of zero value */
+#define wkh_tod_value_header(underscored,Text) \
+static guint32 \
+wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
+{ \
+	wkh_0_Declarations; \
+	guint32 val = 0, off = val_start, len; \
+	nstime_t tv; \
+	gchar *str; /* may not be freed! */ \
+	\
+	wkh_1_WellKnownValue; \
+		if (val_id == 0x80) { /* Openwave TOD header uses this format */ \
+			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+					tvb, hdr_start, offset - hdr_start, \
+					"Requesting Time Of Day"); \
+			proto_item_append_text(ti, \
+					" <Warning: should be encoded as long-integer>"); \
+			ok = TRUE; \
+		} \
+		/* It seems VERY unlikely that we'll see date values within the first \
+		 * 127 seconds of the UNIX 1-1-1970 00:00:00 start of the date clocks \
+		 * so I assume such a value is a genuine error */ \
+	wkh_2_TextualValue; \
+		/* Invalid */ \
+	wkh_3_ValueWithLength; \
+		if (val_id <= 4) { /* Length field already parsed by macro! */ \
+			get_date_value(val, tvb, off, len, ok); \
+			if (ok) { \
+				if (val == 0) { \
+					ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+							tvb, hdr_start, offset - hdr_start, \
+							"Requesting Time Of Day"); \
+				} else { \
+					tv.secs = val; \
+					tv.nsecs = 0; \
+					str = abs_time_to_str(&tv); \
+					g_assert(str); \
+					ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+							tvb, hdr_start, offset - hdr_start, str); \
+				} \
+			} \
+		} \
+	wkh_4_End(hf_hdr_ ## underscored); \
+}
+
+wkh_tod_value_header(x_wap_tod, "X-Wap-Tod")
+
+
+/*
+ * Age-value: Delta-seconds-value
+ */
+static guint32
+wkh_age(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+{
+	wkh_0_Declarations;
+	guint32 val = 0, off = val_start, len;
+
+	wkh_1_WellKnownValue;
+		val = val_id & 0x7F;
+		val_str = malloc(20 * sizeof(gchar));
+		g_assert(val_str);
+		sprintf(val_str, "%u second%s", val, PLURALIZE(val));
+		ti = proto_tree_add_string(tree, hf_hdr_age,
+				tvb, hdr_start, offset - hdr_start, val_str);
+		g_free(val_str); /* proto_XXX creates a copy */
+		ok = TRUE;
+	wkh_2_TextualValue;
+		/* Invalid */
+	wkh_3_ValueWithLength;
+		if (val_id <= 4) { /* Length field already parsed by macro! */
+			get_long_integer(val, tvb, off, len, ok);
+			if (ok) {
+				val_str = malloc(20 * sizeof(gchar));
+				g_assert(val_str);
+				sprintf(val_str, "%u second%s", val, PLURALIZE(val));
+				ti = proto_tree_add_string(tree, hf_hdr_age,
+						tvb, hdr_start, offset - hdr_start, val_str);
+				g_free(val_str); /* proto_XXX creates a copy */
+			}
+		}
+	wkh_4_End(hf_hdr_age);
+}
+
+
+/*
+ * Template for Integer lookup or text value headers:
+ */
+#define wkh_integer_lookup_or_text_value(underscored,Text,valueString,valueName) \
+static guint32 \
+wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
+{ \
+	wkh_0_Declarations; \
+	guint32 val = 0, off = val_start, len; \
+	\
+	wkh_1_WellKnownValue; \
+		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+				tvb, hdr_start, offset - hdr_start, \
+				val_to_str(val_id & 0x7F, valueString, \
+				"(Unknown " valueName " identifier 0x%X)")); \
+		ok = TRUE; \
+	wkh_2_TextualValue; \
+		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+				tvb, hdr_start, offset - hdr_start, val_str); \
+		ok = TRUE; \
+	wkh_3_ValueWithLength; \
+		if (val_id <= 4) { /* Length field already parsed by macro! */ \
+			get_long_integer(val, tvb, off, len, ok); \
+			if (ok) { \
+				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+						tvb, hdr_start, offset - hdr_start, \
+						val_to_str(val_id & 0x7F, valueString, \
+						"(Unknown " valueName " identifier 0x%X)")); \
+			} \
+		} \
+	wkh_4_End(hf_hdr_ ## underscored); \
+}
+
+/*
+ * Wap-application-value: Uri-value | Integer-value
+ */
+wkh_integer_lookup_or_text_value(x_wap_application_id, "X-Wap-Application-Id",
+		vals_wap_application_ids, "WAP application")
+wkh_integer_lookup_or_text_value(accept_application, "Accept-Application",
+		vals_wap_application_ids, "WAP application")
+wkh_integer_lookup_or_text_value(content_language, "Content-Language",
+		vals_languages, "language")
+
+
+/*
+ * Credentials
+ */
+
+/*
+ * Common code for headers with only a credentials value
+ * is written in the macro below:
+ */
+#define wkh_credentials_value_header(underscored,Text) \
+static guint32 \
+wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
+		guint32 hdr_start) \
+{ \
+	wkh_0_Declarations; \
+	guint8 peek; \
+	guint32 off, len; \
+	proto_tree *subtree; \
+	gchar *str; \
+	\
+	wkh_1_WellKnownValue; \
+		/* Invalid */ \
+	wkh_2_TextualValue; \
+		/* Invalid */ \
+	wkh_3_ValueWithLength; \
+		off = val_start + val_len_len; \
+		peek = tvb_get_guint8(tvb, off); \
+		if (peek == 0x80) { /* Basic */ \
+			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+					tvb, hdr_start, offset - hdr_start, "basic"); \
+			subtree = proto_item_add_subtree(ti, ett_header_credentials); \
+			proto_tree_add_string(subtree, hf_hdr_ ## underscored ## _scheme, \
+					tvb, off, 1, "basic"); \
+			off++; \
+			/* User-id: text-string */ \
+			get_text_string(str,tvb,off,len,ok); \
+			if (ok) { \
+				proto_tree_add_string(subtree, \
+						hf_hdr_ ## underscored ## _user_id, \
+						tvb, off, len, str); \
+				val_str = malloc((len + 13) * sizeof(char)); \
+				sprintf(val_str, "; user-id='%s'", str); \
+				proto_item_append_string(ti, val_str); \
+				g_free(val_str); \
+				off += len; \
+				/* Password: text-string */ \
+				get_text_string(str,tvb,off,len,ok); \
+				if (ok) { \
+					proto_tree_add_string(subtree, \
+							hf_hdr_ ## underscored ## _password, \
+							tvb, off, len, str); \
+					val_str = malloc((len + 14) * sizeof(char)); \
+					sprintf(val_str, "; password='%s'", str); \
+					proto_item_append_string(ti, val_str); \
+					g_free(val_str); \
+					off += len; \
+				} \
+			} \
+		} else { /* Authentication-scheme: token-text */ \
+			get_token_text(str, tvb, off, len, ok); \
+			if (ok) { \
+				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+						tvb, hdr_start, off - hdr_start, str); \
+				subtree = proto_item_add_subtree(ti, ett_header_credentials); \
+				proto_tree_add_string(subtree, \
+						hf_hdr_ ## underscored ## _scheme, \
+						tvb, hdr_start, off - hdr_start, str); \
+				off += len; \
+				/* Auth-params: parameter - TODO */ \
+				while (off < offset) /* Parse parameters */ \
+					off = parameter(subtree, ti, tvb, off, offset - off); \
+			} \
+		} \
+	wkh_4_End(hf_hdr_ ## underscored); \
+}
+
+/* Credentials-value only headers: */
+wkh_credentials_value_header(authorization, "Authorization")
+wkh_credentials_value_header(proxy_authorization, "Proxy-Authorization")
+
+
+/*
+ * Content-md5-value = 16*16 OCTET
+ */
+static guint32
+wkh_content_md5 (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+{
+	wkh_0_Declarations;
+	guint32 off;
+
+	wkh_1_WellKnownValue;
+		/* Invalid */
+	wkh_2_TextualValue;
+		/* Invalid */
+	wkh_3_ValueWithLength;
+		off = val_start + val_len_len;
+		if (val_len == 16) {
+			val_str = g_malloc((1 + 32) * sizeof(char));
+			g_assert(val_str);
+			sprintf(val_str,
+					"%02x%02x%02x%02x%02x%02x%02x%02x"
+					"%02x%02x%02x%02x%02x%02x%02x%02x",
+					tvb_get_guint8(tvb, off),
+					tvb_get_guint8(tvb, off + 1),
+					tvb_get_guint8(tvb, off + 2),
+					tvb_get_guint8(tvb, off + 3),
+					tvb_get_guint8(tvb, off + 4),
+					tvb_get_guint8(tvb, off + 5),
+					tvb_get_guint8(tvb, off + 6),
+					tvb_get_guint8(tvb, off + 7),
+					tvb_get_guint8(tvb, off + 8),
+					tvb_get_guint8(tvb, off + 9),
+					tvb_get_guint8(tvb, off + 10),
+					tvb_get_guint8(tvb, off + 11),
+					tvb_get_guint8(tvb, off + 12),
+					tvb_get_guint8(tvb, off + 13),
+					tvb_get_guint8(tvb, off + 14),
+					tvb_get_guint8(tvb, off + 15)
+			);
+			ti = proto_tree_add_string(tree, hf_hdr_content_md5,
+					tvb, hdr_start, offset - hdr_start, val_str);
+			g_free(val_str);
+			ok = TRUE;
+		}
+	wkh_4_End(hf_hdr_content_md5);
+}
+
+
+/*
+ * Pragma-value = 0x80 | Length Parameter
+ */
+static guint32
+wkh_pragma(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+{
+	wkh_0_Declarations;
+	guint32 off;
+
+	wkh_1_WellKnownValue;
+		if (val_id == 0x80) {
+			ti = proto_tree_add_string(tree, hf_hdr_pragma,
+					tvb, hdr_start, offset - hdr_start, "no-cache");
+			ok = TRUE;
+		}
+	wkh_2_TextualValue;
+		/* Invalid */
+	wkh_3_ValueWithLength;
+		off = val_start;
+		ti = proto_tree_add_string(tree, hf_hdr_pragma,
+				tvb, hdr_start, off - hdr_start, "");
+		/* NULL subtree for parameter() results in no subtree
+		 * TODO - provide a single parameter dissector that appends data
+		 * to the header field data. */
+		off = parameter(NULL, ti, tvb, off, offset - off);
+		ok = TRUE;
+	wkh_4_End(hf_hdr_pragma);
+}
+
+
+/*
+ * Integer-value
+ */
+#define wkh_integer_value_header(underscored,Text) \
+static guint32 \
+wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
+{ \
+	wkh_0_Declarations; \
+	guint32 val = 0, off = val_start, len; \
+	gchar *str; /* may not be freed! */ \
+	\
+	wkh_1_WellKnownValue; \
+		str = malloc(4 * sizeof(gchar)); \
+		g_assert(str); \
+		sprintf(str, "%u", val_id & 0x7F); \
+		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+				tvb, hdr_start, offset - hdr_start, str); \
+		g_free(str); \
+		ok = TRUE; \
+	wkh_2_TextualValue; \
+		/* Invalid */ \
+	wkh_3_ValueWithLength; \
+		if (val_id <= 4) { /* Length field already parsed by macro! */ \
+			get_long_integer(val, tvb, off, len, ok); \
+			if (ok) { \
+				str = malloc(11 * sizeof(gchar)); \
+				g_assert(str); \
+				sprintf(str, "%u", val); \
+				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+						tvb, hdr_start, offset - hdr_start, str); \
+				g_free(str); \
+			} \
+		} \
+	wkh_4_End(hf_hdr_ ## underscored); \
+}
+
+wkh_integer_value_header(content_length, "Content-Length")
+wkh_integer_value_header(max_forwards, "Max-Forwards")
+
+
+#define wkh_integer_lookup_value_header(underscored,Text,valueString,valueName) \
+static guint32 \
+wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
+{ \
+	wkh_0_Declarations; \
+	guint32 val = 0, off = val_start, len; \
+	\
+	wkh_1_WellKnownValue; \
+		val_str = match_strval(val_id & 0x7F, valueString); \
+		if (val_str) { \
+			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+				tvb, hdr_start, offset - hdr_start, val_str); \
+			ok = TRUE; \
+		} else { \
+			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+				tvb, hdr_start, offset - hdr_start, \
+				"<Unknown " valueName ">"); \
+		} \
+	wkh_2_TextualValue; \
+		/* Invalid */ \
+	wkh_3_ValueWithLength; \
+		if (val_id <= 4) { /* Length field already parsed by macro! */ \
+			get_long_integer(val, tvb, off, len, ok); \
+			if (ok) { \
+				val_str = match_strval(val_id & 0x7F, valueString); \
+				if (val_str) { \
+					ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+						tvb, hdr_start, offset - hdr_start, val_str); \
+					ok = TRUE; \
+				} else { \
+					ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+						tvb, hdr_start, offset - hdr_start, \
+						"<Unknown " valueName ">"); \
+				} \
+			} \
+		} \
+	wkh_4_End(hf_hdr_ ## underscored); \
+}
+
+wkh_integer_lookup_value_header(bearer_indication, "Bearer-Indication",
+		vals_bearer_types, "bearer type")
+
+
+/*
+ * Cache-control-value
+ */
+static guint32
+wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+{
+	wkh_0_Declarations;
+	guint32 off, len, val = 0;
+	guint8 peek, cache_control_directive;
+
+	wkh_1_WellKnownValue;
+		val = val_id & 0x7F;
+		val_str = match_strval(val, vals_cache_control);
+		if (val_str) {
+			ti = proto_tree_add_string(tree, hf_hdr_cache_control,
+					tvb, hdr_start, offset - hdr_start, val_str);
+			ok = TRUE;
+		}
+	wkh_2_TextualValue;
+		ti = proto_tree_add_string(tree, hf_hdr_cache_control,
+				tvb, hdr_start, offset - hdr_start, val_str);
+		ok = TRUE;
+	wkh_3_ValueWithLength;
+		/* General form:
+		 *	  ( no-cache | private ) 1*( Field-name )
+		 *	| ( max-age | max-stale | min-fresh | s-maxage) Delta-seconds-value
+		 *	| Token-text ( Integer-value | Text-string )
+		 * Where:
+		 *	Field-name = Short-integer | Token-text
+		 */
+		off = val_start + val_len_len;
+		cache_control_directive = tvb_get_guint8(tvb, off++);
+		if (cache_control_directive & 0x80) { /* Well known cache directive */
+			switch (cache_control_directive & 0x7F) {
+				case CACHE_CONTROL_NO_CACHE:
+				case CACHE_CONTROL_PRIVATE:
+					ti = proto_tree_add_string(tree, hf_hdr_cache_control,
+							tvb, hdr_start, offset - hdr_start,
+							match_strval(cache_control_directive & 0x7F,
+								vals_cache_control));
+					/* TODO: split multiple entries */
+					while (ok && (off < offset)) { /* 1*( Field-name ) */
+						ok = TRUE;
+						peek = tvb_get_guint8(tvb, off);
+						if (peek & 0x80) { /* Well-known-field-name */
+							proto_item_append_string(ti,
+									match_strval(peek, vals_field_names));
+							off++;
+						} else { /* Token-text */
+							get_token_text(val_str, tvb, off, len, ok);
+							if (ok) {
+								proto_item_append_string(ti, val_str);
+								g_free(val_str);
+								off += len;
+							}
+						}
+					}
+					break;
+
+				case CACHE_CONTROL_MAX_AGE:
+				case CACHE_CONTROL_MAX_STALE:
+				case CACHE_CONTROL_MIN_FRESH:
+				case CACHE_CONTROL_S_MAXAGE:
+					ti = proto_tree_add_string(tree, hf_hdr_cache_control,
+							tvb, hdr_start, offset - hdr_start,
+							match_strval(cache_control_directive & 0x7F,
+								vals_cache_control));
+					get_delta_seconds_value(val, tvb, off, len, ok);
+					if (ok) {
+						val_str = malloc(22 * sizeof(gchar));
+						g_assert(val_str);
+						sprintf(val_str, " = %u second%s", val, PLURALIZE(val));
+						proto_item_append_string(ti, val_str);
+						g_free(val_str); /* proto_XXX creates a copy */
+					}
+					break;
+
+				default:
+					/* ok = FALSE */
+					break;
+			}
+		} else if (is_token_text(cache_control_directive)) {
+			get_token_text(val_str, tvb, off, len, ok);
+			if (ok) {
+				ti = proto_tree_add_string(tree, hf_hdr_cache_control,
+						tvb, hdr_start, offset - hdr_start, val_str);
+				get_integer_value(val, tvb, off, len, ok);
+				if (ok) { /* Integer-value */
+					val_str = g_malloc(20 * sizeof(char));
+					g_assert(val_str);
+					sprintf(val_str, " = %u", val);
+					proto_item_append_string(ti, val_str);
+					g_free(val_str); /* proto_XXX creates a copy */
+				} else { /* Text-string */
+					get_text_string(val_str, tvb, off, len, ok);
+					if (ok) {
+						proto_item_append_string(ti, val_str);
+						g_free(val_str); /* proto_XXX creates a copy */
+					}
+				}
+			}
+		}
+	wkh_4_End(hf_hdr_cache_control);
+}
+
+
+/*
+ * Warning-value =
+ *	  Short-integer
+ *	| ( Value-length Short-integer Text-string Text-string )
+ */
+static guint32
+wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+{
+	wkh_0_Declarations;
+	guint32 off, len, val;
+	guint8 warn_code;
+	char *str;
+
+	/* TODO - subtree with values */
+
+	wkh_1_WellKnownValue;
+		val = val_id & 0x7F;
+		val_str = match_strval(val, vals_wsp_warning_code);
+		if (val_str) {
+			ti = proto_tree_add_string(tree, hf_hdr_warning,
+					tvb, hdr_start, offset - hdr_start, val_str);
+			ok = TRUE;
+		}
+	wkh_2_TextualValue;
+		/* Invalid */
+	wkh_3_ValueWithLength;
+		/* TODO - subtree with individual values */
+		off = val_start + val_len_len;
+		warn_code = tvb_get_guint8(tvb, off++);
+		if (warn_code & 0x80) { /* Well known warn code */
+			val_str = match_strval(warn_code & 0x7F,
+					vals_wsp_warning_code_short);
+			if (val_str) { /* OK */
+				ti = proto_tree_add_string(tree, hf_hdr_warning,
+						tvb, hdr_start, offset - hdr_start, val_str);
+				get_text_string(str, tvb, off, len, ok);
+				if (ok) { /* Valid warn-agent string */
+					off += len;
+					val_str = g_malloc((len+11) * sizeof(char));
+					g_assert(val_str);
+					sprintf(val_str, "; Agent = %s", str);
+					proto_item_append_string(ti, val_str);
+					g_free(val_str); /* proto_XXX creates a copy */
+					get_text_string(str, tvb, off, len, ok);
+					if (ok) { /* Valid warn-text string */
+						off += len;
+						val_str = g_malloc((len+3) * sizeof(char));
+						g_assert(val_str);
+						sprintf(val_str, ": %s", str);
+						proto_item_append_string(ti, val_str);
+						g_free(val_str); /* proto_XXX creates a copy */
+					}
+				}
+			}
+		}
+	wkh_4_End(hf_hdr_warning);
+}
+
+
+/*
+ * Profile-warning-value =
+ *	  Short-integer
+ *	| ( Value-length Short-integer Text-string *( Date-value ) )
+ */
+static guint32
+wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+{
+	wkh_0_Declarations;
+	guint32 off, len, val = 0;
+	nstime_t tv;
+	guint8 warn_code;
+	char *str;
+
+	wkh_1_WellKnownValue;
+		val = val_id & 0x7F;
+		val_str = match_strval(val, vals_wsp_profile_warning_code);
+		if (val_str) {
+			ti = proto_tree_add_string(tree, hf_hdr_profile_warning,
+					tvb, hdr_start, offset - hdr_start, val_str);
+			ok = TRUE;
+		}
+	wkh_2_TextualValue;
+		/* Invalid */
+	wkh_3_ValueWithLength;
+		off = val_start + val_len_len;
+		warn_code = tvb_get_guint8(tvb, off++);
+		if (warn_code & 0x80) { /* Well known warn code */
+			val_str = match_strval(val, vals_wsp_profile_warning_code);
+			if (val_str) { /* OK */
+				ti = proto_tree_add_string(tree, hf_hdr_profile_warning,
+						tvb, hdr_start, offset - hdr_start, val_str);
+				get_uri_value(str, tvb, off, len, ok);
+				if (ok) { /* Valid warn-target string */
+					off += len;
+					str = g_malloc((len+12) * sizeof(char));
+					g_assert(str);
+					sprintf(str, "; Target = %s", val_str);
+					proto_item_append_string(ti, str);
+					g_free(str); /* proto_XXX creates a copy */
+					/* Add zero or more dates */
+					while (ok && (off < offset)) {
+						get_date_value(val, tvb, off, len, ok);
+						if (ok) { /* Valid warn-text string */
+							off += len;
+							tv.secs = val;
+							tv.nsecs = 0;
+							val_str = abs_time_to_str(&tv);
+							g_assert(val_str);
+							str = g_malloc((strlen(val_str)+10) * sizeof(char));
+							g_assert(str);
+							sprintf(str,"; Date = %s", val_str);
+							proto_item_append_string(ti, str);
+							g_free(str); /* proto_XXX creates a copy */
+							/* BEHOLD: do NOT try to free val_str, as this
+							 * generates a core dump!
+							 * It looks like abs_time_to_str() is
+							 * buggy or works with static data. */
+						}
+					}
+				}
+			}
+		}
+	wkh_4_End(hf_hdr_profile_warning);
+}
+
+
+
+
+/****************************************************************************
+ *                     O p e n w a v e   h e a d e r s
+ ****************************************************************************/
+
+
+
+
+/*
+ * Redefine the WellKnownValue parsing so Openwave header field names are used
+ * are used instead of the default WSP header field names
+ */
+#undef wkh_1_WellKnownValue
+#define wkh_1_WellKnownValue			/* Parse Well Known Value */ \
+	proto_tree_add_string_hidden(tree, hf_hdr_name, \
+			tvb, hdr_start, offset - hdr_start, \
+			match_strval (hdr_id, vals_openwave_field_names)); \
+	if (val_id & 0x80) { /* Well-known value */ \
+		offset++; \
+		/* Well-known value processing starts HERE \
+		 * \
+		 * BEGIN */
+
+/*
+ * Redefine the End parsing so Openwave header field names are used
+ * instead of the default WSP field names
+ */
+#undef wkh_4_End
+#define wkh_4_End(hf)						/* End of value parsing */ \
+		/* END */ \
+	} \
+	/* Check for errors */ \
+	if (! ok) { \
+		if (ti) { /* Append to protocol tree item label */ \
+			proto_item_append_text(ti, \
+					"<Error: Invalid header value>"); \
+		} else if (hf > 0) { /* Create protocol tree item */ \
+			proto_tree_add_string(tree, hf, \
+					tvb, hdr_start, offset - hdr_start, \
+					" <Error: Invalid header value>"); \
+		} else { /* Create anonymous header field entry */ \
+			proto_tree_add_text(tree, tvb, hdr_start, offset - hdr_start, \
+					"%s: <Error: Invalid header value>", \
+					val_to_str (hdr_id, vals_openwave_field_names, \
+						"<Unknown WSP header field 0x%02X>")); \
+		} \
+	} \
+	return offset;
+
+
+/* Dissect the Openwave header value (generic) */
+static guint32
+wkh_openwave_default(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+{
+	wkh_0_Declarations;
+
+	ok = TRUE; /* Bypass error checking as we don't parse the values! */
+
+	wkh_1_WellKnownValue;
+		ti = proto_tree_add_text(tree, tvb, hdr_start, offset - hdr_start,
+				"%s: (Undecoded well-known value 0x%02x)",
+				match_strval(hdr_id, vals_openwave_field_names), val_id & 0x7F);
+	wkh_2_TextualValue;
+		ti = proto_tree_add_text(tree,tvb,hdr_start, offset - hdr_start,
+				"%s: %s",
+				match_strval(hdr_id, vals_openwave_field_names), val_str);
+	wkh_3_ValueWithLength;
+		ti = proto_tree_add_text(tree, tvb, hdr_start, offset - hdr_start,
+				"%s: (Undecoded value in general form with length indicator)",
+				match_strval(hdr_id, vals_openwave_field_names));
+
+	wkh_4_End(HF_EMPTY); /* See wkh_default for explanation */
+}
+
+
+/* Textual Openwave headers */
+wkh_text_header(openwave_x_up_proxy_operator_domain,
+		"x-up-proxy-operator-domain");
+wkh_text_header(openwave_x_up_proxy_home_page,
+		"x-up-proxy-home-page");
+wkh_text_header(openwave_x_up_proxy_uplink_version,
+		"x-up-proxy-uplink-version");
+wkh_text_header(openwave_x_up_proxy_ba_realm,
+		"x-up-proxy-ba-realm");
+wkh_text_header(openwave_x_up_proxy_request_uri,
+		"x-up-proxy-request-uri");
+wkh_text_header(openwave_x_up_proxy_client_id,
+		"x-up-proxy-client-id");
+wkh_text_header(openwave_x_up_proxy_bookmark,
+		"x-up-proxy-bookmark");
+
+/* Integer Openwave headers */
+wkh_integer_value_header(openwave_x_up_proxy_push_seq,
+		"x-up-proxy-push-seq")
+wkh_integer_value_header(openwave_x_up_proxy_notify,
+		"x-up-proxy-notify")
+wkh_integer_value_header(openwave_x_up_proxy_net_ask,
+		"x-up-proxy-net-ask")
+wkh_integer_value_header(openwave_x_up_proxy_ba_enable,
+		"x-up-proxy-ba-enable")
+wkh_integer_value_header(openwave_x_up_proxy_redirect_enable,
+		"x-up-proxy-redirect-enable")
+wkh_integer_value_header(openwave_x_up_proxy_redirect_status,
+		"x-up-proxy-redirect-status")
+wkh_integer_value_header(openwave_x_up_proxy_linger,
+		"x-up-proxy-linger")
+wkh_integer_value_header(openwave_x_up_proxy_enable_trust,
+		"x-up-proxy-enable-trust")
+wkh_integer_value_header(openwave_x_up_proxy_trust,
+		"x-up-proxy-trust")
+
+wkh_integer_value_header(openwave_x_up_devcap_has_color,
+		"x-up-devcap-has-color")
+wkh_integer_value_header(openwave_x_up_devcap_num_softkeys,
+		"x-up-devcap-num-softkeys")
+wkh_integer_value_header(openwave_x_up_devcap_softkey_size,
+		"x-up-devcap-softkey-size")
+wkh_integer_value_header(openwave_x_up_devcap_screen_chars,
+		"x-up-devcap-screen-chars")
+wkh_integer_value_header(openwave_x_up_devcap_screen_pixels,
+		"x-up-devcap-screen-pixels")
+wkh_integer_value_header(openwave_x_up_devcap_em_size,
+		"x-up-devcap-em-size")
+wkh_integer_value_header(openwave_x_up_devcap_screen_depth,
+		"x-up-devcap-screen-depth")
+wkh_integer_value_header(openwave_x_up_devcap_immed_alert,
+		"x-up-devcap-immed_alert")
+wkh_integer_value_header(openwave_x_up_devcap_gui,
+		"x-up-devcap-gui")
+
+/* Openwave Time-Of-Day value header */
+wkh_tod_value_header(openwave_x_up_proxy_tod,
+		"x-up-proxy-tod")
+
+/* Openwave accept_x_q header */
+wkh_accept_x_q_header(openwave_x_up_proxy_trans_charset,
+		"x-up-proxy-trans-charset",
+		vals_character_sets, "character set")
+
+/* Openwave content type header */
+wkh_content_type_header(openwave_x_up_proxy_push_accept,
+		"x-up-proxy-push-accept")
+
+/*
+ * Header value parameter parsing
+ */
+#define InvalidParameterValue(parameter,value) \
+	"<Error: Invalid " parameter " parameter value: invalid " value ">"
+
+/* Parameter = Untyped-parameter | Typed-parameter
+ * Untyped-parameter = Token-text ( Integer-value | Text-value )
+ * Typed-parameter =
+ * 		Integer-value (
+ * 			( Integer-value | Date-value | Delta-seconds-value
+ * 			  | Q-value | Version-value | Uri-value )
+ * 			| Text-value )
+ */
+static int
+parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
+{
+	int offset = start;
+	guint8 peek = tvb_get_guint8 (tvb,start);
+	guint32 val = 0, val_len;
+	char *str = NULL;
+	char *str2 = NULL;
+	guint8 ok;
+
+	if (is_token_text (peek)) { /* Untyped parameter */
+		get_token_text (str,tvb,start,val_len,ok); /* always succeeds */
+		offset += val_len;
+		get_token_text (str2,tvb,offset,val_len,ok);
+		offset += val_len;
+		if (ok) { /* Valid str2 as string */
+			proto_tree_add_text(tree, tvb, start, offset - start,
+					"%s: %s", str, str2);
+			proto_item_append_text(ti, "; %s=%s", str, str2);
+		} else {
+			get_integer_value (val,tvb,offset,val_len,ok);
+			offset += val_len;
+			if (ok) { /* Valid val as integer */
+				proto_tree_add_text(tree, tvb, start, offset - start,
+						"%s: %u", str, val);
+				proto_item_append_text(ti, "; %s=%u", str, val);
+			} else { /* Error: neither token-text not Integer-value */
+				proto_tree_add_text (tree, tvb, start, offset - start,
+						"<Error: Invalid untyped parameter definition>");
+				offset = start + len; /* Skip to end of buffer */
+			}
+		}
+		/* XXX - HERE is the fault: I only check the 1st string! * /
+		offset = add_untyped_parameter (tree, tvb, offset, val_len); */
+		return offset;
+	} /* Else: typed parameter */
+	get_integer_value (val,tvb,start,len,ok);
+	if (!ok) {
+		proto_tree_add_text (tree, tvb, start, offset - start,
+				"<Error: Invalid typed parameter definition>");
+		return (start + len); /* Skip to end of buffer */
+	}
+	offset += len;
+	/* Now offset points to the parameter value */
+	switch (val) {
+		case 0x01:	/* WSP 1.1 encoding - Charset: Well-known-charset */
+			offset = add_parameter_charset (tree, tvb, start, offset);
+			break;
+
+		case 0x03:	/* WSP 1.1 encoding - Type: Integer-value */
+			get_integer_value (val,tvb,offset,val_len,ok);
+			if (ok)
+				proto_item_append_text (ti, "; Type=%u", val);
+			else
+				proto_tree_add_text (tree, tvb, start, offset,
+						InvalidParameterValue("Type", "Integer-value"));
+			offset = add_parameter_type (tree, tvb, start, offset);
+			break;
+
+		case 0x05:	/* WSP 1.1 encoding - Name: Text-string */
+		case 0x17:	/* WSP 1.4 encoding - Name: Text-value */
+			offset = add_parameter_text (tree, tvb, start, offset,
+					hf_wsp_parameter_name, "Name");
+			break;
+
+		case 0x06:	/* WSP 1.1 encoding - Filename: Text-string */
+		case 0x18:	/* WSP 1.4 encoding - Filename: Text-value */
+			offset = add_parameter_text (tree, tvb, start, offset,
+					hf_wsp_parameter_filename, "Filename");
+			break;
+
+		case 0x09:	/* WSP 1.2 encoding - Type (special): Constrained-encoding */
+			offset = add_constrained_encoding(tree, tvb, start, offset);
+			break;
+
+		case 0x0A:	/* WSP 1.2 encoding - Start: Text-string */
+		case 0x19:	/* WSP 1.4 encoding - Start (with multipart/related): Text-value */
+			offset = add_parameter_text (tree, tvb, start, offset,
+					hf_wsp_parameter_start, "Start");
+			break;
+
+		case 0x0B:	/* WSP 1.2 encoding - Start-info: Text-string */
+		case 0x1A:	/* WSP 1.4 encoding - Start-info (with multipart/related): Text-value */
+			offset = add_parameter_text (tree, tvb, start, offset,
+					hf_wsp_parameter_start_info, "Start-info");
+			break;
+
+		case 0x0C:	/* WSP 1.3 encoding - Comment: Text-string */
+		case 0x1B:	/* WSP 1.4 encoding - Comment: Text-value */
+			offset = add_parameter_text (tree, tvb, start, offset,
+					hf_wsp_parameter_comment, "Comment");
+			break;
+
+		case 0x0D:	/* WSP 1.3 encoding - Domain: Text-string */
+		case 0x1C:	/* WSP 1.4 encoding - Domain: Text-value */
+			offset = add_parameter_text (tree, tvb, start, offset,
+					hf_wsp_parameter_domain, "Domain");
+			break;
+
+		case 0x0F:	/* WSP 1.3 encoding - Path: Text-string */
+		case 0x1D:	/* WSP 1.4 encoding - Path: Text-value */
+			offset = add_parameter_text (tree, tvb, start, offset,
+					hf_wsp_parameter_path, "Path");
+			break;
+
+		case 0x11:	/* WSP 1.4 encoding - SEC: Short-integer (OCTET) */
+			proto_tree_add_uint (tree, hf_wsp_parameter_sec, tvb, start, 2,
+					tvb_get_guint8 (tvb, start+1) & 0x7F);
+			offset++;
+			break;
+
+		case 0x12:	/* WSP 1.4 encoding - MAC: Text-value */
+			offset = add_parameter_text (tree, tvb, start, offset,
+					hf_wsp_parameter_mac, "MAC");
+			break;
+
+		case 0x02:	/* WSP 1.1 encoding - Level: Version-value */
+			get_version_value(val,str,tvb,offset,val_len,ok);
+			if (ok) {
+				proto_tree_add_string (tree, hf_wsp_parameter_level,
+						tvb, start, 1 + val_len, str);
+				proto_item_append_text (ti, "; Level=%s", str);
+			} else {
+				proto_tree_add_text (tree, tvb, start, offset,
+						InvalidParameterValue("Type", "Integer-value"));
+			}
+			offset += val_len;
+			break;
+
+		case 0x00:	/* WSP 1.1 encoding - Q: Q-value */
+			get_uintvar_integer (val, tvb, offset, val_len, ok);
+			if (ok && (val < 1100)) {
+				if (val <= 100) { /* Q-value in 0.01 steps */
+					str = g_malloc (3 * sizeof (char));
+					g_assert (str);
+					sprintf (str, "0.%02u", val - 1);
+				} else { /* Q-value in 0.001 steps */
+					str = g_malloc (4 * sizeof (char));
+					g_assert (str);
+					sprintf (str, "0.%03u", val - 100);
+				}
+				proto_item_append_text (ti, "; Q=%s", str);
+				offset += val_len;
+			} else {
+				proto_tree_add_text (tree, tvb, start, offset,
+						InvalidParameterValue("Q", "Q-value"));
+				offset += val_len;
+			}
+			break;
+
+		case 0x07:	/* WSP 1.1 encoding - Differences: Field-name */
+		case 0x08:	/* WSP 1.1 encoding - Padding: Short-integer */
+		case 0x0E:	/* WSP 1.3 encoding - Max-Age: Delta-seconds-value */
+		case 0x10:	/* WSP 1.3 encoding - Secure: No-value */
+		case 0x13:	/* WSP 1.4 encoding - Creation-date: Date-value */
+		case 0x14:	/* WSP 1.4 encoding - Modification-date: Date-value */
+		case 0x15:	/* WSP 1.4 encoding - Read-date: Date-value */
+		case 0x16:	/* WSP 1.4 encoding - Size: Integer-value */
+		default:
+			offset += len; /* Skip the parameters */
+			break;
+	}
+	return offset;
+}
+
+
+static int
+parameter_value_q (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start)
+{
+	int offset = start;
+	guint32 val = 0, val_len;
+	char *str = NULL;
+	guint8 ok;
+
+	get_uintvar_integer (val, tvb, offset, val_len, ok);
+	if (ok && (val < 1100)) {
+		if (val <= 100) { /* Q-value in 0.01 steps */
+			str = g_malloc (3 * sizeof (char));
+			g_assert (str);
+			sprintf (str, "0.%02u", val - 1);
+		} else { /* Q-value in 0.001 steps */
+			str = g_malloc (4 * sizeof (char));
+			g_assert (str);
+			sprintf (str, "0.%03u", val - 100);
+		}
+		proto_item_append_text (ti, "; Q=%s", str);
+		proto_tree_add_string (tree, hf_parameter_q,
+				tvb, start, val_len, str);
+		offset += val_len;
+	} else {
+		proto_tree_add_text (tree, tvb, start, offset,
+				InvalidParameterValue("Q", "Q-value"));
+		offset += val_len;
+	}
+	return val_len;
+}
+
+
 
 
 /* Code to actually dissect the packets */
+
+/*
+ * WSP redirect
+ */
+
 static void
 dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, dissector_handle_t dissector_handle)
@@ -1710,1517 +4303,10 @@ add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint URILenOffset
 	}
 }
 
-static void
-add_headers (proto_tree *tree, tvbuff_t *tvb)
-{
-	proto_item *ti;
-	proto_tree *wsp_headers;
-	guint offset = 0;
-	guint headersLen = tvb_reported_length (tvb);
-	guint headerStart = 0;
-	guint peek = 0;
-	guint pageCode = 1;
 
-#ifdef DEBUG
-	fprintf (stderr, "dissect_wsp: Offset is %d, size is %d\n", offset, headersLen);
-#endif
-
-	/* End of buffer */
-	if (headersLen <= 0)
-	{
-		return;
-	}
-
-#ifdef DEBUG
-	fprintf (stderr, "dissect_wsp: Headers to process\n");
-#endif
-
-	ti = proto_tree_add_item (tree, hf_wsp_headers_section,tvb,offset,headersLen,bo_little_endian);
-	wsp_headers = proto_item_add_subtree( ti, ett_headers );
-
-	/* Parse Headers */
-
-	while (offset < headersLen)
-	{
-		/* Loop round each header */
-		headerStart = offset;
-		peek = tvb_get_guint8 (tvb, headerStart);
-
-		if (peek < 32)		/* Short-cut shift delimiter */
-		{
-			pageCode = peek;
-			proto_tree_add_uint (wsp_headers,
-			    hf_wsp_header_shift_code, tvb, offset, 1,
-			    pageCode);
-			offset += 1;
-			continue;
-		}
-		else if (peek == 0x7F)	/* Shift delimiter */
-		{
-			pageCode = tvb_get_guint8(tvb, offset+1);
-			proto_tree_add_uint (wsp_headers,
-			    hf_wsp_header_shift_code, tvb, offset, 2,
-			    pageCode);
-			offset += 2;
-			continue;
-		}
-		else if (peek < 127)
-		{
-#ifdef DEBUG
-			fprintf (stderr, "dissect_wsp: header: application-header start %d (0x%02X)\n", peek, peek);
-#endif
-			/*
-			 * Token-text, followed by Application-specific-value.
-			 */
-			offset = add_application_header (wsp_headers, tvb,
-			    headerStart);
-		}
-		else if (peek & 0x80)
-		{
-#ifdef DEBUG
-			fprintf (stderr, "dissect_wsp: header: well-known %d (0x%02X)\n", peek, peek);
-#endif
-			/*
-			 * Well-known-header; the lower 7 bits of "peek"
-			 * are the header code.
-			 */
-			switch (pageCode) {
-			case 1:
-				offset = add_well_known_header (wsp_headers,
-				    tvb, headerStart, peek & 0x7F);
-				break;
-
-			case 2:
-			case 16:
-				offset = add_well_known_openwave_header (wsp_headers,
-				    tvb, headerStart, peek & 0x7F);
-				break;
-
-			default:
-				offset = add_unknown_header (wsp_headers,
-				    tvb, headerStart, peek & 0x7F);
-				break;
-			}
-		}
-	}
-}
-
-static int
-add_well_known_header (proto_tree *tree, tvbuff_t *tvb, int offset,
-    guint8 headerType)
-{
-	int headerStart;
-	value_type_t valueType;
-	int headerLen;
-	guint valueLen;
-	int valueStart;
-	tvbuff_t *header_buff;
-	tvbuff_t *value_buff;
-
-#ifdef DEBUG
-	fprintf (stderr, "dissect_wsp: Got header 0x%02x\n", headerType);
-#endif
-	headerStart = offset;
-
-	/*
-	 * Skip the Short-Integer header type.
-	 */
-	offset++;
-
-	/*
-	 * Get the value type and length (or, if the type is VALUE_IN_LEN,
-	 * meaning the value is a Short-integer, get the value type
-	 * and the value itself).
-	 */
-	valueType = get_value_type_len (tvb, offset, &valueLen,
-	    &valueStart, &offset);
-	headerLen = offset - headerStart;
-
-	/*
-	 * Get a tvbuff for the entire header.
-	 * XXX - cut the actual length short so that it doesn't run
-	 * past the actual length of tvb.
-	 */
-	header_buff = tvb_new_subset (tvb, headerStart, headerLen,
-	    headerLen);
-
-	/*
-	 * If the value wasn't in the length, get a tvbuff for the value.
-	 * XXX - can valueLen be 0?
-	 * XXX - cut the actual length short so that it doesn't run
-	 * past the actual length of tvb.
-	 */
-	if (valueType != VALUE_IN_LEN) {
-		value_buff = tvb_new_subset (tvb, valueStart, valueLen,
-		    valueLen);
-	} else {
-		/*
-		 * XXX - when the last dissector is tvbuffified,
-		 * so that NULL is no longer a valid tvb pointer
-		 * value in "proto_tree_add" calls, just
-		 * set "value_buff" to NULL.
-		 *
-		 * XXX - can we already do that?  I.e., will that
-		 * cause us always to crash if we mistakenly try
-		 * to fetch the value of a VALUE_IN_LEN item?
-		 */
-		value_buff = tvb_new_subset (tvb, headerStart, 0, 0);
-	}
-
-	switch (headerType) {
-
-	case FN_ACCEPT:			/* Accept */
-		add_accept_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen);
-		break;
-
-	case FN_ACCEPT_CHARSET_DEP:	/* Accept-Charset */
-		/*
-		 * XXX - should both encoding versions 1.1 and
-		 * 1.3 be handled this way?
-		 */
-		add_accept_xxx_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_accept_charset,
-		    hf_wsp_header_accept_charset_str,
-		    vals_character_sets, "Unknown charset (0x%04x)");
-		break;
-
-	case FN_ACCEPT_LANGUAGE:	/* Accept-Language */
-		add_accept_xxx_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_accept_language,
-		    hf_wsp_header_accept_language_str,
-		    vals_languages, "Unknown language (0x%04x)");
-		break;
-
-	case FN_ACCEPT_RANGES:		/* Accept-Ranges */
-		add_accept_ranges_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen);
-		break;
-
-	case FN_AGE:			/* Age */
-		add_integer_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen, hf_wsp_header_age,
-		    headerType);
-		break;
-
-	case FN_CACHE_CONTROL_DEP:	/* Cache-Control */
-	case FN_CACHE_CONTROL:
-	case FN_CACHE_CONTROL14:
-		/*
-		 * XXX - is the only difference in the three different
-		 * versions (1.1, 1.3, 1.4) really only S_MAXAGE?
-		 */
-		add_cache_control_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen);
-		break;
-
-	case FN_CONNECTION:	/* Connection */
-		add_connection_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen);
-		break;
-
-	case FN_CONTENT_LENGTH:		/* Content-Length */
-		add_integer_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_content_length,
-		    headerType);
-		break;
-
-	case FN_DATE:			/* Date */
-		add_date_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_date, headerType);
-		break;
-
-	case FN_ETAG:			/* Etag */
-		add_string_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_etag, headerType);
-		break;
-
-	case FN_EXPIRES:		/* Expires */
-		add_date_value_header (tree, header_buff, headerLen,
-		    value_buff,	valueType, valueLen,
-		    hf_wsp_header_expires, headerType);
-		break;
-
-	case FN_IF_MODIFIED_SINCE:	/* If-Modified-Since */
-		add_date_value_header (tree, header_buff, headerLen,
-		    value_buff,	valueType, valueLen,
-		    hf_wsp_header_if_modified_since, headerType);
-		break;
-
-	case FN_LOCATION:		/* Location */
-		add_string_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_location, headerType);
-		break;
-
-	case FN_LAST_MODIFIED:		/* Last-Modified */
-		add_date_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_last_modified, headerType);
-		break;
-
-	case FN_PRAGMA:			/* Pragma */
-		add_pragma_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen);
-		break;
-
-	case FN_SERVER:			/* Server */
-		add_string_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_server, headerType);
-		break;
-
-	case FN_TRANSFER_ENCODING:	/* Transfer-Encoding */
-		add_transfer_encoding_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen);
-		break;
-
-	case FN_USER_AGENT:		/* User-Agent */
-		add_string_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_user_agent, headerType);
-		break;
-
-	case FN_VIA:			/* Via */
-		add_string_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_via, headerType);
-		break;
-
-	case FN_WARNING:		/* Warning */
-		add_warning_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen);
-		break;
-
-	case FN_ACCEPT_APPLICATION:	/* Accept-Application */
-		add_accept_application_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen);
-		break;
-
-	case FN_BEARER_INDICATION:	/* Bearer-Indication */
-		add_integer_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_bearer_indication, headerType);
-		break;
-
-	case FN_PROFILE:		/* Profile */
-		add_string_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_profile, headerType);
-		break;
-
-	case FN_X_WAP_APPLICATION_ID:	/* X-Wap-Application-Id */
-		add_wap_application_id_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen);
-		break;
-
-	case FN_CONTENT_ID:		/* Content-ID	*/
-		add_quoted_string_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_content_ID, headerType);
-		break;
-
-	case FN_PUSH_FLAG: /* Push-Flag */
-		add_push_flag_header (tree, header_buff, headerLen,
-				value_buff, valueType, valueLen);
-		break;
-	
-	case FN_AUTHORIZATION: /* Authorization */
-		add_credentials_value_header (tree, header_buff, headerLen,
-				value_buff, valueType, valueLen,
-				hf_wsp_header_authorization,
-				hf_wsp_header_authorization_scheme,
-				hf_wsp_header_authorization_user_id,
-				hf_wsp_header_authorization_password);
-		break;
-
-	case FN_PROXY_AUTHORIZATION: /* Proxy-Authorization */
-		add_credentials_value_header (tree, header_buff, headerLen,
-				value_buff, valueType, valueLen,
-				hf_wsp_header_proxy_authorization,
-				hf_wsp_header_proxy_authorization_scheme,
-				hf_wsp_header_proxy_authorization_user_id,
-				hf_wsp_header_proxy_authorization_password);
-		break;
-
-	case FN_WWW_AUTHENTICATE: /* WWW-Authenticate */
-	case FN_PROXY_AUTHENTICATE: /* Proxy-Authenticate */
-
-
-	default:
-		proto_tree_add_text (tree, header_buff, 0, headerLen,
-		    "Undecoded Header: %s",
-		    val_to_str (headerType, vals_field_names, "Unknown (0x%02X)"));
-		break;
-	}
-	return offset;
-}
-
-
-static int
-add_well_known_openwave_header (proto_tree *tree, tvbuff_t *tvb, int offset,
-    guint8 headerType)
-{
-	int headerStart;
-	value_type_t valueType;
-	int headerLen;
-	guint valueLen;
-	int valueStart;
-	tvbuff_t *header_buff;
-	tvbuff_t *value_buff;
-
-#ifdef DEBUG
-	fprintf (stderr, "dissect_wsp: Got Openwave header 0x%02x\n", headerType);
-#endif
-	headerStart = offset;
-
-	/*
-	 * Skip the Short-Integer header type.
-	 */
-	offset++;
-
-	/*
-	 * Get the value type and length (or, if the type is VALUE_IN_LEN,
-	 * meaning the value is a Short-integer, get the value type
-	 * and the value itself).
-	 */
-	valueType = get_value_type_len (tvb, offset, &valueLen,
-	    &valueStart, &offset);
-	headerLen = offset - headerStart;
-
-	/*
-	 * Get a tvbuff for the entire header.
-	 * XXX - cut the actual length short so that it doesn't run
-	 * past the actual length of tvb.
-	 */
-	header_buff = tvb_new_subset (tvb, headerStart, headerLen,
-	    headerLen);
-
-	/*
-	 * If the value wasn't in the length, get a tvbuff for the value.
-	 * XXX - can valueLen be 0?
-	 * XXX - cut the actual length short so that it doesn't run
-	 * past the actual length of tvb.
-	 */
-	if (valueType != VALUE_IN_LEN) {
-		value_buff = tvb_new_subset (tvb, valueStart, valueLen,
-		    valueLen);
-	} else {
-		/*
-		 * XXX - when the last dissector is tvbuffified,
-		 * so that NULL is no longer a valid tvb pointer
-		 * value in "proto_tree_add" calls, just
-		 * set "value_buff" to NULL.
-		 *
-		 * XXX - can we already do that?  I.e., will that
-		 * cause us always to crash if we mistakenly try
-		 * to fetch the value of a VALUE_IN_LEN item?
-		 */
-		value_buff = tvb_new_subset (tvb, headerStart, 0, 0);
-	}
-
-	switch (headerType) {
-
-/*	case FN_OPENWAVE_PROXY_PUSH_ADDR:	/ x-up-proxy-push-addr */
-/*		add_openwave_push_address_header (tree, header_buff, headerLen, */
-/*		    value_buff, valueType, valueLen); */
-/*		break; */
-
-	case FN_OPENWAVE_PROXY_PUSH_ACCEPT:	/* x-up-proxy-push-accept */
-		add_accept_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen);
-		break;
-
-	case FN_OPENWAVE_PROXY_PUSH_SEQ:	/* x-up-proxy-push-seq */
-		add_openwave_integer_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen, hf_wsp_header_openwave_proxy_push_seq,
-		    headerType);
-		break;
-
-	case FN_OPENWAVE_PROXY_NOTIFY:		/* x-up-proxy-notify */
-		add_openwave_integer_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen, hf_wsp_header_openwave_proxy_notify,
-		    headerType);
-		break;
-
-	case FN_OPENWAVE_PROXY_OPERATOR_DOMAIN:	/* x-up-proxy-operator-domain */
-		add_openwave_string_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_openwave_proxy_operator_domain, headerType);
-		break;
-
-	case FN_OPENWAVE_PROXY_HOME_PAGE:	/* x-up-proxy-home-page */
-		add_openwave_string_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_openwave_proxy_home_page, headerType);
-		break;
-
-	case FN_OPENWAVE_DEVCAP_HAS_COLOR:	/* x-up-devcap-has-color */
-		add_openwave_integer_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen, hf_wsp_header_openwave_devcap_has_color,
-		    headerType);
-		break;
-
-	case FN_OPENWAVE_DEVCAP_NUM_SOFTKEYS:	/* x-up-devcap-num-softkeys */
-		add_openwave_integer_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen, hf_wsp_header_openwave_devcap_num_softkeys,
-		    headerType);
-		break;
-
-	case FN_OPENWAVE_DEVCAP_SOFTKEY_SIZE:	/* x-up-devcap-softkey-size */
-		add_openwave_integer_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen, hf_wsp_header_openwave_devcap_softkey_size,
-		    headerType);
-		break;
-
-/*	case FN_OPENWAVE_DEVCAP_SCREEN_CHARS:	/ x-up-devcap-screen-chars */
-/*		add_openwave_integer_value_header (tree, header_buff, headerLen, */
-/*		    value_buff, valueType, valueLen, hf_wsp_header_openwave_devcap_screen_chars, */
-/*		    headerType); */
-/*		break; */
-
-/*	case FN_OPENWAVE_DEVCAP_SCREEN_PIXELS:	/ x-up-devcap-screen-pixels */
-/*		add_openwave_integer_value_header (tree, header_buff, headerLen, */
-/*		    value_buff, valueType, valueLen, hf_wsp_header_openwave_devcap_screen_pixels, */
-/*		    headerType); */
-/*		break; */
-
-/*	case FN_OPENWAVE_DEVCAP_EM_SIZE:	/ x-up-devcap-em-size */
-/*		add_openwave_integer_value_header (tree, header_buff, headerLen, */
-/*		    value_buff, valueType, valueLen, hf_wsp_header_openwave_devcap_em_size, */
-/*		    headerType); */
-/*		break; */
-
-	case FN_OPENWAVE_DEVCAP_SCREEN_DEPTH:	/* x-up-devcap-screen-depth */
-		add_openwave_integer_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen, hf_wsp_header_openwave_devcap_screen_depth,
-		    headerType);
-		break;
-
-	case FN_OPENWAVE_DEVCAP_IMMED_ALERT:	/* x-up-devcap-immed-alert */
-		add_openwave_integer_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen, hf_wsp_header_openwave_devcap_immed_alert,
-		    headerType);
-		break;
-
-	case FN_OPENWAVE_PROXY_NET_ASK:		/* x-up-proxy-net-ask */
-		add_openwave_integer_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen, hf_wsp_header_openwave_proxy_net_ask,
-		    headerType);
-		break;
-
-	case FN_OPENWAVE_PROXY_UPLINK_VERSION:		/* x-up-proxy-uplink-version */
-		add_openwave_string_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_openwave_proxy_uplink_version, headerType);
-		break;
-
-	case FN_OPENWAVE_PROXY_TOD:		/* x-up-proxy-tod */
-		add_openwave_integer_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_openwave_proxy_tod, headerType);
-		break;
-
-	case FN_OPENWAVE_PROXY_BA_ENABLE:		/* x-up-proxy-ba-enable */
-		add_openwave_integer_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_openwave_proxy_ba_enable, headerType);
-		break;
-
-	case FN_OPENWAVE_PROXY_BA_REALM:		/* x-up-proxy-ba-realm */
-		add_openwave_string_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_openwave_proxy_ba_realm, headerType);
-		break;
-
-	case FN_OPENWAVE_PROXY_REDIRECT_ENABLE:		/* x-up-proxy-redirect-enable */
-		add_openwave_integer_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_openwave_proxy_redirect_enable, headerType);
-		break;
-
-	case FN_OPENWAVE_PROXY_REQUEST_URI:		/* x-up-proxy-request-uri */
-		add_openwave_string_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_openwave_proxy_request_uri, headerType);
-		break;
-
-/*	case FN_OPENWAVE_PROXY_REDIRECT_STATUS:		/ x-up-proxy-redirect-status */
-/*		add_openwave_integer_value_header (tree, header_buff, headerLen, */
-/*		    value_buff, valueType, valueLen, hf_wsp_header_openwave_proxy_redirect_status, */
-/*		    headerType); */
-/*		break; */
-
-	case FN_OPENWAVE_PROXY_TRANS_CHARSET:		/* x-up-proxy-trans-charset */
-		add_accept_xxx_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_openwave_proxy_trans_charset,
-		    hf_wsp_header_openwave_proxy_trans_charset_str,
-		    vals_character_sets, "Unknown charset (%u)");
-		break;
-
-	case FN_OPENWAVE_PROXY_LINGER:			/* x-up-proxy-linger */
-		add_openwave_integer_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen, hf_wsp_header_openwave_proxy_linger,
-		    headerType);
-		break;
-
-/*	case FN_OPENWAVE_PROXY_CLIENT_ID:		/ x-up-proxy-client-id */
-/*		add_openwave_string_value_header (tree, header_buff, headerLen, */
-/*		    value_buff, valueType, valueLen, */
-/*		    hf_wsp_header_openwave_proxy_client_id, headerType); */
-/*		break; */
-
-	case FN_OPENWAVE_PROXY_ENABLE_TRUST:		/* x-up-proxy-enable-trust */
-		add_openwave_integer_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen, hf_wsp_header_openwave_proxy_enable_trust,
-		    headerType);
-		break;
-
-	case FN_OPENWAVE_PROXY_TRUST_OLD:		/* x-up-proxy-trust old value */
-		add_openwave_integer_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen, hf_wsp_header_openwave_proxy_trust_old,
-		    headerType);
-		break;
-
-	case FN_OPENWAVE_PROXY_TRUST:			/* x-up-proxy-trust */
-		add_openwave_integer_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen, hf_wsp_header_openwave_proxy_trust,
-		    headerType);
-		break;
-
-	case FN_OPENWAVE_PROXY_BOOKMARK:		/* x-up-proxy-bookmark */
-		add_openwave_string_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen,
-		    hf_wsp_header_openwave_proxy_bookmark, headerType);
-		break;
-
-	case FN_OPENWAVE_DEVCAP_GUI:			/* x-up-devcap-gui */
-		add_openwave_integer_value_header (tree, header_buff, headerLen,
-		    value_buff, valueType, valueLen, hf_wsp_header_openwave_devcap_gui,
-		    headerType);
-		break;
-
-	default:
-	        proto_tree_add_text (tree, header_buff, 0, headerLen,
-		    "Undecoded Openwave Header: %s",
-		    val_to_str (headerType, vals_openwave_field_names, "Unknown (0x%02X)"));
-		break;
-	}
-	return offset;
-}
-
-/* *********
-static void
-add_openwave_push_address_header (proto_tree *tree, tvbuff_t *header_buff,
-    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-    int valueLen)
-{
-
-	???
-
-}
-********* */
-
-static int
-add_unknown_header (proto_tree *tree, tvbuff_t *tvb, int offset,
-    guint8 headerType)
-{
-	int headerStart;
-	int valueStart;
-	value_type_t valueType;
-	int headerLen;
-	guint valueLen;
-	int valueOffset;
-
-	headerStart = offset;
-
-	/*
-	 * Skip the Short-Integer header type.
-	 */
-	offset++;
-
-	valueStart = offset;
-
-	/*
-	 * Get the value type and length (or, if the type is VALUE_IN_LEN,
-	 * meaning the value is a Short-integer, get the value type
-	 * and the value itself).
-	 */
-	valueType = get_value_type_len (tvb, valueStart, &valueLen,
-	    &valueOffset, &offset);
-	headerLen = offset - headerStart;
-
-	proto_tree_add_text (tree, tvb, headerStart, headerLen,
-		       "Undecoded Header (0x%02X)", headerType);
-	return offset;
-}
-
-static int
-add_application_header (proto_tree *tree, tvbuff_t *tvb, int offset)
-{
-	int startOffset;
-	guint tokenSize;
-	const guint8 *token;
-	value_type_t valueType;
-	int subvalueLen;
-	int subvalueOffset;
-	guint secs;
-	nstime_t timeValue;
-	int asvOffset;
-	guint stringSize;
-
-	startOffset = offset;
-	tokenSize = tvb_strsize (tvb, startOffset);
-	token = tvb_get_ptr (tvb, startOffset, tokenSize);
-	offset += tokenSize;
-
-	/*
-	 * Special case header "X-WAP.TOD" that is sometimes followed
-	 * by a 4-byte date value.
-	 *
-	 * XXX - according to the 4-May-2000 WSP spec, X-Wap-Tod is
-	 * encoded as a well known header, with a code of 0x3F.
-	 */
-	if (tokenSize == 10 && strncasecmp ("x-wap.tod", token, 9) == 0)
-	{
-		valueType = get_value_type_len (tvb, offset,
-		    &subvalueLen, &subvalueOffset, &offset);
-		if (valueType == VALUE_IS_TEXT_STRING)
-		{
-			proto_tree_add_text (tree, tvb, startOffset,
-			    offset - startOffset, "%s: %s", token,
-			    tvb_get_ptr (tvb, subvalueOffset, subvalueLen));
-		}
-		else
-		{
-			if (get_integer (tvb, subvalueOffset, subvalueLen,
-			    valueType, &secs) == 0)
-			{
-				/*
-				 * Fill in the "struct timeval", and add it
-				 * to the protocol tree.
-				 * Note: this will succeed even if it's a
-				 * Short-integer rather than an Integer.
-				 * A Short-integer would work, but, as the
-				 * time values are UNIX seconds-since-the-
-				 * Epoch value, and as there weren't WAP
-				 * phones or Web servers back in late
-				 * 1969/early 1970, they're unlikely to be
-				 * used.
-				 */
-				timeValue.secs = secs;
-				timeValue.nsecs = 0;
-				proto_tree_add_time (tree, hf_wsp_header_x_wap_tod,
-				    tvb, startOffset, offset - startOffset,
-				    &timeValue);
-			}
-			else
-			{
-				proto_tree_add_text (tree, tvb, startOffset,
-				    offset - startOffset,
-				    "%s: invalid date value", token);
-			}
-		}
-	}
-	else
-	{
-		asvOffset = offset;
-		stringSize = tvb_strsize (tvb, asvOffset);
-		offset += stringSize;
-		proto_tree_add_text (tree, tvb, startOffset,
-		    offset - startOffset,
-		    "%s: %s", token,
-		    tvb_get_ptr (tvb, asvOffset, stringSize));
-	}
-	return offset;
-}
-
-static void
-add_accept_header (proto_tree *tree, tvbuff_t *header_buff,
-    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-    int valueLen)
-{
-	guint contentType;
-	const char *contentTypeStr;
-
-	add_content_type_value (tree, header_buff, 0, headerLen, value_buff,
-	    valueType, valueLen, hf_wsp_header_accept,
-	    hf_wsp_header_accept_str, &contentType, &contentTypeStr);
-}
-
-static void
-add_accept_xxx_header (proto_tree *tree, tvbuff_t *header_buff,
-    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-    int valueLen, int hf_numeric, int hf_string,
-    const value_string *vals, const char *unknown_tag)
-{
-	int offset = 0;
-	int subvalueLen;
-	int subvalueOffset;
-	guint value = 0;
-	char valString[VAL_STRING_SIZE];
-	const char *valMatch;
-	guint peek;
-	double q_value = 1.0;
-
-	if (valueType == VALUE_IN_LEN)
-	{
-		/*
-		 * Constrained-{charset,language} (Short-Integer).
-		 */
-		proto_tree_add_uint (tree, hf_numeric,
-		    header_buff, 0, headerLen,
-		    valueLen);	/* valueLen is the value */
-		return;
-	}
-	if (valueType == VALUE_IS_TEXT_STRING)
-	{
-		/*
-		 * Constrained-{charset,language} (text, i.e.
-		 * Extension-Media).
-		 */
-		proto_tree_add_string (tree, hf_string,
-		    header_buff, 0, headerLen,
-		    tvb_get_ptr (value_buff, 0, valueLen));
-		return;
-	}
-
-	/*
-	 * First byte had the 8th bit set.
-	 */
-	if (valueLen == 0) {
-		/*
-		 * Any-{charset,language}.
-		 */
-		proto_tree_add_string (tree, hf_string,
-			header_buff, 0, headerLen,
-			"*");
-		return;
-	}
-
-	/*
-	 * Accept-{charset,language}-general-form; Value-length, followed
-	 * by Well-known-{charset,language} or {Token-text,Text-string},
-	 * possibly followed by a Q-value.
-	 *
-	 * Get Value-length.
-	 */
-	valueType = get_value_type_len (value_buff, 0, &subvalueLen,
-	    &subvalueOffset, &offset);
-	if (valueType == VALUE_IS_TEXT_STRING)
-	{
-		/*
-		 * {Token-text,Text-string}.
-		 */
-		valMatch =
-		    tvb_get_ptr (value_buff, subvalueOffset, subvalueLen);
-		proto_tree_add_string (tree, hf_string,
-			value_buff, 0, valueLen, valMatch);
-	} else {
-		/*
-		 * Well-known-{charset,langugage}; starts with an
-		 * Integer-value.
-		 */
-		if (get_integer (value_buff, subvalueOffset, subvalueLen,
-		    valueType, &value) < 0)
-		{
-			valMatch = "Invalid integer";
-		}
-		else
-		{
-			valMatch = val_to_str(value, vals, unknown_tag);
-		}
-	}
-
-	/* Any remaining data relates to Q-value */
-	if (offset < valueLen)
-	{
-		peek = tvb_get_guintvar (value_buff, offset, NULL);
-		if (peek <= 100) {
-			peek = (peek - 1) * 10;
-		}
-		else {
-			peek -= 100;
-		}
-		q_value = peek/1000.0;
-	}
-
-	/* Build string including Q-value if present */
-	if (q_value == 1.0)			/* Default */
-	{
-		snprintf (valString, VAL_STRING_SIZE, "%s", valMatch);
-	}
-	else
-	{
-		snprintf (valString, VAL_STRING_SIZE, "%s; Q=%5.3f", valMatch, q_value);
-	}
-	/* Add string to tree */
-	
-	proto_tree_add_string (tree, hf_string,
-	    header_buff, 0, headerLen, valString);
-}
-
-static void
-add_accept_ranges_header (proto_tree *tree, tvbuff_t *header_buff,
-    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-    int valueLen)
-{
-	if (valueType == VALUE_IN_LEN)
-	{
-		/*
-		 * Must be 0 (None) or 1 (Bytes) (the 8th bit was stripped
-		 * off).
-		 */
-		proto_tree_add_uint (tree, hf_wsp_header_accept_ranges,
-		    header_buff, 0, headerLen,
-		    valueLen);	/* valueLen is the value */
-		return;
-	}
-	if (valueType == VALUE_IS_TEXT_STRING)
-	{
-		/*
-		 * Token-text.
-		 */
-		proto_tree_add_string (tree, hf_wsp_header_accept_ranges_str,
-		    header_buff, 0, headerLen,
-		    tvb_get_ptr (value_buff, 0, valueLen));
-		return;
-	}
-
-	/*
-	 * Not valid.
-	 */
-	fprintf(stderr, "dissect_wsp: Accept-Ranges is neither None, Bytes, nor Token-text\n");
-	return;
-}
-
-static void
-add_cache_control_header (proto_tree *tree, tvbuff_t *header_buff,
-    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-    int valueLen)
-{
-	int offset = 0;
-	int subvalueLen;
-	int subvalueOffset;
-	guint value;
-	proto_item *ti;
-	proto_tree *parameter_tree;
-	proto_tree *field_names_tree;
-	guint delta_secs;
-
-	if (valueType == VALUE_IN_LEN)
-	{
-		/*
-		 * No-cache, No-store, Max-age, Max-stale, Min-fresh,
-		 * Only-if-cached, Public, Private, No-transform,
-		 * Must-revalidate, Proxy-revalidate, or S-maxage.
-		 */
-		proto_tree_add_uint (tree, hf_wsp_header_cache_control,
-		    header_buff, 0, headerLen,
-		    valueLen);	/* valueLen is the value */
-		return;
-	}
-	if (valueType == VALUE_IS_TEXT_STRING)
-	{
-		/*
-		 * Cache-extension.
-		 */
-		proto_tree_add_string (tree, hf_wsp_header_cache_control_str,
-		    header_buff, 0, headerLen,
-		    tvb_get_ptr (value_buff, 0, valueLen));
-		return;
-	}
-
-	/*
-	 * Value-length Cache-directive.
-	 * Get first field of Cache-directive.
-	 */
-	valueType = get_value_type_len (value_buff, offset, &subvalueLen,
-	    &subvalueOffset, &offset);
-	if (valueType == VALUE_IS_TEXT_STRING)
-	{
-		/*
-		 * Cache-extension Parameter.
-		 */
-		ti = proto_tree_add_string (tree, hf_wsp_header_cache_control_str,
-		    header_buff, 0, headerLen,
-		    tvb_get_ptr (value_buff, 0, valueLen));
-		parameter_tree = proto_item_add_subtree (ti,
-		    ett_header_cache_control_parameters);
-
-		/*
-		 * Process the rest of the value as parameters.
-		 */
-		while (tvb_reported_length_remaining (value_buff, offset) > 0) {
-			offset = add_parameter (parameter_tree, value_buff,
-			    offset);
-		}
-		return;
-	}
-	if (get_integer (value_buff, subvalueOffset, subvalueLen, valueType,
-	    &value) < 0)
-	{
-		proto_tree_add_text (tree, header_buff, 0, headerLen,
-		    "Invalid Cache-Control Cache-directive value");
-	}
-	else
-	{
-		switch (value) {
-
-		case NO_CACHE:
-		case PRIVATE:
-			/*
-			 * Loop, processing Field-names.
-			 */
-			ti = proto_tree_add_uint (tree,
-			    hf_wsp_header_cache_control,
-			    header_buff, 0, headerLen,
-			    value);
-			field_names_tree = proto_item_add_subtree (ti,
-			    ett_header_cache_control_field_names);
-			while (tvb_reported_length_remaining (value_buff, offset)
-			    > 0) {
-				offset = add_cache_control_field_name (tree,
-			    	    value_buff, offset, value);
-			}
-			break;
-
-		case MAX_AGE:
-		case MAX_STALE:
-		case MIN_FRESH:
-		case S_MAXAGE:
-			/*
-			 * Get Delta-second-value.
-			 */
-			valueType = get_value_type_len (value_buff, offset,
-			    &subvalueLen, &subvalueOffset, &offset);
-			if (get_integer (value_buff, subvalueOffset,
-			    subvalueLen, valueType, &delta_secs) < 0)
-			{
-				proto_tree_add_text (tree,
-				    header_buff, 0, headerLen,
-				    "Invalid Cache-Control %s Delta-second-value",
-				    match_strval (value, vals_cache_control));
-			}
-			else
-			{
-				proto_tree_add_uint_format (tree,
-				    hf_wsp_header_cache_control,
-				    header_buff, 0, headerLen,
-				    value,
-				    "Cache-Control: %s %u secs",
-				    match_strval (value, vals_cache_control),
-				    delta_secs);
-			}
-			break;
-
-		default:
-			/*
-			 * This should not happen, but handle it anyway.
-			 */
-			proto_tree_add_uint (tree,
-			    hf_wsp_header_cache_control,
-			    header_buff, 0, headerLen,
-			    value);
-			break;
-		}
-	}
-}
-
-static int
-add_cache_control_field_name (proto_tree *tree, tvbuff_t *value_buff,
-    int offset, guint cache_control_value)
-{
-	value_type_t valueType;
-	int startOffset;
-	int subvalueLen;
-	int subvalueOffset;
-
-	startOffset = offset;
-	valueType = get_value_type_len (value_buff, offset,
-	    &subvalueLen, &subvalueOffset, &offset);
-	if (valueType == VALUE_IS_TEXT_STRING)
-	{
-		/*
-		 * Token-text.
-		 */
-		proto_tree_add_item (tree,
-		    hf_wsp_header_cache_control_field_name_str,
-		    value_buff, startOffset, offset - startOffset,
-		    bo_little_endian);
-	}
-	else if (valueType == VALUE_IN_LEN)
-	{
-		/*
-		 * Short-integer Field-name.
-		 */
-		proto_tree_add_uint (tree,
-		    hf_wsp_header_cache_control_field_name,
-		    value_buff, startOffset, offset - startOffset,
-		    subvalueLen);
-	}
-	else
-	{
-		/*
-		 * Long-integer - illegal.
-		 */
-		proto_tree_add_text (tree,
-		    value_buff, startOffset, offset - startOffset,
-		    "Invalid Cache-Control %s Field-name",
-		    match_strval (cache_control_value, vals_cache_control));
-	}
-	return offset;
-}
-
-static void
-add_connection_header (proto_tree *tree, tvbuff_t *header_buff,
-    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-    int valueLen)
-{
-	int offset = 0;
-
-	if (valueType == VALUE_LEN_SUPPLIED)
-	{
-		/*
-		 * Invalid.
-		 */
-		proto_tree_add_text (tree, header_buff, 0, headerLen,
-		    "Invalid Connection value");
-		return;
-	}
-	if (valueType == VALUE_IS_TEXT_STRING)
-	{
-		/*
-		 * Token-text.
-		 */
-		proto_tree_add_string (tree,
-		    hf_wsp_header_connection_str,
-		    header_buff, 0, headerLen,
-		    tvb_get_ptr (value_buff, 0, valueLen));
-		return;
-	}
-
-	/*
-	 * First byte had the 8th bit set.
-	 */
-	if (valueLen == 0) {
-		/*
-		 * Close.
-		 */
-		proto_tree_add_uint (tree, hf_wsp_header_connection,
-		    header_buff, offset, headerLen, valueLen);
-		return;
-	}
-
-	/*
-	 * Invalid.
-	 */
-	proto_tree_add_text (tree, header_buff, 0, headerLen,
-	    "Invalid Connection value");
-}
-
-static void
-add_pragma_header (proto_tree *tree, tvbuff_t *header_buff,
-    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-    int valueLen)
-{
-	int offset = 0;
-	int subvalueLen;
-	int subvalueOffset;
-
-	if (valueType == VALUE_IN_LEN)
-	{
-		/*
-		 * Invalid.
-		 */
-		proto_tree_add_text (tree, header_buff, 0, headerLen,
-		    "Invalid Pragma");
-		return;
-	}
-	if (valueType == VALUE_IS_TEXT_STRING)
-	{
-		/*
-		 * Invalid?
-		 */
-		proto_tree_add_text (tree, header_buff, 0, headerLen,
-		    "Invalid Pragma");
-		return;
-	}
-
-	/*
-	 * First byte had the 8th bit set.
-	 */
-	if (valueLen == 0) {
-		/*
-		 * No-cache.
-		 */
-		proto_tree_add_string (tree, hf_wsp_header_pragma,
-		    header_buff, 0, headerLen, "No-cache");
-		return;
-	}
-
-	/*
-	 * Value-length, followed by Parameter.
-	 *
-	 * Get Value-length.
-	 */
-	valueType = get_value_type_len (value_buff, 0, &subvalueLen,
-	    &subvalueOffset, &offset);
-	if (valueType == VALUE_IS_TEXT_STRING)
-	{
-		/*
-		 * Parameter - a text string.
-		 */
-		proto_tree_add_string (tree, hf_wsp_header_pragma,
-		    header_buff, 0, headerLen,
-		    tvb_get_ptr (value_buff, subvalueOffset, subvalueLen));
-	} else {
-		/*
-		 * Parameter - numeric; illegal?
-		 */
-		proto_tree_add_text (tree, header_buff, 0, headerLen,
-		    "Invalid Pragma");
-	}
-}
-
-static void
-add_transfer_encoding_header (proto_tree *tree, tvbuff_t *header_buff,
-    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-    int valueLen)
-{
-	int offset = 0;
-
-	if (valueType == VALUE_LEN_SUPPLIED)
-	{
-		/*
-		 * Invalid.
-		 */
-		proto_tree_add_text (tree, header_buff, 0, headerLen,
-		    "Invalid Transfer-Encoding value");
-		return;
-	}
-	if (valueType == VALUE_IS_TEXT_STRING)
-	{
-		/*
-		 * Token-text.
-		 */
-		proto_tree_add_string (tree,
-		    hf_wsp_header_transfer_encoding_str,
-		    header_buff, 0, headerLen,
-		    tvb_get_ptr (value_buff, 0, valueLen));
-		return;
-	}
-
-	/*
-	 * First byte had the 8th bit set.
-	 */
-	if (valueLen == 0) {
-		/*
-		 * Chunked.
-		 */
-		proto_tree_add_uint (tree, hf_wsp_header_transfer_encoding,
-		    header_buff, offset, headerLen, valueLen);
-		return;
-	}
-
-	/*
-	 * Invalid.
-	 */
-	proto_tree_add_text (tree, header_buff, 0, headerLen,
-	    "Invalid Transfer Encoding value");
-}
-
-static void
-add_warning_header (proto_tree *tree, tvbuff_t *header_buff,
-    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-    int valueLen)
-{
-	int offset = 0;
-	proto_item *ti;
-	proto_tree *warning_tree;
-	int subvalueLen;
-	int subvalueOffset;
-	guint8 code;
-
-	/*
-	 * Put the items under a header.
-	 * XXX - make the text of the item summarize the elements.
-	 */
-	ti = proto_tree_add_item (tree, hf_wsp_header_warning,
-	    header_buff, 0, headerLen, bo_little_endian);
-	warning_tree = proto_item_add_subtree(ti, ett_header_warning);
-
-	if (valueType == VALUE_IN_LEN)
-	{
-		/*
-		 * Warn-code (Short-integer).
-		 */
-		proto_tree_add_uint (warning_tree, hf_wsp_header_warning_code,
-		    header_buff, 0, headerLen,
-		    valueLen);	/* valueLen is the value */
-		proto_item_append_text (ti, ": %s", match_strval(valueLen, vals_wsp_warning_code));
-		return;
-	}
-	if (valueType == VALUE_IS_TEXT_STRING)
-	{
-		/*
-		 * Invalid.
-		 */
-		proto_tree_add_text (warning_tree, header_buff, 0, headerLen,
-		    "Invalid Warning (all text)");
-		return;
-	}
-
-	/*
-	 * Warning-value; Warn-code, followed by Warn-agent, followed by
-	 * Warn-text.
-	 */
-	/*
-	 * Get Short-integer Warn-code.
-	 */
-	valueType = get_value_type_len (value_buff, offset, &subvalueLen,
-	    &subvalueOffset, &offset);
-	if (valueType != VALUE_IN_LEN)
-	{
-		/*
-		 * Not a Short-integer.
-		 */
-		proto_tree_add_text (warning_tree, value_buff, subvalueOffset,
-		    subvalueLen, "Invalid Warn-code (not a Short-integer)");
-		return;
-	}
-	code = subvalueLen;
-	proto_tree_add_uint (warning_tree, hf_wsp_header_warning_code,
-	    value_buff, subvalueOffset, 1,
-	    subvalueLen);	/* subvalueLen is the value */
-
-	/*
-	 * Warn-agent; must be text.
-	 */
-	valueType = get_value_type_len (value_buff, offset, &subvalueLen,
-	    &subvalueOffset, &offset);
-	if (valueType != VALUE_IS_TEXT_STRING)
-	{
-		/*
-		 * Not text.
-		 */
-		proto_tree_add_text (warning_tree, value_buff, subvalueOffset,
-		    subvalueLen, "Invalid Warn-agent (not a text string)");
-		return;
-	}
-	proto_tree_add_item (warning_tree,
-		hf_wsp_header_warning_agent,
-		value_buff, subvalueOffset, subvalueLen, bo_little_endian);
-
-	/*
-	 * Warn-text; must be text.
-	 */
-	valueType = get_value_type_len (value_buff, offset, &subvalueLen,
-	    &subvalueOffset, &offset);
-	if (valueType != VALUE_IS_TEXT_STRING)
-	{
-		/*
-		 * Not text.
-		 */
-		proto_tree_add_text (warning_tree, value_buff, subvalueOffset,
-		    subvalueLen, "Invalid Warn-text (not a text string)");
-		return;
-	}
-	proto_tree_add_item (warning_tree,
-		hf_wsp_header_warning_text,
-		value_buff, subvalueOffset, subvalueLen, bo_little_endian);
-	/* Now create the summary warning header */
-	proto_item_append_text (ti, ": %s %s",
-			val_to_str (code, vals_wsp_warning_code_short, "%u"),
-			tvb_get_ptr (value_buff, subvalueOffset, subvalueLen));
-}
-
-static void
-add_accept_application_header (proto_tree *tree, tvbuff_t *header_buff,
-    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-    int valueLen)
-{
-	guint value;
-
-	if (valueType == VALUE_IN_LEN)
-	{
-		/*
-		 * Application-id-value; numeric, so it's App-assigned-code.
-		 */
-		proto_tree_add_uint (tree, hf_wsp_header_accept_application,
-		    header_buff, 0, headerLen,
-		    valueLen);	/* valueLen is the value */
-		return;
-	}
-	if (valueType == VALUE_IS_TEXT_STRING)
-	{
-		/*
-		 * Uri-value.
-		 */
-		proto_tree_add_string (tree, hf_wsp_header_accept_application_str,
-		    header_buff, 0, headerLen,
-		    tvb_get_ptr (value_buff, 0, valueLen));
-		return;
-	}
-
-	/*
-	 * First byte had the 8th bit set.
-	 */
-	if (valueLen == 0) {
-		/*
-		 * Any-application.
-		 */
-		proto_tree_add_string (tree, hf_wsp_header_accept_application_str,
-			header_buff, 0, headerLen,
-			"*");
-		return;
-	}
-
-	/*
-	 * Integer-value, hence App-assigned-code.
-	 */
-	if (get_integer (value_buff, 0, valueLen, valueType, &value) < 0)
-	{
-		proto_tree_add_text (tree, header_buff, 0, headerLen,
-			"Invalid Accept-Application App-assigned-code");
-	}
-	else
-	{
-		proto_tree_add_uint (tree, hf_wsp_header_accept_application,
-		    header_buff, 0, headerLen, value);
-	}
-}
-
-static void
-add_wap_application_id_header (proto_tree *tree, tvbuff_t *header_buff,
-    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-    int valueLen)
-{
-	if (valueType == VALUE_IN_LEN)
-	{
-		/*
-		 * Must application-id (the 8th bit was stripped off).
-		 */
-		proto_tree_add_uint (tree, hf_wsp_header_wap_application_id,
-		    header_buff, 0, headerLen,
-		    valueLen);	/* valueLen is the value */
-		return;
-	}
-	if (valueType == VALUE_IS_TEXT_STRING)
-	{
-		/*
-		 * Token-text.
-		 */
-		proto_tree_add_string (tree, hf_wsp_header_wap_application_id_str,
-		    header_buff, 0, headerLen,
-		    tvb_get_ptr (value_buff, 0, valueLen));
-		return;
-	}
-
-	/*
-	 * Not valid.
-	 */
-	fprintf(stderr, "dissect_wsp: Suprising format of X-Wap-Application-Id\n");
-	return;
-}
-
-static void
-add_credentials_value_header (proto_tree *tree, tvbuff_t *header_buff,
-		int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-		int valueLen _U_ ,
-		int hf_main, int hf_scheme,
-		int hf_basic_user_id, int hf_basic_password)
-{
-	char *s;
-	guint32 i, sLen;
-	proto_item *ti;
-	proto_tree *basic_tree;
-
-	ti = proto_tree_add_item (tree, hf_main, header_buff, 0, headerLen,
-			bo_little_endian);
-	if (valueType == VALUE_LEN_SUPPLIED)
-	{
-		if (tvb_get_guint8 (value_buff, 0) == 0x80)
-		{ /* Basic */
-			basic_tree = proto_item_add_subtree(ti, ett_header_credentials);
-			proto_tree_add_string (basic_tree, hf_scheme,
-					value_buff, 0, 1, "Basic" );
-			proto_item_append_text (ti, ": Basic");
-			/* Now process the Basic Cookie consisting of User-Id and Password */
-			i = 1;
-			while (tvb_get_guint8(value_buff, i))
-				i++; /* Count length of 1st string */
-			/* We reached End of String at offset = i.
-			 * Get the user id including trailing '\0' (end - start + 1) */
-			s = (char *) tvb_get_ptr(value_buff, 1, i - 1 + 1);
-			proto_tree_add_string (basic_tree, hf_basic_user_id,
-					value_buff, 1, i - 1 + 1, s );
-			proto_item_append_text (ti, "; user-id='%s'", s);
-			sLen = ++i; /* Move to 1st byte of password string */
-
-			while (tvb_get_guint8(value_buff, i))
-				i++; /* Count length of 2nd string */
-			/* We reached End of String at offset = i.
-			 * Get the password including trailing '\0' (end - start + 1) */
-			s = (char *) tvb_get_ptr(value_buff, sLen, i - sLen + 1);
-			proto_tree_add_string (basic_tree, hf_basic_password,
-					value_buff, sLen, i - sLen + 1, s );
-			proto_item_append_text (ti, "; password='%s'", s);
-		}
-		else
-		{ /* TODO: Authentication-scheme *Auth-param */
-			proto_item_append_text (ti, ": (General format not yet decoded)");
-		}
-	}
-	else
-	{
-		proto_item_append_text (ti, ": (Invalid header value format)");
-	}
-	return;
-}
-
-
-static void
-add_push_flag_header (proto_tree *tree, tvbuff_t *header_buff,
-		int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-		int valueLen)
-{
-	proto_item *ti = NULL;
-	proto_tree *subtree = NULL;
-	
-	if (valueType == VALUE_IN_LEN) {
-		valueLen &= 0x7F; /* Clear highest bit */
-		ti = proto_tree_add_uint (tree, hf_wsp_header_push_flag,
-				header_buff, 0, headerLen, valueLen);
-		subtree = proto_item_add_subtree (ti, ett_push_flags);
-		proto_tree_add_uint (subtree, hf_wsp_header_push_flag_auth,
-				value_buff, 1, 1, valueLen);
-		proto_tree_add_uint (subtree, hf_wsp_header_push_flag_trust,
-				value_buff, 1, 1, valueLen);
-		proto_tree_add_uint (subtree, hf_wsp_header_push_flag_last,
-				value_buff, 1, 1, valueLen);
-		if (valueLen & 0x01)
-			proto_item_append_text (ti, " (Initiator URI authenticated)");
-		if (valueLen & 0x02)
-			proto_item_append_text (ti, " (Content trusted)");
-		if (valueLen & 0x04)
-			proto_item_append_text (ti, " (Last push message)");
-		if (valueLen & 0x78)
-			proto_item_append_text (ti, " - Reserved flags set");
-	} else {
-		proto_tree_add_text (tree, header_buff, 0, headerLen,
-				"Push-Flag: (Invalid header value format)");
-	}
-	return;
-}
-
-
+/*
+ * CO-WSP capability negotiation
+ */
 static void
 add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
 {
@@ -3529,480 +4615,6 @@ get_uintvar (tvbuff_t *tvb, guint offset, guint offsetEnd)
 	return value;
 }
 
-static void
-add_content_type_value (proto_tree *tree, tvbuff_t *header_buff,
-    int headerOffset, int headerLen, tvbuff_t *value_buff,
-    value_type_t valueType, int valueLen, int hf_numeric, int hf_string,
-    guint *contentTypep, const char **contentTypeStrp)
-{
-	proto_item *ti;
-	proto_tree *parameter_tree;
-	const char *contentTypeStr;
-	int offset;
-	int subvalueLen;
-	int subvalueOffset;
-	guint value;
-
-	if (valueType == VALUE_IN_LEN)
-	{
-		/*
-		 * Constrained-media (Short-Integer).
-		 */
-		proto_tree_add_uint (tree, hf_numeric,
-		    header_buff, headerOffset, headerLen,
-		    valueLen);	/* valueLen is the value */
-
-		/*
-		 * Return the numerical value, and a null string value
-		 * indicating that the value is numerical.
-		 */
-		*contentTypep = valueLen;
-		*contentTypeStrp = NULL;
-		return;
-	}
-	if (valueType == VALUE_IS_TEXT_STRING)
-	{
-		/*
-		 * Constrained-media (text, i.e. Extension-Media).
-		 */
-		contentTypeStr = tvb_get_ptr (value_buff, 0, valueLen);
-		proto_tree_add_string (tree, hf_string,
-		    header_buff, headerOffset, headerLen,
-		    contentTypeStr);
-
-		/*
-		 * Return the string value, and set the numerical value
-		 * to 0 (as it shouldn't be used).
-		 */
-		*contentTypep = 0;
-		*contentTypeStrp = contentTypeStr;
-		return;
-	}
-
-	/*
-	 * Content-general-form; Value-length, followed by Media-range,
-	 * followed by optional Accept-parameters.
-	 *
-	 * Get Value-length.
-	 */
-	valueType = get_value_type_len (value_buff, 0, &subvalueLen,
-	    &subvalueOffset, &offset);
-	if (valueType == VALUE_IS_TEXT_STRING)
-	{
-		/*
-		 * Extension-Media; value is a string.
-		 */
-		contentTypeStr =
-		    tvb_get_ptr (value_buff, subvalueOffset, subvalueLen);
-		ti = proto_tree_add_string (tree, hf_string, header_buff,
-		    headerOffset, headerLen, contentTypeStr);
-
-		/*
-		 * Return the string value, and set the numerical value
-		 * to 0 (as it shouldn't be used).
-		 */
-		*contentTypep = 0;
-		*contentTypeStrp = contentTypeStr;
-	}
-	else
-	{
-		/*
-		 * Well-known-media; value is an Integer.
-		 */
-		if (get_integer (value_buff, subvalueOffset, subvalueLen,
-		    valueType, &value) < 0)
-		{
-			proto_tree_add_text (tree, header_buff,
-			    headerOffset, headerLen,
-			    "Invalid integer for Well-known-media");
-
-			/*
-			 * Content type is invalid.
-			 * Don't try to parse the rest of the value.
-			 */
-			*contentTypep = 0;
-			*contentTypeStrp = NULL;
-			return;
-		}
-		ti = proto_tree_add_uint (tree, hf_numeric,
-		    header_buff, headerOffset, headerLen, value);
-
-		/*
-		 * Return the numerical value, and a null string value
-		 * indicating that the value is numerical.
-		 */
-		*contentTypep = value;
-		*contentTypeStrp = NULL;
-	}
-
-	/*
-	 * Process the rest of the value as parameters.
-	 */
-	parameter_tree = proto_item_add_subtree(ti,
-	    ett_content_type_parameters);
-	while (tvb_reported_length_remaining (value_buff, offset) > 0)
-		offset = add_parameter (parameter_tree, value_buff, offset);
-}
-
-guint
-add_content_type (proto_tree *tree, tvbuff_t *tvb, guint offset,
-    guint *contentTypep, const char **contentTypeStrp)
-{
-	int valueStart;
-	value_type_t valueType;
-	int valueTypeLen;
-	guint valueLen;
-	int valueOffset;
-	tvbuff_t *value_buff;
-
-	valueStart = offset;
-
-	/*
-	 * Get the value type and length (or, if the type is VALUE_IN_LEN,
-	 * meaning the value is a Short-integer, get the value type
-	 * and the value itself).
-	 */
-	valueType = get_value_type_len (tvb, valueStart, &valueLen,
-	    &valueOffset, &offset);
-	valueTypeLen = offset - valueStart;
-
-	/*
-	 * Get a tvbuff for the value.
-	 * XXX - can valueLen be 0?
-	 * XXX - cut the actual length short so that it doesn't run
-	 * past the actual length of tvb.
-	 */
-	if (valueType != VALUE_IN_LEN) {
-		value_buff = tvb_new_subset (tvb, valueOffset, valueLen,
-		    valueLen);
-	} else {
-		/*
-		 * XXX - when the last dissector is tvbuffified,
-		 * so that NULL is no longer a valid tvb pointer
-		 * value in "proto_tree_add" calls, just
-		 * set "value_buff" to NULL.
-		 *
-		 * XXX - can we already do that?  I.e., will that
-		 * cause us always to crash if we mistakenly try
-		 * to fetch the value of a VALUE_IN_LEN item?
-		 */
-		value_buff = tvb_new_subset (tvb, valueStart, 0, 0);
-	}
-
-	add_content_type_value (tree, tvb, valueStart, valueTypeLen, value_buff,
-	    valueType, valueLen, hf_wsp_content_type,
-	    hf_wsp_content_type_str, contentTypep, contentTypeStrp);
-
-	return offset;
-}
-
-static void
-add_integer_value_header (proto_tree *tree, tvbuff_t *header_buff,
-    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-    int valueLen, int hf_numeric, guint8 headerType)
-{
-	add_integer_value_header_common (tree, header_buff, headerLen,
-	    value_buff, valueType, valueLen, hf_numeric, headerType,
-	    vals_field_names);
-}
-
-static void
-add_openwave_integer_value_header (proto_tree *tree, tvbuff_t *header_buff,
-    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-    int valueLen, int hf_numeric, guint8 headerType)
-{
-	add_integer_value_header_common (tree, header_buff, headerLen,
-	    value_buff, valueType, valueLen, hf_numeric, headerType,
-	    vals_openwave_field_names);
-}
-
-static void
-add_integer_value_header_common (proto_tree *tree, tvbuff_t *header_buff,
-    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-    int valueLen, int hf_numeric, guint8 headerType,
-    const value_string *vals)
-{
-	guint value;
-
-	if (get_integer (value_buff, 0, valueLen, valueType, &value) < 0)
-	{
-		proto_tree_add_text (tree, header_buff, 0, headerLen,
-		    "Invalid %s integer value",
-		    match_strval (headerType, vals));
-	}
-	else
-	{
-		proto_tree_add_uint (tree, hf_numeric,
-		    header_buff, 0, headerLen, value);
-	}
-}
-
-static void
-add_string_value_header (proto_tree *tree, tvbuff_t *header_buff,
-    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-    int valueLen, int hf_string, guint8 headerType)
-{
-	add_string_value_header_common (tree, header_buff, headerLen,
-	    value_buff, valueType, valueLen, hf_string, headerType,
-	    vals_field_names);
-}
-
-static void
-add_openwave_string_value_header (proto_tree *tree, tvbuff_t *header_buff,
-    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-    int valueLen, int hf_string, guint8 headerType)
-{
-	add_string_value_header_common (tree, header_buff, headerLen,
-	    value_buff, valueType, valueLen, hf_string, headerType,
-	    vals_openwave_field_names);
-}
-
-static void
-add_string_value_header_common (proto_tree *tree, tvbuff_t *header_buff,
-    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-    int valueLen, int hf_string, guint8 headerType,
-    const value_string *vals)
-{
-	if (valueType != VALUE_IS_TEXT_STRING)
-	{
-		proto_tree_add_text (tree, header_buff, 0, headerLen,
-		    "Invalid %s string value",
-		    match_strval (headerType, vals));
-	}
-	else
-	{
-		proto_tree_add_string (tree, hf_string, header_buff,
-			0, headerLen, tvb_get_ptr (value_buff, 0, valueLen));
-	}
-}
-
-static void
-add_quoted_string_value_header (proto_tree *tree, tvbuff_t *header_buff,
-    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-    int valueLen, int hf_string, guint8 headerType)
-{
-	if (valueType != VALUE_IS_TEXT_STRING)
-	{
-		proto_tree_add_text (tree, header_buff, 0, headerLen,
-		    "Invalid %s quoted string value",
-		    match_strval (headerType, vals_field_names));
-	}
-	else
-	{
-		proto_tree_add_string (tree, hf_string, header_buff,
-			0, headerLen, tvb_get_ptr (value_buff, 1, valueLen - 1));
-	}
-}
-
-/* Utility function to add a date value to the protocol tree */
-static void
-add_date_value_header (proto_tree *tree, tvbuff_t *header_buff,
-    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
-    int valueLen, int hf_time, guint8 headerType)
-{
-	guint secs;
-	nstime_t timeValue;
-
-	/* Attempt to get the date value from the buffer */
-	if (get_integer (value_buff, 0, valueLen, valueType, &secs) == 0)
-	{
-		/*
-		 * Fill in the "struct timeval", and add it to the
-		 * protocol tree.
-		 * Note: this will succeed even if it's a Short-integer.
-		 * A Short-integer would work, but, as the time values
-		 * are UNIX seconds-since-the-Epoch value, and as
-		 * there weren't WAP phones or Web servers back in
-		 * late 1969/early 1970, they're unlikely to be used.
-		 */
-		timeValue.secs = secs;
-		timeValue.nsecs = 0;
-		proto_tree_add_time (tree, hf_time, header_buff, 0,
-			headerLen, &timeValue);
-	}
-	else
-	{
-		proto_tree_add_text (tree, header_buff, 0, headerLen,
-		    "Invalid %s date value",
-		    match_strval (headerType, vals_field_names));
-	}
-}
-
-static int
-add_parameter (proto_tree *tree, tvbuff_t *value_buff, int offset)
-{
-	int startOffset;
-	value_type_t valueType;
-	int subvalueLen;
-	int subvalueOffset;
-	guint value;
-
-	startOffset = offset;
-	valueType = get_value_type_len (value_buff, offset,
-	    &subvalueLen, &subvalueOffset, &offset);
-	if (valueType == VALUE_IS_TEXT_STRING)
-	{
-		/*
-		 * Untyped-parameter.
-		 */
-		offset = add_untyped_parameter (tree, value_buff, startOffset, offset);
-		return offset;
-	}
-
-	/*
-	 * Well-known-parameter-token.
-	 */
-	if (get_integer (value_buff, subvalueOffset,
-	    subvalueLen, valueType, &value) < 0)
-	{
-	    	proto_tree_add_text (tree, value_buff, startOffset,
-		    offset - startOffset,
-		    "Invalid Well-known-parameter-token");
-		return offset;
-	}
-
-	switch (value) {
-
-		case 0x01:	/* WSP 1.1 encoding - Charset: Well-known-charset */
-			offset = add_parameter_charset (tree, value_buff, startOffset, offset);
-			break;
-
-		case 0x03:	/* WSP 1.1 encoding - Type: Integer-value */
-			offset = add_parameter_type (tree, value_buff, startOffset, offset);
-			break;
-
-		case 0x05:	/* WSP 1.1 encoding - Name: Text-string */
-		case 0x17:	/* WSP 1.4 encoding - Name: Text-value */
-			offset = add_parameter_text (tree, value_buff, startOffset, offset,
-					    hf_wsp_parameter_name, "Name");
-			break;
-
-		case 0x06:	/* WSP 1.1 encoding - Filename: Text-string */
-		case 0x18:	/* WSP 1.4 encoding - Filename: Text-value */
-			offset = add_parameter_text (tree, value_buff, startOffset, offset,
-					    hf_wsp_parameter_filename, "Filename");
-			break;
-
-		case 0x09:	/* WSP 1.2 encoding - Type (special): Constrained-encoding */
-			offset = add_constrained_encoding(tree, value_buff, startOffset, offset);
-			break;
-
-		case 0x0A:	/* WSP 1.2 encoding - Start: Text-string */
-		case 0x19:	/* WSP 1.4 encoding - Start (with multipart/related): Text-value */
-			offset = add_parameter_text (tree, value_buff, startOffset, offset,
-					    hf_wsp_parameter_start, "Start");
-			break;
-
-		case 0x0B:	/* WSP 1.2 encoding - Start-info: Text-string */
-		case 0x1A:	/* WSP 1.4 encoding - Start-info (with multipart/related): Text-value */
-			offset = add_parameter_text (tree, value_buff, startOffset, offset,
-					    hf_wsp_parameter_start_info, "Start-info");
-			break;
-
-		case 0x0C:	/* WSP 1.3 encoding - Comment: Text-string */
-		case 0x1B:	/* WSP 1.4 encoding - Comment: Text-value */
-			offset = add_parameter_text (tree, value_buff, startOffset, offset,
-					    hf_wsp_parameter_comment, "Comment");
-			break;
-
-		case 0x0D:	/* WSP 1.3 encoding - Domain: Text-string */
-		case 0x1C:	/* WSP 1.4 encoding - Domain: Text-value */
-			offset = add_parameter_text (tree, value_buff, startOffset, offset,
-					    hf_wsp_parameter_domain, "Domain");
-			break;
-
-		case 0x0F:	/* WSP 1.3 encoding - Path: Text-string */
-		case 0x1D:	/* WSP 1.4 encoding - Path: Text-value */
-			offset = add_parameter_text (tree, value_buff, startOffset, offset,
-					    hf_wsp_parameter_path, "Path");
-			break;
-
-		case 0x11:	/* WSP 1.4 encoding - SEC: Short-integer (OCTET) */
-			proto_tree_add_uint (tree, hf_wsp_parameter_sec, value_buff, startOffset, 2,
-					tvb_get_guint8 (value_buff, startOffset+1) & 0x7F);
-			offset++;
-			break;
-		
-		case 0x12:	/* WSP 1.4 encoding - MAC: Text-value */
-			offset = add_parameter_text (tree, value_buff, startOffset, offset,
-					    hf_wsp_parameter_mac, "MAC");
-			break;
-		
-		case 0x00:	/* WSP 1.1 encoding - Q: Q-value */
-		case 0x02:	/* WSP 1.1 encoding - Level: Version-value */
-		case 0x07:	/* WSP 1.1 encoding - Differences: Field-name */
-		case 0x08:	/* WSP 1.1 encoding - Padding: Short-integer */
-		case 0x0E:	/* WSP 1.3 encoding - Max-Age: Delta-seconds-value */
-		case 0x10:	/* WSP 1.3 encoding - Secure: No-value */
-		case 0x13:	/* WSP 1.4 encoding - Creation-date: Date-value */
-		case 0x14:	/* WSP 1.4 encoding - Modification-date: Date-value */
-		case 0x15:	/* WSP 1.4 encoding - Read-date: Date-value */
-		case 0x16:	/* WSP 1.4 encoding - Size: Integer-value */
-		default:
-			break;
-	}
-
-	return offset;
-}
-
-static int
-add_untyped_parameter (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
-    int offset)
-{
-	const guint8 *token;
-	value_type_t valueType;
-	int subvalueLen;
-	int subvalueOffset;
-	guint value;
-	int vOffset = offset;
-
-	token = tvb_get_ptr (value_buff, startOffset, offset - startOffset);
-	/*
-	 * Now an Untyped-value; either an Integer-value or a Text-value.
-	 */
-	valueType = get_value_type_len (value_buff, offset,
-	    &subvalueLen, &subvalueOffset, &offset);
-	if (valueType == VALUE_IS_TEXT_STRING)
-	{
-		/*
-		 * Text-value.
-		 */
-		if ((offset - vOffset) == 1) {
-			/*
-			 * No-value.  (stringSize includes the terminating
-			 * null byte, so an empty string has a size of 1.)
-			 */
-			proto_tree_add_text (tree, value_buff, startOffset,
-			    offset - startOffset,
-			    "%s", token);
-			return offset;
-		}
-		proto_tree_add_text (tree, value_buff, startOffset,
-		    offset - startOffset,
-		    "%s: %s", token,
-		    tvb_get_ptr (value_buff, vOffset, offset - vOffset));
-	}
-	else
-	{
-		/*
-		 * Integer-value.
-		 */
-		if (get_integer (value_buff, subvalueOffset, subvalueLen,
-		    valueType, &value) == 0)
-		{
-			proto_tree_add_text (tree, value_buff, startOffset,
-			    offset - startOffset,
-			    "%s: %u", token, value);
-		}
-		else
-		{
-			proto_tree_add_text (tree, value_buff, startOffset,
-			    offset - startOffset,
-			    "%s: Invalid Integer-value", token);
-		}
-	}
-	return offset;
-}
 
 static int
 add_parameter_charset (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
@@ -4284,6 +4896,7 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb)
 			add_headers (mpart_tree, tmp_tvb);
 		}
 		offset = nextOffset + HeadersLen;
+		/* TODO - Try the dissectors of the multipart content */
 		proto_tree_add_item (mpart_tree, hf_wsp_multipart_data, tvb, offset, DataLen, bo_little_endian);
 		offset += DataLen;
 		partnr++;
@@ -4538,6 +5151,13 @@ proto_register_wsp(void)
 				"Multipart type (int value)", HFILL
 			}
 		},
+		{ &hf_wsp_parameter_level,
+			{ 	"Level",
+				"wsp.content_type.parameter.level",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Level parameter", HFILL
+			}
+		},
 		{ &hf_wsp_reply_data,
 			{ 	"Data",
 				"wsp.reply.data",
@@ -4553,626 +5173,9 @@ proto_register_wsp(void)
 				"Header code page shift code", HFILL
 			}
 		},
-		{ &hf_wsp_header_accept,
-			{ 	"Accept",
-				"wsp.header.accept",
-				 /*FT_NONE, BASE_DEC, NULL, 0x00,*/
-				 FT_UINT8, BASE_HEX, VALS ( vals_content_types ), 0x00,
-				"Accept", HFILL
-			}
-		},
-		{ &hf_wsp_header_accept_str,
-			{ 	"Accept",
-				"wsp.header.accept.string",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Accept", HFILL
-			}
-		},
-		{ &hf_wsp_header_accept_application,
-			{ 	"Accept-Application",
-				"wsp.header.accept_application",
-				 FT_UINT32, BASE_HEX, NULL, 0x00,
-				"Accept-Application", HFILL
-			}
-		},
-		{ &hf_wsp_header_accept_application_str,
-			{ 	"Accept-Application",
-				"wsp.header.accept_application.string",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Accept-Application", HFILL
-			}
-		},
-		{ &hf_wsp_header_accept_charset,
-			{ 	"Accept-Charset",
-				"wsp.header.accept_charset",
-				 FT_UINT16, BASE_HEX, VALS ( vals_character_sets ), 0x00,
-				"Accept-Charset", HFILL
-			}
-		},
-		{ &hf_wsp_header_accept_charset_str,
-			{ 	"Accept-Charset",
-				"wsp.header.accept_charset.string",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Accept-Charset", HFILL
-			}
-		},
-		{ &hf_wsp_header_accept_language,
-			{ 	"Accept-Language",
-				"wsp.header.accept_language",
-				 FT_UINT8, BASE_HEX, VALS ( vals_languages ), 0x00,
-				"Accept-Language", HFILL
-			}
-		},
-		{ &hf_wsp_header_accept_language_str,
-			{ 	"Accept-Language",
-				"wsp.header.accept_language.string",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Accept-Language", HFILL
-			}
-		},
-		{ &hf_wsp_header_accept_ranges,
-			{ 	"Accept-Ranges",
-				"wsp.header.accept_ranges",
-				 FT_UINT8, BASE_HEX, VALS ( vals_accept_ranges ), 0x00,
-				"Accept-Ranges", HFILL
-			}
-		},
-		{ &hf_wsp_header_accept_ranges_str,
-			{ 	"Accept-Ranges",
-				"wsp.header.accept_ranges.string",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Accept-Ranges", HFILL
-			}
-		},
-		{ &hf_wsp_header_age,
-			{ 	"Age",
-				"wsp.header.age",
-				 FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Age", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_push_addr,
-			{ 	"x-up-proxy-push-addr",
-				"wsp.header.x-up-proxy-push-addr",
-				 FT_BYTES, BASE_HEX, NULL, 0x00,
-				"The network address and port number that the handset can receive UPNOTIFY pushes on.", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_push_accept,
-			{ 	"x-up-proxy-push-accept",
-				"wsp.header.x-up-proxy-push-accept",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"The content types that the handset can handle when sent via UPNOTIFY pushes.", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_push_seq,
-			{ 	"x-up-proxy-push-seq",
-				"wsp.header.x-up-proxy-push-seq",
-				 FT_UINT16, BASE_DEC, NULL, 0x00,
-				"Specifies the sequence number of the last UPNOTIFY push sent.", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_notify,
-			{ 	"x-up-proxy-notify",
-				"wsp.header.x-up-proxy-notify",
-				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Indicates to the handset that there are pending UPNOTIFY pushes waiting.", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_operator_domain,
-			{ 	"x-up-proxy-operator-domain",
-				"wsp.header.x-up-proxy-operator-domain",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Indicates the Trusted Provisioning Domain.", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_home_page,
-			{ 	"x-up-proxy-home-page",
-				"wsp.header.x-up-proxy-home-page",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Specifies the server-assigned home page URL.", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_devcap_has_color,
-			{ 	"x-up-devcap-has-color",
-				"wsp.header.x-up-devcap-has-color",
-				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Indicates if the handset supports colour.", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_devcap_num_softkeys,
-			{ 	"x-up-devcap-num-softkeys",
-				"wsp.header.x-up-devcap-num-softkeys",
-				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"The number of softkeys that can be displayed on the handset.", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_devcap_softkey_size,
-			{ 	"x-up-devcap-softkey-size",
-				"wsp.header.x-up-devcap-softkey-size",
-				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"The number of chars that can be displayed on a softkey label.", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_devcap_screen_chars,
-			{ 	"x-up-devcap-screen-chars",
-				"wsp.header.x-up-devcap-screen-chars",
-				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"The height and width of the handset's display in characters.", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_devcap_screen_pixels,
-			{ 	"x-up-devcap-screen-pixels",
-				"wsp.header.x-up-devcap-screen-pixels",
-				 FT_UINT32, BASE_DEC, NULL, 0x00,
-				"The height and width of the handset's display in pixels.", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_devcap_em_size,
-			{ 	"x-up-devcap-em-size",
-				"wsp.header.x-up-devcap-em-size",
-				 FT_UINT32, BASE_DEC, NULL, 0x00,
-				"The height and width of an uppercase M in pixels in a handset.", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_devcap_screen_depth,
-			{ 	"x-up-devcap-screen-depth",
-				"wsp.header.x-up-devcap-screen-depth",
-				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"The colour/gray depth of the display in bits.", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_devcap_immed_alert,
-			{ 	"x-up-devcap-immed-alert",
-				"wsp.header.x-up-devcap-immed-alert",
-				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Indicates if the handset has support for immediate UPNOTIFY alerts.", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_net_ask,
-			{ 	"x-up-proxy-net-ask",
-				"wsp.header.x-up-proxy-net-ask",
-				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Indicates to browser if circuit switched call is allowed without user interaction", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_uplink_version,
-			{ 	"x-up-proxy-uplink-version",
-				"wsp.header.x-up-proxy-uplink-version",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Version of the MAG WAP gateway", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_tod,
-			{ 	"x-up-proxy-tod",
-				"wsp.header.x-up-proxy-tod",
-				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Time of day", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_ba_enable,
-			{ 	"x-up-proxy-ba-enable",
-				"wsp.header.x-up-proxy-ba-enable",
-				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Indicates if the WAP gateway should cache basic authentication details on behalf of the handset", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_ba_realm,
-			{ 	"x-up-proxy-ba-realm",
-				"wsp.header.x-up-proxy-ba-realm",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Indicates the realm within which basic authentication credentials apply", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_redirect_enable,
-			{ 	"x-up-proxy-redirect-enable",
-				"wsp.header.x-up-proxy-redirect-enable",
-				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Indicates if the handset wants the WAP gateway to handle HTTP redirects on its behalf", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_request_uri,
-			{ 	"x-up-proxy-request-uri",
-				"wsp.header.x-up-proxy-request-uri",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Indicates to the handset that the previous request was redirected to the specified URI", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_redirect_status,
-			{ 	"x-up-proxy-redirect-status",
-				"wsp.header.x-up-proxy-redirect-status",
-				 FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Indicates the status of a redirect performed on behalf of a handset", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_trans_charset,
-			{ 	"x-up-proxy-trans-charset",
-				"wsp.header.x-up-proxy-trans-charset",
-				 FT_UINT16, BASE_HEX, VALS ( vals_character_sets ), 0x00,
-				"For POSTs indicates the charset encoding of a document", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_trans_charset_str,
-			{ 	"x-up-proxy-trans-charset",
-				"wsp.header.x-up-proxy-trans-charset.string",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"For POSTs indicates the charset encoding of a document", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_linger,
-			{ 	"x-up-proxy-linger",
-				"wsp.header.x-up-proxy-linger",
-				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Indicates the circuit linger time in seconds", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_client_id,
-			{ 	"x-up-proxy-client-id",
-				"wsp.header.x-up-proxy-client-id",
-				 FT_BYTES, BASE_DEC, NULL, 0x00,
-				"The ClientId of the handset", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_enable_trust,
-			{ 	"x-up-proxy-enable-trust",
-				"wsp.header.x-up-proxy-enable-trust",
-				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Indicates whether to enable Trusted Provisioning Domain", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_trust_old,
-			{ 	"x-up-proxy-trust-old",
-				"wsp.header.x-up-proxy-trust-old",
-				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Indicates if the content being returned was received from within the Trusted Provisioning Domain", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_trust,
-			{ 	"x-up-proxy-trust",
-				"wsp.header.x-up-proxy-trust",
-				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Indicates if the content being returned was received from within the Trusted Provisioning Domain", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_proxy_bookmark,
-			{ 	"x-up-proxy-bookmark",
-				"wsp.header.x-up-proxy-bookmark",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Specifies the URL to use for server-side bookmarks", HFILL
-			}
-		},
-		{ &hf_wsp_header_openwave_devcap_gui,
-			{ 	"x-up-devcap-gui",
-				"wsp.header.x-up-devcap-gui",
-				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Indicates if the handset has a GUI", HFILL
-			}
-		},
-		{ &hf_wsp_header_bearer_indication,
-			/*
-			 * XXX - I'm assuming that the bearer indication is
-			 * just a bearer type.
-			 */
-			{ 	"Bearer-indication",
-				"wsp.header.bearer_indication",
-				 FT_UINT32, BASE_HEX, VALS(vals_bearer_types), 0x00,
-				"Bearer-indication", HFILL
-			}
-		},
-		{ &hf_wsp_header_cache_control,
-			{ 	"Cache-Control",
-				"wsp.header.cache_control",
-				 FT_UINT8, BASE_HEX, VALS ( vals_cache_control ), 0x00,
-				"Cache-Control", HFILL
-			}
-		},
-		{ &hf_wsp_header_cache_control_str,
-			{ 	"Cache-Control",
-				"wsp.header.cache_control.string",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Cache-Control", HFILL
-			}
-		},
-		{ &hf_wsp_header_cache_control_field_name,
-			{ 	"Field Name",
-				"wsp.header.cache_control.field_name",
-				 FT_UINT8, BASE_HEX, VALS ( vals_field_names ), 0x00,
-				"Cache-Control field name", HFILL
-			}
-		},
-		{ &hf_wsp_header_cache_control_field_name_str,
-			{ 	"Field Name",
-				"wsp.header.cache_control.field_name.str",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Cache-Control field name", HFILL
-			}
-		},
-		{ &hf_wsp_header_connection,
-			{ 	"Connection",
-				"wsp.header.connection",
-				 FT_UINT8, BASE_HEX, VALS ( vals_connection ), 0x00,
-				"Connection", HFILL
-			}
-		},
-		{ &hf_wsp_header_connection_str,
-			{ 	"Connection",
-				"wsp.header.connection_str",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Connection", HFILL
-			}
-		},
-		{ &hf_wsp_header_content_length,
-			{ 	"Content-Length",
-				"wsp.header.content_length",
-				 FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Content-Length", HFILL
-			}
-		},
-		{ &hf_wsp_header_date,
-			{ 	"Date",
-				"wsp.header.date",
-				 FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-				"Date", HFILL
-			}
-		},
-		{ &hf_wsp_header_etag,
-			{ 	"Etag",
-				"wsp.header.etag",
-				 /*FT_NONE, BASE_DEC, NULL, 0x00,*/
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Etag", HFILL
-			}
-		},
-		{ &hf_wsp_header_expires,
-			{ 	"Expires",
-				"wsp.header.expires",
-				 FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-				"Expires", HFILL
-			}
-		},
-		{ &hf_wsp_header_last_modified,
-			{ 	"Last-Modified",
-				"wsp.header.last_modified",
-				 FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-				"Last-Modified", HFILL
-			}
-		},
-		{ &hf_wsp_header_location,
-			{ 	"Location",
-				"wsp.header.location",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Location", HFILL
-			}
-		},
-		{ &hf_wsp_header_if_modified_since,
-			{ 	"If-Modified-Since",
-				"wsp.header.if_modified_since",
-				 FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-				"If-Modified-Since", HFILL
-			}
-		},
-		{ &hf_wsp_header_pragma,
-			{ 	"Pragma",
-				"wsp.header.pragma",
-				 /*FT_NONE, BASE_DEC, NULL, 0x00,*/
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"pragma", HFILL
-			}
-		},
-		{ &hf_wsp_header_authorization,
-			{ 	"Authorization",
-				"wsp.header.authorization",
-				 FT_NONE, BASE_NONE, NULL, 0x00,
-				"Authorization", HFILL
-			}
-		},
-		{ &hf_wsp_header_authorization_scheme,
-			{ 	"Authentication scheme",
-				"wsp.header.authorization.scheme",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Authorization: Authentication Scheme", HFILL
-			}
-		},
-		{ &hf_wsp_header_authorization_user_id,
-			{ 	"User-ID",
-				"wsp.header.authorization.user_id",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Authorization: Basic: User-ID", HFILL
-			}
-		},
-		{ &hf_wsp_header_authorization_password,
-			{ 	"Password",
-				"wsp.header.authorization.password",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Authorization: Basic: Password", HFILL
-			}
-		},
-		{ &hf_wsp_header_proxy_authorization,
-			{ 	"Proxy-Authorization",
-				"wsp.header.proxy_authorization",
-				 FT_NONE, BASE_NONE, NULL, 0x00,
-				"Proxy-Authorization", HFILL
-			}
-		},
-		{ &hf_wsp_header_proxy_authorization_scheme,
-			{ 	"Authentication scheme",
-				"wsp.header.proxy_authorization.scheme",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Proxy-Authorization: Authentication Scheme", HFILL
-			}
-		},
-		{ &hf_wsp_header_proxy_authorization_user_id,
-			{ 	"User-Id",
-				"wsp.header.proxy_authorization.user_id",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Proxy-Authorization: Basic: User-ID", HFILL
-			}
-		},
-		{ &hf_wsp_header_proxy_authorization_password,
-			{ 	"Password",
-				"wsp.header.proxy_authorization.password",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Proxy-Authorization: Basic: Password", HFILL
-			}
-		},
-		{ &hf_wsp_header_www_authenticate,
-			{ 	"WWW-Authenticate",
-				"wsp.header.www-authenticate",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Authenticate", HFILL
-			}
-		},
-		{ &hf_wsp_header_proxy_authenticate,
-			{ 	"Proxy-Authenticate",
-				"wsp.header.proxy_authenticate",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Proxy-Authenticate", HFILL
-			}
-		},
-		{ &hf_wsp_header_profile,
-			{ 	"Profile",
-				"wsp.header.profile",
-				 /*FT_NONE, BASE_DEC, NULL, 0x00,*/
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Profile", HFILL
-			}
-		},
-		{ &hf_wsp_header_push_flag,
-			{	"Push-Flag",
-				"wsp.header.push_flag",
-				FT_UINT8, BASE_HEX, NULL, 0x00,
-				"Push-Flag (OTA-WSP header)", HFILL
-			}
-		},
-		{ &hf_wsp_header_push_flag_auth,
-			{	"Initiator URI is authenticated",
-				"wsp.header.push_flag.authenticated",
-				FT_UINT8, BASE_DEC, VALS(vals_false_true), 0x01,
-				"The X-Wap-Initiator-URI has been authenticated.", HFILL
-			}
-		},
-		{ &hf_wsp_header_push_flag_trust,
-			{	"Content is trusted",
-				"wsp.header.push_flag.trusted",
-				FT_UINT8, BASE_DEC, VALS(vals_false_true), 0x02,
-				"The push content is trusted.", HFILL
-			}
-		},
-		{ &hf_wsp_header_push_flag_last,
-			{	"Last push message",
-				"wsp.header.push_flag.last",
-				FT_UINT8, BASE_DEC, VALS(vals_false_true), 0x04,
-				"Indicates whether this is the last push message.", HFILL
-			}
-		},
-		{ &hf_wsp_header_server,
-			{ 	"Server",
-				"wsp.header.server",
-				 /*FT_NONE, BASE_DEC, NULL, 0x00,*/
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Server", HFILL
-			}
-		},
-		{ &hf_wsp_header_transfer_encoding,
-			{ 	"Transfer Encoding",
-				"wsp.header.transfer_enc",
-				 /*FT_NONE, BASE_DEC, NULL, 0x00,*/
-				 FT_UINT8, BASE_HEX, VALS ( vals_transfer_encoding ), 0x00,
-				"Transfer Encoding", HFILL
-			}
-		},
-		{ &hf_wsp_header_transfer_encoding_str,
-			{ 	"Transfer Encoding",
-				"wsp.header.transfer_enc_str",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Transfer Encoding", HFILL
-			}
-		},
-		{ &hf_wsp_header_user_agent,
-			{ 	"User-Agent",
-				"wsp.header.user_agent",
-				 /*FT_NONE, BASE_DEC, NULL, 0x00,*/
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"User-Agent", HFILL
-			}
-		},
-		{ &hf_wsp_header_via,
-			{ 	"Via",
-				"wsp.header.via",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Via", HFILL
-			}
-		},
-		{ &hf_wsp_header_wap_application_id,
-			{ 	"X-Wap-Application-Id",
-				"wsp.header.wap_application_id",
-				 FT_UINT8, BASE_HEX, NULL, 0x00,
-				"WAP application id", HFILL
-			}
-		},
-		{ &hf_wsp_header_wap_application_id_str,
-			{ 	"X-Wap-Application-Id",
-				"wsp.header.wap_application_id.string",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"WAP application id", HFILL
-			}
-		},
-		{ &hf_wsp_header_warning,
-			{ 	"Warning",
-				"wsp.header.warning",
-				 FT_NONE, BASE_NONE, NULL, 0x00,
-				"Warning", HFILL
-			}
-		},
-		{ &hf_wsp_header_warning_code,
-			{ 	"Warning Code",
-				"wsp.header.warning.code",
-				 FT_UINT8, BASE_DEC, VALS (vals_wsp_warning_code), 0x00,
-				"Warning Code", HFILL
-			}
-		},
-		{ &hf_wsp_header_warning_agent,
-			{ 	"Warning Agent",
-				"wsp.header.warning.agent",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Warning Agent", HFILL
-			}
-		},
-		{ &hf_wsp_header_warning_text,
-			{ 	"Warning Text",
-				"wsp.header.warning.text",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Warning Text", HFILL
-			}
-		},
-		{ &hf_wsp_header_application_header,
-			{ 	"Application Header",
-				"wsp.header.application_header",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Application Header", HFILL
-			}
-		},
-		{ &hf_wsp_header_application_value,
-			{ 	"Application Header Value",
-				"wsp.header.application_header.value",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Application Header Value", HFILL
-			}
-		},
-		{ &hf_wsp_header_content_ID,
-			{ 	"Content-ID",
-				"wsp.header.content-id",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Content-ID", HFILL
-			}
-		},
-		{ &hf_wsp_header_x_wap_tod,
-			{ 	"X-WAP.TOD",
-				"wsp.header.x_wap_tod",
-				 FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-				"X-WAP.TOD", HFILL
-			}
-		},
+		/*
+		 * CO-WSP capability negotiation
+		 */
 		{ &hf_wsp_capabilities_client_SDU,
 			{	"Client SDU",
 				"wsp.capabilities.client_SDU",
@@ -5341,10 +5344,769 @@ proto_register_wsp(void)
 				"Redirect Address", HFILL
 			}
 		},
+
+
+		/*
+		 * New WSP header fields
+		 */
+
+
+		/* WSP header name */
+		{ &hf_hdr_name,
+			{	"Header name",
+				"wsp.header.name",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"Name of the WSP header", HFILL
+			}
+		},
+		/* WSP well-known header ID */
+		{ &hf_hdr_id,
+			{	"Header well-known ID",
+				"wsp.header.id",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"7-bit identifier of a well-known WSP header", HFILL
+			}
+		},
+		/* WSP headers start here */
+		{ &hf_hdr_accept,
+			{	"Accept",
+				"wsp.hdr.accept",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Accept", HFILL
+			}
+		},
+		{ &hf_hdr_accept_charset,
+			{	"Accept-Charset",
+				"wsp.hdr.accept_charset",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Accept-Charset", HFILL
+			}
+		},
+		{ &hf_hdr_accept_encoding,
+			{	"Accept-Encoding",
+				"wsp.hdr.accept_encoding",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Accept-Encoding", HFILL
+			}
+		},
+		{ &hf_hdr_accept_language,
+			{	"Accept-Language",
+				"wsp.hdr.accept_language",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Accept-Language", HFILL
+			}
+		},
+		{ &hf_hdr_accept_ranges,
+			{	"Accept-Ranges",
+				"wsp.hdr.accept_ranges",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Accept-Ranges", HFILL
+			}
+		},
+		{ &hf_hdr_age,
+			{	"Age",
+				"wsp.hdr.age",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Age", HFILL
+			}
+		},
+		{ &hf_hdr_allow,
+			{	"Allow",
+				"wsp.hdr.allow",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Allow", HFILL
+			}
+		},
+		{ &hf_hdr_authorization,
+			{	"Authorization",
+				"wsp.hdr.authorization",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Authorization", HFILL
+			}
+		},
+		{ &hf_hdr_authorization_scheme,
+			{	"Authorization Scheme",
+				"wsp.hdr.authorization.scheme",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Authorization: used scheme", HFILL
+			}
+		},
+		{ &hf_hdr_authorization_user_id,
+			{	"user_id",
+				"wsp.hdr.authorization.user_id",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Authorization: user ID for basic authorization", HFILL
+			}
+		},
+		{ &hf_hdr_authorization_password,
+			{	"password",
+				"wsp.hdr.authorization.password",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Authorization: password for basic authorization", HFILL
+			}
+		},
+		{ &hf_hdr_cache_control,
+			{	"Cache-Control",
+				"wsp.hdr.cache_control",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Cache-Control", HFILL
+			}
+		},
+		{ &hf_hdr_connection,
+			{	"Connection",
+				"wsp.hdr.connection",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Connection", HFILL
+			}
+		},
+		{ &hf_hdr_content_encoding,
+			{	"Content-Encoding",
+				"wsp.hdr.content_encoding",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Content-Encoding", HFILL
+			}
+		},
+		{ &hf_hdr_content_language,
+			{	"Content-Language",
+				"wsp.hdr.content_language",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Content-Language", HFILL
+			}
+		},
+		{ &hf_hdr_content_length,
+			{	"Content-Length",
+				"wsp.hdr.content_length",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Content-Length", HFILL
+			}
+		},
+		{ &hf_hdr_content_location,
+			{	"Content-Location",
+				"wsp.hdr.content_location",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Content-Location", HFILL
+			}
+		},
+		{ &hf_hdr_content_md5,
+			{	"Content-Md5",
+				"wsp.hdr.content_md5",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Content-Md5", HFILL
+			}
+		},
+		{ &hf_hdr_content_range,
+			{	"Content-Range",
+				"wsp.hdr.content_range",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Content-Range", HFILL
+			}
+		},
+		{ &hf_hdr_content_type,
+			{	"Content-Type",
+				"wsp.hdr.content_type",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Content-Type", HFILL
+			}
+		},
+		{ &hf_hdr_date,
+			{	"Date",
+				"wsp.hdr.date",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Date", HFILL
+			}
+		},
+		{ &hf_hdr_etag,
+			{	"ETag",
+				"wsp.hdr.etag",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header ETag", HFILL
+			}
+		},
+		{ &hf_hdr_expires,
+			{	"Expires",
+				"wsp.hdr.expires",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Expires", HFILL
+			}
+		},
+		{ &hf_hdr_from,
+			{	"From",
+				"wsp.hdr.from",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header From", HFILL
+			}
+		},
+		{ &hf_hdr_host,
+			{	"Host",
+				"wsp.hdr.host",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Host", HFILL
+			}
+		},
+		{ &hf_hdr_if_modified_since,
+			{	"If-Modified-Since",
+				"wsp.hdr.if_modified_since",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header If-Modified-Since", HFILL
+			}
+		},
+		{ &hf_hdr_if_match,
+			{	"If-Match",
+				"wsp.hdr.if_match",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header If-Match", HFILL
+			}
+		},
+		{ &hf_hdr_if_none_match,
+			{	"If-None-Match",
+				"wsp.hdr.if_none_match",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header If-None-Match", HFILL
+			}
+		},
+		{ &hf_hdr_if_range,
+			{	"If-Range",
+				"wsp.hdr.if_range",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header If-Range", HFILL
+			}
+		},
+		{ &hf_hdr_if_unmodified_since,
+			{	"If-Unmodified-Since",
+				"wsp.hdr.if_unmodified_since",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header If-Unmodified-Since", HFILL
+			}
+		},
+		{ &hf_hdr_last_modified,
+			{	"Last-Modified",
+				"wsp.hdr.last_modified",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Last-Modified", HFILL
+			}
+		},
+		{ &hf_hdr_location,
+			{	"Location",
+				"wsp.hdr.location",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Location", HFILL
+			}
+		},
+		{ &hf_hdr_max_forwards,
+			{	"Max-Forwards",
+				"wsp.hdr.max_forwards",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Max-Forwards", HFILL
+			}
+		},
+		{ &hf_hdr_pragma,
+			{	"Pragma",
+				"wsp.hdr.pragma",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Pragma", HFILL
+			}
+		},
+		{ &hf_hdr_proxy_authenticate,
+			{	"Proxy-Authenticate",
+				"wsp.hdr.proxy_authenticate",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Proxy-Authenticate", HFILL
+			}
+		},
+		{ &hf_hdr_proxy_authorization,
+			{	"Proxy-Authorization",
+				"wsp.hdr.proxy_authorization",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Proxy-Authorization", HFILL
+			}
+		},
+		{ &hf_hdr_proxy_authorization_scheme,
+			{	"Authorization Scheme",
+				"wsp.hdr.proxy_authorization.scheme",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Proxy-Authorization: used scheme", HFILL
+			}
+		},
+		{ &hf_hdr_proxy_authorization_user_id,
+			{	"user_id",
+				"wsp.hdr.proxy_authorization.user_id",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Proxy-Authorization: user ID for basic authorization", HFILL
+			}
+		},
+		{ &hf_hdr_proxy_authorization_password,
+			{	"password",
+				"wsp.hdr.proxy_authorization.password",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Proxy-Authorization: password for basic authorization", HFILL
+			}
+		},
+		{ &hf_hdr_public,
+			{	"Public",
+				"wsp.hdr.public",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Public", HFILL
+			}
+		},
+		{ &hf_hdr_range,
+			{	"Range",
+				"wsp.hdr.range",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Range", HFILL
+			}
+		},
+		{ &hf_hdr_referer,
+			{	"Referer",
+				"wsp.hdr.referer",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Referer", HFILL
+			}
+		},
+		{ &hf_hdr_retry_after,
+			{	"Retry-After",
+				"wsp.hdr.retry_after",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Retry-After", HFILL
+			}
+		},
+		{ &hf_hdr_server,
+			{	"Server",
+				"wsp.hdr.server",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Server", HFILL
+			}
+		},
+		{ &hf_hdr_transfer_encoding,
+			{	"Transfer-Encoding",
+				"wsp.hdr.transfer_encoding",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Transfer-Encoding", HFILL
+			}
+		},
+		{ &hf_hdr_upgrade,
+			{	"Upgrade",
+				"wsp.hdr.upgrade",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Upgrade", HFILL
+			}
+		},
+		{ &hf_hdr_user_agent,
+			{	"User-Agent",
+				"wsp.hdr.user_agent",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header User-Agent", HFILL
+			}
+		},
+		{ &hf_hdr_vary,
+			{	"Vary",
+				"wsp.hdr.vary",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Vary", HFILL
+			}
+		},
+		{ &hf_hdr_via,
+			{	"Via",
+				"wsp.hdr.via",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Via", HFILL
+			}
+		},
+		{ &hf_hdr_warning,
+			{	"Warning",
+				"wsp.hdr.warning",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Warning", HFILL
+			}
+		},
+		{ &hf_hdr_www_authenticate,
+			{	"Www-Authenticate",
+				"wsp.hdr.www_authenticate",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Www-Authenticate", HFILL
+			}
+		},
+		{ &hf_hdr_content_disposition,
+			{	"Content-Disposition",
+				"wsp.hdr.content_disposition",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Content-Disposition", HFILL
+			}
+		},
+		{ &hf_hdr_application_id,
+			{	"Application-Id",
+				"wsp.hdr.application_id",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Application-Id", HFILL
+			}
+		},
+		{ &hf_hdr_content_uri,
+			{	"Content-Uri",
+				"wsp.hdr.content_uri",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Content-Uri", HFILL
+			}
+		},
+		{ &hf_hdr_initiator_uri,
+			{	"Initiator-Uri",
+				"wsp.hdr.initiator_uri",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Initiator-Uri", HFILL
+			}
+		},
+		{ &hf_hdr_bearer_indication,
+			{	"Bearer-Indication",
+				"wsp.hdr.bearer_indication",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Bearer-Indication", HFILL
+			}
+		},
+		{ &hf_hdr_push_flag,
+			{	"Push-Flag",
+				"wsp.hdr.push_flag",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Push-Flag", HFILL
+			}
+		},
+		{ &hf_hdr_push_flag_auth,
+			{	"Initiator URI is authenticated",
+				"wsp.hdr.push_flag.authenticated",
+				FT_UINT8, BASE_DEC, VALS(vals_false_true), 0x01,
+				"The X-Wap-Initiator-URI has been authenticated.", HFILL
+			}
+		},
+		{ &hf_hdr_push_flag_trust,
+			{	"Content is trusted",
+				"wsp.hdr.push_flag.trusted",
+				FT_UINT8, BASE_DEC, VALS(vals_false_true), 0x02,
+				"The push content is trusted.", HFILL
+			}
+		},
+		{ &hf_hdr_push_flag_last,
+			{	"Last push message",
+				"wsp.hdr.push_flag.last",
+				FT_UINT8, BASE_DEC, VALS(vals_false_true), 0x04,
+				"Indicates whether this is the last push message.", HFILL
+			}
+		},
+		{ &hf_hdr_profile,
+			{	"Profile",
+				"wsp.hdr.profile",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Profile", HFILL
+			}
+		},
+		{ &hf_hdr_profile_diff,
+			{	"Profile-Diff",
+				"wsp.hdr.profile_diff",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Profile-Diff", HFILL
+			}
+		},
+		{ &hf_hdr_profile_warning,
+			{	"Profile-Warning",
+				"wsp.hdr.profile_warning",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Profile-Warning", HFILL
+			}
+		},
+		{ &hf_hdr_expect,
+			{	"Expect",
+				"wsp.hdr.expect",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Expect", HFILL
+			}
+		},
+		{ &hf_hdr_te,
+			{	"Te",
+				"wsp.hdr.te",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Te", HFILL
+			}
+		},
+		{ &hf_hdr_trailer,
+			{	"Trailer",
+				"wsp.hdr.trailer",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Trailer", HFILL
+			}
+		},
+		{ &hf_hdr_x_wap_tod,
+			{	"X-Wap-Tod",
+				"wsp.hdr.x_wap_tod",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header X-Wap-Tod", HFILL
+			}
+		},
+		{ &hf_hdr_content_id,
+			{	"Content-Id",
+				"wsp.hdr.content_id",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Content-Id", HFILL
+			}
+		},
+		{ &hf_hdr_set_cookie,
+			{	"Set-Cookie",
+				"wsp.hdr.set_cookie",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Set-Cookie", HFILL
+			}
+		},
+		{ &hf_hdr_cookie,
+			{	"Cookie",
+				"wsp.hdr.cookie",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Cookie", HFILL
+			}
+		},
+		{ &hf_hdr_encoding_version,
+			{	"Encoding-Version",
+				"wsp.hdr.encoding_version",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Encoding-Version", HFILL
+			}
+		},
+		{ &hf_hdr_x_wap_security,
+			{	"X-Wap-Security",
+				"wsp.hdr.x_wap_security",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header X-Wap-Security", HFILL
+			}
+		},
+		{ &hf_hdr_x_wap_application_id,
+			{	"X-Wap-Application-Id",
+				"wsp.hdr.x_wap_application_id",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header X-Wap-Application-Id", HFILL
+			}
+		},
+		{ &hf_hdr_accept_application,
+			{	"Accept-Application",
+				"wsp.hdr.accept_application",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Accept-Application", HFILL
+			}
+		},
+
+
+		/*
+		 * Openwave headers
+		 */
+
+		/* Textual headers */
+		{ &hf_hdr_openwave_x_up_proxy_operator_domain,
+			{	"x-up-proxy-operator-domain",
+				"wsp.hdr.openwave.x_up_proxy_operator_domain",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-proxy-operator-domain", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_proxy_home_page,
+			{	"x-up-proxy-home-page",
+				"wsp.hdr.openwave.x_up_proxy_home_page",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-proxy-home-page", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_proxy_uplink_version,
+			{	"x-up-proxy-uplink-version",
+				"wsp.hdr.openwave.x_up_proxy_uplink_version",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-proxy-uplink-version", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_proxy_ba_realm,
+			{	"x-up-proxy-ba-realm",
+				"wsp.hdr.openwave.x_up_proxy_ba_realm",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-proxy-ba-realm", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_proxy_request_uri,
+			{	"x-up-proxy-request-uri",
+				"wsp.hdr.openwave.x_up_proxy_request_uri",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-proxy-request-uri", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_proxy_client_id,
+			{	"x-up-proxy-client-id",
+				"wsp.hdr.openwave.x_up_proxy_client_id",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-proxy-client-id", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_proxy_bookmark,
+			{	"x-up-proxy-bookmark",
+				"wsp.hdr.openwave.x_up_proxy_bookmark",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-proxy-bookmark", HFILL
+			}
+		},
+		/* Integer-value headers */
+		{ &hf_hdr_openwave_x_up_proxy_push_seq,
+			{	"x-up-proxy-push-seq",
+				"wsp.hdr.openwave.x_up_proxy_push_seq",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-proxy-push-seq", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_proxy_notify,
+			{	"x-up-proxy-notify",
+				"wsp.hdr.openwave.x_up_proxy_notify",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-proxy-notify", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_proxy_net_ask,
+			{	"x-up-proxy-net-ask",
+				"wsp.hdr.openwave.x_up_proxy_net_ask",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-proxy-net-ask", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_proxy_tod,
+			{	"x-up-proxy-tod",
+				"wsp.hdr.openwave.x_up_proxy_tod",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-proxy-tod", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_proxy_ba_enable,
+			{	"x-up-proxy-ba-enable",
+				"wsp.hdr.openwave.x_up_proxy_ba_enable",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-proxy-ba-enable", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_proxy_redirect_enable,
+			{	"x-up-proxy-redirect-enable",
+				"wsp.hdr.openwave.x_up_proxy_redirect_enable",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-proxy-redirect-enable", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_proxy_redirect_status,
+			{	"x-up-proxy-redirect-status",
+				"wsp.hdr.openwave.x_up_proxy_redirect_status",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-proxy-redirect-status", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_proxy_linger,
+			{	"x-up-proxy-linger",
+				"wsp.hdr.openwave.x_up_proxy_linger",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-proxy-linger", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_proxy_enable_trust,
+			{	"x-up-proxy-enable-trust",
+				"wsp.hdr.openwave.x_up_proxy_enable_trust",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-proxy-enable-trust", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_proxy_trust,
+			{	"x-up-proxy-trust",
+				"wsp.hdr.openwave.x_up_proxy_trust",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-proxy-trust", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_devcap_has_color,
+			{	"x-up-devcap-has-color",
+				"wsp.hdr.openwave.x_up_devcap_has_color",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-devcap-has-color", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_devcap_num_softkeys,
+			{	"x-up-devcap-num-softkeys",
+				"wsp.hdr.openwave.x_up_devcap_num_softkeys",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-devcap-num-softkeys", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_devcap_softkey_size,
+			{	"x-up-devcap-softkey-size",
+				"wsp.hdr.openwave.x_up_devcap_softkey_size",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-devcap-softkey-size", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_devcap_screen_chars,
+			{	"x-up-devcap-screen-chars",
+				"wsp.hdr.openwave.x_up_devcap_screen_chars",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-devcap-screen-chars", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_devcap_screen_pixels,
+			{	"x-up-devcap-screen-pixels",
+				"wsp.hdr.openwave.x_up_devcap_screen_pixels",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-devcap-screen-pixels", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_devcap_em_size,
+			{	"x-up-devcap-em-size",
+				"wsp.hdr.openwave.x_up_devcap_em_size",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-devcap-em-size", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_devcap_screen_depth,
+			{	"x-up-devcap-screen-depth",
+				"wsp.hdr.openwave.x_up_devcap_screen_depth",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-devcap-screen-depth", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_devcap_immed_alert,
+			{	"x-up-devcap-immed-alert",
+				"wsp.hdr.openwave.x_up_devcap_immed_alert",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-devcap-immed-alert", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_devcap_gui,
+			{	"x-up-devcap-gui",
+				"wsp.hdr.openwave.x_up_devcap_gui",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-devcap-gui", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_proxy_trans_charset,
+			{	"x-up-proxy-trans-charset",
+				"wsp.hdr.openwave.x_up_proxy_trans_charset",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-proxy-trans-charset", HFILL
+			}
+		},
+		{ &hf_hdr_openwave_x_up_proxy_push_accept,
+			{	"x-up-proxy-push-accept",
+				"wsp.hdr.openwave.x_up_proxy_push_accept",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-proxy-push-accept", HFILL
+			}
+		},
+
+		/*
+		 * Header value parameters
+		 */
+
+		{ &hf_parameter_q,
+			{ 	"Q",
+				"wsp.parameter.q",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Q parameter", HFILL
+			}
+		},
 	};
 
+
 /* Setup protocol subtree array */
-	static gint *ett[] = {
+	static gint *ett[] = { /* TODO - remove unneeded subtrees */
 		&ett_wsp,
 		&ett_content_type_parameters,
 		&ett_header,
@@ -5361,15 +6123,20 @@ proto_register_wsp(void)
 		&ett_mpartlist,
 		&ett_header_credentials,
 		&ett_push_flags,
+		&ett_parameters,
+		&ett_authorization,	/* Authorization, Proxy-Authorization */
+		&ett_authenticate, /* WWW-Authenticate, Proxy-Authenticate */
+		&ett_warning, /* Warning */
 	};
 
 /* Register the protocol name and description */
 	proto_wsp = proto_register_protocol(
 		"Wireless Session Protocol",   	/* protocol name for use by ethereal */
 		"WSP",                          /* short version of name */
-		"wap-wsp"                   	/* Abbreviated protocol name, should Match IANA
-						    < URL:http://www.isi.edu/in-notes/iana/assignments/port-numbers/ >
-						  */
+		"wap-wsp"                   	/* Abbreviated protocol name,
+										   should Match IANA:
+	    < URL:http://www.isi.edu/in-notes/iana/assignments/port-numbers/ >
+										*/
 	);
 	wsp_tap = register_tap("wsp");
 	/* Init the hash table */
