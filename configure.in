@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.240 2003/12/24 14:06:36 jmayer Exp $
+# $Id: configure.in,v 1.241 2004/01/08 22:52:22 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -665,10 +665,18 @@ if test "x$NETSNMPCONFIG" != "xno" -a "x$NETSNMPCONFIG" != "x" -a -x "$NETSNMPCO
 	# searching for the Net-SNMP headers, we look in whatever
 	# directory that output specifies.
 	#
+	# XXX - some versions of net-snmp-config, when run with --cflags,
+	# might set flags that won't work with cpp, and AC_CHECK_HEADERS
+	# might use cpp.  To work around this, we just use --prefix to
+	# get the directory in which to search for header files, and
+	# construct CPPFLAGS from that, although that might miss -D or
+	# -U flags you get from --cflags; the -I flag should be
+	# sufficient for AC_CHECK_HEADERS' purpose.
+	#
 	ethereal_save_CFLAGS="$CFLAGS"
 	ethereal_save_CPPFLAGS="$CPPFLAGS"
 	CFLAGS="$CFLAGS `$NETSNMPCONFIG --cflags`"
-	CPPFLAGS="$CPPFLAGS `$NETSNMPCONFIG --cflags`"
+	CPPFLAGS="$CPPFLAGS -I`$NETSNMPCONFIG --prefix`/include"
 
 	AC_CHECK_HEADERS(net-snmp/net-snmp-config.h net-snmp/library/default_store.h)
 	if test "x$ac_cv_header_net_snmp_net_snmp_config_h" = "xyes" -a "x$ac_cv_header_net_snmp_library_default_store_h" = "xyes" ; then
