@@ -687,6 +687,10 @@ Francisco Javier Cabello <fjcabello@vtools.es> {
 	RFC 2250 MPEG1 support
 }
 
+Laurent Rabret <laurent.rabret@rd.francetelecom.fr> {
+	LCP-over Ethernet and IPCP-over-Ethernet support
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.63 2001/04/23 18:19:03 guy Exp $
+ * $Id: packet-ppp.c,v 1.64 2001/06/14 20:05:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1492,6 +1492,7 @@ void
 proto_reg_handoff_lcp(void)
 {
   dissector_add("ppp.protocol", PPP_LCP, dissect_lcp, proto_lcp);
+  dissector_add("ethertype", PPP_LCP, dissect_lcp, proto_lcp);
 }
 
 void
@@ -1513,4 +1514,5 @@ void
 proto_reg_handoff_ipcp(void)
 {
   dissector_add("ppp.protocol", PPP_IPCP, dissect_ipcp, proto_ipcp);
+  dissector_add("ethertype", PPP_IPCP, dissect_ipcp, proto_ipcp);
 }
