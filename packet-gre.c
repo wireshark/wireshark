@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.53 2002/11/07 22:12:13 guy Exp $
+ * $Id: packet-gre.c,v 1.54 2003/06/10 05:38:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,7 +72,7 @@ static void dissect_gre_wccp2_redirect_header(tvbuff_t *, int, proto_tree *);
 static const value_string typevals[] = {
 	{ ETHERTYPE_PPP,       "PPP" },
 	{ ETHERTYPE_IP,        "IP" },
-	{ SAP_OSINL,           "OSI"},
+	{ SAP_OSINL5,          "OSI"},
 	{ GRE_WCCP,            "WCCP"},
 	{ ETHERTYPE_IPX,       "IPX"},
 	{ ETHERTYPE_ETHBRIDGE, "Transparent Ethernet bridging" },

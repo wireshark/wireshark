@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.109 2003/04/18 03:41:39 guy Exp $
+ * $Id: packet-llc.c,v 1.110 2003/06/10 05:38:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -114,9 +114,14 @@ const value_string sap_vals[] = {
 	{ SAP_SNA1,           "SNA" },
 	{ SAP_SNA2,           "SNA" },
 	{ SAP_PROWAY_NM_INIT, "PROWAY (IEC955) Network Management and Initialization" },
+	{ SAP_NETWARE1,       "NetWare (unofficial?)" },
+	{ SAP_OSINL1,         "ISO Network Layer (OSLAN 1)" },
 	{ SAP_TI,             "Texas Instruments" },
+	{ SAP_OSINL2,         "ISO Network Layer (unofficial?)" },
+	{ SAP_OSINL3,         "ISO Network Layer (unofficial?)" },
 	{ SAP_BPDU,           "Spanning Tree BPDU" },
 	{ SAP_RS511,          "EIA RS-511 Manufacturing Message Service" },
+	{ SAP_OSINL4,         "ISO Network Layer (OSLAN 2)" },
 	{ SAP_X25,            "ISO 8208 (X.25 over 802.2)" },
 	/*
 	 * XXX - setting the group bit of SAP_X25 make 0x7F; is this just
@@ -131,13 +136,13 @@ const value_string sap_vals[] = {
 	{ SAP_SNAP,           "SNAP" },
 	{ SAP_VINES1,         "Banyan Vines" },
 	{ SAP_VINES2,         "Banyan Vines" },
-	{ SAP_NETWARE,        "NetWare" },
+	{ SAP_NETWARE2,       "NetWare" },
 	{ SAP_NETBIOS,        "NetBIOS" },
 	{ SAP_IBMNM,          "IBM Net Management" },
 	{ SAP_HPEXT,          "HP Extended LLC" },
 	{ SAP_UB,             "Ungermann-Bass" },
 	{ SAP_RPL,            "Remote Program Load" },
-	{ SAP_OSINL,          "ISO Network Layer" },
+	{ SAP_OSINL5,         "ISO Network Layer" },
 	{ SAP_GLOBAL,         "Global LSAP" },
 	{ 0x00,               NULL }
 };
@@ -234,7 +239,8 @@ capture_llc(const guchar *pd, int offset, int len, packet_counts *ld) {
 				    ld);
 				break;
 
-			case SAP_NETWARE:
+			case SAP_NETWARE1:
+			case SAP_NETWARE2:
 				capture_ipx(ld);
 				break;
 

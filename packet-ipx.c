@@ -6,7 +6,7 @@
  * Portions Copyright (c) 2000-2002 by Gilbert Ramirez.
  * Portions Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ipx.c,v 1.130 2003/04/14 01:26:57 guy Exp $
+ * $Id: packet-ipx.c,v 1.131 2003/06/10 05:38:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1433,7 +1433,8 @@ proto_reg_handoff_ipx(void)
 	dissector_add("ethertype", ETHERTYPE_IPX, ipx_handle);
 	dissector_add("chdlctype", ETHERTYPE_IPX, ipx_handle);
 	dissector_add("ppp.protocol", PPP_IPX, ipx_handle);
-	dissector_add("llc.dsap", SAP_NETWARE, ipx_handle);
+	dissector_add("llc.dsap", SAP_NETWARE1, ipx_handle);
+	dissector_add("llc.dsap", SAP_NETWARE2, ipx_handle);
 	dissector_add("null.type", BSD_AF_IPX, ipx_handle);
 	dissector_add("gre.proto", ETHERTYPE_IPX, ipx_handle);
 	dissector_add("arcnet.protocol_id", ARCNET_PROTO_IPX, ipx_handle);
