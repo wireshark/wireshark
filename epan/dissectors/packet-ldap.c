@@ -2547,6 +2547,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 
       if (ldap_info->auth_mech != NULL &&
           strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) {
+	  int header_len;
           /*
            * This is GSS-API (using SPNEGO, but we should be done with
            * the negotiation by now).
@@ -2559,19 +2560,32 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
           reported_length = tvb_reported_length_remaining(tvb, 4);
           g_assert(available_length >= 0);
           g_assert(reported_length >= 0);
-          if (available_length > reported_length)
+          if (available_length > reported_length) 
             available_length = reported_length;
-          if ((guint)available_length > sasl_length - 4)
-            available_length = sasl_length - 4;
-          if ((guint)reported_length > sasl_length - 4)
-            reported_length = sasl_length - 4;
+
           next_tvb = tvb_new_subset(tvb, 4, available_length, reported_length);
           if (tree)
           {
             gitem = proto_tree_add_text(ldap_tree, next_tvb, 0, -1, "GSS-API Token");
             gtree = proto_item_add_subtree(gitem, ett_ldap_gssapi_token);
           }
+
+	  /* Attempt decryption of the GSSAPI wrapped data if possible */
+	  pinfo->decrypt_gssapi_tvb=1;
+	  pinfo->gssapi_encrypted_tvb=NULL;
+	  pinfo->gssapi_decrypted_tvb=NULL;
           len = call_dissector(gssapi_wrap_handle, next_tvb, pinfo, gtree);
+	  header_len=4+len;
+	  /* if we could decrypt, do a tvb shuffle */
+	  if(pinfo->gssapi_decrypted_tvb){
+		tvb=pinfo->gssapi_decrypted_tvb;
+		header_len=0;
+	  }
+	  /* tidy up */
+	  pinfo->decrypt_gssapi_tvb=0;
+	  pinfo->gssapi_encrypted_tvb=NULL;
+	  pinfo->gssapi_decrypted_tvb=NULL;
+
           /*
            * if len is 0 it probably mean that we got a PDU that is not
            * aligned to the start of the segment.
@@ -2582,25 +2596,26 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
           if (gitem != NULL)
               proto_item_set_len(gitem, len);
 
+
           /*
-           * check if it's LDAP or an encrypted blob
+           * check if it's LDAP or an encrypted blob (or a decrypted blob)
            */
 
-          asn1_open(&a, tvb, 4 + len);
+          asn1_open(&a, tvb, header_len);
           ret = check_optional_tag(&a, ASN1_UNI, ASN1_CON, ASN1_SEQ);
           asn1_close(&a, &tmp_offset);
           if (ret == ASN1_ERR_NOERROR) {
             /*
              * Now dissect the LDAP message.
              */
-            dissect_ldap_message(tvb, 4 + len, pinfo, ldap_tree, ti, first_time, ldap_info, is_mscldap);
+            dissect_ldap_message(tvb, header_len, pinfo, ldap_tree, ti, first_time, ldap_info, is_mscldap);
           } else {
             if (first_time && check_col(pinfo->cinfo, COL_INFO)) {
               col_add_fstr(pinfo->cinfo, COL_INFO, "LDAP GSS-API Encrypted payload (%d byte%s)",
                                 sasl_length - len,
                                 plurality(sasl_length - len, "", "s"));
             }
-            proto_tree_add_text(ldap_tree, tvb, 4 + len, -1,
+            proto_tree_add_text(ldap_tree, tvb, header_len, -1,
                                 "GSS-API Encrypted payload (%d byte%s)",
                                 sasl_length - len,
                                 plurality(sasl_length - len, "", "s"));
