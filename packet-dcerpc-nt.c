@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.69 2003/02/25 02:04:56 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.70 2003/04/27 00:34:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -765,7 +765,7 @@ void dcerpc_smb_init(int proto_dcerpc)
 		    "Frame handle opened", HFILL }},
 
 		{ &hf_nt_policy_close_frame,
-		  { "Frame handle close", "dcerpc.nt.close_frame",
+		  { "Frame handle closed", "dcerpc.nt.close_frame",
 		    FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		    "Frame handle closed", HFILL }},
 	};
