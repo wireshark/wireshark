@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.10 2002/03/31 21:05:47 guy Exp $
+ * $Id: reassemble.c,v 1.11 2002/04/17 04:54:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -567,12 +567,12 @@ fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
  * Returns a pointer to the head of the fragment data list if we have all the
  * fragments, NULL otherwise.
  *
- * This function assumes frag_offset being a block sequence number.
- * the bsn for the first block is 0.
+ * This function assumes frag_number being a block sequence number.
+ * The bsn for the first block is 0.
  */
 fragment_data *
 fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
-	     GHashTable *fragment_table, guint32 frag_offset,
+	     GHashTable *fragment_table, guint32 frag_number,
 	     guint32 frag_data_len, gboolean more_frags)
 {
 	fragment_key key, *new_key;
@@ -632,7 +632,7 @@ fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	fd->next = NULL;
 	fd->flags = 0;
 	fd->frame = pinfo->fd->num;
-	fd->offset = frag_offset;
+	fd->offset = frag_number;
 	fd->len  = frag_data_len;
 	fd->data = NULL;
 

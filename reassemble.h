@@ -1,7 +1,7 @@
 /* reassemble.h
  * Declarations of outines for {fragment,segment} reassembly
  *
- * $Id: reassemble.h,v 1.4 2002/02/03 23:28:38 guy Exp $
+ * $Id: reassemble.h,v 1.5 2002/04/17 04:54:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,10 +86,10 @@ fragment_data *fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint32 id, GHashTable *fragment_table, guint32 frag_offset,
     guint32 frag_data_len, gboolean more_frags);
 
-/* same as fragment_add() but this one assumes frag_offset is a block
-   sequence number. note that frag_offset is 0 for the first fragment. */
+/* same as fragment_add() but this one assumes frag_number is a block
+   sequence number. note that frag_number is 0 for the first fragment. */
 fragment_data *fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    guint32 id, GHashTable *fragment_table, guint32 frag_offset,
+    guint32 id, GHashTable *fragment_table, guint32 frag_number,
     guint32 frag_data_len, gboolean more_frags);
 
 /* to specify how much to reassemble, for fragmentation where last fragment can not be 
