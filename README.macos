@@ -58,7 +58,7 @@ install them before configuring GTK+.)
 
 You will need to do "make install-lib" for the JPEG library to install
 its libraries - "make install" does not suffice.  You will also have to
-do "sudo ranlib /usr/lib/libjpeg.a" after "make install-lib".
+do "sudo ranlib /usr/local/lib/libjpeg.a" after "make install-lib".
 
 For libpng, use scripts/makefile.darwin, not scripts/makefile.macosx.
 
