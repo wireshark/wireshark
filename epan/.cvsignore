@@ -6,3 +6,11 @@ dfilter-grammar.c
 dfilter-grammar.h
 dfilter-scanner.c
 tvbtest
+config.h.in
+config.h
+stamp-h.in
+config.status
+aclocal.m4
+configure
+stamp-h
+config.log
