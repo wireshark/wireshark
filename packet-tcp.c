@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.158 2002/09/11 09:08:07 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.159 2002/09/11 09:52:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -248,7 +248,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 	direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
 	/* if the addresses are equal, match the ports instead */
 	if(direction==0) {
-		direction= (pinfo->srcport > pinfo->destport);
+		direction= (pinfo->srcport > pinfo->destport)*2-1;
 	}
 	if(direction>=0){
 		ual1=tcpd->ual1;
