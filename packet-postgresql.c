@@ -3,7 +3,7 @@
  *
  * Copyright 2004, Edwin Calo <calo@fusemail.com>
  *
- * $Id: packet-postgresql.c,v 1.1 2004/02/16 13:30:05 jmayer Exp $
+ * $Id: packet-postgresql.c,v 1.2 2004/02/17 10:03:47 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -82,7 +82,7 @@ dissect_postgresql (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     flag=0;
     while ( buff_remaining > 1 )
     {
-         bitone = tvb_get_ntohs (tvb, offset);
+         bitone = tvb_get_guint8 (tvb, offset);
          offset += 1;
 
          if(bitone > 0x7f || (bitone > 0x0 && bitone < 0x20) ) 
