@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.64 2003/06/13 20:03:50 guy Exp $
+ * $Id: util.c,v 1.65 2003/06/13 20:40:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -144,7 +144,11 @@ get_compiled_version_info(GString *str)
 #else /* HAVE_LIBPCAP */
 	g_string_append(str, " ");
 	break_point = str->len - 1;
+#ifdef WIN32
+	g_string_append(str, "without WinPcap,");
+#else /* WIN32 */
 	g_string_append(str, "without libpcap,");
+#endif /* WIN32 */
 	do_word_wrap(str, break_point);
 #endif /* HAVE_LIBPCAP */
 
