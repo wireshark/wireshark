@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.2 2003/08/24 01:39:04 guy Exp $
+ * $Id: endpoint_talkers_table.c,v 1.3 2003/08/26 01:46:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 #include <gtk/gtk.h>
 #include "compat_macros.h"
 #include "epan/packet_info.h"
+#include "epan/to_str.h"
 #include "endpoint_talkers_table.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
@@ -139,7 +140,7 @@ ett_click_column_cb(GtkCList *clist, gint column, gpointer data)
 
 
 void
-init_ett_table(endpoints_table *et, GtkWidget *vbox, char *(*address_to_str)(address *), char *(*port_to_str)(guint32))
+init_ett_table(endpoints_table *et, GtkWidget *vbox, char *(*port_to_str)(guint32))
 {
 	int i;
 	column_arrows *col_arrows;
@@ -219,7 +220,6 @@ init_ett_table(endpoints_table *et, GtkWidget *vbox, char *(*address_to_str)(add
 
 	et->num_endpoints=0;
 	et->endpoints=NULL;
-	et->address_to_str=address_to_str;
 	et->port_to_str=port_to_str;
 
 	/* hide srcport and dstport if we dont use ports */
@@ -332,9 +332,9 @@ add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_
 		char *entries[NUM_COLS];
 		char frames[16],bytes[16],txframes[16],txbytes[16],rxframes[16],rxbytes[16];
 
-		entries[0]=et->address_to_str(&talker->src_address);
+		entries[0]=address_to_str(&talker->src_address);
 		entries[1]=(et->port_to_str)?et->port_to_str(talker->src_port):"";
-		entries[2]=et->address_to_str(&talker->dst_address);
+		entries[2]=address_to_str(&talker->dst_address);
 		entries[3]=(et->port_to_str)?et->port_to_str(talker->dst_port):"";
 
 		sprintf(frames,"%u", talker->tx_frames+talker->rx_frames);

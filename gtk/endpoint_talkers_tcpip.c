@@ -1,7 +1,7 @@
 /* endpoint_talkers_tcpip.c
  * endpoint_talkers_tcpip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_tcpip.c,v 1.6 2003/08/25 11:06:31 sahlberg Exp $
+ * $Id: endpoint_talkers_tcpip.c,v 1.7 2003/08/26 01:46:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -155,7 +155,7 @@ gtk_tcpip_talkers_init(char *optarg)
 	/* We must display TOP LEVEL Widget before calling init_ett_table() */
 	gtk_widget_show(tcpip_talkers->win);
 
-	init_ett_table(&tcpip_talkers->talkers, vbox, address_to_str, tcpip_port_to_str);
+	init_ett_table(&tcpip_talkers->talkers, vbox, tcpip_port_to_str);
 
 	error_string=register_tap_listener("tcp", tcpip_talkers, filter, tcpip_talkers_reset, tcpip_talkers_packet, tcpip_talkers_draw);
 	if(error_string){

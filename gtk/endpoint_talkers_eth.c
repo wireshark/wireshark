@@ -1,7 +1,7 @@
 /* endpoint_talkers_eth.c
  * endpoint_talkers_eth   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_eth.c,v 1.4 2003/08/25 11:06:31 sahlberg Exp $
+ * $Id: endpoint_talkers_eth.c,v 1.5 2003/08/26 01:46:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -139,7 +139,7 @@ gtk_eth_talkers_init(char *optarg)
 	/* We must display TOP LEVEL Widget before calling init_ett_table() */
 	gtk_widget_show(eth_talkers->win);
 
-	init_ett_table(&eth_talkers->talkers, vbox, address_to_str, NULL);
+	init_ett_table(&eth_talkers->talkers, vbox, NULL);
 
 	error_string=register_tap_listener("eth", eth_talkers, filter, eth_talkers_reset, eth_talkers_packet, eth_talkers_draw);
 	if(error_string){
