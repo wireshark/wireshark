@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.41 2004/01/10 17:31:40 obiot Exp $
+ * $Id: resolv.c,v 1.42 2004/01/25 15:35:45 jmayer Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -1867,7 +1867,7 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp)
 		 * to some form of a classful (host.net) notation.
 		 */
 		unsigned int a0, a1, a2, a3;
-		if (sscanf(host, "%d.%d.%d.%d", &a0, &a1, &a2, &a3) != 4)
+		if (sscanf(host, "%u.%u.%u.%u", &a0, &a1, &a2, &a3) != 4)
 			return FALSE;
 	}
 
