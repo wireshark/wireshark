@@ -568,7 +568,7 @@ class EthCtx:
       if (bits):
         for (val, id) in bits:
           self.named_bit.append({'name' : id, 'val' : val,
-                                 'ethname' : 'hf_%s_%s_%s' % (self.eproto, t, id),
+                                 'ethname' : 'hf_%s_%s_%s' % (self.eproto, t, asn2c(id)),
                                  'ftype'   : 'FT_BOOLEAN', 'display' : '8',
                                  'strings' : 'NULL',
                                  'bitmask' : '0x'+('80','40','20','10','08','04','02','01')[val%8]})
@@ -765,7 +765,7 @@ class EthCtx:
     out += "static const "
     out += "asn_namedbit %s_bits[] = {\n" % (tname)
     for (val, id) in bits:
-      out += '  { %2d, &hf_%s_%s_%s, -1, -1, NULL, NULL },\n' % (val, self.eproto, tname, id)
+      out += '  { %2d, &hf_%s_%s_%s, -1, -1, NULL, NULL },\n' % (val, self.eproto, tname, asn2c(id))
     out += "  { 0, NULL, 0, 0, NULL, NULL }\n};\n"
     return out
 
@@ -2746,8 +2746,7 @@ class RestrictedCharacterStringType (CharacterStringType):
       if (ectx.OPer()):
         body = ectx.eth_fn_call('dissect_per_restricted_character_string', ret='offset',
                                 par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
-								     (minv, maxv, alphabet, alphabet_length),
-									 ('NULL', 'NULL')))                                     
+                                     (minv, maxv, alphabet, alphabet_length)))
       else:
         body = '#error Can not decode %s' % (tname)
     elif (ectx.NPer()):
@@ -3074,11 +3073,9 @@ class BitStringType (Type):
 
   def eth_type_fn(self, proto, tname, ectx):
     out = ''
-    bits = []
+    bits = self.eth_named_bits()
     bitsp = 'NULL'
-    if (self.named_list):
-      for e in (self.named_list):
-        bits.append((int(e.val), e.ident))
+    if (bits):
       out += ectx.eth_bits(tname, bits)
       bitsp = tname + '_bits'
     out += ectx.eth_type_fn_hdr(tname)
