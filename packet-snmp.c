@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.76 2001/12/10 00:25:36 guy Exp $
+ * $Id: packet-snmp.c,v 1.77 2001/12/12 05:26:53 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -121,6 +121,12 @@
 #  define VALTYPE_OBJECTID	ASN_OBJECT_ID
 #  define VALTYPE_BITSTR	ASN_BIT_STR
 #  define VALTYPE_COUNTER64	ASN_COUNTER64
+
+#  ifdef RED_HAT_MODIFIED_UCD_SNMP
+#    include <ucd-snmp/parse.h>
+#  endif
+
+
 # elif defined(HAVE_SNMP_SNMP_H)
    /*
     * CMU SNMP.
@@ -695,7 +701,12 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 	}
 	variable->val_len = vb_length;
 
+# ifdef RED_HAT_MODIFIED_UCD_SNMP
+	sprint_value(binit(NULL, buf, sizeof(buf)), variable_oid,
+	    variable_oid_length, variable);
+# else
 	sprint_value(buf, variable_oid, variable_oid_length, variable);
+# endif
 	return buf;
 }
 #endif
@@ -1240,8 +1251,13 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    variable_oid_length);
 			
 #if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+# ifdef RED_HAT_MODIFIED_UCD_SNMP
+			sprint_objid(binit(NULL, vb_oid_string, sizeof(vb_oid_string)), 
+			    variable_oid, variable_oid_length);
+# else
 			sprint_objid(vb_oid_string, variable_oid,
 			    variable_oid_length);
+# endif
 			proto_tree_add_text(tree, tvb, offset, sequence_length,
 			    "Object identifier %d: %s (%s)", vb_index,
 			    oid_string, vb_oid_string);

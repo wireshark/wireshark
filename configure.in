@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.141 2001/12/07 22:56:56 guy Exp $
+# $Id: configure.in,v 1.142 2001/12/12 05:26:53 gerald Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -494,6 +494,16 @@ else
 	   "$ac_cv_header_snmp_snmp_h" = yes ; then
 	    AC_MSG_ERROR([Both UCD and CMU SNMP libraries found - uninstall one of them.])
 	fi
+	
+	#
+	# Look for the string 'sbuf' in ucd-snmp/mib.h.  If found, assume
+	# we've encountered a Red Hat-modified version of UCD SNMP.
+	#
+	# XXX - Check for 'binit()' in parse.h
+	#
+	AC_EGREP_HEADER(sprint_objid.*sbuf, ucd-snmp/mib.h, 
+	  AC_DEFINE(RED_HAT_MODIFIED_UCD_SNMP))
+
 
 	#
 	# This may require "-lkstat" on Solaris, sigh.
