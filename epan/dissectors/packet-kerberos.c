@@ -1374,6 +1374,7 @@ dissect_krb5_name_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 	}
 	return offset;
 }
+static char name_string_separator;
 static int 
 dissect_krb5_name_string(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
@@ -1381,7 +1382,8 @@ dissect_krb5_name_string(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 
 	offset=dissect_ber_GeneralString(pinfo, tree, tvb, offset, hf_krb_name_string, name_string, 255);
 	if(tree){
-		proto_item_append_text(tree, " %s", name_string);
+		proto_item_append_text(tree, "%c%s", name_string_separator, name_string);
+		name_string_separator='/';
 	}
 
 	return offset;
@@ -1392,6 +1394,7 @@ static ber_sequence name_stringe_sequence_of[1] = {
 static int 
 dissect_krb5_name_strings(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
+	name_string_separator=' ';
 	offset=dissect_ber_sequence_of(FALSE, pinfo, tree, tvb, offset, name_stringe_sequence_of, -1, -1);
 
 	return offset;
