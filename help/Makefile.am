@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal help files
 #
-# $Id: Makefile.am,v 1.3 2003/12/22 20:04:32 guy Exp $
+# $Id: Makefile.am,v 1.4 2003/12/22 21:01:29 ulfl Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,6 @@ help_DATA =            \
 	overview.txt        \
 	well_known.txt
 
-EXTRA_DIST = $(help_DATA) convert-include.sh Makefile.nmake
+EXTRA_DIST = $(help_DATA) Makefile.nmake
 
 CLEANFILES = 
