@@ -1,7 +1,7 @@
 /* tap.c
  * packet tap interface   2002 Ronnie Sahlberg
  *
- * $Id: tap.c,v 1.3 2002/09/14 07:42:52 sahlberg Exp $
+ * $Id: tap.c,v 1.4 2002/10/14 19:45:08 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,7 +96,7 @@ tap_init(void)
 	tap_packet_t *tpt;
 
 	for(i=0;i<TAP_PACKET_QUEUE_LEN;i++){
-		tpt=malloc(sizeof(tap_packet_t));
+		tpt=g_malloc(sizeof(tap_packet_t));
 		tpt->next=tap_packet_list_free;
 		tap_packet_list_free=tpt;
 	}
@@ -133,10 +133,9 @@ register_tap(char *name)
 	tap_dissector_t *td, *tdl;
 	int i;
 
-	td=malloc(sizeof(tap_dissector_t));
+	td=g_malloc(sizeof(tap_dissector_t));
 	td->next=NULL;
-	td->name=malloc(strlen(name));
-	strcpy(td->name, name);
+	td->name = g_strdup(name);
 
 	if(!tap_dissector_list){
 		tap_dissector_list=td;
