@@ -2,7 +2,7 @@
  * Routines for Logical Link Control GPRS dissection ETSI 4.64
  * Copyright 2000, Josef Korelus <jkor@quick.cz>
  *
- * $Id: packet-gprs-llc.c,v 1.3 2004/04/13 21:32:57 guy Exp $
+ * $Id: packet-gprs-llc.c,v 1.4 2004/04/25 20:23:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -283,10 +283,10 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		     tmp =  ctrl_fld_fb & 0xf;
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_str(pinfo->cinfo, COL_INFO, " U, ");
-				col_append_str(pinfo->cinfo, COL_INFO, match_strval(tmp, cr_formats_unnumb));
+				col_append_str(pinfo->cinfo, COL_INFO, val_to_str(tmp, cr_formats_unnumb,"Unknown/invalid code:%X"));
 			}
 			if(tree){
-				ui_ti = proto_tree_add_text(llcgprs_tree,tvb,offset-1,crc_start-1,"Unnumbered frame: %s", match_strval(tmp,cr_formats_unnumb));
+				ui_ti = proto_tree_add_text(llcgprs_tree,tvb,offset-1,crc_start-1,"Unnumbered frame: %s",val_to_str(tmp,cr_formats_unnumb,"Unknown/invalid code:%X"));
 				ui_tree = proto_item_add_subtree( ui_ti, ett_ui);
 				proto_tree_add_uint( ui_tree, hf_llcgprs_Un, tvb, offset-1, 1, ctrl_fld_fb);
 				proto_tree_add_boolean( ui_tree, hf_llcgprs_PF, tvb, offset-1, 1, ctrl_fld_fb);
