@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.27 2001/03/10 06:33:57 guy Exp $
+ * $Id: lanalyzer.c,v 1.28 2001/04/16 22:06:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -188,10 +188,6 @@ int lanalyzer_open(wtap *wth, int *err)
 				; /* no action */
 		}
 	} 
-
-	/* never gets here */
-	g_assert_not_reached();
-	return 0;
 }
 
 #define DESCRIPTOR_LEN	32
