@@ -11,7 +11,7 @@ Copyright:	GPL
 Group:		Networking/Utilities
 Source:		ethereal-%{PACKAGE_VERSION}.tar.gz
 URL:		http://ethereal.zing.org/
-BuildRoot:	/tmp/ethereal-%PACKAGE_VERSION}-root
+BuildRoot:	/tmp/ethereal-%{PACKAGE_VERSION}-root
 Packager:	FastJack <fastjack@i-s-o.net>
 Requires:	gtk+10
 Requires:	libpcap
