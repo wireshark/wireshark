@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.72 2001/11/09 08:36:56 guy Exp $
+ * $Id: prefs.c,v 1.73 2001/11/19 19:53:14 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1143,9 +1143,10 @@ set_pref(gchar *pref_name, gchar *value)
   gboolean bval;
   gint     enum_val;
   char     *p;
-  gchar    *dotp;
+  gchar    *dotp, *last_dotp;
   module_t *module;
   pref_t   *pref;
+  gboolean had_a_dot;
 
   if (strcmp(pref_name, PRS_PRINT_FMT) == 0) {
     if (strcmp(value, pr_formats[PR_FMT_TEXT]) == 0) {
@@ -1316,23 +1317,39 @@ set_pref(gchar *pref_name, gchar *value)
     }
   } else {
     /* To which module does this preference belong? */
-    dotp = strchr(pref_name, '.');
-    if (dotp == NULL)
-      return PREFS_SET_SYNTAX_ERR;	/* no ".", so no module/name separator */
-    *dotp = '\0';		/* separate module and preference name */
-    module = find_module(pref_name);
+    module = NULL;
+    last_dotp = pref_name;
+    had_a_dot = FALSE;
+    while (!module) {
+        dotp = strchr(last_dotp, '.');
+        if (dotp == NULL) {
+            if (had_a_dot) {
+              /* no such module */
+              return PREFS_SET_NO_SUCH_PREF;
+            }
+            else {
+              /* no ".", so no module/name separator */
+              return PREFS_SET_SYNTAX_ERR;
+            }
+        }
+        else {
+            had_a_dot = TRUE;
+        }
+        *dotp = '\0';		/* separate module and preference name */
+        module = find_module(pref_name);
 
-    /*
-     * XXX - "Diameter" rather than "diameter" was used in earlier
-     * versions of Ethereal; if we didn't find the module, and its name
-     * was "Diameter", look for "diameter" instead.
-     */
-    if (module == NULL && strcmp(pref_name, "Diameter") == 0)
-      module = find_module("diameter");
-    *dotp = '.';		/* put the preference string back */
-    if (module == NULL)
-      return PREFS_SET_NO_SUCH_PREF;	/* no such module */
-    dotp++;			/* skip past separator to preference name */
+        /*
+         * XXX - "Diameter" rather than "diameter" was used in earlier
+         * versions of Ethereal; if we didn't find the module, and its name
+         * was "Diameter", look for "diameter" instead.
+         */
+        if (module == NULL && strcmp(pref_name, "Diameter") == 0)
+          module = find_module("diameter");
+        *dotp = '.';		/* put the preference string back */
+        dotp++;			/* skip past separator to preference name */
+        last_dotp = dotp;
+    }
+
     pref = find_preference(module, dotp);
 
     if (pref == NULL) {
