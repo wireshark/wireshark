@@ -1651,8 +1651,14 @@ capture(char *save_file, int out_file_type)
     if (pcap_setfilter(ld.pch, &fcode) < 0) {
       snprintf(errmsg, sizeof errmsg, "Can't install filter (%s).",
 	pcap_geterr(ld.pch));
+#ifdef HAVE_PCAP_FREECODE
+      pcap_freecode(&fcode);
+#endif
       goto error;
     }
+#ifdef HAVE_PCAP_FREECODE
+    pcap_freecode(&fcode);
+#endif
   }
 
   /* Set up to write to the capture file. */

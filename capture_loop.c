@@ -764,8 +764,14 @@ static int capture_loop_init_filter(loop_data *ld, const gchar * iface, gchar * 
     if (pcap_setfilter(ld->pcap_h, &fcode) < 0) {
       g_snprintf(errmsg, errmsg_len, "Can't install filter (%s).",
 	pcap_geterr(ld->pcap_h));
+#ifdef HAVE_PCAP_FREECODE
+      pcap_freecode(&fcode);
+#endif
       return FALSE;
     }
+#ifdef HAVE_PCAP_FREECODE
+    pcap_freecode(&fcode);
+#endif
   }
 
   return TRUE;

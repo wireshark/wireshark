@@ -65,6 +65,7 @@ static int     (*p_pcap_lookupnet) (char *, bpf_u_int32 *, bpf_u_int32 *,
 static pcap_t* (*p_pcap_open_live) (char *, int, int, int, char *);
 #endif
 static int     (*p_pcap_loop) (pcap_t *, int, pcap_handler, guchar *);
+static void    (*p_pcap_freecode) (struct bpf_program *);
 #ifdef HAVE_PCAP_FINDALLDEVS
 static int     (*p_pcap_findalldevs) (pcap_if_t **, char *);
 static void    (*p_pcap_freealldevs) (pcap_if_t *);
@@ -75,7 +76,9 @@ static int (*p_pcap_datalink_name_to_val) (const char *);
 #ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
 static const char *(*p_pcap_datalink_val_to_name) (int);
 #endif
+#ifdef HAVE_PCAP_LIB_VERSION
 static const char *(*p_pcap_lib_version) (void);
+#endif
 static int     (*p_pcap_setbuff) (pcap_t *, int dim);
 
 typedef struct {
@@ -104,6 +107,7 @@ load_wpcap(void)
 		SYM(pcap_lookupnet, FALSE),
 		SYM(pcap_open_live, FALSE),
 		SYM(pcap_loop, FALSE),
+		SYM(pcap_freecode, FALSE),
 #ifdef HAVE_PCAP_FINDALLDEVS
 		SYM(pcap_findalldevs, TRUE),
 		SYM(pcap_freealldevs, TRUE),
@@ -114,7 +118,9 @@ load_wpcap(void)
 #ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
 		SYM(pcap_datalink_val_to_name, TRUE),
 #endif
+#ifdef HAVE_PCAP_LIB_VERSION
 		SYM(pcap_lib_version, TRUE),
+#endif
 		SYM(pcap_setbuff, TRUE),
 		{ NULL, NULL, FALSE }
 	};
@@ -179,14 +185,12 @@ pcap_dispatch(pcap_t *a, int b, pcap_handler c, guchar *d)
 	return p_pcap_dispatch(a, b, c, d);
 }
 
-
 int
 pcap_snapshot(pcap_t *a)
 {
 	g_assert(has_wpcap);
 	return p_pcap_snapshot(a);
 }
-
 
 int
 pcap_datalink(pcap_t *a)
@@ -244,6 +248,13 @@ pcap_loop(pcap_t *a, int b, pcap_handler c, guchar *d)
 {
 	g_assert(has_wpcap);
 	return p_pcap_loop(a, b, c, d);
+}
+
+void
+pcap_freecode(struct bpf_program *a)
+{
+	g_assert(has_wpcap);
+	p_pcap_freecode(a);
 }
 
 #ifdef HAVE_PCAP_FINDALLDEVS
@@ -621,9 +632,12 @@ get_runtime_pcap_version(GString *str)
 		}
 
 		g_string_sprintfa(str, "with ");
+#ifdef HAVE_PCAP_LIB_VERSION
 		if (p_pcap_lib_version != NULL)
 			g_string_sprintfa(str, p_pcap_lib_version());
-		else if (packetVer != NULL)
+		else
+#endif
+		if (packetVer != NULL)
 			g_string_sprintfa(str, "WinPcap (%s)", packetVer);
 		else
 			g_string_append(str, "WinPcap (version unknown)");
