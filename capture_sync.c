@@ -81,6 +81,7 @@
 #include <epan/prefs.h>
 
 #include "globals.h"
+#include "file.h"
 
 #include "capture.h"
 #include "capture_sync.h"
@@ -243,7 +244,7 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
     argv = sync_pipe_add_arg(argv, &argc, CHILD_NAME);
 
     argv = sync_pipe_add_arg(argv, &argc, "-i");
-    argv = sync_pipe_add_arg(argv, &argc, cfile.iface);
+    argv = sync_pipe_add_arg(argv, &argc, cf_get_iface(capture_opts->cf));
 
     argv = sync_pipe_add_arg(argv, &argc, "-w");
     argv = sync_pipe_add_arg(argv, &argc, capture_opts->save_file);
@@ -320,9 +321,9 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
 
     /* Convert filter string to a quote delimited string and pass to child */
     filterstring = NULL;
-    if (cfile.cfilter != NULL && strlen(cfile.cfilter) != 0) {
+    if (cf_get_cfilter(capture_opts->cf) != NULL && strlen(cf_get_cfilter(capture_opts->cf)) != 0) {
       argv = sync_pipe_add_arg(argv, &argc, "-f");
-      filterstring = sync_pipe_quote_encapsulate(cfile.cfilter);
+      filterstring = sync_pipe_quote_encapsulate(cf_get_cfilter(capture_opts->cf));
       argv = sync_pipe_add_arg(argv, &argc, filterstring);
     }
 
@@ -347,9 +348,9 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
     argv = sync_pipe_add_arg(argv, &argc, "-m");
     argv = sync_pipe_add_arg(argv, &argc, prefs.PREFS_GUI_FONT_NAME);
 
-    if (cfile.cfilter != NULL && strlen(cfile.cfilter) != 0) {
+    if (cf_get_cfilter(capture_opts->cf) != NULL && cf_get_cfilter(capture_opts->cf) != 0) {
       argv = sync_pipe_add_arg(argv, &argc, "-f");
-      argv = sync_pipe_add_arg(argv, &argc, cfile.cfilter);
+      argv = sync_pipe_add_arg(argv, &argc, cf_get_cfilter(capture_opts->cf));
     }
 
     if ((capture_opts->fork_child = fork()) == 0) {
@@ -484,7 +485,7 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
 
     /* The child process started a capture.
        Attempt to open the capture file and set up to read it. */
-    err = cf_start_tail(capture_opts->save_file, is_tempfile, &cfile);
+    err = cf_start_tail(capture_opts->save_file, is_tempfile, capture_opts->cf);
     if (err != 0) {
       /* We weren't able to open the capture file; user has been
 	 alerted. Close the sync pipe. */
