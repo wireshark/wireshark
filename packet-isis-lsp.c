@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.13 2001/05/14 18:40:15 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.14 2001/05/23 18:44:59 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -419,8 +419,13 @@ dissect_lsp_ip_reachability_clv(const u_char *pd, int offset,
 				ip_to_str((guint8*)&mask) );
 			ntree = proto_item_add_subtree(ti, 
 				ett_isis_lsp_clv_ip_reachability);
-			dissect_metric ( ntree, offset, pd[offset], "Default", 
-				TRUE );
+
+			proto_tree_add_text (ntree, NullTVB, offset, 1,
+				"Default Metric: %s %s %d:%d",
+				ISIS_LSP_CLV_METRIC_SUPPORTED(pd[offset]) ? "External" : "Internal",
+				ISIS_LSP_CLV_METRIC_RESERVED(pd[offset]) ? "(reserved bit != 0)" : "",
+				ISIS_LSP_CLV_METRIC_VALUE(pd[offset]),
+				pd[offset] );
 			dissect_metric ( ntree, offset + 1, pd[offset+1], 
 				"Delay", FALSE );
 			dissect_metric ( ntree, offset + 2, pd[offset+2], 
@@ -662,7 +667,7 @@ dissect_lsp_te_router_id_clv(const u_char *pd, int offset,
  *	void, will modify proto_tree if not null.
  */
 static void 
-dissect_lsp_ip_int_addr_clv(const u_char *pd, int offset, 
+dissect_lsp_ip_int_addr_clv(const u_char *pd, int offset,
 		guint length, int id_length, frame_data *fd, proto_tree *tree) {
 	isis_dissect_ip_int_clv(pd, offset, length, fd, tree, 
 		hf_isis_lsp_clv_ipv4_int_addr );
@@ -1474,7 +1479,7 @@ proto_register_isis_lsp(void) {
 		  BASE_HEX, NULL, 0x0, "" }},
 
 		{ &hf_isis_lsp_clv_ipv4_int_addr,
-		{ "IPv4 interface address: ", "isis_lsp.clv_ipv4_int_addr", FT_IPv4,
+		{ "IPv4 interface address", "isis_lsp.clv_ipv4_int_addr", FT_IPv4,
 		   BASE_NONE, NULL, 0x0, "" }},
 
 		{ &hf_isis_lsp_clv_ipv6_int_addr,
@@ -1482,7 +1487,7 @@ proto_register_isis_lsp(void) {
 		   BASE_NONE, NULL, 0x0, "" }},
 
 		{ &hf_isis_lsp_clv_te_router_id,
-		{ "Traffic Engineering Router ID: ", "isis_lsp.clv_te_router_id", FT_IPv4,
+		{ "Traffic Engineering Router ID", "isis_lsp.clv_te_router_id", FT_IPv4,
 		   BASE_NONE, NULL, 0x0, "" }},
 	};
 	static gint *ett[] = {
@@ -1514,3 +1519,5 @@ proto_register_isis_lsp(void) {
 	proto_register_field_array(proto_isis_lsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
+
+

@@ -623,7 +623,8 @@ Jean-Christian Pennetier <jeanchristian.pennetier@rd.francetelecom.fr> {
 	ISIS IPv6 routing TLV dissection
 	ISIS traffic engineering TLV dissection
 	IS neighbor and IP reachability TLVs given their own subtree
-	types
+	    types
+	Assorted other ISIS fixes
 }
 
 Jian Yu <bgp4news@yahoo.com> {
