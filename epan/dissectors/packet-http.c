@@ -165,6 +165,7 @@ static dissector_table_t media_type_subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 
 static dissector_handle_t ntlmssp_handle=NULL;
+static dissector_handle_t gssapi_handle=NULL;
 
 
 /* Return a tvb that contains the binary representation of a base64
@@ -193,9 +194,11 @@ dissect_http_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	ntlmssp_tvb = base64_to_tvb(line);
 	tvb_set_child_real_data_tvbuff(tvb, ntlmssp_tvb);
-	add_new_data_source(pinfo, ntlmssp_tvb, "NTLMSSP Data");
-
-	call_dissector(ntlmssp_handle, ntlmssp_tvb, pinfo, tree);
+	add_new_data_source(pinfo, ntlmssp_tvb, "NTLMSSP / GSSAPI Data");
+	if (tvb_strneql(ntlmssp_tvb, 0, "NTLMSSP", 7) == 0)
+		call_dissector(ntlmssp_handle, ntlmssp_tvb, pinfo, tree);
+	else
+		call_dissector(gssapi_handle, ntlmssp_tvb, pinfo, tree);
 }
 
 static void
@@ -1731,6 +1734,7 @@ proto_reg_handoff_http(void)
 	dissector_add("udp.port", UDP_PORT_SSDP, http_udp_handle);
 
 	ntlmssp_handle = find_dissector("ntlmssp");
+	gssapi_handle = find_dissector("gssapi");
 }
 
 /*
