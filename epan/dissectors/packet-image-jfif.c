@@ -594,7 +594,8 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 	proto_tree *subtree = NULL;
 	char *str;
 	gint str_size;
-	guint32 offset, tiff_start;
+	int offset = 0;
+	int tiff_start;
 
 	if (!tree)
 		return;
@@ -604,13 +605,15 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 	subtree = proto_item_add_subtree(ti, ett_marker_segment);
 
 	proto_item_append_text(ti, ": %s (0x%04X)", marker_name, marker);
-	proto_tree_add_item(subtree, hf_marker, tvb, 0, 2, FALSE);
+	proto_tree_add_item(subtree, hf_marker, tvb, offset, 2, FALSE);
+	offset += 2;
 
-	proto_tree_add_item(subtree, hf_len, tvb, 2, 2, FALSE);
+	proto_tree_add_item(subtree, hf_len, tvb, offset, 2, FALSE);
+	offset += 2;
 
-	str = tvb_get_stringz(tvb, 4, &str_size);
-	ti = proto_tree_add_item(subtree, hf_identifier, tvb, 4, str_size, FALSE);
-	offset = tiff_start = 4 + str_size;
+	str = tvb_get_stringz(tvb, offset, &str_size);
+	ti = proto_tree_add_item(subtree, hf_identifier, tvb, offset, str_size, FALSE);
+	offset += str_size;
 	if (strcmp(str, "Exif") == 0) {
 		/*
 		 * Endianness
@@ -622,6 +625,7 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 
 		offset++; /* Skip a byte supposed to be 0x00 */
 
+		tiff_start = offset;
 		val_16 = tvb_get_ntohs(tvb, offset);
 		if (val_16 == 0x4949) {
 			is_little_endian = TRUE;
@@ -644,67 +648,92 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 		 * Offset to IFD
 		 */
 		if (is_little_endian) {
-			val_16 = tvb_get_letohs(tvb, offset);
-		} else {
-			val_16 = tvb_get_ntohs(tvb, offset);
-		}
-		proto_tree_add_text(subtree, tvb, offset, 4,
-				"Start offset of IFD starting from the TIFF header start: %u bytes", val_16);
-		offset += 4;
-		/*
-		 * Skip the following portion
-		 */
-		proto_tree_add_text(subtree, tvb, offset, val_16 + tiff_start - offset,
-				"Skipped data between end of TIFF header and start of IFD (%u bytes)",
-				val_16 + tiff_start - offset);
-		offset = val_16 + tiff_start + 1;
-		/*
-		 * Process the "0th" IFD
-		 */
-		if (is_little_endian) {
-			num_fields = tvb_get_letohs(tvb, offset);
-		} else {
-			num_fields = tvb_get_ntohs(tvb, offset);
-		}
-		proto_tree_add_text(subtree, tvb, offset, 2, "Number of fields in this IFD: %u", num_fields);
-		offset += 2;
-		while (num_fields-- > 0) {
-			guint16 tag, type;
-			guint32 count, off;
-
-			if (is_little_endian) {
-				tag = tvb_get_letohs(tvb, offset);
-				type = tvb_get_letohs(tvb, offset + 2);
-				count = tvb_get_letohl(tvb, offset + 4);
-				off = tvb_get_letohl(tvb, offset + 8);
-			} else {
-				tag = tvb_get_ntohs(tvb, offset);
-				type = tvb_get_ntohs(tvb, offset + 2);
-				count = tvb_get_ntohl(tvb, offset + 4);
-				off = tvb_get_ntohl(tvb, offset + 8);
-			}
-			/* TODO - refine this */
-			proto_tree_add_text(subtree, tvb, offset, 2,
-					"Exif Tag: 0x%04X (%s), Type: %u (%s), Count: %u, "
-					"Value offset from start of TIFF header: %u",
-					tag, val_to_str(tag, vals_exif_tags, "Unknown Exif tag"),
-					type, val_to_str(type, vals_exif_types, "Unknown Exif type"),
-					count, off);
-			offset += 12;
-		}
-		/*
-		 * Offset to the "1st" IFD
-		 */
-		if (is_little_endian) {
 			val_32 = tvb_get_letohl(tvb, offset);
 		} else {
 			val_32 = tvb_get_ntohl(tvb, offset);
 		}
+		/*
+		 * Check for a bogus val_32 value.
+		 * XXX - bogus value message should also deal with a
+		 * value that's too large and causes an overflow.
+		 * Or should it just check against the segment length,
+		 * which is 16 bits?
+		 */
+		if (val_32 + tiff_start < offset + 4) {
+			proto_tree_add_text(subtree, tvb, offset, 4,
+			    "Start offset of IFD starting from the TIFF header start: %u bytes (bogus, should be >= %u",
+			    val_32, offset + 4 - tiff_start);
+			return;
+		}
 		proto_tree_add_text(subtree, tvb, offset, 4,
-				"Offset to next IFD from start of TIFF header: %u bytes", val_32);
-		/* TODO - Continue parsing the "1th" IFD */
+		    "Start offset of IFD starting from the TIFF header start: %u bytes",
+		    val_32);
 		offset += 4;
-		proto_tree_add_text(subtree, tvb, offset, -1, "Remainder of APP1 marker skipped");
+		/*
+		 * Skip the following portion
+		 */
+		if (val_32 + tiff_start > offset) {
+			proto_tree_add_text(subtree, tvb, offset, val_32 + tiff_start - offset,
+			    "Skipped data between end of TIFF header and start of IFD (%u bytes)",
+			    val_32 + tiff_start - offset);
+		}
+		offset = val_32 + tiff_start;
+		for (;;) {
+			/*
+			 * Process the IFD
+			 */
+			if (is_little_endian) {
+				num_fields = tvb_get_letohs(tvb, offset);
+			} else {
+				num_fields = tvb_get_ntohs(tvb, offset);
+			}
+			proto_tree_add_text(subtree, tvb, offset, 2, "Number of fields in this IFD: %u", num_fields);
+			offset += 2;
+			while (num_fields-- > 0) {
+				guint16 tag, type;
+				guint32 count, off;
+
+				if (is_little_endian) {
+					tag = tvb_get_letohs(tvb, offset);
+					type = tvb_get_letohs(tvb, offset + 2);
+					count = tvb_get_letohl(tvb, offset + 4);
+					off = tvb_get_letohl(tvb, offset + 8);
+				} else {
+					tag = tvb_get_ntohs(tvb, offset);
+					type = tvb_get_ntohs(tvb, offset + 2);
+					count = tvb_get_ntohl(tvb, offset + 4);
+					off = tvb_get_ntohl(tvb, offset + 8);
+				}
+				/* TODO - refine this */
+				proto_tree_add_text(subtree, tvb, offset, 2,
+				    "Exif Tag: 0x%04X (%s), Type: %u (%s), Count: %u, "
+				    "Value offset from start of TIFF header: %u",
+				    tag, val_to_str(tag, vals_exif_tags, "Unknown Exif tag"),
+				    type, val_to_str(type, vals_exif_types, "Unknown Exif type"),
+				    count, off);
+				offset += 12;
+			}
+			/*
+			 * Offset to the next IFD
+			 */
+			if (is_little_endian) {
+				val_32 = tvb_get_letohl(tvb, offset);
+			} else {
+				val_32 = tvb_get_ntohl(tvb, offset);
+			}
+			if (val_32 != 0 && val_32 + tiff_start < offset + 4) {
+				proto_tree_add_text(subtree, tvb, offset, 4,
+				    "Offset to next IFD from start of TIFF header: %u bytes (bogus, should be >= %u)",
+				    val_32, offset + 4 - tiff_start);
+				return;
+			}
+			proto_tree_add_text(subtree, tvb, offset, 4,
+			    "Offset to next IFD from start of TIFF header: %u bytes",
+			    val_32);
+			offset += 4;
+			if (val_32 == 0)
+				break;
+		}
 	} else {
 		proto_tree_add_text(subtree, tvb, offset, -1,
 				"Remaining segment data (%u bytes)", len - 2 - str_size);
