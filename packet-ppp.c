@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.94 2002/08/02 23:35:56 jmayer Exp $
+ * $Id: packet-ppp.c,v 1.95 2002/08/04 08:44:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1291,7 +1291,7 @@ static guint16
 fcs16(register guint16 fcs, tvbuff_t * tvbuff)
 {
     int offset = 0;
-    guint len = tvb_length(tvbuff);
+    guint len = tvb_length(tvbuff)-2;
     guint8 val;
 
     /* Check for Invalid Length */
@@ -1315,7 +1315,7 @@ static guint32
 fcs32(guint32 fcs, tvbuff_t * tvbuff)
 {
     int offset = 0;
-    guint len = tvb_length(tvbuff);
+    guint len = tvb_length(tvbuff)-4;
     guint8 val;
 
     /* Check for invalid Length */
@@ -2702,7 +2702,7 @@ dissect_ppp_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
        * Compute the FCS and put it into the tree.
        */
       rx_fcs_offset = proto_offset + len;
-      rx_fcs_exp = fcs16(0xFFFF, next_tvb);
+      rx_fcs_exp = fcs16(0xFFFF, tvb);
       rx_fcs_got = tvb_get_letohs(tvb, rx_fcs_offset);
       if (rx_fcs_got != rx_fcs_exp) {
         proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 2,
@@ -2754,7 +2754,7 @@ dissect_ppp_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
        * Compute the FCS and put it into the tree.
        */
       rx_fcs_offset = proto_offset + len;
-      rx_fcs_exp = fcs32(0xFFFFFFFF, next_tvb);
+      rx_fcs_exp = fcs32(0xFFFFFFFF, tvb);
       rx_fcs_got = tvb_get_letohl(tvb, rx_fcs_offset);
       if (rx_fcs_got != rx_fcs_exp) {
         proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 4,

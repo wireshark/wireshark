@@ -1346,6 +1346,11 @@ Sergei Shokhor <sshokhor[AT]uroam.com> {
 	Bugfix for EPM
 }
 
+Hidetaka Ogawa <ogawa[AT]bs2.qnes.nec.co.jp> {
+	Fix PPP FCS computation to include address and control field if
+	    present
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
