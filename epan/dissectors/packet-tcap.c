@@ -70,6 +70,8 @@ Tcap_Standard_Type tcap_standard = ITU_TCAP_STANDARD;
 static range_t global_ssn_range;
 static range_t ssn_range;
 
+static dissector_handle_t tcap_handle;
+
 /* saved pinfo */
 static packet_info *g_pinfo = NULL;
 static proto_tree *g_tcap_tree = NULL;
@@ -2880,26 +2882,27 @@ proto_register_tcap(void)
    This format is required because a script is used to find these routines and
    create the code that calls these routines.
 */
+
+static void range_delete_callback(guint32 ssn)
+{
+    if (ssn) {
+	dissector_delete("sccp.ssn", ssn, tcap_handle);
+	dissector_delete("sua.ssn", ssn, tcap_handle);
+    }
+}
+
+static void range_add_callback(guint32 ssn)
+{
+    if (ssn) {
+	dissector_add("sccp.ssn", ssn, tcap_handle);
+	dissector_add("sua.ssn", ssn, tcap_handle);
+    }
+}
+
 void
 proto_reg_handoff_tcap(void)
 {
-    static dissector_handle_t tcap_handle;
     static gboolean prefs_initialized = FALSE;
-
-    static void range_delete_callback(guint32 ssn)
-    {
-	if (ssn) {
-	    dissector_delete("sccp.ssn", ssn, tcap_handle);
-	    dissector_delete("sua.ssn", ssn, tcap_handle);
-	}
-    }
-    static void range_add_callback(guint32 ssn)
-    {
-	if (ssn) {
-	    dissector_add("sccp.ssn", ssn, tcap_handle);
-	    dissector_add("sua.ssn", ssn, tcap_handle);
-	}
-    }
 
     if (!prefs_initialized) {
 
