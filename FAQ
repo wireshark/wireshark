@@ -182,7 +182,7 @@
 
    Q 1.2: What protocols are currently supported?
 
-   A: There are currently 385 supported protocols and media, listed
+   A: There are currently 393 supported protocols and media, listed
    below. Descriptions can be found in the ethereal(1) man page.
 
             802.1q Virtual LAN
@@ -278,6 +278,7 @@
             Distributed Checksum Clearinghouse Prototocl
             Domain Name Service
             Dynamic DNS Tools Protocol
+            Echo
             Encapsulating Security Payload
             Enhanced Interior Gateway Routing Protocol
             EtherNet/IP (Industrial Protocol)
@@ -309,6 +310,7 @@
             Generic Routing Encapsulation
             Generic Security Service Application Program Interface
             Gnutella Protocol
+            H245
             HP Extended Local-Link Control
             HP Remote Maintenance Protocol
             Hummingbird NFS Daemon
@@ -332,6 +334,7 @@
             ISO 8602 CLTP ConnectionLess Transport Protocol
             ISO 9542 ESIS Routeing Information Exchange Protocol
             ITU-T Recommendation H.261
+            InMon sFlow
             Intel ANS probe
             Intelligent Platform Management Interface
             Inter-Access-Point Protocol
@@ -348,6 +351,7 @@
             Internet Relay Chat
             Internet Security Association and Key Management Protocol
             Internetwork Packet eXchange
+            Jabber XML Messaging
             Java RMI
             Java Serialization
             Kerberos
@@ -383,6 +387,7 @@
             Microsoft Exchange MAPI
             Microsoft Local Security Architecture
             Microsoft Local Security Architecture (Directory Services)
+            Microsoft Messenger Service
             Microsoft Network Logon
             Microsoft Registry
             Microsoft Security Account Manager
@@ -450,6 +455,7 @@
             PPP-over-Ethernet Discovery
             PPP-over-Ethernet Session
             PPPMux Control Protocol
+            Packet Encoding Rules (ASN.1 X.691)
             Point-to-Point Protocol
             Point-to-Point Tunnelling Protocol
             Portmap
@@ -540,6 +546,7 @@
             Transmission Control Protocol
             Transparent Network Substrate Protocol
             Trivial File Transfer Protocol
+            UDP Encapsulation of IPsec Packets
             Universal Computer Protocol
             User Datagram Protocol
             Virtual Router Redundancy Protocol
@@ -568,6 +575,7 @@
             Yellow Pages Transfer
             Zebra Protocol
             Zone Information Protocol
+            eDonkey Protocol
             iSCSI
             iSNS
 
@@ -1329,6 +1337,12 @@
    outgoing packets; unfortunately, neither we nor the WinPcap developers
    know any way to make WinPcap and the VPN software work well together.
 
+   Also, some drivers for Windows (especially some wireless network
+   interface drivers) apparently do not, when running in promiscuous
+   mode, arrange that outgoing packets are delivered to the software that
+   requested that the interface run promiscuously; try turning
+   promiscuous mode off.
+
    Q 5.21: I'm trying to capture traffic but I'm not seeing any.
 
    A: Is the machine running Ethereal sending out any traffic on the
@@ -1437,11 +1451,15 @@
    when I try to run Ethereal on Windows?
 
    A: Ethereal is built using the GTK+ toolkit, which supports most
-   UNIX-flavored OSes, and also supports Windows; that toolkit doesn't
-   support 256-color mode on Windows - it requires HiColor (16-bit
-   colors) or more. If your display supports more than 256 colors, switch
-   to a display mode with more colors; if it doesn't support more than
-   256 colors, you will be unable to run Ethereal.
+   UNIX-flavored OSes, and also supports Windows.
+
+   Windows versions of Ethereal before 0.9.14 were built with an older
+   version of that toolkit, which didn't support 256-color mode on
+   Windows - it required HiColor (16-bit colors) or more.
+
+   Windows versions of Ethereal 0.9.14 and later are built with a version
+   of that toolkit that supports 256-color mode; upgrade to the current
+   version of Ethereal if you want to run on a display in 256-color mode.
 
    Q 5.29: When I capture on Windows in promiscuous mode, I can see
    packets other than those sent to or from my machine; however, those
@@ -1694,23 +1712,22 @@ echo "Mode: ess" >/proc/driver/aironet/ethN/Config
    Q 5.34: How can I search for, or filter, packets that have a
    particular string anywhere in them? 
 
-   A: Currently, you can't.
+   A: If you want to do this when capturing, you can't. That's a feature
+   that would be hard to implement in capture filters without changes to
+   the capture filter code, which, on many platforms, is in the OS kernel
+   and, on other platforms, is in the libpcap library.
 
-   That's a feature that would be hard to implement in capture filters
-   without changes to the capture filter code, which, on many platforms,
-   is in the OS kernel and, on other platforms, is in the libpcap
-   library.
+   In releases prior to 0.9.14, you also can't search for, or filter,
+   packets containing a particular string even after you've captured
+   them.
 
-   It would be easier to implement in display filters, but it hasn't been
-   implemented yet. It would be best implemented as a display filter
-   "string match" operator, which would let you check not only the entire
-   packet for a string, but check portions of the packet for a string. It
-   should probably not use a naive string matching mechanism, as there
-   are mechanisms much faster than the naive one.
+   In 0.9.14, you can search for, but not filter, packets that have a
+   particular string; this has been added to the "Find Frame" dialog
+   ("Find Frame" under the "Edit" menu, or control-F).
 
 
    Support can be found on the ethereal-users[AT]ethereal.com mailing
    list. 
    For corrections/additions/suggestions for this page, please send email
    to: ethereal-web[AT]ethereal.com
-   Last modified: Sat, July 19 2003.
+   Last modified: Tue, August 19 2003.
