@@ -336,9 +336,9 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
     if (pipe(sync_pipe) < 0) {
       /* Couldn't create the pipe between parent and child. */
       error = errno;
-      unlink(cfile.save_file);
-      g_free(cfile.save_file);
-      cfile.save_file = NULL;
+      unlink(capture_opts->save_file);
+      g_free(capture_opts->save_file);
+      capture_opts->save_file = NULL;
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't create sync pipe: %s",
 			strerror(error));
       return FALSE;
@@ -352,7 +352,7 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
       argv = sync_pipe_add_arg(argv, &argc, cfile.cfilter);
     }
 
-    if ((fork_child = fork()) == 0) {
+    if ((capture_opts->fork_child = fork()) == 0) {
       /*
        * Child process - run Ethereal with the right arguments to make
        * it just pop up the live capture dialog box and capture with
