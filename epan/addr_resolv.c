@@ -46,7 +46,7 @@
  * code in tcpdump, to avoid those sorts of problems, and that was
  * picked up by tcpdump.org tcpdump.
  */
-#if !defined(WIN32) && !defined(__APPLE__)
+#if !defined(_WIN32) && !defined(__APPLE__)
 #ifndef AVOID_DNS_TIMEOUT
 #define AVOID_DNS_TIMEOUT
 #endif
@@ -95,7 +95,7 @@
 # include <adns.h>
 #endif
 
-#if defined(WIN32) && defined(INET6)
+#if defined(_WIN32) && defined(INET6)
 # include <ws2tcpip.h>
 #endif
 

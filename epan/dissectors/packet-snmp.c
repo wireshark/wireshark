@@ -84,9 +84,9 @@
 # define netsnmp_ds_set_int ds_set_int
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 # include <epan/filesystem.h>
-#endif /* WIN32 */
+#endif /* _WIN32 */
 
    /*
     * Define values "sprint_realloc_value()" expects.
@@ -2378,17 +2378,17 @@ process_prefs(void)
 	if (mib_modules != NULL) {
 		tmp_mib_modules = g_strconcat("MIBS=", mib_modules, NULL);
 
-#ifdef WIN32
+#ifdef _WIN32
 		_putenv(tmp_mib_modules);
 #else
 		putenv(tmp_mib_modules);
-#endif /*WIN32*/
+#endif /*_WIN32*/
 	} else {
-#ifdef WIN32
+#ifdef _WIN32
 		_putenv("MIBS");
 #else
 		putenv("MIBS");
-#endif  /* WIN32 */
+#endif  /* _WIN32 */
 	}
 
 	/*
@@ -2405,7 +2405,7 @@ process_prefs(void)
 void
 proto_register_snmp(void)
 {
-#if defined(WIN32) && defined(HAVE_SOME_SNMP)
+#if defined(_WIN32) && defined(HAVE_SOME_SNMP)
 	char *mib_path;
 #define MIB_PATH_APPEND "snmp\\mibs"
 #endif
@@ -2470,7 +2470,7 @@ proto_register_snmp(void)
 
 #ifdef HAVE_SOME_SNMP
 
-#ifdef WIN32
+#ifdef _WIN32
 	/* Set MIBDIRS so that the SNMP library can find its mibs. */
 	/* XXX - Should we set MIBS or MIBFILES as well? */
 
@@ -2481,7 +2481,7 @@ proto_register_snmp(void)
 		_putenv(mib_path);
 	g_free(mib_path);
 
-#endif	/* WIN32 */
+#endif	/* _WIN32 */
 
 	/*
 	 * Suppress warnings about unknown tokens - we aren't initializing

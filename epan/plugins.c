@@ -313,7 +313,7 @@ plugins_scan_dir(const char *dirname)
 /* Return value is malloced so the caller should g_free() it. */
 const char *get_plugins_global_dir(const char *plugin_dir)
 {
-#ifdef WIN32
+#ifdef _WIN32
 	char *install_plugin_dir;
 
 	/*

@@ -193,7 +193,8 @@ dlg_button_row_new(gchar *stock_id_first, ...)
     gtk_button_box_set_layout (GTK_BUTTON_BOX(button_hbox), GTK_BUTTONBOX_END);
     gtk_button_box_set_spacing(GTK_BUTTON_BOX(button_hbox), 5);
 
-#if !WIN32 && GTK_MAJOR_VERSION >= 2
+/* GTK+ 1.3 and later - on Win32, we use 1.3[.x] or 2.x, not 1.2[.x] */
+#if !defined(_WIN32) && GTK_MAJOR_VERSION >= 2
     /* beware: sequence of buttons are important! */
 
     /* XXX: this can be implemented more elegant of course, but it works as it should */
@@ -437,14 +438,14 @@ file_selection_set_current_folder(GtkWidget *fs, const gchar *filename)
 
     /* trim filename, so gtk_file_chooser_set_current_folder() likes it, see below */
     if (filename[filename_len -1] == G_DIR_SEPARATOR 
-#ifdef WIN32
+#ifdef _WIN32
         && filename_len > 3)    /* e.g. "D:\" */
 #else
         && filename_len > 1)    /* e.g. "/" */
 #endif
     {
         new_filename = g_strdup(filename);
-	    new_filename[filename_len-1] = '\0';
+        new_filename[filename_len-1] = '\0';
     } else {
         new_filename = g_strdup(filename);
     }

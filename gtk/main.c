@@ -64,7 +64,7 @@
 #include "getopt.h"
 #endif
 
-#ifdef WIN32 /* Needed for console I/O */
+#ifdef _WIN32 /* Needed for console I/O */
 #include <fcntl.h>
 #include <conio.h>
 #endif
@@ -105,7 +105,7 @@
 #ifdef HAVE_LIBPCAP
 #include "pcap-util.h"
 #endif
-#ifdef WIN32
+#ifdef _WIN32
 #include "capture-wpcap.h"
 #endif
 
@@ -163,7 +163,7 @@ static gchar        *packets_str = NULL;
 GString *comp_info_str, *runtime_info_str;
 gchar       *ethereal_path = NULL;
 
-#ifdef WIN32
+#ifdef _WIN32
 static gboolean has_console;	/* TRUE if app has console */
 /*static void create_console(void);*/
 static void destroy_console(void);
@@ -990,7 +990,7 @@ print_usage(gboolean print_ver) {
 static void
 show_version(void)
 {
-#ifdef WIN32
+#ifdef _WIN32
   create_console();
 #endif
 
@@ -1141,7 +1141,7 @@ get_ring_arguments(const char *arg)
 }
 #endif
 
-#if defined WIN32 || GTK_MAJOR_VERSION < 2 || ! defined USE_THREADS
+#if defined(_WIN32) || GTK_MAJOR_VERSION < 2 || ! defined USE_THREADS
 /* 
    Once every 3 seconds we get a callback here which we use to update
    the tap extensions. Since Gtk1 is single threaded we dont have to
@@ -1188,14 +1188,14 @@ update_thread(gpointer data _U_)
 void
 protect_thread_critical_region(void)
 {
-#if ! defined WIN32 && GTK_MAJOR_VERSION >= 2 && defined USE_THREADS
+#if !defined(_WIN32) && GTK_MAJOR_VERSION >= 2 && defined USE_THREADS
     g_static_mutex_lock(&update_thread_mutex);
 #endif
 }
 void
 unprotect_thread_critical_region(void)
 {
-#if ! defined WIN32 && GTK_MAJOR_VERSION >= 2 && defined USE_THREADS
+#if !defined(_WIN32) && GTK_MAJOR_VERSION >= 2 && defined USE_THREADS
     g_static_mutex_unlock(&update_thread_mutex);
 #endif
 }
@@ -1528,9 +1528,9 @@ main(int argc, char *argv[])
   extern char         *optarg;
   gboolean             arg_error = FALSE;
 
-#ifdef WIN32
+#ifdef _WIN32
   WSADATA 	       wsaData;
-#endif  /* WIN32 */
+#endif  /* _WIN32 */
 
   char                *rf_path;
   int                  rf_open_errno;
@@ -1570,11 +1570,11 @@ main(int argc, char *argv[])
 #define OPTSTRING_INIT "a:b:B:c:f:Hhi:klLm:nN:o:pP:Qr:R:Ss:t:T:w:vy:z:"
 
 #ifdef HAVE_LIBPCAP
-#ifdef WIN32
+#ifdef _WIN32
 #define OPTSTRING_CHILD "W:Z:"
 #else
 #define OPTSTRING_CHILD "W:"
-#endif  /* WIN32 */
+#endif  /* _WIN32 */
 #else
 #define OPTSTRING_CHILD ""
 #endif  /* HAVE_LIBPCAP */
@@ -1595,7 +1595,7 @@ main(int argc, char *argv[])
 
   ethereal_path = argv[0];
 
-#ifdef WIN32
+#ifdef _WIN32
   /* Arrange that if we have no console window, and a GLib message logging
      routine is called to log a message, we pop up a console window.
 
@@ -1673,7 +1673,7 @@ main(int argc, char *argv[])
   handle_dashG_option(argc, argv, "ethereal");
 
   /* multithread support currently doesn't seem to work in win32 gtk2.0.6 */
-#if ! defined WIN32 && GTK_MAJOR_VERSION >= 2 && defined G_THREADS_ENABLED && defined USE_THREADS
+#if !defined(_WIN32) && GTK_MAJOR_VERSION >= 2 && defined(G_THREADS_ENABLED) && defined USE_THREADS
   {
       GThread *ut;
       g_thread_init(NULL);
@@ -1681,10 +1681,10 @@ main(int argc, char *argv[])
       ut=g_thread_create(update_thread, NULL, FALSE, NULL);
       g_thread_set_priority(ut, G_THREAD_PRIORITY_LOW);
   }
-#else  /* WIN32 || GTK1.2 || !G_THREADS_ENABLED || !USE_THREADS */
+#else  /* _WIN32 || GTK1.2 || !G_THREADS_ENABLED || !USE_THREADS */
   /* this is to keep tap extensions updating once every 3 seconds */
   gtk_timeout_add(3000, (GtkFunction)update_cb,(gpointer)NULL);
-#endif /* !WIN32 && GTK2 && G_THREADS_ENABLED */
+#endif /* !_WIN32 && GTK2 && G_THREADS_ENABLED */
 
 #if HAVE_GNU_ADNS
   gtk_timeout_add(750, (GtkFunction) host_name_lookup_process, NULL);
@@ -1827,13 +1827,13 @@ main(int argc, char *argv[])
 
   init_cap_file(&cfile);
 
-#ifdef WIN32
+#ifdef _WIN32
   /* Load wpcap if possible. Do this before collecting the run-time version information */
   load_wpcap();
 
   /* Start windows sockets */
   WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
-#endif  /* WIN32 */
+#endif  /* _WIN32 */
 
   /* Assemble the compile-time version information string */
   comp_info_str = g_string_new("Compiled ");
@@ -2048,7 +2048,7 @@ main(int argc, char *argv[])
         break;
       case 'v':        /* Show version and exit */
         show_version();
-#ifdef WIN32
+#ifdef _WIN32
         destroy_console();
 #endif
         exit(0);
@@ -2536,7 +2536,7 @@ main(int argc, char *argv[])
   epan_cleanup();
   g_free(rc_file);
 
-#ifdef WIN32
+#ifdef _WIN32
   /* Shutdown windows sockets */
   WSACleanup();
 
@@ -2556,7 +2556,7 @@ main(int argc, char *argv[])
   return 0;	/* not reached */
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 
 /* We build this as a GUI subsystem application on Win32, so
    "WinMain()", not "main()", gets called.
@@ -2957,7 +2957,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     tooltips = gtk_tooltips_new();
 
-#ifdef WIN32 
+#ifdef _WIN32 
 #if GTK_MAJOR_VERSION < 2
     /* has to be done, after top_level window is created */
     app_font_gtk1_init(top_level);

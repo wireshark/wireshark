@@ -49,7 +49,7 @@
 #include <direct.h>		/* to declare "mkdir()" on Windows */
 #endif
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <pwd.h>
 #endif
 
@@ -65,7 +65,7 @@ find_last_pathname_separator(char *path)
 {
 	char *separator;
 
-#ifdef WIN32
+#ifdef _WIN32
 	char c;
 
 	/*
@@ -235,7 +235,7 @@ test_for_fifo(const char *path)
 const char *
 get_datafile_dir(void)
 {
-#ifdef WIN32
+#ifdef _WIN32
 	char prog_pathname[_MAX_PATH+2];
 	char *dir_end;
 	size_t datafile_dir_len;
@@ -316,7 +316,7 @@ get_datafile_dir(void)
 const char *
 get_systemfile_dir(void)
 {
-#ifdef WIN32
+#ifdef _WIN32
 	return get_datafile_dir();
 #else
 	return "/etc";
@@ -327,7 +327,7 @@ get_systemfile_dir(void)
  * Name of directory, under the user's home directory, in which
  * personal configuration files are stored.
  */
-#ifdef WIN32
+#ifdef _WIN32
 #define PF_DIR "Ethereal"
 #else
 /*
@@ -347,7 +347,7 @@ get_systemfile_dir(void)
 static const char *
 get_persconffile_dir(void)
 {
-#ifdef WIN32
+#ifdef _WIN32
 	char *appdatadir;
 	char *userprofiledir;
 #else
@@ -360,7 +360,7 @@ get_persconffile_dir(void)
 	if (pf_dir != NULL)
 		return pf_dir;
 
-#ifdef WIN32
+#ifdef _WIN32
 	/*
 	 * Use %APPDATA% or %USERPROFILE%, so that configuration files are
 	 * stored in the user profile, rather than in the home directory.
@@ -436,7 +436,7 @@ int
 create_persconffile_dir(char **pf_dir_path_return)
 {
 	const char *pf_dir_path;
-#ifdef WIN32
+#ifdef _WIN32
 	char *pf_dir_path_copy, *pf_dir_parent_path;
 	size_t pf_dir_parent_path_len;
 #endif
@@ -445,7 +445,7 @@ create_persconffile_dir(char **pf_dir_path_return)
 
 	pf_dir_path = get_persconffile_dir();
 	if (stat(pf_dir_path, &s_buf) != 0 && errno == ENOENT) {
-#ifdef WIN32
+#ifdef _WIN32
 		/*
 		 * Does the parent directory of that directory
 		 * exist?  %APPDATA% may not exist even though
@@ -491,7 +491,7 @@ create_persconffile_dir(char **pf_dir_path_return)
 	return ret;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 /*
  * Returns the user's home directory on Win32.
  */
@@ -562,13 +562,13 @@ get_home_dir(void)
  */
 char *
 get_persconffile_path(const char *filename, gboolean for_writing
-#ifndef WIN32
+#ifndef _WIN32
 	_U_
 #endif
 )
 {
 	char *path;
-#ifdef WIN32
+#ifdef _WIN32
 	struct stat s_buf;
 	char *old_path;
 #endif
@@ -577,7 +577,7 @@ get_persconffile_path(const char *filename, gboolean for_writing
 	    strlen(filename) + 2);
 	sprintf(path, "%s" G_DIR_SEPARATOR_S "%s", get_persconffile_dir(),
 	    filename);
-#ifdef WIN32
+#ifdef _WIN32
 	if (!for_writing) {
 		if (stat(path, &s_buf) != 0 && errno == ENOENT) {
 			/*

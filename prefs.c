@@ -941,7 +941,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     prefs.gui_hex_dump_highlight_style = 1;
     prefs.filter_toolbar_show_in_statusbar = FALSE;
     prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
-#ifdef WIN32
+#ifdef _WIN32
     prefs.gui_font_name1 = g_strdup("-*-lucida console-medium-r-*-*-*-100-*-*-*-*-*-*");
     prefs.gui_font_name2 = g_strdup("Lucida Console 10");
 #else

@@ -201,7 +201,7 @@ get_compiled_version_info(GString *str)
 void
 get_runtime_version_info(GString *str)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
 	OSVERSIONINFO info;
 #elif defined(HAVE_SYS_UTSNAME_H)
 	struct utsname name;
@@ -210,7 +210,7 @@ get_runtime_version_info(GString *str)
 	get_runtime_pcap_version(str);
 
 	g_string_append(str, "on ");
-#if defined(WIN32)
+#if defined(_WIN32)
 	info.dwOSVersionInfoSize = sizeof info;
 	if (!GetVersionEx(&info)) {
 		/*

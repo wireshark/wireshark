@@ -53,7 +53,7 @@
 #include "prefs-int.h"
 
 #ifdef HAVE_LIBPCAP
-#ifdef WIN32
+#ifdef _WIN32
 #include "capture-wpcap.h"
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */

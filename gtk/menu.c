@@ -1041,9 +1041,9 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 
 
 	normalized_cf_name = g_strdup(cf_name);
-#ifdef WIN32
-    /* replace all slashes by backslashes */
-    g_strdelimit(normalized_cf_name, "/", '\\');
+#ifdef _WIN32
+	/* replace all slashes by backslashes */
+	g_strdelimit(normalized_cf_name, "/", '\\');
 #endif
 
 	/* get the submenu container item */
@@ -1064,15 +1064,15 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 		 * already in the list or 
 		 * this element is above maximum count (too old), remove it */
 		if (!widget_cf_name ||
-#ifdef WIN32
-            /* do a case insensitive compare on win32 */
+#ifdef _WIN32
+		    /* do a case insensitive compare on win32 */
 #if GLIB_MAJOR_VERSION < 2
-            g_strncasecmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
+		    g_strncasecmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
 #else
-            g_ascii_strncasecmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
+		    g_ascii_strncasecmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
 #endif
-#else   /* WIN32 */
-            /* do a case sensitive compare on unix */
+#else   /* _WIN32 */
+		    /* do a case sensitive compare on unix */
 		    strncmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
 #endif
 		    cnt >= prefs.gui_recent_files_count_max) {

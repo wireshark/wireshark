@@ -33,7 +33,7 @@
 
 #include <epan/packet.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #endif
 
@@ -572,7 +572,7 @@ user_font_apply(void) {
 }
 
 
-#ifdef WIN32
+#ifdef _WIN32
 
 #define NAME_BUFFER_LEN 32
 
@@ -712,7 +712,7 @@ static void try_to_get_windows_font_gtk2(void)
 }
 #endif /* GTK_MAJOR_VERSION */
 
-#endif /* WIN32 */
+#endif /* _WIN32 */
 
 
 void font_init(void)
@@ -721,7 +721,7 @@ void font_init(void)
   gchar *bold_font_name;
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 #if GTK_MAJOR_VERSION >= 2
   /* try to load the application font for GTK2 */
   try_to_get_windows_font_gtk2();

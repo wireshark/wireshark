@@ -484,7 +484,7 @@ save_filter_list(filter_list_type_t list, char **pref_path_return,
     return;
   }
 
-#ifdef WIN32
+#ifdef _WIN32
   /* ANSI C doesn't say whether "rename()" removes the target if it
      exists; the Win32 call to rename files doesn't do so, which I
      infer is the reason why the MSVC++ "rename()" doesn't do so.

@@ -108,7 +108,7 @@ static gboolean window_geom_load(const gchar *name, window_geometry_t *geom);
 static void
 window_icon_realize_cb (GtkWidget *win, gpointer data _U_)
 {
-#ifndef WIN32
+#ifndef _WIN32
   static GdkPixmap *icon_pmap = NULL;
   static GdkBitmap *icon_mask = NULL;
   GtkStyle         *style;

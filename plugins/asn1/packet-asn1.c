@@ -152,7 +152,7 @@ static gboolean asn1_desegment = TRUE;
 static char *asn1_filename = NULL;
 static char *old_default_asn1_filename = NULL;
 #define OLD_DEFAULT_ASN1FILE "asn1" G_DIR_SEPARATOR_S "default.tt"
-#ifdef WIN32
+#ifdef _WIN32
 #define BAD_SEPARATOR_OLD_DEFAULT_ASN1FILE "asn1/default.tt"
 static char *bad_separator_old_default_asn1_filename = NULL;
 #endif
@@ -2742,7 +2742,7 @@ read_asn1_type_table(char *filename)
 		 * separator.
 		 */
 		if ((strcmp(filename, old_default_asn1_filename) != 0
-#ifdef WIN32
+#ifdef _WIN32
 		    && strcmp(filename, bad_separator_old_default_asn1_filename) != 0
 #endif
 		    ) || errno != ENOENT)
@@ -2791,7 +2791,7 @@ read_asn1_type_table(char *filename)
 	get_values();
 
 	g_node_destroy(asn1_nodes);	asn1_nodes = 0;
-#ifndef WIN32		/* tvb_free not yet exported to plugins... */
+#ifndef _WIN32		/* tvb_free not yet exported to plugins... */
 	tvb_free(asn1_desc);
 #endif
 					asn1_desc = 0;
@@ -4995,7 +4995,7 @@ proto_register_asn1(void) {
 				 &asn1_desegment);
 
   old_default_asn1_filename = get_datafile_path(OLD_DEFAULT_ASN1FILE);
-#ifdef WIN32
+#ifdef _WIN32
   bad_separator_old_default_asn1_filename = get_datafile_path(BAD_SEPARATOR_OLD_DEFAULT_ASN1FILE);
 #endif
 

@@ -161,7 +161,7 @@ try_tempfile(char *namebuf, int namebuflen, const char *dir, const char *pfx)
 }
 
 static char *tmpdir = NULL;
-#ifdef WIN32
+#ifdef _WIN32
 static char *temp = NULL;
 #endif
 static char *E_tmpdir;
@@ -180,7 +180,7 @@ create_tempfile(char *namebuf, int namebuflen, const char *pfx)
 	if (!initialized) {
 		if ((dir = getenv("TMPDIR")) != NULL)
 			tmpdir = setup_tmpdir(dir);
-#ifdef WIN32
+#ifdef _WIN32
 		if ((dir = getenv("TEMP")) != NULL)
 			temp = setup_tmpdir(dir);
 #endif
@@ -195,7 +195,7 @@ create_tempfile(char *namebuf, int namebuflen, const char *pfx)
 			return fd;
 	}
 
-#ifdef WIN32
+#ifdef _WIN32
 	if (temp != NULL) {
 		fd = try_tempfile(namebuf, namebuflen, temp, pfx);
 		if (fd != -1)

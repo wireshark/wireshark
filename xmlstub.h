@@ -121,7 +121,7 @@ extern void xmlCheckVersion(int version);
 #endif
 
 #ifndef LIBXML_DLL_IMPORT
-#if defined(WIN32) && !defined(STATIC)
+#if defined(_WIN32) && !defined(STATIC)
 #define LIBXML_DLL_IMPORT __declspec(dllimport)
 #else
 #define LIBXML_DLL_IMPORT
@@ -188,7 +188,7 @@ typedef enum {
 
 typedef unsigned char xmlChar;
 
-#ifndef WIN32
+#ifndef _WIN32
 #ifndef CHAR
 #define CHAR xmlChar
 #endif
@@ -1097,7 +1097,7 @@ typedef struct {
 XML_EXTERN XML_STUB XmlStub;
 XML_EXTERN int XmlStubInitialized;
 
-#ifdef WIN32
+#ifdef _WIN32
 /* We're in windows, use the windows filename */
 #define XML_LIBRARY "libxml2.dll"
 #else

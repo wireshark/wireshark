@@ -171,7 +171,7 @@ get_if_name(char *if_text)
 {
   char *if_name;
 
-#ifdef WIN32
+#ifdef _WIN32
   /*
    * We cannot assume that the interface name doesn't contain a space;
    * some names on Windows OT do.

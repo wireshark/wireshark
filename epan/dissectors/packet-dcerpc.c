@@ -436,7 +436,7 @@ static const fragment_items dcerpc_frag_items = {
 /* list of hooks to be called when init_protocols is done */
 GHookList dcerpc_hooks_init_protos;
 
-#ifdef WIN32
+#ifdef _WIN32
 int ResolveWin32UUID(e_uuid_t if_id, char *UUID_NAME, int UUID_NAME_MAX_LEN)
 {
 	char REG_UUID_NAME[MAX_PATH];
@@ -1856,7 +1856,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     tvbuff_t *volatile stub_tvb;
     volatile guint auth_pad_len;
     volatile int auth_pad_offset;
-#ifdef WIN32
+#ifdef _WIN32
     char UUID_NAME[MAX_PATH];
 #endif
 
@@ -1874,7 +1874,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_boolean_hidden(dcerpc_tree, hf_dcerpc_unknown_if_id,
 					  tvb, offset, 0, TRUE);
 	if (check_col (pinfo->cinfo, COL_INFO)) {
-#ifdef WIN32
+#ifdef _WIN32
 		if(ResolveWin32UUID(info->call_data->uuid, UUID_NAME, MAX_PATH))
 			col_append_fstr (pinfo->cinfo, COL_INFO, " [%s] UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x rpcver: %u",
 				UUID_NAME, info->call_data->uuid.Data1, info->call_data->uuid.Data2, info->call_data->uuid.Data3, info->call_data->uuid.Data4[0],
@@ -2248,7 +2248,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     char uuid_str[DCERPC_UUID_STR_LEN]; 
     int uuid_str_len;
     dcerpc_auth_info auth_info;
-#ifdef WIN32
+#ifdef _WIN32
     char UUID_NAME[MAX_PATH];
 #endif
 
@@ -2307,7 +2307,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	  if (uuid_str_len >= DCERPC_UUID_STR_LEN)
 		  memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
-#ifdef WIN32
+#ifdef _WIN32
 	  if(ResolveWin32UUID(if_id, UUID_NAME, MAX_PATH))
 		  iface_item = proto_tree_add_string_format (ctx_tree, hf_dcerpc_cn_bind_if_id, tvb,
                                         offset, 16, uuid_str, "Interface [%s] UUID: %s", UUID_NAME, uuid_str);
@@ -2380,7 +2380,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	  if ((value = g_hash_table_lookup(dcerpc_uuids, &key)))
 		  col_append_fstr(pinfo->cinfo, COL_INFO, " UUID: %s", value->name);
 	  else
-#ifdef WIN32
+#ifdef _WIN32
 		if(ResolveWin32UUID(if_id, UUID_NAME, MAX_PATH))
 			col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x ver %u.%u",
                            UUID_NAME, if_id.Data1, if_id.Data2, if_id.Data3,

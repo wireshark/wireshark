@@ -2910,7 +2910,7 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
       /* The file being saved is a temporary file from a live
          capture, so it doesn't need to stay around under that name;
 	 first, try renaming the capture buffer file to the new name. */
-#ifndef WIN32
+#ifndef _WIN32
       if (rename(cf->filename, fname) == 0) {
       	/* That succeeded - there's no need to copy the source file. */
       	from_filename = NULL;
