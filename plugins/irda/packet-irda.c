@@ -6,7 +6,7 @@
  * Extended by Jan Kiszka <jan.kiszka@web.de>
  * Copyright 2003 Jan Kiszka
  *
- * $Id: packet-irda.c,v 1.4 2004/01/18 08:32:46 guy Exp $
+ * $Id: packet-irda.c,v 1.5 2004/01/18 14:03:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -290,6 +290,13 @@ static const true_false_string lap_cr_vals = {
 static const true_false_string set_notset = {
     "Set",
     "Not set"
+};
+
+static const value_string lap_c_ftype_vals[] = {
+    { XDLC_I, "Information frame" },
+    { XDLC_S, "Supervisory frame" },
+    { XDLC_U, "Unnumbered frame" },
+    { 0,      NULL }
 };
 
 static const value_string lap_c_u_cmd_abbr_vals[] = {
@@ -2001,11 +2008,11 @@ static void proto_register_irda(void)
                 "", HFILL }},
         { &hf_lap_c_i,
             { "Frame Type", "irlap.c.ftype",
-                FT_UINT8, BASE_HEX, VALS(ftype_vals), XDLC_I_MASK,
+                FT_UINT8, BASE_HEX, VALS(lap_c_ftype_vals), XDLC_I_MASK,
                 "", HFILL }},
         { &hf_lap_c_s_u,
             { "Frame Type", "irlap.c.ftype",
-                FT_UINT8, BASE_HEX, VALS(ftype_vals), XDLC_S_U_MASK,
+                FT_UINT8, BASE_HEX, VALS(lap_c_ftype_vals), XDLC_S_U_MASK,
                 "", HFILL }},
         { &hf_lap_i,
             { "Information Field", "irlap.i",
