@@ -2,7 +2,7 @@
  * Routines for RPL
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-rpl.c,v 1.2 2002/11/03 20:11:32 guy Exp $
+ * $Id: packet-rpl.c,v 1.3 2002/11/05 22:50:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 
 #include "llcsaps.h"
+#include "packet-llc.h"
 
 static int proto_rpl          = -1;
 
@@ -316,7 +317,7 @@ proto_register_rpl(void)
 				"RPL Set MAC Address", HFILL }},
 		{ &hf_rpl_sap,
 			{ "SAP", "rpl.sap", 
-				FT_UINT8, BASE_HEX, NULL, 0x0,
+				FT_UINT8, BASE_HEX, VALS(sap_vals), 0x0,
 				"RPL SAP", HFILL }},
 		{ &hf_rpl_equipment,
 			{ "Equipment", "rpl.equipment", 

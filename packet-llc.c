@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.100 2002/08/28 21:00:20 jmayer Exp $
+ * $Id: packet-llc.c,v 1.101 2002/11/05 22:50:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -102,7 +102,7 @@ static dissector_handle_t data_handle;
  * IBM SNA Path Control, IBM Net Management), but, whilst 0xFE is
  * the ISO Network Layer Protocol, 0xFF is the Global LSAP.
  */
-static const value_string sap_vals[] = {
+const value_string sap_vals[] = {
 	{ SAP_NULL,           "NULL LSAP" },
 	{ SAP_LLC_SLMGMT,     "LLC Sub-Layer Management" },
 	{ SAP_SNA_PATHCTRL,   "SNA Path Control" },

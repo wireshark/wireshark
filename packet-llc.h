@@ -1,6 +1,6 @@
 /* packet-llc.h
  *
- * $Id: packet-llc.h,v 1.8 2002/08/28 21:00:20 jmayer Exp $
+ * $Id: packet-llc.h,v 1.9 2002/11/05 22:50:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,5 +28,7 @@ void capture_llc(const guchar *, int, int, packet_counts *);
 
 void dissect_snap(tvbuff_t *, int, packet_info *, proto_tree *,
     proto_tree *, int, int, int, int, int);
+
+extern const value_string sap_vals[];
 
 #endif
