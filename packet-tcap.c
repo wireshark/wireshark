@@ -9,7 +9,7 @@
  *
  * (append your name here for newer version)
  *
- * $Id: packet-tcap.c,v 1.6 2004/01/23 01:51:38 jmayer Exp $
+ * $Id: packet-tcap.c,v 1.7 2004/02/20 10:43:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,7 +75,6 @@ static gboolean g_tcap_ends_def_len = FALSE;
 static int proto_tcap = -1;
 static int hf_tcap_message_type = -1;
 static int hf_ansi_tcap_message_type = -1;
-static int hf_tcap_none = -1;
 static int hf_tcap_tag = -1;
 static int hf_tcap_length = -1;
 static int hf_tcap_bytes = -1;
@@ -95,7 +94,7 @@ static gint ett_dlg_portion = -1;
 static gint ett_dlg_req = -1;
 static gint ett_dlg_rsp = -1;
 static gint ett_dlg_abort = -1;
-static gint ett_cmp_portion = -1;
+static gint ett_comps_portion = -1;
 static gint ett_reason = -1;
 static gint ett_component = -1;
 static gint ett_problem = -1;
@@ -196,6 +195,38 @@ static const value_string dlg_type_strings[] = {
 #define TC_DS_FAIL 0
 
 
+static int
+find_eoc(ASN1_SCK *asn1)
+{
+    guint	saved_offset;
+    guint	tag;
+    guint	len;
+    gboolean	def_len;
+
+    saved_offset = asn1->offset;
+
+    while (!asn1_eoc(asn1, -1))
+    {
+	asn1_id_decode1(asn1, &tag);
+	asn1_length_decode(asn1, &def_len, &len);
+
+	if (def_len)
+	{
+	    asn1->offset += len;
+	}
+	else
+	{
+	    asn1->offset += find_eoc(asn1);
+	    asn1_eoc_decode(asn1, -1);
+	}
+    }
+
+    len = asn1->offset - saved_offset;
+    asn1->offset = saved_offset;
+
+    return(len);
+}
+
 /* dissect length */
 static int
 dissect_tcap_len(ASN1_SCK *asn1, proto_tree *tree, gboolean *def_len, guint *len)
@@ -214,7 +245,7 @@ dissect_tcap_len(ASN1_SCK *asn1, proto_tree *tree, gboolean *def_len, guint *len
     }
     else
     {
-	proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb,
+	proto_tree_add_text(tree, asn1->tvb,
 	    saved_offset, asn1->offset - saved_offset, "Length: Indefinite");
     }
 
@@ -240,7 +271,7 @@ dissect_tcap_eoc(ASN1_SCK *asn1, proto_tree *tree)
 
     ret = asn1_eoc_decode(asn1, -1);
 
-    proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb,
+    proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset, "End of Contents");
 
     return TC_DS_OK;
@@ -322,12 +353,12 @@ dissect_tcap_tid(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti, int type
     org_offset = asn1->offset;
     if ( ST_TID_SOURCE == type)
     {
-	tid_item = proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb, asn1->offset, -1, "Source Transaction ID");
+	tid_item = proto_tree_add_text(tcap_tree, asn1->tvb, asn1->offset, -1, "Source Transaction ID");
 	subtree = proto_item_add_subtree(tid_item, ett_otid);
     }
     else
     {
-	tid_item = proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb, asn1->offset, -1, "Destination Transaction ID");
+	tid_item = proto_tree_add_text(tcap_tree, asn1->tvb, asn1->offset, -1, "Destination Transaction ID");
 	subtree = proto_item_add_subtree(tid_item, ett_dtid);
     }
 
@@ -450,29 +481,33 @@ dissect_tcap_opr_code(ASN1_SCK *asn1, proto_tree *tree)
     {
 	dissect_tcap_len(asn1, tree, &def_len, &len);
 
-	proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb, asn1->offset, len, "Operation Code");
+	proto_tree_add_text(tree, asn1->tvb, asn1->offset, len, "Operation Code");
 
 	asn1->offset += len;
     }
 }
 
 static int
-dissect_tcap_param(ASN1_SCK *asn1, proto_tree *tree)
+dissect_tcap_param(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
-    guint off_tree[100], saved_offset, len_offset;
-    int num_seq;
+    guint orig_offset, saved_offset, len_offset;
     guint tag, len;
     gboolean def_len;
-    proto_item *item_tree[100], *item;
-    proto_tree *seq_tree[100], *use_tree, *subtree;
+    proto_item *item;
+    proto_tree *subtree;
 
-    num_seq = 0;
-    use_tree = tree;
+    orig_offset = asn1->offset;
 
 #define TC_INVALID_TAG 0
     while ((tvb_length_remaining(asn1->tvb, asn1->offset) > 0) &&
 	(!check_tcap_tag(asn1, 0)))
     {
+	if ((exp_len != 0) &&
+	    ((asn1->offset - orig_offset) >= exp_len))
+	{
+	    break;
+	}
+
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
 	len_offset = asn1->offset;
@@ -481,88 +516,71 @@ dissect_tcap_param(ASN1_SCK *asn1, proto_tree *tree)
 	if (tag == TC_SEQ_TAG)
 	{
 	    item =
-		proto_tree_add_none_format(use_tree, hf_tcap_none, asn1->tvb,
-		    saved_offset, -1, "Sequence");
+		proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Sequence");
 
 	    subtree = proto_item_add_subtree(item, ett_params);
 
 	    proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb,
 		saved_offset, len_offset - saved_offset, tag, "Sequence Tag");
 
-	    if (!def_len)
-	    {
-		proto_tree_add_none_format(subtree, hf_tcap_none, asn1->tvb,
-		    len_offset, asn1->offset - len_offset, "Length: Indefinite");
-
-		seq_tree[num_seq] = subtree;
-		item_tree[num_seq] = item;
-		off_tree[num_seq] = saved_offset;
-		num_seq++;
-	    }
-	    else
+	    if (def_len)
 	    {
 		proto_tree_add_uint(subtree, hf_tcap_length, asn1->tvb,
 		    len_offset, asn1->offset - len_offset, len);
+	    }
+	    else
+	    {
+		proto_tree_add_text(subtree, asn1->tvb,
+		    len_offset, asn1->offset - len_offset, "Length: Indefinite");
 
-		proto_item_set_len(item, (asn1->offset - saved_offset) + len);
+		len = find_eoc(asn1);
 	    }
 
-	    use_tree = subtree;
+	    proto_item_set_len(item,
+		(asn1->offset - saved_offset) + len +
+		(def_len ? 0 : TC_EOC_LEN));
+
+	    dissect_tcap_param(asn1, subtree, len);
+
+	    if (!def_len)
+	    {
+		dissect_tcap_eoc(asn1, subtree);
+	    }
 	    continue;
 	}
 
 	if (!def_len)
 	{
-	    proto_tree_add_uint_format(use_tree, hf_tcap_tag, asn1->tvb,
+	    proto_tree_add_uint_format(tree, hf_tcap_tag, asn1->tvb,
 		saved_offset, len_offset - saved_offset, tag, "Parameter Tag");
-	    proto_tree_add_none_format(use_tree, hf_tcap_none, asn1->tvb,
+
+	    proto_tree_add_text(tree, asn1->tvb,
 		len_offset, asn1->offset - len_offset, "Length: Indefinite");
 
-	    seq_tree[num_seq] = use_tree;
-	    item_tree[num_seq] = NULL;
-	    num_seq++;
+	    len = find_eoc(asn1);
+
+	    dissect_tcap_param(asn1, tree, len);
+
+	    dissect_tcap_eoc(asn1, tree);
 	    continue;
 	}
-	else
-	{
-	    item =
-		proto_tree_add_none_format(use_tree, hf_tcap_none, asn1->tvb,
-		    saved_offset, -1, "Parameter");
 
-	    subtree = proto_item_add_subtree(item, ett_param);
+	item =
+	    proto_tree_add_text(tree, asn1->tvb,
+		saved_offset, (asn1->offset - saved_offset) + len, "Parameter");
 
-	    proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb,
-		saved_offset, len_offset - saved_offset, tag, "Parameter Tag");
+	subtree = proto_item_add_subtree(item, ett_param);
 
-	    proto_tree_add_uint(subtree, hf_tcap_length, asn1->tvb,
-		len_offset, asn1->offset - len_offset, len);
+	proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb,
+	    saved_offset, len_offset - saved_offset, tag, "Parameter Tag");
 
-	    proto_item_set_len(item, (asn1->offset - saved_offset) + len);
+	proto_tree_add_uint(subtree, hf_tcap_length, asn1->tvb,
+	    len_offset, asn1->offset - len_offset, len);
 
-	    proto_tree_add_none_format(subtree, hf_tcap_none, asn1->tvb,
-		asn1->offset, len, "Parameter Data");
+	proto_tree_add_text(subtree, asn1->tvb,
+	    asn1->offset, len, "Parameter Data");
 
-	    asn1->offset += len;
-	}
-
-	if (tvb_length_remaining(asn1->tvb, asn1->offset) <=0) break;
-
-	while ((num_seq > 0) &&
-	    asn1_eoc(asn1, -1))
-	{
-	    saved_offset = asn1->offset;
-	    asn1_eoc_decode(asn1, -1);
-
-	    proto_tree_add_none_format(seq_tree[num_seq-1], hf_tcap_none, asn1->tvb,
-		saved_offset, asn1->offset - saved_offset, "End of Contents");
-
-	    if (item_tree[num_seq-1] != NULL)
-	    {
-		proto_item_set_len(item_tree[num_seq-1], asn1->offset - off_tree[num_seq-1]);
-	    }
-
-	    num_seq--;
-	}
+	asn1->offset += len;
     }
 
     return TC_DS_OK;
@@ -582,8 +600,7 @@ dissect_tcap_component(ASN1_SCK *asn1, proto_tree *tree, guint *len_p)
     asn1_id_decode1(asn1, &tag);
 
     item =
-	proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb,
-	    saved_offset, -1, "Component ID");
+	proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Component ID");
 
     subtree = proto_item_add_subtree(item, ett_component);
 
@@ -601,8 +618,8 @@ dissect_tcap_component(ASN1_SCK *asn1, proto_tree *tree, guint *len_p)
 static void
 dissect_tcap_problem(ASN1_SCK *asn1, proto_tree *tree)
 {
-    guint orig_offset, saved_offset = 0;
-    guint len, tag_len;
+    guint orig_offset, saved_offset, len_offset;
+    guint len;
     guint tag;
     proto_tree *subtree;
     proto_item *item = NULL;
@@ -615,23 +632,35 @@ dissect_tcap_problem(ASN1_SCK *asn1, proto_tree *tree)
     orig_offset = asn1->offset;
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
-    tag_len = asn1->offset - saved_offset;
+
+    len_offset = asn1->offset;
+    asn1_length_decode(asn1, &def_len, &len);
 
     item =
-	proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb,
-	    saved_offset, -1, "Problem Code");
+	proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Problem Code");
 
     subtree = proto_item_add_subtree(item, ett_problem);
 
-    dissect_tcap_len(asn1, subtree, &def_len, &len);
-    proto_item_set_len(item, (asn1->offset - saved_offset) + len);
+    if (!def_len)
+    {
+	len = find_eoc(asn1);
+    }
+
+    proto_item_set_len(item, (asn1->offset - saved_offset) + len +
+	(def_len ? 0 : TC_EOC_LEN));
 
     if (len != 1)
     {
-	proto_tree_add_none_format(subtree, hf_tcap_none, asn1->tvb,
+	proto_tree_add_text(subtree, asn1->tvb,
 	    asn1->offset, len, "Unknown encoding of Problem Code");
 
 	asn1->offset += len;
+
+	if (!def_len)
+	{
+	    asn1_eoc_decode(asn1, -1);
+	}
+
 	return;
     }
 
@@ -705,10 +734,21 @@ dissect_tcap_problem(ASN1_SCK *asn1, proto_tree *tree)
     }
 
     proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb,
-	orig_offset, tag_len, tag, type_str);
+	orig_offset, len_offset - orig_offset, tag, type_str);
 
-    proto_tree_add_none_format(subtree, hf_tcap_none, asn1->tvb,
-	saved_offset, 1, "Problem Specifier %s", str);
+    if (def_len)
+    {
+	proto_tree_add_uint(subtree, hf_tcap_length, asn1->tvb,
+	    len_offset, saved_offset - len_offset, len);
+    }
+    else
+    {
+	proto_tree_add_text(subtree, asn1->tvb,
+	    len_offset, saved_offset - len_offset, "Length: Indefinite");
+    }
+
+    proto_tree_add_text(subtree, asn1->tvb, saved_offset, 1,
+	"Problem Specifier %s", str);
 }
 
 
@@ -739,7 +779,7 @@ dissect_ansi_opr_code(ASN1_SCK *asn1, proto_tree *tree)
     {
 	dissect_tcap_len(asn1, tree, &def_len, &len);
 
-	proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb, asn1->offset, len, "Operation Code");
+	proto_tree_add_text(tree, asn1->tvb, asn1->offset, len, "Operation Code");
 
 	asn1->offset += len;
     }
@@ -774,8 +814,7 @@ dissect_ansi_problem(ASN1_SCK *asn1, proto_tree *tree)
     asn1_id_decode1(asn1, &tag);
 
     item =
-	proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb,
-	    saved_offset, -1, "Problem Code");
+	proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Problem Code");
 
     subtree = proto_item_add_subtree(item, ett_problem);
 
@@ -787,7 +826,7 @@ dissect_ansi_problem(ASN1_SCK *asn1, proto_tree *tree)
 
     if (len != 2)
     {
-	proto_tree_add_none_format(subtree, hf_tcap_none, asn1->tvb,
+	proto_tree_add_text(subtree, asn1->tvb,
 	    asn1->offset, len, "Unknown encoding of Problem Code");
 
 	asn1->offset += len;
@@ -881,10 +920,10 @@ dissect_ansi_problem(ASN1_SCK *asn1, proto_tree *tree)
     if (spec == 255) { str = "Reserved"; }
     else if (spec == 0) { str = "Not used"; }
 
-    proto_tree_add_none_format(subtree, hf_tcap_none, asn1->tvb,
+    proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, 1, "Problem Type %s", type_str);
 
-    proto_tree_add_none_format(subtree, hf_tcap_none, asn1->tvb,
+    proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset + 1, 1, "Problem Specifier %s", str);
 }
 
@@ -921,7 +960,7 @@ dissect_ansi_error(ASN1_SCK *asn1, proto_tree *tree)
     asn1_id_decode1(asn1, &tag);
 
     item =
-	proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb,
+	proto_tree_add_text(tree, asn1->tvb,
 	    saved_offset, -1, "TCAP Error Code");
 
     subtree = proto_item_add_subtree(item, ett_error);
@@ -932,8 +971,7 @@ dissect_ansi_error(ASN1_SCK *asn1, proto_tree *tree)
     dissect_tcap_len(asn1, subtree, &def_len, &len);
     proto_item_set_len(item, (asn1->offset - saved_offset) + len);
 
-    proto_tree_add_none_format(subtree, hf_tcap_none, asn1->tvb,
-	asn1->offset, len, "Error Code");
+    proto_tree_add_text(subtree, asn1->tvb, asn1->offset, len, "Error Code");
 
     asn1->offset += len;
 }
@@ -966,7 +1004,7 @@ dissect_ansi_param(ASN1_SCK *asn1, proto_tree *tree)
     {
 	dissect_tcap_len(asn1, tree, &def_len, &len);
 
-	proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb, asn1->offset, len, "Parameter Data");
+	proto_tree_add_text(tree, asn1->tvb, asn1->offset, len, "Parameter Data");
 
 	asn1->offset += len;
     }
@@ -1075,27 +1113,28 @@ static void
 dissect_tcap_invoke(ASN1_SCK *asn1, proto_tree *tree)
 {
     proto_tree *subtree;
-    guint saved_offset = 0;
+    guint orig_offset, saved_offset;
     guint len;
     guint tag;
     int ret;
     proto_item *item;
-    guint start = asn1->offset;
     gboolean def_len;
 
+    orig_offset = asn1->offset;
     saved_offset = asn1->offset;
     ret = asn1_id_decode1(asn1, &tag);
-    item = proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "Components");
+
+    item =
+	proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Component");
+
     subtree = proto_item_add_subtree(item, ett_component);
-    proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb, saved_offset, asn1->offset - saved_offset,
-	tag, "Invoke Type Tag");
+
+    proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb,
+	saved_offset, asn1->offset - saved_offset, tag, "Invoke Type Tag");
 
     dissect_tcap_len(asn1, subtree, &def_len, &len);
 
-    if (def_len)
-    {
-	proto_item_set_len(item, (asn1->offset - start) + len);
-    }
+    saved_offset = asn1->offset;
 
     dissect_tcap_invokeId(asn1, subtree);
 
@@ -1103,84 +1142,150 @@ dissect_tcap_invoke(ASN1_SCK *asn1, proto_tree *tree)
 
     dissect_tcap_opr_code(asn1, subtree);
 
-    dissect_tcap_param(asn1, subtree);
+    if (def_len)
+    {
+	len -= asn1->offset - saved_offset;
+    }
+    else
+    {
+	len = find_eoc(asn1);
+    }
+
+    dissect_tcap_param(asn1, subtree, len);
 
     if (!def_len)
     {
 	dissect_tcap_eoc(asn1, subtree);
     }
+
+    proto_item_set_len(item, asn1->offset - orig_offset);
 }
 
 static void
 dissect_tcap_rr(ASN1_SCK *asn1, proto_tree *tree, gchar *str)
 {
     guint tag, len, comp_len;
-    guint saved_offset;
-    proto_item *item;
-    proto_tree *subtree;
+    guint orig_offset, saved_offset, len_offset;
+    proto_item *seq_item, *item;
+    proto_tree *seq_subtree, *subtree;
     gboolean def_len;
     gboolean comp_def_len;
 
     tag = -1;
+    orig_offset = asn1->offset;
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
-    item = proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "Components");
+
+    item =
+	proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Component");
+
     subtree = proto_item_add_subtree(item, ett_component);
-    proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb, saved_offset, asn1->offset - saved_offset,
-					    tag, str);
+
+    proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb,
+	saved_offset, asn1->offset - saved_offset, tag, str);
 
     dissect_tcap_len(asn1, subtree, &comp_def_len, &comp_len);
 
-    if (comp_def_len)
-    {
-	proto_item_set_len(item, (asn1->offset - saved_offset) + comp_len);
-    }
+    saved_offset = asn1->offset;
 
     dissect_tcap_invokeId(asn1, subtree);
 
-    tag = TC_SEQ_TAG;
-    if (check_tcap_tag(asn1, TC_SEQ_TAG))
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0)
     {
-	tag = -1;
-	dissect_tcap_tag(asn1, subtree, &tag, "Sequence Tag");
-	dissect_tcap_len(asn1, subtree, &def_len, &len);
+	proto_item_set_len(item, asn1->offset - orig_offset);
+
+	return;
     }
 
-    dissect_tcap_opr_code(asn1, subtree);
+    saved_offset = asn1->offset;
 
-    dissect_tcap_param(asn1, subtree);
+    tag = -1;
+    asn1_id_decode1(asn1, &tag);
+
+    if (tag == TC_SEQ_TAG)
+    {
+	len_offset = asn1->offset;
+	asn1_length_decode(asn1, &def_len, &len);
+
+	seq_item =
+	    proto_tree_add_text(subtree, asn1->tvb, saved_offset, -1, "Sequence");
+
+	seq_subtree = proto_item_add_subtree(seq_item, ett_params);
+
+	proto_tree_add_uint_format(seq_subtree, hf_tcap_tag, asn1->tvb,
+	    saved_offset, len_offset - saved_offset, tag, "Sequence Tag");
+
+	if (def_len)
+	{
+	    proto_tree_add_uint(seq_subtree, hf_tcap_length, asn1->tvb,
+		len_offset, asn1->offset - len_offset, len);
+	}
+	else
+	{
+	    proto_tree_add_text(seq_subtree, asn1->tvb,
+		len_offset, asn1->offset - len_offset, "Length: Indefinite");
+
+	    len = find_eoc(asn1);
+	}
+
+	proto_item_set_len(seq_item,
+	    (asn1->offset - saved_offset) + len +
+	    (def_len ? 0 : TC_EOC_LEN));
+
+	saved_offset = asn1->offset;
+
+	dissect_tcap_opr_code(asn1, seq_subtree);
+
+	len -= asn1->offset - saved_offset;
+
+	dissect_tcap_param(asn1, seq_subtree, len);
+
+	if (!def_len)
+	{
+	    dissect_tcap_eoc(asn1, seq_subtree);
+	}
+    }
 
     if (!comp_def_len)
     {
 	dissect_tcap_eoc(asn1, subtree);
     }
+
+    proto_item_set_len(item, asn1->offset - orig_offset);
 }
 
 static int
 dissect_tcap_re(ASN1_SCK *asn1, proto_tree *tree)
 {
     guint tag, len, comp_len;
-    guint saved_offset;
+    guint orig_offset, saved_offset;
     proto_item *item;
     proto_tree *subtree;
-    gboolean def_len;
+    gboolean comp_def_len, def_len;
 
     tag = -1;
+    orig_offset = asn1->offset;
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
-    item = proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "Components");
+
+    item =
+	proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Component");
+
     subtree = proto_item_add_subtree(item, ett_component);
-    proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb, saved_offset, asn1->offset - saved_offset,
-					    tag, "Return Error Type Tag");
 
-    dissect_tcap_len(asn1, subtree, &def_len, &comp_len);
+    proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb,
+	saved_offset, asn1->offset - saved_offset,
+	tag, "Return Error Type Tag");
 
-    if (def_len)
+    dissect_tcap_len(asn1, subtree, &comp_def_len, &comp_len);
+
+    if (!comp_def_len)
     {
-	proto_item_set_len(item, (asn1->offset - saved_offset) + comp_len);
+	comp_len = find_eoc(asn1);
     }
 
     saved_offset = asn1->offset;
+
     dissect_tcap_invokeId(asn1, subtree);
 
 #define TC_LOCAL_ERR_CODE_TAG 0x2
@@ -1197,22 +1302,32 @@ dissect_tcap_re(ASN1_SCK *asn1, proto_tree *tree)
     }
     else
     {
-	proto_tree_add_none_format(subtree, hf_tcap_none, asn1->tvb, asn1->offset, comp_len,
+	proto_tree_add_text(subtree, asn1->tvb, asn1->offset, comp_len,
 	    "Unknown Error Code");
 
-	asn1->offset += (comp_len - (asn1->offset - saved_offset));
+	asn1->offset += comp_len;
+
+	if (!comp_def_len)
+	{
+	    dissect_tcap_eoc(asn1, subtree);
+	}
+
+	proto_item_set_len(item, asn1->offset - orig_offset);
+
 	return(TC_DS_OK);
     }
 
     dissect_tcap_len(asn1, subtree, &def_len, &len);
     dissect_tcap_integer(asn1, subtree, len, "Error Code:");
 
-    dissect_tcap_param(asn1, subtree);
+    dissect_tcap_param(asn1, subtree, comp_len - (asn1->offset - saved_offset));
 
-    if (!def_len)
+    if (!comp_def_len)
     {
 	dissect_tcap_eoc(asn1, subtree);
     }
+
+    proto_item_set_len(item, asn1->offset - orig_offset);
 
     return(TC_DS_OK);
 }
@@ -1231,28 +1346,26 @@ dissect_tcap_reject(ASN1_SCK *asn1, proto_tree *tree)
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    item = proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "Components");
+    item = proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Component");
 
     subtree = proto_item_add_subtree(item, ett_component);
 
-    proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb, saved_offset, asn1->offset - saved_offset,
-					    tag, "Reject Type Tag");
+    proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb,
+	saved_offset, asn1->offset - saved_offset,
+	tag, "Reject Type Tag");
 
     dissect_tcap_len(asn1, subtree, &def_len, &comp_len);
 
-    if (def_len)
-    {
-	proto_item_set_len(item, (asn1->offset - saved_offset) + comp_len);
-    }
-
     dissect_tcap_invokeId(asn1, subtree);
 
-    dissect_tcap_problem(asn1, tree);
+    dissect_tcap_problem(asn1, subtree);
 
     if (!def_len)
     {
 	dissect_tcap_eoc(asn1, subtree);
     }
+
+    proto_item_set_len(item, asn1->offset - saved_offset);
 }
 
 static void
@@ -1301,7 +1414,7 @@ dissect_ansi_tcap_next_tvb(ASN1_SCK *asn1, guint len, proto_tree *tree)
 
 	if (flag != FALSE)
 	{
-	    item = proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "Components");
+	    item = proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Components");
 	    subtree = proto_item_add_subtree(item, ett_component);
 
 	    switch (tag)
@@ -1367,72 +1480,25 @@ dissect_ansi_tcap_next_tvb(ASN1_SCK *asn1, guint len, proto_tree *tree)
     }
 }
 
-static void
-dissect_tcap_next_tvb(ASN1_SCK *asn1, guint len, proto_tree *tree)
-{
-    tvbuff_t *next_tvb;
-    guint saved_offset;
-    int ret;
-    guint tag;
-
-    if (lock_info_col) col_set_fence(g_pinfo->cinfo, COL_INFO);
-
-    next_tvb = tvb_new_subset(asn1->tvb, asn1->offset, len, len);
-
-    /* process components data */
-    if (dissector_try_port(tcap_itu_ssn_dissector_table, g_pinfo->match_port, next_tvb, g_pinfo, g_tcap_tree))
-    {
-	asn1->offset += len;
-    }
-    else
-    {
-	saved_offset = asn1->offset;
-	ret = asn1_id_decode1(asn1, &tag);
-	asn1->offset = saved_offset;
-
-	switch (tag)
-	{
-	case TC_INVOKE :
-	    dissect_tcap_invoke(asn1, tree);
-	    break;
-	case TC_RRL :
-	    dissect_tcap_rr(asn1, tree, "Return Result(Last) Type Tag");
-	    break;
-	case TC_RE :
-	    dissect_tcap_re(asn1, tree);
-	    break;
-	case TC_REJECT :
-	    dissect_tcap_reject(asn1, tree);
-	    break;
-	case TC_RRN :
-	    /* same definition as RRL */
-	    dissect_tcap_rr(asn1, tree, "Return Result(Not Last) Type Tag");
-	    break;
-	default:
-	    /* treat it as raw data */
-	    call_dissector(data_handle, next_tvb, g_pinfo, g_tcap_tree);
-	    break;
-	}
-    }
-}
-
 static int
 dissect_tcap_components(ASN1_SCK *asn1, proto_tree *tcap_tree)
 {
-    proto_tree *subtree;
-    guint saved_offset = 0;
-    guint len, next_tvb_len;
-    guint tag;
-    int ret;
-    proto_item *cmp_item;
-    guint cmp_start = asn1->offset;
-    gboolean def_len;
+    proto_tree	*subtree;
+    proto_item	*comps_item;
+    guint	saved_offset, comps_start;
+    guint	len, comp_len;
+    gint	keep_len;
+    gboolean	comps_def_len, def_len;
+    guint	tag;
+    int		ret;
+    tvbuff_t	*next_tvb;
 
     if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0)
     {
 	return TC_DS_FAIL;
     }
 
+    comps_start = asn1->offset;
     saved_offset = asn1->offset;
     ret = asn1_id_decode1(asn1, &tag);
 
@@ -1442,49 +1508,91 @@ dissect_tcap_components(ASN1_SCK *asn1, proto_tree *tcap_tree)
 	return TC_DS_FAIL;
     }
 
-    cmp_item = proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "Components Portion");
-    subtree = proto_item_add_subtree(cmp_item, ett_cmp_portion);
+    comps_item =
+	proto_tree_add_text(tcap_tree, asn1->tvb,
+	    saved_offset, -1, "Components Portion");
 
-    proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb, saved_offset, asn1->offset - saved_offset, tag,
-				    "Component Portion Tag");
+    subtree = proto_item_add_subtree(comps_item, ett_comps_portion);
 
-    dissect_tcap_len(asn1, subtree, &def_len, &len);
+    proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb, saved_offset,
+	asn1->offset - saved_offset, tag, "Component Portion Tag");
 
-    if (def_len)
+    dissect_tcap_len(asn1, subtree, &comps_def_len, &len);
+
+    if (comps_def_len)
     {
-	proto_item_set_len(cmp_item, (asn1->offset - cmp_start) + len);
+	proto_item_set_len(comps_item, (asn1->offset - comps_start) + len);
     }
 
-    /* call next dissector */
+    if (lock_info_col) col_set_fence(g_pinfo->cinfo, COL_INFO);
 
-    if (!def_len)
+    /* call next dissector for EACH component */
+
+    keep_len =
+	(comps_def_len ? 0 : TC_EOC_LEN) +
+	(g_tcap_ends_def_len ? 0 : TC_EOC_LEN);
+
+    while (tvb_length_remaining(asn1->tvb, asn1->offset) > keep_len)
     {
-	/*
-	 * take remaining length minus the EOC for the indefinite
-	 * component length
-	 */
-	next_tvb_len =
-	    tvb_length_remaining(asn1->tvb, asn1->offset) - TC_EOC_LEN;
+	/* peek at tag and length */
+	saved_offset = asn1->offset;
+	ret = asn1_id_decode1(asn1, &tag);
+
+	comp_len = 0;
+	def_len = FALSE;
+	ret = asn1_length_decode(asn1, &def_len, &comp_len);
+
+	if (def_len)
+	{
+	    comp_len += (asn1->offset - saved_offset);
+	}
+	else
+	{
+	    comp_len = (asn1->offset - saved_offset) + find_eoc(asn1) + TC_EOC_LEN;
+	}
+
+	next_tvb = tvb_new_subset(asn1->tvb, saved_offset, comp_len, comp_len);
+	asn1->offset = saved_offset;
+
+	/* process component data */
+	if (dissector_try_port(tcap_itu_ssn_dissector_table, g_pinfo->match_port, next_tvb, g_pinfo, g_tcap_tree))
+	{
+	    asn1->offset += comp_len;
+	}
+	else
+	{
+	    switch (tag)
+	    {
+	    case TC_INVOKE :
+		dissect_tcap_invoke(asn1, subtree);
+		break;
+	    case TC_RRL :
+		dissect_tcap_rr(asn1, subtree, "Return Result(Last) Type Tag");
+		break;
+	    case TC_RE :
+		dissect_tcap_re(asn1, subtree);
+		break;
+	    case TC_REJECT :
+		dissect_tcap_reject(asn1, subtree);
+		break;
+	    case TC_RRN :
+		/* same definition as RRL */
+		dissect_tcap_rr(asn1, subtree, "Return Result(Not Last) Type Tag");
+		break;
+	    default:
+		/* treat it as raw data */
+		call_dissector(data_handle, next_tvb, g_pinfo, g_tcap_tree);
+		break;
+	    }
+	}
     }
-    else
-    {
-	next_tvb_len = len;
-    }
 
-    /*
-     * take length minus the EOC for the indefinite
-     * transaction message length
-     */
-    next_tvb_len -= g_tcap_ends_def_len ? 0 : TC_EOC_LEN;
-
-    dissect_tcap_next_tvb(asn1, next_tvb_len, subtree);
-
-    if (!def_len)
+    if (!comps_def_len)
     {
 	dissect_tcap_eoc(asn1, subtree);
-    }
 
-    proto_item_set_len(cmp_item, asn1->offset - cmp_start);
+	proto_item_set_len(comps_item, asn1->offset - comps_start);
+    }
 
     return TC_DS_OK;
 }
@@ -1625,7 +1733,7 @@ dissect_tcap_dlg_result_src_diag(ASN1_SCK *asn1, proto_tree *tree)
     }
     else
     {
-	proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb, asn1->offset, len,
+	proto_tree_add_text(tree, asn1->tvb, asn1->offset, len,
 	    "Unknown Result Source Diagnostic");
 
 	asn1->offset += len;
@@ -1707,7 +1815,7 @@ dissect_tcap_dlg_user_info(ASN1_SCK *asn1, proto_tree *tree)
 	    dissect_tcap_len(asn1, tree, &def_len, &len);
 	}
 
-	proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb, asn1->offset, len, "Parameter Data");
+	proto_tree_add_text(tree, asn1->tvb, asn1->offset, len, "Parameter Data");
 	asn1->offset += len;
 
 	if (!user_info_def_len)
@@ -1735,7 +1843,7 @@ dissect_tcap_dlg_req(ASN1_SCK *asn1, proto_tree *tcap_tree)
     /* dissect dialog portion */
     saved_offset = asn1->offset;
     ret = asn1_id_decode1(asn1, &tag);
-    req_item = proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "Dialogue Request");
+    req_item = proto_tree_add_text(tcap_tree, asn1->tvb, saved_offset, -1, "Dialogue Request");
     subtree = proto_item_add_subtree(req_item, ett_dlg_req);
     proto_tree_add_uint(subtree, hf_tcap_dlg_type, asn1->tvb, saved_offset, asn1->offset - saved_offset, tag);
 
@@ -1775,7 +1883,7 @@ dissect_tcap_dlg_rsp(ASN1_SCK *asn1, proto_tree *tcap_tree)
     /* dissect dialog portion */
     saved_offset = asn1->offset;
     ret = asn1_id_decode1(asn1, &tag);
-    req_item = proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "Dialogue Response");
+    req_item = proto_tree_add_text(tcap_tree, asn1->tvb, saved_offset, -1, "Dialogue Response");
     subtree = proto_item_add_subtree(req_item, ett_dlg_rsp);
     proto_tree_add_uint(subtree, hf_tcap_dlg_type, asn1->tvb, saved_offset, asn1->offset - saved_offset, tag);
 
@@ -1820,7 +1928,7 @@ dissect_tcap_dlg_abrt(ASN1_SCK *asn1, proto_tree *tree)
     /* dissect dialog pabort portion */
     saved_offset = asn1->offset;
     ret = asn1_id_decode1(asn1, &tag);
-    req_item = proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "Dialogue Abort");
+    req_item = proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Dialogue Abort");
     subtree = proto_item_add_subtree(req_item, ett_dlg_abort );
     proto_tree_add_uint(subtree, hf_tcap_dlg_type, asn1->tvb, saved_offset, asn1->offset - saved_offset, tag);
 
@@ -1883,8 +1991,7 @@ dissect_tcap_dialog_portion(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *t
     }
 
     dlg_item =
-	proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb,
-	    saved_offset, -1, "Dialogue Portion");
+	proto_tree_add_text(tcap_tree, asn1->tvb, saved_offset, -1, "Dialogue Portion");
 
     subtree = proto_item_add_subtree(dlg_item, ett_dlg_portion);
 
@@ -2009,8 +2116,7 @@ dissect_tcap_abort_reason(ASN1_SCK *asn1, proto_tree *tcap_tree)
     {
 	saved_offset = asn1->offset;
 	item =
-	    proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb,
-		saved_offset, -1, "PAbort Cause");
+	    proto_tree_add_text(tcap_tree, asn1->tvb, saved_offset, -1, "PAbort Cause");
 
 	subtree = proto_item_add_subtree(item, ett_reason);
 
@@ -2035,7 +2141,7 @@ dissect_tcap_abort_reason(ASN1_SCK *asn1, proto_tree *tcap_tree)
 	    break;
 	}
 
-	proto_tree_add_none_format(subtree, hf_tcap_none, asn1->tvb,
+	proto_tree_add_text(subtree, asn1->tvb,
 	    saved_offset, asn1->offset - saved_offset, "Cause Value %s (%d)",
 	    str, value);
     }
@@ -2121,7 +2227,7 @@ dissect_tcap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tcap_tree)
 
     if (str == NULL)
     {
-	proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1.tvb, offset, -1, "Unknown message type, ignoring");
+	proto_tree_add_text(tcap_tree, asn1.tvb, offset, -1, "Unknown message type, ignoring");
 	return;
     }
 
@@ -2157,7 +2263,7 @@ dissect_tcap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tcap_tree)
 	dissect_tcap_abort(&asn1, tcap_tree, ti);
 	break;
     default:
-	proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1.tvb, offset, -1,
+	proto_tree_add_text(tcap_tree, asn1.tvb, offset, -1,
 	    "Message type not handled, ignoring");
 	break;
     }
@@ -2191,9 +2297,9 @@ dissect_ansi_tcap_components(ASN1_SCK *asn1, proto_tree *tcap_tree)
 	return TC_DS_FAIL;
     }
 
-    cmp_item = proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "Components Portion");
+    cmp_item = proto_tree_add_text(tcap_tree, asn1->tvb, saved_offset, -1, "Components Portion");
 
-    subtree = proto_item_add_subtree(cmp_item, ett_cmp_portion);
+    subtree = proto_item_add_subtree(cmp_item, ett_comps_portion);
 
     proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb, saved_offset, asn1->offset - saved_offset, tag,
 	"Component Sequence Identifier");
@@ -2229,7 +2335,7 @@ dissect_ansi_tcap_unidirectional(ASN1_SCK *asn1, proto_tree *tcap_tree)
 	return TC_DS_FAIL;
     }
 
-    trans_item = proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "Transaction Portion");
+    trans_item = proto_tree_add_text(tcap_tree, asn1->tvb, saved_offset, -1, "Transaction Portion");
 
     dissect_tcap_len(asn1, tcap_tree, &def_len, &len);
 
@@ -2268,7 +2374,7 @@ dissect_ansi_tcap_qwp_qwop(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti
 	return TC_DS_FAIL;
     }
 
-    trans_item = proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "Transaction Portion");
+    trans_item = proto_tree_add_text(tcap_tree, asn1->tvb, saved_offset, -1, "Transaction Portion");
     subtree = proto_item_add_subtree(trans_item, ett_dlg_portion);
 
     proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb, saved_offset, asn1->offset - saved_offset, tag,
@@ -2324,7 +2430,7 @@ dissect_ansi_tcap_abort(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti)
     }
 
     trans_item =
-	proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb,
+	proto_tree_add_text(tcap_tree, asn1->tvb,
 	saved_offset, -1, "Transaction Portion");
 
     subtree = proto_item_add_subtree(trans_item, ett_dlg_portion);
@@ -2368,8 +2474,7 @@ dissect_ansi_tcap_abort(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti)
     if (tag == ANSI_TC_PABRT_CAUSE_TAG)
     {
 	trans_item =
-	    proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb,
-		saved_offset, -1, "P-Abort Portion");
+	    proto_tree_add_text(tcap_tree, asn1->tvb, saved_offset, -1, "P-Abort Portion");
 
 	subtree = proto_item_add_subtree(trans_item, ett_dlg_abort);
 
@@ -2401,8 +2506,7 @@ dissect_ansi_tcap_abort(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti)
     else if (tag == ANSI_TC_UABRT_INFO_TAG)
     {
 	trans_item =
-	    proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb,
-		saved_offset, -1, "U-Abort Portion");
+	    proto_tree_add_text(tcap_tree, asn1->tvb, saved_offset, -1, "U-Abort Portion");
 
 	subtree = proto_item_add_subtree(trans_item, ett_dlg_abort);
 
@@ -2439,7 +2543,7 @@ dissect_ansi_tcap_rsp(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti)
 	return TC_DS_FAIL;
     }
 
-    trans_item = proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "Transaction Portion");
+    trans_item = proto_tree_add_text(tcap_tree, asn1->tvb, saved_offset, -1, "Transaction Portion");
     subtree = proto_item_add_subtree(trans_item, ett_dlg_portion);
 
     proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb, saved_offset, asn1->offset - saved_offset, tag,
@@ -2492,7 +2596,7 @@ dissect_ansi_tcap_cwp_cwop(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti
 	return TC_DS_FAIL;
     }
 
-    trans_item = proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "Transaction Portion");
+    trans_item = proto_tree_add_text(tcap_tree, asn1->tvb, saved_offset, -1, "Transaction Portion");
     subtree = proto_item_add_subtree(trans_item, ett_dlg_portion);
 
     proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb, saved_offset, asn1->offset - saved_offset, tag,
@@ -2552,7 +2656,7 @@ dissect_ansi_tcap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tcap_tr
 
     if (str == NULL)
     {
-	proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1.tvb, offset, -1, "Unknown message type, ignoring");
+	proto_tree_add_text(tcap_tree, asn1.tvb, offset, -1, "Unknown message type, ignoring");
 	return;
     }
 
@@ -2594,7 +2698,7 @@ dissect_ansi_tcap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tcap_tr
 	dissect_ansi_tcap_abort(&asn1, tcap_tree, ti);
 	break;
     default:
-	proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1.tvb, offset, -1,
+	proto_tree_add_text(tcap_tree, asn1.tvb, offset, -1,
 	    "Message type not handled, ignoring");
 	break;
     }
@@ -2676,11 +2780,6 @@ proto_register_tcap(void)
 		FT_UINT8, BASE_HEX, VALS(ansi_msg_type_strings), 0,
 		"", HFILL }
 	},
-	{ &hf_tcap_none,
-		{ "Sub tree", "tcap.none",
-		FT_NONE, 0, 0, 0,
-		"", HFILL }
-	},
 	{ &hf_tcap_tid,
 		{ "Transaction Id", "tcap.tid",
 		FT_UINT32, BASE_DEC, VALS(tid_strings), 0,
@@ -2719,7 +2818,7 @@ proto_register_tcap(void)
 	&ett_otid,
 	&ett_dtid,
 	&ett_dlg_portion,
-	&ett_cmp_portion,
+	&ett_comps_portion,
 	&ett_reason,
 	&ett_dlg_req,
 	&ett_dlg_rsp,
