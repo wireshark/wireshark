@@ -6,7 +6,7 @@
 
    Copyright (C) Andrew Tridgell 1998
 
-   $Id: crypt-rc4.h,v 1.1 2002/12/03 00:37:27 guy Exp $
+   $Id: crypt-rc4.h,v 1.2 2002/12/11 19:31:02 guy Exp $
    
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -23,4 +23,14 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-void crypt_rc4( unsigned char *data, const unsigned char *key, int val);
+typedef struct _rc4_state_struct {
+  unsigned char s_box[256];
+  unsigned char index_i;
+  unsigned char index_j;
+} rc4_state_struct;
+
+void crypt_rc4_init(rc4_state_struct *rc4_state, 
+		    const unsigned char *key, int key_len);
+
+void crypt_rc4(rc4_state_struct *rc4_state, unsigned char *data, int data_len);
+

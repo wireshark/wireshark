@@ -6,7 +6,7 @@
 
    Copyright (C) Andrew Tridgell 1998
 
-   $Id: crypt-rc4.c,v 1.1 2002/12/03 00:37:27 guy Exp $
+   $Id: crypt-rc4.c,v 1.2 2002/12/11 19:31:02 guy Exp $
    
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -27,27 +27,29 @@
 # include "config.h"
 #endif
 #include <glib.h>
+#include <string.h>
+
+#include "crypt-rc4.h"
 
 /* Perform RC4 on a block of data using specified key.  "data" is a pointer
    to the block to be processed.  Output is written to same memory as input,
    so caller may need to make a copy before calling this function, since
-   the input will be overwritten.  "val" specifies length of data buffer.
-   "key" is assumed to be a 16 octets in length
+   the input will be overwritten.  
    
-   Taken from Samba source code.  In the long term, it might be nice to have
-   the input and output buffer differ, have a length specifier for the key,
-   and separate the initialization function from the process function (as is
-   done with the Alleged-RC4 implementation).
+   Taken from Samba source code.  Modified to allow us to maintain state
+   between calls to crypt_rc4.
 */
 
-void crypt_rc4( unsigned char *data, const unsigned char *key, int val)
+void crypt_rc4_init(rc4_state_struct *rc4_state, 
+		    const unsigned char *key, int key_len)
 {
-  unsigned char s_box[256];
-  unsigned char index_i = 0;
-  unsigned char index_j = 0;
-  unsigned char j = 0;
   int ind;
+  unsigned char j = 0;
+  unsigned char *s_box;
 
+  memset(rc4_state, 0, sizeof(rc4_state_struct));
+  s_box = rc4_state->s_box;
+  
   for (ind = 0; ind < 256; ind++)
   {
     s_box[ind] = (unsigned char)ind;
@@ -57,13 +59,29 @@ void crypt_rc4( unsigned char *data, const unsigned char *key, int val)
   {
      unsigned char tc;
 
-     j += (s_box[ind] + key[ind%16]);
+     j += (s_box[ind] + key[ind%key_len]);
 
      tc = s_box[ind];
      s_box[ind] = s_box[j];
      s_box[j] = tc;
   }
-  for( ind = 0; ind < val; ind++)
+
+}
+
+void crypt_rc4(rc4_state_struct *rc4_state, unsigned char *data, int data_len)
+{
+  unsigned char *s_box;
+  unsigned char index_i;
+  unsigned char index_j;
+  int ind;
+
+  /* retrieve current state from the state struct (so we can resume where
+     we left off) */
+  index_i = rc4_state->index_i;
+  index_j = rc4_state->index_j;
+  s_box = rc4_state->s_box;
+
+  for( ind = 0; ind < data_len; ind++)
   {
     unsigned char tc;
     unsigned char t;
@@ -78,4 +96,8 @@ void crypt_rc4( unsigned char *data, const unsigned char *key, int val)
     t = s_box[index_i] + s_box[index_j];
     data[ind] = data[ind] ^ s_box[t];
   }
+
+  /* Store the updated state */
+  rc4_state->index_i = index_i;
+  rc4_state->index_j = index_j;
 }

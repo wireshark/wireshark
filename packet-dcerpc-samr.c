@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.62 2002/12/03 01:20:56 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.63 2002/12/11 19:31:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1726,6 +1726,7 @@ samr_dissect_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
 	unsigned char password_md4_hash[16];
 	guint8 *block;
 	tvbuff_t *decr_tvb; /* Used to store decrypted buffer */
+	rc4_state_struct rc4_state;
 	guint i;
 	
 	/* This implements the the algorithm discussed in lkcl -"DCE/RPC 
@@ -1774,7 +1775,8 @@ samr_dissect_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
 		tvb_memcpy(tvb, block, offset, NT_BLOCK_SIZE);
 	
 		/* RC4 decrypt the block with the old NT password hash */
-		crypt_rc4(block, password_md4_hash, NT_BLOCK_SIZE);
+		crypt_rc4_init(&rc4_state, password_md4_hash, 16);
+		crypt_rc4(&rc4_state, block, NT_BLOCK_SIZE);
 
 		/* Show the decrypted buffer in a new window */
 		decr_tvb = tvb_new_real_data(block, NT_BLOCK_SIZE,
