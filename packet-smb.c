@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.186 2001/12/15 04:35:50 guy Exp $
+ * $Id: packet-smb.c,v 1.187 2001/12/15 23:59:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -408,6 +408,29 @@ static int hf_smb_sec_desc_revision = -1;
 static int hf_smb_sec_desc_flags = -1;
 static int hf_smb_sid_revision = -1;
 static int hf_smb_sid_num_auth = -1;
+static int hf_smb_acl_revision = -1;
+static int hf_smb_acl_size = -1;
+static int hf_smb_acl_num_aces = -1;
+static int hf_smb_ace_type = -1;
+static int hf_smb_ace_size = -1;
+static int hf_smb_ace_flags_object_inherit = -1;
+static int hf_smb_ace_flags_container_inherit = -1;
+static int hf_smb_ace_flags_no_propagate_inherit = -1;
+static int hf_smb_ace_flags_inherit_only = -1;
+static int hf_smb_ace_flags_inherited_ace = -1;
+static int hf_smb_ace_flags_valid_inherit = -1;
+static int hf_smb_ace_flags_successful_access = -1;
+static int hf_smb_ace_flags_failed_access = -1;
+static int hf_smb_ace_mask_query = -1;
+static int hf_smb_ace_mask_set = -1;
+static int hf_smb_ace_mask_create_subkey = -1;
+static int hf_smb_ace_mask_enum_subkey = -1;
+static int hf_smb_ace_mask_notify = -1;
+static int hf_smb_ace_mask_create_link = -1;
+static int hf_smb_ace_mask_delete = -1;
+static int hf_smb_ace_mask_read_control = -1;
+static int hf_smb_ace_mask_write_dac = -1;
+static int hf_smb_ace_mask_write_owner = -1;
 static int hf_smb_nt_qsd_owner = -1;
 static int hf_smb_nt_qsd_group = -1;
 static int hf_smb_nt_qsd_dacl = -1;
@@ -577,6 +600,10 @@ static gint ett_smb_fs_attributes = -1;
 static gint ett_smb_segments = -1;
 static gint ett_smb_sec_desc = -1;
 static gint ett_smb_sid = -1;
+static gint ett_smb_acl = -1;
+static gint ett_smb_ace = -1;
+static gint ett_smb_ace_flags = -1;
+static gint ett_smb_ace_mask = -1;
 
 proto_tree *top_tree=NULL;     /* ugly */
 
@@ -6336,7 +6363,264 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
   
 	}
 
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+
+static const true_false_string tfs_ace_mask_query = {
+    "QUERY rights are set",
+    "Query rights are NOT set"
+};
+static const true_false_string tfs_ace_mask_set = {
+  "SET rights are set",
+  "Set rights are NOT set"
+};
+static const true_false_string tfs_ace_mask_create_subkey = {
+  "CREATE SUBKEY is set",
+  "Create subkey is NOT set"
+};
+static const true_false_string tfs_ace_mask_enum_subkey = {
+  "ENUM SUBKEY is set",
+  "Enum subkey is NOT set"
+};
+static const true_false_string tfs_ace_mask_notify = {
+  "NOTIFY is set",
+  "Notify is NOT set"
+};
+static const true_false_string tfs_ace_mask_create_link = {
+  "CREATE LINK is set",
+  "Create link is NOT set"
+};
+static const true_false_string tfs_ace_mask_delete = {
+  "DELETE rights are set",
+  "Delete rights are NOT set"
+};
+static const true_false_string tfs_ace_mask_read_control = {
+  "READ CONTROL is set",
+  "Read control is NOT set"
+};
+static const true_false_string tfs_ace_mask_write_dac = {
+  "WRITE DAC is set",
+  "Write dac is NOT set"
+};
+static const true_false_string tfs_ace_mask_write_owner = {
+  "WRITE OWNER rights are set",
+  "Write owner rights are NOT set"
+};
+
+
+static int
+dissect_nt_ace_mask(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	guint32 mask;
+
+	mask = tvb_get_letohl(tvb, offset);
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
+					   "Mask: 0x%08x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_ace_mask);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_ace_mask_write_owner,
+			       tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_ace_mask_write_dac,
+			       tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_ace_mask_read_control,
+			       tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_ace_mask_delete,
+			       tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_ace_mask_create_link,
+			       tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_ace_mask_notify,
+			       tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_ace_mask_enum_subkey,
+			       tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_ace_mask_create_subkey,
+			       tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_ace_mask_set,
+			       tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_ace_mask_query,
+			       tvb, offset, 4, mask);
+
+	offset += 4;
+	return offset;
+}
 /*qqq*/
+
+
+static const value_string ace_type_vals[] = {
+  { 0, "Access Allowed"},
+  { 1, "Access Denied"},
+  { 2, "System Audit"},
+  { 3, "System Alarm"},
+  { 0, NULL}
+};
+static const true_false_string tfs_ace_flags_object_inherit = {
+  "Object Inherit IS SET",
+  "Object Inherit is NOT set"
+};
+static const true_false_string tfs_ace_flags_container_inherit = {
+  "Container Inherit IS SET",
+  "Container Inherit is NOT set"
+};
+static const true_false_string tfs_ace_flags_no_propagate_inherit = {
+  "No Propagate Inherit IS SET",
+  "No Propagate Inherit is NOT set"
+};
+static const true_false_string tfs_ace_flags_inherit_only = {
+  "Inherit Only IS SET",
+  "Inherit Only is NOT set"
+};
+static const true_false_string tfs_ace_flags_inherited_ace = {
+  "Inherited ACE IS SET",
+  "Inherited ACE is NOT set"
+};
+static const true_false_string tfs_ace_flags_valid_inherit = {
+  "Valid Inherit IS SET",
+  "Valid Inherit is NOT set"
+};
+static const true_false_string tfs_ace_flags_successful_access = {
+  "Successful Access IS SET",
+  "Successful Access is NOT set"
+};
+static const true_false_string tfs_ace_flags_failed_access = {
+  "Failed Access IS SET",
+  "Failed Access is NOT set"
+};
+
+#define APPEND_ACE_TEXT(flag, item, string) \
+        if(item && flag){                                     \
+                  proto_item_append_text(item, string);       \
+        }
+
+static int
+dissect_nt_v2_ace_flags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	guint8 mask;
+
+	mask = tvb_get_guint8(tvb, offset);
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
+					   "NT ACE Flags:0x%02x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_ace_flags);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_ace_flags_failed_access,
+		       tvb, offset, 1, mask);
+	APPEND_ACE_TEXT(mask&0x80, item, "  Failed Access,");
+
+	proto_tree_add_boolean(tree, hf_smb_ace_flags_successful_access,
+		       tvb, offset, 1, mask);
+	APPEND_ACE_TEXT(mask&0x40, item, "  Successful Access,");
+
+	proto_tree_add_boolean(tree, hf_smb_ace_flags_valid_inherit,
+		       tvb, offset, 1, mask);
+	APPEND_ACE_TEXT(mask&0x20, item, "  Valid Inherit,");
+
+	proto_tree_add_boolean(tree, hf_smb_ace_flags_inherited_ace,
+		       tvb, offset, 1, mask);
+	APPEND_ACE_TEXT(mask&0x10, item, "  Inherited ACE,");
+
+	proto_tree_add_boolean(tree, hf_smb_ace_flags_inherit_only,
+		       tvb, offset, 1, mask);
+	APPEND_ACE_TEXT(mask&0x08, item, "  Inherit Only,");
+
+	proto_tree_add_boolean(tree, hf_smb_ace_flags_no_propagate_inherit,
+		       tvb, offset, 1, mask);
+	APPEND_ACE_TEXT(mask&0x04, item, "  No Propagate Inherit,");
+
+	proto_tree_add_boolean(tree, hf_smb_ace_flags_container_inherit,
+		       tvb, offset, 1, mask);
+	APPEND_ACE_TEXT(mask&0x02, item, "  Container Inherit,");
+
+	proto_tree_add_boolean(tree, hf_smb_ace_flags_object_inherit,
+		       tvb, offset, 1, mask);
+	APPEND_ACE_TEXT(mask&0x01, item, "  Object Inherit,");
+
+
+	offset += 1;
+	return offset;
+}
+
+static int
+dissect_nt_v2_ace(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset = offset;
+	
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+					   "NT ACE: ");
+		tree = proto_item_add_subtree(item, ett_smb_ace);
+	}
+
+	/* type */
+	if(item){
+	  proto_item_append_text(item, val_to_str(tvb_get_guint8(tvb, offset), ace_type_vals, "Unknown ACE type (%u)"));
+	}
+	proto_tree_add_item(tree, hf_smb_ace_type, tvb, offset, 1, TRUE);
+	offset += 1;
+
+	/* flags */
+	offset = dissect_nt_v2_ace_flags(tvb, pinfo, offset, tree);
+
+	/* size */
+	proto_tree_add_item(tree, hf_smb_ace_size, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* access mask */
+	offset = dissect_nt_ace_mask(tvb, pinfo, offset, tree);
+
+	/* SID */
+	offset = dissect_nt_sid(tvb, pinfo, offset, tree, "SID");
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+dissect_nt_acl(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, char *name)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset = offset;
+	guint16 revision, size;
+	guint32 num_aces;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+					   "NT %s ACL", name);
+		tree = proto_item_add_subtree(item, ett_smb_acl);
+	}
+
+	/* revision */
+	revision = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_acl_revision,
+		tvb, offset, 2, revision);
+	offset += 2;
+
+	switch(revision){
+	case 2:  /* only version we will ever see of this structure?*/
+	  /* size */
+	  proto_tree_add_item(tree, hf_smb_acl_size, tvb, offset, 2, TRUE);
+	  offset += 2;
+
+	  /* number of ace structures */
+	  num_aces = tvb_get_letohl(tvb, offset);
+	  proto_tree_add_uint(tree, hf_smb_acl_num_aces,
+			      tvb, offset, 4, num_aces);
+	  offset += 4;
+
+	  while(num_aces--){
+	    offset=dissect_nt_v2_ace(tvb, pinfo, offset, tree);
+	  }
+	}
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -6402,10 +6686,18 @@ dissect_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *p
 	    dissect_nt_sid(tvb, pinfo, old_offset+group_sid_offset, tree, "Group");
 	  }
 
-	  /*qqq*/
+	  /* sacl */
+	  if(sacl_offset){
+	    dissect_nt_acl(tvb, pinfo, old_offset+sacl_offset, tree, "System");
+	  }
+
+	  /* dacl */
+	  if(dacl_offset){
+	    dissect_nt_acl(tvb, pinfo, old_offset+dacl_offset, tree, "User");
+	  }
+
 	}
 
-	/*qqq*/
 	return offset+len;
 }
 
@@ -15244,6 +15536,97 @@ proto_register_smb(void)
 		{ "Num Auth", "smb.sid.num_auth", FT_UINT8, BASE_DEC,
 		NULL, 0, "Number of authorities for this SID", HFILL }},
 
+	{ &hf_smb_acl_revision,
+		{ "Revision", "smb.acl.revision", FT_UINT16, BASE_DEC,
+		NULL, 0, "Version of NT ACL structure", HFILL }},
+
+	{ &hf_smb_acl_size,
+		{ "Size", "smb.acl.size", FT_UINT16, BASE_DEC,
+		NULL, 0, "Size of NT ACL structure", HFILL }},
+
+	{ &hf_smb_acl_num_aces,
+		{ "Num ACEs", "smb.acl.num_aces", FT_UINT32, BASE_DEC,
+		NULL, 0, "Number of ACE structures for this ACL", HFILL }},
+
+	{ &hf_smb_ace_type,
+		{ "Type", "smb.ace.type", FT_UINT8, BASE_DEC,
+		VALS(ace_type_vals), 0, "Type of ACE", HFILL }},
+
+	{ &hf_smb_ace_size,
+		{ "Size", "smb.ace.size", FT_UINT16, BASE_DEC,
+		NULL, 0, "Size of this ACE", HFILL }},
+
+	{ &hf_smb_ace_flags_object_inherit,
+		{ "", "smb.ace.flags.object_inherit", FT_BOOLEAN, 8,
+		TFS(&tfs_ace_flags_object_inherit), 0x01, "Object Inherit", HFILL }},
+
+	{ &hf_smb_ace_flags_container_inherit,
+		{ "", "smb.ace.flags.container_inherit", FT_BOOLEAN, 8,
+		TFS(&tfs_ace_flags_container_inherit), 0x02, "Container Inherit", HFILL }},
+
+	{ &hf_smb_ace_flags_no_propagate_inherit,
+		{ "", "smb.ace.flags.no_propagate_inherit", FT_BOOLEAN, 8,
+		TFS(&tfs_ace_flags_no_propagate_inherit), 0x04, "No Propagate Inherit", HFILL }},
+
+	{ &hf_smb_ace_flags_inherit_only,
+		{ "", "smb.ace.flags.inherit_only", FT_BOOLEAN, 8,
+		TFS(&tfs_ace_flags_inherit_only), 0x08, "Inherit Only", HFILL }},
+
+	{ &hf_smb_ace_flags_inherited_ace,
+		{ "", "smb.ace.flags.inherited_ace", FT_BOOLEAN, 8,
+		TFS(&tfs_ace_flags_inherited_ace), 0x10, "Inherited ACE", HFILL }},
+
+	{ &hf_smb_ace_flags_valid_inherit,
+		{ "", "smb.ace.flags.valid_inherit", FT_BOOLEAN, 8,
+		TFS(&tfs_ace_flags_valid_inherit), 0x20, "Valid Inherit", HFILL }},
+
+	{ &hf_smb_ace_flags_successful_access,
+		{ "", "smb.ace.flags.successful_access", FT_BOOLEAN, 8,
+		TFS(&tfs_ace_flags_successful_access), 0x40, "Successful Access", HFILL }},
+
+	{ &hf_smb_ace_flags_failed_access,
+		{ "", "smb.ace.flags.failed_access", FT_BOOLEAN, 8,
+		TFS(&tfs_ace_flags_failed_access), 0x80, "Failed Access", HFILL }},
+
+	{ &hf_smb_ace_mask_query,
+	  { "", "smb.ace.mask.query", FT_BOOLEAN, 32,
+	    TFS(&tfs_ace_mask_query), 0x00000001, "Query value rights?", HFILL }},
+	{ &hf_smb_ace_mask_set,
+	  { "", "smb.ace.mask.set", FT_BOOLEAN, 32,
+	    TFS(&tfs_ace_mask_set), 0x00000002, "Set value rights?", HFILL }},
+
+	{ &hf_smb_ace_mask_create_subkey,
+	  { "", "smb.ace.mask.create_subkey", FT_BOOLEAN, 32,
+	    TFS(&tfs_ace_mask_create_subkey), 0x00000004, "Create Subkey rights?", HFILL }},
+
+	{ &hf_smb_ace_mask_enum_subkey,
+	  { "", "smb.ace.mask.enum_subkey", FT_BOOLEAN, 32,
+	    TFS(&tfs_ace_mask_enum_subkey), 0x00000008, "Enum subkey rights?", HFILL }},
+
+	{ &hf_smb_ace_mask_notify,
+	  { "", "smb.ace.mask.notify", FT_BOOLEAN, 32,
+	    TFS(&tfs_ace_mask_notify), 0x00000010, "Notify rights?", HFILL }},
+
+	{ &hf_smb_ace_mask_create_link,
+	  { "", "smb.ace.mask.create_link", FT_BOOLEAN, 32,
+	    TFS(&tfs_ace_mask_create_link), 0x00000020, "Create Link rights?", HFILL }},
+
+	{ &hf_smb_ace_mask_delete,
+	  { "", "smb.ace.mask.delete", FT_BOOLEAN, 32,
+	    TFS(&tfs_ace_mask_delete), 0x00010000, "Delete rights?", HFILL }},
+
+	{ &hf_smb_ace_mask_read_control,
+	  { "", "smb.ace.mask.read_control", FT_BOOLEAN, 32,
+	    TFS(&tfs_ace_mask_read_control), 0x00020000, "Read Control rights?", HFILL }},
+
+	{ &hf_smb_ace_mask_write_dac,
+	  { "", "smb.ace.mask.write_dac", FT_BOOLEAN, 32,
+	    TFS(&tfs_ace_mask_write_dac), 0x00040000, "Write DAC rights?", HFILL }},
+
+	{ &hf_smb_ace_mask_write_owner,
+	  { "", "smb.ace.mask.write_owner", FT_BOOLEAN, 32,
+	    TFS(&tfs_ace_mask_write_owner), 0x00080000, "Write owner rights?", HFILL }},
+	
 
 	};
 	static gint *ett[] = {
@@ -15310,6 +15693,10 @@ proto_register_smb(void)
 		&ett_smb_segments,
 		&ett_smb_sec_desc,
 		&ett_smb_sid,
+		&ett_smb_acl,
+		&ett_smb_ace,
+		&ett_smb_ace_flags,
+		&ett_smb_ace_mask,
 	};
 	module_t *smb_module;
 
@@ -15336,3 +15723,4 @@ proto_reg_handoff_smb(void)
 {
 	heur_dissector_add("netbios", dissect_smb, proto_smb);
 }
+
