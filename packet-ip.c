@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.186 2003/04/16 12:17:55 sahlberg Exp $
+ * $Id: packet-ip.c,v 1.187 2003/04/18 05:11:44 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -97,6 +97,7 @@ static int hf_ip_fragment_overlap_conflict = -1;
 static int hf_ip_fragment_multiple_tails = -1;
 static int hf_ip_fragment_too_long_fragment = -1;
 static int hf_ip_fragment_error = -1;
+static int hf_ip_reassembled_in = -1;
 
 static gint ett_ip = -1;
 static gint ett_ip_dsfield = -1;
@@ -818,7 +819,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16    flags;
   guint8     nxt;
   guint16    ipsum;
-  fragment_data *ipfd_head;
+  fragment_data *ipfd_head=NULL;
   tvbuff_t   *next_tvb;
   gboolean   update_col_info = TRUE;
   gboolean   save_fragmented;
@@ -1031,22 +1032,28 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			     iph->ip_off & IP_MF);
 
     if (ipfd_head != NULL) {
-      /* OK, we have the complete reassembled payload.
-         Allocate a new tvbuff, referring to the reassembled payload. */
-      next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen,
-	ipfd_head->datalen);
+      if(pinfo->fd->num==ipfd_head->reassembled_in){
+        /* OK, we have the complete reassembled payload.
+           Allocate a new tvbuff, referring to the reassembled payload. */
+        next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen,
+	  ipfd_head->datalen);
 
-      /* Add the tvbuff to the list of tvbuffs to which the tvbuff we
-         were handed refers, so it'll get cleaned up when that tvbuff
-         is cleaned up. */
-      tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+        /* Add the tvbuff to the list of tvbuffs to which the tvbuff we
+           were handed refers, so it'll get cleaned up when that tvbuff
+           is cleaned up. */
+        tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
-      /* Add the defragmented data to the data source list. */
-      add_new_data_source(pinfo, next_tvb, "Reassembled IPv4");
+        /* Add the defragmented data to the data source list. */
+        add_new_data_source(pinfo, next_tvb, "Reassembled IPv4");
 
-      /* show all fragments */
-      update_col_info = !show_fragment_tree(ipfd_head, &ip_frag_items,
-        ip_tree, pinfo, next_tvb);
+        /* show all fragments */
+        update_col_info = !show_fragment_tree(ipfd_head, &ip_frag_items,
+          ip_tree, pinfo, next_tvb);
+        } else {
+          /* We don't have the complete reassembled payload. */
+          next_tvb = NULL;
+	  proto_tree_add_uint(ip_tree, hf_ip_reassembled_in, tvb, 0, 0, ipfd_head->reassembled_in);
+	}
     } else {
       /* We don't have the complete reassembled payload. */
       next_tvb = NULL;
@@ -1079,9 +1086,17 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (next_tvb == NULL) {
     /* Just show this as a fragment. */
-    if (check_col(pinfo->cinfo, COL_INFO))
+    if (check_col(pinfo->cinfo, COL_INFO)) {
       col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented IP protocol (proto=%s 0x%02x, off=%u)",
 	ipprotostr(iph->ip_p), iph->ip_p, (iph->ip_off & IP_OFFSET) * 8);
+    }
+    if( ipfd_head && ipfd_head->reassembled_in != pinfo->fd->num ){
+      if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled in #%d]",
+          ipfd_head->reassembled_in);
+      }
+    }
+
     call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo,
                    tree);
     pinfo->fragmented = save_fragmented;
@@ -1696,6 +1711,11 @@ proto_register_ip(void)
 		{ &hf_ip_fragments,
 		{ "IP Fragments", "ip.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
 			"IP Fragments", HFILL }},
+
+		{ &hf_ip_reassembled_in,
+		{ "Reassembled IP in frame", "ip.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"This IP packet is reassembled in this frame", HFILL }}
+
 	};
 	static gint *ett[] = {
 		&ett_ip,
