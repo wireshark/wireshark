@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.124 2003/05/23 05:11:03 tpot Exp $
+ * $Id: packet-dcerpc.c,v 1.125 2003/05/26 21:58:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1051,6 +1051,7 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
         tvb_ensure_bytes_exist(tvb, offset, buffer_len);
         s = g_malloc(buffer_len + 1);
         tvb_memcpy(tvb, s, offset, buffer_len);
+        s[buffer_len] = '\0';
         if (tree && buffer_len)
             proto_tree_add_item(string_tree, hfindex, tvb, offset,
                                 buffer_len, drep[0] & 0x10);
