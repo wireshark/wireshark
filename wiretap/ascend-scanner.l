@@ -1,7 +1,7 @@
 %{
 /* ascend-scanner.l
  *
- * $Id: ascend-scanner.l,v 1.21 2001/11/13 23:55:43 gram Exp $
+ * $Id: ascend-scanner.l,v 1.22 2001/12/04 10:07:30 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -95,6 +95,8 @@ WDD_TYPE    "type "[^\n\r\t ]+
 %s sc_wdd_chunknum
 %s sc_wdd_type
 
+%s sc_chardisp
+
 %%
 
 <INITIAL,sc_gen_byte>{XPFX} {
@@ -117,7 +119,7 @@ WDD_TYPE    "type "[^\n\r\t ]+
 
   unput(after); unput(colon);
 
-  if (after != '(') {
+  if (after != '(' && after != ' ') {
     BEGIN(sc_wds_sess);
     if (pseudo_header != NULL) {
       strncpy(pseudo_header->user, atcopy, ASCEND_MAX_STR_LEN);
@@ -141,10 +143,14 @@ WDD_TYPE    "type "[^\n\r\t ]+
   return DECNUM;
 }
 
-<sc_gen_task>{H}+ {
+<sc_gen_task>(0x|0X)?{H}+ {
   BEGIN(sc_gen_time_s);
   ascendlval.d = strtoul(ascendtext, NULL, 16);
   return HEXNUM;
+}
+
+<sc_gen_task>\"[A-Za-z0-9_ ]+\" {
+  return STRING;
 }
 
 <sc_gen_time_s>{D}+ {
@@ -179,6 +185,14 @@ WDD_TYPE    "type "[^\n\r\t ]+
 <sc_gen_byte>{H}{2} {
   ascendlval.b = strtol(ascendtext, NULL, 16);
   return HEXBYTE;
+}
+
+<sc_gen_byte>" "{4} { 
+  BEGIN(sc_chardisp);
+}
+
+<sc_chardisp>.*	{ 
+  BEGIN(sc_gen_byte);
 }
 
 <INITIAL,sc_gen_byte>{WDD_DATE} {
@@ -257,10 +271,9 @@ WDD_TYPE    "type "[^\n\r\t ]+
   return KEYWORD;
 }
 
+(0x|0X)?{H}+ { return HEXNUM; }
 
-{H}+ { return HEXNUM; }
-
-task:|time:|octets { return KEYWORD; }
+task:|task|at|time:|octets { return KEYWORD; }
 
 <<EOF>> { at_eof++; yyterminate(); }
 

@@ -1,7 +1,7 @@
 %{
 /* ascend-grammar.y
  *
- * $Id: ascend-grammar.y,v 1.21 2001/11/13 23:55:42 gram Exp $
+ * $Id: ascend-grammar.y,v 1.22 2001/12/04 10:07:30 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -64,6 +64,42 @@ XMIT-187:(task: B0292CA0, time: 18042248.04) 60 octets @ 800AD576
 RECV-187:(task: B0292CA0, time: 18042251.92) 16 octets @ 800018E8
   [0000]: FF 03 C0 21 09 01 00 0C DE 61 96 4B 00 30 94 92
 
+  In TAOS 8.0, Lucent slightly changed the format as follows:
+
+    Example 'wandisp' output data (TAOS 8.0.3): (same format is used 
+    for 'wanopen' and 'wannext' command)
+
+RECV-14: (task "idle task" at 0xb05e6e00, time: 1279.01) 29 octets @ 0x8000e0fc
+  [0000]: ff 03 c0 21 01 01 00 19  01 04 05 f4 11 04 05 f4    ...!.... ........
+  [0010]: 13 09 03 00 c0 7b 9a 9f  2d 17 04 10 00             .....{.. -....
+XMIT-14: (task "idle task" at 0xb05e6e00, time: 1279.02) 38 octets @ 0x8007fd56
+  [0000]: ff 03 c0 21 01 01 00 22  00 04 00 00 01 04 05 f4    ...!..." ........
+  [0010]: 03 05 c2 23 05 11 04 05  f4 13 09 03 00 c0 7b 80    ...#.... ......{.
+  [0020]: 7c ef 17 04 0e 00                                   |.....
+XMIT-14: (task "idle task" at 0xb05e6e00, time: 1279.02) 29 octets @ 0x8007fa36
+  [0000]: ff 03 c0 21 02 01 00 19  01 04 05 f4 11 04 05 f4    ...!.... ........
+  [0010]: 13 09 03 00 c0 7b 9a 9f  2d 17 04 10 00             .....{.. -....
+
+    Example 'wandsess' output data (TAOS 8.0.3): 
+
+RECV-Max7:20: (task "_brouterControlTask" at 0xb094ac20, time: 1481.50) 20 octets @ 0x8000d198
+  [0000]: ff 03 00 3d c0 00 00 04  80 fd 02 01 00 0a 11 06    ...=.... ........
+  [0010]: 00 01 01 03                                         ....
+XMIT-Max7:20: (task "_brouterControlTask" at 0xb094ac20, time: 1481.51) 26 octets @ 0x800806b6
+  [0000]: ff 03 00 3d c0 00 00 00  80 21 01 01 00 10 02 06    ...=.... .!......
+  [0010]: 00 2d 0f 01 03 06 89 64  03 08                      .-.....d ..
+XMIT-Max7:20: (task "_brouterControlTask" at 0xb094ac20, time: 1481.51) 20 octets @ 0x8007f716
+  [0000]: ff 03 00 3d c0 00 00 01  80 fd 01 01 00 0a 11 06    ...=.... ........
+  [0010]: 00 01 01 03                                         ....
+
+  The changes since TAOS 7.X are:
+
+    1) White space is added before "(task".
+    2) Task has a name, indicated by a subsequent string surrounded by a
+       double-quote.
+    3) Address expressed in hex number has a preceeding "0x".
+    4) Hex numbers are in lower case.
+    5) There is a character display corresponding to hex data in each line.
 
  */
 
@@ -114,7 +150,9 @@ char    b;
 
 data_packet:
   | wds_hdr datagroup
-  | wds7_hdr datagroup
+  | wds8_hdr datagroup
+  | wdp7_hdr datagroup
+  | wdp8_hdr datagroup
   | wdd_date wdd_hdr datagroup
   | wdd_hdr datagroup
 ;
@@ -152,10 +190,34 @@ wds_hdr: wds_prefix string decnum KEYWORD hexnum KEYWORD decnum decnum decnum KE
 }
 ;
 
+/* RECV-Max7:20: (task "_brouterControlTask" at 0xb094ac20, time: 1481.50) 20 octets @ 0x8000d198 */
+/*                1       2       3     4       5       6      7       8      9      10     11     12      13 */
+wds8_hdr: wds_prefix string decnum KEYWORD string KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
+  wirelen = $11;
+  caplen = ($11 < ASCEND_MAX_PKT_LEN) ? $11 : ASCEND_MAX_PKT_LEN;
+  /* If we don't have as many bytes of data as the octet count in
+     the header, make the capture length the number of bytes we
+     actually have. */
+  if (bcount > 0 && bcount <= caplen)
+    caplen = bcount;
+  secs = $9;
+  usecs = $10;
+  if (pseudo_header != NULL) {
+    /* pseudo_header->user is set in ascend-scanner.l */
+    pseudo_header->type = $1;
+    pseudo_header->sess = $3;
+    pseudo_header->call_num[0] = '\0';
+    pseudo_header->chunk = 0;
+    pseudo_header->task = $7;
+  }
+  
+  bcur = 0;
+}
+;
 
 /* RECV-187:(task: B050B480, time: 18042248.03) 100 octets @ 800012C0 */
 /*            1        2       3      4       5       6      7      8      9      10    */
-wds7_hdr: wds_prefix decnum KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
+wdp7_hdr: wds_prefix decnum KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
   wirelen = $8;
   caplen = ($8 < ASCEND_MAX_PKT_LEN) ? $8 : ASCEND_MAX_PKT_LEN;
   /* If we don't have as many bytes of data as the octet count in
@@ -172,6 +234,31 @@ wds7_hdr: wds_prefix decnum KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD 
     pseudo_header->call_num[0] = '\0';
     pseudo_header->chunk = 0;
     pseudo_header->task = $4;
+  }
+  
+  bcur = 0;
+}
+;
+
+/* XMIT-44: (task "freedm_task" at 0xe051fd10, time: 6258.66) 29 octets @ 0x606d1f00 */
+/*              1        2       3      4       5      6      7       8      9      10     11      12 */
+wdp8_hdr: wds_prefix decnum KEYWORD string KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
+  wirelen = $10;
+  caplen = ($10 < ASCEND_MAX_PKT_LEN) ? $10 : ASCEND_MAX_PKT_LEN;
+  /* If we don't have as many bytes of data as the octet count in
+     the header, make the capture length the number of bytes we
+     actually have. */
+  if (bcount > 0 && bcount <= caplen)
+    caplen = bcount;
+  secs = $8;
+  usecs = $9;
+  if (pseudo_header != NULL) {
+    /* pseudo_header->user is set in ascend-scanner.l */
+    pseudo_header->type = $1;
+    pseudo_header->sess = $2;
+    pseudo_header->call_num[0] = '\0';
+    pseudo_header->chunk = 0;
+    pseudo_header->task = $6;
   }
   
   bcur = 0;

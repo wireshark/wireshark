@@ -791,6 +791,8 @@ Motonori Shindo <mshindo[AT]mshindo.net> {
 	Cooperative Route Filtering Capability support in BGP
 	Route Refresh Message bug fix in BGP
 	CBCP support in PPP
+	Fix Ascend/Lucent trace reading code to handle later trace
+	    formats that have an ASCII dump at the end of the line
 }
 
 Terje Krogdahl <tekr[AT]nextra.com> {
