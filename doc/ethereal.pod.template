@@ -1001,6 +1001,7 @@ B<http://www.ethereal.com>.
   Ulrich Kiermayr          <uk@ap.univie.ac.at>
   Neil Hunter              <neil.hunter@energis-squared.com>
   Ralf Holzer              <ralf@well.com>
+  Craig Rodrigues          <rodrigc@mediaone.net>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

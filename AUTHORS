@@ -425,6 +425,10 @@ Ralf Holzer <ralf@well.com> {
 	AIM/OSCAR support
 }
 
+Craig Rodrigues <rodrigc@mediaone.net> {
+	GIOP 1.2 support and other GIOP enhancements
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
