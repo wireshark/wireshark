@@ -1631,7 +1631,7 @@ Laurent Meyer <laurent.meyer [AT] thales-avionics.com> {
 	X.25 reassembly
 }
 
-Lars Ronald <Lars.Roland [AT] gmx.net> {
+Lars Roland <Lars.Roland [AT] gmx.net> {
 	MGCP request/response matching and MGCPSTAT calculation
 }
 
