@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.41 2002/10/08 19:18:57 guy Exp $
+ * $Id: packet-bpdu.c,v 1.42 2002/11/26 10:31:24 jmayer Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  *
@@ -229,7 +229,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (pinfo->dl_dst.type == AT_ETHER &&
 	  pinfo->dl_dst.data[0] == 0x01 && pinfo->dl_dst.data[1] == 0x80 &&
 	  pinfo->dl_dst.data[2] == 0xC2 && pinfo->dl_dst.data[3] == 0x00 &&
-	  pinfo->dl_dst.data[4] == 0x00 && ((pinfo->dl_dst.data[5] & 0x20) == 0x20)) {
+	  pinfo->dl_dst.data[4] == 0x00 && ((pinfo->dl_dst.data[5] & 0xF0) == 0x20)) {
 
 	    protocol_identifier = tvb_get_ntohs(tvb, BPDU_IDENTIFIER);
 
