@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.40 2003/11/17 18:23:34 ulfl Exp $
+ * $Id: packet-ethertype.c,v 1.41 2003/11/27 21:09:42 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -83,6 +83,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_CGMP,		"Cisco Group Management Protocol" },
     {ETHERTYPE_SLOW_PROTOCOLS,	"Slow Protocols"		},
     {ETHERTYPE_RTNET,		"RTNET Protocol"                },
+    {ETHERTYPE_RTCFG,		"RTCFG Protocol"                },
     {ETHERTYPE_PROFINET,	"PROFInet"                },
 
     /*
