@@ -265,6 +265,64 @@ dissect_ndr_counted_byte_array(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_index, cb_byte_array_postprocess, GINT_TO_POINTER(2 + levels));
 }
 
+/* Dissect a counted ascii string in-line. */
+static gint ett_nt_counted_ascii_string = -1;
+
+int
+dissect_ndr_counted_ascii_string_cb(tvbuff_t *tvb, int offset,
+				  packet_info *pinfo, proto_tree *tree,
+				  guint8 *drep, int hf_index,
+				  dcerpc_callback_fnct_t *callback,
+				  void *callback_args)
+{
+	dcerpc_info *di = pinfo->private_data;
+	proto_item *item;
+	proto_tree *subtree;
+	guint16 len, size;
+
+        /* Structure starts with short, but is aligned for longs */
+
+	ALIGN_TO_4_BYTES;
+
+	if (di->conformant_run)
+		return offset;
+
+	item = proto_tree_add_text(tree, tvb, offset, 0, 
+		proto_registrar_get_name(hf_index));
+
+	subtree = proto_item_add_subtree(item, ett_nt_counted_ascii_string);
+	
+	/* 
+           struct {
+               short len;
+               short size;
+               [size_is(size), length_is(len), ptr] unsigned char *string;
+           } WHATEVER_THIS_IS_CALLED;
+
+         */
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, subtree, drep,
+			hf_nt_cs_len, &len);
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, subtree, drep,
+			hf_nt_cs_size, &size);	
+
+	offset = dissect_ndr_pointer_cb(tvb, offset, pinfo, subtree, drep,
+			dissect_ndr_char_cvstring, NDR_POINTER_UNIQUE,
+			"Ascii String", hf_index, callback, callback_args);
+
+	return offset;
+}
+
+int
+dissect_ndr_counted_ascii_string(tvbuff_t *tvb, int offset,
+			       packet_info *pinfo, proto_tree *tree,
+			       guint8 *drep, int hf_index, int levels)
+{
+	return dissect_ndr_counted_ascii_string_cb(
+		tvb, offset, pinfo, tree, drep, hf_index, cb_str_postprocess, GINT_TO_POINTER(2 + levels));
+}
+
 /* This function is used to dissect a DCERPC encoded 64 bit time value.
    XXX it should be fixed both here and in dissect_nt_64bit_time so
    it can handle both BIG and LITTLE endian encodings
@@ -1545,6 +1603,7 @@ void dcerpc_smb_init(int proto_dcerpc)
                 &ett_nt_sid_array,
                 &ett_nt_sid_and_attributes_array,
                 &ett_nt_sid_and_attributes,
+		&ett_nt_counted_ascii_string,
 	};
 
 	/* Register ett's and hf's */

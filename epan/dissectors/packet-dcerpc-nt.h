@@ -67,6 +67,17 @@ extern const value_string platform_id_vals[];
 	}
 
 int
+dissect_ndr_counted_ascii_string_cb(tvbuff_t *tvb, int offset,
+				  packet_info *pinfo, proto_tree *tree,
+				  guint8 *drep, int hf_index,
+				  dcerpc_callback_fnct_t *callback,
+				    void *callback_args);
+int
+dissect_ndr_counted_ascii_string(tvbuff_t *tvb, int offset,
+			       packet_info *pinfo, proto_tree *tree,
+				 guint8 *drep, int hf_index, int levels);
+
+int
 dissect_ndr_counted_string_cb(tvbuff_t *tvb, int offset,
 			      packet_info *pinfo, proto_tree *tree,
 			      guint8 *drep, int hf_index, 
