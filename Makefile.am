@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.522 2002/12/03 00:37:26 guy Exp $
+# $Id: Makefile.am,v 1.523 2002/12/03 01:44:22 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -582,6 +582,7 @@ noinst_HEADERS = \
 	packet-vlan.h \
 	packet-wap.h \
 	packet-wccp.h \
+	packet-wlancap.h \
 	packet-wsp.h \
 	packet-wtls.h \
 	packet-wtp.h \
