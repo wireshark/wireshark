@@ -2,7 +2,7 @@
 # Automake file for the EPAN library
 # (Ethereal Protocol ANalyzer Library)
 #
-# $Id: Makefile.am,v 1.14 2000/11/20 16:18:08 gram Exp $
+# $Id: Makefile.am,v 1.15 2001/01/17 06:13:39 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -70,9 +70,6 @@ libethereal_a_SOURCES = \
 	tvbuff.h
 
 EXTRA_libethereal_a_SOURCES =	\
-	dfilter-grammar.c	\
-	dfilter-grammar.h	\
-	dfilter-scanner.c	\
         inet_aton.c		\
 	inet_pton.c		\
 	inet_ntop.c		\
@@ -81,6 +78,9 @@ EXTRA_libethereal_a_SOURCES =	\
 
 EXTRA_DIST = \
 	config.h.win32		\
+	dfilter-grammar.c	\
+	dfilter-grammar.h	\
+	dfilter-scanner.c	\
 	Makefile.nmake		\
 	tvbtest.c
 
