@@ -9,7 +9,7 @@ part of the 0x2222 "family")
 Data comes from "Programmer's Guide to the NetWare Core Protocol"
 by Steve Conner and Dianne Conner.
 
-$Id: ncp2222.py,v 1.2 2000/08/08 16:39:48 gram Exp $
+$Id: ncp2222.py,v 1.3 2000/08/09 21:24:27 deniel Exp $
 
 Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
 
@@ -1173,37 +1173,37 @@ if __name__ == '__main__':
 	print " */\n"
 
 	print """
-	/*
-	 * This program is free software; you can redistribute it and/or
-	 * modify it under the terms of the GNU General Public License
-	 * as published by the Free Software Foundation; either version 2
-	 * of the License, or (at your option) any later version.
-	 * 
-	 * This program is distributed in the hope that it will be useful,
-	 * but WITHOUT ANY WARRANTY; without even the implied warranty of
-	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	 * GNU General Public License for more details.
-	 * 
-	 * You should have received a copy of the GNU General Public License
-	 * along with this program; if not, write to the Free Software
-	 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-	 */
+/*
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
-	#ifdef HAVE_CONFIG_H
-	# include "config.h"
-	#endif
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 
-	#include <glib.h>
-	#include "packet.h"
-	#include "conversation.h"
-	#include "ptvcursor.h"
-	#include "packet-ncp-int.h"
-	    
-	static int hf_ncp_func = -1;
-	static int hf_ncp_length = -1;
-	static int hf_ncp_subfunc = -1;
-	static int hf_ncp_completion_code = -1;
-	static int hf_ncp_connection_status = -1;
+#include <glib.h>
+#include "packet.h"
+#include "conversation.h"
+#include "ptvcursor.h"
+#include "packet-ncp-int.h"
+    
+static int hf_ncp_func = -1;
+static int hf_ncp_length = -1;
+static int hf_ncp_subfunc = -1;
+static int hf_ncp_completion_code = -1;
+static int hf_ncp_connection_status = -1;
 	"""
 
 	# Look at all packet types in the packets collection, and cull information
@@ -1253,25 +1253,25 @@ if __name__ == '__main__':
 
 
 	print """
-	void
-	proto_register_ncp2222(void)
-	{
+void
+proto_register_ncp2222(void)
+{
 
-		static hf_register_info hf[] = {
-		{ &hf_ncp_func,
-		{ "Function", "ncp.func", FT_UINT8, BASE_HEX, NULL, 0x0, "" }},
+	static hf_register_info hf[] = {
+	{ &hf_ncp_func,
+	{ "Function", "ncp.func", FT_UINT8, BASE_HEX, NULL, 0x0, "" }},
 
-		{ &hf_ncp_length,
-		{ "Packet Length", "ncp.length", FT_UINT16, BASE_DEC, NULL, 0x0, "" }},
+	{ &hf_ncp_length,
+	{ "Packet Length", "ncp.length", FT_UINT16, BASE_DEC, NULL, 0x0, "" }},
 
-		{ &hf_ncp_subfunc,
-		{ "SubFunction", "ncp.subfunc", FT_UINT8, BASE_HEX, NULL, 0x0, "" }},
+	{ &hf_ncp_subfunc,
+	{ "SubFunction", "ncp.subfunc", FT_UINT8, BASE_HEX, NULL, 0x0, "" }},
 
-		{ &hf_ncp_completion_code,
-		{ "Completion Code", "ncp.completion_code", FT_UINT8, BASE_HEX, NULL, 0x0, "" }},
+	{ &hf_ncp_completion_code,
+	{ "Completion Code", "ncp.completion_code", FT_UINT8, BASE_HEX, NULL, 0x0, "" }},
 
-		{ &hf_ncp_connection_status,
-		{ "Connection Status", "ncp.connection_status", FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+	{ &hf_ncp_connection_status,
+	{ "Connection Status", "ncp.connection_status", FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
 	"""
 
 	# Print the registration code for the hf variables

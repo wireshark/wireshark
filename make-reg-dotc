@@ -20,11 +20,23 @@ echo '#include "register.h"' >>register.c-tmp
 echo 'void register_all_protocols(void) {' >>register.c-tmp
 for f in "$@"
 do
-	grep '^proto_register_[a-z_0-9A-Z]* *(' $srcdir/$f 2>/dev/null
+	if [ -e $f ]
+	then
+		srcfile=$f
+	else
+		srcfile=$srcdir/$f
+	fi
+	grep '^proto_register_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null
 done | sed -e 's/^.*://' -e 's/^\([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>register.c-tmp
 for f in "$@"
 do
-	grep '^void proto_register_[a-z_0-9A-Z]* *(' $srcdir/$f 2>/dev/null
+	if [ -e $f ]
+	then
+		srcfile=$f
+	else
+		srcfile=$srcdir/$f
+	fi
+	grep '^void proto_register_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null
 done | sed -e 's/^.*://' -e 's/^void \([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>register.c-tmp
 echo '}' >>register.c-tmp
 
@@ -34,11 +46,23 @@ echo '}' >>register.c-tmp
 echo 'void register_all_protocol_handoffs(void) {' >>register.c-tmp
 for f in "$@"
 do
-	grep '^proto_reg_handoff_[a-z_0-9A-Z]* *(' $srcdir/$f 2>/dev/null
+	if [ -e $f ]
+	then
+		srcfile=$f
+	else
+		srcfile=$srcdir/$f
+	fi
+	grep '^proto_reg_handoff_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null
 done | sed -e 's/^.*://' -e 's/^\([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>register.c-tmp
 for f in "$@"
 do
-	grep '^void proto_reg_handoff_[a-z_0-9A-Z]* *(' $srcdir/$f 2>/dev/null
+	if [ -e $f ]
+	then
+		srcfile=$f
+	else
+		srcfile=$srcdir/$f
+	fi
+	grep '^void proto_reg_handoff_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null
 done | sed -e 's/^.*://' -e 's/^void \([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>register.c-tmp
 echo '}' >>register.c-tmp
 mv register.c-tmp register.c
