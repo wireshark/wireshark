@@ -214,6 +214,16 @@ as some compilers will reject the first of those statements.  Instead,
 initialize the array at the point at which it's first declared, so that
 the size is known.
 
+Don't put declarations in the middle of a block; put them before all
+code.  Not all compilers support declarations in the middle of code,
+such as
+
+	int i;
+
+	i = foo();
+
+	int j;
+
 For #define names and enum member names, prefix the names with a tag so
 as to avoid collisions with other names - this might be more of an issue
 on Windows, as it appears to #define names such as DELETE and
