@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.74 2002/10/02 21:15:27 ashokn Exp $
+ * $Id: packet-rsvp.c,v 1.75 2002/10/08 23:29:15 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,6 +111,7 @@ enum {
     TT_EXPLICIT_ROUTE_SUBOBJ,
     TT_RECORD_ROUTE,
     TT_RECORD_ROUTE_SUBOBJ,
+    TT_RECORD_ROUTE_SUBOBJ_FLAGS,
     TT_ADMIN_STATUS,
     TT_ADMIN_STATUS_FLAGS,
     TT_GEN_UNI,
@@ -118,6 +119,8 @@ enum {
     TT_BUNDLE_COMPMSG,
     TT_RESTART_CAP,
     TT_PROTECTION_INFO,
+    TT_FAST_REROUTE,
+    TT_DETOUR,
     TT_UNKNOWN_CLASS,
 
     TT_MAX,
@@ -227,7 +230,10 @@ enum rsvp_classes {
     RSVP_CLASS_SESSION_ATTRIBUTE = 207,
     RSVP_CLASS_GENERALIZED_UNI,
     RSVP_CLASS_DCLASS = 225,
-    RSVP_CLASS_LSP_TUNNEL_IF_ID = 227
+    RSVP_CLASS_LSP_TUNNEL_IF_ID = 227,
+
+    RSVP_CLASS_FAST_REROUTE = 228, /* TBD */
+    RSVP_CLASS_DETOUR = 229, /* TBD */
 };
 
 static value_string rsvp_class_vals[] = {
@@ -2590,12 +2596,20 @@ dissect_rsvp_session_attribute (proto_tree *ti, tvbuff_t *tvb,
 						    "Local protection not desired"));
 	proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1,
 			    decode_boolean_bitfield(flags, 0x02, 8,
-						    "Merging permitted",
-						    "Merging not permitted"));
+						    "Label recording desired",
+						    "Label recording not desired"));
 	proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1,
 			    decode_boolean_bitfield(flags, 0x04, 8,
-						    "Ingress node may reroute",
-						    "Ingress node may not reroute"));
+						    "SE style desired",
+						    "SE style not desired"));
+	proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1,
+			    decode_boolean_bitfield(flags, 0x08, 8,
+						    "Bandwidth protection desired",
+						    "Bandwidth protection not desired"));
+	proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1,
+			    decode_boolean_bitfield(flags, 0x10, 8,
+						    "Node protection desired",
+						    "Node protection not desired"));
 
 	name_len = tvb_get_guint8(tvb, offset2+3);
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+3, 1,
@@ -2605,12 +2619,14 @@ dissect_rsvp_session_attribute (proto_tree *ti, tvbuff_t *tvb,
 			    name_len,
 			    tvb_get_ptr(tvb, offset2+4, name_len));
 
-	proto_item_set_text(ti, "SESSION ATTRIBUTE: SetupPrio %d, HoldPrio %d, %s%s%s [%s]",
+	proto_item_set_text(ti, "SESSION ATTRIBUTE: SetupPrio %d, HoldPrio %d, %s%s%s%s%s [%s]",
 			    tvb_get_guint8(tvb, offset2),
 			    tvb_get_guint8(tvb, offset2+1),
 			    flags &0x01 ? "Local Protection, " : "",
-			    flags &0x02 ? "Merging, " : "",
-			    flags &0x04 ? "May Reroute, " : "",
+			    flags &0x02 ? "Label Recording, " : "",
+			    flags &0x04 ? "SE Style, " : "",
+			    flags &0x08 ? "Bandwidth Protection, " : "",
+			    flags &0x10 ? "Node Protection, " : "",
 			    name_len ? (char*)tvb_format_text(tvb, offset2+4, name_len) : "");
 	break;
 
@@ -2633,7 +2649,7 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 				 int offset, int obj_length, int class)
 {
     int i, j, k, l;
-    proto_tree *ti2, *rsvp_ro_subtree;
+    proto_tree *ti2, *rsvp_ro_subtree, *rsvp_rro_flags_subtree;
     int tree_type;
 
     switch(class) {
@@ -2657,11 +2673,13 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 				      offset+l, 8,
 				      "IPv4 Subobject - %s, %s",
 				      ip_to_str(tvb_get_ptr(tvb, offset+l+2, 4)),
-				      k ? "Loose" : "Strict");
+				      class == RSVP_CLASS_EXPLICIT_ROUTE ? 
+				      (k ? "Loose" : "Strict") : "");
 	    rsvp_ro_subtree =
 		proto_item_add_subtree(ti2, tree_type);
-	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
-				k ? "Loose Hop " : "Strict Hop");
+	    if (class == RSVP_CLASS_EXPLICIT_ROUTE) 
+		proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
+				    k ? "Loose Hop " : "Strict Hop");
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
 				"Type: 1 (IPv4)");
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+1, 1,
@@ -2673,6 +2691,32 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+6, 1,
 				"Prefix length: %u",
 				tvb_get_guint8(tvb, offset+l+6));
+	    if (class == RSVP_CLASS_RECORD_ROUTE) {
+		if (k&0x01) proto_item_append_text(ti2, ", Local Protection Available");
+		if (k&0x02) proto_item_append_text(ti2, ", Local Protection In Use");
+		if (k&0x04) proto_item_append_text(ti2, ", Backup BW Avail");
+		if (k&0x08) proto_item_append_text(ti2, ", Backup is Next-Next-Hop");
+		ti2 = proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+7, 1,
+					  "Flags: 0x%08x", k);
+		rsvp_rro_flags_subtree = 
+		    proto_item_add_subtree(ti2, TREE(TT_RECORD_ROUTE_SUBOBJ_FLAGS)); 
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1,
+				    decode_boolean_bitfield(k, 0x01, 8, 
+							    "Local Protection Available",
+							    "Local Protection Not Available"));
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1,
+				    decode_boolean_bitfield(k, 0x02, 8, 
+							    "Local Protection In Use",
+							    "Local Protection Not In Use"));
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1,
+				    decode_boolean_bitfield(k, 0x04, 8, 
+							    "Bandwidth Protection Available",
+							    "Bandwidth Protection Not Available"));
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1,
+				    decode_boolean_bitfield(k, 0x08, 8, 
+							    "Node Protection Available",
+							    "Node Protection Not Available"));
+	    }
 	    if (i < 4) {
 		proto_item_append_text(ti, "IPv4 %s%s",
 				       ip_to_str(tvb_get_ptr(tvb, offset+l+2, 4)),
@@ -2688,8 +2732,9 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 	    rsvp_ro_subtree =
 		proto_item_add_subtree(ti2, tree_type);
 	    k = tvb_get_guint8(tvb, offset+l) & 0x80;
-	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
-				k ? "Loose Hop " : "Strict Hop");
+	    if (class == RSVP_CLASS_EXPLICIT_ROUTE) 
+		proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
+				    k ? "Loose Hop " : "Strict Hop");
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
 				"Type: 2 (IPv6)");
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+1, 1,
@@ -2700,7 +2745,33 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 				ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset+l+2, 16)));
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+18, 1,
 				"Prefix length: %u",
-				tvb_get_guint8(tvb, offset+l+6));
+				tvb_get_guint8(tvb, offset+l+18));
+	    if (class == RSVP_CLASS_RECORD_ROUTE) {
+		if (k&0x01) proto_item_append_text(ti2, ", Local Protection Available");
+		if (k&0x02) proto_item_append_text(ti2, ", Local Protection In Use");
+		if (k&0x04) proto_item_append_text(ti2, ", Backup BW Avail");
+		if (k&0x08) proto_item_append_text(ti2, ", Backup is Next-Next-Hop");
+		ti2 = proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+19, 1,
+					  "Flags: 0x%08x", k);
+		rsvp_rro_flags_subtree = 
+		    proto_item_add_subtree(ti2, TREE(TT_RECORD_ROUTE_SUBOBJ_FLAGS)); 
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1,
+				    decode_boolean_bitfield(k, 0x01, 8, 
+							    "Local Protection Available",
+							    "Local Protection Not Available"));
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1,
+				    decode_boolean_bitfield(k, 0x02, 8, 
+							    "Local Protection In Use",
+							    "Local Protection Not In Use"));
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1,
+				    decode_boolean_bitfield(k, 0x04, 8, 
+							    "Backup Tunnel Has Bandwidth",
+							    "Backup Tunnel Does Not Have Bandwidth"));
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1,
+				    decode_boolean_bitfield(k, 0x08, 8, 
+							    "Backup Tunnel Goes To Next-Next-Hop",
+							    "Backup Tunnel Goes To Next-Hop"));
+	    }
 	    if (i < 4) {
 		proto_item_append_text(ti, "IPv6 [...]%s", k ? " [L]":"");
 	    }
@@ -2713,19 +2784,44 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 				      offset+l, 8,
 				      "Label Subobject - %d, %s",
 				      tvb_get_ntohl(tvb, offset+l+4),
-				      k ? "Loose" : "Strict");
+				      class == RSVP_CLASS_EXPLICIT_ROUTE ? 
+				      (k ? "Loose" : "Strict") : "");
 	    rsvp_ro_subtree =
 		proto_item_add_subtree(ti2, tree_type);
-	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
-				k ? "Loose Hop " : "Strict Hop");
+	    if (class == RSVP_CLASS_EXPLICIT_ROUTE) 
+		proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
+				    k ? "Loose Hop " : "Strict Hop");
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
 				"Type: 3 (Label)");
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+1, 1,
 				"Length: %u",
 				tvb_get_guint8(tvb, offset+l+1));
-	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+2, 1,
-				"Flags: %0x",
-				tvb_get_guint8(tvb, offset+l+2));
+	    if (class == RSVP_CLASS_RECORD_ROUTE) {
+		if (k&0x01) proto_item_append_text(ti2, ", Local Protection Available");
+		if (k&0x02) proto_item_append_text(ti2, ", Local Protection In Use");
+		if (k&0x04) proto_item_append_text(ti2, ", Backup BW Avail");
+		if (k&0x08) proto_item_append_text(ti2, ", Backup is Next-Next-Hop");
+		ti2 = proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+2, 1,
+					  "Flags: 0x%08x", k);
+		rsvp_rro_flags_subtree = 
+		    proto_item_add_subtree(ti2, TREE(TT_RECORD_ROUTE_SUBOBJ_FLAGS)); 
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
+				    decode_boolean_bitfield(k, 0x01, 8, 
+							    "Local Protection Available",
+							    "Local Protection Not Available"));
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
+				    decode_boolean_bitfield(k, 0x02, 8, 
+							    "Local Protection In Use",
+							    "Local Protection Not In Use"));
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
+				    decode_boolean_bitfield(k, 0x04, 8, 
+							    "Backup Tunnel Has Bandwidth",
+							    "Backup Tunnel Does Not Have Bandwidth"));
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
+				    decode_boolean_bitfield(k, 0x08, 8, 
+							    "Backup Tunnel Goes To Next-Next-Hop",
+							    "Backup Tunnel Goes To Next-Hop"));
+	    }
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+3, 1,
 				"C-Type: %u",
 				tvb_get_guint8(tvb, offset+l+3));
@@ -2746,16 +2842,44 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 				      "Unnumbered Interface-ID - %s, %d, %s",
 				      ip_to_str(tvb_get_ptr(tvb, offset+l+4, 4)),
 				      tvb_get_ntohl(tvb, offset+l+8),
-				      k ? "Loose" : "Strict");
+				      class == RSVP_CLASS_EXPLICIT_ROUTE ? 
+				      (k ? "Loose" : "Strict") : "");
 	    rsvp_ro_subtree =
 		proto_item_add_subtree(ti2, tree_type);
-	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
-				k ? "Loose Hop " : "Strict Hop");
+	    if (class == RSVP_CLASS_EXPLICIT_ROUTE) 
+		proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
+				    k ? "Loose Hop " : "Strict Hop");
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
 				"Type: 4 (Unnumbered Interface-ID)");
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+1, 1,
 				"Length: %u",
 				tvb_get_guint8(tvb, offset+l+1));
+	    if (class == RSVP_CLASS_RECORD_ROUTE) {
+		if (k&0x01) proto_item_append_text(ti2, ", Local Protection Available");
+		if (k&0x02) proto_item_append_text(ti2, ", Local Protection In Use");
+		if (k&0x04) proto_item_append_text(ti2, ", Backup BW Avail");
+		if (k&0x08) proto_item_append_text(ti2, ", Backup is Next-Next-Hop");
+		ti2 = proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+2, 1,
+					  "Flags: 0x%08x", k);
+		rsvp_rro_flags_subtree = 
+		    proto_item_add_subtree(ti2, TREE(TT_RECORD_ROUTE_SUBOBJ_FLAGS)); 
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
+				    decode_boolean_bitfield(k, 0x01, 8, 
+							    "Local Protection Available",
+							    "Local Protection Not Available"));
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
+				    decode_boolean_bitfield(k, 0x02, 8, 
+							    "Local Protection In Use",
+							    "Local Protection Not In Use"));
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
+				    decode_boolean_bitfield(k, 0x04, 8, 
+							    "Backup Tunnel Has Bandwidth",
+							    "Backup Tunnel Does Not Have Bandwidth"));
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
+				    decode_boolean_bitfield(k, 0x08, 8, 
+							    "Backup Tunnel Goes To Next-Next-Hop",
+							    "Backup Tunnel Goes To Next-Hop"));
+	    }
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+4, 4,
 				"Router-ID: %s",
 				ip_to_str(tvb_get_ptr(tvb, offset+l+4, 4)));
@@ -2792,26 +2916,6 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 				       tvb_get_ntohs(tvb, offset+l+2));
 	    }
 
-	    break;
-
-	case 64: /* Path Term */
-	    if (class == RSVP_CLASS_RECORD_ROUTE) goto defaultsub;
-	    k = tvb_get_guint8(tvb, offset+l) & 0x80;
-	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
-				      offset+l, 4,
-				      "LSP Path Termination");
-	    rsvp_ro_subtree =
-		proto_item_add_subtree(ti2, tree_type);
-	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
-				k ? "Loose Hop " : "Strict Hop");
-	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
-				"Type: 64 (MPLS LSP Path Termination)");
-	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+1, 1,
-				"Length: %u",
-				tvb_get_guint8(tvb, offset+l+1));
-	    if (i < 4) {
-		proto_item_append_text(ti, "Path Term");
-	    }
 	    break;
 
 	default: /* Unknown subobject */
@@ -3608,7 +3712,7 @@ dissect_rsvp_protection_info (proto_tree *ti, tvbuff_t *tvb,
 			    ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
 			    "Interface ID: %u", tvb_get_ntohl(tvb, offset2+4));
-	proto_item_set_text(ti, "LSP INTERFACE-ID: IPv4, Router-ID %s, Interface-ID %d",
+	proto_item_append_text(ti, "Router-ID %s, Interface-ID %d",
 			    ip_to_str(tvb_get_ptr(tvb, offset2, 4)),
 			    tvb_get_ntohl(tvb, offset2+4));
 	break;
@@ -3618,6 +3722,114 @@ dissect_rsvp_protection_info (proto_tree *ti, tvbuff_t *tvb,
 			    "C-type: Unknown (%u)",
 			    type);
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
+			    "Data (%d bytes)", obj_length - 4);
+	break;
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * FAST REROUTE
+ *------------------------------------------------------------------------------*/
+static void
+dissect_rsvp_fast_reroute (proto_tree *ti, tvbuff_t *tvb,
+			   int offset, int obj_length,
+			   int class, int type,
+			   char *type_str)
+{
+    proto_tree *rsvp_object_tree;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_FAST_REROUTE));
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
+			"Class number: %u - %s",
+			class, type_str);
+    proto_item_set_text(ti, "FAST_REROUTE: ");
+    switch(type) {
+    case 1:
+    case 7:
+	if ((type==1 && obj_length!=24) || (type==7 && obj_length!=20)) {
+	    proto_tree_add_text(rsvp_object_tree, tvb, offset, obj_length, 
+				"<<<Invalid length: cannot decode>>>");
+	    proto_item_append_text(ti, "Invalid length");
+	    break;
+	}
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
+			    "C-type: 1");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+4, 1, 
+			    "Setup Priority: %d", tvb_get_guint8(tvb, offset+4));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+5, 1, 
+			    "Hold Priority: %d", tvb_get_guint8(tvb, offset+5));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+6, 1, 
+			    "Hop Limit: %d", tvb_get_guint8(tvb, offset+6));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+7, 1, 
+			    "Flags: %d", tvb_get_guint8(tvb, offset+7));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+8, 4, 
+			    "Bandwidth: %.10g", tvb_get_ntohieee_float(tvb, offset+8));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+12, 4, 
+			    "Exclude-Any: 0x%0x", tvb_get_ntohl(tvb, offset+12));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+16, 4, 
+			    "Include-Any: 0x%0x", tvb_get_ntohl(tvb, offset+16));
+	if (type==1) {
+	    proto_tree_add_text(rsvp_object_tree, tvb, offset+20, 4, 
+				"Include-All: 0x%0x", tvb_get_ntohl(tvb, offset+20));
+	}
+	break;
+
+    default:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+4, obj_length - 4,
+			    "Data (%d bytes)", obj_length - 4);
+	break;
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * DETOUR
+ *------------------------------------------------------------------------------*/
+static void
+dissect_rsvp_detour (proto_tree *ti, tvbuff_t *tvb,
+		     int offset, int obj_length,
+		     int class, int type,
+		     char *type_str)
+{
+    proto_tree *rsvp_object_tree;
+    int remaining_length, count;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_DETOUR));
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
+			"Class number: %u - %s",
+			class, type_str);
+    proto_item_set_text(ti, "FAST_REROUTE: ");
+    switch(type) {
+    case 7:
+	for (remaining_length = obj_length - 4, count = 1;
+	     remaining_length > 0; remaining_length -= 8, count++) {
+	    if (remaining_length < 8) {
+		proto_tree_add_text(rsvp_object_tree, tvb, offset+remaining_length, 
+				    obj_length-remaining_length, 
+				    "<<<Invalid length: cannot decode>>>");
+		proto_item_append_text(ti, "Invalid length");
+		break;
+	    }
+	    proto_tree_add_text(rsvp_object_tree, tvb, offset+4+remaining_length, 4,
+				"PLR ID %d: %s", count, 
+				ip_to_str(tvb_get_ptr(tvb, offset+4+remaining_length, 4)));
+	    proto_tree_add_text(rsvp_object_tree, tvb, offset+4+remaining_length, 4,
+				"Avoid Node ID %d: %s", count, 
+				ip_to_str(tvb_get_ptr(tvb, offset+4+remaining_length, 4)));
+	}
+	break;
+
+    default:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+4, obj_length - 4,
 			    "Data (%d bytes)", obj_length - 4);
 	break;
     }
@@ -3879,6 +4091,14 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	case RSVP_CLASS_PROTECTION:
 	    dissect_rsvp_protection_info(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_FAST_REROUTE:
+	    dissect_rsvp_fast_reroute(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_DETOUR:
+	    dissect_rsvp_detour(ti, tvb, offset, obj_length, class, type, type_str);
 	    break;
 
 	case RSVP_CLASS_NULL:
