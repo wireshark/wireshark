@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.93 2000/01/24 04:44:58 guy Exp $
+ * $Id: main.c,v 1.94 2000/01/24 04:49:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -991,7 +991,7 @@ print_usage(void) {
 #ifdef HAVE_LIBPCAP
   fprintf(stderr, "%s [-vh] [-kQS] [-b <bold font>] [-B <byte view height>] [-c count]\n",
 	  PACKAGE);
-  fprintf(stderr, "         [-f <capture filter>] [-i interface] [-m <medium font>] [-n]\n");
+  fprintf(stderr, "         [-D] [-f <capture filter>] [-i interface] [-m <medium font>] [-n]\n");
   fprintf(stderr, "         [-P <packet list height>] [-r infile] [-R <read filter>]\n");
   fprintf(stderr, "         [-s snaplen] [-t <time stamp format>] [-T <tree view height>]\n");
   fprintf(stderr, "         [-w savefile]\n");
