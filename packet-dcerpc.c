@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.146 2003/10/21 07:17:14 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.147 2003/10/22 21:26:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2033,7 +2033,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			proto_tree *dcerpc_tree, e_dce_cn_common_hdr_t *hdr)
 {
     conversation_t *conv = NULL;
-    guint8 num_ctx_items;
+    guint8 num_ctx_items = 0;
     guint i;
     gboolean saw_ctx_item = FALSE;
     guint16 ctx_id;
@@ -2157,6 +2157,9 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	  key.uuid = if_id;
 	  key.ver = if_ver;
 
+	  if (num_ctx_items > 1)
+		  col_append_fstr(pinfo->cinfo, COL_INFO, ", %u context items, 1st", num_ctx_items);
+		
 	  if ((value = g_hash_table_lookup(dcerpc_uuids, &key)))
 		  col_append_fstr(pinfo->cinfo, COL_INFO, " UUID: %s", value->name);
 	  else
