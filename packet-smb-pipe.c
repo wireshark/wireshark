@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.c,v 1.11 2000/09/11 16:16:03 gram Exp $
+ * $Id: packet-smb-pipe.c,v 1.12 2000/11/22 21:19:37 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1231,7 +1231,7 @@ dissect_pipe_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *paren
   if (!proto_is_protocol_enabled(proto_smb_lanman))
     return 0;
 
-  if (strcmp(command, "LANMAN") == 0) { /* Try to decode a LANMAN */
+  if (command != NULL && strcmp(command, "LANMAN") == 0) { /* Try to decode a LANMAN */
 
     return dissect_pipe_lanman(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, command, DataOffset, DataCount, ParameterOffset, ParameterCount);
 

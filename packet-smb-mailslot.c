@@ -2,7 +2,7 @@
  * Routines for smb mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.7 2000/11/19 08:54:06 guy Exp $
+ * $Id: packet-smb-mailslot.c,v 1.8 2000/11/22 21:19:37 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -141,14 +141,14 @@ dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd,
  
 /*** Decide what dissector to call based upon the command value ***/
  
-  	if (strcmp(command, "BROWSE") == 0) { /* Decode a browse */
+  	if (command != NULL && strcmp(command, "BROWSE") == 0) { /* Decode a browse */
 
     		return dissect_mailslot_browse(pd, offset, fd, parent, tree,
     			si, max_data, SMB_offset, errcode, dirn, command,
     			DataOffset, DataCount);
   	}
 
-  	else if (strcmp(command, "LANMAN") == 0) {
+  	else if (command != NULL && strcmp(command, "LANMAN") == 0) {
 
     		return dissect_pipe_lanman(pd, offset, fd, parent, tree, si,
     			max_data, SMB_offset, errcode, dirn, command,
@@ -159,9 +159,10 @@ dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd,
 /* NOTE: may need a look up list to check for the mailslot names passed	*/
 /*		by the logon request packet */
 	
-  	else if ((strncmp(command, "NET", strlen("NET")) == 0) 
-			|| (strcmp(command, "TEMP\\NETLOGON") == 0)
-			|| (strcmp(command, "MSSP") == 0)){
+  	else if (((command != NULL) &&
+		  strncmp(command, "NET", strlen("NET")) == 0) ||
+		 (strcmp(command, "TEMP\\NETLOGON") == 0) ||
+		 (strcmp(command, "MSSP") == 0)){
 
 		return dissect_smb_logon(pd, DataOffset, fd, parent, tree,
 			si, max_data, SMB_offset, errcode, dirn,

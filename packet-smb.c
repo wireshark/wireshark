@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.74 2000/11/19 08:54:06 guy Exp $
+ * $Id: packet-smb.c,v 1.75 2000/11/22 21:19:38 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -9507,14 +9507,14 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd, proto_tree
   if (!TransactName)
 	  return;
 
-  TransactNameCopy = g_malloc(strlen(TransactName) + 1);
+  TransactNameCopy = g_malloc(TransactName ? strlen(TransactName) + 1 : 1);
 
   /* Should check for error here ... */
 
-  strcpy(TransactNameCopy, TransactName);
+  strcpy(TransactNameCopy, TransactName ? TransactName : "");
   if (TransactNameCopy[0] == '\\') {
     trans_type = TransactNameCopy + 1;  /* Skip the slash */
-    loc_of_slash = strchr(trans_type, '\\');
+    loc_of_slash = trans_type ? strchr(trans_type, '\\') : NULL;
   }
 
   if (loc_of_slash) {
@@ -9526,9 +9526,9 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd, proto_tree
     trans_cmd = NULL;
 
   if ((trans_cmd == NULL) ||
-      (((strcmp(trans_type, "MAILSLOT") != 0) ||
+      (((trans_type == NULL || strcmp(trans_type, "MAILSLOT") != 0) ||
        !dissect_mailslot_smb(pd, SetupAreaOffset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, trans_cmd, SMB_offset + DataOffset, DataCount, SMB_offset + ParameterOffset, ParameterCount)) &&
-      ((strcmp(trans_type, "PIPE") != 0) ||
+      ((trans_type == NULL || strcmp(trans_type, "PIPE") != 0) ||
        !dissect_pipe_smb(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, trans_cmd, DataOffset, DataCount, ParameterOffset, ParameterCount)))) {
     
     if (ParameterCount > 0) {
