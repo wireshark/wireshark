@@ -1,6 +1,6 @@
 /* proto_hier_stats_dlg.c
  *
- * $Id: proto_hier_stats_dlg.c,v 1.2 2001/03/24 02:07:22 guy Exp $
+ * $Id: proto_hier_stats_dlg.c,v 1.3 2001/03/26 03:02:57 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -167,12 +167,13 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
 	ph_stats_free(ps);
 }
 
+#define WNAME "Protocol Hierarchy Statistics"
+
 void
 proto_hier_stats_cb(GtkWidget *w, gpointer d)
 {
 	ph_stats_t	*ps;
 	GtkWidget	*dlg, *bt, *vbox, *frame, *bbox;
-	const gchar	*wname = "Protocol Hierarchy Statistics";
 
 	/* Get the statistics. */
 	ps = ph_stats_new();
@@ -182,13 +183,14 @@ proto_hier_stats_cb(GtkWidget *w, gpointer d)
 		return;
 	}
 
-	dlg = dlg_window_new(wname);
+	dlg = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title(GTK_WINDOW(dlg), "Ethereal: " WNAME);
 
 	vbox = gtk_vbox_new(FALSE, 5);
 	gtk_container_border_width(GTK_CONTAINER(vbox), 5);
 	gtk_container_add(GTK_CONTAINER(dlg), vbox);
 
-	frame = gtk_frame_new(wname);
+	frame = gtk_frame_new(WNAME);
 	/*gtk_container_add(GTK_CONTAINER(vbox), frame);*/
 	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
 
