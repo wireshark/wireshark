@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes 
 #
-# $Id: manuf,v 1.12 2000/11/29 04:11:48 gram Exp $
+# $Id: manuf,v 1.13 2001/04/17 02:53:49 gerald Exp $
 #
 # Laurent Deniel <deniel@worldnet.fr>
 #
@@ -601,7 +601,7 @@
 00:02:2A	Asound Electronic
 00:02:2B	Tamura Electric Works, Ltd.
 00:02:2C	ABB Bomem, Inc.
-00:02:2D	Lucent Technologies WCND
+00:02:2D	Agere Systems
 00:02:2E	TEAC Corp. R& D
 00:02:2F	P-Cube, Ltd.
 00:02:30	Intersoft Electronics
@@ -765,7 +765,7 @@
 00:02:D0	Comdial Corporation
 00:02:D1	Vivotek, Inc.
 00:02:D2	Workstation AG
-00:02:D3	NetBotz
+00:02:D3	NetBotz, Inc.
 00:02:D4	PDA Peripherals, Inc.
 00:02:D5	ACR
 00:02:D6	NICE Systems
@@ -1203,8 +1203,269 @@
 00:04:89	YAFO Networks, Inc.
 00:04:8A	Temia Vertriebs GmbH
 00:04:8B	Poscon Corporation
+00:04:8C	Nayna Networks, Inc.
+00:04:8D	Tone Commander Systems, Inc.
+00:04:8E	Ohm Tech Labs, Inc.
+00:04:8F	TD Systems Corp.
+00:04:90	Optical Access
+00:04:91	Technovision, Inc.
+00:04:92	Hive Internet, Ltd.
+00:04:93	Tsinghua Unisplendour Co., Ltd.
+00:04:94	Breezecom, Ltd.
+00:04:95	Tejas Networks
+00:04:96	Extreme Networks
+00:04:97	MacroSystem Digital Video AG
+00:04:99	Chino Corporation
+00:04:9A	Cisco Systems, Inc.
+00:04:9B	Cisco Systems, Inc.
+00:04:9C	Surgient Networks, Inc.
+00:04:9D	Ipanema Technologies
+00:04:9E	Wirelink Co., Ltd.
+00:04:9F	Metrowerks
+00:04:A0	Verity Instruments, Inc.
+00:04:A1	Pathway Connectivity
+00:04:A2	L.S.I. Japan Co., Ltd.
+00:04:A3	Microchip Technology, Inc.
+00:04:A4	NetEnabled, Inc.
+00:04:A5	Barco Projection Systems NV
+00:04:A6	SAF Tehnika Ltd.
+00:04:A7	FabiaTech Corporation
+00:04:A8	Broadmax Technologies, Inc.
+00:04:A9	SandStream Technologies, Inc.
+00:04:AA	Jetstream Communications
+00:04:AB	Comverse Network Systems, Inc.
 00:04:AC	IBM
+00:04:AD	Malibu Networks
+00:04:AE	Liquid Metronics
+00:04:AF	Digital Fountain, Inc.
+00:04:B0	ELESIGN Co., Ltd.
+00:04:B1	Signal Technology, Inc.
+00:04:B2	ESSEGI SRL
+00:04:B3	Videotek, Inc.
+00:04:B4	CIAC
+00:04:B5	Equitrac Corporation
+00:04:B6	Tellumat (Pty) Ltd.
+00:04:B7	AMB i.t. Holding
+00:04:B8	Kumahira Co., Ltd.
+00:04:B9	S.I. Soubou, Inc.
+00:04:BA	KDD Media Will Corporation
+00:04:BB	Bardac Corporation
+00:04:BC	Giantec, Inc.
+00:04:BD	Motorola BCS
+00:04:BE	OptXCon, Inc.
+00:04:BF	Versa Logic Corp.
+00:04:C0	Cisco Systems, Inc.
+00:04:C1	Cisco Systems, Inc.
+00:04:C2	Magnipix, Inc.
+00:04:C3	CASTOR Informatique
+00:04:C4	Allen & Health
+00:04:C5	ASE Technologies, USA
+00:04:C6	Yamaha Motor Co., Ltd.
+00:04:C7	NetMount
+00:04:C8	LIBA Maschinefabrik GmbH
+00:04:C9	Micro Electron Co., Ltd.
+00:04:CA	FreeMs Corp.
+00:04:CB	Tdsoft Communication, Ltd.
+00:04:CC	Peek Traffic BV.
+00:04:CD	Informedia Research Group
+00:04:CE	Patria Ailon
+00:04:CF	Seagate Technology
+00:04:D0	Softlink s.r.o.
+00:04:D1	Drew Technologies, Inc.
+00:04:D2	Adcon Telemetry AG
+00:04:D3	Toyokeiki Co., Ltd.
+00:04:D4	Proview Electronics Co., Ltd.
+00:04:D5	Hitachi Communication Systems, Inc.
+00:04:D6	Takagi Industrial Co., Ltd.
+00:04:D7	Omitec Instrumentation Ltd.
+00:04:D8	IPWireless, Inc.
+00:04:D9	Titan Electronics, Inc.
+00:04:DA	Relax Technology, Inc.
+00:04:DB	Tellus Group Corp.
+00:04:DC	Nortel Networks
+00:04:DD	Cisco Systems, Inc.
+00:04:DE	Cisco Systems, Inc.
+00:04:DF	Teracom Telematica Ltda.
+00:04:E0	Procket Networks
+00:04:E1	Infinior Microsystems
+00:04:E2	SMC Networks, Inc.
+00:04:E3	Accton Technology Corp.
+00:04:E4	Daeryung Ind., Inc.
+00:04:E5	Glonet Systems, Inc.
+00:04:E6	Banyan Network Private Limited
+00:04:E7	Lightpointe Communications, Inc
+00:04:E8	IER, Inc.
+00:04:E9	Infiniswitch Corporation
+00:04:EA	Hewlett-Packard Company
+00:04:EB	Paxonet Communications, Inc.
+00:04:EC	Memobox SA
+00:04:ED	Billion Electric Co., Ltd.
+00:04:EE	Lincoln Electric Company
+00:04:EF	Polestar Corp.
+00:04:F0	International Computers, Ltd
+00:04:F1	WhereNet
+00:04:F2	Circa Communications, Ltd.
+00:04:F3	FS FORTH-SYSTEME GmbH
+00:04:F4	Infinite Electronics Inc.
+00:04:F5	SnowShore Networks, Inc.
+00:04:F6	Amphus
+00:04:F7	Omega Band, Inc.
+00:04:F8	QUALICABLE TV Industria E Com., Ltda
+00:04:F9	Xtera Communications, Inc.
+00:04:FA	MIST Inc.
+00:04:FB	Commtech, Inc.
+00:04:FC	Stratus Computer (DE), Inc.
+00:04:FD	Japan Control Engineering Co., Ltd.
+00:04:FE	Pelago Networks
+00:04:FF	Acronet Co., Ltd.
+00:05:00	Cisco Systems, Inc.
+00:05:01	Cisco Systems, Inc.
 00:05:02	Apple (PCI bus Macs)
+00:05:03	ICONAG
+00:05:04	Naray Information & Communication Enterprise
+00:05:05	Systems Integration Solutions, Inc.
+00:05:06	Reddo Networks AB
+00:05:07	Fine Appliance Corp.
+00:05:08	Inetcam, Inc.
+00:05:09	AVOC Nishimura Ltd.
+00:05:0A	ICS Spa
+00:05:0B	SICOM Systems, Inc.
+00:05:0C	Network Photonics, Inc.
+00:05:0D	Midstream Technologies, Inc.
+00:05:0E	3ware, Inc.
+00:05:0F	Tanaka S/S Ltd.
+00:05:10	Infinite Shanghai Communication Terminals Ltd.
+00:05:11	Complementaty Technologies Ltd
+00:05:12	MeshNetworks, Inc.
+00:05:13	VTLinx Multimedia Systems, Inc.
+00:05:14	KDT Systems Co., Ltd.
+00:05:15	Nuark Co., Ltd.
+00:05:16	SMART Modular Technologies
+00:05:17	Shellcomm, Inc.
+00:05:18	Jupiters Technology
+00:05:19	Siemens Building Technologies AG,
+00:05:1A	3Com Europe Ltd.
+00:05:1B	Magic Control Technology Corporation
+00:05:1C	Xnet Technology Corp.
+00:05:1D	Airocon, Inc.
+00:05:1E	Rhapsody Networks
+00:05:1F	Taijin Media Co., Ltd.
+00:05:20	Smartronix, Inc.
+00:05:21	Control Microsystems
+00:05:22	LEA*D Corporation, Inc.
+00:05:23	AVL List GmbH
+00:05:24	BTL System (HK) Limited
+00:05:25	Puretek Industrial Co., Ltd.
+00:05:26	IPAS GmbH
+00:05:27	SJ Tek Co. Ltd
+00:05:28	New Focus, Inc.
+00:05:29	Shanghai Broadan Communication Technology Co., Ltd
+00:05:2A	Ikegami Tsushinki Co., Ltd.
+00:05:2B	HORIBA, Ltd.
+00:05:2C	Supreme Magic Corporation
+00:05:2D	Zoltrix International Limited
+00:05:2E	Cinta Networks
+00:05:2F	Leviton Voice and Data
+00:05:30	Andiamo Systems, Inc.
+00:05:31	Cisco Systems, Inc.
+00:05:32	Cisco Systems, Inc.
+00:05:33	Sanera Systems, Inc.
+00:05:34	Northstar Engineering Ltd.
+00:05:35	Chip PC Ltd.
+00:05:36	Danam Communications, Inc.
+00:05:37	Nets Technology Co., Ltd.
+00:05:38	Merilus, Inc.
+00:05:39	A Brand New World in Sweden AB
+00:05:3A	Willowglen Services Pte Ltd
+00:05:3B	Harbour Networks Ltd., Co. Beijing
+00:05:3C	Xircom
+00:05:3D	Agere Systems
+00:05:3E	KID Systeme GmbH
+00:05:3F	VisionTek, Inc.
+00:05:40	FAST Corporation
+00:05:41	Advanced Systems Co., Ltd.
+00:05:42	Otari, Inc.
+00:05:43	IQ Wireless GmbH
+00:05:44	Valley Technologies, Inc.
+00:05:45	Internet Photonics
+00:05:46	KDD Network Systems Co., Ltd.
+00:05:47	Starent Networks
+00:05:48	Disco Corporation
+00:05:49	Salira Optical Network Systems
+00:05:4A	Ario Data Networks, Inc.
+00:05:4B	Micro Innovation AG
+00:05:4C	RF Innovations Pty Ltd
+00:05:4D	Brans Technologies, Inc.
+00:05:4E	Philips Components
+00:05:50	Digi-Tech Communications Limited
+00:05:51	F & S Elektronik Systeme GmbH
+00:05:52	Xycotec Computer GmbH
+00:05:53	DVC Company, Inc.
+00:05:54	Rangestar Wireless
+00:05:55	Japan Cash Machine Co., Ltd.
+00:05:56	360 Systems
+00:05:57	Agile TV Corporation
+00:05:58	Synchronous, Inc.
+00:05:59	Intracom S.A.
+00:05:5A	Power Dsine Ltd.
+00:05:5B	Charles Industries, Ltd.
+00:05:5C	Kowa Company, Ltd.
+00:05:5D	D-Link Systems, Inc.
+00:05:5E	Cisco Systems, Inc.
+00:05:5F	Cisco Systems, Inc.
+00:05:60	LEADER COMM.CO., LTD
+00:05:61	nac Image Technology, Inc.
+00:05:62	Digital View Limited
+00:05:63	J-Works, Inc.
+00:05:64	Tsinghua Bitway Co., Ltd.
+00:05:65	Tailyn Communication Company Ltd.
+00:05:66	Secui.com Corporation
+00:05:67	Etymonic Design, Inc.
+00:05:68	Piltofish Networks AB
+00:05:69	VMWARE, Inc.
+00:05:6B	C.P. Technology Co., Ltd.
+00:05:6C	Hung Chang Co., Ltd.
+00:05:6D	Pacific Corporation
+00:05:6E	National Enhance Technology, Inc.
+00:05:6F	Innomedia Technologies Pvt. Ltd.
+00:05:70	Baydel Ltd.
+00:05:71	Seiwa Electronics Co.
+00:05:72	Deonet Co., Ltd.
+00:05:73	Cisco Systems, Inc.
+00:05:74	Cisco Systems, Inc.
+00:05:75	CDS-Electronics BV
+00:05:76	NSM Technology Ltd.
+00:05:77	SM Information & Communication
+00:05:79	Universal Control Solution Corp.
+00:05:7A	Hatteras Networks
+00:05:7B	Chung Nam Electronic Co., Ltd.
+00:05:7C	RCO Security AB
+00:05:7D	Sun Communications, Inc.
+00:05:7E	Eckelmann Steuerungstechnik GmbH
+00:05:7F	Acqis Technology
+00:05:80	Fibrolan Ltd.
+00:05:81	Snell & Wilcox Ltd.
+00:05:82	ClearCube Technology
+00:05:83	ImageCom Limited
+00:05:84	AbsoluteValue Systems, Inc.
+00:05:85	Juniper Networks, Inc.
+00:05:86	Lucent Technologies
+00:05:87	Locus, Incorporated
+00:05:88	Sensoria Corp.
+00:05:89	National Datacomputer
+00:05:8A	Netcom Co., Ltd.
+00:05:8B	IPmental, Inc.
+00:05:8C	Opentech Inc.
+00:05:8D	Lynx Photonic Networks, Inc.
+00:05:8E	Ahead Communications System GmbH
+00:05:8F	CLCsoft co.
+00:05:90	Ascom Business Systems
+00:05:91	Active Silicon Ltd.
+00:05:92	Pultex Corp.
+00:05:93	Grammar Engine Inc.
+00:05:94	IXXAT Automation GmbH
+00:05:95	Alesis Corporation
+00:05:96	Genotech Co., Ltd.
 00:05:9A	PowerComputing (Mac clone)
 00:05:A8	PowerComputing			Mac clones
 00:06:0D	HP
@@ -1541,7 +1802,7 @@
 00:20:3D	NOVAR ELECTRONICS CORPORATION
 00:20:3E	LOGICAN TECHNOLOGIES, INC.
 00:20:3F	JUKI CORPORATION
-00:20:40	GENERAL INSTRUMENT CORPORATION
+00:20:40	Motorola Broadband Communications Sector
 00:20:41	DATA NET
 00:20:42	Datametrics Corp
 00:20:43	NEURON COMPANY LIMITED
@@ -1949,7 +2210,7 @@
 00:30:D8	SITEK
 00:30:D9	DATACORE SOFTWARE CORP.
 00:30:DA	COMTREND CO.
-00:30:DB	SEDERTA INC.
+00:30:DB	Mindready Solutions, Inc.
 00:30:DC	RIGHTECH CORPORATION
 00:30:DD	INDIGITA CORPORATION
 00:30:DE	WAGO Kontakttechnik GmbH
@@ -3357,7 +3618,7 @@
 00:A0:66	ISA CO., LTD.
 00:A0:67	NETWORK SERVICES GROUP
 00:A0:68	BHP LIMITED
-00:A0:69	TRUETIME
+00:A0:69	TrueTime
 00:A0:6A	VERILINK CORP.
 00:A0:6B	DMS DORSCH MIKROSYSTEM GMBH
 00:A0:6C	SHINDENGEN ELECTRIC MFG.
@@ -3372,7 +3633,7 @@
 00:A0:75	MICRON TECHNOLOGY, INC.
 00:A0:76	CARDWARE LAB, INC.
 00:A0:77	FUJITSU NEXION, INC.
-00:A0:78	CELLACCESS TECHNOLOGY, INC.
+00:A0:78	Marconi Communications
 00:A0:79	ALPS ELECTRIC (USA), INC.
 00:A0:7A	ADVANCED PERIPHERALS
 00:A0:7B	DAWN COMPUTER INCORPORATION
@@ -3864,7 +4125,7 @@
 00:D0:39	UTILICOM, INC.
 00:D0:3A	ZONEWORX, INC.
 00:D0:3B	VISION PRODUCTS PTY. LTD.
-00:D0:3C	POWER MICRO RESEARCH
+00:D0:3C	Vieo, Inc.
 00:D0:3E	ROCKETCHIPS, INC.
 00:D0:3F	AMERICAN COMMUNICATION
 00:D0:40	SYSMATE CO., LTD.
@@ -3942,7 +4203,7 @@
 00:D0:88	MAINSAIL NETWORKS, INC.
 00:D0:89	DYNACOLOR, INC.
 00:D0:8A	PHOTRON USA
-00:D0:8B	STORAGE AREA NETWORKS, LTD.
+00:D0:8B	ADVA Limited
 00:D0:8C	GENOA TECHNOLOGY, INC.
 00:D0:8D	PHOENIX GROUP, INC.
 00:D0:8E	NVISION INC.
@@ -4019,7 +4280,7 @@
 00:D0:D5	GRUNDIG AG
 00:D0:D6	AETHRA TELECOMUNICAZIONI
 00:D0:D7	B2C2, INC.
-00:D0:D8	NOMADIC TECHNOLOGIES
+00:D0:D8	3Com Corporation
 00:D0:D9	DEDICATED MICROCOMPUTERS
 00:D0:DA	TAICOM DATA SYSTEMS CO., LTD.
 00:D0:DB	MCQUAY INTERNATIONAL
@@ -4257,7 +4518,7 @@
 00:E0:B3	ETHERWAN SYSTEMS, INC.
 00:E0:B4	TECHNO SCOPE CO., LTD.
 00:E0:B5	ARDENT COMMUNICATIONS CORP.
-00:E0:B6	OSICOM TECHNOLOGIES
+00:E0:B6	Entrada Networks
 00:E0:B7	PI GROUP, LTD.
 00:E0:B8	AMD PCNet			in a Gateway 2000
 00:E0:B9	BYAS SYSTEMS
