@@ -1,3 +1,5 @@
+/* $Id: config.h.win32,v 1.11 2000/06/07 22:57:44 gram Exp $ */
+/* config.h.win32 Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
 
@@ -11,7 +13,10 @@
 /* #undef HAVE_SA_LEN */
 
 #define DATAFILE_DIR "/usr/local/etc"
-#define PLUGIN_DIR "/usr/local/lib/ethereal/plugins/0.8.5"
+#define PLUGIN_DIR "/usr/local/lib/ethereal/plugins/0.8.9"
+
+/* Version number of package */
+#define VERSION "0.8.9"
 
 /* #undef NEED_SNPRINTF_H */
 
@@ -58,9 +63,6 @@
 
 /* Name of package */
 #define PACKAGE "ethereal"
-
-/* Version number of package */
-#define VERSION "0.8.6"
 
 #ifndef WIN32
 #define WIN32			1
