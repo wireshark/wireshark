@@ -842,7 +842,7 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     proto_tree_add_text(cotp_tree, tvb, offset,      1,
 			"Length indicator: %u", li);
     proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset +  1, 1, tpdu,
-			       "TPDU code: 0x%x (DR)", tpdu);
+			       "TPDU code: 0x%x (DR: Disconnect Request)", tpdu);
     proto_tree_add_uint(cotp_tree, hf_cotp_destref, tvb, offset +  2, 2, dst_ref);
     proto_tree_add_uint(cotp_tree, hf_cotp_srcref, tvb, offset +  4, 2, src_ref);
     proto_tree_add_text(cotp_tree, tvb, offset +  6, 1,
@@ -939,11 +939,11 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
       col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u) dst-ref: 0x%04x %s",
 		 tpdu_nr,
 		 dst_ref,
-		 (fragment)? "(fragment)" : "");
+		 (fragment)? "(fragment)" : "EOT");
     } else {
       col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u) %s",
 		 tpdu_nr,
-		 (fragment)? "(fragment)" : "");
+		 (fragment)? "(fragment)" : "EOT");
     }
   }
 
@@ -957,7 +957,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   if (tree) {
     proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu, 
-			"TPDU code: 0x%x (DT)", tpdu);
+			"TPDU code: 0x%x (DT: Data)", tpdu);
   }
   offset += 1;
   li -= 1;
@@ -974,7 +974,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
       proto_tree_add_uint(cotp_tree, hf_cotp_tpdu_number_extended, tvb, offset, 4,
 			  tpdu_nr);
       proto_tree_add_item(cotp_tree, hf_cotp_eot_extended, tvb, offset, 4,
-      			  TRUE);
+      			  FALSE);
     }
     offset += 4;
     li -= 4;
@@ -982,7 +982,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     if (tree) {
       proto_tree_add_uint(cotp_tree, hf_cotp_tpdu_number, tvb, offset, 1,
 			  tpdu_nr);
-      proto_tree_add_item(cotp_tree, hf_cotp_eot, tvb, offset, 1, TRUE);
+      proto_tree_add_item(cotp_tree, hf_cotp_eot, tvb, offset, 1, FALSE);
     }
     offset += 1;
     li -= 1;
@@ -1142,7 +1142,7 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   if (tree) {
     proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu,
-			"TPDU code: 0x%x (ED)", tpdu);
+			"TPDU code: 0x%x (ED: Expedited Data)", tpdu);
   }
   offset += 1;
   li -= 1;
@@ -1219,7 +1219,7 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     proto_tree_add_text(cotp_tree, tvb, offset,      1,
 			"Length indicator: %u", li);
     proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset +  1, 1, tpdu,
-			"TPDU code: 0x%x (RJ)", tpdu);
+			"TPDU code: 0x%x (RJ: Reject)", tpdu);
     if (li == LI_NORMAL_RJ)
       proto_tree_add_text(cotp_tree, tvb, offset +  1, 1,
 			  "Credit: %u", cdt);
@@ -1282,7 +1282,7 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   if (tree) {
     proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu,
 			"TPDU code: 0x%x (%s)", tpdu,
-			(tpdu == CR_TPDU) ? "CR" : "CC");
+			(tpdu == CR_TPDU) ? "CR: Connect Request" : "CC: Connect Confirm");
   }
   offset += 1;
   li -= 1;
@@ -1357,7 +1357,7 @@ static int ositp_decode_DC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   if (tree) {
     proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu, 
-			"TPDU code: 0x%x (DC)", tpdu);
+			"TPDU code: 0x%x (DC: Disconnect Confirm)", tpdu);
   }
   offset += 1;
   li -= 1;
@@ -1413,7 +1413,7 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
     if (tree) {
       proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu, 
-			  "TPDU code: 0x%x (AK)", tpdu);
+			  "TPDU code: 0x%x (AK: Data Acknowledgement)", tpdu);
       proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			  "Credit: %u", cdt);
     }
@@ -1443,8 +1443,8 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     cdt_in_ak = tvb_get_ntohs(tvb, offset + P_CDT_IN_AK);
 
     if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x",
-		   tpdu_nr, dst_ref);
+      col_append_fstr(pinfo->cinfo, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x Credit: %u",
+		   tpdu_nr, dst_ref, cdt_in_ak);
 
     if (tree) {
       ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
@@ -1456,7 +1456,7 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
     if (tree) {
       proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu, 
-			  "TPDU code: 0x%x (AK)", tpdu);
+			  "TPDU code: 0x%x (AK: Data Acknowledgement)", tpdu);
     }
     offset += 1;
     li -= 1;
@@ -1552,7 +1552,7 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   if (tree) {
     proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu,
-			"TPDU code: 0x%x (EA)", tpdu);
+			"TPDU code: 0x%x (EA: Expedited Data Acknowledgement)", tpdu);
   }
   offset += 1;
   li -= 1;
@@ -1628,7 +1628,7 @@ static int ositp_decode_ER(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     proto_tree_add_text(cotp_tree, tvb, offset,      1,
 			"Length indicator: %u", li);
     proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset +  1, 1, tpdu,
-			"TPDU code: 0x%x (ER)", tpdu);
+			"TPDU code: 0x%x (ER: TPDU Error)", tpdu);
     proto_tree_add_uint(cotp_tree, hf_cotp_destref, tvb, offset +  2, 2, dst_ref);
     proto_tree_add_text(cotp_tree, tvb, offset +  4, 1,
 			"Reject cause: %s", str);
@@ -2317,10 +2317,10 @@ void proto_register_cotp(void)
         "Your TPDU number", HFILL}},
     { &hf_cotp_eot,
       { "Last data unit", "cotp.eot", FT_BOOLEAN, 8, TFS(&fragment_descriptions),  0x80,
-        "Is current TPDU the last data unit of a complete DT TPDU sequence?", HFILL}},
+        "Is current TPDU the last data unit of a complete DT TPDU sequence (End of TSDU)?", HFILL}},
     { &hf_cotp_eot_extended,
       { "Last data unit", "cotp.eot", FT_BOOLEAN, 32, TFS(&fragment_descriptions),  0x80000000,
-        "Is current TPDU the last data unit of a complete DT TPDU sequence?", HFILL}},
+        "Is current TPDU the last data unit of a complete DT TPDU sequence (End of TSDU)?", HFILL}},
     { &hf_cotp_segment_overlap,
       { "Segment overlap", "cotp.segment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 	"Segment overlaps with other segments", HFILL }},
