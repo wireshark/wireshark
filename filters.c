@@ -1,7 +1,7 @@
 /* filters.c
  * Code for reading and writing the filters file.
  *
- * $Id: filters.c,v 1.7 2001/03/13 21:25:48 guy Exp $
+ * $Id: filters.c,v 1.8 2001/03/15 09:50:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -509,8 +509,23 @@ save_filter_list(filter_list_type_t list, char **pref_path_return,
     return;
   }
 
-  /* XXX - does "rename()" exist on Win32?  If so, does it remove the
-     target first?  If so, does that mean it's not atomic? */
+#ifdef WIN32
+  /* ANSI C doesn't say whether "rename()" removes the target if it
+     exists; the Win32 call to rename files doesn't do so, which I
+     infer is the reason why the MSVC++ "rename()" doesn't do so.
+     We must therefore remove the target file first, on Windows. */
+  if (remove(ff_path) < 0 && errno != ENOENT) {
+    /* It failed for some reason other than "it's not there"; if
+       it's not there, we don't need to remove it, so we just
+       drive on. */
+    *pref_path_return = ff_path;
+    *errno_return = errno;
+    unlink(ff_path_new);
+    g_free(ff_path_new);
+    return;
+  }
+#endif
+
   if (rename(ff_path_new, ff_path) < 0) {
     *pref_path_return = ff_path;
     *errno_return = errno;
