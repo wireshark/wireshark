@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.110 2004/06/26 03:40:12 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.111 2004/06/28 05:54:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,6 +75,7 @@ static int hf_samr_home_drive = -1;
 static int hf_samr_script = -1;
 static int hf_samr_workstations = -1;
 static int hf_samr_profile = -1;
+static int hf_samr_callback = -1;
 static int hf_samr_server = -1;
 static int hf_samr_domain = -1;
 static int hf_samr_controller = -1;
@@ -112,12 +113,16 @@ static int hf_samr_acct_expiry_time = -1;
 static int hf_samr_country = -1;
 static int hf_samr_codepage = -1;
 static int hf_samr_comment = -1;
-static int hf_samr_parameters = -1;
 static int hf_samr_nt_pwd_set = -1;
 static int hf_samr_lm_pwd_set = -1;
 static int hf_samr_pwd_expired = -1;
 static int hf_samr_revision = -1;
 static int hf_samr_info_type = -1;
+static int hf_samr_primary_group_rid = -1;
+static int hf_samr_group_num_of_members = -1;
+static int hf_samr_group_desc = -1;
+static int hf_samr_alias_num_of_members = -1;
+static int hf_samr_alias_desc = -1;
 
 static int hf_samr_unknown_hyper = -1;
 static int hf_samr_unknown_long = -1;
@@ -158,6 +163,7 @@ static gint ett_samr_user_info_2 = -1;
 static gint ett_samr_user_info_3 = -1;
 static gint ett_samr_user_info_5 = -1;
 static gint ett_samr_user_info_6 = -1;
+static gint ett_samr_user_info_10 = -1;
 static gint ett_samr_user_info_18 = -1;
 static gint ett_samr_user_info_19 = -1;
 static gint ett_samr_buffer_buffer = -1;
@@ -1465,7 +1471,7 @@ samr_dissect_create_alias_in_domain_rqst(tvbuff_t *tvb, int offset,
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_counted_string_ptr, NDR_POINTER_REF,
-			"Account Name", hf_samr_acct_name);
+			"Alias Name", hf_samr_alias_name);
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
@@ -1528,11 +1534,11 @@ samr_dissect_ALIAS_INFO_1 (tvbuff_t *tvb, int offset,
                              guint8 *drep)
 {
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo,
-		tree, drep, hf_samr_acct_name, 0);
+		tree, drep, hf_samr_alias_name, 0);
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_rid, NULL);
+                                     hf_samr_alias_num_of_members, NULL);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo,
-		tree, drep, hf_samr_acct_desc, 0);
+		tree, drep, hf_samr_alias_desc, 0);
 	return offset;
 }
 
@@ -1561,11 +1567,11 @@ samr_dissect_ALIAS_INFO(tvbuff_t *tvb, int offset,
 		break;
 	case 2:
 		offset = dissect_ndr_counted_string(tvb, offset, pinfo,
-			tree, drep, hf_samr_acct_name, 0);
+			tree, drep, hf_samr_alias_name, 0);
 		break;
 	case 3:
 		offset = dissect_ndr_counted_string(tvb, offset, pinfo,
-			tree, drep, hf_samr_acct_desc, 0);
+			tree, drep, hf_samr_alias_desc, 0);
 		break;
 	}
 
@@ -1626,10 +1632,6 @@ samr_dissect_set_information_alias_reply(tvbuff_t *tvb, int offset,
 					 packet_info *pinfo, proto_tree *tree,
 					 guint8 *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_ALIAS_INFO_ptr, NDR_POINTER_REF,
-			"ALIAS_INFO", -1);
-
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_samr_rc, NULL);
 	return offset;
@@ -2165,13 +2167,13 @@ samr_dissect_GROUP_INFO_1 (tvbuff_t *tvb, int offset,
                              guint8 *drep)
 {
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo,
-		tree, drep, hf_samr_acct_name, 0);
+		tree, drep, hf_samr_group_name, 0);
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_rid, NULL);
+					hf_samr_unknown_long, NULL);
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-					hf_samr_attrib, NULL);
+                                     hf_samr_group_num_of_members, NULL);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo,
-		tree, drep, hf_samr_acct_desc, 0);
+		tree, drep, hf_samr_group_desc, 0);
 	return offset;
 }
 
@@ -2200,7 +2202,7 @@ samr_dissect_GROUP_INFO(tvbuff_t *tvb, int offset,
 		break;
 	case 2:
 		offset = dissect_ndr_counted_string(tvb, offset, pinfo,
-			tree, drep, hf_samr_acct_name, 0);
+			tree, drep, hf_samr_group_name, 0);
 		break;
 	case 3:
 	        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
@@ -2208,7 +2210,7 @@ samr_dissect_GROUP_INFO(tvbuff_t *tvb, int offset,
 		break;
 	case 4:
 		offset = dissect_ndr_counted_string(tvb, offset, pinfo,
-			tree, drep, hf_samr_acct_desc, 0);
+			tree, drep, hf_samr_group_desc, 0);
 		break;
 	}
 
@@ -2606,6 +2608,59 @@ samr_dissect_set_information_domain_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
+samr_dissect_create_group_in_domain_rqst(tvbuff_t *tvb, int offset,
+				packet_info *pinfo, proto_tree *tree,
+				guint8 *drep)
+{
+        offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
+
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			dissect_ndr_counted_string_ptr, NDR_POINTER_REF,
+			"Group Name", hf_samr_group_name);
+
+	offset = dissect_nt_access_mask(
+		tvb, offset, pinfo, tree, drep, hf_samr_access,
+		&samr_group_access_mask_info, NULL);
+
+	return offset;
+
+
+}
+
+static int
+samr_dissect_create_group_in_domain_reply(tvbuff_t *tvb, int offset,
+				packet_info *pinfo, proto_tree *tree,
+				guint8 *drep)
+{
+	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
+	guint32 status;
+
+        offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_samr_hnd, &policy_hnd, &hnd_item,
+				       TRUE, FALSE);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_samr_rid, NULL);
+
+        offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_samr_rc, &status);
+
+	if (status == 0) {
+		dcerpc_smb_store_pol_name(&policy_hnd, pinfo,
+					  "CreateGroup handle");
+
+		if (hnd_item != NULL)
+			proto_item_append_text(hnd_item, ": CreateGroup handle");
+	}
+	return offset;
+
+
+}
+
+
+static int
 samr_dissect_lookup_domain_rqst(tvbuff_t *tvb, int offset,
 				packet_info *pinfo, proto_tree *tree,
 				guint8 *drep)
@@ -2891,9 +2946,6 @@ samr_dissect_enum_dom_groups_rqst(tvbuff_t *tvb, int offset,
 			samr_dissect_pointer_long, NDR_POINTER_REF,
 			"Resume Handle:", hf_samr_resume_hnd);
 
-	offset = dissect_ndr_nt_acct_ctrl(
-		tvb, offset, pinfo, tree, drep);
-
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_pref_maxsize, NULL);
 
@@ -2937,9 +2989,6 @@ samr_dissect_enum_dom_aliases_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_nt_acct_ctrl(
 		tvb, offset, pinfo, tree, drep);
-
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_samr_pref_maxsize, NULL);
 
 	return offset;
 }
@@ -3010,13 +3059,18 @@ samr_dissect_USER_INFO_1(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 				hf_samr_acct_name, 0);
+
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 				hf_samr_full_name, 0);
-	offset = dissect_ndr_nt_acct_ctrl(tvb, offset, pinfo, tree, drep);
+
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+			hf_samr_primary_group_rid, 0);
+
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-				hf_samr_home, 0);
+				hf_samr_acct_desc, 0);
+
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-				hf_samr_script, 0);
+				hf_samr_comment, 0);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -3038,13 +3092,13 @@ samr_dissect_USER_INFO_2(tvbuff_t *tvb, int offset,
 	}
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-				hf_samr_acct_name, 0);
+				hf_samr_comment, 0);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-				hf_samr_full_name, 0);
+				hf_samr_unknown_string, 0);
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
-				hf_samr_bad_pwd_count, NULL);
+				hf_samr_country, NULL);
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
-				hf_samr_logon_count, NULL);
+				hf_samr_codepage, NULL);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -3072,7 +3126,7 @@ samr_dissect_USER_INFO_3(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				hf_samr_rid, NULL);
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				hf_samr_group, NULL);
+				hf_samr_primary_group_rid, NULL);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 				hf_samr_home, 0);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
@@ -3080,7 +3134,7 @@ samr_dissect_USER_INFO_3(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 				hf_samr_script, 0);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-				hf_samr_acct_desc, 0);
+				hf_samr_profile, 0);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 				hf_samr_workstations, 0);
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
@@ -3095,9 +3149,9 @@ samr_dissect_USER_INFO_3(tvbuff_t *tvb, int offset,
 				hf_samr_pwd_must_change_time);
 	offset = dissect_ndr_nt_LOGON_HOURS(tvb, offset, pinfo, tree, drep);
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
-				hf_samr_logon_count, NULL);
-	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
 				hf_samr_bad_pwd_count, NULL);
+	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+				hf_samr_logon_count, NULL);
 	offset = dissect_ndr_nt_acct_ctrl(tvb, offset, pinfo, tree, drep);
 
 	proto_item_set_len(item, offset-old_offset);
@@ -3126,11 +3180,7 @@ samr_dissect_USER_INFO_5(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				hf_samr_rid, NULL);
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				hf_samr_group, NULL);
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
-				hf_samr_country, NULL);
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
-				hf_samr_codepage, NULL);
+				hf_samr_primary_group_rid, NULL);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 				hf_samr_home, 0);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
@@ -3183,6 +3233,31 @@ samr_dissect_USER_INFO_6(tvbuff_t *tvb, int offset,
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
+
+static int
+samr_dissect_USER_INFO_10(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *parent_tree,
+			guint8 *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"USER_INFO_10:");
+		tree = proto_item_add_subtree(item, ett_samr_user_info_10);
+	}
+
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
+				hf_samr_home, 0);
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
+				hf_samr_home_drive, 0);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
 
 static int
 samr_dissect_USER_INFO_18(tvbuff_t *tvb, int offset,
@@ -3320,9 +3395,9 @@ samr_dissect_USER_INFO_21(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
 				hf_samr_logoff_time);
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
-				hf_samr_kickoff_time);
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
 				hf_samr_pwd_last_set_time);
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
+				hf_samr_acct_expiry_time);
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
 				hf_samr_pwd_can_change_time);
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
@@ -3346,7 +3421,7 @@ samr_dissect_USER_INFO_21(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 				hf_samr_comment, 0);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-				hf_samr_parameters, 0);
+				hf_samr_callback, 0);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 				hf_samr_unknown_string, 0);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
@@ -3357,7 +3432,7 @@ samr_dissect_USER_INFO_21(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				hf_samr_rid, NULL);
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				hf_samr_group, NULL);
+				hf_samr_primary_group_rid, NULL);
 	offset = dissect_ndr_nt_acct_ctrl(tvb, offset, pinfo, tree, drep);
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 				hf_samr_unknown_long, NULL);
@@ -3524,31 +3599,31 @@ samr_dissect_USER_INFO (tvbuff_t *tvb, int offset,
 		break;
 	case 7:
 		offset = dissect_ndr_counted_string(
-			tvb, offset, pinfo, tree, drep, hf_samr_full_name, 0);
+			tvb, offset, pinfo, tree, drep, hf_samr_acct_name, 0);
 		break;
 	case 8:
 		offset = dissect_ndr_counted_string(
-			tvb, offset, pinfo, tree, drep, hf_samr_acct_desc, 0);
+			tvb, offset, pinfo, tree, drep, hf_samr_full_name, 0);
 		break;
 	case 9:
 	        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-        	                             hf_samr_unknown_long, NULL);
+        	                             hf_samr_primary_group_rid, NULL);
 		break;
 	case 10:
-		offset = samr_dissect_USER_INFO_6(
+		offset = samr_dissect_USER_INFO_10(
 				tvb, offset, pinfo, tree, drep);
 		break;
 	case 11:
 		offset = dissect_ndr_counted_string(
-			tvb, offset, pinfo, tree, drep, hf_samr_home, 0);
+			tvb, offset, pinfo, tree, drep, hf_samr_script, 0);
 		break;
 	case 12:
 		offset = dissect_ndr_counted_string(
-			tvb, offset, pinfo, tree, drep, hf_samr_home_drive, 0);
+			tvb, offset, pinfo, tree, drep, hf_samr_profile, 0);
 		break;
 	case 13:
 		offset = dissect_ndr_counted_string(
-			tvb, offset, pinfo, tree, drep, hf_samr_script, 0);
+			tvb, offset, pinfo, tree, drep, hf_samr_acct_desc, 0);
 		break;
 	case 14:
 		offset = dissect_ndr_counted_string(
@@ -3560,7 +3635,7 @@ samr_dissect_USER_INFO (tvbuff_t *tvb, int offset,
 		break;
 	case 17:
 		offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
-					hf_samr_unknown_time);
+					hf_samr_acct_expiry_time);
 		break;
 	case 18:
 		offset = samr_dissect_USER_INFO_18(
@@ -3572,7 +3647,7 @@ samr_dissect_USER_INFO (tvbuff_t *tvb, int offset,
 		break;
 	case 20:
 		offset = dissect_ndr_counted_string(
-			tvb, offset, pinfo, tree, drep, hf_samr_profile, 0);
+			tvb, offset, pinfo, tree, drep, hf_samr_callback, 0);
 		break;
 	case 21:
 		offset = samr_dissect_USER_INFO_21(
@@ -4197,6 +4272,9 @@ samr_dissect_delete_dom_alias_reply(tvbuff_t *tvb, int offset,
 				    packet_info *pinfo, proto_tree *tree,
 				    guint8 *drep)
 {
+        offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
+
         offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_samr_rc, NULL);
 
@@ -4271,6 +4349,9 @@ samr_dissect_delete_dom_user_reply(tvbuff_t *tvb, int offset,
 				   packet_info *pinfo, proto_tree *tree,
 				   guint8 *drep)
 {
+        offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
+
         offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_samr_rc, NULL);
 
@@ -4534,7 +4615,7 @@ samr_dissect_add_multiple_members_to_alias_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-samr_dissect_create_group_in_domain_rqst(tvbuff_t *tvb, int offset,
+samr_dissect_create_user_in_domain_rqst(tvbuff_t *tvb, int offset,
 					 packet_info *pinfo, proto_tree *tree,
 					 guint8 *drep)
 {
@@ -4547,13 +4628,13 @@ samr_dissect_create_group_in_domain_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
-		&samr_group_access_mask_info, NULL);
+		&samr_user_access_mask_info, NULL);
 
 	return offset;
 }
 
 static int
-samr_dissect_create_group_in_domain_reply(tvbuff_t *tvb, int offset,
+samr_dissect_create_user_in_domain_reply(tvbuff_t *tvb, int offset,
 					  packet_info *pinfo, proto_tree *tree,
 					  guint8 *drep)
 {
@@ -4574,7 +4655,7 @@ samr_dissect_create_group_in_domain_reply(tvbuff_t *tvb, int offset,
 				  hf_samr_rc, &status);
 
 	if (status == 0) {
-		pol_name = g_strdup_printf("CreateGroup(rid 0x%x)", rid);
+		pol_name = g_strdup_printf("CreateUser(rid 0x%x)", rid);
 
 		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
 
@@ -4586,6 +4667,53 @@ samr_dissect_create_group_in_domain_reply(tvbuff_t *tvb, int offset,
 
 	return offset;
 }
+
+
+static int
+samr_dissect_enum_users_in_domain_rqst(tvbuff_t *tvb, int offset,
+					   packet_info *pinfo,
+					   proto_tree *tree, guint8 *drep)
+{
+        offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
+
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			samr_dissect_pointer_long, NDR_POINTER_REF,
+			"Resume Handle", hf_samr_resume_hnd);
+
+	offset = dissect_ndr_nt_acct_ctrl(tvb, offset, pinfo, tree, drep);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_samr_pref_maxsize, NULL);
+
+	return offset;
+}
+
+
+static int
+samr_dissect_enum_users_in_domain_reply(tvbuff_t *tvb, int offset,
+					   packet_info *pinfo,
+					   proto_tree *tree, guint8 *drep)
+{
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			samr_dissect_pointer_long, NDR_POINTER_REF,
+			"Resume Handle:", hf_samr_resume_hnd);
+
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			samr_dissect_IDX_AND_NAME_ARRAY_ptr, NDR_POINTER_REF,
+			"IDX_AND_NAME_ARRAY:", hf_samr_acct_name);
+
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			samr_dissect_pointer_long, NDR_POINTER_REF,
+			"Entries:", hf_samr_entries);
+
+        offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_samr_rc, NULL);
+
+	return offset;
+}
+
+
 
 static int
 samr_dissect_query_information_domain_rqst(tvbuff_t *tvb, int offset,
@@ -4774,17 +4902,17 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
 		samr_dissect_set_information_domain_rqst,
 		samr_dissect_set_information_domain_reply },
         { SAMR_CREATE_DOM_GROUP, "SamrCreateGroupInDomain",
-		samr_dissect_create_alias_in_domain_rqst,
-		samr_dissect_create_alias_in_domain_reply },
+		samr_dissect_create_group_in_domain_rqst,
+		samr_dissect_create_group_in_domain_reply },
         { SAMR_ENUM_DOM_GROUPS, "SamrEnumerateGroupsInDomain",
 		samr_dissect_enum_dom_groups_rqst,
 		samr_dissect_enum_dom_groups_reply },
 	{ SAMR_CREATE_USER_IN_DOMAIN, "SamrCreateUserInDomain",
-		samr_dissect_create_group_in_domain_rqst,
-		samr_dissect_create_group_in_domain_reply },
+		samr_dissect_create_user_in_domain_rqst,
+		samr_dissect_create_user_in_domain_reply },
         { SAMR_ENUM_DOM_USERS, "SamrEnumerateUsersInDomain",
-		samr_dissect_enum_dom_groups_rqst,
-		samr_dissect_enum_dom_groups_reply },
+		samr_dissect_enum_users_in_domain_rqst,
+		samr_dissect_enum_users_in_domain_reply },
         { SAMR_CREATE_DOM_ALIAS, "SamrCreateAliasInDomain",
 		samr_dissect_create_alias_in_domain_rqst,
 		samr_dissect_create_alias_in_domain_reply },
@@ -5010,7 +5138,7 @@ proto_register_dcerpc_samr(void)
 
 	{ &hf_samr_alias_name,
 		{ "Alias Name", "samr.alias_name", FT_STRING, BASE_NONE,
-		NULL, 0, "Name of Alias", HFILL }},
+		NULL, 0, "Name of Alias (Local Group)", HFILL }},
 
 	{ &hf_samr_group_name,
 		{ "Group Name", "samr.group_name", FT_STRING, BASE_NONE,
@@ -5061,12 +5189,8 @@ proto_register_dcerpc_samr(void)
 		NULL, 0, "Account Description", HFILL }},
 
 	{ &hf_samr_comment,
-		{ "Comment", "samr.comment", FT_STRING, BASE_NONE,
-		NULL, 0, "Comment", HFILL }},
-
-	{ &hf_samr_parameters,
-		{ "Parameters", "samr.parameters", FT_STRING, BASE_NONE,
-		NULL, 0, "Parameters", HFILL }},
+		{ "Account Comment", "samr.comment", FT_STRING, BASE_NONE,
+		NULL, 0, "Account Comment", HFILL }},
 
 	{ &hf_samr_unknown_string,
 		{ "Unknown string", "samr.unknown_string", FT_STRING, BASE_NONE,
@@ -5169,13 +5293,13 @@ proto_register_dcerpc_samr(void)
 		{ "Unknown time", "samr.unknown_time", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0, "Unknown NT TIME, contact ethereal developers if you know what this is", HFILL }},
 	{ &hf_samr_logon_time,
-		{ "Logon Time", "samr.logon_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Last Logon Time", "samr.logon_time", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0, "Time for last time this user logged on", HFILL }},
 	{ &hf_samr_kickoff_time,
 		{ "Kickoff Time", "samr.kickoff_time", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0, "Time when this user will be kicked off", HFILL }},
 	{ &hf_samr_logoff_time,
-		{ "Logoff Time", "samr.logoff_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Last Logoff Time", "samr.logoff_time", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0, "Time for last time this user logged off", HFILL }},
 	{ &hf_samr_pwd_last_set_time,
 		{ "PWD Last Set", "samr.pwd_last_set_time", FT_ABSOLUTE_TIME, BASE_NONE,
@@ -5217,6 +5341,26 @@ proto_register_dcerpc_samr(void)
 	{ &hf_samr_codepage, {
 		"Codepage", "samr.codepage", FT_UINT16, BASE_DEC,
 		NULL, 0, "Codepage setting for this user", HFILL }},
+	{ &hf_samr_primary_group_rid,
+		{ "Primary group RID", "samr.primary_group_rid", FT_UINT32,
+	          BASE_DEC, NULL, 0x0, "RID of the user primary group", HFILL }},
+	{ &hf_samr_callback,
+		{ "Callback", "samr.callback", FT_STRING, BASE_NONE,
+		NULL, 0, "Callback for this user", HFILL }},
+	{ &hf_samr_alias_desc,
+		{ "Alias Desc", "samr.alias.desc", FT_STRING, BASE_NONE,
+		NULL, 0, "Alias (Local Group) Description", HFILL }},
+	{ &hf_samr_alias_num_of_members,
+		{ "Num of Members in Alias", "samr.alias.num_of_members", 
+		  FT_UINT32, BASE_DEC, NULL, 0, 
+		 "Number of members in Alias (Local Group)", HFILL }},
+	{ &hf_samr_group_desc,
+		{ "Group Desc", "samr.group.desc", FT_STRING, BASE_NONE,
+		NULL, 0, "Group Description", HFILL }},
+	{ &hf_samr_group_num_of_members,
+		{ "Num of Members in Group", "samr.group.num_of_members", 
+		  FT_UINT32, BASE_DEC, NULL, 0, 
+		 "Number of members in Group", HFILL }},
 
         /* Object specific access rights */
 
@@ -5412,7 +5556,7 @@ proto_register_dcerpc_samr(void)
 
        { &hf_samr_sd_size,
                { "Size", "sam.sd_size", FT_UINT32, BASE_DEC,
-               NULL, 0x0, "Size of SAM security descriptor", HFILL }}
+               NULL, 0x0, "Size of SAM security descriptor", HFILL }},
 
         };
 
@@ -5449,6 +5593,7 @@ proto_register_dcerpc_samr(void)
                 &ett_samr_user_info_3,
                 &ett_samr_user_info_5,
                 &ett_samr_user_info_6,
+                &ett_samr_user_info_10,
                 &ett_samr_user_info_18,
                 &ett_samr_user_info_19,
                 &ett_samr_buffer_buffer,
