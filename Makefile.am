@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.157 2000/01/18 20:35:40 guy Exp $
+# $Id: Makefile.am,v 1.158 2000/01/24 18:46:44 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -84,6 +84,7 @@ DISSECTOR_SOURCES = \
 	packet-isis-lsp.c \
 	packet-isis-snp.h \
 	packet-isis-snp.c \
+	packet-isl.c   \
 	packet-l2tp.c  \
 	packet-lapb.c  \
 	packet-lapd.c  \

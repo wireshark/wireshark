@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.27 2000/01/24 01:15:37 guy Exp $
+ * $Id: packet-eth.c,v 1.28 2000/01/24 18:46:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,6 +94,16 @@ capture_eth(const u_char *pd, int offset, packet_counts *ld)
       ethhdr_type = ETHERNET_802_2;
     }
 
+    /* Oh, yuck.  Cisco ISL frames require special interpretation of the
+       destination address field; fortunately, they can be recognized by
+       checking the first 5 octets of the destination address, which are
+       01-00-0C-00-00 for ISL frames. */
+    if (pd[offset] == 0x01 && pd[offset+1] == 0x00 && pd[offset+2] == 0x0C
+	&& pd[offset+3] == 0x00 && pd[offset+4] == 0x00) {
+      capture_isl(pd, offset, ld);
+      return;
+    }
+
     /* Convert the LLC length from the 802.3 header to a total
        frame length, by adding in the size of any data that preceded
        the Ethernet header, and adding in the Ethernet header size,
@@ -160,6 +170,16 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     }
     else {
       ethhdr_type = ETHERNET_802_2;
+    }
+
+    /* Oh, yuck.  Cisco ISL frames require special interpretation of the
+       destination address field; fortunately, they can be recognized by
+       checking the first 5 octets of the destination address, which are
+       01-00-0C-00-00 for ISL frames. */
+    if (pd[offset] == 0x01 && pd[offset+1] == 0x00 && pd[offset+2] == 0x0C
+	&& pd[offset+3] == 0x00 && pd[offset+4] == 0x00) {
+      dissect_isl(pd, offset, fd, tree);
+      return;
     }
 
     if (check_col(fd, COL_INFO)) {

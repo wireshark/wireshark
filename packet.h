@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.167 2000/01/23 08:55:37 guy Exp $
+ * $Id: packet.h,v 1.168 2000/01/24 18:46:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -287,6 +287,7 @@ void capture_raw(const u_char *, packet_counts *);
 void capture_eth(const u_char *, int, packet_counts *);
 void capture_ip(const u_char *, int, packet_counts *);
 void capture_ipx(const u_char *, int, packet_counts *);
+void capture_isl(const u_char *, int, packet_counts *);
 void capture_llc(const u_char *, int, packet_counts *);
 void capture_netbios(const u_char *, int, packet_counts *);
 void capture_tr(const u_char *, int, packet_counts *);
@@ -355,6 +356,7 @@ void dissect_ipv6(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ipx(const u_char *, int, frame_data *, proto_tree *);
 void dissect_irc(const u_char *, int, frame_data *, proto_tree *);
 void dissect_isis(const u_char *, int, frame_data *, proto_tree *);
+void dissect_isl(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ldap(const u_char *, int, frame_data *, proto_tree *);
 void dissect_llc(const u_char *, int, frame_data *, proto_tree *);
 void dissect_lpd(const u_char *, int, frame_data *, proto_tree *);
