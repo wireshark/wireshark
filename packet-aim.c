@@ -3,7 +3,7 @@
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim.c,v 1.39 2004/04/26 18:21:10 obiot Exp $
+ * $Id: packet-aim.c,v 1.40 2004/04/26 21:11:33 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -996,6 +996,12 @@ proto_register_aim(void)
 	},
 	{ &hf_aim_userclass_unknown200,
 		{ "Unknown bit", "aim.userclass.unknown200", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_UNKNOWN200, "", HFILL },
+	},
+	{ &hf_aim_userclass_unknown400,
+		{ "Unknown bit", "aim.userclass.unknown400", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_UNKNOWN400, "", HFILL },
+	},
+	{ &hf_aim_userclass_unknown800,
+		{ "Unknown bit", "aim.userclass.unknown800", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_UNKNOWN800, "", HFILL },
 	},
 	{ &hf_aim_userinfo_warninglevel,
 		{ "Warning Level", "aim.userinfo.warninglevel", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
