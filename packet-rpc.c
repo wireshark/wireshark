@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.137 2003/09/03 07:11:13 guy Exp $
+ * $Id: packet-rpc.c,v 1.138 2003/09/05 10:26:42 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -322,6 +322,7 @@ rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table,
 	}
 }
 
+
 /*	return the name associated with a previously registered procedure. */
 char *rpc_proc_name(guint32 prog, guint32 vers, guint32 proc)
 {
@@ -392,6 +393,22 @@ rpc_init_prog(int proto, guint32 prog, int ett)
 	value->procedure_hfs = g_array_new(FALSE, TRUE, sizeof (int));
 
 	g_hash_table_insert(rpc_progs,key,value);
+}
+
+
+
+/*	return the hf_field associated with a previously registered program.
+*/
+int rpc_prog_hf(guint32 prog, guint32 vers)
+{
+	rpc_prog_info_key       rpc_prog_key;
+	rpc_prog_info_value     *rpc_prog;
+
+	rpc_prog_key.prog = prog;
+	if ((rpc_prog = g_hash_table_lookup(rpc_progs,&rpc_prog_key))) {
+		return g_array_index(rpc_prog->procedure_hfs, int, vers);
+	}
+	return -1;
 }
 
 /*	return the name associated with a previously registered program. This

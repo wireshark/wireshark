@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.15 2003/09/02 08:27:41 sahlberg Exp $
+ * $Id: rpc_stat.c,v 1.16 2003/09/05 10:26:44 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -190,6 +190,8 @@ gtk_rpcstat_init(char *optarg)
 	int program, version, pos;
 	char *filter=NULL;
 	GString *error_string;
+	int hf_index;
+	header_field_info *hfi;
 
 	pos=0;
 	if(sscanf(optarg,"rpc,srt,%d,%d,%n",&program,&version,&pos)==2){
@@ -209,6 +211,8 @@ gtk_rpcstat_init(char *optarg)
 	rs->prog=rpc_prog_name(rpc_program);
 	rs->program=rpc_program;
 	rs->version=rpc_version;
+	hf_index=rpc_prog_hf(rpc_program, rpc_version);
+	hfi=proto_registrar_get_nth(hf_index);
 
 	rs->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
@@ -238,7 +242,7 @@ gtk_rpcstat_init(char *optarg)
 	/* We must display TOP LEVEL Widget before calling init_srt_table() */
 	gtk_widget_show(rs->win);
 
-	init_srt_table(&rs->srt_table, rpc_max_proc+1, vbox);
+	init_srt_table(&rs->srt_table, rpc_max_proc+1, vbox, hfi->abbrev);
 
 	for(i=0;i<rs->num_procedures;i++){
 		init_srt_table_row(&rs->srt_table, i, rpc_proc_name(rpc_program, rpc_version, i));

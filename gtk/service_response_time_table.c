@@ -3,7 +3,7 @@
  * Helper routines common to all service response time statistics
  * tap.
  *
- * $Id: service_response_time_table.c,v 1.6 2003/09/03 10:10:18 sahlberg Exp $
+ * $Id: service_response_time_table.c,v 1.7 2003/09/05 10:26:44 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,12 @@
 #include "service_response_time_table.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
+#include "simple_dialog.h"
+#include "globals.h"
+#include "gtk/find_dlg.h"
+
+extern GtkWidget   *main_display_filter_widget;
+#define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
 
 
 typedef struct column_arrows {
@@ -124,8 +130,164 @@ srt_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 	return 0;
 }
 
+
+
+/* action is encoded as 
+   filter_action*256+filter_type
+
+   filter_action:
+	0: Match
+	1: Prepare
+	2: Find
+   filter_type:
+	0: Selected
+	1: Not Selected
+	2: And Selected
+	3: Or Selected
+	4: And Not Selected
+	5: Or Not Selected
+*/
+static void
+srt_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callback_action)
+{
+	int action, type, selection;
+	srt_stat_table *rst = (srt_stat_table *)callback_data;
+	char str[256];
+	char *current_filter;
+
+
+	if(rst->filter_string==NULL){
+		return;
+	}
+
+	action=(callback_action>>8)&0xff;
+	type=callback_action&0xff;
+
+	selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(rst->table)->selection, 0));
+	if(selection>=(int)rst->num_procs){
+		simple_dialog(ESD_TYPE_WARN, NULL, "No procedure selected");
+		return;
+	}
+	/* translate it back from row index to index in procedures array */
+	selection=GPOINTER_TO_INT(gtk_clist_get_row_data(rst->table, selection));
+
+	current_filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+
+	switch(type){
+	case 0:
+		/* selected */
+		snprintf(str, 255, "%s==%d", rst->filter_string, selection);
+		break;
+	case 1:
+		/* not selected */
+		snprintf(str, 255, "!(%s==%d)", rst->filter_string, selection);
+		break;
+	case 2:
+		/* and selected */
+		snprintf(str, 255, "(%s) && (%s==%d)", current_filter, rst->filter_string, selection);
+		break;
+	case 3:
+		/* or selected */
+		snprintf(str, 255, "(%s) || (%s==%d)", current_filter, rst->filter_string, selection);
+		break;
+	case 4:
+		/* and not selected */
+		snprintf(str, 255, "(%s) && !(%s==%d)", current_filter, rst->filter_string, selection);
+		break;
+	case 5:
+		/* or not selected */
+		snprintf(str, 255, "(%s) || !(%s==%d)", current_filter, rst->filter_string, selection);
+		break;
+	}
+
+	gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
+
+	switch(action){
+	case 0:
+		/* match */
+		filter_packets(&cfile, str);
+	case 1:
+		/* prepare */
+		/* do nothing */
+		break;
+	case 2:
+		/* find frame */
+		find_frame_with_filter(str);
+		break;
+	}
+
+}
+
+static gint
+srt_show_popup_menu_cb(void *widg _U_, GdkEvent *event, srt_stat_table *rst)
+{
+	GdkEventButton *bevent = (GdkEventButton *)event;
+
+	if(event->type==GDK_BUTTON_PRESS && bevent->button==3){
+		gtk_menu_popup(GTK_MENU(rst->menu), NULL, NULL, NULL, NULL, 
+			bevent->button, bevent->time);
+	}
+
+	return FALSE;
+}
+
+static GtkItemFactoryEntry srt_list_menu_items[] =
+{
+	/* Match */
+	ITEM_FACTORY_ENTRY("/Match Display Filter", NULL, NULL, 0, "<Branch>", NULL),
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Selected", NULL,
+		srt_select_filter_cb, 0*256+0, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Not Selected", NULL,
+		srt_select_filter_cb, 0*256+1, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Match Display Filter/And Selected", NULL,
+		srt_select_filter_cb, 0*256+2, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Selected", NULL,
+		srt_select_filter_cb, 0*256+3, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Match Display Filter/And Not Selected", NULL,
+		srt_select_filter_cb, 0*256+4, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Not Selected", NULL,
+		srt_select_filter_cb, 0*256+5, NULL, NULL),
+
+	/* Prepare */
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter", NULL, NULL, 0, "<Branch>", NULL),
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Selected", NULL,
+		srt_select_filter_cb, 1*256+0, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Not Selected", NULL,
+		srt_select_filter_cb, 1*256+1, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Selected", NULL,
+		srt_select_filter_cb, 1*256+2, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Selected", NULL,
+		srt_select_filter_cb, 1*256+3, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Not Selected", NULL,
+		srt_select_filter_cb, 1*256+4, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Not Selected", NULL,
+		srt_select_filter_cb, 1*256+5, NULL, NULL),
+
+	/* Find Frame */
+	ITEM_FACTORY_ENTRY("/Find Frame", NULL, NULL, 0, "<Branch>", NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Selected", NULL,
+		srt_select_filter_cb, 2*256+0, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Not Selected", NULL,
+		srt_select_filter_cb, 2*256+1, NULL, NULL),
+
+};
+
+static void
+srt_create_popup_menu(srt_stat_table *rst)
+{
+	GtkItemFactory *item_factory;
+
+	item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
+
+	gtk_item_factory_create_items_ac(item_factory, sizeof(srt_list_menu_items)/sizeof(srt_list_menu_items[0]), srt_list_menu_items, rst, 2);
+
+	rst->menu = gtk_item_factory_get_widget(item_factory, "<main>");
+	SIGNAL_CONNECT(rst->table, "button_press_event", srt_show_popup_menu_cb, rst);
+}
+
+
 void
-init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox)
+init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, char *filter_string)
 {
 	int i, j;
 	column_arrows *col_arrows;
@@ -136,6 +298,11 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox)
 	char *default_titles[] = { "Index", "Procedure", "Calls", "Min SRT", "Max SRT", "Avg SRT" };
 
 
+	if(filter_string){
+		rst->filter_string=g_strdup(filter_string);
+	} else {
+		rst->filter_string=NULL;
+	}
 	rst->scrolled_window=gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(rst->scrolled_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
 	gtk_box_pack_start(GTK_BOX(vbox), rst->scrolled_window, TRUE, TRUE, 0);
@@ -211,6 +378,11 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox)
 		for(j=0;j<6;j++){
 			rst->procedures[i].entries[j]=NULL;
 		}
+	}
+
+	/* create popup menu for this table */
+	if(rst->filter_string){
+		srt_create_popup_menu(rst);
 	}
 }
 
@@ -368,6 +540,8 @@ free_srt_table_data(srt_stat_table *rst)
 			}
 		}
 	}
+	g_free(rst->filter_string);
+	rst->filter_string=NULL;
 	g_free(rst->procedures);
 	rst->procedures=NULL;
 	rst->num_procs=0;

@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.15 2003/09/05 00:48:58 sahlberg Exp $
+ * $Id: dcerpc_stat.c,v 1.16 2003/09/05 10:26:44 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -239,7 +239,7 @@ gtk_dcerpcstat_init(char *optarg)
 	/* We must display TOP LEVEL Widget before calling init_srt_table() */
 	gtk_widget_show(rs->win);
 
-	init_srt_table(&rs->srt_table, max_procs+1, vbox);
+	init_srt_table(&rs->srt_table, max_procs+1, vbox, NULL);
 
        	for(i=0;i<(max_procs+1);i++){
 		int j;

@@ -825,6 +825,11 @@ If an optional filter string is used only such ONC-RPC request/response pairs
 that match that filter will be used to calculate the statistics. If no filter 
 string is specified all request/response pairs will be used.
 
+By first selecting a conversation by clicking on it and then using the 
+right mouse button (on those platforms that have a right
+mouse button) ethereal will display a popup menu offering several different 
+filter operations to apply to the capture.
+
 =item Tools:Statistics:Service Response Time:SMB
 
 Collect call/reply SRT (Service Response Time) data for SMB.  Data collected
@@ -843,6 +848,10 @@ You can apply an optional filter string in a dialog box, before starting
 the calculation. The stats will only be calculated 
 on those calls matching that filter.
 
+By first selecting a conversation by clicking on it and then using the 
+right mouse button (on those platforms that have a right
+mouse button) ethereal will display a popup menu offering several different 
+filter operations to apply to the capture.
 
 =item Tools:Statistics:Conversation List
 

@@ -3,7 +3,7 @@
  * Helper routines common to all service response time statistics
  * tap.
  *
- * $Id: service_response_time_table.h,v 1.1 2003/06/21 01:42:46 sahlberg Exp $
+ * $Id: service_response_time_table.h,v 1.2 2003/09/05 10:26:44 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,11 +39,14 @@ typedef struct _srt_procedure_t {
 typedef struct _srt_stat_table {
 	GtkWidget *scrolled_window;
 	GtkCList *table;
+	GtkWidget *menu;
+	char *filter_string; /* append procedure number (%d) to this string 
+				to create a display filter */
 	int num_procs;
 	srt_procedure_t *procedures;
 } srt_stat_table;
 
-void init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox);
+void init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, char *filter_string);
 
 void init_srt_table_row(srt_stat_table *rst, int index, char *procedure);
 

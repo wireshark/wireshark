@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.12 2003/09/02 08:27:43 sahlberg Exp $
+ * $Id: smb_stat.c,v 1.13 2003/09/05 10:26:44 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -182,7 +182,7 @@ gtk_smbstat_init(char *optarg)
 	/* We must display TOP LEVEL Widget before calling init_srt_table() */
 	gtk_widget_show(ss->win);
 
-	init_srt_table(&ss->smb_srt_table, 256, vbox);
+	init_srt_table(&ss->smb_srt_table, 256, vbox, "smb.cmd");
 	for(i=0;i<256;i++){
 		init_srt_table_row(&ss->smb_srt_table, i, val_to_str(i, smb_cmd_vals, "Unknown(0x%02x)"));
 	}
@@ -191,7 +191,7 @@ gtk_smbstat_init(char *optarg)
 	label=gtk_label_new("Transaction2 Sub-Commands");
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 	gtk_widget_show(label);
-	init_srt_table(&ss->trans2_srt_table, 256, vbox);
+	init_srt_table(&ss->trans2_srt_table, 256, vbox, "smb.trans2.cmd");
 	for(i=0;i<256;i++){
 		init_srt_table_row(&ss->trans2_srt_table, i, val_to_str(i, trans2_cmd_vals, "Unknown(0x%02x)"));
 	}
@@ -200,7 +200,7 @@ gtk_smbstat_init(char *optarg)
 	label=gtk_label_new("NT Transaction Sub-Commands");
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 	gtk_widget_show(label);
-	init_srt_table(&ss->nt_trans_srt_table, 256, vbox);
+	init_srt_table(&ss->nt_trans_srt_table, 256, vbox, "smb.nt.function");
 	for(i=0;i<256;i++){
 		init_srt_table_row(&ss->nt_trans_srt_table, i, val_to_str(i, nt_cmd_vals, "Unknown(0x%02x)"));
 	}

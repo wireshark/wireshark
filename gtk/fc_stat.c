@@ -1,7 +1,7 @@
 /* fc_stat.c
  * fc_stat   2003 Ronnie Sahlberg
  *
- * $Id: fc_stat.c,v 1.4 2003/09/02 08:27:33 sahlberg Exp $
+ * $Id: fc_stat.c,v 1.5 2003/09/05 10:26:44 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -164,7 +164,7 @@ gtk_fcstat_init(char *optarg)
 	/* We must display TOP LEVEL Widget before calling init_srt_table() */
 	gtk_widget_show(fc->win);
 
-	init_srt_table(&fc->fc_srt_table, 256, vbox);
+	init_srt_table(&fc->fc_srt_table, 256, vbox, NULL);
 	for(i=0;i<256;i++){
 		init_srt_table_row(&fc->fc_srt_table, i, val_to_str(i, fc_fc4_val, "Unknown(0x%02x)"));
 	}

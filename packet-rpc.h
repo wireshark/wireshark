@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.42 2003/05/21 02:48:40 sharpe Exp $
+ * $Id: packet-rpc.h,v 1.43 2003/09/05 10:26:43 sahlberg Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -121,6 +121,7 @@ extern void rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table,
 extern void rpc_init_prog(int proto, guint32 prog, int ett);
 extern char *rpc_prog_name(guint32 prog);
 extern char *rpc_proc_name(guint32 prog, guint32 vers, guint32 proc);
+extern int rpc_prog_hf(guint32 prog, guint32 vers);
 
 extern unsigned int rpc_roundup(unsigned int a);
 extern int dissect_rpc_bool(tvbuff_t *tvb,
