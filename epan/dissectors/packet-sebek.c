@@ -105,7 +105,7 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_append_fstr(pinfo->cinfo, COL_INFO, " pid(%d)", tvb_get_ntohl(tvb, 20));
 		col_append_fstr(pinfo->cinfo, COL_INFO, " uid(%d)", tvb_get_ntohl(tvb, 24));
 		col_append_fstr(pinfo->cinfo, COL_INFO, " fd(%d)", tvb_get_ntohl(tvb, 28));
-		col_append_fstr(pinfo->cinfo, COL_INFO, " cmd: %s", tvb_get_string(tvb, 32, 12));
+		col_append_fstr(pinfo->cinfo, COL_INFO, " cmd: %s", tvb_format_text(tvb, 32, 12));
 	}
 
 
@@ -126,10 +126,10 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(sebek_tree, hf_sebek_counter, tvb, offset, 4, FALSE);
 		offset += 4;
 
-        ts.secs = tvb_get_ntohl(tvb, offset);
-        ts.nsecs = tvb_get_ntohl(tvb, offset+4);
-        proto_tree_add_time(sebek_tree, hf_sebek_time, tvb, offset, 8, &ts);
-        offset += 8; 
+		ts.secs = tvb_get_ntohl(tvb, offset);
+		ts.nsecs = tvb_get_ntohl(tvb, offset+4);
+		proto_tree_add_time(sebek_tree, hf_sebek_time, tvb, offset, 8, &ts);
+		offset += 8; 
 
 		proto_tree_add_item(sebek_tree, hf_sebek_pid, tvb, offset, 4, FALSE);
 		offset += 4;
