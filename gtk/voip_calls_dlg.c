@@ -59,7 +59,7 @@
 #include <epan/to_str.h>
 
 #include <string.h>
-
+#include <ctype.h>
 
 typedef const guint8 * ip_addr_p;
 
@@ -213,9 +213,10 @@ static void
 voip_calls_on_filter                    (GtkButton       *button _U_,
                                         gpointer         user_data _U_)
 {
-	gchar *filter_string = NULL;
-	const gchar *filter_string_fwd = NULL;
-	gchar filter_prepend[5];
+	const gchar *filter_string;
+	gchar c;
+	GString *filter_string_fwd;
+	gchar *filter_prepend;
 	sip_calls_info_t *tmp_sipinfo;
 	isup_calls_info_t *tmp_isupinfo;
 	h323_calls_info_t *tmp_h323info;
@@ -226,38 +227,42 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 		return;
 
 	filter_string=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
-	if (strcmp(filter_string,"")!=0){ /* this means there is already a display filter, we or it */
-		strcpy(filter_prepend," or ");
-	}
-	else{
-		strcpy(filter_prepend,"");
+	filter_prepend = "";
+	while ((c = *filter_string++) != '\0') {
+		if (!isspace((guchar)c)) {
+			/* The filter string isn't blank, so there's already
+			   an expression; we OR in the new expression */
+			filter_prepend = " or ";
+			break;
+		}
 	}
 		
-
+	filter_string_fwd = g_string_new(filter_prepend);
 	switch(selected_call_fwd->protocol){
 		case VOIP_SIP:
 			tmp_sipinfo = selected_call_fwd->prot_info;
-			filter_string_fwd = g_strdup_printf("%s(sip.Call-ID == \"%s\") ",
-			   filter_prepend, tmp_sipinfo->call_identifier 
+			g_string_sprintfa(filter_string_fwd,
+			   "(sip.Call-ID == \"%s\") ",
+			   tmp_sipinfo->call_identifier 
 			   );
-			filter_string = filter_string_fwd;
-			gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), filter_string);
+			gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), filter_string_fwd->str);
 			break;
 		case VOIP_ISUP:
 			tmp_isupinfo = selected_call_fwd->prot_info;
-			filter_string_fwd = g_strdup_printf("%s(isup.cic == %i and frame.number >=%i and frame.number<=%i and mtp3.network_indicator == %i and ((mtp3.dpc == %i) and (mtp3.opc == %i)) or((mtp3.dpc == %i) and (mtp3.opc == %i))) ",
-			   filter_prepend, tmp_isupinfo->cic,selected_call_fwd->first_frame_num,
+			g_string_sprintfa(filter_string_fwd,
+			   "(isup.cic == %i and frame.number >=%i and frame.number<=%i and mtp3.network_indicator == %i and ((mtp3.dpc == %i) and (mtp3.opc == %i)) or((mtp3.dpc == %i) and (mtp3.opc == %i))) ",
+			   tmp_isupinfo->cic,selected_call_fwd->first_frame_num,
 			   selected_call_fwd->last_frame_num, 
 			   tmp_isupinfo->ni, tmp_isupinfo->dpc, tmp_isupinfo->opc, 
 			   tmp_isupinfo->opc, tmp_isupinfo->dpc
 			   );
-			filter_string = filter_string_fwd;
-			gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), filter_string);
+			gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), filter_string_fwd->str);
 			break;
 		case VOIP_H323:
 			tmp_h323info = selected_call_fwd->prot_info;
-			filter_string_fwd = g_strdup_printf("%s((h225.guid == %x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x || q931.call_ref == %x:%x || q931.call_ref == %x:%x) ",
-			   filter_prepend, (guint8)tmp_h323info->guid[0], (guint8)tmp_h323info->guid[1], (guint8)tmp_h323info->guid[2],
+			g_string_sprintfa(filter_string_fwd,
+			   "((h225.guid == %x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x || q931.call_ref == %x:%x || q931.call_ref == %x:%x) ",
+			   (guint8)tmp_h323info->guid[0], (guint8)tmp_h323info->guid[1], (guint8)tmp_h323info->guid[2],
 			   (guint8)tmp_h323info->guid[3], (guint8)tmp_h323info->guid[4], (guint8)tmp_h323info->guid[5], (guint8)tmp_h323info->guid[6],
 			   (guint8)tmp_h323info->guid[7], (guint8)tmp_h323info->guid[8], (guint8)tmp_h323info->guid[9], (guint8)tmp_h323info->guid[10],
 			   (guint8)tmp_h323info->guid[11], (guint8)tmp_h323info->guid[12], (guint8)tmp_h323info->guid[13], (guint8)tmp_h323info->guid[14],
@@ -268,20 +273,17 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 			while (list)
 			{
 				h245_add=list->data;
-				filter_string_fwd = g_strdup_printf("%s || (ip.addr == %s && tcp.port == %d && h245) ", filter_string_fwd, 
+				g_string_sprintfa(filter_string_fwd,
+					" || (ip.addr == %s && tcp.port == %d && h245) ", 
 					ip_to_str((guint8 *)&(h245_add->h245_address)), h245_add->h245_port);
 				list = g_list_next(list);
 			}
-			filter_string_fwd = g_strdup_printf("%s ) ", filter_string_fwd);
-
-			filter_string = filter_string_fwd;
-			gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), filter_string);
+			g_string_sprintfa(filter_string_fwd, ") ");
+			gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), filter_string_fwd->str);
 			break;
 
 	}
-
-	
-	g_free(filter_string);
+	g_string_free(filter_string_fwd, TRUE);
 }
 
 
