@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.79 2003/11/16 23:17:17 guy Exp $
+ * $Id: packet-clnp.c,v 1.80 2003/12/27 02:01:13 guy Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -934,6 +934,13 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
   if (cotp_reassemble) {
     fragment_length = tvb_length(next_tvb);
+    /*
+     * XXX - these sequence numbers are connection sequence number,
+     * not segment sequence numbers - the first segment of a
+     * segmented packet doesn't have a specific sequence number (e.g., 0
+     * or 1), it has whatever the appropriate sequence number is for
+     * it in the connection.
+     */
     fd_head = fragment_add_seq_check(next_tvb, 0, pinfo, dst_ref,
 				     cotp_segment_table, 
 				     cotp_reassembled_table,
