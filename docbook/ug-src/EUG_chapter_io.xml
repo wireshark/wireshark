@@ -329,16 +329,19 @@
 	interfaces at once (e.g. using multiple instances of Ethereal).
 	</para>
 	<para>
-	  Merging capture files can be done in three ways:
+	Merging capture files can be done in three ways:
 	<itemizedlist>
 		<listitem><para>
-	  	Use the <command>menu item "Merge"</command> from the "File" menu, 
+		Use the <command>menu item "Merge"</command> from the "File" menu, 
 		to open the merge dialog, see <xref linkend="ChIOMergeDialog"/>.
+		This menu item will be disabled, until you have loaded a capture file.
 		</para></listitem>
 		<listitem><para>
 	  	Use <command>drag-and-drop</command> to drop multiple files on the 
 		main window. Ethereal will try to merge the packets in chronological 
-		order from the dropped files into a newly created temporary file.
+		order from the dropped files into a newly created temporary file. If 
+		you drop only a single file, it will simply replace a (maybe) existing
+		one.
 		</para></listitem>
 		<listitem><para>
 	  	Use the <command>mergecap</command> tool, which is a command 
