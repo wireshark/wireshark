@@ -2,7 +2,7 @@
  * Routines for Universal Computer Protocol dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-ucp.c,v 1.2 2001/10/08 17:37:52 guy Exp $
+ * $Id: packet-ucp.c,v 1.3 2001/10/08 17:42:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -625,10 +625,6 @@ static const value_string vals_xser_service[] = {
  * \retval	UCP_SHORTENED	Packet may be there, but not complete
  * \retval	UCP_MALFORMED	Hmmmm, not UCP after all...
  * \retval	UCP_INV_CHK	Nice packet, but checksum doesn't add up...
- *
- * Note that this will not recognize any frames as UCP frames if the
- * capture was made with a snapshot length shorter than the maximum
- * frame length, as it checksums the entire packet.
  */
 static int
 check_ucp(tvbuff_t *tvb, int *endpkt)
@@ -637,9 +633,6 @@ check_ucp(tvbuff_t *tvb, int *endpkt)
     guint	 checksum = 0;
     int		 pkt_check, tmp;
     int		 length;
-
-    if (!tvb_offset_exists(tvb, 0) || tvb_get_guint8(tvb, 0) != UCP_STX)
-	return UCP_MALFORMED;
 
     length = tvb_find_guint8(tvb, offset, -1, UCP_ETX);
     if (length == -1) {
@@ -1541,6 +1534,11 @@ dissect_ucp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item	*sub_ti;
     proto_tree	*ucp_tree;
     tvbuff_t	*tmp_tvb;
+
+    /* This runs atop TCP, so we are guaranteed that there is at least one
+       byte in the tvbuff. */
+    if (tvb_get_guint8(tvb, 0) != UCP_STX)
+	return FALSE;
 
     result = check_ucp(tvb, &endpkt);
 
