@@ -93,6 +93,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_PROFINET,	"PROFInet"			},
     {ETHERTYPE_AOE,		"ATA over Ethernet"             },
     {ETHERTYPE_IEEE802_OUI_EXTENDED, "IEEE 802a OUI Extended Ethertype" },
+    {ETHERTYPE_LLDP,	"802.1 Link Layer Discovery Protocol (LLDP)" },
     /*
      * NDISWAN on Windows translates Ethernet frames from higher-level
      * protocols into PPP frames to hand to the PPP driver, and translates

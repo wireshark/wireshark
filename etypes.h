@@ -252,6 +252,10 @@
 #define ETHERTYPE_RSN_PREAUTH	0x88c7  /* 802.11i Pre-Authentication */
 #endif
 
+#ifndef ETHERTYPE_LLDP
+#define ETHERTYPE_LLDP	        0x88cc  /* IEEE 802.1 Link Layer Discovery Protocol (LLDP) */
+#endif
+
 #ifndef ETHERTYPE_LOOP
 #define ETHERTYPE_LOOP		0x9000 	/* used for layer 2 testing (do i see my own frames on the wire) */
 #endif
