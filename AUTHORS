@@ -590,6 +590,7 @@ Michal Melerowicz <Michal.Melerowicz@nokia.com> {
 Hannes Gredler <hannes@juniper.net> {
 	OSI network layer over PPP support
 	Many ISIS enhancements
+	Juniper Networks vendor ID in RADIUS dissector
 }
 
 Inoue <inoue@ainet.or.jp> {
