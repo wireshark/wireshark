@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.58 2002/01/10 09:49:35 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.59 2002/01/10 11:21:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -350,13 +350,13 @@ again:
 	tvb_memcpy(tvb, (guint8 *)map, offset, sizeof *map);
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_map_info, nd_opt_map_distance),
-	    1, "Distance: %d", map->nd_opt_map_distance);
+	    1, "Distance: %u", map->nd_opt_map_distance);
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_map_info, nd_opt_map_preference),
-	    1, "Preference: %d", map->nd_opt_map_preference);
+	    1, "Preference: %u", map->nd_opt_map_preference);
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_map_info, nd_opt_map_prefixlen),
-	    1, "Prefix Length: %d", map->nd_opt_map_prefixlen);
+	    1, "Prefix Length: %u", map->nd_opt_map_prefixlen);
 	flagoff = offset + offsetof(struct nd_opt_map_info,
 	    nd_opt_map_flags);
 	tf = proto_tree_add_text(icmp6opt_tree, tvb, flagoff, 1,
