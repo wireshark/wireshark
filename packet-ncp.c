@@ -5,7 +5,7 @@
  * Modified to decode server op-lock 
  * & NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp.c,v 1.66 2002/08/23 17:47:31 gram Exp $
+ * $Id: packet-ncp.c,v 1.67 2002/08/23 21:54:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,7 +89,6 @@ static gint ett_ncp_system_flags = -1;
 
 /* desegmentation of NCP over TCP */
 static gboolean ncp_desegment = TRUE;
-static ncp_nds_true = FALSE;
 
 static dissector_handle_t data_handle;
 
@@ -160,10 +159,10 @@ static value_string ncp_type_vals[] = {
 	{ NCP_SERVICE_REPLY,	"Service reply" },
 	{ NCP_WATCHDOG,		"Watchdog" },
 	{ NCP_DEALLOCATE_SLOT,	"Destroy service connection" },
-    { NCP_BROADCAST_SLOT,   "Server Broadcast" },
+	{ NCP_BROADCAST_SLOT,   "Server Broadcast" },
 	{ NCP_BURST_MODE_XFER,	"Burst mode transfer" },
 	{ NCP_POSITIVE_ACK,	"Request being processed" },
-    { NCP_LIP_ECHO, "Large Internet Packet Echo" },
+	{ NCP_LIP_ECHO, "Large Internet Packet Echo" },
 	{ 0,			NULL }
 };
 
@@ -192,7 +191,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree			*flags_tree = NULL;
 	guint16				data_len = 0;
 	guint16				missing_fraglist_count = 0;
-    guint16             ncp_nds_verb;
+	guint16				ncp_nds_verb;
 	int				hdr_offset = 0;
 	int				commhdr;
 	int				offset;
@@ -273,19 +272,19 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	switch (header.type) {
 
-    case NCP_BROADCAST_SLOT:    /* Server Broadcast */
-        proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
+	case NCP_BROADCAST_SLOT:	/* Server Broadcast */
+		proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
 		proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
 		proto_tree_add_item(ncp_tree, hf_ncp_task,	tvb, commhdr + 4, 1, FALSE);
 		proto_tree_add_item(ncp_tree, hf_ncp_oplock_flag, tvb, commhdr + 9, 1, FALSE);
 		proto_tree_add_item(ncp_tree, hf_ncp_oplock_handle, tvb, commhdr + 10, 4, FALSE);
-        break;
+		break;
 
-    case NCP_LIP_ECHO:    /* Lip Echo Packet */
-        proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr, 13, FALSE);
-        break;
+	case NCP_LIP_ECHO:		/* Lip Echo Packet */
+		proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr, 13, FALSE);
+		break;
 
-    case NCP_BURST_MODE_XFER:	/* Packet Burst Packet */
+	case NCP_BURST_MODE_XFER:	/* Packet Burst Packet */
 		/*
 		 * XXX - we should keep track of whether there's a burst
 		 * outstanding on a connection and, if not, treat the
@@ -380,10 +379,10 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    tvb, commhdr + 34, 2, FALSE);
 		break;
 
-    case NCP_SERVICE_REQUEST:	/* Server NCP Request */
-    case NCP_SERVICE_REPLY:		/* Server NCP Reply */
+	case NCP_SERVICE_REQUEST:	/* Server NCP Request */
+	case NCP_SERVICE_REPLY:		/* Server NCP Reply */
 	case NCP_ALLOCATE_SLOT:		/* Allocate Slot Request */
-	case NCP_WATCHDOG:		    /* Watchdog Packet */
+	case NCP_WATCHDOG:		/* Watchdog Packet */
 	case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
 	case NCP_POSITIVE_ACK:		/* Positive Acknowledgement */
 	default:
@@ -399,30 +398,26 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	switch (header.type) {
 
 	case NCP_ALLOCATE_SLOT:		/* Allocate Slot Request */
-    case NCP_SERVICE_REQUEST:	/* Server NCP Request */
+	case NCP_SERVICE_REQUEST:	/* Server NCP Request */
 	case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
-    case NCP_BROADCAST_SLOT:	/* Server Broadcast Packet */
+	case NCP_BROADCAST_SLOT:	/* Server Broadcast Packet */
 		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
-        if (tvb_get_guint8(tvb, commhdr+6)==0x68) {
-            ncp_nds_verb = tvb_get_ntohl(tvb, commhdr+4);
-            if (tvb_get_guint8(tvb, commhdr+7)==0x02) {  /* NDS Packet to decode */
-                dissect_nds_request(next_tvb, pinfo, nw_connection, 
-                    header.sequence, header.type, ncp_tree);
-            }
-            else
-            {
-            dissect_ncp_request(next_tvb, pinfo, nw_connection,
-                header.sequence, header.type, ncp_tree);
-            }
-        }
-        else
-        {
-        dissect_ncp_request(next_tvb, pinfo, nw_connection,
-			header.sequence, header.type, ncp_tree);
-        }
+		if (tvb_get_guint8(tvb, commhdr+6) == 0x68) {
+			ncp_nds_verb = tvb_get_ntohl(tvb, commhdr+4);
+			if (tvb_get_guint8(tvb, commhdr+7) == 0x02) {  /* NDS Packet to decode */
+				dissect_nds_request(next_tvb, pinfo, nw_connection, 
+				    header.sequence, header.type, ncp_tree);
+			} else {
+				dissect_ncp_request(next_tvb, pinfo, nw_connection,
+				    header.sequence, header.type, ncp_tree);
+			}
+		} else {
+			dissect_ncp_request(next_tvb, pinfo, nw_connection,
+			    header.sequence, header.type, ncp_tree);
+		}
 		break;
 
-    case NCP_SERVICE_REPLY:		/* Server NCP Reply */
+	case NCP_SERVICE_REPLY:		/* Server NCP Reply */
 	case NCP_POSITIVE_ACK:		/* Positive Acknowledgement */
 		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
 		dissect_ncp_reply(next_tvb, pinfo, nw_connection,
@@ -488,10 +483,11 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 		break;
 
-    case NCP_LIP_ECHO:		/* LIP Echo Packet */
-        proto_tree_add_text(ncp_tree, tvb, commhdr, -1,
-            "Lip Echo Packet");
-        break;
+	case NCP_LIP_ECHO:		/* LIP Echo Packet */
+		proto_tree_add_text(ncp_tree, tvb, commhdr, -1,
+		    "Lip Echo Packet");
+		break;
+
 	default:
 		if (tree) {
 			proto_tree_add_text(ncp_tree, tvb, commhdr + 6, -1,
@@ -719,5 +715,3 @@ proto_reg_handoff_ncp(void)
 
   data_handle = find_dissector("data");
 }
-
-
