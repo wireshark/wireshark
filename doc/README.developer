@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.89 2004/01/21 21:46:59 jmayer Exp $
+$Id: README.developer,v 1.90 2004/02/14 10:37:22 obiot Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -221,6 +221,18 @@ intercaps for functions and variable names. This is especially important if you
 are writing code that will be called from outside your code.  We are just
 trying to keep things consistent for other users.
 
+1.1.3 White space convention.
+
+Avoid using tab expansions different from 8 spaces, as not all text editors in
+use by the developers support this.
+
+When creating a new file, you are free to choose an indentation logic. Most of
+the files in Ethereal tend to use 2-space or 4-space indentation. You are
+encouraged to write a short comment on the indentation logic at the beginning
+of this new file.
+
+When editing an existing file, try following the existing indentation logic.
+
 1.2 Skeleton code.
 
 Ethereal requires certain things when setting up a protocol dissector. 
@@ -250,12 +262,12 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.89 2004/01/21 21:46:59 jmayer Exp $"
+The "$Id: README.developer,v 1.90 2004/02/14 10:37:22 obiot Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
-When creating a new file, it is fine to just write "$Id: README.developer,v 1.89 2004/01/21 21:46:59 jmayer Exp $" as RCS will
+When creating a new file, it is fine to just write "$Id: README.developer,v 1.90 2004/02/14 10:37:22 obiot Exp $" as RCS will
 automatically fill in the identifier at the time the file will be added to the
 CVS repository (checked in).
 
@@ -264,7 +276,7 @@ CVS repository (checked in).
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.89 2004/01/21 21:46:59 jmayer Exp $
+ * $Id: README.developer,v 1.90 2004/02/14 10:37:22 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -727,6 +739,14 @@ it yourself as part of the string being appended.)
 current value for the column, rather than replacing the value for that
 column.
 
+1.5.7 The col_append_sep_str and col_append_sep_fstr functions.
+
+In specific situations the developer knows that a column's value will be
+created in a stepwise manner, where the appended values are listed. Both
+'col_append_sep_str' and 'col_append_sep_fstr' functions will add an item
+separator between two consecutive items, and will not add the separator at the
+beginning of the column. The remainder of the work both functions do is
+identical to what 'col_append_str' and 'col_append_fstr' do.
 
 1.6 Constructing the protocol tree.
 
