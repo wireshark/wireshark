@@ -4587,6 +4587,8 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 
 	subtree = proto_item_add_subtree(item, ett_bc_oct_5b);
 
+	oct = tvb_get_guint8(tvb, curr_offset);
+
 	extended = (oct & 0x80) ? FALSE : TRUE;
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
@@ -4661,6 +4663,8 @@ bc_octet_6:
 
 	subtree = proto_item_add_subtree(item, ett_bc_oct_6);
 
+	oct = tvb_get_guint8(tvb, curr_offset);
+
 	extended = (oct & 0x80) ? FALSE : TRUE;
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
@@ -4705,6 +4709,8 @@ bc_octet_6:
 		"Octet 6a");
 
 	subtree = proto_item_add_subtree(item, ett_bc_oct_6a);
+
+	oct = tvb_get_guint8(tvb, curr_offset);
 
 	extended = (oct & 0x80) ? FALSE : TRUE;
 
@@ -4771,6 +4777,8 @@ bc_octet_6:
 		"Octet 6b");
 
 	subtree = proto_item_add_subtree(item, ett_bc_oct_6b);
+
+	oct = tvb_get_guint8(tvb, curr_offset);
 
 	extended = (oct & 0x80) ? FALSE : TRUE;
 
@@ -4845,6 +4853,8 @@ bc_octet_6:
 
 	subtree = proto_item_add_subtree(item, ett_bc_oct_6c);
 
+	oct = tvb_get_guint8(tvb, curr_offset);
+
 	extended = (oct & 0x80) ? FALSE : TRUE;
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
@@ -4908,6 +4918,8 @@ bc_octet_6:
 		"Octet 6d");
 
 	subtree = proto_item_add_subtree(item, ett_bc_oct_6d);
+
+	oct = tvb_get_guint8(tvb, curr_offset);
 
 	extended = (oct & 0x80) ? FALSE : TRUE;
 
@@ -4974,6 +4986,8 @@ bc_octet_6:
 		"Octet 6e");
 
 	subtree = proto_item_add_subtree(item, ett_bc_oct_6e);
+
+	oct = tvb_get_guint8(tvb, curr_offset);
 
 	extended = (oct & 0x80) ? FALSE : TRUE;
 
@@ -5049,6 +5063,8 @@ bc_octet_6:
 		"Octet 6f");
 
 	subtree = proto_item_add_subtree(item, ett_bc_oct_6f);
+
+	oct = tvb_get_guint8(tvb, curr_offset);
 
 	extended = (oct & 0x80) ? FALSE : TRUE;
 
@@ -5129,6 +5145,8 @@ bc_octet_6:
 		"Octet 6g");
 
 	subtree = proto_item_add_subtree(item, ett_bc_oct_6g);
+
+	oct = tvb_get_guint8(tvb, curr_offset);
 
 	extended = (oct & 0x80) ? FALSE : TRUE;
 
@@ -5217,6 +5235,8 @@ bc_octet_7:
 	subtree = proto_item_add_subtree(item, ett_bc_oct_7);
 
 	extended = (oct & 0x80) ? FALSE : TRUE;
+
+	oct = tvb_get_guint8(tvb, curr_offset);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
 	proto_tree_add_text(subtree,
