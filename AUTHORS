@@ -604,6 +604,7 @@ Albert Chin <china[AT]thewrittenword.com> {
 	Fixes to Lemon to get it to compile on platforms (such as some
 	    versions of Tru64 UNIX) that define TRUE and FALSE
 	Fixes to some Tru64 compiler warninngs
+	Fix to TCP graph code to eliminate a GCCism
 }
 
 Charles Levert <charles[AT]comm.polymtl.ca> {

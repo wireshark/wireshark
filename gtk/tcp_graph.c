@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.10 2001/12/12 21:38:59 gerald Exp $
+ * $Id: tcp_graph.c,v 1.11 2002/01/03 20:01:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -508,7 +508,7 @@ static int rint (double );	/* compiler template for Windows */
 
 static char helptext[] =
 #ifndef WIN32
-"Here's what you can do:\n
+"Here's what you can do:\n\
 - Left Mouse Button selects segment in ethereal's packet list\n\
 - Middle Mouse Button zooms in\n\
 - <shift>-Middle Button zooms out\n\
@@ -516,7 +516,7 @@ static char helptext[] =
 - <ctrl>-Right Mouse Button displays a portion of graph magnified\n\
 - Space toggles crosshairs\n\
 - 's' toggles relative/absolute sequence numbers\n\
-- 't' toggles time origin\n
+- 't' toggles time origin\n\
 ";
 #else /* WIN32 */
 "Here's what you can do:\n\
