@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.26 2001/10/11 02:17:29 gerald Exp $
+ * $Id: prefs_dlg.c,v 1.27 2001/10/13 07:47:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -340,7 +340,7 @@ prefs_cb(GtkWidget *w, gpointer dummy) {
   gtk_widget_show(GTK_WIDGET(frame));
   print_pg = printer_prefs_show();
   gtk_container_add(GTK_CONTAINER(frame), print_pg);
-  gtk_object_set_data(GTK_OBJECT(prefs_w), E_PRINT_PAGE_KEY, frame);
+  gtk_object_set_data(GTK_OBJECT(prefs_w), E_PRINT_PAGE_KEY, print_pg);
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
   strcpy(label_str, "Printing");
   ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.ctree), NULL, NULL, 
@@ -354,7 +354,7 @@ prefs_cb(GtkWidget *w, gpointer dummy) {
   gtk_widget_show(GTK_WIDGET(frame));
   column_pg = column_prefs_show();
   gtk_container_add(GTK_CONTAINER(frame), column_pg);
-  gtk_object_set_data(GTK_OBJECT(prefs_w), E_COLUMN_PAGE_KEY, frame);
+  gtk_object_set_data(GTK_OBJECT(prefs_w), E_COLUMN_PAGE_KEY, column_pg);
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
   strcpy(label_str, "Columns");
   ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.ctree), NULL, NULL, 
@@ -368,7 +368,7 @@ prefs_cb(GtkWidget *w, gpointer dummy) {
   gtk_widget_show(GTK_WIDGET(frame));
   stream_pg = stream_prefs_show();
   gtk_container_add(GTK_CONTAINER(frame), stream_pg);
-  gtk_object_set_data(GTK_OBJECT(prefs_w), E_STREAM_PAGE_KEY, frame);
+  gtk_object_set_data(GTK_OBJECT(prefs_w), E_STREAM_PAGE_KEY, stream_pg);
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
   strcpy(label_str, "TCP Streams");
   ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.ctree), NULL, NULL, 
@@ -382,7 +382,7 @@ prefs_cb(GtkWidget *w, gpointer dummy) {
   gtk_widget_show(GTK_WIDGET(frame));
   gui_pg = gui_prefs_show();
   gtk_container_add(GTK_CONTAINER(frame), gui_pg);
-  gtk_object_set_data(GTK_OBJECT(prefs_w), E_GUI_PAGE_KEY, frame);
+  gtk_object_set_data(GTK_OBJECT(prefs_w), E_GUI_PAGE_KEY, gui_pg);
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
   strcpy(label_str, "User Interface");
   ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.ctree), NULL, NULL, 
