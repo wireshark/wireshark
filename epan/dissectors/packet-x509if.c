@@ -216,7 +216,7 @@ dissect_x509if_Name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet
 }
 
 
-static int
+int
 dissect_x509if_DistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_x509if_RDNSequence(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 

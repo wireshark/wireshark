@@ -10,6 +10,7 @@ Attribute
 AttributeType
 Name
 RelativeDistinguishedName
+DistinguishedName
 
 #.NO_EMIT
 
