@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.5 1999/07/29 05:47:07 gram Exp $
+ * $Id: proto.c,v 1.6 1999/07/31 02:15:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -509,7 +509,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_UINT16:
 		case FT_UINT32:
 			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %d", fi->hfinfo->name,
+				"%s: %u", fi->hfinfo->name,
 				fi->value.numeric);
 			break;
 
