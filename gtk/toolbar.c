@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.12 2003/10/29 22:39:49 guy Exp $
+ * $Id: toolbar.c,v 1.13 2003/11/07 01:29:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -176,8 +176,8 @@ toolbar_redraw_all(void)
 #endif /* GTK_MAJOR_VERSION */
 }
 
-
-/* set toolbar state "have a capture file" */
+/* Enable or disable toolbar items based on whether you have a capture file
+   you've finished reading. */
 void set_toolbar_for_capture_file(gboolean have_capture_file) {
     if (toolbar_init) {
         gtk_widget_set_sensitive(save_button, have_capture_file);
@@ -186,15 +186,24 @@ void set_toolbar_for_capture_file(gboolean have_capture_file) {
     }
 }
 
-
-#ifdef HAVE_LIBPCAP
+/* Enable or disable menu items based on whether you have an unsaved
+   capture file you've finished reading. */
+void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file) {
+    if (toolbar_init) {
+        gtk_widget_set_sensitive(save_button, have_unsaved_capture_file);
+    }
+}
 
 /* set toolbar state "have a capture in progress" */
 void set_toolbar_for_capture_in_progress(gboolean capture_in_progress) {
 
     if (toolbar_init) {
+#ifdef HAVE_LIBPCAP
         gtk_widget_set_sensitive(new_button, !capture_in_progress);
+#endif
         gtk_widget_set_sensitive(open_button, !capture_in_progress);
+
+#ifdef HAVE_LIBPCAP
         /*
          * XXX - this doesn't yet work in Win32, as in the menus :-(
          */
@@ -206,13 +215,12 @@ void set_toolbar_for_capture_in_progress(gboolean capture_in_progress) {
             gtk_widget_show(new_button);
             gtk_widget_hide(stop_button);
         }
-#else
+#else /* _WIN32 */
         gtk_widget_set_sensitive(new_button, !capture_in_progress);
 #endif /* _WIN32 */
+#endif /* HAVE_LIBPCAP */
     }
 }
-
-#endif /* HAVE_LIBPCAP */
 
 /* set toolbar state "have packets captured" */
 void set_toolbar_for_captured_packets(gboolean have_captured_packets) {

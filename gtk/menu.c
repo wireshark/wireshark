@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.105 2003/11/06 23:02:06 guy Exp $
+ * $Id: menu.c,v 1.106 2003/11/07 01:29:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -694,7 +694,6 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 void
 set_menus_for_capture_file(gboolean have_capture_file)
 {
-  set_menu_sensitivity(main_menu_factory, "/File/Open...", have_capture_file);
   set_menu_sensitivity(main_menu_factory, "/File/Save As...",
       have_capture_file);
   set_menu_sensitivity(main_menu_factory, "/File/Close", have_capture_file);
@@ -709,6 +708,7 @@ set_menus_for_unsaved_capture_file(gboolean have_unsaved_capture_file)
 {
   set_menu_sensitivity(main_menu_factory, "/File/Save",
       have_unsaved_capture_file);
+  set_toolbar_for_unsaved_capture_file(have_unsaved_capture_file);
 }
 
 /* Enable or disable menu items based on whether there's a capture in
@@ -728,8 +728,8 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
   set_menu_sensitivity(main_menu_factory, "/Capture/Stop",
       capture_in_progress);
 #endif
-  set_toolbar_for_capture_in_progress(capture_in_progress);
 #endif /* HAVE_LIBPCAP */
+  set_toolbar_for_capture_in_progress(capture_in_progress);
 }
 
 /* Enable or disable menu items based on whether you have some captured

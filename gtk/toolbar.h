@@ -2,7 +2,7 @@
  * Definitions for toolbar utility routines
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.h,v 1.3 2003/10/16 21:19:12 guy Exp $
+ * $Id: toolbar.h,v 1.4 2003/11/07 01:29:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,6 +27,7 @@
 #define __TOOLBAR_H__
 
 void set_toolbar_for_capture_file(gboolean have_capture_file);
+void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file);
 void set_toolbar_for_capture_in_progress(gboolean have_capture_file);
 void set_toolbar_for_captured_packets(gboolean have_captured_packets);
 
