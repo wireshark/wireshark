@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.54 2002/01/10 11:05:50 guy Exp $
+ * $Id: capture_dlg.c,v 1.55 2002/01/11 08:55:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -114,9 +114,9 @@ capture_stop_cb(GtkWidget *w, gpointer d)
 }
 
 /*
- * Keep a static pointer to the current "Capture Preferences" window, if
+ * Keep a static pointer to the current "Capture Options" window, if
  * any, so that if somebody tries to do "Capture:Start" while there's
- * already a "Capture Preferences" window up, we just pop up the existing
+ * already a "Capture Options" window up, we just pop up the existing
  * one, rather than creating a new one.
  */
 static GtkWidget *cap_open_w;
@@ -145,7 +145,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   char          err_str[PCAP_ERRBUF_SIZE];
 
   if (cap_open_w != NULL) {
-    /* There's already a "Capture Preferences" dialog box; reactivate it. */
+    /* There's already a "Capture Options" dialog box; reactivate it. */
     reactivate_window(cap_open_w);
     return;
   }
@@ -180,7 +180,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
 			err_str);
   }
   
-  cap_open_w = dlg_window_new("Ethereal: Capture Preferences");
+  cap_open_w = dlg_window_new("Ethereal: Capture Options");
   gtk_signal_connect(GTK_OBJECT(cap_open_w), "destroy",
 	GTK_SIGNAL_FUNC(capture_prep_destroy_cb), NULL);
 
@@ -731,7 +731,7 @@ capture_prep_destroy_cb(GtkWidget *win, gpointer user_data)
   GtkWidget *fs;
 
   /* Is there a filter edit/selection dialog associated with this
-     Capture Preferences dialog? */
+     Capture Options dialog? */
   capture_prep_filter_w = gtk_object_get_data(GTK_OBJECT(win), E_FILT_DIALOG_PTR_KEY);
 
   if (capture_prep_filter_w != NULL) {
@@ -748,7 +748,7 @@ capture_prep_destroy_cb(GtkWidget *win, gpointer user_data)
     gtk_widget_destroy(fs);
   }
 
-  /* Note that we no longer have a "Capture Preferences" dialog box. */
+  /* Note that we no longer have a "Capture Options" dialog box. */
   cap_open_w = NULL;
 }
 
