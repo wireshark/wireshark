@@ -5,7 +5,7 @@
  *
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.52 2002/10/24 06:17:34 guy Exp $
+ * $Id: packet-netbios.c,v 1.53 2002/12/03 08:24:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,7 +111,7 @@ static int hf_netb_fragment = -1;
 static int hf_netb_fragment_overlap = -1;
 static int hf_netb_fragment_overlap_conflict = -1;
 static int hf_netb_fragment_multiple_tails = -1;
-static int hf_netb_fragment_too_long_segment = -1;
+static int hf_netb_fragment_too_long_fragment = -1;
 static int hf_netb_fragment_error = -1;
 
 static gint ett_netb = -1;
@@ -121,7 +121,7 @@ static gint ett_netb_status = -1;
 static gint ett_netb_fragments = -1;
 static gint ett_netb_fragment = -1;
 
-fragment_items netbios_frag_items = {
+static const fragment_items netbios_frag_items = {
 	&ett_netb_fragment,
 	&ett_netb_fragments,
 	&hf_netb_fragments,
@@ -129,7 +129,7 @@ fragment_items netbios_frag_items = {
 	&hf_netb_fragment_overlap,
 	&hf_netb_fragment_overlap_conflict,
 	&hf_netb_fragment_multiple_tails,
-	&hf_netb_fragment_too_long_segment,
+	&hf_netb_fragment_too_long_fragment,
 	&hf_netb_fragment_error,
 	"fragments"
 };
@@ -182,7 +182,7 @@ static const value_string nb_name_type_vals[] = {
 static GHashTable *netbios_fragment_table = NULL;
 static GHashTable *netbios_reassembled_table = NULL;
 
-/* desegmentation of NetBIOS Frame */
+/* defragmentation of NetBIOS Frame */
 static gboolean netbios_defragment = TRUE;
 
 /* See
@@ -1375,26 +1375,26 @@ void proto_register_netbios(void)
 			"", HFILL }},
 
 		{ &hf_netb_fragment_overlap,
-		{ "Segment overlap",	"netbios.segment.overlap", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, "Segment overlaps with other segments", HFILL }},
+		{ "Fragment overlap",	"netbios.fragment.overlap", FT_BOOLEAN, BASE_NONE,
+			NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
 
 		{ &hf_netb_fragment_overlap_conflict,
-		{ "Conflicting data in segment overlap", "netbios.segment.overlap.conflict",
+		{ "Conflicting data in fragment overlap", "netbios.fragment.overlap.conflict",
 			FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, "Overlapping segments contained conflicting data", HFILL }},
+			NULL, 0x0, "Overlapping fragments contained conflicting data", HFILL }},
 
 		{ &hf_netb_fragment_multiple_tails,
-		{ "Multiple tail segments found", "netbios.segment.multipletails",
+		{ "Multiple tail fragments found", "netbios.fragment.multipletails",
 			FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, "Several tails were found when desegmenting the packet", HFILL }},
+			NULL, 0x0, "Several tails were found when defragmenting the packet", HFILL }},
 
-		{ &hf_netb_fragment_too_long_segment,
-		{ "Segment too long",	"netbios.segment.toolongsegment", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, "Segment contained data past end of packet", HFILL }},
+		{ &hf_netb_fragment_too_long_fragment,
+		{ "Fragment too long",	"netbios.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE,
+			NULL, 0x0, "Fragment contained data past end of packet", HFILL }},
 
 		{ &hf_netb_fragment_error,
-		{"Desegmentation error",	"netbios.segment.error", FT_NONE, BASE_NONE,
-			NULL, 0x0, "Desegmentation error due to illegal segments", HFILL }},
+		{"Defragmentation error",	"netbios.fragment.error", FT_NONE, BASE_NONE,
+			NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
 
 		{ &hf_netb_fragment,
 		{ "NetBIOS Fragment",		"netbios.fragment", FT_NONE, BASE_NONE,
@@ -1415,7 +1415,7 @@ void proto_register_netbios(void)
 	netbios_module = prefs_register_protocol(proto_netbios, NULL);
 	prefs_register_bool_preference(netbios_module, "defragment",
 	    "Defragment all NetBIOS messages spanning multiple frames",
-	    "Whether the NetBIOS dissector should defragment all messages spanning multiple framess",
+	    "Whether the NetBIOS dissector should defragment all messages spanning multiple frames",
 	    &netbios_defragment);
 
 	register_init_routine(netbios_init);
