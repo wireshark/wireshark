@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.7 2002/04/28 22:08:50 guy Exp $
+ * $Id: packet-afp.c,v 1.8 2002/04/28 22:16:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2252,10 +2252,10 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	afp_command = request_val->command;
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 			     val_to_str(afp_command, CommandCode_vals,
 					"Unknown command (0x%02x)"),
-			     aspinfo->reply ? " reply" : "");
+			     aspinfo->reply ? "reply" : "request");
 	}
 
 	if (tree)
