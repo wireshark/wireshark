@@ -82,8 +82,8 @@ Extensions ::= SEQUENCE OF Extension
 --  specification of those individual extensions shall include the rules for the significance of the order therein
 Extension ::= SEQUENCE {
   extnId     OBJECT IDENTIFIER,
-  critical   BOOLEAN DEFAULT FALSE,
-  extnValue  Any
+  critical   BOOLEAN OPTIONAL,
+  extnValue  OCTET STRING
 --    contains a DER encoding of a value of type &ExtnType
 --    for the extension object identified by extnId 
 }

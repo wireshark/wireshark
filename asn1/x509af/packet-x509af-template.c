@@ -47,7 +47,6 @@
 static int proto_x509af = -1;
 static int hf_x509af_algorithm_id = -1;
 static int hf_x509af_extension_id = -1;
-static int hf_x509af_critical = -1;               /* BOOLEAN */
 #include "packet-x509af-hf.c"
 
 /* Initialize the subtree pointers */
@@ -57,46 +56,7 @@ static char algorithm_id[64]; /*64 chars should be long enough? */
 
 
 static char extension_id[64]; /*64 chars should be long enough? */
-static int 
-dissect_hf_x509af_extension_id(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) 
-{
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_x509af_extension_id, extension_id);
-  return offset;
-}
-/* BOOLEAN from template, remove later if the compiler starts generating it */
-static int
-dissect_x509af_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_boolean(pinfo, tree, tvb, offset, hf_index);
 
-  return offset;
-}
-static int dissect_critical(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509af_BOOLEAN(FALSE, tvb, offset, pinfo, tree, hf_x509af_critical);
-}
-
-static int 
-dissect_hf_x509af_extension_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) 
-{
-  offset=call_ber_oid_callback(extension_id, tvb, offset, pinfo, tree);
-
-  return offset;
-}
-
-static const ber_sequence Extension_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_x509af_extension_id },
-  { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_critical },
-  { BER_CLASS_ANY, 0, 0, dissect_hf_x509af_extension_type },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_x509af_Extension(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                Extension_sequence, hf_index, ett_x509af_Extension);
-
-  return offset;
-}
 
 #include "packet-x509af-fn.c"
 
@@ -114,10 +74,6 @@ void proto_register_x509af(void) {
       { "Extension Id", "x509af.extension.id",
         FT_STRING, BASE_NONE, NULL, 0,
         "Extension Id", HFILL }},
-    { &hf_x509af_critical,
-      { "critical", "x509af.critical",
-        FT_BOOLEAN, 8, NULL, 0,
-        "Extension/critical", HFILL }},
 #include "packet-x509af-hfarr.c"
   };
 

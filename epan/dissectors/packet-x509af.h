@@ -8,7 +8,7 @@
 /* packet-x509af.h
  * Routines for X.509 Authentication Framework packet dissection
  *
- * $Id: packet-x509af-template.h 12203 2004-10-05 09:18:55Z guy $
+ * $Id: packet-x509af-template.h 12437 2004-10-30 02:18:44Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
