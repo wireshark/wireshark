@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.16 2003/06/13 07:27:46 guy Exp $
+ * $Id: semcheck.c,v 1.17 2003/06/13 07:39:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -423,7 +423,7 @@ check_drange_node_sanity(gpointer data, gpointer user_data)
 		 */
 		start_offset = drange_node_get_start_offset(drnode);
 		end_offset = drange_node_get_end_offset(drnode);
-		if (start_offset >= end_offset) {
+		if (start_offset > end_offset) {
 			if (args->err_node == NULL)
 				args->err_node = drnode;
 		}
@@ -448,10 +448,10 @@ check_drange_sanity(stnode_t *st)
 		hfinfo = sttype_range_hfinfo(st);
 		start_offset = drange_node_get_start_offset(args.err_node);
 		end_offset = drange_node_get_end_offset(args.err_node);
-		dfilter_fail("Range %d-%d specified for \"%s\" isn't valid, as %d isn't greater than %d",
+		dfilter_fail("Range %d-%d specified for \"%s\" isn't valid, as %d is greater than %d",
 		    start_offset, end_offset,
 		    hfinfo->abbrev,
-		    end_offset, start_offset);
+		    start_offset, end_offset);
 		THROW(TypeError);
 	}
 }
