@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.51 2003/01/11 04:42:16 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.52 2003/01/11 07:52:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -97,6 +97,34 @@ extern int hf_nt_string_size;
 gint ett_nt_unicode_string = -1;
 static gint ett_nt_policy_hnd = -1;
 
+/*
+ * This handles an array of Unicode characters.
+ */
+static int
+dissect_ndr_ucodechars(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                   proto_tree *tree, char *drep _U_,
+                   int hfindex, int length, char **text)
+{
+    dcerpc_info *di;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
+
+    if (offset % 2)
+        offset++;
+
+    if (tree) {
+        *text = fake_unicode(tvb, offset, length);
+        proto_tree_add_string (tree, hfindex, tvb, offset, length * 2, *text);
+    } else
+        *text = NULL;
+
+    return offset + length * 2;
+}
+
 /* this function will dissect the
      [size_is(size/2), length_is(len/2), ptr] unsigned short *string;
   part of the unicode string
@@ -136,10 +164,8 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
 
 	old_offset=offset;
 
-	offset = dissect_ndr_uint16s(
-		tvb, offset, pinfo, tree, drep, hf_nt_str, len);
-
-	text = fake_unicode(tvb, offset - len * 2, len);
+	offset = dissect_ndr_ucodechars(
+		tvb, offset, pinfo, tree, drep, hf_nt_str, len, &text);
 
 	/* need to test di->levels before doing the proto_item_append_text()
 	   since netlogon has these objects as top level objects in its representation
@@ -158,7 +184,8 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
 			}
 		}
 	}
-	g_free(text);
+	if (text != NULL)
+		g_free(text);
   	return offset;
 }
 
