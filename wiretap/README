@@ -1,4 +1,4 @@
-$Id: README,v 1.15 1999/08/20 07:51:22 guy Exp $
+$Id: README,v 1.16 1999/08/20 07:55:49 guy Exp $
 
 Wiretap is a library that is being developed as a future replacement for
 libpcap, the current standard Unix library for packet capturing. Libpcap is
@@ -90,6 +90,11 @@ Network Associates' Sniffer Basic (formerly NetXRay from Cinco Networks)
 file format is now supported, at least for Ethernet and token-ring. 
 Network Associates' Windows Sniffer Pro appears to use a variant of that
 format; it's supported to the same extent.
+
+RADCOM WAN/LAN Analyzers
+------------------------
+Olivier Abad has added code to read Ethernet and LAPB captures from
+RADCOM WAN/LAN Analyzers (see http://www.radcom-inc.com/).
 
 Gilbert Ramirez <gram@verdict.uthscsa.edu>
 Guy Harris <guy@netapp.com>
