@@ -2,7 +2,7 @@
 # Automake file for the EPAN library
 # (Ethereal Protocol ANalyzer Library)
 #
-# $Id: Makefile.am,v 1.40 2004/03/13 10:15:35 jmayer Exp $
+# $Id: Makefile.am,v 1.41 2004/03/17 17:46:40 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -119,7 +119,7 @@ MAINTAINERCLEANFILES =	\
 #
 # Add the object files for missing routines, if any.
 #
-libethereal_la_LIBADD = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ dfilter/libdfilter.la ftypes/libftypes.la
+libethereal_la_LIBADD = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ dfilter/libdfilter.la ftypes/libftypes.la @KRB5_LIBS@
 libethereal_la_DEPENDENCIES = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ dfilter/libdfilter.la ftypes/libftypes.la
 
 ../packet-ncp2222.c : $(srcdir)/../ncp2222.py
@@ -207,6 +207,7 @@ plugin_src = \
 	../plugins/docsis/packet-dscrsp.c \
 	../plugins/docsis/packet-dsdreq.c \
 	../plugins/docsis/packet-dsdrsp.c \
+	../plugins/docsis/packet-intrngreq.c \
 	../plugins/docsis/packet-macmgmt.c \
 	../plugins/docsis/packet-map.c \
 	../plugins/docsis/packet-regack.c \
@@ -215,6 +216,7 @@ plugin_src = \
 	../plugins/docsis/packet-rngreq.c \
 	../plugins/docsis/packet-rngrsp.c \
 	../plugins/docsis/packet-tlv.c \
+	../plugins/docsis/packet-type29ucd.c \
 	../plugins/docsis/packet-uccreq.c \
 	../plugins/docsis/packet-uccrsp.c \
 	../plugins/docsis/packet-ucd.c \
