@@ -1,7 +1,7 @@
 /* dfilter.h
  * Definitions for display filters
  *
- * $Id: dfilter.h,v 1.9 1999/08/20 20:37:46 gram Exp $
+ * $Id: dfilter.h,v 1.10 1999/08/26 06:20:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,6 +48,9 @@ typedef struct {
 
 /* Initialization of the symbol table. Called once during program startup */
 void dfilter_init(void);
+
+/* Free the memory used by the symbol table. Called at program shutdown */
+void dfilter_cleanup(void);
 
 /* Allocate and initialize new dfilter struct. Returns pointer to new dfilter */
 dfilter* dfilter_new(void);

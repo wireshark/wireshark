@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.107 1999/08/25 22:19:55 gram Exp $
+ * $Id: ethereal.c,v 1.108 1999/08/26 06:20:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1008,6 +1008,12 @@ ethereal_proto_init(void) {
   dfilter_init();
 }
 
+static void
+ethereal_proto_cleanup(void) {
+	proto_cleanup();
+	dfilter_cleanup();
+}
+
 static void 
 print_usage(void) {
 
@@ -1471,6 +1477,8 @@ main(int argc, char *argv[])
   }
 
   gtk_main();
+
+  ethereal_proto_cleanup();
 
   exit(0);
 }

@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.6 1999/08/14 01:26:39 gram Exp $
+ * $Id: proto.h,v 1.7 1999/08/26 06:20:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -118,7 +118,12 @@ typedef struct proto_tree_search_info {
 	const guint8	*packet_data;
 } proto_tree_search_info;
 
+/* Sets up memory used by proto routines. Called at program startup */
 void proto_init(void);
+
+/* Frees memory used by proto routines. Called at program shutdown */
+void proto_cleanup(void);
+
 void proto_item_set_len(proto_item *ti, gint length);
 proto_tree* proto_tree_create_root(void);
 void proto_tree_free(proto_tree *tree);

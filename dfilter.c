@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.15 1999/08/25 22:54:17 gram Exp $
+ * $Id: dfilter.c,v 1.16 1999/08/26 06:20:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,6 +94,8 @@ static GArray* get_values_from_ptree(dfilter_node *dnode, proto_tree *ptree, con
 static GArray* get_values_from_dfilter(dfilter_node *dnode, GNode *gnode);
 static gboolean check_existence_in_ptree(dfilter_node *dnode, proto_tree *ptree);
 static void clear_byte_array(gpointer data, gpointer user_data);
+static void unlink_gnode_children(gpointer gnode_ptr, gpointer user_data);
+static void destroy_gnode(gpointer gnode_ptr, gpointer user_data);
 
 /* this is not so pretty. I need my own g_array "function" (macro) to
  * retreive the pointer to the data stored in an array cell. I need this
@@ -120,7 +122,13 @@ dfilter_init(void)
 		}
 	}
 }
-/* XXX - I should eventually g_tree_destroy(dfilter_tokens), when ethereal shuts down */
+
+void
+dfilter_cleanup(void)
+{
+	if (dfilter_tokens)
+		g_tree_destroy(dfilter_tokens);
+}
 
 /* Compiles the textual representation of the display filter into a tree
  * of operations to perform. Can be called multiple times, compiling a new
@@ -146,7 +154,10 @@ dfilter_compile(dfilter *df, gchar *dfilter_text)
 	/* tell the scanner to use this string as input */
 	dfilter_scanner_text(df->dftext);
 
-	/* Assign global variable so yyparse knows which dfilter we're talking about */
+	/* Assign global variable so dfilter_parse knows which dfilter we're
+	 * talking about. Reset the global error message. We don't have to set
+	 * gnode_slist since it will always be NULL by the time we get here.
+	 */
 	global_df = df;
 	dfilter_error_msg = NULL;
 
@@ -165,6 +176,12 @@ dfilter_compile(dfilter *df, gchar *dfilter_text)
 				"Unable to parse filter string \"%s\".",
 				dfilter_text);
 		}
+	}
+
+	/* Clear the list of allocated nodes */
+	if (gnode_slist) {
+		g_slist_free(gnode_slist);
+		gnode_slist = NULL;
 	}
 
 	return retval;
@@ -233,9 +250,6 @@ dfilter_destroy(dfilter *df)
 }
 
 
-
-
-
 static void
 clear_byte_array(gpointer data, gpointer user_data)
 {
@@ -244,14 +258,50 @@ clear_byte_array(gpointer data, gpointer user_data)
 		g_byte_array_free(barray, TRUE);
 }
 
+/* Called when the yacc grammar finds a parsing error */
 void
 dfilter_error(char *s)
 {
-	/* Setting to NULL here is fine, since global_df is a copy of a pointer.
-           dfilter_clear_filter() will free the memory when called from the
-	   next dfilter_compile() */
-	global_df->dftree = NULL;
+	/* The only data we have to worry about freeing is the
+	 * data used by any GNodes that were allocated during
+	 * parsing. The data in those Gnodes will be cleared
+	 * later via df->node_memchunk. Use gnode_slist to
+	 * clear the GNodes, and set global_df to NULL just
+	 * to be tidy.
+	 */
+	global_df = NULL;
+
+	/* I don't want to call g_node_destroy on each GNode ptr,
+	 * since that function frees any children. That could
+	 * mess me up later in the list if I try to free a GNode
+	 * that has already been freed. So, I'll unlink the
+	 * children firs,t then call g_node_destroy on each GNode ptr.
+	 */
+	if (!gnode_slist)
+		return;
+
+	g_slist_foreach(gnode_slist, unlink_gnode_children, NULL);
+	g_slist_foreach(gnode_slist, destroy_gnode, NULL);
+
+	/* notice we don't clear gnode_slist itself. dfilter_compile()
+	 * will take care of that.
+	 */
 }
+
+static void
+unlink_gnode_children(gpointer gnode_ptr, gpointer user_data)
+{
+	if (gnode_ptr)
+		g_node_unlink((GNode*) gnode_ptr);
+}
+
+static void
+destroy_gnode(gpointer gnode_ptr, gpointer user_data)
+{
+	if (gnode_ptr)
+		g_node_destroy((GNode*) gnode_ptr);
+}
+
 
 /* lookup an abbreviation in our token tree, returing the ID #
  * If the abbreviation doesn't exit, returns 0 */

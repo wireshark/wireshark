@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.14 1999/08/20 21:19:27 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.15 1999/08/26 06:20:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -97,6 +97,13 @@ static int ether_str_to_guint8_array(const char *s, guint8 *mac);
  * dfilter_compile communicates with us.
  */
 dfilter *global_df = NULL;;
+
+/* list of GNodes allocated during parsing. If the parsing fails, we'll
+ * use this list to free all the GNodes. If the parsing succeeds, we'll
+ * just clear this list since dfilter_clear_filter() will take care of
+ * freeing the GNodes when they're no longer needed.
+ */
+GSList *gnode_slist = NULL;
 
 %}
 
@@ -363,6 +370,7 @@ dfilter_mknode_join(GNode *n1, enum node_type ntype, int operand, GNode *n2)
 	g_node_append(gnode_root, n1);
 	g_node_append(gnode_root, n2);
 
+	gnode_slist = g_slist_append(gnode_slist, gnode_root);
 	return gnode_root;
 }
 
@@ -382,6 +390,7 @@ dfilter_mknode_unary(int operand, GNode *n2)
 	gnode_root = g_node_new(node_root);
 	g_node_append(gnode_root, n2);
 
+	gnode_slist = g_slist_append(gnode_slist, gnode_root);
 	return gnode_root;
 }
 
@@ -400,6 +409,7 @@ dfilter_mknode_numeric_variable(gint id)
 	node->value.variable = id;
 	gnode = g_node_new(node);
 
+	gnode_slist = g_slist_append(gnode_slist, gnode);
 	return gnode;
 }
 
@@ -417,6 +427,7 @@ dfilter_mknode_ether_variable(gint id)
 	node->value.variable = id;
 	gnode = g_node_new(node);
 
+	gnode_slist = g_slist_append(gnode_slist, gnode);
 	return gnode;
 }
 
@@ -434,6 +445,7 @@ dfilter_mknode_ipxnet_variable(gint id)
 	node->value.variable = id;
 	gnode = g_node_new(node);
 
+	gnode_slist = g_slist_append(gnode_slist, gnode);
 	return gnode;
 }
 
@@ -451,6 +463,7 @@ dfilter_mknode_ipv4_variable(gint id)
 	node->value.variable = id;
 	gnode = g_node_new(node);
 
+	gnode_slist = g_slist_append(gnode_slist, gnode);
 	return gnode;
 }
 
@@ -470,6 +483,7 @@ dfilter_mknode_bytes_variable(gint id, gint offset, guint length)
 	node->length = length;
 	gnode = g_node_new(node);
 
+	gnode_slist = g_slist_append(gnode_slist, gnode);
 	return gnode;
 }
 
@@ -487,6 +501,7 @@ dfilter_mknode_boolean_variable(gint id)
 	node->value.variable = id;
 	gnode = g_node_new(node);
 
+	gnode_slist = g_slist_append(gnode_slist, gnode);
 	return gnode;
 }
 
@@ -504,6 +519,7 @@ dfilter_mknode_numeric_value(guint32 val)
 	node->value.numeric = val;
 	gnode = g_node_new(node);
 
+	gnode_slist = g_slist_append(gnode_slist, gnode);
 	return gnode;
 }
 
@@ -531,6 +547,7 @@ dfilter_mknode_ether_value(gchar *byte_string)
 	}
 
 	gnode = g_node_new(node);
+	gnode_slist = g_slist_append(gnode_slist, gnode);
 	return gnode;
 }
 
@@ -548,6 +565,7 @@ dfilter_mknode_ipxnet_value(guint32 ipx_net_val)
 	node->value.numeric = ipx_net_val;
 	gnode = g_node_new(node);
 
+	gnode_slist = g_slist_append(gnode_slist, gnode);
 	return gnode;
 }
 
@@ -566,6 +584,7 @@ dfilter_mknode_ipv4_value(char *host)
 	node->value.numeric = htonl(node->value.numeric);
 	gnode = g_node_new(node);
 
+	gnode_slist = g_slist_append(gnode_slist, gnode);
 	return gnode;
 }
 
@@ -585,6 +604,7 @@ dfilter_mknode_bytes_value(GByteArray *barray)
 	node->length = barray->len;
 	gnode = g_node_new(node);
 
+	gnode_slist = g_slist_append(gnode_slist, gnode);
 	return gnode;
 }
 
@@ -602,6 +622,7 @@ dfilter_mknode_boolean_value(gint truth_value)
 	node->value.boolean = truth_value == TOK_TRUE ? TRUE : FALSE;
 	gnode = g_node_new(node);
 
+	gnode_slist = g_slist_append(gnode_slist, gnode);
 	return gnode;
 }
 
@@ -631,6 +652,7 @@ dfilter_mknode_existence(gint id)
 	node->value.variable = id;
 	gnode = g_node_new(node);
 
+	gnode_slist = g_slist_append(gnode_slist, gnode);
 	return gnode;
 }
 

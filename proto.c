@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.16 1999/08/20 06:55:06 guy Exp $
+ * $Id: proto.c,v 1.17 1999/08/26 06:20:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -167,7 +167,7 @@ proto_init(void)
 	if (gmc_item_labels)
 		g_mem_chunk_destroy(gmc_item_labels);
 	if (gpa_hfinfo)
-		g_ptr_array_free(gpa_hfinfo, FALSE); /* ever needs to be TRUE?  */
+		g_ptr_array_free(gpa_hfinfo, FALSE);
 
 	gmc_hfinfo = g_mem_chunk_new("gmc_hfinfo",
 		sizeof(struct header_field_info), 50 * sizeof(struct 
@@ -244,6 +244,19 @@ proto_init(void)
 		/* ftype */	FT_TEXT_ONLY,
 		/* parent */	-1,
 		/* vals[] */	NULL );
+}
+
+void
+proto_cleanup(void)
+{
+	if (gmc_hfinfo)
+		g_mem_chunk_destroy(gmc_hfinfo);
+	if (gmc_field_info)
+		g_mem_chunk_destroy(gmc_field_info);
+	if (gmc_item_labels)
+		g_mem_chunk_destroy(gmc_item_labels);
+	if (gpa_hfinfo)
+		g_ptr_array_free(gpa_hfinfo, FALSE);
 }
 
 /* frees the resources that the dissection a proto_tree uses */
