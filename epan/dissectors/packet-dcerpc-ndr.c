@@ -126,6 +126,28 @@ dissect_ndr_duint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                   tree, drep, hfindex, pdata);
 }
 
+/* uint64 : hyper
+   a 64 bit integer  aligned to proper 8 byte boundaries
+*/
+int
+dissect_ndr_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                    proto_tree *tree, guint8 *drep,
+                    int hfindex, guint64 *pdata)
+{
+    dcerpc_info *di;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
+
+    if (offset % 8) {
+        offset += 8 - (offset % 8);
+    }
+    return dissect_dcerpc_uint64 (tvb, offset, pinfo,
+                                  tree, drep, hfindex, pdata);
+}
 
 int
 dissect_ndr_float(tvbuff_t *tvb, gint offset, packet_info *pinfo,

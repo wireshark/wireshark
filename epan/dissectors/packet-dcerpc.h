@@ -154,6 +154,9 @@ int dissect_ndr_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int dissect_ndr_duint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, guint8 *drep,
                         int hfindex, unsigned char *pdata);
+int dissect_ndr_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                        proto_tree *tree, guint8 *drep,
+                        int hfindex, guint64 *pdata);
 int dissect_ndr_float (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, guint8 *drep, 
                         int hfindex, gfloat *pdata);
