@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.18 1999/08/24 03:19:22 guy Exp $
+ * $Id: packet-fddi.c,v 1.19 1999/08/24 06:01:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,7 @@
 # include <sys/types.h>
 #endif
 
+#include <stdio.h>
 #include <glib.h>
 #include "packet.h"
 #include "resolv.h"
@@ -68,6 +69,15 @@ static int hf_fddi_src = -1;
 #define FDDI_FC_IMP_ASYNC_MIN	FDDI_FC_IMP_ASYNC
 #define FDDI_FC_IMP_ASYNC_MAX	0x6f
 #define FDDI_FC_IMP_SYNC	0xe0		/* Implementor Synch. */
+
+#define FDDI_FC_CLFF		0xF0		/* Class/Length/Format bits */
+#define FDDI_FC_ZZZZ		0x0F		/* Control bits */
+
+/*
+ * Async frame ZZZZ bits:
+ */
+#define FDDI_FC_ASYNC_R		0x08		/* Reserved */
+#define FDDI_FC_ASYNC_PRI	0x07		/* Priority */
 
 #define FDDI_HEADER_SIZE	13
 
@@ -166,12 +176,84 @@ capture_fddi(const u_char *pd, guint32 cap_len, packet_counts *ld) {
 
 } /* capture_fddi */
 
+static gchar *
+fddifc_to_str(int fc)
+{
+  static gchar strbuf[128+1];
+
+  switch (fc) {
+
+  case FDDI_FC_VOID:			/* Void frame */
+    return "Void frame";
+
+  case FDDI_FC_NRT:			/* Nonrestricted token */
+    return "Nonrestricted token";
+
+  case FDDI_FC_RT:			/* Restricted token */
+    return "Restricted token";
+
+  case FDDI_FC_SMT_INFO:		/* SMT Info */
+    return "SMT info";
+
+  case FDDI_FC_SMT_NSA:			/* SMT Next station adrs */
+    return "SMT Next station address";
+
+  case FDDI_FC_MAC_BEACON:		/* MAC Beacon frame */
+    return "MAC beacon";
+
+  case FDDI_FC_MAC_CLAIM:		/* MAC Claim frame */
+    return "MAC claim token";
+
+  default:
+    switch (fc & FDDI_FC_CLFF) {
+
+    case FDDI_FC_MAC:
+      sprintf(strbuf, "MAC frame, control %x", fc & FDDI_FC_ZZZZ);
+      return strbuf;
+
+    case FDDI_FC_SMT:
+      sprintf(strbuf, "SMT frame, control %x", fc & FDDI_FC_ZZZZ);
+      return strbuf;
+
+    case FDDI_FC_LLC_ASYNC:
+      if (fc & FDDI_FC_ASYNC_R)
+        sprintf(strbuf, "Async LLC frame, control %x", fc & FDDI_FC_ZZZZ);
+      else
+        sprintf(strbuf, "Async LLC frame, priority %d",
+			fc & FDDI_FC_ASYNC_PRI);
+      return strbuf;
+
+    case FDDI_FC_LLC_SYNC:
+      if (fc & FDDI_FC_ZZZZ) {
+        sprintf(strbuf, "Sync LLC frame, control %x", fc & FDDI_FC_ZZZZ);
+        return strbuf;
+      } else
+        return "Sync LLC frame";
+
+    case FDDI_FC_IMP_ASYNC:
+      sprintf(strbuf, "Implementor async frame, control %x",
+			fc & FDDI_FC_ZZZZ);
+      return strbuf;
+
+    case FDDI_FC_IMP_SYNC:
+      sprintf(strbuf, "Implementor sync frame, control %x",
+			fc & FDDI_FC_ZZZZ);
+      return strbuf;
+      break;
+
+    default:
+      return NULL;
+    }
+  }
+}
+
 void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree,
 		gboolean bitswapped)
 {
   int        offset = 0, fc;
   proto_tree *fh_tree;
   proto_item *ti;
+  gchar      *fc_str;
   u_char     src[6], dst[6];
   u_char     src_swapped[6], dst_swapped[6];
 
@@ -191,6 +273,7 @@ void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree,
   }
 
   fc = (int) pd[FDDI_P_FC];
+  fc_str = fddifc_to_str(fc);
 
   if (check_col(fd, COL_RES_DL_SRC))
     col_add_str(fd, COL_RES_DL_SRC, get_ether_name(src));
@@ -201,17 +284,16 @@ void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree,
   if (check_col(fd, COL_UNRES_DL_DST))
     col_add_str(fd, COL_UNRES_DL_DST, ether_to_str(dst));
   if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "N/A");
+    col_add_str(fd, COL_PROTOCOL, "FDDI");
   if (check_col(fd, COL_INFO))
-    col_add_str(fd, COL_INFO, "FDDI");
+    col_add_str(fd, COL_INFO, fc_str);
 
   offset = FDDI_HEADER_SIZE;
 
   if (tree) {
 	ti = proto_tree_add_item_format(tree, proto_fddi, 0, offset, NULL,
 		"Fiber Distributed Data Interface, %s",
-		(fc >= FDDI_FC_LLC_ASYNC_MIN && fc <= FDDI_FC_LLC_ASYNC_MAX) ?
-			  "Async LLC" : "unsupported FC");
+		(fc_str == NULL) ? "Unknown frame type" : fc_str);
 
       swap_mac_addr(dst_swapped, (u_char*)&pd[FDDI_P_DHOST]);
       swap_mac_addr(src_swapped, (u_char*)&pd[FDDI_P_SHOST]);
@@ -225,7 +307,7 @@ void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree,
       proto_tree_add_item_hidden(fh_tree, hf_fddi_dst, FDDI_P_DHOST, 6, dst_swapped);
       proto_tree_add_item_hidden(fh_tree, hf_fddi_dst, FDDI_P_SHOST, 6, src_swapped);
 
-    }
+  }
   switch (fc) {
 
     /* From now, only 802.2 SNAP (Async. LCC frame) is supported */
@@ -261,6 +343,11 @@ proto_register_fddi(void)
 {
 	static hf_register_info hf[] = {
 
+		/*
+		 * XXX - we want this guy to have his own private formatting
+		 * routine, using "fc_to_str()"; if "fc_to_str()" returns
+		 * NULL, just show the hex value, else show the string.
+		 */
 		{ &hf_fddi_fc,
 		{ "Frame Control",	"fddi.fc", FT_UINT8, NULL }},
 
