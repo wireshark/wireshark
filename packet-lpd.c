@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-lpd.c,v 1.9 1999/08/25 17:38:36 guy Exp $
+ * $Id: packet-lpd.c,v 1.10 1999/09/17 05:56:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -127,7 +127,7 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				printer = strdup(&pd[offset]);
 				line_pos = printer;
 				curr_offset = offset;
-				while (pi.captured_len > curr_offset) {
+				while (IS_DATA_IN_FRAME(curr_offset)) {
 					newline = strchr(line_pos, '\n');
 					if (!newline) {
 						proto_tree_add_text(lpd_tree, curr_offset,

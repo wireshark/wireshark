@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.32 1999/08/28 08:31:27 guy Exp $
+ * $Id: packet-tcp.c,v 1.33 1999/09/17 05:56:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -489,7 +489,8 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     } else if (PORT_IS(TCP_PORT_PPTP)) {
       pi.match_port = TCP_PORT_PPTP;
       dissect_pptp(pd, offset, fd, tree);
-    } else if (PORT_IS(TCP_PORT_HTTP) || PORT_IS(TCP_ALT_PORT_HTTP))
+    } else if (PORT_IS(TCP_PORT_HTTP) || PORT_IS(TCP_ALT_PORT_HTTP)
+            || PORT_IS(631))
       dissect_http(pd, offset, fd, tree);
     else if (PORT_IS(TCP_PORT_NBSS)) {
       pi.match_port = TCP_PORT_NBSS;

@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.13 1999/08/25 00:42:49 guy Exp $
+ * $Id: packet-cdp.c,v 1.14 1999/09/17 05:56:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -97,7 +97,7 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    pntohs(&pd[offset]));
 	offset += 2;
 
-	while( offset < pi.captured_len ){
+	while( IS_DATA_IN_FRAME(offset) ){
 		type = pntohs(&pd[offset + TLV_TYPE]);
 		length = pntohs(&pd[offset + TLV_LENGTH]);
 		type_str = val_to_str(type, type_vals,

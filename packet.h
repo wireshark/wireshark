@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.99 1999/09/14 08:06:23 guy Exp $
+ * $Id: packet.h,v 1.100 1999/09/17 05:56:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -72,6 +72,13 @@
  * See dissect_data() for an example.
  */
 #define END_OF_FRAME	(pi.captured_len - offset)
+
+/* Check whether the "len" bytes of data starting at "offset" is
+ * entirely inside the captured data for this packet. */
+#define	BYTES_ARE_IN_FRAME(offset, len)	((offset) + (len) <= pi.captured_len)
+
+/* Check whether there's any data at all starting at "offset". */
+#define	IS_DATA_IN_FRAME(offset)	((offset) < pi.captured_len)
 		
 /* To pass one of two strings, singular or plural */
 #define plurality(d,s,p) ((d) == 1 ? (s) : (p))
@@ -330,6 +337,9 @@ enum {
 	ETT_ATM_LANE_LC_LAN_DEST_RD,
 	ETT_MP,
 	ETT_MP_FLAGS,
+	ETT_IPP,
+	ETT_IPP_AS,
+	ETT_IPP_ATTR,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -440,6 +450,7 @@ void dissect_icmp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_icmpv6(const u_char *, int, frame_data *, proto_tree *);
 void dissect_igmp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ip(const u_char *, int, frame_data *, proto_tree *);
+void dissect_ipp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ipv6(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ipx(const u_char *, int, frame_data *, proto_tree *);
 void dissect_llc(const u_char *, int, frame_data *, proto_tree *);

@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@netapp.com>
  *
- * $Id: packet-http.c,v 1.8 1999/09/12 18:46:57 guy Exp $
+ * $Id: packet-http.c,v 1.9 1999/09/17 05:56:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,7 @@ static int is_http_request_or_reply(const u_char *data, int linelen);
 
 void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
+	gboolean	is_ipp = (pi.srcport == 631 || pi.destport == 631);
 	proto_tree	*http_tree;
 	proto_item	*ti;
 	const u_char	*data, *dataend;
@@ -58,7 +59,7 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	dataend = data + END_OF_FRAME;
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "HTTP");
+		col_add_str(fd, COL_PROTOCOL, is_ipp ? "IPP" : "HTTP");
 	if (check_col(fd, COL_INFO)) {
 		/*
 		 * Put the first line from the buffer into the summary,
@@ -168,8 +169,12 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			data = lineend;
 		}
 
-		if (data < dataend)
-			dissect_data(&pd[offset], offset, fd, http_tree);
+		if (data < dataend) {
+			if (is_ipp)
+				dissect_ipp(pd, offset, fd, tree);
+			else
+				dissect_data(&pd[offset], offset, fd, http_tree);
+		}
 	}
 }
 

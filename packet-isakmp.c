@@ -2,7 +2,7 @@
  * Routines for the Internet Security Association and Key Management Protocol (ISAKMP)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.8 1999/08/26 07:34:41 guy Exp $
+ * $Id: packet-isakmp.c,v 1.9 1999/09/17 05:56:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -289,7 +289,7 @@ void dissect_isakmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
   if (check_col(fd, COL_INFO))
     col_add_fstr(fd, COL_INFO, "%s", exchtype2str(hdr->exch_type));
   
-  if (pi.captured_len > offset && tree) {
+  if (IS_DATA_IN_FRAME(offset) && tree) {
     proto_item *	ti;
     proto_tree *	isakmp_tree;
     
