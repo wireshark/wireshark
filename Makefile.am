@@ -311,6 +311,24 @@ SUFFIXES = .sh
 	rm -f $@ $@.tmp
 	$(editsh) $< > $@.tmp && chmod +x $@.tmp && mv $@.tmp $@
 
+#
+# Build "tethereal-tap-register.c", which contains a function
+# "register_all_tap_listeners()"
+# that calls the register routines for all tehtereal tap listeners.
+#
+# We do this by grepping through sources.
+#
+# Formatting conventions:  The name of the tap_listener_register_*
+# routines must start in column zero, or must be preceded only by
+# "void " starting in column zero, and must not be inside #if.
+#
+# The first argument is the directory in which the source files live.
+# All subsequent arguments are the files to scan.
+#
+tethereal-tap-register.c: $(TETHEREAL_TAP_SRC) $(srcdir)/make-tapreg-dotc
+	@echo Making tethereal-tap-register.c
+	@$(srcdir)/make-tapreg-dotc tethereal-tap-register.c $(srcdir) $(TETHEREAL_TAP_SRC)
+ 
 ps.c: print.ps rdps
 	./rdps $(srcdir)/print.ps ps.c
 
