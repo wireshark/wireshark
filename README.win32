@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.39 2002/07/08 21:03:04 guy Exp $
+$Id: README.win32,v 1.40 2002/10/09 03:17:36 gerald Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -169,13 +169,13 @@ comment out the line that defines PYTHON, otherwise set it to refer to
 the pathname of your Python interpreter executable.  You should not have
 to modify any other Makefile.
 
-In order to compile, at least with the default settings, you
-also need zlib, which is provided as an archive library, not
-a DLL. The pre-compiled zlib which comes with the "extralibs"
-package from Gimp/Win32 is faulty; a working version can be
-downloaded from:
+In order to compile, at least with the default settings, you also need
+zlib and net-snmp. The pre-compiled zlib packages available on the
+Gimp/Win32 and WinImage sites are faulty.  A working version as well as
+a precompiled version of net-snmp can be downloaded from:
 
-	http://www.ethereal.com/distribution/win32/zlib-1.1.3-fixed.zip
+	http://www.ethereal.com/distribution/win32/
+
 
 Many of the file and directory names used in the build process go past
 the old 8.3 naming limitations.  As a result, at least on Windows NT
