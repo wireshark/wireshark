@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\winreg packet disassembly
  * Copyright 2001-2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.c,v 1.14 2003/01/30 08:19:38 guy Exp $
+ * $Id: packet-dcerpc-reg.c,v 1.15 2003/02/03 02:14:00 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -324,7 +324,7 @@ RegQueryKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep,
 		hf_hnd, NULL, FALSE, FALSE);
 
-	offset = dissect_ndr_nt_UNICODE_STRING(
+	offset = dissect_ndr_counted_string(
 		tvb, offset, pinfo, tree, drep, hf_querykey_class, 0);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
@@ -345,7 +345,7 @@ RegQueryKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Parse packet */
 
-	offset = dissect_ndr_nt_UNICODE_STRING(
+	offset = dissect_ndr_counted_string(
 		tvb, offset, pinfo, tree, drep, hf_querykey_class, 0);
 
 	offset = dissect_ndr_uint32(
@@ -408,7 +408,7 @@ RegOpenEntry_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep,
 		hf_hnd, NULL, FALSE, FALSE);
 
-	offset = dissect_ndr_nt_UNICODE_STRING(
+	offset = dissect_ndr_counted_string(
 		tvb, offset, pinfo, tree, drep, hf_querykey_class, 0);
 
 	offset = dissect_ndr_uint32(

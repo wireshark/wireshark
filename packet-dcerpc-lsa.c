@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.64 2003/01/31 07:27:27 guy Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.65 2003/02/03 02:14:00 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -191,7 +191,7 @@ lsa_dissect_pointer_UNICODE_STRING(tvbuff_t *tvb, int offset,
 		return offset;
 	}
 
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 			di->hf_index, 0);
 	return offset;
 }
@@ -229,8 +229,8 @@ lsa_dissect_pointer_STRING(tvbuff_t *tvb, int offset,
 		return offset;
 	}
 
-	offset = dissect_ndr_nt_STRING(tvb, offset, pinfo, tree, drep,
-			di->hf_index);
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
+			di->hf_index, 1);
 	return offset;
 }
 
@@ -782,7 +782,7 @@ lsa_dissect_POLICY_PRIMARY_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 	}
 
 	/* domain */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_domain, 0);
 
 	/* sid */
@@ -809,7 +809,7 @@ lsa_dissect_POLICY_ACCOUNT_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 	}
 
 	/* account */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_acct, 0);
 
 	/* sid */
@@ -865,11 +865,11 @@ lsa_dissect_POLICY_REPLICA_SOURCE_INFO(tvbuff_t *tvb, int offset,
 	}
 
 	/* source */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_source, 0);
 
 	/* account */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_acct, 0);
 
 	proto_item_set_len(item, offset-old_offset);
@@ -1012,15 +1012,15 @@ lsa_dissect_POLICY_DNS_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 	}
 
 	/* name */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_name, 0);
 
 	/* domain */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_domain, 0);
 
 	/* forest */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_forest, 0);
 
 	/* GUID */
@@ -1067,7 +1067,7 @@ lsa_dissect_POLICY_INFORMATION(tvbuff_t *tvb, int offset,
 				tvb, offset, pinfo, tree, drep);
 		break;
 	case 4:
-		offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, 
+		offset = dissect_ndr_counted_string(tvb, offset, pinfo, 
 			tree, drep, hf_lsa_acct, 0);
 		break;
 	case 5:
@@ -1207,23 +1207,23 @@ lsa_dissect_lsachangepassword_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* server */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_server, 0);
 
 	/* domain */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_domain, 0);
 
 	/* account */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_acct, 0);
 
 	/* old password */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_old_pwd, 0);
 
 	/* new password */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_new_pwd, 0);
 
 	return offset;
@@ -1270,7 +1270,7 @@ lsa_dissect_LSA_TRANSLATED_NAME(tvbuff_t *tvb, int offset,
 			hf_lsa_sid_type, NULL);
 
 	/* name */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_name, 0);
 
 	/* index */
@@ -1358,7 +1358,7 @@ lsa_dissect_LSA_TRUST_INFORMATION(tvbuff_t *tvb, int offset,
 	}
 
 	/* name */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_name, 0);
 
 	/* sid */
@@ -1444,11 +1444,11 @@ lsa_dissect_LSA_TRUST_INFORMATION_EX(tvbuff_t *tvb, int offset,
 	}
 
 	/* name */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_name, 0);
 
 	/* flat name */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_flat_name, 0);
 
 	/* sid */
@@ -1886,7 +1886,7 @@ lsa_dissect_LSA_PRIVILEGE(tvbuff_t *tvb, int offset,
 	}
 
 	/* privilege name */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 			hf_lsa_privilege_name, 0);
 
 	/* LUID */
@@ -2279,7 +2279,7 @@ lsa_dissect_LSA_TRUSTED_DOMAIN(tvbuff_t *tvb, int offset,
 	}
 
 	/* domain */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_domain, 0);
 
 	/* sid */
@@ -2358,7 +2358,7 @@ lsa_dissect_LSA_UNICODE_STRING_item(tvbuff_t *tvb, int offset,
 		return offset;
 	}
 
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 			di->hf_index, 0);
 
 	return offset;
@@ -2512,7 +2512,7 @@ lsa_dissect_lsacreatesecret_rqst(tvbuff_t *tvb, int offset,
 		pinfo, tree, drep);
 
 	/* [in, ref] LSA_UNICODE_STRING *name */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_name, 0);
 
 	/* [in] ACCESS_MASK access */
@@ -2606,7 +2606,7 @@ lsa_dissect_TRUSTED_DOMAIN_INFORMATION(tvbuff_t *tvb, int offset,
 	ALIGN_TO_4_BYTES;  /* all union arms aligned to 4 bytes, case 7 and 9 need this  */
 	switch(level){
 	case 1:
-		offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 			hf_lsa_domain, 0);
 		break;
 	case 2:
@@ -2729,7 +2729,7 @@ lsa_dissect_lsaopensecret_rqst(tvbuff_t *tvb, int offset,
 		pinfo, tree, drep);
 
 	/* [in, ref] LSA_UNICODE_STRING *name */
-	offset = dissect_ndr_nt_UNICODE_STRING_cb(
+	offset = dissect_ndr_counted_string_cb(
 		tvb, offset, pinfo, tree, drep, hf_lsa_name,
 		cb_str_postprocess, 
 		GINT_TO_POINTER(CB_STR_COL_INFO | 2));
@@ -3008,7 +3008,7 @@ lsa_dissect_lsaquerytrusteddomaininfobyname_rqst(tvbuff_t *tvb, int offset,
 
 	/* [in, ref] LSA_UNICODE_STRING *name */
 	/* domain */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_domain, 0);
 
 	/* [in] TRUSTED_INFORMATION_CLASS level */
@@ -3045,7 +3045,7 @@ lsa_dissect_lsasettrusteddomaininfobyname_rqst(tvbuff_t *tvb, int offset,
 
 	/* [in, ref] LSA_UNICODE_STRING *name */
 	/* domain */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_domain, 0);
 
 	/* [in] TRUSTED_INFORMATION_CLASS level */
@@ -3100,7 +3100,7 @@ lsa_dissect_lsaopentrusteddomainbyname_rqst(tvbuff_t *tvb, int offset,
 
 	/* [in, ref] LSA_UNICODE_STRING *name */
 	/* domain */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_domain, 0);
 
 	/* [in] ACCESS_MASK access */
@@ -3397,7 +3397,7 @@ lsa_dissect_lsalookupprivilegedisplayname_rqst(tvbuff_t *tvb, int offset,
 		pinfo, tree, drep);
 
 	/* [in, ref] LSA_UNICODE_STRING *name */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_name, 0);
 
 	/* [in] USHORT unknown */
@@ -3440,7 +3440,7 @@ lsa_dissect_lsastoreprivatedata_rqst(tvbuff_t *tvb, int offset,
 		pinfo, tree, drep);
 
 	/* [in, ref] LSA_UNICODE_STRING *key */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_key, 0);
 
 	/* [in, unique] LSA_SECRET **data */
@@ -3471,7 +3471,7 @@ lsa_dissect_lsaretrieveprivatedata_rqst(tvbuff_t *tvb, int offset,
 		pinfo, tree, drep);
 
 	/* [in, ref] LSA_UNICODE_STRING *key */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_key, 0);
 
 	/* [in, out, ref] LSA_SECRET **data */
@@ -3547,7 +3547,7 @@ lsa_dissect_LSA_TRANSLATED_NAME_EX(tvbuff_t *tvb, int offset,
 			hf_lsa_sid_type, NULL);
 
 	/* name */
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_lsa_name, 0);
 
 	/* index */
