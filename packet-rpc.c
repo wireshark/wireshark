@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.115 2003/03/10 02:06:31 jmayer Exp $
+ * $Id: packet-rpc.c,v 1.116 2003/04/16 12:15:06 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3171,6 +3171,18 @@ proto_register_rpc(void)
 void
 proto_reg_handoff_rpc(void)
 {
+	dissector_handle_t rpc_tcp_handle;
+	dissector_handle_t rpc_udp_handle;
+
+	/* tcp/udp port 111 is used by portmapper which is an onc-rpc service.
+	   we register onc-rpc on this port so that we can choose RPC in
+	   the list offered by DecodeAs.
+	*/
+	rpc_tcp_handle = create_dissector_handle(dissect_rpc_tcp, proto_rpc);
+	dissector_add("tcp.port", 111, rpc_tcp_handle);
+	rpc_udp_handle = create_dissector_handle(dissect_rpc, proto_rpc);
+	dissector_add("udp.port", 111, rpc_udp_handle);
+
 	heur_dissector_add("tcp", dissect_rpc_tcp_heur, proto_rpc);
 	heur_dissector_add("udp", dissect_rpc_heur, proto_rpc);
 	gssapi_handle = find_dissector("gssapi");
