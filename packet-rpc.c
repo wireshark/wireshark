@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.54 2001/02/09 07:59:00 guy Exp $
+ * $Id: packet-rpc.c,v 1.55 2001/02/09 08:38:13 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1307,7 +1307,7 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			procname, rpc_call->proc);
 	}
 
-	if (dissect_function == NULL) {
+	if (old_dissect_function == NULL && dissect_function == NULL) {
 		/* We don't know how to dissect the reply procedure.
 		   Just show the reply stuff as opaque data. */
 		offset = dissect_rpc_data_tvb(tvb, pinfo, tree, result_id,
