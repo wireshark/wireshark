@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.25 2000/04/13 07:52:55 guy Exp $
+ * $Id: packet-osi.c,v 1.26 2000/04/13 08:14:33 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -269,8 +269,6 @@ static int osi_decode_DR(const u_char *pd, int offset,
       break;
   }
 
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "COTP");
   if (check_col(fd, COL_INFO))
     col_add_fstr(fd, COL_INFO, "DR TPDU src-ref: 0x%04x dst-ref: 0x%04x",
 		 src_ref, dst_ref);
@@ -360,8 +358,6 @@ static int osi_decode_DT(const u_char *pd, int offset,
       break;
   }
 
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "COTP");
   if (check_col(fd, COL_INFO))
     col_add_fstr(fd, COL_INFO, "DT TPDU (%d) dst-ref: 0x%04x %s", 
 		 tpdu_nr,
@@ -502,8 +498,6 @@ static int osi_decode_ED(const u_char *pd, int offset,
       break;
   } /* li */
 
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "COTP");
   if (check_col(fd, COL_INFO))
     col_add_fstr(fd, COL_INFO, "ED TPDU (%d) dst-ref: 0x%04x", 
 		 tpdu_nr, dst_ref);
@@ -585,8 +579,6 @@ static int osi_decode_RJ(const u_char *pd, int offset,
       break;
   }
 
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "COTP");
   if (check_col(fd, COL_INFO))
     col_add_fstr(fd, COL_INFO, "RJ TPDU (%d) dst-ref: 0x%04x", 
 		 tpdu_nr, dst_ref);
@@ -685,8 +677,6 @@ static int osi_decode_CC(const u_char *pd, int offset,
   if (class_option > 4)
     return -1;
 
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "COTP");
   if (check_col(fd, COL_INFO))
     col_add_fstr(fd, COL_INFO, "%s TPDU src-ref: 0x%04x dst-ref: 0x%04x",
 		 (tpdu == CR_TPDU) ? "CR" : "CC",
@@ -972,8 +962,6 @@ static int osi_decode_DC(const u_char *pd, int offset,
       break;
   } /* li */
 
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "COTP");
   if (check_col(fd, COL_INFO))
     col_add_fstr(fd, COL_INFO, "DC TPDU src-ref: 0x%04x dst-ref: 0x%04x", 
 		 src_ref,
@@ -1026,8 +1014,6 @@ static int osi_decode_AK(const u_char *pd, int offset,
   if (!is_LI_NORMAL_AK(li)) {
     tpdu_nr = pd[offset + P_TPDU_NR_234];
 
-    if (check_col(fd, COL_PROTOCOL))
-      col_add_str(fd, COL_PROTOCOL, "COTP");
     if (check_col(fd, COL_INFO))
       col_add_fstr(fd, COL_INFO, "AK TPDU (%d) dst-ref: 0x%04x", 
 		   tpdu_nr, dst_ref);
@@ -1132,8 +1118,6 @@ static int osi_decode_AK(const u_char *pd, int offset,
     tpdu_nr   = EXTRACT_LONG(&pd[offset + P_TPDU_NR_234]);
     cdt_in_ak = EXTRACT_SHORT(&pd[offset + P_CDT_IN_AK]);
 
-    if (check_col(fd, COL_PROTOCOL))
-      col_add_str(fd, COL_PROTOCOL, "COTP");
     if (check_col(fd, COL_INFO))
       col_add_fstr(fd, COL_INFO, "AK TPDU (%d) dst-ref: 0x%04x", 
 		   tpdu_nr, dst_ref);
@@ -1285,8 +1269,6 @@ static int osi_decode_EA(const u_char *pd, int offset,
       break;
   } /* li */
 
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "COTP");
   if (check_col(fd, COL_INFO))
     col_add_fstr(fd, COL_INFO, 
 		 "EA TPDU (%d) dst-ref: 0x%04x", tpdu_nr, dst_ref);
@@ -1371,8 +1353,6 @@ static int osi_decode_ER(const u_char *pd, int offset,
       break;
   }
 
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "COTP");
   if (check_col(fd, COL_INFO))
     col_add_fstr(fd, COL_INFO, "ER TPDU dst-ref: 0x%04x", dst_ref);
 
@@ -1401,8 +1381,18 @@ static void dissect_cotp_internal(const u_char *pd, int offset, frame_data *fd,
 {
   int status = -1;
 
-  if (((li = pd[offset + P_LI]) == 0) ||
-      (!BYTES_ARE_IN_FRAME(offset, P_LI + li + 1))) {
+  if (check_col(fd, COL_PROTOCOL))
+    col_add_str(fd, COL_PROTOCOL, "COTP");
+
+  if ((li = pd[offset + P_LI]) == 0) {
+    if (check_col(fd, COL_INFO))
+      col_add_str(fd, COL_INFO, "Length indicator is zero");
+    dissect_data(pd, offset, fd, tree);
+    return;
+  }
+ if (!BYTES_ARE_IN_FRAME(offset, P_LI + li + 1)) {
+    if (check_col(fd, COL_INFO))
+      col_add_str(fd, COL_INFO, "Captured data in frame doesn't include entire frame");
     dissect_data(pd, offset, fd, tree);
     return;
   }
@@ -1441,6 +1431,8 @@ static void dissect_cotp_internal(const u_char *pd, int offset, frame_data *fd,
       status = osi_decode_ER(pd, offset, fd, tree);
       break;
     default      :
+      if (check_col(fd, COL_INFO))
+        col_add_fstr(fd, COL_INFO, "Unknown TPDU type (0x%x)", tpdu);
       break;
   }
 
@@ -1749,9 +1741,6 @@ void dissect_osi(const u_char *pd, int offset, frame_data *fd,
       dissect_data(pd, offset, fd, tree);
       break;
     case NLPID_ISO10589_ISIS:
-      if (check_col(fd, COL_PROTOCOL)) {
-	col_add_str(fd, COL_PROTOCOL, "ISIS");
-      }
       dissect_isis(pd, offset, fd, tree);
       break;
     default:
