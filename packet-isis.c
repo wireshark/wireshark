@@ -1,14 +1,13 @@
-/* packet-isis-core.c
+/* packet-isis.c
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.22 2001/07/02 00:19:34 guy Exp $
+ * $Id: packet-isis.c,v 1.23 2001/07/02 00:46:21 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
