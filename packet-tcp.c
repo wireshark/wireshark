@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.35 1999/10/14 01:28:26 guy Exp $
+ * $Id: packet-tcp.c,v 1.36 1999/10/14 05:10:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,6 +76,7 @@ int hf_tcp_ack = -1;
 #define TCP_PORT_HTTP     80
 #define TCP_PORT_POP      110
 #define TCP_PORT_NNTP     119
+#define TCP_PORT_NTP      123
 #define TCP_PORT_NBSS     139
 #define TCP_PORT_PRINTER  515
 #define TCP_ALT_PORT_HTTP 8080
@@ -487,6 +488,9 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     } else if (PORT_IS(TCP_PORT_NNTP)) {
       pi.match_port = TCP_PORT_NNTP;
       dissect_nntp(pd, offset, fd, tree);
+    } else if (PORT_IS(TCP_PORT_NTP)) {
+      pi.match_port = TCP_PORT_NTP;
+      dissect_ntp(pd, offset, fd, tree);
     } else if (PORT_IS(TCP_PORT_PPTP)) {
       pi.match_port = TCP_PORT_PPTP;
       dissect_pptp(pd, offset, fd, tree);
