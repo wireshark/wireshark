@@ -1,5 +1,13 @@
 README.interface
 
+The following will export addresses from ethereal to the plugins. You
+will have to do this, e.g. if you want to use a function of ethereal inside 
+your plugin.
+If you need it the other way round (e.g. use symbols of your plugin inside of 
+ethereal's gtk part), you only have to edit libethereal.def and nothing more.
+(XXX - is this libethereal.def description correct?)
+
+
 When developing a plugin in the Win32 world, it is nessecary
 to explicitly export addresses from the main process to the
 plugin.  ethereal does have a mechanism for this, and it uses
@@ -18,8 +26,9 @@ that contains a neatly formatted list of declarations.  This list
 can be parsed with a regular expression to extract the required
 info.
 
-Use the following procedure when updateing the plugin_api_list.c file:
+Use the following procedure to update the symbols:
 
+edit the plugin_api_list.c file
 nmake -f Makefile.nmake xyzzy
 nmake -f Makefile.nmake
 
