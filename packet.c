@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.34 1999/08/02 02:04:26 guy Exp $
+ * $Id: packet.c,v 1.35 1999/08/04 04:37:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -530,9 +530,15 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
 {
   static char buf[1025];
   char *p;
+  int shift = 0;
+
+  /* Compute the number of bits we have to shift the bitfield right
+     to extract its value. */
+  while ((mask & (1<<shift)) == 0)
+    shift++;
 
   p = decode_bitfield_value(buf, val, mask, width);
-  sprintf(p, fmt, val & mask);
+  sprintf(p, fmt, (val & mask) >> shift);
   return buf;
 }
 

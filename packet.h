@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.78 1999/08/02 02:04:26 guy Exp $
+ * $Id: packet.h,v 1.79 1999/08/04 04:37:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -297,6 +297,7 @@ enum {
 	ETT_RADIUS_AVP,
 	ETT_LAPB,
 	ETT_X25,
+	ETT_XDLC_CONTROL,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 

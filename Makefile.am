@@ -103,11 +103,13 @@ ethereal_SOURCES = \
 	resolv.c       \
 	resolv.h       \
 	smb.h          \
-	timestamp.h    \
-	util.c         \
         summary.c      \
         summary.h      \
-	util.h
+	timestamp.h    \
+	util.c         \
+	util.h         \
+	xdlc.c         \
+	xdlc.h
 
 EXTRA_ethereal_SOURCES = \
 	dfilter-grammar.c \

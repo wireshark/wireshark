@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.17 1999/07/29 05:46:58 gram Exp $
+ * $Id: packet-llc.c,v 1.18 1999/08/04 04:37:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -34,6 +34,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "xdlc.h"
 	
 static int proto_llc = -1;
 static int hf_llc_dsap = -1;
@@ -207,9 +208,36 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		llc_tree = proto_item_add_subtree(ti, ETT_LLC);
 		proto_tree_add_item(llc_tree, hf_llc_dsap, offset, 1, pd[offset]);
 		proto_tree_add_item(llc_tree, hf_llc_ssap, offset+1, 1, pd[offset+1]);
-		proto_tree_add_item(llc_tree, hf_llc_ctrl, offset+2, 1, pd[offset+2] & 3);
-	}
+	} else
+		llc_tree = NULL;
 
+	/*
+	 * The low-order bit of the SSAP apparently determines whether this
+	 * is a request or a response.  (RFC 1390, "Transmission of IP and
+	 * ARP over FDDI Networks", says
+	 *
+	 *	Command frames are identified by having the low order
+	 *	bit of the SSAP address reset to zero.  Response frames
+	 *	have the low order bit of the SSAP address set to one.
+	 *
+	 * and a page I've seen seems to imply that's part of 802.2.)
+	 *
+	 * XXX - that page also implies that LLC Type 2 always uses
+	 * extended operation, so we don't need to determine whether
+	 * it's basic or extended operation; is that the case?
+	 */
+	dissect_xdlc_control(pd, offset+2, fd, llc_tree, hf_llc_ctrl,
+	    pd[offset+1] & 0x01, TRUE);
+
+	/*
+	 * XXX - do we want to append the SAP information to the stuff
+	 * "dissect_xdlc_control()" put in the COL_INFO column, rather
+	 * than overwriting it?
+	 *
+	 * XXX - we shouldn't, as far as I know, pass S frames to
+	 * "ethertype" or "dissect", and we may have to treat I frames
+	 * differently from U frames.
+	 */
 	if (is_snap) {
 		if (check_col(fd, COL_INFO)) {
 			col_add_str(fd, COL_INFO, "802.2 LLC (SNAP)");
