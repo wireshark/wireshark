@@ -4,7 +4,7 @@ $Id$
 
 Ethereal 0.10.10 has been released.
 
-This release fixes three security and stability-related issues:
+This release fixes the following security and stability-related issues:
 
   Matevz Pustisek discovered a buffer overflow in the Etheric dissector.
   (CAN-2005-0704)
