@@ -2,7 +2,7 @@
  * Routines for calling the right protocol for the ethertype.
  * This is called by both packet-eth.c (Ethernet II) and packet-llc.c (SNAP)
  *
- * $Id: ethertype.c,v 1.21 1999/12/05 20:05:44 nneul Exp $
+ * $Id: ethertype.c,v 1.22 2000/01/13 04:49:54 guy Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -41,6 +41,7 @@
 const value_string etype_vals[] = {
     {ETHERTYPE_IP,     "IP"             },
     {ETHERTYPE_IPv6,   "IPv6"           },
+    {ETHERTYPE_X25L3,  "X.25 Layer 3"   },
     {ETHERTYPE_ARP,    "ARP"            },
     {ETHERTYPE_REVARP, "RARP"           },
     {ETHERTYPE_ATALK,  "Appletalk"      },
@@ -89,6 +90,9 @@ ethertype(guint16 etype, int offset,
       break;
     case ETHERTYPE_IPv6:
       dissect_ipv6(pd, offset, fd, tree);
+      break;
+    case ETHERTYPE_X25L3:
+      dissect_x25(pd, offset, fd, tree);
       break;
     case ETHERTYPE_ARP:
       dissect_arp(pd, offset, fd, tree);
