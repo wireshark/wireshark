@@ -25,8 +25,8 @@ OBJECTS=conversation.obj \
 	strutil.obj      \
 	tvbuff.obj       \
 
-libepan.lib	: ..\config.h $(OBJECTS)
-	lib /out:libepan.lib $(OBJECTS)	
+ethereal.lib	: ..\config.h $(OBJECTS)
+	lib /out:ethereal.lib $(OBJECTS)	
 
 dfilter-scanner.obj : dfilter-scanner.c dfilter-grammar.h
 
@@ -40,4 +40,4 @@ dfilter-grammar.c dfilter-grammar.h : dfilter-grammar.y
 	copy ..\config.h.win32 ..\config.h
 
 clean:
-	rm -f $(OBJECTS) libepan.lib
+	rm -f $(OBJECTS) ethereal.lib

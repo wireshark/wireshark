@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.232 2000/10/06 10:10:44 gram Exp $
+# $Id: Makefile.am,v 1.233 2000/10/14 03:53:24 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -334,7 +334,7 @@ ethereal_optional_objects = @SNPRINTF_O@ @STRERROR_O@ \
 
 # Additional libs that I know how to build. These will be
 # linked into the ethereal executable.
-ethereal_additional_libs = wiretap/libwiretap.a gtk/libui.a epan/libepan.a
+ethereal_additional_libs = wiretap/libwiretap.a gtk/libui.a epan/libethereal.a
 
 # This is the automake dependency variable for the executable
 ethereal_DEPENDENCIES = \
@@ -376,7 +376,7 @@ tethereal_SOURCES = \
 
 # Additional libs that I know how to build. These will be
 # linked into the tethereal executable.
-tethereal_additional_libs = wiretap/libwiretap.a epan/libepan.a
+tethereal_additional_libs = wiretap/libwiretap.a epan/libethereal.a
 
 # This is the automake dependency variable for the executable
 tethereal_DEPENDENCIES = \
