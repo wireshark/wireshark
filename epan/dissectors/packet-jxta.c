@@ -263,7 +263,14 @@ static void dissect_jxta_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 }
 
 static void dissect_jxta_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  /* XXX this is broken.
+     you MUST provide a header dissector and not NULL
+     the header dissector MUST do heuristict to verify it really is a 
+     proper jxta header.
+     you SHOULD also specify desegmentation as a variable and not always TRUE
   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 0, NULL, dissect_jxta_tcp_pdu);
+  */
+  dissect_jxta_tcp_pdu(tvb, pinfo, tree);
 }
 
 /**
