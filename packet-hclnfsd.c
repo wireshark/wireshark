@@ -2,7 +2,7 @@
  * Routines for hclnfsd (Hummingbird NFS Daemon) dissection
  * Copyright 2001, Mike Frisch <frisch@hummingbird.com>
  *
- * $Id: packet-hclnfsd.c,v 1.7 2001/06/18 02:17:46 guy Exp $
+ * $Id: packet-hclnfsd.c,v 1.8 2002/01/12 10:24:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 
 
 #include "packet-rpc.h"
+#include "packet-nfs.h"
 #include "packet-hclnfsd.h"
 
 static int proto_hclnfsd = -1;
@@ -82,11 +83,6 @@ static gint ett_hclnfsd_uids = -1;
 static gint ett_hclnfsd_usernames = -1;
 static gint ett_hclnfsd_printqueues = -1;
 static gint ett_hclnfsd_printjob = -1;
-
-
-/* defined in 'packet-nfs.c' */
-extern int
-dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *name);
 
 
 static int

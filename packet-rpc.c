@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.80 2002/01/10 08:06:25 guy Exp $
+ * $Id: packet-rpc.c,v 1.81 2002/01/12 10:24:47 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -382,26 +382,6 @@ typedef struct _rpc_call_info_key {
 } rpc_call_info_key;
 
 static GMemChunk *rpc_call_info_key_chunk;
-
-typedef enum {
-	FLAVOR_UNKNOWN,		/* authentication flavor unknown */
-	FLAVOR_NOT_GSSAPI,	/* flavor isn't GSSAPI */
-	FLAVOR_GSSAPI_NO_INFO,	/* flavor is GSSAPI, procedure & service unknown */
-	FLAVOR_GSSAPI		/* flavor is GSSAPI, procedure & service known */
-} flavor_t;
-
-typedef struct _rpc_call_info_value {
-	guint32	req_num;	/* frame number of first request seen */
-	guint32	rep_num;	/* frame number of first reply seen */
-	guint32	prog;
-	guint32	vers;
-	guint32	proc;
-	flavor_t flavor;
-	guint32 gss_proc;
-	guint32 gss_svc;
-	rpc_proc_info_value*	proc_info;
-	nstime_t req_time;
-} rpc_call_info_value;
 
 static GMemChunk *rpc_call_info_value_chunk;
 
@@ -1523,6 +1503,9 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			   conversation, so it's probably not an RPC reply. */
 			return FALSE;
 		}
+		/* pass rpc_info to subdissectors */
+		rpc_call->request=FALSE;
+		pinfo->private_data=rpc_call;
 		break;
 
 	default:
@@ -1758,6 +1741,7 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			rpc_call->prog = prog;
 			rpc_call->vers = vers;
 			rpc_call->proc = proc;
+			rpc_call->xid = xid;
 			rpc_call->flavor = flavor;
 			rpc_call->gss_proc = gss_proc;
 			rpc_call->gss_svc = gss_svc;
@@ -1774,6 +1758,10 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		offset = dissect_rpc_cred(tvb, pinfo, rpc_tree, offset);
 		offset = dissect_rpc_verf(tvb, pinfo, rpc_tree, offset, msg_type);
+
+		/* pass rpc_info to subdissectors */
+		rpc_call->request=TRUE;
+		pinfo->private_data=rpc_call;
 
 		/* go to the next dissector */
 

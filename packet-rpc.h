@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.30 2001/10/29 20:49:28 guy Exp $
+ * $Id: packet-rpc.h,v 1.31 2002/01/12 10:24:47 guy Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -75,6 +75,28 @@
 #define AUTHDES_NAMEKIND_NICKNAME 1
 
 extern value_string rpc_authgss_svc[];
+typedef enum {
+	FLAVOR_UNKNOWN,		/* authentication flavor unknown */
+	FLAVOR_NOT_GSSAPI,	/* flavor isn't GSSAPI */
+	FLAVOR_GSSAPI_NO_INFO,	/* flavor is GSSAPI, procedure & service unknown */
+	FLAVOR_GSSAPI		/* flavor is GSSAPI, procedure & service known */
+} flavor_t;
+
+typedef struct _rpc_call_info_value {
+	guint32	req_num;	/* frame number of first request seen */
+	guint32	rep_num;	/* frame number of first reply seen */
+	guint32	prog;
+	guint32	vers;
+	guint32	proc;
+	guint32	xid;
+	flavor_t flavor;
+	guint32 gss_proc;
+	guint32 gss_svc;
+	struct _rpc_proc_info_value*	proc_info;
+	gboolean request;	/* Is this a request or not ?*/
+	nstime_t req_time;
+} rpc_call_info_value;
+
 
 typedef int (old_dissect_function_t)(const u_char* pd, int offset, frame_data* fd, proto_tree* tree);
 typedef int (dissect_function_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* tree);

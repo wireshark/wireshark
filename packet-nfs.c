@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2001, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.60 2001/11/27 07:41:39 guy Exp $
+ * $Id: packet-nfs.c,v 1.61 2002/01/12 10:24:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,11 +40,13 @@
 
 #include "packet-rpc.h"
 #include "packet-nfs.h"
+#include "prefs.h"
 
 
 static int proto_nfs = -1;
 
 static int hf_nfs_fh_length = -1;
+static int hf_nfs_fh_hash = -1;
 static int hf_nfs_fh_fsid_major = -1;
 static int hf_nfs_fh_fsid_minor = -1;
 static int hf_nfs_fh_fsid_inode = -1;
@@ -71,6 +73,7 @@ static int hf_nfs_fh_fsid_type = -1;
 static int hf_nfs_fh_fileid_type = -1;
 static int hf_nfs_stat = -1;
 static int hf_nfs_name = -1;
+static int hf_nfs_full_name = -1;
 static int hf_nfs_readlink_data = -1;
 static int hf_nfs_read_offset = -1;
 static int hf_nfs_read_count = -1;
@@ -377,6 +380,362 @@ static gint ett_nfs_fs_location4 = -1;
 static gint ett_nfs_open4_result_flags = -1;
 static gint ett_nfs_secinfo4_flavor_info = -1;
 static gint ett_nfs_stateid4 = -1;
+
+
+/* file name snooping */
+gboolean nfs_file_name_snooping = FALSE;
+gboolean nfs_file_name_full_snooping = FALSE;
+typedef struct nfs_name_snoop {
+	int fh_len;
+	unsigned char *fh;
+	int name_len;
+	unsigned char *name;
+	int parent_len;
+	unsigned char *parent;
+	int full_name_len;
+	unsigned char *full_name;
+} nfs_name_snoop_t;
+
+typedef struct nfs_name_snoop_key {
+	int key;
+	int fh_len;
+	unsigned char *fh;
+} nfs_name_snoop_key_t;
+
+static GMemChunk *nfs_name_snoop_chunk = NULL;
+static int nfs_name_snoop_init_count = 100;
+static GHashTable *nfs_name_snoop_unmatched = NULL;
+
+static GMemChunk *nfs_name_snoop_key_chunk = NULL;
+static int nfs_name_snoop_key_init_count = 100;
+static GHashTable *nfs_name_snoop_matched = NULL;
+
+static GHashTable *nfs_name_snoop_known = NULL;
+
+static gint
+nfs_name_snoop_matched_equal(gconstpointer k1, gconstpointer k2)
+{
+	nfs_name_snoop_key_t *key1 = (nfs_name_snoop_key_t *)k1;
+	nfs_name_snoop_key_t *key2 = (nfs_name_snoop_key_t *)k2;
+
+	return (key1->key==key2->key)
+	     &&(key1->fh_len==key2->fh_len)
+	     &&(!memcmp(key1->fh, key2->fh, key1->fh_len));
+}
+static guint
+nfs_name_snoop_matched_hash(gconstpointer k)
+{
+	nfs_name_snoop_key_t *key = (nfs_name_snoop_key_t *)k;
+	int i;
+	int hash;
+
+	hash=key->key;
+	for(i=0;i<key->fh_len;i++)
+		hash ^= key->fh[i];
+
+	return hash;
+}
+static gint
+nfs_name_snoop_unmatched_equal(gconstpointer k1, gconstpointer k2)
+{
+	guint32 key1 = (guint32)k1;
+	guint32 key2 = (guint32)k2;
+
+	return key1==key2;
+}
+static guint
+nfs_name_snoop_unmatched_hash(gconstpointer k)
+{
+	guint32 key = (guint32)k;
+
+	return key;
+}
+static gboolean
+nfs_name_snoop_unmatched_free_all(gpointer key_arg, gpointer value, gpointer user_data)
+{
+	nfs_name_snoop_t *nns = (nfs_name_snoop_t *)value;
+
+	if(nns->name){
+		g_free((gpointer)nns->name);
+		nns->name=NULL;
+		nns->name_len=0;
+	}
+	if(nns->full_name){
+		g_free((gpointer)nns->full_name);
+		nns->full_name=NULL;
+		nns->full_name_len=0;
+	}
+	if(nns->parent){
+		g_free((gpointer)nns->parent);
+		nns->parent=NULL;
+		nns->parent_len=0;
+	}
+	if(nns->fh){
+		g_free((gpointer)nns->fh);
+		nns->fh=NULL;
+		nns->fh_len=0;
+	}
+	return TRUE;
+}
+
+static void
+nfs_name_snoop_init(void)
+{
+	if (nfs_name_snoop_unmatched != NULL) {
+		g_hash_table_foreach_remove(nfs_name_snoop_unmatched,
+				nfs_name_snoop_unmatched_free_all, NULL);
+	} else {
+		/* The fragment table does not exist. Create it */
+		nfs_name_snoop_unmatched=g_hash_table_new(nfs_name_snoop_unmatched_hash,
+			nfs_name_snoop_unmatched_equal);
+	}
+	if (nfs_name_snoop_matched != NULL) {
+		g_hash_table_foreach_remove(nfs_name_snoop_matched,
+				nfs_name_snoop_unmatched_free_all, NULL);
+	} else {
+		/* The fragment table does not exist. Create it */
+		nfs_name_snoop_matched=g_hash_table_new(nfs_name_snoop_matched_hash,
+			nfs_name_snoop_matched_equal);
+	}
+	if (nfs_name_snoop_known != NULL) {
+		g_hash_table_foreach_remove(nfs_name_snoop_known,
+				nfs_name_snoop_unmatched_free_all, NULL);
+	} else {
+		/* The fragment table does not exist. Create it */
+		nfs_name_snoop_known=g_hash_table_new(nfs_name_snoop_matched_hash,
+			nfs_name_snoop_matched_equal);
+	}
+
+	if(nfs_name_snoop_chunk){
+		g_mem_chunk_destroy(nfs_name_snoop_chunk);
+		nfs_name_snoop_chunk = NULL;
+	}
+	if(nfs_name_snoop_key_chunk){
+		g_mem_chunk_destroy(nfs_name_snoop_key_chunk);
+		nfs_name_snoop_key_chunk = NULL;
+	}
+
+	if(nfs_file_name_snooping){
+		nfs_name_snoop_chunk = g_mem_chunk_new("nfs_name_snoop_chunk",
+			sizeof(nfs_name_snoop_t),
+			nfs_name_snoop_init_count * sizeof(nfs_name_snoop_t),
+			G_ALLOC_ONLY);
+		nfs_name_snoop_key_chunk = g_mem_chunk_new("nfs_name_snoop_key_chunk",
+			sizeof(nfs_name_snoop_key_t),
+			nfs_name_snoop_key_init_count * sizeof(nfs_name_snoop_key_t),
+			G_ALLOC_ONLY);
+	}
+		
+}
+
+void
+nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, int parent_offset, int parent_len, unsigned char *name)
+{
+	nfs_name_snoop_t *nns, *old_nns;
+	unsigned char *ptr=NULL;
+
+	/* filter out all '.' and '..' names */
+	if(!name){
+		ptr=(unsigned char *)tvb_get_ptr(tvb, name_offset, name_len);
+		if(ptr[0]=='.'){
+			if(ptr[1]==0){
+				return;
+			}
+			if(ptr[1]=='.'){
+				if(ptr[2]==0){
+					return;
+				}
+			}
+		}
+	}
+
+	nns=g_mem_chunk_alloc(nfs_name_snoop_chunk);
+
+	nns->fh_len=0;
+	nns->fh=NULL;
+
+	if(parent_len){
+		nns->parent_len=parent_len;
+		nns->parent=g_malloc(parent_len);
+		memcpy(nns->parent, tvb_get_ptr(tvb, parent_offset, parent_len), parent_len);
+	} else {
+		nns->parent_len=0;
+		nns->parent=NULL;
+	}
+
+	nns->name_len=name_len;
+	if(name){
+		nns->name=name;
+	} else {
+		nns->name=g_malloc(name_len+1);
+		memcpy(nns->name, ptr, name_len);
+	}
+	nns->name[name_len]=0;
+
+	nns->full_name_len=0;
+	nns->full_name=NULL;
+
+	/* remove any old entry for this */
+	old_nns=g_hash_table_lookup(nfs_name_snoop_unmatched, (gconstpointer)xid);
+	if(old_nns){
+		/* if we havnt seen the reply yet, then there are no
+		   matched entries for it, thus we can dealloc the arrays*/
+		if(!old_nns->fh){
+			g_free(old_nns->name);
+			old_nns->name=NULL;
+			old_nns->name_len=0;
+
+			g_free(old_nns->parent);
+			old_nns->parent=NULL;
+			old_nns->parent_len=0;
+
+			g_mem_chunk_free(nfs_name_snoop_chunk, old_nns);
+		}
+		g_hash_table_remove(nfs_name_snoop_unmatched, (gconstpointer)xid);
+	}
+
+	g_hash_table_insert(nfs_name_snoop_unmatched, (gpointer)xid, nns);
+}
+
+static void
+nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_len)
+{
+	nfs_name_snoop_t *nns, *old_nns;
+	nfs_name_snoop_key_t *key;
+
+	/* find which request we correspond to */
+	nns=g_hash_table_lookup(nfs_name_snoop_unmatched, (gconstpointer)xid);
+	if(!nns){
+		/* oops couldnt find matching request, bail out */
+		return;
+	}
+
+	/* if we have already seen this response earlier */
+	if(nns->fh){
+		return;
+	}
+
+	/* oki, we have a new entry */
+	nns->fh=g_malloc(fh_len);
+	memcpy(nns->fh, tvb_get_ptr(tvb, fh_offset, fh_len), fh_len);
+	nns->fh_len=fh_len;
+	
+	key=g_mem_chunk_alloc(nfs_name_snoop_key_chunk);
+	key->key=0;
+	key->fh_len=nns->fh_len;
+	key->fh    =nns->fh;
+
+	/* already have something matched for this fh, remove it from
+	   the table */
+	old_nns=g_hash_table_lookup(nfs_name_snoop_matched, key);
+	if(old_nns){
+		g_hash_table_remove(nfs_name_snoop_matched, key);
+	}
+
+	g_hash_table_remove(nfs_name_snoop_unmatched, (gconstpointer)xid);
+	g_hash_table_insert(nfs_name_snoop_matched, key, nns);
+}
+
+static void
+nfs_full_name_snoop(nfs_name_snoop_t *nns, int *len, unsigned char **name, unsigned char **pos)
+{
+	nfs_name_snoop_t *parent_nns = NULL;
+	nfs_name_snoop_key_t key;
+
+	/* check if the nns component ends with a '/' else we just allocate
+	   an extra byte to len to accommodate for it later */
+	if(nns->name[nns->name_len-1]!='/'){
+		(*len)++;
+	}
+
+	(*len) += nns->name_len;
+
+	if(nns->parent==NULL){
+		*name = g_malloc((*len)+1);
+		*pos = *name;
+
+		strcpy(*pos, nns->name);
+		*pos += nns->name_len;
+		return;
+	}
+
+	key.key=0;
+	key.fh_len=nns->parent_len;
+	key.fh=nns->parent;
+
+	parent_nns=g_hash_table_lookup(nfs_name_snoop_matched, &key);
+
+	if(parent_nns){
+		nfs_full_name_snoop(parent_nns, len, name, pos);
+		if(*name){
+			/* make sure components are '/' separated */
+			if( (*pos)[-1] != '/'){
+				**pos='/';
+				(*pos)++;
+				**pos=0;
+			}
+			strcpy(*pos, nns->name);
+			*pos += nns->name_len;
+		}
+		return;
+	}
+
+	return;
+}
+
+static void
+nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_offset, int fh_len)
+{
+	nfs_name_snoop_key_t key;
+	nfs_name_snoop_t *nns = NULL;
+
+	/* if this is a new packet, see if we can register the mapping */
+	if(!pinfo->fd->flags.visited){
+		key.key=0;
+		key.fh_len=fh_len;
+		key.fh=(unsigned char *)tvb_get_ptr(tvb, fh_offset, fh_len);
+
+		nns=g_hash_table_lookup(nfs_name_snoop_matched, &key);
+		if(nns){
+			nfs_name_snoop_key_t *k;
+			k=g_mem_chunk_alloc(nfs_name_snoop_key_chunk);
+			k->key=pinfo->fd->num;
+			k->fh_len=nns->fh_len;
+			k->fh=nns->fh;
+			g_hash_table_insert(nfs_name_snoop_known, k, nns);
+
+			if(nfs_file_name_full_snooping){
+				unsigned char *name=NULL, *pos=NULL;
+				int len=0;
+
+				nfs_full_name_snoop(nns, &len, &name, &pos);
+				if(name){
+					nns->full_name=name;
+					nns->full_name_len=len;
+				}
+			}
+		}
+	}
+
+	/* see if we know this mapping */
+	if(!nns){
+		key.key=pinfo->fd->num;
+		key.fh_len=fh_len;
+		key.fh=(unsigned char *)tvb_get_ptr(tvb, fh_offset, fh_len);
+
+		nns=g_hash_table_lookup(nfs_name_snoop_known, &key);
+	}
+
+	/* if we know the mapping, print the filename */
+	if(nns){
+		proto_tree_add_string_format(tree, hf_nfs_name, tvb, 
+			fh_offset, 0, nns->name, "Name: %s", nns->name);
+		if(nns->full_name){
+			proto_tree_add_string_format(tree, hf_nfs_full_name, tvb, 
+				fh_offset, 0, nns->name, "Full Name: %s", nns->full_name);
+		}
+	}
+}
 
 /* file handle dissection */
 
@@ -904,11 +1263,41 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	unsigned int fhtype = FHT_UNKNOWN;
 
+	if(nfs_file_name_snooping){
+		if(!pinfo->fd->flags.visited){
+			rpc_call_info_value *civ=pinfo->private_data;
+
+			/* MOUNT v1,v2 MNT replies might give us a filehandle*/
+			if( (civ->prog==100005)
+			  &&(civ->proc==1)
+			  &&((civ->vers==1)||(civ->vers==2))
+			  &&(!civ->request)
+			) {
+				nfs_name_snoop_add_fh(civ->xid, tvb, 
+					offset, fhlen);
+			}
+		}
+
+		nfs_name_snoop_fh(pinfo, tree, tvb, offset, fhlen);
+	}
+
 	/* filehandle too long */
 	if (fhlen>64) goto type_ready;
 	/* Not all bytes there. Any attempt to deduce the type would be
 	   senseless. */
 	if (!tvb_bytes_exist(tvb,offset,fhlen)) goto type_ready;
+
+	/* create a semiunique hash value for the filehandle */
+	{
+		guint32 fhhash;
+		guint32 i;
+
+		for(fhhash=0,i=0;i<(fhlen-3);i+=4){
+			fhhash ^= tvb_get_ntohl(tvb, offset+i);
+		}
+		proto_tree_add_uint(tree, hf_nfs_fh_hash, tvb, offset, fhlen,
+			fhhash);
+	}
 		
 	/* calculate (heuristically) fhtype */
 	switch (fhlen) {
@@ -1196,6 +1585,21 @@ dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			ftree = proto_item_add_subtree(fitem, ett_nfs_fhandle);
 	}
 
+	/* are we snooping fh to filenames ?*/
+	if((!pinfo->fd->flags.visited) && nfs_file_name_snooping){
+		rpc_call_info_value *civ=pinfo->private_data;
+
+		/* NFS v2 LOOKUP, CREATE, MKDIR calls might give us a mapping*/
+		if( (civ->prog==100003)
+		  &&(civ->vers==2)
+		  &&(!civ->request)
+		  &&((civ->proc==4)||(civ->proc==9)||(civ->proc==14))
+		) {
+			nfs_name_snoop_add_fh(civ->xid, tvb, 
+				offset, 32);
+		}
+	}
+
 	if (ftree)
 		dissect_fhandle_data(tvb, offset, pinfo, ftree, FHSIZE);
 
@@ -1477,6 +1881,22 @@ dissect_diropargs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 		diropargs_item = proto_tree_add_text(tree, tvb, offset,
 			tvb_length_remaining(tvb, offset), "%s", name);
 		diropargs_tree = proto_item_add_subtree(diropargs_item, ett_nfs_diropargs);
+	}
+
+	/* are we snooping fh to filenames ?*/
+	if((!pinfo->fd->flags.visited) && nfs_file_name_snooping){
+		/* v2 LOOKUP, CREATE, MKDIR calls might give us a mapping*/
+		rpc_call_info_value *civ=pinfo->private_data;
+
+		if( (civ->prog==100003)
+		  &&(civ->vers==2)
+		  &&(civ->request)
+		  &&((civ->proc==4)||(civ->proc==9)||(civ->proc==14))
+		) {
+			nfs_name_snoop_add_name(civ->xid, tvb, 
+				offset+36, tvb_get_ntohl(tvb, offset+32),
+				offset, 32, NULL);
+		}
 	}
 
 	offset = dissect_fhandle (tvb,offset,pinfo,diropargs_tree,"dir");
@@ -2124,8 +2544,9 @@ dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint fh3_len;
 	guint fh3_len_full;
 	guint fh3_fill;
-	proto_item* fitem;
+	proto_item* fitem = NULL;
 	proto_tree* ftree = NULL;
+	int fh_offset,fh_len;
 
 	fh3_len = tvb_get_ntohl(tvb, offset+0);
 	fh3_len_full = rpc_roundup(fh3_len);
@@ -2138,11 +2559,39 @@ dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			ftree = proto_item_add_subtree(fitem, ett_nfs_fh3);
 	}
 
-	if (ftree) {
-		proto_tree_add_uint(ftree, hf_nfs_fh_length, tvb, offset+0, 4,
-				fh3_len);
-		dissect_fhandle_data(tvb, offset+4, pinfo, ftree, fh3_len);
+	/* are we snooping fh to filenames ?*/
+	if((!pinfo->fd->flags.visited) && nfs_file_name_snooping){
+		rpc_call_info_value *civ=pinfo->private_data;
+
+		/* NFS v3 LOOKUP, CREATE, MKDIR calls might give us a mapping*/
+		if( (civ->prog==100003)
+		  &&(civ->vers==3)
+		  &&(!civ->request)
+		  &&((civ->proc==3)||(civ->proc==8)||(civ->proc==9))
+		) {
+			fh_len=tvb_get_ntohl(tvb, offset);
+			fh_offset=offset+4;
+			nfs_name_snoop_add_fh(civ->xid, tvb, 
+				fh_offset, fh_len);
+		}
+
+		/* MOUNT v3 MNT replies might give us a filehandle */
+		if( (civ->prog==100005)
+		  &&(civ->vers==3)
+		  &&(!civ->request)
+		  &&(civ->proc==1)
+		) {
+			fh_len=tvb_get_ntohl(tvb, offset);
+			fh_offset=offset+4;
+			nfs_name_snoop_add_fh(civ->xid, tvb, 
+				fh_offset, fh_len);
+		}
 	}
+
+	proto_tree_add_uint(ftree, hf_nfs_fh_length, tvb, offset+0, 4,
+			fh3_len);
+	dissect_fhandle_data(tvb, offset+4, pinfo, ftree, fh3_len);
+
 	offset += 4 + fh3_len_full;
 	return offset;
 }
@@ -2756,6 +3205,8 @@ dissect_diropargs3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item* diropargs3_item = NULL;
 	proto_tree* diropargs3_tree = NULL;
 	int old_offset = offset;
+	int parent_offset, parent_len;
+	int name_offset, name_len;
 
 	if (tree) {
 		diropargs3_item = proto_tree_add_text(tree, tvb, offset,
@@ -2764,9 +3215,30 @@ dissect_diropargs3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			ett_nfs_diropargs3);
 	}
 
+	parent_offset=offset+4;
+	parent_len=tvb_get_ntohl(tvb, offset);
 	offset = dissect_nfs_fh3(tvb, offset, pinfo, diropargs3_tree, "dir");
+	name_offset=offset+4;
+	name_len=tvb_get_ntohl(tvb, offset);
 	offset = dissect_filename3(tvb, offset, pinfo, diropargs3_tree, 
 		hf_nfs_name, NULL);
+
+	/* are we snooping fh to filenames ?*/
+	if((!pinfo->fd->flags.visited) && nfs_file_name_snooping){
+		/* v3 LOOKUP, CREATE, MKDIR calls might give us a mapping*/
+		rpc_call_info_value *civ=pinfo->private_data;
+
+		if( (civ->prog==100003)
+		  &&(civ->vers==3)
+		  &&(civ->request)
+		  &&((civ->proc==3)||(civ->proc==8)||(civ->proc==9))
+		) {
+			nfs_name_snoop_add_name(civ->xid, tvb, 
+				name_offset, name_len,
+				parent_offset, parent_len, NULL);
+		}
+	}
+
 
 	/* now we know, that diropargs3 is shorter */
 	if (diropargs3_item) {
@@ -5951,6 +6423,9 @@ proto_register_nfs(void)
 		{ &hf_nfs_fh_length, {
 			"length", "nfs.fh.length", FT_UINT32, BASE_DEC,
 			NULL, 0, "file handle length", HFILL }},
+		{ &hf_nfs_fh_hash, {
+			"hash", "nfs.fh.hash", FT_UINT32, BASE_HEX,
+			NULL, 0, "file handle hash", HFILL }},
 		{ &hf_nfs_fh_fsid_major, {
 			"major", "nfs.fh.fsid.major", FT_UINT32, BASE_DEC,
 			NULL, 0, "major file system ID", HFILL }},
@@ -6026,6 +6501,9 @@ proto_register_nfs(void)
 		{ &hf_nfs_stat, {
 			"Status", "nfs.status2", FT_UINT32, BASE_DEC,
 			VALS(names_nfs_stat), 0, "Reply status", HFILL }},
+		{ &hf_nfs_full_name, {
+			"Full Name", "nfs.full_name", FT_STRING, BASE_DEC,
+			NULL, 0, "Full Name", HFILL }},
 		{ &hf_nfs_name, {
 			"Name", "nfs.name", FT_STRING, BASE_DEC,
 			NULL, 0, "Name", HFILL }},
@@ -6908,9 +7386,22 @@ proto_register_nfs(void)
 		&ett_nfs_secinfo4_flavor_info,
 		&ett_nfs_stateid4
 	};
+	module_t *nfs_module;
+
 	proto_nfs = proto_register_protocol("Network File System", "NFS", "nfs");
 	proto_register_field_array(proto_nfs, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	nfs_module=prefs_register_protocol(proto_nfs, NULL);
+	prefs_register_bool_preference(nfs_module, "file_name_snooping",
+				       "Snoop FH to filename mappings",
+				       "Whether the dissector should snoop the FH to filename mappings by looking inside certain packets",
+				       &nfs_file_name_snooping);
+	prefs_register_bool_preference(nfs_module, "file_full_name_snooping",
+				       "Snoop full path to filenames",
+				       "Whether the dissector should snoop the full pathname for files for matching FH's",
+				       &nfs_file_name_full_snooping);
+	register_init_routine(nfs_name_snoop_init);
 }
 
 void

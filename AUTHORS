@@ -568,6 +568,7 @@ Ronnie Sahlberg <sahlberg[AT]optushome.com.au> {
 	SMB tvbuffication
 	NDMPv3 support
 	Add time between request and reply as a field to ONC RPC replies
+	File handle to file name resolution in NFS and realted protocols
 }
 
 Borosa Tomislav <tomislav.borosa[AT]SIEMENS.HR> {
