@@ -2442,6 +2442,11 @@ dissect_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	COUNT_BYTES(1);
 
 	/* Service */
+	/*
+	 * XXX - the SNIA CIFS spec "Strings that are never passed in
+	 * Unicode are: ... The service name string in the
+	 * Tree_Connect_AndX SMB".  Is that claim false?
+	 */
 	an = get_unicode_or_ascii_string(tvb, &offset,
 		si->unicode, &an_len, FALSE, FALSE, &bc);
 	if (an == NULL)
