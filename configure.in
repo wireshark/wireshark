@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.18 1998/12/29 04:05:34 gerald Exp $
+# $Id: configure.in,v 1.19 1999/01/10 21:23:41 gerald Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -48,11 +48,6 @@ esac
 AM_PATH_GTK(1.0.0, CFLAGS="$CFLAGS $GTK_CFLAGS" LIBS="$LIBS $GTK_LIBS",
                    AC_MSG_ERROR(GTK+ distribution not found.))
 
-# Pcap checks
-AC_CHECK_HEADER(net/bpf.h,, AC_MSG_ERROR(Header file net/bpf.h not found.))
-AC_CHECK_HEADER(pcap.h,, AC_MSG_ERROR(Header file pcap.h not found.))
-AC_CHECK_LIB(pcap, pcap_open_offline,, AC_MSG_ERROR(Library libpcap not found.))
-
 # Evidently, some systems have pcap.h, etc. in */include/pcap
 AC_MSG_CHECKING(for extraneous pcap header directories)
 found_pcap_dir=""
@@ -60,6 +55,8 @@ for pcap_dir in /usr/include/pcap /usr/local/include/pcap
 do
   if test -d $pcap_dir ; then
     LIBS="$LIBS -L$pcap_dir"
+    CFLAGS="$CFLAGS -I$pcap_dir"
+    CPPFLAGS="$CPPFLAGS -I$pcap_dir"
     found_pcap_dir=" $found_pcap_dir -L$pcap_dir"
   fi
 done
@@ -69,6 +66,11 @@ if test "$found_pcap_dir" != "" ; then
 else
   AC_MSG_RESULT(not found)
 fi
+
+# Pcap checks
+AC_CHECK_HEADER(net/bpf.h,, AC_MSG_ERROR(Header file net/bpf.h not found.))
+AC_CHECK_HEADER(pcap.h,, AC_MSG_ERROR(Header file pcap.h not found.))
+AC_CHECK_LIB(pcap, pcap_open_offline,, AC_MSG_ERROR(Library libpcap not found.))
 
 # Wiretap check
 AC_MSG_CHECKING(whether to include wiretap library)
