@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.1 1999/08/24 16:27:21 gram Exp $
+ * $Id: colors.c,v 1.2 1999/08/24 18:53:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -596,7 +596,7 @@ colorize_ok_cb                         (GtkButton       *button,
   filter_name = g_strdup(gtk_entry_get_text(GTK_ENTRY(filt_name_entry)));
   filter_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(filt_text_entry)));
 
-  if(index(filter_name,'@') || index(filter_text,'@')){
+  if(strchr(filter_name,'@') || strchr(filter_text,'@')){
 	simple_dialog(ESD_TYPE_WARN,NULL, "Filter names and strings must not"
 	  " use the '@' character. Filter unchanged.");
 	g_free(filter_name);
