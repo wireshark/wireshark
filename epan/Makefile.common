@@ -57,6 +57,8 @@ LIBETHEREAL_SRC = 		\
 	range.c			\
 	req_resp_hdrs.c		\
 	sha1.c			\
+	sigcomp_state_hdlr.c	\
+	sigcomp-udvm.c	\
 	sminmpec.c		\
 	sna-utils.c		\
 	strutil.c		\
@@ -113,6 +115,8 @@ LIBETHEREAL_INCLUDES = 		\
 	report_err.h		\
 	req_resp_hdrs.h		\
 	sha1.h			\
+	sigcomp_state_hdlr.h	\
+	sigcomp-udvm.h	\
 	slab.h			\
 	sminmpec.h		\
 	sna-utils.h		\
