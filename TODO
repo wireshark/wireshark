@@ -1,13 +1,10 @@
-$Id: TODO,v 1.6 1999/12/26 23:52:54 guy Exp $
+$Id: TODO,v 1.7 2000/08/25 19:43:28 deniel Exp $
 
 Things to do:
 =============
 
 *) Protocol dispatchers, allowing run-time setting of protocol "chaining"
 (i.e., UDP port X calls dissector Y)
-
-*) Loadable modules, closely related to the previous item.  (These are
-in the current version in CVS.)
 
 *) Work on packet capturing in wiretap
 
@@ -75,18 +72,11 @@ other than, perhaps a count of packets captured, or captures and prints
 packet summary or detail data to the standard output, or reads a capture
 file and prints to the standard output summary or detail data.
 
-*) Display filters: support FT_STRING filters
-
 *) Display filters: allow filtering on "enumerated" data types by name,
 i.e. if a field has a "value_string" array associated with it, allow
 users to specify the string associated with a value.
 
 *) Display filters: add regexes to strings and byte ranges
 
-*) Krb dissector - standard krb4 - from tcpdump (nneul)
-
-*) Krb5 dissector - from scratch, need to use ASN.1 code (nneul)
-
-*) IRC dissector
-
 *) Make lines in GTK Tree (proto_tree GUI) user-selectable
+
