@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.74 2001/04/03 05:26:26 gram Exp $
+ * $Id: tethereal.c,v 1.75 2001/04/03 05:55:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -235,8 +235,10 @@ main(int argc, char *argv[])
         strerror(pf_open_errno));
   }
 
+#ifdef WIN32
   /* Load Wpcap, if possible */
   load_wpcap();
+#endif
     
   /* Initialize the capture file struct */
   cfile.plist		= NULL;
