@@ -1,7 +1,7 @@
 /* packet-isis-snp.c
  * Routines for decoding isis complete & partial SNP and their payload
  *
- * $Id: packet-isis-snp.c,v 1.21 2003/03/31 07:44:09 guy Exp $
+ * $Id: packet-isis-snp.c,v 1.22 2003/07/09 04:25:16 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -142,14 +142,14 @@ static const isis_clv_handle_t clv_l2_psnp_opts[] = {
 		dissect_psnp_lsp_entries
 	},
 	{
-		ISIS_CLV_L2_PSNP_AUTHENTICATION,
-		"Authentication",
+		ISIS_CLV_L2_PSNP_AUTHENTICATION_NS,
+		"Authentication(non spec)",
 		&ett_isis_psnp_authentication,
 		dissect_l2_snp_authentication_clv
 	},
 	{
-		ISIS_CLV_L2_PSNP_AUTHENTICATION_NS,
-		"Authentication(non spec)",
+		ISIS_CLV_L2_PSNP_AUTHENTICATION,
+		"Authentication",
 		&ett_isis_psnp_authentication,
 		dissect_l2_snp_authentication_clv
 	},
@@ -417,13 +417,13 @@ isis_dissect_isis_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 		return;
 	}
 	/* Call into payload dissector */
-	if (type == ISIS_TYPE_L1_CSNP ) {
+	if (type == ISIS_TYPE_L1_PSNP ) {
 		isis_dissect_clvs(tvb, psnp_tree, offset,
-			clv_l1_csnp_opts, len, id_length,
+			clv_l1_psnp_opts, len, id_length,
 			ett_isis_psnp_clv_unknown );
 	} else {
 		isis_dissect_clvs(tvb, psnp_tree, offset,
-			clv_l2_csnp_opts, len, id_length,
+			clv_l2_psnp_opts, len, id_length,
 			ett_isis_psnp_clv_unknown );
 	}
 }
