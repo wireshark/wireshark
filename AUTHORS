@@ -927,6 +927,8 @@ Andrew C. Feren <aferen[AT]cetacean.com> {
 	    Python if PYTHON isn't defined
 	make-manuf fix
 	Put all of Cisco's OUIs into manuf.tmpl
+	Put human-readable descriptions in the combo box entries for
+	    "Interface:" on Windows
 }
 
 Tomas Kukosa <tomas.kukosa[AT]anfdata.cz> {
