@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.76 2003/10/07 17:36:37 guy Exp $
+ * $Id: packet-ospf.c,v 1.77 2003/10/24 22:59:37 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -1665,7 +1665,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 	       (reserved == 0 ? "Reserved: %u" : "Reserved: %u (incorrect, should be 0)"),reserved);
 
 	/* metric */
-        metric=tvb_get_ntoh24(tvb, offset+11);
+        metric=tvb_get_ntoh24(tvb, offset+1);
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset + 1, 3,"Metric: %u",metric);
 
 	/* prefix length */
@@ -1706,8 +1706,8 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 	       (reserved == 0 ? "Reserved: %u" : "Reserved: %u (incorrect, should be 0)"),reserved);
 
 	/* metric */
-        metric=tvb_get_ntoh24(tvb, offset+6);
-	proto_tree_add_text(ospf_lsa_tree, tvb, offset + 6, 3,"Metric: %u",metric);
+        metric=tvb_get_ntoh24(tvb, offset+5);
+	proto_tree_add_text(ospf_lsa_tree, tvb, offset + 5, 3,"Metric: %u",metric);
 
 	/* Destination Router ID */
         proto_tree_add_text(ospf_lsa_tree, tvb, offset + 8, 4, "Destination Router ID: %s",
