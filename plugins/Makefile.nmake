@@ -11,7 +11,7 @@ CFLAGS=/DHAVE_CONFIG_H /I.. /I../wiretap /I. $(GLIB_CFLAGS) \
 
 OBJECTS=plugin_api.obj 
 
-all: $(OBJECTS) acn artnet asn1 ciscosm docsis enttec giop gryphon irda lwres megaco mgcp opsi pcli rdm rlm rtnet rudp v5ua
+all: $(OBJECTS) acn artnet asn1 ciscosm docsis enttec giop gryphon irda lwres mate megaco mgcp opsi pcli rdm rlm rtnet rudp v5ua
 
 Xplugin_api.c: plugin_gen.py plugin_api_list.c
 	@echo **** Plugin api may be out of date, please generate new files:
@@ -77,6 +77,11 @@ lwres::
 	cd lwres
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
+
+mate::
+	cd mate
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd .. 
 
 megaco::
 	cd megaco
