@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.32 2002/05/09 02:44:22 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.33 2002/05/11 22:28:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -959,7 +959,7 @@ dissect_doserror(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int
 dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      proto_tree *tree, char *drep, int hfindex, 
-		      e_ctx_hnd *pdata)
+		      e_ctx_hnd *pdata, gboolean is_open, gboolean is_close)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	proto_item *item;
@@ -979,6 +979,16 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	offset = dissect_ndr_ctx_hnd(tvb, offset, pinfo, subtree, drep, 
 				     hfindex, &hnd); 
 
+	/* Store request/reply information */
+		
+	if (di->request) {
+		dcerpc_smb_store_pol((const guint8 *)&hnd, NULL, 0,
+				     is_close ? pinfo->fd->num : 0);
+	} else {
+		dcerpc_smb_store_pol((const guint8 *)&hnd, NULL, 
+				     is_open ? pinfo->fd->num: 0, 0);
+	}
+
 	/* Insert request/reply information if known */
 
 	if (dcerpc_smb_fetch_pol((const guint8 *)&hnd, &name, &open_frame, 
@@ -993,16 +1003,9 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			proto_tree_add_text(subtree, tvb, old_offset,
 					    sizeof(e_ctx_hnd),
 					    "Closed in frame %u", close_frame);
+		if (name != NULL)
+			proto_item_append_text(item, ": %s", name);
 	}
-
-	/* Store request/reply information */
-		
-	if (di->request)
-		dcerpc_smb_store_pol((const guint8 *)&hnd, NULL, 0,
-				     pinfo->fd->num); 
-	else
-		dcerpc_smb_store_pol((const guint8 *)&hnd, NULL, 
-				     pinfo->fd->num, 0);
 
 	if (pdata)
 		*pdata = hnd;

@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.46 2002/05/02 08:47:23 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.47 2002/05/11 22:29:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -394,12 +394,37 @@ lsa_dissect_ACCESS_MASK(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+/*
+ * XXX - it'd be nice if we could arrange that this be passed
+ * some out-of-band indication of whether the handle is being opened,
+ * closed, or just used.
+ */
 static int
 lsa_dissect_LSA_HANDLE(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL);
+			hf_lsa_hnd, NULL, FALSE, FALSE);
+
+	return offset;
+}
+
+static int
+lsa_dissect_LSA_HANDLE_open(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+			hf_lsa_hnd, NULL, TRUE, FALSE);
+
+	return offset;
+}
+
+static int
+lsa_dissect_LSA_HANDLE_close(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+			hf_lsa_hnd, NULL, FALSE, TRUE);
 
 	return offset;
 }
@@ -455,7 +480,7 @@ lsa_dissect_lsaclose_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
+		lsa_dissect_LSA_HANDLE_close, NDR_POINTER_REF,
 		"LSA_HANDLE pointer: hnd", -1, 0);
 	return offset;
 }
@@ -509,7 +534,7 @@ lsa_dissect_lsaopenpolicy_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
+		lsa_dissect_LSA_HANDLE_open, NDR_POINTER_REF,
 		"LSA_HANDLE pointer: hnd", -1, 0);
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_lsa_rc, NULL);
@@ -540,7 +565,7 @@ lsa_dissect_lsaopenpolicy2_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
+		lsa_dissect_LSA_HANDLE_open, NDR_POINTER_REF,
 		"LSA_HANDLE pointer: hnd", -1, 0);
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_lsa_rc, NULL);

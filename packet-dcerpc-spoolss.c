@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.27 2002/05/10 02:41:48 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.28 2002/05/11 22:28:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -360,7 +360,8 @@ static int SpoolssClosePrinter_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_spoolss_hnd, &policy_hnd);
+				       hf_spoolss_hnd, &policy_hnd,
+				       FALSE, TRUE);
 
 	dcerpc_smb_fetch_pol((const guint8 *)&policy_hnd, &pol_name, 0, 0);
 
@@ -389,7 +390,8 @@ static int SpoolssClosePrinter_r(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_spoolss_hnd, NULL);
+				       hf_spoolss_hnd, NULL,
+				       FALSE, FALSE);
 	
 
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
@@ -472,7 +474,8 @@ static int SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, &policy_hnd);
+		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, &policy_hnd,
+		FALSE, FALSE);
 
  	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
  					  prs_UNISTR2_dp, (void **)&value_name,
@@ -3094,7 +3097,6 @@ static int SpoolssEnumJobs_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	const guint8 *policy_hnd;
 	guint32 level;
 
 	if (dcv->rep_frame != 0)
@@ -3104,7 +3106,8 @@ static int SpoolssEnumJobs_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_spoolss_hnd, NULL);
+				       hf_spoolss_hnd, NULL,
+				       FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_enumjobs_firstjob, NULL);
@@ -3194,7 +3197,7 @@ done:
 #define JOB_CONTROL_RESTART            4
 #define JOB_CONTROL_DELETE             5
 
-const value_string setjob_commands[] = {
+static const value_string setjob_commands[] = {
 	{ JOB_CONTROL_PAUSE, "Pause" },
 	{ JOB_CONTROL_RESUME, "Resume" },
 	{ JOB_CONTROL_CANCEL, "Cancel" },
@@ -3217,7 +3220,8 @@ static int SpoolssSetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_spoolss_hnd, NULL);
+				       hf_spoolss_hnd, NULL,
+				       FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_jobid, &jobid);
@@ -3277,7 +3281,8 @@ static int SpoolssGetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_spoolss_hnd, NULL);
+				       hf_spoolss_hnd, NULL,
+				       FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_jobid, &jobid);
@@ -3369,7 +3374,8 @@ static int SpoolssStartPagePrinter_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_spoolss_hnd, &policy_hnd);
+				       hf_spoolss_hnd, &policy_hnd,
+				       FALSE, FALSE);
 
 	dcerpc_smb_fetch_pol((const guint8 *)&policy_hnd, &pol_name, 0, 0);
 
@@ -3423,7 +3429,8 @@ static int SpoolssEndPagePrinter_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_spoolss_hnd, &policy_hnd);
+				       hf_spoolss_hnd, &policy_hnd,
+				       FALSE, FALSE);
 
 	dcerpc_smb_fetch_pol((const guint8 *)&policy_hnd, &pol_name, 0, 0);
 
@@ -3690,7 +3697,7 @@ proto_register_dcerpc_spoolss(void)
 		    NULL, 0x0, "SPOOLSS policy handle", HFILL }},
 		{ &hf_spoolss_rc,
 		  { "Return code", "spoolss.rc", FT_UINT32, BASE_HEX, 
-		    NULL, 0x0, "SPOOLSS return code", HFILL }},
+		    VALS(DOS_errors), 0x0, "SPOOLSS return code", HFILL }},
 		{ &hf_spoolss_offered,
 		  { "Offered", "spoolss.offered", FT_UINT32, BASE_DEC, 
 		    NULL, 0x0, "Size of buffer offered in this request", HFILL }},
@@ -3796,7 +3803,7 @@ proto_register_dcerpc_spoolss(void)
 
 		{ &hf_spoolss_setjob_cmd,
 		  { "Set job command", "spoolss.setjob.cmd", FT_UINT32, BASE_DEC, 
-		    &setjob_commands, 0x0, "Printer data name", HFILL }},
+		    VALS(&setjob_commands), 0x0, "Printer data name", HFILL }},
 	};
 
         static gint *ett[] = {

@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.23 2002/05/09 02:44:22 tpot Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.24 2002/05/11 22:28:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -163,7 +163,7 @@ dissect_doserror(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int
 dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      proto_tree *tree, char *drep, int hfindex, 
-		      e_ctx_hnd *pdata);
+		      e_ctx_hnd *pdata, gboolean is_open, gboolean is_close);
 
 int
 dissect_nt_GUID(tvbuff_t *tvb, int offset,
