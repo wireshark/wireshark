@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.87 1999/08/15 01:02:24 guy Exp $
+ * $Id: ethereal.c,v 1.88 1999/08/15 06:59:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1156,12 +1156,6 @@ main(int argc, char *argv[])
 #endif
       case 'r':        /* Read capture file xxx */
         cf_name = g_strdup(optarg);
-	s = strrchr(cf_name, '/');
-	if (s) {
-		last_open_dir = cf_name;
-		*s = '\0';
-		cf_name = g_strdup(optarg);
-	}
         break;
       case 'R':        /* Read file filter */
         rfilter = g_strdup(optarg);
@@ -1417,9 +1411,14 @@ main(int argc, char *argv[])
   if (cf_name) {
     if ((err = open_cap_file(cf_name, &cf)) == 0)
 	err = read_cap_file(rfilter, &cf);
-    cf_name[0] = '\0';
-    if (err == 0)
+    if (err == 0) {
+      s = strrchr(cf_name, '/');
+      if (s) {
+        last_open_dir = cf_name;
+        *s = '\0';
+      }
       set_menu_sensitivity("/File/Save As...", TRUE);
+    }
   }
 
   /* If we failed to open the preferences file, pop up an alert box;

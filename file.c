@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.70 1999/08/15 01:02:25 guy Exp $
+ * $Id: file.c,v 1.71 1999/08/15 06:59:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -101,43 +101,20 @@ static gint dfilter_progress_cb(gpointer p);
 
 int
 open_cap_file(char *fname, capture_file *cf) {
-  struct stat cf_stat;
-  FILE       *fh;
   wtap       *wth;
-  int        err;
+  int         err;
+  FILE       *fh;
+  struct stat cf_stat;
 
-  /* First, make sure the file is valid */
-  if (stat(fname, &cf_stat)) {
+  wth = wtap_open_offline(fname, &err);
+  if (wth == NULL)
+    goto fail;
+
+  /* Find the size of the file. */
+  fh = wtap_file(wth);
+  if (fstat(fileno(fh), &cf_stat) < 0) {
     err = errno;
-    goto fail;
-  }
-#ifndef WIN32
-  if (! S_ISREG(cf_stat.st_mode) && ! S_ISFIFO(cf_stat.st_mode)) {
-    err = OPEN_CAP_FILE_NOT_REGULAR;
-    goto fail;
-  }
-#endif
-
-  /* Next, try to open the file.
-     XXX - we only need to do this because "wtap_open_offline()"
-     doesn't return an indication of whether the open failed because
-     we don't have access to the file, or because it's not a valid
-     capture file, so we first have to open it with "fopen()" to
-     make sure we have access to it as a boring ordinary file. */
-  fh = fopen(fname, "r");
-  if (fh == NULL) {
-    err = errno;
-    goto fail;
-  }
-  fclose(fh);
-
-  /* Next, try to open it as a wiretap capture file. */
-  wth = wtap_open_offline(fname);
-  if (wth == NULL) {
-    /* XXX - we assume that, because we were able to open it above,
-       this must have failed because it's not a capture file in
-       a format we can read. */
-    err = OPEN_CAP_FILE_UNKNOWN_FORMAT;
+    wtap_close(wth);
     goto fail;
   }
 
@@ -149,7 +126,7 @@ open_cap_file(char *fname, capture_file *cf) {
   ncp_init_protocol();
 
   cf->wth = wth;
-  cf->fh = wtap_file(cf->wth);
+  cf->fh = fh;
   cf->f_len = cf_stat.st_size;
 
   /* set the file name because we need it to set the follow stream filter */
@@ -1001,11 +978,11 @@ file_open_error_message(int err, int for_writing)
 
   switch (err) {
 
-  case OPEN_CAP_FILE_NOT_REGULAR:
+  case WTAP_ERR_NOT_REGULAR_FILE:
     errmsg = "The file \"%s\" is invalid.";
     break;
 
-  case OPEN_CAP_FILE_UNKNOWN_FORMAT:
+  case WTAP_ERR_FILE_UNKNOWN_FORMAT:
     errmsg = "The file \"%s\" is not a capture file in a format Ethereal understands.";
     break;
 
@@ -1020,7 +997,7 @@ file_open_error_message(int err, int for_writing)
     if (for_writing)
       errmsg = "You do not have permission to create or write to the file \"%s\".";
     else
-      errmsg = "You do not have permission to open the file \"%s\".";
+      errmsg = "You do not have permission to read the file \"%s\".";
     break;
 
   default:

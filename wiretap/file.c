@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.12 1999/08/02 02:04:37 guy Exp $
+ * $Id: file.c,v 1.13 1999/08/15 06:59:13 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -26,6 +26,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <errno.h>
 #include "wtap.h"
 #include "buffer.h"
 #include "lanalyzer.h"
@@ -43,14 +45,29 @@
  * WTAP_FILE_UNKNOWN */
 
 /* Opens a file and prepares a wtap struct */
-wtap* wtap_open_offline(char *filename)
+wtap* wtap_open_offline(const char *filename, int *err)
 {
+	struct stat statb;
 	wtap	*wth;
+
+	/* First, make sure the file is valid */
+	if (stat(filename, &statb)) {
+		*err = errno;
+		return NULL;
+	}
+#ifndef WIN32
+	if (! S_ISREG(statb.st_mode) && ! S_ISFIFO(statb.st_mode)) {
+		*err = WTAP_ERR_NOT_REGULAR_FILE;
+		return NULL;
+	}
+#endif
 
 	wth = (wtap*)malloc(sizeof(wtap));
 
 	/* Open the file */
 	if (!(wth->fh = fopen(filename, "rb"))) {
+		*err = errno;
+		free(wth);
 		return NULL;
 	}
 
@@ -96,8 +113,8 @@ wtap* wtap_open_offline(char *filename)
 /* failure: */
 	fclose(wth->fh);
 	free(wth);
-	wth = NULL;
-	return wth;
+	*err = WTAP_ERR_FILE_UNKNOWN_FORMAT;
+	return NULL;
 
 success:
 	wth->frame_buffer = g_malloc(sizeof(struct Buffer));

@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.34 1999/08/15 01:02:26 guy Exp $
+ * $Id: file.h,v 1.35 1999/08/15 06:59:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -90,19 +90,6 @@ typedef struct _capture_file {
   proto_tree  *protocol_tree; /* Protocol tree for currently selected packet */
   FILE        *print_fh;  /* File we're printing to */
 } capture_file;
-
-
-/*
- * "open_cap_file()" can return:
- *
- * 0 on success;
- *
- * a positive "errno" value on an open failure;
- *
- * a negative number, indicating the type of error, on other failures.
- */
-#define	OPEN_CAP_FILE_NOT_REGULAR	-1	/* not a plain file */
-#define	OPEN_CAP_FILE_UNKNOWN_FORMAT	-2	/* not a capture file in a known format */
 
 int  open_cap_file(char *, capture_file *);
 void close_cap_file(capture_file *, void *, guint);

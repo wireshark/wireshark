@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.22 1999/08/02 02:04:38 guy Exp $
+ * $Id: wtap.h,v 1.23 1999/08/15 06:59:13 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -162,8 +162,20 @@ typedef struct wtap {
 						   types */
 } wtap;
 
+/*
+ * On failure, "wtap_open_offline()" returns NULL, and puts into the
+ * "int" pointed to by its second argument:
+ *
+ * 0 on success;
+ *
+ * a positive "errno" value if the capture file can't be opened;
+ *
+ * a negative number, indicating the type of error, on other failures.
+ */
+#define	WTAP_ERR_NOT_REGULAR_FILE	-1	/* not a plain file */
+#define	WTAP_ERR_FILE_UNKNOWN_FORMAT	-2	/* not a capture file in a known format */
 
-wtap* wtap_open_offline(char *filename);
+wtap* wtap_open_offline(const char *filename, int *err);
 void wtap_loop(wtap *wth, int, wtap_handler, u_char*);
 
 FILE* wtap_file(wtap *wth);
@@ -171,7 +183,6 @@ int wtap_snapshot_length(wtap *wth); /* per file */
 int wtap_file_type(wtap *wth);
 const char *wtap_file_type_string(wtap *wth);
 void wtap_close(wtap *wth);
-
 
 /* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a
  * byte array, returns the value of the two or four bytes at the pointer.
