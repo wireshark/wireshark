@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.47 2003/12/23 00:16:45 ulfl Exp $
+ * $Id: gui_prefs.c,v 1.48 2003/12/29 00:48:56 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,6 +62,8 @@ static void color_destroy_cb(GtkWidget *w, gpointer data);
 static void fetch_colors(void);
 static gint fileopen_dir_changed_cb(GtkWidget *myentry _U_, GdkEvent *event, gpointer parent_w);
 static void fileopen_selected_cb(GtkWidget *mybutton_rb _U_, gpointer parent_w);
+static gint recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_, 
+					  GdkEvent *event _U_, gpointer parent_w);
 
 #define SCROLLBAR_PLACEMENT_KEY		"scrollbar_placement"
 #define PLIST_SEL_BROWSE_KEY		"plist_sel_browse"
@@ -84,6 +86,7 @@ static void fileopen_selected_cb(GtkWidget *mybutton_rb _U_, gpointer parent_w);
 #define COLOR_SELECTION_PTR_KEY	"color_selection_ptr"
 
 #define GUI_FILEOPEN_KEY	"fileopen_behavior"
+#define GUI_RECENT_FILES_COUNT_KEY "recent_files_count"
 #define GUI_FILEOPEN_DIR_KEY	"fileopen_directory"
 
 #define GUI_TOOLBAR_STYLE_KEY	"toolbar_style"
@@ -159,6 +162,9 @@ static gboolean font_changed;
    has been set to the name of the font the user selected. */
 static gchar *new_font_name;
 
+/* Used to contain the string from the Recent Files Count Max pref item */
+static char recent_files_count_max_str[128] = "";
+
 #if GTK_MAJOR_VERSION < 2
 #define GUI_TABLE_ROWS 10
 #else
@@ -172,6 +178,7 @@ gui_prefs_show(void)
 	GtkWidget *scrollbar_om, *plist_browse_om;
 	GtkWidget *ptree_browse_om, *highlight_style_om;
         GtkWidget *fileopen_rb, *fileopen_dir_te, *toolbar_style_om;
+	GtkWidget *recent_files_count_max_te;
 	GtkWidget *save_position_cb, *save_size_cb;
 #if GTK_MAJOR_VERSION < 2
 	GtkWidget *expander_style_om, *line_style_om;
@@ -179,6 +186,7 @@ gui_prefs_show(void)
         GtkWidget *altern_colors_om;
 #endif
         int        pos = 0;
+	char       current_val_str[128];
 
 	/* The colors or font haven't been changed yet. */
 	colors_changed = FALSE;
@@ -266,7 +274,16 @@ gui_prefs_show(void)
 	fileopen_rb = create_preference_radio_buttons(main_tb, pos++,
 	    "File Open dialog behavior:", NULL, gui_fileopen_vals,
 	    prefs.gui_fileopen_style);
-        
+
+	/* Number of entries in the recent_files list ... */
+
+	recent_files_count_max_te = create_preference_entry(main_tb, pos++,
+	    "Recent Files Count Max:", "Maximum number of recent files", recent_files_count_max_str);
+	sprintf(current_val_str, "%d", prefs.gui_recent_files_count_max);
+	gtk_entry_set_text(GTK_ENTRY(recent_files_count_max_te), current_val_str);
+	OBJECT_SET_DATA(main_vb, GUI_RECENT_FILES_COUNT_KEY, recent_files_count_max_te);
+	SIGNAL_CONNECT(recent_files_count_max_te, "focus_out_event", recent_files_count_changed_cb, main_vb);
+
 	/* Directory to default File Open dialog to */
 	fileopen_dir_te = create_preference_entry(main_tb, pos++, "Directory:",
 	    NULL, prefs.gui_fileopen_dir);
@@ -657,6 +674,32 @@ static color_info_t color_info[MAX_HANDLED_COL] = {
 #define CS_OPACITY		3
 
 static GdkColor *curcolor = NULL;
+
+static gint
+recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_, 
+			      GdkEvent *event _U_, gpointer parent_w)
+{
+    GtkWidget	*recent_files_count_te;
+    guint newval;
+    
+    recent_files_count_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, GUI_RECENT_FILES_COUNT_KEY);
+
+    /*
+     * Now, just convert the string to a number and store it in the prefs
+     * filed ...
+     */
+
+    newval = strtol(gtk_entry_get_text (GTK_ENTRY(recent_files_count_te)), NULL, 10);
+
+    if (newval > 0) {
+      prefs.gui_recent_files_count_max = newval;
+    }
+
+    /* We really should pop up a nasty dialog box if newval <= 0 */
+
+    return TRUE;
+
+}
 
 static gint
 fileopen_dir_changed_cb(GtkWidget *fileopen_entry _U_, GdkEvent *event _U_, gpointer parent_w)
