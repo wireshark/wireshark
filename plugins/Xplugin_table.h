@@ -259,11 +259,11 @@ typedef int (*addr_dissect_ber_integer) (packet_info *, proto_tree *, tvbuff_t *
 typedef int (*addr_dissect_ber_boolean) (packet_info *, proto_tree *, tvbuff_t *, int, gint);
 typedef int (*addr_dissect_ber_choice) (packet_info *, proto_tree *, tvbuff_t *, int, const ber_choice *, gint, gint);
 typedef int (*addr_dissect_ber_generalized_time) (packet_info *, proto_tree *, tvbuff_t *, int, gint);
-typedef int (*addr_dissect_ber_sequence) (gboolean, packet_info *, proto_tree *, tvbuff_t *, int, ber_sequence *, gint, gint);
+typedef int (*addr_dissect_ber_sequence) (gboolean, packet_info *, proto_tree *, tvbuff_t *, int, const ber_sequence *, gint, gint);
 typedef int (*addr_dissect_ber_sequence_of) (gboolean, packet_info *, proto_tree *, tvbuff_t *, int, ber_sequence *, gint, gint);
 typedef int (*addr_dissect_ber_set_of) (gboolean, packet_info *, proto_tree *, tvbuff_t *, int, ber_sequence *, gint, gint);
 typedef int (*addr_dissect_ber_octet_string) (gboolean, packet_info *, proto_tree *, tvbuff_t *, int, gint, tvbuff_t **);
-typedef int (*addr_dissect_ber_bitstring) (gboolean, packet_info *, proto_tree *, tvbuff_t *, int, asn_namedbit *, gint, gint, tvbuff_t **);
+typedef int (*addr_dissect_ber_bitstring) (gboolean, packet_info *, proto_tree *, tvbuff_t *, int, const asn_namedbit *, gint, gint, tvbuff_t **);
 typedef int (*addr_dissect_ber_restricted_string) (gboolean, guint32, packet_info *, proto_tree *, tvbuff_t *, int, gint, tvbuff_t **);
 typedef int (*addr_dissect_ber_object_identifier) (gboolean, packet_info *, proto_tree *, tvbuff_t *, int, gint, char *);
 typedef int (*addr_get_ber_identifier) (tvbuff_t *, int, guint8 *, gboolean *, guint32 *);
