@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.26 2001/07/12 07:06:25 guy Exp $
+ * $Id: packet-mount.c,v 1.27 2001/07/12 08:52:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -186,16 +186,16 @@ dissect_mount_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 static int
 dissect_group(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	int len,strlen;
+	int len,str_len;
 	len=tvb_get_ntohl(tvb,offset);
-	strlen=tvb_get_nstringz(tvb,offset+4,
+	str_len=tvb_get_nstringz(tvb,offset+4,
 		MAX_GROUP_NAME_LIST-5-group_names_len,
 		group_name_list+group_names_len);
-	if((group_names_len>=(MAX_GROUP_NAME_LIST-5))||(strlen<0)){
+	if((group_names_len>=(MAX_GROUP_NAME_LIST-5))||(str_len<0)){
 		strcpy(group_name_list+(MAX_GROUP_NAME_LIST-5),"...");
 		group_names_len=MAX_GROUP_NAME_LIST-1;
 	} else {
-		group_names_len+=strlen;
+		group_names_len+=str_len;
 		group_name_list[group_names_len++]=' ';
 	}
 	group_name_list[group_names_len]=0;
