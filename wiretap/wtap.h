@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.103 2002/01/29 09:45:58 guy Exp $
+ * $Id: wtap.h,v 1.104 2002/02/01 00:10:03 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -69,12 +69,15 @@
  *	2) a 4-byte header containing the AF_ address family, in
  *	   the byte order of the machine that saved the capture,
  *	   for the packet, as used on many BSD systems for the
- *	   loopback device and some other devices;
+ *	   loopback device and some other devices, or a 4-byte header
+ *	   containing the AF_ address family in network byte order,
+ *	   as used on recent OpenBSD systems for the loopback device;
  *
  *	3) a 4-byte header containing 2 octets of 0 and an Ethernet
  *	   type in the byte order from an Ethernet header, that being
- *	   what "libpcap" on Linux turns the Ethernet header for
- *	   loopback interfaces into. */
+ *	   what older versions of "libpcap" on Linux turn the Ethernet
+ *	   header for loopback interfaces into (0.6.0 and later versions
+ *	   leave the Ethernet header alone and make it DLT_EN10MB). */
 #define WTAP_ENCAP_PER_PACKET			-1
 #define WTAP_ENCAP_UNKNOWN			0
 #define WTAP_ENCAP_ETHERNET			1
