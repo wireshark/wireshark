@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.70 2000/07/22 15:58:53 gram Exp $
+ * $Id: proto.c,v 1.71 2000/07/27 06:41:58 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -90,6 +90,9 @@ static gboolean check_for_protocol_or_field_id(GNode *node, gpointer data);
 
 static proto_item*
 proto_tree_add_node(proto_tree *tree, field_info *fi);
+
+static field_info *
+alloc_field_info(int hfindex, tvbuff_t *tvb, gint start, gint length);
 
 static proto_item *
 proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
@@ -251,6 +254,8 @@ proto_tree_free_node(GNode *node, gpointer data)
 			g_mem_chunk_free(gmc_item_labels, fi->representation);
 		if (fi->hfinfo->type == FT_STRING)
 			g_free(fi->value.string);
+		else if (fi->hfinfo->type == FT_NSTRING_UINT8)
+			g_free(fi->value.string);
 		else if (fi->hfinfo->type == FT_BYTES) 
 			g_free(fi->value.bytes);
 		g_mem_chunk_free(gmc_field_info, fi);
@@ -400,12 +405,13 @@ proto_item *
 proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     gint start, gint length, gboolean little_endian)
 {
-	proto_item	*pi;
 	field_info	*new_fi;
-	guint32		value;
+	proto_item	*pi;
+	guint32		value, n;
 
-	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length, &new_fi);
-	if (pi == NULL)
+	new_fi = alloc_field_info(hfindex, tvb, start, length);
+
+	if (new_fi == NULL)
 		return(NULL);
 
 	switch(new_fi->hfinfo->type) {
@@ -467,11 +473,24 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			proto_tree_set_string_tvb(new_fi, tvb, start, length);
 			break;
 
+		case FT_NSTRING_UINT8:
+			n = tvb_get_guint8(tvb, start);
+			/* This g_strdup'ed memory is freed in proto_tree_free_node() */
+			proto_tree_set_string_tvb(new_fi, tvb, start + 1, n);
+			/* Instead of calling proto_item_set_len(), since we don't yet
+			 * have a proto_item, we set the field_info's length ourselves. */
+			new_fi->length = n + 1;
+			break;
+
 		default:
 			g_error("new_fi->hfinfo->type %d not handled\n", new_fi->hfinfo->type);
 			g_assert_not_reached();
 			break;
 	}
+
+	/* Don't add to proto_item to proto_tree until now so that any exceptions
+	 * raised by a tvbuff access method doesn't leave junk in the proto_tree. */
+	pi = proto_tree_add_node(tree, new_fi);
 
 	return pi;
 }
@@ -933,8 +952,10 @@ proto_tree_set_string(field_info *fi, const char* value)
 static void
 proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length)
 {
-	/* This g_strdup'ed memory is freed in proto_tree_free_node() */
-	fi->value.string = tvb_memdup(tvb, start, length);
+	/* This memory is freed in proto_tree_free_node() */
+	fi->value.string = g_malloc(length + 1);
+	tvb_memcpy(tvb, fi->value.string, start, length);
+	fi->value.string[length] = '\0';
 }
 
 /* Add a FT_ETHER to a proto_tree */
@@ -1326,6 +1347,21 @@ proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint
 	if (!tree)
 		return(NULL);
 
+	fi = alloc_field_info(hfindex, tvb, start, length);
+	pi = proto_tree_add_node(tree, fi);
+
+	if (pfi) {
+		*pfi = fi;
+	}
+
+	return pi;
+}
+
+static field_info *
+alloc_field_info(int hfindex, tvbuff_t *tvb, gint start, gint length)
+{
+	field_info	*fi;
+
 	fi = g_mem_chunk_alloc(gmc_field_info);
 
 	g_assert(hfindex >= 0 && hfindex < gpa_hfinfo->len);
@@ -1340,13 +1376,7 @@ proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint
 	fi->visible = proto_tree_is_visible;
 	fi->representation = NULL;
 
-	pi = proto_tree_add_node(tree, fi);
-
-	if (pfi) {
-		*pfi = fi;
-	}
-
-	return pi;
+	return fi;
 }
 
 /* Set representation of a proto_tree entry, if the protocol tree is to
@@ -1381,6 +1411,13 @@ proto_item_set_len(proto_item *pi, gint length)
 {
 	field_info *fi = (field_info*) (((GNode*)pi)->data);
 	fi->length = length;
+}
+
+int
+proto_item_get_len(proto_item *pi)
+{
+	field_info *fi = (field_info*) (((GNode*)pi)->data);
+	return fi->length;
 }
 
 proto_tree*
@@ -1601,6 +1638,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 	
 		case FT_STRING:
+		case FT_NSTRING_UINT8:
 			snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s", fi->hfinfo->name, fi->value.string);
 			break;
@@ -2049,6 +2087,7 @@ proto_registrar_get_length(int n)
 		case FT_BYTES:
 		case FT_BOOLEAN:
 		case FT_STRING:
+		case FT_NSTRING_UINT8:
 		case FT_DOUBLE:
 		case FT_ABSOLUTE_TIME:
 		case FT_RELATIVE_TIME:

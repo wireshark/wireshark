@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.36 2000/07/22 15:58:54 gram Exp $
+ * $Id: proto.h,v 1.37 2000/07/27 06:41:59 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -75,6 +75,7 @@ enum ftenum {
 	FT_ABSOLUTE_TIME,
 	FT_RELATIVE_TIME,
 	FT_STRING,
+	FT_NSTRING_UINT8,	/* String prefixed by 1 byte indicating length */
 	FT_ETHER,
 	FT_BYTES,
 	FT_IPv4,
@@ -158,6 +159,10 @@ void proto_item_set_text(proto_item *ti, const char *format, ...);
 
 /* Set length of proto_item after having already been created. */
 void proto_item_set_len(proto_item *ti, gint length);
+
+/* Get length of proto_item. Useful after using proto_tree_add_item()
+ * to add a variable-length field (e.g., FT_NSTRING_UINT8) */
+int proto_item_get_len(proto_item *ti);
 
 /* Creates new proto_tree root */
 proto_tree* proto_tree_create_root(void);
