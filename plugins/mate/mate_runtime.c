@@ -91,22 +91,36 @@ static void delete_mate_runtime_data(mate_runtime_data*  rdat) {
 }
 
 
-extern void init_mate_runtime_data(void) {
+extern void initialize_mate_runtime(void) {
 	
-	if (rd) {
-		delete_mate_runtime_data(rd);
+	if (( mc = mate_cfg() )) {
+		if (rd) {
+			delete_mate_runtime_data(rd);
+		}
+
+		rd = g_malloc(sizeof(mate_runtime_data));
+
+		mc = mate_cfg();
+
+		rd->current_items = 0;
+		rd->now = -1.0;
+		rd->frames = g_hash_table_new(g_direct_hash,g_direct_equal);
+		rd->gops = g_hash_table_new(g_str_hash,g_str_equal);
+		rd->gogs = g_hash_table_new(g_str_hash,g_str_equal);
+		rd->mate_items = g_mem_chunk_new("mate_items",sizeof(mate_item),1024,G_ALLOC_AND_FREE);
+		rd->highest_analyzed_frame = 0;
+
+		/* this will be called when the mate's dissector is initialized */
+		dbg_print (dbg,5,dbg_facility,"initialize_mate: entering");
+
+
+		dbg_pdu = &(mc->dbg_pdu_lvl);
+		dbg_gop = &(mc->dbg_gop_lvl);
+		dbg_gog = &(mc->dbg_gog_lvl);
+
+	} else {
+		rd = NULL;
 	}
-	
-	rd = g_malloc(sizeof(mate_runtime_data));
-	
-	mc = mate_cfg();
-	
-	rd->current_items = 0;
-	rd->now = -1.0;
-	rd->frames = g_hash_table_new(g_direct_hash,g_direct_equal);
-	rd->gops = g_hash_table_new(g_str_hash,g_str_equal);
-	rd->gogs = g_hash_table_new(g_str_hash,g_str_equal);
-	rd->mate_items = g_mem_chunk_new("mate_items",sizeof(mate_item),1024,G_ALLOC_AND_FREE);
 }
 
 static mate_item* new_mate_item(mate_cfg_item* cfg) {
@@ -651,21 +665,24 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 	return pdu;
 }	
 
-extern int mate_packet(void *prs _U_, packet_info *pinfo, epan_dissect_t *edt, void *dummy _U_) {
-	mate_pdu* pdu = NULL;
-	mate_pdu* last = NULL;
-	proto_tree* tree = edt->tree;
+extern int mate_packet(void *prs _U_, proto_tree* tree _U_, epan_dissect_t *edt _U_, void *dummy _U_) {
+	/* nothing to do yet */
+}
+
+extern void analyze_frame(packet_info *pinfo, proto_tree* tree) {
 	mate_cfg_pdu* cfg;
 	GPtrArray* protos;
 	field_info* proto;
 	guint i,j;
 	AVPL* criterium_match;
 	
+	mate_pdu* pdu = NULL;
+	mate_pdu* last = NULL;
+
 	rd->now = (((float)pinfo->fd->rel_secs) + (((float)pinfo->fd->rel_usecs) / 1000000) );
 
-	dbg_print (dbg,3,dbg_facility,"mate_packet: got frame number: %i at %d\n",pinfo->fd->num,rd->now);
-		
-	if ( tree->tree_data && tree->tree_data->interesting_hfids ) {
+	if ( tree->tree_data && tree->tree_data->interesting_hfids
+		 && rd->highest_analyzed_frame < pinfo->fd->num ) {
 		for ( i = 0; i < mc->pducfglist->len; i++ ) {
 			
 			cfg = g_ptr_array_index(mc->pducfglist,i);
@@ -725,15 +742,8 @@ extern int mate_packet(void *prs _U_, packet_info *pinfo, epan_dissect_t *edt, v
 			}
 		}
 		
-		
+		rd->highest_analyzed_frame = pinfo->fd->num;
 	}
-
-	
-	rd->highest_analyzed_frame = pinfo->fd->num;
-
-	dbg_print (dbg,6,dbg_facility,"do_mate: make_pdus done\n");
-	
-	return 0;
 }
 
 extern mate_pdu* mate_get_pdus(guint32 framenum) {
@@ -745,21 +755,5 @@ extern mate_pdu* mate_get_pdus(guint32 framenum) {
 	}
 }
 
-/* this will be called when the mate's dissector is initialized */
-extern void initialize_mate_runtime(void) {
-	dbg_print (dbg,5,dbg_facility,"initialize_mate: entering");
-	
-	if (( mc = mate_cfg() )) {
-
-		dbg_pdu = &(mc->dbg_pdu_lvl);
-		dbg_gop = &(mc->dbg_gop_lvl);
-		dbg_gog = &(mc->dbg_gog_lvl);
-					
-	} else {
-		return;
-	}
-	
-	return;
-}
 
 

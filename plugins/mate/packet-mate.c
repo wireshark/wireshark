@@ -37,20 +37,6 @@ static mate_config* mc = NULL;
 
 static int proto_mate = -1;
 
-static gint ett_mate = -1;
-static gint ett_mate_pdu = -1;
-static gint ett_mate_pdu_attr = -1;
-
-static gint ett_mate_gop = -1;
-static gint ett_mate_gop_attr = -1;
-static gint ett_mate_gop_pdus = -1;
-static gint ett_mate_gop_times = -1;
-
-static gint ett_mate_gog = -1;
-static gint ett_mate_gog_attr = -1;
-static gint ett_mate_gog_gops = -1;
-static gint ett_mate_gop_in_gog = -1;
-
 static char* pref_mate_config_filename = "config.mate";
 
 static proto_item *mate_i = NULL;
@@ -61,25 +47,8 @@ void attrs_tree(proto_tree* tree, tvbuff_t *tvb,mate_item* item) {
 	proto_tree *avpl_t;
 	int* hfi_p;
 	
-	gint our_ett;
-	
-	switch (item->cfg->type) {
-		case MATE_PDU_TYPE:
-			our_ett = ett_mate_pdu_attr;
-			break;
-		case MATE_GOP_TYPE:
-			our_ett = ett_mate_pdu_attr;
-			break;
-		case MATE_GOG_TYPE:
-			our_ett = ett_mate_pdu_attr;
-			break;
-		default:
-			our_ett = ett_mate;
-			break;
-	}
-			
 	avpl_i = proto_tree_add_text(tree,tvb,0,0,"%s Attributes",item->cfg->name);
-	avpl_t = proto_item_add_subtree(avpl_i, our_ett);
+	avpl_t = proto_item_add_subtree(avpl_i, item->cfg->ett_attr);
 
 	for ( c = item->avpl->null.next; c->avp; c = c->next) {
 		hfi_p = g_hash_table_lookup(item->cfg->my_hfids,c->avp->n);
@@ -93,7 +62,7 @@ void attrs_tree(proto_tree* tree, tvbuff_t *tvb,mate_item* item) {
 	}
 }
 
-void mate_gop_tree(proto_tree* pdu_tree, tvbuff_t *tvb, mate_gop* gop, gint ett);
+void mate_gop_tree(proto_tree* pdu_tree, tvbuff_t *tvb, mate_gop* gop);
 
 void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop) {
 	proto_item *gog_item;
@@ -108,19 +77,19 @@ void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop
 #endif
 	
 	gog_item = proto_tree_add_uint(tree,gog->cfg->hfid,tvb,0,0,gog->id);
-	gog_tree = proto_item_add_subtree(gog_item,ett_mate_gog);
+	gog_tree = proto_item_add_subtree(gog_item,gog->cfg->ett);
 			
 	attrs_tree(gog_tree,tvb,gog);
 	
 	gog_gop_item = proto_tree_add_uint(gog_tree, gog->cfg->hfid_gog_num_of_gops,
 									   tvb, 0, 0, gog->num_of_gops);
 	
-	gog_gop_tree = proto_item_add_subtree(gog_gop_item, ett_mate_gog_gops);
+	gog_gop_tree = proto_item_add_subtree(gog_gop_item, gog->cfg->ett_children);
 	
 	for (gog_gops = gog->gops; gog_gops; gog_gops = gog_gops->next) {
 		
 		if (gop != gog_gops) {
-			mate_gop_tree(gog_gop_tree, tvb, gog_gops, ett_mate_gop_in_gog);
+			mate_gop_tree(gog_gop_tree, tvb, gog_gops);
 		} else {
 			 proto_tree_add_uint_format(gog_gop_tree,gop->cfg->hfid,tvb,0,0,gop->id,"%s of current frame: %d",gop->cfg->name,gop->id);
 		}
@@ -128,7 +97,7 @@ void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop
 	
 }
 
-void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop, gint gop_ett) {
+void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 	proto_item *gop_item;
 	proto_tree *gop_time_tree;
 	proto_item *gop_time_item;
@@ -140,7 +109,7 @@ void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop, gint gop_ett)
 	float  gop_time;
 
 	gop_item = proto_tree_add_uint(tree,gop->cfg->hfid,tvb,0,0,gop->id);
-	gop_tree = proto_item_add_subtree(gop_item, gop_ett);
+	gop_tree = proto_item_add_subtree(gop_item, gop->cfg->ett);
 	
 	if (gop->gop_key) proto_tree_add_text(gop_tree,tvb,0,0,"GOP Key: %s",gop->gop_key);
 	
@@ -148,7 +117,7 @@ void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop, gint gop_ett)
 	
 	if (gop->cfg->show_gop_times) {
 		gop_time_item = proto_tree_add_text(gop_tree,tvb,0,0,"%s Times",gop->cfg->name);
-		gop_time_tree = proto_item_add_subtree(gop_time_item, ett_mate_gop_times);
+		gop_time_tree = proto_item_add_subtree(gop_time_item, gop->cfg->ett_times);
 		
 		proto_tree_add_float(gop_time_tree, gop->cfg->hfid_gop_start_time, tvb, 0, 0, gop->start_time);
 		
@@ -165,7 +134,7 @@ void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop, gint gop_ett)
 	rel_time = gop_time = gop->start_time;
 
 	gop_pdu_item = proto_tree_add_uint(gop_tree, gop->cfg->hfid_gop_num_pdus, tvb, 0, 0,gop->num_of_pdus);
-	gop_pdu_tree = proto_item_add_subtree(gop_pdu_item, ett_mate_gop_pdus);
+	gop_pdu_tree = proto_item_add_subtree(gop_pdu_item, gop->cfg->ett_children);
 	
 	if (gop->cfg->show_pdu_tree) {
 		for (gop_pdus = gop->pdus; gop_pdus; gop_pdus = gop_pdus->next) {
@@ -227,11 +196,11 @@ void mate_pdu_tree(mate_pdu *pdu, tvbuff_t *tvb, proto_tree* tree) {
 	
 	len = pdu->end - pdu->start;
 	pdu_item = proto_tree_add_uint(tree,pdu->cfg->hfid,tvb,pdu->start,len,pdu->id);
-	pdu_tree = proto_item_add_subtree(pdu_item, ett_mate_pdu);
+	pdu_tree = proto_item_add_subtree(pdu_item, pdu->cfg->ett);
 	proto_tree_add_float(pdu_tree,pdu->cfg->hfid_pdu_rel_time, tvb, 0, 0, pdu->rel_time);		
 
 	if (pdu->gop) {
-		mate_gop_tree(pdu_tree,tvb,pdu->gop,ett_mate_gop);
+		mate_gop_tree(pdu_tree,tvb,pdu->gop);
 
 		if (pdu->gop->gog)
 			mate_gog_tree(pdu_tree,tvb,pdu->gop->gog,pdu->gop);
@@ -246,13 +215,15 @@ extern void mate_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	mate_pdu* pdus;
 	proto_tree *mate_t;
 	
-	if (! tree ) return;
+	if ( ! (tree && mc) ) return;
+
+	analyze_frame(pinfo,tree);
 
 	if (( pdus = mate_get_pdus(pinfo->fd->num) )) {
 		
 		mate_i = proto_tree_add_text(tree,tvb,0,0,"mate");
 		
-		mate_t = proto_item_add_subtree(mate_i, ett_mate);
+		mate_t = proto_item_add_subtree(mate_i, mc->ett_root);
 		
 		for ( ; pdus; pdus = pdus->next_in_frame) {
 			mate_pdu_tree(pdus,tvb,mate_t);			
@@ -278,49 +249,36 @@ static void init_mate(void) {
 		mate_tap_data = 1;
 	}
 	
-	init_mate_runtime_data();
+	initialize_mate_runtime();
 }
 
 extern
 void
 proto_reg_handoff_mate(void)
 {
+	mc = mate_make_config(pref_mate_config_filename);
+
+	if (mc) {
+		proto_register_field_array(proto_mate, (hf_register_info*) mc->hfrs->data, mc->hfrs->len );
+		proto_register_subtree_array((gint**) mc->ett->data, mc->ett->len);
+		register_init_routine(init_mate);
+	}
+
 }  
 
 
 extern
 void
 proto_register_mate(void)
-{                 
-	static gint *ett[] = {
-		&ett_mate,
-		&ett_mate_pdu,
-		&ett_mate_pdu_attr,
-		&ett_mate_gop,
-		&ett_mate_gop_attr,
-		&ett_mate_gop_times,
-		&ett_mate_gop_pdus,
-		&ett_mate_gog,
-		&ett_mate_gog_gops,
-		&ett_mate_gog_attr,
-		&ett_mate_gop_in_gog
-	};
+{
+	module_t *mate_module;
 
-	mc = mate_make_config(pref_mate_config_filename);
-	
-	if (mc) {
-
-		proto_mate = proto_register_protocol("Meta Analysis Tracing Engine", "mate", "mate");
-		
-
-		proto_register_field_array(proto_mate, (hf_register_info*) mc->hfrs->data, mc->hfrs->len );
-		
-		proto_register_subtree_array(ett, array_length(ett));
-		
-		register_dissector("mate",mate_tree,proto_mate);
-		
-		register_init_routine(init_mate);
-		
-	}
+	proto_mate = proto_register_protocol("Meta Analysis Tracing Engine", "mate", "mate");
+	register_dissector("mate",mate_tree,proto_mate);
+	mate_module = prefs_register_protocol(proto_mate, proto_reg_handoff_mate);
+	prefs_register_string_preference(mate_module, "config_filename",
+									 "Configuration Filename",
+									 "The name of the file containing the mate module's configuration",
+									 &pref_mate_config_filename);
 }
 

@@ -138,6 +138,11 @@ static mate_cfg_item* new_mate_cfg_item(guint8* name) {
 	new->hfid_gog_num_of_gops = -1;
 	new->hfid_gog_gop = -1;
 
+	new->ett = -1;
+	new->ett_attr = -1;
+	new->ett_times = -1;
+	new->ett_children = -1;
+
 	return new;
 }
 
@@ -1173,6 +1178,7 @@ static void analyze_transform_hfrs(mate_cfg_item* cfg) {
 
 static void analyze_pdu_config(mate_cfg_pdu* cfg) {
 	hf_register_info hfri = { NULL, {NULL, NULL, FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL}};
+	gint* ett;
 
 	hfri.p_id = &(cfg->hfid);
 	hfri.hfinfo.name = g_strdup_printf("%s",cfg->name);
@@ -1194,6 +1200,12 @@ static void analyze_pdu_config(mate_cfg_pdu* cfg) {
 
 	g_hash_table_foreach(cfg->hfids_attr,analyze_pdu_hfids,cfg);
 
+	ett = &cfg->ett;
+	g_array_append_val(matecfg->ett,ett);
+
+	ett = &cfg->ett_attr;
+	g_array_append_val(matecfg->ett,ett);
+
 	analyze_transform_hfrs(cfg);
 }
 
@@ -1201,6 +1213,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	mate_cfg_gop* cfg = v;
 	void* cookie = NULL;
 	AVP* avp;
+	gint* ett;
 	hf_register_info hfri = { NULL, {NULL, NULL, FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL}};
 
 	hfri.p_id = &(cfg->hfid);
@@ -1279,6 +1292,19 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	}
 
 	analyze_transform_hfrs(cfg);
+
+	ett = &cfg->ett;
+	g_array_append_val(matecfg->ett,ett);
+
+	ett = &cfg->ett_attr;
+	g_array_append_val(matecfg->ett,ett);
+
+	ett = &cfg->ett_times;
+	g_array_append_val(matecfg->ett,ett);
+
+	ett = &cfg->ett_children;
+	g_array_append_val(matecfg->ett,ett);
+
 }
 
 
@@ -1289,6 +1315,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	AVP* avp;
 	AVPL* avpl;
 	hf_register_info hfri = { NULL, {NULL, NULL, FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL}};
+	gint* ett;
 
 	hfri.p_id = &(cfg->hfid);
 	hfri.hfinfo.name = g_strdup_printf("%s",cfg->name);
@@ -1335,6 +1362,16 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	}
 
 	analyze_transform_hfrs(cfg);
+
+	ett = &cfg->ett;
+	g_array_append_val(matecfg->ett,ett);
+
+	ett = &cfg->ett_attr;
+	g_array_append_val(matecfg->ett,ett);
+
+	ett = &cfg->ett_children;
+	g_array_append_val(matecfg->ett,ett);
+
 }
 
 static size_t analyze_config() {
@@ -1467,6 +1504,7 @@ extern mate_config* mate_cfg() {
 }
 
 extern mate_config* mate_make_config(guint8* filename) {
+	gint* ett;
 
 	avp_init();
 
@@ -1500,6 +1538,11 @@ extern mate_config* mate_make_config(guint8* filename) {
 	matecfg->gogs_by_gopname = g_hash_table_new(g_str_hash,g_str_equal);
 
 	matecfg->hfrs = g_array_new(FALSE,TRUE,sizeof(hf_register_info));
+	matecfg->ett = g_array_new(FALSE,TRUE,sizeof(gint*));
+	matecfg->ett_root = -1;
+
+	ett = &matecfg->ett_root;
+	g_array_append_val(matecfg->ett,ett);
 
 	dbg = &matecfg->dbg_lvl;
 

@@ -153,6 +153,10 @@ typedef struct _mate_cfg_item {
 	int hfid;
 	GHashTable* my_hfids; /* for creating register info */
 	GHashTable* items; /* all the items of this type */
+	gint ett;
+	gint ett_attr;
+	gint ett_times;
+	gint ett_children;
 	
 	/* pdu */
 	gboolean discard_pdu_attributes;
@@ -224,6 +228,8 @@ typedef struct _mate_config {
 	GHashTable* gogs_by_gopname; /* k=gopname v=loal where avpl->name == matchedgop->name */
 
 	GArray* hfrs;
+	gint ett_root;
+	GArray* ett;
 } mate_config;
 
 typedef struct _mate_runtime_data {
@@ -291,9 +297,10 @@ struct _mate_item {
 };
 
 /* from mate_runtime.c */
-extern void init_mate_runtime_data(void);
+extern void initialize_mate_runtime(void);
 extern mate_pdu* mate_get_pdus(guint32 framenum);
-extern int mate_packet(void *prs _U_, packet_info *pinfo, epan_dissect_t *edt, void *dummy _U_);
+extern void analyze_frame(packet_info *pinfo, proto_tree* tree);
+extern int mate_packet(void* _U_, proto_tree* _U_, epan_dissect_t* _U_, void* _U_);
 
 /* from mate_setup.c */
 extern mate_config* mate_make_config(guint8* filename);

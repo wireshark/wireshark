@@ -26,10 +26,10 @@ INCLUDES = -I$(top_srcdir)
 
 plugindir = @plugindir@
 
-plugin_LTLIBRARIES = zzmate.la
-zzmate_la_SOURCES = moduleinfo.h mate.h  mate_util.h packet-mate.c mate_runtime.c mate_setup.c mate_util.c mate_plugin.c
-zzmate_la_LDFLAGS = -module -avoid-version
-zzmate_la_LIBADD = @PLUGIN_LIBS@
+plugin_LTLIBRARIES = mate.la
+mate_la_SOURCES = moduleinfo.h mate.h  mate_util.h packet-mate.c mate_runtime.c mate_setup.c mate_util.c mate_plugin.c
+mate_la_LDFLAGS = -module -avoid-version
+mate_la_LIBADD = @PLUGIN_LIBS@
 
 # Libs must be cleared, or else libtool won't create a shared module.
 # If your module needs to be linked against any particular libraries,
