@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.2 2000/01/14 14:21:50 gram Exp $
+ * $Id: tethereal.c,v 1.3 2000/01/14 19:05:30 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -182,7 +182,7 @@ main(int argc, char *argv[])
   cf.dfilter		= NULL;
   cf.dfcode		= NULL;
 #ifdef HAVE_LIBPCAP
-  cf.cfilter		= NULL;
+  cf.cfilter		= g_strdup("");
 #endif
   cf.iface		= NULL;
   cf.save_file		= NULL;
