@@ -72,4 +72,4 @@ dissector_add_string, dissector_delete_string, dissector_change_string,
 dissector_reset_string, dissector_try_string, dissector_get_string_handle,
 get_datafile_path, get_tempfile_path, register_heur_dissector_list,
 dissector_try_heuristic, asn1_id_decode1, col_get_writable, col_set_writable,
-col_set_fence, 
+

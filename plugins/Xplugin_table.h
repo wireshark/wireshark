@@ -246,4 +246,3 @@ typedef gboolean (*addr_dissector_try_heuristic) (heur_dissector_list_t, tvbuff_
 typedef int (*addr_asn1_id_decode1) (ASN1_SCK *, guint *);
 typedef gboolean (*addr_col_get_writable) (column_info *);
 typedef void (*addr_col_set_writable) (column_info *, gboolean);
-typedef void (*addr_col_set_fence) (column_info *, gint);
