@@ -3,7 +3,7 @@
  * Copyright 2004, Anders Broman <anders.broman[at]ericsson.com>
  * Copyright 2004, Olivier Biot <olivier.biot[at]siemens.com>
  *
- * $Id: packet-multipart.c,v 1.2 2004/01/16 01:49:37 obiot Exp $
+ * $Id: packet-multipart.c,v 1.3 2004/01/16 04:32:30 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -588,7 +588,12 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 							} else {
 								parameters = NULL;
 							}
+#if GLIB_MAJOR_VERSION < 2
+							content_type_str = g_strdup(value_str);
+							g_strdown(content_type_str);
+#else
 							content_type_str = g_ascii_strdown(value_str, -1);
+#endif
 						}
 						break;
 
