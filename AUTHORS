@@ -1177,6 +1177,10 @@ Kan Sasaki <sasaki[AT]fcc.ad.jp> {
 	VSA decoding and other changes to RADIUS
 }
 
+Stefan Wenk <stefan.wenk[AT]gmx.at> {
+	SIP heuristic dissector
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

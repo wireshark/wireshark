@@ -15,7 +15,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@clarent.com>
  *
- * $Id: packet-sip.c,v 1.26 2002/05/01 08:11:07 guy Exp $
+ * $Id: packet-sip.c,v 1.27 2002/05/08 20:29:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,14 +98,14 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         gboolean is_request, is_known_request;
         char *req_descr;
 
-	/*
-	 * Note that "tvb_strneql()" doesn't throw exceptions, so
-	 * "sip_is_request()" won't throw an exception.
-	 *
-	 * Note that "tvb_find_line_end()" will return a value that
-	 * is not longer than what's in the buffer, so the
-	 * "tvb_get_ptr()" call s below won't throw exceptions.
-	 */
+        /*
+         * Note that "tvb_strneql()" doesn't throw exceptions, so
+         * "sip_is_request()" won't throw an exception.
+         *
+         * Note that "tvb_find_line_end()" will return a value that
+         * is not longer than what's in the buffer, so the
+         * "tvb_get_ptr()" call s below won't throw exceptions.
+         */
         offset = 0;
         eol = tvb_find_line_end(tvb, 0, -1, &next_offset);
         /* XXX - Check for a valid status message as well. */
@@ -174,6 +174,43 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         return;
 }
+
+static gboolean
+dissect_sip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+        gint eol, next_offset;
+
+        /*
+         * This is a heuristic dissector, which means we get all the
+         * UDP and TCP traffic not sent to a known dissector and not
+         * claimed by a heuristic dissector called before us!
+         * So we first check if the frame is really meant for us.
+         */
+
+        /* check for a request */
+
+        if (tvb_strneql(tvb, 0, SIP2_HDR, SIP2_HDR_LEN) != 0)  {
+                /*
+                 * Not a request; check for a response.
+                 */
+                eol = tvb_find_line_end(tvb, 0, -1, &next_offset);
+                if ((eol > (gint)SIP2_HDR_LEN) &&
+                    (tvb_strneql(tvb, eol - SIP2_HDR_LEN + 1, SIP2_HDR , SIP2_HDR_LEN - 1) != 0)) {
+                        /*
+                         * Not a response, either.
+                         */
+                        return FALSE;
+                }
+        }
+
+        /*
+         * The message seems to be a valid SIP message!
+         */
+        dissect_sip(tvb, pinfo, tree);
+
+        return TRUE;
+}
+
 
 /* Returns the offset to the start of the optional message-body, or
  * -1 if not found.
@@ -282,6 +319,9 @@ proto_reg_handoff_sip(void)
         sip_handle = create_dissector_handle(dissect_sip, proto_sip);
         dissector_add("tcp.port", TCP_PORT_SIP, sip_handle);
         dissector_add("udp.port", UDP_PORT_SIP, sip_handle);
+
+        heur_dissector_add( "udp", dissect_sip_heur, proto_sip );
+        heur_dissector_add( "tcp", dissect_sip_heur, proto_sip );
 
         /*
          * Get a handle for the SDP dissector.
