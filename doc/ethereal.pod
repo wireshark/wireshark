@@ -1935,6 +1935,7 @@ B<http://www.ethereal.com>.
   Aki Immonen              <aki.immonen [AT] golftalma.fi>
   Ian Schorr               <ischorr [AT] comcast.net>
   David E. Weekly          <david [AT] weekly.org>
+  Baktha Muralitharan      <muralidb [AT] cisco.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

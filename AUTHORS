@@ -144,6 +144,7 @@ Ashok Narayanan <ashokn[AT]cisco.com> {
 	Match Selected functionality
 	Support for reading compressed capture files
 	MPLS
+	Link Management Protocol
 }
 
 Aaron Hillegass <aaron[AT]classmax.com> {
@@ -1873,6 +1874,10 @@ Lars Ruoff <lars.ruoff [AT] sxb.bsf.alcatel.fr> {
 
 Samuel Qu <samuel.qu [AT] utstar.com> {
 	ITU TCAP support
+}
+
+Baktha Muralitharan <muralidb [AT] cisco.com> {
+	Link Management Protocol (LMP) fixes
 }
 
 And assorted fixes and enhancements by the people listed above and by:

@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-lmp.c,v 1.16 2003/10/06 20:46:51 guy Exp $
+ * $Id: packet-lmp.c,v 1.17 2003/10/23 18:49:49 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,9 +27,10 @@
 /*
  * LMP as a standard has shown a remarkable ability to get completely rewritten
  * across minor versions of the draft. This file currently implements
- * two versions of LMP; described in draft-ietf-ccamp-lmp-02.txt and
- * draft-ietf-ccamp-lmp-03.txt. The -03 version is the default; the
- * version being dissected can be changed from the LMP protocol preferences
+ * three versions of LMP; IP based versions described in draft-ietf-ccamp-lmp-02.txt and
+ * draft-ietf-ccamp-lmp-03.txt, and the new UDP based version in draft-ietf-ccamp-lmp-09.txt. 
+ * The -09 version is the default; the version being dissected can be changed from 
+ * the LMP protocol preferences
  */
 
 #ifdef HAVE_CONFIG_H
@@ -61,9 +62,15 @@
 static int proto_lmp = -1;
 #define LMP_VER_DRAFT_CCAMP_02  2
 #define LMP_VER_DRAFT_CCAMP_03  3
-static int lmp_draft_ver = LMP_VER_DRAFT_CCAMP_03;
+#define LMP_VER_DRAFT_CCAMP_09  9
+static int lmp_draft_ver = LMP_VER_DRAFT_CCAMP_09;
 
 #define IP_PROTO_LMP 140
+#define UDP_PORT_LMP_DEFAULT 49998
+static int lmp_udp_port = UDP_PORT_LMP_DEFAULT;
+static int lmp_udp_port_config = UDP_PORT_LMP_DEFAULT;
+
+static dissector_handle_t lmp_handle;
 
 /*----------------------------------------------------------------------
  * LMP message types
@@ -85,9 +92,6 @@ typedef enum {
     LMP_MSG_LINK_SUMMARY,
     LMP_MSG_LINK_SUMMARY_ACK,
     LMP_MSG_LINK_SUMMARY_NACK,
-    LMP_MSG_CHANNEL_FAIL,
-    LMP_MSG_CHANNEL_FAIL_ACK,
-    LMP_MSG_CHANNEL_FAIL_NACK,
     LMP_MSG_CHANNEL_STATUS,
     LMP_MSG_CHANNEL_STATUS_ACK,
     LMP_MSG_CHANNEL_STATUS_REQ,
@@ -102,7 +106,8 @@ static value_string message_type_vals[] = {
     {LMP_MSG_BEGIN_VERIFY,        "BeginVerify Message. "},
     {LMP_MSG_BEGIN_VERIFY_ACK,    "BeginVerifyAck Message. "},
     {LMP_MSG_BEGIN_VERIFY_NACK,   "BeginVerifyNack Message. "},
-    {LMP_MSG_END_VERIFY,          "EndVerifyNack Message. "},
+    {LMP_MSG_END_VERIFY,          "EndVerify Message. "},
+    {LMP_MSG_END_VERIFY_ACK,      "EndVerifyAck Message. "},
     {LMP_MSG_TEST,                "Test Message. "},
     {LMP_MSG_TEST_STATUS_SUCCESS, "TestStatusSuccess Message. "},
     {LMP_MSG_TEST_STATUS_FAILURE, "TestStatusFailure Message. "},
@@ -110,9 +115,6 @@ static value_string message_type_vals[] = {
     {LMP_MSG_LINK_SUMMARY,        "LinkSummary Message. "},
     {LMP_MSG_LINK_SUMMARY_ACK,    "LinkSummaryAck Message. "},
     {LMP_MSG_LINK_SUMMARY_NACK,   "LinkSummaryNack Message. "},
-    {LMP_MSG_CHANNEL_FAIL,        "ChannelFail Message. "},
-    {LMP_MSG_CHANNEL_FAIL_ACK,    "ChannelFailAck Message. "},
-    {LMP_MSG_CHANNEL_FAIL_NACK,   "ChannelFailNack Message. "},
     {LMP_MSG_CHANNEL_STATUS,      "ChannelStatus Message. "},
     {LMP_MSG_CHANNEL_STATUS_ACK,  "ChannelStatusAck Message. "},
     {LMP_MSG_CHANNEL_STATUS_REQ,  "ChannelStatusRequest Message. "},
@@ -123,32 +125,46 @@ static value_string message_type_vals[] = {
 /*------------------------------------------------------------------------------
  * LMP object classes
  */
-typedef enum {
-    LMP_CLASS_NULL = 0,
+#define LMP_CLASS_NULL				0
 
-    LMP_CLASS_LOCAL_CCID,
-    LMP_CLASS_REMOTE_CCID,
-    LMP_CLASS_LOCAL_NODE_ID,
-    LMP_CLASS_REMOTE_NODE_ID,
-    LMP_CLASS_LOCAL_LINK_ID,
-    LMP_CLASS_REMOTE_LINK_ID,
-    LMP_CLASS_LOCAL_INTERFACE_ID,
-    LMP_CLASS_REMOTE_INTERFACE_ID,
-    LMP_CLASS_MESSAGE_ID,
-    LMP_CLASS_MESSAGE_ID_ACK,
-    LMP_CLASS_CONFIG,
-    LMP_CLASS_HELLO,
-    LMP_CLASS_BEGIN_VERIFY,
-    LMP_CLASS_BEGIN_VERIFY_ACK,
-    LMP_CLASS_VERIFY_ID,
-    LMP_CLASS_TE_LINK,
-    LMP_CLASS_DATA_LINK,
-    LMP_CLASS_CHANNEL_STATUS,
-    LMP_CLASS_CHANNEL_STATUS_REQUEST,
-    LMP_CLASS_ERROR,
+#define LMP_CLASS_LOCAL_CCID			1
+#define LMP_CLASS_REMOTE_CCID			2
+#define LMP_CLASS_LOCAL_NODE_ID			3
+#define LMP_CLASS_REMOTE_NODE_ID		4
+#define LMP_CLASS_LOCAL_LINK_ID			5
+#define LMP_CLASS_REMOTE_LINK_ID		6
+#define LMP_CLASS_LOCAL_INTERFACE_ID		7
+#define LMP_CLASS_REMOTE_INTERFACE_ID		8
+#define LMP_CLASS_MESSAGE_ID			9
+#define LMP_CLASS_MESSAGE_ID_ACK		10
+#define LMP_CLASS_CONFIG			11
+#define LMP_CLASS_HELLO				12
+#define LMP_CLASS_BEGIN_VERIFY			13
+#define LMP_CLASS_BEGIN_VERIFY_ACK		14
+#define LMP_CLASS_VERIFY_ID			15
+#define LMP_CLASS_TE_LINK			16
+#define LMP_CLASS_DATA_LINK			17
+#define LMP_CLASS_CHANNEL_STATUS		18
+#define LMP_CLASS_CHANNEL_STATUS_REQUEST	19
+#define LMP_CLASS_ERROR				20
+#define LMP_CLASS_MAX				20
 
-    LMP_CLASS_MAX
-} lmp_classes;
+#define	LMP_09_CLASS_CCID			1
+#define	LMP_09_CLASS_NODE_ID			2
+#define	LMP_09_CLASS_LINK_ID			3
+#define	LMP_09_CLASS_INTERFACE_ID		4
+#define	LMP_09_CLASS_MESSAGE_ID			5
+#define	LMP_09_CLASS_CONFIG			6
+#define	LMP_09_CLASS_HELLO			7
+#define	LMP_09_CLASS_BEGIN_VERIFY		8
+#define	LMP_09_CLASS_BEGIN_VERIFY_ACK 		9
+#define	LMP_09_CLASS_VERIFY_ID			10
+#define	LMP_09_CLASS_TE_LINK			11
+#define	LMP_09_CLASS_DATA_LINK			12
+#define	LMP_09_CLASS_CHANNEL_STATUS		13
+#define	LMP_09_CLASS_CHANNEL_STATUS_REQUEST	14
+#define	LMP_09_CLASS_ERROR			20
+#define	LMP_09_CLASS_MAX			15
 
 static value_string lmp_class_vals[] = {
 
@@ -174,7 +190,28 @@ static value_string lmp_class_vals[] = {
     {LMP_CLASS_ERROR, "ERROR"},
 };
 
+static value_string lmp_09_class_vals[] = {
+
+    {LMP_09_CLASS_CCID, "CCID"},
+    {LMP_09_CLASS_NODE_ID, "NODE_ID"},
+    {LMP_09_CLASS_LINK_ID, "LINK_ID"},
+    {LMP_09_CLASS_INTERFACE_ID, "INTERFACE_ID"},
+    {LMP_09_CLASS_MESSAGE_ID, "MESSAGE_ID"},
+    {LMP_09_CLASS_CONFIG, "CONFIG"},
+    {LMP_09_CLASS_HELLO, "HELLO"},
+    {LMP_09_CLASS_BEGIN_VERIFY, "BEGIN_VERIFY"},
+    {LMP_09_CLASS_BEGIN_VERIFY_ACK, "BEGIN_VERIFY_ACK"},
+    {LMP_09_CLASS_VERIFY_ID, "VERIFY_ID"},
+    {LMP_09_CLASS_TE_LINK, "TE_LINK"},
+    {LMP_09_CLASS_DATA_LINK, "DATA_LINK"},
+    {LMP_09_CLASS_CHANNEL_STATUS, "CHANNEL_STATUS"},
+    {LMP_09_CLASS_CHANNEL_STATUS_REQUEST, "CHANNEL_STATUS_REQUEST"},
+    {LMP_09_CLASS_ERROR, "ERROR"},
+};
+
+
 #define VALID_CLASS(class) ((class) > LMP_CLASS_NULL && (class) < LMP_CLASS_MAX)
+#define VALID_09_CLASS(class) (((class) > LMP_CLASS_NULL && (class) < LMP_09_CLASS_CHANNEL_STATUS_REQUEST) || (class)==LMP_09_CLASS_ERROR)
 
 /*------------------------------------------------------------------------------
  * Other constants & stuff
@@ -217,9 +254,6 @@ enum lmp_filter_keys {
   LMPF_MSG_LINK_SUMMARY,
   LMPF_MSG_LINK_SUMMARY_ACK,
   LMPF_MSG_LINK_SUMMARY_NACK,
-  LMPF_MSG_CHANNEL_FAIL,
-  LMPF_MSG_CHANNEL_FAIL_ACK,
-  LMPF_MSG_CHANNEL_FAIL_NACK,
   LMPF_MSG_CHANNEL_STATUS,
   LMPF_MSG_CHANNEL_STATUS_ACK,
   LMPF_MSG_CHANNEL_STATUS_REQ,
@@ -229,8 +263,6 @@ enum lmp_filter_keys {
   LMPF_HDR_FLAGS,
   LMPF_HDR_FLAGS_CC_DOWN,
   LMPF_HDR_FLAGS_REBOOT,
-  LMPF_HDR_FLAGS_DWDM,
-  LMPF_HDR_FLAGS_AUTHENTICATION,
 
   /* LMP Object Class Filters -------------------- */
   LMPF_OBJECT,
@@ -256,18 +288,40 @@ enum lmp_filter_keys {
   LMPF_CLASS_CHANNEL_STATUS_REQUEST,
   LMPF_CLASS_ERROR,
 
+  LMPF_09_OBJECT,
+
+  LMPF_09_CLASS_CCID,
+  LMPF_09_CLASS_NODE_ID,
+  LMPF_09_CLASS_LINK_ID,
+  LMPF_09_CLASS_INTERFACE_ID,
+  LMPF_09_CLASS_MESSAGE_ID,
+  LMPF_09_CLASS_CONFIG,
+  LMPF_09_CLASS_HELLO,
+  LMPF_09_CLASS_BEGIN_VERIFY,
+  LMPF_09_CLASS_BEGIN_VERIFY_ACK,
+  LMPF_09_CLASS_VERIFY_ID,
+  LMPF_09_CLASS_TE_LINK,
+  LMPF_09_CLASS_DATA_LINK,
+  LMPF_09_CLASS_CHANNEL_STATUS,
+  LMPF_09_CLASS_CHANNEL_STATUS_REQUEST,
+  LMPF_09_CLASS_ERROR,
+
   LMPF_VAL_CTYPE,
   LMPF_VAL_LOCAL_CCID,
   LMPF_VAL_REMOTE_CCID,
   LMPF_VAL_LOCAL_NODE_ID,
   LMPF_VAL_REMOTE_NODE_ID,
   LMPF_VAL_LOCAL_LINK_ID_IPV4,
+  LMPF_VAL_LOCAL_LINK_ID_IPV6,
   LMPF_VAL_LOCAL_LINK_ID_UNNUM,
   LMPF_VAL_REMOTE_LINK_ID_IPV4,
+  LMPF_VAL_REMOTE_LINK_ID_IPV6,
   LMPF_VAL_REMOTE_LINK_ID_UNNUM,
   LMPF_VAL_LOCAL_INTERFACE_ID_IPV4,
+  LMPF_VAL_LOCAL_INTERFACE_ID_IPV6,
   LMPF_VAL_LOCAL_INTERFACE_ID_UNNUM,
   LMPF_VAL_REMOTE_INTERFACE_ID_IPV4,
+  LMPF_VAL_REMOTE_INTERFACE_ID_IPV6,
   LMPF_VAL_REMOTE_INTERFACE_ID_UNNUM,
   LMPF_VAL_MESSAGE_ID,
   LMPF_VAL_MESSAGE_ID_ACK,
@@ -310,14 +364,31 @@ enum lmp_filter_keys {
   LMPF_VAL_ERROR_VERIFY_UNWILLING,
   LMPF_VAL_ERROR_VERIFY_TRANSPORT,
   LMPF_VAL_ERROR_VERIFY_TE_LINK_ID,
+  LMPF_VAL_ERROR_VERIFY_UNKNOWN_CTYPE,
   LMPF_VAL_ERROR_SUMMARY_BAD_PARAMETERS,
   LMPF_VAL_ERROR_SUMMARY_RENEGOTIATE,
-  LMPF_VAL_ERROR_SUMMARY_BAD_REMOTE_LINK_ID,
   LMPF_VAL_ERROR_SUMMARY_BAD_TE_LINK,
   LMPF_VAL_ERROR_SUMMARY_BAD_DATA_LINK,
+  LMPF_VAL_ERROR_SUMMARY_UNKNOWN_TEL_CTYPE,
+  LMPF_VAL_ERROR_SUMMARY_UNKNOWN_DL_CTYPE,
+  LMPF_VAL_ERROR_SUMMARY_BAD_REMOTE_LINK_ID,
   LMPF_VAL_ERROR_CONFIG_BAD_PARAMETERS,
   LMPF_VAL_ERROR_CONFIG_RENEGOTIATE,
   LMPF_VAL_ERROR_CONFIG_BAD_CCID,
+
+  LMPF_VAL_SVCCFG_SIGPROTO_PROTO,
+  LMPF_VAL_SVCCFG_SIGPROTO_UNI_VERSION,
+  LMPF_VAL_SVCCFG_PORTATTR_LINK_TYPE,
+  LMPF_VAL_SVCCFG_PORTATTR_SIGNAL_TYPE,
+  LMPF_VAL_SVCCFG_PORTATTR_TP_TRANSPARENCY,
+  LMPF_VAL_SVCCFG_PORTATTR_MAX_NCC,
+  LMPF_VAL_SVCCFG_PORTATTR_MIN_NCC,
+  LMPF_VAL_SVCCFG_PORTATTR_MAX_NVC,
+  LMPF_VAL_SVCCFG_PORTATTR_MIN_NVC,
+  LMPF_VAL_SVCCFG_PORTATTR_INTFC_ID,
+  LMPF_VAL_SVCCFG_TRANSP_TRANSPARENCY,
+  LMPF_VAL_SVCCFG_TRANSP_TCM,
+  LMPF_VAL_SVCCFG_DIVERSITY_DIVERSITY,
 
   LMPF_MAX,
 };
@@ -396,18 +467,6 @@ static hf_register_info lmpf_info[] = {
      { "LinkSummaryNack Message", "lmp.msg.linksummarynack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
-    {&lmp_filter[LMPF_MSG_CHANNEL_FAIL],
-     { "ChannelFail Message", "lmp.msg.channelfail", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-     	"", HFILL }},
-
-    {&lmp_filter[LMPF_MSG_CHANNEL_FAIL_ACK],
-     { "ChannelFailAck Message", "lmp.msg.channelfailack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-     	"", HFILL }},
-
-    {&lmp_filter[LMPF_MSG_CHANNEL_FAIL_NACK],
-     { "ChannelFailNack Message", "lmp.msg.channelfailnack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-     	"", HFILL }},
-
     {&lmp_filter[LMPF_MSG_CHANNEL_STATUS],
      { "ChannelStatus Message", "lmp.msg.channelstatus", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
@@ -439,14 +498,6 @@ static hf_register_info lmpf_info[] = {
      { "Reboot", "lmp.hdr.reboot", FT_BOOLEAN, 8, NULL, 0x02,
      	"", HFILL }},
 
-    {&lmp_filter[LMPF_HDR_FLAGS_DWDM],
-     { "DWDM Node", "lmp.hdr.dwdm", FT_BOOLEAN, 8, NULL, 0x04,
-     	"", HFILL }},
-
-    {&lmp_filter[LMPF_HDR_FLAGS_AUTHENTICATION],
-     { "Authentication", "lmp.hdr.auth", FT_BOOLEAN, 8, NULL, 0x08,
-     	"", HFILL }},
-
     /* LMP object class filters ------------------------------- */
 
     {&lmp_filter[LMPF_OBJECT],
@@ -454,48 +505,41 @@ static hf_register_info lmpf_info[] = {
      	"", HFILL }},
 
     {&lmp_filter[LMPF_CLASS_LOCAL_CCID],
-     { "LOCAL_CCID", "lmp.obj.local_ccid", FT_NONE, BASE_NONE, NULL, 0x0,
+     { "Local CCID", "lmp.obj.ccid", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
     {&lmp_filter[LMPF_CLASS_REMOTE_CCID],
-     { "REMOTE_CCID", "lmp.obj.remote_ccid", FT_NONE, BASE_NONE, NULL, 0x0,
+     { "Remote CCID", "lmp.obj.ccid", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
-
     {&lmp_filter[LMPF_CLASS_LOCAL_NODE_ID],
-     { "LOCAL_NODE_ID", "lmp.obj.local_nodeid", FT_NONE, BASE_NONE, NULL, 0x0,
+     { "Local NODE_ID", "lmp.obj.Nodeid", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
     {&lmp_filter[LMPF_CLASS_REMOTE_NODE_ID],
-     { "REMOTE_NODE_ID", "lmp.obj.remote_nodeid", FT_NONE, BASE_NONE, NULL, 0x0,
+     { "Remote NODE_ID", "lmp.obj.Nodeid", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
-
     {&lmp_filter[LMPF_CLASS_LOCAL_LINK_ID],
-     { "LOCAL_LINK_ID", "lmp.obj.local_linkid", FT_NONE, BASE_NONE, NULL, 0x0,
+     { "Local LINK_ID", "lmp.obj.linkid", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
     {&lmp_filter[LMPF_CLASS_REMOTE_LINK_ID],
-     { "REMOTE_LINK_ID", "lmp.obj.remote_linkid", FT_NONE, BASE_NONE, NULL, 0x0,
+     { "Remote LINK_ID", "lmp.obj.linkid", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
-
     {&lmp_filter[LMPF_CLASS_LOCAL_INTERFACE_ID],
-     { "LOCAL_INTERFACE_ID", "lmp.obj.local_interfaceid", FT_NONE, BASE_NONE, NULL, 0x0,
+     { "Local INTERFACE_ID", "lmp.obj.interfaceid", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
     {&lmp_filter[LMPF_CLASS_REMOTE_INTERFACE_ID],
-     { "REMOTE_INTERFACE_ID", "lmp.obj.remote_interfaceid", FT_NONE, BASE_NONE, NULL, 0x0,
+     { "Remote INTERFACE_ID", "lmp.obj.interfaceid", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
-
     {&lmp_filter[LMPF_CLASS_MESSAGE_ID],
      { "MESSAGE_ID", "lmp.obj.messageid", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
     {&lmp_filter[LMPF_CLASS_MESSAGE_ID_ACK],
-     { "MESSAGE_ID_ACK", "lmp.obj.messageid_ack", FT_NONE, BASE_NONE, NULL, 0x0,
+     { "MESSAGE_ID Ack", "lmp.obj.messageid", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
-
     {&lmp_filter[LMPF_CLASS_CONFIG],
      { "CONFIG", "lmp.obj.config", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
-
     {&lmp_filter[LMPF_CLASS_HELLO],
      { "HELLO", "lmp.obj.hello", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
-
     {&lmp_filter[LMPF_CLASS_BEGIN_VERIFY],
      { "BEGIN_VERIFY", "lmp.obj.begin_verify", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
@@ -519,8 +563,59 @@ static hf_register_info lmpf_info[] = {
     {&lmp_filter[LMPF_CLASS_CHANNEL_STATUS_REQUEST],
      { "CHANNEL_STATUS_REQUEST", "lmp.obj.channel_status_request", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
-
     {&lmp_filter[LMPF_CLASS_ERROR],
+     { "ERROR", "lmp.obj.error", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&lmp_filter[LMPF_09_OBJECT],
+     { "LOCAL_CCID", "lmp.object", FT_UINT8, BASE_DEC, NULL, 0x0,
+     	"", HFILL }},
+
+    {&lmp_filter[LMPF_09_CLASS_CCID],
+     { "CCID", "lmp.obj.ccid", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_09_CLASS_NODE_ID],
+     { "NODE_ID", "lmp.obj.Nodeid", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_09_CLASS_LINK_ID],
+     { "LINK_ID", "lmp.obj.linkid", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_09_CLASS_INTERFACE_ID],
+     { "INTERFACE_ID", "lmp.obj.interfaceid", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_09_CLASS_MESSAGE_ID],
+     { "MESSAGE_ID", "lmp.obj.messageid", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_09_CLASS_CONFIG],
+     { "CONFIG", "lmp.obj.config", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_09_CLASS_HELLO],
+     { "HELLO", "lmp.obj.hello", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_09_CLASS_BEGIN_VERIFY],
+     { "BEGIN_VERIFY", "lmp.obj.begin_verify", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_09_CLASS_BEGIN_VERIFY_ACK],
+     { "BEGIN_VERIFY_ACK", "lmp.obj.begin_verify_ack", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_09_CLASS_VERIFY_ID],
+     { "VERIFY_ID", "lmp.obj.verifyid", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&lmp_filter[LMPF_09_CLASS_TE_LINK],
+     { "TE_LINK", "lmp.obj.te_link", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_09_CLASS_DATA_LINK],
+     { "DATA_LINK", "lmp.obj.data_link", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&lmp_filter[LMPF_09_CLASS_CHANNEL_STATUS],
+     { "CHANNEL_STATUS", "lmp.obj.channel_status", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_09_CLASS_CHANNEL_STATUS_REQUEST],
+     { "CHANNEL_STATUS_REQUEST", "lmp.obj.channel_status_request", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_09_CLASS_ERROR],
      { "ERROR", "lmp.obj.error", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
@@ -677,22 +772,31 @@ static hf_register_info lmpf_info[] = {
      { "Verification - TE Link ID Configuration Error", "lmp.error.verify_te_link_id",
        FT_BOOLEAN, 8, NULL, 0x08, "", HFILL }},
 
+    {&lmp_filter[LMPF_VAL_ERROR_VERIFY_UNKNOWN_CTYPE],
+     { "Verification - Unknown Object C-Type", "lmp.error.verify_unknown_ctype",
+       FT_BOOLEAN, 8, NULL, 0x08, "", HFILL }},
+
     {&lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_PARAMETERS],
      { "Summary - Unacceptable non-negotiable parameters", "lmp.error.summary_bad_params",
        FT_BOOLEAN, 8, NULL, 0x01, "", HFILL }},
     {&lmp_filter[LMPF_VAL_ERROR_SUMMARY_RENEGOTIATE],
      { "Summary - Renegotiate Parametere", "lmp.error.summary_renegotiate",
        FT_BOOLEAN, 8, NULL, 0x02, "", HFILL }},
-    {&lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_REMOTE_LINK_ID],
-     { "Summary - Bad Remote Link ID", "lmp.error.summary_bad_remote_linkid",
-       FT_BOOLEAN, 8, NULL, 0x04, "", HFILL }},
     {&lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_TE_LINK],
      { "Summary - Bad TE Link Object", "lmp.error.summary_bad_te_link",
        FT_BOOLEAN, 8, NULL, 0x08, "", HFILL }},
     {&lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_DATA_LINK],
      { "Summary - Bad Data Link Object", "lmp.error.summary_bad_data_link",
        FT_BOOLEAN, 8, NULL, 0x10, "", HFILL }},
-
+    {&lmp_filter[LMPF_VAL_ERROR_SUMMARY_UNKNOWN_TEL_CTYPE],
+     { "Summary - Bad TE Link C-Type", "lmp.error.summary_unknown_tel_ctype",
+       FT_BOOLEAN, 8, NULL, 0x04, "", HFILL }},
+    {&lmp_filter[LMPF_VAL_ERROR_SUMMARY_UNKNOWN_DL_CTYPE],
+     { "Summary - Bad Data Link C-Type", "lmp.error.summary_unknown_dl_ctype",
+       FT_BOOLEAN, 8, NULL, 0x04, "", HFILL }},
+    {&lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_REMOTE_LINK_ID],
+     { "Summary - Bad Remote Link ID", "lmp.error.summary_bad_remote_link_id",
+       FT_BOOLEAN, 8, NULL, 0x04, "", HFILL }},
     {&lmp_filter[LMPF_VAL_ERROR_CONFIG_BAD_PARAMETERS],
      { "Config - Unacceptable non-negotiable parameters", "lmp.error.config_bad_params",
        FT_BOOLEAN, 8, NULL, 0x01, "", HFILL }},
@@ -701,7 +805,8 @@ static hf_register_info lmpf_info[] = {
        FT_BOOLEAN, 8, NULL, 0x02, "", HFILL }},
     {&lmp_filter[LMPF_VAL_ERROR_CONFIG_BAD_CCID],
      { "Config - Bad CC ID", "lmp.error.config_bad_ccid",
-       FT_BOOLEAN, 8, NULL, 0x04, "", HFILL }},
+       FT_BOOLEAN, 8, NULL, 0x04, "", HFILL }}
+
 };
 
 static int
@@ -711,6 +816,15 @@ lmp_class_to_filter_num(int class)
 	return class + LMPF_OBJECT;
     return -1;
 }
+
+static int
+lmp_09_class_to_filter_num(int class)
+{
+    if (VALID_09_CLASS(class))
+	return class + LMPF_09_OBJECT;
+    return -1;
+}
+
 
 /*------------------------------------------------------------------------------
  * LMP Subtrees
@@ -734,13 +848,23 @@ enum {
     LMP_TREE_CLASS_START
 };
 #define NUM_LMP_SUBTREES (LMP_TREE_CLASS_START + LMP_CLASS_MAX)
+#define NUM_LMP_09_SUBTREES (LMP_TREE_CLASS_START + LMP_CLASS_MAX)
 
-static gint lmp_subtree[NUM_LMP_SUBTREES];
+static gint lmp_subtree[MAX(NUM_LMP_SUBTREES,NUM_LMP_09_SUBTREES)];
+static gint lmp_09_subtree[NUM_LMP_09_SUBTREES];
 
 static int lmp_class_to_subtree(int class)
 {
     if (VALID_CLASS(class))
 	return lmp_subtree[LMP_TREE_CLASS_START + class];
+
+    return -1;
+}
+
+static int lmp_09_class_to_subtree(int class)
+{
+    if (VALID_09_CLASS(class))
+	return lmp_09_subtree[LMP_TREE_CLASS_START + class];
 
     return -1;
 }
@@ -771,6 +895,17 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int obj_length;
     int mylen;
     int offset2;
+    int proto;
+
+    proto = pinfo->ipproto;
+    /* If the current preference is NOT LMP09, do not process UDP packets */
+    if ((proto == IP_PROTO_UDP) && (lmp_draft_ver != LMP_VER_DRAFT_CCAMP_09)) {
+	return;
+    }
+    /* If the current preference is NOT LMP09, process only UDP packets */
+    if ((proto != IP_PROTO_UDP) && (lmp_draft_ver == LMP_VER_DRAFT_CCAMP_09)) {
+	return;
+    }
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "LMP");
@@ -790,12 +925,10 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = proto_tree_add_item(tree, proto_lmp, tvb, offset, msg_length,
 	    FALSE);
 	lmp_tree = proto_item_add_subtree(ti, lmp_subtree[LMP_TREE_MAIN]);
-
 	ti = proto_tree_add_text(lmp_tree, tvb, offset, 12, "LMP Header. %s",
 				 val_to_str(message_type, message_type_vals,
 					    "Unknown Message (%u). "));
 	lmp_header_tree = proto_item_add_subtree(ti, lmp_subtree[LMP_TREE_HEADER]);
-
         proto_tree_add_text(lmp_header_tree, tvb, offset, 1, "LMP Version: %u",
 			    version);
 	ti = proto_tree_add_text(lmp_header_tree, tvb, offset+2, 1, "Flags: %02x",
@@ -805,21 +938,17 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			       tvb, offset+2, 1, flags);
 	proto_tree_add_boolean(lmp_header_flags_tree, lmp_filter[LMPF_HDR_FLAGS_REBOOT],
 			       tvb, offset+2, 1, flags);
-	proto_tree_add_boolean(lmp_header_flags_tree, lmp_filter[LMPF_HDR_FLAGS_DWDM],
-			       tvb, offset+2, 1, flags);
-	proto_tree_add_boolean(lmp_header_flags_tree, lmp_filter[LMPF_HDR_FLAGS_AUTHENTICATION],
-			       tvb, offset+2, 1, flags);
 	proto_tree_add_uint(lmp_header_tree, lmp_filter[LMPF_MSG], tvb,
 			    offset+3, 1, message_type);
 	proto_tree_add_text(lmp_header_tree, tvb, offset+4, 2, "Length: %d bytes",
 			    msg_length);
 	if (LMPF_MSG + message_type <= LMPF_MSG_CHANNEL_STATUS_RESP &&
 		       message_type > 0) {
-		proto_tree_add_boolean_hidden(lmp_header_tree, lmp_filter[LMPF_MSG + message_type], tvb,
-				      offset+3, 1, 1);
+	    proto_tree_add_boolean_hidden(lmp_header_tree, lmp_filter[LMPF_MSG + message_type], tvb,
+					  offset+3, 1, 1);
 	} else {
-		proto_tree_add_protocol_format(lmp_header_tree, proto_malformed, tvb, offset+3, 1,
-			"Invalid message type: %u", message_type);
+	    proto_tree_add_protocol_format(lmp_header_tree, proto_malformed, tvb, offset+3, 1,
+					   "Invalid message type: %u", message_type);
 		return;
 	}
 
@@ -830,6 +959,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, msg_length);
 	    cksum_vec[0].len = msg_length;
 	    computed_cksum = in_cksum(&cksum_vec[0], 1);
+
 	    if (computed_cksum == 0) {
 		proto_tree_add_text(lmp_header_tree, tvb, offset+6, 2,
 				    "Message Checksum: 0x%04x (correct)",
@@ -845,6 +975,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				"Message Checksum: 0x%04x",
 				cksum);
 	}
+
 	proto_tree_add_text(lmp_header_tree, tvb, offset+8, 4,
 			    "Local Control Channel ID: %d (%s)",
 			    tvb_get_ntohl(tvb, offset+8),
@@ -853,48 +984,665 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 8;
 	len = 8;
 	while (len < msg_length) {
-	    guint8 class;
-	    guint8 type;
-	    guint8 negotiable;
-	    char *object_type;
+	  guint8 class;
+	  guint8 type;
+	  guint8 negotiable;
+	  char *object_type;
 
-	    obj_length = tvb_get_ntohs(tvb, offset+2);
-	    class = tvb_get_guint8(tvb, offset+1);
-	    type = tvb_get_guint8(tvb, offset);
-	    negotiable = (type >> 7); type &= 0x7f;
-	    object_type = val_to_str(class, lmp_class_vals, "Unknown");
-	    proto_tree_add_uint_hidden(lmp_tree, lmp_filter[LMPF_OBJECT], tvb,
-					    offset, 1, class);
-	    if (VALID_CLASS(class)) {
-		ti = proto_tree_add_item(lmp_tree, lmp_filter[lmp_class_to_filter_num(class)],
-	    			     tvb, offset, obj_length, FALSE);
-	    } else {
-		proto_tree_add_protocol_format(lmp_tree, proto_malformed, tvb, offset+1, 1,
+	  obj_length = tvb_get_ntohs(tvb, offset+2);
+	  class = tvb_get_guint8(tvb, offset+1);
+	  type = tvb_get_guint8(tvb, offset);
+	  negotiable = (type >> 7); type &= 0x7f;
+	  if (lmp_draft_ver == LMP_VER_DRAFT_CCAMP_09) {
+		object_type = val_to_str(class, lmp_09_class_vals, "Unknown");
+		proto_tree_add_uint_hidden(lmp_tree, lmp_filter[LMPF_09_OBJECT],
+					   tvb,
+					   offset, 1, class);
+		if (VALID_09_CLASS(class)) {
+		    ti = proto_tree_add_item(lmp_tree, lmp_filter[lmp_09_class_to_filter_num(class)],
+			tvb, offset, obj_length, FALSE);
+		} else {
+		    proto_tree_add_protocol_format(lmp_tree, proto_malformed, tvb, offset+1, 1,
 			"Invalid class: %u", class);
-		return;
-	    }
+		    return;
+		}
+		lmp_object_tree = proto_item_add_subtree(ti, lmp_09_class_to_subtree(class));
 
-	    lmp_object_tree = proto_item_add_subtree(ti, lmp_class_to_subtree(class));
-
-	    ti2 = proto_tree_add_text(lmp_object_tree, tvb, offset, 4,
+		ti2 = proto_tree_add_text(lmp_object_tree, tvb, offset, 4,
 				      "Header. Class %d, C-Type %d, Length %d, %s",
 				      class, type, obj_length,
 				      negotiable ? "Negotiable" : "Not Negotiable");
-	    lmp_object_header_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_OBJECT_HEADER]);
-	    proto_tree_add_text(lmp_object_header_tree, tvb, offset, 1,
+		lmp_object_header_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_OBJECT_HEADER]);
+		proto_tree_add_text(lmp_object_header_tree, tvb, offset, 1,
 				negotiable ? "Negotiable" : "Not Negotiable");
-	    proto_tree_add_text(lmp_object_header_tree, tvb, offset+2, 2,
+		proto_tree_add_text(lmp_object_header_tree, tvb, offset+2, 2,
 				"Length: %u", obj_length);
-	    proto_tree_add_text(lmp_object_header_tree, tvb, offset+1, 1,
+		proto_tree_add_text(lmp_object_header_tree, tvb, offset+1, 1,
 				"Object Class: %u - %s",
 				class, object_type);
-	    proto_tree_add_item(lmp_object_header_tree, lmp_filter[LMPF_VAL_CTYPE],
-				tvb, offset, 1, type);
-	    offset2 = offset+4;
-	    mylen = obj_length - 4;
+		proto_tree_add_item(lmp_object_header_tree, lmp_filter[LMPF_VAL_CTYPE],
+				    tvb, offset, 1, type);
+		offset2 = offset+4;
+		mylen = obj_length - 4;
+	  } else /* LMP_VER_DRAFT_CCAMP_03 */ {
+		object_type = val_to_str(class, lmp_class_vals, "Unknown");
+		proto_tree_add_uint_hidden(lmp_tree, lmp_filter[LMPF_OBJECT],
+					   tvb,
+					   offset, 1, class);
 
-	    switch(class) {
+		if (VALID_CLASS(class)) {
+		    ti = proto_tree_add_item(lmp_tree, lmp_filter[lmp_class_to_filter_num(class)],
+			tvb, offset, obj_length, FALSE);
+		} else {
+		    proto_tree_add_protocol_format(lmp_tree, proto_malformed, tvb, offset+1, 1,
+			"Invalid class: %u", class);
+		    return;
+		}
 
+		lmp_object_tree = proto_item_add_subtree(ti, lmp_class_to_subtree(class));
+
+		ti2 = proto_tree_add_text(lmp_object_tree, tvb, offset, 4,
+				      "Header. Class %d, C-Type %d, Length %d, %s",
+				      class, type, obj_length,
+				      negotiable ? "Negotiable" : "Not Negotiable");
+		lmp_object_header_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_OBJECT_HEADER]);
+		proto_tree_add_text(lmp_object_header_tree, tvb, offset, 1,
+				negotiable ? "Negotiable" : "Not Negotiable");
+		proto_tree_add_text(lmp_object_header_tree, tvb, offset+2, 2,
+				"Length: %u", obj_length);
+		proto_tree_add_text(lmp_object_header_tree, tvb, offset+1, 1,
+				"Object Class: %u - %s",
+				class, object_type);
+		proto_tree_add_item(lmp_object_header_tree, lmp_filter[LMPF_VAL_CTYPE],
+				    tvb, offset, 1, type);
+		offset2 = offset+4;
+		mylen = obj_length - 4;
+	  }
+
+	  if (lmp_draft_ver == LMP_VER_DRAFT_CCAMP_09) {
+
+	    switch (class) {
+
+	    case LMP_CLASS_NULL:
+		break;
+
+	    case LMP_09_CLASS_CCID:
+		switch(type) {
+		case 1:
+		    l = LMPF_VAL_LOCAL_CCID;
+		    proto_item_append_text(ti, ": %d", tvb_get_ntohl(tvb, offset2));
+		    proto_tree_add_uint(lmp_object_tree, lmp_filter[l], tvb, offset2, 4,
+					tvb_get_ntohl(tvb, offset2));
+		    break;
+		case 2:
+		    l = LMPF_VAL_REMOTE_CCID;
+		    proto_item_append_text(ti, ": %d", tvb_get_ntohl(tvb, offset2));
+		    proto_tree_add_uint(lmp_object_tree, lmp_filter[l], tvb, offset2, 4,
+					tvb_get_ntohl(tvb, offset2));
+		default:
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
+					"Data (%d bytes)", mylen);
+		    break;
+		}
+		break;
+
+	    case LMP_09_CLASS_NODE_ID:
+		switch(type) {
+		case 1:
+		    l = LMPF_VAL_LOCAL_NODE_ID;
+		    proto_item_append_text(ti, ": %s",
+					   ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+		    proto_tree_add_item(lmp_object_tree, lmp_filter[l], tvb, offset2, 4,
+					FALSE);
+		    break;
+		case 2:
+		    l = LMPF_VAL_REMOTE_NODE_ID;
+		    proto_item_append_text(ti, ": %s",
+					   ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+		    proto_tree_add_item(lmp_object_tree, lmp_filter[l], tvb, offset2, 4,
+					FALSE);
+		    break;
+		default:
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
+					"Data (%d bytes)", mylen);
+		    break;
+		}
+		break;
+
+	    case LMP_09_CLASS_LINK_ID:
+		switch(type) {
+		case 1:
+		case 2:
+		    l = (type == 1)? LMPF_VAL_LOCAL_LINK_ID_IPV4:
+			LMPF_VAL_REMOTE_LINK_ID_IPV4;
+		    proto_item_append_text(ti, ": IPv4 %s",
+					   ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+		    proto_tree_add_item(lmp_object_tree, lmp_filter[l], tvb, offset2, 4,
+					FALSE);
+		    break;
+		case 3:
+		case 4:
+		    l = (type == 3)? LMPF_VAL_LOCAL_LINK_ID_IPV6:
+			LMPF_VAL_REMOTE_LINK_ID_IPV6;
+		    proto_item_append_text(ti, ": IPv6 %s",
+					   ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2, 16, "IPv6: %s",
+					ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+		    break;
+		case 5:
+		case 6:
+		    l = (type == 5)? LMPF_VAL_LOCAL_LINK_ID_UNNUM:
+			LMPF_VAL_REMOTE_LINK_ID_UNNUM;
+		    proto_item_append_text(ti, ": Unnumbered %d", tvb_get_ntohl(tvb, offset2));
+		    proto_tree_add_item(lmp_object_tree, lmp_filter[l], tvb, offset2, 4,
+					FALSE);
+		    break;
+
+		default:
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
+					"Data (%d bytes)", mylen);
+		    break;
+		}
+		break;
+
+	    case LMP_09_CLASS_INTERFACE_ID:
+		switch(type) {
+		case 1:
+		case 2:
+		    l = (type == 1)? LMPF_VAL_LOCAL_INTERFACE_ID_IPV4:
+			LMPF_VAL_REMOTE_INTERFACE_ID_IPV4;
+		    proto_item_append_text(ti, ": IPv4 %s",
+					   ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+		    proto_tree_add_item(lmp_object_tree, lmp_filter[l], tvb, offset2, 4,
+					FALSE);
+		    break;
+		case 3:
+		case 4:
+		    l = (type == 3)? LMPF_VAL_LOCAL_INTERFACE_ID_IPV6:
+			LMPF_VAL_REMOTE_INTERFACE_ID_IPV6;
+		    proto_item_append_text(ti, ": IPv6 %s",
+					   ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2, 16, "IPv6: %s",
+					ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+		    break;
+		case 5:
+		case 6:
+		    l = (type == 5)? LMPF_VAL_LOCAL_INTERFACE_ID_UNNUM:
+			LMPF_VAL_REMOTE_INTERFACE_ID_UNNUM;
+		    proto_item_append_text(ti, ": Unnumbered %d", tvb_get_ntohl(tvb, offset2));
+		    proto_tree_add_item(lmp_object_tree, lmp_filter[l], tvb, offset2, 4,
+					FALSE);
+		    break;
+		default:
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
+					"Data (%d bytes)", mylen);
+		    break;
+		}
+		break;
+
+	    case LMP_09_CLASS_MESSAGE_ID:
+		switch(type) {
+		case 1:
+		    l = LMPF_VAL_MESSAGE_ID;
+		    proto_item_append_text(ti, ": %d", tvb_get_ntohl(tvb, offset2));
+		    proto_tree_add_uint(lmp_object_tree, lmp_filter[l], tvb, offset2, 4,
+					tvb_get_ntohl(tvb, offset2));
+		    break;
+		case 2:
+		    l = LMPF_VAL_MESSAGE_ID_ACK;
+		    proto_item_append_text(ti, ": %d", tvb_get_ntohl(tvb, offset2));
+		    proto_tree_add_uint(lmp_object_tree, lmp_filter[l], tvb, offset2, 4,
+					tvb_get_ntohl(tvb, offset2));
+		    break;
+
+		default:
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
+					"Data (%d bytes)", mylen);
+		    break;
+		}
+		break;
+
+	    case LMP_09_CLASS_CONFIG:
+		switch(type) {
+		case 1:
+		    proto_item_append_text(ti, ": HelloInterval: %d, HelloDeadInterval: %d",
+					   tvb_get_ntohs(tvb, offset2), tvb_get_ntohs(tvb, offset2+2));
+		    proto_tree_add_uint(lmp_object_tree, lmp_filter[LMPF_VAL_CONFIG_HELLO],
+					tvb, offset2, 2, tvb_get_ntohs(tvb, offset2));
+		    proto_tree_add_uint(lmp_object_tree, lmp_filter[LMPF_VAL_CONFIG_HELLO_DEAD],
+					tvb, offset2+2, 2, tvb_get_ntohs(tvb, offset2+2));
+		    break;
+		default:
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
+					"Data (%d bytes)", mylen);
+		    break;
+		}
+		break;
+
+	    case LMP_09_CLASS_HELLO:
+		switch(type) {
+		case 1:
+		    proto_item_append_text(ti, ": TxSeq %d, RxSeq: %d",
+					   tvb_get_ntohl(tvb, offset2),
+					   tvb_get_ntohl(tvb, offset2+4));
+		    proto_tree_add_uint(lmp_object_tree, lmp_filter[LMPF_VAL_HELLO_TXSEQ],
+					tvb, offset2, 4, tvb_get_ntohl(tvb, offset2));
+		    proto_tree_add_uint(lmp_object_tree, lmp_filter[LMPF_VAL_HELLO_RXSEQ],
+					tvb, offset2+4, 4, tvb_get_ntohl(tvb, offset2+4));
+		    break;
+		default:
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
+					"Data (%d bytes)", mylen);
+		    break;
+		}
+		break;
+
+	    case LMP_09_CLASS_BEGIN_VERIFY:
+		switch(type) {
+		case 1:
+		    l = tvb_get_ntohs(tvb, offset2);
+		    ti2 = proto_tree_add_item(lmp_object_tree, lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS],
+					      tvb, offset2, 2, FALSE);
+
+		    lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_BEGIN_VERIFY_FLAGS]);
+		    proto_tree_add_boolean(lmp_flags_tree, lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS_ALL_LINKS],
+					   tvb, offset2, 2, l);
+		    proto_tree_add_boolean(lmp_flags_tree, lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS_LINK_TYPE],
+					   tvb, offset2, 2, l);
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2+2, 2,
+					"Verify Interval: %d ms", tvb_get_ntohs(tvb, offset2+2));
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2+4, 4,
+					"Number of Data Links: %d", tvb_get_ntohl(tvb, offset2+4));
+		    proto_tree_add_item(lmp_object_tree, lmp_filter[LMPF_VAL_BEGIN_VERIFY_ENCTYPE],
+					tvb, offset2+8, 1, FALSE);
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2+10, 2,
+					"Verify Transport Mechanism: 0x%0x", tvb_get_ntohs(tvb, offset2+10));
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2+12, 4,
+					"Transmission Rate: %.10g", tvb_get_ntohieee_float(tvb, offset2+12));
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2+16, 4,
+					"Wavelength: %d", tvb_get_ntohl(tvb, offset2+4));
+		    break;
+		default:
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
+					"Data (%d bytes)", mylen);
+		    break;
+		}
+		break;
+
+	    case LMP_09_CLASS_BEGIN_VERIFY_ACK:
+		switch(type) {
+		case 1:
+		    proto_item_append_text(ti, ": VerifyDeadInterval: %d, TransportResponse: 0x%0x",
+					   tvb_get_ntohs(tvb, offset2), tvb_get_ntohs(tvb, offset2+2));
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2, 2,
+					"VerifyDeadInterval: %d ms", tvb_get_ntohs(tvb, offset2));
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2+2, 2,
+					"Verify Transport Response: 0x%0x", tvb_get_ntohs(tvb, offset2+2));
+		    break;
+		default:
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
+					"Data (%d bytes)", mylen);
+		    break;
+		}
+		break;
+
+	    case LMP_09_CLASS_VERIFY_ID:
+		switch(type) {
+		case 1:
+		    proto_item_append_text(ti, ": %d", tvb_get_ntohl(tvb, offset2));
+		    proto_tree_add_uint(lmp_object_tree, lmp_filter[LMPF_VAL_VERIFY_ID], tvb, offset2, 4,
+					tvb_get_ntohl(tvb, offset2));
+		    break;
+		default:
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
+					"Data (%d bytes)", mylen);
+		    break;
+		}
+		break;
+
+	    case LMP_09_CLASS_TE_LINK:
+		l = tvb_get_guint8(tvb, offset2);
+		ti2 = proto_tree_add_uint(lmp_object_tree, lmp_filter[LMPF_VAL_TE_LINK_FLAGS],
+					  tvb, offset2, 1, l);
+		proto_item_append_text(ti2, ": %s%s",
+				       (l&0x01) ? "Fault-Mgmt-Supported " : "",
+				       (l&0x02) ? "Link-Verification-Supported " : "");
+		lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_TE_LINK_FLAGS]);
+		proto_tree_add_boolean(lmp_flags_tree,
+				       lmp_filter[LMPF_VAL_TE_LINK_FLAGS_FAULT_MGMT],
+				       tvb, offset2, 1, l);
+		proto_tree_add_boolean(lmp_flags_tree,
+				       lmp_filter[LMPF_VAL_TE_LINK_FLAGS_LINK_VERIFY],
+				       tvb, offset2, 1, l);
+		switch(type) {
+		case 1:
+		    proto_item_append_text(ti, ": IPv4: Local %s, Remote %s",
+					   ip_to_str(tvb_get_ptr(tvb, offset2+4, 4)),
+					   ip_to_str(tvb_get_ptr(tvb, offset2+8, 4)));
+		    proto_tree_add_item(lmp_object_tree, lmp_filter[LMPF_VAL_TE_LINK_LOCAL_IPV4],
+					tvb, offset2+4, 4, FALSE);
+		    proto_tree_add_item(lmp_object_tree, lmp_filter[LMPF_VAL_TE_LINK_REMOTE_IPV4],
+					tvb, offset2+8, 4, FALSE);
+		    break;
+		case 2:
+		    proto_item_append_text(ti, ": IPv6: Local %s, Remote %s",
+					   ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+4, 16)),
+					   ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+8, 16)));
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2+4, 16, "TE-Link Local ID - IPv6: %s",
+					ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2+20,16, "TE-Link Remote ID - IPv6: %s",
+					ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+4, 16)));
+		    break;
+		case 3:
+		    proto_item_append_text(ti, ": Unnumbered: Local %d, Remote %d",
+					   tvb_get_ntohl(tvb, offset2+4), tvb_get_ntohl(tvb, offset2+8));
+		    proto_tree_add_item(lmp_object_tree, lmp_filter[LMPF_VAL_TE_LINK_LOCAL_UNNUM],
+					tvb, offset2+4, 4, FALSE);
+		    proto_tree_add_item(lmp_object_tree, lmp_filter[LMPF_VAL_TE_LINK_REMOTE_UNNUM],
+					tvb, offset2+8, 4, FALSE);
+		    break;
+		default:
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
+					"Data (%d bytes)", mylen);
+		    break;
+		}
+		break;
+
+	    case LMP_09_CLASS_DATA_LINK:
+		l = tvb_get_guint8(tvb, offset2);
+		ti2 = proto_tree_add_uint(lmp_object_tree, lmp_filter[LMPF_VAL_DATA_LINK_FLAGS],
+					  tvb, offset2, 1, l);
+		proto_item_append_text(ti2, ": %s%s",
+				       (l&0x01) ? "Interface-Type-Port " : "Interface-Type-Component-Link ",
+				       (l&0x02) ? "Allocated " : "Unallocated ");
+		lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_DATA_LINK_FLAGS]);
+		proto_tree_add_boolean(lmp_flags_tree,
+				       lmp_filter[LMPF_VAL_DATA_LINK_FLAGS_PORT],
+				       tvb, offset2, 1, l);
+		proto_tree_add_boolean(lmp_flags_tree,
+				       lmp_filter[LMPF_VAL_DATA_LINK_FLAGS_ALLOCATED],
+				       tvb, offset2, 1, l);
+		switch(type) {
+		case 1:
+		    proto_item_append_text(ti, ": IPv4: Local %s, Remote %s",
+					   ip_to_str(tvb_get_ptr(tvb, offset2+4, 4)),
+					   ip_to_str(tvb_get_ptr(tvb, offset2+8, 4)));
+		    proto_tree_add_item(lmp_object_tree, lmp_filter[LMPF_VAL_DATA_LINK_LOCAL_IPV4],
+					tvb, offset2+4, 4, FALSE);
+		    proto_tree_add_item(lmp_object_tree, lmp_filter[LMPF_VAL_DATA_LINK_REMOTE_IPV4],
+					tvb, offset2+8, 4, FALSE);
+		    l = 12;
+		    break;
+		case 2:
+		    proto_item_append_text(ti, ": IPv6: Local %s, Remote %s",
+					   ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+4, 16)),
+					   ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+8, 16)));
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2+4, 16,
+					"Data-Link Local ID - IPv6: %s",
+					ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2+20,16,
+					"Data-Link Remote ID - IPv6: %s",
+					ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+4, 16)));
+		    l = 36;
+		    break;
+		case 3:
+		    proto_item_append_text(ti, ": Unnumbered: Local %d, Remote %d",
+					   tvb_get_ntohl(tvb, offset2+4), tvb_get_ntohl(tvb, offset2+8));
+		    proto_tree_add_item(lmp_object_tree, lmp_filter[LMPF_VAL_DATA_LINK_LOCAL_UNNUM],
+					tvb, offset2+4, 4, FALSE);
+		    proto_tree_add_item(lmp_object_tree, lmp_filter[LMPF_VAL_DATA_LINK_REMOTE_UNNUM],
+					tvb, offset2+8, 4, FALSE);
+		    l = 12;
+		    break;
+		default:
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
+					"Data (%d bytes)", mylen);
+		    break;
+		}
+
+		while (l < obj_length - 4) {
+		    mylen = tvb_get_guint8(tvb, offset2+l+1);
+		    ti2 = proto_tree_add_item(lmp_object_tree, lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ],
+					      tvb, offset2+l, mylen, FALSE);
+		    lmp_subobj_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_DATA_LINK_SUBOBJ]);
+		    proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l, 1,
+					"Subobject Type: %d", tvb_get_guint8(tvb, offset2+l));
+		    proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+1, 1,
+					"Subobject Length: %d", mylen);
+		    switch(tvb_get_guint8(tvb, offset2+l)) {
+		    case 1:
+			proto_item_set_text(ti2, "Interface Switching Capability: "
+					    "Switching Cap: %s, Encoding Type: %s, Min BW: %.10g, Max BW: %.10g",
+					    val_to_str(tvb_get_guint8(tvb, offset2+l+2),
+						       gmpls_switching_type_str, "Unknown (%d)"),
+					    val_to_str(tvb_get_guint8(tvb, offset2+l+3),
+						       gmpls_lsp_enc_str, "Unknown (%d)"),
+					    tvb_get_ntohieee_float(tvb, offset2+l+4),
+					    tvb_get_ntohieee_float(tvb, offset2+l+8));
+			proto_tree_add_item(lmp_subobj_tree,
+					    lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ_SWITCHING_TYPE],
+					    tvb, offset2+l+2, 1, FALSE);
+			proto_tree_add_item(lmp_subobj_tree,
+					    lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ_LSP_ENCODING],
+					    tvb, offset2+l+3, 1, FALSE);
+			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+4, 4,
+					    "Minimum Reservable Bandwidth: %.10g bytes/s",
+					    tvb_get_ntohieee_float(tvb, offset2+l+4));
+			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+8, 4,
+					    "Maximum Reservable Bandwidth: %.10g bytes/s",
+					    tvb_get_ntohieee_float(tvb, offset2+l+8));
+			break;
+
+		    case 2:
+			proto_item_set_text(ti2, "Wavelength: %d",
+					    tvb_get_ntohl(tvb, offset2+l+2));
+			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+4, 4,
+					    "Wavelength: %d",
+					    tvb_get_ntohl(tvb, offset2+l+2));
+			break;
+
+		    default:
+			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l,
+					    tvb_get_guint8(tvb, offset2+l+1),
+					    "Data (%d bytes)", tvb_get_guint8(tvb, offset2+l+1));
+			break;
+		    }
+		    l += tvb_get_guint8(tvb, offset2+l+1);
+		}
+
+		break;
+
+	    case LMP_09_CLASS_CHANNEL_STATUS:
+		k = 0; j = 0;
+		switch(type) {
+		case 1:
+		case 3:
+		    k = 8; break;
+		case 2:
+		    k = 20; break;
+		}
+		if (!k)
+		    break;
+		for (l=0; l<obj_length - 4; ) {
+		    ti2 = proto_tree_add_text(lmp_object_tree, tvb, offset2+l, k,
+					      "Interface-Id");
+		    lmp_subobj_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_CHANNEL_STATUS_ID]);
+		    switch(type) {
+		    case 1:
+			if (j < 4)
+			    proto_item_append_text(ti, ": [IPv4-%s",
+						   ip_to_str(tvb_get_ptr(tvb, offset2+l, 4)));
+			proto_item_append_text(ti2, ": IPv4 %s",
+					       ip_to_str(tvb_get_ptr(tvb, offset2+l, 4)));
+			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l, 4,
+					    "Interface ID: IPv4: %s",
+					    ip_to_str(tvb_get_ptr(tvb, offset2+l, 4)));
+			l += 4;
+			break;
+		    case 2:
+			if (j < 4)
+			    proto_item_append_text(ti, ": [IPv6-%s",
+						   ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+l, 16)));
+			proto_item_append_text(ti2, ": IPv6 %s",
+					       ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+l, 16)));
+			proto_tree_add_text(lmp_subobj_tree, tvb, offset2, 16, "Interface ID: IPv6: %s",
+					    ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+l, 16)));
+			l += 16;
+			break;
+		    case 3:
+			if (j < 4)
+			    proto_item_append_text(ti, ": [Unnum-%d", tvb_get_ntohl(tvb, offset2+l));
+			proto_item_append_text(ti, ": Unnumbered %d", tvb_get_ntohl(tvb, offset2+l));
+			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l, 4,
+					    "Interface ID: Unnumbered: %d",
+					    tvb_get_ntohl(tvb, offset2+l));
+			l += 4;
+			break;
+		    default:
+			proto_tree_add_text(lmp_object_tree, tvb, offset2+l, obj_length-4-l,
+					    "Data (%d bytes)", obj_length-4-l);
+			l = obj_length - 4;
+			break;
+		    }
+		    if (l == obj_length - 4) break;
+
+		    proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l, 1,
+					tvb_get_guint8(tvb, offset2+l) & 0x80 ?
+					"Link Allocated - Active Monitoring" :
+					"Link Not Allocated");
+		    if (j < 4)
+			proto_item_append_text(ti, "-%s,%s], ",
+					       tvb_get_guint8(tvb, offset2+l) & 0x80 ? "Act" : "NA",
+					       val_to_str(tvb_get_ntohl(tvb, offset2+l) & 0x7fffffff,
+							  channel_status_short_str, "UNK (%u)."));
+		    proto_item_append_text(ti2, ": %s, ",
+					   tvb_get_guint8(tvb, offset2+l) & 0x80 ? "Active" : "Not Active");
+		    proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l, 4,
+					"Channel Status: %s",
+					val_to_str(tvb_get_ntohl(tvb, offset2+l) & 0x7fffffff,
+						   channel_status_str, "Unknown (%u). "));
+		    proto_item_append_text(ti2, val_to_str(tvb_get_ntohl(tvb, offset2+l) & 0x7fffffff,
+							   channel_status_str, "Unknown (%u). "));
+		    j++;
+		    l += 4;
+		    if (j==4 && l < obj_length - 4)
+			proto_item_append_text(ti, " ...");
+		}
+		break;
+
+	    case LMP_09_CLASS_CHANNEL_STATUS_REQUEST:
+		for (l=0; l<obj_length - 4; ) {
+		    switch(type) {
+		    case 1:
+			proto_tree_add_text(lmp_object_tree, tvb, offset2+l, 4,
+					    "Interface ID: IPv4: %s",
+					    ip_to_str(tvb_get_ptr(tvb, offset2+l, 4)));
+			l += 4;
+			break;
+		    case 2:
+			proto_tree_add_text(lmp_object_tree, tvb, offset2+l, 16, "Interface ID: IPv6: %s",
+					    ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+l,16)));
+			l += 16;
+			break;
+		    case 3:
+			proto_tree_add_text(lmp_object_tree, tvb, offset2+l, 4,
+					    "Interface ID: Unnumbered: %d",
+					    tvb_get_ntohl(tvb, offset2+l));
+			l += 4;
+			break;
+		    default:
+			proto_tree_add_text(lmp_object_tree, tvb, offset2+l, obj_length-4-l,
+					    "Data (%d bytes)", obj_length-4-l);
+			l = obj_length - 4;
+			break;
+		    }
+		}
+		break;
+
+	    case LMP_09_CLASS_ERROR:
+		l = tvb_get_ntohl(tvb, offset2);
+		ti2 = proto_tree_add_uint(lmp_object_tree, lmp_filter[LMPF_VAL_ERROR],
+					  tvb, offset2, 4, l);
+
+		switch(type) {
+		case 1:
+			proto_item_append_text(ti, ": CONFIG_ERROR: %s%s%s",
+					       (l&0x01) ? "Unacceptable-Params " : "",
+					       (l&0x02) ? "Renegotiate" : "",
+					       (l&0x04) ? "Bad Received CCID" : "");
+			lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_ERROR_FLAGS]);
+			proto_tree_add_boolean(lmp_flags_tree,
+					       lmp_filter[LMPF_VAL_ERROR_CONFIG_BAD_PARAMETERS],
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree,
+					       lmp_filter[LMPF_VAL_ERROR_CONFIG_RENEGOTIATE],
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree,
+					       lmp_filter[LMPF_VAL_ERROR_CONFIG_BAD_CCID],
+					       tvb, offset, 4, l);
+			break;
+		case 2:
+			proto_item_append_text(ti, ": BEGIN_VERIFY_ERROR: %s%s%s%s",
+					       (l&0x01) ? "Unsupported-Link " : "",
+					       (l&0x02) ? "Unwilling" : "",
+					       (l&0x04) ? "Unsupported-Transport" : "",
+					       (l&0x08) ? "TE-Link-ID" : "");
+			lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_ERROR_FLAGS]);
+			proto_tree_add_boolean(lmp_flags_tree,
+					       lmp_filter[LMPF_VAL_ERROR_VERIFY_UNSUPPORTED_LINK],
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree,
+					       lmp_filter[LMPF_VAL_ERROR_VERIFY_UNWILLING],
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree,
+					       lmp_filter[LMPF_VAL_ERROR_VERIFY_TRANSPORT],
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree,
+					       lmp_filter[LMPF_VAL_ERROR_VERIFY_TE_LINK_ID],
+					       tvb, offset, 4, l);
+			break;
+		case 3:
+			proto_item_append_text(ti, ": LINK_SUMMARY_ERROR: %s%s%s%s%s%s",
+					       (l&0x01) ? "Unacceptable-Params " : "",
+					       (l&0x02) ? "Renegotiate" : "",
+					       (l&0x04) ? "Bad-TE-Link" : "",
+					       (l&0x08) ? "Bad-Data-Link" : "",
+					       (l&0x10) ? "Bad-TE-Link-CType" : "",
+					       (l&0x20) ? "Bad-Data-Link-CType" : "");
+			lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_ERROR_FLAGS]);
+			proto_tree_add_boolean(lmp_flags_tree,
+					       lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_PARAMETERS],
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree,
+					       lmp_filter[LMPF_VAL_ERROR_SUMMARY_RENEGOTIATE],
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree,
+					       lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_TE_LINK],
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree,
+					       lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_DATA_LINK],
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree,
+					       lmp_filter[LMPF_VAL_ERROR_SUMMARY_UNKNOWN_TEL_CTYPE],
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree,
+					       lmp_filter[LMPF_VAL_ERROR_SUMMARY_UNKNOWN_DL_CTYPE],
+					       tvb, offset, 4, l);
+			break;
+		default:
+			proto_item_append_text(ti, ": UNKNOWN_ERROR (%d): 0x%04x", type, l);
+			proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
+					    "Data (%d bytes)", mylen);
+			break;
+		}
+	    default:
+		proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
+					    "Data (%d bytes)", mylen);
+		break;
+	    }
+	  } else {
+	    /* LMP 03 or LMP 02 */
+	    switch (class) {
 	    case LMP_CLASS_NULL:
 		break;
 
@@ -1046,14 +1794,13 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    break;
 		}
 		break;
-
 	    case LMP_CLASS_BEGIN_VERIFY:
 		switch(type) {
 		case 1:
 		    l = tvb_get_ntohs(tvb, offset2);
 		    ti2 = proto_tree_add_item(lmp_object_tree, lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS],
 					      tvb, offset2, 2, FALSE);
-
+			
 		    lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_BEGIN_VERIFY_FLAGS]);
 		    proto_tree_add_boolean(lmp_flags_tree, lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS_ALL_LINKS],
 					   tvb, offset2, 2, l);
@@ -1250,7 +1997,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    "Wavelength: %d",
 					    tvb_get_ntohl(tvb, offset2+l+2));
 			break;
-
+			    
 		    default:
 			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l,
 					    tvb_get_guint8(tvb, offset2+l+1),
@@ -1259,7 +2006,6 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    }
 		    l += tvb_get_guint8(tvb, offset2+l+1);
 		}
-
 		break;
 
 	    case LMP_CLASS_CHANNEL_STATUS:
@@ -1324,7 +2070,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_item_append_text(ti, "-%s,%s], ",
 					       tvb_get_guint8(tvb, offset2+l) & 0x80 ? "Act" : "NA",
 					       val_to_str(tvb_get_ntohl(tvb, offset2+l) & 0x7fffffff,
-							   channel_status_short_str, "UNK (%u)."));
+							  channel_status_short_str, "UNK (%u)."));
 		    proto_item_append_text(ti2, ": %s, ",
 					   tvb_get_guint8(tvb, offset2+l) & 0x80 ? "Active" : "Not Active");
 		    proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l, 4,
@@ -1419,6 +2165,8 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					       (l&0x01) ? "Unacceptable-Params " : "",
 					       (l&0x02) ? "Renegotiate" : "",
 					       (l&0x04) ? "Remote-Link-ID" : "");
+
+
 			lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_ERROR_FLAGS]);
 			proto_tree_add_boolean(lmp_flags_tree,
 					       lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_PARAMETERS],
@@ -1430,6 +2178,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					       lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_REMOTE_LINK_ID],
 					       tvb, offset, 4, l);
 			break;
+
 		    default:
 			proto_item_append_text(ti, ": UNKNOWN_ERROR (%d): 0x%04x", type, l);
 			proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
@@ -1437,7 +2186,6 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		    }
 		    break;
-
 		default:
 		case LMP_VER_DRAFT_CCAMP_03:
 		    switch(type) {
@@ -1468,6 +2216,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					       (l&0x04) ? "Remote-Link-ID" : "",
 					       (l&0x08) ? "TE-Link" : "",
 					       (l&0x10) ? "Data-Link" : "");
+
 			lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_ERROR_FLAGS]);
 			proto_tree_add_boolean(lmp_flags_tree,
 					       lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_PARAMETERS],
@@ -1490,40 +2239,55 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
 					    "Data (%d bytes)", mylen);
 			break;
-		    }
+		    } /* switch type */
 		    break;
-		}
-		break;
+		  } /* default case in ERROR object switch */
 
-	    default :
+	      default:
 		proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
 				    "Data (%d bytes)", mylen);
 		break;
-
 	    }
 
-	    offset += obj_length;
-	    len += obj_length;
-	}
-    }
+	  } /* LMP_VER_DRAFT_CCAMP_03 */
+
+	  offset += obj_length;
+	  len += obj_length;
+
+	} /* while */
+    } /* tree */
 }
+
+static void
+lmp_prefs_applied (void)
+{
+    if (lmp_udp_port != lmp_udp_port_config) {
+	dissector_delete("udp.port", lmp_udp_port, lmp_handle);
+	lmp_udp_port = lmp_udp_port_config;
+	dissector_add("udp.port", lmp_udp_port, lmp_handle);
+    }
+}    
 
 static void
 register_lmp_prefs (void)
 {
     module_t *lmp_module;
     static enum_val_t lmp_ver[] = {
+	{"draft-ietf-ccamp-lmp-09", LMP_VER_DRAFT_CCAMP_09},
 	{"draft-ietf-ccamp-lmp-03", LMP_VER_DRAFT_CCAMP_03},
 	{"draft-ietf-ccamp-lmp-02", LMP_VER_DRAFT_CCAMP_02},
 	{NULL, -1}
     };
 
-    lmp_module = prefs_register_protocol(proto_lmp, NULL);
+    lmp_module = prefs_register_protocol(proto_lmp, lmp_prefs_applied);
     prefs_register_enum_preference(
 	lmp_module, "version",
 	"Draft version of LMP",
 	"Specifies the IETF CCAMP draft version of LMP to interpret",
 	&lmp_draft_ver, lmp_ver, FALSE);
+    prefs_register_uint_preference(
+	lmp_module, "udp_port", "LMP UDP Port (draft-09 ONLY)",
+	"UDP port number to use for LMP (draft-09 only)", 10, &lmp_udp_port_config);
 }
 
 void
@@ -1548,8 +2312,7 @@ proto_register_lmp(void)
 void
 proto_reg_handoff_lmp(void)
 {
-	dissector_handle_t lmp_handle;
-
-	lmp_handle = create_dissector_handle(dissect_lmp, proto_lmp);
-	dissector_add("ip.proto", IP_PROTO_LMP, lmp_handle);
+    lmp_handle = create_dissector_handle(dissect_lmp, proto_lmp);
+    dissector_add("udp.port", lmp_udp_port, lmp_handle);
+    dissector_add("ip.proto", IP_PROTO_LMP, lmp_handle);
 }
