@@ -2,7 +2,7 @@
  * ARCNET protocol ID values
  * Copyright 2001-2002, Peter Fales <ethereal@fales-lorenz.net>
  *
- * $Id: arcnet_pids.h,v 1.2 2003/01/23 04:03:58 guy Exp $
+ * $Id: arcnet_pids.h,v 1.3 2003/01/23 07:28:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,7 +39,7 @@
 
 /*
  * Raw Ethernet over ARCNET - Linux's "if_arcnet.h" calls this
- * "MS LAanMan/WfWg 'NDIS' encapsuation".
+ * "MS LanMan/WfWg 'NDIS' encapsuation".
  */
 #define ARCNET_PROTO_ETHERNET	232
 
