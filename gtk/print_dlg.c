@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.49 2003/12/09 22:24:14 ulfl Exp $
+ * $Id: print_dlg.c,v 1.50 2003/12/13 02:42:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -130,6 +130,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   GtkTooltips   *tooltips;
   gchar         label_text[100];
   frame_data    *packet;
+  guint32       selected_count;
   guint32       captured_count;
   guint32       displayed_count;
 
@@ -141,6 +142,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   /* count packets */
   /* XXX: this counters should be a in cfile, so we don't have to do this here */
+  selected_count = 0;
   captured_count = 0;
   displayed_count = 0;
   packet = cfile.plist;
@@ -151,6 +153,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
     }
     packet = packet->next;
   }
+  selected_count = (displayed_count) ? 1 : 0;
 
   /* get settings from preferences only once */
   if(print_prefs_init == FALSE) {
@@ -307,7 +310,8 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   /* "All packets captured" */
   /* "Packets from x to y" */
 
-  g_snprintf(label_text, sizeof(label_text), "_Selected packet only, 1 packet");
+  /* there will be a selected packet, if at least one packet is displayed */
+  g_snprintf(label_text, sizeof(label_text), "_Selected packets only, %u packet(s)", selected_count);
 #if GTK_MAJOR_VERSION < 2
   selected_rb = dlg_radio_button_new_with_label_with_mnemonic(
                 NULL,
@@ -319,6 +323,8 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(selected_rb), TRUE);
   gtk_tooltips_set_tip (tooltips, selected_rb, ("Print the currently selected packet only"), NULL);
   gtk_container_add(GTK_CONTAINER(range_vb), selected_rb);
+  /* set sensitive only, if we have a selected packet */
+  gtk_widget_set_sensitive(selected_rb, selected_count);
   gtk_widget_show(selected_rb);
 
   g_snprintf(label_text, sizeof(label_text), "_Marked packets only, %u packet(s)", cfile.marked_count);
@@ -349,7 +355,8 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_tooltips_set_tip (tooltips, all_displayed_rb, 
       ("Print all packets currently displayed"), NULL);
   gtk_container_add(GTK_CONTAINER(range_vb), all_displayed_rb);
-  gtk_widget_set_sensitive(all_displayed_rb, displayed_count != captured_count);
+  /* set sensitive only, if we are displaying any packets and a display filter showed any effect */
+  gtk_widget_set_sensitive(all_displayed_rb, displayed_count && displayed_count != captured_count);
   gtk_widget_show(all_displayed_rb);
 
   g_snprintf(label_text, sizeof(label_text), "All packets _captured, %u packet(s)", captured_count);
@@ -361,7 +368,8 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   all_captured_rb = gtk_radio_button_new_with_mnemonic_from_widget(
                     GTK_RADIO_BUTTON(selected_rb), label_text);
 #endif
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(all_captured_rb), FALSE);
+  /* set this button active, only when no packets selected */
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(all_captured_rb), selected_count == 0);
   gtk_tooltips_set_tip (tooltips, all_captured_rb, 
       ("Print all packets captured"), NULL);
   gtk_container_add(GTK_CONTAINER(range_vb), all_captured_rb);
@@ -517,7 +525,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 #endif
   SIGNAL_CONNECT(cancel_bt, "clicked", print_close_cb, print_w);
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
-  gtk_tooltips_set_tip (tooltips, cancel_bt, ("Cancel print and exit"), NULL);
+  gtk_tooltips_set_tip (tooltips, cancel_bt, ("Cancel print and exit dialog"), NULL);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);
 
