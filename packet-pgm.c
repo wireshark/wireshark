@@ -1,7 +1,7 @@
 /* packet-pgm.c
  * Routines for PGM packet disassembly, RFC 3208
  *
- * $Id: packet-pgm.c,v 1.22 2003/12/19 22:46:16 guy Exp $
+ * $Id: packet-pgm.c,v 1.23 2004/03/09 06:46:03 guy Exp $
  *
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -595,11 +595,25 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 	proto_tree *opt_tree = NULL;
 	pgm_opt_length_t opts;
 	pgm_opt_generic_t genopts;
-	int theend = 0, firsttime = 1;
+	gboolean theend = FALSE, firsttime = TRUE;
 
 	tvb_memcpy(tvb, (guint8 *)&opts, offset, sizeof(opts));
+	if (opts.type != PGM_OPT_LENGTH) {
+		proto_tree_add_text(tree, tvb, offset, 1,
+		    "%s Options - initial option is %s, should be %s",
+		    pktname,
+		    val_to_str(opts.type, opt_vals, "Unknown (0x%02x)"),
+		    val_to_str(PGM_OPT_LENGTH, opt_vals, "Unknown (0x%02x)"));
+		return;
+	}
 	opts.total_len = g_ntohs(opts.total_len);
 
+	if (opts.total_len < 4) {
+		proto_tree_add_text(opts_tree, tvb, offset, 4,
+			"%s Options (Total Length %u - invalid, must be >= 4)",
+			pktname, opts.total_len);
+		return;
+	}
 	tf = proto_tree_add_text(tree, tvb, offset,
 		opts.total_len,
 		"%s Options (Total Length %d)", pktname, opts.total_len);
@@ -612,34 +626,59 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 		offset+2, 2, opts.total_len);
 
 	offset += 4;
-	for (opts.total_len -= 4; opts.total_len > 0;){
+	for (opts.total_len -= 4; !theend && opts.total_len != 0;){
+		if (opts.total_len < 4) {
+			proto_tree_add_text(opts_tree, tvb, offset, opts.total_len,
+			    "Remaining total options length doesn't have enough for an options header");
+			break;
+		}
 		tvb_memcpy(tvb, (guint8 *)&genopts, offset, sizeof(genopts));
 		if (genopts.type & PGM_OPT_END)  {
 			genopts.type &= ~PGM_OPT_END;
-			theend = 1;
+			theend = TRUE;
+		}
+		if (genopts.len < 4) {
+			proto_tree_add_text(opts_tree, tvb, offset, genopts.len,
+				"Option: %s, Length: %u (invalid, must be >= 4)",
+				val_to_str(genopts.type, opt_vals, "Unknown (0x%02x)"),
+				genopts.len);
+			break;
+		}
+		if (opts.total_len < genopts.len) {
+			proto_tree_add_text(opts_tree, tvb, offset, genopts.len,
+			    "Option: %s, Length: %u (> remaining total options length)",
+			    val_to_str(genopts.type, opt_vals, "Unknown (0x%02x)"),
+			    genopts.len);
+			break;
 		}
 		tf = proto_tree_add_text(opts_tree, tvb, offset, genopts.len,
 			"Option: %s, Length: %u",
 			val_to_str(genopts.type, opt_vals, "Unknown (0x%02x)"),
 			genopts.len);
-		if (genopts.len == 0)
-			break;
 
 		switch(genopts.type) {
 		case PGM_OPT_JOIN:{
 			pgm_opt_join_t optdata;
 
-			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_join);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
 				tvb, offset, 1, genopts.type);
 
+			if (genopts.len < sizeof optdata) {
+				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
+					offset+1, 1, genopts.len,
+					"Length: %u (bogus, must be >= %u)",
+					genopts.len, sizeof optdata);
+				break;
+			}
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
 				offset+1, 1, genopts.len);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, tvb,
 				offset+2, 1, genopts.opx);
+
+			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_join_res, tvb,
 				offset+3, 1, optdata.res);
@@ -652,17 +691,25 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 		case PGM_OPT_PARITY_PRM:{
 			pgm_opt_parity_prm_t optdata;
 
-			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_parityprm);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
 				tvb, offset, 1, genopts.type);
 
+			if (genopts.len < sizeof optdata) {
+				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
+					offset+1, 1, genopts.len,
+					"Length: %u (bogus, must be >= %u)",
+					genopts.len, sizeof optdata);
+				break;
+			}
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
 				offset+1, 1, genopts.len);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx,
 				tvb, offset+2, 1, genopts.opx);
+
+			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 
 			proto_tree_add_uint_format(opt_tree, hf_pgm_opt_parity_prm_po, tvb,
 				offset+3, 1, optdata.po, "Parity Parameters: %s (0x%x)",
@@ -676,17 +723,25 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 		case PGM_OPT_PARITY_GRP:{
 			pgm_opt_parity_grp_t optdata;
 
-			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_paritygrp);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
 				tvb, offset, 1, genopts.type);
 
+			if (genopts.len < sizeof optdata) {
+				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
+					offset+1, 1, genopts.len,
+					"Length: %u (bogus, must be >= %u)",
+					genopts.len, sizeof optdata);
+				break;
+			}
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
 				offset+1, 1, genopts.len);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx,
 				tvb, offset+2, 1, genopts.opx);
+
+			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_parity_grp_res, tvb,
 				offset+3, 1, optdata.res);
@@ -702,17 +757,25 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			char nakbuf[8192], *ptr;
 			int i, j, naks, soffset = 0;
 
-			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_naklist);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type, tvb,
 				offset, 1, genopts.type);
 
+			if (genopts.len < sizeof optdata) {
+				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
+					offset+1, 1, genopts.len,
+					"Length: %u (bogus, must be >= %u)",
+					genopts.len, sizeof optdata);
+				break;
+			}
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
 				offset+1, 1, genopts.len);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx,
 				tvb, offset+2, 1, genopts.opx);
+
+			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_res, tvb,
 				offset+3, 1, optdata.res);
@@ -741,7 +804,7 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 							nakbuf, "List: %s", nakbuf);
 							soffset = 0;
 					}
-					firsttime = 0;
+					firsttime = FALSE;
 				}
 			}
 			if (soffset) {
@@ -762,17 +825,25 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 		case PGM_OPT_PGMCC_DATA:{
 			pgm_opt_pgmcc_data_t optdata;
 
-			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_ccdata);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
 				tvb, offset, 1, genopts.type);
 
+			if (genopts.len < sizeof optdata) {
+				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
+					offset+1, 1, genopts.len,
+					"Length: %u (bogus, must be >= %u)",
+					genopts.len, sizeof optdata);
+				break;
+			}
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
 				offset+1, 1, genopts.len);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx,
 				tvb, offset+2, 1, genopts.opx);
+
+			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccdata_res, tvb,
 				offset+3, 1, optdata.res);
@@ -811,17 +882,25 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 		case PGM_OPT_PGMCC_FEEDBACK:{
 			pgm_opt_pgmcc_feedback_t optdata;
 
-			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_ccdata);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
 				tvb, offset, 1, genopts.type);
 
+			if (genopts.len < sizeof optdata) {
+				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
+					offset+1, 1, genopts.len,
+					"Length: %u (bogus, must be >= %u)",
+					genopts.len, sizeof optdata);
+				break;
+			}
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
 				offset+1, 1, genopts.len);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx,
 				tvb, offset+2, 1, genopts.opx);
+
+			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccfeedbk_res, tvb,
 				offset+3, 1, optdata.res);
@@ -860,17 +939,25 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 		case PGM_OPT_NAK_BO_IVL:{
 			pgm_opt_nak_bo_ivl_t optdata;
 
-			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_nak_bo_ivl);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
 				tvb, offset, 1, genopts.type);
 
+			if (genopts.len < sizeof optdata) {
+				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
+					offset+1, 1, genopts.len,
+					"Length: %u (bogus, must be >= %u)",
+					genopts.len, sizeof optdata);
+				break;
+			}
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
 				offset+1, 1, genopts.len);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, tvb,
 				offset+2, 1, genopts.opx);
+
+			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_bo_ivl_res, tvb,
 				offset+3, 1, optdata.res);
@@ -886,17 +973,25 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 		case PGM_OPT_NAK_BO_RNG:{
 			pgm_opt_nak_bo_rng_t optdata;
 
-			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_nak_bo_rng);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
 				tvb, offset, 1, genopts.type);
 
+			if (genopts.len < sizeof optdata) {
+				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
+					offset+1, 1, genopts.len,
+					"Length: %u (bogus, must be >= %u)",
+					genopts.len, sizeof optdata);
+				break;
+			}
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
 				offset+1, 1, genopts.len);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, tvb,
 				offset+2, 1, genopts.opx);
+
+			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_bo_rng_res, tvb,
 				offset+3, 1, optdata.res);
@@ -912,17 +1007,25 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 		case PGM_OPT_REDIRECT:{
 			pgm_opt_redirect_t optdata;
 
-			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_redirect);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
 				tvb, offset, 1, genopts.type);
 
+			if (genopts.len < sizeof optdata) {
+				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
+					offset+1, 1, genopts.len,
+					"Length: %u (bogus, must be >= %u)",
+					genopts.len, sizeof optdata);
+				break;
+			}
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
 				offset+1, 1, genopts.len);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx,
 				tvb, offset+2, 1, genopts.opx);
+
+			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_redirect_res, tvb,
 				offset+3, 1, optdata.res);
@@ -958,17 +1061,25 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 		case PGM_OPT_FRAGMENT:{
 			pgm_opt_fragment_t optdata;
 
-			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_fragment);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
 				tvb, offset, 1, genopts.type);
 
+			if (genopts.len < sizeof optdata) {
+				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
+					offset+1, 1, genopts.len,
+					"Length: %u (bogus, must be >= %u)",
+					genopts.len, sizeof optdata);
+				break;
+			}
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
 				offset+1, 1, genopts.len);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, tvb,
 				offset+2, 1, genopts.opx);
+
+			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_fragment_res, tvb,
 				offset+3, 1, optdata.res);
