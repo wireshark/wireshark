@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.182 2000/04/13 20:39:12 gram Exp $
+ * $Id: file.c,v 1.183 2000/04/14 05:39:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -487,6 +487,7 @@ typedef struct {
   color_filter_t *colorf;
   proto_tree	*protocol_tree;
   const guint8	*pd;
+  frame_data	*fdata;
 } apply_color_filter_args;
 
 /*
@@ -501,7 +502,7 @@ apply_color_filter(gpointer filter_arg, gpointer argp)
   apply_color_filter_args *args = argp;
 
   if (colorf->c_colorfilter != NULL && args->colorf == NULL) {
-    if (dfilter_apply(colorf->c_colorfilter, args->protocol_tree, args->pd))
+    if (dfilter_apply(colorf->c_colorfilter, args->protocol_tree, args->pd, args->fdata->cap_len))
       args->colorf = colorf;
   }
 }
@@ -543,7 +544,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
     protocol_tree = proto_tree_create_root();
     dissect_packet(buf, fdata, protocol_tree);
     if (cf->dfcode != NULL)
-      fdata->flags.passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, buf) ? 1 : 0;
+      fdata->flags.passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, buf, fdata->cap_len) ? 1 : 0;
     else
       fdata->flags.passed_dfilter = 1;
 
@@ -551,6 +552,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
     if (filter_list != NULL) {
       args.protocol_tree = protocol_tree;
       args.pd = buf;
+      args.fdata = fdata;
       g_slist_foreach(filter_list, apply_color_filter, &args);
     }
     proto_tree_free(protocol_tree);
@@ -688,7 +690,7 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   if (cf->rfcode) {
     protocol_tree = proto_tree_create_root();
     dissect_packet(buf, fdata, protocol_tree);
-    passed = dfilter_apply(cf->rfcode, protocol_tree, buf);
+    passed = dfilter_apply(cf->rfcode, protocol_tree, buf, fdata->cap_len);
     proto_tree_free(protocol_tree);
   }   
   if (passed) {
@@ -1203,7 +1205,7 @@ find_packet(capture_file *cf, dfilter *sfcode)
         protocol_tree = proto_tree_create_root();
         wtap_seek_read(cf->cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
         dissect_packet(cf->pd, fd, protocol_tree);
-        frame_matched = dfilter_apply(sfcode, protocol_tree, cf->pd);
+        frame_matched = dfilter_apply(sfcode, protocol_tree, cf->pd, fd->cap_len);
         proto_tree_free(protocol_tree);
         if (frame_matched) {
           new_fd = fd;

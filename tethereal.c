@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.25 2000/04/13 20:39:19 gram Exp $
+ * $Id: tethereal.c,v 1.26 2000/04/14 05:39:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -831,7 +831,7 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr, int offset,
     fill_in_fdata(&fdata, cf, phdr, offset);
     protocol_tree = proto_tree_create_root();
     dissect_packet(buf, &fdata, protocol_tree);
-    passed = dfilter_apply(cf->rfcode, protocol_tree, buf);
+    passed = dfilter_apply(cf->rfcode, protocol_tree, buf, fdata.cap_len);
   } else {
     protocol_tree = NULL;
     passed = TRUE;
@@ -866,7 +866,7 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr, int offset,
     protocol_tree = NULL;
   dissect_packet(buf, &fdata, protocol_tree);
   if (cf->rfcode)
-    passed = dfilter_apply(cf->rfcode, protocol_tree, buf);
+    passed = dfilter_apply(cf->rfcode, protocol_tree, buf, fdata.cap_len);
   if (passed) {
     /* The packet passed the read filter. */
     if (verbose) {

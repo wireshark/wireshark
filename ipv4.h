@@ -5,7 +5,7 @@
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: ipv4.h,v 1.5 2000/04/12 20:24:34 gram Exp $
+ * $Id: ipv4.h,v 1.6 2000/04/14 05:39:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,5 +60,7 @@ gboolean ipv4_addr_gt(ipv4_addr *a, ipv4_addr *b);
 gboolean ipv4_addr_ge(ipv4_addr *a, ipv4_addr *b);
 gboolean ipv4_addr_lt(ipv4_addr *a, ipv4_addr *b);
 gboolean ipv4_addr_le(ipv4_addr *a, ipv4_addr *b);
+
+#define ipv4_addr_ne(a,b) !ipv4_addr_eq((a),(b))
 
 #endif

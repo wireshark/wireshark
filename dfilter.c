@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.33 2000/03/20 22:52:41 gram Exp $
+ * $Id: dfilter.c,v 1.34 2000/04/14 05:39:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -314,7 +314,7 @@ g_strcmp(gconstpointer a, gconstpointer b)
 
 
 gboolean
-dfilter_apply(dfilter *dfcode, proto_tree *ptree, const guint8* pd)
+dfilter_apply(dfilter *dfcode, proto_tree *ptree, const guint8* pd, guint pd_len)
 {
 	gboolean retval;
 	if (dfcode == NULL)
@@ -828,7 +828,7 @@ gboolean check_relation_ipv4(gint operand, GArray *a, GArray *b)
 			ptr_a = (ipv4_addr*) g_array_index_ptr(a, sizeof(ipv4_addr), i);
 			for (j = 0; j < len_b; j++) {
 				ptr_b = (ipv4_addr*) g_array_index_ptr(b, sizeof(ipv4_addr), j);
-				if (!ipv4_addr_eq(ptr_a, ptr_b))
+				if (ipv4_addr_ne(ptr_a, ptr_b))
 					return TRUE;
 			}
 		}
