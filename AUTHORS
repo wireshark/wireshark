@@ -157,7 +157,9 @@ Peter Torvals <petertv@xoommail.com> {
 }
 
 Christophe Tronche <ch.tronche@computer.org> {
+	http://tronche.com/
 	BPDU (spanning tree protocol) support
+	X11 requests support
 }
 
 Nathan Neulinger <nneul@umr.edu> {

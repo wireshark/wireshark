@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.204 2000/06/11 05:19:21 gerald Exp $
+# $Id: Makefile.am,v 1.205 2000/06/12 02:30:32 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -153,6 +153,7 @@ DISSECTOR_SOURCES = \
 	packet-vtp.c  \
 	packet-wccp.c \
 	packet-who.c  \
+	packet-x11.c   \
 	packet-x25.c   \
 	packet-yhoo.c  \
 	packet-ypbind.c \
@@ -231,6 +232,9 @@ noinst_HEADERS = \
 	packet-vines.h \
 	packet-vlan.h \
 	packet-vtp.h  \
+	packet-x11-declarations.h	\
+	packet-x11-register-info.h	\
+	packet-x11-keysym.h	\
 	packet-x25.h   \
 	packet-yhoo.h  \
 	packet-ypbind.h \
