@@ -1393,6 +1393,7 @@ B<http://www.ethereal.com>.
   Didier Gautheron         <dgautheron[AT]magic.fr>
   Phil Williams            <csypbw[AT]comp.leeds.ac.uk>
   Kevin Humphries          <khumphries[AT]networld.com>
+  Erik Nordström           <erik.nordstrom[AT]it.uu.se>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

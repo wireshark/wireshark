@@ -1155,6 +1155,10 @@ Kevin Humphries <khumphries[AT]networld.com> {
 	Additional PIM hello options support
 }
 
+Erik Nordström <erik.nordstrom[AT]it.uu.se> {
+	AODV dissection support
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
