@@ -1495,7 +1495,6 @@ retap_packets(capture_file *cf)
 
 typedef struct {
   print_args_t *print_args;
-  print_stream_t *stream;
   gboolean      print_header_line;
   char         *header_line_buf;
   int           header_line_buf_len;
@@ -1538,11 +1537,11 @@ print_packet(capture_file *cf, frame_data *fdata,
     epan_dissect_run(edt, pseudo_header, pd, fdata, NULL);
 
   if (args->print_formfeed) {
-    if (!new_page(args->stream))
+    if (!new_page(args->print_args->stream))
       goto fail;
   } else {
       if (args->print_separator) {
-        if (!print_line(args->stream, 0, ""))
+        if (!print_line(args->print_args->stream, 0, ""))
           goto fail;
       }
   }
@@ -1555,7 +1554,7 @@ print_packet(capture_file *cf, frame_data *fdata,
 
   if (args->print_args->print_summary) {
     if (args->print_header_line) {
-      if (!print_line(args->stream, 0, args->header_line_buf))
+      if (!print_line(args->print_args->stream, 0, args->header_line_buf))
         goto fail;
       args->print_header_line = FALSE;	/* we might not need to print any more */
     }
@@ -1591,10 +1590,11 @@ print_packet(capture_file *cf, frame_data *fdata,
     /*
      * Generate a bookmark, using the summary line as the title.
      */
-    if (!print_bookmark(args->stream, bookmark_name, args->line_buf))
+    if (!print_bookmark(args->print_args->stream, bookmark_name,
+                        args->line_buf))
       goto fail;
 
-    if (!print_line(args->stream, 0, args->line_buf))
+    if (!print_line(args->print_args->stream, 0, args->line_buf))
       goto fail;
   } else {
     /*
@@ -1602,19 +1602,20 @@ print_packet(capture_file *cf, frame_data *fdata,
      * printing the summary line.
      */
     sprintf(bookmark_title, "Frame %u", fdata->num);
-    if (!print_bookmark(args->stream, bookmark_name, bookmark_title))
+    if (!print_bookmark(args->print_args->stream, bookmark_name,
+                        bookmark_title))
       goto fail;
   } /* if (print_summary) */
 
   if (args->print_args->print_dissections != print_dissections_none) {
     if (args->print_args->print_summary) {
       /* Separate the summary line from the tree with a blank line. */
-      if (!print_line(args->stream, 0, ""))
+      if (!print_line(args->print_args->stream, 0, ""))
         goto fail;
     }
 
     /* Print the information in that tree. */
-    if (!proto_tree_print(args->print_args, edt, args->stream))
+    if (!proto_tree_print(args->print_args, edt, args->print_args->stream))
       goto fail;
 
     /* Print a blank line if we print anything after this (aka more than one packet). */
@@ -1626,7 +1627,7 @@ print_packet(capture_file *cf, frame_data *fdata,
 
   if (args->print_args->print_hex) {
     /* Print the full packet data as hex. */
-    if (!print_hex_data(args->stream, edt))
+    if (!print_hex_data(args->print_args->stream, edt))
       goto fail;
 
     /* Print a blank line if we print anything after this (aka more than one packet). */
@@ -1662,40 +1663,6 @@ print_packets(capture_file *cf, print_args_t *print_args)
   int         line_len;
   psp_return_t ret;
 
-  switch (print_args->format) {
-
-  case PR_FMT_TEXT:
-    if (print_args->to_file) {
-      callback_args.stream = print_stream_text_new(print_args->to_file,
-                                                   print_args->file);
-    } else {
-      callback_args.stream = print_stream_text_new(print_args->to_file,
-                                                   print_args->cmd);
-    }
-    break;
-
-  case PR_FMT_PS:
-    if (print_args->to_file) {
-      callback_args.stream = print_stream_ps_new(print_args->to_file,
-                                                   print_args->file);
-    } else {
-      callback_args.stream = print_stream_ps_new(print_args->to_file,
-                                                   print_args->cmd);
-    }
-    break;
-
-  default:
-    g_assert_not_reached();
-    return PP_OPEN_ERROR;
-  }
-  if (callback_args.stream == NULL)
-    return PP_OPEN_ERROR;	/* attempt to open destination failed */
-
-  if (!print_preamble(callback_args.stream, cf->filename)) {
-    destroy_print_stream(callback_args.stream);
-    return PP_WRITE_ERROR;
-  }
-
   callback_args.print_args = print_args;
   callback_args.print_header_line = TRUE;
   callback_args.header_line_buf = NULL;
@@ -1705,6 +1672,12 @@ print_packets(capture_file *cf, print_args_t *print_args)
   callback_args.line_buf = NULL;
   callback_args.line_buf_len = 256;
   callback_args.col_widths = NULL;
+
+  if (!print_preamble(print_args->stream, cf->filename)) {
+    destroy_print_stream(print_args->stream);
+    return PP_WRITE_ERROR;
+  }
+
   if (print_args->print_summary) {
     /* We're printing packet summaries.  Allocate the header line buffer
        and get the column widths. */
@@ -1795,16 +1768,16 @@ print_packets(capture_file *cf, print_args_t *print_args)
        will get printed if we're piping to a print program; we'd
        have to write to a file and then hand that to the print
        program to make it actually not print anything. */
-    destroy_print_stream(callback_args.stream);
+    destroy_print_stream(print_args->stream);
     return PP_WRITE_ERROR;
   }
 
-  if (!print_finale(callback_args.stream)) {
-    destroy_print_stream(callback_args.stream);
+  if (!print_finale(print_args->stream)) {
+    destroy_print_stream(print_args->stream);
     return PP_WRITE_ERROR;
   }
 
-  if (!destroy_print_stream(callback_args.stream))
+  if (!destroy_print_stream(print_args->stream))
     return PP_WRITE_ERROR;
 
   return PP_OK;
