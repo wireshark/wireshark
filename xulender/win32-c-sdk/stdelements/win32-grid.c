@@ -264,6 +264,32 @@ win32_grid_intrinsic_height(win32_element_t *grid) {
     return tot_height + grid->frame_top + grid->frame_bottom;
 }
 
+/*
+ * Find a child element by its ID.
+ */
+win32_element_t *
+win32_grid_find_child(win32_element_t *grid, gchar *id) {
+    win32_element_t *cur_el, *retval;
+    guint cur_row;
+    win32_grid_row_t *row_data;
+    GList *contents;
+
+    win32_element_assert(grid);
+
+    if (strcmp(grid->id, id) == 0)
+	return grid;
+
+    for (cur_row = 0; cur_row < grid->rows->len; cur_row++) {
+	row_data = g_ptr_array_index(grid->rows, cur_row);
+	for (contents = g_list_first(row_data->contents); contents != NULL; contents = g_list_next(contents)) {
+	    cur_el = (win32_element_t *) contents->data;
+	    retval = win32_grid_find_child(cur_el, id);
+	    if (retval)
+		return retval;
+	}
+    }
+    return NULL;
+}
 
 
 /*
@@ -340,7 +366,7 @@ win32_grid_column_intrinsic_width(win32_element_t *grid, guint col) {
 /*
  * Find a grid row's intrinsic (minimum) height.
  */
-gint
+static gint
 win32_grid_row_intrinsic_height(win32_element_t *grid, guint row) {
     gint row_height, el_height;
     win32_element_t *cur_el;
@@ -367,3 +393,4 @@ win32_grid_row_intrinsic_height(win32_element_t *grid, guint row) {
     }
     return row_height;
 }
+

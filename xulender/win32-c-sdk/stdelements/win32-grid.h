@@ -36,4 +36,10 @@ gint win32_grid_intrinsic_width(win32_element_t *grid);
  */
 gint win32_grid_intrinsic_height(win32_element_t *grid);
 
+/*
+ * Find a child element by its ID.
+ */
+win32_element_t * win32_grid_find_child(win32_element_t *grid, gchar *id);
+
+
 #endif /* win32-grid.h */

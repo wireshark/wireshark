@@ -41,54 +41,54 @@ win32_identifier_remove_str(const gchar *id) {
 
 
 win32_element_t *
-win32_element_new(HWND hw_box) {
-    win32_element_t *box;
+win32_element_new(HWND hw_el) {
+    win32_element_t *el;
 
-    box = g_malloc(sizeof(win32_element_t));
+    el = g_malloc(sizeof(win32_element_t));
 
-    ZeroMemory(box, sizeof(win32_element_t));
-    box->type = BOX_BOX;
-    box->contents = NULL;
-    g_datalist_init(&box->object_data);
-    box->rows = NULL;
-    box->columns = NULL;
+    ZeroMemory(el, sizeof(win32_element_t));
+    el->type = BOX_BOX;
+    el->contents = NULL;
+    g_datalist_init(&el->object_data);
+    el->rows = NULL;
+    el->columns = NULL;
 
-    box->h_wnd = hw_box;
+    el->h_wnd = hw_el;
 
-    box->id = NULL;
-    box->dir = BOX_DIR_LTR;
-    box->crop = BOX_CROP_NONE;
-    box->flex = 0.0;
-    box->flexgroup = 0;
+    el->id = NULL;
+    el->dir = BOX_DIR_LTR;
+    el->crop = BOX_CROP_NONE;
+    el->flex = 0.0;
+    el->flexgroup = 0;
 
-    box->orient = BOX_ORIENT_HORIZONTAL;
-    box->align = BOX_ALIGN_STRETCH;
-    box->pack = BOX_PACK_START;
+    el->orient = BOX_ORIENT_HORIZONTAL;
+    el->align = BOX_ALIGN_STRETCH;
+    el->pack = BOX_PACK_START;
 
-    box->padding_top = 0;
-    box->padding_bottom = 0;
-    box->padding_left = 0;
-    box->padding_right = 0;
+    el->padding_top = 0;
+    el->padding_bottom = 0;
+    el->padding_left = 0;
+    el->padding_right = 0;
 
-    box->text_align = CSS_TEXT_ALIGN_LEFT;
+    el->text_align = CSS_TEXT_ALIGN_LEFT;
 
-    box->maxheight = -1;
-    box->maxwidth = -1;
-    box->minheight = 0;
-    box->minwidth = 0;
+    el->maxheight = -1;
+    el->maxwidth = -1;
+    el->minheight = 0;
+    el->minwidth = 0;
 
-    box->frame_top = 0;
-    box->frame_bottom = 0;
-    box->frame_left = 0;
-    box->frame_right = 0;
+    el->frame_top = 0;
+    el->frame_bottom = 0;
+    el->frame_left = 0;
+    el->frame_right = 0;
 
-    box->onchange = NULL;
-    box->oncommand = NULL;
-    box->oninput = NULL;
+    el->onchange = NULL;
+    el->oncommand = NULL;
+    el->oninput = NULL;
 
-    box->sortdirection = EL_SORT_NATURAL;
+    el->sortdirection = EL_SORT_NATURAL;
 
-    return box;
+    return el;
 }
 
 void
@@ -381,6 +381,32 @@ win32_element_set_enabled(win32_element_t *el, gboolean enabled) {
 
     win32_element_assert(el);
     EnableWindow(el->h_wnd, enabled);
+}
+
+win32_element_t *
+win32_element_find_child(win32_element_t *el, gchar *id) {
+    win32_element_t *cur_el, *retval;
+    GList           *contents;
+
+    if (el->id && strcmp(el->id, id) == 0)
+	return el;
+
+    if (el->contents) { /* We have a "normal" box */
+	for (contents = g_list_first(el->contents); contents != NULL; contents = g_list_next(contents)) {
+	    cur_el = (win32_element_t *) contents->data;
+	    retval = win32_element_find_child(cur_el, id);
+	    if (retval)
+		return retval;
+	}
+    }
+
+    if (el->type == BOX_GRID) { /* Hand off to the grid */
+	retval = win32_grid_find_child(el, id);
+	if (retval)
+	    return retval;
+    }
+
+    return NULL;
 }
 
 void win32_element_handle_wm_command(UINT msg, WPARAM w_param, LPARAM l_param) {

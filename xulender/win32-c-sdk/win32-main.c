@@ -84,6 +84,7 @@
 #include "win32-menu.h"
 #include "capture-util.h"
 #include "color-util.h"
+#include "packet-win-util.h"
 
 #include "ethereal-main.h"
 #include "capture-dialog.h"
@@ -1497,6 +1498,9 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 
 		    case IDM_ETHEREAL_MAIN_VIEW_COLORING:
 			coloring_rules_dialog_init(hw_mainwin);
+			break;
+		    case IDM_ETHEREAL_MAIN_VIEW_NEWWINDOW:
+			packet_window_init(hw_mainwin);
 			break;
 
 		    case IDM_ETHEREAL_MAIN_CAPTURE_START:

@@ -170,7 +170,7 @@ void win32_identifier_remove_str(const gchar *);
 /*
  * Allocates an element and initializes its variables.
  */
-win32_element_t * win32_element_new(HWND hw_box);
+win32_element_t * win32_element_new(HWND hw_el);
 
 /*
  * Destroys an element, and optionally destroys its HWND.
@@ -276,10 +276,20 @@ gboolean win32_element_get_enabled(win32_element_t *el);
  */
 void win32_element_set_enabled(win32_element_t *el, gboolean active);
 
+
+/** Find a child element, given its identifier.
+ *
+ * @param el The top-level element to search
+ * @param id The desired element identifier
+ * @return A pointer to the element if found, NULL otherwise
+ */
+win32_element_t *win32_element_find_child(win32_element_t *el, gchar *id);
+
 /*
  * Handle WM_COMMAND for various elements.
  */
 
 void win32_element_handle_wm_command(UINT msg, WPARAM w_param, LPARAM l_param);
+
 #endif /* win32-element.h */
 

@@ -39,6 +39,7 @@ GENERATED_OBJECTS = \
 	coloring-rules-dialog.obj \
 	edit-color-filter-dialog.obj \
 	find-packet-dialog.obj \
+	packet-window.obj \
 	preferences-dialog.obj \
 	progress-dialog.obj
 
@@ -75,6 +76,7 @@ OBJECTS = \
 	capture-util.obj \
 	color-util.obj \
 	find-util.obj \
+	packet-win-util.obj \
 	prefs-dlg.obj \
 	ui_util.obj \
 	win32-file-dlg.obj \

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<window
+  id="packet-window"
+  width="620"
+  height="250"
+  xmlns:ethereal="http://www.ethereal.com/development.html"
+  >
+
+  <vbox flex="1">
+
+    <ethereal:treeview id="packet-window.treeview" flex="1" />
+
+    <splitter />
+
+    <ethereal:byteview id="packet-window.byteview" flex="1" />
+
+  </vbox>
+
+</window>
+

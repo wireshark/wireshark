@@ -397,15 +397,6 @@ void packet_list_select_row(gint row) {
     ListView_EnsureVisible(g_hw_packetlist, row, FALSE);
 }
 
-void packet_list_set_column_auto_resize(gint column, gboolean auto_resize) {
-}
-
-void packet_list_set_column_resizeable(gint column, gboolean resizeable) {
-}
-
-void packet_list_set_column_width(gint column, gint width) {
-}
-
 void packet_list_moveto_end(void) {
 }
 
