@@ -48,6 +48,7 @@ Laurent Deniel       <laurent.deniel[AT]free.fr> {
     Ability to mark the frames and associated features
     "Protocol Properties..." menu item
     Ring buffer rework
+    X11 decoding enhancements and fixes
     Miscellaneous enhancements and fixes
 }
 

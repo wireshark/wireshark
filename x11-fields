@@ -3,7 +3,7 @@
 #
 # Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
 #
-# $Id: x11-fields,v 1.11 2004/01/04 10:57:18 guy Exp $
+# $Id: x11-fields,v 1.12 2004/03/22 22:53:56 deniel Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
 
+above-sibling		UINT32	HEX
 acceleration-denominator	INT16	DEC
 acceleration-numerator	INT16	DEC
 access-mode	UINT8	DEC	VALS
@@ -88,7 +89,7 @@ clip-y-origin	INT16	DEC
 close-down-mode	UINT8	DEC	VALS
 cmap		UINT32	HEX
 colormap	UINT32	HEX
-
+colormap-state	UINT8	DEC	VALS
 color-items	NONE	NONE
 
 coloritem		NONE	NONE
@@ -151,6 +152,9 @@ eventbutton	UINT8	DEC	eventbutton
 eventcode	UINT8	DEC	VALS	eventcode
 eventwindow	UINT32	HEX	eventwindow
 
+first-event	UINT8	DEC
+first-error	UINT8	DEC
+
 gc-dashes	UINT8	DEC
 
 gc-value-mask	UINT32	HEX
@@ -185,6 +189,7 @@ data-length	UINT32	DEC
 delete		BOOLEAN	NONE		Delete this property after reading
 delta		INT16	DEC
 depth		UINT8	DEC
+destination	UINT8	DEC	VALS
 direction	UINT8	DEC	VALS
 drawable	UINT32	HEX
 dst-drawable	UINT32	HEX
@@ -192,6 +197,7 @@ dst-gc		UINT32	HEX
 dst-window	UINT32	HEX
 dst-x		INT16	DEC
 dst-y		INT16	DEC
+event-detail    UINT8   DEC	VALS
 
 event-mask	UINT32	HEX
 	KeyPress		BOOLEAN 32	0x00000001
@@ -221,6 +227,9 @@ event-mask	UINT32	HEX
 	OwnerGrabButton		BOOLEAN 32	0x01000000
 	erroneous-bits		BOOLEAN 32	0xfe000000
 
+exact-blue	UINT16	DEC
+exact-green	UINT16	DEC
+exact-red	UINT16	DEC
 exposures	BOOLEAN	NONE
 family		UINT8	DEC	VALS
 fid		UINT32	HEX		Font id
@@ -228,16 +237,21 @@ fill-rule	UINT8	DEC	VALS
 fill-style	UINT8	DEC	VALS
 first-keycode	UINT8	DEC
 focus		UINT8	DEC	VALS
+focus-detail	UINT8	DEC	VALS
+focus-mode	UINT8	DEC	VALS
 font		UINT32	HEX
 fore-blue	UINT16	DEC
 fore-green	UINT16	DEC
 fore-red	UINT16	DEC
 foreground	UINT32	HEX
 format		UINT8	DEC
+from-configure	BOOLEAN	NONE
 function	UINT8	DEC	VALS
 gc		UINT32	HEX
 get-property-type	UINT32	HEX	VALS(zero_is_any_property_type)
-grab_window	UINT32	HEX
+grab-mode	UINT8	DEC	VALS
+grab-status	UINT8	DEC	VALS
+grab-window	UINT32	HEX
 graphics-exposures	BOOLEAN	NONE
 height		UINT16	DEC
 image-byte-order	UINT8	HEX	VALS
@@ -270,6 +284,8 @@ keycodes	NONE	NONE
 	item	BYTES	NONE
 
 keycodes-per-modifier	UINT8	DEC
+
+keys		UINT8   DEC
 
 keysyms		NONE	NONE
 	item	NONE	NONE
@@ -318,6 +334,7 @@ modifiers-mask		UINT16	HEX
 
 motion-buffer-size	UINT16	DEC	motion buffer size
 
+new		BOOLEAN	NONE
 number-of-formats-in-pixmap-formats	UINT8	DEC	number of formats in pixmap formats
 number-of-screens-in-roots	UINT8	DEC	number of screens in roots
 
@@ -343,6 +360,7 @@ pixel		UINT32	HEX
 pixels		NONE	NONE
 pixels_item	UINT32	HEX
 pixmap		UINT32	HEX
+place		UINT8   DEC     VALS
 plane-mask	UINT32	HEX	VALS
 planes		UINT16	DEC
 point		NONE	NONE
@@ -368,12 +386,15 @@ pointer-event-mask	UINT16	HEX
 
 pointer-mode	UINT8	DEC	VALS(pointer_keyboard_mode)
 prefer-blanking	UINT8	DEC	VALS(yes_no_default)
+present		BOOLEAN NONE
+propagate	BOOLEAN	NONE
 
 properties	NONE	NONE
 	item	UINT32	HEX
 
 property	UINT32	HEX
 property-number	UINT16	DEC
+property-state	UINT8	DEC	VALS
 protocol-major-version	UINT16	DEC
 protocol-minor-version	UINT16	DEC
 reason		STRING	HEX	reason
@@ -459,13 +480,19 @@ undecoded	NONE	NONE		Yet undecoded by dissector
 unused		NONE	NONE
 valuelength	UINT32	DEC	valuelength
 vendor		STRING	HEX	vendor
+visibility-state UINT8  DEC	VALS
 visual		UINT32	HEX
+visual-blue	UINT16	DEC
+visual-green	UINT16	DEC
+visual-red	UINT16	DEC
 visualid	UINT32	HEX
 warp-pointer-dst-window	UINT32	HEX	VALS(zero_is_none)
 warp-pointer-src-window	UINT32	HEX	VALS(zero_is_none)
 wid		UINT32	HEX		Window id
 width		UINT16	DEC
 win-gravity	UINT8	DEC	VALS(gravity)
+win-x		INT16	DEC
+win-y		INT16	DEC
 window		UINT32	HEX
 window-class	UINT16	DEC	VALS		Window class
 

@@ -3,7 +3,7 @@
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  * Copyright 2003, Michael Shuldman
  *
- * $Id: packet-x11.c,v 1.55 2004/02/25 23:12:49 guy Exp $
+ * $Id: packet-x11.c,v 1.56 2004/03/22 22:53:56 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,9 +76,10 @@
  * the initial connection request, and the byte order of the connection.
  *
  * An opcode of -3 means we haven't yet seen any requests yet.
- * An opcode of -2 means we're not expecting a reply.
- * An opcode of -1 means means we're waiting for a reply to the initial
+ * An opcode of -2 means we're not expecting a reply (unused).
+ * An opcode of -1 means we're waiting for a reply to the initial
  * connection request.
+ * An opcode of 0  means the request was not seen (or unknown).
  * Other values are the opcode of the request for which we're expecting
  * a reply.
  *
@@ -86,6 +87,9 @@
 #define NOTHING_SEEN		-3
 #define NOTHING_EXPECTED	-2
 #define INITIAL_CONN		-1
+#define UNKNOWN_OPCODE           0
+
+#define MAX_OPCODES		(255 + 1) /* 255 + INITIAL_CONN */
 
 #define BYTE_ORDER_BE		0
 #define BYTE_ORDER_LE		1
@@ -119,16 +123,20 @@ Mod1Mask, Mod2Mask, Mod3Mask, Mod4Mask, Mod5Mask };
 #define NoSymbol             0L /* special KeySym */
 
 typedef struct {
-      GHashTable *seqtable;	/* hashtable of sequncenumber <-> opcode.  */	
+      GHashTable *seqtable;	/* hashtable of sequencenumber <-> opcode. */
+      GHashTable *valtable;/* hashtable of sequencenumber <-> &opcode_vals */
+      /* major opcodes including extensions (NULL terminated) */
+      value_string opcode_vals[MAX_OPCODES+1]; 
       int	sequencenumber;	/* sequencenumber of current packet.	   */
       guint32	iconn_frame;	/* frame # of initial connection request   */
       guint32	iconn_reply;	/* frame # of initial connection reply     */
       int	byte_order;	/* byte order of connection */
+      gboolean  resync;  /* resynchronization of sequence number performed */
 
       int 	*keycodemap[256]; /* keycode to keysymvalue map. */
       int	keysyms_per_keycode;
       int 	first_keycode;
-      int 	*modifiermap[array_length(modifiers)];/* modifier to keycode. */
+      int 	*modifiermap[array_length(modifiers)];/* modifier to keycode.*/
       int	keycodes_per_modifier;
 
       union {
@@ -367,15 +375,36 @@ static const value_string close_down_mode_vals[] = {
       { 0, NULL }
 };
 
+static const value_string colormap_state_vals[] = {
+      { 0, "Uninstalled" },
+      { 1, "Installed" },
+      { 0, NULL }
+};
+
 static const value_string coordinate_mode_vals[] = {
       { 0, "Origin" },
       { 1, "Previous" },
       { 0, NULL }
 };
 
+static const value_string destination_vals[] = {
+      { 0, "PointerWindow" },
+      { 1, "InputFocus" },
+      { 0, NULL }
+};
+
 static const value_string direction_vals[] = {
       { 0, "RaiseLowest" },
       { 1, "LowerHighest" },
+      { 0, NULL }
+};
+
+static const value_string event_detail_vals[] = {
+      { 0, "Ancestor" },
+      { 1, "Virtual" },
+      { 2, "Inferior" },
+      { 3, "Nonlinear" },
+      { 4, "NonlinearVirtual" },
       { 0, NULL }
 };
 
@@ -404,6 +433,26 @@ static const value_string fill_style_vals[] = {
       { 0, NULL }
 };
 
+static const value_string focus_detail_vals[] = {
+      { 0, "Ancestor" },
+      { 1, "Virtual" },
+      { 2, "Inferior" },
+      { 3, "Nonlinear" },
+      { 4, "NonlinearVirtual" },
+      { 5, "Pointer" },
+      { 6, "PointerRoot" },
+      { 7, "None" },
+      { 0, NULL }
+};
+
+static const value_string focus_mode_vals[] = {
+      {  0, "Normal" },
+      {  1, "Grab" },
+      {  2, "Ungrab" },
+      {  3, "WhileGrabbed" },
+      {  0, NULL }
+};
+
 static const value_string focus_vals[] = {
       { 0, "None" },
       { 1, "PointerRoot" },
@@ -427,6 +476,22 @@ static const value_string function_vals[] = {
       { 13, "OrInverted" },
       { 14, "Nand" },
       { 15, "Set" },
+      {  0, NULL }
+};
+
+static const value_string grab_mode_vals[] = {
+      {  0, "Normal" },
+      {  1, "Grab" },
+      {  2, "Ungrab" },
+      {  0, NULL }
+};
+
+static const value_string grab_status_vals[] = {
+      {  0, "Success" },
+      {  1, "AlreadyGrabbed" },
+      {  2, "InvalidTime" },
+      {  3, "NotViewable" },
+      {  4, "Frozen" },
       {  0, NULL }
 };
 
@@ -488,6 +553,25 @@ static const value_string mode_vals[] = {
 static const value_string on_off_vals[] = {
       { 0, "Off" },
       { 1, "On" },
+      { 0, NULL }
+};
+
+static const value_string place_vals[] = {
+      { 0, "Top" },
+      { 1, "Bottom" },
+      { 0, NULL }
+};
+
+static const value_string property_state_vals[] = {
+      { 0, "NewValue" },
+      { 1, "Deleted" },
+      { 0, NULL }
+};
+
+static const value_string visibility_state_vals[] = {
+      { 0, "Unobscured" },
+      { 1, "PartiallyObscured" },
+      { 2, "FullyObscured" },
       { 0, NULL }
 };
 
@@ -612,6 +696,8 @@ static const value_string on_off_vals[] = {
 #define X_SetModifierMapping           118
 #define X_GetModifierMapping           119
 #define X_NoOperation                  127
+#define X_FirstExtension       	       128
+#define X_LastExtension		       255
 
 static const value_string opcode_vals[] = {
       { INITIAL_CONN,                   "Initial connection request" },
@@ -639,7 +725,7 @@ static const value_string opcode_vals[] = {
       { X_SetSelectionOwner,            "SetSelectionOwner" },
       { X_GetSelectionOwner,            "GetSelectionOwner" },
       { X_ConvertSelection,             "ConvertSelection" },
-      /* { X_SendEvent,                   "SendEvent" }, */
+      { X_SendEvent,                    "SendEvent" },
       { X_GrabPointer,                  "GrabPointer" },
       { X_UngrabPointer,                "UngrabPointer" },
       { X_GrabButton,                   "GrabButton" },
@@ -772,6 +858,8 @@ static const value_string opcode_vals[] = {
 #define ColormapNotify		32
 #define ClientMessage		33
 #define MappingNotify		34
+#define FirstExtensionEvent	64
+#define LastExtensionEvent	127
 
 static const value_string eventcode_vals[] = {
 	{ KeyPress,          "KeyPress" },
@@ -1058,6 +1146,7 @@ keysyms_per_keycode) {\
 #define SETofEVENT(name) { setOfEvent(tvb, offsetp, t, little_endian); }
 #define SETofDEVICEEVENT(name) { setOfDeviceEvent(tvb, offsetp, t, little_endian);}
 #define SETofKEYMASK(name) { setOfKeyButMask(tvb, offsetp, t, little_endian, 0); }
+#define SETofKEYBUTMASK(name) { setOfKeyButMask(tvb, offsetp, t, little_endian, 1); }
 #define SETofPOINTEREVENT(name) { setOfPointerEvent(tvb, offsetp, t, little_endian); }
 #define STRING8(name, length)  { string8(tvb, offsetp, t, hf_x11_##name, length); }
 #define STRING16(name, length)  { string16(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_bytes, length, little_endian); }
@@ -1094,7 +1183,7 @@ keysyms_per_keycode) {\
 	*offsetp, sizeof(seqno), seqno,                                 \
 	"sequencenumber: %d (%s)",                             		\
 	(int)seqno,                                                     \
-	val_to_str(opcode, opcode_vals, "<Unknown opcode %d>"));		\
+	val_to_str(opcode, state->opcode_vals, "<Unknown opcode %d>"));	\
 	*offsetp += sizeof(seqno);                                      \
 } while (0) 
 
@@ -2802,7 +2891,7 @@ static void dissect_x11_initial_conn(tvbuff_t *tvb, packet_info *pinfo,
        */
       state->sequencenumber = 0;
       g_hash_table_insert(state->seqtable, (int *)state->sequencenumber,
-      (int *)INITIAL_CONN);
+			  (int *)INITIAL_CONN);
 }
 
 static void dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo,
@@ -2868,11 +2957,12 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
       int next_offset;
       proto_item *ti;
       proto_tree *t;
-      int length, opcode;
+      int length, opcode, i;
       guint8 v8, v8_2, v8_3;
       guint16 v16;
       guint32 v32;
       gint left;
+      gchar *name;
 
       length = VALUE16(tvb, 2) * 4;
 
@@ -2893,16 +2983,47 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       if (check_col(pinfo->cinfo, COL_INFO))
 	  col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s", sep,
-			  val_to_str(opcode, opcode_vals, "<Unknown opcode %d>"));
+			  val_to_str(opcode, state->opcode_vals, 
+				     "<Unknown opcode %d>"));
 
       proto_item_append_text(ti, ", Request, opcode: %d (%s)", 
-                            opcode, val_to_str(opcode, opcode_vals,
-                            "<Unknown opcode %d>"));
+			     opcode, val_to_str(opcode, state->opcode_vals,
+						"<Unknown opcode %d>"));
 
       /*
        * Does this request expect a reply?
        */
       switch(opcode) {
+
+      case X_QueryExtension:
+
+		/* necessary processing even if tree == NULL */
+
+		v16 = VALUE16(tvb, 4);
+		name = g_malloc(v16 + 1);
+		stringCopy(name, tvb_get_ptr(tvb, 8, v16), v16);
+
+		/* store string of extension, opcode will be set at reply */
+		i = 0;
+		while(i < MAX_OPCODES) {
+			if (state->opcode_vals[i].strptr == NULL) {
+				state->opcode_vals[i].strptr = name;
+				g_hash_table_insert(state->valtable,
+						    (int *)state->sequencenumber, 
+						    (int *)&state->opcode_vals[i]);
+				break;
+			} else if (strcmp(state->opcode_vals[i].strptr,
+					  name) == 0) {
+				g_hash_table_insert(state->valtable,
+						    (int *)state->sequencenumber, 
+						    (int *)&state->opcode_vals[i]);
+				break;
+			}
+			i++;
+		}
+
+		/* QueryExtension expects a reply, fall through */
+
       case X_AllocColor:
       case X_AllocColorCells:
       case X_AllocColorPlanes:
@@ -2934,7 +3055,6 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
       case X_LookupColor:
       case X_QueryBestSize:
       case X_QueryColors:
-      case X_QueryExtension:
       case X_QueryFont:
       case X_QueryKeymap:
       case X_QueryPointer:
@@ -2946,13 +3066,22 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    	/*
 	     	 * Those requests expect a reply.
 	     	 */
-
 		g_hash_table_insert(state->seqtable,
-		(int *)state->sequencenumber, (int *)opcode);
+				    (int *)state->sequencenumber, 
+				    (int *)opcode);
 
 	    	break;
 
       default:
+		/* 
+		 * With Extension, we don't know, so assume there could be one
+		 */
+		if (opcode >= X_FirstExtension && opcode <= X_LastExtension) {
+			g_hash_table_insert(state->seqtable,
+					    (int *)state->sequencenumber, 
+					    (int *)opcode);
+		}
+
 		/*
 		 * No reply is expected from any other request.
 		 */
@@ -3121,6 +3250,14 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    ATOM(target);
 	    ATOM(property);
 	    TIMESTAMP(time);
+	    break;
+
+      case X_SendEvent:
+	    BOOL(propagate);
+	    REQUEST_LENGTH();
+	    WINDOW(destination);
+	    SETofEVENT(event_mask);
+	    UNDECODED(32);
 	    break;
 
       case X_GrabPointer:
@@ -4222,11 +4359,26 @@ static void
 x11_stateinit(x11_conv_data_t **state, conversation_t *conversation)
 {
 	static x11_conv_data_t stateinit;
+	int i = 0;
 
 	*state = g_mem_chunk_alloc(x11_state_chunk);
 	**state = stateinit; 
 
+	/* initialise opcodes */
+	while (1) {
+	  if (opcode_vals[i].strptr == NULL) break;
+	  (*state)->opcode_vals[i].value = opcode_vals[i].value;
+	  (*state)->opcode_vals[i].strptr = opcode_vals[i].strptr;
+	  i++;
+	}
+	while (i <= MAX_OPCODES) {
+	  (*state)->opcode_vals[i].value = 0;
+	  (*state)->opcode_vals[i].strptr = NULL;
+	  i++;
+	}	
+
 	(*state)->seqtable = g_hash_table_new(g_direct_hash, g_direct_equal);
+	(*state)->valtable = g_hash_table_new(g_direct_hash, g_direct_equal);
       	g_hash_table_insert((*state)->seqtable, (int *)0, (int *)NOTHING_SEEN);
 	(*state)->byte_order = BYTE_ORDER_UNKNOWN; /* don't know yet*/
 	conversation_add_proto_data(conversation, proto_x11, *state);
@@ -4379,6 +4531,8 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  gboolean little_endian)
 {
 	int offset = 0, *offsetp = &offset, length, left, opcode;
+	int major_opcode, sequence_number;
+	value_string *vals_p;
 	proto_item *ti;
 	proto_tree *t;
 	
@@ -4394,8 +4548,9 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 *	1) the request sequence number wraps in the lower 16
 	 *	   bits;
 	 *
-	 *	2) we don't see the initial connection request and thus
-	 *	   don't have the right sequence numbers;
+	 *	2) we don't see the initial connection request and the
+	 *         resynchronization of sequence number fails and thus
+	 *	   don't have the right sequence numbers 
 	 *
 	 *	3) we don't have all the packets in the capture and
 	 *	   get out of sequence.
@@ -4404,26 +4559,73 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * the most recent not-already-replied-to request in the same
 	 * connection.  That also might mismatch replies to requests if
 	 * packets are lost, but there's nothing you can do to fix that.
-	 *
-	 * XXX - if "opcode" is 0, we shouldn't say "Unknown opcode",
-	 * we should say that we don't have the request for the reply.
 	 */
+
+	sequence_number = VALUE16(tvb, offset + 2);
 	opcode = (int)g_hash_table_lookup(state->seqtable,
-	(int *)VALUE16(tvb, offset + 2));
+					  (int *)sequence_number);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-		  	     	sep,
-				/* 
-				 * don't print opcode value since if it's
-				 * unknown, we didn't know to save the
-				 * request opcode.
-				 */
-		  	     	val_to_str(opcode, opcode_vals, "<Unknown opcode %d>"));
+	if (state->iconn_frame == 0 &&  state->resync == FALSE) {
 
-        proto_item_append_text(ti, ", Reply, opcode: %d (%s)", 
-                              opcode, val_to_str(opcode, opcode_vals,
-                              "<Unknown opcode %d>"));
+		/*
+		 * We don't see the initial connection request and no
+		 * resynchronization has been performed yet (first reply),
+		 * set the current sequence number to the one of the 
+		 * current reply (this is only performed once).
+		 */
+		state->sequencenumber = sequence_number;
+		state->resync = TRUE;
+	}
+
+	if (opcode == UNKNOWN_OPCODE) {
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO, 
+					"%s to unknown request", sep);
+		proto_item_append_text(ti, ", Reply to unknown request");
+	} else {
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+					sep,
+					val_to_str(opcode, state->opcode_vals, 
+						   "<Unknown opcode %d>"));
+
+		proto_item_append_text(ti, ", Reply, opcode: %d (%s)", 
+				       opcode, val_to_str(opcode, 
+							  state->opcode_vals,
+							  "<Unknown opcode %d>"));
+	}
+
+	switch (opcode) {
+
+      		/*
+       		 * Replies that need special processing outside tree
+		 */
+
+		case X_QueryExtension:	  
+
+			/* 
+			 * if extension is present and request is known:
+			 * store opcode of extension in value_string of
+			 * opcodes
+			 */
+			if (!VALUE8(tvb, offset + 8)) {
+				/* not present */
+				break;
+			}
+
+			vals_p = g_hash_table_lookup(state->valtable,
+						     (int *)sequence_number);
+			if (vals_p != NULL) {
+				major_opcode = VALUE8(tvb, offset + 9);
+				vals_p->value = major_opcode;
+				g_hash_table_remove(state->valtable,
+						    (int *)sequence_number); 
+			}
+			break;
+
+		default:
+			break;
+	}
 
   	if (tree == NULL)
   	 	return; 
@@ -4431,12 +4633,39 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	switch (opcode) {
       		/*
        		 * Requests that expect a reply.
-      		*/
+		 */
 
 		case X_GetWindowAttributes:
+			REPLYCONTENTS_COMMON();
+			break; 
+
 		case X_GetGeometry:
+			REPLY(reply);
+			CARD8(depth);
+			SEQUENCENUMBER_REPLY(sequencenumber);
+			REPLYLENGTH(replylength);
+			WINDOW(rootwindow);
+			INT16(x);
+			INT16(y);
+			CARD16(width);
+			CARD16(height);
+			CARD16(border_width);
+			UNUSED(10);
+			break;
+
 		case X_QueryTree:
+			REPLYCONTENTS_COMMON();
+			break; 
+
 		case X_InternAtom:
+			REPLY(reply);
+			UNUSED(1);
+			SEQUENCENUMBER_REPLY(sequencenumber);
+			REPLYLENGTH(replylength);
+			ATOM(atom);
+			UNUSED(20);
+			break;
+
 		case X_GetAtomName:
 			REPLYCONTENTS_COMMON();
 			break; 
@@ -4453,48 +4682,187 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			break;
 
 		case X_ListProperties:
+			REPLY(reply);
+			UNUSED(1);
+			SEQUENCENUMBER_REPLY(sequencenumber);
+			REPLYLENGTH(replylength);
+			length = CARD16(property_number);
+			UNUSED(22);
+			LISTofATOM(properties, length*4);
+			break;
+
 		case X_GetSelectionOwner:
+			REPLY(reply);
+			UNUSED(1);
+			SEQUENCENUMBER_REPLY(sequencenumber);
+			REPLYLENGTH(replylength);
+			WINDOW(owner);
+			UNUSED(20);
+			break;
+
 		case X_GrabPointer:
 		case X_GrabKeyboard:
+			REPLY(reply);
+			ENUM8(grab_status);
+			SEQUENCENUMBER_REPLY(sequencenumber);
+			REPLYLENGTH(replylength);
+			UNUSED(24);
+			break;
+
 		case X_QueryPointer:
+			REPLY(reply);
+			BOOL(same_screen);
+			SEQUENCENUMBER_REPLY(sequencenumber);
+			REPLYLENGTH(replylength);
+			WINDOW(rootwindow);
+			WINDOW(childwindow);
+			INT16(root_x);
+			INT16(root_y);
+			INT16(win_x);
+			INT16(win_y);
+			SETofKEYBUTMASK(mask);
+			UNUSED(6);
+			break; 
+
 		case X_GetMotionEvents:
-		case X_TranslateCoords:
 			REPLYCONTENTS_COMMON();
 			break; 
 
+		case X_TranslateCoords:
+			REPLY(reply);
+			BOOL(same_screen);
+			SEQUENCENUMBER_REPLY(sequencenumber);
+			REPLYLENGTH(replylength);
+			WINDOW(childwindow);
+			INT16(dst_x);
+			INT16(dst_y);
+			UNUSED(16);
+			break; 
+			
+		case X_GetInputFocus:
+			REPLY(reply);
+			ENUM8(revert_to);
+			SEQUENCENUMBER_REPLY(sequencenumber);
+			REPLYLENGTH(replylength);
+			WINDOW(focus);
+			UNUSED(20);
+			break;
+
 		case X_QueryKeymap:
+			REPLY(reply);
+			UNUSED(1);
+			SEQUENCENUMBER_REPLY(sequencenumber);
+			REPLYLENGTH(replylength);
+			LISTofCARD8(keys, 32);
+			break;
+
 		case X_QueryFont:
 		case X_QueryTextExtents:
 		case X_ListFonts:
 		case X_GetImage:
 		case X_ListInstalledColormaps:
+			REPLYCONTENTS_COMMON();
+			break;
+
 		case X_AllocColor:
+			REPLY(reply);
+			UNUSED(1);
+			SEQUENCENUMBER_REPLY(sequencenumber);
+			REPLYLENGTH(replylength);
+			CARD16(red);
+			CARD16(green);
+			CARD16(blue);
+			UNUSED(2);
+			CARD32(pixel);
+			UNUSED(12);
+			break;
+
 		case X_QueryColors:
+			REPLYCONTENTS_COMMON();
+			break;
+
 		case X_LookupColor:
+			REPLY(reply);
+			UNUSED(1);
+			SEQUENCENUMBER_REPLY(sequencenumber);
+			REPLYLENGTH(replylength);
+			CARD16(exact_red);
+			CARD16(exact_green);
+			CARD16(exact_blue);
+			CARD16(visual_red);
+			CARD16(visual_green);
+			CARD16(visual_blue);
+			UNUSED(12);
+			break;
+
 		case X_QueryBestSize:
+			REPLY(reply);
+			UNUSED(1);
+			SEQUENCENUMBER_REPLY(sequencenumber);
+			REPLYLENGTH(replylength);
+			CARD16(width);
+			CARD16(height);
+			UNUSED(20);
+			break;
+
 		case X_QueryExtension:
+			REPLY(reply);
+			UNUSED(1);
+			SEQUENCENUMBER_REPLY(sequencenumber);
+			REPLYLENGTH(replylength);
+			BOOL(present);
+			CARD8(major_opcode);
+			CARD8(first_event);
+			CARD8(first_error);
+			UNUSED(20);
+			break;
+		  
 		case X_ListExtensions:
 			REPLYCONTENTS_COMMON();
 			break; 
 
 		case X_GetKeyboardMapping:
-			state->first_keycode
-			= state->request.GetKeyboardMapping.first_keycode, 
+			state->first_keycode =
+				state->request.GetKeyboardMapping.first_keycode;
 			REPLY(reply);
-			state->keysyms_per_keycode
-			= FIELD8(keysyms_per_keycode);
+			state->keysyms_per_keycode =
+				FIELD8(keysyms_per_keycode);
 			SEQUENCENUMBER_REPLY(sequencenumber);
 			length = REPLYLENGTH(replylength);
 			UNUSED(24);
 			LISTofKEYSYM(keysyms, state->keycodemap,
-			state->request.GetKeyboardMapping.first_keycode, 
-			length / state->keysyms_per_keycode,
-			state->keysyms_per_keycode);
+				     state->request.GetKeyboardMapping.first_keycode, 
+				     length / state->keysyms_per_keycode,
+				     state->keysyms_per_keycode);
 			break; 
 
 		case X_GetKeyboardControl:
+			REPLYCONTENTS_COMMON();
+			break; 
+
 		case X_GetPointerControl:
+			REPLY(reply);
+			UNUSED(1);
+			SEQUENCENUMBER_REPLY(sequencenumber);
+			REPLYLENGTH(replylength);
+			CARD16(acceleration_numerator);
+			CARD16(acceleration_denominator);
+			CARD16(threshold);
+			UNUSED(18);
+			break;
+
 		case X_GetScreenSaver:
+			REPLY(reply);
+			UNUSED(1);
+			SEQUENCENUMBER_REPLY(sequencenumber);
+			REPLYLENGTH(replylength);
+			CARD16(timeout);
+			CARD16(interval);
+			ENUM8(prefer_blanking);
+			ENUM8(allow_exposures);
+			UNUSED(18);
+			break;
+
 		case X_ListHosts:
 		case X_SetPointerMapping:
 		case X_GetPointerMapping:
@@ -4504,13 +4872,13 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		case X_GetModifierMapping:
 			REPLY(reply);
-			state->keycodes_per_modifier
-			= FIELD8(keycodes_per_modifier);
+			state->keycodes_per_modifier =
+				FIELD8(keycodes_per_modifier);
 			SEQUENCENUMBER_REPLY(sequencenumber);
 			REPLYLENGTH(replylength);
 			UNUSED(24);
 			LISTofKEYCODE(state->modifiermap, keycodes,
-			state->keycodes_per_modifier);
+				      state->keycodes_per_modifier);
 			break; 
 
 		default:
@@ -4592,37 +4960,245 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		case EnterNotify:
 		case LeaveNotify:
-			CARD8(detail);
+			ENUM8(event_detail);
 			CARD16(event_sequencenumber);
 			EVENTCONTENTS_COMMON();
+			ENUM8(grab_mode);
 			CARD8(same_screen);
 			break;
 
 		case FocusIn:
 		case FocusOut:
+			ENUM8(focus_detail);
+			CARD16(event_sequencenumber);
+			WINDOW(eventwindow);
+			ENUM8(focus_mode);
+			UNUSED(23);
+			break;
+
 		case KeymapNotify:
+			break;
+
 		case Expose:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			WINDOW(eventwindow);
+			INT16(x);
+			INT16(y);
+			CARD16(width);
+			CARD16(height);
+			CARD16(count);
+			UNUSED(14);
+			break;
+
 		case GraphicsExpose:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			DRAWABLE(drawable);
+			CARD16(x);
+			CARD16(y);
+			CARD16(width);
+			CARD16(height);
+			CARD16(minor_opcode);
+			CARD16(count);
+			CARD8(major_opcode);
+			UNUSED(11);
+			break;
+
 		case NoExpose:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			DRAWABLE(drawable);
+			CARD16(minor_opcode);
+			CARD8(major_opcode);
+			UNUSED(21);
+			break;
+
 		case VisibilityNotify:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			WINDOW(eventwindow);
+			ENUM8(visibility_state);
+			UNUSED(23);
+			break;
+
 		case CreateNotify:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			WINDOW(parent);
+			WINDOW(eventwindow);
+			INT16(x);
+			INT16(y);
+			CARD16(width);
+			CARD16(height);
+			CARD16(border_width);
+			BOOL(override_redirect);
+			UNUSED(9);
+			break;
+
 		case DestroyNotify:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			WINDOW(eventwindow);
+			WINDOW(window);
+			UNUSED(20);
+			break;
+
 		case UnmapNotify:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			WINDOW(eventwindow);
+			WINDOW(window);
+			BOOL(from_configure);
+			UNUSED(19);
+			break;
+
 		case MapNotify:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			WINDOW(eventwindow);
+			WINDOW(window);
+			BOOL(override_redirect);
+			UNUSED(19);
+			break;
+
 		case MapRequest:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			WINDOW(parent);
+			WINDOW(eventwindow);
+			UNUSED(20);
+			break;
+
 		case ReparentNotify:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			WINDOW(eventwindow);
+			WINDOW(window);
+			WINDOW(parent);
+			INT16(x);
+			INT16(y);
+			BOOL(override_redirect);
+			UNUSED(11);
+			break;
+
 		case ConfigureNotify:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			WINDOW(eventwindow);
+			WINDOW(window);
+			WINDOW(above_sibling);
+			INT16(x);
+			INT16(y);
+			CARD16(width);
+			CARD16(height);
+			CARD16(border_width);
+			BOOL(override_redirect);
+			UNUSED(5);
+			break;
+
 		case ConfigureRequest:
+			break;
+
 		case GravityNotify:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			WINDOW(eventwindow);
+			WINDOW(window);
+			INT16(x);
+			INT16(y);
+			UNUSED(16);
+			break;
+
 		case ResizeRequest:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			WINDOW(eventwindow);
+			CARD16(width);
+			CARD16(height);
+			UNUSED(20);
+			break;
+
 		case CirculateNotify:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			WINDOW(eventwindow);
+			WINDOW(window);
+			UNUSED(4);
+			ENUM8(place);
+			UNUSED(15);
+			break;
+
 		case CirculateRequest:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			WINDOW(parent);
+			WINDOW(eventwindow);
+			UNUSED(4);
+			ENUM8(place);
+			UNUSED(15);
+			break;
+
 		case PropertyNotify:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			WINDOW(eventwindow);
+			ATOM(atom);
+			TIMESTAMP(time);
+			ENUM8(property_state);
+			UNUSED(15);
+			break;
+
 		case SelectionClear:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			TIMESTAMP(time);
+			WINDOW(owner);
+			ATOM(selection);
+			UNUSED(16);
+			break;
+
 		case SelectionRequest:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			TIMESTAMP(time);
+			WINDOW(owner);
+			WINDOW(requestor);
+			ATOM(selection);
+			ATOM(target);
+			ATOM(property);
+			UNUSED(4);
+			break;
+
 		case SelectionNotify:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			TIMESTAMP(time);
+			WINDOW(requestor);
+			ATOM(selection);
+			ATOM(target);
+			ATOM(property);
+			UNUSED(8);
+			break;
+
 		case ColormapNotify:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			WINDOW(eventwindow);
+			COLORMAP(cmap);
+			BOOL(new);
+			ENUM8(colormap_state);
+			UNUSED(18);
+			break;
+
 		case ClientMessage:
+			CARD8(format);
+			CARD16(event_sequencenumber);
+			WINDOW(eventwindow);
+			ATOM(type);
+			LISTofBYTE(data, 20);
+			break;
+
 		case MappingNotify:
 		default:
 			break;
@@ -4714,13 +5290,6 @@ void proto_register_x11(void)
 
 /* Setup list of header fields */
       static hf_register_info hf[] = {
-/*
-  { &hf_x11_FIELDABBREV,
-  { "FIELDNAME",           "x11.FIELDABBREV",
-  FIELDTYPE, FIELDBASE, FIELDCONVERT, BITMASK,
-  "FIELDDESCR", HFILL }
-  },
-*/
 #include "x11-register-info.h"
       };
 
