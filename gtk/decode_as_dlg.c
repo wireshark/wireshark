@@ -397,34 +397,9 @@ decode_build_show_list (gchar *table_name, ftenum_t selector_type,
 }
 
 
-/*
- * This routine is called when the user clicks the "OK" button in
- * the "Decode As:Show..." dialog window.  This routine destroys the
- * dialog box and performs other housekeeping functions.
- *
- * @param GtkWidget * A pointer to the "OK" button.
- *
- * @param gpointer A pointer to the dialog window.
- */
+/* clear all settings */
 static void
-decode_show_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
-{
-    window_destroy(GTK_WIDGET(parent_w));
-}
-
-
-/*
- * This routine is called when the user clicks the "Clear" button in
- * the "Decode As:Show..." dialog window.  This routine resets all the
- * dissector values and then destroys the dialog box and performs
- * other housekeeping functions.
- *
- * @param GtkWidget * A pointer to the "Clear" button.
- *
- * @param gpointer A pointer to the dialog window.
- */
-static void
-decode_show_clear_cb (GtkWidget *clear_bt _U_, gpointer parent_w)
+decode_clear_all(void)
 {
     dissector_delete_item_t *item;
     GSList *tmp;
@@ -459,6 +434,39 @@ decode_show_clear_cb (GtkWidget *clear_bt _U_, gpointer parent_w)
     decode_dcerpc_reset_all();
 
     redissect_packets(&cfile);
+}
+
+
+/*
+ * This routine is called when the user clicks the "OK" button in
+ * the "Decode As:Show..." dialog window.  This routine destroys the
+ * dialog box and performs other housekeeping functions.
+ *
+ * @param GtkWidget * A pointer to the "OK" button.
+ *
+ * @param gpointer A pointer to the dialog window.
+ */
+static void
+decode_show_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
+{
+    window_destroy(GTK_WIDGET(parent_w));
+}
+
+
+/*
+ * This routine is called when the user clicks the "Clear" button in
+ * the "Decode As:Show..." dialog window.  This routine resets all the
+ * dissector values and then destroys the dialog box and performs
+ * other housekeeping functions.
+ *
+ * @param GtkWidget * A pointer to the "Clear" button.
+ *
+ * @param gpointer A pointer to the dialog window.
+ */
+static void
+decode_show_clear_cb (GtkWidget *clear_bt _U_, gpointer parent_w)
+{
+    decode_clear_all();
 
     window_destroy(GTK_WIDGET(parent_w));
 }
@@ -981,6 +989,22 @@ decode_destroy_cb (GtkWidget *win _U_, gpointer user_data _U_)
     /* Note that we no longer have a "Decode As" dialog box. */
     decode_w = NULL;
 }
+
+
+/*
+ * This routine is called when the user clicks the "Clear" button in
+ * the "Decode As..." dialog window.  This routine resets all the
+ * dissector values and performs other housekeeping functions.
+ *
+ * @param GtkWidget * A pointer to the "Clear" button.
+ * @param gpointer A pointer to the dialog window.
+ */
+static void
+decode_clear_cb(GtkWidget *clear_bt _U_, gpointer parent_w)
+{
+    decode_clear_all();
+}
+
 
 
 /**************************************************/
@@ -1646,6 +1670,7 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
 {
     GtkWidget	*main_vb, *format_hb, *bbox, *ok_bt, *close_bt, *button;
     GtkWidget   *button_vb, *apply_bt;
+    GtkTooltips *tooltips = gtk_tooltips_new();
 
     if (decode_w != NULL) {
 	/* There's already a "Decode As" dialog box; reactivate it. */
@@ -1675,6 +1700,15 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     SIGNAL_CONNECT(button, "clicked", decode_show_cb, decode_w);
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(button_vb), button, FALSE, FALSE, 0);
+    gtk_tooltips_set_tip(tooltips, button, 
+        "Open a dialog showing the current settings.", NULL);
+
+    button = gtk_button_new_with_label("Clear");
+    SIGNAL_CONNECT(button, "clicked", decode_clear_cb, decode_w);
+    GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+    gtk_box_pack_start(GTK_BOX(button_vb), button, FALSE, FALSE, 0);
+    gtk_tooltips_set_tip(tooltips, button, 
+        "Clear ALL settings.", NULL);
 
 	decode_add_notebook(format_hb);
     }
@@ -1686,13 +1720,19 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
 
     ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
     SIGNAL_CONNECT(ok_bt, "clicked", decode_ok_cb, decode_w);
+    gtk_tooltips_set_tip(tooltips, ok_bt, 
+        "Apply current setting, close dialog and redissect packets.", NULL);
 
     apply_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_APPLY);
     SIGNAL_CONNECT(apply_bt, "clicked", decode_apply_cb, decode_w);
+    gtk_tooltips_set_tip(tooltips, apply_bt, 
+        "Apply current setting, redissect packets and keep dialog open.", NULL);
 
     close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
     window_set_cancel_button(decode_w, close_bt, NULL);
     SIGNAL_CONNECT(close_bt, "clicked", decode_close_cb, decode_w);
+    gtk_tooltips_set_tip(tooltips, close_bt, 
+        "Close the dialog, don't redissect packets.", NULL);
 
     gtk_widget_grab_default(ok_bt);
 
@@ -1702,11 +1742,3 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     gtk_widget_show_all(decode_w);
     window_present(decode_w);
 }
-
-
-/*
- * Local Variables:
- * mode:c
- * c-basic-offset: 4
- * End:
- */
