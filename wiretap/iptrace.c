@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.4 1999/07/13 02:53:23 gram Exp $
+ * $Id: iptrace.c,v 1.5 1999/07/28 01:35:34 gerald Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -109,6 +109,12 @@ int iptrace_read(wtap *wth)
 	}
 	else if (if_name1 == 'f' && if_name2 == 'd') {
 		wth->phdr.pkt_encap = WTAP_ENCAP_FDDI;
+	}
+	else if (if_name1 == 'l' && if_name2 == 'o') { /* loopback */
+		wth->phdr.pkt_encap = WTAP_ENCAP_RAW_IP;
+	}
+	else if (if_name1 == 'x' && if_name2 == 'd') { /* X.25 */
+		wth->phdr.pkt_encap = WTAP_ENCAP_RAW_IP;
 	}
 	else {
 		wth->phdr.pkt_encap = WTAP_ENCAP_NONE;
