@@ -2,7 +2,7 @@
  * Routines for cisco tacplus packet dissection
  * Copyright 2000, Emanuele Caratti <wiz@iol.it>
  *
- * $Id: packet-tacacs.h,v 1.3 2003/09/20 09:41:48 guy Exp $
+ * $Id: packet-tacacs.h,v 1.4 2003/09/29 18:50:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -414,11 +414,13 @@ static value_string tacplus_acct_status[] = {
 	{TAC_PLUS_ACCT_STATUS_FOLLOW,	"Follow"},
 	{0, NULL}};
 
+#ifdef __TAC_ACCOUNTING__
 static value_string tacplus_acct_flags[] = {
 	{TAC_PLUS_ACCT_FLAG_MORE,	"More (deprecated)"},
 	{TAC_PLUS_ACCT_FLAG_START,	"Start"},
 	{TAC_PLUS_ACCT_FLAG_STOP,	"Stop"},
 	{TAC_PLUS_ACCT_FLAG_WATCHDOG,"Update"},
 	{0, NULL}};
+#endif
 
 #endif   /* __PACKET_TACACS_H__ */

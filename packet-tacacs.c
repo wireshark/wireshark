@@ -5,7 +5,7 @@
  * Full Tacacs+ parsing with decryption by
  *   Emanuele Caratti <wiz@iol.it>
  *
- * $Id: packet-tacacs.c,v 1.28 2003/09/23 21:37:11 guy Exp $
+ * $Id: packet-tacacs.c,v 1.29 2003/09/29 18:50:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -945,7 +945,6 @@ md5_xor( u_char *data, char *key, int data_len, u_char *session_id, u_char versi
 	
 	md5_buff = (md5_byte_t*)g_malloc(md5_len+MD5_LEN);
 
-	CLEANUP_PUSH( g_free, md5_buff );
 
 	mdp = md5_buff;
 	*(guint32*)mdp = *(guint32*)session_id;
@@ -974,5 +973,5 @@ md5_xor( u_char *data, char *key, int data_len, u_char *session_id, u_char versi
 		md5_append(&mdcontext, md5_buff, md5_len);
 		md5_finish(&mdcontext,hash);
 	}
-	CLEANUP_CALL_AND_POP;
+	g_free( md5_buff );
 }
