@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.175 2004/02/25 17:44:50 ulfl Exp $
+ * $Id: menu.c,v 1.176 2004/03/08 23:45:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -109,7 +109,9 @@ static void timestamp_delta_cb(GtkWidget *w _U_, gpointer d _U_);
 static void name_resolution_mac_cb(GtkWidget *w _U_, gpointer d _U_);
 static void name_resolution_network_cb(GtkWidget *w _U_, gpointer d _U_);
 static void name_resolution_transport_cb(GtkWidget *w _U_, gpointer d _U_);
+#ifdef HAVE_LIBPCAP
 static void auto_scroll_live_cb(GtkWidget *w _U_, gpointer d _U_);
+#endif
 
 /* This is the GtkItemFactoryEntry structure used to generate new menus.
        Item 1: The menu path. The letter after the underscore indicates an
@@ -216,7 +218,9 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _MAC Layer", NULL, name_resolution_mac_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _Network Layer", NULL, name_resolution_network_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _Transport Layer", NULL, name_resolution_transport_cb, 0, "<CheckItem>", NULL),
+#ifdef HAVE_LIBPCAP
     ITEM_FACTORY_ENTRY("/View/Auto Scroll in _Live Capture", NULL, auto_scroll_live_cb, 0, "<CheckItem>", NULL),
+#endif
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/View/Zoom In", "<control>plus", view_zoom_in_cb,
                              0, GTK_STOCK_ZOOM_IN),
@@ -1236,12 +1240,13 @@ name_resolution_transport_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 }
 
+#ifdef HAVE_LIBPCAP
 static void 
 auto_scroll_live_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     auto_scroll_live = GTK_CHECK_MENU_ITEM(w)->active;
 }
-
+#endif
 
 /* the recent file read has finished, update the menu corresponding */
 void
@@ -1275,8 +1280,10 @@ menu_recent_read_finished(void) {
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Name Resolution/Enable for Transport Layer");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), g_resolv_flags & RESOLV_TRANSPORT);
 
+#ifdef HAVE_LIBPCAP
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Auto Scroll in Live Capture");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), auto_scroll_live);
+#endif
 
     main_widgets_rearrange();
 

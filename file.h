@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.117 2004/03/08 23:07:15 jmayer Exp $
+ * $Id: file.h,v 1.118 2004/03/08 23:45:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,8 +41,6 @@ typedef enum {
 	READ_ERROR,	/* read got an error */
 	READ_ABORTED	/* read aborted by user */
 } read_status_t;
-
-extern gboolean auto_scroll_live;
 
 int  cf_open(char *, gboolean, capture_file *);
 void cf_close(capture_file *);
