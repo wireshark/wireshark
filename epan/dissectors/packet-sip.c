@@ -1169,10 +1169,10 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 							   next_tvb, pinfo,
 							   message_body_tree);
 			g_free(media_type_str_lower_case);
-			g_free(content_type_parameter_str);
 			pinfo->private_data = save_private_data;
 			/* If no match dump as text */
 		}
+		g_free(content_type_parameter_str);
 		if ( found_match != TRUE )
 		{
 			offset = 0;
