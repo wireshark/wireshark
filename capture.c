@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.207 2003/05/15 13:33:53 deniel Exp $
+ * $Id: capture.c,v 1.208 2003/07/23 05:01:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1398,8 +1398,8 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 #define N_COUNTS (sizeof counts / sizeof counts[0])
 
 #ifdef _WIN32
-  WORD wVersionRequested;
-  WSADATA wsaData;
+  WORD        wVersionRequested;
+  WSADATA     wsaData;
 #else
   static const char ppamsg[] = "can't find PPA for ";
   char       *libpcap_warn;
@@ -1420,12 +1420,45 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   /* Initialize Windows Socket if we are in a WIN32 OS
      This needs to be done before querying the interface for network/netmask */
 #ifdef _WIN32
-  wVersionRequested = MAKEWORD( 1, 1 );
-  err = WSAStartup( wVersionRequested, &wsaData );
-  if (err!=0) {
-    snprintf(errmsg, sizeof errmsg,
-      "Couldn't initialize Windows Sockets.");
-	pch=NULL;
+  /* XXX - do we really require 1.1 or earlier?
+     Are there any versions that support only 2.0 or higher? */
+  wVersionRequested = MAKEWORD(1, 1);
+  err = WSAStartup(wVersionRequested, &wsaData);
+  if (err != 0) {
+    switch (err) {
+
+    case WSASYSNOTREADY:
+      snprintf(errmsg, sizeof errmsg,
+        "Couldn't initialize Windows Sockets: Network system not ready for network communication");
+      break;
+
+    case WSAVERNOTSUPPORTED:
+      snprintf(errmsg, sizeof errmsg,
+        "Couldn't initialize Windows Sockets: Windows Sockets version %u.%u not supported",
+        LOBYTE(wVersionRequested), HIBYTE(wVersionRequested));
+      break;
+
+    case WSAEINPROGRESS:
+      snprintf(errmsg, sizeof errmsg,
+        "Couldn't initialize Windows Sockets: Blocking operation is in progress");
+      break;
+
+    case WSAEPROCLIM:
+      snprintf(errmsg, sizeof errmsg,
+        "Couldn't initialize Windows Sockets: Limit on the number of tasks supported by this WinSock implementation has been reached");
+      break;
+
+    case WSAEFAULT:
+      snprintf(errmsg, sizeof errmsg,
+        "Couldn't initialize Windows Sockets: Bad pointer passed to WSAStartup");
+      break;
+
+    default:
+      snprintf(errmsg, sizeof errmsg,
+        "Couldn't initialize Windows Sockets: error %d", err);
+      break;
+    }
+    pch = NULL;
     goto error;
   }
 #endif
