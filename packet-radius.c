@@ -2,10 +2,11 @@
  *
  * Routines for RADIUS packet disassembly
  * Copyright 1999 Johan Feyaerts
+ * Changed 03/12/2003 Rui Carmo (http://the.taoofmac.com - added all 3GPP VSAs, some parsing)
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.81 2003/11/22 12:02:49 jmayer Exp $
+ * $Id: packet-radius.c,v 1.82 2003/12/09 05:10:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -130,11 +131,18 @@ typedef struct _rd_vsa_buffer {
 #define RADIUS_CHANGE_FILTER_REQUEST_NAK	45
 #define RADIUS_RESERVED				255
 
+/*
+ * List of types for RADIUS attributes.  "Type" refers to how it's
+ * formatted for display in Ethereal.
+ *
+ * Not every RADIUS attribute gets its own type.
+ */
 enum {
     RADIUS_STRING = 1,
     RADIUS_BINSTRING,
     RADIUS_INTEGER4,
     RADIUS_IP_ADDRESS,
+    RADIUS_IP6_ADDRESS,
     RADIUS_SERVICE_TYPE,
     RADIUS_FRAMED_PROTOCOL,
     RADIUS_FRAMED_ROUTING,
@@ -223,7 +231,17 @@ enum {
 
     COLUMBIA_UNIVERSITY_SIP_METHOD,
 
-    THE3GPP_QOS
+    THE3GPP_IMSI,
+    THE3GPP_QOS,
+    THE3GPP_PDP_TYPE,
+    THE3GPP_IMSI_MCC_MNC,
+    THE3GPP_GGSN_MCC_MNC,
+    THE3GPP_NSAPI,
+    THE3GPP_SESSION_STOP_INDICATOR,
+    THE3GPP_SELECTION_MODE,
+    THE3GPP_CHARGING_CHARACTERISTICS,
+    THE3GPP_IPV6_DNS_SERVERS,
+    THE3GPP_SGSN_MCC_MNC
 };
 
 static value_string radius_vals[] =
@@ -2200,7 +2218,25 @@ static value_string radius_vendor_columbia_university_sip_method_vals[] =
 
 static value_value_string radius_vendor_3gpp_attrib[] =
 {
-   {5,	THE3GPP_QOS,	"QoS Profile"},
+   /* According to 3GPP TS 29.061 V4.8.0 (2003-06) */
+   {1,  THE3GPP_IMSI, "IMSI"},
+   {2,  RADIUS_INTEGER4, "Charging ID"},
+   {3,  THE3GPP_PDP_TYPE, "PDP Type"},
+   {4,  RADIUS_IP_ADDRESS, "Charging Gateway Address"},
+   {5,  THE3GPP_QOS,	"QoS Profile"},
+   {6,  RADIUS_IP_ADDRESS, "SGSN Address"},
+   {7,  RADIUS_IP_ADDRESS, "GGSN Address"},
+   {8,  THE3GPP_IMSI_MCC_MNC, "IMSI MCC-MNC"},
+   {9,  THE3GPP_GGSN_MCC_MNC, "GGSN MCC-MNC"},
+   {10, THE3GPP_NSAPI, "NSAPI"},
+   {11, THE3GPP_SESSION_STOP_INDICATOR, "Session Stop Indicator"},
+   {12, THE3GPP_SELECTION_MODE, "Selection Mode"},
+   {13, THE3GPP_CHARGING_CHARACTERISTICS, "Charging Characteristics"},
+   {14, RADIUS_IP6_ADDRESS, "Charging Gateway IPv6 Address"},
+   {15, RADIUS_IP6_ADDRESS, "SGSN IPv6 Address"},
+   {16, RADIUS_IP6_ADDRESS, "GGSN IPv6 Address"},
+   {17, THE3GPP_IPV6_DNS_SERVERS, "IPv6 DNS Servers"},
+   {18, THE3GPP_SGSN_MCC_MNC, "SGSN MCC-MNC"},
    {0, 0, NULL},
 };
 
@@ -2566,6 +2602,9 @@ static gchar *rd_value_to_str_2(gchar *dest, const e_avphdr *avph, tvbuff_t *tvb
         case( RADIUS_IP_ADDRESS ):
                 ip_to_str_buf(tvb_get_ptr(tvb,offset+2,4),cont);
                 break;
+        case( RADIUS_IP6_ADDRESS ):
+                ip6_to_str_buf((const struct e_in6_addr *)tvb_get_ptr(tvb,offset+2,16),cont);
+                break;
         case( RADIUS_IPX_ADDRESS ):
                 pd = tvb_get_ptr(tvb,offset+2,4);
                 sprintf(cont,"%u:%u:%u:%u",(guint8)pd[offset+2],
@@ -2723,6 +2762,36 @@ static gchar *rd_value_to_str_2(gchar *dest, const e_avphdr *avph, tvbuff_t *tvb
 			tvb_get_ntohs(tvb,offset+2),
 			tvb_get_ntohs(tvb,offset+4));
  		break;
+
+	case( THE3GPP_PDP_TYPE ):
+		intval = tvb_get_ntohl(tvb,offset+2);
+                switch(intval) {
+			case(0):
+				sprintf(cont,"IP(0)"); break;
+			case(1):
+				sprintf(cont,"PPP(1)"); break;
+			case(2):
+				sprintf(cont,"IPv6(2)"); break;
+			default:
+				sprintf(cont,"Unknown(%d)",intval);
+                }
+		break;
+
+	case( THE3GPP_IMSI ):
+	case( THE3GPP_IMSI_MCC_MNC ):
+	case( THE3GPP_GGSN_MCC_MNC ):
+	case( THE3GPP_SGSN_MCC_MNC ):
+	case( THE3GPP_SELECTION_MODE ):
+	case( THE3GPP_CHARGING_CHARACTERISTICS ):
+		sprintf(cont,"(encoded in UTF-8 format)");
+		break;
+
+	case( THE3GPP_NSAPI ):
+	case( THE3GPP_SESSION_STOP_INDICATOR ):
+	case( THE3GPP_IPV6_DNS_SERVERS ):
+		sprintf(cont,"(not parsed)");
+		break;
+
 
 	case( THE3GPP_QOS ):
 		/* Find the ponter to the already-built label
