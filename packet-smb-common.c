@@ -2,7 +2,7 @@
  * Common routines for smb packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-common.c,v 1.6 2001/07/08 19:26:33 guy Exp $
+ * $Id: packet-smb-common.c,v 1.7 2001/07/08 20:38:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,7 +29,7 @@
 
 int display_ms_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf_index)
 {
-	const char *str;
+	char *str;
 	int len;
 
 	/* display a string from the tree and return the new offset */
