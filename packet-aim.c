@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.27 2003/04/30 02:35:18 gerald Exp $
+ * $Id: packet-aim.c,v 1.28 2003/05/11 02:40:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -760,7 +760,7 @@ static int get_buddyname( char *name, tvbuff_t *tvb, int len_offset, int name_of
   buddyname_length = tvb_get_guint8(tvb, len_offset);
 
   if(buddyname_length > MAX_BUDDYNAME_LENGTH ) buddyname_length = MAX_BUDDYNAME_LENGTH;
-  tvb_get_nstringz0(tvb, name_offset, buddyname_length, name);
+  tvb_get_nstringz0(tvb, name_offset, buddyname_length + 1, name);
 
   return buddyname_length;
 }
@@ -981,7 +981,7 @@ static void dissect_aim_snac_signon_signon(tvbuff_t *tvb, packet_info *pinfo,
 					   int offset, proto_tree *tree)
 {
   guint8 buddyname_length = 0;
-  char buddyname[MAX_BUDDYNAME_LENGTH];
+  char buddyname[MAX_BUDDYNAME_LENGTH + 1];
 
   /* Info Type */
   proto_tree_add_item(tree, hf_aim_infotype, tvb, offset, 2, FALSE);
@@ -1129,7 +1129,7 @@ static void dissect_aim_snac_buddylist(tvbuff_t *tvb, packet_info *pinfo,
 				       guint16 subtype)
 {
   guint8 buddyname_length = 0;
-  char buddyname[MAX_BUDDYNAME_LENGTH];
+  char buddyname[MAX_BUDDYNAME_LENGTH + 1];
   guint16 tlv_count = 0;
 
   switch(subtype)
@@ -1394,7 +1394,7 @@ static void dissect_aim_snac_chat(tvbuff_t *tvb, packet_info *pinfo,
 				  guint16 subtype)
 {
   guint8 buddyname_length = 0;
-  char buddyname[MAX_BUDDYNAME_LENGTH];
+  char buddyname[MAX_BUDDYNAME_LENGTH + 1];
   guchar msg[1000];
 
   switch(subtype)
@@ -1435,7 +1435,7 @@ static void dissect_aim_snac_messaging(tvbuff_t *tvb, packet_info *pinfo,
 				       guint16 subtype)
 {
   guint8 buddyname_length = 0;
-  char buddyname[MAX_BUDDYNAME_LENGTH];
+  char buddyname[MAX_BUDDYNAME_LENGTH + 1];
   guchar msg[1000];
 
   switch(subtype)
