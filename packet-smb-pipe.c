@@ -9,7 +9,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.27 2001/08/06 08:49:17 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.28 2001/08/07 08:39:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1524,14 +1524,15 @@ dissect_pipe_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 
 gboolean
-dissect_pipe_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		 char *command)
+dissect_pipe_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	struct smb_info *smb_info = pinfo->private;
+
 	if (!proto_is_protocol_enabled(proto_smb_lanman))
 		return FALSE;
 	pinfo->current_proto = "LANMAN";
 
-	if (command != NULL && strcmp(command, "LANMAN") == 0) {
+	if (smb_info->trans_cmd && strcmp(smb_info->trans_cmd, "LANMAN") == 0) {
 		/* Try to decode a LANMAN */
 
 		return dissect_pipe_lanman(tvb, pinfo, tree);

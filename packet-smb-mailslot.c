@@ -2,7 +2,7 @@
  * Routines for SMB mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.15 2001/08/05 00:16:36 guy Exp $
+ * $Id: packet-smb-mailslot.c,v 1.16 2001/08/07 08:39:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,7 +25,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
 #include "packet-smb-common.h"
 #include "packet-smb-mailslot.h"
 #include "packet-smb-browse.h"
@@ -33,143 +32,148 @@
 #include "packet-smb-pipe.h"
 
 static int proto_smb_msp = -1;
+static int hf_opcode = -1;
+static int hf_priority = -1;
+static int hf_class = -1;
+static int hf_size = -1;
+static int hf_name = -1;
 
 static int ett_smb_msp = -1;
 
-gboolean
-dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data,
-	int SMB_offset, int errcode, const u_char *command,
-	int DataOffset, int DataCount, int ParameterOffset, int ParameterCount){
+static const value_string opcode_vals[] = {
+	{1,	"Write Mail Slot"},
+	{0,	NULL}
+};
 
+static const value_string class_vals[] = {
+	{1,	"Reliable"},
+	{2,	"Unreliable & Broadcast"},
+	{0,	NULL}
+};
 
 /* decode the SMB mail slot protocol */
+gboolean
+dissect_mailslot_smb(tvbuff_t *setup_tvb, tvbuff_t *tvb, packet_info *pinfo,
+		     proto_tree *parent_tree)
+{
+	struct smb_info *smb_info = pinfo->private;
+	proto_tree      *tree = 0;
+	proto_item      *item;
+	tvbuff_t        *next_tvb = NULL;
+	guint16         opcode;
+	int             offset = 0;
+	int             len;
 
-   	proto_tree      *smb_msp_tree = 0;
-   	proto_item      *ti;
-
-   	guint16  Temp16; 
-   	const char *StrPtr;
-
-	if (!proto_is_protocol_enabled(proto_smb_msp))
+	if (!proto_is_protocol_enabled(proto_smb_msp)) {
 		return FALSE;
-   
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "SMB Mailslot");
+	}
+	pinfo->current_proto = "SMB Mailslot";
 
-	if (DataOffset < 0) {
+	if (check_col(pinfo->fd, COL_PROTOCOL)) {
+		col_set_str(pinfo->fd, COL_PROTOCOL, "SMB Mailslot");
+	}
+
+	if (smb_info->data_offset < 0) {
 		/* Interim reply */
-		col_set_str(fd, COL_INFO, "Interim reply");
+		col_set_str(pinfo->fd, COL_INFO, "Interim reply");
 		return TRUE;
 	}
 
- /* do the Op code field */
- 
-    	Temp16 = GSHORT(pd, offset);		/* get Op code */
+	/* do the opcode field */
+	opcode = tvb_get_letohs(setup_tvb, offset);
 
-	if (check_col(fd, COL_INFO))
-		  col_set_str(fd, COL_INFO,
-		      ( Temp16 == 1 ? "Write Mail slot" : "Unknown"));
+	if (check_col(pinfo->fd, COL_INFO)) {
+		  col_add_str(pinfo->fd, COL_INFO,
+		      val_to_str(opcode, opcode_vals, "Unknown opcode:0x%04x"));
+	}
 
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, proto_smb_msp, setup_tvb,
+			offset, tvb_length_remaining(setup_tvb, offset), FALSE);
+		tree = proto_item_add_subtree(item, ett_smb_msp);
 
-    	if (tree) {
-		ti = proto_tree_add_item( parent, proto_smb_msp, NullTVB, offset,
-			END_OF_FRAME, FALSE);
-		smb_msp_tree = proto_item_add_subtree(ti, ett_smb_msp);
+		/* opcode */
+		proto_tree_add_uint(tree, hf_opcode, setup_tvb, offset, 2,
+		    opcode);
+		offset += 2;
 
- 		proto_tree_add_text(smb_msp_tree, NullTVB, offset, 2, "Op code: %u (%s)",
- 			Temp16, ( Temp16 == 1 ? "Write Mail slot" : "Unknown"));
+		/* priority */
+		proto_tree_add_item(tree, hf_priority, setup_tvb, offset, 2,
+		    TRUE);
+		offset += 2;
 
-	  	offset += 2;
- 
-   						/* do the Priority field */
-     		Temp16 = GSHORT(pd, offset);
-     		proto_tree_add_text(smb_msp_tree, NullTVB, offset, 2,
-     			"Priority of transaction: %u", Temp16);
-    	
-   		offset += 2;
+		/* class */
+		proto_tree_add_item(tree, hf_class, setup_tvb, offset, 2, TRUE);
+		offset += 2;
 
-    						/* do the Class field */
-      		Temp16 = GSHORT(pd, offset);
-     
-      		proto_tree_add_text(smb_msp_tree, NullTVB, offset, 2, "Class: %u (%s)",
-      			Temp16, ( Temp16 == 1) ? "Reliable" : (( Temp16 == 2) ?
-      			"Unreliable & Broadcast" : "Unknown"));
-	
-	   	offset += 2;
+		/* size */
+		proto_tree_add_item(tree, hf_size, setup_tvb, offset, 2, TRUE);
+		offset += 2;
 
-     			 			/* do the data size field */
-     		Temp16 = GSHORT(pd, offset);
-     		proto_tree_add_text(smb_msp_tree, NullTVB, offset, 2,
-     			"Total size of mail data: %u", Temp16);
+		/* mailslot name */
+		len = tvb_strsize(setup_tvb, offset);
+		proto_tree_add_item(tree, hf_name, setup_tvb, offset, len,
+		    TRUE);
+		offset += len;
+	}
 
-	   	offset += 2;
-	}else {					/* no tree value adjust offset*/
-		offset += 8;
-	}	   	
+	/* Quit if we don't have the transaction command name (mailslot path) */
+	if (smb_info->trans_cmd == NULL)
+		return TRUE;
 
-    					/* Build display for: MailSlot Name */
+	/* create new tvb for subdissector */
+	next_tvb = tvb_new_subset(tvb, smb_info->data_offset, -1, -1);
 
-    	StrPtr = &pd[offset];		/* load pointer to name	*/
-
- 	if (smb_msp_tree) {
-		proto_tree_add_text(smb_msp_tree, NullTVB, offset, strlen( StrPtr) + 1,
-			"Mailslot Name: %s", StrPtr);
-    	}
-
-	offset += strlen( StrPtr) + 1;
- 
-/*** Decide what dissector to call based upon the command value ***/
- 
-  	if (command != NULL && strcmp(command, "BROWSE") == 0) {
-  		/* Decode a browse */
-
-		tvbuff_t *tvb;
-		packet_info *pinfo = &pi;
-		tvb = tvb_create_from_top(DataOffset);
-
-		return dissect_mailslot_browse(tvb, pinfo, parent);
-  	}
-
-  	else if (command != NULL && strcmp(command, "LANMAN") == 0) {
+	/*** Decide what dissector to call based upon the command value ***/
+	if (strcmp(smb_info->trans_cmd, "BROWSE") == 0) {
+		return dissect_mailslot_browse(next_tvb, pinfo, parent_tree);
+	} else if (strcmp(smb_info->trans_cmd, "LANMAN") == 0) {
 		/* Decode a LANMAN browse */
-
-		tvbuff_t *tvb;
-		packet_info *pinfo = &pi;
-		tvb = tvb_create_from_top(DataOffset);
-
-		return dissect_mailslot_lanman(tvb, pinfo, parent);
-  	}
-
+		return dissect_mailslot_lanman(next_tvb, pinfo, parent_tree);
+	} else if ((strncmp(smb_info->trans_cmd, "NET", strlen("NET")) == 0) ||
+		   (strcmp(smb_info->trans_cmd, "TEMP\\NETLOGON") == 0) ||
+		   (strcmp(smb_info->trans_cmd, "MSSP") == 0)) {
 /* NOTE: use TEMP\\NETLOGON and MSSP because they seems very common,	*/
 /* NOTE: may need a look up list to check for the mailslot names passed	*/
 /*		by the logon request packet */
-	
-  	else if (((command != NULL) &&
-		  strncmp(command, "NET", strlen("NET")) == 0) ||
-		 (strcmp(command, "TEMP\\NETLOGON") == 0) ||
-		 (strcmp(command, "MSSP") == 0)){
-		tvbuff_t *tvb;
-		packet_info *pinfo = &pi;
-		tvb = tvb_create_from_top(DataOffset);
-
-		return dissect_smb_logon(tvb, pinfo, parent);
-		
-	 }
-  	return TRUE;
+		return dissect_smb_logon(next_tvb, pinfo, parent_tree);
+	}
+	return TRUE;
 }
 
-
 void
-register_proto_smb_mailslot( void){
+register_proto_smb_mailslot(void)
+{
+	static hf_register_info hf[] = {
+		{ &hf_opcode,
+			{ "Opcode", "mailslot.opcode", FT_UINT16, BASE_DEC,
+			VALS(opcode_vals), 0, "MAILSLOT OpCode", HFILL }},
 
+		{ &hf_priority,
+			{ "Priority", "mailslot.priority", FT_UINT16, BASE_DEC,
+			NULL, 0, "MAILSLOT Priority of transaction", HFILL }},
+
+		{ &hf_class,
+			{ "Class", "mailslot.class", FT_UINT16, BASE_DEC,
+			VALS(class_vals), 0, "MAILSLOT Class of transaction", HFILL }},
+
+		{ &hf_size,
+			{ "Size", "mailslot.size", FT_UINT16, BASE_DEC,
+			NULL, 0, "MAILSLOT Total size of mail data", HFILL }},
+
+		{ &hf_name,
+			{ "Mailslot Name", "mailslot.name", FT_STRING, BASE_NONE,
+			NULL, 0, "MAILSLOT Name of mailslot", HFILL }},
+
+	};
 
 	static gint *ett[] = {
 		&ett_smb_msp
 	};
 
-   	proto_smb_msp = proto_register_protocol(
-   		"SMB MailSlot Protocol", "SMB Mailslot", "mailslot");
+	proto_smb_msp = proto_register_protocol(
+		"SMB MailSlot Protocol", "SMB Mailslot", "mailslot");
 
+	proto_register_field_array(proto_smb_msp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

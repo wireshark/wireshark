@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.96 2001/08/06 00:59:14 guy Exp $
+ * $Id: packet-smb.c,v 1.97 2001/08/07 08:39:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -9761,6 +9761,7 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd,
   const gchar      *Data;
   packet_info      *pinfo;
   tvbuff_t         *next_tvb;
+  tvbuff_t         *setup_tvb;
 
   if (!TransactName)
 	  return;
@@ -9818,18 +9819,38 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd,
   si.data_count = DataCount;
 
   /*
+   * Command.
+   */
+  si.trans_cmd = trans_cmd;
+
+  /*
    * Pass "si" to the subdissector.
    */
   pinfo->private = &si;
 
+  /*
+   * Tvbuff for setup area, for mailslot call.
+   */
+  /*
+   * Is there a setup area?
+   */
+  if (SetupAreaOffset < 0) {
+    /*
+     * No - create a zero-length tvbuff.
+     */
+    setup_tvb = tvb_create_from_top(pi.captured_len);
+  } else {
+    /*
+     * Create a tvbuff for the setup area.
+     */
+    setup_tvb = tvb_create_from_top(SetupAreaOffset);
+  }
+
   if ((trans_cmd == NULL) ||
       (((trans_type == NULL || strcmp(trans_type, "MAILSLOT") != 0) ||
-       !dissect_mailslot_smb(pd, SetupAreaOffset, fd, parent, tree, si,
-			     max_data, SMB_offset, errcode, trans_cmd,
-			     SMB_offset + DataOffset, DataCount,
-			     SMB_offset + ParameterOffset, ParameterCount)) &&
+       !dissect_mailslot_smb(setup_tvb, next_tvb, pinfo, parent)) &&
       ((trans_type == NULL || strcmp(trans_type, "PIPE") != 0) ||
-       !dissect_pipe_smb(next_tvb, pinfo, parent, trans_cmd)))) {
+       !dissect_pipe_smb(next_tvb, pinfo, parent)))) {
 
     if (ParameterCount > 0) {
 
@@ -10454,7 +10475,7 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
 
     }
 
- 
+
     offset += 1; /* Skip Reserved3 */
  
     SetupAreaOffset = offset;	

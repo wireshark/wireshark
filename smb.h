@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.10 2001/08/05 01:15:27 guy Exp $
+ * $Id: smb.h,v 1.11 2001/08/07 08:39:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -648,6 +648,7 @@ struct smb_info {
   int data_offset;		/* Offset from parameter to data in transaction */
   int data_count;		/* Number of bytes of data in transaction */
   guint16 ddisp;		/* Data displacement for transaction commands */
+  char *trans_cmd;		/* Command for mailslot dissection */
 };
 
 #endif
