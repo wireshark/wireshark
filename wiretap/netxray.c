@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.18 1999/12/14 05:34:30 guy Exp $
+ * $Id: netxray.c,v 1.19 1999/12/14 21:59:07 nneul Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -362,8 +362,7 @@ static gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr *phd
     netxray_dump_t *priv = wdh->private.netxray;
     struct netxrayrec_1_x_hdr rec_hdr;
     int nwritten;
-    struct netxray_hdr file_hdr;
-	guint16 caplen, pktlen;
+    static struct netxray_hdr file_hdr;
 
     /* Sniffer files have a capture start date in the file header, and
        have times relative to the beginning of that day in the packet
@@ -371,19 +370,20 @@ static gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr *phd
        date. */
     if (priv->first_frame) {
 	priv->first_frame=FALSE;
+	priv->file_hdr = (void *) &file_hdr;
 
 	/* "sniffer" version ? */
 	memset(&file_hdr, '\0', sizeof file_hdr);
 	memcpy(file_hdr.version, vers_1_1, sizeof vers_1_1);
-	file_hdr.start_time = 0;
-	file_hdr.start_offset = CAPTUREFILE_HEADER_SIZE;
-	file_hdr.end_offset = 0;
-	file_hdr.network = wtap_encap[wdh->encap];
+	file_hdr.start_time = htolel(0);
+	file_hdr.start_offset = htolel(CAPTUREFILE_HEADER_SIZE);
+	file_hdr.end_offset = htolel(0);
+	file_hdr.network = htoles(wtap_encap[wdh->encap]);
 
 	/* the time stuff is all muck to me, someone fill it in please */
 
-	file_hdr.timelo = 0;
-	file_hdr.timehi = 0;
+	file_hdr.timelo = htolel(0);
+	file_hdr.timehi = htolel(0);
 
 	memset(hdr_buf, '\0', sizeof hdr_buf);
 	memcpy(hdr_buf, &file_hdr, sizeof(file_hdr));
@@ -400,12 +400,10 @@ static gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr *phd
 
 	/* build the header for each packet */
 	memset(&rec_hdr, '\0', sizeof(rec_hdr));
-	rec_hdr.timelo = 0;
-	rec_hdr.timehi = 0;
-	pktlen = phdr->len;
-	caplen = phdr->caplen;
-	rec_hdr.orig_len = pletohs(&pktlen);
-	rec_hdr.incl_len = pletohs(&caplen);
+	rec_hdr.timelo = htolel(0);
+	rec_hdr.timehi = htolel(0);
+	rec_hdr.orig_len = htoles(phdr->len);
+	rec_hdr.incl_len = htoles(phdr->caplen);
 	
     nwritten = fwrite(&rec_hdr, 1, sizeof(rec_hdr), wdh->fh);
     if (nwritten != sizeof(rec_hdr)) {
@@ -434,6 +432,40 @@ static gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr *phd
    Returns TRUE on success, FALSE on failure. */
 static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
 {
+	char hdr_buf[CAPTUREFILE_HEADER_SIZE - sizeof(netxray_magic)];
+    netxray_dump_t *priv = wdh->private.netxray;
+	guint32 filelen;
+    struct netxray_hdr *file_hdr = (struct netxray_hdr *) priv->file_hdr;
+	int nwritten;
+
+	filelen = ftell(wdh->fh);
+
+	/* Go back to beginning */
+	fseek(wdh->fh, 0, SEEK_SET);
+
+    /* Rewrite the file header. */
+    nwritten = fwrite(netxray_magic, 1, sizeof netxray_magic, wdh->fh);
+    if (nwritten != sizeof netxray_magic) {
+	if (nwritten < 0)
+	    *err = errno;
+	else
+	    *err = WTAP_ERR_SHORT_WRITE;
+	return FALSE;
+    }
+
+	file_hdr->end_offset = htolel(filelen);
+	memset(hdr_buf, '\0', sizeof hdr_buf);
+	memcpy(hdr_buf, file_hdr, sizeof(*file_hdr));
+
+	nwritten = fwrite(hdr_buf, 1, sizeof hdr_buf, wdh->fh);
+	if (nwritten != sizeof hdr_buf) {
+	    if (nwritten < 0)
+			*err = errno;
+	    else
+			*err = WTAP_ERR_SHORT_WRITE;
+	    return FALSE;
+	}
+	
     return TRUE;
 }
 
