@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.21 2002/03/10 23:24:48 sahlberg Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.22 2002/03/11 00:00:15 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2355,8 +2355,8 @@ samr_dissect_LOGON_HOURS_hours(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-samr_dissect_LOGON_HOURS(tvbuff_t *tvb, int offset, 
+int
+dissect_ndr_nt_LOGON_HOURS(tvbuff_t *tvb, int offset, 
 			packet_info *pinfo, proto_tree *parent_tree,
 			char *drep)
 {
@@ -2486,7 +2486,7 @@ samr_dissect_USER_INFO_3(tvbuff_t *tvb, int offset,
 				hf_samr_pwd_can_change_time);
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
 				hf_samr_pwd_must_change_time);
-	offset = samr_dissect_LOGON_HOURS(tvb, offset, pinfo, tree, drep);
+	offset = dissect_ndr_nt_LOGON_HOURS(tvb, offset, pinfo, tree, drep);
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
 				hf_samr_logon_count, NULL);
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
@@ -2538,7 +2538,7 @@ samr_dissect_USER_INFO_5(tvbuff_t *tvb, int offset,
 				hf_samr_logon_time);
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
 				hf_samr_logoff_time);
-	offset = samr_dissect_LOGON_HOURS(tvb, offset, pinfo, tree, drep);
+	offset = dissect_ndr_nt_LOGON_HOURS(tvb, offset, pinfo, tree, drep);
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
 				hf_samr_bad_pwd_count, NULL);
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
@@ -2765,7 +2765,7 @@ samr_dissect_USER_INFO_21(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_nt_acct_ctrl(tvb, offset, pinfo, tree, drep);
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 				hf_samr_unknown_long, NULL);
-	offset = samr_dissect_LOGON_HOURS(tvb, offset, pinfo, tree, drep);
+	offset = dissect_ndr_nt_LOGON_HOURS(tvb, offset, pinfo, tree, drep);
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
 				hf_samr_bad_pwd_count, NULL);
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
@@ -2887,7 +2887,7 @@ samr_dissect_USER_INFO (tvbuff_t *tvb, int offset,
 				tvb, offset, pinfo, tree, drep);
 		break;
 	case 4:	
-		offset = samr_dissect_LOGON_HOURS(
+		offset = dissect_ndr_nt_LOGON_HOURS(
 				tvb, offset, pinfo, tree, drep);
 		break;
 	case 5:	
