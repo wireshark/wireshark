@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.2 1998/09/27 22:12:34 gerald Exp $
+ * $Id: packet-osi.c,v 1.3 1998/10/13 17:56:41 deniel Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -243,7 +243,7 @@ static int osi_decode_DR(const u_char *pd, int offset,
 
   if (fd->win_info[COL_NUM]) {
     strcpy(fd->win_info[COL_PROTOCOL], "COTP");
-    sprintf(fd->win_info[COL_INFO], "DR TPDU src-ref: 0x%04x dst-ref: 0x%04x %s",
+    sprintf(fd->win_info[COL_INFO], "DR TPDU src-ref: 0x%04x dst-ref: 0x%04x",
 	    src_ref, dst_ref);
   }
 
