@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.146 2001/11/12 21:43:49 guy Exp $
+ * $Id: packet-smb.c,v 1.147 2001/11/13 06:17:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -9137,6 +9137,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 			case 0x25:
 				/*XXX decode the TRANSACTION setup words */
+				break;
 			}
 
 			offset += sc*2;
