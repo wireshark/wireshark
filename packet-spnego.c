@@ -225,7 +225,7 @@ dissect_spnego_mechToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	 */
 
 	token_tvb = tvb_new_subset(tvb, offset, nbytes, -1);
-	if (next_level_dissector != -1)
+	if (next_level_dissector != -1 && next_level_dissector)
 	  call_dissector(next_level_dissector, token_tvb, pinfo, tree);
 
 	hnd->offset += nbytes; /* Update this ... */
@@ -257,36 +257,55 @@ dissect_spnego_mechListMIC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		goto done;
 	}
 
-	if (!(cls == ASN1_UNI && con == ASN1_CON && tag == ASN1_SEQ)) {
-		proto_tree_add_text(
-			subtree, tvb, offset, 0,
-			"Unknown header (cls=%d, con=%d, tag=%d)",
-			cls, con, tag);
-		goto done;
-	}
-
 	offset = hnd->offset;
 
-	/* XXX: FIXME, we should dissect this as well */
+	if (cls == ASN1_UNI && con == ASN1_CON && tag == ASN1_SEQ) {
+
+	  /*
+	   * There seems to be two different forms this can take
+	   * One as an Octet string, and one as a general string in a 
+	   * sequence ... We will have to dissect this later
+	   */
+	 
+	  proto_tree_add_text(tree, tvb, offset + 4, len1 - 4,
+			      "mechListMIC: %s\n",
+			      tvb_format_text(tvb, offset + 4, len1 - 4));
+
+	  /* Naughty ... but we have to adjust for what we never took */
+
+	  hnd->offset += 4;
+	  offset += len1;
+
+	}
+	else if (cls == ASN1_UNI && con == ASN1_PRI && tag == ASN1_OTS) {
+	  tvbuff_t *token_tvb;
+
+	  proto_tree_add_text(tree, tvb, offset, len1, "mechListMIC: %s",
+			      tvb_format_text(tvb, offset, len1)); 
 
 	/*
-	 * There seems to be two different forms this can take
-	 * One as an Octet string, and one as a general string in a 
-	 * sequence ... We will have to dissect this later
+	 * Now, we should be able to dispatch after creating a new TVB.
 	 */
-	 
-	proto_tree_add_text(tree, tvb, offset + 4, len1 - 4,
-			    "mechListMIC: %s\n",
-			    tvb_format_text(tvb, offset + 4, len1 - 4));
 
-	/* Naughty ... but we have to adjust for what we never took */
+	  token_tvb = tvb_new_subset(tvb, offset, len1, -1);
+	  if (next_level_dissector != -1 && next_level_dissector)
+	    call_dissector(next_level_dissector, token_tvb, pinfo, tree);
 
-	hnd->offset += 4;
+	  hnd->offset += len1; /* Update this ... */
+	  offset += len1;
 
+	}
+	else {
+
+	  proto_tree_add_text(subtree, tvb, offset, 0,
+			      "Unknown header (cls=%d, con=%d, tag=%d)",
+			      cls, con, tag);
+	  goto done;
+	}
 
  done:
 
-	return offset + len1 - 4;
+	return offset;
 
 }
 
@@ -559,7 +578,7 @@ dissect_spnego_responseToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	 */
 
 	token_tvb = tvb_new_subset(tvb, offset, nbytes, -1);
-	if (next_level_dissector != -1)
+	if (next_level_dissector != -1 && next_level_dissector)
 	  call_dissector(next_level_dissector, token_tvb, pinfo, tree);
 
 	hnd->offset += nbytes; /* Update this ... */
@@ -617,8 +636,6 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	offset = hnd->offset;
 
-	len1 -= 2; /* Account for the Header above ... */
-
 	while (len1) {
 
 	  ret = asn1_header_decode(hnd, &cls, &con, &tag, &def, &len);
@@ -673,6 +690,7 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	  len1 -= (len + 2); /* FIXME: The +2 may be wrong */
 
+	  printf("len1 = %d\n", len1);
 	}
 
  done:
