@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.25 2003/08/18 21:27:09 sahlberg Exp $
+ * $Id: color_dlg.c,v 1.26 2003/08/27 22:55:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -128,11 +128,11 @@ color_display_cb(GtkWidget *w _U_, gpointer d _U_)
 static void
 count_this_mark(gpointer filter_arg, gpointer counter_arg)
 {
-  	color_filter_t *colorf = filter_arg;
-    int * cnt = counter_arg;
+  color_filter_t *colorf = filter_arg;
+  int * cnt = counter_arg;
 
-    if (colorf->marked)
-      (*cnt)++;
+  if (colorf->marked)
+    (*cnt)++;
 }
 
 /* TODO: implement count of selected filters. Plug in to file_dlg update of "export selected" checkbox. */
@@ -446,25 +446,17 @@ colorize_dialog_new (void)
   gtk_widget_show (importexport_vbox);
   gtk_box_pack_start (GTK_BOX (button_ok_hbox), importexport_vbox, TRUE, TRUE, 0);
 
-#if GTK_MAJOR_VERSION < 2
-  color_export = gtk_button_new_with_label (("Export"));
-#else
-  color_export = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
-#endif
+  color_export = gtk_button_new_with_label (("Export..."));
   gtk_widget_ref(color_export);
   gtk_widget_show(color_export);
   gtk_box_pack_start(GTK_BOX (importexport_vbox), color_export, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip(tooltips, color_export, ("Save filters to specified file"), NULL);
+  gtk_tooltips_set_tip(tooltips, color_export, ("Save all/marked filters to specified file"), NULL);
 
-#if GTK_MAJOR_VERSION < 2
-  color_import = gtk_button_new_with_label (("Import"));
-#else
-  color_import = gtk_button_new_from_stock(GTK_STOCK_OPEN);
-#endif
+  color_import = gtk_button_new_with_label (("Import..."));
   gtk_widget_ref(color_import);
   gtk_widget_show(color_import);
   gtk_box_pack_start(GTK_BOX (importexport_vbox), color_import, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip(tooltips, color_import, ("Load filters from specified file"), NULL);
+  gtk_tooltips_set_tip(tooltips, color_import, ("Include filters from specified file"), NULL);
 
 #if GTK_MAJOR_VERSION < 2
   color_cancel = gtk_button_new_with_label (("Cancel"));
@@ -642,9 +634,9 @@ color_filter_up_cb(GtkButton *button, gpointer user_data _U_)
   color_filters = (GtkWidget *)OBJECT_GET_DATA(button, COLOR_FILTERS_CL);
 
 #if GTK_MAJOR_VERSION < 2
-    colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters), 0);
-    if (colorf->marked)
-      return;
+  colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters), 0);
+  if (colorf->marked)
+    return;
 #endif
 
   for (filter_number = 0; filter_number < num_of_filters; filter_number++)
@@ -742,30 +734,24 @@ struct remember_data
     gboolean last_marked;     /* true if the last filter in the list is marked */
     gpointer color_filters;
 };
-/* called for each selected row in the tree. The first call is detected and does
-the stuff that only needs to be done once. If we are never called the visited
-variable stays false and means that no rows are selected.
+/* called for each selected row in the tree.
 */
 void remember_this_row (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer arg)
 {
-    GtkWidget    *button;
-    gchar        *path_str;
+    gint         *path_index;
     color_filter_t *colorf;
     struct remember_data *data = arg;
     
     gtk_tree_model_get(model, iter, 4, &colorf, -1);
     colorf->marked = TRUE;
         
-    path_str = gtk_tree_path_to_string(path);
-    row_selected = atoi(path_str);
-    g_free(path_str);
+    path_index = gtk_tree_path_get_indices(path);   /* not to be freed */
+    if (path_index == NULL)       /* can return NULL according to API doc.*/
+    {
+      return;
+    }
+    row_selected = path_index[0];
 
-    /*
-     * A row is selected, so we can move it up *if* it's not at the top
-     * and move it down *if* it's not at the bottom.
-     */
-    button = (GtkWidget *)OBJECT_GET_DATA(data->color_filters, COLOR_UP_LB);
-    gtk_widget_set_sensitive(button, row_selected > 0);
     if (row_selected == 0)
       data->first_marked = TRUE;
     if (row_selected == num_of_filters - 1)
@@ -778,9 +764,9 @@ void remember_this_row (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *ite
 static void
 clear_mark(gpointer filter_arg, gpointer arg _U_)
 {
-  	color_filter_t *colorf = filter_arg;
+  color_filter_t *colorf = filter_arg;
 
-    colorf->marked = FALSE;
+  colorf->marked = FALSE;
 }
 
 /* The gtk+2.0 version gets called for, (maybe multiple,) changes in the selection. */
@@ -789,11 +775,10 @@ remember_selected_row(GtkTreeSelection *sel, gpointer color_filters)
 {
     GtkWidget    *button;
     struct remember_data data;
-    
+
     data.first_marked = data.last_marked = FALSE;
     data.count = 0; 
     data.color_filters = color_filters;
-    
 
     g_slist_foreach(filter_list, clear_mark, NULL);
     gtk_tree_selection_selected_foreach(sel,remember_this_row, &data);
@@ -1017,9 +1002,7 @@ color_delete(gint row, GtkWidget  *color_filters)
     GtkTreeIter       iter;
 
     
-    /* The "selection changed" callback is called when the row is
-    * removed, so we must remember the selected row. */
-   model = gtk_tree_view_get_model(GTK_TREE_VIEW(color_filters));
+    model = gtk_tree_view_get_model(GTK_TREE_VIEW(color_filters));
     gtk_tree_model_iter_nth_child(model, &iter, NULL, row);
     gtk_tree_model_get(model, &iter, 4, &colorf, -1);
     
@@ -1038,9 +1021,8 @@ color_delete(gint row, GtkWidget  *color_filters)
     /* If we grab the focus after updating the selection, the first
     * row is always selected, so we do it before */
     gtk_widget_grab_focus(color_filters);
-    /* Update the selection */
 #else
-   colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters), row);
+    colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters), row);
 
     /* Remove this color filter from the CList displaying the
        color filters. */
@@ -1126,7 +1108,6 @@ color_revert_cb(GtkWidget *widget, gpointer user_data _U_)
 
     /* Destroy the dialog box. */
     gtk_widget_destroy(colorize_win);
-
 }
 
 /* Exit dialog and apply new list of color filters to the capture. */

@@ -576,36 +576,44 @@ ignored.  Therefore, if you are filtering on the existence of protocols,
 you should list the higher-level protocols first, and the lower-level
 protocols last.
 
-How Colorization Works
-----------------------
+=over
+
+=item How Colorization Works
+
 Packets are colored according to a list of color filters. Each filter
 consists of a name, a filter expression and a coloration. A packet is
 colored according to the first filter that it matches, Color filter
 expressions use exactly the same syntax as display filter expressions.
  
 When Ethereal starts the color filters are loaded from:
-1. The user's personal colorfilters file or, if that does not exist,
-2. The global colorfilters file.
+1. The user's personal color filters file or, if that does not exist,
+2. The global color filters file.
 If neither of these exist then the packets will not be colored.
 
-The Color Filters Dialog
-------------------------
+=item The Color Filters Dialog
+
 This dialog displays a list of color filters and allows it to be
 modified.
 
-THE FILTER LIST
+=over
+
+=item THE FILTER LIST
+
 Single rows may be selected by clicking. Multiple rows may be selected
 by using the ctrl and shift keys in combination with the mouse button.
 
-UP
+=item UP
+
 Moves the selected filter(s) up the list, making it more likely that
 they will be used to color packets.
 
-DOWN
+=item DOWN
+
 Moves the selected filter(s) down the list, making it less likely that
 they will be used to color packets.
 
-NEW
+=item NEW
+
 Adds a new filter at the bottom of the list and opens the Edit Color
 Filter dialog box. You will have to alter the filter expression at
 least before the filter will be accepted. The format of color filter
@@ -614,50 +622,61 @@ selected, so it may immediately be moved up and down, deleted or edited.
 To avoid confusion all filters are unselected before the new filter is
 created.
 
-EDIT
+=item EDIT
+
 Opens the Edit Color Filter dialog box for the selected filter. (If this
 button is disabled you may have more than one filter selected, making it
 ambiguous which is to be edited.)
 
-DELETE
+=item DELETE
+
 Deletes the selected color filter(s).
 
-OK
+=item OK
+
 Closes the dialog and uses the color filters as they stand.
 
-APPLY
+=item APPLY
+
 Colors the packets according to the current list of color filters, but
 does not close the dialog.
 
-SAVE
-Saves the current list of color filters in your personal colorfilters
+=item SAVE
+
+Saves the current list of color filters in your personal color filters
 file. Unless you do this they will not be used the next time you start
 Ethereal.
 
-REVERT
-Deletes your personal colorfilters file, reloads the global
-colorfilters file, if any, and closes the dialog.
+=item REVERT
 
-EXPORT (Save As if using GTK2+)
+Deletes your personal color filters file, reloads the global
+color filters file, if any, and closes the dialog.
+
+=item EXPORT
+
 Allows you to choose a file in which to save the current list of color
 filters. You may also choose to save only the selected filters. A
-button is provided to save the filters in the global colorfilter file,
-(you must have sufficient permissions to write this file, of course.)
+button is provided to save the filters in the global color filters file
+(you must have sufficient permissions to write this file, of course).
 
-IMPORT (Open if using GTK2+)
+=item IMPORT
+
 Allows you to choose a file containing color filters which are then
 added to the bottom of the current list. All the added filters are
 selected, so they may be moved to the correct position in the list as a
-group. To avoid confusion all filters are unselected before the new
+group. To avoid confusion, all filters are unselected before the new
 filters are imported. A button is provided to load the filters from the
-global colorfilter file.
+global color filters file.
 
-CANCEL
+=item CANCEL
+
 Closes the dialog without changing the coloration of the packets. Note
-that changes you have made to the current list of color filters is not
+that changes you have made to the current list of color filters are not
 undone.
-  
 
+=back
+
+=back
 
 =item Display:Collapse All
 
@@ -1700,6 +1719,17 @@ For example, these four lines are valid lines of an ipxnets file.
   c0-a8-1c-00              CEO
   00:00:BE:EF              IT_Server1
   110f                     FileServer3
+
+The global color filters file, F<colorfilters>, which is installed in
+the F<etc> directory under the main installation directory (for example,
+F</usr/local/etc>) on UNIX-compatible systems, and in the main
+installation directory (for example, F<C:\Program Files\Ethereal>) on
+Windows systems, and the personal color filters file, which is
+F<$HOME/.ethereal/colorfilters> on UNIX-compatible systems and
+F<%APPDATA%\Ethereal\colorfilters> (or, if %APPDATA% isn't defined,
+F<%USERPROFILE%\Application Data\Ethereal\color filters>) on Windows
+systems, contain system-wide and personal color filters,
+respectively.
 
 =head1 SEE ALSO
 
