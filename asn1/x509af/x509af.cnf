@@ -8,7 +8,7 @@ InformationFramework x509if
 CertificateExtensions x509ce
 SelectedAttributeTypes x509sat
 
-#.INCLUDE ../x509ce/x509ce_exp.cnf
+#.INCLUDE ../x509ce/x509ce-exp.cnf
 #.INCLUDE ../x509if/x509if-exp.cnf
 #.INCLUDE ../x509sat/x509sat-exp.cnf
 

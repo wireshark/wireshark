@@ -8,9 +8,9 @@ CertificateExtensions x509ce
 AuthenticationFramework x509af
 SelectedAttributeTypes x509sat
 
-#.INCLUDE ../x509ce/x509ce_exp.cnf
+#.INCLUDE ../x509ce/x509ce-exp.cnf
 #.INCLUDE ../x509af/x509af_exp.cnf
-#.INCLUDE ../x509sat/x509sat_exp.cnf
+#.INCLUDE ../x509sat/x509sat-exp.cnf
 
 #.EXPORTS
 

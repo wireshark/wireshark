@@ -72,7 +72,7 @@ KeyUsage ::= BIT STRING {
 --   IDENTIFIED BY  id-ce-extKeyUsage
 -- }
  
-KeyPurposeIDs ::= SEQUENCE SIZE (1..MAX) OF KeyPurposeId
+KeyPurposeIDs ::= SEQUENCE OF KeyPurposeId
 
 KeyPurposeId ::= OBJECT IDENTIFIER
 
@@ -107,14 +107,15 @@ PolicyInformation ::= SEQUENCE {
 
 CertPolicyId ::= OBJECT IDENTIFIER
 
--- XXX this one needs to be handimplemented in the template
+PolicyQualifierId ::= OBJECT IDENTIFIER
+
+PolicyQualifierValue ::= ANY
+
 PolicyQualifierInfo ::= SEQUENCE {
---  policyQualifierId  CERT-POLICY-QUALIFIER.&id({SupportedPolicyQualifiers}),
---   qualifier
---     CERT-POLICY-QUALIFIER.&Qualifier
---       ({SupportedPolicyQualifiers}{@policyQualifierId}) OPTIONAL
+  policyQualifierId  PolicyQualifierId,
+  qualifier          PolicyQualifierValue OPTIONAL
 }
--- 
+
 -- SupportedPolicyQualifiers CERT-POLICY-QUALIFIER ::=
 --   {...}
 -- 
@@ -195,7 +196,7 @@ NameConstraintsSyntax ::= SEQUENCE {
   excludedSubtrees   [1]  IMPLICIT GeneralSubtrees OPTIONAL
 }
 
-GeneralSubtrees ::= SEQUENCE SIZE (1..MAX) OF GeneralSubtree
+GeneralSubtrees ::= SEQUENCE OF GeneralSubtree
 
 GeneralSubtree ::= SEQUENCE {
   base     GeneralName,
@@ -288,7 +289,6 @@ StatusReferrals ::= SEQUENCE SIZE (1..MAX) OF StatusReferral
 
 StatusReferral ::= CHOICE {
   cRLReferral    [0]  IMPLICIT CRLReferral
---  cRLReferral    [0]  IMPLICIT CRLReferral,
 --  otherReferral  [1]  IMPLICIT INSTANCE OF OTHER-REFERRAL
 }
 
@@ -406,52 +406,52 @@ BaseCRLNumber ::= CRLNumber
 --   SYNTAX  CertificateExactAssertion
 --   ID      id-mr-certificateExactMatch
 -- }
--- 
--- CertificateExactAssertion ::= SEQUENCE {
---   serialNumber  CertificateSerialNumber,
---   issuer        Name
--- }
--- 
+
+CertificateExactAssertion ::= SEQUENCE {
+  serialNumber  CertificateSerialNumber,
+  issuer        Name
+}
+
 -- certificateMatch MATCHING-RULE ::= {
 --   SYNTAX  CertificateAssertion
 --   ID      id-mr-certificateMatch
 -- }
--- 
--- CertificateAssertion ::= SEQUENCE {
---   serialNumber            [0]  IMPLICIT CertificateSerialNumber OPTIONAL,
---   issuer                  [1]  IMPLICIT Name OPTIONAL,
---   subjectKeyIdentifier    [2]  IMPLICIT SubjectKeyIdentifier OPTIONAL,
---   authorityKeyIdentifier  [3]  IMPLICIT AuthorityKeyIdentifier OPTIONAL,
---   certificateValid        [4]  IMPLICIT Time OPTIONAL,
---   privateKeyValid         [5]  IMPLICIT GeneralizedTime OPTIONAL,
---   subjectPublicKeyAlgID   [6]  IMPLICIT OBJECT IDENTIFIER OPTIONAL,
---   keyUsage                [7]  IMPLICIT KeyUsage OPTIONAL,
---   subjectAltName          [8]  IMPLICIT AltNameType OPTIONAL,
---   policy                  [9]  IMPLICIT CertPolicySet OPTIONAL,
---   pathToName              [10]  IMPLICIT Name OPTIONAL,
---   subject                 [11]  IMPLICIT Name OPTIONAL,
---   nameConstraints         [12]  IMPLICIT NameConstraintsSyntax OPTIONAL
--- }
--- 
--- AltNameType ::= CHOICE {
---   builtinNameForm
---     ENUMERATED {rfc822Name(1), dNSName(2), x400Address(3), directoryName(4),
---                 ediPartyName(5), uniformResourceIdentifier(6), iPAddress(7),
---                 registeredId(8)},
---   otherNameForm    OBJECT IDENTIFIER
--- }
--- 
--- CertPolicySet ::= SEQUENCE SIZE (1..MAX) OF CertPolicyId
--- 
+
+CertificateAssertion ::= SEQUENCE {
+  serialNumber            [0]  IMPLICIT CertificateSerialNumber OPTIONAL,
+  issuer                  [1]  IMPLICIT Name OPTIONAL,
+  subjectKeyIdentifier    [2]  IMPLICIT SubjectKeyIdentifier OPTIONAL,
+  authorityKeyIdentifier  [3]  IMPLICIT AuthorityKeyIdentifier OPTIONAL,
+--  certificateValid        [4]  IMPLICIT Time OPTIONAL,
+  privateKeyValid         [5]  IMPLICIT GeneralizedTime OPTIONAL,
+  subjectPublicKeyAlgID   [6]  IMPLICIT OBJECT IDENTIFIER OPTIONAL,
+  keyUsage                [7]  IMPLICIT KeyUsage OPTIONAL,
+  subjectAltName          [8]  IMPLICIT AltNameType OPTIONAL,
+  policy                  [9]  IMPLICIT CertPolicySet OPTIONAL,
+  pathToName              [10]  IMPLICIT Name OPTIONAL,
+  subject                 [11]  IMPLICIT Name OPTIONAL,
+  nameConstraints         [12]  IMPLICIT NameConstraintsSyntax OPTIONAL
+}
+
+AltNameType ::= CHOICE {
+  builtinNameForm
+    ENUMERATED {rfc822Name(1), dNSName(2), x400Address(3), directoryName(4),
+                ediPartyName(5), uniformResourceIdentifier(6), iPAddress(7),
+                registeredId(8)},
+  otherNameForm    OBJECT IDENTIFIER
+}
+
+CertPolicySet ::= SEQUENCE SIZE (1..MAX) OF CertPolicyId
+
 -- certificatePairExactMatch MATCHING-RULE ::= {
 --   SYNTAX  CertificatePairExactAssertion
 --   ID      id-mr-certificatePairExactMatch
 -- }
--- 
--- CertificatePairExactAssertion ::= SEQUENCE {
---   issuedToThisCAAssertion  [0]  IMPLICIT CertificateExactAssertion OPTIONAL,
---   issuedByThisCAAssertion  [1]  IMPLICIT CertificateExactAssertion OPTIONAL
--- }
+
+CertificatePairExactAssertion ::= SEQUENCE {
+  issuedToThisCAAssertion  [0]  IMPLICIT CertificateExactAssertion OPTIONAL,
+  issuedByThisCAAssertion  [1]  IMPLICIT CertificateExactAssertion OPTIONAL
+}
 -- (WITH COMPONENTS {
 --    ...,
 --    issuedToThisCAAssertion  PRESENT
@@ -464,11 +464,11 @@ BaseCRLNumber ::= CRLNumber
 --   SYNTAX  CertificatePairAssertion
 --   ID      id-mr-certificatePairMatch
 -- }
--- 
--- CertificatePairAssertion ::= SEQUENCE {
---   issuedToThisCAAssertion  [0]  IMPLICIT CertificateAssertion OPTIONAL,
---   issuedByThisCAAssertion  [1]  IMPLICIT CertificateAssertion OPTIONAL
--- }
+
+CertificatePairAssertion ::= SEQUENCE {
+  issuedToThisCAAssertion  [0]  IMPLICIT CertificateAssertion OPTIONAL,
+  issuedByThisCAAssertion  [1]  IMPLICIT CertificateAssertion OPTIONAL
+}
 -- (WITH COMPONENTS {
 --    ...,
 --    issuedToThisCAAssertion  PRESENT
@@ -481,28 +481,28 @@ BaseCRLNumber ::= CRLNumber
 --   SYNTAX  CertificateListExactAssertion
 --   ID      id-mr-certificateListExactMatch
 -- }
--- 
--- CertificateListExactAssertion ::= SEQUENCE {
---   issuer             Name,
---   thisUpdate         Time,
---   distributionPoint  DistributionPointName OPTIONAL
--- }
--- 
+
+CertificateListExactAssertion ::= SEQUENCE {
+  issuer             Name,
+--  thisUpdate         Time,
+  distributionPoint  DistributionPointName OPTIONAL
+}
+
 -- certificateListMatch MATCHING-RULE ::= {
 --   SYNTAX  CertificateListAssertion
 --   ID      id-mr-certificateListMatch
 -- }
--- 
--- CertificateListAssertion ::= SEQUENCE {
---   issuer                  Name OPTIONAL,
---   minCRLNumber            [0]  IMPLICIT CRLNumber OPTIONAL,
---   maxCRLNumber            [1]  IMPLICIT CRLNumber OPTIONAL,
---   reasonFlags             ReasonFlags OPTIONAL,
---   dateAndTime             Time OPTIONAL,
---   distributionPoint       [2]  IMPLICIT DistributionPointName OPTIONAL,
---   authorityKeyIdentifier  [3]  IMPLICIT AuthorityKeyIdentifier OPTIONAL
--- }
--- 
+
+CertificateListAssertion ::= SEQUENCE {
+  issuer                  Name OPTIONAL,
+  minCRLNumber            [0]  IMPLICIT CRLNumber OPTIONAL,
+  maxCRLNumber            [1]  IMPLICIT CRLNumber OPTIONAL,
+  reasonFlags             ReasonFlags OPTIONAL,
+--  dateAndTime             Time OPTIONAL,
+  distributionPoint       [2]  IMPLICIT DistributionPointName OPTIONAL,
+  authorityKeyIdentifier  [3]  IMPLICIT AuthorityKeyIdentifier OPTIONAL
+}
+
 -- algorithmIdentifierMatch MATCHING-RULE ::= {
 --   SYNTAX  AlgorithmIdentifier
 --   ID      id-mr-algorithmIdentifierMatch
@@ -516,11 +516,11 @@ BaseCRLNumber ::= CRLNumber
 --   SYNTAX  PkiPathMatchSyntax
 --   ID      id-mr-pkiPathMatch
 -- }
--- 
--- PkiPathMatchSyntax ::= SEQUENCE {firstIssuer  Name,
---                                  lastSubject  Name
--- }
--- 
+
+PkiPathMatchSyntax ::= SEQUENCE {firstIssuer  Name,
+                                 lastSubject  Name
+}
+
 -- Object identifier assignments 
 id-ce-subjectDirectoryAttributes OBJECT IDENTIFIER ::=  {id-ce 9}
  

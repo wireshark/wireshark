@@ -110,7 +110,7 @@ static int dissect_NameRegistrationAuthorities_item(packet_info *pinfo, proto_tr
 
 
 static int
-dissect_pkixqualified_Generalizedtime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkixqualified_Generalizedtime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_index);
 
   return offset;
@@ -118,7 +118,7 @@ dissect_pkixqualified_Generalizedtime(gboolean implicit_tag _U_, tvbuff_t *tvb, 
 
 
 static int
-dissect_pkixqualified_Directorystring(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkixqualified_Directorystring(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_x509sat_DirectoryString(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -126,7 +126,7 @@ dissect_pkixqualified_Directorystring(gboolean implicit_tag _U_, tvbuff_t *tvb, 
 
 
 static int
-dissect_pkixqualified_Printablestring(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkixqualified_Printablestring(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
                                          pinfo, tree, tvb, offset, hf_index,
                                          NULL);
@@ -143,7 +143,7 @@ static const value_string PredefinedBiometricType_vals[] = {
 
 
 static int
-dissect_pkixqualified_PredefinedBiometricType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkixqualified_PredefinedBiometricType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -154,7 +154,7 @@ static int dissect_predefinedBiometricType(packet_info *pinfo, proto_tree *tree,
 
 
 static int
-dissect_pkixqualified_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkixqualified_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
                                          hf_index, NULL);
 
@@ -181,7 +181,7 @@ static const ber_choice TypeOfBiometricData_choice[] = {
 };
 
 static int
-dissect_pkixqualified_TypeOfBiometricData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkixqualified_TypeOfBiometricData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               TypeOfBiometricData_choice, hf_index, ett_pkixqualified_TypeOfBiometricData);
 
@@ -193,7 +193,7 @@ static int dissect_typeOfBiometricData(packet_info *pinfo, proto_tree *tree, tvb
 
 
 static int
-dissect_pkixqualified_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkixqualified_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     NULL);
 
@@ -205,7 +205,7 @@ static int dissect_biometricDataHash(packet_info *pinfo, proto_tree *tree, tvbuf
 
 
 static int
-dissect_pkixqualified_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkixqualified_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
                                          pinfo, tree, tvb, offset, hf_index,
                                          NULL);
@@ -225,7 +225,7 @@ static const ber_sequence BiometricData_sequence[] = {
 };
 
 static int
-dissect_pkixqualified_BiometricData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkixqualified_BiometricData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 BiometricData_sequence, hf_index, ett_pkixqualified_BiometricData);
 
@@ -240,7 +240,7 @@ static const ber_sequence BiometricSyntax_sequence_of[1] = {
 };
 
 static int
-dissect_pkixqualified_BiometricSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkixqualified_BiometricSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                    BiometricSyntax_sequence_of, hf_index, ett_pkixqualified_BiometricSyntax);
 
@@ -249,7 +249,7 @@ dissect_pkixqualified_BiometricSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, 
 
 
 static int
-dissect_pkixqualified_T_statementId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkixqualified_T_statementId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
                                          hf_pkixqualified_statementId, object_identifier_id);
 
@@ -263,7 +263,7 @@ static int dissect_statementId(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 
 static int
-dissect_pkixqualified_T_statementInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkixqualified_T_statementInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -280,7 +280,7 @@ static const ber_sequence QCStatement_sequence[] = {
 };
 
 static int
-dissect_pkixqualified_QCStatement(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkixqualified_QCStatement(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 QCStatement_sequence, hf_index, ett_pkixqualified_QCStatement);
 
@@ -295,7 +295,7 @@ static const ber_sequence QCStatements_sequence_of[1] = {
 };
 
 static int
-dissect_pkixqualified_QCStatements(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkixqualified_QCStatements(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                    QCStatements_sequence_of, hf_index, ett_pkixqualified_QCStatements);
 
@@ -303,11 +303,11 @@ dissect_pkixqualified_QCStatements(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 }
 
 static const ber_sequence NameRegistrationAuthorities_sequence_of[1] = {
-  { BER_CLASS_ANY, -1, BER_FLAGS_NOOWNTAG, dissect_NameRegistrationAuthorities_item },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_NameRegistrationAuthorities_item },
 };
 
 static int
-dissect_pkixqualified_NameRegistrationAuthorities(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkixqualified_NameRegistrationAuthorities(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                    NameRegistrationAuthorities_sequence_of, hf_index, ett_pkixqualified_NameRegistrationAuthorities);
 
@@ -324,7 +324,7 @@ static const ber_sequence SemanticsInformation_sequence[] = {
 };
 
 static int
-dissect_pkixqualified_SemanticsInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkixqualified_SemanticsInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 SemanticsInformation_sequence, hf_index, ett_pkixqualified_SemanticsInformation);
 
@@ -371,7 +371,7 @@ void proto_register_pkixqualified(void) {
         "Generalizedtime", HFILL }},
     { &hf_pkixqualified_Directorystring_PDU,
       { "Directorystring", "pkixqualified.Directorystring",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "Directorystring", HFILL }},
     { &hf_pkixqualified_Printablestring_PDU,
       { "Printablestring", "pkixqualified.Printablestring",
@@ -439,7 +439,7 @@ void proto_register_pkixqualified(void) {
         "SemanticsInformation/nameRegistrationAuthorities", HFILL }},
     { &hf_pkixqualified_NameRegistrationAuthorities_item,
       { "Item", "pkixqualified.NameRegistrationAuthorities_item",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(GeneralName_vals), 0,
         "NameRegistrationAuthorities/_item", HFILL }},
 
 /*--- End of included file: packet-pkixqualified-hfarr.c ---*/

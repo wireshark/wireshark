@@ -13,41 +13,101 @@ SelectedAttributeTypes x509sat
 #.INCLUDE ../x509sat/x509sat-exp.cnf
 
 #.EXPORTS
-
-GeneralNames
-GeneralName
-
-#.PDU
+AltNameType
 AttributesSyntax
 AuthorityKeyIdentifier
 BaseCRLNumber
+BaseDistance
+BaseRevocationInfo
 BasicConstraintsSyntax
+CertificateAssertion
+CertificateExactAssertion
+CertificateListAssertion
+CertificateListExactAssertion
+CertificatePairAssertion
+CertificatePairExactAssertion
 CertificatePoliciesSyntax
+CertPolicySet
 CRLDistPointsSyntax
 CRLNumber
 CRLReason
+CRLReferral
 CRLScopeSyntax
 CRLStreamIdentifier
 DeltaInformation
+DeltaRefInfo
+DistributionPoint
+DistributionPointName
+EDIPartyName
+GeneralName
 GeneralNames
+GeneralSubtree
+GeneralSubtrees
 HoldInstruction
 IssuingDistPointSyntax
+KeyIdentifier
+KeyPurposeId
 KeyPurposeIDs
 KeyUsage
 NameConstraintsSyntax
+NumberRange
+OnlyCertificateTypes
 OrderedListSyntax
+PerAuthorityScope
+PkiPathMatchSyntax
 PolicyConstraintsSyntax
+PolicyInformation
 PolicyMappingsSyntax
+PolicyQualifierInfo
 PrivateKeyUsagePeriod
+ReasonFlags
 SkipCerts
+StatusReferral
 StatusReferrals
 SubjectKeyIdentifier
+
+#.REGISTER
+AttributesSyntax          B "2.5.29.9"  "id-ce-subjectDirectoryAttributes"
+SubjectKeyIdentifier      B "2.5.29.14" "id-ce-subjectKeyIdentifier"
+KeyUsage                  B "2.5.29.15" "id-ce-keyUsage"
+PrivateKeyUsagePeriod     B "2.5.29.16" "id-ce-privateKeyUsagePeriod"
+GeneralNames              B "2.5.29.17" "id-ce-subjectAltName"
+GeneralNames              B "2.5.29.18" "id-ce-issuerAltName"
+BasicConstraintsSyntax    B "2.5.29.19" "id-ce-basicConstraints"
+CRLNumber                 B "2.5.29.20" "id-ce-cRLNumber"
+CRLReason                 B "2.5.29.21" "id-ce-reasonCode"
+HoldInstruction           B "2.5.29.23" "id-ce-instructionCode"
+BaseCRLNumber             B "2.5.29.27" "id-ce-deltaCRLIndicator"
+IssuingDistPointSyntax    B "2.5.29.28" "id-ce-issuingDistributionPoint"
+GeneralNames              B "2.5.29.29" "id-ce-certificateIssuer"
+NameConstraintsSyntax     B "2.5.29.30" "id-ce-nameConstraints"
+CRLDistPointsSyntax       B "2.5.29.31" "id-ce-cRLDistributionPoints"
+CertificatePoliciesSyntax B "2.5.29.32" "id-ce-certificatePolicies"
+PolicyMappingsSyntax      B "2.5.29.33" "id-ce-policyMappings"
+AuthorityKeyIdentifier    B "2.5.29.35" "id-ce-authorityKeyIdentifier"
+PolicyConstraintsSyntax   B "2.5.29.36" "id-ce-policyConstraints"
+KeyPurposeIDs             B "2.5.29.37" "id-ce-extKeyUsage"
+CRLStreamIdentifier       B "2.5.29.40" "id-ce-cRLStreamIdentifier"
+CRLScopeSyntax            B "2.5.29.44" "id-ce-cRLScope"
+StatusReferrals           B "2.5.29.45" "id-ce-statusReferrals"
+CRLDistPointsSyntax       B "2.5.29.46" "id-ce-freshestCRL"
+OrderedListSyntax         B "2.5.29.47" "id-ce-orderedList"
+DeltaInformation          B "2.5.29.53" "id-ce-deltaInfo"
+SkipCerts                 B "2.5.29.54" "id-ce-inhibitAnyPolicy"
 
 #.NO_EMIT
 
 #.TYPE_RENAME
 
 #.FIELD_RENAME
+
+#.FN_BODY PolicyQualifierId
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_x509ce_object_identifier_id, object_identifier_id);
+
+#.FN_BODY PolicyQualifierValue
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
 
 #.END
 

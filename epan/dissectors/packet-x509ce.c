@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* ./packet-x509ce.c                                                          */
-/* ../../tools/asn2eth.py -X -b -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
+/* ../../tools/asn2eth.py -X -b -k -e -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
 
 /* Input file: packet-x509ce-template.c */
 
@@ -54,6 +54,7 @@
 int proto_x509ce = -1;
 static int hf_x509ce_id_ce_invalidityDate = -1;
 static int hf_x509ce_id_ce_baseUpdateTime = -1;
+static int hf_x509ce_object_identifier_id = -1;
 
 /*--- Included file: packet-x509ce-hf.c ---*/
 
@@ -91,6 +92,8 @@ static int hf_x509ce_CertificatePoliciesSyntax_item = -1;  /* PolicyInformation 
 static int hf_x509ce_policyIdentifier = -1;       /* CertPolicyId */
 static int hf_x509ce_policyQualifiers = -1;       /* SEQUNCE_OF_PolicyQualifierInfo */
 static int hf_x509ce_policyQualifiers_item = -1;  /* PolicyQualifierInfo */
+static int hf_x509ce_policyQualifierId = -1;      /* PolicyQualifierId */
+static int hf_x509ce_qualifier = -1;              /* PolicyQualifierValue */
 static int hf_x509ce_PolicyMappingsSyntax_item = -1;  /* PolicyMappingsSyntax_item */
 static int hf_x509ce_issuerDomainPolicy = -1;     /* CertPolicyId */
 static int hf_x509ce_subjectDomainPolicy = -1;    /* CertPolicyId */
@@ -152,6 +155,30 @@ static int hf_x509ce_indirectCRL = -1;            /* BOOLEAN */
 static int hf_x509ce_containsUserAttributeCerts = -1;  /* BOOLEAN */
 static int hf_x509ce_containsAACerts = -1;        /* BOOLEAN */
 static int hf_x509ce_containsSOAPublicKeyCerts = -1;  /* BOOLEAN */
+static int hf_x509ce_serialNumber = -1;           /* CertificateSerialNumber */
+static int hf_x509ce_issuer1 = -1;                /* Name */
+static int hf_x509ce_subjectKeyIdentifier = -1;   /* SubjectKeyIdentifier */
+static int hf_x509ce_authorityKeyIdentifier = -1;  /* AuthorityKeyIdentifier */
+static int hf_x509ce_privateKeyValid = -1;        /* GeneralizedTime */
+static int hf_x509ce_subjectPublicKeyAlgID = -1;  /* OBJECT_IDENTIFIER */
+static int hf_x509ce_keyUsage = -1;               /* KeyUsage */
+static int hf_x509ce_subjectAltName = -1;         /* AltNameType */
+static int hf_x509ce_policy = -1;                 /* CertPolicySet */
+static int hf_x509ce_pathToName = -1;             /* Name */
+static int hf_x509ce_subject = -1;                /* Name */
+static int hf_x509ce_nameConstraints = -1;        /* NameConstraintsSyntax */
+static int hf_x509ce_builtinNameForm = -1;        /* T_builtinNameForm */
+static int hf_x509ce_otherNameForm = -1;          /* OBJECT_IDENTIFIER */
+static int hf_x509ce_CertPolicySet_item = -1;     /* CertPolicyId */
+static int hf_x509ce_issuedToThisCAAssertion = -1;  /* CertificateExactAssertion */
+static int hf_x509ce_issuedByThisCAAssertion = -1;  /* CertificateExactAssertion */
+static int hf_x509ce_issuedToThisCAAssertion1 = -1;  /* CertificateAssertion */
+static int hf_x509ce_issuedByThisCAAssertion1 = -1;  /* CertificateAssertion */
+static int hf_x509ce_minCRLNumber = -1;           /* CRLNumber */
+static int hf_x509ce_maxCRLNumber = -1;           /* CRLNumber */
+static int hf_x509ce_reasonFlags = -1;            /* ReasonFlags */
+static int hf_x509ce_firstIssuer = -1;            /* Name */
+static int hf_x509ce_lastSubject = -1;            /* Name */
 /* named bits */
 static int hf_x509ce_KeyUsage_digitalSignature = -1;
 static int hf_x509ce_KeyUsage_nonRepudiation = -1;
@@ -218,9 +245,20 @@ static gint ett_x509ce_DistributionPoint = -1;
 static gint ett_x509ce_DistributionPointName = -1;
 static gint ett_x509ce_ReasonFlags = -1;
 static gint ett_x509ce_IssuingDistPointSyntax = -1;
+static gint ett_x509ce_CertificateExactAssertion = -1;
+static gint ett_x509ce_CertificateAssertion = -1;
+static gint ett_x509ce_AltNameType = -1;
+static gint ett_x509ce_CertPolicySet = -1;
+static gint ett_x509ce_CertificatePairExactAssertion = -1;
+static gint ett_x509ce_CertificatePairAssertion = -1;
+static gint ett_x509ce_CertificateListExactAssertion = -1;
+static gint ett_x509ce_CertificateListAssertion = -1;
+static gint ett_x509ce_PkiPathMatchSyntax = -1;
 
 /*--- End of included file: packet-x509ce-ett.c ---*/
 
+
+static char object_identifier_id[64]; /*64 chars should be long enough? */
 
 
 /*--- Included file: packet-x509ce-fn.c ---*/
@@ -245,10 +283,34 @@ static int dissect_AttributesSyntax_item(packet_info *pinfo, proto_tree *tree, t
 static int dissect_nameRelativeToCRLIssuer_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_RelativeDistinguishedName(TRUE, tvb, offset, pinfo, tree, hf_x509ce_nameRelativeToCRLIssuer);
 }
+static int dissect_serialNumber(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509af_CertificateSerialNumber(FALSE, tvb, offset, pinfo, tree, hf_x509ce_serialNumber);
+}
+static int dissect_serialNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509af_CertificateSerialNumber(TRUE, tvb, offset, pinfo, tree, hf_x509ce_serialNumber);
+}
+static int dissect_issuer1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_Name(FALSE, tvb, offset, pinfo, tree, hf_x509ce_issuer1);
+}
+static int dissect_issuer1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_Name(TRUE, tvb, offset, pinfo, tree, hf_x509ce_issuer1);
+}
+static int dissect_pathToName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_Name(TRUE, tvb, offset, pinfo, tree, hf_x509ce_pathToName);
+}
+static int dissect_subject_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_Name(TRUE, tvb, offset, pinfo, tree, hf_x509ce_subject);
+}
+static int dissect_firstIssuer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_Name(FALSE, tvb, offset, pinfo, tree, hf_x509ce_firstIssuer);
+}
+static int dissect_lastSubject(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_Name(FALSE, tvb, offset, pinfo, tree, hf_x509ce_lastSubject);
+}
 
 
-static int
-dissect_x509ce_KeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_KeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     NULL);
 
@@ -260,7 +322,7 @@ static int dissect_keyIdentifier_impl(packet_info *pinfo, proto_tree *tree, tvbu
 
 
 static int
-dissect_x509ce_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_x509ce_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, 1,
                                          pinfo, tree, tvb, offset, hf_index,
                                          NULL);
@@ -283,8 +345,8 @@ static const ber_sequence EDIPartyName_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
-dissect_x509ce_EDIPartyName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_EDIPartyName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 EDIPartyName_sequence, hf_index, ett_x509ce_EDIPartyName);
 
@@ -296,7 +358,7 @@ static int dissect_ediPartyName_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 
 static int
-dissect_x509ce_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_x509ce_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     NULL);
 
@@ -308,7 +370,7 @@ static int dissect_iPAddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 
 static int
-dissect_x509ce_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_x509ce_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
                                          hf_index, NULL);
 
@@ -316,6 +378,12 @@ dissect_x509ce_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 }
 static int dissect_registeredID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509ce_OBJECT_IDENTIFIER(TRUE, tvb, offset, pinfo, tree, hf_x509ce_registeredID);
+}
+static int dissect_subjectPublicKeyAlgID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_OBJECT_IDENTIFIER(TRUE, tvb, offset, pinfo, tree, hf_x509ce_subjectPublicKeyAlgID);
+}
+static int dissect_otherNameForm(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_x509ce_otherNameForm);
 }
 
 
@@ -342,7 +410,7 @@ static const ber_choice GeneralName_choice[] = {
 };
 
 int
-dissect_x509ce_GeneralName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_x509ce_GeneralName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               GeneralName_choice, hf_index, ett_x509ce_GeneralName);
 
@@ -372,7 +440,7 @@ static const ber_sequence GeneralNames_sequence_of[1] = {
 };
 
 int
-dissect_x509ce_GeneralNames(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_x509ce_GeneralNames(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                    GeneralNames_sequence_of, hf_index, ett_x509ce_GeneralNames);
 
@@ -398,20 +466,26 @@ static const ber_sequence AuthorityKeyIdentifier_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
-dissect_x509ce_AuthorityKeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_AuthorityKeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 AuthorityKeyIdentifier_sequence, hf_index, ett_x509ce_AuthorityKeyIdentifier);
 
   return offset;
 }
+static int dissect_authorityKeyIdentifier_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_AuthorityKeyIdentifier(TRUE, tvb, offset, pinfo, tree, hf_x509ce_authorityKeyIdentifier);
+}
 
 
-static int
-dissect_x509ce_SubjectKeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_SubjectKeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_x509ce_KeyIdentifier(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
+}
+static int dissect_subjectKeyIdentifier_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_SubjectKeyIdentifier(TRUE, tvb, offset, pinfo, tree, hf_x509ce_subjectKeyIdentifier);
 }
 
 static const asn_namedbit KeyUsage_bits[] = {
@@ -427,18 +501,21 @@ static const asn_namedbit KeyUsage_bits[] = {
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
-static int
-dissect_x509ce_KeyUsage(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_KeyUsage(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
                                  KeyUsage_bits, hf_index, ett_x509ce_KeyUsage,
                                  NULL);
 
   return offset;
 }
+static int dissect_keyUsage_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_KeyUsage(TRUE, tvb, offset, pinfo, tree, hf_x509ce_keyUsage);
+}
 
 
-static int
-dissect_x509ce_KeyPurposeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_KeyPurposeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
                                          hf_index, NULL);
 
@@ -452,8 +529,8 @@ static const ber_sequence KeyPurposeIDs_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_KeyPurposeIDs_item },
 };
 
-static int
-dissect_x509ce_KeyPurposeIDs(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_KeyPurposeIDs(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                    KeyPurposeIDs_sequence_of, hf_index, ett_x509ce_KeyPurposeIDs);
 
@@ -462,7 +539,7 @@ dissect_x509ce_KeyPurposeIDs(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
 
 static int
-dissect_x509ce_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_x509ce_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_index);
 
   return offset;
@@ -488,6 +565,9 @@ static int dissect_lastDelta(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 static int dissect_nextDelta(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509ce_GeneralizedTime(FALSE, tvb, offset, pinfo, tree, hf_x509ce_nextDelta);
 }
+static int dissect_privateKeyValid_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_GeneralizedTime(TRUE, tvb, offset, pinfo, tree, hf_x509ce_privateKeyValid);
+}
 
 static const ber_sequence PrivateKeyUsagePeriod_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_notBefore_impl },
@@ -495,8 +575,8 @@ static const ber_sequence PrivateKeyUsagePeriod_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
-dissect_x509ce_PrivateKeyUsagePeriod(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_PrivateKeyUsagePeriod(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 PrivateKeyUsagePeriod_sequence, hf_index, ett_x509ce_PrivateKeyUsagePeriod);
 
@@ -505,7 +585,7 @@ dissect_x509ce_PrivateKeyUsagePeriod(gboolean implicit_tag _U_, tvbuff_t *tvb, i
 
 
 static int
-dissect_x509ce_CertPolicyId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_x509ce_CertPolicyId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
                                          hf_index, NULL);
 
@@ -520,13 +600,45 @@ static int dissect_issuerDomainPolicy(packet_info *pinfo, proto_tree *tree, tvbu
 static int dissect_subjectDomainPolicy(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509ce_CertPolicyId(FALSE, tvb, offset, pinfo, tree, hf_x509ce_subjectDomainPolicy);
 }
+static int dissect_CertPolicySet_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_CertPolicyId(FALSE, tvb, offset, pinfo, tree, hf_x509ce_CertPolicySet_item);
+}
+
+
+static int
+dissect_x509ce_PolicyQualifierId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_x509ce_object_identifier_id, object_identifier_id);
+
+
+  return offset;
+}
+static int dissect_policyQualifierId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_PolicyQualifierId(FALSE, tvb, offset, pinfo, tree, hf_x509ce_policyQualifierId);
+}
+
+
+
+static int
+dissect_x509ce_PolicyQualifierValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+
+
+  return offset;
+}
+static int dissect_qualifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_PolicyQualifierValue(FALSE, tvb, offset, pinfo, tree, hf_x509ce_qualifier);
+}
 
 static const ber_sequence PolicyQualifierInfo_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_policyQualifierId },
+  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_qualifier },
   { 0, 0, 0, NULL }
 };
 
-static int
-dissect_x509ce_PolicyQualifierInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_PolicyQualifierInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 PolicyQualifierInfo_sequence, hf_index, ett_x509ce_PolicyQualifierInfo);
 
@@ -541,7 +653,7 @@ static const ber_sequence SEQUNCE_OF_PolicyQualifierInfo_sequence_of[1] = {
 };
 
 static int
-dissect_x509ce_SEQUNCE_OF_PolicyQualifierInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_x509ce_SEQUNCE_OF_PolicyQualifierInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                    SEQUNCE_OF_PolicyQualifierInfo_sequence_of, hf_index, ett_x509ce_SEQUNCE_OF_PolicyQualifierInfo);
 
@@ -557,8 +669,8 @@ static const ber_sequence PolicyInformation_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
-dissect_x509ce_PolicyInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_PolicyInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 PolicyInformation_sequence, hf_index, ett_x509ce_PolicyInformation);
 
@@ -572,8 +684,8 @@ static const ber_sequence CertificatePoliciesSyntax_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_CertificatePoliciesSyntax_item },
 };
 
-static int
-dissect_x509ce_CertificatePoliciesSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_CertificatePoliciesSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                    CertificatePoliciesSyntax_sequence_of, hf_index, ett_x509ce_CertificatePoliciesSyntax);
 
@@ -587,7 +699,7 @@ static const ber_sequence PolicyMappingsSyntax_item_sequence[] = {
 };
 
 static int
-dissect_x509ce_PolicyMappingsSyntax_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_x509ce_PolicyMappingsSyntax_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 PolicyMappingsSyntax_item_sequence, hf_index, ett_x509ce_PolicyMappingsSyntax_item);
 
@@ -601,8 +713,8 @@ static const ber_sequence PolicyMappingsSyntax_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_PolicyMappingsSyntax_item },
 };
 
-static int
-dissect_x509ce_PolicyMappingsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_PolicyMappingsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                    PolicyMappingsSyntax_sequence_of, hf_index, ett_x509ce_PolicyMappingsSyntax);
 
@@ -613,8 +725,8 @@ static const ber_sequence AttributesSyntax_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_AttributesSyntax_item },
 };
 
-static int
-dissect_x509ce_AttributesSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_AttributesSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                    AttributesSyntax_sequence_of, hf_index, ett_x509ce_AttributesSyntax);
 
@@ -623,7 +735,7 @@ dissect_x509ce_AttributesSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 
 
 static int
-dissect_x509ce_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_x509ce_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_boolean(pinfo, tree, tvb, offset, hf_index);
 
   return offset;
@@ -653,7 +765,7 @@ static int dissect_containsSOAPublicKeyCerts_impl(packet_info *pinfo, proto_tree
 
 
 static int
-dissect_x509ce_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_x509ce_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -677,8 +789,8 @@ static const ber_sequence BasicConstraintsSyntax_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
-dissect_x509ce_BasicConstraintsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_BasicConstraintsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 BasicConstraintsSyntax_sequence, hf_index, ett_x509ce_BasicConstraintsSyntax);
 
@@ -687,8 +799,8 @@ dissect_x509ce_BasicConstraintsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, 
 
 
 
-static int
-dissect_x509ce_BaseDistance(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_BaseDistance(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -707,8 +819,8 @@ static const ber_sequence GeneralSubtree_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
-dissect_x509ce_GeneralSubtree(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_GeneralSubtree(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 GeneralSubtree_sequence, hf_index, ett_x509ce_GeneralSubtree);
 
@@ -722,8 +834,8 @@ static const ber_sequence GeneralSubtrees_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_GeneralSubtrees_item },
 };
 
-static int
-dissect_x509ce_GeneralSubtrees(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_GeneralSubtrees(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                    GeneralSubtrees_sequence_of, hf_index, ett_x509ce_GeneralSubtrees);
 
@@ -742,18 +854,21 @@ static const ber_sequence NameConstraintsSyntax_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
-dissect_x509ce_NameConstraintsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_NameConstraintsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 NameConstraintsSyntax_sequence, hf_index, ett_x509ce_NameConstraintsSyntax);
 
   return offset;
 }
+static int dissect_nameConstraints_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_NameConstraintsSyntax(TRUE, tvb, offset, pinfo, tree, hf_x509ce_nameConstraints);
+}
 
 
 
-static int
-dissect_x509ce_SkipCerts(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_SkipCerts(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -771,8 +886,8 @@ static const ber_sequence PolicyConstraintsSyntax_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
-dissect_x509ce_PolicyConstraintsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_PolicyConstraintsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 PolicyConstraintsSyntax_sequence, hf_index, ett_x509ce_PolicyConstraintsSyntax);
 
@@ -781,8 +896,8 @@ dissect_x509ce_PolicyConstraintsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb,
 
 
 
-static int
-dissect_x509ce_CRLNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_CRLNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -790,9 +905,15 @@ dissect_x509ce_CRLNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 static int dissect_cRLNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509ce_CRLNumber(TRUE, tvb, offset, pinfo, tree, hf_x509ce_cRLNumber);
 }
+static int dissect_minCRLNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_CRLNumber(TRUE, tvb, offset, pinfo, tree, hf_x509ce_minCRLNumber);
+}
+static int dissect_maxCRLNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_CRLNumber(TRUE, tvb, offset, pinfo, tree, hf_x509ce_maxCRLNumber);
+}
 
 
-static const value_string CRLReason_vals[] = {
+const value_string CRLReason_vals[] = {
   {   0, "unspecified" },
   {   1, "keyCompromise" },
   {   2, "cACompromise" },
@@ -807,16 +928,16 @@ static const value_string CRLReason_vals[] = {
 };
 
 
-static int
-dissect_x509ce_CRLReason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_CRLReason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
 
 
-static int
-dissect_x509ce_HoldInstruction(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_HoldInstruction(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
                                          hf_index, NULL);
 
@@ -824,7 +945,7 @@ dissect_x509ce_HoldInstruction(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 }
 
 
-static const value_string DistributionPointName_vals[] = {
+const value_string DistributionPointName_vals[] = {
   {   0, "fullName" },
   {   1, "nameRelativeToCRLIssuer" },
   { 0, NULL }
@@ -836,12 +957,15 @@ static const ber_choice DistributionPointName_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-static int
-dissect_x509ce_DistributionPointName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_DistributionPointName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               DistributionPointName_choice, hf_index, ett_x509ce_DistributionPointName);
 
   return offset;
+}
+static int dissect_distributionPoint(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_DistributionPointName(FALSE, tvb, offset, pinfo, tree, hf_x509ce_distributionPoint);
 }
 static int dissect_distributionPoint_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509ce_DistributionPointName(TRUE, tvb, offset, pinfo, tree, hf_x509ce_distributionPoint);
@@ -856,8 +980,8 @@ static const asn_namedbit OnlyCertificateTypes_bits[] = {
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
-static int
-dissect_x509ce_OnlyCertificateTypes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_OnlyCertificateTypes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
                                  OnlyCertificateTypes_bits, hf_index, ett_x509ce_OnlyCertificateTypes,
                                  NULL);
@@ -881,8 +1005,8 @@ static const asn_namedbit ReasonFlags_bits[] = {
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
-static int
-dissect_x509ce_ReasonFlags(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_ReasonFlags(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
                                  ReasonFlags_bits, hf_index, ett_x509ce_ReasonFlags,
                                  NULL);
@@ -895,6 +1019,9 @@ static int dissect_onlySomeReasons_impl(packet_info *pinfo, proto_tree *tree, tv
 static int dissect_reasons_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509ce_ReasonFlags(TRUE, tvb, offset, pinfo, tree, hf_x509ce_reasons);
 }
+static int dissect_reasonFlags(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_ReasonFlags(FALSE, tvb, offset, pinfo, tree, hf_x509ce_reasonFlags);
+}
 
 static const ber_sequence NumberRange_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_startingNumber_impl },
@@ -903,8 +1030,8 @@ static const ber_sequence NumberRange_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
-dissect_x509ce_NumberRange(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_NumberRange(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 NumberRange_sequence, hf_index, ett_x509ce_NumberRange);
 
@@ -919,8 +1046,8 @@ static int dissect_subjectKeyIdRange_impl(packet_info *pinfo, proto_tree *tree, 
 
 
 
-static int
-dissect_x509ce_CRLStreamIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_CRLStreamIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -936,8 +1063,8 @@ static const ber_sequence BaseRevocationInfo_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
-dissect_x509ce_BaseRevocationInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_BaseRevocationInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 BaseRevocationInfo_sequence, hf_index, ett_x509ce_BaseRevocationInfo);
 
@@ -959,8 +1086,8 @@ static const ber_sequence PerAuthorityScope_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
-dissect_x509ce_PerAuthorityScope(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_PerAuthorityScope(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 PerAuthorityScope_sequence, hf_index, ett_x509ce_PerAuthorityScope);
 
@@ -974,8 +1101,8 @@ static const ber_sequence CRLScopeSyntax_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_CRLScopeSyntax_item },
 };
 
-static int
-dissect_x509ce_CRLScopeSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_CRLScopeSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                    CRLScopeSyntax_sequence_of, hf_index, ett_x509ce_CRLScopeSyntax);
 
@@ -991,8 +1118,8 @@ static const ber_sequence DeltaRefInfo_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
-dissect_x509ce_DeltaRefInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_DeltaRefInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 DeltaRefInfo_sequence, hf_index, ett_x509ce_DeltaRefInfo);
 
@@ -1012,8 +1139,8 @@ static const ber_sequence CRLReferral_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
-dissect_x509ce_CRLReferral(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_CRLReferral(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 CRLReferral_sequence, hf_index, ett_x509ce_CRLReferral);
 
@@ -1024,7 +1151,7 @@ static int dissect_cRLReferral_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 }
 
 
-static const value_string StatusReferral_vals[] = {
+const value_string StatusReferral_vals[] = {
   {   0, "cRLReferral" },
   { 0, NULL }
 };
@@ -1034,8 +1161,8 @@ static const ber_choice StatusReferral_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-static int
-dissect_x509ce_StatusReferral(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_StatusReferral(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               StatusReferral_choice, hf_index, ett_x509ce_StatusReferral);
 
@@ -1049,8 +1176,8 @@ static const ber_sequence StatusReferrals_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_StatusReferrals_item },
 };
 
-static int
-dissect_x509ce_StatusReferrals(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_StatusReferrals(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                    StatusReferrals_sequence_of, hf_index, ett_x509ce_StatusReferrals);
 
@@ -1058,15 +1185,15 @@ dissect_x509ce_StatusReferrals(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 }
 
 
-static const value_string OrderedListSyntax_vals[] = {
+const value_string OrderedListSyntax_vals[] = {
   {   0, "ascSerialNum" },
   {   1, "ascRevDate" },
   { 0, NULL }
 };
 
 
-static int
-dissect_x509ce_OrderedListSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_OrderedListSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -1078,8 +1205,8 @@ static const ber_sequence DeltaInformation_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
-dissect_x509ce_DeltaInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_DeltaInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 DeltaInformation_sequence, hf_index, ett_x509ce_DeltaInformation);
 
@@ -1093,8 +1220,8 @@ static const ber_sequence DistributionPoint_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
-dissect_x509ce_DistributionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_DistributionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 DistributionPoint_sequence, hf_index, ett_x509ce_DistributionPoint);
 
@@ -1108,8 +1235,8 @@ static const ber_sequence CRLDistPointsSyntax_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_CRLDistPointsSyntax_item },
 };
 
-static int
-dissect_x509ce_CRLDistPointsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_CRLDistPointsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                    CRLDistPointsSyntax_sequence_of, hf_index, ett_x509ce_CRLDistPointsSyntax);
 
@@ -1128,8 +1255,8 @@ static const ber_sequence IssuingDistPointSyntax_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
-dissect_x509ce_IssuingDistPointSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_IssuingDistPointSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 IssuingDistPointSyntax_sequence, hf_index, ett_x509ce_IssuingDistPointSyntax);
 
@@ -1137,9 +1264,196 @@ dissect_x509ce_IssuingDistPointSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, 
 }
 
 
-static int
-dissect_x509ce_BaseCRLNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+int
+dissect_x509ce_BaseCRLNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_x509ce_CRLNumber(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+static const ber_sequence CertificateExactAssertion_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serialNumber },
+  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_issuer1 },
+  { 0, 0, 0, NULL }
+};
+
+int
+dissect_x509ce_CertificateExactAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                CertificateExactAssertion_sequence, hf_index, ett_x509ce_CertificateExactAssertion);
+
+  return offset;
+}
+static int dissect_issuedToThisCAAssertion_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_CertificateExactAssertion(TRUE, tvb, offset, pinfo, tree, hf_x509ce_issuedToThisCAAssertion);
+}
+static int dissect_issuedByThisCAAssertion_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_CertificateExactAssertion(TRUE, tvb, offset, pinfo, tree, hf_x509ce_issuedByThisCAAssertion);
+}
+
+
+static const value_string T_builtinNameForm_vals[] = {
+  {   1, "rfc822Name" },
+  {   2, "dNSName" },
+  {   3, "x400Address" },
+  {   4, "directoryName" },
+  {   5, "ediPartyName" },
+  {   6, "uniformResourceIdentifier" },
+  {   7, "iPAddress" },
+  {   8, "registeredId" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_x509ce_T_builtinNameForm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+static int dissect_builtinNameForm(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_T_builtinNameForm(FALSE, tvb, offset, pinfo, tree, hf_x509ce_builtinNameForm);
+}
+
+
+const value_string AltNameType_vals[] = {
+  {   0, "builtinNameForm" },
+  {   1, "otherNameForm" },
+  { 0, NULL }
+};
+
+static const ber_choice AltNameType_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_builtinNameForm },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_otherNameForm },
+  { 0, 0, 0, 0, NULL }
+};
+
+int
+dissect_x509ce_AltNameType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              AltNameType_choice, hf_index, ett_x509ce_AltNameType);
+
+  return offset;
+}
+static int dissect_subjectAltName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_AltNameType(TRUE, tvb, offset, pinfo, tree, hf_x509ce_subjectAltName);
+}
+
+static const ber_sequence CertPolicySet_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_CertPolicySet_item },
+};
+
+int
+dissect_x509ce_CertPolicySet(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                   CertPolicySet_sequence_of, hf_index, ett_x509ce_CertPolicySet);
+
+  return offset;
+}
+static int dissect_policy_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_CertPolicySet(TRUE, tvb, offset, pinfo, tree, hf_x509ce_policy);
+}
+
+static const ber_sequence CertificateAssertion_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serialNumber_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_issuer1_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_subjectKeyIdentifier_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authorityKeyIdentifier_impl },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_privateKeyValid_impl },
+  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_subjectPublicKeyAlgID_impl },
+  { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_keyUsage_impl },
+  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_subjectAltName_impl },
+  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_policy_impl },
+  { BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pathToName_impl },
+  { BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_subject_impl },
+  { BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nameConstraints_impl },
+  { 0, 0, 0, NULL }
+};
+
+int
+dissect_x509ce_CertificateAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                CertificateAssertion_sequence, hf_index, ett_x509ce_CertificateAssertion);
+
+  return offset;
+}
+static int dissect_issuedToThisCAAssertion1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_CertificateAssertion(TRUE, tvb, offset, pinfo, tree, hf_x509ce_issuedToThisCAAssertion1);
+}
+static int dissect_issuedByThisCAAssertion1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_CertificateAssertion(TRUE, tvb, offset, pinfo, tree, hf_x509ce_issuedByThisCAAssertion1);
+}
+
+static const ber_sequence CertificatePairExactAssertion_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_issuedToThisCAAssertion_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_issuedByThisCAAssertion_impl },
+  { 0, 0, 0, NULL }
+};
+
+int
+dissect_x509ce_CertificatePairExactAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                CertificatePairExactAssertion_sequence, hf_index, ett_x509ce_CertificatePairExactAssertion);
+
+  return offset;
+}
+
+static const ber_sequence CertificatePairAssertion_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_issuedToThisCAAssertion1_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_issuedByThisCAAssertion1_impl },
+  { 0, 0, 0, NULL }
+};
+
+int
+dissect_x509ce_CertificatePairAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                CertificatePairAssertion_sequence, hf_index, ett_x509ce_CertificatePairAssertion);
+
+  return offset;
+}
+
+static const ber_sequence CertificateListExactAssertion_sequence[] = {
+  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_issuer1 },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_distributionPoint },
+  { 0, 0, 0, NULL }
+};
+
+int
+dissect_x509ce_CertificateListExactAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                CertificateListExactAssertion_sequence, hf_index, ett_x509ce_CertificateListExactAssertion);
+
+  return offset;
+}
+
+static const ber_sequence CertificateListAssertion_sequence[] = {
+  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_issuer1 },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_minCRLNumber_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_maxCRLNumber_impl },
+  { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_reasonFlags },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_distributionPoint_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authorityKeyIdentifier_impl },
+  { 0, 0, 0, NULL }
+};
+
+int
+dissect_x509ce_CertificateListAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                CertificateListAssertion_sequence, hf_index, ett_x509ce_CertificateListAssertion);
+
+  return offset;
+}
+
+static const ber_sequence PkiPathMatchSyntax_sequence[] = {
+  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_firstIssuer },
+  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_lastSubject },
+  { 0, 0, 0, NULL }
+};
+
+int
+dissect_x509ce_PkiPathMatchSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                PkiPathMatchSyntax_sequence, hf_index, ett_x509ce_PkiPathMatchSyntax);
 
   return offset;
 }
@@ -1249,6 +1563,10 @@ void proto_register_x509ce(void) {
       { "invalidityDate", "x509ce.id_ce_invalidityDate",
         FT_STRING, BASE_NONE, NULL, 0,
         "invalidityDate", HFILL }},
+    { &hf_x509ce_object_identifier_id, 
+      { "Id", "x509ce.id", FT_STRING, BASE_NONE, NULL, 0,
+	"Object identifier Id", HFILL }},
+			 
 
 /*--- Included file: packet-x509ce-hfarr.c ---*/
 
@@ -1388,6 +1706,14 @@ void proto_register_x509ce(void) {
       { "Item", "x509ce.policyQualifiers_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "PolicyInformation/policyQualifiers/_item", HFILL }},
+    { &hf_x509ce_policyQualifierId,
+      { "policyQualifierId", "x509ce.policyQualifierId",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "PolicyQualifierInfo/policyQualifierId", HFILL }},
+    { &hf_x509ce_qualifier,
+      { "qualifier", "x509ce.qualifier",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PolicyQualifierInfo/qualifier", HFILL }},
     { &hf_x509ce_PolicyMappingsSyntax_item,
       { "Item", "x509ce.PolicyMappingsSyntax_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1434,11 +1760,11 @@ void proto_register_x509ce(void) {
         "GeneralName/registeredID", HFILL }},
     { &hf_x509ce_nameAssigner,
       { "nameAssigner", "x509ce.nameAssigner",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "EDIPartyName/nameAssigner", HFILL }},
     { &hf_x509ce_partyName,
       { "partyName", "x509ce.partyName",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "EDIPartyName/partyName", HFILL }},
     { &hf_x509ce_AttributesSyntax_item,
       { "Item", "x509ce.AttributesSyntax_item",
@@ -1470,11 +1796,11 @@ void proto_register_x509ce(void) {
         "GeneralSubtree/base", HFILL }},
     { &hf_x509ce_minimum,
       { "minimum", "x509ce.minimum",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "GeneralSubtree/minimum", HFILL }},
     { &hf_x509ce_maximum,
       { "maximum", "x509ce.maximum",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "GeneralSubtree/maximum", HFILL }},
     { &hf_x509ce_requireExplicitPolicy,
       { "requireExplicitPolicy", "x509ce.requireExplicitPolicy",
@@ -1632,6 +1958,102 @@ void proto_register_x509ce(void) {
       { "containsSOAPublicKeyCerts", "x509ce.containsSOAPublicKeyCerts",
         FT_BOOLEAN, 8, NULL, 0,
         "IssuingDistPointSyntax/containsSOAPublicKeyCerts", HFILL }},
+    { &hf_x509ce_serialNumber,
+      { "serialNumber", "x509ce.serialNumber",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "", HFILL }},
+    { &hf_x509ce_issuer1,
+      { "issuer", "x509ce.issuer",
+        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
+        "", HFILL }},
+    { &hf_x509ce_subjectKeyIdentifier,
+      { "subjectKeyIdentifier", "x509ce.subjectKeyIdentifier",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "CertificateAssertion/subjectKeyIdentifier", HFILL }},
+    { &hf_x509ce_authorityKeyIdentifier,
+      { "authorityKeyIdentifier", "x509ce.authorityKeyIdentifier",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "", HFILL }},
+    { &hf_x509ce_privateKeyValid,
+      { "privateKeyValid", "x509ce.privateKeyValid",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "CertificateAssertion/privateKeyValid", HFILL }},
+    { &hf_x509ce_subjectPublicKeyAlgID,
+      { "subjectPublicKeyAlgID", "x509ce.subjectPublicKeyAlgID",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "CertificateAssertion/subjectPublicKeyAlgID", HFILL }},
+    { &hf_x509ce_keyUsage,
+      { "keyUsage", "x509ce.keyUsage",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "CertificateAssertion/keyUsage", HFILL }},
+    { &hf_x509ce_subjectAltName,
+      { "subjectAltName", "x509ce.subjectAltName",
+        FT_UINT32, BASE_DEC, VALS(AltNameType_vals), 0,
+        "CertificateAssertion/subjectAltName", HFILL }},
+    { &hf_x509ce_policy,
+      { "policy", "x509ce.policy",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CertificateAssertion/policy", HFILL }},
+    { &hf_x509ce_pathToName,
+      { "pathToName", "x509ce.pathToName",
+        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
+        "CertificateAssertion/pathToName", HFILL }},
+    { &hf_x509ce_subject,
+      { "subject", "x509ce.subject",
+        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
+        "CertificateAssertion/subject", HFILL }},
+    { &hf_x509ce_nameConstraints,
+      { "nameConstraints", "x509ce.nameConstraints",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CertificateAssertion/nameConstraints", HFILL }},
+    { &hf_x509ce_builtinNameForm,
+      { "builtinNameForm", "x509ce.builtinNameForm",
+        FT_UINT32, BASE_DEC, VALS(T_builtinNameForm_vals), 0,
+        "AltNameType/builtinNameForm", HFILL }},
+    { &hf_x509ce_otherNameForm,
+      { "otherNameForm", "x509ce.otherNameForm",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "AltNameType/otherNameForm", HFILL }},
+    { &hf_x509ce_CertPolicySet_item,
+      { "Item", "x509ce.CertPolicySet_item",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "CertPolicySet/_item", HFILL }},
+    { &hf_x509ce_issuedToThisCAAssertion,
+      { "issuedToThisCAAssertion", "x509ce.issuedToThisCAAssertion",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CertificatePairExactAssertion/issuedToThisCAAssertion", HFILL }},
+    { &hf_x509ce_issuedByThisCAAssertion,
+      { "issuedByThisCAAssertion", "x509ce.issuedByThisCAAssertion",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CertificatePairExactAssertion/issuedByThisCAAssertion", HFILL }},
+    { &hf_x509ce_issuedToThisCAAssertion1,
+      { "issuedToThisCAAssertion", "x509ce.issuedToThisCAAssertion",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CertificatePairAssertion/issuedToThisCAAssertion", HFILL }},
+    { &hf_x509ce_issuedByThisCAAssertion1,
+      { "issuedByThisCAAssertion", "x509ce.issuedByThisCAAssertion",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CertificatePairAssertion/issuedByThisCAAssertion", HFILL }},
+    { &hf_x509ce_minCRLNumber,
+      { "minCRLNumber", "x509ce.minCRLNumber",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CertificateListAssertion/minCRLNumber", HFILL }},
+    { &hf_x509ce_maxCRLNumber,
+      { "maxCRLNumber", "x509ce.maxCRLNumber",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CertificateListAssertion/maxCRLNumber", HFILL }},
+    { &hf_x509ce_reasonFlags,
+      { "reasonFlags", "x509ce.reasonFlags",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "CertificateListAssertion/reasonFlags", HFILL }},
+    { &hf_x509ce_firstIssuer,
+      { "firstIssuer", "x509ce.firstIssuer",
+        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
+        "PkiPathMatchSyntax/firstIssuer", HFILL }},
+    { &hf_x509ce_lastSubject,
+      { "lastSubject", "x509ce.lastSubject",
+        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
+        "PkiPathMatchSyntax/lastSubject", HFILL }},
     { &hf_x509ce_KeyUsage_digitalSignature,
       { "digitalSignature", "x509ce.digitalSignature",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -1768,6 +2190,15 @@ void proto_register_x509ce(void) {
     &ett_x509ce_DistributionPointName,
     &ett_x509ce_ReasonFlags,
     &ett_x509ce_IssuingDistPointSyntax,
+    &ett_x509ce_CertificateExactAssertion,
+    &ett_x509ce_CertificateAssertion,
+    &ett_x509ce_AltNameType,
+    &ett_x509ce_CertPolicySet,
+    &ett_x509ce_CertificatePairExactAssertion,
+    &ett_x509ce_CertificatePairAssertion,
+    &ett_x509ce_CertificateListExactAssertion,
+    &ett_x509ce_CertificateListAssertion,
+    &ett_x509ce_PkiPathMatchSyntax,
 
 /*--- End of included file: packet-x509ce-ettarr.c ---*/
 
@@ -1785,34 +2216,41 @@ void proto_register_x509ce(void) {
 
 /*--- proto_reg_handoff_x509ce -------------------------------------------*/
 void proto_reg_handoff_x509ce(void) {
-	register_ber_oid_dissector("2.5.29.9", dissect_AttributesSyntax_PDU, proto_x509ce, "id-ce-subjectDirectoryAttributes");
-	register_ber_oid_dissector("2.5.29.14", dissect_SubjectKeyIdentifier_PDU, proto_x509ce, "id-ce-subjectKeyIdentifier");
-	register_ber_oid_dissector("2.5.29.15", dissect_KeyUsage_PDU, proto_x509ce, "id-ce-keyUsage");
-	register_ber_oid_dissector("2.5.29.16", dissect_PrivateKeyUsagePeriod_PDU, proto_x509ce, "id-ce-privateKeyUsagePeriod");
-	register_ber_oid_dissector("2.5.29.17", dissect_GeneralNames_PDU, proto_x509ce, "id-ce-subjectAltName");
-	register_ber_oid_dissector("2.5.29.18", dissect_GeneralNames_PDU, proto_x509ce, "id-ce-issuerAltName");
-	register_ber_oid_dissector("2.5.29.19", dissect_BasicConstraintsSyntax_PDU, proto_x509ce, "id-ce-basicConstraints");
-	register_ber_oid_dissector("2.5.29.20", dissect_CRLNumber_PDU, proto_x509ce, "id-ce-cRLNumber");
-	register_ber_oid_dissector("2.5.29.21", dissect_CRLReason_PDU, proto_x509ce, "id-ce-reasonCode");
-	register_ber_oid_dissector("2.5.29.23", dissect_HoldInstruction_PDU, proto_x509ce, "id-ce-instructionCode");
+
+/*--- Included file: packet-x509ce-dis-tab.c ---*/
+
+ register_ber_oid_dissector("2.5.29.9", dissect_AttributesSyntax_PDU, proto_x509ce, "id-ce-subjectDirectoryAttributes");
+ register_ber_oid_dissector("2.5.29.14", dissect_SubjectKeyIdentifier_PDU, proto_x509ce, "id-ce-subjectKeyIdentifier");
+ register_ber_oid_dissector("2.5.29.15", dissect_KeyUsage_PDU, proto_x509ce, "id-ce-keyUsage");
+ register_ber_oid_dissector("2.5.29.16", dissect_PrivateKeyUsagePeriod_PDU, proto_x509ce, "id-ce-privateKeyUsagePeriod");
+ register_ber_oid_dissector("2.5.29.17", dissect_GeneralNames_PDU, proto_x509ce, "id-ce-subjectAltName");
+ register_ber_oid_dissector("2.5.29.18", dissect_GeneralNames_PDU, proto_x509ce, "id-ce-issuerAltName");
+ register_ber_oid_dissector("2.5.29.19", dissect_BasicConstraintsSyntax_PDU, proto_x509ce, "id-ce-basicConstraints");
+ register_ber_oid_dissector("2.5.29.20", dissect_CRLNumber_PDU, proto_x509ce, "id-ce-cRLNumber");
+ register_ber_oid_dissector("2.5.29.21", dissect_CRLReason_PDU, proto_x509ce, "id-ce-reasonCode");
+ register_ber_oid_dissector("2.5.29.23", dissect_HoldInstruction_PDU, proto_x509ce, "id-ce-instructionCode");
+ register_ber_oid_dissector("2.5.29.27", dissect_BaseCRLNumber_PDU, proto_x509ce, "id-ce-deltaCRLIndicator");
+ register_ber_oid_dissector("2.5.29.28", dissect_IssuingDistPointSyntax_PDU, proto_x509ce, "id-ce-issuingDistributionPoint");
+ register_ber_oid_dissector("2.5.29.29", dissect_GeneralNames_PDU, proto_x509ce, "id-ce-certificateIssuer");
+ register_ber_oid_dissector("2.5.29.30", dissect_NameConstraintsSyntax_PDU, proto_x509ce, "id-ce-nameConstraints");
+ register_ber_oid_dissector("2.5.29.31", dissect_CRLDistPointsSyntax_PDU, proto_x509ce, "id-ce-cRLDistributionPoints");
+ register_ber_oid_dissector("2.5.29.32", dissect_CertificatePoliciesSyntax_PDU, proto_x509ce, "id-ce-certificatePolicies");
+ register_ber_oid_dissector("2.5.29.33", dissect_PolicyMappingsSyntax_PDU, proto_x509ce, "id-ce-policyMappings");
+ register_ber_oid_dissector("2.5.29.35", dissect_AuthorityKeyIdentifier_PDU, proto_x509ce, "id-ce-authorityKeyIdentifier");
+ register_ber_oid_dissector("2.5.29.36", dissect_PolicyConstraintsSyntax_PDU, proto_x509ce, "id-ce-policyConstraints");
+ register_ber_oid_dissector("2.5.29.37", dissect_KeyPurposeIDs_PDU, proto_x509ce, "id-ce-extKeyUsage");
+ register_ber_oid_dissector("2.5.29.40", dissect_CRLStreamIdentifier_PDU, proto_x509ce, "id-ce-cRLStreamIdentifier");
+ register_ber_oid_dissector("2.5.29.44", dissect_CRLScopeSyntax_PDU, proto_x509ce, "id-ce-cRLScope");
+ register_ber_oid_dissector("2.5.29.45", dissect_StatusReferrals_PDU, proto_x509ce, "id-ce-statusReferrals");
+ register_ber_oid_dissector("2.5.29.46", dissect_CRLDistPointsSyntax_PDU, proto_x509ce, "id-ce-freshestCRL");
+ register_ber_oid_dissector("2.5.29.47", dissect_OrderedListSyntax_PDU, proto_x509ce, "id-ce-orderedList");
+ register_ber_oid_dissector("2.5.29.53", dissect_DeltaInformation_PDU, proto_x509ce, "id-ce-deltaInfo");
+ register_ber_oid_dissector("2.5.29.54", dissect_SkipCerts_PDU, proto_x509ce, "id-ce-inhibitAnyPolicy");
+
+
+/*--- End of included file: packet-x509ce-dis-tab.c ---*/
+
 	register_ber_oid_dissector("2.5.29.24", dissect_x509ce_invalidityDate_callback, proto_x509ce, "id-ce-invalidityDate");
-	register_ber_oid_dissector("2.5.29.27", dissect_BaseCRLNumber_PDU, proto_x509ce, "id-ce-deltaCRLIndicator");
-	register_ber_oid_dissector("2.5.29.28", dissect_IssuingDistPointSyntax_PDU, proto_x509ce, "id-ce-issuingDistributionPoint");
-	register_ber_oid_dissector("2.5.29.29", dissect_GeneralNames_PDU, proto_x509ce, "id-ce-certificateIssuer");
-	register_ber_oid_dissector("2.5.29.30", dissect_NameConstraintsSyntax_PDU, proto_x509ce, "id-ce-nameConstraints");
-	register_ber_oid_dissector("2.5.29.31", dissect_CRLDistPointsSyntax_PDU, proto_x509ce, "id-ce-cRLDistributionPoints");
-	register_ber_oid_dissector("2.5.29.32", dissect_CertificatePoliciesSyntax_PDU, proto_x509ce, "id-ce-certificatePolicies");
-	register_ber_oid_dissector("2.5.29.33", dissect_PolicyMappingsSyntax_PDU, proto_x509ce, "id-ce-policyMappings");
-	register_ber_oid_dissector("2.5.29.35", dissect_AuthorityKeyIdentifier_PDU, proto_x509ce, "id-ce-authorityKeyIdentifier");
-	register_ber_oid_dissector("2.5.29.36", dissect_PolicyConstraintsSyntax_PDU, proto_x509ce, "id-ce-policyConstraints");
-	register_ber_oid_dissector("2.5.29.37", dissect_KeyPurposeIDs_PDU, proto_x509ce, "id-ce-extKeyUsage");
-	register_ber_oid_dissector("2.5.29.40", dissect_CRLStreamIdentifier_PDU, proto_x509ce, "id-ce-cRLStreamIdentifier");
-	register_ber_oid_dissector("2.5.29.44", dissect_CRLScopeSyntax_PDU, proto_x509ce, "id-ce-cRLScope");
-	register_ber_oid_dissector("2.5.29.45", dissect_StatusReferrals_PDU, proto_x509ce, "id-ce-statusReferrals");
-	register_ber_oid_dissector("2.5.29.46", dissect_CRLDistPointsSyntax_PDU, proto_x509ce, "id-ce-freshestCRL");
-	register_ber_oid_dissector("2.5.29.47", dissect_OrderedListSyntax_PDU, proto_x509ce, "id-ce-orderedList");
 	register_ber_oid_dissector("2.5.29.51", dissect_x509ce_baseUpdateTime_callback, proto_x509ce, "id-ce-baseUpdateTime");
-	register_ber_oid_dissector("2.5.29.53", dissect_DeltaInformation_PDU, proto_x509ce, "id-ce-deltaInfo");
-	register_ber_oid_dissector("2.5.29.54", dissect_SkipCerts_PDU, proto_x509ce, "id-ce-inhibitAnyPolicy");
 }
 
