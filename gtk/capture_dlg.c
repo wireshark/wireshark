@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.86 2003/11/03 10:40:51 guy Exp $
+ * $Id: capture_dlg.c,v 1.87 2003/11/15 08:50:07 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,7 @@
 
 #include <pcap.h>
 
+#include <epan/packet.h>
 #include "capture.h"
 #include "globals.h"
 #include <epan/resolv.h>
