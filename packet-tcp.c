@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.81 2000/08/13 14:08:47 deniel Exp $
+ * $Id: packet-tcp.c,v 1.82 2000/09/11 16:16:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,6 +50,7 @@
 #include "packet-tcp.h"
 #include "packet-ip.h"
 #include "conversation.h"
+#include "strutil.h"
 
 /* Place TCP summary in proto tree */
 gboolean g_tcp_summary_in_tree = TRUE;

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.225 2000/08/30 12:42:30 sharpe Exp $
+# $Id: Makefile.am,v 1.226 2000/09/11 16:16:00 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -306,6 +306,8 @@ ETHEREAL_COMMON_SOURCES = \
 	resolv.c       \
 	resolv.h       \
 	smb.h          \
+	strutil.c         \
+	strutil.h         \
 	timestamp.h    \
 	tvbuff.c	\
 	tvbuff.h	\
@@ -472,8 +474,8 @@ randpkt.o: randpkt.c
 randpkt: randpkt.o wiretap/libwiretap.a
 	$(LINK) -o randpkt randpkt.o wiretap/libwiretap.a `glib-config --libs` -lz
 
-tvbtest: tvbtest.o tvbuff.o except.o
-	$(LINK) -o tvbtest tvbtest.o tvbuff.o except.o `glib-config --libs`
+tvbtest: tvbtest.o tvbuff.o except.o strutil.o
+	$(LINK) -o tvbtest tvbtest.o tvbuff.o except.o strutil.o `glib-config --libs`
 
 DISTCLEANFILES =	\
 	register.c	\

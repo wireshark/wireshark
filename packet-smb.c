@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.71 2000/08/13 14:08:50 deniel Exp $
+ * $Id: packet-smb.c,v 1.72 2000/09/11 16:16:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,7 @@
 #include "conversation.h"
 #include "smb.h"
 #include "alignment.h"
+#include "strutil.h"
 
 guint32 dissect_mailslot_smb(const u_char *, int, frame_data *, proto_tree *, proto_tree *, struct smb_info, int, int, int, int, const u_char *, int, int, int, int);
 

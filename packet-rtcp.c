@@ -3,7 +3,7 @@
  *
  * Jason Lango <jal@netapp.com>
  *
- * $Id: packet-rtcp.c,v 1.4 2000/08/13 14:08:43 deniel Exp $
+ * $Id: packet-rtcp.c,v 1.5 2000/09/11 16:16:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,6 +43,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-rtcp.h"
+#include "strutil.h"
 
 static int proto_rtcp = -1;
 

@@ -2,7 +2,7 @@
  * Routines for nntp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-nntp.c,v 1.12 2000/08/13 14:08:31 deniel Exp $
+ * $Id: packet-nntp.c,v 1.13 2000/09/11 16:16:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,7 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
+#include "strutil.h"
 
 static int proto_nntp = -1;
 static int hf_nntp_response = -1;

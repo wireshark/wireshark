@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.21 2000/08/13 14:08:12 deniel Exp $
+ * $Id: packet-http.c,v 1.22 2000/09/11 16:16:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-ipp.h"
+#include "strutil.h"
 
 typedef enum _http_type {
 	HTTP_REQUEST,

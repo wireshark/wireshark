@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.11 2000/08/21 18:36:33 guy Exp $
+ * $Id: packet-socks.c,v 1.12 2000/09/11 16:16:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,6 +76,7 @@
 
 #include "packet-tcp.h"
 #include "packet-udp.h"
+#include "strutil.h"
 
 
 #define CHECK_PACKET_LENGTH(X) if (!BYTES_ARE_IN_FRAME(offset, X)){  \

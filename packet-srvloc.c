@@ -6,7 +6,7 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.14 2000/08/13 14:09:02 deniel Exp $
+ * $Id: packet-srvloc.c,v 1.15 2000/09/11 16:16:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,6 +54,7 @@
 
 #include "packet.h"
 #include "packet-ipv6.h"
+#include "strutil.h"
 
 static int proto_srvloc = -1;
 static int hf_srvloc_version = -1;

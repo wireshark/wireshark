@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: nmake -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.53 2000/08/18 15:26:52 gram Exp $
+# $Id: Makefile.nmake,v 1.54 2000/09/11 16:16:01 gram Exp $
 
 include config.nmake
 
@@ -177,6 +177,7 @@ ETHEREAL_COMMON_OBJECTS = \
 	ptvcursor.obj    \
 	register.obj     \
 	resolv.obj       \
+	strutil.obj      \
 	tvbuff.obj       \
 	util.obj         \
 	xdlc.obj         \
