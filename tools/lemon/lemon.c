@@ -25,7 +25,7 @@
 **   drh@acm.org
 **   http://www.hwaci.com/drh/
 **
-** $Id: lemon.c,v 1.12 2002/01/30 22:55:15 guy Exp $
+** $Id: lemon.c,v 1.13 2002/05/04 10:16:12 guy Exp $
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -739,7 +739,7 @@ void FindFollowSets(struct lemon *lemp)
   }while( progress );
 }
 
-static int resolve_conflict(struct action *, struct action *, struct symbol *);
+static int resolve_conflict(struct action *, struct action *);
 
 /* Compute the reduce actions, and resolve conflicts.
 */
@@ -793,7 +793,7 @@ void FindActions(struct lemon *lemp)
       for(nap=ap->next; nap && nap->sp==ap->sp; nap=nap->next){
          /* The two actions "ap" and "nap" have the same lookahead.
          ** Figure out which one should be used */
-         lemp->nconflict += resolve_conflict(ap,nap,lemp->errsym);
+         lemp->nconflict += resolve_conflict(ap,nap);
       }
     }
   }
@@ -828,8 +828,7 @@ void FindActions(struct lemon *lemp)
 */
 static int resolve_conflict(
     struct action *apx,
-    struct action *apy,
-    struct symbol *errsym)  /* The error symbol (if defined.  NULL otherwise) */
+    struct action *apy)
 {
   struct symbol *spx, *spy;
   int errcnt = 0;
@@ -1194,7 +1193,7 @@ make_basename(char* fullname)
 
 
 /* The main program.  Parse the command line and do it... */
-int main(int argc, char **argv)
+int main(int argc _U_, char **argv)
 {
   static int version = 0;
   static int rpflag = 0;
