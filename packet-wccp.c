@@ -2,7 +2,7 @@
  * Routines for Web Cache Coordination Protocol dissection
  * Jerry Talkington <jerryt@netapp.com>
  *
- * $Id: packet-wccp.c,v 1.22 2001/08/04 01:52:07 guy Exp $
+ * $Id: packet-wccp.c,v 1.23 2001/11/27 00:50:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1142,7 +1142,7 @@ dissect_wccp2_capability_info(tvbuff_t *tvb, int offset, int length,
 	proto_tree *element_tree;
 
 	for (curr_offset = offset; curr_offset < (length + offset);
-	    curr_offset += capability_len) {
+	    curr_offset += capability_len + 4) {
 		capability_type = tvb_get_ntohs(tvb, curr_offset);
 		capability_len = tvb_get_ntohs(tvb, curr_offset + 2);
 		te = proto_tree_add_text(info_tree, tvb, curr_offset,
@@ -1212,10 +1212,10 @@ dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
 	int space_left;
 	char buf[1025];
 
-	if (capability_len != 8) {
+	if (capability_len != 4) {
 		proto_tree_add_text(element_tree, tvb,
 		    curr_offset+4, capability_len-4,
-		    "Illegal length (must be 8)");
+		    "Illegal length (must be 4)");
 		return;
 	}
 

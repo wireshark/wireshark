@@ -902,6 +902,10 @@ Tim Potter <tpot[AT]samba.org> {
 	   matching
 }
 
+Raghu Angadi <rangadi[AT]inktomi.com> {
+	WCCP capability info dissection bug fix
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
