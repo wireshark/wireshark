@@ -654,7 +654,7 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 	    "at the URL lists a number of mirror sites.";
 	else
 	  libpcap_warn = "";
-	g_snprintf(errmsg, sizeof errmsg,
+	g_snprintf(errmsg, errmsg_len,
 	  "The capture session could not be initiated (%s).\n"
 	  "Please check to make sure you have sufficient permissions, and that\n"
 	  "you have the proper interface or pipe specified.%s", open_err_str,
