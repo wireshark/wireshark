@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.77 2004/01/07 22:16:17 jmayer Exp $
+ * $Id: proto_draw.c,v 1.78 2004/01/10 16:35:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -835,11 +835,7 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 	gtk_widget_grab_default(save_button);
 	gtk_widget_show(save_button);
 
-#if GTK_MAJOR_VERSION < 2
-	cancel_button=gtk_button_new_with_label("Cancel");
-#else
-	cancel_button=gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-#endif
+	cancel_button=BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
 	SIGNAL_CONNECT(cancel_button, "clicked", savehex_dlg_cancel_cb, savehex_dlg);
 	GTK_WIDGET_SET_FLAGS(cancel_button, GTK_CAN_DEFAULT);
 	gtk_box_pack_start(GTK_BOX(bbox), cancel_button, TRUE, TRUE, 0);
