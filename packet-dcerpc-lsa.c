@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.85 2003/06/05 04:22:02 guy Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.86 2003/06/26 04:30:27 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4059,78 +4059,13 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 	{0, NULL, NULL, NULL}
 };
 
-static const value_string lsa_opnum_vals[] = {
-	{ LSA_LSACLOSE, "Close" },
-	{ LSA_LSADELETE, "Delete" },
-	{ LSA_LSAENUMERATEPRIVILEGES, "EnumPrivs" },
-	{ LSA_LSAQUERYSECURITYOBJECT, "QuerySecObject" },
-	{ LSA_LSASETSECURITYOBJECT, "SetSecObject" },
-	{ LSA_LSACHANGEPASSWORD, "ChangePassword" },
-	{ LSA_LSAOPENPOLICY, "OpenPolicy" },
-	{ LSA_LSAQUERYINFORMATIONPOLICY, "QueryInfoPolicy" },
-	{ LSA_LSASETINFORMATIONPOLICY, "SetInfoPolicy" },
-	{ LSA_LSACLEARAUDITLOG, "ClearAuditLog" },
-	{ LSA_LSACREATEACCOUNT, "CreateAccount" },
-	{ LSA_LSAENUMERATEACCOUNTS, "EnumAccounts" },
-	{ LSA_LSACREATETRUSTEDDOMAIN, "CreateTrustedDomain" },
-	{ LSA_LSAENUMERATETRUSTEDDOMAINS, "EnumTrustedDomains" },
-	{ LSA_LSALOOKUPNAMES, "LookupNames" },
-	{ LSA_LSALOOKUPSIDS, "LookupSIDs" },
-	{ LSA_LSACREATESECRET, "CreateSecret" },
-	{ LSA_LSAOPENACCOUNT, "OpenAccount" },
-	{ LSA_LSAENUMERATEPRIVILEGESACCOUNT, "EnumPrivsAccount" },
-	{ LSA_LSAADDPRIVILEGESTOACCOUNT, "AddPrivsToAccount" },
-	{ LSA_LSAREMOVEPRIVILEGESFROMACCOUNT, "MovePrivsFromAccount" },
-	{ LSA_LSAGETQUOTASFORACCOUNT, "GetQuotasForAccount" },
-	{ LSA_LSASETQUOTASFORACCOUNT, "SetQuotasForAccount" },
-	{ LSA_LSAGETSYSTEMACCESSACCOUNT, "GetSystemAccessAccount" },
-	{ LSA_LSASETSYSTEMACCESSACCOUNT, "SetSystemAccessAccount" },
-	{ LSA_LSAOPENTRUSTEDDOMAIN, "OpenTrustedDomain" },
-	{ LSA_LSAQUERYINFOTRUSTEDDOMAIN, "QueryInfoTrustedDomain" },
-	{ LSA_LSASETINFORMATIONTRUSTEDDOMAIN, "SetInfoTrustedDomain" },
-	{ LSA_LSAOPENSECRET, "OpenSecret" },
-	{ LSA_LSASETSECRET, "SetSecret" },
-	{ LSA_LSAQUERYSECRET, "QuerySecret" },
-	{ LSA_LSALOOKUPPRIVILEGEVALUE, "LookupPrivValue" },
-	{ LSA_LSALOOKUPPRIVILEGENAME, "LookupPrivName" },
-	{ LSA_LSALOOKUPPRIVILEGEDISPLAYNAME, "LookupPrivDispName" },
-	{ LSA_LSADELETEOBJECT, "DeleteObject" },
-	{ LSA_LSAENUMERATEACCOUNTSWITHUSERRIGHT, "EnumAccountsWithUserRight" },
-	{ LSA_LSAENUMERATEACCOUNTRIGHTS, "EnumAccountRights" },
-	{ LSA_LSAADDACCOUNTRIGHTS, "AddAccountRights" },
-	{ LSA_LSAREMOVEACCOUNTRIGHTS, "RemoveAccountRights" },
-	{ LSA_LSAQUERYTRUSTEDDOMAININFO, "QueryTrustedDomainInfo" },
-	{ LSA_LSASETTRUSTEDDOMAININFO, "SetTrustedDomainInfo" },
-	{ LSA_LSADELETETRUSTEDDOMAIN, "DeleteTrsutedDomain" },
-	{ LSA_LSASTOREPRIVATEDATA, "StorePrivateData" },
-	{ LSA_LSARETRIEVEPRIVATEDATA, "RetrievePrivateData" },
-	{ LSA_LSAOPENPOLICY2, "OpenPolicy2" },
-	{ LSA_LSAGETUSERNAME, "GetUsername" },
-	{ LSA_LSAQUERYINFORMATIONPOLICY2, "QueryInformationPolicy2" },
-	{ LSA_LSASETINFORMATIONPOLICY2, "SetInformationPolicy2" },
-	{ LSA_LSAQUERYTRUSTEDDOMAININFOBYNAME, "QueryTrustedDomainInfoByName" },
-	{ LSA_LSASETTRUSTEDDOMAININFOBYNAME, "SetTrustedDomainInfoByName" },
-	{ LSA_LSAENUMERATETRUSTEDDOMAINSEX, "EnumTrustedDomainsEx" },
-	{ LSA_LSACREATETRUSTEDDOMAINEX, "CreateTrustedDomainEx" },
-	{ LSA_LSACLOSETRUSTEDDOMAINEX, "CloseTrustedDomainEx" },
-	{ LSA_LSAQUERYDOMAININFORMATIONPOLICY, "QueryDomainInfoPolicy" },
-	{ LSA_LSASETDOMAININFORMATIONPOLICY, "SetDomainInfoPolicy" },
-	{ LSA_LSAOPENTRUSTEDDOMAINBYNAME, "OpenTrustedDomainByName" },
-	{ LSA_LSAFUNCTION_38, "LSAFUNCTION_38" },
-	{ LSA_LSALOOKUPSIDS2, "LookupSIDs2" },
-	{ LSA_LSALOOKUPNAMES2, "LookupNames2" },
-	{ LSA_LSAFUNCTION_3B, "LSAFUNCTION_3B" },
-	{ 0, NULL }
-};
-
 void
 proto_register_dcerpc_lsa(void)
 {
         static hf_register_info hf[] = {
 
         { &hf_lsa_opnum,
-	  { "Operation", "lsa.opnum", FT_UINT16, BASE_DEC,
-	    VALS(lsa_opnum_vals), 0x0, "Operation", HFILL }},
+	  { "Operation", "lsa.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }},
 
 	{ &hf_lsa_unknown_string,
 		{ "Unknown string", "lsa.unknown_string", FT_STRING, BASE_NONE,
@@ -4566,8 +4501,16 @@ static guint16 ver_dcerpc_lsa = 0;
 void
 proto_reg_handoff_dcerpc_lsa(void)
 {
+	header_field_info *hf_info;
+
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_lsa, ett_dcerpc_lsa, &uuid_dcerpc_lsa,
                          ver_dcerpc_lsa, dcerpc_lsa_dissectors, hf_lsa_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_lsa_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		dcerpc_lsa_dissectors, array_length(dcerpc_lsa_dissectors));
 }

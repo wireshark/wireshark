@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/krb5rpc.idl
  *
- * $Id: packet-dcerpc-krb5rpc.c,v 1.4 2003/01/11 07:40:09 guy Exp $
+ * $Id: packet-dcerpc-krb5rpc.c,v 1.5 2003/06/26 04:30:27 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,6 +53,7 @@ static e_uuid_t uuid_krb5rpc =
 				 0x31}
 };
 static guint16 ver_krb5rpc = 1;
+static int hf_krb5rpc_opnum = -1;
 static int hf_krb5rpc_sendto_kdc_rqst_keysize = -1;
 static int hf_krb5rpc_sendto_kdc_rqst_spare1 = -1;
 static int hf_krb5rpc_sendto_kdc_resp_len = -1;
@@ -157,6 +158,9 @@ void
 proto_register_krb5rpc (void)
 {
   static hf_register_info hf[] = {
+    {&hf_krb5rpc_opnum,
+     {"hf_krb5rpc_opnum", "hf_krb5rpc_opnum", FT_UINT16, BASE_DEC, NULL, 0x0,
+      "", HFILL }},
     {&hf_krb5rpc_sendto_kdc_rqst_keysize,
      {"hf_krb5rpc_sendto_kdc_rqst_keysize",
       "hf_krb5rpc_sendto_kdc_rqst_keysize", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -201,7 +205,16 @@ proto_register_krb5rpc (void)
 void
 proto_reg_handoff_krb5rpc (void)
 {
+  header_field_info *hf_info;
+
   /* Register the protocol as dcerpc */
   dcerpc_init_uuid (proto_krb5rpc, ett_krb5rpc, &uuid_krb5rpc, ver_krb5rpc,
-		    krb5rpc_dissectors, -1);
+		    krb5rpc_dissectors, hf_krb5rpc_opnum);
+  
+  /* Set opnum strings from subdissector list */
+
+  hf_info = proto_registrar_get_nth(hf_krb5rpc_opnum);
+  hf_info->strings = value_string_from_subdissectors(
+	  krb5rpc_dissectors, array_length(krb5rpc_dissectors));
+
 }

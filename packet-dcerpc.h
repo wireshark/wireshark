@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.31 2003/02/24 01:22:20 guy Exp $
+ * $Id: packet-dcerpc.h,v 1.32 2003/06/26 04:30:31 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -212,6 +212,9 @@ void dcerpc_init_uuid (int proto, int ett, e_uuid_t *uuid, guint16 ver, dcerpc_s
 char *dcerpc_get_proto_name(e_uuid_t *uuid, guint16 ver);
 dcerpc_sub_dissector *dcerpc_get_proto_sub_dissector(e_uuid_t *uuid, guint16 ver);
 
+/* Create a opnum, name value_string from a subdissector list */
+
+value_string *value_string_from_subdissectors(dcerpc_sub_dissector *sd, int num_sds);
 
 /* Private data structure to pass to DCERPC dissector. This is used to
    pass transport specific information down to the dissector from the

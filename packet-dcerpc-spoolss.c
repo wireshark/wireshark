@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.101 2003/06/17 05:29:45 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.102 2003/06/26 04:30:29 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6673,93 +6673,6 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 static int proto_dcerpc_spoolss = -1;
 static gint ett_dcerpc_spoolss = -1;
 
-static const value_string spoolss_opnum_vals[] = {
-        { SPOOLSS_ENUMPRINTERS, "EnumPrinters" },
-	{ SPOOLSS_OPENPRINTER, "OpenPrinter" },
-        { SPOOLSS_SETJOB, "SetJob" },
-        { SPOOLSS_GETJOB, "GetJob" },
-        { SPOOLSS_ENUMJOBS, "EnumJobs" },
-        { SPOOLSS_ADDPRINTER, "AddPrinter" },
-        { SPOOLSS_DELETEPRINTER, "DeletePrinter" },
-        { SPOOLSS_SETPRINTER, "SetPrinter" },
-        { SPOOLSS_GETPRINTER, "GetPrinter" },
-        { SPOOLSS_ADDPRINTERDRIVER, "AddPrinterDriver" },
-        { SPOOLSS_ENUMPRINTERDRIVERS, "EnumPrinterDrivers" },
-	{ SPOOLSS_GETPRINTERDRIVER, "GetPrinterDriver" },
-        { SPOOLSS_GETPRINTERDRIVERDIRECTORY, "GetPrinterDriverDirectory" },
-        { SPOOLSS_DELETEPRINTERDRIVER, "DeletePrinterDriver" },
-        { SPOOLSS_ADDPRINTPROCESSOR, "AddPrintProcessor" },
-        { SPOOLSS_ENUMPRINTPROCESSORS, "EnumPrintProcessor" },
-	{ SPOOLSS_GETPRINTPROCESSORDIRECTORY, "GetPrintProcessorDirectory" },
-        { SPOOLSS_STARTDOCPRINTER, "StartDocPrinter" },
-        { SPOOLSS_STARTPAGEPRINTER, "StartPagePrinter" },
-        { SPOOLSS_WRITEPRINTER, "WritePrinter" },
-        { SPOOLSS_ENDPAGEPRINTER, "EndPagePrinter" },
-        { SPOOLSS_ABORTPRINTER, "AbortPrinter" },
-	{ SPOOLSS_READPRINTER, "ReadPrinter" },
-        { SPOOLSS_ENDDOCPRINTER, "EndDocPrinter" },
-        { SPOOLSS_ADDJOB, "AddJob" },
-        { SPOOLSS_SCHEDULEJOB, "ScheduleJob" },
-        { SPOOLSS_GETPRINTERDATA, "GetPrinterData" },
-        { SPOOLSS_SETPRINTERDATA, "SetPrinterData" },
-	{ SPOOLSS_WAITFORPRINTERCHANGE, "WaitForPrinterChange" },
-        { SPOOLSS_CLOSEPRINTER, "ClosePrinter" },
-        { SPOOLSS_ADDFORM, "AddForm" },
-        { SPOOLSS_DELETEFORM, "DeleteForm" },
-        { SPOOLSS_GETFORM, "GetForm" },
-        { SPOOLSS_SETFORM, "SetForm" },
-        { SPOOLSS_ENUMFORMS, "EnumForms" },
-        { SPOOLSS_ENUMPORTS, "EnumPorts" },
-        { SPOOLSS_ENUMMONITORS, "EnumMonitors" },
-	{ SPOOLSS_ADDPORT, "AddPort" },
-	{ SPOOLSS_CONFIGUREPORT, "ConfigurePort" },
-	{ SPOOLSS_DELETEPORT, "DeletePort" },
-	{ SPOOLSS_CREATEPRINTERIC, "CreatePrinterIC" },
-	{ SPOOLSS_PLAYGDISCRIPTONPRINTERIC, "PlayDiscriptOnPrinterIC" },
-	{ SPOOLSS_DELETEPRINTERIC, "DeletePrinterIC" },
-	{ SPOOLSS_ADDPRINTERCONNECTION, "AddPrinterConnection" },
-	{ SPOOLSS_DELETEPRINTERCONNECTION, "DeletePrinterConnection" },
-	{ SPOOLSS_PRINTERMESSAGEBOX, "PrinterMessageBox" },
-	{ SPOOLSS_ADDMONITOR, "AddMonitor" },
-	{ SPOOLSS_DELETEMONITOR, "DeleteMonitor" },
-	{ SPOOLSS_DELETEPRINTPROCESSOR, "DeletePrintProcessor" },
-	{ SPOOLSS_ADDPRINTPROVIDER, "AddPrintProvider" },
-	{ SPOOLSS_DELETEPRINTPROVIDER, "DeletePrintProvider" },
-        { SPOOLSS_ENUMPRINTPROCDATATYPES, "EnumPrintProcDataTypes" },
-	{ SPOOLSS_RESETPRINTER, "ResetPrinter" },
-        { SPOOLSS_GETPRINTERDRIVER2, "GetPrinterDriver2" },
-	{ SPOOLSS_FINDFIRSTPRINTERCHANGENOTIFICATION, 
-	  "FindNextPrinterChangeNotification" },
-	{ SPOOLSS_FINDNEXTPRINTERCHANGENOTIFICATION, 
-	  "FindNextPrinterChangeNotification" },
-        { SPOOLSS_FCPN, "FCPN" },
-	{ SPOOLSS_ROUTERFINDFIRSTPRINTERNOTIFICATIONOLD, 
-	  "RouterFindFirstPrinterNotificationOld" },
-        { SPOOLSS_REPLYOPENPRINTER, "ReplyOpenPrinter" },
-	{ SPOOLSS_ROUTERREPLYPRINTER, "RouterReplyPrinter" },
-        { SPOOLSS_REPLYCLOSEPRINTER, "ReplyClosePrinter" },
-	{ SPOOLSS_ADDPORTEX, "AddPortEx" },
-	{ SPOOLSS_REMOTEFINDFIRSTPRINTERCHANGENOTIFICATION, 
-	  "RemoteFindFirstPrinterChangeNotification" },
-	{ SPOOLSS_SPOOLERINIT, "SpoolerInit" },
-	{ SPOOLSS_RESETPRINTEREX, "ResetPrinterEx" },
-        { SPOOLSS_RFFPCNEX, "RFFPCNEX" },
-        { SPOOLSS_RRPCN, "RRPCN" },
-        { SPOOLSS_RFNPCNEX, "RFNPCNEX" },
-        { SPOOLSS_OPENPRINTEREX, "OpenPrinterEx" },
-        { SPOOLSS_ADDPRINTEREX, "AddPrinterEx" },
-        { SPOOLSS_ENUMPRINTERDATA, "EnumPrinterData" },
-        { SPOOLSS_DELETEPRINTERDATA, "DeletePrinterData" },
-        { SPOOLSS_GETPRINTERDATAEX, "GetPrinterDataEx" },
-        { SPOOLSS_SETPRINTERDATAEX, "SetPrinterDataEx" },
-	{ SPOOLSS_ENUMPRINTERDATAEX, "EnumPrinterDataEx" },
-	{ SPOOLSS_ENUMPRINTERKEY, "EnumPrinterKey" },
-	{ SPOOLSS_DELETEPRINTERDATAEX, "DeletePrinterDataEx" },
-	{ SPOOLSS_DELETEPRINTERDRIVEREX, "DeletePrinterDriverEx" },
-	{ SPOOLSS_ADDPRINTERDRIVEREX, "AddPrinterDriverEx" },
-	{ 0, NULL }
-};
-
 void
 proto_register_dcerpc_spoolss(void)
 {
@@ -6875,7 +6788,7 @@ proto_register_dcerpc_spoolss(void)
 
 		{ &hf_opnum,
 		  { "Operation", "spoolss.opnum", FT_UINT16, BASE_DEC,
-		    VALS(spoolss_opnum_vals), 0x0, "Operation", HFILL }},
+		    NULL, 0x0, "Operation", HFILL }},
 
 		{ &hf_hnd,
 		  { "Context handle", "spoolss.hnd", FT_BYTES, BASE_NONE,
@@ -8290,9 +8203,17 @@ static guint16 ver_dcerpc_spoolss = 1;
 void
 proto_reg_handoff_dcerpc_spoolss(void)
 {
+	header_field_info *hf_info;
+
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_spoolss, ett_dcerpc_spoolss,
                          &uuid_dcerpc_spoolss, ver_dcerpc_spoolss,
                          dcerpc_spoolss_dissectors, hf_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		dcerpc_spoolss_dissectors, array_length(dcerpc_spoolss_dissectors));
 }

@@ -4,7 +4,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/time.tar.gz time/service/dtsprovider.idl
  *
- * $Id: packet-dcerpc-dtsprovider.c,v 1.4 2002/10/15 05:21:02 guy Exp $
+ * $Id: packet-dcerpc-dtsprovider.c,v 1.5 2003/06/26 04:30:27 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,19 +59,13 @@ static dcerpc_sub_dissector dtsprovider_dissectors[] = {
     { 0, NULL, NULL, NULL }
 };
 
-static const value_string dtsprovider_opnum_vals[] = {
-    { 0, "ContactProvider" },
-    { 1, "ServerRequestProviderTime" },
-    { 0, NULL }
-};
-
 void
 proto_register_dtsprovider (void)
 {
 	static hf_register_info hf[] = {
 	  { &hf_dtsprovider_opnum,
 	    { "Operation", "dtsprovider.opnum", FT_UINT16, BASE_DEC,
-	      VALS(dtsprovider_opnum_vals), 0x0, "Operation", HFILL }},
+	      NULL, 0x0, "Operation", HFILL }},
 	  { &hf_dtsprovider_status,
 	    { "Status", "dtsprovider.status", FT_UINT32, BASE_DEC,
 	      VALS(dce_error_vals), 0x0, "Return code, status of executed command", HFILL }}
@@ -88,6 +82,14 @@ proto_register_dtsprovider (void)
 void
 proto_reg_handoff_dtsprovider (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_dtsprovider, ett_dtsprovider, &uuid_dtsprovider, ver_dtsprovider, dtsprovider_dissectors, hf_dtsprovider_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_dtsprovider_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		dtsprovider_dissectors, array_length(dtsprovider_dissectors));
 }

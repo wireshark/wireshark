@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\messenger packet disassembly
  * Copyright 2003 Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-messenger.c,v 1.1 2003/06/25 10:33:10 sahlberg Exp $
+ * $Id: packet-dcerpc-messenger.c,v 1.2 2003/06/26 04:30:28 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,10 +48,6 @@ static dcerpc_sub_dissector dcerpc_messenger_dissectors[] = {
         {0, NULL, NULL,  NULL }
 };
 
-static const value_string messenger_opnum_vals[] = {
-	{ 0, NULL }
-};
-
 void
 proto_register_dcerpc_messenger(void)
 {
@@ -59,7 +55,7 @@ proto_register_dcerpc_messenger(void)
 
 		{ &hf_messenger_opnum,
 		  { "Operation", "messenger.opnum", FT_UINT16, BASE_DEC,
-		    VALS(messenger_opnum_vals), 0x0, "Operation", HFILL }}
+		    NULL, 0x0, "Operation", HFILL }}
 
         };
 
@@ -78,8 +74,16 @@ proto_register_dcerpc_messenger(void)
 void
 proto_reg_handoff_dcerpc_messenger(void)
 {
+	header_field_info *hf_info;
+
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_messenger, ett_dcerpc_messenger, &uuid_dcerpc_messenger,
                          ver_dcerpc_messenger, dcerpc_messenger_dissectors, hf_messenger_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_messenger_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		dcerpc_messenger_dissectors, array_length(dcerpc_messenger_dissectors));
 }

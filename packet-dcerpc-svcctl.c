@@ -3,7 +3,7 @@
  * Copyright 2003, Tim Potter <tpot@samba.org>
  * Copyright 2003, Ronnie Sahlberg,  added function dissectors
  *
- * $Id: packet-dcerpc-svcctl.c,v 1.9 2003/06/05 04:22:04 guy Exp $
+ * $Id: packet-dcerpc-svcctl.c,v 1.10 2003/06/26 04:30:30 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -476,35 +476,13 @@ static dcerpc_sub_dissector dcerpc_svcctl_dissectors[] = {
 	{0, NULL, NULL, NULL}
 };
 
-static const value_string svcctl_opnum_vals[] = {
-	{ SVC_CLOSE_SERVICE_HANDLE, "CloseServiceHandle" },
-	{ SVC_STOP_SERVICE, "StopService" },
-	{ SVC_DELETE, "DeleteService" },
-	{ SVC_LOCK_SERVICE_DATABASE, "LockServiceDatabase" },
-	{ SVC_GET_SVC_SEC, "QueryServiceObjectSecurity" },
-	{ SVC_UNLOCK_SERVICE_DATABASE, "UnockServiceDatabase" },
-	{ SVC_CHANGE_SVC_CONFIG, "Change config" },
-	{ SVC_ENUM_SVCS_STATUS, "Enum status" },
-	{ SVC_OPEN_SC_MAN, "Open SC Manager" },
-	{ SVC_OPEN_SERVICE, "Open service" },
-	{ SVC_QUERY_SVC_CONFIG, "Query config" },
-	{ SVC_START_SERVICE, "Start" },
-	{ SVC_QUERY_DISP_NAME, "Query display name" },
-	{ SVC_ENUM_SERVICES_STATUS, "EnumServicesStatus" },
-	{ SVC_OPEN_SC_MANAGER, "OpenSCManager" },
-	{ SVC_OPEN_SERVICE_A, "Open Service A" },
-	{ SVC_QUERY_SERVICE_LOCK_STATUS, "QueryServiceLockStatus" },
-	{ 0, NULL }
-};
-
-
 void
 proto_register_dcerpc_svcctl(void)
 {
         static hf_register_info hf[] = {
 	  { &hf_svcctl_opnum,
 	    { "Operation", "svcctl.opnum", FT_UINT16, BASE_DEC,
-	      VALS(svcctl_opnum_vals), 0x0, "Operation", HFILL }},
+	      NULL, 0x0, "Operation", HFILL }},
 	  { &hf_svcctl_machinename,
 	    { "MachineName", "svcctl.machinename", FT_STRING, BASE_NONE,
 	      NULL, 0x0, "Name of the host we want to open the database on", HFILL }},
@@ -582,9 +560,17 @@ proto_register_dcerpc_svcctl(void)
 void
 proto_reg_handoff_dcerpc_svcctl(void)
 {
+	header_field_info *hf_info;
+
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_svcctl, ett_dcerpc_svcctl,
                          &uuid_dcerpc_svcctl, ver_dcerpc_svcctl,
                          dcerpc_svcctl_dissectors, hf_svcctl_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_svcctl_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		dcerpc_svcctl_dissectors, array_length(dcerpc_svcctl_dissectors));
 }

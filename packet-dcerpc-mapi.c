@@ -2,7 +2,7 @@
  * Routines for MS Exchange MAPI
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-mapi.c,v 1.22 2003/06/05 04:22:03 guy Exp $
+ * $Id: packet-dcerpc-mapi.c,v 1.23 2003/06/26 04:30:28 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 #include "prefs.h"
 
 static int proto_dcerpc_mapi = -1;
+static int hf_mapi_opnum = -1;
 static int hf_mapi_unknown_string = -1;
 static int hf_mapi_unknown_short = -1;
 static int hf_mapi_unknown_long = -1;
@@ -374,6 +375,10 @@ proto_register_dcerpc_mapi(void)
 {
 
 static hf_register_info hf[] = {
+	{ &hf_mapi_opnum,
+	        { "Operation", "mapi.opnum", FT_UINT16, BASE_DEC,
+		  NULL, 0x0, "", HFILL }},
+
 	{ &hf_mapi_hnd,
 		{ "Context Handle", "mapi.hnd", FT_BYTES, BASE_NONE,
 		NULL, 0x0, "", HFILL }},
@@ -455,9 +460,17 @@ static hf_register_info hf[] = {
 void
 proto_reg_handoff_dcerpc_mapi(void)
 {
+	header_field_info *hf_info;
+
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_mapi, ett_dcerpc_mapi,
                          &uuid_dcerpc_mapi, ver_dcerpc_mapi,
-                         dcerpc_mapi_dissectors, -1);
+                         dcerpc_mapi_dissectors, hf_mapi_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_mapi_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		dcerpc_mapi_dissectors, array_length(dcerpc_mapi_dissectors));
 }

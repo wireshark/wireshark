@@ -2,7 +2,7 @@
  * Routines for DCERPC TAPI packet disassembly
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-tapi.c,v 1.5 2003/01/30 08:19:39 guy Exp $
+ * $Id: packet-dcerpc-tapi.c,v 1.6 2003/06/26 04:30:30 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,7 @@
 #include "smb.h"
 
 static int proto_dcerpc_tapi = -1;
+static int hf_tapi_opnum = -1;
 static int hf_tapi_rc = -1;
 static int hf_tapi_hnd = -1;
 static int hf_tapi_unknown_long = -1;
@@ -203,6 +204,9 @@ void
 proto_register_dcerpc_tapi(void)
 {
 static hf_register_info hf[] = {
+	{ &hf_tapi_opnum, { 
+		"Operation", "tapi.opnum", FT_UINT16, BASE_DEC,
+		NULL, 0x0, "", HFILL }},
 	{ &hf_tapi_rc, {
 		"Return code", "tapi.rc", FT_UINT32, BASE_HEX,
 		VALS(NT_errors), 0x0, "TAPI return code", HFILL }},
@@ -236,9 +240,17 @@ static hf_register_info hf[] = {
 void
 proto_reg_handoff_dcerpc_tapi(void)
 {
+	header_field_info *hf_info;
+
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_tapi, ett_dcerpc_tapi,
                          &uuid_dcerpc_tapi, ver_dcerpc_tapi,
-                         dcerpc_tapi_dissectors, -1);
+                         dcerpc_tapi_dissectors, hf_tapi_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_tapi_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		dcerpc_tapi_dissectors, array_length(dcerpc_tapi_dissectors));
 }

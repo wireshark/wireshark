@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/fsint/afs4int.idl
  *
- * $Id: packet-dcerpc-afs4int.c,v 1.2 2002/11/08 19:42:39 guy Exp $
+ * $Id: packet-dcerpc-afs4int.c,v 1.3 2003/06/26 04:30:26 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,48 +86,13 @@ static dcerpc_sub_dissector afs4int_dissectors[] = {
 	{  0, NULL, NULL, NULL }
 };
 
-
-static const value_string afs4int_opnum_vals[] = {
-	{  0, "SetContext" },
-	{  1, "LookupRoot" },
-	{  2, "FetchData" },
-	{  3, "FetchACL" },
-	{  4, "FetchStatus" },
-	{  5, "StoreData" },
-	{  6, "StoreACL" },
-	{  7, "StoreStatus" },
-	{  8, "RemoveFile" },
-	{  9, "CreateFile" },
-	{ 10, "Rename" },
-	{ 11, "Symlink" },
-	{ 12, "HardLink" },
-	{ 13, "MakeDir" },
-	{ 14, "RemoveDir" },
-	{ 15, "Readdir" },
-	{ 16, "Lookup" },
-	{ 17, "GetToken" },
-	{ 18, "ReleaseTokens" },
-	{ 19, "GetTime" },
-	{ 20, "MakeMountPoint" },
-	{ 21, "GetStatistics" },
-	{ 22, "BulkFetchVV" },
-	{ 23, "BulkKeepAlive" },
-	{ 24, "ProcessQuota" },
-	{ 25, "GetServerInterfaces" },
-	{ 26, "SetParams" },
-	{ 27, "BulkFetchStatus" },
-	{  0, NULL }
-};
-
-
-
 void
 proto_register_afs4int (void)
 {
 	static hf_register_info hf[] = {
 	  { &hf_afs4int_opnum,
 	    { "Operation", "afs4int.opnum", FT_UINT16, BASE_DEC,
-	      VALS(afs4int_opnum_vals), 0x0, "Operation", HFILL }}
+	      NULL, 0x0, "Operation", HFILL }}
 	};  
 
 
@@ -142,7 +107,14 @@ proto_register_afs4int (void)
 void
 proto_reg_handoff_afs4int (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_afs4int, ett_afs4int, &uuid_afs4int, ver_afs4int, afs4int_dissectors, hf_afs4int_opnum);
-}
 
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_afs4int_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		afs4int_dissectors, array_length(afs4int_dissectors));
+}

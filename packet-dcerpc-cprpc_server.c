@@ -4,7 +4,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/directory.tar.gz directory/cds/stubs/cprpc_server.idl
  *      
- * $Id: packet-dcerpc-cprpc_server.c,v 1.2 2002/11/08 19:42:39 guy Exp $
+ * $Id: packet-dcerpc-cprpc_server.c,v 1.3 2003/06/26 04:30:26 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,19 +57,13 @@ static dcerpc_sub_dissector cprpc_server_dissectors[] = {
     { 0, NULL, NULL, NULL }
 };
 
-static const value_string cprpc_server_opnum_vals[] = {
-    { 0, "dnscp_server" },
-    { 0, NULL }
-};
-
-
 void
 proto_register_cprpc_server (void)
 {
 	static hf_register_info hf[] = {
 	  { &hf_cprpc_server_opnum,
 	    { "Operation", "cprpc_server.opnum", FT_UINT16, BASE_DEC,
-	      VALS(cprpc_server_opnum_vals), 0x0, "Operation", HFILL }}
+	      NULL, 0x0, "Operation", HFILL }}
 	};
 
 	static gint *ett[] = {
@@ -83,6 +77,14 @@ proto_register_cprpc_server (void)
 void
 proto_reg_handoff_cprpc_server (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_cprpc_server, ett_cprpc_server, &uuid_cprpc_server, ver_cprpc_server, cprpc_server_dissectors, hf_cprpc_server_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_cprpc_server_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		cprpc_server_dissectors, array_length(cprpc_server_dissectors));
 }

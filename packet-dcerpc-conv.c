@@ -2,7 +2,7 @@
  * Routines for dcerpc conv dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-conv.c,v 1.6 2002/09/26 06:13:07 sahlberg Exp $
+ * $Id: packet-dcerpc-conv.c,v 1.7 2003/06/26 04:30:26 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -171,22 +171,12 @@ static dcerpc_sub_dissector conv_dissectors[] = {
     { 0, NULL, NULL, NULL }
 };
 
-static const value_string conv_opnum_vals[] = {
-    { 0, "who_are_you" }, 
-    { 1, "who_are_you2" }, 
-    { 2, "are_you_there" },
-    { 3, "who_are_you_auth" },
-    { 4, "who_are_you_auth_more" },
-    { 0, NULL }
-};
-
-
 void
 proto_register_conv (void)
 {
 	static hf_register_info hf[] = {
         { &hf_conv_opnum,
-            { "Operation", "conv.opnum", FT_UINT16, BASE_DEC, VALS(conv_opnum_vals), 0x0, "Operation", HFILL }},
+            { "Operation", "conv.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }},
         { &hf_conv_who_are_you_resp_seq,
             {"hf_conv_who_are_you_resp_seq", "conv.who_are_you_resp_seq", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_conv_rc,
@@ -216,7 +206,15 @@ proto_register_conv (void)
 void
 proto_reg_handoff_conv (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_conv, ett_conv, &uuid_conv, ver_conv, conv_dissectors, hf_conv_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_conv_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		conv_dissectors, array_length(conv_dissectors));
 }
 

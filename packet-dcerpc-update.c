@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/update/update.idl
  *
- * $Id: packet-dcerpc-update.c,v 1.2 2002/10/23 04:35:52 guy Exp $
+ * $Id: packet-dcerpc-update.c,v 1.3 2003/06/26 04:30:30 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,23 +62,13 @@ static dcerpc_sub_dissector dce_update_dissectors[] = {
   {0, NULL, NULL, NULL},
 };
 
-static const value_string dce_update_opnum_vals[] = {
-  {0, "UPDATE_GetServerInterfaces"},
-  {1, "UPDATE_FetchInfo"},
-  {2, "UPDATE_FetchFile"},
-  {3, "UPDATE_FetchObjectInfo"},
-  {0, NULL},
-};
-
-
-
 void
 proto_register_dce_update (void)
 {
   static hf_register_info hf[] = {
     {&hf_dce_update_opnum,
      {"Operation", "dce_update.opnum", FT_UINT16, BASE_DEC,
-      VALS (dce_update_opnum_vals), 0x0, "Operation", HFILL}}
+      NULL, 0x0, "Operation", HFILL}}
 
   };
 
@@ -94,8 +84,16 @@ proto_register_dce_update (void)
 void
 proto_reg_handoff_dce_update (void)
 {
+  header_field_info *hf_info;
+
   /* Register the protocol as dcerpc */
   dcerpc_init_uuid (proto_dce_update, ett_dce_update, &uuid_dce_update,
 		    ver_dce_update, dce_update_dissectors,
 		    hf_dce_update_opnum);
+
+  /* Set opnum strings from subdissector list */
+
+  hf_info = proto_registrar_get_nth(hf_dce_update_opnum);
+  hf_info->strings = value_string_from_subdissectors(
+	  dce_update_dissectors, array_length(dce_update_dissectors));
 }

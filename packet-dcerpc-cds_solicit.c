@@ -4,7 +4,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/directory.tar.gz directory/cds/stubs/cds_solicit.idl
  *      
- * $Id: packet-dcerpc-cds_solicit.c,v 1.2 2002/11/08 19:42:39 guy Exp $
+ * $Id: packet-dcerpc-cds_solicit.c,v 1.3 2003/06/26 04:30:26 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,19 +59,12 @@ static dcerpc_sub_dissector cds_solicit_dissectors[] = {
 	{ 0, NULL, NULL, NULL }
 };
 
-static const value_string cds_solicit_opnum_vals[] = {
-	{ 0, "cds_Solicit" },
-	{ 1, "cds_Advertise" },
-	{ 2, "cds_SolicitServer" },
-	{ 0, NULL }
-};
-
 void
 proto_register_cds_solicit (void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_cds_solicit_opnum,
-		{ "Operation", "cds_solicit.opnum", FT_UINT16, BASE_DEC, VALS(cds_solicit_opnum_vals), 0x0, "Operation", HFILL }},
+		{ "Operation", "cds_solicit.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -85,6 +78,14 @@ proto_register_cds_solicit (void)
 void
 proto_reg_handoff_cds_solicit (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_cds_solicit, ett_cds_solicit, &uuid_cds_solicit, ver_cds_solicit, cds_solicit_dissectors, hf_cds_solicit_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_cds_solicit_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		cds_solicit_dissectors, array_length(cds_solicit_dissectors));
 }

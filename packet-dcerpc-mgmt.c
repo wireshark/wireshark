@@ -2,7 +2,7 @@
  * Routines for dcerpc mgmt dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-mgmt.c,v 1.5 2002/08/02 23:35:48 jmayer Exp $
+ * $Id: packet-dcerpc-mgmt.c,v 1.6 2003/06/26 04:30:28 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 
 
 static int proto_mgmt = -1;
+static int hf_opnum = -1;
 
 static gint ett_mgmt = -1;
 
@@ -57,24 +58,31 @@ static dcerpc_sub_dissector mgmt_dissectors[] = {
 void
 proto_register_mgmt (void)
 {
-#if 0
 	static hf_register_info hf[] = {
+		{ &hf_opnum,
+		  { "Operation", "mgmt.opnum", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, "", HFILL }},
 	};
-#endif
 
 	static gint *ett[] = {
 		&ett_mgmt
 	};
 	proto_mgmt = proto_register_protocol ("DCE/RPC Remote Management", "MGMT", "mgmt");
-#if 0
 	proto_register_field_array (proto_mgmt, hf, array_length (hf));
-#endif
 	proto_register_subtree_array (ett, array_length (ett));
 }
 
 void
 proto_reg_handoff_mgmt (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
-	dcerpc_init_uuid (proto_mgmt, ett_mgmt, &uuid_mgmt, ver_mgmt, mgmt_dissectors, -1);
+	dcerpc_init_uuid (proto_mgmt, ett_mgmt, &uuid_mgmt, ver_mgmt, mgmt_dissectors, hf_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		mgmt_dissectors, array_length(mgmt_dissectors));
 }

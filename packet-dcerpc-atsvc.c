@@ -2,7 +2,7 @@
  * Routines for SMB \pipe\atsvc packet disassembly
  * Copyright 2003 Jean-Baptiste Marchand <jbm@hsc.fr>
  *
- * $Id: packet-dcerpc-atsvc.c,v 1.2 2003/06/06 17:09:18 sharpe Exp $
+ * $Id: packet-dcerpc-atsvc.c,v 1.3 2003/06/26 04:30:26 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -484,15 +484,6 @@ static dcerpc_sub_dissector dcerpc_atsvc_dissectors[] = {
         { 0, NULL, NULL,  NULL }
 };
 
-
-static const value_string atsvc_opnum_vals[] = {
-	{ ATSVC_JOB_ADD, "NetrJobAdd" },
-	{ ATSVC_JOB_DEL, "NetrJobDel" },
-	{ ATSVC_JOB_ENUM, "NetrJobEnum" },
-	{ ATSVC_JOB_GETINFO, "NetrJobGetInfo" },
-	{ 0, NULL }
-};
-
 static const value_string atsvc_job_day_of_month[] = {
 	{       0x00, "n/a" },
 	{       0x01, "01" },
@@ -584,7 +575,7 @@ proto_register_dcerpc_atsvc(void)
 
 		{ &hf_atsvc_opnum, 
 		  { "Operation", "atsvc.opnum", FT_UINT16, BASE_DEC,
-		   VALS(atsvc_opnum_vals), 0x0, "Operation", HFILL }},	
+		   NULL, 0x0, "Operation", HFILL }},	
 
 		{&hf_atsvc_rc,
 		  { "Return code", "atsvc.rc", FT_UINT32, BASE_HEX,
@@ -683,11 +674,18 @@ proto_register_dcerpc_atsvc(void)
 void
 proto_reg_handoff_dcerpc_atsvc(void)
 {
+	header_field_info *hf_info;
 
 	/* register protocol as dcerpc */
 
 	dcerpc_init_uuid(
 		proto_dcerpc_atsvc, ett_dcerpc_atsvc, &uuid_dcerpc_atsvc,
 		ver_dcerpc_atsvc, dcerpc_atsvc_dissectors, hf_atsvc_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_atsvc_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		dcerpc_atsvc_dissectors, array_length(dcerpc_atsvc_dissectors));
 
 }

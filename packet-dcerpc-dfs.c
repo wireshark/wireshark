@@ -2,7 +2,7 @@
  * Routines for SMB \\PIPE\\netdfs packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-dfs.c,v 1.5 2002/08/28 21:00:09 jmayer Exp $
+ * $Id: packet-dcerpc-dfs.c,v 1.6 2003/06/26 04:30:27 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,22 +54,13 @@ static dcerpc_sub_dissector dcerpc_dfs_dissectors[] = {
         {0, NULL, NULL,  NULL }
 };
 
-static const value_string dfs_opnum_vals[] = {
-        { DFS_EXIST, "Exit" },
-        { DFS_ADD, "Add" },
-        { DFS_REMOVE, "Remove" },
-        { DFS_GET_INFO, "GetInfo" },
-        { DFS_ENUM, "Enum" },
-        { 0, NULL },
-};
-
 void
 proto_register_dcerpc_dfs(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_dfs_opnum,
 		  { "Operation", "dfs.opnum", FT_UINT16, BASE_DEC,
-		    VALS(dfs_opnum_vals), 0x0, "Operation", HFILL }},
+		    NULL, 0x0, "Operation", HFILL }},
 	};
 
         static gint *ett[] = {
@@ -87,8 +78,16 @@ proto_register_dcerpc_dfs(void)
 void
 proto_reg_handoff_dcerpc_dfs(void)
 {
+	header_field_info *hf_info;
+
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_dfs, ett_dcerpc_dfs, &uuid_dcerpc_dfs,
                          ver_dcerpc_dfs, dcerpc_dfs_dissectors, hf_dfs_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_dfs_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		dcerpc_dfs_dissectors, array_length(dcerpc_dfs_dissectors));
 }

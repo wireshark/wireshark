@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\winreg packet disassembly
  * Copyright 2001-2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.c,v 1.19 2003/06/17 06:50:36 tpot Exp $
+ * $Id: packet-dcerpc-reg.c,v 1.20 2003/06/26 04:30:28 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -669,37 +669,6 @@ static dcerpc_sub_dissector dcerpc_reg_dissectors[] = {
         { 0, NULL, NULL,  NULL }
 };
 
-static const value_string reg_opnum_vals[] = {
-        { REG_OPEN_HKCR, "OpenHKCR" },
-        { _REG_UNK_01, "Unknown01" },
-        { REG_OPEN_HKLM, "OpenHKLM" },
-        { _REG_UNK_03, "Unknown03" },
-        { REG_OPEN_HKU, "OpenHKU" },
-        { REG_CLOSE, "Close" },
-        { REG_CREATE_KEY, "CreateKey" },
-        { REG_DELETE_KEY, "DeleteKey" },
-        { REG_DELETE_VALUE, "DeleteValue" },
-        { REG_ENUM_KEY, "EnumKey" },
-        { REG_ENUM_VALUE, "EnumValue" },
-        { REG_FLUSH_KEY, "FlushKey" },
-        { REG_GET_KEY_SEC, "GetKeySecurity" },
-        { _REG_UNK_0D, "Unknown0d" },
-        { _REG_UNK_0E, "Unknown0e" },
-        { REG_OPEN_ENTRY, "OpenEntry" },
-        { REG_QUERY_KEY, "QueryKey" },
-        { REG_QUERY_VALUE, "QueryValue" },
-        { _REG_UNK_12, "Unknown12" },
-        { _REG_UNK_13, "Unknown13" },
-        { _REG_UNK_14, "Unknown14" },
-        { REG_SET_KEY_SEC, "SetKeySecurity" },
-        { REG_CREATE_VALUE, "CreateValue" },
-        { _REG_UNK_17, "Unknown17" },
-        { REG_SHUTDOWN, "Shutdown" },
-        { REG_ABORT_SHUTDOWN, "AbortShutdown" },
-        { _REG_UNK_1A, "Unknown1A" },
-	{ 0, NULL }
-};
-
 void
 proto_register_dcerpc_reg(void)
 {
@@ -717,7 +686,7 @@ proto_register_dcerpc_reg(void)
 
 		{ &hf_reg_opnum,
 		  { "Operation", "reg.opnum", FT_UINT16, BASE_DEC,
-		    VALS(reg_opnum_vals), 0x0, "Operation", HFILL }},
+		    NULL, 0x0, "Operation", HFILL }},
 
 		{ &hf_access_mask,
 		  { "Access mask", "reg.access_mask", FT_UINT32, BASE_HEX,
@@ -828,8 +797,16 @@ proto_register_dcerpc_reg(void)
 void
 proto_reg_handoff_dcerpc_reg(void)
 {
+	header_field_info *hf_info;
+
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_reg, ett_dcerpc_reg, &uuid_dcerpc_reg,
                          ver_dcerpc_reg, dcerpc_reg_dissectors, hf_reg_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_reg_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		dcerpc_reg_dissectors, array_length(dcerpc_reg_dissectors));
 }

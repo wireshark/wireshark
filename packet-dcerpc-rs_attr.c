@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_attr.idl
  *      
- * $Id: packet-dcerpc-rs_attr.c,v 1.2 2002/11/08 19:42:40 guy Exp $
+ * $Id: packet-dcerpc-rs_attr.c,v 1.3 2003/06/26 04:30:29 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,25 +66,12 @@ static dcerpc_sub_dissector rs_attr_dissectors[] = {
     { 0, NULL, NULL, NULL }
 };
 
-static const value_string rs_attr_opnum_vals[] = {
-    { 0, "rs_attr_cursor_init" },
-    { 1, "rs_attr_lookup_by_id" },
-    { 2, "rs_attr_lookup_no_expand" },
-    { 3, "rs_attr_lookup_by_name" },
-    { 4, "rs_attr_update" },
-    { 5, "rs_attr_test_and_update" },
-    { 6, "rs_attr_delete" },
-    { 7, "rs_attr_get_referral" },
-    { 8, "rs_attr_get_effective" },
-    { 0, NULL }
-};
-
 void
 proto_register_rs_attr (void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_rs_attr_opnum,
-		{ "Operation", "rs_attr.opnum", FT_UINT16, BASE_DEC, VALS(rs_attr_opnum_vals), 0x0, "Operation", HFILL }},
+		{ "Operation", "rs_attr.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -98,6 +85,14 @@ proto_register_rs_attr (void)
 void
 proto_reg_handoff_rs_attr (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_rs_attr, ett_rs_attr, &uuid_rs_attr, ver_rs_attr, rs_attr_dissectors, hf_rs_attr_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_rs_attr_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		rs_attr_dissectors, array_length(rs_attr_dissectors));
 }

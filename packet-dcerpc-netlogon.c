@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.82 2003/06/02 03:53:32 tpot Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.83 2003/06/26 04:30:28 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6191,52 +6191,6 @@ static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
         {0, NULL, NULL,  NULL }
 };
 
-static const value_string netlogon_opnum_vals[] = {
-	{ NETLOGON_UASLOGON, "UasLogon" },
-	{ NETLOGON_UASLOGOFF, "UasLogoff" },
-	{ NETLOGON_NETLOGONSAMLOGON, "SamLogon" },
-	{ NETLOGON_NETLOGONSAMLOGOFF, "SamLogoff" },
-	{ NETLOGON_NETSERVERREQCHALLENGE, "ServerReqChallenge" },
-	{ NETLOGON_NETSERVERAUTHENTICATE, "ServerAuthenticate" },
-	{ NETLOGON_NETSERVERPASSWORDSET, "ServerPasswdSet" },
-	{ NETLOGON_NETSAMDELTAS, "DatabaseDeltas" },
-	{ NETLOGON_DATABASESYNC, "DatabaseSync" },
-	{ NETLOGON_ACCOUNTDELTAS, "AccountDeltas" },
-	{ NETLOGON_ACCOUNTSYNC, "AccountSync" },
-	{ NETLOGON_GETDCNAME, "GetDCName" },
-	{ NETLOGON_NETLOGONCONTROL, "LogonControl" },
-	{ NETLOGON_GETANYDCNAME, "GetAnyDCName" },
-	{ NETLOGON_NETLOGONCONTROL2, "LogonControl2" },
-	{ NETLOGON_NETSERVERAUTHENTICATE2, "ServerAuthenticate2" },
-	{ NETLOGON_NETDATABASESYNC2, "DatabaseSync2" },
-	{ NETLOGON_DATABASEREDO, "DatabaseRedo" },
-	{ NETLOGON_FUNCTION_12, "Function_0x12" },
-	{ NETLOGON_NETTRUSTEDDOMAINLIST, "TrustedDomainList" },
-	{ NETLOGON_DSRGETDCNAME2, "DsrGetDCName2" },
-	{ NETLOGON_FUNCTION_15, "Function_0x15" },
-	{ NETLOGON_FUNCTION_16, "Function_0x16" },
-	{ NETLOGON_FUNCTION_17, "Function_0x17" },
-	{ NETLOGON_FUNCTION_18, "Function_0x18" },
-	{ NETLOGON_FUNCTION_19, "Function_0x19" },
-	{ NETLOGON_NETSERVERAUTHENTICATE3, "ServerAuthenticate3" },
-	{ NETLOGON_DSRGETDCNAME, "DsrGetDCName" },
-	{ NETLOGON_DSRGETSITENAME, "DsrGetSiteName" },
-	{ NETLOGON_NETRLOGONGETDOMAININFO, "NetrLogonGetDomainInfo" },
-	{ NETLOGON_FUNCTION_1E, "Function_0x1E" },
-	{ NETLOGON_NETSERVERPASSWORDSET2, "ServerPasswordSet2" },
-	{ NETLOGON_FUNCTION_20, "Function_0x20" },
-	{ NETLOGON_FUNCTION_21, "Function_0x21" },
-	{ NETLOGON_FUNCTION_22, "Function_0x22" },
-	{ NETLOGON_FUNCTION_23, "Function_0x23" },
-	{ NETLOGON_FUNCTION_24, "Function_0x24" },
-	{ NETLOGON_FUNCTION_25, "Function_0x25" },
-	{ NETLOGON_FUNCTION_26, "Function_0x26" },
-	{ NETLOGON_LOGONSAMLOGONEX, "LogonSamLogonEx" },
-	{ NETLOGON_DSENUMERATETRUSTEDDOMAINS, "DSEnumerateTrustedDomains" },
-	{ NETLOGON_DSRDEREGISTERDNSHOSTRECORDS, "DsrDeregisterDNSHostRecords" },
-	{ 0, NULL }
-};
-
 /* Secure channel types */
 
 static const value_string sec_chan_type_vals[] = {
@@ -6253,7 +6207,7 @@ proto_register_dcerpc_netlogon(void)
 static hf_register_info hf[] = {
 	{ &hf_netlogon_opnum,
 	  { "Operation", "netlogon.opnum", FT_UINT16, BASE_DEC,
-	    VALS(netlogon_opnum_vals), 0x0, "Operation", HFILL }},
+	    NULL, 0x0, "Operation", HFILL }},
 
 	{ &hf_netlogon_rc, {
 		"Return code", "netlogon.rc", FT_UINT32, BASE_HEX,
@@ -7115,9 +7069,17 @@ static hf_register_info hf[] = {
 void
 proto_reg_handoff_dcerpc_netlogon(void)
 {
+	header_field_info *hf_info;
+
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_netlogon, ett_dcerpc_netlogon,
                          &uuid_dcerpc_netlogon, ver_dcerpc_netlogon,
                          dcerpc_netlogon_dissectors, hf_netlogon_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_netlogon_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		dcerpc_netlogon_dissectors, array_length(dcerpc_netlogon_dissectors));
 }

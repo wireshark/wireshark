@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tgz file/ftserver/ftserver_proc.idl
  *
- * $Id: packet-dcerpc-ftserver.c,v 1.2 2002/11/08 19:42:39 guy Exp $
+ * $Id: packet-dcerpc-ftserver.c,v 1.3 2003/06/26 04:30:27 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,39 +79,13 @@ static dcerpc_sub_dissector ftserver_dissectors[] = {
 	{ 0, NULL, NULL, NULL }
 };
 
-
-static const value_string ftserver_opnum_vals[] = {
-	{  0, "CreateTrans" },
-	{  1, "AbortTrans" },
-	{  2, "DeleteTrans" },
-	{  3, "CreateVolume" },
-	{  4, "DeleteVolume" },
-	{  5, "Dump" },
-	{  6, "Restore" },
-	{  7, "Forward" },
-	{  8, "Clone" },
-	{  9, "ReClone" },
-	{ 10, "GetFlags" },
-	{ 11, "SetFlags" },
-	{ 12, "GetStatus" },
-	{ 13, "SetStatus" },
-	{ 14, "ListVolumes" },
-	{ 15, "ListAggregates" },
-	{ 16, "AggregateInfo" },
-	{ 17, "Monitor" },
-	{ 18, "GetOneVolStatus" },
-	{ 19, "GetServerInterfaces" },
-	{ 20, "SwapIDs" },
-	{ 0, NULL }
-};
-
 void
 proto_register_ftserver (void)
 {
 	static hf_register_info hf[] = {
 	  { &hf_ftserver_opnum,
 	    { "Operation", "ftserver.opnum", FT_UINT16, BASE_DEC,
-	      VALS(ftserver_opnum_vals), 0x0, "Operation", HFILL }}
+	      NULL, 0x0, "Operation", HFILL }}
 	};
 
 	static gint *ett[] = {
@@ -125,6 +99,14 @@ proto_register_ftserver (void)
 void
 proto_reg_handoff_ftserver (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_ftserver, ett_ftserver, &uuid_ftserver, ver_ftserver, ftserver_dissectors, hf_ftserver_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_ftserver_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		ftserver_dissectors, array_length(ftserver_dissectors));
 }

@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/fsint/tkn4int.idl
  *     
- * $Id: packet-dcerpc-tkn4int.c,v 1.2 2002/11/08 19:42:40 guy Exp $
+ * $Id: packet-dcerpc-tkn4int.c,v 1.3 2003/06/26 04:30:30 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,28 +67,13 @@ static dcerpc_sub_dissector tkn4int_dissectors[] = {
 
 };
 
-
-static const value_string tkn4int_opnum_vals[] = {
-    { 0, "Probe" },
-    { 1, "InitTokenState" },
-    { 2, "TokenRevoke" },
-    { 3, "GetCellName" },
-    { 4, "GetLock" },
-    { 5, "GetCE" },
-    { 6, "GetServerInterfaces" },
-    { 7, "SetParams" },
-    { 8, "AsyncGrant" },
-    { 0, NULL }
-
-};
-
 void
 proto_register_tkn4int (void)
 {
 	static hf_register_info hf[] = {
 	  { &hf_tkn4int_opnum,
 	    { "Operation", "tkn4int.opnum", FT_UINT16, BASE_DEC,
-	      VALS(tkn4int_opnum_vals), 0x0, "Operation", HFILL }}
+	      NULL, 0x0, "Operation", HFILL }}
 	};
 
 	static gint *ett[] = {
@@ -102,6 +87,14 @@ proto_register_tkn4int (void)
 void
 proto_reg_handoff_tkn4int (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_tkn4int, ett_tkn4int, &uuid_tkn4int, ver_tkn4int, tkn4int_dissectors, hf_tkn4int_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_tkn4int_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		tkn4int_dissectors, array_length(tkn4int_dissectors));
 }

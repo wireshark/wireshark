@@ -9,7 +9,7 @@
  * 2002, some share information levels implemented based on samba
  * sources.
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.57 2003/06/05 04:22:04 guy Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.58 2003/06/26 04:30:30 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6789,60 +6789,13 @@ static dcerpc_sub_dissector dcerpc_srvsvc_dissectors[] = {
 	{0, NULL, NULL, NULL}
 };
 
-static const value_string srvsvc_opnum_vals[] = {
-	{SRV_NETRCHARDEVENUM,		"NetrCharDevEnum" },
-	{SRV_NETRCHARDEVGETINFO,	"NetrCharDevGetInfo" },
-	{SRV_NETRCHARDEVCONTROL,	"NetrCharDevControl" },
-	{SRV_NETRCHARDEVQENUM,		"NetrCharDevQEnum" },
-	{SRV_NETRCHARDEVQGETINFO,	"NetrCharDevQGetInfo" },
-	{SRV_NETRCHARDEVQSETINFO,	"NetrCharDevQSetInfo" },
-	{SRV_NETRCHARDEVQPURGE,		"NetrCharDevQPurge" },
-	{SRV_NETRCHARDEVQPURGESELF,	"NetrCharDevQPurgeSelf" },
-	{SRV_NETRCONNECTIONENUM,	"NetrConnectionEnum" },
-	{SRV_NETRFILEENUM,		"NetrFileEnum" },
-	{SRV_NETRFILEGETINFO,		"NetrFileGetInfo" },
-	{SRV_NETRFILECLOSE,		"NetrFileClose" },
-	{SRV_NETRSESSIONENUM,		"NetrSessionEnum" },
-	{SRV_NETRSESSIONDEL,		"NetrSessionDel" },
-	{SRV_NETRSHAREADD,		"NetrShareAdd" },
-	{SRV_NETRSHAREENUM,		"NetrShareEnum" },
-	{SRV_NETRSHAREGETINFO,		"NetrShareGetInfo" },
-	{SRV_NETRSHARESETINFO,		"NetrShareSetInfo" },
-	{SRV_NETRSHAREDEL,		"NetrShareDel" },
-	{SRV_NETRSHAREDELSTICKY,	"NetrShareDelSticky" },
-	{SRV_NETRSHARECHECK,		"NetrShareCheck" },
-	{SRV_NETRSERVERGETINFO,		"NetrServerGetInfo" },
-	{SRV_NETRSERVERSETINFO,		"NetrServerSetInfo" },
-	{SRV_NETRSERVERDISKENUM,	"NetrServerDiskEnum" },
-	{SRV_NETRSERVERSTATISTICSGET,	"NetrServerStatisticsGet" },
-	{SRV_NETRSERVERTRANSPORTADD,	"NetrServerTransportAdd" },
-	{SRV_NETRSERVERTRANSPORTENUM,	"NetrServerTransportEnum" },
-	{SRV_NETRSERVERTRANSPORTDEL,	"NetrServerTransportDel" },
-	{SRV_NETRREMOTETOD,		"NetrRemoteTOD" },
-	{SRV_NETRSERVERSETSERVICEBITS,	"NetrServerSetServiceBits" },
-	{SRV_NETRPRPATHTYPE,		"NetrPathType" },
-	{SRV_NETRPRPATHCANONICALIZE,	"NetrpPathCanonicalize" },
-	{SRV_NETRPRPATHCOMPARE,		"NetrpPathCompare" },
-	{SRV_NETRPRNAMEVALIDATE,	"NetrpNameValidate" },
-	{SRV_NETRPRNAMECANONICALIZE,	"NetrpNameCanonicalize" },
-	{SRV_NETRPRNAMECOMPARE,		"NetrpNameCompare" },
-	{SRV_NETRSHAREENUMSTICKY,	"NetrShareEnumSticky" },
-	{SRV_NETRSHAREDELSTART,		"NetrShareDelStart" },
-	{SRV_NETRSHAREDELCOMMIT,	"NetrShareDelCommit" },
-	{SRV_NETRPGETFILESECURITY,	"NetrpGetFileSecurity" },
-	{SRV_NETRPSETFILESECURITY,	"NetrpSetFileSecurity" },
-	{SRV_NETRSERVERTRANSPORTADDEX,	"NetrServerTransportAddEx" },
-	{SRV_NETRSERVERSETSERVICEBITS2,	"NetrServerSetServiceBits2" },
-	{0, NULL }
-};
-
 void
 proto_register_dcerpc_srvsvc(void)
 {
         static hf_register_info hf[] = {
 	  { &hf_srvsvc_opnum,
 	    { "Operation", "srvsvc.opnum", FT_UINT16, BASE_DEC,
-	      VALS(srvsvc_opnum_vals), 0x0, "Operation", HFILL }},
+	      NULL, 0x0, "Operation", HFILL }},
 	  { &hf_srvsvc_server,
 	    { "Server", "srvsvc.server", FT_STRING, BASE_NONE,
 	    NULL, 0x0, "Server Name", HFILL}},
@@ -7407,9 +7360,17 @@ proto_register_dcerpc_srvsvc(void)
 void
 proto_reg_handoff_dcerpc_srvsvc(void)
 {
+	header_field_info *hf_info;
+
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_srvsvc, ett_dcerpc_srvsvc,
                          &uuid_dcerpc_srvsvc, ver_dcerpc_srvsvc,
                          dcerpc_srvsvc_dissectors, hf_srvsvc_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_srvsvc_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		dcerpc_srvsvc_dissectors, array_length(dcerpc_srvsvc_dissectors));
 }

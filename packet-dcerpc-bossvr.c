@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/bosserver/bbos_ncs_interface.idl
  *
- * $Id: packet-dcerpc-bossvr.c,v 1.2 2002/11/08 19:42:39 guy Exp $
+ * $Id: packet-dcerpc-bossvr.c,v 1.3 2003/06/26 04:30:26 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -91,52 +91,13 @@ static dcerpc_sub_dissector bossvr_dissectors[] = {
     { 0, NULL, NULL, NULL }
 };
 
-static const value_string bossvr_opnum_vals[] = {
-    {  0, "GetServerStatus" },
-    {  1, "CreateBnode" },
-    {  2, "DeleteBnode" },
-    {  3, "SetStatus" },
-    {  4, "GetStatus" },
-    {  5, "EnumerateInstance" },
-    {  6, "GetInstanceInfo" },
-    {  7, "GetInstanceParm" },
-    {  8, "AddSUser" },
-    {  9, "DeleteSUser" },
-    { 10, "ListSUsers" },
-    { 11, "ListKeys" },
-    { 12, "AddKey" },
-    { 13, "DeleteKey" },
-    { 14, "GenerateKey" },
-    { 15, "GarbageCollectKeys" },
-    { 16, "GetCellName" },
-    { 17, "SetTStatus" },
-    { 18, "ShutdownAll" },
-    { 19, "RestartAll" },
-    { 20, "StartupAll" },
-    { 21, "SetNoAuthFlag" },
-    { 22, "ReBossvr" },
-    { 23, "Restart" },
-    { 24, "Install" },
-    { 25, "UnInstall" },
-    { 26, "GetDates" },
-    { 27, "Prune" },
-    { 28, "SetRestartTime" },
-    { 29, "GetRestartTime" },
-    { 30, "GetLog" },
-    { 31, "WaitAll" },
-    { 32, "SetDebug" },
-    { 33, "GetServerInterfaces" },
-    { 0, NULL }
-};
-
-
 void
 proto_register_bossvr (void)
 {
 	static hf_register_info hf[] = {
 	  { &hf_bossvr_opnum,
 	    { "Operation", "bossvr.opnum", FT_UINT16, BASE_DEC,
-	      VALS(bossvr_opnum_vals), 0x0, "Operation", HFILL }}
+	      NULL, 0x0, "Operation", HFILL }}
 	};
 
 	static gint *ett[] = {
@@ -150,6 +111,14 @@ proto_register_bossvr (void)
 void
 proto_reg_handoff_bossvr (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_bossvr, ett_bossvr, &uuid_bossvr, ver_bossvr, bossvr_dissectors, hf_bossvr_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_bossvr_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		bossvr_dissectors, array_length(bossvr_dissectors));
 }

@@ -4,7 +4,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/time.tar.gz time/service/dtsstime_req.idl
  *           
- * $Id: packet-dcerpc-dtsstime_req.c,v 1.3 2002/10/15 05:21:02 guy Exp $
+ * $Id: packet-dcerpc-dtsstime_req.c,v 1.4 2003/06/26 04:30:27 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,18 +58,12 @@ static dcerpc_sub_dissector dtsstime_req_dissectors[] = {
     { 0, NULL, NULL, NULL }
 };
 
-static const value_string dtsstime_req_opnum_vals[] = {
-    { 0, "ClerkRequestTime" },
-    { 1, "ServerRequestTime" },
-    { 0, NULL }
-};
-
 void
 proto_register_dtsstime_req (void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_dtsstime_req_opnum,
-		{ "Operation", "dtsstime_req.opnum", FT_UINT16, BASE_DEC, VALS(dtsstime_req_opnum_vals), 0x0, "Operation", HFILL }}
+		{ "Operation", "dtsstime_req.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }}
 	};
 
 	static gint *ett[] = {
@@ -83,6 +77,14 @@ proto_register_dtsstime_req (void)
 void
 proto_reg_handoff_dtsstime_req (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_dtsstime_req, ett_dtsstime_req, &uuid_dtsstime_req, ver_dtsstime_req, dtsstime_req_dissectors, hf_dtsstime_req_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_dtsstime_req_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		dtsstime_req_dissectors, array_length(dtsstime_req_dissectors));
 }

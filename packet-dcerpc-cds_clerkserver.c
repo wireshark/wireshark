@@ -6,7 +6,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/directory.tar.gz directory/cds/stubs/cds_clerkserver.idl
  *      
- * $Id: packet-dcerpc-cds_clerkserver.c,v 1.2 2002/11/08 19:42:39 guy Exp $
+ * $Id: packet-dcerpc-cds_clerkserver.c,v 1.3 2003/06/26 04:30:26 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,45 +86,13 @@ static dcerpc_sub_dissector cds_clerkserver_dissectors[] = {
     { 0, NULL, NULL, NULL }
 };
 
-
-static const value_string cds_clerkserver_opnum_vals[] = {
-    {  0, "AddReplica" },
-    {  1, "AllowClearinghouses" },
-    {  2, "Combine" },
-    {  3, "CreateChild" },
-    {  4, "CreateDirectory" },
-    {  5, "CreateSoftLink" },
-    {  6, "CreateObject" },
-    {  7, "DeleteChild" },
-    {  8, "DeleteObject" },
-    {  9, "DeleteSoftLink" },
-    { 10, "DeleteDirectory" },
-    { 11, "DisallowClearinghouses" },
-    { 12, "DoUpdate" },
-    { 13, "EnumerateAttributes" },
-    { 14, "EnumerateChildren" },
-    { 15, "EnumerateObjects" },
-    { 16, "EnumerateSoftLinks" },
-    { 17, "LinkReplica" },
-    { 18, "ModifyAttribute" },
-    { 19, "ModifyReplica" },
-    { 20, "NewEpoch" },
-    { 21, "ReadAttribute" },
-    { 22, "RemoveReplica" },
-    { 23, "ResolveName" },
-    { 24, "Skulk" },
-    { 25, "TestAttribute" },
-    { 26, "TestGroup" },
-    { 0, NULL }
-};
-
 void
 proto_register_cds_clerkserver (void)
 {
 	static hf_register_info hf[] = {
 	  { &hf_cds_clerkserver_opnum,
 	    { "Operation", "cds_clerkserver.opnum", FT_UINT16, BASE_DEC,
-	      VALS(cds_clerkserver_opnum_vals), 0x0, "Operation", HFILL }}
+	      NULL, 0x0, "Operation", HFILL }}
 	};
 
 	static gint *ett[] = {
@@ -138,6 +106,14 @@ proto_register_cds_clerkserver (void)
 void
 proto_reg_handoff_cds_clerkserver (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_cds_clerkserver, ett_cds_clerkserver, &uuid_cds_clerkserver, ver_cds_clerkserver, cds_clerkserver_dissectors, hf_cds_clerkserver_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_cds_clerkserver_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		cds_clerkserver_dissectors, array_length(cds_clerkserver_dissectors));
 }

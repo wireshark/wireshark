@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_misc.idl
  *      
- * $Id: packet-dcerpc-rs_misc.c,v 1.3 2002/11/28 04:57:43 guy Exp $
+ * $Id: packet-dcerpc-rs_misc.c,v 1.4 2003/06/26 04:30:29 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -97,20 +97,13 @@ static dcerpc_sub_dissector rs_misc_dissectors[] = {
 	{ 0, NULL, NULL, NULL }
 };
 
-static const value_string rs_misc_opnum_vals[] = {
-	{ 0, "rs_login_get_info" },
-	{ 1, "rs_wait_until_consistent" },
-	{ 2, "rs_check_consistency" },
-	{ 0, NULL },
-};
-
 void
 proto_register_rs_misc (void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_rs_misc_opnum,
 		{ "Operation", "rs_misc.opnum", FT_UINT16, BASE_DEC,
-		VALS(rs_misc_opnum_vals), 0x0, "Operation", HFILL }},
+		NULL, 0x0, "Operation", HFILL }},
 	{ &hf_rs_misc_login_get_info_rqst_var,
 		{ "Var", "rs_misc.login_get_info_rqst_var", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
@@ -133,6 +126,15 @@ proto_register_rs_misc (void)
 void
 proto_reg_handoff_rs_misc (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_rs_misc, ett_rs_misc, &uuid_rs_misc, ver_rs_misc, rs_misc_dissectors, hf_rs_misc_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_rs_misc_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		rs_misc_dissectors, array_length(rs_misc_dissectors));
+
 }

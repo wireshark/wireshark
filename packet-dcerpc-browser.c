@@ -2,7 +2,7 @@
  * Routines for DCERPC Browser packet disassembly
  * Copyright 2001, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-browser.c,v 1.10 2003/01/30 08:19:37 guy Exp $
+ * $Id: packet-dcerpc-browser.c,v 1.11 2003/06/26 04:30:26 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include "smb.h"
 
 static int proto_dcerpc_browser = -1;
+static int hf_browser_opnum = -1;
 static int hf_browser_rc = -1;
 static int hf_browser_unknown_long = -1;
 static int hf_browser_unknown_hyper = -1;
@@ -1121,6 +1122,11 @@ void
 proto_register_dcerpc_browser(void)
 {
 static hf_register_info hf[] = {
+
+	{ &hf_browser_opnum, { 
+		"Operation", "rpc_browser.opnum", FT_UINT16, BASE_DEC,
+		NULL, 0x0, "Operation", HFILL }},
+
 	{ &hf_browser_rc, {
 		"Return code", "rpc_browser.rc", FT_UINT32, BASE_HEX,
 		VALS(NT_errors), 0x0, "Browser return code", HFILL }},
@@ -1157,9 +1163,17 @@ static hf_register_info hf[] = {
 void
 proto_reg_handoff_dcerpc_browser(void)
 {
+	header_field_info *hf_info;
+
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_browser, ett_dcerpc_browser,
                          &uuid_dcerpc_browser, ver_dcerpc_browser,
-                         dcerpc_browser_dissectors, -1);
+                         dcerpc_browser_dissectors, hf_browser_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_browser_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		dcerpc_browser_dissectors, array_length(dcerpc_browser_dissectors));
 }

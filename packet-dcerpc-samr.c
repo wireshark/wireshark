@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.95 2003/06/05 04:22:03 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.96 2003/06/26 04:30:29 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5084,82 +5084,12 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
         {0, NULL, NULL,  NULL }
 };
 
-static const value_string samr_opnum_vals[] = {
-        { SAMR_CONNECT, "SamrConnect" },
-        { SAMR_CLOSE_HND, "Close" },
-        { SAMR_SET_SEC_OBJECT, "SetSecObject" },
-        { SAMR_QUERY_SEC_OBJECT, "QuerySecObject" },
-        { SAMR_SHUTDOWN_SAM_SERVER, "ShutdownSamServer" },
-        { SAMR_LOOKUP_DOMAIN, "LookupDomain" },
-        { SAMR_ENUM_DOMAINS, "EnumDomains" },
-        { SAMR_OPEN_DOMAIN, "OpenDomain" },
-	{ SAMR_QUERY_DOMAIN_INFO, "QueryDomainInfo" },
-        { SAMR_SET_DOMAIN_INFO, "SetDomainInfo" },
-        { SAMR_CREATE_DOM_GROUP, "CreateGroup" },
-        { SAMR_ENUM_DOM_GROUPS, "EnumDomainGroups" },
-	{ SAMR_CREATE_USER_IN_DOMAIN, "CreateUser" },
-        { SAMR_ENUM_DOM_USERS, "EnumDomainUsers" },
-        { SAMR_CREATE_DOM_ALIAS, "CreateAlias" },
-        { SAMR_ENUM_DOM_ALIASES, "EnumAliases" },
-        { SAMR_GET_ALIAS_MEMBERSHIP, "GetAliasMem" },
-        { SAMR_LOOKUP_NAMES, "LookupNames" },
-        { SAMR_LOOKUP_RIDS, "LookupRIDs" },
-        { SAMR_OPEN_GROUP, "OpenGroup" },
-        { SAMR_QUERY_GROUPINFO, "QueryGroupInfo" },
-        { SAMR_SET_GROUPINFO, "SetGroupInfo" },
-        { SAMR_ADD_GROUPMEM, "AddGroupMem" },
-        { SAMR_DELETE_DOM_GROUP, "DeleteDomainGroup" },
-        { SAMR_DEL_GROUPMEM, "RemoveGroupMem" },
-        { SAMR_QUERY_GROUPMEM, "QueryGroupMem" },
-        { SAMR_SET_MEMBER_ATTRIBUTES_OF_GROUP, "SetMemberAttrGroup" },
-        { SAMR_OPEN_ALIAS, "OpenAlias" },
-        { SAMR_QUERY_ALIASINFO, "QueryAliasInfo" },
-        { SAMR_SET_ALIASINFO, "SetAliasInfo" },
-        { SAMR_DELETE_DOM_ALIAS, "DeleteAlias" },
-        { SAMR_ADD_ALIASMEM, "AddAliasMem" },
-        { SAMR_DEL_ALIASMEM, "RemoveAliasMem" },
-        { SAMR_GET_MEMBERS_IN_ALIAS, "GetAliasMem" },
-        { SAMR_OPEN_USER, "OpenUser" },
-        { SAMR_DELETE_DOM_USER, "DeleteUser" },
-        { SAMR_QUERY_USERINFO, "QueryUserInfo" },
-        { SAMR_SET_USERINFO2, "SetUserInfo2" },
-	{ SAMR_CHANGE_PASSWORD_USER, "ChangePassword" },
-        { SAMR_GET_GROUPS_FOR_USER, "GetGroups" },
-        { SAMR_QUERY_DISPINFO, "QueryDispinfo" },
-        { SAMR_GET_DISPLAY_ENUMERATION_INDEX, "GetDispEnumNDX" },
-        { SAMR_TEST_PRIVATE_FUNCTIONS_DOMAIN, "TestPrivateFnsDomain" },
-        { SAMR_TEST_PRIVATE_FUNCTIONS_USER, "TestPrivateFnsUser" },
-        { SAMR_GET_USRDOM_PWINFO, "GetUserDomPwInfo" },
-        { SAMR_REMOVE_MEMBER_FROM_FOREIGN_DOMAIN, "RemoveMemberForeignDomain" },
-        { SAMR_QUERY_INFORMATION_DOMAIN2, "QueryDomInfo2" },
-        { SAMR_UNKNOWN_2f, "Unknown 0x2f" },
-        { SAMR_QUERY_DISPINFO2, "QueryDispinfo2" },
-        { SAMR_GET_DISPLAY_ENUMERATION_INDEX2, "GetDispEnumNDX2" },
-        { SAMR_CREATE_USER2_IN_DOMAIN, "CreateUser2" },
-        { SAMR_QUERY_DISPINFO3, "QueryDispinfo3" },
-        { SAMR_ADD_MULTIPLE_MEMBERS_TO_ALIAS, "AddAliasMemMultiple" },
-        { SAMR_REMOVE_MULTIPLE_MEMBERS_FROM_ALIAS, "RemoveAliasMemMultiple" },
-        { SAMR_OEM_CHANGE_PASSWORD_USER2, "OEMChangePassword2" },
-        { SAMR_UNICODE_CHANGE_PASSWORD_USER2, "UnicodeChangePassword2" },
-        { SAMR_GET_DOM_PWINFO, "GetDomainPasswordInfo" },
-	{ SAMR_CONNECT2, "Connect2" },
-        { SAMR_SET_USERINFO, "SetUserInfo" },
-        { SAMR_UNKNOWN_3B, "Unknown 0x3b" },
-        { SAMR_UNKNOWN_3C, "Unknown 0x3c" },
-	{ SAMR_CONNECT3, "Connect3" },
-	{ SAMR_CONNECT4, "Connect4" },
-	{ 0, NULL }
-};
-
 void
 proto_register_dcerpc_samr(void)
 {
         static hf_register_info hf[] = {
-
 		{ &hf_samr_opnum,
-		  { "Operation", "samr.opnum", FT_UINT16, BASE_DEC,
-		    VALS(samr_opnum_vals), 0x0, "Operation", HFILL }},
-
+		  { "Operation", "samr.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }},
                 { &hf_samr_hnd,
                   { "Context Handle", "samr.hnd", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }},
                 { &hf_samr_group,
@@ -5747,8 +5677,16 @@ proto_register_dcerpc_samr(void)
 void
 proto_reg_handoff_dcerpc_samr(void)
 {
+	header_field_info *hf_info;
+
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_samr, ett_dcerpc_samr, &uuid_dcerpc_samr,
                          ver_dcerpc_samr, dcerpc_samr_dissectors, hf_samr_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_samr_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		dcerpc_samr_dissectors, array_length(dcerpc_samr_dissectors));
 }

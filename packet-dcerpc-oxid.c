@@ -2,7 +2,7 @@
  * Routines for DCOM OXID Resolver
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-oxid.c,v 1.5 2002/08/02 23:35:48 jmayer Exp $
+ * $Id: packet-dcerpc-oxid.c,v 1.6 2003/06/26 04:30:28 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,8 @@
 
 static int proto_oxid = -1;
 
+static int hf_opnum = -1;
+
 static gint ett_oxid = -1;
 
 static e_uuid_t uuid_oxid = { 0x99fcfec4, 0x5260, 0x101b, { 0xbb, 0xcb, 0x00, 0xaa, 0x00, 0x21, 0x34, 0x7a } };
@@ -51,24 +53,31 @@ static dcerpc_sub_dissector oxid_dissectors[] = {
 void
 proto_register_oxid (void)
 {
-#if 0
 	static hf_register_info hf[] = {
+		{ &hf_opnum,
+		  { "Operation", "oxid.opnum", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, "", HFILL }},
 	};
-#endif
 
 	static gint *ett[] = {
 		&ett_oxid
 	};
 	proto_oxid = proto_register_protocol ("DCOM OXID Resolver", "OXID", "oxid");
-#if 0
 	proto_register_field_array (proto_oxid, hf, array_length (hf));
-#endif
 	proto_register_subtree_array (ett, array_length (ett));
 }
 
 void
 proto_reg_handoff_oxid (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
-	dcerpc_init_uuid (proto_oxid, ett_oxid, &uuid_oxid, ver_oxid, oxid_dissectors, -1);
+	dcerpc_init_uuid (proto_oxid, ett_oxid, &uuid_oxid, ver_oxid, oxid_dissectors, hf_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		oxid_dissectors, array_length(oxid_dissectors));
 }

@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_acct.idl
  *      
- * $Id: packet-dcerpc-rs_acct.c,v 1.3 2002/11/28 04:57:43 guy Exp $
+ * $Id: packet-dcerpc-rs_acct.c,v 1.4 2003/06/26 04:30:29 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -130,22 +130,12 @@ static dcerpc_sub_dissector rs_acct_dissectors[] = {
         { 0, NULL, NULL, NULL }
 };
 
-static const value_string rs_acct_opnum_vals[] = {
-        { 0, "rs_acct_add" },
-        { 1, "rs_acct_delete" },
-        { 2, "rs_acct_rename" },
-        { 3, "rs_acct_lookup" },
-        { 4, "rs_acct_replace" },
-        { 5, "rs_acct_get_projlist" },
-        { 0, NULL }
-};
-
 void
 proto_register_rs_acct (void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_rs_acct_opnum,
-		{ "Operation", "rs_acct.opnum", FT_UINT16, BASE_DEC, VALS(rs_acct_opnum_vals), 0x0, "Operation", HFILL }},
+		{ "Operation", "rs_acct.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }},
 	{ &hf_rs_acct_lookup_rqst_var,
 		{ "Var", "rs_acct.lookup_rqst_var", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 	{ &hf_rs_acct_lookup_rqst_key_size,
@@ -173,6 +163,15 @@ proto_register_rs_acct (void)
 void
 proto_reg_handoff_rs_acct (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_rs_acct, ett_rs_acct, &uuid_rs_acct, ver_rs_acct, rs_acct_dissectors, hf_rs_acct_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_rs_acct_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		rs_acct_dissectors, array_length(rs_acct_dissectors));
+
 }

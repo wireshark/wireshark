@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tgz  file/fsint/rep_proc.idl
  *
- * $Id: packet-dcerpc-rep_proc.c,v 1.2 2002/11/08 19:42:39 guy Exp $
+ * $Id: packet-dcerpc-rep_proc.c,v 1.3 2003/06/26 04:30:28 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,28 +68,13 @@ static dcerpc_sub_dissector rep_proc_dissectors[] = {
 };
 
 
-static const value_string rep_proc_opnum_vals[] = {
-    { 0, "CheckReplicationConfig" },
-    { 1, "AllCheckReplicationConfig" },
-    { 2, "KeepFilesAlive" },
-    { 3, "GetVolChangedFiles" },
-    { 4, "GetRepStatus" },
-    { 5, "GetRepServerStatus" },
-    { 6, "UpdateSelf" },
-    { 7, "Probe" },
-    { 8, "GetOneRepStatus" },
-    { 9, "GetServerInterfaces" },
-    { 0, NULL }
-};
-
-
 void
 proto_register_rep_proc (void)
 {
 	static hf_register_info hf[] = {
 	  { &hf_rep_proc_opnum,
 	    { "Operation", "rep_proc.opnum", FT_UINT16, BASE_DEC,
-	      VALS(rep_proc_opnum_vals), 0x0, "Operation", HFILL }}
+	      NULL, 0x0, "Operation", HFILL }}
 	};
 
 	static gint *ett[] = {
@@ -103,6 +88,14 @@ proto_register_rep_proc (void)
 void
 proto_reg_handoff_rep_proc (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_rep_proc, ett_rep_proc, &uuid_rep_proc, ver_rep_proc, rep_proc_dissectors, hf_rep_proc_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_rep_proc_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		rep_proc_dissectors, array_length(rep_proc_dissectors));
 }

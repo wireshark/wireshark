@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.132 2003/06/19 10:01:49 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.133 2003/06/26 04:30:31 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -522,6 +522,28 @@ dcerpc_get_proto_name(e_uuid_t *uuid, guint16 ver)
         return NULL;
     }
     return sub_proto->name;
+}
+
+/* Create a value_string consisting of DCERPC opnum and name from a
+   subdissector array. */
+
+value_string *value_string_from_subdissectors(dcerpc_sub_dissector *sd, 
+					      int num_sds)
+{
+	value_string *vs;
+	int i;
+
+	vs = g_malloc((num_sds + 1) * sizeof(value_string));
+
+	for (i = 0; i < num_sds; i++) {
+		vs[i].value = sd[i].num;
+		vs[i].strptr = sd[i].name;
+	}
+
+	vs[num_sds].value = 0;
+	vs[num_sds].strptr = NULL;
+
+	return vs;
 }
 
 /* Function to find the subdissector table of a registered protocol

@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz  security/idl/rs_repadm.idl
  *
- * $Id: packet-dcerpc-rs_repadm.c,v 1.2 2002/11/08 19:42:40 guy Exp $
+ * $Id: packet-dcerpc-rs_repadm.c,v 1.3 2003/06/26 04:30:29 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,29 +72,12 @@ static dcerpc_sub_dissector rs_repadm_dissectors[] = {
 };
 
 
-static const value_string rs_repadm_opnum_vals[] = {
-    { 0, "rs_rep_admin_stop" },
-    { 1, "rs_rep_admin_maint" },
-    { 2, "rs_rep_admin_mkey" },
-    { 3, "rs_rep_admin_info" },
-    { 4, "rs_rep_admin_info_full" },
-    { 5, "rs_rep_admin_destroy" },
-    { 6, "rs_rep_admin_init_replica" },
-    { 7, "rs_rep_admin_change_master" },
-    { 8, "rs_rep_admin_become_master" },
-    { 9, "rs_rep_admin_become_slave" },
-    { 10, "rs_rep_admin_set_sw_rev" },
-    { 11, "rs_rep_admin_get_sw_vers_info" },
-    { 0, NULL }
-};
-
-
 void
 proto_register_rs_repadm (void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_rs_repadm_opnum,
-		{ "Operation", "rs_repadmin.opnum", FT_UINT16, BASE_DEC, VALS(rs_repadm_opnum_vals), 0x0, "Operation", HFILL }}
+		{ "Operation", "rs_repadmin.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }}
 	};
 
 	static gint *ett[] = {
@@ -108,6 +91,14 @@ proto_register_rs_repadm (void)
 void
 proto_reg_handoff_rs_repadm (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_rs_repadm, ett_rs_repadm, &uuid_rs_repadm, ver_rs_repadm, rs_repadm_dissectors, hf_rs_repadm_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_rs_repadm_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		rs_repadm_dissectors, array_length(rs_repadm_dissectors));
 }

@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz  security/idl/rsec_login.idl
  *      
- * $Id: packet-dcerpc-rsec_login.c,v 1.2 2002/11/08 19:42:40 guy Exp $
+ * $Id: packet-dcerpc-rsec_login.c,v 1.3 2003/06/26 04:30:29 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,18 +57,12 @@ static dcerpc_sub_dissector rsec_login_dissectors[] = {
     { 0, NULL, NULL, NULL }
 };
 
-static const value_string rsec_login_opnum_vals[] = {
-    { 0, "rsec_login_get_trusted_preauth" },
-    { 0, NULL }
-};
-
-
 void
 proto_register_rsec_login (void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_rsec_login_opnum,
-		{ "Operation", "rsec_login.opnum", FT_UINT16, BASE_DEC, VALS(rsec_login_opnum_vals), 0x0, "Operation", HFILL }}
+		{ "Operation", "rsec_login.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }}
 	};
 
 	static gint *ett[] = {
@@ -82,6 +76,14 @@ proto_register_rsec_login (void)
 void
 proto_reg_handoff_rsec_login (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_rsec_login, ett_rsec_login, &uuid_rsec_login, ver_rsec_login, rsec_login_dissectors, hf_rsec_login_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_rsec_login_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		rsec_login_dissectors, array_length(rsec_login_dissectors));
 }

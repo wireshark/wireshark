@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/ncsubik/ubikvote_proc.idl
  *
- * $Id: packet-dcerpc-ubikvote.c,v 1.2 2002/10/15 05:21:02 guy Exp $
+ * $Id: packet-dcerpc-ubikvote.c,v 1.3 2003/06/26 04:30:30 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,25 +65,13 @@ static dcerpc_sub_dissector ubikvote_dissectors[] = {
         { 0, NULL, NULL, NULL }
 };
 
-static const value_string ubikvote_opnum_vals[] = {
-	{ 0, "Beacon" },
-	{ 1, "Debug" },
-	{ 2, "SDebug" },
-	{ 3, "GetServerInterfaces" },
-	{ 4, "GetSyncSite" },
-	{ 5, "DebugV2" },
-	{ 6, "SDebugV2" },
-	{ 7, "GetSyncSiteIdentity" },
-        { 0, NULL }
-};
-
 void
 proto_register_ubikvote (void)
 {
 	static hf_register_info hf[] = {
 	  { &hf_ubikvote_opnum,
 	    { "Operation", "ubikvote.opnum", FT_UINT16, BASE_DEC,
-	      VALS(ubikvote_opnum_vals), 0x0, "Operation", HFILL }}
+	      NULL, 0x0, "Operation", HFILL }}
 	};
 
 	static gint *ett[] = {
@@ -97,6 +85,14 @@ proto_register_ubikvote (void)
 void
 proto_reg_handoff_ubikvote (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_ubikvote, ett_ubikvote, &uuid_ubikvote, ver_ubikvote, ubikvote_dissectors, hf_ubikvote_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_ubikvote_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		ubikvote_dissectors, array_length(ubikvote_dissectors));
 }

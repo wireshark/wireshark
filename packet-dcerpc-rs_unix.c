@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_unix.idl
  *
- * $Id: packet-dcerpc-rs_unix.c,v 1.2 2002/11/08 19:42:40 guy Exp $
+ * $Id: packet-dcerpc-rs_unix.c,v 1.3 2003/06/26 04:30:29 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,18 +57,13 @@ static dcerpc_sub_dissector rs_unix_dissectors[] = {
     { 0, NULL, NULL, NULL },
 };
 
-static const value_string rs_unix_opnum_vals[] = {
-    { 0, "rs_unix_getpwents" },
-    { 0, NULL },
-};
-
 void
 proto_register_rs_unix (void)
 {
 	static hf_register_info hf[] = {
 	  { &hf_rs_unix_opnum,
 	    { "Operation", "rs_unix.opnum", FT_UINT16, BASE_DEC,
-	      VALS(rs_unix_opnum_vals), 0x0, "Operation", HFILL }}
+	      NULL, 0x0, "Operation", HFILL }}
 	};
 
 	static gint *ett[] = {
@@ -82,6 +77,14 @@ proto_register_rs_unix (void)
 void
 proto_reg_handoff_rs_unix (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_rs_unix, ett_rs_unix, &uuid_rs_unix, ver_rs_unix, rs_unix_dissectors, hf_rs_unix_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_rs_unix_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		rs_unix_dissectors, array_length(rs_unix_dissectors));
 }

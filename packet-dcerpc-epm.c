@@ -2,7 +2,7 @@
  * Routines for dcerpc endpoint mapper dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-epm.c,v 1.19 2003/01/28 06:39:39 tpot Exp $
+ * $Id: packet-dcerpc-epm.c,v 1.20 2003/06/26 04:30:27 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -611,24 +611,13 @@ static dcerpc_sub_dissector epm_dissectors[] = {
     { 0, NULL, NULL, NULL }
 };
 
-static const value_string epm_opnum_vals[] = {
-	{ 0, "Insert" },
-	{ 1, "Delete" },
-	{ 2, "Lookup" },
-	{ 3, "Map" },
-	{ 4, "LookupHandleFree" },
-	{ 5, "InqObject" },
-	{ 6, "MgmtDelete" },
-	{ 0, NULL }
-};
-
 void
 proto_register_epm (void)
 {
 	static hf_register_info hf[] = {
         { &hf_epm_opnum,
 	  { "Operation", "epm.opnum", FT_UINT16, BASE_DEC,
-	    VALS(epm_opnum_vals), 0x0, "Operation", HFILL }},
+	    NULL, 0x0, "Operation", HFILL }},
         { &hf_epm_inquiry_type,
           { "Inquiry type", "epm.inq_type", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_epm_object,
@@ -700,6 +689,14 @@ proto_register_epm (void)
 void
 proto_reg_handoff_epm (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_epm, ett_epm, &uuid_epm, ver_epm, epm_dissectors, hf_epm_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_epm_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		epm_dissectors, array_length(epm_dissectors));
 }

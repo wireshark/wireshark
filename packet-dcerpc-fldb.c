@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/flserver/afsvl_proc.idl
  *
- * $Id: packet-dcerpc-fldb.c,v 1.2 2002/11/08 19:42:39 guy Exp $
+ * $Id: packet-dcerpc-fldb.c,v 1.3 2003/06/26 04:30:27 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,49 +87,13 @@ static dcerpc_sub_dissector fldb_dissectors[] = {
         { 0, NULL, NULL, NULL }
 };
 
-
-
-static const value_string fldb_opnum_vals[] = {
-	{  0, "GetEntryByID" },
-	{  1, "GetEntryByName" },
-	{  2, "Probe" },
-	{  3, "GetCellInfo" },
-	{  4, "GetNextServersByID" },
-	{  5, "GetNextServersByName" },
-	{  6, "GetSiteInfo" },
-	{  7, "GetCEntryByID" },
-	{  8, "GetCEntryByName" },
-	{  9, "GetCNextServersByID" },
-	{ 10, "GetCNextServersByName" },
-	{ 11, "ExpandSiteCookie" },
-	{ 12, "GetServerInterfaces" },
-	{ 13, "CreateEntry" },
-	{ 14, "DeleteEntry" },
-	{ 15, "GetNewVolumeId" },
-	{ 16, "ReplaceEntry" },
-	{ 17, "SetLock" },
-	{ 18, "ReleaseLock" },
-	{ 19, "ListEntry" },
-	{ 20, "ListByAttributes" },
-	{ 21, "GetStats" },
-	{ 22, "AddAddress" },
-	{ 23, "RemoveAddress" },
-	{ 24, "ChangeAddress" },
-	{ 25, "GenerateSites" },
-	{ 26, "GetNewVolumeIds" },
-	{ 27, "CreateServer" },
-	{ 28, "AlterServer" },
-        { 0, NULL }
-};
-
-
 void
 proto_register_fldb (void)
 {
 	static hf_register_info hf[] = {
 	  { &hf_fldb_opnum,
 	    { "Operation", "fldb.opnum", FT_UINT16, BASE_DEC,
-	      VALS(fldb_opnum_vals), 0x0, "Operation", HFILL }}
+	      NULL, 0x0, "Operation", HFILL }}
 	};
 
 	static gint *ett[] = {
@@ -143,6 +107,14 @@ proto_register_fldb (void)
 void
 proto_reg_handoff_fldb (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_fldb, ett_fldb, &uuid_fldb, ver_fldb, fldb_dissectors, hf_fldb_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_fldb_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		fldb_dissectors, array_length(fldb_dissectors));
 }

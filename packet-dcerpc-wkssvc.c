@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.25 2003/05/15 05:24:19 guy Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.26 2003/06/26 04:30:30 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 #include "smb.h"
 
 static int proto_dcerpc_wkssvc = -1;
+static int hf_wkssvc_opnum = -1;
 static int hf_wkssvc_server = -1;
 static int hf_wkssvc_info_level = -1;
 static int hf_wkssvc_platform_id = -1; 
@@ -1047,6 +1048,9 @@ void
 proto_register_dcerpc_wkssvc(void)
 {
         static hf_register_info hf[] = { 
+	  { &hf_wkssvc_opnum,
+	    { "Operation", "wkssvc.opnum", FT_UINT16, BASE_DEC,
+	      NULL, 0x0, "", HFILL }},
 	  { &hf_wkssvc_server,
 	    { "Server", "wkssvc.server", FT_STRING, BASE_NONE,
 	      NULL, 0x0, "Server Name", HFILL}},
@@ -1253,9 +1257,17 @@ proto_register_dcerpc_wkssvc(void)
 void
 proto_reg_handoff_dcerpc_wkssvc(void)
 {
+	header_field_info *hf_info;
+
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_wkssvc, ett_dcerpc_wkssvc,
                          &uuid_dcerpc_wkssvc, ver_dcerpc_wkssvc,
-                         dcerpc_wkssvc_dissectors, -1);
+                         dcerpc_wkssvc_dissectors, hf_wkssvc_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_wkssvc_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		dcerpc_wkssvc_dissectors, array_length(dcerpc_wkssvc_dissectors));
 }

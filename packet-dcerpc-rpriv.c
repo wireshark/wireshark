@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz  security/idl/rpriv.idl
  *
- * $Id: packet-dcerpc-rpriv.c,v 1.3 2002/11/28 04:57:43 guy Exp $
+ * $Id: packet-dcerpc-rpriv.c,v 1.4 2003/06/26 04:30:29 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -113,20 +113,12 @@ static dcerpc_sub_dissector rpriv_dissectors[] = {
     { 0, NULL, NULL, NULL }
 };
 
-static const value_string rpriv_opnum_vals[] = {
-    { 0, "rpriv_get_ptgt" },
-    { 1, "rpriv_become_delegate" },
-    { 2, "rpriv_become_impersonator" },
-    { 3, "rpriv_get_eptgt" },
-    { 0, NULL }
-};
-
 void
 proto_register_rpriv (void)
 {
 	static hf_register_info hf[] = {
       { &hf_rpriv_opnum,
-         { "Operation", "rpriv.opnum", FT_UINT16, BASE_DEC, VALS(rpriv_opnum_vals), 0x0, "Operation", HFILL }},
+         { "Operation", "rpriv.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }},
       { &hf_rpriv_get_eptgt_rqst_authn_svc,
          { "Authn_Svc", "rpriv.get_eptgt_rqst_authn_svc", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
       { &hf_rpriv_get_eptgt_rqst_authz_svc,
@@ -157,6 +149,14 @@ proto_register_rpriv (void)
 void
 proto_reg_handoff_rpriv (void)
 {
+	header_field_info *hf_info;
+
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_rpriv, ett_rpriv, &uuid_rpriv, ver_rpriv, rpriv_dissectors, hf_rpriv_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_rpriv_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		rpriv_dissectors, array_length(rpriv_dissectors));
 }

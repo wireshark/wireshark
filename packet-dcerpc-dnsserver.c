@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\DNSSERVER packet disassembly
  * Copyright 2001, 2002 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-dnsserver.c,v 1.1 2002/09/11 23:59:13 tpot Exp $
+ * $Id: packet-dcerpc-dnsserver.c,v 1.2 2003/06/26 04:30:27 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,14 +59,6 @@ static dcerpc_sub_dissector dcerpc_dnsserver_dissectors[] = {
         { 0, NULL, NULL,  NULL }
 };
 
-static const value_string dnsserver_opnum_vals[] = {
-	{ UNKNOWN_00, "Unknown 0x00" },
-	{ UNKNOWN_01, "Unknown 0x01" },
-	{ UNKNOWN_02, "Unknown 0x02" },
-	{ UNKNOWN_03, "Unknown 0x03" },
-	{ 0, NULL }
-};
-
 void
 proto_register_dcerpc_dnsserver(void)
 {
@@ -80,7 +72,7 @@ proto_register_dcerpc_dnsserver(void)
 
 		{ &hf_opnum,
 		  { "Operation", "dnsserver.opnum", FT_UINT16, BASE_DEC,
-		    VALS(dnsserver_opnum_vals), 0x0, "Operation", HFILL }},
+		    NULL, 0x0, "Operation", HFILL }},
 	};
 
         static gint *ett[] = {
@@ -98,9 +90,17 @@ proto_register_dcerpc_dnsserver(void)
 void
 proto_reg_handoff_dcerpc_dnsserver(void)
 {
+	header_field_info *hf_info;
+
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(
 		proto_dcerpc_dnsserver, ett_dnsserver, &uuid_dcerpc_dnsserver,
 		ver_dcerpc_dnsserver, dcerpc_dnsserver_dissectors, hf_opnum);
+
+	/* Set opnum strings from subdissector list */
+
+	hf_info = proto_registrar_get_nth(hf_opnum);
+	hf_info->strings = value_string_from_subdissectors(
+		dcerpc_dnsserver_dissectors, array_length(dcerpc_dnsserver_dissectors));
 }
