@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.94 2002/12/20 21:58:46 guy Exp $
+ * $Id: ngsniffer.c,v 1.95 2002/12/20 22:30:15 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -114,6 +114,33 @@ struct vers_rec {
 
 /*
  * Sniffer type 2 data record format - followed by frame data.
+ *
+ * The manual at
+ *
+ *	http://download.nai.com/products/media/sniffer/support/sdos/operation.pdf
+ *
+ * documents some of the values used in "fs" and "flags".  "flags" don't
+ * look as if they'd be of much interest to us, as those are internal
+ * flags for state used by the Sniffer, but "fs" gives various status
+ * bits including error indications *and*:
+ *
+ *	ISDN channel information for ISDN;
+ *
+ *	PPP vs. SLIP information for Async.
+ *
+ * In that section it also refers to "FDDI analyzers using the NPI PCI
+ * FDDI adapter" and "FDDI analyzers using the NPI ISA FDDI adapter",
+ * referring to the first as "F1SNIFF" and the second as "FDSNIFF";
+ * those sound as if they *could* be replacements for "TRSNIFF" in
+ * the file header, but that manual says, earlier, that the header
+ * starts with "TRSNIFF data, no matter where the frames were
+ * collected".
+ *
+ * It also says that "time_high" is really "tstamp_high" and "tstamp_day";
+ * did some older manual have it as a 16-bit "tstamp_high", so that perhaps
+ * it depends on the version number in the file, or is it "tstamp_high"
+ * plus "tstamp_day" in all versions?  (I forget whether this came purely
+ * from tcpview, or if I saw any of it in an NAI document.)
  */
 struct frame2_rec {
 	guint16	time_low;	/* low part of time stamp */
@@ -129,8 +156,10 @@ struct frame2_rec {
 /*
  * Sniffer type 4 data record format - followed by frame data.
  *
- * XXX - the manual says that the "flags" field holds "buffer flags;
- * BF_xxxx", but doesn't say what the BF_xxxx flags are.
+ * The ATM Sniffer manual says that the "flags" field holds "buffer flags;
+ * BF_xxxx", but doesn't say what the BF_xxxx flags are.  They may
+ * be the same as they are in a type 2 record, in which case they're
+ * probably not of much interest to us.
  *
  * XXX - the manual also says there's an 8-byte "ATMTimeStamp" driver
  * time stamp at the end of "ATMSaveInfo", but, from an ATM Sniffer capture
@@ -263,8 +292,8 @@ struct frame6_rec {
 	gint8	time_high;	/* high part of time stamp */
 	gint8	time_day;	/* time in days since start of capture */
 	gint16	size;		/* number of bytes of data */
-	gint8	fs;		/* frame error status bits */
-	gint8	flags;		/* buffer flags */
+	guint8	fs;		/* frame error status bits */
+	guint8	flags;		/* buffer flags */
 	gint16	true_size;	/* size of original frame, in bytes */
 	guint8	chemical_x[22];	/* ? */
 };
