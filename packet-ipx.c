@@ -6,7 +6,7 @@
  * Portions Copyright (c) 2000-2002 by Gilbert Ramirez.
  * Portions Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ipx.c,v 1.131 2003/06/10 05:38:52 guy Exp $
+ * $Id: packet-ipx.c,v 1.132 2003/08/04 23:55:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,6 +68,9 @@ static int hf_ipx_dsocket = -1;
 static int hf_ipx_snet = -1;
 static int hf_ipx_snode = -1;
 static int hf_ipx_ssocket = -1;
+static int hf_ipx_net = -1;
+static int hf_ipx_node = -1;
+static int hf_ipx_socket = -1;
 
 static gint ett_ipx = -1;
 
@@ -233,6 +236,8 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	guint16		ipx_dsocket, ipx_ssocket;
 	guint16		first_socket, second_socket;
+	guint32		ipx_snet, ipx_dnet;
+	const guint8	*ipx_snode, *ipx_dnode;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX");
@@ -278,15 +283,35 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(ipx_tree, hf_ipx_packet_type, tvb, 5, 1, ipx_type);
 
 		/* Destination */
-		proto_tree_add_item(ipx_tree, hf_ipx_dnet, tvb, 6, 4, FALSE);
-		proto_tree_add_item(ipx_tree, hf_ipx_dnode, tvb, 10, 6, FALSE);
+		ipx_dnet = tvb_get_ntohl(tvb, 6);
+		proto_tree_add_uint(ipx_tree, hf_ipx_dnet, tvb, 6, 4,
+			ipx_dnet);
+		proto_tree_add_uint_hidden(ipx_tree, hf_ipx_net, tvb, 6, 4,
+			ipx_dnet);
+		ipx_dnode = tvb_get_ptr(tvb, 10,  6);
+		proto_tree_add_ether(ipx_tree, hf_ipx_dnode, tvb, 10, 6,
+			ipx_dnode);
+		proto_tree_add_ether_hidden(ipx_tree, hf_ipx_node, tvb, 10, 6,
+			ipx_dnode);
 		proto_tree_add_uint(ipx_tree, hf_ipx_dsocket, tvb, 16, 2,
+			ipx_dsocket);
+		proto_tree_add_uint_hidden(ipx_tree, hf_ipx_socket, tvb, 16, 2,
 			ipx_dsocket);
 
 		/* Source */
-		proto_tree_add_item(ipx_tree, hf_ipx_snet, tvb, 18, 4, FALSE);
-		proto_tree_add_item(ipx_tree, hf_ipx_snode, tvb, 22, 6, FALSE);
+		ipx_snet = tvb_get_ntohl(tvb, 18);
+		proto_tree_add_uint(ipx_tree, hf_ipx_snet, tvb, 18, 4,
+			ipx_snet);
+		proto_tree_add_uint_hidden(ipx_tree, hf_ipx_net, tvb, 18, 4,
+			ipx_snet);
+		ipx_snode = tvb_get_ptr(tvb, 22, 6);
+		proto_tree_add_ether(ipx_tree, hf_ipx_snode, tvb, 22, 6,
+			ipx_snode);
+		proto_tree_add_ether_hidden(ipx_tree, hf_ipx_node, tvb, 22, 6,
+			ipx_snode);
 		proto_tree_add_uint(ipx_tree, hf_ipx_ssocket, tvb, 28, 2,
+			ipx_ssocket);
+		proto_tree_add_uint_hidden(ipx_tree, hf_ipx_socket, tvb, 28, 2,
 			ipx_ssocket);
 	}
 
@@ -1272,6 +1297,19 @@ proto_register_ipx(void)
 
 		{ &hf_ipx_ssocket,
 		{ "Source Socket",	"ipx.src.socket", FT_UINT16, BASE_HEX,
+			VALS(ipx_socket_vals), 0x0,
+			"", HFILL }},
+
+		{ &hf_ipx_net,
+		{ "Source or Destination Network","ipx.net", FT_IPXNET, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+
+		{ &hf_ipx_node,
+		{ "Source or Destination Node", "ipx.node", FT_ETHER, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+        
+		{ &hf_ipx_socket,
+		{ "Source or Destination Socket", "ipx.socket", FT_UINT16, BASE_HEX,
 			VALS(ipx_socket_vals), 0x0,
 			"", HFILL }},
 	};
