@@ -499,6 +499,7 @@ Ronnie Sahlberg <rsahlber@bigpond.net.au> {
 	BOOTPARAM dissector enhancements
 	RWALL support
 	HCLNFSD dissector enhancements
+	IP fragment reassembly
 }
 
 Borosa Tomislav <tomislav.borosa@SIEMENS.HR> {
