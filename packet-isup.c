@@ -5,7 +5,7 @@
  *		<anders.broman@ericsson.com>
  * Inserted routines for BICC dissection according to Q.765.5 Q.1902 Q.1970 Q.1990,
  * calling SDP dissector for RFC2327 decoding.
- * $Id: packet-isup.c,v 1.38 2003/12/04 05:47:38 gram Exp $
+ * $Id: packet-isup.c,v 1.39 2003/12/05 09:33:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5514,7 +5514,7 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
-	proto_tree *isup_tree;
+	proto_tree *isup_tree = NULL;
 	tvbuff_t *message_tvb;
 	guint16 cic;
 	guint8 message_type;
@@ -5540,10 +5540,10 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		cic =          tvb_get_letohs(tvb, CIC_OFFSET) & 0x0FFF; /*since upper 4 bits spare */
 
 		proto_tree_add_uint_format(isup_tree, hf_isup_cic, tvb, CIC_OFFSET, CIC_LENGTH, cic, "CIC: %u", cic);
-
-		message_tvb = tvb_new_subset(tvb, CIC_LENGTH, -1, -1);
-		dissect_isup_message(message_tvb, pinfo, isup_tree);
 	}
+
+	message_tvb = tvb_new_subset(tvb, CIC_LENGTH, -1, -1);
+	dissect_isup_message(message_tvb, pinfo, isup_tree);
 }
 
 /* ------------------------------------------------------------------ */
@@ -5553,7 +5553,7 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
-	proto_tree *bicc_tree;
+	proto_tree *bicc_tree = NULL;
 	tvbuff_t *message_tvb;
 	guint32 bicc_cic;
 	guint8 message_type;
@@ -5579,10 +5579,10 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		bicc_cic = tvb_get_letohl(tvb, BICC_CIC_OFFSET);
 
 		proto_tree_add_uint_format(bicc_tree, hf_bicc_cic, tvb, BICC_CIC_OFFSET, BICC_CIC_LENGTH, bicc_cic, "CIC: %u", bicc_cic);
-	
-		message_tvb = tvb_new_subset(tvb, BICC_CIC_LENGTH, -1, -1);
-		dissect_isup_message(message_tvb, pinfo, bicc_tree);
 	}
+	
+	message_tvb = tvb_new_subset(tvb, BICC_CIC_LENGTH, -1, -1);
+	dissect_isup_message(message_tvb, pinfo, bicc_tree);
 }
 /*---------------------------------------------------------------------*/
 /* Register the protocol with Ethereal */
