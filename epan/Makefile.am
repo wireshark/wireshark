@@ -2,7 +2,7 @@
 # Automake file for the EPAN library
 # (Ethereal Protocol ANalyzer Library)
 #
-# $Id: Makefile.am,v 1.39 2004/03/12 16:31:35 gerald Exp $
+# $Id: Makefile.am,v 1.40 2004/03/13 10:15:35 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -29,13 +29,14 @@ SUBDIRS = ftypes dfilter
 
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
-noinst_LIBRARIES = libethereal.a
+lib_LTLIBRARIES = libethereal.la
+libethereal_la_LDFLAGS = -version-info 0:1:0
 
 include Makefile.common
 
 INCLUDES = -I$(srcdir)/..
 
-libethereal_a_SOURCES = \
+libethereal_la_SOURCES = \
 	addr_and_mask.c		\
 	addr_and_mask.h		\
 	atalk-utils.c		\
@@ -93,7 +94,7 @@ libethereal_a_SOURCES = \
 	$(DISSECTOR_SRC)        \
 	$(DISSECTOR_SUPPORT_SRC)
 
-EXTRA_libethereal_a_SOURCES =	\
+EXTRA_libethereal_la_SOURCES =	\
         inet_aton.c		\
 	inet_pton.c		\
 	inet_ntop.c		\
@@ -118,8 +119,8 @@ MAINTAINERCLEANFILES =	\
 #
 # Add the object files for missing routines, if any.
 #
-libethereal_a_LIBADD = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@
-libethereal_a_DEPENDENCIES = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@
+libethereal_la_LIBADD = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ dfilter/libdfilter.la ftypes/libftypes.la
+libethereal_la_DEPENDENCIES = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ dfilter/libdfilter.la ftypes/libftypes.la
 
 ../packet-ncp2222.c : $(srcdir)/../ncp2222.py
 	$(PYTHON) $(srcdir)/../ncp2222.py -o $@

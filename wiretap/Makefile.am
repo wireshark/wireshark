@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Wiretap
 #
-# $Id: Makefile.am,v 1.50 2004/03/06 21:46:27 guy Exp $
+# $Id: Makefile.am,v 1.51 2004/03/13 10:15:36 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -23,19 +23,18 @@
 
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
-noinst_LIBRARIES = libwiretap.a
-
-#EXTRA_LIBRARIES = libwiretap.a
+lib_LTLIBRARIES = libwiretap.la
+libwiretap_la_LDFLAGS = -version-info 0:1:0
 
 CLEANFILES = \
 	libwiretap.a		\
 	*~
 
-MAINTAINERCLEANFILES =	\
+MAINTAINERCLEANFILES = \
 	ascend-grammar.c \
 	ascend-grammar.h
 
-libwiretap_a_SOURCES = \
+libwiretap_la_SOURCES = \
 	airopeek9.c		\
 	airopeek9.h		\
 	ascend-grammar.y	\

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.719 2004/03/12 16:31:34 gerald Exp $
+# $Id: Makefile.am,v 1.720 2004/03/13 10:15:35 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -189,11 +189,9 @@ ethereal_optional_objects = @SNPRINTF_O@ @STRERROR_O@ \
 # Additional libs that I know how to build. These will be
 # linked into the ethereal executable.
 ethereal_additional_libs = \
-	wiretap/libwiretap.a	\
+	wiretap/libwiretap.la	\
 	gtk/libui.a		\
-	epan/libethereal.a	\
-	epan/ftypes/libftypes.a \
-	epan/dfilter/libdfilter.a
+	epan/libethereal.la
 
 # This is the automake dependency variable for the executable
 ethereal_DEPENDENCIES = \
@@ -220,16 +218,14 @@ ethereal_LDADD = \
 	$(ethereal_additional_libs)	\
 	@SNMP_LIBS@ @SSL_LIBS@ 		\
 	$(plugin_ldadd)			\
-	@PCRE_LIBS@ \
+	@PCRE_LIBS@			\
 	@PCAP_LIBS@ @GTK_LIBS@ @ADNS_LIBS@
 
 # Additional libs that I know how to build. These will be
 # linked into the tethereal executable.
 tethereal_additional_libs =		\
-	wiretap/libwiretap.a		\
-	epan/libethereal.a		\
-	epan/ftypes/libftypes.a		\
-	epan/dfilter/libdfilter.a
+	wiretap/libwiretap.la		\
+	epan/libethereal.la
 
 # This is the automake dependency variable for the executable
 tethereal_DEPENDENCIES = \
@@ -243,7 +239,7 @@ tethereal_LDADD = \
 	$(tethereal_additional_libs)	\
 	@SNMP_LIBS@ @SSL_LIBS@		\
 	$(plugin_ldadd)			\
-	@PCRE_LIBS@ \
+	@PCRE_LIBS@			\
 	@GLIB_LIBS@ -lm			\
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@
 
@@ -263,24 +259,25 @@ text2pcap_DEPENDENCIES = text2pcap.h
 text2pcap_LDADD = $(text2pcap_optional_objects) \
 	@GLIB_LIBS@ -lm
 
-mergecap_DEPENDENCIES = wiretap/libwiretap.a
+mergecap_DEPENDENCIES = wiretap/libwiretap.la
 
 # This is the automake dependency variable for the executable
-editcap_DEPENDENCIES = wiretap/libwiretap.a
+editcap_DEPENDENCIES = wiretap/libwiretap.la
 
 # This automake variable adds to the link-line for the executable
-editcap_LDADD = wiretap/libwiretap.a @GLIB_LIBS@
-mergecap_LDADD = wiretap/libwiretap.a @GLIB_LIBS@
+editcap_LDADD = wiretap/libwiretap.la @GLIB_LIBS@
+mergecap_LDADD = wiretap/libwiretap.la @GLIB_LIBS@
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap
 
-.PHONY:	cvsversion.h
-
 #
 # Build the version string
 #
-cvsversion.h:
+# FORCE is the portable version of .PHONY
+FORCE:
+
+cvsversion.h: FORCE
 	$(PERL) $(srcdir)/make-version.pl
 
 #
@@ -318,21 +315,19 @@ ps.c: print.ps rdps
 rdps: rdps.c
 	$(CC) $(CFLAGS) -o rdps $(srcdir)/rdps.c
 
-randpkt_additional_libs = wiretap/libwiretap.a
+randpkt_additional_libs = wiretap/libwiretap.la
 
 randpkt_DEPENDENCIES = \
 	$(randpkt_additional_libs)
 
 randpkt_LDADD = \
 	$(randpkt_additional_libs) \
-	@GLIB_LIBS@ -lm \
+	@GLIB_LIBS@ -lm			\
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@
 
 dftest_additional_libs =		\
-	wiretap/libwiretap.a		\
-	epan/libethereal.a		\
-	epan/ftypes/libftypes.a		\
-	epan/dfilter/libdfilter.a
+	wiretap/libwiretap.la		\
+	epan/libethereal.la
 
 dftest_DEPENDENCIES = \
 	$(ethereal_optional_objects)	\
@@ -343,7 +338,7 @@ dftest_DEPENDENCIES = \
 dftest_LDADD = \
 	$(ethereal_optional_objects)	\
 	$(dftest_additional_libs)	\
-	@SNMP_LIBS@ @SSL_LIBS@		\
+ 	@SNMP_LIBS@ @SSL_LIBS@		\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@ \
 	@GLIB_LIBS@ -lm \

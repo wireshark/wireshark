@@ -1,6 +1,6 @@
 # Makefile.am
 #
-# $Id: Makefile.am,v 1.5 2003/12/09 23:02:39 obiot Exp $
+# $Id: Makefile.am,v 1.6 2004/03/13 10:15:36 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -21,11 +21,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-# We produce an archive library. In the future, when libethereal is a
-# shared library, this will be linked into libethereal. While libethereal
-# is an archive library, any executable linking against libethereal will
-# also need to link against libftypes.
-noinst_LIBRARIES = libftypes.a
+noinst_LTLIBRARIES = libftypes.la
 
 CLEANFILES = \
 	libftypes.a	\
@@ -33,7 +29,7 @@ CLEANFILES = \
 
 INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/..
 
-libftypes_a_SOURCES =	\
+libftypes_la_SOURCES =	\
 	ftypes.c	\
 	ftypes.h	\
 	ftypes-int.h	\
