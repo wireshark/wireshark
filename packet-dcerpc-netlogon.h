@@ -1,8 +1,8 @@
-/* packet-msrpc-netlogon.h
- * Routines for SMB \\PIPE\\NETLOGON packet disassembly
+/* packet-dcerpc-netlogon.h
+ * Routines for SMB \PIPE\NETLOGON packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-netlogon.h,v 1.1 2001/11/21 02:08:57 guy Exp $
+ * $Id: packet-dcerpc-netlogon.h,v 1.2 2001/12/09 00:07:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,4 +41,4 @@
 #define NET_SAM_SYNC           0x10
 #define NET_TRUST_DOM_LIST     0x13
 
-#endif /* packet-msrpc-netlogon.h */
+#endif /* packet-dcerpc-netlogon.h */

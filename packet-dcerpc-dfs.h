@@ -1,8 +1,8 @@
-/* packet-msrpc-dfs.h
- * Routines for SMB \\PIPE\\netdfs packet disassembly
+/* packet-dcerpc-dfs.h
+ * Routines for SMB \PIPE\netdfs packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-dfs.h,v 1.1 2001/11/21 02:08:57 guy Exp $
+ * $Id: packet-dcerpc-dfs.h,v 1.2 2001/12/09 00:07:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,4 +34,4 @@
 #define DFS_GET_INFO             0x04
 #define DFS_ENUM                 0x05
 
-#endif /* packet-msrpc-dfs.h */
+#endif /* packet-dcerpc-dfs.h */

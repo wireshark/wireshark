@@ -1,8 +1,8 @@
-/* packet-msrpc-lsa.h
- * Routines for SMB \\PIPE\\lsarpc packet disassembly
+/* packet-dcerpc-lsa.h
+ * Routines for SMB \PIPE\lsarpc packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-lsa.h,v 1.1 2001/11/21 02:08:57 guy Exp $
+ * $Id: packet-dcerpc-lsa.h,v 1.2 2001/12/09 00:07:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,4 +75,4 @@
 #define LSA_OPENPOLICY2        0x2c
 #define LSA_UNK_GET_CONNUSER   0x2d
 
-#endif /* packet-msrpc-lsa.h */
+#endif /* packet-dcerpc-lsa.h */

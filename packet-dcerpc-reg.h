@@ -1,8 +1,8 @@
-/* packet-msrpc-reg.h
- * Routines for SMB \\PIPE\\winreg packet disassembly
+/* packet-dcerpc-reg.h
+ * Routines for SMB \PIPE\winreg packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.h,v 1.1 2001/11/21 02:08:57 guy Exp $
+ * $Id: packet-dcerpc-reg.h,v 1.2 2001/12/09 00:07:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,4 +56,4 @@
 #define REG_ABORT_SHUTDOWN	0x19
 #define REG_UNK_1A		0x1a
 
-#endif /* packet-msrpc-reg.h */
+#endif /* packet-dcerpc-reg.h */

@@ -1,8 +1,8 @@
-/* packet-msrpc-srvsvc.h
- * Routines for SMB \\PIPE\\srvsvc packet disassembly
+/* packet-dcerpc-srvsvc.h
+ * Routines for SMB \PIPE\srvsvc packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-srvsvc.h,v 1.1 2001/11/21 02:08:57 guy Exp $
+ * $Id: packet-dcerpc-srvsvc.h,v 1.2 2001/12/09 00:07:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,4 +45,4 @@
 #define SRV_NETFILEQUERYSECDESC 0x27
 #define SRV_NETFILESETSECDESC	0x28
 
-#endif /* packet-msrpc-srvsvc.h */
+#endif /* packet-dcerpc-srvsvc.h */

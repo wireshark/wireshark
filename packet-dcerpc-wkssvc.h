@@ -1,8 +1,8 @@
-/* packet-msrpc-wkssvc.h
- * Routines for SMB \\PIPE\\wkssvc packet disassembly
+/* packet-dcerpc-wkssvc.h
+ * Routines for SMB \PIPE\wkssvc packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-wkssvc.h,v 1.1 2001/11/21 02:08:57 guy Exp $
+ * $Id: packet-dcerpc-wkssvc.h,v 1.2 2001/12/09 00:07:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,4 +30,4 @@
 
 #define WKS_QUERY_INFO    0x00
 
-#endif /* packet-msrpc-wkssvc.h */
+#endif /* packet-dcerpc-wkssvc.h */

@@ -2,7 +2,7 @@
  * Routines for SMB \\PIPE\\lsarpc packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-lsa.c,v 1.1 2001/11/21 02:08:57 guy Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.2 2001/12/09 00:07:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,8 @@ static e_uuid_t uuid_dcerpc_lsa = {
 };
 
 static guint16 ver_dcerpc_lsa = 0;
+
+
 
 static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
         { LSA_CLOSE, "LSA_CLOSE", NULL, NULL },

@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.59 2001/12/05 08:20:28 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.60 2001/12/09 00:07:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2534,7 +2534,7 @@ proto_register_pipe_lanman(void)
 static heur_dissector_list_t smb_transact_heur_subdissector_list;
 
 static gboolean
-dissect_pipe_msrpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree,
+dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree,
     proto_tree *tree, guint32 fid)
 {
 	dcerpc_private_info dcerpc_priv;
@@ -2620,7 +2620,7 @@ dissect_pipe_msrpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree,
 }
 
 void
-proto_register_pipe_msrpc(void)
+proto_register_pipe_dcerpc(void)
 {
 	register_heur_dissector_list("smb_transact", &smb_transact_heur_subdissector_list);
 }
@@ -2849,7 +2849,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			if (fid != -1) {
 				if (d_tvb == NULL)
 					return FALSE;
-		                return dissect_pipe_msrpc(d_tvb, pinfo, tree,
+		                return dissect_pipe_dcerpc(d_tvb, pinfo, tree,
 		                    pipe_tree, fid);
 		        }
 			break;

@@ -1,8 +1,8 @@
-/* packet-msrpc-spoolss.h
- * Routines for SMB \\PIPE\\spoolss packet disassembly
+/* packet-dcerpc-spoolss.h
+ * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.h,v 1.1 2001/11/21 02:08:57 guy Exp $
+ * $Id: packet-dcerpc-spoolss.h,v 1.2 2001/12/09 00:07:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,4 +76,4 @@
 #define SPOOLSS_GETPRINTERDATAEX			0x4e
 #define SPOOLSS_SETPRINTERDATAEX			0x50
 
-#endif /* packet-msrpc-spoolss.h */
+#endif /* packet-dcerpc-spoolss.h */
