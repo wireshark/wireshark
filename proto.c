@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.45 1999/10/17 11:40:14 deniel Exp $
+ * $Id: proto.c,v 1.46 1999/10/20 06:28:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,6 +61,10 @@
 #include "resolv.h"
 #endif
 
+#ifndef __REGISTER_H__
+#include "register.h"
+#endif
+
 #include "packet-ipv6.h"
 
 #define cVALS(x) (const value_string*)(x)
@@ -99,72 +103,6 @@ static gboolean check_for_protocol_or_field_id(GNode *node, gpointer data);
 static gboolean check_for_field_within_protocol(GNode *node, gpointer data);
 
 static int proto_register_field_init(header_field_info *hfinfo, int parent);
-
-/* centralization of registration functions */
-void proto_register_aarp(void);
-void proto_register_arp(void);
-void proto_register_ascend(void);
-void proto_register_atalk(void);
-void proto_register_atm(void);
-void proto_register_bgp(void);
-void proto_register_bootp(void);
-void proto_register_bpdu(void);
-void proto_register_cdp(void);
-void proto_register_clnp(void);
-void proto_register_cotp(void);
-void proto_register_data(void);
-void proto_register_dns(void);
-void proto_register_eth(void);
-void proto_register_fddi(void);
-void proto_register_frame(void);
-void proto_register_ftp(void);
-void proto_register_giop(void);
-void proto_register_gre(void);
-void proto_register_http(void);
-void proto_register_icmp(void);
-void proto_register_icmpv6(void);
-void proto_register_icp(void);
-void proto_register_igmp(void);
-void proto_register_ip(void);
-void proto_register_ipp(void);
-void proto_register_ipsec(void);
-void proto_register_ipv6(void);
-void proto_register_ipx(void);
-void proto_register_isakmp(void);
-void proto_register_lapb(void);
-void proto_register_llc(void);
-void proto_register_lpd(void);
-void proto_register_mp(void);
-void proto_register_nbipx(void);
-void proto_register_nbt(void);
-void proto_register_ncp(void);
-void proto_register_netbios(void);
-void proto_register_nntp(void);
-void proto_register_ntp(void);
-void proto_register_null(void);
-void proto_register_ospf(void);
-void proto_register_pim(void);
-void proto_register_pop(void);
-void proto_register_ppp(void);
-void proto_register_radius(void);
-void proto_register_rip(void);
-void proto_register_ripng(void);
-void proto_register_rsvp(void);
-void proto_register_rtsp(void);
-void proto_register_sdp(void);
-void proto_register_smb(void);
-void proto_register_sna(void);
-#if defined(WITH_SNMP_CMU) || defined(WITH_SNMP_UCD)
-void proto_register_snmp(void);
-#endif
-void proto_register_telnet(void);
-void proto_register_tftp(void);
-void proto_register_tcp(void);
-void proto_register_tr(void);
-void proto_register_trmac(void);
-void proto_register_udp(void);
-void proto_register_x25(void);
-void proto_register_yhoo(void);
 
 /* special-case header field used within proto.c */
 int hf_text_only = 1;
@@ -219,73 +157,8 @@ proto_init(void)
 		G_ALLOC_AND_FREE);
 	gpa_hfinfo = g_ptr_array_new();
 
-	/* Have each dissector register its protocols and fields. The
-	 * order doesn't matter. Put the calls in alphabetical order
-	 * just to make it easy. */
-	proto_register_aarp();
-	proto_register_arp();
-	proto_register_ascend();
-	proto_register_atalk();
-	proto_register_atm();
-	proto_register_bgp();
-	proto_register_bootp();
-	proto_register_bpdu();
-	proto_register_cdp();
-	proto_register_clnp();
-	proto_register_cotp();
-	proto_register_data();
-	proto_register_dns();
-	proto_register_eth();
-	proto_register_fddi();
-	proto_register_frame();
-	proto_register_ftp();
-	proto_register_giop();
-	proto_register_gre();
-	proto_register_http();
-	proto_register_icmp();
-	proto_register_icmpv6();
-	proto_register_icp();
-	proto_register_igmp();
-	proto_register_ip();
-	proto_register_ipp();
-	proto_register_ipsec();
-	proto_register_ipv6();
-	proto_register_ipx();
-	proto_register_isakmp();
-	proto_register_lapb();
-	proto_register_llc();
-	proto_register_lpd();
-	proto_register_mp();
-	proto_register_nbipx();
-	proto_register_nbt();
-	proto_register_ncp();
-	proto_register_netbios();
-	proto_register_nntp();
-	proto_register_ntp();
-	proto_register_null();
-	proto_register_ospf();
-	proto_register_pim();
-	proto_register_pop();
-	proto_register_ppp();
-	proto_register_radius();
-	proto_register_rip();
-	proto_register_ripng();
-	proto_register_rsvp();
-	proto_register_rtsp();
-	proto_register_sdp();
-	proto_register_smb();
-	proto_register_sna();
-#if defined(WITH_SNMP_CMU) || defined(WITH_SNMP_UCD)
-	proto_register_snmp();
-#endif
-	proto_register_telnet();
-	proto_register_tftp();
-	proto_register_tcp();
-	proto_register_tr();
-	proto_register_trmac();
-	proto_register_udp();
-	proto_register_x25();
-	proto_register_yhoo();
+	/* Have each dissector register its protocols and fields. */
+	register_all_protocols();
 
 	/* Register one special-case FT_TEXT_ONLY field for use when
 		converting ethereal to new-style proto_tree. These fields

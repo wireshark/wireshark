@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.90 1999/10/19 06:59:23 guy Exp $
+# $Id: Makefile.am,v 1.91 1999/10/20 06:28:28 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -31,28 +31,7 @@ sysconf_DATA = manuf
 # Any POSIX-compatible YACC should honor the -p flag
 YFLAGS=-d -p dfilter_
 
-ethereal_SOURCES = \
-	alignment.h    \
-	capture.c      \
-	capture.h      \
-	colors.c       \
-	colors.h       \
-	column.c       \
-	column.h       \
-	dfilter-int.h  \
-	dfilter-grammar.y \
-	dfilter-scanner.l \
-	dfilter.c      \
-	dfilter.h      \
-	ethertype.c    \
-	etypes.h       \
-	file.c         \
-	file.h         \
-	follow.c       \
-	follow.h       \
-	globals.h      \
-	inet_v6defs.h  \
-	ipproto.c      \
+DISSECTOR_SOURCES = \
 	packet-aarp.c  \
 	packet-arp.c   \
 	packet-ascend.c\
@@ -126,7 +105,30 @@ ethereal_SOURCES = \
 	packet-vines.h \
 	packet-x25.c   \
 	packet-yhoo.c  \
-	packet-yhoo.h  \
+	packet-yhoo.h
+
+ethereal_SOURCES = \
+	alignment.h    \
+	capture.c      \
+	capture.h      \
+	colors.c       \
+	colors.h       \
+	column.c       \
+	column.h       \
+	dfilter-int.h  \
+	dfilter-grammar.y \
+	dfilter-scanner.l \
+	dfilter.c      \
+	dfilter.h      \
+	ethertype.c    \
+	etypes.h       \
+	file.c         \
+	file.h         \
+	follow.c       \
+	follow.h       \
+	globals.h      \
+	inet_v6defs.h  \
+	ipproto.c      \
 	packet.c       \
 	packet.h       \
 	prefs.c        \
@@ -137,6 +139,8 @@ ethereal_SOURCES = \
 	proto.h        \
 	ps.c           \
 	ps.h           \
+	register.c     \
+	register.h     \
 	resolv.c       \
 	resolv.h       \
 	smb.h          \
@@ -146,7 +150,8 @@ ethereal_SOURCES = \
 	util.c         \
 	util.h         \
 	xdlc.c         \
-	xdlc.h
+	xdlc.h         \
+	$(DISSECTOR_SOURCES)
 
 EXTRA_ethereal_SOURCES = \
 	dfilter-grammar.c \
@@ -172,6 +177,35 @@ ethereal_LDADD = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ \
 wiretap/libwiretap.a gtk/libui.a \
 @SNMP_A@
 
+#
+# Build "register.c", which contains a function "register_all_protocols()"
+# that calls the register routines for all protocols.
+#
+# We do this by grepping through sources.  If that turns out to be too slow,
+# maybe we could just require every .o file to have an register routine
+# of a given name (packet-aarp.o -> proto_register_aarp, etc.).
+#
+# Formatting conventions:  The name of the proto_register_* routines must
+# start in column zero, or must be preceded only by "void " starting in
+# column zero, and must not be inside #if.
+#
+# We assume that all dissector routines are in "packet-XXX.c" files,
+# or in "packet.c".
+#
+register.c: packet.c $(DISSECTOR_SOURCES) @SNMP_C@
+	@echo Making register.c
+	@rm -f register.c-tmp
+	@echo '/* Do not modify this file.  */' >register.c-tmp
+	@echo '/* It is created automatically by the Makefile.  */'>>register.c-tmp
+	@echo '#include "register.h"' >>register.c-tmp
+	@echo 'void register_all_protocols(void) {' >>register.c-tmp
+	@for f in packet.c $(DISSECTOR_SOURCES) @SNMP_C@; do grep '^proto_register_[a-z_0-9A-Z]* *(' $$f 2>/dev/null; done | \
+	  sed -e 's/^.*://' -e 's/^\([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>register.c-tmp
+	@for f in packet.c $(DISSECTOR_SOURCES) @SNMP_C@; do grep '^void proto_register_[a-z_0-9A-Z]* *(' $$f 2>/dev/null; done | \
+	  sed -e 's/^.*://' -e 's/^void \([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>register.c-tmp
+	@echo '}' >>register.c-tmp
+	@mv register.c-tmp register.c
+
 ps.c: print.ps rdps
 	./rdps $(srcdir)/print.ps ps.c
 
@@ -185,6 +219,7 @@ randpkt: randpkt.o wiretap/libwiretap.a
 	$(LINK) -o randpkt randpkt.o wiretap/libwiretap.a `glib-config --libs` -lz
 
 DISTCLEANFILES =	\
+	register.c	\
 	rdps		\
 	ps.c		\
 	*~
@@ -208,6 +243,18 @@ EXTRA_DIST = \
 	README.win32		\
 	randpkt.c		\
 	rdps.c
+
+#
+# Oh, yuk.  We don't want to include "register.c" in the distribution, as
+# its contents depend on the configuration, and therefore we want it
+# to be built when the first "make" is done; however, Automake insists
+# on putting *all* source into the distribution.
+#
+# We work around this by having a "disk-hook" rule that deletes
+# "register.c", so that "dist" won't pick it up.
+#
+dist-hook:
+	@rm -f $(distdir)/register.c
 
 SUBDIRS = wiretap gtk @ethereal_SUBDIRS@
 
