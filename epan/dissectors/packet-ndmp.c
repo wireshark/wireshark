@@ -38,6 +38,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include "packet-rpc.h"
+#include "packet-tcp.h"
 #include "packet-scsi.h"
 #include "packet-frame.h"
 #include <epan/prefs.h>
@@ -45,8 +46,12 @@
 #include "rpc_defrag.h"
 
 #define TCP_PORT_NDMP 10000
+#define NDMP_RM_LASTFRAG 0x80000000
+#define NDMP_RM_LENGTH   0x7fffffff
 
 static int proto_ndmp = -1;
+static int hf_ndmp_lastfrag = -1;
+static int hf_ndmp_fraglen = -1;
 static int hf_ndmp_version = -1;
 static int hf_ndmp_header = -1;
 static int hf_ndmp_sequence = -1;
@@ -210,6 +215,7 @@ static int hf_ndmp_data_est_bytes_remain = -1;
 static int hf_ndmp_data_est_time_remain = -1;
 
 static gint ett_ndmp = -1;
+static gint ett_ndmp_fraghdr = -1;
 static gint ett_ndmp_header = -1;
 static gint ett_ndmp_butype_attrs = -1;
 static gint ett_ndmp_fs_invalid = -1;
@@ -227,6 +233,7 @@ static gint ett_ndmp_file_stats = -1;
 static gint ett_ndmp_file_invalids = -1;
 static gint ett_ndmp_state_invalids = -1;
 
+static struct true_false_string yesno = { "Yes", "No" };
 
 /* XXX someone should start adding the new stuff from v3, v4 and v5*/
 #define NDMP_PROTOCOL_V2	1
@@ -2675,45 +2682,40 @@ dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	return offset;
 }
 
-static gboolean
-dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    tvbuff_t *frag_tvb, fragment_data *ipfd_head, gboolean is_tcp,
-    guint32 rpc_rm, gboolean first_pdu)
+static void
+dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	int offset = (is_tcp && tvb == frag_tvb) ? 4 : 0;
-	guint32 size;
+	int offset = 0;
+	guint32 ndmp_rm;
 	struct ndmp_header nh;
+	guint32 size;
 	proto_item *ndmp_item = NULL;
 	proto_tree *ndmp_tree = NULL;
+	proto_item *hdr_item = NULL;
+	proto_tree *hdr_tree = NULL;
 
 	/* size of this NDMP PDU */
 	size = tvb_length_remaining(tvb, offset);
-	if (size < 24) {
+	if (size < 28) {
 		/* too short to be NDMP */
-		return FALSE;
+		return;
 	}
 
 	/*
-	 * Check the NDMP header, if we have it.
+	 * Read the NDMP header, if we have it.
 	 */
-	nh.seq = tvb_get_ntohl(tvb, offset);
-	nh.time = tvb_get_ntohl(tvb, offset+4);
-	nh.type = tvb_get_ntohl(tvb, offset+8);
-	nh.msg = tvb_get_ntohl(tvb, offset+12);
-	nh.rep_seq = tvb_get_ntohl(tvb, offset+16);
-	nh.err = tvb_get_ntohl(tvb, offset+20);
-
-	if (nh.type > 1)
-		return FALSE;
-	if (nh.msg > 0xa09 || nh.msg == 0)
-		return FALSE;
-	if (nh.err > 0x17)
-		return FALSE;
+	ndmp_rm=tvb_get_ntohl(tvb, offset);
+	nh.seq = tvb_get_ntohl(tvb, offset+4);
+	nh.time = tvb_get_ntohl(tvb, offset+8);
+	nh.type = tvb_get_ntohl(tvb, offset+12);
+	nh.msg = tvb_get_ntohl(tvb, offset+16);
+	nh.rep_seq = tvb_get_ntohl(tvb, offset+20);
+	nh.err = tvb_get_ntohl(tvb, offset+24);
 
 	/*
 	 * Check if this is the last fragment.
 	 */
-	if (!(rpc_rm & RPC_RM_LASTFRAG)) {
+	if (!(ndmp_rm & NDMP_RM_LASTFRAG)) {
 		/*
 		 * This isn't the last fragment.
 		 * If we're doing reassembly, just return
@@ -2722,73 +2724,102 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * and let them do reassembly.
 		 */
 		if (ndmp_defragment)
-			return TRUE;
+			return;
 	}
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		if (first_pdu)
-			col_clear(pinfo->cinfo, COL_INFO);
-		else
-			col_append_fstr(pinfo->cinfo, COL_INFO, "; ");
+		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
 	if (tree) {
 		ndmp_item = proto_tree_add_item(tree, proto_ndmp,
 		    tvb, 0, -1, FALSE);
 		ndmp_tree = proto_item_add_subtree(ndmp_item, ett_ndmp);
-
-		if (is_tcp) {
-			show_rpc_fraginfo(tvb, frag_tvb, ndmp_tree, rpc_rm,
-			    ipfd_head, pinfo);
-		}
 	}
+
+	hdr_item = proto_tree_add_text(ndmp_tree, tvb, 0, 4, 
+		"Fragment header: %s%u %s", 
+		(ndmp_rm & NDMP_RM_LASTFRAG) ? "Last fragment, " : "", 
+		ndmp_rm & NDMP_RM_LASTFRAG, plurality(ndmp_rm & NDMP_RM_LASTFRAG, "byte", "bytes"));
+	hdr_tree = proto_item_add_subtree(hdr_item, ett_ndmp_fraghdr);
+	proto_tree_add_boolean(hdr_tree, hf_ndmp_lastfrag, tvb, 0, 4, ndmp_rm);
+	proto_tree_add_uint(hdr_tree, hf_ndmp_fraglen, tvb, 0, 4, ndmp_rm);
 
 	/*
 	 * We cannot trust what dissect_ndmp_cmd() tells us, as there
 	 * are implementations which pad some additional data after
 	 * the PDU.  We MUST use size.
 	 */
-	dissect_ndmp_cmd(tvb, offset, pinfo, ndmp_tree, &nh);
-	return TRUE;
+	dissect_ndmp_cmd(tvb, offset+4, pinfo, ndmp_tree, &nh);
+	return;
+}
+
+static guint
+get_ndmp_pdu_len(tvbuff_t *tvb, int offset)
+{
+  guint len;
+
+  len=tvb_get_ntohl(tvb, offset)&0x7fffffff;
+  /* Get the length of the NDMP packet. */
+
+  /*XXX check header for sanity */
+  return len+4;
 }
 
 static int
 dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	int offset = 0;
-	int len;
-	gboolean first_pdu = TRUE;
+	guint len;
+	guint32 tmp;
 
-	while (tvb_reported_length_remaining(tvb, offset) != 0) {
-		/*
-		 * Process this fragment.
-		 */
-		len = dissect_rpc_fragment(tvb, offset, pinfo, tree,
-		    dissect_ndmp_message, FALSE, proto_ndmp, ett_ndmp,
-		    ndmp_defragment, first_pdu);
-		if (len < 0) {
-			/*
-			 * We need more data from the TCP stream for
-			 * this fragment.
-			 */
-			return tvb_length(tvb);
-		}
-		if (len == 0) {
-			/*
-			 * It's not NDMP.  Stop processing.
-			 * Return a "this isn't NDMP" indication
-			 * if this is the first PDU.
-			 */
-			if (first_pdu)
-				return 0;
-			break;
-		}
-		first_pdu = FALSE;
 
-		offset += len;
+	/* check that the hgeader looks sane */
+	len=tvb_length(tvb);
+	/* check the record marker that it looks sane.
+	 * It has to be >=24 bytes or (arbitrary limit) <1Mbyte
+	 */
+	if(len>=4){
+		tmp=(tvb_get_ntohl(tvb, 0)&NDMP_RM_LENGTH);
+		if( (tmp<24)||(tmp>1000000) ){
+			return 0;
+		}
 	}
+	/* check the timestamp,  timestamps are valid if they
+	 * (arbitrary) lie between 1980-jan-1 and 2030-jan-1
+	 */
+	if(len>=12){
+		tmp=tvb_get_ntohl(tvb, 8);
+		if( (tmp<0x12ceec50)||(tmp>0x70dc1ed0) ){
+			return 0;
+		}
+	}
+	/* check the type */
+	if(len>=16){
+		tmp=tvb_get_ntohl(tvb, 12);
+		if( tmp>1 ){
+			return 0;
+		}
+	}
+	/* check message */
+	if(len>=20){
+		tmp=tvb_get_ntohl(tvb, 16);
+		if( (tmp>0xa09) || (tmp==0) ){
+			return 0;
+		}
+	}
+	/* check error */
+	if(len>=28){
+		tmp=tvb_get_ntohl(tvb, 24);
+		if( (tmp>0x17) ){
+			return 0;
+		}
+	}
+
+
+	tcp_dissect_pdus(tvb, pinfo, tree, ndmp_desegment, 28,
+			 get_ndmp_pdu_len, dissect_ndmp_message);
 	return tvb_length(tvb);
 }
 
@@ -3440,10 +3471,17 @@ proto_register_ndmp(void)
 	{ &hf_ndmp_data_est_time_remain, {
 		"Est Time Remain", "ndmp.data.est_time_remain", FT_RELATIVE_TIME, BASE_DEC,
 		NULL, 0, "Estimated time remaining", HFILL }},
+	{ &hf_ndmp_lastfrag, {
+		"Last Fragment", "ndmp.lastfrag", FT_BOOLEAN, 32,
+		&yesno, NDMP_RM_LASTFRAG, "Last Fragment", HFILL }},
+	{ &hf_ndmp_fraglen, {
+		"Fragment Length", "ndmp.fraglen", FT_UINT32, BASE_DEC,
+		NULL, NDMP_RM_LENGTH, "Fragment Length", HFILL }},
   };
 
   static gint *ett[] = {
     &ett_ndmp,
+    &ett_ndmp_fraghdr,
     &ett_ndmp_header,
     &ett_ndmp_butype_attrs,
     &ett_ndmp_fs_invalid,
