@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.3 1998/09/23 05:25:09 gram Exp $
+ * $Id: packet-ipx.c,v 1.4 1998/09/23 14:46:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -334,7 +334,7 @@ dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	if (fd->win_info[0]) {
 		strcpy(fd->win_info[3], "IPX RIP");
 		if (operation < 2) {
-			sprintf(fd->win_info[4], "RIP %s", rip_type[operation]);
+			sprintf(fd->win_info[4], rip_type[operation]);
 		}
 		else {
 			strcpy(fd->win_info[4], "IPX RIP");
@@ -360,11 +360,21 @@ dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 			route.hops = pntohs(&pd[cursor+4]);
 			route.ticks = pntohs(&pd[cursor+6]);
 
-			add_item_to_tree(rip_tree, cursor,      8,
-				"Route Vector: %s, %d hop%s, %d tick%s",
-				network_to_string((guint8*)&route.network),
-				route.hops,  route.hops  == 1 ? "" : "s",
-				route.ticks, route.ticks == 1 ? "" : "s");
+			if (operation == IPX_RIP_REQUEST - 1) {
+				add_item_to_tree(rip_tree, cursor,      8,
+					"Route Vector: %s, %d hop%s, %d tick%s",
+					network_to_string((guint8*)&route.network),
+					route.hops,  route.hops  == 1 ? "" : "s",
+					route.ticks, route.ticks == 1 ? "" : "s");
+			}
+			else {
+				add_item_to_tree(rip_tree, cursor,      8,
+					"Route Vector: %s, %d hop%s, %d tick%s (%d ms)",
+					network_to_string((guint8*)&route.network),
+					route.hops,  route.hops  == 1 ? "" : "s",
+					route.ticks, route.ticks == 1 ? "" : "s",
+					route.ticks * 1000 / 18);
+			}
 		}
 	}
 }
