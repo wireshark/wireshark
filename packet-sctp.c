@@ -1,16 +1,17 @@
 /* packet-sctp.c
  * Routines for Stream Control Transmission Protocol dissection
  * It should be compilant to
- * - RFC 2960, for basic SCTP support
+ * - RFC 2960
+ * - RFC 3309
+ * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctpimpguide-07.txt
  * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-06.txt for the add-IP extension
  * - http://www.ietf.org/internet-drafts/draft-stewart-tsvwg-prsctp-01.txt for the 'Partial Reliability' extension
- * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctpcsum-07.txt
  * Copyright 2000, 2001, 2002, Michael Tuexen <Michael.Tuexen [AT] siemens.com>
  * Still to do (so stay tuned)
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.43 2002/12/02 23:43:29 guy Exp $
+ * $Id: packet-sctp.c,v 1.44 2002/12/04 17:07:26 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -274,6 +275,8 @@ static const value_string sctp_parameter_identifier_values[] = {
 #define NO_USER_DATA                               0x09
 #define COOKIE_RECEIVED_WHILE_SHUTTING_DOWN        0x0a
 #define RESTART_WITH_NEW_ADDRESSES                 0x0b
+#define USER_INITIATED_ABORT                       0x0c
+#define PROTOCOL_VIOLATION                         0x0d
 #define REQUEST_TO_DELETE_LAST_ADDRESS             0x0100
 #define OPERATION_REFUSED_DUE_TO_RESOURCE_SHORTAGE 0X0101
 #define REQUEST_TO_DELETE_SOURCE_ADDRESS           0x0102
@@ -291,6 +294,8 @@ static const value_string sctp_cause_code_values[] = {
   { NO_USER_DATA,                               "No user data" },
   { COOKIE_RECEIVED_WHILE_SHUTTING_DOWN,        "Cookie received while shutting down" },
   { RESTART_WITH_NEW_ADDRESSES,                 "Restart of an association with new addresses" },
+  { USER_INITIATED_ABORT,                       "User initiated ABORT" },
+  { PROTOCOL_VIOLATION,                         "Protocol violation" },
   { REQUEST_TO_DELETE_LAST_ADDRESS,             "Request to delete last address" },
   { OPERATION_REFUSED_DUE_TO_RESOURCE_SHORTAGE, "Operation refused due to resource shortage" },
   { REQUEST_TO_DELETE_SOURCE_ADDRESS,           "Request to delete source address" },
@@ -1164,6 +1169,58 @@ dissect_cookie_received_while_shutting_down_cause(proto_item *cause_item)
 }
 
 static void
+dissect_restart_with_new_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree* cause_tree, proto_item *cause_item)
+{
+  guint16 length, padding_length, cause_info_length;
+  tvbuff_t *unrecognized_parameters_tvb;
+
+  length            = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
+  padding_length    = nr_of_padding_bytes(length);
+  cause_info_length = length - CAUSE_HEADER_LENGTH + padding_length;
+
+  unrecognized_parameters_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, cause_info_length, cause_info_length);
+  dissect_tlv_parameter_list(unrecognized_parameters_tvb, pinfo, cause_tree);
+
+  proto_item_set_text(cause_item, "Error cause reporting new addresses during restart");
+}
+
+static void
+dissect_user_initiated_abort_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
+{
+  guint16 code, length, cause_info_length;
+
+  code   = tvb_get_ntohs(cause_tvb, CAUSE_CODE_OFFSET);
+  length = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
+
+  cause_info_length = length - CAUSE_HEADER_LENGTH;
+
+  proto_tree_add_text(cause_tree, cause_tvb, CAUSE_INFO_OFFSET, cause_info_length,
+		              "Upper layer abort reason (%u byte%s)",
+		              cause_info_length, plurality(cause_info_length, "", "s"));
+
+  proto_item_set_text(cause_item, "User initiated abort (%u byte%s information)",
+		              cause_info_length, plurality(cause_info_length, "", "s"));
+}
+
+static void
+dissect_protocol_violation_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
+{
+  guint16 code, length, cause_info_length;
+
+  code   = tvb_get_ntohs(cause_tvb, CAUSE_CODE_OFFSET);
+  length = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
+
+  cause_info_length = length - CAUSE_HEADER_LENGTH;
+
+  proto_tree_add_text(cause_tree, cause_tvb, CAUSE_INFO_OFFSET, cause_info_length,
+		              "Additional information (%u byte%s)",
+		              cause_info_length, plurality(cause_info_length, "", "s"));
+
+  proto_item_set_text(cause_item, "Protocol violation (%u byte%s information)",
+		              cause_info_length, plurality(cause_info_length, "", "s"));
+}
+
+static void
 dissect_delete_last_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *cause_tree, proto_item *cause_item)
 {
   guint16 length, cause_info_length;
@@ -1274,6 +1331,15 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
     break;
   case COOKIE_RECEIVED_WHILE_SHUTTING_DOWN:
     dissect_cookie_received_while_shutting_down_cause(cause_item);
+    break;
+  case RESTART_WITH_NEW_ADDRESSES:
+    dissect_restart_with_new_address_cause(cause_tvb, pinfo, cause_tree, cause_item);
+    break;
+  case USER_INITIATED_ABORT:
+    dissect_user_initiated_abort_cause(cause_tvb, cause_tree, cause_item);
+    break;
+  case PROTOCOL_VIOLATION:
+    dissect_protocol_violation_cause(cause_tvb, cause_tree, cause_item);
     break;
   case REQUEST_TO_DELETE_LAST_ADDRESS:
     dissect_delete_last_address_cause(cause_tvb, pinfo, cause_tree, cause_item);
