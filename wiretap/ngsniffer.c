@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.89 2002/11/09 07:31:17 guy Exp $
+ * $Id: ngsniffer.c,v 1.90 2002/11/09 08:07:19 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1156,7 +1156,7 @@ static int set_pseudo_header_frame2(wtap *wth,
 		break;
 
 	case WTAP_ENCAP_ISDN:
-		pseudo_header->isdn.uton = (frame2->fs & 0x80) ? TRUE : FALSE;
+		pseudo_header->isdn.uton = (frame2->fs & 0x80) ? FALSE : TRUE;
 		switch (frame2->fs & 0x18) {
 
 		case 0x18:
@@ -1522,9 +1522,9 @@ static void fix_pseudo_header(int encap,
 
 	case WTAP_ENCAP_ISDN:
 		if (pseudo_header->x25.flags == 0x00)
-			pseudo_header->isdn.uton = TRUE;
-		else
 			pseudo_header->isdn.uton = FALSE;
+		else
+			pseudo_header->isdn.uton = TRUE;
 
 		/*
 		 * XXX - this is currently a per-packet encapsulation
