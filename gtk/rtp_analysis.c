@@ -299,6 +299,7 @@ typedef struct _tap_rtp_stat_t {
 #define STAT_FLAG_PT_CN       0x10
 #define STAT_FLAG_FOLLOW_PT_CN  0x20
 #define STAT_FLAG_REG_PT_CHANGE  0x40
+#define STAT_FLAG_WRONG_TIMESTAMP  0x80
 
 typedef struct _tap_rtp_save_info_t {
 	FILE *fp;
@@ -652,13 +653,19 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	}
 	/* is it a packet with the mark bit set? */
 	if (rtpinfo->info_marker_set) {
-		statinfo->delta_timestamp = rtpinfo->info_timestamp - statinfo->timestamp;
-		statinfo->flags |= STAT_FLAG_MARKER;
+		if (rtpinfo->info_timestamp > statinfo->timestamp){
+			statinfo->delta_timestamp = rtpinfo->info_timestamp - statinfo->timestamp;
+			statinfo->flags |= STAT_FLAG_MARKER;
+		}
+		else{
+			statinfo->flags |= STAT_FLAG_WRONG_TIMESTAMP;
+		}
 	}
 	/* is it a regular packet? */
 	if (!(statinfo->flags & STAT_FLAG_FIRST)
 		&& !(statinfo->flags & STAT_FLAG_MARKER)
 		&& !(statinfo->flags & STAT_FLAG_PT_CN)
+		&& !(statinfo->flags & STAT_FLAG_WRONG_TIMESTAMP)
 		&& !(statinfo->flags & STAT_FLAG_FOLLOW_PT_CN)) {
 		/* include it in maximum delta calculation */
 		if (statinfo->delta > statinfo->max_delta) {
@@ -786,6 +793,10 @@ static int rtp_packet_add_info(GtkCList *clist,
 	}
 	else if (statinfo->flags & STAT_FLAG_REG_PT_CHANGE) {
 		g_snprintf(status,sizeof(status),"Payload changed to PT=%u", statinfo->pt);
+		color = COLOR_WARNING;
+	}
+	else if (statinfo->flags & STAT_FLAG_WRONG_TIMESTAMP) {
+		g_snprintf(status,sizeof(status),"Incorrect timestamp");
 		color = COLOR_WARNING;
 	}
 	else if ((statinfo->flags & STAT_FLAG_PT_CHANGE)
