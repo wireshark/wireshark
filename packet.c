@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.65 2000/03/12 04:47:53 gram Exp $
+ * $Id: packet.c,v 1.66 2000/03/23 00:38:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -251,7 +251,7 @@ time_secs_to_str(guint32 time)
 }
 
 /* Max string length for displaying byte string.  */
-#define	MAX_BYTE_STR_LEN	20
+#define	MAX_BYTE_STR_LEN	32
 
 /* Turn an array of bytes into a string showing the bytes in hex. */
 #define	N_BYTES_TO_STR_STRINGS	6

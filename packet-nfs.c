@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.24 2000/03/20 22:52:44 gram Exp $
+ * $Id: packet-nfs.c,v 1.25 2000/03/23 00:38:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -229,6 +229,29 @@ char* name)
 	return offset;
 }
 
+static void
+dissect_fhandle_data(const u_char *pd, int offset, proto_tree *tree, int fhlen)
+{
+	int sublen;
+	int bytes_left;
+	gboolean first_line;
+
+	bytes_left = fhlen;
+	first_line = TRUE;
+	while (bytes_left != 0) {
+		sublen = 16;
+		if (sublen > bytes_left)
+			sublen = bytes_left;
+		proto_tree_add_text(tree, offset, sublen,
+					"%s%s",
+					first_line ? "data: " :
+					             "      ",
+					bytes_to_str(&pd[offset], sublen));
+		bytes_left -= sublen;
+		offset += sublen;
+		first_line = FALSE;
+	}
+}
 
 /* RFC 1094, Page 15 */
 int
@@ -244,15 +267,12 @@ dissect_fhandle(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, 
 			ftree = proto_item_add_subtree(fitem, ett_nfs_fhandle);
 	}
 
-	if (ftree) {
-		proto_tree_add_text(ftree,offset+0,FHSIZE,
-					"file handle (opaque data)");
-	}
+	if (ftree)
+		dissect_fhandle_data(pd, offset, ftree, FHSIZE);
 
 	offset += FHSIZE;
 	return offset;
 }
-
 
 /* RFC 1094, Page 15 */
 int
@@ -1300,11 +1320,7 @@ dissect_nfs_fh3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, 
 	if (ftree) {
 		proto_tree_add_text(ftree,offset+0,4,
 					"length: %u", fh3_len);
-		proto_tree_add_text(ftree,offset+4,fh3_len,
-					"file handle (opaque data)");
-		if (fh3_fill)
-			proto_tree_add_text(ftree,offset+4+fh3_len,fh3_fill,
-				"fill bytes");
+		dissect_fhandle_data(pd, offset+4, ftree, fh3_len);
 	}
 	offset += 4 + fh3_len_full;
 	return offset;
