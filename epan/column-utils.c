@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.12 2002/01/31 00:51:36 guy Exp $
+ * $Id: column-utils.c,v 1.13 2002/01/31 08:03:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -183,12 +183,14 @@ col_append_fstr(column_info *cinfo, gint el, gchar *format, ...) {
 }
 
 /* Prepends a vararg list to a packet info string. */
+#define COL_BUF_MAX_LEN (((COL_MAX_INFO_LEN) > (COL_MAX_LEN)) ? \
+	(COL_MAX_INFO_LEN) : (COL_MAX_LEN))
 void
 col_prepend_fstr(column_info *cinfo, gint el, gchar *format, ...)
 {
   va_list ap;
   int     i;
-  char   *orig_buf = NULL;
+  char    orig_buf[COL_BUF_MAX_LEN];
   char   *orig;
   size_t  max_len;
   
@@ -204,9 +206,6 @@ col_prepend_fstr(column_info *cinfo, gint el, gchar *format, ...)
       	/* This was set with "col_set_str()"; which is effectively const */
         orig = cinfo->col_data[i];
       } else {
-        /* Need to cache the original string */
-        if (orig_buf == NULL)
-          orig_buf = g_malloc(max_len);
         orig = orig_buf;
 	strncpy(orig, cinfo->col_buf[i], max_len);
 	orig[max_len - 1] = '\0';
@@ -217,8 +216,6 @@ col_prepend_fstr(column_info *cinfo, gint el, gchar *format, ...)
       cinfo->col_data[i] = cinfo->col_buf[i];
     }
   }
-  if (orig_buf != NULL)
-    g_free(orig_buf);
   va_end(ap);
 }
 
