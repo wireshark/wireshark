@@ -1,7 +1,7 @@
 /* rtp_pt.h
  * Defines RTP payload types
  *
- * $Id: rtp_pt.h,v 1.1 2003/08/23 06:36:46 guy Exp $
+ * $Id: rtp_pt.h,v 1.2 2003/09/25 19:35:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,7 @@
 #define PT_DVI4_11025	16	/* from Joseph Di Pol of Sun; see the Web page */
 #define PT_DVI4_22050	17	/* from Joseph Di Pol of Sun; see the Web page */
 #define PT_G729		18
+#define PT_CN_OLD	19	/* Payload type reserved (old version Comfort Noise) */
 #define PT_CELB		25	/* RFC 2029 */
 #define PT_JPEG		26	/* RFC 2435 */
 #define PT_NV		28	/* RFC 1890 */
