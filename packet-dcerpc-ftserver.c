@@ -1,0 +1,130 @@
+/* packet-dcerpc-ftserver.c
+ *
+ * Routines for dcerpc ftserver dissection
+ * Copyright 2002, Jaime Fournier <jafour1@yahoo.com>
+ * This information is based off the released idl files from opengroup.
+ * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tgz file/ftserver/ftserver_proc.idl
+ *
+ * $Id: packet-dcerpc-ftserver.c,v 1.1 2002/09/12 09:19:32 sahlberg Exp $
+ *
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@ethereal.com>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+
+#include <string.h>
+
+#include <glib.h>
+#include <epan/packet.h>
+#include "packet-dcerpc.h"
+
+
+static int proto_ftserver = -1;
+static int hf_ftserver_opnum = -1;
+
+
+
+static gint ett_ftserver = -1;
+
+
+static e_uuid_t uuid_ftserver = { 0x4d37f2dd, 0xed43, 0x0004, { 0x02, 0xc0, 0x37, 0xcf, 0x1e, 0x00, 0x00, 0x00 } };
+static guint16  ver_ftserver = 4;
+
+
+static dcerpc_sub_dissector ftserver_dissectors[] = {
+	{  0, "CreateTrans", NULL, NULL },
+	{  1, "AbortTrans", NULL, NULL },
+	{  2, "DeleteTrans", NULL, NULL },
+	{  3, "CreateVolume", NULL, NULL },
+	{  4, "DeleteVolume", NULL, NULL },
+	{  5, "Dump", NULL, NULL },
+	{  6, "Restore", NULL, NULL },
+	{  7, "Forward", NULL, NULL },
+	{  8, "Clone", NULL, NULL },
+	{  9, "ReClone", NULL, NULL },
+	{ 10, "GetFlags", NULL, NULL },
+	{ 11, "SetFlags", NULL, NULL },
+	{ 12, "GetStatus", NULL, NULL },
+	{ 13, "SetStatus", NULL, NULL },
+	{ 14, "ListVolumes", NULL, NULL },
+	{ 15, "ListAggregates", NULL, NULL },
+	{ 16, "AggregateInfo", NULL, NULL },
+	{ 17, "Monitor", NULL, NULL },
+	{ 18, "GetOneVolStatus", NULL, NULL },
+	{ 19, "GetServerInterfaces", NULL, NULL },
+	{ 20, "SwapIDs", NULL, NULL },
+	{ 0, NULL, NULL, NULL }
+};
+
+
+static const value_string ftserver_opnum_vals[] = {
+	{  0, "CreateTrans" },
+	{  1, "AbortTrans" },
+	{  2, "DeleteTrans" },
+	{  3, "CreateVolume" },
+	{  4, "DeleteVolume" },
+	{  5, "Dump" },
+	{  6, "Restore" },
+	{  7, "Forward" },
+	{  8, "Clone" },
+	{  9, "ReClone" },
+	{ 10, "GetFlags" },
+	{ 11, "SetFlags" },
+	{ 12, "GetStatus" },
+	{ 13, "SetStatus" },
+	{ 14, "ListVolumes" },
+	{ 15, "ListAggregates" },
+	{ 16, "AggregateInfo" },
+	{ 17, "Monitor" },
+	{ 18, "GetOneVolStatus" },
+	{ 19, "GetServerInterfaces" },
+	{ 20, "SwapIDs" },
+	{ 0, NULL }
+};
+
+void
+proto_register_ftserver (void)
+{
+	static hf_register_info hf[] = {
+	  { &hf_ftserver_opnum,
+	    { "Operation", "ftserver.opnum", FT_UINT16, BASE_DEC,
+	      VALS(ftserver_opnum_vals), 0x0, "Operation", HFILL }}
+	};
+
+	static gint *ett[] = {
+		&ett_ftserver,
+	};
+	proto_ftserver = proto_register_protocol ("FTServer Operations", "FTSERVER", "ftserver");
+	proto_register_field_array (proto_ftserver, hf, array_length (hf));
+	proto_register_subtree_array (ett, array_length (ett));
+}
+
+void
+proto_reg_handoff_ftserver (void)
+{
+	/* Register the protocol as dcerpc */
+	dcerpc_init_uuid (proto_ftserver, ett_ftserver, &uuid_ftserver, ver_ftserver, ftserver_dissectors, hf_ftserver_opnum);
+}
