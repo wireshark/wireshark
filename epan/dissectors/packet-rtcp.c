@@ -241,11 +241,11 @@ static GMemChunk *rtcp_conversations = NULL;
 
 
 void rtcp_add_address( packet_info *pinfo,
-                       const unsigned char* ip_addr, int port,
+                       address *addr, int port,
                        int other_port,
                        gchar *setup_method, guint32 setup_frame_number)
 {
-	address src_addr;
+	address null_addr;
 	conversation_t* p_conv;
 	struct _rtcp_conversation_info *p_conv_data = NULL;
 
@@ -259,22 +259,20 @@ void rtcp_add_address( packet_info *pinfo,
 		return;
 	}
 
-	src_addr.type = pinfo->net_src.type;
-	src_addr.len = pinfo->net_src.len;
-	src_addr.data = ip_addr;
+	SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 
 	/*
 	 * Check if the ip address and port combination is not
 	 * already registered as a conversation.
 	 */
-	p_conv = find_conversation( &src_addr, &src_addr, PT_UDP, port, other_port,
+	p_conv = find_conversation( addr, &null_addr, PT_UDP, port, other_port,
 	                            NO_ADDR_B | (!other_port ? NO_PORT_B : 0));
 
 	/*
 	 * If not, create a new conversation.
 	 */
 	if ( ! p_conv ) {
-		p_conv = conversation_new( &src_addr, &src_addr, PT_UDP,
+		p_conv = conversation_new( addr, &null_addr, PT_UDP,
 		                           (guint32)port, (guint32)other_port,
 		                           NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
 	}

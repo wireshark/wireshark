@@ -60,6 +60,6 @@ struct _rtp_conversation_info
 
 /* Add an RTP conversation with the given details */
 void rtp_add_address(packet_info *pinfo,
-                     const unsigned char* ip_addr, int port,
+                     address *addr, int port,
                      int other_port,
                      gchar *setup_method, guint32 setup_frame_number);

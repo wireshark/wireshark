@@ -352,7 +352,6 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 	guchar		*tmp;
 	guint		c_data_port, c_mon_port;
 	guint		s_data_port, s_mon_port;
-	address		null_addr;
 
 	if (line_len > sizeof(buf) - 1) {
 		/*
@@ -441,15 +440,13 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 	 * sent the packet, so we construct a conversation with no
 	 * second address.
 	 */
-	SET_ADDRESS(&null_addr, pinfo->src.type, 0, NULL);
-
-	rtp_add_address(pinfo, (char *)pinfo->dst.data, c_data_port, s_data_port,
+	rtp_add_address(pinfo, &pinfo->dst, c_data_port, s_data_port,
                     "RTSP", pinfo->fd->num);
 
 	if (!c_mon_port)
 		return;
 
-	rtcp_add_address(pinfo, (char *)pinfo->dst.data, c_mon_port, s_mon_port,
+	rtcp_add_address(pinfo, &pinfo->dst, c_mon_port, s_mon_port,
                      "RTSP", pinfo->fd->num);
 }
 

@@ -383,13 +383,13 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    src_addr.data=(char *)&ipv4_address;
 
 		    if(rtp_handle){
-				rtp_add_address(pinfo, (char *)&ipv4_address, ipv4_port, 0,
+				rtp_add_address(pinfo, &src_addr, ipv4_port, 0,
 				                "SDP", pinfo->fd->num);
 		    }
 
 		    if(rtcp_handle){
 				ipv4_port++;
-				rtcp_add_address(pinfo, (char *)&ipv4_address, ipv4_port, 0,
+				rtcp_add_address(pinfo, &src_addr, ipv4_port, 0,
 				                 "SDP", pinfo->fd->num);
 		    }
 	    }

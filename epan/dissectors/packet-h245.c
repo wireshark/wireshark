@@ -14374,7 +14374,7 @@ dissect_h245_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 		src_addr.len=4;
 		src_addr.data=(char *)&ipv4_address;
 
-		rtp_add_address(pinfo, (char *)&ipv4_address, ipv4_port, 0, "H245", pinfo->fd->num);
+		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num);
 	}
 	return offset;
 }
@@ -14393,7 +14393,7 @@ dissect_h245_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 		src_addr.len=4;
 		src_addr.data=(char *)&ipv4_address;
 
-		rtcp_add_address(pinfo, (char *)&ipv4_address, ipv4_port, 0, "H245", pinfo->fd->num);
+		rtcp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num);
 	}
 	return offset;
 }
