@@ -1650,7 +1650,7 @@ case '7': case '8': case '9': case '.'
  *
  **/
 extern LoAL* loal_from_file(guint8* filename) {
-	FILE *fp;
+	FILE *fp = NULL;
 	guint8 c;
 	int i = 0;
 	guint32 linenum = 1;
