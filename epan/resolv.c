@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.12 2001/08/21 06:39:16 guy Exp $
+ * $Id: resolv.c,v 1.13 2001/10/21 19:54:49 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -83,13 +83,8 @@
 
 #include "prefs.h"
 
-/*
- * XXX - on Windows, do "/etc/ethers" and "/etc/ipxnets" exist, perhaps in
- * some other directory, or should we instead look for them in the Ethereal
- * installation directory, treating them as Ethereal-specific files?
- */
-#define EPATH_ETHERS 		"/etc/ethers"
-#define EPATH_IPXNETS 		"/etc/ipxnets"
+#define ENAME_ETHERS 		"ethers"
+#define ENAME_IPXNETS 		"ipxnets"
 #define ENAME_MANUF		"manuf"
 #define EPATH_PERSONAL_ETHERS 	".ethereal/ethers"  /* with "$HOME/" prefix */
 #define EPATH_PERSONAL_IPXNETS 	".ethereal/ipxnets" /* with "$HOME/" prefix */
@@ -172,11 +167,13 @@ static int 		ipxnet_resolution_initialized = 0;
 
 /*
  *  Global variables (can be changed in GUI sections)
+ *  XXX - they could be changed in GUI code, but there's currently no
+ *  GUI code to change them.
  */
 
-gchar *g_ethers_path  = EPATH_ETHERS;
+gchar *g_ethers_path  = NULL;		/* {directory}/ENAME_ETHERS         */
 gchar *g_pethers_path = NULL; 		/* "$HOME"/EPATH_PERSONAL_ETHERS    */
-gchar *g_ipxnets_path  = EPATH_IPXNETS;
+gchar *g_ipxnets_path  = NULL;		/* {directory}/ENAME_IPXNETS        */
 gchar *g_pipxnets_path = NULL;		/* "$HOME"/EPATH_PERSONAL_IPXNETS   */
 					/* first resolving call        	    */
 
@@ -627,8 +624,24 @@ static hashmanuf_t *manuf_name_lookup(const guint8 *addr)
 
 static void initialize_ethers(void)
 {
+  char *dir;
   ether_t *eth;
   char *manuf_path;
+
+  /* Compute the pathname of the ethers file.
+   * On UNIX, it's "/etc/ethers"; on Windows, it's "ethers" under the
+   * datafile directory (there's no notion of an "ethers file" on
+   * Windows, so it's an Ethereal-specific file).
+   */
+  if (g_ethers_path == NULL) {
+#ifdef WIN32
+    dir = get_datafile_dir();
+#else
+    dir = "/etc";
+#endif
+    g_ethers_path = g_malloc(strlen(dir) + strlen(ENAME_ETHERS) + 2);
+    sprintf(g_ethers_path, "%s/%s", dir, ENAME_ETHERS);
+  }
 
   /* Set g_pethers_path here, but don't actually do anything
    * with it. It's used in get_ethbyname() and get_ethbyaddr()
@@ -926,6 +939,27 @@ static ipxnet_t *get_ipxnetbyaddr(guint32 addr)
 
 static void initialize_ipxnets(void)
 {
+  char *dir;
+
+  /* Compute the pathname of the ipxnets file.
+   * On UNIX, it's "/etc/ipxnets"; on Windows, it's "ipxnets" under the
+   * datafile directory (there's no notion of an "ipxnets file" on
+   * Windows, so it's an Ethereal-specific file).
+   *
+   * XXX - is there a notion of an "ipxnets file" in any flavor of
+   * UNIX, or with any add-on Netware package for UNIX?  If not,
+   * should the UNIX version of the ipxnets file be in the datafile
+   * directory as well?
+   */
+  if (g_ipxnets_path == NULL) {
+#ifdef WIN32
+    dir = get_datafile_dir();
+#else
+    dir = "/etc";
+#endif
+    g_ipxnets_path = g_malloc(strlen(dir) + strlen(ENAME_IPXNETS) + 2);
+    sprintf(g_ipxnets_path, "%s/%s", dir, ENAME_IPXNETS);
+  }
 
   /* Set g_pipxnets_path here, but don't actually do anything
    * with it. It's used in get_ipxnetbyname() and get_ipxnetbyaddr()
