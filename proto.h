@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.30 2000/05/11 08:15:59 gram Exp $
+ * $Id: proto.h,v 1.31 2000/05/30 09:52:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,8 +46,8 @@
 #endif
 
 /* needs glib.h */
-typedef struct GNode proto_tree;
-typedef struct GNode proto_item;
+typedef GNode proto_tree;
+typedef GNode proto_item;
 struct value_string;
 
 #define ITEM_LABEL_LENGTH	240
