@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.3 1999/09/09 04:25:49 guy Exp $
+ * $Id: file_dlg.c,v 1.4 1999/09/23 07:20:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -105,9 +105,9 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
     gtk_widget_destroy, GTK_OBJECT (file_sel));
 
 #ifdef HAVE_LIBPCAP
-  if( fork_mode && (cf.save_file != NULL) )
+  if ((sync_mode || fork_mode) && (cf.save_file != NULL))
 #else
-  if( cf.save_file != NULL )
+  if (cf.save_file != NULL)
 #endif
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_sel), cf.save_file);
   else

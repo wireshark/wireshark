@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.7 1999/09/23 06:27:27 guy Exp $
+ * $Id: main.c,v 1.8 1999/09/23 07:20:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -115,7 +115,7 @@ ts_type timestamp_type = RELATIVE;
 GtkStyle *item_style;
 
 #ifdef HAVE_LIBPCAP
-int sync_mode;	/* allow sync */
+int sync_mode;	/* fork a child to do the capture, and sync between them */
 int sync_pipe[2]; /* used to sync father */
 int fork_mode;	/* fork a child to do the capture */
 int quit_after_cap; /* Makes a "capture only mode". Implies -k */
@@ -582,7 +582,7 @@ main(int argc, char *argv[])
 	cf.cfilter = g_strdup(optarg);
 	break;
       case 'F':	       /* Fork to capture */
-        fork_mode = 1;
+        fork_mode = TRUE;
         break;
 #endif
       case 'h':        /* Print help and exit */
@@ -623,8 +623,7 @@ main(int argc, char *argv[])
         cf.snap = atoi(optarg);
         break;
       case 'S':        /* "Sync" mode: used for following file ala tail -f */
-        sync_mode = 1;
-        fork_mode = 1; /* -S implies -F */
+        sync_mode = TRUE;
         break;
 #endif
       case 't':        /* Time stamp type */
@@ -671,7 +670,7 @@ main(int argc, char *argv[])
       exit(1);
     }
 #ifdef HAVE_LIBPCAP
-    if (fork_mode) {
+    if (sync_mode || fork_mode) {
       if (cf.save_file_fd == -1) {
         fprintf(stderr, "ethereal: \"-k\" flag was specified with \"-%c\" flag but without \"-W\" flag\n",
             (sync_mode ? 'S' : 'F'));

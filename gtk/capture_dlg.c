@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.3 1999/09/23 06:27:27 guy Exp $
+ * $Id: capture_dlg.c,v 1.4 1999/09/23 07:20:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -276,12 +276,10 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
     /* They requested that the summary window be updated as packets are
        captured. */
     sync_mode = TRUE;
-    fork_mode = TRUE; /* -S implies -F */
   } else {
     /* They requested that the summary window not be updated as packets are
        captured. */
     sync_mode = FALSE;
-    fork_mode = FALSE;
   }
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));

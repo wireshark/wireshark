@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.69 1999/09/23 07:04:23 guy Exp $
+ * $Id: capture.c,v 1.70 1999/09/23 07:20:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -106,7 +106,7 @@ do_capture(void)
   guint byte_count;
   char *msg;
 
-  if (fork_mode) {
+  if (sync_mode || fork_mode) {
     /* "capture()" will be run in the child; close the capture now. */
     close_cap_file(&cf, info_bar, file_ctx);
   }
@@ -128,7 +128,7 @@ do_capture(void)
   cf.save_file = g_strdup(tmpname);
   cf.user_saved = 0;
   
-  if (fork_mode) {	/*  use fork() for capture */
+  if (sync_mode || fork_mode) {	/*  use fork() for capture */
     int  fork_child;
     char ssnap[24];
     char scount[24];	/* need a constant for len of numbers */
@@ -272,7 +272,7 @@ capture(void)
 
   if (pch == NULL) {
     /* Well, we couldn't start the capture. */
-    if (!fork_mode) {
+    if (!sync_mode && !fork_mode) {
       /* In fork mode, we shouldn't do any UI stuff until we pop up the
          capture-progress window, and, since we couldn't start the
 	 capture, we haven't popped it up. */
