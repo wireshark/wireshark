@@ -1,7 +1,7 @@
 /* util.h
  * Utility definitions
  *
- * $Id: util.h,v 1.15 2000/01/16 02:47:47 guy Exp $
+ * $Id: util.h,v 1.16 2000/01/25 04:31:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,6 +29,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+char *get_basename(char *);
 
 int create_tempfile(char *, int, const char *);
 

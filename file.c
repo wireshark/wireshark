@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.158 2000/01/25 01:05:06 guy Exp $
+ * $Id: file.c,v 1.159 2000/01/25 04:31:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -247,10 +247,7 @@ set_display_filename(capture_file *cf)
   if (!cf->is_tempfile) {
     /* Get the last component of the file name, and put that in the
        status bar. */
-    if ((name_ptr = (gchar *) strrchr(cf->filename, PATH_SEPARATOR)) == NULL)
-      name_ptr = cf->filename;
-    else
-      name_ptr++;
+    name_ptr = get_basename(cf->filename);
   } else {
     /* The file we read is a temporary file from a live capture;
        we don't mention its name in the status bar. */
@@ -281,10 +278,7 @@ read_cap_file(capture_file *cf)
   char    errmsg_errno[1024+1];
   gchar   err_str[2048+1];
 
-  if ((name_ptr = (gchar *) strrchr(cf->filename, PATH_SEPARATOR)) == NULL)
-    name_ptr = cf->filename;
-  else
-    name_ptr++;
+  name_ptr = get_basename(cf->filename);
 
   msg_len = strlen(name_ptr) + strlen(load_fmt) + 2;
   load_msg = g_malloc(msg_len);
@@ -1324,10 +1318,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
   struct wtap_pkthdr hdr;
   guint8        pd[65536];
 
-  if ((name_ptr = (gchar *) strrchr(fname, PATH_SEPARATOR)) == NULL)
-    name_ptr = fname;
-  else
-    name_ptr++;
+  name_ptr = get_basename(fname);
   msg_len = strlen(name_ptr) + strlen(save_fmt) + 2;
   save_msg = g_malloc(msg_len);
   snprintf(save_msg, msg_len, save_fmt, name_ptr);

@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.27 2000/01/16 02:47:47 guy Exp $
+ * $Id: util.c,v 1.28 2000/01/25 04:31:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -87,6 +87,43 @@ typedef int mode_t;	/* for win32 */
 #include "globals.h"
 
 #endif
+
+/*
+ * Given a pathname, return the last component.
+ */
+char *
+get_basename(char *path)
+{
+	char *filename;
+
+#ifdef WIN32
+	/*
+	 * XXX - do we need to search for '/' as well?
+	 */
+	if ((filename = strrchr(path, '\\')) == NULL) {
+		/*
+		 * OK, no directories - but there might be a drive
+		 * letter....
+		 */
+		filename = strchr(path, ':');
+	}
+#else
+	filename = strrchr(path, '/');
+#endif
+	if (filename == NULL) {
+		/*
+		 * There're no directories, drive letters, etc. in the
+		 * name; the pathname *is* the file name.
+		 */
+		filename = path;
+	} else {
+		/*
+		 * Skip past the pathname or drive letter separator.
+		 */
+		filename++;
+	}
+	return filename;
+}
 
 static char *
 setup_tmpdir(char *dir)

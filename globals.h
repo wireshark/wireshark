@@ -1,7 +1,7 @@
 /* globals.h
  * Global defines, etc.
  *
- * $Id: globals.h,v 1.16 2000/01/25 00:17:01 guy Exp $
+ * $Id: globals.h,v 1.17 2000/01/25 04:31:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -72,13 +72,6 @@
 
 #ifndef MIN
 # define MIN(x, y) ((x) < (y) ? (x) : (y))
-#endif
-
-/* Pathname separator. */
-#ifdef WIN32
-#define PATH_SEPARATOR  '\\'
-#else
-#define PATH_SEPARATOR  '/'
 #endif
 
 extern FILE        *data_out_file;
