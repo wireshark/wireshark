@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.64 2000/04/04 22:26:35 oabad Exp $
+ * $Id: packet-tcp.c,v 1.65 2000/04/08 03:32:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -77,6 +77,8 @@
 #include "packet-yhoo.h"
 
 extern FILE* data_out_file;
+
+guint16 tcp_urgent_pointer;
 
 static gchar info_str[COL_MAX_LEN];
 static int   info_len;
@@ -417,7 +419,11 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   th.th_urp   = ntohs(th.th_urp);
   th.th_seq   = ntohl(th.th_seq);
   th.th_ack   = ntohl(th.th_ack);
-  
+
+  /* Export the urgent pointer, for the benefit of protocols such as
+     rlogin. */
+  tcp_urgent_pointer = th.th_urp;
+ 
   info_len = 0;
 
   if (check_col(fd, COL_PROTOCOL) || tree) {  

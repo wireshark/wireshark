@@ -145,6 +145,9 @@ Jeff Foster <jfoste@woodward.com> {
 	    original NetBIOS encapsulation)
 	SMB Mailslot and Netlogin protocol support
 	Popup packet windows
+	Support for protocols registering themselves with dissectors for
+	    protocols on top of which they run
+	Rlogin support
 }
 
 Peter Torvals <petertv@xoommail.com> {

@@ -1,6 +1,6 @@
 /* packet-tcp.h
  *
- * $Id: packet-tcp.h,v 1.1 2000/02/15 21:03:17 gram Exp $
+ * $Id: packet-tcp.h,v 1.2 2000/04/08 03:32:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,5 +22,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/* Urgent pointer value for the current packet. */
+extern guint16   tcp_urgent_pointer;
 
 void dissect_tcp(const u_char *, int, frame_data *, proto_tree *);
