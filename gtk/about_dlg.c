@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.14 2004/06/21 17:25:19 ulfl Exp $
+ * $Id: about_dlg.c,v 1.15 2004/06/22 16:28:27 ulfl Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -288,26 +288,83 @@ about_ethereal_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 
 
 void
-url_ethereal_cb( GtkWidget *w _U_, gpointer data _U_)
+url_onlinepage_cb( GtkWidget *widget, gpointer data, onlinepage_action_e action)
 {
-    browser_open_url ("http://www.ethereal.com");
+    switch(action) {
+    case(ONLINEPAGE_HOME):
+        browser_open_url ("http://www.ethereal.com");
+        break;
+    case(ONLINEPAGE_DOWNLOAD):
+        browser_open_url ("http://www.ethereal.com/download.html");
+        break;
+    case(ONLINEPAGE_USERGUIDE):
+        browser_open_url ("http://www.ethereal.com/docs/user-guide");
+        break;
+    case(ONLINEPAGE_FAQ):
+        browser_open_url ("http://www.ethereal.com/faq.html");
+        break;
+    case(ONLINEPAGE_SAMPLE):
+        browser_open_url ("http://www.ethereal.com/sample");
+        break;
+    default:
+        g_assert_not_reached();
+    }
+}
+
+extern gchar *
+filename2uri(gchar *filename);
+
+/* browse a file relative to the program dir */
+void
+browser_open_program_file(gchar *filename)
+{
+    gchar *uri;
+    gchar *prog_path;
+    gchar *file_path;
+
+
+    /* get ethereal program base dir */
+    prog_path = g_strdup(ethereal_path);
+    prog_path = get_dirname((char *) prog_path);
+
+    /* build filename */
+    file_path = g_strdup_printf("%s/%s", prog_path, filename);
+
+    /* convert filename to uri */
+    uri = filename2uri(file_path);
+
+    /* show the uri */
+    browser_open_url (uri);
+
+    g_free(prog_path);
+    g_free(file_path);
+    g_free(uri);
 }
 
 void
-url_downloads_cb( GtkWidget *w _U_, gpointer data _U_)
+url_localpage_cb( GtkWidget *w _U_, gpointer data, localpage_action_e action)
 {
-    browser_open_url ("http://www.ethereal.com/download.html");
-}
-
-void
-url_user_guide_cb( GtkWidget *w _U_, gpointer data _U_)
-{
-    browser_open_url ("http://www.ethereal.com/docs/user-guide");
-}
-
-void
-url_faqs_cb( GtkWidget *w _U_, gpointer data _U_)
-{
-    browser_open_url ("http://www.ethereal.com/faq.html");
+    switch(action) {
+    case(LOCALPAGE_MAN_ETHEREAL):
+        browser_open_program_file("ethereal.html");
+        break;
+    case(LOCALPAGE_MAN_ETHEREAL_FILTER):
+        browser_open_program_file("ethereal-filter.html");
+        break;
+    case(LOCALPAGE_MAN_TETHEREAL):
+        browser_open_program_file("tethereal.html");
+        break;
+    case(LOCALPAGE_MAN_MERGECAP):
+        browser_open_program_file("mergecap.html");
+        break;
+    case(LOCALPAGE_MAN_EDITCAP):
+        browser_open_program_file("editcap.html");
+        break;
+    case(LOCALPAGE_MAN_TEXT2PCAP):
+        browser_open_program_file("text2pcap.html");
+        break;
+    default:
+        g_assert_not_reached();
+    }
 }
 

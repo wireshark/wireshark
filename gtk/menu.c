@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.205 2004/06/22 01:11:14 guy Exp $
+ * $Id: menu.c,v 1.206 2004/06/22 16:28:27 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -322,11 +322,20 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/_Contents", "F1", help_cb, 0, GTK_STOCK_HELP),
     ITEM_FACTORY_ENTRY("/Help/_Supported Protocols", NULL, supported_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Manual Pages", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Ethereal", NULL, url_localpage_cb, LOCALPAGE_MAN_ETHEREAL, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Ethereal Filter", NULL, url_localpage_cb, LOCALPAGE_MAN_ETHEREAL_FILTER, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Manual Pages/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Tethereal", NULL, url_localpage_cb, LOCALPAGE_MAN_TETHEREAL, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Mergecap", NULL, url_localpage_cb, LOCALPAGE_MAN_MERGECAP, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Editcap", NULL, url_localpage_cb, LOCALPAGE_MAN_EDITCAP, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Text2pcap", NULL, url_localpage_cb, LOCALPAGE_MAN_TEXT2PCAP, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Ethereal Online", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/Help/Ethereal Online/Home Page", NULL, url_ethereal_cb, 0, GTK_STOCK_HOME),
-    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/User's Guide", NULL, url_user_guide_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/FAQ's", NULL, url_faqs_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/Downloads", NULL, url_downloads_cb, 0, NULL, NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Help/Ethereal Online/Home Page", NULL, url_onlinepage_cb, ONLINEPAGE_HOME, GTK_STOCK_HOME),
+    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/User's Guide", NULL, url_onlinepage_cb, ONLINEPAGE_USERGUIDE, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/FAQ's", NULL, url_onlinepage_cb, ONLINEPAGE_FAQ, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/Downloads", NULL, url_onlinepage_cb, ONLINEPAGE_DOWNLOAD, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/Example Files", NULL, url_onlinepage_cb, ONLINEPAGE_SAMPLE, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Help/_About Ethereal", NULL, about_ethereal_cb,
                        0, NULL, NULL)
