@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.5 1999/08/12 15:20:18 gram Exp $
+ * $Id: dfilter-scanner.l,v 1.6 1999/08/12 21:16:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,12 +53,11 @@
 #include "dfilter.h"
 #endif
 
+#include "dfilter-int.h"
+
 #include "dfilter-grammar.h"
 
 static int ether_str_to_guint8_array(const char *s, guint8 *mac);
-
-/* in dfilter-grammar.y */
-extern GSList *dfilter_list_byte_arrays;
 
 /* Flex has a few routines which help us get the scanner to read
  * from a string rather than from a file. POSIX lex only provides

@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.7 1999/08/12 15:10:48 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.8 1999/08/12 21:16:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,6 +61,8 @@
 #include "dfilter.h"
 #endif
 
+#include "dfilter-int.h"
+
 #ifndef __RESOLV_H__
 #include "resolv.h"
 #endif
@@ -93,9 +95,6 @@ GNode *dfilter_tree = NULL;
 /* list of byte arrays we allocate during parse. We can traverse this list
  * faster than the tree when we go back and free the byte arrays */
 GSList *dfilter_list_byte_arrays = NULL;
-
-/* In dfilter-scanner.l */
-GByteArray* byte_str_to_guint8_array(const char *s);
 
 %}
 

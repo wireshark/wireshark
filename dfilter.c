@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.7 1999/08/12 15:10:48 gram Exp $
+ * $Id: dfilter.c,v 1.8 1999/08/12 21:16:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,6 +50,7 @@
 #ifndef __DFILTER_H__
 #include "dfilter.h"
 #endif
+#include "dfilter-int.h"
 #include "dfilter-grammar.h"
 
 int yyparse(void); /* yacc entry-point */
