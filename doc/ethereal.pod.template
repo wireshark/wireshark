@@ -1451,6 +1451,7 @@ B<http://www.ethereal.com>.
   Peter Hawkins            <peter[AT]hawkins.emu.id.au>
   Bill Fumerola            <billf[AT]FreeBSD.org>
   Chris Waters             <chris[AT]waters.co.nz>
+  Solomon Peachy           <pizza[AT]shaftnet.org>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

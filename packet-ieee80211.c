@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.64 2002/06/07 10:11:39 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.65 2002/06/18 08:38:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,9 +74,41 @@
 /* Defragment fragmented 802.11 datagrams */
 static gboolean wlan_defragment = TRUE;
 
+/* Check for the presence of the 802.11 FCS */
+static gboolean wlan_check_fcs = FALSE;
+
+/* Ignore the WEP bit; assume packet is decrypted */
+static gboolean wlan_ignore_wep = FALSE;
+
 /* Tables for reassembly of fragments. */
 static GHashTable *wlan_fragment_table = NULL;
 static GHashTable *wlan_reassembled_table = NULL;
+
+/* Stuff for the WEP decoder */
+static guint num_wepkeys = 0;
+static guint8 **wep_keys = NULL;
+static int *wep_keylens = NULL;
+static void init_wepkeys(void);
+static int wep_decrypt(guint8 *buf, guint32 len, int key_override);
+static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb);
+#define SSWAP(a,b) {guint8 tmp = s[a]; s[a] = s[b]; s[b] = tmp;}
+
+/* #define USE_ENV */
+/* When this is set, an unlimited number of WEP keys can be set in the 
+   environment:  
+
+   ETHEREAL_WEPKEYNUM=##
+   ETHEREAL_WEPKEY1=aa:bb:cc:dd:... 
+   ETHEREAL_WEPKEY2=aa:bab:cc:dd:ee:... 
+
+   ... you get the idea.
+
+   otherwise you're limited to specifying four keys in the preference system.
+ */
+
+#ifndef USE_ENV
+static char *wep_keystr[] = {NULL, NULL, NULL, NULL};
+#endif
 
 /* ************************************************************************* */
 /*                          Miscellaneous Constants                          */
@@ -113,7 +145,7 @@ static GHashTable *wlan_reassembled_table = NULL;
 #define IS_RETRY(x)            ((x) & FLAG_RETRY)
 #define POWER_MGT_STATUS(x)    ((x) & FLAG_POWER_MGT)
 #define HAS_MORE_DATA(x)       ((x) & FLAG_MORE_DATA)
-#define IS_WEP(x)              ((x) & FLAG_WEP)
+#define IS_WEP(x)              (!wlan_ignore_wep && ((x) & FLAG_WEP))
 #define IS_STRICTLY_ORDERED(x) ((x) & FLAG_ORDER)
 
 #define MGT_RESERVED_RANGE(x)  (((x>=0x06)&&(x<=0x07))||((x>=0x0D)&&(x<=0x0F)))
@@ -346,7 +378,7 @@ static int hf_fixed_parameters = -1;	/* Protocol payload for management frames *
 static int hf_tagged_parameters = -1;	/* Fixed payload item */
 static int hf_wep_iv = -1;
 static int hf_wep_key = -1;
-static int hf_wep_crc = -1;
+static int hf_wep_icv = -1;
 
 /* ************************************************************************* */
 /*                               Protocol trees                              */
@@ -532,29 +564,6 @@ get_tagged_parameter_tree (proto_tree * tree, tvbuff_t *tvb, int start, int size
   return proto_item_add_subtree (tagged_fields, ett_tagged_parameters);
 }
 
-
-/* ************************************************************************* */
-/*            Add the subtree used to store WEP parameters                   */
-/* ************************************************************************* */
-static void
-get_wep_parameter_tree (proto_tree * tree, tvbuff_t *tvb, int start, int size)
-{
-  proto_item *wep_fields;
-  proto_tree *wep_tree;
-  int crc_offset = size - 4;
-
-  wep_fields = proto_tree_add_text(tree, tvb, start, 4, "WEP parameters");
-
-  wep_tree = proto_item_add_subtree (wep_fields, ett_wep_parameters);
-  proto_tree_add_item (wep_tree, hf_wep_iv, tvb, start, 3, TRUE);
-
-  proto_tree_add_uint (wep_tree, hf_wep_key, tvb, start + 3, 1,
-		       COOK_WEP_KEY (tvb_get_guint8 (tvb, start + 3)));
-
-  if (tvb_bytes_exist(tvb, start + crc_offset, 4))
-    proto_tree_add_uint (wep_tree, hf_wep_crc, tvb, start + crc_offset, 4,
-			 tvb_get_ntohl (tvb, start + crc_offset));
-}
 
 /* ************************************************************************* */
 /*              Dissect and add fixed mgmt fields to protocol tree           */
@@ -1100,7 +1109,7 @@ set_dst_addr_cols(packet_info *pinfo, const guint8 *addr, char *type)
 static void
 dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 			  proto_tree * tree, gboolean fixed_length_header,
-			  gboolean has_radio_information)
+			  gboolean has_radio_information, gboolean has_no_fcs)
 {
   guint16 fcf, flags, frame_type_subtype;
   guint16 seq_control;
@@ -1114,6 +1123,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   proto_tree *flag_tree;
   proto_tree *fc_tree;
   guint16 hdr_len;
+  gint len, reported_len;
   gboolean save_fragmented;
   tvbuff_t *volatile next_tvb;
   guint32 addr_type;
@@ -1226,20 +1236,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   frag_number = 0;
   seq_number = 0;
 
-  switch (frame_type_subtype)
+  switch (COOK_FRAME_TYPE (fcf))
     {
 
-    case MGT_ASSOC_REQ:
-    case MGT_ASSOC_RESP:
-    case MGT_REASSOC_REQ:
-    case MGT_REASSOC_RESP:
-    case MGT_PROBE_REQ:
-    case MGT_PROBE_RESP:
-    case MGT_BEACON:
-    case MGT_ATIM:
-    case MGT_DISASS:
-    case MGT_AUTHENTICATION:
-    case MGT_DEAUTHENTICATION:
+    case MGT_FRAME:
       /*
        * All management frame types have the same header.
        */
@@ -1276,98 +1276,95 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	}
       break;
 
-
-    case CTRL_PS_POLL:
-      src = tvb_get_ptr (tvb, 10, 6);
-      dst = tvb_get_ptr (tvb, 4, 6);
-
-      set_src_addr_cols(pinfo, src, "BSSID");
-      set_dst_addr_cols(pinfo, dst, "BSSID");
-
-      if (tree)
+    case CONTROL_FRAME:
+      switch (frame_type_subtype)
 	{
-	  proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 4, 6, dst);
 
-	  proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6, src);
+	case CTRL_PS_POLL:
+	  src = tvb_get_ptr (tvb, 10, 6);
+	  dst = tvb_get_ptr (tvb, 4, 6);
+
+	  set_src_addr_cols(pinfo, src, "BSSID");
+	  set_dst_addr_cols(pinfo, dst, "BSSID");
+
+	  if (tree)
+	    {
+	      proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 4, 6, dst);
+
+	      proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6, src);
+	    }
+	  break;
+
+
+	case CTRL_RTS:
+	  src = tvb_get_ptr (tvb, 10, 6);
+	  dst = tvb_get_ptr (tvb, 4, 6);
+
+	  set_src_addr_cols(pinfo, src, "TA");
+	  set_dst_addr_cols(pinfo, dst, "RA");
+
+	  if (tree)
+	    {
+	      proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
+
+	      proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6, src);
+	    }
+	  break;
+
+
+	case CTRL_CTS:
+	  dst = tvb_get_ptr (tvb, 4, 6);
+
+	  set_dst_addr_cols(pinfo, dst, "RA");
+
+	  if (tree)
+	    proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
+	  break;
+
+
+	case CTRL_ACKNOWLEDGEMENT:
+	  dst = tvb_get_ptr (tvb, 4, 6);
+
+	  set_dst_addr_cols(pinfo, dst, "RA");
+
+	  if (tree)
+	    proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
+	  break;
+
+
+	case CTRL_CFP_END:
+	  src = tvb_get_ptr (tvb, 10, 6);
+	  dst = tvb_get_ptr (tvb, 4, 6);
+
+	  set_src_addr_cols(pinfo, src, "BSSID");
+	  set_dst_addr_cols(pinfo, dst, "RA");
+
+	  if (tree)
+	    {
+	      proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
+	      proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6, src);
+	    }
+	  break;
+
+
+	case CTRL_CFP_ENDACK:
+	  src = tvb_get_ptr (tvb, 10, 6);
+	  dst = tvb_get_ptr (tvb, 4, 6);
+
+	  set_src_addr_cols(pinfo, src, "BSSID");
+	  set_dst_addr_cols(pinfo, dst, "RA");
+
+	  if (tree)
+	    {
+	      proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
+
+	      proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6, src);
+	    }
+	  break;
 	}
       break;
 
-
-    case CTRL_RTS:
-      src = tvb_get_ptr (tvb, 10, 6);
-      dst = tvb_get_ptr (tvb, 4, 6);
-
-      set_src_addr_cols(pinfo, src, "TA");
-      set_dst_addr_cols(pinfo, dst, "RA");
-
-      if (tree)
-	{
-	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
-
-	  proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6, src);
-	}
-      break;
-
-
-    case CTRL_CTS:
-      dst = tvb_get_ptr (tvb, 4, 6);
-
-      set_dst_addr_cols(pinfo, dst, "RA");
-
-      if (tree)
-	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
-      break;
-
-
-    case CTRL_ACKNOWLEDGEMENT:
-      dst = tvb_get_ptr (tvb, 4, 6);
-
-      set_dst_addr_cols(pinfo, dst, "RA");
-
-      if (tree)
-	proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
-      break;
-
-
-    case CTRL_CFP_END:
-      src = tvb_get_ptr (tvb, 10, 6);
-      dst = tvb_get_ptr (tvb, 4, 6);
-
-      set_src_addr_cols(pinfo, src, "BSSID");
-      set_dst_addr_cols(pinfo, dst, "RA");
-
-      if (tree)
-	{
-	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
-	  proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6, src);
-	}
-      break;
-
-
-    case CTRL_CFP_ENDACK:
-      src = tvb_get_ptr (tvb, 10, 6);
-      dst = tvb_get_ptr (tvb, 4, 6);
-
-      set_src_addr_cols(pinfo, src, "BSSID");
-      set_dst_addr_cols(pinfo, dst, "RA");
-
-      if (tree)
-	{
-	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
-
-	  proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6, src);
-	}
-      break;
-
-
-    case DATA:
-    case DATA_NULL_FUNCTION:
-    case DATA_CF_ACK:
-    case DATA_CF_ACK_NOD:
-    case DATA_CF_POLL:
-    case DATA_CF_POLL_NOD:
-    case DATA_CF_ACK_POLL:
-    case DATA_CF_ACK_POLL_NOD:
+    case DATA_FRAME:
       addr_type = COOK_ADDR_SELECTOR (fcf);
 
       /* In order to show src/dst address we must always do the following */
@@ -1486,6 +1483,52 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       break;
     }
 
+  len = tvb_length_remaining(tvb, hdr_len);
+  reported_len = tvb_reported_length_remaining(tvb, hdr_len);
+
+  if (!has_no_fcs && (wlan_check_fcs))
+    {
+      /*
+       * Well, this packet should, in theory, have an FCS.
+       * Do we have the entire packet, and does it have enough data for
+       * the FCS?
+       */
+      if (reported_len < 4)
+	{
+	  /*
+	   * The packet is claimed not to even have enough data for a 4-byte
+	   * FCS.
+	   * Pretend it doesn't have an FCS.
+	   */
+	  ;
+        }
+      else if (len < reported_len)
+	{
+	  /*
+	   * The packet is claimed to have enough data for a 4-byte FCS, but
+	   * we didn't capture all of the packet.
+	   * Slice off the 4-byte FCS from the reported length, and trim the
+	   * captured length so it's no more than the reported length; that
+	   * will slice off what of the FCS, if any, is in the captured
+	   * length.
+	   */
+	  reported_len -= 4;
+	  if (len > reported_len)
+	    len = reported_len;
+	}
+      else
+	{
+	  /*
+	   * We have the entire packet, and it includes a 4-byte FCS.
+	   * Slice it off, and put it into the tree.
+	   */
+	  len -= 4;
+	  reported_len -= 4;
+	  if (tree)
+	    proto_tree_add_item (hdr_tree, hf_fcs, tvb, hdr_len + len, 4, FALSE);
+	}
+    }
+
   /*
    * Only management and data frames have a body, so we don't have
    * anything more to do for other types of frames.
@@ -1516,62 +1559,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     }
 
   /*
-   * For WEP-encrypted frames, dissect the WEP parameters and
-   * display the payload as data.
-   *
-   * XXX - allow the key to be specified, and, if it is, decrypt
-   * the payload and dissect it?
-   */
-  if (IS_WEP(COOK_FLAGS(fcf)))
-    {
-      int pkt_len = tvb_reported_length (tvb);
-      int cap_len = tvb_length (tvb);
-
-      if (tree)
-        {
-	  get_wep_parameter_tree (tree, tvb, hdr_len, pkt_len);
-	  pkt_len -= hdr_len + 4;
-	  cap_len -= hdr_len + 4;
-
-	  /*
-	   * OK, pkt_len and cap_len have had the length of the 802.11
-	   * header and WEP parameters subtracted.
-	   *
-	   * If there's anything left:
-	   *
-	   *	if cap_len is greater than or equal to pkt_len (i.e., we
-	   *	captured the entire packet), subtract the length of the
-	   *	WEP CRC	from cap_len;
-	   *
-	   *	if cap_len is from 1 to 3 bytes less than pkt_len (i.e.,
-	   *	we captured some but not all of the WEP CRC), subtract
-	   *	the length of the part of the WEP CRC we captured from
-	   *	crc_len;
-	   *
-	   *	otherwise, (i.e., we captured none of the WEP CRC),
-	   *	leave cap_len alone;
-	   *
-	   * and subtract the length of the WEP CRC from pkt_len.
-	   */
-	  if (cap_len >= pkt_len)
-	    cap_len -= 4;
-	  else if ((pkt_len - cap_len) >= 1 && (pkt_len - cap_len) <= 3)
-	    cap_len -= 4 - (pkt_len - cap_len);
-	  pkt_len -= 4;
-	  if (cap_len > 0 && pkt_len > 0)
-	    call_dissector(data_handle,
-			   tvb_new_subset(tvb, hdr_len + 4, -1, -1),
-			   pinfo, tree);
-	}
-	return;
-    }
-
-  /*
-   * Now dissect the body of a non-WEP-encrypted frame.
-   */
-
-  /*
-   * Do defragmentation if "wlan_defragment" is true.
+   * Do defragmentation if "wlan_defragment" is true, and we have more
+   * fragments or this isn't the first fragment.
    *
    * We have to do some special handling to catch frames that
    * have the "More Fragments" indicator not set but that
@@ -1581,6 +1570,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
    * *and* show the reassembled packet without the "More
    * Fragments" indicator set *but* with a non-zero fragment
    * number.
+   *
+   * "fragment_add_seq_check()" handles that; we want to call it
+   * even if we have a short frame, so that it does those checks - if
+   * the frame is short, it doesn't do reassembly on it.
    *
    * (This could get some false positives if we really *did* only
    * capture the last fragment of a fragmented packet, but that's
@@ -1600,7 +1593,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 				     wlan_fragment_table,
 				     wlan_reassembled_table,
 				     frag_number,
-				     tvb_length_remaining(tvb, hdr_len),
+				     len,
 				     more_frags);
     if (fd_head != NULL) {
       /*
@@ -1626,7 +1619,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       	 * Not fragmented, really.
       	 * Show it as a regular frame.
       	 */
-	next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
+	next_tvb = tvb_new_subset (tvb, hdr_len, len, reported_len);
       }
 
       /* It's not fragmented. */
@@ -1647,7 +1640,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       /* First fragment, or not fragmented.  Dissect what we have here. */
 
       /* Get a tvbuff for the payload. */
-      next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
+      next_tvb = tvb_new_subset (tvb, hdr_len, len, reported_len);
 
       /*
        * If this is the first fragment, but not the only fragment,
@@ -1661,13 +1654,105 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   }
 
   if (next_tvb == NULL) {
-    /* Just show this as a fragment. */
+    /* Just show this as an incomplete fragment. */
     if (check_col(pinfo->cinfo, COL_INFO))
       col_set_str(pinfo->cinfo, COL_INFO, "Fragmented IEEE 802.11 frame");
-    next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
+    next_tvb = tvb_new_subset (tvb, hdr_len, len, reported_len);
     call_dissector(data_handle, next_tvb, pinfo, tree);
     pinfo->fragmented = save_fragmented;
     return;
+  }
+
+  /*
+   * For WEP-encrypted frames, dissect the WEP parameters and decrypt
+   * the data, if we have a matching key.  Otherwise display it as data.
+   *
+   * XXX - is WEP encrypting done *before* fragmentation or *after*
+   * fragmentation?  We're doing the WEP stuff here, after defragmenting,
+   * which is correct only if WEP encrypting is done *after* fragmentation.
+   */
+  if (IS_WEP(COOK_FLAGS(fcf))) {
+    gboolean can_decrypt = FALSE;
+    tvbuff_t *tmp_tvb;
+    proto_tree *wep_tree = NULL;
+
+    if (tree) {
+      proto_item *wep_fields;
+
+      wep_fields = proto_tree_add_text(tree, next_tvb, 0, 4,
+					   "WEP parameters");
+
+      wep_tree = proto_item_add_subtree (wep_fields, ett_wep_parameters);
+      proto_tree_add_item (wep_tree, hf_wep_iv, next_tvb, 0, 3, TRUE);
+
+      proto_tree_add_uint (wep_tree, hf_wep_key, next_tvb, 3, 1,
+			   COOK_WEP_KEY (tvb_get_guint8 (next_tvb, 3)));
+    }
+
+    len = tvb_length_remaining(next_tvb, 4);
+    reported_len = tvb_reported_length_remaining(next_tvb, 4);
+    if (len == -1 || reported_len == -1) {
+      /* We don't have anything beyond the IV. */
+      return;
+    }
+
+    /*
+     * Well, this packet should, in theory, have an ICV.
+     * Do we have the entire packet, and does it have enough data for
+     * the ICV?
+     */
+    if (reported_len < 4) {
+      /*
+       * The packet is claimed not to even have enough data for a
+       * 4-byte ICV.
+       * Pretend it doesn't have an ICV.
+       */
+      ;
+    } else if (len < reported_len) {
+      /*
+       * The packet is claimed to have enough data for a 4-byte ICV,
+       * but we didn't capture all of the packet.
+       * Slice off the 4-byte ICV from the reported length, and trim
+       * the captured length so it's no more than the reported length;
+       * that will slice off what of the ICV, if any, is in the
+       * captured length.
+       *
+       */
+      reported_len -= 4;
+      if (len > reported_len)
+	len = reported_len;
+    } else {
+      /*
+       * We have the entire packet, and it includes a 4-byte ICV.
+       * Slice it off, and put it into the tree.
+       *
+       * We only support decrypting if we have the the ICV.
+       *
+       * XXX - the ICV is encrypted; we're putting the encrypted
+       * value, not the decrypted value, into the tree.
+       */
+      len -= 4;
+      reported_len -= 4;
+      if (tree)
+	proto_tree_add_item (wep_tree, hf_wep_icv, next_tvb, 4 + len, 4,
+			     FALSE);
+      can_decrypt = TRUE;
+    }
+
+    if (!can_decrypt || (tmp_tvb = try_decrypt_wep(next_tvb)) == NULL) {
+      /* WEP decode impossible or failed, treat payload as raw data. */
+      tmp_tvb = tvb_new_subset(next_tvb, 4, len, reported_len);
+
+      call_dissector(data_handle, tmp_tvb, pinfo, tree);
+      return; 
+    } else {
+      add_new_data_source(pinfo, tmp_tvb, "Decrypted WEP data");
+	/*
+	  if (check_col(pinfo->cinfo, COL_INFO))
+	  col_set_str(pinfo->cinfo, COL_INFO, "Decrypted WEP data");
+	*/
+    }
+    next_tvb = tmp_tvb;
   }
 
   switch (COOK_FRAME_TYPE (fcf))
@@ -1716,7 +1801,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 static void
 dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, FALSE);
 }
 
 /*
@@ -1726,7 +1811,8 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 static void
 dissect_ieee80211_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, TRUE);
+  /* These packets do NOT have a FCS present */
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, TRUE, TRUE);
 }
 
 /*
@@ -1736,7 +1822,7 @@ dissect_ieee80211_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 static void
 dissect_ieee80211_fixed (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, TRUE, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree, TRUE, FALSE, FALSE);
 }
 
 static void
@@ -2018,7 +2104,7 @@ proto_register_wlan (void)
 
     {&hf_fcs,
      {"Frame Check Sequence (not verified)", "wlan.fcs", FT_UINT32, BASE_HEX,
-      NULL, 0, "", HFILL }},
+      NULL, 0, "FCS", HFILL }},
 
     {&hf_fragment_overlap,
       {"Fragment overlap", "wlan.fragment.overlap", FT_BOOLEAN, BASE_NONE,
@@ -2060,9 +2146,9 @@ proto_register_wlan (void)
      {"Key", "wlan.wep.key", FT_UINT8, BASE_DEC, NULL, 0,
       "Key", HFILL }},
 
-    {&hf_wep_crc,
-     {"WEP CRC (not verified)", "wlan.wep.crc", FT_UINT32, BASE_HEX, NULL, 0,
-      "WEP CRC", HFILL }},
+    {&hf_wep_icv,
+     {"WEP ICV (not verified)", "wlan.wep.icv", FT_UINT32, BASE_HEX, NULL, 0,
+      "WEP ICV", HFILL }},
   };
 
   static hf_register_info ff[] = {
@@ -2108,7 +2194,6 @@ proto_register_wlan (void)
     {&ff_cf_ibss,
      {"IBSS status", "wlan_mgt.fixed.capabilities.ibss",
       FT_BOOLEAN, 8, TFS (&cf_ibss_flags), 0x0002, "IBSS participation", HFILL }},
-
     {&ff_cf_privacy,
      {"Privacy", "wlan_mgt.fixed.capabilities.privacy",
       FT_BOOLEAN, 8, TFS (&cf_privacy_flags), 0x0010, "WEP support", HFILL }},
@@ -2180,6 +2265,16 @@ proto_register_wlan (void)
   };
   module_t *wlan_module;
 
+  static const enum_val_t wep_keys_options[] = {
+    {"0", 0},
+    {"1", 1},
+    {"2", 2},
+    {"3", 3},
+    {"4", 4},
+    {NULL, -1},
+  };
+
+
   proto_wlan = proto_register_protocol ("IEEE 802.11 wireless LAN",
 					"IEEE 802.11", "wlan");
   proto_register_field_array (proto_wlan, hf, array_length (hf));
@@ -2198,6 +2293,40 @@ proto_register_wlan (void)
 	"Reassemble fragmented 802.11 datagrams",
 	"Whether fragmented 802.11 datagrams should be reassembled",
 	&wlan_defragment);
+
+  prefs_register_bool_preference(wlan_module, "check_fcs",
+				 "Assume packets have FCS",
+				 "Some 802.11 cards include the FCS at the end of a packet, others do not.",
+				 &wlan_check_fcs);
+
+  prefs_register_bool_preference(wlan_module, "ignore_wep",
+				 "Ignore the WEP bit",
+				 "Some 802.11 cards leave the WEP bit set even though the packet is decrypted.",
+				 &wlan_ignore_wep);
+
+#ifndef USE_ENV
+  prefs_register_enum_preference(wlan_module, "wep_keys", 
+				 "WEP key count",
+				 "How many WEP keys do we have to choose from? (0 to disable, up to 4)",
+				 &num_wepkeys, wep_keys_options, FALSE);
+
+  prefs_register_string_preference(wlan_module, "wep_key1",
+				   "WEP key #1",
+				   "First WEP key (A:B:C:D:E:F)",
+				   &wep_keystr[0]);
+  prefs_register_string_preference(wlan_module, "wep_key2",
+				   "WEP key #2",
+				   "Second WEP key (A:B:C:D:E:F)",
+				   &wep_keystr[1]);
+  prefs_register_string_preference(wlan_module, "wep_key3",
+				   "WEP key #3",
+				   "Third WEP key (A:B:C:D:E:F)",
+				   &wep_keystr[2]);
+  prefs_register_string_preference(wlan_module, "wep_key4",
+				   "WEP key #4",
+				   "Fourth WEP key (A:B:C:D:E:F)",
+				   &wep_keystr[3]);
+#endif
 }
 
 void
@@ -2219,4 +2348,262 @@ proto_reg_handoff_wlan(void)
 						   proto_wlan);
   dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
 		ieee80211_radio_handle);
+}
+
+static const guint32 wep_crc32_table[256] = {
+        0x00000000L, 0x77073096L, 0xee0e612cL, 0x990951baL, 0x076dc419L,
+        0x706af48fL, 0xe963a535L, 0x9e6495a3L, 0x0edb8832L, 0x79dcb8a4L,
+        0xe0d5e91eL, 0x97d2d988L, 0x09b64c2bL, 0x7eb17cbdL, 0xe7b82d07L,
+        0x90bf1d91L, 0x1db71064L, 0x6ab020f2L, 0xf3b97148L, 0x84be41deL,
+        0x1adad47dL, 0x6ddde4ebL, 0xf4d4b551L, 0x83d385c7L, 0x136c9856L,
+        0x646ba8c0L, 0xfd62f97aL, 0x8a65c9ecL, 0x14015c4fL, 0x63066cd9L,
+        0xfa0f3d63L, 0x8d080df5L, 0x3b6e20c8L, 0x4c69105eL, 0xd56041e4L,
+        0xa2677172L, 0x3c03e4d1L, 0x4b04d447L, 0xd20d85fdL, 0xa50ab56bL,
+        0x35b5a8faL, 0x42b2986cL, 0xdbbbc9d6L, 0xacbcf940L, 0x32d86ce3L,
+        0x45df5c75L, 0xdcd60dcfL, 0xabd13d59L, 0x26d930acL, 0x51de003aL,
+        0xc8d75180L, 0xbfd06116L, 0x21b4f4b5L, 0x56b3c423L, 0xcfba9599L,
+        0xb8bda50fL, 0x2802b89eL, 0x5f058808L, 0xc60cd9b2L, 0xb10be924L,
+        0x2f6f7c87L, 0x58684c11L, 0xc1611dabL, 0xb6662d3dL, 0x76dc4190L,
+        0x01db7106L, 0x98d220bcL, 0xefd5102aL, 0x71b18589L, 0x06b6b51fL,
+        0x9fbfe4a5L, 0xe8b8d433L, 0x7807c9a2L, 0x0f00f934L, 0x9609a88eL,
+        0xe10e9818L, 0x7f6a0dbbL, 0x086d3d2dL, 0x91646c97L, 0xe6635c01L,
+        0x6b6b51f4L, 0x1c6c6162L, 0x856530d8L, 0xf262004eL, 0x6c0695edL,
+        0x1b01a57bL, 0x8208f4c1L, 0xf50fc457L, 0x65b0d9c6L, 0x12b7e950L,
+        0x8bbeb8eaL, 0xfcb9887cL, 0x62dd1ddfL, 0x15da2d49L, 0x8cd37cf3L,
+        0xfbd44c65L, 0x4db26158L, 0x3ab551ceL, 0xa3bc0074L, 0xd4bb30e2L,
+        0x4adfa541L, 0x3dd895d7L, 0xa4d1c46dL, 0xd3d6f4fbL, 0x4369e96aL,
+        0x346ed9fcL, 0xad678846L, 0xda60b8d0L, 0x44042d73L, 0x33031de5L,
+        0xaa0a4c5fL, 0xdd0d7cc9L, 0x5005713cL, 0x270241aaL, 0xbe0b1010L,
+        0xc90c2086L, 0x5768b525L, 0x206f85b3L, 0xb966d409L, 0xce61e49fL,
+        0x5edef90eL, 0x29d9c998L, 0xb0d09822L, 0xc7d7a8b4L, 0x59b33d17L,
+        0x2eb40d81L, 0xb7bd5c3bL, 0xc0ba6cadL, 0xedb88320L, 0x9abfb3b6L,
+        0x03b6e20cL, 0x74b1d29aL, 0xead54739L, 0x9dd277afL, 0x04db2615L,
+        0x73dc1683L, 0xe3630b12L, 0x94643b84L, 0x0d6d6a3eL, 0x7a6a5aa8L,
+        0xe40ecf0bL, 0x9309ff9dL, 0x0a00ae27L, 0x7d079eb1L, 0xf00f9344L,
+        0x8708a3d2L, 0x1e01f268L, 0x6906c2feL, 0xf762575dL, 0x806567cbL,
+        0x196c3671L, 0x6e6b06e7L, 0xfed41b76L, 0x89d32be0L, 0x10da7a5aL,
+        0x67dd4accL, 0xf9b9df6fL, 0x8ebeeff9L, 0x17b7be43L, 0x60b08ed5L,
+        0xd6d6a3e8L, 0xa1d1937eL, 0x38d8c2c4L, 0x4fdff252L, 0xd1bb67f1L,
+        0xa6bc5767L, 0x3fb506ddL, 0x48b2364bL, 0xd80d2bdaL, 0xaf0a1b4cL,
+        0x36034af6L, 0x41047a60L, 0xdf60efc3L, 0xa867df55L, 0x316e8eefL,
+        0x4669be79L, 0xcb61b38cL, 0xbc66831aL, 0x256fd2a0L, 0x5268e236L,
+        0xcc0c7795L, 0xbb0b4703L, 0x220216b9L, 0x5505262fL, 0xc5ba3bbeL,
+        0xb2bd0b28L, 0x2bb45a92L, 0x5cb36a04L, 0xc2d7ffa7L, 0xb5d0cf31L,
+        0x2cd99e8bL, 0x5bdeae1dL, 0x9b64c2b0L, 0xec63f226L, 0x756aa39cL,
+        0x026d930aL, 0x9c0906a9L, 0xeb0e363fL, 0x72076785L, 0x05005713L,
+        0x95bf4a82L, 0xe2b87a14L, 0x7bb12baeL, 0x0cb61b38L, 0x92d28e9bL,
+        0xe5d5be0dL, 0x7cdcefb7L, 0x0bdbdf21L, 0x86d3d2d4L, 0xf1d4e242L,
+        0x68ddb3f8L, 0x1fda836eL, 0x81be16cdL, 0xf6b9265bL, 0x6fb077e1L,
+        0x18b74777L, 0x88085ae6L, 0xff0f6a70L, 0x66063bcaL, 0x11010b5cL,
+        0x8f659effL, 0xf862ae69L, 0x616bffd3L, 0x166ccf45L, 0xa00ae278L,
+        0xd70dd2eeL, 0x4e048354L, 0x3903b3c2L, 0xa7672661L, 0xd06016f7L,
+        0x4969474dL, 0x3e6e77dbL, 0xaed16a4aL, 0xd9d65adcL, 0x40df0b66L,
+        0x37d83bf0L, 0xa9bcae53L, 0xdebb9ec5L, 0x47b2cf7fL, 0x30b5ffe9L,
+        0xbdbdf21cL, 0xcabac28aL, 0x53b39330L, 0x24b4a3a6L, 0xbad03605L,
+        0xcdd70693L, 0x54de5729L, 0x23d967bfL, 0xb3667a2eL, 0xc4614ab8L,
+        0x5d681b02L, 0x2a6f2b94L, 0xb40bbe37L, 0xc30c8ea1L, 0x5a05df1bL,
+        0x2d02ef8dL
+};
+
+static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb) {
+  guint8 *tmp = NULL;
+  int i;
+  tvbuff_t *decr_tvb = NULL;
+  guint len = tvb_length(tvb);
+
+  if (num_wepkeys < 1)
+    return NULL;
+  if (wep_keylens == NULL)
+    init_wepkeys();
+
+  if ((tmp = g_malloc(len)) == NULL)
+    return NULL;  /* krap! */
+  
+  /* try once with the key index in the packet, then look through our list. */
+  for (i = -1; i < (int) num_wepkeys; i++) {
+    /* copy the encrypted data over to the tmp buffer */
+#if 0
+    printf("trying %d\n", i);
+#endif
+    tvb_memcpy(tvb, tmp, 0, len);
+    if (wep_decrypt(tmp, len, i) == 0) {
+
+      /* decrypt successful, let's set up a new data tvb. */
+      decr_tvb = tvb_new_real_data(tmp, len-8, len-8);
+      tvb_set_free_cb(decr_tvb, g_free);
+      tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
+
+      goto done;
+    }
+  }
+
+ done:
+  if ((!decr_tvb) && (tmp))    free(tmp);
+
+#if 0
+  printf("de-wep %p\n", decr_tvb);
+#endif 
+
+  return decr_tvb;
+}
+
+
+/* de-weps the block.  if successful, buf* will point to the data start. */
+static int wep_decrypt(guint8 *buf, guint32 len, int key_override) {
+  guint32 i, j, k, crc, keylen;
+  guint8 s[256], key[128], c_crc[4];
+  guint8 keyidx, *dpos, *cpos;
+
+  /* Needs to be at least 8 bytes of payload */
+  if (len < 8)
+    return -1;
+
+  /* initialize the first bytes of the key from the IV */
+  key[0] = buf[0];
+  key[1] = buf[1];
+  key[2] = buf[2];
+  keyidx = COOK_WEP_KEY(buf[3]);
+
+  if (key_override >= 0)
+    keyidx = key_override;
+
+  if (keyidx >= num_wepkeys)
+    return -1;
+
+  keylen = wep_keylens[keyidx];
+
+  if (keylen == 0)
+    return -1;
+  if (wep_keys[keyidx] == NULL)
+    return -1;
+
+  keylen+=3;  /* add in ICV bytes */
+
+  /* copy the rest of the key over from the designated key */
+  memcpy(key+3, wep_keys[keyidx], wep_keylens[keyidx]);
+
+#if 0
+  printf("%d: %02x %02x %02x (%d %d) %02x:%02x:%02x:%02x:%02x\n", len, key[0], key[1], key[2], keyidx, keylen, key[3], key[4], key[5], key[6], key[7]);
+#endif
+
+  /* set up the RC4 state */
+  for (i = 0; i < 256; i++)
+    s[i] = i;
+  j = 0;
+  for (i = 0; i < 256; i++) {
+    j = (j + s[i] + key[i % keylen]) & 0xff;
+    SSWAP(i,j);
+  }
+
+  /* Apply the RC4 to the data, update the CRC32 */
+  cpos = buf+4;
+  dpos = buf;
+  crc = ~0;
+  i = j = 0;
+  for (k = 0; k < (len -8); k++) {
+    i = (i+1) & 0xff;
+    j = (j+s[i]) & 0xff;
+    SSWAP(i,j);
+#if 0
+    printf("%d -- %02x ", k, *dpos);
+#endif
+    *dpos = *cpos++ ^ s[(s[i] + s[j]) & 0xff];
+#if 0
+    printf("%02x\n", *dpos);
+#endif
+    crc = wep_crc32_table[(crc ^ *dpos++) & 0xff] ^ (crc >> 8);
+  }
+  crc = ~crc;
+
+  /* now let's check the crc */
+  c_crc[0] = crc;
+  c_crc[1] = crc >> 8;
+  c_crc[2] = crc >> 16;
+  c_crc[3] = crc >> 24;
+  
+  for (k = 0; k < 4; k++) {
+    i = (i + 1) & 0xff;
+    j = (j+s[i]) & 0xff;
+    SSWAP(i,j);
+#if 0
+    printf("-- %02x %02x\n", *dpos, c_crc[k]);
+#endif
+    if ((*cpos++ ^ s[(s[i] + s[j]) & 0xff]) != c_crc[k])
+      return -1; /* ICV mismatch */
+  }
+
+  return 0;
+}
+
+/* XXX need to verify these malloc()s succeed */
+
+static void init_wepkeys(void) {
+  char *tmp, *tmp2;
+  guint8 *tmp3;
+  uint i, j;
+
+#ifdef USE_ENV
+  guint8 buf[128];
+
+  tmp = getenv("ETHEREAL_WEPKEYNUM");
+  if (!tmp) {
+    num_wepkeys = 0;
+    return;
+  }
+  num_wepkeys = atoi(tmp);
+#else
+  if (num_wepkeys > 4)
+    num_wepkeys = 4;
+#endif
+
+  if (num_wepkeys < 1)
+    return;
+
+  if (wep_keylens != NULL)
+    return;
+
+  wep_keys = malloc(num_wepkeys * sizeof(guint8*));
+  wep_keylens = malloc(num_wepkeys * sizeof(int));
+
+  for (i = 0 ; i < num_wepkeys; i++) {
+    wep_keys[i] = NULL;
+    wep_keylens[i] = 0;
+
+#ifdef USE_ENV
+    sprintf(buf, "ETHEREAL_WEPKEY%d", i+1);
+    tmp = getenv(buf);
+#else
+    tmp = wep_keystr[i];
+#endif
+
+    if (tmp) {
+      j = 0;
+#if 0
+#ifdef USE_ENV
+      printf("%s -- %s\n", buf, tmp);
+#else
+      printf("%d -- %s\n", i+1, tmp);
+#endif
+#endif
+
+      wep_keys[i] = malloc(32 * sizeof(guint8));
+      bzero(wep_keys[i], 32 * sizeof(guint8));
+      tmp3 = wep_keys[i];
+      while ((tmp != NULL) && (*tmp != 0)) {
+	tmp3[j] = strtoul(tmp, &tmp2, 16) & 0xff;
+#if 0
+	printf("%d %d -- %02x\n", i, j, tmp3[j]);
+#endif
+	tmp = tmp2;
+	wep_keylens[i]++;
+
+	if ((tmp != NULL) && (*tmp == ':'))
+	  tmp++;
+	j++;
+      }
+    }
+    
+  }
+
+  return;
 }

@@ -1265,6 +1265,11 @@ Chris Waters <chris[AT]waters.co.nz> {
 	    a C++ keyword
 }
 
+Solomon Peachy <pizza[AT]shaftnet.org> {
+	WEP support and other mangling of the 802.11 disector
+}
+
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
