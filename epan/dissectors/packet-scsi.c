@@ -4361,6 +4361,9 @@ dissect_scsi_snsinfo (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     scsi_end_task (pinfo);
 
     if (tree) {
+        if( ((gint) snslen) < 0) {
+            snslen = 0;
+        }
         ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, offset,
                                              snslen, "SCSI: SNS Info");
         sns_tree = proto_item_add_subtree (ti, ett_scsi);
