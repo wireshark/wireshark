@@ -1,4 +1,107 @@
 ------------------------------------------------------------------------
+r13717 | gerald | 2005-03-11 08:35:55 -0600 (Fri, 11 Mar 2005) | 9 lines
+Changed paths:
+   M /releases/ethereal-0.10.10/asn1/h245/h245.cnf
+   M /releases/ethereal-0.10.10/epan/dissectors/packet-h245.c
+
+Copy over r13709 from the trunk:
+
+ From Alexandro Vaquero:
+ 
+ 	fix the call to "rtp_add_address()" to match the new signature;
+ 
+ 	fix a problem with the codec displayed in the "Voip Graph"
+ 	for H245 "RequestMode" messages.
+
+------------------------------------------------------------------------
+r13716 | gerald | 2005-03-11 08:31:49 -0600 (Fri, 11 Mar 2005) | 12 lines
+Changed paths:
+   M /releases/ethereal-0.10.10/gtk/voip_calls.c
+   M /releases/ethereal-0.10.10/gtk/voip_calls.h
+
+Copy over fixes from the trunk:
+
+r13705:
+
+ Warning fix: voip_calls_dlg.c:733: implicit declaration of function
+ rtp_event_init_tap
+
+r13706:
+
+ Flag an unused argument as unused, to squelch compiler warnings, and
+ don't flag a used argument as unused.
+
+------------------------------------------------------------------------
+r13715 | gerald | 2005-03-11 08:22:26 -0600 (Fri, 11 Mar 2005) | 13 lines
+Changed paths:
+   M /releases/ethereal-0.10.10/epan/dissectors/packet-sflow.c
+
+Copy over fixes from the trunk.
+
+r13711:
+
+ We don't have an SMDS dissector, and it's not clear what dissector
+ should be used for ATM, so just use the data dissector for now.
+ 
+ The X.25 dissector registers itself as "x.25", not "x25".
+
+r13712:
+
+ Fix the offset for the system uptime field.
+
+------------------------------------------------------------------------
+r13714 | gerald | 2005-03-11 08:21:24 -0600 (Fri, 11 Mar 2005) | 16 lines
+Changed paths:
+   M /releases/ethereal-0.10.10/epan/dissectors/packet-iapp.c
+
+Copy over r13707:
+
+ Just use "tvb_format_text()" to handle strings - don't roll our own
+ routine to handle that.
+  
+ Don't format the value text into a buffer; just use
+ "proto_item_append_text()", so we don't run the risk of overflowing the
+ buffer.
+ 
+ Use "ip_to_str()" to format an IP address - don't roll our own code to
+ handle that.
+ 
+ Don't make "is_fhss" global - that causes its value to depend on the
+ last packet dissected, which isn't necessarily the right value for the
+ packet being dissected.
+
+------------------------------------------------------------------------
+r13704 | gerald | 2005-03-10 15:43:54 -0600 (Thu, 10 Mar 2005) | 11 lines
+Changed paths:
+   M /releases/ethereal-0.10.10/epan/dissectors/packet-rtp-events.h
+   M /releases/ethereal-0.10.10/plugins/plugin_api_list.c
+
+Pull in two recent changes:
+
+r13701:
+
+Warning fix: no newline at end of file
+
+r13703:
+
+Sync to recent changes in packet-rtp.h.
+
+
+------------------------------------------------------------------------
+r13702 | gerald | 2005-03-10 15:15:03 -0600 (Thu, 10 Mar 2005) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.10/NEWS
+
+Fix spacing.
+
+------------------------------------------------------------------------
+r13700 | gerald | 2005-03-10 14:24:31 -0600 (Thu, 10 Mar 2005) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.10/ChangeLog
+
+Add last two commits.
+
+------------------------------------------------------------------------
 r13699 | gerald | 2005-03-10 14:23:04 -0600 (Thu, 10 Mar 2005) | 6 lines
 Changed paths:
    M /releases/ethereal-0.10.10/asn1/h245/h245.cnf
