@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.12 1999/08/03 03:48:04 guy Exp $
+ * $Id: packet-ipv6.c,v 1.13 1999/08/24 17:26:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,7 +45,6 @@
 #include "packet.h"
 #include "packet-ip.h"
 #include "packet-ipv6.h"
-#include "etypes.h"
 #include "resolv.h"
 
 static int proto_ipv6 = -1;

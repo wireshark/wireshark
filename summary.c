@@ -1,7 +1,7 @@
 /* summary.c
  * Routines for capture file summary window
  *
- * $Id: summary.c,v 1.9 1999/08/13 23:47:43 gram Exp $
+ * $Id: summary.c,v 1.10 1999/08/24 17:26:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,7 +61,6 @@
 #include "menu.h"
 #include "summary.h"
 #include "capture.h"
-#include "etypes.h"
 #include "util.h"
 #include "prefs.h"
 

@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.20 1999/08/20 06:55:06 guy Exp $
+ * $Id: packet-tr.c,v 1.21 1999/08/24 17:26:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -35,7 +35,6 @@
 #include <stdio.h>
 #include <glib.h>
 #include "packet.h"
-#include "etypes.h"
 	
 static int proto_tr = -1;
 static int hf_tr_dst = -1;

@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-pppoe.c,v 1.2 1999/07/07 22:51:51 gram Exp $
+ * $Id: packet-pppoe.c,v 1.3 1999/08/24 17:26:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,7 +33,6 @@
 
 #include <glib.h>
 #include "packet.h"
-#include "etypes.h"
 
 /* For lack of a better source, I made up the following defines. -jsj */
 

@@ -2,7 +2,7 @@
  * Routines for ftp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-ftp.c,v 1.6 1999/08/18 00:57:50 guy Exp $
+ * $Id: packet-ftp.c,v 1.7 1999/08/24 17:26:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -42,7 +42,6 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
-#include "etypes.h"
 
 static int proto_ftp = -1;
 
