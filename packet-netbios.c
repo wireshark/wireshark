@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.4 1999/09/02 23:17:56 guy Exp $
+ * $Id: packet-netbios.c,v 1.5 1999/09/03 00:24:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,7 +39,6 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
-#include "packet-dns.h"
 #include "packet-netbios.h"
 #include "util.h"
 
@@ -90,47 +89,43 @@ static char *bit_field_str[] = {
 	"111"};
 	
 
-/* the strings for the station type, used by get_netbios_name function */
+/* The strings for the station type, used by get_netbios_name function;
+   many of them came from the file "NetBIOS.txt" in the Zip archive at
 
-char *name_type_str[] = {
-	"Workstation/Redirector",	/* 0x00 */
-	"Browser",			/* 0x01 */
-	"Unknown",
-	"Messenger service/Main name",	/* 0x03 */
-	"Unknown",
-	"Forwarded name",		/* 0x05 */
-	"RAS Server service",		/* 0x06 */
-	"Unknown",
-	"Unknown",
-	"Unknown",
-	"Unknown",
-	"Unknown",
-	"Unknown",
-	"Unknown",
-	"Unknown",
-	"Unknown",
-	"Unknown",			/* 0x10 */
-	"Unknown",
-	"Unknown",
-	"Unknown",
-	"Unknown",
-	"Unknown",
-	"Unknown",
-	"Unknown",
-	"Unknown",
-	"Unknown",
-	"Unknown",
-	"PDC Domain name",		/* 0x1b */
-	"BDC Domain name",		/* 0x1c */
-	"Master Browser backup",	/* 0x1d */
-	"Browser Election Service",	/* 0x1e */
-	"Net DDE Service",		/* 0x1f */
-	"Server service",		/* 0x20 */
-	"RAS client service",		/* 0x21 */
-	"Unknown",	/* need 'Unknown' as last entry (for limiting stuff) */
+	http://www.net3group.com/ftp/browser.zip
+ */
+
+static const value_string name_type_vals[] = {
+	{0x00,	"Workstation/Redirector"},
+	{0x01,	"Browser"},
+	{0x03,	"Messenger service/Main name"},
+	{0x05,	"Forwarded name"},
+	{0x06,	"RAS Server service"},
+	{0x1b,	"PDC Domain name"},
+	{0x1c,	"BDC Domain name"},
+	{0x1d,	"Master Browser backup"},
+	{0x1e,	"Browser Election Service"},
+	{0x1f,	"Net DDE Service"},
+	{0x20,	"Server service"},
+	{0x21,	"RAS client service"},
+	{0x22,	"Exchange Interchange (MSMail Connector)"},
+	{0x23,	"Exchange Store"},
+	{0x24,	"Exchange Directory"},
+	{0x2b,	"Lotus Notes Server service"},
+	{0x30,	"Modem sharing server service"},
+	{0x31,	"Modem sharing client service"},
+	{0x43,	"SMS Clients Remote Control"},
+	{0x44,	"SMS Administrators Remote Control Tool"},
+	{0x45,	"SMS Clients Remote Chat"},
+	{0x46,	"SMS Clients Remote Transfer"},
+	{0x4c,	"DEC Pathworks TCP/IP Service on Windows NT"},
+	{0x52,	"DEC Pathworks TCP/IP Service on Windows NT"},
+	{0x6a,	"Microsoft Exchange IMC"},
+	{0x87,	"Microsoft Exchange MTA"},
+	{0xbe,	"Network Monitor Agent"},
+	{0xbf,	"Network Monitor Analyzer"},
+	{0x00,	NULL}
 };
-
-static int nb_name_type_max = (sizeof name_type_str / sizeof name_type_str[0]) - 1;
 
 /* the strings for the command types  */
 
@@ -176,22 +171,36 @@ void capture_netbios(const u_char *pd, int offset, guint32 cap_len,
 }
 
 
-static guint get_netbios_name(const u_char *data_ptr, int offset, char *name_ret)
+int
+process_netbios_name(const u_char *name_ptr, char *name_ret)
+{
+	int i;
+	int name_type = *(name_ptr + NETBIOS_NAME_LEN - 1);
+	u_char name_char;
+	static const char hex_digits[16] = "0123456780abcdef";
+
+	for (i = 0; i < NETBIOS_NAME_LEN - 1; i++) {
+		name_char = *name_ptr++;
+		if (name_char >= ' ' && name_char <= '~')
+			*name_ret++ = name_char;
+		else {
+			/* It's not printable; show it as <XX>, where
+			   XX is the value in hex. */
+			*name_ret++ = '<';
+			*name_ret++ = hex_digits[(name_char >> 4)];
+			*name_ret++ = hex_digits[(name_char & 0x0F)];
+			*name_ret++ = '>';
+		}
+	}
+	*name_ret = '\0';
+	return name_type;
+}
+
+guint get_netbios_name(const u_char *data_ptr, int offset, char *name_ret)
 
 {/*  Extract the name string and name type.  Return the name string in  */
  /* name_ret and return the name_type. */
-
-	int i;
-	char  name_type = *(data_ptr + offset + 15);
-	const char *name_ptr = data_ptr + offset;
-
-	for( i = 0; i <16; ++i){
-		if ( 0x20 == (*name_ret++ = *name_ptr++)) 	/* exit if space */
-			break;
-	}
-
-	*name_ret = 0;
-	return (guint)name_type;
+	return process_netbios_name(data_ptr + offset, name_ret);
 }
 
 
@@ -204,24 +213,23 @@ void netbios_add_name( char* label, const u_char *pd, int offset,
  
 	proto_tree *field_tree;
 	proto_item *tf;
-	char  name_str[ 17];
+	char  name_str[(NETBIOS_NAME_LEN - 1)*4 + 1];
 	int   name_type;
+	char  *name_type_str;
 
 					/* decode the name field */
 	name_type = get_netbios_name( pd, nb_offset, name_str);
 
-	if ( nb_name_type_max < name_type)	/* limit type value */
-		name_type = nb_name_type_max;
-	
-	tf = proto_tree_add_text( tree, offset + nb_offset, 16,
-	    	"%s: %s (%s)", label, name_str, name_type_str[name_type]);
+	name_type_str = val_to_str(name_type, name_type_vals, "Unknown");
+	tf = proto_tree_add_text( tree, offset + nb_offset, NETBIOS_NAME_LEN,
+	    	"%s: %s<%02x> (%s)", label, name_str, name_type, name_type_str);
 
 	field_tree = proto_item_add_subtree( tf, ETT_NETB_NAME);
 	
 	proto_tree_add_text( field_tree, offset + nb_offset, 15, "%s",
 	    name_str);
 	proto_tree_add_text( field_tree, offset + nb_offset + 15, 1,
-	    "0x%0x (%s)", name_type, name_type_str[ name_type]);
+	    "0x%02x (%s)", name_type, name_type_str);
 }
 
 
@@ -334,13 +342,11 @@ static void nb_call_name_type(const u_char *data_ptr, int offset,
 
 {/* display the call name type */
 
-	int name_type_value = MIN(*(data_ptr + NB_CALL_NAME_TYPE),
-		nb_name_type_max);
+	int name_type_value = *(data_ptr + NB_CALL_NAME_TYPE);
 	
 	proto_tree_add_text( tree, offset + NB_CALL_NAME_TYPE, 1,
-  	    "Caller's Name Type.: 0x%02x (%s)",
-  	    *(data_ptr + NB_CALL_NAME_TYPE),
-  	    name_type_str[ name_type_value]);
+	    "Caller's Name Type.: 0x%02x (%s)", name_type_value,
+	    val_to_str(name_type_value, name_type_vals, "Unknown"));
 }
 
 
@@ -582,7 +588,8 @@ void dissect_netbios(const u_char *pd, int offset, frame_data *fd,
 	proto_tree		*netb_tree;
 	proto_item		*ti;
 	guint16			hdr_len, command;
-	char 			name[17];
+	char 			name[(NETBIOS_NAME_LEN - 1)*4 + 1];
+	int			name_type;
 
 	nb_data_ptr = &pd[offset];
 
@@ -620,29 +627,27 @@ void dissect_netbios(const u_char *pd, int offset, frame_data *fd,
 	command = *(nb_data_ptr + NB_COMMAND);
 
 	
- 	if ( command == NB_NAME_QUERY ) {
-		get_netbios_name( pd, offset + 12, name);
-	}		
-
- 	if ( command == NB_NAME_RESP ){
-		get_netbios_name( pd, offset + 28, name);
-	}		
-	
-
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "NetBIOS");
 
 	if (check_col(fd, COL_INFO)) {			/* print command name */
-		if ( command == NB_NAME_QUERY)
-			col_add_fstr(fd, COL_INFO, "%s for %s",
-			    CommandName[ command], name);
+		switch ( command ) {
+		case NB_NAME_QUERY:
+			name_type = get_netbios_name( pd, offset + 12, name);
+			col_add_fstr(fd, COL_INFO, "%s for %s<%02x>",
+			    CommandName[ command], name, name_type);
+			break;
 
-		else if ( command == NB_NAME_RESP)
-			col_add_fstr(fd, COL_INFO, "%s - %s",
-			    CommandName[ command], name);
+		case NB_NAME_RESP:
+			name_type = get_netbios_name( pd, offset + 28, name);
+			col_add_fstr(fd, COL_INFO, "%s - %s<%02x>",
+			    CommandName[ command], name, name_type);
+			break;
 
-		else
+		default:
 			col_add_fstr(fd, COL_INFO, "%s", CommandName[ command]);
+			break;
+		}
 	}
 
 

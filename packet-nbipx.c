@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-nbipx.c,v 1.11 1999/09/02 23:17:56 guy Exp $
+ * $Id: packet-nbipx.c,v 1.12 1999/09/03 00:24:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -107,21 +107,6 @@ static const value_string nwlink_data_stream_type_vals[] = {
 	{0,				NULL}
 };
 
-struct nbipx_ns_header {
-	/* Netware & NT NetBIOS over IPX */
-	guint32		router[8];
-	guint8		name_type;
-	guint8		packet_type;
-
-	char		name[17];
-
-	/* NT NetBIOS over IPX */
-	guint16		junk;
-	char		node_name[17];
-	
-};
-
-
 /* NetWare */
 void
 dissect_nbipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
@@ -153,11 +138,18 @@ static void
 nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		enum nbipx_protocol nbipx, int max_data)
 {
-	proto_tree			*nbipx_tree;
-	proto_item			*ti;
-	struct nbipx_ns_header	header;
-	int					i, rtr_offset;
-	int					name_offset;
+	proto_tree		*nbipx_tree;
+	proto_item		*ti;
+	int			i;
+	guint8			name_flags;
+	guint8			packet_type;
+	int			name_offset;
+	char			name[(NETBIOS_NAME_LEN - 1)*4 + 1];
+	int			name_type;
+	char			node_name[(NETBIOS_NAME_LEN - 1)*4 + 1];
+	int			node_name_type = 0;
+	int			rtr_offset;
+	guint32			router[8];
 
 	if (nbipx == NETBIOS_NETWARE) {
 		name_offset = 34;
@@ -167,15 +159,12 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	}
 
 
-	header.name_type = pd[offset+32];
-	header.packet_type = pd[offset+33];
-	memcpy(header.name, &pd[offset+name_offset], 16);
-	header.name[16] = 0; /* null-terminate the string */
+	name_flags = pd[offset+32];
+	packet_type = pd[offset+33];
+	name_type = get_netbios_name(pd, offset+name_offset, name);
 
-	if (nbipx == NETBIOS_NWLINK) {
-		memcpy(header.node_name, &pd[offset+52], 16);
-		header.node_name[17] = 0; /* null-terminate the string */
-	}
+	if (nbipx == NETBIOS_NWLINK)
+		node_name_type = get_netbios_name(pd, offset+52, node_name);
 
 	if (check_col(fd, COL_PROTOCOL)) {
 		if (nbipx == NETBIOS_NETWARE) {
@@ -188,27 +177,28 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 
 	if (check_col(fd, COL_INFO)) {
 		if (nbipx == NETBIOS_NETWARE) {
-			switch (header.packet_type) {
+			switch (packet_type) {
 			case NBIPX_FIND_NAME:
 			case NBIPX_NAME_RECOGNIZED:
 			case NBIPX_CHECK_NAME:
 			case NBIPX_NAME_IN_USE:
 			case NBIPX_DEREGISTER_NAME:
-				col_add_fstr(fd, COL_INFO, "%s %s",
-					val_to_str(header.packet_type, nbipx_data_stream_type_vals, "Unknown"),
-					header.name);
+				col_add_fstr(fd, COL_INFO, "%s %s<%02x>",
+					val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"),
+					name, name_type);
 				break;
 
 			default:
 				col_add_fstr(fd, COL_INFO, "%s",
-					val_to_str(header.packet_type, nbipx_data_stream_type_vals, "Unknown"));
+					val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"));
 				break;
 			}
 		}
 		else {
-			switch (header.packet_type) {
+			switch (packet_type) {
 			case NWLINK_NAME_QUERY:
-				col_add_fstr(fd, COL_INFO, "Name Query for %s", header.name);
+				col_add_fstr(fd, COL_INFO, "Name Query for %s<%02x>",
+						name, name_type);
 				break;
 
 			case NWLINK_SMB:
@@ -235,27 +225,27 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		if (nbipx == NETBIOS_NETWARE) {
 			proto_tree_add_text(nbipx_tree, offset+33, 1,
 				"Packet Type: %s (%02X)",
-				val_to_str(header.packet_type, nbipx_data_stream_type_vals, "Unknown"),
-				header.packet_type);
+				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"),
+				packet_type);
 		} else {
 			proto_tree_add_text(nbipx_tree, offset+33, 1,
 				"Packet Type: %s (%02X)",
-				val_to_str(header.packet_type, nwlink_data_stream_type_vals, "Unknown"),
-				header.packet_type);
+				val_to_str(packet_type, nwlink_data_stream_type_vals, "Unknown"),
+				packet_type);
 		}
 
 		/* Eight routers are listed */
 		for (i = 0; i < 8; i++) {
 			rtr_offset = offset + (i << 2);
-			memcpy(&header.router[i], &pd[rtr_offset], 4);
-			if (header.router[i] != 0) {
+			memcpy(&router[i], &pd[rtr_offset], 4);
+			if (router[i] != 0) {
 				proto_tree_add_text(nbipx_tree, rtr_offset, 4, "IPX Network: %s",
-						ipxnet_to_string((guint8*)&header.router[i]));
+						ipxnet_to_string((guint8*)&router[i]));
 			}
 		}
 
 		proto_tree_add_text(nbipx_tree, offset+32, 1, "Name Type: %02X",
-				header.name_type);
+				name_flags);
 
 		if (nbipx == NETBIOS_NETWARE) {
 			netbios_add_name("Name", &pd[offset], offset,
@@ -270,7 +260,7 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	}
 
 	if (nbipx == NETBIOS_NWLINK) {
-		switch (header.packet_type) {
+		switch (packet_type) {
 			case NWLINK_SMB:
 			case NWLINK_NETBIOS_DATAGRAM:
 				dissect_smb(pd, offset + 68, fd, tree, max_data - 68);
