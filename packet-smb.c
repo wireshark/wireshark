@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.200 2002/01/28 00:58:46 guy Exp $
+ * $Id: packet-smb.c,v 1.201 2002/01/29 21:37:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4790,7 +4790,7 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		guint32 frame;
 		if (si->sip != NULL && (frame=(guint32)g_hash_table_lookup(
 						si->ct->dcerpc_fid_to_frame,
-						si->sip->extra_info)) != NULL) {
+						si->sip->extra_info)) != 0) {
 			fragment_data *fd_head;
 			/* first fragment is always from a SMB Trans command and
 			   offset 0 of the following read/write SMB commands start
