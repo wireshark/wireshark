@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.28 2000/11/30 02:06:30 guy Exp $
+ * $Id: packet-rtsp.c,v 1.29 2000/12/02 06:05:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 #include <glib.h>
 #include "packet.h"
@@ -52,6 +53,13 @@ static int hf_rtsp_url = -1;
 static int hf_rtsp_status = -1;
 
 #define TCP_PORT_RTSP			554
+
+/*
+ * Takes an array of bytes, assumed to contain a null-terminated
+ * string, as an argument, and returns the length of the string -
+ * i.e., the size of the array, minus 1 for the null terminator.
+ */
+#define STRLEN_CONST(str)	(sizeof (str) - 1)
 
 static void process_rtsp_request(tvbuff_t *tvb, int offset, const u_char *data,
 	int linelen, proto_tree *tree);
@@ -102,33 +110,30 @@ is_rtsp_request_or_reply(const u_char *line, int linelen)
 	return NOT_RTSP;
 }
 
+static const char rtsp_content_type[] = "Content-Type:";
+
 static int
 is_content_sdp(const u_char *line, int linelen)
 {
-	const char	*hdr = "Content-Type:";
-	size_t		hdrlen = strlen(hdr);
-	const char	*type = "application/sdp";
-	size_t		typelen = strlen(type);
+	static const char type[] = "application/sdp";
+	size_t		typelen = STRLEN_CONST(type);
 
-	if (linelen < hdrlen || strncasecmp(hdr, line, hdrlen))
-		return 0;
-
-	line += hdrlen;
-	linelen -= hdrlen;
+	line += STRLEN_CONST(rtsp_content_type);
+	linelen -= STRLEN_CONST(rtsp_content_type);
 	while (linelen > 0 && (*line == ' ' || *line == '\t')) {
 		line++;
 		linelen--;
 	}
 
 	if (linelen < typelen || strncasecmp(type, line, typelen))
-		return 0;
+		return FALSE;
 
 	line += typelen;
 	linelen -= typelen;
 	if (linelen > 0 && !isspace(*line))
-		return 0;
+		return FALSE;
 
-	return 1;
+	return TRUE;
 }
 
 static const char rtsp_transport[] = "Transport:";
@@ -137,31 +142,37 @@ static const char rtsp_cps[] = "client_port=";
 static const char rtsp_rtp[] = "rtp/avp";
 
 static void
-rtsp_create_conversation(const u_char *trans_begin, const u_char *trans_end)
+rtsp_create_conversation(const u_char *line_begin, int line_len)
 {
 	conversation_t	*conv;
-	u_char		tbuf[256];
+	u_char		buf[256];
 	u_char		*tmp;
 	int		c_data_port, c_mon_port;
 	int		s_data_port, s_mon_port;
 
-	strncpy(tbuf, trans_begin, trans_end - trans_begin);
-	tbuf[sizeof(tbuf)-1] = 0;
+	if (line_len > sizeof(buf) - 1) {
+		/*
+		 * Don't overflow the buffer.
+		 */
+		line_len = sizeof(buf) - 1;
+	}
+	memcpy(buf, line_begin, line_len);
+	buf[line_len] = '\0';
 
-	tmp = tbuf + strlen(rtsp_transport);
+	tmp = buf + STRLEN_CONST(rtsp_transport);
 	while (*tmp && isspace(*tmp))
 		tmp++;
 	if (strncasecmp(tmp, rtsp_rtp, strlen(rtsp_rtp)) != 0)
-		return;
+		return;	/* we don't know this transport */
 
 	c_data_port = c_mon_port = 0;
 	s_data_port = s_mon_port = 0;
-	if ((tmp = strstr(tbuf, rtsp_sps))) {
+	if ((tmp = strstr(buf, rtsp_sps))) {
 		tmp += strlen(rtsp_sps);
 		if (sscanf(tmp, "%u-%u", &s_data_port, &s_mon_port) < 1)
 			g_warning("rtsp: failed to parse server_port");
 	}
-	if ((tmp = strstr(tbuf, rtsp_cps))) {
+	if ((tmp = strstr(buf, rtsp_cps))) {
 		tmp += strlen(rtsp_cps);
 		if (sscanf(tmp, "%u-%u", &c_data_port, &c_mon_port) < 1)
 			g_warning("rtsp: failed to parse client_port");
@@ -181,24 +192,54 @@ rtsp_create_conversation(const u_char *trans_begin, const u_char *trans_end)
 	conversation_set_dissector(conv, dissect_rtcp);
 }
 
-static void
-dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static const char rtsp_content_length[] = "Content-Length:";
+
+static int
+rtsp_get_content_length(const u_char *line_begin, int line_len)
+{
+	u_char		buf[256];
+	u_char		*tmp;
+	long		content_length;
+	char		*p;
+	u_char		*up;
+
+	if (line_len > sizeof(buf) - 1) {
+		/*
+		 * Don't overflow the buffer.
+		 */
+		line_len = sizeof(buf) - 1;
+	}
+	memcpy(buf, line_begin, line_len);
+	buf[line_len] = '\0';
+
+	tmp = buf + STRLEN_CONST(rtsp_content_length);
+	while (*tmp && isspace(*tmp))
+		tmp++;
+	content_length = strtol(tmp, &p, 10);
+	up = p;
+	if (up == tmp || (*up != '\0' && !isspace(*up)))
+		return -1;	/* not a valid number */
+	return content_length;
+}
+
+static int
+dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *tree)
 {
 	proto_tree	*rtsp_tree;
 	proto_item	*ti = NULL;
-	gint		offset = 0;
 	const u_char	*line;
 	gint		next_offset;
 	const u_char	*linep, *lineend;
-	int		linelen;
+	int		orig_offset, linelen;
 	u_char		c;
+	gboolean	is_mime_header;
 	int		is_sdp = FALSE;
 	int		datalen;
+	int		content_length;
+	int		reported_datalen;
 
-	CHECK_DISPLAY_AS_DATA(proto_rtsp, tvb, pinfo, tree);
-
-	pinfo->current_proto = "RTSP";
-
+	orig_offset = offset;
 	rtsp_tree = NULL;
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_rtsp, tvb, offset,
@@ -206,8 +247,6 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		rtsp_tree = proto_item_add_subtree(ti, ett_rtsp);
 	}
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "RTSP");
 	if (check_col(pinfo->fd, COL_INFO)) {
 		/*
 		 * Put the first line from the buffer into the summary
@@ -232,9 +271,19 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/*
+	 * We haven't yet seen a Content-Length header.
+	 */
+	content_length = -1;
+
+	/*
 	 * Process the packet data, a line at a time.
 	 */
 	while (tvb_offset_exists(tvb, offset)) {
+		/*
+		 * We haven't yet concluded that this is a MIME header.
+		 */
+		is_mime_header = FALSE;
+
 		/*
 		 * Find the end of the line.
 		 */
@@ -314,8 +363,7 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 * This ends the token; we consider
 				 * this to be a MIME header.
 				 */
-				if (is_content_sdp(line, linelen))
-					is_sdp = TRUE;
+				is_mime_header = TRUE;
 				goto is_rtsp;
 			}
 		}
@@ -336,14 +384,73 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    next_offset - offset, "%s",
 			    tvb_format_text(tvb, offset, next_offset - offset));
 		}
-		if (linelen > strlen(rtsp_transport) &&
-			strncasecmp(line, rtsp_transport,
-				strlen(rtsp_transport)) == 0)
-			rtsp_create_conversation(line, line + linelen);
+		if (is_mime_header) {
+			/*
+			 * Process some MIME headers specially.
+			 */
+#define MIME_HDR_MATCHES(header) \
+	(linelen > STRLEN_CONST(header) && \
+	 strncasecmp(line, (header), STRLEN_CONST(header)) == 0)
+
+			if (MIME_HDR_MATCHES(rtsp_transport)) {
+				/*
+				 * Based on the port numbers specified
+				 * in the Transport: header, set up
+				 * a conversation that will be dissected
+				 * with the appropriate dissector.
+				 */
+				rtsp_create_conversation(line, linelen);
+			} else if (MIME_HDR_MATCHES(rtsp_content_type)) {
+				/*
+				 * If the Content-Type: header says this
+				 * is SDP, dissect the payload as SDP.
+				 */
+				if (is_content_sdp(line, linelen))
+					is_sdp = TRUE;
+			} else if (MIME_HDR_MATCHES(rtsp_content_length)) {
+				/*
+				 * Only the amount specified by the
+				 * Content-Length: header should be treated
+				 * as payload.
+				 */
+				content_length = rtsp_get_content_length(line,
+				    linelen);
+			}
+		}
 		offset = next_offset;
 	}
 
+	/*
+	 * If a content length was supplied, the amount of data to be
+	 * processed as RTSP payload is the minimum of the content
+	 * length and the amount of data remaining in the frame.
+	 *
+	 * If no content length was supplied, the amount of data to be
+	 * processed is the amount of data remaining in the frame.
+	 */
 	datalen = tvb_length_remaining(tvb, offset);
+	if (content_length != -1) {
+		if (datalen > content_length)
+			datalen = content_length;
+
+		/*
+		 * XXX - for now, if the content length is greater
+		 * than the amount of data left in this frame (not
+		 * the amount of *captured* data left in the frame
+		 * minus the current offset, but the amount of *actual*
+		 * data that was reported to be in the frame minus
+		 * the current offset), limit it to the amount
+		 * of data left in this frame.
+		 *
+		 * If we ever handle data that crosses frame
+		 * boundaries, we'll need to remember the actual
+		 * content length.
+		 */
+		reported_datalen = tvb_reported_length(tvb) - offset;
+		if (content_length > reported_datalen)
+			content_length = reported_datalen;
+	}
+
 	if (datalen > 0) {
 		/*
 		 * There's stuff left over; process it.
@@ -359,16 +466,37 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_item_set_len(ti, offset);
 
 			/*
-			 * Now creat a tvbuff for the SDP stuff and
+			 * Now create a tvbuff for the SDP stuff and
 			 * dissect it.
+			 *
+			 * The amount of data to be processed that's
+			 * available in the tvbuff is "datalen", which
+			 * is the minimum of the amount of data left in
+			 * the tvbuff and any specified content length.
+			 *
+			 * The amount of data to be processed that's in
+			 * this frame, regardless of whether it was
+			 * captured or not, is "content_length",
+			 * which, if no content length was specified,
+			 * is -1, i.e. "to the end of the frame.
 			 */
-			new_tvb = tvb_new_subset(tvb, offset, -1, -1);
+			new_tvb = tvb_new_subset(tvb, offset, datalen,
+			    content_length);
 			call_dissector(sdp_handle, new_tvb, pinfo, tree);
 		} else {
 			proto_tree_add_text(rtsp_tree, tvb, offset, datalen,
 			    "Data (%d bytes)", datalen);
 		}
+
+		/*
+		 * We've processed "datalen" bytes worth of data
+		 * (which may be no data at all); advance the
+		 * offset past whatever data we've processed, so they
+		 * don't process it.
+		 */
+		offset += datalen;
 	}
+	return offset - orig_offset;
 }
 
 static void
@@ -438,6 +566,34 @@ process_rtsp_reply(tvbuff_t *tvb, int offset, const u_char *data,
 	proto_tree_add_uint_hidden(tree, hf_rtsp_status, tvb,
 		offset + (status_start - data),
 		status - status_start, status_i);
+}
+
+static void
+dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	int		offset = 0;
+	int		len;
+
+	CHECK_DISPLAY_AS_DATA(proto_rtsp, tvb, pinfo, tree);
+
+	pinfo->current_proto = "RTSP";
+
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "RTSP");
+
+	while (tvb_offset_exists(tvb, offset)) {
+		len = dissect_rtspmessage(tvb, offset, pinfo, tree);
+		if (len == -1)
+			break;
+		offset += len;
+
+		/*
+		 * OK, we've set the Protocol and Info columns for the
+		 * first RTSP message; make the columns non-writable,
+		 * so that we don't change it for subsequent RTSP messages.
+		 */
+		col_set_writable(pinfo->fd, FALSE);
+	}
 }
 
 void
