@@ -10,7 +10,7 @@
  * Routines for H.235 packet dissection
  * 2004  Tomas Kukosa
  *
- * $Id: packet-h235.c,v 1.1 2004/05/25 10:09:04 sahlberg Exp $
+ * $Id: packet-h235.c,v 1.2 2004/05/25 21:24:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -192,7 +192,7 @@ PER_NOT_DECODED_YET("ToBeSigned");
 /* packet-h235-fn.c                                                           */
 /* ../../tools/asn2eth.py -X -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn */
 
-static guint32 dissect_hf_h235_toBeSigned(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_toBeSigned(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_xxx_ToBeSigned(tvb, offset, pinfo, tree, hf_h235_toBeSigned);
 }
 
@@ -204,7 +204,7 @@ dissect_h235_ChallengeString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, 
 
   return offset;
 }
-static guint32 dissect_hf_h235_challenge(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_challenge(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_ChallengeString(tvb, offset, pinfo, tree, hf_h235_challenge);
 }
 
@@ -216,7 +216,7 @@ dissect_h235_TimeStamp(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_
 
   return offset;
 }
-static guint32 dissect_hf_h235_timeStamp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_timeStamp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_TimeStamp(tvb, offset, pinfo, tree, hf_h235_timeStamp);
 }
 
@@ -228,22 +228,22 @@ dissect_h235_RandomVal(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_
 
   return offset;
 }
-static guint32 dissect_hf_h235_random(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_random(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_RandomVal(tvb, offset, pinfo, tree, hf_h235_random);
 }
-static guint32 dissect_hf_h235_mrandom(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_mrandom(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_RandomVal(tvb, offset, pinfo, tree, hf_h235_mrandom);
 }
-static guint32 dissect_hf_h235_srandom(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_srandom(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_RandomVal(tvb, offset, pinfo, tree, hf_h235_srandom);
 }
-static guint32 dissect_hf_h235_responseRandom(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_responseRandom(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_RandomVal(tvb, offset, pinfo, tree, hf_h235_responseRandom);
 }
-static guint32 dissect_hf_h235_requesterRandom(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_requesterRandom(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_RandomVal(tvb, offset, pinfo, tree, hf_h235_requesterRandom);
 }
-static guint32 dissect_hf_h235_requestRandom(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_requestRandom(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_RandomVal(tvb, offset, pinfo, tree, hf_h235_requestRandom);
 }
 
@@ -255,7 +255,7 @@ dissect_h235_Password(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_t
 
   return offset;
 }
-static guint32 dissect_hf_h235_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_Password(tvb, offset, pinfo, tree, hf_h235_password);
 }
 
@@ -267,13 +267,13 @@ dissect_h235_Identifier(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto
 
   return offset;
 }
-static guint32 dissect_hf_h235_generalID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_generalID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_Identifier(tvb, offset, pinfo, tree, hf_h235_generalID);
 }
-static guint32 dissect_hf_h235_sendersID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_sendersID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_Identifier(tvb, offset, pinfo, tree, hf_h235_sendersID);
 }
-static guint32 dissect_hf_h235_generalId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_generalId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_Identifier(tvb, offset, pinfo, tree, hf_h235_generalId);
 }
 
@@ -285,10 +285,10 @@ dissect_h235_KeyMaterial(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, prot
 
   return offset;
 }
-static guint32 dissect_hf_h235_secureChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_secureChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_KeyMaterial(tvb, offset, pinfo, tree, hf_h235_secureChannel);
 }
-static guint32 dissect_hf_h235_keyMaterial(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_keyMaterial(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_KeyMaterial(tvb, offset, pinfo, tree, hf_h235_keyMaterial);
 }
 
@@ -300,19 +300,19 @@ dissect_h235_OBJECT_IDENTIFIER(tvbuff_t *tvb, guint32 offset, packet_info *pinfo
 
   return offset;
 }
-static guint32 dissect_hf_h235_nonStandardIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_nonStandardIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h235_nonStandardIdentifier);
 }
-static guint32 dissect_hf_h235_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h235_type);
 }
-static guint32 dissect_hf_h235_tokenOID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_tokenOID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h235_tokenOID);
 }
-static guint32 dissect_hf_h235_algorithmOID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_algorithmOID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h235_algorithmOID);
 }
-static guint32 dissect_hf_h235_keyDerivationOID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_keyDerivationOID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h235_keyDerivationOID);
 }
 
@@ -325,28 +325,28 @@ dissect_h235_OCTET_STRING(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, pro
 
   return offset;
 }
-static guint32 dissect_hf_h235_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_data);
 }
-static guint32 dissect_hf_h235_certificatedata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_certificatedata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_certificatedata);
 }
-static guint32 dissect_hf_h235_encryptedData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_encryptedData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_encryptedData);
 }
-static guint32 dissect_hf_h235_iv(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_iv(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_iv);
 }
-static guint32 dissect_hf_h235_clearSalt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_clearSalt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_clearSalt);
 }
-static guint32 dissect_hf_h235_encryptedSessionKey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_encryptedSessionKey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_encryptedSessionKey);
 }
-static guint32 dissect_hf_h235_encryptedSaltingKey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_encryptedSaltingKey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_encryptedSaltingKey);
 }
-static guint32 dissect_hf_h235_clearSaltingKey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_clearSaltingKey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_clearSaltingKey);
 }
 
@@ -363,7 +363,7 @@ dissect_h235_NonStandardParameter(tvbuff_t *tvb, guint32 offset, packet_info *pi
 
   return offset;
 }
-static guint32 dissect_hf_h235_nonStandard(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_nonStandard(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_NonStandardParameter(tvb, offset, pinfo, tree, hf_h235_nonStandard);
 }
 
@@ -375,13 +375,13 @@ dissect_h235_BIT_STRING_SIZE_0_2048(tvbuff_t *tvb, guint32 offset, packet_info *
 
   return offset;
 }
-static guint32 dissect_hf_h235_halfkey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_halfkey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_BIT_STRING_SIZE_0_2048(tvb, offset, pinfo, tree, hf_h235_halfkey);
 }
-static guint32 dissect_hf_h235_modSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_modSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_BIT_STRING_SIZE_0_2048(tvb, offset, pinfo, tree, hf_h235_modSize);
 }
-static guint32 dissect_hf_h235_generator(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_generator(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_BIT_STRING_SIZE_0_2048(tvb, offset, pinfo, tree, hf_h235_generator);
 }
 
@@ -399,7 +399,7 @@ dissect_h235_DHset(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree
 
   return offset;
 }
-static guint32 dissect_hf_h235_dhkey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_dhkey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_DHset(tvb, offset, pinfo, tree, hf_h235_dhkey);
 }
 
@@ -411,28 +411,28 @@ dissect_h235_BIT_STRING_SIZE_0_511(tvbuff_t *tvb, guint32 offset, packet_info *p
 
   return offset;
 }
-static guint32 dissect_hf_h235_x(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_x(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, pinfo, tree, hf_h235_x);
 }
-static guint32 dissect_hf_h235_y(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_y(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, pinfo, tree, hf_h235_y);
 }
-static guint32 dissect_hf_h235_modulus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_modulus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, pinfo, tree, hf_h235_modulus);
 }
-static guint32 dissect_hf_h235_weierstrassA(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_weierstrassA(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, pinfo, tree, hf_h235_weierstrassA);
 }
-static guint32 dissect_hf_h235_weierstrassB(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_weierstrassB(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, pinfo, tree, hf_h235_weierstrassB);
 }
-static guint32 dissect_hf_h235_fieldSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_fieldSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, pinfo, tree, hf_h235_fieldSize);
 }
-static guint32 dissect_hf_h235_r(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_r(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, pinfo, tree, hf_h235_r);
 }
-static guint32 dissect_hf_h235_s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, pinfo, tree, hf_h235_s);
 }
 
@@ -449,10 +449,10 @@ dissect_h235_ECpoint(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tr
 
   return offset;
 }
-static guint32 dissect_hf_h235_public_key(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_public_key(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_ECpoint(tvb, offset, pinfo, tree, hf_h235_public_key);
 }
-static guint32 dissect_hf_h235_base(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_base(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_ECpoint(tvb, offset, pinfo, tree, hf_h235_base);
 }
 
@@ -472,7 +472,7 @@ dissect_h235_T_eckasdhp(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto
 
   return offset;
 }
-static guint32 dissect_hf_h235_eckasdhp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_eckasdhp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_T_eckasdhp(tvb, offset, pinfo, tree, hf_h235_eckasdhp);
 }
 
@@ -492,7 +492,7 @@ dissect_h235_T_eckasdh2(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto
 
   return offset;
 }
-static guint32 dissect_hf_h235_eckasdh2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_eckasdh2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_T_eckasdh2(tvb, offset, pinfo, tree, hf_h235_eckasdh2);
 }
 
@@ -516,7 +516,7 @@ dissect_h235_ECKASDH(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tr
 
   return offset;
 }
-static guint32 dissect_hf_h235_eckasdhkey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_eckasdhkey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_ECKASDH(tvb, offset, pinfo, tree, hf_h235_eckasdhkey);
 }
 
@@ -547,7 +547,7 @@ dissect_h235_TypedCertificate(tvbuff_t *tvb, guint32 offset, packet_info *pinfo,
 
   return offset;
 }
-static guint32 dissect_hf_h235_certificate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_certificate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_TypedCertificate(tvb, offset, pinfo, tree, hf_h235_certificate);
 }
 
@@ -561,28 +561,28 @@ dissect_h235_NULL(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree 
 
   return offset;
 }
-static guint32 dissect_hf_h235_default(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_default(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_default);
 }
-static guint32 dissect_hf_h235_radius(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_radius(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_radius);
 }
-static guint32 dissect_hf_h235_dhExch(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_dhExch(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_dhExch);
 }
-static guint32 dissect_hf_h235_pwdSymEnc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_pwdSymEnc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_pwdSymEnc);
 }
-static guint32 dissect_hf_h235_pwdHash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_pwdHash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_pwdHash);
 }
-static guint32 dissect_hf_h235_certSign(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_certSign(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_certSign);
 }
-static guint32 dissect_hf_h235_ipsec(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_ipsec(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_ipsec);
 }
-static guint32 dissect_hf_h235_tls(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_tls(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_NULL(tvb, offset, pinfo, tree, hf_h235_tls);
 }
 
@@ -606,7 +606,7 @@ dissect_h235_AuthenticationBES(tvbuff_t *tvb, guint32 offset, packet_info *pinfo
 
   return offset;
 }
-static guint32 dissect_hf_h235_authenticationBES(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_authenticationBES(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_AuthenticationBES(tvb, offset, pinfo, tree, hf_h235_authenticationBES);
 }
 
@@ -651,7 +651,7 @@ dissect_h235_INTEGER(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tr
 
   return offset;
 }
-static guint32 dissect_hf_h235_ranInt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_ranInt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_INTEGER(tvb, offset, pinfo, tree, hf_h235_ranInt);
 }
 
@@ -664,7 +664,7 @@ dissect_h235_IV8(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *
 
   return offset;
 }
-static guint32 dissect_hf_h235_iv8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_iv8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_IV8(tvb, offset, pinfo, tree, hf_h235_iv8);
 }
 
@@ -677,7 +677,7 @@ dissect_h235_IV16(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree 
 
   return offset;
 }
-static guint32 dissect_hf_h235_iv16(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_iv16(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_IV16(tvb, offset, pinfo, tree, hf_h235_iv16);
 }
 
@@ -697,10 +697,10 @@ dissect_h235_Params(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tre
 
   return offset;
 }
-static guint32 dissect_hf_h235_paramS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_paramS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_Params(tvb, offset, pinfo, tree, hf_h235_paramS);
 }
-static guint32 dissect_hf_h235_paramSsalt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_paramSsalt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_Params(tvb, offset, pinfo, tree, hf_h235_paramSsalt);
 }
 
@@ -719,16 +719,16 @@ dissect_h235_ENCRYPTEDxxx(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, pro
 
   return offset;
 }
-static guint32 dissect_hf_h235_encryptedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_encryptedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_ENCRYPTEDxxx(tvb, offset, pinfo, tree, hf_h235_encryptedToken);
 }
-static guint32 dissect_hf_h235_cryptoPwdEncr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_cryptoPwdEncr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_ENCRYPTEDxxx(tvb, offset, pinfo, tree, hf_h235_cryptoPwdEncr);
 }
-static guint32 dissect_hf_h235_sharedSecret(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_sharedSecret(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_ENCRYPTEDxxx(tvb, offset, pinfo, tree, hf_h235_sharedSecret);
 }
-static guint32 dissect_hf_h235_encrptval(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_encrptval(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_ENCRYPTEDxxx(tvb, offset, pinfo, tree, hf_h235_encrptval);
 }
 
@@ -740,10 +740,10 @@ dissect_h235_BIT_STRING(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto
 
   return offset;
 }
-static guint32 dissect_hf_h235_signaturedata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_signaturedata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_BIT_STRING(tvb, offset, pinfo, tree, hf_h235_signaturedata);
 }
-static guint32 dissect_hf_h235_hash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_hash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_BIT_STRING(tvb, offset, pinfo, tree, hf_h235_hash);
 }
 
@@ -763,13 +763,13 @@ dissect_h235_SIGNEDxxx(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_
 
   return offset;
 }
-static guint32 dissect_hf_h235_signedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_signedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_SIGNEDxxx(tvb, offset, pinfo, tree, hf_h235_signedToken);
 }
-static guint32 dissect_hf_h235_certProtectedKey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_certProtectedKey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_SIGNEDxxx(tvb, offset, pinfo, tree, hf_h235_certProtectedKey);
 }
-static guint32 dissect_hf_h235_signature(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_signature(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_SIGNEDxxx(tvb, offset, pinfo, tree, hf_h235_signature);
 }
 
@@ -792,7 +792,7 @@ dissect_h235_V3KeySyncMaterial(tvbuff_t *tvb, guint32 offset, packet_info *pinfo
 
   return offset;
 }
-static guint32 dissect_hf_h235_secureSharedSecret(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_secureSharedSecret(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_V3KeySyncMaterial(tvb, offset, pinfo, tree, hf_h235_secureSharedSecret);
 }
 
@@ -820,7 +820,7 @@ dissect_h235_H235Key(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tr
 
   return offset;
 }
-static guint32 dissect_hf_h235_h235Key(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_h235Key(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_H235Key(tvb, offset, pinfo, tree, hf_h235_h235Key);
 }
 
@@ -848,7 +848,7 @@ dissect_h235_ClearToken(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto
 
   return offset;
 }
-static guint32 dissect_hf_h235_hashedVals(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_hashedVals(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_ClearToken(tvb, offset, pinfo, tree, hf_h235_hashedVals);
 }
 
@@ -867,7 +867,7 @@ dissect_h235_HASHEDxxx(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_
 
   return offset;
 }
-static guint32 dissect_hf_h235_hashedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_hashedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_HASHEDxxx(tvb, offset, pinfo, tree, hf_h235_hashedToken);
 }
 
@@ -892,7 +892,7 @@ dissect_h235_T_cryptoEncryptedToken(tvbuff_t *tvb, guint32 offset, packet_info *
 
   return offset;
 }
-static guint32 dissect_hf_h235_cryptoEncryptedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_cryptoEncryptedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_T_cryptoEncryptedToken(tvb, offset, pinfo, tree, hf_h235_cryptoEncryptedToken);
 }
 
@@ -909,7 +909,7 @@ dissect_h235_T_cryptoSignedToken(tvbuff_t *tvb, guint32 offset, packet_info *pin
 
   return offset;
 }
-static guint32 dissect_hf_h235_cryptoSignedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_cryptoSignedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_T_cryptoSignedToken(tvb, offset, pinfo, tree, hf_h235_cryptoSignedToken);
 }
 
@@ -927,7 +927,7 @@ dissect_h235_T_cryptoHashedToken(tvbuff_t *tvb, guint32 offset, packet_info *pin
 
   return offset;
 }
-static guint32 dissect_hf_h235_cryptoHashedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_hf_h235_cryptoHashedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_T_cryptoHashedToken(tvb, offset, pinfo, tree, hf_h235_cryptoHashedToken);
 }
 
