@@ -6,7 +6,7 @@
  * Portions Copyright (c) 2000-2002 by Gilbert Ramirez.
  * Portions Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ipx.c,v 1.137 2003/10/03 09:09:34 sahlberg Exp $
+ * $Id: packet-ipx.c,v 1.138 2003/12/29 19:04:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,6 +107,10 @@ static int hf_ipxrip_response = -1;
 
 static gint ett_ipxrip = -1;
 
+static int proto_serialization = -1;
+
+static gint ett_serialization = -1;
+
 static int proto_sap = -1;
 static int hf_sap_request = -1;
 static int hf_sap_response = -1;
@@ -126,6 +130,9 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void
 dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+static void
+dissect_serialization(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void
 dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -952,6 +959,37 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+/* ================================================================= */
+/* IPX Serialization                                                 */
+/* ================================================================= */
+static void
+dissect_serialization(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_tree	*ser_tree = NULL;
+	proto_item	*ti;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NW_SERIAL");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
+
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_serialization, tvb, 0, -1,
+		    FALSE);
+		ser_tree = proto_item_add_subtree(ti, ett_serialization);
+	}
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Serial number %s",
+		    tvb_bytes_to_str(tvb, 0, 6));
+	}
+
+	if (tree) {
+		proto_tree_add_text(ser_tree, tvb, 0, 6,
+		      "Serial number: %s", tvb_bytes_to_str(tvb, 0, 6));
+	}
+}
+
 /*
  * Some of these are from ncpfs, others are from the book,
  * others are from the page at
@@ -1455,6 +1493,7 @@ proto_register_ipx(void)
 		&ett_spx_connctrl,
 		&ett_ipxmsg,
 		&ett_ipxrip,
+		&ett_serialization,
 		&ett_ipxsap,
 		&ett_ipxsap_server,
 	};
@@ -1472,6 +1511,9 @@ proto_register_ipx(void)
 	proto_ipxrip = proto_register_protocol("IPX Routing Information Protocol",
 	    "IPX RIP", "ipxrip");
 	proto_register_field_array(proto_ipxrip, hf_ipxrip, array_length(hf_ipxrip));
+
+	proto_serialization = proto_register_protocol("NetWare Serialization Protocol",
+	    "NW_SERIAL", "nw_serial");
 
 	proto_ipxmsg = proto_register_protocol("IPX Message", "IPX MSG",
 	    "ipxmsg");
@@ -1502,7 +1544,7 @@ proto_reg_handoff_ipx(void)
 {
 	dissector_handle_t ipx_handle, spx_handle;
 	dissector_handle_t ipxsap_handle, ipxrip_handle;
-	dissector_handle_t ipxmsg_handle;
+	dissector_handle_t serialization_handle, ipxmsg_handle;
 
 	ipx_handle = find_dissector("ipx");
 	dissector_add("udp.port", UDP_PORT_IPX, ipx_handle);
@@ -1524,6 +1566,11 @@ proto_reg_handoff_ipx(void)
 
 	ipxrip_handle = create_dissector_handle(dissect_ipxrip, proto_ipxrip);
 	dissector_add("ipx.socket", IPX_SOCKET_IPXRIP, ipxrip_handle);
+
+	serialization_handle = create_dissector_handle(dissect_serialization,
+	    proto_serialization);
+	dissector_add("ipx.socket", IPX_SOCKET_SERIALIZATION,
+	    serialization_handle);
 
 	ipxmsg_handle = create_dissector_handle(dissect_ipxmsg, proto_ipxmsg);
 	dissector_add("ipx.socket", IPX_SOCKET_IPX_MESSAGE, ipxmsg_handle);
