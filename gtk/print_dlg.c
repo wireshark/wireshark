@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.25 2001/12/06 04:25:09 gram Exp $
+ * $Id: print_dlg.c,v 1.26 2001/12/09 01:12:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,7 +38,18 @@
 #include "ui_util.h"
 #include "dlg_utils.h"
 
+/* On Win32, a GUI application apparently can't use "popen()" (it
+  "returns an invalid file handle, if used in a Windows program,
+  that will cause the program to hang indefinitely"), so we can't
+  use a pipe to a print command to print to a printer.
+
+  Eventually, we should try to use the native Win32 printing API
+  for this (and also use various UNIX printing APIs, when present?).
+
+  For now, we support only printing to a file in Windows. */
+#ifndef _WIN32
 static void print_cmd_toggle_dest(GtkWidget *widget, gpointer data);
+#endif
 static void print_cmd_toggle_detail(GtkWidget *widget, gpointer data);
 static void print_file_cb(GtkWidget *file_bt, gpointer file_te);
 static void print_fs_ok_cb(GtkWidget *w, gpointer data);
@@ -88,9 +99,11 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   GtkWidget     *format_rb;
   GtkWidget     *format_hb, *format_lb;
   GSList        *format_grp;
+#ifndef _WIN32
   GtkWidget     *dest_rb;
   GtkWidget     *dest_hb, *dest_lb;
   GtkWidget     *cmd_lb, *cmd_te;
+#endif
   GtkWidget     *file_bt_hb, *file_bt, *file_te;
   GSList        *dest_grp;
   GtkWidget     *options_hb;
@@ -122,7 +135,11 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_container_add(GTK_CONTAINER(print_w), main_vb);
   gtk_widget_show(main_vb);
   
+#ifdef _WIN32
+  main_tb = gtk_table_new(2, 2, FALSE);
+#else
   main_tb = gtk_table_new(4, 2, FALSE);
+#endif
   gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
   gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
   gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
@@ -153,6 +170,9 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_box_pack_start(GTK_BOX(format_hb), format_rb, FALSE, FALSE, 10);
   gtk_widget_show(format_rb);
 
+#ifdef _WIN32
+  print_to_file = TRUE;
+#else
   /* Output destination */
   dest_lb = gtk_label_new("Print to:");
   gtk_misc_set_alignment(GTK_MISC(dest_lb), 1.0, 0.5);
@@ -195,21 +215,32 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_table_attach_defaults(GTK_TABLE(main_tb), cmd_te, 1, 2, 2, 3);
   gtk_widget_set_sensitive(cmd_te, !print_to_file);
   gtk_widget_show(cmd_te);
+#endif
 
   /* File button and text entry */
   file_bt_hb = gtk_hbox_new(FALSE, 0);
+#ifdef _WIN32
+  gtk_table_attach_defaults(GTK_TABLE(main_tb), file_bt_hb, 0, 1, 1, 2);
+#else
   gtk_table_attach_defaults(GTK_TABLE(main_tb), file_bt_hb, 0, 1, 3, 4);
+#endif
   gtk_widget_show(file_bt_hb);
 
   file_bt = gtk_button_new_with_label("File:");
+#ifndef _WIN32
   gtk_object_set_data(GTK_OBJECT(dest_rb), PRINT_FILE_BT_KEY, file_bt);
+#endif
   gtk_box_pack_end(GTK_BOX(file_bt_hb), file_bt, FALSE, FALSE, 0);
   gtk_widget_set_sensitive(file_bt, print_to_file);
   gtk_widget_show(file_bt);
 
   file_te = gtk_entry_new();
+#ifdef _WIN32
+  gtk_table_attach_defaults(GTK_TABLE(main_tb), file_te, 1, 2, 1, 2);
+#else
   gtk_object_set_data(GTK_OBJECT(dest_rb), PRINT_FILE_TE_KEY, file_te);
   gtk_table_attach_defaults(GTK_TABLE(main_tb), file_te, 1, 2, 3, 4);
+#endif
   gtk_widget_set_sensitive(file_te, print_to_file);
   gtk_widget_show(file_te);
 
@@ -295,8 +326,10 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
 
   ok_bt = gtk_button_new_with_label ("OK");
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_FORMAT_RB_KEY, format_rb);
+#ifndef _WIN32
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_DEST_RB_KEY, dest_rb);
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_CMD_TE_KEY, cmd_te);
+#endif
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_FILE_TE_KEY, file_te);
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_SUMMARY_RB_KEY, summary_rb);
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_HEX_CB_KEY, hex_cb);
@@ -320,7 +353,9 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
      so that if the user types Return there, we act as if the "OK" button
      had been selected, as happens if Return is typed if some widget
      that *doesn't* handle the Return key has the input focus. */
+#ifndef _WIN32
   dlg_set_activate(cmd_te, ok_bt);
+#endif
   dlg_set_activate(file_te, ok_bt);
 
   /* Catch the "key_press_event" signal in the window, so that we can catch
@@ -331,6 +366,7 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_widget_show(print_w);
 }
 
+#ifndef _WIN32
 static void
 print_cmd_toggle_dest(GtkWidget *widget, gpointer data)
 {
@@ -357,6 +393,7 @@ print_cmd_toggle_dest(GtkWidget *widget, gpointer data)
   gtk_widget_set_sensitive(file_bt, to_file);
   gtk_widget_set_sensitive(file_te, to_file);
 }
+#endif
 
 static void
 print_cmd_toggle_detail(GtkWidget *widget, gpointer data)
@@ -467,10 +504,14 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   GtkWidget *button;
   print_args_t print_args;
 
+#ifdef _WIN32
+  print_args.to_file = TRUE;
+#else
   button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(ok_bt),
                                               PRINT_DEST_RB_KEY);
   print_to_file = GTK_TOGGLE_BUTTON (button)->active;
   print_args.to_file = print_to_file;
+#endif
 
   if (print_args.to_file)
     print_args.dest = g_strdup(gtk_entry_get_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(ok_bt),
