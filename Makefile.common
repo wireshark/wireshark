@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.8 2004/02/01 10:07:20 jmayer Exp $
+# $Id: Makefile.common,v 1.9 2004/02/01 10:31:17 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -719,6 +719,40 @@ TETHEREAL_TAP_SRC =	\
 	tap-smbsids.c	\
 	tap-smbstat.c	\
 	tap-wspstat.c
+
+ethereal_SOURCES =	\
+	$(DISSECTOR_SRC)	\
+	$(ETHEREAL_COMMON_SRC)	\
+	register.c	\
+	capture.c	\
+	capture.h	\
+	file.c	\
+	filters.c	\
+	filters.h	\
+	globals.h	\
+	menu.h	\
+	progress_dlg.h	\
+	proto_hier_stats.h	\
+	proto_hier_stats.c	\
+	simple_dialog.h	\
+	statusbar.h	\
+	summary.c	\
+	summary.h	\
+	tap_dfilter_dlg.h	\
+	ui_util.h
+
+EXTRA_ethereal_SOURCES =	\
+	snprintf.c	\
+	snprintf.h	\
+	snprintf-imp.h	\
+	strerror.c	\
+	strerror.h	\
+	strcasecmp.c	\
+	strncasecmp.c	\
+	mkstemp.c	\
+	mkstemp.h	\
+	strptime.c	\
+	strptime.h
 
 tethereal_SOURCES =	\
 	$(DISSECTOR_SRC)	\
