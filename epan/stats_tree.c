@@ -58,7 +58,7 @@ extern void get_strings_from_node(const stat_node* node, guint8* value, guint8* 
 	if (percent) {
 		*percent = '\0';
 		if (node->parent->counter > 0) {
-			f = ((float)node->counter * 100.0) / node->parent->counter;
+			f = (float)(((float)node->counter * 100.0) / node->parent->counter);
 			g_snprintf(percent,NUM_BUF_SIZE,"%.2f%%",f);
 		}
 	}
@@ -111,7 +111,7 @@ extern void stat_branch_to_str(const stat_node* node, GString* s, guint indent) 
 	guint i = 0;
 	
 	if (indent == 0) {
-		format = g_strdup_printf(" %%s%%-%us%%12s\t%%12s\t%%12s\n",stats_branch_max_name_len(node,0));
+		format = g_strdup_printf(" %%s%%-%us%%12s   %%12s    %%12s\n",stats_branch_max_name_len(node,0));
 	}
 	
 	get_strings_from_node(node, value, rate, percent);
