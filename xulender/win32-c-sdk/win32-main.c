@@ -114,6 +114,22 @@ typedef enum {
     REFTIME_FIND_PREV   /**< find previous ref frame */
 } REFTIME_ACTION_E;
 
+/** "Apply as Filter" / "Prepare a Filter" action type. */
+typedef enum {
+    MATCH_SELECTED_REPLACE, /**< "Selected" */
+    MATCH_SELECTED_AND,     /**< "and Selected" */
+    MATCH_SELECTED_OR,      /**< "or Selected" */
+    MATCH_SELECTED_NOT,     /**< "Not Selected" */
+    MATCH_SELECTED_AND_NOT, /**< "and not Selected" */
+    MATCH_SELECTED_OR_NOT   /**< "or not Selected" */
+} MATCH_SELECTED_E;
+
+/** mask MATCH_SELECTED_E values (internally used) */
+#define MATCH_SELECTED_MASK         0x0ff
+
+/** "bitwise or" this with MATCH_SELECTED_E value for instant apply instead of prepare only */
+#define MATCH_SELECTED_APPLY_NOW    0x100
+
 /*
  * XXX - A single, global cfile keeps us from having multiple files open
  * at the same time.
@@ -148,6 +164,8 @@ static void reftime_frame_cb(REFTIME_ACTION_E action);
 static void collapse_all_cb();
 static void expand_all_cb();
 static void expand_tree_cb();
+static void match_selected_ptree_cb(MATCH_SELECTED_E action);
+static void match_selected_cb_do(int action, gchar *text);
 
 #ifdef HAVE_LIBPCAP
 static gboolean list_link_layer_types;
@@ -1617,6 +1635,42 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 			win32_element_assert(el);
 		 	filter_dialog_cb(el);
 		 	break;
+		    case IDM_ETHEREAL_MAIN_ANALYZE_AAF_SELECTED:
+			match_selected_ptree_cb(MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
+			break;
+		    case IDM_ETHEREAL_MAIN_ANALYZE_AAF_NOTSELECTED:
+			match_selected_ptree_cb(MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW);
+			break;
+		    case IDM_ETHEREAL_MAIN_ANALYZE_AAF_ANDSELECTED:
+			match_selected_ptree_cb(MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW);
+			break;
+		    case IDM_ETHEREAL_MAIN_ANALYZE_AAF_ORSELECTED:
+			match_selected_ptree_cb(MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW);
+			break;
+		    case IDM_ETHEREAL_MAIN_ANALYZE_AAF_ANDNOTSELECTED:
+			match_selected_ptree_cb(MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW);
+			break;
+		    case IDM_ETHEREAL_MAIN_ANALYZE_AAF_ORNOTSELECTED:
+			match_selected_ptree_cb(MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
+			break;
+		    case IDM_ETHEREAL_MAIN_ANALYZE_PAF_SELECTED:
+			match_selected_ptree_cb(MATCH_SELECTED_REPLACE);
+			break;
+		    case IDM_ETHEREAL_MAIN_ANALYZE_PAF_NOTSELECTED:
+			match_selected_ptree_cb(MATCH_SELECTED_NOT);
+			break;
+		    case IDM_ETHEREAL_MAIN_ANALYZE_PAF_ANDSELECTED:
+			match_selected_ptree_cb(MATCH_SELECTED_AND);
+			break;
+		    case IDM_ETHEREAL_MAIN_ANALYZE_PAF_ORSELECTED:
+			match_selected_ptree_cb(MATCH_SELECTED_OR);
+			break;
+		    case IDM_ETHEREAL_MAIN_ANALYZE_PAF_ANDNOTSELECTED:
+			match_selected_ptree_cb(MATCH_SELECTED_AND_NOT);
+			break;
+		    case IDM_ETHEREAL_MAIN_ANALYZE_PAF_ORNOTSELECTED:
+			match_selected_ptree_cb(MATCH_SELECTED_OR_NOT);
+			break;
 
 		    case IDM_ETHEREAL_MAIN_ABOUT_ETHEREAL:
 			about_dialog_init(hw_mainwin);
@@ -1702,6 +1756,8 @@ capture_info_dialog_dlg_proc(HWND hw_cap_info, UINT msg, WPARAM w_param, LPARAM 
 
 /* Call filter_packets() and add this filter string to the recent filter list */
 /* Taken from gtk/main.c. */
+/* XXX - The routines that call this set the filter text by hand beforehand.
+ * Should we do that here instead? */
 int
 main_filter_packets(capture_file *cf, gchar *dftext)
 {
@@ -1713,9 +1769,12 @@ main_filter_packets(capture_file *cf, gchar *dftext)
 
     if ((filter_packets_ret = filter_packets(cf, dftext, FALSE))) {
 	if (SendMessage(dfilter_el->h_wnd, CB_FINDSTRINGEXACT, (WPARAM) -1, (LPARAM) (LPCTSTR) dftext) == CB_ERR) {
-	    SendMessage(dfilter_el->h_wnd, CB_ADDSTRING, 0, (LPARAM) (LPCTSTR) dftext);
+	    if (dftext[0] != '\0')
+		SendMessage(dfilter_el->h_wnd, CB_ADDSTRING, 0, (LPARAM) (LPCTSTR) dftext);
 	}
     }
+
+    filter_tb_syntax_check(dfilter_el->h_wnd, NULL);
 
     return filter_packets_ret;
 }
@@ -2209,4 +2268,90 @@ expand_tree_cb() {
     win32_element_assert(treeview);
 
     ethereal_treeview_expand_tree(treeview);
+}
+
+static void
+match_selected_ptree_cb(MATCH_SELECTED_E action)
+{
+    if (cfile.finfo_selected)
+	match_selected_cb_do(action,
+	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
+}
+
+
+/* Match selected byte pattern */
+static void
+match_selected_cb_do(int action, gchar *text)
+{
+    win32_element_t *filter_cb = win32_identifier_get_str("dfilter-entry");
+    char            *cur_filter, *new_filter;
+    gint             len;
+
+    if (!text)
+	return;
+    win32_element_assert(filter_cb);
+
+    len = GetWindowTextLength(filter_cb->h_wnd) + 1;
+    cur_filter = g_malloc(len);
+    GetWindowText(filter_cb->h_wnd, cur_filter, len);
+
+    switch (action&MATCH_SELECTED_MASK) {
+
+    case MATCH_SELECTED_REPLACE:
+	new_filter = g_strdup(text);
+	break;
+
+    case MATCH_SELECTED_AND:
+	if ((!cur_filter) || (0 == strlen(cur_filter)))
+	    new_filter = g_strdup(text);
+	else
+	    new_filter = g_strconcat("(", cur_filter, ") && (", text, ")", NULL);
+	break;
+
+    case MATCH_SELECTED_OR:
+	if ((!cur_filter) || (0 == strlen(cur_filter)))
+	    new_filter = g_strdup(text);
+	else
+	    new_filter = g_strconcat("(", cur_filter, ") || (", text, ")", NULL);
+	break;
+
+    case MATCH_SELECTED_NOT:
+	new_filter = g_strconcat("!(", text, ")", NULL);
+	break;
+
+    case MATCH_SELECTED_AND_NOT:
+	if ((!cur_filter) || (0 == strlen(cur_filter)))
+	    new_filter = g_strconcat("!(", text, ")", NULL);
+	else
+	    new_filter = g_strconcat("(", cur_filter, ") && !(", text, ")", NULL);
+	break;
+
+    case MATCH_SELECTED_OR_NOT:
+	if ((!cur_filter) || (0 == strlen(cur_filter)))
+	    new_filter = g_strconcat("!(", text, ")", NULL);
+	else
+	    new_filter = g_strconcat("(", cur_filter, ") || !(", text, ")", NULL);
+	break;
+
+    default:
+	g_assert_not_reached();
+	new_filter = NULL;
+	break;
+    }
+
+    /* Free up the copy we got of the old filter text. */
+    g_free(cur_filter);
+
+    /* create a new one and set the display filter entry accordingly */
+    SetWindowText(filter_cb->h_wnd, new_filter);
+
+    /* Run the display filter so it goes in effect. */
+    if (action&MATCH_SELECTED_APPLY_NOW)
+	main_filter_packets(&cfile, new_filter);
+
+    /* Free up the new filter text. */
+    g_free(new_filter);
+
+    /* Free up the generated text we were handed. */
+    g_free(text);
 }
