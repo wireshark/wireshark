@@ -42,6 +42,7 @@
 #include <epan/req_resp_hdrs.h>
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
+#include "packet-rdt.h"
 #include <epan/conversation.h>
 #include <epan/strutil.h>
 #include "packet-e164.h"
@@ -341,6 +342,7 @@ static const char rtsp_transport[] = "Transport:";
 static const char rtsp_sps[] = "server_port=";
 static const char rtsp_cps[] = "client_port=";
 static const char rtsp_rtp[] = "rtp/";
+static const char rtsp_real_rdt[] = "x-real-rdt/";
 static const char rtsp_inter[] = "interleaved=";
 
 static void
@@ -350,6 +352,8 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 	conversation_t	*conv;
 	guchar		buf[256];
 	guchar		*tmp;
+	gboolean	rtp_transport = FALSE;
+	gboolean	rdt_transport = FALSE;
 	guint		c_data_port, c_mon_port;
 	guint		s_data_port, s_mon_port;
 
@@ -362,16 +366,27 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 	memcpy(buf, line_begin, line_len);
 	buf[line_len] = '\0';
 
+	/* Get past "Transport:" and spaces */ 
 	tmp = buf + STRLEN_CONST(rtsp_transport);
 	while (*tmp && isspace(*tmp))
 		tmp++;
-	if (strncasecmp(tmp, rtsp_rtp, strlen(rtsp_rtp)) != 0) {
+	
+	/* Work out which transport type is here */
+	if (strncasecmp(tmp, rtsp_rtp, strlen(rtsp_rtp)) == 0)
+		rtp_transport = TRUE;
+	else
+	if (strncasecmp(tmp, rtsp_real_rdt, strlen(rtsp_real_rdt)) == 0)
+		rdt_transport = TRUE;
+	else
+	{
 		g_warning("Frame %u: rtsp: unknown transport %s", pinfo->fd->num, tmp);
 		return;
 	}
-
+	
 	c_data_port = c_mon_port = 0;
 	s_data_port = s_mon_port = 0;
+	
+	/* Look for server port */
 	if ((tmp = strstr(buf, rtsp_sps))) {
 		tmp += strlen(rtsp_sps);
 		if (sscanf(tmp, "%u-%u", &s_data_port, &s_mon_port) < 1) {
@@ -380,6 +395,7 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 			return;
 		}
 	}
+	/* Look for client port */
 	if ((tmp = strstr(buf, rtsp_cps))) {
 		tmp += strlen(rtsp_cps);
 		if (sscanf(tmp, "%u-%u", &c_data_port, &c_mon_port) < 1) {
@@ -422,13 +438,17 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 			data = g_mem_chunk_alloc(rtsp_vals);
 			conversation_add_proto_data(conv, proto_rtsp, data);
 		}
-		if (s_data_chan < RTSP_MAX_INTERLEAVED) {
-			data->interleaved[s_data_chan].dissector =
-				rtp_handle;
-		}
-		if (i > 1 && s_mon_chan < RTSP_MAX_INTERLEAVED) {
-			data->interleaved[s_mon_chan].dissector =
-				rtcp_handle;
+		
+		if (rtp_transport)
+		{
+			if (s_data_chan < RTSP_MAX_INTERLEAVED) {
+				data->interleaved[s_data_chan].dissector =
+					rtp_handle;
+			}
+			if (i > 1 && s_mon_chan < RTSP_MAX_INTERLEAVED) {
+				data->interleaved[s_mon_chan].dissector =
+					rtcp_handle;
+			}
 		}
 		return;
 	}
@@ -440,14 +460,23 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 	 * sent the packet, so we construct a conversation with no
 	 * second address.
 	 */
-	rtp_add_address(pinfo, &pinfo->dst, c_data_port, s_data_port,
-                    "RTSP", pinfo->fd->num);
-
-	if (!c_mon_port)
-		return;
-
-	rtcp_add_address(pinfo, &pinfo->dst, c_mon_port, s_mon_port,
-                     "RTSP", pinfo->fd->num);
+	if (rtp_transport)
+	{
+		rtp_add_address(pinfo, &pinfo->dst, c_data_port, s_data_port,
+						"RTSP", pinfo->fd->num);
+	
+		if (!c_mon_port)
+			return;
+	
+		rtcp_add_address(pinfo, &pinfo->dst, c_mon_port, s_mon_port,
+						 "RTSP", pinfo->fd->num);
+	}
+	else
+	if (rdt_transport)
+	{
+		rdt_add_address(pinfo, &pinfo->dst, c_data_port, s_data_port,
+						"RTSP", pinfo->fd->num);
+	}
 }
 
 static const char rtsp_content_length[] = "Content-Length:";
