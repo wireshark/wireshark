@@ -125,7 +125,7 @@ static int decomp_dispatch_get_bits(tvbuff_t *message_tvb,proto_tree *udvm_tree,
 
 tvbuff_t*
 decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet_info *pinfo,
-						   proto_tree *udvm_tree, gint udvm_mem_dest, gint print_flags)
+						   proto_tree *udvm_tree, gint udvm_mem_dest, gint print_flags, gint hf_id)
 {
 	tvbuff_t	*decomp_tvb;
 	guint8		buff[UDVM_MEMORY_SIZE];
@@ -1940,7 +1940,7 @@ execute_next_instruction:
 		}
 
 		result_code = udvm_state_access(message_tvb, udvm_tree, buff, p_id_start, p_id_length, state_begin, &state_length, 
-			&state_address, state_instruction, TRUE);
+			&state_address, state_instruction, TRUE, hf_id);
 		if ( result_code != 0 ){
 			goto decompression_failure; 
 		}
@@ -2311,12 +2311,13 @@ execute_next_instruction:
 				sha1_update( &ctx, (guint8 *) sha1buff, state_length_buff[n] + 8);
 				sha1_finish( &ctx, sha1_digest_buf );
 				if (print_level_3 ){
-				for( x=0; x < 20; x++){
-						proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"SHA1 digest byte %u 0x%x",
-							x,sha1_digest_buf[x]);
-					}
+					proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"SHA1 digest %s",bytes_to_str(sha1_digest_buf, 20));
+
 				}
 				udvm_state_create(sha1buff, sha1_digest_buf, state_minimum_access_length_buff[n]);
+				proto_tree_add_text(udvm_tree,bytecode_tvb, 0, -1,"### Creating state ###");
+				proto_tree_add_string(udvm_tree,hf_id, bytecode_tvb, 0, 0, bytes_to_str(sha1_digest_buf, state_minimum_access_length_buff[n]));
+
 				n++;
 
 			}
