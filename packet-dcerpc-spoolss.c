@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.34 2002/06/06 03:18:14 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.35 2002/06/06 05:46:55 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4802,6 +4802,51 @@ static int SpoolssReplyClosePrinter_r(tvbuff_t *tvb, int offset,
 	return offset;
 }	
 
+/*
+ * FCPN
+ */
+
+static int SpoolssFCPN_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+	if (dcv->rep_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Reply in frame %u", dcv->rep_frame);
+
+	/* Parse packet */
+
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_spoolss_hnd, NULL,
+				       FALSE, FALSE);	
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+static int SpoolssFCPN_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+	if (dcv->req_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %u", dcv->req_frame);
+
+	/* Parse packet */
+
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+				  hf_spoolss_rc, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
 #if 0
 
 /* Templates for new subdissectors */
@@ -4969,7 +5014,7 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 	  "FindNextPrinterChangeNotification", 
 	  NULL, SpoolssGeneric_r },
         { SPOOLSS_FCPN, "FCPN", 
-	  NULL, SpoolssGeneric_r },
+	  SpoolssFCPN_q, SpoolssFCPN_r },
 	{ SPOOLSS_ROUTERFINDFIRSTPRINTERNOTIFICATIONOLD, 
 	  "RouterFindFirstPrinterNotificationOld", 
 	  NULL, SpoolssGeneric_r },
