@@ -375,7 +375,7 @@ guint32 tsapIdentifier;
 		src_addr.len=4;
 		src_addr.data=(char *)&ipv4_address;
 
-		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, 0);
+		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, NULL);
 	}
 	if((!pinfo->fd->flags.visited) && rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
 		address src_addr;
@@ -405,7 +405,7 @@ guint32 tsapIdentifier;
 		src_addr.len=4;
 		src_addr.data=(char *)&ipv4_address;
 
-		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, 0);
+		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, NULL);
 	}
 	if((!pinfo->fd->flags.visited) && rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
 		address src_addr;
