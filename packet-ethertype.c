@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.33 2002/10/22 22:04:21 jmayer Exp $
+ * $Id: packet-ethertype.c,v 1.34 2003/03/02 15:50:55 gerald Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -59,6 +59,8 @@ const value_string etype_vals[] = {
     {ETHERTYPE_WCP,		"Wellfleet Compression Protocol" },
     {ETHERTYPE_PPPOED,		"PPPoE Discovery"		},
     {ETHERTYPE_PPPOES,		"PPPoE Session"			},
+    {ETHERTYPE_INTEL_ANS,	"Intel ANS probe"		},
+    {ETHERTYPE_MS_NLB_HEARTBEAT,	"MS NLB heartbeat"	},
     {ETHERTYPE_VLAN,		"802.1Q Virtual LAN"		},
     {ETHERTYPE_EAPOL,		"802.1X Authentication"         },
     {ETHERTYPE_MPLS,		"MPLS label switched packet"	},

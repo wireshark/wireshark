@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.30 2003/01/14 01:17:44 guy Exp $
+ * $Id: etypes.h,v 1.31 2003/03/02 15:50:55 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -175,6 +175,14 @@
 #define ETHERTYPE_PPPOES	0x8864	/* PPPoE Session Protocol */
 #endif
 
+#ifndef ETHERTYPE_INTEL_ANS
+#define ETHERTYPE_INTEL_ANS	0x886d	/* Intel ANS (NIC teaming) http://www.intel.com/support/network/adapter/ans/probes.htm */
+#endif
+
+#ifndef ETHERTYPE_MS_NLB_HEARTBEAT
+#define ETHERTYPE_MS_NLB_HEARTBEAT	0x886f	/* MS Network Load Balancing heartbeat http://www.microsoft.com/technet/treeview/default.asp?url=/TechNet/prodtechnol/windows2000serv/deploy/confeat/nlbovw.asp */
+#endif
+
 #ifndef ETHERTYPE_EAPOL
 #define ETHERTYPE_EAPOL 	0x888e  /* 802.1x Authentication */
 #endif
@@ -183,12 +191,12 @@
 #define ETHERTYPE_HYPERSCSI     0x889A  /* HyperSCSI */
 #endif
 
-#ifndef ETHERTYPE_LOOP
-#define ETHERTYPE_LOOP		0x9000 	/* used for layer 2 testing (do i see my own frames on the wire) */
-#endif
-
 #ifndef ETHERTYPE_BRDWALK
 #define ETHERTYPE_BRDWALK       0x88AE
+#endif
+
+#ifndef ETHERTYPE_LOOP
+#define ETHERTYPE_LOOP		0x9000 	/* used for layer 2 testing (do i see my own frames on the wire) */
 #endif
 
 extern const value_string etype_vals[];
