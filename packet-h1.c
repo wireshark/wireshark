@@ -2,7 +2,7 @@
  * Routines for Sinec H1 packet disassembly
  * Gerrit Gehnen <G.Gehnen@atrie.de>
  *
- * $Id: packet-h1.c,v 1.6 2000/05/05 09:32:05 guy Exp $
+ * $Id: packet-h1.c,v 1.7 2000/05/08 17:19:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -110,7 +110,7 @@ dissect_h1 (const u_char * pd, int offset, frame_data * fd, proto_tree * tree)
   proto_tree *response_tree = NULL;
   proto_tree *empty_tree = NULL;
 
-  unsigned int position = 2;
+  unsigned int position = 3;
 
   if (!(pd[offset] == 'S' && pd[offset + 1] == '5')) {
     return FALSE;
@@ -233,8 +233,10 @@ dissect_h1 (const u_char * pd, int offset, frame_data * fd, proto_tree * tree)
 		}
 	      break;
 	    default:
-	      /* TODO: Add Default Handler. */
-	      break;
+	      /* This is not a valid telegram. So cancel dissection 
+                 and try the next dissector */
+                return FALSE; 
+		break;
 	    }
 	  position += pd[offset + position + 1];	/* Goto next section */
 	}			/* ..while */
