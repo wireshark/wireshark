@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.12 1999/12/10 06:28:16 guy Exp $
+ * $Id: capture_dlg.c,v 1.13 1999/12/23 09:31:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -125,8 +125,6 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gchar         *count_item1 = "0 (Infinite)", count_item2[16];
 
   if_list = get_interface_list();
-  if (if_list == NULL)
-    return;
   
   cap_open_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(cap_open_w), "Ethereal: Capture Preferences");
@@ -147,7 +145,8 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_widget_show(if_lb);
   
   if_cb = gtk_combo_new();
-  gtk_combo_set_popdown_strings(GTK_COMBO(if_cb), if_list);
+  if (if_list != NULL)
+    gtk_combo_set_popdown_strings(GTK_COMBO(if_cb), if_list);
   if (cf.iface)
     gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), cf.iface);
   else if (if_list)
@@ -316,6 +315,8 @@ static void
 capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   GtkWidget *if_cb, *filter_te, *file_te, *count_cb, *snap_sb, *sync_cb,
             *resolv_cb;
+  gchar *if_text;
+  gchar *if_name;
   gchar *filter_text;
   gchar *save_file;
 
@@ -327,10 +328,19 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   sync_cb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SYNC_KEY);
   resolv_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_RESOLVE_KEY);
 
+  if_text =
+    g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
+  if_name = strtok(if_text, " \t");
+  if (if_name == NULL) {
+    simple_dialog(ESD_TYPE_WARN, NULL,
+      "You didn't specify an interface on which to capture packets.");
+    g_free(if_name);
+    return;
+  }
   if (cf.iface)
     g_free(cf.iface);
-  cf.iface =
-    g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
+  cf.iface = g_strdup(if_name);
+  g_free(if_text);
 
   filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
   if (cf.cfilter)
@@ -491,14 +501,6 @@ next:
 
   free(ifc.ifc_buf);
   close(sock);
-
-  if (il == NULL) {
-    simple_dialog(ESD_TYPE_WARN, NULL,
-      "There are no network interfaces that can be opened.\n"
-      "Please check to make sure you have sufficient permission\n"
-      "to capture packets.");
-    return NULL;
-  }
 
   return il;
 
