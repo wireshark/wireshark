@@ -85,7 +85,7 @@ get_tali_pdu_len(tvbuff_t *tvb, int offset)
 {
   guint16 length;
 
-  length = tvb_get_ntohs(tvb, offset + TALI_SYNC_LENGTH + TALI_OPCODE_LENGTH);
+  length = tvb_get_letohs(tvb, offset + TALI_SYNC_LENGTH + TALI_OPCODE_LENGTH);
   return length+TALI_HEADER_LENGTH;
 }
 
