@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.391 2004/01/17 00:26:30 jmayer Exp $
+# $Id: Makefile.nmake,v 1.392 2004/01/17 13:09:00 jmayer Exp $
 
 include config.nmake
 include <win32.mak>
@@ -628,7 +628,7 @@ ps.c	: rdps.exe print.ps
 # Build the version string
 #
 cvsversion.h:
-	$(PERL) make-version.pl `find . -name "Entries"`
+	$(PERL) make-version.pl
 
 #
 # The header files listed here are built from x11-fields using Perl;
