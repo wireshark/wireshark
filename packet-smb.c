@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.125 2001/11/03 11:42:47 guy Exp $
+ * $Id: packet-smb.c,v 1.126 2001/11/03 12:10:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,10 +70,11 @@ static int hf_smb_flags_caseless = -1;
 static int hf_smb_flags_canon = -1;
 static int hf_smb_flags_oplock = -1;
 static int hf_smb_flags_notify = -1;
-static int hf_smb_flags_request = -1;
-static int hf_smb_flags2_long_names = -1;
+static int hf_smb_flags_response = -1;
+static int hf_smb_flags2_long_names_allowed = -1;
 static int hf_smb_flags2_ea = -1;
 static int hf_smb_flags2_sec_sig = -1;
+static int hf_smb_flags2_long_names_used = -1;
 static int hf_smb_flags2_esn = -1;
 static int hf_smb_flags2_dfs = -1;
 static int hf_smb_flags2_roe = -1;
@@ -12827,32 +12828,32 @@ static const value_string NT_errors[] = {
 
 
 static const true_false_string tfs_smb_flags_lock = {
-	"Lock&Read, Write&Unlock supported",
-	"Lock&Read, Write&Unlock not supported"
+	"Lock&Read, Write&Unlock are supported",
+	"Lock&Read, Write&Unlock are not supported"
 };
 static const true_false_string tfs_smb_flags_receive_buffer = {
-	"Receive buffer posted",
-	"Receive buffer not posted"
+	"Receive buffer has been posted",
+	"Receive buffer has not been posted"
 };
 static const true_false_string tfs_smb_flags_caseless = {
-	"Path names caseless",
-	"Path names case sensitive"
+	"Path names are caseless",
+	"Path names are case sensitive"
 };
 static const true_false_string tfs_smb_flags_canon = {
-	"Pathnames canonicalized",
-	"Pathnames not canonicalized"
+	"Pathnames are canonicalized",
+	"Pathnames are not canonicalized"
 };
 static const true_false_string tfs_smb_flags_oplock = {
-	"OpLocks requested/granted",
-	"OpLocks not requested/granted"
+	"OpLock requested/granted",
+	"OpLock not requested/granted"
 };
 static const true_false_string tfs_smb_flags_notify = {
-	"Notify all",
-	"Notify open only"
+	"Notify client on all modifications",
+	"Notify client only on open"
 };
-static const true_false_string tfs_smb_flags_request = {
-	"Response to client/redirector",
-	"Request to server"
+static const true_false_string tfs_smb_flags_response = {
+	"Message is a response to the client/redirector",
+	"Message is a request to the server"
 };
 
 static int
@@ -12869,7 +12870,7 @@ dissect_smb_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 			"Flags: 0x%02x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_flags);
  	}
-	proto_tree_add_boolean(tree, hf_smb_flags_request,
+	proto_tree_add_boolean(tree, hf_smb_flags_response,
 		tvb, offset, 1, mask);
 	proto_tree_add_boolean(tree, hf_smb_flags_notify,
 		tvb, offset, 1, mask);
@@ -12889,21 +12890,25 @@ dissect_smb_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 
 
  
-static const true_false_string tfs_smb_flags2_long_names = {
-	"Long file names supported",
-	"Long file names not supported"
+static const true_false_string tfs_smb_flags2_long_names_allowed = {
+	"Long file names are allowed in the response",
+	"Long file names are not allowed in the response"
 };
 static const true_false_string tfs_smb_flags2_ea = {
-	"Extended attributes supported",
-	"Extended attributes not supported"
+	"Extended attributes are supported",
+	"Extended attributes are not supported"
 };
 static const true_false_string tfs_smb_flags2_sec_sig = {
-	"Security signatures supported",
-	"Security signatures not supported"
+	"Security signatures are supported",
+	"Security signatures are not supported"
+};
+static const true_false_string tfs_smb_flags2_long_names_used = {
+	"Path names in request are long file names",
+	"Path names in request are not long file names"
 };
 static const true_false_string tfs_smb_flags2_esn = {
-	"Extended security negotiation supported",
-	"Extended security negotiation not supported"
+	"Extended security negotiation is supported",
+	"Extended security negotiation is not supported"
 };
 static const true_false_string tfs_smb_flags2_dfs = {
 	"Resolve pathnames with DFS",
@@ -12946,11 +12951,13 @@ dissect_smb_flags2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 		tvb, offset, 2, mask);
 	proto_tree_add_boolean(tree, hf_smb_flags2_esn,
 		tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree, hf_smb_flags2_long_names_used,
+		tvb, offset, 2, mask);
 	proto_tree_add_boolean(tree, hf_smb_flags2_sec_sig,
 		tvb, offset, 2, mask);
 	proto_tree_add_boolean(tree, hf_smb_flags2_ea,
 		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_flags2_long_names,
+	proto_tree_add_boolean(tree, hf_smb_flags2_long_names_allowed,
 		tvb, offset, 2, mask);
  
 	offset += 2;
@@ -13270,64 +13277,68 @@ proto_register_smb(void)
 		NULL, 0, "Multiplex ID", HFILL }},
 
 	{ &hf_smb_flags_lock,
-		{ "", "smb.flags.lock", FT_BOOLEAN, 8,
+		{ "Lock and Read", "smb.flags.lock", FT_BOOLEAN, 8,
 		TFS(&tfs_smb_flags_lock), 0x01, "Are Lock&Read and Write&Unlock operations supported?", HFILL }},
 
 	{ &hf_smb_flags_receive_buffer,
-		{ "", "smb.flags.receive_buffer", FT_BOOLEAN, 8,
+		{ "Receive Buffer Posted", "smb.flags.receive_buffer", FT_BOOLEAN, 8,
 		TFS(&tfs_smb_flags_receive_buffer), 0x02, "Have receive buffers been reported?", HFILL }},
 
 	{ &hf_smb_flags_caseless,
-		{ "", "smb.flags.caseless", FT_BOOLEAN, 8,
+		{ "Case Sensitivity", "smb.flags.caseless", FT_BOOLEAN, 8,
 		TFS(&tfs_smb_flags_caseless), 0x08, "Are pathnames caseless or casesensitive?", HFILL }},
 
 	{ &hf_smb_flags_canon,
-		{ "", "smb.flags.canon", FT_BOOLEAN, 8,
+		{ "Canonicalized Pathnames", "smb.flags.canon", FT_BOOLEAN, 8,
 		TFS(&tfs_smb_flags_canon), 0x10, "Are pathnames canonicalized?", HFILL }},
 
 	{ &hf_smb_flags_oplock,
-		{ "", "smb.flags.oplock", FT_BOOLEAN, 8,
-		TFS(&tfs_smb_flags_oplock), 0x20, "Are oplocks requested/granted?", HFILL }},
+		{ "Oplocks", "smb.flags.oplock", FT_BOOLEAN, 8,
+		TFS(&tfs_smb_flags_oplock), 0x20, "Is an oplock requested/granted?", HFILL }},
 
 	{ &hf_smb_flags_notify,
-		{ "", "smb.flags.notify", FT_BOOLEAN, 8,
+		{ "Notify", "smb.flags.notify", FT_BOOLEAN, 8,
 		TFS(&tfs_smb_flags_notify), 0x40, "Notify on open or all?", HFILL }},
 
-	{ &hf_smb_flags_request,
-		{ "", "smb.flags.request", FT_BOOLEAN, 8,
-		TFS(&tfs_smb_flags_request), 0x80, "Is this a request or a response?", HFILL }},
+	{ &hf_smb_flags_response,
+		{ "Request/Response", "smb.flags.response", FT_BOOLEAN, 8,
+		TFS(&tfs_smb_flags_response), 0x80, "Is this a request or a response?", HFILL }},
 
-	{ &hf_smb_flags2_long_names,
-		{ "", "smb.flags2.long_names", FT_BOOLEAN, 16,
-		TFS(&tfs_smb_flags2_long_names), 0x0001, "Are long file names supported?", HFILL }},
+	{ &hf_smb_flags2_long_names_allowed,
+		{ "Long Names Allowed", "smb.flags2.long_names_allowed", FT_BOOLEAN, 16,
+		TFS(&tfs_smb_flags2_long_names_allowed), 0x0001, "Are long file names allowed in the response?", HFILL }},
 
 	{ &hf_smb_flags2_ea,
-		{ "", "smb.flags2.ea", FT_BOOLEAN, 16,
+		{ "Extended Attributes", "smb.flags2.ea", FT_BOOLEAN, 16,
 		TFS(&tfs_smb_flags2_ea), 0x0002, "Are extended attributes supported?", HFILL }},
 
 	{ &hf_smb_flags2_sec_sig,
-		{ "", "smb.flags2.sec_sig", FT_BOOLEAN, 16,
+		{ "Security Signatures", "smb.flags2.sec_sig", FT_BOOLEAN, 16,
 		TFS(&tfs_smb_flags2_sec_sig), 0x0004, "Are security signatures supported?", HFILL }},
 
+	{ &hf_smb_flags2_long_names_used,
+		{ "Long Names Used", "smb.flags2.long_names_used", FT_BOOLEAN, 16,
+		TFS(&tfs_smb_flags2_long_names_used), 0x0040, "Are pathnames in this request long file names?", HFILL }},
+
 	{ &hf_smb_flags2_esn,
-		{ "", "smb.flags2.esn", FT_BOOLEAN, 16,
+		{ "Extended Security Negotiation", "smb.flags2.esn", FT_BOOLEAN, 16,
 		TFS(&tfs_smb_flags2_esn), 0x0800, "Is extended security negotiation supported?", HFILL }},
 
 	{ &hf_smb_flags2_dfs,
-		{ "", "smb.flags2.dfs", FT_BOOLEAN, 16,
-		TFS(&tfs_smb_flags2_dfs), 0x1000, "Will DFS pathnames be resolved?", HFILL }},
+		{ "Dfs", "smb.flags2.dfs", FT_BOOLEAN, 16,
+		TFS(&tfs_smb_flags2_dfs), 0x1000, "Can pathnames be resolved using Dfs?", HFILL }},
 
 	{ &hf_smb_flags2_roe,
-		{ "", "smb.flags2.roe", FT_BOOLEAN, 16,
-		TFS(&tfs_smb_flags2_roe), 0x2000, "Will reads be allowed for execute only files?", HFILL }},
+		{ "Execute-only Reads", "smb.flags2.roe", FT_BOOLEAN, 16,
+		TFS(&tfs_smb_flags2_roe), 0x2000, "Will reads be allowed for execute-only files?", HFILL }},
 
 	{ &hf_smb_flags2_nt_error,
-		{ "", "smb.flags2.error", FT_BOOLEAN, 16,
+		{ "Error Code Type", "smb.flags2.nt_error", FT_BOOLEAN, 16,
 		TFS(&tfs_smb_flags2_nt_error), 0x4000, "Are error codes NT or DOS format?", HFILL }},
 
 	{ &hf_smb_flags2_string,
-		{ "", "smb.flags2.string", FT_BOOLEAN, 16,
-		TFS(&tfs_smb_flags2_string), 0x8000, "Are strings ASCII or UNICODE?", HFILL }},
+		{ "Unicode Strings", "smb.flags2.string", FT_BOOLEAN, 16,
+		TFS(&tfs_smb_flags2_string), 0x8000, "Are strings ASCII or Unicode?", HFILL }},
 
 	{ &hf_smb_buffer_format,
 		{ "Buffer Format", "smb.buffer_format", FT_UINT8, BASE_DEC,
