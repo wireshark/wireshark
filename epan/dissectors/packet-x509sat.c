@@ -147,7 +147,7 @@ static int dissect_approximateMatch(packet_info *pinfo, proto_tree *tree, tvbuff
 }
 
 int
-dissect_x509sat_UniqueIdentifier(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_x509sat_UniqueIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
                                  NULL, hf_index, -1,
                                  NULL);
@@ -157,7 +157,7 @@ dissect_x509sat_UniqueIdentifier(gboolean implicit_tag, tvbuff_t *tvb, int offse
 
 
 static int
-dissect_x509sat_CountryName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_x509sat_CountryName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
                                          pinfo, tree, tvb, offset, hf_index,
                                          NULL);
@@ -185,7 +185,7 @@ static ber_choice CriteriaItem_choice[] = {
 };
 
 static int
-dissect_x509sat_CriteriaItem(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_x509sat_CriteriaItem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               CriteriaItem_choice, hf_index, ett_x509sat_CriteriaItem);
 
@@ -194,7 +194,7 @@ dissect_x509sat_CriteriaItem(gboolean implicit_tag, tvbuff_t *tvb, int offset, p
 
 
 static int
-dissect_x509sat_TelephoneNumber(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_x509sat_TelephoneNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
                                          pinfo, tree, tvb, offset, hf_index,
                                          NULL);
@@ -204,7 +204,7 @@ dissect_x509sat_TelephoneNumber(gboolean implicit_tag, tvbuff_t *tvb, int offset
 
 
 static int
-dissect_x509sat_PrintableString(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_x509sat_PrintableString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
                                          pinfo, tree, tvb, offset, hf_index,
                                          NULL);
@@ -229,7 +229,7 @@ static ber_sequence TelexNumber_sequence[] = {
 };
 
 static int
-dissect_x509sat_TelexNumber(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_x509sat_TelexNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 TelexNumber_sequence, hf_index, ett_x509sat_TelexNumber);
 
