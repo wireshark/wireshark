@@ -210,7 +210,7 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 	opttype = tvb_get_ntohs(tvb, off);
 	optlen = tvb_get_ntohs(tvb, off + 2);
 
-	/* truncated case */
+	/* all option data must be present */
 	if (eoff - off < 4 + optlen) {
 		*at_end = TRUE;
 		return 0;
@@ -310,8 +310,10 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 	  while ((optlen - temp_optlen) > 0) {
 	    temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen,
 					 off + optlen, at_end);
-	    if (*at_end)
-	      return 0;
+	    if (*at_end) {
+	      /* Bad option - just skip to the end */
+	      temp_optlen = optlen;
+	    }
 	  }
 	  break;
 	case OPTION_IA_TA:
@@ -327,8 +329,10 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 	  while ((optlen - temp_optlen) > 0) {
 	    temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen,
 					 off + optlen, at_end);
-	    if (*at_end)
-	      return 0;
+	    if (*at_end) {
+	      /* Bad option - just skip to the end */
+	      temp_optlen = optlen;
+	    }
 	  }
 	  break;
 	case OPTION_IAADDR:
@@ -367,8 +371,10 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
            while ((optlen - temp_optlen) > 0) {
               temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen,
                                            off + optlen, at_end);
-              if (*at_end)
-                return 0;
+              if (*at_end) {
+                /* Bad option - just skip to the end */
+                temp_optlen = optlen;
+              }
            }
         }
         break;
@@ -410,6 +416,8 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 				optlen, "RELAY-MSG: malformed option");
 	    break;
 	  } else {
+	    /* XXX - shouldn't we be dissecting a full DHCP message
+	       here? */
 	    dhcpv6_option(tvb, subtree, off, off + optlen, at_end);
 	    if (*at_end)
 	      return 0;
@@ -644,8 +652,10 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
                 while ((optlen - temp_optlen) > 0) {
                    temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen,
                                                 off + optlen, at_end);
-                   if (*at_end)
-                     return 0;
+                   if (*at_end) {
+                     /* Bad option - just skip to the end */
+                     temp_optlen = optlen;
+                   }
                 }
 	    }
 	    break;
