@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.62 2004/03/05 10:36:51 guy Exp $
+ * $Id: packet-rtsp.c,v 1.63 2004/03/19 05:33:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,12 +45,13 @@
 #include "packet-rtcp.h"
 #include <epan/conversation.h>
 #include <epan/strutil.h>
+#include "packet-e164.h"
 
 static int proto_rtsp		= -1;
 
 static gint ett_rtsp		= -1;
 static gint ett_rtspframe	= -1;
-static gint ett_rtsp_method = -1;
+static gint ett_rtsp_method 	= -1;
 
 static int hf_rtsp_method	= -1;
 static int hf_rtsp_url		= -1;
@@ -494,26 +495,26 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree		*rtsp_tree = NULL;
 	proto_tree		*sub_tree = NULL;
 	proto_item		*ti = NULL;
-	const guchar	*line;
+	const guchar		*line;
 	gint			next_offset;
-	const guchar	*linep, *lineend;
-	int				orig_offset;
-	int				first_linelen, linelen;
-	int				line_end_offset;
-	int				colon_offset;
+	const guchar		*linep, *lineend;
+	int			orig_offset;
+	int			first_linelen, linelen;
+	int			line_end_offset;
+	int			colon_offset;
 	gboolean		is_request_or_reply;
 	gboolean		body_requires_content_len;
 	gboolean		saw_req_resp_or_header;
 	guchar			c;
 	rtsp_type_t		rtsp_type;
 	gboolean		is_mime_header;
-	int				is_sdp = FALSE;
-	int				datalen;
-	int				content_length;
-	int				reported_datalen;
-	int				value_offset;
-	int				value_len;
-
+	int			is_sdp = FALSE;
+	int			datalen;
+	int			content_length;
+	int			reported_datalen;
+	int			value_offset;
+	int			value_len;
+	e164_info_t		e164_info;
 	/*
 	 * Is this a request or response?
 	 *
@@ -861,9 +862,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			} else if (MIME_HDR_MATCHES(rtsp_X_Vig_Msisdn)) {
 				/*
 				 * Extract the X_Vig_Msisdn string
-				 
 				 */
-				
 				if ( colon_offset != -1 ){
 					/*
 					 * Skip whitespace after the colon.
@@ -882,6 +881,18 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					proto_tree_add_string(sub_tree, hf_rtsp_X_Vig_Msisdn,tvb,
 						value_offset, value_len ,
 						tvb_format_text(tvb, value_offset, value_len));
+
+					e164_info.e164_number_type = CALLING_PARTY_NUMBER;
+					e164_info.nature_of_address = 0;
+
+					e164_info.E164_number_str = tvb_get_string(tvb, value_offset,
+						value_len);
+					e164_info.E164_number_length = value_len;
+					dissect_e164_number(tvb, sub_tree, value_offset,
+						value_len, e164_info);
+					g_free(e164_info.E164_number_str);
+
+
 				}
 			}
 
