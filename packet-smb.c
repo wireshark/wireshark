@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.187 2001/12/15 23:59:23 guy Exp $
+ * $Id: packet-smb.c,v 1.188 2001/12/18 08:27:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -405,7 +405,19 @@ static int hf_smb_file_eattr_backup_semantics = -1;
 static int hf_smb_file_eattr_posix_semantics = -1;
 static int hf_smb_sec_desc_len = -1;
 static int hf_smb_sec_desc_revision = -1;
-static int hf_smb_sec_desc_flags = -1;
+static int hf_smb_sec_desc_type_owner_defaulted = -1;
+static int hf_smb_sec_desc_type_group_defaulted = -1;
+static int hf_smb_sec_desc_type_dacl_present = -1;
+static int hf_smb_sec_desc_type_dacl_defaulted = -1;
+static int hf_smb_sec_desc_type_sacl_present = -1;
+static int hf_smb_sec_desc_type_sacl_defaulted = -1;
+static int hf_smb_sec_desc_type_dacl_auto_inherit_req = -1;
+static int hf_smb_sec_desc_type_sacl_auto_inherit_req = -1;
+static int hf_smb_sec_desc_type_dacl_auto_inherited = -1;
+static int hf_smb_sec_desc_type_sacl_auto_inherited = -1;
+static int hf_smb_sec_desc_type_dacl_protected = -1;
+static int hf_smb_sec_desc_type_sacl_protected = -1;
+static int hf_smb_sec_desc_type_self_relative = -1;
 static int hf_smb_sid_revision = -1;
 static int hf_smb_sid_num_auth = -1;
 static int hf_smb_acl_revision = -1;
@@ -415,22 +427,11 @@ static int hf_smb_ace_type = -1;
 static int hf_smb_ace_size = -1;
 static int hf_smb_ace_flags_object_inherit = -1;
 static int hf_smb_ace_flags_container_inherit = -1;
-static int hf_smb_ace_flags_no_propagate_inherit = -1;
+static int hf_smb_ace_flags_non_propagate_inherit = -1;
 static int hf_smb_ace_flags_inherit_only = -1;
 static int hf_smb_ace_flags_inherited_ace = -1;
-static int hf_smb_ace_flags_valid_inherit = -1;
 static int hf_smb_ace_flags_successful_access = -1;
 static int hf_smb_ace_flags_failed_access = -1;
-static int hf_smb_ace_mask_query = -1;
-static int hf_smb_ace_mask_set = -1;
-static int hf_smb_ace_mask_create_subkey = -1;
-static int hf_smb_ace_mask_enum_subkey = -1;
-static int hf_smb_ace_mask_notify = -1;
-static int hf_smb_ace_mask_create_link = -1;
-static int hf_smb_ace_mask_delete = -1;
-static int hf_smb_ace_mask_read_control = -1;
-static int hf_smb_ace_mask_write_dac = -1;
-static int hf_smb_ace_mask_write_owner = -1;
 static int hf_smb_nt_qsd_owner = -1;
 static int hf_smb_nt_qsd_group = -1;
 static int hf_smb_nt_qsd_dacl = -1;
@@ -603,7 +604,7 @@ static gint ett_smb_sid = -1;
 static gint ett_smb_acl = -1;
 static gint ett_smb_ace = -1;
 static gint ett_smb_ace_flags = -1;
-static gint ett_smb_ace_mask = -1;
+static gint ett_smb_sec_desc_type = -1;
 
 proto_tree *top_tree=NULL;     /* ugly */
 
@@ -6368,89 +6369,6 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 }
 
 
-static const true_false_string tfs_ace_mask_query = {
-    "QUERY rights are set",
-    "Query rights are NOT set"
-};
-static const true_false_string tfs_ace_mask_set = {
-  "SET rights are set",
-  "Set rights are NOT set"
-};
-static const true_false_string tfs_ace_mask_create_subkey = {
-  "CREATE SUBKEY is set",
-  "Create subkey is NOT set"
-};
-static const true_false_string tfs_ace_mask_enum_subkey = {
-  "ENUM SUBKEY is set",
-  "Enum subkey is NOT set"
-};
-static const true_false_string tfs_ace_mask_notify = {
-  "NOTIFY is set",
-  "Notify is NOT set"
-};
-static const true_false_string tfs_ace_mask_create_link = {
-  "CREATE LINK is set",
-  "Create link is NOT set"
-};
-static const true_false_string tfs_ace_mask_delete = {
-  "DELETE rights are set",
-  "Delete rights are NOT set"
-};
-static const true_false_string tfs_ace_mask_read_control = {
-  "READ CONTROL is set",
-  "Read control is NOT set"
-};
-static const true_false_string tfs_ace_mask_write_dac = {
-  "WRITE DAC is set",
-  "Write dac is NOT set"
-};
-static const true_false_string tfs_ace_mask_write_owner = {
-  "WRITE OWNER rights are set",
-  "Write owner rights are NOT set"
-};
-
-
-static int
-dissect_nt_ace_mask(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree)
-{
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-	guint32 mask;
-
-	mask = tvb_get_letohl(tvb, offset);
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-					   "Mask: 0x%08x", mask);
-		tree = proto_item_add_subtree(item, ett_smb_ace_mask);
-	}
-
-	proto_tree_add_boolean(tree, hf_smb_ace_mask_write_owner,
-			       tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_ace_mask_write_dac,
-			       tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_ace_mask_read_control,
-			       tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_ace_mask_delete,
-			       tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_ace_mask_create_link,
-			       tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_ace_mask_notify,
-			       tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_ace_mask_enum_subkey,
-			       tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_ace_mask_create_subkey,
-			       tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_ace_mask_set,
-			       tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_ace_mask_query,
-			       tvb, offset, 4, mask);
-
-	offset += 4;
-	return offset;
-}
-/*qqq*/
-
-
 static const value_string ace_type_vals[] = {
   { 0, "Access Allowed"},
   { 1, "Access Denied"},
@@ -6459,36 +6377,32 @@ static const value_string ace_type_vals[] = {
   { 0, NULL}
 };
 static const true_false_string tfs_ace_flags_object_inherit = {
-  "Object Inherit IS SET",
-  "Object Inherit is NOT set"
+  "Subordinate files will inherit this ACE",
+  "Subordinate files will not inherit this ACE"
 };
 static const true_false_string tfs_ace_flags_container_inherit = {
-  "Container Inherit IS SET",
-  "Container Inherit is NOT set"
+  "Subordinate containers will inherit this ACE",
+  "Subordinate containers will not inherit this ACE"
 };
-static const true_false_string tfs_ace_flags_no_propagate_inherit = {
-  "No Propagate Inherit IS SET",
-  "No Propagate Inherit is NOT set"
+static const true_false_string tfs_ace_flags_non_propagate_inherit = {
+  "Subordinate object will not propagate the inherited ACE further",
+  "Subordinate object will propagate the inherited ACE further"
 };
 static const true_false_string tfs_ace_flags_inherit_only = {
-  "Inherit Only IS SET",
-  "Inherit Only is NOT set"
+  "This ACE does not apply to the current object",
+  "This ACE applies to the current object"
 };
 static const true_false_string tfs_ace_flags_inherited_ace = {
-  "Inherited ACE IS SET",
-  "Inherited ACE is NOT set"
-};
-static const true_false_string tfs_ace_flags_valid_inherit = {
-  "Valid Inherit IS SET",
-  "Valid Inherit is NOT set"
+  "This ACE was inherited from its parent object",
+  "This ACE was not inherited from its parent object"
 };
 static const true_false_string tfs_ace_flags_successful_access = {
-  "Successful Access IS SET",
-  "Successful Access is NOT set"
+  "Successful accesses will be audited",
+  "Successful accesses will not be audited"
 };
 static const true_false_string tfs_ace_flags_failed_access = {
-  "Failed Access IS SET",
-  "Failed Access is NOT set"
+  "Failed accesses will be audited",
+  "Failed accesses will not be audited"
 };
 
 #define APPEND_ACE_TEXT(flag, item, string) \
@@ -6518,10 +6432,6 @@ dissect_nt_v2_ace_flags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
 		       tvb, offset, 1, mask);
 	APPEND_ACE_TEXT(mask&0x40, item, "  Successful Access,");
 
-	proto_tree_add_boolean(tree, hf_smb_ace_flags_valid_inherit,
-		       tvb, offset, 1, mask);
-	APPEND_ACE_TEXT(mask&0x20, item, "  Valid Inherit,");
-
 	proto_tree_add_boolean(tree, hf_smb_ace_flags_inherited_ace,
 		       tvb, offset, 1, mask);
 	APPEND_ACE_TEXT(mask&0x10, item, "  Inherited ACE,");
@@ -6530,7 +6440,7 @@ dissect_nt_v2_ace_flags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
 		       tvb, offset, 1, mask);
 	APPEND_ACE_TEXT(mask&0x08, item, "  Inherit Only,");
 
-	proto_tree_add_boolean(tree, hf_smb_ace_flags_no_propagate_inherit,
+	proto_tree_add_boolean(tree, hf_smb_ace_flags_non_propagate_inherit,
 		       tvb, offset, 1, mask);
 	APPEND_ACE_TEXT(mask&0x04, item, "  No Propagate Inherit,");
 
@@ -6575,7 +6485,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *par
 	offset += 2;
 
 	/* access mask */
-	offset = dissect_nt_ace_mask(tvb, pinfo, offset, tree);
+	offset = dissect_nt_access_mask(tvb, pinfo, tree, offset);
 
 	/* SID */
 	offset = dissect_nt_sid(tvb, pinfo, offset, tree, "SID");
@@ -6626,6 +6536,107 @@ dissect_nt_acl(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 	return offset;
 }
 
+static const true_false_string tfs_sec_desc_type_owner_defaulted = {
+  "OWNER is DEFAULTED",
+  "Owner is NOT defaulted"
+};
+static const true_false_string tfs_sec_desc_type_group_defaulted = {
+  "GROUP is DEFAULTED",
+  "Group is NOT defaulted"
+};
+static const true_false_string tfs_sec_desc_type_dacl_present = {
+  "DACL is PRESENT",
+  "DACL is NOT present"
+};
+static const true_false_string tfs_sec_desc_type_dacl_defaulted = {
+  "DACL is DEFAULTED",
+  "DACL is NOT defaulted"
+};
+static const true_false_string tfs_sec_desc_type_sacl_present = {
+  "SACL is PRESENT",
+  "SACL is NOT present"
+};
+static const true_false_string tfs_sec_desc_type_sacl_defaulted = {
+  "SACL is DEFAULTED",
+  "SACL is NOT defaulted"
+};
+static const true_false_string tfs_sec_desc_type_dacl_auto_inherit_req = {
+  "DACL has AUTO INHERIT REQUIRED",
+  "DACL does NOT require auto inherit"
+};
+static const true_false_string tfs_sec_desc_type_sacl_auto_inherit_req = {
+  "SACL has AUTO INHERIT REQUIRED",
+  "SACL does NOT require auto inherit"
+};
+static const true_false_string tfs_sec_desc_type_dacl_auto_inherited = {
+  "DACL is AUTO INHERITED",
+  "DACL is NOT auto inherited"
+};
+static const true_false_string tfs_sec_desc_type_sacl_auto_inherited = {
+  "SACL is AUTO INHERITED",
+  "SACL is NOT auto inherited"
+};
+static const true_false_string tfs_sec_desc_type_dacl_protected = {
+  "The DACL is PROTECTED",
+  "The DACL is NOT protected"
+};
+static const true_false_string tfs_sec_desc_type_sacl_protected = {
+  "The SACL is PROTECTED",
+  "The SACL is NOT protected"
+};
+static const true_false_string tfs_sec_desc_type_self_relative = {
+  "This SecDesc is SELF RELATIVE",
+  "This SecDesc is NOT self relative"
+};
+
+
+static int
+dissect_nt_sec_desc_type(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	guint16 mask;
+
+	mask = tvb_get_letohs(tvb, offset);
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
+					   "Type: 0x%04x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_sec_desc_type);
+	}
+
+	proto_tree_add_boolean(tree,hf_smb_sec_desc_type_self_relative,
+			       tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree,hf_smb_sec_desc_type_sacl_protected,
+			       tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree,hf_smb_sec_desc_type_dacl_protected,
+			       tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree,hf_smb_sec_desc_type_sacl_auto_inherited,
+			       tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree,hf_smb_sec_desc_type_dacl_auto_inherited,
+			       tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree,hf_smb_sec_desc_type_sacl_auto_inherit_req,
+			       tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree,hf_smb_sec_desc_type_dacl_auto_inherit_req,
+			       tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree,hf_smb_sec_desc_type_sacl_defaulted,
+			       tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree,hf_smb_sec_desc_type_sacl_present,
+			       tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree,hf_smb_sec_desc_type_dacl_defaulted,
+			       tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree,hf_smb_sec_desc_type_dacl_present,
+			       tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree,hf_smb_sec_desc_type_group_defaulted,
+			       tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree, hf_smb_sec_desc_type_owner_defaulted,
+			       tvb, offset, 2, mask);
+
+
+	offset += 2;
+	return offset;
+}
+
+
 static int
 dissect_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len)
 {
@@ -6652,9 +6663,8 @@ dissect_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *p
 
 	switch(revision){
 	case 1:  /* only version we will ever see of this structure?*/
-	  /* flags XXX should be decoded better */
-	  proto_tree_add_item(tree, hf_smb_sec_desc_flags, tvb, offset, 2, TRUE);
-	  offset += 2;
+	  /* type */
+	  offset = dissect_nt_sec_desc_type(tvb, pinfo, offset, tree);
 
 	  /* offset to owner sid */
 	  owner_sid_offset = tvb_get_letohl(tvb, offset);
@@ -6688,12 +6698,12 @@ dissect_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *p
 
 	  /* sacl */
 	  if(sacl_offset){
-	    dissect_nt_acl(tvb, pinfo, old_offset+sacl_offset, tree, "System");
+	    dissect_nt_acl(tvb, pinfo, old_offset+sacl_offset, tree, "System (SACL)");
 	  }
 
 	  /* dacl */
 	  if(dacl_offset){
-	    dissect_nt_acl(tvb, pinfo, old_offset+dacl_offset, tree, "User");
+	    dissect_nt_acl(tvb, pinfo, old_offset+dacl_offset, tree, "User (DACL)");
 	  }
 
 	}
@@ -15524,10 +15534,6 @@ proto_register_smb(void)
 		{ "Revision", "smb.sec_desc.revision", FT_UINT16, BASE_DEC,
 		NULL, 0, "Version of NT Security Descriptor structure", HFILL }},
 
-	{ &hf_smb_sec_desc_flags,
-		{ "Flags", "smb.sec_desc.flags", FT_UINT16, BASE_HEX,
-		NULL, 0, "Flags NT Security Descriptor structure", HFILL }},
-
 	{ &hf_smb_sid_revision,
 		{ "Revision", "smb.sid.revision", FT_UINT8, BASE_DEC,
 		NULL, 0, "Version of SID structure", HFILL }},
@@ -15557,76 +15563,84 @@ proto_register_smb(void)
 		NULL, 0, "Size of this ACE", HFILL }},
 
 	{ &hf_smb_ace_flags_object_inherit,
-		{ "", "smb.ace.flags.object_inherit", FT_BOOLEAN, 8,
-		TFS(&tfs_ace_flags_object_inherit), 0x01, "Object Inherit", HFILL }},
+		{ "Object Inherit", "smb.ace.flags.object_inherit", FT_BOOLEAN, 8,
+		TFS(&tfs_ace_flags_object_inherit), 0x01, "Will subordinate files inherit this ACE?", HFILL }},
 
 	{ &hf_smb_ace_flags_container_inherit,
-		{ "", "smb.ace.flags.container_inherit", FT_BOOLEAN, 8,
-		TFS(&tfs_ace_flags_container_inherit), 0x02, "Container Inherit", HFILL }},
+		{ "Container Inherit", "smb.ace.flags.container_inherit", FT_BOOLEAN, 8,
+		TFS(&tfs_ace_flags_container_inherit), 0x02, "Will subordinate containers inherit this ACE?", HFILL }},
 
-	{ &hf_smb_ace_flags_no_propagate_inherit,
-		{ "", "smb.ace.flags.no_propagate_inherit", FT_BOOLEAN, 8,
-		TFS(&tfs_ace_flags_no_propagate_inherit), 0x04, "No Propagate Inherit", HFILL }},
+	{ &hf_smb_ace_flags_non_propagate_inherit,
+		{ "Non-Propagate Inherit", "smb.ace.flags.non_propagate_inherit", FT_BOOLEAN, 8,
+		TFS(&tfs_ace_flags_non_propagate_inherit), 0x04, "Will subordinate object propagate this ACE further?", HFILL }},
 
 	{ &hf_smb_ace_flags_inherit_only,
-		{ "", "smb.ace.flags.inherit_only", FT_BOOLEAN, 8,
-		TFS(&tfs_ace_flags_inherit_only), 0x08, "Inherit Only", HFILL }},
+		{ "Inherit Only", "smb.ace.flags.inherit_only", FT_BOOLEAN, 8,
+		TFS(&tfs_ace_flags_inherit_only), 0x08, "Does this ACE apply to the current object?", HFILL }},
 
 	{ &hf_smb_ace_flags_inherited_ace,
-		{ "", "smb.ace.flags.inherited_ace", FT_BOOLEAN, 8,
-		TFS(&tfs_ace_flags_inherited_ace), 0x10, "Inherited ACE", HFILL }},
-
-	{ &hf_smb_ace_flags_valid_inherit,
-		{ "", "smb.ace.flags.valid_inherit", FT_BOOLEAN, 8,
-		TFS(&tfs_ace_flags_valid_inherit), 0x20, "Valid Inherit", HFILL }},
+		{ "Inherited ACE", "smb.ace.flags.inherited_ace", FT_BOOLEAN, 8,
+		TFS(&tfs_ace_flags_inherited_ace), 0x10, "Was this ACE inherited from its parent object?", HFILL }},
 
 	{ &hf_smb_ace_flags_successful_access,
-		{ "", "smb.ace.flags.successful_access", FT_BOOLEAN, 8,
-		TFS(&tfs_ace_flags_successful_access), 0x40, "Successful Access", HFILL }},
+		{ "Audit Successful Accesses", "smb.ace.flags.successful_access", FT_BOOLEAN, 8,
+		TFS(&tfs_ace_flags_successful_access), 0x40, "Should successful accesses be audited?", HFILL }},
 
 	{ &hf_smb_ace_flags_failed_access,
-		{ "", "smb.ace.flags.failed_access", FT_BOOLEAN, 8,
-		TFS(&tfs_ace_flags_failed_access), 0x80, "Failed Access", HFILL }},
+		{ "Audit Failed Accesses", "smb.ace.flags.failed_access", FT_BOOLEAN, 8,
+		TFS(&tfs_ace_flags_failed_access), 0x80, "Should failed accesses be audited?", HFILL }},
 
-	{ &hf_smb_ace_mask_query,
-	  { "", "smb.ace.mask.query", FT_BOOLEAN, 32,
-	    TFS(&tfs_ace_mask_query), 0x00000001, "Query value rights?", HFILL }},
-	{ &hf_smb_ace_mask_set,
-	  { "", "smb.ace.mask.set", FT_BOOLEAN, 32,
-	    TFS(&tfs_ace_mask_set), 0x00000002, "Set value rights?", HFILL }},
+	{ &hf_smb_sec_desc_type_owner_defaulted,
+		{ "Onwer Defaulted", "smb.sec_desc.type.owner_defaulted", FT_BOOLEAN, 16,
+		TFS(&tfs_sec_desc_type_owner_defaulted), 0x0001, "Is Owner Defaulted set?", HFILL }},
 
-	{ &hf_smb_ace_mask_create_subkey,
-	  { "", "smb.ace.mask.create_subkey", FT_BOOLEAN, 32,
-	    TFS(&tfs_ace_mask_create_subkey), 0x00000004, "Create Subkey rights?", HFILL }},
+	{ &hf_smb_sec_desc_type_group_defaulted,
+		{ "Group Defaulted", "smb.sec_desc.type.group_defaulted", FT_BOOLEAN, 16,
+		TFS(&tfs_sec_desc_type_group_defaulted), 0x0002, "Is Group Defaulted?", HFILL }},
 
-	{ &hf_smb_ace_mask_enum_subkey,
-	  { "", "smb.ace.mask.enum_subkey", FT_BOOLEAN, 32,
-	    TFS(&tfs_ace_mask_enum_subkey), 0x00000008, "Enum subkey rights?", HFILL }},
+	{ &hf_smb_sec_desc_type_dacl_present,
+		{ "DACL Present", "smb.sec_desc.type.dacl_present", FT_BOOLEAN, 16,
+		TFS(&tfs_sec_desc_type_dacl_present), 0x0004, "Does this SecDesc have DACL present?", HFILL }},
 
-	{ &hf_smb_ace_mask_notify,
-	  { "", "smb.ace.mask.notify", FT_BOOLEAN, 32,
-	    TFS(&tfs_ace_mask_notify), 0x00000010, "Notify rights?", HFILL }},
+	{ &hf_smb_sec_desc_type_dacl_defaulted,
+		{ "DACL Defaulted", "smb.sec_desc.type.dacl_defaulted", FT_BOOLEAN, 16,
+		TFS(&tfs_sec_desc_type_dacl_defaulted), 0x0008, "Does this SecDesc have DACL Defaulted?", HFILL }},
 
-	{ &hf_smb_ace_mask_create_link,
-	  { "", "smb.ace.mask.create_link", FT_BOOLEAN, 32,
-	    TFS(&tfs_ace_mask_create_link), 0x00000020, "Create Link rights?", HFILL }},
+	{ &hf_smb_sec_desc_type_sacl_present,
+		{ "SACL Present", "smb.sec_desc.type.sacl_present", FT_BOOLEAN, 16,
+		TFS(&tfs_sec_desc_type_sacl_present), 0x0010, "Is the SACL present?", HFILL }},
 
-	{ &hf_smb_ace_mask_delete,
-	  { "", "smb.ace.mask.delete", FT_BOOLEAN, 32,
-	    TFS(&tfs_ace_mask_delete), 0x00010000, "Delete rights?", HFILL }},
+	{ &hf_smb_sec_desc_type_sacl_defaulted,
+		{ "SACL Defaulted", "smb.sec_desc.type.sacl_defaulted", FT_BOOLEAN, 16,
+		TFS(&tfs_sec_desc_type_sacl_defaulted), 0x0020, "Does this SecDesc have SACL Defaulted?", HFILL }},
 
-	{ &hf_smb_ace_mask_read_control,
-	  { "", "smb.ace.mask.read_control", FT_BOOLEAN, 32,
-	    TFS(&tfs_ace_mask_read_control), 0x00020000, "Read Control rights?", HFILL }},
+	{ &hf_smb_sec_desc_type_dacl_auto_inherit_req,
+		{ "DACL Auto Inherit Required", "smb.sec_desc.type.dacl_auto_inherit_req", FT_BOOLEAN, 16,
+		TFS(&tfs_sec_desc_type_dacl_auto_inherit_req), 0x0100, "Does this SecDesc have DACL Auto Inherit Required set?", HFILL }},
 
-	{ &hf_smb_ace_mask_write_dac,
-	  { "", "smb.ace.mask.write_dac", FT_BOOLEAN, 32,
-	    TFS(&tfs_ace_mask_write_dac), 0x00040000, "Write DAC rights?", HFILL }},
+	{ &hf_smb_sec_desc_type_sacl_auto_inherit_req,
+		{ "SACL Auto Inherit Required", "smb.sec_desc.type.sacl_auto_inherit_req", FT_BOOLEAN, 16,
+		TFS(&tfs_sec_desc_type_sacl_auto_inherit_req), 0x0200, "Does this SecDesc have SACL Auto Inherit Required set?", HFILL }},
 
-	{ &hf_smb_ace_mask_write_owner,
-	  { "", "smb.ace.mask.write_owner", FT_BOOLEAN, 32,
-	    TFS(&tfs_ace_mask_write_owner), 0x00080000, "Write owner rights?", HFILL }},
-	
+	{ &hf_smb_sec_desc_type_dacl_auto_inherited,
+		{ "DACL Auto Inherited", "smb.sec_desc.type.dacl_auto_inherited", FT_BOOLEAN, 16,
+		TFS(&tfs_sec_desc_type_dacl_auto_inherited), 0x0400, "Is this DACL auto inherited", HFILL }},
+
+	{ &hf_smb_sec_desc_type_sacl_auto_inherited,
+		{ "SACL Auto Inherited", "smb.sec_desc.type.sacl_auto_inherited", FT_BOOLEAN, 16,
+		TFS(&tfs_sec_desc_type_sacl_auto_inherited), 0x0800, "Is this SACL auto inherited", HFILL }},
+
+	{ &hf_smb_sec_desc_type_dacl_protected,
+		{ "DACL Protected", "smb.sec_desc.type.dacl_protected", FT_BOOLEAN, 16,
+		TFS(&tfs_sec_desc_type_dacl_protected), 0x1000, "Is the DACL structure protected?", HFILL }},
+
+	{ &hf_smb_sec_desc_type_sacl_protected,
+		{ "SACL Protected", "smb.sec_desc.type.sacl_protected", FT_BOOLEAN, 16,
+		TFS(&tfs_sec_desc_type_sacl_protected), 0x2000, "Is the SACL structure protected?", HFILL }},
+
+	{ &hf_smb_sec_desc_type_self_relative,
+		{ "Self Relative", "smb.sec_desc.type.self_relative", FT_BOOLEAN, 16,
+		TFS(&tfs_sec_desc_type_self_relative), 0x8000, "Is this SecDesc self relative?", HFILL }},
 
 	};
 	static gint *ett[] = {
@@ -15696,7 +15710,7 @@ proto_register_smb(void)
 		&ett_smb_acl,
 		&ett_smb_ace,
 		&ett_smb_ace_flags,
-		&ett_smb_ace_mask,
+		&ett_smb_sec_desc_type,
 	};
 	module_t *smb_module;
 
