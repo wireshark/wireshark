@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.1 2003/10/28 07:02:38 guy Exp $
+ * $Id: packet-asn1.c,v 1.2 2003/10/28 20:53:37 guy Exp $
  *
  * A plugin for:
  *
@@ -134,6 +134,7 @@ static guint udp_port_asn1 = UDP_PORT_ASN1;
 
 static gboolean asn1_desegment = TRUE;
 static char *asn1_filename = 0;
+static char *default_asn1_filename = 0;
 #define ASN1FILE "asn1/default.tt"
 static char *current_asn1 = 0;
 static char *asn1_pduname = 0;
@@ -2579,7 +2580,9 @@ read_asn1_type_table(char *filename)
 
 	f = fopen(filename, "rb");
 	if (f == 0) {
-		g_warning("error opening %s, %s", filename, strerror(errno));
+		if (strcmp(filename, default_asn1_filename) != NULL ||
+		    errno != ENOENT)
+			g_warning("error opening %s, %s", filename, strerror(errno));
 		return;
 	}
 	fstat(fileno(f), &stat);
@@ -4666,20 +4669,21 @@ proto_register_asn1(void) {
 				 "ASN.1 packets will be read",
 				 10, &global_udp_port_asn1);
   prefs_register_bool_preference(asn1_module, "desegment_messages",
-				 "Desegment tcp",
-				 "Desegent ASN1 messages that span tcp segments",
+				 "Desegment TCP",
+				 "Desegment ASN.1 messages that span TCP segments",
 				 &asn1_desegment);
 
-  if (asn1_filename == 0) {
 #ifdef WIN32
-	  /* 'get_datafile_dir()' not yet available for plugins */
-	  asn1_filename = g_strdup("C:\\ethereal\\asn1\\default.tt");
+  /* 'get_datafile_dir()' not yet available for plugins */
+  asn1_filename = g_strdup("C:\\ethereal\\asn1\\default.tt");
 #else
+  {
 	  int n = strlen(get_datafile_dir()) + sizeof(ASN1FILE) + 2;
 	  asn1_filename = g_malloc(n);
 	  snprintf(asn1_filename, n, "%s" G_DIR_SEPARATOR_S "%s", get_datafile_dir(), ASN1FILE);
-#endif
   }
+#endif
+  asn1_filename = default_asn1_filename;
 
   prefs_register_string_preference(asn1_module, "file",
 				   "ASN.1 type table file",
