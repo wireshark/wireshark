@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.637 2003/10/10 03:00:09 guy Exp $
+# $Id: Makefile.am,v 1.638 2003/10/10 21:16:23 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -184,6 +184,7 @@ DISSECTOR_SRC = \
 	packet-dec-bpdu.c \
 	packet-dhcpv6.c \
 	packet-diameter.c \
+	packet-diffserv-mpls-common.c \
 	packet-distcc.c \
 	packet-dlsw.c  \
 	packet-dns.c   \
@@ -600,6 +601,7 @@ noinst_HEADERS = \
 	packet-dcerpc.h \
 	packet-ddtp.h  \
 	packet-diameter-defs.h \
+	packet-diffserv-mpls-common.h \
 	packet-dns.h   \
 	packet-dvmrp.h \
 	packet-edonkey.h \

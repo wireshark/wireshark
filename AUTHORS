@@ -959,6 +959,7 @@ Akira Endoh <endoh[AT]netmarks.co.jp> {
 	Wellfleet Breath of Life support
 	RSVP support for draft-ietf-mpls-nodeid-subobject-00.txt, and
 	    other bug fixes and enhancements
+	Diffserv MPLS signaling protocol support
 }
 
 Graeme Hewson <graeme.hewson[AT]oracle.com> {

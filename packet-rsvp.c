@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.83 2003/10/06 20:46:51 guy Exp $
+ * $Id: packet-rsvp.c,v 1.84 2003/10/10 21:16:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,6 +68,7 @@
 #include "packet-rsvp.h"
 #include "packet-ip.h"
 #include "packet-frame.h"
+#include "packet-diffserv-mpls-common.h"
 
 static int proto_rsvp = -1;
 
@@ -121,6 +122,9 @@ enum {
     TT_PROTECTION_INFO,
     TT_FAST_REROUTE,
     TT_DETOUR,
+    TT_DIFFSERV,
+    TT_DIFFSERV_MAP,
+    TT_DIFFSERV_MAP_PHBID,
     TT_UNKNOWN_CLASS,
 
     TT_MAX
@@ -220,6 +224,8 @@ enum rsvp_classes {
     RSVP_CLASS_LABEL_SET,
     RSVP_CLASS_PROTECTION,
 
+    RSVP_CLASS_DIFFSERV = 65,
+
     RSVP_CLASS_SUGGESTED_LABEL = 129,
     RSVP_CLASS_ACCEPTABLE_LABEL_SET,
     RSVP_CLASS_RESTART_CAP,
@@ -265,6 +271,7 @@ static value_string rsvp_class_vals[] = {
     {RSVP_CLASS_UPSTREAM_LABEL, "UPSTREAM-LABEL object"},
     {RSVP_CLASS_LABEL_SET, "LABEL-SET object"},
     {RSVP_CLASS_PROTECTION, "PROTECTION object"},
+    {RSVP_CLASS_DIFFSERV, "DIFFSERV object"},
     {RSVP_CLASS_SUGGESTED_LABEL, "SUGGESTED-LABEL object"},
     {RSVP_CLASS_ACCEPTABLE_LABEL_SET, "ACCEPTABLE-LABEL-SET object"},
     {RSVP_CLASS_RESTART_CAP, "RESTART-CAPABILITY object"},
@@ -296,7 +303,8 @@ enum rsvp_error_types {
     RSVP_ERROR_TRAFFIC_SYSTEM,
     RSVP_ERROR_SYSTEM,
     RSVP_ERROR_ROUTING,
-    RSVP_ERROR_NOTIFY
+    RSVP_ERROR_NOTIFY,
+    RSVP_ERROR_DIFFSERV = 27
 };
 
 enum {
@@ -332,6 +340,14 @@ enum {
     RSVP_NOTIFY_ERROR_RRO_TUNNEL_LOCAL_REPAIRED
 };
 
+enum {
+    RSVP_DIFFSERV_ERROR_UNEXPECTED_DIFFSERVOBJ = 1,
+    RSVP_DIFFSERV_ERROR_UNSUPPORTED_PHB,
+    RSVP_DIFFSERV_ERROR_INVALID_EXP_PHB_MAPPING,
+    RSVP_DIFFSERV_ERROR_UNSUPPORTED_PSC,
+    RSVP_DIFFSERV_ERROR_PERLSP_CONTEXT_ALLOC_FAIL
+};
+
 static value_string rsvp_error_codes[] = {
     {RSVP_ERROR_CONFIRM, "Confirmation"},
     {RSVP_ERROR_ADMISSION, "Admission Control Failure "},
@@ -350,6 +366,7 @@ static value_string rsvp_error_codes[] = {
     {RSVP_ERROR_SYSTEM, "RSVP System Error"},
     {RSVP_ERROR_ROUTING, "Routing Error"},
     {RSVP_ERROR_NOTIFY, "RSVP Notify Error"},
+    {RSVP_ERROR_DIFFSERV, "RSVP Diff-Serv Error"},
     {0, NULL}
 };
 
@@ -390,6 +407,14 @@ static value_string rsvp_notify_error_vals[] = {
     {0, NULL}
 };
 
+static value_string rsvp_diffserv_error_vals[] = {
+    {RSVP_DIFFSERV_ERROR_UNEXPECTED_DIFFSERVOBJ, "Unexpected DIFFSERV object"},
+    {RSVP_DIFFSERV_ERROR_UNSUPPORTED_PHB, "Unsupported PHB"},
+    {RSVP_DIFFSERV_ERROR_INVALID_EXP_PHB_MAPPING, "Invalid `EXP<->PHB mapping'"},
+    {RSVP_DIFFSERV_ERROR_UNSUPPORTED_PSC, "Unsupported PSC"},
+    {RSVP_DIFFSERV_ERROR_PERLSP_CONTEXT_ALLOC_FAIL, "Per-LSP context allocation failure"},
+    {0, NULL}
+};
 
 /*
  * Defines the reservation style plus style-specific information that
@@ -667,6 +692,7 @@ enum rsvp_filter_keys {
     RSVPF_UPSTREAM_LABEL,
     RSVPF_LABEL_SET,
     RSVPF_PROTECTION,
+    RSVPF_DIFFSERV,
 
     RSVPF_SUGGESTED_LABEL,
     RSVPF_ACCEPTABLE_LABEL_SET,
@@ -691,6 +717,16 @@ enum rsvp_filter_keys {
     RSVPF_SENDER_IP,
     RSVPF_SENDER_PORT,
     RSVPF_SENDER_LSP_ID,
+
+    /* Diffserv object */
+    RSVPF_DIFFSERV_MAPNB,
+    RSVPF_DIFFSERV_MAP,
+    RSVPF_DIFFSERV_MAP_EXP,
+    RSVPF_DIFFSERV_PHBID,
+    RSVPF_DIFFSERV_PHBID_DSCP,
+    RSVPF_DIFFSERV_PHBID_CODE,
+    RSVPF_DIFFSERV_PHBID_BIT14,
+    RSVPF_DIFFSERV_PHBID_BIT15,
 
     /* Sentinel */
     RSVPF_MAX
@@ -848,6 +884,10 @@ static hf_register_info rsvpf_info[] = {
      { "PROTECTION", "rsvp.protection", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
+    {&rsvp_filter[RSVPF_DIFFSERV],
+     { "DIFFSERV", "rsvp.diffserv", FT_NONE, BASE_NONE, NULL, 0x0,
+        "", HFILL }},
+
     {&rsvp_filter[RSVPF_RESTART_CAP],
      { "RESTART CAPABILITY", "rsvp.restart", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
@@ -936,7 +976,41 @@ static hf_register_info rsvpf_info[] = {
 
     {&rsvp_filter[RSVPF_SENDER_LSP_ID],
      { "Sender LSP ID", "rsvp.sender.lsp_id", FT_UINT16, BASE_DEC, NULL, 0x0,
-     	"", HFILL }}
+     	"", HFILL }},
+
+    /* Diffserv object fields */
+    {&rsvp_filter[RSVPF_DIFFSERV_MAPNB],
+     { "MAPnb", "rsvp.diffserv.mapnb", FT_UINT8, BASE_DEC, NULL, 0x0,
+       MAPNB_DESCRIPTION, HFILL }},
+
+    {&rsvp_filter[RSVPF_DIFFSERV_MAP],
+     { "MAP", "rsvp.diffserv.map", FT_NONE, BASE_NONE, NULL, 0x0,
+       MAP_DESCRIPTION, HFILL }},
+
+    {&rsvp_filter[RSVPF_DIFFSERV_MAP_EXP],
+     { "EXP", "rsvp.diffserv.map.exp", FT_UINT8, BASE_DEC, NULL, 0x0,
+       EXP_DESCRIPTION, HFILL }},
+
+    {&rsvp_filter[RSVPF_DIFFSERV_PHBID],
+     { "PHBID", "rsvp.diffserv.phbid", FT_NONE, BASE_NONE, NULL, 0x0,
+       PHBID_DESCRIPTION, HFILL }},
+
+    {&rsvp_filter[RSVPF_DIFFSERV_PHBID_DSCP],
+     { PHBID_DSCP_DESCRIPTION, "rsvp.diffserv.phbid.dscp", FT_UINT16,
+       BASE_DEC, NULL, PHBID_DSCP_MASK, "DSCP", HFILL }},
+
+    {&rsvp_filter[RSVPF_DIFFSERV_PHBID_CODE],
+     { PHBID_CODE_DESCRIPTION, "rsvp.diffserv.phbid.code", FT_UINT16,
+       BASE_DEC, NULL, PHBID_CODE_MASK, "PHB id code", HFILL }},
+
+    {&rsvp_filter[RSVPF_DIFFSERV_PHBID_BIT14],
+     { PHBID_BIT14_DESCRIPTION, "rsvp.diffserv.phbid.bit14", FT_UINT16,
+       BASE_DEC, VALS(phbid_bit14_vals), PHBID_BIT14_MASK, "Bit 14", HFILL }},
+
+    {&rsvp_filter[RSVPF_DIFFSERV_PHBID_BIT15],
+     { PHBID_BIT15_DESCRIPTION, "rsvp.diffserv.phbid.bit15", FT_UINT16,
+       BASE_DEC, VALS(phbid_bit15_vals), PHBID_BIT15_MASK, "Bit 15", HFILL }}
+
 };
 
 static inline int rsvp_class_to_filter_num(int classnum)
@@ -977,6 +1051,9 @@ static inline int rsvp_class_to_filter_num(int classnum)
     case RSVP_CLASS_ACCEPTABLE_LABEL_SET :
     case RSVP_CLASS_RESTART_CAP :
 	return RSVPF_SUGGESTED_LABEL + (classnum - RSVP_CLASS_SUGGESTED_LABEL);
+
+    case RSVP_CLASS_DIFFSERV :
+	return RSVPF_DIFFSERV;
 
     case RSVP_CLASS_NOTIFY_REQUEST :
 	return RSVPF_NOTIFY_REQUEST;
@@ -1408,12 +1485,16 @@ dissect_rsvp_error_value (proto_tree *ti, tvbuff_t *tvb,
 	break;
     case RSVP_ERROR_NOTIFY:
 	rsvp_error_vals = rsvp_notify_error_vals;
+	break;
+    case RSVP_ERROR_DIFFSERV:
+	rsvp_error_vals = rsvp_diffserv_error_vals;
     }
     switch (error_code) {
     case RSVP_ERROR_ADMISSION:
     case RSVP_ERROR_TRAFFIC:
     case RSVP_ERROR_NOTIFY:
     case RSVP_ERROR_ROUTING:
+    case RSVP_ERROR_DIFFSERV:
 	if ((error_val & 0xc0) == 0) {
 	    proto_tree_add_text(ti, tvb, offset, 2,
 		"Error value: %u - %s", error_val,
@@ -4030,6 +4111,72 @@ dissect_rsvp_detour (proto_tree *ti, tvbuff_t *tvb,
 }
 
 /*------------------------------------------------------------------------------
+ * DIFFSERV
+ *------------------------------------------------------------------------------*/
+static void
+dissect_rsvp_diffserv (proto_tree *ti, tvbuff_t *tvb,
+		       int offset, int obj_length,
+		       int class, int type,
+		       char *type_str
+		       )
+{
+    proto_tree *rsvp_object_tree;
+    int mapnb, count;
+    int *hfindexes[] = {
+	&rsvp_filter[RSVPF_DIFFSERV_MAP],
+	&rsvp_filter[RSVPF_DIFFSERV_MAP_EXP],
+	&rsvp_filter[RSVPF_DIFFSERV_PHBID],
+	&rsvp_filter[RSVPF_DIFFSERV_PHBID_DSCP],
+	&rsvp_filter[RSVPF_DIFFSERV_PHBID_CODE],
+	&rsvp_filter[RSVPF_DIFFSERV_PHBID_BIT14],
+	&rsvp_filter[RSVPF_DIFFSERV_PHBID_BIT15]
+    };
+    gint *etts[] = {
+	&TREE(TT_DIFFSERV_MAP),
+	&TREE(TT_DIFFSERV_MAP_PHBID)
+    };
+
+    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_DIFFSERV));
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
+			"Class number: %u - %s",
+			class, type_str);
+    proto_item_set_text(ti, "DIFFSERV: ");
+    offset += 3;
+    switch (type) {
+    case 1:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset, 1,
+			    "C-type: 1 - E-LSP");
+	proto_tree_add_uint(rsvp_object_tree, rsvp_filter[RSVPF_DIFFSERV_MAPNB],
+			    tvb, offset + 4, 1,
+			    mapnb = tvb_get_guint8(tvb, offset + 4) & 15);
+	proto_item_append_text(ti, "E-LSP, %u MAP%s", mapnb,
+			       (mapnb == 0) ? "" : "s");
+	offset += 5;
+
+	for (count = 0; count < mapnb; count++) {
+	    dissect_diffserv_mpls_common(tvb, rsvp_object_tree, type,
+					 offset, hfindexes, etts);
+	    offset += 4;
+	}
+	break;
+    case 2:
+	proto_item_append_text(ti, "L-LSP");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset, 1,
+			    "C-type: 2 - L-LSP");
+	dissect_diffserv_mpls_common(tvb, rsvp_object_tree, type,
+				     offset + 3, hfindexes, etts);
+	break;
+    default:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset, 1,
+			    "C-type: Unknown (%u)", type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset + 1, obj_length - 4,
+			    "Data (%d bytes)", obj_length - 4);
+    }
+}
+
+/*------------------------------------------------------------------------------
  * Dissect a single RSVP message in a tree
  *------------------------------------------------------------------------------*/
 static void
@@ -4293,6 +4440,10 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	case RSVP_CLASS_DETOUR:
 	    dissect_rsvp_detour(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_DIFFSERV:
+	    dissect_rsvp_diffserv(ti, tvb, offset, obj_length, class, type, type_str);
 	    break;
 
 	case RSVP_CLASS_NULL:

@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.44 2003/07/08 00:46:26 guy Exp $
+ * $Id: packet-ldp.c,v 1.45 2003/10/10 21:16:24 guy Exp $
  *
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -43,6 +43,7 @@
 #include "afn.h"
 
 #include "packet-frame.h"
+#include "packet-diffserv-mpls-common.h"
 
 #define TCP_PORT_LDP 646
 #define UDP_PORT_LDP 646
@@ -171,6 +172,16 @@ static int hf_ldp_tlv_set_prio = -1;
 static int hf_ldp_tlv_hold_prio = -1;
 static int hf_ldp_tlv_route_pinning = -1;
 static int hf_ldp_tlv_resource_class = -1;
+static int hf_ldp_tlv_diffserv = -1;
+static int hf_ldp_tlv_diffserv_type = -1;
+static int hf_ldp_tlv_diffserv_mapnb = -1;
+static int hf_ldp_tlv_diffserv_map = -1;
+static int hf_ldp_tlv_diffserv_map_exp = -1;
+static int hf_ldp_tlv_diffserv_phbid = -1;
+static int hf_ldp_tlv_diffserv_phbid_dscp = -1;
+static int hf_ldp_tlv_diffserv_phbid_code = -1;
+static int hf_ldp_tlv_diffserv_phbid_bit14 = -1;
+static int hf_ldp_tlv_diffserv_phbid_bit15 = -1;
 static int ett_ldp = -1;
 static int ett_ldp_header = -1;
 static int ett_ldp_ldpid = -1;
@@ -179,6 +190,8 @@ static int ett_ldp_tlv = -1;
 static int ett_ldp_tlv_val = -1;
 static int ett_ldp_fec = -1;
 static int ett_ldp_fec_vc_interfaceparam = -1;
+static int ett_ldp_diffserv_map = -1;
+static int ett_ldp_diffserv_map_phbid = -1;
 
 static int tcp_port = 0;
 static int udp_port = 0;
@@ -225,7 +238,7 @@ static int global_ldp_udp_port = UDP_PORT_LDP;
 #define TLV_LSPID                  0x0821
 #define TLV_RESOURCE_CLASS         0x0822
 #define TLV_ROUTE_PINNING          0x0823
-
+#define TLV_DIFFSERV               0x0901
 #define TLV_VENDOR_PRIVATE_START   0x3E00
 #define TLV_VENDOR_PRIVATE_END     0x3EFF
 #define TLV_EXPERIMENTAL_START     0x3F00
@@ -262,6 +275,7 @@ static const value_string tlv_type_names[] = {
   { TLV_ER_HOP_LSPID,              "ER hop LSPID prefix TLV"},
   { TLV_RESOURCE_CLASS,            "Resource Class (Color) TLV"},
   { TLV_ROUTE_PINNING,             "Route Pinning TLV"},
+  { TLV_DIFFSERV,                  "Diff-Serv TLV"},
   { TLV_VENDOR_PRIVATE_START,	"Vendor Private TLV"},
   { TLV_EXPERIMENTAL_START,	"Experimental TLV"},
   { 0, NULL}
@@ -429,6 +443,12 @@ static const value_string ldp_act_flg_vals[] = {
 static const value_string route_pinning_vals[] = {
   {0, "route pinning is not requested"},
   {1, "route pinning is requested"},
+  {0, NULL}
+};
+
+static const value_string diffserv_type_vals[] = {
+  {0, "E-LSP"},
+  {1, "L-LSP"},
   {0, NULL}
 };
 
@@ -1605,6 +1625,51 @@ dissect_tlv_preemption(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 	}
 }
 
+
+static void
+dissect_tlv_diffserv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+{
+    int type, mapnb, count;
+    int *hfindexes[] = {
+	&hf_ldp_tlv_diffserv_map,
+	&hf_ldp_tlv_diffserv_map_exp,
+	&hf_ldp_tlv_diffserv_phbid,
+	&hf_ldp_tlv_diffserv_phbid_dscp,
+	&hf_ldp_tlv_diffserv_phbid_code,
+	&hf_ldp_tlv_diffserv_phbid_bit14,
+	&hf_ldp_tlv_diffserv_phbid_bit15
+    };
+    gint *etts[] = {
+	&ett_ldp_diffserv_map,
+	&ett_ldp_diffserv_map_phbid
+    };
+
+    if (rem < 4) {
+	proto_tree_add_text(tree, tvb, offset, rem,
+	    "Error processing Diff-Serv TLV: length is %d, should be >= 4", rem);
+	return;
+    }
+    proto_tree_add_uint(tree, hf_ldp_tlv_diffserv_type, tvb, offset, 1,
+			type = tvb_get_guint8(tvb, offset));
+    type = (type >> 7) + 1;
+    if (type == 1) {
+        /* E-LSP */
+	offset += 3;
+	proto_tree_add_uint(tree, hf_ldp_tlv_diffserv_mapnb, tvb, offset,
+			    1, mapnb = tvb_get_guint8(tvb, offset) & 15);
+	offset += 1;
+	for (count = 0; count < mapnb; count++) {
+	    dissect_diffserv_mpls_common(tvb, tree, type, offset, hfindexes, etts);
+	    offset += 4;
+	}
+    }
+    else if (type == 2) {
+        /* L-LSP */
+	dissect_diffserv_mpls_common(tvb, tree, type, offset + 2, hfindexes, etts);
+    }
+}
+
+
 static int
 dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem);
 
@@ -1845,6 +1910,10 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 		case TLV_ROUTE_PINNING:
 			dissect_tlv_route_pinning(tvb, offset +4, tlv_tree, length);
+			break;
+
+		case TLV_DIFFSERV:
+			dissect_tlv_diffserv(tvb, offset +4, tlv_tree, length);
 			break;
 
 		case TLV_VENDOR_PRIVATE_START:
@@ -2553,6 +2622,46 @@ proto_register_ldp(void)
     { &hf_ldp_tlv_resource_class,
       { "Resource Class", "ldp.msg.tlv.resource_class", FT_UINT32, BASE_HEX, NULL, 0, "Resource Class (Color)", HFILL}},
 
+    { &hf_ldp_tlv_diffserv,
+      { "Diff-Serv TLV", "ldp.msg.tlv.diffserv", FT_NONE, BASE_NONE, NULL,
+	0, "Diffserv TLV", HFILL}},
+
+    { &hf_ldp_tlv_diffserv_type,
+      { "LSP Type", "ldp.msg.tlv.diffserv.type", FT_UINT8, BASE_DEC,
+	VALS(diffserv_type_vals), 0x80, "LSP Type", HFILL}},
+
+    { &hf_ldp_tlv_diffserv_mapnb,
+      { "MAPnb", "ldp.msg.tlv.diffserv.mapnb", FT_UINT8, BASE_DEC, NULL,
+	0, MAPNB_DESCRIPTION, HFILL}},
+
+    { &hf_ldp_tlv_diffserv_map,
+      { "MAP", "ldp.msg.tlv.diffserv.map", FT_NONE, BASE_NONE, NULL,
+	0, MAP_DESCRIPTION, HFILL}},
+
+    { &hf_ldp_tlv_diffserv_map_exp,
+      { "EXP", "ldp.msg.tlv.diffserv.map.exp", FT_UINT8, BASE_DEC, NULL,
+	0, EXP_DESCRIPTION, HFILL}},
+
+    { &hf_ldp_tlv_diffserv_phbid,
+      { "PHBID", "ldp.msg.tlv.diffserv.phbid", FT_NONE, BASE_NONE, NULL,
+	0, PHBID_DESCRIPTION, HFILL}},
+
+    { &hf_ldp_tlv_diffserv_phbid_dscp,
+      { "DSCP", "ldp.msg.tlv.diffserv.phbid.dscp", FT_UINT16, BASE_DEC,
+	NULL, PHBID_DSCP_MASK, PHBID_DSCP_DESCRIPTION, HFILL}},
+
+    { &hf_ldp_tlv_diffserv_phbid_code,
+      { "PHB id code", "ldp.msg.tlv.diffserv.phbid.code", FT_UINT16, BASE_DEC,
+	NULL, PHBID_CODE_MASK, PHBID_CODE_DESCRIPTION, HFILL}},
+
+    { &hf_ldp_tlv_diffserv_phbid_bit14,
+      { "Bit 14", "ldp.msg.tlv.diffserv.phbid.bit14", FT_UINT16, BASE_DEC,
+	VALS(phbid_bit14_vals), PHBID_BIT14_MASK, PHBID_BIT14_DESCRIPTION, HFILL}},
+
+    { &hf_ldp_tlv_diffserv_phbid_bit15,
+      { "Bit 15", "ldp.msg.tlv.diffserv.phbid.bit15", FT_UINT16, BASE_DEC,
+	VALS(phbid_bit15_vals), PHBID_BIT15_MASK, PHBID_BIT15_DESCRIPTION, HFILL}}
+
   };
 
   static gint *ett[] = {
@@ -2563,7 +2672,9 @@ proto_register_ldp(void)
     &ett_ldp_tlv,
     &ett_ldp_tlv_val,
     &ett_ldp_fec,
-    &ett_ldp_fec_vc_interfaceparam
+    &ett_ldp_fec_vc_interfaceparam,
+    &ett_ldp_diffserv_map,
+    &ett_ldp_diffserv_map_phbid
   };
   module_t *ldp_module;
 
