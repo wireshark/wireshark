@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.36 2004/05/02 17:25:10 ulfl Exp $
+ * $Id: endpoint_talkers_table.c,v 1.37 2004/05/02 21:10:20 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1156,7 +1156,7 @@ typedef struct {
 } register_ett_t;
 
 
-GSList *registered_tables = NULL;
+GSList *registered_ett_tables = NULL;
 
 void
 register_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
@@ -1171,7 +1171,7 @@ register_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *
     table->filter       = filter;
     table->packet_func  = packet_func;
 
-    registered_tables = g_slist_append(registered_tables, table);
+    registered_ett_tables = g_slist_append(registered_ett_tables, table);
 }
 
 
@@ -1192,7 +1192,7 @@ init_ett_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     register_ett_t *registered;
 
 
-    pages = g_malloc(sizeof(void *) * (g_slist_length(registered_tables) + 1));
+    pages = g_malloc(sizeof(void *) * (g_slist_length(registered_ett_tables) + 1));
 
 	g_snprintf(title, 255, "Conversations: %s", cf_get_display_name(&cfile));
 	win=dlg_window_new(title);
@@ -1209,7 +1209,7 @@ init_ett_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     page = 0;
 
-    current_table = registered_tables;
+    current_table = registered_ett_tables;
     while(current_table) {
         registered = current_table->data;
         page_lb = gtk_label_new("");
