@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.81 2001/03/20 04:46:37 guy Exp $
+ * $Id: packet-smb.c,v 1.82 2001/05/20 22:26:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -3240,7 +3240,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
     if (tree) {
 
       proto_tree_add_text(tree, NullTVB, offset, 2, "Server time zone: %i min from UTC",
-			  (signed)GSSHORT(pd, offset));
+			  (signed short)GSSHORT(pd, offset));
 
     }
 
@@ -3461,7 +3461,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
     if (tree) {
 
       proto_tree_add_text(tree, NullTVB, offset, 2, "Server time zone: %i min from UTC",
-			  (signed)GSSHORT(pd, offset));
+			  (signed short)GSSHORT(pd, offset));
 
     }
 
