@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.h,v 1.10 2001/01/28 09:13:10 guy Exp $
+ * $Id: filter_prefs.h,v 1.11 2001/02/23 05:54:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,7 +44,6 @@ void display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr);
 void cfilter_dialog_cb(GtkWidget *w);
 void dfilter_dialog_cb(GtkWidget *w);
 
-#define E_FILT_TE_KEY		"filter_te"
 #define E_FILT_TE_PTR_KEY	"filter_te_ptr"
 #define E_FILT_CALLER_PTR_KEY	"filter_caller_ptr"
 #define E_FILT_DIALOG_PTR_KEY	"filter_dialog_ptr"

@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.28 2001/02/20 20:25:08 guy Exp $
+ * $Id: filter_prefs.c,v 1.29 2001/02/23 05:54:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -532,6 +532,7 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 	filter_te = gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(bottom_hb), filter_te, TRUE, TRUE, 3);
 	gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_FILTER_TE_KEY, filter_te);
+
 	gtk_signal_connect(GTK_OBJECT(filter_te), "destroy",
 	    GTK_SIGNAL_FUNC(filter_filter_te_destroy_cb), NULL);
 	gtk_widget_show(filter_te);
@@ -563,8 +564,6 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 			GTK_SIGNAL_FUNC(filter_dlg_ok_cb), NULL);
 		GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
 		gtk_box_pack_start(GTK_BOX(bbox), ok_bt, TRUE, TRUE, 0);
-		gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_TE_KEY,
-		    filter_te);
 		gtk_widget_grab_default(ok_bt);
 		gtk_widget_show(ok_bt);
 
@@ -692,7 +691,7 @@ filter_apply(GtkWidget *main_w)
 		 * supposed to do so.
 		 */
 		filter_te = gtk_object_get_data(GTK_OBJECT(main_w),
-		    E_FILT_TE_KEY);
+		    E_FILT_FILTER_TE_KEY);
 		filter_string = gtk_entry_get_text(GTK_ENTRY(filter_te));
 		gtk_entry_set_text(GTK_ENTRY(parent_filter_te), filter_string);
 		if (construct_args->activate_on_ok) {
@@ -1106,7 +1105,8 @@ filter_expr_cb(GtkWidget *w, gpointer main_w_arg)
 	GtkWidget  *main_w = GTK_WIDGET(main_w_arg);
 	GtkWidget  *filter_te;
 
-	filter_te = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_TE_KEY);
+	filter_te = gtk_object_get_data(GTK_OBJECT(main_w),
+	    E_FILT_FILTER_TE_KEY);
 	dfilter_expr_dlg_new(filter_te);
 }
 
