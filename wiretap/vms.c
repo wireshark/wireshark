@@ -1,6 +1,6 @@
 /* vms.c
  *
- * $Id: vms.c,v 1.17 2003/05/19 20:58:18 guy Exp $
+ * $Id: vms.c,v 1.18 2003/05/20 20:17:03 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <ethereal@mmilgram.NOSPAMmail.net>
@@ -40,13 +40,14 @@
 #include <string.h>
 #include <ctype.h>
 
-/* This module reads the output of the 'TCPIPTRACE' and 'UCX$TRACE'
- * commands in VMS.
- * It was initially based on toshiba.c.
- */
+/* This module reads the output of the various VMS TCPIP trace utilities
+ * such as TCPIPTRACE, TCPTRACE and UCX$TRACE
+ *
+ * It was initially based on toshiba.c and refined with code from cosine.c
 
-/*
-   Example 'TCPIPTRACE' output data:
+--------------------------------------------------------------------------------
+   Example TCPIPTRACE TCPTRACE output data:
+
    TCPIPtrace full display RCV packet 8 at 10-JUL-2001 14:54:19.56
 
    IP Version = 4,  IHL = 5,  TOS = 00,   Total Length = 84 = ^x0054
@@ -65,8 +66,10 @@
    00000000   00000000   00000000   03000000    0030    ................
    06000000   01000000   A5860100   00000000    0040    ................
                                     00000000    0050    ....
+--------------------------------------------------------------------------------
 
-   Example UCX INTERnet (UCX$TRACE) output data:
+   Example UCX$TRACE output data:
+
     UCX INTERnet trace RCV packet seq # = 1 at 14-MAY-2003 11:32:10.93 
 
    IP Version = 4,  IHL = 5,  TOS = 00,   Total Length = 583 = ^x0247 
@@ -84,23 +87,61 @@
    46484648   45200000   1D028A00   9F04140A    0020    ...........EHFHF
    43414341   4341434D   454D4546   45454550    0030    PEEEFEMEMCACACAC
 
-The only difference between the 2 Utilities is the Packet header line, primarily
-the utility identifier and the packet sequencing.
+--------------------------------------------------------------------------------
+
+   Alternate UCX$TRACE type output data:
+
+   TCPIP INTERnet trace RCV packet seq # = 1 at 23-OCT-1998 15:19:33.29
+
+   IP Version = 4,  IHL = 5,  TOS = 00,   Total Length = 217 = ^x00D9
+   IP Identifier  = ^x0065,  Flags (0=0,DF=0,MF=0),
+         Fragment Offset = 0 = ^x0000,   Calculated Offset = 0 = ^x0000
+   IP TTL = 32 = ^x20,  Protocol = 17 = ^x11,  Header Checksum = ^x8F6C
+   IP Source Address      = 16.20.168.93
+   IP Destination Address = 16.20.255.255
+
+   UDP Source Port = 138,   UDP Destination Port = 138
+   UDP Header and Datagram Length = 197 = ^x00C5,   Checksum = ^x0E77
+
+   5DA81410   8F6C1120   00000065   D9000045    0000    E...awe.....l....]
+            | 0E77C500   8A008A00 | FFFF1410    0010    ..........w.
+
+--------------------------------------------------------------------------------
+
+The only difference between the utilities is the Packet header line, primarily
+the utility identifier and the packet sequence formats.
+
+There appear to be 2 formats for packet seqencing
+
+Format 1:
+
+ ... packet nn at DD-MMM-YYYY hh:mm:ss.ss
+
+Format 2:
+
+ ... packet seq # = nn at DD-MMM-YYYY hh:mm:ss.ss
+
+If there are other formats then code will have to be written in parse_vms_rec_hdr()
+to handle them.
 
 --------------------------------------------------------------------------------
 
  */
 
-/* Magic text to check for VMS-ness of file, common to both
- * TCPIPtrace and UCX$TRACE
+/* Magic text to check for VMS-ness of file using possible utility names
+ *
  */
-static const char vms_hdr_magic[]  =
-{ 'R','C','V',' ','p', 'a', 'c', 'k', 'e', 't',' '};
-#define VMS_HDR_MAGIC_SIZE  (sizeof vms_hdr_magic  / sizeof vms_hdr_magic[0])
+#define VMS_HDR_MAGIC_STR1	"TCPIPtrace"
+#define VMS_HDR_MAGIC_STR2	"TCPtrace"
+#define VMS_HDR_MAGIC_STR3	"INTERnet trace"
 
 /* Magic text for start of packet */
-#define vms_rec_magic vms_hdr_magic
-#define VMS_REC_MAGIC_SIZE  (sizeof vms_rec_magic  / sizeof vms_rec_magic[0])
+#define VMS_REC_MAGIC_STR1	VMS_HDR_MAGIC_STR1
+#define VMS_REC_MAGIC_STR2	VMS_HDR_MAGIC_STR2
+#define VMS_REC_MAGIC_STR3	VMS_HDR_MAGIC_STR3
+
+#define VMS_HEADER_LINES_TO_CHECK    200
+#define VMS_LINE_LENGTH              240
 
 static gboolean vms_read(wtap *wth, int *err, long *data_offset);
 static gboolean vms_seek_read(wtap *wth, long seek_off,
@@ -116,43 +157,43 @@ static int parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err);
    byte offset.  Returns -1 on failure, and sets "*err" to the error. */
 static long vms_seek_next_packet(wtap *wth, int *err)
 {
-  int byte;
-  unsigned int level = 0;
   long cur_off;
-
-  while ((byte = file_getc(wth->fh)) != EOF) {
-    if ((level == 3) && (byte != vms_rec_magic[level]))
-      level += 2;  /* Accept TCPtrace as well as TCPIPtrace */
-    if (byte == vms_rec_magic[level]) {
-      level++;
-      if (level >= VMS_REC_MAGIC_SIZE) {
-        /* note: we're leaving file pointer right after the magic characters */
-        cur_off = file_tell(wth->fh);
-        if (cur_off == -1) {
-          /* Error. */
-          *err = file_error(wth->fh);
-          return -1;
-        }
-        return cur_off + 1;
+  char buf[VMS_LINE_LENGTH];
+  
+  while (1) {
+    cur_off = file_tell(wth->fh);
+    if (cur_off == -1) {
+      /* Error */
+      *err = file_error(wth->fh);
+      hdr = NULL;
+      return -1;
+    }
+    if (file_gets(buf, sizeof(buf), wth->fh) != NULL) {
+      if (strstr(buf, VMS_REC_MAGIC_STR1) ||
+	  strstr(buf, VMS_REC_MAGIC_STR2) ||
+	  strstr(buf, VMS_REC_MAGIC_STR2)) {
+	strncpy(hdr, buf, VMS_LINE_LENGTH-1);
+	hdr[VMS_LINE_LENGTH-1] = '\0';
+	return cur_off;
       }
     } else {
-      level = 0;
+      if (file_eof(wth->fh)) {
+	/* We got an EOF. */
+	*err = 0;
+      } else {
+	/* We (presumably) got an error (there's no
+	   equivalent to "ferror()" in zlib, alas,
+	   so we don't have a wrapper to check for
+	   an error). */
+	*err = file_error(wth->fh);
+      }
+      break;
     }
   }
-  if (file_eof(wth->fh)) {
-    /* We got an EOF. */
-    *err = 0;
-  } else {
-    /* We (presumably) got an error (there's no equivalent to "ferror()"
-       in zlib, alas, so we don't have a wrapper to check for an error). */
-    *err = file_error(wth->fh);
-  }
+  hdr = NULL;
   return -1;
 }
 #endif /* TCPIPTRACE_FRAGMENTS_HAVE_HEADER_LINE */
-
-#define VMS_HEADER_LINES_TO_CHECK    200
-#define VMS_LINE_LENGTH        240
 
 /* Look through the first part of a file to see if this is
  * a VMS trace file.
@@ -165,56 +206,37 @@ static long vms_seek_next_packet(wtap *wth, int *err)
  */
 static gboolean vms_check_file_type(wtap *wth, int *err)
 {
-    char    buf[VMS_LINE_LENGTH];
-    int    line, byte;
-    unsigned int reclen, i, level;
-    long mpos;
-
-    buf[VMS_LINE_LENGTH-1] = 0;
-
-    for (line = 0; line < VMS_HEADER_LINES_TO_CHECK; line++) {
-        mpos = file_tell(wth->fh);
-        if (mpos == -1) {
-            /* Error. */
-            *err = file_error(wth->fh);
-            return FALSE;
-        }
-        if (file_gets(buf, VMS_LINE_LENGTH, wth->fh) != NULL) {
-
-            reclen = strlen(buf);
-            if (reclen < VMS_HDR_MAGIC_SIZE)
-                continue;
-
-            level = 0;
-            for (i = 0; i < reclen; i++) {
-                byte = buf[i];
-		if ((level == 3) && (byte != vms_hdr_magic[level]))
-		    level += 2; /* Accept TCPIPtrace as well as TCPtrace */
-                if (byte == vms_hdr_magic[level]) {
-                    level++;
-                    if (level >= VMS_HDR_MAGIC_SIZE) {
-                        if (file_seek(wth->fh, mpos, SEEK_SET, err) == -1) {
-                            /* Error. */
-                            return FALSE;
-                        }
-                        return TRUE;
-                    }
-                }
-                else
-                    level = 0;
-            }
-        }
-        else {
-            /* EOF or error. */
-            if (file_eof(wth->fh))
-                *err = 0;
-            else
-                *err = file_error(wth->fh);
-            return FALSE;
-        }
+  char	buf[VMS_LINE_LENGTH];
+  guint	reclen, line;
+  
+  buf[VMS_LINE_LENGTH-1] = '\0';
+  
+  for (line = 0; line < VMS_HEADER_LINES_TO_CHECK; line++) {
+    if (file_gets(buf, VMS_LINE_LENGTH, wth->fh) != NULL) {
+      
+      reclen = strlen(buf);
+      if (reclen < strlen(VMS_HDR_MAGIC_STR1) ||
+	  reclen < strlen(VMS_HDR_MAGIC_STR2) || 
+	  reclen < strlen(VMS_HDR_MAGIC_STR3)) {
+	continue;
+      }
+      
+      if (strstr(buf, VMS_HDR_MAGIC_STR1) ||
+	  strstr(buf, VMS_HDR_MAGIC_STR2) ||
+	  strstr(buf, VMS_HDR_MAGIC_STR3)) {
+	return TRUE;
+      }
+    } else {
+      /* EOF or error. */
+      if (file_eof(wth->fh))
+	*err = 0;
+      else
+	*err = file_error(wth->fh);
+      return FALSE;
     }
-    *err = 0;
-    return FALSE;
+  }
+  *err = 0;
+  return FALSE;
 }
 
 
@@ -353,13 +375,13 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err)
 	    && (! strstr(line, "could not save "))) {
 	    /* Find text in line starting with "packet ". */
 
-	    /* First look for the TCPIPtrace format */
+	    /* First look for the Format 1 type sequencing */
 	    num_items_scanned = sscanf(p,  
 		  		       "packet %d at %d-%3s-%d %d:%d:%d.%d",
 			  	       &pktnum, &time.tm_mday, mon,
 				       &time.tm_year, &time.tm_hour,
 				       &time.tm_min, &time.tm_sec, &csec);
-	    /* if not TCPIPtrace then try the UCX$TRACE format */
+	    /* Next look for the Format 2 type sequencing */
 	    if (num_items_scanned != 8) {
 	      num_items_scanned = sscanf(p,
 		  		         "packet seq # = %d at %d-%3s-%d %d:%d:%d.%d",
@@ -367,7 +389,8 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err)
 				         &time.tm_year, &time.tm_hour,
 				         &time.tm_min, &time.tm_sec, &csec);
 	    }
-	    /* if neither then exit with error */
+	    /* if unknown format then exit with error        */
+	    /* We will need to add code to handle new format */
 	    if (num_items_scanned != 8) {
 	        *err = WTAP_ERR_BAD_RECORD;
 		return -1;
