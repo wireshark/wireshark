@@ -2,7 +2,7 @@
  * Routines for SMB mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.34 2003/11/16 23:17:21 guy Exp $
+ * $Id: packet-smb-mailslot.c,v 1.35 2003/11/19 03:53:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,7 +85,6 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 	guint16         opcode;
 	int             offset = 0;
 	int             len;
-	gboolean        dissected;
 
 	if (!proto_is_protocol_enabled(find_protocol_by_id(proto_smb_msp))) {
 		return FALSE;
@@ -184,30 +183,33 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 		proto_item_set_len(item, offset);
 	}
 
-	dissected = FALSE;
 	switch(trans_subcmd){
 	case MAILSLOT_BROWSE:
-		dissected = call_dissector(mailslot_browse_handle, tvb, pinfo,
+		call_dissector(mailslot_browse_handle, tvb, pinfo,
 		    parent_tree);
 		break;
+
 	case MAILSLOT_LANMAN:
-		dissected = call_dissector(mailslot_lanman_handle, tvb, pinfo,
+		call_dissector(mailslot_lanman_handle, tvb, pinfo,
 		    parent_tree);
 		break;
+
 	case MAILSLOT_NET:
 	case MAILSLOT_TEMP_NETLOGON:
 	case MAILSLOT_MSSP:
-		dissected = call_dissector(netlogon_handle, tvb, pinfo,
+		call_dissector(netlogon_handle, tvb, pinfo,
 		    parent_tree);
 		break;
-	}
-	if (!dissected) {
+
+	default:
 		/*
-		 * We dissected the mailslot header, but not the
-		 * message; dissect the latter as data, but indicate
-		 * that we successfully dissected the mailslot stuff.
+		 * We dissected the mailslot header, but we don't know
+		 * how to dissect the message; dissect the latter as data,
+		 * but indicate that we successfully dissected the mailslot
+		 * stuff.
 		 */
 		call_dissector(data_handle,tvb, pinfo, parent_tree);
+		break;
 	}
 	return TRUE;
 }

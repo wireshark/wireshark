@@ -2,7 +2,7 @@
  * Routines for SMB net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.35 2003/11/16 23:17:21 guy Exp $
+ * $Id: packet-smb-logon.c,v 1.36 2003/11/19 03:53:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -814,7 +814,7 @@ static int (*dissect_smb_logon_cmds[])(tvbuff_t *tvb, packet_info *pinfo, proto_
 };
 
 
-static gboolean
+static void
 dissect_smb_logon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int        offset = 0;
@@ -855,8 +855,6 @@ dissect_smb_logon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset = dissect_smb_unknown(tvb, pinfo, smb_logon_tree,
 		    offset);
 	}
-
-	return TRUE;
 }
 
 void
@@ -1030,5 +1028,5 @@ proto_register_smb_logon( void)
 	proto_register_field_array(proto_smb_logon, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("netlogon", dissect_smb_logon, proto_smb_logon);
+	register_dissector("netlogon", dissect_smb_logon, proto_smb_logon);
 }
