@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.43 1999/08/10 11:08:38 deniel Exp $
+ * $Id: capture.c,v 1.44 1999/08/10 11:30:03 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -544,8 +544,8 @@ capture(void) {
     while (ld.go) {
       while (gtk_events_pending()) gtk_main_iteration();
       inpkts = pcap_dispatch(pch, 1, capture_pcap_cb, (u_char *) &ld);
-      if (inpkts)
-        ld.sync_packets++;
+      if (inpkts > 0)
+        ld.sync_packets += inpkts;
       /* Only update once a second so as not to overload slow displays */
       cur_time = time(NULL);
       if (cur_time > upd_time) {
