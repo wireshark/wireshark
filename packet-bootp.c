@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.38 2000/08/07 03:20:24 guy Exp $
+ * $Id: packet-bootp.c,v 1.39 2000/08/09 06:14:57 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -686,8 +686,8 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 								     pd[offset+2], pd[offset+1]));
 		}
 		else {
-			proto_tree_add_bytes(bp_tree, hf_bootp_hw_addr, NullTVB, 
-						   offset + 28, 0, NULL);
+			proto_tree_add_text(bp_tree,  NullTVB, 
+						   offset + 28, 0, "Client address not given");
 		}
 
 		/* The server host name is optional */

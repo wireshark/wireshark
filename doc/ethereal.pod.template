@@ -911,6 +911,7 @@ B<http://ethereal.zing.org>.
   Jose Pedro Oliveira      <jpo@di.uminho.pt>
   David Frascone           <dave@frascone.com>
   Peter Kjellerstedt       <pkj@axis.com>
+  Phil Techau              <phil_t@altavista.net>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
