@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.51 2003/02/19 21:47:46 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.52 2003/02/25 21:28:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -758,17 +758,8 @@ ncp_postseq_cleanup(void)
 		g_mem_chunk_destroy(ncp_req_hash_keys);
 		ncp_req_hash_keys = NULL;
 	}
-	/* Don't free the ncp_req_hash_values, as they're
+	/* Don't free the ncp_req_hash_values or EID_hash_table, as they're
 	 * needed during random-access processing of the proto_tree.*/
-	if (ncp_req_eid_hash) {
-		/* Destroy the hash, but don't clean up request_condition data. */
-		g_hash_table_destroy(ncp_req_eid_hash);
-		ncp_req_eid_hash = NULL;
-	}
-	if (ncp_req_eid_hash_keys) {
-		g_mem_chunk_destroy(ncp_req_eid_hash_keys);
-		ncp_req_eid_hash_keys = NULL;
-	}
 }
 
 ncp_req_hash_value*
@@ -5653,14 +5644,14 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                         /* For NDS requests with just an EID, resolve name from hash table. */
                                         if(resolve_eid)
                                         {
-			                        request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
-			                        if (request_eid_value) {
+		                                request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
+		                                if (request_eid_value) {
                                                         strcpy(global_object_name, request_eid_value->object_name);
                                                         proto_tree_add_string_format(ncp_tree, hf_nds_name, tvb, 6, 0,
-	        		        	                global_object_name, "NDS Name for EID - %s",
-		        		                        global_object_name);
-			                        }
-                                        }
+        		        	                        global_object_name, "NDS Name for EID - %s",
+	        		                                global_object_name);
+		                                }
+                                        }        
 					for (i = 0; i < 9; i++) {
 						switch (pvalues[i].vtype) {
 
@@ -8147,18 +8138,18 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 						}
                                                 /* For NDS requests with just an EID, resolve name from hash table. */
                                         }
-                                                request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
-                                                if(resolve_eid) {
-                                                        if (request_eid_value) {
-                                                                strcpy(global_object_name, request_eid_value->object_name);
-                                                                if (check_col(pinfo->cinfo, COL_INFO)) 
-                                                                {
-                                                                        col_append_str(pinfo->cinfo, COL_INFO, ", Object Name - ");
-                                                                        col_append_str(pinfo->cinfo, COL_INFO, global_object_name);
-                                                                }
-                                                                /*resolve_eid = FALSE;*/
-                                                        }        
-                                                }
+                                        request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
+                                        if(resolve_eid) {
+                                                if (request_eid_value) {
+                                                        strcpy(global_object_name, request_eid_value->object_name);
+                                                        if (check_col(pinfo->cinfo, COL_INFO)) 
+                                                        {
+                                                                col_append_str(pinfo->cinfo, COL_INFO, ", Object Name - ");
+                                                                col_append_str(pinfo->cinfo, COL_INFO, global_object_name);
+                                                        }
+                                                        /*resolve_eid = FALSE;*/
+                                                }        
+                                        }
                                         if (request_value)
                                         {
                                                 request_value->nds_request_verb = nds_verb;
