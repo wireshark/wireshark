@@ -1647,6 +1647,10 @@ Markus Friedl <markus [AT] openbsd.org> {
 	Remove duplicate SSH code
 }
 
+Todd Montgomery <tmontgom [AT] tibco.com> {
+	Update PGM to RFC 3208
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>

@@ -1,7 +1,7 @@
 /* packet-pgm.c
  * Routines for pgm packet disassembly
  *
- * $Id: packet-pgm.c,v 1.19 2002/08/28 21:00:25 jmayer Exp $
+ * $Id: packet-pgm.c,v 1.20 2003/03/12 04:04:13 gerald Exp $
  *
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -36,12 +36,18 @@
 #include <epan/packet.h>
 #include "afn.h"
 #include "ipproto.h"
+#include "in_cksum.h"
 #include <epan/resolv.h>
 #include <epan/strutil.h>
 #include <epan/conversation.h>
 #include "prefs.h"
 
 #include <epan/proto.h>
+
+/*
+ * Flag to control whether to check the PGM checksum.
+ */
+static gboolean pgm_check_checksum = TRUE;
 
 void proto_reg_handoff_pgm(void);
 static void proto_rereg_pgm(void);
@@ -113,6 +119,41 @@ static const size_t PGM_NAK_SZ = sizeof(pgm_type)+sizeof(pgm_nak_t);
 	(_p)->grp_afi = g_ntohs((_p)->grp_afi); \
 	(_p)->grp_res = g_ntohs((_p)->grp_res)
 
+/* The PGM POLL header */
+typedef struct {
+	nlong_t sqn;             /* POLL sequence number */
+	nshort_t round;          /* POLL Round */
+	nshort_t subtype;        /* POLL subtype */
+	nshort_t path_afi;       /* NLA AFI for last hop router (IPv4 is set to 1) */
+	nshort_t res;            /* reserved */
+	nlong_t path;            /* Last hop router NLA  */
+	nlong_t backoff_ivl;     /* POLL backoff interval */
+	nlong_t rand_str;        /* POLL random string */
+	nlong_t matching_bmask;  /* POLL matching bitmask */
+} pgm_poll_t;
+static const size_t PGM_POLL_SZ = sizeof(pgm_type)+sizeof(pgm_poll_t);
+#define poll_ntoh(_p) \
+	(_p)->sqn = g_ntohl((_p)->sqn); \
+	(_p)->round = g_ntohs((_p)->round); \
+	(_p)->subtype = g_ntohs((_p)->subtype); \
+	(_p)->path_afi = g_ntohs((_p)->path_afi); \
+	(_p)->res = g_ntohs((_p)->res); \
+	(_p)->backoff_ivl = g_ntohl((_p)->backoff_ivl); \
+	(_p)->rand_str = g_ntohl((_p)->rand_str); \
+	(_p)->matching_bmask = g_ntohl((_p)->matching_bmask)
+
+/* The PGM POLR header */
+typedef struct {
+	nlong_t sqn;             /* POLR sequence number */
+	nshort_t round;          /* POLR Round */
+	nshort_t res;            /* reserved */
+} pgm_polr_t;
+static const size_t PGM_POLR_SZ = sizeof(pgm_type)+sizeof(pgm_polr_t);
+#define polr_ntoh(_p) \
+	(_p)->sqn = g_ntohl((_p)->sqn); \
+	(_p)->round = g_ntohs((_p)->round); \
+	(_p)->res = g_ntohs((_p)->res)
+
 /* The PGM ACK header (PGMCC) */
 typedef struct {
 	nlong_t rx_max_sqn;      /* RX_MAX sequence number */
@@ -140,6 +181,8 @@ static const size_t PGM_ACK_SZ = sizeof(pgm_type)+sizeof(pgm_ack_t);
 #define PGM_NAK_PCKT  0x08
 #define PGM_NNAK_PCKT  0x09
 #define PGM_NCF_PCKT 0x0A
+#define PGM_POLL_PCKT 0x01
+#define PGM_POLR_PCKT 0x02
 #define PGM_ACK_PCKT 0x0D
 #endif /* PGM_SPEC_01_PCKTS */
 
@@ -167,6 +210,12 @@ static const size_t PGM_ACK_SZ = sizeof(pgm_type)+sizeof(pgm_ack_t);
 #define PGM_OPT_CURR_TGSIZE 0x0A
 #define PGM_OPT_PGMCC_DATA  0x12
 #define PGM_OPT_PGMCC_FEEDBACK  0x13
+#define PGM_OPT_NAK_BO_IVL 0x04
+#define PGM_OPT_NAK_BO_RNG 0x05
+
+/* POLL subtypes */
+#define PGM_POLL_GENERAL 0x0
+#define PGM_POLL_DLR 0x1
 
 static const nchar_t PGM_OPT_INVALID = 0x7F;
 
@@ -260,6 +309,44 @@ typedef struct {
 	nlong_t acker;
 } pgm_opt_pgmcc_feedback_t;
 
+typedef struct {
+	nchar_t type;
+	nchar_t len;
+	nchar_t opx;
+	nchar_t res;
+	nlong_t bo_ivl;
+	nlong_t bo_ivl_sqn;
+} pgm_opt_nak_bo_ivl_t;
+
+typedef struct {
+	nchar_t type;
+	nchar_t len;
+	nchar_t opx;
+	nchar_t res;
+	nlong_t min_bo_ivl;
+	nlong_t max_bo_ivl;
+} pgm_opt_nak_bo_rng_t;
+
+typedef struct {
+	nchar_t type;
+	nchar_t len;
+	nchar_t opx;
+	nchar_t res;
+	nshort_t afi;
+	nshort_t res2;
+	nlong_t dlr;
+} pgm_opt_redirect_t;
+
+typedef struct {
+	nchar_t type;
+	nchar_t len;
+	nchar_t opx;
+	nchar_t res;
+	nlong_t first_sqn;
+	nlong_t offset;
+	nlong_t total_length;
+} pgm_opt_fragment_t;
+
 /*
  * Udp port for UDP encapsulation
  */
@@ -278,12 +365,18 @@ static int ett_pgm_opts = -1;
 static int ett_pgm_spm = -1;
 static int ett_pgm_data = -1;
 static int ett_pgm_nak = -1;
+static int ett_pgm_poll = -1;
+static int ett_pgm_polr = -1;
 static int ett_pgm_ack = -1;
 static int ett_pgm_opts_join = -1;
 static int ett_pgm_opts_parityprm = -1;
 static int ett_pgm_opts_paritygrp = -1;
 static int ett_pgm_opts_naklist = -1;
 static int ett_pgm_opts_ccdata = -1;
+static int ett_pgm_opts_nak_bo_ivl = -1;
+static int ett_pgm_opts_nak_bo_rng = -1;
+static int ett_pgm_opts_redirect = -1;
+static int ett_pgm_opts_fragment = -1;
 
 static int hf_pgm_main_sport = -1;
 static int hf_pgm_main_dport = -1;
@@ -294,6 +387,7 @@ static int hf_pgm_main_opts_netsig = -1;
 static int hf_pgm_main_opts_varlen = -1;
 static int hf_pgm_main_opts_parity = -1;
 static int hf_pgm_main_cksum = -1;
+static int hf_pgm_main_cksum_bad = -1;
 static int hf_pgm_main_gsi = -1;
 static int hf_pgm_main_tsdulen = -1;
 static int hf_pgm_spm_sqn = -1;
@@ -311,6 +405,18 @@ static int hf_pgm_nak_src = -1;
 static int hf_pgm_nak_grpafi = -1;
 static int hf_pgm_nak_grpres = -1;
 static int hf_pgm_nak_grp = -1;
+static int hf_pgm_poll_sqn = -1;
+static int hf_pgm_poll_round = -1;
+static int hf_pgm_poll_subtype = -1;
+static int hf_pgm_poll_pathafi = -1;
+static int hf_pgm_poll_res = -1;
+static int hf_pgm_poll_path = -1;
+static int hf_pgm_poll_backoff_ivl = -1;
+static int hf_pgm_poll_rand_str = -1;
+static int hf_pgm_poll_matching_bmask = -1;
+static int hf_pgm_polr_sqn = -1;
+static int hf_pgm_polr_round = -1;
+static int hf_pgm_polr_res = -1;
 static int hf_pgm_ack_sqn = -1;
 static int hf_pgm_ack_bitmap = -1;
 
@@ -353,6 +459,24 @@ static int hf_pgm_opt_ccfeedbk_tsp = -1;
 static int hf_pgm_opt_ccfeedbk_afi = -1;
 static int hf_pgm_opt_ccfeedbk_lossrate = -1;
 static int hf_pgm_opt_ccfeedbk_acker = -1;
+
+static int hf_pgm_opt_nak_bo_ivl_res = -1;
+static int hf_pgm_opt_nak_bo_ivl_bo_ivl = -1;
+static int hf_pgm_opt_nak_bo_ivl_bo_ivl_sqn = -1;
+
+static int hf_pgm_opt_nak_bo_rng_res = -1;
+static int hf_pgm_opt_nak_bo_rng_min_bo_ivl = -1;
+static int hf_pgm_opt_nak_bo_rng_max_bo_ivl = -1;
+
+static int hf_pgm_opt_redirect_res = -1;
+static int hf_pgm_opt_redirect_afi = -1;
+static int hf_pgm_opt_redirect_res2 = -1;
+static int hf_pgm_opt_redirect_dlr = -1;
+
+static int hf_pgm_opt_fragment_res = -1;
+static int hf_pgm_opt_fragment_first_sqn = -1;
+static int hf_pgm_opt_fragment_offset = -1;
+static int hf_pgm_opt_fragment_total_length = -1;
 
 static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
@@ -450,6 +574,9 @@ static const value_string opt_vals[] = {
 	{ PGM_OPT_CURR_TGSIZE, "CurrTgsiz" },
 	{ PGM_OPT_PGMCC_DATA,  "CcData" },
 	{ PGM_OPT_PGMCC_FEEDBACK, "CcFeedBack" },
+	{ PGM_OPT_NAK_BO_IVL,  "NakBackOffIvl" },
+	{ PGM_OPT_NAK_BO_RNG,  "NakBackOffRng" },
+	{ PGM_OPT_FRAGMENT,    "Fragment" },
 	{ 0,                   NULL }
 };
 
@@ -731,6 +858,133 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 			break;
 		}
+		case PGM_OPT_NAK_BO_IVL:{
+			pgm_opt_nak_bo_ivl_t optdata;
+
+			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
+			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_nak_bo_ivl);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
+				tvb, offset, 1, genopts.type);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
+				offset+1, 1, genopts.len);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, tvb,
+				offset+2, 1, genopts.opx);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_bo_ivl_res, tvb,
+				offset+3, 1, optdata.res);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_bo_ivl_bo_ivl, tvb,
+				offset+4, 4, g_ntohl(optdata.bo_ivl));
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_bo_ivl_bo_ivl_sqn, tvb,
+				offset+8, 4, g_ntohl(optdata.bo_ivl_sqn));
+
+			break;
+		}
+		case PGM_OPT_NAK_BO_RNG:{
+			pgm_opt_nak_bo_rng_t optdata;
+
+			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
+			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_nak_bo_rng);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
+				tvb, offset, 1, genopts.type);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
+				offset+1, 1, genopts.len);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, tvb,
+				offset+2, 1, genopts.opx);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_bo_rng_res, tvb,
+				offset+3, 1, optdata.res);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_bo_rng_min_bo_ivl, tvb,
+				offset+4, 4, g_ntohl(optdata.min_bo_ivl));
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_bo_rng_max_bo_ivl, tvb,
+				offset+8, 4, g_ntohl(optdata.max_bo_ivl));
+
+			break;
+		}
+		case PGM_OPT_REDIRECT:{
+			pgm_opt_redirect_t optdata;
+
+			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
+			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_redirect);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
+				tvb, offset, 1, genopts.type);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
+				offset+1, 1, genopts.len);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx,
+				tvb, offset+2, 1, genopts.opx);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_redirect_res, tvb,
+				offset+3, 1, optdata.res);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_redirect_afi, tvb,
+				offset+4, 2, g_ntohs(optdata.afi));
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_redirect_res2, tvb,
+				offset+6, 2, g_ntohs(optdata.res2));
+
+			switch (g_ntohs(optdata.afi)) {
+
+			case AFNUM_INET:
+				proto_tree_add_ipv4(opt_tree, hf_pgm_opt_redirect_dlr,
+				    tvb, offset+8, 4, optdata.dlr);
+				break;
+
+			default:
+				/*
+				 * XXX - the header is variable-length,
+				 * as the length of the NLA depends on
+				 * its AFI.
+				 *
+				 * However, our structure for it is
+				 * fixed-length, and assumes it's a 4-byte
+				 * IPv4 address.
+				 */
+				break;
+			}
+
+			break;
+		}
+		case PGM_OPT_FRAGMENT:{
+			pgm_opt_fragment_t optdata;
+
+			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
+			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_fragment);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
+				tvb, offset, 1, genopts.type);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
+				offset+1, 1, genopts.len);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, tvb,
+				offset+2, 1, genopts.opx);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_fragment_res, tvb,
+				offset+3, 1, optdata.res);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_fragment_first_sqn, tvb,
+				offset+4, 4, g_ntohl(optdata.first_sqn));
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_fragment_offset, tvb,
+				offset+8, 4, g_ntohl(optdata.offset));
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_fragment_total_length, tvb,
+				offset+12, 4, g_ntohl(optdata.total_length));
+
+			break;
+		}
 		}
 		offset += genopts.len;
 		opts.total_len -= genopts.len;
@@ -746,8 +1000,16 @@ static const value_string type_vals[] = {
 	{ PGM_NAK_PCKT,   "NAK" },
 	{ PGM_NNAK_PCKT,  "NNAK" },
 	{ PGM_NCF_PCKT,   "NCF" },
+	{ PGM_POLL_PCKT,  "POLL" },
+	{ PGM_POLR_PCKT,  "POLR" },
 	{ PGM_ACK_PCKT,   "ACK" },
 	{ 0,              NULL }
+};
+
+static const value_string poll_subtype_vals[] = {
+	{ PGM_POLL_GENERAL,   "General" },
+	{ PGM_POLL_DLR,       "DLR" },
+	{ 0,                  NULL }
 };
 /* Determine if there is a sub-dissector and call it.  This has been */
 /* separated into a stand alone routine to other protocol dissectors */
@@ -802,6 +1064,12 @@ total_size(tvbuff_t *tvb, pgm_type *hdr)
 	case PGM_NCF_PCKT:
 		bytes += sizeof(pgm_nak_t);
 		break;
+	case PGM_POLL_PCKT:
+		bytes += sizeof(pgm_poll_t);
+		break;
+	case PGM_POLR_PCKT:
+		bytes += sizeof(pgm_polr_t);
+		break;
 	case PGM_ACK_PCKT:
 		bytes += sizeof(pgm_ack_t);
 		break;
@@ -826,13 +1094,17 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pgm_spm_t spm;
 	pgm_data_t data;
 	pgm_nak_t nak;
+	pgm_poll_t poll;
+	pgm_polr_t polr;
 	pgm_ack_t ack;
 	int offset = 0;
 	guint hlen, plen;
 	proto_item *ti;
 	const char *pktname;
+	const char *pollstname;
 	char *gsi;
 	int isdata = 0;
+	guint pgmlen, reportedlen;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PGM");
@@ -846,6 +1118,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pgmhdr.sport = g_ntohs(pgmhdr.sport);
 	pgmhdr.dport = g_ntohs(pgmhdr.dport);
 	pgmhdr.tsdulen = g_ntohs(pgmhdr.tsdulen);
+	pgmhdr.cksum = g_ntohs(pgmhdr.cksum);
 
 	pktname = val_to_str(pgmhdr.type, type_vals, "Unknown (0x%02x)");
 
@@ -883,6 +1156,25 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO,
 				"%-5s sqn 0x%x gsi %s", pktname, nak.sqn, gsi);
+		}
+		break;
+	case PGM_POLL_PCKT:
+		plen = sizeof(pgm_poll_t);
+		tvb_memcpy(tvb, (guint8 *)&poll, sizeof(pgm_type), plen);
+		poll_ntoh(&poll);
+		pollstname = val_to_str(poll.subtype, poll_subtype_vals, "Unknown (0x%02x)");
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO,
+				"%-5s sqn 0x%x gsi %s subtype %s", pktname, poll.sqn, gsi, pollstname);
+		}
+		break;
+	case PGM_POLR_PCKT:
+		plen = sizeof(pgm_polr_t);
+		tvb_memcpy(tvb, (guint8 *)&polr, sizeof(pgm_type), plen);
+		polr_ntoh(&polr);
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO,
+				"%-5s sqn 0x%x gsi %s", pktname, polr.sqn, gsi);
 		}
 		break;
 	case PGM_ACK_PCKT:
@@ -929,8 +1221,30 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_boolean(opt_tree, hf_pgm_main_opts_parity, tvb,
 			offset+5, 1, (pgmhdr.opts & PGM_OPT_PARITY));
 
-		proto_tree_add_uint(pgm_tree, hf_pgm_main_cksum, tvb, offset+6,
-			2, pgmhdr.cksum);
+		reportedlen = tvb_reported_length(tvb);
+		pgmlen = tvb_length(tvb);
+		if (pgm_check_checksum && pgmlen >= reportedlen) {
+			vec_t cksum_vec[1];
+			guint16 computed_cksum;
+
+			cksum_vec[0].ptr = tvb_get_ptr(tvb, offset, pgmlen);
+			cksum_vec[0].len = pgmlen;
+			computed_cksum = in_cksum(&cksum_vec[0], 1);
+			if (computed_cksum == 0) {
+				proto_tree_add_uint_format(pgm_tree, hf_pgm_main_cksum, tvb,
+					offset+6, 2, pgmhdr.cksum, "Checksum: 0x%04x (correct)", pgmhdr.cksum);
+			} else {
+				proto_tree_add_boolean_hidden(pgm_tree, hf_pgm_main_cksum_bad, tvb,
+				    offset+6, 2, TRUE);
+				proto_tree_add_uint_format(pgm_tree, hf_pgm_main_cksum, tvb,
+				    offset+6, 2, pgmhdr.cksum, "Checksum: 0x%04x (incorrect, should be 0x%04x)",
+					pgmhdr.cksum, in_cksum_shouldbe(pgmhdr.cksum, computed_cksum));
+			}
+		} else {
+			proto_tree_add_uint(pgm_tree, hf_pgm_main_cksum, tvb, offset+6,
+				2, pgmhdr.cksum);
+		}
+
 		proto_tree_add_bytes(pgm_tree, hf_pgm_main_gsi, tvb, offset+8,
 			6, pgmhdr.gsi);
 		proto_tree_add_uint(pgm_tree, hf_pgm_main_tsdulen, tvb,
@@ -950,14 +1264,14 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_uint(type_tree, hf_pgm_spm_lead, tvb,
 				offset+8, 4, spm.lead);
 			proto_tree_add_uint(type_tree, hf_pgm_spm_pathafi, tvb,
-				offset+10, 2, spm.path_afi);
+				offset+12, 2, spm.path_afi);
 			proto_tree_add_uint(type_tree, hf_pgm_spm_res, tvb,
-				offset+12, 2, spm.res);
+				offset+14, 2, spm.res);
 			switch (spm.path_afi) {
 
 			case AFNUM_INET:
 				proto_tree_add_ipv4(type_tree, hf_pgm_spm_path,
-				    tvb, offset+14, 4, spm.path);
+				    tvb, offset+16, 4, spm.path);
 				break;
 
 			default:
@@ -1064,6 +1378,71 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dissect_pgmopts(tvb, offset, type_tree, pktname);
 
 			break;
+		case PGM_POLL_PCKT:
+			type_tree = proto_item_add_subtree(tf, ett_pgm_poll);
+
+			proto_tree_add_uint(type_tree, hf_pgm_poll_sqn, tvb,
+				offset, 4, poll.sqn);
+			proto_tree_add_uint(type_tree, hf_pgm_poll_round, tvb,
+				offset+4, 2, poll.round);
+			proto_tree_add_uint(type_tree, hf_pgm_poll_subtype, tvb,
+				offset+6, 2, poll.subtype);
+			proto_tree_add_uint(type_tree, hf_pgm_poll_pathafi, tvb,
+				offset+8, 2, poll.path_afi);
+			proto_tree_add_uint(type_tree, hf_pgm_poll_res, tvb,
+				offset+10, 2, poll.res);
+
+			switch (poll.path_afi) {
+
+			case AFNUM_INET:
+				proto_tree_add_ipv4(type_tree, hf_pgm_poll_path,
+				    tvb, offset+12, 4, poll.path);
+				break;
+
+			default:
+				/*
+				 * XXX - the header is variable-length,
+				 * as the length of the NLA depends on
+				 * its AFI.
+				 *
+				 * However, our structure for it is
+				 * fixed-length, and assumes it's a 4-byte
+				 * IPv4 address.
+				 */
+				break;
+			}
+
+			proto_tree_add_uint(type_tree, hf_pgm_poll_backoff_ivl, tvb,
+				offset+16, 4, poll.backoff_ivl);
+			proto_tree_add_uint(type_tree, hf_pgm_poll_rand_str, tvb,
+				offset+20, 4, poll.rand_str);
+			proto_tree_add_uint(type_tree, hf_pgm_poll_matching_bmask, tvb,
+				offset+24, 4, poll.matching_bmask);
+
+			if ((pgmhdr.opts & PGM_OPT) == FALSE)
+				break;
+			offset += plen;
+
+			dissect_pgmopts(tvb, offset, type_tree, pktname);
+
+			break;
+		case PGM_POLR_PCKT:
+			type_tree = proto_item_add_subtree(tf, ett_pgm_polr);
+
+			proto_tree_add_uint(type_tree, hf_pgm_polr_sqn, tvb,
+				offset, 4, polr.sqn);
+			proto_tree_add_uint(type_tree, hf_pgm_polr_round, tvb,
+				offset+4, 2, polr.round);
+			proto_tree_add_uint(type_tree, hf_pgm_polr_res, tvb,
+				offset+6, 2, polr.res);
+
+			if ((pgmhdr.opts & PGM_OPT) == FALSE)
+				break;
+			offset += plen;
+
+			dissect_pgmopts(tvb, offset, type_tree, pktname);
+
+			break;
 		case PGM_ACK_PCKT:
 			type_tree = proto_item_add_subtree(tf, ett_pgm_ack);
 
@@ -1130,6 +1509,9 @@ proto_register_pgm(void)
     { &hf_pgm_main_cksum,
       { "Checksum", "pgm.hdr.cksum", FT_UINT16, BASE_HEX,
         NULL, 0x0, "", HFILL }},
+    { &hf_pgm_main_cksum_bad,
+      { "Bad Checksum", "pgm.hdr.cksum_bad", FT_BOOLEAN, BASE_NONE,
+        NULL, 0x0, "", HFILL }},
     { &hf_pgm_main_gsi,
       { "Global Source Identifier", "pgm.hdr.gsi", FT_BYTES, BASE_HEX,
 	  NULL, 0x0, "", HFILL }},
@@ -1180,6 +1562,42 @@ proto_register_pgm(void)
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_nak_grp,
       { "Multicast Group NLA", "pgm.nak.grp", FT_IPv4, BASE_NONE,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_poll_sqn,
+      { "Sequence Number", "pgm.poll.sqn", FT_UINT32, BASE_HEX,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_poll_round,
+      { "Round", "pgm.poll.round", FT_UINT16, BASE_DEC,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_poll_subtype,
+      { "Subtype", "pgm.poll.subtype", FT_UINT16, BASE_HEX,
+	  VALS(poll_subtype_vals), 0x0, "", HFILL }},
+    { &hf_pgm_poll_pathafi,
+      { "Path NLA AFI", "pgm.poll.pathafi", FT_UINT16, BASE_DEC,
+	  VALS(afn_vals), 0x0, "", HFILL }},
+    { &hf_pgm_poll_res,
+      { "Reserved", "pgm.poll.res", FT_UINT16, BASE_HEX,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_poll_path,
+      { "Path NLA", "pgm.poll.path", FT_IPv4, BASE_NONE,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_poll_backoff_ivl,
+      { "Back-off Interval", "pgm.poll.backoff_ivl", FT_UINT32, BASE_DEC,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_poll_rand_str,
+      { "Random String", "pgm.poll.rand_str", FT_UINT32, BASE_HEX,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_poll_matching_bmask,
+      { "Matching Bitmask", "pgm.poll.matching_bmask", FT_UINT32, BASE_HEX,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_polr_sqn,
+      { "Sequence Number", "pgm.polr.sqn", FT_UINT32, BASE_HEX,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_polr_round,
+      { "Round", "pgm.polr.round", FT_UINT16, BASE_DEC,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_polr_res,
+      { "Reserved", "pgm.polr.res", FT_UINT16, BASE_HEX,
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_ack_sqn,
       { "Maximum Received Sequence Number", "pgm.ack.maxsqn", FT_UINT32,
@@ -1261,6 +1679,45 @@ proto_register_pgm(void)
     { &hf_pgm_opt_ccfeedbk_acker,
       { "Acker", "pgm.opts.ccdata.acker", FT_IPv4, BASE_NONE,
 	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_nak_bo_ivl_res,
+      { "Reserved", "pgm.opts.nak_bo_ivl.res", FT_UINT8, BASE_HEX,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_nak_bo_ivl_bo_ivl,
+      { "Back-off Interval", "pgm.opts.nak_bo_ivl.bo_ivl", FT_UINT32, BASE_DEC,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_nak_bo_ivl_bo_ivl_sqn,
+      { "Back-off Interval Sequence Number", "pgm.opts.nak_bo_ivl.bo_ivl_sqn", FT_UINT32, BASE_HEX,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_nak_bo_rng_res,
+      { "Reserved", "pgm.opts.nak_bo_rng.res", FT_UINT8, BASE_HEX,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_nak_bo_rng_min_bo_ivl,
+      { "Min Back-off Interval", "pgm.opts.nak_bo_rng.min_bo_ivl", FT_UINT32, BASE_DEC,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_nak_bo_rng_max_bo_ivl,
+      { "Max Back-off Interval", "pgm.opts.nak_bo_rng.max_bo_ivl", FT_UINT32, BASE_DEC,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_redirect_res,
+      { "Reserved", "pgm.opts.redirect.res", FT_UINT8, BASE_DEC,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_redirect_afi,
+      { "DLR AFI", "pgm.opts.redirect.afi", FT_UINT16, BASE_DEC,
+	  VALS(afn_vals), 0x0, "", HFILL }},
+    { &hf_pgm_opt_redirect_res2,
+      { "Reserved", "pgm.opts.redirect.res2", FT_UINT16, BASE_HEX,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_redirect_dlr,
+      { "DLR", "pgm.opts.redirect.dlr", FT_IPv4, BASE_NONE,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_fragment_res,
+      { "Reserved", "pgm.opts.fragment.res", FT_UINT8, BASE_HEX,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_fragment_first_sqn,
+      { "First Sequence Number", "pgm.opts.fragment.first_sqn", FT_UINT32, BASE_HEX,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_fragment_total_length,
+      { "Total Length", "pgm.opts.fragment.total_length", FT_UINT32, BASE_DEC,
+	  NULL, 0x0, "", HFILL }},
   };
   static gint *ett[] = {
     &ett_pgm,
@@ -1268,6 +1725,8 @@ proto_register_pgm(void)
 	&ett_pgm_spm,
 	&ett_pgm_data,
 	&ett_pgm_nak,
+	&ett_pgm_poll,
+	&ett_pgm_polr,
 	&ett_pgm_ack,
 	&ett_pgm_opts,
 	&ett_pgm_opts_join,
@@ -1275,6 +1734,10 @@ proto_register_pgm(void)
 	&ett_pgm_opts_paritygrp,
 	&ett_pgm_opts_naklist,
 	&ett_pgm_opts_ccdata,
+	&ett_pgm_opts_nak_bo_ivl,
+	&ett_pgm_opts_nak_bo_rng,
+	&ett_pgm_opts_redirect,
+	&ett_pgm_opts_fragment,
   };
   module_t *pgm_module;
 
@@ -1296,6 +1759,11 @@ proto_register_pgm(void)
    *        is off by default)
    */
    pgm_module = prefs_register_protocol(proto_pgm, proto_rereg_pgm);
+
+   prefs_register_bool_preference(pgm_module, "check_checksum",
+	    "Check the validity of the PGM checksum when possible",
+		"Whether to check the validity of the PGM checksum",
+	    &pgm_check_checksum);
 
    prefs_register_uint_preference(pgm_module, "udp.encap_ucast_port",
 		"PGM Encap Unicast Port (standard is 3055)",
