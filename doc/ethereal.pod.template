@@ -230,6 +230,12 @@ are ignored. Therefore, if you are filtering on the existence of protocols,
 you should list the higher-level protocols first, and the lower-level
 protocols last.
 
+=item Display:Find Frame
+
+Allows you to search forward or backward, starting with the currently
+selected packet (or the most recently selected packet, if no packet is
+selected), for a packet matching a given display filter.
+
 =item Display:Collapse All
 
 Collapses the protocol tree branches.
