@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.69 2002/07/31 19:27:57 guy Exp $
+ * $Id: wtap.c,v 1.70 2002/08/06 05:40:47 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -142,6 +142,9 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_HHDLC */
 	{ "HiPath HDLC", "hhdlc" },
+
+	/* WTAP_ENCAP_DOCSIS */
+	{ "Data Over Cable Service Interface Specification", "docsis" },
 
 	/* WTAP_ENCAP_COSINE */
 	{ "CoSine L2 debug log", "cosine" },
