@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.26 2003/05/24 19:51:48 gerald Exp $
+ * $Id: packet-isis-clv.c,v 1.27 2003/05/24 22:58:50 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -145,15 +145,13 @@ isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  * Output:
  *	void, but we will add to proto tree if !NULL.
  */
-#define SBUF_LEN 300		/* 255 + header info area */
 void
 isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int length, char *meaning)
 {
 	guchar pw_type;
-	char sbuf[SBUF_LEN];
-	char *s = sbuf;
-	int auth_unsupported, ret;
+	int auth_unsupported;
+	GString	*gstr;
 
 	if ( length <= 0 ) {
 		return;
@@ -164,43 +162,56 @@ isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	length--;
 	auth_unsupported = FALSE;
 
+	gstr = g_string_new("");
+
+	/*
+	 * Free the GString if we throw an exception.
+	 */
+	CLEANUP_PUSH(free_g_string, gstr);
+
 	switch (pw_type) {
 	case 1:
-		ret = sprintf ( s, "clear text (1), password (length %d) = ", length );
-		s += ret;
-
+		g_string_sprintfa(gstr,
+		    "clear text (1), password (length %d) = ", length);
 		if ( length > 0 ) {
-		  strncpy(s, tvb_get_ptr(tvb, offset, length), MIN(length, SBUF_LEN - ret));
+		  g_string_sprintfa(gstr, "%s",
+		    tvb_format_text(tvb, offset, length));
                 } else {
-		  strcat(s, "no clear-text password found!!!" );
+		  g_string_sprintfa(gstr, "no clear-text password found!!!");
 		}
 		break;
 	case 54:
-	        s += sprintf ( s, "hmac-md5 (54), password (length %d) = ", length );
+		g_string_sprintfa(gstr,
+		    "hmac-md5 (54), password (length %d) = ", length);
 
-                if ( length == 16 ) {
-		  s += sprintf ( s, "0x%02x", tvb_get_guint8(tvb, offset) );
+		if ( length == 16 ) {
+		  g_string_sprintfa(gstr, "0x%02x", tvb_get_guint8(tvb, offset));
 		  offset += 1;
 		  length--;
 		  while (length > 0) {
-		    s += sprintf ( s, "%02x", tvb_get_guint8(tvb, offset) );
+		    g_string_sprintfa(gstr, "%02x", tvb_get_guint8(tvb, offset));
 		    offset += 1;
 		    length--;
-		    }
-                    s = 0;
-                } else {
-                  strcat(s, "illegal hmac-md5 digest format (must be 16 bytes)" );
+		  }
+		} else {
+		  g_string_sprintfa(gstr,
+		      "illegal hmac-md5 digest format (must be 16 bytes)");
 		}
 		break;
 	default:
-		sprintf (sbuf, "type 0x%02x (0x%02x): ", pw_type, length );
+		g_string_sprintfa(gstr, "type 0x%02x (0x%02x): ", pw_type, length );
 		auth_unsupported=TRUE;
 		break;
 	}
 
-	sbuf[SBUF_LEN] = '\0';
 	proto_tree_add_text ( tree, tvb, offset - 1, length + 1,
-			"%s %s", meaning, sbuf );
+			"%s %s", meaning, gstr->str );
+
+	/*
+	 * We're done with the GString, so delete it and get rid of
+	 * the cleanup handler.
+	 */
+	CLEANUP_CALL_AND_POP;
 
        	if ( auth_unsupported ) {
 		isis_dissect_unknown(tvb, tree, offset,
