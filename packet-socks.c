@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.53 2003/12/30 00:19:18 guy Exp $
+ * $Id: packet-socks.c,v 1.54 2003/12/30 00:22:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,9 +50,9 @@
  * Add GSS-API authentication per rfc-1961
  * Add CHAP authentication
  * Decode FLAG bits per
- * 	 http://www.socks.nec.com/draft/draft-ietf-aft-socks-pro-v-04.txt
- * In call_next_dissector, could load the destination address into the
- * 	pi structure before calling next dissector.
+ * 	http://archive.socks.permeo.com/draft/draft-ietf-aft-socks-pro-v5-04.txt
+ * In call_next_dissector, could load the destination address into
+ * 	pinfo->src or pinfo->dst structure before calling next dissector.
  * remove display_string or at least make it use protocol identifiers
  * socks_hash_entry_t needs to handle V5 address type and domain names
 */
