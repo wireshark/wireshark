@@ -1,4 +1,4 @@
-$Id: README.hpux,v 1.16 2002/03/11 02:12:41 guy Exp $
+$Id: README.hpux,v 1.17 2002/04/29 22:55:22 guy Exp $
 
 Contents:
 
@@ -92,9 +92,10 @@ as a shared library.
 
 Note that packet-capture programs such as Ethereal/Tethereal or tcpdump
 may, on HP-UX, not be able to see packets sent from the machine on which
-they're running.  Some articles on Deja.com discussing this are:
+they're running.  Some articles on groups.google.com discussing this
+are:
 
-	http://www.deja.com/[ST_rn=ps]/getdoc.xp?AN=558092266
+	http://groups.google.com/groups?selm=82ld3v%2480i%241%40mamenchi.zrz.TU-Berlin.DE
 
 which says:
 
@@ -126,7 +127,7 @@ echo 'lanc_outbound_promisc_flag/W1' | /usr/bin/adb -w /stand/vmunix /dev/kmem
 
 and
 
-	http://www.deja.com/[ST_rn=ps]/getdoc.xp?AN=586287166
+	http://groups.google.com/groups?selm=88cf4t%24p03%241%40web1.cup.hp.com
 
 which says:
 
@@ -155,7 +156,7 @@ which says:
 
 and
 
-	http://www.deja.com/[ST_rn=ps]/getdoc.xp?AN=586494200
+	http://groups.google.com/groups?selm=38AA973E.96BE7DF7%40cc.uit.no
 
 which says:
 
@@ -180,9 +181,12 @@ which says:
   PHNE_19826, PHNE_20008, PHNE_20735 on the C200 and now I can see the
   outbound traffic too.  Thanks again.
 
+(although those patches may not be the ones to install - there may be
+later patches).
+
 Another posting:
 
-	http://www.deja.com/[ST_rn=ps]/getdoc.xp?AN=457744130
+	http://groups.google.com/groups?selm=7d6gvn%24b3%241%40ocean.cup.hp.com
 
 indicates that you need to install the optional STREAMS product to do
 captures on HP-UX 9.x:
