@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.22 2003/01/22 00:19:00 jmayer Exp $
+# $Id: autogen.sh,v 1.23 2003/02/15 03:17:17 jmayer Exp $
 
 DIE=true
 PROJECT="Ethereal"
@@ -82,10 +82,10 @@ rm -f config.guess config.sub
 mv config.guess.save-libtool config.guess
 mv config.sub.save-libtool config.sub
 
-if test -z "$*"; then
-	echo "Running ./configure with no arguments. If you wish to pass any,"
-	echo "please specify them on the $0 command line."
-fi
+#if test -z "$*"; then
+#	echo "Running ./configure with no arguments. If you wish to pass any,"
+#	echo "please specify them on the $0 command line."
+#fi
 
 if glib-config --version >/dev/null 2>&1 ; then
 	rm -f aclocal-missing/glib.m4
