@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2001, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.54 2001/06/18 02:17:49 guy Exp $
+ * $Id: packet-nfs.c,v 1.55 2001/06/18 16:38:22 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,8 +44,10 @@
 
 static int proto_nfs = -1;
 
+static int hf_nfs_fh_length = -1;
 static int hf_nfs_fh_fsid_major = -1;
 static int hf_nfs_fh_fsid_minor = -1;
+static int hf_nfs_fh_fsid_inode = -1;
 static int hf_nfs_fh_xfsid_major = -1;
 static int hf_nfs_fh_xfsid_minor = -1;
 static int hf_nfs_fh_fstype = -1;
@@ -63,6 +65,10 @@ static int hf_nfs_fh_xdev = -1;
 static int hf_nfs_fh_dirinode = -1;
 static int hf_nfs_fh_pinode = -1;
 static int hf_nfs_fh_hp_len = -1;
+static int hf_nfs_fh_version = -1;
+static int hf_nfs_fh_auth_type = -1;
+static int hf_nfs_fh_fsid_type = -1;
+static int hf_nfs_fh_fileid_type = -1;
 static int hf_nfs_stat = -1;
 static int hf_nfs_name = -1;
 static int hf_nfs_readlink_data = -1;
@@ -249,11 +255,13 @@ static int hf_nfs_count4_maxcount = -1;
 static int hf_nfs_minorversion = -1;
 
 static gint ett_nfs = -1;
+static gint ett_nfs_fh_encoding = -1;
 static gint ett_nfs_fh_fsid = -1;
 static gint ett_nfs_fh_xfsid = -1;
 static gint ett_nfs_fh_fn = -1;
 static gint ett_nfs_fh_xfn = -1;
 static gint ett_nfs_fh_hp = -1;
+static gint ett_nfs_fh_auth = -1;
 static gint ett_nfs_fhandle = -1;
 static gint ett_nfs_timeval = -1;
 static gint ett_nfs_mode = -1;
@@ -344,17 +352,19 @@ static gint ett_nfs_open4_result_flags = -1;
 
 /* file handle dissection */
 
-#define FHT_UNKNOWN	0
-#define FHT_SVR4	1
+#define FHT_UNKNOWN		0
+#define FHT_SVR4		1
 #define FHT_LINUX_KNFSD_LE	2
 #define FHT_LINUX_NFSD_LE	3
+#define FHT_LINUX_KNFSD_NEW	4
 
-const value_string names_fhtype[] =
+static const value_string names_fhtype[] =
 {
-	{	FHT_UNKNOWN,	"unknown"	},
-	{	FHT_SVR4,	"System V R4"	},
-	{	FHT_LINUX_KNFSD_LE,	"Linux knfsd (little-endian)"	},
+	{	FHT_UNKNOWN,		"unknown"				},
+	{	FHT_SVR4,		"System V R4"				},
+	{	FHT_LINUX_KNFSD_LE,	"Linux knfsd (little-endian)"		},
 	{	FHT_LINUX_NFSD_LE,	"Linux user-land nfsd (little-endian)"	},
+	{	FHT_LINUX_KNFSD_NEW,	"Linux knfsd (new)"			},
 	{	0,	NULL	}
 };
 
@@ -638,6 +648,201 @@ dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, int offset, proto_tree *tree,
 }
 
 
+/* Checked with SuSE 7.1 (kernel 2.4.0 knfsd) */
+/* read linux-2.4.5/include/linux/nfsd/nfsfh.h for more details */
+
+#define AUTH_TYPE_NONE 0
+static const value_string auth_type_names[] = {
+	{	AUTH_TYPE_NONE,				"no authentication"		},
+	{0,NULL}
+};
+
+#define FSID_TYPE_MAJOR_MINOR_INODE 0
+static const value_string fsid_type_names[] = {
+	{	FSID_TYPE_MAJOR_MINOR_INODE,		"major/minor/inode"		},
+	{0,NULL}
+};
+
+#define FILEID_TYPE_ROOT			0
+#define FILEID_TYPE_INODE_GENERATION		1
+#define FILEID_TYPE_INODE_GENERATION_PARENT	2
+static const value_string fileid_type_names[] = {
+	{	FILEID_TYPE_ROOT,			"root"				},
+	{	FILEID_TYPE_INODE_GENERATION,		"inode/generation"		},
+	{	FILEID_TYPE_INODE_GENERATION_PARENT,	"inode/generation/parent"	},
+	{0,NULL}
+};
+
+static void
+dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, int offset, proto_tree *tree,
+    int fhlen)
+{
+	guint8 version;
+	guint8 auth_type;
+	guint8 fsid_type;
+	guint8 fileid_type;
+
+	version     = tvb_get_guint8(tvb, offset + 0);
+	if (tree) {
+		proto_tree_add_uint(tree, hf_nfs_fh_version,
+			tvb, offset+0, 1, version);
+	}
+
+	switch (version) {
+		case 1: {
+			auth_type   = tvb_get_guint8(tvb, offset + 1);
+			fsid_type   = tvb_get_guint8(tvb, offset + 2);
+			fileid_type = tvb_get_guint8(tvb, offset + 3);
+			if (tree) {
+				proto_item* encoding_item = proto_tree_add_text(tree, tvb,
+					offset + 1, 3,
+					"encoding: %u %u %u",
+					auth_type, fsid_type, fileid_type);
+				if (encoding_item) {
+					proto_tree* encoding_tree = proto_item_add_subtree(encoding_item,
+						ett_nfs_fh_encoding);
+					if (encoding_tree) {
+						proto_tree_add_uint(encoding_tree, hf_nfs_fh_auth_type,
+							tvb, offset+1, 1, auth_type);
+						proto_tree_add_uint(encoding_tree, hf_nfs_fh_fsid_type,
+							tvb, offset+2, 1, fsid_type);
+						proto_tree_add_uint(encoding_tree, hf_nfs_fh_fileid_type,
+							tvb, offset+3, 1, fileid_type);
+					}
+				}
+			}
+			offset += 4;
+		} break;
+		default: {
+			/* unknown version */
+			goto out;
+		}
+	}
+		
+	switch (auth_type) {
+		case 0: {
+			/* no authentication */
+			if (tree) {
+				proto_tree_add_text(tree, tvb,
+					offset + 0, 0,
+					"authentication: none");
+			}
+		} break;
+		default: {
+			/* unknown authentication type */
+			goto out;
+		}
+	}
+
+	switch (fsid_type) {
+		case 0: {
+			guint16 fsid_major;
+			guint16 fsid_minor;
+			guint32 fsid_inode;
+
+			fsid_major = tvb_get_ntohs(tvb, offset + 0);
+			fsid_minor = tvb_get_ntohs(tvb, offset + 2);
+			fsid_inode = tvb_get_letohl(tvb, offset + 4);
+			if (tree) {
+				proto_item* fsid_item = proto_tree_add_text(tree, tvb,
+					offset+0, 8, 
+					"file system ID: %u,%u (inode %u)",
+					fsid_major, fsid_minor, fsid_inode);
+				if (fsid_item) {
+					proto_tree* fsid_tree = proto_item_add_subtree(fsid_item, 
+						ett_nfs_fh_fsid);
+					if (fsid_tree) {
+						proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_major,
+							tvb, offset+0, 2, fsid_major);
+						proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_minor,
+							tvb, offset+2, 2, fsid_minor);
+						proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_inode,
+							tvb, offset+4, 4, fsid_inode);
+					}
+				}
+			}
+			offset += 8;
+		} break;
+		default: {
+			/* unknown fsid type */
+			goto out;
+		}
+	}
+
+	switch (fileid_type) {
+		case 0: {
+			if (tree) {
+				proto_tree_add_text(tree, tvb,
+					offset+0, 0,
+					"file ID: root inode");
+			}
+		} break;
+		case 1: {
+			guint32 inode;
+			guint32 generation;
+
+			inode = tvb_get_letohl(tvb, offset + 0);
+			generation = tvb_get_letohl(tvb, offset + 4);
+
+			if (tree) {
+				proto_item* fileid_item = proto_tree_add_text(tree, tvb,
+					offset+0, 8,
+					"file ID: %u (%u)",
+					inode, generation);
+				if (fileid_item) {
+					proto_tree* fileid_tree = proto_item_add_subtree(
+						fileid_item, ett_nfs_fh_fn);
+					if (fileid_tree) {
+						proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_inode,
+						tvb, offset+0, 4, inode);
+						proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_generation,
+						tvb, offset+4, 4, generation);
+					}
+				}
+			}
+
+			offset += 8;
+		} break;
+		case 2: {
+			guint32 inode;
+			guint32 generation;
+			guint32 parent_inode;
+
+			inode = tvb_get_letohl(tvb, offset + 0);
+			generation = tvb_get_letohl(tvb, offset + 4);
+			parent_inode = tvb_get_letohl(tvb, offset + 8);
+
+			if (tree) {
+				 proto_item* fileid_item = proto_tree_add_text(tree, tvb,
+					offset+0, 8,
+					"file ID: %u (%u)",
+					inode, generation);
+				if (fileid_item) {
+					proto_tree* fileid_tree = proto_item_add_subtree(
+						fileid_item, ett_nfs_fh_fn);
+					if (fileid_tree) {
+						proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_inode,
+						tvb, offset+0, 4, inode);
+						proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_generation,
+						tvb, offset+4, 4, generation);
+						proto_tree_add_uint(fileid_tree, hf_nfs_fh_dirinode,
+						tvb, offset+8, 4, parent_inode);
+					}
+				}
+			}
+
+			offset += 12;
+		} break;
+		default: {
+			/* unknown fileid type */
+			goto out;
+		}
+	}
+
+	out:
+}
+
+
 static void
 dissect_fhandle_data_unknown(tvbuff_t *tvb, int offset, proto_tree *tree,
     int fhlen)
@@ -666,9 +871,9 @@ dissect_fhandle_data_unknown(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 static void
 dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, int fhlen)
+    proto_tree *tree, unsigned int fhlen)
 {
-	int fhtype = FHT_UNKNOWN;
+	unsigned int fhtype = FHT_UNKNOWN;
 
 	/* filehandle too long */
 	if (fhlen>64) goto type_ready;
@@ -678,6 +883,21 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		
 	/* calculate (heuristically) fhtype */
 	switch (fhlen) {
+		case 12: {
+			if (tvb_get_ntohl(tvb,offset) == 0x01000000) {
+				fhtype=FHT_LINUX_KNFSD_NEW;
+			}
+		} break;
+		case 20: {
+			if (tvb_get_ntohl(tvb,offset) == 0x01000001) {
+				fhtype=FHT_LINUX_KNFSD_NEW;
+			}
+		} break;
+		case 24: {
+			if (tvb_get_ntohl(tvb,offset) == 0x01000002) {
+				fhtype=FHT_LINUX_KNFSD_NEW;
+			}
+		} break;
 		case 32: {
 			guint32 len1;
 			guint32 len2;
@@ -733,6 +953,10 @@ type_ready:
 		break;
 		case FHT_LINUX_NFSD_LE:
 			dissect_fhandle_data_LINUX_NFSD_LE (tvb, offset, tree,
+			    fhlen);
+		break;
+		case FHT_LINUX_KNFSD_NEW:
+			dissect_fhandle_data_LINUX_KNFSD_NEW (tvb, offset, tree,
 			    fhlen);
 		break;
 		case FHT_UNKNOWN:
@@ -1874,8 +2098,8 @@ dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	if (ftree) {
-		proto_tree_add_text(ftree, tvb, offset+0, 4,
-					"length: %u", fh3_len);
+		proto_tree_add_uint(ftree, hf_nfs_fh_length, tvb, offset+0, 4,
+				fh3_len);
 		dissect_fhandle_data(tvb, offset+4, pinfo, ftree, fh3_len);
 	}
 	offset += 4 + fh3_len_full;
@@ -4025,7 +4249,8 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *newftree = NULL;
 	proto_item *attr_fitem = NULL;
 	proto_tree *attr_newftree = NULL;
-	int i, j, fattr;
+	unsigned int i;
+	int j, fattr;
 	guint32 *bitmap;
 	guint32 sl;
 	int attr_vals_offset;
@@ -5638,12 +5863,18 @@ void
 proto_register_nfs(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_nfs_fh_length, {
+			"length", "nfs.fh.length", FT_UINT32, BASE_DEC,
+			NULL, 0, "file handle length", HFILL }},
 		{ &hf_nfs_fh_fsid_major, {
 			"major", "nfs.fh.fsid.major", FT_UINT32, BASE_DEC,
 			NULL, 0, "major file system ID", HFILL }},
 		{ &hf_nfs_fh_fsid_minor, {
 			"minor", "nfs.fh.fsid.minor", FT_UINT32, BASE_DEC,
 			NULL, 0, "minor file system ID", HFILL }},
+		{ &hf_nfs_fh_fsid_inode, {
+			"inode", "nfs.fh.fsid.inode", FT_UINT32, BASE_DEC,
+			NULL, 0, "file system inode", HFILL }},
 		{ &hf_nfs_fh_xfsid_major, {
 			"exported major", "nfs.fh.xfsid.major", FT_UINT32, BASE_DEC,
 			NULL, 0, "exported major file system ID", HFILL }},
@@ -5695,6 +5926,18 @@ proto_register_nfs(void)
 		{ &hf_nfs_fh_hp_len, {
 			"length", "nfs.fh.hp.len", FT_UINT32, BASE_DEC,
 			NULL, 0, "hash path length", HFILL }},
+		{ &hf_nfs_fh_version, {
+			"version", "nfs.fh.version", FT_UINT8, BASE_DEC,
+			NULL, 0, "file handle layout version", HFILL }},
+		{ &hf_nfs_fh_auth_type, {
+			"auth_type", "nfs.fh.auth_type", FT_UINT8, BASE_DEC,
+			VALS(auth_type_names), 0, "authentication type", HFILL }},
+		{ &hf_nfs_fh_fsid_type, {
+			"fsid_type", "nfs.fh.fsid_type", FT_UINT8, BASE_DEC,
+			VALS(fsid_type_names), 0, "file system ID type", HFILL }},
+		{ &hf_nfs_fh_fileid_type, {
+			"fileid_type", "nfs.fh.fileid_type", FT_UINT8, BASE_DEC,
+			VALS(fileid_type_names), 0, "file ID type", HFILL }},
 		{ &hf_nfs_stat, {
 			"Status", "nfs.status2", FT_UINT32, BASE_DEC,
 			VALS(names_nfs_stat), 0, "Reply status", HFILL }},
@@ -6386,11 +6629,13 @@ proto_register_nfs(void)
 
 	static gint *ett[] = {
 		&ett_nfs,
+		&ett_nfs_fh_encoding,
 		&ett_nfs_fh_fsid,
 		&ett_nfs_fh_xfsid,
 		&ett_nfs_fh_fn,
 		&ett_nfs_fh_xfn,
 		&ett_nfs_fh_hp,
+		&ett_nfs_fh_auth,
 		&ett_nfs_fhandle,
 		&ett_nfs_timeval,
 		&ett_nfs_mode,
