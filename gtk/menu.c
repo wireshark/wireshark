@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.7 1999/11/10 07:01:53 guy Exp $
+ * $Id: menu.c,v 1.8 1999/12/05 23:44:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -104,7 +104,7 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Display/_Match Selected", NULL, GTK_MENU_FUNC(match_selected_cb), 0, NULL},
   {"/Display/_Colorize Display...", NULL, GTK_MENU_FUNC(color_display_cb), 0, NULL},
   {"/Display/_Find Frame...", "<control>F", GTK_MENU_FUNC(find_frame_cb), 0, NULL},
-  {"/Display/_Go To Frame...", NULL, GTK_MENU_FUNC(goto_frame_cb), 0, NULL},
+  {"/Display/_Go To Frame...", "<control>G", GTK_MENU_FUNC(goto_frame_cb), 0, NULL},
   {"/Display/Collapse _All", NULL, GTK_MENU_FUNC(collapse_all_cb), 0, NULL},
   {"/Display/_Expand All", NULL, GTK_MENU_FUNC(expand_all_cb), 0, NULL},
   {"/_Tools", NULL, NULL, 0, "<Branch>" },
