@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.38 2002/01/13 20:35:12 guy Exp $
+ * $Id: prefs_dlg.c,v 1.39 2002/01/14 01:14:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -156,6 +156,7 @@ pref_show(pref_t *pref, gpointer user_data)
     break;
 
   case PREF_BOOL:
+    pref->saved_val.bool = *pref->varp.bool;
     pref->control = create_preference_check_button(main_tb, pref->ordinal,
 					       label_string,
 					       pref->saved_val.bool);
