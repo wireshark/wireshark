@@ -1,7 +1,7 @@
 %{
 /* ascend-grammar.y
  *
- * $Id: ascend-grammar.y,v 1.14 2000/08/25 21:25:36 gram Exp $
+ * $Id: ascend-grammar.y,v 1.15 2000/11/11 01:44:05 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -110,9 +110,11 @@ hexnum: HEXNUM;
 wds_hdr: wds_prefix string decnum KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
   wirelen = $9;
   caplen = ($9 < ASCEND_MAX_PKT_LEN) ? $9 : ASCEND_MAX_PKT_LEN;
+  /* If we don't have as many bytes of data as the octet count in
+     the header, make the capture length the number of bytes we
+     actually have. */
   if (bcount > 0 && bcount <= caplen)
     caplen = bcount;
-  else
   secs = $7;
   usecs = $8;
   if (pseudo_header != NULL) {
@@ -133,7 +135,7 @@ Cause an attempt to place call to 14082750382
 WD_DIALOUT_DISP: chunk 2515EE type IP.
 (task: 251790, time: 994953.28) 44 octets @ 2782B8
 */
-/*          1       2      3      4      5       6      6      6      9      10     11      12     13      14      15      16     17     18     19      20     21*/
+/*          1       2      3      4      5       6      7      8      9      10     11      12     13      14      15      16     17     18     19      20     21*/
 wdd_hdr: KEYWORD decnum decnum decnum KEYWORD decnum decnum decnum KEYWORD string KEYWORD hexnum KEYWORD KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
   wddt.tm_sec  = $4;
   wddt.tm_min  = $3;
@@ -141,12 +143,15 @@ wdd_hdr: KEYWORD decnum decnum decnum KEYWORD decnum decnum decnum KEYWORD strin
   wddt.tm_mday = $6;
   wddt.tm_mon  = $7;
   wddt.tm_year = ($8 > 1970) ? $8 - 1900 : 70;
+  wddt.tm_isdst = -1;
   
   wirelen = $19;
   caplen = ($19 < ASCEND_MAX_PKT_LEN) ? $19 : ASCEND_MAX_PKT_LEN;
+  /* If we don't have as many bytes of data as the octet count in
+     the header, make the capture length the number of bytes we
+     actually have. */
   if (bcount > 0 && bcount <= caplen)
     caplen = bcount;
-  else
   secs = mktime(&wddt);
   usecs = $18;
   if (pseudo_header != NULL) {
