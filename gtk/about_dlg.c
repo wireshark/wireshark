@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.16 2004/06/22 21:51:55 guy Exp $
+ * $Id: about_dlg.c,v 1.17 2004/06/23 01:38:39 guy Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -39,7 +39,7 @@
 #if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
 #include "text_page.h"
 #endif
-#include "main.h"
+#include "webbrowser.h"
 
 #include "cvsversion.h"
 
@@ -311,57 +311,27 @@ url_onlinepage_cb( GtkWidget *widget _U_, gpointer data _U_, onlinepage_action_e
     }
 }
 
-extern gchar *
-filename2uri(gchar *filename);
-
-/* browse a file relative to the program dir */
-void
-browser_open_program_file(gchar *filename)
-{
-    gchar *uri;
-    gchar *prog_path;
-    gchar *file_path;
-
-
-    /* get ethereal program base dir */
-    prog_path = g_strdup(ethereal_path);
-    prog_path = get_dirname((char *) prog_path);
-
-    /* build filename */
-    file_path = g_strdup_printf("%s/%s", prog_path, filename);
-
-    /* convert filename to uri */
-    uri = filename2uri(file_path);
-
-    /* show the uri */
-    browser_open_url (uri);
-
-    g_free(prog_path);
-    g_free(file_path);
-    g_free(uri);
-}
-
 void
 url_localpage_cb( GtkWidget *w _U_, gpointer data _U_, localpage_action_e action)
 {
     switch(action) {
     case(LOCALPAGE_MAN_ETHEREAL):
-        browser_open_program_file("ethereal.html");
+        browser_open_data_file("ethereal.html");
         break;
     case(LOCALPAGE_MAN_ETHEREAL_FILTER):
-        browser_open_program_file("ethereal-filter.html");
+        browser_open_data_file("ethereal-filter.html");
         break;
     case(LOCALPAGE_MAN_TETHEREAL):
-        browser_open_program_file("tethereal.html");
+        browser_open_data_file("tethereal.html");
         break;
     case(LOCALPAGE_MAN_MERGECAP):
-        browser_open_program_file("mergecap.html");
+        browser_open_data_file("mergecap.html");
         break;
     case(LOCALPAGE_MAN_EDITCAP):
-        browser_open_program_file("editcap.html");
+        browser_open_data_file("editcap.html");
         break;
     case(LOCALPAGE_MAN_TEXT2PCAP):
-        browser_open_program_file("text2pcap.html");
+        browser_open_data_file("text2pcap.html");
         break;
     default:
         g_assert_not_reached();

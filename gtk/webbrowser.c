@@ -32,6 +32,10 @@
 
 #include <glib.h>
 
+#include <epan/filesystem.h>
+
+#include "webbrowser.h"
+
 #if defined(G_OS_WIN32)
 /* Win32 - use Windows shell services to start a browser */
 #include <windows.h>
@@ -77,7 +81,7 @@ browser_open_url (const gchar *url)
    * XXX - this is a Launch Services result code, and we should probably
    * display a dialog box if it's not 0, describing what the error was.
    * Then again, we should probably do the same for the ShellExecute call,
-   * unless that call itself happens to pop up a dialog box.
+   * unless that call itself happens to pop up a dialog box for all errors.
    */
   status = LSOpenCFURLRef(url_CFURL, NULL);
   CFRelease(url_CFURL);
@@ -175,7 +179,7 @@ strreplace (const gchar *string,
  * @param filename to (absolute pathed) filename to convert
  * @return a newly allocated uri, you must g_free it later
  */
-gchar *
+static gchar *
 filename2uri(gchar *filename)
 {
     int i = 0;
@@ -209,7 +213,7 @@ filename2uri(gchar *filename)
     /* XXX - how do we handle UNC names (e.g. //servername/sharename/dir1/dir2/capture-file.cap) */
     g_string_prepend(filestr, "file:///");
 #else
-    g_string_prepend(filestr, "file:");
+    g_string_prepend(filestr, "file://");
 #endif
 
     file_tmp = filestr->str;
@@ -217,4 +221,24 @@ filename2uri(gchar *filename)
     g_string_free(filestr, FALSE /* don't free segment data */);
 
     return file_tmp;
+}
+
+/* browse a file relative to the data dir */
+void
+browser_open_data_file(const gchar *filename)
+{
+    gchar *file_path;
+    gchar *uri;
+
+    /* build filename */
+    file_path = g_strdup_printf("%s/%s", get_datafile_dir(), filename);
+
+    /* convert filename to uri */
+    uri = filename2uri(file_path);
+
+    /* show the uri */
+    browser_open_url (uri);
+
+    g_free(file_path);
+    g_free(uri);
 }
