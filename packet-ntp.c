@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.6 1999/12/06 03:18:24 guy Exp $
+ * $Id: packet-ntp.c,v 1.7 1999/12/21 17:21:22 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -194,21 +194,21 @@ static int hf_ntp_mac = -1;
 static gint ett_ntp = -1;
 static gint ett_ntp_flags = -1;
 
-/* ntm_fmt_ts - converts NTP timestamp to human readable string.
+/* ntp_fmt_ts - converts NTP timestamp to human readable string.
  * tsdata - 64bit timestamp (IN)
  * buff - string buffer for result (OUT)
  * returns pointer to filled buffer.
  */
 char *
-ntp_fmt_ts(guint32 tsdata[2], char* buff)
+ntp_fmt_ts(unsigned char * reftime, char* buff)
 {
 	guint32 tempstmp, tempfrac;
 	time_t temptime;
 	struct tm *bd;
 	double fractime;
 
-	tempstmp = ntohl(tsdata[0]);
-	tempfrac = ntohl(tsdata[1]);
+	tempstmp = pntohl(&reftime[0]);
+	tempfrac = pntohl(&reftime[4]);
 	if ((tempstmp == 0) && (tempfrac == 0)) {
 		strcpy (buff, "NULL");
 		return buff;
@@ -339,25 +339,25 @@ dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		 */
 		proto_tree_add_item_format(ntp_tree, hf_ntp_reftime, offset+16, 8, pkt->reftime,
 				           "Reference Clock Update Time: %s", 
-					   ntp_fmt_ts((guint32 *) pkt->reftime, buff));
+					   ntp_fmt_ts(pkt->reftime, buff));
 		/* Originate Timestamp: This is the time at which the request departed
 		 * the client for the server.
 		 */
 		proto_tree_add_item_format(ntp_tree, hf_ntp_org, offset+24, 8, pkt->org,
 				           "Originate Time Stamp: %s", 
-					   ntp_fmt_ts((guint32 *) pkt->org, buff));
+					   ntp_fmt_ts(pkt->org, buff));
 		/* Receive Timestamp: This is the time at which the request arrived at
 		 * the server.
 		 */
 		proto_tree_add_item_format(ntp_tree, hf_ntp_rec, offset+32, 8, pkt->rec,
 				           "Receive Time Stamp: %s", 
-					   ntp_fmt_ts((guint32 *) pkt->rec, buff));
+					   ntp_fmt_ts(pkt->rec, buff));
 		/* Transmit Timestamp: This is the time at which the reply departed the
 		 * server for the client.
 		 */
 		proto_tree_add_item_format(ntp_tree, hf_ntp_xmt, offset+40, 8, pkt->xmt,
 				           "Transmit Time Stamp: %s", 
-					   ntp_fmt_ts((guint32 *) pkt->xmt, buff));
+					   ntp_fmt_ts(pkt->xmt, buff));
 
 		/* When the NTP authentication scheme is implemented, the Key Identifier
 		 * and Message Digest fields contain the message authentication code
