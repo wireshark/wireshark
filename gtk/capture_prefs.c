@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.7 2002/01/13 20:35:11 guy Exp $
+ * $Id: capture_prefs.c,v 1.8 2002/01/20 20:05:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,18 +95,21 @@ capture_prefs_show(void)
 
 	/* Promiscuous mode */
 	promisc_cb = create_preference_check_button(main_tb, 1,
-	    "Capture packets in promiscuous mode:", prefs.capture_prom_mode);
+	    "Capture packets in promiscuous mode:", NULL,
+	    prefs.capture_prom_mode);
 	gtk_object_set_data(GTK_OBJECT(main_vb), PROM_MODE_KEY, promisc_cb);
 
 	/* Real-time capture */
 	sync_cb = create_preference_check_button(main_tb, 2,
-	    "Update list of packets in real time:", prefs.capture_real_time);
+	    "Update list of packets in real time:", NULL,
+	    prefs.capture_real_time);
 	gtk_object_set_data(GTK_OBJECT(main_vb), CAPTURE_REAL_TIME_KEY,
 	    sync_cb);
 
 	/* Auto-scroll real-time capture */
 	auto_scroll_cb = create_preference_check_button(main_tb, 3,
-	    "Automatic scrolling in live capture:", prefs.capture_auto_scroll);
+	    "Automatic scrolling in live capture:", NULL,
+	    prefs.capture_auto_scroll);
 	gtk_object_set_data(GTK_OBJECT(main_vb), AUTO_SCROLL_KEY,
 	    auto_scroll_cb);
 

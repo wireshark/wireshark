@@ -1,7 +1,7 @@
 /* nameres_prefs.c
  * Dialog box for name resolution preferences
  *
- * $Id: nameres_prefs.c,v 1.1 2002/01/13 20:35:12 guy Exp $
+ * $Id: nameres_prefs.c,v 1.2 2002/01/20 20:05:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,19 +73,19 @@ nameres_prefs_show(void)
 
 	/* Resolve MAC addresses */
 	m_resolv_cb = create_preference_check_button(main_tb, 0,
-	    "Enable MAC name resolution:",
+	    "Enable MAC name resolution:", NULL,
 	    prefs.name_resolve & RESOLV_MAC);
 	gtk_object_set_data(GTK_OBJECT(main_vb), M_RESOLVE_KEY, m_resolv_cb);
 
 	/* Resolve network addresses */
 	n_resolv_cb = create_preference_check_button(main_tb, 1,
-	    "Enable network name resolution:",
+	    "Enable network name resolution:", NULL,
 	    prefs.name_resolve & RESOLV_NETWORK);
 	gtk_object_set_data(GTK_OBJECT(main_vb), N_RESOLVE_KEY, n_resolv_cb);
 
 	/* Resolve transport addresses */
 	t_resolv_cb = create_preference_check_button(main_tb, 2,
-	    "Enable transport name resolution:",
+	    "Enable transport name resolution:", NULL,
 	    prefs.name_resolve & RESOLV_TRANSPORT);
 	gtk_object_set_data(GTK_OBJECT(main_vb), T_RESOLVE_KEY, t_resolv_cb);
 

@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.39 2002/01/14 01:14:52 guy Exp $
+ * $Id: prefs_dlg.c,v 1.40 2002/01/20 20:05:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,6 +79,7 @@ static void	prefs_tree_select_cb(GtkCTree *, GtkCTreeNode *, gint, gpointer);
 #define E_GUI_PAGE_KEY	   "gui_options_page"
 #define E_CAPTURE_PAGE_KEY "capture_options_page"
 #define E_NAMERES_PAGE_KEY "nameres_options_page"
+#define E_TOOLTIPS_KEY     "tooltips"
 
 #define FIRST_PROTO_PREFS_PAGE	4
 
@@ -107,6 +108,7 @@ struct ct_struct {
   GtkWidget    *notebook;
   GtkWidget    *ctree;
   GtkCTreeNode *node;
+  GtkTooltips  *tooltips;
   gint         page;
 };
 
@@ -152,13 +154,14 @@ pref_show(pref_t *pref, gpointer user_data)
       break;
     }
     pref->control = create_preference_entry(main_tb, pref->ordinal,
-					    label_string, uint_str);
+					    label_string, pref->description,
+					    uint_str);
     break;
 
   case PREF_BOOL:
     pref->saved_val.bool = *pref->varp.bool;
     pref->control = create_preference_check_button(main_tb, pref->ordinal,
-					       label_string,
+					       label_string, pref->description,
 					       pref->saved_val.bool);
     break;
 
@@ -167,13 +170,13 @@ pref_show(pref_t *pref, gpointer user_data)
     if (pref->info.enum_info.radio_buttons) {
       /* Show it as radio buttons. */
       pref->control = create_preference_radio_buttons(main_tb, pref->ordinal,
-						  label_string,
+						  label_string, pref->description,
 						  pref->info.enum_info.enumvals,
 						  pref->saved_val.enumval);
     } else {
       /* Show it as an option menu. */
       pref->control = create_preference_option_menu(main_tb, pref->ordinal,
-					 label_string,
+					 label_string, pref->description,
 					 pref->info.enum_info.enumvals,
 					 pref->saved_val.enumval);
     }
@@ -184,7 +187,7 @@ pref_show(pref_t *pref, gpointer user_data)
       g_free(pref->saved_val.string);
     pref->saved_val.string = g_strdup(*pref->varp.string);
     pref->control = create_preference_entry(main_tb, pref->ordinal,
-					    label_string,
+					    label_string, pref->description,
 					    pref->saved_val.string);
     break;
 
@@ -218,6 +221,7 @@ module_prefs_show(module_t *module, gpointer user_data)
   gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
   gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
   gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
+  gtk_object_set_data(GTK_OBJECT(main_tb), E_TOOLTIPS_KEY, cts->tooltips);
 
   /* Add items for each of the preferences */
   prefs_pref_foreach(module, pref_show, main_tb);
@@ -235,7 +239,8 @@ module_prefs_show(module_t *module, gpointer user_data)
 }
 
 void
-prefs_cb(GtkWidget *w, gpointer dummy) {
+prefs_cb(GtkWidget *w, gpointer dummy)
+{
   GtkWidget        *main_vb, *top_hb, *bbox, *prefs_nb, *ct_sb, *frame,
                    *ok_bt, *apply_bt, *save_bt, *cancel_bt;
   GtkWidget        *print_pg, *column_pg, *stream_pg, *gui_pg, *capture_pg;
@@ -243,7 +248,6 @@ prefs_cb(GtkWidget *w, gpointer dummy) {
   gchar            label_str[MAX_TREE_NODE_NAME_LEN], *label_ptr = label_str;
   GtkCTreeNode     *ct_node;
   struct ct_struct cts;
-
 
   if (prefs_w != NULL) {
     /* There's already a "Preferences" dialog box; reactivate it. */
@@ -261,6 +265,14 @@ prefs_cb(GtkWidget *w, gpointer dummy) {
   gtk_signal_connect(GTK_OBJECT(prefs_w), "destroy",
 	GTK_SIGNAL_FUNC(prefs_main_destroy_cb), NULL);
   
+  /*
+   * Unfortunately, we can't arrange that a GtkTable widget wrap an event box
+   * around a table row, so the spacing between the preference item's label
+   * and its control widgets is inactive and the tooltip doesn't pop up when
+   * the mouse is over it.
+   */
+  cts.tooltips = gtk_tooltips_new();
+
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 5);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
@@ -439,43 +451,62 @@ prefs_cb(GtkWidget *w, gpointer dummy) {
 
 static void
 set_option_label(GtkWidget *main_tb, int table_position,
-    const gchar *label_text)
+    const gchar *label_text, const gchar *tooltip_text, GtkTooltips *tooltips)
 {
 	GtkWidget *label;
+	GtkWidget *event_box;
 
 	label = gtk_label_new(label_text);
 	gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1,
-	    table_position, table_position + 1);
 	gtk_widget_show(label);
+
+	event_box = gtk_event_box_new();
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), event_box, 0, 1,
+	    table_position, table_position + 1);
+	if (tooltip_text != NULL && tooltips != NULL)
+		gtk_tooltips_set_tip(tooltips, event_box, tooltip_text, NULL);
+	gtk_container_add(GTK_CONTAINER(event_box), label);
+	gtk_widget_show(event_box);
 }
 
 GtkWidget *
 create_preference_check_button(GtkWidget *main_tb, int table_position,
-    const gchar *label_text, gboolean active)
+    const gchar *label_text, const gchar *tooltip_text, gboolean active)
 {
+	GtkTooltips *tooltips;
 	GtkWidget *check_box;
 
-	set_option_label(main_tb, table_position, label_text);
+	tooltips = gtk_object_get_data(GTK_OBJECT(main_tb), E_TOOLTIPS_KEY);
+
+	set_option_label(main_tb, table_position, label_text, tooltip_text,
+	    tooltips);
 
 	check_box = gtk_check_button_new();
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_box), active);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), check_box, 1, 2,
 	    table_position, table_position + 1);
+	if (tooltip_text != NULL && tooltips != NULL)
+		gtk_tooltips_set_tip(tooltips, check_box, tooltip_text, NULL);
 
 	return check_box;
 }
 
 GtkWidget *
 create_preference_radio_buttons(GtkWidget *main_tb, int table_position,
-    const gchar *label_text, const enum_val_t *enumvals, gint current_val)
+    const gchar *label_text, const gchar *tooltip_text,
+    const enum_val_t *enumvals, gint current_val)
 {
+	GtkTooltips *tooltips;
 	GtkWidget *radio_button_hbox, *button = NULL;
 	GSList *rb_group;
 	int index;
 	const enum_val_t *enum_valp;
+	GtkWidget *event_box;
 
-	set_option_label(main_tb, table_position, label_text);
+	tooltips = gtk_object_get_data(GTK_OBJECT(main_tb), E_TOOLTIPS_KEY);
+
+	set_option_label(main_tb, table_position, label_text, tooltip_text,
+	    tooltips);
 
 	radio_button_hbox = gtk_hbox_new(FALSE, 0);
 	rb_group = NULL;
@@ -494,8 +525,14 @@ create_preference_radio_buttons(GtkWidget *main_tb, int table_position,
 		}
 	}
 	gtk_widget_show(radio_button_hbox);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), radio_button_hbox, 1, 2,
+
+	event_box = gtk_event_box_new();
+	gtk_container_add(GTK_CONTAINER(event_box), radio_button_hbox);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), event_box, 1, 2,
 	    table_position, table_position+1);
+	if (tooltip_text != NULL && tooltips != NULL)
+		gtk_tooltips_set_tip(tooltips, event_box, tooltip_text, NULL);
+	gtk_widget_show(event_box);
 
 	/*
 	 * It doesn't matter which of the buttons we return - we fetch
@@ -544,16 +581,24 @@ fetch_preference_radio_buttons_val(GtkWidget *button,
 
 GtkWidget *
 create_preference_option_menu(GtkWidget *main_tb, int table_position,
-    const gchar *label_text, const enum_val_t *enumvals, gint current_val)
+    const gchar *label_text, const gchar *tooltip_text,
+    const enum_val_t *enumvals, gint current_val)
 {
+	GtkTooltips *tooltips;
 	GtkWidget *label, *menu_box, *menu, *menu_item, *option_menu;
 	int menu_index, index;
 	const enum_val_t *enum_valp;
+	GtkWidget *event_box;
 
-	set_option_label(main_tb, table_position, label_text);
+	tooltips = gtk_object_get_data(GTK_OBJECT(main_tb), E_TOOLTIPS_KEY);
+
+	set_option_label(main_tb, table_position, label_text, tooltip_text,
+	    tooltips);
 
 	/* Create a menu from the enumvals */
 	menu = gtk_menu_new();
+	if (tooltip_text != NULL && tooltips != NULL)
+		gtk_tooltips_set_tip(tooltips, menu, tooltip_text, NULL);
 	menu_index = -1;
 	for (enum_valp = enumvals, index = 0; enum_valp->name != NULL;
 	    enum_valp++, index++) {
@@ -579,9 +624,15 @@ create_preference_option_menu(GtkWidget *main_tb, int table_position,
 	 * space.
 	 */
 	menu_box = gtk_hbox_new(FALSE, 0);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), menu_box,
-	    1, 2, table_position, table_position + 1);
 	gtk_box_pack_start(GTK_BOX(menu_box), option_menu, FALSE, FALSE, 0);
+
+	event_box = gtk_event_box_new();
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), event_box,
+	    1, 2, table_position, table_position + 1);
+	if (tooltip_text != NULL && tooltips != NULL)
+		gtk_tooltips_set_tip(tooltips, event_box, tooltip_text, NULL);
+	gtk_container_add(GTK_CONTAINER(event_box), menu_box);
+
 	return option_menu;
 }
 
@@ -600,17 +651,23 @@ fetch_preference_option_menu_val(GtkWidget *optmenu, const enum_val_t *enumvals)
 
 GtkWidget *
 create_preference_entry(GtkWidget *main_tb, int table_position,
-    const gchar *label_text, char *value)
+    const gchar *label_text, const gchar *tooltip_text, char *value)
 {
+	GtkTooltips *tooltips;
 	GtkWidget *entry;
 
-	set_option_label(main_tb, table_position, label_text);
+	tooltips = gtk_object_get_data(GTK_OBJECT(main_tb), E_TOOLTIPS_KEY);
+
+	set_option_label(main_tb, table_position, label_text, tooltip_text,
+	    tooltips);
 
 	entry = gtk_entry_new();
 	if (value != NULL)
 		gtk_entry_set_text(GTK_ENTRY(entry), value);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2,
 	    table_position, table_position + 1);
+	if (tooltip_text != NULL && tooltips != NULL)
+		gtk_tooltips_set_tip(tooltips, entry, tooltip_text, NULL);
 	gtk_widget_show(entry);
 
 	return entry;

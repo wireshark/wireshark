@@ -1,7 +1,7 @@
 /* print_prefs.c
  * Dialog boxes for preferences for printing
  *
- * $Id: print_prefs.c,v 1.10 2002/01/13 20:35:12 guy Exp $
+ * $Id: print_prefs.c,v 1.11 2002/01/20 20:05:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,17 +79,18 @@ GtkWidget * printer_prefs_show(void)
 
 	/* Output format */
 	button = create_preference_radio_buttons(main_tb, 0, "Format:",
-	   print_format_vals, prefs.pr_format);
+	   NULL, print_format_vals, prefs.pr_format);
 	gtk_object_set_data(GTK_OBJECT(main_vb), E_PRINT_FORMAT_KEY, button);
 
 	/* Output destination */
 	button = create_preference_radio_buttons(main_tb, 1, "Print to:",
-	   print_dest_vals, prefs.pr_dest);
+	   NULL, print_dest_vals, prefs.pr_dest);
 	gtk_object_set_data(GTK_OBJECT(main_vb), E_PRINT_DESTINATION_KEY,
 	   button);
 
 	/* Command text entry */
-	cmd_te = create_preference_entry(main_tb, 2, "Command:", prefs.pr_cmd);
+	cmd_te = create_preference_entry(main_tb, 2, "Command:", NULL,
+	  prefs.pr_cmd);
 	gtk_object_set_data(GTK_OBJECT(main_vb), PRINT_CMD_TE_KEY, cmd_te);
 
 	/* File button and text entry */

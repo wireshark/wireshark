@@ -1,7 +1,7 @@
 /* prefs_dlg.h
  * Definitions for preference handling routines
  *
- * $Id: prefs_dlg.h,v 1.7 2002/01/13 20:35:12 guy Exp $
+ * $Id: prefs_dlg.h,v 1.8 2002/01/20 20:05:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,13 +29,14 @@ void       prefs_cb(GtkWidget *, gpointer);
 void       properties_cb(GtkWidget *, gpointer);
 
 GtkWidget *create_preference_check_button(GtkWidget *, int, const gchar *,
-    gboolean);
+    const gchar *, gboolean);
 GtkWidget *create_preference_radio_buttons(GtkWidget *, int, const gchar *,
-    const enum_val_t *, gint);
+    const gchar *, const enum_val_t *, gint);
 gint fetch_preference_radio_buttons_val(GtkWidget *, const enum_val_t *);
 GtkWidget *create_preference_option_menu(GtkWidget *, int, const gchar *,
-    const enum_val_t *, gint);
+    const gchar *, const enum_val_t *, gint);
 gint fetch_preference_option_menu_val(GtkWidget *, const enum_val_t *);
-GtkWidget *create_preference_entry(GtkWidget *, int, const gchar *, char *);
+GtkWidget *create_preference_entry(GtkWidget *, int, const gchar *,
+    const gchar *, char *);
 
 #endif

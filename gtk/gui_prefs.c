@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.32 2002/01/13 20:35:11 guy Exp $
+ * $Id: gui_prefs.c,v 1.33 2002/01/20 20:05:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -155,54 +155,54 @@ gui_prefs_show(void)
 
 	/* Scrollbar placement */
 	scrollbar_om = create_preference_option_menu(main_tb, 0,
-	    "Vertical scrollbar placement:", scrollbar_placement_vals,
+	    "Vertical scrollbar placement:", NULL, scrollbar_placement_vals,
 	    prefs.gui_scrollbar_on_right);
 	gtk_object_set_data(GTK_OBJECT(main_vb), SCROLLBAR_PLACEMENT_KEY,
 	    scrollbar_om);
 
 	/* Packet list selection browseable */
 	plist_browse_om = create_preference_option_menu(main_tb, 1,
-	    "Packet list mouse behavior:", selection_mode_vals,
+	    "Packet list mouse behavior:", NULL, selection_mode_vals,
 	    prefs.gui_plist_sel_browse);
 	gtk_object_set_data(GTK_OBJECT(main_vb), PLIST_SEL_BROWSE_KEY,
 	    plist_browse_om);
 
 	/* Proto tree selection browseable */
 	ptree_browse_om = create_preference_option_menu(main_tb, 2,
-	    "Protocol tree mouse behavior:", selection_mode_vals,
+	    "Protocol tree mouse behavior:", NULL, selection_mode_vals,
 	    prefs.gui_ptree_sel_browse);
 	gtk_object_set_data(GTK_OBJECT(main_vb), PTREE_SEL_BROWSE_KEY,
 	    ptree_browse_om);
 
 	/* Tree line style */
 	line_style_om = create_preference_option_menu(main_tb, 3,
-	    "Tree line style:", line_style_vals,
+	    "Tree line style:", NULL, line_style_vals,
 	    prefs.gui_ptree_line_style);
 	gtk_object_set_data(GTK_OBJECT(main_vb), PTREE_LINE_STYLE_KEY,
 	    line_style_om);
 
 	/* Tree expander style */
 	expander_style_om = create_preference_option_menu(main_tb, 4,
-	    "Tree expander style:", expander_style_vals,
+	    "Tree expander style:", NULL, expander_style_vals,
 	    prefs.gui_ptree_expander_style);
 	gtk_object_set_data(GTK_OBJECT(main_vb), PTREE_EXPANDER_STYLE_KEY,
 	    expander_style_om);
 
 	/* Hex Dump highlight style */
 	highlight_style_om = create_preference_option_menu(main_tb, 5,
-	    "Hex display highlight style:", highlight_style_vals,
+	    "Hex display highlight style:", NULL, highlight_style_vals,
 	    prefs.gui_hex_dump_highlight_style);
 	gtk_object_set_data(GTK_OBJECT(main_vb), HEX_DUMP_HIGHLIGHT_STYLE_KEY,
 	    highlight_style_om);
 	
 	/* Geometry prefs */
 	save_position_cb = create_preference_check_button(main_tb,
-	    6, "Save window position:", prefs.gui_geometry_save_position);
+	    6, "Save window position:", NULL, prefs.gui_geometry_save_position);
 	gtk_object_set_data(GTK_OBJECT(main_vb), GEOMETRY_POSITION_KEY,
 	    save_position_cb);
 	    
 	save_size_cb = create_preference_check_button(main_tb,
-	    7, "Save window size:", prefs.gui_geometry_save_size);
+	    7, "Save window size:", NULL, prefs.gui_geometry_save_size);
 	gtk_object_set_data(GTK_OBJECT(main_vb), GEOMETRY_SIZE_KEY,
 	    save_size_cb);
 
