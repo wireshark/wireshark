@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.21 2003/08/18 20:17:55 guy Exp $
+# $Id: Makefile.am,v 1.22 2003/08/18 21:43:21 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +47,7 @@ EXTRA_DIST = \
 	plugin_gen.py	\
 	plugin_table.h	\
 	Makefile.nmake	\
+	README.interface	\
 	Xass-list	\
 	Xplugin_api.c	\
 	Xplugin_api.h	\
