@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.217 2000/09/10 06:44:33 guy Exp $
+ * $Id: file.c,v 1.218 2000/09/11 07:33:55 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -978,6 +978,15 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
        * data (the per-frame data itself was freed by
        * "init_all_protocols()"). */
       fdata->flags.visited = 0;
+      fdata->pfd = NULL;
+    }
+
+    /* If there is any per-frame data, delete that, as what it points to 
+     * has gone as well.
+     */
+
+    if (fdata->pfd) {
+      g_slist_free(fdata->pfd);
       fdata->pfd = NULL;
     }
 

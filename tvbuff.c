@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.12 2000/09/08 09:54:20 guy Exp $
+ * $Id: tvbuff.c,v 1.13 2000/09/11 07:33:56 sharpe Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -37,6 +37,7 @@
 
 #include "pint.h"
 #include "tvbuff.h"
+#include "packet.h"
 
 
 typedef struct {
