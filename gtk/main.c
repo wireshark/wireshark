@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.298 2003/06/22 16:07:23 deniel Exp $
+ * $Id: main.c,v 1.299 2003/07/04 23:50:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1647,6 +1647,14 @@ main(int argc, char *argv[])
 
   init_cap_file(&cfile);
 
+#ifdef WIN32
+  /* Load wpcap if possible. Do this before collecting the run-time version information */
+  load_wpcap();
+
+  /* Start windows sockets */
+  WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
+#endif  /* WIN32 */
+
   /* Assemble the compile-time version information string */
   comp_info_str = g_string_new("Compiled ");
   g_string_append(comp_info_str, "with ");
@@ -1962,14 +1970,6 @@ main(int argc, char *argv[])
     }
   }
 #endif
-
-#ifdef WIN32
-  /* Load wpcap if possible */
-  load_wpcap();
-
-  /* Start windows sockets */
-  WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
-#endif  /* WIN32 */
 
   /* Notify all registered modules that have had any of their preferences
      changed either from one of the preferences file or from the command
