@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.43 1999/11/18 07:32:46 sharpe Exp $
+ * $Id: packet-smb.c,v 1.44 1999/11/20 13:48:26 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -75,13 +75,14 @@ static gint ett_browse_election_criteria = -1;
 static gint ett_browse_election_os = -1;
 static gint ett_browse_election_desire = -1;
 
+static int proto_lanman = -1;
+
+static gint ett_lanman = -1;
+static gint ett_lanman_servers = -1;
+
 /*
  * Struct passed to each SMB decode routine of info it may need
  */
-
-struct smb_info {
-  int tid, uid, mid, pid;   /* Any more?  */
-};
 
 char *decode_smb_name(unsigned char);
 
@@ -96,6 +97,15 @@ struct smb_request_val {
   guint16 last_transact2_command;
   gchar *last_transact_command;
   guint16 mid;
+  guint16 last_lanman_cmd;
+  gchar *last_param_descrip;   /* Keep these descriptors around */
+  gchar *last_data_descrip;
+};
+
+struct smb_info {
+  int tid, uid, mid, pid;   /* Any more?  */
+  conversation_t *conversation;
+  struct smb_request_val *request_val;
 };
 
 GHashTable *smb_request_hash = NULL;
@@ -8231,6 +8241,8 @@ char *decode_trans2_name(int code)
 
 guint32 dissect_mailslot_smb(const u_char *, int, frame_data *, proto_tree *, proto_tree *, struct smb_info, int, int, int, int, const u_char *, int, int);
 
+guint32 dissect_pipe_smb(const u_char *, int, frame_data *, proto_tree *, proto_tree *, struct smb_info, int, int, int, int, const u_char *, int, int, int, int);
+
 void
 dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
@@ -8285,6 +8297,8 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 				pi.srcport, pi.destport, NULL);
   }
 
+  si.conversation = conversation;  /* Save this for later */
+
   /*
    * Check for and insert entry in request hash table if does not exist
    */
@@ -8311,6 +8325,8 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     request_val -> mid = si.mid;
 
   }
+
+  si.request_val = request_val;  /* Save this for later */
 
 
   if (dirn == 1) { /* Request(s) dissect code */
@@ -8862,6 +8878,89 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
 }
 
+void 
+dissect_transact_params(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn, int DataOffset, int DataCount, int ParameterOffset, int ParameterCount, char *TransactName)
+{
+  char             *TransactNameCopy;
+  char             *trans_type = NULL, *trans_cmd, *loc_of_slash;
+  int              index;
+  guint8           Pad2;
+  gchar            *Data;
+
+  printf("SMB_offset = %u, ParamOffset = %u, DataOffset = %u\n", SMB_offset, ParameterOffset, DataOffset);
+
+  TransactNameCopy = g_malloc(strlen(TransactName) + 1);
+
+  /* Should check for error here ... */
+
+  strcpy(TransactNameCopy, TransactName);
+  if (TransactNameCopy[0] == '\\')
+    trans_type = TransactNameCopy + 1;  /* Skip the slash */
+  loc_of_slash = strchr(trans_type, '\\');
+  if (loc_of_slash) {
+    index = loc_of_slash - trans_type;  /* Make it a real index */
+    trans_cmd = trans_type + index + 1;
+    trans_type[index] = '\0';
+  }
+  else
+    trans_cmd = NULL;
+
+  printf("Trans_Type=%s, cmd=%s\n", trans_type, trans_cmd); 
+
+  if (((strcmp(trans_type, "MAILSLOT") != 0) ||
+       !dissect_mailslot_smb(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, trans_cmd, SMB_offset + DataOffset, DataCount)) &&
+      ((strcmp(trans_type, "PIPE") != 0) ||
+       !dissect_pipe_smb(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, trans_cmd, DataOffset, DataCount, ParameterOffset, ParameterCount))) {
+    
+    if (ParameterCount > 0) {
+
+      /* Build display for: Parameters */
+      
+      if (tree) {
+
+	proto_tree_add_text(tree, SMB_offset + ParameterOffset, ParameterCount, "Parameters: %s", format_text(pd + SMB_offset + ParameterOffset, ParameterCount));
+	  
+      }
+	
+      offset = SMB_offset + ParameterOffset + ParameterCount; /* Skip Parameters */
+
+    }
+
+    if (offset % 2) {
+	
+      /* Build display for: Pad2 */
+
+      Pad2 = GBYTE(pd, offset);
+
+      if (tree) {
+
+	proto_tree_add_text(tree, offset, 1, "Pad2: %u: %u", Pad2, offset);
+
+      }
+
+      offset += 1; /* Skip Pad2 */
+
+    }
+
+    if (DataCount > 0) {
+
+      /* Build display for: Data */
+
+      Data = GBYTE(pd, offset);
+
+      if (tree) {
+
+	proto_tree_add_text(tree, SMB_offset + DataOffset, DataCount, "Data: %s", format_text(pd + SMB_offset + DataOffset, DataCount));
+
+      }
+
+      offset += DataCount; /* Skip Data */
+
+    }
+  }
+
+}
+
 void
 dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
@@ -8872,11 +8971,8 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
   guint8        SetupCount;
   guint8        Reserved3;
   guint8        Reserved1;
-  guint8        Parameter;
-  guint8        Pad2;
   guint8        Pad1;
   guint8        MaxSetupCount;
-  guint8        Data;
   guint32       Timeout;
   guint16       TotalParameterCount;
   guint16       TotalDataCount;
@@ -8893,10 +8989,6 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
   guint16       DataCount;
   guint16       ByteCount;
   const char    *TransactName;
-  char          *TransactNameCopy;
-  char          *trans_type;
-  char          *trans_cmd, *loc_of_slash;
-  guint32       index;
   conversation_t *conversation;
   struct smb_request_key   request_key, *new_request_key;
   struct smb_request_val   *request_val;
@@ -8915,6 +9007,8 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 
   }
 
+  si.conversation = conversation;  /* Save this */
+
   /*
    * Check for and insert entry in request hash table if does not exist
    */
@@ -8932,10 +9026,14 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
     request_val = g_mem_chunk_alloc(smb_request_vals);
     request_val -> mid = si.mid;
     request_val -> last_transact_command = NULL;
+    request_val -> last_param_descrip = NULL;
+    request_val -> last_data_descrip = NULL;
 
     g_hash_table_insert(smb_request_hash, new_request_key, request_val);
 
   }
+
+  si.request_val = request_val;  /* Save this for later */
 
   if (dirn == 1) { /* Request(s) dissect code */
 
@@ -9215,70 +9313,10 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 
     /* Let's see if we can decode this */
 
-    TransactNameCopy = g_malloc(strlen(TransactName) + 1);
+    printf("Let;s try to decode\n");
 
-    /* Bad, check for error? */
+    dissect_transact_params(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, DataOffset, DataCount, ParameterOffset, ParameterCount, TransactName);
 
-    strcpy(TransactNameCopy, TransactName);
-    trans_type = TransactNameCopy + 1;  /* Skip the slash */
-    loc_of_slash = strchr(trans_type, '\\');
-    if (loc_of_slash) {
-      index = loc_of_slash - trans_type;  /* Make it a real index */
-      trans_cmd = trans_type + index + 1;
-      trans_type[index] = '\0';
-    }
-    else
-      trans_cmd = NULL;
-
-    if (!strcmp(trans_type, "MAILSLOT") &&
-	!dissect_mailslot_smb(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, trans_cmd, SMB_offset + DataOffset, DataCount)) {
-
-      if (ParameterCount > 0) {
-
-	/* Build display for: Parameters */
-
-	if (tree) {
-
-	  proto_tree_add_text(tree, SMB_offset + ParameterOffset, ParameterCount, "Parameters: %s", format_text(pd + SMB_offset + ParameterOffset, ParameterCount));
-	  
-	}
-	
-	offset += ParameterCount; /* Skip Parameters */
-
-      }
-
-      if (offset % 2) {
-	
-	/* Build display for: Pad2 */
-
-	Pad2 = GBYTE(pd, offset);
-
-	if (tree) {
-
-	  proto_tree_add_text(tree, offset, 1, "Pad2: %u", Pad2);
-
-	}
-
-	offset += 1; /* Skip Pad2 */
-
-      }
-
-      if (DataCount > 0) {
-
-	/* Build display for: Data */
-
-	Data = GBYTE(pd, offset);
-
-	if (tree) {
-
-	  proto_tree_add_text(tree, SMB_offset + DataOffset, DataCount, "Data: %s", format_text(pd + SMB_offset + DataOffset, DataCount));
-
-	}
-
-	offset += DataCount; /* Skip Data */
-
-      }
-    }
   }
 
   if (dirn == 0) { /* Response(s) dissect code */
@@ -9465,53 +9503,21 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 
     /* Build display for: Pad1 */
 
-    Pad1 = GBYTE(pd, offset);
+    if (offset % 2) {
 
-    if (tree) {
-
-      proto_tree_add_text(tree, offset, 1, "Pad1: %u", Pad1);
-
-    }
-
-    offset += 1; /* Skip Pad1 */
-
-    /* Build display for: Parameter */
-
-    Parameter = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, offset, ParameterCount, "Parameters: %s", format_text(pd + SMB_offset + ParameterOffset, ParameterCount));
-
-    }
-
-    offset += 1; /* Skip Parameter */
-
-    /* Build display for: Pad2 */
-
-    Pad2 = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, offset, 1, "Pad2: %u", Pad2);
-
-    }
-
-    offset += 1; /* Skip Pad2 */
-
-    /* Build display for: Data */
-
-    if (DataCount > 0) {
+      Pad1 = GBYTE(pd, offset);
 
       if (tree) {
 
-	proto_tree_add_text(tree, offset, DataCount, "Data: %s", format_text(pd + SMB_offset + DataOffset, DataCount));
+	proto_tree_add_text(tree, offset, 1, "Pad1: %u", Pad1);
 
       }
 
-      offset += DataCount; /* Skip Data */
+      offset += 1; /* Skip Pad1 */
 
     }
+
+    dissect_transact_params(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, DataOffset, DataCount, ParameterOffset, ParameterCount, si.request_val -> last_transact_command);
 
   }
 
@@ -9521,6 +9527,350 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
  * The routines for mailslot and pipe dissecting should be migrated to another 
  * file soon?
  */
+
+#define NETSHAREENUM   0x00  /* 00  */
+#define NETSERVERENUM2 0x68  /* 104 */
+
+void dissect_server_flags(proto_tree *tree, int offset, int length, int flags)
+{
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x0001, length*8, "Workstation", "Not Workstation"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x0002, length*8, "Server", "Not Server"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x0004, length*8, "SQL Server", "Not SQL Server"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x0008, length*8, "Domain Controller", "Not Domain Controller"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x0010, length*8, "Backup Controller", "Not Backup Controller"));
+  proto_tree_add_text(tree, offset, 4, "%s",
+		      decode_boolean_bitfield(flags, 0x0020, length*8, "Time Source", "Not Time Source"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x0040, length*8, "Apple Server", "Not Apple Server"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x0080, length*8, "Novell Server", "Not Novell Server"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x0100, length*8, "Domain Member Server", "Not Domain Member Server"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x0200, length*8, "Print Queue Server", "Not Print Queue Server"));      
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x0400, length*8, "Dialin Server", "Not Dialin Server"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x0800, length*8, "Xenix Server", "Not Xenix Server"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x1000, length*8, "NT Workstation", "Not NT Workstation"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x2000, length*8, "Windows for Workgroups", "Not Windows for Workgroups"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x8000, length*8, "NT Server", "Not NT Server"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x10000, length*8, "Potential Browser", "Not Potential Browser"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x20000, length*8, "Backup Browser", "Not Backup Browser"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x40000, length*8, "Master Browser", "Not Master Browser"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x80000, length*8, "Domain Master Browser", "Not Domain Master Browser"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x100000, length*8, "OSF", "Not OSF"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x200000, length*8, "VMS", "Not VMS"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x400000, length*8, "Windows 95 or above", "Not Windows 95 or above"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x40000000, length*8, "Local List Only", "Not Local List Only"));
+  proto_tree_add_text(tree, offset, length, "%s",
+		      decode_boolean_bitfield(flags, 0x80000000, length*8, "Domain Enum", "Not Domain Enum"));
+
+}
+
+guint32 
+dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn, const u_char *command, int DataOffset, int DataCount, int ParameterOffset, int ParameterCount)
+{
+  guint32             loc_offset = SMB_offset + ParameterOffset;
+  guint16             FunctionCode;
+  guint16             Level;
+  guint16             RecvBufLen;
+  guint16             Flags;
+  char                *ParameterDescriptor;
+  char                *ReturnDescriptor;
+  proto_tree          *lanman_tree = NULL, *flags_tree = NULL;
+  proto_item          *ti;
+
+  if (check_col(fd, COL_PROTOCOL))
+    col_add_fstr(fd, COL_PROTOCOL, "LANMAN");
+
+  if (dirn == 1) { /* The request side */
+
+    FunctionCode = GSHORT(pd, loc_offset);
+
+    si.request_val -> last_lanman_cmd = FunctionCode;
+
+    switch (FunctionCode) {
+
+    case NETSERVERENUM2:  /* Process a NetServerEnum2 */
+
+      if (check_col(fd, COL_INFO)) {
+
+	col_add_fstr(fd, COL_INFO, "NetServerEnum2 %s", dirn ? "Request" : "Response");
+
+      }
+
+      if (tree) {
+
+	ti = proto_tree_add_item(parent, proto_lanman, SMB_offset + ParameterOffset, ParameterCount, NULL);
+	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
+      
+	proto_tree_add_text(lanman_tree, loc_offset, 2, "Function Code: NetServerEnum2");
+
+      }
+
+      loc_offset += 2;
+
+      ParameterDescriptor = pd + loc_offset;
+
+      /* Now, save these for later */
+
+      if (si.request_val -> last_param_descrip) g_free(si.request_val -> last_param_descrip);
+      si.request_val -> last_param_descrip = g_malloc(strlen(ParameterDescriptor) + 1);
+      if (si.request_val -> last_param_descrip)
+	strcpy(si.request_val -> last_param_descrip, ParameterDescriptor);
+
+      if (tree) {
+
+	proto_tree_add_text(lanman_tree, loc_offset, strlen(ParameterDescriptor) + 1, "Parameter Descriptor: %s", ParameterDescriptor);
+
+      }
+
+      loc_offset += strlen(ParameterDescriptor) + 1;
+
+      ReturnDescriptor = pd + loc_offset;
+
+      if (si.request_val -> last_data_descrip) g_free(si.request_val -> last_data_descrip);
+
+      si.request_val -> last_data_descrip = g_malloc(strlen(ReturnDescriptor) + 1);
+      if (si.request_val -> last_data_descrip)
+	strcpy(si.request_val -> last_data_descrip, ReturnDescriptor);
+      
+      if (tree) {
+
+	proto_tree_add_text(lanman_tree, loc_offset, strlen(ReturnDescriptor) + 1, "Return Descriptor: %s", ReturnDescriptor);
+
+      }
+
+      loc_offset += strlen(ReturnDescriptor) + 1;
+
+      Level = GSHORT(pd, loc_offset);
+
+      if (tree) {
+
+	proto_tree_add_text(lanman_tree, loc_offset, 2, "Info Detail Level: %u", Level);
+
+      }
+
+      loc_offset += 2;
+      
+      RecvBufLen = GSHORT(pd, loc_offset);
+      
+      if (tree) {
+
+	proto_tree_add_text(lanman_tree, loc_offset, 2, "Receive Buffer Length: %u", RecvBufLen);
+
+      }
+
+      loc_offset += 2;
+
+      Flags = GWORD(pd, loc_offset);
+
+      if (tree) {
+
+	ti = proto_tree_add_text(lanman_tree, loc_offset, 4, "Server Types Required: 0x%08X", Flags);
+	flags_tree = proto_item_add_subtree(ti, ett_browse_flags);
+	dissect_server_flags(flags_tree, loc_offset, 4, Flags);
+
+      }
+
+      loc_offset += 4;
+
+      return 1;
+      break;
+    
+    }
+  }
+  else {  /* Dirn == 0, response */
+    guint16          Status;
+    guint16          Convert;
+    guint16          EntCount;
+    guint16          AvailCount;
+    guint32          loc_offset = 0;
+    int              i;
+    proto_tree       *server_tree = NULL, *flags_tree = NULL;
+
+    FunctionCode = si.request_val -> last_lanman_cmd;
+
+    printf("LANMAN response\n");
+
+    switch (FunctionCode) {
+
+    case NETSERVERENUM2:
+
+      if (check_col(fd, COL_INFO)) {
+
+	col_add_fstr(fd, COL_INFO, "NetServerEnum2 %s", dirn ? "Request" : "Response");
+
+      }
+
+      if (tree) {
+
+	ti = proto_tree_add_item(parent, proto_lanman, SMB_offset + ParameterOffset, END_OF_FRAME, NULL);
+	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
+      
+	proto_tree_add_text(lanman_tree, loc_offset, 2, "Function Code: NetServerEnum2");
+
+      }
+
+      printf("SMB_offset=%u, ParameterOffset=%u\n", SMB_offset, ParameterOffset);
+
+      loc_offset = SMB_offset + ParameterOffset;
+      Status = GSHORT(pd, loc_offset);
+
+      if (tree) {
+
+	proto_tree_add_text(lanman_tree, loc_offset, 2, "Status: %u", Status);
+
+      }
+
+      loc_offset += 2;
+
+      Convert = GSHORT(pd, loc_offset);
+
+      if (tree) {
+
+	proto_tree_add_text(lanman_tree, loc_offset, 2, "Convert: %u", Convert);
+
+      }
+
+      loc_offset += 2;
+
+      EntCount = GSHORT(pd, loc_offset);
+
+      if (tree) {
+
+	proto_tree_add_text(lanman_tree, loc_offset, 2, "Entry Count: %u", EntCount);
+
+      }
+
+      loc_offset += 2;
+
+      AvailCount = GSHORT(pd, loc_offset);
+
+      if (tree) {
+
+	proto_tree_add_text(lanman_tree, loc_offset, 2, "Available Entries: %u", AvailCount);
+
+      }
+
+      loc_offset += 2;
+
+      if (tree) {
+
+	ti = proto_tree_add_text(lanman_tree, loc_offset, 38 * EntCount, "Servers");
+	if (ti == NULL) { 
+
+	  printf("Null value returned from proto_tree_add_text\n");
+	  exit(1);
+
+	}
+
+	server_tree = proto_item_add_subtree(ti, ett_lanman_servers);
+
+      }
+
+      for (i = 1; i <= EntCount; i++) {
+	gchar       *Server = pd + loc_offset;
+	gint8       ServerMajor;
+	guint       ServerMinor;
+	guint32     ServerFlags;
+	gchar       *Comment;
+
+	if (tree) {
+	  
+	  proto_tree_add_text(server_tree, loc_offset, strlen(Server) + 1, "Server Name: %s", Server);
+
+
+	}
+
+	loc_offset += 16;
+
+	ServerMajor = GBYTE(pd, loc_offset);
+
+	if (tree) {
+
+	  proto_tree_add_text(server_tree, loc_offset, 1, "Major Version: %u", ServerMajor);
+
+	}
+
+	loc_offset += 1;
+
+	ServerMinor = GBYTE(pd, loc_offset);
+
+	if (tree) {
+
+	  proto_tree_add_text(server_tree, loc_offset, 1, "Minor Version: %u", ServerMinor);
+
+	}
+
+	loc_offset += 1;
+
+	ServerFlags = GWORD(pd, loc_offset);
+
+	if (tree) {
+
+	  ti = proto_tree_add_text(server_tree, loc_offset, 4, "Server Type: 0x%08X", ServerFlags);
+	  flags_tree = proto_item_add_subtree(ti, ett_browse_flags);
+	  dissect_server_flags(flags_tree, loc_offset, 4, ServerFlags);
+
+	}
+
+	loc_offset += 4;
+
+	Comment = pd + SMB_offset + DataOffset + GWORD(pd, loc_offset);
+
+	if (tree) {
+
+	  proto_tree_add_text(server_tree, loc_offset, 4, "Server Comment: %s", Comment);
+
+	}
+
+	loc_offset += 4;
+
+      }
+
+      return 1;
+      break;
+
+    }
+
+  }
+
+  return 0;
+
+}
+
+guint32
+dissect_pipe_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn, const u_char *command, int DataOffset, int DataCount, int ParameterOffset, int ParameterCount)
+{
+
+  if (strcmp(command, "LANMAN") == 0) { /* Try to decode a LANMAN */
+
+    printf("LANMAN done \n");
+    return dissect_pipe_lanman(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, command, DataOffset, DataCount, ParameterOffset, ParameterCount);
+
+  }
+
+  return 0;
+
+}
 
 char *browse_commands[] = 
 { "Error, No such command!",       /* Value 0 */
@@ -9586,8 +9936,8 @@ char *svr_types[32] = {
   "Domain Enum"
 };
 
-guint32
-dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn, const u_char *command, int DataOffset, int DataCount)
+guint32 
+dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn, const u_char *command, int DataOffset, int DataCount)
 {
   guint8               OpCode;
   guint8               UpdateCount;
@@ -9614,412 +9964,434 @@ dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
   guint32              loc_offset = DataOffset, count = 0;
   int                  i;
 
+  if (check_col(fd, COL_PROTOCOL))
+    col_add_str(fd, COL_PROTOCOL, "BROWSER");
+
+  if (check_col(fd, COL_INFO)) /* Put in something, and replace it later */
+    col_add_str(fd, COL_INFO, "Browse Announcement");
+
+  /*
+   * Now, decode the browse request 
+   */
+
+  OpCode = GBYTE(pd, loc_offset);
+
+  if (check_col(fd, COL_INFO))
+    col_add_fstr(fd, COL_INFO, (OpCode > (sizeof(browse_commands)/sizeof(char *))) ? "Error, No Such Command:%u" : browse_commands[OpCode], OpCode);
+    
+  if (tree) {  /* Add the browse tree */
+
+    ti = proto_tree_add_item(parent, proto_browse, DataOffset, DataCount, NULL);
+    browse_tree = proto_item_add_subtree(ti, ett_browse);
+
+    proto_tree_add_text(browse_tree, loc_offset, 1, "OpCode: %s", (OpCode > (sizeof(browse_commands)/sizeof(char *))) ? "Error, No Such Command" : browse_commands[OpCode]);
+
+  }
+
+  loc_offset += 1;    /* Skip the OpCode */
+
+  switch (OpCode) {
+
+  case DOMAINANNOUNCEMENT:
+  case LOCALMASTERANNOUNC:
+  case HOST_ANNOUNCE:
+
+    UpdateCount = GBYTE(pd, loc_offset);
+
+    if (tree) {
+
+      proto_tree_add_text(browse_tree, loc_offset, 1, "Update Count: %u", UpdateCount);
+
+    }
+
+    loc_offset += 1;  /* Skip the Update Count */
+
+    Periodicity = GWORD(pd, loc_offset);
+
+    if (tree) {
+
+      proto_tree_add_text(browse_tree, loc_offset, 4, "Update Periodicity: %u Sec", Periodicity/1000 );
+
+    }
+
+    loc_offset += 4;
+
+    ServerName = pd + loc_offset;
+
+    if (check_col(fd, COL_INFO)) {
+
+      col_append_fstr(fd, COL_INFO, " %s", ServerName);
+
+    }
+
+    if (tree) {
+
+      proto_tree_add_text(browse_tree, loc_offset, 16, (OpCode == DOMAINANNOUNCEMENT) ? "Domain/WorkGroup: %s": "Host Name: %s", ServerName);
+
+    }
+
+    loc_offset += 16;
+
+    VersionMajor = GBYTE(pd, loc_offset);
+
+    if (tree) {
+
+      proto_tree_add_text(browse_tree, loc_offset, 1, "Major Version: %u", VersionMajor);
+
+    }
+
+    loc_offset += 1;
+
+    VersionMinor = GBYTE(pd, loc_offset);
+
+    if (tree) {
+
+      proto_tree_add_text(browse_tree, loc_offset, 1, "Minor Version: %u", VersionMinor);
+
+    }
+
+    loc_offset += 1;
+
+    ServerType = GWORD(pd, loc_offset);
+
+    if (check_col(fd, COL_INFO)) {
+
+      /* Append the type(s) of the system to the COL_INFO line ... */
+
+      for (i = 1; i <= 32; i++) {
+
+	if (ServerType & (1 << (i - 1)) && (strcmp("Unused", svr_types[i]) != 0))
+	    col_append_fstr(fd, COL_INFO, ", %s", svr_types[i - 1]);
+	
+      }
+      
+    }
+
+    if (tree) {
+
+      ti = proto_tree_add_text(browse_tree, loc_offset, 4, "Server Type: 0x%04x", ServerType);
+      flags_tree = proto_item_add_subtree(ti, ett_browse_flags);
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x0001, 32, "Workstation", "Not Workstation"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x0002, 32, "Server", "Not Server"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x0004, 32, "SQL Server", "Not SQL Server"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x0008, 32, "Domain Controller", "Not Domain Controller"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x0010, 32, "Backup Controller", "Not Backup Controller"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x0020, 32, "Time Source", "Not Time Source"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x0040, 32, "Apple Server", "Not Apple Server"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x0080, 32, "Novell Server", "Not Novell Server"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x0100, 32, "Domain Member Server", "Not Domain Member Server"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x0200, 32, "Print Queue Server", "Not Print Queue Server"));      
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x0400, 32, "Dialin Server", "Not Dialin Server"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x0800, 32, "Xenix Server", "Not Xenix Server"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x1000, 32, "NT Workstation", "Not NT Workstation"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x2000, 32, "Windows for Workgroups", "Not Windows for Workgroups"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x8000, 32, "NT Server", "Not NT Server"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x10000, 32, "Potential Browser", "Not Potential Browser"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x20000, 32, "Backup Browser", "Not Backup Browser"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x40000, 32, "Master Browser", "Not Master Browser"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x80000, 32, "Domain Master Browser", "Not Domain Master Browser"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x100000, 32, "OSF", "Not OSF"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x200000, 32, "VMS", "Not VMS"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x400000, 32, "Windows 95 or above", "Not Windows 95 or above"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x40000000, 32, "Local List Only", "Not Local List Only"));
+      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+			  decode_boolean_bitfield(ServerType, 0x80000000, 32, "Domain Enum", "Not Domain Enum"));
+    }
+    loc_offset += 4;
+    
+    ElectionVersion = GSHORT(pd, loc_offset);
+    
+    if (tree) {
+      
+      proto_tree_add_text(browse_tree, loc_offset, 2, "Election Version: %u", ElectionVersion);
+
+    }
+
+    loc_offset += 2;
+
+    SigConstant = GSHORT(pd, loc_offset);
+
+    if (tree) {
+
+      proto_tree_add_text(browse_tree, loc_offset, 2, "Signature: %u (0x%04X)", SigConstant, SigConstant);
+
+    }
+
+    loc_offset += 2;
+
+    ServerComment = pd + loc_offset;
+
+    if (tree) {
+
+      proto_tree_add_text(browse_tree, loc_offset, strlen(ServerComment) + 1, "Host Comment: %s", ServerComment);
+
+    }
+
+    break;
+
+  case REQUEST_ANNOUNCE:
+
+    Flags = GBYTE(pd, loc_offset);
+
+    if (tree) {
+
+      proto_tree_add_text(browse_tree, loc_offset, 1, "Unused Flags: %u", Flags);
+
+    }
+
+    loc_offset += 1;
+
+    ServerName = pd + loc_offset;
+
+    if (tree) {
+
+      proto_tree_add_text(browse_tree, loc_offset, strlen(ServerName) + 1, "Send List To: %s", ServerName);
+
+    }
+
+    break;
+
+  case BROWSER_ELECTION:
+
+    ElectionVersion = GBYTE(pd, loc_offset);
+
+    if (tree) {
+
+      proto_tree_add_text(browse_tree, loc_offset, 1, "Election Version = %u", ElectionVersion);
+
+    }
+
+    loc_offset += 1;
+
+    ElectionCriteria = GWORD(pd, loc_offset);
+    ElectionOS       = GBYTE(pd, loc_offset + 3);
+    ElectionRevision = GSHORT(pd, loc_offset + 1);
+    ElectionDesire   = GBYTE(pd, loc_offset);
+
+    if (tree) {
+
+      ti = proto_tree_add_text(browse_tree, loc_offset, 4, "Election Criteria = %u (0x%08X)", ElectionCriteria, ElectionCriteria);
+
+      ec = proto_item_add_subtree(ti, ett_browse_election_criteria);
+
+      ti = proto_tree_add_text(ec, loc_offset + 3, 1, "Election OS Summary: %u (0x%02X)", ElectionOS, ElectionOS);
+
+      OSflags = proto_item_add_subtree(ti, ett_browse_election_os);
+
+      proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+			    decode_boolean_bitfield(ElectionOS, 0x01, 8, "Windows for Workgroups", "Not Windows for Workgroups"));
+      
+      proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+			  decode_boolean_bitfield(ElectionOS, 0x02, 8, "Unknown", "Not used"));
+
+      proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+			  decode_boolean_bitfield(ElectionOS, 0x04, 8, "Unknown", "Not used"));
+
+      proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+			  decode_boolean_bitfield(ElectionOS, 0x08, 8, "Unknown", "Not used"));
+      
+      proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+			  decode_boolean_bitfield(ElectionOS, 0x10, 8, "Windows NT Workstation", "Not Windows NT Workstation"));
+      
+      proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+			  decode_boolean_bitfield(ElectionOS, 0x20, 8, "Windows NT Server", "Not Windows NT Server"));
+
+      proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+			  decode_boolean_bitfield(ElectionOS, 0x40, 8, "Unknown", "Not used"));
+
+      proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+			  decode_boolean_bitfield(ElectionOS, 0x80, 8, "Unknown", "Not used"));
+
+      proto_tree_add_text(ec, loc_offset + 1, 2, "Election Revision: %u (0x%04X)", ElectionRevision, ElectionRevision);
+
+      ti = proto_tree_add_text(ec, loc_offset, 1, "Election Desire Summary: %u (0x%02X)", ElectionDesire, ElectionDesire);
+
+      DesireFlags = proto_item_add_subtree(ti, ett_browse_election_desire);
+
+      proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+			  decode_boolean_bitfield(ElectionDesire, 0x01, 8, "Backup Browse Server", "Not Backup Browse Server"));
+      
+      proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+			  decode_boolean_bitfield(ElectionDesire, 0x02, 8, "Standby Browse Server", "Not Standby Browse Server"));
+
+      proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+			  decode_boolean_bitfield(ElectionDesire, 0x04, 8, "Master Browser", "Not Master Browser"));
+
+      proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+			  decode_boolean_bitfield(ElectionDesire, 0x08, 8, "Domain Master Browse Server", "Not Domain Master Browse Server"));
+
+      proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+			  decode_boolean_bitfield(ElectionDesire, 0x10, 8, "Unknown", "Not used"));
+
+      proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+			  decode_boolean_bitfield(ElectionDesire, 0x20, 8, "WINS Client", "Not WINS Client"));
+
+      proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+			  decode_boolean_bitfield(ElectionDesire, 0x40, 8, "Unknown", "Not used"));
+
+      proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+			  decode_boolean_bitfield(ElectionDesire, 0x80, 8, "Windows NT Advanced Server", "Not Windows NT Advanced Server"));
+
+    }
+
+    loc_offset += 4;
+
+    ServerUpTime = GWORD(pd, loc_offset);
+
+    if (tree) {
+
+      proto_tree_add_text(browse_tree, loc_offset, 4, "Server Up Time: %u Sec", ServerUpTime/1000);
+
+    }
+
+    loc_offset += 4;
+
+    MBZ = GWORD(pd, loc_offset);
+
+    loc_offset += 4;
+
+    ServerName = pd + loc_offset;
+
+    if (tree) {
+
+      proto_tree_add_text(browse_tree, loc_offset, strlen(ServerName) + 1, "Election Server Name: %s", ServerName);
+
+    }
+
+    break;
+
+  case GETBACKUPLISTREQ:
+
+    BackupServerCount = GBYTE(pd, loc_offset);
+
+    if (tree) {
+
+      proto_tree_add_text(browse_tree, loc_offset, 1, "Backup List Requested Count: %u", BackupServerCount);
+
+    }
+
+    loc_offset += 1;
+
+    Token = GWORD(pd, loc_offset);
+
+    if (tree) {
+
+      proto_tree_add_text(browse_tree, loc_offset, 4, "Backup Request Token: %u", Token);
+
+    }
+
+    break;
+
+  case GETBACKUPLISTRESP:
+
+    BackupServerCount = GBYTE(pd, loc_offset);
+
+    if (tree) {
+
+      proto_tree_add_text(browse_tree, loc_offset, 1, "Backup Server Count: %u", BackupServerCount);
+
+    }
+
+    loc_offset += 1;
+
+    Token = GWORD(pd, loc_offset);
+
+    if (tree) {
+
+      proto_tree_add_text(browse_tree, loc_offset, 4, "Backup Response Token: %u", Token);
+
+    }
+
+    loc_offset += 4;
+
+    ServerName = pd + loc_offset;
+
+    for (count = 1; count <= BackupServerCount; count++) {
+
+      if (tree) {
+
+	proto_tree_add_text(browse_tree, loc_offset, strlen(ServerName) + 1, "Backup Server: %s", ServerName);
+
+      }
+
+      loc_offset += strlen(ServerName) + 1;
+
+      ServerName = pd + loc_offset;
+
+    }
+
+    break;
+
+  case BECOMEBACKUPBROWSER:
+
+    ServerName = pd + loc_offset;
+
+    if (tree) {
+
+      proto_tree_add_text(browse_tree, loc_offset, strlen(ServerName) + 1, "Browser to Promote: %s", ServerName);
+
+    }
+
+    break;
+
+  case MASTERANNOUNCEMENT:
+
+    ServerName = pd + loc_offset;
+
+    if (tree) {
+
+      proto_tree_add_text(browse_tree, loc_offset, strlen(ServerName) + 1, "Server Name: %s", ServerName);
+
+    }
+
+    break;
+
+  default:
+    break;
+  }
+  
+  return 1;  /* Success */
+
+}
+
+guint32
+dissect_mailslot_net(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn, const u_char *command, int DataOffset, int DataCount)
+{
+
+  return 0;
+
+}
+
+guint32
+dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn, const u_char *command, int DataOffset, int DataCount)
+{
+
   if (strcmp(command, "BROWSE") == 0) { /* Decode a browse */
 
-    if (check_col(fd, COL_PROTOCOL))
-      col_add_str(fd, COL_PROTOCOL, "BROWSER");
-
-    if (check_col(fd, COL_INFO)) /* Put in something, and replace it later */
-      col_add_str(fd, COL_INFO, "Browse Announcement");
-
-    /*
-     * Now, decode the browse request 
-     */
-
-    OpCode = GBYTE(pd, loc_offset);
-
-    if (check_col(fd, COL_INFO))
-      col_add_fstr(fd, COL_INFO, (OpCode > (sizeof(browse_commands)/sizeof(char *))) ? "Error, No Such Command:%u" : browse_commands[OpCode], OpCode);
-    
-    if (tree) {  /* Add the browse tree */
-
-      ti = proto_tree_add_item(parent, proto_browse, DataOffset, DataCount, NULL);
-      browse_tree = proto_item_add_subtree(ti, ett_browse);
-
-      proto_tree_add_text(browse_tree, loc_offset, 1, "OpCode: %s", (OpCode > (sizeof(browse_commands)/sizeof(char *))) ? "Error, No Such Command" : browse_commands[OpCode]);
-
-    }
-
-    loc_offset += 1;    /* Skip the OpCode */
-
-    switch (OpCode) {
-
-    case DOMAINANNOUNCEMENT:
-    case LOCALMASTERANNOUNC:
-    case HOST_ANNOUNCE:
-
-      UpdateCount = GBYTE(pd, loc_offset);
-
-      if (tree) {
-
-	proto_tree_add_text(browse_tree, loc_offset, 1, "Update Count: %u", UpdateCount);
-
-      }
-
-      loc_offset += 1;  /* Skip the Update Count */
-
-      Periodicity = GWORD(pd, loc_offset + 2);
-
-      if (tree) {
-
-	proto_tree_add_text(browse_tree, loc_offset, 4, "Update Periodicity: %u mSec", Periodicity >> 16);
-
-      }
-
-      loc_offset += 4;
-
-      ServerName = pd + loc_offset;
-
-      if (tree) {
-
-	proto_tree_add_text(browse_tree, loc_offset, 16, (OpCode == DOMAINANNOUNCEMENT) ? "Domain/WorkGroup: %s": "Host Name: %s", ServerName);
-
-      }
-
-      loc_offset += 16;
-
-      VersionMajor = GBYTE(pd, loc_offset);
-
-      if (tree) {
-
-	proto_tree_add_text(browse_tree, loc_offset, 1, "Major Version: %u", VersionMajor);
-
-      }
-
-      loc_offset += 1;
-
-      VersionMinor = GBYTE(pd, loc_offset);
-
-      if (tree) {
-
-	proto_tree_add_text(browse_tree, loc_offset, 1, "Minor Version: %u", VersionMinor);
-
-      }
-
-      loc_offset += 1;
-
-      ServerType = GWORD(pd, loc_offset);
-
-      if (check_col(fd, COL_INFO)) {
-
-	/* Append the type(s) of the system to the COL_INFO line ... */
-
-	for (i = 1; i <= 32; i++) {
-
-	  if (ServerType & (1 << (i - 1)) && (strcmp("Unused", svr_types[i]) != 0))
-	    col_append_fstr(fd, COL_INFO, ", %s", svr_types[i - 1]);
-
-	}
-
-      }
-
-      if (tree) {
-
-	ti = proto_tree_add_text(browse_tree, loc_offset, 4, "Server Type: 0x%04x", ServerType);
-	flags_tree = proto_item_add_subtree(ti, ett_browse_flags);
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x0001, 32, "Workstation", "Not Workstation"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x0002, 32, "Server", "Not Server"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x0004, 32, "SQL Server", "Not SQL Server"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x0008, 32, "Domain Controller", "Not Domain Controller"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x0010, 32, "Backup Controller", "Not Backup Controller"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x0020, 32, "Time Source", "Not Time Source"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x0040, 32, "Apple Server", "Not Apple Server"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x0080, 32, "Novell Server", "Not Novell Server"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x0100, 32, "Domain Member Server", "Not Domain Member Server"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x0200, 32, "Print Queue Server", "Not Print Queue Server"));      
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x0400, 32, "Dialin Server", "Not Dialin Server"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x0800, 32, "Xenix Server", "Not Xenix Server"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x1000, 32, "NT Workstation", "Not NT Workstation"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x2000, 32, "Windows for Workgroups", "Not Windows for Workgroups"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x8000, 32, "NT Server", "Not NT Server"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x10000, 32, "Potential Browser", "Not Potential Browser"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x20000, 32, "Backup Browser", "Not Backup Browser"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x40000, 32, "Master Browser", "Not Master Browser"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x80000, 32, "Domain Master Browser", "Not Domain Master Browser"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x100000, 32, "OSF", "Not OSF"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x200000, 32, "VMS", "Not VMS"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x400000, 32, "Windows 95 or above", "Not Windows 95 or above"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x40000000, 32, "Local List Only", "Not Local List Only"));
-	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
-			    decode_boolean_bitfield(ServerType, 0x80000000, 32, "Domain Enum", "Not Domain Enum"));
-      }
-      loc_offset += 4;
-
-      ElectionVersion = GSHORT(pd, loc_offset);
-
-      if (tree) {
-
-	proto_tree_add_text(browse_tree, loc_offset, 2, "Election Version: %u", ElectionVersion);
-
-      }
-
-      loc_offset += 2;
-
-      SigConstant = GSHORT(pd, loc_offset);
-
-      if (tree) {
-
-	proto_tree_add_text(browse_tree, loc_offset, 2, "Signature: %u (0x%04X)", SigConstant, SigConstant);
-
-      }
-
-      loc_offset += 2;
-
-      ServerComment = pd + loc_offset;
-
-      if (tree) {
-
-	proto_tree_add_text(browse_tree, loc_offset, strlen(ServerComment) + 1, "Host Comment: %s", ServerComment);
-
-      }
-
-      break;
-
-    case REQUEST_ANNOUNCE:
-
-      Flags = GBYTE(pd, loc_offset);
-
-      if (tree) {
-
-	proto_tree_add_text(browse_tree, loc_offset, 1, "Unused Flags: %u", Flags);
-
-      }
-
-      loc_offset += 1;
-
-      ServerName = pd + loc_offset;
-
-      if (tree) {
-
-	proto_tree_add_text(browse_tree, loc_offset, strlen(ServerName) + 1, "Send List To: %s", ServerName);
-
-      }
-
-      break;
-
-    case BROWSER_ELECTION:
-
-      ElectionVersion = GBYTE(pd, loc_offset);
-
-      if (tree) {
-
-	proto_tree_add_text(browse_tree, loc_offset, 1, "Election Version = %u", ElectionVersion);
-
-      }
-
-      loc_offset += 1;
-
-      ElectionCriteria = GWORD(pd, loc_offset);
-      ElectionOS       = GBYTE(pd, loc_offset + 3);
-      ElectionRevision = GSHORT(pd, loc_offset + 1);
-      ElectionDesire   = GBYTE(pd, loc_offset);
-
-      if (tree) {
-
-	ti = proto_tree_add_text(browse_tree, loc_offset, 4, "Election Criteria = %u (0x%08X)", ElectionCriteria, ElectionCriteria);
-
-	ec = proto_item_add_subtree(ti, ett_browse_election_criteria);
-
-	ti = proto_tree_add_text(ec, loc_offset + 3, 1, "Election OS Summary: %u (0x%02X)", ElectionOS, ElectionOS);
-
-	OSflags = proto_item_add_subtree(ti, ett_browse_election_os);
-
-	proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
-			    decode_boolean_bitfield(ElectionOS, 0x01, 8, "Windows for Workgroups", "Not Windows for Workgroups"));
-
-	proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
-			    decode_boolean_bitfield(ElectionOS, 0x02, 8, "Unknown", "Not used"));
-
-	proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
-			    decode_boolean_bitfield(ElectionOS, 0x04, 8, "Unknown", "Not used"));
-
-	proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
-			    decode_boolean_bitfield(ElectionOS, 0x08, 8, "Unknown", "Not used"));
-
-	proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
-			    decode_boolean_bitfield(ElectionOS, 0x10, 8, "Windows NT Workstation", "Not Windows NT Workstation"));
-
-	proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
-			    decode_boolean_bitfield(ElectionOS, 0x20, 8, "Windows NT Server", "Not Windows NT Server"));
-
-	proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
-			    decode_boolean_bitfield(ElectionOS, 0x40, 8, "Unknown", "Not used"));
-
-	proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
-			    decode_boolean_bitfield(ElectionOS, 0x80, 8, "Unknown", "Not used"));
-
-	proto_tree_add_text(ec, loc_offset + 1, 2, "Election Revision: %u (0x%04X)", ElectionRevision, ElectionRevision);
-
-	ti = proto_tree_add_text(ec, loc_offset, 1, "Election Desire Summary: %u (0x%02X)", ElectionDesire, ElectionDesire);
-
-        DesireFlags = proto_item_add_subtree(ti, ett_browse_election_desire);
-
-	proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
-			     decode_boolean_bitfield(ElectionDesire, 0x01, 8, "Backup Browse Server", "Not Backup Browse Server"));
-
-	proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
-			     decode_boolean_bitfield(ElectionDesire, 0x02, 8, "Standby Browse Server", "Not Standby Browse Server"));
-
-	proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
-			     decode_boolean_bitfield(ElectionDesire, 0x04, 8, "Master Browser", "Not Master Browser"));
-
-	proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
-			     decode_boolean_bitfield(ElectionDesire, 0x08, 8, "Domain Master Browse Server", "Not Domain Master Browse Server"));
-
-	proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
-			     decode_boolean_bitfield(ElectionDesire, 0x10, 8, "Unknown", "Not used"));
-
-	proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
-			     decode_boolean_bitfield(ElectionDesire, 0x20, 8, "WINS Client", "Not WINS Client"));
-
-	proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
-			     decode_boolean_bitfield(ElectionDesire, 0x40, 8, "Unknown", "Not used"));
-
-	proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
-			     decode_boolean_bitfield(ElectionDesire, 0x80, 8, "Windows NT Advanced Server", "Not Windows NT Advanced Server"));
-
-      }
-
-      loc_offset += 4;
-
-      ServerUpTime = GWORD(pd, loc_offset);
-
-      if (tree) {
-
-	proto_tree_add_text(browse_tree, loc_offset, 4, "Server Up Time: %u Sec", ServerUpTime);
-
-      }
-
-      loc_offset += 4;
-
-      MBZ = GWORD(pd, loc_offset);
-
-      loc_offset += 4;
-
-      ServerName = pd + loc_offset;
-
-      if (tree) {
-
-	proto_tree_add_text(browse_tree, loc_offset, strlen(ServerName) + 1, "Election Server Name: %s", ServerName);
-
-      }
-
-      break;
-
-    case GETBACKUPLISTREQ:
-
-      BackupServerCount = GBYTE(pd, loc_offset);
-
-      if (tree) {
-
-	proto_tree_add_text(browse_tree, loc_offset, 1, "Backup List Requested Count: %u", BackupServerCount);
-
-      }
-
-      loc_offset += 1;
-
-      Token = GWORD(pd, loc_offset);
-
-      if (tree) {
-
-	proto_tree_add_text(browse_tree, loc_offset, 4, "Backup Request Token: %u", Token);
-
-      }
-
-      break;
-
-    case GETBACKUPLISTRESP:
-
-      BackupServerCount = GBYTE(pd, loc_offset);
-
-      if (tree) {
-
-	proto_tree_add_text(browse_tree, loc_offset, 1, "Backup Server Count: %u", BackupServerCount);
-
-      }
-
-      loc_offset += 1;
-
-      Token = GWORD(pd, loc_offset);
-
-      if (tree) {
-
-	proto_tree_add_text(browse_tree, loc_offset, 4, "Backup Response Token: %u", Token);
-
-      }
-
-      loc_offset += 4;
-
-      ServerName = pd + loc_offset;
-
-      for (count = 1; count <= BackupServerCount; count++) {
-
-	if (tree) {
-
-	  proto_tree_add_text(browse_tree, loc_offset, strlen(ServerName) + 1, "Backup Server: %s", ServerName);
-
-	}
-
-	loc_offset += strlen(ServerName) + 1;
-
-	ServerName = pd + loc_offset;
-
-      }
-
-      break;
-
-    case BECOMEBACKUPBROWSER:
-
-      ServerName = pd + loc_offset;
-
-      if (tree) {
-
-	proto_tree_add_text(browse_tree, loc_offset, strlen(ServerName) + 1, "Browser to Promote: %s", ServerName);
-
-      }
-
-      break;
-
-    case MASTERANNOUNCEMENT:
-
-      ServerName = pd + loc_offset;
-
-      if (tree) {
-
-	proto_tree_add_text(browse_tree, loc_offset, strlen(ServerName) + 1, "Server Name: %s", ServerName);
-
-      }
-
-      break;
-
-    default:
-      break;
-    }
-
-    return 1;  /* Success */
+    return dissect_mailslot_browse(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, command, DataOffset, DataCount);
 
   }
 
@@ -10703,11 +11075,14 @@ proto_register_smb(void)
 		&ett_browse_flags,
 		&ett_browse_election_criteria,
 		&ett_browse_election_os,
-		&ett_browse_election_desire
+		&ett_browse_election_desire,
+		&ett_lanman,
+		&ett_lanman_servers
 	};
 
         proto_smb = proto_register_protocol("Server Message Block Protocol", "smb");
 	proto_browse = proto_register_protocol("Microsoft Windows Browser Protocol", "browser");
+	proto_lanman = proto_register_protocol("Microsoft Windows LanMan Protocol", "lanman");
  /*       proto_register_field_array(proto_smb, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
 	register_init_routine(&smb_init_protocol);
