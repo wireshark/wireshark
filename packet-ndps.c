@@ -2,7 +2,7 @@
  * Routines for NetWare's NDPS
  * Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ndps.c,v 1.8 2002/10/22 07:50:07 guy Exp $
+ * $Id: packet-ndps.c,v 1.9 2002/10/22 08:09:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,7 +30,9 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include "prefs.h"
 #include "packet-ipx.h"
+#include "packet-tcp.h"
 #include <epan/conversation.h>
 #include "packet-ndps.h"
 
@@ -133,6 +135,9 @@ static int hf_spx_ndps_func_broker = -1;
 
 static gint ett_ndps = -1;
 static dissector_handle_t ndps_data_handle;
+
+/* desegmentation of NDPS over TCP */
+static gboolean ndps_desegment = TRUE;
 
 static const value_string true_false[] = {
     { 0x00000000, "Accept" },
@@ -1869,8 +1874,8 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int         foffset;
     guint32     ndps_hfname;
     guint32     ndps_func;
-    const char  *ndps_program_string='\0';
-    const char  *ndps_func_string='\0';
+    const char  *ndps_program_string;
+    const char  *ndps_func_string;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDPS");
@@ -1888,6 +1893,14 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         record_mark = tvb_get_ntohs(tvb, foffset);
         if (tvb_get_ntohl(tvb, foffset+4) == 0x00000065) /* Check xid if not 65 then fragment packet */
         {
+            /*
+             * XXX - what is the significance of the record mark?
+             * Are the first 4 bytes a 31-bit record length plus a
+             * 1-bit record mark of some sort?  Is that used in case
+             * something has to be transferred over SPX that's
+             * bigger than the biggest SPX frame, with the record
+             * mark being a "last fragment" indication?
+             */
             proto_tree_add_uint(ndps_tree, hf_ndps_record_mark, tvb,
                            foffset, 2, record_mark);
             foffset += 2;
@@ -1968,6 +1981,7 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             break;
                         default:
                             ndps_hfname = 0;
+                            ndps_func_string = NULL;
                             break;
                     }
                     if(ndps_hfname != 0)
@@ -1993,6 +2007,32 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 col_append_str(pinfo->cinfo, COL_INFO, "Continuation Fragment");
         }
     }
+}
+
+static guint
+get_ndps_pdu_len(tvbuff_t *tvb, int offset)
+{
+    guint16 plen;
+
+    /*
+     * Get the length of the NDPS packet.
+     */
+    plen = tvb_get_ntohs(tvb, offset + 2);
+
+    /*
+     * That length doesn't include the length of the record mark field
+     * or the length field itself; add that in.
+     * (XXX - is the field really a 31-bit length with the uppermost bit
+     * being a record mark bit?)
+     */
+    return plen + 4;
+}
+
+static void
+dissect_ndps_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, ndps_desegment, 4, get_ndps_pdu_len,
+	dissect_ndps);
 }
 
 static void
@@ -3024,12 +3064,18 @@ proto_register_ndps(void)
 	static gint *ett[] = {
 		&ett_ndps,
 	};
+	module_t *ndps_module;
 	
-
 	proto_ndps = proto_register_protocol("Novell Distributed Print System", "NDPS", "ndps");
 	proto_register_field_array(proto_ndps, hf_ndps, array_length(hf_ndps));
-
 	proto_register_subtree_array(ett, array_length(ett));
+
+	ndps_module = prefs_register_protocol(proto_ndps, NULL);
+	prefs_register_bool_preference(ndps_module, "desegment_ndps",
+	    "Desegment all NDPS messages spanning multiple TCP segments",
+	    "Whether the NDPS dissector should desegment all messages spanning multiple TCP segments",
+	    &ndps_desegment);
+
 	register_init_routine(&ndps_init_protocol);
 	register_postseq_cleanup_routine(&ndps_postseq_cleanup);
 }
@@ -3037,9 +3083,10 @@ proto_register_ndps(void)
 void
 proto_reg_handoff_ndps(void)
 {
-	dissector_handle_t ndps_handle;
+	dissector_handle_t ndps_handle, ndps_tcp_handle;
 
 	ndps_handle = create_dissector_handle(dissect_ndps, proto_ndps);
+	ndps_tcp_handle = create_dissector_handle(dissect_ndps_tcp, proto_ndps);
 	
 	dissector_add("spx.socket", SPX_SOCKET_PA, ndps_handle);
 	dissector_add("spx.socket", SPX_SOCKET_BROKER, ndps_handle);
@@ -3047,11 +3094,11 @@ proto_reg_handoff_ndps(void)
 	dissector_add("spx.socket", SPX_SOCKET_ENS, ndps_handle);
 	dissector_add("spx.socket", SPX_SOCKET_RMS, ndps_handle);
 	dissector_add("spx.socket", SPX_SOCKET_NOTIFY_LISTENER, ndps_handle);
-	dissector_add("tcp.port", TCP_PORT_PA, ndps_handle);
-	dissector_add("tcp.port", TCP_PORT_BROKER, ndps_handle);
-	dissector_add("tcp.port", TCP_PORT_SRS, ndps_handle);
-	dissector_add("tcp.port", TCP_PORT_ENS, ndps_handle);
-	dissector_add("tcp.port", TCP_PORT_RMS, ndps_handle);
-	dissector_add("tcp.port", TCP_PORT_NOTIFY_LISTENER, ndps_handle);
+	dissector_add("tcp.port", TCP_PORT_PA, ndps_tcp_handle);
+	dissector_add("tcp.port", TCP_PORT_BROKER, ndps_tcp_handle);
+	dissector_add("tcp.port", TCP_PORT_SRS, ndps_tcp_handle);
+	dissector_add("tcp.port", TCP_PORT_ENS, ndps_tcp_handle);
+	dissector_add("tcp.port", TCP_PORT_RMS, ndps_tcp_handle);
+	dissector_add("tcp.port", TCP_PORT_NOTIFY_LISTENER, ndps_tcp_handle);
 	ndps_data_handle = find_dissector("data");
 }
