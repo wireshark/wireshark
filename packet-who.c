@@ -2,7 +2,7 @@
  * Routines for who protocol (see man rwhod)
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-who.c,v 1.12 2001/01/03 06:55:34 guy Exp $
+ * $Id: packet-who.c,v 1.13 2001/01/06 06:18:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -92,92 +92,97 @@ static gint ett_whoent = -1;
 
 #define UDP_PORT_WHO    513
 
-static void dissect_whoent(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
+static void dissect_whoent(tvbuff_t *tvb, int offset, proto_tree *tree);
 
 static void
-dissect_who(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-
+	int		offset = 0;
 	proto_tree	*who_tree = NULL;
 	proto_item	*who_ti = NULL;
 	gchar		server_name[33];
 	double		loadav_5 = 0.0, loadav_10 = 0.0, loadav_15 = 0.0;
+	struct timeval	tv;
 
-        OLD_CHECK_DISPLAY_AS_DATA(proto_who, pd, offset, fd, tree);
+	CHECK_DISPLAY_AS_DATA(proto_who, tvb, pinfo, tree);
+
+	pinfo->current_proto = "WHO";
 
 	/* Summary information */
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "WHO");
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "WHO");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
 
-	/* Figure out if we have enough bytes in the packet
-	 * to retrieve the data that we want to put into the summary
-	 * line: hostname and load average
-	 */
-	if ( BYTES_ARE_IN_FRAME(offset, 60) ) {
-
-		memcpy(server_name, &pd[offset + 12], 32);
-		server_name[32] = '\0';
-
-		loadav_5  = (double) pntohl(&pd[offset+44]) / 100.0;
-		loadav_10 = (double) pntohl(&pd[offset+48]) / 100.0;
-		loadav_15 = (double) pntohl(&pd[offset+52]) / 100.0;
-
-		/* Summary information */
-		if (check_col(fd, COL_INFO))
-			col_add_fstr(fd, COL_INFO, "%s: %.02f %.02f %.02f",
-					server_name, loadav_5, loadav_10, loadav_15);
-	}
-	else {
-		return;
-	}
-
+	tv.tv_usec = 0;
 
 	if (tree) {
-		struct timeval tv;
-
-		tv.tv_usec = 0;
-
-		/* We already know that the packet has enough data to fill in
-		 * the summary info. Retrieve that data */
-
-		who_ti = proto_tree_add_item(tree, proto_who, NullTVB, offset, END_OF_FRAME, FALSE);
+		who_ti = proto_tree_add_item(tree, proto_who, tvb, offset,
+		    tvb_length(tvb), FALSE);
 		who_tree = proto_item_add_subtree(who_ti, ett_who);
+	}
 
-		proto_tree_add_uint(who_tree, hf_who_vers, NullTVB, offset, 1, pd[offset]);
-		offset += 1;
+	if (tree)
+		proto_tree_add_item(who_tree, hf_who_vers, tvb, offset, 1, FALSE);
+	offset += 1;
 
+	if (tree)
+		proto_tree_add_item(who_tree, hf_who_type, tvb, offset, 1, FALSE);
+	offset += 1;
 
-		proto_tree_add_uint(who_tree, hf_who_type, NullTVB, offset, 1, pd[offset]);
-		offset += 1;
+	/* 2 filler bytes */
+	offset += 2;
 
-		/* 2 filler bytes */
-		offset += 2;
+	if (tree) {
+		tv.tv_sec = tvb_get_ntohl(tvb, offset);
+		proto_tree_add_time(who_tree, hf_who_sendtime, tvb, offset, 4,
+		    &tv);
+	}
+	offset += 4;
 
-		tv.tv_sec = pntohl(&pd[offset]);
-		proto_tree_add_time(who_tree, hf_who_sendtime, NullTVB, offset, 4, &tv);
+	if (tree) {
+		tv.tv_sec = tvb_get_ntohl(tvb, offset);
+		proto_tree_add_time(who_tree, hf_who_recvtime, tvb, offset, 4,
+		    &tv);
+	}
+	offset += 4;
+
+	tvb_get_nstringz0(tvb, offset, 32, server_name);
+	if (tree)
+		proto_tree_add_string(who_tree, hf_who_hostname, tvb, offset,
+		    32, server_name);
+	offset += 32;
+
+	loadav_5  = (double) tvb_get_ntohl(tvb, offset) / 100.0;
+	if (tree)
+		proto_tree_add_double(who_tree, hf_who_loadav_5, tvb, offset,
+		    4, loadav_5);
+	offset += 4;
+
+	loadav_10 = (double) tvb_get_ntohl(tvb, offset) / 100.0;
+	if (tree)
+		proto_tree_add_double(who_tree, hf_who_loadav_10, tvb, offset,
+		    4, loadav_10);
+	offset += 4;
+
+	loadav_15 = (double) tvb_get_ntohl(tvb, offset) / 100.0;
+	if (tree)
+		proto_tree_add_double(who_tree, hf_who_loadav_15, tvb, offset,
+		    4, loadav_15);
+	offset += 4;
+
+	/* Summary information */
+	if (check_col(pinfo->fd, COL_INFO))
+		col_add_fstr(pinfo->fd, COL_INFO, "%s: %.02f %.02f %.02f",
+				server_name, loadav_5, loadav_10, loadav_15);
+
+	if (tree) {
+		tv.tv_sec = tvb_get_ntohl(tvb, offset);
+		proto_tree_add_time(who_tree, hf_who_boottime, tvb, offset, 4,
+		    &tv);
 		offset += 4;
 
-		tv.tv_sec = pntohl(&pd[offset]);
-		proto_tree_add_time(who_tree, hf_who_recvtime, NullTVB, offset, 4, &tv);
-		offset += 4;
-
-		proto_tree_add_string(who_tree, hf_who_hostname, NullTVB, offset, 32, server_name);
-		offset += 32;
-
-		proto_tree_add_double(who_tree, hf_who_loadav_5, NullTVB, offset, 4, loadav_5);
-		offset += 4;
-
-		proto_tree_add_double(who_tree, hf_who_loadav_10, NullTVB, offset, 4, loadav_10);
-		offset += 4;
-
-		proto_tree_add_double(who_tree, hf_who_loadav_15, NullTVB, offset, 4, loadav_15);
-		offset += 4;
-
-		tv.tv_sec = pntohl(&pd[offset]);
-		proto_tree_add_time(who_tree, hf_who_boottime, NullTVB, offset, 4, &tv);
-		offset += 4;
-
-		dissect_whoent(pd, offset, fd, who_tree);
+		dissect_whoent(tvb, offset, who_tree);
 	}
 }
 
@@ -187,7 +192,7 @@ dissect_who(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 #define MAX_NUM_WHOENTS	(1024 / SIZE_OF_WHOENT)
 
 static void
-dissect_whoent(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_whoent(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	proto_tree	*whoent_tree = NULL;
 	proto_item	*whoent_ti = NULL;
@@ -199,29 +204,32 @@ dissect_whoent(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	guint32		idle_secs; /* say that out loud... */
 
 	tv.tv_usec = 0;
-	out_line[8] = '\0';
-	out_name[8] = '\0';
 
-	while (BYTES_ARE_IN_FRAME(line_offset, SIZE_OF_WHOENT) && whoent_num < MAX_NUM_WHOENTS) {
-		memcpy(out_line, &pd[line_offset], 8);
-		memcpy(out_name, &pd[line_offset+8], 8);
-
-		whoent_ti = proto_tree_add_item(tree, hf_who_whoent, NullTVB, line_offset, SIZE_OF_WHOENT, FALSE);
+	while (tvb_reported_length_remaining(tvb, line_offset) > 0
+	    && whoent_num < MAX_NUM_WHOENTS) {
+		whoent_ti = proto_tree_add_item(tree, hf_who_whoent, tvb,
+		    line_offset, SIZE_OF_WHOENT, FALSE);
 		whoent_tree = proto_item_add_subtree(whoent_ti, ett_whoent);
 
-		proto_tree_add_string(whoent_tree, hf_who_tty, NullTVB, line_offset, 8, out_line);
+	    	tvb_get_nstringz0(tvb, line_offset, 8, out_line);
+		proto_tree_add_string(whoent_tree, hf_who_tty, tvb, line_offset,
+		    8, out_line);
 		line_offset += 8;
 
-		proto_tree_add_string(whoent_tree, hf_who_uid, NullTVB, line_offset, 8, out_name);
+	    	tvb_get_nstringz0(tvb, line_offset, 8, out_name);
+		proto_tree_add_string(whoent_tree, hf_who_uid, tvb, line_offset,
+		    8, out_name);
 		line_offset += 8;
 
-		tv.tv_sec = pntohl(&pd[line_offset]);
-		proto_tree_add_time(whoent_tree, hf_who_timeon, NullTVB, line_offset, 4, &tv);
+		tv.tv_sec = tvb_get_ntohl(tvb, line_offset);
+		proto_tree_add_time(whoent_tree, hf_who_timeon, tvb,
+		    line_offset, 4, &tv);
 		line_offset += 4;
 
-		idle_secs = pntohl(&pd[line_offset]);
-		proto_tree_add_uint_format(whoent_tree, hf_who_idle, NullTVB, line_offset, 4, idle_secs,
-				"Idle: %s", time_secs_to_str(idle_secs));
+		idle_secs = tvb_get_ntohl(tvb, line_offset);
+		proto_tree_add_uint_format(whoent_tree, hf_who_idle, tvb,
+		    line_offset, 4, idle_secs, "Idle: %s",
+		    time_secs_to_str(idle_secs));
 		line_offset += 4;
 
 		whoent_num++;
@@ -231,70 +239,70 @@ dissect_whoent(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 proto_register_who(void)
 {
-        static hf_register_info hf[] = {
-                { &hf_who_vers,
-                { "Version",	"who.vers", FT_UINT8, BASE_DEC, NULL, 0x0,
+	static hf_register_info hf[] = {
+		{ &hf_who_vers,
+		{ "Version",	"who.vers", FT_UINT8, BASE_DEC, NULL, 0x0,
 			"" }},
 
-                { &hf_who_type,
-                { "Type",	"who.type", FT_UINT8, BASE_DEC, NULL, 0x0,
+		{ &hf_who_type,
+		{ "Type",	"who.type", FT_UINT8, BASE_DEC, NULL, 0x0,
 			"" }},
 
-                { &hf_who_sendtime,
-                { "Send Time",	"who.sendtime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		{ &hf_who_sendtime,
+		{ "Send Time",	"who.sendtime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
 			"" }},
 
-                { &hf_who_recvtime,
-                { "Receive Time", "who.recvtime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		{ &hf_who_recvtime,
+		{ "Receive Time", "who.recvtime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
 			"" }},
 
-                { &hf_who_hostname,
-                { "Hostname", "who.hostname", FT_STRING, BASE_NONE, NULL, 0x0,
+		{ &hf_who_hostname,
+		{ "Hostname", "who.hostname", FT_STRING, BASE_NONE, NULL, 0x0,
 			"" }},
 
-                { &hf_who_loadav_5,
-                { "Load Average Over Past  5 Minutes", "who.loadav_5", FT_DOUBLE, BASE_NONE, NULL, 0x0,
+		{ &hf_who_loadav_5,
+		{ "Load Average Over Past  5 Minutes", "who.loadav_5", FT_DOUBLE, BASE_NONE, NULL, 0x0,
 			"" }},
 
-                { &hf_who_loadav_10,
-                { "Load Average Over Past 10 Minutes", "who.loadav_10", FT_DOUBLE, BASE_NONE, NULL, 0x0,
+		{ &hf_who_loadav_10,
+		{ "Load Average Over Past 10 Minutes", "who.loadav_10", FT_DOUBLE, BASE_NONE, NULL, 0x0,
 			"" }},
 
-                { &hf_who_loadav_15,
-                { "Load Average Over Past 15 Minutes", "who.loadav_15", FT_DOUBLE, BASE_NONE, NULL, 0x0,
+		{ &hf_who_loadav_15,
+		{ "Load Average Over Past 15 Minutes", "who.loadav_15", FT_DOUBLE, BASE_NONE, NULL, 0x0,
 			"" }},
 
-                { &hf_who_boottime,
-                { "Boot Time", "who.boottime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		{ &hf_who_boottime,
+		{ "Boot Time", "who.boottime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
 			"" }},
 
-                { &hf_who_whoent,
-                { "Who utmp Entry", "who.whoent", FT_NONE, BASE_NONE, NULL, 0x0,
+		{ &hf_who_whoent,
+		{ "Who utmp Entry", "who.whoent", FT_NONE, BASE_NONE, NULL, 0x0,
 			"" }},
 
-                { &hf_who_tty,
-                { "TTY Name", "who.tty", FT_STRING, BASE_NONE, NULL, 0x0,
+		{ &hf_who_tty,
+		{ "TTY Name", "who.tty", FT_STRING, BASE_NONE, NULL, 0x0,
 			"" }},
 
-                { &hf_who_uid,
-                { "User ID", "who.uid", FT_STRING, BASE_NONE, NULL, 0x0,
+		{ &hf_who_uid,
+		{ "User ID", "who.uid", FT_STRING, BASE_NONE, NULL, 0x0,
 			"" }},
 
-                { &hf_who_timeon,
-                { "Time On", "who.timeon", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		{ &hf_who_timeon,
+		{ "Time On", "who.timeon", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
 			"" }},
 
-                { &hf_who_idle,
-                { "Time Idle", "who.idle", FT_UINT32, BASE_NONE, NULL, 0x0,
+		{ &hf_who_idle,
+		{ "Time Idle", "who.idle", FT_UINT32, BASE_NONE, NULL, 0x0,
 			"" }},
-        };
+	};
 
 	static gint *ett[] = {
 		&ett_who,
 		&ett_whoent,
 	};
 
-        proto_who = proto_register_protocol("Who", "WHO", "who");
+	proto_who = proto_register_protocol("Who", "WHO", "who");
 	proto_register_field_array(proto_who, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
@@ -302,5 +310,5 @@ proto_register_who(void)
 void
 proto_reg_handoff_who(void)
 {
-	old_dissector_add("udp.port", UDP_PORT_WHO, dissect_who);
+	dissector_add("udp.port", UDP_PORT_WHO, dissect_who);
 }
