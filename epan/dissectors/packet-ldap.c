@@ -59,6 +59,7 @@
 
 /*
  * 17-DEC-2004 - added basic decoding for LDAP Controls
+ * 20-DEC-2004 - added handling for GSS-API encrypted blobs
  *
  * Stefan Metzmacher <metze@samba.org>
  */
@@ -624,7 +625,7 @@ static int read_bytestring(ASN1_SCK *a, proto_tree *tree, int hf_id,
   return read_bytestring_value(a, tree, hf_id, new_item, s, start, length);
 }
 
-static int check_optional_tag(ASN1_SCK *a, guint expected_cls, guint expected_tag)
+static int check_optional_tag(ASN1_SCK *a, guint expected_cls, guint expected_con, guint expected_tag)
 {
   guint cls, con, tag;
   gboolean def;
@@ -636,7 +637,7 @@ static int check_optional_tag(ASN1_SCK *a, guint expected_cls, guint expected_ta
 
   ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
   if (ret == ASN1_ERR_NOERROR) {
-    if (cls != expected_cls || con != ASN1_PRI || tag != expected_tag) {
+    if (cls != expected_cls || con != expected_con || tag != expected_tag) {
       ret = ASN1_ERR_WRONG_TYPE;
     }
   }
@@ -1999,7 +2000,7 @@ static void dissect_ldap_controls(ASN1_SCK *a, proto_tree *tree)
       break;
     }
 
-    ret = check_optional_tag(a, ASN1_UNI, ASN1_BOL);
+    ret = check_optional_tag(a, ASN1_UNI, ASN1_PRI, ASN1_BOL);
     if (ret == ASN1_ERR_NOERROR) {
       ret = read_boolean(a, ctrl_tree, hf_ldap_message_controls_critical, 0, 0);
       if (ret != ASN1_ERR_NOERROR) {
@@ -2012,7 +2013,7 @@ static void dissect_ldap_controls(ASN1_SCK *a, proto_tree *tree)
       break;
     }
 
-    ret = check_optional_tag(a, ASN1_UNI, ASN1_OTS);
+    ret = check_optional_tag(a, ASN1_UNI, ASN1_PRI, ASN1_OTS);
     if (ret == ASN1_ERR_NOERROR) {
       ret = read_bytestring(a, ctrl_tree, hf_ldap_message_controls_value, NULL, NULL, ASN1_UNI, ASN1_OTS);
       if (ret != ASN1_ERR_NOERROR) {
@@ -2365,6 +2366,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
   proto_tree *gtree = NULL;
   tvbuff_t *next_tvb;
   ldap_conv_info_t *ldap_info=NULL;
+  int tmp_offset;
 
 
   /*
@@ -2579,9 +2581,28 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
               proto_item_set_len(gitem, len);
 
           /*
-           * Now dissect the LDAP message.
+           * check if it's LDAP or an encrypted blob
            */
-          dissect_ldap_message(tvb, 4 + len, pinfo, ldap_tree, ti, first_time, ldap_info, is_mscldap);
+
+          asn1_open(&a, tvb, 4 + len);
+          ret = check_optional_tag(&a, ASN1_UNI, ASN1_CON, ASN1_SEQ);
+          asn1_close(&a, &tmp_offset);
+          if (ret == ASN1_ERR_NOERROR) {
+            /*
+             * Now dissect the LDAP message.
+             */
+            dissect_ldap_message(tvb, 4 + len, pinfo, ldap_tree, ti, first_time, ldap_info, is_mscldap);
+          } else {
+            if (first_time && check_col(pinfo->cinfo, COL_INFO)) {
+              col_add_fstr(pinfo->cinfo, COL_INFO, "LDAP GSS-API Encrypted payload (%d byte%s)",
+                                sasl_length - len,
+                                plurality(sasl_length - len, "", "s"));
+            }
+            proto_tree_add_text(ldap_tree, tvb, 4 + len, -1,
+                                "GSS-API Encrypted payload (%d byte%s)",
+                                sasl_length - len,
+                                plurality(sasl_length - len, "", "s"));
+          }
       } else {
         /*
          * We don't know how to handle other authentication mechanisms
