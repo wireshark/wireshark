@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.1 2000/09/19 17:22:10 gram Exp $
+ * $Id: pppdump.c,v 1.2 2000/09/19 17:35:08 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  * 
@@ -30,14 +30,6 @@
 #include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-/*#define DEBUG 1 */
-
-#ifdef DEBUG
-#define dbg_print(...)		g_print(##args)
-#else
-#define dbg_print(...)		;
-#endif
 
 /*
 pppdump records
@@ -148,7 +140,6 @@ static void
 init_state(pppdump_t *state)
 {
 
-	dbg_print("INITIALIZING STATE 0x%08x\n", (unsigned int) state);
 	state->precs = NULL;
 
 	state->spkt.dir = DIRECTION_SENT;
@@ -164,42 +155,6 @@ init_state(pppdump_t *state)
 	state->seek_state = NULL;
 	state->offset = 0x100000; /* to detect errors during development */
 }
-
-#ifdef DEBUG
-static
-void print_hex_data_text(const u_char *cp, unsigned int length)
-{
-        register int ad, i, j, k;
-        u_char c;
-        u_char line[60];
-	static u_char binhex[16] = {
-		'0', '1', '2', '3', '4', '5', '6', '7',
-		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-
-        memset (line, ' ', sizeof line);
-        line[sizeof (line)-1] = 0;
-        for (ad=i=j=k=0; i<length; i++) {
-                c = *cp++;
-                line[j++] = binhex[c>>4];
-                line[j++] = binhex[c&0xf];
-                if (i&1) j++;
-                line[42+k++] = c >= ' ' && c < 0x7f ? c : '.';
-                if ((i & 15) == 15) {
-                        printf ("\n%4x  %s", ad, line);
-                        /*if (i==15) printf (" %d", length);*/
-                        memset (line, ' ', sizeof line);
-                        line[sizeof (line)-1] = j = k = 0;
-                        ad += 16;
-                }
-        }
-
-        if (line[0] != ' ') printf ("\n%4x  %s", ad, line);
-        printf("\n");
-        return;
-
-}
-#endif
-
 
 	
 int
@@ -237,7 +192,6 @@ pppdump_open(wtap *wth, int *err)
 	state = wth->capture.generic = g_malloc(sizeof(pppdump_t));
 	state->timestamp = pntohl(&buffer[1]);
 	state->tenths = 0;
-	dbg_print("pppdump time is %lu\n", state->start_time);
 
 	init_state(state);
 
@@ -271,8 +225,6 @@ pppdump_read(wtap *wth, int *err, int *data_offset)
 	pppdump_t	*state;
 	pkt_id		*pid;
 
-	dbg_print("======================================================\n");
-
 	buffer_assure_space(wth->frame_buffer, 8192);
 	buf = buffer_start_ptr(wth->frame_buffer);
 
@@ -285,9 +237,6 @@ pppdump_read(wtap *wth, int *err, int *data_offset)
 	pid->num_saved_states = 0;
 
 	retval = collate(state, wth->fh, err, buf, &num_bytes, &direction, pid);
-
-	dbg_print("Record %u ended with pid offset = 0x%lx num_ss = %d\n", 
-			state->pkt_cnt, pid->offset, pid->num_saved_states);
 
 	if (!retval) {
 		g_free(pid);
@@ -324,8 +273,6 @@ save_prec_state(pppdump_t *state, int num_bytes, pkt_t *pkt)
 	prec->num_bytes = num_bytes;
 	prec->pkt = pkt;
 
-	dbg_print("saved state of num_bytes=%d pkt=0x%08x (%s) pkt->cnt=%d\n",
-			num_bytes, (unsigned int) pkt, PKT(pkt), pkt->cnt);
 	state->precs = g_list_append(state->precs, prec);
 	return TRUE;
 }
@@ -340,9 +287,7 @@ process_data_from_prec_state(pppdump_t *state, FILE_T fh, guint8* pd, int *err,
 
 	state->precs = g_list_remove(state->precs, prec);
 
-	dbg_print("retrieved state of num_bytes=%d ", prec->num_bytes);
 	*ppkt = prec->pkt;
-	dbg_print("pkt=0x%08x (%s) pkt->cnt = %d\n", (unsigned int) prec->pkt, PKT(prec->pkt), prec->pkt->cnt);
 
 	return process_data(state, fh, prec->pkt, prec->num_bytes, pd, err, state_saved);
 }
@@ -365,11 +310,9 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd, int *er
 	*state_saved = FALSE;
 	for (; num_bytes > 0; --num_bytes) {
 		c = file_getc(fh);
-		dbg_print("PD At offset 0x%lx got %c (0x%02x)\n", state->offset, c, c);
 		state->offset++;
 		switch (c) {
 			case EOF:
-				dbg_print("Unexpected EOF\n");
 				if (*err == 0) {
 					*err = WTAP_ERR_SHORT_READ;
 				}
@@ -387,10 +330,6 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd, int *er
 					}
 
 					memcpy(pd, pkt->buf, num_written);
-					dbg_print("\n%s:\n", PKT(pkt));
-#ifdef DEBUG
-					print_hex_data_text(pd, num_written);
-#endif
 
 					num_bytes--;
 					if (num_bytes > 0) {
@@ -399,8 +338,6 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd, int *er
 						}
 						*state_saved = TRUE;
 					}
-					dbg_print("returning with num_bytes   = %d\n", num_bytes);
-					dbg_print("returning with num_written = %d\n", num_written);
 					return num_written;
 				}
 				break;
@@ -415,7 +352,6 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd, int *er
 			default:
 				if (pkt->esc) {
 					c ^= 0x20;
-					dbg_print("Changed  0x%02x\t%c\n", c, c);
 					pkt->esc = FALSE;
 				}
 		
@@ -424,8 +360,6 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd, int *er
 		}
 	}
 
-	dbg_print("PD returning 0; no out bytes. pkt=0x%08x (%s) pkt->cnt=%d\n",
-			(unsigned int) pkt, PKT(pkt), pkt->cnt);
 	/* we could have run out of bytes to read */
 	return 0;
 
@@ -455,7 +389,6 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 
 
 	while (state->precs) {
-		dbg_print("I see a saved state.\n");
 		num_written = process_data_from_prec_state(state, fh, pd, err, &ss, &pkt);
 		state->num_saved_states++;
 		if (pid) {
@@ -474,15 +407,12 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 			if (!ss) {
 				pkt->id_offset = 0;
 			}
-			dbg_print("Returning, state->offset = 0x%lx\n", state->offset);
 			return TRUE;
 		}
 		/* if 0 bytes written, keep processing */
 	}
-	dbg_print("No saved states.\n");
 
 	while ((id = file_getc(fh)) != EOF) {
-		dbg_print("CL At offset 0x%lx got %c (0x%02x)\n", state->offset, id, id);
 		state->offset++;
 		switch (id) {
 			case PPPD_SENT_DATA:
@@ -496,9 +426,6 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 				n = file_getc(fh);
 				n = (n << 8) + file_getc(fh);
 				state->offset += 2;
-
-				dbg_print("ID: Going to read %d bytes for pkt=0x%08x (%s)\n", n,
-						(unsigned int) pkt, PKT(pkt));
 
 				num_written = process_data(state, fh, pkt, n, pd, err, &ss);
 
@@ -514,7 +441,6 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 					if (!ss) {
 						pkt->id_offset = 0;
 					}
-					dbg_print("Returning, state->offset = 0x%lx\n", state->offset);
 					return TRUE;
 				}
 				/* if 0 bytes written, keep looping */
@@ -524,11 +450,9 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 			case PPPD_SEND_DELIM:
 			case PPPD_RECV_DELIM:
 				/* What can we do? */
-				dbg_print("GOT *_DELIM\n");
 				break;
 
 			case PPPD_TIME_STEP_LONG:
-				dbg_print("GOT *_TIME 32\n");
 				wtap_file_read_unknown_bytes(&time_long, sizeof(guint32), fh, err);
 				state->offset += sizeof(guint32);
 				state->timestamp = time_long;
@@ -536,7 +460,6 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 				break;
 
 			case PPPD_RESET_TIME:
-				dbg_print("GOT *_TIME 32\n");
 				wtap_file_read_unknown_bytes(&time_long, sizeof(guint32), fh, err);
 				state->offset += sizeof(guint32);
 				state->tenths += time_long;
@@ -549,7 +472,6 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 				break;
 
 			case PPPD_TIME_STEP_SHORT:
-				dbg_print("GOT *_TIME 8\n");
 				wtap_file_read_unknown_bytes(&time_short, sizeof(guint8), fh, err);
 				state->offset += sizeof(guint8);
 				state->tenths += time_short;
@@ -562,7 +484,6 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 				break;
 
 			default:
-				dbg_print("BAD ID: 0x%02x\n", id);
 				/* XXX - bad file */
 				g_assert_not_reached();
 		}
@@ -591,7 +512,6 @@ pppdump_seek_read (wtap *wth,
 	int		i;
 
 
-	dbg_print(">>>>>>>>>>>> SEEKING to packet # %d\n", seek_off);
 	state = wth->capture.generic;
 
 	pid = g_ptr_array_index(state->pids, seek_off);
@@ -599,14 +519,11 @@ pppdump_seek_read (wtap *wth,
 		return -1;
 	}
 
-	dbg_print(">>>>>>>>>>>> SEEKING to offset %ld (0x%lx), num_ss=%d\n",
-			pid->offset, pid->offset, pid->num_saved_states);
 	file_seek(wth->random_fh, pid->offset, SEEK_SET);
 
 	init_state(state->seek_state);
 
 	for (i = 0 ; i <= pid->num_saved_states; i++) {
-		dbg_print("Loop=%d\n", i);
 	  again:
 		retval = collate(state->seek_state, wth->random_fh, &err, pd, &num_bytes,
 				&direction, NULL);
@@ -616,18 +533,13 @@ pppdump_seek_read (wtap *wth,
 		}
 
 		if (direction != pid->dir) {
-			dbg_print("Looping because wrong direction.\n");
 			goto again;
 		}
-		dbg_print("Got right direction.\n");
 	}
 
 	if (len != num_bytes) {
 		return -1;
 	}
-
-
-	dbg_print(">>>>>>>>>>>> COPIED %d bytes\n", num_bytes);
 
 	return 0;
 }
