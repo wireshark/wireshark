@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.37 2000/08/11 13:35:31 deniel Exp $
+ * $Id: dfilter.c,v 1.38 2000/09/13 20:30:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -80,6 +80,8 @@ static void clear_byte_array(gpointer data, gpointer user_data);
  */
 #define g_array_index_ptr(a,s,i)      (((guint8*) (a)->data) + (i*s))
 
+extern int hf_text_only; /* in proto.c */
+
 void
 dfilter_init(void)
 {
@@ -90,7 +92,11 @@ dfilter_init(void)
 
 	/* Add the header field and protocol abbrevs to the symbol table */
 	num_symbols = proto_registrar_n();
+	
 	for (i=0; i < num_symbols; i++) {
+		if (i == hf_text_only) {
+			continue;
+		}
 		s = proto_registrar_get_abbrev(i);
 		g_assert(s);		/* Not Null */
 		g_assert(s[0] != 0);	/* Not empty string */
@@ -99,7 +105,6 @@ dfilter_init(void)
 			g_message("Already have abbreviation \"%s\"", s);
 			g_assert(0);
 		}
-		/*g_message("Adding %s", s);*/
 		symbol = DFILTER_LEX_ABBREV_OFFSET + i;
 		g_tree_insert(dfilter_tokens, s, GINT_TO_POINTER(symbol));
 	}
