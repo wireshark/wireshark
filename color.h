@@ -48,7 +48,6 @@ typedef struct {
  * @param red the red value for the color
  * @param green the green value for the color
  * @param blue the blue value for the color
- * @param source the GdkColor to be filled
  * @return TRUE if it succeeds, FALSE if it fails
  */
 gboolean initialize_color(color_t *color, guint16 red, guint16 green, guint16 blue);
