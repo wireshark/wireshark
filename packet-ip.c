@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.180 2003/01/20 05:42:30 guy Exp $
+ * $Id: packet-ip.c,v 1.181 2003/01/22 01:16:33 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,6 +49,9 @@
 #include "packet-ipsec.h"
 #include "in_cksum.h"
 #include "nlpid.h"
+#include "tap.h"
+
+static int ip_tap = -1;
 
 static void dissect_icmp(tvbuff_t *, packet_info *, proto_tree *);
 
@@ -808,15 +811,6 @@ static guint16 ip_checksum(const guint8 *ptr, int len)
 static void
 dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint8  ip_v_hl; /* combines ip_v and ip_hl */
-  guint8  ip_tos;
-  guint16 ip_len;
-  guint16 ip_id;
-  guint16 ip_off;
-  guint8  ip_p;
-  guint16 ip_sum;
-  guint32 ip_src;
-  guint32 ip_dst;
   proto_tree *ip_tree = NULL, *field_tree;
   proto_item *ti = NULL, *tf;
   int        offset = 0;
@@ -828,21 +822,30 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t   *next_tvb;
   gboolean   update_col_info = TRUE;
   gboolean   save_fragmented;
+  static e_ip eip_arr[4];
+  static int eip_current=0;
+  e_ip *iph;
+
+  eip_current++;
+  if(eip_current==4){
+     eip_current=0;
+  }
+  iph=&eip_arr[eip_current];
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IP");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 
-  ip_v_hl = tvb_get_guint8(tvb, offset);
-  hlen = lo_nibble(ip_v_hl) * 4;	/* IP header length, in bytes */
+  iph->ip_v_hl = tvb_get_guint8(tvb, offset);
+  hlen = lo_nibble(iph->ip_v_hl) * 4;	/* IP header length, in bytes */
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_ip, tvb, offset, hlen, FALSE);
     ip_tree = proto_item_add_subtree(ti, ett_ip);
 
     proto_tree_add_uint(ip_tree, hf_ip_version, tvb, offset, 1,
-	hi_nibble(ip_v_hl));
+	hi_nibble(iph->ip_v_hl));
   }
 
   if (hlen < IPH_MIN_LEN) {
@@ -854,7 +857,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	"Header length: %u bytes (bogus, must be at least %u)", hlen,
 	IPH_MIN_LEN);
     }
-    return;
+    goto end_of_ip;
   }
 
   if (tree) {
@@ -862,29 +865,29 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	"Header length: %u bytes", hlen);
   }
 
-  ip_tos = tvb_get_guint8(tvb, offset + 1);
+  iph->ip_tos = tvb_get_guint8(tvb, offset + 1);
   if (tree) {
     if (g_ip_dscp_actif) {
-      tf = proto_tree_add_uint_format(ip_tree, hf_ip_dsfield, tvb, offset + 1, 1, ip_tos,
-	   "Differentiated Services Field: 0x%02x (DSCP 0x%02x: %s; ECN: 0x%02x)", ip_tos,
-	   IPDSFIELD_DSCP(ip_tos), val_to_str(IPDSFIELD_DSCP(ip_tos), dscp_vals,
-	   "Unknown DSCP"),IPDSFIELD_ECN(ip_tos));
+      tf = proto_tree_add_uint_format(ip_tree, hf_ip_dsfield, tvb, offset + 1, 1, iph->ip_tos,
+	   "Differentiated Services Field: 0x%02x (DSCP 0x%02x: %s; ECN: 0x%02x)", iph->ip_tos,
+	   IPDSFIELD_DSCP(iph->ip_tos), val_to_str(IPDSFIELD_DSCP(iph->ip_tos), dscp_vals,
+	   "Unknown DSCP"),IPDSFIELD_ECN(iph->ip_tos));
 
       field_tree = proto_item_add_subtree(tf, ett_ip_dsfield);
-      proto_tree_add_uint(field_tree, hf_ip_dsfield_dscp, tvb, offset + 1, 1, ip_tos);
-      proto_tree_add_uint(field_tree, hf_ip_dsfield_ect, tvb, offset + 1, 1, ip_tos);
-      proto_tree_add_uint(field_tree, hf_ip_dsfield_ce, tvb, offset + 1, 1, ip_tos);
+      proto_tree_add_uint(field_tree, hf_ip_dsfield_dscp, tvb, offset + 1, 1, iph->ip_tos);
+      proto_tree_add_uint(field_tree, hf_ip_dsfield_ect, tvb, offset + 1, 1, iph->ip_tos);
+      proto_tree_add_uint(field_tree, hf_ip_dsfield_ce, tvb, offset + 1, 1, iph->ip_tos);
     } else {
-      tf = proto_tree_add_uint_format(ip_tree, hf_ip_tos, tvb, offset + 1, 1, ip_tos,
-	  "Type of service: 0x%02x (%s)", ip_tos,
-	  val_to_str( IPTOS_TOS(ip_tos), iptos_vals, "Unknown") );
+      tf = proto_tree_add_uint_format(ip_tree, hf_ip_tos, tvb, offset + 1, 1, iph->ip_tos,
+	  "Type of service: 0x%02x (%s)", iph->ip_tos,
+	  val_to_str( IPTOS_TOS(iph->ip_tos), iptos_vals, "Unknown") );
 
       field_tree = proto_item_add_subtree(tf, ett_ip_tos);
-      proto_tree_add_uint(field_tree, hf_ip_tos_precedence, tvb, offset + 1, 1, ip_tos);
-      proto_tree_add_boolean(field_tree, hf_ip_tos_delay, tvb, offset + 1, 1, ip_tos);
-      proto_tree_add_boolean(field_tree, hf_ip_tos_throughput, tvb, offset + 1, 1, ip_tos);
-      proto_tree_add_boolean(field_tree, hf_ip_tos_reliability, tvb, offset + 1, 1, ip_tos);
-      proto_tree_add_boolean(field_tree, hf_ip_tos_cost, tvb, offset + 1, 1, ip_tos);
+      proto_tree_add_uint(field_tree, hf_ip_tos_precedence, tvb, offset + 1, 1, iph->ip_tos);
+      proto_tree_add_boolean(field_tree, hf_ip_tos_delay, tvb, offset + 1, 1, iph->ip_tos);
+      proto_tree_add_boolean(field_tree, hf_ip_tos_throughput, tvb, offset + 1, 1, iph->ip_tos);
+      proto_tree_add_boolean(field_tree, hf_ip_tos_reliability, tvb, offset + 1, 1, iph->ip_tos);
+      proto_tree_add_boolean(field_tree, hf_ip_tos_cost, tvb, offset + 1, 1, iph->ip_tos);
     }
   }
 
@@ -894,51 +897,51 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      inside an ICMP datagram; we need to somehow let the
      dissector we call know that, as it might want to avoid
      doing its checksumming. */
-  ip_len = tvb_get_ntohs(tvb, offset + 2);
+  iph->ip_len = tvb_get_ntohs(tvb, offset + 2);
 
   /* Adjust the length of this tvbuff to include only the IP datagram. */
-  set_actual_length(tvb, ip_len);
+  set_actual_length(tvb, iph->ip_len);
 
-  if (ip_len < hlen) {
+  if (iph->ip_len < hlen) {
     if (check_col(pinfo->cinfo, COL_INFO))
       col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus IP length (%u, less than header length %u)",
-       ip_len, hlen);
+       iph->ip_len, hlen);
     if (tree) {
-      proto_tree_add_uint_format(ip_tree, hf_ip_len, tvb, offset + 2, 2, ip_len,
-       "Total length: %u bytes (bogus, less than header length %u)", ip_len,
+      proto_tree_add_uint_format(ip_tree, hf_ip_len, tvb, offset + 2, 2, iph->ip_len,
+       "Total length: %u bytes (bogus, less than header length %u)", iph->ip_len,
        hlen);
     }
-    return;
+    goto end_of_ip;
   }
   if (tree)
-    proto_tree_add_uint(ip_tree, hf_ip_len, tvb, offset + 2, 2, ip_len);
+    proto_tree_add_uint(ip_tree, hf_ip_len, tvb, offset + 2, 2, iph->ip_len);
 
-  ip_id  = tvb_get_ntohs(tvb, offset + 4);
+  iph->ip_id  = tvb_get_ntohs(tvb, offset + 4);
   if (tree)
-    proto_tree_add_uint(ip_tree, hf_ip_id, tvb, offset + 4, 2, ip_id);
+    proto_tree_add_uint(ip_tree, hf_ip_id, tvb, offset + 4, 2, iph->ip_id);
 
-  ip_off = tvb_get_ntohs(tvb, offset + 6);
+  iph->ip_off = tvb_get_ntohs(tvb, offset + 6);
   if (tree) {
-    flags = (ip_off & (IP_DF|IP_MF)) >> 12;
+    flags = (iph->ip_off & (IP_DF|IP_MF)) >> 12;
     tf = proto_tree_add_uint(ip_tree, hf_ip_flags, tvb, offset + 6, 1, flags);
     field_tree = proto_item_add_subtree(tf, ett_ip_off);
     proto_tree_add_boolean(field_tree, hf_ip_flags_df, tvb, offset + 6, 1, flags),
     proto_tree_add_boolean(field_tree, hf_ip_flags_mf, tvb, offset + 6, 1, flags),
 
     proto_tree_add_uint(ip_tree, hf_ip_frag_offset, tvb, offset + 6, 2,
-      (ip_off & IP_OFFSET)*8);
+      (iph->ip_off & IP_OFFSET)*8);
   }
 
   if (tree)
     proto_tree_add_item(ip_tree, hf_ip_ttl, tvb, offset + 8, 1, FALSE);
 
-  ip_p = tvb_get_guint8(tvb, offset + 9);
+  iph->ip_p = tvb_get_guint8(tvb, offset + 9);
   if (tree) {
-    proto_tree_add_uint_format(ip_tree, hf_ip_proto, tvb, offset + 9, 1, ip_p,
-	"Protocol: %s (0x%02x)", ipprotostr(ip_p), ip_p);
+    proto_tree_add_uint_format(ip_tree, hf_ip_proto, tvb, offset + 9, 1, iph->ip_p,
+	"Protocol: %s (0x%02x)", ipprotostr(iph->ip_p), iph->ip_p);
   }
 
-  ip_sum = tvb_get_ntohs(tvb, offset + 10);
+  iph->ip_sum = tvb_get_ntohs(tvb, offset + 10);
 
   /*
    * If we have the entire IP header available, check the checksum.
@@ -947,40 +950,40 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ipsum = ip_checksum(tvb_get_ptr(tvb, offset, hlen), hlen);
     if (tree) {
       if (ipsum == 0) {
-	proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, ip_sum,
-              "Header checksum: 0x%04x (correct)", ip_sum);
+	proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
+              "Header checksum: 0x%04x (correct)", iph->ip_sum);
       }
       else {
 	proto_tree_add_boolean_hidden(ip_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, TRUE);
-	proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, ip_sum,
-          "Header checksum: 0x%04x (incorrect, should be 0x%04x)", ip_sum,
-	  in_cksum_shouldbe(ip_sum, ipsum));
+	proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
+          "Header checksum: 0x%04x (incorrect, should be 0x%04x)", iph->ip_sum,
+	  in_cksum_shouldbe(iph->ip_sum, ipsum));
       }
     }
   } else {
     ipsum = 0;
     if (tree)
-      proto_tree_add_uint(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, ip_sum);
+      proto_tree_add_uint(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum);
   }
 
-  tvb_memcpy(tvb, (guint8 *)&ip_src, offset + 12, 4);
+  tvb_memcpy(tvb, (guint8 *)&iph->ip_src, offset + 12, 4);
   if (tree) {
     if (ip_summary_in_tree) {
       proto_item_append_text(ti, ", Src Addr: %s (%s)",
-		get_hostname(ip_src), ip_to_str((guint8 *) &ip_src));
+		get_hostname(iph->ip_src), ip_to_str((guint8 *) &iph->ip_src));
     }
-    proto_tree_add_ipv4(ip_tree, hf_ip_src, tvb, offset + 12, 4, ip_src);
-    proto_tree_add_ipv4_hidden(ip_tree, hf_ip_addr, tvb, offset + 12, 4, ip_src);
+    proto_tree_add_ipv4(ip_tree, hf_ip_src, tvb, offset + 12, 4, iph->ip_src);
+    proto_tree_add_ipv4_hidden(ip_tree, hf_ip_addr, tvb, offset + 12, 4, iph->ip_src);
   }
 
-  tvb_memcpy(tvb, (guint8 *)&ip_dst, offset + 16, 4);
+  tvb_memcpy(tvb, (guint8 *)&iph->ip_dst, offset + 16, 4);
   if (tree) {
     if (ip_summary_in_tree) {
       proto_item_append_text(ti, ", Dst Addr: %s (%s)",
-		get_hostname(ip_dst), ip_to_str((guint8 *) &ip_dst));
+		get_hostname(iph->ip_dst), ip_to_str((guint8 *) &iph->ip_dst));
     }
-    proto_tree_add_ipv4(ip_tree, hf_ip_dst, tvb, offset + 16, 4, ip_dst);
-    proto_tree_add_ipv4_hidden(ip_tree, hf_ip_addr, tvb, offset + 16, 4, ip_dst);
+    proto_tree_add_ipv4(ip_tree, hf_ip_dst, tvb, offset + 16, 4, iph->ip_dst);
+    proto_tree_add_ipv4_hidden(ip_tree, hf_ip_addr, tvb, offset + 16, 4, iph->ip_dst);
   }
 
   if (tree) {
@@ -997,11 +1000,11 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
-  pinfo->ipproto = ip_p;
+  pinfo->ipproto = iph->ip_p;
 
-  pinfo->iplen = ip_len;
+  pinfo->iplen = iph->ip_len;
 
-  pinfo->iphdrlen = lo_nibble(ip_v_hl);
+  pinfo->iphdrlen = lo_nibble(iph->ip_v_hl);
 
   SET_ADDRESS(&pinfo->net_src, AT_IPv4, 4, tvb_get_ptr(tvb, offset + IPH_SRC, 4));
   SET_ADDRESS(&pinfo->src, AT_IPv4, 4, tvb_get_ptr(tvb, offset + IPH_SRC, 4));
@@ -1010,20 +1013,20 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Skip over header + options */
   offset += hlen;
-  nxt = ip_p;	/* XXX - what if this isn't the same for all fragments? */
+  nxt = iph->ip_p;	/* XXX - what if this isn't the same for all fragments? */
 
   /* If ip_defragment is on, this is a fragment, we have all the data
    * in the fragment, and the header checksum is valid, then just add
    * the fragment to the hashtable.
    */
   save_fragmented = pinfo->fragmented;
-  if (ip_defragment && (ip_off & (IP_MF|IP_OFFSET)) &&
+  if (ip_defragment && (iph->ip_off & (IP_MF|IP_OFFSET)) &&
 	tvb_reported_length(tvb) <= tvb_length(tvb) && ipsum == 0) {
-    ipfd_head = fragment_add(tvb, offset, pinfo, ip_id,
+    ipfd_head = fragment_add(tvb, offset, pinfo, iph->ip_id,
 			     ip_fragment_table,
-			     (ip_off & IP_OFFSET)*8,
+			     (iph->ip_off & IP_OFFSET)*8,
 			     pinfo->iplen - (pinfo->iphdrlen*4),
-			     ip_off & IP_MF);
+			     iph->ip_off & IP_MF);
 
     if (ipfd_head != NULL) {
       /* OK, we have the complete reassembled payload.
@@ -1052,7 +1055,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
        XXX - if we eventually don't save the reassembled contents of all
        fragmented datagrams, we may want to always reassemble. */
-    if (ip_off & IP_OFFSET) {
+    if (iph->ip_off & IP_OFFSET) {
       /* Not the first fragment - don't dissect it. */
       next_tvb = NULL;
     } else {
@@ -1065,7 +1068,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        * If this is the first fragment, but not the only fragment,
        * tell the next protocol that.
        */
-      if (ip_off & IP_MF)
+      if (iph->ip_off & IP_MF)
         pinfo->fragmented = TRUE;
       else
         pinfo->fragmented = FALSE;
@@ -1076,11 +1079,11 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Just show this as a fragment. */
     if (check_col(pinfo->cinfo, COL_INFO))
       col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented IP protocol (proto=%s 0x%02x, off=%u)",
-	ipprotostr(ip_p), ip_p, (ip_off & IP_OFFSET) * 8);
+	ipprotostr(iph->ip_p), iph->ip_p, (iph->ip_off & IP_OFFSET) * 8);
     call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo,
                    tree);
     pinfo->fragmented = save_fragmented;
-    return;
+    goto end_of_ip;
   }
 
   /* Hand off to the next protocol.
@@ -1094,11 +1097,15 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Unknown protocol */
     if (update_col_info) {
       if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)", ipprotostr(ip_p), ip_p);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)", ipprotostr(iph->ip_p), iph->ip_p);
     }
     call_dissector(data_handle,next_tvb, pinfo, tree);
   }
   pinfo->fragmented = save_fragmented;
+
+end_of_ip:
+  tap_queue_packet(ip_tap, pinfo, iph);
+
 }
 
 #define ICMP_MIP_EXTENSION_PAD	0
@@ -1727,6 +1734,7 @@ proto_register_ip(void)
 
 	register_dissector("ip", dissect_ip, proto_ip);
 	register_init_routine(ip_defragment_init);
+        ip_tap=register_tap("ip");
 }
 
 void
