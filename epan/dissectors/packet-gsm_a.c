@@ -74,8 +74,9 @@
 
 #include <string.h>
 
-#include "epan/packet.h"
+#include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/ipv6-utils.h>
 #include <epan/tap.h>
 #include "asn1.h"
 
@@ -8422,9 +8423,8 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
     gchar       *str;
     guchar      oct;
     guchar      oct2;
-    guchar       *addr = NULL;
-    guint16	*addr2 = NULL;
-    
+    struct e_in6_addr ipv6_addr;
+
     curr_len = len;
     add_string = add_string;
     curr_offset = offset;
@@ -8496,6 +8496,18 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
            return(curr_offset - offset);
     }
+    else if ( len < 2 )
+    {
+            proto_tree_add_text(tree,
+    		tvb, curr_offset+1, 1,
+    		"Length is bogus - should be >= 2");
+    	
+	    curr_offset+= curr_len;	   
+
+	    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+           return(curr_offset - offset);
+    }
 
     if ((( oct2 == 0x21 ) && ( len != 6 )) ||
        (( oct2 == 0x57 ) && ( len != 18 )))
@@ -8506,22 +8518,32 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
     }
 
 
-    if ( oct2 == 0x21 )
-    {    
-            addr = (gchar*)tvb_get_ptr(tvb, offset+2, len-2);
-
-            proto_tree_add_text(tree,
-    		tvb, curr_offset+2, len-2,
-    		"IPv4: %u.%u.%u.%u",addr[0],addr[1],addr[2],addr[3]);
-    }
-
-    if ( oct2 == 0x57 )
+    switch ( oct2 )
     {
-            addr2 = (guint16*)tvb_get_ptr(tvb, offset+2, len-2);
-  
-            proto_tree_add_text(tree,
-    		tvb, curr_offset+2, len-2,
-    		"IPv6: %4x:%4x:%4x:%4x:%4x:%4x:%4x:%4x",addr[0],addr[1],addr[2],addr[3],addr[4],addr[5],addr[6],addr[7]);
+        case 0x21:
+            if (len-2 != 4) {
+                proto_tree_add_text(tree,
+	            tvb, curr_offset+2, 0,
+    	            "IPv4: length is wrong");
+    	    } else {
+                proto_tree_add_text(tree,
+    	            tvb, curr_offset+2, len-2,
+    	            "IPv4: %s", ip_to_str(tvb_get_ptr(tvb, offset+2, 4)));
+    	    }
+    	    break;
+
+        case 0x57:
+            if (len-2 != 16) {
+                proto_tree_add_text(tree,
+	            tvb, curr_offset+2, 0,
+    	            "IPv6: length is wrong");
+    	    } else {
+    	        tvb_memcpy(tvb, (guint8 *)&ipv6_addr, offset+2, 16);
+                proto_tree_add_text(tree,
+                    tvb, curr_offset+2, len-2,
+    	            "IPv6: %s", ip6_to_str(&ipv6_addr));
+    	    }
+    	    break;
     }
     
     curr_offset+= curr_len;	   
