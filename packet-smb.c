@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.208 2002/02/20 21:46:41 guy Exp $
+ * $Id: packet-smb.c,v 1.209 2002/02/21 18:39:49 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6466,7 +6466,8 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 	offset += 1;
 
 	switch(revision){
-	case 1:  /*only revision of SOD we will se ?*/
+	case 1:  
+	case 2:  /* Not sure what the different revision numbers mean */
 	  /* number of authorities*/
 	  num_auth = tvb_get_guint8(tvb, offset);
 	  proto_tree_add_item(tree, hf_smb_sid_num_auth, tvb, offset, 1, TRUE);
@@ -6782,7 +6783,7 @@ dissect_nt_sec_desc_type(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tr
 }
 
 
-static int
+int
 dissect_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len)
 {
 	proto_item *item = NULL;
