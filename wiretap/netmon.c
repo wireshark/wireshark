@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.14 1999/09/22 01:26:47 ashokn Exp $
+ * $Id: netmon.c,v 1.15 1999/09/24 05:49:51 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -25,8 +25,8 @@
 #endif
 #include <errno.h>
 #include <time.h>
-#include "file.h"
 #include "wtap.h"
+#include "file.h"
 #include "buffer.h"
 #include "netmon.h"
 

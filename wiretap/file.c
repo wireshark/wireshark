@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.23 1999/09/23 05:00:59 guy Exp $
+ * $Id: file.c,v 1.24 1999/09/24 05:49:50 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -29,8 +29,8 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <errno.h>
-#include "file.h"
 #include "wtap.h"
+#include "file.h"
 #include "buffer.h"
 #include "lanalyzer.h"
 #include "ngsniffer.h"
@@ -130,7 +130,6 @@ wtap* wtap_open_offline(const char *filename, int *err)
 			/* I/O error - give up */
 			*err = errno;
 			file_close(wth->fh);
-			close(wth->fd);
 			free(wth);
 			return NULL;
 

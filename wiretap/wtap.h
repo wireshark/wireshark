@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.40 1999/09/23 04:39:01 ashokn Exp $
+ * $Id: wtap.h,v 1.41 1999/09/24 05:49:53 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -128,6 +128,13 @@
 
 #include <glib.h>
 #include <stdio.h>
+
+#ifdef HAVE_LIBZ
+#include "zlib.h"
+#define FILE_T	gzFile
+#else /* No zLib */
+#define FILE_T	FILE *
+#endif /* HAVE_LIBZ */
 
 typedef struct {
 	double	timeunit;
@@ -282,8 +289,7 @@ struct Buffer;
 
 typedef int (*subtype_read_func)(struct wtap*, int*);
 typedef struct wtap {
-    /* FILE_T			fh; */
-	void *			fh;
+	FILE_T			fh;
         int                     fd;           /* File descriptor for cap file */
 	int			file_type;
 	int			snapshot_length;

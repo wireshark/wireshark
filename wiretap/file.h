@@ -1,6 +1,6 @@
 /* file.h
  *
- * $Id: file.h,v 1.2 1999/09/22 07:37:46 ashokn Exp $
+ * $Id: file.h,v 1.3 1999/09/24 05:49:50 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -25,9 +25,6 @@
 #define __FILE_H__
 
 #ifdef HAVE_LIBZ
-#include "zlib.h"
-
-#define FILE_T gzFile
 #define file_open gzopen
 #define filed_open gzdopen
 #define file_seek gzseek
@@ -44,7 +41,6 @@ static inline int file_error(void *fh) {
 }
 
 #else /* No zLib */
-#define FILE_T FILE *
 #define file_open fopen
 #define filed_open fdopen
 #define file_seek fseek
