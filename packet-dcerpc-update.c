@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/update/update.idl
  *
- * $Id: packet-dcerpc-update.c,v 1.1 2002/10/22 08:47:46 guy Exp $
+ * $Id: packet-dcerpc-update.c,v 1.2 2002/10/23 04:35:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,8 +42,8 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-dce122.h"
 
-
 static int proto_dce_update = -1;
+static int hf_dce_update_opnum = -1;
 
 static gint ett_dce_update = -1;
 
@@ -51,7 +51,7 @@ static e_uuid_t uuid_dce_update =
   { 0x4d37f2dd, 0xed43, 0x0000, {0x02, 0xc0, 0x37, 0xcf, 0x1e, 0x00, 0x10,
 				 0x00}
 };
-static guint16 ver_dce_update = 0;
+static guint16 ver_dce_update = 4;
 
 
 static dcerpc_sub_dissector dce_update_dissectors[] = {
@@ -62,23 +62,32 @@ static dcerpc_sub_dissector dce_update_dissectors[] = {
   {0, NULL, NULL, NULL},
 };
 
+static const value_string dce_update_opnum_vals[] = {
+  {0, "UPDATE_GetServerInterfaces"},
+  {1, "UPDATE_FetchInfo"},
+  {2, "UPDATE_FetchFile"},
+  {3, "UPDATE_FetchObjectInfo"},
+  {0, NULL},
+};
+
+
 
 void
 proto_register_dce_update (void)
 {
-#if 0
   static hf_register_info hf[] = {
+    {&hf_dce_update_opnum,
+     {"Operation", "dce_update.opnum", FT_UINT16, BASE_DEC,
+      VALS (dce_update_opnum_vals), 0x0, "Operation", HFILL}}
+
   };
-#endif
 
   static gint *ett[] = {
     &ett_dce_update,
   };
   proto_dce_update =
     proto_register_protocol ("DCE/RPC UpServer", "dce_update", "dce_update");
-#if 0
   proto_register_field_array (proto_dce_update, hf, array_length (hf));
-#endif
   proto_register_subtree_array (ett, array_length (ett));
 }
 
@@ -86,6 +95,7 @@ void
 proto_reg_handoff_dce_update (void)
 {
   /* Register the protocol as dcerpc */
-  dcerpc_init_uuid (proto_dce_update, ett_dce_update, &uuid_dce_update, ver_dce_update,
-		    dce_update_dissectors, -1);
+  dcerpc_init_uuid (proto_dce_update, ett_dce_update, &uuid_dce_update,
+		    ver_dce_update, dce_update_dissectors,
+		    hf_dce_update_opnum);
 }
