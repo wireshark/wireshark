@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.17 1999/03/23 03:14:36 gram Exp $
+ * $Id: packet-dns.c,v 1.18 1999/05/27 05:35:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -287,100 +287,77 @@ dns_class_name(int class)
 
   return class_name;
 }
-  
-
-static int
-is_compressed_name(const u_char *foo)
-{
-  return (0xc0 == (*foo & 0xc0));
-}
-
-
-static int
-get_compressed_name_offset(const u_char *ptr)
-{
-  return ((*ptr & ~0xc0) << 8) | *(ptr+1);
-}
-
-
-static int
-copy_one_name_component(const u_char *dataptr, char *nameptr)
-{
-  int len;
-  int n;
-  
-  len = n  = *dataptr++;
-  if (0 == len)
-    return 0;
-  
-  while (n-- > 0)
-    *nameptr++ = *dataptr++;
-
-  return len;
-}
-
-
-static int
-copy_name_component_rec(const u_char *dns_data_ptr, const u_char *dataptr,
-  char *nameptr, int *real_string_len)
-{
-  int len = 0;
-  int str_len;
-  int offset;
-  int compress = 0;
-  
-  if (is_compressed_name(dataptr)) {
-    compress = 1;
-    offset = get_compressed_name_offset(dataptr);
-    dataptr = dns_data_ptr + offset;
-    copy_name_component_rec(dns_data_ptr, dataptr, nameptr, &str_len);
-    *real_string_len += str_len;
-    nameptr += str_len;
-    len = 2;
-  }
-  else {
-    str_len = copy_one_name_component(dataptr, nameptr);
-    *real_string_len = str_len;
-    dataptr += str_len + 1;
-    len     += str_len + 1;
-    nameptr += str_len;
-  }
-
-  if (compress)
-    return len;
-  
-  (*real_string_len)++;
-
-  if (*dataptr > 0) {
-    *nameptr++ = '.';
-    len += copy_name_component_rec(dns_data_ptr, dataptr, nameptr, &str_len);
-    *real_string_len += str_len;
-    return len;
-  }
-
-  return len + 1;
-}
-
 
 int
-get_dns_name(const u_char *dns_data_ptr, const u_char *pd, int offset,
-  char *nameptr, int maxname)
+get_dns_name(const u_char *dns_data_ptr, const u_char *dptr, char *name,
+    int maxname)
 {
-  int len;
-  const u_char *dataptr = pd + offset;
-  int str_len = 0;
+  const u_char *dp = dptr;
+  char *np = name;
+  int len = -1;
+  u_int component_len;
+  int offset;
 
-  memset (nameptr, 0, maxname);
-  len = copy_name_component_rec(dns_data_ptr, dataptr, nameptr, &str_len);
-  
+  maxname--;	/* reserve space for the trailing '\0' */
+  while ((component_len = *dp++) != 0) {
+    switch (component_len & 0xc0) {
+
+    case 0x00:
+      /* Label */
+      if (np != name) {
+      	/* Not the first component - put in a '.'. */
+        if (maxname > 0) {
+          *np++ = '.';
+          maxname--;
+        }
+      }
+      while (component_len > 0) {
+        if (maxname > 0) {
+          *np++ = *dp;
+          maxname--;
+        }
+      	component_len--;
+      	dp++;
+      }
+      break;
+
+    case 0x40:
+    case 0x80:
+      goto error;	/* error */
+
+    case 0xc0:
+      /* Pointer. */
+      /* XXX - check to make sure we aren't looping, by keeping track
+         of how many characters are in the DNS packet, and of how many
+         characters we've looked at, and quitting if the latter
+         becomes bigger than the former. */
+      offset = ((component_len & ~0xc0) << 8) | *dp++;
+      /* If "len" is negative, we are still working on the original name,
+         not something pointed to by a pointer, and so we should set "len"
+         to the length of the original name. */
+      if (len < 0)
+        len = dp - dptr;
+      dp = dns_data_ptr + offset;
+      break;	/* now continue processing from there */
+    }
+  }
+        
+error:
+  *np = '\0';
+  /* If "len" is negative, we haven't seen a pointer, and thus haven't
+     set the length, so set it. */
+  if (len < 0)
+    len = dp - dptr;
+  /* Zero-length name means "root server" */
+  if (*name == '\0')
+    strcpy(name, "<Root>");
   return len;
 }
 
 
 static int
 get_dns_name_type_class (const u_char *dns_data_ptr,
-			 const u_char *pd,
-			 int offset,
+			 const u_char *dptr,
 			 char *name_ret,
 			 int *name_len_ret,
 			 int *type_ret,
@@ -391,24 +368,23 @@ get_dns_name_type_class (const u_char *dns_data_ptr,
   int type;
   int class;
   char name[MAXDNAME];
-  const u_char *pd_save;
+  const u_char *dptr_save;
 
-  name_len = get_dns_name(dns_data_ptr, pd, offset, name, sizeof(name));
-  pd += offset;
-  pd_save = pd;
-  pd += name_len;
+  name_len = get_dns_name(dns_data_ptr, dptr, name, sizeof(name));
+  dptr_save = dptr;
+  dptr += name_len;
   
-  type = pntohs(pd);
-  pd += 2;
-  class = pntohs(pd);
-  pd += 2;
+  type = pntohs(dptr);
+  dptr += 2;
+  class = pntohs(dptr);
+  dptr += 2;
 
   strcpy (name_ret, name);
   *type_ret = type;
   *class_ret = class;
   *name_len_ret = name_len;
 
-  len = pd - pd_save;
+  len = dptr - dptr_save;
   return len;
 }
 
@@ -432,7 +408,7 @@ dissect_dns_query(const u_char *dns_data_ptr, const u_char *pd, int offset,
 
   data_start = dptr = pd + offset;
 
-  len = get_dns_name_type_class(dns_data_ptr, pd, offset, name, &name_len,
+  len = get_dns_name_type_class(dns_data_ptr, dptr, name, &name_len,
     &type, &class);
   dptr += len;
 
@@ -498,10 +474,11 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
   u_short data_len;
   proto_tree *rr_tree;
   proto_item *trr;
+  const u_char *rrptr;
 
   data_start = dptr = pd + offset;
 
-  len = get_dns_name_type_class(dns_data_ptr, pd, offset, name, &name_len,
+  len = get_dns_name_type_class(dns_data_ptr, dptr, name, &name_len,
     &type, &class);
   dptr += len;
 
@@ -516,7 +493,7 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
   dptr += 2;
 
   switch (type) {
-  case T_A: 		/* "A" record */
+  case T_A:
     trr = proto_tree_add_item(dns_tree, offset, (dptr - data_start) + data_len,
 		     "%s: type %s, class %s, addr %s",
 		     name, type_name, class_name,
@@ -528,12 +505,12 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
                      ip_to_str((guint8 *)dptr));
     break;
 
-  case T_NS: 		/* "NS" record */
+  case T_NS:
     {
       char ns_name[MAXDNAME];
       int ns_name_len;
       
-      ns_name_len = get_dns_name(dns_data_ptr, dptr, 0, ns_name, sizeof(ns_name));
+      ns_name_len = get_dns_name(dns_data_ptr, dptr, ns_name, sizeof(ns_name));
       trr = proto_tree_add_item(dns_tree, offset, (dptr - data_start) + data_len,
 		       "%s: type %s, class %s, ns %s",
 		       name, type_name, class_name, ns_name);
@@ -544,35 +521,90 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
     }
     break;
 
-  case T_CNAME:		/* "CNAME" record */
+  case T_CNAME:
     {
       char cname[MAXDNAME];
       int cname_len;
       
-      cname_len = get_dns_name(dns_data_ptr, dptr, 0, cname, sizeof(cname));
+      cname_len = get_dns_name(dns_data_ptr, dptr, cname, sizeof(cname));
       trr = proto_tree_add_item(dns_tree, offset, (dptr - data_start) + data_len,
 		     "%s: type %s, class %s, cname %s",
 		     name, type_name, class_name, cname);
       rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
                        long_type_name, class_name, ttl, data_len);
       offset += (dptr - data_start);
-      proto_tree_add_item(rr_tree, offset, data_len, "Primary name: %s", cname);
+      proto_tree_add_item(rr_tree, offset, cname_len, "Primary name: %s", cname);
     }
     break;
 
-  case T_PTR:		/* "PTR" record */
+  case T_SOA:
+    {
+      char mname[MAXDNAME];
+      int mname_len;
+      char rname[MAXDNAME];
+      int rname_len;
+      guint32 serial;
+      guint32 refresh;
+      guint32 retry;
+      guint32 expire;
+      guint32 minimum;
+
+      rrptr = dptr;
+      mname_len = get_dns_name(dns_data_ptr, rrptr, mname, sizeof(mname));
+      rrptr += mname_len;
+      trr = proto_tree_add_item(dns_tree, offset, (dptr - data_start) + data_len,
+		     "%s: type %s, class %s, mname %s",
+		     name, type_name, class_name, mname);
+      rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
+                       long_type_name, class_name, ttl, data_len);
+      offset += (dptr - data_start);
+      proto_tree_add_item(rr_tree, offset, mname_len, "Primary name server: %s",
+                       mname);
+      offset += mname_len;
+      rname_len = get_dns_name(dns_data_ptr, rrptr, rname, sizeof(rname));
+      proto_tree_add_item(rr_tree, offset, rname_len, "Responsible authority's mailbox: %s",
+                       rname);
+      rrptr += rname_len;
+      offset += rname_len;
+      serial = pntohl(rrptr);
+      proto_tree_add_item(rr_tree, offset, 4, "Serial number: %u",
+                       serial);
+      rrptr += 4;
+      offset += 4;
+      refresh = pntohl(rrptr);
+      proto_tree_add_item(rr_tree, offset, 4, "Refresh interval: %s",
+                       time_secs_to_str(refresh));
+      rrptr += 4;
+      offset += 4;
+      retry = pntohl(rrptr);
+      proto_tree_add_item(rr_tree, offset, 4, "Retry interval: %s",
+                       time_secs_to_str(retry));
+      rrptr += 4;
+      offset += 4;
+      expire = pntohl(rrptr);
+      proto_tree_add_item(rr_tree, offset, 4, "Expiration limit: %s",
+                       time_secs_to_str(expire));
+      rrptr += 4;
+      offset += 4;
+      minimum = pntohl(rrptr);
+      proto_tree_add_item(rr_tree, offset, 4, "Minimum TTL: %s",
+                       time_secs_to_str(minimum));
+    }
+    break;
+
+  case T_PTR:
     {
       char pname[MAXDNAME];
       int pname_len;
       
-      pname_len = get_dns_name(dns_data_ptr, dptr, 0, pname, sizeof(pname));
+      pname_len = get_dns_name(dns_data_ptr, dptr, pname, sizeof(pname));
       trr = proto_tree_add_item(dns_tree, offset, (dptr - data_start) + data_len,
 		     "%s: type %s, class %s, ptr %s",
 		     name, type_name, class_name, pname);
       rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
                        long_type_name, class_name, ttl, data_len);
       offset += (dptr - data_start);
-      proto_tree_add_item(rr_tree, offset, data_len, "Domain name: %s", pname);
+      proto_tree_add_item(rr_tree, offset, pname_len, "Domain name: %s", pname);
       break;
     }
     break;

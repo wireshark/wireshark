@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.19 1999/05/10 22:07:09 guy Exp $
+ * $Id: packet-nbns.c,v 1.20 1999/05/27 05:35:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -185,7 +185,7 @@ get_nbns_name(const u_char *nbns_data_ptr, const u_char *pd,
 	char nbname[MAXDNAME+4];	/* 4 for [<last char>] */
 	char *pname, *pnbname, cname, cnbname;
 
-	name_len = get_dns_name(nbns_data_ptr, pd, offset, name, sizeof(name));
+	name_len = get_dns_name(nbns_data_ptr, pd + offset, name, sizeof(name));
 	
 	/* OK, now undo the first-level encoding. */
 	pname = &name[0];

@@ -2,7 +2,7 @@
  * Definitions for packet disassembly structures and routines used both by
  * DNS and NBNS.
  *
- * $Id: packet-dns.h,v 1.2 1999/03/23 03:14:36 gram Exp $
+ * $Id: packet-dns.h,v 1.3 1999/05/27 05:35:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,8 +30,8 @@
 
 char *dns_class_name(int class);
 
-int get_dns_name(const u_char *dns_data_ptr, const u_char *pd, int offset,
-  char *nameptr, int maxname);
+int get_dns_name(const u_char *dns_data_ptr, const u_char *pd,
+  char *name, int maxname);
 
 #define MAXDNAME        1025            /* maximum domain name length */
 
