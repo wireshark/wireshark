@@ -500,6 +500,8 @@ static gint ett_wep_parameters = -1;
 
 static gint ett_rsn_cap_tree = -1;
 
+static gint ett_80211_mgt_ie = -1;
+
 static const fragment_items frag_items = {
 	&ett_fragment,
 	&ett_fragments,
@@ -1200,9 +1202,18 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
   int n, ret;
   char out_buff[SHORT_STR];
   char print_buff[SHORT_STR];
-
+  proto_tree * orig_tree=tree;
+  proto_item *ti;
 
   tag_no = tvb_get_guint8(tvb, offset);
+  tag_len = tvb_get_guint8(tvb, offset + 1);
+
+  ti=proto_tree_add_text(orig_tree,tvb,offset,tag_len+2,"%s",
+                         val_to_str(tag_no, tag_num_vals,
+                         (tag_no >= 17 && tag_no <= 31) ? 
+                         "Reserved for challenge text" : "Reserved tag number" ));
+  tree=proto_item_add_subtree(ti,ett_80211_mgt_ie);
+
   proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
 			      "Tag Number: %u (%s)",
 			      tag_no,
@@ -1210,8 +1221,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 					 (tag_no >= 17 && tag_no <= 31) ?
 					 "Reserved for challenge text" :
 					 "Reserved tag number"));
-
-  tag_len = tvb_get_guint8(tvb, offset + 1);
   proto_tree_add_uint (tree, (tag_no==5 ? tim_length : tag_length), tvb, offset + 1, 1, tag_len);
 
   tag_data_ptr = tvb_get_ptr (tvb, offset + 2, tag_len);
@@ -1225,48 +1234,52 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       memcpy (out_buff, tag_data_ptr, (size_t) tag_len);
       out_buff[tag_len + 1] = 0;
       for (i = 0; i < tag_len; i++) {
-	  if (!isprint( (int) out_buff[i])) {
-	      print_buff[i]='.';
-	  } else {
-	      print_buff[i]=out_buff[i];
-	  }
+        if (!isprint( (int) out_buff[i])) {
+          print_buff[i]='.';
+        } else {
+          print_buff[i]=out_buff[i];
+        }
       }
       print_buff[i] = 0;
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
-			     tag_len, out_buff);
+                             tag_len, out_buff);
       if (check_col (pinfo->cinfo, COL_INFO)) {
-	  if (tag_len > 0) {
-              col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID: \"%s\"", print_buff);
-	  } else {
-              col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID: Broadcast");
-	  }
+        if (tag_len > 0) {
+          col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID: \"%s\"", print_buff);
+        } else {
+          col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID: Broadcast");
+        }
+      }
+      if (tag_len > 0) {
+        proto_item_append_text(ti, ": \"%s\"", print_buff);
+      } else {
+        proto_item_append_text(ti, ": Broadcast");
       }
       break;
 
     case TAG_SUPP_RATES:
     case TAG_EXT_SUPP_RATES:
       memset (out_buff, 0, SHORT_STR);
+      memset (print_buff, 0, SHORT_STR);
       strcpy (out_buff, "Supported rates: ");
-      n = strlen (out_buff);
 
-      for (i = 0; i < tag_len && n < SHORT_STR; i++)
-	{
-	    ret = snprintf (out_buff + n, SHORT_STR - n, "%2.1f%s ",
-			   (tag_data_ptr[i] & 0x7F) * 0.5,
-			   (tag_data_ptr[i] & 0x80) ? "(B)" : "");
-	    if (ret == -1 || ret >= SHORT_STR - n) {
-	      /* Some versions of snprintf return -1 if they'd truncate
-	         the output. Others return <buf_size> or greater.  */
-	      break;
-	    }
-	    n += ret;
-	}
-      if (n < SHORT_STR)
-	snprintf (out_buff + n, SHORT_STR - n, "[Mbit/sec]");
+      for (i = 0, n = 0; i < tag_len && n < SHORT_STR; i++) {
+        ret = snprintf (print_buff + n, SHORT_STR - n, "%2.1f%s ",
+                        (tag_data_ptr[i] & 0x7F) * 0.5,
+                        (tag_data_ptr[i] & 0x80) ? "(B)" : "");
+        if (ret == -1 || ret >= SHORT_STR - n) {
+          /* Some versions of snprintf return -1 if they'd truncate
+             the output. Others return <buf_size> or greater.  */
+          break;
+        }
+        n += ret;
+      }
+      snprintf (out_buff, SHORT_STR, "Supported rates: %s [Mbit/sec]", print_buff);
 
       out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
 			     tag_len, out_buff);
+      proto_item_append_text(ti, ": %s", print_buff);
       break;
 
 
@@ -1280,7 +1293,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		tag_data_ptr[3], tag_data_ptr[4]);
 
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
-			     tag_len, out_buff);
+                             tag_len, out_buff);
       break;
 
 
@@ -1290,20 +1303,24 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
       snprintf (out_buff, SHORT_STR, "Current Channel: %u", tag_data_ptr[0]);
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
-			     tag_len, out_buff);
+                             tag_len, out_buff);
+      proto_item_append_text(ti, ": %s", out_buff);
       break;
 
 
     case TAG_CF_PARAMETER:
-      memset (out_buff, 0, SHORT_STR);
-
-      snprintf (out_buff, SHORT_STR,
-		"CFP count %u, CFP period %u, CFP max duration %u, "
-		"CFP Remaining %u", tag_data_ptr[0], tag_data_ptr[1],
-		pletohs (tag_data_ptr + 2), pletohs (tag_data_ptr + 4));
-
-      proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
-			     tag_len, out_buff);
+      proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 2,
+                             1, out_buff,"CFP count %u",tag_data_ptr[0]);
+      proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 3,
+                             1, out_buff,"CFP period %u",tag_data_ptr[0]);
+      proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 4,
+                             2, out_buff,"CFP max duration %u",pletohs (tag_data_ptr + 2));
+      proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 6,
+                             2, out_buff,"CFP Remaining %u",pletohs (tag_data_ptr + 4));
+      proto_item_append_text(ti, ": CFP count %u, CFP period %u, CFP max duration %u, "
+                             "CFP Remaining %u", 
+                             tag_data_ptr[0], tag_data_ptr[1],
+                             pletohs (tag_data_ptr + 2), pletohs (tag_data_ptr + 4));
       break;
 
 
@@ -1324,7 +1341,15 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
                             offset + 4, 1, bmapctl,
                             "Bitmap Control: 0x%02X (mcast:%u, bitmap offset %u)",
                             bmapctl, bmapctl&1, bmapoff);
-
+        proto_item_append_text(ti, ": DTIM %u of %u bitmap",
+                               tag_data_ptr[0], tag_data_ptr[1]);
+        if (bmaplen==1 && 0==bmap[0] && !(bmapctl&1)) {
+          proto_item_append_text(ti, " empty");
+        } else {
+          if (bmapctl&1) {
+            proto_item_append_text(ti, " mcast");
+          }
+        }
         if (bmaplen>1 || bmap[0]) {
           int len=snprintf (out_buff, SHORT_STR,
                             "Bitmap: traffic for AID's:");
@@ -1332,7 +1357,8 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
           for (i=0;i<bmaplen*8;i++) {
             if (bmap[i/8] & (1<<(i%8))) {
               int aid=i+bmapoff*8;
-              len+=snprintf (out_buff+len, SHORT_STR-len," %d", aid);
+              len+=snprintf (out_buff+len, SHORT_STR-len," %u", aid);
+              proto_item_append_text(ti, "  %u", aid);
               if (len>=SHORT_STR) {
                 break;
               }
@@ -1356,34 +1382,35 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
 			     tag_len, out_buff);
+      proto_item_append_text(ti, ": %s", out_buff);
       break;
 
 
     case TAG_COUNTRY_INFO:
       memset (out_buff, 0, SHORT_STR);
-
-      snprintf (out_buff, SHORT_STR, "Country Code: %c%c, %s Environment",
-               tag_data_ptr[0], tag_data_ptr[1], 
+      for (i=0;i<2;i++) {
+        if (!isprint( (int) tag_data_ptr[i])) {
+          print_buff[i]='.';
+        } else {
+          print_buff[i]=tag_data_ptr[i];
+        }
+      }
+      print_buff[i]='\0';
+      snprintf (out_buff, SHORT_STR, "Country Code: %s, %s Environment",
+               print_buff, 
                val_to_str(tag_data_ptr[2], environment_vals,"Unknown (0x%02x)"));
 
       n = strlen (out_buff);
+      proto_item_append_text(ti, ": %s", out_buff);
+      proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,3, out_buff);
 
-      for (i = 3; (i + 3) <= tag_len && n < SHORT_STR; i += 3)
+      for (i = 3; (i + 3) <= tag_len; i += 3)
       { 
-        ret = snprintf(out_buff + n, SHORT_STR - n,
-                       ", Start Channel: %u, Channels: %u, Max TX Power: %d dBm",
-                       tag_data_ptr[i], tag_data_ptr[i + 1],
-                       (gint)tag_data_ptr[i + 2]);
-
-        if (ret == -1 || ret >= SHORT_STR - n) {
-          /* Some versions of snprintf return -1 if they'd truncate
-             the output. Others return <buf_size> or greater.  */
-          break;
-        }
-        n += ret;
+        proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 2+i,3, out_buff,
+                                     "  Start Channel: %u, Channels: %u, Max TX Power: %d dBm",
+                                     tag_data_ptr[i], tag_data_ptr[i + 1],(gint)tag_data_ptr[i + 2]);
       }
 
-      proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,tag_len, out_buff);
       break;
 
 
@@ -1393,6 +1420,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
                        tag_data_ptr[0], tag_data_ptr[1]);
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2, tag_len, out_buff);
 			     
+      proto_item_append_text(ti, ": %s", out_buff);
 
       break;
 
@@ -1411,14 +1439,17 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     case TAG_ERP_INFO_OLD:
       memset (out_buff, 0, SHORT_STR);
 
+      snprintf (print_buff, SHORT_STR,
+                "%sNon-ERP STAs, %suse protection, %s preambles",
+                tag_data_ptr[0] & 0x01 ? "" : "no ",
+                tag_data_ptr[0] & 0x02 ? "" : "do not ",
+                tag_data_ptr[0] & 0x04 ? "short or long": "long");
       snprintf (out_buff, SHORT_STR,
-		"ERP info: 0x%x (%sNon-ERP STAs, %suse protection, %s preambles)",
-		tag_data_ptr[0],
-		tag_data_ptr[0] & 0x01 ? "" : "no ",
-		tag_data_ptr[0] & 0x02 ? "" : "do not ",
-		tag_data_ptr[0] & 0x04 ? "short or long": "long");
+                "ERP info: 0x%x (%s)", tag_data_ptr[0],print_buff);
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
-			     tag_len, out_buff);
+                             tag_len, out_buff);
+      proto_item_append_text(ti, ": %s", print_buff);
+
 
       break;
 
@@ -1448,6 +1479,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     default:
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
 			     tag_len, "Not interpreted");
+      proto_item_append_text(ti, ": Tag %u Len %u", tag_no, tag_len);
       break;
     }
 
@@ -3270,6 +3302,7 @@ proto_register_ieee80211 (void)
     &ett_wep_parameters,
     &ett_cap_tree,
     &ett_rsn_cap_tree,
+    &ett_80211_mgt_ie,
   };
   module_t *wlan_module;
 
