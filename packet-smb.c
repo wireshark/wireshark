@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.110 2001/08/27 20:15:30 guy Exp $
+ * $Id: packet-smb.c,v 1.111 2001/08/27 23:17:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3802,7 +3802,6 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
       proto_tree_add_text(optionsup_tree, NullTVB, offset, 2, "%s",
                           decode_boolean_bitfield(optionsup, 0x0002, 16, "Share is in DFS", "Share isn't in DFS"));
       
-
     }
 
     offset += 2;
@@ -3816,6 +3815,11 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     }
 
     offset += 2;
+
+    /*
+     * NOTE: the Service string is always ASCII, even if the "strings are
+     * Unicode" bit is set in the flags2 field of the SMB.
+     */
 
     str = pd + offset;
 
