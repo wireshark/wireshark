@@ -7,7 +7,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.103 2004/05/05 06:55:09 obiot Exp $
+ * $Id: packet-http.c,v 1.104 2004/05/07 17:36:46 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -699,7 +699,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				
 				tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 				add_new_data_source(pinfo, next_tvb, 
-				    "Entity body");
+				    "Uncompressed entity body");
 			} else {
 
 				proto_item *e_ti = NULL;
@@ -709,7 +709,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					tvb_set_child_real_data_tvbuff(tvb,
 					    next_tvb);
 					add_new_data_source(pinfo, next_tvb,
-					    "Entity body");
+					    "Compressed entity body");
 				}
 
 				e_ti = proto_tree_add_text(http_tree,
