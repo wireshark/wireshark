@@ -121,8 +121,8 @@ void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 	mate_pdu* gop_pdus;
 	float  rel_time;
 	float  gop_time;
-	guint8* pdu_str;
-	guint8* type_str;
+	gchar* pdu_str;
+	gchar* type_str;
 	guint32 pdu_item;
 	
 	gop_item = proto_tree_add_uint(tree,gop->cfg->hfid,tvb,0,0,gop->id);

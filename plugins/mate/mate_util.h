@@ -110,7 +110,7 @@ typedef enum _avpl_match_mode {
 typedef enum _avpl_replace_mode {
 	AVPL_NO_REPLACE,
 	AVPL_INSERT,
-	AVPL_REPLACE,
+	AVPL_REPLACE
 } avpl_replace_mode;
 
 typedef struct _avpl_transf AVPL_Transf;

@@ -328,6 +328,6 @@ extern int mate_packet(void* _U_, packet_info* _U_, epan_dissect_t* _U_,const vo
 
 /* from mate_setup.c */
 extern mate_config* mate_make_config(guint8* filename);
-extern mate_config* mate_cfg();
+extern mate_config* mate_cfg(void);
 
 #endif
