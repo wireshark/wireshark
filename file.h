@@ -399,7 +399,7 @@ char *cf_read_error_message(int err, const gchar *err_info);
  * @param in_filnames array of input filenames
  * @param file_type the output filetype
  * @param do_append FALSE to merge chronologically, TRUE simply append
- * @return TRUE if merging suceeded, FALSE otherwise
+ * @return one of cf_status_t
  */
 cf_status_t
 cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
