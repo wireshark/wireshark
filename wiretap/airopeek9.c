@@ -1,7 +1,7 @@
 /* airopeek9.c
  * Routines for opening EtherPeek and AiroPeek V9 files
  *
- * $Id: airopeek9.c,v 1.9 2004/02/06 04:48:06 guy Exp $
+ * $Id: airopeek9.c,v 1.10 2004/02/06 05:23:46 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -176,7 +176,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
     int file_encap;
     static const int airopeek9_encap[] = {
 	WTAP_ENCAP_ETHERNET,
-	WTAP_ENCAP_UNKNOWN,
+	WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
 	WTAP_ENCAP_UNKNOWN,
 	WTAP_ENCAP_IEEE_802_11_WITH_RADIO
     };
