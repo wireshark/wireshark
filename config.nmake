@@ -1,9 +1,9 @@
-# $Id: config.nmake,v 1.72 2003/12/26 11:37:58 ulfl Exp $
+# $Id: config.nmake,v 1.73 2003/12/27 13:19:06 ulfl Exp $
 
 VERSION=0.10.0
 #
-# This should be comma-separated, not dot-separated, as per Graham
-# Bloice's message in
+# The RC_VERSION should be comma-separated, not dot-separated, 
+# as per Graham Bloice's message in
 #
 #	http://www.ethereal.com/lists/ethereal-dev/200303/msg00283.html
 #
@@ -99,7 +99,12 @@ ICONV_DIR=C:\ethereal-win32-libs\libiconv-1.9.1.bin.woe32
 #
 GETTEXT_DIR=C:\ethereal-win32-libs\gettext-runtime-0.12.1.bin.woe32
 
+# Compiler flags
+# -Zi create .pdb file for debugging
 LOCAL_CFLAGS=-Zi
+
+# Linker flags
+# /DEBUG generate debug info
 LOCAL_LDFLAGS=/DEBUG
 
 # Set PDB_FILE according to your VC++ version 
