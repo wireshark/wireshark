@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.97 2003/03/12 19:45:52 guy Exp $
+ * $Id: prefs.c,v 1.98 2003/03/13 18:17:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -429,7 +429,8 @@ register_preference(module_t *module, const char *name, const char *title,
 		 * Make sure the preference name doesn't begin with the
 		 * module name, as that's redundant and Just Silly.
 		 */
-		g_assert(strncmp(name, module->name, strlen(module->name)) != 0);
+		g_assert((strncmp(name, module->name, strlen(module->name)) != 0) ||
+			(((name[strlen(module->name)]) != '.') && ((name[strlen(module->name)]) != '_')));
 	}
 
 	/*
