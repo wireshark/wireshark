@@ -60,9 +60,11 @@ static gint hf_ber_length = -1;
 static gint hf_ber_bitstring_padding = -1;
 static gint hf_ber_unknown_OID = -1;
 static gint hf_ber_unknown_OCTETSTRING = -1;
+static gint hf_ber_unknown_NumericString = -1;
 static gint hf_ber_unknown_PrintableString = -1;
 static gint hf_ber_unknown_IA5String = -1;
 static gint hf_ber_unknown_INTEGER = -1;
+static gint hf_ber_unknown_ENUMERATED = -1;
 
 static gint ett_ber_octet_string = -1;
 static gint ett_ber_unknown = -1;
@@ -195,6 +197,9 @@ dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *t
 		case BER_UNI_TAG_INTEGER:
 			offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_INTEGER, NULL);
 			break;
+		case BER_UNI_TAG_ENUMERATED:
+			offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_ENUMERATED, NULL);
+			break;
 		case BER_UNI_TAG_OCTETSTRING:
 			offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_OCTETSTRING, NULL);
 			break;
@@ -207,6 +212,9 @@ dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *t
 				next_tree=proto_item_add_subtree(item, ett_ber_SEQUENCE);
 			}
 			offset=dissect_unknown_ber(pinfo, tvb, offset, next_tree);
+			break;
+		case BER_UNI_TAG_NumericString:
+			offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_NumericString, NULL);
 			break;
 		case BER_UNI_TAG_PrintableString:
 			offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_PrintableString, NULL);
@@ -1589,6 +1597,9 @@ proto_register_ber(void)
 	{ &hf_ber_unknown_OID, {
 	    "OID", "ber.unknown.OID", FT_STRING, BASE_NONE,
 	    NULL, 0, "This is an unknown Object Identifier", HFILL }},
+	{ &hf_ber_unknown_NumericString, {
+	    "NumericString", "ber.unknown.NumericString", FT_STRING, BASE_NONE,
+	    NULL, 0, "This is an unknown NumericString", HFILL }},
 	{ &hf_ber_unknown_PrintableString, {
 	    "PrintableString", "ber.unknown.PrintableString", FT_STRING, BASE_NONE,
 	    NULL, 0, "This is an unknown PrintableString", HFILL }},
@@ -1598,6 +1609,9 @@ proto_register_ber(void)
 	{ &hf_ber_unknown_INTEGER, {
 	    "INTEGER", "ber.unknown.INTEGER", FT_UINT32, BASE_DEC,
 	    NULL, 0, "This is an unknown INTEGER", HFILL }},
+	{ &hf_ber_unknown_ENUMERATED, {
+	    "ENUMERATED", "ber.unknown.ENUMERATED", FT_UINT32, BASE_DEC,
+	    NULL, 0, "This is an unknown ENUMERATED", HFILL }},
 
     };
 
