@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.369 2004/01/23 20:11:59 guy Exp $
+ * $Id: main.c,v 1.370 2004/01/23 20:34:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2790,9 +2790,9 @@ font_zoom(char *gui_font_name)
     sprintf(new_font_name, "%s %u", font_name_dup, font_point_size_l);
 #else
     minus_chars = 0;
-    /* replace all '-' chars by 0 and count them */
+    /* replace all '-' chars by NUL and count them */
     while ((font_name_p = strchr(font_name_p, '-')) != NULL) {
-        *font_name_p = 0;
+        *font_name_p = '\0';
         font_name_p++;
         minus_chars++;
     }
@@ -2807,7 +2807,7 @@ font_zoom(char *gui_font_name)
         return NULL;
     }
 
-    /* first element empty */
+    /* first element (font name registry) empty */
     font_name_p = font_name_dup;
     font_name_p += strlen(font_name_p);
     font_name_p++;
@@ -2876,10 +2876,11 @@ font_zoom(char *gui_font_name)
         font_point_size_l = 10;
 
     /* build a new font name */
-    sprintf(new_font_name, "-%s-%s-%s-%s-%s--%s-%ld-%s-%s-%s-%s-%s-%s", 
+    sprintf(new_font_name, "-%s-%s-%s-%s-%s-%s-%s-%ld-%s-%s-%s-%s-%s-%s", 
         font_foundry, font_family, font_weight, font_slant, font_set_width, 
-        font_pixel_size, font_point_size_l, font_res_x, font_res_y,
-        font_spacing, font_aver_width, font_charset_reg, font_charset_encoding);
+        font_add_style, font_pixel_size, font_point_size_l, font_res_x,
+        font_res_y, font_spacing, font_aver_width, font_charset_reg,
+        font_charset_encoding);
 #endif
 
     g_free(font_name_dup);
