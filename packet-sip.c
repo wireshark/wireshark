@@ -1,6 +1,6 @@
 /* packet-sip.c
  * Routines for the Session Initiation Protocol (SIP) dissection.
- * RFC 2543
+ * RFCs 3261-3264
  *
  * TODO: Pay attention to Content-Type: It might not always be SDP.
  *       hf_ display filters for headers of SIP extension RFCs: 
@@ -17,7 +17,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.44 2003/09/26 21:32:38 guy Exp $
+ * $Id: packet-sip.c,v 1.45 2003/10/14 21:24:57 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
