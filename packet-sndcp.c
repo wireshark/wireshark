@@ -2,7 +2,7 @@
  * Routines for Subnetwork Dependent Convergence Protocol (SNDCP) dissection
  * Copyright 2000, Christian Falckenberg <christian.falckenberg@nortelnetworks.com>
  *
- * $Id: packet-sndcp.c,v 1.2 2004/04/13 04:45:37 guy Exp $
+ * $Id: packet-sndcp.c,v 1.3 2004/04/13 21:29:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -254,17 +254,21 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* add subtree for the compression field 
      */
     if (tree) {
-      if (!dcomp && !pcomp) { 
-	compression_field_item = proto_tree_add_text(sndcp_tree, tvb, offset,1, "No compression");
+      if (!pcomp) { 
+	if (!dcomp) {
+	  compression_field_item = proto_tree_add_text(sndcp_tree, tvb, offset,1, "No compression");
+	}
+	else { 
+	  compression_field_item = proto_tree_add_text(sndcp_tree, tvb, offset,1, "Data compression");
+	}
       }
-      else if (dcomp && !pcomp) { 
-	compression_field_item = proto_tree_add_text(sndcp_tree, tvb, offset,1, "Data compression");
-      }
-      else if (!dcomp && pcomp) { 
-	compression_field_item = proto_tree_add_text(sndcp_tree, tvb, offset,1, "Protocol compression");
-      }
-      else if (dcomp && pcomp) { 
-	compression_field_item = proto_tree_add_text(sndcp_tree, tvb, offset,1, "Data and Protocol compression");
+      else { 
+	if (!dcomp) {
+	  compression_field_item = proto_tree_add_text(sndcp_tree, tvb, offset,1, "Protocol compression");
+	}
+	else { 
+	  compression_field_item = proto_tree_add_text(sndcp_tree, tvb, offset,1, "Data and Protocol compression");
+	}
       }
       compression_field_tree = proto_item_add_subtree(compression_field_item, ett_sndcp_compression_field);
       proto_tree_add_uint(compression_field_tree, hf_sndcp_dcomp, tvb, offset, 1, comp_field );
