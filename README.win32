@@ -1,16 +1,15 @@
-$Id: README.win32,v 1.10 2000/06/08 03:12:52 gram Exp $
+$Id: README.win32,v 1.11 2000/08/04 15:40:54 gram Exp $
 
-Using and Compiling Ethereal on Win32
+Running Ethereal, Tethereal, and Editcap on Win32
+=================================================
+You need the glib and gtk libraries for running Ethereal. 
 
-(Including Tethereal and Editcap)
+These packages for win32 can be found at:
 
+	http://ethereal.zing.org/distribution/win32
 
+and at the home page for the GTK+ for Win32 project:
 
-Ethereal can be compiled and used on Win32 platforms. You'll need
-some additional libraries, however.
-
-The glib, gtk, glib-dev, and gtk-dev packages for win32 can be found
-at
 	http://www.gimp.org/~tml/gimp/win32
 
 or
@@ -18,46 +17,71 @@ or
 
 (the mirror nearer to you may be faster).
 
-You need the glib and gtk libraries for running Ethereal. You'll
-need the *-dev packages for compiling Ethereal.
+Make sure the glib and gtk DLL's are in your path when you run
+Ethereal. This includes gtk-*.dll, glib-*.dll, gmodule-*.dll, gdk-*.dll,
+gthread-*.dll, and gnu-intl.dll.
 
-Some problems had been seen with versions of those libraries after the
-1999-08-28 version but before the 2000-04-16 version, but those problems
-don't appear to occur with the 2000-04-16 version.  If you see problems
-(e.g., a mangled hex dump window), the 1999-08-28 version can be found at
+The Win32 Binary distribution, available from
 
-	http://www.gimp.org/~tml/gimp/win32/index-19990828.html
+	http://ethereal.zing.org/distribution/win32
 
-or
+used different version of the GTK+/GLIB libraries at different points
+in time:
 
-	http://www.iki.fi/~tml/gimp/win32/index-19990828.html
+Ethereal Version		GTK+/GLIB version
+----------------		-----------------
+0.8.9 - 0.8.10			20000416
+0.8.8 and before		19990828
 
-If you want to be able to capture packets, a Win32 version libpcap is
-also needed.  You'll need the WinPcap developer's pack available from
 
-	http://netgroup-serv.polito.it/winpcap/
+Capturing Packets
+-----------------
+Remember, if using the the Win32 Binary distribution, available from
+
+	http://ethereal.zing.org/distribution/win32
+
+there are two separate packages, one with non-capturing tools, and
+one with capturing tools. Install the appropriate package. The
+capturing version requires WinPcap, the non-capturing version does not.
 
 In order to capture with Win32, you need to install the NDIS
 packet capture driver for your particular Win32 OS; drivers for Windows
-9x, Windows NT 4.0, and Windows 2000 are included in the WinPcap
-developer's pack.
+9x, Windows NT 4.0, and Windows 2000 can be downlaoded from the
+WinPcap home page:
 
-The home page for WinDump (TCPdump for Windows), which uses the Win32
-libpcap, is at:
+	http://netgroup-serv.polito.it/winpcap/
+
+If Ethereal is not capturing packets, you can test your WinPcap
+installatino by installing WinDump (TCPdump for Windows) ported by the
+same folks who make WinPcap. It's at:
 
 	http://netgroup-serv.polito.it/windump/
+
+They also make Analyzer, a GUI sniffer for Win32:
+
+	http://netgroup-serv.polito.it/analyzer/
+
+
+Compiling the Ethereal distribution from source
+===============================================
+You'll need the development package for GLIB, GTK+, and WinPcap.
+Those versions are available from the respctive home pages for
+each project (the same URLs as listed above). The development
+packages contain header files and stub libaries to link against.
+
+SNMP and ZLIB are not working yet in Ethereal/Win32, but the
+libraries can be had from these locations if you want to hack:
 
 The UCD SNMP library for win32 can be had from
 
 	ftp://ftp.revelstone.com/pub/snmp/
 
-but it has not been tested with Ethereal.
 
 Zlib (or 'libz') is available for Win32 from
 
 	http://www.winimage.com/zLibDll/
 
-but also has not been made to work successfully with Ethereal.
+
 
 Instructions for MS Visual C
 ----------------------------
@@ -73,14 +97,28 @@ command line, or you can invoke the vcvars32.bat script.
 In the ethereal directory, type "nmake -f makefile.nmake". It will
 recurse into the subdirectories as appropriate.
 
-To do a full build, or if you modify any of the ".y" files, any of the
-".l" files, or any of the dissector files, you will need Bison, Flex,
-Bash, and various other UNIX-compatible utilities.  However, if you have
-a Unix system handy, you can first build on Unix to create the source
-files that these tools make, then run the build on Windows.  That will
-avoid the need for these tools on your Windows computer.
+Some generated source is created by traditionally "Unix-ish" tools.
+If you are building from an official distribution, these files are
+already generated, so you have nothing to worry about unless you
+modify the source. If building from a CVS image, you'll need the tools
+to generate C source. The "special" files and their requisite tools are:
 
-If you don't have a Unix system handy, those tools are available for
+Source				Output			Tool
+------				------			----
+dfilter-grammar.y		*.[ch]			Bison or Yacc
+dfilter-scanner.l		*.c			Flex
+wiretap/ascend-grammar.y	*.[ch]			Bison or Yacc
+wiretap/ascend-scanner.l	*.c			Flex
+make-reg-dotc, packet*.c	register.c		Bash
+ncp2222.py			packet-ncp2222.c	Python
+
+
+However, if you have a Unix system handy, you can first build on Unix
+to create the source files that these tools make, then run the build
+on Windows.  That will avoid the need for these tools on your Windows
+computer.
+
+If you don't have a Unix system handy, most of those tools are available for
 Win32 systems as part of the Cygwin package:
 
 	http://sourceware.cygnus.com/cygwin/
@@ -88,9 +126,10 @@ Win32 systems as part of the Cygwin package:
 After installing them, you will probably have to modify the config.nmake
 file to specify where the Cygwin binaries are installed.
 
-Make sure the glib and gtk DLL's are in your path when you run
-Ethereal. This includes gtk-*.dll, glib-*.dll, gmodule-*.dll, gdk-*.dll,
-and gthread-*.dll.
+Python for Win32 is available from
+
+	http://www.python.org/
+
 
 Instructions for Cygwin
 -----------------------
