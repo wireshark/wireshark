@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.26 2001/01/28 09:13:09 guy Exp $
+ * $Id: filter_prefs.c,v 1.27 2001/01/28 21:30:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -69,7 +69,7 @@ static void filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer dummy);
 static void filter_dlg_apply_cb(GtkWidget *apply_bt, gpointer dummy);
 static void filter_apply(GtkWidget *main_w);
 static void filter_dlg_save_cb(GtkWidget *save_bt, gpointer parent_w);
-static void filter_dlg_cancel_cb(GtkWidget *cancel_bt, gpointer parent_w);
+static void filter_dlg_close_cb(GtkWidget *close_bt, gpointer parent_w);
 static void filter_dlg_destroy(GtkWidget *win, gpointer data);
 
 static gint       filter_sel_list_button_cb(GtkWidget *, GdkEventButton *,
@@ -328,7 +328,7 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 			*ok_bt,			/* "OK" button */
 			*apply_bt,		/* "Apply" button */
 			*save_bt,		/* "Save" button */
-			*cancel_bt;		/* "Cancel" button */ 
+			*close_bt;		/* "Cancel" button */ 
 	GtkWidget	*filter_pg = NULL;	/* filter settings box */
 	GtkWidget	*top_hb,
 			*list_bb,
@@ -553,14 +553,21 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 	gtk_container_add(GTK_CONTAINER(main_vb), bbox);
 	gtk_widget_show(bbox);
 
-	ok_bt = gtk_button_new_with_label ("OK");
-	gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-		GTK_SIGNAL_FUNC(filter_dlg_ok_cb), NULL);
-	GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
-	gtk_box_pack_start(GTK_BOX(bbox), ok_bt, TRUE, TRUE, 0);
-	gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_TE_KEY, filter_te);
-	gtk_widget_grab_default(ok_bt);
-	gtk_widget_show(ok_bt);
+	if (parent_filter_te != NULL) {
+		/*
+		 * We have a filter text entry that we can fill in if
+		 * the "OK" button is clicked, so put in an "OK" button.
+		 */
+		ok_bt = gtk_button_new_with_label ("OK");
+		gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
+			GTK_SIGNAL_FUNC(filter_dlg_ok_cb), NULL);
+		GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
+		gtk_box_pack_start(GTK_BOX(bbox), ok_bt, TRUE, TRUE, 0);
+		gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_TE_KEY,
+		    filter_te);
+		gtk_widget_grab_default(ok_bt);
+		gtk_widget_show(ok_bt);
+	}
 
 	if (construct_args->wants_apply_button) {
 		apply_bt = gtk_button_new_with_label ("Apply");
@@ -578,14 +585,14 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 	gtk_box_pack_start(GTK_BOX(bbox), save_bt, TRUE, TRUE, 0);
 	gtk_widget_show(save_bt);
 
-	cancel_bt = gtk_button_new_with_label ("Cancel");
-	gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
-		GTK_SIGNAL_FUNC(filter_dlg_cancel_cb), GTK_OBJECT(main_w));
-	GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
-	gtk_box_pack_start(GTK_BOX(bbox), cancel_bt, TRUE, TRUE, 0);
-	gtk_widget_show(cancel_bt);
+	close_bt = gtk_button_new_with_label ("Close");
+	gtk_signal_connect(GTK_OBJECT(close_bt), "clicked",
+		GTK_SIGNAL_FUNC(filter_dlg_close_cb), GTK_OBJECT(main_w));
+	GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
+	gtk_box_pack_start(GTK_BOX(bbox), close_bt, TRUE, TRUE, 0);
+	gtk_widget_show(close_bt);
 
-	dlg_set_cancel(main_w, cancel_bt);
+	dlg_set_cancel(main_w, close_bt);
 
 	remember_filter_dialog(main_w, filter_dialogs);
 
@@ -716,7 +723,7 @@ filter_dlg_save_cb(GtkWidget *save_bt, gpointer data)
 }
 
 static void
-filter_dlg_cancel_cb(GtkWidget *cancel_bt, gpointer parent_w)
+filter_dlg_close_cb(GtkWidget *close_bt, gpointer parent_w)
 {
 	gtk_widget_destroy(GTK_WIDGET(parent_w));
 }

@@ -627,17 +627,16 @@ cursor position.
 
 =item OK
 
-In the I<Edit Capture Filter List> and I<Edit Display Filter List>
-dialogs, closes the dialog box.  In the I<Capture Filter> dialog, closes
-the dialog box and makes the filter in the I<Filter string> entry the
-filter in the I<Capture Preferences> dialog.  In the I<Display Filter>
-dialog, closes the dialog box and makes the filter in the I<Filter
-string> entry the current display filter, and applies it to the current
-capture.  In the I<Read Filter> dialog, closes the dialog box and makes
-the filter in the I<Filter string> entry the filter in the I<Open
-Capture File> dialog.  In the I<Search Filter> dialog, closes the dialog
-box and makes the filter in the I<Filter string> entry the filter in the
-I<Find Frame> dialog.
+In the I<Capture Filter> dialog, closes the dialog box and makes the
+filter in the I<Filter string> entry the filter in the I<Capture
+Preferences> dialog.  In the I<Display Filter> dialog, closes the dialog
+box and makes the filter in the I<Filter string> entry the current
+display filter, and applies it to the current capture.  In the I<Read
+Filter> dialog, closes the dialog box and makes the filter in the
+I<Filter string> entry the filter in the I<Open Capture File> dialog. 
+In the I<Search Filter> dialog, closes the dialog box and makes the
+filter in the I<Filter string> entry the filter in the I<Find Frame>
+dialog.
 
 =item Apply
 
@@ -651,9 +650,10 @@ of filters being edited is the list of capture filters or in
 F<$HOME/.ethereal/dfilters> if the list of filters being edited is the
 list of display filters.
 
-=item Cancel
+=item Close
 
-Closes the dialog without making any changes.
+Closes the dialog without doing anything with the filter in the I<Filter
+string> entry.
 
 =back
 
