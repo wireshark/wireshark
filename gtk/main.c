@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.95 2000/01/24 05:06:39 guy Exp $
+ * $Id: main.c,v 1.96 2000/01/25 04:44:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1041,11 +1041,7 @@ main(int argc, char *argv[])
   ethereal_path = argv[0];
 
 #ifdef HAVE_LIBPCAP
-  command_name = strrchr(ethereal_path, '/');
-  if (command_name == NULL)
-    command_name = ethereal_path;
-  else
-    command_name++;
+  command_name = get_basename(ethereal_path);
   /* Set "capture_child" to indicate whether this is going to be a child
      process for a "-S" capture. */
   capture_child = (strcmp(command_name, CHILD_NAME) == 0);
