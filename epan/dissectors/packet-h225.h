@@ -68,7 +68,7 @@ typedef struct _h225_packet_info {
  * libethereal.dll, we need a special declaration.
  */
 ETH_VAR_IMPORT const value_string RasMessage_vals[];
-ETH_VAR_IMPORT const value_string h323_message_body_vals[];
+ETH_VAR_IMPORT const value_string T_h323_message_body_vals[];
 ETH_VAR_IMPORT const value_string FacilityReason_vals[];
 ETH_VAR_IMPORT const value_string GatekeeperRejectReason_vals[];
 ETH_VAR_IMPORT const value_string UnregRequestReason_vals[];

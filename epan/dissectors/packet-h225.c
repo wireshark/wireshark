@@ -7324,7 +7324,7 @@ dissect_h225_ConnectUUIE(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 }
 
 
-const value_string h323_message_body_vals[] = {
+const value_string T_h323_message_body_vals[] = {
 	{ 0, "setup" },
 	{ 1, "callProceeding" },
 	{ 2, "connect" },
@@ -7380,7 +7380,7 @@ dissect_h225_h323_message_body(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		col_append_fstr(pinfo->cinfo, COL_INFO, "CS: %s ",
-			val_to_str(value, h323_message_body_vals, "<unknown>"));
+			val_to_str(value, T_h323_message_body_vals, "<unknown>"));
         }
 
 	if (h225_pi.msg_type == H225_CS) {
@@ -9938,7 +9938,7 @@ proto_register_h225(void)
 		NULL, 0, "connectedAddress sequence of", HFILL }},
 	{ &hf_h225_h323_message_body,
 		{ "h323_message_body", "h225.h323_message_body", FT_UINT32, BASE_DEC,
-		VALS(h323_message_body_vals), 0, "h323_message_body choice", HFILL }},
+		VALS(T_h323_message_body_vals), 0, "h323_message_body choice", HFILL }},
 	{ &hf_h225_LocationConfirm,
 		{ "LocationConfirm", "h225.LocationConfirm", FT_NONE, BASE_NONE,
 		NULL, 0, "LocationConfirm sequence", HFILL }},
