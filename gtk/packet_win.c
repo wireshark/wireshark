@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.12 2000/08/21 08:09:13 guy Exp $
+ * $Id: packet_win.c,v 1.13 2000/09/08 09:50:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -80,6 +80,7 @@ struct PacketWinData {
 	GtkWidget  *tree_view;
  	GtkWidget  *bv_scrollw;
  	GtkWidget  *byte_view;
+ 	field_info *finfo_selected;
 };
 
 /* List of all the packet-detail windows popped up. */
@@ -195,8 +196,10 @@ create_new_window ( char *Title, gint tv_size, gint bv_size){
   /* draw the protocol tree & print hex data */
   proto_tree_draw(DataPtr->protocol_tree, tree_view);
   packet_hex_print( GTK_TEXT(byte_view), DataPtr->pd,
-		DataPtr->cap_len, -1, -1, DataPtr->encoding);
+		DataPtr->cap_len, -1, -1, DataPtr->encoding,
+		prefs.gui_hex_dump_highlight_style);
 		
+  DataPtr->finfo_selected = NULL;
   gtk_widget_show(main_w);
 }
 
@@ -225,11 +228,11 @@ new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column,
 	finfo = gtk_ctree_node_get_row_data( ctree, GTK_CTREE_NODE(node) );
 	if (!finfo) return;
 
-	finfo_selected = finfo;
+	DataPtr->finfo_selected = finfo;
 
 	packet_hex_print(GTK_TEXT(DataPtr->byte_view), DataPtr->pd,
 		DataPtr->cap_len, finfo->start, finfo->length,
-		DataPtr->encoding);
+		DataPtr->encoding, prefs.gui_hex_dump_highlight_style);
 
 }
 
@@ -243,8 +246,10 @@ new_tree_view_unselect_row_cb(GtkCTree *ctree, GList *node, gint column,
 	
 	struct PacketWinData *DataPtr = (struct PacketWinData*)user_data;
 
+	DataPtr->finfo_selected = NULL;
 	packet_hex_print(GTK_TEXT(DataPtr->byte_view), DataPtr->pd,
-		DataPtr->cap_len, -1, -1, DataPtr->encoding);
+		DataPtr->cap_len, -1, -1, DataPtr->encoding,
+		prefs.gui_hex_dump_highlight_style);
 }
 
 /* Functions called from elsewhere to act on all popup packet windows. */
@@ -264,4 +269,20 @@ destroy_packet_wins(void)
 		DataPtr = (struct PacketWinData *)(detail_windows->data);
 		gtk_widget_destroy(DataPtr->main);
 	}
+}
+
+static void
+set_hex_dump_highlight_style_cb(gpointer data, gpointer user_data)
+{
+	struct PacketWinData *DataPtr = (struct PacketWinData *)data;
+
+	set_hex_dump_highlight_style(DataPtr->byte_view,
+		DataPtr->finfo_selected, *(gint *)user_data);
+}
+
+/* Set the hex dump highlight style of all the popup packet windows. */
+void
+set_hex_dump_highlight_style_packet_wins(gboolean style)
+{
+	g_list_foreach(detail_windows, set_hex_dump_highlight_style_cb, &style);
 }

@@ -1,7 +1,7 @@
-/* gtkpacket.c
+/* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.18 2000/08/21 08:09:16 guy Exp $
+ * $Id: proto_draw.c,v 1.19 2000/09/08 09:50:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,7 @@
 
 #include "prefs.h"
 #include "proto_draw.h"
+#include "packet_win.h"
 #include "gtkglobals.h"
 
 #define BYTE_VIEW_WIDTH    16
@@ -56,6 +57,27 @@ extern GdkFont      *m_r_font, *m_b_font;
 
 static void
 proto_tree_draw_node(GNode *node, gpointer data);
+
+/* Set the highlight style of a given byte view window. */
+void
+set_hex_dump_highlight_style(GtkWidget *bv, field_info *finfo, gboolean style)
+{
+  if (finfo != NULL) {
+    packet_hex_print(GTK_TEXT(bv), cfile.pd, cfile.current_frame->cap_len, 
+		     finfo->start, finfo->length,
+		     cfile.current_frame->flags.encoding, style);
+  } else {
+    packet_hex_print(GTK_TEXT(bv), cfile.pd, cfile.current_frame->cap_len, 
+		     -1, -1, cfile.current_frame->flags.encoding, style);
+  }
+}
+
+void
+set_hex_dump_highlight_style_all(gboolean style)
+{
+  set_hex_dump_highlight_style(byte_view, finfo_selected, style);
+  set_hex_dump_highlight_style_packet_wins(style);
+}
 
 void
 create_byte_view(gint bv_size, GtkWidget *pane, GtkWidget **byte_view_p,
@@ -86,11 +108,14 @@ create_byte_view(gint bv_size, GtkWidget *pane, GtkWidget **byte_view_p,
 
 void
 packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
-		char_enc encoding) {
+		char_enc encoding, gboolean style) {
   gint     i = 0, j, k, cur;
   guchar   line[128], hexchars[] = "0123456789abcdef", c = '\0';
   GdkFont *cur_font, *new_font;
   gint	   bend = -1;
+
+  GdkColor *fg, *bg;
+  gboolean reverse, newreverse;
 
   /* Freeze the text for faster display */
   gtk_text_freeze(bv);
@@ -111,68 +136,175 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
   while (i < len) {
     /* Print the line number */
     sprintf(line, "%04x  ", i);
-    gtk_text_insert(bv, m_r_font, NULL, NULL, line, -1);
-    /* Do we start in bold? */
-    cur_font = (i >= bstart && i < bend) ? m_b_font : m_r_font;
-    j   = i;
-    k   = i + BYTE_VIEW_WIDTH;
-    cur = 0;
-    /* Print the hex bit */
-    while (i < k) {
-      if (i < len) {
-        line[cur++] = hexchars[(pd[i] & 0xf0) >> 4];
-        line[cur++] = hexchars[pd[i] & 0x0f];
-      } else {
-        line[cur++] = ' '; line[cur++] = ' ';
+    
+    /* Display with inverse video ? */
+    if (style) {
+      gtk_text_insert(bv, m_r_font, &BLACK, &WHITE, line, -1);
+      /* Do we start in reverse? */
+      reverse = i >= bstart && i < bend;
+      fg = reverse ? &WHITE : &BLACK;
+      bg = reverse ? &BLACK : &WHITE;
+      j   = i;
+      k   = i + BYTE_VIEW_WIDTH;
+      cur = 0;
+      /* Print the hex bit */
+      while (i < k) {
+	if (i < len) {
+	  line[cur++] = hexchars[(pd[i] & 0xf0) >> 4];
+	  line[cur++] = hexchars[pd[i] & 0x0f];
+	} else {
+	  line[cur++] = ' '; line[cur++] = ' ';
+	}
+	i++;
+	newreverse = i >= bstart && i < bend;
+	/* Have we gone from reverse to plain? */
+	if (reverse && (reverse != newreverse)) {
+	  gtk_text_insert(bv, m_r_font, fg, bg, line, cur);
+	  fg = &BLACK;
+	  bg = &WHITE;
+	  cur = 0;
+	}
+	/* Inter byte space if not at end of line */
+	if (i < k) {
+	  line[cur++] = ' ';
+	  /* insert a space every BYTE_VIEW_SEP bytes */
+	  if( ( i % BYTE_VIEW_SEP ) == 0 ) {
+	    line[cur++] = ' ';
+	  }
+	}
+	/* Have we gone from plain to reversed? */
+	if (!reverse && (reverse != newreverse)) {
+	  gtk_text_insert(bv, m_r_font, fg, bg, line, cur);
+	  fg = &WHITE;
+	  bg = &BLACK;
+	  cur = 0;
+	}
+	reverse = newreverse;
+      }
+      /* Print remaining part of line */
+      gtk_text_insert(bv, m_r_font, fg, bg, line, cur);
+      cur = 0;
+      /* Print some space at the end of the line */
+      line[cur++] = ' '; line[cur++] = ' '; line[cur++] = ' ';
+      gtk_text_insert(bv, m_r_font, &BLACK, &WHITE, line, cur);
+      cur = 0;
+
+      /* Print the ASCII bit */
+      i = j;
+      /* Do we start in reverse? */
+      reverse = i >= bstart && i < bend;
+      fg = reverse ? &WHITE : &BLACK;
+      bg = reverse ? &BLACK : &WHITE;
+      while (i < k) {
+	if (i < len) {
+	  if (encoding == CHAR_ASCII) {
+	    c = pd[i];
+	  }
+	  else if (encoding == CHAR_EBCDIC) {
+	    c = EBCDIC_to_ASCII1(pd[i]);
+	  }
+	  else {
+		  g_assert_not_reached();
+	  }
+	  line[cur++] = (isprint(c)) ? c : '.';
+	} else {
+	  line[cur++] = ' ';
+	}
+	i++;
+	newreverse = i >= bstart && i < bend;
+	/* Have we gone from reverse to plain? */
+	if (reverse && (reverse != newreverse)) {
+	  gtk_text_insert(bv, m_r_font, fg, bg, line, cur);
+	  fg = &BLACK;
+	  bg = &WHITE;
+	  cur = 0;
+	}
+	if (i < k) {
+	  /* insert a space every BYTE_VIEW_SEP bytes */
+	  if( ( i % BYTE_VIEW_SEP ) == 0 ) {
+	    line[cur++] = ' ';
+	  }
+	}
+	/* Have we gone from plain to reversed? */
+	if (!reverse && (reverse != newreverse)) {
+	  gtk_text_insert(bv, m_r_font, fg, bg, line, cur);
+	  fg = &WHITE;
+	  bg = &BLACK;
+	  cur = 0;
+	}
+	reverse = newreverse;
+      }
+      /* Print remaining part of line */
+      gtk_text_insert(bv, m_r_font, fg, bg, line, cur);
+      cur = 0;
+      line[cur++] = '\n';
+      line[cur]   = '\0';
+      gtk_text_insert(bv, m_r_font, &BLACK, &WHITE, line, -1);
+    }
+    else {
+      gtk_text_insert(bv, m_r_font, NULL, NULL, line, -1);
+      /* Do we start in bold? */
+      cur_font = (i >= bstart && i < bend) ? m_b_font : m_r_font;
+      j   = i;
+      k   = i + BYTE_VIEW_WIDTH;
+      cur = 0;
+      /* Print the hex bit */
+      while (i < k) {
+	if (i < len) {
+	  line[cur++] = hexchars[(pd[i] & 0xf0) >> 4];
+	  line[cur++] = hexchars[pd[i] & 0x0f];
+	} else {
+	  line[cur++] = ' '; line[cur++] = ' ';
+	}
+	line[cur++] = ' ';
+	i++;
+	/* insert a space every BYTE_VIEW_SEP bytes */
+	if( ( i % BYTE_VIEW_SEP ) == 0 ) line[cur++] = ' ';
+	/* Did we cross a bold/plain boundary? */
+	new_font = (i >= bstart && i < bend) ? m_b_font : m_r_font;
+	if (cur_font != new_font) {
+	  gtk_text_insert(bv, cur_font, NULL, NULL, line, cur);
+	  cur_font = new_font;
+	  cur = 0;
+	}
       }
       line[cur++] = ' ';
-      i++;
-      /* insert a space every BYTE_VIEW_SEP bytes */
-      if( ( i % BYTE_VIEW_SEP ) == 0 ) line[cur++] = ' ';
-      /* Did we cross a bold/plain boundary? */
-      new_font = (i >= bstart && i < bend) ? m_b_font : m_r_font;
-      if (cur_font != new_font) {
-        gtk_text_insert(bv, cur_font, NULL, NULL, line, cur);
-        cur_font = new_font;
-        cur = 0;
-      }
-    }
-    line[cur++] = ' ';
-    gtk_text_insert(bv, cur_font, NULL, NULL, line, cur);
+      gtk_text_insert(bv, cur_font, NULL, NULL, line, cur);
 
-    cur = 0;
-    i = j;
-    /* Print the ASCII bit */
-    cur_font = (i >= bstart && i < bend) ? m_b_font : m_r_font;
-    while (i < k) {
-      if (i < len) {
-	      if (encoding == CHAR_ASCII) {
-		c = pd[i];
-	      }
-	      else if (encoding == CHAR_EBCDIC) {
-		c = EBCDIC_to_ASCII1(pd[i]);
-	      }
-	      else {
-		      g_assert_not_reached();
-	      }
-              line[cur++] = (isprint(c)) ? c : '.';
-      } else {
-        line[cur++] = ' ';
+      cur = 0;
+      i = j;
+      /* Print the ASCII bit */
+      cur_font = (i >= bstart && i < bend) ? m_b_font : m_r_font;
+      while (i < k) {
+	if (i < len) {
+	  if (encoding == CHAR_ASCII) {
+	    c = pd[i];
+	  }
+	  else if (encoding == CHAR_EBCDIC) {
+	    c = EBCDIC_to_ASCII1(pd[i]);
+	  }
+	  else {
+		  g_assert_not_reached();
+	  }
+	  line[cur++] = (isprint(c)) ? c : '.';
+	} else {
+	  line[cur++] = ' ';
+	}
+	i++;
+	/* insert a space every BYTE_VIEW_SEP bytes */
+	if( ( i % BYTE_VIEW_SEP ) == 0 ) line[cur++] = ' ';
+	/* Did we cross a bold/plain boundary? */
+	new_font = (i >= bstart && i < bend) ? m_b_font : m_r_font;
+	if (cur_font != new_font) {
+	  gtk_text_insert(bv, cur_font, NULL, NULL, line, cur);
+	  cur_font = new_font;
+	  cur = 0;
+	}
       }
-      i++;
-      /* insert a space every BYTE_VIEW_SEP bytes */
-      if( ( i % BYTE_VIEW_SEP ) == 0 ) line[cur++] = ' ';
-      /* Did we cross a bold/plain boundary? */
-      new_font = (i >= bstart && i < bend) ? m_b_font : m_r_font;
-      if (cur_font != new_font) {
-        gtk_text_insert(bv, cur_font, NULL, NULL, line, cur);
-        cur_font = new_font;
-        cur = 0;
-      }
+      line[cur++] = '\n';
+      line[cur]   = '\0';
+      gtk_text_insert(bv, cur_font, NULL, NULL, line, -1);
     }
-    line[cur++] = '\n';
-    line[cur]   = '\0';
-    gtk_text_insert(bv, cur_font, NULL, NULL, line, -1);
   }
 
   /* scroll text into position */
@@ -197,7 +329,7 @@ static GList *ptree_widgets;
 /* Add a protocol tree widget to the list of protocol tree widgets. */
 static void forget_ptree_widget(GtkWidget *ptreew, gpointer data);
 
-void
+static void
 remember_ptree_widget(GtkWidget *ptreew)
 {
   ptree_widgets = g_list_append(ptree_widgets, ptreew);
@@ -208,7 +340,7 @@ remember_ptree_widget(GtkWidget *ptreew)
 		     GTK_SIGNAL_FUNC(forget_ptree_widget), NULL);
 }
 
-/* Remove a scrolled window from the list of scrolled windows. */
+/* Remove a protocol tree widget from the list of protocol tree widgets. */
 static void
 forget_ptree_widget(GtkWidget *ptreew, gpointer data)
 {

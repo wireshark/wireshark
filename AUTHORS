@@ -306,6 +306,9 @@ Graham Bloice <graham.bloice@trihedral.com> {
 	Win32 Makefile improvements
 	Support for "Update list of packets in real time" during capture
 	on Win32
+	Support for inverse video rather than boldface highlighting of
+	the bytes, in the hex dump window, corresponding to a selected
+	field
 }
 
 Ralf Schneider <ralf.schneider@alcatel.se> {

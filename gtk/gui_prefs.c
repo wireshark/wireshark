@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.16 2000/08/24 03:16:47 gram Exp $
+ * $Id: gui_prefs.c,v 1.17 2000/09/08 09:50:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,6 +61,7 @@ static void fetch_colors(void);
 #define PTREE_SEL_BROWSE_KEY		"ptree_sel_browse"
 #define PTREE_LINE_STYLE_KEY		"ptree_line_style"
 #define PTREE_EXPANDER_STYLE_KEY	"ptree_expander_style"
+#define HEX_DUMP_HIGHLIGHT_STYLE_KEY	"hex_dump_highlight_style"
 
 #define FONT_DIALOG_PTR_KEY	"font_dialog_ptr"
 #define FONT_CALLER_PTR_KEY	"font_caller_ptr"
@@ -97,6 +98,12 @@ static const enum_val expander_style_vals[] = {
 	{ NULL,       0 }
 };
 
+static const enum_val highlight_style_vals[] = {
+  	{ "Bold",     0 },
+  	{ "Inverse",  1 },
+	{ NULL,       0 }
+};
+
 /* Set to FALSE initially; set to TRUE if the user ever hits "OK" on
    the "Colors..." dialog, so that we know that they (probably) changed
    colors, and therefore that the "apply" function needs to recolor
@@ -119,7 +126,7 @@ gui_prefs_show(void)
 	font_changed = FALSE;
 
 	/* Main vertical box */
-	main_vb = gtk_vbox_new(FALSE, 5);
+	main_vb = gtk_vbox_new(FALSE, 7);
 	gtk_container_border_width( GTK_CONTAINER(main_vb), 5 );
 
 	/* Main table */
@@ -153,11 +160,16 @@ gui_prefs_show(void)
 	    "Protocol-tree expander style:", expander_style_vals,
 	    prefs.gui_ptree_expander_style);
 
+	/* Hex Dump highlight style */
+	create_option_menu(main_vb, HEX_DUMP_HIGHLIGHT_STYLE_KEY, main_tb, 5,
+	    "Hex dump highlight style:", highlight_style_vals,
+	    prefs.gui_hex_dump_highlight_style);
+
 	/* "Font..." button - click to open a font selection dialog box. */
 	font_bt = gtk_button_new_with_label("Font...");
 	gtk_signal_connect(GTK_OBJECT(font_bt), "clicked",
 	    GTK_SIGNAL_FUNC(font_browse_cb), NULL);
-	gtk_table_attach_defaults( GTK_TABLE(main_tb), font_bt, 1, 2, 5, 6 );
+	gtk_table_attach_defaults( GTK_TABLE(main_tb), font_bt, 1, 2, 6, 7 );
 
 	/* "Colors..." button - click to open a color selection dialog box. */
 	color_bt = gtk_button_new_with_label("Colors...");
@@ -362,6 +374,9 @@ gui_prefs_fetch(GtkWidget *w)
 	prefs.gui_ptree_expander_style = fetch_enum_value(
 	    gtk_object_get_data(GTK_OBJECT(w), PTREE_EXPANDER_STYLE_KEY),
 	    expander_style_vals);
+	prefs.gui_hex_dump_highlight_style = fetch_enum_value(
+	    gtk_object_get_data(GTK_OBJECT(w), HEX_DUMP_HIGHLIGHT_STYLE_KEY),
+	    highlight_style_vals);
 
 	if (colors_changed)
 	    fetch_colors();
@@ -386,6 +401,7 @@ gui_prefs_apply(GtkWidget *w)
 	set_ptree_sel_browse_all(prefs.gui_ptree_sel_browse);
 	set_ptree_line_style_all(prefs.gui_ptree_line_style);
 	set_ptree_expander_style_all(prefs.gui_ptree_expander_style);
+	set_hex_dump_highlight_style_all(prefs.gui_hex_dump_highlight_style);
 	if (colors_changed)
 		update_marked_frames();
 	if (font != NULL) {

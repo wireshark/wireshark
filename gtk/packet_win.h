@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.h,v 1.4 2000/08/21 08:09:14 guy Exp $
+ * $Id: packet_win.h,v 1.5 2000/09/08 09:50:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,5 +28,6 @@
 #define __PACKET_WIN_H__
 
 extern void new_window_cb(GtkWidget *w);
+void set_hex_dump_highlight_style_packet_wins(gboolean style);
 
 #endif

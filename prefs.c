@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.39 2000/08/21 21:24:03 deniel Exp $
+ * $Id: prefs.c,v 1.40 2000/09/08 09:49:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -79,6 +79,8 @@ gchar	*gui_ptree_line_style_text[] =
 gchar	*gui_ptree_expander_style_text[] =
 	{ "NONE", "SQUARE", "TRIANGLE", "CIRCULAR", NULL };
 
+gchar	*gui_hex_dump_highlight_style_text[] =
+	{ "BOLD", "INVERSE", NULL };
 
 /*
  * List of modules with preference settings.
@@ -527,6 +529,7 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
     prefs.gui_ptree_sel_browse = FALSE;
     prefs.gui_ptree_line_style = 0;
     prefs.gui_ptree_expander_style = 1;
+    prefs.gui_hex_dump_highlight_style = 1;
 #ifdef WIN32
     prefs.gui_font_name = g_strdup("-*-lucida console-medium-r-*-*-*-100-*-*-*-*-*-*");
 #else
@@ -753,6 +756,7 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_PTREE_SEL_BROWSE "gui.protocol_tree_sel_browse"
 #define PRS_GUI_PTREE_LINE_STYLE "gui.protocol_tree_line_style"
 #define PRS_GUI_PTREE_EXPANDER_STYLE "gui.protocol_tree_expander_style"
+#define PRS_GUI_HEX_DUMP_HIGHLIGHT_STYLE "gui.hex_dump_highlight_style"
 #define PRS_GUI_FONT_NAME "gui.font_name"
 #define PRS_GUI_MARKED_FG "gui.marked_frame.fg"
 #define PRS_GUI_MARKED_BG "gui.marked_frame.bg"
@@ -870,6 +874,9 @@ set_pref(gchar *pref_name, gchar *value)
   } else if (strcmp(pref_name, PRS_GUI_PTREE_EXPANDER_STYLE) == 0) {
 	  prefs.gui_ptree_expander_style =
 		  find_index_from_string_array(value, gui_ptree_expander_style_text, 1);
+  } else if (strcmp(pref_name, PRS_GUI_HEX_DUMP_HIGHLIGHT_STYLE) == 0) {
+	  prefs.gui_hex_dump_highlight_style =
+		  find_index_from_string_array(value, gui_hex_dump_highlight_style_text, 1);
   } else if (strcmp(pref_name, PRS_GUI_FONT_NAME) == 0) {
 	  if (prefs.gui_font_name != NULL)
 		g_free(prefs.gui_font_name);
@@ -1135,6 +1142,10 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_PTREE_EXPANDER_STYLE ": %s\n",
 		  gui_ptree_expander_style_text[prefs.gui_ptree_expander_style]);
 
+  fprintf(pf, "\n# Hex dump highlight style. One of: BOLD, INVERSE\n");
+  fprintf(pf, PRS_GUI_HEX_DUMP_HIGHLIGHT_STYLE ": %s\n",
+		  gui_hex_dump_highlight_style_text[prefs.gui_hex_dump_highlight_style]);
+
   fprintf(pf, "\n# Font name for packet list, protocol tree, and hex dump panes.\n");
   fprintf(pf, PRS_GUI_FONT_NAME ": %s\n", prefs.gui_font_name);
 
@@ -1189,6 +1200,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_ptree_sel_browse = src->gui_ptree_sel_browse;
   dest->gui_ptree_line_style = src->gui_ptree_line_style;
   dest->gui_ptree_expander_style = src->gui_ptree_expander_style;
+  dest->gui_hex_dump_highlight_style = src->gui_hex_dump_highlight_style;
   dest->gui_font_name = g_strdup(src->gui_font_name);
   dest->gui_marked_fg = src->gui_marked_fg;
   dest->gui_marked_bg = src->gui_marked_bg;

@@ -513,6 +513,8 @@ the rest of the list or tree without changing the selection
 until you press the space bar. If the selection bar has a "select"
 behavior, the arrow keys will move the selection bar and change
 the selection to the new item in the packet list or protocol tree.
+The highlight method in the hex dump display for the selected protocol
+item can be set to use either inverse video, or bold characters.
 
 =item Fonts
 
