@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: nmake -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.79 2001/02/08 07:08:05 guy Exp $
+# $Id: Makefile.nmake,v 1.80 2001/02/11 03:19:45 gram Exp $
 
 include config.nmake
 
@@ -207,6 +207,11 @@ tethereal_OBJECTS = \
 	$(ETHEREAL_COMMON_OBJECTS) \
 	tethereal.obj
 
+dftest_OBJECTS = \
+	$(DISSECTOR_OBJECTS) \
+	$(ETHEREAL_COMMON_OBJECTS) \
+	dftest.obj
+
 EXTRA_OBJECTS = \
 	snprintf.obj	\
 	strerror.obj	\
@@ -232,6 +237,13 @@ editcap_LIBS= wiretap\libwtap.lib wsock32.lib user32.lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib
 
+dftest_LIBS= epan\ethereal.lib \
+	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
+	wsock32.lib user32.lib \
+	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
+	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib \
+	$(PCAP_DIR)\lib\libpcap.lib
+
 EXECUTABLES=ethereal.exe tethereal.exe editcap.exe
 
 RESOURCES=image\ethereal.res image\tethereal.res image\editcap.res
@@ -254,6 +266,11 @@ editcap.exe	: config.h editcap.obj getopt.obj wiretap\libwtap.lib image\editcap.
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:editcap.exe $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj $(editcap_LIBS) image\editcap.res
+<<
+
+dftest.exe	: $(dftest_OBJECTS) $(EXTRA_OBJECTS)
+	$(LINK) @<<
+		/OUT:dftest.exe $(LDFLAGS) /SUBSYSTEM:console $(dftest_LIBS) $(dftest_OBJECTS) $(EXTRA_OBJECTS)
 <<
 
 config.h	: config.h.win32
