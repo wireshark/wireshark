@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.43 2003/11/20 23:34:29 guy Exp $
+ * $Id: packet-rtp.c,v 1.44 2004/01/31 09:48:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -299,6 +299,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	unsigned int i            = 0;
 	unsigned int hdr_extension= 0;
 	unsigned int padding_count;
+	gint        length, reported_length;
 	int         data_len;
 	unsigned int offset = 0;
 	guint16     seq_num;
@@ -357,17 +358,39 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	rtp_info.info_seq_num = seq_num;
 	rtp_info.info_timestamp = timestamp;
 	rtp_info.info_sync_src = sync_src;
-	rtp_info.info_data_len = tvb_reported_length_remaining( tvb, offset );
 
 	/*
-	* Save the pointer to raw rtp data (header + payload incl. padding)
-	* That should be safe because the "epan_dissect_t" constructed for the packet
-	*  has not yet been freed when the taps are called.
-	* (destroying the "epan_dissect_t" will end up freeing all the tvbuffs
-	*  and hence invalidating pointers to their data).
-	* See "add_packet_to_packet_list()" for details.
-	*/
-	rtp_info.info_data = tvb_get_ptr(tvb, 0, -1);
+	 * Do we have all the data?
+	 */
+	length = tvb_length_remaining(tvb, offset);
+	reported_length = tvb_reported_length_remaining(tvb, offset);
+	if (reported_length >= 0 && length >= reported_length) {
+		/*
+		 * Yes.
+		 */
+		rtp_info.info_all_data_present = TRUE;
+		rtp_info.info_data_len = reported_length;
+
+		/*
+		 * Save the pointer to raw rtp data (header + payload incl.
+		 * padding).
+		 * That should be safe because the "epan_dissect_t"
+		 * constructed for the packet has not yet been freed when
+		 * the taps are called.
+		 * (Destroying the "epan_dissect_t" will end up freeing
+		 * all the tvbuffs and hence invalidating pointers to
+		 * their data.)
+		 * See "add_packet_to_packet_list()" for details.
+		 */
+		rtp_info.info_data = tvb_get_ptr(tvb, 0, -1);
+	} else {
+		/*
+		 * No - packet was cut short at capture time.
+		 */
+		rtp_info.info_all_data_present = FALSE;
+		rtp_info.info_data_len = 0;
+		rtp_info.info_data = NULL;
+	}
 
 	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
 		col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTP" );
@@ -445,12 +468,13 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		    offset, 2, hdr_extension);
 		offset += 2;
 		if ( hdr_extension > 0 ) {
-			if ( tree ) { ti = proto_tree_add_text(rtp_tree, tvb, offset, csrc_count * 4, "Header extensions");
-			/* I'm re-using the old tree variable here
-			   from the CSRC list!*/
-			rtp_csrc_tree = proto_item_add_subtree( ti,
-			    ett_hdr_ext );
-            }
+			if ( tree ) {
+				ti = proto_tree_add_text(rtp_tree, tvb, offset, csrc_count * 4, "Header extensions");
+				/* I'm re-using the old tree variable here
+				   from the CSRC list!*/
+				rtp_csrc_tree = proto_item_add_subtree( ti,
+				    ett_hdr_ext );
+			}
 			for (i = 0; i < hdr_extension; i++ ) {
 				if ( tree ) proto_tree_add_uint( rtp_csrc_tree, hf_rtp_hdr_ext, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
 				offset += 4;

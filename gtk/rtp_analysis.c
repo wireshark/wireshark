@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.30 2004/01/31 03:22:42 guy Exp $
+ * $Id: rtp_analysis.c,v 1.31 2004/01/31 09:48:26 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -119,6 +119,7 @@ typedef enum {
 	TAP_RTP_WRONG_CODEC,
 	TAP_RTP_WRONG_LENGTH,
 	TAP_RTP_PADDING_ERROR,
+	TAP_RTP_SHORT_FRAME,
 	TAP_RTP_FILE_OPEN_ERROR,
 	TAP_RTP_NO_DATA
 } error_type_t; 
@@ -585,7 +586,7 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 								   packet_info *pinfo, struct _rtp_info *rtpinfo)
 {
 	guint i;
-	guint8 *data;
+	const guint8 *data;
 	gint16 tmp;
 
 	/*  is this the first packet we got in this direction? */
@@ -639,10 +640,18 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 
 	/* ulaw? */
 	if (rtpinfo->info_payload_type == PT_PCMU) {
-		/* we put the pointer at the beggining of the RTP data, that is
-		* at the end of the current frame minus the length of the
-		* padding count minus length of the RTP data */
-		data = cfile.pd + (pinfo->fd->pkt_len - rtpinfo->info_payload_len);
+		if (!rtpinfo->info_all_data_present) {
+			/* Not all the data was captured. */
+			saveinfo->saved = FALSE;
+			saveinfo->error_type = TAP_RTP_SHORT_FRAME;
+			return 0;
+		}
+
+		/* we put the pointer at the beginning of the RTP
+		* payload, that is, at the beginning of the RTP data
+		* plus the offset of the payload from the beginning
+		* of the RTP data */
+		data = rtpinfo->info_data + rtpinfo->info_payload_offset;
 		for(i=0; i < (rtpinfo->info_payload_len - rtpinfo->info_padding_count); i++, data++) {
 			tmp = (gint16 )ulaw2linear((unsigned char)*data);
 			fwrite(&tmp, 2, 1, saveinfo->fp);
@@ -655,7 +664,18 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 
 	/* alaw? */
 	else if (rtpinfo->info_payload_type == PT_PCMA) {
-		data = cfile.pd + (pinfo->fd->pkt_len - rtpinfo->info_payload_len);
+		if (!rtpinfo->info_all_data_present) {
+			/* Not all the data was captured. */
+			saveinfo->saved = FALSE;
+			saveinfo->error_type = TAP_RTP_SHORT_FRAME;
+			return 0;
+		}
+
+		/* we put the pointer at the beginning of the RTP
+		* payload, that is, at the beginning of the RTP data
+		* plus the offset of the payload from the beginning
+		* of the RTP data */
+		data = rtpinfo->info_data + rtpinfo->info_payload_offset;
 		for(i=0; i < (rtpinfo->info_payload_len - rtpinfo->info_padding_count); i++, data++) {
 			tmp = (gint16 )alaw2linear((unsigned char)*data);
 			fwrite(&tmp, 2, 1, saveinfo->fp);
@@ -1429,6 +1449,10 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 			(user_data->reversed.saveinfo.error_type == TAP_RTP_PADDING_ERROR))
 			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
 			"Can't save in a file: RTP data with padding!");
+		else if ((user_data->forward.saveinfo.error_type == TAP_RTP_SHORT_FRAME) || 
+			(user_data->reversed.saveinfo.error_type == TAP_RTP_SHORT_FRAME))
+			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+			"Can't save in a file: Not all data in all packets was captured!");
 		else  
 			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
 			"Can't save in a file: File I/O problem!");
@@ -1446,6 +1470,9 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 		else if (user_data->forward.saveinfo.error_type == TAP_RTP_PADDING_ERROR)
 			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
 			"Can't save forward direction in a file: RTP data with padding!");
+		else if (user_data->forward.saveinfo.error_type == TAP_RTP_SHORT_FRAME)
+			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+			"Can't save forward direction in a file: Not all data in all packets was captured!");
 		else
 			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
 			"Can't save forward direction in a file: File I/O problem!");
@@ -1463,6 +1490,9 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 		else if (user_data->reversed.saveinfo.error_type == TAP_RTP_PADDING_ERROR)
 			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
 			"Can't save reversed direction in a file: RTP data with padding!");
+		else if (user_data->forward.saveinfo.error_type == TAP_RTP_SHORT_FRAME)
+			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
+			"Can't save reversed direction in a file: Not all data in all packets was captured!");
 		else if (user_data->reversed.saveinfo.error_type == TAP_RTP_NO_DATA)
 			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, ESD_BTN_OK,
 			"Can't save reversed direction in a file: No RTP data!");

@@ -3,7 +3,7 @@
  * Routines for RTP dissection
  * RTP = Real time Transport Protocol
  *
- * $Id: packet-rtp.h,v 1.10 2003/11/20 23:34:30 guy Exp $
+ * $Id: packet-rtp.h,v 1.11 2004/01/31 09:48:25 guy Exp $
  *
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
@@ -36,6 +36,7 @@ struct _rtp_info {
 	guint32       info_timestamp;
 	guint32       info_sync_src;
 	guint         info_data_len;       /* length of raw rtp data as reported */
+	gboolean      info_all_data_present; /* FALSE if data is cut off */
 	guint         info_payload_offset; /* start of payload relative to info_data */
 	guint         info_payload_len;    /* length of payload (incl padding) */
 	const guint8* info_data;           /* pointer to raw rtp data */

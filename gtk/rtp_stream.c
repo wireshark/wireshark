@@ -1,7 +1,7 @@
 /* rtp_stream.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream.c,v 1.10 2004/01/31 03:22:42 guy Exp $
+ * $Id: rtp_stream.c,v 1.11 2004/01/31 09:48:26 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -240,6 +240,8 @@ int rtpstream_packet(rtpstream_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan_
 	}
 	else if (tapinfo->mode == TAP_SAVE) {
 		if (rtp_stream_info_cmp(&tmp_strinfo, tapinfo->filter_stream_fwd)==0) {
+			/* XXX - what if rtpinfo->info_all_data_present is
+			   FALSE, so that we don't *have* all the data? */
 			sample.header.rec_time = 
 				(pinfo->fd->abs_usecs + 1000000 - tapinfo->filter_stream_fwd->start_usec)/1000
 				+ (pinfo->fd->abs_secs - tapinfo->filter_stream_fwd->start_sec - 1)*1000;
