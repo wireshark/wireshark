@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.17 2002/03/05 08:39:29 guy Exp $
+ * $Id: pppdump.c,v 1.18 2002/05/29 02:11:57 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
@@ -508,7 +508,9 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 
 			default:
 				/* XXX - bad file */
-				g_assert_not_reached();
+				g_message("pppdump: bad ID byte 0x%02x", id);
+				*err = WTAP_ERR_BAD_RECORD;
+				return FALSE;
 		}
 
 	}
