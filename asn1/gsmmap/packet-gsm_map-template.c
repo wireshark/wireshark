@@ -113,7 +113,7 @@ gint protocolId;
 static int gsm_map_tap = -1;
 
 
-static char*
+char*
 unpack_digits(tvbuff_t *tvb, int offset){
 
 	int length;
@@ -125,7 +125,7 @@ unpack_digits(tvbuff_t *tvb, int offset){
 	if (length < offset)
 		return NULL;
 	length = length - offset;
-	digit_str = g_malloc(length+1);
+	digit_str = g_malloc(length*2+1);
 
 	while ( offset <= length ){
 
@@ -383,7 +383,13 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_UpdateLocationArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case  3: /*cancelLocation*/
+ 	octet = tvb_get_guint8(tvb,0) & 0xf;
+	if ( octet == 3){ /*   */
+		offset = offset +2;
+		offset=dissect_gsm_map_CancelLocationArg(TRUE, tvb, offset, pinfo, tree, -1);
+	}else{
     offset=dissect_gsm_map_CancelLocationArg(FALSE, tvb, offset, pinfo, tree, -1);
+	}
     break;
   case  4: /*provideRoamingNumber*/
     offset=dissect_gsm_map_ProvideRoamingNumberArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -599,7 +605,13 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
   guint8 octet;
   switch(opcode){
   case  2: /*updateLocation*/
+	  octet = tvb_get_guint8(tvb,offset);
+	  /* As it seems like SEQUENCE OF sometimes is omitted, find out if it's there */
+	  if ( octet == 0x30 ){ /* Class 0 Univerasl, P/C 1 Constructed,Tag 16 Sequence OF */
     offset=dissect_gsm_map_UpdateLocationRes(FALSE, tvb, offset, pinfo, tree, -1);
+	  }else{ /* Try decoding with IMPLICIT flag set */ 
+		  offset=dissect_gsm_map_UpdateLocationRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  }
     break;
   case  3: /*cancelLocation*/
     offset=dissect_gsm_map_CancelLocationRes(FALSE, tvb, offset, pinfo, tree, -1);
