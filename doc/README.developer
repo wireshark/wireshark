@@ -951,7 +951,7 @@ generated automatically; to arrange that a protocol's register routine
 be called at startup:
 
 	the file containing a dissector's "register" routine must be
-	added to "DISSECTOR_SRC" in "epan/Makefile.common";
+	added to "DISSECTOR_SRC" in "epan/dissectors/Makefile.common";
  
 	the "register" routine must have a name of the form
 	"proto_register_XXX";
@@ -1896,14 +1896,14 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 To arrange that your dissector will be built as part of Ethereal, you
 must add the name of the source file for your dissector to the
-'DISSECTOR_SRC' macro in the 'Makefile.common' file in the 'epan'
+'DISSECTOR_SRC' macro in the 'Makefile.common' file in the 'epan/dissectors'
 directory.  (Note that this is for modern versions of UNIX, so there
 is no 14-character limitation on file names, and for modern versions of
 Windows, so there is no 8.3-character limitation on file names.)
 
 If your dissector also has its own header file or files, you must add
 them to the 'DISSECTOR_INCLUDES' macro in the 'Makefile.common' file in
-the top-level directory, so that it's included when release source
+the 'epan/dissectors' directory, so that it's included when release source
 tarballs are built (otherwise, the source in the release tarballs won't
 compile).
 
