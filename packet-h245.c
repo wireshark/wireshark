@@ -92,7 +92,7 @@ proper helper routines
  * Routines for H.245 packet dissection
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-h245.c,v 1.4 2003/07/07 10:22:59 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.5 2003/07/07 10:30:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1567,7 +1567,7 @@ printf("#%d  %s   tvb:0x%08x\n",pinfo->fd->num,x,(int)tvb);
 /* whether the PER helpers should put the internal PER fields into the tree
    or not.
 */
-static guint display_internal_per_fields = TRUE;
+static guint display_internal_per_fields = FALSE;
 
 
 /* in all functions here, offset is guint32 and is
@@ -1859,8 +1859,13 @@ dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, packet_info *pinfo 
 	char str[256],*strp;
 	guint8 byte;
 	guint32 value;
+	proto_tree *etr=NULL;
 
 DEBUG_ENTRY("dissect_per_object_identifier");
+
+	if(display_internal_per_fields){
+		etr=tree;
+	}
 
 	/* first byte is the count and it is byte aligned */
 	if(offset&0x07){
@@ -1868,7 +1873,8 @@ DEBUG_ENTRY("dissect_per_object_identifier");
 	}
 	count=tvb_get_guint8(tvb, offset>>3);
 
-	proto_tree_add_uint(tree, hf_h245_object_identifier_length, tvb, offset>>3, 1, count);
+
+	proto_tree_add_uint(etr, hf_h245_object_identifier_length, tvb, offset>>3, 1, count);
 	offset+=8;
 
 	value=0;
