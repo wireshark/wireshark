@@ -1,7 +1,7 @@
 /* range.h
  * Packet range routines (save, print, ...)
  *
- * $Id: range.h,v 1.5 2004/01/07 00:10:17 ulfl Exp $
+ * $Id: range.h,v 1.6 2004/01/08 10:40:33 ulfl Exp $
  *
  * Dick Gooris <gooris@lucent.com>
  * Ulf Lamping <ulf.lamping@web.de>
@@ -39,22 +39,41 @@ typedef enum {
     range_process_curr,
     range_process_marked,
     range_process_marked_range,
-    range_process_manual_range
+    range_process_user_range
 } packet_range_e;
+
+/* Range parser variables */
+#define MaxRange  30
+
+typedef struct range_admin_tag {
+    guint32 low;
+    guint32 high;
+} range_admin_t;
 
 
 typedef struct packet_range_tag {
     /* values coming from the UI */
-    packet_range_e  process;
-    gboolean        process_filtered;
+    packet_range_e  process;            /* which range to process */
+    gboolean        process_filtered;   /* captured or filtered packets */
+
+    /* user specified range(s) */
+    guint           nranges;
+    range_admin_t   ranges[MaxRange];
 
     /* calculated values */
-    guint32  mark_range;
-    guint32  selected_packet;
+    guint32  selected_packet;           /* the currently selected packet */
 
+    /* current packet counts (captured) */
+    /* cfile.count */                   /* packets in capture file */
+    /* cfile.marked_count */            /* packets marked */
+    guint32  mark_range;                /* packets in marked range */
+    guint32  user_range;                /* packets in user specified range */
+
+    /* current packet counts (displayed) */
     guint32  displayed_cnt;
     guint32  displayed_marked_cnt;
     guint32  displayed_mark_range;
+    guint32  displayed_user_range;
 
     /* "enumeration" values */
     gboolean range_active;
@@ -77,7 +96,8 @@ extern gboolean packet_range_process_all(packet_range_t *range);
 /* do we have to process this packet? */
 extern range_process_e packet_range_process(packet_range_t *range, frame_data *fdata);
 
-extern void packet_range_convert_str(const gchar *es);
+/* convert user given string to the internal user specified range representation */
+extern void packet_range_convert_str(packet_range_t *range, const gchar *es);
 
 
 #endif /* __PRINT_RANGE_H__ */

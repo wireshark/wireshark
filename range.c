@@ -1,7 +1,7 @@
 /* range.c
  * Packet range routines (save, print, ...)
  *
- * $Id: range.c,v 1.5 2004/01/07 00:10:17 ulfl Exp $
+ * $Id: range.c,v 1.6 2004/01/08 10:40:33 ulfl Exp $
  *
  * Dick Gooris <gooris@lucent.com>
  * Ulf Lamping <ulf.lamping@web.de>
@@ -42,22 +42,10 @@
 #include "globals.h"
 
 
-static gboolean packet_is_in_range(guint32 val);
+static gboolean packet_is_in_range(packet_range_t *range, guint32 val);
 
 
-/* Range parser variables */
-#define MaxRange  30
-
-struct range_admin {
-       guint32    low;
-       guint32    high;
-};
-
-static guint         GLnrange=0;
-struct range_admin   GLrange[MaxRange];
-static guint32       max_packets;
-
-
+/* (re-)calculate the packet counts (except the user specified range) */
 void packet_range_calc(packet_range_t *range) {
   guint32       current_count;
   guint32       mark_low;
@@ -66,22 +54,24 @@ void packet_range_calc(packet_range_t *range) {
   guint32       displayed_mark_high;
   frame_data    *packet;
 
-  
-  mark_low              = 0L;
-  mark_high             = 0L;
-  range->mark_range     = 0L;
 
-  displayed_mark_low    = 0L;
-  displayed_mark_high   = 0L;
-  range->displayed_cnt  = 0L;
-  range->displayed_marked_cnt = 0L;
-  range->displayed_mark_range = 0L;
+  range->selected_packet        = 0L;
+
+  mark_low                      = 0L;
+  mark_high                     = 0L;
+  range->mark_range             = 0L;
+
+  displayed_mark_low            = 0L;
+  displayed_mark_high           = 0L;
+  range->displayed_cnt          = 0L;
+  range->displayed_marked_cnt   = 0L;
+  range->displayed_mark_range   = 0L;
 
   /* The next for-loop is used to obtain the amount of packets to be saved
    * and is used to present the information in the Save/Print As widget.
    * We have different types of saving : All the packets, the number
-   * of packets of a marked range, a single packet, and a manually 
-   * entered packet range. The last one is not calculated since this
+   * of packets of a marked range, a single packet, and a user specified 
+   * packet range. The last one is not calculated here since this
    * data must be entered in the widget by the user.
    */
 
@@ -142,19 +132,48 @@ void packet_range_calc(packet_range_t *range) {
   /*if (range->displayed_marked_cnt != 0) {
     range->displayed_mark_range = displayed_mark_high - displayed_mark_low + 1;
   }*/
-        
-  /* make this global, to be used in function packet_range_convert_str()  */
-  max_packets = cfile.count;
 }
 
+
+/* (re-)calculate the user specified packet range counts */
+void packet_range_calc_user(packet_range_t *range) {
+  guint32       current_count;
+  frame_data    *packet;
+
+  range->user_range             = 0L;
+  range->displayed_user_range   = 0L;
+
+  current_count = 0;
+  for(packet = cfile.plist; packet != NULL; packet = packet->next) {
+      current_count++;
+
+      if (packet_is_in_range(range, current_count)) {
+          range->user_range++;
+          if (packet->flags.passed_dfilter) {
+            range->displayed_user_range++;
+          }
+      }
+  }
+}
+
+
+/* init the range struct */
 void packet_range_init(packet_range_t *range) {
 
+  range->process            = range_process_all;
+  range->process_filtered   = FALSE;
+  range->nranges            = 0;
+  range->ranges[range->nranges].low  = 0L;
+  range->ranges[range->nranges].high = 0L;
+
   /* "enumeration" values */
-  range->markers            = cfile.marked_count;
   range->range_active       = FALSE;
+  range->markers            = cfile.marked_count;
   range->process_curr_done  = FALSE;
 
+  /* calculate all packet range counters */
   packet_range_calc(range);
+  packet_range_calc_user(range);
 }
 
 
@@ -169,12 +188,12 @@ range_process_e packet_range_process(packet_range_t *range, frame_data *fdata) {
     /* do we have to process this packet at all? */
     if (
          (!range->process_filtered && range->process != range_process_marked) ||
-          (range->process_filtered && fdata->flags.passed_dfilter && range->process != range_process_marked) ||
-          (range->process_filtered && range->process == range_process_marked && fdata->flags.passed_dfilter && fdata->flags.marked) ||
-          (range->process == range_process_marked && fdata->flags.marked && !range->process_filtered) ||
+         (!range->process_filtered && range->process == range_process_marked && fdata->flags.marked) ||
+          (range->process_filtered && range->process == range_process_marked && fdata->flags.marked && fdata->flags.passed_dfilter) ||
+          (range->process_filtered && range->process != range_process_marked && fdata->flags.passed_dfilter) ||
           (range->process == range_process_curr)  ||
           (range->process == range_process_marked_range) ||
-          (range->process == range_process_manual_range) ||
+          (range->process == range_process_user_range) ||
           (range->range_active)
       ) {
         /* yes, we have to */
@@ -182,17 +201,17 @@ range_process_e packet_range_process(packet_range_t *range, frame_data *fdata) {
         return range_process_next;
     }
 
-    /* In case we process a manual range, we check whether the packet number
-     * is in any of the ranges as defined the array GLrange, see file_dlg.c
+    /* In case we process a user specified range, we check whether the packet number
+     * is in any of the ranges as defined the array ranges, see file_dlg.c
      * If a match is found, we process it, else we process the next packet.
      */
-    if (range->process == range_process_manual_range) {
+    if (range->process == range_process_user_range) {
        if (range->process_filtered) {
           if (fdata->flags.passed_dfilter == FALSE) {
              return range_process_next;
           }
        }
-       if (packet_is_in_range(fdata->num) == FALSE) {
+       if (packet_is_in_range(range, fdata->num) == FALSE) {
           return range_process_next;
        }
     }
@@ -244,8 +263,8 @@ range_process_e packet_range_process(packet_range_t *range, frame_data *fdata) {
  * The parameter 'es' points to the string to be converted, and is defined in
  * the Save/Print-As widget.
  *
- * This function fills the array GLrange containing low and high values indexed 
- * by a global variable GLnrange. After having called this function, the function 
+ * This function fills the array ranges containing low and high values indexed 
+ * by a global variable nranges. After having called this function, the function 
  * packet_is_in_range() determines whether a given (packet) number is within 
  * the range or not. 
  *
@@ -262,7 +281,7 @@ range_process_e packet_range_process(packet_range_t *range, frame_data *fdata) {
  *   -              All packets
  */
 
-void packet_range_convert_str(const gchar *es)
+void packet_range_convert_str(packet_range_t *range, const gchar *es)
 {
     gchar     EntryStr[255], OrgStr[255], value[255], p;
     guint     i, j=0;
@@ -270,9 +289,9 @@ void packet_range_convert_str(const gchar *es)
     gboolean  hyphenseen;
 
     /* Reset the number of ranges we are going to find */
-    GLnrange = 0;
-    GLrange[GLnrange].low  = 0L;
-    GLrange[GLnrange].high = 0L;
+    range->nranges = 0;
+    range->ranges[range->nranges].low  = 0L;
+    range->ranges[range->nranges].high = 0L;
 
     /* Make a copy of the string, and check the validity of the input */
     strcpy(OrgStr,es);
@@ -333,8 +352,8 @@ void packet_range_convert_str(const gchar *es)
     /* Now we are going to process the ranges separately until we get a comma,
      * or end of string.
      *
-     * We build a structure array called GLrange of high and low values. After the
-     * following loop, we have the GLnrange variable which tells how many ranges
+     * We build a structure array called ranges of high and low values. After the
+     * following loop, we have the nranges variable which tells how many ranges
      * were found. The number of individual ranges is limited to 'MaxRanges'
      */
 
@@ -354,7 +373,7 @@ void packet_range_convert_str(const gchar *es)
        j=0;
 
        /* In case we see a hyphen, store the value we read in the low part 
-        * of GLrange. In case it is a trailer hyphen, store the low value, and
+        * of ranges. In case it is a trailer hyphen, store the low value, and
         * set the high value to the maximum of packets captured.
         */
        if (EntryStr[i] == '-') {
@@ -363,13 +382,13 @@ void packet_range_convert_str(const gchar *es)
            * and we are ready 
            */
           if (i == strlen(EntryStr)-1) {
-             GLrange[GLnrange].low  = val;
-             GLrange[GLnrange].high = max_packets;
-             GLnrange++;
+             range->ranges[range->nranges].low  = val;
+             range->ranges[range->nranges].high = cfile.count;
+             range->nranges++;
              break;
           } else {
              /* Store the low value of the range */
-             GLrange[GLnrange].low  = val;
+             range->ranges[range->nranges].low  = val;
           }
           hyphenseen=TRUE;
           continue;
@@ -378,75 +397,76 @@ void packet_range_convert_str(const gchar *es)
        /* In case we see a comma, or end of string */
        if (EntryStr[i] == ',' || i == strlen(EntryStr)) {
           if (hyphenseen) {
-             /* Normal treatment: store the high value range in GLrange */
-             GLrange[GLnrange].high = val;
+             /* Normal treatment: store the high value range in ranges */
+             range->ranges[range->nranges].high = val;
           } else {
              /* We did not see a hyphen and we get a comma, then this must
               * be a single packet number */
-             GLrange[GLnrange].low  = val;
-             GLrange[GLnrange].high = val;
+             range->ranges[range->nranges].low  = val;
+             range->ranges[range->nranges].high = val;
           }
           hyphenseen=FALSE;
        }
 
        /* Increase the index for the number of ranges we found, and protect
         * against wildly outside array bound jumps */
-       GLnrange++;
-       if (GLnrange > MaxRange) {
-           GLnrange--;
+       range->nranges++;
+       if (range->nranges > MaxRange) {
+           range->nranges--;
        }
     }
-    GLnrange--;
+    range->nranges--;
 
     /*  Now we are going through the low and high values, and check
      *  whether they are in a proper order. Low should be equal or lower
      *  than high. So, go through the loop and swap if needed.
      */
-    for (i=0; i <= GLnrange; i++) {
-       if (GLrange[i].low > GLrange[i].high) {
-          tmp = GLrange[i].low;
-          GLrange[i].low  = GLrange[i].high;
-          GLrange[i].high = tmp;
+    for (i=0; i <= range->nranges; i++) {
+       if (range->ranges[i].low > range->ranges[i].high) {
+          tmp = range->ranges[i].low;
+          range->ranges[i].low  = range->ranges[i].high;
+          range->ranges[i].high = tmp;
        }
     }
 
     /* In case we want to know what the result ranges are :
      *
-     * for (i=0; i <= GLnrange; i++) {
-     *  printf("Function : packet_range_convert_str L=%u \t H=%u\n",GLrange[i].low,GLrange[i].high);
+     * for (i=0; i <= nranges; i++) {
+     *  printf("Function : packet_range_convert_str L=%u \t H=%u\n",ranges[i].low,ranges[i].high);
      * }
      *
      */
 
-    /* End of packet_range_convert_str() */
-    return;
-}
+    /* calculate new user specified packet range counts */
+    packet_range_calc_user(range);
+} /* packet_range_convert_str */
 
 /* This function returns TRUE if a given value is within one of the ranges
- * stored in the GLrange array.
+ * stored in the ranges array.
  */
-static gboolean packet_is_in_range(guint32 val)
+static gboolean packet_is_in_range(packet_range_t *range, guint32 val)
 {
    guint i;
 
-   for (i=0; i <= GLnrange; i++) {
-      if (val >= GLrange[i].low && val <= GLrange[i].high)
+   for (i=0; i <= range->nranges; i++) {
+      if (val >= range->ranges[i].low && val <= range->ranges[i].high)
          return TRUE;
    }
    return(FALSE);
 }
 
+#if 0
 /* This is a debug function to check the range functionality */
-static void packet_is_in_range_check(guint32 val)
+static void packet_is_in_range_check(packet_range_t *range, guint32 val)
 {
 
   /* Print the result for a given value */
   printf("Function : packet_is_in_range_check Number %u\t",val);
 
-  if (packet_is_in_range(val)) {
+  if (packet_is_in_range(range, val)) {
      printf("is in range\n");
   } else {
      printf("is not in range\n");
   }
 }
-
+#endif

@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.76 2004/01/07 21:29:59 guy Exp $
+ * $Id: file_dlg.c,v 1.77 2004/01/08 10:40:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -477,9 +477,9 @@ static GtkWidget *select_marked_only_d_lb;
 static GtkWidget *select_marked_range_rb;
 static GtkWidget *select_marked_range_c_lb;
 static GtkWidget *select_marked_range_d_lb;
-static GtkWidget *select_manual_range_rb;
-static GtkWidget *select_manual_range_c_lb;
-static GtkWidget *select_manual_range_d_lb;
+static GtkWidget *select_user_range_rb;
+static GtkWidget *select_user_range_c_lb;
+static GtkWidget *select_user_range_d_lb;
 static GtkWidget *range_specs;
 static GtkWidget *cfmark_cb;
 static GtkWidget *ft_om;
@@ -519,7 +519,7 @@ file_set_save_dynamics(void) {
   case(range_process_marked_range):
       filtered_sensitive = range.displayed_mark_range && (guint32) range.mark_range != range.displayed_mark_range;
       break;
-  case(range_process_manual_range):
+  case(range_process_user_range):
       filtered_sensitive = TRUE;
       break;
   default:
@@ -572,15 +572,13 @@ file_set_save_dynamics(void) {
   gtk_label_set_text(GTK_LABEL(select_marked_range_d_lb), label_text);
   gtk_widget_set_sensitive(select_marked_range_d_lb, range.displayed_mark_range && filtered_active);
 
-  gtk_widget_set_sensitive(select_manual_range_rb, TRUE);
-  /* TODO - compute the number of packets matching the entered range */
-  g_snprintf(label_text, sizeof(label_text), "?" /* "%u", XXX */);
-  gtk_label_set_text(GTK_LABEL(select_manual_range_c_lb), label_text);
-  gtk_widget_set_sensitive(select_manual_range_c_lb, !filtered_active);
-  /* TODO - compute the number of packets matching the entered range */
-  g_snprintf(label_text, sizeof(label_text), "?" /* "%u", XXX */);
-  gtk_label_set_text(GTK_LABEL(select_manual_range_d_lb), label_text);
-  gtk_widget_set_sensitive(select_manual_range_d_lb, filtered_active);
+  gtk_widget_set_sensitive(select_user_range_rb, TRUE);
+  g_snprintf(label_text, sizeof(label_text), "%u", range.user_range);
+  gtk_label_set_text(GTK_LABEL(select_user_range_c_lb), label_text);
+  gtk_widget_set_sensitive(select_user_range_c_lb, !filtered_active);
+  g_snprintf(label_text, sizeof(label_text), "%u", range.displayed_user_range);
+  gtk_label_set_text(GTK_LABEL(select_user_range_d_lb), label_text);
+  gtk_widget_set_sensitive(select_user_range_d_lb, filtered_active);
 }
 
 /* Generate a list of the file types we can save this file as.
@@ -728,20 +726,20 @@ toggle_select_marked_range(GtkWidget *widget, gpointer data _U_)
 }
 
 static void
-toggle_select_manual_range(GtkWidget *widget, gpointer data _U_)
+toggle_select_user_range(GtkWidget *widget, gpointer data _U_)
 {
   /* is the button now active? */
   if (GTK_TOGGLE_BUTTON (widget)->active) {
-    range.process = range_process_manual_range;
+    range.process = range_process_user_range;
     set_file_type_list(ft_om);
     file_set_save_dynamics();
   }
 	
   /* Make the entry widget sensitive or insensitive */
-  gtk_widget_set_sensitive(range_specs, range.process == range_process_manual_range);	  
+  gtk_widget_set_sensitive(range_specs, range.process == range_process_user_range);
 
-  /* When selecting manual range, then focus on the entry */
-  if (range.process == range_process_manual_range)
+  /* When selecting user specified range, then focus on the entry */
+  if (range.process == range_process_user_range)
       gtk_widget_grab_focus(range_specs);
 
 }
@@ -750,8 +748,10 @@ static void
 range_entry(GtkWidget *entry)
 {
   const gchar *entry_text;
+
   entry_text = gtk_entry_get_text (GTK_ENTRY (entry));
-  packet_range_convert_str(entry_text);
+  packet_range_convert_str(&range, entry_text);
+  file_set_save_dynamics();
 }
 
 void
@@ -772,9 +772,7 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   }
 
   /* Default to saving all packets, in the file's current format. */
-  range.process                 = range_process_all;
-  range.process_filtered        = FALSE;
-  filetype                      = cfile.cd_t;
+  filetype = cfile.cd_t;
 
   /* init the packet range */
   packet_range_init(&range);
@@ -938,26 +936,26 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(select_marked_range_d_lb);
 
 
-  /* Save a manually provided packet range : -10,30,40-70,80- */
+  /* Save a user specified provided packet range : -10,30,40-70,80- */
   g_snprintf(label_text, sizeof(label_text), "Specify a packet _range :");
 #if GTK_MAJOR_VERSION < 2
-  select_manual_range_rb = dlg_radio_button_new_with_label_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all_rb)),
+  select_user_range_rb = dlg_radio_button_new_with_label_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all_rb)),
 	   label_text,accel_group);
 #else
-  select_manual_range_rb = gtk_radio_button_new_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all_rb)), 
+  select_user_range_rb = gtk_radio_button_new_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all_rb)), 
 	   label_text);
 #endif		
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_manual_range_rb, 0, 1, 5, 6);
-  gtk_tooltips_set_tip (tooltips,select_manual_range_rb,("Save a specified packet range"), NULL);
-  SIGNAL_CONNECT(select_manual_range_rb, "toggled", toggle_select_manual_range, NULL);
-  gtk_widget_show(select_manual_range_rb);
+  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_user_range_rb, 0, 1, 5, 6);
+  gtk_tooltips_set_tip (tooltips,select_user_range_rb,("Save a specified packet range"), NULL);
+  SIGNAL_CONNECT(select_user_range_rb, "toggled", toggle_select_user_range, NULL);
+  gtk_widget_show(select_user_range_rb);
 
-  select_manual_range_c_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_manual_range_c_lb, 1, 2, 5, 6);
-  gtk_widget_show(select_manual_range_c_lb);
-  select_manual_range_d_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_manual_range_d_lb, 2, 3, 5, 6);
-  gtk_widget_show(select_manual_range_d_lb);
+  select_user_range_c_lb = gtk_label_new("?");
+  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_user_range_c_lb, 1, 2, 5, 6);
+  gtk_widget_show(select_user_range_c_lb);
+  select_user_range_d_lb = gtk_label_new("?");
+  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_user_range_d_lb, 2, 3, 5, 6);
+  gtk_widget_show(select_user_range_d_lb);
 
 
   /* The entry part */
@@ -966,7 +964,7 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_table_attach_defaults(GTK_TABLE(range_tb), range_specs, 0, 1, 6, 7);
   gtk_tooltips_set_tip (tooltips,range_specs, 
 	("Specify a range of packet numbers :     \nExample :  1-10,18,25-100,332-"), NULL);
-  SIGNAL_CONNECT(range_specs,"activate", range_entry, range_specs);	
+  SIGNAL_CONNECT(range_specs,"changed", range_entry, range_specs);	
   gtk_widget_set_sensitive(range_specs, FALSE);
   gtk_widget_show(range_specs);
 
@@ -1056,8 +1054,8 @@ file_save_as_ok_cb(GtkWidget *w _U_, GtkFileSelection *fs) {
   gchar	*cf_name;
   gchar	*dirname;
 
-  /* obtain the range specifications in case we selected manual range */
-  if (range.process == range_process_manual_range) {	
+  /* obtain the range specifications in case we selected a user specified range */
+  if (range.process == range_process_user_range) {	
      range_entry(range_specs);
   }
 	  
