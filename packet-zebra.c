@@ -3,7 +3,7 @@
  *
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-zebra.c,v 1.23 2002/08/28 21:00:40 jmayer Exp $
+ * $Id: packet-zebra.c,v 1.24 2003/07/09 05:42:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -141,38 +141,10 @@ static const value_string families[] = {
 	{ 0,					NULL },
 };
 
-/* Error codes of zebra. */
-#define ZEBRA_ERR_RTEXIST                1
-#define ZEBRA_ERR_RTUNREACH              2
-#define ZEBRA_ERR_EPERM                  3
-#define ZEBRA_ERR_RTNOEXIST              4
-
-static const value_string errors[] = {
-	{ ZEBRA_ERR_RTEXIST,			"Route Exists" },
-	{ ZEBRA_ERR_RTUNREACH,			"Route Unreachable" },
-	{ ZEBRA_ERR_EPERM,			"Permission Denied" },
-	{ ZEBRA_ERR_RTNOEXIST,			"Route Does Not Exist" },
-	{ 0,					NULL },
-};
-
 /* Zebra message flags */
 #define ZEBRA_FLAG_INTERNAL           0x01
 #define ZEBRA_FLAG_SELFROUTE          0x02
 #define ZEBRA_FLAG_BLACKHOLE          0x04
-
-/* Subsequent Address Family Identifier. */
-#define ZEBRA_SAFI_UNICAST               1
-#define ZEBRA_SAFI_MULTICAST             2
-#define ZEBRA_SAFI_UNICAST_MULTICAST     3
-#define ZEBRA_SAFI_MPLS_VPN              4
-
-static const value_string safis[] = {
-	{ ZEBRA_SAFI_UNICAST,			"Unicast" },
-	{ ZEBRA_SAFI_MULTICAST,			"Multicast" },
-	{ ZEBRA_SAFI_UNICAST_MULTICAST,		"Unicast And Multicast" },
-	{ ZEBRA_SAFI_MPLS_VPN,			"MPLS VPN" },
-	{ 0,					NULL },
-};
 
 /* Zebra API message flag. */
 #define ZEBRA_ZAPI_MESSAGE_NEXTHOP    0x01
@@ -250,6 +222,7 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 				 offset, 1, FALSE);
 			offset += 1;
 
+			/* XXX - switch on the address family here, instead? */
 			if (len == 17) { /* IPv4 */
 				proto_tree_add_item(tree, hf_zebra_prefix4,
 					tvb, offset, 4, FALSE);
@@ -587,7 +560,7 @@ proto_register_zebra(void)
 	"Bandwidth of interface", HFILL }},
     { &hf_zebra_family,
       { "Family",		"zebra.family",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
+	FT_UINT32, BASE_DEC, VALS(families), 0x0,
 	"Family of IP address", HFILL }},
     { &hf_zebra_dest4,
       { "Destination",		"zebra.dest4",
