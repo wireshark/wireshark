@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.273 2002/05/23 06:10:56 guy Exp $
+ * $Id: file.c,v 1.274 2002/05/23 07:46:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1713,10 +1713,18 @@ thaw_clist(capture_file *cf)
     gtk_clist_set_column_resizeable(GTK_CLIST(packet_list), i, TRUE);
 }
 
-int
-save_cap_file(char *fname, capture_file *cf, gboolean save_filtered, gboolean save_marked,
-		guint save_format)
+/*
+ * Save a capture to a file, in a particular format, saving either
+ * all packets, all currently-displayed packets, or all marked packets.
+ *
+ * Returns TRUE if it succeeds, FALSE otherwise; if it fails, it pops
+ * up a message box for the failure.
+ */
+gboolean
+save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
+		gboolean save_marked, guint save_format)
 {
+  gboolean     ret = TRUE;
   gchar        *from_filename;
   gchar        *name_ptr, *save_msg, *save_fmt = " Saving: %s...";
   size_t        msg_len;
@@ -1739,9 +1747,6 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered, gboolean sa
     /* We're not filtering packets, and we're saving it in the format
        it's already in, so we can just move or copy the raw data. */
 
-    /* In this branch, we set "err" only if we get an error, so we
-       must first clear it. */
-    err = 0;
     if (cf->is_tempfile) {
       /* The file being saved is a temporary file from a live
          capture, so it doesn't need to stay around under that name;
@@ -1765,9 +1770,9 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered, gboolean sa
 	     be if we didn't have permission to remove the file from
 	     the temporary directory, and that might be fixable - but
 	     is it worth requiring the user to go off and fix it?) */
-	  err = errno;
 	  simple_dialog(ESD_TYPE_CRIT, NULL,
-				file_rename_error_message(err), fname);
+				file_rename_error_message(errno), fname);
+	  ret = FALSE;
 	  goto done;
 	}
       }
@@ -1788,11 +1793,13 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered, gboolean sa
 	simple_dialog(ESD_TYPE_CRIT, NULL, 
 			"Can't save over current capture file: %s!",
 			from_filename);
+	ret = FALSE;
 	goto done;
       }
 
       /* Copy the file, if we haven't moved it. */
       if (!copy_binary_file(from_filename, fname)) {
+      	ret = FALSE;
 	goto done;
       }
     }
@@ -1804,6 +1811,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered, gboolean sa
     if (pdh == NULL) {
       simple_dialog(ESD_TYPE_CRIT, NULL,
 			file_open_error_message(err, TRUE), fname);
+      ret = FALSE;
       goto done;
     }
 
@@ -1836,6 +1844,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered, gboolean sa
 	    simple_dialog(ESD_TYPE_CRIT, NULL,
 				file_read_error_message(err), cf->filename);
 	    wtap_dump_close(pdh, &err);
+	    ret = FALSE;
 	    goto done;
 	}
 
@@ -1843,6 +1852,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered, gboolean sa
 	    simple_dialog(ESD_TYPE_CRIT, NULL,
 				file_write_error_message(err), fname);
 	    wtap_dump_close(pdh, &err);
+	    ret = FALSE;
 	    goto done;
 	}
       }
@@ -1851,6 +1861,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered, gboolean sa
     if (!wtap_dump_close(pdh, &err)) {
       simple_dialog(ESD_TYPE_WARN, NULL,
 		file_close_error_message(err), fname);
+      ret = FALSE;
       goto done;
     }
   }
@@ -1859,7 +1870,7 @@ done:
 
   /* Pop the "Saving:" message off the status bar. */
   statusbar_pop_file_msg();
-  if (err == 0) {
+  if (ret) {
     if (!save_filtered && !save_marked) {
       /* We saved the entire capture, not just some packets from it.
          Open and read the file we saved it to.
@@ -1892,10 +1903,11 @@ done:
 	  return 0;
 	}
 	set_menus_for_unsaved_capture_file(FALSE);
+	ret = FALSE;	/* XXX - save succeeded, but re-read failed */
       }
     }
   }
-  return err;
+  return ret;
 }
 
 char *
