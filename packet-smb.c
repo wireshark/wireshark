@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.34 1999/10/27 19:30:23 gram Exp $
+ * $Id: packet-smb.c,v 1.35 1999/11/11 13:56:58 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -1852,10 +1852,11 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
   guint16       MaxMpxCount;
   guint16       MaxBufferSize;
   guint16       ByteCount;
-  guint16       AndXOffset;
+  guint16       AndXOffset = 0;
   guint16       Action;
   guint16       ANSIAccountPasswordLength;
   const char    *UNICODEPassword;
+  const char    *Password;
   const char    *PrimaryDomain;
   const char    *NativeOS;
   const char    *NativeLanManType;
@@ -2006,6 +2007,18 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
       if (ByteCount > 0) {
 
+ 	/* Build displat for: Password */
+
+        Password = pd + offset;
+
+	if (tree) {
+
+	  proto_tree_add_text(tree, offset, strlen(Password) + 1, "Password: %s", Password);
+
+	}
+
+	offset += PasswordLen;
+
 	/* Build display for: AccountName */
 
 	AccountName = pd + offset;
@@ -2036,11 +2049,23 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
 	if (tree) {
 
-	  proto_tree_add_text(tree, offset, strlen(NativeOS) + 1, "NativeOS: %s", NativeOS);
+	  proto_tree_add_text(tree, offset, strlen(NativeOS) + 1, "Native OS: %s", NativeOS);
 
 	}
 
 	offset += strlen(NativeOS) + 1; /* Skip NativeOS */
+
+	/* Build display for: NativeLanMan */
+
+	NativeLanMan = pd + offset;
+
+	if (tree) {
+
+	  proto_tree_add_text(tree, offset, strlen(NativeLanMan) + 1, "Native Lan Manager: %s", NativeLanMan);
+
+	}
+
+	offset += strlen(NativeLanMan) + 1; /* Skip NativeLanMan */
 
       }
 
@@ -2247,6 +2272,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 	}
 
 	offset += ANSIAccountPasswordLength; /* Skip ANSI Password */
+	if (ANSIAccountPasswordLength == 0) offset++;  /* Add 1 */
 
 	/* Build display for: UNICODE Password */
 
@@ -2321,7 +2347,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
+      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -2451,7 +2477,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
+      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -2464,7 +2490,7 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
 {
   guint8      wct, andxcmd = 0xFF;
-  guint16     andxoffs, flags, passwdlen, bcc, optionsup;
+  guint16     andxoffs = 0, flags, passwdlen, bcc, optionsup;
   const char  *str;
   proto_tree  *flags_tree;
   proto_item  *ti;
@@ -2685,7 +2711,7 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
   if (andxcmd != 0xFF) /* Process that next command ... ??? */
 
-    (dissect[andxcmd])(pd, offset, fd, tree, si, max_data - offset, SMB_offset, errcode, dirn);
+    (dissect[andxcmd])(pd, SMB_offset + andxoffs, fd, tree, si, max_data - offset, SMB_offset, errcode, dirn);
 
 }
 
@@ -3570,7 +3596,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
   guint16       CreationTime;
   guint16       CreationDate;
   guint16       ByteCount;
-  guint16       AndXOffset;
+  guint16       AndXOffset = 0;
   guint16       Action;
   const char    *FileName;
 
@@ -3821,7 +3847,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
+      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -4050,7 +4076,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
+      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -5239,7 +5265,7 @@ dissect_logoff_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
   guint8        AndXReserved;
   guint8        AndXCommand = 0xFF;
   guint16       ByteCount;
-  guint16       AndXOffset;
+  guint16       AndXOffset = 0;
 
   if (dirn == 1) { /* Request(s) dissect code */
 
@@ -5306,7 +5332,7 @@ dissect_logoff_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
+      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -5377,7 +5403,7 @@ dissect_logoff_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
+      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -6080,7 +6106,7 @@ dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
 {
   proto_tree    *LockType_tree;
   proto_item    *ti;
-  guint8       LockType;
+  guint8        LockType;
   guint8        WordCount;
   guint8        OplockLevel;
   guint8        AndXReserved;
@@ -6091,7 +6117,7 @@ dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
   guint16       FID;
   guint16       ByteCount;
   guint16       AndXoffset;
-  guint16       AndXOffset;
+  guint16       AndXOffset = 0;
 
   if (dirn == 1) { /* Request(s) dissect code */
 
@@ -6241,7 +6267,7 @@ dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
+      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -6317,7 +6343,7 @@ dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
+      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, tree, si, max_data, SMB_offset, errcode, dirn);
 
     }
 
