@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.56 2002/06/17 00:04:49 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.57 2002/06/17 01:11:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -306,12 +306,16 @@ static gboolean dcerpc_cn_desegment = TRUE;
 	too bad
 */
 static gboolean dcerpc_reassemble = FALSE;
-static GHashTable *dcerpc_reassemble_table = NULL;
+static GHashTable *dcerpc_co_reassemble_table = NULL;
+static GHashTable *dcerpc_cl_req_fragment_table = NULL;
+static GHashTable *dcerpc_cl_resp_fragment_table = NULL;
 
 static void
 dcerpc_reassemble_init(void)
 {
-  fragment_table_init(&dcerpc_reassemble_table);
+  fragment_table_init(&dcerpc_co_reassemble_table);
+  fragment_table_init(&dcerpc_cl_req_fragment_table);
+  fragment_table_init(&dcerpc_cl_resp_fragment_table);
 }
 
 /*
@@ -1634,9 +1638,12 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 	    }
 
 	    /* If we don't have reassembly enabled, or this packet contains
-	       the entire PDU, just call the handoff directly if this is the
-	       first fragment or the PDU isn't fragmented. */
-	    if( (!dcerpc_reassemble) || PFC_NOT_FRAGMENTED(hdr) ){
+	       the entire PDU, or if this is a short frame (or a frame
+	       not reassembled at a lower layer) that doesn't include all
+	       the fragment data, just call the handoff directly if this
+	       is the first fragment or the PDU isn't fragmented. */
+	    if( (!dcerpc_reassemble) || PFC_NOT_FRAGMENTED(hdr) ||
+			stub_length > length ){
 		if(hdr->flags&PFC_FIRST_FRAG){
 		    /* First fragment, possibly the only fragment */
                     dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
@@ -1657,17 +1664,18 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 		    }
 		}
             } else if(dcerpc_reassemble){
-	        /* It's fragmented, so we need to do reassembly */
-	        /* handle first fragment */
-	        if(hdr->flags&PFC_FIRST_FRAG){  /* FIRST fragment */
+		/* It's fragmented, so we need to do reassembly;
+		   we have all the fragment data, so we can attempt
+		   reassembly. */
+		if(hdr->flags&PFC_FIRST_FRAG){  /* FIRST fragment */
 		    if( (!pinfo->fd->flags.visited) && value->req_frame ){
 			fragment_add(tvb, offset, pinfo, value->req_frame,
-			     dcerpc_reassemble_table,
+			     dcerpc_co_reassemble_table,
 			     0,
 			     length,
 			     TRUE);
 			fragment_set_tot_len(pinfo, value->req_frame,
-			     dcerpc_reassemble_table, alloc_hint);
+			     dcerpc_co_reassemble_table, alloc_hint);
 		    }
 		    if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
@@ -1681,25 +1689,34 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 		    }
 		} else if(hdr->flags&PFC_LAST_FRAG){  /* LAST fragment */
 		    if( value->req_frame ){
-			fragment_data *ipfd_head;
+			fragment_data *fd_head;
 			guint32 tot_len;
+
+			if (dcerpc_tree) {
+			    if (length > 0) {
+				proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+					"Fragment data (%d byte%s)", length,
+					plurality(length, "", "s"));
+			    }
+			}
+
 			tot_len = fragment_get_tot_len(pinfo, value->req_frame,
-			               dcerpc_reassemble_table);
-			ipfd_head = fragment_add(tvb, offset, pinfo, 
+			               dcerpc_co_reassemble_table);
+			fd_head = fragment_add(tvb, offset, pinfo, 
 			     value->req_frame,
-			     dcerpc_reassemble_table,
+			     dcerpc_co_reassemble_table,
 			     tot_len-alloc_hint,
 			     length,
 			     TRUE);
 
-			if(ipfd_head){
+			if(fd_head){
 			    /* We completed reassembly */
 			    tvbuff_t *next_tvb;
 
-			    next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen, ipfd_head->datalen);
+			    next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
 			    tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 			    add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
-			    show_fragment_tree(ipfd_head, &dcerpc_frag_items,
+			    show_fragment_tree(fd_head, &dcerpc_frag_items,
 				dcerpc_tree, pinfo, next_tvb);
 
 			    dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
@@ -1712,22 +1729,15 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 			    if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
 			    }
-			    if (dcerpc_tree) {
-				if (length > 0) {
-				    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-						"Fragment data (%d byte%s)", length,
-						plurality(length, "", "s"));
-				}
-			    }
 		    	}
 		    }
 		} else {  /* MIDDLE fragment(s) */
 		    if( (!pinfo->fd->flags.visited) && value->req_frame ){
 			guint32 tot_len;
 			tot_len = fragment_get_tot_len(pinfo, value->req_frame,
-			               dcerpc_reassemble_table);
+			               dcerpc_co_reassemble_table);
 			fragment_add(tvb, offset, pinfo, value->req_frame,
-			     dcerpc_reassemble_table,
+			     dcerpc_co_reassemble_table,
 			     tot_len-alloc_hint,
 			     length,
 			     TRUE);
@@ -1838,9 +1848,12 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 	    }
 
 	    /* If we don't have reassembly enabled, or this packet contains
-	       the entire PDU, just call the handoff directly if this is the
-	       first fragment or the PDU isn't fragmented. */
-	    if( (!dcerpc_reassemble) || PFC_NOT_FRAGMENTED(hdr) ){
+	       the entire PDU, or if this is a short frame (or a frame
+	       not reassembled at a lower layer) that doesn't include all
+	       the fragment data, just call the handoff directly if this
+	       is the first fragment or the PDU isn't fragmented. */
+	    if( (!dcerpc_reassemble) || PFC_NOT_FRAGMENTED(hdr) ||
+			stub_length > length ){
 		if(hdr->flags&PFC_FIRST_FRAG){
 		    /* First fragment, possibly the only fragment */
                     dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
@@ -1862,17 +1875,18 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 		    }
 		}
             } else if(dcerpc_reassemble){
-	        /* It's fragmented, so we need to do reassembly */
-	        /* handle first fragment */
+	        /* It's fragmented, so we need to do reassembly;
+	           we have all the fragment data, so we can attempt
+	           reassembly. */
 	        if(hdr->flags&PFC_FIRST_FRAG){  /* FIRST fragment */
 		    if( (!pinfo->fd->flags.visited) && value->rep_frame ){
 			fragment_add(tvb, offset, pinfo, value->rep_frame,
-			     dcerpc_reassemble_table,
+			     dcerpc_co_reassemble_table,
 			     0,
 			     length,
 			     TRUE);
 			fragment_set_tot_len(pinfo, value->rep_frame,
-			     dcerpc_reassemble_table, alloc_hint);
+			     dcerpc_co_reassemble_table, alloc_hint);
 		    }
 		    if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
@@ -1886,25 +1900,34 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 		    }
 		} else if(hdr->flags&PFC_LAST_FRAG){  /* LAST fragment */
 		    if( value->rep_frame ){
-			fragment_data *ipfd_head;
+			fragment_data *fd_head;
 			guint32 tot_len;
+
+			if (dcerpc_tree) {
+			    if (length > 0) {
+				proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+						"Fragment data (%d byte%s)", length,
+						plurality(length, "", "s"));
+			    }
+			}
+
 			tot_len = fragment_get_tot_len(pinfo, value->rep_frame,
-			               dcerpc_reassemble_table);
-			ipfd_head = fragment_add(tvb, offset, pinfo, 
+			               dcerpc_co_reassemble_table);
+			fd_head = fragment_add(tvb, offset, pinfo, 
 			     value->rep_frame,
-			     dcerpc_reassemble_table,
+			     dcerpc_co_reassemble_table,
 			     tot_len-alloc_hint,
 			     length,
 			     TRUE);
 
-			if(ipfd_head){
+			if(fd_head){
 			    /* We completed reassembly */
 			    tvbuff_t *next_tvb;
 
-			    next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen, ipfd_head->datalen);
+			    next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
 			    tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 			    add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
-			    show_fragment_tree(ipfd_head, &dcerpc_frag_items,
+			    show_fragment_tree(fd_head, &dcerpc_frag_items,
 				dcerpc_tree, pinfo, next_tvb);
 
 			    dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
@@ -1917,22 +1940,15 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 			    if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
 			    }
-			    if (dcerpc_tree) {
-				if (length > 0) {
-				    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-						"Fragment data (%d byte%s)", length,
-						plurality(length, "", "s"));
-				}
-			    }
 			}
 		    }
 		} else {  /* MIDDLE fragment(s) */
 		    if( (!pinfo->fd->flags.visited) && value->rep_frame ){
 			guint32 tot_len;
 			tot_len = fragment_get_tot_len(pinfo, value->rep_frame,
-			               dcerpc_reassemble_table);
+			               dcerpc_co_reassemble_table);
 			fragment_add(tvb, offset, pinfo, value->rep_frame,
-			     dcerpc_reassemble_table,
+			     dcerpc_co_reassemble_table,
 			     tot_len-alloc_hint,
 			     length,
 			     TRUE);
@@ -2215,6 +2231,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     e_dce_dg_common_hdr_t hdr;
     int offset = 0;
     conversation_t *conv;
+    fragment_data *fd_head;
 
     /*
      * Check if this looks like a CL DCERPC call.  All dg packets
@@ -2471,21 +2488,71 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	di.request = TRUE;
 	di.call_data = value;
 
-	/*
-	 * We currently don't support reassembly of connectionless PDUs.
-	 * We call the handoff only if the PDU isn't fragmented or this
-	 * is the first fragment.
-	 *
-	 * XXX - we should add support for reassembly here.
-	 */
-	if (!(hdr.flags1 & PFCL1_FRAG) || hdr.frag_num == 0) {
-	    /*
-	     * XXX - authentication level?
-	     */
-	    dcerpc_try_handoff (pinfo, tree, dcerpc_tree, 
-				tvb_new_subset (tvb, offset, length, 
-						reported_length),
-				0, hdr.opnum, TRUE, hdr.drep, &di, 0);
+	/* If we don't have reassembly enabled, or this packet contains
+	   the entire PDU, or if this is a short frame (or a frame
+	   not reassembled at a lower layer) that doesn't include all
+	   the fragment data, just call the handoff directly if this
+	   is the first fragment or the PDU isn't fragmented. */
+	if( (!dcerpc_reassemble) || !(hdr.flags1 & PFCL1_FRAG) ||
+		stub_length > length ) {
+	    if(hdr.frag_num == 0) {
+		/* First fragment, possibly the only fragment */
+
+		/*
+		 * XXX - authentication level?
+		 */
+		dcerpc_try_handoff (pinfo, tree, dcerpc_tree, 
+				    tvb_new_subset (tvb, offset, length, 
+						    reported_length),
+				    0, hdr.opnum, TRUE, hdr.drep, &di, 0);
+	    } else {
+		/* PDU is fragmented and this isn't the first fragment */
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+		    col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
+		}
+		if (dcerpc_tree) {
+		    if (length > 0) {
+			proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+					"Fragment data (%d byte%s)", length,
+					plurality(length, "", "s"));
+		    }
+		}
+	    }
+	} else if(dcerpc_reassemble){
+	    /* It's fragmented, so we need to do reassembly;
+	       we have all the fragment data, so we can attempt
+	       reassembly. */
+	    fd_head = fragment_add_seq(tvb, offset, pinfo,
+			hdr.seqnum, dcerpc_cl_req_fragment_table,
+			hdr.frag_num, length, !(hdr.flags1 & PFCL1_LASTFRAG));
+	    if (fd_head != NULL) {
+		/* We completed reassembly */
+		tvbuff_t *next_tvb;
+
+		next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
+		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+		add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
+		show_fragment_seq_tree(fd_head, &dcerpc_frag_items,
+				dcerpc_tree, pinfo, next_tvb);
+
+		/*
+		 * XXX - authentication level?
+		 */
+		dcerpc_try_handoff (pinfo, tree, dcerpc_tree, next_tvb,
+				    0, hdr.opnum, TRUE, hdr.drep, &di, 0);
+	    } else {
+		/* Reassembly isn't completed yet */
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+		    col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
+		}
+		if (dcerpc_tree) {
+		    if (length > 0) {
+			proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+					"Fragment data (%d byte%s)", length,
+					plurality(length, "", "s"));
+		    }
+		}
+	    }
 	} else {
 	    if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
@@ -2541,21 +2608,70 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	di.request = FALSE;
         di.call_data = value;
 
-	/*
-	 * We currently don't support reassembly of connectionless PDUs.
-	 * We call the handoff only if the PDU isn't fragmented or this
-	 * is the first fragment.
-	 *
-	 * XXX - we should add support for reassembly here.
-	 */
-	if (!(hdr.flags1 & PFCL1_FRAG) || hdr.frag_num == 0) {
-	    /*
-	     * XXX - authentication level?
-	     */
-	    dcerpc_try_handoff (pinfo, tree, dcerpc_tree, 
-				tvb_new_subset (tvb, offset, length,
-						reported_length),
-				0, value->opnum, FALSE, hdr.drep, &di, 0);
+	/* If we don't have reassembly enabled, or this packet contains
+	   the entire PDU, or if this is a short frame (or a frame
+	   not reassembled at a lower layer) that doesn't include all
+	   the fragment data, just call the handoff directly if this
+	   is the first fragment or the PDU isn't fragmented. */
+	if( (!dcerpc_reassemble) || !(hdr.flags1 & PFCL1_FRAG) ||
+		stub_length > length ) {
+	    if(hdr.frag_num == 0) {
+		/* First fragment, possibly the only fragment */
+
+		/*
+		 * XXX - authentication level?
+		 */
+		dcerpc_try_handoff (pinfo, tree, dcerpc_tree, 
+				    tvb_new_subset (tvb, offset, length,
+						    reported_length),
+				    0, value->opnum, FALSE, hdr.drep, &di, 0);
+	    } else {
+		/* PDU is fragmented and this isn't the first fragment */
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+		    col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
+		}
+		if (dcerpc_tree) {
+		    if (length > 0) {
+			proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+					"Fragment data (%d byte%s)", length,
+					plurality(length, "", "s"));
+		    }
+		}
+	    }
+	} else if(dcerpc_reassemble){
+	    /* It's fragmented, so we need to do reassembly;
+	       we have all the fragment data, so we can attempt
+	       reassembly. */
+	    fd_head = fragment_add_seq(tvb, offset, pinfo,
+			hdr.seqnum, dcerpc_cl_resp_fragment_table,
+			hdr.frag_num, length, !(hdr.flags1 & PFCL1_LASTFRAG));
+	    if (fd_head != NULL) {
+		/* We completed reassembly */
+		tvbuff_t *next_tvb;
+
+		next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
+		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+		add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
+		show_fragment_seq_tree(fd_head, &dcerpc_frag_items,
+				dcerpc_tree, pinfo, next_tvb);
+
+		/*
+		 * XXX - authentication level?
+		 */
+		dcerpc_try_handoff (pinfo, tree, dcerpc_tree, next_tvb,
+				    0, value->opnum, FALSE, hdr.drep, &di, 0);
+		/* Reassembly isn't completed yet */
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+		    col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
+		}
+		if (dcerpc_tree) {
+		    if (length > 0) {
+			proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+					"Fragment data (%d byte%s)", length,
+					plurality(length, "", "s"));
+		    }
+		}
+	    }
 	} else {
 	    if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
