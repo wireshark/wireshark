@@ -1,3 +1,186 @@
+Overview of changes in Ethereal 0.9.3:
+* Initial SCCP support. (Jeff Morriss)
+* SCCP-over-M3UA support. (Michael Tuexen)
+* NASREQ command code dictionary fixes for DIAMETER. (David Frascone)
+* Fix pathname of DIAMETER directory file. (David Frascone)
+* Cut down the vertical spacing in the "Capture Options" dialog box.
+  (Guy)
+* Rename "h225_cs" to "h225" in Q.931 dissector. (Guy)
+* Improve return-time error handling of wtap_seek_read(), update
+  routines that call it. (Guy)
+* Improve buffer handling in TCP graphing code. (Guy)
+* Better error checking in text-based capture file readers. (Guy)
+* Better stream handling in CSIDS reader. (Guy)
+* Add wtap_seek_read() error indication, add error checks to Sniffer
+  reader. (Guy)
+* Fix 0-length g_malloc() in ASN.1 parser. (Guy)
+* Fix typos in comments in STAT dissector. (Adam Sulmicki)
+* Use "_U_" to flag unused arguments in many files. (Joerg)
+* Remove unused variables. (Joerg)
+* Fix TPKT packet length calculation. (Guy)
+* Add ability to pull packet from add_packet_to_packet_list() frame
+  to pkt-from-core.py. (Gilbert)
+* Check the length of SNMP_IPADDR and SNMP_COUNTER64 items. (Guy)
+* Remove debug printf()s from NFS. (Mike Frisch)
+* Use the gdb "x" (examine memory) command instead of "print" to obtain
+  the packet data in pkt-from-core.py. (Gilbert)
+* VRRPv3 support (IPv6). (sumikawa@kame.net)
+* Back out to a previous version of aclocal-flags. (Itojun)
+* Fixed bug in dissect_ndr_pointer(). (Ronnie)
+* Moved UNICODE_STRING dissector. (Ronnie)
+* Rename function and variables for dissecting an NT service Account
+  Control bitmap and make the function not static. (Ronnie)
+* Replace incorrect ?: expression in SCCP. (Gilbert)
+* Fix null termination behavior of tvb_get_nstringz() and
+  tvb_get_nstringz0(). (Gilbert)
+* Change the version/about box wording to read "without SNMP MIB
+  support". (Guy)
+* NFS updates. (Mike Frisch)
+* VMS TCPIPTRACE parser updates. (Marc Milgram)
+* Fix the definition of IFT_ISO88025 in libpcap parser. (Guy)
+* Remove redundant Info colum setting in SMB. (Guy)
+* Fix bugs in 802.11 authentication frame dissection. (Jouni Malinen)
+* Fix subtree creation in packet-dcerpc-nt.c. (Guy)
+* Fix proto_tree_add_uint() and proto_tree_add_uint_hidden() calls in
+  packet-l2tp.c. (Guy)
+* Make the "socks.command" field an FT_UINT8, as it's one byte. (Guy)
+* Avoid setting snapshot length to zero in the libpcap writer. (Guy)
+* Correctly set addresses when printing RARP info. (Guy, Andreas Sikkema)
+* Properly initialize tm_isdst in SMPP and UCP. (Guy)
+* Register the heuristic SMPP dissector with X.25. (Guy)
+* Fix spacing when printing "(NULL pointer)" in packet-dcerpc.c. (Guy)
+* Subtree creation and other fixes for DCERPC NT and SAMR. (Guy)
+* Use UCD SNMP 4.2.2+'s sprint_realloc_ routines.  Remove code and
+  cruft for older routines. (Guy)
+* Fix absolute and relative time swappage in SMB. (Ronnie)
+* Fix SNMP suffix printing. (Guy)
+* Remove leftover CMU SNMP version printing code. (Guy)
+* Move dissect_ndr_nt_NTTIME() from packet-dcerpc-samr.c to
+  packet-dcerpc-nt.c. (Ronnie)
+* Rename samr_dissect_LOGON_HOURS() to dissect_ndr_nt_LOGON_HOURS().
+  (Ronnie)
+* Move the STRING dissector to packet-dcerpc-nt.c. (Ronnie)
+* Prepped DCERPC code for NETLOGON dissector. (Ronnie)
+* Correctly set "val_len" in "struct variable_list" in SNMP. (Guy)
+* Put "extern" in front of a function declaration in SNMP. (Guy)
+* Fix printing of OIDs in SNMP and COPS.  Remove CMU SNMP code from
+  COPS. (Guy)
+* Free SNMP's format_var() generated strings with malloc() instead of
+  g_malloc(). (Guy)
+* Update documentation to reflect UCD SNMP 4.2.2 requirement. (Guy)
+* Change configuration message to read "UCD SNMP". (Guy)
+* Treat EAPOL's hf_eapol_keydes_key_index_indexnum as a uint8 instead
+  of a boolean. (Adam)
+* Fix a netlogon crash bug.  Add full NETLOGON support. (Ronnie)
+* Change "--with-snmp" configure option to "--with-ucdsnmp". (Guy)
+* Get rid of unnecessary #defines in packet-cops.c. (Guy)
+* Get rid of include of "dlfcn.h" in packet-snmp.c. (Guy)
+* Get rid of unnecessary includes in packet-cops.c. (Guy)
+* Initial dissection of a variable-length CDB in packet-scsi.c.
+  (Dinesh Dutt)
+* Correct "prevent/allow medium removal" command name in packet-scsi.c.
+  (Guy)
+* Update dissect_ndr_nt_STRING so it can also accept FT_BYTES. (Ronnie)
+* Update netlogon so that nt and lm challenge response bytes are displayed
+  in hexadecimal. (Ronnie)
+* Fixed bug in SAMDELTAS_request in packet-dcerpc-netlogon.c. (Ronnie)
+* Add mockups for LSA_SECRET and LSA_SECURITY_DESCRIPTOR in
+  packet-dcerpc-netlocon.c. (Ronnie)
+* Improve display of LSA_SECURITY_DESCRIPTOR in netlogon. (Ronnie)
+* Correctly define struct select_item in editcap.c. (Gilbert)
+* Boost the maximum amount of indentation put into text output. (Guy)
+* Clean up the display of the top-level item for the NT ACE Flags in
+  packet-smb.c. (Guy)
+* Fix a typo in packet-dcerpc-netlogon.c. (Guy)
+* Add an hf_[] entry to hf_netlogon_code, clean up some cruft in 
+  packet-dcerpc-netlogon.c. (Guy)
+* Add a value_string for the countries which have their MS country code
+  listed at www.unicode.org.  Make samr and netlogon use it. (Ronnie)
+* Fix a cut-and-paste error in make-mauf. (Andrew Feren)
+* Put all of Cisco's OUIs into manuf.tmpl. (Andrew)
+* Add error messages for invalid name and invalid form size to SMB. (Tim)
+* Move the value_string for MS country codes from packet-dcerpc-nt.c to
+  packet-smb.c. (Ronnie)
+* Pretty up the SID dissector in packet-smb.c. (Richard)
+* Pretty up Policy Handles in packet-dcerpc-nt.c. (Richard)
+* Fix a couple of incorrect calls to proto_tree_add_boolean() to call
+  proto_tree_add_item() instead in packet-ldp.c. (Guy)
+* Initial XDMCP support. (Pasi Eronen)
+* Add support for a new type of DCERPC over SMB transport. (Ronnie)
+* Improved handling of TreeConnectAndX in SMB. (Ronnie)
+* Initial support to detect IPC share read/write calls in SMB. (Ronnie)
+* Update developer docs. (Guy)
+* Check whether si->sip is null before using it in packet-smb.c. (Guy)
+* Fix double-click behavior in filter list dialog. (Guy)
+* Correct DCERPC-related padding handling in SMB. (Guy)
+* Don't treat the traffic as DCERPC traffic unless it's to the IPC$ share.
+  (Guy)
+* Fix IPC/IPC$ confusion in packet-smb.c. (Guy)
+* Put an item into the protocol tree for the secondary address in a bind
+  ack PDU in packet-dcerpc.c. (Guy)
+* LDP support for draft-martini-l2circuit-trans-mpls, LDP status code
+  updates, and small LDP cleanups. (Aamer Akhter)
+* Minor bugfixes for netlogon. (Ronnie)
+* Updates for NT QUOTA in packet-smb.c. (Ronnie)
+* SMB Quota updates. (Ronnie)
+* Partial dissection of NT Set User Quota data block. (Ronnie)
+* Partial NTGetUserQuota support in packet-smb.c. (Ronnie)
+* Add information about 64-bit integral field support to developer docs.
+  Fix some items on the tvbuff accessors for integers. (Guy)
+* Cisco LEAP support. (Adam)
+* Skinny Client Control Protocol enhancements. (Paul Erkkila)
+* Don't show a secondary address if the secondary address length is 0
+  in packet-dcerpc.c. (Guy)
+* Add dissection of one more bit in Quota FS Flags bitmask in
+  packet-smb.c. (Ronnie)
+* More Quota updates, GetUserQuota implemented and support for list of
+  userquota structures in SMB. (Ronnie)
+* LDP support for draft-martini-l2circuit-encap-mpls for
+  Ethernet-over-MPLS. (Aamer)
+* Add desegmentation support, proto tree fixes to Skinny. (Guy)
+* Allow "proto_item_append_text()" to an item that doesn't have a
+  representation string. (Guy)
+* Make all DEC spanning tree items filterable, improve data display. (Guy)
+* Correct DEC spanning tree protocol ID parsing. (Guy)
+* Make all IEEE spanning tree items filterable, improve data display,
+  other dissector improvements. (Guy)
+* Better DEC spanning tree packet length handling and data display. (Guy)
+* Better IEEE spanning tree packet length handling. (Guy)
+* More SMB quota updates. (Ronnie)
+* Treat DCE RPC secondary addresses are NUL-terminated strings. (Guy)
+* Skinny updates. (Paul)
+* Add all known EAP types, better binary data display. (Adam, Guy)
+* Display EAP_TYPE_ID as a string. (Guy, Adam)
+* Add support for NOTIFY and NAK EAP types, fix the entry for the ID EAP
+  type, and do some miscellaneous cleanups. (Adam)
+* Better tvb_get_ptr() buffer alignment handling in DCE RPC dissectors. 
+  (Guy)
+* Treat WriteAndX operations on IPC trees as containing DCERPC call
+  information, just as is done for Write in SMB. (Guy)
+* Express the RID separately of more than 4 sub-authorities. It is always
+  the last sub-authority in SMB. (Guy)
+* In packet-smb.c handle Read operations on IPC trees as DCE RPC. (Guy)
+* Improve buffer allocation in packet-dcerpc-nt.c's fake_unicode(). (Guy)
+* When dissecting an SID with more than 4 authorities, increment the
+  offset to go past the last authority (the RID) in SMB. (Guy)
+* Fix fake_unicode() call in packet-dcerpc-spoolss.c. (Guy)
+* Change NSIS packager to produce ethereal-setup-$VERSION.exe instead of
+  ethereal-setup.exe. (Andrew Feren)
+* More Skinny updates. (Paul)
+* Update iSCSI to draft 11. (Mark Burton)
+* Add MESSAGE, QAUTH and DO methods to SIP. (Jakob Schlyter, Gerald)
+* 
+
+
+
+
+
+
+
+
+
+
+
 Overview of changes in Ethereal 0.9.2:
 * SCTP checksum update to the current Internet draft. (Michael Tuexen)
 * Properly display tabs characters in SDP dissector. (Guy)
