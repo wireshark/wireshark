@@ -2,7 +2,7 @@
  * Routines for SMB net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.17 2001/07/08 23:20:19 guy Exp $
+ * $Id: packet-smb-logon.c,v 1.18 2001/07/08 23:33:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -687,8 +687,6 @@ dissect_smb_sam_logon_resp(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset)
 {
 	/* Netlogon command 0x13 - decode the SAM logon response from server */
-
-	guint16 lmt;
 
 	/* server name */
 	offset = display_unicode_string(tvb, pinfo, tree, offset, hf_server_name);
