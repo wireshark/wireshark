@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.40 2003/06/12 10:10:17 guy Exp $
+ * $Id: packet-mgcp.c,v 1.41 2003/09/02 21:26:22 guy Exp $
  *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -378,10 +378,8 @@ dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       /* Display the raw text of the mgcp message if desired */
 
       /* Do we want to display the raw text of our MGCP packet? */
-      if(global_mgcp_raw_text){
-	mgcp_raw_text_add(tvb_new_subset(tvb,0,tvb_len,-1),
-			  mgcp_tree);
-      }
+      if(global_mgcp_raw_text)
+	mgcp_raw_text_add(tvb, mgcp_tree);
 
       /* dissect sdp payload */
       if( tvb_sectionend < tvb_len && global_mgcp_dissect_tree == TRUE){
