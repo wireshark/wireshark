@@ -124,7 +124,7 @@ typedef struct _packet_info {
   guint16 dst_idx;              /* Dest port index (Cisco MDS-specific) */
   guint16 vsan;                 /* Fibre channel/Cisco MDS-specific */
   guint16 dcectxid;             /* Context ID (DCERPC-specific) */
-  guint16 dcetransporttype;     /* Transport type
+  int     dcetransporttype;     /* Transport type
                                  * Value -1 means "not a DCERPC packet"
                                  */
   guint16 dcetransportsalt;	/* fid: if transporttype==DCE_CN_TRANSPORT_SMBPIPE */
