@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.38 2003/01/31 03:17:46 guy Exp $
+ * $Id: packet-rx.c,v 1.39 2003/09/21 20:06:01 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -464,7 +464,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	/* epoch : 4 bytes */
 	{
-		nstime_t ts;;
+		nstime_t ts;
 		ts.secs = tvb_get_ntohl(tvb, offset);
 		ts.nsecs = 0;
 

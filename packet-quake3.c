@@ -3,7 +3,7 @@
  *
  * Uwe Girlich <uwe@planetquake.com>
  *
- * $Id: packet-quake3.c,v 1.16 2003/07/25 04:17:37 gram Exp $
+ * $Id: packet-quake3.c,v 1.17 2003/09/21 20:06:00 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -417,7 +417,7 @@ dissect_quake3_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 	if (game_tree) {
 		proto_item *seq2_item = proto_tree_add_text(game_tree,
 			tvb, offset, 2, "Acknowledge Sequence: %u (%s)",
-			seq2, val_to_str(rel2,names_reliable,"%u"));;
+			seq2, val_to_str(rel2,names_reliable,"%u"));
 		if (seq2_item) {
 			proto_tree *seq2_tree = proto_item_add_subtree(
 				seq2_item, ett_quake3_game_seq2);

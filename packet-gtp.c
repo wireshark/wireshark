@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.62 2003/09/20 08:56:28 guy Exp $
+ * $Id: packet-gtp.c,v 1.63 2003/09/21 20:06:00 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4106,7 +4106,7 @@ decode_gtp_tft(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 						break;
 					/* flow label type = 3 bytes */
 					case 0x80:
-						label = tvb_get_ntoh24(tvb, offset + pf_offset + 1) & 0x0FFFFF;;
+						label = tvb_get_ntoh24(tvb, offset + pf_offset + 1) & 0x0FFFFF;
 						proto_tree_add_text (ext_tree_tft_pf, tvb, offset + pf_offset, 4, "ID 0x80: Flow Label: %u (%x)", label, label);
 						pf_offset = pf_offset + 4;
 						break;

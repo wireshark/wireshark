@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.46 2003/04/30 18:55:30 guy Exp $
+ * $Id: packet-bpdu.c,v 1.47 2003/09/21 20:06:00 gerald Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  *
@@ -520,7 +520,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    msti_regional_root_mstid = tvb_get_guint8(tvb,  offset+ MSTI_REGIONAL_ROOT);
 		    msti_regional_root_priority = (msti_regional_root_mstid &0xf0) << 8;
 		    msti_regional_root_mstid = ((msti_regional_root_mstid & 0x0f) << 8) +
-				tvb_get_guint8(tvb,  offset+ MSTI_REGIONAL_ROOT+1);;
+				tvb_get_guint8(tvb,  offset+ MSTI_REGIONAL_ROOT+1);
 		    msti_regional_root_mac = tvb_get_ptr(tvb, offset+ MSTI_REGIONAL_ROOT + 2, 6);
 		    msti_regional_root_mac_str = ether_to_str(msti_regional_root_mac);
 

@@ -7,7 +7,7 @@
  *	http://www.dgs.monash.edu.au/~timf/bottim/
  *	http://www.opt-sci.Arizona.EDU/Pandora/default.asp
  *
- * $Id: packet-quake2.c,v 1.15 2003/06/12 08:29:39 guy Exp $
+ * $Id: packet-quake2.c,v 1.16 2003/09/21 20:06:00 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -654,7 +654,7 @@ dissect_quake2_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 	if (game_tree) {
 		proto_item *seq2_item = proto_tree_add_text(game_tree,
 			tvb, offset, 4, "Acknowledge Sequence: %u (%s)",
-			seq2, val_to_str(rel2,names_reliable,"%u"));;
+			seq2, val_to_str(rel2,names_reliable,"%u"));
 		if (seq2_item) {
 			proto_tree *seq2_tree = proto_item_add_subtree(
 				seq2_item, ett_quake2_game_seq2);

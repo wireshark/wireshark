@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.14 2003/09/19 07:24:38 guy Exp $
+ * $Id: mgcp_stat.c,v 1.15 2003/09/21 20:06:02 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -223,7 +223,7 @@ mgcpstat_draw(void *pms)
 		sprintf(str[0], "%s", val_to_str(i,mgcp_mesage_type,"Other"));
 		sprintf(str[1], "%d", ms->rtd[i].num);
 		sprintf(str[2], "%8.2f msec", nstime_to_msec(&(ms->rtd[i].min)));
-		sprintf(str[3], "%8.2f msec", nstime_to_msec(&(ms->rtd[i].max)));;
+		sprintf(str[3], "%8.2f msec", nstime_to_msec(&(ms->rtd[i].max)));
 		sprintf(str[4], "%8.2f msec", get_average(&(ms->rtd[i].tot), ms->rtd[i].num));
 		sprintf(str[5], "%6u", ms->rtd[i].min_num);
 		sprintf(str[6], "%6u", ms->rtd[i].max_num);

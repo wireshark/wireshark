@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.46 2002/08/28 21:00:40 jmayer Exp $
+ * $Id: packet-x11.c,v 1.47 2003/09/21 20:06:01 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -943,7 +943,7 @@ static GTree *keysymTable = NULL;
 
 static gint compareGuint32(gconstpointer a, gconstpointer b)
 {
-      return GPOINTER_TO_INT(b) - GPOINTER_TO_INT(a);;
+      return GPOINTER_TO_INT(b) - GPOINTER_TO_INT(a);
 }
 
 static const char *keysymString(guint32 v)

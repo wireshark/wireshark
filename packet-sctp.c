@@ -12,7 +12,7 @@
  * - support for reassembly
  * - error checking mode 
  *
- * $Id: packet-sctp.c,v 1.63 2003/09/05 11:54:08 tuexen Exp $
+ * $Id: packet-sctp.c,v 1.64 2003/09/21 20:06:01 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -764,7 +764,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *chunk
 
   type           = tvb_get_ntohs(parameter_tvb, PARAMETER_TYPE_OFFSET);
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  padding_length = tvb_length(parameter_tvb) - length;;
+  padding_length = tvb_length(parameter_tvb) - length;
 
   parameter_item = proto_tree_add_text(chunk_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s parameter", val_to_str(type, parameter_identifier_values, "Unknown"));
   parameter_tree = proto_item_add_subtree(parameter_item, ett_sctp_chunk_parameter);
@@ -1122,7 +1122,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
 
   code           = tvb_get_ntohs(cause_tvb, CAUSE_CODE_OFFSET);
   length         = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
-  padding_length = tvb_length(cause_tvb) - length;;
+  padding_length = tvb_length(cause_tvb) - length;
 
   cause_item = proto_tree_add_text(chunk_tree, cause_tvb, CAUSE_HEADER_OFFSET, tvb_length(cause_tvb), "%s cause", val_to_str(code, cause_code_values, "Unknown"));
   cause_tree = proto_item_add_subtree(cause_item, ett_sctp_chunk_cause);
@@ -1839,7 +1839,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
   type           = tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET);
   flags          = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET);
   length         = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET);
-  padding_length = tvb_length(chunk_tvb) - length;;
+  padding_length = tvb_length(chunk_tvb) - length;
 
  if (useinfo && (check_col(pinfo->cinfo, COL_INFO)))
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, chunk_type_values, "RESERVED"));
