@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.32 2003/04/23 10:20:27 sahlberg Exp $
+ * $Id: packet_info.h,v 1.33 2003/10/21 07:17:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -193,7 +193,6 @@ typedef struct _packet_info {
   guint16 dst_idx;              /* Dest port index (Cisco MDS-specific) */
   guint16 vsan;                 /* Fibre channel/Cisco MDS-specific */
   void    *private_data;	/* pointer to data passed from one dissector to another */
-  void    *decrypted_data;	/* pointer to description of decrypted payload structure */
 } packet_info;
 
 #endif /* __PACKET_INFO_H__ */

@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.145 2003/10/14 00:45:54 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.146 2003/10/21 07:17:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -506,7 +506,7 @@ static void dissect_auth_verf(tvbuff_t *auth_tvb, packet_info *pinfo,
 			      e_dce_cn_common_hdr_t *hdr, 
 			      dcerpc_auth_info *auth_info)
 {
-	dcerpc_dissect_fnct_t *fn = NULL;
+	dcerpc_dissect_fnct_t *volatile fn = NULL;
 
 	switch (hdr->ptype) {
 	case PDU_BIND:
@@ -536,9 +536,19 @@ static void dissect_auth_verf(tvbuff_t *auth_tvb, packet_info *pinfo,
 		break;
 	}
 
-	if (fn)
-		fn(auth_tvb, 0, pinfo, tree, hdr->drep);
-	else
+	if (fn) {
+		/*
+		 * Catch ReportedBoundsError, so that even if the verifier
+		 * is bad, we still show the stub data.
+		 */
+		TRY {
+			fn(auth_tvb, 0, pinfo, tree, hdr->drep);
+		} CATCH(BoundsError) {
+			RETHROW;
+		} CATCH(ReportedBoundsError) {
+			show_reported_bounds_error(auth_tvb, pinfo, tree);
+		} ENDTRY;
+	} else
 		proto_tree_add_text(tree, auth_tvb, 0, hdr->auth_len,
 				    "%s Verifier", 
 				    val_to_str(auth_info->auth_type, 
@@ -1718,7 +1728,7 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 static void
 show_stub_data (tvbuff_t *tvb, gint offset, proto_tree *dcerpc_tree,
-                dcerpc_auth_info *auth_info)
+                dcerpc_auth_info *auth_info, gboolean is_encrypted)
 {
     int length;
 
@@ -1732,9 +1742,15 @@ show_stub_data (tvbuff_t *tvb, gint offset, proto_tree *dcerpc_tree,
         length = tvb_reported_length_remaining (tvb, offset);
         if (auth_info != NULL &&
             auth_info->auth_level == DCE_C_AUTHN_LEVEL_PKT_PRIVACY) {
-            proto_tree_add_text(dcerpc_tree, tvb, offset, -1,
-                                "Encrypted stub data (%d byte%s)",
-                                length, plurality(length, "", "s"));
+            if (is_encrypted) {
+                proto_tree_add_text(dcerpc_tree, tvb, offset, -1,
+                                    "Encrypted stub data (%d byte%s)",
+                                    length, plurality(length, "", "s"));
+            } else {
+                proto_tree_add_text(dcerpc_tree, tvb, offset, -1,
+                                    "Decrypted stub data (%d byte%s)",
+                                    length, plurality(length, "", "s"));
+            }
         } else {
             proto_tree_add_text (dcerpc_tree, tvb, offset, -1,
                                  "Stub data (%d byte%s)", length,
@@ -1746,13 +1762,12 @@ show_stub_data (tvbuff_t *tvb, gint offset, proto_tree *dcerpc_tree,
 static int
 dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
                     proto_tree *dcerpc_tree,
-                    tvbuff_t *volatile tvb, volatile gint offset,
-                    char *drep, dcerpc_info *info,
+                    tvbuff_t *volatile tvb, tvbuff_t *decrypted_tvb,
+                    volatile gint offset, char *drep, dcerpc_info *info,
                     dcerpc_auth_info *auth_info)
 {
     dcerpc_uuid_key key;
     dcerpc_uuid_value *sub_proto;
-    int length;
     proto_tree *volatile sub_tree = NULL;
     dcerpc_sub_dissector *proc;
     gchar *name = NULL;
@@ -1770,7 +1785,11 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
          * We don't have a dissector for this UUID, or the protocol
          * for that UUID is disabled.
          */
-        show_stub_data (tvb, offset, dcerpc_tree, auth_info);
+        if (decrypted_tvb != NULL) {
+            show_stub_data (decrypted_tvb, offset, dcerpc_tree, auth_info,
+                            FALSE);
+        } else
+            show_stub_data (tvb, offset, dcerpc_tree, auth_info, TRUE);
         return -1;
     }
 
@@ -1808,26 +1827,24 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
          */
 
 	if (sub_proto->opnum_hf != -1)
-		proto_tree_add_uint_format(sub_tree, sub_proto->opnum_hf,
-					   tvb, 0, 0, info->call_data->opnum,
-					   "Operation: %s (%u)",
-					   name, info->call_data->opnum);
+            proto_tree_add_uint_format(sub_tree, sub_proto->opnum_hf,
+                                       tvb, 0, 0, info->call_data->opnum,
+                                       "Operation: %s (%u)",
+                                       name, info->call_data->opnum);
 	else
-		proto_tree_add_uint_format(sub_tree, hf_dcerpc_op, tvb,
-					   0, 0, info->call_data->opnum,
-					   "Operation: %s (%u)",
-					   name, info->call_data->opnum);
+            proto_tree_add_uint_format(sub_tree, hf_dcerpc_op, tvb,
+                                       0, 0, info->call_data->opnum,
+                                       "Operation: %s (%u)",
+                                       name, info->call_data->opnum);
     }
 
     sub_dissect = info->request ? proc->dissect_rqst : proc->dissect_resp;
 
-    /* Call subdissector if we have no auth info, or a zero auth_level and
-       no decrypted data, or non-zero auth_level and sucessfully decrypted
-       data. */
-
-    if (sub_dissect && (auth_info == NULL ||
-                        (!auth_info->auth_level && !pinfo->decrypted_data) ||
-			(auth_info->auth_level && pinfo->decrypted_data))) {
+    if (decrypted_tvb != NULL) {
+        /* Either there was no encryption or we successfully decrypted
+           the entrypted payload. */
+        if (sub_dissect) {
+            /* We have a subdissector - call it. */
             saved_proto = pinfo->current_proto;
             saved_private_data = pinfo->private_data;
             pinfo->current_proto = sub_proto->name;
@@ -1839,16 +1856,17 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
              * data is bad, we still show the verifier.
              */
             TRY {
-                offset = sub_dissect (tvb, offset, pinfo, sub_tree, drep);
+                offset = sub_dissect (decrypted_tvb, offset, pinfo, sub_tree,
+                                      drep);
             } CATCH(BoundsError) {
                 RETHROW;
             } CATCH(ReportedBoundsError) {
-                show_reported_bounds_error(tvb, pinfo, tree);
+                show_reported_bounds_error(decrypted_tvb, pinfo, tree);
             } ENDTRY;
 
             /* If there is auth padding at the end of the stub, display it */
             if (auth_info != NULL && auth_info->auth_pad_len != 0) {
-                proto_tree_add_text (sub_tree, tvb, offset, 
+                proto_tree_add_text (sub_tree, decrypted_tvb, offset, 
                                      auth_info->auth_pad_len,
                                      "Auth Padding (%u byte%s)",
                                      auth_info->auth_pad_len,
@@ -1856,26 +1874,24 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
                 offset += auth_info->auth_pad_len;
             }
 
-	    /* If we have a subdissector and it didn't dissect all data in
+            /* If we have a subdissector and it didn't dissect all data in
                the tvb, make a note of it. */
 
-	    if (tvb_length_remaining(tvb, offset)) {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO,
-					"[Long frame (%d bytes)]",
-					tvb_length_remaining(tvb, offset));
-	    }
+            if (tvb_length_remaining(decrypted_tvb, offset)) {
+                if (check_col(pinfo->cinfo, COL_INFO))
+                    col_append_fstr(pinfo->cinfo, COL_INFO,
+                                    "[Long frame (%d bytes)]",
+                                    tvb_reported_length_remaining(tvb, offset));
+            }
 
             pinfo->current_proto = saved_proto;
             pinfo->private_data = saved_private_data;
         } else {
-            length = tvb_length_remaining (tvb, offset);
-            if (length > 0) {
-                proto_tree_add_text (sub_tree, tvb, offset, length,
-                                     "Stub data (%d byte%s)", length,
-                                     plurality(length, "", "s"));
-            }
+            /* No subdissector - show it as *decrypted* stub data. */
+            show_stub_data (decrypted_tvb, offset, sub_tree, auth_info, FALSE);
         }
+    } else
+        show_stub_data (tvb, offset, sub_tree, auth_info, TRUE);
 
     tap_queue_packet(dcerpc_tap, pinfo, info);
     return 0;
@@ -2356,10 +2372,10 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
                         dcerpc_auth_info *auth_info, guint32 alloc_hint,
                         guint32 frame)
 {
-    gboolean save_fragmented, payload_ok;
+    gboolean save_fragmented;
     fragment_data *fd_head=NULL;
     guint32 tot_len;
-    tvbuff_t *payload_tvb;
+    tvbuff_t *payload_tvb, *decrypted_tvb;
 
     save_fragmented = pinfo->fragmented;
 
@@ -2368,21 +2384,19 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    auth_info->auth_size, tvb_length_remaining(tvb, offset) - 
 	    auth_info->auth_size);    
 
-    payload_ok = TRUE;
-
     /* Decrypt the PDU if it is encrypted */
 
-    pinfo->decrypted_data = NULL;
-
-    if (auth_info->auth_type) {
+    if (auth_info->auth_type &&
+        auth_info->auth_level == DCE_C_AUTHN_LEVEL_PKT_PRIVACY) {
+	    /*
+	     * We know the authentication type, and the authentication
+	     * level is "Packet privacy", meaning the payload is
+	     * encrypted; attempt to decrypt it.
+	     */
 	    dcerpc_auth_subdissector_fns *auth_fns;
 	    
-	    if (dcerpc_tree)
-		    proto_tree_add_text(
-			    dcerpc_tree, payload_tvb, 0, -1,
-			    "Encrypted Stub Data (%d byte%s)",
-			    tvb_length(payload_tvb),
-			    plurality(tvb_length(payload_tvb), "", "s"));
+	    /* Start out assuming we won't succeed in decrypting. */
+	    decrypted_tvb = NULL;
 
 	    if ((auth_fns = get_auth_subdissector_fns(
 			 auth_info->auth_level, auth_info->auth_type))) {
@@ -2393,29 +2407,30 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    hdr->ptype == PDU_REQ, auth_info);	    
 		    
 		    if (result) {
-			    int len = tvb_length(result);
+			    if (dcerpc_tree)
+				proto_tree_add_text(
+					    dcerpc_tree, payload_tvb, 0, -1,
+					    "Encrypted stub data (%d byte%s)",
+					    tvb_reported_length(payload_tvb),
+
+			    plurality(tvb_length(payload_tvb), "", "s"));
 
 			    add_new_data_source(
-				    pinfo, result, "Decrypted Stub Data");
+				    pinfo, result, "Decrypted stub data");
 			    
-			    pinfo->decrypted_data = result;
-
-			    proto_tree_add_text(
-				    dcerpc_tree, result, 0, len,
-				    "Decrypted Stub Data (%d byte%s)",
-				    len, plurality(len, "", "s"));
-		    } else
-			    payload_ok = FALSE;
+			    /* We succeeded. */
+			    decrypted_tvb = result;
+		    }
 	    }
-    }
+    } else
+	    decrypted_tvb = payload_tvb;
 
     /* if this packet is not fragmented, just dissect it and exit */
     if(PFC_NOT_FRAGMENTED(hdr)){
 	pinfo->fragmented = FALSE;
 
 	dcerpc_try_handoff(
-		pinfo, tree, dcerpc_tree, 
-		pinfo->decrypted_data ? pinfo->decrypted_data : payload_tvb, 
+		pinfo, tree, dcerpc_tree, payload_tvb, decrypted_tvb,
 		0, hdr->drep, di, auth_info);
 	
 	pinfo->fragmented = save_fragmented;
@@ -2427,13 +2442,14 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     /* if we are not doing reassembly and this is the first fragment
        then just dissect it and exit
+       XXX - if we're not doing reassembly, can we decrypt an
+       encrypted stub?
     */
     if( (!dcerpc_reassemble) && hdr->flags&PFC_FIRST_FRAG ){
 
 	dcerpc_try_handoff(
-		pinfo, tree, dcerpc_tree,
-		pinfo->decrypted_data ? pinfo->decrypted_data : 
-		payload_tvb, 0, hdr->drep, di, auth_info);
+		pinfo, tree, dcerpc_tree, payload_tvb, decrypted_tvb,
+		0, hdr->drep, di, auth_info);
 	
         if (check_col(pinfo->cinfo, COL_INFO)) {
             col_append_fstr(pinfo->cinfo, COL_INFO,
@@ -2442,11 +2458,6 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
         pinfo->fragmented = save_fragmented;
         return;
     }
-
-    /* Replace encrypted payload with decrypted version for reassembly. */
-
-    if (pinfo->decrypted_data)
-	    payload_tvb = (tvbuff_t *)pinfo->decrypted_data;
 
     /* if we have already seen this packet, see if it was reassembled
        and if so dissect the full pdu.
@@ -2481,8 +2492,8 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     /* if this is the first fragment we need to start reassembly
     */
     if(hdr->flags&PFC_FIRST_FRAG){
-	fragment_add(payload_tvb, 0, pinfo, frame, dcerpc_co_reassemble_table,
-		     0, tvb_length(payload_tvb), TRUE);
+	fragment_add(decrypted_tvb, 0, pinfo, frame, dcerpc_co_reassemble_table,
+		     0, tvb_length(decrypted_tvb), TRUE);
 	fragment_set_tot_len(pinfo, frame,
 		 dcerpc_co_reassemble_table, alloc_hint);
 
@@ -2493,9 +2504,9 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     if(!(hdr->flags&PFC_LAST_FRAG)){
 	tot_len = fragment_get_tot_len(pinfo, frame,
 		 dcerpc_co_reassemble_table);
-	fragment_add(payload_tvb, 0, pinfo, frame,
+	fragment_add(decrypted_tvb, 0, pinfo, frame,
 		 dcerpc_co_reassemble_table,
-		 tot_len-alloc_hint, tvb_length(payload_tvb),
+		 tot_len-alloc_hint, tvb_length(decrypted_tvb),
 		 TRUE);
 
 	goto end_cn_stub;
@@ -2505,10 +2516,10 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     */
     tot_len = fragment_get_tot_len(pinfo, frame,
 		dcerpc_co_reassemble_table);
-    fd_head = fragment_add(payload_tvb, 0, pinfo,
+    fd_head = fragment_add(decrypted_tvb, 0, pinfo,
 		frame,
 		dcerpc_co_reassemble_table,
-		tot_len-alloc_hint, tvb_length(payload_tvb),
+		tot_len-alloc_hint, tvb_length(decrypted_tvb),
 		TRUE);
 
 end_cn_stub:
@@ -2521,7 +2532,7 @@ end_cn_stub:
 	    tvbuff_t *next_tvb;
 
 	    next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
-	    tvb_set_child_real_data_tvbuff(payload_tvb, next_tvb);
+	    tvb_set_child_real_data_tvbuff(decrypted_tvb, next_tvb);
 	    add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
 	    show_fragment_tree(fd_head, &dcerpc_frag_items,
 		dcerpc_tree, pinfo, next_tvb);
@@ -2529,11 +2540,11 @@ end_cn_stub:
 	    pinfo->fragmented = FALSE;
 
 	    dcerpc_try_handoff (pinfo, tree, dcerpc_tree, next_tvb,
-		0, hdr->drep, di, auth_info);
+		next_tvb, 0, hdr->drep, di, auth_info);
 
 	} else {
-	    proto_tree_add_uint(dcerpc_tree, hf_dcerpc_reassembled_in, payload_tvb, 0, 0, 
-				fd_head->reassembled_in);
+	    proto_tree_add_uint(dcerpc_tree, hf_dcerpc_reassembled_in,
+				decrypted_tvb, 0, 0, fd_head->reassembled_in);
 	    if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 			" [DCE/RPC %s fragment]", fragment_type(hdr->flags));
@@ -2541,12 +2552,14 @@ end_cn_stub:
 	}
     } else {
 	/* Reassembly not complete - some fragments
-	   are missing */
+	   are missing.  Just show the stub data. */
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO,
 			" [DCE/RPC %s fragment]", fragment_type(hdr->flags));
 	}
+
+        show_stub_data (decrypted_tvb, 0, tree, auth_info, FALSE);
     }
 
     pinfo->fragmented = save_fragmented;
@@ -2612,7 +2625,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
                               pinfo->srcport, pinfo->destport, 0);
     if (!conv)
-        show_stub_data (tvb, offset, dcerpc_tree, &auth_info);
+        show_stub_data (tvb, offset, dcerpc_tree, &auth_info, TRUE);
     else {
         dcerpc_matched_key matched_key, *new_matched_key;
         dcerpc_call_value *value;
@@ -2708,7 +2721,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				    hdr, di, &auth_info, alloc_hint,
 				    value->req_frame);
 	} else
-	    show_stub_data (tvb, offset, dcerpc_tree, &auth_info);
+	    show_stub_data (tvb, offset, dcerpc_tree, &auth_info, TRUE);
     }
 }
 
@@ -2749,7 +2762,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     if (!conv) {
         /* no point in creating one here, really */
-        show_stub_data (tvb, offset, dcerpc_tree, &auth_info);
+        show_stub_data (tvb, offset, dcerpc_tree, &auth_info, TRUE);
     } else {
 	dcerpc_matched_key matched_key, *new_matched_key;
 
@@ -2809,7 +2822,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				    hdr, di, &auth_info, alloc_hint,
 				    value->rep_frame);
         } else
-            show_stub_data (tvb, offset, dcerpc_tree, &auth_info);
+            show_stub_data (tvb, offset, dcerpc_tree, &auth_info, TRUE);
     }
 }
 
@@ -3493,6 +3506,7 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     int length, reported_length, stub_length;
     gboolean save_fragmented;
     fragment_data *fd_head;
+    tvbuff_t *next_tvb;
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
         col_append_fstr (pinfo->cinfo, COL_INFO, " opnum: %u",
@@ -3523,10 +3537,10 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	     * XXX - authentication info?
 	     */
 	    pinfo->fragmented = (hdr->flags1 & PFCL1_FRAG);
-	    dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
-				tvb_new_subset (tvb, offset, length,
-						reported_length),
-				0, hdr->drep, di, NULL);
+	    next_tvb = tvb_new_subset (tvb, offset, length,
+				       reported_length);
+	    dcerpc_try_handoff (pinfo, tree, dcerpc_tree, next_tvb,
+				next_tvb, 0, hdr->drep, di, NULL);
 	} else {
 	    /* PDU is fragmented and this isn't the first fragment */
 	    if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -3560,8 +3574,6 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 			!(hdr->flags1 & PFCL1_LASTFRAG));
 	if (fd_head != NULL) {
 	    /* We completed reassembly */
-	    tvbuff_t *next_tvb;
-
 	    next_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
 	    tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 	    add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
@@ -3573,7 +3585,7 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	     */
 	    pinfo->fragmented = FALSE;
 	    dcerpc_try_handoff (pinfo, tree, dcerpc_tree, next_tvb,
-				0, hdr->drep, di, NULL);
+				next_tvb, 0, hdr->drep, di, NULL);
 	} else {
 	    /* Reassembly isn't completed yet */
 	    if (check_col(pinfo->cinfo, COL_INFO)) {
