@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.64 2003/01/03 06:45:45 guy Exp $
+ * $Id: netxray.c,v 1.65 2003/01/03 07:51:26 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -61,7 +61,7 @@ struct netxray_hdr {
 	guint32	timelo;		/* lower 32 bits of time stamp of capture start */
 	guint32	timehi;		/* upper 32 bits of time stamp of capture start */
 	guint32 linespeed;	/* speed of network, in bits/second */
-	guint32	xxb[16];	/* other stuff */
+	guint8	xxb[64];	/* other stuff */
 };
 
 /*
@@ -183,6 +183,7 @@ int netxray_open(wtap *wth, int *err)
 		WTAP_ENCAP_UNKNOWN	/* IrDA */
 	};
 	#define NUM_NETXRAY_ENCAPS (sizeof netxray_encap / sizeof netxray_encap[0])
+	int file_encap;
 
 	/* Read in the string that should be at the start of a NetXRay
 	 * file */
@@ -263,12 +264,6 @@ int netxray_open(wtap *wth, int *err)
 		return -1;
 	}
 
-	/* This is a netxray file */
-	wth->file_type = file_type;
-	wth->capture.netxray = g_malloc(sizeof(netxray_t));
-	wth->subtype_read = netxray_read;
-	wth->subtype_seek_read = netxray_seek_read;
-	wth->subtype_close = netxray_close;
 	if (hdr.network == 3) {
 		/*
 		 * In version 0 and 1, we assume, for now, that all
@@ -276,18 +271,63 @@ int netxray_open(wtap *wth, int *err)
 		 * frames (as a result, presumably, of having passed
 		 * through NDISWAN).
 		 *
-		 * In version 2, there's probably something in the "xxb"
+		 * In version 2, it looks as if there's stuff in the "xxb"
 		 * words of the file header to specify what particular
-		 * type of WAN capture we have; however, the only version
-		 * 2 WAN captures we've seen are ISDN captures, so we
-		 * assume they're ISDN, for now.
+		 * type of WAN capture we have; we handle the ones we've
+		 * seen, and punt on the others.
 		 */
-		if (version_major == 2)
-			wth->file_encap = WTAP_ENCAP_ISDN;
-		else
-			wth->file_encap = WTAP_ENCAP_ETHERNET;
+		if (version_major == 2) {
+			switch (hdr.xxb[20]) {
+
+			case 4:
+				/*
+				 * Frame Relay.
+				 */
+				file_encap = WTAP_ENCAP_FRELAY;
+				break;
+
+			case 6:
+				/*
+				 * Various HDLC flavors?
+				 */
+				switch (hdr.xxb[28]) {
+
+				case 0:	/* LAPB/X.25 */
+					file_encap = WTAP_ENCAP_LAPB;
+					break;
+
+				case 1:	/* European PRI? */
+				case 2:	/* North American PRI? */
+				case 3:	/* BRI */
+					file_encap = WTAP_ENCAP_ISDN;
+					break;
+
+				default:
+					g_message("netxray: WAN HDLC capture subsubtype 0x%02x unknown or unsupported",
+					   hdr.xxb[28]);
+					*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+					return -1;
+				}
+				break;
+
+			default:
+				g_message("netxray: WAN capture subtype 0x%02x unknown or unsupported",
+				   hdr.xxb[20]);
+				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+				return -1;
+			}
+		} else
+			file_encap = WTAP_ENCAP_ETHERNET;
 	} else
-		wth->file_encap = netxray_encap[hdr.network];
+		file_encap = netxray_encap[hdr.network];
+
+	/* This is a netxray file */
+	wth->file_type = file_type;
+	wth->capture.netxray = g_malloc(sizeof(netxray_t));
+	wth->subtype_read = netxray_read;
+	wth->subtype_seek_read = netxray_seek_read;
+	wth->subtype_close = netxray_close;
+	wth->file_encap = file_encap;
 	wth->snapshot_length = 0;	/* not available in header */
 	wth->capture.netxray->start_time = pletohl(&hdr.start_time);
 	wth->capture.netxray->timeunit = timeunit;
