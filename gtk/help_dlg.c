@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.5 2000/08/17 08:17:38 guy Exp $
+ * $Id: help_dlg.c,v 1.6 2000/08/22 06:38:32 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -406,8 +406,8 @@ static void set_help_text(GtkWidget *w, help_type_t type)
 	case FT_RELATIVE_TIME:
 	  type_name = "FT_RELATIVE_TIME";
 	  break;
-	case FT_NSTRING_UINT8:
-	  type_name = "FT_NSTRING_UINT8";
+	case FT_UINT_STRING:
+	  type_name = "FT_UINT_STRING";
 	  break;
 	case FT_STRING:
 	  type_name = "FT_STRING";

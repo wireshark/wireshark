@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: ncp2222.h,v 1.1 2000/07/28 20:03:41 gram Exp $
+ * $Id: ncp2222.h,v 1.2 2000/08/22 06:38:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -221,11 +221,11 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 		 * or ncp.subfunc will find both the requests and the replies.
 		 */
 		if (ncp_rec) {
-			proto_tree_add_uint_hidden(ncp_tree, hf_ncp_func, tvb,
-					6, 1, ncp_rec->func);
+			proto_tree_add_uint(ncp_tree, hf_ncp_func, tvb,
+					6, 0, ncp_rec->func);
 			if (ncp_requires_subfunc(ncp_rec->func)) {
-				proto_tree_add_uint_hidden(ncp_tree, hf_ncp_subfunc,
-						tvb, 6, 1, ncp_rec->subfunc);
+				proto_tree_add_uint(ncp_tree, hf_ncp_subfunc,
+						tvb, 6, 0, ncp_rec->subfunc);
 			}
 		}
 
@@ -248,12 +248,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 				return;
 			}
 
-			if (ncp_requires_subfunc(ncp_rec->func)) {
-				ptvc = ptvcursor_new(ncp_tree, tvb, 9);
-			}
-			else {
-				ptvc = ptvcursor_new(ncp_tree, tvb, 8);
-			}
+			ptvc = ptvcursor_new(ncp_tree, tvb, 8);
 			process_ptvc_record(ptvc, ncp_rec->reply_ptvc);
 			ptvcursor_free(ptvc);
 		}

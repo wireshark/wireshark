@@ -9,7 +9,7 @@ part of the 0x2222 "family")
 Data comes from "Programmer's Guide to the NetWare Core Protocol"
 by Steve Conner and Dianne Conner.
 
-$Id: ncp2222.py,v 1.3 2000/08/09 21:24:27 deniel Exp $
+$Id: ncp2222.py,v 1.4 2000/08/22 06:38:17 gram Exp $
 
 Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
 
@@ -156,10 +156,14 @@ class PTVCRecord:
 		# Small sanity check
 		field_length = self.field.Length()
 
-		if type(field_length) == type(0) and field_length > 0:
-			if field_length != self.length:
-				sys.stderr.write("Length %d does not match field length %d for field %s\n" % (self.length, field_length, self.field.Abbreviation()))
-				sys.exit(1)
+#		if type(field_length) != type(self.length):
+#			sys.stderr.write("Length types do not match")
+#			sys.exit(1)
+
+#		if type(field_length) == type(0) and field_length > 0:
+#			if field_length != self.length:
+#				sys.stderr.write("Length %d does not match field length %d for field %s\n" % (self.length, field_length, self.field.Abbreviation()))
+#				sys.exit(1)
 
 		# Check if an endianness override is given
 		try:
@@ -190,8 +194,16 @@ class PTVCRecord:
 		if self.endianness == LE:
 			endianness = 'TRUE'
 
+		length = -1
+
 		if type(self.length) == type(0):
 			length = self.length
+		else:
+			var_length = self.field.Length()
+			if var_length > 0:
+				length = var_length
+
+		if length > -1:
 			return "{ &%s, %d, %s }" % (self.field.HFName(),
 					length, endianness)
 		else:
@@ -480,9 +492,9 @@ class nstring8(Type):
 	the first byte."""
 
 	type	= "nstring8"
-	ftype	= "FT_NSTRING_UINT8"
+	ftype	= "FT_UINT_STRING"
 	def __init__(self, abbrev, descr):
-		Type.__init__(self, abbrev, descr, -1)
+		Type.__init__(self, abbrev, descr, 1)
 
 class stringz(Type):
 	"NUL-terminated string."

@@ -3,7 +3,7 @@
  * Proto Tree TVBuff cursor
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: ptvcursor.c,v 1.2 2000/08/11 13:34:32 deniel Exp $
+ * $Id: ptvcursor.c,v 1.3 2000/08/22 06:38:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -59,12 +59,7 @@ ptvcursor_add(ptvcursor_t *ptvc, int hf, gint length, gboolean endianness)
 	item = proto_tree_add_item(ptvc->tree, hf, ptvc->tvb, ptvc->offset,
 			length, endianness);
 
-	if (length == PTVC_VARIABLE_LENGTH) {
-		ptvc->offset += proto_item_get_len(item);
-	}
-	else {
-		ptvc->offset += length;
-	}
+	ptvc->offset += proto_item_get_len(item);
 	return item;
 }
 

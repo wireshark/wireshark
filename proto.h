@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.40 2000/08/13 14:03:38 deniel Exp $
+ * $Id: proto.h,v 1.41 2000/08/22 06:38:20 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -89,7 +89,7 @@ enum ftenum {
 	FT_ABSOLUTE_TIME,
 	FT_RELATIVE_TIME,
 	FT_STRING,
-	FT_NSTRING_UINT8,	/* String prefixed by 1 byte indicating length */
+	FT_UINT_STRING,
 	FT_ETHER,
 	FT_BYTES,
 	FT_IPv4,

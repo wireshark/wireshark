@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.77 2000/08/13 14:03:37 deniel Exp $
+ * $Id: proto.c,v 1.78 2000/08/22 06:38:18 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -232,7 +232,7 @@ proto_tree_free_node(GNode *node, gpointer data)
 			g_mem_chunk_free(gmc_item_labels, fi->representation);
 		if (fi->hfinfo->type == FT_STRING)
 			g_free(fi->value.string);
-		else if (fi->hfinfo->type == FT_NSTRING_UINT8)
+		else if (fi->hfinfo->type == FT_UINT_STRING)
 			g_free(fi->value.string);
 		else if (fi->hfinfo->type == FT_BYTES) 
 			g_free(fi->value.bytes);
@@ -403,6 +403,7 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	proto_item	*pi;
 	guint32		value, n;
 
+	/* XXX - need to free this after an exception */
 	new_fi = alloc_field_info(hfindex, tvb, start, length);
 
 	if (new_fi == NULL)
@@ -467,10 +468,11 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			proto_tree_set_string_tvb(new_fi, tvb, start, length);
 			break;
 
-		case FT_NSTRING_UINT8:
-			n = tvb_get_guint8(tvb, start);
+		case FT_UINT_STRING:
 			/* This g_strdup'ed memory is freed in proto_tree_free_node() */
+			n = get_uint_value(tvb, start, length, little_endian);
 			proto_tree_set_string_tvb(new_fi, tvb, start + 1, n);
+
 			/* Instead of calling proto_item_set_len(), since we don't yet
 			 * have a proto_item, we set the field_info's length ourselves. */
 			new_fi->length = n + 1;
@@ -1667,7 +1669,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 	
 		case FT_STRING:
-		case FT_NSTRING_UINT8:
+		case FT_UINT_STRING:
 			snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s", fi->hfinfo->name, fi->value.string);
 			break;
@@ -2116,7 +2118,7 @@ proto_registrar_get_length(int n)
 		case FT_BYTES:
 		case FT_BOOLEAN:
 		case FT_STRING:
-		case FT_NSTRING_UINT8:
+		case FT_UINT_STRING:
 		case FT_DOUBLE:
 		case FT_ABSOLUTE_TIME:
 		case FT_RELATIVE_TIME:
@@ -2388,8 +2390,8 @@ proto_registrar_dump(void)
 			case FT_RELATIVE_TIME:
 				enum_name = "FT_RELATIVE_TIME";
 				break;
-			case FT_NSTRING_UINT8:
-				enum_name = "FT_NSTRING_UINT8";
+			case FT_UINT_STRING:
+				enum_name = "FT_UINT_STRING";
 				break;
 			case FT_STRING:
 				enum_name = "FT_STRING";
