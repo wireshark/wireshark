@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.127 2001/05/24 04:04:42 guy Exp $
+# $Id: configure.in,v 1.128 2001/06/02 06:21:13 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -533,10 +533,18 @@ AC_CHECK_FUNC(mkstemp, MKSTEMP_O="",
 if test "$ac_cv_func_mkstemp" = no ; then
   MKSTEMP_C="mkstemp.c"
   MKSTEMP_O="mkstemp.o"
-  AC_DEFINE(NEED_MKSTEMP)
 fi
 AC_SUBST(MKSTEMP_C)
 AC_SUBST(MKSTEMP_O)
+
+AC_CHECK_FUNC(strptime, STRPTIME_O="",
+  STRPTIME_O="strptime.o" [AC_DEFINE(NEED_STRPTIME_H)])
+if test "$ac_cv_func_strptime" = no ; then
+  STRPTIME_C="strptime.c"
+  STRPTIME_O="strptime.o"
+fi
+AC_SUBST(STRPTIME_C)
+AC_SUBST(STRPTIME_O)
 
 AC_CHECK_FUNCS(getprotobynumber gethostbyname2)
 

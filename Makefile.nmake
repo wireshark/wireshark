@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.112 2001/05/30 18:52:36 guy Exp $
+# $Id: Makefile.nmake,v 1.113 2001/06/02 06:21:13 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -245,7 +245,8 @@ dftest_OBJECTS = \
 EXTRA_OBJECTS = \
 #	snprintf.obj	\
 #	strerror.obj	\
-	mkstemp.obj
+	mkstemp.obj	\
+	strptime.obj
 
 ethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	gtk\libui.lib epan\ethereal.lib \

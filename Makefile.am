@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.329 2001/05/30 18:52:36 guy Exp $
+# $Id: Makefile.am,v 1.330 2001/06/02 06:21:12 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -416,7 +416,9 @@ EXTRA_ethereal_SOURCES = \
 	strcasecmp.c	\
 	strncasecmp.c	\
 	mkstemp.c	\
-	mkstemp.h
+	mkstemp.h	\
+	strptime.c	\
+	strptime.h
 
 # Optional objects that I know how to build. These will be
 # linked into the ethereal executable.
@@ -427,7 +429,7 @@ EXTRA_ethereal_SOURCES = \
 # by ethereal and tethereal and stuff needed only by one or the
 # other.
 ethereal_optional_objects = @SNPRINTF_O@ @STRERROR_O@ \
-	@STRCASECMP_O@ @STRNCASECMP_O@ @MKSTEMP_O@
+	@STRCASECMP_O@ @STRNCASECMP_O@ @MKSTEMP_O@ @STRPTIME_O@
 
 # Additional libs that I know how to build. These will be
 # linked into the ethereal executable.

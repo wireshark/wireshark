@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-time.c,v 1.6 2001/05/31 06:48:00 guy Exp $
+ * $Id: ftype-time.c,v 1.7 2001/06/02 06:21:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,6 +30,10 @@
 #include <time.h>
 
 #include <ftypes-int.h>
+
+#ifdef NEED_STRPTIME_H
+#include "strptime.h"
+#endif
 
 static gboolean
 cmp_eq(fvalue_t *a, fvalue_t *b)
