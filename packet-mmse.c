@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.26 2003/12/19 20:26:59 obiot Exp $
+ * $Id: packet-mmse.c,v 1.27 2003/12/20 09:09:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -688,7 +688,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	DebugLog(("\tEnd(switch)\n"));
 	if (field == MM_CTYPE_HDR) {
-		DebugLog(("Content-Type: [from WSP dissector]\n"));
 	    /*
 	     * Eeehh, we're now actually back to good old WSP content-type
 	     * encoding. Let's steal that from the WSP-dissector.
@@ -697,6 +696,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    guint	 type;
 	    const char	*type_str;
 
+		DebugLog(("Content-Type: [from WSP dissector]\n"));
 		DebugLog(("Calling add_content_type() in WSP dissector\n"));
 	    offset = add_content_type(mmse_tree, tvb, offset, &type, &type_str);
 		DebugLog(("Generating new TVB subset (offset = %u)\n", offset));
