@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.127 2003/12/24 11:07:03 guy Exp $
+ * $Id: proto.c,v 1.128 2003/12/24 23:37:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1956,7 +1956,26 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		switch (hfinfo->type) {
 
 		case FT_PROTOCOL:
+			/*
+			 * We allow this to be zero-length - for
+			 * example, an ONC RPC NULL procedure has
+			 * neither arguments nor reply, so the
+			 * payload for that protocol is empty.
+			 *
+			 * However, if the length is negative, the
+			 * start offset is *past* the byte past the
+			 * end of the tvbuff, so we throw an
+			 * exception.
+			 */
 			*length = tvb_length_remaining(tvb, start);
+			if (*length < 0) {
+				/*
+				 * Use "tvb_ensure_bytes_exist()"
+				 * to force the appropriate exception
+				 * to be thrown.
+				 */
+				tvb_ensure_bytes_exist(tvb, start, 0);
+			}
 			break;
 
 		case FT_NONE:
